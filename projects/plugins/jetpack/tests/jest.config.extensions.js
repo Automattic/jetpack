@@ -7,6 +7,7 @@ module.exports = {
 	testPathIgnorePatterns: [
 		...baseConfig.testPathIgnorePatterns,
 		'extensions/shared/test/block-fixtures.js',
+		'extensions/shared/test/upload-files.jsx',
 	],
 	moduleNameMapper: {
 		...baseConfig.moduleNameMapper,

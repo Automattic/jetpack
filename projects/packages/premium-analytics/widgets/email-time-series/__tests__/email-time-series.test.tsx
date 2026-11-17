@@ -4,9 +4,12 @@
 import { getDefaultQueryParams, queryClient } from '@jetpack-premium-analytics/data';
 import { act, render, screen } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
+import { getSettings, setSettings } from '@wordpress/date';
 /**
  * Internal dependencies
  */
+import { renderWithActionsHost } from '../../../tests/js/widget-host-test-utils';
+import { captureCsvDownloads } from '../../test-utils';
 import EmailTimeSeriesWidget from '../render';
 import type { ReactNode } from 'react';
 
@@ -40,7 +43,7 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 			data-count-labels={ `${ metrics[ 0 ]?.countLabel?.( 1 ) }|${ metrics[ 0 ]?.countLabel?.( 2 ) }` }
 			data-metric-total={ String( metrics[ 0 ]?.value ) }
 			data-values={ metrics[ 0 ]?.current.map( point => point.value ).join( ',' ) }
-			data-days={ metrics[ 0 ]?.current.map( point => point.date.getDate() ).join( ',' ) }
+			data-dates={ metrics[ 0 ]?.current.map( point => point.date.toISOString() ).join( ',' ) }
 			data-chart-type={ String( chartType ) }
 			data-hide-single-metric-label={ String( hideSingleMetricLabel ) }
 		>
@@ -112,23 +115,33 @@ describe( 'EmailTimeSeriesWidget', () => {
 		expect( requestedPath ).toContain( 'stats_fields=timeline' );
 	} );
 
-	// Passes under UTC either way; the `test-tz` pass west of UTC is what can fail it.
 	it( 'builds chart points on the bucket days the site names', async () => {
 		mockApiFetch.mockResolvedValue( OPENS_TIMELINE_RESPONSE );
+		const defaultSettings = getSettings();
+		setSettings( {
+			...defaultSettings,
+			timezone: { ...defaultSettings.timezone, string: 'America/Los_Angeles' },
+		} );
 
-		render(
-			<EmailTimeSeriesWidget
-				attributes={ {
-					reportParams: { ...JULY_WEEK_PARAMS, post_id: 1234 },
-					metric: 'opens',
-				} }
-			/>
-		);
+		try {
+			render(
+				<EmailTimeSeriesWidget
+					attributes={ {
+						reportParams: { ...JULY_WEEK_PARAMS, post_id: 1234 },
+						metric: 'opens',
+					} }
+				/>
+			);
 
-		const chart = await screen.findByTestId( 'metric-tabs-chart' );
-		// Reading these buckets in the runner's zone would report the previous
-		// day (3,4,5).
-		expect( chart ).toHaveAttribute( 'data-days', '4,5,6' );
+			const chart = await screen.findByTestId( 'metric-tabs-chart' );
+			// Los Angeles midnights: a bucket read in UTC, or in the runner's zone, lands elsewhere.
+			expect( chart ).toHaveAttribute(
+				'data-dates',
+				'2026-07-04T07:00:00.000Z,2026-07-05T07:00:00.000Z,2026-07-06T07:00:00.000Z'
+			);
+		} finally {
+			setSettings( defaultSettings );
+		}
 	} );
 
 	it( 'reads the clicks endpoint when metric is clicks', async () => {
@@ -404,5 +417,69 @@ describe( 'EmailTimeSeriesWidget', () => {
 			screen.findByText( /couldn't load this email's timeline/ )
 		).resolves.toBeInTheDocument();
 		expect( screen.getByRole( 'button', { name: 'Retry' } ) ).toBeInTheDocument();
+	} );
+	describe( 'CSV download', () => {
+		let downloads: ReturnType< typeof captureCsvDownloads > | undefined;
+
+		afterEach( () => {
+			downloads?.restore();
+			downloads = undefined;
+		} );
+
+		it.each( [
+			[
+				'daily',
+				OPENS_TIMELINE_RESPONSE,
+				JULY_WEEK_PARAMS,
+				'email-1234-opens-2026-07-01_2026-07-07.csv',
+				[ '"Date","Opens"', '"2026-07-04","10"', '"2026-07-05","5"', '"2026-07-06","7"' ],
+			],
+			[
+				'hourly',
+				{
+					timeline: {
+						unit: 'hour',
+						fields: [ 'date', 'hour', 'opens_count' ],
+						data: Array.from( { length: 24 }, ( _, hour ) => [ '2026-07-04', hour, hour ] ),
+					},
+				},
+				{
+					...JULY_WEEK_PARAMS,
+					from: '2026-07-04T00:00:00.000+08:00',
+					to: '2026-07-04T23:59:59.999+08:00',
+					interval: 'hour',
+				},
+				'email-1234-opens-2026-07-04_2026-07-04.csv',
+				[ '"Date","Opens"', '"2026-07-04 00:00","0"', '"2026-07-04 01:00","1"' ],
+			],
+		] )( 'saves each %s bucket of the timeline', async ( _, response, params, filename, lines ) => {
+			downloads = captureCsvDownloads();
+			mockApiFetch.mockResolvedValue( response );
+
+			const { findDeclaredAction } = renderWithActionsHost(
+				<EmailTimeSeriesWidget
+					attributes={ { reportParams: { ...params, post_id: 1234 }, metric: 'opens' } }
+				/>
+			);
+			await downloads.runAndSave( await findDeclaredAction( 'download-csv' ) );
+
+			expect( downloads.files[ 0 ].filename ).toBe( filename );
+			expect( ( await downloads.lines() ).slice( 0, lines.length ) ).toEqual( lines );
+		} );
+
+		it( 'offers no download for an email nobody opened', async () => {
+			mockApiFetch.mockResolvedValue( {
+				timeline: { unit: 'day', fields: [ 'date', 'opens_count' ], data: [ [ '2026-07-04', 0 ] ] },
+			} );
+
+			const { declaredAction } = renderWithActionsHost(
+				<EmailTimeSeriesWidget
+					attributes={ { reportParams: { ...JULY_WEEK_PARAMS, post_id: 1234 }, metric: 'opens' } }
+				/>
+			);
+			await expect( screen.findByTestId( 'metric-tabs-chart' ) ).resolves.toBeInTheDocument();
+
+			expect( declaredAction( 'download-csv' ) ).toBeUndefined();
+		} );
 	} );
 } );

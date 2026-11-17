@@ -48,6 +48,14 @@ return array(
 		'amp/includes/admin/functions.php'      => array(
 			'function' => array( 'amp_add_customizer_link' ),
 		),
+		'amp/includes/sanitizers/class-amp-base-sanitizer.php' => array(
+			'class' => array(
+				'AMP_Base_Sanitizer' => array(
+					'property' => array( 'dom' ),
+					'method'   => array( '__construct', 'sanitize' ),
+				),
+			),
+		),
 		'accelerated-mobile-pages/accelerated-moblie-pages.php' => array(
 			'function' => array( 'ampforwp_is_amp_endpoint' ),
 		),

@@ -56,12 +56,12 @@ const seriesData: SeriesData = {
 };
 
 const comparisonEntries: ComparisonSeriesEntry[] = [
-	{ series: seriesData, index: 0, primaryKey: 'current', primaryIndex: 0 },
+	{ series: seriesData, index: 0, primaryKey: 'current' },
 ];
 
 const getElementStyles = () => ( {
 	color: '#f00',
-	barStyles: { widthFactor: 1.5, opacity: 0.5 },
+	barStyles: { widthFactor: 1.5 },
 	lineStyles: {} as never,
 	glyph: undefined as never,
 	shapeStyles: {} as never,
@@ -94,7 +94,6 @@ describe( 'ComparisonBars', () => {
 		const rects = screen.getAllByTestId( /^bar-chart-comparison-0-/ );
 		expect( rects ).toHaveLength( 2 );
 		expect( rects[ 0 ] ).toHaveAttribute( 'fill', '#f00' );
-		expect( rects[ 0 ] ).toHaveAttribute( 'opacity', '0.5' );
 		// width == widthFactor (1.5) * groupScale.bandwidth()
 		expect( Number( rects[ 0 ].getAttribute( 'width' ) ) ).toBeCloseTo(
 			1.5 * groupScale.bandwidth()

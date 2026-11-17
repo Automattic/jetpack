@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { getScriptData } from '@automattic/jetpack-script-data';
+import { isStatsFeatureLocked } from '@jetpack-premium-analytics/data';
 
 /**
  * Check whether CSV exports are enabled by the server-side feature gate.
@@ -13,4 +14,13 @@ import { getScriptData } from '@automattic/jetpack-script-data';
  */
 export function isCsvExportEnabled(): boolean {
 	return getScriptData()?.premium_analytics?.csv_exports_enabled !== false;
+}
+
+/**
+ * Check whether Stats CSV exports are enabled and the site's plan includes them.
+ *
+ * @return Whether Stats CSV exports are enabled.
+ */
+export function isStatsCsvExportEnabled(): boolean {
+	return isCsvExportEnabled() && ! isStatsFeatureLocked( 'csv' );
 }

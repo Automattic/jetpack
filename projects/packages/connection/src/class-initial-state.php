@@ -87,7 +87,10 @@ class Initial_State {
 			'connectionErrors'           => Error_Handler::get_instance()->get_displayable_errors(),
 			'isOfflineMode'              => $status->is_offline_mode(),
 			'calypsoEnv'                 => ( new Status\Host() )->get_calypso_env(),
+			// @deprecated 9.18.0 Nothing reads it any more; kept for third-party readers. Remove in a later release.
 			'isOwnershipTransferable'    => $manager->is_ownership_transferable(),
+			// Null on a partial update with a Manager that predates the method; JS then falls back to the trunk rule.
+			'canTakeOwnerSlot'           => method_exists( $manager, 'can_take_owner_slot' ) ? $manager->can_take_owner_slot() : null,
 			'connectionOwner'            => $connection_owner,
 			'hasProtectedOwner'          => $has_protected_owner,
 			'requiresProtectedOwner'     => $requires_protected_owner,
@@ -125,6 +128,7 @@ class Initial_State {
 		 * coupling the analytics package to that schema would widen its surface unnecessarily.
 		 * When both are present, `JetpackScriptData.site.wpcom.blog_id` is populated via
 		 * `set_connection_script_data()` above for other consumers.
+		 * Jetpack_Connector::enqueue_script_module() prints the same line on the Connectors screen.
 		 */
 		return 'var JP_CONNECTION_INITIAL_STATE; typeof JP_CONNECTION_INITIAL_STATE === "object" || (JP_CONNECTION_INITIAL_STATE = ' . wp_json_encode( self::get_data(), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ');'
 			. sprintf( 'window.jpTracksContext = window.jpTracksContext || {}; window.jpTracksContext.blog_id = %s;', absint( \Jetpack_Options::get_option( 'id', 0 ) ) );

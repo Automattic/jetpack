@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-PayPal Payment Buttons: Collect the shipping address without a shipping fee, from a new "Shipping address" toggle. Tax or shipping from PayPal settings now shows an error until the address is on.

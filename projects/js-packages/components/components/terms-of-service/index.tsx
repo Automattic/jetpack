@@ -1,23 +1,22 @@
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { Link } from '@wordpress/ui';
+import { Link, Text } from '@wordpress/ui';
 import clsx from 'clsx';
 // Deep import rather than the package barrel (`../../index.ts`): the barrel
 // pulls in heavy, asset-importing components (e.g. boost-score-graph) that the
 // wp-build esbuild pipeline can't bundle, which breaks any wp-build dashboard
 // that deep-imports pricing-table (which renders TermsOfService).
 import getRedirectUrl from '../../tools/jp-redirect/index.ts';
-import Text from '../text/index.tsx';
 import type { TermsOfServiceProps } from './types.ts';
 import type { FC, ReactNode } from 'react';
 import './styles.scss';
 
 const TermsOfService: FC< TermsOfServiceProps > = ( {
 	className,
+	variant = 'body-lg',
 	multipleButtons,
 	agreeButtonLabel,
 	isTextOnly,
-	...textProps
 } ) => {
 	const getTOSContent = () => {
 		if ( isTextOnly ) {
@@ -30,7 +29,7 @@ const TermsOfService: FC< TermsOfServiceProps > = ( {
 	};
 
 	return (
-		<Text className={ clsx( className, 'terms-of-service' ) } { ...textProps }>
+		<Text variant={ variant } render={ <p /> } className={ clsx( className, 'terms-of-service' ) }>
 			{ getTOSContent() }
 		</Text>
 	);

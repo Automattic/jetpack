@@ -1,4 +1,5 @@
 /* eslint-disable testing-library/prefer-user-event -- Media events and scoped keyboard shortcuts need native events. */
+import analytics from '@automattic/jetpack-analytics';
 import { act, fireEvent, render, screen, within, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useDispatch } from '@wordpress/data';
@@ -11,6 +12,10 @@ import { useVideoEdits } from '../../../hooks/use-video-edits';
 import { makeLibraryItem } from '../../../test-utils/library-item';
 import type { EditsJob, VideoEdits } from '../../../types/edits';
 
+jest.mock( '@automattic/jetpack-analytics', () => ( {
+	__esModule: true,
+	default: { tracks: { recordEvent: jest.fn() } },
+} ) );
 jest.mock( '../../../hooks/use-video', () => ( { useVideo: jest.fn() } ) );
 let mockHasThemeProvider = true;
 jest.mock( '@wordpress/theme', () => {
@@ -217,6 +222,7 @@ describe.each( [ true, false ] )( 'with public ThemeProvider: %s', hasThemeProvi
 		);
 		expect( onClose ).toHaveBeenCalledTimes( 1 );
 		expect( save ).not.toHaveBeenCalled();
+		expect( analytics.tracks.recordEvent ).not.toHaveBeenCalled();
 	} );
 
 	it( 'blocks close during submission but allows leaving after processing is accepted', async () => {
@@ -234,6 +240,16 @@ describe.each( [ true, false ] )( 'with public ThemeProvider: %s', hasThemeProvi
 		await user.click( screen.getByRole( 'button', { name: 'Close' } ) );
 		expect( onClose ).not.toHaveBeenCalled();
 		await act( async () => accept( { guid: video.guid, revision: 2, job: processingJob } ) );
+		expect( analytics.tracks.recordEvent ).toHaveBeenCalledTimes( 1 );
+		expect( analytics.tracks.recordEvent ).toHaveBeenCalledWith(
+			'jetpack_videopress_trim_cut_submitted',
+			{
+				source: 'block_editor',
+				action: 'save',
+				has_trim: false,
+				cut_count: 1,
+			}
+		);
 		await user.click( screen.getByRole( 'button', { name: 'Close' } ) );
 		expect( onClose ).toHaveBeenCalledTimes( 1 );
 		expect( screen.queryByRole( 'alertdialog' ) ).not.toBeInTheDocument();

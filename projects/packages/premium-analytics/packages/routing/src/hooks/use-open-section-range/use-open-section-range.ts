@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { getSectionDatePolicy } from '@jetpack-premium-analytics/data';
 import { useCallback } from 'react';
 /**
  * Internal dependencies
@@ -20,7 +21,10 @@ export function useOpenSectionRange(): OpenSectionRange {
 	const commitExactRange = useCommitExactRange();
 
 	return useCallback(
-		( section, range ) => commitExactRange( section, range, { opensSection: true } ),
+		( section, range ) => {
+			const { lockedIntervals, earliestDate } = getSectionDatePolicy( section );
+			commitExactRange( section, range, { opensSection: true, lockedIntervals, earliestDate } );
+		},
 		[ commitExactRange ]
 	);
 }

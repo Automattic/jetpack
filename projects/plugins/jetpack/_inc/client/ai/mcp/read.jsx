@@ -7,20 +7,23 @@
  */
 
 import {
-	Button,
 	Card,
 	CardBody,
-	ToggleControl,
+	SearchControl,
 	__experimentalText as Text, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
-import { Fragment, useCallback, useState } from '@wordpress/element';
+import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { chevronDown, chevronUp } from '@wordpress/icons';
 import { Stack } from '@wordpress/ui';
+import { getGroupDomId } from './anchors';
 import { isWriteTool } from './categories';
 import { getOverridesToMatch } from './group-intents';
-import { groupToolsByGroup, groupToolsBySubCategory } from './groups';
+import { groupToolsByGroup } from './groups';
+import McpGroupCard, { McpToolSections } from './mcp-group-card';
+import McpToolbar from './mcp-toolbar';
+import RemoteAbilitiesSection from './remote-abilities-section';
 import { recordMcpTracksEvent } from './tracks';
+import useToolSearch from './use-tool-search';
 import {
 	getAccountMcpAbilities,
 	getGroupDescriptors,
@@ -31,126 +34,25 @@ import {
 } from './utils';
 
 /**
- * A single tool toggle row.
- *
- * @param {object}   props               - Component props.
- * @param {string}   props.toolId        - Tool identifier.
- * @param {object}   props.tool          - Tool descriptor from the API.
- * @param {Set}      props.savingToolIds - Set of toolIds currently being saved.
- * @param {Function} props.onToggle      - Called with (toolId, enabled).
- * @return {object} Component markup.
- */
-function ToolToggle( { toolId, tool, savingToolIds, onToggle } ) {
-	const handleChange = useCallback( checked => onToggle( toolId, checked ), [ toolId, onToggle ] );
-	return (
-		<ToggleControl
-			__nextHasNoMarginBottom
-			checked={ tool.enabled }
-			disabled={ savingToolIds.has( toolId ) }
-			label={ tool.title }
-			help={ tool.description }
-			onChange={ handleChange }
-		/>
-	);
-}
-
-const LABEL_SHOW_OPERATIONS = __( 'Show operations', 'jetpack' );
-const LABEL_HIDE_OPERATIONS = __( 'Hide operations', 'jetpack' );
-
-/**
- * Collapsible card for one display group.
- *
- * @param {object}   props               - Component props.
- * @param {object}   props.descriptor    - Group descriptor from the API, or null for "Other".
- * @param {string}   props.label         - Display label for the group.
- * @param {Array}    props.groupTools    - Tool entries for this group.
- * @param {Set}      props.savingToolIds - Set of toolIds currently being saved.
- * @param {Function} props.onToolChange  - Called with (toolId, enabled).
- * @param {Function} props.onEnableAll   - Called with (groupName|null, groupTools, enabled).
- * @return {object} Component markup.
- */
-function GroupCard( { descriptor, label, groupTools, savingToolIds, onToolChange, onEnableAll } ) {
-	const allGroupEnabled = groupTools.every( ( [ , t ] ) => t.enabled );
-	const [ isOpen, setIsOpen ] = useState( false );
-
-	const handleToggle = useCallback(
-		checked => onEnableAll( descriptor?.name ?? null, groupTools, checked ),
-		[ descriptor, groupTools, onEnableAll ]
-	);
-	const handleChevron = useCallback( () => setIsOpen( open => ! open ), [] );
-
-	return (
-		<Card>
-			<CardBody>
-				<div className="jetpack-ai-mcp__group-header">
-					<Stack direction="column" gap="xs" className="jetpack-ai-mcp__group-info">
-						<Text weight={ 600 } size={ 14 }>
-							{ label }
-						</Text>
-						{ descriptor?.description && (
-							<Text variant="muted" size={ 12 }>
-								{ descriptor.description }
-							</Text>
-						) }
-					</Stack>
-					<div className="jetpack-ai-mcp__group-toggle">
-						<ToggleControl
-							__nextHasNoMarginBottom
-							checked={ allGroupEnabled }
-							disabled={ groupTools.some( ( [ id ] ) => savingToolIds.has( id ) ) }
-							label={ __( 'Enable all', 'jetpack' ) }
-							onChange={ handleToggle }
-						/>
-					</div>
-					<Button
-						className="jetpack-ai-mcp__group-chevron"
-						icon={ isOpen ? chevronUp : chevronDown }
-						label={ isOpen ? LABEL_HIDE_OPERATIONS : LABEL_SHOW_OPERATIONS }
-						aria-expanded={ isOpen }
-						onClick={ handleChevron }
-					/>
-				</div>
-				{ isOpen &&
-					groupToolsBySubCategory( groupTools ).map(
-						( { subCategory, tools: subTools }, subIndex ) => (
-							<Fragment key={ subCategory ?? '__ungrouped__' }>
-								{ subIndex > 0 && <div className="jetpack-ai-mcp__sub-divider" /> }
-								<div
-									className={
-										subIndex === 0 ? 'jetpack-ai-mcp__group-body' : 'jetpack-ai-mcp__sub-group-body'
-									}
-								>
-									<Stack direction="column" gap="md">
-										{ subTools.map( ( [ toolId, tool ] ) => (
-											<ToolToggle
-												key={ toolId }
-												toolId={ toolId }
-												tool={ tool }
-												savingToolIds={ savingToolIds }
-												onToggle={ onToolChange }
-											/>
-										) ) }
-									</Stack>
-								</div>
-							</Fragment>
-						)
-					) }
-			</CardBody>
-		</Card>
-	);
-}
-
-/**
  * MCP Read tools view.
  *
- * @param {object}   props               - Component props.
- * @param {object}   props.mcpAbilities  - Full mcp_abilities object from the API.
- * @param {number}   props.blogId        - Current site's blog ID.
- * @param {Set}      props.savingToolIds - Set of toolIds currently being saved.
- * @param {Function} props.onUpdate      - Called with partial mcp_abilities update.
+ * @param {object}   props                   - Component props.
+ * @param {object}   props.mcpAbilities      - Full mcp_abilities object from the API.
+ * @param {number}   props.blogId            - Current site's blog ID.
+ * @param {Set}      props.savingToolIds     - Set of toolIds currently being saved.
+ * @param {Function} props.onUpdate          - Called with partial mcp_abilities update.
+ * @param {object}   [props.remoteAbilities] - Published-abilities state; omit to hide that section.
+ * @param {string}   [props.anchor]          - Tool id from the URL hash, if any.
  * @return {object} Component markup.
  */
-export default function McpRead( { mcpAbilities, blogId, savingToolIds, onUpdate } ) {
+export default function McpRead( {
+	mcpAbilities,
+	blogId,
+	savingToolIds,
+	onUpdate,
+	anchor,
+	remoteAbilities = null,
+} ) {
 	const accountAbilities = getAccountMcpAbilities( mcpAbilities ?? {} );
 	const siteContextToolIds = getSiteContextToolIds( mcpAbilities ?? {} );
 	const siteAbilities = getSiteMcpAbilities( mcpAbilities ?? {}, blogId );
@@ -170,7 +72,12 @@ export default function McpRead( { mcpAbilities, blogId, savingToolIds, onUpdate
 	const readTools = allTools.filter( ( [ id, t ] ) => ! isWriteTool( id, t ) );
 
 	const groupDescriptors = getGroupDescriptors( mcpAbilities ?? {} );
+	const { query, setQuery, isSearching, isVisible } = useToolSearch();
 	const groups = groupToolsByGroup( readTools, groupDescriptors );
+
+	const visibleGroups = groups
+		.map( g => ( { ...g, visibleTools: g.tools.filter( isVisible ) } ) )
+		.filter( g => g.visibleTools.length > 0 );
 
 	const handleToolChange = useCallback(
 		( toolId, enabled ) => {
@@ -218,7 +125,7 @@ export default function McpRead( { mcpAbilities, blogId, savingToolIds, onUpdate
 	);
 
 	const handleGroupEnableAll = useCallback(
-		( groupName, groupTools, enabled ) => {
+		( enabled, { name: groupName, tools: groupTools } ) => {
 			const overrides = getOverridesToMatch( groupTools, enabled );
 			if ( ! overrides ) {
 				return;
@@ -243,43 +150,69 @@ export default function McpRead( { mcpAbilities, blogId, savingToolIds, onUpdate
 
 	return (
 		<Stack direction="column" gap="md">
-			<Card>
-				<CardBody>
-					<Stack direction="column" gap="md">
-						<Text as="p" variant="muted">
-							{ __( 'Turn individual tools on or off. Changes save automatically.', 'jetpack' ) }
-						</Text>
-						<ToggleControl
-							__nextHasNoMarginBottom
-							checked={ pageAllEnabled }
-							disabled={ isSavingAny || readTools.length === 0 }
-							label={ __( 'Enable all', 'jetpack' ) }
-							onChange={ handlePageToggle }
-						/>
-					</Stack>
-				</CardBody>
-			</Card>
+			<McpToolbar
+				allEnabled={ pageAllEnabled }
+				isDisabled={ isSavingAny || readTools.length === 0 }
+				onEnableAll={ handlePageToggle }
+			>
+				<SearchControl
+					size="compact"
+					label={ __( 'Search tools', 'jetpack' ) }
+					value={ query }
+					onChange={ setQuery }
+				/>
+			</McpToolbar>
 
-			{ groups.length > 0 ? (
-				<Stack direction="column" gap="sm">
-					{ groups.map( ( { group: descriptor, label, tools: groupTools } ) => (
-						<GroupCard
-							key={ descriptor?.name ?? '__other__' }
-							descriptor={ descriptor }
-							label={ label }
-							groupTools={ groupTools }
-							savingToolIds={ savingToolIds }
-							onToolChange={ handleToolChange }
-							onEnableAll={ handleGroupEnableAll }
-						/>
-					) ) }
+			{ visibleGroups.length > 0 ? (
+				<Stack direction="column" gap="md">
+					{ visibleGroups.map(
+						( { group: descriptor, label, tools: groupTools, visibleTools } ) => (
+							<McpGroupCard
+								key={ descriptor?.name ?? '__other__' }
+								id={ getGroupDomId( descriptor?.name ) }
+								forceOpen={ isSearching }
+								anchorToolId={ groupTools.some( ( [ id ] ) => id === anchor ) ? anchor : null }
+								label={ label }
+								description={ descriptor?.description }
+								allEnabled={ groupTools.every( ( [ , t ] ) => t.enabled ) }
+								isSaving={ groupTools.some( ( [ id ] ) => savingToolIds.has( id ) ) }
+								group={ { name: descriptor?.name ?? null, tools: groupTools } }
+								onEnableAll={ handleGroupEnableAll }
+							>
+								<McpToolSections
+									tools={ visibleTools }
+									view="mcp/read"
+									savingToolIds={ savingToolIds }
+									onToolChange={ handleToolChange }
+								/>
+							</McpGroupCard>
+						)
+					) }
 				</Stack>
 			) : (
 				<Card>
 					<CardBody>
-						<Text variant="muted">{ __( 'No read tools available.', 'jetpack' ) }</Text>
+						<Text variant="muted">
+							{ isSearching
+								? __( 'No tools match your search.', 'jetpack' )
+								: __( 'No read tools available.', 'jetpack' ) }
+						</Text>
 					</CardBody>
 				</Card>
+			) }
+
+			{ remoteAbilities && (
+				<RemoteAbilitiesSection
+					view="read"
+					mcpAbilities={ mcpAbilities }
+					blogId={ blogId }
+					remoteAbilities={ remoteAbilities }
+					defaultEnabled={ pageAllEnabled }
+					query={ query }
+					anchor={ anchor }
+					savingToolIds={ savingToolIds }
+					onUpdate={ onUpdate }
+				/>
 			) }
 		</Stack>
 	);

@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Premium Analytics: Stop the WooCommerce tab from reporting a sync error for stores whose data already finished syncing.

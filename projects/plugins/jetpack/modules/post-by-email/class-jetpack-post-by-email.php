@@ -37,7 +37,7 @@ class Jetpack_Post_By_Email {
 	/**
 	 * Name of the option holding a user's local copy of their Post by Email address.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.4
 	 *
 	 * @param int $user_id Local user ID.
 	 *
@@ -50,7 +50,7 @@ class Jetpack_Post_By_Email {
 	/**
 	 * Delete a user's local copy of their Post by Email address.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.4
 	 *
 	 * @param int $user_id Local user ID.
 	 */

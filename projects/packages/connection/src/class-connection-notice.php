@@ -108,7 +108,7 @@ class Connection_Notice {
 		}
 
 		$connected_admins = $connection_manager->get_connected_users( 'jetpack_disconnect' );
-		$user             = is_a( $connection_owner_userdata, 'WP_User' ) ? esc_html( $connection_owner_userdata->data->user_login ) : '';
+		$user             = $connection_owner_userdata instanceof \WP_User ? esc_html( $connection_owner_userdata->data->user_login ) : '';
 
 		echo "<div class='notice notice-warning' id='jetpack-notice-switch-connection-owner'>";
 		echo '<h2>' . esc_html__( 'Important notice about your Jetpack connection:', 'jetpack-connection' ) . '</h2>';
@@ -233,7 +233,7 @@ class Connection_Notice {
 			submitBtn.disabled = false;
 
 			results.classList.add( 'error-message' );
-			results.innerHTML = message || <?php echo wp_json_encode( esc_html__( 'Something went wrong. Please try again.', 'jetpack-connection' ), $json_flags ); ?>;
+			results.innerHTML = message || <?php echo wp_json_encode( esc_html__( 'An error occurred. Please try again.', 'jetpack-connection' ), $json_flags ); ?>;
 		}
 
 		fetch(

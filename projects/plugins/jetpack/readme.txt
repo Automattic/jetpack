@@ -1,289 +1,242 @@
-=== Jetpack - WP Security, Backup, Speed, & Growth ===
+=== Jetpack - AI Agents & MCP, Security, Backup & Analytics ===
 Contributors: automattic, adamkheckler, adrianmoldovanwp, aduth, akirk, allendav, alternatekev, andy, annamcphee, annezazu, apeatling, arcangelini, arsihasi, azaozz, barry, batmoo, beaulebens, bindlegirl, biskobe, bjorsch, blobaugh, brbrr, brileyhooper, cainm, cena, cfinke, cgastrell, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, daniloercoli, davoraltman, delawski, designsimply, dkmyta, dllh, dlocc, drawmyface, dsmart, dun2mis, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, joen, jblz, jeffgolenski, jeherve, jennywp, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lhkowalski, lschuyler, macmanx, martinremy, matt, mattwiebe, matveb, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, miguelxavierpenha, mikeyarce, mkaz, nancythanki, nickmomrik, njweller, nunyvega, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, renatoagds, retrofox, richardmtl, richardmuscat, robertbpugh, roccotripaldi, ryanc413, samhotchkiss, samiff, scarstocea, scottsweb, sdixon194, sdquirk, sermitr, simison, stephdau, thehenridev, tmoorewp, tyxla, Viper007Bond, westi, williamvianas, wpkaren, yoavf, zinigor
-Tags: Security, backup, malware, scan, performance
-Stable tag: 16.4-a.1
+Tags: AI, MCP, security, backup, migration
+Stable tag: 16.5-a.3
 Requires at least: 7.0
 Requires PHP: 7.4
 Tested up to: 7.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Improve your WP security with powerful one-click tools like backup, WAF, and malware scan. Includes free tools like stats, CDN and social sharing.
+Connect ChatGPT, Claude, or another AI agent to your site. Plus backup, malware scan, firewall, stats, CDN, and SEO tools in one plugin.
 
 == Description ==
 
-### JETPACK - THE BEST WORDPRESS PLUGIN ###
+### Your WordPress site, now in the conversation ###
 
-https://videopress.com/v/bEKlywPj
+https://videopress.com/v/vNLe86tW
 
-Jetpack is a WordPress plugin that helps you create better content, grow your subscribers, earn money from your website and keep it safe, fast, and secure. You can grow and keep track of your website traffic with Jetpack stats, and create better content with Jetpack AI. You can start a newsletter and grow your audience, turning fans into paying subscribers. Create beautiful content with Jetpack Creator and keep your site fast with Jetpack Boost.
+Jetpack connects your WordPress site to ChatGPT, Claude, and the other AI agents you already use. Ask in plain language to draft a post, see which pages got the most views, check your backups, or run a security scan, and your agent takes care of it on your site. There's no MCP server to set up or host.
 
-= HOW TO GET STARTED WITH JETPACK =
-Installation is free, quick, and easy. [Set up Jetpack](https://jetpack.com/install?from=wporg) in minutes. Take advantage of more robust features like WordPress site security and design and growth tools by [upgrading to a paid plan](http://jetpack.com/pricing).
+That works because Jetpack plugs your site into WordPress.com's cloud, the same infrastructure that runs millions of sites. The heavy lifting happens there instead of on your host: backups stored off-site with one-click restores and full site migration, malware scanning, brute force protection, downtime monitoring, site analytics with Jetpack Stats, spam filtering, an image CDN, and ad-free video hosting. Plus a firewall, SEO tools, newsletters, social sharing, and forms.
 
-= NEED EXPERT SUPPORT? =
+> "All these years later, Jetpack is the iCloud for my WordPress." Matt Mullenweg, co-founder of WordPress ([review](https://wordpress.org/support/topic/all-these-years-later-jetpack-is-the-icloud-for-my-wordpress/))
+
+= How to get started with Jetpack =
+Installation is free, quick, and easy. From your WordPress dashboard, add a new plugin, search for Jetpack, and install it. Activate it and connect your WordPress.com account, then open Jetpack AI in your Jetpack menu to connect your AI agent. Unlock real-time backups, one-click malware fixes, and advanced stats by [upgrading to a paid plan](https://jetpack.com/pricing/?from=wporg).
+
+= Need expert support? =
 We have a global team of Happiness Engineers ready to provide incredible support. Ask your questions in the support forum or [contact support](https://jetpack.com/contact-support).
 
-### WHY USE JETPACK ON YOUR SITE ###
+### Why use Jetpack on your site ###
 
-= Safer. Faster. More traffic. =
+= Connect ChatGPT, Claude, and other AI agents =
+Manage your site from the AI tools you already use. Connect ChatGPT or Claude in a few clicks, then ask for what you need in plain language. Your agent can work with more than your posts and pages: Jetpack also gives it your stats, backups, security scans, and newsletter, so one conversation covers your whole site.
 
-WordPress security, performance, marketing, and design tools — Jetpack is made by WordPress experts to make WP sites safer and faster, and help you grow your traffic.
+* Use the AI tools you prefer. Jetpack works with ChatGPT, Codex, Claude, Claude Code, Cursor, VS Code, Continue, and any other MCP client.
+* Ask which posts got the most views, check your backups and activity log, run a security scan, change newsletter settings, or turn on downtime monitoring.
+* Draft posts, build a page from a single prompt, organize your Media Library, and optimize your site.
+* Choose what your agent can read and what it can change, and turn individual tools on or off whenever you like.
+* Your agent acts on your behalf through your WordPress.com account connection, so there's nothing extra to host.
 
-= 24/7 AUTO SITE SECURITY =
-We guard your site so you can run your site or business. Jetpack Security provides easy-to-use, comprehensive WordPress site security including auto real-time backups and easy restores, malware scans, and spam protection. Essential features like brute force protection and basic downtime / uptime monitoring are free.
+= Security, backup, and migration =
+Jetpack Protect watches your site around the clock, and VaultPress Backup keeps a copy of everything off-site so you can undo any mistake. Login protection and basic downtime monitoring are free.
 
-* Back up your site automatically in real time and restore to any point with one click. Cloud storage starts at 10GB, which is more than enough for most sites, with additional storage options available if needed. Great for eCommerce stores especially Woo.
-* Manage migration to a new host, migrate theme files and plugins to a new database, easily duplicate websites, create full database backups, clone websites, repair broken websites by restoring older backups or easily set up a test site by creating a duplicate of your existing WP website.
-* See every site change and who made it with the activity log, great for coordination, debug, maintenance, or troubleshooting.
-* Examine incoming traffic to your WordPress site with our WAF (Web Application Firewall) and decide to allow or block it based on various rules.
-* Add an important layer of protection to your site with our WAF (Web Application Firewall), particularly when attackers actively exploit unpatched vulnerabilities.
-* Automatically perform malware scans and security scans for other code threats. One click fix to restore your site for malware.
-* Block spam comments and form responses with anti spam features powered by Akismet.
-* Brute force attack protection to protect your WordPress login page from attacks.
-* Monitor your site uptime / downtime and get an instant alert of any change by email.
-* Secure WordPress.com powered login used by millions of sites with optional 2FA (two factor authentication) for extra protection.
-* Auto update individual plugins for easy site maintenance and management.
+* Back up your site automatically in real time and restore to any point with one click. Storage starts at 10GB, with more available if you need it. Great for WooCommerce and other ecommerce stores, where every order counts.
+* Migrate your site to a new host, clone it, or set up a test site from any backup.
+* Scan for malware and vulnerabilities automatically, with one-click fixes.
+* Block malicious traffic with a web application firewall (WAF), especially while attackers exploit unpatched plugins.
+* Stop brute force attacks on your login page, and add two-factor authentication (2FA) with secure WordPress.com login.
+* Monitor your site's uptime and get an email alert the moment it goes down.
+* See every change and who made it in the activity log.
+* Block spam comments and form responses with Akismet Anti-spam.
+* Auto-update individual plugins.
 
-You can purchase all of Jetpack’s security features in our [Security bundle](https://cloud.jetpack.com/pricing#jetpack_security_t1_yearly), or [VaultPress Backup](https://cloud.jetpack.com/pricing#jetpack_backup_t1_yearly), [Scan](https://cloud.jetpack.com/pricing#jetpack_scan), and [Akismet Anti-spam](https://cloud.jetpack.com/pricing#jetpack_anti_spam) can each be purchased individually.
+Get every security feature in [Jetpack Pro or Complete](https://jetpack.com/pricing/), or buy [VaultPress Backup](https://jetpack.com/redirect?source=org-backup), [Scan](https://jetpack.com/redirect?source=org-scan), and [Akismet Anti-spam](https://jetpack.com/redirect?source=org-spam) on their own.
 
-= PEAK SPEED AND PERFORMANCE =
-Get blazing fast site speed with Jetpack. Jetpack’s free CDN (content delivery network) auto optimizes your images. Watch your page load times decrease — we’ll optimize your images and serve them from our own powerful global network, and speed up your site on mobile devices to reduce bandwidth usage and save money!
+= Site analytics with Jetpack Stats =
+Get clear site statistics without being a data scientist.
 
-* Image CDN for images and core static files, like CSS and JavaScript, served from our servers, not yours, which saves you money and bandwidth.
-* Unlimited, high speed, ad free video hosting keeps the focus on your content, not on ads or recommendations that lead people off site.
-* Custom site search is incredibly powerful and customizable. Helps your visitors instantly find the right content so they read and buy more. Works great with WooCommerce / eCommerce sites to help filter products so customers get what they want on your site faster.
-* Recommended to use with [Jetpack Boost](https://wordpress.org/plugins/jetpack-boost/) for ultimate WordPress site speed.
+* Watch visitors, views, likes, and comments in real time.
+* Find your top posts and pages, and the referrers and countries that send you traffic.
+* Measure link clicks, video plays, and file downloads.
+* See which authors on your team write the most popular content, and where your posts get shared.
+* Spot trends with 7-day highlights and Year in Review.
 
-= POWERFUL TOOLS FOR GROWTH =
-Create and customize your WordPress site, optimize it for visitors and revenue, and enjoy watching your stats tick up. Build it, share it, and watch it grow.
+= Grow your audience =
+* Turn your posts into a newsletter, and offer paid subscriptions.
+* Auto-share posts to Facebook, Instagram, LinkedIn, Threads, Bluesky, Tumblr, Mastodon, and Nextdoor.
+* Grow traffic with SEO tools for Google, Bing, Facebook, and WordPress.com, plus an automatic XML sitemap.
+* Collect payments and donations, or sell products, services, and memberships, with Stripe and PayPal.
+* Build contact forms with no code and get an email for every response.
+* Promote your posts across millions of sites in the WordPress.com and Tumblr ad network with Blaze, for a few dollars.
+* Earn money by showing high-quality ads on your site.
+* Keep visitors reading with related posts, and add image galleries and slideshows.
+* Manage your site on the go with the Jetpack mobile app for iOS and Android.
 
-* Auto publish blog posts and products to social media by simply using our tools to connect to Facebook, Bluesky, Threads, Tumblr, Mastodon, LinkedIn, and Nextdoor.
-* Easily share Instagram posts on your pages and blog posts.
-* Collect a payment or donation, sell a product, service, or membership with simple integrations with PayPal and Stripe.
-* Grow traffic with SEO tools for Google, Bing, Facebook, and WordPress.com. XML sitemap created automatically.
-* Advertise on your site to generate revenue. The ad network automatically does the work for you to find high-quality ads that are placed on your site.
-* Manage Jetpack features from anywhere with the official WordPress mobile app, available for Apple iOS (iPhone or iPad) and Google Android.
-* Looking for Customer Relationship Management? Check out the [Jetpack CRM plugin](https://jetpackcrm.com) which works alongside Jetpack to give you a simple and practical way to build relationships with your customers and leads.
+= Write with Jetpack AI =
+Jetpack AI works right in the WordPress editor. Give it a prompt and it drafts posts, pages, lists, and tables, then helps you edit and translate them.
 
-= POWERFUL STATS TO GROW YOUR SITE =
-With Jetpack Stats, you don’t need to be a data scientist to see how your site is performing.
+* Write a first draft from a prompt without leaving the editor.
+* Change the tone, fix spelling and grammar, or make text shorter or longer.
+* Translate your content into many languages.
 
-* Advanced site stats and analytics to help you understand your audience.
-* Discover your top performing posts & pages.
-* See who is creating the most popular content on your team with our author metrics.
-* Easily keep track of your content creation habits & trends over the years.
-* View weekly and yearly trends with 7-day Highlights and Year in Review.
-* See what popular social networks your content is being shared to the most.
-* Explore real-time data on visitors, likes, and comments.
-* Get detailed insights on the referrers that bring traffic to your site.
-* Discover what countries your visitors are coming from.
-* Measure link clicks, video plays, and file downloads within your site.
+= Speed and performance =
+* Serve images and static files like CSS and JavaScript from our global CDN instead of your server, which saves bandwidth and speeds up your site on mobile.
+* Host video with no ads and no recommendations that lead visitors off your site.
+* Help visitors find what they need with fast, customizable site search, including product filters for WooCommerce stores.
+* Pair Jetpack with [Jetpack Boost](https://wordpress.org/plugins/jetpack-boost/) for page caching and better Core Web Vitals.
 
-= WRITE SMARTER, NOT HARDER. =
-Experience the ease of crafting professional content with intuitive and powerful AI. Jetpack AI Assistant effortlessly integrates with your WordPress editor, offering an intuitive interface to interact with AI.
-This powerful block lets you generate diverse content at your command, significantly reducing the time and effort required in content creation.
+= Integrations =
+Jetpack is updated monthly to work with the plugins and services you already use.
 
-Simply provide a prompt, and watch as Jetpack AI Assistant crafts compelling blog posts, detailed pages, structured lists, and comprehensive tables - all tailored to your needs.
+* WooCommerce: Jetpack and WooCommerce are both made by Automattic, so Backup, Scan, Stats, and Anti-spam work with your store out of the box.
+* Social networks: Facebook, Instagram, LinkedIn, Threads, Bluesky, Tumblr, Mastodon, and Nextdoor.
+* Payments: Stripe and PayPal.
+* Email marketing: Mailchimp.
+* Anti-spam (powered by Akismet) for Jetpack Forms, Contact Form 7, Ninja Forms, Gravity Forms, Formidable Forms, and more.
+* Caching: works with WP Super Cache and Cloudflare.
+* Blocks for Calendly, Pinterest, WhatsApp, Eventbrite, OpenTable, podcasts, maps, and GIFs.
 
-* Harness AI power directly from your editor.
-* Unlock high-quality, tailored content at your command.
-* Maintain professional standards with ease.
-* AI-powered translations across numerous languages at your fingertips, breaking down language barriers.
+= Plans and products =
+* [Jetpack Complete](https://jetpack.com/redirect?source=org-complete) - Everything Jetpack offers: real-time security, top performance, and growth tools in one plan.
+* [Jetpack Pro](https://jetpack.com/pricing/) - Security, performance, and growth tools in one plan, including real-time backups, malware scanning, and spam protection.
+* [VaultPress Backup](https://jetpack.com/redirect?source=org-backup) - Save every change and get back online quickly with one-click restores.
+* [Jetpack Scan](https://jetpack.com/redirect?source=org-scan) - Automated malware scanning and a web application firewall, with one-click fixes.
+* [Jetpack AI](https://jetpack.com/redirect?source=org-ai) - Write, edit, and translate in the editor.
+* [Jetpack Stats](https://jetpack.com/redirect?source=org-stats) - Track visits, popular posts, newsletter subscribers, and more.
+* [Jetpack Social](https://jetpack.com/redirect?source=org-social) - Share your posts to every major social network from one place.
+* [Jetpack Newsletter](https://jetpack.com/redirect?source=org-newsletter) - Turn posts into newsletters and earn from paid subscriptions.
+* [Jetpack Search](https://jetpack.com/redirect?source=org-search) - Instant, relevant results for your visitors, with no ads and no tracking.
+* [Jetpack VideoPress](https://jetpack.com/redirect?source=org-video) - Ad-free video, uploaded right from the editor.
+* [Jetpack Boost](https://jetpack.com/redirect?source=org-boost) - Make your site faster, no developer required.
+* [Jetpack CRM](https://jetpack.com/redirect?source=org-crm) - Manage customers, leads, and invoices in WordPress.
+* [Akismet Anti-spam](https://jetpack.com/redirect?source=org-spam) - Clear spam from comments and forms automatically.
+* [Blaze](https://jetpack.com/redirect?source=org-blaze) - Promote your posts across millions of sites.
+* [Jetpack Manage](https://jetpack.com/manage/) - Monitor security, performance, and traffic across all your sites from one dashboard.
 
-= PROMOTE YOUR CONTENT EASILY WITH JETPACK BLAZE =
-Find new fans by promoting your posts and pages across millions of sites in the WordPress.com and Tumblr ad network.
-
-* Create your ad. Choose your audience. Set your budget. It's that easy.
-* Amplify your reach for just a few dollars.
-
-
-= EASY DESIGN TOOLS =
-Quickly customize your site to make it stand out — no coding needed.
-
-* Themes — Simple WordPress themes to get started on your site.
-* Related posts — Keep visitors on your site by automatically showing them related content they will be interested in.
-* Gallery and Slideshow tools — Image galleries, carousel slider, and slideshows for WP sites and stores.
-* Subscriptions — Make it easy for visitors to sign up to receive notifications of your latest posts and comments.
-* Contact form — Easily build unlimited contact forms for free without any coding. Receive email notifications for each response. Integrate with mail solutions like Creative Mail to reach your customers and leads quickly. Connect to Jetpack Anti spam (powered by Akismet) to filter submissions.
-* oEmbed Support — easily embed images, posts, and links from Facebook and Instagram.
-
-= INTEGRATIONS =
-Jetpack is updated monthly to ensure seamless integration with top WordPress plugins and other tech products.
-
-* Built for WooCommerce: Jetpack and WooCommerce are both made by Automattic. Backup, Scan, Anti-spam, integrate perfectly for Woo / eComm stores.
-* Jetpack is fully compatible with v2.0 of the official AMP plugin for WordPress.
-* Better understand your customers and marketing with Google Analytics (GA) integration.
-* Social media platforms: Instagram, Facebook, Tumblr, LinkedIn, Threads, Bluesky, Nextdoor.
-* Simple Blocks to customize your site: Pinterest, Whatsapp, Podcast player, GIFs, maps, tiled gallery, slideshow.
-* Payment processors: easily collect payments or donations and sell products through Stripe and PayPal.
-* Site speed and performance plugins: Works great with WP Super Cache by Automattic and Cloudflare.
-* Contact form: Anti-spam (Powered by Akismet) blocks spam comments for Jetpack forms, Contact Form 7, Ninja Forms, Gravity Forms, Formidable Forms, and more.
-* Other tech integrations: Instagram, Creative Mail, Mailchimp, Calendly, Whatsapp, Pinterest, Revue, and more.
-
-= EXPLORE MORE OF JETPACK =
-If you like Jetpack, consider checking out our other products and bundles
-
-* [Jetpack Complete](https://jetpack.com/redirect?source=org-complete) - The Complete bundle with real‑time security, top performance, and everything you need to grow your business.
-* [Jetpack Security](https://jetpack.com/redirect?source=org-security) - Our Security bundle provides easy‑to‑use, comprehensive WordPress site security, including real‑time backups, a web application firewall, malware scanning, and spam protection.
-* [Jetpack Backup](https://jetpack.com/redirect?source=org-backup) - Save every change and get back online quickly with one‑click restores from Jetpack VaultPress Backup.
-* [Jetpack Scan](https://jetpack.com/redirect?source=org-scan) - Protect your site from bad actors around‑the‑clock ‑ with our web application firewall (WAF) and automated malware scanning with one‑click fixes.
-* [Jetpack Search](https://jetpack.com/redirect?source=org-search) - Instantly deliver the most relevant results to your visitors with Jetpack Search. No coding required, no ads, and no tracking.
-* [Jetpack Boost](https://jetpack.com/redirect?source=org-boost) - Increase your website speed.  Enjoy the same performance advantages as the world’s leading websites, no developer required.
-* [Jetpack VideoPress](https://jetpack.com/redirect?source=org-video) - Display stunning‑quality video with none of the hassle. Drag and drop videos through the WordPress editor and keep the focus on your content, not the ads.
-* [Jetpack AI](https://jetpack.com/redirect?source=org-ai) - Turn your ideas into ready‑to‑publish content at lightspeed.
-* [Jetpack Stats](https://jetpack.com/redirect?source=org-stats) - Keep track of your website visits, popular posts, newsletter subscribers and more.
-* [Jetpack Social](https://jetpack.com/redirect?source=org-social) - Automatically share your website content to your favorite social media platforms, from one place.
-* [Jetpack CRM](https://jetpack.com/redirect?source=org-crm) - Jetpack CRM has all of the tools you need to grow your business. It’s also modular, so you can customize it to suit your needs.
-* [Jetpack Creator](https://jetpack.com/redirect?source=org-creator) - Craft stunning content, boost your subscriber base, and monetize your online presence.
-* [Jetpack  Newsletter](https://jetpack.com/redirect?source=org-newsletter) - Transform your blog posts into newsletters to easily reach your subscribers. Offer paid subscriptions and earn from your content.
-
-= KEEP SPAM OFF YOUR WEBSITE =
-* [Akismet Anti-spam](https://jetpack.com/redirect?source=org-spam) - Automatically clear spam from comments and forms. Save time, get more responses, give your visitors a better experience - all without lifting a finger.
-
-= PROMOTE YOUR CONTENT FOR MORE VIEWS =
-* [Blaze](https://jetpack.com/redirect?source=org-blaze) - Find new fans by promoting your posts and pages across millions of sites in the WordPress.com and Tumblr ad network.
-
-= MANAGE MORE THAN ONE SITE? =
-* [Jetpack Manage](https://jetpack.com/manage/) - All the tools you need to manage multiple WordPress sites. Monitor site security, performance, and traffic, and get alerted if a site needs attention.
-
-= FLY HIGHER WITH INDIVIDUAL PLUGINS =
-Ever wish you could have just one feature of Jetpack in its own plugin? Now you can. Check out our individual plugins and install only what you need.
+= Install only what you need =
+Each of these is also available as its own plugin:
 
 * [Jetpack VaultPress Backup](https://wordpress.org/plugins/jetpack-backup/)
-* [Jetpack Boost](https://wordpress.org/plugins/jetpack-boost/)
-* [Jetpack CRM](https://wordpress.org/plugins/zero-bs-crm/)
 * [Jetpack Protect](https://wordpress.org/plugins/jetpack-protect/)
-* [Jetpack Search](https://wordpress.org/plugins/jetpack-search/)
+* [Jetpack Boost](https://wordpress.org/plugins/jetpack-boost/)
+* [Jetpack Stats](https://wordpress.org/plugins/jetpack-stats/)
 * [Jetpack Social](https://wordpress.org/plugins/jetpack-social/)
+* [Jetpack Search](https://wordpress.org/plugins/jetpack-search/)
 * [Jetpack VideoPress](https://wordpress.org/plugins/jetpack-videopress/)
-* [Akismet Anti-Spam](https://wordpress.org/plugins/akismet/)
-
+* [Jetpack CRM](https://wordpress.org/plugins/zero-bs-crm/)
+* [Akismet Anti-spam](https://wordpress.org/plugins/akismet/)
 
 == Installation ==
 
-= Automated Installation =
+= Automated installation =
 
-Installation is free, quick, and easy. [Set up Jetpack](https://jetpack.com/install?from=wporg) in minutes.
+Installation is free, quick, and easy. From your WordPress dashboard, add a new plugin, search for Jetpack, then install and activate it. Jetpack walks you through connecting your WordPress.com account.
 
-= Manual Alternatives =
+= Manual alternatives =
 
-Alternatively, install Jetpack via the plugin directory, or upload the files manually to your server and follow the on-screen instructions. If you need additional help read [our detailed instructions](https://jetpack.com/support/installing-jetpack/).
+Alternatively, upload the files manually to your server and follow the on-screen instructions. If you need additional help, read [our detailed instructions](https://jetpack.com/support/getting-started-with-jetpack/).
 
 == Frequently Asked Questions ==
 
 = Is Jetpack free? =
 
-Yes! Jetpack's core features are free for non-commercial sites.
+Yes. Jetpack's core features are free for non-commercial sites, including site stats, an image CDN, related posts, downtime monitoring, brute force protection, automatic sharing to social networks, SEO tools, and more.
 
-These include: site stats, a high-speed CDN for images, related posts, downtime monitoring, brute force attack protection, automated sharing to social networks, sidebar customization, SEO (search engine optimization) tools, and much more.
+= Can I connect ChatGPT, Claude, or another AI agent to my site? =
+
+Yes, and there's nothing extra to install or host. Once you've connected your WordPress.com account, go to Jetpack AI in your Jetpack menu, enable MCP access, and choose your agent. Jetpack works with ChatGPT, Claude, Cursor, VS Code, and other MCP clients, and most of them connect in a few clicks. Your agent can then work with your content and with Jetpack features like Stats, Backup, Scan, and Newsletter. You choose which tools it can use to read or change your site. You can also start from [ChatGPT](https://chatgpt.com/plugins/wordpress-com) or [Claude](https://claude.ai/directory/wordpress-com) by adding the WordPress app there.
+
+= What is MCP? =
+
+MCP (Model Context Protocol) is the open standard that AI apps like ChatGPT and Claude use to connect to other tools. Jetpack provides the MCP connection for your WordPress site through WordPress.com, so you don't have to install or run an MCP server yourself.
+
+= Is it safe to let an AI agent work on my site? =
+
+You stay in control. MCP access is off until you turn it on, and you choose which tools your agent can use to read your site and which it can use to make changes. You can turn individual tools off, or turn off MCP access entirely, at any time. With VaultPress Backup, you can also restore your site to an earlier point if a change doesn't work out.
 
 = Should I purchase a paid plan? =
 
-It depends on your site and what kind of protection, performance, and design you need. If you make money from your site, the answer is “yes.” For context, Jetpack's paid services include real-time backups, security scanning, spam filtering, video hosting, site monetization, search, priority support, and more.
+It depends on your site and what kind of protection, performance, and design you need. If you make money from your site, the answer is "yes." Jetpack's paid services include real-time backups, security scanning, spam filtering, video hosting, site monetization, search, priority support, and more.
 
-To learn more about the essential security and WordPress services we provide and see how we can improve your site, visit [our plans page](https://jetpack.com/pricing?from=wporg).
+To learn more about the essential security and WordPress services we provide and see how we can improve your site, visit [our plans page](https://jetpack.com/pricing/?from=wporg).
 
 = Why do I need a WordPress.com account? =
 
-Since Jetpack and its services are provided and hosted by WordPress.com, a WordPress.com account is required for Jetpack to function.
+Jetpack's services run on WordPress.com's cloud: backups, stats, the image CDN, spam filtering, and the connection to your AI agent. A free WordPress.com account links your site to them.
 
 = I already have a WordPress account, but Jetpack isn't working. What's going on? =
 
-A WordPress.com account is different from the account you use to log into your self-hosted WordPress. If you can log into WordPress.com, then you already have a WordPress.com account. If you can’t, you can easily create one[during installation](https://jetpack.com/install?from=wporg).
+A WordPress.com account is different from the account you use to log into your self-hosted WordPress. If you can log into WordPress.com, then you already have a WordPress.com account. If you can't, you can create one for free when you connect Jetpack.
+
+= Can Jetpack move my site to a new host? =
+
+Yes. VaultPress Backup can migrate your full site to a new host, including your theme, plugins, and database. You can also clone your site, set up a test copy, or repair a broken site by restoring an earlier backup.
+
+= Does Jetpack help with SEO? =
+
+Yes. Jetpack's SEO tools let you set custom titles and meta descriptions, generate an XML sitemap automatically, verify your site with Google, Bing, and Pinterest, and preview how your posts will look in search results and on social media. Jetpack AI can also suggest SEO titles and meta descriptions, and Jetpack Boost helps improve your Core Web Vitals.
 
 = How do I view my stats? =
 
-Once you’ve installed Jetpack, your stats will be available on your Jetpack dashboard and through the [official WordPress mobile app](https://apps.wordpress.com/mobile/).
-
-= How do I contribute to Jetpack? =
-
-There are opportunities for developers at all levels to contribute. [Learn more about contributing to Jetpack](https://jetpack.com/contribute) or consider [joining our beta program](https://jetpack.com/beta).
+Once you've installed Jetpack, your stats will be available on your Jetpack dashboard and through the [official WordPress mobile app](https://apps.wordpress.com/mobile/).
 
 = What else does Jetpack include? =
 
-Jetpack is the ultimate toolkit for WP for both the classic editor and the block editor, giving you everything you need for a professional site. It includes the following features:
+Jetpack works with both the block editor and the classic editor. It also includes:
 
-* Activity log — Monitor all site changes for debug, troubleshooting, or maintenance
-* Ads — Earn income by displaying high quality ads on your site.
-* Beautiful Math — Use the LaTeX markup language for writing complex mathematical equations, formulas, and more.
-* Carousel slider — Display a gorgeous full-screen photo browsing experience with comments and EXIF metadata.
-* CDN — Helps your pages load faster by allowing Jetpack to optimize your images and serve your images and static files (like CSS and JavaScript) from our global network of servers.
-* Comments — Replace your default comment form with an improved system with integrated social media login options.
-* Comment Likes — Allows readers to like other comments to show their agreement, approval, or appreciation.
-* Contact Form — Offer your readers the ability to get in touch, without giving out your personal email address.
-* Custom CSS — Customize the appearance of your theme without creating a child theme or worrying about updates overwriting your customizations.
-* Custom Content Types — Adds custom post types (CPTs) to your site.
-* Downtime Monitor — Alerts you via electronic mail if your site goes down to ensure you keep uptime.
-* Extra Sidebar Widgets — Extra widgets you can add to your blog, including RSS Links and Facebook Like Boxes.
-* Gravatar Hovercards — Make your Gravatar profile visible to those viewing your blog.
-* Google Analytics (GA) — Track your WordPress site statistics thanks to Google Analytics.
-* Infinite Scroll — Pulls the next posts automatically into view when the reader approaches the bottom of the page.
-* JSON API — Authorizes applications and services to securely connect to your blog, and allows them to use your content or offer you new functionality.
-* Likes — Allows readers to show their appreciation for your posts with a single click.
-* Markdown — Allows you to compose posts and comments with links, lists, and other styles using regular characters and punctuation marks. Markdown is used by writers and bloggers who want a quick and easy way to write rich text without having to take their hands off the keyboard.
-* Malware detection - automatic malware scans that help protect your WP website with an automated resolution.
-* Notifications — Receive notifications for new comments and Likes in your admin bar and on your mobile device.
-* oEmbed Support — easily embed images, posts, and links from Facebook and Instagram.
-* Plugin Management — Allows easy site maintenance by choosing which plugins update automatically.
-* Post by Email — Publish posts using any mail client.
-* Protect — Protect your site from traditional and distributed brute force login attacks.
-* Publicize — Share new posts on social media networks automatically, or schedule future shares with custom messages.
-* Related Posts  — Show contextual posts your visitors might be interested in reading after they’re done with their current post.
-* Secure Auth —  Secure WordPress.com powered login used by millions of sites with optional 2FA (two factor authentication) for extra protection.
-* Security Scanner — Anti-virus and other threat detection for your WordPress site with automated resolution.
-* Search — A powerful replacement for WordPress’ built-in search, powered by Elasticsearch in the WordPress.com cloud
-* SEO Tools — Optimize your site for search engines by taking advantage of our SEO tools.
-* Sharing — Adds sharing buttons to your blog posts so readers can easily share your content.
-* Shortcode Embeds — Embed videos from YouTube and other media across the web.
-* Site Backup — Automatically back up your entire site. Duplicate, clone, migrate, transfer to a new host, and easily restore. Previously known as VaultPress.
-* Site Stats — View site visits by date, as well as most popular Pages and Posts.
-* Site Verification — Verify your site for use with Google, Bing, and Pinterest and their tools.
-* Sitemap — Generate a list of pages to be indexed by search engines like Google or Bing.
-* Spam Filtering — Automatically filter out spam comments, product reviews, or contact form submissions.
-* Subscriptions — Allow visitors to receive notifications of your latest posts or comments.
-* Tiled Galleries — Display your image galleries in three different styles: a rectangular mosaic, a square mosaic, and a circular grid.
-* Video Hosting  — Upload videos for fast, reliable hosting on WordPress.com.
-* WP.me Shortlinks — Generate short and simple links to your content using the wp.me domain.
-* Widget Visibility — Configure widgets to appear only on specific pages.
-* WordPress.com Toolbar — The WordPress.com Toolbar feature replaces the default admin bar and offers quick links to the Reader, all your sites, your WordPress.com profile, and notifications.
+* Activity log: See every change made to your site, and who made it.
+* Ads: Earn income by showing high-quality ads on your site.
+* Account protection: Extra protection for your users' accounts, including strong password checks.
+* Beautiful Math: Write equations and formulas with LaTeX.
+* Carousel: A full-screen photo browsing experience with comments and EXIF data.
+* CDN: Serve your images and static files, like CSS and JavaScript, from our global network.
+* Comments and Comment Likes: An improved comment form with social login, and likes on individual comments.
+* Contact forms: Let readers get in touch without sharing your email address.
+* Copy Post: Duplicate any post or page in one click.
+* Custom content types: Add portfolios and testimonials to your site.
+* Downtime monitoring: Get an email if your site goes down.
+* Firewall: A web application firewall (WAF) that blocks malicious traffic.
+* Google Fonts: Use Google Fonts in your site's typography.
+* Gravatar Hovercards: Show commenters' Gravatar profiles.
+* Infinite Scroll: Load the next posts as readers reach the bottom of the page.
+* JSON API: Let apps and services connect securely to your site.
+* Likes: Let readers like your posts with one click.
+* Login protection: Block brute force attacks on your login page.
+* Malware scanning: Automatic scans with one-click fixes.
+* Markdown: Write posts and comments in Markdown.
+* Notifications: Get alerts for new comments and likes in your admin bar and on your phone.
+* Plugin auto-updates: Choose which plugins update automatically.
+* Post by Email: Publish posts from any email client.
+* Related Posts: Show readers what to read next.
+* Search: A powerful replacement for WordPress search, powered by Elasticsearch in the WordPress.com cloud.
+* SEO tools, sitemaps, and site verification for Google, Bing, and Pinterest.
+* Sharing buttons and automatic social sharing with Jetpack Social.
+* Shortcode embeds: Embed videos and media from YouTube and across the web.
+* Site backup: Real-time backups with VaultPress Backup, plus migration, cloning, and one-click restores.
+* Site stats: Visits, top posts and pages, referrers, and more.
+* Spam filtering: Block spam comments, product reviews, and form submissions with Akismet.
+* Subscriptions: Let visitors subscribe to your posts by email.
+* Tiled galleries: Mosaic, square, and circular image galleries.
+* Video hosting: Fast, ad-free video with VideoPress.
+* Widget visibility and extra widgets.
+* WordPress.com login: Secure sign-in with optional two-factor authentication.
+* WP.me shortlinks: Short links to your content.
 
-= What Blocks does Jetpack include? =
+= What blocks does Jetpack include? =
 
-Blocks are the individual sections that make up a page. There are many block types for you to use. Each block can be edited or moved independently of other blocks. The following is a list of all blocks currently available in Jetpack.
+Jetpack adds these blocks to the block editor:
 
-* Ad Block - The Ad block allows you to insert a Jetpack Ad unit anywhere within the content of any post or page.
-* Business Hours Block - The Business Hours block allows you to display your business’s opening hours on your site.
-* Calendly Block - Jetpack's Calendly block allows your visitors to schedule one-on-one appointments, group events, and team meetings directly from your website.
-* Contact Info Block - The Contact Info block lets you add your contact information (email address, physical address, phone number) to any post or page.
-* Donations Block - The Donations block lets you add a payment button to any post or page for a donation, tips, and other contributions, using Stripe as the payment gateway.
-* Eventbrite Block - With the Eventbrite block you can embed events on posts or pages.
-* Form Block - The Form block lets you add a form to your post or page.
-* GIF Block - The GIF block allows you to easily search for and embed an animated GIF image from Giphy directly into a post or page on your WordPress site.
-* Google Calendar Block - The Google Calendar block allows you to easily embed a Google Calendar into your post or page
-* Image Compare Block - The Image Compare Block allows you to display and compare the differences between two images side by side (or above and below) thanks to a slider.
-* Latest Instagram Posts Block - The Latest Instagram Posts Block lets you display your most recent images from Instagram on your site. The block update automatically updates when you post new images to Instagram.
-* Mailchimp Block - The Mailchimp block allows visitors to join your Mailchimp list.
-* Map Block - The Map Block allows you to add a map to any post or page on your site.
-* Markdown Block - With the Markdown block you can create formatted content using only regular characters and some punctuation marks.
-* OpenTable Block - With the OpenTable block, you can add a reservation form on posts or pages.
-* Pay with PayPal Block - Pay with PayPal lets you add a payment button to any post or page, and immediately start taking PayPal payments for physical products, digital goods, or a donation.
-* Payments Block - The Payments Block lets you add a payment button using Stripe as the payment gateway. It works for one-time and recurring payments.
-* Pinterest Block - The Pinterest block is the easiest way to embed Pinterest content to your site: it allows you to embed boards, profiles, and pins.
-* Podcast Player Block - Jetpack's Podcast Player block allows you to easily show your visitors a listing of recent episodes from a podcast and play them on your website.
-* Related Posts Block - The Related Posts feature scans all of your posts' contents, analyzes it, and uses that to display contextual posts your visitors might be interested in reading after they're finished with the current post.
-* Repeat Visitor Block - The Repeat Visitor block enables the author to control the visibility of its nested block(s) depending on how many times a visitor has previously visited the page.
-* Revue Block - The Revue block creates a simple signup form for readers to opt-in to receive your newsletter.
-* Slideshow Block - The Slideshow block lets you insert an image slideshow into a post or page.
-* Star Rating Block - The Ratings block allows any site author to add reviews to the site.
-* Subscription Form Block - The Subscription Form Block allows you to insert a subscription form within the content area of any post or page, enabling your readers to get notifications when you publish new posts.
-* Tiled Gallery Block - With Tiled Galleries you can display your image galleries in four styles: tiled mosaic, circular grid, square tiles, and tiled columns.
-* Video Block - The Video block enhances the existing WordPress Video block and allows you to upload videos from your computer to be hosted on WordPress.com, rather than on your host’s servers.
-* WhatsApp Button Block - The WhatsAPP Button block will allow your customers to send them a message to enquire about their product or services, or ask for support. Clicking on the button will open WhatsApp and pre-fill the phone number and initial message.
+* Writing and AI: AI Assistant, Writing Prompt, Markdown, Blog Stats, Top Posts & Pages, Related Posts, Goodreads
+* Media: Image Compare, Slideshow, Tiled Gallery, Story, VideoPress, GIF, Latest Instagram Posts, Pinterest, Podcast Player
+* Forms: Form, Salesforce Lead Form, Contact Info, Mailchimp, Cookie Consent
+* Payments and earning: Payments, Payment Buttons, Pay with PayPal, Donations, Paywall, Paid Content, Ad
+* Subscribers and social: Subscribe, Subscriber Login, Like, Sharing Buttons, Blogroll, Nextdoor, WhatsApp Button
+* Business and bookings: Business Hours, Calendly, Eventbrite, Google Calendar, Map, OpenTable, Tock
+* Personalization and reviews: Repeat Visitor, Star Rating
 
-Jetpack has also created extensions for some WordPress core blocks:
-
-* Social Previews – This extension of the Block Editor allows you to preview what your post / page will look like on search engines and social media.
+Jetpack also adds Social Previews to the editor, so you can see how a post will look on search engines and social media before you publish.
 
 = Do I need an SSL certificate? =
 
@@ -309,14 +262,14 @@ Sites must be built on PHP 7.4 or greater, but Jetpack always supports the lates
 
 Our Cookie and Consent Banner can help you comply with GDPR. The European Union’s ePrivacy Directive (often referred to as the ‘cookie law’) and General Data Protection Regulation (GDPR) place requirements on website owners and operators to provide information about, and gain consent for their use of cookies.
 
-= Can Jetpack be used to transfer websites to a new host? =
+= How do I contribute to Jetpack? =
 
-Jetpack Backup can do a full website migration to a new host, migrate theme files and plugins to a new database, create full database backups, clone websites, repair broken websites by restoring older backups and allow you to easily set up a test site by creating a duplicate of your existing website.
+There are opportunities for developers at all levels to contribute. [Learn more about contributing to Jetpack](https://jetpack.com/contribute) or consider [joining our beta program](https://jetpack.com/beta).
 
 
 == Screenshots ==
 
-1. Jetpack Security provides easy-to-use, comprehensive WordPress site security including backups, malware scanning, and spam protection.
+1. Jetpack Pro and Complete provide easy-to-use, comprehensive WordPress site security including backups, malware scanning, and spam protection.
 2. Save every change with real-time backups and get back online quickly with one-click restores.
 3. Automated malware scanning and one-click fixes keep your site one step ahead of security threats.
 4. Promote your newest posts, pages, and products across your social media channels.
@@ -326,89 +279,128 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 16.4-a.1 - 2026-10-12
+### 16.5-a.3 - 2026-11-16
 #### Enhancements
-- Account Protection: Stop turning the feature on automatically for new connections and upgrades from versions before 14.5. Sites where it is already on keep it on.
-- AI: Open the Activity log filtered to actions AI agents took, and link Simple sites to the WordPress.com Activity log.
-- AI: Show the Overview and AI Features views on WordPress VIP sites.
-- Blocks: Use WordPress Design System colors in the editor.
-- Connection: Add a Connected view to the Users page listing users with a linked WordPress.com account.
-- Editor: Let writers know when the featured image is also in the post, and hide it on the post where the theme supports that.
-- My Jetpack: List VaultPress Backup among the plans that include Activity Log history, simplify the Search paid-plan wording, and show the ad-free, customizable VideoPress player as included in the free plan.
-- My Jetpack: Remove the Products page and open Features from links to it. Point the footer's Modules link and Help's All Jetpack modules link back to the Modules page.
-- Newsletter: Add a Newsletter overview panel to the editor that explains who gets the post by email and who can read it on the site.
-- Newsletter: Add an Overview tab with an onboarding checklist that guides you through setting up your newsletter.
-- Newsletter: Add a subscribers proxy route for sending a confirmation email to bounced subscribers.
-- Newsletter: pick a readable text color to go with the email button background you choose.
-- Omnibar: Return the Reader, Notifications, and Launch site nodes from the admin-bar endpoint.
-- Podcast: Add a toggle to hide the author in the Podcast Episode block.
-- Premium Analytics: Add a line or bar chart type control to the WooCommerce report widgets.
-- Premium Analytics: Add a Mark as spam action, with Undo, to the Referrers report.
-- Premium Analytics: Add a Settings tab to the dashboard, where site owners can see their plan usage and change the Stats settings, and open it from the "Manage Stats settings" link in Settings › Traffic when Stats v2 is on.
-- Premium Analytics: Add likes, comments and an all-time traffic table to the author detail page, and count an author's views even when they rank below the top 20 authors.
-- Premium Analytics: Add video thumbnails to the VideoPress widget, and link the Videos report thumbnails to the video detail page.
-- Premium Analytics: Cap the cards on report pages at a centered 1440px column on wide screens, so each row's label and numbers stay close enough to read together.
-- Premium Analytics: Compare the dashboard with the previous period by default.
-- Premium Analytics: Draw today's WordAds bucket as not yet counted for Ads Served and Revenue, as for CPM, and say so in the tooltip.
-- Premium Analytics: Label WooCommerce visitor counts as Store visitors, so they aren't confused with Jetpack Stats visitors.
-- Premium Analytics: Let shop managers open the dashboard to read the store reports.
-- Premium Analytics: Link author names in Popular authors and the Authors report to the author's page.
-- Premium Analytics: Make the days in Monthly posting activity larger, growing with the card and wrapping the months onto two rows in the default layout.
-- Premium Analytics: Mark the Comments Subscribers and File downloads report links as opening in a new tab.
-- Premium Analytics: Move the Top tags & categories widget to the Traffic tab, where it and its report follow the date picker.
-- Premium Analytics: Move the Traffic summary's grouping control (by days, weeks or months) into the chart itself, which remembers your choice.
-- Premium Analytics: Open on the last 7 days, or on the range you last picked in Stats, and remember a range you apply.
-- Premium Analytics: Open the dashboard from the admin bar Stats links when it is enabled.
-- Premium Analytics: Open the dashboard on the WooCommerce tab when WooCommerce is active.
-- Premium Analytics: Rename the Store tab to WooCommerce, including its URL.
-- Premium Analytics: Rename the Videos, Clicks, Authors and Locations report CSV headers to match the table columns.
-- Premium Analytics: Show chart tooltips with dark text on a light background.
-- Premium Analytics: Show hours watched and retention rate on the Videos report, and name the Videos, Clicks, Authors and Locations columns as in Stats.
-- Premium Analytics: Show the date once in chart tooltips, read each row as value then metric, and list the comparison period in a second column.
-- Premium Analytics: Show the empty-cell color at the start of heatmap legends such as Posting activity.
-- Premium Analytics: Use a 2px corner radius on chart bars.
-- SSO: When a site requires two-step authentication and your WordPress.com account doesn't have it, the login screen now names your account and links straight to two-step setup.
-- VideoPress: Add an introductory video to the first-run welcome modal.
-- VideoPress: Add trim and cut editing to the video block toolbar and clarify the editor tool icons.
+- Blogroll: Add a feed URL setting to each blogroll item.
+- Forms: Add a `wp jetpack-forms export` command that exports form responses to CSV.
+- Forms: Show a progress indicator and a notice while exporting responses.
+- Jetpack Manage: Remove the sidebar link. The agency dashboard is reached through Automattic for Agencies.
+- My Jetpack: Highlight expiring and expired plans in the account panel under your avatar, list them first with a renew link, and show other plans as active until their renewal date.
+- My Jetpack: On sites with Jetpack Pro, replace "Purchase a plan" with "Upgrade to Complete", which goes straight to checkout.
+- My Jetpack: Remember whether you last picked the grid or the list layout on the Features tab, and open the tab in that layout next time.
+- My Jetpack: Return to the license screen after you connect your account from "Activate a license", and show the WordPress.com connection screen made for your site's plugins.
+- My Jetpack: Return to the page you were on after you connect your account or restore the connection from the header, and show the WordPress.com connection screen made for your site's plugins.
+- My Jetpack: Show the WordPress.com connection screen made for your site's plugins when you connect your account from a product card or a recommendation.
+- My Jetpack: Show the WordPress.com connection screen made for your site's plugins when you connect your account from the Features tab.
+- Newsletter: Add Remove all and Remove matching to the Subscribers screen, which remove subscribers in the background after saving a backup.
+- PayPal Payment Buttons: Add Edit and Change item to a saved payment button's block toolbar, next to Delete.
+- PayPal Payment Buttons: Add product images to a payment button, shown on the PayPal checkout page.
+- PayPal Payment Buttons: Show the discount on the button card, with the original price struck through and a discount tag.
+- Premium Analytics: Add a Last 3 years period to the date menu, charted by years, so traffic can be compared year by year without picking a custom range.
+- Premium Analytics: Add an Arrange tabs option to the Stats v2 page options menu, to reorder the tabs and choose the one that opens first.
+- Premium Analytics: Add Download CSV to the Devices and Top platforms cards.
+- Premium Analytics: Add Download CSV to the post, video and email detail cards.
+- Premium Analytics: Add Download CSV to the Traffic summary card.
+- Premium Analytics: Add Download CSV to the Views over years, Monthly posting activity and Subscriber summary cards.
+- Premium Analytics: Draw the text inside dashboard widgets at 14px, as classic Stats did, with headline figures in bold, so lists and figures are easier to read.
+- Premium Analytics: Let a click on a point or bar in the WooCommerce tab charts set the dashboard to that period, and open the previous period for a click on a previous-period point or bar in any chart.
+- Premium Analytics: Load Stats v2 sooner when it is opened from the admin menu.
+- Premium Analytics: Make view counts easier to compare across the heatmaps, so quiet periods can be told apart instead of sharing one pale shade, and mark months the data does not yet fill.
+- Premium Analytics: Move the Stats v2 settings from a dashboard tab to their own page, reached from the page options menu.
+- Premium Analytics: Offer a yearly chart interval on any date range that covers three calendar years.
+- Premium Analytics: Open post and video reports on the date range of the page that linked to them.
+- Premium Analytics: Serve the author page from /report/author/<id>; the old /author/<id> address redirects.
+- Premium Analytics: Serve the post page from /report/post/<id>; the old /post/<id> address redirects.
+- Premium Analytics: Show the first Stats v2 widgets sooner.
+- Premium Analytics: Show the Stats v2 dashboard widgets sooner.
+- Premium Analytics: Show the Top locations views as one-click toggles instead of a dropdown.
+- Premium Analytics: Show the view options of Top pages, Top platforms, Latest emails sent, All-time traffic and Views over years as one-click toggles instead of a dropdown.
+- Protect: Let sites without Scan turn off the daily vulnerability check from Settings.
+- Protect: Show the Scan site button in the page header as a primary button.
+- SEO: Add a default share image setting and fix blank or unsupported sharing images.
+- SEO: Add an "Always include in llms.txt" switch for pages, which lists a page first in llms.txt even when it is not in a menu.
+- SEO: Add a `jetpack_seo_llms_txt` filter so themes and plugins can add their own sections to llms.txt.
+- SEO: Add the `jetpack_seo_llms_txt_cleared` action so hosts and cache plugins can purge their cached copies when llms.txt changes.
+- SEO: Let personal sites identify a person as their publisher in structured data.
+- SEO: Serve a stored copy of llms.txt that is rebuilt only after content or settings change, and let caches keep it for up to 15 minutes.
+- Site Chat: Add the jetpack_site_chat_query_filter filter so site owners can limit which content Site Chat uses.
+- Site Chat: Load the chat only once a visitor interacts with the page, so it no longer slows down page loads.
+- Social: Add a "Social preview" item to the editor's Preview dropdown.
+- Social: Allow WebP background images in Social Image Generator.
+- Stats: Leave a bar chart column empty when its value is zero, instead of drawing a thin bar that looks like a small count.
+- VideoPress: Channel search finds words spoken in videos and opens them at the matching moment.
+- VideoPress: Style the Latest Videos Playlist search, sort and length controls to match the playlist and the theme.
+- VideoPress: Switch the Library and Playlists between grid and table in one click.
+
+#### Improved compatibility
+- Random Redirect: Defer to WordPress core's random content redirects on WordPress 7.2 and later.
+- Twenty Fourteen: Stop the Ephemera widget from adding a second Related Posts section to single posts.
 
 #### Bug fixes
-- Backup: Stop the Get VaultPress Backup button from staying busy when setup fails.
-- Brute Force Protection: Let new users set their password from a blocked IP, and stop sending recovery emails to accounts that have not set one yet.
-- Carousel: Remove the hidden "Loading Comments..." text from pages when the carousel comments area is turned off.
-- Charts: Announce line, area and bar charts correctly to screen readers.
-- Forms: Fix error notices shown after deleting or trashing a form, even though it succeeded.
-- Forms: Keep brackets in submitted values escaped, so they cannot run shortcodes, on WordPress versions with the new HTML sanitizer.
-- Google Photos: Show a reconnect prompt when the Google connection is rejected, explain when the Google account has no Google Photos set up, and start a new picker session when the saved one no longer exists.
-- Likes: Keep Like buttons on custom post types on new sites until you choose where buttons appear.
-- My Jetpack: Stop showing an empty account avatar on the Overview connection card when nothing in use needs a user connection.
-- Newsletter: Allow comping subscribers who don't have a WordPress.com account.
-- Newsletter: Avoid a fatal error when an older copy of the Newsletter package is loaded during an update.
-- Newsletter: Detect paid newsletter plans by their tier type as well as the mailing list setting.
-- Premium Analytics: Compare Last 30 days and custom ranges starting mid-month with the same number of days right before them.
-- Premium Analytics: Draw attention to the date control when a click on the Traffic summary chart sets the period.
-- Premium Analytics: Drop the URL column from the comment authors CSV, since its links only worked on the site and could expose guest commenters' email addresses.
-- Premium Analytics: Fix chart tooltips wrapping into a narrow column on WordPress.com, and metric tab text showing through a tooltip.
-- Premium Analytics: Fix Returns in the WooCommerce reports for a full refund after a partial refund, and for refunds of orders that were never paid.
-- Premium Analytics: Fix value axis labels piling up at the left edge of a summary bar chart resized to one row.
-- Premium Analytics: Follow the WooCommerce Analytics date type setting in store reports instead of always using the order creation date.
-- Premium Analytics: Label a partial first or last week on the Traffic, Subscribers, and ads charts with the selected range's own start or end date.
-- Premium Analytics: Let one-row summary charts, such as the default Store performance tile, show their tooltip by drawing them as sparklines without axes.
-- Premium Analytics: Make donut and semi-circle chart widgets such as Devices reachable by keyboard, and name them for screen readers.
-- Premium Analytics: Make low values in heatmaps such as Posting activity easier to tell apart from empty cells, and show zero counts as empty.
-- Premium Analytics: Pair each week with its matching week in a year-ago weekly comparison, and show the days each week covers in the Traffic and ads chart tooltips.
-- Premium Analytics: Reports: show the Referrers, Clicks, Authors and UTM tables at one weight on every row, so the chevron alone marks a row that expands.
-- Premium Analytics: Show a video watched for a few minutes as "< 0.1" hours, not 0.0, on the Videos report and video detail page.
-- Premium Analytics: Show store revenue and other money values in the store's currency instead of always US dollars.
-- Search: Avoid requesting the Search plan in offline mode.
-- Sharing: Keep backslashes in the sharing label when changing sharing settings from WordPress.com or the Jetpack dashboard.
-- Sharing: Stop Settings > Sharing from resetting sharing links to open in the same window.
-- Stats: Show view counts in the Pages list, and any list with more than 100 posts, instead of leaving them blank.
-- Tiled Gallery: Keep every image when uploading several at once with client-side media processing enabled.
-- VideoPress: Keep the editing preview on retained footage when playback reaches a trim or trailing cut.
-- VideoPress: Remove legacy Flash player support so videos using the `flashonly` shortcode option display again.
-- VideoPress: Scroll the timeline while dragging cuts beyond the visible area.
-- VideoPress: Show an error and stop the Get VideoPress button from staying busy when checkout cannot start.
-- VideoPress: Start new cuts at the playhead, or end there when it is at the end of the video, and keep a gap from existing cuts.
+- Brute Force Protection: Allow the feature to turn on when the configured trusted IP header is empty or holds no valid address.
+- Charts: Wait for a chart's size before drawing it, so charts and their legends no longer jump into place as a page loads.
+- Coming Soon: Show the Coming Soon newsletter and SEO notices on sites in the private Coming Soon mode.
+- Comments: Fix the comment editor's leftover placeholder on empty lines, doubled focus ring, missing caret after Reply, and gaps from empty paragraphs, and stop the page jumping as the form loads and the editor opens.
+- Comments: Show apostrophes and ampersands in the site name as written in the comment dialog's title and subscribe option.
+- Connection: Keep the progress indicator on screen after clicking Restore Connection until the redirect to WordPress.com.
+- Connection: Let a second administrator fix a broken connection owner by connecting their own account, which makes them the new owner.
+- Connection: Restore the connect button and explain what went wrong when the connection to WordPress.com fails to start.
+- Connection: Stop showing a connection error notice for a request signature mismatch, which reconnecting rarely fixes.
+- Donations Form: Fix Tips blocks and Pop-up forms opening a checkout with no payment plan, including forms that were already published.
+- Forms: Apply Global Styles label settings to form labels, including the group label on multiple-choice fields. The Outlined and Animated styles keep their own label weight.
+- Forms: Fix exporting to Google Sheets when a response has a very long value, and say when an export is too large for Google Sheets.
+- Forms: Fix running out of memory when exporting a large number of responses to CSV or Google Drive.
+- Forms: Keep text typed with a Japanese, Chinese, or Korean input method in a choice option when Enter confirms the conversion.
+- Forms: Show "Anonymous" for responses with no author details, and hide the IP address row when no IP was recorded.
+- Infinite Scroll: Load block styles, including layout and spacing, for posts loaded by scrolling.
+- Infinite Scroll: Respect the "Load more posts with a button" setting saved from Jetpack settings.
+- JSON API: Fix a fatal error on PHP 8 when an endpoint documents a field without a type.
+- JSON API: Ignore the `fields` query parameter when it is passed as an array, instead of causing a fatal error.
+- Markdown: Avoid a fatal error on WordPress 7.2 when another plugin runs kses on translated strings.
+- Memberships: Enforce post ownership on membership plans and coupons so users cannot edit ones owned by others.
+- My Jetpack: Fill checked checkboxes in the Features list with the selected filter's color, show their focus ring only for keyboard focus, and show one focus ring per control instead of two.
+- My Jetpack: Keep the Jetpack Pro upgrade card inside narrow columns and phone screens.
+- My Jetpack: Show a lapsed Scan purchase as Expired, with a link to resume it and an expired-plan notice, instead of offering an upgrade.
+- My Jetpack: Stop upgrade screens from briefly offering Jetpack Security before Jetpack Pro.
+- Newsletter: Clarify that the subscriber sent count includes only newsletters and keep its label readable on narrow screens.
+- Newsletter: Harden the Subscribers list against a numeric display name in the API response.
+- Open Graph Meta tags: Add video tags for posts that use a VideoPress or Video block, so shared links can play the video.
+- Podcast: Warn about unlaunched sites and sites hidden from search engines.
+- Premium Analytics: Fix the Stats dashboard failing to load on WordPress 7.2.
+- Premium Analytics: Improve page transitions between reports and detail views.
+- Premium Analytics: Keep a video's Retention rate chart inside its plot when retention is above 100%.
+- Premium Analytics: Keep the month in month labels for Japanese, Chinese and Korean sites, which showed a day marker instead (2021年1日 rather than 2021年1月).
+- Premium Analytics: Keep the place of a hidden Stats v2 tab when the tab order is saved.
+- Premium Analytics: Keep the side padding on the longer option of a card's view toggle, such as Posts & pages on the Top pages card.
+- Premium Analytics: Keep the widget title from being cut off beside a toggle, so the toggle folds into the widget controls menu at the same width whichever way the widget is resized.
+- Premium Analytics: Move an old Year to date or All time link to today's window when its saved interval no longer fits, so the address bar matches the charts.
+- Premium Analytics: Move a preset's dates to the new day when a page is left open past midnight, so the numbers and the date controls include today.
+- Premium Analytics: Name an untitled post, author or video in the last breadcrumb of its page, as the header does.
+- Premium Analytics: Open the dashboard for old Stats links on WordPress 7.2 instead of a page-not-found error.
+- Premium Analytics: Shorten the breadcrumb trail and hide the Customizing badge on phones, instead of letting them cover the header buttons.
+- Premium Analytics: Show metric cards as a list when the card is too narrow for every metric to fit side by side, instead of cutting off the figures.
+- Premium Analytics: Stop a long post title from widening the page on desktop, so the header buttons stay in view.
+- Premium Analytics: Use the locale's default date format when the site's Date Format setting lacks a day, month or year, so chart labels and the date selector stay unambiguous.
+- SEO: Group the AI crawler toggles so screen readers announce each group and its description.
+- SEO: List pages from the main menu first in llms.txt, so they are not cut on sites with more than 50 pages.
+- SEO: Omit separate first and last profile names from structured data and Open Graph metadata.
+- SEO: Show apostrophes, quotes, and ampersands as characters instead of HTML entities in schema markup.
+- SEO: Show site names, titles, and summaries in llms.txt as plain characters instead of HTML entities.
+- SEO: Stop listing theme and page builder layout post types, such as Kadence Elements, in llms.txt, the SEO page and the SEO columns on post lists.
+- SEO: Use each post's SEO description for its llms.txt link summary when one is set.
+- SEO: Use the posts page's own SEO description, excerpt, and title in its meta and Open Graph tags.
+- SEO: Use the posts page's own SEO title, or the Pages title format, in its title and Open Graph title.
+- Settings: Tidy the Post by Email card layout.
+- Site Chat: Skip post context on restricted posts.
+- Sitemaps: Keep a working sitemap available while the first Jetpack index is generated.
+- Social: Fix the missing icon on the remove button of the default image picker.
+- Social: Keep posts published through Post by Email or the WordPress.com API with sharing turned off from being shared.
+- Social: Share posts published through the WordPress.com API with a list of services only to those services.
+- Stats: Count visitors who have not made a consent choice on opt-out sites when a performance plugin delays the WP Consent API script.
+- Stats: Keep Year in review and Subscriber highlights in columns after switching dashboard tabs.
+- Stats: On sites running the WP Consent API, count AMP views only after the visitor allows statistics in an AMP consent banner. AMP pages without one, AMP pages not rendered by the AMP plugin, and Web Stories are no longer counted there.
+- VideoPress: Show an error when a video details or privacy change is not saved, instead of reporting success.
+- WordPress.com Reader: Stop marking every item of a custom feed template with the same post ID.
 
 --------
 

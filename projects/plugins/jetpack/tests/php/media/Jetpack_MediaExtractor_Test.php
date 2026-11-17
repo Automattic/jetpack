@@ -251,6 +251,16 @@ class Jetpack_MediaExtractor_Test extends WP_UnitTestCase {
 		$this->assertEquals( $image_list, $images_extracted );
 	}
 
+	/**
+	 * URL of a file in the uploads directory, which WordPress trunk's test suite moves to `wp-content/test-suite-uploads`.
+	 *
+	 * @param string $file File name.
+	 * @return string
+	 */
+	private function upload_url( $file ) {
+		return wp_get_upload_dir()['baseurl'] . '/' . $file;
+	}
+
 	private function add_test_post() {
 		$post_id        = self::factory()->post->create();
 		$img_name       = 'image1.jpg';
@@ -344,7 +354,7 @@ class Jetpack_MediaExtractor_Test extends WP_UnitTestCase {
 
 			An Image:
 
-			<a href="http://example.org/wp-content/uploads/image1.jpg"><img class="alignnone size-full wp-image-32" alt="Screen Shot 2013-03-15 at 1.27.05 PM" src="http://example.org/wp-content/uploads/image1.jpg" width="519" height="317" /></a>
+			<a href="' . $this->upload_url( 'image1.jpg' ) . '"><img class="alignnone size-full wp-image-32" alt="Screen Shot 2013-03-15 at 1.27.05 PM" src="' . $this->upload_url( 'image1.jpg' ) . '" width="519" height="317" /></a>
 
 			&nbsp;
 
@@ -418,7 +428,7 @@ class Jetpack_MediaExtractor_Test extends WP_UnitTestCase {
 					'host_reversed' => 'com.anotherlink',
 				),
 				array(
-					'url'           => 'example.org/wp-content/uploads/image1.jpg',
+					'url'           => preg_replace( '#^https?://#', '', $this->upload_url( 'image1.jpg' ) ),
 					'host_reversed' => 'org.example',
 					'host'          => 'example.org',
 				),
@@ -444,8 +454,8 @@ class Jetpack_MediaExtractor_Test extends WP_UnitTestCase {
 
 		$expected = array(
 			'image' => array(
-				0 => array( 'url' => 'http://example.org/wp-content/uploads/image1.jpg' ),
-				1 => array( 'url' => 'http://example.org/wp-content/uploads/image2.jpg' ),
+				0 => array( 'url' => $this->upload_url( 'image1.jpg' ) ),
+				1 => array( 'url' => $this->upload_url( 'image2.jpg' ) ),
 			),
 			'has'   => array(
 				'image'   => 2,
@@ -468,19 +478,19 @@ class Jetpack_MediaExtractor_Test extends WP_UnitTestCase {
 		$expected = array(
 			'image' => array(
 				0 => array(
-					'url'        => 'http://example.org/wp-content/uploads/image1.jpg',
+					'url'        => $this->upload_url( 'image1.jpg' ),
 					'src_width'  => 300,
 					'src_height' => 250,
 					'alt_text'   => 'one image',
 				),
 				1 => array(
-					'url'        => 'http://example.org/wp-content/uploads/image2.jpg',
+					'url'        => $this->upload_url( 'image2.jpg' ),
 					'src_width'  => 350,
 					'src_height' => 240,
 					'alt_text'   => 'second image',
 				),
 				2 => array(
-					'url'        => 'http://example.org/wp-content/uploads/image1.jpg',
+					'url'        => $this->upload_url( 'image1.jpg' ),
 					'alt_text'   => 'Screen Shot 2013-03-15 at 1.27.05 PM',
 					'src_width'  => 519,
 					'src_height' => 317,

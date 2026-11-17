@@ -1,7 +1,11 @@
 import { dispatch } from '@wordpress/data';
 import { getSettings, setSettings } from '@wordpress/date';
 import { store as preferencesStore } from '@wordpress/preferences';
-import { DASHBOARD_PREFERENCES_SCOPE } from '@jetpack-premium-analytics/data';
+import {
+	DASHBOARD_PREFERENCES_SCOPE,
+	needsReportDateParamsSeed,
+	type StatsDatePolicy,
+} from '@jetpack-premium-analytics/data';
 import { seedSiteDateParams } from './site-date-seed';
 
 type PreferencesActions = { set: ( scope: string, name: string, value: unknown ) => void };
@@ -94,6 +98,64 @@ describe( 'seedSiteDateParams', () => {
 		expect( seeded.compare_from ).toBeUndefined();
 	} );
 
+	it( "opens a fresh load on the plan's default preset, compared", () => {
+		const policy: StatsDatePolicy = {
+			feature: 'long-date-presets',
+			lockedPresetIds: [ 'last-12-months' ],
+			fallbackPresetId: 'last-30-days',
+			lockedIntervals: [],
+			offersComparison: true,
+		};
+		remember( 'datePreset', 'last-12-months' );
+
+		expect( seedSiteDateParams( { section: 'traffic' }, policy ) ).toMatchObject( {
+			preset: 'last-30-days',
+			comp: '1',
+			compare_preset: 'previous-period',
+		} );
+	} );
+
+	it( 'leaves a fresh load uncompared on a plan that offers no comparison', () => {
+		const policy: StatsDatePolicy = {
+			feature: 'recent-7-days',
+			earliestDate: new Date( '2026-02-12T05:00:00.000Z' ),
+			lockedPresetIds: [ 'last-30-days' ],
+			fallbackPresetId: 'last-7-days',
+			lockedIntervals: [],
+			offersComparison: false,
+		};
+
+		const seeded = seedSiteDateParams( { section: 'traffic' }, policy );
+
+		expect( seeded.preset ).toBe( 'last-7-days' );
+		expect( seeded.comp ).toBeUndefined();
+	} );
+
+	// The seed and the seed check read one window, or the route would redirect forever.
+	it.each( [
+		[ 'year-to-date', '2026-01-01T00:00:00.000-05:00', '2026-01-05T23:59:59.999-05:00', 'hour' ],
+		[ 'all-time', '2010-01-01T00:00:00.000-05:00', '2025-12-31T23:59:59.999-05:00', 'day' ],
+	] as const )(
+		'seeds a stale %s link into one the seed check accepts',
+		( preset, from, to, interval ) => {
+			const policy: StatsDatePolicy = {
+				feature: 'long-date-presets',
+				lockedPresetIds: [],
+				fallbackPresetId: 'last-30-days',
+				lockedIntervals: [ 'week' ],
+				offersComparison: true,
+			};
+
+			const link = { section: 'traffic', preset, from, to, interval };
+			const seeded = seedSiteDateParams( link, policy );
+
+			expect( needsReportDateParamsSeed( link, policy.lockedIntervals ) ).toBe( true );
+			expect( seeded.interval ).not.toBe( interval );
+			expect( needsReportDateParamsSeed( seeded, policy.lockedIntervals ) ).toBe( false );
+		}
+	);
+
+	// The preset is kept and measured from the window the page opens on, not the dates it came with.
 	it( 'keeps the comparison a fresh URL already carries', () => {
 		const seeded = seedSiteDateParams( {
 			comp: '1',
@@ -103,7 +165,8 @@ describe( 'seedSiteDateParams', () => {
 		} );
 
 		expect( seeded ).toMatchObject( {
-			compare_from: '2025-02-18T00:00:00.000-05:00',
+			compare_from: '2025-02-12T00:00:00.000-05:00',
+			compare_to: '2025-02-18T23:59:59.999-05:00',
 			compare_preset: 'previous-year',
 		} );
 	} );

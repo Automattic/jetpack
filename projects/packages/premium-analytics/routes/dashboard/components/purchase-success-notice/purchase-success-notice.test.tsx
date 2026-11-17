@@ -19,6 +19,9 @@ jest.mock(
 	() => jest.requireActual( '../../../../tests/js/analytics-test-utils' ).mockJetpackAnalytics
 );
 jest.mock( '@wordpress/api-fetch', () => jest.fn() );
+jest.mock( '@wordpress/route', () => ( {
+	Link: jest.requireActual( '../../../../tests/js/route-test-utils' ).mockWordPressRoute.Link,
+} ) );
 
 const mockApiFetch = apiFetch as unknown as jest.Mock;
 const recordEvent = jest.mocked( analytics.tracks.recordEvent );
@@ -98,9 +101,7 @@ describe( 'PurchaseSuccessNotice', () => {
 		).toBeInTheDocument();
 		expect( link ).toHaveAttribute(
 			'href',
-			expect.stringContaining(
-				'#!/stats/purchase/123456789?from=jetpack-free-stats-purchase-success-notice&productType=commercial'
-			)
+			expect.stringContaining( '/upgrade?source=jetpack-free-stats-purchase-success-notice' )
 		);
 		expect( recordEvent ).toHaveBeenCalledWith(
 			'jetpack_premium_analytics_purchase_success_notice_upgrade_click',

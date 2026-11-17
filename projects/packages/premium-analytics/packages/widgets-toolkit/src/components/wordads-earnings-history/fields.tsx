@@ -2,9 +2,8 @@
  * External dependencies
  */
 import { parseSiteDateTime } from '@jetpack-premium-analytics/datetime';
-import { Badge } from '@jetpack-premium-analytics/externals';
+import { Badge, Tooltip } from '@jetpack-premium-analytics/externals';
 import { formatDate, formatMetricValue } from '@jetpack-premium-analytics/formatters';
-import { Tooltip } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
@@ -173,15 +172,20 @@ export function EarningsStatusBadge( { status }: { status: number | undefined } 
 		);
 	}
 
-	const badge = (
-		<Badge intent={ intent } tabIndex={ tooltip ? 0 : undefined }>
-			{ label }
-		</Badge>
-	);
+	if ( ! tooltip ) {
+		return (
+			<span className={ styles.root }>
+				<Badge intent={ intent }>{ label }</Badge>
+			</span>
+		);
+	}
 
 	return (
 		<span className={ styles.root }>
-			{ tooltip ? <Tooltip text={ tooltip }>{ badge }</Tooltip> : badge }
+			<Tooltip.Root>
+				<Tooltip.Trigger render={ <Badge intent={ intent }>{ label }</Badge> } tabIndex={ 0 } />
+				<Tooltip.Popup>{ tooltip }</Tooltip.Popup>
+			</Tooltip.Root>
 		</span>
 	);
 }

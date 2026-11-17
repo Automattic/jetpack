@@ -621,14 +621,23 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding_Test extends \WorDBless\BaseT
 		$requests = array();
 		$this->mock_http_routes(
 			array(
-				'/v1/oauth2/token'               => $this->token_response(),
-				'/v2/customer/partner-referrals' => $this->referral_response(),
+				'/v1/oauth2/token'                 => $this->token_response(),
+				'/v2/customer/partner-referrals'   => $this->referral_response(),
+				'/merchant-integrations/MERCHANT1' => $this->merchant_integration_response(),
+				'/v1/checkout/payment-resources'   => $this->http_response( 201, array( 'id' => 'PLB-NEW' ) ),
 			),
 			$requests
 		);
 
-		$this->endpoint->generate_signup_link( $this->signup_link_request( 'sandbox' ) );
+		// A code sent on one call must not leak into the next call without one.
+		$request = $this->signup_link_request( 'sandbox' );
+		$request->set_param( 'partner_attribution_id', 'My_Sandbox-BN' );
+		$this->endpoint->generate_signup_link( $request );
 
+		$this->endpoint->generate_signup_link( $this->signup_link_request( 'sandbox' ) );
+		$this->assertArrayNotHasKey( 'PayPal-Partner-Attribution-Id', end( $requests )['args']['headers'] );
+
+		$this->endpoint->forward_request( $this->forward_request() );
 		$this->assertArrayNotHasKey( 'PayPal-Partner-Attribution-Id', end( $requests )['args']['headers'] );
 	}
 
@@ -778,16 +787,24 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding_Test extends \WorDBless\BaseT
 		);
 
 		$result = $this->endpoint->get_merchant_integration_status(
-			$this->merchant_integration_request( array( 'tracking_id' => 'woo-ncps-1234-1700000000' ) )
+			$this->merchant_integration_request(
+				array(
+					'tracking_id'            => 'woo-ncps-1234-1700000000',
+					'partner_attribution_id' => 'My_Sandbox-BN',
+				)
+			)
 		);
 
 		$this->assertNotInstanceOf( WP_Error::class, $result );
 		$this->assertSame( 'MERCHANT1', $result->get_data()['merchant_id'] );
 		$this->assertSame( 'junior@sports.com', $result->get_data()['primary_email'] );
 
-		// Both lookups address PayPal as the partner.
+		// Both lookups address PayPal as the partner, and carry the site's BN code.
 		$this->assertStringContainsString( '/v1/customer/partners/SANDBOX_PARTNER/merchant-integrations?tracking_id=woo-ncps-1234-1700000000', $requests[1]['url'] );
 		$this->assertStringContainsString( '/v1/customer/partners/SANDBOX_PARTNER/merchant-integrations/MERCHANT1', $requests[2]['url'] );
+		$this->assertSame( 'My_Sandbox-BN', $requests[1]['args']['headers']['PayPal-Partner-Attribution-Id'] );
+		$this->assertSame( 'My_Sandbox-BN', $requests[2]['args']['headers']['PayPal-Partner-Attribution-Id'] );
+		$this->assertArrayNotHasKey( 'PayPal-Partner-Attribution-Id', $requests[0]['args']['headers'], 'The token exchange is the platform\'s own call.' );
 	}
 
 	/**
@@ -950,11 +967,15 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding_Test extends \WorDBless\BaseT
 			$requests
 		);
 
-		$result = $this->endpoint->forward_request( $this->forward_request() );
+		$result = $this->endpoint->forward_request( $this->forward_request( array( 'partner_attribution_id' => 'My_Sandbox-BN' ) ) );
 
 		$this->assertNotInstanceOf( WP_Error::class, $result );
 		$this->assertSame( 201, $result->get_data()['status'] );
 		$this->assertSame( array( 'id' => 'PLB-NEW' ), json_decode( $result->get_data()['body'], true ) );
+
+		// The seller check that precedes the forwarded call carries the BN code too.
+		$this->assertStringContainsString( '/merchant-integrations/MERCHANT1', $requests[1]['url'] );
+		$this->assertSame( 'My_Sandbox-BN', $requests[1]['args']['headers']['PayPal-Partner-Attribution-Id'] );
 
 		$paypal_call = end( $requests );
 		$this->assertSame(
@@ -964,11 +985,111 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding_Test extends \WorDBless\BaseT
 		$this->assertSame( 'POST', $paypal_call['args']['method'] );
 		$this->assertSame( 'Bearer platform_access_token', $paypal_call['args']['headers']['Authorization'] );
 		$this->assertSame( 'req-1', $paypal_call['args']['headers']['PayPal-Request-Id'] );
+		$this->assertSame( 'My_Sandbox-BN', $paypal_call['args']['headers']['PayPal-Partner-Attribution-Id'] );
 		$this->assertSame(
 			WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding::build_auth_assertion( 'sandbox_platform_id', 'MERCHANT1' ),
 			$paypal_call['args']['headers']['PayPal-Auth-Assertion']
 		);
 		$this->assertSame( array( 'type' => 'BUY_NOW' ), json_decode( $paypal_call['args']['body'], true ) );
+	}
+
+	/**
+	 * Test that an image upload reaches PayPal as multipart/form-data, one `files` part per image.
+	 */
+	public function test_forwarded_files_are_sent_as_multipart() {
+		$this->connect_site();
+		$this->store_platform_credentials();
+		$requests = array();
+		$this->mock_http_routes(
+			array(
+				'/v1/oauth2/token'                 => $this->token_response(),
+				'/merchant-integrations/MERCHANT1' => $this->merchant_integration_response(),
+				'/payment-resources/images'        => $this->http_response( 207, array( 'images' => array() ) ),
+			),
+			$requests
+		);
+
+		$result = $this->endpoint->forward_request(
+			$this->forward_request(
+				array(
+					'path'  => '/v1/checkout/payment-resources/images',
+					'body'  => null,
+					'files' => array(
+						array(
+							'name'    => 'mug.png',
+							'type'    => 'image/png',
+							// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
+							'content' => base64_encode( "\x89PNG\x00bytes" ),
+						),
+					),
+				)
+			)
+		);
+
+		$this->assertSame( 207, $result->get_data()['status'] );
+
+		$paypal_call = end( $requests );
+		$this->assertSame( 1, preg_match( '#^multipart/form-data; boundary=(\S+)$#', $paypal_call['args']['headers']['Content-Type'], $matches ) );
+		$this->assertSame(
+			'--' . $matches[1] . "\r\nContent-Disposition: form-data; name=\"files\"; filename=\"mug.png\"\r\nContent-Type: image/png\r\n\r\n\x89PNG\x00bytes\r\n--" . $matches[1] . "--\r\n",
+			$paypal_call['args']['body']
+		);
+	}
+
+	/**
+	 * Test that files are refused anywhere but a POST to the images path, and when they are not images.
+	 *
+	 * @param array $overrides Request parameters to change.
+	 * @dataProvider provide_refused_files
+	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provide_refused_files' )]
+	public function test_forwarded_files_are_refused( array $overrides ) {
+		$this->connect_site();
+		$this->store_platform_credentials();
+		$requests = array();
+		$this->mock_http_routes( array(), $requests );
+
+		$result = $this->endpoint->forward_request(
+			$this->forward_request(
+				array_merge(
+					array(
+						'path'  => '/v1/checkout/payment-resources/images',
+						'files' => array(
+							array(
+								'name'    => 'mug.png',
+								'type'    => 'image/png',
+								'content' => 'Ynl0ZXM=',
+							),
+						),
+					),
+					$overrides
+				)
+			)
+		);
+
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertSame( 'paypal_invalid_files', $result->get_error_code() );
+		$this->assertSame( array(), $requests );
+	}
+
+	/**
+	 * Requests whose files must not reach PayPal.
+	 *
+	 * @return array<string, array{0:array}>
+	 */
+	public static function provide_refused_files() {
+		$file = array(
+			'name'    => 'mug.png',
+			'type'    => 'image/png',
+			'content' => 'Ynl0ZXM=',
+		);
+
+		return array(
+			'another path'   => array( array( 'path' => '/v1/checkout/payment-resources' ) ),
+			'another method' => array( array( 'method' => 'PUT' ) ),
+			'not an image'   => array( array( 'files' => array( array_merge( $file, array( 'type' => "text/html\r\nX-Injected: 1" ) ) ) ) ),
+			'not base64'     => array( array( 'files' => array( array_merge( $file, array( 'content' => '***' ) ) ) ) ),
+		);
 	}
 
 	/**
@@ -1373,6 +1494,9 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding_Test extends \WorDBless\BaseT
 			'collection'            => array( '/v1/checkout/payment-resources', true ),
 			'collection with query' => array( '/v1/checkout/payment-resources?page_size=100&total_required=true', true ),
 			'one resource'          => array( '/v1/checkout/payment-resources/PLB-ABC123', true ),
+			'image upload'          => array( '/v1/checkout/payment-resources/images', true ),
+			'one image'             => array( '/v1/checkout/payment-resources/images/LzAw%2FaW1%3D', true ),
+			'image traversal'       => array( '/v1/checkout/payment-resources/images/..', false ),
 			'orders'                => array( '/v2/checkout/orders', false ),
 			'merchant integrations' => array( '/v1/customer/partners/X/merchant-integrations/Y', false ),
 			'traversal'             => array( '/v1/checkout/payment-resources/../../v2/checkout/orders', false ),

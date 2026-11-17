@@ -55,9 +55,14 @@ const getMetricLabel = metric => {
  *
  * @param {object} apiData        - Data from WordPress.com stats API with fields and data arrays
  * @param {string} selectedMetric - The metric to display (views, visitors, likes, comments)
+ * @param {string} stroke         - The series color.
  * @return {Array} SeriesData array formatted for BarChart component
  */
-const transformStatsDataForChart = ( apiData, selectedMetric = 'views' ) => {
+export const transformStatsDataForChart = (
+	apiData,
+	selectedMetric = 'views',
+	stroke = '#008710' // Jetpack green (--jp-green-50)
+) => {
 	if ( ! apiData || ! apiData.fields || ! apiData.data || ! Array.isArray( apiData.data ) ) {
 		return [];
 	}
@@ -81,9 +86,7 @@ const transformStatsDataForChart = ( apiData, selectedMetric = 'views' ) => {
 				date: new Date( dataPoint[ periodIndex ] + 'T00:00:00' ), // This ensures the date represents midnight in the local timezone rather than UTC midnight converted to local time.
 				value: dataPoint[ metricIndex ] || 0,
 			} ) ),
-			options: {
-				stroke: '#008710', // Jetpack green (--jp-green-50) #008710
-			},
+			options: { stroke },
 		},
 	];
 };
@@ -111,12 +114,12 @@ const getDynamicTitle = metric => {
  * @param {object}   props.counts               - Counts object for the current period.
  * @param {object}   props.previousCounts       - Counts object for the previous period.
  * @param {number}   props.headingLevel         - Heading level between 1 and 6.
- * @param {Array}    props.chartData            - Chart data for the bar chart visualization.
+ * @param {?object}  props.chartData            - Chart data for the bar chart visualization.
  * @param {boolean}  props.isLoading            - Whether the data is loading.
  * @param {string}   props.detailedStatsHref    - Destination of the detailed stats link.
  * @param {Function} props.onDetailedStatsClick - Function to handle detailed stats click.
  *
- * @return {object} StatsCards React component.
+ * @return {import('react').JSX.Element} StatsCards React component.
  */
 const StatsCards = ( {
 	counts,

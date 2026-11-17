@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\SEO;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use ReflectionMethod;
 use WP_Post;
@@ -18,15 +19,23 @@ use WP_Post;
 #[CoversClass( Post_Schema_Node::class )]
 class PostSchemaNodeTest extends TestCase {
 
+	protected function tearDown(): void {
+		remove_all_filters( 'get_post_metadata' );
+		parent::tearDown();
+	}
+
 	/**
-	 * Reset the host-plugin stubs (see tests/php/bootstrap.php) before each test.
-	 *
-	 * @return void
+	 * Make every post report the "faq" schema-type override, including unsaved ones.
 	 */
-	protected function setUp(): void {
-		parent::setUp();
-		\Jetpack_SEO_Posts::$schema_type = '';
-		\Jetpack_SEO_Posts::$description = '';
+	private function set_faq_schema_type() {
+		add_filter(
+			'get_post_metadata',
+			static function ( $value, $post_id, $key ) {
+				return Content_Coverage::META_SCHEMA_TYPE === $key ? array( 'faq' ) : $value;
+			},
+			10,
+			3
+		);
 	}
 
 	/**
@@ -47,6 +56,8 @@ class PostSchemaNodeTest extends TestCase {
 					'post_date'     => '2026-01-01 00:00:00',
 					'post_date_gmt' => '2026-01-01 00:00:00',
 					'post_author'   => 0,
+					// Marks the object as already loaded, so get_post() doesn't look this unsaved post up.
+					'filter'        => 'raw',
 				),
 				$fields
 			)
@@ -122,6 +133,53 @@ class PostSchemaNodeTest extends TestCase {
 	}
 
 	/**
+	 * Article text is plain characters, and escaped markup survives as text.
+	 *
+	 * @dataProvider provide_stored_article_text
+	 *
+	 * @param string $field    Article field under test.
+	 * @param string $stored   Stored value.
+	 * @param string $expected Expected field value.
+	 */
+	#[DataProvider( 'provide_stored_article_text' )]
+	public function test_article_text_decodes_html_entities( $field, $stored, $expected ) {
+		$post_id = wp_insert_post(
+			array(
+				'post_status' => 'publish',
+				'post_title'  => 'headline' === $field ? $stored : 'Title',
+			)
+		);
+		update_post_meta( $post_id, Content_Coverage::META_DESCRIPTION, 'description' === $field ? $stored : 'Summary' );
+
+		// The description is only built on a singular view.
+		global $wp_query;
+		$wp_query              = new \WP_Query();
+		$wp_query->is_singular = true;
+
+		$node = Post_Schema_Node::build( get_post( $post_id ) );
+		wp_delete_post( $post_id, true );
+		$wp_query = new \WP_Query();
+
+		$this->assertSame( $expected, $node[ $field ] );
+	}
+
+	/**
+	 * Stored Article text and the characters it should produce.
+	 *
+	 * @return array
+	 */
+	public static function provide_stored_article_text() {
+		return array(
+			'texturized apostrophe in headline' => array( 'headline', "What's New", "What\u{2019}s New" ),
+			'ampersand in headline'             => array( 'headline', 'Tom &amp; Jerry', 'Tom & Jerry' ),
+			'escaped markup in headline'        => array( 'headline', 'Use &lt;div&gt; tags', 'Use <div> tags' ),
+			'ampersand in description'          => array( 'description', 'Tom &amp; Jerry', 'Tom & Jerry' ),
+			'XML apostrophe in description'     => array( 'description', 'It&apos;s new', "It's new" ),
+			'escaped markup in description'     => array( 'description', 'Use &lt;div&gt; tags', 'Use <div> tags' ),
+		);
+	}
+
+	/**
 	 * A page with no override produces no node (pages have no default schema).
 	 */
 	public function test_published_page_has_no_default_schema() {
@@ -135,7 +193,7 @@ class PostSchemaNodeTest extends TestCase {
 	 * so the question (the `<summary>`) is not duplicated into the answer text.
 	 */
 	public function test_faq_answer_excludes_the_question() {
-		\Jetpack_SEO_Posts::$schema_type = 'faq';
+		$this->set_faq_schema_type();
 
 		$content  = '<!-- wp:details -->';
 		$content .= '<details class="wp-block-details"><summary>What is <strong>SEO</strong> &amp; AEO?</summary>';
@@ -160,7 +218,7 @@ class PostSchemaNodeTest extends TestCase {
 	 * the paywall never sees the answers this node would expose.
 	 */
 	public function test_faq_is_null_for_gated_post() {
-		\Jetpack_SEO_Posts::$schema_type = 'faq';
+		$this->set_faq_schema_type();
 
 		$content  = '<!-- wp:details -->';
 		$content .= '<details class="wp-block-details"><summary>What is SEO?</summary>';
@@ -187,8 +245,8 @@ class PostSchemaNodeTest extends TestCase {
 	 * an empty/invalid FAQPage.
 	 */
 	public function test_faq_without_details_blocks_is_null() {
-		\Jetpack_SEO_Posts::$schema_type = 'faq';
-		$node                            = Post_Schema_Node::build(
+		$this->set_faq_schema_type();
+		$node = Post_Schema_Node::build(
 			$this->make_post( array( 'post_content' => '<!-- wp:paragraph --><p>No FAQ here.</p><!-- /wp:paragraph -->' ) )
 		);
 		$this->assertNull( $node );

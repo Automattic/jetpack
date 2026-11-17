@@ -9,6 +9,7 @@ import {
 } from '@jetpack-premium-analytics/data';
 import { resolveBucketStamp } from '@jetpack-premium-analytics/datetime';
 import {
+	HEADLINE_COUNT_FORMAT,
 	HOURS_DATA_FORMAT,
 	toDay,
 	type CountLabel,
@@ -47,19 +48,14 @@ export interface VideoMetricsState {
 	isLoading: boolean;
 	isFetching: boolean;
 	isError: boolean;
+	isPlaceholderData: boolean;
 	/** The raw request error, for `describeError()` to classify. */
 	error: unknown;
+	/** The zone the bucket dates are in. */
+	timezone: string;
 	hasData: boolean;
 	refetch: () => void;
 }
-
-/**
- * Whole-number count format, shared with the chart's required fallback format.
- */
-export const COUNT_FORMAT: DataFormat = {
-	type: 'number',
-	options: { useMultipliers: true, decimals: 0 },
-};
 
 const RATE_FORMAT: DataFormat = {
 	type: 'percentage',
@@ -217,11 +213,12 @@ export default function useVideoMetrics(
 		() => toDayWindow( reportParams.from, reportParams.to ),
 		[ reportParams.from, reportParams.to ]
 	);
-	const { data, timezone, isLoading, isFetching, isError, error, refetch } = useStatsSingleVideo(
-		videoId,
-		{ from: reportParams.from, to: reportParams.to, period: 'day', statType: 'all' },
-		{ enabled: !! primaryWindow }
-	);
+	const { data, timezone, isLoading, isFetching, isError, isPlaceholderData, error, refetch } =
+		useStatsSingleVideo(
+			videoId,
+			{ from: reportParams.from, to: reportParams.to, period: 'day', statType: 'all' },
+			{ enabled: !! primaryWindow }
+		);
 
 	const metrics = useMemo< MetricTab[] >( () => {
 		const buckets = primaryWindow ? calendarBucketWindows( primaryWindow, period ) : [];
@@ -255,7 +252,7 @@ export default function useVideoMetrics(
 				__( 'Views', 'jetpack-premium-analytics-pkg' ),
 				playsSeries,
 				total?.plays,
-				COUNT_FORMAT,
+				HEADLINE_COUNT_FORMAT,
 				count =>
 					/* translators: %s: number of views. */
 					_n( '%s View', '%s Views', count, 'jetpack-premium-analytics-pkg' )
@@ -271,7 +268,7 @@ export default function useVideoMetrics(
 					__( 'Impressions', 'jetpack-premium-analytics-pkg' ),
 					data.series.impressions,
 					total?.impressions,
-					COUNT_FORMAT,
+					HEADLINE_COUNT_FORMAT,
 					count =>
 						/* translators: %s: number of impressions. */
 						_n( '%s Impression', '%s Impressions', count, 'jetpack-premium-analytics-pkg' )
@@ -321,7 +318,9 @@ export default function useVideoMetrics(
 		isLoading,
 		isFetching,
 		isError,
+		isPlaceholderData,
 		error,
+		timezone,
 		hasData: !! data,
 		refetch: () => void refetch(),
 	};

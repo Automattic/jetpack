@@ -1,11 +1,5 @@
 import apiFetch from '@wordpress/api-fetch';
-import {
-	CrossOriginError,
-	TimeoutError,
-	getBlockLabel,
-	getTestOutcome,
-	runFirewallTest,
-} from '../firewall-test';
+import { CrossOriginError, TimeoutError, getTestOutcome, runFirewallTest } from '../firewall-test';
 
 jest.mock( '@wordpress/api-fetch', () => ( { __esModule: true, default: jest.fn() } ) );
 
@@ -29,17 +23,6 @@ describe( 'getTestOutcome', () => {
 
 	it( 'a page let through for the IP allow list says so', () => {
 		expect( getTestOutcome( 200, null, 'ip allow list', true ) ).toBe( 'allowed' );
-	} );
-} );
-
-describe( 'getBlockLabel', () => {
-	it.each( [
-		[ 'the self-check', { ruleId: -2, reason: 'reworded' }, 'Firewall test' ],
-		[ 'the IP block list', { ruleId: -1, reason: 'reworded' }, 'Blocked IP address' ],
-		[ 'a rule with a reason', { ruleId: 941100, reason: 'XSS attack' }, 'XSS attack' ],
-		[ 'a rule without a reason', { ruleId: 941100, reason: '' }, 'Rule 941100' ],
-	] )( '%s', ( _name, block, expected ) => {
-		expect( getBlockLabel( block ) ).toBe( expected );
 	} );
 } );
 

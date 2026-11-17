@@ -39,11 +39,7 @@ class Brute_Force_Protection_Shared_Functions {
 			'local' => array(),
 		);
 		foreach ( $local_allow_list as $item ) {
-			if ( $item->range ) {
-				$formatted['local'][] = $item->range_low . ' - ' . $item->range_high;
-			} else {
-				$formatted['local'][] = $item->ip_address;
-			}
+			$formatted['local'][] = self::ip_object_to_string( $item, ' - ' );
 		}
 		if ( is_multisite() && current_user_can( 'manage_network' ) ) {
 			$formatted['global'] = array();
@@ -53,11 +49,7 @@ class Brute_Force_Protection_Shared_Functions {
 				$global_allow_list = get_site_option( 'jetpack_protect_whitelist', array() );
 			}
 			foreach ( $global_allow_list as $item ) {
-				if ( $item->range ) {
-					$formatted['global'][] = $item->range_low . ' - ' . $item->range_high;
-				} else {
-					$formatted['global'][] = $item->ip_address;
-				}
+				$formatted['global'][] = self::ip_object_to_string( $item, ' - ' );
 			}
 		}
 		return $formatted;
@@ -166,6 +158,23 @@ class Brute_Force_Protection_Shared_Functions {
 	}
 
 	/**
+	 * Render an IP Address object as a string.
+	 *
+	 * @param object $item      An IP Address object.
+	 * @param string $separator Placed between the bounds of a hyphenated range.
+	 * @return string
+	 */
+	private static function ip_object_to_string( $item, $separator ) {
+		if ( ! $item->range ) {
+			return $item->ip_address;
+		}
+		if ( ! isset( $item->range_high ) ) {
+			return $item->range_low;
+		}
+		return $item->range_low . $separator . $item->range_high;
+	}
+
+	/**
 	 * Save IP allow list.
 	 *
 	 * @deprecated 0.11.0 Use save_allow_list()
@@ -205,7 +214,12 @@ class Brute_Force_Protection_Shared_Functions {
 				continue;
 			}
 			$new_item = self::create_ip_object( $item );
-			if ( $new_item->range ) {
+			if ( $new_item->range && null === $new_item->range_high ) {
+				if ( ! IP_Utils::validate_cidr( $new_item->range_low ) ) {
+					$allow_list_error = true;
+					break;
+				}
+			} elseif ( $new_item->range ) {
 				if ( ! filter_var( $new_item->range_low, FILTER_VALIDATE_IP ) || ! filter_var( $new_item->range_high, FILTER_VALIDATE_IP ) ) {
 					$allow_list_error = true;
 					break;
@@ -236,10 +250,7 @@ class Brute_Force_Protection_Shared_Functions {
 		} else {
 			$new_items = array_map(
 				function ( $item ) {
-					if ( $item->range ) {
-							return $item->range_low . '-' . $item->range_high;
-					}
-					return $item->ip_address;
+					return self::ip_object_to_string( $item, '-' );
 				},
 				$new_items
 			);

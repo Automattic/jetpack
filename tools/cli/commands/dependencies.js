@@ -62,7 +62,7 @@ extraFileSets.e2e = {
 	'^projects/plugins/jetpack/tests/e2e/specs/sync/': [ 'packages/sync' ],
 };
 
-export const command = 'dependencies <subcommand> [projects...]';
+export const command = 'dependencies <subcommand> [project...]';
 export const describe = 'Report monorepo project dependencies';
 
 /**
@@ -79,7 +79,7 @@ export function builder( yargs ) {
 			type: 'string',
 			choices: [ 'json', 'list', 'build-order', 'depths' ],
 		} )
-		.positional( 'projects', {
+		.positional( 'project', {
 			describe: 'Only include dependencies relevant to these projects.',
 			type: 'string',
 		} )
@@ -93,6 +93,11 @@ export function builder( yargs ) {
 		} )
 		.option( 'add-dependents', {
 			describe: 'Include the dependents of the named projects.',
+			type: 'boolean',
+		} )
+		.option( 'only-direct-dev-dependents', {
+			describe:
+				'With --add-dependents, follow only `require` and `dependencies` edges, plus projects with any edge, including dev and test, to one of the results.',
 			type: 'boolean',
 		} )
 		.option( 'extra', {
@@ -127,6 +132,12 @@ export function builder( yargs ) {
 export async function handler( argv ) {
 	const debug = argv.v ? m => console.error( chalkStderr.blue( m ) ) : () => {};
 	let deps = await getDependencies( process.cwd(), argv.extra, argv.dev === false );
+
+	// Composer doesn't install a dependency's require-dev, and shipped JS doesn't import its devDependencies, so a change can't reach past one dev edge.
+	const dependents =
+		argv.addDependents && argv.onlyDirectDevDependents
+			? await getDependencies( process.cwd(), null, true )
+			: argv.addDependents;
 
 	if ( argv.ignoreRoot ) {
 		deps.delete( 'monorepo' );
@@ -165,7 +176,7 @@ export async function handler( argv ) {
 		const extraFiles = Object.entries( extraFileSets[ argv.extra ] || extraFileSets.base ).map(
 			( [ k, v ] ) => [ new RegExp( k ), v ]
 		);
-		const projset = new Set( argv.projects );
+		const projset = new Set( argv.project );
 		const ig = ignore().add( ignoreFiles );
 		for ( const file of stdout.split( '\n' ).filter( v => v.length ) ) {
 			if ( infrastructureFiles.has( file ) ) {
@@ -201,7 +212,10 @@ export async function handler( argv ) {
 			( argv.extra === 'build' || argv.extra === 'test' ) &&
 			! projset.has( 'js-packages/storybook' )
 		) {
-			const tmpdeps = filterDeps( deps, [ ...projset ], { dependencies: false, dependents: true } );
+			const tmpdeps = filterDeps( deps, [ ...projset ], {
+				dependencies: false,
+				dependents,
+			} );
 			const { projects: storybookProjects } = await import(
 				path.join( process.cwd(), 'projects/js-packages/storybook/storybook/projects.js' )
 			);
@@ -218,7 +232,7 @@ export async function handler( argv ) {
 			}
 		}
 
-		argv.projects = [ ...projset ];
+		argv.project = [ ...projset ];
 
 		// If the diff touched nothing, we output nothing.
 		if ( projset.size === 0 ) {
@@ -226,10 +240,10 @@ export async function handler( argv ) {
 		}
 	}
 
-	if ( argv.projects.length ) {
-		deps = filterDeps( deps, argv.projects, {
+	if ( argv.project.length ) {
+		deps = filterDeps( deps, argv.project, {
 			dependencies: argv.addDependencies,
-			dependents: argv.addDependents,
+			dependents,
 		} );
 	}
 

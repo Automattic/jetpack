@@ -19,6 +19,27 @@ const GRIDICON_TO_KIND: Record< string, ActivityKind > = {
 };
 
 /**
+ * A completed backup's activity names. WPCOM swaps a backup's gridicon from
+ * `cloud` to `notice` when it finished with warnings, so the gridicon alone
+ * misses those backups (and their "N Warnings" links). Storage-limit failures
+ * share these names but can't be restored, so they need `is_rewindable` too.
+ */
+const BACKUP_NAME = /^rewind__backup(_only)?_complete/;
+
+/**
+ * Whether an entry is a completed backup.
+ *
+ * @param entry - WPCOM entry.
+ * @return True for a backup row.
+ */
+function isBackupEntry( entry: WpcomActivityEntry ): boolean {
+	return (
+		entry.gridicon === 'cloud' ||
+		( BACKUP_NAME.test( entry.name ?? '' ) && entry.is_rewindable !== false )
+	);
+}
+
+/**
  * Convert a single WPCOM rewindable-activity entry into the UI's
  * `ActivityItem` shape.
  *
@@ -30,7 +51,9 @@ const GRIDICON_TO_KIND: Record< string, ActivityKind > = {
  * @return The mapped item.
  */
 export function normalizeEntry( entry: WpcomActivityEntry ): ActivityItem {
-	const kind = GRIDICON_TO_KIND[ entry.gridicon ] ?? 'other';
+	const kind = isBackupEntry( entry )
+		? 'backup'
+		: ( GRIDICON_TO_KIND[ entry.gridicon ] ?? 'other' );
 
 	const actor = entry.actor ?? { type: 'Application', name: 'Jetpack' };
 	const base = {

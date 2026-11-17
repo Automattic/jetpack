@@ -1,8 +1,8 @@
-import { Icon, Notice, SelectControl, TextControl, Tooltip } from '@wordpress/components';
+import { Icon, Notice, SelectControl, TextControl } from '@wordpress/components';
 import { useCallback, useEffect, useMemo, useRef, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { caution, drafts, error, plus, published, trash } from '@wordpress/icons';
-import { Button, IconButton, Stack, Text } from '@wordpress/ui';
+import { Button, IconButton, Stack, Text, Tooltip } from '@wordpress/ui';
 import clsx from 'clsx';
 import { RULE_TYPE_FIELD_VALUE } from '../../constants.js';
 import { useEnsureFieldId } from '../../hooks/use-subject-fields.js';
@@ -312,19 +312,24 @@ const RuleRow = ( {
 				     why. The reason is on the icon as well as in its tooltip, because a
 				     tooltip renders nothing until hovered -- leaving it unreachable by
 				     keyboard and unread by a screen reader. */ }
-				<Tooltip text={ isComplete ? activeReason : inactiveReason }>
-					<span
-						className={ clsx( 'jetpack-contact-form__conditional-logic-rule-status', {
-							'is-active': isComplete,
-							'is-invalid': !! subjectMessage,
-							'is-unstarted': ! isStarted,
-						} ) }
-						role="img"
-						aria-label={ isComplete ? activeReason : inactiveReason }
+				<Tooltip.Root>
+					<Tooltip.Trigger
+						render={
+							<span
+								className={ clsx( 'jetpack-contact-form__conditional-logic-rule-status', {
+									'is-active': isComplete,
+									'is-invalid': !! subjectMessage,
+									'is-unstarted': ! isStarted,
+								} ) }
+								role="img"
+								aria-label={ isComplete ? activeReason : inactiveReason }
+							/>
+						}
 					>
 						<Icon icon={ statusIcon } size={ 20 } />
-					</span>
-				</Tooltip>
+					</Tooltip.Trigger>
+					<Tooltip.Popup>{ isComplete ? activeReason : inactiveReason }</Tooltip.Popup>
+				</Tooltip.Root>
 
 				<SelectControl
 					ref={ fieldRef }

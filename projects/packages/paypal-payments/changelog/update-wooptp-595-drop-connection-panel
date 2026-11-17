@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Move the connection panel's actions into the menus, drop the unused connect Success step, and show Sandbox under Log out for sandbox accounts.

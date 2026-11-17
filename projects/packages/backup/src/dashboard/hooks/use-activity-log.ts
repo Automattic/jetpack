@@ -1,5 +1,5 @@
 import { keepPreviousData, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useCallback, useMemo } from '@wordpress/element';
+import { useCallback, useMemo, useRef } from '@wordpress/element';
 import {
 	fetchActivityLog,
 	type ActivitySortOrder,
@@ -9,6 +9,7 @@ import {
 import { normalizeActivityLog } from '../data/normalize/activity-log';
 import { findRestoreRow, isRestoreRowId, mergeRestoreRows } from '../data/normalize/restores';
 import { keys } from '../data/query-client';
+import { isValidRewindId } from '../types/rewind-id';
 import { useCanQueryWpcom } from './use-connection';
 import { useRecentRestores } from './use-recent-restores';
 import { useStickyError } from './use-sticky-error';
@@ -24,8 +25,9 @@ type Result = {
 	items: ActivityItem[];
 	totalItems: number;
 	/**
-	 * Null until the feed has answered: DataViews leaves the page alone while
-	 * the total is unknown, but clamps it to 1 when handed a fallback count.
+	 * Null until the feed has answered, then kept even if a later page fails:
+	 * DataViews leaves the page alone while the total is unknown, but clamps it to 1 when
+	 * handed a fallback count.
 	 */
 	totalPages: number | null;
 	isLoading: boolean;
@@ -124,20 +126,48 @@ export function useActivityLog( { page, pageSize, sortOrder }: Args ): Result {
 
 	// The server's own count, not the merged one: restore rows land on a single
 	// page, so counting them would misreport how many pages there are.
-	const totalItems = query.data?.totalItems ?? entries.length;
-	const totalPages = query.data
-		? ( query.data.totalPages ?? Math.max( 1, Math.ceil( entries.length / pageSize ) ) )
-		: null;
+	const answer = query.data && {
+		totalItems: query.data.totalItems ?? entries.length,
+		totalPages: query.data.totalPages ?? Math.max( 1, Math.ceil( entries.length / pageSize ) ),
+	};
+	// A failed page has no count of its own, and DataViews hides its pager at zero items,
+	// which strands the reader there. Overview keeps the page-1 query mounted, so it
+	// covers a hook that never saw an answer.
+	const queryClient = useQueryClient();
+	const firstPage = queryClient.getQueryData< WpcomActivityLogResponse >(
+		keys.activityLogPage( 1, ACTIVITY_LOG_DEFAULT_PER_PAGE, ACTIVITY_LOG_NEWEST_FIRST )
+	);
+	const lastAnswer = useRef< ( NonNullable< typeof answer > & { pageSize: number } ) | null >(
+		null
+	);
+	if ( answer && ! query.isPlaceholderData ) {
+		lastAnswer.current = { ...answer, pageSize };
+	}
+	const known =
+		lastAnswer.current ??
+		( firstPage?.totalItems !== undefined && firstPage.totalPages !== undefined
+			? { ...firstPage, pageSize: ACTIVITY_LOG_DEFAULT_PER_PAGE }
+			: null );
+	const totalItems = known?.totalItems ?? 0;
+	// Recounted when the page size changed since the answer, or a failed per-page change keeps the old count.
+	const recount = known && known.pageSize !== pageSize;
+	const knownPages = recount
+		? Math.max( 1, Math.ceil( known.totalItems / pageSize ) )
+		: known?.totalPages;
+	const totalPages = answer?.totalPages ?? knownPages ?? null;
 
+	// A retry has no rows of its own: `keepPreviousData` would stand in the last page's.
+	const showsPlaceholder = query.isPlaceholderData && error !== null;
 	// Only once the feed has answered: a failed page holds no rows, and merged
 	// restores would fill it, hiding the failure the list's `empty` slot reports.
-	const items = useMemo(
-		() =>
-			query.isSuccess && totalPages !== null
-				? mergeRestoreRows( entries, restores.data, { page, totalPages, sortOrder } )
-				: entries,
-		[ query.isSuccess, entries, restores.data, page, totalPages, sortOrder ]
-	);
+	const items = useMemo( () => {
+		if ( showsPlaceholder ) {
+			return [];
+		}
+		return query.isSuccess && totalPages !== null
+			? mergeRestoreRows( entries, restores.data, { page, totalPages, sortOrder } )
+			: entries;
+	}, [ showsPlaceholder, query.isSuccess, entries, restores.data, page, totalPages, sortOrder ] );
 
 	// Wrapped so callers can hand it straight to `onClick` without
 	// returning a floating promise from the event handler.
@@ -167,15 +197,15 @@ export function useActivityLog( { page, pageSize, sortOrder }: Args ): Result {
  * selections that are not clicks — a bookmarked `?selected=` on a page nothing
  * has loaded, and the newest-backup default pinned by the hook below.
  *
- * A null item never means "no such row": it is equally the answer while the page
- * query is in flight, after it failed, and while the row sits on a page nothing
- * has loaded — `hasAnswered` is the list's page verdict, not the whole log's.
+ * A backup the loaded pages don't hold is fetched on its own, by the few seconds
+ * around its rewind id, so `hasAnswered` with a null item means it doesn't exist.
+ * For any other id it means only that no loaded page holds it.
  *
  * @param id        - Selection id: `rewindId` for backup items, `activity_id` otherwise.
  * @param page      - The page currently shown in the list.
  * @param pageSize  - The per-page setting currently shown in the list.
  * @param sortOrder - The sort direction currently shown in the list.
- * @return The matching item or null, whether the list's page query has answered, its failure if it did, and whether it is fetching now (false when paused or disabled).
+ * @return The matching item or null, whether the lookup has answered, its failure if it did, and whether it is fetching now (false when paused or disabled).
  */
 export function useActivityById(
 	id: string | null,
@@ -187,17 +217,19 @@ export function useActivityById(
 	hasAnswered: boolean;
 	error: Error | null;
 	isFetching: boolean;
+	retryLookup?: () => void;
 } {
 	// Follows the list's `sortOrder`: it is part of the cache key, so pinning it
 	// here would open a second query for rows already on screen.
 	const query = useActivityPageQuery( page, pageSize, sortOrder );
-	const restores = useRecentRestores( useCanQueryWpcom() );
+	const canQuery = useCanQueryWpcom();
+	const restores = useRecentRestores( canQuery );
 	const queryClient = useQueryClient();
 	// A merged restore row is never in the feed, so its id is answered by the
 	// collection instead — including which query decides `hasAnswered`.
 	const isRestore = id !== null && isRestoreRowId( id );
 
-	const item = useMemo( () => {
+	const loadedItem = useMemo( () => {
 		if ( ! id ) {
 			return null;
 		}
@@ -226,11 +258,77 @@ export function useActivityById(
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [ id, isRestore, restores.data, query.data ] );
 
+	const searchesAround =
+		canQuery && id !== null && isValidRewindId( id ) && query.isSuccess && ! loadedItem;
+	const around = useQuery( {
+		queryKey: keys.activityLogAround( id ?? '' ),
+		queryFn: () => fetchActivityAroundBackup( id as string ),
+		enabled: searchesAround,
+		// A finished backup's row never changes.
+		staleTime: Infinity,
+	} );
+	const lookupError = useStickyError( around.error, around.isFetching );
+	const { refetch: refetchAround } = around;
+	const retryLookup = useCallback( () => {
+		refetchAround();
+	}, [ refetchAround ] );
+
+	if ( searchesAround ) {
+		return {
+			item: findById( around.data?.current?.orderedItems, id as string ),
+			hasAnswered: around.isSuccess,
+			error: lookupError,
+			isFetching: around.isFetching,
+			retryLookup,
+		};
+	}
 	return {
-		item,
+		item: loadedItem,
 		hasAnswered: isRestore ? restores.isSuccess : query.isSuccess,
 		error: isRestore ? restores.error : query.error,
 		isFetching: isRestore ? restores.isFetching : query.isFetching,
+	};
+}
+
+// The window is a few seconds wide, so a backup's row is on its first page or two. More pages
+// mean WordPress.com ignored the window (it only honours it with the full activity log), and
+// paging through the whole log one request at a time would never end well.
+const MAX_PAGES_AROUND_BACKUP = 3;
+
+/**
+ * Search the window's pages, up to `MAX_PAGES_AROUND_BACKUP`, before declaring a backup absent.
+ *
+ * @param rewindId - The backup to find.
+ * @return The matching page, or the last page searched when no match exists.
+ */
+async function fetchActivityAroundBackup( rewindId: string ): Promise< WpcomActivityLogResponse > {
+	const args = aroundRewindId( rewindId );
+	let page = 1;
+	let response: WpcomActivityLogResponse;
+	do {
+		response = await fetchActivityLog( { ...args, page } );
+		if ( findById( response.current?.orderedItems, rewindId ) ) {
+			return response;
+		}
+		page++;
+	} while ( page <= Math.min( response.totalPages ?? 1, MAX_PAGES_AROUND_BACKUP ) );
+	return response;
+}
+
+/**
+ * The query for the log around one backup: its "Backup complete" row is stamped with its rewind id.
+ *
+ * @param rewindId - A rewind id that has passed `isValidRewindId`.
+ * @return Fetch args for a narrow, oldest-first window.
+ */
+function aroundRewindId( rewindId: string ) {
+	const seconds = Number.parseInt( rewindId, 10 );
+	const iso = ( at: number ) => new Date( at * 1000 ).toISOString().replace( '.000Z', 'Z' );
+	return {
+		after: iso( seconds - 1 ),
+		before: iso( seconds + 2 ),
+		sort_order: 'asc' as const,
+		number: 10,
 	};
 }
 

@@ -6,6 +6,10 @@
  * @package automattic/jetpack
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 if ( isset( $_GET['jetpack-notice'] ) && 'dismiss' === $_GET['jetpack-notice'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 	?>
 <div id="message" class="error">

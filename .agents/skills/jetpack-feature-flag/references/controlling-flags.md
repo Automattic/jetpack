@@ -49,6 +49,8 @@ add_filter(
 
 Filters can be added at any time — they are read when `is_enabled()` runs, not when the flag is registered.
 
+With no SSH or file access, as on a shared test host, paste the per-flag one-liner into the Code Snippets plugin set to run everywhere, and deactivate it when done. It runs on `plugins_loaded`, so it misses a flag read while plugins load; use an mu-plugin for those.
+
 On a JN or self-hosted site, drop either snippet in `wp-content/mu-plugins/`. Prefer the CLI below for routine testing: it survives a re-sync of the plugin directory, and it is visible to anyone else looking at the site.
 
 ## Jurassic Ninja: the Companion WP-CLI command
@@ -99,7 +101,7 @@ Companion renders a feature-flags section on **its own** settings subpage — `o
 
 Same option, a radio per flag storing `default` / `on` / `off`, labelled "Default (on)" / "Default (off)" / "On" / "Off". The section is hidden when the Jetpack package is absent, though the option still sanitizes and stores. Use it when clicking is easier than a shell; the CLI is the same data.
 
-The page disappears entirely when Jetpack Beta above v3 is active — a common Jurassic Ninja configuration, and precisely when someone goes looking for it. Use the CLI there.
+Companion hides the page only when Jetpack Beta defines the old global `Jetpack_Beta` class, which current Jetpack Beta (4.x) doesn't, so the page normally stays available alongside it. If it is missing, use the CLI.
 
 ## Local Docker
 
@@ -131,6 +133,7 @@ This is a different option from Companion's, but both answer the same generic fi
 | Testing on a Jurassic Ninja site | `wp companion feature-flag enable <flag>` |
 | Automated setup / scripted test runs | Same CLI, with `--format=json` and `--yes` |
 | Clicking through on a site you already have open | Companion settings section |
+| A tester's site with no SSH and no Companion (shared test hosts) | The per-flag filter in Code Snippets (see Code filters) |
 | A wpcom Simple or Atomic site, as an Automattician | Tools → Feature Flags (a8c) |
 | PHPUnit | `add_filter( 'jetpack_feature_flag_enabled_<flag>', '__return_true' )`, removed in teardown |
 | Rollout policy, cohorts, staff-only | Generic `jetpack_feature_flag_enabled` filter in code |

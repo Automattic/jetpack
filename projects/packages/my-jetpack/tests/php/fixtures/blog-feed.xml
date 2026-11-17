@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:media="http://search.yahoo.com/mrss/">
+<channel>
+	<title>Jetpack</title>
+	<link>https://jetpack.com</link>
+	<description>Jetpack</description>
+	<item>
+		<title>Jetpack&#8217;s new release</title>
+		<link>https://jetpack.com/resources/new-release/</link>
+		<pubDate>Thu, 15 Oct 2026 21:24:22 +0000</pubDate>
+		<description><![CDATA[<p>What&#8217;s new this month.</p>]]></description>
+		<media:thumbnail url="https://jetpack.com/wp-content/uploads/2026/10/new-release.png" />
+	</item>
+	<item>
+		<title>A post without an image</title>
+		<link>https://jetpack.com/resources/no-image/</link>
+		<pubDate>Wed, 07 Oct 2026 19:48:41 +0000</pubDate>
+		<description><![CDATA[No thumbnail here.]]></description>
+	</item>
+	<item>
+		<title>A post with an unsafe image</title>
+		<link>https://jetpack.com/resources/unsafe-image/</link>
+		<pubDate>Fri, 02 Oct 2026 17:59:46 +0000</pubDate>
+		<description><![CDATA[Unsafe thumbnail.]]></description>
+		<media:thumbnail url="javascript:alert(1)" />
+	</item>
+</channel>
+</rss>

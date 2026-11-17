@@ -1,0 +1,47 @@
+// No card surface: a wide dashboard stretches it into a mostly empty card.
+.root {
+	margin-block-start: var(--wpds-dimension-gap-lg);
+	container-type: inline-size;
+}
+
+.content {
+	display: grid;
+	gap: var(--wpds-dimension-gap-2xl);
+	align-items: start;
+	justify-content: center;
+	padding: var(--wpds-dimension-padding-2xl);
+}
+
+// Side by side, as in classic Stats, kept together on a wide dashboard.
+@container (min-inline-size: 720px) {
+
+	.content {
+		grid-template-columns: repeat(2, minmax(0, 480px));
+	}
+}
+
+.copy {
+	max-inline-size: 480px;
+}
+
+.description {
+	color: var(--wpds-color-foreground-content-neutral-weak);
+}
+
+.features {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.check {
+	flex-shrink: 0;
+	fill: var(--wpds-color-foreground-interactive-brand);
+}
+
+.visual {
+	inline-size: 100%;
+	max-inline-size: 480px;
+	overflow: hidden;
+	border-radius: var(--wpds-border-radius-lg);
+}

@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Fix a crash on mount when the localized widget configuration is missing or incomplete, which could leave the whole page blank.

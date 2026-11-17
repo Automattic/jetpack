@@ -1,0 +1,3 @@
+Significance: patch
+Type: changed
+Comment: Add a default-off My Jetpack flag for connecting an account from Features; nothing changes until it is on.

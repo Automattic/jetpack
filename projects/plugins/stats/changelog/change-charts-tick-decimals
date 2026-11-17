@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Stop store money charts repeating y-axis labels, such as $1, $1, $2, when the store shows fewer decimals than its amounts carry.

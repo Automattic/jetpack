@@ -3,7 +3,7 @@ import { act, renderHook, waitFor } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
 import { createElement, type ReactNode } from 'react';
 import { DEFAULT_RESTORE_ITEMS } from '../../types/restore';
-import { useDownload } from '../use-download';
+import { useDownload, POLL_INTERVAL_MS } from '../use-download';
 
 jest.mock( '@wordpress/api-fetch', () => ( { __esModule: true, default: jest.fn() } ) );
 const mockedApiFetch = apiFetch as unknown as jest.Mock;
@@ -163,6 +163,200 @@ describe( 'useDownload', () => {
 			} )
 		);
 	} );
+
+	it( 'says so when the download link has expired', async () => {
+		respondWith( {
+			id: 4321,
+			status: 'expired',
+			progress: 0,
+			url: '',
+			valid_until: '2026-08-20T00:00:00+00:00',
+			error: '',
+		} );
+		const { wrapper } = makeWrapper();
+
+		const { result } = renderHook( () => useDownload( REWIND_ID ), { wrapper } );
+		act( () => result.current.submit( DEFAULT_RESTORE_ITEMS ) );
+
+		await waitFor( () =>
+			expect( result.current.state ).toMatchObject( {
+				phase: 'error',
+				message: 'This download has expired.',
+			} )
+		);
+	} );
+} );
+
+describe( 'useDownload — a download already under way', () => {
+	/**
+	 * One download as the bridge projects it.
+	 *
+	 * @param overrides - Fields that differ from a running download of this backup.
+	 * @return The projected download.
+	 */
+	function row( overrides: Record< string, unknown > = {} ) {
+		return {
+			id: 77,
+			rewind_id: REWIND_ID,
+			status: 'running',
+			progress: 30,
+			url: '',
+			valid_until: '',
+			error: '',
+			...overrides,
+		};
+	}
+
+	const finished = row( {
+		status: 'finished',
+		progress: 0,
+		url: 'https://example.com/archive.zip',
+		valid_until: '2026-08-20T00:00:00+00:00',
+	} );
+
+	/**
+	 * Answer the downloads list, and each status read with the listed download it names.
+	 *
+	 * @param downloads - The list, or an error to reject the list with.
+	 * @param status    - How to answer a status read instead.
+	 */
+	function respondWithDownloads(
+		downloads: ReturnType< typeof row >[] | Error,
+		status: ( id: number ) => Promise< unknown > = id =>
+			Promise.resolve(
+				( Array.isArray( downloads ) && downloads.find( download => download.id === id ) ) ||
+					row( { id, progress: 10 } )
+			)
+	) {
+		mockedApiFetch.mockImplementation( ( options: { path: string; method?: string } ) => {
+			if ( options.method === 'POST' ) {
+				return Promise.resolve( { id: 4321 } );
+			}
+			if ( options.path.includes( '/backups/downloads' ) ) {
+				return downloads instanceof Error
+					? Promise.reject( downloads )
+					: Promise.resolve( downloads );
+			}
+			return status(
+				Number( new URL( options.path, 'https://example.com' ).searchParams.get( 'download_id' ) )
+			);
+		} );
+	}
+
+	/**
+	 * Every downloads-list request made so far.
+	 *
+	 * @return The matching apiFetch calls.
+	 */
+	function listCalls() {
+		return mockedApiFetch.mock.calls.filter( ( [ options ] ) =>
+			options.path.includes( '/backups/downloads' )
+		);
+	}
+
+	it( 'offers the form only once it knows no download is under way', async () => {
+		respondWithDownloads( [] );
+		const { wrapper } = makeWrapper();
+
+		const { result } = renderHook( () => useDownload( REWIND_ID, true, true ), { wrapper } );
+
+		expect( result.current.state ).toEqual( { phase: 'checking' } );
+		await waitFor( () => expect( result.current.state ).toEqual( { phase: 'idle' } ) );
+	} );
+
+	it( 'follows the newest download of this backup while it is still being built', async () => {
+		respondWithDownloads( [ { ...finished, id: 70 }, row() ] );
+		const { wrapper } = makeWrapper();
+
+		const { result } = renderHook( () => useDownload( REWIND_ID, true, true ), { wrapper } );
+
+		await waitFor( () =>
+			expect( result.current.state ).toEqual( { phase: 'progress', percent: 30 } )
+		);
+		expect( mockedApiFetch ).toHaveBeenCalledWith(
+			expect.objectContaining( { path: expect.stringContaining( 'download_id=77' ) } )
+		);
+	} );
+
+	it( 'offers the archive of this backup without waiting for a status read', async () => {
+		respondWithDownloads( [ finished ], () => new Promise( () => {} ) );
+		const { wrapper } = makeWrapper();
+
+		const { result } = renderHook( () => useDownload( REWIND_ID, true, true ), { wrapper } );
+
+		await waitFor( () =>
+			expect( result.current.state ).toEqual( {
+				phase: 'success',
+				downloadUrl: 'https://example.com/archive.zip',
+				validUntil: '2026-08-20T00:00:00+00:00',
+			} )
+		);
+	} );
+
+	it.each( [
+		[ 'of another backup', row( { rewind_id: '1786000000.1' } ) ],
+		[ 'expired', row( { status: 'expired', valid_until: '2026-08-20T00:00:00+00:00' } ) ],
+		[ 'failed', row( { status: 'failed', error: 'Archive expired' } ) ],
+	] )( 'offers the form when the latest download is %s', async ( _label, latest ) => {
+		respondWithDownloads( [ latest ] );
+		const { wrapper } = makeWrapper();
+
+		const { result } = renderHook( () => useDownload( REWIND_ID, true, true ), { wrapper } );
+
+		await waitFor( () => expect( listCalls() ).toHaveLength( 1 ) );
+		await waitFor( () => expect( result.current.state ).toEqual( { phase: 'idle' } ) );
+		expect( mockedApiFetch ).toHaveBeenCalledTimes( 1 );
+	} );
+
+	// With production's one retry, so a failed lookup cannot hold the form back for the retry delay.
+	it( 'offers the form as soon as the lookup fails', async () => {
+		respondWithDownloads( new Error( 'Offline.' ) );
+		const client = new QueryClient( { defaultOptions: { queries: { retry: 1 } } } );
+		const wrapper = ( { children }: { children: ReactNode } ) =>
+			createElement( QueryClientProvider, { client }, children );
+
+		const { result } = renderHook( () => useDownload( REWIND_ID, true, true ), { wrapper } );
+
+		await waitFor( () => expect( result.current.state ).toEqual( { phase: 'idle' } ), {
+			timeout: 500,
+		} );
+		expect( listCalls() ).toHaveLength( 1 );
+	} );
+
+	it( 'does not look for one when resuming is off', async () => {
+		respondWithDownloads( [ row() ] );
+		const { wrapper } = makeWrapper();
+
+		const { result } = renderHook( () => useDownload( REWIND_ID, true, false ), { wrapper } );
+
+		expect( result.current.state ).toEqual( { phase: 'idle' } );
+		expect( listCalls() ).toHaveLength( 0 );
+	} );
+
+	it( 'returns to the form for good after a reset', async () => {
+		respondWithDownloads( [ finished ] );
+		const { wrapper } = makeWrapper();
+		const { result } = renderHook( () => useDownload( REWIND_ID, true, true ), { wrapper } );
+		await waitFor( () => expect( result.current.state.phase ).toBe( 'success' ) );
+
+		act( () => result.current.reset() );
+
+		expect( result.current.state ).toEqual( { phase: 'idle' } );
+	} );
+
+	it( 'starts a new download from a ready one', async () => {
+		respondWithDownloads( [ finished ] );
+		const { wrapper } = makeWrapper();
+		const { result } = renderHook( () => useDownload( REWIND_ID, true, true ), { wrapper } );
+		await waitFor( () => expect( result.current.state.phase ).toBe( 'success' ) );
+
+		act( () => result.current.submit( DEFAULT_RESTORE_ITEMS ) );
+
+		expect( result.current.state ).toEqual( { phase: 'submitting' } );
+		await waitFor( () =>
+			expect( result.current.state ).toEqual( { phase: 'progress', percent: 10 } )
+		);
+	} );
 } );
 
 describe( 'useDownload — a status poll that fails', () => {
@@ -220,9 +414,13 @@ describe( 'useDownload — a status poll that fails', () => {
 	 * @param ms - How far to advance.
 	 */
 	async function advance( ms: number ) {
-		await act( async () => {
-			await jest.advanceTimersByTimeAsync( ms );
-		} );
+		// Advance in small steps (POLL_INTERVAL_MS). Longer steps never give React 19 a gap between updates, so it throws "Maximum update depth exceeded".
+		while ( ms > 0 ) {
+			await act( async () => {
+				await jest.advanceTimersByTimeAsync( Math.min( ms, POLL_INTERVAL_MS ) );
+			} );
+			ms -= POLL_INTERVAL_MS;
+		}
 	}
 
 	/**

@@ -9,6 +9,10 @@
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Abstract_Token_Subscription_Service;
 use const Automattic\Jetpack\Extensions\Subscriptions\META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Jetpack_Subscribe_Modal class.
  */
@@ -61,6 +65,10 @@ class Jetpack_Subscribe_Modal {
 	public function enqueue_assets() {
 		if ( $this->should_user_see_modal() ) {
 			wp_enqueue_style( 'subscribe-modal-css', plugins_url( 'subscribe-modal.css', __FILE__ ), array(), JETPACK__VERSION );
+			$background_css = self::get_global_styles_background_css();
+			if ( $background_css ) {
+				wp_add_inline_style( 'subscribe-modal-css', $background_css );
+			}
 			wp_enqueue_script( 'subscribe-modal-js', plugins_url( 'subscribe-modal.js', __FILE__ ), array( 'wp-dom-ready' ), JETPACK__VERSION, true );
 
 			/**
@@ -101,9 +109,68 @@ class Jetpack_Subscribe_Modal {
 					'modalLoadTime'        => $load_time,
 					'modalScrollThreshold' => $scroll_threshold,
 					'modalInterval'        => ( $modal_interval * HOUR_IN_SECONDS * 1000 ),
+					'modalLabel'           => __( 'Subscribe', 'jetpack' ),
 				)
 			);
 		}
+	}
+
+	/**
+	 * Gives the modal the site's Global Styles page background, so the text it inherits from the page stays readable.
+	 *
+	 * @since 16.4
+	 *
+	 * @return string CSS, or an empty string to keep the stylesheet's background.
+	 */
+	public static function get_global_styles_background_css() {
+		// Read the whole tree: for a missing path, wp_get_global_styles() returns every style instead of null.
+		$styles = wp_get_global_styles();
+		// The server cannot tell what a page image shows. Removing a theme's image stores 'none'.
+		$image = $styles['background']['backgroundImage'] ?? null;
+		if ( ! empty( $image ) && 'none' !== $image ) {
+			return '';
+		}
+
+		$declarations = wp_style_engine_get_styles(
+			array(
+				'color'      => array(
+					'background' => $styles['color']['background'] ?? null,
+					'gradient'   => $styles['color']['gradient'] ?? null,
+				),
+				'background' => array( 'gradient' => $styles['background']['gradient'] ?? null ),
+			)
+		)['declarations'] ?? array();
+		foreach ( $declarations as $property => $value ) {
+			// The style engine returns values unfiltered, so only accept those core's CSS filter leaves intact.
+			$declaration = $property . ': ' . $value;
+			if ( esc_html( $declaration ) !== $declaration || safecss_filter_attr( $declaration ) !== $declaration ) {
+				return '';
+			}
+		}
+
+		$css = array();
+		if ( isset( $declarations['background-color'] ) ) {
+			$css[] = '--jetpack-subscribe-modal--page-background: ' . $declarations['background-color'] . ';';
+		}
+		// A color.gradient value is a `background` shorthand, which resets the color the stylesheet sets.
+		if ( isset( $declarations['background'] ) ) {
+			$css[] = 'background: ' . $declarations['background'] . ';';
+			$css[] = 'background-color: var(--jetpack-subscribe-modal--page-background, #fefefe);';
+		}
+		if ( isset( $declarations['background-image'] ) ) {
+			$css[] = 'background-image: ' . $declarations['background-image'] . ';';
+		}
+		if ( ! $css ) {
+			return '';
+		}
+
+		// A saved template whose blocks set their own colors was styled against the light panel.
+		$template = get_block_template( self::get_block_template_part_id(), 'wp_template_part' );
+		if ( $template && 'plugin' !== $template->source && preg_match( '/\bhas-(?:text-color|link-color|inline-color|background)(?![\w-])/', $template->content ) ) {
+			return '';
+		}
+
+		return '.jetpack-subscribe-modal__modal-content { ' . implode( ' ', $css ) . ' }';
 	}
 
 	/**
@@ -249,9 +316,9 @@ HTML;
 			return false;
 		}
 
-		// Don't show if user is subscribed to blog.
+		// Don't show if user is subscribed to blog or awaiting subscription confirmation.
 		require_once __DIR__ . '/../views.php';
-		if ( ! class_exists( 'Jetpack_Memberships' ) || Jetpack_Memberships::is_current_user_subscribed() ) {
+		if ( ! class_exists( 'Jetpack_Memberships' ) || Jetpack_Memberships::is_current_user_subscribed() || Jetpack_Memberships::user_is_pending_subscriber() ) {
 			return false;
 		}
 		return true;

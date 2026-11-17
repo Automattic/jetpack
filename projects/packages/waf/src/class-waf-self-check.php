@@ -12,7 +12,7 @@ namespace Automattic\Jetpack\Waf;
  *
  * The token lives in a file, not an option, because in standalone mode the firewall runs before WordPress.
  *
- * @since $$next-version$$
+ * @since 0.30.0
  */
 class Waf_Self_Check {
 

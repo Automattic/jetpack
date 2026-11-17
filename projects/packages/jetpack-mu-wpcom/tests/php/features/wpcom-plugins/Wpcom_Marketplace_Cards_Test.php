@@ -7,6 +7,9 @@
 
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom\Marketplace_Catalog;
+use Brain\Monkey\Functions;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/wpcom-plugins/wpcom-marketplace-tab.php';
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/wpcom-plugins/wpcom-marketplace-cards.php';
@@ -235,6 +238,28 @@ class Wpcom_Marketplace_Cards_Test extends \WorDBless\BaseTestCase {
 		$this->assertStringContainsString( '<strong>Compatible</strong> with your version of WordPress', $html );
 		$this->assertStringContainsString( 'data-plugin="usps" data-saas="false" data-installed="false"', $html, 'What the tab\'s Tracks and kept modals read.' );
 		$this->assertSame( 'Core description.', wpcom_marketplace_card_description_markup( 'Core description.', array( 'slug' => 'other' ) ) );
+	}
+
+	/**
+	 * Tracks reads whether a purchase also buys a plan, which only a card sold through checkout can.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_a_card_says_when_its_purchase_needs_a_plan() {
+		$card                                        = $this->card( 'usps', 'USPS Shipping Method' );
+		$referral                                    = $card;
+		$referral['wpcom_pricing']['yearly']['type'] = 'saas_plugin';
+		$referral['wpcom_pricing']['monthly']['type'] = 'saas_plugin';
+
+		Functions\when( 'wpcom_site_has_feature' )->justReturn( false );
+		$this->assertStringContainsString( 'data-needs-plan="true"', wpcom_marketplace_card_description_markup( '', $card ) );
+		$this->assertStringContainsString( 'data-needs-plan="false"', wpcom_marketplace_card_description_markup( '', $referral ), 'Bought from the vendor.' );
+
+		Functions\when( 'wpcom_site_has_feature' )->justReturn( true );
+		$this->assertStringContainsString( 'data-needs-plan="false"', wpcom_marketplace_card_description_markup( '', $card ) );
 	}
 
 	/**

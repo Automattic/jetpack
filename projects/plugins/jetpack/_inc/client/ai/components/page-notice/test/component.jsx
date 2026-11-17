@@ -249,7 +249,7 @@ describe( 'PageNotice', () => {
 	it( 'names offline mode rather than asking for a connection it forbids', () => {
 		renderNotice( { state: 'offline-mode' } );
 		expect(
-			screen.getByText( 'Jetpack AI is not available in offline mode.', IGNORE_A11Y )
+			screen.getByText( 'Jetpack AI is not available in Offline Mode.', IGNORE_A11Y )
 		).toBeInTheDocument();
 		expect( screen.queryByRole( 'link', { name: 'Connect Jetpack' } ) ).not.toBeInTheDocument();
 		expect( screen.getByRole( 'link', { name: /Learn more/ } ) ).toHaveAttribute(

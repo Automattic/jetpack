@@ -1,0 +1,13 @@
+@use "../../styles/row-icon-action" as *;
+
+.link {
+
+	@include row-icon-action;
+}
+
+/* The design system appends its new-tab marker to the icon; the link's own
+   label already says it opens a new tab, and the marker reads as the arrow a
+   linked-out title shows. */
+.link > span {
+	display: none;
+}

@@ -46,6 +46,7 @@ class JetpackStateNotices extends Component {
 			}
 		);
 
+	// Some codes here also have (deliberately different) copy in the connection package's getConnectScreenErrorMessage; review both when changing one.
 	getErrorFromKey = key => {
 		const errorDesc = this.props.jetpackStateNoticesErrorDescription || false;
 		let message;
@@ -228,7 +229,7 @@ class JetpackStateNotices extends Component {
 				break;
 			case 'protect_misconfigured_ip':
 				message = __(
-					'Your server is misconfigured, which means that Jetpack Brute Force Protection is unable to effectively protect your site.',
+					'Your server is misconfigured, which means that login protection is unable to effectively protect your site.',
 					'jetpack'
 				);
 				status = 'is-info';

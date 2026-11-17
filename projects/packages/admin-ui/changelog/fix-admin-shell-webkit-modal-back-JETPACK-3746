@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Admin shell: Wait for a closing dialog to finish its exit before announcing the page and moving focus, so the announcement isn't hidden from screen readers.

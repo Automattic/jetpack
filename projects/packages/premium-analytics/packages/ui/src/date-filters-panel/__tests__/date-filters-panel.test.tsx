@@ -44,6 +44,47 @@ describe( 'DateFiltersPanel', () => {
 		expect( screen.queryByRole( 'button', { name: 'Compare' } ) ).not.toBeInTheDocument();
 	} );
 
+	describe( 'period navigation', () => {
+		it( 'steps the applied window from the arrows', async () => {
+			const onStep = jest.fn();
+			const user = userEvent.setup();
+
+			renderPanel( { stepping: { onStep, canStepBackward: true, canStepForward: true } } );
+
+			await user.click( screen.getByRole( 'button', { name: 'Previous period' } ) );
+			expect( onStep ).toHaveBeenCalledWith( 'previous' );
+
+			await user.click( screen.getByRole( 'button', { name: 'Next period' } ) );
+			expect( onStep ).toHaveBeenCalledWith( 'next' );
+		} );
+
+		it( 'renders no arrows without stepping', () => {
+			renderPanel();
+
+			expect( screen.queryByRole( 'button', { name: 'Previous period' } ) ).not.toBeInTheDocument();
+		} );
+
+		// Availability is the date filters' call, which see the plan's limits
+		// wherever they render; the panel only draws the edge they report.
+		it.each( [
+			[ 'Next period', 'Previous period', { canStepForward: false } ],
+			[ 'Previous period', 'Next period', { canStepBackward: false } ],
+		] )( 'disables %s when the filters say it has nowhere to go', ( disabled, live, edge ) => {
+			renderPanel( {
+				stepping: { onStep: jest.fn(), canStepBackward: true, canStepForward: true, ...edge },
+			} );
+
+			expect( screen.getByRole( 'button', { name: disabled } ) ).toHaveAttribute(
+				'aria-disabled',
+				'true'
+			);
+			expect( screen.getByRole( 'button', { name: live } ) ).not.toHaveAttribute(
+				'aria-disabled',
+				'true'
+			);
+		} );
+	} );
+
 	// The comparison qualifies the range the presets just set; the interval only
 	// buckets the charts. Reading order follows that, so it is worth pinning.
 	it( 'places the comparison before the chart interval', () => {
@@ -55,7 +96,7 @@ describe( 'DateFiltersPanel', () => {
 		} );
 
 		const comparison = screen.getByRole( 'button', { name: 'Compare' } );
-		const chartInterval = screen.getByRole( 'button', { name: 'Chart interval: By days' } );
+		const chartInterval = screen.getByRole( 'button', { name: 'By days' } );
 
 		expect( comparison.compareDocumentPosition( chartInterval ) ).toBe(
 			Node.DOCUMENT_POSITION_FOLLOWING
@@ -115,6 +156,7 @@ describe( 'DateFiltersPanel', () => {
 			'Last month',
 			'Year to date',
 			'Last 12 months',
+			'Last 3 years',
 			'All time',
 			'Custom range',
 		] );
@@ -204,8 +246,8 @@ describe( 'DateFiltersPanel', () => {
 						description: 'Upgrade to see more.',
 						supportUrl: 'https://example.com/help',
 						upgradeUrl: 'https://example.com/plans',
+						onUpgradeClick,
 					},
-					onUpgradeClick,
 				} }
 			>
 				{ panel( { appliedPresetId: 'last-7-days' } ) }
@@ -235,18 +277,62 @@ describe( 'DateFiltersPanel', () => {
 		expect( day( 'July 10, 2026' ) ).toBeEnabled();
 	} );
 
+	it( 'locks the chart intervals the scope withholds and wires their own upsell', async () => {
+		const user = userEvent.setup();
+		const onUpgradeClick = jest.fn();
+		render(
+			<ReportScopeProvider
+				dateLimits={ {
+					lockedPresetIds: [],
+					lockedIntervals: [ 'week' ],
+					intervalUpsell: {
+						description: 'Group your charts by week.',
+						supportUrl: '',
+						upgradeUrl: 'https://example.com/plans',
+						onUpgradeClick,
+					},
+				} }
+			>
+				{ panel( {
+					withIntervalControl: true,
+					intervalOptions: [ 'day' ],
+					lockedIntervalOptions: [ 'week' ],
+					interval: 'day',
+					onIntervalChange: jest.fn(),
+				} ) }
+			</ReportScopeProvider>
+		);
+
+		await user.click( screen.getByRole( 'button', { name: 'By days' } ) );
+
+		expect( screen.getByRole( 'menuitemradio', { name: 'By weeks' } ) ).toHaveAccessibleDescription(
+			'Group your charts by week.'
+		);
+
+		const upgrade = screen.getByRole( 'link', { name: 'Upgrade' } );
+		upgrade.addEventListener( 'click', event => event.preventDefault() );
+		await user.click( upgrade );
+
+		expect( onUpgradeClick ).toHaveBeenCalledTimes( 1 );
+	} );
+
 	it( 'greys every control out while disabled', () => {
 		renderPanel( {
 			disabled: true,
+			stepping: { onStep: jest.fn(), canStepBackward: true, canStepForward: true },
+			appliedRange: {
+				from: new TZDate( '2020-07-01T00:00:00.000Z', 'UTC' ),
+				to: new TZDate( '2020-07-30T23:59:59.999Z', 'UTC' ),
+			},
 			withIntervalControl: true,
 			intervalOptions: [ 'day', 'week' ],
 			interval: 'day',
 			onIntervalChange: jest.fn(),
 		} );
 
-		// The period, the comparison and the interval.
+		// Both arrows, the period, the comparison and the interval.
 		const buttons = screen.getAllByRole( 'button' );
-		expect( buttons ).toHaveLength( 3 );
+		expect( buttons ).toHaveLength( 5 );
 		buttons.forEach( button => {
 			expect( button ).toHaveAttribute( 'aria-disabled', 'true' );
 		} );

@@ -781,7 +781,7 @@ const MOCK_UTM_MEDIUM_COMPARISON = createUtmMock( {
 
 const MOCK_UTM_CAMPAIGN = createUtmMock( {
 	spring_sale: 5200,
-	newsletter_q2: 1800,
+	black_friday_early_access_wordpress_hosting_bundle_2026: 1800,
 	brand_awareness: 950,
 	retargeting: 720,
 	product_launch: 380,
@@ -789,7 +789,7 @@ const MOCK_UTM_CAMPAIGN = createUtmMock( {
 
 const MOCK_UTM_CAMPAIGN_COMPARISON = createUtmMock( {
 	spring_sale: 4700,
-	newsletter_q2: 2100,
+	black_friday_early_access_wordpress_hosting_bundle_2026: 2100,
 	brand_awareness: 780,
 	retargeting: 810,
 	product_launch: 330,

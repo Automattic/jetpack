@@ -1,4 +1,4 @@
-import { computeComparisonRect, getValueScaleBaseline } from '../comparison-bars-geometry';
+import { computeSlotRect, getValueScaleBaseline } from '../comparison-bars-geometry';
 
 describe( 'getValueScaleBaseline', () => {
 	it( 'clamps to the bottom (range max) when 0 is below the domain (vertical, descending range)', () => {
@@ -17,29 +17,22 @@ describe( 'getValueScaleBaseline', () => {
 	} );
 } );
 
-describe( 'computeComparisonRect', () => {
+describe( 'computeSlotRect', () => {
 	const base = {
 		bandPosition: 100,
 		slotOffset: 10,
 		slotThickness: 40,
-		valuePosition: 50,
-		baseline: 200,
 		widthFactor: 1.5,
 	};
 
 	it( 'centers a 150% wide shadow on the primary slot (vertical)', () => {
-		const r = computeComparisonRect( { ...base, horizontal: false } );
+		const r = computeSlotRect( { ...base, horizontal: false, valuePositions: [ 200, 50 ] } );
 		// slotStart=110, center=110+20=130, shadowThickness=60, shadowStart=130-30=100
 		expect( r ).toEqual( { x: 100, y: 50, width: 60, height: 150 } );
 	} );
 
 	it( 'centers a 150% tall shadow on the primary slot (horizontal)', () => {
-		const r = computeComparisonRect( {
-			...base,
-			horizontal: true,
-			valuePosition: 150,
-			baseline: 0,
-		} );
+		const r = computeSlotRect( { ...base, horizontal: true, valuePositions: [ 0, 150 ] } );
 		// slotStart=110, center=130, shadowThickness=60, shadowStart=100
 		expect( r ).toEqual( { x: 0, y: 100, width: 150, height: 60 } );
 	} );

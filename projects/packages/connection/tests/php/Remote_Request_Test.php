@@ -12,8 +12,11 @@
 
 namespace Automattic\Jetpack\Connection;
 
+use Automattic\Jetpack\Connection\Traits\WPCOM_REST_API_Proxy_Request;
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Identity_Crisis;
 use Jetpack_Options;
+use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
 
 /**
@@ -27,6 +30,13 @@ class Remote_Request_Test extends BaseTestCase {
 	 * @var Error_Handler
 	 */
 	private $error_handler;
+
+	/**
+	 * URL of the last request `capture_sent_url()` intercepted.
+	 *
+	 * @var string|null
+	 */
+	private $sent_url;
 
 	/**
 	 * Initialize tests.
@@ -47,6 +57,9 @@ class Remote_Request_Test extends BaseTestCase {
 	 */
 	public function tear_down() {
 		remove_all_filters( 'jetpack_connection_bypass_error_reporting_gate' );
+		remove_all_filters( 'pre_http_request' );
+		remove_all_filters( 'jetpack_remote_request_url' );
+		ini_restore( 'arg_separator.output' );
 
 		// `Client::build_signed_request()` registers this filter on every call and never
 		// removes it; left in place it changes how constants resolve for later tests.
@@ -224,5 +237,263 @@ class Remote_Request_Test extends BaseTestCase {
 
 		$this->assertArrayHasKey( 'no_possible_tokens', $displayable );
 		$this->assertSame( 'site', $displayable['no_possible_tokens']['0']['audience'] );
+	}
+
+	/**
+	 * Test that signing refuses a URL whose path the transport or WordPress.com would resolve to another resource.
+	 *
+	 * @dataProvider provide_url_paths
+	 *
+	 * @param string $url      The request URL.
+	 * @param bool   $rejected Whether signing must refuse the URL.
+	 */
+	#[DataProvider( 'provide_url_paths' )]
+	public function test_build_signed_request_refuses_a_path_that_names_another_resource( $url, $rejected ) {
+		Jetpack_Options::update_option( 'blog_token', 'asdasd.123' );
+
+		$result = Client::build_signed_request( array( 'url' => $url ) );
+
+		if ( $rejected ) {
+			$this->assertInstanceOf( 'WP_Error', $result );
+			$this->assertSame( 'invalid_request_path', $result->get_error_code() );
+		} else {
+			$this->assertIsArray( $result );
+		}
+	}
+
+	/**
+	 * URLs, and whether signing must refuse them.
+	 *
+	 * @return array
+	 */
+	public static function provide_url_paths() {
+		$base = 'https://public-api.wordpress.com/wpcom/v2/sites/1';
+
+		return array(
+			'parent segment'         => array( "$base/x/../../sites/2/posts", true ),
+			'encoded parent segment' => array( "$base/x/%2e%2e/%2E%2e/sites/2/posts", true ),
+			'encoded slash'          => array( "$base/x/..%2f..%2fsites/2/posts", true ),
+			'current segment'        => array( "$base/./posts", true ),
+			'fragment'               => array( "$base/posts#x", true ),
+			'whitespace'             => array( "$base/po sts", true ),
+			'control character'      => array( "$base/posts\x00", true ),
+			'dots inside a segment'  => array( 'https://public-api.wordpress.com/rest/v1.1/sites/1/a.b', false ),
+			'dot segment in query'   => array( "$base/posts?path=../x", false ),
+			'encoded space'          => array( "$base/a%20b", false ),
+		);
+	}
+
+	/**
+	 * Test that the proxy refuses a path that would make the outgoing URL name another resource.
+	 *
+	 * @dataProvider provide_proxy_paths
+	 *
+	 * @param string      $path          Path passed to the proxy, as a route capture holds it.
+	 * @param string|null $expected_path Path the outgoing URL must end with, or null when the proxy must refuse it.
+	 */
+	#[DataProvider( 'provide_proxy_paths' )]
+	public function test_proxy_request_refuses_a_path_that_names_another_resource( $path, $expected_path ) {
+		$this->capture_sent_url();
+
+		$result = $this->make_proxy()->proxy_request_to_wpcom( new \WP_REST_Request( 'GET', '/wpcom/v2/email-preview' ), $path, 'blog' );
+
+		if ( null === $expected_path ) {
+			$this->assertInstanceOf( 'WP_Error', $result );
+			$this->assertSame( 'rest_invalid_param', $result->get_error_code() );
+			$this->assertNull( $this->sent_url );
+		} else {
+			$this->assertStringEndsWith( $expected_path, (string) wp_parse_url( $this->sent_url, PHP_URL_PATH ) );
+		}
+	}
+
+	/**
+	 * Proxy paths, and the path the outgoing URL must end with.
+	 *
+	 * @return array
+	 */
+	public static function provide_proxy_paths() {
+		return array(
+			'query'                 => array( '1?post_id=8', null ),
+			'fragment'              => array( '1#x', null ),
+			'percent'               => array( '%2e%2e/sites/2', null ),
+			'whitespace'            => array( '1 2', null ),
+			'parent segment'        => array( '../../sites/2/posts', null ),
+			'current segment'       => array( './1', null ),
+			'trailing parent'       => array( '1/..', null ),
+			'dots inside a segment' => array( 'v1.1/a.b', '/sites/12345/email-preview/v1.1/a.b' ),
+		);
+	}
+
+	/**
+	 * Test that a proxied request reaches WordPress.com with the query params it was given.
+	 *
+	 * @dataProvider provide_query_params_with_special_characters
+	 *
+	 * @param array  $query_params  Decoded query parameters of the incoming request.
+	 * @param string $arg_separator The host's `arg_separator.output` setting.
+	 */
+	#[DataProvider( 'provide_query_params_with_special_characters' )]
+	public function test_proxy_request_keeps_query_params_intact( $query_params, $arg_separator = '&' ) {
+		ini_set( 'arg_separator.output', $arg_separator ); // phpcs:ignore WordPress.PHP.IniSet.Risky
+		// Every connected site rewrites the outgoing URL through this filter before it is signed.
+		add_filter( 'jetpack_remote_request_url', array( Identity_Crisis::init(), 'add_idc_query_args_to_url' ) );
+		// Any other code on the filter can decode the query again, as `add_query_arg()` does.
+		add_filter(
+			'jetpack_remote_request_url',
+			function ( $url ) {
+				return add_query_arg( 'lossy', '1', $url );
+			}
+		);
+		$this->capture_sent_url();
+
+		$request = new \WP_REST_Request( 'GET', '/wpcom/v2/email-preview' );
+		$request->set_query_params( $query_params );
+		$this->make_proxy()->proxy_request_to_wpcom( $request, '', 'user', true );
+
+		$this->assertNotNull( $this->sent_url );
+		parse_str( (string) wp_parse_url( $this->sent_url, PHP_URL_QUERY ), $sent_params );
+		$this->assertSame( '11', $sent_params['post_id'] );
+	}
+
+	/**
+	 * Test that a `_method` query param does not reach WordPress.com, where it would replace the HTTP method the proxy sends.
+	 */
+	public function test_proxy_request_does_not_forward_a_method_override() {
+		$this->capture_sent_url();
+
+		$request = new \WP_REST_Request( 'GET', '/wpcom/v2/email-preview' );
+		$request->set_query_params(
+			array(
+				'post_id' => '11',
+				'_method' => 'DELETE',
+			)
+		);
+		$this->make_proxy()->proxy_request_to_wpcom( $request, '', 'blog' );
+
+		parse_str( (string) wp_parse_url( (string) $this->sent_url, PHP_URL_QUERY ), $sent_params );
+		$this->assertArrayNotHasKey( '_method', $sent_params );
+	}
+
+	/**
+	 * Test that the proxy forwards a body only when this site parsed it as JSON, since WordPress.com always will.
+	 *
+	 * @dataProvider provide_body_content_types
+	 *
+	 * @param string|null $content_type Content type of the incoming request, or null for none.
+	 * @param bool        $forwarded    Whether the request must reach WordPress.com.
+	 * @param string      $route        Route of the request; empty for a request built in code.
+	 */
+	#[DataProvider( 'provide_body_content_types' )]
+	public function test_proxy_request_forwards_only_a_body_parsed_as_json( $content_type, $forwarded, $route = '/wpcom/v2/publicize/render-messages' ) {
+		$this->capture_sent_url();
+
+		$request = new \WP_REST_Request( 'POST', $route );
+		$request->set_query_params( array( 'post_id' => '11' ) );
+		if ( null !== $content_type ) {
+			$request->set_header( 'Content-Type', $content_type );
+		}
+		$request->set_body( '{"post_id":8}' );
+		$result = $this->make_proxy()->proxy_request_to_wpcom( $request, '', 'blog' );
+
+		$this->assertSame( $forwarded, null !== $this->sent_url );
+		if ( ! $forwarded ) {
+			$this->assertInstanceOf( \WP_Error::class, $result );
+			$this->assertSame( 'rest_invalid_content_type', $result->get_error_code() );
+		}
+	}
+
+	/**
+	 * Content types of a request body, and whether the proxy must forward it.
+	 *
+	 * @return array
+	 */
+	public static function provide_body_content_types() {
+		return array(
+			'json'                      => array( 'application/json', true ),
+			'json with charset'         => array( 'application/json; charset=utf-8', true ),
+			'form'                      => array( 'application/x-www-form-urlencoded', false ),
+			'json only in a parameter'  => array( 'text/plain; x=application/json', false ),
+			'no content type'           => array( null, false ),
+			'built in code, unlabelled' => array( null, true, '' ),
+			'built in code, form'       => array( 'application/x-www-form-urlencoded', false, '' ),
+		);
+	}
+
+	/**
+	 * Query parameters, and host settings, that the proxy must forward unchanged.
+	 *
+	 * @return array
+	 */
+	public static function provide_query_params_with_special_characters() {
+		return array(
+			'encoded key'        => array(
+				array(
+					'post_id'   => '11',
+					'%70ost_id' => '8',
+				),
+			),
+			'plus in key'        => array(
+				array(
+					'post_id' => '11',
+					'post+id' => '8',
+				),
+			),
+			'ampersand in value' => array(
+				array(
+					'post_id' => '11',
+					'x'       => '1&post_id=8',
+				),
+			),
+			'entity separator'   => array(
+				array(
+					'access'  => 'everybody',
+					'post_id' => '11',
+				),
+				'&amp;',
+			),
+		);
+	}
+
+	/**
+	 * Connect the site and record the URL of the next outgoing request instead of sending it.
+	 */
+	private function capture_sent_url() {
+		Jetpack_Options::update_option( 'blog_token', 'asdasd.123' );
+		Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
+
+		$this->sent_url = null;
+		add_filter(
+			'pre_http_request',
+			function ( $response, $args, $url ) {
+				$this->sent_url = $url;
+				return array(
+					'headers'  => array(),
+					'body'     => '{}',
+					'response' => array( 'code' => 200 ),
+				);
+			},
+			10,
+			3
+		);
+	}
+
+	/**
+	 * Build a controller that proxies `email-preview` with the trait.
+	 *
+	 * @return object
+	 */
+	private function make_proxy() {
+		return new class() {
+			use WPCOM_REST_API_Proxy_Request;
+
+			/**
+			 * Set the route the proxy forwards to.
+			 */
+			public function __construct() {
+				$this->base_api_path = 'wpcom';
+				$this->version       = '2';
+				$this->rest_base     = 'email-preview';
+			}
+		};
 	}
 }

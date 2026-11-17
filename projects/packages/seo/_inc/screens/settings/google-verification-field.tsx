@@ -11,6 +11,8 @@ interface Props {
 	/** The manual Google verification code (meta-tag content). */
 	value: string;
 	onChange: ( value: string ) => void;
+	/** Save the code auto-verify fetches, through the settings form. */
+	saveCode: ( code: string ) => Promise< void >;
 	/** Save the manual code — called on blur (auto-save, no Save button). */
 	onCommit?: () => void;
 	disabled?: boolean;
@@ -36,16 +38,20 @@ const manualHelp = __(
  * @param props          - Component props.
  * @param props.value    - The manual Google verification code.
  * @param props.onChange - Update the manual code locally.
+ * @param props.saveCode - Save the code auto-verify fetches.
  * @param props.onCommit - Save the manual code (on blur).
  * @param props.disabled - Whether the controls are disabled.
  * @return The Google verification controls.
  */
-const GoogleVerificationField: FC< Props > = ( { value, onChange, onCommit, disabled } ) => {
-	// `onCodeSaved` mirrors the auto-verified code into the form's local state so the
-	// card's completion status stays in sync without a reload (the hook already
-	// persisted it, so this only updates local state — no extra save).
-	const { state, isConnected, isOwner, searchConsoleUrl, isVerifying, autoVerify } =
-		useGoogleVerify( { onCodeSaved: onChange } );
+const GoogleVerificationField: FC< Props > = ( {
+	value,
+	onChange,
+	saveCode,
+	onCommit,
+	disabled,
+} ) => {
+	const { state, isConnected, isOwner, searchConsoleUrl, isVerifying, isConfirming, autoVerify } =
+		useGoogleVerify( { saveCode } );
 	const [ manualOpen, setManualOpen ] = useState( false );
 	const manualVisible = manualOpen || !! value;
 
@@ -64,7 +70,9 @@ const GoogleVerificationField: FC< Props > = ( { value, onChange, onCommit, disa
 			onChange={ onChange }
 			onBlur={ onCommit }
 			help={ manualHelp }
-			disabled={ disabled }
+			// Locked once the popup returns, so a code typed meanwhile can't save after the token and
+			// replace it. Not while the popup is open: a blocked popup never returns.
+			disabled={ disabled || isConfirming }
 			__next40pxDefaultSize
 			__nextHasNoMarginBottom
 		/>

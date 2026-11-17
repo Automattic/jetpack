@@ -1,7 +1,6 @@
 import { date, dateI18n } from '@wordpress/date';
 import { __, sprintf } from '@wordpress/i18n';
-
-const ABSOLUTE_FORMAT = 'M j, Y, g:i A';
+import { formatDateTime, formatTime } from '../../data/date-format';
 
 /**
  * The site-timezone calendar day before the given `Y-m-d` day.
@@ -17,7 +16,7 @@ function previousDay( day: string ): string {
 }
 
 /**
- * A row's timestamp: "Today, 7:00 AM" or "Yesterday, 7:00 AM" in the site timezone, else absolute.
+ * A row's timestamp: "Today, 7:00 am" or "Yesterday, 7:00 am" in the site timezone, else absolute.
  *
  * @param publishedAt - The row's ISO timestamp.
  * @param now         - The reference instant; injectable for tests.
@@ -26,15 +25,21 @@ function previousDay( day: string ): string {
 export function formatRowDate( publishedAt: string, now: Date = new Date() ): string {
 	const day = dateI18n( 'Y-m-d', publishedAt, undefined );
 	const today = date( 'Y-m-d', now );
-	const time = dateI18n( 'g:i A', publishedAt, undefined );
+	const time = formatTime( publishedAt );
 
 	if ( day === today ) {
-		/* translators: %s: time of day, such as 7:00 AM. */
-		return sprintf( __( 'Today, %s', 'jetpack-backup-pkg' ), time );
+		return sprintf(
+			/* translators: %s: time of day, such as 7:00 am. */
+			__( 'Today, %s', 'jetpack-backup-pkg' ),
+			time
+		);
 	}
 	if ( day === previousDay( today ) ) {
-		/* translators: %s: time of day, such as 7:00 AM. */
-		return sprintf( __( 'Yesterday, %s', 'jetpack-backup-pkg' ), time );
+		return sprintf(
+			/* translators: %s: time of day, such as 7:00 am. */
+			__( 'Yesterday, %s', 'jetpack-backup-pkg' ),
+			time
+		);
 	}
-	return dateI18n( ABSOLUTE_FORMAT, publishedAt, undefined );
+	return formatDateTime( publishedAt );
 }

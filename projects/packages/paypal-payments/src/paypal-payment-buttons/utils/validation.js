@@ -569,3 +569,15 @@ export function getUserFriendlyError( err ) {
 export function isNotFound( err ) {
 	return err?.code === 'paypal_api_resource_not_found' || err?.data?.status === 404;
 }
+
+/**
+ * Whether an API error says this user may not manage PayPal on the site.
+ *
+ * A stale nonce is a 403 too, but that is the tab's problem, not the user's role.
+ *
+ * @param {object} err - The apiFetch error.
+ * @return {boolean} True for a 403 other than a stale nonce.
+ */
+export function isForbidden( err ) {
+	return err?.data?.status === 403 && err?.code !== 'rest_cookie_invalid_nonce';
+}

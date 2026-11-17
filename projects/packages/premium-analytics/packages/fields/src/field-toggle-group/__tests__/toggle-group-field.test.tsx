@@ -13,14 +13,19 @@ import type { ReactElement } from 'react';
 type ChartAttributes = { chartType?: string };
 
 // `Option` carries no `icon`, so the icon-bearing fixtures name their own
-// shape, the way the toolkit's `CHART_TYPE_ELEMENTS` are built.
-type IconOption = Option & { icon: ReactElement };
+// shape: an element or a `jpa/<name>` reference.
+type IconOption = Option & { icon: ReactElement | string };
 
 const ICON = <svg />;
 
 const ICON_ELEMENTS = [
 	{ value: 'line', label: 'Line chart', icon: ICON },
 	{ value: 'bar', label: 'Bar chart', icon: ICON },
+] satisfies IconOption[];
+
+const REFERENCE_ELEMENTS = [
+	{ value: 'line', label: 'Line chart', icon: 'jpa/chart-line' },
+	{ value: 'bar', label: 'Bar chart', icon: 'jpa/chart-bar' },
 ] satisfies IconOption[];
 
 const TEXT_ELEMENTS: Option[] = [
@@ -74,6 +79,10 @@ describe( 'hasIconOptions', () => {
 	it( 'reports no icons for an empty list', () => {
 		expect( hasIconOptions( [] ) ).toBe( false );
 	} );
+
+	it( 'does not take an unresolved reference for an icon', () => {
+		expect( hasIconOptions( REFERENCE_ELEMENTS ) ).toBe( false );
+	} );
 } );
 
 describe( 'ToggleGroupField', () => {
@@ -82,6 +91,24 @@ describe( 'ToggleGroupField', () => {
 
 		expect( screen.getByRole( 'radio', { name: 'Line chart' } ) ).toBeInTheDocument();
 		expect( screen.getByRole( 'radio', { name: 'Bar chart' } ) ).toBeInTheDocument();
+	} );
+
+	it( 'renders a jpa/<name> reference as an icon segment', async () => {
+		await renderField( { elements: REFERENCE_ELEMENTS } );
+
+		// An icon segment carries its label as the accessible name alone.
+		expect( screen.getByRole( 'radio', { name: 'Line chart' } ) ).not.toHaveTextContent(
+			'Line chart'
+		);
+	} );
+
+	it( 'falls back to text segments when a reference matches no icon', async () => {
+		await renderField( {
+			elements: [ REFERENCE_ELEMENTS[ 0 ], { value: 'bar', label: 'Bar chart', icon: 'jpa/nope' } ],
+		} );
+
+		expect( screen.getByRole( 'radio', { name: 'Bar chart' } ) ).toHaveTextContent( 'Bar chart' );
+		expect( screen.getByRole( 'radio', { name: 'Line chart' } ) ).toHaveTextContent( 'Line chart' );
 	} );
 
 	it( 'marks the segment matching the current value as selected', async () => {

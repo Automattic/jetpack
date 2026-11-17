@@ -73,6 +73,27 @@ describe( 'completeToDateRange', () => {
 		} );
 	} );
 
+	// `last-3-years` as read on 20 August 2026: two whole years and the running one.
+	const threeYears = { from: at( 2024, 1, 1 ), to: endOf( 2026, 8, 20 ) };
+
+	it( 'runs the three-year window to the end of its running year', () => {
+		const completed = completeToDateRange( threeYears, 'last-3-years' );
+
+		expect( completed.from ).toEqual( threeYears.from );
+		expect( completed.to ).toEqual( endOf( 2026, 12, 31 ) );
+	} );
+
+	it.each( [
+		[ 'mid-year', { from: at( 2024, 1, 1 ), to: endOf( 2026, 8, 20 ) } ],
+		[ 'on the last day of a year', { from: at( 2024, 1, 1 ), to: endOf( 2026, 12, 31 ) } ],
+		[ 'on the first of a year', { from: at( 2025, 1, 1 ), to: endOf( 2027, 1, 1 ) } ],
+	] )( 'measures as three years when read %s', ( _label, range ) => {
+		expect( getDateRangeSpan( completeToDateRange( range, 'last-3-years' ) ) ).toEqual( {
+			unit: 'year',
+			value: 3,
+		} );
+	} );
+
 	it( 'leaves a window that already ends on a month end where it is', () => {
 		const complete = { from: at( 2025, 9, 1 ), to: endOf( 2026, 8, 31 ) };
 

@@ -17,18 +17,10 @@ use PHPUnit\Framework\Attributes\CoversClass;
 class Initial_State_Test extends Search_TestCase {
 
 	/**
-	 * Original blog_public option value.
-	 *
-	 * @var mixed
-	 */
-	private $original_blog_public;
-
-	/**
 	 * Setting up the test.
 	 */
 	public function setUp(): void {
 		parent::setUp();
-		$this->original_blog_public = get_option( 'blog_public', 1 );
 		$this->unregister_guidelines_page();
 	}
 
@@ -37,7 +29,6 @@ class Initial_State_Test extends Search_TestCase {
 	 */
 	public function tearDown(): void {
 		remove_all_filters( 'jetpack_search_blocks_enabled' );
-		update_option( 'blog_public', $this->original_blog_public );
 		$this->unregister_guidelines_page();
 		parent::tearDown();
 	}
@@ -80,19 +71,21 @@ class Initial_State_Test extends Search_TestCase {
 	}
 
 	/**
-	 * Test that the AI Agent Access guidelines URL is empty when the page is unavailable.
+	 * The admin shell loads the page over admin-ajax, which never builds the menu; the link follows Gutenberg's registrar.
 	 */
-	public function test_ai_agent_access_guidelines_url_is_empty_when_page_is_unavailable() {
-		$state = ( new Initial_State() )->get_initial_state();
+	public function test_reader_chat_guidelines_url_without_a_built_menu() {
+		require_once __DIR__ . '/fixtures/gutenberg-guidelines.php';
+		wp_set_current_user( $this->admin_id );
+		add_filter( 'wp_doing_ajax', '__return_true' );
 
-		$this->assertSame( '', $state['siteData']['aiAgentAccessGuidelinesUrl'] );
-	}
+		$without = ( new Initial_State() )->get_initial_state();
+		add_action( 'admin_menu', 'gutenberg_register_guidelines_settings_submenu' );
+		$with = ( new Initial_State() )->get_initial_state();
 
-	/**
-	 * Test that the AI Agent Access guidelines URL is included when the page is available.
-	 */
-	public function test_ai_agent_access_guidelines_url_is_included_when_page_is_available() {
-		$this->assert_guidelines_url_is_included( 'aiAgentAccessGuidelinesUrl' );
+		remove_action( 'admin_menu', 'gutenberg_register_guidelines_settings_submenu' );
+		remove_filter( 'wp_doing_ajax', '__return_true' );
+		$this->assertSame( '', $without['siteData']['readerChatGuidelinesUrl'] );
+		$this->assertSame( admin_url( 'options-general.php?page=guidelines-wp-admin' ), $with['siteData']['readerChatGuidelinesUrl'] );
 	}
 
 	/**
@@ -116,27 +109,6 @@ class Initial_State_Test extends Search_TestCase {
 			admin_url( 'options-general.php?page=guidelines-wp-admin' ),
 			$state['siteData'][ $state_key ]
 		);
-	}
-
-	/**
-	 * Test that the AI Agent Access toggle is available on public sites.
-	 */
-	public function test_ai_agent_access_available_defaults_true() {
-		$state = ( new Initial_State() )->get_initial_state();
-
-		$this->assertArrayHasKey( 'aiAgentAccessAvailable', $state['siteData'] );
-		$this->assertTrue( $state['siteData']['aiAgentAccessAvailable'] );
-	}
-
-	/**
-	 * Test that the AI Agent Access toggle is unavailable on private sites.
-	 */
-	public function test_ai_agent_access_available_is_false_for_private_sites() {
-		update_option( 'blog_public', -1 );
-
-		$state = ( new Initial_State() )->get_initial_state();
-
-		$this->assertFalse( $state['siteData']['aiAgentAccessAvailable'] );
 	}
 
 	/**

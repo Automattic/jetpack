@@ -1,9 +1,8 @@
 import getRedirectUrl from '@automattic/jetpack-components/tools/jp-redirect';
-import { ProgressBar } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { cloudUpload, error as errorIcon } from '@wordpress/icons';
-import { Card, EmptyState, Link, Text } from '@wordpress/ui';
+import { Card, EmptyState, Link, Progress, Text } from '@wordpress/ui';
 import { useSiteSuffix } from '../../hooks/use-connection';
 import ErrorReference from '../error-reference';
 import './style.scss';
@@ -98,7 +97,6 @@ export function ContactSupportLine( { code }: { code?: string | null } ) {
 			a: (
 				<Link
 					openInNewTab
-					className="jpb-backup-status__link"
 					// Omitted rather than passed as undefined — see `useSiteSuffix`.
 					href={ getRedirectUrl( 'jetpack-contact-support', site ) }
 				/>
@@ -109,11 +107,7 @@ export function ContactSupportLine( { code }: { code?: string | null } ) {
 	return (
 		<>
 			{ support }{ ' ' }
-			<Link
-				openInNewTab
-				className="jpb-backup-status__link"
-				href={ getRedirectUrl( troubleDocSlug( code ), site ) }
-			>
+			<Link openInNewTab href={ getRedirectUrl( troubleDocSlug( code ), site ) }>
 				{ __( 'Learn more', 'jetpack-backup-pkg' ) }
 			</Link>
 		</>
@@ -195,12 +189,16 @@ export default function BackupStatusPanel( {
 						</EmptyState.Visual>
 						{ showProgress && (
 							<div className="jpb-backup-status__progress">
-								{ /* Omitting `value` makes the bar indeterminate. The title is not associated with the bar — see `tests/progress-bar-names.test.tsx`. */ }
-								<ProgressBar
+								{ /* The title is not associated with the bar — see `tests/progress-bar-names.test.tsx`. */ }
+								<Progress.Root
 									className="jpb-backup-status__bar"
-									value={ isDeterminate ? progress : undefined }
+									value={ isDeterminate ? progress : null }
 									aria-label={ __( 'Preparing your first cloud backup', 'jetpack-backup-pkg' ) }
-								/>
+								>
+									<Progress.Track className="jpb-backup-status__track">
+										<Progress.Indicator className="jpb-backup-status__indicator" />
+									</Progress.Track>
+								</Progress.Root>
 							</div>
 						) }
 						<EmptyState.Title render={ <Text variant="body-xl" render={ <h2 /> } /> }>

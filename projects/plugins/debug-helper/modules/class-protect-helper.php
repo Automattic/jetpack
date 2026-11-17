@@ -40,25 +40,33 @@ class Protect_Helper {
 		}
 
 		$settings = self::get_stored_settings();
-		if ( $settings['overwrite_status'] ) {
+		// The Protect_Status classes come from another plugin, so skip the overwrite without one.
+		if ( $settings['overwrite_status'] && class_exists( 'Automattic\\Jetpack\\Protect_Status\\Scan_Status' ) ) {
 			// Display a notice when this module overwrites Protect Status.
 			add_action( 'admin_notices', array( $this, 'display_protect_overwritten_notice' ) );
 
-			$protect_option_name = Automattic\Jetpack\Protect\Protect_Status::$option_name;
+			$protect_option_name = Automattic\Jetpack\Protect_Status\Protect_Status::OPTION_NAME;
 			add_filter( "option_$protect_option_name", array( $this, 'get_mock_response' ) );
 
-			$protect_option_time_name = Automattic\Jetpack\Protect\Protect_Status::$option_timestamp_name;
+			$protect_option_time_name = Automattic\Jetpack\Protect_Status\Protect_Status::OPTION_TIMESTAMP_NAME;
 			add_filter( "option_$protect_option_time_name", array( $this, 'filter_option_time' ) );
 
-			$scan_option_name = Automattic\Jetpack\Protect\Scan_Status::$option_name;
+			$scan_option_name = Automattic\Jetpack\Protect_Status\Scan_Status::OPTION_NAME;
 			add_filter( "option_$scan_option_name", array( $this, 'get_mock_scan_api_response' ) );
 
-			$scan_option_time_name = Automattic\Jetpack\Protect\Scan_Status::$option_timestamp_name;
+			$scan_option_time_name = Automattic\Jetpack\Protect_Status\Scan_Status::OPTION_TIMESTAMP_NAME;
 			add_filter( "option_$scan_option_time_name", array( $this, 'filter_option_time' ) );
 
 			if ( 'error' === $settings['status'] ) {
 				add_filter( 'pre_http_request', array( $this, 'filter_status_fetch' ), 10, 3 );
 			}
+		}
+
+		// Scan_History ships only in the Protect plugin.
+		if ( $settings['fail_history'] && class_exists( 'Automattic\\Jetpack\\Protect\\Scan_History' ) ) {
+			$history_option_time_name = Automattic\Jetpack\Protect\Scan_History::OPTION_TIMESTAMP_NAME;
+			add_filter( "option_$history_option_time_name", array( $this, 'filter_history_time' ) );
+			add_filter( 'pre_http_request', array( $this, 'filter_history_fetch' ), 10, 3 );
 		}
 	}
 
@@ -107,7 +115,14 @@ class Protect_Helper {
 							<option value="error" <?php selected( 'error', $settings['status'] ); ?>>Error - When there's an error fetching the status</option>
 							<option value="incomplete" <?php selected( 'incomplete', $settings['status'] ); ?>>Incomplete - When we have results, but some extensions were not scanned</option>
 							<option value="complete" <?php selected( 'complete', $settings['status'] ); ?>>Complete - When we have results for all extensions</option>
+							<option value="failed" <?php selected( 'failed', $settings['status'] ); ?>>Failed - When the latest scan didn't complete, so the results are from an earlier one (Scan only)</option>
 						</select>
+					</td>
+				</tr>
+				<tr>
+					<th scope="row">Scan History</th>
+					<td>
+						<label><input type="checkbox" name="fail_history" <?php echo ( $settings['fail_history'] ? 'checked="checked"' : '' ); ?>> Fail the Scan History fetch (Protect plugin, Scan only; works without the overwrite)</label>
 					</td>
 				</tr>
 				<tr>
@@ -148,6 +163,7 @@ class Protect_Helper {
 				'vuls_for_themes'   => false,
 				'vuls_for_files'    => false,
 				'vuls_for_database' => false,
+				'fail_history'      => false,
 			)
 		);
 	}
@@ -168,6 +184,7 @@ class Protect_Helper {
 				'vuls_for_themes'   => isset( $_POST['vuls_for_themes'] ),
 				'vuls_for_files'    => isset( $_POST['vuls_for_files'] ),
 				'vuls_for_database' => isset( $_POST['vuls_for_database'] ),
+				'fail_history'      => isset( $_POST['fail_history'] ),
 			)
 		);
 
@@ -357,6 +374,9 @@ class Protect_Helper {
 		}
 
 		$response->most_recent->timestamp = gmdate( 'Y-m-d H:i:s', time() - 1000 );
+		if ( 'failed' === $settings['status'] ) {
+			$response->most_recent->error = true;
+		}
 
 		if ( $settings['vuls_for_core'] ) {
 			$response->threats[] = self::get_mock_scan_api_threat( 1, 'core' );
@@ -464,15 +484,47 @@ class Protect_Helper {
 	}
 
 	/**
-	 * Forces the request for the Protect Status API ro return an error
+	 * Forces requests to the Protect Status and Scan APIs to return an error
 	 *
 	 * @param false|array|WP_Error $preempt The original response.
 	 * @param array                $parsed_args The request args.
 	 * @param string               $url The request URL.
-	 * @return mixed WP_Error if it's a request to Protect status API
+	 * @return mixed WP_Error if it's a request to the Protect Status or Scan API
 	 */
 	public function filter_status_fetch( $preempt, $parsed_args, $url ) {
-		if ( strpos( $url, Automattic\Jetpack\Protect\Protect_Status::get_api_url() ) !== false ) {
+		$api_urls = array(
+			Automattic\Jetpack\Protect_Status\Protect_Status::get_api_url(),
+			Automattic\Jetpack\Protect_Status\Scan_Status::get_api_url(),
+		);
+		foreach ( $api_urls as $api_url ) {
+			// Match the whole path, so other Scan endpoints such as /scan/history keep working.
+			if ( ! is_wp_error( $api_url ) && preg_match( '#' . preg_quote( $api_url, '#' ) . '(\?|$)#', $url ) ) {
+				return new WP_Error( 'error' );
+			}
+		}
+		return $preempt;
+	}
+
+	/**
+	 * Marks the cached Scan History as expired, so the page fetches it again.
+	 *
+	 * @return int
+	 */
+	public function filter_history_time() {
+		return time() - 100;
+	}
+
+	/**
+	 * Forces requests to the Scan History API to return an error.
+	 *
+	 * @param false|array|WP_Error $preempt The original response.
+	 * @param array                $parsed_args The request args.
+	 * @param string               $url The request URL.
+	 * @return mixed WP_Error if it's a request to the Scan History API
+	 */
+	public function filter_history_fetch( $preempt, $parsed_args, $url ) {
+		$api_url = Automattic\Jetpack\Protect\Scan_History::get_api_url();
+		if ( ! is_wp_error( $api_url ) && preg_match( '#' . preg_quote( $api_url, '#' ) . '(\?|$)#', $url ) ) {
 			return new WP_Error( 'error' );
 		}
 		return $preempt;

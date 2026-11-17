@@ -1,8 +1,9 @@
+import { getTickDecimalsDomain } from '../../private/tick-decimals';
 import type { EnhancedDataPoint } from '../../../hooks/use-zero-value-display';
 import type { DataPoint, DataPointDate, SeriesData } from '../../../types';
 
 /** Domain for a value axis that has nothing to scale, so its ticks still read 0 to 1. */
-const EMPTY_DOMAIN: [ number, number ] = [ 0, 1 ];
+export const EMPTY_DOMAIN: [ number, number ] = [ 0, 1 ];
 
 /**
  * The value a bar is drawn at, preferring `visualValue` so a zero still shows a sliver.
@@ -29,16 +30,6 @@ export const isBarRendered = ( point: DataPoint | DataPointDate | EnhancedDataPo
 	Number.isFinite( getBarValue( point ) );
 
 /**
- * How many bars visx renders for a list of points.
- *
- * @param points - Data points handed to visx.
- * @return The number of points that get a bar.
- */
-export const countRenderedBars = (
-	points: ReadonlyArray< DataPoint | DataPointDate | EnhancedDataPoint >
-): number => points.filter( isBarRendered ).length;
-
-/**
  * An explicit domain for the value scale, or null to let visx fit one to the data.
  *
  * Zero goes into the domain here rather than through the scale's `zero` flag: visx applies
@@ -47,12 +38,14 @@ export const countRenderedBars = (
  * @param data             - Every series handed to the chart.
  * @param includeZero      - Whether the domain must span zero.
  * @param isSeriesRendered - Whether visx mounts a series, i.e. the legend shows it.
+ * @param tickDecimals     - The value axis's `tickDecimals`.
  * @return Value domain, or null when visx should fit its own.
  */
 export const getValueScaleDomain = (
 	data: SeriesData[],
 	includeZero: boolean,
-	isSeriesRendered: ( series: SeriesData ) => boolean
+	isSeriesRendered: ( series: SeriesData ) => boolean,
+	tickDecimals?: number
 ): [ number, number ] | null => {
 	let min = Infinity;
 	let max = -Infinity;
@@ -77,14 +70,13 @@ export const getValueScaleDomain = (
 		return [ ...EMPTY_DOMAIN ];
 	}
 
+	let domain: [ number, number ] | null = null;
 	// A flat series fitted by visx collapses to zero height, so it is anchored at zero regardless.
 	if ( min === max ) {
-		return min === 0 ? [ ...EMPTY_DOMAIN ] : [ Math.min( 0, min ), Math.max( 0, max ) ];
+		domain = min === 0 ? [ ...EMPTY_DOMAIN ] : [ Math.min( 0, min ), Math.max( 0, max ) ];
+	} else if ( includeZero ) {
+		domain = [ Math.min( 0, min ), Math.max( 0, max ) ];
 	}
 
-	if ( includeZero ) {
-		return [ Math.min( 0, min ), Math.max( 0, max ) ];
-	}
-
-	return null;
+	return getTickDecimalsDomain( domain ?? [ min, max ], tickDecimals ) ?? domain;
 };

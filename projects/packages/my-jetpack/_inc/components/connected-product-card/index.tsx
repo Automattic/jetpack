@@ -2,10 +2,11 @@
  * External dependencies
  */
 import { Text } from '@wordpress/ui';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 /**
  * Internal dependencies
  */
+import { PRODUCT_STATUSES } from '../../constants';
 import useProduct from '../../data/products/use-product';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import preventWidows from '../../utils/prevent-widows';
@@ -30,6 +31,11 @@ interface ConnectedProductCardProps {
 	customLoadTracks?: Record< Lowercase< string >, unknown >;
 	variant?: 'default' | 'slim';
 }
+
+const CONNECTION_STATUSES: string[] = [
+	PRODUCT_STATUSES.NEEDS_FIRST_SITE_CONNECTION,
+	PRODUCT_STATUSES.SITE_CONNECTION_ERROR,
+];
 
 const ConnectedProductCard: FC< ConnectedProductCardProps > = ( {
 	admin,
@@ -62,11 +68,16 @@ const ConnectedProductCard: FC< ConnectedProductCardProps > = ( {
 		);
 	};
 
+	// Refetch only when the site connects after load, or a card mounts with a status that predates
+	// the connection; on load the products query already agrees with the connection.
+	const wasRegistered = useRef( isRegistered );
+	const awaitsConnection = CONNECTION_STATUSES.includes( status );
 	useEffect( () => {
-		if ( isRegistered ) {
+		if ( isRegistered && ( ! wasRegistered.current || awaitsConnection ) ) {
 			refetch();
 		}
-	}, [ isRegistered, status, refetch ] );
+		wasRegistered.current = isRegistered;
+	}, [ isRegistered, awaitsConnection, refetch ] );
 
 	return (
 		<ProductCard

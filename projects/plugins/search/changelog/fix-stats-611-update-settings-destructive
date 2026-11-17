@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Stats: Mark the jetpack-stats/update-settings ability as destructive, since it overwrites the saved Stats settings.

@@ -1,12 +1,18 @@
 /**
  * External dependencies
  */
-import { getDefaultPreset } from '@jetpack-premium-analytics/data';
+import {
+	getDefaultPreset,
+	getPolicyDefaultPreset,
+	OPEN_DATE_POLICY,
+	type StatsDatePolicy,
+} from '@jetpack-premium-analytics/data';
 import {
 	PRESET_ALL_TIME,
+	computePrimaryRange,
 	isYearSurfacePresetId,
 	type ComputablePresetId,
-	type PrimaryPresetId,
+	type DateRange,
 } from '@jetpack-premium-analytics/datetime';
 
 /**
@@ -27,6 +33,16 @@ export const DATE_FILTER_YEAR = 'year';
  * `Dashboard_Section::DATE_FILTERS` on the server, which is the source of truth.
  */
 export type DateFilterSurface = typeof DATE_FILTER_RANGE | typeof DATE_FILTER_YEAR;
+
+/**
+ * The surface a section's registered `date_filter` resolves to: `year` is the only opt-in.
+ *
+ * @param dateFilter - The section's `date_filter` value.
+ * @return The surface.
+ */
+export function toDateFilterSurface( dateFilter: string | undefined ): DateFilterSurface {
+	return dateFilter === DATE_FILTER_YEAR ? DATE_FILTER_YEAR : DATE_FILTER_RANGE;
+}
 
 /**
  * What a section's date filter supports, and where it renders. Mirrors
@@ -67,17 +83,42 @@ export function offersDateComparison(
  *
  * @param surface  - The active section's date-filter surface.
  * @param presetId - The preset currently in the URL, if any.
+ * @param policy   - The plan's date policy, for a section that follows it.
  * @return The preset to switch to, or null when no switch is needed.
  */
 export function resolvePresetForSurface(
 	surface: DateFilterSurface,
-	presetId: PrimaryPresetId | undefined
+	presetId: unknown,
+	policy: StatsDatePolicy = OPEN_DATE_POLICY
 ): ComputablePresetId | null {
 	if ( surface === DATE_FILTER_YEAR ) {
 		return isYearSurfacePresetId( presetId ) ? null : PRESET_ALL_TIME;
 	}
 
 	// The year surface has no custom range, so a year preset can only have come
-	// from another section. Fall back to the same preset a fresh load seeds.
-	return isYearSurfacePresetId( presetId ) ? getDefaultPreset() : null;
+	// from another section. Land on the reader's default, or the plan's fallback if it locks that.
+	return isYearSurfacePresetId( presetId )
+		? getPolicyDefaultPreset( policy, getDefaultPreset() )
+		: null;
+}
+
+/**
+ * The preset and range a surface moves an incompatible preset to, or null when it already fits.
+ *
+ * @param surface  - The section's date-filter surface.
+ * @param presetId - The preset currently in the URL, if any.
+ * @param policy   - The date policy the section follows.
+ * @param timeZone - The site's reporting timezone.
+ * @return The preset and its range, or null.
+ */
+export function resolveSurfaceRange(
+	surface: DateFilterSurface,
+	presetId: unknown,
+	policy: StatsDatePolicy,
+	timeZone: string
+): { presetId: ComputablePresetId; range: Required< DateRange > } | null {
+	const nextPresetId = resolvePresetForSurface( surface, presetId, policy );
+	const range = nextPresetId ? computePrimaryRange( nextPresetId, timeZone ) : undefined;
+
+	return nextPresetId && range ? { presetId: nextPresetId, range } : null;
 }

@@ -64,10 +64,26 @@ Jetpack_Application_Password_Extras::init();
 require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-ai-settings.php';
 require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-ai-feature-flags.php';
 require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-protect-dashboard-feature-flags.php';
+require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-monetize-feature-flags.php';
+require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-ads-settings-home.php';
 
 // Another plugin may have loaded an older version of this class, so only call the method if it exists.
 if ( method_exists( \Automattic\Jetpack\Newsletter\Settings::class, 'register_feature_flags' ) ) {
 	\Automattic\Jetpack\Newsletter\Settings::register_feature_flags();
+}
+
+// An older Premium Analytics package, loaded by another plugin, predates the classic Stats retirement flag.
+if ( class_exists( \Automattic\Jetpack\PremiumAnalytics\Classic_Stats::class ) ) {
+	\Automattic\Jetpack\PremiumAnalytics\Classic_Stats::register_feature_flag();
+}
+
+// An older Admin UI package, loaded by another plugin, predates the admin shell.
+if ( method_exists( \Automattic\Jetpack\Admin_UI\Admin_Shell::class, 'register_feature_flag' ) ) {
+	\Automattic\Jetpack\Admin_UI\Admin_Shell::register_feature_flag();
+}
+// Here too, not only in Admin_Menu: admin-ajax requests never build the menu, and the guest endpoint lives there.
+if ( method_exists( \Automattic\Jetpack\Admin_UI\Admin_Shell::class, 'init' ) ) {
+	\Automattic\Jetpack\Admin_UI\Admin_Shell::init();
 }
 
 if ( is_admin() ) {

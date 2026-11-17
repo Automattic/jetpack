@@ -126,6 +126,11 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 		require_once ABSPATH . 'wp-admin/includes/admin.php';
 		require_once ABSPATH . 'wp-admin/menu.php';
 
+		// REST requests do not run admin_head, where hidden sidebar entries normally leave the menu.
+		if ( method_exists( '\Automattic\Jetpack\Admin_UI\Admin_Menu', 'remove_hidden_menu_items' ) ) {
+			\Automattic\Jetpack\Admin_UI\Admin_Menu::remove_hidden_menu_items();
+		}
+
 		return rest_ensure_response( $this->prepare_menu_for_response( $menu ) );
 	}
 

@@ -1,4 +1,4 @@
-@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+@use "@wordpress/base-styles/variables";
 
 // Hack to hide the Image dropdown when the media modal is open
 body.modal-open .poster-panel__dropdown {
@@ -50,11 +50,11 @@ body.modal-open .poster-panel__dropdown {
 }
 
 .poster-panel-card {
-	margin-top: gb.$grid-unit-30;
-	margin-right: -(gb.$grid-unit-10);
-	margin-left: -(gb.$grid-unit-10);
-	padding-left: gb.$grid-unit-20;
-	padding-right: gb.$grid-unit-20;
+	margin-top: variables.$grid-unit-30;
+	margin-right: -(variables.$grid-unit-10);
+	margin-left: -(variables.$grid-unit-10);
+	padding-left: variables.$grid-unit-20;
+	padding-right: variables.$grid-unit-20;
 }
 
 .poster-panel__frame-picker__sandbox-wrapper {

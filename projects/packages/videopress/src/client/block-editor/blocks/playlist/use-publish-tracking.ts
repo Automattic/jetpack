@@ -6,9 +6,9 @@ import jetpackAnalytics from '@automattic/jetpack-analytics';
  * WordPress dependencies
  */
 import { store as blockEditorStore } from '@wordpress/block-editor';
-import { useSelect } from '@wordpress/data';
+import { useRegistry } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
-import { useEffect, useRef } from '@wordpress/element';
+import { useEffect } from '@wordpress/element';
 
 type PublishTrackingProps = {
 	clientId: string;
@@ -19,16 +19,32 @@ type PublishTrackingProps = {
 };
 
 type EditorSelectors = {
+	isSavingPost?: () => boolean;
 	isPublishingPost?: () => boolean;
+	isAutosavingPost?: () => boolean;
+	isPreviewingPost?: () => boolean;
+	didPostSaveRequestSucceed?: () => boolean;
+	getCurrentPostId?: () => number | string | null;
 	getCurrentPostType?: () => string;
+	getCurrentPostAttribute?: ( name: string ) => unknown;
+};
+
+type BlockEditorSelectors = {
 	getBlocksByName?: ( name: string ) => string[];
 };
 
+type PendingPublication = {
+	postId: number | string;
+	properties: {
+		post_type: string;
+		layout: string;
+		video_count: number;
+		playlist_count: number;
+	};
+};
+
 /**
- * Record a Tracks event when a post or page is published containing the
- * playlist block. The first playlist block in the post is the designated
- * reporter, so multi-playlist posts still record exactly one event per
- * publish.
+ * Record one event per playlist type after an observed publication save succeeds.
  *
  * @param props            - Hook props.
  * @param props.clientId   - This block instance's client id.
@@ -44,40 +60,82 @@ export default function usePublishTracking( {
 	blockName = 'videopress/playlist',
 	eventName = 'jetpack_videopress_playlist_block_published',
 }: PublishTrackingProps ) {
-	const { isPublishing, postType, playlistClientIds } = useSelect(
-		select => {
-			const editorSelectors = select( editorStore ) as EditorSelectors;
-			const blockEditorSelectors = select( blockEditorStore ) as EditorSelectors;
-
-			return {
-				isPublishing: editorSelectors?.isPublishingPost?.() ?? false,
-				postType: editorSelectors?.getCurrentPostType?.() ?? '',
-				playlistClientIds: blockEditorSelectors?.getBlocksByName?.( blockName ) ?? [],
-			};
-		},
-		[ blockName ]
-	);
-
-	const publishTracked = useRef( false );
+	const registry = useRegistry();
 
 	useEffect( () => {
-		if ( ! isPublishing ) {
-			publishTracked.current = false;
-			return;
-		}
-		if (
-			publishTracked.current ||
-			( playlistClientIds.length > 0 && playlistClientIds[ 0 ] !== clientId )
-		) {
-			return;
-		}
-		publishTracked.current = true;
+		const editor = registry.select( editorStore ) as EditorSelectors;
+		let wasSaving = editor?.isSavingPost?.() ?? false;
+		let pending: PendingPublication | undefined;
+		let detached = false;
 
-		jetpackAnalytics.tracks.recordEvent( eventName, {
-			post_type: postType,
-			layout,
-			video_count: videoCount,
-			playlist_count: Math.max( 1, playlistClientIds.length ),
+		// Store notifications preserve save transitions that React can batch into one render.
+		const unsubscribe = registry.subscribe( () => {
+			const isSaving = editor?.isSavingPost?.() ?? false;
+			const started = isSaving && ! wasSaving;
+			wasSaving = isSaving;
+			if ( ! pending && ( ! started || detached ) ) {
+				return;
+			}
+
+			if ( pending ) {
+				const samePost =
+					pending.postId === editor?.getCurrentPostId?.() &&
+					pending.properties.post_type === editor?.getCurrentPostType?.();
+				if ( ! isSaving || ! samePost ) {
+					const publication = pending;
+					pending = undefined;
+					if ( detached ) {
+						unsubscribe();
+					}
+					if (
+						samePost &&
+						! isSaving &&
+						editor?.didPostSaveRequestSucceed?.() === true &&
+						editor?.getCurrentPostAttribute?.( 'status' ) === 'publish'
+					) {
+						jetpackAnalytics.tracks.recordEvent( eventName, publication.properties );
+					}
+				}
+				return;
+			}
+
+			if (
+				! editor?.isPublishingPost?.() ||
+				editor?.isAutosavingPost?.() !== false ||
+				editor?.isPreviewingPost?.() !== false
+			) {
+				return;
+			}
+
+			const blocks = registry.select( blockEditorStore ) as BlockEditorSelectors;
+			const playlistClientIds = blocks?.getBlocksByName?.( blockName ) ?? [];
+			if ( playlistClientIds[ 0 ] !== clientId ) {
+				return;
+			}
+
+			const postId = editor?.getCurrentPostId?.();
+			const postType = editor?.getCurrentPostType?.();
+			if ( postId == null || ! postType ) {
+				return;
+			}
+
+			pending = {
+				postId,
+				properties: {
+					post_type: postType,
+					layout,
+					video_count: videoCount,
+					playlist_count: playlistClientIds.length,
+				},
+			};
 		} );
-	}, [ isPublishing, playlistClientIds, clientId, postType, layout, videoCount, eventName ] );
+
+		return () => {
+			// A captured save can finish after the block unmounts or its props change.
+			detached = true;
+			if ( ! pending ) {
+				unsubscribe();
+			}
+		};
+	}, [ registry, clientId, layout, videoCount, blockName, eventName ] );
 }

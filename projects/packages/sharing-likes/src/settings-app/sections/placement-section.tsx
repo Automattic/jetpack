@@ -36,14 +36,26 @@ export function PlacementSection(): JSX.Element | null {
 		return null;
 	}
 
+	// A section that offers its block sits next to this one, and the block ignores these choices.
+	const offersBlock =
+		status.sharing.state === 'block_call_to_action' ||
+		( status.likes.state === 'block_call_to_action' && status.likes.supported );
+
 	return (
 		<SectionCard
 			id={ PLACEMENT_ANCHOR }
 			title={ heading }
-			description={ __(
-				'These choices apply to every feature named in the heading.',
-				'jetpack-sharing-likes'
-			) }
+			description={
+				<>
+					{ __(
+						'These choices apply to every feature named in the heading.',
+						'jetpack-sharing-likes'
+					) }
+					{ offersBlock &&
+						' ' +
+							__( 'Blocks you add to your templates aren’t affected.', 'jetpack-sharing-likes' ) }
+				</>
+			}
 		>
 			<AutoSaveFields fields={ fields } />
 		</SectionCard>

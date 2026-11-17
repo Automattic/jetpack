@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+Comment: Add E2E tests for plan date limits on tab switches, locked sections and locked reports.
+

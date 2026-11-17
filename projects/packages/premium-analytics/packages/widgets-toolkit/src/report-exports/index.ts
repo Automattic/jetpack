@@ -39,7 +39,6 @@ export {
 	LOCATIONS_GEO_MODES,
 	buildLocationRows,
 	getLocationColumnLabel,
-	getLocationsGeoModeOptions,
 	getLocationsReportQueryParams,
 	getLocationsReportSection,
 	getLocationsSectionLabel,
@@ -53,7 +52,6 @@ export {
 export {
 	aggregateUtmRows,
 	getUtmDimensionLabel,
-	getUtmDimensionOptions,
 	getUtmReportQueryParams,
 	getUtmReportSection,
 	utmCsvExporters,

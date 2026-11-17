@@ -1,4 +1,4 @@
-@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+@use "@wordpress/base-styles/variables";
 @use "@automattic/color-studio/dist/color-variables" as studio;
 
 // Upgrade Banner.
@@ -9,7 +9,7 @@
 		justify-content: space-between;
 		align-items: center;
 		font-size: 14px;
-		font-family: gb.$default-font;
+		font-family: variables.$default-font;
 		text-transform: none;
 		background: #000;
 		padding: 0 20px;
@@ -63,7 +63,7 @@
 	&.jetpack-nudge-canvas[data-align="left"] {
 
 		.jetpack-upgrade-plan-banner__wrapper {
-			max-width: gb.$content-width;
+			max-width: variables.$content-width;
 			width: 100%;
 		}
 	}

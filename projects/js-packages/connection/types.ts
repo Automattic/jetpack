@@ -71,7 +71,10 @@ export type ConnectionScriptData = {
 	calypsoEnv: string;
 	connectionStatus: {
 		isActive: boolean;
+		/** Same value as `isInSafeMode`, which replaces it once its last consumers move over. */
 		isStaging: boolean;
+		/** Absent when the PHP connection package is older than this type. */
+		isInSafeMode?: boolean;
 		isRegistered: boolean;
 		isUserConnected: boolean;
 		hasConnectedOwner: boolean;
@@ -105,6 +108,10 @@ export type ConnectionScriptData = {
 			isMaster: boolean;
 			username: string;
 			id: number;
+			/** The viewer's local display name. */
+			displayName: string;
+			/** The viewer's local email address. */
+			email: string;
 			blogId: number;
 			wpcomUser: WpcomUser;
 			gravatar: string;
@@ -130,7 +137,13 @@ export type ConnectionScriptData = {
 	siteSuffix: string;
 	connectionErrors: Array< string | object >;
 	isOfflineMode: boolean;
+	/**
+	 * Whether ownership can be transferred.
+	 * @deprecated Use `canTakeOwnerSlot`. Kept for third-party readers; remove in a later release.
+	 */
 	isOwnershipTransferable: boolean;
+	/** Whether connecting would make the viewer the connection owner. Null from a server that predates it. */
+	canTakeOwnerSlot: boolean | null;
 	/** Owner identity; null when unresolvable or when the viewer lacks the jetpack_connect capability. */
 	connectionOwner: ConnectionOwner | null;
 	/**

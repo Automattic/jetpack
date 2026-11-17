@@ -41,6 +41,8 @@ class Main {
 		// Sync clean up, when Jetpack is disconnected.
 		add_action( 'jetpack_site_disconnected', array( __CLASS__, 'on_jetpack_site_disconnected' ), 1000 );
 
+		add_filter( 'jetpack_connection_debug_data', array( Debug_Data::class, 'add_fields' ) );
+
 		// Set up package version hook.
 		add_filter( 'jetpack_package_versions', __NAMESPACE__ . '\Package_Version::send_package_version_to_tracker' );
 

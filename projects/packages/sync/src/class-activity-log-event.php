@@ -251,6 +251,10 @@ class Activity_Log_Event {
 			return false;
 		}
 
+		// WP_REST_Server matches routes with '@^...$@i', which ignores case and allows one
+		// trailing newline, while get_route() returns the raw request path.
+		$route = strtolower( rtrim( $route, "\n" ) );
+
 		$rest_base = self::REST_BASE;
 
 		if ( false === strpos( $route, $rest_base ) ) {

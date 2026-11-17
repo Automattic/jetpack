@@ -40,6 +40,7 @@ class Initial_State_Chapters_Editor_Test extends BaseTestCase {
 	public function tear_down() {
 		remove_filter( 'pre_http_request', array( $this, 'block_http' ), 10 );
 		remove_all_filters( Admin_UI::CHAPTERS_EDITOR_FILTER );
+		remove_all_filters( 'jetpack_videopress_trim_cut' );
 		( new Connection_Manager() )->reset_connection_status();
 
 		parent::tear_down();
@@ -68,21 +69,24 @@ class Initial_State_Chapters_Editor_Test extends BaseTestCase {
 	}
 
 	/** Tests that the gate is mirrored at the exact key path the client reads, and is on by default. */
-	public function test_features_chapters_editor_is_true_by_default() {
+	public function test_editor_features_are_true_by_default() {
 		$state = $this->get_rendered_state();
 
 		$this->assertIsArray( $state, 'Initial_State::render() did not produce decodable JSON.' );
 		$this->assertArrayHasKey( 'features', $state );
 		$this->assertArrayHasKey( 'chaptersEditor', $state['features'] );
 		$this->assertTrue( $state['features']['chaptersEditor'] );
+		$this->assertTrue( $state['features']['trimCut'] );
 	}
 
 	/** Tests that the mirrored value follows the kill switch, as a real JSON boolean. */
-	public function test_features_chapters_editor_is_false_when_filter_disabled() {
+	public function test_editor_features_are_false_when_filters_disabled() {
 		add_filter( Admin_UI::CHAPTERS_EDITOR_FILTER, '__return_false' );
+		add_filter( 'jetpack_videopress_trim_cut', '__return_false' );
 
 		$state = $this->get_rendered_state();
 
 		$this->assertFalse( $state['features']['chaptersEditor'] );
+		$this->assertFalse( $state['features']['trimCut'] );
 	}
 }

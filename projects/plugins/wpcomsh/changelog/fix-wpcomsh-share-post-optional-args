@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Share Post: Fix errors when a shared post link leaves out optional details or includes an embed.

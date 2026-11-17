@@ -20,7 +20,6 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
-		"autotagger": true,
 		"npmjs-autopublish": true,
 		"mirror-repo": "Automattic/jetpack-shared-extension-utils",
 		"textdomain": "jetpack-shared-extension-utils",

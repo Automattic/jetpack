@@ -2,6 +2,7 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { markFirstPublish } from '../../../hooks/use-first-run-state';
 import { useOnboardingCounts } from '../../../hooks/use-onboarding-counts';
+import { useUploadIntake } from '../../../hooks/use-upload-intake';
 import OnboardingModal from '../index';
 
 jest.mock( '../../../hooks/use-onboarding-counts', () => ( {
@@ -13,7 +14,7 @@ jest.mock( '../../../hooks/use-onboarding-counts', () => ( {
 // uploader and free-tier queries nothing here needs.
 const mockIntakeFiles = jest.fn( (): number => 1 );
 jest.mock( '../../../hooks/use-upload-intake', () => ( {
-	useUploadIntake: () => mockIntakeFiles,
+	useUploadIntake: jest.fn( () => mockIntakeFiles ),
 } ) );
 
 // Free-tier facts only size the picker's `multiple` here — the intake hook
@@ -181,6 +182,7 @@ describe( 'OnboardingModal', () => {
 		await user.upload( getFilePicker(), file );
 
 		expect( mockIntakeFiles ).toHaveBeenCalledWith( [ file ] );
+		expect( useUploadIntake ).toHaveBeenCalledWith( 'onboarding_intake' );
 		expect( mockNavigate ).toHaveBeenCalledWith( { href: '/' } );
 		expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument();
 	} );

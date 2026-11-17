@@ -2,9 +2,10 @@
 /**
  * PayPal Payment Buttons — the style controls.
  *
- * Embed as and the per-format output controls, under the link details. The panel
- * set changes per format and, for QR, per the caption toggle, which block supports
- * cannot do: block.json declares them once and they cannot follow a checkbox.
+ * Embed as and the per-format output controls, under the link's name and price,
+ * above its details rows. The panel set changes per format and, for QR, per the
+ * caption toggle, which block supports cannot do: block.json declares them once
+ * and they cannot follow a checkbox.
  *
  * Modeled on projects/plugins/jetpack/extensions/blocks/donations/style-controls.jsx,
  * minus its `group="styles"` fill. Color is core's color dropdown, with its reset
@@ -454,8 +455,8 @@ function LinkOutputControls( { attributes, setAttributes, paymentUrl, disabled }
 /**
  * The style controls.
  *
- * Rendered inside the caller's sidebar fill, under the link details. A
- * `group="styles"` fill would draw the editor's tab bar.
+ * Rendered inside the caller's sidebar fill. A `group="styles"` fill would draw
+ * the editor's tab bar.
  *
  * @param {object}   props               - Component props.
  * @param {string}   props.format        - Display format: BUTTON, STACKED, LINK or QR.

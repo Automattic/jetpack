@@ -23,7 +23,7 @@ type Props = {
 	hideFooter?: boolean;
 };
 
-const TAB_VALUES: DashboardTab[] = [ 'library', 'stats', 'settings' ];
+const TAB_VALUES: DashboardTab[] = [ 'library', 'playlists', 'stats', 'settings' ];
 
 /**
  * Shared chrome for every wp-build VideoPress dashboard tab. Renders

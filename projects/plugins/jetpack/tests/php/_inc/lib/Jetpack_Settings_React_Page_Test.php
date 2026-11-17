@@ -197,6 +197,23 @@ class Jetpack_Settings_React_Page_Test extends WP_UnitTestCase {
 		$this->assertStringNotContainsString( '<!-- START OF CALLBACK -->', $output );
 	}
 
+	public function test_falls_back_to_the_modules_list_on_rest_authentication_error() {
+		$calls  = 0;
+		$reject = static function () use ( &$calls ) {
+			++$calls;
+			return new WP_Error( 'rest_denied' );
+		};
+		add_filter( 'rest_authentication_errors', $reject, PHP_INT_MAX );
+		try {
+			$page = new Jetpack_Settings_React_Page();
+			$page->add_fallback_redirects();
+			$this->assertSame( 1, $calls );
+			$this->assertNotFalse( has_action( 'admin_head', array( $page, 'add_fallback_head_meta' ) ) );
+		} finally {
+			remove_filter( 'rest_authentication_errors', $reject, PHP_INT_MAX );
+		}
+	}
+
 	/**
 	 * Tests that the page falls back to the modules list when the REST API is off.
 	 */

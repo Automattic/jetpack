@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Highlights: Show metric notes in a styled tooltip that also opens on keyboard focus.

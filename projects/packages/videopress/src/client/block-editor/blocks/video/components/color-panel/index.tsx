@@ -96,7 +96,6 @@ export default function ColorPanel( { clientId, attributes, setAttributes }: Vid
 			{ ! useAverageColor && (
 				<PanelColorSettings
 					className="videopress-color-panel"
-					opened={ ! useAverageColor }
 					showTitle={ false }
 					colorSettings={ [
 						{

@@ -1,0 +1,25 @@
+.vp-top-videos-uploaded-video {
+	padding: var(--wpds-dimension-padding-md);
+	text-align: center;
+
+	&__poster {
+		inline-size: 160px;
+		aspect-ratio: 16 / 9;
+		border-radius: var(--wpds-border-radius-lg);
+		object-fit: cover;
+		background: var(--wpds-color-background-surface-neutral-weak);
+	}
+
+	&__name {
+		display: block;
+		max-inline-size: 100%;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	&__message {
+		max-inline-size: 40ch;
+		color: var(--wpds-color-foreground-content-neutral-weak);
+	}
+}

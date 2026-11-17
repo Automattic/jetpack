@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Compare each week, month or year in the Traffic summary and the WooCommerce tab's charts with the one covering the same days in the comparison period, instead of the one in the same position.

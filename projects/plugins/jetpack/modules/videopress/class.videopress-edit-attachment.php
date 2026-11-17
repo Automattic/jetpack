@@ -250,7 +250,8 @@ class VideoPress_Edit_Attachment {
 		$meta = wp_get_attachment_metadata( $post_id );
 		$info = (object) $meta['videopress'];
 
-		$is_public = VIDEOPRESS_PRIVACY::IS_PUBLIC === $info->privacy_setting || ( VIDEOPRESS_PRIVACY::SITE_DEFAULT === $info->privacy_setting && ! ( new Status() )->is_private_site() );
+		$privacy_setting = $info->privacy_setting ?? VIDEOPRESS_PRIVACY::SITE_DEFAULT;
+		$is_public       = VIDEOPRESS_PRIVACY::IS_PUBLIC === $privacy_setting || ( VIDEOPRESS_PRIVACY::SITE_DEFAULT === $privacy_setting && ! ( new Status() )->is_private_site() );
 		/* Translators: %s is the video title */
 		$alt_text = sprintf( __( 'Poster image for video: %s', 'jetpack' ), get_the_title( $post_id ) );
 		?>

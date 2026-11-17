@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\SEO;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -22,7 +23,7 @@ class PostTypesTest extends TestCase {
 	 * @return void
 	 */
 	public function tearDown(): void {
-		foreach ( array( 'seo_book', 'seo_hidden', 'seo_no_rest', 'seo_internal' ) as $post_type ) {
+		foreach ( array( 'seo_book', 'seo_hidden', 'seo_no_rest', 'seo_internal', 'seo_unsearchable', 'elementor_library' ) as $post_type ) {
 			if ( post_type_exists( $post_type ) ) {
 				unregister_post_type( $post_type );
 			}
@@ -109,6 +110,72 @@ class PostTypesTest extends TestCase {
 				'label' => 'Books',
 			),
 			Post_Types::get_supported_content_type_options()
+		);
+	}
+
+	/**
+	 * Excluded post types stay out until a site filters them back in.
+	 *
+	 * @dataProvider provide_excluded_post_types
+	 *
+	 * @param string $slug Post type slug.
+	 * @param array  $args Extra registration arguments.
+	 * @return void
+	 */
+	#[DataProvider( 'provide_excluded_post_types' )]
+	public function test_excluded_post_types_stay_out_until_filtered_back_in( $slug, $args ) {
+		register_post_type(
+			$slug,
+			array_merge(
+				array(
+					'label'        => 'Excluded',
+					'public'       => true,
+					'show_ui'      => true,
+					'show_in_rest' => true,
+				),
+				$args
+			)
+		);
+
+		$this->assertNotContains( $slug, Post_Types::get_supported_content_types() );
+
+		$include = static function ( $excluded ) use ( $slug ) {
+			return array_diff( $excluded, array( $slug ) );
+		};
+		add_filter( 'jetpack_seo_excluded_post_types', $include );
+
+		try {
+			$this->assertContains( $slug, Post_Types::get_supported_content_types() );
+		} finally {
+			remove_filter( 'jetpack_seo_excluded_post_types', $include );
+		}
+	}
+
+	/**
+	 * Posts and pages stay listed when a site hides them from search.
+	 *
+	 * @return void
+	 */
+	public function test_core_types_hidden_from_search_stay_supported() {
+		$page                      = get_post_type_object( 'page' );
+		$page->exclude_from_search = true;
+
+		try {
+			$this->assertContains( 'page', Post_Types::get_supported_content_types() );
+		} finally {
+			$page->exclude_from_search = false;
+		}
+	}
+
+	/**
+	 * Both routes into the exclusion list.
+	 *
+	 * @return array<string,array{0:string,1:array<string,bool>}>
+	 */
+	public static function provide_excluded_post_types() {
+		return array(
+			'marked exclude_from_search' => array( 'seo_unsearchable', array( 'exclude_from_search' => true ) ),
+			'known builder template'     => array( 'elementor_library', array() ),
 		);
 	}
 }

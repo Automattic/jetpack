@@ -39,8 +39,7 @@ class Mock_Promote_Endpoint extends WPCOM_REST_API_V2_Endpoint_VideoPress {
 	public $primitives_loaded = true;
 
 	/**
-	 * Scripted results for successive promote_video_info() calls: the
-	 * pre-check read first, then the post-transcode verification read.
+	 * Scripted video lookups: initial check, check under the lock, then post-transcode verification.
 	 * Exhausting the list yields false (no live row).
 	 *
 	 * @var array

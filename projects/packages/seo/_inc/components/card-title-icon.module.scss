@@ -1,25 +1,22 @@
-// A card title led by an accent icon in a small tinted "chip" badge, the
-// placement Jetpack's other cards use. Matches the Overview cards' chip so the
-// Settings modules and Overview cards read as one family.
+// A card title led by a plain icon in the card's text color. Shared by the
+// Overview cards and the Settings and GEO modules so they read as one family.
+
+// Block, not `inline-flex`: an inline box sits on the text baseline and grows
+// the row past the 20px line the collapsible cards' chevron centers on.
 .cardTitle {
-	display: inline-flex;
+	display: flex;
 	align-items: center;
 	// `sm` (8px) matches the icon-to-label spacing used elsewhere in these cards,
 	// rather than the tighter `xs`.
 	gap: var(--wpds-dimension-gap-sm);
 }
 
-// A 24px icon (the @wordpress/ui default) in a `size-md` (32px) chip — both
-// from the WPDS size scale, so the glyph fills the badge instead of floating
-// in an oversized circle.
+// The 24px icon itself (sized in `card-title-icon.tsx`), with no background.
+// The `@wordpress/icons` glyphs draw in `currentColor`, so it takes the
+// title's dark text color. `flex: none` keeps a long title from squeezing it.
 .titleIcon {
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
 	flex: none;
-	inline-size: var(--wpds-dimension-size-md);
-	block-size: var(--wpds-dimension-size-md);
-	border-radius: 50%;
-	color: var(--wpds-color-foreground-interactive-brand);
-	background: var(--wpds-color-background-surface-brand);
+	// Overhang the 20px title line by 2px each side so the icon doesn't make
+	// the row taller than that line.
+	margin-block: calc((var(--wpds-typography-line-height-sm) - var(--wpds-dimension-size-sm)) / 2);
 }

@@ -34,10 +34,14 @@ minimumReleaseAge: 1440
 minimumReleaseAgeExclude:
   # Packages we often want to immediately update after releasing them.
   - '@automattic/*'
+  - '@gravatar-com/*'
   - '@woocommerce/*'
   - '@wordpress/*'
   - 'gridicons'
   - 'wpcom-proxy-request'
+  # Bump for deprecation
+  - tldts-core@7.4.22
+  - tldts@7.4.22
 
 trustPolicy: no-downgrade
 trustPolicyExclude:
@@ -46,7 +50,6 @@ trustPolicyExclude:
 
   # Packages where newer majors have provenance but we're still on an older one.
   - rxjs@7.8.2
-  - semver@6.3.1
 
 # Package compromise avoidance: require dep build script approval.
 strictDepBuilds: true
@@ -72,8 +75,11 @@ ignoredOptionalDependencies:
 
 audit:
   ignore:
-    # "OMG it can throw an exception" is not a real vulnerability. See also https://github.com/github/advisory-database/pull/10132
-    - GHSA-vfj7-8cjw-p6xm
+    # Maintainer of various eslint plugins seems unwilling to upgrade from minimatch v3, and this one isn't going to be backported. Sigh.
+    # https://github.com/import-js/eslint-plugin-import/issues/3249
+    # https://github.com/jsx-eslint/eslint-plugin-jsx-a11y/issues/1054
+    # https://github.com/jsx-eslint/eslint-plugin-react/issues/4066
+    - GHSA-g3hv-75wg-m249
 
 # Dependencies needing patching.
 patchedDependencies:
@@ -86,4 +92,7 @@ patchedDependencies:
   # It also restores the `boot-layout-container` class on the mount element,
   # which those older cores' Boot uses to size the page to the viewport; 0.22.0
   # dropped it and WordPress/gutenberg#82112 (unreleased) brings it back.
+  # The patch also preloads WordPress 7.1's site-data field list. Keep that preload
+  # until Jetpack's minimum WordPress version requests the @wordpress/build 0.26 list,
+  # even if upstream fixes init-module handling first.
   "@wordpress/build": .pnpm-patches/@wordpress__build.patch

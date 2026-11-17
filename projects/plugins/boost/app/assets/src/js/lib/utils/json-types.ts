@@ -6,7 +6,7 @@ import { z } from 'zod';
 const d = z.union( [ z.string(), z.number(), z.boolean(), z.null() ] );
 type Literal = z.infer< typeof d >;
 export const JSONSchema: z.ZodType< JSONValue > = z.lazy( () =>
-	z.union( [ d, z.array( JSONSchema ), z.record( JSONSchema ) ] )
+	z.union( [ d, z.array( JSONSchema ), z.record( z.string(), JSONSchema ) ] )
 );
 
 /**

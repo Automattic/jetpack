@@ -5,12 +5,14 @@ import type {
 	SeriesData,
 	SeriesChartLegendConfig,
 	SeriesVisibilityProps,
+	CompactWhenShortProps,
 } from '../../types';
 import type { RenderTooltipParams } from '../../visx/types';
 import type { CurveType } from '../line-chart/types';
 import type { ReactNode } from 'react';
 
-export interface AreaChartProps extends BaseChartProps< SeriesData[] >, SeriesVisibilityProps {
+export interface AreaChartProps
+	extends BaseChartProps< SeriesData[] >, SeriesVisibilityProps, CompactWhenShortProps {
 	/**
 	 * Legend configuration. Supports `collapseGroups` on top of the shared options.
 	 */

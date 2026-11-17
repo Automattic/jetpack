@@ -1,0 +1,16 @@
+.usageMeter {
+	align-self: stretch;
+}
+
+.usageCount {
+	font-weight: var(--wpds-typography-font-weight-emphasis);
+}
+
+.usageReset,
+.usageNote {
+	color: var(--wpds-color-foreground-content-neutral-weak);
+}
+
+.usageWarning {
+	font-weight: var(--wpds-typography-font-weight-emphasis);
+}

@@ -59,7 +59,6 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress_Edits_Test extends BaseTestCase {
 			),
 		);
 		add_filter( 'pre_http_request', array( $this, 'mock_http' ), 10, 3 );
-		add_filter( 'jetpack_videopress_trim_cut', '__return_true' );
 		$this->register_routes();
 	}
 
@@ -68,6 +67,7 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress_Edits_Test extends BaseTestCase {
 	 */
 	public function tearDown(): void {
 		wp_set_current_user( 0 );
+		remove_all_filters( 'jetpack_videopress_trim_cut' );
 		Constants::clear_single_constant( 'JETPACK__WPCOM_JSON_API_BASE' );
 		\Jetpack_Options::delete_option( 'blog_token' );
 		\Jetpack_Options::delete_option( 'id' );
@@ -150,7 +150,7 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress_Edits_Test extends BaseTestCase {
 	 * Test the feature gate blocks route registration.
 	 */
 	public function test_disabled_feature_has_no_routes() {
-		remove_filter( 'jetpack_videopress_trim_cut', '__return_true' );
+		add_filter( 'jetpack_videopress_trim_cut', '__return_false' );
 		$this->register_routes();
 		$this->assertSame( 404, $this->dispatch()->get_status() );
 		$this->assertEmpty( $this->requests );
@@ -368,7 +368,7 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress_Edits_Test extends BaseTestCase {
 			$token = \Mockery::mock( 'alias:' . VideoPressToken::class );
 			$token->shouldReceive( 'videopress_onetime_upload_token' )->times( 4 )->andReturn( 'wpcom-test-token' );
 			$token->shouldReceive( 'blog_id' )->times( 4 )->andReturn( get_current_blog_id() );
-			remove_filter( 'jetpack_videopress_trim_cut', '__return_true' );
+			add_filter( 'jetpack_videopress_trim_cut', '__return_false' );
 			$this->register_routes();
 			$body   = array(
 				'base_revision' => 0,

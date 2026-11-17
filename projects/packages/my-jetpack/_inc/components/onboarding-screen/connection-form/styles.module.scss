@@ -37,10 +37,9 @@
 	justify-content: center;
 }
 
-.tos {
+// Chained: @wordpress/ui guards `p` margins with a class plus the element.
+.connection-form .tos {
 	margin-top: 8px;
-	font-size: 13px;
-	line-height: 20px;
 	color: var(--jp-gray-50, #646970);
 
 	:global(.terms-of-service__link) {
@@ -50,4 +49,12 @@
 
 svg.spinner {
 	margin: 0;
+}
+
+.error-message {
+	margin: 0;
+}
+
+.error-detail {
+	margin: 4px 0 0;
 }

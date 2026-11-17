@@ -84,7 +84,7 @@ describe( 'LatestPostWidget', () => {
 		const link = await screen.findByRole( 'link', { name: 'Hello world' } );
 		const { pathname, searchParams } = getMockRouteLinkUrl( link );
 
-		expect( pathname ).toBe( '/post/779' );
+		expect( pathname ).toBe( '/report/post/779' );
 		expect( searchParams.get( 'from' ) ).toBe( '2026-03-01' );
 		expect( searchParams.get( 'to' ) ).toBe( '2026-03-10' );
 		expect( searchParams.get( 'ref' ) ).toBe( 'posts' );

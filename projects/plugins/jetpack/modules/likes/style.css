@@ -121,6 +121,13 @@ div.jetpack-comment-likes-widget-wrapper iframe {
 	white-space: nowrap;
 }
 
+#likes-other-gravatars ul.wpl-avatars li.wpl-likes-remaining {
+	display: flex;
+	align-items: center;
+	font-size: 12px;
+	color: #646970;
+}
+
 #likes-other-gravatars ul.wpl-avatars li a img {
 	background: none;
 	border: none;

@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Keep disabled GEO settings off after reloading. Detect static robots.txt and llms.txt files on supported managed hosting. Hide the Site visibility progress badge on private sites.

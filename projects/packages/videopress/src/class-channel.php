@@ -30,6 +30,7 @@ class Channel {
 	const TEMPLATE           = 'videopress-video';
 	const PLAYLIST_QUERY_VAR = 'videopress_playlist';
 	const LIST_VAR           = 'list';
+	const START_VAR          = 't';
 	const PLAYLIST_TEMPLATE  = 'videopress-playlist';
 	const PLAYLIST_SOURCES   = array( 'own', 'queried', 'index' );
 
@@ -357,17 +358,24 @@ class Channel {
 	}
 
 	/**
-	 * A video block with `useQueriedVideo` plays the current video. Its title
-	 * and poster are read from VideoPress at render time, not from the blog.
+	 * A video block with `useQueriedVideo` plays the current video, and one
+	 * with `useLatestVideo` the newest upload. Its title and poster are read
+	 * from VideoPress at render time, not from the blog.
 	 *
 	 * @param array $parsed_block The block being rendered.
 	 * @return array
 	 */
 	public static function queried_video_block( $parsed_block ) {
-		if ( ! isset( $parsed_block['blockName'] ) || 'videopress/video' !== $parsed_block['blockName'] || empty( $parsed_block['attrs']['useQueriedVideo'] ) ) {
+		if ( ! isset( $parsed_block['blockName'] ) || 'videopress/video' !== $parsed_block['blockName'] ) {
 			return $parsed_block;
 		}
-		$post = self::current_video();
+		if ( ! empty( $parsed_block['attrs']['useQueriedVideo'] ) ) {
+			$post = self::current_video();
+		} elseif ( ! empty( $parsed_block['attrs']['useLatestVideo'] ) ) {
+			$post = Channel_Data::latest_video();
+		} else {
+			return $parsed_block;
+		}
 		$guid = $post instanceof WP_Post ? self::guid( $post ) : '';
 		if ( ! $post instanceof WP_Post || '' === $guid ) {
 			$parsed_block['attrs']['guid'] = '';
@@ -380,10 +388,24 @@ class Channel {
 		$parsed_block['attrs']['id']    = $post->ID;
 		$parsed_block['attrs']['src']   = 'https://videopress.com/v/' . $guid;
 		$parsed_block['attrs']['title'] = $details && ! empty( $details->title ) ? (string) $details->title : get_the_title( $post );
+		$start                          = ! empty( $parsed_block['attrs']['useQueriedVideo'] ) ? self::queried_start() : 0;
+		if ( $start > 0 ) {
+			$parsed_block['attrs']['at'] = $start;
+		}
 		if ( $details && ! empty( $details->poster ) ) {
 			$parsed_block['attrs']['poster'] = (string) $details->poster;
 		}
 		return $parsed_block;
+	}
+
+	/**
+	 * The second a video page asks playback to start at ( `&t=72` ), or 0.
+	 *
+	 * @return int
+	 */
+	public static function queried_start() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only playback position, like a share link.
+		return self::is_video_page() && isset( $_GET[ self::START_VAR ] ) && is_string( $_GET[ self::START_VAR ] ) ? absint( $_GET[ self::START_VAR ] ) : 0;
 	}
 
 	/**
@@ -513,6 +535,23 @@ class Channel {
 		}
 		$playlists = self::playlists();
 		return $playlists ? $playlists[0] : null;
+	}
+
+	/**
+	 * The published playlists that hold a video.
+	 *
+	 * @param string $guid The video GUID.
+	 * @return array[]
+	 */
+	public static function playlists_with_video( $guid ) {
+		return array_values(
+			array_filter(
+				self::playlists(),
+				function ( $playlist ) use ( $guid ) {
+					return in_array( $guid, array_column( $playlist['videos'], 'guid' ), true );
+				}
+			)
+		);
 	}
 
 	/**

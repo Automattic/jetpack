@@ -1,0 +1,5 @@
+Significance: patch
+Type: removed
+Comment: Removed the `.extra.autotagger` setting, as the ability to not use autotagger is being removed.
+
+

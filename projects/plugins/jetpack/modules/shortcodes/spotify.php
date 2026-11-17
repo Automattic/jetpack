@@ -90,6 +90,10 @@ function jetpack_spotify_shortcode( $atts = array(), $content = '' ) {
  * @return string
  */
 function jetpack_spotify_embed_ids( $content ) {
+	if ( ! str_contains( $content, 'spotify:' ) ) {
+		return $content;
+	}
+
 	$textarr = wp_html_split( $content );
 
 	foreach ( $textarr as &$element ) {

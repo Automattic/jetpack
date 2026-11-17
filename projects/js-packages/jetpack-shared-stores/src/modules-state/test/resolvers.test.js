@@ -38,7 +38,7 @@ describe( 'getJetpackModules resolver', () => {
 		expect( final.done ).toBe( true );
 	} );
 
-	test( 'logs the error and still clears loading on failure', () => {
+	test( 'logs the error, clears loading, then rethrows so the resolution reads as failed', () => {
 		const error = new Error( 'fetch failed' );
 		const consoleError = jest.spyOn( console, 'error' ).mockImplementation( () => {} );
 		const generator = getJetpackModules();
@@ -48,7 +48,7 @@ describe( 'getJetpackModules resolver', () => {
 
 		// Inject a control failure; the catch logs it and `finally` clears loading.
 		expect( generator.throw( error ).value ).toEqual( loading( false ) );
-		expect( generator.next().done ).toBe( true );
+		expect( () => generator.next() ).toThrow( error );
 
 		expect( consoleError ).toHaveBeenCalledWith( error );
 		consoleError.mockRestore();

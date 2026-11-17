@@ -17,6 +17,7 @@
  * guard, exactly as in legacy. Only the `en` track is handled — a known
  * limitation carried over from the legacy pipeline.
  */
+import analytics from '@automattic/jetpack-analytics';
 import { __ } from '@wordpress/i18n';
 import { fetchVideoItem } from '../../../lib/fetch-video-item';
 import {
@@ -27,6 +28,14 @@ import {
 import { parseDescription, validateRows } from '../description';
 import generateChaptersFile from '../generate-chapters-file';
 import type { VideoTracksLegacyResponseBodyProps } from '../../../types';
+
+const CHAPTER_SAVE_SOURCES = [
+	'dashboard_details',
+	'dashboard_editor',
+	'block_editor',
+	'upload_details',
+] as const;
+export type ChapterSaveSource = ( typeof CHAPTER_SAVE_SOURCES )[ number ];
 
 export type ChaptersSyncStatus =
 	/** A regenerated VTT was uploaded over no track or an auto-generated one. */
@@ -58,6 +67,8 @@ export type ChaptersSyncVideo = {
 export type ChaptersSyncOptions = {
 	/** Called with a translated message when the sync fails; hosts surface it as a notice. */
 	onWarning?: ( message: string ) => void;
+	/** Editing surface responsible for this save; omitted sources do not emit metrics. */
+	source?: ChapterSaveSource;
 };
 
 /**
@@ -91,6 +102,15 @@ export async function syncChapters(
 ): Promise< ChaptersSyncStatus > {
 	const { rows } = parseDescription( description );
 	const hasValidChapters = validateRows( rows, video.durationSeconds ).isValid;
+	const source = options?.source;
+	const recordSaved = ( chapterCount: number ) => {
+		if ( source && CHAPTER_SAVE_SOURCES.includes( source ) ) {
+			analytics.tracks.recordEvent( 'jetpack_videopress_chapters_saved', {
+				chapter_count: chapterCount,
+				source,
+			} );
+		}
+	};
 
 	try {
 		const item = await fetchVideoItem( { guid: video.guid, isPrivate: video.isPrivate } );
@@ -126,6 +146,9 @@ export async function syncChapters(
 			if ( isErrorEnvelope( deleted ) ) {
 				throw new Error( deleted.message || deleted.error );
 			}
+			if ( deleted === true ) {
+				recordSaved( 0 );
+			}
 			return 'deleted';
 		}
 
@@ -149,6 +172,9 @@ export async function syncChapters(
 		);
 		if ( isErrorEnvelope( uploaded ) ) {
 			throw new Error( uploaded.message || uploaded.error );
+		}
+		if ( typeof uploaded === 'string' && uploaded.trim() !== '' ) {
+			recordSaved( rows.length );
 		}
 		return 'uploaded';
 	} catch {

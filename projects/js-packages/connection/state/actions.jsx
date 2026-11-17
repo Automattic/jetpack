@@ -7,6 +7,8 @@ const SET_SITE_IS_REGISTERING = 'SET_SITE_IS_REGISTERING';
 const SET_USER_IS_CONNECTING = 'SET_USER_IS_CONNECTING';
 const SET_REGISTRATION_ERROR = 'SET_REGISTRATION_ERROR';
 const CLEAR_REGISTRATION_ERROR = 'CLEAR_REGISTRATION_ERROR';
+const SET_USER_CONNECTION_ERROR = 'SET_USER_CONNECTION_ERROR';
+const CLEAR_USER_CONNECTION_ERROR = 'CLEAR_USER_CONNECTION_ERROR';
 const REGISTER_SITE = 'REGISTER_SITE';
 const SET_AUTHORIZATION_URL = 'SET_AUTHORIZATION_URL';
 const CONNECT_USER = 'CONNECT_USER';
@@ -54,8 +56,18 @@ const setUserIsConnecting = isConnecting => {
 	return { type: SET_USER_IS_CONNECTING, isConnecting };
 };
 
-const disconnectUserSuccess = () => {
-	return { type: DISCONNECT_USER_SUCCESS };
+/**
+ * Record that the current user is no longer connected to WordPress.com.
+ *
+ * @param {object}  [options]                    - Options.
+ * @param {boolean} [options.wasConnectionOwner] - Whether the unlinked user owned the connection.
+ *                                               Disconnecting the owner deletes the
+ *                                               `master_user` option, so the site is left with
+ *                                               no owner of record either.
+ * @return {object} The action.
+ */
+const disconnectUserSuccess = ( { wasConnectionOwner = false } = {} ) => {
+	return { type: DISCONNECT_USER_SUCCESS, wasConnectionOwner };
 };
 
 const setRegistrationError = registrationError => {
@@ -64,6 +76,14 @@ const setRegistrationError = registrationError => {
 
 const clearRegistrationError = () => {
 	return { type: CLEAR_REGISTRATION_ERROR };
+};
+
+const setUserConnectionError = userConnectionError => {
+	return { type: SET_USER_CONNECTION_ERROR, userConnectionError };
+};
+
+const clearUserConnectionError = () => {
+	return { type: CLEAR_USER_CONNECTION_ERROR };
 };
 
 const setAuthorizationUrl = authorizationUrl => {
@@ -97,16 +117,28 @@ const setIsOfflineMode = isOfflineMode => {
 /**
  * Connect site with wp.com user
  *
+ * On failure the error is recorded, `userIsConnecting` is reset and the promise rejects.
+ * On success `userIsConnecting` stays set, so the UI stays busy while the browser leaves.
+ *
  * @param {object}   Object                   - contains from and redirectFunc
  * @param {string}   Object.from              - Value that represents the redirect origin
  * @param {Function} Object.redirectFunc      - A function to handle the redirect, defaults to location.assign
  * @param {string}   [Object.redirectUri]     - A URI that the user will be redirected to
  * @param {boolean}  [Object.skipPricingPage] - A flag to skip the pricing page in the connection flow
  * @yield {object} Action object that will be yielded
+ * @return {Promise|undefined} A rejected promise on failure, otherwise nothing
  */
 function* connectUser( { from, redirectFunc, redirectUri, skipPricingPage } = {} ) {
+	yield clearUserConnectionError();
 	yield setUserIsConnecting( true );
-	yield { type: CONNECT_USER, from, redirectFunc, redirectUri, skipPricingPage };
+
+	try {
+		yield { type: CONNECT_USER, from, redirectFunc, redirectUri, skipPricingPage };
+	} catch ( error ) {
+		yield setUserConnectionError( error );
+		yield setUserIsConnecting( false );
+		return Promise.reject( error );
+	}
 }
 
 /**
@@ -122,6 +154,7 @@ function* connectUser( { from, redirectFunc, redirectUri, skipPricingPage } = {}
  */
 function* registerSite( { registrationNonce, redirectUri, from = '' } ) {
 	yield clearRegistrationError();
+	yield clearUserConnectionError();
 	yield setSiteIsRegistering( true );
 
 	try {
@@ -153,6 +186,47 @@ const refreshConnectedPlugins =
 		} );
 	};
 
+/**
+ * Read the site's connection status from the server again and record it in the store.
+ *
+ * The store is otherwise filled once, from the page's initial state, so it cannot see a connection made in another tab.
+ *
+ * @return {Function} Thunk that resolves with the fresh status.
+ */
+const refreshConnectionStatus =
+	() =>
+	async ( { dispatch } ) => {
+		const status = await restApi.fetchSiteConnectionStatus();
+		dispatch( setConnectionStatus( status ) );
+
+		return status;
+	};
+
+/**
+ * Unlink the current user from WordPress.com and record it in the store.
+ *
+ * The one place an unlink happens, so every surface reflects it the same way rather than
+ * patching its own copy of the connection state afterwards. Rejects with the API's error so
+ * the caller can word the failure for its own audience.
+ *
+ * @param {object}  [options]                    - Options.
+ * @param {boolean} [options.force]              - Force the disconnection. An administrator
+ *                                               unlinking themselves needs it.
+ * @param {boolean} [options.disconnectAllUsers] - Also unlink every other user, which
+ *                                               disconnecting the owner requires.
+ * @return {Function} Thunk.
+ */
+const unlinkUser =
+	( { force = false, disconnectAllUsers = false } = {} ) =>
+	async ( { dispatch, select } ) => {
+		// Read before the request: what the unlink means for the store follows from who the
+		// viewer is, not from what the caller asked the endpoint to do.
+		const wasConnectionOwner = Boolean( select.getUserConnectionData()?.currentUser?.isMaster );
+
+		await restApi.unlinkUser( force, { disconnectAllUsers } );
+		dispatch( disconnectUserSuccess( { wasConnectionOwner } ) );
+	};
+
 const actions = {
 	setConnectionOwner,
 	setConnectionStatus,
@@ -163,12 +237,16 @@ const actions = {
 	setUserIsConnecting,
 	setRegistrationError,
 	clearRegistrationError,
+	setUserConnectionError,
+	clearUserConnectionError,
 	setAuthorizationUrl,
 	registerSite,
 	connectUser,
 	disconnectUserSuccess,
+	unlinkUser,
 	setConnectedPlugins,
 	refreshConnectedPlugins,
+	refreshConnectionStatus,
 	setConnectionErrors,
 	runConnectionHealthCheck,
 	setIsOfflineMode,
@@ -183,6 +261,8 @@ export {
 	SET_USER_IS_CONNECTING,
 	SET_REGISTRATION_ERROR,
 	CLEAR_REGISTRATION_ERROR,
+	SET_USER_CONNECTION_ERROR,
+	CLEAR_USER_CONNECTION_ERROR,
 	REGISTER_SITE,
 	SET_AUTHORIZATION_URL,
 	CONNECT_USER,

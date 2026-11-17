@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Connection: Show connection errors on the Connectors card, and keep showing the connection owner when their account connection breaks.

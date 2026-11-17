@@ -49,7 +49,7 @@ const styles = [ { color: '#3858E9' }, { color: '#66BDFF' }, { color: '#A77EFF' 
 | `dataFormat`        | `DataFormat`          | `{ type: 'number' }` | Format configuration for the metric display                                         |
 | `legendData`        | `LegendItem[]`        | -                    | Legend items with labels and comparison values                                      |
 | `showLegend`        | `boolean`             | `true`               | Whether to show the legend below the chart                                          |
-| `chartTitle`        | `string`              | -                    | What the chart shows, such as the widget title; the chart is named "Chart: <title>" |
+| `chartTitle`        | `string`              | -                    | What the chart shows, when that is not the widget title; the chart is named "Chart: <title>" |
 | `thickness`         | `number`              | `0.3`                | Arc thickness as ratio (0-1)                                                        |
 | `maxWidth`          | `number`              | `Infinity`           | Maximum width constraint for the chart                                              |
 | `withTooltips`      | `boolean`             | `false`              | Enable tooltips on hover                                                            |

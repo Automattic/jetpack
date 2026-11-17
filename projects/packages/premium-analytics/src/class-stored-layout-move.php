@@ -18,7 +18,7 @@ namespace Automattic\Jetpack\PremiumAnalytics;
  * Temporary, to be removed once the move has reached the readers who customized a tab before it
  * (WOOA7S-2291). The next layout change is a separate discussion, not a second entry here.
  *
- * @since $$next-version$$
+ * @since 0.13.0
  */
 class Stored_Layout_Move {
 

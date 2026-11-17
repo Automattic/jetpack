@@ -37,13 +37,22 @@ import { captureCsvDownloads } from '../../widgets/test-utils';
 import TopPostsWidget from '../../widgets/top-posts/render';
 import UtmInsightsWidget from '../../widgets/utm-insights/render';
 import { setMockRouteSearch } from './route-test-utils';
+import { createWidgetActionsHost } from './widget-host-test-utils';
 
 jest.mock( '@wordpress/api-fetch', () => jest.fn() );
 jest.mock(
 	'@wordpress/route',
 	() => jest.requireActual( './route-test-utils' ).mockWordPressRoute
 );
-jest.mock( '@wordpress/admin-ui', () => ( { Breadcrumbs: () => null } ) );
+jest.mock( '@wordpress/admin-ui', () => ( {
+	Breadcrumbs: () => null,
+	Page: ( { actions, children }: { actions?: ReactNode; children: ReactNode } ) => (
+		<>
+			{ actions }
+			{ children }
+		</>
+	),
+} ) );
 jest.mock( '@automattic/jetpack-script-data', () => ( {
 	...jest.requireActual( '@automattic/jetpack-script-data' ),
 	getScriptData: () => undefined,
@@ -58,7 +67,6 @@ jest.mock( '@jetpack-premium-analytics/ui', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/ui' ),
 	DateFiltersPanel: () => null,
 	StatsBreadcrumbs: () => null,
-	StatsPageIcon: () => null,
 } ) );
 jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/widgets-toolkit' ),
@@ -68,12 +76,6 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 	ReportLocationsMap: () => null,
 	ReportRecordsTable: MockRecordsTable,
 	ReportPageLayout: ( { children }: { children: ReactNode } ) => <>{ children }</>,
-	ReportPageShell: ( { actions, children }: { actions?: ReactNode; children: ReactNode } ) => (
-		<>
-			{ actions }
-			{ children }
-		</>
-	),
 	ReportPageTabs: () => null,
 } ) );
 
@@ -411,6 +413,8 @@ function respond( path: string ) {
 	);
 }
 
+let actionsHost: ReturnType< typeof createWidgetActionsHost >;
+
 /**
  * Wrap a page or widget in the providers the dashboard mounts it under.
  *
@@ -418,7 +422,11 @@ function respond( path: string ) {
  * @return The wrapped element.
  */
 function withProviders( ui: ReactElement ) {
-	return <AnalyticsQueryClientProvider>{ ui }</AnalyticsQueryClientProvider>;
+	return (
+		<AnalyticsQueryClientProvider>
+			<actionsHost.WidgetActionsHost>{ ui }</actionsHost.WidgetActionsHost>
+		</AnalyticsQueryClientProvider>
+	);
 }
 
 describe( 'Widget and report CSV parity', () => {
@@ -432,6 +440,7 @@ describe( 'Widget and report CSV parity', () => {
 		mockApiFetch.mockReset();
 		mockApiFetch.mockImplementation( ( { path }: { path: string } ) => respond( path ) );
 		downloads = captureCsvDownloads();
+		actionsHost = createWidgetActionsHost();
 	} );
 
 	afterEach( () => {
@@ -440,7 +449,7 @@ describe( 'Widget and report CSV parity', () => {
 	} );
 
 	/**
-	 * Render a page or widget, click its Download CSV action, and capture the saved file.
+	 * Render a page or widget, run its Download CSV action, and capture the saved file.
 	 *
 	 * @param ui      - The page or widget to render.
 	 * @param prepare - Interaction to run before downloading.
@@ -449,9 +458,19 @@ describe( 'Widget and report CSV parity', () => {
 	async function download( ui: ReactElement, prepare?: () => Promise< void > ) {
 		const view = render( withProviders( ui ) );
 		await prepare?.();
-		const button = await screen.findByRole( 'button', { name: /Download CSV/ } );
+		// A page draws its own button; a widget declares the download to its host.
+		const action = await waitFor( () => {
+			const declared = actionsHost.declaredAction( 'download-csv' );
+			const button = screen.queryByRole( 'button', { name: /Download CSV/ } );
+			expect( declared ?? button ).toBeTruthy();
+			return declared ?? ( button as HTMLElement );
+		} );
 
-		await downloads.clickAndSave( button );
+		if ( action instanceof HTMLElement ) {
+			await downloads.clickAndSave( action );
+		} else {
+			await downloads.runAndSave( action );
+		}
 
 		const [ saved ] = downloads.files.splice( 0 );
 		const file = { filename: saved.filename, csv: await saved.blob.text() };
@@ -477,15 +496,13 @@ describe( 'Widget and report CSV parity', () => {
 	);
 
 	it( 'reuses the report page cached rows for the widget download', async () => {
-		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
 		await download( <PostsReportPage /> );
 
 		render( withProviders( CASES[ 0 ].widget( REPORT_PARAMS ) ) );
-		const button = await screen.findByRole( 'button', { name: /Download CSV/ } );
+		const action = await actionsHost.findDeclaredAction( 'download-csv' );
 		const callsBeforeClick = mockApiFetch.mock.calls.length;
 
-		await user.click( button );
-		await waitFor( () => expect( downloads.files ).toHaveLength( 1 ) );
+		await downloads.runAndSave( action );
 
 		expect( mockApiFetch ).toHaveBeenCalledTimes( callsBeforeClick );
 	} );
@@ -499,9 +516,7 @@ describe( 'Widget and report CSV parity', () => {
 
 			render( withProviders( widget( REPORT_PARAMS ) ) );
 
-			await expect(
-				screen.findByRole( 'button', { name: /Download CSV/ } )
-			).resolves.toBeInTheDocument();
+			await expect( actionsHost.findDeclaredAction( 'download-csv' ) ).resolves.toBeDefined();
 			expect( mockApiFetch ).toHaveBeenCalledWith(
 				expect.objectContaining( { path: expect.stringContaining( '2026-02' ) } )
 			);
@@ -575,9 +590,7 @@ describe( 'Widget and report CSV parity', () => {
 
 		render( withProviders( <UtmInsightsWidget attributes={ { reportParams: REPORT_PARAMS } } /> ) );
 
-		await expect(
-			screen.findByRole( 'button', { name: /Download CSV/ } )
-		).resolves.toBeInTheDocument();
+		await expect( actionsHost.findDeclaredAction( 'download-csv' ) ).resolves.toBeDefined();
 		expect( mockApiFetch ).toHaveBeenCalledWith(
 			expect.objectContaining( { path: expect.stringContaining( '2026-02' ) } )
 		);
@@ -596,7 +609,7 @@ describe( 'Widget and report CSV parity', () => {
 			await screen.findByRole( 'button', { name: 'View posts for source-7 / email' } )
 		);
 		await expect( screen.findByText( 'All UTM insights' ) ).resolves.toBeInTheDocument();
-		await downloads.clickAndSave( screen.getByRole( 'button', { name: /Download CSV/ } ) );
+		await downloads.runAndSave( await actionsHost.findDeclaredAction( 'download-csv' ) );
 
 		const [ saved ] = downloads.files.splice( 0 );
 		view.unmount();
@@ -687,8 +700,6 @@ describe( 'Widget and report CSV parity', () => {
 
 		render( withProviders( <LocationsWidget attributes={ { reportParams: REPORT_PARAMS } } /> ) );
 
-		await expect(
-			screen.findByRole( 'button', { name: /Download CSV/ } )
-		).resolves.toBeInTheDocument();
+		await expect( actionsHost.findDeclaredAction( 'download-csv' ) ).resolves.toBeDefined();
 	} );
 } );

@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Protect: Show that Protect is being set up, rather than turned off, while a site that just moved to WoA finishes connecting.

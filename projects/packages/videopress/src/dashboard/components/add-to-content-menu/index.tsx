@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { DropdownMenu, MenuGroup, MenuItem } from '@wordpress/components';
+import { useViewportMatch } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
 import { plus, page as pageIcon, post as postIcon } from '@wordpress/icons';
 import { addQueryArgs } from '@wordpress/url';
@@ -96,6 +97,12 @@ type Props = {
  * @return The dropdown, or null when no GUID is available.
  */
 export default function AddToContentMenu( { guid, label, size, className }: Props ) {
+	// Below 600px the labelled trigger alone is wider than the space the page
+	// header leaves beside the breadcrumb, so it collapses to its `plus` icon.
+	// The label stays on as the accessible name and tooltip.
+	// eslint-disable-next-line @wordpress/no-unused-vars-before-return -- Hook must run unconditionally (Rules of Hooks); its value is only read after the guard below.
+	const isIconOnly = useViewportMatch( 'small', '<' );
+
 	// Both halves of the hand-off have to be present, not just the GUID. The
 	// server only fills `default_content` when the request carries a valid
 	// `videopress-content-nonce`, so without it every item in this menu would
@@ -113,7 +120,7 @@ export default function AddToContentMenu( { guid, label, size, className }: Prop
 			label={ label ?? __( 'Add to a post or page', 'jetpack-videopress-pkg' ) }
 			// Names the category, not one of its own two options — the menu
 			// offers a page as well, so "Add to a post" read as a mislabel.
-			text={ __( 'Add to a post or page', 'jetpack-videopress-pkg' ) }
+			text={ isIconOnly ? undefined : __( 'Add to a post or page', 'jetpack-videopress-pkg' ) }
 			className={ className }
 			// The header row runs `compact` controls, so `compact` matches Save
 			// beside it. `default` opts into `__next40pxDefaultSize` for the

@@ -107,6 +107,22 @@ class Product_Multiple_Filenames_Test extends TestCase {
 	}
 
 	/**
+	 * @return array
+	 */
+	public static function installed_and_active_copies_data() {
+		$backup_files  = array( 'jetpack-backup/jetpack-backup.php', 'jetpack-backup-dev/jetpack-backup.php' );
+		$jetpack_files = Product::JETPACK_PLUGIN_FILENAME;
+		return array(
+			'active product copy'     => array( 'product', $backup_files, array( $backup_files[1] ), $backup_files[1] ),
+			'inactive product copies' => array( 'product', $backup_files, array(), $backup_files[0] ),
+			'no product copy'         => array( 'product', array(), array(), null ),
+			'active Jetpack copy'     => array( Product::JETPACK_PLUGIN_SLUG, $jetpack_files, array( $jetpack_files[1] ), $jetpack_files[1] ),
+			'inactive Jetpack copies' => array( Product::JETPACK_PLUGIN_SLUG, $jetpack_files, array(), $jetpack_files[0] ),
+			'no Jetpack copy'         => array( Product::JETPACK_PLUGIN_SLUG, array(), array(), null ),
+		);
+	}
+
+	/**
 	 * Data provider for test_activate
 	 *
 	 * @return array
@@ -136,6 +152,28 @@ class Product_Multiple_Filenames_Test extends TestCase {
 		$this->assertSame( $success, Backup::is_plugin_installed() );
 		$expected_file = $success ? $folder . '/jetpack-backup.php' : null;
 		$this->assertSame( $expected_file, Backup::get_installed_plugin_filename() );
+	}
+
+	/**
+	 * @dataProvider installed_and_active_copies_data
+	 * @param string      $plugin Plugin lookup type.
+	 * @param string[]    $installed_files Installed plugin filenames.
+	 * @param string[]    $active_files Active plugin filenames.
+	 * @param string|null $expected_file Selected filename, or null when none is installed.
+	 */
+	#[DataProvider( 'installed_and_active_copies_data' )]
+	public function test_installed_plugin_filename_selects_active_copy_or_installed_fallback( $plugin, $installed_files, $active_files, $expected_file ) {
+		$plugins = static function () use ( $installed_files ) {
+			return array_fill_keys( $installed_files, array( 'Name' => 'Test plugin' ) );
+		};
+		add_filter( 'all_plugins', $plugins );
+		update_option( 'active_plugins', $active_files );
+		try {
+			$this->assertSame( $expected_file, Backup::get_installed_plugin_filename( $plugin ) );
+		} finally {
+			remove_filter( 'all_plugins', $plugins );
+			wp_cache_delete( 'plugins', 'plugins' );
+		}
 	}
 
 	/**

@@ -34,6 +34,10 @@
 		color: var(--wpds-color-foreground-content-neutral);
 		padding: 0 4px;
 	}
+
+	&__field--placeholder &__text {
+		color: var(--wpds-color-foreground-content-neutral-weak);
+	}
 }
 
 @media (max-width: 600px) {

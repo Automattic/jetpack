@@ -11,7 +11,15 @@ export interface TitleFormatToken {
 	value: string;
 }
 
+export interface ShareImage {
+	id: number;
+	src: string;
+	alt_text: string;
+}
+
 export interface SettingsResponse {
+	default_share_image?: ShareImage | null;
+	share_image_preview?: string | null;
 	front_page_description: string;
 	// True when the site kept a front-page description from the era it was free for
 	// all WordPress.com Simple sites. Such sites keep editing that one field even
@@ -22,8 +30,8 @@ export interface SettingsResponse {
 	// default `-`). Used to preview the default title of a page type that has no
 	// stored format. Read-only, never sent back.
 	title_separator: string;
-	// Server-owned conflict state. False keeps saved formats visible but read-only
-	// and prevents them from being included in a save payload.
+	// Server-owned: false while Jetpack's SEO output is off, which keeps the saved
+	// formats out of a save payload. The card itself locks from `getOutput().paused`.
 	title_formats_editable: boolean;
 	verification_tools_active: boolean;
 	verification: {
@@ -34,10 +42,14 @@ export interface SettingsResponse {
 		facebook: string;
 	};
 	search_engines_visible: boolean;
-	// WordPress.com records a private or coming-soon site as a negative `blog_public`.
-	// Indexing is off for such a site because it isn't published at all, which no SEO
-	// setting here can change — so the toggle is disabled rather than silently inert.
+	// A private or Coming Soon WordPress.com site. Indexing is off for such a site
+	// because it isn't published at all, which no SEO setting here can change — so
+	// the toggle is disabled rather than silently inert.
 	site_is_private: boolean;
+	// Read-only: the unpublished site is Coming Soon rather than private.
+	site_is_coming_soon: boolean;
+	// Read-only: where the site's visibility is changed.
+	site_visibility_url: string;
 	sitemap_active: boolean;
 	sitemap_switchable: boolean;
 	// Read-only: the reachable sitemap URL, or '' until it's been generated and is
@@ -45,6 +57,8 @@ export interface SettingsResponse {
 	sitemap_url: string;
 	canonical_active: boolean;
 	canonical_switchable: boolean;
+	// Read-only: another SEO plugin owns canonical output, so the switch is locked.
+	canonical_conflicted: boolean;
 	// Read by the Settings bootstrap; saved through `/jetpack/v4/seo/schema-settings`.
 	schema: SchemaSettings;
 }

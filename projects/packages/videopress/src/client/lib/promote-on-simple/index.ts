@@ -31,16 +31,19 @@ type WpcomPromoteResponse = {
  * endpoint there.
  *
  * @param attachmentId - The numeric or string WordPress attachment ID.
+ * @param source       - The known entry surface, if supplied by the caller.
  * @return The VideoPress GUID and (unchanged) media post ID.
  */
 export async function promoteOnSimple(
-	attachmentId: string | number
+	attachmentId: string | number,
+	source?: 'dashboard_promote' | 'block_editor'
 ): Promise< PromoteOnSimpleResult > {
 	let result: WpcomPromoteResponse;
 	try {
 		result = await apiFetch< WpcomPromoteResponse >( {
 			path: `/wpcom/v2/videopress/promote/${ attachmentId }`,
 			method: 'POST',
+			...( source ? { data: { source } } : {} ),
 		} );
 	} catch ( err ) {
 		// apiFetch rejects REST errors as plain { code, message } objects;

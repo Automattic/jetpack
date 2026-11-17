@@ -44,6 +44,13 @@ describe( 'date helpers', () => {
 		} );
 	} );
 
+	it( 'returns full quarter intervals from the quarter start the API keys them by', () => {
+		expect( getDateIntervalDateParts( '2026-07-01', 'quarter' ) ).toEqual( {
+			startDate: '2026-07-01',
+			endDate: '2026-09-30',
+		} );
+	} );
+
 	it( 'returns full year intervals', () => {
 		expect( getDateIntervalDateParts( '2026', 'year' ) ).toEqual( {
 			startDate: '2026-01-01',

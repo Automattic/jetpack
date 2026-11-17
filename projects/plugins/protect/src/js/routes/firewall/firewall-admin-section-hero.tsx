@@ -39,7 +39,7 @@ const FirewallAdminSectionHero = () => {
 		if ( status === 'on' ) {
 			return (
 				<>
-					{ ! wafSupported && __( 'Brute force protection is active', 'jetpack-protect' ) }
+					{ ! wafSupported && __( 'Login protection is active', 'jetpack-protect' ) }
 					{ wafSupported &&
 						( jetpackWafAutomaticRules
 							? __( 'Automatic firewall is on', 'jetpack-protect' )
@@ -55,7 +55,7 @@ const FirewallAdminSectionHero = () => {
 		if ( status === 'off' ) {
 			return (
 				<>
-					{ ! wafSupported && __( 'Brute force protection is disabled', 'jetpack-protect' ) }
+					{ ! wafSupported && __( 'Login protection is disabled', 'jetpack-protect' ) }
 					{ wafSupported &&
 						( automaticRulesAvailable
 							? __( 'Automatic firewall is off', 'jetpack-protect' )

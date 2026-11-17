@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Protect: Show uptime as a percentage on the Protect dashboard's Downtime monitoring card, with per-day details on hover and a toggle to turn it on.

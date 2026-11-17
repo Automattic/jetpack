@@ -7,11 +7,11 @@ import styles from './style.module.scss';
 import usePricingData from './use-pricing-data';
 
 const PriceComponent = ( { slug }: { slug: string } ) => {
-	const { isLoading: isProductLoading } = useProduct( slug );
+	const { detail, isLoading: isProductLoading } = useProduct( slug );
 
 	const { discountPrice, fullPrice, currencyCode, isFeature, hasFreeOffering } =
 		usePricingData( slug );
-	const isFreeFeature = isFeature && hasFreeOffering && ! fullPrice;
+	const isFree = ! fullPrice && ( detail.pricingForUi?.isFree || ( isFeature && hasFreeOffering ) );
 
 	if ( isProductLoading ) {
 		return (
@@ -20,16 +20,21 @@ const PriceComponent = ( { slug }: { slug: string } ) => {
 			</div>
 		);
 	}
+	// No catalog price: a paid product must not read as $0.
+	if ( fullPrice == null && ! isFree ) {
+		return null;
+	}
+
 	return (
 		<div className={ styles.priceContainer }>
 			{ discountPrice && (
 				<span className={ styles.price }>{ formatCurrency( discountPrice, currencyCode ) }</span>
 			) }
 			<span className={ clsx( styles.price, { [ styles.discounted ]: discountPrice } ) }>
-				{ ! isFreeFeature && formatCurrency( fullPrice, currencyCode ) }
-				{ isFreeFeature && __( 'Free', 'jetpack-my-jetpack' ) }
+				{ ! isFree && formatCurrency( fullPrice, currencyCode ) }
+				{ isFree && __( 'Free', 'jetpack-my-jetpack' ) }
 			</span>
-			{ ! isFreeFeature && (
+			{ ! isFree && (
 				<span className={ styles.term }>
 					{ __( '/month, billed yearly', 'jetpack-my-jetpack' ) }
 				</span>

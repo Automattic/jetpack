@@ -13,7 +13,7 @@ License: GPLv2
 
 **Please note:** This plugin is no longer actively supported for new customers.
 
-For the next generation of VaultPress technology, **we recommend** [Jetpack Security](https://jetpack.com/features/security/). It includes real-time backups, malware scanning, anti-spam comment protection, and a new Web Application Firewall (WAF) for ultimate WordPress site security.
+For the next generation of VaultPress technology, **we recommend** [Jetpack Pro or Complete](https://jetpack.com/pricing/). Both include real-time backups, malware scanning, anti-spam comment protection, and a new Web Application Firewall (WAF) for ultimate WordPress site security.
 
 == Installation ==
 

@@ -553,6 +553,12 @@ tr.jetpack-module.unavailable {
 	color: $jp-text-muted;
 }
 
+.jetpack-module__note {
+	font-size: typography.$font-body-extra-small;
+	line-height: 1.4;
+	color: $jp-text-muted;
+}
+
 .jetpack-module__meta {
 	display: flex;
 	align-items: center;

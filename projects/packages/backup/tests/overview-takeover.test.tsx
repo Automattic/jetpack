@@ -34,7 +34,7 @@ const CONNECTED = { isRegistered: true, hasConnectedOwner: true, isUserConnected
 /**
  * One rewindable-activity entry, in WPCOM's shape.
  *
- * @param gridicon - `cloud` marks a backup row; anything else does not.
+ * @param gridicon - `cloud` makes a backup row; anything else is a post, which isn't one.
  * @return A raw activity entry.
  */
 function activityEntry( gridicon: string ) {
@@ -46,7 +46,8 @@ function activityEntry( gridicon: string ) {
 		rewind_id: '1786644531.123',
 		actor: { type: 'Application', name: 'Jetpack' },
 		content: { text: '46 plugins, 23 themes' },
-		name: 'rewind__backup_complete_full',
+		// The Overview also treats a rewindable entry with a backup name as a backup.
+		name: gridicon === 'cloud' ? 'rewind__backup_complete_full' : 'post__published',
 	};
 }
 

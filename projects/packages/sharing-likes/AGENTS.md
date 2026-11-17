@@ -48,20 +48,45 @@ The screen is plain wp-admin chrome. It deliberately does not render inside
 `Jetpack_Admin_Page::wrap_ui()`, which is what keeps this package free of the
 plugin.
 
-The React screen is the exception: behind `rsm_jetpack_ui_modernization_sharing_likes`
-(off by default), `Settings_App` swaps the menu callback for the wp-build app.
-`src/settings-app/` holds it whole, the PHP loader with the TS/TSX and SCSS (only
-`routes/` and `packages/init/` sit at the root, where wp-build requires them); a
-later JS surface gets its own sibling directory. The screen takes Newsletter's
-Jetpack chrome on purpose. It reads `JetpackScriptData.sharing_likes` for its first
-render and saves through `src/rest/`.
+The React screen is the exception: unless a site returns false from
+`rsm_jetpack_ui_modernization_sharing_likes`, `Settings_App` swaps the menu
+callback for the wp-build app. `src/settings-app/` holds it whole, the PHP loader
+with the TS/TSX and SCSS (only `routes/` and `packages/init/` sit at the root,
+where wp-build requires them); a later JS surface gets its own sibling directory.
+The screen takes Newsletter's Jetpack chrome on purpose. It reads
+`JetpackScriptData.sharing_likes` for its first render and saves through
+`src/rest/`. Its data lives in one `@wordpress/data` store (`data/store.ts`), and
+every write goes through the queue in `data/writes.ts`, so requests reach the
+server one at a time, in order. Like Newsletter's settings, it uses neither
+TanStack Query nor `@wordpress/core-data`, which would load the block editor's
+scripts onto the page.
 
 Its services manager, under `src/settings-app/services/`, saves the enabled lists
-through `useSaveServices`, in the same write scope as every other save. Removing
+through `useSaveServices`, in the same write queue as every other save. Removing
 the last service on a block theme hands the section to the block with no way
 back, which is why that one removal asks first instead of offering Undo. Deleting
 a custom service leaves its ID in `sharing-services`, so `useCustomService` saves
 the lists again without it.
+
+In `BLOCK_CALL_TO_ACTION`, `TemplatePlacements` replaces the Site Editor link with
+one radio group per section, saving the template placements (see "Template
+placements" below): "Don't add it automatically" first, then a card for each side
+of the content. Picking a card saves a one-item list, and the first option an
+empty one. It falls back to the Site Editor link only where `settings` does not
+offer the key and no write is pending; while one is, the group shows disabled.
+Once either template manages the block (see `managed_templates` under "REST
+API"), the section shows only a notice, linking to both templates. Next to a
+saved template, cards read as if they still moved its block. The stored choice
+keeps applying to the templates the Site Editor hasn't taken over (`singular`,
+`page-*`, custom ones), with no control for it here until the notice goes.
+
+## Share destinations
+
+`Share_Destination` turns an address a reader types into a sharing button's modal
+(a Mastodon instance, their own site) into an endpoint URL on that host, and gives
+the URL that reopens the modal when the address can't be used. The Jetpack
+plugin's Mastodon handlers, in the Sharing module and the Sharing Button block,
+call it behind `class_exists()` with their old handling as the fallback.
 
 ## Per-post switches
 
@@ -190,8 +215,8 @@ the top of the page, `sharing_global_options` at the end of the services table,
 are now documented here rather than in `modules/sharedaddy/sharing.php`, which no
 longer fires any of them. Nothing in the monorepo hooks
 `pre_admin_screen_sharing` either; it fires for third parties only. The React
-screen fires none of them; it is opt-in, and CM-945 handles their deprecation
-before it becomes the default.
+screen fires none of them, so they only run on sites that opt back into the PHP
+screen; CM-945 deprecates them and retires that screen.
 
 `Services_Config::global_options()` is where that action fires. The rows it
 returns close the services table: the screen's own two first, `Sharing_Resources`
@@ -239,13 +264,29 @@ Sharing, Likes and Comment Likes modules are active. Where the screen itself
 does not exist (`Environment::settings_screen_supported()`), every route
 answers 409.
 
-The routes offer what the PHP screen shows and nothing else. A setting whose
-section does not render it is missing from reads, and a write that includes it
-is refused before anything is saved. Each action is only accepted from the
-section variant that offers it. This is what stops the API from reopening the
-way back that `BLOCK_CALL_TO_ACTION` closes, so do not relax it for
-convenience. `sharing_admin_update` does not fire from REST, because its
+The routes offer what the section variants show and nothing else. A setting
+whose section variant does not show it is missing from reads, and a write that
+includes it is refused before anything is saved. Each action is only accepted
+from the section variant that offers it. This is what stops the API from
+reopening the way back that `BLOCK_CALL_TO_ACTION` closes, so do not relax it
+for convenience. `sharing_admin_update` does not fire from REST, because its
 consumers read `$_POST`.
+
+The template placements, `sharing_buttons_auto_add` and `likes_auto_add`, are
+the one pair of settings only the React screen shows; the PHP screen keeps its
+Site Editor link until it retires (CM-945). They are offered in
+`BLOCK_CALL_TO_ACTION` alone, so they place the block where the legacy feature
+is already off rather than reopening it, and `likes_auto_add` also needs
+`Environment::likes_supported()`, since offline mode reaches that variant with
+nothing to hook. Each holds one side of the content at most: a write with both
+is refused, not trimmed by `Template_Placements::update()`. `status` links the
+Site Editor to the single template (`site_editor_url`) and to the page template
+(`page_template_editor_url`), each empty when the theme has no such template.
+Each feature's `managed_templates` lists which of the two were saved in the
+Site Editor in a state the placements no longer change
+(`Hooked_Blocks::is_managed_by_template()`), and stays empty unless a section is
+in `BLOCK_CALL_TO_ACTION`. Having been saved is not enough: a template saved
+before the block was hooked still gets it.
 
 Comment Likes are one boolean, `comment_likes_enabled`, whatever the platform
 stores. They are offered wherever `Environment::likes_supported()` holds, like
@@ -274,6 +315,11 @@ only writer. `Hooked_Blocks` registers the filters from `Initializer::init()` on
 every request, and `Sharing_Buttons_Markup` builds the block with its buttons.
 That markup has to match `sharing-buttons/save.jsx` exactly, or the Site Editor
 flags the block as invalid.
+
+The buttons come from the site's legacy services where the block offers them,
+and otherwise from a default list, which differs on Simple. New Simple sites on a
+block theme rely on that list: wpcom's `wpmu_new_blog` handler in
+`mu-plugins/post-flair.php` starts them with no legacy services at all.
 
 Simple only reaches `Initializer::init()` on admin and public-api requests (see
 above), so on its front end the Sharing Buttons block's `register_block()` calls
@@ -309,8 +355,9 @@ Like on a password-protected post, and on Simple a Like on a post that switched
 Likes on, since the legacy button still shows there.
 
 **Never resolve a template inside a callback** (see `Hooked_Blocks`):
-`get_block_template()`, `Environment::single_template_editor_url()` and the
-sections' `state()` all recurse from there.
+`get_block_template()`, `Environment::single_template_editor_url()`,
+`Environment::page_template_editor_url()`, `Environment::saved_template_content()`
+and the sections' `state()` all recurse from there.
 
 **Order after the content: Sharing Buttons, Like, then Newsletter's Subscribe**,
 as the legacy buttons and Subscribe's classic-theme fallback have it. Filters on
@@ -365,7 +412,7 @@ be asserted without a bootstrapped site. Environment lookups belong in
 **A block theme is available to tests.** `tests/php/fixtures/themes/block-theme`
 ships `templates/single.html`, which is what makes `wp_is_block_theme()` true and
 gives `Environment::single_template_editor_url()` a real target, and `templates/page.html`
-for the template placements. The `Section_Environment`
+for the template placements and `page_template_editor_url()`. The `Section_Environment`
 trait registers the directory and pins the stylesheet to it; the suite's default
 theme is neither a block theme nor resolvable, so nothing reaches the block
 variants without that pin.

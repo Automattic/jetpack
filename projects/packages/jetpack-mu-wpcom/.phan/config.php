@@ -23,6 +23,10 @@ return make_phan_config(
 			'tests/php/features/wpcom-endpoints/fixtures/class-jetpack-server-version.php',
 			// Redefines is_suspended, which the wpcom stubs already declare.
 			'tests/php/features/wpcom-endpoints/fixtures/wpcom-functions.php',
+			// Redefines wpcomsh_record_tracks_event, which wpcomsh.php already declares.
+			'tests/php/features/editor-welcome-guides/fixtures/tracks-spy.php',
+			// Stands in for a Jetpack package the code reaches through a class_exists() guard.
+			'tests/php/features/wpcom-admin-menu/fixtures/class-jetpack-activity-log.php',
 		),
 		'exclude_file_regex'              => array(
 			'build/',

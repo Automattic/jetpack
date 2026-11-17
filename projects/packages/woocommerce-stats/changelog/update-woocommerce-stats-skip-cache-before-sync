@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Reports: Clear cached reports when the store's first sync finishes, so a newly connected store doesn't show zeros after its data arrives.

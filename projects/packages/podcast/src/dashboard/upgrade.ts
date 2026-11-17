@@ -35,6 +35,9 @@ export const buildUpgradeCheckoutUrl = ( {
 	returnUrl,
 	params,
 }: UpgradeCheckoutUrlArgs ): string => {
+	if ( ! getUpgradeProductSlug() ) {
+		return '';
+	}
 	const siteFragment = getUpgradeSiteFragment();
 
 	if ( ! siteFragment ) {

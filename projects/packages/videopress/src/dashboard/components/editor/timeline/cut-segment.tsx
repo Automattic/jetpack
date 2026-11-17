@@ -145,6 +145,7 @@ function StudioEditorCutEdge( { edge, ...props }: Props & { edge: Edge } ): Reac
 			onPointerMove={ drag.onPointerMove }
 			onPointerUp={ drag.onPointerUp }
 			onPointerCancel={ drag.onPointerCancel }
+			onLostPointerCapture={ drag.onLostPointerCapture }
 		/>
 	);
 }
@@ -219,6 +220,7 @@ export default function StudioEditorCutSegment( props: Props ): ReactElement {
 			onPointerMove={ bodyDrag.onPointerMove }
 			onPointerUp={ bodyDrag.onPointerUp }
 			onPointerCancel={ bodyDrag.onPointerCancel }
+			onLostPointerCapture={ bodyDrag.onLostPointerCapture }
 		>
 			<StudioEditorCutEdge edge="start" { ...props } />
 			<Button

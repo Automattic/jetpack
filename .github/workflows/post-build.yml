@@ -283,7 +283,7 @@ jobs:
           token: ${{ steps.get_token.outputs.token }}
 
       - name: Download build artifact
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
         with:
           name: ${{ needs.find_artifact.outputs.artifact_name }}
           github-token: ${{ github.token }}
@@ -343,7 +343,7 @@ jobs:
 
     steps:
       - name: Download build artifact
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
         with:
           name: ${{ needs.find_artifact.outputs.artifact_name }}
           github-token: ${{ github.token }}
@@ -354,7 +354,9 @@ jobs:
         env:
           ARTIFACT_FILENAME: ${{ runner.temp }}/artifact/${{ needs.find_artifact.outputs.artifact_filename }}
         shell: bash
-        run: tar --xz -xvvf "$ARTIFACT_FILENAME" build
+        run: |
+          mkdir build
+          tar --xz -k -xvvf "$ARTIFACT_FILENAME" build
 
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
@@ -437,7 +439,7 @@ jobs:
           token: ${{ steps.get_token.outputs.token }}
 
       - name: Download build artifact
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
         with:
           name: ${{ needs.find_artifact.outputs.artifact_name }}
           github-token: ${{ github.token }}
@@ -448,7 +450,9 @@ jobs:
         env:
           ARTIFACT_FILENAME: ${{ runner.temp }}/artifact/${{ needs.find_artifact.outputs.artifact_filename }}
         shell: bash
-        run: tar --xz -xvvf "$ARTIFACT_FILENAME" build
+        run: |
+          mkdir build
+          tar --xz -k -xvvf "$ARTIFACT_FILENAME" build
 
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:

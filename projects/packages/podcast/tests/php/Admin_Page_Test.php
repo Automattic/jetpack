@@ -13,8 +13,10 @@ use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Podcast\Admin_Page;
 use Automattic\Jetpack\Podcast\Podcast_Gate;
 use Automattic\Jetpack\Podcast\Settings;
+use Automattic\Jetpack\Status\Cache as Status_Cache;
 use Jetpack_Options;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
 use WorDBless\Options as WorDBless_Options;
 
@@ -143,6 +145,68 @@ class Admin_Page_Test extends BaseTestCase {
 
 		$this->assertArrayHasKey( 'preload', $data['podcast'] );
 		$this->assertIsArray( $data['podcast']['preload'] );
+	}
+
+	/**
+	 * @param array       $options Site visibility options.
+	 * @param string|null $filter Status filter to force true.
+	 * @param bool        $expected Expected public visibility.
+	 * @dataProvider provide_site_visibility_states
+	 */
+	#[DataProvider( 'provide_site_visibility_states' )]
+	public function test_inject_script_data_reports_site_visibility( $options, $filter, $expected ) {
+		Status_Cache::clear();
+		foreach ( $options as $name => $value ) {
+			update_option( $name, $value );
+		}
+		if ( null !== $filter ) {
+			add_filter( $filter, '__return_true' );
+		}
+
+		try {
+			$data = Admin_Page::inject_podcast_script_data( array() );
+			$this->assertSame( $expected, $data['podcast']['is_site_public'] ?? null );
+		} finally {
+			if ( null !== $filter ) {
+				remove_filter( $filter, '__return_true' );
+			}
+			Status_Cache::clear();
+		}
+	}
+
+	public static function provide_site_visibility_states(): array {
+		return array(
+			'public without launch status' => array( array( 'blog_public' => '1' ), null, true ),
+			'public and launched'          => array(
+				array(
+					'blog_public'   => '1',
+					'launch-status' => 'launched',
+				),
+				null,
+				true,
+			),
+			'discouraged string'           => array( array( 'blog_public' => '0' ), null, false ),
+			'discouraged integer'          => array( array( 'blog_public' => 0 ), null, false ),
+			'private'                      => array( array( 'blog_public' => '-1' ), null, false ),
+			'unlaunched'                   => array(
+				array(
+					'blog_public'   => '1',
+					'launch-status' => 'unlaunched',
+				),
+				null,
+				false,
+			),
+			'coming soon option'           => array(
+				array(
+					'blog_public'              => '1',
+					'wpcom_public_coming_soon' => 1,
+				),
+				null,
+				false,
+			),
+			'private status filter'        => array( array( 'blog_public' => '1' ), 'jetpack_is_private_site', false ),
+			'coming soon status filter'    => array( array( 'blog_public' => '1' ), 'jetpack_is_coming_soon', false ),
+		);
 	}
 
 	/**

@@ -10,4 +10,12 @@
 // Require base config.
 require __DIR__ . '/../../../../.phan/config.base.php';
 
-return make_phan_config( dirname( __DIR__ ) );
+return make_phan_config(
+	dirname( __DIR__ ),
+	array(
+		'exclude_file_list' => array(
+			// Test stand-ins that override the wp-cli stubs.
+			'tests/php/integration/stubs/wp-cli.php',
+		),
+	)
+);

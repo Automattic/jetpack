@@ -63,7 +63,7 @@ function subscription_service( $user_id = null ) {
  *
  * Access checks must then ignore the request's own user and subscriber token.
  *
- * @since $$next-version$$
+ * @since 16.4
  *
  * @return bool
  */

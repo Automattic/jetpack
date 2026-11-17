@@ -55,7 +55,6 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
-		"autotagger": true,
 		"mirror-repo": "Automattic/jetpack-jitm",
 		"textdomain": "jetpack-jitm",
 		"version-constants": {

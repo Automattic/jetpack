@@ -68,136 +68,32 @@ class Jetpack_Sitemap_Builder_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test sitemap index generation with multiple sitemaps
+	 * Posts that overflow one page sitemap continue in the next, each listed exactly once.
 	 */
-	public function test_sitemap_index_generation() {
-		// Create enough posts to generate multiple sitemaps
-		self::factory()->post->create_many(
-			2000,
-			array(
-				'post_type'   => 'post',
-				'post_status' => 'publish',
-			)
-		);
+	public function test_page_sitemaps_split_posts_by_id() {
+		global $wpdb;
 
-		// Run updates until we reach the index generation
-		for ( $i = 0; $i < 3; $i++ ) {
-			$this->builder->update_sitemap();
+		// One multi-row INSERT: the post factory takes ~20 s for this many posts.
+		$rows = array();
+		for ( $i = 0; $i <= JP_SITEMAP_MAX_ITEMS; $i++ ) {
+			$rows[] = $wpdb->prepare( "(1, '2024-01-01 00:00:00', '2024-01-01 00:00:00', '', %s, '', 'publish', 'post', %s, '', '', '', '2024-01-01 00:00:00', '2024-01-01 00:00:00')", "Post $i", "post-$i" );
 		}
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared -- Each row is prepared above.
+		$wpdb->query( "INSERT INTO $wpdb->posts (post_author, post_date, post_date_gmt, post_content, post_title, post_excerpt, post_status, post_type, post_name, to_ping, pinged, post_content_filtered, post_modified, post_modified_gmt) VALUES " . implode( ',', $rows ) );
+		$expected = array_map( 'get_permalink', $wpdb->get_col( "SELECT ID FROM $wpdb->posts WHERE post_status = 'publish' AND post_type = 'post' ORDER BY ID" ) );
 
-		// Check that index files were created
+		$this->builder->update_sitemap();
+
 		$librarian = new Jetpack_Sitemap_Librarian();
-		$index     = $librarian->get_sitemap_text( 'sitemap-index-1.xml', JP_PAGE_SITEMAP_INDEX_TYPE );
-
-		$this->assertNotEmpty( $index );
-		$this->assertStringContainsString( '<sitemapindex', $index );
-		$this->assertStringContainsString( '<sitemap>', $index );
-	}
-
-	/**
-	 * Test master sitemap generation
-	 */
-	public function test_master_sitemap_generation() {
-		$this->markTestSkipped( 'Skipping master sitemap generation test since it assumed XMLWriter usage.' );
-		// Create content of different types
-		// @phan-suppress-next-line PhanPluginUnreachableCode -- Disabling until OOM issues are better understood/corrected.
-		self::factory()->post->create_many(
-			5,
-			array(
-				'post_type'   => 'post',
-				'post_status' => 'publish',
-			)
-		);
-
-		// Use jetpack-icon.jpg from tests/php folder
-		$filename = dirname( __DIR__, 3 ) . '/jetpack-icon.jpg';
-
-		// Create an attachment with proper image metadata
-		$attachment_id = self::factory()->attachment->create_object(
-			array(
-				'file'           => $filename,
-				'post_parent'    => 0,
-				'post_mime_type' => 'image/jpeg',
-				'post_title'     => 'Test Image',
-				'post_content'   => 'Test Image Description',
-				'post_excerpt'   => 'Test Image Caption',
-				'post_status'    => 'publish',
-			)
-		);
-
-		// Add image metadata
-		$attachment_metadata = array(
-			'width'      => 100,
-			'height'     => 100,
-			'file'       => 'test-image.jpg',
-			'sizes'      => array(
-				'thumbnail' => array(
-					'file'      => 'test-image-150x150.jpg',
-					'width'     => 150,
-					'height'    => 150,
-					'mime-type' => 'image/jpeg',
-				),
-			),
-			'image_meta' => array(
-				'title'   => 'Test Image',
-				'caption' => 'Test Image Caption',
-			),
-		);
-		wp_update_attachment_metadata( $attachment_id, $attachment_metadata );
-
-		// Add a filter to transform image:image to images format
-		add_filter(
-			'jetpack_sitemap_image_sitemap_item',
-			function ( $item_array ) use ( $attachment_id ) {
-				if ( isset( $item_array['url']['image:image'] ) ) {
-					$item_array['url']['images'] = array(
-						array(
-							'loc'     => $item_array['url']['image:image']['image:loc'],
-							'title'   => get_the_title( $attachment_id ),
-							'caption' => get_the_excerpt( $attachment_id ),
-						),
-					);
-					unset( $item_array['url']['image:image'] );
-				}
-				return $item_array;
-			}
-		);
-
-		// Run updates until we reach master sitemap generation
-		for ( $i = 0; $i < 10; $i++ ) {
-			$this->builder->update_sitemap();
+		$listed    = array();
+		foreach ( array( 'sitemap-1.xml', 'sitemap-2.xml' ) as $name ) {
+			preg_match_all( '#<loc>([^<]+)</loc>#', (string) $librarian->get_sitemap_text( $name, JP_PAGE_SITEMAP_TYPE ), $matches );
+			$listed = array_merge( $listed, $matches[1] );
 		}
+		$listed = array_values( array_diff( $listed, array( home_url( '/' ) ) ) );
 
-		// Check master sitemap
-		$librarian = new Jetpack_Sitemap_Librarian();
-		$master    = $librarian->get_sitemap_text( 'sitemap.xml', JP_MASTER_SITEMAP_TYPE );
-
-		$this->assertNotEmpty( $master );
-		$this->assertStringContainsString( '<sitemapindex', $master );
-		$this->assertStringContainsString( 'sitemap-1.xml', $master );
-		$this->assertStringContainsString( 'image-sitemap-1.xml', $master );
-
-		// Clean up
-		wp_delete_attachment( $attachment_id, true );
-		if ( file_exists( $filename ) && strpos( $filename, 'test-image-' ) !== false ) {
-			unlink( $filename );
-		}
-		remove_filter(
-			'jetpack_sitemap_image_sitemap_item',
-			function ( $item_array ) use ( $attachment_id ) {
-				if ( isset( $item_array['url']['image:image'] ) ) {
-					$item_array['url']['images'] = array(
-						array(
-							'loc'     => $item_array['url']['image:image']['image:loc'],
-							'title'   => get_the_title( $attachment_id ),
-							'caption' => get_the_excerpt( $attachment_id ),
-						),
-					);
-					unset( $item_array['url']['image:image'] );
-				}
-				return $item_array;
-			}
-		);
+		$this->assertCount( JP_SITEMAP_MAX_ITEMS + 1, $expected );
+		$this->assertSame( $expected, $listed );
 	}
 
 	/**
@@ -310,7 +206,7 @@ class Jetpack_Sitemap_Builder_Test extends WP_UnitTestCase {
 	 * Every URL from the other URLs filter is listed, across batches and sitemap files.
 	 *
 	 * @group jetpack-sitemap
-	 * @since $$next-version$$
+	 * @since 16.4
 	 */
 	#[Group( 'jetpack-sitemap' )]
 	public function test_other_urls_are_not_skipped_between_batches() {
@@ -510,6 +406,12 @@ class Jetpack_Sitemap_Builder_Test extends WP_UnitTestCase {
 
 		$this->assertStringContainsString( 'sitemap-index-1.xml', $master );
 		$this->assertStringNotContainsString( 'sitemap-1.xml', $master );
+
+		$index = $librarian->get_sitemap_text( 'sitemap-index-1.xml', JP_PAGE_SITEMAP_INDEX_TYPE );
+
+		$this->assertStringContainsString( '<sitemapindex', $index );
+		$this->assertStringContainsString( 'sitemap-1.xml', $index );
+		$this->assertStringContainsString( 'sitemap-2.xml', $index );
 	}
 
 	/**

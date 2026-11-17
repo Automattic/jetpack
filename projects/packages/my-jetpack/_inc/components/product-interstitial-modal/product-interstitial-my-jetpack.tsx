@@ -5,6 +5,7 @@ import { __, _x, sprintf } from '@wordpress/i18n';
 import { Link } from '@wordpress/ui';
 import { useCallback } from 'react';
 import useProduct from '../../data/products/use-product';
+import { tierPricePerMonth } from '../../data/utils/prepare-product-data';
 import useAnalytics from '../../hooks/use-analytics';
 import LoadingBlock from '../loading-block';
 import {
@@ -75,8 +76,8 @@ const ProductInterstitialPlugin: FC< ProductInterstitialPluginProps > = ( {
 
 	if ( slug === 'boost' ) {
 		// component price structure
-		price = priceSource?.fullPrice / 12;
-		discountPrice = priceSource?.discountPrice / 12;
+		price = tierPricePerMonth( priceSource?.fullPrice );
+		discountPrice = tierPricePerMonth( priceSource?.discountPrice );
 	} else {
 		price = priceSource?.fullPricePerMonth;
 		discountPrice = priceSource?.discountPricePerMonth;

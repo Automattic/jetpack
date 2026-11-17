@@ -42,7 +42,7 @@ import { stage as OverviewStage } from '../routes/dashboard/stage';
 import { stage as DownloadStage } from '../routes/download/stage';
 import { stage as RestoreStage } from '../routes/restore/stage';
 import { keys, queryClient } from '../src/dashboard/data/query-client';
-import { resetListStateForTesting } from '../src/dashboard/screens/overview';
+import { resetOverviewStateForTesting } from '../src/dashboard/screens/overview-state';
 
 const CONNECTED = { isRegistered: true, hasConnectedOwner: true, isUserConnected: true };
 
@@ -251,7 +251,6 @@ async function roundTripFromPage2Of20( Stage: () => React.JSX.Element ): Promise
 beforeEach( () => {
 	queryClient.clear();
 	queryClient.setDefaultOptions( { queries: { retry: false } } );
-	resetListStateForTesting();
 
 	hasBackupPlan = true;
 	routerSearch = {};
@@ -384,7 +383,7 @@ describe( 'A fresh page load', () => {
 		await roundTripVia( DownloadStage );
 
 		// The reload: module state is what a new page load does not inherit.
-		resetListStateForTesting();
+		resetOverviewStateForTesting();
 		queryClient.clear();
 
 		render( <OverviewStage /> );

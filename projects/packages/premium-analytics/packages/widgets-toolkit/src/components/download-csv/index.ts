@@ -1,4 +1,3 @@
-export { ExporterCsvDownloadButton } from './exporter-csv-download-button';
 export {
 	ReportCsvDownloadButton,
 	type ReportCsvDownloadButtonProps,

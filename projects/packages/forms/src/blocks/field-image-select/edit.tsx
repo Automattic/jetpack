@@ -25,7 +25,7 @@ import './editor.scss';
 /**
  * Types
  */
-import type { Block, BlockEditorStoreSelect } from '../../types/index.ts';
+import type { Block, BlockEditorStoreSelect, BlockTemplate } from '../../types/index.ts';
 import type { Attachment } from '@wordpress/core-data';
 
 export default function ImageSelectFieldEdit( props ) {
@@ -90,7 +90,7 @@ export default function ImageSelectFieldEdit( props ) {
 		style: blockStyle,
 	} );
 
-	const template = useMemo( () => {
+	const template = useMemo< BlockTemplate >( () => {
 		return [
 			[
 				'jetpack/label',

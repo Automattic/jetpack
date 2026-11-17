@@ -22,6 +22,8 @@ interface Props {
 	 */
 	onToggle?: ( active: boolean ) => void;
 	onChange: ( key: VerificationKey, value: string ) => void;
+	/** Save the Google code auto-verify fetches, through the settings form. */
+	saveGoogleCode: ( code: string ) => Promise< void >;
 	/** Save the current value — called on blur (auto-save, no Save button). */
 	onCommit?: () => void;
 	disabled?: boolean;
@@ -72,6 +74,7 @@ const VerificationCard: FC< Props > = ( {
 	active,
 	onToggle,
 	onChange,
+	saveGoogleCode,
 	onCommit,
 	disabled,
 	open,
@@ -82,7 +85,7 @@ const VerificationCard: FC< Props > = ( {
 
 	// All five services are optional and almost nobody verifies with more than
 	// one, so a single verified service counts as done rather than a fraction of
-	// five (JETPACK-2051). This module therefore never reports 'in-progress'.
+	// five. This module therefore never reports 'incomplete'.
 	const verificationStatus: SettingStatus =
 		active && verifiedCount > 0 ? 'complete' : 'not-started';
 
@@ -128,6 +131,7 @@ const VerificationCard: FC< Props > = ( {
 					<GoogleVerificationField
 						value={ value.google }
 						onChange={ next => onChange( 'google', next ) }
+						saveCode={ saveGoogleCode }
 						onCommit={ onCommit }
 						disabled={ controlsDisabled }
 					/>

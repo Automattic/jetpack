@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Name each pie chart segment, so a screen reader reads the breakdown instead of an empty chart.

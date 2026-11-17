@@ -18,11 +18,19 @@ const days: UptimeDay[] = [
 
 const renderCard = (
 	settings: Partial< ProtectSettingsData > = {},
-	state: Partial< MonitorState > = {}
+	state: Partial< MonitorState > = {},
+	openTab = jest.fn()
 ) =>
 	render(
 		<MonitorCard
-			state={ { available: true, active: true, uptimeDays: 40, userConnected: true, ...state } }
+			state={ {
+				available: true,
+				active: true,
+				uptimeDays: 40,
+				userConnected: true,
+				alertEmail: null,
+				...state,
+			} }
 			settings={
 				{
 					settings: null,
@@ -31,7 +39,7 @@ const renderCard = (
 					...settings,
 				} as ProtectSettingsData
 			}
-			openTab={ jest.fn() }
+			openTab={ openTab }
 		/>
 	);
 
@@ -106,11 +114,28 @@ describe( 'MonitorCard', () => {
 				screen.findByRole( 'link', { name: 'Connect your account' } )
 			).resolves.toHaveAttribute( 'href', 'admin.php?page=my-jetpack#/connection' );
 			expect( screen.getByText( 'On' ) ).toBeInTheDocument();
+			expect(
+				screen.getByText( /^Downtime monitoring is on\. .* get alerts/ )
+			).toBeInTheDocument();
 			expect( screen.queryByText( /days uptime$/ ) ).not.toBeInTheDocument();
 			expect( screen.queryByRole( 'button', { name: 'Try again' } ) ).not.toBeInTheDocument();
 			expect( mockApiFetch ).toHaveBeenCalledTimes( requests );
 		}
 	);
+
+	it( 'keeps Monitor from being turned on until the user connects their account', () => {
+		renderCard( {}, { active: false, userConnected: false } );
+
+		const toggle = screen.getByRole( 'switch', { name: 'Enable downtime monitoring' } );
+		expect( toggle ).toHaveAttribute( 'aria-disabled', 'true' );
+		expect(
+			screen.getByText( 'Connect your WordPress.com account to turn on downtime monitoring.' )
+		).toBeInTheDocument();
+		expect( screen.getByRole( 'link', { name: 'Connect your account' } ) ).toHaveAttribute(
+			'href',
+			'admin.php?page=my-jetpack#/connection'
+		);
+	} );
 
 	it( 'offers the toggle when the server says Monitor was turned off elsewhere', async () => {
 		mockApiFetch.mockRejectedValue( { code: 'monitor_inactive' } );
@@ -119,7 +144,13 @@ describe( 'MonitorCard', () => {
 			const refresh = useCallback( async () => setLive( { monitor: false } ), [] );
 			return (
 				<MonitorCard
-					state={ { available: true, active: true, uptimeDays: 40, userConnected: true } }
+					state={ {
+						available: true,
+						active: true,
+						uptimeDays: 40,
+						userConnected: true,
+						alertEmail: null,
+					} }
 					settings={
 						{ settings: live, isSaving: () => false, refresh } as unknown as ProtectSettingsData
 					}
@@ -130,7 +161,7 @@ describe( 'MonitorCard', () => {
 		render( <Card /> );
 
 		await expect(
-			screen.findByLabelText( 'Enable downtime monitoring' )
+			screen.findByRole( 'switch', { name: 'Enable downtime monitoring' } )
 		).resolves.not.toBeChecked();
 		expect( screen.queryByText( 'Configure downtime monitoring' ) ).not.toBeInTheDocument();
 		expect(
@@ -142,5 +173,17 @@ describe( 'MonitorCard', () => {
 		renderCard( { settings: { monitor: true }, isSaving: key => key === 'monitor' } );
 
 		expect( mockApiFetch ).not.toHaveBeenCalled();
+	} );
+
+	it( 'opens the Settings tab at its own card', async () => {
+		mockApiFetch.mockResolvedValue( { days, isUp: true } );
+		const openTab = jest.fn();
+		renderCard( {}, {}, openTab );
+
+		await userEvent
+			.setup()
+			.click( screen.getByRole( 'link', { name: 'Configure downtime monitoring' } ) );
+
+		expect( openTab ).toHaveBeenCalledWith( 'settings', { section: 'monitor' } );
 	} );
 } );

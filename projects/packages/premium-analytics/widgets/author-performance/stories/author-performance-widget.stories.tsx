@@ -127,6 +127,7 @@ function AuthorPerformanceDashboardStory( {
 }
 
 export const WidgetDashboardWithWidget: StoryObj< AuthorPerformanceDashboardStoryProps > = {
+	tags: [ 'widget-dashboard' ],
 	render: args => <AuthorPerformanceDashboardStory { ...args } />,
 	args: {
 		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,

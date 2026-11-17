@@ -25,7 +25,30 @@ declare global {
 }
 
 const WELCOME_PANEL = 'welcome-panel';
-const CLICKABLE = 'a[href], button, input[type="submit"], input[type="button"]';
+const WIDGET_CONTENT = '#dashboard-widgets .postbox .inside, #welcome-panel';
+const CONTROL_ROLES = [
+	'button',
+	'link',
+	'tab',
+	'menuitem',
+	'menuitemradio',
+	'menuitemcheckbox',
+	'option',
+	'radio',
+	'checkbox',
+	'switch',
+];
+const CLICKABLE = [
+	'a[href]',
+	'button',
+	'input[type="submit"]',
+	'input[type="button"]',
+	...CONTROL_ROLES.map( role => `[role="${ role }"]` ),
+].join( ', ' );
+const POPUP = '.components-popover, [role="menu"], [role="listbox"], [role="dialog"]';
+const PAGE_CHROME = '#wpadminbar, #adminmenumain, #screen-meta, #screen-meta-links';
+
+let dragStart: { widget: HTMLElement; layout: Props } | undefined;
 
 /**
  * Records a Dashboard Tracks event.
@@ -92,7 +115,7 @@ function getState( widget: HTMLElement ) {
 }
 
 /**
- * Records a hide, show, collapse, expand, move, drag, or dismiss of a widget.
+ * Records a hide, show, collapse, expand, or dismiss of a widget.
  *
  * @param widgetId - The widget ID.
  * @param action   - What happened to it.
@@ -107,7 +130,72 @@ function recordToggle( widgetId: string, action: string, widget?: HTMLElement | 
 }
 
 /**
- * Records clicks on links and buttons inside widgets, and the move and dismiss controls.
+ * Records a widget moved with its arrow buttons or by dragging it.
+ *
+ * @param widget - The widget element.
+ * @param method - How it moved.
+ * @param before - Where it was before the move.
+ */
+function recordMove( widget: HTMLElement, method: string, before: Props ) {
+	record( 'wpcom_admin_dashboard_widget_move', {
+		widget_id: widget.id,
+		method,
+		...getLayout( widget ),
+		old_column: before.column,
+		old_position: before.position,
+	} );
+}
+
+/**
+ * The control inside a widget that opened the popup an element is in. Widgets often render
+ * menus and dropdowns at the end of the page, outside their own markup.
+ *
+ * @param element - The element inside the popup.
+ * @return The control that opened the popup, if a single widget control can be credited.
+ */
+function getPopupOpener( element: HTMLElement ): HTMLElement | undefined {
+	if ( ! element.closest( POPUP ) || element.closest( PAGE_CHROME ) ) {
+		return undefined;
+	}
+
+	const openers = Array.from(
+		document.querySelectorAll< HTMLElement >(
+			'#dashboard-widgets .postbox .inside [aria-expanded="true"], #welcome-panel [aria-expanded="true"]'
+		)
+	);
+	const named = openers.find( opener =>
+		( opener.getAttribute( 'aria-controls' ) ?? '' )
+			.split( /\s+/ )
+			.some( id => id && document.getElementById( id )?.contains( element ) )
+	);
+	if ( named ) {
+		return named;
+	}
+
+	// Without aria-controls, only credit an open popup control when it's the only one.
+	const popupOpeners = openers.filter( opener =>
+		opener.matches( '[aria-haspopup]:not([aria-haspopup="false"])' )
+	);
+	return 1 === popupOpeners.length ? popupOpeners[ 0 ] : undefined;
+}
+
+/**
+ * The ID of the widget a control belongs to, including controls in popups a widget opened.
+ *
+ * @param control - The clicked control.
+ * @return The widget ID, or undefined when the control isn't part of a widget.
+ */
+function getWidgetId( control: HTMLElement ): string | undefined {
+	const content =
+		control.closest( WIDGET_CONTENT ) ?? getPopupOpener( control )?.closest( WIDGET_CONTENT );
+	if ( ! content ) {
+		return undefined;
+	}
+	return content.id === WELCOME_PANEL ? WELCOME_PANEL : content.closest( '.postbox' )?.id;
+}
+
+/**
+ * Records clicks on links and controls inside widgets, and the move and dismiss controls.
  *
  * Runs in the capture phase so widgets that stop propagation are still counted, and so the move
  * buttons are read before core updates them.
@@ -130,15 +218,14 @@ function onClick( event: MouseEvent ) {
 	if ( widget && control.matches( '.handle-order-higher, .handle-order-lower' ) ) {
 		// Core disables the button at either end of the layout, and does nothing on a click.
 		if ( 'click' === event.type && 'true' !== control.getAttribute( 'aria-disabled' ) ) {
-			const action = control.matches( '.handle-order-higher' ) ? 'move_up' : 'move_down';
-			setTimeout( () => recordToggle( widget.id, action, widget ) );
+			const method = control.matches( '.handle-order-higher' ) ? 'move_up' : 'move_down';
+			const before = getLayout( widget );
+			setTimeout( () => recordMove( widget, method, before ) );
 		}
 		return;
 	}
 
-	const widgetId = control.closest( '#welcome-panel' )
-		? WELCOME_PANEL
-		: control.closest( '#dashboard-widgets .postbox .inside' ) && widget?.id;
+	const widgetId = getWidgetId( control );
 	if ( ! widgetId ) {
 		return;
 	}
@@ -151,7 +238,7 @@ function onClick( event: MouseEvent ) {
 					domain: window.wpcomDashboardTracks?.siteDomain ?? '',
 					adminPath: window.wpcomDashboardTracks?.adminPath ?? '/wp-admin/',
 				} )
-			: `button${ control.id ? `#${ control.id }` : '' }`;
+			: `${ control.getAttribute( 'role' ) || 'button' }${ control.id ? `#${ control.id }` : '' }`;
 
 	record( 'wpcom_admin_dashboard_widget_click', { widget_id: widgetId, destination } );
 }
@@ -181,6 +268,19 @@ function wpcomDashboardTracks() {
 	}
 
 	document.addEventListener( 'click', onClick, true );
+	// jQuery UI hides a widget once its drag starts, so read where it was before that.
+	document.addEventListener(
+		'mousedown',
+		event => {
+			const handle =
+				event.target instanceof Element
+					? event.target.closest( '#dashboard-widgets .hndle' )
+					: null;
+			const widget = handle?.closest< HTMLElement >( '.postbox' );
+			dragStart = widget ? { widget, layout: getLayout( widget ) } : undefined;
+		},
+		true
+	);
 	document.addEventListener(
 		'auxclick',
 		event => {
@@ -235,7 +335,7 @@ function wpcomDashboardTracks() {
 	$document.on( 'sortupdate', '#dashboard-widgets .meta-box-sortables', function ( _event, ui ) {
 		const widget = ( ui as { item?: ArrayLike< unknown > } )?.item?.[ 0 ];
 		if ( widget instanceof HTMLElement && this.contains( widget ) ) {
-			recordToggle( widget.id, 'drag', widget );
+			recordMove( widget, 'drag', dragStart?.widget === widget ? dragStart.layout : {} );
 		}
 	} );
 }

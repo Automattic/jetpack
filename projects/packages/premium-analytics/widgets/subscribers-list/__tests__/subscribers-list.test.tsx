@@ -7,6 +7,7 @@ import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
  */
+import { renderWithActionsHost } from '../../../tests/js/widget-host-test-utils';
 import SubscribersListWidget from '../render';
 
 jest.mock( '@wordpress/api-fetch', () => jest.fn() );
@@ -128,24 +129,25 @@ describe( 'SubscribersListWidget', () => {
 		expect( screen.queryByRole( 'link' ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'links Manage subscribers to the Newsletter Subscribers tab in wp-admin', async () => {
+	it( 'declares Manage subscribers for the Newsletter Subscribers tab in wp-admin', async () => {
 		const url =
 			'https://example.com/wp-admin/admin.php?page=jetpack-newsletter&p=%2F%3Ftab%3Dsubscribers';
 		setNewsletterSubscribersUrl( url );
 
-		render( <SubscribersListWidget attributes={ {} } /> );
-
-		await expect(
-			screen.findByRole( 'link', { name: 'Manage subscribers' } )
-		).resolves.toHaveAttribute( 'href', url );
-	} );
-
-	it( 'shows no Manage subscribers link when the user cannot open the Newsletter page', async () => {
-		setNewsletterSubscribersUrl( null );
-
-		render( <SubscribersListWidget attributes={ {} } /> );
+		const { declaredLink } = renderWithActionsHost( <SubscribersListWidget attributes={ {} } /> );
 
 		await expect( screen.findByText( 'Ada Lovelace' ) ).resolves.toBeInTheDocument();
-		expect( screen.queryByText( 'Manage subscribers' ) ).not.toBeInTheDocument();
+		expect( declaredLink( 'manage-subscribers' ) ).toEqual(
+			expect.objectContaining( { label: 'Manage subscribers', href: url } )
+		);
+	} );
+
+	it( 'declares no Manage subscribers action when the user cannot open the Newsletter page', async () => {
+		setNewsletterSubscribersUrl( null );
+
+		const { declaredAction } = renderWithActionsHost( <SubscribersListWidget attributes={ {} } /> );
+
+		await expect( screen.findByText( 'Ada Lovelace' ) ).resolves.toBeInTheDocument();
+		expect( declaredAction( 'manage-subscribers' ) ).toBeUndefined();
 	} );
 } );

@@ -9,6 +9,7 @@
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Plugin\Tracking as Plugin_Tracking;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Cache as StatusCache;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -120,6 +121,50 @@ class Jetpack_Test extends WP_UnitTestCase {
 	 */
 	public function test_init() {
 		$this->assertInstanceOf( 'Jetpack', Jetpack::init() );
+	}
+
+	public function test_connected_tracking_initialization_does_not_resolve_current_user() {
+		Jetpack_Options::update_option( 'id', 1234 );
+		Jetpack_Options::update_option( 'blog_token', 'dummy.blogtoken' );
+		Jetpack_Options::update_option( 'master_user', self::$admin_id );
+		Jetpack_Options::update_option( 'user_tokens', array( self::$admin_id => 'dummy.usertoken.' . self::$admin_id ) );
+		Jetpack_Options::update_option( 'tos_agreed', false );
+		StatusCache::set( 'is_offline_mode', false );
+		$connection = new Connection_Manager();
+		$connection->reset_connection_status();
+
+		$initialized = new ReflectionProperty( Plugin_Tracking::class, 'initialized' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$initialized->setAccessible( true );
+		}
+		$was_initialized  = $initialized->getValue();
+		$previous_user    = $GLOBALS['current_user'];
+		$previous_actions = $GLOBALS['wp_actions'];
+		$user_resolutions = 0;
+		$count_resolution = static function ( $user_id ) use ( &$user_resolutions ) {
+			++$user_resolutions;
+			return $user_id;
+		};
+
+		try {
+			$initialized->setValue( null, false );
+			$GLOBALS['wp_actions']['jetpack_initialize_tracking'] = 0;
+			remove_all_actions( 'jetpack_activate_module' );
+			add_filter( 'determine_current_user', $count_resolution );
+			unset( $GLOBALS['current_user'] );
+
+			( new MockJetpack() )->initialize_tracking();
+
+			$this->assertSame( 0, $user_resolutions );
+			$this->assertArrayNotHasKey( 'current_user', $GLOBALS );
+			$this->assertTrue( has_action( 'jetpack_activate_module' ) );
+		} finally {
+			remove_filter( 'determine_current_user', $count_resolution );
+			$GLOBALS['current_user'] = $previous_user;
+			$GLOBALS['wp_actions']   = $previous_actions;
+			$initialized->setValue( null, $was_initialized );
+			$connection->reset_connection_status();
+		}
 	}
 
 	/**
@@ -1241,7 +1286,7 @@ EXPECTED;
 
 		$translated = Jetpack::get_translated_modules( $modules );
 
-		$this->assertSame( 'Secure Sign On', $translated['sso']['name'] );
+		$this->assertSame( 'WordPress.com login', $translated['sso']['name'] );
 	}
 
 	/**

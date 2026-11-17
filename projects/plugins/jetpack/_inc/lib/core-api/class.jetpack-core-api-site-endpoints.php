@@ -173,7 +173,7 @@ class Jetpack_Core_API_Site_Endpoint {
 			if ( $protect > 0 ) {
 				$benefits[] = array(
 					'name'        => 'protect',
-					'title'       => esc_html__( 'Brute force protection', 'jetpack' ),
+					'title'       => esc_html__( 'Login protection', 'jetpack' ),
 					'description' => esc_html__( 'The number of malicious login attempts blocked by Jetpack', 'jetpack' ),
 					'value'       => absint( $protect ),
 				);

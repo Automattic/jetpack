@@ -1,16 +1,15 @@
 /**
  * External dependencies
  */
-import { SVG, Path } from '@wordpress/primitives';
+import { Path, SVG } from '@wordpress/primitives';
 
-// Keep the Jetpack brand colors instead of inheriting the package's neutral icon colors.
 export const jetpack = (
-	<SVG xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
+	<SVG xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
 		<Path
-			d="M16 0C7.163 0 0 7.163 0 16s7.163 16 16 16 16-7.163 16-16S24.837 0 16 0Z"
+			d="M22 12C22 6.49 17.51 2 12 2C6.48 2 2 6.49 2 12C2 17.52 6.48 22 12 22C17.51 22 22 17.52 22 12Z"
 			fill="#069e08"
 		/>
-		<Path d="M15 19H7L15 3V19Z" fill="#fff" />
-		<Path d="M17 29V13H25L17 29Z" fill="#fff" />
+		<Path d="M11.375 13.875H6.375L11.375 3.875V13.875Z" fill="#fff" />
+		<Path d="M12.625 20.125V10.125H17.625L12.625 20.125Z" fill="#fff" />
 	</SVG>
 );

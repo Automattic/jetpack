@@ -16,6 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
+use Automattic\Jetpack\Admin_UI\Admin_Shell;
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Backup\V0005\Initial_State as Backup_Initial_State;
 use Automattic\Jetpack\Config;
@@ -23,10 +24,10 @@ use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
-use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\JITMS\JITM;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
 use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Terms_Of_Service;
 use Automattic\Jetpack\Tracking;
 use Jetpack_Options;
@@ -34,6 +35,7 @@ use WP_Error;
 use WP_REST_Server;
 use function add_action;
 use function add_filter;
+use function admin_url;
 use function did_action;
 use function do_action;
 use function esc_url_raw;
@@ -43,6 +45,7 @@ use function menu_page_url;
 use function rest_ensure_response;
 use function update_option;
 use function wp_add_inline_script;
+use function wp_doing_ajax;
 use function wp_remote_get;
 use function wp_remote_retrieve_body;
 use function wp_remote_retrieve_response_code;
@@ -108,6 +111,9 @@ class Jetpack_Backup {
 	const JETPACK_BACKUP_PRODUCT_IDS = array(
 		2014, // JETPACK_COMPLETE.
 		2015, // JETPACK_COMPLETE_MONTHLY.
+		2024, // JETPACK_PRO_MONTHLY.
+		2025, // JETPACK_PRO_YEARLY.
+		2026, // JETPACK_PRO_BI_YEARLY.
 		2016, // JETPACK_SECURITY_TIER_1_YEARLY.
 		2017, // JETPACK_SECURITY_TIER_1_MONTHLY.
 		2019, // JETPACK_SECURITY_TIER_2_YEARLY.
@@ -128,17 +134,21 @@ class Jetpack_Backup {
 	/**
 	 * Filter name that gates the wp-build–based dashboard.
 	 *
-	 * When this filter returns true, "Jetpack > Backup" renders the new
-	 * wp-build dashboard instead of the legacy React app.
+	 * Returning false renders the legacy React app on "Jetpack > Backup" instead of the wp-build dashboard.
 	 */
 	const MODERNIZATION_FILTER = 'rsm_jetpack_ui_modernization_backup';
 
 	/**
-	 * Blog sticker that takes a site out of the internal preview.
+	 * Blog sticker that puts a site back on the legacy dashboard.
 	 *
 	 * Atomic sees it only if it is on WordPress.com's `atomic_site_stickers()` allowlist.
 	 */
 	const LEGACY_DASHBOARD_STICKER = 'use-backup-legacy-dashboard';
+
+	/**
+	 * The wp-build page id, which the screen ID is aliased to on the Backup page.
+	 */
+	const WP_BUILD_PAGE_ID = 'jetpack-backup-dashboard';
 
 	/**
 	 * Rewind state read from WordPress.com, memoized for the request.
@@ -181,9 +191,15 @@ class Jetpack_Backup {
 
 		add_action( 'rest_api_init', array( __CLASS__, 'register_rest_routes' ) );
 		add_action( 'rest_api_init', array( \Automattic\Jetpack\Backup\V0005\REST\Rest_Controller::class, 'register_routes' ) );
+		add_filter( 'jetpack_activity_log_restore_url_template', array( __CLASS__, 'activity_log_restore_url_template' ) );
+		add_filter( 'jetpack_activity_log_backup_url_template', array( __CLASS__, 'activity_log_backup_url_template' ) );
 
 		add_action( 'admin_menu', array( __CLASS__, 'maybe_load_wp_build' ), 1 );
 		add_action( 'admin_menu', array( __CLASS__, 'add_wp_admin_submenu' ), 1 ); // Akismet uses 4, so we need to use 1 to ensure both menus are added when only they exist.
+
+		if ( class_exists( Admin_Shell::class ) ) {
+			add_filter( 'jetpack_admin_shell_members', array( __CLASS__, 'add_admin_shell_member' ) );
+		}
 
 		if ( $options['manage_connection'] ) {
 			self::init_standalone_connection();
@@ -246,10 +262,15 @@ class Jetpack_Backup {
 			? 'jetpack_backup_jetpack_backup_dashboard_wp_admin_render_page'
 			: array( __CLASS__, 'plugin_settings_page' );
 
-		// The page title's relabel rides the modernized dashboard rather than the filter alone,
-		// so a fallback to the legacy page also falls back to the legacy title.
-		$page_title = $wp_build_active ? 'Jetpack VaultPress Backup' : 'Jetpack Backup';
-		$menu_title = 'Backup'; // Product name, do not translate.
+		/*
+		 * The page title's relabel rides the modernized dashboard rather than the filter alone,
+		 * so a fallback to the legacy page also falls back to the legacy title. Off the Backup
+		 * page the build isn't loaded, so the admin shell's title comes from the build index.
+		 */
+		$renders_modernized = $wp_build_active
+			|| ( ! self::is_backup_admin_request() && self::is_modernized() && file_exists( dirname( __DIR__ ) . '/build/build.php' ) );
+		$page_title         = $renders_modernized ? 'Jetpack VaultPress Backup' : 'Jetpack Backup';
+		$menu_title         = 'Backup'; // Product name, do not translate.
 
 		$page_suffix = Admin_Menu::add_menu(
 			$page_title,
@@ -288,6 +309,55 @@ class Jetpack_Backup {
 	}
 
 	/**
+	 * Register Backup with the admin shell, which switches between Jetpack dashboards without a page load.
+	 *
+	 * The page is added whenever the package is initialized; only the modernized dashboard is a wp-build page.
+	 *
+	 * @since 5.2.5
+	 *
+	 * @param array $members Shell members keyed by admin page slug.
+	 * @return array
+	 */
+	public static function add_admin_shell_member( $members ) {
+		if (
+			( new Host() )->is_wpcom_simple()
+			|| ! self::is_modernized()
+			|| ! file_exists( dirname( __DIR__ ) . '/build/build.php' )
+		) {
+			return $members;
+		}
+
+		$members[ self::JETPACK_BACKUP_SLUG ] = array(
+			'build_prefix' => 'jetpack_backup',
+			'build_page'   => self::WP_BUILD_PAGE_ID,
+			'init_modules' => array( '@jetpack-backup/init' ),
+			// "Backup" is a product name, do not translate.
+			'title'        => 'Backup',
+			'header'       => array(
+				'title'    => 'VaultPress Backup',
+				'subtitle' => __( 'Save changes and restore quickly with one-click recovery.', 'jetpack-backup-pkg' ),
+			),
+			'capability'   => 'manage_options',
+			'handles'      => array( 'jetpack-script-data', 'jp-tracks-functions', 'wp-jp-i18n-loader' ),
+			'load'         => array( __CLASS__, 'load_as_admin_shell_guest' ),
+		);
+		return $members;
+	}
+
+	/**
+	 * Ready the Backup routes and page data while another dashboard's page is open, without the screen ID alias.
+	 *
+	 * @since 5.2.5
+	 *
+	 * @return void
+	 */
+	public static function load_as_admin_shell_guest() {
+		self::load_wp_build();
+		add_action( 'admin_print_scripts', array( __CLASS__, 'render_connection_initial_state' ), 1 );
+		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_admin_scripts' ) );
+	}
+
+	/**
 	 * Checks current version against version in code and run upgrades if we are running a new version
 	 */
 	public static function maybe_upgrade_db() {
@@ -314,8 +384,8 @@ class Jetpack_Backup {
 	 * Enqueue plugin admin scripts and styles.
 	 */
 	public static function enqueue_admin_scripts() {
-		// This callback is registered via `load-{$page_suffix}` in `add_wp_admin_submenu()`,
-		// so it only fires on the Backup admin page — no need to re-check the page here.
+		// Hooked only for the Backup page: via `load-{$page_suffix}` in `add_wp_admin_submenu()`,
+		// or by the admin shell's guest load, so there's no need to re-check the page here.
 		if ( self::is_wp_build_dashboard_active() ) {
 			// The i18n loader is registered on every admin page by jetpack-assets but
 			// only enqueued when depended on; the esbuild bundles don't pull it in.
@@ -542,15 +612,41 @@ class Jetpack_Backup {
 	}
 
 	/**
-	 * The backup calls should only occur from a signed in admin user
+	 * The backup calls should only occur from a signed in admin user, outside offline mode
 	 *
 	 * @access public
 	 * @static
 	 *
-	 * @return true|WP_Error
+	 * @return bool|WP_Error
 	 */
 	public static function backups_permissions_callback() {
-		return current_user_can( 'manage_options' );
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return false;
+		}
+
+		return self::get_offline_mode_error() ?? true;
+	}
+
+	/**
+	 * The error the dashboard's routes and abilities answer with while Jetpack is in offline mode.
+	 *
+	 * A local copy of a live site keeps its tokens, and offline mode drops the identity-crisis
+	 * check, so WordPress.com would act on the live site's backups.
+	 *
+	 * @since 5.2.0
+	 *
+	 * @return WP_Error|null Null outside offline mode.
+	 */
+	public static function get_offline_mode_error() {
+		if ( ! ( new Status() )->is_offline_mode() ) {
+			return null;
+		}
+
+		return new WP_Error(
+			'offline_mode',
+			__( 'Backup is unavailable in Offline Mode.', 'jetpack-backup-pkg' ),
+			array( 'status' => 403 )
+		);
 	}
 
 	/**
@@ -1164,13 +1260,6 @@ class Jetpack_Backup {
 
 		self::load_wp_build_with_screen_alias();
 
-		// wp-build registers standalone modules (e.g. the init module) on
-		// wp_default_scripts, which has already fired by admin_menu. Register them
-		// directly so the init module makes it into the import map.
-		if ( function_exists( 'jetpack_backup_register_script_modules' ) ) {
-			jetpack_backup_register_script_modules(); // @phan-suppress-current-line PhanUndeclaredFunction -- Checked with function_exists(); defined in the generated build/modules.php, which Phan excludes.
-		}
-
 		add_action( 'admin_print_scripts', array( __CLASS__, 'render_connection_initial_state' ), 1 );
 	}
 
@@ -1194,7 +1283,13 @@ class Jetpack_Backup {
 			. '</script>';
 
 		echo '<script id="jetpack-backup-dashboard-state">window.JPBACKUP_DASHBOARD_STATE='
-			. wp_json_encode( array( 'activityLogUrl' => self::get_activity_log_url() ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- wp_json_encode() with JSON_HEX_* flags is safe in a script tag.
+			. wp_json_encode(
+				array(
+					'activityLogUrl'        => self::get_activity_log_url(),
+					'knownThreatsAvailable' => \Automattic\Jetpack\Backup\V0005\REST\Restore_Bridge::known_threats_available(),
+				),
+				JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
+			) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- wp_json_encode() with JSON_HEX_* flags is safe in a script tag.
 			. ';</script>';
 	}
 
@@ -1207,8 +1302,24 @@ class Jetpack_Backup {
 	 * @return string|null
 	 */
 	public static function get_activity_log_url() {
+		// No admin menu here: see Admin_Shell::guest_assets().
+		if ( wp_doing_ajax() ) {
+			return self::activity_log_page_will_register() ? admin_url( 'admin.php?page=jetpack-activity-log' ) : null;
+		}
+
 		$url = menu_page_url( 'jetpack-activity-log', false );
 		return $url ? $url : null;
+	}
+
+	/**
+	 * Whether the Activity Log page registers for this user, for requests that never build the menu.
+	 *
+	 * @return bool
+	 */
+	private static function activity_log_page_will_register() {
+		return did_action( 'jetpack_activity_log_initialized' )
+			&& class_exists( 'Automattic\Jetpack\Activity_Log\Jetpack_Activity_Log' )
+			&& \Automattic\Jetpack\Activity_Log\Jetpack_Activity_Log::is_available();
 	}
 
 	/**
@@ -1227,6 +1338,13 @@ class Jetpack_Backup {
 		}
 
 		require_once $build_index;
+
+		// wp-build registers standalone modules (e.g. the init module) on
+		// wp_default_scripts, which has already fired by admin_menu. Register them
+		// directly so the init module makes it into the import map.
+		if ( function_exists( 'jetpack_backup_register_script_modules' ) ) {
+			jetpack_backup_register_script_modules(); // @phan-suppress-current-line PhanUndeclaredFunction -- Checked with function_exists(); defined in the generated build/modules.php, which Phan excludes.
+		}
 
 		\Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills::register(
 			'jetpack-backup',
@@ -1283,7 +1401,7 @@ class Jetpack_Backup {
 		}
 
 		self::$wp_build_original_screen_id = $screen->id;
-		$screen->id                        = 'jetpack-backup-dashboard';
+		$screen->id                        = self::WP_BUILD_PAGE_ID;
 	}
 
 	/**
@@ -1304,36 +1422,47 @@ class Jetpack_Backup {
 	}
 
 	/**
-	 * Returns the modernization filter's value, which defaults to the internal preview.
+	 * Sends the Activity Log's "Restore backup" to this dashboard's restore screen when it is on.
+	 *
+	 * @param string $template Restore URL template, with `{rewindId}` as the placeholder.
+	 * @return string
+	 */
+	public static function activity_log_restore_url_template( $template ) {
+		if ( ! self::is_modernized() ) {
+			return $template;
+		}
+
+		return admin_url( 'admin.php?page=' . self::JETPACK_BACKUP_SLUG . '&p=%2Frestore%2F{rewindId}' );
+	}
+
+	/**
+	 * Sends the Activity Log's links to a backup to this dashboard's Overview, with that backup selected, when it is on.
+	 *
+	 * The router reads search values as JSON, so the rewind id is quoted to stay a string.
+	 *
+	 * @param string $template Backup URL template, with `{rewindId}` as the placeholder.
+	 * @return string
+	 */
+	public static function activity_log_backup_url_template( $template ) {
+		if ( ! self::is_modernized() ) {
+			return $template;
+		}
+
+		return admin_url( 'admin.php?page=' . self::JETPACK_BACKUP_SLUG . '&p=%2F%3Fselected%3D%2522{rewindId}%2522' );
+	}
+
+	/**
+	 * Returns the modernization filter's value, which defaults to true unless the site has the legacy dashboard sticker.
 	 *
 	 * @since 4.3.14 Changed from private to public; the REST bridges gate their route registration on it.
+	 * @since 5.2.0 Defaults to true.
 	 *
 	 * @return bool
 	 */
 	public static function is_modernized() {
-		return (bool) apply_filters( self::MODERNIZATION_FILTER, self::is_internal_preview() );
-	}
+		$has_legacy_sticker = function_exists( 'wpcomsh_is_site_sticker_active' ) && wpcomsh_is_site_sticker_active( self::LEGACY_DASHBOARD_STICKER );
 
-	/**
-	 * Whether an internal user on the A8C proxy previews the dashboard. Not an authorization check.
-	 *
-	 * The proxy is checked first, so other requests never make the connected-user lookup.
-	 *
-	 * @return bool
-	 */
-	private static function is_internal_preview() {
-		if ( ! Constants::is_true( 'AT_PROXIED_REQUEST' ) ) {
-			return false;
-		}
-
-		if ( function_exists( 'wpcomsh_is_site_sticker_active' ) && wpcomsh_is_site_sticker_active( self::LEGACY_DASHBOARD_STICKER ) ) {
-			return false;
-		}
-
-		$user_data = ( new Connection_Manager() )->get_connected_user_data();
-		$email     = is_array( $user_data ) && ! empty( $user_data['email'] ) ? strtolower( (string) $user_data['email'] ) : '';
-
-		return str_ends_with( $email, '@automattic.com' ) || str_ends_with( $email, '@a8c.com' );
+		return (bool) apply_filters( self::MODERNIZATION_FILTER, ! $has_legacy_sticker );
 	}
 
 	/**

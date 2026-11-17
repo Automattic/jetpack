@@ -33,7 +33,7 @@ function wpcom_unified_admin_tracks_props() {
 }
 
 /**
- * Bump a unified Tracks stat for every wp-admin page view, and for every time Screen Options is opened.
+ * Bump a unified Tracks stat for every wp-admin page view, and for every time Screen Options is opened or closed.
  */
 function wpcom_unified_track_admin_page_views() {
 	global $current_user, $current_screen;
@@ -46,28 +46,40 @@ function wpcom_unified_track_admin_page_views() {
 		return;
 	}
 
-	$user_types  = 'simple' === $site_props['site_type'] ? \WPCOM_User::get_types() : wpcom_atomic_get_user_types();
+	$user_types      = 'simple' === $site_props['site_type'] ? \WPCOM_User::get_types() : wpcom_atomic_get_user_types();
+	$wpcom_user_id   = 'simple' === $site_props['site_type']
+		? absint( $current_user->ID )
+		: (int) get_user_meta( absint( $current_user->ID ), 'wpcom_user_id', true );
+	$wpcom_user_data = 'simple' === $site_props['site_type'] ? null : get_user_meta( absint( $current_user->ID ), 'wpcom_user_data', true );
+	$user_login      = (int) ( $wpcom_user_data->ID ?? 0 ) === $wpcom_user_id && ! empty( $wpcom_user_data->login )
+		? $wpcom_user_data->login
+		: $current_user->user_login;
+
 	$event_props = array(
-		'route'           => $current_screen->id,
-		'source'          => 'wp-admin',
-		'site_type'       => $site_props['site_type'],
-		'is_block_editor' => $current_screen->is_block_editor,
-		'blog_id'         => $site_props['blog_id'],
-		'user_type'       => implode( ',', $user_types ),
+		'route'              => $current_screen->id,
+		'source'             => 'wp-admin',
+		'site_type'          => $site_props['site_type'],
+		'is_block_editor'    => $current_screen->is_block_editor,
+		'blog_id'            => $site_props['blog_id'],
+		'user_type'          => implode( ',', $user_types ),
+		'is_local_only_user' => 0 === $wpcom_user_id,
 	);
 	?>
 	<script type="text/javascript">
 		var _admin_pv_props = <?php echo wp_json_encode( $event_props, JSON_HEX_TAG ); ?>;
 		_tkq = window._tkq || [];
-		_tkq.push( [ 'identifyUser', <?php echo (int) $current_user->ID; ?>, <?php echo wp_json_encode( $current_user->user_login, JSON_HEX_TAG ); ?> ] );
+		<?php if ( $wpcom_user_id > 0 ) : ?>
+		_tkq.push( [ 'identifyUser', <?php echo (int) $wpcom_user_id; ?>, <?php echo wp_json_encode( $user_login, JSON_HEX_TAG ); ?> ] );
+		<?php endif; ?>
 		_tkq.push( [ 'recordEvent', 'wpcom_unified_admin_page_view', _admin_pv_props ] );
 		( function ( props ) {
 			document.addEventListener( 'click', function ( event ) {
 				var button = event.target.closest && event.target.closest( '#show-settings-link' );
 				var panel = button && document.getElementById( button.getAttribute( 'aria-controls' ) );
-				// This listener captures the click before core toggles the panel, so a hidden panel is about to open.
-				if ( panel && ! panel.getClientRects().length ) {
-					window._tkq.push( [ 'recordEvent', 'wpcom_admin_screen_options_open', props ] );
+				if ( panel ) {
+					// This listener captures the click before core toggles the panel, so a hidden panel is about to open.
+					var action = panel.getClientRects().length ? 'close' : 'open';
+					window._tkq.push( [ 'recordEvent', 'wpcom_admin_screen_options_toggle', Object.assign( { action: action }, props ) ] );
 				}
 			}, true );
 		} )( <?php echo wp_json_encode( array( 'route' => $current_screen->id ) + $site_props, JSON_HEX_TAG ); ?> );

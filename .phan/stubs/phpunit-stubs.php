@@ -1,6 +1,6 @@
 <?php
 /**
- * Stubs automatically generated from PHPUnit 12.5.39
+ * Stubs automatically generated from PHPUnit 12.5.43
  * using the definition file `tools/stubs/phpunit-stub-defs.php` in the Jetpack monorepo.
  *
  * Do not edit this directly! Run tools/stubs/update-stubs.sh to regenerate it.
@@ -12485,6 +12485,14 @@ final class InvocationHandler
     {
     }
     /**
+     * @param \PHPUnit\Framework\Constraint\Constraint|non-empty-string|Runtime\PropertyHook $constraint
+     * @throws \PHPUnit\Framework\InvalidArgumentException
+     * @throws MethodCannotBeConfiguredException
+     */
+    public function method(\PHPUnit\Framework\Constraint\Constraint|\PHPUnit\Framework\MockObject\Runtime\PropertyHook|string $constraint): \PHPUnit\Framework\MockObject\InvocationStubber
+    {
+    }
+    /**
      * @throws \PHPUnit\Framework\MockObject\Exception
      * @throws \Exception
      */
@@ -18570,7 +18578,7 @@ final readonly class Renderer
  * @internal
  * @see https://qa.php.net/phpt_details.php
  */
-final readonly class TestCase implements \PHPUnit\Framework\Reorderable, \PHPUnit\Framework\SelfDescribing, \PHPUnit\Framework\Test
+final class TestCase implements \PHPUnit\Framework\Reorderable, \PHPUnit\Framework\SelfDescribing, \PHPUnit\Framework\Test
 {
     /**
      * @param non-empty-string $filename
@@ -18601,6 +18609,20 @@ final readonly class TestCase implements \PHPUnit\Framework\Reorderable, \PHPUni
     {
     }
     public function sortId(): string
+    {
+    }
+    /**
+     * @return list<string>
+     * @internal
+     */
+    public function groups(): array
+    {
+    }
+    /**
+     * @param list<string> $groups
+     * @internal
+     */
+    public function setGroups(array $groups): void
     {
     }
     /**
@@ -23697,7 +23719,13 @@ final class ProgressPrinter
     public function testRunnerExecutionStarted(\PHPUnit\Event\TestRunner\ExecutionStarted $event): void
     {
     }
+    public function testSuiteStarted(\PHPUnit\Event\TestSuite\Started $event): void
+    {
+    }
     public function beforeTestClassMethodErrored(): void
+    {
+    }
+    public function beforeTestClassMethodFailed(): void
     {
     }
     public function testPrepared(): void
@@ -23765,6 +23793,16 @@ final class ProgressPrinter
 final readonly class BeforeTestClassMethodErroredSubscriber extends \PHPUnit\TextUI\Output\Default\ProgressPrinter\Subscriber implements \PHPUnit\Event\Test\BeforeFirstTestMethodErroredSubscriber
 {
     public function notify(\PHPUnit\Event\Test\BeforeFirstTestMethodErrored $event): void
+    {
+    }
+}
+/**
+ * @no-named-arguments
+ * @internal
+ */
+final readonly class BeforeTestClassMethodFailedSubscriber extends \PHPUnit\TextUI\Output\Default\ProgressPrinter\Subscriber implements \PHPUnit\Event\Test\BeforeFirstTestMethodFailedSubscriber
+{
+    public function notify(\PHPUnit\Event\Test\BeforeFirstTestMethodFailed $event): void
     {
     }
 }
@@ -23878,6 +23916,16 @@ final readonly class TestSkippedSubscriber extends \PHPUnit\TextUI\Output\Defaul
 final readonly class TestSuiteSkippedSubscriber extends \PHPUnit\TextUI\Output\Default\ProgressPrinter\Subscriber implements \PHPUnit\Event\TestSuite\SkippedSubscriber
 {
     public function notify(\PHPUnit\Event\TestSuite\Skipped $event): void
+    {
+    }
+}
+/**
+ * @no-named-arguments
+ * @internal
+ */
+final readonly class TestSuiteStartedSubscriber extends \PHPUnit\TextUI\Output\Default\ProgressPrinter\Subscriber implements \PHPUnit\Event\TestSuite\StartedSubscriber
+{
+    public function notify(\PHPUnit\Event\TestSuite\Started $event): void
     {
     }
 }
@@ -25496,6 +25544,12 @@ final class Exporter
 final readonly class Filesystem
 {
     public static function createDirectory(string $directory): bool
+    {
+    }
+    public static function createPrivateDirectory(string $directory, int $userId): bool
+    {
+    }
+    public static function currentUserId(): false|int
     {
     }
     /**

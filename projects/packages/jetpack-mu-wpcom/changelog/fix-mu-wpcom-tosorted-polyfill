@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Block editor: Prevent the editor from crashing on browsers without Array.prototype.toSorted(), such as Chrome before 110, Safari before 16 and Firefox before 115.

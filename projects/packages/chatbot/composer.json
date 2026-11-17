@@ -48,7 +48,6 @@
 		"changelogger": {
 			"link-template": "https://github.com/Automattic/jetpack-chatbot/compare/v${old}...v${new}"
 		},
-		"autotagger": false,
 		"branch-alias": {
 			"dev-trunk": "0.2.x-dev"
 		},

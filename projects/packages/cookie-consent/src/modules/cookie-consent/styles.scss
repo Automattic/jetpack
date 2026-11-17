@@ -286,6 +286,21 @@
 	color: var(--jp-cookie-consent--color-text-muted, #686868);
 }
 
+.jetpack-cookie-consent__gpc-notice {
+	margin: 0;
+	padding-block: 8px;
+	padding-inline: 12px;
+	border-inline-start: 4px solid var(--jp-cookie-consent--color-text, #1e1e1e);
+	background: var(--jp-cookie-consent--color-surface-hover, #f0f0f0);
+	font-size: 14px;
+	line-height: 1.71;
+	color: var(--jp-cookie-consent--color-text, #1e1e1e);
+}
+
+.jetpack-cookie-consent__banner-content .jetpack-cookie-consent__gpc-notice {
+	margin-block-start: 8px;
+}
+
 .jetpack-cookie-consent__link {
 	color: var(--jp-cookie-consent--color-text, #1e1e1e);
 	text-decoration: underline;

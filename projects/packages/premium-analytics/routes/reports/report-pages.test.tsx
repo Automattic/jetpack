@@ -8,6 +8,7 @@ import {
 	type CsvColumn,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 /**
  * Internal dependencies
  */
@@ -49,6 +50,7 @@ jest.mock( './utm/config', () => ( {
 	getUtmFields: () => [],
 	getUtmTabLabel: () => 'Source / medium',
 	resolveSection: ( value: string | undefined ) => value ?? 'source-medium',
+	useBuildUrlAction: jest.requireActual( './utm/config/use-build-url-action' ).useBuildUrlAction,
 	useUtmReportRecords: jest.fn(),
 } ) );
 
@@ -217,6 +219,18 @@ describe( 'dated report pages', () => {
 			);
 		}
 	);
+} );
+
+describe( 'UtmReportPage', () => {
+	it( 'opens the URL builder from the page header', async () => {
+		const user = userEvent.setup();
+		mockRecords( utm, {} );
+
+		render( <UtmReportPage /> );
+		await user.click( screen.getByRole( 'button', { name: 'Build URL' } ) );
+
+		expect( screen.getByRole( 'dialog', { name: 'Build URL' } ) ).toBeInTheDocument();
+	} );
 } );
 
 describe( 'CommentFollowersReportPage', () => {

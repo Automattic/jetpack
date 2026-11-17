@@ -6,7 +6,7 @@ import { useMemo } from 'react';
  * Internal dependencies
  */
 import { buildCsvDateRangeFilename, type CsvDateRange } from '../../helpers/build-csv';
-import { isCsvExportEnabled } from './is-csv-export-enabled';
+import { isStatsCsvExportEnabled } from './is-csv-export-enabled';
 
 export type ReportCsvExportStatus = {
 	isLoading: boolean;
@@ -17,7 +17,7 @@ export type ReportCsvExportStatus = {
 /** Whether exports are enabled and the rows belong to a settled, successful request. */
 export function isReportCsvReady( status: ReportCsvExportStatus, rowCount: number ): boolean {
 	return (
-		isCsvExportEnabled() &&
+		isStatsCsvExportEnabled() &&
 		rowCount > 0 &&
 		! status.isLoading &&
 		! status.isFetching &&

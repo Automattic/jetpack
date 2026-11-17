@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Premium Analytics: Stop showing zeros in the WooCommerce tab for a few minutes after a store's first sync finishes.

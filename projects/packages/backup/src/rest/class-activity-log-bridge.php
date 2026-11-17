@@ -67,6 +67,17 @@ class Activity_Log_Bridge {
 						'type'        => 'string',
 						'enum'        => array( 'asc', 'desc' ),
 					),
+					// `format` makes the REST server refuse anything `rest_parse_date()` can't read.
+					'after'      => array(
+						'description' => __( 'Only activity after this ISO 8601 date-time.', 'jetpack-backup-pkg' ),
+						'type'        => 'string',
+						'format'      => 'date-time',
+					),
+					'before'     => array(
+						'description' => __( 'Only activity before this ISO 8601 date-time.', 'jetpack-backup-pkg' ),
+						'type'        => 'string',
+						'format'      => 'date-time',
+					),
 				),
 			)
 		);
@@ -85,6 +96,9 @@ class Activity_Log_Bridge {
 	 * the real result set rather than the ten rows already on screen.
 	 * Omitted when absent: WPCOM defaults it to `desc`.
 	 *
+	 * `after` and `before` narrow it to a time window, so the Overview can
+	 * fetch a backup that isn't on any page it has loaded.
+	 *
 	 * @param WP_REST_Request $request The REST request.
 	 * @return \WP_REST_Response|WP_Error
 	 */
@@ -99,6 +113,8 @@ class Activity_Log_Bridge {
 				'number'     => $request->get_param( 'number' ),
 				'page'       => $request->get_param( 'page' ),
 				'sort_order' => $request->get_param( 'sort_order' ),
+				'after'      => $request->get_param( 'after' ),
+				'before'     => $request->get_param( 'before' ),
 				// Activity summaries are rendered by WPCOM. Without this they
 				// come back in English whatever the reader's language is.
 				'_locale'    => get_user_locale(),

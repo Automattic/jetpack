@@ -108,12 +108,13 @@ describe( 'NewsletterOverview', () => {
 		} );
 	} );
 
-	it( 'should offer to turn email back on instead of previews when email is off', async () => {
+	it( 'should offer to turn email back on alongside previews when email is off', async () => {
 		const user = userEvent.setup();
 		mockEditor( { meta: { [ META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS ]: true } } );
 		renderOverview( 'subscribers' );
 
-		expect( screen.queryByRole( 'button', { name: 'Preview email' } ) ).not.toBeInTheDocument();
+		expect( screen.getByRole( 'button', { name: 'Preview email' } ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'button', { name: 'Send test email' } ) ).toBeInTheDocument();
 		expect(
 			screen.queryByRole( 'button', { name: 'Change newsletter settings' } )
 		).not.toBeInTheDocument();

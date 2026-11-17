@@ -60,17 +60,19 @@
 
 	.progress {
 		inline-size: 100%;
+	}
+
+	.track {
 		block-size: var(--wpds-dimension-size-5xs);
 		border-radius: var(--wpds-border-radius-md);
+	}
 
-		// Hold the indicator still; Core only slows it.
-		// `> div` is ProgressBar's internal indicator.
-		@media (prefers-reduced-motion: reduce) {
+	// Hold the indicator still; Core only slows it.
+	@media (prefers-reduced-motion: reduce) {
 
-			> div {
-				animation: none;
-				inset-inline-start: 25%;
-			}
+		.indicator {
+			animation: none;
+			inset-inline-start: 25%;
 		}
 	}
 }

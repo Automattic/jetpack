@@ -101,7 +101,7 @@ final class Sharing_Section {
 		if ( ! Environment::legacy_sharing_supported() ) {
 			printf(
 				'<p>%s</p>',
-				esc_html__( 'Connect your site to WordPress.com, or enable offline mode, to turn them back on.', 'jetpack-sharing-likes' )
+				esc_html__( 'Connect your site to WordPress.com, or enable Offline Mode, to turn them back on.', 'jetpack-sharing-likes' )
 			);
 			return;
 		}

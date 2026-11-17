@@ -31,6 +31,7 @@ function register_block() {
 	 * However, since non-admins cannot activate modules, we do not display the empty block for them.
 	 */
 	if ( ! ( new Modules() )->is_active( 'stats' ) && ! current_user_can( 'jetpack_activate_modules' ) ) {
+		\Jetpack_Gutenberg::set_extension_unavailable( 'top-posts', 'missing_module', array( 'module' => 'stats' ) );
 		return;
 	}
 

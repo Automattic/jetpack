@@ -5,6 +5,7 @@ import {
 	nextIncompleteId,
 	isCompleteOnClickTask,
 	isTaskActionable,
+	recordsWizardCompleted,
 	resolveCtaUrl,
 	tasksFromFixture,
 	toNavigableUrl,
@@ -364,5 +365,12 @@ describe( 'tasksFromFixture', () => {
 			disabled: false,
 			calypso_path: null,
 		} );
+	} );
+} );
+
+describe( 'recordsWizardCompleted', () => {
+	it( 'records only a run that came from the wizard', () => {
+		assert.equal( recordsWizardCompleted( true, true, 3 ), true );
+		assert.equal( recordsWizardCompleted( false, true, 3 ), false );
 	} );
 } );

@@ -42,6 +42,7 @@ import './styles.scss';
 export default function UpsellPage( { isLoading = false } ) {
 	// Introduce the gate for new pricing with URL parameter `new_pricing_202208=1`
 	const APINonce = useSelect( select => select( STORE_ID ).getAPINonce(), [] );
+	const APIRoot = useSelect( select => select( STORE_ID ).getAPIRootUrl(), [] );
 	const isNewPricing = useSelect( select => select( STORE_ID ).isNewPricing202208(), [] );
 	const isWpcom = useSelect( select => select( STORE_ID ).isWpcom(), [] );
 	const activateLicenseUrl = useSelect(
@@ -105,6 +106,8 @@ export default function UpsellPage( { isLoading = false } ) {
 			{ isPageLoading && <Loading /> }
 			{ ! isPageLoading && (
 				<AdminPage
+					apiRoot={ APIRoot }
+					apiNonce={ APINonce }
 					title={ 'Search' /** "Search" is a product name, do not translate. */ }
 					subTitle={ __(
 						'Help your visitors find exactly what they are looking for.',

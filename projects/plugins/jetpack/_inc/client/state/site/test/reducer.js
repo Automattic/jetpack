@@ -1,5 +1,11 @@
 import {
 	siteHasFeature,
+	hasActiveProPurchase,
+	hasActiveCompletePurchase,
+	hasActiveSecurityPurchase,
+	hasActiveSearchPurchase,
+	hasActiveGrowthPurchase,
+	hasActiveBoostPurchase,
 	isDoneFetchingConnectedPlugins,
 	getConnectedPlugins,
 	getConnectedPluginsMap,
@@ -112,3 +118,20 @@ describe( 'site selectors', () => {
 		} );
 	} );
 } );
+
+it.each( [ 'jetpack_pro_yearly', 'jetpack_pro_bi_yearly', 'jetpack_pro_monthly' ] )(
+	'keeps %s distinct from Complete while recognizing its included products',
+	product_slug => {
+		const state = { jetpack: { siteData: { data: { plan: { product_slug } } } } };
+		expect( hasActiveProPurchase( state ) ).toBe( true );
+		expect( hasActiveCompletePurchase( state ) ).toBe( false );
+		for ( const selector of [
+			hasActiveSecurityPurchase,
+			hasActiveSearchPurchase,
+			hasActiveGrowthPurchase,
+			hasActiveBoostPurchase,
+		] ) {
+			expect( selector( state ) ).toBe( true );
+		}
+	}
+);

@@ -36,7 +36,7 @@ final class Comment_Likes_Section {
 			printf(
 				'<p>%s</p>',
 				Environment::is_offline_mode()
-					? esc_html__( 'Comment Likes need a connection to WordPress.com, which is unavailable while your site is in offline mode.', 'jetpack-sharing-likes' )
+					? esc_html__( 'Comment Likes need a connection to WordPress.com, which is unavailable while your site is in Offline Mode.', 'jetpack-sharing-likes' )
 					: esc_html__( 'Comment Likes need a connection to WordPress.com. Connect your site to turn them on.', 'jetpack-sharing-likes' )
 			);
 			echo '</div>';

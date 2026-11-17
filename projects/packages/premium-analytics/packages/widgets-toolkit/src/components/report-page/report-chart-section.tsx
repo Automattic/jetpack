@@ -59,7 +59,6 @@ export function ReportChartSection( {
 			<div
 				id={ chartId }
 				className={ clsx( styles.chart, isHidden && styles.isHidden ) }
-				// @ts-expect-error `inert` is not in the React 18 types.
 				inert={ inertValue( isHidden ) }
 			>
 				<div className={ styles.pane }>

@@ -13,10 +13,10 @@ import { __ } from '@wordpress/i18n';
 import { useNavigate } from '@wordpress/route';
 import { Badge, Stack, Tabs } from '@wordpress/ui';
 import useConfigValue from '../../../../hooks/use-config-value.ts';
-import { type TopTab } from '../../../constants.ts';
 import useFormStatusCounts from '../../../hooks/use-form-status-counts.ts';
 import { saveLastTab } from '../../../last-tab-cookie.ts';
 import { store as dashboardStore } from '../../../store/index.js';
+import { TOP_TAB_PATHS, type TopTab } from '../../../top-tabs.ts';
 import InboxStatusToggle from '../inbox-status-toggle';
 import type { JSX } from 'react';
 import './style.scss';
@@ -73,14 +73,7 @@ export default function DataViewsHeaderRow( {
 			// Only a deliberate tab click is remembered, so arriving on a response through
 			// an email link cannot quietly change which tab the dashboard reopens on.
 			saveLastTab( nextValue );
-
-			if ( nextValue === 'forms' ) {
-				navigate( { href: '/forms' } );
-				return;
-			}
-
-			// In the wp-build environment we always treat Responses as `/responses/inbox`.
-			navigate( { href: '/responses/inbox' } );
+			navigate( { href: TOP_TAB_PATHS[ nextValue ] } );
 		},
 		[ navigate ]
 	);

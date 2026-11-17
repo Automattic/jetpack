@@ -11,6 +11,10 @@ import clsx from 'clsx';
  */
 import useAddImageOption from '../shared/hooks/use-add-image-option.ts';
 import useJetpackFieldStyles from '../shared/hooks/use-jetpack-field-styles.js';
+/**
+ * Types
+ */
+import type { BlockTemplate } from '../../types/index.ts';
 
 export default function ImageOptionsFieldsetEdit( props ) {
 	const { attributes, clientId } = props;
@@ -24,7 +28,7 @@ export default function ImageOptionsFieldsetEdit( props ) {
 	} );
 
 	// Starts with 3 empty options.
-	const template = [
+	const template: BlockTemplate = [
 		[ 'jetpack/input-image-option' ],
 		[ 'jetpack/input-image-option' ],
 		[ 'jetpack/input-image-option' ],

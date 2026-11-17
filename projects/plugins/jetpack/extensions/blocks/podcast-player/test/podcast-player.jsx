@@ -1,6 +1,9 @@
 import { render } from '@testing-library/react';
+import { version as reactVersion } from 'react';
 import AudioPlayer from '../../../shared/components/audio-player';
 import { PodcastPlayer } from '../components/podcast-player';
+
+const isReact18 = reactVersion.startsWith( '18.' );
 
 // Stub the audio player so we can assert the props the block hands it without
 // mounting the real MediaElement machinery.
@@ -48,7 +51,7 @@ describe( 'PodcastPlayer', () => {
 
 		expect( AudioPlayer ).toHaveBeenCalledWith(
 			expect.objectContaining( { preload: 'none', trackSource: track.src } ),
-			expect.anything()
+			isReact18 ? expect.anything() : undefined // eslint-disable-line jest/no-conditional-expect
 		);
 	} );
 } );

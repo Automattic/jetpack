@@ -1,22 +1,16 @@
 // Shared comparison-mode tuning constants. These drive the geometry of the
-// translucent "shadow" bars and how the primary bars are narrowed to sit in front of them.
+// comparison bars and how the primary bars are narrowed to sit in front of them.
 
 /**
- * How much wider the comparison shadow is than the primary bar. Fallback used when the
+ * How much wider the comparison bar is than the primary bar. Fallback used when the
  * theme value (`barChart.barStyles.comparison.widthFactor`) is absent. Also drives the
- * primary narrowing — the primary stays `1 / widthFactor` of the shadow.
+ * primary narrowing — the primary stays `1 / widthFactor` of the comparison.
  */
 export const DEFAULT_COMPARISON_WIDTH_FACTOR = 1.5;
 
 /**
- * Opacity of the comparison shadow. Fallback used when the theme value
- * (`barChart.barStyles.comparison.opacity`) is absent.
- */
-export const DEFAULT_COMPARISON_OPACITY = 0.5;
-
-/**
  * Fraction of each per-series step left as a gap between bars within a single tick.
- * Larger = more space between adjacent series; the shadow spans `1 - COMPARISON_INNER_GAP` of the step.
+ * Larger = more space between adjacent series; the comparison bar spans `1 - COMPARISON_INNER_GAP` of the step.
  */
 export const COMPARISON_INNER_GAP = 0.1;
 

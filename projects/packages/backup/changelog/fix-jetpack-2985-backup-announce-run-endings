@@ -1,3 +1,0 @@
-Significance: patch
-Type: fixed
-Comment: The modernized dashboard, behind a feature flag, now announces every way a watched backup run ends, and shows a banner when one fails on a site with older backups.

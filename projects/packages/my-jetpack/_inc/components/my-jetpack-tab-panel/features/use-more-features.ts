@@ -1,19 +1,11 @@
-import { getScriptData } from '@automattic/jetpack-script-data';
 import { __ } from '@wordpress/i18n';
 import { useMemo } from 'react';
 import { moduleSwitchKey, useRequestedSwitches } from '../../../data/requested-switch-state';
 import { getHiddenFeatures } from '../../../data/utils/get-my-jetpack-window-state';
-import { getFeatureModuleSlug } from './feature-state';
+import { getFeatureModuleSlug, useFeaturesNeedsAccount, withAccountNeeded } from './feature-state';
 import { PRODUCT_MODULES } from './mappings';
-import { getFeatureUnavailableReason } from './module-availability';
-import {
-	LEGACY_MODULES_VISIBLE_ONLY_WHEN_ACTIVE,
-	compareModulesByName,
-	hasSearch,
-	moduleFields,
-	rankBy,
-	searchTerms,
-} from './search';
+import { getFeatureUnavailableReason, getModuleAvailability } from './module-availability';
+import { compareModulesByName, hasSearch, moduleFields, rankBy, searchTerms } from './search';
 import { useAllJetpackModules } from './use-all-jetpack-modules';
 import { matchesFilter } from './use-feature-filter';
 import type { FeatureState } from './feature-state';
@@ -31,13 +23,17 @@ export type MoreFeaturesGroup = {
  * The synthesized feature carries no plan and is not essential, which is what those filters
  * should answer for a module.
  *
- * @param $module   - The module.
- * @param requested - Switch key to the value asked of it, for a switch still in flight.
+ * @param $module      - The module.
+ * @param requested    - Switch key to the value asked of it, for a switch still in flight.
+ * @param needsAccount - Whether the site has no connected owner and the current admin is not linked.
+ * @param groups       - The filter pills its heading puts it under, such as Security.
  * @return The module's state.
  */
 export function getModuleFeatureState(
 	$module: MyJetpackModule,
-	requested: Record< string, boolean >
+	requested: Record< string, boolean >,
+	needsAccount = false,
+	groups: string[] = []
 ): FeatureState {
 	const asked = requested[ moduleSwitchKey( $module.module ) ];
 
@@ -47,13 +43,50 @@ export function getModuleFeatureState(
 			name: $module.name,
 			description: $module.description,
 			plans: [],
+			groups,
 			essential: false,
 		} as MainFeature,
 		status: ( asked ?? $module.activated ) ? 'active' : 'inactive',
 		isSwitching: asked !== undefined,
 		control: { kind: 'module', module: $module },
 	};
+	if (
+		needsAccount &&
+		$module.requires_user_connection &&
+		$module.override !== 'inactive' &&
+		! getModuleAvailability( $module ).isMultisiteBlocked
+	) {
+		// Keeps the value a switch in flight asked for.
+		return { ...withAccountNeeded( state, $module ), status: state.status };
+	}
 	return getFeatureUnavailableReason( state ) ? { ...state, status: 'inactive' } : state;
+}
+
+/**
+ * A settings entry as a feature row: no switch, its status from the setting, and Configure to open its panel.
+ *
+ * @param entry  - The settings entry.
+ * @param groups - The filter pills its heading puts it under.
+ * @return The entry's state.
+ */
+export function getSettingsEntryFeatureState(
+	entry: MainFeatureSettingsEntry,
+	groups: string[] = []
+): FeatureState {
+	return {
+		feature: {
+			slug: entry.slug,
+			name: entry.name,
+			description: entry.description,
+			plans: [],
+			groups,
+			essential: false,
+		} as MainFeature,
+		status: entry.status === 'inactive' ? 'inactive' : 'active',
+		control: { kind: 'none' },
+		settingsEntry: true,
+		...( entry.status === 'needs-setup' && { needsSetup: true as const } ),
+	};
 }
 
 /**
@@ -77,6 +110,8 @@ function getStateModule( state: FeatureState ): MyJetpackModule | null {
  *                       its own card is still that card's, and must not surface here instead.
  * @param requested      - Switch key to the value asked of it.
  * @param hidden         - Modules that do not apply to the site, left out entirely.
+ * @param needsAccount   - Whether the site has no connected owner and the current admin is not linked.
+ * @param entries        - Settings entries the site has, each listed under the heading that names it.
  * @return Non-empty groups by label, each sorted by name, with eligible ungrouped modules under Other, last.
  */
 export function groupMoreFeatures(
@@ -85,7 +120,9 @@ export function groupMoreFeatures(
 	modules: Record< string, MyJetpackModule >,
 	productModules: Record< string, string >,
 	requested: Record< string, boolean >,
-	hidden: ReadonlySet< string > = new Set()
+	hidden: ReadonlySet< string > = new Set(),
+	needsAccount = false,
+	entries: MainFeatureSettingsEntry[] = []
 ): MoreFeaturesGroup[] {
 	const groupOf = new Map(
 		groups.flatMap( ( group, index ) => group.modules.map( slug => [ slug, index ] as const ) )
@@ -110,9 +147,21 @@ export function groupMoreFeatures(
 
 		const index = groupOf.get( $module.module );
 		( index === undefined ? other : grouped[ index ].states ).push(
-			getModuleFeatureState( $module, requested )
+			getModuleFeatureState(
+				$module,
+				requested,
+				needsAccount,
+				index === undefined ? undefined : groups[ index ].groups
+			)
 		);
 	}
+	for ( const entry of entries ) {
+		const index = groups.findIndex( group => group.settings?.includes( entry.slug ) );
+		const target = index === -1 ? other : grouped[ index ].states;
+		target.push( getSettingsEntryFeatureState( entry, groups[ index ]?.groups ) );
+		target.sort( ( a, b ) => a.feature.name.localeCompare( b.feature.name ) );
+	}
+
 	// Sorted on the translated label, so the order holds in every locale.
 	grouped.sort( ( a, b ) => a.label.localeCompare( b.label ) );
 
@@ -126,15 +175,17 @@ export function groupMoreFeatures(
  *
  * A search replaces the filter and ranks the modules, as it does for the main features.
  *
- * @param groups - The grouped modules.
- * @param filter - The active filter.
- * @param search - The search term.
+ * @param groups   - The grouped modules.
+ * @param filter   - The active filter.
+ * @param search   - The search term.
+ * @param migrated - Whether the search came from a classic Modules screen link, which also matches long descriptions and tags.
  * @return The groups still showing something.
  */
 export function filterMoreFeatures(
 	groups: MoreFeaturesGroup[],
 	filter: FeatureFilter,
-	search: string
+	search: string,
+	migrated = false
 ): MoreFeaturesGroup[] {
 	const terms = hasSearch( search ) ? searchTerms( search ) : null;
 
@@ -145,7 +196,9 @@ export function filterMoreFeatures(
 			state => {
 				const $module = getStateModule( state );
 
-				return $module ? moduleFields( $module ) : [ { value: state.feature.name, weight: 3 } ];
+				return $module
+					? moduleFields( $module, migrated )
+					: [ { value: state.feature.name, weight: 3 } ];
 			}
 		).map( ( { item } ) => item );
 
@@ -162,19 +215,12 @@ export function filterMoreFeatures(
 }
 
 /**
- * Classic-theme modules: a block theme has no widget areas for them to act on.
- */
-const WIDGET_MODULES = [ 'widgets', 'widget-visibility' ];
-
-/**
  * Modules on their way out, offered only to a site already running them.
  *
  * @return The slugs.
  */
 export function getDeprecatedModules(): string[] {
-	const isBlockTheme = Boolean( getScriptData()?.myJetpack?.siteEditor?.isBlockTheme );
-
-	return [ ...LEGACY_MODULES_VISIBLE_ONLY_WHEN_ACTIVE, ...( isBlockTheme ? WIDGET_MODULES : [] ) ];
+	return window.myJetpackInitialState?.deprecatedModules ?? [];
 }
 
 // Module-scoped so a module switched off here keeps its row, and its switch back on, until a reload.
@@ -207,6 +253,7 @@ export function getHiddenModules( modules: Record< string, MyJetpackModule > ): 
  */
 export function useMoreFeatures( state: MainFeaturesState ): MoreFeaturesGroup[] {
 	const { modules } = useAllJetpackModules();
+	const needsAccount = useFeaturesNeedsAccount();
 	// Read here rather than in each row, so a switch in flight is answered once per module.
 	const requested = useRequestedSwitches();
 
@@ -222,9 +269,11 @@ export function useMoreFeatures( state: MainFeaturesState ): MoreFeaturesGroup[]
 						new Set( [
 							...getHiddenModules( modules ),
 							...( state.hidden_modules ?? getHiddenFeatures() ),
-						] )
+						] ),
+						needsAccount,
+						state.settings_entries
 					)
 				: [],
-		[ state, modules, requested ]
+		[ state, modules, requested, needsAccount ]
 	);
 }

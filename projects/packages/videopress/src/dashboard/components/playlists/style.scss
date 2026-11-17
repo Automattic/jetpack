@@ -1,0 +1,29 @@
+.vp-playlists {
+
+	&__status {
+		display: inline-block;
+		padding: 2px 6px;
+		border-radius: 2px;
+		background: #f0f0f0;
+		color: #1e1e1e;
+		font-size: 11px;
+		line-height: 16px;
+		white-space: nowrap;
+
+		&.is-publish {
+			background: #edfaef;
+			color: #005c12;
+		}
+
+		&.is-draft,
+		&.is-pending {
+			background: #fcf9e8;
+			color: #614200;
+		}
+
+		&.is-future {
+			background: #f0f6fc;
+			color: #043959;
+		}
+	}
+}

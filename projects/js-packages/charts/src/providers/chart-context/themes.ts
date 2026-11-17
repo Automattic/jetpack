@@ -49,13 +49,16 @@ const defaultTheme: CompleteChartTheme = {
 		barStyles: {
 			comparison: {
 				widthFactor: 1.5,
-				opacity: 0.5,
 			},
 		},
 	},
 	sparkline: {
 		margin: { top: 2, right: 2, bottom: 2, left: 2 },
 		strokeWidth: 1.5,
+	},
+	compactWhenShort: {
+		below: 140,
+		margin: { top: 2, right: 2, bottom: 2, left: 2 },
 	},
 	// The compact 11px square / 2px gap is the contribution-graph rhythm, which has no WPDS dimension.
 	heatmapChart: {

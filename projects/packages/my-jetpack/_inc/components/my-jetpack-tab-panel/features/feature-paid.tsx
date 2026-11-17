@@ -7,8 +7,9 @@ import { isOfflineFeatures } from '../../../data/utils/offline-features';
 import useAnalytics from '../../../hooks/use-analytics';
 import { getFeaturePricingHref } from '../utils';
 import { FeatureHighlights } from './feature-highlights';
+import { isPlanExpired } from './feature-state';
 import { useFeaturesTracking } from './features-tracking-context';
-import { getModuleStatus } from './module-availability';
+import { getModuleAvailability } from './module-availability';
 import styles from './styles.module.scss';
 import type { FeatureState } from './feature-state';
 
@@ -18,7 +19,8 @@ type PlanLinkProps = {
 };
 
 /**
- * A plan name, linked to its pricing page unless the site is already on that plan.
+ * A plan name, linked to its pricing page unless the site has the plan or offline Features,
+ * which serves no purchase route, is open.
  *
  * @param {PlanLinkProps} props       - The component props.
  * @param {object}        props.plan  - The plan's slug, display name, and whether the site has it.
@@ -32,8 +34,7 @@ function PlanLink( { plan, state }: PlanLinkProps ) {
 		[ plan.slug, state, tracking ]
 	);
 
-	// Nothing to sell a site the plan already covers, the same reason Upgrade is gone.
-	if ( plan.owned ) {
+	if ( isOfflineFeatures() || plan.owned ) {
 		return <>{ plan.name }</>;
 	}
 
@@ -75,25 +76,43 @@ function isPurchaseBlocked( state: FeatureState ): boolean {
 	return (
 		( state.control.kind === 'module' &&
 			( state.control.module.override === 'inactive' ||
-				getModuleStatus( { ...state.control.module, override: false } ).isMultisiteBlocked ) ) ||
+				getModuleAvailability( state.control.module ).isMultisiteBlocked ) ) ||
 		( ( state.control.kind === 'plugin' || state.control.kind === 'none' ) &&
 			state.control.override === 'inactive' )
 	);
 }
 
 /**
- * The pricing route that sells a feature, or empty when there is nothing to sell.
+ * Where Upgrade sells a feature: an expired plan's purchase page, a host's own plans, else a My
+ * Jetpack route; null when nothing is sold.
  *
  * @param state - Live state for the feature.
- * @return The My Jetpack route.
+ * @return The address, what to track for it, and whether it renews.
  */
-function getUpgradePath( state: FeatureState ): string {
+function getUpgradeLink(
+	state: FeatureState
+): { href: string; target: string; renew?: boolean } | null {
+	const { feature } = state;
+
 	if ( isPurchaseBlocked( state ) ) {
-		return '';
+		return null;
+	}
+
+	// Ahead of a host's plans: a WordPress.com plan expires too, and it is the one to renew.
+	const renewUrl = isPlanExpired( state ) ? state.product?.managePaidPlanPurchaseUrl : '';
+	if ( renewUrl ) {
+		return { href: renewUrl, target: 'renew', renew: true };
+	}
+
+	// Tracked as `host`: a host's URL can carry the site's address.
+	if ( feature.upgrade?.url ) {
+		return { href: feature.upgrade.url, target: 'host' };
 	}
 
 	// Empty when the site already pays for the feature; the catalog decides that, not the client.
-	return state.feature.upgrade?.path ?? '';
+	const path = feature.upgrade?.path;
+
+	return path ? { href: getFeaturePricingHref( path, feature.slug ), target: path } : null;
 }
 
 type UpgradeButtonProps = {
@@ -124,35 +143,44 @@ export function UpgradeButton( props: UpgradeButtonProps ) {
 function TrackedUpgradeButton( { state }: UpgradeButtonProps ) {
 	const { feature } = state;
 	const { recordEvent } = useAnalytics();
-	const upgradePath = getUpgradePath( state );
+	const link = getUpgradeLink( state );
+	const target = link?.target;
 	const onUpgrade = useCallback(
 		() =>
 			recordEvent( 'jetpack_myjetpack_features_upgrade_click', {
 				feature: feature.slug,
-				target: upgradePath,
+				target,
 			} ),
-		[ feature.slug, recordEvent, upgradePath ]
+		[ feature.slug, recordEvent, target ]
 	);
 
-	if ( ! upgradePath ) {
+	if ( ! link ) {
 		return null;
 	}
 
 	return (
 		<ButtonLink
-			href={ getFeaturePricingHref( upgradePath, feature.slug ) }
+			href={ link.href }
 			onClick={ onUpgrade }
 			variant="outline"
 			size="compact"
 			// Upselling is not what the modal is open to reach, so focus skips it.
 			data-feature-upgrade
-			aria-label={ sprintf(
-				/* translators: %s is a product name, such as "Jetpack Akismet Anti-spam". */
-				__( 'Upgrade to %s', 'jetpack-my-jetpack' ),
-				feature.upgrade?.name || feature.name
-			) }
+			aria-label={
+				link.renew
+					? sprintf(
+							/* translators: %s is a feature name, such as "Backup". */
+							__( 'Renew the plan for %s', 'jetpack-my-jetpack' ),
+							feature.name
+						)
+					: sprintf(
+							/* translators: %s is a product name, such as "Jetpack Akismet Anti-spam". */
+							__( 'Upgrade to %s', 'jetpack-my-jetpack' ),
+							feature.upgrade?.name || feature.name
+						)
+			}
 		>
-			{ __( 'Upgrade', 'jetpack-my-jetpack' ) }
+			{ link.renew ? __( 'Renew', 'jetpack-my-jetpack' ) : __( 'Upgrade', 'jetpack-my-jetpack' ) }
 		</ButtonLink>
 	);
 }
@@ -172,7 +200,12 @@ export function FeaturePaid( { state }: FeaturePaidProps ) {
 	const { feature } = state;
 	const plans = feature.plans ?? [];
 	const highlights = feature.paid_highlights ?? [];
-	const showPlans = ! isPurchaseBlocked( state ) && plans.length > 0;
+	// A host's own upgrade sells its plans, and a renewal resumes one, not the Jetpack ones listed here.
+	const showPlans =
+		! isPurchaseBlocked( state ) &&
+		! feature.upgrade?.url &&
+		! isPlanExpired( state ) &&
+		plans.length > 0;
 
 	if ( ! highlights.length && ! showPlans ) {
 		return null;

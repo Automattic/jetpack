@@ -10,10 +10,11 @@ import {
 	WidgetState,
 	buildLeaderboardRow,
 	flagUrl,
-	formatMapName,
 	safeHttpUrl,
-	sharePercentage,
+	useMapName,
+	useReportActions,
 	useWidgetRootContext,
+	type CsvColumn,
 	type LeaderboardChartData,
 	type LeaderboardRowMedia,
 	type GeoData,
@@ -59,17 +60,10 @@ function buildEmailGeoData( rows: EmailBreakdownRow[], metric: EmailBreakdownMet
 	];
 }
 
-/**
- * Shares are relative to the highest value in the set so the top row always
- * fills. The breakdown endpoints return no comparison period, so the comparison
- * fields are zeroed and the chart renders without deltas.
- */
 function buildLeaderboardData(
 	rows: EmailBreakdownRow[],
 	view: EmailBreakdownView
 ): LeaderboardChartData {
-	const maxValue = Math.max( ...rows.map( row => row.value ), 0 );
-
 	return rows.map( row => {
 		const media: LeaderboardRowMedia =
 			view === 'countries'
@@ -91,10 +85,6 @@ function buildLeaderboardData(
 				action: safeUrl ? { kind: 'link', href: safeUrl } : { kind: 'static' },
 			} ),
 			currentValue: row.value,
-			currentShare: sharePercentage( row.value, maxValue ),
-			previousValue: 0,
-			previousShare: 0,
-			delta: 0,
 		};
 	} );
 }
@@ -125,6 +115,35 @@ function emptyStateText( view: EmailBreakdownView ): string {
 		default:
 			return __( 'No country data for this email yet.', 'jetpack-premium-analytics-pkg' );
 	}
+}
+
+function csvColumns(
+	view: EmailBreakdownView,
+	metric: EmailBreakdownMetric
+): CsvColumn< EmailBreakdownRow >[] {
+	const labels: Record< EmailBreakdownView, string > = {
+		countries: __( 'Country', 'jetpack-premium-analytics-pkg' ),
+		devices: __( 'Device', 'jetpack-premium-analytics-pkg' ),
+		clients: __( 'Email client', 'jetpack-premium-analytics-pkg' ),
+		links: __( 'Link', 'jetpack-premium-analytics-pkg' ),
+	};
+	const columns: CsvColumn< EmailBreakdownRow >[] = [
+		{ label: labels[ view ] ?? labels.countries, getValue: row => row.label },
+		{
+			label:
+				view === 'links' || metric === 'clicks'
+					? __( 'Clicks', 'jetpack-premium-analytics-pkg' )
+					: __( 'Opens', 'jetpack-premium-analytics-pkg' ),
+			getValue: row => row.value,
+		},
+	];
+
+	return view === 'links'
+		? [
+				...columns,
+				{ label: __( 'URL', 'jetpack-premium-analytics-pkg' ), getValue: row => row.link ?? '' },
+			]
+		: columns;
 }
 
 type EmailBreakdownLeaderboardProps = {
@@ -159,7 +178,7 @@ export const EmailBreakdownLeaderboard = ( {
 	hasEmail = true,
 	onRetry,
 }: EmailBreakdownLeaderboardProps ) => {
-	const chartTitle = __( 'Email breakdown', 'jetpack-premium-analytics-pkg' );
+	const mapName = useMapName();
 	const data = useMemo( () => buildLeaderboardData( rows, view ), [ rows, view ] );
 	const geoData = useMemo( () => buildEmailGeoData( mapRows, metric ), [ mapRows, metric ] );
 
@@ -208,11 +227,10 @@ export const EmailBreakdownLeaderboard = ( {
 						showLegend={ false }
 						dataFormat={ DATA_FORMAT }
 						columns={ { label: viewLabel( view ), metric: view === 'links' ? 'clicks' : metric } }
-						chartTitle={ chartTitle }
 					/>
 					{ renderMap && (
 						<div className={ styles.map } data-testid="email-breakdown-map">
-							<GeoChart data={ geoData } ariaLabel={ formatMapName( chartTitle ) } />
+							<GeoChart data={ geoData } ariaLabel={ mapName } />
 						</div>
 					) }
 				</div>
@@ -235,11 +253,36 @@ function EmailBreakdownReport( { view, metric, showMap }: EmailBreakdownReportPr
 	const { reportParams } = useWidgetRootContext();
 	const postId = toPostId( reportParams.post_id );
 
-	const { allRows, rows, isLoading, isFetching, isError, refetch } = useEmailBreakdownRows( {
+	const {
+		allRows,
+		rows,
+		isLoading,
+		isFetching,
+		isError,
+		csvIsError,
+		csvIsPlaceholderData,
+		refetch,
+	} = useEmailBreakdownRows( {
 		postId,
 		view,
 		metric,
 		max: WIDGET_ROW_LIMIT,
+	} );
+
+	const columns = useMemo( () => csvColumns( view, metric ), [ view, metric ] );
+	useReportActions( {
+		csv: {
+			rows: allRows,
+			columns,
+			filenamePrefix: `email-${ postId }-${ view }-${ view === 'links' ? 'clicks' : metric }`,
+			hasDateRange: false,
+			status: {
+				isLoading,
+				isFetching,
+				isError: csvIsError,
+				isPlaceholderData: csvIsPlaceholderData,
+			},
+		},
 	} );
 
 	return (

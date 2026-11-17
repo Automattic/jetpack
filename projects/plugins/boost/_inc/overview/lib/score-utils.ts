@@ -1,12 +1,10 @@
+import { getScoreTier } from '@automattic/jetpack-boost-score-api';
 import { __, _n, sprintf } from '@wordpress/i18n';
+import type { ScoreTier } from '@automattic/jetpack-boost-score-api';
 import type { SpeedScoresSet } from './use-speed-scores';
 
-export type ScoreTier = 'good' | 'medium' | 'poor';
-
-export function getScoreTier( score: number ): ScoreTier {
-	// Keep tiers aligned with js-packages/components/components/boost-score-bar/index.tsx.
-	return score > 70 ? 'good' : score > 50 ? 'medium' : 'poor';
-}
+export { getScoreTier };
+export type { ScoreTier };
 
 export function getScoreTierLabel( tier: ScoreTier ): string {
 	const labels = {
@@ -31,6 +29,19 @@ export function getScoreDisplayState( {
 	error?: Error | null;
 } ): 'generating' | 'error' | 'scores' {
 	return error ? 'error' : isRunning || ! hasScores ? 'generating' : 'scores';
+}
+
+/**
+ * Estimate how far along a speed test is, from how long this site's runs usually take.
+ *
+ * @param elapsed  - Seconds since the run was dispatched.
+ * @param expected - Seconds a run usually takes.
+ * @return Percent done: 90 at the expected time, then easing toward 99 so a slow run never reads as done.
+ */
+export function getEstimatedPercent( elapsed: number, expected: number ): number {
+	const ratio = Math.max( 0, elapsed ) / expected;
+	const percent = ratio < 1 ? 90 * ratio : 90 + 10 * ( 1 - Math.exp( 1 - ratio ) );
+	return Math.min( 99, Math.floor( percent ) );
 }
 
 export function getScoreDelta(

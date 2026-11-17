@@ -63,11 +63,10 @@ function sessionWithTwoCuts(): EditSession {
  *
  * @param session   - The session to render.
  * @param currentMs - Playhead position (snap target for cut edges).
- * @return The dispatch and onSeek spies, plus a session re-render helper.
+ * @return The dispatch spy and a session re-render helper.
  */
 function renderOverlay( session: EditSession, currentMs = 0 ) {
 	const dispatch = jest.fn();
-	const onSeek = jest.fn();
 	const contentRef = { current: document.createElement( 'div' ) };
 	const overlay = ( s: EditSession ) => (
 		<StudioEditorEditOverlay
@@ -76,11 +75,10 @@ function renderOverlay( session: EditSession, currentMs = 0 ) {
 			pxPerMs={ PX_PER_MS }
 			contentRef={ contentRef }
 			dispatch={ dispatch }
-			onSeek={ onSeek }
 		/>
 	);
 	const { rerender } = render( overlay( session ) );
-	return { dispatch, onSeek, rerenderSession: ( s: EditSession ) => rerender( overlay( s ) ) };
+	return { dispatch, rerenderSession: ( s: EditSession ) => rerender( overlay( s ) ) };
 }
 
 /**
@@ -107,8 +105,8 @@ function transientFromBase( action: EditSessionAction ) {
 }
 
 describe( 'StudioEditorTrimHandles', () => {
-	it( 'drags the trim start with transient moves, one commit, and preview seeks', () => {
-		const { dispatch, onSeek } = renderOverlay( createEditSession( 10000 ) );
+	it( 'drags the trim start with transient moves and one commit', () => {
+		const { dispatch } = renderOverlay( createEditSession( 10000 ) );
 		const handle = screen.getByTestId( 'studio-timeline-trim-start' );
 
 		fireEvent.pointerDown( handle, { button: 0, pointerId: 1, clientX: 0 } );
@@ -120,7 +118,6 @@ describe( 'StudioEditorTrimHandles', () => {
 			transient( { type: 'SET_TRIM_START', ms: 2000 } ),
 			{ type: 'COMMIT' },
 		] );
-		expect( onSeek.mock.calls.map( call => call[ 0 ] ) ).toEqual( [ 0, 2000 ] );
 	} );
 
 	it( 'preserves the grab offset instead of jumping the handle to the pointer', () => {
@@ -148,20 +145,6 @@ describe( 'StudioEditorTrimHandles', () => {
 		);
 	} );
 
-	it( 'seeks to the reducer-clamped time when a drag passes the minimum-output floor', () => {
-		const { dispatch, onSeek } = renderOverlay( createEditSession( 10000 ) );
-		const handle = screen.getByTestId( 'studio-timeline-trim-start' );
-
-		fireEvent.pointerDown( handle, { button: 0, pointerId: 1, clientX: 0 } );
-		// 9500ms would leave a 500ms output; the reducer clamps to 9000ms.
-		fireEvent.pointerMove( handle, { pointerId: 1, clientX: 950 } );
-
-		expect( dispatch ).toHaveBeenLastCalledWith(
-			transient( { type: 'SET_TRIM_START', ms: 9500 } )
-		);
-		expect( onSeek ).toHaveBeenLastCalledWith( 9000 );
-	} );
-
 	it( 'ignores non-primary buttons', () => {
 		const { dispatch } = renderOverlay( createEditSession( 10000 ) );
 		const handle = screen.getByTestId( 'studio-timeline-trim-start' );
@@ -170,8 +153,8 @@ describe( 'StudioEditorTrimHandles', () => {
 		expect( dispatch ).not.toHaveBeenCalled();
 	} );
 
-	it( 'nudges with arrow keys as plain (undoable) actions and seeks', () => {
-		const { dispatch, onSeek } = renderOverlay( createEditSession( 10000 ) );
+	it( 'nudges with arrow keys as plain (undoable) actions', () => {
+		const { dispatch } = renderOverlay( createEditSession( 10000 ) );
 		const handle = screen.getByTestId( 'studio-timeline-trim-start' );
 
 		fireEvent.keyDown( handle, { key: 'ArrowRight' } );
@@ -181,7 +164,6 @@ describe( 'StudioEditorTrimHandles', () => {
 			{ type: 'SET_TRIM_START', ms: 100 },
 			{ type: 'SET_TRIM_START', ms: 1000 },
 		] );
-		expect( onSeek.mock.calls.map( call => call[ 0 ] ) ).toEqual( [ 100, 1000 ] );
 	} );
 
 	it( 'renders shrouds only outside the trim window', () => {
@@ -382,11 +364,18 @@ describe( 'StudioEditorCutSegment', () => {
 /**
  * Exercise gestures through real session and history reducers.
  *
- * @param props         - Initial editor state.
- * @param props.session - Session before the gesture.
+ * @param props              - Initial editor state.
+ * @param props.session      - Session before the gesture.
+ * @param props.onGestureEnd - Observe gesture completion.
  * @return A stateful overlay and undo control.
  */
-function StatefulOverlay( { session }: { session: EditSession } ) {
+function StatefulOverlay( {
+	session,
+	onGestureEnd,
+}: {
+	session: EditSession;
+	onGestureEnd?: () => void;
+} ) {
 	const [ history, dispatch ] = useReducer(
 		withHistory( editSessionReducer ),
 		createHistory( session )
@@ -399,7 +388,7 @@ function StatefulOverlay( { session }: { session: EditSession } ) {
 				pxPerMs={ PX_PER_MS }
 				contentRef={ { current: document.createElement( 'div' ) } }
 				dispatch={ dispatch }
-				onSeek={ () => {} }
+				onGestureEnd={ onGestureEnd }
 			/>
 			<button onClick={ () => dispatch( { type: 'UNDO' } ) }>Undo</button>
 		</>
@@ -457,3 +446,64 @@ it( 'focuses a grabbed cut so the document shortcuts can act on it', () => {
 	fireEvent.pointerDown( cut, { button: 0, pointerId: 1, clientX: 500 } );
 	expect( cut ).toHaveFocus();
 } );
+
+it.each( [
+	{
+		name: 'Trim start',
+		initialX: 5,
+		movedX: 205,
+		movedMs: 2000,
+		nextX: 210,
+		finalX: 310,
+		finalMs: 3000,
+		originalMs: 0,
+	},
+	{
+		name: 'Trim end',
+		initialX: 995,
+		movedX: 795,
+		movedMs: 8000,
+		nextX: 790,
+		finalX: 690,
+		finalMs: 7000,
+		originalMs: 10000,
+	},
+] )(
+	'ends $name on capture loss and starts a fresh drag when grabbed again',
+	( { name, initialX, movedX, movedMs, nextX, finalX, finalMs, originalMs } ) => {
+		const onGestureEnd = jest.fn();
+		render(
+			<StatefulOverlay session={ createEditSession( 10000 ) } onGestureEnd={ onGestureEnd } />
+		);
+		const handle = screen.getByRole( 'slider', { name } );
+		const undo = screen.getByRole( 'button', { name: 'Undo' } );
+
+		fireEvent.pointerDown( handle, {
+			button: 0,
+			buttons: 1,
+			pointerId: 1,
+			clientX: initialX,
+			clientY: 50,
+		} );
+		fireEvent.pointerMove( handle, { buttons: 1, pointerId: 1, clientX: movedX, clientY: -50 } );
+		expect( handle ).toHaveValue( movedMs );
+		fireEvent.lostPointerCapture( handle, { pointerId: 1 } );
+		fireEvent.pointerUp( undo, { pointerId: 1 } );
+		expect( onGestureEnd ).toHaveBeenCalledTimes( 1 );
+
+		fireEvent.pointerMove( handle, { pointerId: 1, clientX: nextX } );
+		expect( handle ).toHaveValue( movedMs );
+		fireEvent.pointerDown( handle, { button: 0, buttons: 1, pointerId: 1, clientX: nextX } );
+		expect( handle ).toHaveValue( movedMs );
+		fireEvent.pointerMove( handle, { buttons: 1, pointerId: 1, clientX: finalX } );
+		fireEvent.pointerUp( handle, { pointerId: 1 } );
+		fireEvent.lostPointerCapture( handle, { pointerId: 1 } );
+		expect( onGestureEnd ).toHaveBeenCalledTimes( 2 );
+		expect( handle ).toHaveValue( finalMs );
+
+		fireEvent.click( undo );
+		expect( handle ).toHaveValue( movedMs );
+		fireEvent.click( undo );
+		expect( handle ).toHaveValue( originalMs );
+	}
+);

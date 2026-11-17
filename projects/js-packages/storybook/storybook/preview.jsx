@@ -59,6 +59,9 @@ const preview = {
 	},
 	initialGlobals: {
 		backgrounds: { value: 'jetpack-dashboard' },
+		// Set by the toolbar control in manager.mjs, read by the canvas that frames
+		// the Premium Analytics widget stories.
+		widgetSizes: 'single',
 	},
 	decorators: [
 		Story => (

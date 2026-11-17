@@ -43,6 +43,15 @@ class Wpcom_Products {
 	 */
 	const MY_JETPACK_PURCHASES_CACHE_DURATION = 5;
 
+	const MY_JETPACK_PLAN_REFRESHED_TRANSIENT_KEY = 'my-jetpack-plan-refreshed';
+
+	/**
+	 * How long, in seconds, a plan refresh from WPCOM is reused before a reload asks again
+	 *
+	 * @var int
+	 */
+	const MY_JETPACK_PLAN_REFRESH_CACHE_DURATION = 15;
+
 	/**
 	 * How long, in seconds, a failed WPCOM request answers later callers before it is retried
 	 *
@@ -138,7 +147,13 @@ class Wpcom_Products {
 		$response_code = wp_remote_retrieve_response_code( $wpcom_request );
 
 		if ( 200 === $response_code ) {
-			return json_decode( wp_remote_retrieve_body( $wpcom_request ) );
+			$products = json_decode( wp_remote_retrieve_body( $wpcom_request ) );
+			if ( is_object( $products ) ) {
+				return $products;
+			}
+			$error = new WP_Error( 'invalid_wpcom_products', __( 'Unable to read the products list from WordPress.com', 'jetpack-my-jetpack' ) );
+			static::set_request_failure( $request_label, $error );
+			return $error;
 		} else {
 			$error = new WP_Error(
 				'failed_to_fetch_wpcom_products',
@@ -159,7 +174,7 @@ class Wpcom_Products {
 	private static function build_check_hash() {
 		static $has_user_data_fetch_error = false;
 
-		$hash_string = 'check_hash_';
+		$hash_string = 'check_hash_' . Jetpack_Options::get_option( 'id' ) . '_' . get_user_locale();
 		$connection  = new Connection_Manager();
 
 		if ( $connection->is_connected() ) {
@@ -211,7 +226,7 @@ class Wpcom_Products {
 		}
 
 		$cache_date = get_user_meta( get_current_user_id(), self::CACHE_DATE_META_NAME, true );
-		return time() - (int) $cache_date > DAY_IN_SECONDS;
+		return time() - (int) $cache_date > 5 * MINUTE_IN_SECONDS;
 	}
 
 	/**
@@ -244,7 +259,15 @@ class Wpcom_Products {
 		if ( is_wp_error( $products ) ) {
 			// Let's see if we have it cached.
 			$cached = self::get_products_from_cache();
-			if ( ! empty( $cached ) ) {
+			if ( is_object( $cached ) ) {
+				// Pro requires confirmed availability; existing offers retain their cached behavior.
+				$cached = clone $cached;
+				foreach ( $cached as $slug => $product ) {
+					if ( str_starts_with( $slug, 'jetpack_pro_' ) && is_object( $product ) ) {
+						$cached->$slug            = clone $product;
+						$cached->$slug->available = false;
+					}
+				}
 				return $cached;
 			} else {
 				return $products;
@@ -400,8 +423,13 @@ class Wpcom_Products {
 	public static function get_site_current_plan( $reload = false ) {
 		static $reloaded_already = false;
 
+		// The page render and the REST requests it fires all reload, so share one refresh between them.
 		if ( $reload && ! $reloaded_already ) {
-			Current_Plan::refresh_from_wpcom();
+			// Without a site ID nothing can refresh, so don't start the window until one exists.
+			if ( ! get_transient( self::MY_JETPACK_PLAN_REFRESHED_TRANSIENT_KEY ) && Connection_Manager::get_site_id( true ) ) {
+				Current_Plan::refresh_from_wpcom();
+				set_transient( self::MY_JETPACK_PLAN_REFRESHED_TRANSIENT_KEY, 1, self::MY_JETPACK_PLAN_REFRESH_CACHE_DURATION );
+			}
 			$reloaded_already = true;
 		}
 

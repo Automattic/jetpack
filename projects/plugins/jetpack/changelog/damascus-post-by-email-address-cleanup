@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Post by Email: Forget a user's saved address when they disconnect from WordPress.com, so reconnecting with a different account no longer shows the old one.

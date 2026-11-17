@@ -14,7 +14,7 @@ use Automattic\Jetpack\Knowledge\Knowledge_Scopes_REST_Controller;
  * Provides Knowledge when Gutenberg's experiment is unavailable.
  */
 class Knowledge {
-	const PACKAGE_VERSION = '0.1.0-alpha';
+	const PACKAGE_VERSION = '0.1.1';
 
 	/**
 	 * Whether this package has registered its fallback hooks.
@@ -26,7 +26,7 @@ class Knowledge {
 	/**
 	 * Schedule provider resolution after all plugin files have loaded.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.1.0
 	 * @return void
 	 */
 	public static function init() {
@@ -42,7 +42,7 @@ class Knowledge {
 	/**
 	 * Register the fallback only after giving Gutenberg the first choice.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.1.0
 	 * @return void
 	 */
 	public static function bootstrap() {

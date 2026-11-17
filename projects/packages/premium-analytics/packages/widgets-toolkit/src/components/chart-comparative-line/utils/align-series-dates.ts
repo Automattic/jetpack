@@ -6,8 +6,8 @@ import type { ComparativeLineChartSeries } from '../types';
 
 /**
  * Aligns comparison points onto the primary series by index, keeping their real dates
- * in `realDate` for tooltips. A grouped comparison aligns to its group's current
- * period; an ungrouped one keeps the historical behavior of aligning to series[0].
+ * in `realDate` for tooltips. A grouped comparison aligns to its group's current period,
+ * an ungrouped one to series[0], and one marked `aligned` stays where its producer put it.
  */
 export function alignSeriesDates(
 	series: ComparativeLineChartSeries[]
@@ -27,7 +27,11 @@ export function alignSeriesDates(
 	const primarySeriesByGroup = resolvePrimarySeriesByGroup( series );
 
 	return series.map( comparisonSeries => {
-		if ( ! comparisonSeries.data.length || comparisonSeries.options?.type !== 'comparison' ) {
+		if (
+			! comparisonSeries.data.length ||
+			comparisonSeries.options?.type !== 'comparison' ||
+			comparisonSeries.aligned
+		) {
 			return comparisonSeries;
 		}
 

@@ -1,5 +1,5 @@
 import { __ } from '@wordpress/i18n';
-import { chevronDown, chevronUp, lockOutline } from '@wordpress/icons';
+import { chevronDown, chevronUp, lock } from '@wordpress/icons';
 import { Notice } from '@wordpress/ui';
 import { useId, useMemo, useState } from 'react';
 import HistoryChartCard from './history-chart-card';
@@ -49,11 +49,7 @@ export default function HistoryUpsell( { range, dayCount, isVisible = true }: Pr
 	};
 
 	return (
-		<Notice.Root
-			intent="info"
-			icon={ lockOutline }
-			className="jetpack-boost-overview__history-upsell"
-		>
+		<Notice.Root intent="info" icon={ lock } className="jetpack-boost-overview__history-upsell">
 			<Notice.Description>
 				{ __( 'Learn more about your site performance over time.', 'jetpack-boost' ) }{ ' ' }
 				<UpgradeCTA />

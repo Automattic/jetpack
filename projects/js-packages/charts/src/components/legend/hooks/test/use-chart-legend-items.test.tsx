@@ -421,6 +421,26 @@ describe( 'useChartLegendItems', () => {
 			expect( result.current[ 2 ].color ).toBe( result.current[ 0 ].color );
 		} );
 
+		test( 'colors each swatch, comparison items included, from seriesColors by series index', () => {
+			const seriesColors = [ '#111111', '#222222', '#333333', '#444444' ];
+			const { result } = renderHook(
+				() =>
+					useChartLegendItems( twoMetricData, {
+						collapseGroups: true,
+						comparisonSeriesItems: perMetricLabel,
+						seriesColors,
+					} ),
+				{ wrapper }
+			);
+
+			expect( result.current.map( item => item.color ) ).toEqual( [
+				'#111111',
+				'#333333',
+				'#222222',
+				'#444444',
+			] );
+		} );
+
 		test( 'adds nothing when no series is a comparison', () => {
 			const { result } = renderHook(
 				() => useChartLegendItems( [ comparisonData[ 0 ] ], { comparisonItem: true } ),

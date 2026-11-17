@@ -170,19 +170,23 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 		if ( ! empty( $title ) ) :
 			echo $before_title; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
-			$likebox_widget_title = '<a href="' . esc_url( $page_url ) . '">' . $title . '</a>';
+			// Widgets saved before the setting existed keep their linked title.
+			$link_title           = ! isset( $instance['link_title'] ) || $instance['link_title'];
+			$likebox_widget_title = $link_title ? '<a href="' . esc_url( $page_url ) . '">' . $title . '</a>' : $title;
 			/**
 			 * Filter Facebook Likebox's widget title.
 			 *
 			 * @module widgets
 			 *
 			 * @since 3.3.0
+			 * @since 16.5 Added the `$link_title` parameter. The title is only linked when that setting is enabled.
 			 *
-			 * @param string $likebox_widget_title Likebox Widget title (including a link to the Page URL).
+			 * @param string $likebox_widget_title Likebox Widget title, linked to the Page URL when `$link_title` is true.
 			 * @param string $title Widget title as set in the widget settings.
 			 * @param string $page_url Facebook Page URL.
+			 * @param bool   $link_title Whether the widget settings link the title to the Page URL.
 			 */
-			$likebox_widget_title = apply_filters( 'jetpack_facebook_likebox_title', $likebox_widget_title, $title, $page_url );
+			$likebox_widget_title = apply_filters( 'jetpack_facebook_likebox_title', $likebox_widget_title, $title, $page_url, $link_title );
 
 			echo wp_kses(
 				$likebox_widget_title,
@@ -217,7 +221,8 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 	public function update( $new_instance, $old_instance ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		$instance = array();
 
-		$instance['title'] = trim( wp_strip_all_tags( stripslashes( $new_instance['title'] ?? '' ) ) );
+		$instance['title']      = trim( wp_strip_all_tags( stripslashes( $new_instance['title'] ?? '' ) ) );
+		$instance['link_title'] = isset( $new_instance['link_title'] );
 
 		// Set up widget values.
 		$instance['like_args'] = array(
@@ -245,20 +250,29 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 	 * @return string|void
 	 */
 	public function form( $instance ) {
-		$instance  = wp_parse_args(
+		// New widgets start unlinked; saved widgets without the setting were always linked.
+		$link_title = empty( $instance ) ? false : ( ! isset( $instance['link_title'] ) || $instance['link_title'] );
+		$instance   = wp_parse_args(
 			(array) $instance,
 			array(
 				'title'     => '',
 				'like_args' => $this->get_default_args(),
 			)
 		);
-		$like_args = $this->normalize_facebook_args( $instance['like_args'] );
+		$like_args  = $this->normalize_facebook_args( $instance['like_args'] );
 		?>
 
 		<p>
 			<label for="<?php echo esc_attr( $this->get_field_id( 'title' ) ); ?>">
 				<?php esc_html_e( 'Title', 'jetpack' ); ?>
 				<input type="text" name="<?php echo esc_attr( $this->get_field_name( 'title' ) ); ?>" id="<?php echo esc_attr( $this->get_field_id( 'title' ) ); ?>" value="<?php echo esc_attr( $instance['title'] ); ?>" class="widefat" />
+			</label>
+		</p>
+
+		<p>
+			<label for="<?php echo esc_attr( $this->get_field_id( 'link_title' ) ); ?>">
+				<input type="checkbox" name="<?php echo esc_attr( $this->get_field_name( 'link_title' ) ); ?>" id="<?php echo esc_attr( $this->get_field_id( 'link_title' ) ); ?>" <?php checked( $link_title ); ?> />
+				<?php esc_html_e( 'Link title to Facebook Page', 'jetpack' ); ?>
 			</label>
 		</p>
 

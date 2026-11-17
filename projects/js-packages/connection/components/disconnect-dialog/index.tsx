@@ -4,12 +4,14 @@ import { jetpackConfigHas, jetpackConfigGet } from '@automattic/jetpack-config';
 import { Modal } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { useMemo, useEffect, useCallback, useState } from 'react';
+import { placementProps } from '../../helpers/connection-tracking.ts';
 import useRestApiInit from '../../hooks/use-rest-api-init';
 import './style.scss';
 import StepDisconnect from './steps/step-disconnect';
 import StepDisconnectConfirm from './steps/step-disconnect-confirm';
 import StepSurvey from './steps/step-survey';
 import StepThankYou from './steps/step-thank-you';
+import type { ConnectionPlacement } from '../../helpers/connection-tracking.ts';
 import type { MouseEvent, ReactElement } from 'react';
 
 interface DisconnectDialogUser {
@@ -34,7 +36,9 @@ interface SurveyData {
 
 interface TracksSurveyData {
 	/** The context in which the dialog is being used. */
-	context: string;
+	context: string | null;
+	/** Where on the page the dialog was opened from, when the host gave one. */
+	placement?: ConnectionPlacement;
 	/** The plugin initiating the disconnect. */
 	plugin: string;
 	/** The reason selected for disconnecting. */
@@ -52,8 +56,10 @@ interface DisconnectDialogProps {
 	onDisconnected?: () => void;
 	/** The callback to be called upon disconnection failure. */
 	onError?: ( error: unknown ) => void;
-	/** The context in which this component is being used. */
+	/** The context in which this component is being used. Sent as null when omitted. */
 	context?: string;
+	/** Where on the page the dialog was opened from, e.g. 'header'. Sent as `placement` when set. */
+	placement?: ConnectionPlacement;
 	/** Plugins that are using the Jetpack connection. */
 	connectedPlugins?: Array< { name: string; slug: string } >;
 	/** Callback called just before the disconnect request when the context is "plugins". */
@@ -96,7 +102,8 @@ const DisconnectDialog = ( {
 	onDisconnected,
 	onError,
 	disconnectStepComponent,
-	context = 'jetpack-dashboard',
+	context,
+	placement,
 	connectedUser = {}, // Pass empty object to avoid undefined errors.
 	connectedSiteId,
 	hasConnectedUser = true,
@@ -118,10 +125,11 @@ const DisconnectDialog = ( {
 
 	const defaultTracksArgs = useMemo( () => {
 		return {
-			context: context,
+			context: context ?? null,
+			...placementProps( placement ),
 			plugin: disconnectingPlugin,
 		};
-	}, [ context, disconnectingPlugin ] );
+	}, [ context, placement, disconnectingPlugin ] );
 
 	/**
 	 * Initialize the REST API.

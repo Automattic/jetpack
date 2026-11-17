@@ -289,6 +289,7 @@ class Modules_Abilities_Test extends WP_UnitTestCase {
 			'requires_connection',
 			'requires_user_connection',
 			'auto_activate',
+			'override',
 		);
 		foreach ( $result as $summary ) {
 			foreach ( $expected_keys as $key ) {
@@ -349,6 +350,26 @@ class Modules_Abilities_Test extends WP_UnitTestCase {
 		);
 		$this->assertCount( 1, $matching );
 		$this->assertSame( $probe['slug'], $matching[0]['slug'] );
+	}
+
+	public function test_get_modules_reports_a_module_forced_off() {
+		wp_set_current_user( $this->admin_id );
+		$force_off = static function ( $modules ) {
+			return array_values( array_diff( $modules, array( 'sitemaps' ) ) );
+		};
+		Jetpack_Options::update_option( 'active_modules', array( 'sitemaps' ) );
+		add_filter( 'jetpack_active_modules', $force_off );
+		Jetpack_Modules_Overrides::instance()->clear_cache();
+
+		try {
+			$result = Modules_Abilities::get_modules( array( 'slug' => 'sitemaps' ) );
+			$this->assertSame( 'inactive', $result[0]['override'] );
+			$this->assertSame( 'none', Modules_Abilities::get_modules( array( 'slug' => 'stats' ) )[0]['override'] );
+		} finally {
+			remove_filter( 'jetpack_active_modules', $force_off );
+			Jetpack_Options::delete_option( 'active_modules' );
+			Jetpack_Modules_Overrides::instance()->clear_cache();
+		}
 	}
 
 	public function test_get_modules_filters_by_active_state() {
@@ -492,5 +513,21 @@ class Modules_Abilities_Test extends WP_UnitTestCase {
 		$this->assertFalse( $result['active'] );
 		$this->assertTrue( $result['changed'], 'Flipping a state change must report changed=true.' );
 		$this->assertFalse( Jetpack::is_module_active( $slug ), 'Module should be inactive after deactivation.' );
+	}
+
+	public function test_set_module_status_switches_backup_off_and_says_backups_keep_running() {
+		wp_set_current_user( $this->admin_id );
+		\Jetpack_Options::update_option( 'active_modules', array( 'backup' ) );
+
+		$result = Modules_Abilities::set_module_status(
+			array(
+				'slug'   => 'backup',
+				'active' => false,
+			)
+		);
+
+		$this->assertIsArray( $result );
+		$this->assertFalse( Jetpack::is_module_active( 'backup' ) );
+		$this->assertSame( Jetpack::get_module_deactivation_note( 'backup' ), $result['note'] ?? null );
 	}
 }

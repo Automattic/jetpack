@@ -54,17 +54,15 @@ const NewsletterMenu = ( { openPreviewModal }: NewsletterMenuProps ) => {
 					<NewsletterEmailDocumentSettings />
 				) }
 				{ ! isSendEmailEnabled && ! isPublished && (
-					<Notice.Root intent="warning" icon={ null }>
+					<Notice.Root
+						intent="warning"
+						icon={ null }
+						className="jetpack-newsletter-settings-sidebar__email-off-notice"
+					>
 						<Notice.Title>{ __( 'Newsletter emails are turned off', 'jetpack' ) }</Notice.Title>
-						<Notice.Description>
-							{ __(
-								'Newsletter categories only apply when this post is emailed. You can still choose who can read it below.',
-								'jetpack'
-							) }
-						</Notice.Description>
 					</Notice.Root>
 				) }
-				{ isSendEmailEnabled && ! isPublished && (
+				{ ! isPublished && (
 					<>
 						<p>{ __( 'Preview or test your email before publishing.', 'jetpack' ) }</p>
 						<VStack spacing={ 3 } className="jetpack-newsletter-settings-sidebar__email-buttons">

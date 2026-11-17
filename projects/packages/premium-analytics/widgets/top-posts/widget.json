@@ -13,5 +13,23 @@
 		]
 	},
 	"category": "stats",
-	"presentation": "framed"
+	"presentation": "framed",
+	"attributes": [
+		{
+			"id": "contentView",
+			"type": "jpa/toggle-group",
+			"label": "View",
+			"relevance": "high",
+			"elements": [
+				{
+					"value": "posts",
+					"label": "Posts & pages"
+				},
+				{
+					"value": "archives",
+					"label": "Archives"
+				}
+			]
+		}
+	]
 }

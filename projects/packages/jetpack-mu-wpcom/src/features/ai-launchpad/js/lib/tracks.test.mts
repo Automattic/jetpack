@@ -11,8 +11,18 @@ import {
 	trackTaskSkipped,
 	trackViewed,
 	trackWizardBackClicked,
+	trackWizardBypassed,
 	trackWizardCompleted,
 	trackWizardGoalClicked,
+	trackWizardMcpAllowFullAccessClicked,
+	trackWizardMcpConnectedViewed,
+	trackWizardMcpGoToDashboardClicked,
+	trackWizardMcpLinkClicked,
+	trackWizardMcpPromptCopied,
+	trackWizardMcpReadOnlyViewed,
+	trackWizardMcpWaitingViewed,
+	trackWizardSetupChoiceSelected,
+	trackWizardMcpScreenViewed,
 	trackWizardSiteDetailsChanged,
 	trackWizardStepCompleted,
 	trackWizardStepSkipped,
@@ -72,11 +82,89 @@ describe( 'ai-launchpad tracks', () => {
 	// The context is all null here, so these also pin that null keys never override the bootstrap.
 	const RECORDERS: Array< [ event: string, fired: () => TrackEventProps ] > = [
 		[ 'viewed', fire( trackViewed, { step: 'goal' } ) ],
+		[ 'viewed', fire( trackViewed, { step: 'setup_choice' } ) ],
+		[
+			'wizard_setup_choice_selected',
+			fire( trackWizardSetupChoiceSelected, {
+				choice: 'guide',
+				goals_variation: 'bring_your_ai_tool',
+			} ),
+		],
+		[
+			'wizard_mcp_waiting_viewed',
+			fire( trackWizardMcpWaitingViewed, {
+				goals_variation: 'bring_your_ai_tool',
+				integration: 'chatgpt',
+			} ),
+		],
+		[
+			'wizard_mcp_read_only_viewed',
+			fire( trackWizardMcpReadOnlyViewed, {
+				goals_variation: 'bring_your_ai_tool',
+				integration: 'claude',
+			} ),
+		],
+		[
+			'wizard_mcp_prompt_copied',
+			fire( trackWizardMcpPromptCopied, { goals_variation: 'bring_your_ai_tool' } ),
+		],
 		[ 'wizard_goal_clicked', fire( trackWizardGoalClicked, { goal_clicked: 'sell' } ) ],
+		[
+			'wizard_goal_clicked',
+			fire( trackWizardGoalClicked, { goal_clicked: 'sell', goals_variation: 'control' } ),
+		],
+		[
+			'wizard_mcp_screen_viewed',
+			fire( trackWizardMcpScreenViewed, { goals_variation: 'bring_your_ai_tool' } ),
+		],
+		[
+			'wizard_mcp_chatgpt_clicked',
+			fire( props => trackWizardMcpLinkClicked( 'chatgpt', props ), {
+				goals_variation: 'bring_your_ai_tool',
+			} ),
+		],
+		[
+			'wizard_mcp_claude_clicked',
+			fire( props => trackWizardMcpLinkClicked( 'claude', props ), {
+				goals_variation: 'bring_your_ai_tool',
+			} ),
+		],
+		[
+			'wizard_mcp_connected_viewed',
+			fire( trackWizardMcpConnectedViewed, {
+				goals_variation: 'bring_your_ai_tool',
+				integration: 'claude',
+				already_connected: true,
+			} ),
+		],
+		[
+			'wizard_mcp_allow_full_access_clicked',
+			fire( trackWizardMcpAllowFullAccessClicked, {
+				goals_variation: 'bring_your_ai_tool',
+				integration: 'claude',
+				result: 'success',
+			} ),
+		],
+		[
+			'wizard_mcp_allow_full_access_clicked',
+			fire( trackWizardMcpAllowFullAccessClicked, {
+				goals_variation: 'bring_your_ai_tool',
+				integration: 'chatgpt',
+				result: 'settings_link',
+			} ),
+		],
+		[
+			'wizard_mcp_go_to_dashboard_clicked',
+			fire( trackWizardMcpGoToDashboardClicked, {
+				goals_variation: 'bring_your_ai_tool',
+				integration: 'chatgpt',
+			} ),
+		],
 		[ 'wizard_step_completed', fire( trackWizardStepCompleted, { step: 'goal' } ) ],
 		[ 'wizard_step_skipped', fire( trackWizardStepSkipped, { step: 'site_details' } ) ],
 		[ 'wizard_back_clicked', fire( trackWizardBackClicked, { step: 'site_details' } ) ],
 		[ 'wizard_site_details_changed', fire( trackWizardSiteDetailsChanged, { field: 'title' } ) ],
+		[ 'wizard_bypassed', fire( trackWizardBypassed, { reason: 'ai_builder' } ) ],
 		[ 'wizard_completed', fire( trackWizardCompleted, {} ) ],
 		[ 'task_clicked', fire( trackTaskClicked, { task_id: 'setup_ssh', task_status: 'skipped' } ) ],
 		[ 'task_cta_clicked', fire( trackTaskCtaClicked, { task_id: 'site_theme_selected' } ) ],

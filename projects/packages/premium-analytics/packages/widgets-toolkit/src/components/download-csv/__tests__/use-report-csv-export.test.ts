@@ -102,4 +102,29 @@ describe( 'useReportCsvExport', () => {
 
 		expect( result.current.canExport ).toBe( false );
 	} );
+
+	it( 'disables export when the plan locks Stats CSV exports', () => {
+		mockGetScriptData.mockReturnValue( {
+			premium_analytics: {
+				plan_gates: {
+					tier: 'free',
+					locked_features: {
+						csv: { description: '', support_url: '', upgrade_url: '' },
+					},
+					locked_widget_types: {},
+				},
+			},
+		} as unknown as ReturnType< typeof getScriptData > );
+
+		const { result } = renderHook( () =>
+			useReportCsvExport( {
+				rows: [ { title: 'Post', views: 1 } ],
+				filenamePrefix: 'top-posts',
+				range: { from: '2026-06-01T00:00:00Z', to: '2026-06-30T23:59:59Z' },
+				status: readyStatus,
+			} )
+		);
+
+		expect( result.current.canExport ).toBe( false );
+	} );
 } );

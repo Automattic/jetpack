@@ -1,10 +1,9 @@
 import AdminPage from '@automattic/jetpack-components/admin-page';
 import { getSiteData } from '@automattic/jetpack-script-data';
-import { useIsMutating } from '@tanstack/react-query';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Link, Notice, Stack } from '@wordpress/ui';
-import { WRITES_KEY, useSettings, useStatus } from './data/queries';
+import { useIsSaving, useSettings, useStatus } from './data/queries';
 import { useScrollToHash } from './hooks/use-scroll-to-hash';
 import { useUnsavedChangesWarning } from './hooks/use-unsaved-changes-warning';
 import { getSharingLikesScriptData } from './script-data';
@@ -81,7 +80,7 @@ export function SettingsScreen(): JSX.Element {
 	const scriptData = getSharingLikesScriptData();
 	const siteData = getSiteData();
 	// The browser can abort a write still in flight when the page unloads.
-	useUnsavedChangesWarning( useIsMutating( { mutationKey: WRITES_KEY } ) > 0 );
+	useUnsavedChangesWarning( useIsSaving() );
 
 	return (
 		<AdminPage

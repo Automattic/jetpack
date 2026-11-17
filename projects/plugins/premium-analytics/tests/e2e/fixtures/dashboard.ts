@@ -1,13 +1,19 @@
 import { test as base, expect } from '@automattic/_jetpack-e2e-commons/fixtures/base-test';
 import type { TestUtils } from '@automattic/_jetpack-e2e-commons/utils/index';
-import type { Locator, Page } from '@playwright/test';
+import type { Locator, Page, Request } from '@playwright/test';
 
 export type SiteState = {
 	enabled: boolean;
 	subscriptions: boolean;
 	wordads: boolean;
 	timezone?: string;
+	tier?: 'free' | 'legacy-basic';
+	rememberedPreset?: 'last-30-days' | 'year-to-date';
 };
+
+export type HistoryWrites = { push: number; replace: number };
+
+type HistoryWritesWindow = Window & { e2eHistoryWrites: HistoryWrites };
 
 export type StatsFault = {
 	route: string;
@@ -24,6 +30,9 @@ const OWN_URL_PARTS = [
 ];
 const isOwn = ( text: string ) => OWN_URL_PARTS.some( part => text.includes( part ) );
 
+const isStatsRequest = ( request: Request ) =>
+	decodeURIComponent( request.url() ).includes( '/jetpack-premium-analytics/v1/proxy/' );
+
 // The app writes `p` encoded once more than `open()` does.
 export const route = ( url: URL ) => decodeURIComponent( url.searchParams.get( 'p' ) ?? '' );
 
@@ -35,15 +44,16 @@ export const routeParam = ( url: URL, name: string ) =>
  * Puts the site in one dashboard state from scratch, so no spec depends on the one before it.
  *
  * @param testUtils - e2e-commons test utilities.
- * @param state     - Opt-in option, the modules that gate sections, and the site timezone (UTC by default).
+ * @param state     - Opt-in option, the modules that gate sections, the site timezone (UTC by default), a forced Stats tier and the remembered preset.
  */
 export async function setSiteState( testUtils: TestUtils, state: SiteState ) {
+	const { rememberedPreset, ...rest } = state;
 	// Do not reorder: the helper's plan refresh reads the mocked plan.
 	await testUtils.setMockPlanData( state.wordads ? 'jetpack_complete' : 'jetpack_free' );
 	await testUtils.requestUtils.rest( {
 		method: 'POST',
 		path: '/e2e-premium-analytics/v1/site-state',
-		data: { ...state, timezone: state.timezone ?? 'UTC' },
+		data: { ...rest, timezone: state.timezone ?? 'UTC', remembered_preset: rememberedPreset },
 	} );
 }
 
@@ -87,6 +97,12 @@ export class Dashboard {
 
 	private readonly pending: Promise< void >[] = [];
 
+	private statsRequests: URL[] = [];
+
+	private statsInFlight = 0;
+
+	private lastStatsActivity = 0;
+
 	constructor( readonly page: Page ) {
 		page.on( 'pageerror', error => {
 			// A script that fails to parse or import has no stack; a failed import names its URL in the message.
@@ -123,6 +139,63 @@ export class Dashboard {
 				this.errors.push( `${ contentType } ${ url }` );
 			}
 		} );
+		page.on( 'request', request => {
+			if ( ! isStatsRequest( request ) ) {
+				return;
+			}
+			this.statsRequests.push( new URL( decodeURIComponent( request.url() ) ) );
+			this.statsInFlight++;
+			this.lastStatsActivity = Date.now();
+		} );
+		const settle = ( request: Request ) => {
+			if ( ! isStatsRequest( request ) ) {
+				return;
+			}
+			this.statsInFlight--;
+			this.lastStatsActivity = Date.now();
+		};
+		page.on( 'requestfinished', settle );
+		page.on( 'requestfailed', settle );
+	}
+
+	/**
+	 * Waits until no Stats request has been in flight for a moment, since some widgets send a follow-up once the first reply lands.
+	 * The quiet time counts from the call too: a page can render before its widgets send anything.
+	 */
+	async waitForStatsIdle() {
+		const since = Date.now();
+		await expect
+			.poll(
+				() =>
+					this.statsInFlight === 0 && Date.now() - Math.max( this.lastStatsActivity, since ) > 500,
+				{ message: 'Stats requests kept going', intervals: [ 250 ] }
+			)
+			.toBe( true );
+	}
+
+	/**
+	 * The Stats endpoints requested in this test, or since the last `resetTracking()`.
+	 *
+	 * @return Endpoint names such as `visits` or `referrers`, sorted.
+	 */
+	statsEndpoints(): string[] {
+		const endpoints = this.statsRequests.map(
+			url => url.href.match( /\/stats\/([^?&]+)/ )?.[ 1 ] ?? ''
+		);
+		return [ ...new Set( endpoints.filter( Boolean ) ) ].sort();
+	}
+
+	/**
+	 * The windows `stats/visits` was asked for in this test, or since the last `resetTracking()`.
+	 *
+	 * @return `start_date..date` pairs, sorted.
+	 */
+	visitsWindows(): string[] {
+		const day = ( url: URL, name: string ) => url.searchParams.get( name )?.slice( 0, 10 );
+		const windows = this.statsRequests
+			.filter( url => url.href.includes( '/stats/visits' ) )
+			.map( url => `${ day( url, 'start_date' ) }..${ day( url, 'date' ) }` );
+		return [ ...new Set( windows ) ].sort();
 	}
 
 	async open( path = '/' ) {
@@ -164,6 +237,29 @@ export class Dashboard {
 		await target.click( { force: true } );
 	}
 
+	/** Clears the recorded Stats requests and history writes, so a spec counts only what one action causes. */
+	async resetTracking() {
+		this.statsRequests = [];
+		await this.page.evaluate( () => {
+			( window as unknown as HistoryWritesWindow ).e2eHistoryWrites = { push: 0, replace: 0 };
+		} );
+	}
+
+	/**
+	 * The history writes since the page loaded or the last `resetTracking()`.
+	 *
+	 * @return The `pushState` and `replaceState` call counts.
+	 */
+	async historyWrites(): Promise< HistoryWrites > {
+		return this.page.evaluate(
+			() => ( window as unknown as HistoryWritesWindow ).e2eHistoryWrites
+		);
+	}
+
+	snackbar( text: string | RegExp ): Locator {
+		return this.page.locator( '.components-snackbar' ).filter( { hasText: text } );
+	}
+
 	async expectTabHidden( name: string ) {
 		// A hidden tab can't be told apart from one that hasn't rendered yet, so wait for Traffic first.
 		await expect( this.tab( 'Traffic' ) ).toBeVisible();
@@ -171,9 +267,27 @@ export class Dashboard {
 	}
 }
 
+/**
+ * Counts history writes, run as an init script so it wraps `history` before the app's first write.
+ */
+function countHistoryWrites() {
+	const counted = window as unknown as HistoryWritesWindow;
+	counted.e2eHistoryWrites = { push: 0, replace: 0 };
+	const { pushState, replaceState } = window.history;
+	window.history.pushState = function ( ...args: Parameters< History[ 'pushState' ] > ) {
+		counted.e2eHistoryWrites.push++;
+		return pushState.apply( this, args );
+	};
+	window.history.replaceState = function ( ...args: Parameters< History[ 'replaceState' ] > ) {
+		counted.e2eHistoryWrites.replace++;
+		return replaceState.apply( this, args );
+	};
+}
+
 export const test = base.extend< { dashboard: Dashboard } >( {
 	dashboard: async ( { page }, use ) => {
 		await page.route( /pixel\.wp\.com/, pixel => pixel.abort() );
+		await page.addInitScript( countHistoryWrites );
 		const dashboard = new Dashboard( page );
 		await use( dashboard );
 		await dashboard.settled();

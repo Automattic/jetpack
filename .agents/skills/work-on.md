@@ -385,7 +385,7 @@ Written by `checkpoint.sh` at every phase boundary; read by coordinators. Never 
 
 Main `jetpack_dev` uses: WP 80, phpMyAdmin 8181, Mailpit inbox 1080, Mailpit SMTP 25, SFTP 1022. The seeder allocates the first free value at or above a per-service base — WP `8080`, phpMyAdmin `8282`, inbox `1180`, SMTP `2525`, SFTP `2222` — so a first worktree usually lands exactly on those, and later ones step up from there. Values are persisted in the worktree's `tools/docker/.env` and stay stable across restarts.
 
-The seeder reserves ports recorded in other worktrees' `.env` files, but does not probe for live-bound host ports and does not lock against two worktrees seeding at the same instant. A genuine clash surfaces as `address already in use` from `jp docker up` — edit the port in `tools/docker/.env` and retry, then update `.work-on/env.json` to match. See `tools/docker/README.md` § "Parallel development environments" for the authoritative rules.
+The seeder skips ports recorded in other worktrees' `.env` files and ports that already have a listener on localhost, but does not lock against two worktrees seeding at the same instant. A genuine clash surfaces as `address already in use` from `jp docker up` — edit the port in `tools/docker/.env` and retry, then update `.work-on/env.json` to match. See `tools/docker/README.md` § "Parallel development environments" for the authoritative rules.
 
 ## Docker instance tracking
 

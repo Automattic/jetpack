@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { useChartLegendItems } from '@jetpack-premium-analytics/externals';
+import { useBarLegendItems } from '@jetpack-premium-analytics/externals';
 import { renderHook } from '@testing-library/react';
 /**
  * Internal dependencies
@@ -10,7 +10,7 @@ import { useComparativeLegend } from '../use-comparative-legend';
 import type { SeriesData } from '@jetpack-premium-analytics/externals';
 
 jest.mock( '@jetpack-premium-analytics/externals', () => ( {
-	useChartLegendItems: jest.fn( () => [] ),
+	useBarLegendItems: jest.fn( () => [] ),
 } ) );
 
 const SERIES = [ { label: 'Views', data: [] } ] as unknown as SeriesData[];
@@ -23,9 +23,9 @@ describe( 'useComparativeLegend', () => {
 		expect( result.current.config.comparisonSeriesItems( 'Views' ) ).toBe(
 			'Views (Previous period)'
 		);
-		expect( jest.mocked( useChartLegendItems ) ).toHaveBeenLastCalledWith(
+		expect( jest.mocked( useBarLegendItems ) ).toHaveBeenLastCalledWith(
 			SERIES,
-			result.current.config,
+			{ ...result.current.config, layout: undefined },
 			'line'
 		);
 	} );

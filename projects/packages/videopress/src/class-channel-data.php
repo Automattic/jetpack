@@ -98,7 +98,7 @@ class Channel_Data {
 		/**
 		 * Short-circuits the channel's video list.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.58.0
 		 *
 		 * @param array[]|null $videos Records with id, guid, durationMs, height and publishedAt, newest first; null to query.
 		 * @param string       $search The search term, if any.
@@ -165,7 +165,8 @@ class Channel_Data {
 			'suppress_filters' => false,
 		);
 		if ( '' !== $search ) {
-			$args['s'] = $search;
+			$args['s']                            = $search;
+			$args['videopress_transcript_search'] = Transcript_Index::is_search_enabled();
 		}
 		return $args;
 	}
@@ -308,7 +309,7 @@ class Channel_Data {
 		/**
 		 * Filters the play counts the channel shows and sorts by.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.58.0
 		 *
 		 * @param array<int, int> $views Plays keyed by attachment ID.
 		 */
@@ -339,7 +340,7 @@ class Channel_Data {
 		/**
 		 * Filters the query the channel sends to the video plays stats endpoint.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.58.0
 		 *
 		 * @param array $args Endpoint query arguments.
 		 */
@@ -472,6 +473,33 @@ class Channel_Data {
 	 * @return array{entries: array[], total: int, page: int, pages: int, start: int}
 	 */
 	public static function browse( array $state, $per_page, array $exclude = array(), $with_views = false ) {
+		$result = self::browse_results( $state, $per_page, $exclude, $with_views );
+		$search = trim( (string) ( $state['search'] ?? '' ) );
+		if ( '' !== $search && Transcript_Index::is_search_enabled() ) {
+			foreach ( $result['entries'] as &$entry ) {
+				$match = Transcript_Index::match( (int) $entry['id'], $search );
+				if ( $match ) {
+					$entry['snippet']      = $match['text'];
+					$entry['snippetMatch'] = $match['needle'];
+					$entry['startMs']      = $match['start'];
+				}
+			}
+			unset( $entry );
+		}
+		return $result;
+	}
+
+	/**
+	 * One page of browse() before transcript snippets are added.
+	 *
+	 * @param array    $state      From browse_request().
+	 * @param int      $per_page   Page size.
+	 * @param string[] $exclude    GUIDs to leave out.
+	 * @param bool     $with_views Whether records need play counts.
+	 *
+	 * @return array{entries: array[], total: int, page: int, pages: int, start: int}
+	 */
+	private static function browse_results( array $state, $per_page, array $exclude, $with_views ) {
 		$per_page = max( 1, (int) $per_page );
 		$fast     = self::browse_page( $state, $per_page, $exclude, $with_views );
 		if ( null !== $fast ) {
@@ -660,7 +688,7 @@ class Channel_Data {
 		/**
 		 * Filters the channel handle shown in the channel details.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.58.0
 		 *
 		 * @param string $handle "@" plus the first label of the site's host; empty for none.
 		 */
@@ -679,7 +707,7 @@ class Channel_Data {
 		 * Filters the subscriber count shown in the channel details: WordPress.com's count, read
 		 * directly on WordPress.com and through the site's connection elsewhere.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.58.0
 		 *
 		 * @param int|null $count Subscribers, or null when unknown.
 		 */
@@ -780,7 +808,7 @@ class Channel_Data {
 		/**
 		 * Filters when the channel started, shown as "Joined".
 		 *
-		 * @since $$next-version$$
+		 * @since 0.58.0
 		 *
 		 * @param int $time Unix time, 0 when unknown.
 		 */

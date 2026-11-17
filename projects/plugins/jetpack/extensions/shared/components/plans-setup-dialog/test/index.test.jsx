@@ -1,9 +1,12 @@
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import * as wpData from '@wordpress/data';
 import PlansSetupDialog from '../index';
 
+const mockAutosaveAndRedirect = jest.fn();
+
 jest.mock( '@automattic/jetpack-shared-extension-utils', () => ( {
-	useAutosaveAndRedirect: () => ( { autosaveAndRedirect: jest.fn() } ),
+	useAutosaveAndRedirect: () => ( { autosaveAndRedirect: mockAutosaveAndRedirect } ),
 } ) );
 
 const TIER_COPY = 'create a newsletter tier and choose a price for access to paid content';
@@ -28,7 +31,7 @@ describe( 'PlansSetupDialog', () => {
 
 		render( <PlansSetupDialog showDialog={ true } closeDialog={ jest.fn() } /> );
 
-		expect( screen.getByRole( 'heading', { name: /Set up payments/i } ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'alertdialog', { name: /Set up payments/i } ) ).toBeInTheDocument();
 		expect( screen.getByText( /Create a newsletter tier/i ) ).toBeInTheDocument();
 		expect( screen.getByText( /Set up or connect your Stripe account/i ) ).toBeInTheDocument();
 	} );
@@ -38,7 +41,9 @@ describe( 'PlansSetupDialog', () => {
 
 		render( <PlansSetupDialog showDialog={ true } closeDialog={ jest.fn() } /> );
 
-		expect( screen.getByRole( 'heading', { name: /Add a newsletter tier/i } ) ).toBeInTheDocument();
+		expect(
+			screen.getByRole( 'alertdialog', { name: /Add a newsletter tier/i } )
+		).toBeInTheDocument();
 		expect( screen.getByText( new RegExp( TIER_COPY, 'i' ) ) ).toBeInTheDocument();
 		expect( screen.queryByText( new RegExp( STRIPE_COPY, 'i' ) ) ).not.toBeInTheDocument();
 	} );
@@ -48,8 +53,19 @@ describe( 'PlansSetupDialog', () => {
 
 		render( <PlansSetupDialog showDialog={ true } closeDialog={ jest.fn() } /> );
 
-		expect( screen.getByRole( 'heading', { name: /Connect Stripe/i } ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'alertdialog', { name: /Connect Stripe/i } ) ).toBeInTheDocument();
 		expect( screen.getByText( new RegExp( STRIPE_COPY, 'i' ) ) ).toBeInTheDocument();
 		expect( screen.queryByText( new RegExp( TIER_COPY, 'i' ) ) ).not.toBeInTheDocument();
+	} );
+
+	test( 'Not now closes the dialog without leaving the editor', async () => {
+		mockStore( { hasTierPlans: true, stripeConnectUrl: 'https://stripe-connect.example' } );
+		const closeDialog = jest.fn();
+
+		render( <PlansSetupDialog showDialog={ true } closeDialog={ closeDialog } /> );
+		await userEvent.click( screen.getByRole( 'button', { name: 'Not now' } ) );
+
+		expect( closeDialog ).toHaveBeenCalled();
+		expect( mockAutosaveAndRedirect ).not.toHaveBeenCalled();
 	} );
 } );

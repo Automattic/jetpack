@@ -1,3 +1,4 @@
+import type { EmptyStateMode } from '../../channel/editor-controls';
 import type { PlaylistDisplayAttributes } from '../playlist/types';
 
 export type LatestVideosOrder = 'newest' | 'oldest' | 'popular';
@@ -13,4 +14,6 @@ export type LatestVideosPlaylistAttributes = PlaylistDisplayAttributes & {
 	excludeCurrent?: boolean;
 	// "12K views · 3 days ago" under each entry.
 	showMeta?: boolean;
+	// What the block shows while the site has no videos.
+	emptyState?: EmptyStateMode;
 };

@@ -2,7 +2,10 @@
 .jetpack-comments .jetpack-comments__box .jetpack-comments__textarea {
 	display: block;
 	box-sizing: border-box;
-	inline-size: 100%;
+	inline-size: 100% !important;
+	max-inline-size: none !important;
+	float: none !important;
+	margin: 0 !important;
 	// A few lines, padding included, as the editor has; field-sizing ignores rows.
 	min-block-size: 5lh;
 	field-sizing: content;

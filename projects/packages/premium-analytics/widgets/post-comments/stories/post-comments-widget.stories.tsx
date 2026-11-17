@@ -18,7 +18,6 @@ import {
 import { createStoryWidgetType } from '../../stories/create-story-widget-type';
 import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import PostCommentsRender from '../render';
-import widgetDefinition from '../widget';
 import widgetManifest from '../widget.json';
 import type { Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
@@ -145,7 +144,7 @@ function PostCommentsDashboardStory( {
 	return (
 		<WidgetDashboardWithWidgetStory
 			{ ...dashboardArgs }
-			widgetType={ createStoryWidgetType( widgetManifest, widgetDefinition ) }
+			widgetType={ createStoryWidgetType( widgetManifest ) }
 			renderModule={ POST_COMMENTS_RENDER_MODULE }
 			renderComponent={ PostCommentsRender as ComponentType< WidgetRenderProps< unknown > > }
 			attributes={ getPostCommentsAttributes( { hasPostScope } ) }
@@ -154,6 +153,7 @@ function PostCommentsDashboardStory( {
 }
 
 export const WidgetDashboardWithWidget: StoryObj< PostCommentsDashboardStoryProps > = {
+	tags: [ 'widget-dashboard' ],
 	render: args => <PostCommentsDashboardStory { ...args } />,
 	args: {
 		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,

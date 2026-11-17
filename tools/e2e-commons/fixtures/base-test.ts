@@ -1,5 +1,4 @@
 import { Admin, test as baseTest, expect } from '@wordpress/e2e-test-utils-playwright';
-import { allure } from 'allure-playwright';
 import logger from '../logger';
 import { EditorPage, Sidebar } from '../pages';
 import { TestUtils } from '../utils/index';
@@ -49,9 +48,10 @@ test.afterEach( async ( { testUtils } ) => {
 	const wpcomRequestCount = await testUtils.executeWpCommand(
 		'transient get wpcom_request_counter'
 	);
-	allure.description(
-		`'Requests to WPCOM API: ${ String( parseInt( wpcomRequestCount ) || 0 ) }'`
-	);
+	test.info().annotations.push( {
+		type: 'wpcom-requests',
+		description: String( parseInt( wpcomRequestCount ) || 0 ),
+	} );
 } );
 
 export { test, expect, Admin };

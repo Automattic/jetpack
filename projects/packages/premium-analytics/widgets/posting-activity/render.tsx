@@ -9,16 +9,24 @@ import {
 	WidgetRoot,
 	WidgetState,
 	describeError,
+	useReportActions,
+	type CsvColumn,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { postContent } from '@wordpress/icons';
+import { eachDayOfInterval, format, parseISO } from 'date-fns';
 import { useMemo } from 'react';
 /**
  * Internal dependencies
  */
-import type { PostingActivityAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
+
+/**
+ * The Monthly posting activity widget has no configurable settings: it always shows the
+ * last 12 months.
+ */
+export type PostingActivityAttributes = Record< never, never >;
 
 // The card reports on its own pinned window and reads nothing from the host's
 // `reportParams`, but the host still injects them and `WidgetRoot` still takes
@@ -34,6 +42,13 @@ const NO_POSTS_BY_DAY: Record< string, number | null > = {};
 // The endpoint keeps the newest 1095 posts unless told otherwise, which a busy
 // site outruns inside 12 months.
 const STREAK_MAX_POSTS = 3000;
+
+type PostsOnDay = { day: string; posts: number };
+
+const CSV_COLUMNS: CsvColumn< PostsOnDay >[] = [
+	{ label: __( 'Date', 'jetpack-premium-analytics-pkg' ), getValue: row => row.day },
+	{ label: __( 'Posts', 'jetpack-premium-analytics-pkg' ), getValue: row => row.posts },
+];
 
 const formatPostCount = ( count: number ) =>
 	sprintf(
@@ -58,10 +73,33 @@ function PostingActivityInner() {
 		[ from, to, preset, interval ]
 	);
 
-	const { data, isLoading, isFetching, isError, error, refetch } = useStatsStreak( streakParams );
+	const { data, isLoading, isFetching, isError, isPlaceholderData, error, refetch } =
+		useStatsStreak( streakParams );
 
 	// The endpoint returns only days with posts.
 	const postsByDay = data ?? NO_POSTS_BY_DAY;
+
+	const csvRows = useMemo(
+		() =>
+			Object.values( postsByDay ).some( count => ( count ?? 0 ) > 0 )
+				? eachDayOfInterval( { start: parseISO( range.start ), end: parseISO( range.end ) } ).map(
+						date => {
+							const day = format( date, 'yyyy-MM-dd' );
+							return { day, posts: postsByDay[ day ] ?? 0 };
+						}
+					)
+				: [],
+		[ postsByDay, range ]
+	);
+	useReportActions( {
+		csv: {
+			rows: csvRows,
+			columns: CSV_COLUMNS,
+			filenamePrefix: 'posting-activity',
+			range: { from: range.start, to: range.end },
+			status: { isLoading, isFetching, isError, isPlaceholderData },
+		},
+	} );
 
 	return (
 		<WidgetState
@@ -82,7 +120,6 @@ function PostingActivityInner() {
 			<MonthCalendarHeatmap
 				valueByDay={ postsByDay }
 				range={ range }
-				chartTitle={ __( 'Monthly posting activity', 'jetpack-premium-analytics-pkg' ) }
 				formatValue={ formatPostCount }
 				emptyLabel={ __( 'No posts', 'jetpack-premium-analytics-pkg' ) }
 				icon={ postContent }
@@ -93,6 +130,10 @@ function PostingActivityInner() {
 	);
 }
 
+/**
+ * Ported from the Jetpack Stats "Posting activity" module: one mini calendar per
+ * month of the last 12, shaded by the posts published each day.
+ */
 export default function PostingActivity( { attributes = {} }: PostingActivityWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes }>

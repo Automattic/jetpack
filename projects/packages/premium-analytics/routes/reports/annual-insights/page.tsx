@@ -1,20 +1,23 @@
 /**
  * External dependencies
  */
-import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
+import { Icon } from '@jetpack-premium-analytics/externals';
+import { jetpack } from '@jetpack-premium-analytics/icons';
+import { StatsBreadcrumbs } from '@jetpack-premium-analytics/ui';
 import {
 	ExporterCsvAction,
 	ReportPageLayout,
 	ReportErrorState,
-	ReportPageShell,
 	ReportRecordsTable,
 	annualInsightsCsvExporter,
 } from '@jetpack-premium-analytics/widgets-toolkit';
+import { Page } from '@wordpress/admin-ui';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
+import reportPageStyles from '../page.module.scss';
 import { REPORTS } from '../registry';
 import { useReportParams } from '../use-report-params';
 import { getAnnualInsightsFields, useAnnualInsightsReportRecords } from './config';
@@ -62,8 +65,9 @@ function AnnualInsightsReport(): JSX.Element {
 	const { getLabel } = REPORTS[ 'annual-insights' ];
 
 	return (
-		<ReportPageShell
-			visual={ <StatsPageIcon /> }
+		<Page
+			className={ reportPageStyles.page }
+			visual={ <Icon icon={ jetpack } /> }
 			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
 			actions={
 				<ExporterCsvAction
@@ -93,7 +97,7 @@ function AnnualInsightsReport(): JSX.Element {
 					/>
 				</ReportErrorState>
 			</ReportPageLayout>
-		</ReportPageShell>
+		</Page>
 	);
 }
 

@@ -13,7 +13,7 @@ namespace Automattic\Jetpack\Sharing_Likes\Hooked_Blocks;
  * Where each block is hooked into the single post and page templates: before the
  * post content or after it, never both. One autoloaded option per block, holding a list.
  *
- * @since $$next-version$$
+ * @since 0.4.0
  */
 final class Template_Placements {
 

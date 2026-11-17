@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Dashboard: Track widget moves as their own event, record when Screen Options closes, and count clicks in widget menus and popups.

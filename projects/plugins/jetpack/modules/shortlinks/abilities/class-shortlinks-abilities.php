@@ -12,6 +12,10 @@ namespace Automattic\Jetpack\Plugin\Abilities;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\WP_Abilities\Registrar;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Registers Jetpack WP.me Shortlinks abilities with the WordPress Abilities API.
  *

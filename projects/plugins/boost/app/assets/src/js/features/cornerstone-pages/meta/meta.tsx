@@ -12,13 +12,12 @@ import getSupportLink from '$lib/utils/get-support-link';
 import { isSameSiteUrl } from '$lib/utils/is-same-site-url';
 import { Button, getRedirectUrl } from '@automattic/jetpack-components';
 import SaveButton from '$features/ui/save-button/save-button';
-import { Tooltip } from '@wordpress/components';
 import clsx from 'clsx';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { Notice, Link } from '@wordpress/ui';
+import { Notice, Link, Tooltip, VisuallyHidden } from '@wordpress/ui';
 import type { FC, ReactNode } from 'react';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useId, useMemo, useState } from 'react';
 import {
 	useCornerstonePagesProperties,
 	useCustomCornerstonePages,
@@ -373,20 +372,27 @@ const LoadDefaultsButton: FC< LoadDefaultsButtonProps > = ( {
 	};
 
 	const buttonState = getButtonState();
+	const descriptionId = useId();
 
 	return (
-		<Tooltip text={ buttonState.title } delay={ 0 }>
-			<div>
+		<Tooltip.Root>
+			<Tooltip.Trigger render={ <div /> }>
 				<Button
 					disabled={ buttonState.disabled }
 					onClick={ loadDefaultValue }
 					className={ clsx( styles[ 'load-defaults' ], className ) }
 					variant="link"
+					aria-describedby={ descriptionId }
 				>
 					{ __( 'Include default pages', 'jetpack-boost' ) }
 				</Button>
-			</div>
-		</Tooltip>
+				<VisuallyHidden id={ descriptionId } render={ <span /> }>
+					{ buttonState.title }
+				</VisuallyHidden>
+			</Tooltip.Trigger>
+			{ /* Base UI leaves the popup without a role; the e2e suite finds it by this one. */ }
+			<Tooltip.Popup role="tooltip">{ buttonState.title }</Tooltip.Popup>
+		</Tooltip.Root>
 	);
 };
 

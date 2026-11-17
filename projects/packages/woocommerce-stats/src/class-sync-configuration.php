@@ -1,0 +1,250 @@
+<?php
+/**
+ * Opt-in to the shared WooCommerce Analytics sync module.
+ *
+ * @package automattic/jetpack-woocommerce-stats
+ */
+
+namespace Automattic\Jetpack\WooCommerceStats;
+
+use Automattic\Jetpack\Config;
+use Automattic\Jetpack\PremiumAnalytics\Sync\Sync_Status_Tracker;
+use Automattic\Jetpack\Sync\Data_Settings;
+use Automattic\Jetpack\Sync\Modules\Meta as Meta_Module;
+use Automattic\Jetpack\Sync\Modules\Posts as Posts_Module;
+use Automattic\Jetpack\Sync\Modules\Term_Relationships as Term_Relationships_Module;
+use Automattic\Jetpack\Sync\Modules\Terms as Terms_Module;
+use Automattic\Jetpack\Sync\Modules\WooCommerce_Analytics as WooCommerce_Analytics_Module;
+
+defined( 'ABSPATH' ) || exit;
+
+/**
+ * Opts in to the shared WooCommerce Analytics sync module and registers the sync configuration
+ * the WooCommerce section reads.
+ */
+class Sync_Configuration {
+
+	/**
+	 * FQCN of the Analytics module shipped by the standalone WooCommerce Analytics plugin.
+	 *
+	 * Must track that plugin's class: if it drifts, both modules load under the same
+	 * name and every analytics event syncs twice. Moot once that plugin consumes the
+	 * shared module, since the class strings then match.
+	 *
+	 * @since 0.3.0
+	 * @var string
+	 */
+	const ANALYTICS_PLUGIN_MODULE_FQCN = 'Automattic\\WooCommerce\\Analytics\\Internal\\Jetpack\\Sync\\Modules\\Analytics';
+
+	/**
+	 * Bookings post meta to add to Sync's post meta whitelist. Bookings are synced
+	 * via the Posts + Meta modules; there is no dedicated bookings sync module.
+	 *
+	 * Product meta needed by analytics reports is whitelisted by the shared module.
+	 *
+	 * @static
+	 * @var array
+	 */
+	private static $postmeta_to_sync = array(
+		'_booking_parent_id',
+		'_booking_duplicate_of',
+		'_booking_product_id',
+		'_booking_resource_id',
+		'_booking_order_id',
+		'_booking_order_item_id',
+		'_booking_customer_id',
+		'_booking_start',
+		'_booking_end',
+		'_booking_all_day',
+		'_booking_persons',
+		'_booking_cost',
+		'_booking_date_cancelled',
+		'_booking_attendance_status',
+	);
+
+	/**
+	 * Whether register() already ran in this request.
+	 *
+	 * @var bool
+	 */
+	private static $registered = false;
+
+	/**
+	 * Entry point called from Analytics_Dashboard::init(), once per request however many plugins bundle the package. Schedules the Sync hookups on
+	 * plugins_loaded; the actual registration is a no-op unless WooCommerce is active
+	 * (see {@see configure_sync()}).
+	 *
+	 * Call it before plugins_loaded completes: the Config built in configure_sync() wires
+	 * Sync\Main::configure() from a plugins_loaded priority 2 handler that never fires later.
+	 *
+	 * @return void
+	 */
+	public static function register(): void {
+		if ( self::$registered ) {
+			return;
+		}
+		self::$registered = true;
+		$instance         = new self();
+
+		// plugins_loaded priority 1: every plugin has loaded for the WooCommerce guard, and the
+		// Config constructed in configure_sync() still gets its priority 2 handler in this cycle.
+		if ( did_action( 'plugins_loaded' ) ) {
+			$instance->configure_sync();
+		} else {
+			add_action( 'plugins_loaded', array( $instance, 'configure_sync' ), 1 );
+		}
+	}
+
+	/**
+	 * Whether WooCommerce is active in the current request.
+	 *
+	 * @return bool
+	 */
+	private static function is_woocommerce_active(): bool {
+		return class_exists( 'WooCommerce' ) || function_exists( 'WC' );
+	}
+
+	/**
+	 * Register the Jetpack Sync filters and ensure the Sync feature when WooCommerce
+	 * is active.
+	 *
+	 * @return void
+	 */
+	public function configure_sync(): void {
+		if ( ! self::is_woocommerce_active() ) {
+			return;
+		}
+
+		// The shared module is registered through the Sync config below; this only drops a duplicate.
+		add_filter( 'jetpack_sync_modules', array( $this, 'remove_duplicate_woocommerce_analytics_module' ), PHP_INT_MAX );
+		add_filter( 'jetpack_full_sync_config', array( $this, 'expand_full_sync_config' ) );
+		add_filter( 'jetpack_sync_post_meta_whitelist', array( $this, 'add_meta_to_sync_post_meta_whitelist' ) );
+		add_filter( 'jetpack_sync_before_enqueue_woocommerce_analytics_sync_reports_data', array( $this, 'skip_reports_data_before_analytics_full_sync' ) );
+		add_filter( 'jetpack_sync_before_enqueue_woocommerce_analytics_delete_reports_data', array( $this, 'skip_reports_data_before_analytics_full_sync' ) );
+		add_filter( 'jetpack_premium_analytics_sync_modules', array( $this, 'register_analytics_sync_module' ) );
+
+		( new Config() )->ensure( 'sync', $this->get_jetpack_sync_config() );
+
+		( new Lookup_Data_Backfill() )->register();
+	}
+
+	/**
+	 * Register Woo's module with the analytics sync tracker.
+	 *
+	 * @param string[] $modules Registered analytics module names.
+	 * @return string[]
+	 */
+	public function register_analytics_sync_module( array $modules ): array {
+		$modules[] = 'woocommerce_analytics';
+		return $modules;
+	}
+
+	/**
+	 * Jetpack Sync module configuration.
+	 *
+	 * MUST_SYNC_DATA_SETTINGS is merged in because Data_Settings falls back to the full default
+	 * whitelist for any filter a consumer leaves out, which would widen standalone sites.
+	 *
+	 * @return array Jetpack Sync config array.
+	 */
+	private function get_jetpack_sync_config(): array {
+		return array_merge_recursive(
+			Data_Settings::MUST_SYNC_DATA_SETTINGS,
+			array(
+				'jetpack_sync_modules'             => array(
+					WooCommerce_Analytics_Module::class,
+					Meta_Module::class,
+					Posts_Module::class,
+					Terms_Module::class,
+					Term_Relationships_Module::class,
+				),
+				// Listed explicitly so the contract does not depend on which other Sync modules load.
+				'jetpack_sync_options_whitelist'   => array(
+					'woocommerce_custom_orders_table_enabled', // Required for HPOS checksums.
+					'woocommerce_excluded_report_order_statuses', // Required for generating analytics reports.
+					'woocommerce_date_type', // Date used to determine the date range for analytics reports.
+				),
+				'jetpack_sync_constants_whitelist' => array(
+					// Syncing it makes WPCOM provision the WC Analytics tables (WOOA7S-1643). WC_ANALYTICS_VERSION
+					// belongs to the standalone plugin and would only sync null on a PA-only store.
+					'JETPACK_PREMIUM_ANALYTICS__VERSION',
+				),
+			)
+		);
+	}
+
+	/**
+	 * Drop the standalone plugin's Analytics module in favor of the shared one.
+	 *
+	 * Sync dedups by class name only, so both would load and sync every event twice. The shared
+	 * module wins because the released standalone one syncs no lookup data, while the sync package
+	 * advertises the lookup checksum tables for any module of this name.
+	 *
+	 * Runs at PHP_INT_MAX because Data_Settings re-asserts its whole module list at priority 10.
+	 *
+	 * @param array|mixed $modules Current Sync module class names.
+	 * @return array|mixed Updated Sync module class names.
+	 */
+	public function remove_duplicate_woocommerce_analytics_module( $modules ) {
+		// An emptied list is a kill switch (Jetpack's uninstaller uses one); leave it alone.
+		if ( ! is_array( $modules ) || empty( $modules ) ) {
+			return $modules;
+		}
+
+		return array_values( array_diff( $modules, array( self::ANALYTICS_PLUGIN_MODULE_FQCN ) ) );
+	}
+
+	/**
+	 * Add the Analytics module to full sync, first in line.
+	 *
+	 * @param array $config Current full-sync configuration.
+	 * @return array Updated full-sync configuration.
+	 */
+	public function expand_full_sync_config( array $config ): array {
+		// Terms and term relationships must be synced before posts.
+		if ( isset( $config['posts'] ) ) {
+			unset( $config['posts'] );
+			$config += array( 'posts' => 1 );
+		}
+
+		if ( ! isset( $config['woocommerce_analytics'] ) ) {
+			$config = array( 'woocommerce_analytics' => 1 ) + $config;
+		}
+
+		return $config;
+	}
+
+	/**
+	 * Drop per-order analytics reports data until an analytics full sync has started.
+	 *
+	 * That full sync sends the reports data of every order and overwrites whatever was synced before
+	 * it. Gated on the start, not the end, so orders that change while it runs still sync.
+	 *
+	 * @param array|mixed $args Sync action arguments.
+	 * @return array|mixed|false The arguments, or false to drop the action.
+	 */
+	public function skip_reports_data_before_analytics_full_sync( $args ) {
+		// An older copy of the dashboard package cannot tell, so order changes sync as they did before the gate.
+		if ( ! method_exists( Sync_Status_Tracker::class, 'has_module_full_sync_started' ) ) {
+			return $args;
+		}
+
+		// A store the standalone plugin fully synced holds its orders on WordPress.com already.
+		if ( (int) get_option( Lookup_Data_Backfill::PLUGIN_FULL_SYNC_OPTION, 0 ) > 0 ) {
+			return $args;
+		}
+
+		return Sync_Status_Tracker::has_module_full_sync_started( 'woocommerce_analytics' ) ? $args : false;
+	}
+
+	/**
+	 * Add Bookings post meta to Sync's post meta whitelist.
+	 * Any changes to these meta will be synced to WordPress.com.
+	 *
+	 * @param array $whitelist Existing post meta whitelist.
+	 * @return array Updated post meta whitelist.
+	 */
+	public function add_meta_to_sync_post_meta_whitelist( array $whitelist ): array {
+		return array_merge( self::$postmeta_to_sync, $whitelist );
+	}
+}

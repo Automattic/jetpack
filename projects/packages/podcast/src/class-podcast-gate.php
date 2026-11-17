@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Podcast;
 
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Current_Plan;
+use Automattic\Jetpack\My_Jetpack\Products as My_Jetpack_Products;
 use Automattic\Jetpack\Status\Host;
 use Jetpack_Options;
 
@@ -62,13 +63,18 @@ class Podcast_Gate {
 	}
 
 	/**
-	 * The minimum plan slug to upsell: WordPress.com Premium (`value_bundle`) or
-	 * Jetpack Growth (`jetpack_growth_yearly`).
+	 * The plan slug offered by the editor's upgrade prompt.
 	 *
 	 * @return string
 	 */
 	public static function get_required_plan_slug(): string {
-		return ( new Host() )->is_wpcom_platform() ? 'value_bundle' : 'jetpack_growth_yearly';
+		if ( ( new Host() )->is_wpcom_platform() ) {
+			return 'value_bundle';
+		}
+		if ( method_exists( My_Jetpack_Products::class, 'get_bundle_offer' ) ) {
+			return My_Jetpack_Products::get_bundle_offer( 'growth' )['wpcom_product_slug'] ?? '';
+		}
+		return 'jetpack_growth_yearly';
 	}
 
 	/**
@@ -81,7 +87,7 @@ class Podcast_Gate {
 			$slug = is_array( $purchase ) && isset( $purchase['product_slug'] ) ? $purchase['product_slug'] : '';
 
 			// Prefix match so every Growth/Complete billing term counts.
-			foreach ( array( 'jetpack_growth', 'jetpack_complete' ) as $prefix ) {
+			foreach ( array( 'jetpack_growth', 'jetpack_complete', 'jetpack_pro_' ) as $prefix ) {
 				if ( is_string( $slug ) && 0 === strpos( $slug, $prefix ) ) {
 					return true;
 				}

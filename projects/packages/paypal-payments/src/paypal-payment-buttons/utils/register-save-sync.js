@@ -1,5 +1,6 @@
 /**
- * Hook the payment sync into the post save, and count the post saves for blocks to read.
+ * Hook the payment sync into the post save, save one block's payment on demand, and count
+ * the post saves for blocks to read.
  *
  * @package
  */
@@ -84,6 +85,77 @@ async function isConnected() {
 	}
 }
 
+const CREATED_MESSAGE = __( 'Payment button successfully created.', 'jetpack-paypal-payments' );
+const CHANGED_MESSAGE = __( 'Payment button changes saved.', 'jetpack-paypal-payments' );
+
+/**
+ * What syncBlocksBeforeSave() needs from the editor, with the messages it shows.
+ *
+ * @param {Function} reportSaved  - Called with true for a payment created, false for one changed.
+ * @param {Function} [onNotSaved] - Called for a block whose settings did not reach PayPal.
+ * @return {object} The collaborators.
+ */
+function syncDeps( reportSaved, onNotSaved ) {
+	return {
+		request: apiFetch,
+		updateBlockAttributes: dispatch( blockEditorStore ).updateBlockAttributes,
+		reportError: ( { clientId }, message ) => {
+			toast( 'error', message, `jetpack-paypal-sync-${ clientId }` );
+			onNotSaved?.();
+		},
+		// A block the merchant left incomplete is skipped, and the only other
+		// sign is a line in the block sidebar. Say so where the save is watched.
+		reportHeldBack: ( { clientId, attributes }, reason ) => {
+			toast(
+				'warning',
+				sprintf(
+					/* translators: 1: product name, 2: what to fix */
+					__( 'The PayPal button "%1$s" was not sent to PayPal: %2$s', 'jetpack-paypal-payments' ),
+					attributes.productName || __( 'Untitled', 'jetpack-paypal-payments' ),
+					reason
+				),
+				`jetpack-paypal-held-back-${ clientId }`
+			);
+			onNotSaved?.();
+		},
+		reportSaved,
+	};
+}
+
+/**
+ * Create or update the payment behind one block now, without saving the post.
+ *
+ * The messages a post save shows once it is done show right away instead.
+ *
+ * @param {object} block       - The block, with clientId and attributes.
+ * @param {string} environment - The connection's environment, for the Tracks event.
+ * @return {Promise<boolean>} True once PayPal has the block's settings, changed or not.
+ */
+export async function savePaymentButton( block, environment ) {
+	const saved = [];
+	let notSaved = false;
+
+	await syncBlocksBeforeSave(
+		[ block ],
+		syncDeps(
+			created => saved.push( created ),
+			() => {
+				notSaved = true;
+			}
+		)
+	);
+
+	if ( saved.includes( true ) ) {
+		toast( 'success', CREATED_MESSAGE, 'jetpack-paypal-saved' );
+	} else if ( saved.length ) {
+		toast( 'success', CHANGED_MESSAGE, 'jetpack-paypal-saved' );
+		jetpackAnalytics.tracks.recordEvent( 'jetpack_paypal_button_updated', { environment } );
+	}
+
+	// A stacked block's account warning can follow a write that went through.
+	return saved.length > 0 || ! notSaved;
+}
+
 /**
  * Sync the PayPal payments before the post is saved.
  *
@@ -123,37 +195,18 @@ export function registerSaveSync( isEnabled ) {
 
 			// One entry per payment this save created (true) or changed (false).
 			const saved = [];
-			const changed = await syncBlocksBeforeSave( blocks, {
-				request: apiFetch,
-				updateBlockAttributes: dispatch( blockEditorStore ).updateBlockAttributes,
-				reportError: ( { clientId }, message ) =>
-					toast( 'error', message, `jetpack-paypal-sync-${ clientId }` ),
-				// A block the merchant left incomplete is skipped, and the only other
-				// sign is a line in the block sidebar. Say so where the save is watched.
-				reportHeldBack: ( { clientId, attributes }, reason ) =>
-					toast(
-						'warning',
-						sprintf(
-							/* translators: 1: product name, 2: what to fix */
-							__(
-								'The PayPal button "%1$s" was not sent to PayPal: %2$s',
-								'jetpack-paypal-payments'
-							),
-							attributes.productName || __( 'Untitled', 'jetpack-paypal-payments' ),
-							reason
-						),
-						`jetpack-paypal-held-back-${ clientId }`
-					),
-				reportSaved: created => saved.push( created ),
-			} );
+			const changed = await syncBlocksBeforeSave(
+				blocks,
+				syncDeps( created => saved.push( created ) )
+			);
 
 			// Set before the `changed` check: a PUT can change the payment and leave the block as
 			// it is. The create message replaces a pending update message, and stays until shown.
 			if ( saved.includes( true ) ) {
-				savedMessage = __( 'Payment button successfully created.', 'jetpack-paypal-payments' );
+				savedMessage = CREATED_MESSAGE;
 				updatedEnvironment = null;
 			} else if ( saved.length && ! savedMessage ) {
-				savedMessage = __( 'Payment button changes saved.', 'jetpack-paypal-payments' );
+				savedMessage = CHANGED_MESSAGE;
 				updatedEnvironment = connection.environment;
 			}
 

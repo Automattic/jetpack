@@ -1,6 +1,7 @@
-/** The Jetpack settings holding the firewall's IP lists. */
+/** The Jetpack settings holding the firewall's IP lists and automatic rules. */
 export const IP_BLOCK_LIST = 'jetpack_waf_ip_block_list';
 export const IP_ALLOW_LIST = 'jetpack_waf_ip_allow_list';
+export const AUTOMATIC_RULES = 'jetpack_waf_automatic_rules';
 
 /**
  * The setting that turns an IP list on or off.

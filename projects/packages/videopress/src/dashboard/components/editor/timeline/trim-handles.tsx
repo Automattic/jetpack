@@ -13,7 +13,6 @@ import {
 	NUDGE_MS,
 } from '../../../../client/components/chapters-editor/timeline/use-keyboard-shortcuts';
 import { useTimelinePointerDrag } from '../../../../client/components/chapters-editor/timeline/use-pointer-drag';
-import { editSessionReducer } from '../state/edit-session';
 import { snapMs } from './snap';
 import type { HistoryAction } from '../../../../client/components/chapters-editor/state/history';
 import type { EditSession, EditSessionAction } from '../state/edit-session';
@@ -28,8 +27,6 @@ type Props = {
 	contentRef: RefObject< HTMLElement | null >;
 	/** Dispatch into the history-wrapped session reducer. */
 	dispatch: ( action: HistoryAction< EditSessionAction > ) => void;
-	/** Seek the preview player to a master-timeline ms. */
-	onSeek: ( ms: number ) => void;
 };
 
 type Edge = 'start' | 'end';
@@ -43,7 +40,6 @@ type Edge = 'start' | 'end';
  * @param props.pxPerMs    - Scale from `getPxPerMs`.
  * @param props.contentRef - The timeline's scaled content element.
  * @param props.dispatch   - Dispatch into the history-wrapped reducer.
- * @param props.onSeek     - Seek the preview player.
  * @return The handle element.
  */
 function StudioEditorTrimHandle( {
@@ -52,7 +48,6 @@ function StudioEditorTrimHandle( {
 	pxPerMs,
 	contentRef,
 	dispatch,
-	onSeek,
 }: Props & {
 	edge: Edge;
 } ): ReactElement {
@@ -60,13 +55,9 @@ function StudioEditorTrimHandle( {
 	const actionType = edge === 'start' ? 'SET_TRIM_START' : 'SET_TRIM_END';
 	const grabSession = useRef( session );
 
-	// The trimmed edge from the resulting session, so seeks reflect the
-	// reducer's clamping (minimum output, window bounds) exactly.
 	const applyMove = ( ms: number, transient: boolean ) => {
 		const action: EditSessionAction = { type: actionType, ms };
 		dispatch( transient ? { type: 'TRANSIENT', action, fromBase: true } : action );
-		const next = editSessionReducer( transient ? grabSession.current : session, action );
-		onSeek( edge === 'start' ? next.trimStartMs : next.trimEndMs );
 	};
 
 	const drag = useTimelinePointerDrag( {
@@ -143,6 +134,7 @@ function StudioEditorTrimHandle( {
 			onPointerMove={ drag.onPointerMove }
 			onPointerUp={ drag.onPointerUp }
 			onPointerCancel={ drag.onPointerCancel }
+			onLostPointerCapture={ drag.onLostPointerCapture }
 		/>
 	);
 }
@@ -155,7 +147,6 @@ function StudioEditorTrimHandle( {
  * @param props.pxPerMs    - Scale from `getPxPerMs`.
  * @param props.contentRef - The timeline's scaled content element.
  * @param props.dispatch   - Dispatch into the history-wrapped reducer.
- * @param props.onSeek     - Seek the preview player.
  * @return The trim UI fragment.
  */
 export default function StudioEditorTrimHandles( props: Props ): ReactElement {

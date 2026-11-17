@@ -54,7 +54,7 @@ abstract class WPCOM_JSON_API_Sharing_Button_Endpoint extends WPCOM_JSON_API_End
 			'ID'        => $button->get_id(),
 			'name'      => $button->get_name(),
 			'shortname' => $button->shortname,
-			'custom'    => is_a( $button, 'Share_Custom' ),
+			'custom'    => $button instanceof \Share_Custom,
 			'enabled'   => $this->is_button_enabled( $button ),
 		);
 
@@ -190,7 +190,7 @@ abstract class WPCOM_JSON_API_Sharing_Button_Endpoint extends WPCOM_JSON_API_End
 
 		$updated_service = $all_buttons[ $button_id ];
 		$service_id      = $updated_service->get_id();
-		if ( is_a( $all_buttons[ $button_id ], 'Share_Custom' ) ) {
+		if ( $all_buttons[ $button_id ] instanceof \Share_Custom ) {
 			// Replace options for existing custom button
 			$options         = $updated_service->get_options();
 			$name            = $button['name'] ?? $options['name'];
@@ -789,7 +789,7 @@ class WPCOM_JSON_API_Delete_Sharing_Button_Endpoint extends WPCOM_JSON_API_Shari
 		}
 
 		// Verify button is custom
-		if ( ! is_a( $all_buttons[ $button_id ], 'Share_Custom' ) ) {
+		if ( ! $all_buttons[ $button_id ] instanceof \Share_Custom ) {
 			return new WP_Error( 'invalid_request', 'Only custom sharing buttons can be deleted', 400 );
 		}
 

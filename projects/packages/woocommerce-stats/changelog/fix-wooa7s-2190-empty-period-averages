@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Show no value, rather than 0 with a -100% change, for averages and the conversion rate over a period with no orders or sessions, and fix the comparison and total figures in attribution and Sessions by device.

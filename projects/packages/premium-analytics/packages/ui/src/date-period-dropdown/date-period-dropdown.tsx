@@ -143,7 +143,7 @@ type DatePeriodDropdownProps = {
 
 	/**
 	 * Draws attention to the trigger while set: a fill in the brand color that
-	 * fades, for a period a navigation set rather than the reader. Each new id
+	 * fades, for a period a widget set rather than the reader. Each new id
 	 * restarts it.
 	 */
 	attentionId?: number;

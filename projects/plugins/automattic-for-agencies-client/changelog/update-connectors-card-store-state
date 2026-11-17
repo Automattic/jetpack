@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Connection: Link the connection owner's name on the Connectors card to their profile, and update the card without reloading the page when a non-owner disconnects their account.

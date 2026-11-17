@@ -170,6 +170,19 @@ describe( 'alignSeriesDates', () => {
 			// When dates already align, comparison should be returned as-is
 			expect( result[ 1 ] ).toBe( comparison );
 		} );
+
+		it( 'leaves a comparison its producer already placed where it is', () => {
+			const primary = createSeries( 'Series A', [
+				new Date( '2024-01-01' ),
+				new Date( '2024-01-02' ),
+			] );
+			const comparison = {
+				...createComparison( 'Series B', [ new Date( '2024-01-02' ) ] ),
+				aligned: true,
+			};
+
+			expect( alignSeriesDates( [ primary, comparison ] )[ 1 ] ).toBe( comparison );
+		} );
 	} );
 
 	describe( 'series with different lengths', () => {

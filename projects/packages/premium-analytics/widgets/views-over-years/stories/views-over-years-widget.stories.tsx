@@ -188,6 +188,7 @@ function ViewsOverYearsDashboardStory( {
  * Mirrors the production placement (full width × 2 rows).
  */
 export const WidgetDashboardWithWidget: StoryObj< ViewsOverYearsDashboardStoryProps > = {
+	tags: [ 'widget-dashboard' ],
 	render: args => <ViewsOverYearsDashboardStory { ...args } />,
 	args: {
 		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,

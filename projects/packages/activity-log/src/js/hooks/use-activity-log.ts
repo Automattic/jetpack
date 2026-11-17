@@ -4,11 +4,12 @@
  * These mirror Calypso's `siteActivityLogQuery` / `siteActivityLogGroupCountsQuery`
  * shapes — same query keys, same response transform (`current.orderedItems →
  * activityLogs`) — so the UI code ports with minimal changes. The transport
- * is `@wordpress/api-fetch` against `/jetpack/v4/activity-log/*` instead of
- * WPCOM directly.
+ * is `@wordpress/api-fetch` against the site's `/jetpack/v4/activity-log/*`
+ * proxy, or WordPress.com's `/wpcom/v2/activity/*` on Simple sites.
  */
 import { queryOptions } from '@tanstack/react-query';
 import apiFetch from '@wordpress/api-fetch';
+import { config } from '../config';
 import type {
 	ActivityLogActorsParams,
 	ActivityLogActorsResponse,
@@ -17,6 +18,9 @@ import type {
 	ActivityLogParams,
 	ActivityLogsData,
 } from '../components/ActivityLog/types';
+
+// Simple's apiFetch bridge adds `/sites/{id}` itself, so the WordPress.com base carries no site.
+const API_BASE = config.apiSource === 'wpcom' ? '/wpcom/v2/activity' : '/jetpack/v4/activity-log';
 
 interface RawActivityLogResponse {
 	current?: { orderedItems?: ActivityLogEntry[] };
@@ -37,7 +41,7 @@ interface RawActivityLogResponse {
  * function emits — either form round-trips through the controller's
  * `type: array` validation, so both are accepted.
  *
- * @param base   - Path prefix, e.g. `/jetpack/v4/activity-log`.
+ * @param base   - Path prefix, e.g. `API_BASE`.
  * @param params - Key/value map of query params. Arrays produce repeated
  *               `key[]=value` pairs; undefined/null are dropped.
  * @return The combined path.
@@ -71,7 +75,7 @@ export function activityLogQuery( params: ActivityLogParams ) {
 		queryKey: [ 'jetpack-activity-log', 'list', params ],
 		queryFn: async (): Promise< ActivityLogsData > => {
 			const response = await apiFetch< RawActivityLogResponse >( {
-				path: buildPath( '/jetpack/v4/activity-log', params ),
+				path: buildPath( API_BASE, params ),
 			} );
 			return {
 				activityLogs: response.current?.orderedItems ?? [],
@@ -96,7 +100,7 @@ export function activityLogGroupCountsQuery( params: ActivityLogParams ) {
 		queryKey: [ 'jetpack-activity-log', 'group-counts', params ],
 		queryFn: async (): Promise< ActivityLogGroupCountResponse > => {
 			return apiFetch< ActivityLogGroupCountResponse >( {
-				path: buildPath( '/jetpack/v4/activity-log/count/group', params ),
+				path: buildPath( `${ API_BASE }/count/group`, params ),
 			} );
 		},
 	} );
@@ -114,7 +118,7 @@ export function activityLogActorsQuery( params: ActivityLogActorsParams ) {
 		queryKey: [ 'jetpack-activity-log', 'actors', params ],
 		queryFn: async (): Promise< ActivityLogActorsResponse > => {
 			return apiFetch< ActivityLogActorsResponse >( {
-				path: buildPath( '/jetpack/v4/activity-log/actors', params ),
+				path: buildPath( `${ API_BASE }/actors`, params ),
 			} );
 		},
 	} );

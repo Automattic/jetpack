@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+AI Assistant banner: Name ChatGPT, Claude, and the WordPress Agent in the copy, and show the banner while either the WordPress Agent or MCP access is off until the user dismisses it or both tools have been on once.

@@ -10,6 +10,7 @@
 namespace Automattic\Jetpack\Plugin;
 
 use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
+use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 
 /**
  * Jetpack_Script_Data class.
@@ -46,7 +47,47 @@ class Jetpack_Script_Data {
 			),
 		);
 
+		// Only the settings panel in My Jetpack reads it, so skip the theme folder scan elsewhere.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Only selects which data to print.
+		if ( 'my-jetpack' === sanitize_key( wp_unslash( $_GET['page'] ?? '' ) ) && self::is_settings_consolidation_enabled() ) {
+			$data['jetpack']['themeSupports'] = array(
+				'infiniteScroll' => self::theme_supports_infinite_scroll(),
+			);
+		}
+
 		return $data;
+	}
+
+	/**
+	 * Whether the current theme supports Infinite Scroll, by itself or through a file Jetpack ships for it.
+	 *
+	 * @since 16.5
+	 *
+	 * @return bool
+	 */
+	public static function theme_supports_infinite_scroll() {
+		if ( current_theme_supports( 'infinite-scroll' ) ) {
+			return true;
+		}
+
+		$stylesheet = wp_get_theme()->get_stylesheet();
+		foreach ( \Jetpack::glob_php( JETPACK__PLUGIN_DIR . 'modules/infinite-scroll/themes' ) as $path ) {
+			if ( basename( $path, '.php' ) === $stylesheet && is_readable( $path ) ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Whether settings move to My Jetpack. False with a My Jetpack too old to know the flag.
+	 *
+	 * @return bool
+	 */
+	private static function is_settings_consolidation_enabled() {
+		return method_exists( My_Jetpack_Initializer::class, 'is_settings_consolidation_enabled' )
+			&& My_Jetpack_Initializer::is_settings_consolidation_enabled();
 	}
 
 	/**

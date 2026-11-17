@@ -1,0 +1,21 @@
+<?php
+/**
+ * A Jetpack plugin from before its Backup dashboard followed the site's plan.
+ *
+ * @package automattic/my-jetpack
+ */
+
+/**
+ * Has no BACKUP_FOLLOWS_PLAN marker.
+ */
+class Jetpack {
+	/**
+	 * Whether a module is saved as active.
+	 *
+	 * @param string $module Module slug.
+	 * @return bool
+	 */
+	public static function is_module_active( $module ) {
+		return in_array( $module, (array) Jetpack_Options::get_option( 'active_modules', array() ), true );
+	}
+}

@@ -257,8 +257,8 @@ This ensures that:
 - If config is already loaded, no fetch occurs
 - Only the first call actually triggers the API request
 - A fetch in progress also counts as fulfilled, so `resolveSelect( CONFIG_STORE ).getConfig()`
-  resolves with `null` instead of waiting. Async callers must treat a missing config as
-  unknown rather than as a negative answer — see the note on `isFulfilled` in `resolvers.ts`.
+  resolves with `null` instead of waiting. Async callers that need the real value should
+  `await waitForConfig()` from `wait-for-config.ts`, which waits out the in-flight fetch.
 
 ### Store Structure
 

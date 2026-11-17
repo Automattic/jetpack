@@ -8,8 +8,9 @@ not a bespoke page per module.
 ```tsx
 const label = __( 'All pages' );
 
-<ReportPageShell
-	visual={ <StatsPageIcon /> }
+<Page
+	className={ reportPageStyles.page }
+	visual={ <Icon icon={ jetpack } /> }
 	breadcrumbs={ <StatsBreadcrumbs items={ [ { label } ] } /> }
 	actions={ downloadButton }
 >
@@ -22,11 +23,9 @@ const label = __( 'All pages' );
 			initialView={ { sort: { field: 'views', direction: 'desc' } } }
 		/>
 	</ReportPageLayout>
-</ReportPageShell>;
+</Page>;
 ```
 
-- **`ReportPageShell`** — the outer `Page` shell: the shared Jetpack visual,
-  Stats breadcrumbs and page-level actions.
 - **`ReportPageLayout`** — the scroll area below the page header: optional
   internal tabs, the section header pinned at its top, and stacked sections.
   `ReportPageSection` is the bordered card each section renders in.
@@ -41,8 +40,8 @@ const label = __( 'All pages' );
 - **`ReportLocationsMap`** — the Locations report's map of views by location,
   over the rows the records table already fetched. It renders the shared
   `LocationsGeoChart`, which the Locations dashboard widget also uses.
-- **`ReportRecordsTable`** — a Core DataViews table over the module's
-  summarized rows; search, sorting, column config, and pagination run
+- **`ReportRecordsTable`** — a Core DataViews table listing every one of the
+  module's summarized rows on one page; search, sorting, and column config run
   client-side via `filterSortAndPaginate`.
 - **`ReportThumbnail`** — a records-table row thumbnail for the view's
   `mediaField`, falling back to `fallbackIcon` when there is none or it fails
@@ -87,17 +86,16 @@ alone. It pins at the top of the layout's scroll area and condenses on scroll,
 as the dashboard's does: the layout only declares the timeline scope the
 header's own pin marker publishes into.
 
-Pass `StatsBreadcrumbs` from `@jetpack-premium-analytics/ui` to the shell's
+Pass `StatsBreadcrumbs` from `@jetpack-premium-analytics/ui` to Core's `Page`
 `breadcrumbs` slot. It owns the leading `Stats` crumb and links it back to the
 dashboard through `useDashboardLink()`, carrying the shared date range and
 comparison so Back returns to the same view. The trailing item carries no `to`
-and renders as the page's `h1`, so the shell takes no separate title prop.
-Pair it with `StatsPageIcon` in the shell's `visual` slot so every Stats page
-uses the same header treatment.
+and renders as the page's `h1`, so `Page` takes no separate title prop. Render
+the shared Jetpack icon through `Page`'s `visual` slot.
 
 `StatsBreadcrumbs` renders router links, so it needs a mounted router. That is
-why the shell receives it as a plain `ReactNode` (as on Core's own `Page`) and
-the route, not `ReportPageLayout`, builds it. The content layout can still render
+why `Page` receives it as a plain `ReactNode` and the route, not
+`ReportPageLayout`, builds it. The content layout can still render
 outside a router, which is what lets its story compose it independently.
 
 These components do not fetch: the page owns the data hooks and the

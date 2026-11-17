@@ -224,21 +224,50 @@ class Rest_Download_Bridge_Test extends TestCase {
 	}
 
 	/**
-	 * The status poll wraps a transport failure too. Worth its own case:
-	 * this is the call that runs on a timer, so it is the one most likely
-	 * to meet a flaky network.
+	 * The read routes wrap a transport failure too: they run on a timer and on every load.
+	 *
+	 * @param string $route Which read route to run.
+	 * @param string $code  The error code it reports.
+	 * @dataProvider provide_read_routes
 	 */
-	public function test_status_wraps_a_transport_failure() {
+	#[DataProvider( 'provide_read_routes' )]
+	public function test_reads_wrap_a_transport_failure( $route, $code ) {
 		$this->arrange_wpcom_unreachable();
+
+		$response = $this->read( $route );
+
+		$this->assertInstanceOf( WP_Error::class, $response );
+		$this->assertSame( $code, $response->get_error_code() );
+		$this->assertSame( 502, $response->get_error_data()['status'] );
+	}
+
+	/**
+	 * The two read routes, with the error code each reports.
+	 *
+	 * @return array<string, array{0: string, 1: string}>
+	 */
+	public static function provide_read_routes() {
+		return array(
+			'status' => array( 'status', 'download_status_fetch_failed' ),
+			'list'   => array( 'list', 'download_list_fetch_failed' ),
+		);
+	}
+
+	/**
+	 * Run one of the read routes.
+	 *
+	 * @param string $route `status` or `list`.
+	 * @return \WP_REST_Response|WP_Error
+	 */
+	private function read( $route ) {
+		if ( 'list' === $route ) {
+			return Download_Bridge::get_downloads();
+		}
 
 		$request = new WP_REST_Request( 'GET', '/jetpack/v4/backups/download/123/status' );
 		$request->set_param( 'rewind_id', '123' );
 		$request->set_param( 'download_id', 4321 );
-		$response = Download_Bridge::get_download_status( $request );
-
-		$this->assertInstanceOf( WP_Error::class, $response );
-		$this->assertSame( 'download_status_fetch_failed', $response->get_error_code() );
-		$this->assertSame( 502, $response->get_error_data()['status'] );
+		return Download_Bridge::get_download_status( $request );
 	}
 
 	/**
@@ -378,18 +407,20 @@ class Rest_Download_Bridge_Test extends TestCase {
 	}
 
 	/**
-	 * A non-200 on the status route is reported too.
+	 * A non-200 on the read routes is reported too.
+	 *
+	 * @param string $route Which read route to run.
+	 * @param string $code  The error code it reports.
+	 * @dataProvider provide_read_routes
 	 */
-	public function test_status_reports_a_non_200_from_wpcom() {
+	#[DataProvider( 'provide_read_routes' )]
+	public function test_reads_report_a_non_200_from_wpcom( $route, $code ) {
 		$this->arrange_wpcom( array(), 502 );
 
-		$request = new WP_REST_Request( 'GET', '/jetpack/v4/backups/download/123/status' );
-		$request->set_param( 'rewind_id', '123' );
-		$request->set_param( 'download_id', 55 );
-		$result = Download_Bridge::get_download_status( $request );
+		$result = $this->read( $route );
 
 		$this->assertInstanceOf( WP_Error::class, $result );
-		$this->assertSame( 'download_status_fetch_failed', $result->get_error_code() );
+		$this->assertSame( $code, $result->get_error_code() );
 		$this->assertSame( 502, $result->get_error_data()['status'] );
 		// This body names no reason, so none is invented. An always-present
 		// key would make "WordPress.com said nothing" and "we did not look"
@@ -546,6 +577,121 @@ class Rest_Download_Bridge_Test extends TestCase {
 
 		$this->assertSame( 'failed', $failed['status'] );
 		$this->assertSame( 'Archive expired', $failed['error'] );
+	}
+
+	/**
+	 * A built archive whose link has lapsed keeps `validUntil` but loses `url`.
+	 */
+	public function test_a_lapsed_archive_reports_expired() {
+		$expired = $this->project_status(
+			array(
+				'downloadId' => 55,
+				'validUntil' => '2026-08-20T00:00:00+00:00',
+			)
+		);
+
+		$this->assertSame( 'expired', $expired['status'] );
+	}
+
+	/**
+	 * While one download builds, WordPress.com answers every request with it, whichever backup it is of.
+	 */
+	public function test_initiate_refuses_another_backups_download() {
+		$this->arrange_wpcom(
+			array(
+				'downloadId' => 4321,
+				'rewindId'   => '1786000000.1',
+			)
+		);
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/backups/download/1786663613.9425' );
+		$request->set_param( 'rewind_id', '1786663613.9425' );
+		$result = Download_Bridge::initiate_download( $request );
+
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertSame( 'download_in_progress', $result->get_error_code() );
+		$this->assertSame( 409, $result->get_error_data()['status'] );
+	}
+
+	/**
+	 * This backup's own download is followed however WordPress.com spells its rewind id.
+	 *
+	 * @param mixed $echoed The rewind id WordPress.com answers with.
+	 * @dataProvider provide_spellings_of_the_requested_backup
+	 */
+	#[DataProvider( 'provide_spellings_of_the_requested_backup' )]
+	public function test_initiate_follows_its_own_backups_download( $echoed ) {
+		$this->arrange_wpcom(
+			array(
+				'downloadId' => 4321,
+				'rewindId'   => $echoed,
+			)
+		);
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/backups/download/1786663613.9425' );
+		$request->set_param( 'rewind_id', '1786663613.9425' );
+		$response = Download_Bridge::initiate_download( $request );
+
+		$this->assertNotInstanceOf( WP_Error::class, $response );
+		$this->assertSame( array( 'id' => 4321 ), $response->get_data() );
+	}
+
+	/**
+	 * The requested backup's rewind id, as WordPress.com might echo it.
+	 *
+	 * @return array<string, array{0: mixed}>
+	 */
+	public static function provide_spellings_of_the_requested_backup() {
+		return array(
+			'as sent'       => array( '1786663613.9425' ),
+			'as a number'   => array( 1786663613.9425 ),
+			'trailing zero' => array( '1786663613.94250' ),
+		);
+	}
+
+	/**
+	 * The downloads list is read from the collection and projected download by download.
+	 */
+	public function test_downloads_projects_each_download() {
+		$this->arrange_wpcom(
+			array(
+				array(
+					'downloadId' => 55,
+					'rewindId'   => '1786663613.9425',
+					'progress'   => 30,
+				),
+			)
+		);
+
+		$data = Download_Bridge::get_downloads()->get_data();
+
+		$this->assertMatchesRegularExpression( '#/sites/999/rewind/downloads(\?|$)#', $this->captured_url );
+		$this->assertSame(
+			array(
+				array(
+					'id'          => 55,
+					'rewind_id'   => '1786663613.9425',
+					'status'      => 'running',
+					'progress'    => 30,
+					'url'         => '',
+					'valid_until' => '',
+					'error'       => '',
+				),
+			),
+			$data
+		);
+	}
+
+	/**
+	 * A list body that is not a list is refused rather than read as no downloads.
+	 */
+	public function test_downloads_refuses_a_body_that_is_not_a_list() {
+		$this->arrange_wpcom( array( 'downloadId' => 55 ) );
+
+		$result = Download_Bridge::get_downloads();
+
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertSame( 'download_list_fetch_failed', $result->get_error_code() );
 	}
 
 	/**

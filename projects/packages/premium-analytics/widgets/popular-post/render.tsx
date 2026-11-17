@@ -3,7 +3,6 @@
  */
 import { getAdminUrl } from '@automattic/jetpack-script-data';
 import { toAuthorId } from '@jetpack-premium-analytics/data';
-import { createReportOriginSearch } from '@jetpack-premium-analytics/routing';
 import {
 	PostHighlightCard,
 	type PostHighlightCardMetric,
@@ -12,7 +11,7 @@ import {
 	WidgetRoot,
 	WidgetState,
 	describeError,
-	useDashboardOriginSearch,
+	useWidgetNavigationSearch,
 	useWidgetRootContext,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
@@ -21,8 +20,18 @@ import { __ } from '@wordpress/i18n';
  */
 import { usePopularPost } from './use-popular-post';
 import { useNoPublishedPosts } from '../use-no-published-posts';
-import type { PopularPostAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
+
+/**
+ * Widget attributes shape.
+ *
+ * @property authorScoped - Rank one author's posts over the page range instead
+ *                        of the site's over the last 12 months. Set by the
+ *                        author detail composition; not a user-facing control.
+ */
+export type PopularPostAttributes = {
+	authorScoped?: boolean;
+};
 
 // The host's `reportParams` only matter to an author-scoped instance; the
 // dashboard card reports on its own pinned window.
@@ -70,8 +79,7 @@ function PopularPostReport( { authorScoped }: { authorScoped: boolean } ) {
 
 function PopularPostCard( { authorId }: { authorId: number } ) {
 	const { reportParams } = useWidgetRootContext();
-	const dashboardOrigin = useDashboardOriginSearch();
-	const { post, range, isLoading, isFetching, isError, error, refetch } = usePopularPost(
+	const { post, isLoading, isFetching, isError, error, refetch } = usePopularPost(
 		authorId ? { authorId, reportParams } : undefined
 	);
 	const { noPublishedPosts, isChecking } = useNoPublishedPosts(
@@ -98,15 +106,10 @@ function PopularPostCard( { authorId }: { authorId: number } ) {
 			]
 		: [];
 
-	// Ranked over this card's window, not the host's.
-	const detailSearch = {
-		...range,
-		...dashboardOrigin,
-		...createReportOriginSearch(
-			authorId ? 'authors' : 'posts',
-			authorId ? undefined : 'posts-pages'
-		),
-	};
+	// The host's window, like its siblings: the tiles are all-time totals, not the ranking window's.
+	const detailSearch = useWidgetNavigationSearch( {
+		origin: authorId ? { report: 'authors' } : { report: 'posts', section: 'posts-pages' },
+	} );
 
 	return (
 		<WidgetState
@@ -158,6 +161,11 @@ function PopularPostCard( { authorId }: { authorId: number } ) {
 	);
 }
 
+/**
+ * The Insights "Most popular post" module: the site's most-viewed post of the
+ * last 12 months. The window only picks the winner; the views, likes, and
+ * comments shown for it are all-time totals.
+ */
 export default function PopularPost( { attributes = {} }: PopularPostWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes }>

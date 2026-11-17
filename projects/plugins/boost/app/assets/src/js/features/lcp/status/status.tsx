@@ -1,7 +1,7 @@
 import { useModuleSurface } from '$features/module/surface';
 import TimeAgo from '$features/critical-css/time-ago/time-ago';
-import { ProgressBar } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import { Progress } from '@wordpress/ui';
 import { useLcpState } from '../lib/stores/lcp-state';
 import styles from './status.module.scss';
 import type { FC } from 'react';
@@ -47,10 +47,15 @@ const Status: FC = () => {
 			return (
 				<div className={ styles.pending }>
 					<span>{ modernProgress }</span>
-					<ProgressBar
+					<Progress.Root
 						className={ styles.progress }
 						aria-label={ __( 'Optimizing LCP images', 'jetpack-boost' ) }
-					/>
+						value={ null }
+					>
+						<Progress.Track className={ styles.track }>
+							<Progress.Indicator className={ styles.indicator } />
+						</Progress.Track>
+					</Progress.Root>
 				</div>
 			);
 		}

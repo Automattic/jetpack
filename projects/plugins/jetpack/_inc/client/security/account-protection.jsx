@@ -100,7 +100,7 @@ export const AccountProtection = withModuleSettingsFormHelpers(
 		return {
 			isSupported: isModuleFound( state, MODULE_NAME ),
 			isActive: isModuleFound( state, MODULE_NAME ) && props.getOptionValue( MODULE_NAME ),
-			unavailableInOfflineMode: props.isUnavailableInOfflineMode( state, MODULE_NAME ),
+			unavailableInOfflineMode: props.isUnavailableInOfflineMode( MODULE_NAME ),
 		};
 	} )( AccountProtectionComponent )
 );

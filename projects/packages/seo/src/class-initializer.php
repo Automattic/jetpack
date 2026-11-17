@@ -1,24 +1,20 @@
 <?php
 /**
- * Jetpack SEO — the visibility command center for WordPress sites.
- *
- * Gates the surface behind its feature flag and cohort, then wires the admin
- * page ({@see Admin_Page}), the dashboard's REST reads ({@see Dashboard_Data}),
- * the content-coverage cache invalidation ({@see Content_Coverage}), and the
- * opt-in surface ({@see Surface_Visibility}).
+ * Bootstrap the Jetpack SEO dashboard and its discoverability cohort.
  *
  * @package automattic/jetpack-seo-package
  */
 
 namespace Automattic\Jetpack\SEO;
 
+use Automattic\Jetpack\Admin_UI\Admin_Shell;
 use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 
 /**
- * Boots the package and carries its cross-plugin contract: the feature flag,
+ * Boots the package and carries its cross-plugin contract:
  * the script-data key, and the option names / visibility reads other plugins consume.
  */
 class Initializer {
@@ -28,29 +24,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '0.9.10';
-
-	/**
-	 * WordPress.com site feature that enables the Jetpack SEO surface.
-	 *
-	 * Kept separate from `advanced-seo`, which gates the paid parts of the
-	 * dashboard after this product-level availability check has passed.
-	 *
-	 * @var string
-	 */
-	const FEATURE_SLUG = 'seo-admin-ui';
-
-	/**
-	 * Filter name that can enable the entire Jetpack SEO surface.
-	 *
-	 * The surface is available when this filter returns true or the current site's
-	 * active features include {@see self::FEATURE_SLUG}. When neither is enabled,
-	 * the package registers no admin menu or assets and changes nothing about the
-	 * existing Jetpack UI.
-	 *
-	 * @var string
-	 */
-	const FEATURE_FILTER = 'rsm_jetpack_seo';
+	const PACKAGE_VERSION = '0.12.0';
 
 	/**
 	 * Key under `window.JetpackScriptData` the React app reads its state from
@@ -112,19 +86,19 @@ class Initializer {
 		}
 		self::$initialized = true;
 
-		// Gate the entire SEO surface behind its legacy filter or per-site feature.
 		if ( ! self::is_available() ) {
 			return;
 		}
+
+		// Before anything can read the AI crawler choices.
+		Ai_Crawlers::register_legacy_migration();
 
 		// The opt-in endpoint must be reachable even before the surface is visible, so
 		// existing self-hosted installs can switch to the new experience from the legacy
 		// Traffic page or My Jetpack (JETPACK-1700). Registered ahead of the cohort gate.
 		add_action( 'rest_api_init', array( Surface_Visibility::class, 'register_optin_route' ) );
 
-		// Expose opt-in availability to other admin surfaces (the legacy Traffic-page
-		// banner reads it via `@automattic/jetpack-script-data`). Hooked here — after the
-		// feature flag, before the cohort gate — so a still-hidden install gets the signal.
+		// Hidden self-hosted installs need the opt-in signal before the cohort gate.
 		add_filter( 'jetpack_admin_js_script_data', array( Surface_Visibility::class, 'inject_optin_availability' ) );
 
 		// Sitemap output is a front-end concern tied to the SEO feature itself, not to
@@ -162,15 +136,23 @@ class Initializer {
 			return;
 		}
 
-		// The admin menu and app shell register whenever the surface is visible, even
-		// when the `seo-tools` module is inactive, so SEO stays discoverable and can be
-		// turned on from within the page itself (JETPACK-1700). When the module is off,
-		// the Overview renders only its "enable SEO tools" affordance.
+		// Each SEO module's configure URL defaults to Jetpack › Settings filtered to the
+		// module. Once the surface is visible that view only points here, so link here.
+		foreach ( array( 'seo-tools', 'verification-tools', 'sitemaps' ) as $module ) {
+			add_filter( 'jetpack_module_configuration_url_' . $module, array( Admin_Page::class, 'get_url' ) );
+		}
+
+		// The page registers whenever the surface is visible, even with `seo-tools` off, so
+		// a saved link still offers "Enable SEO tools"; the menu item hides with the module.
 		//
 		// Priority 1: load the wp-build bundle (and define its render function)
 		// before `add_menu_item()` runs at the default priority and needs it.
 		add_action( 'admin_menu', array( Admin_Page::class, 'maybe_load_wp_build' ), 1 );
 		add_action( 'admin_menu', array( Admin_Page::class, 'add_menu_item' ), 10 );
+
+		if ( class_exists( Admin_Shell::class ) ) {
+			add_filter( 'jetpack_admin_shell_members', array( Admin_Page::class, 'add_admin_shell_member' ) );
+		}
 
 		// Read-only REST routes the dashboard hydrates its initial state from. Preloaded
 		// into the page (see Admin_Page::inject_script_data) so a normal load resolves
@@ -180,11 +162,7 @@ class Initializer {
 		// Overview).
 		add_action( 'rest_api_init', array( Dashboard_Data::class, 'register_rest_reads' ) );
 
-		// Keep the Overview's cached content-coverage counts honest. Hooked here rather than
-		// alongside the admin surface above because posts are written from everywhere — the
-		// block editor (REST), the classic editor, wp-cli, cron, other plugins — and the
-		// cache has to be dropped wherever that happens, not just where it's read.
-		Content_Coverage::register_invalidation();
+		self::register_write_hooks();
 
 		// The settings surface only comes online once SEO tools are active — there's
 		// nothing to configure while the module is off, so we don't register its REST
@@ -199,6 +177,7 @@ class Initializer {
 			// stripping the schema its pages already carry would hurt SEO it has today.
 			// (Finer per-type gating — e.g. sitewide LocalBusiness to paid plans on
 			// self-hosted — is a separate follow-up, tracked in the schema project.)
+			Share_Image::init();
 			Schema_Builder::init();
 			Author_Schema_Node::init();
 
@@ -236,24 +215,27 @@ class Initializer {
 	}
 
 	/**
+	 * Hook what any request that saves content needs: the page fields the SEO page saves, and
+	 * clearing the Overview counts and the stored llms.txt. WordPress.com calls this on its API
+	 * requests, which skip init().
+	 *
+	 * @return void
+	 */
+	public static function register_write_hooks() {
+		Content_Coverage::register_invalidation();
+		Llms_Txt::register_always_include();
+		Llms_Txt::register_invalidation();
+	}
+
+	/**
 	 * Whether the Jetpack SEO product is available on this site.
 	 *
-	 * Keep the existing filter as an override while allowing WordPress.com to
-	 * enable the product for individual sites through its feature registry.
+	 * Availability is independent of plan refreshes and connection state.
 	 *
 	 * @return bool
 	 */
 	public static function is_available() {
-		if ( (bool) apply_filters( self::FEATURE_FILTER, false ) ) {
-			return true;
-		}
-
-		// Only active features are needed for this check.
-		$features = ( new Host() )->is_wpcom_simple()
-			? Current_Plan::get_simple_site_specific_features( false )
-			: Current_Plan::get()['features'];
-
-		return in_array( self::FEATURE_SLUG, $features['active'] ?? array(), true );
+		return ! ( new Host() )->is_vip_site();
 	}
 
 	/**
@@ -295,20 +277,31 @@ class Initializer {
 	}
 
 	/**
-	 * The WordPress.com Premium checkout URL for this site, used by the upsell banner
-	 * shown to gated sites.
-	 *
-	 * Built server-side because the client doesn't have the site slug. `value_bundle`
-	 * is the wpcom Premium plan slug (see the `premium` entry in
-	 * `Automattic\Jetpack\Current_Plan`), and `Status::get_site_suffix()` resolves the
-	 * Calypso site slug (via `WPCOM_Masterbar::get_calypso_site_slug()` on wpcom).
+	 * Return the Premium checkout URL, or an empty string when upgrades are unavailable.
 	 *
 	 * @return string
 	 */
 	public static function get_upsell_url() {
-		$site_slug = ( new Status() )->get_site_suffix();
+		$host = new Host();
+		if ( $host->is_p2_site() ) {
+			return '';
+		}
 
-		return sprintf( 'https://wordpress.com/checkout/%s/value_bundle', $site_slug );
+		$plan       = $host->is_wpcom_simple() && class_exists( '\WPCOM_Store_API' )
+			? \WPCOM_Store_API::get_current_plan( get_current_blog_id() )
+			: Current_Plan::get();
+		$term       = substr( $plan['product_slug'] ?? '', -3 );
+		$product    = in_array( $term, array( '-2y', '-3y' ), true ) ? 'value_bundle' . $term : 'value_bundle';
+		$site_slug  = ( new Status() )->get_site_suffix();
+		$return_url = rawurlencode( Admin_Page::get_url() );
+
+		return add_query_arg(
+			array(
+				'redirect_to'     => $return_url,
+				'checkoutBackUrl' => $return_url,
+			),
+			sprintf( 'https://wordpress.com/checkout/%s/%s', $site_slug, $product )
+		);
 	}
 
 	/**

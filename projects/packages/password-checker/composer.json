@@ -38,7 +38,6 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
-		"autotagger": true,
 		"mirror-repo": "Automattic/jetpack-password-checker",
 		"textdomain": "jetpack-password-checker",
 		"changelogger": {

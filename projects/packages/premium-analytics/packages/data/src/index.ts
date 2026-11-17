@@ -3,6 +3,8 @@ export {
 	ReportScopeProvider,
 	useReportScope,
 	useScopeLockedIntervals,
+	type DateLimits,
+	type DateLimitUpsellCopy,
 	type ReportScope,
 } from './providers/report-scope';
 export {
@@ -11,8 +13,10 @@ export {
 	postSurface,
 	useRaisePeriodChange,
 	useSettlePeriodChange,
+	type PeriodChange,
 } from './providers/period-change-signal';
 export * from './hooks';
+export { STATS_SITE_SUMMARY_FIELDS } from './queries/stats-site-query';
 export { ensureDashboardEntities } from './entities/dashboard-entities';
 export { latestPostQuery, postContentQuery, postsContentQuery } from './queries/latest-post-query';
 export type { LatestPost, LatestPostResponse } from './processing/latest-post';
@@ -72,10 +76,11 @@ export {
 	getApiErrorStatus,
 	findAuthorRow,
 	isAccessDenied,
+	isAnalyticsSchemaOutdated,
+	isAnalyticsTablesNotReady,
 	isUserRetryableError,
 	saveBlob,
 	shouldRetryApiError,
-	StatsResponseShapeError,
 	toAuthorId,
 	toPostId,
 	useSiteHomeUrl,
@@ -83,25 +88,59 @@ export {
 } from './utils';
 export {
 	getAllowedIntervalsForPreset,
+	getDaysBetweenInclusive,
 	getDefaultIntervalForPeriod,
 	resolveIntervalForPresetChange,
 	resolveIntervalForRange,
 } from './utils/interval';
 export type { IntervalType, LockableInterval } from './utils/interval';
-export { chartInterval, defaultPeriodForInterval, drawableIntervals } from './utils/periods';
+export {
+	chartInterval,
+	defaultPeriodForInterval,
+	drawableIntervals,
+	intervalMenuOptions,
+	type IntervalExtension,
+	type IntervalRange,
+} from './utils/periods';
+export {
+	isDashboardSectionAvailable,
+	isPostDetailAvailable,
+	POST_DETAIL_SECTION,
+	type DashboardSectionSlug,
+} from './utils/dashboard-sections';
 export {
 	getLockedFeature,
+	getLockedSection,
 	getLockedWidgetFeature,
 	isStatsFeatureLocked,
+	type LockedSectionGate,
 	type StatsFeatureKey,
 } from './utils/plan-gates';
+export { getStatsCheckoutUrl } from './utils/stats-checkout-url';
+export {
+	applyStatsDatePolicy,
+	getPolicyDefaultPreset,
+	getSectionDatePolicy,
+	getStatsDatePolicy,
+	isDateLimitedPolicy,
+	isPlanDateLimitedSection,
+	isPresetLockedByPolicy,
+	OPEN_DATE_POLICY,
+	startsBeforePolicy,
+	type DateLimitFeature,
+	type StatsDatePolicy,
+} from './utils/stats-date-policy';
 export {
 	DASHBOARD_PREFERENCES_SCOPE,
+	deriveComparisonRange,
 	getDefaultPreset,
 	getDefaultQueryParams,
 	getDefaultReportParams,
+	getSectionOrder,
+	orderSections,
 	rememberComparison,
 	rememberPreset,
+	setSectionOrder,
 	withDefaultComparison,
 } from './defaults';
 export { downloadReport, fetchStatsProxy } from './api';

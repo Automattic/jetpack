@@ -156,6 +156,8 @@ class Utils {
 	 * @param OutputInterface      $output OutputInterface to write debug output to.
 	 * @param DebugFormatterHelper $formatter Formatter to use to format debug output.
 	 * @return array With keys 'timestamp' and 'pr-num'.
+	 *
+	 * phpcs:ignore Squiz.Commenting.FunctionCommentThrowTag.Missing -- Internally thrown exceptions are caught internally.
 	 */
 	public static function getRepoData( $file, OutputInterface $output, DebugFormatterHelper $formatter ) {
 		$repo_data = array(
@@ -164,16 +166,35 @@ class Utils {
 		);
 
 		try {
-			$process = self::runCommand( array( 'git', 'log', '-1', '--first-parent', "--format=%cI\n%s", $file ), $output, $formatter );
+			$process = self::runCommand( array( 'git', 'log', '-1', '--first-parent', '--name-status', '--no-renames', "--format=%cI\n%s", $file ), $output, $formatter );
 			if ( $process->isSuccessful() ) {
 				$cmd_output = explode( "\n", trim( $process->getOutput() ) );
+
+				if ( ! isset( $cmd_output[3] ) ) {
+					$output->writeln(
+						'Unexpected output from git: ' . $process->getOutput() . "\n",
+						OutputInterface::VERBOSITY_DEBUG
+					);
+					throw new \Exception();
+				}
+
+				// Skip if the file was deleted.
+				if ( in_array( substr( $cmd_output[3], 0, 1 ), array( 'D' ), true ) ) {
+					throw new \Exception();
+				} elseif ( ! in_array( substr( $cmd_output[3], 0, 1 ), array( 'A', 'M', 'T' ), true ) ) { // @codeCoverageIgnoreStart
+					$output->writeln(
+						'Unexpected output from git: ' . $process->getOutput() . "\n",
+						OutputInterface::VERBOSITY_DEBUG
+					);
+					throw new \Exception();
+				} // @codeCoverageIgnoreEnd
 
 				// Timestamp.
 				if ( isset( $cmd_output[0] ) && preg_match( '/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:Z|[+-]\d{2}:\d{2})$/', $cmd_output[0] ) ) {
 					$repo_data['timestamp'] = $cmd_output[0];
 					// Normalize UTC
 					if ( substr( $repo_data['timestamp'], -6 ) === '+00:00' ) {
-						$repo_data['timestamp'] = substr( $repo_data['timestamp'], 0, -6 ) . 'Z';
+						$repo_data['timestamp'] = substr( $repo_data['timestamp'], 0, -6 ) . 'Z'; // @codeCoverageIgnore
 					}
 				}
 

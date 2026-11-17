@@ -310,7 +310,10 @@ describe( 'Download screen without a file selection', () => {
 			error: '',
 		};
 		await waitFor( () => expect( region ).toHaveTextContent( /^Your download is ready$/ ) );
-		expect( screen.getAllByRole( 'status' ) ).toEqual( [ region ] );
+		// The checklist stays under a ready download, so its hint is the one other region.
+		const others = screen.getAllByRole( 'status' ).filter( node => node !== region );
+		expect( others ).toHaveLength( 1 );
+		expect( others[ 0 ] ).toBeEmptyDOMElement();
 	} );
 
 	it( 'still offers the category checklist and submits nothing on its own', async () => {
@@ -402,7 +405,7 @@ describe( 'Download screen with a file selection', () => {
 		} );
 	} );
 
-	it( 'offers Contact support when the download fails', async () => {
+	it( 'links the failed download guide when the download fails', async () => {
 		window.JP_CONNECTION_INITIAL_STATE = {
 			...window.JP_CONNECTION_INITIAL_STATE,
 			siteSuffix: 'example.wordpress.com',
@@ -420,10 +423,10 @@ describe( 'Download screen with a file selection', () => {
 
 		render( <DownloadStage /> );
 
-		const link = await screen.findByRole( 'link', { name: /^Contact support/ } );
+		const link = await screen.findByRole( 'link', { name: /^How to fix a failed download/ } );
 		expect( link ).toHaveAttribute(
 			'href',
-			'https://jetpack.com/redirect/?source=jetpack-contact-support&site=example.wordpress.com'
+			'https://jetpack.com/redirect/?source=jetpack-backup-download-failed&site=example.wordpress.com'
 		);
 		expect( link ).toHaveAttribute( 'target', '_blank' );
 	} );
@@ -473,13 +476,14 @@ describe( 'Download screen with a file selection', () => {
 		// bar that never took a number from the poll. The polled value is
 		// the assertion that matters.
 		const bar = await screen.findByRole( 'progressbar' );
-		// A number, not a string: `toHaveValue` on `<progress>` reads
-		// `element.value`, which the DOM has already coerced.
 		await waitFor( () => expect( bar ).toHaveValue( 36 ) );
 		// The spinner is the state the bar replaces, so its departure is
 		// half the behaviour. `Spinner` renders an explicit
-		// `role="presentation"`, which is the handle on it.
-		expect( screen.queryByRole( 'presentation' ) ).not.toBeInTheDocument();
+		// `role="presentation"`, which is the handle on it — minus the
+		// visually-hidden span `Progress.Root` renders with the same role.
+		expect(
+			screen.queryAllByRole( 'presentation' ).filter( el => ! bar.contains( el ) )
+		).toHaveLength( 0 );
 	} );
 
 	// The same latch hid the ending: `isPending` was read above every other

@@ -1,5 +1,5 @@
 @use "sass:math";
-@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+@use "@wordpress/base-styles/breakpoints";
 @use "../../../shared/styles/jetpack-variables";
 @use "variables";
 
@@ -326,7 +326,7 @@
 		bottom: 30px;
 		z-index: 3;
 
-		@media ( max-width: gb.$break-medium ) {
+		@media ( max-width: breakpoints.$break-medium ) {
 			bottom: 50px;
 			margin: 0 16px;
 		}
@@ -377,7 +377,7 @@
 			display: flex;
 
 			// reapply initial styles
-			@media ( max-width: gb.$break-medium ) {
+			@media ( max-width: breakpoints.$break-medium ) {
 				bottom: 30px;
 				margin: 0 10px;
 			}
@@ -442,7 +442,7 @@
 			border-radius: 0;
 			overflow: initial;
 
-			@media ( max-width: gb.$break-medium ) {
+			@media ( max-width: breakpoints.$break-medium ) {
 				margin-top: 0;
 				margin-bottom: 0;
 			}
@@ -466,7 +466,7 @@
 			line-height: 20px;
 			align-items: center;
 
-			@media ( max-width: gb.$break-medium ) {
+			@media ( max-width: breakpoints.$break-medium ) {
 				padding: 16px;
 				background: rgb(0, 0, 0);
 				background: linear-gradient(180deg, rgba(0, 0, 0, 0.63) 0%, rgba(0, 0, 0, 0) 100%);
@@ -487,7 +487,7 @@
 					height: 100%;
 				}
 
-				@media ( max-width: gb.$break-medium ) {
+				@media ( max-width: breakpoints.$break-medium ) {
 					width: 24px;
 					height: 24px;
 					margin: 0 12px 0 0;
@@ -503,7 +503,7 @@
 				-webkit-line-clamp: 2;
 				-webkit-box-orient: vertical;
 
-				@media ( max-width: gb.$break-medium ) {
+				@media ( max-width: breakpoints.$break-medium ) {
 					font-size: 12px;
 				}
 			}
@@ -525,7 +525,7 @@
 				display: none;
 			}
 
-			@media ( max-width: gb.$break-medium ) {
+			@media ( max-width: breakpoints.$break-medium ) {
 				margin-top: 0;
 				margin-bottom: 0;
 				top: 76px;
@@ -538,7 +538,7 @@
 
 			.wp-story-overlay {
 
-				@media ( max-width: gb.$break-medium ) {
+				@media ( max-width: breakpoints.$break-medium ) {
 					top: 0;
 					bottom: 0;
 				}
@@ -549,7 +549,7 @@
 		.wp-story-next-slide {
 			display: block;
 
-			@media ( max-width: gb.$break-medium ) {
+			@media ( max-width: breakpoints.$break-medium ) {
 				display: block;
 				position: absolute;
 				top: 0;
@@ -564,7 +564,7 @@
 
 		.wp-story-prev-slide {
 
-			@media ( max-width: gb.$break-medium ) {
+			@media ( max-width: breakpoints.$break-medium ) {
 				left: 0;
 				width: 33.33%;
 			}
@@ -572,7 +572,7 @@
 
 		.wp-story-next-slide {
 
-			@media ( max-width: gb.$break-medium ) {
+			@media ( max-width: breakpoints.$break-medium ) {
 				right: 0;
 				width: 66.66%;
 			}
@@ -587,7 +587,7 @@
 			bottom: 20px;
 			margin: 0;
 
-			@media ( max-width: gb.$break-medium ) {
+			@media ( max-width: breakpoints.$break-medium ) {
 				bottom: 36px;
 				margin: 0 16px;
 			}
@@ -613,7 +613,7 @@
 				}
 			}
 
-			@media ( max-width: gb.$break-medium ) {
+			@media ( max-width: breakpoints.$break-medium ) {
 				bottom: 0;
 				padding: 10px 16px;
 			}

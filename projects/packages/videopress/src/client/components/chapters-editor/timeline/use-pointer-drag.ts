@@ -1,17 +1,5 @@
 /**
- * Shared pointer-drag plumbing for timeline gestures (scrub, trim handles,
- * cut edges).
- *
- * A drag starts on pointerdown with `setPointerCapture`, so the subsequent
- * pointermove/pointerup events keep firing on the same element even when the
- * pointer leaves it. Every event is translated into an integer master-timeline
- * ms by measuring against the timeline's scaled content element, and the
- * grabbed thing's original position is preserved as an offset so a handle
- * doesn't jump to the pointer on grab (a 10px jump is hundreds of ms at fit
- * zoom).
- *
- * Callers decide what the positions mean: scrubbing seeks on every move; edit
- * handles dispatch TRANSIENT session actions on move and COMMIT on release.
+ * Shared pointer capture and coordinate conversion for timeline drag gestures.
  */
 import { useCallback, useEffect, useRef } from 'react';
 import { pxToMs } from '../state/time-utils';
@@ -37,7 +25,7 @@ export interface TimelinePointerDragOptions {
 	onDragMove: ( ms: number ) => void;
 	/** Called once when the drag starts, before the first onDragMove. */
 	onDragStart?: () => void;
-	/** Called once when the drag ends (pointerup or pointercancel). */
+	/** Called once when the drag ends or loses pointer capture. */
 	onDragEnd?: () => void;
 }
 
@@ -50,6 +38,7 @@ export interface TimelinePointerDragHandlers {
 	onPointerMove: ( event: ReactPointerEvent< HTMLElement > ) => void;
 	onPointerUp: ( event: ReactPointerEvent< HTMLElement > ) => void;
 	onPointerCancel: ( event: ReactPointerEvent< HTMLElement > ) => void;
+	onLostPointerCapture: ( event: ReactPointerEvent< HTMLElement > ) => void;
 }
 
 /**
@@ -174,5 +163,12 @@ export function useTimelinePointerDrag(
 		[ stopScroll ]
 	);
 
-	return { onPointerDown, onPointerMove, onPointerUp: endDrag, onPointerCancel: endDrag };
+	return {
+		onPointerDown,
+		onPointerMove,
+		onPointerUp: endDrag,
+		onPointerCancel: endDrag,
+		// Capture can be lost before pointerup is delivered to an element outside the strip.
+		onLostPointerCapture: endDrag,
+	};
 }

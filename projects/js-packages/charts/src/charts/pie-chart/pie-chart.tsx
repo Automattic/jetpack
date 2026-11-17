@@ -31,10 +31,10 @@ import { pickLabelTextColor, resolveLabelRoles } from '../private/label-text-col
 import {
 	orderArcsForNavigation,
 	PieSelectionOutput,
-	SelectedSegmentRing,
 	usePieKeyboardNavigation,
 } from '../private/pie-keyboard-navigation';
 import { RadialWipeAnimation } from '../private/radial-wipe-animation/';
+import { SelectedRing } from '../private/selected-ring/selected-ring';
 import { getAllHiddenMessage, SvgEmptyState } from '../private/svg-empty-state';
 import { withResponsive, ResponsiveConfig } from '../private/with-responsive';
 import styles from './pie-chart.module.scss';
@@ -317,7 +317,7 @@ const PieChartInternal = ( {
 		chartRef,
 		svgRef,
 		selectedArc,
-		getSegmentHandlers,
+		getSegmentProps,
 		getKeyboardTooltipAnchor,
 		selectionOutputProps,
 		chartProps,
@@ -326,6 +326,7 @@ const PieChartInternal = ( {
 		withTooltips,
 		tooltipOffsetX,
 		tooltipOffsetY,
+		legendValueDisplay,
 	} );
 
 	if ( ! isValid ) {
@@ -352,7 +353,7 @@ const PieChartInternal = ( {
 	);
 
 	return (
-		<ChartInstanceContext.Provider value={ { chartId } }>
+		<ChartInstanceContext.Provider value={ { chartId, legendItems, chartType: 'pie' } }>
 			<ChartLayout
 				legendPosition={ legendPosition }
 				legendElement={ legendElement }
@@ -419,7 +420,9 @@ const PieChartInternal = ( {
 						const backgroundHeight = fontSize + labelPadding * 2;
 
 						return (
-							<g key={ `label-${ index }` }>
+							// Hidden from assistive tech: the arc this labels already carries the same
+							// name plus its value, so exposing the plate reads the label a second time.
+							<g key={ `label-${ index }` } data-testid="pie-label-group" aria-hidden="true">
 								<rect
 									className={ styles[ 'pie-chart__label-plate' ] }
 									x={ centroidX - backgroundWidth / 2 }
@@ -486,10 +489,7 @@ const PieChartInternal = ( {
 										arcs.map( ( arcDatum, index ) => (
 											<g
 												key={ `arc-${ index }` }
-												{ ...getSegmentHandlers(
-													arcDatum.data,
-													navigationArcs.indexOf( arcDatum )
-												) }
+												{ ...getSegmentProps( arcDatum.data, navigationArcs.indexOf( arcDatum ) ) }
 											>
 												<path
 													d={ path( arcDatum ) || '' }
@@ -503,7 +503,12 @@ const PieChartInternal = ( {
 								{ /* Unmasked so the entry wipe cannot hide the focus indicator. */ }
 								{ selectedArc && (
 									<Group top={ centerY } left={ centerX }>
-										<SelectedSegmentRing chartId={ chartId } d={ path( selectedArc ) || '' } />
+										<SelectedRing
+											chartId={ chartId }
+											d={ path( selectedArc ) || '' }
+											side="inside"
+											testId="pie-selected-ring"
+										/>
 									</Group>
 								) }
 								{ ! allSegmentsHidden && (
@@ -558,7 +563,7 @@ const PieChart = attachSubComponents( PieChartWithProvider, {
 
 // Create responsive PieChart with composition API
 const PieChartResponsive = attachSubComponents(
-	withResponsive< PieChartProps >( PieChartWithProvider ),
+	withResponsive< PieChartProps >( PieChartWithProvider, { derivesOwnHeight: true } ),
 	{
 		Legend: Legend,
 		SVG: ChartSVG,

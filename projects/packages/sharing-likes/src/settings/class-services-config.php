@@ -62,7 +62,7 @@ final class Services_Config {
 						</ul>
 						<?php
 						if ( ( new Status() )->is_private_site() ) {
-							echo '<p><strong>' . esc_html__( 'Please note that your services have been restricted because your site is private.', 'jetpack-sharing-likes' ) . '</strong></p>';
+							echo '<p><strong>' . esc_html__( 'Some sharing services aren’t available while your site is private.', 'jetpack-sharing-likes' ) . '</strong></p>';
 						}
 						?>
 						<br class="clearing" />

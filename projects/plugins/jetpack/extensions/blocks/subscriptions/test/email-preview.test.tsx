@@ -2,6 +2,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
 import { select, useSelect, useDispatch } from '@wordpress/data';
+import { useState } from 'react';
 import { NewsletterTestEmailModal, NewsletterPreviewModal } from '../email-preview';
 
 jest.mock( '@wordpress/api-fetch' );
@@ -18,13 +19,28 @@ jest.mock( '@automattic/jetpack-connection', () => ( {
 // email design screen's URL; `mockEmailDesignUrl` is what each test varies.
 let mockEmailDesignUrl: string | null = null;
 
-// `useViewportMatch( 'large', '<' )` — true in the band where the header sheds labels.
-let mockIsBelowLarge = false;
+// Mirrors `useViewportMatch`'s own breakpoints and operators, so a test sets a viewport width
+// rather than booleans that could describe a width no browser can produce. `<` is `max-width`,
+// so it matches *at* the breakpoint -- the hook's simulated-width path is strict, but nothing
+// in the monorepo provides one.
+const mockBreakpoints = {
+	xhuge: 1920,
+	huge: 1440,
+	wide: 1280,
+	xlarge: 1080,
+	large: 960,
+	medium: 782,
+	small: 600,
+	mobile: 480,
+};
+let mockViewportWidth = 1280;
 
 jest.mock( '@wordpress/compose', () => ( {
 	...jest.requireActual( '@wordpress/compose' ),
-	useViewportMatch: ( breakpoint: string, operator?: string ) =>
-		breakpoint === 'large' && operator === '<' ? mockIsBelowLarge : false,
+	useViewportMatch: ( breakpoint: string, operator = '>=' ) =>
+		operator === '<'
+			? mockViewportWidth <= mockBreakpoints[ breakpoint ]
+			: mockViewportWidth >= mockBreakpoints[ breakpoint ],
 } ) );
 
 jest.mock( '@automattic/jetpack-script-data', () => ( {
@@ -44,6 +60,8 @@ jest.mock( '@automattic/jetpack-shared-extension-utils', () => {
 
 // `@wordpress/ui` isn't resolvable in the jest environment; render a plain anchor.
 jest.mock( '@wordpress/ui', () => ( {
+	// components 44 builds its Spinner on this one.
+	Spinner: () => <span data-testid="spinner" />,
 	// Renders its children, so the accessible name still includes the hidden label.
 	VisuallyHidden: ( { children } ) => <span data-testid="visually-hidden">{ children }</span>,
 	Link: ( { children, href, openInNewTab, onClick, 'aria-label': ariaLabel, className } ) => (
@@ -63,6 +81,9 @@ jest.mock( '@wordpress/ui', () => ( {
 // `@wordpress/editor` registers rich-text formats at import time against the real data registry.
 jest.mock( '@wordpress/editor', () => ( { store: 'core/editor' } ) );
 
+// The access toggle reads the post's meta through this, and no test varies the access level.
+jest.mock( '@wordpress/core-data', () => ( { useEntityProp: () => [ undefined, jest.fn() ] } ) );
+
 jest.mock( '@wordpress/data', () => {
 	const actual = jest.requireActual( '@wordpress/data' );
 	const mocks = {
@@ -76,6 +97,25 @@ jest.mock( '@wordpress/data', () => {
 		},
 	} );
 } );
+
+let mockIsPostDirty = false;
+
+const mockEditorSelectors = {
+	getCurrentPostId: () => 123,
+	getCurrentPostType: () => 'post',
+	isEditedPostDirty: () => mockIsPostDirty,
+};
+
+/**
+ * Point both `select` and `useSelect` at the editor-store stub, with a saved post.
+ */
+function mockEditorStore() {
+	mockIsPostDirty = false;
+	( useSelect as jest.Mock ).mockImplementation( ( mapSelect: ( s: unknown ) => unknown ) =>
+		mapSelect( () => mockEditorSelectors )
+	);
+	( select as jest.Mock ).mockReturnValue( mockEditorSelectors );
+}
 
 const MISSING_CONNECTION_ERROR = {
 	code: 'rest_cannot_send_email_preview',
@@ -92,12 +132,10 @@ describe( 'Email preview connection errors', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
 		mockIsUserConnected = true;
-		jest.mocked( useSelect ).mockImplementation( () => 123 );
+		mockEditorStore();
 		jest.mocked( useDispatch ).mockReturnValue( {
 			__unstableSaveForPreview: jest.fn().mockResolvedValue( undefined ),
 		} );
-		// Allow the modal to open without triggering a save for preview.
-		( select as jest.Mock ).mockReturnValue( { isEditedPostDirty: () => false } );
 	} );
 
 	it( 'disables Send and prompts to connect on open when the user is not connected', () => {
@@ -171,17 +209,37 @@ describe( 'Email preview connection errors', () => {
 	} );
 } );
 
+/**
+ * Owns `isOpen` the way the editor does, so dismissing flips it in the same commit that clears
+ * the preview cache -- leaving it open makes the refetch depend on React's flush timing.
+ *
+ * @return The modal, open, with a control to reopen it.
+ */
+function PreviewModalHarness() {
+	const [ isOpen, setIsOpen ] = useState( true );
+	return (
+		<>
+			<button onClick={ () => setIsOpen( true ) }>Reopen</button>
+			<NewsletterPreviewModal
+				isOpen={ isOpen }
+				postId={ 123 }
+				onClose={ () => setIsOpen( false ) }
+			/>
+		</>
+	);
+}
+
 describe( 'Newsletter preview: save before fetching', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
 		mockIsUserConnected = true;
-		jest.mocked( useSelect ).mockImplementation( () => 123 );
+		mockEditorStore();
 	} );
 
 	it( 'saves the dirty post before fetching the preview', async () => {
 		const saveForPreview = jest.fn().mockResolvedValue( undefined );
 		jest.mocked( useDispatch ).mockReturnValue( { __unstableSaveForPreview: saveForPreview } );
-		( select as jest.Mock ).mockReturnValue( { isEditedPostDirty: () => true } );
+		mockIsPostDirty = true;
 		jest.mocked( apiFetch ).mockResolvedValue( { html: '<p>Preview</p>' } );
 
 		render( <NewsletterPreviewModal isOpen postId={ 123 } onClose={ jest.fn() } /> );
@@ -197,7 +255,6 @@ describe( 'Newsletter preview: save before fetching', () => {
 		jest.mocked( useDispatch ).mockReturnValue( {
 			__unstableSaveForPreview: jest.fn().mockResolvedValue( undefined ),
 		} );
-		( select as jest.Mock ).mockReturnValue( { isEditedPostDirty: () => false } );
 		jest.mocked( apiFetch ).mockResolvedValue( { html: '<p>Preview</p>' } );
 
 		render( <NewsletterPreviewModal isOpen postId={ 123 } onClose={ jest.fn() } /> );
@@ -211,7 +268,6 @@ describe( 'Newsletter preview: save before fetching', () => {
 	it( 'skips the save and fetches directly when the post is not dirty', async () => {
 		const saveForPreview = jest.fn().mockResolvedValue( undefined );
 		jest.mocked( useDispatch ).mockReturnValue( { __unstableSaveForPreview: saveForPreview } );
-		( select as jest.Mock ).mockReturnValue( { isEditedPostDirty: () => false } );
 		jest.mocked( apiFetch ).mockResolvedValue( { html: '<p>Preview</p>' } );
 
 		render( <NewsletterPreviewModal isOpen postId={ 123 } onClose={ jest.fn() } /> );
@@ -224,23 +280,19 @@ describe( 'Newsletter preview: save before fetching', () => {
 		const user = userEvent.setup();
 		const saveForPreview = jest.fn().mockResolvedValue( undefined );
 		jest.mocked( useDispatch ).mockReturnValue( { __unstableSaveForPreview: saveForPreview } );
-		( select as jest.Mock ).mockReturnValue( { isEditedPostDirty: () => true } );
+		mockIsPostDirty = true;
 		jest.mocked( apiFetch ).mockResolvedValue( { html: '<p>Preview</p>' } );
 
-		const { rerender } = render(
-			<NewsletterPreviewModal isOpen postId={ 123 } onClose={ jest.fn() } />
-		);
+		render( <PreviewModalHarness /> );
 		await waitFor( () => expect( apiFetch ).toHaveBeenCalledTimes( 1 ) );
 		expect( saveForPreview ).toHaveBeenCalledTimes( 1 );
 
-		// Dismiss via the modal's  close control, which clears the preview cache…
 		await user.click( screen.getByRole( 'button', { name: /close/i } ) );
-		// Then simulate the parent responding to onClose by unmounting/remounting the open modal.
-		rerender( <NewsletterPreviewModal isOpen={ false } postId={ 123 } onClose={ jest.fn() } /> );
-		rerender( <NewsletterPreviewModal isOpen postId={ 123 } onClose={ jest.fn() } /> );
+		// The modal hides the rest of the document while open, so finding Reopen means it closed.
+		await user.click( await screen.findByRole( 'button', { name: 'Reopen' } ) );
 
-		await waitFor( () => expect( apiFetch ).toHaveBeenCalledTimes( 2 ) );
-		expect( saveForPreview ).toHaveBeenCalledTimes( 2 );
+		await waitFor( () => expect( saveForPreview ).toHaveBeenCalledTimes( 2 ) );
+		expect( apiFetch ).toHaveBeenCalledTimes( 2 );
 	} );
 } );
 
@@ -248,7 +300,7 @@ describe( 'Test email recipient', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
 		mockIsUserConnected = true;
-		jest.mocked( useSelect ).mockImplementation( () => 123 );
+		mockEditorStore();
 		jest.mocked( useDispatch ).mockReturnValue( {
 			__unstableSaveForPreview: jest.fn().mockResolvedValue( undefined ),
 		} );
@@ -471,12 +523,11 @@ describe( 'Newsletter preview: email design link', () => {
 		jest.clearAllMocks();
 		mockIsUserConnected = true;
 		mockEmailDesignUrl = null;
-		mockIsBelowLarge = false;
-		jest.mocked( useSelect ).mockImplementation( () => 123 );
+		mockViewportWidth = 1280;
+		mockEditorStore();
 		jest.mocked( useDispatch ).mockReturnValue( {
 			__unstableSaveForPreview: jest.fn().mockResolvedValue( undefined ),
 		} );
-		( select as jest.Mock ).mockReturnValue( { isEditedPostDirty: () => false } );
 		jest.mocked( apiFetch ).mockResolvedValue( { html: '<p>Preview</p>' } );
 	} );
 
@@ -487,7 +538,7 @@ describe( 'Newsletter preview: email design link', () => {
 		expect( screen.queryByRole( 'link', { name: 'Edit email design' } ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'links to the design screen in a new tab, sending no return URL', async () => {
+	it( 'sends a saved post to the design screen in this tab, with a way back to it', async () => {
 		mockEmailDesignUrl = DESIGN_URL;
 
 		render( <NewsletterPreviewModal isOpen postId={ 123 } onClose={ jest.fn() } /> );
@@ -495,7 +546,25 @@ describe( 'Newsletter preview: email design link', () => {
 		await waitFor( () => expect( apiFetch ).toHaveBeenCalled() );
 
 		// The post travels so the design canvas previews it rather than the sample post. NL-1051.
-		expect( link ).toHaveAttribute( 'href', `${ DESIGN_URL }&post_id=123` );
+		expect( link ).toHaveAttribute(
+			'href',
+			`${ DESIGN_URL }&post_id=123&return=${ encodeURIComponent(
+				window.location.href
+			) }&source=preview_modal`
+		);
+		expect( link ).not.toHaveAttribute( 'target' );
+	} );
+
+	it( 'keeps the new tab, and sends no way back, while the post holds unsaved edits', async () => {
+		mockEmailDesignUrl = DESIGN_URL;
+		// An already-published post is still dirty after the modal's save.
+		mockIsPostDirty = true;
+
+		render( <NewsletterPreviewModal isOpen postId={ 123 } onClose={ jest.fn() } /> );
+		const link = await screen.findByRole( 'link', { name: 'Edit email design' } );
+		await waitFor( () => expect( apiFetch ).toHaveBeenCalled() );
+
+		expect( link ).toHaveAttribute( 'href', `${ DESIGN_URL }&post_id=123&source=preview_modal` );
 		expect( link ).toHaveAttribute( 'target', '_blank' );
 	} );
 
@@ -505,18 +574,34 @@ describe( 'Newsletter preview: email design link', () => {
 		render( <NewsletterPreviewModal isOpen postId={ 0 } onClose={ jest.fn() } /> );
 		const link = await screen.findByRole( 'link', { name: 'Edit email design' } );
 
-		expect( link ).toHaveAttribute( 'href', DESIGN_URL );
+		expect( link ).toHaveAttribute(
+			'href',
+			`${ DESIGN_URL }&return=${ encodeURIComponent( window.location.href ) }&source=preview_modal`
+		);
+	} );
+
+	/**
+	 * Both of the other args drop out here, so without the route this link is indistinguishable
+	 * from someone opening the screen from the Appearance menu. NL-1088.
+	 */
+	it( 'still names the route when it has neither a post nor a way back to send', async () => {
+		mockEmailDesignUrl = DESIGN_URL;
+		mockIsPostDirty = true;
+
+		render( <NewsletterPreviewModal isOpen postId={ 0 } onClose={ jest.fn() } /> );
+		const link = await screen.findByRole( 'link', { name: 'Edit email design' } );
+
+		expect( link ).toHaveAttribute( 'href', `${ DESIGN_URL }&source=preview_modal` );
 	} );
 
 	it( 'drops to an icon where the header runs out of room', async () => {
 		mockEmailDesignUrl = DESIGN_URL;
-		mockIsBelowLarge = true;
+		mockViewportWidth = 900;
 
 		render( <NewsletterPreviewModal isOpen postId={ 123 } onClose={ jest.fn() } /> );
 		const link = await screen.findByRole( 'link', { name: 'Edit email design' } );
 		await waitFor( () => expect( apiFetch ).toHaveBeenCalled() );
 
-		expect( link ).toHaveAttribute( 'href', `${ DESIGN_URL }&post_id=123` );
 		// The label is still the link's name, it is just not on screen beside the icon.
 		expect( screen.getByTestId( 'visually-hidden' ) ).toHaveTextContent( 'Edit email design' );
 		// An `aria-label` would override the contents and discard `Link`'s own new-tab notice.
@@ -532,5 +617,74 @@ describe( 'Newsletter preview: email design link', () => {
 
 		expect( link ).toHaveTextContent( 'Edit email design' );
 		expect( screen.queryByTestId( 'visually-hidden' ) ).not.toBeInTheDocument();
+	} );
+} );
+
+describe( 'Newsletter preview: device selector', () => {
+	beforeEach( () => {
+		jest.clearAllMocks();
+		mockIsUserConnected = true;
+		mockEmailDesignUrl = null;
+		mockViewportWidth = 1280;
+		mockEditorStore();
+		jest.mocked( useDispatch ).mockReturnValue( {
+			__unstableSaveForPreview: jest.fn().mockResolvedValue( undefined ),
+		} );
+		jest.mocked( apiFetch ).mockResolvedValue( { html: '<p>Preview</p>' } );
+	} );
+
+	it.each( [
+		[ 1280, '100%' ],
+		[ 900, '768px' ],
+	] )( 'previews at the widest offered device: %ipx renders %s', async ( width, expected ) => {
+		mockViewportWidth = width as number;
+
+		render( <NewsletterPreviewModal isOpen postId={ 123 } onClose={ jest.fn() } /> );
+
+		await expect( screen.findByTitle( 'Email Preview' ) ).resolves.toHaveStyle( {
+			width: expected,
+		} );
+	} );
+
+	it( 'selects the fallback device in the control where desktop is not offered', async () => {
+		mockViewportWidth = 900;
+
+		render( <NewsletterPreviewModal isOpen postId={ 123 } onClose={ jest.fn() } /> );
+		await waitFor( () => expect( apiFetch ).toHaveBeenCalled() );
+
+		expect( screen.queryByRole( 'radio', { name: 'Desktop' } ) ).not.toBeInTheDocument();
+		expect( screen.getByRole( 'radio', { name: 'Tablet' } ) ).toBeChecked();
+	} );
+
+	it( 'previews at desktop width again once the viewport can offer it', async () => {
+		mockViewportWidth = 900;
+
+		const { rerender } = render(
+			<NewsletterPreviewModal isOpen postId={ 123 } onClose={ jest.fn() } />
+		);
+		const iframe = await screen.findByTitle( 'Email Preview' );
+
+		mockViewportWidth = 1280;
+		rerender( <NewsletterPreviewModal isOpen postId={ 123 } onClose={ jest.fn() } /> );
+		await expect( screen.findByRole( 'radio', { name: 'Desktop' } ) ).resolves.toBeInTheDocument();
+		expect( iframe ).toHaveStyle( { width: '100%' } );
+	} );
+
+	it( 'rebuilds the control when the offered devices change, so its highlight is re-measured', async () => {
+		mockViewportWidth = 900;
+
+		const { rerender } = render(
+			<NewsletterPreviewModal isOpen postId={ 123 } onClose={ jest.fn() } />
+		);
+		await waitFor( () => expect( apiFetch ).toHaveBeenCalled() );
+		const narrowControl = screen.getByRole( 'radiogroup', { name: 'Preview device' } );
+
+		mockViewportWidth = 1280;
+		rerender( <NewsletterPreviewModal isOpen postId={ 123 } onClose={ jest.fn() } /> );
+
+		await expect( screen.findByRole( 'radio', { name: 'Desktop' } ) ).resolves.toBeInTheDocument();
+		expect( screen.getByRole( 'radiogroup', { name: 'Preview device' } ) ).not.toBe(
+			narrowControl
+		);
 	} );
 } );

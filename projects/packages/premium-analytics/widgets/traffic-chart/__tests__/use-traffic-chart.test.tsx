@@ -2,9 +2,10 @@
  * External dependencies
  */
 import { queryClient } from '@jetpack-premium-analytics/data';
-import { QueryClientProvider } from '@tanstack/react-query';
+import { QueryClientProvider, onlineManager } from '@tanstack/react-query';
 import { act, renderHook, waitFor } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
+import { getSettings, setSettings } from '@wordpress/date';
 /**
  * Internal dependencies
  */
@@ -137,6 +138,68 @@ describe( 'useTrafficChart', () => {
 		expect( metrics[ 3 ].value ).toBe( 50 );
 	} );
 
+	it.each( [
+		[ 'views and visitors', 'views' ],
+		[ 'likes and comments', 'likes' ],
+	] )(
+		'reports a failed %s refetch to the CSV while the chart keeps its rows',
+		async ( _, failingField ) => {
+			const { result } = renderHook( () => useTrafficChart( RANGE, 'month' ), { wrapper } );
+			await waitFor( () => expect( result.current.metrics[ 0 ].current ).toHaveLength( 2 ) );
+			expect( result.current.csvIsError ).toBe( false );
+
+			mockApiFetch.mockImplementation( ( { path = '' }: { path?: string } ) => {
+				if ( path.includes( failingField ) ) {
+					return Promise.reject( { error: 'unauthorized', status: 403 } );
+				}
+				return Promise.resolve(
+					path.includes( 'views' ) ? VIEWS_VISITORS_RESPONSE : LIKES_COMMENTS_RESPONSE
+				);
+			} );
+			act( () => result.current.refetch() );
+			await waitFor( () => expect( result.current.csvIsError ).toBe( true ) );
+
+			expect( result.current.metrics[ 0 ].current ).toHaveLength( 2 );
+			expect( result.current.isError ).toBe( false );
+		}
+	);
+
+	it( 'tells the CSV when an offline range change keeps the previous range on screen', async () => {
+		const { result, rerender } = renderHook( range => useTrafficChart( range, 'month' ), {
+			wrapper,
+			initialProps: RANGE,
+		} );
+		await waitFor( () => expect( result.current.metrics[ 0 ].current ).toHaveLength( 2 ) );
+		expect( result.current.csvIsPlaceholderData ).toBe( false );
+
+		try {
+			act( () => onlineManager.setOnline( false ) );
+			rerender( { ...RANGE, from: '2026-07-01', to: '2026-08-31' } );
+
+			await waitFor( () => expect( result.current.csvIsPlaceholderData ).toBe( true ) );
+			expect( result.current.isFetching ).toBe( false );
+		} finally {
+			onlineManager.setOnline( true );
+		}
+	} );
+
+	it( 'reports the site zone its buckets are dated in', async () => {
+		const settings = getSettings();
+		setSettings( {
+			...settings,
+			timezone: { ...settings.timezone, string: 'Asia/Taipei', offset: 8 },
+		} );
+
+		try {
+			const { result } = renderHook( () => useTrafficChart( RANGE, 'month' ), { wrapper } );
+			await waitFor( () => expect( result.current.metrics[ 0 ].current ).toHaveLength( 2 ) );
+
+			expect( result.current.timezone ).toBe( 'Asia/Taipei' );
+		} finally {
+			setSettings( settings );
+		}
+	} );
+
 	it( 'pairs Views with Visitors, starting Views hidden only on the Visitors tab', async () => {
 		const { result } = renderHook( () => useTrafficChart( RANGE, 'month' ), { wrapper } );
 
@@ -185,12 +248,13 @@ describe( 'useTrafficChart', () => {
 		expect( byKey.visitors.previousValue ).toBe( 400 );
 		expect( byKey.likes.previousValue ).toBe( 10 );
 		expect( byKey.comments.previousValue ).toBe( 4 );
-		expect( byKey.views.previous ).toHaveLength( 1 );
+		expect( byKey.views.previous?.filter( point => point.realDate ) ).toHaveLength( 1 );
 	} );
 
 	it.each( [
 		[
 			"skips a year-ago comparison's one-day opening week",
+			'week',
 			[ '2026-08-31', '2026-09-13' ],
 			[ '2025-08-31', '2025-09-13' ],
 			[
@@ -202,10 +266,14 @@ describe( 'useTrafficChart', () => {
 				[ '2026W08W31', 2 ],
 				[ '2026W09W07', 4 ],
 			],
-			[ 132, 326 ],
+			[
+				[ 0, 132 ],
+				[ 1, 326 ],
+			],
 		],
 		[
-			"keeps a previous period's one-day opening week",
+			"skips a previous period's one-day opening week",
+			'week',
 			[ '2026-09-07', '2026-09-14' ],
 			[ '2026-08-30', '2026-09-06' ],
 			[
@@ -216,26 +284,95 @@ describe( 'useTrafficChart', () => {
 				[ '2026W09W07', 2 ],
 				[ '2026W09W14', 4 ],
 			],
-			[ 1, 132 ],
+			[ [ 0, 132 ] ],
+		],
+		[
+			"skips a previous period's one-day opening month",
+			'month',
+			[ '2025-03-02', '2025-04-02' ],
+			[ '2025-01-29', '2025-03-01' ],
+			[
+				[ '2025-01-01', 1 ],
+				[ '2025-02-01', 132 ],
+				[ '2025-03-01', 326 ],
+			],
+			[
+				[ '2025-03-01', 2 ],
+				[ '2025-04-01', 4 ],
+			],
+			[
+				[ 0, 132 ],
+				[ 1, 326 ],
+			],
+		],
+		[
+			'leaves the stub month the current period opens with uncompared',
+			'month',
+			[ '2025-04-29', '2025-09-23' ],
+			[ '2024-12-02', '2025-04-28' ],
+			[
+				[ '2024-12-01', 1 ],
+				[ '2025-01-01', 132 ],
+				[ '2025-02-01', 326 ],
+				[ '2025-03-01', 5 ],
+				[ '2025-04-01', 7 ],
+			],
+			[
+				[ '2025-04-01', 2 ],
+				[ '2025-05-01', 4 ],
+				[ '2025-06-01', 6 ],
+				[ '2025-07-01', 8 ],
+				[ '2025-08-01', 10 ],
+				[ '2025-09-01', 12 ],
+			],
+			[
+				[ 1, 1 ],
+				[ 2, 132 ],
+				[ 3, 326 ],
+				[ 4, 5 ],
+				[ 5, 7 ],
+			],
+		],
+		[
+			"skips a previous period's one-day opening year",
+			'year',
+			[ '2025-01-02', '2026-01-04' ],
+			[ '2023-12-31', '2025-01-01' ],
+			[
+				[ '2023-01-01', 1 ],
+				[ '2024-01-01', 132 ],
+				[ '2025-01-01', 326 ],
+			],
+			[
+				[ '2025-01-01', 2 ],
+				[ '2026-01-01', 4 ],
+			],
+			[
+				[ 0, 132 ],
+				[ 1, 326 ],
+			],
 		],
 	] as const )(
-		'%s when grouped by weeks',
+		'%s',
 		async (
 			_name,
+			unit,
 			[ from, to ],
 			[ compareFrom, compareTo ],
 			comparisonRows,
 			primaryRows,
 			expected
 		) => {
-			const weeks = ( rows: ReadonlyArray< readonly [ string, number ] > ) => ( {
-				unit: 'week',
-				fields: [ 'period', 'views', 'visitors' ],
-				data: rows.map( ( [ period, views ] ) => [ period, views, 1 ] ),
+			const buckets = ( path: string, rows: ReadonlyArray< readonly [ string, number ] > ) => ( {
+				unit,
+				fields: path.includes( 'views' )
+					? [ 'period', 'views', 'visitors' ]
+					: [ 'period', 'likes', 'comments' ],
+				data: rows.map( ( [ period, value ] ) => [ period, value, 1 ] ),
 			} );
 			mockApiFetch.mockImplementation( ( { path = '' }: { path?: string } ) =>
 				Promise.resolve(
-					weeks( path.includes( `date=${ compareTo }` ) ? comparisonRows : primaryRows )
+					buckets( path, path.includes( `date=${ compareTo }` ) ? comparisonRows : primaryRows )
 				)
 			);
 
@@ -245,23 +382,32 @@ describe( 'useTrafficChart', () => {
 						{
 							from,
 							to,
-							interval: 'week',
+							interval: unit,
 							comp: '1',
 							compare_from: compareFrom,
 							compare_to: compareTo,
 						},
-						'week'
+						unit
 					),
 				{ wrapper }
 			);
 
 			await waitFor( () => expect( result.current.isFetching ).toBe( false ) );
 
-			const views = result.current.metrics[ 0 ];
-			expect( views.previous?.map( point => point.value ) ).toEqual( expected );
-			expect( views.previousValue ).toBe(
-				comparisonRows.reduce( ( total, [ , value ] ) => total + value, 0 )
-			);
+			for ( const key of [ 'views', 'likes' ] ) {
+				const metric = result.current.metrics.find( tab => tab.key === key );
+				// Each paired comparison value as [ the current bucket it is drawn on, value ].
+				const placed = metric?.previous
+					?.filter( point => point.realDate )
+					.map( point => [
+						metric.current.findIndex( bucket => bucket.date.getTime() === point.date.getTime() ),
+						point.value,
+					] );
+				expect( placed ).toEqual( expected );
+				expect( metric?.previousValue ).toBe(
+					comparisonRows.reduce( ( total, [ , value ] ) => total + value, 0 )
+				);
+			}
 		}
 	);
 
@@ -342,7 +488,7 @@ describe( 'useTrafficChart', () => {
 			}
 		} );
 
-		it( 'keeps the hourly Views chart when the daily totals request fails', async () => {
+		it( 'keeps the hourly Views chart and its CSV when the daily totals request fails', async () => {
 			mockApiFetch.mockImplementation( ( { path = '' }: { path?: string } ) =>
 				path.includes( 'unit=day' )
 					? Promise.reject( { error: 'unauthorized', status: 403 } )
@@ -354,6 +500,7 @@ describe( 'useTrafficChart', () => {
 			await waitFor( () => expect( result.current.isFetching ).toBe( false ) );
 
 			expect( result.current.isError ).toBe( false );
+			expect( result.current.csvIsError ).toBe( false );
 			const [ views, visitors, comments, likes ] = result.current.metrics;
 			expect( views.current ).toHaveLength( 2 );
 			for ( const metric of [ visitors, comments, likes ] ) {

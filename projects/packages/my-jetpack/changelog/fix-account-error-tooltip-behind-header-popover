@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Show the account issue tooltip above the header's connection panel instead of behind it.

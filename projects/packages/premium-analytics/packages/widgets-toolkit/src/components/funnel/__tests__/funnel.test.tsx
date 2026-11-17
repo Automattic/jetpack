@@ -53,6 +53,17 @@ describe( 'Funnel', () => {
 		expect( screen.getByRole( 'group', { name: 'Chart: Conversion rate' } ) ).toBeInTheDocument();
 	} );
 
+	it.each( [
+		[ 'Sessions', /^Sessions1,250$/ ],
+		[ 'Cart', /^Cart310Conversion rate24\.8%$/ ],
+	] )( 'shows the %s step count and conversion rate in its tooltip', async ( label, text ) => {
+		renderFunnel( <Funnel steps={ STEPS } status={ READY } /> );
+
+		await userEvent.click( screen.getByRole( 'option', { name: new RegExp( `^${ label }, ` ) } ) );
+
+		expect( screen.getByTestId( 'funnel-tooltip' ) ).toHaveTextContent( text );
+	} );
+
 	it( 'renders the empty state when the first step is empty', () => {
 		renderFunnel(
 			<Funnel

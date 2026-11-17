@@ -51,11 +51,12 @@ class Js_Structure_Scanner {
 	/**
 	 * Upper bound (in bytes) on output we will fully scan per call.
 	 *
-	 * The scan only runs on a cache miss, but on hosts where the concatenation
-	 * cache is not writable the _jb_static path re-minifies (and would re-scan)
-	 * on every request, so the per-call cost must stay bounded. This is set high
-	 * enough to cover realistic modern bundles (Tailwind/SPA/plugin-heavy output
-	 * routinely runs a few MB) so the truncation signature is actually caught,
+	 * The scan only runs on a cache miss, but where the concatenation cache cannot
+	 * store the result (not writable, or at its size limit) every request
+	 * re-minifies (and would re-scan), so the per-call cost must stay bounded.
+	 * This is set high enough to cover realistic modern bundles
+	 * (Tailwind/SPA/plugin-heavy output routinely runs a few MB) so the
+	 * truncation signature is actually caught,
 	 * rather than silently bypassed for anything above an aggressive cap.
 	 *
 	 * For the rare bundle larger than this, the full lexer scan is skipped, but a

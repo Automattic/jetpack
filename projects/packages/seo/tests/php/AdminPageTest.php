@@ -8,14 +8,20 @@
 namespace Automattic\Jetpack\SEO;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
+use Automattic\Jetpack\Admin_UI\Admin_Shell;
+use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Status\Cache as Status_Cache;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
  * @covers \Automattic\Jetpack\SEO\Admin_Page
+ * @covers \Automattic\Jetpack\SEO\Initializer
  */
 #[CoversClass( Admin_Page::class )]
+#[CoversClass( Initializer::class )]
 class AdminPageTest extends TestCase {
 
 	/**
@@ -29,8 +35,12 @@ class AdminPageTest extends TestCase {
 		remove_filter( 'jetpack_admin_js_script_data', array( Admin_Page::class, 'inject_tracks_context' ) );
 		wp_dequeue_script( 'jp-tracks' );
 		wp_deregister_script( 'jp-tracks' );
+		wp_dequeue_script( 'jetpack-seo-config' );
+		wp_deregister_script( 'jetpack-seo-config' );
 		remove_filter( 'jetpack_display_jitms_on_screen', array( Admin_Page::class, 'hide_jitms_on_wp_build_dashboard' ) );
+		remove_action( 'admin_enqueue_scripts', array( Admin_Page::class, 'register_page_data' ), 0 );
 		unset( $_GET['page'], $GLOBALS['current_screen'] );
+		$this->set_wp_build_index( null );
 
 		$menu_items = new \ReflectionProperty( Admin_Menu::class, 'menu_items' );
 		if ( \PHP_VERSION_ID < 80100 ) {
@@ -51,6 +61,13 @@ class AdminPageTest extends TestCase {
 	}
 
 	/**
+	 * The page's URL, used by the opt-in redirect and the SEO modules' Configure links.
+	 */
+	public function test_get_url_points_at_the_seo_page() {
+		$this->assertSame( admin_url( 'admin.php?page=jetpack-seo' ), Admin_Page::get_url() );
+	}
+
+	/**
 	 * Read the `is_gated` flag the way the dashboard does — off the injected script
 	 * data — so the gate is exercised through its public surface.
 	 *
@@ -60,6 +77,30 @@ class AdminPageTest extends TestCase {
 		$data = Admin_Page::inject_script_data( array() );
 
 		return $data[ Initializer::SCRIPT_DATA_KEY ]['gating']['is_gated'];
+	}
+
+	/**
+	 * Every tab reads whether SEO output is paused from the same script data.
+	 */
+	public function test_script_data_reports_the_output_state() {
+		$plugin = static function () {
+			return 'Yoast SEO';
+		};
+		add_filter( 'jetpack_seo_conflicting_plugin', $plugin );
+
+		try {
+			$data = Admin_Page::inject_script_data( array() );
+		} finally {
+			remove_filter( 'jetpack_seo_conflicting_plugin', $plugin );
+		}
+
+		$this->assertSame(
+			array(
+				'paused'             => true,
+				'conflicting_plugin' => 'Yoast SEO',
+			),
+			$data[ Initializer::SCRIPT_DATA_KEY ]['output']
+		);
 	}
 
 	/**
@@ -125,12 +166,20 @@ class AdminPageTest extends TestCase {
 	}
 
 	/**
-	 * The upsell URL points at Premium (`value_bundle`) checkout for this site. It's
-	 * only built when the site is actually gated (the ungated case is asserted empty
-	 * below), so this drives a gated wpcom site.
+	 * @dataProvider upgrade_plans
 	 */
-	public function test_upsell_url_targets_premium_checkout() {
+	#[DataProvider( 'upgrade_plans' )]
+	public function test_upsell_url_targets_premium_checkout( $simple, $plan_slug, $product ) {
 		$this->simulate_wpcom_site( false );
+		if ( ! $simple ) {
+			Constants::clear_single_constant( 'IS_WPCOM' );
+			Constants::set_constant( 'ATOMIC_SITE_ID', 123 );
+			Constants::set_constant( 'ATOMIC_CLIENT_ID', 456 );
+			Constants::set_constant( 'WPCOMSH__PLUGIN_FILE', true );
+		}
+		Status_Cache::clear();
+		\WPCOM_Store_API::$plan = array( 'product_slug' => $simple ? $plan_slug : 'jetpack_free' );
+		Current_Plan::update_from_site_record( array( 'plan' => array( 'product_slug' => $simple ? 'jetpack_free' : $plan_slug ) ) );
 
 		try {
 			$data       = Admin_Page::inject_script_data( array() );
@@ -138,8 +187,53 @@ class AdminPageTest extends TestCase {
 
 			$this->assertIsString( $upsell_url );
 			$this->assertStringStartsWith( 'https://wordpress.com/checkout/', $upsell_url );
-			$this->assertStringEndsWith( '/value_bundle', $upsell_url );
+			$this->assertStringEndsWith( '/' . $product, wp_parse_url( $upsell_url, PHP_URL_PATH ) );
+			parse_str( wp_parse_url( $upsell_url, PHP_URL_QUERY ), $query );
+			$this->assertSame( admin_url( 'admin.php?page=jetpack-seo' ), $query['redirect_to'] );
+			$this->assertSame( Admin_Page::get_url(), $query['checkoutBackUrl'] );
 		} finally {
+			\WPCOM_Store_API::$plan = array();
+			Current_Plan::update_from_site_record( array( 'plan' => array() ) );
+			delete_option( Current_Plan::PLAN_OPTION );
+			Constants::clear_single_constant( 'ATOMIC_SITE_ID' );
+			Constants::clear_single_constant( 'ATOMIC_CLIENT_ID' );
+			Constants::clear_single_constant( 'WPCOMSH__PLUGIN_FILE' );
+			Status_Cache::clear();
+			$this->reset_wpcom_site();
+		}
+	}
+
+	public static function upgrade_plans() {
+		$cases = array();
+		foreach ( array(
+			'Simple' => true,
+			'Atomic' => false,
+		) as $host => $simple ) {
+			foreach ( array(
+				'jetpack_free'            => 'value_bundle',
+				'personal-bundle-monthly' => 'value_bundle',
+				'personal-bundle'         => 'value_bundle',
+				'personal-bundle-2y'      => 'value_bundle-2y',
+				'personal-bundle-3y'      => 'value_bundle-3y',
+			) as $plan => $product ) {
+				$cases[ "$host $plan" ] = array( $simple, $plan, $product );
+			}
+		}
+		return $cases;
+	}
+
+	public function test_p2_sites_have_no_upgrade_offer() {
+		$this->simulate_wpcom_site( false );
+		$stylesheet = static function () {
+			return 'pub/p2';
+		};
+		add_filter( 'stylesheet', $stylesheet );
+		try {
+			$data = Admin_Page::inject_script_data( array() );
+			$this->assertTrue( $data[ Initializer::SCRIPT_DATA_KEY ]['gating']['is_gated'] );
+			$this->assertSame( '', $data[ Initializer::SCRIPT_DATA_KEY ]['gating']['upsell_url'] );
+		} finally {
+			remove_filter( 'stylesheet', $stylesheet );
 			$this->reset_wpcom_site();
 		}
 	}
@@ -210,6 +304,29 @@ class AdminPageTest extends TestCase {
 
 		Admin_Page::restore_screen_id_after_wp_build();
 		$this->assertSame( 'jetpack_page_jetpack-seo', get_current_screen()->id );
+	}
+
+	/**
+	 * The menu item hides while seo-tools is off, like other Jetpack modules.
+	 */
+	public function test_menu_item_is_gated_on_seo_tools() {
+		Admin_Page::add_menu_item();
+
+		$menu_items = new \ReflectionProperty( Admin_Menu::class, 'menu_items' );
+		if ( \PHP_VERSION_ID < 80100 ) {
+			$menu_items->setAccessible( true );
+		}
+		$seo_item = null;
+		foreach ( $menu_items->getValue( null ) as $item ) {
+			if ( Admin_Page::MENU_SLUG === $item['menu_slug'] ) {
+				$seo_item = $item;
+				break;
+			}
+		}
+
+		$this->assertNotNull( $seo_item, 'SEO menu item was not registered' );
+		$this->assertSame( 'seo-tools', $seo_item['args']['module'] ?? null );
+		$this->assertSame( 'jetpack-seo', $seo_item['args']['key'] ?? null );
 	}
 
 	/**
@@ -371,6 +488,115 @@ class AdminPageTest extends TestCase {
 		} finally {
 			$this->revoke_terms_of_service();
 		}
+	}
+
+	/**
+	 * The shell offers SEO only where the page has a build, its menu link, and a non-Simple host.
+	 *
+	 * @dataProvider admin_shell_member_cases
+	 *
+	 * @param bool $built           Whether build/build.php exists.
+	 * @param bool $seo_tools       Whether the seo-tools module is active.
+	 * @param bool $simple          Whether the site is WordPress.com Simple.
+	 * @param bool $expected_listed Whether SEO should join the shell.
+	 */
+	#[DataProvider( 'admin_shell_member_cases' )]
+	public function test_admin_shell_member( $built, $seo_tools, $simple, $expected_listed ) {
+		$this->set_wp_build_index( __DIR__ . ( $built ? '/files/build-entry/build.php' : '/files/build-entry/absent.php' ) );
+		$modules = static function ( $active ) use ( $seo_tools ) {
+			$active = array_diff( (array) $active, array( 'seo-tools' ) );
+			return $seo_tools ? array_merge( $active, array( 'seo-tools' ) ) : $active;
+		};
+		add_filter( 'jetpack_active_modules', $modules );
+		if ( $simple ) {
+			Constants::set_constant( 'IS_WPCOM', true );
+		}
+
+		try {
+			$members = Admin_Page::add_admin_shell_member( array( 'other' => array() ) );
+		} finally {
+			remove_filter( 'jetpack_active_modules', $modules );
+			Constants::clear_single_constant( 'IS_WPCOM' );
+		}
+
+		$this->assertArrayHasKey( 'other', $members );
+		$this->assertSame(
+			$expected_listed ? array( Admin_Page::class, 'load_as_admin_shell_guest' ) : null,
+			$members[ Admin_Page::MENU_SLUG ]['load'] ?? null
+		);
+	}
+
+	/**
+	 * Admin shell member cases.
+	 *
+	 * @return array<string, array{bool, bool, bool, bool}>
+	 */
+	public static function admin_shell_member_cases() {
+		return array(
+			'built, seo-tools on, self-hosted' => array( true, true, false, true ),
+			'unbuilt'                          => array( false, true, false, false ),
+			'seo-tools off'                    => array( true, false, false, false ),
+			'Simple'                           => array( true, true, true, false ),
+		);
+	}
+
+	/**
+	 * Hosted by another dashboard, SEO still hands its app the initial state when the shell prints its assets.
+	 */
+	public function test_admin_shell_guest_adds_the_page_data_when_assets_print() {
+		$this->set_wp_build_index( __DIR__ . '/files/build-entry/build.php' );
+		$user_id = get_current_user_id();
+		$scripts = $GLOBALS['wp_scripts'] ?? null;
+		$styles  = $GLOBALS['wp_styles'] ?? null;
+		$emoji   = remove_action( 'wp_print_styles', 'print_emoji_styles' );
+		$modules = static function () {
+			return array( 'seo-tools' );
+		};
+		wp_set_current_user(
+			wp_insert_user(
+				array(
+					'user_login' => 'seo-shell-admin-' . wp_rand(),
+					'user_pass'  => wp_generate_password(),
+					'role'       => 'administrator',
+				)
+			)
+		);
+		$GLOBALS['wp_scripts'] = null;
+		$GLOBALS['wp_styles']  = null;
+		add_filter( 'jetpack_admin_shell_enabled', '__return_true' );
+		add_filter( 'jetpack_active_modules', $modules );
+		add_filter( 'jetpack_admin_shell_members', array( Admin_Page::class, 'add_admin_shell_member' ) );
+
+		try {
+			$html = Admin_Shell::guest_assets( Admin_Page::MENU_SLUG );
+			$data = apply_filters( 'jetpack_admin_js_script_data', array() );
+			$this->assertArrayHasKey( 'gating', $data[ Initializer::SCRIPT_DATA_KEY ] ?? array() );
+			$this->assertIsString( $html );
+			$this->assertStringContainsString( '"consumer_slug":"jetpack-seo"', $html );
+		} finally {
+			remove_filter( 'jetpack_admin_shell_enabled', '__return_true' );
+			remove_filter( 'jetpack_active_modules', $modules );
+			remove_filter( 'jetpack_admin_shell_members', array( Admin_Page::class, 'add_admin_shell_member' ) );
+			$GLOBALS['wp_scripts'] = $scripts;
+			$GLOBALS['wp_styles']  = $styles;
+			wp_set_current_user( $user_id );
+			if ( $emoji ) {
+				add_action( 'wp_print_styles', 'print_emoji_styles' );
+			}
+		}
+	}
+
+	/**
+	 * Point the build-entry lookup at a path of our choosing, or back at the real one with null.
+	 *
+	 * @param string|null $path Path to stand in for build/build.php.
+	 */
+	private function set_wp_build_index( $path ) {
+		$property = new \ReflectionProperty( Admin_Page::class, 'wp_build_index' );
+		if ( \PHP_VERSION_ID < 80100 ) {
+			$property->setAccessible( true );
+		}
+		$property->setValue( null, $path );
 	}
 
 	/**

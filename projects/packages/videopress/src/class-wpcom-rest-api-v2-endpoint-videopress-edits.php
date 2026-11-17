@@ -36,7 +36,7 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress_Edits {
 	 * Register the feature-gated editor routes.
 	 */
 	public function register_routes() {
-		// WordPress.com checks the rollout on the target site in the upstream endpoint.
+		// Keep WordPress.com routes registered independently of local UI preferences.
 		if ( ! ( defined( 'IS_WPCOM' ) && IS_WPCOM ) && ! Admin_UI::is_trim_cut_enabled() ) {
 			return;
 		}

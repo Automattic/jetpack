@@ -10,6 +10,25 @@
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 
+/**
+ * Hides the masterbar-rendered upsell nudge for omnibar upsell experiment treatment users.
+ *
+ * @param array|null $nudge The nudge data, or null to render nothing.
+ * @return array|null
+ */
+function wpcom_suppress_upsell_nudge_for_free_domain_experiment( $nudge ) {
+	if ( ! isset( $nudge['id'] ) ) {
+		return $nudge;
+	}
+
+	if ( \Automattic\Jetpack\Jetpack_Mu_Wpcom\Free_Domain_Upsell_Experiment::should_suppress_sidebar_notice( $nudge['id'] ) ) {
+		return null;
+	}
+
+	return $nudge;
+}
+add_filter( 'jetpack_masterbar_upsell_nudge', 'wpcom_suppress_upsell_nudge_for_free_domain_experiment' );
+
 remove_filter( 'pre_option_wpcom_admin_interface', 'wpcom_admin_interface_pre_get_option' );
 $is_wp_admin = get_option( 'wpcom_admin_interface' ) === 'wp-admin';
 add_filter( 'pre_option_wpcom_admin_interface', 'wpcom_admin_interface_pre_get_option', 10 );
@@ -102,6 +121,10 @@ function wpcom_get_sidebar_notice() {
 		'tracks'        => $message->tracks ?? null,
 	);
 
+	if ( \Automattic\Jetpack\Jetpack_Mu_Wpcom\Free_Domain_Upsell_Experiment::should_suppress_sidebar_notice( $cached_notice['id'] ) ) {
+		$cached_notice = null;
+	}
+
 	return $cached_notice;
 }
 
@@ -112,11 +135,6 @@ function wpcom_get_sidebar_notice_data() {
 	$notice = wpcom_get_sidebar_notice();
 	if ( ! $notice ) {
 		return;
-	}
-
-	$link = ! empty( $notice['link'] ) ? $notice['link'] : '';
-	if ( str_starts_with( $link, '/' ) ) {
-		$link = 'https://wordpress.com' . $link;
 	}
 
 	$user_id    = null;

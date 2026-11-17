@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Tests: Suppress PHP 8.6 deprecation warnings from WP Core.
+
+

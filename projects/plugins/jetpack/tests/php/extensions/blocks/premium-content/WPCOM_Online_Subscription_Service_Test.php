@@ -40,6 +40,18 @@ class WPCOM_Online_Subscription_Service_Test extends WP_UnitTestCase {
 	 */
 	private $blog_id;
 
+	public static function set_up_before_class() {
+		parent::set_up_before_class();
+
+		$file = WP_CONTENT_DIR . '/mu-plugins/email-subscriptions/subscriptions.php';
+		if ( ! is_dir( dirname( $file ) ) ) {
+			mkdir( dirname( $file ), 0777, true );
+		}
+		if ( ! file_exists( $file ) ) {
+			file_put_contents( $file, "<?php\n" );
+		}
+	}
+
 	public function set_up() {
 		parent::set_up();
 
@@ -89,40 +101,12 @@ class WPCOM_Online_Subscription_Service_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Runs a callback while silencing the "failed to open stream" warning from
-	 * include_once()'ing a WPCOM-only file that doesn't exist in the Jetpack test
-	 * environment. This suite fails on any warning, so the expected one needs to
-	 * be swallowed rather than left to bubble up.
-	 *
-	 * @param callable $callback The code to run.
-	 *
-	 * @return mixed
-	 */
-	private function without_wpcom_include_warning( callable $callback ) {
-		set_error_handler( // phpcs:ignore WordPress.PHP.DevelopmentFunctions.prevent_path_disclosure_set_error_handler
-			static function ( $errno, $errstr ) {
-				return str_contains( $errstr, 'email-subscriptions/subscriptions.php' );
-			},
-			E_WARNING
-		);
-		try {
-			return $callback();
-		} finally {
-			restore_error_handler();
-		}
-	}
-
-	/**
 	 * Calls is_current_user_subscribed() on a fresh service instance.
 	 *
 	 * @return boolean
 	 */
 	private function is_current_user_subscribed() {
-		return $this->without_wpcom_include_warning(
-			static function () {
-				return ( new WPCOM_Online_Subscription_Service() )->is_current_user_subscribed();
-			}
-		);
+		return ( new WPCOM_Online_Subscription_Service() )->is_current_user_subscribed();
 	}
 
 	public function test_returns_false_when_neither_email_subscribed_nor_following() {
@@ -185,22 +169,14 @@ class WPCOM_Online_Subscription_Service_Test extends WP_UnitTestCase {
 		$service         = new WPCOM_Online_Subscription_Service();
 
 		$this->assertTrue(
-			$this->without_wpcom_include_warning(
-				static function () use ( $service ) {
-					return $service->is_current_user_subscribed();
-				}
-			),
+			$service->is_current_user_subscribed(),
 			'Sanity check: the reader should be considered subscribed via the Reader follow.'
 		);
 
 		$this->assertFalse(
-			$this->without_wpcom_include_warning(
-				static function () use ( $service ) {
-					return $service->visitor_can_view_content(
-						array( 999999 ),
-						Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS
-					);
-				}
+			$service->visitor_can_view_content(
+				array( 999999 ),
+				Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS
 			),
 			'Following in the Reader must not unlock paid-tier content.'
 		);

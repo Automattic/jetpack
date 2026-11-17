@@ -65,6 +65,7 @@ function getValidCurrency(
  * @param  params.browserSafeLocale - The browser safe locale.
  * @param  params.forceLatin        - Whether to force the latin locale.
  * @param  params.stripZeros        - Whether to strip zeros.
+ * @param  params.decimals          - Number of decimal places to show in place of the currency's own.
  * @param  params.signForPositive   - Whether to show the sign for positive numbers.
  * @return {Intl.NumberFormat} The currency formatter.
  */
@@ -74,6 +75,7 @@ function getCurrencyFormatter( {
 	browserSafeLocale,
 	forceLatin = true,
 	stripZeros,
+	decimals,
 	signForPositive,
 }: NumberFormatCurrencyParams ): Intl.NumberFormat {
 	/**
@@ -98,6 +100,10 @@ function getCurrencyFormatter( {
 	const numberFormatOptions: Intl.NumberFormatOptions = {
 		style: 'currency',
 		currency,
+		...( decimals !== undefined && {
+			maximumFractionDigits: decimals,
+			minimumFractionDigits: decimals,
+		} ),
 		...( stripZeros &&
 			Number.isInteger( number ) && {
 				/**
@@ -162,6 +168,25 @@ function getSmallestUnitExponent(
 }
 
 /**
+ * Returns `decimals` if every Intl engine accepts it as fraction digits, so a bad value falls
+ * back to the currency's own precision instead of throwing.
+ * @param  decimals - The requested number of decimal places.
+ * @return {number | undefined} The decimals, or `undefined` to use the currency's own.
+ */
+function getValidDecimals( decimals?: number ): number | undefined {
+	if (
+		decimals === undefined ||
+		( Number.isInteger( decimals ) && decimals >= 0 && decimals <= 20 )
+	) {
+		return decimals;
+	}
+	debug(
+		`formatCurrency was called with invalid decimals "${ decimals }"; using the currency's own`
+	);
+	return undefined;
+}
+
+/**
  * Returns the precision for a given locale and currency.
  * @param  browserSafeLocale - The browser safe locale.
  * @param  currency          - The currency to get the precision for.
@@ -196,16 +221,19 @@ function getPrecisionForLocaleAndCurrency(
  */
 function scaleNumberForPrecision( number: number, currencyPrecision: number ): number {
 	const scale = Math.pow( 10, currencyPrecision );
-	return Math.round( number * scale ) / scale;
+	const rounded = Math.round( number * scale ) / scale;
+	// Keep the shorter value, as at high precision the round trip adds noise Intl would print.
+	return String( number ).length < String( rounded ).length ? number : rounded;
 }
 
 /**
  * Prepares a number for formatting.
  * @param  number            - The number to prepare.
- * @param  currencyPrecision - The display precision (from the browser) to round the result to.
+ * @param  currencyPrecision - The currency's precision (from the browser); the smallest-unit exponent falls back to it.
  * @param  currency          - The currency code, used to look up any smallest-unit exponent override.
  * @param  isSmallestUnit    - Whether the number is the smallest unit of a currency.
  * @param  currencyOverrides - Dynamic per-currency overrides supplied by the host application.
+ * @param  displayPrecision  - The precision to round the result to.
  * @return {number} The prepared number.
  */
 function prepareNumberForFormatting(
@@ -213,7 +241,8 @@ function prepareNumberForFormatting(
 	currencyPrecision: number,
 	currency: string,
 	isSmallestUnit?: boolean,
-	currencyOverrides?: Record< string, CurrencyOverride >
+	currencyOverrides?: Record< string, CurrencyOverride >,
+	displayPrecision: number = currencyPrecision
 ): number {
 	if ( isNaN( number ) ) {
 		debug( 'formatCurrency was called with NaN' );
@@ -229,10 +258,10 @@ function prepareNumberForFormatting(
 		}
 		const smallestUnitDivisor =
 			10 ** getSmallestUnitExponent( currency, currencyPrecision, currencyOverrides );
-		return scaleNumberForPrecision( Math.round( number ) / smallestUnitDivisor, currencyPrecision );
+		return scaleNumberForPrecision( Math.round( number ) / smallestUnitDivisor, displayPrecision );
 	}
 
-	return scaleNumberForPrecision( number, currencyPrecision );
+	return scaleNumberForPrecision( number, displayPrecision );
 }
 
 /**
@@ -268,6 +297,7 @@ function prepareNumberForFormatting(
  * @param  params.browserSafeLocale - The browser safe locale.
  * @param  params.currency          - The currency to format.
  * @param  params.stripZeros        - Whether to strip zeros.
+ * @param  params.decimals          - Number of decimal places to show in place of the currency's own.
  * @param  params.isSmallestUnit    - Whether the number is the smallest unit of a currency.
  * @param  params.signForPositive   - Whether to show the sign for positive numbers.
  * @param  params.geoLocation       - The geo location of the user.
@@ -280,6 +310,7 @@ const numberFormatCurrency = ( {
 	browserSafeLocale,
 	currency,
 	stripZeros,
+	decimals,
 	isSmallestUnit,
 	signForPositive,
 	geoLocation,
@@ -288,6 +319,7 @@ const numberFormatCurrency = ( {
 }: NumberFormatCurrencyParams ) => {
 	const validCurrency = getValidCurrency( currency, geoLocation, currencyOverrides );
 	const currencyOverride = getCurrencyOverride( validCurrency, geoLocation, currencyOverrides );
+	const validDecimals = getValidDecimals( decimals );
 	const currencyPrecision = getPrecisionForLocaleAndCurrency(
 		browserSafeLocale,
 		validCurrency,
@@ -305,7 +337,8 @@ const numberFormatCurrency = ( {
 		currencyPrecision ?? 0,
 		validCurrency,
 		isSmallestUnit,
-		currencyOverrides
+		currencyOverrides,
+		validDecimals ?? currencyPrecision ?? 0
 	);
 	const formatter = getCurrencyFormatter( {
 		number: numberAsFloat,
@@ -313,6 +346,7 @@ const numberFormatCurrency = ( {
 		browserSafeLocale,
 		forceLatin,
 		stripZeros,
+		decimals: validDecimals,
 		signForPositive,
 	} );
 	const parts = formatter.formatToParts( numberAsFloat );
@@ -370,6 +404,7 @@ const numberFormatCurrency = ( {
  * @param  params.browserSafeLocale - The browser safe locale.
  * @param  params.currency          - The currency to format.
  * @param  params.stripZeros        - Whether to strip zeros.
+ * @param  params.decimals          - Number of decimal places to show in place of the currency's own.
  * @param  params.isSmallestUnit    - Whether the number is the smallest unit of a currency.
  * @param  params.signForPositive   - Whether to show the sign for positive numbers.
  * @param  params.geoLocation       - The geo location of the user.
@@ -382,6 +417,7 @@ const getCurrencyObject = ( {
 	browserSafeLocale,
 	currency,
 	stripZeros,
+	decimals,
 	isSmallestUnit,
 	signForPositive,
 	geoLocation,
@@ -390,6 +426,7 @@ const getCurrencyObject = ( {
 }: NumberFormatCurrencyParams ): CurrencyObject => {
 	const validCurrency = getValidCurrency( currency, geoLocation, currencyOverrides );
 	const currencyOverride = getCurrencyOverride( validCurrency, geoLocation, currencyOverrides );
+	const validDecimals = getValidDecimals( decimals );
 	const currencyPrecision = getPrecisionForLocaleAndCurrency(
 		browserSafeLocale,
 		validCurrency,
@@ -400,7 +437,8 @@ const getCurrencyObject = ( {
 		currencyPrecision ?? 0,
 		validCurrency,
 		isSmallestUnit,
-		currencyOverrides
+		currencyOverrides,
+		validDecimals ?? currencyPrecision ?? 0
 	);
 	const formatter = getCurrencyFormatter( {
 		number: numberAsFloat,
@@ -408,6 +446,7 @@ const getCurrencyObject = ( {
 		browserSafeLocale,
 		forceLatin,
 		stripZeros,
+		decimals: validDecimals,
 		signForPositive,
 	} );
 	const parts = formatter.formatToParts( numberAsFloat );

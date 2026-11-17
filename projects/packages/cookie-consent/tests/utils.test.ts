@@ -5,16 +5,20 @@
  */
 
 import {
+	GPC_CHOICE_COOKIE,
 	UNKNOWN_COUNTRY_CODE,
+	applyGpcToStoredConsent,
 	getConsentChoices,
 	getCookie,
 	getGeoConfig,
 	handleConsentByRegion,
 	hasAnalyticsConsent,
 	hasConsentSet,
+	hasGpcConflictWithStoredConsent,
 	isGdprCountry,
 	pertainsToCCPA,
 	readConsentChoices,
+	regionHonorsGpc,
 	saveConsentChoices,
 	setCookie,
 } from '../src/modules/cookie-consent/utils';
@@ -289,6 +293,22 @@ describe( 'handleConsentByRegion (GDPR + GPC)', () => {
 
 		expect( context.showBanner ).toBe( false );
 		expect( wasDenied( 'statistics' ) ).toBe( true );
+	} );
+
+	it( 'honors GPC in a CCPA region when GDPR honoring is off, and ignores it elsewhere', () => {
+		setGpc( true );
+
+		handleConsentByRegion(
+			'US',
+			'california',
+			{ ...baseConfig, gdprHonorsGpc: false },
+			{ showBanner: false }
+		);
+		expect( wasDenied( 'statistics' ) ).toBe( true );
+
+		consentCalls = [];
+		handleConsentByRegion( 'US', 'texas', baseConfig, { showBanner: false } );
+		expect( wasAllowed( 'statistics' ) ).toBe( true );
 	} );
 } );
 
@@ -608,5 +628,259 @@ describe( 'geo configuration helpers', () => {
 
 		expect( config.gdprCountries ).toEqual( [ 'CA' ] );
 		expect( config.ccpaRegions ).toEqual( [ 'quebec' ] );
+	} );
+} );
+
+describe( 'GPC for a returning visitor', () => {
+	const config = {
+		gdprCountries: [ 'FR' ],
+		ccpaRegions: [ 'california' ],
+		gdprHonorsGpc: true,
+	};
+	const ALL_ALLOWED =
+		'wp_consent_functional=allow; wp_consent_statistics=allow; wp_consent_statistics-anonymous=allow; wp_consent_marketing=allow';
+	const ALL_DENIED =
+		'wp_consent_functional=allow; wp_consent_statistics=deny; wp_consent_statistics-anonymous=deny; wp_consent_marketing=deny';
+
+	let consentCalls: Array< [ string, string ] >;
+	let savedEvents: CustomEvent[];
+	let cookieJar: string;
+	let cookieWrites: string[];
+	let originalGpc: PropertyDescriptor | undefined;
+	const onSaved = ( event: Event ) => savedEvents.push( event as CustomEvent );
+
+	const setGpc = ( value: boolean | undefined ) => {
+		Object.defineProperty( window.navigator, 'globalPrivacyControl', {
+			configurable: true,
+			value,
+		} );
+	};
+
+	beforeEach( () => {
+		consentCalls = [];
+		savedEvents = [];
+		cookieJar = '';
+		cookieWrites = [];
+		window.wp_set_consent = ( category: string, state: string ) => {
+			consentCalls.push( [ category, state ] );
+		};
+		Object.defineProperty( document, 'cookie', {
+			configurable: true,
+			get: () => cookieJar,
+			set: ( value: string ) => {
+				cookieWrites.push( value );
+			},
+		} );
+		originalGpc = Object.getOwnPropertyDescriptor( window.navigator, 'globalPrivacyControl' );
+		window.addEventListener( 'wp_consent_saved', onSaved );
+	} );
+
+	afterEach( () => {
+		window.removeEventListener( 'wp_consent_saved', onSaved );
+		delete ( window as unknown as { wp_set_consent?: unknown } ).wp_set_consent;
+		delete ( document as unknown as { cookie?: string } ).cookie;
+		if ( originalGpc ) {
+			Object.defineProperty( window.navigator, 'globalPrivacyControl', originalGpc );
+		} else {
+			delete ( window.navigator as unknown as { globalPrivacyControl?: unknown } )
+				.globalPrivacyControl;
+		}
+	} );
+
+	it( 'marks a choice saved with GPC on', () => {
+		setGpc( true );
+
+		saveConsentChoices( getConsentChoices( true ), 'accept_all' );
+
+		expect( cookieWrites.some( write => write.startsWith( `${ GPC_CHOICE_COOKIE }=1;` ) ) ).toBe(
+			true
+		);
+	} );
+
+	it.each( [ 'accept_selected', 'reject_all' ] as const )(
+		'marks a %s choice saved with GPC on',
+		eventType => {
+			setGpc( true );
+
+			saveConsentChoices( getConsentChoices( eventType !== 'reject_all' ), eventType );
+
+			expect( cookieWrites.some( write => write.startsWith( `${ GPC_CHOICE_COOKIE }=1;` ) ) ).toBe(
+				true
+			);
+		}
+	);
+
+	it( 'does not mark consent the package auto-grants with GPC on', () => {
+		setGpc( true );
+
+		saveConsentChoices( getConsentChoices( true ), 'auto_granted' );
+
+		expect( cookieWrites.some( write => write.startsWith( `${ GPC_CHOICE_COOKIE }=1;` ) ) ).toBe(
+			false
+		);
+	} );
+
+	it( 'clears an earlier mark when the package auto-grants consent', () => {
+		setGpc( true );
+		cookieJar = `${ GPC_CHOICE_COOKIE }=1`;
+
+		saveConsentChoices( getConsentChoices( true ), 'auto_granted' );
+
+		expect( cookieWrites.some( write => write.startsWith( `${ GPC_CHOICE_COOKIE }=;` ) ) ).toBe(
+			true
+		);
+	} );
+
+	it( 'opts out a GPC visitor auto-granted in an unregulated region whose next load is from a CCPA one', () => {
+		// Brave sends GPC on every request. First visit from Texas: implied consent, no mark.
+		setGpc( true );
+		handleConsentByRegion( 'US', 'texas', config, { showBanner: false } );
+
+		expect( savedEvents[ 0 ].detail.eventType ).toBe( 'auto_granted' );
+		expect( cookieWrites.some( write => write.startsWith( `${ GPC_CHOICE_COOKIE }=1;` ) ) ).toBe(
+			false
+		);
+
+		// Later visit from California with the auto-granted choice stored.
+		cookieJar = ALL_ALLOWED;
+		consentCalls = [];
+
+		expect( applyGpcToStoredConsent( 'US', 'california', config ) ).toBe( true );
+		expect( consentCalls ).toContainEqual( [ 'marketing', 'deny' ] );
+	} );
+
+	it( 'clears the mark when a choice is saved with GPC off', () => {
+		setGpc( undefined );
+		cookieJar = `${ GPC_CHOICE_COOKIE }=1`;
+
+		saveConsentChoices( getConsentChoices( true ), 'accept_all' );
+
+		expect( cookieWrites.some( write => write.startsWith( `${ GPC_CHOICE_COOKIE }=;` ) ) ).toBe(
+			true
+		);
+	} );
+
+	it( 'writes no mark when GPC is off and none exists', () => {
+		setGpc( undefined );
+
+		saveConsentChoices( getConsentChoices( true ), 'accept_all' );
+
+		expect( cookieWrites.some( write => write.startsWith( GPC_CHOICE_COOKIE ) ) ).toBe( false );
+	} );
+
+	it( 'reports a conflict when GPC is on and a choice saved without it allows a category', () => {
+		setGpc( true );
+		cookieJar = ALL_ALLOWED;
+
+		expect( hasGpcConflictWithStoredConsent() ).toBe( true );
+	} );
+
+	it( 'reports a conflict when only one mapped cookie of a category allows', () => {
+		setGpc( true );
+		cookieJar =
+			'wp_consent_functional=allow; wp_consent_statistics=deny; wp_consent_statistics-anonymous=allow; wp_consent_marketing=deny';
+
+		expect( hasGpcConflictWithStoredConsent() ).toBe( true );
+	} );
+
+	it( 'ignores an allowed WP Consent API category no package category maps', () => {
+		setGpc( true );
+		cookieJar = `${ ALL_DENIED }; wp_consent_preferences=allow`;
+
+		expect( hasGpcConflictWithStoredConsent() ).toBe( false );
+	} );
+
+	it( 'reports no conflict without GPC', () => {
+		setGpc( undefined );
+		cookieJar = ALL_ALLOWED;
+
+		expect( hasGpcConflictWithStoredConsent() ).toBe( false );
+	} );
+
+	it( 'reports no conflict when the stored choice already denies every optional category', () => {
+		setGpc( true );
+		cookieJar = ALL_DENIED;
+
+		expect( hasGpcConflictWithStoredConsent() ).toBe( false );
+	} );
+
+	it( 'reports no conflict when the stored choice was made with GPC on', () => {
+		setGpc( true );
+		cookieJar = `${ ALL_ALLOWED }; ${ GPC_CHOICE_COOKIE }=1`;
+
+		expect( hasGpcConflictWithStoredConsent() ).toBe( false );
+	} );
+
+	it( 'honors GPC under GDPR unless the config turns it off, always under CCPA, never elsewhere', () => {
+		expect( regionHonorsGpc( 'FR', '', config ) ).toBe( true );
+		expect( regionHonorsGpc( UNKNOWN_COUNTRY_CODE, '', config ) ).toBe( true );
+		expect( regionHonorsGpc( 'FR', '', { ...config, gdprHonorsGpc: false } ) ).toBe( false );
+		expect( regionHonorsGpc( 'US', 'California', { ...config, gdprHonorsGpc: false } ) ).toBe(
+			true
+		);
+		expect( regionHonorsGpc( 'US', 'texas', config ) ).toBe( false );
+	} );
+
+	it( 'opts out a returning GDPR visitor who turned GPC on after allowing categories', () => {
+		setGpc( true );
+		cookieJar = ALL_ALLOWED;
+
+		expect( applyGpcToStoredConsent( 'FR', '', config ) ).toBe( true );
+
+		expect( consentCalls ).toEqual( [
+			[ 'functional', 'allow' ],
+			[ 'statistics', 'deny' ],
+			[ 'statistics-anonymous', 'deny' ],
+			[ 'marketing', 'deny' ],
+		] );
+		expect( savedEvents ).toHaveLength( 1 );
+		expect( savedEvents[ 0 ].detail.eventType ).toBe( 'opt-out' );
+		// The opt-out is not the visitor's own choice, so it does not mark one.
+		expect( cookieWrites.some( write => write.startsWith( `${ GPC_CHOICE_COOKIE }=1;` ) ) ).toBe(
+			false
+		);
+	} );
+
+	it( 'opts out a returning visitor with geo off (unknown region)', () => {
+		setGpc( true );
+		cookieJar = ALL_ALLOWED;
+
+		expect( applyGpcToStoredConsent( UNKNOWN_COUNTRY_CODE, '', config ) ).toBe( true );
+	} );
+
+	it( 'opts out a returning CCPA visitor', () => {
+		setGpc( true );
+		cookieJar = ALL_ALLOWED;
+
+		expect( applyGpcToStoredConsent( 'US', 'california', config ) ).toBe( true );
+	} );
+
+	it( 'keeps the stored choice when GDPR GPC honoring is off', () => {
+		setGpc( true );
+		cookieJar = ALL_ALLOWED;
+
+		expect( applyGpcToStoredConsent( 'FR', '', { ...config, gdprHonorsGpc: false } ) ).toBe(
+			false
+		);
+		expect( consentCalls ).toHaveLength( 0 );
+		expect( savedEvents ).toHaveLength( 0 );
+	} );
+
+	it( 'keeps the stored choice in an unregulated region', () => {
+		setGpc( true );
+		cookieJar = ALL_ALLOWED;
+
+		expect( applyGpcToStoredConsent( 'US', 'texas', config ) ).toBe( false );
+		expect( consentCalls ).toHaveLength( 0 );
+		// No mark, so a later load from a region that honors GPC still opts it out.
+		expect( cookieWrites ).toHaveLength( 0 );
+	} );
+
+	it( 'keeps a choice the visitor made with GPC on', () => {
+		setGpc( true );
+		cookieJar = `${ ALL_ALLOWED }; ${ GPC_CHOICE_COOKIE }=1`;
+
+		expect( applyGpcToStoredConsent( 'FR', '', config ) ).toBe( false );
+		expect( consentCalls ).toHaveLength( 0 );
 	} );
 } );

@@ -358,7 +358,8 @@ function jetpack_youtube_id( $url ) {
 		$layout = $is_amp ? 'layout="responsive" ' : '';
 
 		$html = sprintf(
-			'<iframe class="youtube-player" width="%s" height="%s" %ssrc="%s" allowfullscreen="true" style="border:0;" sandbox="allow-scripts allow-same-origin allow-popups allow-presentation allow-popups-to-escape-sandbox"></iframe>',
+			'<iframe class="youtube-player" title="%s" width="%s" height="%s" %ssrc="%s" allowfullscreen="true" style="border:0;" sandbox="allow-scripts allow-same-origin allow-popups allow-presentation allow-popups-to-escape-sandbox"></iframe>',
+			esc_attr__( 'YouTube video player', 'jetpack' ),
 			esc_attr( $w ),
 			esc_attr( $h ),
 			$layout,

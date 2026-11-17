@@ -1,0 +1,8 @@
+// Widget roots clip overflow, so the focus ring is drawn inset.
+.trigger:focus-visible {
+	border-radius: var(--wpds-border-radius-sm);
+	outline:
+		var(--wpds-border-width-focus) solid
+		var(--wpds-color-stroke-focus);
+	outline-offset: calc(-1 * var(--wpds-border-width-focus));
+}

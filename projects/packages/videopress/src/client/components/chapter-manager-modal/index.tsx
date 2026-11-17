@@ -299,7 +299,7 @@ export default function ChapterManagerModal( {
 			{ guid, isPrivate, durationSeconds: itemDurationMs / 1000 },
 			next,
 			// Surfaces "Video chapters could not be updated." on sync failure.
-			{ onWarning: notify }
+			{ onWarning: notify, source: 'block_editor' }
 		);
 		markSaved( next );
 		// Outside the try/catch: a host-callback error must not read as a

@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Backup: After upgrading, show that backups are being set up until the new plan reaches the site, instead of offering the upgrade again.

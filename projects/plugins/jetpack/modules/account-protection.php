@@ -1,13 +1,13 @@
 <?php
 /**
- * Module Name: Account Protection
- * Module Description: Shield your login page with rate‑limiting and secure authentication safeguards.
+ * Module Name: Account protection
+ * Module Description: Detect compromised passwords at login and flag weak ones when users set a new password.
  * Sort Order: 4
  * First Introduced: 14.5
  * Requires Connection: Yes
  * Requires User Connection: No
  * Auto Activate: No
- * Module Tags: Account Protection
+ * Module Tags: Account protection
  * Feature: Security
  *
  * @package automattic/jetpack

@@ -137,9 +137,17 @@ fi
 
 
 echo "::group::Creating release"
+ARGS=()
+# Rolling tags have an `-alpha` suffix, but consumers rely on them being "Latest".
+if [[ -n "$ROLLING_MODE" ]]; then
+	ARGS+=( --latest )
+elif [[ "$TAG" == *-* ]]; then
+	ARGS+=( --prerelease )
+fi
 gh release create "$TAG" "$SLUG.zip" \
 	--notes "$ENTRY" \
 	--target "$GITHUB_SHA" \
-	--title "$TITLE"
+	--title "$TITLE" \
+	"${ARGS[@]}"
 
 echo "::endgroup::"

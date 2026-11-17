@@ -1,7 +1,10 @@
 /**
  * Internal dependencies
  */
+import { Navigate, useLocation } from 'react-router';
 import { assetUrl } from '../../assets/url';
+import { MyJetpackRoutes } from '../../constants';
+import useProduct from '../../data/products/use-product';
 import PricingInterstitial from './pricing-interstitial';
 import ProductInterstitial from './product-interstitial';
 
@@ -126,15 +129,42 @@ export function VideoPressInterstitial() {
 }
 
 /**
+ * Redirect a retired bundle's purchase page without moving existing subscribers.
+ *
+ * @param {object}                    props          - Component props.
+ * @param {string}                    props.slug     - Bundle slug.
+ * @param {import('react').ReactNode} props.children - Bundle illustration.
+ * @return {object} Purchase page or replacement route.
+ */
+function LegacyBundleInterstitial( { slug, children } ) {
+	const { detail, isLoading } = useProduct( slug );
+	const { search } = useLocation();
+	const replacement = detail?.purchaseReplacement?.slug;
+	if (
+		! isLoading &&
+		detail?.pricingForUi?.available === false &&
+		! detail?.hasPaidPlanForProduct &&
+		replacement
+	) {
+		return <Navigate to={ { pathname: `/add-${ replacement }`, search } } replace />;
+	}
+	return (
+		<ProductInterstitial slug={ slug } installsPlugin={ true }>
+			{ children }
+		</ProductInterstitial>
+	);
+}
+
+/**
  * SecurityInterstitial component
  *
  * @return {object} SecurityInterstitial react component.
  */
 export function SecurityInterstitial() {
 	return (
-		<ProductInterstitial slug="security" installsPlugin={ true }>
+		<LegacyBundleInterstitial slug="security">
 			<img src={ securityImage } alt="Security" />
-		</ProductInterstitial>
+		</LegacyBundleInterstitial>
 	);
 }
 
@@ -145,9 +175,9 @@ export function SecurityInterstitial() {
  */
 export function GrowthInterstitial() {
 	return (
-		<ProductInterstitial slug="growth" installsPlugin={ true }>
+		<LegacyBundleInterstitial slug="growth">
 			<img src={ statsImage } alt="Growth" />
-		</ProductInterstitial>
+		</LegacyBundleInterstitial>
 	);
 }
 
@@ -161,5 +191,28 @@ export function CompleteInterstitial() {
 		<ProductInterstitial slug="complete" installsPlugin={ true }>
 			<img src={ completeImage } alt="Complete" />
 		</ProductInterstitial>
+	);
+}
+
+/**
+ * Render the Pro bundle purchase page.
+ *
+ * @return {object} Pro purchase page.
+ */
+export function ProInterstitial() {
+	const { detail, isLoading, isRefetching } = useProduct( 'pro' );
+	const canShowPro =
+		detail?.hasPaidPlanForProduct ||
+		detail?.pricingForUi?.catalogAvailable === true ||
+		detail?.pricingForUi?.available === true;
+	if ( ! isLoading && ! isRefetching && ! canShowPro ) {
+		return <Navigate to={ MyJetpackRoutes.Home } replace />;
+	}
+	return (
+		<div hidden={ ! canShowPro }>
+			<ProductInterstitial slug="pro" installsPlugin={ true }>
+				<img src={ completeImage } alt="" />
+			</ProductInterstitial>
+		</div>
 	);
 }

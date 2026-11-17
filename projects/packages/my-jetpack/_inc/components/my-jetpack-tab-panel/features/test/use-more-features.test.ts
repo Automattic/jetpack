@@ -1,4 +1,5 @@
-import { filterMoreFeatures, groupMoreFeatures } from '../use-more-features';
+import { getFeatureStatusLabel } from '../module-availability';
+import { filterMoreFeatures, getModuleFeatureState, groupMoreFeatures } from '../use-more-features';
 import type { MyJetpackModule } from '../../../../types';
 
 const mod = ( slug: string, overrides: Partial< MyJetpackModule > = {} ): MyJetpackModule =>
@@ -35,7 +36,7 @@ const features = [
 
 const groups = [
 	// Listed out of order: the group sorts by name, not by this list.
-	{ label: 'Security', modules: [ 'sso', 'waf', 'monitor' ] },
+	{ label: 'Security', groups: [ 'security' ], modules: [ 'sso', 'waf', 'monitor' ] },
 	{ label: 'Design', modules: [ 'google-fonts' ] },
 	{ label: 'Analytics', modules: [ 'zeta' ] },
 	{ label: 'Earn', modules: [ 'wordads' ] },
@@ -43,6 +44,18 @@ const groups = [
 
 const slugsOf = ( grouped: ReturnType< typeof groupMoreFeatures > ) =>
 	grouped.map( group => [ group.label, group.states.map( state => state.feature.slug ) ] );
+
+it.each( [ 'long_description', 'module_tags' ] )(
+	'searches %s only for migrated module views',
+	field => {
+		const module = mod( 'alpha', { [ field ]: field === 'module_tags' ? [ 'needle' ] : 'needle' } );
+		const grouped = groupMoreFeatures( [], [], { alpha: module }, {}, {} );
+		expect( filterMoreFeatures( grouped, 'all', 'needle' ) ).toEqual( [] );
+		expect( slugsOf( filterMoreFeatures( grouped, 'all', 'needle', true ) ) ).toEqual( [
+			[ '', [ 'alpha' ] ],
+		] );
+	}
+);
 
 describe( 'groupMoreFeatures', () => {
 	const grouped = groupMoreFeatures(
@@ -60,6 +73,39 @@ describe( 'groupMoreFeatures', () => {
 			[ 'Security', [ 'monitor', 'sso', 'waf' ] ],
 			[ 'Other', [ 'alpha' ] ],
 		] );
+	} );
+
+	it( 'lists settings entries under the heading that names them, else under Other, as rows with no switch', () => {
+		const entry = ( slug: string, name: string ) => ( {
+			slug,
+			name,
+			description: '',
+			status: 'needs-setup' as const,
+		} );
+		const withEntries = groupMoreFeatures(
+			features,
+			[ ...groups.slice( 0, 2 ), { ...groups[ 2 ], settings: [ 'ga' ] } ],
+			modules,
+			{ social: 'publicize' },
+			{},
+			new Set( [ 'google-fonts' ] ),
+			false,
+			[ entry( 'ga', 'A GA' ), entry( 'loose', 'B LOOSE' ) ]
+		);
+
+		expect( slugsOf( withEntries ) ).toEqual( [
+			[ 'Analytics', [ 'ga', 'zeta' ] ],
+			[ 'Security', [ 'monitor', 'sso', 'waf' ] ],
+			[ 'Other', [ 'alpha', 'loose' ] ],
+		] );
+		// On but unfinished: filtered as active, badged as needing setup.
+		expect( withEntries[ 0 ].states[ 0 ] ).toMatchObject( {
+			status: 'active',
+			control: { kind: 'none' },
+			settingsEntry: true,
+			needsSetup: true,
+		} );
+		expect( getFeatureStatusLabel( withEntries[ 0 ].states[ 0 ] ) ).toBe( 'Needs setup' );
 	} );
 
 	it( 'leaves out a product\u2019s module even while a pre-release gate hides its card', () => {
@@ -107,7 +153,7 @@ describe( 'groupMoreFeatures', () => {
 		}
 	);
 
-	it( 'filters by status and hides modules under plan and essential filters', () => {
+	it( 'filters by status and heading group, and hides modules under essential', () => {
 		const filtered = ( filter: Parameters< typeof filterMoreFeatures >[ 1 ] ) =>
 			filterMoreFeatures( grouped, filter, '' ).flatMap( group =>
 				group.states.map( state => state.feature.slug )
@@ -115,7 +161,8 @@ describe( 'groupMoreFeatures', () => {
 
 		expect( filtered( 'active' ) ).toEqual( [ 'sso' ] );
 		expect( filtered( 'inactive' ) ).toEqual( [ 'zeta', 'monitor', 'waf', 'alpha' ] );
-		expect( filtered( 'security' ) ).toEqual( [] );
+		expect( filtered( 'security' ) ).toEqual( [ 'monitor', 'sso', 'waf' ] );
+		expect( filtered( 'growth' ) ).toEqual( [] );
 		expect( filtered( 'essential' ) ).toEqual( [] );
 	} );
 
@@ -175,9 +222,12 @@ describe( 'getHiddenModules', () => {
 		isBlockTheme: boolean,
 		...loads: Record< string, MyJetpackModule >[]
 	) => {
-		window.JetpackScriptData = {
-			myJetpack: { siteEditor: { isBlockTheme } },
-		} as Window[ 'JetpackScriptData' ];
+		window.myJetpackInitialState = {
+			deprecatedModules: [
+				'google-fonts',
+				...( isBlockTheme ? [ 'widgets', 'widget-visibility' ] : [] ),
+			],
+		} as Window[ 'myJetpackInitialState' ];
 		let hidden: Set< string > = new Set();
 		await jest.isolateModulesAsync( async () => {
 			const { getHiddenModules } = await import( '../use-more-features' );
@@ -220,4 +270,23 @@ describe( 'getHiddenModules', () => {
 		// Hidden, not moved: they must not resurface under Other.
 		expect( slugsOf( grouped ).flatMap( ( [ , slugs ] ) => slugs ) ).toEqual( [ 'widgets' ] );
 	} );
+} );
+
+it( 'keeps an account-required extra module visible and excludes it from Available', () => {
+	const module = {
+		module: 'notes',
+		name: 'Notifications',
+		available: false,
+		activated: true,
+		requires_user_connection: true,
+	} as MyJetpackModule;
+	const state = getModuleFeatureState( module, {}, true );
+	const accountGroups = [ { label: 'Other', states: [ state ] } ];
+	expect( state.control ).toEqual( {
+		kind: 'module',
+		module: expect.objectContaining( { module: 'notes', available: true } ),
+	} );
+	expect( state.accountNeeded ).toBe( true );
+	expect( filterMoreFeatures( accountGroups, 'all', '' )[ 0 ].states ).toEqual( [ state ] );
+	expect( filterMoreFeatures( accountGroups, 'available', '' ) ).toEqual( [] );
 } );

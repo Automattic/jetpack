@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0] - 2026-11-06
+### Added
+- Support React 19.
+
+### Changed
+- Add @wordpress/data dependency and React peer dependencies.
+- Update package dependencies.
+- Use React to render the Image Guide overlay. Change setupImageGuideUI to return an object with an unmount method, and use the host's React, ReactDOM and JSX runtime in the built file. Prevent bubble entrances and label fades from replaying when a hidden container is shown again.
+
+### Fixed
+- Fix popup links to open in separate new tabs.
+
 ## [1.0.21] - 2026-09-28
 ### Changed
 - Update package dependencies. [#52297]
@@ -15,10 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.0.19] - 2026-08-14
 ### Changed
-- Update package dependencies. [#50510]
-- Update package dependencies. [#50751]
-- Update package dependencies. [#50753]
-- Update package dependencies. [#51008]
+- Update package dependencies. [#50510] [#50751] [#50753] [#51008]
 
 ## [1.0.18] - 2026-06-26
 ### Changed
@@ -26,8 +35,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.0.17] - 2026-06-24
 ### Changed
-- Update package dependencies. [#49757]
-- Update package dependencies. [#49831]
+- Update package dependencies. [#49757] [#49831]
 
 ## [1.0.16] - 2026-06-10
 ### Changed
@@ -36,16 +44,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.0.15] - 2026-06-08
 ### Changed
 - Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency. [#48225]
-- Update package dependencies. [#48302]
-- Update package dependencies. [#48695]
-- Update package dependencies. [#48844]
-- Update package dependencies. [#49012]
+- Update package dependencies. [#48302] [#48695] [#48844] [#49012]
 
 ## [1.0.14] - 2026-04-13
 ### Changed
-- Update package dependencies. [#47610]
-- Update package dependencies. [#47799]
-- Update package dependencies. [#47998]
+- Update package dependencies. [#47610] [#47799] [#47998]
 
 ## [1.0.13] - 2026-03-09
 ### Changed
@@ -75,8 +78,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.0.7] - 2025-09-17
 ### Changed
-- Update package dependencies. [#45097]
-- Update package dependencies. [#45127]
+- Update package dependencies. [#45097] [#45127]
 
 ## [1.0.6] - 2025-08-21
 ### Added
@@ -274,6 +276,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 - Minor package.json change - removing private entry.
 
+[2.0.0]: https://github.com/Automattic/jetpack-image-guide/compare/v1.0.21...v2.0.0
 [1.0.21]: https://github.com/Automattic/jetpack-image-guide/compare/v1.0.20...v1.0.21
 [1.0.20]: https://github.com/Automattic/jetpack-image-guide/compare/v1.0.19...v1.0.20
 [1.0.19]: https://github.com/Automattic/jetpack-image-guide/compare/v1.0.18...v1.0.19

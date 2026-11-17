@@ -3,15 +3,24 @@ export type SectionState =
 
 export type Feature = 'sharing' | 'likes';
 
+/** A template the placements add the blocks to. */
+export type PlacementTemplate = 'single' | 'page';
+
 export interface Status {
-	sharing: { state: SectionState };
-	likes: { state: SectionState; supported: boolean };
+	sharing: { state: SectionState; managed_templates: PlacementTemplate[] };
+	likes: { state: SectionState; supported: boolean; managed_templates: PlacementTemplate[] };
 	comment_likes: { supported: boolean; follows_likes_settings: boolean };
 	placement: boolean;
+	/** Empty when the theme has no `single` template. */
 	site_editor_url: string;
+	/** Empty when the theme has no `page` template. */
+	page_template_editor_url: string;
 }
 
 export type ButtonStyle = 'icon-text' | 'icon' | 'text' | 'official';
+
+/** Where a block is added to single post and page templates; a list holds one at most. */
+export type TemplatePlacement = 'before_content' | 'after_content';
 
 /** Only the keys the screen shows on this site are present. */
 export interface Settings {
@@ -23,6 +32,8 @@ export interface Settings {
 	show?: string[];
 	twitter_site_tag?: string;
 	disable_resources?: boolean;
+	sharing_buttons_auto_add?: TemplatePlacement[];
+	likes_auto_add?: TemplatePlacement[];
 }
 
 export type SettingKey = keyof Settings;
@@ -38,6 +49,9 @@ export interface SharingLikesScriptData {
 	placement_choices: PlacementChoice[];
 	multibyte_supported: boolean;
 	private_site: boolean;
+	/** Whether new posts start with comments closed (Settings > Discussion). */
+	comments_closed_by_default: boolean;
+	discussion_settings_url: string;
 }
 
 /** The two rows of enabled services: shown as buttons, or behind "More". */
@@ -54,6 +68,7 @@ export interface Service {
 	name: string;
 	custom: boolean;
 	deprecated: boolean;
+	legacy?: boolean;
 	url?: string;
 	icon?: string;
 }

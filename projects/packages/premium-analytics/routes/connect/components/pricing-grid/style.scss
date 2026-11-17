@@ -1,0 +1,15 @@
+.jetpack-premium-analytics-pricing-grid__price-placeholder {
+	position: relative;
+}
+
+.jetpack-premium-analytics-pricing-grid__price-reserve {
+	visibility: hidden;
+}
+
+// Covers the price and legend, not the gap above the button.
+.jetpack-premium-analytics-pricing-grid__price-pulse {
+	position: absolute;
+	inset-block: 0 calc(var(--spacing-base) * 3);
+	inset-inline: 0;
+	border-radius: var(--wpds-border-radius-sm);
+}

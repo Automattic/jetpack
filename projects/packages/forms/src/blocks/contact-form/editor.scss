@@ -1,4 +1,6 @@
-@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+@use "@wordpress/base-styles/breakpoints";
+@use "@wordpress/base-styles/mixins";
+@use "@wordpress/base-styles/variables";
 @use "../shared/styles/field-hints" as *;
 
 :where(.jetpack-contact-form) {
@@ -174,7 +176,7 @@
 				flex: 1 1 0;
 			}
 
-			@media (max-width: #{ (gb.$break-mobile) }) {
+			@media (max-width: #{ (breakpoints.$break-mobile) }) {
 
 				&[class*="jetpack-field__width-"] {
 					flex-basis: 100%;
@@ -311,16 +313,16 @@
 .form-placeholder__patterns-modal {
 	max-width: 1200px;
 
-	@include gb.break-small() {
-		width: calc(100% - #{ gb.$grid-unit-20 * 2 });
-		height: calc(100% - #{ gb.$header-height * 2 });
+	@include mixins.break-small() {
+		width: calc(100% - #{ variables.$grid-unit-20 * 2 });
+		height: calc(100% - #{ variables.$header-height * 2 });
 	}
 
-	@include gb.break-medium() {
-		width: gb.$break-medium - gb.$grid-unit-20 * 2;
+	@include mixins.break-medium() {
+		width: breakpoints.$break-medium - variables.$grid-unit-20 * 2;
 	}
 
-	@include gb.break-large() {
+	@include mixins.break-large() {
 		height: 80%;
 		width: 80%;
 		max-height: none;

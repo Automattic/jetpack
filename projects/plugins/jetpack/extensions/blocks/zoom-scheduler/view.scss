@@ -8,6 +8,11 @@
 		max-inline-size: 550px;
 	}
 
+	&.alignwide &__embed,
+	&.alignfull &__embed {
+		max-inline-size: none;
+	}
+
 	iframe {
 		border: 0;
 		display: block;

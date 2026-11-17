@@ -10,6 +10,10 @@ namespace Automattic\Jetpack\Boost_Speed_Score;
 use Automattic\Jetpack\Boost_Core\Lib\Boost_API;
 use Automattic\Jetpack\Boost_Core\Lib\Cacheable;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Class Speed_Score_Graph_History_Request
  */

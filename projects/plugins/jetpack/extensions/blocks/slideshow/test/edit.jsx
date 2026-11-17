@@ -1,4 +1,14 @@
-import { render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
+import { store as blockEditorStore } from '@wordpress/block-editor';
+import { dispatch } from '@wordpress/data';
+import {
+	clientId,
+	getBlockAttributes,
+	isSavingLocked,
+	makeFiles,
+	reportEachFile,
+	uploadFiles,
+} from '../../../shared/test/upload-files';
 import { SlideshowEdit } from '../edit';
 
 const defaultAttributes = {
@@ -55,4 +65,45 @@ test( 'loads basic slideshow structure if images present', () => {
 			button.classList.contains( 'wp-block-jetpack-slideshow_button-next' )
 		)
 	).toBe( true );
+} );
+
+test.each( [ true, false ] )(
+	'shows the upload button only to users who can upload: %s',
+	canUpload => {
+		dispatch( blockEditorStore ).updateSettings( {
+			mediaUpload: canUpload ? () => {} : undefined,
+		} );
+		render(
+			<SlideshowEdit
+				{ ...defaultProps }
+				attributes={ { ...defaultAttributes, images } }
+				isSelected
+			/>
+		);
+		expect( !! screen.queryByRole( 'button', { name: 'Upload an image' } ) ).toBe( canUpload );
+	}
+);
+
+const uploadToSlideshow = files =>
+	uploadFiles( {
+		Edit: SlideshowEdit,
+		name: 'jetpack/slideshow',
+		attributes: { ids: [], images: [], sizeSlug: 'large' },
+		files,
+	} );
+
+test( 'keeps every image uploaded from the placeholder when uploads report one file at a time', async () => {
+	reportEachFile( await uploadToSlideshow( makeFiles( [ 'a', 'b', 'c', 'd' ] ) ) );
+
+	expect( getBlockAttributes().ids ).toEqual( [ 10, 11, 12, 13 ] );
+} );
+
+test( 'releases the save lock when the block is removed mid-upload', async () => {
+	await uploadToSlideshow( makeFiles( [ 'a', 'b' ] ) );
+	expect( isSavingLocked() ).toBe( true );
+
+	act( () => {
+		dispatch( blockEditorStore ).removeBlock( clientId );
+	} );
+	expect( isSavingLocked() ).toBe( false );
 } );

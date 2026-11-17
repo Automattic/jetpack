@@ -22,6 +22,7 @@ import { addFilter } from '@wordpress/hooks';
 interface BlockMetadataLike {
 	name: string;
 	attributes?: Record< string, unknown >;
+	supports?: Record< string, unknown >;
 	[ key: string ]: unknown;
 }
 
@@ -38,11 +39,10 @@ export function registerJetpackBlockFromMetadata(
 	const { available, details, unavailableReason } = getJetpackExtensionAvailability( rawName );
 
 	const requiredPlan = requiresPaidPlan( unavailableReason, details );
+	const noUpgradeOffer = unavailableReason === 'missing_plan__no_offer';
 
-	// Bail only when the block is genuinely unavailable. When it's merely gated
-	// behind a paid plan, register it anyway so the paid-block layer can surface
-	// the upgrade banner.
-	if ( ! available && ! requiredPlan ) {
+	// Keep existing episodes editable without advertising an unavailable upgrade.
+	if ( ! available && ! requiredPlan && ! noUpgradeOffer ) {
 		if ( 'production' !== process.env.NODE_ENV ) {
 			// eslint-disable-next-line no-console
 			console.warn(
@@ -56,6 +56,7 @@ export function registerJetpackBlockFromMetadata(
 		metadata as RegisterBlockArg0,
 		{
 			...settings,
+			...( noUpgradeOffer && { supports: { ...metadata.supports, inserter: false } } ),
 			icon: getBlockIconProp( metadata ),
 			attributes: metadata.attributes || {},
 		} as RegisterBlockArg1

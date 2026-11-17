@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Dashboard: Show new speed scores without waiting for the comparison test that runs without Boost.

@@ -309,6 +309,7 @@ class REST_Endpoints_Test extends TestCase {
 
 			$this->assertFalse( $data['isActive'] );
 			$this->assertFalse( $data['isRegistered'] );
+			$this->assertFalse( $data['isInSafeMode'] );
 			$this->assertTrue( $data['offlineMode']['isActive'] );
 		} finally {
 			remove_filter( 'jetpack_offline_mode', '__return_true' );
@@ -1629,6 +1630,8 @@ class REST_Endpoints_Test extends TestCase {
 				'isMaster'              => false,
 				'username'              => $user->user_login,
 				'id'                    => $user->ID,
+				'displayName'           => $user->display_name,
+				'email'                 => $user->user_email,
 				'blogId'                => false,
 				'wpcomUser'             => array(
 					'avatar' => false,
@@ -1676,6 +1679,8 @@ class REST_Endpoints_Test extends TestCase {
 				'isMaster'              => false,
 				'username'              => $user->user_login,
 				'id'                    => $user->ID,
+				'displayName'           => $user->display_name,
+				'email'                 => $user->user_email,
 				'blogId'                => self::BLOG_ID,
 				'wpcomUser'             => array(
 					'avatar' => false,
@@ -1732,6 +1737,8 @@ class REST_Endpoints_Test extends TestCase {
 				'isMaster'              => true,
 				'username'              => $user->user_login,
 				'id'                    => $user->ID,
+				'displayName'           => $user->display_name,
+				'email'                 => $user->user_email,
 				'blogId'                => self::BLOG_ID,
 				'wpcomUser'             => $dummy_wpcom_user_data,
 				'permissions'           => array(
@@ -2334,9 +2341,10 @@ class REST_Endpoints_Test extends TestCase {
 			'headers'  => new CaseInsensitiveDictionary( array( 'content-type' => 'application/json' ) ),
 			'body'     => wp_json_encode(
 				array(
-					'access_token' => 'mock.token',
-					'token_type'   => 'X_JETPACK',
-					'scope'        => ( new Manager() )->sign_role( 'administrator' ),
+					'access_token'     => 'mock.token',
+					'token_type'       => 'X_JETPACK',
+					'scope'            => ( new Manager() )->sign_role( 'administrator' ),
+					'connection_owner' => true,
 				),
 				JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
 			),

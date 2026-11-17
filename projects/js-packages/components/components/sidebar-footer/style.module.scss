@@ -1,0 +1,24 @@
+.footer {
+	position: sticky;
+	inset-block-end: 0;
+	// Above positioned content scrolling under it, such as the hidden checkbox
+	// of wp-components toggles before 33.0, which would take the footer's clicks.
+	z-index: 1;
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-md);
+	margin-block-start: auto;
+	// Matches the admin-ui Page title bar, lining the actions up with the content.
+	padding: var(--wpds-dimension-padding-lg) var(--wpds-dimension-padding-2xl);
+	border-block-start:
+		var(--wpds-border-width-xs) solid
+		var(--wpds-color-stroke-surface-neutral);
+	background: var(--wpds-color-background-surface-neutral);
+}
+
+.actions {
+	display: grid;
+	grid-auto-columns: minmax(0, 1fr);
+	grid-auto-flow: column;
+	gap: var(--wpds-dimension-gap-sm);
+}

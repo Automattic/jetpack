@@ -1,6 +1,12 @@
 import { getLaunchSiteUrl } from '../../../../common/launch-site-url.ts';
 import type { DifmOffer } from '../difm-offer/difm-offer-banner.tsx';
-import type { AboutPageDraft, TailoredOutput, FirstPostDraft, SiteCopy } from '../lib/types.ts';
+import type {
+	AboutPageDraft,
+	TailoredOutput,
+	FirstPostDraft,
+	InferredInput,
+	SiteCopy,
+} from '../lib/types.ts';
 
 /**
  * A single enriched task: AI subtitle merged with the catalog's title,
@@ -40,6 +46,8 @@ export interface SiteData {
 	edit_url?: string | null;
 	// The site language (WordPress locale), which the AI output is written in.
 	language?: string;
+	// The site_intent option, which preselects the wizard goal when it matches one.
+	site_intent?: string;
 	// Copy written into the site's posts and pages, translated into the site language.
 	copy?: SiteCopy;
 }
@@ -50,6 +58,8 @@ export interface LaunchpadData {
 	ai_output: {
 		payload: TailoredOutput;
 	} | null;
+	// What the AI Website Builder learned, served when an AI-built site has no list yet.
+	inferred_input?: InferredInput | null;
 	site?: SiteData;
 	// The persisted wizard input; seeds the Tracks goal before tailoring exists.
 	wizard?: { goal?: string } | null;
@@ -59,6 +69,13 @@ export interface LaunchpadData {
 	difm_offer?: DifmOffer | null;
 	// Whether the server has latched the list as done.
 	list_completed?: boolean;
+	// Whether the next tailoring is for an AI-built site.
+	ai_built?: boolean;
+	// The goals step's ExPlat variation, or null when the user is not in the experiment.
+	goals_variation?: string | null;
+	mcp_detection?: boolean;
+	// Whether POST /mcp-access can allow full MCP access in place.
+	mcp_allow_full?: boolean;
 }
 
 /** How a task's "Get started" CTA behaves when clicked. */
@@ -370,4 +387,21 @@ function humanizeTaskId( id: string ): string {
 		.split( '_' )
 		.map( word => word.charAt( 0 ).toUpperCase() + word.slice( 1 ) )
 		.join( ' ' );
+}
+
+/**
+ * Whether a landing on the list counts as finishing the wizard: only a wizard-started run that
+ * rendered tasks does, never an automatic tailoring or an empty error state.
+ *
+ * @param fromWizard       - Whether the pending run came from the wizard.
+ * @param hasPendingTailor - Whether a tailoring run is pending.
+ * @param taskCount        - How many tasks will render.
+ * @return Whether to record wizard_completed.
+ */
+export function recordsWizardCompleted(
+	fromWizard: boolean,
+	hasPendingTailor: boolean,
+	taskCount: number
+): boolean {
+	return fromWizard && hasPendingTailor && taskCount > 0;
 }

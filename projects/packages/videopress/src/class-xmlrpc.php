@@ -95,7 +95,10 @@ class XMLRPC {
 				: sanitize_title( basename( $url ) );
 			$guid  = $media['guid'] ?? null;
 
-			$media_id = videopress_create_new_media_item( $title, $guid );
+			$media_id = videopress_create_new_media_item( $title, $guid, $media_item['minimum_attachment_id'] ?? 0 );
+			if ( is_wp_error( $media_id ) ) {
+				return array( 'errors' => array( $media_id->get_error_code() => $media_id->get_error_message() ) );
+			}
 
 			$post_update = array();
 			if ( isset( $media_item['description'] ) && '' !== $media_item['description'] ) {

@@ -75,7 +75,7 @@ class Force_2FA {
 		 */
 		if ( apply_filters( 'jetpack_force_2fa_dependency_notice', true ) && current_user_can( $this->role ) ) {
 			wp_admin_notice(
-				esc_html__( 'Jetpack Force 2FA requires Jetpack’s SSO feature.', 'jetpack-connection' ),
+				esc_html__( 'Jetpack Force 2FA requires the WordPress.com login feature to be turned on.', 'jetpack-connection' ),
 				array(
 					'type' => 'warning',
 				)

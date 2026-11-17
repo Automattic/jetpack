@@ -7,7 +7,12 @@
  */
 
 use Automattic\Jetpack\Stats_Admin\Dashboard as OdysseyStats;
-OdysseyStats::init();
+
+require_once __DIR__ . '/odyssey-stats-replaced.php';
+
+if ( ! wpcom_simple_odyssey_stats_is_replaced() ) {
+	OdysseyStats::init();
+}
 
 // Only register when the loader path is available at include time, matching the
 // original gate so the widget is not loaded on installs where it was not before.

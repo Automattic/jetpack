@@ -20,6 +20,8 @@ export interface BarListChartProps extends Exclude<
 	BarChartProps,
 	'orientation' | 'size' | 'gridVisibility'
 > {
+	/** Bar lists are always horizontal, and horizontal bars ignore `compactWhenShort`. */
+	compactWhenShort?: never;
 	options?: {
 		/**
 		 * Scale for the y axis. Exclude the type property.

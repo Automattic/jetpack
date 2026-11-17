@@ -255,4 +255,16 @@ class BruteForceProtectionTest extends WorDBless\BaseTestCase {
 			array( (object) array() ),
 		);
 	}
+
+	/**
+	 * Test that ip_is_allowed matches an IP inside a CIDR entry on the allow list.
+	 */
+	public function test_ip_is_allowed_matches_cidr_entry() {
+		update_option( 'jetpack_waf_ip_allow_list', '1.1.1.1 192.168.0.0/24' );
+
+		$this->assertTrue( $this->instance->ip_is_allowed( '192.168.0.42' ) );
+		$this->assertFalse( $this->instance->ip_is_allowed( '192.168.1.42' ) );
+
+		delete_option( 'jetpack_waf_ip_allow_list' );
+	}
 }

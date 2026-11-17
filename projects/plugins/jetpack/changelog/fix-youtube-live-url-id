@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Shortcodes: Recognize YouTube live links so livestreams embed and show a thumbnail, including private and unlisted streams.
