@@ -16,6 +16,9 @@ import './notice.scss';
 
 const GLOBAL_STYLES_VIEW_NOTICE_SELECTOR = 'wpcom-global-styles-notice-container';
 
+// Site editor sidebar background. `ThemeProvider` needs an opaque color, not a CSS variable.
+const SITE_EDITOR_SIDEBAR_BACKGROUND = '#1e1e1e';
+
 const trackEvent = ( eventName, isSiteEditor = true ) =>
 	wpcomTrackEvent( eventName, {
 		context: isSiteEditor ? 'site-editor' : 'post-editor',
@@ -73,13 +76,14 @@ function GlobalStylesWarningNotice() {
 		</div>
 	);
 
-	// Core's `wp-theme` script may not expose `ThemeProvider`.
+	// This build externalizes `@wordpress/theme`, and core's `wp-theme` may not expose `ThemeProvider`.
 	if ( ! ThemeProvider ) {
 		return notice;
 	}
 
-	// Tunes the notice for the dark site editor sidebar it renders in.
-	return <ThemeProvider color={ { background: '#1e1e1e' } }>{ notice }</ThemeProvider>;
+	return (
+		<ThemeProvider color={ { background: SITE_EDITOR_SIDEBAR_BACKGROUND } }>{ notice }</ThemeProvider>
+	);
 }
 
 /**
