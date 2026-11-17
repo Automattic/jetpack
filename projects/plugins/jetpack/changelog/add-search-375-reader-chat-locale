@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Site Chat: Pass the site language to the chat so its opening text and starter questions can be shown in that language.
