@@ -81,10 +81,23 @@ const settle = async () => {
 
 let mockConfigExtra = {};
 
-const hover = slug =>
-	document
-		.querySelector( `#adminmenu a[href$="page=${ slug }"]` )
-		.dispatchEvent( new Event( 'pointerover', { bubbles: true } ) );
+const menuLink = slug => document.querySelector( `#adminmenu a[href$="page=${ slug }"]` );
+const pointer = ( slug, type ) =>
+	menuLink( slug ).dispatchEvent( new Event( type, { bubbles: true } ) );
+
+// Rest the pointer on a menu link long enough for its dashboard to prewarm.
+const hover = slug => {
+	pointer( slug, 'pointerout' );
+	const faked = !! setTimeout.clock;
+	if ( ! faked ) {
+		jest.useFakeTimers();
+	}
+	pointer( slug, 'pointerover' );
+	jest.advanceTimersByTime( 100 );
+	if ( ! faked ) {
+		jest.useRealTimers();
+	}
+};
 
 beforeEach( () => {
 	mockShowHeader.mockClear();
@@ -267,6 +280,25 @@ describe( 'admin shell leave guard', () => {
 } );
 
 describe( 'admin shell prewarm', () => {
+	it( 'prewarms only the link the pointer rests on, not those it sweeps past', async () => {
+		jest.useFakeTimers();
+		pointer( 'guest-a', 'pointerover' );
+		jest.advanceTimersByTime( 60 );
+		pointer( 'guest-b', 'pointerover' );
+		jest.advanceTimersByTime( 60 );
+		pointer( 'guest-b', 'pointerout' );
+		jest.advanceTimersByTime( 200 );
+		pointer( 'guest-a2', 'pointerover' );
+		jest.advanceTimersByTime( 100 );
+		await jest.advanceTimersByTimeAsync( 0 );
+
+		expect(
+			require( '../../../src/admin-shell/guest-assets' ).applyGuestAssets.mock.calls.map(
+				( [ , slug ] ) => slug
+			)
+		).toEqual( [ 'guest-a2' ] );
+	} );
+
 	it( 'waits for the click while the user saves data', async () => {
 		Object.defineProperty( navigator, 'connection', {
 			value: { saveData: true },

@@ -24,6 +24,8 @@ const RENDER_TIMEOUT = 15000;
 // A kept-mounted app shown again after this long is `stale` in its page-shown, so it refetches.
 const STALE_AFTER = 5 * 60 * 1000;
 const INIT_TIMEOUT = 15000;
+// How long the pointer rests on a menu link before its dashboard prewarms, so a sweep down the menu doesn't.
+const HOVER_DELAY = 100;
 
 const readConfig = () => {
 	try {
@@ -433,12 +435,31 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey, maxLiveApps }
 			);
 	} );
 
-	document.getElementById( 'adminmenu' )?.addEventListener( 'pointerover', event => {
-		const a = event.target.closest?.( 'a[href]' );
+	const menu = document.getElementById( 'adminmenu' );
+	let hovered = null;
+	let hoverTimer;
+	menu?.addEventListener( 'pointerover', event => {
+		const a = event.target.closest?.( 'a[href]' ) ?? null;
+		if ( a === hovered ) {
+			return;
+		}
+		clearTimeout( hoverTimer );
+		hovered = a;
 		const slug = a && isMemberUrl( a.href ) ? pageOf( a.href ) : null;
-		// Keep the last slot for a click: passing over links on the way shouldn't spend it.
-		if ( slug && ! apps.has( slug ) && hasRoomFor( slug, 1 ) && mayPrewarm() ) {
-			prewarm( slug, 'menu hover' ).catch( () => {} );
+		if ( ! slug ) {
+			return;
+		}
+		hoverTimer = setTimeout( () => {
+			// Keep the last slot for a click: passing over links on the way shouldn't spend it.
+			if ( ! apps.has( slug ) && hasRoomFor( slug, 1 ) && mayPrewarm() ) {
+				prewarm( slug, 'menu hover' ).catch( () => {} );
+			}
+		}, HOVER_DELAY );
+	} );
+	menu?.addEventListener( 'pointerout', event => {
+		if ( hovered && ! hovered.contains( event.relatedTarget ) ) {
+			clearTimeout( hoverTimer );
+			hovered = null;
 		}
 	} );
 
