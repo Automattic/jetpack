@@ -1,0 +1,144 @@
+import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import OnboardingScreen from '..';
+
+// The chunk failing to load, as the lazy import sees it.
+jest.mock( '../wizard', () => {
+	throw new Error( 'Loading chunk 920 failed.' );
+} );
+
+const mockConnection = { isRegistered: true, isUserConnected: false };
+
+jest.mock( '@automattic/jetpack-connection', () => ( {
+	__esModule: true,
+	useConnection: () => ( {
+		...mockConnection,
+		handleRegisterSite: jest.fn(),
+		siteIsRegistering: false,
+		userIsConnecting: false,
+		registrationError: false,
+	} ),
+	getRegistrationErrorCode: () => undefined,
+	getRegistrationErrorDisplay: () => ( { message: '' } ),
+} ) );
+
+jest.mock( '../../../hooks/use-analytics', () => ( {
+	__esModule: true,
+	default: () => ( { recordEvent: jest.fn() } ),
+} ) );
+
+const mockApiFetch = jest.fn();
+
+jest.mock( '@wordpress/api-fetch', () => ( {
+	__esModule: true,
+	default: ( ...args: unknown[] ) => mockApiFetch( ...args ),
+} ) );
+
+const mockAssignLocation = jest.fn();
+
+jest.mock( '../../../hooks/use-notification-watcher/assignLocation', () => ( {
+	__esModule: true,
+	assignLocation: ( url: string ) => mockAssignLocation( url ),
+} ) );
+
+const exitUrl = 'http://example.com/wp-admin/admin.php?page=my-jetpack';
+const dashboardUrl = 'http://example.com/wp-admin/';
+
+describe( 'OnboardingScreen when the wizard fails to load', () => {
+	beforeEach( () => {
+		window.myJetpackInitialState.onboardingWizard = {
+			exitUrl,
+			dashboardUrl,
+			runScope: 'a1b2c3d4e5f6',
+		};
+		Object.assign( mockConnection, { isRegistered: true, isUserConnected: false } );
+		mockApiFetch.mockReset().mockResolvedValue( {} );
+		mockAssignLocation.mockReset();
+	} );
+
+	afterEach( () => {
+		delete window.myJetpackInitialState.onboardingWizard;
+	} );
+
+	// First, because React.lazy keeps the failed import for the rest of the file.
+	it( 'shows the connect screen and logs why', async () => {
+		render( <OnboardingScreen /> );
+
+		await expect( screen.findByText( 'Start with Jetpack for free' ) ).resolves.toBeInTheDocument();
+		expect( console ).toHaveErrored();
+	} );
+
+	it( 'offers no skip before the site accepts the terms', async () => {
+		mockConnection.isRegistered = false;
+		render( <OnboardingScreen /> );
+
+		await expect( screen.findByText( 'Start with Jetpack for free' ) ).resolves.toBeInTheDocument();
+		expect( screen.queryByRole( 'link', { name: 'Skip setup' } ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'offers a connected user no way to connect again', async () => {
+		mockConnection.isUserConnected = true;
+		render( <OnboardingScreen /> );
+
+		await expect(
+			screen.findByRole( 'link', { name: 'Skip setup' } )
+		).resolves.toBeInTheDocument();
+		expect(
+			screen.queryByRole( 'button', { name: 'Supercharge my site' } )
+		).not.toBeInTheDocument();
+	} );
+
+	it.each( [
+		[
+			'site-only, settled, to My Jetpack',
+			false,
+			() => mockApiFetch.mockResolvedValue( {} ),
+			exitUrl,
+		],
+		[
+			'site-only, not settled, to wp-admin',
+			false,
+			() => mockApiFetch.mockRejectedValue( new Error() ),
+			dashboardUrl,
+		],
+		[
+			'connected user, not settled, to My Jetpack',
+			true,
+			() => mockApiFetch.mockRejectedValue( new Error() ),
+			exitUrl,
+		],
+	] )( 'records a skip and leaves: %s', async ( _, isUserConnected, settle, landing ) => {
+		mockConnection.isUserConnected = isUserConnected;
+		settle();
+		render( <OnboardingScreen /> );
+
+		await userEvent.click( await screen.findByRole( 'link', { name: 'Skip setup' } ) );
+
+		expect( mockApiFetch ).toHaveBeenCalledWith( {
+			path: '/my-jetpack/v1/site/onboarding/settled',
+			method: 'POST',
+			data: { outcome: 'skipped' },
+		} );
+		await waitFor( () => expect( mockAssignLocation ).toHaveBeenCalledWith( landing ) );
+	} );
+
+	it( 'lets a modified click open My Jetpack without skipping', async () => {
+		// Stand in for the browser opening a new tab; jsdom cannot navigate.
+		const stopNavigation = ( event: Event ) => event.preventDefault();
+		document.addEventListener( 'click', stopNavigation );
+		render( <OnboardingScreen /> );
+
+		try {
+			const user = userEvent.setup();
+			const link = await screen.findByRole( 'link', { name: 'Skip setup' } );
+			await user.keyboard( '{Control>}' );
+			await user.click( link );
+			await user.keyboard( '{/Control}' );
+		} finally {
+			document.removeEventListener( 'click', stopNavigation );
+		}
+
+		expect( mockApiFetch ).not.toHaveBeenCalled();
+		expect( mockAssignLocation ).not.toHaveBeenCalled();
+	} );
+} );

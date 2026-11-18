@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Onboarding: Keep Jetpack's features off when the setup wizard registers the site, until the features step switches them on.

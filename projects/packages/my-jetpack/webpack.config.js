@@ -6,7 +6,8 @@ const __dirname = import.meta.dirname;
 export default [
 	{
 		entry: {
-			onboarding: './_inc/onboarding.jsx',
+			// The public path goes first, so it is set before anything loads a chunk.
+			onboarding: [ './_inc/public-path.ts', './_inc/onboarding.jsx' ],
 			'async-notification-bubble': './_inc/utils/async-notification-bubble.ts',
 			'header-controls': './_inc/header-controls-script.tsx',
 		},
@@ -15,15 +16,25 @@ export default [
 		output: {
 			...jetpackWebpackConfig.output,
 			path: path.resolve( './build' ),
+			// Webpack's default is 120s: two minutes of the loading spinner before the wizard's fallback.
+			chunkLoadTimeout: 15000,
 		},
 		optimization: {
 			...jetpackWebpackConfig.optimization,
+			// Keeps the wizard's node_modules in its own chunk rather than a second, numbered one.
+			splitChunks: { cacheGroups: { defaultVendors: false } },
 		},
 		resolve: {
 			...jetpackWebpackConfig.resolve,
 		},
 		node: false,
-		plugins: [ ...jetpackWebpackConfig.StandardPlugins() ],
+		plugins: [
+			...jetpackWebpackConfig.StandardPlugins( {
+				DependencyExtractionPlugin: {
+					bundleWpUiDeps: true,
+				},
+			} ),
+		],
 		module: {
 			strictExportPresence: true,
 			rules: [
