@@ -115,10 +115,39 @@ describe( 'PostAllTimeTraffic widget', () => {
 		expect( screen.getByText( 'More views' ) ).toBeInTheDocument();
 	} );
 
+	it( 'hatches the publish month and the current month, which the data does not fill', () => {
+		renderWidget();
+
+		expect( screen.getAllByTestId( 'heatmap-cell-partial' ) ).toHaveLength( 2 );
+	} );
+
+	it( 'shades the months by distance in log space, so a post spanning magnitudes keeps its spread', () => {
+		mockUseStatsPost.mockReturnValue(
+			statsPostResult( {
+				years: {
+					'2025': { total: 1060, months: { '8': 5, '9': 10, '10': 20, '11': 30, '12': 1000 } },
+					'2026': { total: 40, months: { '3': 40 } },
+				},
+				averages: RESPONSE.averages,
+				post: { ID: 779, post_date: '2025-08-10 16:27:32' },
+			} )
+		);
+		renderWidget();
+
+		// 30 of a 10-to-1000 series: a quarter of the way up in log space, where rank
+		// would put it at 0.75 and distance at a fiftieth.
+		expect(
+			screen
+				.getByRole( 'gridcell', { name: 'Nov 2025: 30' } )
+				.style.getPropertyValue( '--a8c-charts-heatmap-cell-intensity' )
+		).toBe( '0.25' );
+	} );
+
 	it( 'draws views per day under the average metric', () => {
 		renderWidget( 779, { metric: 'average' } );
 
 		expect( screen.getByRole( 'gridcell', { name: 'Mar 2026: 8' } ) ).toBeInTheDocument();
+		expect( screen.queryByTestId( 'heatmap-cell-partial' ) ).not.toBeInTheDocument();
 		expect( screen.getByText( 'Fewer views per day' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'More views per day' ) ).toBeInTheDocument();
 	} );
@@ -129,19 +158,22 @@ describe( 'PostAllTimeTraffic widget', () => {
 
 		await user.click( screen.getByRole( 'gridcell', { name: 'Totals 2025: 30' } ) );
 
-		expect( mockOpenPeriod ).toHaveBeenCalledWith( {
-			from: new Date( '2025-11-10T00:00:00.000Z' ),
-			to: new Date( '2025-12-31T23:59:59.999Z' ),
-		} );
+		expect( mockOpenPeriod ).toHaveBeenCalledWith(
+			{
+				from: new Date( '2025-11-10T00:00:00.000Z' ),
+				to: new Date( '2025-12-31T23:59:59.999Z' ),
+			},
+			{ step: undefined }
+		);
 	} );
 
 	it( 'sets the page period to a clicked month, cut to the post life', async () => {
 		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
 		renderWidget();
 
-		await user.click( screen.getByRole( 'gridcell', { name: 'Nov 2025: 10' } ) );
+		await user.click( screen.getByRole( 'gridcell', { name: /^Nov 2025: 10/ } ) );
 
-		expect( mockOpenPeriod ).toHaveBeenCalledWith( NOVEMBER_2025 );
+		expect( mockOpenPeriod ).toHaveBeenCalledWith( NOVEMBER_2025, { step: undefined } );
 	} );
 
 	it( 'shows the scopeless empty state without a post', () => {

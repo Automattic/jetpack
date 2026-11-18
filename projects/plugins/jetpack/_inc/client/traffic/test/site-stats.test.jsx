@@ -71,7 +71,7 @@ describe( 'SiteStats', () => {
 		);
 	} );
 
-	it( 'links to the Stats v2 Settings tab when Stats v2 is the analytics UI', () => {
+	it( 'links to the Stats v2 Settings page when Stats v2 is the analytics UI', () => {
 		window.JetpackScriptData = {
 			site: { admin_url: 'https://example.com/wp-admin/' },
 			analytics: {
@@ -86,7 +86,7 @@ describe( 'SiteStats', () => {
 
 		expect( screen.getByRole( 'link', { name: LINK_NAME } ) ).toHaveAttribute(
 			'href',
-			'https://example.com/wp-admin/admin.php?page=jetpack-premium-analytics-wp-admin&p=%2F%3Fsection%3Dsettings'
+			'https://example.com/wp-admin/admin.php?page=jetpack-premium-analytics-wp-admin&p=%2Fsettings'
 		);
 	} );
 

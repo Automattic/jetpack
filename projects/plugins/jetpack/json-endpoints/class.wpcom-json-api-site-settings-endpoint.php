@@ -53,7 +53,6 @@ new WPCOM_JSON_API_Site_Settings_Endpoint(
 
 		'request_format'      => array(
 			'migration_source_site_domain'              => '(string) The source site URL, from the migration flow',
-			'in_site_migration_flow'                    => '(string) The migration flow the site is in',
 			'blogname'                                  => '(string) Blog name',
 			'blogdescription'                           => '(string) Blog description',
 			'default_pingback_flag'                     => '(bool) Notify blogs linked from article?',
@@ -127,6 +126,7 @@ new WPCOM_JSON_API_Site_Settings_Endpoint(
 			'posts_per_rss'                             => '(int) Number of posts to show in the RSS feed',
 			'rss_use_excerpt'                           => '(bool) Whether the RSS feed will use post excerpts',
 			'launchpad_screen'                          => '(string) Whether or not launchpad is presented and what size it will be',
+			'wpcom_ai_launchpad_enabled'                => '(bool) Turn on the AI Launchpad (Site Setup). It can\'t be turned off here',
 			'sm_enabled'                                => '(bool) Whether the newsletter subscribe modal is enabled',
 			'jetpack_subscribe_overlay_enabled'         => '(bool) Whether the newsletter subscribe overlay is enabled',
 			'jetpack_subscribe_floating_button_enabled' => '(bool) Whether the newsletter floating subscribe button is enabled',
@@ -514,7 +514,6 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						'enable_blocks_comments'           => (bool) get_option( 'enable_blocks_comments', true ),
 						'highlander_comment_form_prompt'   => $this->get_highlander_comment_form_prompt_option(),
 						'jetpack_comment_form_color_scheme' => (string) get_option( 'jetpack_comment_form_color_scheme' ),
-						'in_site_migration_flow'           => (string) get_option( 'in_site_migration_flow', '' ),
 						'migration_source_site_domain'     => (string) get_option( 'migration_source_site_domain' ),
 						'jetpack_waf_automatic_rules'      => (bool) get_option( 'jetpack_waf_automatic_rules' ),
 						'jetpack_waf_ip_allow_list'        => (string) get_option( 'jetpack_waf_ip_allow_list' ),
@@ -864,6 +863,13 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						if ( update_option( $key, $value ) ) {
 							$updated[ $key ] = $value;
 						}
+					}
+					break;
+				case 'wpcom_ai_launchpad_enabled':
+					// Only turns it on. A site leaves Site Setup through `wpcom_ai_launchpad_dismissed`, never by unsetting this option.
+					if ( $value ) {
+						update_option( $key, 1 );
+						$updated[ $key ] = true;
 					}
 					break;
 				case 'jetpack_protect_whitelist':
@@ -1418,25 +1424,6 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						$updated[ $key ] = $value;
 					}
 
-					break;
-
-				case 'in_site_migration_flow':
-					if ( empty( $value ) ) {
-						delete_option( 'in_site_migration_flow' );
-						break;
-					}
-
-					$migration_flow_whitelist = array(
-						'site-migration',
-						'migration-signup',
-					);
-
-					if ( ! in_array( $value, $migration_flow_whitelist, true ) ) {
-						break;
-					}
-
-					update_option( 'in_site_migration_flow', $value );
-					$updated[ $key ] = $value;
 					break;
 
 				case 'migration_source_site_domain':

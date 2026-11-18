@@ -822,6 +822,11 @@ class WPCOM_JSON_API {
 			return $response;
 		}
 
+		// `fields[]=a` in the query string arrives as an array; only the documented string form filters.
+		if ( ! is_string( $this->query['fields'] ) ) {
+			return $response;
+		}
+
 		$fields = array_map( 'trim', explode( ',', $this->query['fields'] ) );
 
 		if ( is_object( $response ) ) {

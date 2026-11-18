@@ -3,21 +3,18 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import useProduct from '../../../data/products/use-product';
 import useSitePurchases from '../../../data/use-site-purchases';
+import useAnalytics from '../../../hooks/use-analytics';
 import useMyJetpackConnection from '../../../hooks/use-my-jetpack-connection';
 import { getConnectUrl } from '../../../utils/connect-url';
 import PlansSection from '../index';
 
 const NAMES = { myJetpackPlans: 'my_jetpack_plans' };
 let mockConnectionFrom: typeof NAMES | undefined;
-const mockRecordEvent = jest.fn();
+const mockRecordEvent = jest.mocked( jest.mocked( useAnalytics )().recordEvent );
 
 jest.mock( '../../../data/products/use-product' );
 jest.mock( '../../../data/use-site-purchases' );
 jest.mock( '../../../hooks/use-my-jetpack-connection' );
-jest.mock( '../../../hooks/use-analytics', () => ( {
-	__esModule: true,
-	default: () => ( { recordEvent: mockRecordEvent } ),
-} ) );
 jest.mock( '../../../utils/connect-url', () => ( {
 	getConnectUrl: jest.fn( () => 'https://wordpress.com/connect' ),
 } ) );
@@ -188,5 +185,24 @@ describe( 'PlansSection', () => {
 				).not.toBeInTheDocument();
 			}
 		);
+	} );
+
+	it( 'sends a site with Pro to Complete checkout and reports which Complete', async () => {
+		window.myJetpackInitialState.blogID = '123';
+		setPurchases( [
+			{ ...buildPurchase( 'Jetpack Pro' ), product_slug: 'jetpack_pro_yearly' } as Purchase,
+		] );
+		render( <PlansSection /> );
+		const link = screen.getByRole( 'link', { name: /Upgrade to Complete/ } );
+		link.addEventListener( 'click', event => event.preventDefault() );
+
+		expect( link ).toHaveAttribute(
+			'href',
+			expect.stringContaining( 'wordpress.com/checkout/123/jetpack_complete?' )
+		);
+		await userEvent.click( link );
+		expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_myjetpack_plans_purchase_click', {
+			product_slug: 'jetpack_complete',
+		} );
 	} );
 } );

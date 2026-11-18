@@ -27,6 +27,11 @@ class Playground_DB_Importer {
 	public const SQLITE_SEQUENCE_TABLE = 'sqlite_sequence';
 
 	/**
+	 * Name of the table where SQLite stores the MySQL index definitions.
+	 */
+	public const SQLITE_INDEXES_TABLE = '_wp_sqlite_mysql_information_schema_statistics';
+
+	/**
 	 * The database connection.
 	 *
 	 * @var ?SQLite3
@@ -311,19 +316,24 @@ class Playground_DB_Importer {
 		}
 
 		// Get the "type map" of the table.
-		$query   = $this->prepare( 'SELECT COLUMN_NAME, COLUMN_TYPE from ' . self::SQLITE_DATA_TYPES_TABLE . ' where `TABLE_NAME`=%s;', $table_name );
+		$query   = $this->prepare( 'SELECT COLUMN_NAME, COLUMN_TYPE, EXTRA from ' . self::SQLITE_DATA_TYPES_TABLE . ' where `TABLE_NAME`=%s;', $table_name );
 		$results = $this->db->query( $query );
 
 		if ( ! $results ) {
 			return new WP_Error( 'missing-types-cache', 'Query error: missing data types cache' );
 		}
 
-		$mysql_map = array();
+		$mysql_map      = array();
+		$auto_increment = array();
 
-		// Schema: COLUMN_NAME|COLUMN_TYPE
+		// Schema: COLUMN_NAME|COLUMN_TYPE|EXTRA
 		while ( $column = $results->fetchArray( SQLITE3_ASSOC ) ) { // phpcs:ignore Generic.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition
 			// Map by column name and MySQL type.
 			$mysql_map[ $column['COLUMN_NAME'] ] = $column['COLUMN_TYPE'];
+
+			// Keep AUTO_INCREMENT only where the site's schema has it. A primary key like `id varchar(64)` has none,
+			// and MySQL rejects AUTO_INCREMENT on a non-integer column.
+			$auto_increment[ $column['COLUMN_NAME'] ] = false !== stripos( (string) $column['EXTRA'], 'auto_increment' );
 		}
 
 		// Tables like `'_wp_sqlite_*` do not have entries in the `_wp_sqlite_mysql_information_schema_columns` table.
@@ -374,7 +384,7 @@ class Playground_DB_Importer {
 				'not_null'       => (bool) $column['notnull'],
 				'default'        => $column['dflt_value'],
 				'primary'        => $is_primary,
-				'auto_increment' => $is_primary,
+				'auto_increment' => $is_primary && $auto_increment[ $column['name'] ],
 			);
 
 			$map_by_name[ $column['name'] ] = $index;
@@ -396,7 +406,15 @@ class Playground_DB_Importer {
 			}
 		}
 
-		// Load table indices.
+		// Load the table's indices as MySQL defined them, with their real names and prefix lengths.
+		$schema_indexes = $this->get_schema_indexes( $table_name );
+		if ( $schema_indexes !== null ) {
+			$map = array_merge( $map, $schema_indexes );
+
+			return $this->finish_table_types_map( $table_name, $map, $has_autoinc, $field_names, $formats );
+		}
+
+		// Fall back to the SQLite indices, for databases without the MySQL index definitions.
 		$query   = $this->prepare( 'SELECT name, sql FROM sqlite_master WHERE type=\'index\' AND tbl_name=%s', $table_name );
 		$results = $this->db->query( $query );
 
@@ -434,6 +452,77 @@ class Playground_DB_Importer {
 			$map[] = $new_index;
 		}
 
+		return $this->finish_table_types_map( $table_name, $map, $has_autoinc, $field_names, $formats );
+	}
+
+	/**
+	 * The table's indices from the MySQL index definitions the SQLite driver keeps.
+	 *
+	 * SQLite's own indices lose MySQL's prefix lengths, like TranslatePress's `original`(100) on a text column,
+	 * and their names are rebuilt from `<table>__<index>`, which breaks on index names containing `__`.
+	 *
+	 * @param string $table_name The table name.
+	 *
+	 * @return array|null The index map entries, or null if the definitions aren't available.
+	 */
+	private function get_schema_indexes( string $table_name ): ?array {
+		$query = $this->prepare( 'SELECT name FROM sqlite_master WHERE type=\'table\' AND name=%s', self::SQLITE_INDEXES_TABLE );
+		if ( ! $this->db->querySingle( $query ) ) {
+			return null;
+		}
+
+		$query   = $this->prepare( 'SELECT INDEX_NAME, NON_UNIQUE, SEQ_IN_INDEX, COLUMN_NAME, SUB_PART, INDEX_TYPE FROM ' . self::SQLITE_INDEXES_TABLE . ' WHERE TABLE_NAME=%s ORDER BY rowid', $table_name );
+		$results = $this->db->query( $query );
+		if ( ! $results ) {
+			return null;
+		}
+
+		$indexes = array();
+		while ( $row = $results->fetchArray( SQLITE3_ASSOC ) ) { // phpcs:ignore Generic.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition
+			// The primary key is output from the columns.
+			if ( $row['INDEX_NAME'] === 'PRIMARY' ) {
+				continue;
+			}
+
+			$name = $row['INDEX_NAME'];
+			if ( ! isset( $indexes[ $name ] ) ) {
+				if ( strtoupper( (string) $row['INDEX_TYPE'] ) === 'FULLTEXT' ) {
+					$type = 'FULLTEXT';
+				} else {
+					$type = ( (int) $row['NON_UNIQUE'] === 0 ) ? 'UNIQUE' : 'KEY';
+				}
+
+				$indexes[ $name ] = array(
+					'name'    => $name,
+					'type'    => $type,
+					'columns' => array(),
+				);
+			}
+
+			$indexes[ $name ]['columns'][ (int) $row['SEQ_IN_INDEX'] ] = '`' . $row['COLUMN_NAME'] . '`' . ( $row['SUB_PART'] ? '(' . (int) $row['SUB_PART'] . ')' : '' );
+		}
+
+		// Keep the indices in creation order, and their columns in index order.
+		foreach ( $indexes as $name => $index ) {
+			ksort( $index['columns'] );
+			$indexes[ $name ]['columns'] = '(' . implode( ', ', $index['columns'] ) . ')';
+		}
+
+		return array_values( $indexes );
+	}
+
+	/**
+	 * Apply the index hot fixes and build the table types map.
+	 *
+	 * @param string $table_name  The table name.
+	 * @param array  $map         The columns and indices map.
+	 * @param bool   $has_autoinc Whether the table has an AUTO_INCREMENT column.
+	 * @param array  $field_names The field names.
+	 * @param array  $formats     The field formats.
+	 *
+	 * @return array
+	 */
+	private function finish_table_types_map( string $table_name, array $map, bool $has_autoinc, array $field_names, array $formats ): array {
 		// Hot fix: add the missing index sizes.
 		$map = $this->hot_fix_missing_indexes( $table_name, $map );
 

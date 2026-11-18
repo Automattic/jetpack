@@ -8,6 +8,8 @@ import { getSettings, setSettings } from '@wordpress/date';
 /**
  * Internal dependencies
  */
+import { renderWithActionsHost } from '../../../tests/js/widget-host-test-utils';
+import { captureCsvDownloads } from '../../test-utils';
 import EmailTimeSeriesWidget from '../render';
 import type { ReactNode } from 'react';
 
@@ -20,6 +22,7 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 	MetricTabsChart: ( {
 		metrics,
 		chartType,
+		tickResolution,
 		empty,
 		hideSingleMetricLabel,
 	}: {
@@ -27,10 +30,11 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 			key: string;
 			label: string;
 			value: number;
-			current: { date: Date; value: number }[];
+			current: { date: Date; endDate?: Date; value: number }[];
 			countLabel?: ( count: number ) => string;
 		}[];
 		chartType?: string;
+		tickResolution?: string;
 		empty?: ReactNode;
 		hideSingleMetricLabel?: boolean;
 	} ) => (
@@ -42,7 +46,11 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 			data-metric-total={ String( metrics[ 0 ]?.value ) }
 			data-values={ metrics[ 0 ]?.current.map( point => point.value ).join( ',' ) }
 			data-dates={ metrics[ 0 ]?.current.map( point => point.date.toISOString() ).join( ',' ) }
+			data-end-dates={ metrics[ 0 ]?.current
+				.map( point => point.endDate?.toISOString() )
+				.join( ',' ) }
 			data-chart-type={ String( chartType ) }
+			data-tick-resolution={ String( tickResolution ) }
 			data-hide-single-metric-label={ String( hideSingleMetricLabel ) }
 		>
 			{ empty }
@@ -56,18 +64,15 @@ jest.mock( '@wordpress/route', () => jest.requireActual( '../../test-utils' ).mo
 
 const mockApiFetch = apiFetch as unknown as jest.Mock;
 
-// The data layer trims buckets to the requested window, so a default
-// (today-relative) preset would trim these fixed July dates away.
+// The chart counts its window from `from`, as the post page pins it to the send day.
 const JULY_WEEK_PARAMS = {
 	...getDefaultQueryParams( false ),
 	preset: undefined,
-	from: '2026-07-01T00:00:00.000+08:00',
-	to: '2026-07-07T23:59:59.999+08:00',
+	from: '2026-07-01T00:00:00.000+00:00',
+	to: '2026-07-07T23:59:59.999+00:00',
 };
 
-// Raw WPCOM `stats_fields=timeline` shape. 2026-07-04/05 fall in one ISO week
-// and 2026-07-06 opens the next, so weekly grouping collapses the three rows
-// into two buckets (15 and 7).
+// Raw WPCOM `stats_fields=timeline` shape.
 const OPENS_TIMELINE_RESPONSE = {
 	timeline: {
 		unit: 'day',
@@ -169,10 +174,10 @@ describe( 'EmailTimeSeriesWidget', () => {
 		expect( requestedPath ).toContain( 'stats/clicks/emails/1234' );
 	} );
 
-	it( 'draws exactly the selected hourly window from a midnight-anchored payload', async () => {
+	it( 'draws exactly the first 24 hours from a midnight-anchored payload', async () => {
 		// The endpoint anchors hourly buckets on the start day's midnight and returns
-		// `quantity` buckets forward, so a last-24-hours window arrives as 33 buckets
-		// from hour 0 and the widget must chart only the 24 in-window ones.
+		// `quantity` buckets forward, so a send at 9 arrives as 33 buckets from hour 0
+		// and the widget must chart only the 24 in-window ones.
 		mockApiFetch.mockResolvedValue( {
 			timeline: {
 				unit: 'hour',
@@ -190,12 +195,13 @@ describe( 'EmailTimeSeriesWidget', () => {
 					reportParams: {
 						...getDefaultQueryParams( false ),
 						preset: undefined,
-						from: '2026-07-04T09:00:00.000+08:00',
-						to: '2026-07-05T08:59:59.999+08:00',
-						interval: 'hour',
+						from: '2026-07-04T00:00:00.000+00:00',
+						to: '2026-08-02T23:59:59.999+00:00',
 						post_id: 1234,
+						sent_at: '2026-07-04T09:00:00.000+00:00',
 					},
 					metric: 'opens',
+					sendWindow: 'first-24-hours',
 				} }
 			/>
 		);
@@ -205,6 +211,7 @@ describe( 'EmailTimeSeriesWidget', () => {
 		expect( values ).toHaveLength( 24 );
 		expect( values[ 0 ] ).toBe( '9' );
 		expect( values[ 23 ] ).toBe( '8' );
+		expect( chart ).toHaveAttribute( 'data-tick-resolution', 'hour' );
 		// Hours 9–23 of day one plus 0–8 of day two.
 		expect( chart ).toHaveAttribute( 'data-metric-total', '276' );
 
@@ -216,6 +223,51 @@ describe( 'EmailTimeSeriesWidget', () => {
 		expect( requestParams.get( 'window_end' ) ).toBeNull();
 	} );
 
+	it( 'ends each month where the window does, for the tooltip to name the days it covers', async () => {
+		jest.useFakeTimers( { now: new Date( '2026-08-28T12:00:00Z' ), doNotFake: [ 'nextTick' ] } );
+		mockApiFetch.mockResolvedValue( {
+			timeline: {
+				unit: 'month',
+				fields: [ 'date', 'opens_count' ],
+				data: [
+					[ '2026-06-01', 5 ],
+					[ '2026-07-01', 1 ],
+					[ '2026-08-01', 0 ],
+				],
+			},
+		} );
+
+		try {
+			render(
+				<EmailTimeSeriesWidget
+					attributes={ {
+						reportParams: {
+							...getDefaultQueryParams( false ),
+							preset: undefined,
+							from: '2026-06-22T00:00:00.000+00:00',
+							to: '2026-07-21T23:59:59.999+00:00',
+							post_id: 1234,
+						},
+						metric: 'opens',
+						sendWindow: 'all-time',
+					} }
+				/>
+			);
+
+			const chart = await screen.findByTestId( 'metric-tabs-chart' );
+			expect( chart ).toHaveAttribute(
+				'data-dates',
+				'2026-06-22T00:00:00.000Z,2026-07-01T00:00:00.000Z,2026-08-01T00:00:00.000Z'
+			);
+			expect( chart ).toHaveAttribute(
+				'data-end-dates',
+				'2026-06-30T23:59:59.000Z,2026-07-31T23:59:59.000Z,2026-08-28T23:59:59.000Z'
+			);
+		} finally {
+			jest.useRealTimers();
+		}
+	} );
+
 	it( 'ignores comparison report params: one request, single series', async () => {
 		mockApiFetch.mockResolvedValue( OPENS_TIMELINE_RESPONSE );
 
@@ -225,8 +277,8 @@ describe( 'EmailTimeSeriesWidget', () => {
 					reportParams: {
 						...getDefaultQueryParams( false ),
 						preset: undefined,
-						from: '2026-07-01T00:00:00.000+08:00',
-						to: '2026-07-07T23:59:59.999+08:00',
+						from: '2026-07-01T00:00:00.000+00:00',
+						to: '2026-07-07T23:59:59.999+00:00',
 						// The post detail URL carries comparison params through untouched,
 						// but the page renders no comparison, so the widget must neither
 						// fetch a second window nor draw an overlay.
@@ -247,68 +299,55 @@ describe( 'EmailTimeSeriesWidget', () => {
 		const requestedDates = mockApiFetch.mock.calls.map( call =>
 			new URLSearchParams( String( call[ 0 ].path ).split( '?' )[ 1 ] ).get( 'date' )
 		);
-		expect( requestedDates ).toEqual( [ '2026-07-01T00:00:00.000+08:00' ] );
+		expect( requestedDates ).toEqual( [ '2026-07-01T00:00:00.000+00:00' ] );
 	} );
 
-	it( 'aggregates the daily buckets into ISO weeks when the page interval is weekly', async () => {
-		mockApiFetch.mockResolvedValue( OPENS_TIMELINE_RESPONSE );
+	it.each( [
+		// Hours 14 to 23 of the send day and 0 to 13 of the next, asked for from midnight.
+		[ 'first-24-hours', 'hour', '38' ],
+		[ 'first-week', 'day', '7' ],
+		[ 'first-30-days', 'day', '30' ],
+		[ 'all-time', 'month', '3' ],
+	] as const )(
+		'reads the %s after the send by the %s, whatever range the host hands it',
+		async ( sendWindow, period, quantity ) => {
+			jest.useFakeTimers( { now: new Date( '2026-08-28T12:00:00Z' ), doNotFake: [ 'nextTick' ] } );
+			mockApiFetch.mockResolvedValue( {
+				timeline: { unit: period, fields: [ 'date', 'opens_count' ], data: [] },
+			} );
 
-		render(
-			<EmailTimeSeriesWidget
-				attributes={ {
-					// A 35-day window (weekly needs >= 28 days) covering both ISO weeks.
-					reportParams: {
-						...getDefaultQueryParams( false ),
-						preset: undefined,
-						from: '2026-06-08T00:00:00.000+08:00',
-						to: '2026-07-12T23:59:59.999+08:00',
-						interval: 'week',
-						post_id: 1234,
-					},
-					metric: 'opens',
-				} }
-			/>
-		);
+			try {
+				render(
+					<EmailTimeSeriesWidget
+						attributes={ {
+							// The post page hands every window the same first 30 days.
+							reportParams: {
+								...getDefaultQueryParams( false ),
+								preset: undefined,
+								from: '2026-06-22T00:00:00.000+00:00',
+								to: '2026-07-21T23:59:59.999+00:00',
+								interval: 'day',
+								post_id: 1234,
+								sent_at: '2026-06-22T14:16:17.000+00:00',
+							},
+							metric: 'opens',
+							sendWindow,
+						} }
+					/>
+				);
 
-		const chart = await screen.findByTestId( 'metric-tabs-chart' );
-		expect( chart ).toHaveAttribute( 'data-values', '15,7' );
-	} );
-
-	it( 'aggregates the daily buckets into calendar months when the page interval is monthly', async () => {
-		mockApiFetch.mockResolvedValue( {
-			timeline: {
-				unit: 'day',
-				fields: [ 'date', 'opens_count' ],
-				data: [
-					[ '2026-06-28', 4 ],
-					[ '2026-07-04', 10 ],
-					[ '2026-07-06', 5 ],
-				],
-			},
-		} );
-
-		render(
-			<EmailTimeSeriesWidget
-				attributes={ {
-					// An explicit multi-month window: `WidgetRoot` normalizes report
-					// params through `resolveIntervalForRange`, and the default
-					// 30-day preset would coerce a monthly interval back to daily.
-					reportParams: {
-						...getDefaultQueryParams( false ),
-						preset: undefined,
-						from: '2026-05-01T00:00:00.000+08:00',
-						to: '2026-08-31T23:59:59.999+08:00',
-						interval: 'month',
-						post_id: 1234,
-					},
-					metric: 'opens',
-				} }
-			/>
-		);
-
-		const chart = await screen.findByTestId( 'metric-tabs-chart' );
-		expect( chart ).toHaveAttribute( 'data-values', '4,15' );
-	} );
+				const chart = await screen.findByTestId( 'metric-tabs-chart' );
+				expect( chart ).toHaveAttribute( 'data-tick-resolution', period );
+				const requested = new URLSearchParams(
+					String( mockApiFetch.mock.calls[ 0 ][ 0 ].path ).split( '?' )[ 1 ]
+				);
+				expect( requested.get( 'period' ) ).toBe( period );
+				expect( requested.get( 'quantity' ) ).toBe( quantity );
+			} finally {
+				jest.useRealTimers();
+			}
+		}
+	);
 
 	it( 'answers a timeline with no buckets inside the chart, not with a widget-level empty state', async () => {
 		mockApiFetch.mockResolvedValue( {
@@ -398,9 +437,8 @@ describe( 'EmailTimeSeriesWidget', () => {
 	} );
 
 	it( 'shows the error state with a Retry action when the fetch fails', async () => {
-		// A non-retryable 403 so React Query surfaces the error immediately
-		// instead of after the retry backoff.
-		mockApiFetch.mockRejectedValue( { status: 403, message: 'Forbidden' } );
+		// A 404 is not retried automatically, so the error surfaces without the backoff.
+		mockApiFetch.mockRejectedValue( { status: 404, message: 'Not found' } );
 
 		render(
 			<EmailTimeSeriesWidget
@@ -415,5 +453,103 @@ describe( 'EmailTimeSeriesWidget', () => {
 			screen.findByText( /couldn't load this email's timeline/ )
 		).resolves.toBeInTheDocument();
 		expect( screen.getByRole( 'button', { name: 'Retry' } ) ).toBeInTheDocument();
+	} );
+
+	it( 'offers no Retry for a timeline in another unit than asked, which a retry would get again', async () => {
+		mockApiFetch.mockResolvedValue( {
+			timeline: { ...OPENS_TIMELINE_RESPONSE.timeline, unit: 'month' },
+		} );
+
+		render(
+			<EmailTimeSeriesWidget
+				attributes={ {
+					reportParams: { ...JULY_WEEK_PARAMS, post_id: 1234 },
+					metric: 'opens',
+				} }
+			/>
+		);
+
+		await expect(
+			screen.findByText( 'This data is unavailable right now.' )
+		).resolves.toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: 'Retry' } ) ).not.toBeInTheDocument();
+		expect( console ).toHaveWarned();
+	} );
+
+	describe( 'CSV download', () => {
+		let downloads: ReturnType< typeof captureCsvDownloads > | undefined;
+
+		afterEach( () => {
+			downloads?.restore();
+			downloads = undefined;
+		} );
+
+		it( 'saves each bucket of the timeline', async () => {
+			downloads = captureCsvDownloads();
+			mockApiFetch.mockResolvedValue( OPENS_TIMELINE_RESPONSE );
+
+			const { findDeclaredAction } = renderWithActionsHost(
+				<EmailTimeSeriesWidget
+					attributes={ { reportParams: { ...JULY_WEEK_PARAMS, post_id: 1234 }, metric: 'opens' } }
+				/>
+			);
+			await downloads.runAndSave( await findDeclaredAction( 'download-csv' ) );
+
+			// Dated by the default first 30 days, not the host's week.
+			expect( downloads.files[ 0 ].filename ).toBe( 'email-1234-opens-2026-07-01_2026-07-30.csv' );
+			await expect( downloads.lines() ).resolves.toEqual( [
+				'"Date","Opens"',
+				'"2026-07-04","10"',
+				'"2026-07-05","5"',
+				'"2026-07-06","7"',
+			] );
+		} );
+
+		it( 'times the rows of an hourly window', async () => {
+			downloads = captureCsvDownloads();
+			mockApiFetch.mockResolvedValue( {
+				timeline: {
+					unit: 'hour',
+					fields: [ 'date', 'hour', 'opens_count' ],
+					data: Array.from( { length: 24 }, ( _, hour ) => [ '2026-07-01', hour, hour + 1 ] ),
+				},
+			} );
+
+			const { findDeclaredAction } = renderWithActionsHost(
+				<EmailTimeSeriesWidget
+					attributes={ {
+						reportParams: {
+							...JULY_WEEK_PARAMS,
+							from: '2026-07-01T00:00:00.000Z',
+							post_id: 1234,
+						},
+						metric: 'opens',
+						sendWindow: 'first-24-hours',
+					} }
+				/>
+			);
+			await downloads.runAndSave( await findDeclaredAction( 'download-csv' ) );
+
+			expect( downloads.files[ 0 ].filename ).toBe( 'email-1234-opens-2026-07-01_2026-07-01.csv' );
+			expect( ( await downloads.lines() ).slice( 0, 2 ) ).toEqual( [
+				'"Date","Opens"',
+				'"2026-07-01 00:00","1"',
+			] );
+		} );
+
+		it( 'offers no download for an email nobody opened', async () => {
+			mockApiFetch.mockResolvedValue( {
+				timeline: { unit: 'day', fields: [ 'date', 'opens_count' ], data: [ [ '2026-07-04', 0 ] ] },
+			} );
+
+			const { declaredAction } = renderWithActionsHost(
+				<EmailTimeSeriesWidget
+					attributes={ { reportParams: { ...JULY_WEEK_PARAMS, post_id: 1234 }, metric: 'opens' } }
+				/>
+			);
+			await expect( screen.findByTestId( 'metric-tabs-chart' ) ).resolves.toBeInTheDocument();
+
+			expect( declaredAction( 'download-csv' ) ).toBeUndefined();
+		} );
 	} );
 } );

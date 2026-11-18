@@ -19,7 +19,9 @@ Jetpack Premium Analytics is the unified analytics dashboard for Jetpack-connect
 
 `Analytics::init()` loads the generated `build/build.php` on requests that render an admin screen
 (not on front-end page views, REST, cron, `admin-ajax.php`, or `admin-post.php` — see
-`renders_admin_chrome()`). The dashboard is served from one URL,
+`renders_admin_chrome()`). The one exception is the admin shell's guest endpoint, an `admin-ajax.php`
+request that loads it through `load_as_admin_shell_guest()` after `admin_init`, to show Stats inside
+another Jetpack page. The dashboard is served from one URL,
 `?page=jetpack-premium-analytics-wp-admin` (`Analytics::MENU_PAGE_SLUG`), registered with
 `Admin_Menu::add_top_level_menu()` so hosts can hide it via `jetpack_admin_menu_visibility`, and
 gated on `Capabilities::VIEW_ANALYTICS`. REST requests reach the dashboard's data
@@ -510,8 +512,9 @@ give it a story for each; both mocks are 403s, so neither waits out the query's 
 - Setting the period of the surface a widget sits on by writing the URL (`useReportDateFilters`,
   `useStagedSearch`) — call `useReportScope().openPeriod` instead. The host owns the period: it
   commits the range and draws the date control's attention to it. A host that offers none leaves
-  `openPeriod` undefined, so the click must degrade to inert. Opening another dashboard section
-  over a range is `useOpenSectionRange`.
+  `openPeriod` undefined, so the click must degrade to inert. On the dashboard the host also
+  keeps the window left (`up_*` params) for the date control's zoom-out. Opening another
+  dashboard section over a range is `useOpenSectionRange`.
 - Writing `<button>` without an explicit `type` — the HTML default is `type="submit"`, which
   can fire accidental form submissions. Use `type="button"` for non-submit actions.
 - Do not use inline `style={{ … }}` props in production widget render files — all widget

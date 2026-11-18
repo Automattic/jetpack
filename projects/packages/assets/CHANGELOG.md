@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.0.20] - 2026-11-16
+### Fixed
+- I18n loader: Replace the md5-es dependency with md5, which hashes non-ASCII script paths as UTF-8 like WordPress does. [#54934]
+
 ## [5.0.19] - 2026-11-04
 ### Changed
 - Update package dependencies. [#54512]
@@ -1002,6 +1006,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Statically access asset tools
 
+[5.0.20]: https://github.com/Automattic/jetpack-assets/compare/v5.0.19...v5.0.20
 [5.0.19]: https://github.com/Automattic/jetpack-assets/compare/v5.0.18...v5.0.19
 [5.0.18]: https://github.com/Automattic/jetpack-assets/compare/v5.0.17...v5.0.18
 [5.0.17]: https://github.com/Automattic/jetpack-assets/compare/v5.0.16...v5.0.17

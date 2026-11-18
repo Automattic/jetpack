@@ -25,7 +25,7 @@ use const Automattic\Jetpack\PremiumAnalytics\DASHBOARD_TILE_LIST;
  */
 class Analytics_Dashboard {
 
-	const PACKAGE_VERSION = '0.3.3';
+	const PACKAGE_VERSION = '0.4.0';
 
 	/**
 	 * Namespaced section identifier. Its slug, `woocommerce`, keys the section's URL and stored layouts.
@@ -42,6 +42,7 @@ class Analytics_Dashboard {
 	const ORDERS_OVER_TIME_TYPE          = 'woocommerce-analytics/orders-over-time';
 	const AVERAGE_ORDER_VALUE_TYPE       = 'woocommerce-analytics/average-order-value';
 	const AVERAGE_ITEMS_PER_ORDER_TYPE   = 'woocommerce-analytics/average-items-per-order';
+	const ITEMS_SOLD_TYPE                = 'woocommerce-analytics/items-sold';
 	const BOOKINGS_OVER_TIME_TYPE        = 'woocommerce-analytics/bookings-over-time';
 	const VISITORS_OVER_TIME_TYPE        = 'woocommerce-analytics/visitors-over-time';
 	const NEW_VS_RETURNING_CUSTOMER_TYPE = 'woocommerce-analytics/new-vs-returning-customer';
@@ -85,9 +86,9 @@ class Analytics_Dashboard {
 	const TEXTDOMAIN = 'jetpack-woocommerce-stats-pkg';
 
 	/**
-	 * Lowest widget contract the build works against: 2.0.0, the start of the major it is built for.
+	 * Lowest widget contract the build works against: 2.4.0, the first to export `useOpenChartBucket`.
 	 */
-	const MIN_WIDGET_API_VERSION = '2.0.0';
+	const MIN_WIDGET_API_VERSION = '2.4.0';
 
 	/**
 	 * Widget categories the package builds but holds back from the tab for now: the bookings
@@ -227,6 +228,7 @@ class Analytics_Dashboard {
 			get_dashboard_default_widget_instance( 'default-store-performance-widget-instance', self::STORE_PERFORMANCE_TYPE, 0, 'full', DASHBOARD_TILE_CARD ),
 
 			get_dashboard_default_widget_instance( 'default-top-performing-products-widget-instance', self::TOP_PERFORMING_PRODUCTS_TYPE, 10, 1, DASHBOARD_TILE_LIST ),
+			get_dashboard_default_widget_instance( 'default-items-sold-widget-instance', self::ITEMS_SOLD_TYPE, 15, 1, DASHBOARD_TILE_CARD ),
 			get_dashboard_default_widget_instance( 'default-average-order-value-widget-instance', self::AVERAGE_ORDER_VALUE_TYPE, 20, 1, DASHBOARD_TILE_CARD ),
 			get_dashboard_default_widget_instance( 'default-average-items-per-order-widget-instance', self::AVERAGE_ITEMS_PER_ORDER_TYPE, 30, 1, DASHBOARD_TILE_CARD ),
 

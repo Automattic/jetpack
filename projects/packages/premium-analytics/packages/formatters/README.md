@@ -65,6 +65,11 @@ from WordPress's own translation tables and the ordering from the site's
 `date_format` option, so dates match the rest of wp-admin rather than the
 browser's locale. Defaults to `'medium'`.
 
+The site's format is used only when it names a day of the month, a month and a
+year, because the forms below drop one of them: `d/m` would leave October as a
+bare `10`. Otherwise the locale's default is used, which the server sends as
+`premium_analytics.default_date_format` in the script data.
+
 ```typescript
 // On a site left on the US English default:
 formatDate( date ); // 'June 21, 2025'
@@ -82,7 +87,7 @@ formatDate( date, 'short' ); // '21 de junio'
 
 | Name            | Purpose                                         |
 | --------------- | ----------------------------------------------- |
-| `medium`        | Default. The site's `date_format` verbatim.     |
+| `medium`        | Default. The site's date format verbatim.       |
 | `compact`       | The site format with its month abbreviated.     |
 | `compactNoYear` | `compact` minus its year.                       |
 | `short`         | The site format minus its year.                 |
@@ -91,8 +96,9 @@ formatDate( date, 'short' ); // '21 de junio'
 | `year`          | Year alone.                                     |
 | `iso`           | Machine-readable `YYYY-MM-DD`. Never localized. |
 
-Every form but `year` and `iso` is derived from the site's own `date_format`,
-so the day/month order and the punctuation are always the site's. Dropping the
+Every form but `year` and `iso` is derived from the date format in use (the
+site's, or the locale default when it lacks a day, month or year), so the
+day/month order and the punctuation always follow it. Dropping the
 year takes the punctuation that introduced it along with it, and the
 abbreviated month still comes from WordPress's translation tables, so a locale
 that does not shorten its month names simply keeps them whole.
@@ -138,7 +144,7 @@ establish that per site, so no allowlist of trusted locales has to be
 maintained:
 
 1. `Intl` renders representative dates exactly as `formatDate` does. A site
-   with a custom `date_format` or different month translations fails here and
+   with a numeric `date_format` or different month translations fails here and
    keeps the format it asked for.
 2. `Intl` builds an un-elidable range out of that same rendering. `ja` and `zh`
    fail here because their range patterns switch to numeric dates and
@@ -148,7 +154,7 @@ Where either check fails, both ends are spelled out in full using the
 translated WordPress range pattern instead:
 
 ```typescript
-// Site with a custom `date_format` of 'd/m/Y':
+// Site with a `date_format` of 'd/m/Y':
 // '21/06/2025 – 25/06/2025'
 ```
 

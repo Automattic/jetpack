@@ -1,5 +1,6 @@
-import { useGlobalNotices } from '@automattic/jetpack-components';
+import { useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
+import { store as noticesStore } from '@wordpress/notices';
 import { useCallback } from 'react';
 import { QUERY_ACTIVATE_SEARCH_FREE_KEY, REST_API_SITE_PRODUCTS_ENDPOINT } from '../constants';
 import useSimpleMutation from '../use-simple-mutation';
@@ -38,7 +39,7 @@ const useActivateSearchFreeProduct = ( {
 }: {
 	sendToCheckout: ( event?: unknown, redirectUrl?: string ) => void;
 } ) => {
-	const { createErrorNotice } = useGlobalNotices();
+	const { createErrorNotice } = useDispatch( noticesStore );
 
 	const { mutate, isPending } = useSimpleMutation( {
 		name: QUERY_ACTIVATE_SEARCH_FREE_KEY,
@@ -72,7 +73,9 @@ const useActivateSearchFreeProduct = ( {
 						}
 
 						createErrorNotice(
-							error?.message || __( 'Jetpack Search could not be activated.', 'jetpack-my-jetpack' )
+							error?.message ||
+								__( 'Jetpack Search could not be activated.', 'jetpack-my-jetpack' ),
+							{ type: 'snackbar' }
 						);
 					},
 				} );

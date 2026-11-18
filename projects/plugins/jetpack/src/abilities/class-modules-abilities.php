@@ -183,8 +183,8 @@ class Modules_Abilities extends Registrar {
 	/**
 	 * Permission check: can the current user read module listings?
 	 *
-	 * Mirrors the capability used by the Jetpack admin page so subscribers and
-	 * contributors are denied.
+	 * Mirrors the module list REST route, so subscribers are denied; `jetpack_admin_page`
+	 * maps to `edit_posts` outside offline mode, so contributors and up pass.
 	 */
 	public static function can_view_modules(): bool {
 		return current_user_can( 'jetpack_admin_page' );

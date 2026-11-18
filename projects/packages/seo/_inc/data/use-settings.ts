@@ -270,11 +270,13 @@ export function useSettingsForm(): SettingsForm {
 						// Only fields the response actually carries: a truncated payload must
 						// blank nothing out.
 						const patch: Partial< SettingsResponse > = {};
-						[ ...touched, 'sitemap_url' as const ].forEach( field => {
-							if ( field in fresh ) {
-								( patch as Record< string, unknown > )[ field ] = fresh[ field ];
+						[ ...touched, 'sitemap_url' as const, 'share_image_preview' as const ].forEach(
+							field => {
+								if ( field in fresh ) {
+									( patch as Record< string, unknown > )[ field ] = fresh[ field ];
+								}
 							}
-						} );
+						);
 
 						const localPatch = { ...patch };
 						if ( savedTitlePage && patch.title_formats ) {
@@ -392,6 +394,18 @@ export function useSettingsForm(): SettingsForm {
 				} )
 				.catch( ( error: { message?: string; data?: { applied?: Record< string, boolean > } } ) => {
 					modulesApplied = Object.keys( error?.data?.applied ?? {} );
+					if ( ! coreSaved && 'default_share_image' in sent ) {
+						const image = baselineRef.current?.default_share_image ?? null;
+						localRef.current = withPatch(
+							localRef.current,
+							{
+								default_share_image: image,
+								share_image_preview: baselineRef.current?.share_image_preview,
+							},
+							[]
+						);
+						setLocal( localRef.current );
+					}
 					createErrorNotice(
 						error?.message ?? __( 'Could not save settings. Please try again.', 'jetpack-seo' ),
 						{ id: SAVE_NOTICE_ID, type: 'snackbar' }
@@ -510,13 +524,18 @@ export function useSettingsForm(): SettingsForm {
 				return;
 			}
 			// Update local for immediate UI feedback...
-			const next = { ...current, ...patch };
+			const previewPatch = 'default_share_image' in patch ? { share_image_preview: undefined } : {};
+			const next = {
+				...current,
+				...patch,
+				...previewPatch,
+			};
 			localRef.current = next;
 			setLocal( next );
 			// ...but persist only the patched field(s): start from the last-saved
 			// baseline and apply just this patch, so unsaved edits in the text-heavy
 			// sections aren't dragged in by a toggle save (per-section isolation).
-			saveValues( { ...baseline, ...patch } );
+			saveValues( { ...baseline, ...patch, ...previewPatch } );
 		},
 		[ saveValues ]
 	);

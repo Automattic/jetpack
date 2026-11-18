@@ -46,7 +46,6 @@ jest.mock( '@automattic/jetpack-connection', () => {
 jest.mock( '@automattic/jetpack-script-data', () => ( {
 	getMyJetpackUrl: () => 'https://example.com/wp-admin/admin.php?page=my-jetpack',
 } ) );
-jest.mock( '../../use-analytics' );
 jest.mock( '../assignLocation' );
 
 jest.mock( '@automattic/jetpack-components', () => ( {

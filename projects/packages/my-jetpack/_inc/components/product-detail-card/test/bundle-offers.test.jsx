@@ -7,7 +7,6 @@ import { getMyJetpackWindowInitialState } from '../../../data/utils/get-my-jetpa
 import ProductDetailCard from '../index';
 
 jest.mock( '../../../data/products/use-product' );
-jest.mock( '../../../hooks/use-analytics', () => () => ( { recordEvent: jest.fn() } ) );
 jest.mock( '../../../hooks/use-redirect-to-referrer', () => ( {
 	useRedirectToReferrer: () => null,
 } ) );

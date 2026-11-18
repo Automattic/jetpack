@@ -195,6 +195,13 @@ function wpcomsh_delete_symlinked_theme( $theme_slug ) {
 	if ( file_exists( $theme_dir ) && is_link( $theme_dir ) ) {
 		unlink( $theme_dir ); // phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink
 
+		/**
+		 * Fires after a symlinked theme has been deleted.
+		 *
+		 * @param string $theme_slug Theme slug.
+		 */
+		do_action( 'wpcomsh_symlinked_theme_deleted', $theme_slug );
+
 		return true;
 	}
 
@@ -331,7 +338,7 @@ function wpcomsh_get_atomic_client_id() {
  * @return array
  */
 function wpcomsh_get_wpcom_active_subscriptions() {
-	$persistent_data = new Atomic_Persistent_Data();
+	$persistent_data = wpcomsh_get_atomic_persistent_data();
 
 	if ( ! $persistent_data->WPCOM_PURCHASES ) { // phpcs:ignore WordPress.NamingConventions
 		return array();

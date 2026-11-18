@@ -1,4 +1,5 @@
 import {
+	CONNECTION_FROM,
 	ConnectionErrorDetails,
 	getReconnectErrorMessage,
 	ManageConnectionDialog,
@@ -71,6 +72,9 @@ const ConnectionControl: FC< ConnectionControlProps > = ( { trackingContext } ) 
 			trackingContext,
 			trackingPlacement: 'header',
 			navigate: assignLocation,
+			reconnectFrom: CONNECTION_FROM?.myJetpackHeaderReconnect,
+			// Read on each render, which opening the popover causes, so a repair returns to the page the header is on.
+			reconnectRedirectUrl: window.location.href,
 		} );
 	const [ isOpen, setIsOpen ] = useState( false );
 	const [ isDialogOpen, setIsDialogOpen ] = useState( false );

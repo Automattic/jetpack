@@ -154,7 +154,7 @@ describe( 'Playlist editor stage', () => {
 
 		await waitFor( () => expect( saveCall( api ) ).toBeDefined() );
 		expect( saveCall( api ) ).toMatchObject( {
-			path: '/jetpack/v4/videopress/playlists/trip',
+			path: '/wpcom/v3/videopress/playlists/trip',
 			data: {
 				title: 'Road trip',
 				description: '',
@@ -243,7 +243,7 @@ describe( 'Playlist editor stage', () => {
 		await waitFor( () =>
 			expect(
 				api.mock.calls.map( ( [ options ] ) => options ).find( o => o.method === 'DELETE' )
-			).toMatchObject( { path: '/jetpack/v4/videopress/playlists/trip' } )
+			).toMatchObject( { path: '/wpcom/v3/videopress/playlists/trip' } )
 		);
 		await waitFor( () => expect( mockNavigate ).toHaveBeenCalledWith( { href: '/playlists' } ) );
 	} );

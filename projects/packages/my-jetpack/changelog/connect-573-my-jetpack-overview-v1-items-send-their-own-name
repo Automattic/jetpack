@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Overview: Count connections started from an Overview item under its own name, instead of the product card's.

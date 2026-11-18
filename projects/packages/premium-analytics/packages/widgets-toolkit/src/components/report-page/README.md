@@ -12,7 +12,12 @@ const label = __( 'All pages' );
 	className={ reportPageStyles.page }
 	visual={ <Icon icon={ jetpack } /> }
 	breadcrumbs={ <StatsBreadcrumbs items={ [ { label } ] } /> }
-	actions={ downloadButton }
+	actions={
+		<>
+			{ downloadButton }
+			<StatsOptionsMenu />
+		</>
+	}
 >
 	<ReportPageLayout title={ getTabLabel( activeTab ) } dateFilters={ dateFilters }>
 		<ReportRecordsTable

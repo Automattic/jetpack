@@ -38,6 +38,7 @@ class Checkpoint_Test extends BaseTestCase {
 		$_POST   = array();
 		$_COOKIE = array();
 		unset( $_SERVER['HTTP_ORIGIN'] );
+		wp_set_current_user( 0 );
 		parent::tear_down();
 	}
 
@@ -73,6 +74,36 @@ class Checkpoint_Test extends BaseTestCase {
 			'spent code'          => array( array( Checkpoint::CODE_FIELD => 'abc' ), $home, 'code_used' ),
 			'expired code'        => array( array( Checkpoint::CODE_FIELD => 'abc' ), $home, 'code_expired' ),
 		);
+	}
+
+	public function test_admit_logged_in_redeems_code_without_refusing() {
+		wp_set_current_user(
+			wp_insert_user(
+				array(
+					'user_login' => 'reader',
+					'user_pass'  => 'pass',
+				)
+			)
+		);
+		$_POST[ Checkpoint::CODE_FIELD ] = 'abc';
+		$_SERVER['HTTP_ORIGIN']          = home_url();
+		$requested                       = false;
+		add_filter(
+			'pre_http_request',
+			function () use ( &$requested ) {
+				$requested = true;
+				return array(
+					'headers'  => array(),
+					'body'     => wp_json_encode( array( 'code' => 'code_used' ), JSON_UNESCAPED_SLASHES ),
+					'response' => array( 'code' => 400 ),
+					'cookies'  => array(),
+				);
+			}
+		);
+
+		Checkpoint::init()->admit();
+
+		$this->assertTrue( $requested );
 	}
 
 	public function test_admit_with_passport() {

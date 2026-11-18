@@ -215,6 +215,11 @@ describe( 'slideIn', () => {
 			value: jest.fn( () => ( { finished: Promise.resolve() } ) ),
 		} );
 
+		// toHaveStyle uses getComputedStyle, which requires the element to be in the document.
+		const ol = document.createElement( 'OL' );
+		ol.appendChild( element );
+		document.body.appendChild( ol );
+
 		return element;
 	};
 
@@ -234,8 +239,7 @@ describe( 'slideIn', () => {
 
 		await new Promise( resolve => setTimeout( resolve, 0 ) );
 
-		// eslint-disable-next-line jest-dom/prefer-to-have-style -- toHaveStyle misreads a removed `overflow` shorthand in jsdom.
-		expect( element ).toHaveAttribute( 'style', '' );
+		expect( element ).not.toHaveStyle( { overflow: 'hidden' } );
 	} );
 
 	it( 'leaves hidden items alone', () => {

@@ -1,24 +1,34 @@
 /**
  * Internal dependencies
  */
+import { authorAdapter } from './author';
 import { postAdapter } from './post';
 import { videoAdapter } from './video';
 import type { SingleReportAdapter } from './adapter';
+import type { SingleReportPageRecord } from '../registry';
 
-// The adapters by record `path`; a record without one renders from the record alone.
+// The adapters by record `path`.
 const ADAPTERS: Record< string, SingleReportAdapter > = {
+	author: authorAdapter,
 	post: postAdapter,
 	video: videoAdapter,
 };
 
 /**
- * The adapter of a registered page, if the route ships one.
+ * The adapter of a registered page: the one for its `path`, else the post adapter for a
+ * post type's page, which reads the type from the Stats record.
  *
- * @param path - The record's `path`.
- * @return The adapter, or undefined.
+ * @param page - The page record.
+ * @return The adapter, or undefined for a page that renders from its record alone.
  */
-export function getSingleReportAdapter( path: string ): SingleReportAdapter | undefined {
-	return Object.prototype.hasOwnProperty.call( ADAPTERS, path ) ? ADAPTERS[ path ] : undefined;
+export function getSingleReportAdapter(
+	page: Pick< SingleReportPageRecord, 'path' | 'entity' >
+): SingleReportAdapter | undefined {
+	if ( Object.prototype.hasOwnProperty.call( ADAPTERS, page.path ) ) {
+		return ADAPTERS[ page.path ];
+	}
+
+	return page.entity?.kind === 'postType' ? ADAPTERS.post : undefined;
 }
 
 export type {

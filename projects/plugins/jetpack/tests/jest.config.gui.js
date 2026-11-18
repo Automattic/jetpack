@@ -2,7 +2,7 @@ const baseConfig = require( './jest.config.base.js' );
 
 module.exports = {
 	...baseConfig,
-	roots: [ '<rootDir>/_inc/client/' ],
+	roots: [ '<rootDir>/_inc/client/', '<rootDir>/routes/ai-hub/' ],
 	// Matched by filename rather than a bare `**/test/*`: that would also pick up the
 	// many `test/fixtures.js` files (which contain no tests) and re-run the
 	// `_inc/client/state/` suites that jest.config.client.js already owns.
@@ -20,17 +20,10 @@ module.exports = {
 		'<rootDir>/_inc/client/ai/test/tracks.js',
 		'<rootDir>/_inc/client/at-a-glance/stats/test/chart-bar-range.js',
 		'<rootDir>/_inc/client/traffic/test/verification-services.jsx',
+		'<rootDir>/routes/ai-hub/test/*.test.{ts,tsx}',
 	],
 	setupFilesAfterEnv: [ ...baseConfig.setupFilesAfterEnv, '<rootDir>/tests/jest-globals.gui.js' ],
 	coverageDirectory: baseConfig.coverageDirectory + '/gui',
-	// This is necessary to allow css from uplot, @wordpress/admin-ui, and @gravatar-com (the
-	// latter for the lifted Gravatar component's hovercard styles) to be imported, and
-	// @wordpress/theme's untranspiled ESM to be transformed (mirroring the base config —
-	// this override otherwise shadows the base pattern's exception).
-	transformIgnorePatterns: [
-		'/node_modules/(?!.*/node_modules/)(?!@automattic/|uuid/|@wordpress/theme/|uplot/.*\\.css|@wordpress/admin-ui/.*\\.css|@gravatar-com/.*\\.css)',
-		...baseConfig.transformIgnorePatterns,
-	],
 	collectCoverageFrom: [
 		'<rootDir>/_inc/**/*.{js,mjs,cjs,jsx,ts,tsx,mts,cts}',
 		'<rootDir>/3rd-party/**/*.{js,mjs,cjs,jsx,ts,tsx,mts,cts}',

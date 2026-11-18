@@ -2,7 +2,7 @@
 
 Two templates — one per host-project type. Each template covers the same five assertion groups:
 
-1. **Registrar wiring** — gate filter defaulting false, hook wiring, late-load, per-ability allow-list, category auto-injection. This is the differentiating value-add; a hand-rolled ability class without these assertions is incomplete.
+1. **Registrar wiring** — gate filter defaulting false, hook wiring, per-ability allow-list, category auto-injection. This is the differentiating value-add; a hand-rolled ability class without these assertions is incomplete.
 2. **Module-activation gating (Case A only)** — for module-backed abilities, the ability must not register when the backing module is inactive. Because Case A wires `::init()` from inside `modules/<slug>.php` (which Jetpack only includes for active modules), the assertion is: when `Jetpack::is_module_active()` returns false, `<Name>_Abilities::init()` either never runs OR, if defensively called, registers nothing. See `references/module-colocation.md`.
 2. **Abstract getters** — the three static methods return the expected shapes.
 3. **Permission callbacks** — allowed user returns true; denied user returns false; unauth returns false.
@@ -416,25 +416,6 @@ class <Name>AbilitiesTest extends TestCase {
 
 		Functions\expect( 'wp_register_ability_category' )->never();
 		Functions\expect( 'wp_register_ability' )->never();
-
-		<Name>_Abilities::init();
-	}
-
-	public function test_init_registers_directly_when_both_actions_already_fired(): void {
-		$this->enable_abilities();
-		Functions\when( 'did_action' )->justReturn( 1 );
-
-		$ability_count = count( <Name>_Abilities::get_abilities() );
-
-		Filters\expectApplied( 'jetpack_wp_abilities_should_register' )
-			->atLeast()->times( 1 )
-			->andReturn( true );
-
-		Functions\expect( 'wp_register_ability_category' )->once();
-		Functions\expect( 'wp_register_ability' )->times( $ability_count );
-
-		Actions\expectAdded( Registrar::CATEGORIES_INIT_ACTION )->never();
-		Actions\expectAdded( Registrar::ABILITIES_INIT_ACTION )->never();
 
 		<Name>_Abilities::init();
 	}

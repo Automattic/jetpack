@@ -17,8 +17,12 @@
 		button {
 			inset-inline-start: unset;
 
-			svg {
-				fill: #fff;
+			// The close icon is drawn in the button's text color. The defaults (dark,
+			// and the accent blue on hover and focus) disappear against the hero.
+			&,
+			&:is(:hover, :focus, :active) {
+				color: #fff;
+				outline-color: #fff;
 			}
 		}
 	}
