@@ -1231,9 +1231,20 @@ export function reportInactiveEmailDesign( bundle ) {
  * The design lives on another site, so without this "nothing appeared" and "your
  * design is empty" look identical to whoever opened the page.
  *
+ * @param {object} props       - Component props.
+ * @param {*}      props.error - What the load threw.
  * @return {import('react').ReactElement} The error notice.
  */
-function LoadError() {
+function LoadError( { error } ) {
+	// WordPress.com's rollout rule refused the site, so reloading would not help. NL-1201.
+	if ( error?.code === 'email_editor_not_enabled' ) {
+		return (
+			<Notice status="warning" isDismissible={ false }>
+				{ __( 'Email design is not available on this site.', 'jetpack' ) }
+			</Notice>
+		);
+	}
+
 	return (
 		<Notice status="error" isDismissible={ false }>
 			{ __(
@@ -1370,7 +1381,7 @@ export async function mountEmailDesignEditor() {
 		// The notice deliberately does not name which half failed; this does.
 		// eslint-disable-next-line no-console
 		console.error( 'Jetpack email design editor:', error );
-		root.render( <LoadError /> );
+		root.render( <LoadError error={ error } /> );
 	}
 }
 

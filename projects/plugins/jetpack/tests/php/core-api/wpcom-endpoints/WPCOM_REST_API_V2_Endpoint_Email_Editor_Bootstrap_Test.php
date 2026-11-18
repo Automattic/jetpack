@@ -12,6 +12,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use WpOrg\Requests\Requests;
 
 require_once dirname( __DIR__, 2 ) . '/lib/Jetpack_REST_TestCase.php';
+require_once JETPACK__PLUGIN_DIR . 'modules/subscriptions/email-design-editor/class-jetpack-email-design-editor.php';
 
 /**
  * Class WPCOM_REST_API_V2_Endpoint_Email_Editor_Bootstrap_Test
@@ -651,6 +652,46 @@ class WPCOM_REST_API_V2_Endpoint_Email_Editor_Bootstrap_Test extends Jetpack_RES
 			'rest_unauthorized',
 			$this->server->dispatch( $this->request( Requests::POST, array( 'design' => $this->design() ) ) ),
 			403
+		);
+	}
+
+	/**
+	 * @param string $code     The error WordPress.com answers with.
+	 * @param int    $status   Its HTTP status.
+	 * @param bool   $expected Whether the site should remember being refused.
+	 *
+	 * @dataProvider provide_wpcom_errors
+	 */
+	#[PHPUnit\Framework\Attributes\DataProvider( 'provide_wpcom_errors' )]
+	public function test_only_a_refusal_from_wpcom_is_remembered( $code, $status, $expected ) {
+		Jetpack_Options::update_option( 'id', 123 );
+		Jetpack_Options::update_option( 'user_tokens', array( static::$user_id_admin => 'token.secret.' . static::$user_id_admin ) );
+		$this->add_temporary_filter(
+			'pre_http_request',
+			static function () use ( $code, $status ) {
+				return array(
+					'headers'  => array(),
+					'body'     => wp_json_encode( array( 'code' => $code ), JSON_UNESCAPED_SLASHES ),
+					'response' => array( 'code' => $status ),
+				);
+			}
+		);
+		$this->register_routes_as_non_simple();
+
+		$response = $this->server->dispatch( $this->request( Requests::GET ) );
+
+		$this->assertSame( $code, $response->get_data()['code'] );
+		$this->assertSame( $expected, (bool) get_transient( Jetpack_Email_Design_Editor::REFUSED_TRANSIENT ) );
+	}
+
+	/**
+	 * @return array
+	 */
+	public static function provide_wpcom_errors() {
+		return array(
+			'refused by the rollout rule' => array( 'email_editor_not_enabled', 501, true ),
+			'an outage'                   => array( 'email_editor_failed', 500, false ),
+			'unavailable'                 => array( 'email_editor_unavailable', 501, false ),
 		);
 	}
 

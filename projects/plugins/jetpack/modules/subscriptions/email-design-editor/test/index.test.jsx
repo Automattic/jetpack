@@ -485,6 +485,21 @@ describe( 'Email design editor entry point', () => {
 			expect( renderedTheErrorState() ).toBe( true );
 		} );
 
+		it( 'says the screen is unavailable, rather than to reload, when WordPress.com refuses the site', async () => {
+			mockApiFetch.mockRejectedValue( {
+				code: 'email_editor_not_enabled',
+				message: 'The email design editor is not enabled for this site.',
+				data: { status: 501 },
+			} );
+			window.JetpackEmailDesignEditor = pageData();
+
+			await loadEntryPoint();
+			const { container } = render( mockRender.mock.calls[ 0 ][ 0 ] );
+
+			expect( container ).toHaveTextContent( 'Email design is not available on this site.' );
+			expect( container ).not.toHaveTextContent( /reload the page/ );
+		} );
+
 		it( 'shows an error when the bundle carries no template id', async () => {
 			mockApiFetch.mockResolvedValue( bootstrapBundle( { template: undefined } ) );
 			window.JetpackEmailDesignEditor = pageData();
