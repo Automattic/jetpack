@@ -31,6 +31,15 @@ class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 			\Automattic\Jetpack\Current_Plan::update_from_site_record( array( 'plan' => array( 'product_slug' => $slug ) ) );
 			$this->assertSame( $available, apply_filters( 'jetpack_my_jetpack_modules_management_available', true ), $slug );
 		}
+
+		$flag_filter = 'jetpack_feature_flag_enabled_' . WPCOM_MY_JETPACK_ALL_ATOMIC_PLANS_FLAG;
+		$resolutions = did_filter( $flag_filter );
+		apply_filters( 'jetpack_my_jetpack_modules_management_available', true );
+		$this->assertSame( $resolutions, did_filter( $flag_filter ), 'business-bundle must not resolve the flag' );
+
+		add_filter( $flag_filter, '__return_true' );
+		\Automattic\Jetpack\Current_Plan::update_from_site_record( array( 'plan' => array( 'product_slug' => 'personal-bundle' ) ) );
+		$this->assertTrue( apply_filters( 'jetpack_my_jetpack_modules_management_available', true ), 'personal-bundle with the flag on' );
 	}
 
 	/**
@@ -90,6 +99,17 @@ class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 		Status_Cache::clear();
 		remove_all_filters( 'rsm_jetpack_ui_modernization_newsletter' );
 		remove_all_filters( 'rsm_jetpack_ui_modernization_backup' );
+		remove_all_filters( 'jetpack_feature_flag_enabled_' . WPCOM_MY_JETPACK_ALL_ATOMIC_PLANS_FLAG );
+		$reset_plan_cache = Closure::bind(
+			/** @phan-closure-scope \Automattic\Jetpack\Current_Plan */
+			static function () {
+				// An empty array is a cache miss for Current_Plan::get().
+				self::$active_plan_cache = array();
+			},
+			null,
+			\Automattic\Jetpack\Current_Plan::class
+		);
+		$reset_plan_cache();
 		WPCOM_Scan::reset();
 		unset( $GLOBALS['wpcom_site_stickers_test_value'] );
 		delete_option( 'wpcom_admin_interface' );
