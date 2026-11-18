@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Playground backup restores: restore databases whose tables use a prefix other than `wp_`, like Studio sites pulled from such a site, instead of failing with "Missing site URL."

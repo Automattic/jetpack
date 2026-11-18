@@ -199,6 +199,112 @@ class PlaygroundDBImporterTest extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Copy the fixture database's WordPress tables, with their MySQL definitions, to another prefix.
+	 *
+	 * @param string $prefix      The new table prefix.
+	 * @param bool   $keep_tables Whether to keep the `wp_` tables, like a site pulled into a Studio install.
+	 *
+	 * @return string The database path.
+	 */
+	private function get_database_with_table_prefix( string $prefix, bool $keep_tables ): string {
+		$db_path = wp_tempnam( 'table-prefix.sqlite' );
+		copy( self::$fixtures_path . '/valid/plain.sqlite', $db_path );
+
+		$db     = new SQLite3( $db_path );
+		$schema = array(
+			'_wp_sqlite_mysql_information_schema_tables',
+			'_wp_sqlite_mysql_information_schema_columns',
+			'_wp_sqlite_mysql_information_schema_statistics',
+		);
+		$tables = $db->query( "SELECT name, sql FROM sqlite_master WHERE type = 'table' AND name LIKE 'wp\_%' ESCAPE '\'" );
+		$copies = array();
+
+		while ( $table = $tables->fetchArray( SQLITE3_ASSOC ) ) { // phpcs:ignore Generic.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition
+			$copies[] = $table;
+		}
+
+		foreach ( $copies as $table ) {
+			$name     = $table['name'];
+			$new_name = $prefix . substr( $name, 3 );
+
+			$db->exec( preg_replace( '/^CREATE TABLE [`"]?' . $name . '[`"]?/', 'CREATE TABLE "' . $new_name . '"', $table['sql'] ) );
+			$db->exec( "INSERT INTO \"$new_name\" SELECT * FROM \"$name\"" );
+
+			foreach ( $schema as $schema_table ) {
+				$columns = array();
+				$info    = $db->query( "PRAGMA table_info(\"$schema_table\")" );
+
+				while ( $column = $info->fetchArray( SQLITE3_ASSOC ) ) { // phpcs:ignore Generic.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition
+					if ( 'rowid' !== $column['name'] ) {
+						$columns[] = '"' . $column['name'] . '"';
+					}
+				}
+
+				$list   = implode( ', ', $columns );
+				$select = str_replace( '"TABLE_NAME"', "'$new_name'", $list );
+				$db->exec( "INSERT INTO \"$schema_table\" ($list) SELECT $select FROM \"$schema_table\" WHERE TABLE_NAME = '$name'" );
+
+				if ( ! $keep_tables ) {
+					$db->exec( "DELETE FROM \"$schema_table\" WHERE TABLE_NAME = '$name'" );
+				}
+			}
+
+			if ( ! $keep_tables ) {
+				$db->exec( "DROP TABLE \"$name\"" );
+			}
+		}
+
+		$db->exec( "UPDATE \"{$prefix}options\" SET option_value = 'Pulled site' WHERE option_name = 'blogname'" );
+		$db->close();
+
+		return $db_path;
+	}
+
+	/**
+	 * A database whose tables use another prefix, like a Studio site pulled from a `wpx_` site, is
+	 * restored under the output prefix. Before, its options table became `wpx_options`, so the restore
+	 * found no site URL.
+	 */
+	public function test_generate_sql_detects_the_table_prefix() {
+		global $wpdb;
+
+		$db_path = $this->get_database_with_table_prefix( 'wpx_', false );
+		$result  = $this->db_importer->generate_sql( $db_path );
+		unlink( $db_path );
+
+		$this->assertNotWPError( $result );
+		$this->assertStringContainsString( "CREATE TABLE `{$wpdb->prefix}options`", $result );
+		$this->assertStringContainsString( "CREATE TABLE `{$wpdb->prefix}posts`", $result );
+		$this->assertStringContainsString( "'blogname','Pulled site'", $result );
+		$this->assertStringContainsString( '  UNIQUE KEY `option_name` (`option_name`)', $result );
+		$this->assertStringNotContainsString( 'wpx_', $result );
+	}
+
+	/**
+	 * With tables under two prefixes, the requested one (the backup's `$table_prefix`) is restored.
+	 */
+	public function test_generate_sql_uses_the_requested_table_prefix() {
+		global $wpdb;
+
+		$db_path   = $this->get_database_with_table_prefix( 'wpx_', true );
+		$requested = $this->db_importer->generate_sql( $db_path, array( 'prefix' => 'wpx_' ) );
+		$default   = $this->db_importer->generate_sql( $db_path );
+		$missing   = $this->db_importer->generate_sql( $db_path, array( 'prefix' => 'nope_' ) );
+		unlink( $db_path );
+
+		$this->assertNotWPError( $requested );
+		$this->assertStringContainsString( "CREATE TABLE `{$wpdb->prefix}options`", $requested );
+		$this->assertStringContainsString( "'blogname','Pulled site'", $requested );
+
+		// Without a requested prefix, or with one that has no options table, `wp_` wins as before.
+		foreach ( array( $default, $missing ) as $result ) {
+			$this->assertNotWPError( $result );
+			$this->assertStringContainsString( "CREATE TABLE `{$wpdb->prefix}wpx_options`", $result );
+			$this->assertStringNotContainsString( "'blogname','Pulled site'", substr( $result, 0, strpos( $result, "CREATE TABLE `{$wpdb->prefix}wpx_options`" ) ) );
+		}
+	}
+
+	/**
 	 * Generate a sql dump with custom output prefix.
 	 *
 	 * @dataProvider provide_valid_fixture_files
