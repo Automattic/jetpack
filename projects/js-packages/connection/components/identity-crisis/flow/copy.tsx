@@ -438,7 +438,7 @@ export function getResultCopy(
 					fill(
 						/* translators: <x />: this site's address. */
 						__(
-							'Keep both addresses, and make <x /> reachable from the internet. Jetpack Connection checks again from time to time, and Safe Mode ends once the check passes.',
+							'Keep both addresses, and make <x /> reachable from the internet. Then come back here, so Jetpack Connection can check again. Safe Mode ends once the check passes.',
 							'jetpack-connection-js'
 						),
 						c
