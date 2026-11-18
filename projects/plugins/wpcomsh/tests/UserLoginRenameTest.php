@@ -170,6 +170,7 @@ class UserLoginRenameTest extends WP_UnitTestCase {
 		return array(
 			'empty'                          => array( '' ),
 			'sanitize_user() would alter it' => array( '<b>bold</b>' ),
+			'no usable author slug'          => array( '...' ),
 		);
 	}
 
@@ -232,16 +233,45 @@ class UserLoginRenameTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * A re-run must finish a rename whose login landed but whose profile update did not.
+	 * A rename whose profile update failed reports it, and a re-run with the same arguments repairs it.
 	 */
-	public function test_already_applied_rename_moves_the_names() {
+	public function test_a_failed_profile_update_is_reported_and_repaired_by_a_re_run() {
 		$user_id = $this->create_user( 'oldlogin' );
-		$this->set_login( $user_id, 'newlogin' );
+
+		add_filter( 'pre_user_nicename', '__return_empty_string' );
+		$result = wpcomsh_rename_user_login( $user_id, 'oldlogin', 'newlogin' );
+		remove_filter( 'pre_user_nicename', '__return_empty_string' );
+
+		$this->assertWPError( $result );
+		$this->assertSame( 'profile_update_failed', $result->get_error_code() );
+		$this->assertSame( 'newlogin', $this->stored_login( $user_id ) );
 
 		$result = wpcomsh_rename_user_login( $user_id, 'oldlogin', 'newlogin' );
 
 		$this->assertSame( WPCOMSH_USER_LOGIN_ALREADY_APPLIED, $result );
 		$this->assertSame( 'newlogin', get_userdata( $user_id )->user_nicename );
+	}
+
+	/**
+	 * Releasing the user's lock before the profile update lets an overlapping A to B rename
+	 * write B's names over a B to C rename.
+	 */
+	public function test_the_profile_update_runs_under_the_user_lock() {
+		global $wpdb;
+
+		$user_id = $this->create_user( 'oldlogin' );
+		$holder  = null;
+
+		add_action(
+			'profile_update',
+			function () use ( $wpdb, $user_id, &$holder ) {
+				$holder = $wpdb->get_var( $wpdb->prepare( 'SELECT IS_USED_LOCK(%s)', 'wpcomsh_rename_user_' . $user_id ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+			}
+		);
+
+		wpcomsh_rename_user_login( $user_id, 'oldlogin', 'newlogin' );
+
+		$this->assertNotNull( $holder );
 	}
 
 	/**

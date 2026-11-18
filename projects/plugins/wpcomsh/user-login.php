@@ -38,21 +38,49 @@ const WPCOMSH_OLD_AUTHOR_SLUG_META = 'wpcomsh_old_author_slug';
  * @param string $expected_login Login the caller expects the user to currently hold.
  * @param string $new_login      Login to set.
  * @return string|WP_Error One of the WPCOMSH_USER_LOGIN_* outcomes, or WP_Error with code
- *                         `invalid_login`, `user_not_found`, `login_taken` or `update_failed`.
+ *                         `invalid_login`, `user_not_found`, `login_taken`, `update_failed` or
+ *                         `profile_update_failed`, which a re-run with the same arguments repairs.
  */
 function wpcomsh_rename_user_login( $user_id, $expected_login, $new_login ) {
-	global $wpdb;
-
 	$user_id   = (int) $user_id;
 	$new_login = (string) $new_login;
 
-	if ( '' === $new_login || sanitize_user( $new_login, true ) !== $new_login ) {
+	// The slug check rejects logins such as `...`, which WordPress cannot give an author slug.
+	if ( '' === $new_login || sanitize_user( $new_login, true ) !== $new_login || '' === sanitize_title( $new_login ) ) {
 		return new WP_Error(
 			'invalid_login',
 			sprintf( 'The requested login %s is not a valid user_login.', $new_login )
 		);
 	}
 
+	// Covers the profile update too: two renames of one user claim different logins, so only
+	// this lock stops an A to B rename from writing B's names over a B to C rename.
+	$user_lock = 'wpcomsh_rename_user_' . $user_id;
+	if ( ! wpcomsh_get_user_login_lock( $user_lock ) ) {
+		return new WP_Error(
+			'update_failed',
+			sprintf( 'Timed out waiting for another rename of user %d.', $user_id )
+		);
+	}
+
+	$result = wpcomsh_rename_locked_user_login( $user_id, (string) $expected_login, $new_login );
+
+	wpcomsh_release_user_login_lock( $user_lock );
+
+	return $result;
+}
+
+/**
+ * Renames the login and moves the profile with it, while the caller holds the user's lock.
+ *
+ * @since $$next-version$$
+ *
+ * @param int    $user_id        ID of the user to rename.
+ * @param string $expected_login Login the caller expects the user to currently hold.
+ * @param string $new_login      Login to set.
+ * @return string|WP_Error See wpcomsh_rename_user_login().
+ */
+function wpcomsh_rename_locked_user_login( $user_id, $expected_login, $new_login ) {
 	$user = get_userdata( $user_id );
 	if ( ! $user ) {
 		return new WP_Error( 'user_not_found', sprintf( 'No user with ID %d on this site.', $user_id ) );
@@ -61,21 +89,22 @@ function wpcomsh_rename_user_login( $user_id, $expected_login, $new_login ) {
 	// user_login has a non-unique index, so the database will not reject a duplicate and the
 	// holder check below would race a second rename. The lock serializes those; it does not
 	// cover a plain wp_insert_user(), which races the same window as username_exists().
-	$lock = 'wpcomsh_login_' . md5( $new_login );
-	if ( '1' !== (string) $wpdb->get_var( $wpdb->prepare( 'SELECT GET_LOCK(%s, 10)', $lock ) ) ) { // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+	$login_lock = 'wpcomsh_login_' . md5( $new_login );
+	if ( ! wpcomsh_get_user_login_lock( $login_lock ) ) {
 		return new WP_Error(
 			'update_failed',
 			sprintf( 'Timed out waiting to claim the login %s.', $new_login )
 		);
 	}
 
-	$result = wpcomsh_write_user_login( $user_id, (string) $expected_login, $new_login );
+	$result = wpcomsh_write_user_login( $user_id, $expected_login, $new_login );
 
-	$wpdb->get_var( $wpdb->prepare( 'SELECT RELEASE_LOCK(%s)', $lock ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+	wpcomsh_release_user_login_lock( $login_lock );
 
 	if ( WPCOMSH_USER_LOGIN_ALREADY_APPLIED === $result ) {
-		// Lets a re-run finish a rename whose profile update never happened.
-		wpcomsh_follow_user_login_rename( $user_id, (string) $expected_login, $new_login );
+		// Lets a re-run finish a rename whose profile update failed.
+		$followed = wpcomsh_follow_user_login_rename( $user_id, $expected_login, $new_login );
+		return is_wp_error( $followed ) ? $followed : $result;
 	}
 
 	if ( WPCOMSH_USER_LOGIN_RENAMED !== $result ) {
@@ -87,7 +116,7 @@ function wpcomsh_rename_user_login( $user_id, $expected_login, $new_login ) {
 	clean_user_cache( $user );
 	clean_user_cache( $user_id );
 
-	wpcomsh_follow_user_login_rename( $user_id, (string) $expected_login, $new_login );
+	$followed = wpcomsh_follow_user_login_rename( $user_id, $expected_login, $new_login );
 
 	/**
 	 * Fires after a user's user_login has been renamed on this site.
@@ -100,7 +129,34 @@ function wpcomsh_rename_user_login( $user_id, $expected_login, $new_login ) {
 	 */
 	do_action( 'wpcomsh_user_login_renamed', $user_id, $expected_login, $new_login );
 
-	return WPCOMSH_USER_LOGIN_RENAMED;
+	return is_wp_error( $followed ) ? $followed : WPCOMSH_USER_LOGIN_RENAMED;
+}
+
+/**
+ * Takes a MySQL named lock, waiting up to 10 seconds for it.
+ *
+ * @since $$next-version$$
+ *
+ * @param string $name Lock name.
+ * @return bool Whether the lock was taken.
+ */
+function wpcomsh_get_user_login_lock( $name ) {
+	global $wpdb;
+
+	return '1' === (string) $wpdb->get_var( $wpdb->prepare( 'SELECT GET_LOCK(%s, 10)', $name ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+}
+
+/**
+ * Releases a lock taken with wpcomsh_get_user_login_lock().
+ *
+ * @since $$next-version$$
+ *
+ * @param string $name Lock name.
+ */
+function wpcomsh_release_user_login_lock( $name ) {
+	global $wpdb;
+
+	$wpdb->get_var( $wpdb->prepare( 'SELECT RELEASE_LOCK(%s)', $name ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 }
 
 /**
@@ -181,11 +237,12 @@ function wpcomsh_write_user_login( $user_id, $expected_login, $new_login ) {
  * @param int    $user_id   ID of the renamed user.
  * @param string $old_login Login the user held before the rename.
  * @param string $new_login Login the user holds now.
+ * @return true|WP_Error WP_Error `profile_update_failed` when WordPress rejects the update.
  */
 function wpcomsh_follow_user_login_rename( $user_id, $old_login, $new_login ) {
 	$user = get_userdata( $user_id );
 	if ( ! $user ) {
-		return;
+		return new WP_Error( 'user_not_found', sprintf( 'No user with ID %d on this site.', $user_id ) );
 	}
 
 	$changes  = array();
@@ -205,12 +262,17 @@ function wpcomsh_follow_user_login_rename( $user_id, $old_login, $new_login ) {
 	}
 
 	if ( ! $changes ) {
-		return;
+		return true;
 	}
 
 	$changes['ID'] = $user_id;
-	if ( is_wp_error( wp_update_user( $changes ) ) ) {
-		return;
+	$updated       = wp_update_user( $changes );
+
+	if ( is_wp_error( $updated ) ) {
+		return new WP_Error(
+			'profile_update_failed',
+			sprintf( 'Renamed the login of user %d, but could not update their profile: %s', $user_id, $updated->get_error_message() )
+		);
 	}
 
 	$new_slug = get_userdata( $user_id )->user_nicename;
@@ -222,6 +284,8 @@ function wpcomsh_follow_user_login_rename( $user_id, $old_login, $new_login ) {
 
 	// Renaming back to an earlier login makes that slug live again.
 	delete_user_meta( $user_id, WPCOMSH_OLD_AUTHOR_SLUG_META, $new_slug );
+
+	return true;
 }
 
 /**
