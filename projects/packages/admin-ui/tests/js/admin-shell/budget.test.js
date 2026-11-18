@@ -1,4 +1,17 @@
-import { liveAppLimit } from '../../../src/admin-shell/budget';
+import { liveAppLimit, mayPrewarm } from '../../../src/admin-shell/budget';
+
+describe( 'mayPrewarm', () => {
+	it.each( [
+		[ 'prewarms with nothing reported', {}, true ],
+		[ 'prewarms on 3G with 4 GB', { deviceMemory: 4, connection: { effectiveType: '3g' } }, true ],
+		[ 'waits with Save-Data on', { connection: { saveData: true, effectiveType: '4g' } }, false ],
+		[ 'waits on 2 GB or less', { deviceMemory: 2 }, false ],
+		[ 'waits on 2G', { connection: { effectiveType: '2g' } }, false ],
+		[ 'waits on slow 2G', { connection: { effectiveType: 'slow-2g' } }, false ],
+	] )( '%s', ( _, nav, expected ) => {
+		expect( mayPrewarm( nav ) ).toBe( expected );
+	} );
+} );
 
 describe( 'liveAppLimit', () => {
 	it.each( [

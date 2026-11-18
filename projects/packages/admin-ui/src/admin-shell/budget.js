@@ -21,3 +21,18 @@ export function liveAppLimit( override, nav = globalThis.navigator ) {
 	}
 	return memory < 8 ? 6 : Infinity;
 }
+
+/**
+ * Whether to prewarm a dashboard on hover: not when the user saves data, memory is low or the connection is slow.
+ *
+ * @param {Navigator} nav - Reports the device's memory and connection, where the browser shares them.
+ * @return {boolean} False to wait for the click.
+ */
+export function mayPrewarm( nav = globalThis.navigator ) {
+	const connection = nav?.connection;
+	return ! (
+		connection?.saveData ||
+		( nav?.deviceMemory && nav.deviceMemory <= 2 ) ||
+		[ 'slow-2g', '2g' ].includes( connection?.effectiveType )
+	);
+}
