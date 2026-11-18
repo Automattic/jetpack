@@ -4,6 +4,7 @@ use Automattic\Jetpack\Connection\Tokens;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 require_once JETPACK__PLUGIN_DIR . '/_inc/lib/core-api/class.jetpack-core-api-site-endpoints.php';
 
@@ -27,6 +28,13 @@ class Jetpack_Core_Api_Site_Purchases_Test extends WP_UnitTestCase {
 	 * @var int
 	 */
 	private $status = 200;
+
+	/**
+	 * Body the mocked `/upgrades` request answers with.
+	 *
+	 * @var string
+	 */
+	private $body = '';
 
 	public function set_up() {
 		parent::set_up();
@@ -62,7 +70,7 @@ class Jetpack_Core_Api_Site_Purchases_Test extends WP_UnitTestCase {
 		++$this->requests;
 
 		return array(
-			'body'     => 200 === $this->status ? '[{"product_slug":"jetpack_complete","expiry_date":"2027-11-18T00:00:00+00:00"}]' : '',
+			'body'     => $this->body,
 			'response' => array(
 				'code'    => $this->status,
 				'message' => '',
@@ -70,21 +78,30 @@ class Jetpack_Core_Api_Site_Purchases_Test extends WP_UnitTestCase {
 		);
 	}
 
-	public function test_reuses_the_my_jetpack_purchases_lookup_and_keeps_the_payload() {
+	/**
+	 * @return array[]
+	 */
+	public static function provide_purchases() {
+		return array(
+			'one purchase' => array( '[{"product_slug":"jetpack_complete","expiry_date":"2027-11-18T00:00:00+00:00"}]' ),
+			'no purchases' => array( '[]' ),
+		);
+	}
+
+	/**
+	 * @dataProvider provide_purchases
+	 *
+	 * @param string $body The `/upgrades` response body.
+	 */
+	#[DataProvider( 'provide_purchases' )]
+	public function test_reuses_the_my_jetpack_purchases_lookup_and_keeps_the_payload( $body ) {
+		$this->body = $body;
 		Wpcom_Products::get_site_current_purchases();
 
 		$response = Jetpack_Core_API_Site_Endpoint::get_purchases();
 
 		$this->assertSame( 1, $this->requests );
-		$this->assertSame(
-			array(
-				array(
-					'product_slug' => 'jetpack_complete',
-					'expiry_date'  => '2027-11-18T00:00:00+00:00',
-				),
-			),
-			json_decode( $response->get_data()['data'], true )
-		);
+		$this->assertSame( json_decode( $body, true ), json_decode( $response->get_data()['data'], true ) );
 	}
 
 	public function test_failed_lookup_returns_an_error() {
