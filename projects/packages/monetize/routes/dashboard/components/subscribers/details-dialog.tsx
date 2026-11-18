@@ -7,7 +7,7 @@ import { getStripeUrl, isOneTime, startDateLabel, subscriptionPriceLabel } from 
 import type { PaidSubscription } from '../../data/subscribers';
 
 /**
- * One labelled value in the details.
+ * One labelled value in the details, left out when it's empty.
  *
  * @param props       - Component props.
  * @param props.label - The label.
@@ -15,6 +15,9 @@ import type { PaidSubscription } from '../../data/subscribers';
  * @return The pair.
  */
 function Detail( { label, value }: { label: string; value: string } ) {
+	if ( ! value ) {
+		return null;
+	}
 	return (
 		<Stack direction="column" gap="xs">
 			<Text variant="body-sm">{ label }</Text>

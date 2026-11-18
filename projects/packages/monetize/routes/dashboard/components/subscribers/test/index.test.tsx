@@ -24,10 +24,10 @@ const renderTab = () =>
 		</QueryClientProvider>
 	);
 
-// Rows are newest first, so the first Cancel belongs to b@example.com.
-const cancelFirstRow = async () => {
-	await expect( screen.findByRole( 'heading', { name: 'b@example.com' } ) ).resolves.toBeVisible();
-	await userEvent.click( screen.getAllByRole( 'button', { name: 'Cancel payment' } )[ 0 ] );
+const cancelRow = async () => {
+	await userEvent.click(
+		await screen.findByRole( 'button', { name: 'Cancel payment from b@example.com' } )
+	);
 	await userEvent.click(
 		within( screen.getByRole( 'alertdialog' ) ).getByRole( 'button', { name: 'Cancel payment' } )
 	);
@@ -52,7 +52,7 @@ describe( 'Subscribers', () => {
 		} );
 		renderTab();
 
-		await cancelFirstRow();
+		await cancelRow();
 
 		await waitFor( () =>
 			expect( screen.queryByRole( 'heading', { name: 'b@example.com' } ) ).not.toBeInTheDocument()
@@ -83,7 +83,7 @@ describe( 'Subscribers', () => {
 		);
 		renderTab();
 
-		await cancelFirstRow();
+		await cancelRow();
 
 		await expect(
 			screen.findAllByText( 'Failed to cancel subscription' )
@@ -91,5 +91,29 @@ describe( 'Subscribers', () => {
 		expect(
 			screen.getByRole( 'heading', { name: 'b@example.com', hidden: true } )
 		).toBeInTheDocument();
+	} );
+
+	it( 'shows a subscription once when a new one shifts the next page onto it', async () => {
+		( wpcomFetch as jest.Mock ).mockImplementation( ( { query } ) =>
+			Promise.resolve(
+				query.offset === 0
+					? {
+							total: 3,
+							ownerships: [ ownership( 3, 'c@example.com' ), ownership( 2, 'b@example.com' ) ],
+						}
+					: {
+							total: 4,
+							ownerships: [ ownership( 2, 'b@example.com' ), ownership( 1, 'a@example.com' ) ],
+						}
+			)
+		);
+		renderTab();
+
+		await userEvent.click( await screen.findByRole( 'button', { name: 'Load more' } ) );
+
+		await expect(
+			screen.findByRole( 'heading', { name: 'a@example.com' } )
+		).resolves.toBeVisible();
+		expect( screen.getAllByRole( 'heading', { name: 'b@example.com' } ) ).toHaveLength( 1 );
 	} );
 } );

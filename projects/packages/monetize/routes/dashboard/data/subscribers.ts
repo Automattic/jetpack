@@ -1,4 +1,5 @@
 import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { EARNINGS_KEY } from './memberships';
 import { wpcomFetch } from './wpcom-fetch';
 import type { InfiniteData } from '@tanstack/react-query';
 
@@ -96,13 +97,16 @@ export function usePaidSubscriptions() {
 			const loaded = pages.reduce( ( sum, page ) => sum + page.subscriptions.length, 0 );
 			return lastPage.subscriptions.length && loaded < lastPage.total ? loaded : undefined;
 		},
-		select: data => ( {
-			total: data.pages[ data.pages.length - 1 ]?.total ?? 0,
-			// Calypso sorts the loaded rows the same way; WordPress.com doesn't promise an order.
-			subscriptions: data.pages
-				.flatMap( page => page.subscriptions )
-				.sort( ( a, b ) => b.id - a.id ),
-		} ),
+		select: data => {
+			// A subscription that arrives between pages shifts the offsets, repeating a row.
+			const byId = new Map(
+				data.pages.flatMap( page => page.subscriptions ).map( row => [ row.id, row ] )
+			);
+			return {
+				total: data.pages[ data.pages.length - 1 ]?.total ?? 0,
+				subscriptions: [ ...byId.values() ].sort( ( a, b ) => b.id - a.id ),
+			};
+		},
 	} );
 }
 
@@ -121,7 +125,9 @@ export function useCancelSubscription() {
 				method: 'POST',
 				data: { user_id: subscription.userId },
 			} ),
-		onSuccess: ( _data, subscription ) =>
+		onSuccess: async ( _data, subscription ) => {
+			// A page still loading was built from the list before the cancellation, and would restore it.
+			await queryClient.cancelQueries( { queryKey: SUBSCRIBERS_KEY } );
 			queryClient.setQueryData< InfiniteData< SubscribersPage > >( SUBSCRIBERS_KEY, data =>
 				data
 					? {
@@ -132,6 +138,8 @@ export function useCancelSubscription() {
 							} ) ),
 						}
 					: data
-			),
+			);
+			queryClient.invalidateQueries( { queryKey: EARNINGS_KEY } );
+		},
 	} );
 }

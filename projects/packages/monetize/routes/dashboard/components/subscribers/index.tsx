@@ -33,14 +33,35 @@ function RowActions( {
 } ) {
 	const view = useCallback( () => onView( subscription ), [ onView, subscription ] );
 	const cancel = useCallback( () => onCancel( subscription ), [ onCancel, subscription ] );
+	const who = subscription.name || subscription.email;
+	const oneTime = isOneTime( subscription );
+	/* translators: %s: the subscriber's name or email address. */
+	const viewLabel = sprintf( __( 'View %s', 'jetpack-monetize' ), who );
+	const cancelLabel = oneTime
+		? /* translators: %s: the subscriber's name or email address. */
+			sprintf( __( 'Remove payment from %s', 'jetpack-monetize' ), who )
+		: /* translators: %s: the subscriber's name or email address. */
+			sprintf( __( 'Cancel payment from %s', 'jetpack-monetize' ), who );
 
 	return (
 		<Stack direction="row" gap="xs">
-			<Button variant="minimal" tone="neutral" size="compact" onClick={ view }>
+			<Button
+				variant="minimal"
+				tone="neutral"
+				size="compact"
+				onClick={ view }
+				aria-label={ viewLabel }
+			>
 				{ __( 'View', 'jetpack-monetize' ) }
 			</Button>
-			<Button variant="minimal" tone="neutral" size="compact" onClick={ cancel }>
-				{ isOneTime( subscription )
+			<Button
+				variant="minimal"
+				tone="neutral"
+				size="compact"
+				onClick={ cancel }
+				aria-label={ cancelLabel }
+			>
+				{ oneTime
 					? __( 'Remove payment', 'jetpack-monetize' )
 					: __( 'Cancel payment', 'jetpack-monetize' ) }
 			</Button>
@@ -76,8 +97,16 @@ function subscriptionBadges( subscription: PaidSubscription ): string[] {
  * @return The tab.
  */
 export default function Subscribers() {
-	const { data, isError, error, hasNextPage, fetchNextPage, isFetchingNextPage } =
-		usePaidSubscriptions();
+	const {
+		data,
+		isError,
+		error,
+		hasNextPage,
+		fetchNextPage,
+		isFetchingNextPage,
+		refetch,
+		isFetching,
+	} = usePaidSubscriptions();
 	const [ viewing, setViewing ] = useState< PaidSubscription | null >( null );
 	const [ cancelling, setCancelling ] = useState< PaidSubscription | null >( null );
 	const exportUrl = getExportUrl();
@@ -89,6 +118,7 @@ export default function Subscribers() {
 	const closeDetails = useCallback( () => setViewing( null ), [] );
 	const closeCancel = useCallback( () => setCancelling( null ), [] );
 	const loadMore = useCallback( () => fetchNextPage(), [ fetchNextPage ] );
+	const retry = useCallback( () => refetch(), [ refetch ] );
 	const onExportClick = useCallback( () => trackSubscribersEvent( 'export_click' ), [] );
 
 	let content;
@@ -102,6 +132,11 @@ export default function Subscribers() {
 							'jetpack-monetize'
 						) }
 				</Notice.Description>
+				<Notice.Actions>
+					<Notice.ActionButton onClick={ retry } loading={ isFetching } disabled={ isFetching }>
+						{ __( 'Try again', 'jetpack-monetize' ) }
+					</Notice.ActionButton>
+				</Notice.Actions>
 			</Notice.Root>
 		);
 	} else if ( ! data ) {

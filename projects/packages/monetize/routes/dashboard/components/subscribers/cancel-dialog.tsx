@@ -53,7 +53,8 @@ export default function CancelDialog( {
 		}
 	}, [ cancelSubscription, subscription, oneTime, onCancelled ] );
 
-	const who = subscription.email || subscription.name;
+	const who =
+		subscription.email || subscription.name || __( 'This subscriber', 'jetpack-monetize' );
 	const description = oneTime
 		? sprintf(
 				/* translators: %1$s: the subscriber's email address. %2$s: the plan's name. */
