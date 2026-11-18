@@ -1939,7 +1939,7 @@ class Identity_Crisis_Test extends BaseTestCase {
 			'my-jetpack' => admin_url( 'admin.php?page=my-jetpack' ) . '&',
 			'dashboard'  => admin_url() . '?',
 		);
-		$this->assertStringStartsWith( $prefixes[ $expected ], html_entity_decode( $node->href ) );
+		$this->assertStringStartsWith( $prefixes[ $expected ], html_entity_decode( $node->href, ENT_QUOTES ) );
 	}
 
 	/**
