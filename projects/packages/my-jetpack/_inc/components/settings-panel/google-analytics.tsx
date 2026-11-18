@@ -13,6 +13,7 @@ import {
 import { useCallback, useState } from 'react';
 import { PRODUCT_SLUGS } from '../../data/constants';
 import useProduct from '../../data/products/use-product';
+import { LearnMoreLink } from './learn-more-link';
 import { useGoogleAnalyticsSettings } from './use-google-analytics-settings';
 import { useSettingsPanelTracking } from './use-settings-panel-tracking';
 import type { GoogleAnalyticsSettings as Settings } from './use-google-analytics-settings';
@@ -28,7 +29,7 @@ const CODE_PATTERN = /^(|UA-\d+-\d+|G-[A-Z0-9]+)$/i;
  */
 export function GoogleAnalyticsSettings() {
 	const { settings, isError, isSaving, save } = useGoogleAnalyticsSettings();
-	const { trackSettingToggle } = useSettingsPanelTracking( 'google-analytics' );
+	const { trackSettingToggle, trackSettingChange } = useSettingsPanelTracking( 'google-analytics' );
 	const { detail: stats } = useProduct( PRODUCT_SLUGS.STATS );
 	// The ID as typed, until it is saved; null shows the stored one.
 	const [ draft, setDraft ] = useState< string | null >( null );
@@ -55,10 +56,11 @@ export function GoogleAnalyticsSettings() {
 		if ( draft === null || ! isValid || value === settings?.code ) {
 			return;
 		}
+		trackSettingChange( 'code' );
 		if ( await save( { code: value } ) ) {
 			setDraft( null );
 		}
-	}, [ code, draft, isValid, save, settings?.code ] );
+	}, [ code, draft, isValid, save, settings?.code, trackSettingChange ] );
 
 	if ( isError ) {
 		return (
@@ -87,13 +89,12 @@ export function GoogleAnalyticsSettings() {
 					{ a: stats?.manageUrl ? <Link href={ stats.manageUrl } /> : <></> }
 				) }
 			</Text>
-			<Link
+			<LearnMoreLink
+				module="google-analytics"
 				href={ getRedirectUrl( 'wpcom-support-google-analytics' ) }
-				target="_blank"
-				rel="noopener noreferrer"
 			>
 				{ __( 'Learn more about Google Analytics', 'jetpack-my-jetpack' ) }
-			</Link>
+			</LearnMoreLink>
 
 			<SwitchControl
 				label={ __( 'Enable Google Analytics', 'jetpack-my-jetpack' ) }

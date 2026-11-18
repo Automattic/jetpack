@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Channel: Only match and quote private videos' transcripts in playlist searches for site members.

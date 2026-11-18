@@ -58,6 +58,19 @@ class Stats_Links {
 	);
 
 	/**
+	 * The old links' date params, as pairs of the first and the last day; the first pair that names a range wins.
+	 */
+	private const LEGACY_RANGE_PARAMS = array(
+		array( 'chartStart', 'chartEnd' ),
+		array( 'startDate', 'endDate' ),
+	);
+
+	/**
+	 * The Locations report's sections, which the old `geoMode` param names the same way.
+	 */
+	private const LEGACY_GEO_MODES = array( 'countries', 'regions', 'cities' );
+
+	/**
 	 * Claim the links. Idempotent, like the other register() calls.
 	 *
 	 * Outside the admin-chrome gate on purpose: the admin bar and the action bar also render on the front end, and Quick Edit re-renders the Views column over AJAX.
@@ -143,12 +156,14 @@ class Stats_Links {
 	 * @return string
 	 */
 	private static function legacy_route_path( $route ) {
-		if ( ! preg_match( '~^#!/stats/([^?]*)~', $route, $match ) ) {
+		if ( ! preg_match( '~^#!/stats/([^?]*)(?:\?(.*))?$~s', $route, $match ) ) {
 			return '/';
 		}
 
 		$segments = explode( '/', $match[1] );
 		$view     = $segments[0];
+		$query    = array();
+		wp_parse_str( $match[2] ?? '', $query );
 
 		if ( 'post' === $view ) {
 			return self::post_path( $segments[1] ?? 0 );
@@ -169,17 +184,89 @@ class Stats_Links {
 
 		// A summary route names its module after the period, or alone when it leaves the period out.
 		$module = in_array( $view, self::LEGACY_PERIODS, true ) ? ( $segments[1] ?? '' ) : $view;
+		$window = self::date_window_params( self::legacy_range( $query ) );
+
+		// The video page names its video in the query, and has no report without one.
+		if ( 'videodetails' === $module ) {
+			$video_id = is_scalar( $query['post'] ?? null ) ? (int) $query['post'] : 0;
+
+			return $video_id > 0 ? '/report/video/' . $video_id : '/reports/videos';
+		}
 
 		if ( array_key_exists( $module, self::LEGACY_REPORTS ) ) {
-			return '/reports/' . self::LEGACY_REPORTS[ $module ];
+			$report = self::LEGACY_REPORTS[ $module ];
+			$params = array();
+
+			if ( 'locations' === $report && in_array( $query['geoMode'] ?? null, self::LEGACY_GEO_MODES, true ) ) {
+				$params['section'] = $query['geoMode'];
+			}
+
+			return self::path_with_query( '/reports/' . $report, $params + $window );
 		}
 
-		// The dashboard draws a window of one day by the hour.
+		// The dashboard draws a window of one day by the hour, and an hourly link without days meant today.
 		if ( 'hour' === $view ) {
-			return '/?section=traffic&preset=today';
+			return self::path_with_query( '/', array( 'section' => 'traffic' ) + ( $window ? $window : array( 'preset' => 'today' ) ) );
 		}
 
-		return array_key_exists( $view, self::LEGACY_SECTIONS ) ? '/?section=' . self::LEGACY_SECTIONS[ $view ] : '/';
+		if ( ! array_key_exists( $view, self::LEGACY_SECTIONS ) ) {
+			return '/';
+		}
+
+		$section = self::LEGACY_SECTIONS[ $view ];
+
+		// Only the Traffic page took the days from its link.
+		return self::path_with_query( '/', array( 'section' => $section ) + ( 'traffic' === $section ? $window : array() ) );
+	}
+
+	/**
+	 * The days an old link names, or null when it names none.
+	 *
+	 * A lone `startDate` is left out: the old pages read it as the start of a period on some
+	 * links and its end on others.
+	 *
+	 * @param array $query The old link's query.
+	 * @return array|null `from` and `to` days as `Y-m-d`.
+	 */
+	private static function legacy_range( array $query ) {
+		foreach ( self::LEGACY_RANGE_PARAMS as list( $from_param, $to_param ) ) {
+			$from = self::legacy_day( $query[ $from_param ] ?? null );
+			$to   = self::legacy_day( $query[ $to_param ] ?? null );
+
+			if ( null !== $from && null !== $to && $from <= $to ) {
+				return array(
+					'from' => $from,
+					'to'   => $to,
+				);
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * A day from an old link as `Y-m-d`, which the old pages also took without leading zeros.
+	 *
+	 * @param mixed $value The param's value.
+	 * @return string|null
+	 */
+	private static function legacy_day( $value ) {
+		if ( ! is_string( $value ) || ! preg_match( '/^(\d{4})-(\d{1,2})-(\d{1,2})$/', $value, $match ) || ! checkdate( (int) $match[2], (int) $match[3], (int) $match[1] ) ) {
+			return null;
+		}
+
+		return sprintf( '%04d-%02d-%02d', $match[1], $match[2], $match[3] );
+	}
+
+	/**
+	 * A dashboard route with its query.
+	 *
+	 * @param string $path  The route.
+	 * @param array  $query Its params.
+	 * @return string
+	 */
+	private static function path_with_query( $path, array $query ) {
+		return $path . ( $query ? '?' . http_build_query( $query, '', '&', PHP_QUERY_RFC3986 ) : '' );
 	}
 
 	/**
@@ -235,9 +322,7 @@ class Stats_Links {
 			$query['section'] = $section;
 		}
 
-		$query += self::date_window_params( $args['range'] ?? null );
-
-		return '/' . ( $query ? '?' . http_build_query( $query, '', '&', PHP_QUERY_RFC3986 ) : '' );
+		return self::path_with_query( '/', $query + self::date_window_params( $args['range'] ?? null ) );
 	}
 
 	/**

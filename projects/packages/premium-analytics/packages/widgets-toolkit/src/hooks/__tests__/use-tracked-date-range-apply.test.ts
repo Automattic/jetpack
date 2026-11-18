@@ -73,7 +73,22 @@ describe( 'useTrackedDateRangeApply', () => {
 			preset: 'last-7-days',
 			interval: 'day',
 			comparison: 'none',
+			trigger: 'picker',
 		} );
+	} );
+
+	it.each( [
+		[ 'the picker when the caller names none', undefined ],
+		[ 'the control the caller names', { trigger: 'zoom_out' } as const ],
+	] )( 'records %s as the trigger', ( _case, options ) => {
+		const { trackedOnChange, trackedOnApply } = renderTracked();
+
+		act( () => {
+			trackedOnChange( LAST_7_DAYS, 'last-7-days', options );
+			trackedOnApply();
+		} );
+
+		expect( trackedProperties() ).toMatchObject( { trigger: options?.trigger ?? 'picker' } );
 	} );
 
 	it( 'records the new preset default when switching from a preset that allowed the rendered interval', () => {
@@ -210,6 +225,7 @@ describe( 'useTrackedDateRangeApply', () => {
 			preset: 'last-7-days',
 			interval: 'day',
 			comparison: 'none',
+			trigger: 'picker',
 		} );
 	} );
 } );

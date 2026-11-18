@@ -632,12 +632,85 @@ class LlmsTxtTest extends SeoTestCase {
 	}
 
 	/**
-	 * Hiding a page from search engines, from any editor, switches "Always include" off.
-	 *
+	 * @dataProvider provide_non_page_types
+	 * @param string $post_type Post type slug.
+	 * @param int    $included_count Number of pinned items.
+	 */
+	#[DataProvider( 'provide_non_page_types' )]
+	public function test_included_posts_precede_recent_content_and_bypass_the_limit( $post_type, $included_count ) {
+		$this->register_book_type();
+		$included = array();
+		for ( $i = 0; $i < $included_count; $i++ ) {
+			$post       = $this->insert_post(
+				array(
+					'post_type' => $post_type,
+					'post_date' => '2001-01-01 00:00:00',
+				)
+			);
+			$included[] = $post->ID;
+			update_post_meta( $post->ID, Llms_Txt::META_ALWAYS_INCLUDE, '1' );
+		}
+		for ( $i = 0; $i <= Llms_Txt::MAX_POSTS_PER_TYPE; $i++ ) {
+			$this->insert_post(
+				array(
+					'post_type' => $post_type,
+					'post_date' => '2026-01-01 00:00:00',
+				)
+			);
+		}
+		foreach ( array( array( 'post_status' => 'draft' ), array( 'post_password' => 'secret' ), array() ) as $fields ) {
+			$hidden = $this->insert_post( array_merge( array( 'post_type' => $post_type ), $fields ) );
+			update_post_meta( $hidden->ID, Llms_Txt::META_ALWAYS_INCLUDE, '1' );
+			if ( empty( $fields ) ) {
+				update_post_meta( $hidden->ID, Content_Coverage::META_NOINDEX, '1' );
+			}
+		}
+
+		$posts = $this->invoke_private( Llms_Txt::class, 'get_posts_for_type', $post_type );
+		$ids   = wp_list_pluck( $posts, 'ID' );
+		$this->assertCount( max( Llms_Txt::MAX_POSTS_PER_TYPE, $included_count ), $ids );
+		$this->assertCount( $included_count, array_intersect( $included, array_slice( $ids, 0, $included_count ) ) );
+		$this->assertSameSize( $ids, array_unique( $ids ) );
+	}
+
+	/**
+	 * @return array
+	 */
+	public static function provide_non_page_types(): array {
+		return array(
+			'posts'             => array( 'post', 2 ),
+			'custom posts'      => array( 'seo_book', 2 ),
+			'posts past limit'  => array( 'post', 51 ),
+			'custom past limit' => array( 'seo_book', 51 ),
+		);
+	}
+
+	/**
 	 * @return void
 	 */
-	public function test_hiding_a_page_switches_always_include_off() {
-		$page = $this->insert_page( 'Hidden Later' );
+	private function register_book_type() {
+		register_post_type(
+			'seo_book',
+			array(
+				'public'       => true,
+				'show_in_rest' => true,
+				'rest_base'    => 'seo-books',
+				'supports'     => array( 'title', 'editor', 'custom-fields' ),
+			)
+		);
+	}
+
+	/**
+	 * Hiding supported content from search engines switches "Always include" off.
+	 *
+	 * @dataProvider provide_supported_types
+	 * @param string $post_type Post type slug.
+	 * @return void
+	 */
+	#[DataProvider( 'provide_supported_types' )]
+	public function test_hiding_content_switches_always_include_off( $post_type ) {
+		$this->register_book_type();
+		$page = $this->insert_post( array( 'post_type' => $post_type ) );
 		update_post_meta( $page->ID, Llms_Txt::META_ALWAYS_INCLUDE, '1' );
 
 		$this->with_write_hooks(
@@ -650,16 +723,19 @@ class LlmsTxtTest extends SeoTestCase {
 	}
 
 	/**
-	 * Core REST always saves noindex first, whatever the order of the request's fields.
+	 * REST save results must not depend on metadata registration order.
 	 *
 	 * @param array[] $saves    Meta for each REST save, in order.
 	 * @param bool    $expected Whether "Always include" is on after the last save.
+	 * @param string  $post_type Post type slug.
+	 * @param bool    $include_first Whether inclusion is registered before noindex.
 	 * @return void
 	 * @dataProvider provide_rest_saves
 	 */
 	#[DataProvider( 'provide_rest_saves' )]
-	public function test_rest_saves_only_turn_always_include_on_for_visible_pages( array $saves, bool $expected ) {
-		$page    = $this->insert_page( 'Saved Through REST' );
+	public function test_rest_saves_only_turn_always_include_on_for_visible_content( array $saves, bool $expected, $post_type, bool $include_first ) {
+		$this->register_book_type();
+		$page    = $this->insert_post( array( 'post_type' => $post_type ) );
 		$user_id = wp_insert_user(
 			array(
 				'user_login' => 'llms_txt_admin',
@@ -669,22 +745,30 @@ class LlmsTxtTest extends SeoTestCase {
 		);
 		$this->assertIsInt( $user_id );
 		wp_set_current_user( $user_id );
-		register_meta(
-			'post',
-			Content_Coverage::META_NOINDEX,
-			array(
-				'type'         => 'boolean',
-				'single'       => true,
-				'show_in_rest' => true,
-			)
-		);
+		unregister_meta_key( 'post', Content_Coverage::META_NOINDEX );
+		unregister_meta_key( 'post', Llms_Txt::META_ALWAYS_INCLUDE );
 
 		$responses = array();
 		try {
 			$this->with_write_hooks(
-				static function () use ( $page, $saves, &$responses ) {
+				static function () use ( $page, $saves, &$responses, $post_type, $include_first ) {
+					if ( ! $include_first ) {
+						unregister_meta_key( 'post', Llms_Txt::META_ALWAYS_INCLUDE );
+					}
+					register_meta(
+						'post',
+						Content_Coverage::META_NOINDEX,
+						array(
+							'type'         => 'boolean',
+							'single'       => true,
+							'show_in_rest' => true,
+						)
+					);
+					if ( ! $include_first ) {
+						Llms_Txt::register_always_include();
+					}
 					foreach ( $saves as $meta ) {
-						$request = new WP_REST_Request( 'POST', '/wp/v2/pages/' . $page->ID );
+						$request = new WP_REST_Request( 'POST', '/wp/v2/' . get_post_type_object( $post_type )->rest_base . '/' . $page->ID );
 						$request->set_body_params( array( 'meta' => $meta ) );
 						$responses[] = rest_do_request( $request );
 					}
@@ -692,7 +776,7 @@ class LlmsTxtTest extends SeoTestCase {
 			);
 		} finally {
 			unregister_meta_key( 'post', Content_Coverage::META_NOINDEX );
-			unregister_meta_key( 'post', Llms_Txt::META_ALWAYS_INCLUDE, 'page' );
+			unregister_meta_key( 'post', Llms_Txt::META_ALWAYS_INCLUDE );
 			$GLOBALS['wp_rest_server'] = null;
 			wp_set_current_user( 0 );
 			wp_delete_user( $user_id );
@@ -707,10 +791,10 @@ class LlmsTxtTest extends SeoTestCase {
 	/**
 	 * REST saves, and whether "Always include" ends up on.
 	 *
-	 * @return array<string, array{array[], bool}>
+	 * @return array<string, array{array[], bool, string, bool}>
 	 */
 	public static function provide_rest_saves(): array {
-		return array(
+		$saves               = array(
 			'hide and include together, then un-hide' => array(
 				array(
 					array(
@@ -732,25 +816,130 @@ class LlmsTxtTest extends SeoTestCase {
 				true,
 			),
 		);
+		$registration_orders = array(
+			'noindex first'   => false,
+			'inclusion first' => true,
+		);
+		$cases               = array();
+		foreach ( array( 'page', 'post', 'seo_book' ) as $post_type ) {
+			foreach ( $saves as $name => $case ) {
+				foreach ( $registration_orders as $order => $include_first ) {
+					$cases[ $post_type . ': ' . $name . ', ' . $order ] = array_merge( $case, array( $post_type, $include_first ) );
+				}
+			}
+		}
+		return $cases;
 	}
 
 	/**
-	 * Main-menu pages are listed past the per-type limit, up to their own.
+	 * @return array
+	 */
+	public static function provide_supported_types(): array {
+		return array(
+			'page'   => array( 'page' ),
+			'post'   => array( 'post' ),
+			'custom' => array( 'seo_book' ),
+		);
+	}
+
+	/**
+	 * Main-menu pages fill only what's left of the per-type limit after always-included pages.
 	 *
 	 * @return void
 	 */
-	public function test_main_menu_pages_pass_the_page_limit_up_to_their_own() {
+	public function test_main_menu_pages_fill_the_limit_after_included_pages() {
+		$included = $this->insert_page( 'Zz Included' );
+		update_post_meta( $included->ID, Llms_Txt::META_ALWAYS_INCLUDE, '1' );
 		$this->insert_page( 'Aa Extra' );
 		$ids      = array();
-		$expected = array();
-		for ( $i = 1; $i <= Llms_Txt::MAX_MAIN_MENU_PAGES + 1; $i++ ) {
-			$expected[] = sprintf( 'Menu %03d', $i );
+		$expected = array( 'Zz Included' );
+		for ( $i = 1; $i <= Llms_Txt::MAX_POSTS_PER_TYPE; $i++ ) {
+			$expected[] = sprintf( 'Menu %02d', $i );
 			$ids[]      = $this->insert_page( end( $expected ) )->ID;
 		}
 		$this->add_nav_menu( $ids, 'primary' );
 		array_pop( $expected );
 
 		$this->assertSame( $expected, $this->page_titles() );
+	}
+
+	/**
+	 * @dataProvider provide_filtered_limits
+	 * @param string     $post_type Post type the filter changes.
+	 * @param int|string $limit     Limit the filter returns for it.
+	 */
+	#[DataProvider( 'provide_filtered_limits' )]
+	public function test_limit_filter_changes_only_its_post_type( $post_type, $limit ) {
+		$this->register_book_type();
+		$types = array( 'page', 'post', 'seo_book' );
+		foreach ( $types as $type ) {
+			for ( $i = 0; $i < 5; $i++ ) {
+				$this->insert_post( array( 'post_type' => $type ) );
+			}
+		}
+		$filter = static function ( $max, $type ) use ( $post_type, $limit ) {
+			return $type === $post_type ? $limit : $max;
+		};
+		add_filter( 'jetpack_seo_llms_txt_items_per_type', $filter, 10, 2 );
+
+		$counts = array();
+		try {
+			foreach ( $types as $type ) {
+				$counts[ $type ] = count( $this->invoke_private( Llms_Txt::class, 'get_posts_for_type', $type ) );
+			}
+		} finally {
+			remove_filter( 'jetpack_seo_llms_txt_items_per_type', $filter, 10 );
+		}
+
+		$expected               = array_fill_keys( $types, 5 );
+		$expected[ $post_type ] = (int) $limit;
+		$this->assertSame( $expected, $counts );
+	}
+
+	/**
+	 * @return array
+	 */
+	public static function provide_filtered_limits(): array {
+		return array(
+			'pages'                 => array( 'page', 3 ),
+			'posts'                 => array( 'post', 3 ),
+			'custom posts'          => array( 'seo_book', 3 ),
+			'pages at zero'         => array( 'page', 0 ),
+			'posts as numeric text' => array( 'post', '3' ),
+		);
+	}
+
+	/**
+	 * @dataProvider provide_invalid_limits
+	 * @param mixed $limit Value the filter returns.
+	 */
+	#[DataProvider( 'provide_invalid_limits' )]
+	public function test_invalid_filtered_limit_keeps_the_default( $limit ) {
+		for ( $i = 0; $i <= Llms_Txt::MAX_POSTS_PER_TYPE; $i++ ) {
+			$this->insert_post( array() );
+		}
+		$filter = static function () use ( $limit ) {
+			return $limit;
+		};
+		add_filter( 'jetpack_seo_llms_txt_items_per_type', $filter );
+		try {
+			$posts = $this->invoke_private( Llms_Txt::class, 'get_posts_for_type', 'post' );
+		} finally {
+			remove_filter( 'jetpack_seo_llms_txt_items_per_type', $filter );
+		}
+
+		$this->assertCount( Llms_Txt::MAX_POSTS_PER_TYPE, $posts );
+	}
+
+	/**
+	 * @return array
+	 */
+	public static function provide_invalid_limits(): array {
+		return array(
+			'negative' => array( -1 ),
+			'text'     => array( 'many' ),
+			'null'     => array( null ),
+		);
 	}
 
 	/**
