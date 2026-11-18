@@ -4,10 +4,6 @@ import useEvaluationRecommendations from '../use-evaluation-recommendations';
 jest.mock( '../../../context/value-store/valueStoreContext', () => ( {
 	useValueStore: ( _key: string, initial: unknown ) => [ initial, jest.fn() ],
 } ) );
-jest.mock( '../../../hooks/use-analytics', () => ( {
-	__esModule: true,
-	default: () => ( { recordEvent: jest.fn() } ),
-} ) );
 jest.mock( '../../../hooks/use-is-jetpack-user-new', () => ( {
 	__esModule: true,
 	default: () => true,
