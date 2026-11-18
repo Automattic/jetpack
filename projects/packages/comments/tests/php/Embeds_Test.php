@@ -56,14 +56,14 @@ class Embeds_Test extends BaseTestCase {
 			}
 		);
 
-		$block = Embeds::block( array( 'attrs' => array( 'url' => 'https://github.com/Automattic/jetpack/pull/1' ) ), true );
+		$html = Embeds::block( array( 'attrs' => array( 'url' => 'https://github.com/Automattic/jetpack/pull/1' ) ), true )['innerHTML'] ?? '';
 
 		foreach ( $contains as $text ) {
-			$this->assertStringContainsString( $text, $block['innerHTML'] );
+			$this->assertStringContainsString( $text, $html );
 		}
 
 		foreach ( $not_contains as $text ) {
-			$this->assertStringNotContainsString( $text, $block['innerHTML'] );
+			$this->assertStringNotContainsString( $text, $html );
 		}
 	}
 
