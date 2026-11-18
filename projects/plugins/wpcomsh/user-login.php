@@ -229,8 +229,8 @@ function wpcomsh_write_user_login( $user_id, $expected_login, $new_login ) {
 }
 
 /**
- * Moves the author slug, display name and nickname to the new login, where they still hold the
- * defaults WordPress derived from the old one. Values the user chose are kept.
+ * Moves the author slug and nickname to the new login, where they still hold the defaults
+ * WordPress derived from the old one. WordPress.com owns the display name and syncs it itself.
  *
  * @since $$next-version$$
  *
@@ -247,10 +247,6 @@ function wpcomsh_follow_user_login_rename( $user_id, $old_login, $new_login ) {
 
 	$changes  = array();
 	$old_slug = $user->user_nicename;
-
-	if ( $old_login === $user->display_name ) {
-		$changes['display_name'] = $new_login;
-	}
 
 	if ( $old_login === $user->nickname ) {
 		$changes['nickname'] = $new_login;

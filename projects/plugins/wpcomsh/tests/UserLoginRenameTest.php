@@ -214,15 +214,15 @@ class UserLoginRenameTest extends WP_UnitTestCase {
 		$this->assertSame( array( array( $user_id, 'oldlogin', 'newlogin' ) ), $fired );
 	}
 
-	public function test_moves_the_names_derived_from_the_old_login() {
+	public function test_moves_the_slug_and_nickname_but_not_the_display_name() {
 		$user_id = $this->create_user( 'oldlogin' );
 
 		wpcomsh_rename_user_login( $user_id, 'oldlogin', 'newlogin' );
 
 		$user = get_userdata( $user_id );
 		$this->assertSame( 'newlogin', $user->user_nicename );
-		$this->assertSame( 'newlogin', $user->display_name );
 		$this->assertSame( 'newlogin', $user->nickname );
+		$this->assertSame( 'oldlogin', $user->display_name );
 	}
 
 	public function test_keeps_names_the_user_chose() {
@@ -230,7 +230,6 @@ class UserLoginRenameTest extends WP_UnitTestCase {
 			'oldlogin',
 			array(
 				'user_nicename' => 'jane',
-				'display_name'  => 'Jane Doe',
 				'nickname'      => 'JD',
 			)
 		);
@@ -239,7 +238,6 @@ class UserLoginRenameTest extends WP_UnitTestCase {
 
 		$user = get_userdata( $user_id );
 		$this->assertSame( 'jane', $user->user_nicename );
-		$this->assertSame( 'Jane Doe', $user->display_name );
 		$this->assertSame( 'JD', $user->nickname );
 		$this->assertSame( array(), get_user_meta( $user_id, WPCOMSH_OLD_AUTHOR_SLUG_META, false ) );
 	}
