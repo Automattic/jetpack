@@ -81,7 +81,7 @@ function wpcomsh_admin_color_scheme_picker_disabled() {
  * @param mixed  $value      Transient value.
  */
 function wpcomsh_set_connected_user_data_as_user_options( $transient, $value ) {
-	if ( 0 !== strpos( $transient, 'jetpack_connected_user_data_' . get_current_user_id() ) ) {
+	if ( 0 !== strpos( (string) $transient, 'jetpack_connected_user_data_' . get_current_user_id() ) ) {
 		return;
 	}
 
