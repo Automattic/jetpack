@@ -1,7 +1,6 @@
 <?php
 /**
- * Tests for the AI SEO availability gate: each term falsified on its own. The Simple behavior is pinned plugin-side in Jetpack_AI_Sidebar_Test
- * (IS_WPCOM needs process isolation, broken here under PHP 8.5).
+ * Tests for AI SEO availability and entitlement checks.
  *
  * @package automattic/jetpack-seo
  */
@@ -25,8 +24,6 @@ class AiSeoTest extends SeoTestCase {
 		remove_all_filters( 'ai_seo_enhancer_enabled' );
 		remove_all_filters( 'jetpack_active_modules' );
 		remove_all_filters( 'jetpack_disable_seo_tools' );
-
-		\Automattic\Jetpack\Extensions\AiAssistantPlugin\Jetpack_AI_Sidebar::$is_host_enabled = false;
 
 		self::reset_plan();
 
@@ -94,7 +91,6 @@ class AiSeoTest extends SeoTestCase {
 		self::set_seo_tools_active( true );
 		\Wpcom_Test_Features::$known    = array( 'advanced-seo', 'ai-seo-enhancer' );
 		\Wpcom_Test_Features::$entitled = $features;
-		\Automattic\Jetpack\Extensions\AiAssistantPlugin\Jetpack_AI_Sidebar::$is_host_enabled = true;
 
 		try {
 			$this->assertSame( $expected, Ai_Seo::is_available() );
