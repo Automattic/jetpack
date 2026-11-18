@@ -289,7 +289,7 @@ class Block_Editor {
 				continue;
 			}
 
-			$text = self::inline_to_text( $block['innerHTML'] );
+			$text = self::inline_to_text( self::keeps( $block ) ? render_block( $block ) : $block['innerHTML'] );
 
 			if ( '' !== $text ) {
 				$parts[] = $text;
@@ -443,6 +443,8 @@ class Block_Editor {
 	private static function keeps( array $block ) {
 		/**
 		 * Keep a block the editor does not offer, as written.
+		 *
+		 * A kept block renders with attributes any commenter can write, so keep only blocks safe to render from untrusted input.
 		 *
 		 * @since $$next-version$$
 		 *
