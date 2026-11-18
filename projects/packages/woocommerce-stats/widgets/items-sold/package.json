@@ -1,0 +1,5 @@
+{
+	"name": "@automattic/jetpack-woocommerce-stats-widget-items-sold",
+	"private": true,
+	"type": "module"
+}
