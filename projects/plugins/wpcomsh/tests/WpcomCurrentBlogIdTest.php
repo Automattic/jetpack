@@ -41,9 +41,9 @@ class WpcomCurrentBlogIdTest extends WP_UnitTestCase {
 	 */
 	public function test_reads_the_id_from_external_storage_when_the_row_has_none() {
 		update_option( 'jetpack_options', array( 'version' => '14.0:1700000000' ) );
-		$this->register_external_storage( array( 'id' => 258563328 ) );
+		$this->register_external_storage( array( 'id' => 98765432 ) );
 
-		$this->assertSame( 258563328, _wpcom_get_current_blog_id() );
+		$this->assertSame( 98765432, _wpcom_get_current_blog_id() );
 	}
 
 	/**

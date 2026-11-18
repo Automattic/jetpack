@@ -1027,7 +1027,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 				 * @return int|null
 				 */
 				public function get( $option_name ) {
-					return 'id' === $option_name ? 258563328 : null;
+					return 'id' === $option_name ? 98765432 : null;
 				}
 
 				/**
@@ -1040,7 +1040,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		);
 
 		try {
-			$this->assertSame( 258563328, $this->call_get_current_site()['ID'] );
+			$this->assertSame( 98765432, $this->call_get_current_site()['ID'] );
 		} finally {
 			$provider = new \ReflectionProperty( \Automattic\Jetpack\Connection\External_Storage::class, 'provider' );
 			if ( PHP_VERSION_ID < 80100 ) {

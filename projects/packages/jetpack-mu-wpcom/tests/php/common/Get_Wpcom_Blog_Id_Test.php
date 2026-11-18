@@ -35,9 +35,9 @@ class Get_Wpcom_Blog_Id_Test extends \WorDBless\BaseTestCase {
 	public function test_atomic_reads_the_id_from_external_storage_when_the_row_has_none() {
 		define( 'IS_ATOMIC', true );
 		update_option( 'jetpack_options', array( 'version' => '14.0:1700000000' ) );
-		$this->register_external_storage( array( 'id' => 258563328 ) );
+		$this->register_external_storage( array( 'id' => 98765432 ) );
 
-		$this->assertSame( 258563328, get_wpcom_blog_id() );
+		$this->assertSame( 98765432, get_wpcom_blog_id() );
 	}
 
 	/**
@@ -109,9 +109,9 @@ class Get_Wpcom_Blog_Id_Test extends \WorDBless\BaseTestCase {
 	public function test_logstash_blog_id_reads_the_id_from_external_storage_when_the_row_has_none() {
 		define( 'IS_ATOMIC', true );
 		update_option( 'jetpack_options', array( 'version' => '14.0:1700000000' ) );
-		$this->register_external_storage( array( 'id' => 258563328 ) );
+		$this->register_external_storage( array( 'id' => 98765432 ) );
 
-		$this->assertSame( 258563328, $this->resolve_logstash_blog_id() );
+		$this->assertSame( 98765432, $this->resolve_logstash_blog_id() );
 	}
 
 	/**
