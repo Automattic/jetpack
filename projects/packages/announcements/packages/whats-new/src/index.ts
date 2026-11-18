@@ -7,7 +7,7 @@ import { createElement, createRoot } from '@wordpress/element';
  */
 import { WhatsNew } from './components';
 import { ensureAnnouncementEntity } from './hooks';
-import { loadTranslations } from './load-translations';
+import { loadTranslations } from './utils';
 import type * as Contract from '@automattic/jetpack-announcements';
 
 type Mount = {

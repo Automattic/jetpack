@@ -1,16 +1,16 @@
 /**
  * Internal dependencies
  */
-import type * as WhatsNewModule from '.';
+import type * as WhatsNewModule from '..';
 import type { act as Act } from 'react';
 
-jest.mock( './load-translations', () => ( {
+jest.mock( '../utils', () => ( {
 	loadTranslations: jest.fn(),
 } ) );
-jest.mock( './hooks', () => ( {
+jest.mock( '../hooks', () => ( {
 	ensureAnnouncementEntity: jest.fn(),
 } ) );
-jest.mock( './components', () => ( {
+jest.mock( '../components', () => ( {
 	WhatsNew: ( { channels }: { channels: string[] } ) => channels.join( ', ' ),
 } ) );
 
@@ -27,10 +27,10 @@ describe( 'mountWhatsNew', () => {
 	beforeEach( () => {
 		jest.resetModules();
 		( { act } = jest.requireActual( 'react' ) );
-		( { loadTranslations } = jest.requireMock( './load-translations' ) );
-		( { ensureAnnouncementEntity } = jest.requireMock( './hooks' ) );
+		( { loadTranslations } = jest.requireMock( '../utils' ) );
+		( { ensureAnnouncementEntity } = jest.requireMock( '../hooks' ) );
 		loadTranslations.mockResolvedValue( undefined );
-		( { mountWhatsNew } = jest.requireActual( './index' ) );
+		( { mountWhatsNew } = jest.requireActual( '../index' ) );
 	} );
 
 	afterEach( () => {

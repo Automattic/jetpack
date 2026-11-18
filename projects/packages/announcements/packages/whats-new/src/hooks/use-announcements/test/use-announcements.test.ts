@@ -8,8 +8,8 @@ import { store as preferencesStore } from '@wordpress/preferences';
 /**
  * Internal dependencies
  */
-import { useAnnouncements } from './use-announcements';
-import type { Announcement, SeenDates } from '../../types';
+import { useAnnouncements } from '../use-announcements';
+import type { Announcement, SeenDates } from '../../../types';
 
 jest.mock( '@wordpress/core-data', () => ( {
 	store: 'core',

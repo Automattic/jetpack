@@ -1,8 +1,8 @@
 /**
  * Internal dependencies
  */
-import { getAnnouncementsForChannels, selectTeaser } from './select-announcements';
-import type { Announcement, SeenDates } from '../../types';
+import { getAnnouncementsForChannels, selectTeaser } from '../select-announcements';
+import type { Announcement, SeenDates } from '../../../types';
 
 const announcement = ( overrides: Partial< Announcement > ): Announcement => ( {
 	id: 'my-plugin/newest',
