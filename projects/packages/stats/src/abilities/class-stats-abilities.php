@@ -925,7 +925,7 @@ class Stats_Abilities extends Registrar {
 		return array(
 			'label'               => __( 'Get one newsletter email\'s stats', 'jetpack-stats-pkg' ),
 			'description'         => __(
-				'Break down how one post the site sent to subscribers as an email performed, over all time since it was sent, as on the Stats dashboard\'s page for that email. `sent` is how many subscribers it went to. `opens` and `clicks` each hold the `total` count, the `unique` people, the `rate` (unique people as a percent of `sent`), and label/value rows ranked by count: `by_client` (mail app), `by_device` (operating system) and `by_country`. Each list holds its top `max` rows, so it can add up to less than `total`. `clicks.by_link` ranks the links clicked: a link in the post by its URL, and the email\'s own links by name (post title, like, comment, unsubscribe and the like). Composes ten WPCOM endpoints — if any sub-call fails, `partial` is true, `errors` lists the failed sub-calls by `{stat}/{field}` (such as `opens/rate` or `clicks/link`), and the fields they feed are null. If every sub-call fails, returns `jetpack_stats_data_unavailable`; an unknown post returns `jetpack_stats_post_not_found`. `site` is the WordPress.com blog ID and home URL of the site whose Stats were read. `definitions` explains, in plain words, each metric in the response — read it before reporting a number. Precondition: site must be connected to WordPress.com. Related: call jetpack-stats/get-email-stats first and pass a post\'s `id` as `post_id`.',
+				'Break down how one post the site sent to subscribers as an email performed, over all time since it was sent, as on the Stats dashboard\'s page for that email. `sent` is how many subscribers it went to. `opens` and `clicks` each hold the `total` count, the `unique` people, the `rate` (unique people as a percent of `sent`), and label/value rows ranked by count: `by_client` (mail app), `by_device` (operating system) and `by_country`. Each list holds its top `max` rows, so it can add up to less than `total`. `clicks.by_link` ranks the links clicked: a link in the post by its URL, and the email\'s own links by name (post title, like, comment, unsubscribe and the like). Composes ten WPCOM endpoints — if any sub-call fails, `partial` is true, `errors` lists the failed sub-calls by `{stat}/{field}` (such as `opens/rate` or `clicks/link`), and the fields they feed are null. If every sub-call fails, returns `jetpack_stats_data_unavailable`; an unknown post returns `jetpack_stats_post_not_found`. `site` is the WordPress.com blog ID and home URL of the site whose Stats were read. `definitions` explains, in plain words, each metric in the response — read it before reporting a number. Precondition: site must be connected to WordPress.com.',
 				'jetpack-stats-pkg'
 			),
 			'input_schema'        => array(
@@ -934,7 +934,7 @@ class Stats_Abilities extends Registrar {
 				'properties'           => array(
 					'post_id' => array(
 						'type'        => array( 'integer', 'string' ),
-						'description' => __( 'The ID of the post the site emailed. Must be positive.', 'jetpack-stats-pkg' ),
+						'description' => __( 'The ID of the post the site emailed, as email stats report it. Must be positive.', 'jetpack-stats-pkg' ),
 					),
 					'max'     => array(
 						'type'        => 'integer',
@@ -993,7 +993,7 @@ class Stats_Abilities extends Registrar {
 		return array(
 			'label'               => __( 'Get plays for a video', 'jetpack-stats-pkg' ),
 			'description'         => __(
-				'Return the plays of one video over time, as on the Stats dashboard\'s page for that video: `total_plays` over the window, a `series` of plays per period, and the `pages` it was played on (up to 20, each with its `url` and, for a page on this site, its `post_id` and `title`). `series` has one row per period, oldest first, ending with the period that contains `date`; each row\'s `date` is the first day of its period (weeks start on Monday). Returns `jetpack_stats_video_not_found` when no video has that ID. `site` is the WordPress.com blog ID and home URL of the site whose Stats were read. `definitions` explains, in plain words, each metric and time window in the response — read it before reporting a number. Precondition: site must be connected to WordPress.com. Related: call jetpack-stats/get-top-content with type=video-plays first and pass an item\'s `id` as `video_id`.',
+				'Read how often one video was played over time, and where, as on the Stats dashboard\'s page for that video. `total_plays` adds up the window\'s plays. `pages` lists up to 20 pages the video was played on; a page on this site carries its `post_id` and `title`, and one elsewhere has them null. `series` has one row per period, oldest first, ending with the period that contains `date`; each row\'s `date` is the first day of its period (weeks start on Monday). Returns `jetpack_stats_video_not_found` when no video has that ID. `site` is the WordPress.com blog ID and home URL of the site whose Stats were read. `definitions` explains, in plain words, each metric and time window in the response — read it before reporting a number. Precondition: site must be connected to WordPress.com.',
 				'jetpack-stats-pkg'
 			),
 			'input_schema'        => array(
@@ -1002,7 +1002,7 @@ class Stats_Abilities extends Registrar {
 				'properties'           => array(
 					'video_id' => array(
 						'type'        => array( 'integer', 'string' ),
-						'description' => __( 'The video\'s attachment ID. Must be positive.', 'jetpack-stats-pkg' ),
+						'description' => __( 'The video\'s attachment ID, as video-plays top content items report it. Must be positive.', 'jetpack-stats-pkg' ),
 					),
 					'period'   => array(
 						'type'        => 'string',

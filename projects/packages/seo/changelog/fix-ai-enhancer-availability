@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Hide AI SEO controls when metadata generation is unavailable.
