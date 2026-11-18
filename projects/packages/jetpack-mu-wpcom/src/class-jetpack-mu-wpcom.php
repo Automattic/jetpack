@@ -865,6 +865,22 @@ class Jetpack_Mu_Wpcom {
 	}
 
 	/**
+	 * Whether Jetpack Comments handles the current blog's comments. A process that loads it for one blog
+	 * and then switches to another keeps its hooks, so this is asked again for each blog.
+	 *
+	 * @param bool $enabled Whether Jetpack Comments is enabled.
+	 * @return bool
+	 */
+	public static function jetpack_comments_enabled_for_blog( $enabled ) {
+		static $by_blog = array();
+
+		$blog_id               = get_current_blog_id();
+		$by_blog[ $blog_id ] ??= ! self::should_disable_comment_experience( $blog_id );
+
+		return $enabled && $by_blog[ $blog_id ];
+	}
+
+	/**
 	 * Load Verbum Comments.
 	 */
 	public static function load_verbum_comments() {
@@ -891,17 +907,7 @@ class Jetpack_Mu_Wpcom {
 			}
 
 			if ( \Automattic\Jetpack\Comments\Comments::is_enabled() ) {
-				// A process that loads this for one blog and then switches to another keeps these hooks.
-				add_filter(
-					'jetpack_comments_enabled',
-					static function ( $enabled ) {
-						static $by_blog        = array();
-						$blog_id               = get_current_blog_id();
-						$by_blog[ $blog_id ] ??= ! self::should_disable_comment_experience( $blog_id );
-
-						return $enabled && $by_blog[ $blog_id ];
-					}
-				);
+				add_filter( 'jetpack_comments_enabled', array( __CLASS__, 'jetpack_comments_enabled_for_blog' ) );
 				\Automattic\Jetpack\Comments\Comments::init();
 				return;
 			}
