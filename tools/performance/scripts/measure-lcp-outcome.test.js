@@ -403,16 +403,23 @@ const healthyIteration = i => ( {
 
 test( 'finalizeMeasurement returns the measurement when three of five loads succeed', () => {
 	const forms = SCENARIOS.find( s => s.key === 'formsResponses' );
-	const results = [
-		...[ 1, 2, 3 ].map( healthyIteration ),
-		{ iteration: 4, error: 'boom' },
-		{ iteration: 5, error: 'boom' },
-	];
-	const measurement = finalizeMeasurement( forms, results, 5, 'http://example.test' );
-	assert.equal( measurement.url, 'http://example.test' );
-	assert.equal( measurement.results, results );
-	assert.equal( measurement.summary.lcp.median, 302 );
-	assert.deepEqual( findIncompleteSummaryFields( forms, measurement.summary ), [] );
+	for ( const middleTtfb of [ 200, null ] ) {
+		const results = [
+			...[ 100, middleTtfb, 300 ].map( ( ttfb, index ) => {
+				const iteration = healthyIteration( index + 1 );
+				iteration.metrics.ttfb = ttfb;
+				return iteration;
+			} ),
+			{ iteration: 4, error: 'boom' },
+			{ iteration: 5, error: 'boom' },
+		];
+		const measurement = finalizeMeasurement( forms, results, 5, 'http://example.test' );
+		assert.equal( measurement.url, 'http://example.test' );
+		assert.equal( measurement.results, results );
+		assert.equal( measurement.summary.lcp.median, 302 );
+		assert.equal( measurement.summary.ttfb.median, 200 );
+		assert.deepEqual( findIncompleteSummaryFields( forms, measurement.summary ), [] );
+	}
 } );
 
 test( 'finalizeMeasurement refuses a page when half or fewer of its loads succeed', () => {
