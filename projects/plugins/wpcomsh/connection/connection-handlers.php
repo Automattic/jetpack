@@ -9,8 +9,7 @@
  * @package wpcomsh
  */
 
-// Load required classes
-require_once __DIR__ . '/class-atomic-storage-provider.php';
+// Load required classes. wpcomsh_init_external_storage() loads the storage provider.
 require_once __DIR__ . '/class-protected-owner-error-handler.php';
 
 /**
@@ -46,15 +45,17 @@ function wpcomsh_init_external_storage() {
 		return false;
 	}
 
-	// Only initialize if both External_Storage class and our provider class are available
-	if ( class_exists( 'Automattic\Jetpack\Connection\External_Storage' ) && class_exists( 'Atomic_Storage_Provider' ) ) {
-		// Register the Atomic storage provider
-		return \Automattic\Jetpack\Connection\External_Storage::register_provider(
-			new Atomic_Storage_Provider()
-		);
+	if ( ! class_exists( 'Automattic\Jetpack\Connection\External_Storage' )
+		|| ! interface_exists( 'Automattic\Jetpack\Connection\Storage_Provider_Interface' ) ) {
+		return false;
 	}
 
-	return false;
+	// Load the provider only now: it declares its class only when the interface exists.
+	require_once __DIR__ . '/class-atomic-storage-provider.php';
+
+	return \Automattic\Jetpack\Connection\External_Storage::register_provider(
+		new Atomic_Storage_Provider()
+	);
 }
 
 /**

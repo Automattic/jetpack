@@ -255,6 +255,9 @@ add_filter( 'user_has_cap', 'wpcomsh_prevent_owner_removal', 10, 3 );
 /**
  * Returns the connection owner's user ID through `Jetpack_Options`, which reads external storage first.
  *
+ * On Atomic, external storage names the local user who has the owner's email, and a user can set their
+ * own email. So the owner counts only when they are an administrator.
+ *
  * The value is cached for the request: on Atomic, a missing owner costs an uncached email lookup on each call.
  *
  * @param bool $reset Whether to clear the cached value.
@@ -268,10 +271,19 @@ function wpcomsh_get_connection_owner_id( $reset = false ) {
 		return 0;
 	}
 
-	// Before pluggable.php loads, the storage provider cannot look up the owner, so do not cache that result.
-	if ( null === $owner_id || ! function_exists( 'get_user_by' ) ) {
-		$owner_id = class_exists( 'Jetpack_Options' ) ? (int) Jetpack_Options::get_option( 'master_user' ) : 0;
+	if ( null !== $owner_id ) {
+		return $owner_id;
 	}
+
+	// Before pluggable.php loads, the owner cannot be looked up, so do not cache that result.
+	if ( ! function_exists( 'get_userdata' ) ) {
+		return 0;
+	}
+
+	$user_id = class_exists( 'Jetpack_Options' ) ? (int) Jetpack_Options::get_option( 'master_user' ) : 0;
+	// Read the roles directly: user_can() would run this capability filter again.
+	$user     = $user_id ? get_userdata( $user_id ) : false;
+	$owner_id = $user && in_array( 'administrator', (array) $user->roles, true ) ? $user_id : 0;
 
 	return $owner_id;
 }
@@ -282,7 +294,7 @@ function wpcomsh_get_connection_owner_id( $reset = false ) {
 function wpcomsh_reset_connection_owner_id() {
 	wpcomsh_get_connection_owner_id( true );
 }
-foreach ( array( 'jetpack_external_storage_provider_registered', 'add_option_jetpack_options', 'update_option_jetpack_options', 'delete_option_jetpack_options', 'user_register', 'profile_update', 'deleted_user' ) as $wpcomsh_owner_reset_hook ) {
+foreach ( array( 'jetpack_external_storage_provider_registered', 'add_option_jetpack_options', 'update_option_jetpack_options', 'delete_option_jetpack_options', 'user_register', 'profile_update', 'set_user_role', 'deleted_user' ) as $wpcomsh_owner_reset_hook ) {
 	add_action( $wpcomsh_owner_reset_hook, 'wpcomsh_reset_connection_owner_id' );
 }
 unset( $wpcomsh_owner_reset_hook );
