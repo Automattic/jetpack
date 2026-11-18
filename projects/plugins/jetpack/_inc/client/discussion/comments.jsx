@@ -38,8 +38,12 @@ class CommentsComponent extends Component {
 		this.props.updateFormStateModuleOption( 'markdown', 'wpcom_publish_comments_with_markdown' );
 	};
 
-	handleBlocksToggle = () => {
-		this.props.updateFormStateModuleOption( 'comments', 'enable_blocks_comments' );
+	handleImagesToggle = () => {
+		this.props.updateFormStateModuleOption( 'comments', 'jetpack_comments_images' );
+	};
+
+	handleEmbedsToggle = () => {
+		this.props.updateFormStateModuleOption( 'comments', 'jetpack_comments_embeds' );
 	};
 
 	render() {
@@ -69,7 +73,8 @@ class CommentsComponent extends Component {
 				module="comments"
 				saveDisabled={ this.props.isSavingAnyOption( [
 					'highlander_comment_form_prompt',
-					'enable_blocks_comments',
+					'jetpack_comments_images',
+					'jetpack_comments_embeds',
 				] ) }
 			>
 				{ foundComments && (
@@ -98,23 +103,46 @@ class CommentsComponent extends Component {
 							<span className="jp-form-toggle-explanation">{ comments.description }</span>
 						</ModuleToggle>
 						{ this.props.hasBlockEditor && (
-							<FormFieldset>
-								<ToggleControl
-									checked={ !! this.props.getOptionValue( 'enable_blocks_comments', 'comments' ) }
-									disabled={
-										! isCommentsActive ||
-										commentsUnavailableInOfflineMode ||
-										this.props.isSavingAnyOption( [ 'comments', 'enable_blocks_comments' ] )
-									}
-									onChange={ this.handleBlocksToggle }
-									label={
-										<span className="jp-form-toggle-explanation">
-											{ __( 'Enable blocks in comments.', 'jetpack' ) }
-										</span>
-									}
-									__nextHasNoMarginBottom={ true }
-								/>
-							</FormFieldset>
+							<>
+								<FormFieldset>
+									<ToggleControl
+										checked={
+											!! this.props.getOptionValue( 'jetpack_comments_images', 'comments' )
+										}
+										disabled={
+											! isCommentsActive ||
+											commentsUnavailableInOfflineMode ||
+											this.props.isSavingAnyOption( [ 'comments', 'jetpack_comments_images' ] )
+										}
+										onChange={ this.handleImagesToggle }
+										label={
+											<span className="jp-form-toggle-explanation">
+												{ __( 'Allow images from links.', 'jetpack' ) }
+											</span>
+										}
+										__nextHasNoMarginBottom={ true }
+									/>
+								</FormFieldset>
+								<FormFieldset>
+									<ToggleControl
+										checked={
+											!! this.props.getOptionValue( 'jetpack_comments_embeds', 'comments' )
+										}
+										disabled={
+											! isCommentsActive ||
+											commentsUnavailableInOfflineMode ||
+											this.props.isSavingAnyOption( [ 'comments', 'jetpack_comments_embeds' ] )
+										}
+										onChange={ this.handleEmbedsToggle }
+										label={
+											<span className="jp-form-toggle-explanation">
+												{ __( 'Allow embeds from YouTube, X, and other services.', 'jetpack' ) }
+											</span>
+										}
+										__nextHasNoMarginBottom={ true }
+									/>
+								</FormFieldset>
+							</>
 						) }
 						<FormFieldset>
 							<FormLabel>
