@@ -1330,6 +1330,7 @@ class Initializer {
 	 */
 	public static function add_admin_script_data( $data ) {
 		$data['myJetpack']['isAvailable']           = self::is_admin_page_available();
+		$data['myJetpack']['isShownByHost']         = self::host_shows_my_jetpack();
 		$data['myJetpack']['assetsUrl']             = self::get_assets_url();
 		$data['myJetpack']['productsSection']       = self::get_products_section();
 		$data['myJetpack']['settingsConsolidation'] = self::is_settings_consolidation_enabled();

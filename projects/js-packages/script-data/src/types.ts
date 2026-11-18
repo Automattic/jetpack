@@ -57,6 +57,8 @@ export interface UserData {
 export interface MyJetpackScriptData {
 	/** Whether My Jetpack initialized and its admin page is reachable by the current user. */
 	isAvailable?: boolean;
+	/** Whether the host shows My Jetpack; `false` where it hides or redirects the page. Absent from older My Jetpack packages. */
+	isShownByHost?: boolean;
 	/** Site editor state. Only on the My Jetpack page. */
 	siteEditor?: {
 		isBlockTheme: boolean;

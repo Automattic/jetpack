@@ -415,7 +415,7 @@ abstract class Jetpack_Admin_Page {
 						</svg>
 						<span class="jp-footer__module-name"><?php esc_html_e( 'Jetpack', 'jetpack' ); ?></span>
 					</div>
-					<?php if ( ! ( new Host() )->is_wpcom_platform() && $my_jetpack_available ) : ?>
+					<?php if ( Footer_Links::shows_my_jetpack_links() ) : ?>
 					<div class="jp-footer__menu">
 						<?php if ( current_user_can( 'manage_options' ) ) : ?>
 						<a href="<?php echo esc_url( admin_url( 'admin.php?page=my-jetpack#/features' ) ); ?>" class="jp-footer__menu-item"><?php echo esc_html_x( 'Features', 'Navigation item', 'jetpack' ); ?></a>

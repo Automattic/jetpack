@@ -28,4 +28,17 @@ class Footer_Links {
 		return method_exists( My_Jetpack_Initializer::class, 'is_admin_page_available' )
 			&& My_Jetpack_Initializer::is_admin_page_available();
 	}
+
+	/**
+	 * Whether footers link to My Jetpack: its page is available and the host shows it.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	public static function shows_my_jetpack_links() {
+		return self::is_my_jetpack_available()
+			/** This filter is documented in projects/packages/my-jetpack/src/class-initializer.php */
+			&& apply_filters( 'jetpack_my_jetpack_modules_management_available', true );
+	}
 }
