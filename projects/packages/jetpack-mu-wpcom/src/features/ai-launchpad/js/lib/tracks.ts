@@ -279,8 +279,7 @@ export function trackWizardMcpPromptCopied( props: { goals_variation: string | n
 /** The props every AI tool view event about an integration carries. */
 interface McpConnectedProps< Extra extends string = never > extends TrackEventProps {
 	goals_variation: string | null;
-	// The AI tool that connected (the latest when both did), or `other` after copying the prompt for another tool. Go to
-	// my dashboard adds `none`, and the clicked tool without detection: see trackWizardMcpGoToDashboardClicked.
+	// The AI tool that connected, the latest one when both did, or `other` after copying the prompt for another tool.
 	integration: 'chatgpt' | 'claude' | 'other' | Extra;
 }
 
@@ -320,14 +319,12 @@ export function trackWizardMcpAllowFullAccessClicked(
 }
 
 /**
- * Records a click on "Go to my dashboard" in the AI tool view. `mcp_detection` false means `integration` is the tool
- * clicked, not one seen connecting; `none` means nothing was connected, clicked or copied.
+ * Records a click on "Go to my dashboard" in the AI tool view, with `integration` `none` when nothing was connected or
+ * copied.
  *
  * @param props - The event properties.
  */
-export function trackWizardMcpGoToDashboardClicked(
-	props: McpConnectedProps< 'none' > & { mcp_detection: boolean }
-): void {
+export function trackWizardMcpGoToDashboardClicked( props: McpConnectedProps< 'none' > ): void {
 	record( 'jetpack_ai_launchpad_wizard_mcp_go_to_dashboard_clicked', props );
 }
 

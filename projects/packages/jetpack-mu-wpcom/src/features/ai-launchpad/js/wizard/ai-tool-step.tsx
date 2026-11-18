@@ -42,8 +42,6 @@ interface Props {
 	allowFullAccessFailed: boolean;
 	// Called each time the prompt for another AI tool is copied.
 	onPromptCopied: () => void;
-	// Called with the AI tool each time its Connect is clicked.
-	onConnectClicked: ( tool: AiTool ) => void;
 	titleRef?: Ref< HTMLHeadingElement >;
 }
 
@@ -63,7 +61,6 @@ interface Props {
  * @param props.onReadOnlyChange      - Called on each check with the account's MCP access level.
  * @param props.allowFullAccessFailed - Whether allowing full access from the wizard failed.
  * @param props.onPromptCopied        - Called each time the prompt for another AI tool is copied.
- * @param props.onConnectClicked      - Called with the AI tool each time its Connect is clicked.
  * @param props.titleRef              - Ref to the view title, focused when the view opens.
  * @return The AI tool view.
  */
@@ -76,7 +73,6 @@ export default function AiToolStep( {
 	onReadOnlyChange,
 	allowFullAccessFailed,
 	onPromptCopied,
-	onConnectClicked,
 	titleRef,
 }: Props ) {
 	const id = useId();
@@ -309,16 +305,12 @@ export default function AiToolStep( {
 											setClicked( current =>
 												current.includes( item.tool ) ? current : [ ...current, item.tool ]
 											);
-											onConnectClicked( item.tool );
 											if ( detectsConnections ) {
 												trackWizardMcpWaitingViewed( {
 													goals_variation: variation,
 													integration: item.tool,
 												} );
 												setWaitingFor( item.tool );
-											} else {
-												// Without a waiting state, nothing else announces the new exit.
-												speak( copy.openedAnnouncement );
 											}
 										} }
 									>
