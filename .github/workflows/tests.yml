@@ -1,4 +1,5 @@
 name: Tests
+# Temporary: touching this file makes PR CI test every project. Do not merge.
 
 on:
   pull_request:
