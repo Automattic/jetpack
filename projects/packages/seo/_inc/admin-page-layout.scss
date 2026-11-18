@@ -99,10 +99,18 @@ body.toplevel_page_jetpack-seo {
 	flex-grow: 1;
 }
 
-.jetpack-seo-visibility-notice {
+// The site-wide banners above each tab's content (see `DashboardNotices`).
+.jetpack-seo-notices {
+	display: flex;
+	flex-direction: column;
 	flex-shrink: 0;
+	gap: var(--wpds-dimension-gap-lg);
 	margin-block-start: var(--wpds-dimension-padding-2xl);
 	margin-inline: var(--wpds-dimension-padding-2xl);
+
+	&:empty {
+		display: none;
+	}
 
 	&:has(+ .jetpack-seo-page-content--flush) {
 		margin-block-end: var(--wpds-dimension-padding-2xl);

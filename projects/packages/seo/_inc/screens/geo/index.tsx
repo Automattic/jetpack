@@ -15,7 +15,6 @@ import {
 } from '@wordpress/ui';
 import CardTitleIcon from '../../components/card-title-icon';
 import PausedNote from '../../components/paused-note';
-import SeoPausedBanner from '../../components/seo-paused-banner';
 import { ROUTE_BY_TAB } from '../../dashboard/dashboard-nav';
 import { isCrawlerBlocked } from '../../data/blocked-crawlers';
 import getOutput from '../../data/get-output';
@@ -530,7 +529,6 @@ const GeoScreen: FC< Props > = ( { form, searchEnginesVisible } ) => {
 
 	return (
 		<div className="jetpack-seo-geo">
-			<SeoPausedBanner />
 			{ /* Spells out the acronym the tab is named after. */ }
 			<Text variant="body-md" render={ <p /> } className="jetpack-seo-geo__intro">
 				{ __(

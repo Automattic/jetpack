@@ -28,7 +28,7 @@ jest.unstable_mockModule( '../../data/record-seo-event', () => ( {
 	recordScreenViewOnce: jest.fn(),
 	recordSeoEvent: jest.fn(),
 } ) );
-jest.unstable_mockModule( '../../components/search-visibility-notice', () => ( {
+jest.unstable_mockModule( '../dashboard-notices', () => ( {
 	default: () => <div>notice</div>,
 } ) );
 

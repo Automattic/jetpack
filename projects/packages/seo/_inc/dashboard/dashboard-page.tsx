@@ -2,9 +2,9 @@ import { AdminPage, ThemeProvider } from '@automattic/jetpack-components';
 import { useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
-import SearchVisibilityNotice from '../components/search-visibility-notice';
 import { recordScreenViewOnce, recordSeoEvent } from '../data/record-seo-event';
 import DashboardNav from './dashboard-nav';
+import DashboardNotices from './dashboard-notices';
 import '../admin-page-layout.scss';
 import type { SeoTab } from './dashboard-nav';
 import type { ReactNode } from 'react';
@@ -83,11 +83,11 @@ const DashboardPage = ( {
 		return () => window.removeEventListener( 'jetpack-admin-shell:page-shown', onShown );
 	}, [ active ] );
 
-	// Top the column with the notice so the two line up; full-bleed and centered stages have no column.
+	// Top the column with the notices so they line up; full-bleed and centered stages have no column.
 	const column = ! flush && ! centered && COLUMN_BY_TAB[ active ];
 	const content = (
 		<>
-			{ ! column && <SearchVisibilityNotice /> }
+			{ ! column && <DashboardNotices /> }
 			<div
 				className={ clsx( 'jetpack-seo-page-content', {
 					'jetpack-seo-page-content--flush': flush,
@@ -96,7 +96,7 @@ const DashboardPage = ( {
 			>
 				{ column ? (
 					<div className={ `jetpack-seo-page-column jetpack-seo-page-column--${ column }` }>
-						<SearchVisibilityNotice />
+						<DashboardNotices />
 						{ children }
 					</div>
 				) : (
