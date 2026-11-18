@@ -21,7 +21,8 @@ const DEFAULT_VIEW: View = {
 	page: 1,
 	perPage: SUBSCRIBERS_PER_PAGE,
 	titleField: 'subscriber',
-	fields: [ 'plan', 'type', 'amount', 'total', 'since' ],
+	fields: [ 'plan', 'type', 'total', 'since' ],
+	layout: { enableMoving: false },
 };
 
 const DEFAULT_LAYOUTS = { table: {} };
@@ -82,12 +83,6 @@ function useFields(): Field< PaidSubscription >[] {
 				...FIXED,
 			},
 			{
-				id: 'amount',
-				label: __( 'Amount', 'jetpack-monetize' ),
-				getValue: ( { item } ) => formatCurrency( item.renewalPrice, item.currency ),
-				...FIXED,
-			},
-			{
 				id: 'total',
 				label: __( 'Total paid', 'jetpack-monetize' ),
 				getValue: ( { item } ) => formatCurrency( item.allTimeTotal, item.currency ),
@@ -143,7 +138,6 @@ export default function Subscribers() {
 			{
 				id: 'view',
 				label: __( 'View', 'jetpack-monetize' ),
-				isPrimary: true,
 				callback: ( [ item ] ) => openDetails( item ),
 			},
 			{

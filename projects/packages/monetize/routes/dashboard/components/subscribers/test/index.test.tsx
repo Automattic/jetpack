@@ -24,12 +24,15 @@ const renderTab = () =>
 		</QueryClientProvider>
 	);
 
-const row = ( email: string ) => screen.getByRole( 'row', { name: new RegExp( email ) } );
+const chooseRowAction = async ( email: string, action: RegExp ) => {
+	await expect( screen.findByText( email ) ).resolves.toBeVisible();
+	const row = screen.getByRole( 'row', { name: new RegExp( email ) } );
+	await userEvent.click( within( row ).getByRole( 'button', { name: 'Actions' } ) );
+	await userEvent.click( await screen.findByRole( 'menuitem', { name: action } ) );
+};
 
 const cancelRow = async ( email: string ) => {
-	await expect( screen.findByText( email ) ).resolves.toBeVisible();
-	await userEvent.click( within( row( email ) ).getByRole( 'button', { name: 'Actions' } ) );
-	await userEvent.click( await screen.findByRole( 'menuitem', { name: /Cancel payment/ } ) );
+	await chooseRowAction( email, /Cancel payment/ );
 	await userEvent.click(
 		within( screen.getByRole( 'alertdialog' ) ).getByRole( 'button', { name: 'Cancel payment' } )
 	);
@@ -116,10 +119,7 @@ describe( 'Subscribers', () => {
 		);
 		renderTab();
 
-		await expect( screen.findByText( 'b@example.com' ) ).resolves.toBeVisible();
-		await userEvent.click(
-			within( row( 'b@example.com' ) ).getByRole( 'button', { name: 'View' } )
-		);
+		await chooseRowAction( 'b@example.com', /View/ );
 		await userEvent.click(
 			within( screen.getByRole( 'dialog' ) ).getByRole( 'button', { name: 'Cancel payment' } )
 		);
