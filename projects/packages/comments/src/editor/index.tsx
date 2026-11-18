@@ -1,5 +1,6 @@
 /* @jsxImportSource react */
-// First: it sets the translations the modules below read as they load.
+// First: they fill gaps and set translations the modules below rely on as they load.
+import './polyfills';
 import './locale';
 import {
 	BlockEditorProvider,
@@ -37,17 +38,6 @@ import type { BoundaryProps, EditorProps, EditorSelection, WritingAreaProps } fr
 import type { KeyboardEvent, MouseEvent } from 'react';
 
 import './style.scss';
-
-// @wordpress/blocks calls toSorted (Chrome 110+), and node_modules are not polyfilled.
-if ( ! Array.prototype.toSorted ) {
-	Object.defineProperty( Array.prototype, 'toSorted', {
-		value( this: unknown[], compare?: ( a: unknown, b: unknown ) => number ) {
-			return this.slice().sort( compare );
-		},
-		configurable: true,
-		writable: true,
-	} );
-}
 
 // The chunk runs once per page, however many forms it serves.
 [ paragraph, list, listItem, quote, code ].forEach( block => block.init() );
