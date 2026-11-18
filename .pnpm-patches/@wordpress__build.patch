@@ -1,8 +1,8 @@
 diff --git a/templates/page-wp-admin.php.template b/templates/page-wp-admin.php.template
-index 96c4627..48fcf28 100644
+index 5b0d639..b8485e0 100644
 --- a/templates/page-wp-admin.php.template
 +++ b/templates/page-wp-admin.php.template
-@@ -91,6 +91,8 @@
+@@ -95,6 +95,8 @@ function {{PREFIX}}_{{PAGE_SLUG_UNDERSCORE}}_wp_admin_preload_data() {
  	// same fields in the same order, or the preload is never consumed.
  	$preload_paths = array(
  		'/?_fields=description,generate_animated_image_subsizes,gmt_offset,home,image_max_bit_depth,image_sizes,image_size_threshold,image_strip_meta,name,site_icon,site_icon_url,site_logo,timezone_string,url,page_for_posts,page_on_front,show_on_front',
@@ -11,7 +11,7 @@ index 96c4627..48fcf28 100644
  		array( '/wp/v2/settings', 'OPTIONS' ),
  	);
  
-@@ -171,7 +173,26 @@ function {{PREFIX}}_{{PAGE_SLUG_UNDERSCORE}}_wp_admin_enqueue_scripts( $hook_suf
+@@ -199,7 +201,26 @@ function {{PREFIX}}_{{PAGE_SLUG_UNDERSCORE}}_wp_admin_enqueue_scripts( $hook_suf
  		( mountId, routes, initModules ) => {
  			const run = async () => {
  				const mod = await import( "@wordpress/boot" );
@@ -39,13 +39,20 @@ index 96c4627..48fcf28 100644
  			};
  			if ( document.readyState === "loading" ) {
  				document.addEventListener( "DOMContentLoaded", run );
-@@ -182 +203 @@
+@@ -207,7 +228,7 @@ function {{PREFIX}}_{{PAGE_SLUG_UNDERSCORE}}_wp_admin_enqueue_scripts( $hook_suf
+ 				run();
+ 			}
+ 		}
 -		JS;
 +JS;
+ 		wp_add_inline_script(
+ 			'{{PAGE_SLUG}}-wp-admin-prerequisites',
+ 			sprintf(
 diff --git a/templates/page.php.template b/templates/page.php.template
+index 946b0fd..cee5004 100644
 --- a/templates/page.php.template
 +++ b/templates/page.php.template
-@@ -92,6 +92,8 @@
+@@ -96,6 +96,8 @@ function {{PREFIX}}_{{PAGE_SLUG_UNDERSCORE}}_preload_data() {
  	// same fields in the same order, or the preload is never consumed.
  	$preload_paths = array(
  		'/?_fields=description,generate_animated_image_subsizes,gmt_offset,home,image_max_bit_depth,image_sizes,image_size_threshold,image_strip_meta,name,site_icon,site_icon_url,site_logo,timezone_string,url,page_for_posts,page_on_front,show_on_front',
