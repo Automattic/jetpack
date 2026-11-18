@@ -23,10 +23,12 @@ require_once JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class.jetpack-admin-pag
  * @covers Akismet_Admin_Chrome
  * @covers Jetpack_Admin_Page::wrap_ui
  * @covers Automattic\Jetpack\Plugin\Footer_Links::is_my_jetpack_available
+ * @covers Automattic\Jetpack\Plugin\Footer_Links::shows_my_jetpack_links
  */
 #[CoversClass( Akismet_Admin_Chrome::class )]
 #[CoversMethod( Jetpack_Admin_Page::class, 'wrap_ui' )]
 #[CoversMethod( Footer_Links::class, 'is_my_jetpack_available' )]
+#[CoversMethod( Footer_Links::class, 'shows_my_jetpack_links' )]
 class Akismet_Admin_Chrome_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
@@ -150,36 +152,38 @@ class Akismet_Admin_Chrome_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Both PHP footers follow the host's answer rather than the platform, so a WordPress.com
-	 * site that shows My Jetpack keeps its links.
+	 * Links to My Jetpack follow the host's answer rather than the platform, so a WordPress.com
+	 * site that shows My Jetpack keeps them.
 	 *
-	 * @dataProvider provide_footer_renderers
+	 * @dataProvider provide_my_jetpack_link_renderers
 	 *
-	 * @param string $footer_method Name of the helper that renders the footer under test.
+	 * @param string $render_method Name of the helper that renders the markup under test.
+	 * @param string $witness       Markup that renders with or without the links.
 	 */
-	#[DataProvider( 'provide_footer_renderers' )]
-	public function test_footer_links_follow_the_host_on_wpcom( $footer_method ) {
+	#[DataProvider( 'provide_my_jetpack_link_renderers' )]
+	public function test_my_jetpack_links_follow_the_host_on_wpcom( $render_method, $witness ) {
 		Constants::set_constant( 'IS_WPCOM', true );
 		Status_Cache::clear();
 
-		$this->assertStringContainsString( 'page=my-jetpack#/help', $this->$footer_method() );
+		$this->assertStringContainsString( 'page=my-jetpack#/', $this->$render_method() );
 
 		add_filter( 'jetpack_my_jetpack_modules_management_available', '__return_false' );
-		$footer = $this->$footer_method();
+		$markup = $this->$render_method();
 
-		$this->assertStringNotContainsString( 'page=my-jetpack', $footer );
-		$this->assertStringContainsString( 'An Automattic Airline', $footer );
+		$this->assertStringNotContainsString( 'page=my-jetpack', $markup );
+		$this->assertStringContainsString( $witness, $markup );
 	}
 
 	/**
-	 * The two PHP footers that link to My Jetpack.
+	 * The PHP chrome that links to My Jetpack.
 	 *
 	 * @return array
 	 */
-	public static function provide_footer_renderers() {
+	public static function provide_my_jetpack_link_renderers() {
 		return array(
-			'Akismet footer'       => array( 'render_akismet_footer' ),
-			'Jetpack admin footer' => array( 'render_wrap_ui_footer' ),
+			'Akismet footer'         => array( 'render_akismet_footer', 'An Automattic Airline' ),
+			'Jetpack admin footer'   => array( 'render_wrap_ui_footer', 'An Automattic Airline' ),
+			'Jetpack admin masthead' => array( 'render_wrap_ui_masthead', '<span class="jp-masthead__logo-link">' ),
 		);
 	}
 
@@ -193,17 +197,37 @@ class Akismet_Admin_Chrome_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Render the shared Jetpack admin wrapper.
+	 *
+	 * @return string
+	 */
+	private function render_wrap_ui() {
+		return $this->render(
+			static function () {
+				Jetpack_Admin_Page::wrap_ui( '__return_empty_string' );
+			}
+		);
+	}
+
+	/**
 	 * Render the footer of the shared Jetpack admin wrapper.
 	 *
 	 * @return string
 	 */
 	private function render_wrap_ui_footer() {
-		$markup = $this->render(
-			static function () {
-				Jetpack_Admin_Page::wrap_ui( '__return_empty_string' );
-			}
-		);
+		$markup = $this->render_wrap_ui();
 		return substr( $markup, strpos( $markup, '<div class="jp-footer jp-footer--static">' ) );
+	}
+
+	/**
+	 * Render the masthead of the shared Jetpack admin wrapper, on a page that links its title.
+	 *
+	 * @return string
+	 */
+	private function render_wrap_ui_masthead() {
+		$_GET['page'] = 'jetpack_modules';
+		$markup       = $this->render_wrap_ui();
+		return substr( $markup, 0, strpos( $markup, '</header>' ) );
 	}
 
 	/**
