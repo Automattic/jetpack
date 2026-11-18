@@ -93,6 +93,11 @@ class Stats_Abilities extends Registrar {
 	const STREAK_MAX_POSTS = 10000;
 
 	/**
+	 * The most pages `get-video-stats` lists the video played on.
+	 */
+	const VIDEO_PAGES_LIMIT = 20;
+
+	/**
 	 * The `get-email-detail` breakdowns: each `{stat}/{field}` WordPress.com reports for one emailed post.
 	 */
 	const EMAIL_BREAKDOWNS = array(
@@ -184,6 +189,7 @@ class Stats_Abilities extends Registrar {
 			'list'  => 'plays',
 			'label' => 'title',
 			'value' => 'plays',
+			'id'    => 'post_id',
 		),
 		'commenters'      => array(
 			'list'  => 'authors',
@@ -231,6 +237,7 @@ class Stats_Abilities extends Registrar {
 			'jetpack-stats/get-insights'      => self::spec_get_insights(),
 			'jetpack-stats/get-email-stats'   => self::spec_get_email_stats(),
 			'jetpack-stats/get-email-detail'  => self::spec_get_email_detail(),
+			'jetpack-stats/get-video-stats'   => self::spec_get_video_stats(),
 			'jetpack-stats/get-subscribers'   => self::spec_get_subscribers(),
 			'jetpack-stats/get-ad-stats'      => self::spec_get_ad_stats(),
 			'jetpack-stats/get-settings'      => self::spec_get_settings(),
@@ -325,7 +332,7 @@ class Stats_Abilities extends Registrar {
 		return array(
 			'label'               => __( 'Get top stats content', 'jetpack-stats-pkg' ),
 			'description'         => __(
-				'Return the top items for a chosen content type in one filtered call: posts, referrers, search terms, outbound clicks, tags/categories, authors, countries, regions, cities, browsers, platforms (operating systems), screen sizes, UTM campaign values, commenters, commented posts, downloads, or video plays. Every type returns the same item shape. `label` is human-readable (post title, referrer host, search term, place name, browser, etc.); a tags item names every tag and category it groups, and countries WordPress.com cannot place share one item. `value` is the count for that item: views for most types, clicks, comments, downloads or plays where the type says so, and for `screen-sizes` the percent of views. `country` is the ISO country code of a region or city item. `max` caps the items; `max=0` returns every item. With `expand=true`, an item that groups other rows lists them in `children`. Referrers group the pages that sent views (and the Search Engines item each engine), clicks group the links under one domain, authors group their posts, and a tags item lists each tag and category (`type`), which share its views so carry no `value` of their own. `max` caps each item\'s children too, as WordPress.com does at every level; `max=0` returns them all. `truncated` is true when more items exist than `max` returned; WordPress.com ranks at most 20 authors, so a full authors list is flagged too. `href` is present only when the item has a canonical URL, and is where a link leads rather than WordPress.com\'s href.li redirect. `id` is the post ID on posts and commented-posts items other than the home page / archives row (pass it to jetpack-stats/get-post-views), and the author\'s user ID on authors items. With `num` above 1, items are totals across the `num` periods ending with the one containing `date` (e.g. period=day, num=7 is the last seven days). `utm` groups views by `utm_param`. `tags` ignores `period`, `date` and `num` and covers the seven days ending yesterday; `commenters` and `commented-posts` ignore them too and count every comment ever approved. Regions, cities, browsers, platforms, screen sizes and UTM values need a Stats plan that includes them; on other sites WordPress.com refuses with `stats_error` and says so. `downloads` only works on WordPress.com sites that do not use Jetpack; elsewhere it returns `jetpack_stats_invalid_type`. `site` is the WordPress.com blog ID and home URL of the site whose Stats were read. `definitions` explains, in plain words, each metric and time window in the response — read it before reporting a number. Precondition: site must be connected to WordPress.com.',
+				'Return the top items for a chosen content type in one filtered call: posts, referrers, search terms, outbound clicks, tags/categories, authors, countries, regions, cities, browsers, platforms (operating systems), screen sizes, UTM campaign values, commenters, commented posts, downloads, or video plays. Every type returns the same item shape. `label` is human-readable (post title, referrer host, search term, place name, browser, etc.); a tags item names every tag and category it groups, and countries WordPress.com cannot place share one item. `value` is the count for that item: views for most types, clicks, comments, downloads or plays where the type says so, and for `screen-sizes` the percent of views. `country` is the ISO country code of a region or city item. `max` caps the items; `max=0` returns every item. With `expand=true`, an item that groups other rows lists them in `children`. Referrers group the pages that sent views (and the Search Engines item each engine), clicks group the links under one domain, authors group their posts, and a tags item lists each tag and category (`type`), which share its views so carry no `value` of their own. `max` caps each item\'s children too, as WordPress.com does at every level; `max=0` returns them all. `truncated` is true when more items exist than `max` returned; WordPress.com ranks at most 20 authors, so a full authors list is flagged too. `href` is present only when the item has a canonical URL, and is where a link leads rather than WordPress.com\'s href.li redirect. `id` is the post ID on posts and commented-posts items other than the home page / archives row (pass it to jetpack-stats/get-post-views),, the author\'s user ID on authors items, and the video\'s ID on video-plays items (pass it to jetpack-stats/get-video-stats). With `num` above 1, items are totals across the `num` periods ending with the one containing `date` (e.g. period=day, num=7 is the last seven days). `utm` groups views by `utm_param`. `tags` ignores `period`, `date` and `num` and covers the seven days ending yesterday; `commenters` and `commented-posts` ignore them too and count every comment ever approved. Regions, cities, browsers, platforms, screen sizes and UTM values need a Stats plan that includes them; on other sites WordPress.com refuses with `stats_error` and says so. `downloads` only works on WordPress.com sites that do not use Jetpack; elsewhere it returns `jetpack_stats_invalid_type`. `site` is the WordPress.com blog ID and home URL of the site whose Stats were read. `definitions` explains, in plain words, each metric and time window in the response — read it before reporting a number. Precondition: site must be connected to WordPress.com.',
 				'jetpack-stats-pkg'
 			),
 			'input_schema'        => array(
@@ -974,6 +981,85 @@ class Stats_Abilities extends Registrar {
 				),
 			),
 			'execute_callback'    => array( __CLASS__, 'get_email_detail' ),
+			'permission_callback' => array( __CLASS__, 'can_view_stats' ),
+			'meta'                => self::reader_meta(),
+		);
+	}
+
+	/**
+	 * Spec: jetpack-stats/get-video-stats.
+	 */
+	private static function spec_get_video_stats(): array {
+		return array(
+			'label'               => __( 'Get plays for a video', 'jetpack-stats-pkg' ),
+			'description'         => __(
+				'Return the plays of one video over time, as on the Stats dashboard\'s page for that video: `total_plays` over the window, a `series` of plays per period, and the `pages` it was played on (up to 20, each with its `url` and, for a page on this site, its `post_id` and `title`). `series` has one row per period, oldest first, ending with the period that contains `date`; each row\'s `date` is the first day of its period (weeks start on Monday). Returns `jetpack_stats_video_not_found` when no video has that ID. `site` is the WordPress.com blog ID and home URL of the site whose Stats were read. `definitions` explains, in plain words, each metric and time window in the response — read it before reporting a number. Precondition: site must be connected to WordPress.com. Related: call jetpack-stats/get-top-content with type=video-plays first and pass an item\'s `id` as `video_id`.',
+				'jetpack-stats-pkg'
+			),
+			'input_schema'        => array(
+				'type'                 => 'object',
+				'required'             => array( 'video_id' ),
+				'properties'           => array(
+					'video_id' => array(
+						'type'        => array( 'integer', 'string' ),
+						'description' => __( 'The video\'s attachment ID. Must be positive.', 'jetpack-stats-pkg' ),
+					),
+					'period'   => array(
+						'type'        => 'string',
+						'description' => __( 'Aggregation period.', 'jetpack-stats-pkg' ),
+						'enum'        => self::PERIODS,
+						'default'     => 'day',
+					),
+					'num'      => array(
+						'type'        => 'integer',
+						'description' => __( 'How many periods to include (1-90).', 'jetpack-stats-pkg' ),
+						'minimum'     => 1,
+						'maximum'     => 90,
+						'default'     => 30,
+					),
+					'date'     => array(
+						'type'        => 'string',
+						'description' => __( 'End date (YYYY-MM-DD). Defaults to today.', 'jetpack-stats-pkg' ),
+						'pattern'     => '^[0-9]{4}-[0-9]{2}-[0-9]{2}$',
+					),
+				),
+				'additionalProperties' => false,
+			),
+			'output_schema'       => array(
+				'type'       => 'object',
+				'properties' => array(
+					'site'        => self::site_schema(),
+					'video_id'    => array( 'type' => 'integer' ),
+					'title'       => array( 'type' => 'string' ),
+					'period'      => array( 'type' => 'string' ),
+					'num'         => array( 'type' => 'integer' ),
+					'date'        => array( 'type' => 'string' ),
+					'total_plays' => array( 'type' => 'integer' ),
+					'series'      => array(
+						'type'  => 'array',
+						'items' => array(
+							'type'       => 'object',
+							'properties' => array(
+								'date'  => array( 'type' => 'string' ),
+								'plays' => array( 'type' => 'integer' ),
+							),
+						),
+					),
+					'pages'       => array(
+						'type'  => 'array',
+						'items' => array(
+							'type'       => 'object',
+							'properties' => array(
+								'url'     => array( 'type' => 'string' ),
+								'post_id' => array( 'type' => array( 'integer', 'null' ) ),
+								'title'   => array( 'type' => array( 'string', 'null' ) ),
+							),
+						),
+					),
+					'definitions' => self::definitions_schema(),
+				),
+			),
+			'execute_callback'    => array( __CLASS__, 'get_video_stats' ),
 			'permission_callback' => array( __CLASS__, 'can_view_stats' ),
 			'meta'                => self::reader_meta(),
 		);
@@ -2073,6 +2159,81 @@ class Stats_Abilities extends Registrar {
 			$out['errors'] = $errors;
 		}
 		return $out;
+	}
+
+	/**
+	 * Execute: get-video-stats.
+	 *
+	 * @param array|null $input Input matching the ability's input_schema.
+	 * @return array|WP_Error
+	 */
+	public static function get_video_stats( $input = null ) {
+		$input = is_array( $input ) ? $input : array();
+		if ( ! isset( $input['video_id'] ) || ! is_numeric( $input['video_id'] ) || (int) $input['video_id'] <= 0 ) {
+			return new WP_Error(
+				self::ERROR_PREFIX . 'missing_video_id',
+				__( 'A positive video_id is required.', 'jetpack-stats-pkg' )
+			);
+		}
+		$video_id = (int) $input['video_id'];
+		$period   = self::pick_period( $input['period'] ?? null );
+		$num      = self::clamp_int( $input['num'] ?? 30, 1, 90, 30 );
+		$date     = self::resolve_date( $input['date'] ?? null );
+		if ( is_wp_error( $date ) ) {
+			return $date;
+		}
+		$video = get_post( $video_id );
+		if ( ! $video || 'attachment' !== $video->post_type ) {
+			return new WP_Error(
+				self::ERROR_PREFIX . 'video_not_found',
+				__( 'No video exists with that video_id.', 'jetpack-stats-pkg' ),
+				array( 'status' => 404 )
+			);
+		}
+
+		$raw = self::get_wpcom_stats()->get_video_details(
+			$video_id,
+			array(
+				'statType' => 'plays',
+				'period'   => $period,
+				'num'      => $num,
+				'date'     => $date,
+			)
+		);
+		if ( is_wp_error( $raw ) ) {
+			return $raw;
+		}
+
+		$fields = is_array( $raw['fields'] ?? null ) ? $raw['fields'] : array();
+		$column = array_search( 'plays', $fields, true );
+		$series = array();
+		foreach ( self::rows_at( $raw, 'data' ) as $row ) {
+			$series[] = array(
+				'date'  => (string) ( $row[0] ?? '' ),
+				'plays' => false === $column ? 0 : (int) ( $row[ $column ] ?? 0 ),
+			);
+		}
+		$pages = array();
+		foreach ( array_slice( self::rows_at( $raw, 'pages_detail' ), 0, self::VIDEO_PAGES_LIMIT ) as $page ) {
+			$pages[] = array(
+				'url'     => (string) ( $page['url'] ?? '' ),
+				'post_id' => isset( $page['post_id'] ) ? (int) $page['post_id'] : null,
+				'title'   => isset( $page['title'] ) ? html_entity_decode( (string) $page['title'], ENT_QUOTES | ENT_HTML5, 'UTF-8' ) : null,
+			);
+		}
+
+		return array(
+			'site'        => self::site(),
+			'video_id'    => $video_id,
+			'title'       => get_the_title( $video ),
+			'period'      => $period,
+			'num'         => $num,
+			'date'        => $date,
+			'total_plays' => self::as_int( is_array( $raw['total'] ?? null ) ? $raw['total'] : array(), 'plays' ),
+			'series'      => $series,
+			'pages'       => $pages,
+			'definitions' => self::definitions( array( 'video_plays', 'series' ) ),
+		);
 	}
 
 	/**
@@ -3382,6 +3543,7 @@ class Stats_Abilities extends Registrar {
 			'email_rates'           => __( '`open_rate` and `click_rate` are unique opens and unique clicks as a percent of `sent`, over all time.', 'jetpack-stats-pkg' ),
 			'email_window'          => __( '`opens` and `clicks` count only the days from `start_date` to `end_date`; unique counts and rates are all-time.', 'jetpack-stats-pkg' ),
 			'email_all_time'        => __( 'Every figure covers all time since the post was sent.', 'jetpack-stats-pkg' ),
+			'video_plays'           => __( '`plays` counts each time the video was started, wherever it was played: on the site or embedded elsewhere. `total_plays` adds up the `series` rows.', 'jetpack-stats-pkg' ),
 			'email_detail'          => __( 'Every figure covers all time since the post was sent. `total` counts every open or click, repeat ones by one person included, and `unique` counts people; `rate` is `unique` as a percent of `sent`. Mail apps that load images automatically or block them make opens approximate. `by_client` is the mail app, `by_device` the operating system and `by_country` where the email was opened or clicked; each row counts opens or clicks, not people.', 'jetpack-stats-pkg' ),
 			'paid'                  => __( 'People with a paid subscription to the site, now. They are also counted in `email` or `wpcom`.', 'jetpack-stats-pkg' ),
 			'subscriber_series'     => __( 'One row per period, oldest first: `subscribers` is the count at the end of the period and `change` the net gain or loss during it.', 'jetpack-stats-pkg' ),

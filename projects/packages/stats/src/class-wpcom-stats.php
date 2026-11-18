@@ -127,7 +127,7 @@ class WPCOM_Stats {
 	 *
 	 * @link https://developer.wordpress.com/docs/api/1.1/get/sites/%24site/stats/video/%24post_id/
 	 * @param int   $post_id The video's ID.
-	 * @param array $args    Optional query parameters.
+	 * @param array $args    Optional query parameters: `statType`, `period`, `num`, `date`.
 	 * @return array|WP_Error
 	 */
 	public function get_video_details( $post_id, $args = array() ) {

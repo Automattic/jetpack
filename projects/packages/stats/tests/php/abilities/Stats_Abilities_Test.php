@@ -601,6 +601,7 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 			'emails start'     => array( 'get_email_stats', array( 'start_date' => $bad_day ), 'jetpack_stats_invalid_date' ),
 			'emails empty end' => array( 'get_email_stats', array( 'end_date' => '' ), 'jetpack_stats_invalid_date' ),
 			'email no post'    => array( 'get_email_detail', array( 'post_id' => 999999 ), 'jetpack_stats_post_not_found' ),
+			'video no video'   => array( 'get_video_stats', array( 'video_id' => 999999 ), 'jetpack_stats_video_not_found' ),
 			'ads date'         => array( 'get_ad_stats', array( 'date' => $bad_day ), 'jetpack_stats_invalid_date' ),
 		);
 	}
@@ -1294,8 +1295,9 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 					'plays',
 					array(
 						array(
-							'title' => 'Launch demo',
-							'plays' => 200,
+							'post_id' => 34,
+							'title'   => 'Launch demo',
+							'plays'   => 200,
 						),
 						array(
 							'title' => 'Tutorial',
@@ -1316,7 +1318,72 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 		$this->assertCount( 2, $result['items'] );
 		$this->assertSame( 'Launch demo', $result['items'][0]['label'] );
 		$this->assertSame( 200, $result['items'][0]['value'] );
+		$this->assertSame( 34, $result['items'][0]['id'] );
 		$this->assertArrayNotHasKey( 'href', $result['items'][0] );
+	}
+
+	public function test_get_video_stats_reads_one_video_over_time(): void {
+		$video_id = wp_insert_post(
+			array(
+				'post_type'  => 'attachment',
+				'post_title' => 'Launch demo',
+			)
+		);
+		$requests = $this->filter_wpcom_stats(
+			array(
+				'get_video_details' => array(
+					'fields'       => array( 'period', 'plays' ),
+					'data'         => array( array( '2026-03-01', 141 ), array( '2026-04-01', 81 ) ),
+					'total'        => array( 'plays' => 222 ),
+					'pages_detail' => array(
+						array(
+							'url'     => 'https://example.com/launch',
+							'post_id' => 41,
+							'title'   => 'Launch &amp; demo',
+						),
+						array(
+							'url'     => 'https://elsewhere.example/embed',
+							'post_id' => null,
+							'title'   => null,
+						),
+					),
+				),
+			)
+		);
+
+		$result = Stats_Abilities::get_video_stats(
+			array(
+				'video_id' => (string) $video_id,
+				'period'   => 'month',
+				'num'      => 2,
+				'date'     => '2026-04-23',
+			)
+		);
+
+		$this->assert_matches_output_schema( 'jetpack-stats/get-video-stats', $result );
+		$this->assertSame(
+			array(
+				$video_id,
+				array(
+					'statType' => 'plays',
+					'period'   => 'month',
+					'num'      => 2,
+					'date'     => '2026-04-23',
+				),
+			),
+			$requests['get_video_details']
+		);
+		$this->assertSame( 'Launch demo', $result['title'] );
+		$this->assertSame( 222, $result['total_plays'] );
+		$this->assertSame(
+			array(
+				'date'  => '2026-04-01',
+				'plays' => 81,
+			),
+			$result['series'][1]
+		);
+		$this->assertSame( 'Launch & demo', $result['pages'][0]['title'] );
+		$this->assertNull( $result['pages'][1]['post_id'] );
 	}
 
 	public function test_get_post_views_rejects_missing_post_id(): void {
