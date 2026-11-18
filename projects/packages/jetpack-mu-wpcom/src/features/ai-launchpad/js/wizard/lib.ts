@@ -56,8 +56,8 @@ export function findNewConnections(
 }
 
 /**
- * Whether the account is gated as read only; only a clean Read only account is. Null means the user kept their
- * per-tool settings on the ChatGPT or Claude consent screen, and we don't override those.
+ * Whether the account is gated as read only; only a clean Read only account is. Null means a fresh account or
+ * one tuned per tool, and we don't override per-tool settings.
  *
  * @param level - The `access_level` the endpoint returned.
  * @return True only when the level is `read_only`.
