@@ -12,6 +12,7 @@ import {
 	comment,
 	moreVertical,
 	pencil,
+	rotateLeft,
 } from '@wordpress/icons';
 import { Link as RouteLink, useLinkProps } from '@wordpress/route';
 import { useCallback, useState } from 'react';
@@ -19,8 +20,10 @@ import { useCallback, useState } from 'react';
  * Internal dependencies
  */
 import { useDashboardSection } from '../../hooks/use-dashboard-origin-search';
+import { useNarrowPageHeader } from '../../hooks/use-narrow-page-header';
 import { useReportNavigationSearch } from '../../hooks/use-report-navigation-search';
 import { useTrackEvent } from '../../hooks/use-track-event';
+import { ResetLayoutDialog } from '../reset-layout/reset-layout-dialog';
 import { ArrangeTabsDialog, type ArrangeableTabs } from './arrange-tabs-dialog';
 import { canSendFeedback } from './can-send-feedback';
 import { getClassicStatsUrl } from './classic-stats-url';
@@ -79,6 +82,12 @@ type StatsOptionsMenuProps = {
 	onCustomize?: () => void;
 
 	/*
+	 * Resets the layout on show to its default; on offer only when given, and only
+	 * on a narrow header, where `ResetLayoutAction`'s button has no room.
+	 */
+	onReset?: () => void | Promise< void >;
+
+	/*
 	 * The page's tabs, for the reader to arrange; on offer only with two or more.
 	 */
 	tabs?: ArrangeableTabs;
@@ -94,7 +103,8 @@ type StatsOptionsMenuProps = {
  * The Stats options menu of a Premium Analytics page: arranging the layout and the
  * tabs, where the page has them, the Settings page and, apart from them, feedback
  * and the way back to classic Stats. After the configurations design (WOOA7S-2055)
- * less its Usage entry.
+ * less its Usage entry. It also carries Reset to default on a narrow header, where
+ * `ResetLayoutAction`'s button has no room (STATS-630).
  *
  * `WidgetDashboard.Actions` takes no items, so these cannot join its overflow menu (WOOA7S-2098).
  *
@@ -103,6 +113,7 @@ type StatsOptionsMenuProps = {
  */
 export function StatsOptionsMenu( {
 	onCustomize,
+	onReset,
 	tabs,
 	isSiteConnected = true,
 }: StatsOptionsMenuProps ) {
@@ -111,7 +122,10 @@ export function StatsOptionsMenu( {
 	const [ isFeedbackOpen, setIsFeedbackOpen ] = useState( false );
 	const [ isSwitchOffOpen, setIsSwitchOffOpen ] = useState( false );
 	const [ isArrangingTabs, setIsArrangingTabs ] = useState( false );
+	const [ isResetting, setIsResetting ] = useState( false );
+	const isNarrow = useNarrowPageHeader();
 	const canArrangeTabs = !! tabs && tabs.items.length > 1;
+	const canReset = !! onReset && isNarrow;
 
 	// The opt-in is a site setting, so switching it off takes the same capability; and it
 	// sends the reader to classic Stats, so there has to be one.
@@ -139,8 +153,17 @@ export function StatsOptionsMenu( {
 		setIsArrangingTabs( true );
 	}, [ section, tabs, trackEvent ] );
 	const closeArrangeTabs = useCallback( () => setIsArrangingTabs( false ), [] );
+	const openReset = useCallback( () => setIsResetting( true ), [] );
+	const closeReset = useCallback( () => setIsResetting( false ), [] );
 
-	if ( ! onCustomize && ! canArrangeTabs && ! hasSettings && ! canGiveFeedback && ! canSwitchOff ) {
+	if (
+		! onCustomize &&
+		! canReset &&
+		! canArrangeTabs &&
+		! hasSettings &&
+		! canGiveFeedback &&
+		! canSwitchOff
+	) {
 		return null;
 	}
 
@@ -166,6 +189,13 @@ export function StatsOptionsMenu( {
 							</Menu.ItemLabel>
 						</Menu.Item>
 					) }
+					{ canReset && (
+						<Menu.Item prefix={ <Icon icon={ rotateLeft } /> } onClick={ openReset }>
+							<Menu.ItemLabel>
+								{ __( 'Reset to default…', 'jetpack-premium-analytics-pkg' ) }
+							</Menu.ItemLabel>
+						</Menu.Item>
+					) }
 					{ canArrangeTabs && (
 						<Menu.Item prefix={ <Icon icon={ chevronUpDown } /> } onClick={ openArrangeTabs }>
 							<Menu.ItemLabel>
@@ -173,9 +203,9 @@ export function StatsOptionsMenu( {
 							</Menu.ItemLabel>
 						</Menu.Item>
 					) }
-					{ ( onCustomize || canArrangeTabs ) && hasSettings && <Menu.Separator /> }
+					{ ( onCustomize || canReset || canArrangeTabs ) && hasSettings && <Menu.Separator /> }
 					{ hasSettings && <SettingsMenuItem disabled={ ! isSiteConnected } /> }
-					{ ( onCustomize || canArrangeTabs || hasSettings ) &&
+					{ ( onCustomize || canReset || canArrangeTabs || hasSettings ) &&
 						( canGiveFeedback || canSwitchOff ) && <Menu.Separator /> }
 					{ canGiveFeedback && (
 						<Menu.Item prefix={ <Icon icon={ comment } /> } onClick={ openFeedback }>
@@ -193,6 +223,9 @@ export function StatsOptionsMenu( {
 					) }
 				</Menu.Popup>
 			</Menu.Root>
+			{ isResetting && onReset && (
+				<ResetLayoutDialog onConfirm={ onReset } onClose={ closeReset } />
+			) }
 			{ isFeedbackOpen && <FeedbackModal source="menu" onClose={ closeFeedback } /> }
 			{ isSwitchOffOpen && <SwitchOffDialog onClose={ closeSwitchOff } /> }
 			{ isArrangingTabs && tabs && <ArrangeTabsDialog { ...tabs } onClose={ closeArrangeTabs } /> }

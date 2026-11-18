@@ -1,6 +1,9 @@
 import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { useViewportMatch } from '@wordpress/compose';
 import { ResetLayoutAction } from '../reset-layout-action';
+
+const ViewportWidth = useViewportMatch.__experimentalWidthProvider;
 
 describe( 'ResetLayoutAction', () => {
 	it( 'asks before resetting, and Cancel changes nothing', async () => {
@@ -30,5 +33,21 @@ describe( 'ResetLayoutAction', () => {
 
 		expect( onReset ).toHaveBeenCalledTimes( 1 );
 		await waitFor( () => expect( screen.queryByRole( 'alertdialog' ) ).not.toBeInTheDocument() );
+	} );
+
+	// Not 600: the width provider treats it as wide, a real `max-width: 600px` query as narrow.
+	it.each( [
+		[ 'stands down on a narrow header, where the Stats options menu carries it', 599, false ],
+		[ 'holds its place in the actions on a wide one', 601, true ],
+	] )( '%s', ( _name, width, hasButton ) => {
+		render(
+			<ViewportWidth value={ width }>
+				<ResetLayoutAction onReset={ () => {} } />
+			</ViewportWidth>
+		);
+
+		expect( screen.queryByRole( 'button', { name: 'Reset to default' } ) !== null ).toBe(
+			hasButton
+		);
 	} );
 } );
