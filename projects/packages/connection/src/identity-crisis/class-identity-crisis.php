@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack;
 
+use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Urls;
@@ -264,11 +265,7 @@ class Identity_Crisis {
 			return;
 		}
 
-		$href = is_admin()
-			? add_query_arg( 'jetpack_idc_clear_confirmation', '1' )
-			: add_query_arg( 'jetpack_idc_clear_confirmation', '1', admin_url() );
-
-		$href = wp_nonce_url( $href, 'jetpack_idc_clear_confirmation' );
+		$href = wp_nonce_url( add_query_arg( 'jetpack_idc_clear_confirmation', '1', self::get_admin_bar_button_target() ), 'jetpack_idc_clear_confirmation' );
 
 		$consumer_data = UI::get_consumer_data();
 		$label         = isset( $consumer_data['customContent']['adminBarSafeModeLabel'] )
@@ -291,6 +288,24 @@ class Identity_Crisis {
 		);
 
 		$wp_admin_bar->add_node( $menu );
+	}
+
+	/**
+	 * Where the admin bar item leads: a page that shows the Safe Mode screen.
+	 *
+	 * @return string|false The URL, or false for the current page, as add_query_arg() takes it.
+	 */
+	private static function get_admin_bar_button_target() {
+		if ( ! is_admin() ) {
+			return admin_url();
+		}
+
+		// Jetpack dashboards hide admin notices, and the Safe Mode screen with them; My Jetpack shows it in its own container.
+		if ( ! wp_style_is( Admin_Menu::HIDE_CORE_NOTICES_HANDLE ) ) {
+			return false;
+		}
+
+		return '' !== menu_page_url( 'my-jetpack', false ) ? admin_url( 'admin.php?page=my-jetpack' ) : admin_url();
 	}
 
 	/**

@@ -260,7 +260,6 @@ class Admin_Menu_Test extends TestCase {
 		$this->assertStringNotContainsString( '<style', $css );
 		// JITMs render as `.jetpack-jitm-message`; the selector must not match them.
 		$this->assertStringNotContainsString( 'jetpack-jitm-message', $css );
-		$this->assertStringContainsString( '.notice:not(#jp-identity-crisis-container)', $css );
 	}
 
 	/**

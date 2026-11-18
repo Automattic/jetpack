@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack;
 
+use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\IdentityCrisis\URL_Secret;
 use Automattic\Jetpack\Status\Cache as StatusCache;
 use Jetpack_Options;
@@ -1894,6 +1895,64 @@ class Identity_Crisis_Test extends BaseTestCase {
 		return array(
 			'pending'   => array( false ),
 			'confirmed' => array( true ),
+		);
+	}
+
+	/**
+	 * The admin bar item leads to a page that shows the Safe Mode screen.
+	 *
+	 * @param bool   $in_admin       Whether the request is for wp-admin.
+	 * @param bool   $hides_notices  Whether the page hides admin notices, as Jetpack dashboards do.
+	 * @param bool   $has_my_jetpack Whether My Jetpack is registered.
+	 * @param string $expected       Where the link leads: `current`, `my-jetpack` or `dashboard`.
+	 *
+	 * @dataProvider data_provider_test_admin_bar_button_target
+	 */
+	#[DataProvider( 'data_provider_test_admin_bar_button_target' )]
+	public function test_admin_bar_button_target( $in_admin, $hides_notices, $has_my_jetpack, $expected ) {
+		global $_parent_pages;
+		require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		require_once ABSPATH . 'wp-admin/includes/class-wp-screen.php';
+		require_once ABSPATH . 'wp-admin/includes/screen.php';
+		$this->set_current_user( true );
+		$request_uri            = $_SERVER['REQUEST_URI'] ?? null;
+		$_SERVER['REQUEST_URI'] = '/wp-admin/edit.php';
+		if ( $in_admin ) {
+			set_current_screen( 'dashboard' );
+		}
+		if ( $hides_notices ) {
+			wp_register_style( Admin_Menu::HIDE_CORE_NOTICES_HANDLE, false, array(), '1' );
+			wp_enqueue_style( Admin_Menu::HIDE_CORE_NOTICES_HANDLE );
+		}
+		if ( $has_my_jetpack ) {
+			$_parent_pages['my-jetpack'] = false;
+		}
+
+		$node = $this->render_admin_bar_button();
+
+		unset( $GLOBALS['current_screen'], $_parent_pages['my-jetpack'] );
+		wp_deregister_style( Admin_Menu::HIDE_CORE_NOTICES_HANDLE );
+		$_SERVER['REQUEST_URI'] = $request_uri;
+
+		$prefixes = array(
+			'current'    => '/wp-admin/edit.php?',
+			'my-jetpack' => admin_url( 'admin.php?page=my-jetpack' ) . '&',
+			'dashboard'  => admin_url() . '?',
+		);
+		$this->assertStringStartsWith( $prefixes[ $expected ], html_entity_decode( $node->href ) );
+	}
+
+	/**
+	 * Data provider for test_admin_bar_button_target.
+	 *
+	 * @return array
+	 */
+	public static function data_provider_test_admin_bar_button_target() {
+		return array(
+			'front end'                        => array( false, false, true, 'dashboard' ),
+			'admin page showing the screen'    => array( true, false, true, 'current' ),
+			'Jetpack dashboard'                => array( true, true, true, 'my-jetpack' ),
+			'Jetpack dashboard, no My Jetpack' => array( true, true, false, 'dashboard' ),
 		);
 	}
 

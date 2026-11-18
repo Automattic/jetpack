@@ -549,13 +549,13 @@ class Admin_Menu {
 	 * they output `.jetpack-jitm-message`, not `.notice` — and leaves in-app/React notices
 	 * untouched, since those render deeper inside `.wrap`. The CSS rides on a source-less
 	 * handle rather than a build asset so it also reaches older Jetpack pages that ship no
-	 * stylesheet of their own. The Safe Mode screen is exempt: it is how an admin resolves a broken connection.
+	 * stylesheet of their own.
 	 *
 	 * @return string CSS rules.
 	 */
 	private static function get_hide_core_admin_notices_styles() {
 		return '
-		#wpbody-content > .notice:not(#jp-identity-crisis-container),
+		#wpbody-content > .notice,
 		#wpbody-content > .update-nag,
 		#wpbody-content > .updated,
 		#wpbody-content > .error { display: none !important; }
