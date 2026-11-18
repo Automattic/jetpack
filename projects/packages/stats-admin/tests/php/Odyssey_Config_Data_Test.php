@@ -16,6 +16,7 @@ class Odyssey_Config_Data_Test extends Stats_TestCase {
 	 */
 	public function tearDown(): void {
 		Constants::clear_single_constant( 'IS_WPCOM' );
+		remove_all_filters( 'pre_http_request', 5 );
 		parent::tearDown();
 	}
 
@@ -95,6 +96,56 @@ class Odyssey_Config_Data_Test extends Stats_TestCase {
 		$this->assertSame(
 			array( 'stats-paid' ),
 			$data['intial_state']['sites']['features']['999']['data']['active']
+		);
+	}
+
+	public function test_config_data_merges_the_wpcom_site_record_like_the_app() {
+		$this->mock_wpcom_site_record(
+			200,
+			'{"ID":999,"jetpack":false,"name":"Remote","meta":{},"options":{"is_commercial":false,"admin_url":"https://stale.example/wp-admin/"},"capabilities":{"view_stats":false}}'
+		);
+
+		$site = ( new Odyssey_Config_Data() )->get_data( true )['intial_state']['sites']['items']['999'];
+
+		$this->assertSame( 'Remote', $site['name'] );
+		$this->assertTrue( $site['jetpack'] );
+		$this->assertFalse( $site['options']['is_commercial'] );
+		$this->assertSame( 'https://stale.example/wp-admin/', $site['options']['admin_url'] );
+		$this->assertTrue( $site['options']['has_stats_settings'] );
+		$this->assertFalse( $site['capabilities']['view_stats'] );
+		$this->assertArrayHasKey( 'manage_options', $site['capabilities'] );
+		$this->assertStringContainsString( '"meta":{}', wp_json_encode( $site, JSON_UNESCAPED_SLASHES ) );
+	}
+
+	public function test_config_data_keeps_the_seeded_site_when_wpcom_fails() {
+		$this->mock_wpcom_site_record( 500, '{"error":"unknown"}' );
+
+		$site = ( new Odyssey_Config_Data() )->get_data( true )['intial_state']['sites']['items']['999'];
+
+		$this->assertArrayNotHasKey( 'is_commercial', $site['options'] );
+		$this->assertSame( admin_url(), $site['options']['admin_url'] );
+	}
+
+	/**
+	 * Answer the connection package's `/sites/999` request.
+	 *
+	 * @param int    $code HTTP status.
+	 * @param string $body Response body.
+	 */
+	private function mock_wpcom_site_record( $code, $body ) {
+		add_filter(
+			'pre_http_request',
+			static function ( $response, $args, $url ) use ( $code, $body ) {
+				if ( false === strpos( $url, '/sites/999?force=wpcom' ) ) {
+					return $response;
+				}
+				return array(
+					'response' => array( 'code' => $code ),
+					'body'     => $body,
+				);
+			},
+			5,
+			3
 		);
 	}
 
