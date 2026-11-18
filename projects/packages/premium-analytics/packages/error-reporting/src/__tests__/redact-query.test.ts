@@ -14,6 +14,13 @@ describe( 'redactQuery', () => {
 		expect( redactQuery( `?${ origin }` ) ).toBe( origin );
 	} );
 
+	it( 'keeps the window a chart zoomed in from, which is the window its zoom-out returns to', () => {
+		const zoomedOutFrom =
+			'up_preset=last-12-months&up_interval=month&up_compare_preset=previous-period';
+
+		expect( redactQuery( `?${ zoomedOutFrom }` ) ).toBe( zoomedOutFrom );
+	} );
+
 	it( 'masks the value of an unknown parameter', () => {
 		expect( redactQuery( '?email=a@b.c' ) ).toBe( 'email=[redacted]' );
 	} );

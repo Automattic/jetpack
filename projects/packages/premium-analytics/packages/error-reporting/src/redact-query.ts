@@ -5,7 +5,8 @@ const UNREPORTABLE = '[unreportable]';
 const SAFE_NAME = /^[A-Za-z0-9_-]{1,64}$/;
 const NESTED_QUERY_PARAMS = new Set( [ 'p', 'post_url' ] );
 
-// A detail page keeps the window it was opened from under these names prefixed with `ref_`.
+// A detail page keeps the window it was opened from under these names prefixed with `ref_`, and a
+// surface keeps the one a chart zoomed in from under `up_`.
 const WINDOW_PARAMS = [
 	'from',
 	'to',
@@ -32,6 +33,7 @@ const ALLOWED_PARAMS = new Set( [
 	'author_id',
 	...WINDOW_PARAMS,
 	...WINDOW_PARAMS.map( name => `ref_${ name }` ),
+	...WINDOW_PARAMS.map( name => `up_${ name }` ),
 ] );
 
 /**
