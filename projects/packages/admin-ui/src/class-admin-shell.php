@@ -45,11 +45,6 @@ class Admin_Shell {
 	const DEFERRED_HOOKS = array( 'admin_enqueue_scripts', 'admin_print_scripts', 'admin_print_footer_scripts', 'jetpack_admin_js_script_data' );
 
 	/**
-	 * The script and style handles wp_enqueue_media() enqueues, printed for members that set `media`.
-	 */
-	const MEDIA_HANDLES = array( 'media-editor', 'media-audiovideo', 'mce-view', 'image-edit', 'media-views', 'imgareaselect' );
-
-	/**
 	 * Whether init() has run.
 	 *
 	 * @var bool
@@ -86,6 +81,8 @@ class Admin_Shell {
 		// Priority 0: guests must register their modules before the host page builds its import map.
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'setup' ), 0 );
 		add_action( 'wp_ajax_' . self::GUEST_ACTION, array( __CLASS__, 'ajax_guest_assets' ) );
+		// Plugins call init() on admin-ajax requests too, where the shell's members load the media library.
+		Media_Library::init();
 	}
 
 	/**
@@ -112,7 +109,7 @@ class Admin_Shell {
 	/**
 	 * Member dashboards, keyed by admin page slug. Entries that don't match the contract are dropped.
 	 *
-	 * @return array<string, array{build_prefix: string, build_page: string, init_modules: string[], title: string, header: array{title: string, subtitle: string}|null, default_path: string|null, load: callable, capability: string, handles: string[], media: bool}>
+	 * @return array<string, array{build_prefix: string, build_page: string, init_modules: string[], title: string, header: array{title: string, subtitle: string|null}|false|null, default_path: string|null, load: callable, capability: string, handles: string[]}>
 	 */
 	public static function get_members() {
 		/**
@@ -123,12 +120,11 @@ class Admin_Shell {
 		 * - build_page (string)     The wp-build page name.
 		 * - init_modules (string[]) Script modules to import before the app boots.
 		 * - title (string)          Document title while the page is shown.
-		 * - header (array)          Optional. `title` and `subtitle` ('' for none) of the view a bare menu link opens, as the dashboard renders them. Shown while it opens. A malformed one is dropped, not the member.
+		 * - header (array|false)    Optional. `title` and `subtitle` of the view a bare menu link opens, as the dashboard renders them, shown while it opens. `subtitle` is '' for none, or null when the dashboard picks it as it renders. False shows no stand-in on any of its views, for a page whose landing view has no standard page header. A malformed one is dropped, not the member.
 		 * - default_path (string)   Optional. The `p` a bare menu link opens.
 		 * - load (callable)         Loads the build that defines `<build_prefix>_get_<build_page>_wp_admin_routes()`, leaving its page init action to the shell, registers the page's scripts and prints its initial data. Must be safe to run twice, and must not redirect, print or write options. Add print hook callbacks here, not from admin_enqueue_scripts: the guest endpoint drops what those print.
 		 * - capability (string)     Optional, default `manage_options`. Required to load the page into the shell.
 		 * - handles (string[])      Optional. Script and style handles the guest endpoint prints, with their dependencies; nothing else is enqueued.
-		 * - media (bool)            Optional, default false. Whether the page opens the media library: the endpoint then prints it and its templates too.
 		 *
 		 * @since 0.14.15
 		 *
@@ -339,6 +335,7 @@ class Admin_Shell {
 				),
 				admin_url( 'admin-ajax.php' )
 			),
+			'maxLiveApps'      => self::max_live_apps(),
 		);
 		foreach ( array( $host => array() ) + $guests as $slug => $routes ) {
 			$member                     = $members[ $slug ];
@@ -354,6 +351,24 @@ class Admin_Shell {
 			);
 		}
 		return $config;
+	}
+
+	/**
+	 * How many dashboards the client may keep live in one document.
+	 *
+	 * @return int|null The limit, or null to let the client size it from the device's memory.
+	 */
+	private static function max_live_apps() {
+		/**
+		 * Filters how many dashboards the admin shell keeps live, prewarmed or mounted, in one document.
+		 * Past the limit, opening another dashboard loads the page.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param int|null $max_live_apps A positive limit, counting the page that loaded; null sizes it from the device's memory.
+		 */
+		$max_live_apps = apply_filters( 'jetpack_admin_shell_max_live_apps', null );
+		return is_numeric( $max_live_apps ) && (int) $max_live_apps > 0 ? (int) $max_live_apps : null;
 	}
 
 	/**
@@ -421,26 +436,9 @@ class Admin_Shell {
 		set_current_screen( $hook_suffix );
 		$GLOBALS['concatenate_scripts'] = false; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- One script tag per handle, so the client can skip what the host already has.
 
-		// Print callbacks the media library's listeners add (VideoPress's templates) belong to the member.
-		$media_start = static function () use ( &$snapshot ) {
-			$snapshot = self::hook_snapshot();
-		};
-		$media_end   = static function () use ( &$snapshot, &$own ) {
-			foreach ( self::added_keys( $snapshot ) as $hook => $keys ) {
-				$own[ $hook ] += $keys;
-			}
-		};
-		add_action( 'wp_enqueue_media', $media_start, PHP_INT_MIN );
-		add_action( 'wp_enqueue_media', $media_end, PHP_INT_MAX );
-
 		ob_start();
 		do_action( 'admin_enqueue_scripts', $hook_suffix ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Core hook.
-		if ( $members[ $slug ]['media'] ) {
-			wp_enqueue_media();
-		}
-		remove_action( 'wp_enqueue_media', $media_start, PHP_INT_MIN );
-		remove_action( 'wp_enqueue_media', $media_end, PHP_INT_MAX );
-		$handles = self::printed_handles( $members[ $slug ] );
+		$handles = $members[ $slug ]['handles'];
 		// Only the member's own handles, and what they depend on, go back to the page. Printing them
 		// even when nothing enqueued them: a page can rely on another script pulling one in.
 		foreach ( array( wp_scripts(), wp_styles() ) as $dependencies ) {
@@ -452,10 +450,6 @@ class Admin_Shell {
 		print_head_scripts();
 		print_footer_scripts();
 		self::fire_print_hook( 'admin_print_footer_scripts', $own['admin_print_footer_scripts'] );
-		// Core prints these on admin_footer, which the endpoint doesn't run.
-		if ( $members[ $slug ]['media'] ) {
-			wp_print_media_templates();
-		}
 		return ob_get_clean();
 	}
 
@@ -569,16 +563,6 @@ class Admin_Shell {
 	}
 
 	/**
-	 * The script and style handles the guest endpoint prints for a member.
-	 *
-	 * @param array $member Normalized member.
-	 * @return string[]
-	 */
-	private static function printed_handles( array $member ): array {
-		return $member['media'] ? array( ...$member['handles'], ...self::MEDIA_HANDLES ) : $member['handles'];
-	}
-
-	/**
 	 * Snapshot the callbacks on the deferred hooks.
 	 *
 	 * @return array<string, array<string, true>>
@@ -680,7 +664,6 @@ class Admin_Shell {
 			'default_path' => null,
 			'capability'   => 'manage_options',
 			'handles'      => array(),
-			'media'        => false,
 		);
 
 		if (
@@ -688,13 +671,12 @@ class Admin_Shell {
 			|| ! self::is_string_list( $member['handles'] )
 			|| ! is_string( $member['capability'] ) || '' === $member['capability']
 			|| ( null !== $member['default_path'] && ! is_string( $member['default_path'] ) )
-			|| ! is_bool( $member['media'] )
 		) {
 			return null;
 		}
 
 		// Only cosmetic, so a malformed header is dropped and the member kept.
-		if ( null !== $member['header'] && ! self::is_header( $member['header'] ) ) {
+		if ( null !== $member['header'] && false !== $member['header'] && ! self::is_header( $member['header'] ) ) {
 			$member['header'] = null;
 			$message          = sprintf( 'Admin shell member "%s" has a header without a title and subtitle, so the header was skipped.', $slug );
 			// Keep on one line: the release tooling only replaces the version in a single-line call.
@@ -705,7 +687,7 @@ class Admin_Shell {
 	}
 
 	/**
-	 * Whether a value is a page header: a non-empty `title` and a `subtitle` string.
+	 * Whether a value is a page header: a non-empty `title`, and a `subtitle` string or null.
 	 *
 	 * @param mixed $value Value to check.
 	 * @return bool
@@ -713,7 +695,7 @@ class Admin_Shell {
 	private static function is_header( $value ) {
 		return is_array( $value )
 			&& isset( $value['title'] ) && is_string( $value['title'] ) && '' !== $value['title']
-			&& isset( $value['subtitle'] ) && is_string( $value['subtitle'] );
+			&& array_key_exists( 'subtitle', $value ) && ( null === $value['subtitle'] || is_string( $value['subtitle'] ) );
 	}
 
 	/**

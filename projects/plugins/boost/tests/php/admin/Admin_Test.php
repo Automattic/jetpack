@@ -540,8 +540,9 @@ class Admin_Test extends Base_TestCase {
 		$this->assertArrayHasKey( 'my-jetpack', $members );
 		if ( $joins ) {
 			$this->assertSame( array( $admin, 'load_as_admin_shell_guest' ), $members[ JETPACK_BOOST_SLUG ]['load'] );
-			// Getting Started hides the page header, so the shell gets none to show.
-			$this->assertSame( ! $getting_started, isset( $members[ JETPACK_BOOST_SLUG ]['header'] ) );
+			// Getting Started hides the page header, so the shell shows no stand-in for it.
+			$this->assertSame( ! $getting_started, is_array( $members[ JETPACK_BOOST_SLUG ]['header'] ) );
+			$this->assertSame( $getting_started, false === $members[ JETPACK_BOOST_SLUG ]['header'] );
 		}
 	}
 

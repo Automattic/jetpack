@@ -536,6 +536,29 @@ it( 'answers the admin shell for a dirty draft and asks once per shell navigatio
 	);
 } );
 
+it( 'leaves a page load the admin shell already asked about to the shell, then asks again', async () => {
+	const { user } = renderEditor();
+	await user.click( screen.getByRole( 'button', { name: 'New cut' } ) );
+	confirmNavigation.mockReturnValue( true );
+	const unload = new Event( 'beforeunload', { cancelable: true } );
+
+	act( () => {
+		window.dispatchEvent(
+			new CustomEvent( 'jetpack-admin-shell:before-leave', {
+				detail: { page: 'jetpack-videopress' },
+				cancelable: true,
+			} )
+		);
+		window.dispatchEvent( unload );
+	} );
+	expect( unload.defaultPrevented ).toBe( false );
+
+	await act( () => new Promise( resolve => setTimeout( resolve ) ) );
+	const later = new Event( 'beforeunload', { cancelable: true } );
+	window.dispatchEvent( later );
+	expect( later.defaultPrevented ).toBe( true );
+} );
+
 it( 'stays quiet while the admin shell hides VideoPress and as it comes back, then asks again', async () => {
 	const { user } = renderEditor();
 	await user.click( screen.getByRole( 'button', { name: 'New cut' } ) );

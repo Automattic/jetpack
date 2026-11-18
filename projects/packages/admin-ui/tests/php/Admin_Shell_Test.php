@@ -11,6 +11,8 @@ use Automattic\Jetpack\Assets\Script_Data;
 use Automattic\Jetpack\Feature_Flags\Feature_Flags;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -87,6 +89,22 @@ class Admin_Shell_Test extends TestCase {
 	}
 
 	/**
+	 * Plugins call init() outside the admin menu, so admin-ajax gets the media library endpoint.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 *
+	 * @return void
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_init_hooks_the_media_library_endpoint() {
+		Admin_Shell::init();
+
+		$this->assertNotFalse( has_action( 'wp_ajax_' . Media_Library::AJAX_ACTION ) );
+	}
+
+	/**
 	 * Data provider for test_is_enabled.
 	 *
 	 * @return array[] Flag state, `jetpack_admin_shell_enabled` result (null for none), query arg (null for none), expected.
@@ -137,26 +155,35 @@ class Admin_Shell_Test extends TestCase {
 			'default_path' => '/responses',
 			'capability'   => 'edit_posts',
 			'handles'      => array( 'jetpack-forms-dashboard' ),
-			'media'        => true,
 			'header'       => array(
 				'title'    => 'Forms',
 				'subtitle' => '',
 			),
 		);
 
+		$defaults = array(
+			'init_modules' => array(),
+			'default_path' => null,
+			'capability'   => 'manage_options',
+			'handles'      => array(),
+			'header'       => null,
+		);
+		$picked   = array(
+			'title'    => 'Settings',
+			'subtitle' => null,
+		);
+
 		return array(
-			'required keys only' => array(
-				self::valid_member(),
-				array(
-					'init_modules' => array(),
-					'default_path' => null,
-					'capability'   => 'manage_options',
-					'handles'      => array(),
-					'media'        => false,
-					'header'       => null,
-				),
+			'required keys only'                  => array( self::valid_member(), $defaults ),
+			'every key set'                       => array( $set + self::valid_member(), $set ),
+			'no stand-in header'                  => array(
+				array( 'header' => false ) + self::valid_member(),
+				array( 'header' => false ) + $defaults,
 			),
-			'every key set'      => array( $set + self::valid_member(), $set ),
+			'subtitle picked as the page renders' => array(
+				array( 'header' => $picked ) + self::valid_member(),
+				array( 'header' => $picked ) + $defaults,
+			),
 		);
 	}
 
@@ -205,7 +232,6 @@ class Admin_Shell_Test extends TestCase {
 			'handles holds non-text' => array( 'jetpack-forms', array( 'handles' => array( 1 ) ) + $valid ),
 			'empty capability'       => array( 'jetpack-forms', array( 'capability' => '' ) + $valid ),
 			'default_path not text'  => array( 'jetpack-forms', array( 'default_path' => 1 ) + $valid ),
-			'media not a boolean'    => array( 'jetpack-forms', array( 'media' => 'yes' ) + $valid ),
 		);
 	}
 
@@ -239,15 +265,16 @@ class Admin_Shell_Test extends TestCase {
 	 */
 	public static function provide_invalid_headers() {
 		return array(
-			'not an array'      => array( 'Forms' ),
-			'no subtitle'       => array( array( 'title' => 'Forms' ) ),
-			'subtitle not text' => array(
+			'not an array'                => array( 'Forms' ),
+			'true, not the false opt-out' => array( true ),
+			'no subtitle'                 => array( array( 'title' => 'Forms' ) ),
+			'subtitle not text'           => array(
 				array(
 					'title'    => 'Forms',
 					'subtitle' => 1,
 				),
 			),
-			'empty title'       => array(
+			'empty title'                 => array(
 				array(
 					'title'    => '',
 					'subtitle' => 'Sub',
@@ -444,6 +471,49 @@ class Admin_Shell_Test extends TestCase {
 
 		$config = apply_filters( 'script_module_data_' . Admin_Shell::CLIENT_MODULE, array() );
 		$this->assertSame( $expected, $config['members']['guest-page']['routes'] ?? null );
+	}
+
+	/**
+	 * Data provider for test_setup_passes_live_app_limit.
+	 *
+	 * @return array[] Filter result, limit the client gets.
+	 */
+	public static function provide_live_app_limits() {
+		return array(
+			'unfiltered'   => array( null, null ),
+			'a limit'      => array( 4, 4 ),
+			'a string'     => array( '4', 4 ),
+			'zero'         => array( 0, null ),
+			'not a number' => array( 'four', null ),
+		);
+	}
+
+	/**
+	 * The client gets a positive live-app limit a site sets, and otherwise sizes it itself.
+	 *
+	 * @dataProvider provide_live_app_limits
+	 * @param mixed    $filtered Filter result.
+	 * @param int|null $expected Limit in the client config.
+	 * @return void
+	 */
+	#[DataProvider( 'provide_live_app_limits' )]
+	public function test_setup_passes_live_app_limit( $filtered, $expected ) {
+		$this->start_host_page(
+			static function () {
+				$GLOBALS['jetpack_shell_test_guest_page_routes_data'] = array( array( 'path' => '/' ) );
+			}
+		);
+		$filter = static function () use ( $filtered ) {
+			return $filtered;
+		};
+		add_filter( 'jetpack_admin_shell_max_live_apps', $filter );
+
+		Admin_Shell::setup();
+		remove_filter( 'jetpack_admin_shell_max_live_apps', $filter );
+
+		$config = apply_filters( 'script_module_data_' . Admin_Shell::CLIENT_MODULE, array() );
+		$this->assertArrayHasKey( 'maxLiveApps', $config );
+		$this->assertSame( $expected, $config['maxLiveApps'] );
 	}
 
 	/**
@@ -756,56 +826,22 @@ class Admin_Shell_Test extends TestCase {
 	}
 
 	/**
-	 * Data provider for test_guest_assets_prints_media_library_only_when_asked.
+	 * A guest gets no media library, even one whose page enqueues it or that still sets the removed `media` key: loadMediaLibrary() loads it on demand.
 	 *
-	 * @return array[] Media flag, whether the page enqueues the media library itself.
-	 */
-	public static function provide_media_flags() {
-		return array(
-			'media'                       => array( true, false ),
-			'media the page enqueues too' => array( true, true ),
-			'no media'                    => array( false, false ),
-		);
-	}
-
-	/**
-	 * A media member gets the media library and the templates its modal renders from.
-	 *
-	 * @dataProvider provide_media_flags
-	 *
-	 * @param bool $media       Whether the guest opens the media library.
-	 * @param bool $own_enqueue Whether the page's loader enqueues it too.
 	 * @return void
 	 */
-	#[DataProvider( 'provide_media_flags' )]
-	public function test_guest_assets_prints_media_library_only_when_asked( $media, $own_enqueue ) {
+	public function test_guest_assets_leaves_out_the_media_library() {
 		$this->unhook_emoji_styles = remove_action( 'wp_print_styles', 'print_emoji_styles' );
-		$load                      = function () use ( $own_enqueue ) {
-			if ( $own_enqueue ) {
-				$this->add_action( 'admin_enqueue_scripts', 'wp_enqueue_media' );
-			}
+		$load                      = function () {
+			$this->add_action( 'admin_enqueue_scripts', 'wp_enqueue_media' );
 		};
-		$this->add_action(
-			'wp_enqueue_media',
-			function () {
-				$this->add_action(
-					'admin_print_footer_scripts',
-					static function () {
-						echo '<script type="text/html" id="tmpl-shell-test-media"></script>';
-					}
-				);
-			}
-		);
-		// wp_enqueue_media() fires its action once per request.
-		unset( $GLOBALS['wp_actions']['wp_enqueue_media'] );
-		$this->start_host_page( $load, 'manage_options', array(), $media );
+		$this->start_host_page( $load, 'manage_options', array(), array( 'media' => true ) );
 
 		$html = Admin_Shell::guest_assets( 'guest-page' );
 
 		$this->assertIsString( $html );
-		$this->assertSame( $media, false !== strpos( $html, 'id="media-views-js"' ) );
-		$this->assertSame( $media, false !== strpos( $html, 'id="tmpl-media-modal"' ) );
-		$this->assertSame( $media, false !== strpos( $html, 'id="tmpl-shell-test-media"' ), 'what the media library\'s listeners print' );
+		$this->assertStringNotContainsString( 'id="media-views-js"', $html );
+		$this->assertStringNotContainsString( 'id="tmpl-media-modal"', $html );
 	}
 
 	/**
@@ -827,10 +863,10 @@ class Admin_Shell_Test extends TestCase {
 	 * @param callable $load       Guest loader.
 	 * @param string   $capability Capability the guest requires.
 	 * @param string[] $handles    Handles the guest endpoint may return.
-	 * @param bool     $media      Whether the guest opens the media library.
+	 * @param array    $extra      More keys for the guest member.
 	 * @return void
 	 */
-	private function start_host_page( $load, $capability = 'manage_options', $handles = array(), $media = false ) {
+	private function start_host_page( $load, $capability = 'manage_options', $handles = array(), $extra = array() ) {
 		require_once __DIR__ . '/fixtures/wp-build-routes.php';
 		add_filter( 'jetpack_feature_flag_enabled_' . Admin_Shell::FLAG, '__return_true' );
 		wp_set_current_user(
@@ -851,12 +887,11 @@ class Admin_Shell_Test extends TestCase {
 					'init_modules' => array( '@jetpack/guest-init' ),
 					'capability'   => $capability,
 					'handles'      => $handles,
-					'media'        => $media,
 					'load'         => static function () use ( $load ) {
 						jetpack_shell_test_load_build();
 						$load();
 					},
-				) + self::valid_member(),
+				) + $extra + self::valid_member(),
 			)
 		);
 		$_GET['page']           = 'host-page';
