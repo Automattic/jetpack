@@ -17,6 +17,14 @@ use WorDBless\BaseTestCase;
 #[CoversClass( Embeds::class )]
 class Embeds_Test extends BaseTestCase {
 
+	protected function tear_down() {
+		remove_all_filters( 'jetpack_comments_embed_handled' );
+		remove_all_filters( 'jetpack_comments_pre_embed_data' );
+		remove_all_filters( 'pre_http_request' );
+
+		parent::tear_down();
+	}
+
 	/**
 	 * @dataProvider provide_sanitize_html
 	 */
@@ -33,8 +41,6 @@ class Embeds_Test extends BaseTestCase {
 		add_filter( 'jetpack_comments_embed_handled', fn() => $handled );
 
 		$this->assertSame( $expected ? 'https://github.com/Automattic/jetpack/pull/1' : false, Embeds::trusted_url( 'https://github.com/Automattic/jetpack/pull/1' ) );
-
-		remove_all_filters( 'jetpack_comments_embed_handled' );
 	}
 
 	public static function provide_trusted_url() {
@@ -67,10 +73,6 @@ class Embeds_Test extends BaseTestCase {
 		$this->assertStringContainsString( 'Fix the thing', $block['innerHTML'] );
 		$this->assertStringContainsString( 'View on GitHub', $block['innerHTML'] );
 		$this->assertStringContainsString( 'href="https://github.com/Automattic/jetpack/pull/1"', $block['innerHTML'] );
-
-		remove_all_filters( 'jetpack_comments_embed_handled' );
-		remove_all_filters( 'jetpack_comments_pre_embed_data' );
-		remove_all_filters( 'pre_http_request' );
 	}
 
 	public function test_block_falls_back_to_link_when_host_has_no_data() {
@@ -81,9 +83,6 @@ class Embeds_Test extends BaseTestCase {
 
 		$this->assertStringContainsString( '<a href="https://github.com/Automattic/jetpack/pull/1"', $block['innerHTML'] );
 		$this->assertStringNotContainsString( 'View on', $block['innerHTML'] );
-
-		remove_all_filters( 'jetpack_comments_embed_handled' );
-		remove_all_filters( 'jetpack_comments_pre_embed_data' );
 	}
 
 	public static function provide_sanitize_html() {
