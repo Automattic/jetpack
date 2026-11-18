@@ -156,6 +156,12 @@
 			additionalReviewers: [ 'team:jetpack-search' ],
 			addLabels: [ '[Feature] Search', 'Instant Search' ],
 		},
+
+		// Review dependency changes that could shift the performance measurements.
+		{
+			matchFileNames: [ 'tools/performance/**' ],
+			dependencyDashboardApproval: true,
+		},
 	],
 
 	'github-actions': {
