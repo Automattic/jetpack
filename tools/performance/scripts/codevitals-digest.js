@@ -45,15 +45,22 @@ const PAGE_WEIGHT_KEYS = new Set(
 );
 const TIMING_CAVEAT = 'Timings: warm reload, test site with default data, simulated connection.';
 const LEVEL_WINDOW = 10;
+const DASHBOARD_FCP_ID = 203; // Dashboard FCP duplicates Dashboard LCP.
+// My Jetpack TTFB and FCP vary more between commits. Remove these factors once more loads lower their noise.
+const JETPACK_NOISE_FACTORS = new Map( [
+	[ 212, 2 ], // My Jetpack TTFB
+	[ 213, 2 ], // My Jetpack FCP
+] );
 const robustScale = ( values, level ) =>
 	Math.max( 1.4826 * median( values.map( value => Math.abs( value - level ) ) ), 0.002 * level );
 
-const hasLevelRise = ( before, after ) => {
+const hasLevelRise = ( before, after, noiseFactor ) => {
 	if ( before.length === 0 || after.length === 0 ) return false;
 	const pre = median( before );
 	const post = median( after );
 	if ( ! ( pre > 0 ) || ! Number.isFinite( pre ) || ! Number.isFinite( post ) ) return false;
 	const bar =
+		noiseFactor *
 		3 *
 		1.2533 *
 		Math.sqrt(
@@ -62,6 +69,14 @@ const hasLevelRise = ( before, after ) => {
 		);
 	return post - pre >= 0.05 * pre && post - pre >= bar;
 };
+
+const levelScore = ( before, fromCandidate, pre ) =>
+	( median( fromCandidate ) - pre ) /
+	Math.max(
+		Math.sqrt( ( stdDev( before ) ** 2 + stdDev( fromCandidate ) ** 2 ) / LEVEL_WINDOW ),
+		0.001
+	);
+const strongestWindow = ( best, candidate ) => ( candidate.score > best.score ? candidate : best );
 
 const fmt = v => ( Number.isInteger( v ) ? String( v ) : Number( v ).toFixed( 1 ) );
 const pctStr = p => {
@@ -201,6 +216,8 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 	const repoPath = REPO.split( '/' ).map( encodeURIComponent ).join( '/' );
 	const repoName = REPO.split( '/' ).pop() || REPO;
 	const repoTitle = repoName.charAt( 0 ).toUpperCase() + repoName.slice( 1 );
+	const isJetpackRepo = REPO.toLowerCase() === 'automattic/jetpack';
+	const isWatchedMetric = id => ! isJetpackRepo || Number( id ) !== DASHBOARD_FCP_ID;
 	const BRANCH = ( env.CODEVITALS_BRANCH || '' ).trim() || 'trunk';
 	// Token and channel are trimmed like DRY_RUN (a pasted trailing space must take the loud
 	// misconfig path, not a bare invalid_auth/channel_not_found). A CI secret placeholder (any
@@ -252,7 +269,9 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 			throw new Error(
 				'non-array /metrics response (a misconfigured CODEVITALS_EVOLUTION_URL serves the SPA HTML here)'
 			);
-		metaById = new Map( rows.map( m => [ String( m.id ), m ] ) );
+		metaById = new Map(
+			rows.map( m => [ String( m.id ), m ] ).filter( ( [ id ] ) => isWatchedMetric( id ) )
+		);
 	} catch ( e ) {
 		discoveryError = errMsg( e );
 		console.error( `metrics lookup failed: ${ discoveryError }` );
@@ -265,7 +284,7 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 	let metricIds;
 	let droppedIds = 0;
 	if ( METRIC_IDS_OVERRIDE.length > 0 ) {
-		metricIds = METRIC_IDS_OVERRIDE;
+		metricIds = METRIC_IDS_OVERRIDE.filter( isWatchedMetric );
 		if ( discoveryError ) console.error( '(names fall back to ids)' );
 	} else if ( ! discoveryError ) {
 		// Ids land in a URL path: a non-numeric id from a drifted contract must not pass through.
@@ -283,7 +302,7 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 	}
 	const discoveryFailed = ! metricIds || metricIds.length === 0;
 
-	const confirmed = []; // in-window regressions that held after the flagged commit
+	const confirmed = []; // In-window sustained regressions.
 	const confirmedLate = []; // Confirmed changes older than the window; may repeat.
 	const pending = []; // Flags with incomplete or inconclusive level evidence.
 	const reverted = []; // Flags without a confirmed level change; retained in the context line.
@@ -295,6 +314,14 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 	let agedOutFlags = 0; // flags older than even the 2x look-back — designed silent exit (see below), but the count must not vanish entirely
 
 	for ( const id of discoveryFailed ? [] : metricIds ) {
+		const noiseFactor = ( isJetpackRepo && JETPACK_NOISE_FACTORS.get( Number( id ) ) ) || 1;
+		const meta = metaById.get( id ) || {};
+		const series = {
+			id,
+			name: meta.name || meta.key || `metric ${ id }`,
+			key: meta.key,
+			unit: meta.unit || '',
+		};
 		let data;
 		try {
 			const resp = await get(
@@ -577,7 +604,7 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 					( reRun || serverFrom !== from ) && ( ! ownAnchorOk || ! serverAnchorOk );
 				let verdict = 'pending';
 				if ( complete && usable ) {
-					if ( hasLevelRise( preValues, postValues ) ) verdict = 'report';
+					if ( hasLevelRise( preValues, postValues, noiseFactor ) ) verdict = 'report';
 					else if ( ! reRunUncertain ) verdict = 'suppress';
 				}
 				// Ordinary flags localize from the kept candidate; dropped re-run rows remain excluded.
@@ -585,12 +612,6 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 					.filter( r => r.p.sIdx >= s )
 					.slice( 0, LEVEL_WINDOW )
 					.map( r => r.v );
-				const score =
-					( median( localPost ) - pre ) /
-					Math.max(
-						Math.sqrt( ( stdDev( preValues ) ** 2 + stdDev( localPost ) ** 2 ) / LEVEL_WINDOW ),
-						0.001
-					);
 				return {
 					s,
 					pre,
@@ -600,7 +621,7 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 					rangeStart: preRows[ 0 ]?.p.hash ?? p.hash,
 					rangeEnd: postRows.at( -1 )?.p.hash ?? p.hash,
 					verdict,
-					score,
+					score: levelScore( preValues, localPost, pre ),
 					position: byServe.filter( r => r.p.sIdx < s ).length,
 				};
 			} );
@@ -631,16 +652,12 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 			else win = wins.reduce( stronger ); // all suppressed: the closest call
 			const sib = sibOf( win ); // the flag at the deciding position supplies the entry's time and numbers
 			const late = now - sib.t > windowMs; // COMMIT older than the window, judged anyway (see detectMs)
-			const meta = metaById.get( String( id ) ) || {};
 			const entry = {
-				id,
+				...series,
 				t: sib.t,
 				late,
-				name: meta.name || meta.key || `metric ${ id }`,
-				key: meta.key,
 				rangeStart: win.rangeStart,
 				rangeEnd: win.rangeEnd,
-				unit: meta.unit || '',
 				hash: p.hash,
 				pct: sib.p.regressionPercent, // the server's percent vs the row served just before the flag — for a re-run sibling, possibly this commit's own earlier re-run row
 				from: self ? flagFrom : sib.p.serverFrom,
@@ -695,13 +712,49 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 				group.push( entry );
 			else pending.push( entry );
 		}
+
+		// Neighbouring windows can see the same step. Choose its strongest window before applying the look-back.
+		const scans = [];
+		for ( let position = LEVEL_WINDOW; position < byServe.length - LEVEL_WINDOW; position++ ) {
+			const { t } = byServe[ position ];
+			const before = byServe.slice( position - LEVEL_WINDOW, position );
+			const after = byServe.slice( position + 1, position + LEVEL_WINDOW + 1 );
+			const preValues = before.map( row => row.v );
+			const postValues = after.map( row => row.v );
+			if ( ! hasLevelRise( preValues, postValues, noiseFactor ) ) continue;
+			const pre = median( preValues );
+			const fromCandidate = byServe.slice( position, position + LEVEL_WINDOW ).map( row => row.v );
+			const entry = {
+				...series,
+				t,
+				late: now - t > windowMs,
+				pre,
+				post: median( postValues ),
+				score: levelScore( preValues, fromCandidate, pre ),
+				rangeStart: before[ 0 ].p.hash,
+				rangeEnd: after.at( -1 ).p.hash,
+				position,
+				fromScan: true,
+			};
+			const group = scans.at( -1 );
+			if ( group?.at( -1 ).position === position - 1 ) group.push( entry );
+			else scans.push( [ entry ] );
+		}
+		for ( const group of scans ) {
+			const entry = group.reduce( strongestWindow );
+			if (
+				now - entry.t <= detectMs &&
+				! sustained.some( flag => Math.abs( flag.position - entry.position ) <= LEVEL_WINDOW )
+			) {
+				groups.push( [ entry ] );
+			}
+		}
+
 		for ( const group of groups ) {
 			const complete = group.filter( entry => entry.pre !== undefined );
 			const originals = complete.filter( entry => entry.self );
 			const pool = originals.length > 0 ? originals : complete;
-			const entry = pool.reduce( ( best, candidate ) =>
-				candidate.score > best.score ? candidate : best
-			);
+			const entry = pool.reduce( strongestWindow );
 			// Only confirmed in-window members keep the group in the sustained bucket.
 			const late = complete.every( member => member.late );
 			( late ? confirmedLate : confirmed ).push( {
@@ -792,6 +845,10 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 	};
 	const medianPct = r => pctStr( ( ( r.post - r.pre ) / r.pre ) * 100 );
 	const confirmedRow = r => {
+		const level = `*${ esc( clip( r.name ) ) }* median ${ medianPct( r ) } (${ fmt( r.pre ) }→${ fmt( r.post ) }${ esc( clip( r.unit ) ) })`;
+		const range = `observed between ${ commitLink( r.rangeStart ) } and ${ commitLink( r.rangeEnd ) }`;
+		const chart = r.key ? ` · <${ chartUrl( r.key ) }|chart>` : '';
+		if ( r.fromScan ) return `${ level } — ${ range }${ chart }`;
 		const delta =
 			Number.isFinite( r.from ) && Number.isFinite( r.to )
 				? ` (${ fmt( r.from ) }→${ fmt( r.to ) }${ esc( clip( r.unit ) ) })`
@@ -800,7 +857,7 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 		const commits = members
 			.map( member => commitLink( member.hash ) + ( member.self ? '' : ' (re-run)' ) )
 			.join( ', ' );
-		return `*${ esc( clip( r.name ) ) }* median ${ medianPct( r ) } (${ fmt( r.pre ) }→${ fmt( r.post ) }${ esc( clip( r.unit ) ) }) · single-pair ${ pctStr( r.pct ) || 'percentage unavailable' }${ delta }${ r.reRun ? ' (flag from a re-run)' : '' }${ r.grouped > 1 ? ` (${ r.grouped } flags grouped)` : '' } — observed between ${ commitLink( r.rangeStart ) } and ${ commitLink( r.rangeEnd ) }; flags observed at ${ commits }${ r.key ? ` · <${ chartUrl( r.key ) }|chart>` : '' }`;
+		return `${ level } · single-pair ${ pctStr( r.pct ) || 'percentage unavailable' }${ delta }${ r.reRun ? ' (flag from a re-run)' : '' }${ r.grouped > 1 ? ` (${ r.grouped } flags grouped)` : '' } — ${ range }; flags observed at ${ commits }${ chart }`;
 	};
 	// A single-pair percentage does not describe the change across the whole comparison window.
 	const lateRow = r => {
@@ -833,7 +890,7 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 		blocks.push(
 			section(
 				`:rotating_light: *Could not enumerate the tracked metrics* (${ esc(
-					clip( discoveryError || 'metrics list came back empty' )
+					clip( discoveryError || 'no metrics in the watch list' )
 				) }). The digest has no signal this week — check the read API's /metrics endpoint and CODEVITALS_EVOLUTION_URL, or set METRIC_IDS explicitly as a stopgap.`
 			)
 		);
@@ -977,7 +1034,7 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 							joinRows(
 								suppressed,
 								r => `${ esc( clip( r.name ) ) } ${ lateRow( r ) }`,
-								`:leftwards_arrow_with_hook: ${ suppressed.length } transient spike${ suppressed.length > 1 ? 's' : '' } suppressed (no confirmed level change in the kept data): `
+								`:leftwards_arrow_with_hook: ${ suppressed.length } transient spike${ suppressed.length > 1 ? 's' : '' } suppressed (no confirmed level change at those flags): `
 							)
 						),
 					],
@@ -1070,7 +1127,7 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 	else {
 		// Notifications name page-weight changes first, including older confirmed changes.
 		const summaryName = r =>
-			`${ esc( clip( r.name ) ) } median ${ medianPct( r ) } (single-pair ${ pctStr( r.pct ) || 'percentage unavailable' })`;
+			`${ esc( clip( r.name ) ) } median ${ medianPct( r ) }${ r.fromScan ? '' : ` (single-pair ${ pctStr( r.pct ) || 'percentage unavailable' })` }`;
 		const splitNames = ( items, limit, older = false ) => {
 			const headline = items.filter( r => PAGE_WEIGHT_KEYS.has( r.key ) );
 			const diagnostics = items.filter( r => ! PAGE_WEIGHT_KEYS.has( r.key ) );

@@ -199,6 +199,31 @@ const SCENARIOS = {
 	levelstep: () => ( {
 		series: { 301: levelSeries( Array( 10 ).fill( 100 ), 300, Array( 10 ).fill( 120 ) ) },
 	} ),
+	scannedStep: () => ( {
+		series: {
+			301: [ ...steady( 20, 5, 100 ), ...seq( 20, 4.9, 107 ) ],
+			302: [ ...steady( 10, 5, 100 ), ...seq( 10, 4.9, 107 ) ],
+		},
+	} ),
+	jetpackMetricPolicy: () => {
+		const pre = [ ...Array( 5 ).fill( 90 ), ...Array( 5 ).fill( 110 ) ];
+		const rise = levelSeries( pre, 125, Array( 10 ).fill( 125 ) );
+		return {
+			metrics: [
+				metricRow( 201, 'Dashboard LCP', 'dashboard-lcp' ),
+				metricRow( 203, 'Dashboard FCP', 'dashboard-fcp' ),
+				metricRow( 212, 'My Jetpack TTFB', 'my-jetpack-ttfb' ),
+				metricRow( 213, 'My Jetpack FCP', 'my-jetpack-fcp' ),
+			],
+			series: {
+				201: rise,
+				203: rise,
+				212: rise,
+				213: rise.map( point => ( { ...point, isRegression: false } ) ),
+			},
+			no302: true,
+		};
+	},
 	diprecovery: () => ( {
 		series: { 301: levelSeries( [ ...Array( 9 ).fill( 100 ), 80 ], 110, Array( 10 ).fill( 100 ) ) },
 	} ),
@@ -658,11 +683,9 @@ const SCENARIOS = {
 		series: {
 			301: [
 				...steady( 10, 6.0, 100 ),
-				...seq( 5, 5.9, 200, 'b' ),
-				pt( 5.4, 100, 'beef99', false ),
-				pt( 5.35, 200, 'b2', false ), // duplicate of landing commit b2
 				pt( 5.3, 200, 'feedbf03', true, 100.0 ),
-				...seq( 10, 5.2, 200, 'dd' ),
+				...seq( 6, 5.2, 200, 'c' ),
+				...seq( 10, 4.6, 100, 'dd' ),
 			],
 		},
 	} ),
@@ -1210,7 +1233,7 @@ const SCENARIOS = {
 	} ),
 	nanpctPending: () => {
 		const fixture = SCENARIOS.nanpct();
-		fixture.series[ 301 ] = fixture.series[ 301 ].slice( 0, 26 );
+		fixture.series[ 301 ] = [ ...fixture.series[ 301 ].slice( 0, 21 ), ...seq( 5, 4.9, 100, 'q' ) ];
 		return fixture;
 	},
 	// 200-char unit must be clipped to 120 in every render site.
@@ -1650,6 +1673,42 @@ test( 'level gate confirms a step with median magnitude and rejects a dip recove
 	assert.ok( ! dip.out.includes( 'sustained regression*' ), dip.out );
 } );
 
+test( 'an unflagged step needs ten commits on each side and produces one digest line', async () => {
+	const result = await runDigest( 'scannedStep' );
+	assert.equal( result.code, 0, result.err );
+	const payload = JSON.parse( result.out );
+	const lines = payload.blocks.filter( block => block.text?.text.startsWith( '•' ) );
+	assert.equal( lines.length, 1, result.out );
+	assert.match(
+		lines[ 0 ].text.text,
+		/Alpha: TTFB\* median \+7\.0% \(100→107ms\).*observed between/
+	);
+	assert.doesNotMatch( result.out, /single-pair|flag|pending/ );
+} );
+
+test( 'Dashboard FCP is excluded from discovery and overrides', async () => {
+	for ( const env of [ {}, { METRIC_IDS: '201,0203' } ] ) {
+		const result = await runDigest( 'jetpackMetricPolicy', env );
+		assert.equal( result.code, 0, result.err );
+		assert.doesNotMatch( result.requests.join( '\n' ), /\/evolution\/0?203\?/ );
+		assert.doesNotMatch( result.out, /Dashboard FCP|Timing diagnostics could not be fully read/ );
+	}
+	const excludedOnly = await runDigest( 'jetpackMetricPolicy', { METRIC_IDS: '203' } );
+	assert.equal( excludedOnly.code, 1 );
+	assert.match( excludedOnly.out, /no metrics in the watch list/ );
+} );
+
+test( 'My Jetpack TTFB and FCP require twice the noise bar for the same rise', async () => {
+	const result = await runDigest( 'jetpackMetricPolicy' );
+	assert.equal( result.code, 0, result.err );
+	const payload = JSON.parse( result.out );
+	const lines = payload.blocks.filter( block => block.text?.text.startsWith( '•' ) );
+	assert.equal( lines.length, 1, result.out );
+	assert.match( lines[ 0 ].text.text, /Dashboard LCP\* median \+25\.0%/ );
+	assert.match( result.out, /1 transient spike suppressed.*My Jetpack TTFB/ );
+	assert.doesNotMatch( result.out, /My Jetpack FCP/ );
+} );
+
 test( 'MAD bar rejects a noisy rise, accepts a constant 5% step, and degrades zero baselines', async () => {
 	const noisy = await runDigest( 'noisystep' );
 	assert.equal( noisy.code, 0, noisy.err );
@@ -2042,11 +2101,10 @@ const CASES = [
 		out: [ 'No sustained metric regressions', '1 transient spike', 'feedbeef8', '(late)' ],
 	},
 	{
-		n: 'short-reland-has-no-confirmed-level',
+		n: 'scan-finds-the-original-rise-without-confirming-the-reland-flag',
 		sc: 'relanded',
 		exit: 0,
-		out: [ '1 transient spike', 'no confirmed level change in the kept data' ],
-		not: [ 'sustained regression*' ],
+		out: [ '1 sustained regression*', 'median +100.0% (100→200ms)', '1 transient spike' ],
 	},
 	{
 		n: 'overshoot-flag-value-is-never-a-suppression-reference',
@@ -2060,7 +2118,7 @@ const CASES = [
 		n: 'duplicate-values-do-not-confirm-a-level',
 		sc: 'duplicateLevel',
 		exit: 0,
-		out: [ '1 transient spike', 'no confirmed level change in the kept data' ],
+		out: [ '1 transient spike', 'no confirmed level change at those flags' ],
 		not: [ 'sustained regression*' ],
 	},
 	{
@@ -2411,7 +2469,7 @@ const CASES = [
 		n: 'zero-pair-base-does-not-confirm-flat-medians',
 		sc: 'zeroPairBase',
 		exit: 0,
-		out: [ '1 transient spike', 'no confirmed level change in the kept data' ],
+		out: [ '1 transient spike', 'no confirmed level change at those flags' ],
 		not: [ 'sustained regression*' ],
 	},
 	{
