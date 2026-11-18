@@ -141,7 +141,7 @@ The final LCP element is the Security message heading (“Your site is protected
 
 This tooling flips `jetpack_offline_mode` off install-wide (required for My Jetpack, condition 1 above). Because all connected scenarios share one WordPress install, this shifts what the **existing** `wp-admin-dashboard-connection-sim-*` and `forms-responses-connection-sim-*` trends measure at the commit it lands: Jetpack runs more code paths when it is not offline. Locally measured before/after on the Dashboard scenario (the one existing scenario that measures cleanly here — see the Forms note below) was small: LCP 140→140 ms, TTFB 57→60 ms, FCP 140→140 ms, decodedBytesKB 4098→4205, resources 89→98. The timing metrics move within noise; the real signal is +9 resources / +107 KB decoded (the extra non-offline code paths). Expect a one-time baseline level shift of that order at the landing commit — every later point measures the non-offline fixture, so the trend settles at the new level rather than returning to the old one. It is a measurement-boundary change, not an ongoing regression.
 
-Local before-and-after measurements of the offline-mode change were unavailable for the `forms-responses-*` trends. The Forms page's `canUser` OPTIONS probe to `/wp/v2/settings` stalled in the local headless-Chromium fixture, so every iteration timed out under the original `networkidle` gate. Tracing showed that the server answered in milliseconds with offline mode on or off and the response stalled in the browser. The Forms scenario uses `loadState: 'load'` and waits for resources to settle (see `scenarios.js`), so it can measure despite the stall. This explains the gap in local measurements around the offline-mode change.
+Local before-and-after measurements of the offline-mode change were unavailable for the `forms-responses-*` trends. The Forms page's `canUser` OPTIONS probe to `/wp/v2/settings` stalled in the local headless-Chromium fixture, so every iteration timed out under the original `networkidle` gate. Tracing showed that the server answered in milliseconds with offline mode on or off and the response stalled in the local browser. The Forms scenario uses `loadState: 'load'` and waits for resources to settle (see `scenarios.js`), so it can measure despite the stall. A gap in the stored Forms trend around the offline-mode change leaves too little data to tell whether performance regressed.
 
 ### Simulated connection IDs — attribution note
 
@@ -325,7 +325,7 @@ The all-failed row keeps targeted runs honest: `SCENARIO=forms-responses` with a
 
 Classifying a scenario: default NEW scenarios to `optional: true` — a new page's teething failures shouldn't blank the established trends. Promoting a scenario to `optional: false` (required) is a deliberate act; `jetpackConnected` (the wp-admin Dashboard baseline) is the required one.
 
-A green build can therefore carry a skipped scenario. Look for the TeamCity WARNING on the build page and the `FAILED (optional — build continues…)` summary in the build log. The planned staleness alert will flag series that stop receiving points.
+A green build can therefore carry a skipped scenario. Look for the TeamCity WARNING on the build page and the `FAILED (optional — build continues…)` summary in the build log. The weekly digest's per-metric staleness warning flags series that stop receiving points.
 
 ### If bad data lands anyway
 
@@ -333,6 +333,8 @@ A bad point must be corrected by the CodeVitals admin. Steps:
 
 1. **Stop posting.** Pause the CodeVitals Jetpack Performance Scheduler build in TeamCity.
 2. **Document the extent.** Record the affected metric keys, the commit range (monorepo hashes), the time window (build start to end), and whether the values are isolated or systematic.
-3. **Request a correction.** CodeVitals runs outside this project. Send the request to the CodeVitals maintainers. The service code is in the public [Automattic/gitaudit repository](https://github.com/Automattic/gitaudit). Include metric ID 113, the affected keys, the commit/timestamp range, and the root cause.
+3. **Request a correction.** CodeVitals runs outside this project. Send the request to the CodeVitals maintainers. The service code is in the public [Automattic/gitaudit repository](https://github.com/Automattic/gitaudit). Include the affected metric IDs and keys, the commit/timestamp range, and the root cause.
 4. **Fix the root cause.** Add or tighten a sanity range or staging gate. Don't re-enable the Scheduler until the fix merges.
-5. **Record the incident.** Until a maintenance runbook exists, add the failure mode, detection timing, and prevention measures to this README alongside the earlier measurement changes.
+5. **Record the incident.** Until a maintenance runbook exists, add a dated entry under **Incident notes** with the failure mode, detection timing, and prevention measures.
+
+#### Incident notes
