@@ -22,62 +22,99 @@ class WPCOM_JSON_API_Date {
 	 * @return string
 	 */
 	public static function format_date( $date_gmt, $date = null ) {
-		$offset        = 0;
 		$timestamp_gmt = strtotime( "$date_gmt+0000" );
 
 		if ( null === $date ) {
-			$timestamp = $timestamp_gmt;
-			$west      = 0;
-			$minutes   = 0;
-			$hours     = 0;
-		} else {
-			$date_time = date_create( "$date+0000" );
-			if ( $date_time ) {
-				$timestamp = date_format( $date_time, 'U' );
-			} else {
-				$timestamp = 0;
-			}
-
-			$offset = $timestamp - $timestamp_gmt;
-
-			// Drafts have a GMT date of "0000-00-00 00:00:00" (-62169984000). Anything that writes one
-			// date column without the other leaves a gap that is not a UTC offset, so neither can use it.
-			if ( -62169984000 === $timestamp_gmt || ! self::is_utc_offset( $offset ) ) {
-				// Keep the local date, which is the one WordPress shows, with the blog's own offset.
-				$offset          = 0;
-				$timezone_string = get_option( 'timezone_string' );
-
-				if ( $timezone_string && $date_time ) {
-					$timezone = timezone_open( $timezone_string );
-					if ( $timezone ) {
-						$offset = $timezone->getOffset( $date_time );
-					}
-				} else {
-					$offset = 3600 * (float) get_option( 'gmt_offset' );
-				}
-			}
-
-			$west    = $offset < 0;
-			$offset  = abs( $offset );
-			$hours   = (int) floor( $offset / 3600 );
-			$offset -= $hours * 3600;
-			$minutes = (int) floor( $offset / 60 );
+			return self::format( $timestamp_gmt, 0 );
 		}
+
+		$date_time = date_create( "$date+0000" );
+		$timestamp = $date_time ? (int) date_format( $date_time, 'U' ) : 0;
+
+		// Drafts have a GMT date of "0000-00-00 00:00:00" (-62169984000), so only the local date is known.
+		if ( -62169984000 === $timestamp_gmt ) {
+			return self::format( $timestamp, self::site_offset_at_local( $timestamp ) );
+		}
+
+		// Core writes the two dates from separate clock reads, so a real offset can be a second or two out.
+		$offset = self::nearest_utc_offset( $timestamp - $timestamp_gmt );
+		if ( null !== $offset ) {
+			return self::format( $timestamp_gmt + $offset, $offset );
+		}
+
+		// The dates disagree. A local date moved later is usually the newer edit; otherwise trust GMT, as feeds do.
+		$local_offset = self::site_offset_at_local( $timestamp );
+		if ( $timestamp - $local_offset > $timestamp_gmt ) {
+			return self::format( $timestamp, $local_offset );
+		}
+
+		$offset = self::site_offset( $timestamp_gmt );
+		return self::format( $timestamp_gmt + $offset, $offset );
+	}
+
+	/**
+	 * Formats a local time and its UTC offset as ISO 8601.
+	 *
+	 * @param int $timestamp Local time, as seconds since the epoch.
+	 * @param int $offset    Seconds east of UTC.
+	 *
+	 * @return string
+	 */
+	private static function format( $timestamp, $offset ) {
+		$west    = $offset < 0;
+		$offset  = abs( $offset );
+		$hours   = (int) floor( $offset / HOUR_IN_SECONDS );
+		$minutes = (int) floor( ( $offset - $hours * HOUR_IN_SECONDS ) / MINUTE_IN_SECONDS );
 
 		return gmdate( 'Y-m-d\\TH:i:s', $timestamp ) . sprintf( '%s%02d:%02d', $west ? '-' : '+', $hours, $minutes );
 	}
 
 	/**
-	 * Whether a number of seconds is a UTC offset a site can have: -12:00 to +14:00, in steps of 15 minutes.
+	 * The UTC offset a gap between a local and a GMT date stands for, if it is one a site can have:
+	 * -12:00 to +14:00, in steps of 15 minutes, give or take 2 seconds.
 	 *
-	 * @param int $seconds Seconds east of UTC.
+	 * @param int $seconds Local time minus GMT time.
 	 *
-	 * @return bool
+	 * @return int|null Seconds east of UTC, or null if the gap is not a UTC offset.
 	 */
-	private static function is_utc_offset( $seconds ) {
-		return $seconds >= -12 * HOUR_IN_SECONDS
-			&& $seconds <= 14 * HOUR_IN_SECONDS
-			&& 0 === $seconds % ( 15 * MINUTE_IN_SECONDS );
+	private static function nearest_utc_offset( $seconds ) {
+		$step   = 15 * MINUTE_IN_SECONDS;
+		$offset = (int) round( $seconds / $step ) * $step;
+
+		if ( abs( $seconds - $offset ) > 2 || $offset < -12 * HOUR_IN_SECONDS || $offset > 14 * HOUR_IN_SECONDS ) {
+			return null;
+		}
+
+		return $offset;
+	}
+
+	/**
+	 * The blog's UTC offset at a moment, from its time zone or its fixed offset.
+	 *
+	 * @param int $timestamp_gmt Seconds since the epoch.
+	 *
+	 * @return int Seconds east of UTC.
+	 */
+	private static function site_offset( $timestamp_gmt ) {
+		$timezone_string = get_option( 'timezone_string' );
+
+		if ( $timezone_string ) {
+			$timezone = timezone_open( $timezone_string );
+			return $timezone ? $timezone->getOffset( date_create( "@$timestamp_gmt" ) ) : 0;
+		}
+
+		return (int) round( HOUR_IN_SECONDS * (float) get_option( 'gmt_offset' ) );
+	}
+
+	/**
+	 * The blog's UTC offset for a local time, which is read as if it were GMT.
+	 *
+	 * @param int $timestamp Local time, as seconds since the epoch.
+	 *
+	 * @return int Seconds east of UTC.
+	 */
+	private static function site_offset_at_local( $timestamp ) {
+		return self::site_offset( $timestamp - self::site_offset( $timestamp ) );
 	}
 
 	/**
