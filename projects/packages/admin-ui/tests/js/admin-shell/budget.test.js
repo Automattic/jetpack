@@ -16,10 +16,10 @@ describe( 'mayPrewarm', () => {
 describe( 'liveAppLimit', () => {
 	it.each( [
 		[ 'is 3 on 2 GB or less', null, 2, 3 ],
-		[ 'is 6 on 4 GB', null, 4, 6 ],
-		[ 'is 6 just under 8 GB', null, 7, 6 ],
+		[ 'is 10 on 4 GB', null, 4, 10 ],
+		[ 'is 10 just under 8 GB', null, 7, 10 ],
 		[ 'is unlimited on 8 GB', null, 8, Infinity ],
-		[ 'is 6 when the browser does not report memory', null, undefined, 6 ],
+		[ 'is 10 when the browser does not report memory', null, undefined, 10 ],
 		[ 'takes the site override', 4, 8, 4 ],
 		[ 'ignores a zero override', 0, 2, 3 ],
 		[ 'ignores a fractional override', 2.5, 2, 3 ],
