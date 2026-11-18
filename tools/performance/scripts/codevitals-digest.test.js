@@ -221,6 +221,83 @@ const SCENARIOS = {
 			] )
 		),
 	} ),
+	scanGroups: () => {
+		const noisy = [
+			102, 103, 97, 100, 99, 97, 103, 100, 99, 101, 100, 98, 100, 99, 98, 103, 113, 102, 108, 106,
+			109, 103, 109, 103, 107, 114, 107, 111, 113, 102, 107, 114, 102, 113, 112, 111, 110, 114, 110,
+			104,
+		];
+		const steps = gap => [
+			...Array( 30 ).fill( 100 ),
+			...Array( gap ).fill( 107 ),
+			...Array( 25 ).fill( 114 ),
+		];
+		return {
+			metrics: [
+				metricRow( 301, 'Noisy step', 'noisy-step' ),
+				metricRow( 302, 'Nearby steps', 'nearby-steps' ),
+				metricRow( 303, 'Separate steps', 'separate-steps' ),
+			],
+			series: {
+				301: flaggedSeries( noisy, [], 'noisy' ),
+				302: flaggedSeries( steps( 15 ), [], 'near' ),
+				303: flaggedSeries( steps( 20 ), [], 'far' ),
+			},
+		};
+	},
+	scanHoldWindows: () => {
+		const before = Array( 30 ).fill( 100 );
+		return {
+			metrics: [
+				metricRow( 301, 'Reverted after ten', 'reverted' ),
+				metricRow( 302, 'Short tail', 'short-tail' ),
+				metricRow( 303, 'Low later median', 'low-median' ),
+			],
+			series: {
+				301: flaggedSeries( [ ...before, ...Array( 10 ).fill( 110 ), ...before ], [], 'boundary' ),
+				302: flaggedSeries( [ ...before, ...Array( 10 ).fill( 107 ) ], [], 'short' ),
+				303: flaggedSeries(
+					[
+						...Array( 15 ).fill( 100 ),
+						107,
+						108,
+						107,
+						107,
+						104,
+						108,
+						...Array( 12 ).fill( 101 ),
+						...Array( 8 ).fill( 100 ),
+					],
+					[],
+					'midpoint'
+				),
+			},
+		};
+	},
+	scanFlagOverlap: () => {
+		const before = Array( 30 ).fill( 100 );
+		const ramp = Array.from( { length: 31 }, ( _, i ) => 100 + i * 0.5 );
+		ramp[ 6 ] = 116;
+		return {
+			series: {
+				301: flaggedSeries(
+					[ ...before, ...Array( 8 ).fill( 107 ), ...Array( 30 ).fill( 123 ) ],
+					[ 38 ],
+					'mixed'
+				),
+				302: flaggedSeries( [ ...before, ...ramp, ...Array( 14 ).fill( 115 ) ], [ 36 ], 'ramp' ),
+			},
+		};
+	},
+	scanPendingOverlap: () => ( {
+		series: {
+			301: flaggedSeries(
+				[ ...Array( 30 ).fill( 100 ), ...Array( 6 ).fill( 107 ), 128, ...Array( 9 ).fill( 107 ) ],
+				[ 36 ],
+				'pending'
+			),
+		},
+	} ),
 	jetpackMetricPolicy: ( { excludedId = 203, ttfbId = 212, fcpId = 213 } = {} ) => {
 		const pre = [ ...Array( 5 ).fill( 90 ), ...Array( 5 ).fill( 110 ) ];
 		const rise = levelSeries( pre, 125, Array( 10 ).fill( 125 ) );
@@ -1714,6 +1791,55 @@ test( 'the scan rejects rises that revert before ten later commits', async () =>
 	assert.match( result.out, /No sustained metric regressions/ );
 } );
 
+test( 'scan groups bridge gaps between passing windows and report the full rise', async () => {
+	const result = await runDigest( 'scanGroups' );
+	assert.equal( result.code, 0, result.err );
+	const lines = JSON.parse( result.out ).blocks.map( block => block.text?.text );
+	assert.equal(
+		lines.filter( text => text?.startsWith( '• *Noisy step*' ) ).length,
+		1,
+		result.out
+	);
+	assert.equal(
+		lines.filter( text => text?.startsWith( '• *Nearby steps*' ) ).length,
+		1,
+		result.out
+	);
+	assert.match( result.out, /Nearby steps\* median \+14\.0% \(100→114ms\)/ );
+	assert.equal(
+		lines.filter( text => text?.startsWith( '• *Separate steps*' ) ).length,
+		2,
+		result.out
+	);
+} );
+
+test( 'scan persistence checks the later window from the estimated change', async () => {
+	const result = await runDigest( 'scanHoldWindows' );
+	assert.equal( result.code, 0, result.err );
+	assert.match( result.out, /No sustained metric regressions/ );
+} );
+
+test( 'overlapping flags preserve the full scan rise in one line', async () => {
+	const result = await runDigest( 'scanFlagOverlap' );
+	assert.equal( result.code, 0, result.err );
+	const lines = JSON.parse( result.out ).blocks.filter( block =>
+		block.text?.text.startsWith( '•' )
+	);
+	assert.equal( lines.length, 2, result.out );
+	assert.match( result.out, /Alpha: TTFB\* median \+23\.0% \(100→123ms\).*flags observed at/ );
+	assert.match( result.out, /Beta: LCP\* median \+14\.8% \(100→114\.8ms\).*flags observed at/ );
+} );
+
+test( 'a matching pending flag takes precedence over a held scan rise', async () => {
+	const result = await runDigest( 'scanPendingOverlap' );
+	assert.equal( result.code, 0, result.err );
+	assert.match( result.out, /0 sustained regression\(s\), 1 pending/ );
+	assert.match(
+		result.err,
+		/metric 301: scan groups skipped — 0 outside the look-back, 1 covered by flags, 0 rises that did not hold/
+	);
+} );
+
 test( 'Dashboard FCP is excluded from discovery and overrides', async () => {
 	for ( const [ scenario, env, opts ] of [
 		[ 'recreatedMetricPolicy', {}, {} ],
@@ -1723,6 +1849,8 @@ test( 'Dashboard FCP is excluded from discovery and overrides', async () => {
 		assert.equal( result.code, 0, result.err );
 		assert.doesNotMatch( result.requests.join( '\n' ), /\/evolution\/(?:0?203|903)\?/ );
 		assert.doesNotMatch( result.out, /Dashboard FCP/ );
+		if ( ! opts.discoFail )
+			assert.doesNotMatch( result.out, /Timing diagnostics could not be fully read/ );
 		assert.match( result.err, /metric (?:0203|903): Dashboard FCP excluded/ );
 	}
 	const excludedOnly = await runDigest( 'jetpackMetricPolicy', { METRIC_IDS: '203' } );

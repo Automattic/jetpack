@@ -768,6 +768,7 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 				late: now - t > windowMs,
 				pre,
 				post: median( postValues ),
+				preValues,
 				postValues,
 				score: levelScore( preValues, fromCandidate, pre ),
 				rangeStart: before[ 0 ].p.hash,
@@ -779,24 +780,71 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 			if ( group && position - group.at( -1 ).position <= LEVEL_WINDOW ) group.push( entry );
 			else scans.push( [ entry ] );
 		}
-		const flagsCoveringScans = [ ...sustained, ...metricPending ];
+		let agedScans = 0;
+		let coveredScans = 0;
+		let unheldScans = 0;
 		for ( const group of scans ) {
 			const entry = group.reduce( strongestWindow );
-			if (
-				now - entry.t <= detectMs &&
-				! flagsCoveringScans.some(
-					flag => Math.abs( flag.position - entry.position ) <= LEVEL_WINDOW
-				) &&
-				scanLevelHolds( byServe, entry, noiseFactor )
-			) {
-				groups.push( [ entry ] );
+			const first = group[ 0 ];
+			const last = group.at( -1 );
+			if ( now - entry.t > detectMs ) {
+				agedScans++;
+				continue;
 			}
+			// A nearby pending spike can describe the same plateau without enough later commits to confirm it.
+			const tolerance = Math.min( 0.05 * last.post, 3 * robustScale( last.postValues, last.post ) );
+			const pendingOnPlateau = metricPending.some(
+				flag =>
+					Math.abs( flag.position - entry.position ) <= LEVEL_WINDOW &&
+					Math.abs( median( flag.postValues ) - last.post ) <= tolerance
+			);
+			if ( pendingOnPlateau ) {
+				coveredScans++;
+				continue;
+			}
+			if ( ! scanLevelHolds( byServe, entry, noiseFactor ) ) {
+				unheldScans++;
+				continue;
+			}
+
+			// An off-time re-run can sit between the kept commits of the same change.
+			const overlapping = groups.filter( g =>
+				g.some(
+					member =>
+						! member.fromScan &&
+						member.pre !== undefined &&
+						member.position >= first.position - 1 &&
+						member.position <= last.position + 1
+				)
+			);
+			if ( overlapping.length === 0 ) {
+				groups.push( group );
+				continue;
+			}
+			const matchedMembers = overlapping.flat().sort( ( a, b ) => a.position - b.position );
+			const complete = matchedMembers.filter( member => member.pre !== undefined );
+			if (
+				! hasLevelRise( first.preValues, complete[ 0 ].preValues, noiseFactor ) &&
+				! hasLevelRise( complete.at( -1 ).postValues, last.postValues, noiseFactor )
+			) {
+				coveredScans++;
+				continue;
+			}
+			for ( const matched of overlapping ) groups.splice( groups.indexOf( matched ), 1 );
+			groups.push( [ ...matchedMembers, ...group ].sort( ( a, b ) => a.position - b.position ) );
 		}
+		if ( agedScans || coveredScans || unheldScans )
+			console.error(
+				`metric ${ id }: scan groups skipped — ${ agedScans } outside the look-back, ${ coveredScans } covered by flags, ${ unheldScans } rises that did not hold`
+			);
 
 		for ( const group of groups ) {
 			const complete = group.filter( entry => entry.pre !== undefined );
-			const originals = complete.filter( entry => entry.self );
-			const pool = originals.length > 0 ? originals : complete;
+			const flags = group.filter( entry => ! entry.fromScan );
+			const confirmedFlags = flags.filter( entry => entry.pre !== undefined );
+			const candidates = confirmedFlags.length > 0 ? confirmedFlags : complete;
+			const originals = candidates.filter( entry => entry.self );
+			const pool = originals.length > 0 ? originals : candidates;
 			const entry = pool.reduce( strongestWindow );
 			// Only confirmed in-window members keep the group in the sustained bucket.
 			const late = complete.every( member => member.late );
@@ -807,8 +855,8 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 				rangeStart: complete[ 0 ].rangeStart,
 				rangeEnd: complete.at( -1 ).rangeEnd,
 				late,
-				members: group,
-				grouped: group.length,
+				members: flags,
+				grouped: flags.length,
 			} );
 		}
 	}
