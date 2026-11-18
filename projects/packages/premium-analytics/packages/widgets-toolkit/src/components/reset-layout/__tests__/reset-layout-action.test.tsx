@@ -35,7 +35,7 @@ describe( 'ResetLayoutAction', () => {
 		await waitFor( () => expect( screen.queryByRole( 'alertdialog' ) ).not.toBeInTheDocument() );
 	} );
 
-	it( 'drops an open dialog on the way to the narrow header, and does not bring it back', async () => {
+	it( 'keeps an open dialog when the header turns narrow', async () => {
 		const user = userEvent.setup();
 		const { rerender } = render(
 			<ViewportWidth value={ 601 }>
@@ -44,15 +44,36 @@ describe( 'ResetLayoutAction', () => {
 		);
 
 		await user.click( screen.getByRole( 'button', { name: 'Reset to default' } ) );
-		await expect( screen.findByRole( 'alertdialog' ) ).resolves.toBeVisible();
+		const dialog = await screen.findByRole( 'alertdialog' );
 
 		rerender(
 			<ViewportWidth value={ 599 }>
 				<ResetLayoutAction onReset={ () => {} } />
 			</ViewportWidth>
 		);
-		expect( screen.queryByRole( 'alertdialog' ) ).not.toBeInTheDocument();
 
+		expect( screen.queryByRole( 'button', { name: 'Reset to default' } ) ).not.toBeInTheDocument();
+		expect( dialog ).toBeVisible();
+	} );
+
+	it( 'does not reopen the dialog when the header turns wide again', async () => {
+		const user = userEvent.setup();
+		const { rerender } = render(
+			<ViewportWidth value={ 601 }>
+				<ResetLayoutAction onReset={ () => {} } />
+			</ViewportWidth>
+		);
+
+		await user.click( screen.getByRole( 'button', { name: 'Reset to default' } ) );
+		const dialog = await screen.findByRole( 'alertdialog' );
+		await user.click( within( dialog ).getByRole( 'button', { name: 'Cancel' } ) );
+		await waitFor( () => expect( screen.queryByRole( 'alertdialog' ) ).not.toBeInTheDocument() );
+
+		rerender(
+			<ViewportWidth value={ 599 }>
+				<ResetLayoutAction onReset={ () => {} } />
+			</ViewportWidth>
+		);
 		rerender(
 			<ViewportWidth value={ 601 }>
 				<ResetLayoutAction onReset={ () => {} } />

@@ -4,7 +4,7 @@
 import { IconButton } from '@jetpack-premium-analytics/externals';
 import { __ } from '@wordpress/i18n';
 import { rotateLeft } from '@wordpress/icons';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 /**
  * Internal dependencies
  */
@@ -23,7 +23,7 @@ export type ResetLayoutActionProps = {
  *
  * @param props         - Component props.
  * @param props.onReset - Called once the reader confirms.
- * @return The button, and its dialog while open, or nothing on a narrow header.
+ * @return The button on a wide header, and its dialog while open at either width.
  */
 export function ResetLayoutAction( { onReset }: ResetLayoutActionProps ) {
 	const [ isOpen, setIsOpen ] = useState( false );
@@ -31,26 +31,19 @@ export function ResetLayoutAction( { onReset }: ResetLayoutActionProps ) {
 	const close = useCallback( () => setIsOpen( false ), [] );
 	const isNarrow = useNarrowPageHeader();
 
-	// Crossing the breakpoint hands the action to the menu, so an open dialog left
-	// standing would come back on the way out, or sit beside the menu's own.
-	useEffect( () => {
-		setIsOpen( false );
-	}, [ isNarrow ] );
-
-	if ( isNarrow ) {
-		return null;
-	}
-
 	return (
 		<>
-			<IconButton
-				icon={ rotateLeft }
-				label={ __( 'Reset to default', 'jetpack-premium-analytics-pkg' ) }
-				variant="minimal"
-				tone="brand"
-				size="compact"
-				onClick={ open }
-			/>
+			{ ! isNarrow && (
+				<IconButton
+					icon={ rotateLeft }
+					label={ __( 'Reset to default', 'jetpack-premium-analytics-pkg' ) }
+					variant="minimal"
+					tone="brand"
+					size="compact"
+					onClick={ open }
+				/>
+			) }
+			{ /* Outlives the button on purpose: a reader who narrows the window mid-confirmation keeps the dialog, and their place in it, rather than having it vanish and reappear on the way back out. */ }
 			{ isOpen && <ResetLayoutDialog onConfirm={ onReset } onClose={ close } /> }
 		</>
 	);
