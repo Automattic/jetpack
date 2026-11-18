@@ -277,9 +277,7 @@ class REST_Main_Features {
 			$modules = array_merge( array( Products\Protect::DASHBOARD_MODULE_NAME ), array_diff( $modules, array( Products\Protect::DASHBOARD_MODULE_NAME ) ) );
 		}
 		$protect_modules = Products\Protect::get_protect_page_module_urls();
-		$protect_refused = $protect_modules
-			? new WP_Error( 'managed_in_protect', __( 'Managed in Protect. Change these settings on the Protect page.', 'jetpack-my-jetpack' ) )
-			: null;
+		$protect_refused = $protect_modules ? self::managed_in_protect_error() : null;
 
 		foreach ( $modules as $slug ) {
 			$result = $modules_refused;
@@ -309,13 +307,28 @@ class REST_Main_Features {
 	}
 
 	/**
+	 * The refusal for a module the Protect page manages while that page is on.
+	 *
+	 * @return WP_Error
+	 */
+	public static function managed_in_protect_error() {
+		return new WP_Error( 'managed_in_protect', __( 'Managed in Protect. Change these settings on the Protect page.', 'jetpack-my-jetpack' ) );
+	}
+
+	/**
 	 * Switch one Jetpack module, with the checks Jetpack's own module route makes.
+	 *
+	 * Callers refuse a module the Protect page manages: see managed_in_protect_error().
 	 *
 	 * @param string $slug   Module slug.
 	 * @param bool   $active Whether to switch it on.
 	 * @return true|WP_Error
 	 */
-	private static function switch_module( $slug, $active ) {
+	public static function switch_module( $slug, $active ) {
+		if ( ! current_user_can( 'jetpack_manage_modules' ) ) {
+			return new WP_Error( 'not_allowed', __( 'You are not allowed to manage Jetpack modules on this site.', 'jetpack-my-jetpack' ) );
+		}
+
 		$modules = new Modules();
 
 		// Not is_module(): with no modules on offer, its allow-list is skipped and any slug passes.
