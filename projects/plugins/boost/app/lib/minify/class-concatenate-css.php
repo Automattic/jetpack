@@ -251,7 +251,7 @@ class Concatenate_CSS extends WP_Styles {
 
 		// Print each handle on its own when a filter stops the bundle loading as a stylesheet: filters see
 		// the comma-joined handles, so one that matches a handle prefix rewrites every stylesheet in it.
-		if ( count( $handles ) > 1 && $this->is_stylesheet_link( $style_tag ) && ! $this->is_stylesheet_link( $filtered_tag ) ) {
+		if ( count( $handles ) > 1 && $this->has_stylesheet_link( $style_tag ) && ! $this->has_stylesheet_link( $filtered_tag ) ) {
 			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 				printf( "\n<!-- No Concat CSS %s => style_loader_tag dropped rel=stylesheet -->\n", esc_html( implode( ',', $handles ) ) );
 			}
@@ -268,14 +268,16 @@ class Concatenate_CSS extends WP_Styles {
 		array_map( array( $this, 'print_inline_style' ), $handles );
 	}
 
-	private function is_stylesheet_link( $tag ) {
+	private function has_stylesheet_link( $tag ) {
 		$processor = new \WP_HTML_Tag_Processor( (string) $tag );
-		if ( ! $processor->next_tag( 'link' ) ) {
-			return false;
+		while ( $processor->next_tag( 'link' ) ) {
+			$rel = $processor->get_attribute( 'rel' );
+			if ( is_string( $rel ) && in_array( 'stylesheet', preg_split( '/\s+/', strtolower( trim( $rel ) ) ), true ) ) {
+				return true;
+			}
 		}
-		$rel = $processor->get_attribute( 'rel' );
 
-		return is_string( $rel ) && in_array( 'stylesheet', preg_split( '/\s+/', strtolower( trim( $rel ) ) ), true );
+		return false;
 	}
 
 	public function __isset( $key ) {

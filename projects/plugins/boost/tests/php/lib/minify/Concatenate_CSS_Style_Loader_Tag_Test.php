@@ -2,7 +2,9 @@
 
 namespace Automattic\Jetpack_Boost\Tests\Lib\Minify;
 
+use Automattic\Jetpack_Boost\Lib\Critical_CSS\Display_Critical_CSS;
 use Automattic\Jetpack_Boost\Lib\Minify\Concatenate_CSS;
+use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
 use WP_Styles;
 
@@ -86,17 +88,30 @@ class Concatenate_CSS_Style_Loader_Tag_Test extends BaseTestCase {
 		$this->assertMatchesRegularExpression( '/<link[^>]+rel=[\'"]stylesheet[\'"][^>]+nav\.css/', $output );
 	}
 
-	public function test_filter_that_keeps_rel_stylesheet_leaves_bundle_concatenated() {
-		add_filter(
-			'style_loader_tag',
-			function ( $tag ) {
-				return str_replace( "media='all'", "media='not all'", $tag );
-			}
-		);
+	/**
+	 * @dataProvider provide_filters_that_keep_a_stylesheet_link
+	 * @param callable $filter A style_loader_tag callback.
+	 */
+	#[DataProvider( 'provide_filters_that_keep_a_stylesheet_link' )]
+	public function test_filter_that_keeps_a_stylesheet_link_leaves_bundle_concatenated( $filter ) {
+		add_filter( 'style_loader_tag', $filter, 10, 4 );
 
 		$output = $this->render_styles();
 
 		$this->assertStringContainsString( '??', $output );
-		$this->assertStringContainsString( "media='not all'", $output );
+		$this->assertStringNotContainsString( 'nav.css', $output );
+	}
+
+	public static function provide_filters_that_keep_a_stylesheet_link() {
+		return array(
+			'Critical CSS defers it inside a noscript fallback' => array(
+				array( new Display_Critical_CSS( 'body{color:red}' ), 'asynchronize_stylesheets' ),
+			),
+			'a preload hint is printed before it' => array(
+				static function ( $tag, $handle, $href ) {
+					return "<link rel='preload' as='style' href='$href' />" . $tag;
+				},
+			),
+		);
 	}
 }
