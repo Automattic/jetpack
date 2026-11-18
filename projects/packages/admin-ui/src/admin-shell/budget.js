@@ -19,7 +19,7 @@ export function liveAppLimit( override, nav = globalThis.navigator ) {
 	if ( memory <= 2 ) {
 		return 3;
 	}
-	return memory < 8 ? 6 : Infinity;
+	return memory < 8 ? 10 : Infinity;
 }
 
 /**
