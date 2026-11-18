@@ -1,0 +1,9 @@
+{
+	"name": "videopress/performance",
+	"icon": "jpa/video",
+	"title": "Video performance",
+	"description": "Views, impressions and watch time of your videos over time.",
+	"category": "stats",
+	"presentation": "full-bleed",
+	"textdomain": "jetpack-videopress-pkg"
+}
