@@ -501,6 +501,10 @@ describe( 'Email design editor entry point', () => {
 
 			expect( container ).toHaveTextContent( text );
 			expect( container ).not.toHaveTextContent( /reload the page/ );
+			expect( mockRecordEvent ).toHaveBeenCalledWith(
+				'jetpack_newsletter_email_design_load_error',
+				{ site_type: 'jetpack', reason: code }
+			);
 		} );
 
 		it( 'shows an error when the bundle carries no template id', async () => {
@@ -522,7 +526,7 @@ describe( 'Email design editor entry point', () => {
 
 			expect( mockRecordEvent ).toHaveBeenCalledWith(
 				'jetpack_newsletter_email_design_load_error',
-				{ site_type: 'jetpack' }
+				{ site_type: 'jetpack', reason: 'unknown' }
 			);
 		} );
 

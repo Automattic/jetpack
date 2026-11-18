@@ -1387,8 +1387,11 @@ export async function mountEmailDesignEditor() {
 		stopWatchingRootFontSize?.();
 
 		// The screen's own view event is recorded server-side, so this is what tells the two apart:
-		// a creator who arrived and a creator who got an editor.
-		recordDesignEvent( 'load_error' );
+		// a creator who arrived and a creator who got an editor. `reason` keeps the expected refusals
+		// apart from real failures.
+		recordDesignEvent( 'load_error', {
+			reason: typeof error?.code === 'string' ? error.code : 'unknown',
+		} );
 
 		// The notice deliberately does not name which half failed; this does.
 		// eslint-disable-next-line no-console
