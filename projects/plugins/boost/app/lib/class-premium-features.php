@@ -146,7 +146,7 @@ class Premium_Features {
 	 */
 	public static function is_cache_confirmed() {
 		$cached = Transient::get( self::TRANSIENT_KEY, false );
-		if ( ! is_array( $cached ) || ! method_exists( Product::class, 'get_site_features_from_wpcom' ) || ! ( new Connection() )->is_connected() ) {
+		if ( ! is_array( $cached ) || ! is_callable( array( Product::class, 'get_site_features_from_wpcom' ) ) || ! ( new Connection() )->is_connected() ) {
 			return false;
 		}
 
