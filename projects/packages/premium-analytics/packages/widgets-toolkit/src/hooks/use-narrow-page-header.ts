@@ -5,11 +5,9 @@ import { useViewportMatch } from '@wordpress/compose';
 
 /**
  * Whether the page header is too narrow to hold a full row of actions beside the
- * breadcrumb trail. `admin-ui` gives the trail's lockup `min-inline-size: 0` and
- * the actions `flex-shrink: 0`, so an action too many leaves the lockup a few
- * pixels wide and its page icon and crumbs painting under the actions
- * (STATS-630). Each control that stands down here must be on offer somewhere
- * else at this width, and off elsewhere, so exactly one of the two shows.
+ * breadcrumb trail. One action too many collapses the trail's lockup, and its page
+ * icon and crumbs then paint under the actions (STATS-630). A control that stands
+ * down here must be on offer elsewhere at this width, and off above it.
  *
  * @return Whether the viewport is below the small breakpoint.
  */
