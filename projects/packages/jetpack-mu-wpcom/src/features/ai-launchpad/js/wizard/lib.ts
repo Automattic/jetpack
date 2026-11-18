@@ -296,29 +296,57 @@ export function pickPlaceholder( variants: string[], pick: () => number = Math.r
 }
 
 /**
- * The `integration` "Go to my dashboard" reports.
+ * The props "Go to my dashboard" reports. `integration` is the latest connected tool, else the tool whose Connect was
+ * clicked last when connections can't be detected, else `other` after copying the prompt, else `none`.
  *
- * @param connected    - The AI tools shown as connected, in the order they connected.
- * @param promptCopied - Whether the prompt for another AI tool was copied.
- * @return The integration.
+ * @param state                    - The AI tool view's state.
+ * @param state.connected          - The AI tools shown as connected, in the order they connected.
+ * @param state.promptCopied       - Whether the prompt for another AI tool was copied.
+ * @param state.openedTool         - The AI tool whose Connect was clicked last, if any.
+ * @param state.detectsConnections - Whether a new connection can be detected.
+ * @return The `integration` and `mcp_detection` props.
  */
-export function dashboardIntegration(
-	connected: AiTool[],
-	promptCopied: boolean
-): AiTool | 'other' | 'none' {
-	return connected[ connected.length - 1 ] ?? ( promptCopied ? 'other' : 'none' );
+export function dashboardClickedProps( {
+	connected,
+	promptCopied,
+	openedTool,
+	detectsConnections,
+}: {
+	connected: AiTool[];
+	promptCopied: boolean;
+	openedTool: AiTool | null;
+	detectsConnections: boolean;
+} ): { integration: AiTool | 'other' | 'none'; mcp_detection: boolean } {
+	const opened = detectsConnections ? null : openedTool;
+	return {
+		integration: connected[ connected.length - 1 ] ?? opened ?? ( promptCopied ? 'other' : 'none' ),
+		mcp_detection: detectsConnections,
+	};
 }
 
 /**
- * Whether the AI tool view's footer offers "Go to my dashboard" before any tool connects. Without another exit it is
- * the only way out, since the wizard cannot be dismissed.
+ * Whether the AI tool view's footer offers "Go to my dashboard" before any tool connects: after copying the prompt,
+ * after a Connect click when connections can't be detected, or always when it is the only way out.
  *
- * @param promptCopied - Whether the prompt for another AI tool was copied.
- * @param exit         - The footer's other way out.
+ * @param state                    - The AI tool view's footer state.
+ * @param state.promptCopied       - Whether the prompt for another AI tool was copied.
+ * @param state.exit               - The footer's other way out.
+ * @param state.openedTool         - The AI tool whose Connect was clicked last, if any.
+ * @param state.detectsConnections - Whether a new connection can be detected.
  * @return True when the footer shows the button.
  */
-export function footerShowsDashboard( promptCopied: boolean, exit: FooterExit ): boolean {
-	return promptCopied || exit === null;
+export function footerShowsDashboard( {
+	promptCopied,
+	exit,
+	openedTool,
+	detectsConnections,
+}: {
+	promptCopied: boolean;
+	exit: FooterExit;
+	openedTool: AiTool | null;
+	detectsConnections: boolean;
+} ): boolean {
+	return promptCopied || exit === null || ( ! detectsConnections && openedTool !== null );
 }
 
 /**

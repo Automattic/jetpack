@@ -3,7 +3,7 @@ import { describe, it } from 'node:test';
 import {
 	aiToolRowStatus,
 	aiToolView,
-	dashboardIntegration,
+	dashboardClickedProps,
 	BRING_YOUR_AI_TOOL,
 	buildWizardPayload,
 	canContinue,
@@ -99,13 +99,24 @@ describe( 'opening on the AI tool view', () => {
 		} );
 	}
 
-	for ( const [ promptCopied, exit, shows ] of [
-		[ false, 'back', false ],
-		[ true, 'back', true ],
-		[ false, null, true ],
+	for ( const [ promptCopied, exit, openedTool, detects, shows ] of [
+		[ false, 'back', null, true, false ],
+		[ true, 'back', null, true, true ],
+		[ false, null, null, true, true ],
+		[ false, 'back', 'chatgpt', true, false ],
+		[ false, 'back', 'chatgpt', false, true ],
+		[ false, 'back', null, false, false ],
 	] as const ) {
-		it( `shows Go to my dashboard: ${ shows } (copied ${ promptCopied }, exit ${ exit })`, () => {
-			assert.equal( footerShowsDashboard( promptCopied, exit ), shows );
+		it( `shows Go to my dashboard: ${ shows } (copied ${ promptCopied }, exit ${ exit }, opened ${ openedTool }, detects ${ detects })`, () => {
+			assert.equal(
+				footerShowsDashboard( {
+					promptCopied,
+					exit,
+					openedTool,
+					detectsConnections: detects,
+				} ),
+				shows
+			);
 		} );
 	}
 } );
@@ -239,15 +250,26 @@ describe( 'AI tool row status', () => {
 	} );
 } );
 
-describe( 'dashboard integration', () => {
-	for ( const [ connected, promptCopied, integration ] of [
-		[ [ 'chatgpt', 'claude' ], false, 'claude' ],
-		[ [ 'chatgpt' ], true, 'chatgpt' ],
-		[ [], true, 'other' ],
-		[ [], false, 'none' ],
+describe( 'Go to my dashboard Tracks props', () => {
+	for ( const [ connected, promptCopied, openedTool, detects, integration ] of [
+		[ [ 'chatgpt', 'claude' ], false, null, true, 'claude' ],
+		[ [ 'chatgpt' ], true, null, true, 'chatgpt' ],
+		[ [], true, null, true, 'other' ],
+		[ [], false, null, true, 'none' ],
+		[ [], true, 'claude', true, 'other' ],
+		[ [], false, 'claude', false, 'claude' ],
+		[ [], true, 'claude', false, 'claude' ],
 	] as const ) {
-		it( `reports ${ integration } with ${ connected.join( '+' ) || 'nothing' } connected, copied ${ promptCopied }`, () => {
-			assert.equal( dashboardIntegration( [ ...connected ], promptCopied ), integration );
+		it( `reports ${ integration } with ${ connected.join( '+' ) || 'nothing' } connected, copied ${ promptCopied }, opened ${ openedTool }, detects ${ detects }`, () => {
+			assert.deepEqual(
+				dashboardClickedProps( {
+					connected: [ ...connected ],
+					promptCopied,
+					openedTool,
+					detectsConnections: detects,
+				} ),
+				{ integration, mcp_detection: detects }
+			);
 		} );
 	}
 } );

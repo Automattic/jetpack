@@ -80,6 +80,11 @@ export function bringYourAiToolCopy() {
 		allowingFullAccess: __( 'Allowing full access', 'jetpack-mu-wpcom' ),
 		opensInNewTab: __( 'Opens in a new tab', 'jetpack-mu-wpcom' ),
 		openedInNewTab: __( 'Opened in a new tab', 'jetpack-mu-wpcom' ),
+		/* translators: "Go to my dashboard" is the label of the button it refers to. */
+		openedAnnouncement: __(
+			'Opened in a new tab. Go to my dashboard is available when you’re done.',
+			'jetpack-mu-wpcom'
+		),
 		alreadyConnectedTooltip: __(
 			'Already connected to your WordPress.com account, so it works on this site too.',
 			'jetpack-mu-wpcom'

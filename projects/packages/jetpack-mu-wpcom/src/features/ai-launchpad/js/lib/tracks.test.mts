@@ -159,6 +159,7 @@ describe( 'ai-launchpad tracks', () => {
 			fire( trackWizardMcpGoToDashboardClicked, {
 				goals_variation: 'bring_your_ai_tool',
 				integration: 'chatgpt',
+				mcp_detection: true,
 			} ),
 		],
 		[ 'wizard_step_completed', fire( trackWizardStepCompleted, { step: 'goal' } ) ],

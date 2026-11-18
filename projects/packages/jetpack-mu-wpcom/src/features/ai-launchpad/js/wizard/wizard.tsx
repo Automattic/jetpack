@@ -28,7 +28,7 @@ import {
 	AI_TOOL_CHAT_URLS,
 	buildWizardPayload,
 	canContinue,
-	dashboardIntegration,
+	dashboardClickedProps,
 	firstScreen,
 	footerExit,
 	footerShowsDashboard,
@@ -140,6 +140,8 @@ export function Wizard( {
 	// After a failed attempt, "Allow full access" opens the MCP settings instead.
 	const [ allowFullAccessFailed, setAllowFullAccessFailed ] = useState( false );
 	const [ promptCopied, setPromptCopied ] = useState( false );
+	// The AI tool whose Connect was clicked last.
+	const [ openedTool, setOpenedTool ] = useState< AiTool | null >( null );
 	const readOnly = readOnlyAccess && connectedTools.length > 0;
 	// The treatment opens on "Guide me" or "Build with AI" before the goals, unless the URL opened the AI tool view.
 	const [ choosing, setChoosing ] = useState( first === 'setup_choice' );
@@ -259,7 +261,12 @@ export function Wizard( {
 	const handleGoToDashboard = () => {
 		trackWizardMcpGoToDashboardClicked( {
 			goals_variation: reportedVariation,
-			integration: dashboardIntegration( connectedTools, promptCopied ),
+			...dashboardClickedProps( {
+				connected: connectedTools,
+				promptCopied,
+				openedTool,
+				detectsConnections: mcpDetection,
+			} ),
 		} );
 		window.location.assign( 'index.php' );
 	};
@@ -325,6 +332,7 @@ export function Wizard( {
 		if ( showAiTool || step === 0 ) {
 			setShowAiTool( false );
 			setPromptCopied( false );
+			setOpenedTool( null );
 			setChoosing( true );
 			return;
 		}
@@ -396,6 +404,7 @@ export function Wizard( {
 							onReadOnlyChange={ handleReadOnlyChange }
 							allowFullAccessFailed={ allowFullAccessFailed }
 							onPromptCopied={ () => setPromptCopied( true ) }
+							onConnectClicked={ setOpenedTool }
 						/>
 					) }
 					{ step === 0 && ! showAiTool && ! choosing && (
@@ -504,11 +513,17 @@ export function Wizard( {
 									{ __( 'Back', 'jetpack-mu-wpcom' ) }
 								</Button>
 							) }
-							{ showAiTool && footerShowsDashboard( promptCopied, exit ) && (
-								<Button variant="solid" onClick={ handleGoToDashboard }>
-									{ aiCopy.goToDashboard }
-								</Button>
-							) }
+							{ showAiTool &&
+								footerShowsDashboard( {
+									promptCopied,
+									exit,
+									openedTool,
+									detectsConnections: mcpDetection,
+								} ) && (
+									<Button variant="solid" onClick={ handleGoToDashboard }>
+										{ aiCopy.goToDashboard }
+									</Button>
+								) }
 							{ ! showAiTool && (
 								<Button
 									variant="solid"
