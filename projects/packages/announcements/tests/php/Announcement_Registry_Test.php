@@ -134,7 +134,7 @@ class Announcement_Registry_Test extends BaseTestCase {
 		);
 	}
 
-	public function test_keeps_the_body_to_text_links_lists_headings_and_media() {
+	public function test_strips_from_the_body_what_would_restyle_wp_admin() {
 		$registry = new Announcement_Registry();
 
 		$announcement = $registry->register(
@@ -142,15 +142,12 @@ class Announcement_Registry_Test extends BaseTestCase {
 			array_merge(
 				self::VALID_ARGS,
 				array(
-					'content' => '<div style="position:fixed;inset:0" class="notice"><h2 id="title">Title</h2><p data-a="1">Text <strong>bold</strong> <a href="https://example.com/" target="_blank" class="button">link</a></p><ul><li>One</li></ul><img src="https://example.com/a.png" alt="A" style="width:9999px" /><video src="https://example.com/v.mp4" autoplay loop controls></video><button>Go</button></div>',
+					'content' => '<div style="position:fixed;inset:0" class="notice" id="cover" data-a="1"><p>Text <a href="https://example.com/" class="button">link</a></p></div>',
 				)
 			)
 		);
 
-		$this->assertSame(
-			'<h2>Title</h2><p>Text <strong>bold</strong> <a href="https://example.com/">link</a></p><ul><li>One</li></ul><img src="https://example.com/a.png" alt="A" /><video src="https://example.com/v.mp4" controls></video>Go',
-			$announcement['content']
-		);
+		$this->assertSame( '<div><p>Text <a href="https://example.com/">link</a></p></div>', $announcement['content'] );
 	}
 
 	/**

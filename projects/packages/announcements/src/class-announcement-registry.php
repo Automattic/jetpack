@@ -36,36 +36,13 @@ final class Announcement_Registry {
 	private const URL_PROTOCOLS = array( 'http', 'https' );
 
 	/**
-	 * Elements the body of an announcement may carry, with their attributes.
-	 *
-	 * No `style`, `class`, `id` or `data-*`: the body is shown inside wp-admin and must not restyle it.
+	 * Attributes the body of an announcement loses: it is shown inside wp-admin and must not restyle it.
 	 */
-	private const CONTENT_TAGS = array(
-		'p'      => array(),
-		'br'     => array(),
-		'strong' => array(),
-		'em'     => array(),
-		'code'   => array(),
-		'a'      => array( 'href' => true ),
-		'ul'     => array(),
-		'ol'     => array(),
-		'li'     => array(),
-		'h2'     => array(),
-		'h3'     => array(),
-		'h4'     => array(),
-		'img'    => array(
-			'src'    => true,
-			'alt'    => true,
-			'width'  => true,
-			'height' => true,
-		),
-		'video'  => array(
-			'src'      => true,
-			'poster'   => true,
-			'controls' => true,
-			'width'    => true,
-			'height'   => true,
-		),
+	private const RESTYLING_ATTRIBUTES = array(
+		'style'  => true,
+		'class'  => true,
+		'id'     => true,
+		'data-*' => true,
 	);
 
 	/**
@@ -218,7 +195,7 @@ final class Announcement_Registry {
 			'date'       => $date,
 			'title'      => $title,
 			'excerpt'    => self::sanitize_text( $args['excerpt'] ?? '' ),
-			'content'    => is_string( $args['content'] ?? null ) ? wp_kses( $args['content'], self::CONTENT_TAGS, self::URL_PROTOCOLS ) : '',
+			'content'    => self::sanitize_content( $args['content'] ?? null ),
 			'media'      => self::sanitize_media( $args['media'] ?? null ),
 			'link'       => is_string( $args['link'] ?? null ) ? esc_url_raw( $args['link'], self::URL_PROTOCOLS ) : '',
 			'channels'   => $channels,
@@ -257,6 +234,27 @@ final class Announcement_Registry {
 	 */
 	private static function sanitize_text( $value ) {
 		return is_string( $value ) ? sanitize_text_field( $value ) : '';
+	}
+
+	/**
+	 * Sanitizes the body of an announcement, by WordPress's rules for a post minus the restyling attributes.
+	 *
+	 * @param mixed $value The value a registrant passed.
+	 * @return string The HTML, or an empty string for anything but a string.
+	 */
+	private static function sanitize_content( $value ) {
+		if ( ! is_string( $value ) ) {
+			return '';
+		}
+
+		$allowed = array_map(
+			static function ( $attributes ) {
+				return is_array( $attributes ) ? array_diff_key( $attributes, self::RESTYLING_ATTRIBUTES ) : $attributes;
+			},
+			wp_kses_allowed_html( 'post' )
+		);
+
+		return wp_kses( $value, $allowed, self::URL_PROTOCOLS );
 	}
 
 	/**

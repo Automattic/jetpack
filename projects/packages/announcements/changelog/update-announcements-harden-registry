@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Limit the HTML the body of an announcement may carry, and its URLs to http and https.
+Strip styles, classes and ids from the body of an announcement, and keep its URLs to http and https.
