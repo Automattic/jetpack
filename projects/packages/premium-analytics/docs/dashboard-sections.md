@@ -137,6 +137,8 @@ While the dialog is open, the tab bar previews the order the reader is trying: t
 
 Another screen with tabs offers the dialog by handing `PageOptionsMenu` its `tabs`: the screen's preferences scope, its `{ slug, label }` items and, for the preview, an `onPreview` callback.
 
+The single-report pages do so under each page's `preferences_scope`. Their stage orders the record's sections with `orderSections()` before the page's adapter sees them, and `resolveSingleReportSection()` falls back to the reader's first section in the route guard.
+
 ## Default layouts
 
 ![A section declares its default layout; get_default_layout() runs it through the default-layout filter, where a plugin adds instances at priority 10 and the package removes unsupported widget types at priority 100, before it reaches the client as the fallback for the stored layout.](diagrams/sections-default-layout.svg)

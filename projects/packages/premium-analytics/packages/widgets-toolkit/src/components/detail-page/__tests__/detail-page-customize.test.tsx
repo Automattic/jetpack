@@ -191,6 +191,29 @@ describe( 'detail-page-customize', () => {
 			expect( onCustomize ).toHaveBeenCalledTimes( 1 );
 		} );
 
+		it( 'hands the page tabs to the menu, which offers to arrange them', async () => {
+			const user = userEvent.setup();
+			render(
+				<DetailPageActions
+					isCustomizing={ false }
+					editingActions={ editingActions }
+					tabs={ {
+						scope: 'jetpack-premium-analytics/test',
+						items: [
+							{ slug: 'traffic', label: 'Traffic' },
+							{ slug: 'emails', label: 'Emails' },
+						],
+					} }
+				/>
+			);
+
+			await user.click( screen.getByRole( 'button', { name: 'Page options' } ) );
+
+			await expect(
+				screen.findByRole( 'menuitem', { name: 'Arrange tabs' } )
+			).resolves.toBeInTheDocument();
+		} );
+
 		it( "keeps the menu, less Customize, and puts Reset to default beside the dashboard's own actions", async () => {
 			const user = userEvent.setup();
 			render(

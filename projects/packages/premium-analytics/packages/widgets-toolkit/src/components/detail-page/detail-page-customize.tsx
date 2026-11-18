@@ -5,6 +5,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTrackCustomize, type TrackingSurface } from '../../hooks/use-track-event';
 import { PageOptionsMenu } from '../page-options-menu';
 import { ResetLayoutAction } from '../reset-layout';
+import type { ArrangeableTabs } from '../page-options-menu/arrange-tabs-dialog';
 import type { CanPerformDashboardOperation, DashboardWidget } from '@wordpress/widget-dashboard';
 import type { ReactNode } from 'react';
 
@@ -160,6 +161,8 @@ export type DetailPageActionsProps = {
 	onCustomize?: () => void;
 	/** Resets the layout to default; the Reset button shows while customizing, only when given. */
 	onReset?: () => void | Promise< void >;
+	/** The page's tabs, for the reader to arrange from the menu; on offer only with two or more. */
+	tabs?: ArrangeableTabs;
 	/**
 	 * The dashboard's own actions, `<WidgetDashboard.Actions />`, created by the route.
 	 * Each bundle carries its own copy of `@wordpress/widget-dashboard`, so one rendered
@@ -181,6 +184,7 @@ export type DetailPageActionsProps = {
  * @param props.isCustomizing  - Whether the page is in customize mode.
  * @param props.onCustomize    - Called when the reader picks Customize.
  * @param props.onReset        - Called when the reader confirms Reset to default.
+ * @param props.tabs           - The page's tabs, for the menu's Arrange tabs entry.
  * @param props.editingActions - The dashboard's own actions, shown while customizing.
  * @param props.children       - The page's own actions.
  * @return The slot content.
@@ -189,6 +193,7 @@ export function DetailPageActions( {
 	isCustomizing,
 	onCustomize,
 	onReset,
+	tabs,
 	editingActions,
 	children,
 }: DetailPageActionsProps ) {
@@ -210,7 +215,7 @@ export function DetailPageActions( {
 		<Stack ref={ frame } direction="row" align="center" gap="sm">
 			{ isCustomizing ? editingActions : children }
 			{ isCustomizing && onReset && <ResetLayoutAction onReset={ onReset } /> }
-			<PageOptionsMenu onCustomize={ isCustomizing ? undefined : onCustomize } />
+			<PageOptionsMenu onCustomize={ isCustomizing ? undefined : onCustomize } tabs={ tabs } />
 		</Stack>
 	);
 }
