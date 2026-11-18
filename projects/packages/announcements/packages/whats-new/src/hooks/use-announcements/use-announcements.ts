@@ -65,8 +65,6 @@ function toSeenDates( value: unknown ): SeenDates {
 
 /**
  * Registers the announcement entity, unless it is registered already.
- *
- * Call it once the translations are loaded: the label is built with `__()`.
  */
 export function ensureAnnouncementEntity(): void {
 	if ( select( coreStore ).getEntityConfig( ENTITY_KIND, ENTITY_NAME ) ) {

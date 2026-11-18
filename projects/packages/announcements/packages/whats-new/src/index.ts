@@ -7,7 +7,6 @@ import { createElement, createRoot } from '@wordpress/element';
  */
 import { WhatsNew } from './components';
 import { ensureAnnouncementEntity } from './hooks';
-import { loadTranslations } from './utils';
 import type * as Contract from '@automattic/jetpack-announcements';
 
 type Mount = {
@@ -19,23 +18,19 @@ type Mount = {
 
 const DOM_ELEMENT_ID = 'jetpack-whats-new';
 
-let ready: Promise< void > | undefined;
 let root: ReturnType< typeof createRoot > | undefined;
 let container: HTMLElement | undefined;
 let current: Mount | undefined;
 
 /**
- * Renders the surface of the current mount, creating its root on the first call.
+ * Renders the surface a mount asked for, creating its root on the first call.
  *
  * The root hangs from `#wpbody`, the box the teaser is placed against. It cannot be a child of
  * `#wpbody-content`, where a wp-build page hides everything but its own app.
+ *
+ * @param mount - The mount to render.
  */
-function render(): void {
-	// The host left while the translations were loading.
-	if ( ! current ) {
-		return;
-	}
-
+function render( mount: Mount ): void {
 	if ( ! root ) {
 		container = document.createElement( 'div' );
 		container.id = DOM_ELEMENT_ID;
@@ -43,7 +38,7 @@ function render(): void {
 		root = createRoot( container );
 	}
 
-	root.render( createElement( WhatsNew, { channels: current.options.channels } ) );
+	root.render( createElement( WhatsNew, { channels: mount.options.channels } ) );
 }
 
 /**
@@ -66,7 +61,7 @@ function unmount( mount: Mount ): void {
 /**
  * Mounts the What's new surface on the page, or updates the one already mounted.
  *
- * The first call loads the translations of the surface and registers its entity.
+ * The first call registers the entity of the announcements.
  *
  * @param options - The options.
  * @return The function that takes the surface off the page.
@@ -75,8 +70,8 @@ export const mountWhatsNew: typeof Contract.mountWhatsNew = options => {
 	const mount: Mount = { options };
 
 	current = mount;
-	ready ??= loadTranslations().then( ensureAnnouncementEntity );
-	void ready.then( render );
+	ensureAnnouncementEntity();
+	render( mount );
 
 	return () => unmount( mount );
 };

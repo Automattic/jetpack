@@ -4,9 +4,6 @@
 import type * as WhatsNewModule from '..';
 import type { act as Act } from 'react';
 
-jest.mock( '../utils', () => ( {
-	loadTranslations: jest.fn(),
-} ) );
 jest.mock( '../hooks', () => ( {
 	ensureAnnouncementEntity: jest.fn(),
 } ) );
@@ -20,16 +17,13 @@ jest.mock( '../components', () => ( {
 describe( 'mountWhatsNew', () => {
 	let mountWhatsNew: typeof WhatsNewModule.mountWhatsNew;
 	let act: typeof Act;
-	let loadTranslations: jest.Mock;
 	let ensureAnnouncementEntity: jest.Mock;
 
 	// The module keeps its root for the page load, so each test loads a copy of its own.
 	beforeEach( () => {
 		jest.resetModules();
 		( { act } = jest.requireActual( 'react' ) );
-		( { loadTranslations } = jest.requireMock( '../utils' ) );
 		( { ensureAnnouncementEntity } = jest.requireMock( '../hooks' ) );
-		loadTranslations.mockResolvedValue( undefined );
 		( { mountWhatsNew } = jest.requireActual( '../index' ) );
 	} );
 
@@ -60,7 +54,6 @@ describe( 'mountWhatsNew', () => {
 		expect( document.getElementById( 'jetpack-whats-new' ) ).toHaveTextContent(
 			'my-plugin, another-plugin'
 		);
-		expect( loadTranslations ).toHaveBeenCalledTimes( 1 );
 	} );
 
 	it( 'takes the surface off the page with the function it returns', async () => {
@@ -80,37 +73,9 @@ describe( 'mountWhatsNew', () => {
 		expect( document.getElementById( 'jetpack-whats-new' ) ).toHaveTextContent( 'another-plugin' );
 	} );
 
-	it( 'renders nothing for a host that unmounts while the translations load', async () => {
-		let finishLoading: () => void = () => {};
-		loadTranslations.mockReturnValue(
-			new Promise< void >( resolve => {
-				finishLoading = resolve;
-			} )
-		);
-
-		const unmount = await act( async () => mountWhatsNew( { channels: [ 'my-plugin' ] } ) );
-		unmount();
-		await act( async () => finishLoading() );
-
-		expect( document.getElementById( 'jetpack-whats-new' ) ).not.toBeInTheDocument();
-	} );
-
-	it( 'registers the entity once the translations are loaded, and renders after that', async () => {
-		let finishLoading: () => void = () => {};
-		loadTranslations.mockReturnValue(
-			new Promise< void >( resolve => {
-				finishLoading = resolve;
-			} )
-		);
-
+	it( 'registers the entity of the announcements', async () => {
 		await act( async () => mountWhatsNew( { channels: [ 'my-plugin' ] } ) );
 
-		expect( ensureAnnouncementEntity ).not.toHaveBeenCalled();
-		expect( document.getElementById( 'jetpack-whats-new' ) ).not.toBeInTheDocument();
-
-		await act( async () => finishLoading() );
-
-		expect( ensureAnnouncementEntity ).toHaveBeenCalledTimes( 1 );
-		expect( document.getElementById( 'jetpack-whats-new' ) ).toHaveTextContent( 'my-plugin' );
+		expect( ensureAnnouncementEntity ).toHaveBeenCalled();
 	} );
 } );

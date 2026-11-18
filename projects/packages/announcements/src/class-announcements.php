@@ -20,7 +20,7 @@ class Announcements {
 	const SCRIPT_MODULE_ID = '@automattic/jetpack-announcements';
 
 	/**
-	 * Registers the What's new module under the name hosts import. Hooked on `admin_init`.
+	 * Registers the What's new module under the name hosts import, with its translations. Hooked on `admin_init`.
 	 *
 	 * Always the minified bundle: a production build replaces the other one with a stub.
 	 * Its classic script dependencies are not enqueued, as wp-build leaves them to the page.
@@ -45,5 +45,10 @@ class Announcements {
 			$asset['module_dependencies'] ?? array(),
 			$asset['version'] ?? false
 		);
+
+		// WordPress 7.0 prints the translations of a module. On an older core the surface stays in English.
+		if ( function_exists( 'wp_set_script_module_translations' ) ) {
+			wp_set_script_module_translations( self::SCRIPT_MODULE_ID, 'jetpack-announcements' );
+		}
 	}
 }
