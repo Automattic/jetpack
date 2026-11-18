@@ -363,6 +363,12 @@ class Block_Editor {
 	 */
 	public static function enqueue_admin() {
 		$comment = self::comment_to_edit();
+
+		// Saving here would drop a block this editor does not know, so the raw markup is safer to edit.
+		if ( $comment && self::holds_kept_block( parse_blocks( $comment->comment_content ) ) ) {
+			return;
+		}
+
 		// The comment as this editor writes it, so blocks from Verbum's editor open as blocks it knows.
 		$content = $comment ? serialize_blocks( self::allowed( parse_blocks( $comment->comment_content ) ) ) : '';
 
@@ -429,6 +435,26 @@ class Block_Editor {
 	}
 
 	/**
+	 * Whether any block, at any depth, is one the jetpack_comments_keep_block filter keeps.
+	 *
+	 * @param array $blocks Parsed blocks.
+	 * @return bool
+	 */
+	private static function holds_kept_block( array $blocks ) {
+		foreach ( $blocks as $block ) {
+			if ( null !== $block['blockName'] && (bool) apply_filters( 'jetpack_comments_keep_block', false, $block ) ) {
+				return true;
+			}
+
+			if ( self::holds_kept_block( $block['innerBlocks'] ) ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
 	 * The allowed blocks, at every depth.
 	 *
 	 * @param array     $blocks Parsed blocks.
@@ -460,6 +486,26 @@ class Block_Editor {
 				if ( preg_match( '#<h([1-6])[^>]*>(.*?)</h\1>#s', $block['innerHTML'], $heading ) && '' !== trim( $heading[2] ) ) {
 					$kept[] = self::paragraph( '<strong>' . trim( $heading[2] ) . '</strong>' );
 				}
+				continue;
+			}
+
+			/**
+			 * Keep a block the editor does not offer, as written.
+			 *
+			 * @since $$next-version$$
+			 *
+			 * @param bool  $keep  Whether to keep the block. Default false.
+			 * @param array $block The parsed block.
+			 */
+			if ( null !== $block['blockName'] && (bool) apply_filters( 'jetpack_comments_keep_block', false, $block ) ) {
+				// Rendered for display, so its own render callback and render_block filters run before the delimiters are stripped.
+				$kept[] = null === $render ? $block : array(
+					'blockName'    => null,
+					'attrs'        => array(),
+					'innerBlocks'  => array(),
+					'innerHTML'    => render_block( $block ),
+					'innerContent' => array( render_block( $block ) ),
+				);
 				continue;
 			}
 

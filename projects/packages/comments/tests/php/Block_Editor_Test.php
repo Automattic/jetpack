@@ -18,6 +18,62 @@ use WorDBless\BaseTestCase;
 class Block_Editor_Test extends BaseTestCase {
 
 	/**
+	 * Keep the blocks whose names start with p2/, as a host would.
+	 */
+	private function keep_p2_blocks() {
+		add_filter(
+			'jetpack_comments_keep_block',
+			static function ( $keep, $block ) {
+				return $keep || 0 === strpos( $block['blockName'] ?? '', 'p2/' );
+			},
+			10,
+			2
+		);
+	}
+
+	/**
+	 * @dataProvider provide_render_unknown_blocks
+	 */
+	#[DataProvider( 'provide_render_unknown_blocks' )]
+	public function test_render_drops_blocks_the_editor_does_not_offer( $content, $expected ) {
+		$this->assertSame( $expected, Block_Editor::render( $content ) );
+	}
+
+	public static function provide_render_unknown_blocks() {
+		return array(
+			'unfiltered p2 block is dropped' => array( "<!-- wp:p2/embed-github -->\n<div>GH</div>\n<!-- /wp:p2/embed-github -->", '' ),
+		);
+	}
+
+	public function test_render_outputs_a_kept_block_as_html() {
+		$this->keep_p2_blocks();
+		$filter = static function ( $content ) {
+			return $content . '<!-- rendered -->';
+		};
+		add_filter( 'render_block', $filter );
+
+		$output = Block_Editor::render( "<!-- wp:p2/embed-github -->\n<div>GH</div>\n<!-- /wp:p2/embed-github -->" );
+
+		remove_filter( 'render_block', $filter );
+		remove_all_filters( 'jetpack_comments_keep_block' );
+
+		$this->assertStringContainsString( '<div>GH</div>', $output );
+		$this->assertStringContainsString( '<!-- rendered -->', $output );
+		$this->assertStringNotContainsString( '<!-- wp:', $output );
+	}
+
+	public function test_keep_allowed_blocks_saves_a_kept_block_with_its_delimiters() {
+		$this->keep_p2_blocks();
+		$content = "<!-- wp:p2/embed-github -->\n<div>GH</div>\n<!-- /wp:p2/embed-github -->";
+
+		$saved = wp_unslash( Block_Editor::init()->keep_allowed_blocks( wp_slash( $content ) ) );
+
+		remove_all_filters( 'jetpack_comments_keep_block' );
+
+		$this->assertSame( $content, $saved );
+	}
+
+	/**
 	 * @dataProvider provide_keep_allowed_blocks
 	 */
 	#[DataProvider( 'provide_keep_allowed_blocks' )]
