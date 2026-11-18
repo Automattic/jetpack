@@ -1,4 +1,4 @@
 Significance: minor
 Type: changed
 
-Abilities: Register the Jetpack Social abilities by default when sharing is on.
+Abilities: Register the Jetpack Social abilities by default when sharing is on, and leave their output shape and the other abilities out of their descriptions.
