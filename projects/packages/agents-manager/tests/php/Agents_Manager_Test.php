@@ -999,6 +999,59 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Tests that get_current_site reads the ID from external storage on a migrated site,
+	 * where the jetpack_options row came from the source site and has no `id`.
+	 */
+	public function test_get_current_site_reads_the_id_from_external_storage() {
+		update_option( 'home', 'https://example.com' );
+		update_option( 'jetpack_options', array( 'version' => '14.0:1700000000' ) );
+		\Automattic\Jetpack\Connection\External_Storage::register_provider(
+			new class() implements \Automattic\Jetpack\Connection\Storage_Provider_Interface {
+				/**
+				 * @return bool
+				 */
+				public function is_available() {
+					return true;
+				}
+
+				/**
+				 * @param string $option_name Option name.
+				 * @return bool
+				 */
+				public function should_handle( $option_name ) {
+					return 'id' === $option_name;
+				}
+
+				/**
+				 * @param string $option_name Option name.
+				 * @return int|null
+				 */
+				public function get( $option_name ) {
+					return 'id' === $option_name ? 98765432 : null;
+				}
+
+				/**
+				 * @return string
+				 */
+				public function get_environment_id() {
+					return 'test';
+				}
+			}
+		);
+
+		try {
+			$this->assertSame( 98765432, $this->call_get_current_site()['ID'] );
+		} finally {
+			$provider = new \ReflectionProperty( \Automattic\Jetpack\Connection\External_Storage::class, 'provider' );
+			if ( PHP_VERSION_ID < 80100 ) {
+				$provider->setAccessible( true );
+			}
+			$provider->setValue( null, null );
+			delete_option( 'jetpack_options' );
+		}
+	}
+
+	/**
 	 * Tests that get_current_site falls back to blog ID when jetpack_options not available.
 	 */
 	public function test_get_current_site_falls_back_to_blog_id() {
