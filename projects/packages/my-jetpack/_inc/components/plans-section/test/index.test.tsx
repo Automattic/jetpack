@@ -3,21 +3,18 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import useProduct from '../../../data/products/use-product';
 import useSitePurchases from '../../../data/use-site-purchases';
+import useAnalytics from '../../../hooks/use-analytics';
 import useMyJetpackConnection from '../../../hooks/use-my-jetpack-connection';
 import { getConnectUrl } from '../../../utils/connect-url';
 import PlansSection from '../index';
 
 const NAMES = { myJetpackPlans: 'my_jetpack_plans' };
 let mockConnectionFrom: typeof NAMES | undefined;
-const mockRecordEvent = jest.fn();
+const mockRecordEvent = jest.mocked( jest.mocked( useAnalytics )().recordEvent );
 
 jest.mock( '../../../data/products/use-product' );
 jest.mock( '../../../data/use-site-purchases' );
 jest.mock( '../../../hooks/use-my-jetpack-connection' );
-jest.mock( '../../../hooks/use-analytics', () => ( {
-	__esModule: true,
-	default: () => ( { recordEvent: mockRecordEvent } ),
-} ) );
 jest.mock( '../../../utils/connect-url', () => ( {
 	getConnectUrl: jest.fn( () => 'https://wordpress.com/connect' ),
 } ) );
