@@ -2,7 +2,7 @@ import { Field, Fieldset, Radio, RadioGroup, Stack, Text } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useCallback, useId } from 'react';
 import styles from '../styles.module.scss';
-import { getOptionCopy, getPaymentsText, getStepTitle } from './copy';
+import { getOptionCopy, getStepTitle } from './copy';
 import type { CopyContext } from './copy';
 import type { Option, OptionId, StepId } from './steps';
 import type { ReactNode, Ref } from 'react';
@@ -64,7 +64,6 @@ export default function ChoiceStep( {
 						const text = getOptionCopy( option.id, copy );
 						const isSelected = option.id === pick;
 						const hintId = `${ id }-${ option.id }`;
-						const isSafeMode = 'action' in option && option.action === 'confirm-safe-mode';
 						return (
 							<Field.Item
 								key={ option.id }
@@ -79,7 +78,6 @@ export default function ChoiceStep( {
 									<Field.Label variant="plain">{ text.label }</Field.Label>
 									<Text variant="body-sm" id={ hintId } className={ styles.hint }>
 										{ text.hint }
-										{ copy.isStore && isSafeMode && <> { getPaymentsText() }</> }
 									</Text>
 									{ isSelected && text.more && <Text variant="body-sm">{ text.more }</Text> }
 								</Stack>

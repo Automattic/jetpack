@@ -7,17 +7,6 @@
 	max-inline-size: 70ch;
 }
 
-.address {
-	inline-size: 100%;
-	box-sizing: border-box;
-	padding: var(--wpds-dimension-padding-md);
-	border-radius: var(--wpds-border-radius-lg);
-	background: var(--wpds-color-background-surface-neutral-weak);
-	font-weight: var(--wpds-typography-font-weight-emphasis);
-	text-align: center;
-	overflow-wrap: anywhere;
-}
-
 .host-actions {
 	padding-block-start: var(--wpds-dimension-padding-md);
 	border-block-start: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
@@ -27,12 +16,7 @@
 	padding: var(--wpds-dimension-padding-md);
 	border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
 	border-radius: var(--wpds-border-radius-lg);
-
-	.address {
-		padding: 0;
-		background: none;
-		text-align: start;
-	}
+	overflow-wrap: anywhere;
 }
 
 .note {

@@ -1,5 +1,6 @@
+import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
-import { Stack, Text } from '@wordpress/ui';
+import { Text } from '@wordpress/ui';
 import { formatSiteAddress } from '../../helpers/format-site-address';
 import styles from './styles.module.scss';
 import type { IdentityCrisisAddressesProps } from './types';
@@ -22,24 +23,27 @@ export default function IdentityCrisisAddresses( {
 		return null;
 	}
 
+	const sentence = isStore
+		? /* translators: <registered />: the address WordPress.com has on record. <current />: the address this store now loads at. */
+			_x(
+				'This store is registered with WordPress.com at <registered />, but now loads at <current />.',
+				'WooCommerce store',
+				'jetpack-connection-js'
+			)
+		: /* translators: <registered />: the address WordPress.com has on record. <current />: the address this site now loads at. */
+			__(
+				'This site is registered with WordPress.com at <registered />, but now loads at <current />.',
+				'jetpack-connection-js'
+			);
+
 	return (
-		<Stack direction="column" gap="sm" className={ styles.addresses }>
-			<Stack direction="column" gap="xs">
-				<Text variant="body-sm">
-					{ isStore
-						? _x(
-								'This store is registered with WordPress.com at',
-								'WooCommerce store',
-								'jetpack-connection-js'
-							)
-						: __( 'This site is registered with WordPress.com at', 'jetpack-connection-js' ) }
-				</Text>
-				<span className={ styles.address }>{ registered }</span>
-			</Stack>
-			<Stack direction="column" gap="xs">
-				<Text variant="body-sm">{ __( 'but now loads at', 'jetpack-connection-js' ) }</Text>
-				<span className={ styles.address }>{ current }</span>
-			</Stack>
-		</Stack>
+		<div className={ styles.addresses }>
+			<Text variant="body-sm">
+				{ createInterpolateElement( sentence, {
+					registered: <strong>{ registered }</strong>,
+					current: <strong>{ current }</strong>,
+				} ) }
+			</Text>
+		</div>
 	);
 }

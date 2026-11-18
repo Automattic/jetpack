@@ -180,7 +180,7 @@ export function getOptionCopy( id: OptionId, c: CopyContext ): OptionCopy {
 					c.isStore
 						? /* translators: <z />: the address WordPress.com has on record. */
 							_x(
-								'Best for a short-lived test store, or a copy that will be pushed back to <z /> after testing.',
+								'Best for a short-lived test store, or a copy that will be pushed back to <z /> after testing. Payments will not be interrupted.',
 								'WooCommerce store',
 								'jetpack-connection-js'
 							)
@@ -283,10 +283,16 @@ export function getOptionCopy( id: OptionId, c: CopyContext ): OptionCopy {
 		case 'unsure':
 			return {
 				label: __( 'I’m not sure', 'jetpack-connection-js' ),
-				hint: __(
-					'Stay in Safe Mode while you find out. Nothing changes until you decide.',
-					'jetpack-connection-js'
-				),
+				hint: c.isStore
+					? _x(
+							'Stay in Safe Mode while you find out. Nothing changes until you decide. Payments will not be interrupted.',
+							'WooCommerce store',
+							'jetpack-connection-js'
+						)
+					: __(
+							'Stay in Safe Mode while you find out. Nothing changes until you decide.',
+							'jetpack-connection-js'
+						),
 				...stayInSafeMode,
 			};
 		default: {
@@ -294,15 +300,6 @@ export function getOptionCopy( id: OptionId, c: CopyContext ): OptionCopy {
 			return unhandled;
 		}
 	}
-}
-
-/**
- * The line added to the hint of an answer that keeps a store in Safe Mode.
- *
- * @return The text.
- */
-export function getPaymentsText(): string {
-	return __( 'Payments will not be interrupted.', 'jetpack-connection-js' );
 }
 
 /**

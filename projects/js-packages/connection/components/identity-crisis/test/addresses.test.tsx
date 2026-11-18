@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render } from '@testing-library/react';
 import IdentityCrisisAddresses from '../addresses';
 
 describe( 'IdentityCrisisAddresses', () => {
@@ -7,10 +7,9 @@ describe( 'IdentityCrisisAddresses', () => {
 			<IdentityCrisisAddresses wpcomHomeUrl="old.example/" currentUrl="new.example/" isStore />
 		);
 
-		expect(
-			screen.getByText( 'This store is registered with WordPress.com at' )
-		).toBeInTheDocument();
-		expect( container ).toHaveTextContent( /old\.example.*but now loads at.*new\.example/ );
+		expect( container ).toHaveTextContent(
+			'This store is registered with WordPress.com at old.example, but now loads at new.example.'
+		);
 	} );
 
 	it( 'renders nothing without both addresses', () => {
