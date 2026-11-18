@@ -603,6 +603,14 @@ function get_detail_page_widget_types() {
 			'title'          => __( 'UTM', 'jetpack-premium-analytics-pkg' ),
 			'icon'           => 'jpa/megaphone',
 		),
+		'jpa/post-detail-highlights--page'      => array(
+			'implementation' => 'jpa/post-detail-highlights',
+			'title'          => __( 'Page highlights', 'jetpack-premium-analytics-pkg' ),
+		),
+		'jpa/post-views--page'                  => array(
+			'implementation' => 'jpa/post-views',
+			'title'          => __( 'Page views', 'jetpack-premium-analytics-pkg' ),
+		),
 		'jpa/popular-post--author'              => array(
 			'implementation' => 'jpa/popular-post',
 			'title'          => __( 'Popular post', 'jetpack-premium-analytics-pkg' ),
