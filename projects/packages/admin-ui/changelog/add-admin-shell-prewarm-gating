@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Admin shell: Prewarm a dashboard only once the pointer rests on its menu link, and not at all when the browser reports Save-Data, low memory or a slow connection.
