@@ -401,14 +401,30 @@ const healthyIteration = i => ( {
 	},
 } );
 
-test( 'finalizeMeasurement returns the measurement for healthy iterations', () => {
+test( 'finalizeMeasurement returns the measurement when three of five loads succeed', () => {
 	const forms = SCENARIOS.find( s => s.key === 'formsResponses' );
-	const results = [ 1, 2, 3 ].map( healthyIteration );
-	const measurement = finalizeMeasurement( forms, results, 3, 'http://example.test' );
+	const results = [
+		...[ 1, 2, 3 ].map( healthyIteration ),
+		{ iteration: 4, error: 'boom' },
+		{ iteration: 5, error: 'boom' },
+	];
+	const measurement = finalizeMeasurement( forms, results, 5, 'http://example.test' );
 	assert.equal( measurement.url, 'http://example.test' );
 	assert.equal( measurement.results, results );
 	assert.equal( measurement.summary.lcp.median, 302 );
 	assert.deepEqual( findIncompleteSummaryFields( forms, measurement.summary ), [] );
+} );
+
+test( 'finalizeMeasurement refuses a page when only two of five loads succeed', () => {
+	const forms = SCENARIOS.find( s => s.key === 'formsResponses' );
+	const results = [
+		...[ 1, 2 ].map( healthyIteration ),
+		...[ 3, 4, 5 ].map( iteration => ( { iteration, error: 'boom' } ) ),
+	];
+	assert.throws(
+		() => finalizeMeasurement( forms, results, 5, 'u' ),
+		/Only 2 of 5 loads succeeded\. At least 3 are required\./
+	);
 } );
 
 test( 'finalizeMeasurement throws when every iteration failed', () => {
@@ -510,24 +526,17 @@ test( 'backend capture failures preserve browser samples and use the per-field m
 } );
 
 test( 'finalizeMeasurement throws on a partial summary, naming the dropped field', () => {
-	// The CASE P wiring, pinned through the real measure tail: a posted field finite in
-	// only a minority of valid iterations must throw INSIDE the measure step (so main()'s
-	// catch records a scenario error the optional/required policy classifies), never
-	// return a truthy-but-incomplete measurement for the artifact.
 	const forms = SCENARIOS.find( s => s.key === 'formsResponses' );
 	const results = [ 1, 2, 3 ].map( healthyIteration );
 	results[ 1 ].metrics = { ...results[ 1 ].metrics, ttfb: null };
 	results[ 2 ].metrics = { ...results[ 2 ].metrics, ttfb: null };
 	assert.throws(
 		() => finalizeMeasurement( forms, results, 3, 'u' ),
-		/summary is missing posted field\(s\): ttfb — too few finite samples across the 3 valid iteration\(s\)/
+		/summary is missing posted field\(s\): ttfb/
 	);
 } );
 
-test( 'finalizeMeasurement counts valid iterations, not attempted ones, in the partial message', () => {
-	// 5 attempted, 2 errored, 3 valid — the message must say 3: the majority rule runs
-	// over the VALID iterations, and a misleading count sends the operator to the wrong
-	// denominator when reading the build log.
+test( 'finalizeMeasurement refuses a posted field with samples from only two of five loads', () => {
 	const forms = SCENARIOS.find( s => s.key === 'formsResponses' );
 	const results = [
 		...[ 1, 2, 3 ].map( healthyIteration ),
@@ -535,8 +544,10 @@ test( 'finalizeMeasurement counts valid iterations, not attempted ones, in the p
 		{ iteration: 5, error: 'boom' },
 	];
 	results[ 1 ].metrics = { ...results[ 1 ].metrics, ttfb: null };
-	results[ 2 ].metrics = { ...results[ 2 ].metrics, ttfb: null };
-	assert.throws( () => finalizeMeasurement( forms, results, 5, 'u' ), /the 3 valid iteration/ );
+	assert.throws(
+		() => finalizeMeasurement( forms, results, 5, 'u' ),
+		/summary is missing posted field\(s\): ttfb — too few finite samples across 5 attempted loads/
+	);
 } );
 
 // --- tcEscape (TeamCity service-message value escaping) ---
