@@ -117,6 +117,37 @@ class Attachment_Handler_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Test that a VideoPress delete WordPress.com did not confirm is blocked with a falsy value and explained over REST.
+	 */
+	public function test_unconfirmed_wpcom_delete_is_reported_as_failure() {
+		$id = wp_insert_attachment(
+			array(
+				'post_title'     => 'Video',
+				'post_mime_type' => 'video/videopress',
+			)
+		);
+		update_post_meta( $id, 'videopress_guid', 'abcd1234' );
+		add_filter( 'pre_http_request', array( $this, 'fail_http_request' ) );
+
+		$result = Attachment_Handler::delete_video_wpcom( null, get_post( $id ) );
+		remove_filter( 'pre_http_request', array( $this, 'fail_http_request' ) );
+
+		$this->assertFalse( $result );
+		$error = Attachment_Handler::explain_rest_delete_failure( new \WP_Error( 'rest_cannot_delete', 'The post cannot be deleted.' ) );
+		$this->assertSame( 'videopress_delete_failed', $error->get_error_code() );
+		$this->assertSame( 'rest_cannot_delete', Attachment_Handler::explain_rest_delete_failure( new \WP_Error( 'rest_cannot_delete' ) )->get_error_code() );
+	}
+
+	/**
+	 * Fails every HTTP request, as a timeout would.
+	 *
+	 * @return \WP_Error
+	 */
+	public function fail_http_request() {
+		return new \WP_Error( 'http_request_failed', 'cURL error 28: Operation timed out' );
+	}
+
+	/**
 	 * Test that the list view bulk-delete script loads only when the page lists VideoPress videos.
 	 *
 	 * @dataProvider provide_bulk_delete_mime_types

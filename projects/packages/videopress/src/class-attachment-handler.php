@@ -18,6 +18,18 @@ use WP_Post;
 class Attachment_Handler {
 
 	/**
+	 * Seconds to wait for WordPress.com to delete a video; it often takes close to 10, the Connection client's default.
+	 */
+	const DELETE_TIMEOUT = 60;
+
+	/**
+	 * Why the last VideoPress delete in this request was blocked, if it was.
+	 *
+	 * @var string|null
+	 */
+	private static $delete_error = null;
+
+	/**
 	 * Initializer
 	 *
 	 * This method should be called only once by the Initializer class. Do not call this method again.
@@ -36,6 +48,7 @@ class Attachment_Handler {
 		}
 
 		add_filter( 'pre_delete_attachment', array( __CLASS__, 'delete_video_wpcom' ), 10, 2 );
+		add_filter( 'rest_request_after_callbacks', array( __CLASS__, 'explain_rest_delete_failure' ) );
 		add_filter( 'wp_mime_type_icon', array( __CLASS__, 'wp_mime_type_icon' ), 10, 3 );
 		add_filter( 'wp_video_extensions', array( __CLASS__, 'add_videopress_extenstion' ) );
 
@@ -107,12 +120,13 @@ class Attachment_Handler {
 	 * @param Boolean $delete if the deletion should occur or not (unused).
 	 * @param WP_Post $post the post object.
 	 *
-	 * @return null|WP_Error|Boolean null if deletion should continue.
+	 * @return null|false null if deletion should continue, false to block it.
 	 */
 	public static function delete_video_wpcom( $delete, $post ) {
 		if ( ! is_videopress_attachment( $post->ID ) ) {
 			return null;
 		}
+		self::$delete_error = null;
 
 		$guid = get_post_meta( $post->ID, 'videopress_guid', true );
 		if ( empty( $guid ) ) {
@@ -124,12 +138,17 @@ class Attachment_Handler {
 		$wpcom_response = Client::wpcom_json_api_request_as_blog(
 			sprintf( '/videos/%s/delete', $guid ),
 			'1.1',
-			array( 'method' => 'POST' ),
+			array(
+				'method'  => 'POST',
+				'timeout' => self::DELETE_TIMEOUT,
+			),
 			array( 'user_id' => get_current_user_id() )
 		);
 
+		// Return false, not the WP_Error: core treats any truthy value as a successful delete.
 		if ( is_wp_error( $wpcom_response ) ) {
-			return $wpcom_response;
+			self::$delete_error = __( 'WordPress.com did not confirm that the video was deleted, so it was kept. Try again.', 'jetpack-videopress-pkg' );
+			return false;
 		}
 
 		// Upon success or a 404 (video already deleted on wp.com), return null to allow the deletion to continue.
@@ -139,7 +158,29 @@ class Attachment_Handler {
 		}
 
 		// Otherwise we stop the deletion from proceeding.
+		self::$delete_error = sprintf(
+			/* translators: %d: HTTP status code. */
+			__( 'WordPress.com could not delete this video (error %d).', 'jetpack-videopress-pkg' ),
+			(int) $wpcom_response['response']['code']
+		);
 		return false;
+	}
+
+	/**
+	 * Replaces the REST API's generic "cannot be deleted" error with the reason a VideoPress delete was blocked.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param mixed $response Result of the endpoint callback.
+	 * @return mixed
+	 */
+	public static function explain_rest_delete_failure( $response ) {
+		if ( null === self::$delete_error || ! is_wp_error( $response ) || 'rest_cannot_delete' !== $response->get_error_code() ) {
+			return $response;
+		}
+		$message            = self::$delete_error;
+		self::$delete_error = null;
+		return new WP_Error( 'videopress_delete_failed', $message, array( 'status' => 502 ) );
 	}
 
 	/**

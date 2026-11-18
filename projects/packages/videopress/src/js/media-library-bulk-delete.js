@@ -79,17 +79,20 @@
 			const $row = $( '#post-' + id );
 			$row.addClass( 'videopress-bulk-delete--deleting' ).css( 'opacity', 0.5 );
 
-			return deleteAttachment( id ).then( message => {
-				done++;
-				$progress.text( format( strings.progress, done, ids.length ) );
-				if ( message ) {
-					failures.push( { id, message } );
-					$row.removeClass( 'videopress-bulk-delete--deleting' ).css( 'opacity', '' );
-				} else {
-					$row.fadeOut( 200, () => $row.remove() );
-				}
-				return worker();
-			} );
+			// Retry once: after a timeout WordPress.com has usually finished, and the retry clears the local copy.
+			return deleteAttachment( id )
+				.then( message => ( message ? deleteAttachment( id ) : null ) )
+				.then( message => {
+					done++;
+					$progress.text( format( strings.progress, done, ids.length ) );
+					if ( message ) {
+						failures.push( { id, message } );
+						$row.removeClass( 'videopress-bulk-delete--deleting' ).css( 'opacity', '' );
+					} else {
+						$row.fadeOut( 200, () => $row.remove() );
+					}
+					return worker();
+				} );
 		};
 
 		const workers = [];
@@ -129,40 +132,43 @@
 		$notice.append( $list );
 	}
 
-	$( '#posts-filter' ).on( 'submit', function ( event ) {
-		const submitter = event.originalEvent && event.originalEvent.submitter;
-		if (
-			event.isDefaultPrevented() ||
-			! submitter ||
-			submitter.name !== 'bulk_action' ||
-			$( this ).find( 'select[name="action"]' ).val() !== 'delete'
-		) {
-			return;
-		}
+	// Bound on ready, after common.js, so core's empty-selection check sees the boxes before they are cleared.
+	$( () => {
+		$( '#posts-filter' ).on( 'submit', function ( event ) {
+			const submitter = event.originalEvent && event.originalEvent.submitter;
+			if (
+				event.isDefaultPrevented() ||
+				! submitter ||
+				submitter.name !== 'bulk_action' ||
+				$( this ).find( 'select[name="action"]' ).val() !== 'delete'
+			) {
+				return;
+			}
 
-		const ids = $( '#the-list input[name="media[]"]:checked' )
-			.map( ( index, input ) => input.value )
-			.get();
-		// Without VideoPress items core's single-request delete is quick enough, so leave it alone.
-		if ( ! ids.some( id => videoPressIds.has( id ) ) ) {
-			return;
-		}
+			const ids = $( '#the-list input[name="media[]"]:checked' )
+				.map( ( index, input ) => input.value )
+				.get();
+			// Without VideoPress items core's single-request delete is quick enough, so leave it alone.
+			if ( ! ids.some( id => videoPressIds.has( id ) ) ) {
+				return;
+			}
 
-		event.preventDefault();
-		if ( running ) {
-			return;
-		}
-		running = true;
+			event.preventDefault();
+			if ( running ) {
+				return;
+			}
+			running = true;
 
-		const $buttons = $( '#doaction, #doaction2' ).prop( 'disabled', true );
-		$( '#cb-select-all-1, #cb-select-all-2' ).prop( 'checked', false );
-		$( '#the-list input[name="media[]"]' ).prop( 'checked', false );
+			const $buttons = $( '#doaction, #doaction2' ).prop( 'disabled', true );
+			$( '#cb-select-all-1, #cb-select-all-2' ).prop( 'checked', false );
+			$( '#the-list input[name="media[]"]' ).prop( 'checked', false );
 
-		deleteAll( ids )
-			.then( failures => report( ids.length, failures ) )
-			.finally( () => {
-				running = false;
-				$buttons.prop( 'disabled', false );
-			} );
+			deleteAll( ids )
+				.then( failures => report( ids.length, failures ) )
+				.finally( () => {
+					running = false;
+					$buttons.prop( 'disabled', false );
+				} );
+		} );
 	} );
 } )( jQuery, window.wp, window.videopressMediaBulkDelete );
