@@ -3,8 +3,8 @@
  * The Ads section of the Premium Analytics dashboard on the WordPress.com platform.
  *
  * Simple runs no Jetpack plugin, so the module registrant skips the platform and this file decides
- * for both: the plan must include WordAds, and the site must have it on (Atomic: the WordAds module;
- * Simple: the WordAds approval stickers), as classic Stats does.
+ * for both: the site must have WordAds on (Atomic: the WordAds module; Simple: the WordAds approval
+ * stickers), as classic Stats does. No plan check: sites approved before WordAds needed a plan still run ads.
  * The section, its layout and the widgets come from the jetpack-ads package, which
  * the Jetpack plugin bundles: WordPress.com loads that copy, so this package does not.
  *
@@ -16,17 +16,14 @@ use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\WordAds\Analytics_Dashboard;
 
 /**
- * Whether the site's plan includes WordAds, the site has it on, and the package that owns the
- * section is here.
+ * Whether the site has WordAds on and the package that owns the section is here.
  *
  * @since 6.11.0
  *
  * @return bool
  */
 function wpcom_premium_analytics_site_has_wordads() {
-	return function_exists( 'wpcom_site_has_feature' )
-		&& wpcom_site_has_feature( 'wordads' )
-		&& wpcom_premium_analytics_wordads_is_enabled()
+	return wpcom_premium_analytics_wordads_is_enabled()
 		&& class_exists( Analytics_Dashboard::class );
 }
 
@@ -53,7 +50,7 @@ function wpcom_premium_analytics_wordads_is_enabled() {
 }
 
 /**
- * Register the Ads section on a site whose plan includes WordAds and that has it on.
+ * Register the Ads section on a site that has WordAds on.
  *
  * @since 6.11.0
  *
@@ -69,7 +66,7 @@ function wpcom_premium_analytics_register_wordads_section( $registry ) {
 }
 
 /**
- * Register the Ads widget types on a site whose plan includes WordAds and that has it on.
+ * Register the Ads widget types on a site that has WordAds on.
  *
  * @since 6.11.0
  *
