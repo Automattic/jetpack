@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\VideoPress;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
 
 /**
@@ -113,6 +114,55 @@ class Attachment_Handler_Test extends BaseTestCase {
 		Attachment_Handler::enqueue_media_library_poll();
 
 		$this->assertTrue( wp_script_is( 'videopress-media-library-poll', 'enqueued' ) );
+	}
+
+	/**
+	 * Test that the list view bulk-delete script loads only when the page lists VideoPress videos.
+	 *
+	 * @dataProvider provide_bulk_delete_mime_types
+	 *
+	 * @param string $mime_type      Mime type of the listed attachment.
+	 * @param bool   $should_enqueue Whether the script should be enqueued.
+	 */
+	#[DataProvider( 'provide_bulk_delete_mime_types' )]
+	public function test_enqueue_media_library_bulk_delete( $mime_type, $should_enqueue ) {
+		global $wp_list_table, $wp_query;
+		require_once ABSPATH . 'wp-admin/includes/class-wp-list-table.php';
+		require_once ABSPATH . 'wp-admin/includes/class-wp-media-list-table.php';
+
+		$post            = new \WP_Post(
+			(object) array(
+				'ID'             => 42,
+				'post_type'      => 'attachment',
+				'post_mime_type' => $mime_type,
+			)
+		);
+		$wp_query        = new \WP_Query();
+		$wp_query->posts = array( $post );
+		$wp_list_table   = ( new \ReflectionClass( \WP_Media_List_Table::class ) )->newInstanceWithoutConstructor();
+
+		Attachment_Handler::enqueue_media_library_bulk_delete();
+
+		$this->assertSame( $should_enqueue, wp_script_is( 'videopress-media-library-bulk-delete', 'enqueued' ) );
+		if ( $should_enqueue ) {
+			$this->assertStringContainsString( '"videoPressIds":[42]', wp_scripts()->get_data( 'videopress-media-library-bulk-delete', 'data' ) );
+		}
+
+		wp_dequeue_script( 'videopress-media-library-bulk-delete' );
+		wp_deregister_script( 'videopress-media-library-bulk-delete' );
+		$wp_list_table = null;
+	}
+
+	/**
+	 * Data provider for test_enqueue_media_library_bulk_delete.
+	 *
+	 * @return array
+	 */
+	public static function provide_bulk_delete_mime_types() {
+		return array(
+			'VideoPress video' => array( 'video/videopress', true ),
+			'Other media'      => array( 'image/jpeg', false ),
+		);
 	}
 
 	/**

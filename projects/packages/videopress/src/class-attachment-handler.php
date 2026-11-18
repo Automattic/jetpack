@@ -47,6 +47,7 @@ class Attachment_Handler {
 		add_filter( 'user_has_cap', array( __CLASS__, 'disable_delete_if_disconnected' ), 10, 3 );
 
 		add_action( 'admin_print_scripts-upload.php', array( __CLASS__, 'enqueue_media_library_poll' ) );
+		add_action( 'admin_print_scripts-upload.php', array( __CLASS__, 'enqueue_media_library_bulk_delete' ) );
 		add_action( 'admin_print_styles-upload.php', array( __CLASS__, 'enqueue_media_library_styles' ) );
 		add_filter( 'heartbeat_received', array( __CLASS__, 'heartbeat_received' ), 10, 2 );
 	}
@@ -341,6 +342,58 @@ class Attachment_Handler {
 		);
 
 		add_filter( 'heartbeat_settings', array( __CLASS__, 'heartbeat_settings' ) );
+	}
+
+	/**
+	 * Replaces the Media Library list view's single-request bulk delete with per-item requests
+	 * when VideoPress videos are selected, since each one waits on WordPress.com.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return void
+	 */
+	public static function enqueue_media_library_bulk_delete() {
+		global $wp_list_table, $wp_query;
+
+		if ( ! $wp_list_table instanceof \WP_Media_List_Table || ! $wp_query instanceof \WP_Query ) {
+			return;
+		}
+
+		$videopress_ids = array();
+		foreach ( $wp_query->posts as $post ) {
+			if ( $post instanceof WP_Post && 'video/videopress' === $post->post_mime_type ) {
+				$videopress_ids[] = $post->ID;
+			}
+		}
+		if ( empty( $videopress_ids ) ) {
+			return;
+		}
+
+		wp_enqueue_script(
+			'videopress-media-library-bulk-delete',
+			plugins_url( 'js/media-library-bulk-delete.js', __FILE__ ),
+			array( 'jquery', 'wp-api-fetch' ),
+			Package_Version::PACKAGE_VERSION,
+			true
+		);
+		wp_localize_script(
+			'videopress-media-library-bulk-delete',
+			'videopressMediaBulkDelete',
+			array(
+				'videoPressIds' => $videopress_ids,
+				'strings'       => array(
+					/* translators: %1$s: number of items processed so far, %2$s: number of items selected. */
+					'progress'     => __( 'Deleting media: %1$s of %2$s done. Keep this page open until it finishes.', 'jetpack-videopress-pkg' ),
+					/* translators: %1$s: number of items deleted, %2$s: number of items selected. */
+					'done'         => __( 'Deleted %1$s of %2$s selected items.', 'jetpack-videopress-pkg' ),
+					/* translators: %1$s: number of items deleted, %2$s: number of items selected, %3$s: number of items that failed. */
+					'partial'      => __( 'Deleted %1$s of %2$s selected items. %3$s could not be deleted and are still selected, so you can try again:', 'jetpack-videopress-pkg' ),
+					/* translators: %1$s: media title, %2$s: error message. */
+					'failure'      => __( '%1$s: %2$s', 'jetpack-videopress-pkg' ),
+					'unknownError' => __( 'The item could not be deleted.', 'jetpack-videopress-pkg' ),
+				),
+			)
+		);
 	}
 
 	/**
