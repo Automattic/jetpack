@@ -19,6 +19,7 @@ import { Notice, Stack } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
+import { discardedThroughShell } from '../../_inc/hooks/use-admin-shell-leave-guard';
 import { getLinkedSectionId, scrollToSection } from './anchors';
 import { fetchSettings, updateSettings } from './api';
 import { getNewsletterScriptData } from './script-data';
@@ -221,6 +222,9 @@ export function NewsletterSettingsBody( {
 		}
 
 		const warn = ( event: BeforeUnloadEvent ) => {
+			if ( discardedThroughShell() ) {
+				return;
+			}
 			event.preventDefault();
 			// Older browsers only prompt when this is set.
 			event.returnValue = '';
