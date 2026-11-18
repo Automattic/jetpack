@@ -120,13 +120,31 @@ class Block_Editor {
 	}
 
 	/**
+	 * Whether the current site's comment blocks are this package's to prune and draw.
+	 *
+	 * @return bool
+	 */
+	private static function filters_site() {
+		/**
+		 * Leave the current site's comment blocks as they are, for a site whose comments another editor writes.
+		 *
+		 * Asked per comment, since one request can filter comments from more than one site of a network.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param bool $filters Whether to prune and render the blocks in this site's comments. Default true.
+		 */
+		return (bool) apply_filters( 'jetpack_comments_filter_blocks', true );
+	}
+
+	/**
 	 * Drop any block the editor does not offer.
 	 *
 	 * @param string $content Slashed comment content.
 	 * @return string
 	 */
 	public function keep_allowed_blocks( $content ) {
-		$this->has_blocks = self::is_enabled() && has_blocks( $content );
+		$this->has_blocks = self::is_enabled() && has_blocks( $content ) && self::filters_site();
 
 		if ( ! $this->has_blocks ) {
 			return $content;
@@ -223,7 +241,7 @@ class Block_Editor {
 	 * @return string|mixed
 	 */
 	public static function render( $content, $comment = null ) {
-		if ( ! is_string( $content ) || ! has_blocks( $content ) ) {
+		if ( ! is_string( $content ) || ! has_blocks( $content ) || ! self::filters_site() ) {
 			return $content;
 		}
 
@@ -248,7 +266,7 @@ class Block_Editor {
 
 		$comment = get_comment( $comment_id );
 
-		if ( ! $comment instanceof \WP_Comment || ! has_blocks( $comment->comment_content ) ) {
+		if ( ! $comment instanceof \WP_Comment || ! has_blocks( $comment->comment_content ) || ! self::filters_site() ) {
 			return $message;
 		}
 

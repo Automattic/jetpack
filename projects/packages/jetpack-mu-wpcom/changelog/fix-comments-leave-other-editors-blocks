@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Comments: Stop removing P2 blocks from P2 comments shown in emails and notifications.

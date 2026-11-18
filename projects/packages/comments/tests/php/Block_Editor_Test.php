@@ -25,6 +25,14 @@ class Block_Editor_Test extends BaseTestCase {
 		$this->assertSame( $expected, wp_unslash( Block_Editor::init()->keep_allowed_blocks( wp_slash( $content ) ) ) );
 	}
 
+	public function test_leaves_blocks_of_a_site_it_does_not_filter() {
+		add_filter( 'jetpack_comments_filter_blocks', '__return_false' );
+		$content = "<!-- wp:p2/task -->\n<div>Do it</div>\n<!-- /wp:p2/task -->";
+
+		$this->assertSame( $content, wp_unslash( Block_Editor::init()->keep_allowed_blocks( wp_slash( $content ) ) ) );
+		$this->assertSame( $content, Block_Editor::render( $content ) );
+	}
+
 	public static function provide_keep_allowed_blocks() {
 		$paragraph = "<!-- wp:paragraph -->\n<p>Hi</p>\n<!-- /wp:paragraph -->";
 

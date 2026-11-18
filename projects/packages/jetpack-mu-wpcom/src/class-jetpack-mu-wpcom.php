@@ -876,6 +876,9 @@ class Jetpack_Mu_Wpcom {
 			return;
 		}
 
+		// Before the gates below: a request that loads the editor for one site can go on to render a P2's comments.
+		add_filter( 'jetpack_comments_filter_blocks', array( __CLASS__, 'leave_p2_comment_blocks' ) );
+
 		if ( class_exists( 'Verbum_Comments' ) ) {
 			return;
 		} else {
@@ -898,6 +901,16 @@ class Jetpack_Mu_Wpcom {
 			require_once __DIR__ . '/features/verbum-comments/class-verbum-comments.php';
 			new \Automattic\Jetpack\Verbum_Comments();
 		}
+	}
+
+	/**
+	 * Leave a P2's comment blocks to P2's own renderer.
+	 *
+	 * @param bool $filters Whether Jetpack Comments prunes and renders the current site's comment blocks.
+	 * @return bool
+	 */
+	public static function leave_p2_comment_blocks( $filters ) {
+		return $filters && ! ( new \Automattic\Jetpack\Status\Host() )->is_p2_site();
 	}
 
 	/**
