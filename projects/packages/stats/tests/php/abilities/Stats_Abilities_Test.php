@@ -541,6 +541,7 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 			'insights'    => array( 'get_insights', array(), array( 'get_stats', 'get_insights', 'get_highlights', 'get_streak', 'get_stats_usage' ) ),
 			'emails'      => array( 'get_email_stats', array(), array( 'get_email_summary' ) ),
 			'email'       => array( 'get_email_detail', array( 'post_id' => 'new' ), array( 'get_email_breakdown' ) ),
+			'video'       => array( 'get_video_stats', array( 'video_id' => 'new' ), array( 'get_video_details' ) ),
 			'subscribers' => array( 'get_subscribers', array(), array( 'get_subscribers' ) ),
 			'ads'         => array( 'get_ad_stats', array(), array( 'get_wordads_stats', 'get_wordads_earnings' ) ),
 		);
@@ -559,6 +560,9 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 	public function test_reader_reports_an_error_when_wordpress_com_answers_nothing( string $reader, array $input, array $calls ): void {
 		if ( 'new' === ( $input['post_id'] ?? null ) ) {
 			$input['post_id'] = wp_insert_post( array( 'post_title' => 'Hello' ) );
+		}
+		if ( 'new' === ( $input['video_id'] ?? null ) ) {
+			$input['video_id'] = wp_insert_post( array( 'post_type' => 'attachment' ) );
 		}
 		$this->filter_wpcom_stats( array_fill_keys( $calls, new \WP_Error( 'wpcom_boom', 'nope' ) ) );
 
@@ -600,7 +604,17 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 			),
 			'emails start'     => array( 'get_email_stats', array( 'start_date' => $bad_day ), 'jetpack_stats_invalid_date' ),
 			'emails empty end' => array( 'get_email_stats', array( 'end_date' => '' ), 'jetpack_stats_invalid_date' ),
+			'email missing'    => array( 'get_email_detail', array(), 'jetpack_stats_missing_post_id' ),
 			'email no post'    => array( 'get_email_detail', array( 'post_id' => 999999 ), 'jetpack_stats_post_not_found' ),
+			'video missing'    => array( 'get_video_stats', array( 'video_id' => 0 ), 'jetpack_stats_missing_video_id' ),
+			'video date'       => array(
+				'get_video_stats',
+				array(
+					'video_id' => 1,
+					'date'     => $bad_day,
+				),
+				'jetpack_stats_invalid_date',
+			),
 			'video no video'   => array( 'get_video_stats', array( 'video_id' => 999999 ), 'jetpack_stats_video_not_found' ),
 			'ads date'         => array( 'get_ad_stats', array( 'date' => $bad_day ), 'jetpack_stats_invalid_date' ),
 		);

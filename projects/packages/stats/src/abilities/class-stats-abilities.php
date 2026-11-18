@@ -2920,7 +2920,7 @@ class Stats_Abilities extends Registrar {
 		}
 		ksort( $counts );
 		// At the cap WPCOM drops the oldest posts, so the calendar starts at the oldest day it returned.
-		if ( $posts >= self::STREAK_MAX_POSTS && $counts ) {
+		if ( $posts >= self::STREAK_MAX_POSTS ) {
 			$from = (string) array_key_first( $counts );
 		}
 
