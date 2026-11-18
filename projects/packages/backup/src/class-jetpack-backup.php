@@ -118,6 +118,13 @@ class Jetpack_Backup {
 	const SITE_POLICIES_TRANSIENT = 'jetpack_backup_site_policies';
 
 	/**
+	 * Transient that, while set, keeps the storage reads out of the cache.
+	 *
+	 * @var string
+	 */
+	const STORAGE_CACHE_BYPASS_TRANSIENT = 'jetpack_backup_storage_cache_bypass';
+
+	/**
 	 * Transient holding the dashboard's capabilities, kept only while they include Backup.
 	 *
 	 * @var string
@@ -331,9 +338,11 @@ class Jetpack_Backup {
 	public static function admin_init() {
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_admin_scripts' ) );
 
-		// Only clears a cache, so it needs no nonce.
+		// Only bypasses a cache, so it needs no nonce.
 		if ( isset( $_GET[ self::STORAGE_PURCHASED_ARG ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			self::clear_storage_cache();
+			// A purchase can take a moment to reach `/rewind/policies`, so a read made right after checkout is not kept.
+			set_transient( self::STORAGE_CACHE_BYPASS_TRANSIENT, 1, self::REWIND_READ_CACHE_TTL );
 		}
 
 		if ( self::is_wp_build_dashboard_active() ) {
@@ -1120,7 +1129,8 @@ class Jetpack_Backup {
 	 * @return \WP_REST_Response|WP_Error The decoded answer, or a WP_Error if WordPress.com could not be reached.
 	 */
 	private static function get_cached_rewind_read( $endpoint, $transient ) {
-		$cached = get_transient( $transient );
+		$use_cache = false === get_transient( self::STORAGE_CACHE_BYPASS_TRANSIENT );
+		$cached    = $use_cache ? get_transient( $transient ) : false;
 
 		if ( is_array( $cached ) ) {
 			return rest_ensure_response( $cached );
@@ -1145,7 +1155,7 @@ class Jetpack_Backup {
 		$body = json_decode( $response['body'], true );
 
 		// `ok: false` is WordPress.com failing to measure; caching it would hide the figures once it recovers.
-		if ( is_array( $body ) && false !== ( $body['ok'] ?? true ) ) {
+		if ( $use_cache && is_array( $body ) && false !== ( $body['ok'] ?? true ) ) {
 			set_transient( $transient, $body, self::REWIND_READ_CACHE_TTL );
 		}
 

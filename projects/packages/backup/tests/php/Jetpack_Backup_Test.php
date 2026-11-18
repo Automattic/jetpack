@@ -109,6 +109,7 @@ class Jetpack_Backup_Test extends TestCase {
 			delete_transient( Jetpack_Backup::PROMOTED_PRODUCT_TRANSIENT_PREFIX . sanitize_key( $locale ) );
 		}
 		Jetpack_Backup::clear_storage_cache();
+		delete_transient( Jetpack_Backup::STORAGE_CACHE_BYPASS_TRANSIENT );
 		unset( $_GET[ Jetpack_Backup::STORAGE_PURCHASED_ARG ] );
 
 		$this->wpcom_status     = 200;
@@ -805,9 +806,9 @@ class Jetpack_Backup_Test extends TestCase {
 	}
 
 	/**
-	 * A reader back from buying storage sees the new figures, not the cached ones.
+	 * A reader back from buying storage sees the new figures, and a read made before the purchase lands is not kept.
 	 */
-	public function test_returning_from_checkout_clears_the_storage_cache() {
+	public function test_returning_from_checkout_reads_storage_fresh() {
 		$this->sign_in_as_connected_admin();
 		add_filter( 'pre_http_request', array( $this, 'mock_wpcom_response' ) );
 		Jetpack_Backup::get_site_backup_size();
@@ -815,7 +816,10 @@ class Jetpack_Backup_Test extends TestCase {
 
 		$_GET[ Jetpack_Backup::STORAGE_PURCHASED_ARG ] = '1';
 		Jetpack_Backup::admin_init();
+		Jetpack_Backup::get_site_backup_size();
+		Jetpack_Backup::get_site_backup_policies();
 
+		$this->assertSame( 4, $this->http_requests );
 		$this->assertFalse( get_transient( Jetpack_Backup::SITE_SIZE_TRANSIENT ) );
 		$this->assertFalse( get_transient( Jetpack_Backup::SITE_POLICIES_TRANSIENT ) );
 	}
