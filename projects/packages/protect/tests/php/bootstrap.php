@@ -10,6 +10,11 @@
  */
 require_once __DIR__ . '/../../vendor/autoload.php';
 
+// A process-isolated test starts with an empty SCRIPT_FILENAME, which wp_guess_url() can't handle on PHP 7.
+if ( empty( $_SERVER['SCRIPT_FILENAME'] ) ) {
+	$_SERVER['SCRIPT_FILENAME'] = __FILE__;
+}
+
 // Its own plugins folder, since other projects' tests read the shared one in parallel CI runs while these tests write to it.
 define( 'WP_PLUGIN_DIR', dirname( \Automattic\Jetpack\Test_Environment::find_autoloader(), 2 ) . '/wordpress/wp-content/plugins-packages-protect' );
 if ( ! is_dir( WP_PLUGIN_DIR ) ) {

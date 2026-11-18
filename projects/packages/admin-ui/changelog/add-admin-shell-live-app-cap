@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Admin shell: Keep at most a few dashboards live, sized from the device's memory, and load the page past that, after asking hidden dashboards with unsaved changes. Add the jetpack_admin_shell_max_live_apps filter to set the limit.

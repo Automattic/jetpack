@@ -404,12 +404,33 @@ class Dashboard {
 	 * @return void
 	 */
 	public static function load_as_admin_shell_guest() {
+		// A menu hover readies the page and may fetch the report; the page's own load caches it.
+		if ( self::is_admin_shell_guest_request() ) {
+			$keep_stored = static function ( $value, $old_value ) {
+				return $old_value;
+			};
+			foreach ( array( Scan_Status::class, \Automattic\Jetpack\Protect_Status\Protect_Status::class ) as $status ) {
+				add_filter( 'pre_update_option_' . $status::OPTION_NAME, $keep_stored, 10, 2 );
+				add_filter( 'pre_update_option_' . $status::OPTION_TIMESTAMP_NAME, $keep_stored, 10, 2 );
+			}
+		}
+
 		if ( ! self::load_wp_build( dirname( __DIR__ ) . '/build/build.php', false ) ) {
 			return;
 		}
 		add_filter( 'jetpack_admin_js_script_data', array( __CLASS__, 'add_tracks_identity' ), 20 );
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_tracks_transport' ) );
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_guest_initial_state' ) );
+	}
+
+	/**
+	 * Whether this is the admin shell's hover request, not another dashboard's page readying Protect for a switch.
+	 *
+	 * @return bool
+	 */
+	private static function is_admin_shell_guest_request() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Compared only; the shell checks the nonce.
+		return wp_doing_ajax() && isset( $_GET['action'] ) && Admin_Shell::GUEST_ACTION === wp_unslash( $_GET['action'] );
 	}
 
 	/**

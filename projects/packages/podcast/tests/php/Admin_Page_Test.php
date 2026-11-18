@@ -17,6 +17,8 @@ use Automattic\Jetpack\Status\Cache as Status_Cache;
 use Jetpack_Options;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use WorDBless\BaseTestCase;
 use WorDBless\Options as WorDBless_Options;
 
@@ -39,7 +41,6 @@ class Admin_Page_Test extends BaseTestCase {
 	protected function tearDown(): void {
 		Constants::clear_constants();
 		remove_all_actions( 'load-jetpack_page_' . Admin_Page::ADMIN_PAGE_SLUG );
-		remove_action( 'admin_enqueue_scripts', 'wp_enqueue_media' );
 		remove_action( 'admin_enqueue_scripts', array( Admin_Page::class, 'enqueue_tracks_transport' ) );
 		remove_action( 'admin_enqueue_scripts', array( Admin_Page::class, 'enqueue_i18n_loader' ) );
 		wp_dequeue_script( 'wp-jp-i18n-loader' );
@@ -382,6 +383,26 @@ class Admin_Page_Test extends BaseTestCase {
 		Admin_Page::admin_init();
 
 		$this->assertSame( 10, has_action( 'admin_enqueue_scripts', array( Admin_Page::class, 'enqueue_i18n_loader' ) ) );
+	}
+
+	/**
+	 * The picker's endpoint is hooked without the admin menu, which admin-ajax never builds.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_init_hooks_the_media_library_endpoint() {
+		Admin_Page::init();
+
+		$this->assertNotFalse( has_action( 'wp_ajax_jetpack_media_library' ) );
+	}
+
+	public function test_admin_init_leaves_the_media_library_to_the_cover_picker() {
+		Admin_Page::admin_init();
+
+		$this->assertFalse( has_action( 'admin_enqueue_scripts', 'wp_enqueue_media' ) );
 	}
 
 	public function test_enqueue_i18n_loader_enqueues_the_loader_when_it_is_registered() {

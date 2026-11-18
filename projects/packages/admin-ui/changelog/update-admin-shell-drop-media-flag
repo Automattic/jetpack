@@ -1,0 +1,4 @@
+Significance: minor
+Type: removed
+
+Admin shell: Remove the media member key. Members load the media library with loadMediaLibrary() when it is opened.

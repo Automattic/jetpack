@@ -110,6 +110,8 @@ describe( 'header stand-in', () => {
 			'Short.',
 			'Short.',
 		],
+		[ 'its own header, for a subtitle picked as it renders', 'newsletter', 'Old', null, 'Old' ],
+		[ 'a borrowed header, for a subtitle picked as it renders', 'z-donor', 'Old', null, '\u00a0' ],
 	] )(
 		'gives %s the declared title and subtitle',
 		( _, savedAs, savedSubtitle, subtitle, shown ) => {
@@ -149,23 +151,31 @@ describe( 'header stand-in', () => {
 		).toHaveTextContent( 'Shiny new subtitle' );
 	} );
 
-	it( 'adds a subtitle row styled as the page header’s when no saved header has one', () => {
-		document.head.innerHTML =
-			'<style>.b__header-subtitle{color:gray}@media screen{.t__body-md{font-size:13px}}</style>';
-		save(
-			'my-jetpack',
-			'<div><header><div class="b__header-content"><h1 class="t__text t__heading-lg b__header-title">Jetpack</h1></div></header></div>'
-		);
+	it.each( [
+		[ 'its subtitle', 'View a summary of your newsletter.', 'View a summary of your newsletter.' ],
+		[ 'a blank line for a subtitle picked as it renders', null, '&nbsp;' ],
+	] )(
+		'adds a subtitle row styled as the page header’s, with %s, when no saved header has one',
+		( _, subtitle, shown ) => {
+			document.head.innerHTML =
+				'<style>.b__header-subtitle{color:gray}@media screen{.t__body-md{font-size:13px}}</style>';
+			save(
+				'my-jetpack',
+				'<div><header><div class="b__header-content"><h1 class="t__text t__heading-lg b__header-title">Jetpack</h1></div></header></div>'
+			);
 
-		showHeader( 'newsletter', document.getElementById( 'app' ), 'Newsletter', {
-			title: 'Newsletter',
-			subtitle: 'View a summary of your newsletter.',
-		} );
+			showHeader( 'newsletter', document.getElementById( 'app' ), 'Newsletter', {
+				title: 'Newsletter',
+				subtitle,
+			} );
 
-		const row = document.querySelector( '[data-shell-header="newsletter"] .b__header-content + p' );
-		expect( row ).toHaveTextContent( 'View a summary of your newsletter.' );
-		expect( [ ...row.classList ] ).toEqual( [ 't__text', 'b__header-subtitle', 't__body-md' ] );
-	} );
+			const row = document.querySelector(
+				'[data-shell-header="newsletter"] .b__header-content + p'
+			);
+			expect( row.innerHTML ).toBe( shown );
+			expect( [ ...row.classList ] ).toEqual( [ 't__text', 'b__header-subtitle', 't__body-md' ] );
+		}
+	);
 
 	it( 'does not save a header its page hides', () => {
 		jest.useFakeTimers();
