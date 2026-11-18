@@ -5,20 +5,24 @@ const UNREPORTABLE = '[unreportable]';
 const SAFE_NAME = /^[A-Za-z0-9_-]{1,64}$/;
 const NESTED_QUERY_PARAMS = new Set( [ 'p', 'post_url' ] );
 
-const ALLOWED_PARAMS = new Set( [
-	'page',
-	'p',
+// A detail page keeps the window it was opened from under these names prefixed with `ref_`.
+const WINDOW_PARAMS = [
 	'from',
 	'to',
 	'interval',
 	'preset',
 	'step',
-	'period',
-	'date_type',
 	'comp',
 	'compare_from',
 	'compare_to',
 	'compare_preset',
+] as const;
+
+const ALLOWED_PARAMS = new Set( [
+	'page',
+	'p',
+	'period',
+	'date_type',
 	'ds',
 	'section',
 	'ref',
@@ -26,6 +30,8 @@ const ALLOWED_PARAMS = new Set( [
 	'post_url',
 	'post_id',
 	'author_id',
+	...WINDOW_PARAMS,
+	...WINDOW_PARAMS.map( name => `ref_${ name }` ),
 ] );
 
 /**

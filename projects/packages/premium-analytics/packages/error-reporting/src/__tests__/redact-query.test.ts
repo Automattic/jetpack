@@ -8,6 +8,12 @@ describe( 'redactQuery', () => {
 		expect( redactQuery( ALLOWLISTED_SEARCH ) ).toBe( ALLOWLISTED_SEARCH.slice( 1 ) );
 	} );
 
+	it( 'keeps the window a detail page carries prefixed, which is the window it was opened from', () => {
+		const origin = 'ref_preset=last-30&ref_interval=day&ref_comp=1&ref_compare_from=2025-12-01';
+
+		expect( redactQuery( `?${ origin }` ) ).toBe( origin );
+	} );
+
 	it( 'masks the value of an unknown parameter', () => {
 		expect( redactQuery( '?email=a@b.c' ) ).toBe( 'email=[redacted]' );
 	} );
