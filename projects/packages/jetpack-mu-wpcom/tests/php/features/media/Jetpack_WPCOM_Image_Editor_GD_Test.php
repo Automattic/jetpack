@@ -109,6 +109,11 @@ class Jetpack_WPCOM_Image_Editor_GD_Test extends \WorDBless\BaseTestCase {
 		jetpack_wpcom_ai_marker_register_flag();
 	}
 
+	public function tear_down() {
+		$this->remove_temp_dir();
+		parent::tear_down();
+	}
+
 	/**
 	 * Whether the host has exiftool, and the editors that should result.
 	 *

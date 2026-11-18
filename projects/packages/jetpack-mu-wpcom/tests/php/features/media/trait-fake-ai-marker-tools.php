@@ -26,6 +26,13 @@ trait Fake_AI_Marker_Tools {
 	private $logs = array();
 
 	/**
+	 * Folder for this test's files, or '' until temp_path() makes it.
+	 *
+	 * @var string
+	 */
+	private $temp_dir = '';
+
+	/**
 	 * Fakes exiftool: a read reports $type and maybe a C2PA box, a write exits with $write_status.
 	 *
 	 * @param string $type         The XMP type a read reports, or '' for none.
@@ -142,12 +149,31 @@ trait Fake_AI_Marker_Tools {
 	}
 
 	/**
-	 * Returns a fresh path in the uploads directory.
+	 * Returns a fresh path in this test's own folder.
+	 *
+	 * Not the uploads folder: suites that run at the same time share it, and WorDBless empties it after each test.
 	 *
 	 * @param string $extension File extension.
 	 * @return string
 	 */
 	private function temp_path( $extension ) {
-		return wp_upload_dir()['path'] . '/ai-marker-' . wp_generate_password( 12, false ) . '.' . $extension;
+		if ( ! $this->temp_dir ) {
+			$this->temp_dir = get_temp_dir() . 'ai-marker-' . wp_generate_password( 12, false );
+			mkdir( $this->temp_dir );
+		}
+
+		return $this->temp_dir . '/' . wp_generate_password( 12, false ) . '.' . $extension;
+	}
+
+	/**
+	 * Deletes the folder temp_path() made.
+	 */
+	private function remove_temp_dir() {
+		if ( ! $this->temp_dir ) {
+			return;
+		}
+		array_map( 'unlink', glob( $this->temp_dir . '/*' ) );
+		rmdir( $this->temp_dir );
+		$this->temp_dir = '';
 	}
 }
