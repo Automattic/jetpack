@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: Admin shell change and e2e test, behind a feature flag that is off by default.
+
+

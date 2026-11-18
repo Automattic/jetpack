@@ -42,16 +42,18 @@ describe( 'admin shell client', () => {
 			json: () => Promise.resolve( { success: true, data: { html: '' } } ),
 		} );
 		require( '../../../src/admin-shell/index' );
-		const hover = el => el.dispatchEvent( new MouseEvent( 'pointerover', { bubbles: true } ) );
+		// Rest on the link past the shell's hover delay.
+		const hover = async el => {
+			el.dispatchEvent( new MouseEvent( 'pointerover', { bubbles: true } ) );
+			await new Promise( resolve => setTimeout( resolve, 150 ) );
+			await flush();
+		};
 
-		hover( document.querySelector( 'a[href="admin.php?page=my-jetpack"]' ) );
-		await flush();
+		await hover( document.querySelector( 'a[href="admin.php?page=my-jetpack"]' ) );
 		expect( guestRequests() ).toHaveLength( 0 );
 
-		hover( document.querySelector( `a[href$="${ FORMS }"] span` ) );
-		await flush();
-		hover( document.querySelector( `a[href$="${ FORMS }"] span` ) );
-		await flush();
+		await hover( document.querySelector( `a[href$="${ FORMS }"] span` ) );
+		await hover( document.querySelector( `a[href$="${ FORMS }"] span` ) );
 		expect( guestRequests().map( url => url.searchParams.get( 'member' ) ) ).toEqual( [ FORMS ] );
 	} );
 } );

@@ -7,8 +7,12 @@
 
 namespace Automattic\Jetpack\Search;
 
+use Automattic\Jetpack\Admin_UI\Admin_Shell;
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Search\TestCase as Search_TestCase;
+use Jetpack_Options;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 require_once __DIR__ . '/fixtures/wp-build-render.php';
 
@@ -28,6 +32,10 @@ class Dashboard_Wp_Build_Test extends Search_TestCase {
 		wp_deregister_script( Dashboard::DATA_SCRIPT_HANDLE );
 		remove_all_actions( 'admin_enqueue_scripts' );
 		unset( $GLOBALS['jetpack_search_test_wp_build_check_screen_id'], $GLOBALS['current_screen'] );
+		remove_filter( 'jetpack_options', array( $this, 'mock_site_connection_without_users' ), 11 );
+		remove_filter( 'wp_doing_ajax', '__return_true' );
+		unset( $_GET['action'] );
+		( new Connection_Manager() )->reset_connection_status();
 
 		parent::tearDown();
 	}
@@ -133,6 +141,69 @@ class Dashboard_Wp_Build_Test extends Search_TestCase {
 
 		$inline = implode( "\n", array_filter( (array) wp_scripts()->get_data( Dashboard::DATA_SCRIPT_HANDLE, 'before' ) ) );
 		$this->assertStringContainsString( 'JP_CONNECTION_INITIAL_STATE', $inline );
+	}
+
+	/**
+	 * A menu hover readies the page through the admin shell, which must not create the purchase token.
+	 *
+	 * @dataProvider provide_page_loads
+	 *
+	 * @param bool $is_guest Whether the admin shell readies the page through its member loader.
+	 * @param bool $is_hover Whether this is the shell's hover request.
+	 */
+	#[DataProvider( 'provide_page_loads' )]
+	public function test_only_the_admin_shell_hover_skips_creating_the_purchase_token( $is_guest, $is_hover ) {
+		if ( $is_hover ) {
+			add_filter( 'wp_doing_ajax', '__return_true' );
+			$_GET['action'] = Admin_Shell::GUEST_ACTION;
+		}
+		wp_set_current_user( $this->admin_id );
+		set_current_screen( 'jetpack_page_jetpack-search' );
+		// A site connection with no connected user, the only state that gets a purchase token.
+		add_filter( 'jetpack_options', array( $this, 'mock_site_connection_without_users' ), 11, 2 );
+		( new Connection_Manager() )->reset_connection_status();
+		$dashboard = new class() extends Dashboard {
+			/**
+			 * @return string
+			 */
+			protected function wp_build_index() {
+				return __DIR__ . '/fixtures/wp-build-index.php';
+			}
+		};
+
+		if ( $is_guest ) {
+			$dashboard->load_as_admin_shell_guest();
+		} else {
+			$dashboard->admin_init();
+		}
+		do_action( 'admin_enqueue_scripts', 'jetpack_page_jetpack-search' );
+
+		$this->assertStringContainsString( 'JETPACK_SEARCH_DASHBOARD_INITIAL_STATE', implode( "\n", (array) wp_scripts()->get_data( Dashboard::DATA_SCRIPT_HANDLE, 'before' ) ) );
+		$this->assertSame( ! $is_hover, (bool) Jetpack_Options::get_option( 'purchase_token' ) );
+	}
+
+	/**
+	 * Drop the user tokens the base test case's connection mock adds.
+	 *
+	 * @param mixed  $value The current option value.
+	 * @param string $name  Option name.
+	 * @return mixed
+	 */
+	public function mock_site_connection_without_users( $value, $name ) {
+		return 'user_tokens' === $name ? array() : $value;
+	}
+
+	/**
+	 * The page's own load, the shell's hover request, and another dashboard's page readying Search for a later switch.
+	 *
+	 * @return array<string, array{bool, bool}>
+	 */
+	public static function provide_page_loads() {
+		return array(
+			'page load'           => array( false, false ),
+			'hover request'       => array( true, true ),
+			'another member page' => array( true, false ),
+		);
 	}
 
 	public function test_the_constants_match_the_wp_build_page_definition() {

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Dashboard: Stop saving the classic forms state when the admin shell readies the page on a menu hover.
