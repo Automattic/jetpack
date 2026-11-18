@@ -10,6 +10,7 @@ use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Extensions\AiAssistantPlugin;
 use Automattic\Jetpack\Extensions\AiAssistantPlugin\Jetpack_AI_Sidebar;
 use Automattic\Jetpack\Status\Cache as Status_Cache;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 require_once JETPACK__PLUGIN_DIR . '/extensions/plugins/ai-assistant-plugin/ai-sidebar/class-jetpack-ai-sidebar.php';
 
@@ -95,6 +96,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		remove_all_filters( 'jetpack_active_modules' );
 		remove_all_filters( 'jetpack_disable_seo_tools' );
 		remove_all_filters( 'ai_seo_enhancer_enabled' );
+		remove_all_filters( 'stylesheet' );
 		Status_Cache::clear();
 		unset( $_SERVER['A8C_PROXIED_REQUEST'] );
 		( new \Automattic\Jetpack\Connection\Manager( 'jetpack' ) )->reset_connection_status();
@@ -110,6 +112,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		Constants::clear_single_constant( 'ATOMIC_SITE_ID' );
 		Constants::clear_single_constant( 'ATOMIC_CLIENT_ID' );
 		Constants::clear_single_constant( 'WPCOMSH__PLUGIN_FILE' );
+		Constants::clear_single_constant( 'WPCOM_IS_VIP_ENV' );
 		Status_Cache::clear();
 		wp_set_current_user( $this->saved_current_user_id );
 		$GLOBALS['current_screen'] = $this->saved_screen;
@@ -148,6 +151,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		return array(
 			AiAssistantPlugin\AI_SIDEBAR_TOOLBAR_BUTTON_EXTENSION,
 			AiAssistantPlugin\AI_SIDEBAR_AGENT_NOTICE_EXTENSION,
+			AiAssistantPlugin\AI_SIDEBAR_AGENT_ENABLE_EXTENSION,
 		);
 	}
 
@@ -578,6 +582,78 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 
 		$this->assertTrue( \Jetpack_Gutenberg::is_available( AiAssistantPlugin\AI_SIDEBAR_AGENT_NOTICE_EXTENSION ) );
 		$this->assertFalse( \Jetpack_Gutenberg::is_available( AiAssistantPlugin\AI_SIDEBAR_AGENT_SUPPORT_EXTENSION ) );
+	}
+
+	/**
+	 * Only offer the Enable link to people the dashboard lets manage the site.
+	 *
+	 * @dataProvider provide_enable_agent_cases
+	 *
+	 * @param string $scenario Who is editing, and on what kind of site.
+	 * @param bool   $expected Whether they can enable the Agent.
+	 */
+	#[DataProvider( 'provide_enable_agent_cases' )]
+	public function test_can_current_user_enable_agent( $scenario, $expected ) {
+		switch ( $scenario ) {
+			case 'editor':
+				wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
+				break;
+			case 'super admin who is not a member':
+				// Off multisite, is_user_member_of_blog() is true for every logged-in user.
+				if ( ! is_multisite() ) {
+					$this->markTestSkipped( 'Super admins only exist on multisite.' );
+				}
+				$user_id = self::factory()->user->create();
+				remove_user_from_blog( $user_id, get_current_blog_id() );
+				grant_super_admin( $user_id );
+				wp_set_current_user( $user_id );
+				break;
+			case 'P2':
+				$this->simulate_wpcom_simple();
+				add_filter(
+					'stylesheet',
+					static function () {
+						return 'pub/p2020';
+					}
+				);
+				break;
+			case 'VIP':
+				Constants::set_constant( 'WPCOM_IS_VIP_ENV', true );
+				break;
+		}
+
+		$this->assertSame( $expected, Jetpack_AI_Sidebar::can_current_user_enable_agent() );
+	}
+
+	/**
+	 * Cases for test_can_current_user_enable_agent.
+	 *
+	 * @return array
+	 */
+	public static function provide_enable_agent_cases() {
+		return array(
+			'administrator'                   => array( 'administrator', true ),
+			'editor'                          => array( 'editor', false ),
+			'super admin who is not a member' => array( 'super admin who is not a member', false ),
+			'administrator on a P2'           => array( 'P2', false ),
+			'administrator on VIP'            => array( 'VIP', false ),
+		);
+	}
+
+	/**
+	 * The notice learns from its own extension flag whether to offer the Enable link.
+	 */
+	public function test_agent_enable_extension_follows_whether_the_user_can_enable_the_agent() {
+		$this->set_block_editor_screen();
+		$this->enable_sidebar_extension_availability_checks();
+
+		Jetpack_AI_Sidebar::register_agent_notice_extension();
+		$this->assertTrue( \Jetpack_Gutenberg::is_available( AiAssistantPlugin\AI_SIDEBAR_AGENT_ENABLE_EXTENSION ) );
+
+		\Jetpack_Gutenberg::reset();
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
+		Jetpack_AI_Sidebar::register_agent_notice_extension();
+		$this->assertFalse( \Jetpack_Gutenberg::is_available( AiAssistantPlugin\AI_SIDEBAR_AGENT_ENABLE_EXTENSION ) );
 	}
 
 	/**
@@ -1715,25 +1791,6 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		delete_option( 'jetpack_ai_seo_enabled' );
 
 		$this->assertSame( false, $data['jetpackAiSidebar']['features']['aiEditorialReview'] );
-	}
-
-	/**
-	 * With writing on keeping the sidebar available, the SEO enhancer option at
-	 * its stored off value keeps SEO suggestions out of the emitted payload —
-	 * the option alone, independent of the ai_seo_enhancer_enabled kill switch.
-	 */
-	public function test_add_agents_manager_data_seo_suggestions_follow_option_off() {
-		$this->set_block_editor_screen();
-		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
-		$this->activate_seo_tools_module();
-		update_option( 'jetpack_ai_seo_enabled', 0 );
-
-		$data = Jetpack_AI_Sidebar::add_agents_manager_data( array( 'sectionName' => 'gutenberg' ) );
-
-		delete_option( 'jetpack_ai_seo_enabled' );
-
-		$this->assertSame( false, $data['jetpackAiSidebar']['features']['seoSuggestions'] );
-		$this->assertSame( true, $data['jetpackAiSidebar']['features']['proofreadContent'] );
 	}
 
 	/**

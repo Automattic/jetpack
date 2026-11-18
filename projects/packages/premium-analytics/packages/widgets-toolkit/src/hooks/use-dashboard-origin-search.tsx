@@ -40,13 +40,22 @@ export function DashboardSectionProvider( { section, children }: DashboardSectio
 }
 
 /**
+ * The dashboard tab rendering the tree, when the tree is on the dashboard.
+ *
+ * @return The section slug.
+ */
+export function useDashboardSection(): string | undefined {
+	return useContext( DashboardSectionContext );
+}
+
+/**
  * The search params that carry the dashboard origin on a link out of this page:
  * the active tab on the dashboard, otherwise the origin already in the URL.
  *
  * @return The dashboard origin param, when one is known.
  */
 export function useDashboardOriginSearch(): Record< string, string > {
-	const dashboardSection = useContext( DashboardSectionContext );
+	const dashboardSection = useDashboardSection();
 	let search: Record< string, unknown > | undefined;
 
 	// `useSearch` throws outside a matched route (e.g. Storybook).

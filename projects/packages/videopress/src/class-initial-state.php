@@ -85,7 +85,7 @@ class Initial_State {
 	/**
 	 * Inline the initial-state payload, and the connection state, before a script.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.63.0
 	 *
 	 * @param string $handle A registered script handle.
 	 * @return void

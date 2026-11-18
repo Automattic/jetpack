@@ -35,6 +35,11 @@ class Admin_Shell {
 	const GUEST_ACTION = 'jetpack_admin_shell_guest';
 
 	/**
+	 * The admin-ajax action that says whether a member's feature is on, and turns it on.
+	 */
+	const FEATURE_ACTION = 'jetpack_admin_shell_feature';
+
+	/**
 	 * Script module ID of the client.
 	 */
 	const CLIENT_MODULE = '@automattic/jetpack-admin-shell';
@@ -43,11 +48,6 @@ class Admin_Shell {
 	 * Hooks where guests add their page data. On a host page, callbacks a guest adds here are removed: the guest endpoint runs them later.
 	 */
 	const DEFERRED_HOOKS = array( 'admin_enqueue_scripts', 'admin_print_scripts', 'admin_print_footer_scripts', 'jetpack_admin_js_script_data' );
-
-	/**
-	 * The script and style handles wp_enqueue_media() enqueues, printed for members that set `media`.
-	 */
-	const MEDIA_HANDLES = array( 'media-editor', 'media-audiovideo', 'mce-view', 'image-edit', 'media-views', 'imgareaselect' );
 
 	/**
 	 * Whether init() has run.
@@ -86,6 +86,9 @@ class Admin_Shell {
 		// Priority 0: guests must register their modules before the host page builds its import map.
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'setup' ), 0 );
 		add_action( 'wp_ajax_' . self::GUEST_ACTION, array( __CLASS__, 'ajax_guest_assets' ) );
+		add_action( 'wp_ajax_' . self::FEATURE_ACTION, array( __CLASS__, 'ajax_feature' ) );
+		// Plugins call init() on admin-ajax requests too, where the shell's members load the media library.
+		Media_Library::init();
 	}
 
 	/**
@@ -102,7 +105,7 @@ class Admin_Shell {
 		/**
 		 * Filters whether Jetpack dashboards share one wp-admin page.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.14.15
 		 *
 		 * @param bool $enabled Whether the shell is on. Defaults to the `jetpack-admin-shell` feature flag.
 		 */
@@ -112,7 +115,7 @@ class Admin_Shell {
 	/**
 	 * Member dashboards, keyed by admin page slug. Entries that don't match the contract are dropped.
 	 *
-	 * @return array<string, array{build_prefix: string, build_page: string, init_modules: string[], title: string, header: array{title: string, subtitle: string}|null, default_path: string|null, load: callable, capability: string, handles: string[], media: bool}>
+	 * @return array<string, array{build_prefix: string, build_page: string, init_modules: string[], title: string, header: array{title: string, subtitle: string|null}|false|null, default_path: string|null, load: callable, capability: string, handles: string[]}>
 	 */
 	public static function get_members() {
 		/**
@@ -123,14 +126,13 @@ class Admin_Shell {
 		 * - build_page (string)     The wp-build page name.
 		 * - init_modules (string[]) Script modules to import before the app boots.
 		 * - title (string)          Document title while the page is shown.
-		 * - header (array)          Optional. `title` and `subtitle` ('' for none) of the view a bare menu link opens, as the dashboard renders them. Shown while it opens. A malformed one is dropped, not the member.
+		 * - header (array|false)    Optional. `title` and `subtitle` of the view a bare menu link opens, as the dashboard renders them, shown while it opens. `subtitle` is '' for none, or null when the dashboard picks it as it renders. False shows no stand-in on any of its views, for a page whose landing view has no standard page header. A malformed one is dropped, not the member.
 		 * - default_path (string)   Optional. The `p` a bare menu link opens.
-		 * - load (callable)         Loads the build that defines `<build_prefix>_get_<build_page>_wp_admin_routes()`, leaving its page init action to the shell, registers the page's scripts and prints its initial data. Must be safe to run twice, and must not redirect, print or write options.
+		 * - load (callable)         Loads the build that defines `<build_prefix>_get_<build_page>_wp_admin_routes()`, leaving its page init action to the shell, registers the page's scripts and prints its initial data. Must be safe to run twice, and must not redirect, print or write options. Add print hook callbacks here, not from admin_enqueue_scripts: the guest endpoint drops what those print.
 		 * - capability (string)     Optional, default `manage_options`. Required to load the page into the shell.
 		 * - handles (string[])      Optional. Script and style handles the guest endpoint prints, with their dependencies; nothing else is enqueued.
-		 * - media (bool)            Optional, default false. Whether the page opens the media library: the endpoint then prints it and its templates too.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.14.15
 		 *
 		 * @param array $members Member definitions keyed by admin page slug.
 		 */
@@ -145,7 +147,7 @@ class Admin_Shell {
 			if ( null === $normalized ) {
 				$message = sprintf( 'Admin shell member "%s" is missing a required key or has one of the wrong type, so it was skipped.', $slug );
 				// Keep on one line: the release tooling only replaces the version in a single-line call.
-				_doing_it_wrong( __METHOD__, esc_html( $message ), '$$next-version$$' );
+				_doing_it_wrong( __METHOD__, esc_html( $message ), '0.14.15' );
 				continue;
 			}
 			$valid[ $slug ] = $normalized;
@@ -339,9 +341,27 @@ class Admin_Shell {
 				),
 				admin_url( 'admin-ajax.php' )
 			),
+			'featureUrl'       => add_query_arg(
+				array(
+					'action' => self::FEATURE_ACTION,
+					'nonce'  => wp_create_nonce( self::FEATURE_ACTION ),
+				),
+				admin_url( 'admin-ajax.php' )
+			),
+			'featureOff'       => array(
+				/* translators: %s is a feature name, e.g. "Jetpack Forms". */
+				'heading' => __( '%s is off', 'jetpack-admin-ui' ),
+				'text'    => __( 'It was switched off in My Jetpack. Turning it on brings this page and its menu item back.', 'jetpack-admin-ui' ),
+				/* translators: %s is a feature name, e.g. "Jetpack Forms". */
+				'button'  => __( 'Turn on %s', 'jetpack-admin-ui' ),
+				'busy'    => __( 'Turning on…', 'jetpack-admin-ui' ),
+				'failed'  => __( 'It could not be turned on. Try again from My Jetpack.', 'jetpack-admin-ui' ),
+			),
+			'maxLiveApps'      => self::max_live_apps(),
 		);
 		foreach ( array( $host => array() ) + $guests as $slug => $routes ) {
 			$member                     = $members[ $slug ];
+			$gate                       = self::feature_gate( $slug );
 			$config['members'][ $slug ] = array(
 				'mountId'     => $member['build_page'] . '-wp-admin-app',
 				'routes'      => $routes,
@@ -351,9 +371,181 @@ class Admin_Shell {
 				'header'      => $member['header'],
 				'adminTitle'  => self::admin_title( $slug, $member['title'] ),
 				'bodyClass'   => self::screen_id( $slug ),
+				'gate'        => $gate,
+				// Ties the gate to this member, so the feature endpoint answers for no other.
+				'gateNonce'   => null === $gate ? null : wp_create_nonce( self::gate_action( $slug, $gate ) ),
+				// Guests are checked when they are opened; the host is on screen already.
+				'featureOn'   => $slug !== $host || null === $gate || ! self::stands_in( $gate ),
 			);
+			// So the host shows its card without asking again.
+			if ( false === $config['members'][ $slug ]['featureOn'] ) {
+				$config['members'][ $slug ]['featureCard'] = self::feature_off_card( $slug );
+			}
 		}
 		return $config;
+	}
+
+	/**
+	 * The gate a member's menu item declared, while this admin-ui can answer for it.
+	 *
+	 * @param string $slug Admin page slug.
+	 * @return array|null
+	 */
+	private static function feature_gate( $slug ) {
+		// The admin-ui that won the autoloader may predate these methods.
+		if ( ! method_exists( Admin_Menu::class, 'get_feature_gate' ) ) {
+			return null;
+		}
+		return Admin_Menu::get_feature_gate( $slug );
+	}
+
+	/**
+	 * Say whether a member's feature is on, or, on a POST with `activate`, turn it on.
+	 *
+	 * @return void
+	 */
+	public static function ajax_feature() {
+		check_ajax_referer( self::FEATURE_ACTION, 'nonce' );
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended, WordPress.Security.NonceVerification.Missing -- Checked above.
+		$slug = isset( $_REQUEST['member'] ) && is_string( $_REQUEST['member'] ) ? sanitize_key( wp_unslash( $_REQUEST['member'] ) ) : '';
+		$gate = array();
+		foreach ( array( 'product', 'module' ) as $key ) {
+			if ( isset( $_REQUEST[ $key ] ) && is_string( $_REQUEST[ $key ] ) && '' !== $_REQUEST[ $key ] ) {
+				$gate[ $key ] = sanitize_key( wp_unslash( $_REQUEST[ $key ] ) );
+			}
+		}
+		$activate   = isset( $_SERVER['REQUEST_METHOD'] ) && 'POST' === $_SERVER['REQUEST_METHOD'] && ! empty( $_POST['activate'] );
+		$gate_nonce = isset( $_REQUEST['gate_nonce'] ) && is_string( $_REQUEST['gate_nonce'] ) ? sanitize_key( wp_unslash( $_REQUEST['gate_nonce'] ) ) : '';
+		// phpcs:enable
+
+		if ( ! self::is_member_gate( $slug, $gate, $gate_nonce ) ) {
+			wp_send_json_error( null, 403, JSON_UNESCAPED_SLASHES );
+		}
+
+		$result = self::feature( $slug, $gate, $activate );
+		if ( is_int( $result ) ) {
+			wp_send_json_error( null, $result, JSON_UNESCAPED_SLASHES );
+		}
+		if ( is_wp_error( $result ) ) {
+			wp_send_json_error( array( 'message' => $result->get_error_message() ), 200, JSON_UNESCAPED_SLASHES );
+		}
+		$data = array( 'on' => $result );
+		if ( ! $result ) {
+			$data['card'] = self::feature_off_card( $slug );
+		}
+		wp_send_json_success( $data, 200, JSON_UNESCAPED_SLASHES );
+	}
+
+	/**
+	 * The HTML the shell shows in place of a member page whose feature is off.
+	 *
+	 * @param string $slug Admin page slug of the member.
+	 * @return string Empty for the shell's plain panel.
+	 */
+	private static function feature_off_card( $slug ) {
+		/**
+		 * Filters the HTML the shell shows in place of a member page whose feature is off. Empty for the shell's plain panel.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param string $html Card HTML.
+		 * @param string $slug Admin page slug of the member.
+		 */
+		return (string) apply_filters( 'jetpack_admin_shell_feature_off_card', '', $slug );
+	}
+
+	/**
+	 * Whether a member's page shows as itself, after turning its feature on when asked to.
+	 *
+	 * @param string $slug     Member page slug.
+	 * @param array  $gate     The gate the member's menu item declared.
+	 * @param bool   $activate Whether to turn the feature on first.
+	 * @return bool|\WP_Error|int False when the shell stands in for it, the activation error, or an HTTP status: 404 for no such member or gate, 403 when the user can't open it.
+	 */
+	public static function feature( $slug, array $gate, $activate = false ) {
+		if ( ! self::is_enabled() || ! $gate || ! method_exists( Admin_Menu::class, 'is_feature_on' ) ) {
+			return 404;
+		}
+		$members = self::get_members();
+		if ( isset( $members[ $slug ] ) && ! current_user_can( $members[ $slug ]['capability'] ) ) {
+			return 403;
+		}
+		// Most members stop joining the shell while their feature is off, so a missing one is known only when the shell stands in for it.
+		if ( ! isset( $members[ $slug ] ) && ! self::stands_in( $gate ) ) {
+			return 404;
+		}
+		if ( $activate ) {
+			$result = self::can_turn_on( $gate )
+				? Admin_Menu::turn_feature_on( $gate )
+				: new \WP_Error( 'not_available', __( 'This feature can only be turned on from My Jetpack.', 'jetpack-admin-ui' ) );
+			if ( is_wp_error( $result ) ) {
+				return $result;
+			}
+		}
+		return ! self::stands_in( $gate );
+	}
+
+	/**
+	 * Whether the shell shows a turn-on panel instead of a page: its feature is off and can be turned on here.
+	 *
+	 * @param array $gate A member's gate.
+	 * @return bool
+	 */
+	private static function stands_in( array $gate ) {
+		return ! Admin_Menu::is_feature_on( $gate ) && self::can_turn_on( $gate );
+	}
+
+	/**
+	 * Whether this admin-ui and the site's activator can turn a gate's feature on.
+	 *
+	 * @param array $gate A member's gate.
+	 * @return bool
+	 */
+	private static function can_turn_on( array $gate ) {
+		// An older Admin_Menu, loaded first from another plugin's copy, predates the check.
+		return method_exists( Admin_Menu::class, 'can_turn_feature_on' ) && Admin_Menu::can_turn_feature_on( $gate );
+	}
+
+	/**
+	 * Whether a gate is the one this site gave the member, by the nonce sent with the shell config.
+	 *
+	 * @param string $slug  Member page slug.
+	 * @param array  $gate  Gate from the request.
+	 * @param string $nonce Gate nonce from the request.
+	 * @return bool
+	 */
+	public static function is_member_gate( $slug, array $gate, $nonce ) {
+		return '' !== $nonce && false !== wp_verify_nonce( $nonce, self::gate_action( $slug, $gate ) );
+	}
+
+	/**
+	 * The nonce action that ties a gate to its member.
+	 *
+	 * @param string $slug Member page slug.
+	 * @param array  $gate Its gate.
+	 * @return string
+	 */
+	private static function gate_action( $slug, array $gate ) {
+		ksort( $gate );
+		return self::FEATURE_ACTION . '|' . $slug . '|' . http_build_query( $gate );
+	}
+
+	/**
+	 * How many dashboards the client may keep live in one document.
+	 *
+	 * @return int|null The limit, or null to let the client size it from the device's memory.
+	 */
+	private static function max_live_apps() {
+		/**
+		 * Filters how many dashboards the admin shell keeps live, prewarmed or mounted, in one document.
+		 * Past the limit, opening another dashboard loads the page.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param int|null $max_live_apps A positive limit, counting the page that loaded; null sizes it from the device's memory.
+		 */
+		$max_live_apps = apply_filters( 'jetpack_admin_shell_max_live_apps', null );
+		return is_numeric( $max_live_apps ) && (int) $max_live_apps > 0 ? (int) $max_live_apps : null;
 	}
 
 	/**
@@ -413,18 +605,17 @@ class Admin_Shell {
 			return 403;
 		}
 
+		$snapshot = self::hook_snapshot();
 		call_user_func( $members[ $slug ]['load'] );
 		self::run_page_init( $members[ $slug ] );
+		$own         = self::added_keys( $snapshot );
 		$hook_suffix = self::screen_id( $slug );
 		set_current_screen( $hook_suffix );
 		$GLOBALS['concatenate_scripts'] = false; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- One script tag per handle, so the client can skip what the host already has.
 
 		ob_start();
 		do_action( 'admin_enqueue_scripts', $hook_suffix ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Core hook.
-		if ( $members[ $slug ]['media'] ) {
-			wp_enqueue_media();
-		}
-		$handles = self::printed_handles( $members[ $slug ] );
+		$handles = $members[ $slug ]['handles'];
 		// Only the member's own handles, and what they depend on, go back to the page. Printing them
 		// even when nothing enqueued them: a page can rely on another script pulling one in.
 		foreach ( array( wp_scripts(), wp_styles() ) as $dependencies ) {
@@ -432,15 +623,10 @@ class Admin_Shell {
 		}
 		self::guard_api_fetch_setup();
 		wp_print_styles();
-		// The print hooks attach data to handles (Script_Data does), so they run in full.
-		do_action( 'admin_print_scripts' ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Core hook.
+		self::fire_print_hook( 'admin_print_scripts', $own['admin_print_scripts'] );
 		print_head_scripts();
 		print_footer_scripts();
-		do_action( 'admin_print_footer_scripts' ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Core hook.
-		// Core prints these on admin_footer, which the endpoint doesn't run.
-		if ( $members[ $slug ]['media'] ) {
-			wp_print_media_templates();
-		}
+		self::fire_print_hook( 'admin_print_footer_scripts', $own['admin_print_footer_scripts'] );
 		return ob_get_clean();
 	}
 
@@ -465,13 +651,92 @@ class Admin_Shell {
 	}
 
 	/**
-	 * The script and style handles the guest endpoint prints for a member.
+	 * Fire a print hook, discarding what callbacks echo unless the member added them or core defines them.
 	 *
-	 * @param array $member Normalized member.
-	 * @return string[]
+	 * Every callback still runs, so data attached to the member's handles prints. Their echoes already ran on the host page.
+	 *
+	 * @param string             $hook Hook name.
+	 * @param array<string,true> $own  Callbacks the member's loader added, keyed as hook_snapshot() keys them.
+	 * @return void
 	 */
-	private static function printed_handles( array $member ): array {
-		return $member['media'] ? array( ...$member['handles'], ...self::MEDIA_HANDLES ) : $member['handles'];
+	private static function fire_print_hook( $hook, array $own ) {
+		global $wp_filter;
+		$wrapped = array();
+		foreach ( isset( $wp_filter[ $hook ] ) ? $wp_filter[ $hook ]->callbacks : array() as $priority => $by_id ) {
+			foreach ( $by_id as $id => $callback ) {
+				if ( isset( $own[ $priority . '|' . $id ] ) || self::is_core_callback( $callback['function'] ) ) {
+					continue;
+				}
+				$function                    = $callback['function'];
+				$wrapped[ $priority ][ $id ] = $function;
+				$wp_filter[ $hook ]->callbacks[ $priority ][ $id ]['function'] = static function ( ...$args ) use ( $function ) {
+					$level = ob_get_level();
+					ob_start();
+					try {
+						call_user_func_array( $function, $args );
+					} finally {
+						// Also closes buffers the callback left open, stopping at one that can't be removed.
+						while ( ob_get_level() > $level && ob_end_clean() ) {
+							continue;
+						}
+					}
+				};
+			}
+		}
+
+		try {
+			do_action( $hook ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound -- A core print hook.
+		} finally {
+			foreach ( $wrapped as $priority => $by_id ) {
+				foreach ( $by_id as $id => $function ) {
+					if ( isset( $wp_filter[ $hook ]->callbacks[ $priority ][ $id ] ) ) {
+						$wp_filter[ $hook ]->callbacks[ $priority ][ $id ]['function'] = $function;
+					}
+				}
+			}
+		}
+	}
+
+	/**
+	 * Whether a callback is defined in WordPress core, which prints the member's handles and script module data.
+	 *
+	 * The Gutenberg plugin counts as core: it can replace core's script module printers.
+	 *
+	 * @param callable $callback Callback.
+	 * @return bool
+	 */
+	private static function is_core_callback( $callback ) {
+		static $core_dirs = null;
+		if ( null === $core_dirs ) {
+			$core_dirs = array();
+			$dirs      = array( ABSPATH . WPINC, ABSPATH . 'wp-admin' );
+			// Found from its main file: WordPress.com loads it from a versioned directory.
+			if ( function_exists( 'gutenberg_pre_init' ) ) {
+				// @phan-suppress-next-line PhanUndeclaredFunctionInCallable -- Defined by the Gutenberg plugin, when active.
+				$dirs[] = dirname( (string) ( new \ReflectionFunction( 'gutenberg_pre_init' ) )->getFileName() );
+			}
+			foreach ( $dirs as $dir ) {
+				$real = realpath( $dir );
+				if ( false !== $real ) {
+					$core_dirs[] = trailingslashit( wp_normalize_path( $real ) );
+				}
+			}
+		}
+		try {
+			$file = ( new \ReflectionFunction( \Closure::fromCallable( $callback ) ) )->getFileName();
+		} catch ( \Throwable $e ) {
+			return false;
+		}
+		if ( ! is_string( $file ) ) {
+			return false;
+		}
+		$file = wp_normalize_path( $file );
+		foreach ( $core_dirs as $dir ) {
+			if ( 0 === strpos( $file, $dir ) ) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**
@@ -491,6 +756,20 @@ class Admin_Shell {
 			}
 		}
 		return $snapshot;
+	}
+
+	/**
+	 * Keys of the callbacks added to the deferred hooks since the snapshot.
+	 *
+	 * @param array<string, array<string, true>> $snapshot From hook_snapshot().
+	 * @return array<string, array<string, true>> Keyed by every deferred hook.
+	 */
+	private static function added_keys( $snapshot ) {
+		$added = array();
+		foreach ( self::hook_snapshot() as $hook => $keys ) {
+			$added[ $hook ] = array_diff_key( $keys, $snapshot[ $hook ] );
+		}
+		return $added;
 	}
 
 	/**
@@ -562,7 +841,6 @@ class Admin_Shell {
 			'default_path' => null,
 			'capability'   => 'manage_options',
 			'handles'      => array(),
-			'media'        => false,
 		);
 
 		if (
@@ -570,24 +848,23 @@ class Admin_Shell {
 			|| ! self::is_string_list( $member['handles'] )
 			|| ! is_string( $member['capability'] ) || '' === $member['capability']
 			|| ( null !== $member['default_path'] && ! is_string( $member['default_path'] ) )
-			|| ! is_bool( $member['media'] )
 		) {
 			return null;
 		}
 
 		// Only cosmetic, so a malformed header is dropped and the member kept.
-		if ( null !== $member['header'] && ! self::is_header( $member['header'] ) ) {
+		if ( null !== $member['header'] && false !== $member['header'] && ! self::is_header( $member['header'] ) ) {
 			$member['header'] = null;
 			$message          = sprintf( 'Admin shell member "%s" has a header without a title and subtitle, so the header was skipped.', $slug );
 			// Keep on one line: the release tooling only replaces the version in a single-line call.
-			_doing_it_wrong( __CLASS__ . '::get_members', esc_html( $message ), '$$next-version$$' );
+			_doing_it_wrong( __CLASS__ . '::get_members', esc_html( $message ), '0.14.15' );
 		}
 
 		return $member;
 	}
 
 	/**
-	 * Whether a value is a page header: a non-empty `title` and a `subtitle` string.
+	 * Whether a value is a page header: a non-empty `title`, and a `subtitle` string or null.
 	 *
 	 * @param mixed $value Value to check.
 	 * @return bool
@@ -595,7 +872,7 @@ class Admin_Shell {
 	private static function is_header( $value ) {
 		return is_array( $value )
 			&& isset( $value['title'] ) && is_string( $value['title'] ) && '' !== $value['title']
-			&& isset( $value['subtitle'] ) && is_string( $value['subtitle'] );
+			&& array_key_exists( 'subtitle', $value ) && ( null === $value['subtitle'] || is_string( $value['subtitle'] ) );
 	}
 
 	/**

@@ -171,9 +171,27 @@ class Script_Data_Test extends BaseTestCase {
 		);
 		\Automattic\Jetpack\Status\Cache::clear();
 		add_filter( 'jetpack_offline_mode', '__return_false' );
+		// Upgrade offers depend on the product catalog, so serve an on-sale bundle to compare against.
+		$products = function ( $preempt, $args, $url ) {
+			if ( ! str_contains( $url, '/rest/v1.1/products' ) ) {
+				return $preempt;
+			}
+			$pro = array(
+				'cost'          => 299,
+				'currency_code' => 'USD',
+				'product_term'  => 'year',
+				'available'     => true,
+			);
+			return array(
+				'response' => array( 'code' => 200 ),
+				'body'     => wp_json_encode( array( 'jetpack_pro_yearly' => $pro ), JSON_UNESCAPED_SLASHES ),
+			);
+		};
+		add_filter( 'pre_http_request', $products, 10, 3 );
 		try {
 			$_GET['page'] = 'my-jetpack';
 			$before       = Initializer::add_admin_script_data( array() );
+			$this->assertContains( '/add-pro', array_column( array_column( Main_Features::get_state()['features'], 'upgrade' ), 'path' ) );
 			add_filter( 'jetpack_my_jetpack_offline_features', '__return_true' );
 			$after = Initializer::add_admin_script_data( array() );
 			$this->assertArrayNotHasKey( 'offlineFeatures', $after['myJetpack'] );
@@ -181,6 +199,7 @@ class Script_Data_Test extends BaseTestCase {
 			$this->assertSame( Main_Features::get_state(), REST_Main_Features::get_state()->get_data() );
 			$this->assertTrue( Initializer::should_initialize() );
 		} finally {
+			remove_filter( 'pre_http_request', $products, 10 );
 			remove_all_filters( 'jetpack_offline_mode' );
 			\Automattic\Jetpack\Status\Cache::clear();
 			remove_all_filters( 'jetpack_my_jetpack_offline_features' );

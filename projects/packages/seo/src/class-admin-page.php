@@ -144,12 +144,13 @@ class Admin_Page {
 	/**
 	 * Hook the app's initial state and, when the site allows tracking, its Tracks transport and context.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.12.0
 	 *
 	 * @return void
 	 */
 	public static function register_page_data() {
 		add_filter( 'jetpack_admin_js_script_data', array( __CLASS__, 'inject_script_data' ) );
+		self::enqueue_runtime_config();
 
 		// Without the context the client records nothing, so another script's Tracks transport can't send our events.
 		if ( self::can_use_analytics() ) {
@@ -163,13 +164,13 @@ class Admin_Page {
 	 *
 	 * Only hooked once Initializer::init() has passed the checks that register the page itself.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.12.0
 	 *
 	 * @param array $members Shell members keyed by admin page slug.
 	 * @return array
 	 */
 	public static function add_admin_shell_member( $members ) {
-		if ( ( new Host() )->is_wpcom_simple() || ! file_exists( self::wp_build_index_path() ) ) {
+		if ( ! file_exists( self::wp_build_index_path() ) ) {
 			return $members;
 		}
 
@@ -187,7 +188,7 @@ class Admin_Page {
 				'subtitle' => __( 'Make your site discoverable in search and social, and control AI access.', 'jetpack-seo' ),
 			),
 			'capability'   => 'manage_options',
-			'handles'      => array( 'jetpack-script-data', 'jp-tracks', 'wp-jp-i18n-loader' ),
+			'handles'      => array( 'jetpack-script-data', 'jetpack-seo-config', 'jp-tracks', 'wp-jp-i18n-loader' ),
 			'load'         => array( __CLASS__, 'load_as_admin_shell_guest' ),
 		);
 		return $members;
@@ -196,7 +197,7 @@ class Admin_Page {
 	/**
 	 * Ready the SEO routes and page data while another dashboard's page is open, without the screen ID alias.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.12.0
 	 *
 	 * @return void
 	 */
@@ -273,6 +274,18 @@ class Admin_Page {
 			'is_test'         => $is_test,
 			'product_version' => Initializer::PACKAGE_VERSION,
 		);
+	}
+
+	/**
+	 * Supply the consumer identity used by wp-build's shared AdminPage dependencies.
+	 *
+	 * @return void
+	 */
+	private static function enqueue_runtime_config() {
+		wp_register_script( 'jetpack-seo-config', false, array(), Initializer::PACKAGE_VERSION, true );
+		wp_enqueue_script( 'jetpack-seo-config' );
+		$config = wp_json_encode( array( 'consumer_slug' => 'jetpack-seo' ), JSON_HEX_TAG | JSON_HEX_AMP );
+		wp_add_inline_script( 'jetpack-seo-config', 'window.jetpackConfig = Object.assign(' . $config . ', window.jetpackConfig || {});', 'before' );
 	}
 
 	/**

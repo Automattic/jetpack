@@ -10,7 +10,7 @@ namespace Automattic\Jetpack\PremiumAnalytics;
 /**
  * Configures the default date format script data.
  *
- * @since $$next-version$$
+ * @since 0.18.0
  *
  * @return void
  */
@@ -24,7 +24,7 @@ function configure_date_format() {
  * The dashboard falls back to it when the site's format lacks a day, month or year. Sent from
  * PHP because core's JavaScript translations do not include this string.
  *
- * @since $$next-version$$
+ * @since 0.18.0
  *
  * @param array $data The script data passed by the assets package.
  * @return array

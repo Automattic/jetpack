@@ -13,7 +13,7 @@ export const GOAL_SLUGS: GoalSlug[] = [
 /** The goals step's treatment variation. */
 export const BRING_YOUR_AI_TOOL = 'bring_your_ai_tool';
 
-/** The goals step's ExPlat variations (`wpcom_ai_launchpad_bring_your_ai_tool_202611`). */
+/** The goals step's ExPlat variations (`wpcom_ai_launchpad_bring_your_ai_tool_202611_v2`). */
 export type GoalsVariation = 'control' | typeof BRING_YOUR_AI_TOOL;
 
 /** The wp.me short links that open the WordPress.com app in each AI tool. */

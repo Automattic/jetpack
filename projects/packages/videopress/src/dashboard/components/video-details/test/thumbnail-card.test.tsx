@@ -1,3 +1,4 @@
+import { loadMediaLibrary } from '@automattic/jetpack-components/tools/load-media-library';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -18,6 +19,11 @@ jest.mock( '../../../utils/select-image-from-media-library', () => ( {
 	selectImageFromMediaLibrary: jest.fn(),
 } ) );
 const mockedSelectImage = selectImageFromMediaLibrary as unknown as jest.Mock;
+
+jest.mock( '@automattic/jetpack-components/tools/load-media-library', () => ( {
+	loadMediaLibrary: jest.fn(),
+} ) );
+const mockedLoadMediaLibrary = loadMediaLibrary as unknown as jest.Mock;
 
 jest.mock( '../select-frame-dialog', () => ( {
 	__esModule: true,
@@ -86,12 +92,7 @@ beforeEach( () => {
 	mockedSelectImage.mockReset();
 	mockSuccessNotice.mockReset();
 	mockErrorNotice.mockReset();
-	// Provide window.wp.media so canUploadImage is true for upload-mode tests.
-	( window as unknown as { wp?: { media?: unknown } } ).wp = { media: jest.fn() };
-} );
-
-afterEach( () => {
-	delete ( window as unknown as { wp?: { media?: unknown } } ).wp;
+	mockedLoadMediaLibrary.mockReset().mockResolvedValue( undefined );
 } );
 
 describe( 'ThumbnailCard — update flow', () => {
@@ -188,6 +189,49 @@ describe( 'ThumbnailCard — update flow', () => {
 			} )
 		);
 		await waitFor( () => expect( mockSuccessNotice ).toHaveBeenCalledTimes( 1 ) );
+	} );
+
+	it( 'upload mode: opens the media library once it has loaded, busy until then', async () => {
+		const user = userEvent.setup();
+		let finishLoading: () => void = () => {};
+		mockedLoadMediaLibrary.mockReturnValueOnce(
+			new Promise< void >( resolve => {
+				finishLoading = resolve;
+			} )
+		);
+		mockedSelectImage.mockResolvedValueOnce( null );
+		render( <ThumbnailCard video={ baseVideo } />, { wrapper } );
+
+		await user.click( screen.getByRole( 'button', { name: /upload image/i } ) );
+
+		expect( screen.getByRole( 'button', { name: /opening/i } ) ).toHaveAttribute(
+			'aria-disabled',
+			'true'
+		);
+		expect( mockedSelectImage ).not.toHaveBeenCalled();
+
+		finishLoading();
+
+		await waitFor( () => expect( mockedSelectImage ).toHaveBeenCalledTimes( 1 ) );
+		expect( screen.getByRole( 'button', { name: /upload image/i } ) ).not.toHaveAttribute(
+			'aria-disabled',
+			'true'
+		);
+	} );
+
+	it( 'upload mode: shows an error toast when the media library fails to load', async () => {
+		const user = userEvent.setup();
+		mockedLoadMediaLibrary.mockRejectedValueOnce( new Error( 'HTTP 500' ) );
+		render( <ThumbnailCard video={ baseVideo } />, { wrapper } );
+
+		await user.click( screen.getByRole( 'button', { name: /upload image/i } ) );
+
+		await waitFor( () => expect( mockErrorNotice ).toHaveBeenCalledTimes( 1 ) );
+		expect( mockedSelectImage ).not.toHaveBeenCalled();
+		expect( screen.getByRole( 'button', { name: /upload image/i } ) ).not.toHaveAttribute(
+			'aria-disabled',
+			'true'
+		);
 	} );
 
 	it( 'upload mode: no mutation when the user cancels the media library', async () => {

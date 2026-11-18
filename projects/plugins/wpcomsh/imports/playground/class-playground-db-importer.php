@@ -311,19 +311,24 @@ class Playground_DB_Importer {
 		}
 
 		// Get the "type map" of the table.
-		$query   = $this->prepare( 'SELECT COLUMN_NAME, COLUMN_TYPE from ' . self::SQLITE_DATA_TYPES_TABLE . ' where `TABLE_NAME`=%s;', $table_name );
+		$query   = $this->prepare( 'SELECT COLUMN_NAME, COLUMN_TYPE, EXTRA from ' . self::SQLITE_DATA_TYPES_TABLE . ' where `TABLE_NAME`=%s;', $table_name );
 		$results = $this->db->query( $query );
 
 		if ( ! $results ) {
 			return new WP_Error( 'missing-types-cache', 'Query error: missing data types cache' );
 		}
 
-		$mysql_map = array();
+		$mysql_map      = array();
+		$auto_increment = array();
 
-		// Schema: COLUMN_NAME|COLUMN_TYPE
+		// Schema: COLUMN_NAME|COLUMN_TYPE|EXTRA
 		while ( $column = $results->fetchArray( SQLITE3_ASSOC ) ) { // phpcs:ignore Generic.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition
 			// Map by column name and MySQL type.
 			$mysql_map[ $column['COLUMN_NAME'] ] = $column['COLUMN_TYPE'];
+
+			// Keep AUTO_INCREMENT only where the site's schema has it. A primary key like `id varchar(64)` has none,
+			// and MySQL rejects AUTO_INCREMENT on a non-integer column.
+			$auto_increment[ $column['COLUMN_NAME'] ] = false !== stripos( (string) $column['EXTRA'], 'auto_increment' );
 		}
 
 		// Tables like `'_wp_sqlite_*` do not have entries in the `_wp_sqlite_mysql_information_schema_columns` table.
@@ -374,7 +379,7 @@ class Playground_DB_Importer {
 				'not_null'       => (bool) $column['notnull'],
 				'default'        => $column['dflt_value'],
 				'primary'        => $is_primary,
-				'auto_increment' => $is_primary,
+				'auto_increment' => $is_primary && $auto_increment[ $column['name'] ],
 			);
 
 			$map_by_name[ $column['name'] ] = $index;

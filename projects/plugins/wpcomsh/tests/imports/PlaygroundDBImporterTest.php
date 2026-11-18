@@ -59,6 +59,50 @@ class PlaygroundDBImporterTest extends WP_UnitTestCase {
 	}
 
 	/**
+	 * A single-column primary key that isn't AUTO_INCREMENT in the site's schema, like Novamira's
+	 * `id varchar(64)`, must not get AUTO_INCREMENT: MySQL rejects it on a non-integer column.
+	 */
+	public function test_generate_sql_keeps_auto_increment_only_where_the_schema_has_it() {
+		$db_path = wp_tempnam( 'text-primary-key.sqlite' );
+		copy( self::$fixtures_path . '/valid/plain.sqlite', $db_path );
+
+		// The table and schema rows the SQLite driver writes for Novamira's dbDelta() call.
+		$db = new SQLite3( $db_path );
+		$db->exec(
+			'CREATE TABLE `wp_novamira_chat_sessions` (
+				`id` TEXT COLLATE NOCASE NOT NULL,
+				`user_id` INTEGER NOT NULL,
+				`data` TEXT COLLATE NOCASE NOT NULL,
+				PRIMARY KEY (`id`)
+			) STRICT;'
+		);
+		$db->exec( "INSERT INTO `wp_novamira_chat_sessions` VALUES ('a1b2c3', 1, '{}')" );
+		$columns = array(
+			array( 'id', 1, 'varchar', 'varchar(64)', 'PRI' ),
+			array( 'user_id', 2, 'bigint', 'bigint unsigned', '' ),
+			array( 'data', 3, 'longtext', 'longtext', '' ),
+		);
+		foreach ( $columns as $column ) {
+			$db->exec(
+				sprintf(
+					"INSERT INTO `_wp_sqlite_mysql_information_schema_columns` (TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME, ORDINAL_POSITION, IS_NULLABLE, DATA_TYPE, COLUMN_TYPE, COLUMN_KEY, EXTRA, PRIVILEGES) VALUES ('sqlite_database', 'wp_novamira_chat_sessions', '%s', %d, 'NO', '%s', '%s', '%s', '', 'select,insert,update,references')",
+					...$column
+				)
+			);
+		}
+		$db->close();
+
+		$result = $this->db_importer->generate_sql( $db_path );
+		unlink( $db_path );
+
+		$this->assertNotWPError( $result );
+		$this->assertStringContainsString( '  `id` varchar(64) NOT NULL,', $result );
+		$this->assertStringNotContainsString( 'varchar(64) NOT NULL AUTO_INCREMENT', $result );
+		// WordPress's own AUTO_INCREMENT keys are kept.
+		$this->assertStringContainsString( '  `ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT,', $result );
+	}
+
+	/**
 	 * Test loading valid fixture database files.
 	 *
 	 * @dataProvider provide_valid_fixture_files

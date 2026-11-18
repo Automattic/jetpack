@@ -739,17 +739,12 @@ describe( 'ConnectionStatusCard', () => {
 			);
 		};
 
-		it( 'renders the tooltip icon for account errors', () => {
+		it( 'shows the account error when the tooltip is opened', async () => {
 			setup();
-			// Instead of looking for the button directly, we can verify that the component
-			// shows the email, which indicates the user data with errors is being displayed
-			expect( screen.getByText( /email@example.com/ ) ).toBeInTheDocument();
-
-			// Note: To fully test the tooltip functionality, we would need to:
-			// 1. Add data-testid to the InfoTooltip button for reliable selection
-			// 2. Use fireEvent.click to trigger the tooltip to show
-			// 3. Assert on the tooltip content (error message)
-			// This would require modifying the InfoTooltip component
+			await userEvent.click( screen.getByRole( 'button', { name: 'Possible account issue' } ) );
+			expect(
+				screen.getByText( 'Your WordPress.com email is also used by another user account.' )
+			).toBeInTheDocument();
 		} );
 
 		it( 'renders user information when account has errors', () => {

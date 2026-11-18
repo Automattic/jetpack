@@ -44,11 +44,16 @@ const wrapper = ( { children }: { children: ReactNode } ) => (
 );
 
 // A stage: its date control reads the URL, and its widgets set the period through the host.
-function renderStage( dateLimits?: Pick< DateLimits, 'lockedIntervals' | 'earliestDate' > ) {
+function renderStage(
+	dateLimits?: Pick< DateLimits, 'lockedIntervals' | 'earliestDate' >,
+	withZoomOut = false
+) {
 	return renderHook(
 		() => {
 			const dateFilters = useReportDateFilters( '/' );
-			const host = usePeriodHost( 'traffic', dateFilters.appliedRange, true, dateLimits );
+			const host = usePeriodHost( 'traffic', dateFilters.appliedRange, true, dateLimits, {
+				withZoomOut,
+			} );
 
 			return { dateFilters, host };
 		},
@@ -58,6 +63,8 @@ function renderStage( dateLimits?: Pick< DateLimits, 'lockedIntervals' | 'earlie
 
 describe( 'usePeriodHost', () => {
 	beforeEach( () => {
+		// The year-to-date window is read as of today, so the clock stays where the URL's dates are.
+		jest.useFakeTimers().setSystemTime( Date.parse( '2026-10-05T12:00:00.000Z' ) );
 		mockSearch = {
 			from: '2026-01-01T00:00:00.000+00:00',
 			to: '2026-10-05T23:59:59.999+00:00',
@@ -74,6 +81,10 @@ describe( 'usePeriodHost', () => {
 				mockSearch = search( mockSearch );
 			}
 		);
+	} );
+
+	afterEach( () => {
+		jest.useRealTimers();
 	} );
 
 	it( 'draws the date control to a period a widget set, with the range it set', () => {
@@ -102,6 +113,26 @@ describe( 'usePeriodHost', () => {
 		act( () => result.current.host.openPeriod( MONTH ) );
 
 		expect( mockSearch ).toMatchObject( { preset: 'custom', interval } );
+	} );
+
+	it.each( [
+		[ 'offers a zoom out to the window left, when asked to', true, 'year-to-date' ],
+		[ 'offers no zoom out unless asked to', false, undefined ],
+	] )( '%s', ( _name, withZoomOut, presetId ) => {
+		const { result, rerender } = renderStage( undefined, withZoomOut );
+
+		act( () => result.current.host.openPeriod( WEEK ) );
+		rerender();
+
+		expect( result.current.dateFilters.zoomOut?.presetId ).toBe( presetId );
+	} );
+
+	it( 'keeps the step a widget opens its period with, for the arrows', () => {
+		const { result } = renderStage();
+
+		act( () => result.current.host.openPeriod( WEEK, { step: 'P7D' } ) );
+
+		expect( mockSearch ).toMatchObject( { preset: 'custom', step: 'P7D' } );
 	} );
 
 	it( 'commits a period the plan will move away from without drawing the control to it', () => {

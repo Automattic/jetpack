@@ -313,7 +313,7 @@ class Jetpack_Backup {
 	 *
 	 * The page is added whenever the package is initialized; only the modernized dashboard is a wp-build page.
 	 *
-	 * @since $$next-version$$
+	 * @since 5.2.5
 	 *
 	 * @param array $members Shell members keyed by admin page slug.
 	 * @return array
@@ -347,7 +347,7 @@ class Jetpack_Backup {
 	/**
 	 * Ready the Backup routes and page data while another dashboard's page is open, without the screen ID alias.
 	 *
-	 * @since $$next-version$$
+	 * @since 5.2.5
 	 *
 	 * @return void
 	 */

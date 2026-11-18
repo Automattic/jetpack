@@ -51,10 +51,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-backup-plugin/compare/${old}...${new}",
 			"versioning": "wordpress"
 		},
-		"release-branch-prefix": [
-			"backup",
-			"monthly"
-		],
+		"release-branch-prefix": "backup",
 		"wp-plugin-slug": "jetpack-backup",
 		"wp-svn-autopublish": true
 	}

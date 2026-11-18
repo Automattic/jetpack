@@ -13,8 +13,8 @@ import { postAuthor } from '@wordpress/icons';
 import { DETAIL_HEADER_GLYPH_SIZE } from '../../detail-header';
 import placeholders from '../../detail-header.module.scss';
 import styles from './author-header-slots.module.scss';
-import { authorDisplayName, type AuthorSummary } from './use-author-summary';
-import type { SingleReportHeaderSlots } from '../adapter';
+import type { AuthorSummary } from './use-author-summary';
+import type { HeaderContext, SingleReportHeaderSlots } from '../adapter';
 
 /**
  * The author's avatar. Gravatar URLs can 404 for a deleted account, so a
@@ -77,10 +77,15 @@ export function authorSubtitle(
  * The author identity for the page header. Every summary state names the page,
  * so the header keeps its `h1` and its box while the author loads or fails.
  *
- * @param summary - The author summary, in any state.
+ * @param summary       - The author summary, in any state.
+ * @param context       - What the page knows: the title it states.
+ * @param context.title - The title the page states: the author's name, or "Unnamed author".
  * @return The header slots for this author.
  */
-export function authorHeaderSlots( summary: AuthorSummary ): SingleReportHeaderSlots {
+export function authorHeaderSlots(
+	summary: AuthorSummary,
+	{ title }: HeaderContext
+): SingleReportHeaderSlots {
 	const glyph = <Icon icon={ postAuthor } size={ DETAIL_HEADER_GLYPH_SIZE } />;
 
 	if ( summary.isLoading ) {
@@ -122,7 +127,7 @@ export function authorHeaderSlots( summary: AuthorSummary ): SingleReportHeaderS
 
 	return {
 		visual: <AuthorAvatar avatarUrl={ summary.avatarUrl } />,
-		title: authorDisplayName( summary ),
+		title,
 		subTitle,
 	};
 }

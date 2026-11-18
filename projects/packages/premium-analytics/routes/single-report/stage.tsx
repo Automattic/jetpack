@@ -7,6 +7,7 @@ import {
 	ReportScopeProvider,
 	isPlanDateLimitedSection,
 } from '@jetpack-premium-analytics/data';
+import { PRESET_CUSTOM, type PrimaryPresetId } from '@jetpack-premium-analytics/datetime';
 import { Icon } from '@jetpack-premium-analytics/externals';
 import { jetpack, lookupWidgetIcon } from '@jetpack-premium-analytics/icons';
 import {
@@ -62,7 +63,6 @@ import {
 	type SingleReportPageSection,
 } from './registry';
 import styles from './stage.module.scss';
-import type { PrimaryPresetId } from '@jetpack-premium-analytics/datetime';
 import type { WidgetType } from '@wordpress/widget-primitives';
 import type { JSX } from 'react';
 
@@ -84,7 +84,7 @@ const READY_SUMMARY: EntitySummary = {
 // A page the route ships no adapter for renders from its record: the label titles it.
 const RECORD_ADAPTER: SingleReportAdapter = {
 	useSummary: () => READY_SUMMARY,
-	headerSlots: ( summary, { label } ) => ( { title: label } ),
+	headerSlots: ( summary, { title } ) => ( { title } ),
 };
 
 /**
@@ -277,6 +277,15 @@ function SingleReportBody( { page, entityId, adapter }: SingleReportBodyProps ):
 		! isPinned,
 		dateLimits
 	);
+	// A period a card opens applies at once, as the custom range it commits.
+	const onOpenPeriod = useCallback< typeof openPeriod >(
+		( range, options ) => {
+			openPeriod( range, options );
+			trackedOnChange( range, PRESET_CUSTOM, { exactRange: true, trigger: 'widget' } );
+			trackedOnApply();
+		},
+		[ openPeriod, trackedOnChange, trackedOnApply ]
+	);
 
 	const reportSearch = pickReportNavigationParams( search );
 
@@ -311,15 +320,19 @@ function SingleReportBody( { page, entityId, adapter }: SingleReportBodyProps ):
 		surface,
 	} );
 
+	// One title for the crumb and the header: the entity's, else the adapter's untitled one.
+	const title = summary.title?.trim() || adapter.untitledTitle?.( summary ) || page.label;
 	const breadcrumbs = useDetailBreadcrumbs(
-		canRenderWidgets ? summary.title?.trim() || page.label : undefined,
+		canRenderWidgets ? title : undefined,
 		page.reports_page ?? undefined
 	);
 
 	const header = adapter.headerSlots( summary, {
 		label: page.label,
+		title,
 		section: activeState,
-		performanceRange: pinnedWindow?.range ?? dateFilters.appliedRange,
+		performanceRange:
+			pinnedWindow?.headerRange?.( layout ) ?? pinnedWindow?.range ?? dateFilters.appliedRange,
 	} );
 	const recordIcon = ( page.icon && lookupWidgetIcon( page.icon ) ) || jetpack;
 	const reportsPage = page.reports_page ? getReportDefinition( page.reports_page ) : undefined;
@@ -376,7 +389,7 @@ function SingleReportBody( { page, entityId, adapter }: SingleReportBodyProps ):
 		<>
 			<PeriodChangeStatus periodChange={ attention } />
 			<ReportScopeProvider
-				openPeriod={ openPeriod }
+				openPeriod={ onOpenPeriod }
 				attentionId={ attention?.id }
 				dateLimits={ dateLimits }
 			>
@@ -458,7 +471,7 @@ function SingleReport(): JSX.Element | null {
 			key={ page.path }
 			page={ page }
 			entityId={ id }
-			adapter={ getSingleReportAdapter( page.path ) ?? RECORD_ADAPTER }
+			adapter={ getSingleReportAdapter( page ) ?? RECORD_ADAPTER }
 		/>
 	);
 }

@@ -10,6 +10,7 @@ import {
 	ExporterCsvAction,
 	ReportPageLayout,
 	ReportErrorState,
+	StatsOptionsMenu,
 	authorsCsvExporter,
 	type AuthorRow,
 } from '@jetpack-premium-analytics/widgets-toolkit';
@@ -81,12 +82,15 @@ function AuthorsReport(): JSX.Element {
 			visual={ <Icon icon={ jetpack } /> }
 			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
 			actions={
-				<ExporterCsvAction
-					exporter={ authorsCsvExporter }
-					items={ records.rows }
-					status={ records }
-					reportParams={ reportParams }
-				/>
+				<>
+					<ExporterCsvAction
+						exporter={ authorsCsvExporter }
+						items={ records.rows }
+						status={ records }
+						reportParams={ reportParams }
+					/>
+					<StatsOptionsMenu />
+				</>
 			}
 		>
 			<ReportPageLayout title={ getLabel() } dateFilters={ dateFilters } withAllTime>

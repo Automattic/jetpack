@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Widget SDK: add `useOpenChartBucket`, which opens a clicked chart bucket, from either period, as the dashboard period (2.4.0).

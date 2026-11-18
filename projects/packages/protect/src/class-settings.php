@@ -25,7 +25,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * A flat settings route covering only the dashboard's keys, so the page works without the Jetpack plugin's `jetpack/v4/settings`.
  *
- * @since $$next-version$$
+ * @since 0.7.0
  */
 class Settings {
 

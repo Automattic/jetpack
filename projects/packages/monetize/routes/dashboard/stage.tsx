@@ -7,6 +7,7 @@ import { Tabs } from '@wordpress/ui';
 import { AdsSettings } from './components/ads-settings';
 import ConnectionGate from './components/connection-gate';
 import Overview from './components/overview';
+import Payments from './components/payments';
 import Placeholder from './components/placeholder';
 import { queryClient } from './data/query-client';
 import { TABS, getTab, getTabSearch } from './data/tabs';
@@ -25,6 +26,12 @@ function TabContent( { tab, openTab }: { tab: TabValue; openTab: ( next: string 
 	switch ( tab ) {
 		case 'overview':
 			return <Overview openTab={ openTab } />;
+		case 'payments':
+			return (
+				<ConnectionGate>
+					<Payments />
+				</ConnectionGate>
+			);
 		case 'settings':
 			return <AdsSettings openTab={ openTab } />;
 		default:

@@ -98,3 +98,13 @@ body.toplevel_page_jetpack-seo {
 .jetpack-seo-tabs:has(.jetpack-seo-page-content--centered) {
 	flex-grow: 1;
 }
+
+.jetpack-seo-visibility-notice {
+	flex-shrink: 0;
+	margin-block-start: var(--wpds-dimension-padding-2xl);
+	margin-inline: var(--wpds-dimension-padding-2xl);
+
+	&:has(+ .jetpack-seo-page-content--flush) {
+		margin-block-end: var(--wpds-dimension-padding-2xl);
+	}
+}

@@ -2725,6 +2725,171 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 		$this->assertSame( 3, substr_count( $result, 'jetpack-paypal-button__variant-price' ) );
 	}
 
+	// --- Discount ---
+
+	/**
+	 * Small and large options, priced 20.00 and 30.00, with no product price.
+	 *
+	 * @param array $extra Attributes to add or override.
+	 * @return array
+	 */
+	private static function sized_attributes( array $extra = array() ) {
+		return array_merge(
+			array(
+				'price'           => '',
+				'currencyCode'    => 'USD',
+				'variantsEnabled' => true,
+				'variants'        => array(
+					'dimensions' => array(
+						array(
+							'name'    => 'size',
+							'primary' => true,
+							'options' => array(
+								array(
+									'label'       => 'small',
+									'unit_amount' => array( 'value' => '20.00' ),
+								),
+								array(
+									'label'       => 'large',
+									'unit_amount' => array( 'value' => '30.00' ),
+								),
+							),
+						),
+					),
+				),
+			),
+			$extra
+		);
+	}
+
+	/**
+	 * Test that each option price shows struck through, with its discounted price after it.
+	 *
+	 * The parity cases cover the headline price. This covers the option prices.
+	 */
+	public function test_render_block_discounts_each_option_price() {
+		$result = $this->render_button_format(
+			self::sized_attributes(
+				array(
+					'discountEnabled' => true,
+					'discountType'    => 'PERCENTAGE',
+					'discountValue'   => '10',
+				)
+			)
+		);
+
+		$this->assertStringContainsString(
+			'<span class="jetpack-paypal-button__variant-option">small <span class="jetpack-paypal-button__variant-price"><s class="jetpack-paypal-button__original-price">$20.00</s> $18.00</span></span>',
+			$result
+		);
+		$this->assertStringContainsString(
+			'<span class="jetpack-paypal-button__variant-option">large <span class="jetpack-paypal-button__variant-price"><s class="jetpack-paypal-button__original-price">$30.00</s> $27.00</span></span>',
+			$result
+		);
+	}
+
+	/**
+	 * Test that a STACKED block falling back to the card shows the discount.
+	 */
+	public function test_render_block_stacked_fallback_shows_the_discount() {
+		$attributes = $this->stacked_attributes(
+			array(
+				'scriptSrc'       => '',
+				'price'           => '1.00',
+				'discountEnabled' => true,
+				'discountType'    => 'PERCENTAGE',
+				'discountValue'   => '10',
+			)
+		);
+		$this->set_up_block_render_context( $attributes );
+
+		$html = PayPal_Payment_Buttons::render_block( $attributes, '' );
+
+		$this->assertStringContainsString(
+			'<span class="jetpack-paypal-button__product-price"><s class="jetpack-paypal-button__original-price">$1.00</s> $0.90</span><span class="jetpack-paypal-button__discount">10% discount</span></div>',
+			$html
+		);
+	}
+
+	/**
+	 * Test that a discount turned off, with a value saved, leaves the block as it renders with none.
+	 */
+	public function test_render_block_shows_the_plain_card_for_a_discount_turned_off() {
+		$attributes    = self::sized_attributes(
+			array(
+				'discountEnabled' => false,
+				'discountType'    => 'PERCENTAGE',
+				'discountValue'   => '10',
+			)
+		);
+		$with_discount = $this->render_button_format( $attributes );
+
+		unset( $attributes['discountEnabled'], $attributes['discountType'], $attributes['discountValue'] );
+
+		// Positive control: there is a price for a discount to change.
+		$this->assertStringContainsString( 'jetpack-paypal-button__product-price">', $with_discount );
+		$this->assertSame( $this->render_button_format( $attributes ), $with_discount );
+	}
+
+	/**
+	 * Test that the struck price, the discounted price, the tag and a translated From are escaped.
+	 */
+	public function test_render_block_escapes_the_discounted_card() {
+		$translate = static function ( $translation, $text ) {
+			return 'From %s' === $text ? '<b>From</b> %s' : $translation;
+		};
+		add_filter( 'gettext', $translate, 10, 2 );
+
+		try {
+			$result = $this->render_button_format(
+				self::sized_attributes(
+					array(
+						'currencyCode'    => '<b>',
+						'discountEnabled' => true,
+						'discountType'    => 'FLAT',
+						'discountValue'   => '2.00',
+					)
+				)
+			);
+
+			$this->assertStringNotContainsString( '<b>', $result );
+			$this->assertStringContainsString( '&lt;b&gt;From&lt;/b&gt; <s class="jetpack-paypal-button__original-price">&lt;b&gt;20.00</s> &lt;b&gt;18.00</span>', $result );
+			$this->assertStringContainsString( '<s class="jetpack-paypal-button__original-price">&lt;b&gt;30.00</s> &lt;b&gt;28.00</span>', $result );
+			$this->assertStringContainsString( 'jetpack-paypal-button__discount">&lt;b&gt;2.00 discount</span>', $result );
+		} finally {
+			remove_filter( 'gettext', $translate, 10 );
+		}
+	}
+
+	/**
+	 * Test that a plain option price is escaped.
+	 */
+	public function test_render_block_escapes_a_plain_option_price() {
+		$result = $this->render_button_format( self::sized_attributes( array( 'currencyCode' => '<b>' ) ) );
+
+		$this->assertStringNotContainsString( '<b>', $result );
+		$this->assertStringContainsString( 'jetpack-paypal-button__variant-price">&lt;b&gt;20.00</span>', $result );
+	}
+
+	/**
+	 * Test that discounted prices show in dollars with no currency saved.
+	 */
+	public function test_render_block_shows_discounted_prices_in_dollars_with_no_currency_saved() {
+		$attributes = self::sized_attributes(
+			array(
+				'discountEnabled' => true,
+				'discountType'    => 'FLAT',
+				'discountValue'   => '2.00',
+			)
+		);
+		unset( $attributes['currencyCode'] );
+
+		$this->assertStringContainsString(
+			'large <span class="jetpack-paypal-button__variant-price"><s class="jetpack-paypal-button__original-price">$30.00</s> $28.00</span>',
+			$this->render_button_format( $attributes )
+		);
+	}
+
 	// --- format_price ---
 
 	/**

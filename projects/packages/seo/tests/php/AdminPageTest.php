@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\SEO;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
+use Automattic\Jetpack\Admin_UI\Admin_Shell;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Status\Cache as Status_Cache;
@@ -34,6 +35,8 @@ class AdminPageTest extends TestCase {
 		remove_filter( 'jetpack_admin_js_script_data', array( Admin_Page::class, 'inject_tracks_context' ) );
 		wp_dequeue_script( 'jp-tracks' );
 		wp_deregister_script( 'jp-tracks' );
+		wp_dequeue_script( 'jetpack-seo-config' );
+		wp_deregister_script( 'jetpack-seo-config' );
 		remove_filter( 'jetpack_display_jitms_on_screen', array( Admin_Page::class, 'hide_jitms_on_wp_build_dashboard' ) );
 		remove_action( 'admin_enqueue_scripts', array( Admin_Page::class, 'register_page_data' ), 0 );
 		unset( $_GET['page'], $GLOBALS['current_screen'] );
@@ -488,7 +491,7 @@ class AdminPageTest extends TestCase {
 	}
 
 	/**
-	 * The shell offers SEO only where the page has a build, its menu link, and a non-Simple host.
+	 * The shell offers SEO only where the page has a build and its menu link, Simple included.
 	 *
 	 * @dataProvider admin_shell_member_cases
 	 *
@@ -533,7 +536,7 @@ class AdminPageTest extends TestCase {
 			'built, seo-tools on, self-hosted' => array( true, true, false, true ),
 			'unbuilt'                          => array( false, true, false, false ),
 			'seo-tools off'                    => array( true, false, false, false ),
-			'Simple'                           => array( true, true, true, false ),
+			'Simple'                           => array( true, true, true, true ),
 		);
 	}
 
@@ -541,15 +544,46 @@ class AdminPageTest extends TestCase {
 	 * Hosted by another dashboard, SEO still hands its app the initial state when the shell prints its assets.
 	 */
 	public function test_admin_shell_guest_adds_the_page_data_when_assets_print() {
-		$this->set_wp_build_index( __DIR__ . '/files/build-entry/absent.php' );
-		Admin_Page::load_as_admin_shell_guest();
-		$this->assertSame( 0, has_action( 'admin_enqueue_scripts', array( Admin_Page::class, 'register_page_data' ) ) );
+		$this->set_wp_build_index( __DIR__ . '/files/build-entry/build.php' );
+		$user_id = get_current_user_id();
+		$scripts = $GLOBALS['wp_scripts'] ?? null;
+		$styles  = $GLOBALS['wp_styles'] ?? null;
+		$emoji   = remove_action( 'wp_print_styles', 'print_emoji_styles' );
+		$modules = static function () {
+			return array( 'seo-tools' );
+		};
+		wp_set_current_user(
+			wp_insert_user(
+				array(
+					'user_login' => 'seo-shell-admin-' . wp_rand(),
+					'user_pass'  => wp_generate_password(),
+					'role'       => 'administrator',
+				)
+			)
+		);
+		$GLOBALS['wp_scripts'] = null;
+		$GLOBALS['wp_styles']  = null;
+		add_filter( 'jetpack_admin_shell_enabled', '__return_true' );
+		add_filter( 'jetpack_active_modules', $modules );
+		add_filter( 'jetpack_admin_shell_members', array( Admin_Page::class, 'add_admin_shell_member' ) );
 
-		set_current_screen( 'toplevel_page_jetpack' );
-		do_action( 'admin_enqueue_scripts', 'toplevel_page_jetpack' );
-
-		$data = apply_filters( 'jetpack_admin_js_script_data', array() );
-		$this->assertArrayHasKey( 'gating', $data[ Initializer::SCRIPT_DATA_KEY ] ?? array() );
+		try {
+			$html = Admin_Shell::guest_assets( Admin_Page::MENU_SLUG );
+			$data = apply_filters( 'jetpack_admin_js_script_data', array() );
+			$this->assertArrayHasKey( 'gating', $data[ Initializer::SCRIPT_DATA_KEY ] ?? array() );
+			$this->assertIsString( $html );
+			$this->assertStringContainsString( '"consumer_slug":"jetpack-seo"', $html );
+		} finally {
+			remove_filter( 'jetpack_admin_shell_enabled', '__return_true' );
+			remove_filter( 'jetpack_active_modules', $modules );
+			remove_filter( 'jetpack_admin_shell_members', array( Admin_Page::class, 'add_admin_shell_member' ) );
+			$GLOBALS['wp_scripts'] = $scripts;
+			$GLOBALS['wp_styles']  = $styles;
+			wp_set_current_user( $user_id );
+			if ( $emoji ) {
+				add_action( 'wp_print_styles', 'print_emoji_styles' );
+			}
+		}
 	}
 
 	/**
