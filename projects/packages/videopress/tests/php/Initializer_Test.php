@@ -561,9 +561,15 @@ class Initializer_Test extends BaseTestCase {
 		);
 
 		$this->assertSame( 1, preg_match( '#<script type="application/json">(.*?)</script>#', $html, $matches ) );
-		$data = json_decode( $matches[1], true );
-		$this->assertSame( $at_time, $data['previewAtTime'] );
-		$this->assertSame( $duration, $data['previewLoopDuration'] );
+		$this->assertSame(
+			array(
+				'previewAtTime'       => $at_time,
+				'previewLoopDuration' => $duration,
+				'autoplay'            => false,
+				'showControls'        => true,
+			),
+			json_decode( $matches[1], true )
+		);
 	}
 
 	/**
