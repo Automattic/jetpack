@@ -843,22 +843,103 @@ class LlmsTxtTest extends SeoTestCase {
 	}
 
 	/**
-	 * Main-menu pages are listed past the per-type limit, up to their own.
+	 * Main-menu pages fill only what's left of the per-type limit after always-included pages.
 	 *
 	 * @return void
 	 */
-	public function test_main_menu_pages_pass_the_page_limit_up_to_their_own() {
+	public function test_main_menu_pages_fill_the_limit_after_included_pages() {
+		$included = $this->insert_page( 'Zz Included' );
+		update_post_meta( $included->ID, Llms_Txt::META_ALWAYS_INCLUDE, '1' );
 		$this->insert_page( 'Aa Extra' );
 		$ids      = array();
-		$expected = array();
-		for ( $i = 1; $i <= Llms_Txt::MAX_MAIN_MENU_PAGES + 1; $i++ ) {
-			$expected[] = sprintf( 'Menu %03d', $i );
+		$expected = array( 'Zz Included' );
+		for ( $i = 1; $i <= Llms_Txt::MAX_POSTS_PER_TYPE; $i++ ) {
+			$expected[] = sprintf( 'Menu %02d', $i );
 			$ids[]      = $this->insert_page( end( $expected ) )->ID;
 		}
 		$this->add_nav_menu( $ids, 'primary' );
 		array_pop( $expected );
 
 		$this->assertSame( $expected, $this->page_titles() );
+	}
+
+	/**
+	 * @dataProvider provide_filtered_limits
+	 * @param string     $post_type Post type the filter changes.
+	 * @param int|string $limit     Limit the filter returns for it.
+	 */
+	#[DataProvider( 'provide_filtered_limits' )]
+	public function test_limit_filter_changes_only_its_post_type( $post_type, $limit ) {
+		$this->register_book_type();
+		$types = array( 'page', 'post', 'seo_book' );
+		foreach ( $types as $type ) {
+			for ( $i = 0; $i < 5; $i++ ) {
+				$this->insert_post( array( 'post_type' => $type ) );
+			}
+		}
+		$filter = static function ( $max, $type ) use ( $post_type, $limit ) {
+			return $type === $post_type ? $limit : $max;
+		};
+		add_filter( 'jetpack_seo_llms_txt_items_per_type', $filter, 10, 2 );
+
+		$counts = array();
+		try {
+			foreach ( $types as $type ) {
+				$counts[ $type ] = count( $this->invoke_private( Llms_Txt::class, 'get_posts_for_type', $type ) );
+			}
+		} finally {
+			remove_filter( 'jetpack_seo_llms_txt_items_per_type', $filter, 10 );
+		}
+
+		$expected               = array_fill_keys( $types, 5 );
+		$expected[ $post_type ] = (int) $limit;
+		$this->assertSame( $expected, $counts );
+	}
+
+	/**
+	 * @return array
+	 */
+	public static function provide_filtered_limits(): array {
+		return array(
+			'pages'                 => array( 'page', 3 ),
+			'posts'                 => array( 'post', 3 ),
+			'custom posts'          => array( 'seo_book', 3 ),
+			'pages at zero'         => array( 'page', 0 ),
+			'posts as numeric text' => array( 'post', '3' ),
+		);
+	}
+
+	/**
+	 * @dataProvider provide_invalid_limits
+	 * @param mixed $limit Value the filter returns.
+	 */
+	#[DataProvider( 'provide_invalid_limits' )]
+	public function test_invalid_filtered_limit_keeps_the_default( $limit ) {
+		for ( $i = 0; $i <= Llms_Txt::MAX_POSTS_PER_TYPE; $i++ ) {
+			$this->insert_post( array() );
+		}
+		$filter = static function () use ( $limit ) {
+			return $limit;
+		};
+		add_filter( 'jetpack_seo_llms_txt_items_per_type', $filter );
+		try {
+			$posts = $this->invoke_private( Llms_Txt::class, 'get_posts_for_type', 'post' );
+		} finally {
+			remove_filter( 'jetpack_seo_llms_txt_items_per_type', $filter );
+		}
+
+		$this->assertCount( Llms_Txt::MAX_POSTS_PER_TYPE, $posts );
+	}
+
+	/**
+	 * @return array
+	 */
+	public static function provide_invalid_limits(): array {
+		return array(
+			'negative' => array( -1 ),
+			'text'     => array( 'many' ),
+			'null'     => array( null ),
+		);
 	}
 
 	/**
