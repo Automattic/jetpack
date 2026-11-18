@@ -3547,6 +3547,9 @@ importers:
       '@wordpress/api-fetch':
         specifier: 8.1.0
         version: 8.1.0
+      '@wordpress/data':
+        specifier: 11.1.0
+        version: 11.1.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@wordpress/date':
         specifier: 6.1.0
         version: 6.1.0
@@ -3562,6 +3565,9 @@ importers:
       '@wordpress/icons':
         specifier: 20.0.0
         version: 20.0.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      '@wordpress/notices':
+        specifier: 6.1.0
+        version: 6.1.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@wordpress/route':
         specifier: 0.25.0
         version: 0.25.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
