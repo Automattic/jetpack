@@ -1,5 +1,5 @@
 import { createInterpolateElement } from '@wordpress/element';
-import { __, sprintf } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import { Button, Stack, Text } from '@wordpress/ui';
 import { formatSiteAddress } from '../../helpers/format-site-address';
 import styles from './styles.module.scss';
@@ -7,8 +7,8 @@ import type { IdentityCrisisMigratedProps } from './types';
 import type { ReactNode } from 'react';
 
 /**
- * What follows a successful Migrate request. The connection stays the same; WordPress.com updates
- * the address it has on record when the site next contacts it, so the wording must not say it has finished.
+ * What follows a successful Migrate request. WordPress.com updates its address when the site
+ * next syncs, so the wording must not say it has finished.
  *
  * @param {IdentityCrisisMigratedProps} props - Component props.
  * @return {ReactNode} The migrated state.
@@ -18,32 +18,42 @@ export default function IdentityCrisisMigrated( {
 	currentUrl,
 	onDone,
 }: IdentityCrisisMigratedProps ): ReactNode {
-	const from = formatSiteAddress( wpcomHomeUrl );
-	const to = formatSiteAddress( currentUrl );
+	// Elements, not formatted text, so nothing in an address is parsed as a tag.
+	const addresses = {
+		x: <strong>{ formatSiteAddress( currentUrl ) }</strong>,
+		z: <strong>{ formatSiteAddress( wpcomHomeUrl ) }</strong>,
+	};
 
 	return (
-		<Stack direction="column" gap="md" align="flex-start" role="status">
-			<Text variant="heading-xl" render={ <h2 /> }>
-				{ sprintf(
-					/* translators: %s: this site's address, e.g. example.com. */
-					__( 'Moving the connection to %s', 'jetpack-connection-js' ),
-					to
-				) }
-			</Text>
-			<Text variant="body-lg" render={ <p /> } className={ styles.prose }>
+		<Stack direction="column" gap="md" align="flex-start">
+			<Stack direction="column" gap="xs" role="status">
+				<Text variant="heading-md" render={ <h3 /> }>
+					{ __( 'Address update started', 'jetpack-connection-js' ) }
+				</Text>
+				<Text variant="body-md" render={ <p /> } className={ styles.prose }>
+					{ createInterpolateElement(
+						/* translators: <x />: this site's address, e.g. example.com. */
+						__(
+							'WordPress.com is updating the address it has on file to <x />. This usually takes a few minutes.',
+							'jetpack-connection-js'
+						),
+						addresses
+					) }
+				</Text>
+			</Stack>
+			<Text variant="body-md" render={ <p /> } className={ styles.prose }>
 				{ createInterpolateElement(
-					/* translators: <from />: the address WordPress.com has on record. <to />: this site's address. */
+					/* translators: <z />: the address WordPress.com had on record, e.g. example.com. */
 					__(
-						'Safe Mode is off for <to />. Stats, subscribers and the plan move over from <from /> the next time your site syncs with WordPress.com.',
+						'If <z /> is still running, it will stop syncing and ask this same question. If this screen is back tomorrow, the update did not finish. Contact support and we will complete it.',
 						'jetpack-connection-js'
 					),
-					// Elements, not formatted text, so nothing in an address is parsed as a tag.
-					{ from: <strong>{ from }</strong>, to: <strong>{ to }</strong> }
+					addresses
 				) }
 			</Text>
 			{ onDone && (
 				<Button variant="solid" onClick={ onDone }>
-					{ __( 'Got it', 'jetpack-connection-js' ) }
+					{ __( 'Got it, thanks', 'jetpack-connection-js' ) }
 				</Button>
 			) }
 		</Stack>

@@ -1,3 +1,4 @@
+export { default as IdentityCrisis } from './identity-crisis';
 export { default as IdentityCrisisLayout } from './layout';
 export { default as IdentityCrisisAddresses } from './addresses';
 export { default as IdentityCrisisMigrated } from './migrated';
