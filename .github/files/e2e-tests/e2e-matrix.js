@@ -62,10 +62,9 @@ const projects = [
 				'packages/seo',
 				'packages/videopress',
 			],
-			// The Settings and AI dashboards and the shell wiring in the Jetpack plugin, the suite itself, and its CI files (when the PR also reaches the plugin).
+			// The suite itself, and its CI files (when the PR also reaches the plugin).
 			fullSuiteForFiles: new RegExp(
 				[
-					'^projects/plugins/jetpack/(_inc/lib/admin-pages/|routes/(settings|ai-hub)/|load-jetpack\\.php|class\\.jetpack-admin\\.php)',
 					'^projects/plugins/jetpack/tests/e2e/(specs/admin-shell/|helpers/admin-shell|plugins/e2e-admin-shell|bin/admin-shell|playwright\\.admin-shell)',
 					'^\\.github/(workflows/e2e-tests\\.yml|files/e2e-tests/)',
 				].join( '|' )
