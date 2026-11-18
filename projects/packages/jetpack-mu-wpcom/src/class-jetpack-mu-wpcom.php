@@ -150,6 +150,7 @@ class Jetpack_Mu_Wpcom {
 			add_filter( 'jetpack_backup_dashboard_enabled', array( \Automattic\Jetpack\Jetpack_Mu_Wpcom\WPCOM_Backup::class, 'filter_jetpack_backup_dashboard' ) );
 			add_filter( 'jetpack_get_available_modules', array( \Automattic\Jetpack\Jetpack_Mu_Wpcom\WPCOM_Scan::class, 'filter_available_modules' ) );
 			add_filter( 'jetpack_feature_upgrade', array( \Automattic\Jetpack\Jetpack_Mu_Wpcom\WPCOM_Feature_Upgrades::class, 'filter_feature_upgrade' ), 10, 3 );
+			add_filter( 'jetpack_my_jetpack_plan_urls', array( \Automattic\Jetpack\Jetpack_Mu_Wpcom\WPCOM_Feature_Upgrades::class, 'filter_plan_urls' ) );
 			// WoA runs a platform firewall, which is why Jetpack's stays off there.
 			add_filter( 'jetpack_protect_firewall_provided_by_host', '__return_true' );
 			// WoA sites should list threats, but not announce them.
