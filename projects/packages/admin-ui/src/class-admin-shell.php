@@ -335,6 +335,7 @@ class Admin_Shell {
 				),
 				admin_url( 'admin-ajax.php' )
 			),
+			'maxLiveApps'      => self::max_live_apps(),
 		);
 		foreach ( array( $host => array() ) + $guests as $slug => $routes ) {
 			$member                     = $members[ $slug ];
@@ -350,6 +351,24 @@ class Admin_Shell {
 			);
 		}
 		return $config;
+	}
+
+	/**
+	 * How many dashboards the client may keep live in one document.
+	 *
+	 * @return int|null The limit, or null to let the client size it from the device's memory.
+	 */
+	private static function max_live_apps() {
+		/**
+		 * Filters how many dashboards the admin shell keeps live, prewarmed or mounted, in one document.
+		 * Past the limit, opening another dashboard loads the page.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param int|null $max_live_apps A positive limit, counting the page that loaded; null sizes it from the device's memory.
+		 */
+		$max_live_apps = apply_filters( 'jetpack_admin_shell_max_live_apps', null );
+		return is_numeric( $max_live_apps ) && (int) $max_live_apps > 0 ? (int) $max_live_apps : null;
 	}
 
 	/**

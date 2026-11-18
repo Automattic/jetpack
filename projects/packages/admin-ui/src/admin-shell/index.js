@@ -5,12 +5,14 @@
 import {
 	bootFor,
 	isolateRouters,
+	loadPage,
 	notifyRouters,
 	prefetchBoot,
 	trackViewTransitions,
 	transitionSettled,
 } from './adapter';
 import { createApp, whenRendered } from './app';
+import { liveAppLimit } from './budget';
 import { announcePage, menuLabel, pageOf, updateChrome } from './chrome';
 import { debugEnabled, log, stopwatch } from './debug';
 import { applyGuestAssets } from './guest-assets';
@@ -53,7 +55,7 @@ const routeOf = href => {
 	return url.search + url.hash;
 };
 
-const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
+const start = ( { host, members, guestAssetsUrl, headerStorageKey, maxLiveApps } ) => {
 	const hostEl = document.getElementById( members[ host ].mountId );
 	if ( ! hostEl ) {
 		return;
@@ -111,6 +113,15 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 		return run;
 	};
 	const warm = {};
+	const liveLimit = liveAppLimit( maxLiveApps );
+	// Past the limit, opening another dashboard loads the page, which frees every hidden one.
+	const hasRoomFor = ( slug, spare = 0 ) =>
+		apps.has( slug ) ||
+		Object.hasOwn( warm, slug ) ||
+		new Set( [ ...apps.keys(), ...Object.keys( warm ) ] ).size < liveLimit - spare;
+	// A page load drops the hidden apps too, edits and all; the visible one has its own beforeunload.
+	const mayUnload = url =>
+		[ ...apps.keys() ].every( slug => slug === visible || mayLeave( slug, url ) );
 	// Everything short of mounting: a mounted router would start reading the visible page's URL.
 	const prewarm = ( slug, reason ) => {
 		if ( warm[ slug ] ) {
@@ -352,8 +363,16 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 			lastUrl[ visible ] = location.href;
 		}
 		if ( event.isTrusted && isMemberUrl( location.href ) && pageOf( location.href ) !== visible ) {
-			if ( gate.isMounting() ) {
-				location.reload();
+			const mounting = gate.isMounting();
+			if ( mounting || ! hasRoomFor( pageOf( location.href ) ) ) {
+				const target = location.href;
+				// Keep the visible app on its own URL, and its routers and guards out of a navigation they don't own.
+				gate.replaceUrl( lastUrl[ visible ] );
+				event.stopImmediatePropagation();
+				// Back/Forward can't be called off, so staying keeps the visible app.
+				if ( mounting || mayUnload( target ) ) {
+					loadPage( target, { replace: true } );
+				}
 				return;
 			}
 			show( location.href, { push: false, via: 'back/forward' } );
@@ -387,16 +406,31 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 			log( 'switch', 'an app is still mounting: letting the link load the page' );
 			return;
 		}
+		if ( ! hasRoomFor( pageOf( a.href ) ) ) {
+			if ( mayUnload( a.href ) ) {
+				log( 'switch', `${ liveLimit } dashboards are live: letting the link load the page` );
+			} else {
+				event.preventDefault();
+			}
+			return;
+		}
 		event.preventDefault();
 		closeOverlayAround( a )
 			.then( closed => closed && transitionSettled() )
-			.then( () => navigate( a.href, inMenu ? 'menu click' : 'link click' ) );
+			.then( () =>
+				// Another switch may have taken the last slot while the overlay closed.
+				hasRoomFor( pageOf( a.href ) )
+					? navigate( a.href, inMenu ? 'menu click' : 'link click' )
+					: mayUnload( a.href ) && loadPage( a.href )
+			);
 	} );
 
 	document.getElementById( 'adminmenu' )?.addEventListener( 'pointerover', event => {
 		const a = event.target.closest?.( 'a[href]' );
-		if ( a && isMemberUrl( a.href ) && ! apps.has( pageOf( a.href ) ) ) {
-			prewarm( pageOf( a.href ), 'menu hover' ).catch( () => {} );
+		const slug = a && isMemberUrl( a.href ) ? pageOf( a.href ) : null;
+		// Keep the last slot for a click: passing over links on the way shouldn't spend it.
+		if ( slug && ! apps.has( slug ) && hasRoomFor( slug, 1 ) ) {
+			prewarm( slug, 'menu hover' ).catch( () => {} );
 		}
 	} );
 
@@ -432,6 +466,7 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 		window.jetpackAdminShell = {
 			apps,
 			members,
+			liveLimit,
 			get visible() {
 				return visible;
 			},

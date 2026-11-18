@@ -461,6 +461,49 @@ class Admin_Shell_Test extends TestCase {
 	}
 
 	/**
+	 * Data provider for test_setup_passes_live_app_limit.
+	 *
+	 * @return array[] Filter result, limit the client gets.
+	 */
+	public static function provide_live_app_limits() {
+		return array(
+			'unfiltered'   => array( null, null ),
+			'a limit'      => array( 4, 4 ),
+			'a string'     => array( '4', 4 ),
+			'zero'         => array( 0, null ),
+			'not a number' => array( 'four', null ),
+		);
+	}
+
+	/**
+	 * The client gets a positive live-app limit a site sets, and otherwise sizes it itself.
+	 *
+	 * @dataProvider provide_live_app_limits
+	 * @param mixed    $filtered Filter result.
+	 * @param int|null $expected Limit in the client config.
+	 * @return void
+	 */
+	#[DataProvider( 'provide_live_app_limits' )]
+	public function test_setup_passes_live_app_limit( $filtered, $expected ) {
+		$this->start_host_page(
+			static function () {
+				$GLOBALS['jetpack_shell_test_guest_page_routes_data'] = array( array( 'path' => '/' ) );
+			}
+		);
+		$filter = static function () use ( $filtered ) {
+			return $filtered;
+		};
+		add_filter( 'jetpack_admin_shell_max_live_apps', $filter );
+
+		Admin_Shell::setup();
+		remove_filter( 'jetpack_admin_shell_max_live_apps', $filter );
+
+		$config = apply_filters( 'script_module_data_' . Admin_Shell::CLIENT_MODULE, array() );
+		$this->assertArrayHasKey( 'maxLiveApps', $config );
+		$this->assertSame( $expected, $config['maxLiveApps'] );
+	}
+
+	/**
 	 * Data provider for test_guest_without_built_routes_is_skipped.
 	 *
 	 * @return array[] Guest build page, whether its load sets the routes data global.

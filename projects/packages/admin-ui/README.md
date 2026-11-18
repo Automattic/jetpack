@@ -223,11 +223,23 @@ useEffect( () => {
 
 Neither event fires while the shell is off.
 
+### Admin shell: memory
+
+Every dashboard the shell prewarms or mounts stays in the document until the next page load, since a booted app can't be disposed of. So the shell keeps at most a few dashboards live, the one the page loaded included, and once that many are live, opening another dashboard is a normal page load, which frees the rest. Hovering a menu link never spends the last slot, so the dashboard the user clicks next still opens in place. It sizes the limit from the device memory the browser reports: 3 at 2 GB or less, 6 below 8 GB or when the browser doesn't say, and no limit from 8 GB. A site can set it with the `jetpack_admin_shell_max_live_apps` filter:
+
+```PHP
+add_filter( 'jetpack_admin_shell_max_live_apps', fn() => 4 );
+```
+
+Anything but a positive integer leaves it to the device's memory.
+
 ### Admin shell: unsaved changes
 
 With the admin shell on, member dashboards stay mounted while hidden, so switching away keeps an edit. A navigation that would open a member at a different route than where it was left would unmount that view, so first the shell dispatches a cancelable `jetpack-admin-shell:before-leave` event on `window`, with `detail: { page, url }`: the member's admin page slug and the URL about to open.
 
 A member with unsaved changes asks the user and calls `preventDefault()` to stay. The user may be looking at another dashboard, so the question should name the member, such as "You have unsaved changes in Newsletter. Discard them?". A click is then cancelled. Back/Forward can't be, so the shell reopens the member where it was left, in the same history entry. When the shell is off, or an older Admin UI is loaded, nothing dispatches the event.
+
+Past the live-app limit, opening another dashboard loads the page, which would drop every hidden member, so the shell first asks each one the same way, with the URL about to load. If one stays, the click is cancelled, and Back/Forward keeps the visible dashboard in the same history entry. The visible member isn't asked: to it, that's an ordinary page load. A hidden member that also prompts from `beforeunload` should skip that prompt right after it lets a `before-leave` go on, such as with a flag it clears in a `setTimeout`, or the user is asked twice.
 
 ```JS
 window.addEventListener( 'jetpack-admin-shell:before-leave', event => {
