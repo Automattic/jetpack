@@ -891,11 +891,15 @@ class Jetpack_Mu_Wpcom {
 			}
 
 			if ( \Automattic\Jetpack\Comments\Comments::is_enabled() ) {
-				// A process that switches to another blog, like the comment email job, keeps these hooks.
+				// A process that loads this for one blog and then switches to another keeps these hooks.
 				add_filter(
 					'jetpack_comments_enabled',
 					static function ( $enabled ) {
-						return $enabled && ! self::should_disable_comment_experience( get_current_blog_id() );
+						static $by_blog        = array();
+						$blog_id               = get_current_blog_id();
+						$by_blog[ $blog_id ] ??= ! self::should_disable_comment_experience( $blog_id );
+
+						return $enabled && $by_blog[ $blog_id ];
 					}
 				);
 				\Automattic\Jetpack\Comments\Comments::init();
