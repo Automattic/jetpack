@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Admin_UI;
 
+use Automattic\Jetpack\Assets\Script_Data;
 use Automattic\Jetpack\Feature_Flags\Feature_Flags;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -64,8 +65,8 @@ class Admin_Shell_Test extends TestCase {
 		remove_all_actions( 'guest-page-wp-admin_init' );
 		remove_all_filters( 'wp_doing_ajax' );
 		remove_all_filters( 'wp_die_ajax_handler' );
-		foreach ( $this->added_actions as list( $hook, $callback ) ) {
-			remove_action( $hook, $callback );
+		foreach ( $this->added_actions as list( $hook, $callback, $priority ) ) {
+			remove_action( $hook, $callback, $priority );
 		}
 		if ( $this->unhook_emoji_styles ) {
 			add_action( 'wp_print_styles', 'print_emoji_styles' );
@@ -683,6 +684,131 @@ class Admin_Shell_Test extends TestCase {
 	}
 
 	/**
+	 * What other plugins print on the print hooks already ran on the host page, so the endpoint leaves it out.
+	 *
+	 * @return void
+	 */
+	public function test_guest_assets_leaves_out_what_other_plugins_print() {
+		$this->unhook_emoji_styles = remove_action( 'wp_print_styles', 'print_emoji_styles' );
+		$this->add_action(
+			'admin_print_footer_scripts',
+			static function () {
+				echo '<script>window.otherPluginFooter = 1;</script>';
+			}
+		);
+		$this->add_action(
+			'admin_print_scripts',
+			static function () {
+				echo '<script>window.otherPluginHead = 1;</script>';
+			}
+		);
+		$this->add_action(
+			'admin_enqueue_scripts',
+			function () {
+				$this->add_action(
+					'admin_print_footer_scripts',
+					static function () {
+						echo '<script>window.otherPluginLate = 1;</script>';
+					}
+				);
+			}
+		);
+		wp_register_script( 'shell-test-guest', 'https://example.com/guest.js', array(), '1', true );
+		$this->start_host_page( '__return_null', 'manage_options', array( 'shell-test-guest' ) );
+
+		$html = Admin_Shell::guest_assets( 'guest-page' );
+
+		$this->assertIsString( $html );
+		$this->assertStringContainsString( 'guest.js', $html );
+		$this->assertStringNotContainsString( 'otherPluginFooter', $html );
+		$this->assertStringNotContainsString( 'otherPluginHead', $html );
+		$this->assertStringNotContainsString( 'otherPluginLate', $html, 'nor what a callback hooked while enqueuing prints' );
+	}
+
+	/**
+	 * The member's own print callbacks, its handles' inline scripts, data other code attaches to them, and its script module data still print.
+	 *
+	 * @return void
+	 */
+	public function test_guest_assets_keeps_the_members_own_data() {
+		$this->unhook_emoji_styles = remove_action( 'wp_print_styles', 'print_emoji_styles' );
+		wp_register_script( 'shell-test-guest', 'https://example.com/guest.js', array(), '1', true );
+		wp_add_inline_script( 'shell-test-guest', 'window.guestBefore = 1;', 'before' );
+		wp_add_inline_script( 'shell-test-guest', 'window.guestAfter = 1;', 'after' );
+		$this->add_action(
+			'admin_print_scripts',
+			static function () {
+				wp_add_inline_script( 'shell-test-guest', 'window.attachedOnPrint = 1;', 'before' );
+			},
+			1
+		);
+		$this->start_host_page(
+			function () {
+				$this->add_action(
+					'admin_print_footer_scripts',
+					static function () {
+						echo '<script>window.guestFooter = 1;</script>';
+					}
+				);
+				wp_register_script_module( '@jetpack/shell-test-guest', 'https://example.com/guest-module.js' );
+				wp_enqueue_script_module( '@jetpack/shell-test-guest' );
+				add_filter( 'script_module_data_@jetpack/shell-test-guest', array( $this, 'guest_module_data' ) );
+			},
+			'manage_options',
+			array( 'shell-test-guest' )
+		);
+
+		$html = Admin_Shell::guest_assets( 'guest-page' );
+		remove_filter( 'script_module_data_@jetpack/shell-test-guest', array( $this, 'guest_module_data' ) );
+		wp_dequeue_script_module( '@jetpack/shell-test-guest' );
+		wp_deregister_script_module( '@jetpack/shell-test-guest' );
+
+		$this->assertIsString( $html );
+		$this->assertStringContainsString( 'window.guestFooter = 1;', $html, 'what the member\'s own print callback prints' );
+		$this->assertMatchesRegularExpression( '/id="shell-test-guest-js-before">[^<]*window\.guestBefore = 1;/', $html );
+		$this->assertMatchesRegularExpression( '/id="shell-test-guest-js-after">[^<]*window\.guestAfter = 1;/', $html );
+		$this->assertStringContainsString( 'window.attachedOnPrint = 1;', $html, 'data another callback attaches to a member handle' );
+		$this->assertStringContainsString( 'id="wp-script-module-data-@jetpack/shell-test-guest"', $html, 'core prints the member\'s script module data' );
+	}
+
+	/**
+	 * Script module data the test guest passes.
+	 *
+	 * @return array
+	 */
+	public function guest_module_data() {
+		return array( 'guest' => true );
+	}
+
+	/**
+	 * `JetpackScriptData`, which Script_Data attaches on admin_print_scripts, still prints.
+	 *
+	 * @return void
+	 */
+	public function test_guest_assets_keeps_jetpack_script_data() {
+		$this->unhook_emoji_styles = remove_action( 'wp_print_styles', 'print_emoji_styles' );
+		// Script_Data renders once per request.
+		$reset = \Closure::bind(
+			static function () {
+				// @phan-suppress-next-line PhanAccessPropertyPrivate -- Bound to Script_Data's scope.
+				Script_Data::$did_render_script_data = false;
+			},
+			null,
+			Script_Data::class
+		);
+		$reset();
+		Script_Data::register_assets();
+		$this->add_action( 'admin_print_scripts', array( Script_Data::class, 'render_script_data' ), 1 );
+		$this->start_host_page( '__return_null' );
+
+		$html = Admin_Shell::guest_assets( 'guest-page' );
+		$reset();
+
+		$this->assertIsString( $html );
+		$this->assertMatchesRegularExpression( '/id="jetpack-script-data-js-before">[^<]*window\.JetpackScriptData = /', $html );
+	}
+
+	/**
 	 * A guest that prints wp-api-fetch must not set up a second nonce middleware on a host that has one.
 	 *
 	 * @return void
@@ -723,11 +849,12 @@ class Admin_Shell_Test extends TestCase {
 	 *
 	 * @param string   $hook     Hook name.
 	 * @param callable $callback Callback.
+	 * @param int      $priority Priority.
 	 * @return void
 	 */
-	private function add_action( $hook, $callback ) {
-		add_action( $hook, $callback );
-		$this->added_actions[] = array( $hook, $callback );
+	private function add_action( $hook, $callback, $priority = 10 ) {
+		add_action( $hook, $callback, $priority );
+		$this->added_actions[] = array( $hook, $callback, $priority );
 	}
 
 	/**
