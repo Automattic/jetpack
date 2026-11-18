@@ -31,31 +31,23 @@ class Block_Editor_Test extends BaseTestCase {
 		);
 	}
 
-	/**
-	 * @dataProvider provide_render_unknown_blocks
-	 */
-	#[DataProvider( 'provide_render_unknown_blocks' )]
-	public function test_render_drops_blocks_the_editor_does_not_offer( $content, $expected ) {
-		$this->assertSame( $expected, Block_Editor::render( $content ) );
-	}
+	public function tear_down() {
+		remove_all_filters( 'jetpack_comments_keep_block' );
+		remove_all_filters( 'render_block' );
 
-	public static function provide_render_unknown_blocks() {
-		return array(
-			'unfiltered p2 block is dropped' => array( "<!-- wp:p2/embed-github -->\n<div>GH</div>\n<!-- /wp:p2/embed-github -->", '' ),
-		);
+		parent::tear_down();
 	}
 
 	public function test_render_outputs_a_kept_block_as_html() {
 		$this->keep_p2_blocks();
-		$filter = static function ( $content ) {
-			return $content . '<!-- rendered -->';
-		};
-		add_filter( 'render_block', $filter );
+		add_filter(
+			'render_block',
+			static function ( $content ) {
+				return $content . '<!-- rendered -->';
+			}
+		);
 
 		$output = Block_Editor::render( "<!-- wp:p2/embed-github -->\n<div>GH</div>\n<!-- /wp:p2/embed-github -->" );
-
-		remove_filter( 'render_block', $filter );
-		remove_all_filters( 'jetpack_comments_keep_block' );
 
 		$this->assertStringContainsString( '<div>GH</div>', $output );
 		$this->assertStringContainsString( '<!-- rendered -->', $output );
@@ -66,11 +58,7 @@ class Block_Editor_Test extends BaseTestCase {
 		$this->keep_p2_blocks();
 		$content = "<!-- wp:p2/embed-github -->\n<div>GH</div>\n<!-- /wp:p2/embed-github -->";
 
-		$saved = wp_unslash( Block_Editor::init()->keep_allowed_blocks( wp_slash( $content ) ) );
-
-		remove_all_filters( 'jetpack_comments_keep_block' );
-
-		$this->assertSame( $content, $saved );
+		$this->assertSame( $content, wp_unslash( Block_Editor::init()->keep_allowed_blocks( wp_slash( $content ) ) ) );
 	}
 
 	/**

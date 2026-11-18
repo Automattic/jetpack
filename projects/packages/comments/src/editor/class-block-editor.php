@@ -499,12 +499,13 @@ class Block_Editor {
 			 */
 			if ( null !== $block['blockName'] && (bool) apply_filters( 'jetpack_comments_keep_block', false, $block ) ) {
 				// Rendered for display, so its own render callback and render_block filters run before the delimiters are stripped.
+				$html   = render_block( $block );
 				$kept[] = null === $render ? $block : array(
 					'blockName'    => null,
 					'attrs'        => array(),
 					'innerBlocks'  => array(),
-					'innerHTML'    => render_block( $block ),
-					'innerContent' => array( render_block( $block ) ),
+					'innerHTML'    => $html,
+					'innerContent' => array( $html ),
 				);
 				continue;
 			}
