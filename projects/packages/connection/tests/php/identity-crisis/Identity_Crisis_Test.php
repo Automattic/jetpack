@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack;
 
+use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\IdentityCrisis\URL_Secret;
 use Automattic\Jetpack\Status\Cache as StatusCache;
 use Jetpack_Options;
@@ -54,6 +55,8 @@ class Identity_Crisis_Test extends BaseTestCase {
 		Jetpack_Options::delete_option( 'safe_mode_confirmed' );
 		$_GET = array();
 		wp_set_current_user( 0 );
+		$GLOBALS['wp_styles']      = null;
+		$GLOBALS['show_admin_bar'] = null;
 	}
 
 	/**
@@ -1920,24 +1923,24 @@ class Identity_Crisis_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The admin bar item is hidden until Safe Mode is confirmed.
+	 * Admins get a visible admin bar item whether or not Safe Mode is confirmed.
 	 *
-	 * @param bool        $is_confirmed   Whether Safe Mode is confirmed.
-	 * @param string|null $expected_class The node's class.
+	 * @param bool $is_confirmed Whether Safe Mode is confirmed.
 	 *
 	 * @dataProvider data_provider_test_admin_bar_button_for_admins
 	 */
 	#[DataProvider( 'data_provider_test_admin_bar_button_for_admins' )]
-	public function test_admin_bar_button_for_admins( $is_confirmed, $expected_class ) {
+	public function test_admin_bar_button_for_admins( $is_confirmed ) {
 		$this->set_current_user( true );
 		Identity_Crisis::$is_safe_mode_confirmed = $is_confirmed;
 
 		$node = $this->render_admin_bar_button();
 
 		$this->assertNotNull( $node );
-		$this->assertSame( $expected_class, $node->meta['class'] ?? null );
+		$this->assertArrayNotHasKey( 'class', $node->meta );
 		$this->assertStringContainsString( 'Jetpack Safe Mode', $node->title );
 		$this->assertStringContainsString( 'jetpack_idc_clear_confirmation=1', $node->href );
+		$this->assertSame( '_self', $node->meta['target'] );
 	}
 
 	/**
@@ -1947,8 +1950,96 @@ class Identity_Crisis_Test extends BaseTestCase {
 	 */
 	public static function data_provider_test_admin_bar_button_for_admins() {
 		return array(
-			'pending'   => array( false, 'hide' ),
-			'confirmed' => array( true, null ),
+			'pending'   => array( false ),
+			'confirmed' => array( true ),
+		);
+	}
+
+	/**
+	 * The admin bar item leads to a page that shows the Safe Mode screen.
+	 *
+	 * @param bool   $in_admin       Whether the request is for wp-admin.
+	 * @param bool   $hides_notices  Whether the page hides admin notices, as Jetpack dashboards do.
+	 * @param bool   $has_my_jetpack Whether My Jetpack is registered.
+	 * @param string $expected       Where the link leads: `current`, `my-jetpack` or `dashboard`.
+	 *
+	 * @dataProvider data_provider_test_admin_bar_button_target
+	 */
+	#[DataProvider( 'data_provider_test_admin_bar_button_target' )]
+	public function test_admin_bar_button_target( $in_admin, $hides_notices, $has_my_jetpack, $expected ) {
+		global $_parent_pages;
+		require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		require_once ABSPATH . 'wp-admin/includes/class-wp-screen.php';
+		require_once ABSPATH . 'wp-admin/includes/screen.php';
+		$this->set_current_user( true );
+		$request_uri            = $_SERVER['REQUEST_URI'] ?? null;
+		$_SERVER['REQUEST_URI'] = '/wp-admin/edit.php';
+		if ( $in_admin ) {
+			set_current_screen( 'dashboard' );
+		}
+		if ( $hides_notices ) {
+			wp_register_style( Admin_Menu::HIDE_CORE_NOTICES_HANDLE, false, array(), '1' );
+			wp_enqueue_style( Admin_Menu::HIDE_CORE_NOTICES_HANDLE );
+		}
+		if ( $has_my_jetpack ) {
+			$_parent_pages['my-jetpack'] = false;
+		}
+
+		$node = $this->render_admin_bar_button();
+
+		unset( $GLOBALS['current_screen'], $_parent_pages['my-jetpack'] );
+		wp_deregister_style( Admin_Menu::HIDE_CORE_NOTICES_HANDLE );
+		$_SERVER['REQUEST_URI'] = $request_uri;
+
+		$prefixes = array(
+			'current'    => '/wp-admin/edit.php?',
+			'my-jetpack' => admin_url( 'admin.php?page=my-jetpack' ) . '&',
+			'dashboard'  => admin_url() . '?',
+		);
+		$this->assertStringStartsWith( $prefixes[ $expected ], html_entity_decode( $node->href, ENT_QUOTES ) );
+	}
+
+	/**
+	 * Data provider for test_admin_bar_button_target.
+	 *
+	 * @return array
+	 */
+	public static function data_provider_test_admin_bar_button_target() {
+		return array(
+			'front end'                        => array( false, false, true, 'dashboard' ),
+			'admin page showing the screen'    => array( true, false, true, 'current' ),
+			'Jetpack dashboard'                => array( true, true, true, 'my-jetpack' ),
+			'Jetpack dashboard, no My Jetpack' => array( true, true, false, 'dashboard' ),
+		);
+	}
+
+	/**
+	 * The admin bar item's styles load wherever the admin bar shows, for users who get the item.
+	 *
+	 * @param bool $can_resolve Whether the user can resolve Safe Mode.
+	 *
+	 * @dataProvider data_provider_test_add_admin_bar_styles
+	 */
+	#[DataProvider( 'data_provider_test_add_admin_bar_styles' )]
+	public function test_add_admin_bar_styles( $can_resolve ) {
+		$this->set_current_user( $can_resolve );
+		show_admin_bar( true );
+
+		Identity_Crisis::init()->add_admin_bar_styles();
+
+		$inline = implode( '', (array) wp_styles()->get_data( 'admin-bar', 'after' ) );
+		$this->assertSame( $can_resolve, false !== strpos( $inline, '#wp-admin-bar-jetpack-idc' ) );
+	}
+
+	/**
+	 * Data provider for test_add_admin_bar_styles.
+	 *
+	 * @return array
+	 */
+	public static function data_provider_test_add_admin_bar_styles() {
+		return array(
+			'admin'     => array( true ),
+			'non-admin' => array( false ),
 		);
 	}
 
