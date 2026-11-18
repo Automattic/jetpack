@@ -65,6 +65,18 @@ describe( 'ensureDashboardEntities', () => {
 		} );
 	} );
 
+	it( 'gives another dashboard a sections entity of its own, on the route of that dashboard', () => {
+		getEntityConfig.mockReturnValue( undefined );
+
+		ensureDashboardEntities( 'example_dashboard' );
+
+		expect( registeredNames() ).toEqual( [ 'widgetModule', 'dashboardSection:example_dashboard' ] );
+		expect( addEntities.mock.calls[ 0 ][ 0 ][ 1 ] ).toMatchObject( {
+			baseURL: '/wpcom/v2/dashboards/example_dashboard/sections',
+			plural: 'dashboardSections:example_dashboard',
+		} );
+	} );
+
 	it( 'registers dashboardSection even when widgetModule is already registered', () => {
 		// Regression: an older detail-route guard registered only `widgetModule`,
 		// and the dashboard treated its presence as "the store is fully seeded".

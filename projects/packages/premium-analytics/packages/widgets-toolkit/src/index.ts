@@ -345,6 +345,11 @@ export {
 } from './hooks';
 
 /**
+ * Host: what a page needs to mount a widget dashboard.
+ */
+export { useWidgetModuleResolver, useWidgetModules, useWidgetTypesWithI18n } from './host';
+
+/**
  * Types
  */
 export type { CountLabel, DataFormat, WidgetStatus } from './types';

@@ -5,8 +5,8 @@ import {
 	DASHBOARD_PREFERENCES_SCOPE,
 	getSectionOrder,
 	orderSections,
+	useDashboardSectionRecords,
 } from '@jetpack-premium-analytics/data';
-import { useEntityRecords } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { useMemo } from 'react';
 /**
@@ -14,7 +14,6 @@ import { useMemo } from 'react';
  */
 import type { DashboardSection } from '../../config';
 
-export const DASHBOARD_SECTIONS_QUERY = { per_page: -1 };
 const NO_SECTIONS: DashboardSection[] = [];
 
 /**
@@ -32,11 +31,7 @@ export function useDashboardSections(): {
 	sections: DashboardSection[];
 	hasResolved: boolean;
 } {
-	const { records, hasResolved } = useEntityRecords< DashboardSection >(
-		'root',
-		'dashboardSection',
-		DASHBOARD_SECTIONS_QUERY
-	);
+	const { sections: records, hasResolved } = useDashboardSectionRecords< DashboardSection >();
 	const order = useSelect( select => getSectionOrder( DASHBOARD_PREFERENCES_SCOPE, select ), [] );
 	const sections = useMemo(
 		() => orderSections( records ?? NO_SECTIONS, order ),

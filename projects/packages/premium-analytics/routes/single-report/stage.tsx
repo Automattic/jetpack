@@ -28,6 +28,9 @@ import {
 	useHostLinkSearch,
 	useStoredDetailLayout,
 	useTrackedDateRangeApply,
+	useWidgetModuleResolver,
+	useWidgetModules,
+	useWidgetTypesWithI18n,
 	type PageNoticeProps,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { Page } from '@wordpress/admin-ui';
@@ -42,8 +45,6 @@ import { useDateWindowNotice } from '../date-window-notice';
 import { DETAIL_GRID } from '../grid';
 import { getReportDefinition } from '../reports/registry';
 import { useStatsDateLimits } from '../use-stats-date-limits';
-import { useWidgetModules } from '../use-widget-modules';
-import { useWidgetModuleResolver, useWidgetTypesWithI18n } from '../widget-module-i18n';
 import { SinglePageLayout } from './components';
 import { buildControlFields, type ControlsItem } from './controls';
 import { useActiveSection, useDetailBreadcrumbs, useDetailDateControls } from './hooks';

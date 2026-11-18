@@ -5,7 +5,7 @@ import { renderHook } from '@testing-library/react';
 /**
  * Internal dependencies
  */
-import { useWidgetModules } from './use-widget-modules';
+import { useWidgetModules } from '../use-widget-modules';
 
 const mockGetEntityRecords = jest.fn( () => [] );
 

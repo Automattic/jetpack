@@ -18,7 +18,12 @@ export {
 } from './providers/period-change-signal';
 export * from './hooks';
 export { STATS_SITE_SUMMARY_FIELDS } from './queries/stats-site-query';
-export { ensureDashboardEntities } from './entities/dashboard-entities';
+export {
+	DASHBOARD_SECTIONS_QUERY,
+	WIDGET_MODULES_QUERY,
+	ensureDashboardEntities,
+	useDashboardSectionRecords,
+} from './entities/dashboard-entities';
 export { latestPostQuery, postContentQuery, postsContentQuery } from './queries/latest-post-query';
 export type { LatestPost, LatestPostResponse } from './processing/latest-post';
 export { authorPostsQuery } from './queries/author-posts-query';
