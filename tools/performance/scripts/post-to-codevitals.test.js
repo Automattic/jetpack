@@ -1387,14 +1387,17 @@ test( 'a required measurement with no summary fails closed, not a TypeError cras
 
 test( 'a successful post logs the keys sent and any integer row count returned', async t => {
 	const file = writeResults( 120 );
-	for ( const [ count, expectedLogs ] of [
-		[ 3, [ 'Sent 6 keys. CodeVitals stored 3.' ] ],
-		[ 6, [ 'Sent 6 keys. CodeVitals stored 6.' ] ],
-		[ undefined, [] ],
+	for ( const [ body, expectedLogs ] of [
+		[ { count: 3 }, [ 'Sent 6 keys. CodeVitals stored 3.' ] ],
+		[ { count: 6 }, [ 'Sent 6 keys. CodeVitals stored 6.' ] ],
+		[ { count: 0 }, [ 'Sent 6 keys. CodeVitals stored 0.' ] ],
+		[ { count: '3' }, [] ],
+		[ null, [] ],
+		[ {}, [] ],
 	] ) {
 		const fetch = t.mock.method( global, 'fetch', async () => ( {
 			ok: true,
-			json: async () => ( count === undefined ? {} : { count } ),
+			json: async () => body,
 		} ) );
 		const logs = [];
 		const result = await silenced( () => {

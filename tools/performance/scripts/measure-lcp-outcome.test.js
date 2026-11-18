@@ -403,6 +403,7 @@ const healthyIteration = i => ( {
 
 test( 'finalizeMeasurement returns the measurement when three of five loads succeed', () => {
 	const forms = SCENARIOS.find( s => s.key === 'formsResponses' );
+	// Two TTFB samples still make a majority of the three successful loads.
 	for ( const middleTtfb of [ 200, null ] ) {
 		const results = [
 			...[ 100, middleTtfb, 300 ].map( ( ttfb, index ) => {
