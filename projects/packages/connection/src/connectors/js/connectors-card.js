@@ -62,6 +62,7 @@ import {
 	getCardConnection,
 	getProtectedOwnerStatus,
 	withoutClearConfirmation,
+	withSkipPricing,
 } from './card-state.mjs';
 import { createRequestError, getConnectErrorDisplay } from './connect-error.mjs';
 
@@ -1525,7 +1526,7 @@ function SafeModeScreen() {
 		hostActions: isManagedPlatformSite ? null : createElement( DisconnectSite ),
 		onActionSuccess: result => {
 			if ( result.action === 'start-fresh' ) {
-				window.location.href = decorateAuthUrl( result.connectUrl, { setFrom: false } );
+				window.location.href = withSkipPricing( result.connectUrl );
 			} else if ( result.action === 'confirm-safe-mode' ) {
 				window.location.href = withoutClearConfirmation( window.location.href );
 			}

@@ -161,17 +161,31 @@ export function getProtectedOwnerStatus( protectedOwner ) {
  * TEMPORARY: `skip_pricing` can be dropped once Calypso recognises
  * `from=jetpack-connector` natively and redirects to redirectAfterAuth.
  *
- * @param {string}  url                    - Calypso authorize URL.
- * @param {object}  [options]              - Options.
- * @param {boolean} [options.setFrom=true] - False when the server already put the flow's own `from` in the URL.
+ * @param {string} url - Calypso authorize URL.
  * @return {string} Decorated URL (unchanged if it can't be parsed).
  */
-export function decorateAuthUrl( url, { setFrom = true } = {} ) {
+export function decorateAuthUrl( url ) {
 	try {
 		const parsed = new URL( url );
-		if ( setFrom ) {
-			parsed.searchParams.set( 'from', 'jetpack-connector' );
-		}
+		parsed.searchParams.set( 'from', 'jetpack-connector' );
+		parsed.searchParams.set( 'skip_pricing', 'true' );
+		return parsed.toString();
+	} catch {
+		return url;
+	}
+}
+
+/**
+ * Add `skip_pricing` to an authorize URL whose `from` the server already set.
+ *
+ * Calypso skips the plans page for a standard `from` only when it receives `redirect_after_auth`.
+ *
+ * @param {string} url - Calypso authorize URL.
+ * @return {string} The URL with `skip_pricing` (unchanged if it can't be parsed).
+ */
+export function withSkipPricing( url ) {
+	try {
+		const parsed = new URL( url );
 		parsed.searchParams.set( 'skip_pricing', 'true' );
 		return parsed.toString();
 	} catch {

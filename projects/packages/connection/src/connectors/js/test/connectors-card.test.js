@@ -100,7 +100,7 @@ const brokenOwner = {
  * @param {string}  options.search       - The page's query string.
  * @param {object}  options.errorNotice  - What useConnectionErrorNotice() returns.
  * @param {boolean} options.hasNewScreen - Whether the shared script provides IdentityCrisis.
- * @return {object} A user-event instance, this load's mocked connection package and its decorateAuthUrl spy.
+ * @return {object} A user-event instance, this load's mocked connection package and the authorize URL spies.
  */
 function renderCard( {
 	state = connectedAsOwner,
@@ -122,7 +122,11 @@ function renderCard( {
 	jest.doMock( 'react', () => React );
 	jest.doMock( '../card-state.mjs', () => {
 		const actual = jest.requireActual( '../card-state.mjs' );
-		return { ...actual, decorateAuthUrl: jest.fn( actual.decorateAuthUrl ) };
+		return {
+			...actual,
+			decorateAuthUrl: jest.fn( actual.decorateAuthUrl ),
+			withSkipPricing: jest.fn( actual.withSkipPricing ),
+		};
 	} );
 	const connection = require( '@automattic/jetpack-connection' );
 	if ( ! hasNewScreen ) {
@@ -137,8 +141,8 @@ function renderCard( {
 	const { render: Card, ...props } = registerConnector.mock.calls[ 0 ][ 1 ];
 
 	render( React.createElement( Card, props ) );
-	const { decorateAuthUrl } = require( '../card-state.mjs' );
-	return { user: userEvent.setup(), connection, decorateAuthUrl };
+	const { decorateAuthUrl, withSkipPricing } = require( '../card-state.mjs' );
+	return { user: userEvent.setup(), connection, decorateAuthUrl, withSkipPricing };
 }
 
 /**
@@ -664,16 +668,21 @@ describe( 'Connectors card', () => {
 		 *
 		 * @param {object} data   - The card's script module data.
 		 * @param {string} search - The page's query string.
-		 * @return {Promise<object>} The user-event instance, the props the screen got and the decorateAuthUrl spy.
+		 * @return {Promise<object>} The user-event instance, the props the screen got and the authorize URL spies.
 		 */
 		async function openScreen( data = {}, search = '' ) {
-			const { user, connection, decorateAuthUrl } = renderCard( {
+			const { user, connection, decorateAuthUrl, withSkipPricing } = renderCard( {
 				state: newScreen,
 				data,
 				search,
 			} );
 			await user.click( screen.getByRole( 'button', { name: 'Resolve' } ) );
-			return { user, props: connection.IdentityCrisis.mock.calls.at( -1 )[ 0 ], decorateAuthUrl };
+			return {
+				user,
+				props: connection.IdentityCrisis.mock.calls.at( -1 )[ 0 ],
+				decorateAuthUrl,
+				withSkipPricing,
+			};
 		}
 
 		it.each( [
@@ -702,14 +711,15 @@ describe( 'Connectors card', () => {
 				'?jetpack_idc_clear_confirmation=1&_wpnonce=abc',
 			],
 		] )( 'after an action, %s', async ( _, result, search = '' ) => {
-			const { props, decorateAuthUrl } = await openScreen( {}, search );
+			const { props, decorateAuthUrl, withSkipPricing } = await openScreen( {}, search );
 
 			act( () => props.onActionSuccess( result ) );
 
 			await expectNavigation();
-			// The endpoint already put `from` in the URL.
-			expect( decorateAuthUrl.mock.calls ).toEqual(
-				result.connectUrl ? [ [ result.connectUrl, { setFrom: false } ] ] : []
+			// The endpoint already put `from` in the URL, so only `skip_pricing` is added.
+			expect( decorateAuthUrl ).not.toHaveBeenCalled();
+			expect( withSkipPricing.mock.calls ).toEqual(
+				result.connectUrl ? [ [ result.connectUrl ] ] : []
 			);
 		} );
 
