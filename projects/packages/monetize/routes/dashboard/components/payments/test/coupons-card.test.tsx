@@ -54,14 +54,19 @@ describe( 'CouponsCard', () => {
 	it.each( [
 		[ 'a site that can manage plans', true, true ],
 		[ 'a site that can’t', false, false ],
-	] )( 'lists coupons, offering Delete for %s', async ( _case, canManagePlans, offered ) => {
-		renderCard( true, canManagePlans );
+	] )(
+		'lists coupons, offering Add, Edit and Delete for %s',
+		async ( _case, canManagePlans, offered ) => {
+			renderCard( true, canManagePlans );
 
-		await expect( screen.findByRole( 'heading', { name: 'SPRING' } ) ).resolves.toBeVisible();
-		expect( screen.getByText( '20% off forever' ) ).toBeVisible();
-		expect( screen.getByText( 'Cannot be combined with other coupons' ) ).toBeVisible();
-		expect( Boolean( screen.queryByRole( 'button', { name: 'Delete' } ) ) ).toBe( offered );
-	} );
+			await expect( screen.findByRole( 'heading', { name: 'SPRING' } ) ).resolves.toBeVisible();
+			expect( screen.getByText( '20% off forever' ) ).toBeVisible();
+			expect( screen.getByText( 'Cannot be combined with other coupons' ) ).toBeVisible();
+			for ( const name of [ 'Add a coupon', 'Edit SPRING', 'Delete SPRING' ] ) {
+				expect( Boolean( screen.queryByRole( 'button', { name } ) ) ).toBe( offered );
+			}
+		}
+	);
 
 	it( 'shows the expiry date unshifted in a site timezone behind every browser', async () => {
 		const settings = getSettings();

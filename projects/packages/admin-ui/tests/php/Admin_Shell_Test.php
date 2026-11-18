@@ -7,9 +7,12 @@
 
 namespace Automattic\Jetpack\Admin_UI;
 
+use Automattic\Jetpack\Assets\Script_Data;
 use Automattic\Jetpack\Feature_Flags\Feature_Flags;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -62,8 +65,8 @@ class Admin_Shell_Test extends TestCase {
 		remove_all_actions( 'guest-page-wp-admin_init' );
 		remove_all_filters( 'wp_doing_ajax' );
 		remove_all_filters( 'wp_die_ajax_handler' );
-		foreach ( $this->added_actions as list( $hook, $callback ) ) {
-			remove_action( $hook, $callback );
+		foreach ( $this->added_actions as list( $hook, $callback, $priority ) ) {
+			remove_action( $hook, $callback, $priority );
 		}
 		if ( $this->unhook_emoji_styles ) {
 			add_action( 'wp_print_styles', 'print_emoji_styles' );
@@ -83,6 +86,22 @@ class Admin_Shell_Test extends TestCase {
 	public function test_flag_is_registered_off_by_default() {
 		$this->assertFalse( Feature_Flags::get( Admin_Shell::FLAG )['default'] ?? null );
 		$this->assertFalse( Admin_Shell::is_enabled() );
+	}
+
+	/**
+	 * Plugins call init() outside the admin menu, so admin-ajax gets the media library endpoint.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 *
+	 * @return void
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_init_hooks_the_media_library_endpoint() {
+		Admin_Shell::init();
+
+		$this->assertNotFalse( has_action( 'wp_ajax_' . Media_Library::AJAX_ACTION ) );
 	}
 
 	/**
@@ -136,26 +155,35 @@ class Admin_Shell_Test extends TestCase {
 			'default_path' => '/responses',
 			'capability'   => 'edit_posts',
 			'handles'      => array( 'jetpack-forms-dashboard' ),
-			'media'        => true,
 			'header'       => array(
 				'title'    => 'Forms',
 				'subtitle' => '',
 			),
 		);
 
+		$defaults = array(
+			'init_modules' => array(),
+			'default_path' => null,
+			'capability'   => 'manage_options',
+			'handles'      => array(),
+			'header'       => null,
+		);
+		$picked   = array(
+			'title'    => 'Settings',
+			'subtitle' => null,
+		);
+
 		return array(
-			'required keys only' => array(
-				self::valid_member(),
-				array(
-					'init_modules' => array(),
-					'default_path' => null,
-					'capability'   => 'manage_options',
-					'handles'      => array(),
-					'media'        => false,
-					'header'       => null,
-				),
+			'required keys only'                  => array( self::valid_member(), $defaults ),
+			'every key set'                       => array( $set + self::valid_member(), $set ),
+			'no stand-in header'                  => array(
+				array( 'header' => false ) + self::valid_member(),
+				array( 'header' => false ) + $defaults,
 			),
-			'every key set'      => array( $set + self::valid_member(), $set ),
+			'subtitle picked as the page renders' => array(
+				array( 'header' => $picked ) + self::valid_member(),
+				array( 'header' => $picked ) + $defaults,
+			),
 		);
 	}
 
@@ -204,7 +232,6 @@ class Admin_Shell_Test extends TestCase {
 			'handles holds non-text' => array( 'jetpack-forms', array( 'handles' => array( 1 ) ) + $valid ),
 			'empty capability'       => array( 'jetpack-forms', array( 'capability' => '' ) + $valid ),
 			'default_path not text'  => array( 'jetpack-forms', array( 'default_path' => 1 ) + $valid ),
-			'media not a boolean'    => array( 'jetpack-forms', array( 'media' => 'yes' ) + $valid ),
 		);
 	}
 
@@ -238,15 +265,16 @@ class Admin_Shell_Test extends TestCase {
 	 */
 	public static function provide_invalid_headers() {
 		return array(
-			'not an array'      => array( 'Forms' ),
-			'no subtitle'       => array( array( 'title' => 'Forms' ) ),
-			'subtitle not text' => array(
+			'not an array'                => array( 'Forms' ),
+			'true, not the false opt-out' => array( true ),
+			'no subtitle'                 => array( array( 'title' => 'Forms' ) ),
+			'subtitle not text'           => array(
 				array(
 					'title'    => 'Forms',
 					'subtitle' => 1,
 				),
 			),
-			'empty title'       => array(
+			'empty title'                 => array(
 				array(
 					'title'    => '',
 					'subtitle' => 'Sub',
@@ -446,6 +474,49 @@ class Admin_Shell_Test extends TestCase {
 	}
 
 	/**
+	 * Data provider for test_setup_passes_live_app_limit.
+	 *
+	 * @return array[] Filter result, limit the client gets.
+	 */
+	public static function provide_live_app_limits() {
+		return array(
+			'unfiltered'   => array( null, null ),
+			'a limit'      => array( 4, 4 ),
+			'a string'     => array( '4', 4 ),
+			'zero'         => array( 0, null ),
+			'not a number' => array( 'four', null ),
+		);
+	}
+
+	/**
+	 * The client gets a positive live-app limit a site sets, and otherwise sizes it itself.
+	 *
+	 * @dataProvider provide_live_app_limits
+	 * @param mixed    $filtered Filter result.
+	 * @param int|null $expected Limit in the client config.
+	 * @return void
+	 */
+	#[DataProvider( 'provide_live_app_limits' )]
+	public function test_setup_passes_live_app_limit( $filtered, $expected ) {
+		$this->start_host_page(
+			static function () {
+				$GLOBALS['jetpack_shell_test_guest_page_routes_data'] = array( array( 'path' => '/' ) );
+			}
+		);
+		$filter = static function () use ( $filtered ) {
+			return $filtered;
+		};
+		add_filter( 'jetpack_admin_shell_max_live_apps', $filter );
+
+		Admin_Shell::setup();
+		remove_filter( 'jetpack_admin_shell_max_live_apps', $filter );
+
+		$config = apply_filters( 'script_module_data_' . Admin_Shell::CLIENT_MODULE, array() );
+		$this->assertArrayHasKey( 'maxLiveApps', $config );
+		$this->assertSame( $expected, $config['maxLiveApps'] );
+	}
+
+	/**
 	 * Data provider for test_guest_without_built_routes_is_skipped.
 	 *
 	 * @return array[] Guest build page, whether its load sets the routes data global.
@@ -613,6 +684,131 @@ class Admin_Shell_Test extends TestCase {
 	}
 
 	/**
+	 * What other plugins print on the print hooks already ran on the host page, so the endpoint leaves it out.
+	 *
+	 * @return void
+	 */
+	public function test_guest_assets_leaves_out_what_other_plugins_print() {
+		$this->unhook_emoji_styles = remove_action( 'wp_print_styles', 'print_emoji_styles' );
+		$this->add_action(
+			'admin_print_footer_scripts',
+			static function () {
+				echo '<script>window.otherPluginFooter = 1;</script>';
+			}
+		);
+		$this->add_action(
+			'admin_print_scripts',
+			static function () {
+				echo '<script>window.otherPluginHead = 1;</script>';
+			}
+		);
+		$this->add_action(
+			'admin_enqueue_scripts',
+			function () {
+				$this->add_action(
+					'admin_print_footer_scripts',
+					static function () {
+						echo '<script>window.otherPluginLate = 1;</script>';
+					}
+				);
+			}
+		);
+		wp_register_script( 'shell-test-guest', 'https://example.com/guest.js', array(), '1', true );
+		$this->start_host_page( '__return_null', 'manage_options', array( 'shell-test-guest' ) );
+
+		$html = Admin_Shell::guest_assets( 'guest-page' );
+
+		$this->assertIsString( $html );
+		$this->assertStringContainsString( 'guest.js', $html );
+		$this->assertStringNotContainsString( 'otherPluginFooter', $html );
+		$this->assertStringNotContainsString( 'otherPluginHead', $html );
+		$this->assertStringNotContainsString( 'otherPluginLate', $html, 'nor what a callback hooked while enqueuing prints' );
+	}
+
+	/**
+	 * The member's own print callbacks, its handles' inline scripts, data other code attaches to them, and its script module data still print.
+	 *
+	 * @return void
+	 */
+	public function test_guest_assets_keeps_the_members_own_data() {
+		$this->unhook_emoji_styles = remove_action( 'wp_print_styles', 'print_emoji_styles' );
+		wp_register_script( 'shell-test-guest', 'https://example.com/guest.js', array(), '1', true );
+		wp_add_inline_script( 'shell-test-guest', 'window.guestBefore = 1;', 'before' );
+		wp_add_inline_script( 'shell-test-guest', 'window.guestAfter = 1;', 'after' );
+		$this->add_action(
+			'admin_print_scripts',
+			static function () {
+				wp_add_inline_script( 'shell-test-guest', 'window.attachedOnPrint = 1;', 'before' );
+			},
+			1
+		);
+		$this->start_host_page(
+			function () {
+				$this->add_action(
+					'admin_print_footer_scripts',
+					static function () {
+						echo '<script>window.guestFooter = 1;</script>';
+					}
+				);
+				wp_register_script_module( '@jetpack/shell-test-guest', 'https://example.com/guest-module.js' );
+				wp_enqueue_script_module( '@jetpack/shell-test-guest' );
+				add_filter( 'script_module_data_@jetpack/shell-test-guest', array( $this, 'guest_module_data' ) );
+			},
+			'manage_options',
+			array( 'shell-test-guest' )
+		);
+
+		$html = Admin_Shell::guest_assets( 'guest-page' );
+		remove_filter( 'script_module_data_@jetpack/shell-test-guest', array( $this, 'guest_module_data' ) );
+		wp_dequeue_script_module( '@jetpack/shell-test-guest' );
+		wp_deregister_script_module( '@jetpack/shell-test-guest' );
+
+		$this->assertIsString( $html );
+		$this->assertStringContainsString( 'window.guestFooter = 1;', $html, 'what the member\'s own print callback prints' );
+		$this->assertMatchesRegularExpression( '/id="shell-test-guest-js-before">[^<]*window\.guestBefore = 1;/', $html );
+		$this->assertMatchesRegularExpression( '/id="shell-test-guest-js-after">[^<]*window\.guestAfter = 1;/', $html );
+		$this->assertStringContainsString( 'window.attachedOnPrint = 1;', $html, 'data another callback attaches to a member handle' );
+		$this->assertStringContainsString( 'id="wp-script-module-data-@jetpack/shell-test-guest"', $html, 'core prints the member\'s script module data' );
+	}
+
+	/**
+	 * Script module data the test guest passes.
+	 *
+	 * @return array
+	 */
+	public function guest_module_data() {
+		return array( 'guest' => true );
+	}
+
+	/**
+	 * `JetpackScriptData`, which Script_Data attaches on admin_print_scripts, still prints.
+	 *
+	 * @return void
+	 */
+	public function test_guest_assets_keeps_jetpack_script_data() {
+		$this->unhook_emoji_styles = remove_action( 'wp_print_styles', 'print_emoji_styles' );
+		// Script_Data renders once per request.
+		$reset = \Closure::bind(
+			static function () {
+				// @phan-suppress-next-line PhanAccessPropertyPrivate -- Bound to Script_Data's scope.
+				Script_Data::$did_render_script_data = false;
+			},
+			null,
+			Script_Data::class
+		);
+		$reset();
+		Script_Data::register_assets();
+		$this->add_action( 'admin_print_scripts', array( Script_Data::class, 'render_script_data' ), 1 );
+		$this->start_host_page( '__return_null' );
+
+		$html = Admin_Shell::guest_assets( 'guest-page' );
+		$reset();
+
+		$this->assertIsString( $html );
+		$this->assertMatchesRegularExpression( '/id="jetpack-script-data-js-before">[^<]*window\.JetpackScriptData = /', $html );
+	}
+
+	/**
 	 * A guest that prints wp-api-fetch must not set up a second nonce middleware on a host that has one.
 	 *
 	 * @return void
@@ -630,42 +826,22 @@ class Admin_Shell_Test extends TestCase {
 	}
 
 	/**
-	 * Data provider for test_guest_assets_prints_media_library_only_when_asked.
+	 * A guest gets no media library, even one whose page enqueues it or that still sets the removed `media` key: loadMediaLibrary() loads it on demand.
 	 *
-	 * @return array[] Media flag, whether the page enqueues the media library itself.
-	 */
-	public static function provide_media_flags() {
-		return array(
-			'media'                       => array( true, false ),
-			'media the page enqueues too' => array( true, true ),
-			'no media'                    => array( false, false ),
-		);
-	}
-
-	/**
-	 * A media member gets the media library and the templates its modal renders from.
-	 *
-	 * @dataProvider provide_media_flags
-	 *
-	 * @param bool $media       Whether the guest opens the media library.
-	 * @param bool $own_enqueue Whether the page's loader enqueues it too.
 	 * @return void
 	 */
-	#[DataProvider( 'provide_media_flags' )]
-	public function test_guest_assets_prints_media_library_only_when_asked( $media, $own_enqueue ) {
+	public function test_guest_assets_leaves_out_the_media_library() {
 		$this->unhook_emoji_styles = remove_action( 'wp_print_styles', 'print_emoji_styles' );
-		$load                      = function () use ( $own_enqueue ) {
-			if ( $own_enqueue ) {
-				$this->add_action( 'admin_enqueue_scripts', 'wp_enqueue_media' );
-			}
+		$load                      = function () {
+			$this->add_action( 'admin_enqueue_scripts', 'wp_enqueue_media' );
 		};
-		$this->start_host_page( $load, 'manage_options', array(), $media );
+		$this->start_host_page( $load, 'manage_options', array(), array( 'media' => true ) );
 
 		$html = Admin_Shell::guest_assets( 'guest-page' );
 
 		$this->assertIsString( $html );
-		$this->assertSame( $media, false !== strpos( $html, 'id="media-views-js"' ) );
-		$this->assertSame( $media, false !== strpos( $html, 'id="tmpl-media-modal"' ) );
+		$this->assertStringNotContainsString( 'id="media-views-js"', $html );
+		$this->assertStringNotContainsString( 'id="tmpl-media-modal"', $html );
 	}
 
 	/**
@@ -673,11 +849,12 @@ class Admin_Shell_Test extends TestCase {
 	 *
 	 * @param string   $hook     Hook name.
 	 * @param callable $callback Callback.
+	 * @param int      $priority Priority.
 	 * @return void
 	 */
-	private function add_action( $hook, $callback ) {
-		add_action( $hook, $callback );
-		$this->added_actions[] = array( $hook, $callback );
+	private function add_action( $hook, $callback, $priority = 10 ) {
+		add_action( $hook, $callback, $priority );
+		$this->added_actions[] = array( $hook, $callback, $priority );
 	}
 
 	/**
@@ -686,10 +863,10 @@ class Admin_Shell_Test extends TestCase {
 	 * @param callable $load       Guest loader.
 	 * @param string   $capability Capability the guest requires.
 	 * @param string[] $handles    Handles the guest endpoint may return.
-	 * @param bool     $media      Whether the guest opens the media library.
+	 * @param array    $extra      More keys for the guest member.
 	 * @return void
 	 */
-	private function start_host_page( $load, $capability = 'manage_options', $handles = array(), $media = false ) {
+	private function start_host_page( $load, $capability = 'manage_options', $handles = array(), $extra = array() ) {
 		require_once __DIR__ . '/fixtures/wp-build-routes.php';
 		add_filter( 'jetpack_feature_flag_enabled_' . Admin_Shell::FLAG, '__return_true' );
 		wp_set_current_user(
@@ -710,12 +887,11 @@ class Admin_Shell_Test extends TestCase {
 					'init_modules' => array( '@jetpack/guest-init' ),
 					'capability'   => $capability,
 					'handles'      => $handles,
-					'media'        => $media,
 					'load'         => static function () use ( $load ) {
 						jetpack_shell_test_load_build();
 						$load();
 					},
-				) + self::valid_member(),
+				) + $extra + self::valid_member(),
 			)
 		);
 		$_GET['page']           = 'host-page';

@@ -423,11 +423,7 @@ class Identity_Crisis {
 	}
 
 	/**
-	 * Determines if two IDC error arrays have the same wpcom URLs.
-	 *
-	 * The wpcom URLs are stored in reversed form in the database, but the jetpack_options
-	 * filter un-reverses them when retrieved. This method normalizes both sets of URLs
-	 * to reversed form before comparing.
+	 * Determines if two IDC error arrays have the same wpcom URLs, compared in their stored form.
 	 *
 	 * @param array $idc1 First IDC error data (from get_option, may be un-reversed).
 	 * @param array $idc2 Second IDC error data (from get_sync_error_idc_option, reversed).
@@ -447,16 +443,10 @@ class Identity_Crisis {
 			return false;
 		}
 
-		// The existing IDC data has been un-reversed by the jetpack_options filter when
-		// retrieved via Jetpack_Options::get_option(), so the wpcom URLs are in normal format.
-		// The new data from get_sync_error_idc_option() has reversed URLs.
-		// Reverse the existing URLs to match the format of the new data for comparison.
-		$existing_wpcom_home    = strrev( $idc1['wpcom_home'] );
-		$existing_wpcom_siteurl = strrev( $idc1['wpcom_siteurl'] );
+		$existing = self::get_sync_error_for_storage( $idc1 );
 
-		// Compare the reversed URLs.
-		return $existing_wpcom_home === $idc2['wpcom_home']
-			&& $existing_wpcom_siteurl === $idc2['wpcom_siteurl'];
+		return $existing['wpcom_home'] === $idc2['wpcom_home']
+			&& $existing['wpcom_siteurl'] === $idc2['wpcom_siteurl'];
 	}
 
 	/**
@@ -623,7 +613,7 @@ class Identity_Crisis {
 	 * If the request fails (network error, timeout, etc.), timing is updated to prevent
 	 * immediate retries but the delay interval is not increased.
 	 *
-	 * @param array $sync_error The stored sync_error_idc option with timing fields.
+	 * @param array $sync_error The sync_error_idc option with timing fields, as read through `Jetpack_Options::get_option()`.
 	 * @return bool True if IDC was cleared, false otherwise.
 	 */
 	public static function remote_validate_idc( $sync_error ) {
@@ -664,7 +654,7 @@ class Identity_Crisis {
 		$sync_error['last_checked'] = time();
 		// Note: update_option may return false if value unchanged, which is OK.
 		// We only bail if we can't verify the option exists with correct timestamp.
-		Jetpack_Options::update_option( 'sync_error_idc', $sync_error );
+		Jetpack_Options::update_option( 'sync_error_idc', self::get_sync_error_for_storage( $sync_error ) );
 
 		// Verify the critical timing field was persisted.
 		// This protects against caching/DB issues that would cause request floods.
@@ -734,13 +724,34 @@ class Identity_Crisis {
 		} else {
 			// Network error, invalid JSON, or non-200 - just update last_checked without backoff.
 			$sync_error['last_checked'] = time();
-			Jetpack_Options::update_option( 'sync_error_idc', $sync_error );
+			Jetpack_Options::update_option( 'sync_error_idc', self::get_sync_error_for_storage( $sync_error ) );
 			self::invalidate_idc_option_cache();
 		}
 
 		delete_transient( $lock_key );
 		$is_validating = false;
 		return false;
+	}
+
+	/**
+	 * Puts the WordPress.com URLs of a sync error in their stored, reversed form, however it was read.
+	 *
+	 * The `jetpack_options` filter un-reverses them on read. Normalized URLs are host and path, so only a reversed one starts
+	 * with `/`; testing that rather than the filter also repairs an option an earlier save left un-reversed.
+	 *
+	 * @param array $sync_error The sync_error_idc option.
+	 * @return array The value to save.
+	 */
+	private static function get_sync_error_for_storage( $sync_error ) {
+		if ( ! isset( $sync_error['reversed_url'] ) ) {
+			return $sync_error;
+		}
+		foreach ( array( 'wpcom_home', 'wpcom_siteurl' ) as $key ) {
+			if ( isset( $sync_error[ $key ] ) && is_string( $sync_error[ $key ] ) && 0 !== strpos( $sync_error[ $key ], '/' ) ) {
+				$sync_error[ $key ] = strrev( $sync_error[ $key ] );
+			}
+		}
+		return $sync_error;
 	}
 
 	/**

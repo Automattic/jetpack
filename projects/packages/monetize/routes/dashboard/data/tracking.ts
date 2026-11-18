@@ -125,6 +125,7 @@ export function trackPaymentsEvent(
 		| 'plan_delete'
 		| 'free_tier_edit_click'
 		| 'free_tier_update'
+		| 'coupon_save'
 		| 'coupon_delete',
 	properties: Record< string, unknown > = {}
 ) {

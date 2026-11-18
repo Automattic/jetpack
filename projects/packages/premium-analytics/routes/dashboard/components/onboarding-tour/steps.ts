@@ -12,7 +12,7 @@ export type OnboardingTourAnchors = {
 	/** The section header's date controls. */
 	dateControls: Element | null;
 
-	/** The page options menu trigger: Customize, feedback and the way back to classic Stats. */
+	/** The Stats options menu trigger: Customize, feedback and the way back to classic Stats. */
 	optionsMenu: Element | null;
 
 	/** The section tab bar. */

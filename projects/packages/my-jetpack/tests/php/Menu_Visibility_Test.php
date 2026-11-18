@@ -9,8 +9,11 @@ namespace Automattic\Jetpack\My_Jetpack;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Connection\Tokens;
+use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\My_Jetpack\Products\Backup;
+use Automattic\Jetpack\My_Jetpack\Products\Videopress;
 use Jetpack_Options;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use WorDBless\Options as WorDBless_Options;
 use WorDBless\Users as WorDBless_Users;
@@ -36,10 +39,16 @@ class Menu_Visibility_Test extends TestCase {
 	 */
 	public function tearDown(): void {
 		remove_filter( 'my_jetpack_products_classes', array( $this, 'replace_stats_product' ) );
+		remove_filter( 'jetpack_get_module_path', array( $this, 'ship_stats_module' ), 10 );
+		remove_filter( 'jetpack_get_available_modules', array( $this, 'remove_stats_module' ), 20 );
 		remove_filter( 'jetpack_active_modules', array( $this, 'activate_sample_module' ) );
+		remove_filter( 'map_meta_cap', array( $this, 'map_module_caps' ) );
 		remove_filter( 'jetpack_get_available_standalone_modules', array( $this, 'offer_sample_module' ) );
 		remove_filter( 'jetpack_get_available_modules', array( $this, 'offer_sample_module_with_version' ) );
-		Sample_Gated_Product::$active = true;
+		Sample_Gated_Product::$active              = true;
+		Sample_Gated_Product::$activation_attempts = 0;
+		Sample_Gated_Product::$held_off            = false;
+		Sample_Gated_Product::$installed           = true;
 		Admin_Menu::set_visibility_resolver( null );
 		$this->reset_admin_menu();
 		$this->reset_resolved_gates();
@@ -187,6 +196,40 @@ class Menu_Visibility_Test extends TestCase {
 	}
 
 	/**
+	 * Maps the module capability to manage_options.
+	 *
+	 * @param string[] $caps Primitive capabilities.
+	 * @param string   $cap  Capability checked.
+	 * @return string[]
+	 */
+	public function map_module_caps( $caps, $cap ) {
+		return 'jetpack_manage_modules' === $cap ? array( 'manage_options' ) : $caps;
+	}
+
+	/**
+	 * Gives the Stats module, which backs the sample product, a file, as the Jetpack plugin ships one.
+	 *
+	 * @param string $path Path to the module's file.
+	 * @param string $slug Module slug.
+	 * @return string
+	 */
+	public function ship_stats_module( $path, $slug ) {
+		return 'stats' === $slug ? __FILE__ : $path;
+	}
+
+	/**
+	 * Removes the Stats module, as a site filtering it away does.
+	 *
+	 * @param array $modules Map of available module slug to the version that introduced it.
+	 * @return array
+	 */
+	public function remove_stats_module( $modules ) {
+		unset( $modules['stats'] );
+
+		return $modules;
+	}
+
+	/**
 	 * Reports the sample module as one this site has, off the Jetpack plugin.
 	 *
 	 * @param array $modules Available module slugs.
@@ -218,6 +261,228 @@ class Menu_Visibility_Test extends TestCase {
 	private function offer_sample_module_either_way() {
 		add_filter( 'jetpack_get_available_standalone_modules', array( $this, 'offer_sample_module' ) );
 		add_filter( 'jetpack_get_available_modules', array( $this, 'offer_sample_module_with_version' ) );
+	}
+
+	/**
+	 * Data provider for test_activate_switches_the_module_on.
+	 *
+	 * @return array[] Role, whether the module switch is attempted.
+	 */
+	public static function provide_module_activations() {
+		return array(
+			'module manager' => array( 'administrator', true ),
+			'no module cap'  => array( 'subscriber', false ),
+		);
+	}
+
+	/**
+	 * Turning a module-gated page back on switches its module, for users who may manage modules.
+	 *
+	 * Asserts the attempt rather than the result: whether Modules then succeeds depends on the connection, not this class.
+	 *
+	 * @dataProvider provide_module_activations
+	 *
+	 * @param string $role     Role of the current user.
+	 * @param bool   $expected Whether the module switch is attempted.
+	 */
+	#[DataProvider( 'provide_module_activations' )]
+	public function test_activate_switches_the_module_on( $role, $expected ) {
+		$this->offer_sample_module_either_way();
+		// Mapped as Sync maps it on a connected site.
+		add_filter( 'map_meta_cap', array( $this, 'map_module_caps' ), 10, 2 );
+		wp_set_current_user(
+			wp_insert_user(
+				array(
+					'user_login' => 'menu_visibility_' . $role,
+					'user_pass'  => '123',
+					'role'       => $role,
+				)
+			)
+		);
+		$attempted = array();
+		$record    = static function ( $module ) use ( &$attempted ) {
+			$attempted[] = $module;
+		};
+		add_action( 'jetpack_pre_activate_module', $record );
+
+		$result = Menu_Visibility::activate( array( 'module' => 'sample-module' ) );
+		remove_action( 'jetpack_pre_activate_module', $record );
+
+		$this->assertSame( $expected ? array( 'sample-module' ) : array(), $attempted );
+		if ( ! $expected ) {
+			$this->assertSame( 'not_allowed', $result->get_error_code() );
+		}
+	}
+
+	/**
+	 * Data provider for test_feature_something_else_holds_off_is_not_offered.
+	 *
+	 * @return array[] What keeps the feature off.
+	 */
+	public static function provide_held_off_causes() {
+		return array(
+			'its module filtered away' => array( 'removed' ),
+			'its module held off'      => array( 'module held off' ),
+			'the product held off'     => array( 'product held off' ),
+			'its plugin not installed' => array( 'not installed' ),
+		);
+	}
+
+	/**
+	 * A feature something other than its switch keeps off is still off in the sidebar, but nothing offers to turn it on.
+	 *
+	 * @dataProvider provide_held_off_causes
+	 *
+	 * @param string $cause What keeps the feature off.
+	 */
+	#[DataProvider( 'provide_held_off_causes' )]
+	public function test_feature_something_else_holds_off_is_not_offered( $cause ) {
+		if ( 'removed' === $cause && ( ! class_exists( 'Jetpack' ) || ! defined( 'JETPACK__PLUGIN_DIR' ) ) ) {
+			$this->markTestSkipped( 'Needs the mock Jetpack plugin an earlier test loads.' );
+		}
+		Sample_Gated_Product::$active = false;
+		$offer                        = static function ( $modules ) {
+			return array( 'stats' => '1.0' ) + (array) $modules;
+		};
+		$offer_standalone             = static function ( $modules ) {
+			return array_merge( (array) $modules, array( 'stats' ) );
+		};
+		add_filter( 'jetpack_get_available_modules', $offer );
+		add_filter( 'jetpack_get_available_standalone_modules', $offer_standalone );
+		$this->assertTrue( Menu_Visibility::can_offer( array( 'product' => 'stats' ) ), 'Offered before anything holds it off.' );
+
+		if ( 'removed' === $cause ) {
+			add_filter( 'jetpack_get_module_path', array( $this, 'ship_stats_module' ), 10, 2 );
+			add_filter( 'jetpack_get_available_modules', array( $this, 'remove_stats_module' ), 20 );
+		} elseif ( 'module held off' === $cause ) {
+			// Never saved on, so only the filter shows it would stay off.
+			add_filter( 'jetpack_active_modules', array( $this, 'remove_stats_from_active' ), 100 );
+		} elseif ( 'not installed' === $cause ) {
+			remove_filter( 'jetpack_get_available_modules', $offer );
+			remove_filter( 'jetpack_get_available_standalone_modules', $offer_standalone );
+			Sample_Gated_Product::$installed = false;
+		} else {
+			Sample_Gated_Product::$held_off = true;
+		}
+
+		$resolved = Menu_Visibility::resolve( array( 'product' => 'stats' ) );
+		$offered  = Menu_Visibility::can_offer( array( 'product' => 'stats' ) );
+		$result   = Menu_Visibility::activate( array( 'product' => 'stats' ) );
+		remove_filter( 'jetpack_get_available_modules', $offer );
+		remove_filter( 'jetpack_get_available_standalone_modules', $offer_standalone );
+		remove_filter( 'jetpack_active_modules', array( $this, 'remove_stats_from_active' ), 100 );
+
+		$this->assertFalse( $resolved, 'The sidebar still hides it.' );
+		$this->assertFalse( $offered );
+		$this->assertSame( 'not_available', $result->get_error_code() );
+	}
+
+	/**
+	 * Holds the Stats module off, as a host's `jetpack_active_modules` callback does.
+	 *
+	 * @param array $modules Active module slugs.
+	 * @return array
+	 */
+	public function remove_stats_from_active( $modules ) {
+		return array_values( array_diff( (array) $modules, array( 'stats' ) ) );
+	}
+
+	/**
+	 * Data provider for test_activate_reaches_the_product_only_when_its_module_was_not_enough.
+	 *
+	 * @return array[] Whether the product reads on after its module is, whether its plugin is installed, how often Product::activate() is reached.
+	 */
+	public static function provide_product_fallbacks() {
+		return array(
+			'module was enough'        => array( true, true, 0 ),
+			'product still off'        => array( false, true, 1 ),
+			'its plugin not installed' => array( false, false, 0 ),
+		);
+	}
+
+	/**
+	 * Turning a product on switches its module and stops there once that turns the product on;
+	 * Product::activate() would install a standalone plugin a Jetpack site doesn't need.
+	 *
+	 * @dataProvider provide_product_fallbacks
+	 *
+	 * @param bool $on_after_module Whether the product reads on once its module is.
+	 * @param bool $installed       Whether the product's plugin is installed.
+	 * @param int  $expected        How often Product::activate() is reached.
+	 */
+	#[DataProvider( 'provide_product_fallbacks' )]
+	public function test_activate_reaches_the_product_only_when_its_module_was_not_enough( $on_after_module, $installed, $expected ) {
+		$stats        = static function ( $modules ) {
+			return array_merge( (array) $modules, array( 'stats' ) );
+		};
+		$stats_by_ver = static function ( $modules ) {
+			return array( 'stats' => '1.0' ) + (array) $modules;
+		};
+		add_filter( 'jetpack_get_available_standalone_modules', $stats );
+		add_filter( 'jetpack_get_available_modules', $stats_by_ver );
+		// Already on, so switch_module() succeeds without Modules::activate(), which needs a connection here.
+		add_filter( 'jetpack_active_modules', $stats );
+		add_filter( 'map_meta_cap', array( $this, 'map_module_caps' ), 10, 2 );
+		wp_set_current_user(
+			wp_insert_user(
+				array(
+					'user_login' => 'menu_visibility_fallback',
+					'user_pass'  => '123',
+					'role'       => 'administrator',
+				)
+			)
+		);
+		Sample_Gated_Product::$active    = $on_after_module;
+		Sample_Gated_Product::$installed = $installed;
+
+		$result = Menu_Visibility::activate( array( 'product' => 'stats' ) );
+		remove_filter( 'jetpack_get_available_standalone_modules', $stats );
+		remove_filter( 'jetpack_get_available_modules', $stats_by_ver );
+		remove_filter( 'jetpack_active_modules', $stats );
+
+		$this->assertSame( $installed ? true : 'not_available', is_wp_error( $result ) ? $result->get_error_code() : $result );
+		$this->assertSame( $expected, Sample_Gated_Product::$activation_attempts );
+	}
+
+	/**
+	 * A hybrid product whose standalone plugin is missing is not offered, even with the Jetpack plugin installed but off.
+	 *
+	 * Product::activate() would install the standalone plugin from WordPress.org.
+	 */
+	public function test_hybrid_product_without_its_own_plugin_is_not_offered() {
+		$jetpack_only = static function () {
+			return array( 'jetpack/jetpack.php' => array( 'Name' => 'Jetpack' ) );
+		};
+		add_filter( 'all_plugins', $jetpack_only );
+		update_option( 'active_plugins', array() );
+		wp_set_current_user(
+			wp_insert_user(
+				array(
+					'user_login' => 'menu_visibility_hybrid',
+					'user_pass'  => '123',
+					'role'       => 'administrator',
+				)
+			)
+		);
+		$requests      = 0;
+		$count_request = function () use ( &$requests ) {
+			++$requests;
+			return new \WP_Error( 'http_request_failed', 'No request expected.' );
+		};
+		add_filter( 'pre_http_request', $count_request );
+
+		$installed = Videopress::is_plugin_installed();
+		$on_offer  = in_array( 'videopress', ( new Modules() )->get_available(), true );
+		$offered   = Menu_Visibility::can_offer( array( 'product' => 'videopress' ) );
+		$result    = Menu_Visibility::activate( array( 'product' => 'videopress' ) );
+		remove_filter( 'pre_http_request', $count_request );
+		remove_filter( 'all_plugins', $jetpack_only );
+
+		$this->assertTrue( $installed, 'The hybrid product has to read as installed off the Jetpack plugin for this test to mean anything.' );
+		$this->assertFalse( $on_offer, 'Its module has to be out of reach for this test to mean anything.' );
+		$this->assertFalse( $offered );
+		$this->assertSame( 'not_available', is_wp_error( $result ) ? $result->get_error_code() : $result );
+		$this->assertSame( 0, $requests );
 	}
 
 	/**
