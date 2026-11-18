@@ -3903,10 +3903,9 @@ class Search_Blocks_Test extends TestCase {
 	/**
 	 * With on-demand block assets core hoists the style, and a classic theme's search page can't, so both keep it a block `style`.
 	 *
-	 * @dataProvider provide_requests_that_keep_block_style
-	 *
 	 * @param bool $on_demand Value for the on-demand block asset filters.
 	 * @param bool $is_search Whether the request is a search.
+	 *
 	 * @dataProvider provide_requests_that_keep_block_style
 	 */
 	#[DataProvider( 'provide_requests_that_keep_block_style' )]
