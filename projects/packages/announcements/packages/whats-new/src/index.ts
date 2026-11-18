@@ -17,6 +17,8 @@ type Mount = {
 	options: Contract.WhatsNewOptions;
 };
 
+const DOM_ELEMENT_ID = 'jetpack-whats-new';
+
 let ready: Promise< void > | undefined;
 let root: ReturnType< typeof createRoot > | undefined;
 let container: HTMLElement | undefined;
@@ -36,7 +38,7 @@ function render(): void {
 
 	if ( ! root ) {
 		container = document.createElement( 'div' );
-		container.id = 'jetpack-whats-new';
+		container.id = DOM_ELEMENT_ID;
 		( document.getElementById( 'wpbody' ) ?? document.body ).append( container );
 		root = createRoot( container );
 	}
