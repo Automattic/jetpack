@@ -135,7 +135,7 @@ type SingleReportBodyProps = {
  * @return The page.
  */
 function SingleReportBody( { page, entityId, adapter }: SingleReportBodyProps ): JSX.Element {
-	const summary = adapter.useSummary( entityId );
+	const summary = adapter.useSummary( entityId, page );
 
 	const search = useSearch( { strict: false } ) as Record< string, unknown > | undefined;
 

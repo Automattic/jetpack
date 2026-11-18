@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import type { SingleReportPageSection } from '../registry';
+import type { SingleReportPageRecord, SingleReportPageSection } from '../registry';
 import type { DateRange } from '@jetpack-premium-analytics/datetime';
 import type { PageEmptyStateProps } from '@jetpack-premium-analytics/widgets-toolkit';
 import type { WidgetType } from '@wordpress/widget-primitives';
@@ -144,9 +144,9 @@ export type HeaderContext = {
  */
 export type SingleReportAdapter< Summary extends EntitySummary = EntitySummary > = {
 	/*
-	 * The entity's summary request, over the id as the URL carries it.
+	 * The entity's summary request, over the id as the URL carries it and the page's record.
 	 */
-	useSummary( entityId: string ): Summary;
+	useSummary( entityId: string, page: SingleReportPageRecord ): Summary;
 
 	/*
 	 * The title of an entity saved without one, such as "Untitled video"; absent, the record's label stands in.
