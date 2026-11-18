@@ -47,7 +47,7 @@ class Admin_Shell {
 	/**
 	 * The script and style handles wp_enqueue_media() enqueues, printed for members that set `media`.
 	 */
-	const MEDIA_HANDLES = array( 'media-editor', 'media-audiovideo', 'mce-view', 'image-edit', 'media-views', 'imgareaselect' );
+	const MEDIA_HANDLES = Media_Library::HANDLES;
 
 	/**
 	 * Whether init() has run.
@@ -86,6 +86,8 @@ class Admin_Shell {
 		// Priority 0: guests must register their modules before the host page builds its import map.
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'setup' ), 0 );
 		add_action( 'wp_ajax_' . self::GUEST_ACTION, array( __CLASS__, 'ajax_guest_assets' ) );
+		// Plugins call init() on admin-ajax requests too, where the shell's members load the media library.
+		Media_Library::init();
 	}
 
 	/**

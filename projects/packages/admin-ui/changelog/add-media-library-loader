@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add a media library endpoint, so dashboards can load the media library when it is first opened instead of on every page load.

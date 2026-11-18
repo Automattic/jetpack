@@ -10,6 +10,8 @@ namespace Automattic\Jetpack\Admin_UI;
 use Automattic\Jetpack\Feature_Flags\Feature_Flags;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -83,6 +85,22 @@ class Admin_Shell_Test extends TestCase {
 	public function test_flag_is_registered_off_by_default() {
 		$this->assertFalse( Feature_Flags::get( Admin_Shell::FLAG )['default'] ?? null );
 		$this->assertFalse( Admin_Shell::is_enabled() );
+	}
+
+	/**
+	 * Plugins call init() outside the admin menu, so admin-ajax gets the media library endpoint.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 *
+	 * @return void
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_init_hooks_the_media_library_endpoint() {
+		Admin_Shell::init();
+
+		$this->assertNotFalse( has_action( 'wp_ajax_' . Media_Library::AJAX_ACTION ) );
 	}
 
 	/**
