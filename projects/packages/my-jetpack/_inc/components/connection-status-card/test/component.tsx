@@ -3,6 +3,7 @@ import { CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
 import { render, renderHook, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useSelect } from '@wordpress/data';
+import useAnalytics from '../../../hooks/use-analytics';
 import Providers from '../../../providers';
 import { leavePageFor } from '../../../utils/reload-page';
 import ConnectionStatusCard from '../index';
@@ -50,11 +51,7 @@ jest.mock( '../../../data/products/use-all-products', () => {
 
 jest.mock( '../../../utils/reload-page', () => ( { leavePageFor: jest.fn() } ) );
 
-const mockRecordEvent = jest.fn();
-jest.mock( '../../../hooks/use-analytics', () => ( {
-	__esModule: true,
-	default: () => ( { recordEvent: mockRecordEvent } ),
-} ) );
+const mockRecordEvent = jest.mocked( jest.mocked( useAnalytics )().recordEvent );
 
 interface TestMyJetpackInitialState {
 	lifecycleStats: Pick<
