@@ -40,16 +40,29 @@ class PreventOwnerRemovalTest extends WP_UnitTestCase {
 	 * When external storage and the row name different owners, both stay protected.
 	 */
 	public function test_protects_the_owners_from_external_storage_and_from_the_row() {
+		$owner = self::factory()->user->create( array( 'role' => 'administrator' ) );
+		$other = self::factory()->user->create( array( 'role' => 'administrator' ) );
 		update_option( 'jetpack_options', array( 'master_user' => 7 ) );
 		$allcaps = array( 'edit_users' => true );
 		// Caches the owner before the provider registers, as an early capability check would.
-		$this->assertSame( $allcaps, wpcomsh_prevent_owner_removal( $allcaps, array(), array( 'delete_user', 1, 5 ) ) );
+		$this->assertSame( $allcaps, wpcomsh_prevent_owner_removal( $allcaps, array(), array( 'delete_user', 1, $owner ) ) );
 
-		$this->register_external_storage( array( 'master_user' => 5 ) );
+		$this->register_external_storage( array( 'master_user' => $owner ) );
 
-		$this->assertSame( array(), wpcomsh_prevent_owner_removal( $allcaps, array(), array( 'delete_user', 1, '5' ) ) );
+		$this->assertSame( array(), wpcomsh_prevent_owner_removal( $allcaps, array(), array( 'delete_user', 1, (string) $owner ) ) );
 		$this->assertSame( array(), wpcomsh_prevent_owner_removal( $allcaps, array(), array( 'promote_user', 1, 7 ) ) );
-		$this->assertSame( $allcaps, wpcomsh_prevent_owner_removal( $allcaps, array(), array( 'delete_user', 1, 9 ) ) );
+		$this->assertSame( $allcaps, wpcomsh_prevent_owner_removal( $allcaps, array(), array( 'delete_user', 1, $other ) ) );
+	}
+
+	/**
+	 * External storage names whoever has the owner's email, so a user who is not an administrator is not protected.
+	 */
+	public function test_does_not_protect_an_external_owner_who_is_not_an_administrator() {
+		$user = self::factory()->user->create( array( 'role' => 'subscriber' ) );
+		$this->register_external_storage( array( 'master_user' => $user ) );
+		$allcaps = array( 'edit_users' => true );
+
+		$this->assertSame( $allcaps, wpcomsh_prevent_owner_removal( $allcaps, array(), array( 'delete_user', 1, $user ) ) );
 	}
 
 	/**

@@ -60,6 +60,7 @@
 			<!-- Add additional lines for any files or directories outside of src/ that need coverage. -->
 			<file>class-atomic-persistent-data.php</file>
 			<file>class-jetpack-plugin-compatibility.php</file>
+			<file>connection/connection-handlers.php</file>
 			<file>class-wpcomsh-cli-commands.php</file>
 			<file>class-wpcomsh-log.php</file>
 			<file>constants.php</file>
