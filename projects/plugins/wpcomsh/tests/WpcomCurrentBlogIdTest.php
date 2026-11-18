@@ -16,8 +16,10 @@ use PHPUnit\Framework\Attributes\CoversFunction;
  * _wpcom_get_current_blog_id() first, so the test would check that copy and not this one.
  *
  * @covers ::_wpcom_get_current_blog_id
+ * @covers ::wpcom_get_site_purchases
  */
 #[CoversFunction( '_wpcom_get_current_blog_id' )]
+#[CoversFunction( 'wpcom_get_site_purchases' )]
 class WpcomCurrentBlogIdTest extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
@@ -32,6 +34,7 @@ class WpcomCurrentBlogIdTest extends WP_UnitTestCase {
 		}
 		$provider->setValue( null, null );
 		delete_option( 'jetpack_options' );
+		Atomic_Persistent_Data::delete( 'WPCOM_PURCHASES' );
 		parent::tear_down();
 	}
 
@@ -72,6 +75,33 @@ class WpcomCurrentBlogIdTest extends WP_UnitTestCase {
 		delete_option( 'jetpack_options' );
 
 		$this->assertSame( get_current_blog_id(), _wpcom_get_current_blog_id() );
+	}
+
+	/**
+	 * An older jetpack-mu-wpcom reads only the row and passes the local blog ID on a migrated site.
+	 * The purchases lookup takes that ID as this site, and does not throw.
+	 */
+	public function test_purchases_accept_the_local_blog_id_as_the_current_site() {
+		update_option( 'jetpack_options', array( 'version' => '14.0:1700000000' ) );
+		$this->register_external_storage( array( 'id' => 98765432 ) );
+		Atomic_Persistent_Data::set( 'WPCOM_PURCHASES', wp_json_encode( array( array( 'product_slug' => 'business-bundle' ) ) ) );
+
+		$purchases = wpcom_get_site_purchases( get_current_blog_id() );
+
+		$this->assertCount( 1, $purchases );
+		$this->assertSame( 98765432, $purchases[0]->blog_id );
+		$this->assertIsBool( wpcom_site_has_feature( 'global-styles', get_current_blog_id() ) );
+	}
+
+	/**
+	 * Another site's ID still throws, because Atomic sites can only look up their own purchases.
+	 */
+	public function test_purchases_still_reject_another_site() {
+		update_option( 'jetpack_options', array( 'version' => '14.0:1700000000' ) );
+		$this->register_external_storage( array( 'id' => 98765432 ) );
+
+		$this->expectException( Error::class );
+		wpcom_get_site_purchases( 11111 );
 	}
 
 	/**

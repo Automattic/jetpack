@@ -175,6 +175,14 @@ function wpcom_get_site_purchases( $blog_id = 0 ) {
 	}
 
 	if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
+		/*
+		 * The local blog ID can only mean this site. An older jetpack-mu-wpcom reads only the
+		 * `jetpack_options` row, which can lack the ID after a site migration, and then passes it.
+		 */
+		if ( get_current_blog_id() === (int) $blog_id ) {
+			$blog_id = _wpcom_get_current_blog_id();
+		}
+
 		if ( _wpcom_get_current_blog_id() !== $blog_id ) {
 			throw new Error(
 				'Atomic sites do not support looking up features for sites other than the current site.'
