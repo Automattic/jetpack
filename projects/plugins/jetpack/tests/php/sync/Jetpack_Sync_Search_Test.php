@@ -85,7 +85,7 @@ class Jetpack_Sync_Search_Test extends Jetpack_Sync_TestBase {
 	}
 
 	/**
-	 * Cover core taxonomies and sample the remaining allowed taxonomies.
+	 * Cover core taxonomies and sample ten other allowed taxonomies.
 	 *
 	 * @return string[][]
 	 */
@@ -96,7 +96,7 @@ class Jetpack_Sync_Search_Test extends Jetpack_Sync_TestBase {
 			'post_format'   => array( 'post_format' ),
 		);
 		$keys   = array_diff( Modules\Search::get_all_taxonomies(), array_keys( $params ) );
-		foreach ( array_rand( $keys, 10 - count( $params ) ) as $k ) {
+		foreach ( array_rand( $keys, 10 ) as $k ) {
 			$params[ $keys[ $k ] ] = array( $keys[ $k ] );
 		}
 
