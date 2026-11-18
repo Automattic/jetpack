@@ -278,7 +278,8 @@ if (
 					array(
 						'id'        => $rating,
 						'unique_id' => $unique_id,
-						'title'     => rawurlencode( trim( $attributes['title'] ) ),
+						// rating.js strips the title down to letters, digits, spaces and a few symbols, then URL-encodes it.
+						'title'     => html_entity_decode( trim( $attributes['title'] ), ENT_QUOTES, 'UTF-8' ),
 						'permalink' => esc_url( $attributes['permalink'] ),
 						'item_id'   => $item_id,
 					),
