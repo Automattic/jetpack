@@ -44,7 +44,7 @@ function GlobalStylesWarningNotice( { themeColor } ) {
 
 	const notice = (
 		<div className="wpcom-global-styles-notice-surround">
-			<Notice.Root intent="warning" className="wpcom-global-styles-notice">
+			<Notice.Root intent="warning" icon={ null } className="wpcom-global-styles-notice">
 				<Notice.Description>
 					{ sprintf(
 						/* translators: %s is the short-form Premium plan name */
@@ -184,6 +184,7 @@ function GlobalStylesEditNotice() {
 				id: NOTICE_ID,
 				actions: actions,
 				isDismissible: false,
+				icon: null,
 			}
 		);
 
