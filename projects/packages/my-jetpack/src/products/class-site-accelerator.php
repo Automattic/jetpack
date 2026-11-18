@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\My_Jetpack\Products;
 
 use Automattic\Jetpack\My_Jetpack\Initializer;
 use Automattic\Jetpack\My_Jetpack\Module_Product;
+use Jetpack;
 use WP_Error;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -50,11 +51,18 @@ class Site_Accelerator extends Module_Product {
 	public static $plugin_filename = self::JETPACK_PLUGIN_FILENAME;
 
 	/**
-	 * The Jetpack module name associated with this product
+	 * The Jetpack module name associated with this product: the Image CDN.
 	 *
 	 * @var string|null
 	 */
-	public static $module_name = 'site-accelerator';
+	public static $module_name = 'photon';
+
+	/**
+	 * The Asset CDN module, which Site Accelerator switches together with the Image CDN.
+	 *
+	 * @var string
+	 */
+	const ASSET_CDN_MODULE = 'photon-cdn';
 
 	/**
 	 * Whether this module is a Jetpack feature
@@ -191,5 +199,50 @@ class Site_Accelerator extends Module_Product {
 		if ( $plugin_filename ) {
 			return activate_plugin( $plugin_filename );
 		}
+	}
+
+	/**
+	 * Checks whether either CDN module is on, as the Jetpack Settings toggle shows it.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	public static function is_module_active() {
+		return parent::is_module_active() || ( class_exists( 'Jetpack' ) && Jetpack::is_module_active( self::ASSET_CDN_MODULE ) );
+	}
+
+	/**
+	 * Turns on the Image CDN, then the Asset CDN on a best-effort basis, like the Jetpack Settings toggle.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param bool|WP_Error $plugin_activation Is the result of the top level activation actions.
+	 * @return bool|WP_Error
+	 */
+	public static function do_product_specific_activation( $plugin_activation ) {
+		$result = parent::do_product_specific_activation( $plugin_activation );
+
+		if ( ! is_wp_error( $result ) ) {
+			Jetpack::activate_module( self::ASSET_CDN_MODULE, false, false );
+		}
+
+		return $result;
+	}
+
+	/**
+	 * Turns off both CDN modules.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool|WP_Error WP_Error when a host keeps a module on.
+	 */
+	public static function deactivate() {
+		// Do not reorder: the parent checks is_module_active(), which still sees the Asset CDN if it is on.
+		if ( class_exists( 'Jetpack' ) ) {
+			Jetpack::deactivate_module( self::ASSET_CDN_MODULE );
+		}
+
+		return parent::deactivate();
 	}
 }
