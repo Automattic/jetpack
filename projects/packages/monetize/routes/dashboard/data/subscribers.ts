@@ -1,9 +1,11 @@
-import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { EARNINGS_KEY } from './memberships';
 import { wpcomFetch } from './wpcom-fetch';
-import type { InfiniteData } from '@tanstack/react-query';
 
 const SUBSCRIBERS_KEY = [ 'monetize', 'memberships', 'subscribers' ];
+
+/** WordPress.com's fixed page size. */
+export const SUBSCRIBERS_PER_PAGE = 50;
 
 export interface PaidSubscription {
 	id: number;
@@ -75,38 +77,24 @@ export function toPaidSubscription( ownership: OwnershipResponse ): PaidSubscrip
 }
 
 /**
- * The site's active paid subscriptions, newest first, 50 at a time as WordPress.com pages them.
+ * One page of the site's active paid subscriptions, newest first.
  *
- * @return The query; `data.subscriptions` holds every page loaded so far.
+ * @param page - The page, from 1.
+ * @return The query.
  */
-export function usePaidSubscriptions() {
-	return useInfiniteQuery( {
-		queryKey: SUBSCRIBERS_KEY,
-		initialPageParam: 0,
-		queryFn: ( { pageParam } ) =>
+export function usePaidSubscriptions( page: number ) {
+	return useQuery( {
+		queryKey: [ ...SUBSCRIBERS_KEY, page ],
+		queryFn: () =>
 			wpcomFetch< SubscribersResponse >( {
 				api: 'wpcom/v2',
 				path: 'memberships/subscribers',
-				query: { offset: pageParam },
+				query: { offset: ( page - 1 ) * SUBSCRIBERS_PER_PAGE },
 			} ).then( ( data ): SubscribersPage => ( {
 				total: Number( data.total ) || 0,
 				subscriptions: ( data.ownerships ?? [] ).map( toPaidSubscription ),
 			} ) ),
-		// Cancelling drops a row from the cache, so the loaded count stays the next page's offset.
-		getNextPageParam: ( lastPage, pages ) => {
-			const loaded = pages.reduce( ( sum, page ) => sum + page.subscriptions.length, 0 );
-			return lastPage.subscriptions.length && loaded < lastPage.total ? loaded : undefined;
-		},
-		select: data => {
-			// A subscription that arrives between pages shifts the offsets, repeating a row.
-			const byId = new Map(
-				data.pages.flatMap( page => page.subscriptions ).map( row => [ row.id, row ] )
-			);
-			return {
-				total: data.pages[ data.pages.length - 1 ]?.total ?? 0,
-				subscriptions: [ ...byId.values() ].sort( ( a, b ) => b.id - a.id ),
-			};
-		},
+		placeholderData: keepPreviousData,
 	} );
 }
 
@@ -126,19 +114,18 @@ export function useCancelSubscription() {
 				data: { user_id: subscription.userId },
 			} ),
 		onSuccess: async ( _data, subscription ) => {
-			// A page still loading was built from the list before the cancellation, and would restore it.
+			// A page still loading was fetched before the cancellation, and would restore the row.
 			await queryClient.cancelQueries( { queryKey: SUBSCRIBERS_KEY } );
-			queryClient.setQueryData< InfiniteData< SubscribersPage > >( SUBSCRIBERS_KEY, data =>
+			queryClient.setQueriesData< SubscribersPage >( { queryKey: SUBSCRIBERS_KEY }, data =>
 				data
 					? {
-							...data,
-							pages: data.pages.map( page => ( {
-								total: Math.max( 0, page.total - 1 ),
-								subscriptions: page.subscriptions.filter( other => other.id !== subscription.id ),
-							} ) ),
+							total: Math.max( 0, data.total - 1 ),
+							subscriptions: data.subscriptions.filter( other => other.id !== subscription.id ),
 						}
 					: data
 			);
+			// Every later row moved up one, so each page refetches to fill its gap.
+			queryClient.invalidateQueries( { queryKey: SUBSCRIBERS_KEY } );
 			queryClient.invalidateQueries( { queryKey: EARNINGS_KEY } );
 		},
 	} );

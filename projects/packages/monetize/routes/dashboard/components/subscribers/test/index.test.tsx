@@ -24,10 +24,12 @@ const renderTab = () =>
 		</QueryClientProvider>
 	);
 
-const cancelRow = async () => {
-	await userEvent.click(
-		await screen.findByRole( 'button', { name: 'Cancel payment from b@example.com' } )
-	);
+const row = ( email: string ) => screen.getByRole( 'row', { name: new RegExp( email ) } );
+
+const cancelRow = async ( email: string ) => {
+	await expect( screen.findByText( email ) ).resolves.toBeVisible();
+	await userEvent.click( within( row( email ) ).getByRole( 'button', { name: 'Actions' } ) );
+	await userEvent.click( await screen.findByRole( 'menuitem', { name: /Cancel payment/ } ) );
 	await userEvent.click(
 		within( screen.getByRole( 'alertdialog' ) ).getByRole( 'button', { name: 'Cancel payment' } )
 	);
@@ -36,43 +38,37 @@ const cancelRow = async () => {
 describe( 'Subscribers', () => {
 	beforeEach( () => ( wpcomFetch as jest.Mock ).mockReset() );
 
-	it( 'cancels a subscription, then loads more from the offset the cancellation leaves', async () => {
-		( wpcomFetch as jest.Mock ).mockImplementation( ( { path, query } ) => {
+	it( 'cancels a subscription, then refetches the page to fill the gap', async () => {
+		let cancelled = false;
+		( wpcomFetch as jest.Mock ).mockImplementation( ( { path } ) => {
 			if ( path !== 'memberships/subscribers' ) {
+				cancelled = true;
 				return Promise.resolve( { success: true } );
 			}
 			return Promise.resolve(
-				query.offset === 0
+				cancelled
 					? {
-							total: 3,
-							ownerships: [ ownership( 1, 'a@example.com' ), ownership( 2, 'b@example.com' ) ],
+							total: 2,
+							ownerships: [ ownership( 1, 'a@example.com' ), ownership( 3, 'c@example.com' ) ],
 						}
-					: { total: 2, ownerships: [ ownership( 3, 'c@example.com' ) ] }
+					: {
+							total: 3,
+							ownerships: [ ownership( 2, 'b@example.com' ), ownership( 1, 'a@example.com' ) ],
+						}
 			);
 		} );
 		renderTab();
 
-		await cancelRow();
+		await cancelRow( 'b@example.com' );
 
-		await waitFor( () =>
-			expect( screen.queryByRole( 'heading', { name: 'b@example.com' } ) ).not.toBeInTheDocument()
-		);
+		await expect( screen.findByText( 'c@example.com' ) ).resolves.toBeVisible();
+		expect( screen.queryByText( 'b@example.com' ) ).not.toBeInTheDocument();
 		expect( wpcomFetch ).toHaveBeenCalledWith( {
 			api: 'wpcom/v2',
 			path: 'memberships/subscriptions/2/cancel',
 			method: 'POST',
 			data: { user_id: 20 },
 		} );
-
-		await userEvent.click( screen.getByRole( 'button', { name: 'Load more' } ) );
-
-		await expect(
-			screen.findByRole( 'heading', { name: 'c@example.com' } )
-		).resolves.toBeVisible();
-		expect( wpcomFetch ).toHaveBeenLastCalledWith(
-			expect.objectContaining( { query: { offset: 1 } } )
-		);
-		expect( screen.queryByRole( 'button', { name: 'Load more' } ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'keeps the subscription with WordPress.com’s message when cancelling fails', async () => {
@@ -83,38 +79,31 @@ describe( 'Subscribers', () => {
 		);
 		renderTab();
 
-		await cancelRow();
+		await cancelRow( 'b@example.com' );
 
 		await expect(
 			screen.findAllByText( 'Failed to cancel subscription' )
 		).resolves.not.toHaveLength( 0 );
-		expect(
-			screen.getByRole( 'heading', { name: 'b@example.com', hidden: true } )
-		).toBeInTheDocument();
+		expect( screen.getByText( 'b@example.com' ) ).toBeInTheDocument();
 	} );
 
-	it( 'shows a subscription once when a new one shifts the next page onto it', async () => {
+	it( 'asks WordPress.com for the next 50 on the next page', async () => {
 		( wpcomFetch as jest.Mock ).mockImplementation( ( { query } ) =>
 			Promise.resolve(
 				query.offset === 0
-					? {
-							total: 3,
-							ownerships: [ ownership( 3, 'c@example.com' ), ownership( 2, 'b@example.com' ) ],
-						}
-					: {
-							total: 4,
-							ownerships: [ ownership( 2, 'b@example.com' ), ownership( 1, 'a@example.com' ) ],
-						}
+					? { total: 51, ownerships: [ ownership( 2, 'b@example.com' ) ] }
+					: { total: 51, ownerships: [ ownership( 1, 'a@example.com' ) ] }
 			)
 		);
 		renderTab();
 
-		await userEvent.click( await screen.findByRole( 'button', { name: 'Load more' } ) );
+		await expect( screen.findByText( 'b@example.com' ) ).resolves.toBeVisible();
+		await userEvent.click( screen.getByRole( 'button', { name: 'Next page' } ) );
 
-		await expect(
-			screen.findByRole( 'heading', { name: 'a@example.com' } )
-		).resolves.toBeVisible();
-		expect( screen.getAllByRole( 'heading', { name: 'b@example.com' } ) ).toHaveLength( 1 );
+		await expect( screen.findByText( 'a@example.com' ) ).resolves.toBeVisible();
+		expect( wpcomFetch ).toHaveBeenLastCalledWith(
+			expect.objectContaining( { query: { offset: 50 } } )
+		);
 	} );
 
 	it( 'closes the details once their subscription is cancelled from them', async () => {
@@ -127,7 +116,10 @@ describe( 'Subscribers', () => {
 		);
 		renderTab();
 
-		await userEvent.click( await screen.findByRole( 'button', { name: 'View b@example.com' } ) );
+		await expect( screen.findByText( 'b@example.com' ) ).resolves.toBeVisible();
+		await userEvent.click(
+			within( row( 'b@example.com' ) ).getByRole( 'button', { name: 'View' } )
+		);
 		await userEvent.click(
 			within( screen.getByRole( 'dialog' ) ).getByRole( 'button', { name: 'Cancel payment' } )
 		);
@@ -137,7 +129,6 @@ describe( 'Subscribers', () => {
 
 		await waitFor( () => expect( screen.queryByRole( 'alertdialog' ) ).not.toBeInTheDocument() );
 		expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument();
-		expect( screen.queryByRole( 'heading', { name: 'b@example.com' } ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'loads the list when trying again after it failed', async () => {
@@ -148,8 +139,6 @@ describe( 'Subscribers', () => {
 
 		await userEvent.click( await screen.findByRole( 'button', { name: 'Try again' } ) );
 
-		await expect(
-			screen.findByRole( 'heading', { name: 'b@example.com' } )
-		).resolves.toBeVisible();
+		await expect( screen.findByText( 'b@example.com' ) ).resolves.toBeVisible();
 	} );
 } );

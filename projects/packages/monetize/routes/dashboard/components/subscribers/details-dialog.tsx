@@ -59,7 +59,7 @@ export default function DetailsDialog( {
 
 	return (
 		<Dialog.Root open onOpenChange={ onOpenChange }>
-			<Dialog.Popup size="medium">
+			<Dialog.Popup size="large">
 				<Dialog.Header>
 					<Dialog.Title>{ subscription.name || subscription.email }</Dialog.Title>
 					<Dialog.CloseIconButton />

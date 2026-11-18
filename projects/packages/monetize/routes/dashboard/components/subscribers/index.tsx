@@ -1,94 +1,107 @@
 import { formatCurrency, formatNumber } from '@automattic/number-formatters';
+import { DataViews } from '@wordpress/dataviews';
 import { __, sprintf } from '@wordpress/i18n';
-import { Button, ButtonLink, Card, Link, Notice, Stack, Text } from '@wordpress/ui';
-import { useCallback, useState } from 'react';
-import { usePaidSubscriptions } from '../../data/subscribers';
+import { ButtonLink, Card, Link, Notice, Stack, Text } from '@wordpress/ui';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { SUBSCRIBERS_PER_PAGE, usePaidSubscriptions } from '../../data/subscribers';
 import { trackSubscribersEvent } from '../../data/tracking';
 import { getDocUrl } from '../overview/docs';
-import ListRow from '../payments/list-row';
 import CancelDialog from './cancel-dialog';
 import DetailsDialog from './details-dialog';
-import { getExportUrl, isOneTime, startDateLabel, subscriptionPriceLabel } from './subscriptions';
+import { getExportUrl, intervalLabel, isOneTime, startDateLabel } from './subscriptions';
 import type { PaidSubscription } from '../../data/subscribers';
-import '../payments/style.scss';
+import type { Action, Field, View } from '@wordpress/dataviews';
 import './style.scss';
 
-/**
- * One subscriber's actions.
- *
- * @param props              - Component props.
- * @param props.subscription - The subscription.
- * @param props.onView       - Opens its details.
- * @param props.onCancel     - Opens the cancel dialog.
- * @return The buttons.
- */
-function RowActions( {
-	subscription,
-	onView,
-	onCancel,
-}: {
-	subscription: PaidSubscription;
-	onView: ( subscription: PaidSubscription ) => void;
-	onCancel: ( subscription: PaidSubscription ) => void;
-} ) {
-	const view = useCallback( () => onView( subscription ), [ onView, subscription ] );
-	const cancel = useCallback( () => onCancel( subscription ), [ onCancel, subscription ] );
-	const who = subscription.name || subscription.email;
-	const oneTime = isOneTime( subscription );
-	/* translators: %s: the subscriber's name or email address. */
-	const viewLabel = sprintf( __( 'View %s', 'jetpack-monetize' ), who );
-	const cancelLabel = oneTime
-		? /* translators: %s: the subscriber's name or email address. */
-			sprintf( __( 'Remove payment from %s', 'jetpack-monetize' ), who )
-		: /* translators: %s: the subscriber's name or email address. */
-			sprintf( __( 'Cancel payment from %s', 'jetpack-monetize' ), who );
+// The table only pages: WordPress.com can't sort, filter or resize its pages.
+const FIXED = { enableSorting: false, enableHiding: false, filterBy: false } as const;
 
+const DEFAULT_VIEW: View = {
+	type: 'table',
+	page: 1,
+	perPage: SUBSCRIBERS_PER_PAGE,
+	titleField: 'subscriber',
+	fields: [ 'plan', 'type', 'amount', 'total', 'since' ],
+};
+
+const DEFAULT_LAYOUTS = { table: {} };
+
+const CONFIG = { perPageSizes: [ SUBSCRIBERS_PER_PAGE ] };
+
+/**
+ * The subscriber column: their name, with their email under it.
+ *
+ * @param props      - Field render props.
+ * @param props.item - The subscription.
+ * @return The cell.
+ */
+function SubscriberCell( { item }: { item: PaidSubscription } ) {
 	return (
-		<Stack direction="row" gap="xs">
-			<Button
-				variant="minimal"
-				tone="neutral"
-				size="compact"
-				onClick={ view }
-				aria-label={ viewLabel }
-			>
-				{ __( 'View', 'jetpack-monetize' ) }
-			</Button>
-			<Button
-				variant="minimal"
-				tone="neutral"
-				size="compact"
-				onClick={ cancel }
-				aria-label={ cancelLabel }
-			>
-				{ oneTime
-					? __( 'Remove payment', 'jetpack-monetize' )
-					: __( 'Cancel payment', 'jetpack-monetize' ) }
-			</Button>
+		<Stack direction="column" gap="xs">
+			<span>{ item.name || item.email }</span>
+			{ item.name && item.email && <Text variant="body-sm">{ item.email }</Text> }
 		</Stack>
 	);
 }
 
 /**
- * A subscription's badges: its total and start date.
+ * A row's key.
  *
- * @param subscription - The subscription.
- * @return The badges.
+ * @param item - The subscription.
+ * @return The key.
  */
-function subscriptionBadges( subscription: PaidSubscription ): string[] {
-	const badges: string[] = [
-		sprintf(
-			/* translators: %s: an amount, e.g. $25.00. */
-			__( '%s paid in total', 'jetpack-monetize' ),
-			formatCurrency( subscription.allTimeTotal, subscription.currency )
-		),
-	];
-	const since = startDateLabel( subscription );
-	if ( since ) {
-		/* translators: %s: a date, e.g. March 3, 2026. */
-		badges.push( sprintf( __( 'Since %s', 'jetpack-monetize' ), since ) );
-	}
-	return badges;
+function getItemId( item: PaidSubscription ): string {
+	return String( item.id );
+}
+
+/**
+ * The table's columns.
+ *
+ * @return The fields.
+ */
+function useFields(): Field< PaidSubscription >[] {
+	return useMemo(
+		() => [
+			{
+				id: 'subscriber',
+				label: __( 'Subscriber', 'jetpack-monetize' ),
+				getValue: ( { item } ) => item.name || item.email,
+				render: SubscriberCell,
+				...FIXED,
+			},
+			{
+				id: 'plan',
+				label: __( 'Plan', 'jetpack-monetize' ),
+				getValue: ( { item } ) => item.planTitle,
+				...FIXED,
+			},
+			{
+				id: 'type',
+				label: __( 'Type', 'jetpack-monetize' ),
+				getValue: ( { item } ) => intervalLabel( item ),
+				...FIXED,
+			},
+			{
+				id: 'amount',
+				label: __( 'Amount', 'jetpack-monetize' ),
+				getValue: ( { item } ) => formatCurrency( item.renewalPrice, item.currency ),
+				...FIXED,
+			},
+			{
+				id: 'total',
+				label: __( 'Total paid', 'jetpack-monetize' ),
+				getValue: ( { item } ) => formatCurrency( item.allTimeTotal, item.currency ),
+				...FIXED,
+			},
+			{
+				id: 'since',
+				label: __( 'Since', 'jetpack-monetize' ),
+				getValue: ( { item } ) => startDateLabel( item ),
+				...FIXED,
+			},
+		],
+		[]
+	);
 }
 
 /**
@@ -97,19 +110,24 @@ function subscriptionBadges( subscription: PaidSubscription ): string[] {
  * @return The tab.
  */
 export default function Subscribers() {
-	const {
-		data,
-		isError,
-		error,
-		hasNextPage,
-		fetchNextPage,
-		isFetchingNextPage,
-		refetch,
-		isFetching,
-	} = usePaidSubscriptions();
+	const [ view, setView ] = useState< View >( DEFAULT_VIEW );
+	const page = view.page ?? 1;
+	const { data, isError, error, isFetching, isPlaceholderData, refetch } =
+		usePaidSubscriptions( page );
 	const [ viewing, setViewing ] = useState< PaidSubscription | null >( null );
 	const [ cancelling, setCancelling ] = useState< PaidSubscription | null >( null );
+	const fields = useFields();
 	const exportUrl = getExportUrl();
+
+	const total = data?.total ?? 0;
+	const totalPages = Math.max( 1, Math.ceil( total / SUBSCRIBERS_PER_PAGE ) );
+
+	// Cancelling the last row of the last page leaves that page empty.
+	useEffect( () => {
+		if ( data && ! isPlaceholderData && page > totalPages ) {
+			setView( current => ( { ...current, page: totalPages } ) );
+		}
+	}, [ data, isPlaceholderData, page, totalPages ] );
 
 	const openDetails = useCallback( ( subscription: PaidSubscription ) => {
 		trackSubscribersEvent( 'details_view' );
@@ -117,9 +135,28 @@ export default function Subscribers() {
 	}, [] );
 	const closeDetails = useCallback( () => setViewing( null ), [] );
 	const closeCancel = useCallback( () => setCancelling( null ), [] );
-	const loadMore = useCallback( () => fetchNextPage(), [ fetchNextPage ] );
 	const retry = useCallback( () => refetch(), [ refetch ] );
 	const onExportClick = useCallback( () => trackSubscribersEvent( 'export_click' ), [] );
+
+	const actions = useMemo< Action< PaidSubscription >[] >(
+		() => [
+			{
+				id: 'view',
+				label: __( 'View', 'jetpack-monetize' ),
+				isPrimary: true,
+				callback: ( [ item ] ) => openDetails( item ),
+			},
+			{
+				id: 'cancel',
+				label: ( [ item ] ) =>
+					item && isOneTime( item )
+						? __( 'Remove payment', 'jetpack-monetize' )
+						: __( 'Cancel payment', 'jetpack-monetize' ),
+				callback: ( [ item ] ) => setCancelling( item ),
+			},
+		],
+		[ openDetails ]
+	);
 
 	let content;
 	if ( isError && ! data ) {
@@ -139,64 +176,39 @@ export default function Subscribers() {
 				</Notice.Actions>
 			</Notice.Root>
 		);
-	} else if ( ! data ) {
-		content = <Text>{ __( 'Loading…', 'jetpack-monetize' ) }</Text>;
-	} else if ( ! data.subscriptions.length ) {
-		content = (
-			<Text>
-				{ __( 'You don’t have any paid subscribers yet.', 'jetpack-monetize' ) }{ ' ' }
-				<Link href={ getDocUrl( 'payments' ) } openInNewTab>
-					{ __( 'Learn how to collect payments', 'jetpack-monetize' ) }
-				</Link>
-			</Text>
-		);
 	} else {
 		content = (
-			<Stack direction="column" gap="lg">
-				{ data.subscriptions.map( subscription => (
-					<ListRow
-						key={ subscription.id }
-						title={ subscription.name || subscription.email }
-						description={ subscription.name ? subscription.email : '' }
-						price={ sprintf(
-							/* translators: %1$s: a plan's name. %2$s: its price, e.g. $5.00/month. */
-							__( '%1$s: %2$s', 'jetpack-monetize' ),
-							subscription.planTitle,
-							subscriptionPriceLabel( subscription )
-						) }
-						badges={ subscriptionBadges( subscription ) }
-					>
-						<RowActions
-							subscription={ subscription }
-							onView={ openDetails }
-							onCancel={ setCancelling }
-						/>
-					</ListRow>
-				) ) }
+			<Stack direction="column" gap="md">
 				{ isError && (
 					<Notice.Root intent="error">
 						<Notice.Description>
 							{ error.message ||
-								__(
-									'More paid subscribers could not be loaded. Please try again.',
-									'jetpack-monetize'
-								) }
+								__( 'This page could not be loaded. Please try again.', 'jetpack-monetize' ) }
 						</Notice.Description>
 					</Notice.Root>
 				) }
-				{ hasNextPage && (
-					<div>
-						<Button
-							variant="outline"
-							tone="neutral"
-							onClick={ loadMore }
-							loading={ isFetchingNextPage }
-							disabled={ isFetchingNextPage }
-						>
-							{ __( 'Load more', 'jetpack-monetize' ) }
-						</Button>
-					</div>
-				) }
+				<DataViews< PaidSubscription >
+					data={ data?.subscriptions ?? [] }
+					fields={ fields }
+					view={ view }
+					onChangeView={ setView }
+					actions={ actions }
+					getItemId={ getItemId }
+					onClickItem={ openDetails }
+					isLoading={ ! data || isPlaceholderData }
+					paginationInfo={ { totalItems: total, totalPages } }
+					defaultLayouts={ DEFAULT_LAYOUTS }
+					config={ CONFIG }
+					search={ false }
+					empty={
+						<Text>
+							{ __( 'You don’t have any paid subscribers yet.', 'jetpack-monetize' ) }{ ' ' }
+							<Link href={ getDocUrl( 'payments' ) } openInNewTab>
+								{ __( 'Learn how to collect payments', 'jetpack-monetize' ) }
+							</Link>
+						</Text>
+					}
+				/>
 			</Stack>
 		);
 	}
@@ -206,15 +218,15 @@ export default function Subscribers() {
 			<Card.Header>
 				<Stack direction="row" gap="md" align="center" justify="space-between">
 					<Card.Title render={ <h2 /> }>
-						{ data?.total
+						{ total
 							? sprintf(
 									/* translators: %s: the number of paid subscribers. */
 									__( 'Paid subscribers (%s)', 'jetpack-monetize' ),
-									formatNumber( data.total )
+									formatNumber( total )
 								)
 							: __( 'Paid subscribers', 'jetpack-monetize' ) }
 					</Card.Title>
-					{ exportUrl && Boolean( data?.subscriptions.length ) && (
+					{ exportUrl && total > 0 && (
 						<ButtonLink
 							size="compact"
 							variant="outline"

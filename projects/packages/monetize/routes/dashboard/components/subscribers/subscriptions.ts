@@ -16,6 +16,25 @@ export function isOneTime( subscription: PaidSubscription ): boolean {
 }
 
 /**
+ * How often a subscription is paid, e.g. `Monthly`.
+ *
+ * @param subscription - The subscription.
+ * @return The label, or the interval as WordPress.com sent it when it's not one the dashboard knows.
+ */
+export function intervalLabel( subscription: PaidSubscription ): string {
+	switch ( subscription.interval ) {
+		case '1 month':
+			return __( 'Monthly', 'jetpack-monetize' );
+		case '1 year':
+			return __( 'Yearly', 'jetpack-monetize' );
+		case 'one-time':
+			return __( 'One-time', 'jetpack-monetize' );
+		default:
+			return subscription.interval;
+	}
+}
+
+/**
  * A subscription's price with its interval, e.g. `$5.00/month`.
  *
  * @param subscription - The subscription.

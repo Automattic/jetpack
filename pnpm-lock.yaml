@@ -3550,6 +3550,9 @@ importers:
       '@wordpress/data':
         specifier: 11.1.0
         version: 11.1.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      '@wordpress/dataviews':
+        specifier: 22.0.0
+        version: 22.0.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@wordpress/date':
         specifier: 6.1.0
         version: 6.1.0
