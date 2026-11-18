@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Page Cache: Stop caching when disabled with WP-CLI and report deactivation failures.

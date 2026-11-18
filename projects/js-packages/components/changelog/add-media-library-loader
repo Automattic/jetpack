@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add loadMediaLibrary(), which loads the WordPress media library when a dashboard first opens it.

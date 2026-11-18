@@ -26,12 +26,14 @@ jest.unstable_mockModule( '../dashboard-nav', () => ( {
 } ) );
 jest.unstable_mockModule( '../../data/record-seo-event', () => ( {
 	recordScreenViewOnce: jest.fn(),
+	recordSeoEvent: jest.fn(),
 } ) );
 jest.unstable_mockModule( '../../components/search-visibility-notice', () => ( {
 	default: () => null,
 } ) );
 
 const { default: DashboardPage } = await import( '../dashboard-page' );
+const { recordSeoEvent } = await import( '../../data/record-seo-event' );
 
 describe( 'DashboardPage', () => {
 	it( 'renders the tab bar around the content by default', () => {
@@ -55,5 +57,21 @@ describe( 'DashboardPage', () => {
 			'jetpack-seo-page-content',
 			'jetpack-seo-page-content--centered'
 		);
+	} );
+
+	it( 'records the screen view again when the admin shell shows the page again, not on its first show', () => {
+		render( <DashboardPage active="settings">content</DashboardPage> );
+		const shown = ( page: string, firstShow: boolean ) =>
+			window.dispatchEvent(
+				new CustomEvent( 'jetpack-admin-shell:page-shown', { detail: { page, firstShow } } )
+			);
+
+		shown( 'jetpack-seo', true );
+		shown( 'my-jetpack', false );
+		shown( 'jetpack-seo', false );
+
+		expect( ( recordSeoEvent as jest.Mock ).mock.calls ).toEqual( [
+			[ 'jetpack_seo_screen_viewed', 'settings' ],
+		] );
 	} );
 } );

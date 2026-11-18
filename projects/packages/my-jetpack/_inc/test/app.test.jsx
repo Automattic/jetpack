@@ -46,6 +46,11 @@ jest.mock( '@wordpress/route', () => {
 	};
 } );
 jest.mock( '../hooks/use-my-jetpack-connection' );
+const mockRecordEvent = jest.fn();
+jest.mock( '../hooks/use-analytics', () => ( {
+	__esModule: true,
+	default: () => ( { recordEvent: mockRecordEvent } ),
+} ) );
 jest.mock( '../hooks/use-paid-menu-sync', () => ( { usePaidMenuSync: jest.fn() } ) );
 
 jest.mock( '../components/my-jetpack-screen', () => ( {
@@ -81,6 +86,42 @@ describe( 'App', () => {
 		window.scrollTo = () => {};
 		useMyJetpackConnection.mockReset();
 		useMyJetpackConnection.mockReturnValue( {} );
+	} );
+
+	it.each( [
+		[
+			'records a deep link for a panel the page loaded open',
+			true,
+			'/features?configure=carousel',
+			1,
+		],
+		[ 'records nothing with settings consolidation off', false, '/features?configure=carousel', 0 ],
+		[ 'records nothing without a panel to open', true, '/features', 0 ],
+	] )( '%s', ( _name, consolidation, route, opens ) => {
+		const scriptData = window.JetpackScriptData;
+		window.JetpackScriptData = {
+			...scriptData,
+			myJetpack: { settingsConsolidation: consolidation },
+		};
+		setRoute( route );
+		mockRecordEvent.mockClear();
+
+		try {
+			const { rerender } = render( <App /> );
+			rerender( <App /> );
+		} finally {
+			window.JetpackScriptData = scriptData;
+		}
+
+		const panelOpens = mockRecordEvent.mock.calls.filter(
+			( [ event ] ) => event === 'jetpack_myjetpack_settings_panel_open'
+		);
+		expect( panelOpens ).toEqual(
+			Array( opens ).fill( [
+				'jetpack_myjetpack_settings_panel_open',
+				{ feature_slug: 'carousel', trigger: 'deep-link', event_version: 1 },
+			] )
+		);
 	} );
 
 	it( 'renders the home screen at the default route', () => {
