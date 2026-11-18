@@ -15,6 +15,7 @@ import StatusIndicator from '../../components/status-indicator';
 import getOutput from '../../data/get-output';
 import isVerificationSwitchable from '../../data/is-verification-switchable';
 import AuthorProfileCard from './author-profile-card';
+import IndexnowSettings from './indexnow-settings';
 import SchemaCard from './schema-card';
 import SocialPreviewsCard from './social-previews-card';
 import styles from './style.module.scss';
@@ -89,7 +90,7 @@ interface Props {
 }
 
 interface SeoHostingData {
-	seo?: { hosting_options_url?: string };
+	seo?: { hosting_options_url?: string; indexnow_available?: boolean };
 }
 
 type SettingsSearch = Record< string, unknown > & { focus?: string };
@@ -106,6 +107,7 @@ type SettingsSearch = Record< string, unknown > & { focus?: string };
  * @return The Settings tab content.
  */
 const SettingsScreen: FC< Props > = ( { form } ) => {
+	const [ indexnowSaving, setIndexnowSaving ] = useState( false );
 	const {
 		local,
 		isSaving,
@@ -312,7 +314,7 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 											onChange={ next => commit( { search_engines_visible: next } ) }
 											// A private site is unpublished, not de-indexed. Turning this on would
 											// have to publish it, which is not this surface's decision to make.
-											disabled={ isSaving || local.site_is_private }
+											disabled={ isSaving || indexnowSaving || local.site_is_private }
 											__nextHasNoMarginBottom
 										/>
 									</Tooltip.Trigger>
@@ -336,6 +338,7 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 									disabled={
 										simpleSite ||
 										isSaving ||
+										indexnowSaving ||
 										! local.search_engines_visible ||
 										! local.sitemap_switchable
 									}
@@ -362,6 +365,9 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 									</Link>
 								) }
 							</Stack>
+							{ ( getScriptData() as SeoHostingData )?.seo?.indexnow_available === true && (
+								<IndexnowSettings isSaving={ isSaving } onSavingChange={ setIndexnowSaving } />
+							) }
 						</Stack>
 					</CollapsibleCard.Content>
 				</CollapsibleCard.Root>

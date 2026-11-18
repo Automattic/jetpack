@@ -30,6 +30,10 @@ jest.unstable_mockModule( '../verification-card', () => ( {
 	default: () => <div>verification</div>,
 } ) );
 
+jest.unstable_mockModule( '../indexnow-settings', () => ( {
+	default: () => <div>notification settings</div>,
+} ) );
+
 const { default: SettingsScreen } = await import( '../index' );
 
 const FRONT_PAGE_LABEL = 'Home page description';
