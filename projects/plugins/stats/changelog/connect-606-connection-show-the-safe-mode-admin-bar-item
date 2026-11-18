@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Safe Mode: Show the Jetpack Safe Mode admin bar item while the choice is still pending, style it on the front end of the site too, and have it open My Jetpack from Jetpack pages that can't show the Safe Mode screen.

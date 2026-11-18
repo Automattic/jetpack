@@ -164,6 +164,26 @@ function register_default_single_report_pages( $registry = null ) {
 		$registry = Single_Report_Page_Registry::get_instance();
 	}
 
+	$post_sections = array(
+		array(
+			'slug'           => 'post-traffic',
+			'label'          => __( 'Post traffic', 'jetpack-premium-analytics-pkg' ),
+			'default_layout' => __NAMESPACE__ . '\\get_post_traffic_single_report_section_default_layout',
+		),
+		array(
+			'slug'           => 'email-opens',
+			'label'          => __( 'Email opens', 'jetpack-premium-analytics-pkg' ),
+			'default_layout' => __NAMESPACE__ . '\\get_email_opens_single_report_section_default_layout',
+			'controls'       => false,
+		),
+		array(
+			'slug'           => 'email-clicks',
+			'label'          => __( 'Email clicks', 'jetpack-premium-analytics-pkg' ),
+			'default_layout' => __NAMESPACE__ . '\\get_email_clicks_single_report_section_default_layout',
+			'controls'       => false,
+		),
+	);
+
 	$pages = array(
 		'analytics/author' => array(
 			'path'              => 'author',
@@ -177,32 +197,22 @@ function register_default_single_report_pages( $registry = null ) {
 			'preferences_scope' => 'jetpack-premium-analytics/author-detail',
 		),
 		'analytics/post'   => array(
-			'path'              => 'post',
-			'label'             => __( 'Post', 'jetpack-premium-analytics-pkg' ),
-			'dashboard_section' => 'traffic',
-			'scope_param'       => 'post_id',
-			'icon'              => 'jpa/post',
-			'reports_page'      => 'posts',
-			'sections'          => array(
-				array(
-					'slug'           => 'post-traffic',
-					'label'          => __( 'Post traffic', 'jetpack-premium-analytics-pkg' ),
-					'default_layout' => __NAMESPACE__ . '\\get_post_traffic_single_report_section_default_layout',
-				),
-				array(
-					'slug'           => 'email-opens',
-					'label'          => __( 'Email opens', 'jetpack-premium-analytics-pkg' ),
-					'default_layout' => __NAMESPACE__ . '\\get_email_opens_single_report_section_default_layout',
-					'controls'       => false,
-				),
-				array(
-					'slug'           => 'email-clicks',
-					'label'          => __( 'Email clicks', 'jetpack-premium-analytics-pkg' ),
-					'default_layout' => __NAMESPACE__ . '\\get_email_clicks_single_report_section_default_layout',
-					'controls'       => false,
-				),
+			'entity'            => array(
+				'kind' => 'postType',
+				'name' => 'post',
 			),
-			'preferences_scope' => 'jetpack-premium-analytics/post-detail',
+			'dashboard_section' => 'traffic',
+			'icon'              => 'jpa/post',
+			'sections'          => $post_sections,
+		),
+		'analytics/page'   => array(
+			'entity'            => array(
+				'kind' => 'postType',
+				'name' => 'page',
+			),
+			'dashboard_section' => 'traffic',
+			'icon'              => 'jpa/page',
+			'sections'          => $post_sections,
 		),
 	);
 

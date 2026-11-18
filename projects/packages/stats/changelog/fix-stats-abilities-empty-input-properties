@@ -1,4 +1,3 @@
 Significance: patch
-Type: fixed
-
-Abilities: Followers and settings readers no longer fail with a PHP error when the input carries a key.
+Type: changed
+Comment: Cover empty input validation and schema encoding in abilities tests.

@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Show a page that turns a switched-off feature back on, instead of an error, when one of its admin pages is opened.

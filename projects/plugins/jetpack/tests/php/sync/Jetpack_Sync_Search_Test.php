@@ -211,15 +211,18 @@ class Jetpack_Sync_Search_Test extends Jetpack_Sync_TestBase {
 	 */
 	#[DataProvider( 'get_random_allowed_taxonomies' )]
 	public function test_add_taxonomy( $taxonomy ) {
-		register_taxonomy(
-			$taxonomy,
-			'post',
-			array(
-				'label'        => __( 'Taxonomy Test', 'jetpack' ),
-				'rewrite'      => array( 'slug' => $taxonomy ),
-				'hierarchical' => true,
-			)
-		);
+		$owns_taxonomy = ! taxonomy_exists( $taxonomy );
+		if ( $owns_taxonomy ) {
+			register_taxonomy(
+				$taxonomy,
+				'post',
+				array(
+					'label'        => __( 'Taxonomy Test', 'jetpack' ),
+					'rewrite'      => array( 'slug' => $taxonomy ),
+					'hierarchical' => true,
+				)
+			);
+		}
 
 		$term = md5( (string) wp_rand() );
 		if ( 'post_format' === $taxonomy ) {
@@ -245,7 +248,9 @@ class Jetpack_Sync_Search_Test extends Jetpack_Sync_TestBase {
 
 		// clean up - speeds up tests.
 		wp_remove_object_terms( $this->post_id, array( $term_obj['term_id'] ), $taxonomy );
-		unregister_taxonomy( $taxonomy );
+		if ( $owns_taxonomy ) {
+			unregister_taxonomy( $taxonomy );
+		}
 	}
 
 	/**
