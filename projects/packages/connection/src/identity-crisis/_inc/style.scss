@@ -8,7 +8,8 @@
 	border: none;
 }
 
-// `@wordpress/build` dashboards such as Social hide every other `#wpbody-content > div`, with a selector only `!important` beats.
+// `@wordpress/build` dashboards such as Social hide every other
+// `#wpbody-content > div`, with a selector only `!important` beats.
 #wpbody-content > #jp-identity-crisis-container {
 	display: block !important;
 }
