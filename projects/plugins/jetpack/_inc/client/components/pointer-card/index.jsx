@@ -12,11 +12,12 @@ import SettingsGroup from 'components/settings-group';
  * @param {string}                    props.href     - The page that holds the setting.
  * @param {string}                    props.linkText - Link text.
  * @param {import('react').ReactNode} props.children - What moved, and where.
+ * @param {string}                    [props.module] - Module slug; Post by Email and Publicize cards are the only ones users who cannot manage modules see.
  * @return {import('react').ReactNode} The card.
  */
-export default function PointerCard( { header, href, linkText, children } ) {
+export default function PointerCard( { header, href, linkText, children, module } ) {
 	return (
-		<SettingsCard header={ header } hideButton>
+		<SettingsCard header={ header } module={ module } hideButton>
 			<SettingsGroup>{ children }</SettingsGroup>
 			<Card compact className="jp-settings-card__configure-link" href={ href }>
 				{ linkText }
