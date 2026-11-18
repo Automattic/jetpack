@@ -71,6 +71,9 @@ class UI {
 	 */
 	public static function enqueue_scripts() {
 		if ( is_admin() ) {
+			// Only the notice's own container shows the new screen, and a confirmed Safe Mode shows no screen.
+			$shows_new_screen = static::use_new_screen() && ! Identity_Crisis::$is_safe_mode_confirmed && ! static::get_container_id();
+
 			Assets::register_script(
 				'jp_identity_crisis_banner',
 				'../../dist/identity-crisis.js',
@@ -78,8 +81,8 @@ class UI {
 				array(
 					'in_footer'    => true,
 					'textdomain'   => 'jetpack-connection',
-					// The new screen comes from the shared connection script, which the old screen doesn't need; a confirmed Safe Mode shows neither.
-					'dependencies' => static::use_new_screen() && ! Identity_Crisis::$is_safe_mode_confirmed ? array( 'jetpack-connection' ) : array(),
+					// The new screen comes from the shared connection script, which the old screen doesn't need.
+					'dependencies' => $shows_new_screen ? array( 'jetpack-connection' ) : array(),
 				)
 			);
 			Assets::enqueue_script( 'jp_identity_crisis_banner' );
@@ -137,19 +140,27 @@ class UI {
 			'isAdmin'                        => $is_admin,
 			'possibleDynamicSiteUrlDetected' => $possible_dynamic_site_url_detected,
 			'isDevelopmentSite'              => $is_development_site,
-
-			/**
-			 * Use the filter to provide custom HTML container element ID.
-			 *
-			 * The element may be added after the page loads, within 60 seconds of it;
-			 * the screen is rendered into it once.
-			 *
-			 * @since 0.10.0
-			 *
-			 * @param string|null $containerID The container ID.
-			 */
-			'containerID'                    => apply_filters( 'identity_crisis_container_id', null ),
+			'containerID'                    => static::get_container_id(),
 		);
+	}
+
+	/**
+	 * Get the ID of a custom container that the screen renders into instead of the notice.
+	 *
+	 * @return string|null Null for the notice's own container.
+	 */
+	private static function get_container_id() {
+		/**
+		 * Use the filter to provide custom HTML container element ID.
+		 *
+		 * The element may be added after the page loads, within 60 seconds of it;
+		 * the screen is rendered into it once.
+		 *
+		 * @since 0.10.0
+		 *
+		 * @param string|null $containerID The container ID.
+		 */
+		return apply_filters( 'identity_crisis_container_id', null );
 	}
 
 	/**

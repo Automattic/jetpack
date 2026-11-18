@@ -2132,19 +2132,26 @@ class Identity_Crisis_Test extends BaseTestCase {
 	/**
 	 * The notice script needs the shared connection script only to show the new screen.
 	 *
-	 * @param bool $use_new_screen Whether the `connection-idc-screen` flag is on.
-	 * @param bool $is_confirmed   Whether Safe Mode is confirmed.
-	 * @param bool $expected       Whether the notice script depends on `jetpack-connection`.
+	 * @param bool        $use_new_screen Whether the `connection-idc-screen` flag is on.
+	 * @param bool        $is_confirmed   Whether Safe Mode is confirmed.
+	 * @param string|null $container_id   A custom container, as My Jetpack sets one.
+	 * @param bool        $expected       Whether the notice script depends on `jetpack-connection`.
 	 *
 	 * @dataProvider data_provider_test_ui_shared_script_dependency
 	 */
 	#[DataProvider( 'data_provider_test_ui_shared_script_dependency' )]
-	public function test_ui_shared_script_dependency( $use_new_screen, $is_confirmed, $expected ) {
+	public function test_ui_shared_script_dependency( $use_new_screen, $is_confirmed, $container_id, $expected ) {
 		require_once ABSPATH . 'wp-admin/includes/class-wp-screen.php';
 		require_once ABSPATH . 'wp-admin/includes/screen.php';
 		set_current_screen( 'dashboard' );
 		add_filter( 'jetpack_feature_flag_enabled_' . Identity_Crisis::NEW_SCREEN_FLAG, $use_new_screen ? '__return_true' : '__return_false' );
 		Identity_Crisis::$is_safe_mode_confirmed = $is_confirmed;
+		add_filter(
+			'identity_crisis_container_id',
+			static function () use ( $container_id ) {
+				return $container_id;
+			}
+		);
 
 		UI::enqueue_scripts();
 
@@ -2158,9 +2165,10 @@ class Identity_Crisis_Test extends BaseTestCase {
 	 */
 	public static function data_provider_test_ui_shared_script_dependency() {
 		return array(
-			'old screen'                      => array( false, false, false ),
-			'new screen'                      => array( true, false, true ),
-			'new screen, Safe Mode confirmed' => array( true, true, false ),
+			'old screen'                       => array( false, false, null, false ),
+			'new screen'                       => array( true, false, null, true ),
+			'new screen, Safe Mode confirmed'  => array( true, true, null, false ),
+			'new screen, My Jetpack container' => array( true, false, 'my-jetpack-identity-crisis-container', false ),
 		);
 	}
 
