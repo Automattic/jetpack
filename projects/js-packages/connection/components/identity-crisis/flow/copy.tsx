@@ -1,7 +1,9 @@
 import { createInterpolateElement } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import type { OptionId, StepId } from './steps';
 import type { ReactNode } from 'react';
+
+// Store and Jetpack variants use `_x()`, so minification can't merge them with the `__()` variant into one call.
 
 /** What the flow's text depends on. */
 export interface CopyContext {
@@ -91,13 +93,14 @@ export function getOptionCopy( id: OptionId, c: CopyContext ): OptionCopy {
 		case 'old':
 			return {
 				label: c.isStore
-					? __( 'This store’s old address', 'jetpack-connection-js' )
+					? _x( 'This store’s old address', 'WooCommerce store', 'jetpack-connection-js' )
 					: __( 'This site’s old address', 'jetpack-connection-js' ),
 				hint: fill(
 					c.isStore
 						? /* translators: <x />: this store's address. */
-							__(
+							_x(
 								'The store moved from there to <x />. Nothing was at <x /> before.',
+								'WooCommerce store',
 								'jetpack-connection-js'
 							)
 						: /* translators: <x />: this site's address. */
@@ -120,13 +123,14 @@ export function getOptionCopy( id: OptionId, c: CopyContext ): OptionCopy {
 		case 'original':
 			return {
 				label: c.isStore
-					? __( 'The original store', 'jetpack-connection-js' )
+					? _x( 'The original store', 'WooCommerce store', 'jetpack-connection-js' )
 					: __( 'The original site', 'jetpack-connection-js' ),
 				hint: fill(
 					c.isStore
 						? /* translators: <x />: this store's address. */
-							__(
+							_x(
 								'This one, <x />, is a copy of it, for example a staging or test store.',
+								'WooCommerce store',
 								'jetpack-connection-js'
 							)
 						: /* translators: <x />: this site's address. */
@@ -149,13 +153,14 @@ export function getOptionCopy( id: OptionId, c: CopyContext ): OptionCopy {
 		case 'copyof':
 			return {
 				label: c.isStore
-					? __( 'A copy of this store', 'jetpack-connection-js' )
+					? _x( 'A copy of this store', 'WooCommerce store', 'jetpack-connection-js' )
 					: __( 'A copy of this site', 'jetpack-connection-js' ),
 				hint: fill(
 					c.isStore
 						? /* translators: <x />: this store's address. */
-							__(
+							_x(
 								'It was made from this one, <x />, for example as its staging store.',
+								'WooCommerce store',
 								'jetpack-connection-js'
 							)
 						: /* translators: <x />: this site's address. */
@@ -174,8 +179,9 @@ export function getOptionCopy( id: OptionId, c: CopyContext ): OptionCopy {
 				hint: fill(
 					c.isStore
 						? /* translators: <z />: the address WordPress.com has on record. */
-							__(
+							_x(
 								'Best for a short-lived test store, or a copy that will be pushed back to <z /> after testing.',
+								'WooCommerce store',
 								'jetpack-connection-js'
 							)
 						: /* translators: <z />: the address WordPress.com has on record. */
@@ -188,8 +194,9 @@ export function getOptionCopy( id: OptionId, c: CopyContext ): OptionCopy {
 				more: fill(
 					c.hasJetpackPlugin
 						? /* translators: <z />: the address WordPress.com has on record. */
-							__(
+							_x(
 								'Some Jetpack features stay off here, including security features such as SSO, the firewall and the site monitor. <z /> is unaffected.',
+								'Jetpack plugin connected',
 								'jetpack-connection-js'
 							)
 						: /* translators: <z />: the address WordPress.com has on record. */
@@ -205,8 +212,9 @@ export function getOptionCopy( id: OptionId, c: CopyContext ): OptionCopy {
 			return {
 				label: __( 'Give it its own connection', 'jetpack-connection-js' ),
 				hint: c.isStore
-					? __(
+					? _x(
 							'Best for a development store you will keep working on, or a copy that needs every feature.',
+							'WooCommerce store',
 							'jetpack-connection-js'
 						)
 					: __(
@@ -250,8 +258,9 @@ export function getOptionCopy( id: OptionId, c: CopyContext ): OptionCopy {
 				hint: fill(
 					c.isStore
 						? /* translators: <z />: the address WordPress.com has on record. */
-							__(
+							_x(
 								'Nothing was copied here. <z /> was made from this store.',
+								'WooCommerce store',
 								'jetpack-connection-js'
 							)
 						: /* translators: <z />: the address WordPress.com has on record. */
@@ -305,8 +314,9 @@ export function getPaymentsText(): string {
 export function getPausedText( c: CopyContext ): string {
 	if ( c.hasJetpackPlugin ) {
 		return c.isStore
-			? __(
+			? _x(
 					'Features that sync with WordPress.com — like Stats and Backups — are paused in Safe Mode until you resolve this. Payments will not be interrupted.',
+					'WooCommerce store',
 					'jetpack-connection-js'
 				)
 			: __(
@@ -315,8 +325,9 @@ export function getPausedText( c: CopyContext ): string {
 				);
 	}
 	return c.isStore
-		? __(
+		? _x(
 				'Features that sync with WordPress.com are paused in Safe Mode until you resolve this. Payments will not be interrupted.',
+				'WooCommerce store',
 				'jetpack-connection-js'
 			)
 		: __(
@@ -335,8 +346,9 @@ export function getStagingNote( c: CopyContext ): ReactNode {
 	return fill(
 		c.isStore
 			? /* translators: <z />: the address WordPress.com has on record. */
-				__(
+				_x(
 					'WordPress marks this as a staging store, so it is treated as a copy of <z />.',
+					'WooCommerce store',
 					'jetpack-connection-js'
 				)
 			: /* translators: <z />: the address WordPress.com has on record. */

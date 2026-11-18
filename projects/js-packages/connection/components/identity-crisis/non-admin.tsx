@@ -1,4 +1,4 @@
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import { Button, Stack, Text } from '@wordpress/ui';
 import styles from './styles.module.scss';
 import SupportLink from './support-link';
@@ -19,8 +19,9 @@ export default function IdentityCrisisNonAdmin( {
 		<Stack direction="column" gap="md" align="flex-start">
 			<Text variant="body-md" render={ <p /> } className={ styles.prose }>
 				{ isStore
-					? __(
+					? _x(
 							'Features that sync with WordPress.com are paused because this store is registered with WordPress.com at a different address. Payments will not be interrupted. An administrator needs to resolve this.',
+							'WooCommerce store',
 							'jetpack-connection-js'
 						)
 					: __(

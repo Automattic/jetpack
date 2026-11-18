@@ -1,4 +1,4 @@
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import { Stack, Text } from '@wordpress/ui';
 import { formatSiteAddress } from '../../helpers/format-site-address';
 import styles from './styles.module.scss';
@@ -27,7 +27,11 @@ export default function IdentityCrisisAddresses( {
 			<Stack direction="column" gap="xs">
 				<Text variant="body-sm">
 					{ isStore
-						? __( 'This store is registered with WordPress.com at', 'jetpack-connection-js' )
+						? _x(
+								'This store is registered with WordPress.com at',
+								'WooCommerce store',
+								'jetpack-connection-js'
+							)
 						: __( 'This site is registered with WordPress.com at', 'jetpack-connection-js' ) }
 				</Text>
 				<span className={ styles.address }>{ registered }</span>
