@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Settings: Load the privacy and custom content type settings once when the page opens, instead of up to three times.
