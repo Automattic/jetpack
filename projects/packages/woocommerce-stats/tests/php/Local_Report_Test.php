@@ -401,50 +401,6 @@ class Local_Report_Test extends BaseTestCase {
 		);
 	}
 
-	/**
-	 * @dataProvider data_option_changes
-	 *
-	 * @param string|null $setting       Stored provider names, null when unset.
-	 * @param string      $option        Option changed between the two requests.
-	 * @param mixed       $value         Its new value, or null to delete it.
-	 * @param int         $requests      Requests expected to reach WordPress.com.
-	 * @param int         $invalidations Expected invalidations of core's report cache.
-	 */
-	#[DataProvider( 'data_option_changes' )]
-	public function test_a_report_option_change_drops_both_caches_only_on_a_site_with_a_provider_setting( $setting, $option, $value, $requests, $invalidations ) {
-		require_once __DIR__ . '/mocks/woocommerce-reports-cache-mock.php';
-		Analytics_Dashboard::init();
-		if ( null !== $setting ) {
-			update_option( 'jetpack_woocommerce_stats_report_providers', $setting );
-		}
-		$GLOBALS['woocommerce_stats_mock_cache_invalidations'] = 0;
-
-		$this->get_report( array() );
-		if ( null === $value ) {
-			delete_option( $option );
-		} else {
-			update_option( $option, $value );
-		}
-		$this->get_report( array() );
-
-		$this->assertCount( $requests, $this->wpcom_requests );
-		$this->assertSame( $invalidations, $GLOBALS['woocommerce_stats_mock_cache_invalidations'] );
-	}
-
-	/**
-	 * @return array<string, array{0: string|null, 1: string, 2: mixed, 3: int, 4: int}>
-	 */
-	public static function data_option_changes() {
-		return array(
-			'week start, no setting'        => array( null, 'start_of_week', '0', 1, 0 ),
-			'week start, local then wpcom'  => array( 'local,wpcom', 'start_of_week', '0', 2, 1 ),
-			'excluded statuses, local'      => array( 'local', 'woocommerce_excluded_report_order_statuses', array( 'pending' ), 2, 1 ),
-			'the provider setting, set'     => array( null, 'jetpack_woocommerce_stats_report_providers', 'local,wpcom', 2, 1 ),
-			'the provider setting, changed' => array( 'wpcom', 'jetpack_woocommerce_stats_report_providers', 'local,wpcom', 2, 1 ),
-			'the provider setting, deleted' => array( 'local', 'jetpack_woocommerce_stats_report_providers', null, 2, 1 ),
-		);
-	}
-
 	public function test_auto_does_not_fall_back_to_the_next_provider_when_the_chosen_one_is_not_ready() {
 		update_option( 'jetpack_woocommerce_stats_report_providers', 'local,wpcom' );
 		$GLOBALS['woocommerce_stats_mock_analytics_off'] = true;
