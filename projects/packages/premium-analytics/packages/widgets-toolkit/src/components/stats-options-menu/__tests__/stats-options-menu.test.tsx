@@ -202,8 +202,11 @@ describe( 'stats-options-menu', () => {
 
 			await user.click( screen.getByRole( 'button', { name: 'Stats options' } ) );
 			const items = await screen.findAllByRole( 'menuitem' );
+			const reset = items.filter( item => item.textContent === 'Reset to default…' );
 
-			expect( items[ 0 ].textContent === 'Reset to default…' ).toBe( hasReset );
+			expect( reset.length === 1 ).toBe( hasReset );
+			// First, where a reader looks for the action the header just took away.
+			expect( hasReset && reset[ 0 ] === items[ 0 ] ).toBe( hasReset );
 		} );
 
 		it( 'asks before resetting the layout from the menu', async () => {
@@ -227,22 +230,33 @@ describe( 'stats-options-menu', () => {
 			await waitFor( () => expect( screen.queryByRole( 'alertdialog' ) ).not.toBeInTheDocument() );
 		} );
 
-		it( 'hands focus back to the Stats options button when the reset dialog closes', async () => {
+		// Confirming a reset leaves customize mode, so the caller drops `onReset` in the same
+		// commit the dialog would have closed itself in.
+		it( 'does not reopen the dialog the next time the reader customizes', async () => {
 			const user = setupUser();
-			render(
+			const { rerender } = render(
 				<ViewportWidth value={ 599 }>
 					<StatsOptionsMenu onReset={ () => {} } />
 				</ViewportWidth>
 			);
 
-			const trigger = screen.getByRole( 'button', { name: 'Stats options' } );
-			await user.click( trigger );
+			await user.click( screen.getByRole( 'button', { name: 'Stats options' } ) );
 			await user.click( await screen.findByRole( 'menuitem', { name: 'Reset to default…' } ) );
 			const dialog = await screen.findByRole( 'alertdialog' );
+			await user.click( within( dialog ).getByRole( 'button', { name: 'Reset' } ) );
 
-			await user.click( within( dialog ).getByRole( 'button', { name: 'Cancel' } ) );
+			rerender(
+				<ViewportWidth value={ 599 }>
+					<StatsOptionsMenu />
+				</ViewportWidth>
+			);
+			rerender(
+				<ViewportWidth value={ 599 }>
+					<StatsOptionsMenu onReset={ () => {} } />
+				</ViewportWidth>
+			);
 
-			await waitFor( () => expect( trigger ).toHaveFocus() );
+			await waitFor( () => expect( screen.queryByRole( 'alertdialog' ) ).not.toBeInTheDocument() );
 		} );
 
 		it( 'leaves Customize out where there is nothing to arrange', async () => {
