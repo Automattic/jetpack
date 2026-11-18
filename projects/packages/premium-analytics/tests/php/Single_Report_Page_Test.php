@@ -529,6 +529,11 @@ class Single_Report_Page_Test extends BaseTestCase {
 		$this->assertSame( 200, $response->get_status() );
 		$this->assertSame( array( 'example/video' ), array_column( $response->get_data(), 'id' ) );
 		$this->assertSame( 'video', $response->get_data()[0]['path'] );
+
+		$elsewhere = rest_get_server()->dispatch(
+			new WP_REST_Request( 'GET', '/wpcom/v2/dashboards/unregistered_dashboard/single-report-pages' )
+		);
+		$this->assertSame( 403, $elsewhere->get_status(), 'The route answers for the dashboard it names.' );
 	}
 
 	/**

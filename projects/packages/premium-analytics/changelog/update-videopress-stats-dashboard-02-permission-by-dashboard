@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Dashboard: Check the permission of the sections and single-report pages routes against the dashboard the request names.

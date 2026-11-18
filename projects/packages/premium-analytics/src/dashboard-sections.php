@@ -141,12 +141,13 @@ function inject_dashboard_sections_script_data( array $data ): array {
 }
 
 /**
- * Whether the current user can access dashboard section routes.
+ * Whether the current user can read the dashboard a section route names.
  *
+ * @param \WP_REST_Request $request REST request carrying the dashboard name.
  * @return bool
  */
-function check_dashboard_sections_permission() {
-	return Capabilities::current_user_can_view_analytics();
+function check_dashboard_sections_permission( $request ) {
+	return Capabilities::current_user_can_view_dashboard( $request['name'] );
 }
 
 /**

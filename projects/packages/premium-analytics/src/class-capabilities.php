@@ -36,7 +36,7 @@ class Capabilities {
 	 */
 	public static function register() {
 		self::$has_available_section = array();
-		add_filter( 'map_meta_cap', array( __CLASS__, 'map_meta_caps' ), 10, 3 );
+		add_filter( 'map_meta_cap', array( __CLASS__, 'map_meta_caps' ), 10, 4 );
 	}
 
 	/**
@@ -61,7 +61,7 @@ class Capabilities {
 	private static $resolving_sections = false;
 
 	/**
-	 * Whether a section is available, per `<user id>:<blog id>`, for the rest of the request.
+	 * Whether a section is available, per `<user id>:<blog id>:<dashboard name>`, for the rest of the request.
 	 *
 	 * @var array<string, bool>
 	 */
@@ -75,14 +75,15 @@ class Capabilities {
 	 * @param string[] $caps    Primitive capabilities required of the user.
 	 * @param string   $cap     Capability being checked.
 	 * @param int      $user_id User being checked.
+	 * @param array    $args    Optional. The dashboard name first; without one, the package's own dashboard.
 	 * @return string[] Primitives for the dashboard capability; anything else untouched.
 	 */
-	public static function map_meta_caps( $caps, $cap, $user_id ) {
+	public static function map_meta_caps( $caps, $cap, $user_id, $args = array() ) {
 		if ( self::VIEW_ANALYTICS !== $cap ) {
 			return $caps;
 		}
 
-		if ( (int) $user_id === get_current_user_id() && self::current_user_has_available_section() ) {
+		if ( (int) $user_id === get_current_user_id() && self::current_user_has_available_section( $args[0] ?? null ) ) {
 			return array( 'read' );
 		}
 
@@ -90,22 +91,28 @@ class Capabilities {
 	}
 
 	/**
-	 * Whether any dashboard section is available to the current user.
+	 * Whether any section of a dashboard is available to the current user.
 	 *
+	 * @param string|null $dashboard_name Dashboard identifier. Null reads the package's own dashboard.
 	 * @return bool
 	 */
-	private static function current_user_has_available_section() {
+	private static function current_user_has_available_section( $dashboard_name = null ) {
 		// The registry hydrates only after init; the dashboard name comes with its loaded files.
 		if ( self::$resolving_sections || ! did_action( 'init' ) || ! defined( __NAMESPACE__ . '\\DASHBOARD_NAME' ) ) {
 			return false;
 		}
 
+		$dashboard_name = $dashboard_name ?? DASHBOARD_NAME;
+		if ( ! is_string( $dashboard_name ) ) {
+			return false;
+		}
+
 		// add_menu_page() and the admin menu each check the capability on every admin screen.
-		$key = get_current_user_id() . ':' . get_current_blog_id();
+		$key = get_current_user_id() . ':' . get_current_blog_id() . ':' . $dashboard_name;
 		if ( ! isset( self::$has_available_section[ $key ] ) ) {
 			self::$resolving_sections = true;
 			try {
-				self::$has_available_section[ $key ] = array() !== Dashboard_Section_Registry::get_instance()->get_available_sections( DASHBOARD_NAME );
+				self::$has_available_section[ $key ] = array() !== Dashboard_Section_Registry::get_instance()->get_available_sections( $dashboard_name );
 			} finally {
 				self::$resolving_sections = false;
 			}
@@ -121,6 +128,18 @@ class Capabilities {
 	 */
 	public static function current_user_can_view_analytics() {
 		return current_user_can( self::VIEW_ANALYTICS );
+	}
+
+	/**
+	 * Whether the current user may read a dashboard: one of its sections must be available to them.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $dashboard_name Dashboard identifier.
+	 * @return bool
+	 */
+	public static function current_user_can_view_dashboard( $dashboard_name ) {
+		return current_user_can( self::VIEW_ANALYTICS, $dashboard_name );
 	}
 
 	/**
