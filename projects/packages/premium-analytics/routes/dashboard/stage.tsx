@@ -7,6 +7,7 @@ import {
 	queryClient,
 	ReportScopeProvider,
 } from '@jetpack-premium-analytics/data';
+import { PRESET_CUSTOM } from '@jetpack-premium-analytics/datetime';
 import { Icon, JetpackFooter, Stack } from '@jetpack-premium-analytics/externals';
 import { jetpack } from '@jetpack-premium-analytics/icons';
 import {
@@ -28,7 +29,7 @@ import {
 import {
 	canSendFeedback,
 	DashboardSectionProvider,
-	PageOptionsMenu,
+	StatsOptionsMenu,
 	ResetLayoutAction,
 	useHostLinkSearch,
 	useTrackCustomize,
@@ -310,7 +311,8 @@ function Dashboard(): JSX.Element {
 		activeSection,
 		dateFilters.appliedRange,
 		showsPeriodControl,
-		dateLimits
+		dateLimits,
+		{ withZoomOut: true }
 	);
 
 	const {
@@ -318,6 +320,7 @@ function Dashboard(): JSX.Element {
 		onComparisonChange: changeComparison,
 		onApply: applyDateRange,
 		stepping,
+		zoomOut,
 	} = dateFilters;
 
 	const { trackedOnChange, trackedOnApply } = useTrackedDateRangeApply(
@@ -372,6 +375,7 @@ function Dashboard(): JSX.Element {
 				trackedOnChange( stepped.range, stepped.presetId, {
 					exactRange: true,
 					interval: stepped.interval,
+					trigger: 'arrow',
 				} );
 				trackedOnApply();
 			}
@@ -383,6 +387,33 @@ function Dashboard(): JSX.Element {
 	const dateStepping = useMemo(
 		() => ( { ...stepping, onStep: onDateStep } ),
 		[ stepping, onDateStep ]
+	);
+	// Zooming back out applies at once too, and is tracked the same way.
+	const zoomOutOfPeriod = zoomOut?.onZoomOut;
+	const onDateZoomOut = useCallback( () => {
+		const zoomed = zoomOutOfPeriod?.();
+
+		if ( zoomed ) {
+			trackedOnChange( zoomed.range, zoomed.presetId, {
+				exactRange: true,
+				interval: zoomed.interval,
+				trigger: 'zoom_out',
+			} );
+			trackedOnApply();
+		}
+	}, [ zoomOutOfPeriod, trackedOnChange, trackedOnApply ] );
+	const dateZoomOut = useMemo(
+		() => zoomOut && { ...zoomOut, onZoomOut: onDateZoomOut },
+		[ zoomOut, onDateZoomOut ]
+	);
+	// A period a widget opens applies at once as well, as the custom range it commits.
+	const onOpenPeriod = useCallback< typeof openPeriod >(
+		( range, options ) => {
+			openPeriod( range, options );
+			trackedOnChange( range, PRESET_CUSTOM, { exactRange: true, trigger: 'widget' } );
+			trackedOnApply();
+		},
+		[ openPeriod, trackedOnChange, trackedOnApply ]
 	);
 
 	/*
@@ -466,6 +497,7 @@ function Dashboard(): JSX.Element {
 					onComparisonChange={ onComparisonChange }
 					onApply={ onDateApply }
 					stepping={ dateStepping }
+					zoomOut={ dateZoomOut }
 					withIntervalControl={ showHeaderIntervalControl }
 					attentionId={ attention?.id }
 				/>
@@ -481,7 +513,7 @@ function Dashboard(): JSX.Element {
 			 */ }
 			<ReportScopeProvider
 				offersComparison={ offersComparison }
-				openPeriod={ openPeriod }
+				openPeriod={ onOpenPeriod }
 				dateLimits={ dateLimits }
 			>
 				{ /* Outside the dashboard: the inserter mounts beyond `children`. */ }
@@ -513,7 +545,7 @@ function Dashboard(): JSX.Element {
 										<Stack ref={ setOptionsMenuFrame } direction="row">
 											{ /* Outside the section panels, so the menu's links name the tab to return to. */ }
 											<DashboardSectionProvider section={ activeSection }>
-												<PageOptionsMenu
+												<StatsOptionsMenu
 													onCustomize={
 														editMode || ! canCustomizeSection ? undefined : startCustomizing
 													}

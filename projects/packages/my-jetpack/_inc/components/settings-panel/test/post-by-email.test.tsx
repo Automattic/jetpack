@@ -144,6 +144,11 @@ describe( 'PostByEmailSettings', () => {
 			method: 'POST',
 			data: { post_by_email_address: 'regenerate' },
 		} );
+		expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_wpa_click', {
+			target: 'pbe-regenerage-email',
+			origin: 'my-jetpack-settings-panel',
+			event_version: 1,
+		} );
 		expect( field() ).toHaveValue( ADDRESS );
 		expect( screen.getByRole( 'button', { name: 'Regenerate address' } ) ).toHaveAttribute(
 			'aria-disabled',
@@ -197,6 +202,7 @@ describe( 'PostByEmailSettings', () => {
 			module: 'post-by-email',
 			toggled: 'on',
 			origin: 'my-jetpack-settings-panel',
+			event_version: 1,
 		} );
 	} );
 

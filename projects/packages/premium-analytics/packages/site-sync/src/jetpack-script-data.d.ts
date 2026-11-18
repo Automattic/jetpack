@@ -16,6 +16,12 @@ declare module '@automattic/jetpack-script-data' {
 			// The single-report pages the reader may open, as `routes/single-report/registry.ts` reads them. Absent until the page registry is hydrated.
 			single_report_pages?: Array< {
 				id: string;
+				// The core-data entity the page is about. Absent from servers that predate the binding, null when the page names none.
+				entity?: {
+					kind: string;
+					name: string;
+					key?: string;
+				} | null;
 				path: string;
 				label: string;
 				dashboard_section: string | null;

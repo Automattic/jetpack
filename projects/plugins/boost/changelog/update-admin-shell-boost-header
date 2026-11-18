@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Admin shell: Declare the page title and subtitle shown while the dashboard opens, when the admin shell flag is on.

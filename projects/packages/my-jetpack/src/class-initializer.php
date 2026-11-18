@@ -202,6 +202,7 @@ class Initializer {
 
 		// Answer "is this product on?" for admin menu registration.
 		Menu_Visibility::init();
+		Turned_Off_Page::init();
 
 		self::register_settings_panel_urls();
 

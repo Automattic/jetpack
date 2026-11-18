@@ -13,6 +13,7 @@ import { useMainFeatures } from '../my-jetpack-tab-panel/features/use-main-featu
 import { FallbackSettings } from './fallback-settings';
 import { entrySettings, moduleSettings } from './registry';
 import styles from './styles.module.scss';
+import { useSettingsPanelTracking } from './use-settings-panel-tracking';
 import type { KeyboardEvent } from 'react';
 
 /**
@@ -38,6 +39,7 @@ export function SettingsPanel() {
 	const headingRef = useRef< HTMLHeadingElement >( null );
 	const rootRef = useRef< HTMLElement >( null );
 	const openerRef = useRef< HTMLElement | null >( null );
+	const { trackPanelClose } = useSettingsPanelTracking( slug );
 
 	const onClose = useCallback( () => {
 		type NavigateOptions = Parameters< typeof navigate >[ 0 ];
@@ -73,11 +75,17 @@ export function SettingsPanel() {
 	const onKeyDown = useCallback(
 		( event: KeyboardEvent< HTMLElement > ) => {
 			if ( event.key === 'Escape' && ! event.defaultPrevented ) {
+				trackPanelClose( 'escape' );
 				onClose();
 			}
 		},
-		[ onClose ]
+		[ onClose, trackPanelClose ]
 	);
+
+	const onCloseButton = useCallback( () => {
+		trackPanelClose( 'close-button' );
+		onClose();
+	}, [ onClose, trackPanelClose ] );
 
 	// Jetpack's own verdict, which covers offline mode, a missing connection or owner, and the plan.
 	const availability = $module ? getModuleAvailability( $module ) : undefined;
@@ -141,7 +149,7 @@ export function SettingsPanel() {
 						variant="minimal"
 						tone="neutral"
 						size="compact"
-						onClick={ onClose }
+						onClick={ onCloseButton }
 					/>
 				</Stack>
 				{ body }

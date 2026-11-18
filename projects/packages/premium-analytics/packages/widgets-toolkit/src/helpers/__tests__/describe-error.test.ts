@@ -1,4 +1,8 @@
 /**
+ * External dependencies
+ */
+import { StatsResponseShapeError } from '@jetpack-premium-analytics/data';
+/**
  * Internal dependencies
  */
 import { describeError } from '../describe-error';
@@ -6,6 +10,18 @@ import { describeError } from '../describe-error';
 const RETRY_DESCRIPTION = "We couldn't load device data. Please try again in a moment.";
 
 describe( 'describeError', () => {
+	it( 'describes an unusable response without offering a retry', () => {
+		const descriptor = describeError( new StatsResponseShapeError( 'bad shape' ), {
+			retryDescription: RETRY_DESCRIPTION,
+			onRetry: jest.fn(),
+		} );
+
+		expect( descriptor ).toEqual( {
+			description: 'This data is unavailable right now.',
+		} );
+		expect( descriptor ).not.toHaveProperty( 'actions' );
+	} );
+
 	it( 'describes a 403 as a neutral error without actions', () => {
 		const descriptor = describeError(
 			{ error: 'unauthorized', status: 403 },
