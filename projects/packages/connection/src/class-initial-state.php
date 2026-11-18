@@ -133,6 +133,8 @@ class Initial_State {
 			'currentUrl'                     => $idc_urls ? $idc_urls['current_url'] : ( Identity_Crisis::get_sync_error_idc_option()['home'] ?? '' ),
 			'isDevelopmentSite'              => (bool) Status::is_development_site(),
 			'possibleDynamicSiteUrlDetected' => (bool) Identity_Crisis::detect_possible_dynamic_site_url(),
+			// The stored URLs have no scheme, so the screen can't tell from `currentUrl` whether the site loads without HTTPS.
+			'isCurrentUrlHttps'              => 'https' === wp_parse_url( home_url(), PHP_URL_SCHEME ),
 			'logoUrl'                        => Jetpack_Connector::get_connector_logo_url(),
 		);
 	}

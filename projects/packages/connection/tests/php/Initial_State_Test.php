@@ -47,6 +47,7 @@ class Initial_State_Test extends TestCase {
 		delete_transient( 'jetpack_idc_possible_dynamic_site_url_detected' );
 		remove_all_filters( 'jetpack_sync_home_url' );
 		remove_all_filters( 'jetpack_sync_site_url' );
+		remove_all_filters( 'home_url' );
 		if ( $this->caps_manager ) {
 			remove_filter( 'map_meta_cap', array( $this->caps_manager, 'jetpack_connection_custom_caps' ), 1 );
 			$this->caps_manager = null;
@@ -361,12 +362,39 @@ class Initial_State_Test extends TestCase {
 	 */
 	public static function provide_identity_crisis_viewers() {
 		$shared   = array( 'useNewScreen', 'canResolve', 'isSafeModeConfirmed' );
-		$resolver = array_merge( $shared, array( 'wpcomHomeUrl', 'currentUrl', 'isDevelopmentSite', 'possibleDynamicSiteUrlDetected', 'logoUrl' ) );
+		$resolver = array_merge( $shared, array( 'wpcomHomeUrl', 'currentUrl', 'isDevelopmentSite', 'possibleDynamicSiteUrlDetected', 'isCurrentUrlHttps', 'logoUrl' ) );
 
 		return array(
 			'admin, confirmed'       => array( 'administrator', true, $resolver ),
 			'admin, not confirmed'   => array( 'administrator', false, $resolver ),
 			'contributor, confirmed' => array( 'contributor', true, $shared ),
+		);
+	}
+
+	/**
+	 * @dataProvider provide_home_url_schemes
+	 *
+	 * @param string $home     The home URL.
+	 * @param bool   $expected The expected isCurrentUrlHttps.
+	 */
+	#[DataProvider( 'provide_home_url_schemes' )]
+	public function test_get_data_identity_crisis_says_whether_the_site_loads_over_https( $home, $expected ) {
+		add_filter( 'home_url', fn () => $home );
+		self::enter_safe_mode();
+		$this->act_as( 'administrator' );
+
+		$this->assertSame( $expected, self::get_data()['identityCrisis']['isCurrentUrlHttps'] );
+	}
+
+	/**
+	 * Data provider for test_get_data_identity_crisis_says_whether_the_site_loads_over_https.
+	 *
+	 * @return array
+	 */
+	public static function provide_home_url_schemes() {
+		return array(
+			'https' => array( 'https://example.com', true ),
+			'http'  => array( 'http://example.com', false ),
 		);
 	}
 
