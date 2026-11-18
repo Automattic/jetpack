@@ -3,6 +3,7 @@
  */
 import { authorAdapter } from './author';
 import { entityAdapter } from './entity';
+import { pageAdapter } from './page';
 import { postAdapter } from './post';
 import { videoAdapter } from './video';
 import type { SingleReportAdapter } from './adapter';
@@ -11,6 +12,7 @@ import type { SingleReportPageRecord } from '../registry';
 // The adapters by record `path`.
 const ADAPTERS: Record< string, SingleReportAdapter > = {
 	author: authorAdapter,
+	page: pageAdapter,
 	post: postAdapter,
 	video: videoAdapter,
 };
