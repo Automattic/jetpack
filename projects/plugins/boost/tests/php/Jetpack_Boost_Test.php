@@ -188,7 +188,7 @@ class Jetpack_Boost_Test extends BaseTestCase {
 		add_action(
 			'jetpack_sync_callable',
 			function ( $name, $value ) use ( &$synced ) {
-				$synced[ $name ] = $value;
+				$synced[] = array( $name => $value );
 			},
 			10,
 			2
@@ -197,7 +197,7 @@ class Jetpack_Boost_Test extends BaseTestCase {
 		$write();
 		do_action( 'shutdown' );
 
-		$expected = $expect_sync ? array( 'boost_modules' => ( new Modules_Setup() )->get_status() ) : array();
+		$expected = $expect_sync ? array( array( 'boost_modules' => ( new Modules_Setup() )->get_status() ) ) : array();
 		$this->assertEquals( $expected, $synced );
 	}
 
@@ -208,25 +208,32 @@ class Jetpack_Boost_Test extends BaseTestCase {
 	 */
 	public static function provide_option_writes() {
 		return array(
-			'status add'       => array(
+			'status add'        => array(
 				function () {
 					add_option( 'jetpack_boost_status_page-cache', true );
 				},
 				true,
 			),
-			'status update'    => array(
+			'status update'     => array(
 				function () {
 					update_option( 'jetpack_boost_status_minify-js', true );
 				},
 				true,
 			),
-			'status delete'    => array(
+			'status delete'     => array(
 				function () {
 					delete_option( 'jetpack_boost_status_minify-js' );
 				},
 				true,
 			),
-			'unrelated option' => array(
+			'two status writes' => array(
+				function () {
+					update_option( 'jetpack_boost_status_minify-js', true );
+					add_option( 'jetpack_boost_status_page-cache', true );
+				},
+				true,
+			),
+			'unrelated option'  => array(
 				function () {
 					update_option( 'blogname', 'Changed' );
 				},

@@ -446,6 +446,8 @@ class Jetpack_Boost {
 
 	/**
 	 * Send the current module status map to WP.com.
+	 *
+	 * This skips Sync's callable checksum, so its next routine callables check may send the same map again.
 	 */
 	public function sync_module_status() {
 		do_action( 'jetpack_sync_callable', 'boost_modules', ( new Modules_Setup() )->get_status() );
