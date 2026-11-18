@@ -216,6 +216,166 @@ class LlmsTxtTest extends SeoTestCase {
 	}
 
 	/**
+	 * Core's redirects leave the virtual document for the unchanged serving hook.
+	 *
+	 * @dataProvider provide_post_redirects
+	 * @param string $redirect Core redirect to exercise.
+	 */
+	#[DataProvider( 'provide_post_redirects' )]
+	public function test_post_redirects_leave_llms_txt_for_its_handler( $redirect ) {
+		global $wp_filter, $wp_query, $wp_rewrite;
+
+		$original_query     = $wp_query;
+		$original_uri       = $_SERVER['REQUEST_URI'] ?? null;
+		$original_method    = $_SERVER['REQUEST_METHOD'] ?? null;
+		$original_public    = get_option( 'blog_public' );
+		$original_permalink = get_option( 'permalink_structure' );
+		$original_hooks     = array();
+		foreach ( array( 'template_redirect', 'redirect_canonical', 'old_slug_redirect_url', 'wp_redirect' ) as $hook ) {
+			$original_hooks[ $hook ] = isset( $wp_filter[ $hook ] ) ? clone $wp_filter[ $hook ] : null;
+		}
+
+		try {
+			update_option( Llms_Txt::OPTION, true );
+			update_option( 'blog_public', 1 );
+			$wp_rewrite->set_permalink_structure( '/%postname%/' );
+			$post_id          = wp_insert_post(
+				array(
+					'post_title'  => 'llms.txt explained',
+					'post_name'   => 'llms-txt',
+					'post_status' => 'publish',
+				)
+			);
+			$this->post_ids[] = $post_id;
+			wp_update_post(
+				array(
+					'ID'        => $post_id,
+					'post_name' => 'canonical' === $redirect ? 'llms-txt-explained' : 'renamed-guide',
+				)
+			);
+			$this->assertSame( array( 'llms-txt' ), get_post_meta( $post_id, '_wp_old_slug', false ) );
+
+			$_SERVER['REQUEST_URI']    = '/llms.txt';
+			$_SERVER['REQUEST_METHOD'] = 'GET';
+			$wp_query                  = new \WP_Query();
+			$wp_query->is_404          = true;
+			$wp_query->query_vars      = array( 'name' => 'llms-txt' );
+			Llms_Txt::init();
+
+			if ( 'canonical' === $redirect ) {
+				$this->assertSame( get_permalink( $post_id ), redirect_guess_404_permalink() );
+				$this->assertNull( redirect_canonical( home_url( '/llms.txt' ), false ) );
+			} else {
+				$proposed = array();
+				add_filter(
+					'old_slug_redirect_url',
+					static function ( $url ) use ( &$proposed ) {
+						$proposed[] = $url;
+						return $url;
+					},
+					9
+				);
+				add_filter(
+					'wp_redirect',
+					static function ( $url ) {
+						throw new \UnexpectedValueException( 'Unexpected post redirect: ' . $url );
+					}
+				);
+				wp_old_slug_redirect();
+				$this->assertSame( array( get_permalink( $post_id ) ), $proposed );
+			}
+		} finally {
+			$wp_query = $original_query;
+			$wp_rewrite->set_permalink_structure( $original_permalink );
+			update_option( 'blog_public', $original_public );
+			foreach ( array(
+				'REQUEST_URI'    => $original_uri,
+				'REQUEST_METHOD' => $original_method,
+			) as $key => $value ) {
+				if ( null === $value ) {
+					unset( $_SERVER[ $key ] );
+				} else {
+					$_SERVER[ $key ] = $value;
+				}
+			}
+			foreach ( $original_hooks as $hook => $value ) {
+				if ( null === $value ) {
+					unset( $wp_filter[ $hook ] );
+				} else {
+					$wp_filter[ $hook ] = $value;
+				}
+			}
+		}
+	}
+
+	/**
+	 * @return array Core post redirect paths.
+	 */
+	public static function provide_post_redirects() {
+		return array(
+			'canonical guess' => array( 'canonical' ),
+			'old slug'        => array( 'old-slug' ),
+		);
+	}
+
+	/**
+	 * Requests outside the document's serving conditions keep the proposed post redirect.
+	 *
+	 * @dataProvider provide_redirect_passthrough_states
+	 * @param string $state Request condition.
+	 */
+	#[DataProvider( 'provide_redirect_passthrough_states' )]
+	public function test_post_redirect_passthrough( $state ) {
+		$original_uri    = $_SERVER['REQUEST_URI'] ?? null;
+		$original_public = get_option( 'blog_public' );
+		$conflict        = static function ( $paused ) use ( $state ) {
+			return 'conflict' === $state || $paused;
+		};
+		$host            = static function ( $allowed ) use ( $state ) {
+			return 'host restriction' !== $state && $allowed;
+		};
+		$unexpected      = static function () {
+			throw new \UnexpectedValueException( 'Unrelated redirect read llms.txt settings.' );
+		};
+
+		$_SERVER['REQUEST_URI'] = 'unrelated path' === $state ? '/guide/' : '/llms.txt';
+		update_option( Llms_Txt::OPTION, 'disabled' !== $state );
+		update_option( 'blog_public', 'discouraged' === $state ? 0 : 1 );
+		add_filter( 'jetpack_disable_seo_tools', $conflict );
+		add_filter( 'jetpack_seo_llms_txt_can_serve', $host );
+		if ( 'unrelated path' === $state ) {
+			add_filter( 'pre_option_' . Llms_Txt::OPTION, $unexpected );
+		}
+
+		try {
+			$this->assertSame( 'https://example.org/guide/', Llms_Txt::preserve_llms_txt_request( 'https://example.org/guide/' ) );
+		} finally {
+			remove_filter( 'jetpack_disable_seo_tools', $conflict );
+			remove_filter( 'jetpack_seo_llms_txt_can_serve', $host );
+			remove_filter( 'pre_option_' . Llms_Txt::OPTION, $unexpected );
+			update_option( 'blog_public', $original_public );
+			if ( null === $original_uri ) {
+				unset( $_SERVER['REQUEST_URI'] );
+			} else {
+				$_SERVER['REQUEST_URI'] = $original_uri;
+			}
+		}
+	}
+
+	/**
+	 * @return array Requests that must retain WordPress's redirect behavior.
+	 */
+	public static function provide_redirect_passthrough_states() {
+		return array(
+			'disabled'         => array( 'disabled' ),
+			'unrelated path'   => array( 'unrelated path' ),
+			'conflict'         => array( 'conflict' ),
+			'host restriction' => array( 'host restriction' ),
+			'discouraged'      => array( 'discouraged' ),
+		);
+	}
+
+	/**
 	 * A host (or the static-file auto-detection) can force the honest
 	 * "can't take effect" state via the filter.
 	 *

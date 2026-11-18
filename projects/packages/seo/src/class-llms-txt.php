@@ -91,6 +91,8 @@ class Llms_Txt {
 	 */
 	public static function init() {
 		add_action( 'template_redirect', array( __CLASS__, 'maybe_serve' ) );
+		add_filter( 'redirect_canonical', array( __CLASS__, 'preserve_llms_txt_request' ) );
+		add_filter( 'old_slug_redirect_url', array( __CLASS__, 'preserve_llms_txt_request' ) );
 	}
 
 	/**
@@ -287,20 +289,35 @@ class Llms_Txt {
 	}
 
 	/**
+	 * Keep WordPress's post redirects from claiming the virtual document before it is served.
+	 *
+	 * @param string|false $redirect_url The proposed redirect destination.
+	 * @return string|false
+	 */
+	public static function preserve_llms_txt_request( $redirect_url ) {
+		return self::should_serve() ? false : $redirect_url;
+	}
+
+	/**
+	 * Whether this request can receive the generated document.
+	 *
+	 * @return bool
+	 */
+	private static function should_serve() {
+		// Match the serving gate without reading settings for unrelated redirects.
+		return 'llms.txt' === self::request_path()
+			&& self::is_enabled()
+			&& self::can_serve()
+			&& (bool) get_option( 'blog_public' );
+	}
+
+	/**
 	 * Serve llms.txt when enabled and the request is for it; otherwise no-op.
 	 *
 	 * @return void
 	 */
 	public static function maybe_serve() {
-		if ( ! self::is_enabled() || 'llms.txt' !== self::request_path() || ! self::can_serve() ) {
-			return;
-		}
-
-		// Respect the site's "discourage search engines" setting. When indexing is
-		// discouraged, WordPress emits `Disallow: /` in robots.txt — serving an AI
-		// content map would contradict that signal, and would expose a content map
-		// on staging/private sites, so we don't serve it.
-		if ( ! get_option( 'blog_public' ) ) {
+		if ( ! self::should_serve() ) {
 			return;
 		}
 
