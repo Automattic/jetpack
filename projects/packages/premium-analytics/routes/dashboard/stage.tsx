@@ -550,6 +550,7 @@ function Dashboard(): JSX.Element {
 													onCustomize={
 														editMode || ! canCustomizeSection ? undefined : startCustomizing
 													}
+													onReset={ editMode ? resetToDefault : undefined }
 													tabs={ arrangeableTabs }
 												/>
 											</DashboardSectionProvider>

@@ -8,6 +8,7 @@ import { useCallback, useState } from 'react';
 /**
  * Internal dependencies
  */
+import { useNarrowPageHeader } from '../../hooks/use-narrow-page-header';
 import { ResetLayoutDialog } from './reset-layout-dialog';
 
 export type ResetLayoutActionProps = {
@@ -18,15 +19,21 @@ export type ResetLayoutActionProps = {
 /**
  * The Reset to default action beside the dashboard's own Cancel and Done while
  * customizing: an icon button, as in the configurations design, that asks first.
+ * A narrow header has no room for it, where `StatsOptionsMenu` offers it instead.
  *
  * @param props         - Component props.
  * @param props.onReset - Called once the reader confirms.
- * @return The button, and its dialog while open.
+ * @return The button, and its dialog while open, or nothing on a narrow header.
  */
 export function ResetLayoutAction( { onReset }: ResetLayoutActionProps ) {
 	const [ isOpen, setIsOpen ] = useState( false );
 	const open = useCallback( () => setIsOpen( true ), [] );
 	const close = useCallback( () => setIsOpen( false ), [] );
+	const isNarrow = useNarrowPageHeader();
+
+	if ( isNarrow ) {
+		return null;
+	}
 
 	return (
 		<>

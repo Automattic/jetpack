@@ -1,7 +1,7 @@
 import { Badge, Stack } from '@jetpack-premium-analytics/externals';
-import { useViewportMatch } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useNarrowPageHeader } from '../../hooks/use-narrow-page-header';
 import { useTrackCustomize, type TrackingSurface } from '../../hooks/use-track-event';
 import { ResetLayoutAction } from '../reset-layout';
 import { StatsOptionsMenu } from '../stats-options-menu';
@@ -143,7 +143,7 @@ export function useDetailPageCustomize(
  * @return The badge, or nothing on a phone.
  */
 export function CustomizingBadge() {
-	const isNarrow = useViewportMatch( 'small', '<' );
+	const isNarrow = useNarrowPageHeader();
 
 	if ( isNarrow ) {
 		return null;
@@ -173,9 +173,10 @@ export type DetailPageActionsProps = {
 /**
  * The actions slot of a detail page. Idle, it holds the page's own actions
  * and the Stats options menu, Customize included; customizing, the dashboard's
- * own Cancel and Done take the actions' place, Reset to default beside them,
- * and the menu stays, less Customize. Leaving unmounts the focused control, so
- * focus is moved back onto the menu trigger.
+ * own Cancel and Done take the actions' place, Reset to default beside them
+ * or in the menu on a narrow header, and the menu stays, less Customize.
+ * Leaving unmounts the focused control, so focus is moved back onto the menu
+ * trigger.
  *
  * @param props                - Component props.
  * @param props.isCustomizing  - Whether the page is in customize mode.
@@ -210,7 +211,10 @@ export function DetailPageActions( {
 		<Stack ref={ frame } direction="row" align="center" gap="sm">
 			{ isCustomizing ? editingActions : children }
 			{ isCustomizing && onReset && <ResetLayoutAction onReset={ onReset } /> }
-			<StatsOptionsMenu onCustomize={ isCustomizing ? undefined : onCustomize } />
+			<StatsOptionsMenu
+				onCustomize={ isCustomizing ? undefined : onCustomize }
+				onReset={ isCustomizing ? onReset : undefined }
+			/>
 		</Stack>
 	);
 }
