@@ -66,6 +66,15 @@ class Blogroll_Test extends \WP_UnitTestCase {
 				'feed_url' => 'https://nosite.example/feed',
 			)
 		);
+		$no_base = self::item( array( 'feed_url' => '/feed/' ) ) . self::item( array( 'feed_url' => '//nobase.example/feed' ) );
+		$array   = self::item( array( 'feed_url' => array( 'https://array.example/feed' ) ) );
+		$odd     = self::item(
+			array(
+				'name'     => array( 'Odd' ),
+				'url'      => '/about/',
+				'feed_url' => 'https://odd.example/feed',
+			)
+		);
 		$nested  = self::item(
 			array(
 				'name'     => 'Nested',
@@ -84,7 +93,7 @@ class Blogroll_Test extends \WP_UnitTestCase {
 			array(
 				'post_title'   => 'Sites I read',
 				'post_content' => wp_slash(
-					self::blogroll( $feed . $no_feed . $bad . $no_site ) . '<!-- wp:group --><div class="wp-block-group">' . self::blogroll( $nested . $dupe ) . '</div><!-- /wp:group -->'
+					self::blogroll( $feed . $no_feed . $bad . $no_site . $no_base . $array . $odd ) . '<!-- wp:group --><div class="wp-block-group">' . self::blogroll( $nested . $dupe ) . '</div><!-- /wp:group -->'
 				),
 			)
 		);
@@ -125,6 +134,12 @@ class Blogroll_Test extends \WP_UnitTestCase {
 				),
 				array(
 					'type'    => 'rss',
+					'text'    => '',
+					'xmlUrl'  => 'https://odd.example/feed',
+					'htmlUrl' => null,
+				),
+				array(
+					'type'    => 'rss',
 					'text'    => 'Nested',
 					'xmlUrl'  => 'https://nested.example/rss',
 					'htmlUrl' => 'https://nested.example/',
@@ -151,6 +166,24 @@ class Blogroll_Test extends \WP_UnitTestCase {
 
 		$this->assertTrue( Blogroll\has_opml( $post ) );
 		$this->assertSame( array( 'https://feed.example/feed' ), array_keys( Blogroll\get_opml_items( parse_blocks( $post->post_content ) ) ) );
+	}
+
+	/**
+	 * `?opml` on a static front page still resolves to that page.
+	 */
+	public function test_static_front_page() {
+		$page = self::factory()->post->create(
+			array(
+				'post_type'    => 'page',
+				'post_content' => wp_slash( self::blogroll( self::item( array( 'feed_url' => 'https://feed.example/feed/' ) ) ) ),
+			)
+		);
+		update_option( 'show_on_front', 'page' );
+		update_option( 'page_on_front', $page );
+
+		$this->go_to( add_query_arg( 'opml', '', home_url( '/' ) ) );
+
+		$this->assertSame( $page, Blogroll\get_opml_post()->ID ?? null );
 	}
 
 	/**
