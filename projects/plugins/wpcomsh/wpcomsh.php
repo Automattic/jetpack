@@ -176,8 +176,7 @@ require_once __DIR__ . '/feature-plugins/wpcom-reader-link.php';
 require_once __DIR__ . '/feature-plugins/featured-image-in-email.php';
 
 // Jetpack Connection Handlers (external storage and protected owner).
-// The storage provider registers on `jetpack_external_storage_init`, which fires on the first read of external storage.
-// Load this file before jetpack-mu-wpcom, so that the hook is in place before its init() reads the blog ID.
+// Load this file before jetpack-mu-wpcom, so that the storage provider is in place before its init() reads the blog ID.
 require_once __DIR__ . '/connection/connection-handlers.php';
 
 /**

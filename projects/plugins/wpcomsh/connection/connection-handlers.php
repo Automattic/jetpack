@@ -18,15 +18,12 @@ require_once __DIR__ . '/class-protected-owner-error-handler.php';
  */
 function wpcomsh_init_connection_handlers() {
 	/*
-	 * Register the external storage provider on `jetpack_external_storage_init`, which fires on
-	 * the first read of external storage. Then the provider does not depend on when the connection
-	 * package loads. Reads before this hook is in place do not get external storage, so load this
-	 * file before code that reads the connection options. If a read already fired the action, it
-	 * does not fire again, so register the provider now.
+	 * Register the provider now, because connection versions before 8.3.0 never fire
+	 * `jetpack_external_storage_init`. When the classes cannot load yet, register on that action,
+	 * which fires on the first read. Load this file before code that reads the connection options.
 	 */
-	add_action( 'jetpack_external_storage_init', 'wpcomsh_init_external_storage' );
-	if ( did_action( 'jetpack_external_storage_init' ) ) {
-		wpcomsh_init_external_storage();
+	if ( ! wpcomsh_init_external_storage() ) {
+		add_action( 'jetpack_external_storage_init', 'wpcomsh_init_external_storage' );
 	}
 
 	wpcomsh_init_protected_owner_handler();
@@ -34,20 +31,24 @@ function wpcomsh_init_connection_handlers() {
 
 /**
  * Initialize external storage provider for Jetpack connection data.
+ *
+ * @return bool Whether the provider was registered.
  */
 function wpcomsh_init_external_storage() {
 	// Skip external storage initialization during PHPUnit tests to avoid logging
 	if ( defined( 'PHPUNIT_JETPACK_TESTSUITE' ) ) {
-		return;
+		return false;
 	}
 
 	// Only initialize if both External_Storage class and our provider class are available
 	if ( class_exists( 'Automattic\Jetpack\Connection\External_Storage' ) && class_exists( 'Atomic_Storage_Provider' ) ) {
 		// Register the Atomic storage provider
-		\Automattic\Jetpack\Connection\External_Storage::register_provider(
+		return \Automattic\Jetpack\Connection\External_Storage::register_provider(
 			new Atomic_Storage_Provider()
 		);
 	}
+
+	return false;
 }
 
 /**

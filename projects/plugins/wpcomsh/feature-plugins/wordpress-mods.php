@@ -233,21 +233,55 @@ add_filter( 'site_status_tests', 'wpcomsh_site_status_tests_disable' );
  */
 function wpcomsh_prevent_owner_removal( $allcaps, $caps, $args ) {
 	// Trying to edit or delete a user other than yourself?
-	if ( in_array( $args[0], array( 'edit_user', 'delete_user', 'remove_user', 'promote_user' ), true ) ) {
-		// `Jetpack_Options` reads the platform's external storage before the `jetpack_options` row.
-		// After a site migration, the row comes from the source site and can name a different owner.
-		if ( class_exists( 'Jetpack_Options' ) ) {
-			$master_user = (int) Jetpack_Options::get_option( 'master_user' );
-		} else {
-			$jetpack     = get_option( 'jetpack_options' );
-			$master_user = is_array( $jetpack ) && isset( $jetpack['master_user'] ) ? (int) $jetpack['master_user'] : 0;
-		}
+	if ( ! isset( $args[2] ) || ! in_array( $args[0], array( 'edit_user', 'delete_user', 'remove_user', 'promote_user' ), true ) ) {
+		return $allcaps;
+	}
 
-		if ( $master_user && isset( $args[2] ) && (int) $args[2] === $master_user ) {
-			return array();
-		}
+	// Protect the owner in external storage and the owner in the row, so the guard fails closed when they differ.
+	$jetpack   = get_option( 'jetpack_options' );
+	$owner_ids = array(
+		wpcomsh_get_connection_owner_id(),
+		is_array( $jetpack ) && isset( $jetpack['master_user'] ) ? (int) $jetpack['master_user'] : 0,
+	);
+
+	if ( in_array( (int) $args[2], array_filter( $owner_ids ), true ) ) {
+		return array();
 	}
 
 	return $allcaps;
 }
 add_filter( 'user_has_cap', 'wpcomsh_prevent_owner_removal', 10, 3 );
+
+/**
+ * Returns the connection owner's user ID through `Jetpack_Options`, which reads external storage first.
+ *
+ * The value is cached for the request: on Atomic, a missing owner costs an uncached email lookup on each call.
+ *
+ * @param bool $reset Whether to clear the cached value.
+ * @return int The user ID, or 0.
+ */
+function wpcomsh_get_connection_owner_id( $reset = false ) {
+	static $owner_id = null;
+
+	if ( $reset ) {
+		$owner_id = null;
+		return 0;
+	}
+
+	if ( null === $owner_id ) {
+		$owner_id = class_exists( 'Jetpack_Options' ) ? (int) Jetpack_Options::get_option( 'master_user' ) : 0;
+	}
+
+	return $owner_id;
+}
+
+/**
+ * Clears the cached connection owner when the owner's storage or the users change.
+ */
+function wpcomsh_reset_connection_owner_id() {
+	wpcomsh_get_connection_owner_id( true );
+}
+foreach ( array( 'jetpack_external_storage_provider_registered', 'add_option_jetpack_options', 'update_option_jetpack_options', 'delete_option_jetpack_options', 'user_register', 'profile_update', 'deleted_user' ) as $wpcomsh_owner_reset_hook ) {
+	add_action( $wpcomsh_owner_reset_hook, 'wpcomsh_reset_connection_owner_id' );
+}
+unset( $wpcomsh_owner_reset_hook );
