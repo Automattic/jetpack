@@ -72,6 +72,10 @@ Registration is on by default. `init()` checks the `jetpack_wp_abilities_enabled
 add_filter( 'jetpack_wp_abilities_enabled', '__return_false' );
 ```
 
+Add the filter in an mu-plugin. Registration starts before a theme loads, so a theme's `functions.php` is too late.
+
+The filter does not cover Forms: its abilities shipped before the filter existed and register whatever it returns.
+
 ### Per-registration gate
 
 For finer-grained control, every category and every ability also passes through the `jetpack_wp_abilities_should_register` filter (only reached when `jetpack_wp_abilities_enabled` has already returned `true`). Returning `false` skips a single registration.
