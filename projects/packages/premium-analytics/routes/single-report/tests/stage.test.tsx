@@ -590,7 +590,7 @@ describe( 'single-report stage', () => {
 		expect( mockNavigate ).not.toHaveBeenCalled();
 	} );
 
-	it( 'hands the adapter a non-numeric id as the URL carries it', () => {
+	it( 'hands the adapter a non-numeric id as the URL carries it, with the page record', () => {
 		mockParams = { kind: 'recap', id: 'launch-recap' };
 		mockSearch = { ...mockSearch, post_id: 'launch-recap' };
 		mockAdapters = { recap: mockAdapters.video };
@@ -598,7 +598,10 @@ describe( 'single-report stage', () => {
 
 		render( stage() );
 
-		expect( mockUseSummary ).toHaveBeenCalledWith( 'launch-recap' );
+		expect( mockUseSummary ).toHaveBeenCalledWith(
+			'launch-recap',
+			expect.objectContaining( { id: 'demo/recap' } )
+		);
 	} );
 
 	// A single-report page offers no comparison: the control hides Compare and `WidgetRoot` strips

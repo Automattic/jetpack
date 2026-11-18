@@ -2,6 +2,8 @@
  * Internal dependencies
  */
 import { authorAdapter } from './author';
+import { entityAdapter } from './entity';
+import { pageAdapter } from './page';
 import { postAdapter } from './post';
 import { videoAdapter } from './video';
 import type { SingleReportAdapter } from './adapter';
@@ -10,13 +12,14 @@ import type { SingleReportPageRecord } from '../registry';
 // The adapters by record `path`.
 const ADAPTERS: Record< string, SingleReportAdapter > = {
 	author: authorAdapter,
+	page: pageAdapter,
 	post: postAdapter,
 	video: videoAdapter,
 };
 
 /**
- * The adapter of a registered page: the one for its `path`, else the post adapter for a
- * post type's page, which reads the type from the Stats record.
+ * The adapter of a registered page: the one for its `path`, else the entity adapter for a
+ * page bound to an entity, which reads the record by the record convention.
  *
  * @param page - The page record.
  * @return The adapter, or undefined for a page that renders from its record alone.
@@ -28,7 +31,7 @@ export function getSingleReportAdapter(
 		return ADAPTERS[ page.path ];
 	}
 
-	return page.entity?.kind === 'postType' ? ADAPTERS.post : undefined;
+	return page.entity ? entityAdapter : undefined;
 }
 
 export type {

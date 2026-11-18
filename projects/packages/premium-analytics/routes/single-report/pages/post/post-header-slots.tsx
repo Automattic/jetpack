@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { Icon, Skeleton, VisuallyHidden } from '@jetpack-premium-analytics/externals';
+import { Icon } from '@jetpack-premium-analytics/externals';
 import { getPostTypeCopy } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __, sprintf } from '@wordpress/i18n';
 import { envelope as envelopeIcon } from '@wordpress/icons';
@@ -11,9 +11,9 @@ import { envelope as envelopeIcon } from '@wordpress/icons';
 import {
 	DETAIL_HEADER_GLYPH_SIZE,
 	formatPublishedDate,
-	performanceSentence,
+	publishedSentence,
 } from '../../detail-header';
-import placeholders from '../../detail-header.module.scss';
+import { detailHeaderSlots } from '../../detail-header-slots';
 import { isEmailSection } from './config';
 import styles from './post-header-slots.module.scss';
 import type { PostSummary } from './use-post-summary';
@@ -47,26 +47,16 @@ export function postHeaderSlots(
 
 	// Reuses the publish date: the newsletter sends when the post publishes,
 	// and `stats/emails/summary` exposes no separate send timestamp.
-	let publishedSentence;
-	if ( formattedDate ) {
-		publishedSentence =
-			variant === 'email'
-				? sprintf(
-						/* translators: %s: the date the newsletter was sent, e.g. "Aug 19, 2025". */
-						__( 'Email sent on %s.', 'jetpack-premium-analytics-pkg' ),
-						formattedDate
-					)
-				: sprintf(
-						/* translators: %1$s: "Post", "Page" or "Product". %2$s: the publish date, e.g. "Aug 19, 2025". */
-						__( '%1$s published on %2$s.', 'jetpack-premium-analytics-pkg' ),
-						copy.label,
-						formattedDate
-					);
+	let sentence = publishedSentence( copy.label, publishedDate );
+	if ( variant === 'email' ) {
+		sentence = formattedDate
+			? sprintf(
+					/* translators: %s: the date the newsletter was sent, e.g. "Aug 19, 2025". */
+					__( 'Email sent on %s.', 'jetpack-premium-analytics-pkg' ),
+					formattedDate
+				)
+			: undefined;
 	}
-
-	const subtitle = [ publishedSentence, performanceSentence( performanceRange ) ]
-		.filter( Boolean )
-		.join( ' ' );
 
 	// Email variant always shows the envelope tile, even with a featured
 	// image, so email tabs read as the newsletter send, not the post.
@@ -83,31 +73,16 @@ export function postHeaderSlots(
 		visual = <Icon icon={ copy.icon } size={ DETAIL_HEADER_GLYPH_SIZE } />;
 	}
 
-	// The title lands on its own request, so the header would otherwise read as
-	// blank until well after the grid has drawn (WOOA7S-2059).
-	if ( isLoading ) {
-		return {
+	return detailHeaderSlots(
+		{ isLoading, isError: summary.isError, isNotFound: summary.isNotFound },
+		{
 			visual,
-			busy: true,
-			title: (
-				<>
-					<VisuallyHidden>{ __( 'Loading…', 'jetpack-premium-analytics-pkg' ) }</VisuallyHidden>
-					<Skeleton className={ placeholders.titlePlaceholder } />
-				</>
-			),
-			subTitle: <Skeleton className={ placeholders.subTitlePlaceholder } />,
-		};
-	}
-
-	// Matches the video header: a failed or missing post has no title or window to state.
-	if ( summary.isError || summary.isNotFound ) {
-		return {
-			visual,
-			title: summary.isNotFound
+			title,
+			sentence,
+			performanceRange,
+			failedTitle: summary.isNotFound
 				? __( 'Post not found', 'jetpack-premium-analytics-pkg' )
 				: copy.unavailable,
-		};
-	}
-
-	return { visual, title, subTitle: subtitle || undefined };
+		}
+	);
 }

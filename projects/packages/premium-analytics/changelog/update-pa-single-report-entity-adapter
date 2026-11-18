@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Single-report pages: Render a page bound to an entity through one adapter that reads the entity's record, so the page needs no code of its own.
