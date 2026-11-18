@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Playground and Studio restores: Replace the old site address where it is stored JSON-encoded, such as in Elementor page data.

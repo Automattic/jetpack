@@ -147,6 +147,43 @@ class PlaygroundPostprocessTest extends WP_UnitTestCase {
 	}
 
 	/**
+	 * The old site URL is also replaced where it is stored JSON-encoded.
+	 */
+	public function test_replace_urls_also_replaces_json_encoded_urls(): void {
+		$processor = new class( 'https://word.press', 'https://word.press', self::TEMPORARY_PREFIX ) extends SQL_Postprocessor {
+			/**
+			 * The commands that would have run.
+			 *
+			 * @var string[]
+			 */
+			public array $commands = array();
+
+			/**
+			 * Record the command instead of running it.
+			 *
+			 * @param string $command The command to run.
+			 * @param array  $args    The arguments to pass to the command.
+			 *
+			 * @return string
+			 */
+			public function run_command( $command, $args = array() ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+				$this->commands[] = $command;
+
+				return '';
+			}
+		};
+
+		$this->assertTrue( $processor->replace_urls() );
+
+		$tables   = self::TEMPORARY_PREFIX . '*';
+		$previous = get_option( 'siteurl' );
+		$encoded  = str_replace( '/', '\\/', $previous );
+
+		$this->assertStringStartsWith( "search-replace '{$previous}' 'https://word.press' '{$tables}' ", $processor->commands[0] );
+		$this->assertStringStartsWith( "search-replace '{$encoded}' 'https:\\/\\/word.press' '{$tables}' ", $processor->commands[1] );
+	}
+
+	/**
 	 * Test an app with no scoped posts.
 	 */
 	public function test_get_no_app_scope() {
