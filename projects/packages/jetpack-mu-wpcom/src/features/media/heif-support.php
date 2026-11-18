@@ -117,7 +117,7 @@ function jetpack_wpcom_maybe_log_heif_to_jpg( $params = array() ) {
  * @return array The file array.
  */
 function jetpack_wpcom_transparently_convert_heif_upload_to_jpg( $file ) {
-	if ( ! class_exists( 'Photon_OpenCV' ) ) {
+	if ( ! class_exists( 'Photon_OpenCV' ) || ! $file ) {
 		return $file;
 	}
 
