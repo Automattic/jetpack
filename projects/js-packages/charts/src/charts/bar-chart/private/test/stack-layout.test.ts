@@ -1,4 +1,4 @@
-import { getStackLayout, getStackedValueDomain } from '../stack-layout';
+import { getComparisonTotalSeries, getStackLayout, getStackedValueDomain } from '../stack-layout';
 import type { DataPointDate, SeriesData } from '../../../../types';
 
 const s = (
@@ -67,9 +67,49 @@ describe( 'getStackLayout', () => {
 		} );
 	} );
 
+	it.each( [
+		[ 'positive', [ 300, 150 ], { start: 0, end: 450 }, [ 0, 450 ] ],
+		[ 'negative', [ -30, -20 ], { start: 0, end: -50 }, [ -50, 0 ] ],
+		[ 'mixed', [ 30, -20 ], { start: -20, end: 30 }, [ -20, 30 ] ],
+	] )(
+		'sums %s comparisons into one segment of their own bar',
+		( _sign, values, segment, extent ) => {
+			const layout = getStackLayout( SERIES, {
+				key: 'Previous',
+				series: values.map( ( value, index ) => s( `P${ index }`, [ value ] ) ),
+			} );
+			expect( layout.segmentOf( 'Previous', at( 'Mon' ) ) ).toEqual( segment );
+			expect( layout.extentAt( at( 'Mon' ), 'Previous' ) ).toEqual( extent );
+			expect( layout.extentAt( at( 'Mon' ) ) ).toEqual( [ 0, 180 ] );
+		}
+	);
+
+	it( 'spans the taller of the stack and its comparison total', () => {
+		const layout = getStackLayout( SERIES, { key: 'Previous', series: [ s( 'P', [ 500 ] ) ] } );
+		expect( layout.extent ).toEqual( [ 0, 500 ] );
+	} );
+
 	it( 'spans the widest category, or nothing without a reading', () => {
 		expect( getStackLayout( SERIES ).extent ).toEqual( [ 0, 180 ] );
 		expect( getStackLayout( [ s( 'A', [ null ] ) ] ).extent ).toBeNull();
+	} );
+} );
+
+describe( 'getComparisonTotalSeries', () => {
+	it( 'nets the readings at each category, and keeps a category without one as no data', () => {
+		const total = getComparisonTotalSeries(
+			[
+				s( 'A', [ 30, null, null ], [ 'Mon', 'Tue', 'Wed' ] ),
+				s( 'B', [ -10, 5 ], [ 'Mon', 'Tue' ] ),
+			],
+			'Previous'
+		);
+		expect( total.label ).toBe( 'Previous' );
+		expect( total.data.map( ( { label, value } ) => [ label, value ] ) ).toEqual( [
+			[ 'Mon', 20 ],
+			[ 'Tue', 5 ],
+			[ 'Wed', null ],
+		] );
 	} );
 } );
 

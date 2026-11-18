@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { categoryKey, isSameCategory } from './category';
 import { COMPARISON_SLOT, PRIMARY_SLOT, getOverlapPlacements } from './overlap-bars';
-import { getStackLayout } from './stack-layout';
+import { getComparisonTotalSeries, getStackLayout } from './stack-layout';
 import { isBarRendered } from './value-domain';
 import type { SelectedBar } from './selected-bar-ring';
 import type { SlotMember } from './slot-tooltip-members';
@@ -32,16 +32,20 @@ export type StopPosition = {
 
 export type SelectedSlot = SelectedBar & { members: SlotMember[] };
 
+const isComparison = ( series: SeriesData ) => series.options?.type === 'comparison';
+
 /**
- * Lays out the visible series in slots: overlap layers primaries and comparisons in two, stacked puts every primary in one.
+ * Lays out the visible series in slots: overlap layers primaries and comparisons in two, stacked puts every primary in one and sums the comparisons into a bar in a second.
  *
  * @param layout               - How the chart places its series in a category.
  * @param seriesWithVisibility - Every series, with its index and whether it is visible.
+ * @param comparisonLabel      - The label of a stacked layout's comparison total.
  * @return The slots, or undefined for a grouped layout.
  */
 export function useBarSlots(
 	layout: BarChartLayout,
-	seriesWithVisibility: ( SeriesEntry & { isVisible: boolean } )[]
+	seriesWithVisibility: ( SeriesEntry & { isVisible: boolean } )[],
+	comparisonLabel = ''
 ): BarSlots | undefined {
 	return useMemo( () => {
 		if ( layout === 'grouped' ) {
@@ -52,12 +56,43 @@ export function useBarSlots(
 
 		if ( layout === 'stacked' ) {
 			// Bottom to top, so the top segment names each keyboard stop.
-			const entries = visible.map( ( { series, index } ) => ( { series, index } ) );
-			const slotKeys = [ PRIMARY_SLOT ];
-			const slotOf = () => PRIMARY_SLOT;
+			const primaries = visible.filter( ( { series } ) => ! isComparison( series ) );
+			const visibleGroups = new Set( primaries.map( ( { series } ) => series.group ) );
+			const hiddenGroups = new Set(
+				seriesWithVisibility.flatMap( ( { series, isVisible } ) =>
+					isVisible || isComparison( series ) ? [] : [ series.group ]
+				)
+			);
+			// A comparison leaves the total with the primary it is paired with, so both bars sum the same series.
+			const comparisons = visible.filter(
+				( { series } ) =>
+					isComparison( series ) &&
+					( visibleGroups.has( series.group ) || ! hiddenGroups.has( series.group ) )
+			);
+			const total = comparisons.length
+				? {
+						series: getComparisonTotalSeries(
+							comparisons.map( ( { series } ) => series ),
+							comparisonLabel
+						),
+						index: comparisons[ 0 ].index,
+					}
+				: undefined;
+			const entries = [ ...primaries, ...( total ? [ total ] : [] ) ].map(
+				( { series, index } ) => ( { series, index } )
+			);
+			const slotKeys = total ? [ PRIMARY_SLOT, COMPARISON_SLOT ] : [ PRIMARY_SLOT ];
+			const slotOf = ( key: string ) =>
+				total && key === total.series.label ? COMPARISON_SLOT : PRIMARY_SLOT;
 			return {
 				kind: 'stacked',
-				stack: getStackLayout( entries.map( ( { series } ) => series ) ),
+				stack: getStackLayout(
+					primaries.map( ( { series } ) => series ),
+					total && {
+						key: total.series.label,
+						series: comparisons.map( ( { series } ) => series ),
+					}
+				),
 				entries,
 				keys: entries.map( ( { series } ) => series.label ),
 				slotKeys,
@@ -99,7 +134,7 @@ export function useBarSlots(
 			thicknessOf,
 			positions: getStopPositions( entries, slotKeys, slotOf ),
 		};
-	}, [ layout, seriesWithVisibility ] );
+	}, [ layout, seriesWithVisibility, comparisonLabel ] );
 }
 
 /**
@@ -206,6 +241,6 @@ export function getSelectedSlot(
 		slotKey,
 		thickness: Math.max( ...slotBars.map( ( { key } ) => slots.thicknessOf( key ) ) ),
 		members,
-		...( slots.kind === 'stacked' && { valueExtent: slots.stack.extentAt( category ) } ),
+		...( slots.kind === 'stacked' && { valueExtent: slots.stack.extentAt( category, stopKey ) } ),
 	};
 }

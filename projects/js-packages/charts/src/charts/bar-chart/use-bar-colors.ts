@@ -1,9 +1,9 @@
 import { useCallback } from 'react';
 import { useGlobalChartsContext } from '../../providers/chart-context/hooks/use-global-charts-context';
 import { BACKGROUND_FALLBACK } from '../../providers/chart-context/private/catalog-pointers';
+import { isValidHexColor } from '../../utils/color-utils';
 import { getGroupedBarColors } from './private/grouped-bars';
-import { getOverlapBarColors } from './private/overlap-bars';
-import { getDrawnSeries } from './private/stack-layout';
+import { getOverlapBarColors, neutralWithContrast } from './private/overlap-bars';
 import type { BarChartLayout, SeriesData } from '../../types';
 
 export type GetBarColors = (
@@ -29,14 +29,20 @@ export function useBarColors(): GetBarColors {
 			const colors = series.map( ( data, index ) => getElementStyles( { data, index } ).color );
 
 			if ( layout === 'stacked' ) {
-				// Undrawn comparisons must not take a palette slot, so the drawn series are colored as the chart colors them.
-				const drawn = getDrawnSeries( series, layout );
-				return series.map( ( data, index ) => {
-					const drawnIndex = drawn.indexOf( data );
-					return drawnIndex === -1
-						? colors[ index ]
-						: getElementStyles( { data, index: drawnIndex } ).color;
-				} );
+				const isComparison = ( data: SeriesData ) => data.options?.type === 'comparison';
+				// Comparisons share one bar, so they take no palette slot and one color: the first one given, or a gray.
+				const primaries = series.filter( data => ! isComparison( data ) );
+				const stroked = series.findIndex( data => isComparison( data ) && data.options?.stroke );
+				const firstComparison = series.findIndex( isComparison );
+				const comparisonColor =
+					stroked === -1 && isValidHexColor( backgroundColor )
+						? neutralWithContrast( backgroundColor )
+						: colors[ stroked === -1 ? firstComparison : stroked ];
+				return series.map( data =>
+					isComparison( data )
+						? comparisonColor
+						: getElementStyles( { data, index: primaries.indexOf( data ) } ).color
+				);
 			}
 
 			if ( layout !== 'overlap' ) {
