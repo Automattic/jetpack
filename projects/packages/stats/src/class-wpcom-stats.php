@@ -127,7 +127,7 @@ class WPCOM_Stats {
 	 *
 	 * @link https://developer.wordpress.com/docs/api/1.1/get/sites/%24site/stats/video/%24post_id/
 	 * @param int   $post_id The video's ID.
-	 * @param array $args    Optional query parameters.
+	 * @param array $args    Optional query parameters: `statType`, `period`, `num`, `date`.
 	 * @return array|WP_Error
 	 */
 	public function get_video_details( $post_id, $args = array() ) {
@@ -473,6 +473,20 @@ class WPCOM_Stats {
 		$this->resource = 'emails/summary';
 
 		return $this->fetch_stats( $args );
+	}
+
+	/**
+	 * Get one breakdown of the opens or clicks of a post the site sent as an email, over all time.
+	 *
+	 * @param int    $post_id The post the site emailed.
+	 * @param string $stat    `opens` or `clicks`.
+	 * @param string $field   `rate`, `client`, `country` or `device`; for clicks also `link` or `user-content-link`.
+	 * @return array|WP_Error
+	 */
+	public function get_email_breakdown( $post_id, $stat, $field ) {
+		$this->resource = sprintf( '%s/emails/%d/%s', $stat, $post_id, $field );
+
+		return $this->fetch_stats();
 	}
 
 	/**
