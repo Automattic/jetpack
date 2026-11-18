@@ -4,10 +4,8 @@ import { store as blockEditorStore } from '@wordpress/block-editor';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { createRoot, useCallback, useEffect } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { ThemeProvider } from '@wordpress/theme';
 import { ButtonLink, Notice } from '@wordpress/ui';
 import { wpcomTrackEvent } from '../../common/tracks';
-import { getSidebarThemeColor } from './sidebar-theme-color';
 import { useCanvas } from './use-canvas';
 import { useGlobalStylesConfig } from './use-global-styles-config';
 import useGlobalStyleNoticeActions from './use-global-styles-notice-actions';
@@ -26,11 +24,9 @@ const trackEvent = ( eventName, isSiteEditor = true ) =>
 /**
  * Limited GS notice for the view canvas of the site editor.
  *
- * @param {object} props            - Component props.
- * @param {object} props.themeColor - `ThemeProvider` color seeds matching the sidebar.
  * @return {import('react').JSX.Element} The component to render.
  */
-function GlobalStylesWarningNotice( { themeColor } ) {
+function GlobalStylesWarningNotice() {
 	const { trackUpgradeClick, reset, learnMore } = useGlobalStyleNoticeActions( {
 		isSiteEditor: true,
 		context: 'view_canvas',
@@ -42,7 +38,7 @@ function GlobalStylesWarningNotice( { themeColor } ) {
 
 	const planName = wpcomGlobalStyles.planName;
 
-	const notice = (
+	return (
 		<div className="wpcom-global-styles-notice-surround">
 			<Notice.Root intent="warning" icon={ null } className="wpcom-global-styles-notice">
 				<Notice.Description>
@@ -76,13 +72,6 @@ function GlobalStylesWarningNotice( { themeColor } ) {
 			</Notice.Root>
 		</div>
 	);
-
-	// This build externalizes `@wordpress/theme`, and core's `wp-theme` may not expose `ThemeProvider`.
-	if ( ! ThemeProvider ) {
-		return notice;
-	}
-
-	return <ThemeProvider color={ themeColor }>{ notice }</ThemeProvider>;
 }
 
 /**
@@ -111,7 +100,7 @@ function GlobalStylesViewNotice() {
 		saveHub.parentNode.insertBefore( noticeContainer, saveHub );
 
 		const root = createRoot( noticeContainer );
-		root.render( <GlobalStylesWarningNotice themeColor={ getSidebarThemeColor( saveHub ) } /> );
+		root.render( <GlobalStylesWarningNotice /> );
 
 		return () => {
 			root.unmount();
