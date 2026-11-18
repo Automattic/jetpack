@@ -933,11 +933,14 @@ describe( 'admin shell turned-off features', () => {
 	} );
 
 	it.each( [
-		[ 'booted', true ],
-		[ 'still booting', false ],
+		[ 'booted', true, 'on' ],
+		[ 'still booting', false, 'on' ],
+		[ 'booted', true, 'off' ],
+		[ 'still booting', false, 'off' ],
 	] )(
-		'lets the newer check win when an older one for a %s page comes back last',
-		async ( _, booted ) => {
+		'lets the newer check win for a %s page when it says %s and an older one comes back last',
+		async ( _, booted, newer ) => {
+			const newerOn = newer === 'on';
 			if ( booted ) {
 				open( 'guest-b' );
 				await settle();
@@ -959,13 +962,15 @@ describe( 'admin shell turned-off features', () => {
 			await settle();
 			open( 'guest-b' );
 			await settle();
-			answers[ 1 ]( reply( true ) );
+			answers[ 1 ]( reply( newerOn ) );
 			await settle();
-			answers[ 0 ]( reply( false ) );
+			answers[ 0 ]( reply( ! newerOn ) );
 			await settle();
 
-			expect( panel() ).toBeNull();
-			expect( stateOf( 'guest-b' ) ).toBe( 'visible' );
+			expect( { panel: !! panel(), app: stateOf( 'guest-b' ) === 'visible' } ).toEqual( {
+				panel: ! newerOn,
+				app: newerOn,
+			} );
 		}
 	);
 

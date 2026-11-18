@@ -241,7 +241,7 @@ const start = ( {
 	// Each page's newest feature check, and the pages it last said are off.
 	const checks = {};
 	const knownOff = new Set();
-	const checkFeatureOf = slug => {
+	const recheckFeature = slug => {
 		const check = (
 			members[ slug ].gate && featureUrl
 				? checkFeature( featureUrl, slug, members[ slug ].gate, members[ slug ].gateNonce )
@@ -398,7 +398,7 @@ const start = ( {
 		const leavesPanel = offPanels.has( previous );
 		hideOff( previous );
 		// Asked on every visit: the feature may have been switched off since the menu was drawn.
-		checkFeatureOf( slug );
+		recheckFeature( slug );
 		// Kept until a page-shown reports it, so a show another switch overtakes doesn't reset it.
 		hiddenAt[ previous ] ??= Date.now();
 		const dialogsClosed = closeDialogsOf( previous );
@@ -601,6 +601,7 @@ const start = ( {
 	const removeHostHeader = showHeaderAt( host, hostEl, location.href );
 	// The page load already said its feature is off, and sent the card with the config.
 	if ( members[ host ].featureOn === false ) {
+		hiddenAt[ host ] = Date.now();
 		showOff( host, members[ host ].featureCard ?? '' );
 	}
 	gate.mount( host );
