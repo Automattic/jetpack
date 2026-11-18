@@ -141,13 +141,6 @@ describe( 'Safe Mode screen', () => {
 		],
 		[ 'the state has no Safe Mode entry', null, sharedScript, undefined, 'Safe Mode choices' ],
 		[
-			'the shared script has no new screen',
-			{ useNewScreen: true },
-			{ ...sharedScript, IdentityCrisis: undefined },
-			undefined,
-			'Safe Mode choices',
-		],
-		[
 			"it is My Jetpack's container",
 			{ useNewScreen: true },
 			sharedScript,

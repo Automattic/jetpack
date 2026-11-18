@@ -52,19 +52,18 @@ function waitForContainer( containerId ) {
 }
 
 /**
- * The shared connection script, when the `connection-idc-screen` flag is on and the script has the new screen.
+ * The shared connection script, when the `connection-idc-screen` flag is on.
  *
- * Read at runtime, not imported: the server loads the script for this notice only with the flag on.
+ * Read at runtime, not imported: the server loads the script for this notice only when it shows the new screen.
  *
  * @return {object|null} The script's exports, or null for the old screen.
  */
 function getNewScreenScript() {
 	const connection = window.JetpackConnection;
-	// An older connection package can supply a shared script without the screen, or a state without `identityCrisis`.
-	if ( typeof connection?.IdentityCrisis !== 'function' ) {
+	if ( ! connection ) {
 		return null;
 	}
-	const state = select( connection.CONNECTION_STORE_ID )?.getIdentityCrisis?.();
+	const state = select( connection.CONNECTION_STORE_ID ).getIdentityCrisis();
 	return true === state?.useNewScreen ? connection : null;
 }
 
