@@ -17,6 +17,7 @@ import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { runInNewContext } from 'node:vm';
 import {
+	buildResultsConfig,
 	buildSummary,
 	captureNavigationMetrics,
 	initializeLoadObservers,
@@ -74,6 +75,38 @@ const DOUBLES = [ REQUIRED, OPT_A, OPT_B ];
 
 const ok = { summary: { median: 100 } };
 const failed = { error: 'boom' };
+
+test( 'results config records the browser, agent and calibration', () => {
+	const calibratedAt = '2026-01-01T00:00:00.000Z';
+	const config = buildResultsConfig( {
+		iterations: 5,
+		scenario: 'all',
+		browserVersion: '150.0.0.0',
+		agentName: 'test-agent',
+		calibration: { cpuRate: 3, calibratedAt, samples: [ 2.9, 3, 3.1 ] },
+	} );
+
+	assert.deepEqual( config, {
+		iterations: 5,
+		scenario: 'all',
+		browserVersion: '150.0.0.0',
+		agentName: 'test-agent',
+		cpuThrottling: { enabled: true, rate: 3, calibratedAt, samples: [ 2.9, 3, 3.1 ] },
+	} );
+} );
+
+test( 'results config records an unthrottled run without a build agent', () => {
+	const config = buildResultsConfig( {
+		iterations: 5,
+		scenario: 'all',
+		browserVersion: '150.0.0.0',
+		calibration: null,
+	} );
+	const saved = JSON.parse( JSON.stringify( config ) );
+
+	assert.equal( saved.agentName, '' );
+	assert.deepEqual( saved.cpuThrottling, { enabled: false, rate: 1, samples: [] } );
+} );
 
 // --- resolveScenarioSet (SCENARIO filter validation) ---
 

@@ -124,15 +124,23 @@ function initializeLoadObservers() {
  * that page after login and wait for the page's own ready signal (SPA hydration included)
  * before measuring. Absent path/selector, the Dashboard flow is unchanged.
  *
- * @param {string} url        - Base site URL (no trailing path).
- * @param {string} username   - wp-admin username.
- * @param {string} password   - wp-admin password.
- * @param {number} iterations - Number of measurement iterations.
- * @param {object} [scenario] - Scenario config; reads optional `path`, `waitForSelector`,
- *                            `expectUrlIncludes`, `expectUrlHash`, `loadState`, `minResourceCount`, and `metrics`.
+ * @param {string}   url                - Base site URL (no trailing path).
+ * @param {string}   username           - wp-admin username.
+ * @param {string}   password           - wp-admin password.
+ * @param {number}   iterations         - Number of measurement iterations.
+ * @param {object}   [scenario]         - Scenario config; reads optional `path`, `waitForSelector`,
+ *                                      `expectUrlIncludes`, `expectUrlHash`, `loadState`, `minResourceCount`, and `metrics`.
+ * @param {Function} [onBrowserVersion] - Receives the version at the first launch.
  * @return {Promise<object>} { summary, results, url }.
  */
-async function measureLCP( url, username, password, iterations = 5, scenario = {} ) {
+async function measureLCP(
+	url,
+	username,
+	password,
+	iterations = 5,
+	scenario = {},
+	onBrowserVersion
+) {
 	const results = [];
 
 	// Optional page navigation: when a scenario targets a specific admin page (not the wp-admin
@@ -164,6 +172,9 @@ async function measureLCP( url, username, password, iterations = 5, scenario = {
 			headless: true,
 			args: [ '--disable-dev-shm-usage', '--no-sandbox', '--disable-gpu' ],
 		} );
+		if ( i === 0 ) {
+			onBrowserVersion?.( browser.version() );
+		}
 
 		const context = await browser.newContext( {
 			viewport: { width: 1920, height: 1080 },
@@ -1080,6 +1091,7 @@ async function main() {
 	console.log( '' );
 
 	const measurements = {};
+	let browserVersion = null;
 
 	// Run each scenario in the resolved set
 	for ( const scenario of scenariosToRun ) {
@@ -1094,7 +1106,10 @@ async function main() {
 				username,
 				password,
 				iterations,
-				scenario
+				scenario,
+				version => {
+					browserVersion ??= version;
+				}
 			);
 			console.log(
 				`✓ ${ scenario.name } median LCP: ${ measurements[ scenario.key ].summary.median }ms; median TBT: ${
@@ -1157,17 +1172,13 @@ async function main() {
 		timestamp: new Date().toISOString(),
 		metric: 'LCP',
 		methodology: 'Login then refresh dashboard for clean measurement',
-		config: {
+		config: buildResultsConfig( {
 			iterations,
 			scenario: scenarioFilter,
-			cpuThrottling: calibration
-				? {
-						enabled: true,
-						rate: calibration.cpuRate,
-						calibratedAt: calibration.calibratedAt,
-					}
-				: { enabled: false },
-		},
+			browserVersion,
+			calibration,
+			agentName: process.env.TEAMCITY_AGENT_NAME,
+		} ),
 		measurements,
 		git: resolveResultsGit( process.env ),
 	};
@@ -1184,6 +1195,38 @@ async function main() {
 		);
 	}
 	process.exit( outcome.exitCode );
+}
+
+/**
+ * Build the run settings saved with the measurements.
+ *
+ * @param {object}  options                - Run settings.
+ * @param {number}  options.iterations     - Number of iterations per scenario.
+ * @param {string}  options.scenario       - Selected scenario filter.
+ * @param {?string} options.browserVersion - Version of the launched browser, if available.
+ * @param {?object} options.calibration    - CPU calibration data, if available.
+ * @param {string}  [options.agentName]    - Name of the CI agent, if supplied.
+ * @return {object} The results config block.
+ */
+function buildResultsConfig( {
+	iterations,
+	scenario,
+	browserVersion,
+	calibration: calibrationData,
+	agentName = '',
+} ) {
+	return {
+		iterations,
+		scenario,
+		browserVersion,
+		agentName,
+		cpuThrottling: {
+			enabled: Boolean( calibrationData ),
+			rate: calibrationData?.cpuRate ?? 1,
+			calibratedAt: calibrationData?.calibratedAt,
+			samples: calibrationData?.samples ?? [],
+		},
+	};
 }
 
 /**
@@ -1223,6 +1266,7 @@ export {
 	parseServerTiming,
 	initializeLoadObservers,
 	resolveResultsGit,
+	buildResultsConfig,
 	buildSummary,
 	findIncompleteSummaryFields,
 	finalizeMeasurement,

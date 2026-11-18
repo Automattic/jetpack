@@ -14,6 +14,8 @@ The test suite is designed to run in TeamCity.
 4. Calibrate CPU throttling (`pnpm calibrate`)
 5. Run tests (`pnpm test`)
 
+The results file records the Chromium version and CPU calibration. To record the TeamCity agent name, expose the `teamcity.agent.name` parameter as `TEAMCITY_AGENT_NAME` in the build environment. The agent name is empty when the variable is unset.
+
 ### Environment Variables
 
 | Variable               | Description                                                                                                                                                                                                                                                                           |
