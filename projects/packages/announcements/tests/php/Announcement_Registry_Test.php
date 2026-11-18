@@ -126,6 +126,7 @@ class Announcement_Registry_Test extends BaseTestCase {
 			'id that is no string'   => array( 12, self::VALID_ARGS ),
 			'no date'                => array( 'a/b', array_diff_key( self::VALID_ARGS, array( 'date' => 1 ) ) ),
 			'date that is no date'   => array( 'a/b', array_merge( self::VALID_ARGS, array( 'date' => 'tomorrow' ) ) ),
+			'date that never comes'  => array( 'a/b', array_merge( self::VALID_ARGS, array( 'date' => '2026-02-30' ) ) ),
 			'no title'               => array( 'a/b', array_merge( self::VALID_ARGS, array( 'title' => ' ' ) ) ),
 			'no channels'            => array( 'a/b', array_merge( self::VALID_ARGS, array( 'channels' => array() ) ) ),
 			'args that are no array' => array( 'a/b', 'Arrange your tabs' ),
@@ -161,10 +162,22 @@ class Announcement_Registry_Test extends BaseTestCase {
 		$this->assertSame( array(), $this->doing_it_wrong );
 	}
 
-	public function test_a_read_before_init_reports_it_and_leaves_the_registry_to_hydrate_later() {
-		global $wp_actions;
+	/**
+	 * @dataProvider provide_early_reads
+	 *
+	 * @param bool $during_init Whether the read happens while `init` runs, instead of before it.
+	 */
+	#[DataProvider( 'provide_early_reads' )]
+	public function test_a_read_before_init_ends_reports_it_and_leaves_the_registry_to_hydrate_later( $during_init ) {
+		global $wp_actions, $wp_current_filter;
 		$init_runs = $wp_actions['init'] ?? null;
-		unset( $wp_actions['init'] );
+		if ( $during_init ) {
+			// Core counts an action before it runs the callbacks.
+			$wp_actions['init']  = 1;
+			$wp_current_filter[] = 'init';
+		} else {
+			unset( $wp_actions['init'] );
+		}
 		add_action(
 			Announcement_Registry::REGISTER_ACTION,
 			static function ( $registry ) {
@@ -177,10 +190,20 @@ class Announcement_Registry_Test extends BaseTestCase {
 			$early = $registry->get_all_registered();
 		} finally {
 			$wp_actions['init'] = $init_runs;
+			if ( $during_init ) {
+				array_pop( $wp_current_filter );
+			}
 		}
 
 		$this->assertSame( array(), $early );
 		$this->assertSame( array( Announcement_Registry::class ), $this->doing_it_wrong );
 		$this->assertSame( array( 'a/b' ), array_keys( $registry->get_all_registered() ) );
+	}
+
+	public static function provide_early_reads() {
+		return array(
+			'before init'     => array( false ),
+			'while init runs' => array( true ),
+		);
 	}
 }

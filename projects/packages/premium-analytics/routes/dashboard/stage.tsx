@@ -28,7 +28,7 @@ import {
 import {
 	canSendFeedback,
 	DashboardSectionProvider,
-	PageOptionsMenu,
+	StatsOptionsMenu,
 	ResetLayoutAction,
 	useHostLinkSearch,
 	useTrackCustomize,
@@ -513,7 +513,7 @@ function Dashboard(): JSX.Element {
 										<Stack ref={ setOptionsMenuFrame } direction="row">
 											{ /* Outside the section panels, so the menu's links name the tab to return to. */ }
 											<DashboardSectionProvider section={ activeSection }>
-												<PageOptionsMenu
+												<StatsOptionsMenu
 													onCustomize={
 														editMode || ! canCustomizeSection ? undefined : startCustomizing
 													}

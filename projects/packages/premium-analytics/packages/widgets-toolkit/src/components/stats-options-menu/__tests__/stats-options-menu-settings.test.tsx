@@ -13,7 +13,7 @@ import {
 	setMockRouteSearch,
 } from '../../../../../../tests/js/route-test-utils';
 import { DashboardSectionProvider } from '../../../hooks/use-dashboard-origin-search';
-import { PageOptionsMenu } from '../page-options-menu';
+import { StatsOptionsMenu } from '../stats-options-menu';
 
 jest.mock(
 	'@automattic/jetpack-analytics',
@@ -41,7 +41,7 @@ const TABS = {
 	],
 };
 
-describe( 'page-options-menu Settings entry', () => {
+describe( 'stats-options-menu Settings entry', () => {
 	beforeEach( () => {
 		jest.useFakeTimers();
 		jest.clearAllMocks();
@@ -60,10 +60,10 @@ describe( 'page-options-menu Settings entry', () => {
 
 		render(
 			<DashboardSectionProvider section="traffic">
-				<PageOptionsMenu />
+				<StatsOptionsMenu />
 			</DashboardSectionProvider>
 		);
-		await user.click( screen.getByRole( 'button', { name: 'Page options' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Stats options' } ) );
 
 		const url = getMockRouteLinkUrl( await screen.findByRole( 'menuitem', { name: 'Settings' } ) );
 		expect( url.pathname ).toBe( '/settings' );
@@ -72,13 +72,16 @@ describe( 'page-options-menu Settings entry', () => {
 		expect( url.searchParams.has( 'section' ) ).toBe( false );
 	} );
 
-	it( 'is disabled on the Settings page', async () => {
+	it.each( [
+		{ where: 'on the Settings page', path: '/settings', isSiteConnected: true },
+		{ where: 'on a site that is not connected', path: '/connect', isSiteConnected: false },
+	] )( 'is disabled $where', async ( { path, isSiteConnected } ) => {
 		jest.mocked( getScriptData ).mockReturnValue( WITH_SETTINGS );
-		setMockRoutePath( '/settings' );
+		setMockRoutePath( path );
 		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
 
-		render( <PageOptionsMenu /> );
-		await user.click( screen.getByRole( 'button', { name: 'Page options' } ) );
+		render( <StatsOptionsMenu isSiteConnected={ isSiteConnected } /> );
+		await user.click( screen.getByRole( 'button', { name: 'Stats options' } ) );
 
 		const settings = await screen.findByRole( 'menuitem', { name: 'Settings' } );
 		expect( settings ).toHaveAttribute( 'aria-disabled', 'true' );
@@ -93,8 +96,8 @@ describe( 'page-options-menu Settings entry', () => {
 		jest.mocked( getScriptData ).mockReturnValue( WITH_SETTINGS );
 		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
 
-		render( <PageOptionsMenu onCustomize={ onCustomize } tabs={ tabs } /> );
-		await user.click( screen.getByRole( 'button', { name: 'Page options' } ) );
+		render( <StatsOptionsMenu onCustomize={ onCustomize } tabs={ tabs } /> );
+		await user.click( screen.getByRole( 'button', { name: 'Stats options' } ) );
 
 		const settings = await screen.findByRole( 'menuitem', { name: 'Settings' } );
 		const separatorsAbove = screen
@@ -111,8 +114,8 @@ describe( 'page-options-menu Settings entry', () => {
 		jest.mocked( getScriptData ).mockReturnValue( {} as ReturnType< typeof getScriptData > );
 		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
 
-		render( <PageOptionsMenu /> );
-		await user.click( screen.getByRole( 'button', { name: 'Page options' } ) );
+		render( <StatsOptionsMenu /> );
+		await user.click( screen.getByRole( 'button', { name: 'Stats options' } ) );
 
 		await expect(
 			screen.findByRole( 'menuitem', { name: 'Any feedback?' } )

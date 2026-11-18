@@ -2,6 +2,7 @@
  * WordPress dependencies
  */
 import { Stack, Text, TextareaControl } from '@jetpack-premium-analytics/externals';
+// eslint-disable-next-line @wordpress/use-recommended-components -- externals exposes no @wordpress/ui radio group yet.
 import { RadioControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { useCallback } from 'react';
