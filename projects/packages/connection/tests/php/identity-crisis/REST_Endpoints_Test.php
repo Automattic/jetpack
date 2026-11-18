@@ -106,6 +106,8 @@ class REST_Endpoints_Test extends TestCase {
 		}
 		$extra_params->setValue( null, array() );
 		$this->register_body = null;
+
+		remove_all_filters( 'jetpack_idc_authorization_url' );
 	}
 
 	/**
@@ -216,25 +218,13 @@ class REST_Endpoints_Test extends TestCase {
 	 */
 	#[DataProvider( 'provide_start_fresh_from' )]
 	public function test_start_fresh_returns_authorize_url( $from ) {
-		add_filter( 'pre_http_request', array( $this, 'intercept_register_request' ), 10, 3 );
-
-		$user = wp_get_current_user();
-		$user->add_cap( 'jetpack_disconnect' );
-
 		$body = array( 'redirect_uri' => 'admin.php?page=my-jetpack' );
 		if ( null !== $from ) {
 			$body['from'] = $from;
 		}
 
-		$request = new WP_REST_Request( 'POST', '/jetpack/v4/identity-crisis/start-fresh' );
-		$request->set_header( 'Content-Type', 'application/json' );
-		$request->set_body( wp_json_encode( $body, JSON_UNESCAPED_SLASHES ) );
-
-		$response = $this->server->dispatch( $request );
+		$response = $this->dispatch_start_fresh( array( $this, 'intercept_register_request' ), $body );
 		$data     = $response->get_data();
-
-		$user->remove_cap( 'jetpack_disconnect' );
-		remove_filter( 'pre_http_request', array( $this, 'intercept_register_request' ), 10 );
 
 		$this->assertEquals( 200, $response->get_status() );
 		$this->assertIsString( $data );
@@ -265,18 +255,7 @@ class REST_Endpoints_Test extends TestCase {
 	 * A failed registration must come back as an error, or the screens would follow a URL that isn't one.
 	 */
 	public function test_start_fresh_registration_failure() {
-		add_filter( 'pre_http_request', array( $this, 'fail_register_request' ), 10, 3 );
-
-		$user = wp_get_current_user();
-		$user->add_cap( 'jetpack_disconnect' );
-
-		$request = new WP_REST_Request( 'POST', '/jetpack/v4/identity-crisis/start-fresh' );
-		$request->set_header( 'Content-Type', 'application/json' );
-
-		$response = $this->server->dispatch( $request );
-
-		$user->remove_cap( 'jetpack_disconnect' );
-		remove_filter( 'pre_http_request', array( $this, 'fail_register_request' ), 10 );
+		$response = $this->dispatch_start_fresh( array( $this, 'fail_register_request' ) );
 
 		$this->assertTrue( $response->is_error() );
 	}
@@ -291,25 +270,16 @@ class REST_Endpoints_Test extends TestCase {
 	 */
 	#[DataProvider( 'provide_invalid_connection_urls' )]
 	public function test_start_fresh_invalid_connection_url( $filtered, $expected_code ) {
-		add_filter( 'pre_http_request', array( $this, 'intercept_register_request' ), 10, 3 );
-		$replace_url = function () use ( $filtered ) {
-			return $filtered;
-		};
-		add_filter( 'jetpack_idc_authorization_url', $replace_url );
+		add_filter(
+			'jetpack_idc_authorization_url',
+			function () use ( $filtered ) {
+				return $filtered;
+			}
+		);
 
-		$user = wp_get_current_user();
-		$user->add_cap( 'jetpack_disconnect' );
+		$response = $this->dispatch_start_fresh( array( $this, 'intercept_register_request' ) );
 
-		$request = new WP_REST_Request( 'POST', '/jetpack/v4/identity-crisis/start-fresh' );
-		$request->set_header( 'Content-Type', 'application/json' );
-
-		$response = $this->server->dispatch( $request );
-
-		$user->remove_cap( 'jetpack_disconnect' );
-		remove_filter( 'jetpack_idc_authorization_url', $replace_url );
-		remove_filter( 'pre_http_request', array( $this, 'intercept_register_request' ), 10 );
-
-		$this->assertTrue( $response->is_error() );
+		$this->assertSame( 500, $response->get_status() );
 		$this->assertSame( $expected_code, $response->get_data()['code'] );
 	}
 
@@ -325,6 +295,30 @@ class REST_Endpoints_Test extends TestCase {
 			'script URL'    => array( 'javascript:alert(1)', 'start_fresh_missing_connection_url' ),
 			'filter error'  => array( new \WP_Error( 'filter_error' ), 'filter_error' ),
 		);
+	}
+
+	/**
+	 * Calls the start-fresh endpoint as a user allowed to use it.
+	 *
+	 * @param callable $register `pre_http_request` callback that answers the registration request.
+	 * @param array    $body     Request body.
+	 * @return \WP_REST_Response
+	 */
+	private function dispatch_start_fresh( $register, $body = array() ) {
+		add_filter( 'pre_http_request', $register, 10, 3 );
+		$user = wp_get_current_user();
+		$user->add_cap( 'jetpack_disconnect' );
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/identity-crisis/start-fresh' );
+		$request->set_header( 'Content-Type', 'application/json' );
+		$request->set_body( wp_json_encode( $body, JSON_UNESCAPED_SLASHES ) );
+
+		try {
+			return $this->server->dispatch( $request );
+		} finally {
+			$user->remove_cap( 'jetpack_disconnect' );
+			remove_filter( 'pre_http_request', $register, 10 );
+		}
 	}
 
 	/**

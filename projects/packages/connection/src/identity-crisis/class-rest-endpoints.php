@@ -265,6 +265,8 @@ class REST_Endpoints {
 		/**
 		 * Filters the connection url that users should be redirected to for re-establishing their connection.
 		 *
+		 * The data must be an http(s) URL; anything else makes the endpoint return a `start_fresh_missing_connection_url` error.
+		 *
 		 * @since 0.2.0
 		 *
 		 * @param \WP_REST_Response|WP_Error    $connection_url Connection URL user should be redirected to.
