@@ -227,6 +227,24 @@ describe( 'stats-options-menu', () => {
 			await waitFor( () => expect( screen.queryByRole( 'alertdialog' ) ).not.toBeInTheDocument() );
 		} );
 
+		it( 'hands focus back to the Page options button when the reset dialog closes', async () => {
+			const user = setupUser();
+			render(
+				<ViewportWidth value={ 599 }>
+					<PageOptionsMenu onReset={ () => {} } />
+				</ViewportWidth>
+			);
+
+			const trigger = screen.getByRole( 'button', { name: 'Page options' } );
+			await user.click( trigger );
+			await user.click( await screen.findByRole( 'menuitem', { name: 'Reset to default…' } ) );
+			const dialog = await screen.findByRole( 'alertdialog' );
+
+			await user.click( within( dialog ).getByRole( 'button', { name: 'Cancel' } ) );
+
+			await waitFor( () => expect( trigger ).toHaveFocus() );
+		} );
+
 		it( 'leaves Customize out where there is nothing to arrange', async () => {
 			const user = setupUser();
 			render( <StatsOptionsMenu /> );
