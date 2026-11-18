@@ -278,7 +278,7 @@ Deduplication only sees the fetched slice (up to 1000 rows), so a re-run whose o
 
 ## Safeguards
 
-CodeVitals is an **append-only** store with no self-service rollback. Once a bad point lands (wrong key, out-of-range value, scale error), the trend graph stays polluted until a CodeVitals admin corrects it. The safeguards below keep bad data out.
+CodeVitals is an **append-only** store with no self-service rollback. Once a bad point lands (wrong key, out-of-range value, scale error), the trend graph stays polluted until the CodeVitals maintainers correct it. The safeguards below keep bad data out.
 
 ### Dry run
 
@@ -338,3 +338,5 @@ The CodeVitals maintainers can correct bad data points.
 5. **Record the incident.** Until a maintenance runbook exists, add a dated entry under **Incident notes** with the failure mode, detection timing, and prevention measures.
 
 #### Incident notes
+
+None recorded yet.

@@ -526,6 +526,7 @@ test( 'the formsResponses scenario retains production keys and adds staging TBT'
 	// measure-lcp.js fails the run if the final URL does not contain this, so a redirect to the
 	// wrong tab cannot quietly populate the responses keys from the forms list.
 	assert.equal( scenario.expectUrlIncludes, '/responses/inbox' );
+	// A resource-count floor so a partial capture can't post an undercounted decodedBytesKB.
 	// The 64-resource floor leaves room below a typical 91-resource load.
 	// A capture can pass the floor before all resources arrive, as the resource-settling tests show.
 	assert.equal( scenario.minResourceCount, 64 );
@@ -2469,7 +2470,7 @@ test( 'missing backend summary refuses the whole live post before any network ca
 } );
 
 test( 'buildSummary aggregates decodedBytesKB from the per-iteration metrics block', () => {
-	// The fixture uses deterministic decoded byte counts, so the median is exact.
+	// Identical resource loads give the same whole-KB decoded size, so the median is exact to that precision.
 	const results = [
 		{ lcp: 100, metrics: { lcp: 100, ttfb: 50, fcp: 200, decodedBytesKB: 5600 } },
 		{ lcp: 200, metrics: { lcp: 200, ttfb: 70, fcp: 400, decodedBytesKB: 5602 } },
