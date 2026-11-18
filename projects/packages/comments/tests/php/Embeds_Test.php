@@ -17,14 +17,6 @@ use WorDBless\BaseTestCase;
 #[CoversClass( Embeds::class )]
 class Embeds_Test extends BaseTestCase {
 
-	protected function tear_down() {
-		remove_all_filters( 'jetpack_comments_embed_handled' );
-		remove_all_filters( 'jetpack_comments_pre_embed_data' );
-		remove_all_filters( 'pre_http_request' );
-
-		parent::tear_down();
-	}
-
 	/**
 	 * @dataProvider provide_sanitize_html
 	 */
@@ -50,17 +42,13 @@ class Embeds_Test extends BaseTestCase {
 		);
 	}
 
-	public function test_block_renders_host_data_as_card_without_request() {
+	/**
+	 * @dataProvider provide_block_with_host_data
+	 */
+	#[DataProvider( 'provide_block_with_host_data' )]
+	public function test_block_with_host_data( $data, $contains, $not_contains ) {
 		add_filter( 'jetpack_comments_embed_handled', '__return_true' );
-		add_filter(
-			'jetpack_comments_pre_embed_data',
-			fn() => (object) array(
-				'provider_name' => 'GitHub',
-				'title'         => 'Fix the thing',
-				'author_name'   => 'someone',
-				'html'          => '',
-			)
-		);
+		add_filter( 'jetpack_comments_pre_embed_data', fn() => $data );
 		add_filter(
 			'pre_http_request',
 			function () {
@@ -70,19 +58,33 @@ class Embeds_Test extends BaseTestCase {
 
 		$block = Embeds::block( array( 'attrs' => array( 'url' => 'https://github.com/Automattic/jetpack/pull/1' ) ), true );
 
-		$this->assertStringContainsString( 'Fix the thing', $block['innerHTML'] );
-		$this->assertStringContainsString( 'View on GitHub', $block['innerHTML'] );
-		$this->assertStringContainsString( 'href="https://github.com/Automattic/jetpack/pull/1"', $block['innerHTML'] );
+		foreach ( $contains as $text ) {
+			$this->assertStringContainsString( $text, $block['innerHTML'] );
+		}
+
+		foreach ( $not_contains as $text ) {
+			$this->assertStringNotContainsString( $text, $block['innerHTML'] );
+		}
 	}
 
-	public function test_block_falls_back_to_link_when_host_has_no_data() {
-		add_filter( 'jetpack_comments_embed_handled', '__return_true' );
-		add_filter( 'jetpack_comments_pre_embed_data', fn() => '' );
-
-		$block = Embeds::block( array( 'attrs' => array( 'url' => 'https://github.com/Automattic/jetpack/pull/1' ) ), true );
-
-		$this->assertStringContainsString( '<a href="https://github.com/Automattic/jetpack/pull/1"', $block['innerHTML'] );
-		$this->assertStringNotContainsString( 'View on', $block['innerHTML'] );
+	public static function provide_block_with_host_data() {
+		return array(
+			'host data renders a card'     => array(
+				(object) array(
+					'provider_name' => 'GitHub',
+					'title'         => 'Fix the thing',
+					'author_name'   => 'someone',
+					'html'          => '',
+				),
+				array( 'Fix the thing', 'View on GitHub', 'href="https://github.com/Automattic/jetpack/pull/1"' ),
+				array(),
+			),
+			'no host data leaves the link' => array(
+				'',
+				array( '<a href="https://github.com/Automattic/jetpack/pull/1"' ),
+				array( 'View on' ),
+			),
+		);
 	}
 
 	public static function provide_sanitize_html() {
