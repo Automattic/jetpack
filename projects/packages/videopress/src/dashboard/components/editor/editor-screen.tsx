@@ -74,6 +74,10 @@ export default function TrimCutEditor( { video, onSelectTool }: Props ) {
 			return;
 		}
 		const beforeUnload = ( event: BeforeUnloadEvent ) => {
+			// The shell asked already, and loads the page only if the user let the edits go.
+			if ( askedByShell() ) {
+				return;
+			}
 			event.preventDefault();
 			event.returnValue = '';
 		};

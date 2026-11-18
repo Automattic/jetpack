@@ -276,6 +276,13 @@ const subtitleRow = copy => {
 const retitle = ( copy, { title, subtitle }, own ) => {
 	copy.querySelector( 'h1' ).textContent = title;
 	const row = copy.querySelector( '[class*="__header-subtitle"]' );
+	// Picked as the page renders: keep the page's own row, or hold a blank line for it.
+	if ( subtitle === null ) {
+		if ( ! ( own && row ) ) {
+			( row ?? subtitleRow( copy ) )?.replaceChildren( '\u00a0' );
+		}
+		return;
+	}
 	if ( ! subtitle ) {
 		row?.remove();
 		return;
@@ -297,7 +304,8 @@ const retitle = ( copy, { title, subtitle }, own ) => {
  * @param {HTMLElement} el       - Its mount element; the stand-in goes right before it.
  * @param {string}      title    - Page heading, for a borrowed header.
  * @param {object|null} declared - `title` and `subtitle` of the view being opened, when the page
- *                               declares them: they replace those of any header shown.
+ *                               declares them: they replace those of any header shown. A null
+ *                               `subtitle` keeps a line for one the page picks as it renders.
  * @return {Function} Removes the stand-in.
  */
 export function showHeader( slug, el, title, declared = null ) {
