@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Safe Mode: Let a fresh connection from Safe Mode report where it started, for WordPress.com's connection tracking.

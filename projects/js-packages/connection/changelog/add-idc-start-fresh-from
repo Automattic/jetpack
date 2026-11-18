@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Add a `from` option to useIdentityCrisisActions(), and connection_safe_mode_notice and my_jetpack_safe_mode to CONNECTION_FROM.

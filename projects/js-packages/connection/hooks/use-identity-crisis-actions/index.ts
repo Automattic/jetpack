@@ -16,10 +16,12 @@ import type {
  *
  * @param options             - Hook options.
  * @param options.redirectUri - Admin path to return to after a fresh connection.
+ * @param options.from        - Name from `CONNECTION_FROM`, reported to WordPress.com with a fresh connection.
  * @return The actions and their state.
  */
 export default function useIdentityCrisisActions( {
 	redirectUri,
+	from,
 }: UseIdentityCrisisActionsOptions = {} ): IdentityCrisisActions {
 	const [ busyAction, setBusyAction ] = useState< IdentityCrisisAction | null >( null );
 	const [ error, setError ] = useState< IdentityCrisisError | null >( null );
@@ -69,7 +71,7 @@ export default function useIdentityCrisisActions( {
 
 	const startFresh = useCallback( async () => {
 		const result = await run( 'start-fresh', async () => {
-			const url: unknown = await restApi.startIDCFresh( redirectUri );
+			const url: unknown = await restApi.startIDCFresh( redirectUri, from );
 			// The host navigates to it, so anything but a web URL counts as a server failure.
 			if ( ! isHttpUrl( url ) ) {
 				const invalid = new Error( 'Start fresh returned no connect URL' );
@@ -79,7 +81,7 @@ export default function useIdentityCrisisActions( {
 			return url;
 		} );
 		return result ? result.response : null;
-	}, [ run, redirectUri ] );
+	}, [ run, redirectUri, from ] );
 
 	const confirmSafeMode = useCallback( async () => {
 		const result = await run( 'confirm-safe-mode', () => restApi.confirmIDCSafeMode() );
