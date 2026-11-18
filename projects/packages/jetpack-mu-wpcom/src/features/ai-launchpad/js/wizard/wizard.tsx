@@ -68,6 +68,8 @@ interface Props {
 	goalsVariation?: string | null;
 	// Whether the AI tool view can detect a new connection; without it, Connect only opens the tool.
 	mcpDetection?: boolean;
+	// Whether each connection check asks WordPress.com over the network.
+	mcpRemote?: boolean;
 	// Whether "Allow full access" can allow it in place; without it, the button opens the MCP settings.
 	mcpAllowFull?: boolean;
 	// Whether to open on the AI tool view, skipping the setup choice; Back then leaves for aiToolBackUrl.
@@ -93,6 +95,7 @@ interface Props {
  * @param props.aiBuilt         - Whether the site was built with AI, which changes the fallback list.
  * @param props.goalsVariation  - The goals step's ExPlat variation from the server.
  * @param props.mcpDetection    - Whether the AI tool view can detect a new connection.
+ * @param props.mcpRemote       - Whether each connection check asks WordPress.com over the network.
  * @param props.mcpAllowFull    - Whether "Allow full access" can allow it in place.
  * @param props.startOnAiTool   - Whether to open on the AI tool view.
  * @param props.aiToolBackUrl   - Where Back leaves Site Setup for from the AI tool view it opened on.
@@ -109,6 +112,7 @@ export function Wizard( {
 	aiBuilt = false,
 	goalsVariation: assignedVariation = null,
 	mcpDetection = false,
+	mcpRemote = false,
 	mcpAllowFull = false,
 	startOnAiTool = false,
 	aiToolBackUrl,
@@ -390,6 +394,7 @@ export function Wizard( {
 							titleRef={ aiToolTitleRef }
 							variation={ reportedVariation }
 							detectsConnections={ mcpDetection }
+							pollsRemotely={ mcpRemote }
 							connected={ connectedTools }
 							onConnected={ handleConnected }
 							readOnly={ readOnly }

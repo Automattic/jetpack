@@ -6,6 +6,10 @@
  * @since 6.11.0
  */
 
+use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Constants;
+
 /**
  * REST endpoints for the AI Launchpad wizard and AI output options.
  */
@@ -24,6 +28,9 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 
 	// The AI tools the "Bring your AI tool" view links to, the only connections GET /mcp-connections returns.
 	const MCP_INTEGRATIONS = array( 'chatgpt', 'claude' );
+
+	// Seconds an Atomic site keeps WordPress.com's MCP answer: enough for the view's first check to reuse the page's.
+	const MCP_CACHE_TTL = 3;
 
 	/**
 	 * Options whose writes can finish a task outside Site Setup: every listener records completion in the statuses
@@ -683,6 +690,10 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 		$opens_on_ai_tool        = $opens_wizard && $starts_on_ai_tool;
 		$assigns_goals_variation = $opens_wizard && ! $starts_on_ai_tool;
 
+		$detects_directly = function_exists( 'wpcom_mcp_get_user_connections' );
+		// Atomic reaches the AI tool view only through `start=ai-tool`, so only that read pays for asking WordPress.com.
+		$detects_remotely = ! $detects_directly && $opens_on_ai_tool && null !== $this->fetch_remote_mcp_connections();
+
 		return array(
 			'wizard'             => is_array( $wizard ) ? $wizard : null,
 			'ai_output'          => is_array( $ai_output ) ? $ai_output : null,
@@ -718,8 +729,10 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 			'goals_variation'    => $assigns_goals_variation ? AI_Launchpad_Bring_Your_AI_Tool::get_variation() : null,
 			// Where Back leads from a `start=ai-tool` Site Setup; built here from an allowlisted origin.
 			'ai_tool_back_url'   => $opens_on_ai_tool ? $this->get_ai_tool_back_url() : null,
-			// Whether GET /mcp-connections can see connections, which needs wpcom's helper.
-			'mcp_detection'      => function_exists( 'wpcom_mcp_get_user_connections' ),
+			// Whether GET /mcp-connections can see connections: through wpcom's helper, or once WordPress.com has answered.
+			'mcp_detection'      => $detects_directly || $detects_remotely,
+			// Whether each check asks WordPress.com over the network.
+			'mcp_remote'         => $detects_remotely,
 			// Whether POST /mcp-access can allow full access in place, which needs wpcom's helper and a site admin.
 			'mcp_allow_full'     => function_exists( 'wpcom_mcp_set_user_access_level' ) && current_user_can( 'manage_options' ),
 		);
@@ -1202,17 +1215,26 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	 * The current user's ChatGPT and Claude MCP connections, which the wizard polls to tell when the user has added
 	 * WordPress.com to their AI tool.
 	 *
-	 * Read from wpcom's `wpcom_mcp_get_user_connections()`, newest first. Where it is not defined the list is empty, so
-	 * the wizard keeps waiting.
+	 * Read from wpcom's `wpcom_mcp_get_user_connections()`, newest first, or on Atomic from WordPress.com as the user,
+	 * with an error when it can't answer. Elsewhere the list is empty, so the wizard keeps waiting.
 	 *
 	 * `access_level` is the account-wide MCP access level shared by every tool (`full`, `read_only`, or null when
-	 * unknown), read only once something is connected because it is costly.
+	 * unknown), returned only once something is connected, since reading it is costly.
 	 *
-	 * @return array{connections: string[], access_level: string|null}
+	 * @return array{connections: string[], access_level: string|null}|WP_Error
 	 */
 	public function get_mcp_connections() {
 		if ( ! function_exists( 'wpcom_mcp_get_user_connections' ) ) {
-			return array(
+			$remote = $this->fetch_remote_mcp_connections();
+			if ( null === $remote && Constants::is_true( 'IS_ATOMIC' ) ) {
+				// An empty list would read as read-only access to a wizard already showing a connected tool.
+				return new WP_Error(
+					'mcp_connections_unavailable',
+					__( 'Your AI tool connections can’t be checked right now.', 'jetpack-mu-wpcom' ),
+					array( 'status' => 503 )
+				);
+			}
+			return $remote ?? array(
 				'connections'  => array(),
 				'access_level' => null,
 			);
@@ -1238,6 +1260,60 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 			'connections'  => $connections,
 			'access_level' => $access_level,
 		);
+	}
+
+	/**
+	 * The current user's ChatGPT and Claude connections from WordPress.com's `/me/mcp-connections`, asked as that user
+	 * from an Atomic site.
+	 *
+	 * @return array{connections: string[], access_level: string|null}|null Null off Atomic, without a connected user, or for a
+	 *                                                                      minute after WordPress.com failed to answer.
+	 */
+	private function fetch_remote_mcp_connections() {
+		$user_id = get_current_user_id();
+		// Without a user token the client would record the failed signing as a connection error.
+		if ( ! Constants::is_true( 'IS_ATOMIC' ) || ! ( new Connection_Manager() )->is_user_connected( $user_id ) ) {
+			return null;
+		}
+
+		$cache_key = 'wpcom_ai_launchpad_mcp_' . $user_id;
+		$cached    = get_transient( $cache_key );
+		if ( is_array( $cached ) || 'unavailable' === $cached ) {
+			return is_array( $cached ) ? $cached : null;
+		}
+
+		$response = Client::wpcom_json_api_request_as_user(
+			'/me/mcp-connections',
+			'2',
+			array(
+				'method'  => 'GET',
+				'timeout' => 3,
+			)
+		);
+		$status   = is_wp_error( $response ) ? 0 : (int) wp_remote_retrieve_response_code( $response );
+		$data     = is_wp_error( $response ) ? null : json_decode( wp_remote_retrieve_body( $response ), true );
+		if ( 200 !== $status || ! is_array( $data ) || ! is_array( $data['connections'] ?? null ) ) {
+			// Remembered for a minute, so page loads and checks don't keep asking a WordPress.com that can't answer.
+			set_transient( $cache_key, 'unavailable', MINUTE_IN_SECONDS );
+			return null;
+		}
+
+		$connections = array_values(
+			array_filter(
+				$data['connections'],
+				static function ( $integration ) {
+					return in_array( $integration, self::MCP_INTEGRATIONS, true );
+				}
+			)
+		);
+		$level       = $data['access_level'] ?? null;
+		$result      = array(
+			'connections'  => $connections,
+			'access_level' => $connections && is_string( $level ) ? $level : null,
+		);
+		set_transient( $cache_key, $result, self::MCP_CACHE_TTL );
+
+		return $result;
 	}
 
 	/**

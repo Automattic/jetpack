@@ -24,11 +24,60 @@ export const AI_TOOL_URLS = {
 
 export type AiTool = keyof typeof AI_TOOL_URLS;
 
-/** How often the AI tool view checks for a connection while waiting. */
+/** How often the AI tool view checks for a connection while waiting, when checks are local. */
 export const MCP_POLL_INTERVAL_MS = 4000;
 
 /** How long after a Connect click the AI tool view keeps checking. */
 export const MCP_POLL_TIMEOUT_MS = 10 * 60 * 1000;
+
+/** How often the AI tool view checks while waiting when each check asks WordPress.com over the network. */
+export const MCP_REMOTE_POLL_INTERVAL_MS = 30000;
+
+/**
+ * When the AI tool view checks while waiting, besides on return to the tab. A remote check is a WordPress.com
+ * request, so it runs rarely and only while the tab shows, plus as the wait starts and on window focus.
+ *
+ * @param remote - Whether each check asks WordPress.com over the network.
+ * @return The interval, whether it runs in a hidden tab, and whether to check as the wait starts and on focus.
+ */
+export function mcpPollSchedule( remote: boolean ): {
+	intervalMs: number;
+	whileHidden: boolean;
+	onStart: boolean;
+	onFocus: boolean;
+} {
+	return remote
+		? { intervalMs: MCP_REMOTE_POLL_INTERVAL_MS, whileHidden: false, onStart: true, onFocus: true }
+		: { intervalMs: MCP_POLL_INTERVAL_MS, whileHidden: true, onStart: false, onFocus: false };
+}
+
+/**
+ * The tool to wait for again on return to the tab once a wait has ended: while read-only, so allowing full access
+ * shows, and on remote checks after a timeout, since nothing checked while the tab was hidden.
+ *
+ * @param state               - The view's state.
+ * @param state.readOnly      - Whether a connected tool has only read-only access.
+ * @param state.connected     - The AI tools shown as connected, in the order they connected.
+ * @param state.timedOut      - The tool whose wait last timed out, if any.
+ * @param state.pollsRemotely - Whether each check asks WordPress.com over the network.
+ * @return The tool to wait for, or null to stay as is.
+ */
+export function rewaitOnReturn( {
+	readOnly,
+	connected,
+	timedOut,
+	pollsRemotely,
+}: {
+	readOnly: boolean;
+	connected: AiTool[];
+	timedOut: AiTool | null;
+	pollsRemotely: boolean;
+} ): AiTool | null {
+	if ( readOnly && connected.length ) {
+		return connected[ connected.length - 1 ];
+	}
+	return pollsRemotely && timedOut && ! connected.includes( timedOut ) ? timedOut : null;
+}
 
 /**
  * The newly connected AI tools: tools the user clicked Connect on, not yet shown as connected, that have an active
