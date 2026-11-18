@@ -237,8 +237,8 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 		}
 
 		// A booted app opened at another route unmounts the view it was left on, edits and all.
-		const retargets =
-			apps.has( slug ) && lastUrl[ slug ] && routeOf( url ) !== routeOf( lastUrl[ slug ] );
+		let retargets =
+			apps.has( slug ) && !! lastUrl[ slug ] && routeOf( url ) !== routeOf( lastUrl[ slug ] );
 		// Hiding the visible app keeps its edits, so only a retarget asks.
 		if ( retargets && ! mayLeave( slug, url ) ) {
 			if ( push ) {
@@ -247,6 +247,7 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 			// Back/Forward can't be called off: reopen the app where it was left, in this same entry.
 			url = lastUrl[ slug ];
 			gate.replaceUrl( url );
+			retargets = false;
 		}
 
 		const thisSwitch = ++switches;
@@ -268,7 +269,13 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 		apps.get( previous )?.place( false );
 		const dialogsClosed = closeDialogsOf( previous );
 		showOverlaysOf( slug );
-		emit( 'page-hidden', { page: previous, previous: null, firstShow: false, url: location.href } );
+		emit( 'page-hidden', {
+			page: previous,
+			previous: null,
+			next: slug,
+			firstShow: false,
+			url: location.href,
+		} );
 		if ( push ) {
 			gate.pushUrl( url );
 		}
@@ -304,6 +311,8 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 					page: slug,
 					previous,
 					firstShow: ! app,
+					// The member's router saw the new route and recorded the view itself.
+					routeChanged: !! app && retargets,
 					url: location.href,
 				} );
 			}
@@ -404,7 +413,13 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 			removeHostHeader();
 			markReady( hostApp );
 			if ( visible === host ) {
-				emit( 'page-shown', { page: host, previous: null, firstShow: true, url: location.href } );
+				emit( 'page-shown', {
+					page: host,
+					previous: null,
+					firstShow: true,
+					routeChanged: false,
+					url: location.href,
+				} );
 			}
 		} )
 		.catch( error => {

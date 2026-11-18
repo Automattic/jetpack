@@ -34,10 +34,10 @@ const SCHEMA_OPTIONS: Array< { value: SchemaType; label: string } > = [
 // Pre-resolved for the same reason as SCHEMA_OPTIONS.
 const LLMS_TXT_ALWAYS_INCLUDE_HELP = {
 	shown: __(
-		'While llms.txt is on, lists this page first, even if it isn’t in a menu.',
+		'While llms.txt is on, always lists this content, ahead of the rest of its section.',
 		'jetpack-seo'
 	),
-	hidden: __( 'Pages hidden from search engines are left out of llms.txt.', 'jetpack-seo' ),
+	hidden: __( 'Content hidden from search engines is left out of llms.txt.', 'jetpack-seo' ),
 };
 
 interface Props {
@@ -64,22 +64,18 @@ const EMPTY_META: EditableMeta = {
 	jetpack_seo_html_title: '',
 	jetpack_seo_noindex: false,
 	jetpack_seo_schema_type: '',
+	jetpack_seo_llms_txt_always_include: false,
 };
 
 /**
- * Narrow a record's raw `meta` to the SEO keys this inspector owns,
- * defaulting anything missing or unrecognised. Used both to seed the form from
- * the live record and to snapshot the pre-save values we roll back to.
+ * Normalize the editable SEO fields for initialization and rollback.
  *
- * @param meta   - The record's `meta`, if it has resolved.
- * @param isPage - Whether the record is a page, the only type with the llms.txt key.
+ * @param meta - The record's `meta`, if it has resolved.
  * @return The editable SEO meta.
  */
-function toEditableMeta( meta: Partial< SeoPostMeta > | undefined, isPage: boolean ): EditableMeta {
+function toEditableMeta( meta: Partial< SeoPostMeta > | undefined ): EditableMeta {
 	return {
-		...( isPage && {
-			jetpack_seo_llms_txt_always_include: !! meta?.jetpack_seo_llms_txt_always_include,
-		} ),
+		jetpack_seo_llms_txt_always_include: !! meta?.jetpack_seo_llms_txt_always_include,
 		advanced_seo_description: meta?.advanced_seo_description ?? '',
 		jetpack_seo_html_title: meta?.jetpack_seo_html_title ?? '',
 		jetpack_seo_noindex: !! meta?.jetpack_seo_noindex,
@@ -126,7 +122,6 @@ const SeoInspector: FC< Props > = ( { postId, postType, onClose } ) => {
 	const { createInfoNotice, createSuccessNotice, createErrorNotice } = useDispatch( noticesStore );
 	const { applyCoverageDelta } = useDispatch( coverageStore );
 	const [ isSaving, setIsSaving ] = useState( false );
-	const isPage = postType === 'page';
 
 	// Empty until the live record resolves; reconciled from its `meta` below.
 	// Saving is blocked while resolving so we never persist these empty defaults
@@ -137,13 +132,14 @@ const SeoInspector: FC< Props > = ( { postId, postType, onClose } ) => {
 	// a background refetch changing `editedMeta` identity can't overwrite edits.
 	const hasSeeded = useRef( false );
 	const editedMeta = ( editedRecord as { meta?: Partial< SeoPostMeta > } | undefined )?.meta;
+	const isRecordUnavailable = isResolving || ! editedMeta;
 	useEffect( () => {
 		if ( ! editedMeta || hasSeeded.current ) {
 			return;
 		}
 		hasSeeded.current = true;
-		setLocal( toEditableMeta( editedMeta, isPage ) );
-	}, [ editedMeta, isPage ] );
+		setLocal( toEditableMeta( editedMeta ) );
+	}, [ editedMeta ] );
 
 	const setField = useCallback(
 		( patch: Partial< EditableMeta > ) => setLocal( state => ( { ...state, ...patch } ) ),
@@ -162,7 +158,7 @@ const SeoInspector: FC< Props > = ( { postId, postType, onClose } ) => {
 		// below, which is what `editedMeta` would otherwise reflect. Reading the
 		// *edited* meta keeps both correct when the same post is saved twice without
 		// an intervening reload.
-		const previous = toEditableMeta( editedMeta, isPage );
+		const previous = toEditableMeta( editedMeta );
 		try {
 			// Update the record in the store, then persist it with `apiFetch`.
 			//
@@ -228,7 +224,6 @@ const SeoInspector: FC< Props > = ( { postId, postType, onClose } ) => {
 		createSuccessNotice,
 		editEntityRecord,
 		editedMeta,
-		isPage,
 		local,
 		onClose,
 		postId,
@@ -269,7 +264,7 @@ const SeoInspector: FC< Props > = ( { postId, postType, onClose } ) => {
 					) }
 					value={ local.jetpack_seo_html_title }
 					onChange={ next => setField( { jetpack_seo_html_title: next } ) }
-					disabled={ isResolving }
+					disabled={ isRecordUnavailable }
 					__next40pxDefaultSize
 					__nextHasNoMarginBottom
 				/>
@@ -279,7 +274,7 @@ const SeoInspector: FC< Props > = ( { postId, postType, onClose } ) => {
 					value={ local.advanced_seo_description }
 					onChange={ next => setField( { advanced_seo_description: next } ) }
 					rows={ 3 }
-					disabled={ isResolving }
+					disabled={ isRecordUnavailable }
 					__nextHasNoMarginBottom
 				/>
 				<SelectControl
@@ -287,7 +282,7 @@ const SeoInspector: FC< Props > = ( { postId, postType, onClose } ) => {
 					value={ local.jetpack_seo_schema_type }
 					options={ SCHEMA_OPTIONS }
 					onChange={ next => setField( { jetpack_seo_schema_type: next as SchemaType } ) }
-					disabled={ isResolving }
+					disabled={ isRecordUnavailable }
 					__next40pxDefaultSize
 					__nextHasNoMarginBottom
 				/>
@@ -298,31 +293,28 @@ const SeoInspector: FC< Props > = ( { postId, postType, onClose } ) => {
 						'jetpack-seo'
 					) }
 					checked={ local.jetpack_seo_noindex }
-					// Hiding a page also switches off "Always include", so the saved value matches
-					// the switch, which shows off while the page is hidden.
+					// Hiding content also clears its explicit inclusion in llms.txt.
 					onChange={ next =>
 						setField( {
 							jetpack_seo_noindex: next,
-							...( next && isPage && { jetpack_seo_llms_txt_always_include: false } ),
+							...( next && { jetpack_seo_llms_txt_always_include: false } ),
 						} )
 					}
-					disabled={ isResolving }
+					disabled={ isRecordUnavailable }
 					__nextHasNoMarginBottom
 				/>
-				{ isPage && (
-					<ToggleControl
-						label={ __( 'Always include in llms.txt', 'jetpack-seo' ) }
-						help={
-							local.jetpack_seo_noindex
-								? LLMS_TXT_ALWAYS_INCLUDE_HELP.hidden
-								: LLMS_TXT_ALWAYS_INCLUDE_HELP.shown
-						}
-						checked={ !! local.jetpack_seo_llms_txt_always_include && ! local.jetpack_seo_noindex }
-						onChange={ next => setField( { jetpack_seo_llms_txt_always_include: next } ) }
-						disabled={ isResolving || local.jetpack_seo_noindex }
-						__nextHasNoMarginBottom
-					/>
-				) }
+				<ToggleControl
+					label={ __( 'Always include in llms.txt', 'jetpack-seo' ) }
+					help={
+						local.jetpack_seo_noindex
+							? LLMS_TXT_ALWAYS_INCLUDE_HELP.hidden
+							: LLMS_TXT_ALWAYS_INCLUDE_HELP.shown
+					}
+					checked={ !! local.jetpack_seo_llms_txt_always_include && ! local.jetpack_seo_noindex }
+					onChange={ next => setField( { jetpack_seo_llms_txt_always_include: next } ) }
+					disabled={ isRecordUnavailable || local.jetpack_seo_noindex }
+					__nextHasNoMarginBottom
+				/>
 				<SerpPreview
 					link={ permalink }
 					postTitle={ postTitle }
@@ -341,7 +333,7 @@ const SeoInspector: FC< Props > = ( { postId, postType, onClose } ) => {
 					// resolved): the form still holds EMPTY_META, and saving that would
 					// wipe the post's existing SEO meta. And when the entity config hasn't
 					// resolved, since `baseURL` is the route we save through.
-					disabled={ isSaving || isResolving || ! editedMeta || ! baseURL }
+					disabled={ isSaving || isRecordUnavailable || ! baseURL }
 				>
 					{ __( 'Save', 'jetpack-seo' ) }
 				</Button>

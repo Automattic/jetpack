@@ -1,6 +1,37 @@
-import { useCallback, useLayoutEffect, useRef } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef } from 'react';
+import { matchPath } from 'react-router';
+import { MyJetpackRoutes } from '../../constants';
+import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import useAdminShellReturn from '../../hooks/use-admin-shell-return';
 import useAnalytics from '../../hooks/use-analytics';
+import { getLegacyHashHref } from '../../utils/route-href';
+import { resolveMyJetpackSection } from '../my-jetpack-tab-panel/utils';
+
+// Routes that show another screen: not `/features`, a section, nor `/add-license` while it has no screen.
+const otherScreens = () =>
+	Object.values( MyJetpackRoutes ).filter(
+		route =>
+			route !== MyJetpackRoutes.Home &&
+			route !== MyJetpackRoutes.Features &&
+			( route !== MyJetpackRoutes.AddLicense ||
+				getMyJetpackWindowInitialState().loadAddLicenseScreen )
+	);
+
+/**
+ * The tab a My Jetpack URL shows, as this screen resolves it.
+ *
+ * @param {string} url - The page URL.
+ * @return {string|null} The tab, or null when the URL shows another screen.
+ */
+function tabOf( url ) {
+	const { searchParams, hash } = new URL( url );
+	const href = searchParams.get( 'p' ) || getLegacyHashHref( hash ) || '/';
+	const { pathname } = new URL( href, 'http://route.invalid' );
+	if ( otherScreens().some( route => matchPath( route, pathname ) ) ) {
+		return null;
+	}
+	return resolveMyJetpackSection( matchPath( MyJetpackRoutes.Home, pathname )?.params.section );
+}
 
 /**
  * Record `jetpack_myjetpack_page_view` once the red bubble alerts load, on each tab change, and
@@ -42,12 +73,31 @@ export default function usePageView(
 		}
 	}, [ recordPageView, isRedBubbleAlertsLoading, currentTab ] );
 
-	// Recorded as a page load would: with no previous tab. While loading, the effect above records it.
-	useAdminShellReturn(
-		useCallback( () => {
-			if ( ! isRedBubbleAlertsLoading ) {
-				recordPageView( null );
+	// Unset until hidden: a screen that mounts on a return has its mount count that view.
+	const hiddenTabRef = useRef( undefined );
+	useEffect( () => {
+		const onHidden = event => {
+			if ( event.detail?.page === 'my-jetpack' ) {
+				hiddenTabRef.current = currentTab;
 			}
-		}, [ recordPageView, isRedBubbleAlertsLoading ] )
+		};
+		window.addEventListener( 'jetpack-admin-shell:page-hidden', onHidden );
+		return () => window.removeEventListener( 'jetpack-admin-shell:page-hidden', onHidden );
+	}, [ currentTab ] );
+
+	// Recorded as a page load would: with no previous tab. While loading, or on a return to another
+	// tab, the effect above records it; it records nothing for another URL of the same tab.
+	useAdminShellReturn(
+		useCallback(
+			( { routeChanged, url } ) => {
+				if (
+					! isRedBubbleAlertsLoading &&
+					( ! routeChanged || tabOf( url ) === hiddenTabRef.current )
+				) {
+					recordPageView( null );
+				}
+			},
+			[ recordPageView, isRedBubbleAlertsLoading ]
+		)
 	);
 }

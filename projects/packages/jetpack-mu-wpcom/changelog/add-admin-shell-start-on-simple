@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Admin shell: Start the shell on WordPress.com Simple sites, where it stays off until its feature flag is on.

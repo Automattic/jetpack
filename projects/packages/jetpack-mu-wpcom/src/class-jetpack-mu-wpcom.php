@@ -87,6 +87,8 @@ class Jetpack_Mu_Wpcom {
 		 */
 		require_once __DIR__ . '/features/wpcom-feature-flags/class-wpcom-feature-flags.php';
 		\Automattic\Jetpack\Jetpack_Mu_Wpcom\Wpcom_Feature_Flags::init();
+		require_once __DIR__ . '/features/wpcom-feature-flags/class-wpcom-admin-shell-rollout.php';
+		\Automattic\Jetpack\Jetpack_Mu_Wpcom\Wpcom_Admin_Shell_Rollout::init();
 
 		// Load features that don't need any special loading considerations.
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_features' ) );
@@ -139,6 +141,8 @@ class Jetpack_Mu_Wpcom {
 		// A lightweight My Jetpack page for Simple, which steps aside wherever the real My Jetpack registers.
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_my_jetpack' ) );
+			// Elsewhere load-jetpack.php starts the admin shell, and Simple never loads that file.
+			add_action( 'plugins_loaded', array( __CLASS__, 'load_admin_shell' ) );
 		}
 
 		// At mu-plugin scope, because the Jetpack plugin can resolve these filters before plugins_loaded loads the pages.
@@ -426,6 +430,7 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/layout-grid-usage-tracking/layout-grid-usage-tracking.php';
 		require_once __DIR__ . '/features/logo-tool/logo-tool.php';
 		require_once __DIR__ . '/features/marketplace-products-updater/class-marketplace-products-updater.php';
+		require_once __DIR__ . '/features/media/ai-marker-image-editor.php';
 		require_once __DIR__ . '/features/media/heif-support.php';
 		if ( Constants::is_true( 'IS_ATOMIC' ) ) {
 			require_once __DIR__ . '/features/plugin-conflicts-guardian/plugin-conflicts-guardian.php';
@@ -946,6 +951,24 @@ class Jetpack_Mu_Wpcom {
 	 */
 	public static function load_wpcom_my_jetpack() {
 		require_once __DIR__ . '/features/wpcom-my-jetpack/wpcom-my-jetpack.php';
+	}
+
+	/**
+	 * Start the Jetpack admin shell, which stays inert until its `jetpack-admin-shell` flag is on.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return void
+	 */
+	public static function load_admin_shell() {
+		// Admin UI ships with Jetpack, and an older copy may predate the shell.
+		if ( ! method_exists( \Automattic\Jetpack\Admin_UI\Admin_Shell::class, 'init' ) || ! method_exists( \Automattic\Jetpack\Admin_UI\Admin_Shell::class, 'register_feature_flag' ) ) {
+			return;
+		}
+
+		\Automattic\Jetpack\Admin_UI\Admin_Shell::register_feature_flag();
+		// Not left to Admin_Menu: admin-ajax requests never build the menu, and the guest endpoint lives there.
+		\Automattic\Jetpack\Admin_UI\Admin_Shell::init();
 	}
 
 	/**

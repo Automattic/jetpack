@@ -399,4 +399,55 @@ class Admin_Page_Test extends BaseTestCase {
 
 		$this->assertFalse( wp_script_is( 'wp-jp-i18n-loader', 'enqueued' ) );
 	}
+
+	/**
+	 * The shell offers Podcast wherever its build exists, Simple included.
+	 *
+	 * @dataProvider provide_admin_shell_member_cases
+	 *
+	 * @param bool $built    Whether build/build.php exists.
+	 * @param bool $simple   Whether the site is WordPress.com Simple.
+	 * @param bool $expected Whether Podcast joins the shell.
+	 */
+	#[DataProvider( 'provide_admin_shell_member_cases' )]
+	public function test_admin_shell_member( $built, $simple, $expected ) {
+		$this->set_wp_build_index( $built ? __FILE__ : __DIR__ . '/absent.php' );
+		if ( $simple ) {
+			Constants::set_constant( 'IS_WPCOM', true );
+		}
+
+		try {
+			$members = Admin_Page::add_admin_shell_member( array() );
+		} finally {
+			$this->set_wp_build_index( null );
+		}
+
+		$this->assertSame( $expected, isset( $members[ Admin_Page::ADMIN_PAGE_SLUG ] ) );
+	}
+
+	/**
+	 * Admin shell member cases.
+	 *
+	 * @return array<string, array{bool, bool, bool}>
+	 */
+	public static function provide_admin_shell_member_cases() {
+		return array(
+			'built, self-hosted' => array( true, false, true ),
+			'built, Simple'      => array( true, true, true ),
+			'unbuilt'            => array( false, false, false ),
+		);
+	}
+
+	/**
+	 * Point the class at a build entry point, or back at the real one with null.
+	 *
+	 * @param string|null $path Entry point path.
+	 */
+	private function set_wp_build_index( $path ): void {
+		$property = new \ReflectionProperty( Admin_Page::class, 'wp_build_index' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$property->setAccessible( true );
+		}
+		$property->setValue( null, $path );
+	}
 }

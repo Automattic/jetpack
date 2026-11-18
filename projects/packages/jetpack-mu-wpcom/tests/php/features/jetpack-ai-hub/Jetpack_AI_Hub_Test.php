@@ -31,6 +31,7 @@ class Jetpack_AI_Hub_Test extends BaseTestCase {
 		remove_all_filters( 'jetpack_mu_wpcom_load_jetpack_ai_hub' );
 		remove_all_filters( 'jetpack_feature_flag_enabled_ai-hub-scheduled-tasks' );
 		remove_all_filters( 'jetpack_ai_admin_config' );
+		unset( $GLOBALS['wpcom_site_stickers_test_value'] );
 
 		parent::tear_down();
 	}
@@ -47,13 +48,31 @@ class Jetpack_AI_Hub_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Scheduled tasks are enabled with the Hub on WordPress.com Simple.
+	 * Scheduled tasks are enabled for sites with the Scheduled tasks sticker.
 	 */
-	public function test_enables_scheduled_tasks() {
+	public function test_enables_scheduled_tasks_for_sticker_sites() {
+		$this->load_integration();
+		$GLOBALS['wpcom_site_stickers_test_value'] = array( 'wpcom-agent-scheduled-tasks' );
+
+		$this->assertTrue( enable_scheduled_tasks( false ) );
+	}
+
+	/**
+	 * Scheduled tasks stay off for sites without the Scheduled tasks sticker.
+	 */
+	public function test_does_not_enable_scheduled_tasks_without_sticker() {
 		$this->load_integration();
 
-		// phpcs:ignore WordPress.NamingConventions.ValidHookName.UseUnderscores -- the hook suffix is the registered feature flag name.
-		$this->assertTrue( apply_filters( 'jetpack_feature_flag_enabled_ai-hub-scheduled-tasks', false ) );
+		$this->assertFalse( enable_scheduled_tasks( false ) );
+	}
+
+	/**
+	 * Sites without the sticker keep a flag value set elsewhere.
+	 */
+	public function test_keeps_scheduled_tasks_enabled_elsewhere() {
+		$this->load_integration();
+
+		$this->assertTrue( enable_scheduled_tasks( true ) );
 	}
 
 	/**

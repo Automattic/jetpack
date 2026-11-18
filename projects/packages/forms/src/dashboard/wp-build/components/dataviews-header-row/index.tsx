@@ -17,6 +17,7 @@ import useFormStatusCounts from '../../../hooks/use-form-status-counts.ts';
 import { saveLastTab } from '../../../last-tab-cookie.ts';
 import { store as dashboardStore } from '../../../store/index.js';
 import { TOP_TAB_PATHS, type TopTab } from '../../../top-tabs.ts';
+import usePreloadTopTab from '../../hooks/use-preload-top-tab.ts';
 import InboxStatusToggle from '../inbox-status-toggle';
 import type { JSX } from 'react';
 import './style.scss';
@@ -59,6 +60,7 @@ export default function DataViewsHeaderRow( {
 	const navigate = useNavigate();
 	const isCFMEnabled = useConfigValue( 'isCentralFormManagementEnabled' );
 	const { all: formsCount } = useFormStatusCounts();
+	usePreloadTopTab( activeTab, isSingleFormView || ! isCFMEnabled );
 
 	const responsesInboxCount = useSelect( select => {
 		// Pass an explicit empty object so @wordpress/data resolver deduplication

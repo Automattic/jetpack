@@ -170,7 +170,7 @@ class Admin_Page {
 	 * @return array
 	 */
 	public static function add_admin_shell_member( $members ) {
-		if ( ( new Host() )->is_wpcom_simple() || ! file_exists( self::wp_build_index_path() ) ) {
+		if ( ! file_exists( self::wp_build_index_path() ) ) {
 			return $members;
 		}
 

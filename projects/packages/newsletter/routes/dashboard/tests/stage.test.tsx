@@ -250,6 +250,36 @@ describe( 'Newsletter dashboard Stage analytics', () => {
 		} );
 	} );
 
+	it.each( [
+		[ 'another tab', 'settings', { tab: 'settings', previous_tab: 'overview' } ],
+		[ 'the same tab at another URL', 'stats', { tab: 'overview' } ],
+	] )( 'records one view when the admin shell shows the page again at %s', ( _, tab, view ) => {
+		const { rerender } = render( <Stage /> );
+		mockRecordEvent.mockClear();
+
+		window.dispatchEvent(
+			new CustomEvent( 'jetpack-admin-shell:page-hidden', {
+				detail: { page: 'jetpack-newsletter', next: 'my-jetpack' },
+			} )
+		);
+		mockSearch.mockReturnValue( { tab } );
+		rerender( <Stage /> );
+		window.dispatchEvent(
+			new CustomEvent( 'jetpack-admin-shell:page-shown', {
+				detail: {
+					page: 'jetpack-newsletter',
+					firstShow: false,
+					routeChanged: true,
+					url: `https://example.com/wp-admin/admin.php?page=jetpack-newsletter&p=%2F%3Ftab%3D${ tab }`,
+				},
+			} )
+		);
+
+		expect( mockRecordEvent.mock.calls ).toEqual( [
+			[ 'jetpack_newsletter_tab_view', { site_type: 'jetpack', ...view } ],
+		] );
+	} );
+
 	it( 'records an old ?tab=stats link as the Overview tab', () => {
 		mockSearch.mockReturnValue( { tab: 'stats' } );
 
