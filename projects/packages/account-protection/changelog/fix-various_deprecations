@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Handle various PHP deprecation notices.
