@@ -7,7 +7,6 @@
 
 namespace Automattic\Jetpack\Connection;
 
-use Automattic\Jetpack\Identity_Crisis;
 use Automattic\Jetpack\Status\Cache as StatusCache;
 use Automattic\Jetpack\Tracking;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -109,7 +108,6 @@ class Jetpack_Connector_Test extends TestCase {
 
 		remove_all_filters( 'jetpack_offline_mode' );
 		remove_all_filters( 'jetpack_is_in_safe_mode' );
-		remove_all_filters( 'jetpack_feature_flag_enabled_' . Identity_Crisis::NEW_SCREEN_FLAG );
 		remove_all_filters( 'jetpack_connection_requires_protected_owner' );
 		remove_all_filters( 'jetpack_connection_protected_owner_default_ui' );
 		remove_all_filters( 'script_module_data_' . Jetpack_Connector::MODULE_ID );
@@ -472,22 +470,6 @@ class Jetpack_Connector_Test extends TestCase {
 		$this->assertArrayHasKey( 'possibleDynamicSiteUrlDetected', $data['idc'] );
 		$this->assertSame( 'self-hosted', $data['idc']['platform'] );
 		$this->assertNotEmpty( $data['idc']['currentUrl'] );
-	}
-
-	/**
-	 * Test that the new Safe Mode screen gets no card copy of the Safe Mode data, since it reads the shared state.
-	 */
-	public function test_idc_data_absent_with_new_screen() {
-		\Jetpack_Options::update_option( 'blog_token', 'test.secret' );
-		\Jetpack_Options::update_option( 'id', 12345 );
-		StatusCache::clear();
-		add_filter( 'jetpack_is_in_safe_mode', '__return_true' );
-		add_filter( 'jetpack_feature_flag_enabled_' . Identity_Crisis::NEW_SCREEN_FLAG, '__return_true' );
-
-		$data = Jetpack_Connector::get_connector_data( array() );
-
-		$this->assertArrayNotHasKey( 'isSafeModeConfirmed', $data );
-		$this->assertArrayNotHasKey( 'idc', $data );
 	}
 
 	/**
