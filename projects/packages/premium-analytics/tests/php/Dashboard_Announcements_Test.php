@@ -68,6 +68,7 @@ class Dashboard_Announcements_Test extends BaseTestCase {
 		$this->assertNotEmpty( $announcements );
 		foreach ( $announcements as $announcement ) {
 			$this->assertContains( Dashboard_Announcements::CHANNEL, $announcement['channels'] );
+			$this->assertSame( Capabilities::VIEW_ANALYTICS, $announcement['capability'] );
 		}
 	}
 

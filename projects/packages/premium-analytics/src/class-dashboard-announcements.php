@@ -84,10 +84,11 @@ class Dashboard_Announcements {
 			return;
 		}
 
-		// The dashboard's own rule: what shipped before a user arrived is no news to them.
+		// The dashboard's own rules: what shipped before a user arrived is no news to them,
+		// and its news is for whoever can read the dashboard.
 		foreach ( self::get_announcements() as $id => $announcement ) {
 			if ( ! self::predates_current_user( $announcement['date'] ) ) {
-				register_announcement( $id, $announcement );
+				register_announcement( $id, $announcement + array( 'capability' => Capabilities::VIEW_ANALYTICS ) );
 			}
 		}
 	}
