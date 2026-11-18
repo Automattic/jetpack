@@ -38,12 +38,13 @@ class WPCOM_JSON_API_Date {
 				$timestamp = 0;
 			}
 
-			// "0000-00-00 00:00:00" == -62169984000
-			if ( -62169984000 === $timestamp_gmt ) {
-				// WordPress sets post_date=now, post_date_gmt="0000-00-00 00:00:00" for all drafts
-				// WordPress sets post_modified=now, post_modified_gmt="0000-00-00 00:00:00" for new drafts.
+			$offset = $timestamp - $timestamp_gmt;
 
-				// Try to guess the correct offset from the blog's options.
+			// Drafts have a GMT date of "0000-00-00 00:00:00" (-62169984000). Anything that writes one
+			// date column without the other leaves a gap that is not a UTC offset, so neither can use it.
+			if ( -62169984000 === $timestamp_gmt || ! self::is_utc_offset( $offset ) ) {
+				// Keep the local date, which is the one WordPress shows, with the blog's own offset.
+				$offset          = 0;
 				$timezone_string = get_option( 'timezone_string' );
 
 				if ( $timezone_string && $date_time ) {
@@ -54,8 +55,6 @@ class WPCOM_JSON_API_Date {
 				} else {
 					$offset = 3600 * (float) get_option( 'gmt_offset' );
 				}
-			} else {
-				$offset = $timestamp - $timestamp_gmt;
 			}
 
 			$west    = $offset < 0;
@@ -66,6 +65,19 @@ class WPCOM_JSON_API_Date {
 		}
 
 		return gmdate( 'Y-m-d\\TH:i:s', $timestamp ) . sprintf( '%s%02d:%02d', $west ? '-' : '+', $hours, $minutes );
+	}
+
+	/**
+	 * Whether a number of seconds is a UTC offset a site can have: -12:00 to +14:00, in steps of 15 minutes.
+	 *
+	 * @param int $seconds Seconds east of UTC.
+	 *
+	 * @return bool
+	 */
+	private static function is_utc_offset( $seconds ) {
+		return $seconds >= -12 * HOUR_IN_SECONDS
+			&& $seconds <= 14 * HOUR_IN_SECONDS
+			&& 0 === $seconds % ( 15 * MINUTE_IN_SECONDS );
 	}
 
 	/**

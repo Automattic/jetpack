@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+REST API: Return a valid UTC offset for dates whose stored local and GMT times disagree.
