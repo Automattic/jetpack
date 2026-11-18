@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Let a site supply embed data for links that have no oEmbed provider.
