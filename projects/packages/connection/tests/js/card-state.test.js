@@ -131,21 +131,6 @@ describe( 'getCardConnection', () => {
 		assert.deepEqual( result.connectedPlugins, [] );
 	} );
 
-	for ( const [ slugs, hasJetpackPlugin, hasWooPlugin ] of [
-		[ [ 'jetpack' ], true, false ],
-		[ [ 'jetpack-boost' ], true, false ],
-		[ [ 'jetpackish' ], false, false ],
-		[ [ 'woocommerce-payments' ], false, true ],
-		[ [ 'automattic-for-agencies-client' ], false, false ],
-	] ) {
-		it( `classifies ${ slugs.join( ', ' ) }`, () => {
-			const result = derive( { plugins: slugs.map( slug => ( { slug } ) ) } );
-
-			assert.equal( result.hasJetpackPlugin, hasJetpackPlugin );
-			assert.equal( result.hasWooPlugin, hasWooPlugin );
-		} );
-	}
-
 	it( 'names plugins by slug when they have no name and attaches known logos', () => {
 		const result = derive(
 			{ plugins: [ { slug: 'jetpack', name: 'Jetpack' }, { slug: 'other' } ] },

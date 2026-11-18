@@ -39,6 +39,9 @@ import {
 	trackConnectionEvent,
 	getUserConnectKind,
 	getUserConnectMessage,
+	// Aliased: the card's connection state keeps the results under these names.
+	hasJetpackPlugin as includesJetpackPlugin,
+	hasWooPlugin as includesWooPlugin,
 	useConnectionErrorNotice,
 } from '@automattic/jetpack-connection';
 import * as components from '@wordpress/components';
@@ -152,12 +155,13 @@ function useCardConnection() {
 
 		return {
 			...connection,
+			hasJetpackPlugin: includesJetpackPlugin( connection.connectedPlugins ),
 			canTakeOwnerSlot,
 			// Checked as a function too: an older shared connection bundle has no such component.
 			useNewSafeModeScreen:
 				Boolean( identityCrisis?.useNewScreen ) && typeof IdentityCrisis === 'function',
 			tracksIdentity: getTracksIdentity( connection.currentUser ),
-			subjectNoun: connection.hasWooPlugin
+			subjectNoun: includesWooPlugin( connection.connectedPlugins )
 				? _x(
 						'store',
 						'The thing connected to WordPress.com, in a WooCommerce context.',

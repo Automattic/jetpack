@@ -102,17 +102,6 @@ export function getCardConnection(
 		ownerIsViewer,
 		viewerConnectionType,
 		connectedPlugins,
-		// Stats and Backups are Jetpack-plugin features, so only cite them as examples
-		// of paused features when a Jetpack-family plugin is actually connected.
-		// Other plugin families (WooCommerce, Automattic for Agencies) fall back to the
-		// generic "features that sync with WordPress.com" wording.
-		hasJetpackPlugin: connectedPlugins.some(
-			plugin => plugin.slug === 'jetpack' || plugin.slug.startsWith( 'jetpack-' )
-		),
-		// Per the Jetpack Connection language guidelines, use "store" whenever a
-		// WooCommerce-family plugin is connected (Woo is the user's primary context),
-		// and "site" otherwise.
-		hasWooPlugin: connectedPlugins.some( plugin => plugin.slug.startsWith( 'woocommerce' ) ),
 	};
 }
 
