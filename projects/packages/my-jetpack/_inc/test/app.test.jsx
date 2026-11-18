@@ -1,6 +1,7 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
 import App from '../app';
+import useAnalytics from '../hooks/use-analytics';
 import useMyJetpackConnection from '../hooks/use-my-jetpack-connection';
 import { queryClient } from '../providers';
 import { getRouteHref } from '../utils/route-href';
@@ -46,11 +47,7 @@ jest.mock( '@wordpress/route', () => {
 	};
 } );
 jest.mock( '../hooks/use-my-jetpack-connection' );
-const mockRecordEvent = jest.fn();
-jest.mock( '../hooks/use-analytics', () => ( {
-	__esModule: true,
-	default: () => ( { recordEvent: mockRecordEvent } ),
-} ) );
+const mockRecordEvent = jest.mocked( jest.mocked( useAnalytics )().recordEvent );
 jest.mock( '../hooks/use-paid-menu-sync', () => ( { usePaidMenuSync: jest.fn() } ) );
 
 jest.mock( '../components/my-jetpack-screen', () => ( {

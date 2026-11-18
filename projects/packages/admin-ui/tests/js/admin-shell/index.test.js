@@ -932,6 +932,83 @@ describe( 'admin shell turned-off features', () => {
 		expect( panel() ).toBeNull();
 	} );
 
+	it.each( [
+		[ 'booted', true, 'on' ],
+		[ 'still booting', false, 'on' ],
+		[ 'booted', true, 'off' ],
+		[ 'still booting', false, 'off' ],
+	] )(
+		'lets the newer check win for a %s page when it says %s and an older one comes back last',
+		async ( _, booted, newer ) => {
+			const newerOn = newer === 'on';
+			if ( booted ) {
+				open( 'guest-b' );
+				await settle();
+				open( 'host' );
+				await settle();
+			}
+			const answers = [];
+			const answer = global.fetch.getMockImplementation();
+			global.fetch.mockImplementation( ( url, options ) =>
+				String( url ).includes( 'member=guest-b' ) && ! options?.method
+					? new Promise( resolve => answers.push( resolve ) )
+					: answer( url, options )
+			);
+			const reply = on => ( { json: async () => ( { success: true, data: { on, card: '' } } ) } );
+
+			open( 'guest-b' );
+			await settle();
+			open( 'host' );
+			await settle();
+			open( 'guest-b' );
+			await settle();
+			answers[ 1 ]( reply( newerOn ) );
+			await settle();
+			answers[ 0 ]( reply( ! newerOn ) );
+			await settle();
+
+			expect( { panel: !! panel(), app: stateOf( 'guest-b' ) === 'visible' } ).toEqual( {
+				panel: ! newerOn,
+				app: newerOn,
+			} );
+		}
+	);
+
+	it( 'does not prewarm a page on hover once its check said its feature is off', async () => {
+		mockFeature.on = false;
+		open( 'guest-b' );
+		await settle();
+		open( 'host' );
+		await settle();
+
+		hover( 'guest-b' );
+		await settle();
+
+		const { applyGuestAssets } = require( '../../../src/admin-shell/guest-assets' );
+		expect( applyGuestAssets ).not.toHaveBeenCalledWith( expect.anything(), 'guest-b' );
+	} );
+
+	it( 'counts the panel as neither showing nor hiding the page', async () => {
+		open( 'guest-b' );
+		await settle();
+		open( 'host' );
+		await settle();
+		const hidden = [];
+		const recordHidden = event => hidden.push( event.detail.page );
+		window.addEventListener( 'jetpack-admin-shell:page-hidden', recordHidden );
+		shownEvents.length = 0;
+
+		mockFeature.on = false;
+		open( 'guest-b' );
+		await settle();
+		open( 'host' );
+		await settle();
+		window.removeEventListener( 'jetpack-admin-shell:page-hidden', recordHidden );
+
+		expect( hidden ).toEqual( [ 'host' ] );
+		expect( shownEvents ).toEqual( [ 'host' ] );
+	} );
+
 	it( 'says a booted page was shown only once its check says it is still on', async () => {
 		open( 'guest-b' );
 		await settle();

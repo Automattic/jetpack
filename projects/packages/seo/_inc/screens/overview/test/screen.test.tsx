@@ -7,15 +7,9 @@ import type { ReactNode } from 'react';
 // `--experimental-vm-modules` (true ESM): mock with `jest.unstable_mockModule`
 // and import the component under test dynamically after the mocks are registered.
 const getOverview = jest.fn< () => OverviewResponse | null >();
-const isGated = jest.fn< () => boolean >();
 
 jest.unstable_mockModule( '../../../data/get-overview', () => ( {
 	default: getOverview,
-} ) );
-
-jest.unstable_mockModule( '../../../data/is-gated', () => ( {
-	isGated,
-	getUpsellUrl: () => 'https://wordpress.com/checkout/example.com/value_bundle',
 } ) );
 
 jest.unstable_mockModule( '@wordpress/route', () => ( {
@@ -55,33 +49,13 @@ const buildOverview = (): OverviewResponse =>
 		},
 	} ) as OverviewResponse;
 
-describe( 'OverviewScreen — plan gating', () => {
+describe( 'OverviewScreen', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
 		getOverview.mockReturnValue( buildOverview() );
 	} );
 
-	it( 'shows the upsell banner and only the free cards when gated', () => {
-		isGated.mockReturnValue( true );
-
-		render( <OverviewScreen /> );
-
-		expect( screen.getByText( UPSELL_TITLE ) ).toBeInTheDocument();
-		expect( screen.getByText( 'Site visibility' ) ).toBeInTheDocument();
-		expect( screen.getByText( 'Site verification' ) ).toBeInTheDocument();
-	} );
-
-	it( 'hides the paid surfaces when gated', () => {
-		isGated.mockReturnValue( true );
-
-		render( <OverviewScreen /> );
-
-		expect( screen.queryByText( 'Content SEO' ) ).not.toBeInTheDocument();
-	} );
-
-	it( 'renders the full Overview with no banner when ungated', () => {
-		isGated.mockReturnValue( false );
-
+	it( 'renders the full Overview without an upgrade prompt', () => {
 		render( <OverviewScreen /> );
 
 		expect( screen.queryByText( UPSELL_TITLE ) ).not.toBeInTheDocument();

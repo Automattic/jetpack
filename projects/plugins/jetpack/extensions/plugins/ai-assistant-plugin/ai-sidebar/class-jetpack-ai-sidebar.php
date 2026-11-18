@@ -316,6 +316,7 @@ class Jetpack_AI_Sidebar {
 	 */
 	private static function is_seo_suggestions_enabled(): bool {
 		return class_exists( Ai_Seo::class )
+			&& Current_Plan::supports( 'ai-seo-enhancer' )
 			&& Ai_Seo::is_available()
 			&& \Jetpack_AI_Settings::is_ai_seo_enabled();
 	}
@@ -331,9 +332,7 @@ class Jetpack_AI_Sidebar {
 	}
 
 	/**
-	 * Whether this host loads the sidebar at all: a WordPress.com platform site
-	 * with Big Sky enabled, past the filter and the master switch. Public and
-	 * feature-free so the AI SEO gate can ask without asking back through it.
+	 * Whether this host enables the sidebar, before checking individual features.
 	 *
 	 * @since 16.2
 	 *

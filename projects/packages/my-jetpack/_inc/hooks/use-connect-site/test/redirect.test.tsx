@@ -18,10 +18,6 @@ jest.mock( '../../../data/products/use-products-by-ownership', () => ( {
 	__esModule: true,
 	default: () => ( { refetch: jest.fn() } ),
 } ) );
-jest.mock( '../../use-analytics', () => ( {
-	__esModule: true,
-	default: () => ( { recordEvent: jest.fn() } ),
-} ) );
 jest.mock( '../../../data/utils/get-my-jetpack-window-state', () => ( {
 	getMyJetpackWindowInitialState: () => ( {
 		siteSuffix: 'example.org',

@@ -50,11 +50,6 @@ jest.mock( '@automattic/jetpack-script-data', () => ( {
 	isSimpleSite: () => false,
 } ) );
 
-jest.mock( '../../use-analytics', () => ( {
-	__esModule: true,
-	default: () => ( { recordEvent: jest.fn() } ),
-} ) );
-
 jest.mock( '../../use-is-jetpack-user-new', () => ( {
 	__esModule: true,
 	default: () => false,

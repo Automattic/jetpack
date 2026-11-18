@@ -238,10 +238,31 @@ const start = ( {
 	// Panels standing in for pages whose feature is off, by page.
 	const offPanels = new Map();
 	const onScreen = slug => visible === slug && ! offPanels.has( slug );
-	const featureOf = slug =>
-		members[ slug ].gate && featureUrl
-			? checkFeature( featureUrl, slug, members[ slug ].gate, members[ slug ].gateNonce )
-			: Promise.resolve( { on: true, card: '' } );
+	// Each page's newest feature check, and the pages it last said are off.
+	const checks = {};
+	const knownOff = new Set();
+	const recheckFeature = slug => {
+		const check = (
+			members[ slug ].gate && featureUrl
+				? checkFeature( featureUrl, slug, members[ slug ].gate, members[ slug ].gateNonce )
+				: Promise.resolve( { on: true, card: '' } )
+		).then( result => {
+			if ( checks[ slug ] === check ) {
+				knownOff[ result.on ? 'delete' : 'add' ]( slug );
+			}
+			return result;
+		} );
+		checks[ slug ] = check;
+	};
+	// The newest check's answer, so an older one that comes back late can't overrule it.
+	const featureOf = async slug => {
+		let check, result;
+		do {
+			check = checks[ slug ];
+			result = await check;
+		} while ( check !== checks[ slug ] );
+		return result;
+	};
 	// Places the panel only: the switch that opened the page moves focus and announces it.
 	const showOff = ( slug, card ) => {
 		if ( offPanels.has( slug ) ) {
@@ -278,7 +299,7 @@ const start = ( {
 	};
 
 	// Registered and given its stand-in header at once, so a second visit finds it while the check is out.
-	const bootGuest = async ( slug, url, feature ) => {
+	const bootGuest = async ( slug, url ) => {
 		// Not a div: the host page's critical CSS hides every `#wpbody-content > div` but its own app.
 		const el = document.createElement( 'section' );
 		el.id = members[ slug ].mountId;
@@ -294,7 +315,7 @@ const start = ( {
 
 		try {
 			// After the check, so a page whose feature is off downloads nothing.
-			if ( ! ( await feature ).on ) {
+			if ( ! ( await featureOf( slug ) ).on ) {
 				log( 'switch', `${ slug }: its feature is off, not booting it` );
 				removeStandIn();
 				discard();
@@ -373,20 +394,24 @@ const start = ( {
 			removeHeader( previous );
 		}
 		apps.get( previous )?.place( false );
+		// The panel never showed the page, so taking it down doesn't hide the page either.
+		const leavesPanel = offPanels.has( previous );
 		hideOff( previous );
 		// Asked on every visit: the feature may have been switched off since the menu was drawn.
-		const feature = featureOf( slug );
+		recheckFeature( slug );
 		// Kept until a page-shown reports it, so a show another switch overtakes doesn't reset it.
 		hiddenAt[ previous ] ??= Date.now();
 		const dialogsClosed = closeDialogsOf( previous );
 		showOverlaysOf( slug );
-		emit( 'page-hidden', {
-			page: previous,
-			previous: null,
-			next: slug,
-			firstShow: false,
-			url: location.href,
-		} );
+		if ( ! leavesPanel ) {
+			emit( 'page-hidden', {
+				page: previous,
+				previous: null,
+				next: slug,
+				firstShow: false,
+				url: location.href,
+			} );
+		}
 		if ( push ) {
 			gate.pushUrl( url );
 		}
@@ -405,10 +430,10 @@ const start = ( {
 			} else {
 				log( 'switch', `${ slug } has not booted yet` );
 				window.scrollTo( 0, 0 );
-				await bootGuest( slug, url, feature );
+				await bootGuest( slug, url );
 			}
 			// A booted page shows at once, as it usually is still on; swapped for the panel if not.
-			const { on, card } = await feature;
+			const { on, card } = await featureOf( slug );
 			if ( ! on && visible === slug ) {
 				showOff( slug, card );
 			}
@@ -553,8 +578,11 @@ const start = ( {
 			return;
 		}
 		hoverTimer = setTimeout( () => {
-			// Keep the last slot for a click: passing over links on the way shouldn't spend it.
-			if ( ! apps.has( slug ) && hasRoomFor( slug, 1 ) && mayPrewarm() ) {
+			/*
+			 * Keep the last slot for a click: passing over links on the way shouldn't spend it.
+			 * A hover isn't a visit, so it checks no feature, only skips one a visit found off.
+			 */
+			if ( ! apps.has( slug ) && ! knownOff.has( slug ) && hasRoomFor( slug, 1 ) && mayPrewarm() ) {
 				prewarm( slug, 'menu hover' ).catch( () => {} );
 			}
 		}, HOVER_DELAY );
@@ -573,6 +601,7 @@ const start = ( {
 	const removeHostHeader = showHeaderAt( host, hostEl, location.href );
 	// The page load already said its feature is off, and sent the card with the config.
 	if ( members[ host ].featureOn === false ) {
+		hiddenAt[ host ] = Date.now();
 		showOff( host, members[ host ].featureCard ?? '' );
 	}
 	gate.mount( host );
