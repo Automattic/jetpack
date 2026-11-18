@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+Comment: Save the Google Analytics panel through GA_Manager when it can. The panel is behind a feature flag.
+

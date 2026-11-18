@@ -81,7 +81,8 @@ class Admin {
 			'title'        => 'Boost', // "Boost" is a product name, do not translate.
 			'capability'   => 'manage_options',
 			// The webpack bundle renders the dashboard's content into the wp-build page; it carries the Boost and DataSync data.
-			'handles'      => array( 'jetpack-boost-admin', 'wp-jp-i18n-loader' ),
+			// My Jetpack's header controls script fills the account control in Boost's header.
+			'handles'      => array( 'jetpack-boost-admin', 'my-jetpack-header-controls', 'wp-jp-i18n-loader' ),
 			'load'         => array( $this, 'load_as_admin_shell_guest' ),
 		);
 		// The Getting Started screen, which a bare menu link opens until it's done, has no page header.

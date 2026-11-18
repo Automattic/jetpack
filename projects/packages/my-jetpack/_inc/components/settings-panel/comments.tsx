@@ -1,10 +1,12 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
-import { InputControl, Link, Stack, SwitchControl, Text } from '@wordpress/ui';
+import { InputControl, Stack, SwitchControl, Text } from '@wordpress/ui';
 import { useCallback, useId, useState } from 'react';
+import { LearnMoreLink } from './learn-more-link';
 import { PanelModuleToggle } from './panel-module-toggle';
 import styles from './styles.module.scss';
 import { useModuleOption, useModuleSetting } from './use-module-option';
+import { useSettingsPanelTracking } from './use-settings-panel-tracking';
 import type { ModuleSettingsProps } from './registry';
 
 /**
@@ -24,6 +26,7 @@ export function CommentsSettings( { module: $module, disabled }: ModuleSettingsP
 	const [ draft, setDraft ] = useState< string | null >( null );
 	const optionsDisabled = ! $module.activated || disabled;
 	const labelId = useId();
+	const { trackSettingChange } = useSettingsPanelTracking( $module.module );
 	// Jetpack versions without block comments do not send the option.
 	const blocksAvailable =
 		! Array.isArray( $module.options ) && undefined !== $module.options?.enable_blocks_comments;
@@ -34,10 +37,11 @@ export function CommentsSettings( { module: $module, disabled }: ModuleSettingsP
 		if ( draft === null || draft === storedPrompt ) {
 			return;
 		}
+		trackSettingChange( 'highlander_comment_form_prompt' );
 		if ( await savePrompt( draft ) ) {
 			setDraft( null );
 		}
-	}, [ draft, storedPrompt, savePrompt ] );
+	}, [ draft, storedPrompt, savePrompt, trackSettingChange ] );
 
 	return (
 		<Stack direction="column" gap="lg">
@@ -47,13 +51,12 @@ export function CommentsSettings( { module: $module, disabled }: ModuleSettingsP
 					'jetpack-my-jetpack'
 				) }
 			</Text>
-			<Link
+			<LearnMoreLink
+				module={ $module.module }
 				href={ getRedirectUrl( 'jetpack-support-comments' ) }
-				target="_blank"
-				rel="noopener noreferrer"
 			>
 				{ __( 'Learn more about Comments', 'jetpack-my-jetpack' ) }
-			</Link>
+			</LearnMoreLink>
 
 			<Stack
 				direction="row"
