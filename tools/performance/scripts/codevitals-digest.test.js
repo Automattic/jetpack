@@ -205,25 +205,47 @@ const SCENARIOS = {
 			302: [ ...steady( 10, 5, 100 ), ...seq( 10, 4.9, 107 ) ],
 		},
 	} ),
-	jetpackMetricPolicy: () => {
+	scannedReverts: () => ( {
+		series: Object.fromEntries(
+			[ 6, 9 ].map( ( length, i ) => [
+				301 + i,
+				flaggedSeries(
+					[
+						...Array( 30 ).fill( 100 ),
+						...Array( length ).fill( 110 ),
+						...Array( 30 ).fill( 100 ),
+					],
+					[],
+					'revert'
+				),
+			] )
+		),
+	} ),
+	jetpackMetricPolicy: ( { excludedId = 203, ttfbId = 212, fcpId = 213 } = {} ) => {
 		const pre = [ ...Array( 5 ).fill( 90 ), ...Array( 5 ).fill( 110 ) ];
 		const rise = levelSeries( pre, 125, Array( 10 ).fill( 125 ) );
 		return {
 			metrics: [
 				metricRow( 201, 'Dashboard LCP', 'dashboard-lcp' ),
-				metricRow( 203, 'Dashboard FCP', 'dashboard-fcp' ),
-				metricRow( 212, 'My Jetpack TTFB', 'my-jetpack-ttfb' ),
-				metricRow( 213, 'My Jetpack FCP', 'my-jetpack-fcp' ),
+				metricRow(
+					excludedId,
+					'Dashboard FCP',
+					'wp-admin-dashboard-connection-sim-firstContentfulPaint'
+				),
+				metricRow( ttfbId, 'My Jetpack TTFB', 'my-jetpack-connection-sim-timeToFirstByte' ),
+				metricRow( fcpId, 'My Jetpack FCP', 'my-jetpack-connection-sim-firstContentfulPaint' ),
 			],
 			series: {
 				201: rise,
-				203: rise,
-				212: rise,
-				213: rise.map( point => ( { ...point, isRegression: false } ) ),
+				[ excludedId ]: rise,
+				[ ttfbId ]: rise,
+				[ fcpId ]: rise.map( point => ( { ...point, isRegression: false } ) ),
 			},
 			no302: true,
 		};
 	},
+	recreatedMetricPolicy: () =>
+		SCENARIOS.jetpackMetricPolicy( { excludedId: 903, ttfbId: 912, fcpId: 913 } ),
 	diprecovery: () => ( {
 		series: { 301: levelSeries( [ ...Array( 9 ).fill( 100 ), 80 ], 110, Array( 10 ).fill( 100 ) ) },
 	} ),
@@ -631,7 +653,7 @@ const SCENARIOS = {
 		series[ 506 ] = levelSeries( Array( 10 ).fill( 0 ), 100, Array( 10 ).fill( 100 ) );
 		return { metrics, series };
 	},
-	// A short revert does not establish a new median level.
+	// The original rise holds across the brief dip, so the re-land flag adds no new change.
 	relanded: () => ( {
 		series: {
 			301: [
@@ -684,7 +706,7 @@ const SCENARIOS = {
 			301: [
 				...steady( 10, 6.0, 100 ),
 				pt( 5.3, 200, 'feedbf03', true, 100.0 ),
-				...seq( 6, 5.2, 200, 'c' ),
+				...seq( 6, 5.2, 200, 'c' ), // Re-runs of the first six baseline commits.
 				...seq( 10, 4.6, 100, 'dd' ),
 			],
 		},
@@ -1213,7 +1235,7 @@ const SCENARIOS = {
 	} ),
 	// A /metrics row with a non-numeric id must warn in the digest + exit 1.
 	nullids: () => ( {
-		metrics: [ ...baseMetrics(), { ...metricRow( 0, 'Ghost: LCP', 'ghost-lcp' ), id: 'abc' } ],
+		metrics: [ ...baseMetrics(), metricRow( '0xcb', 'Ghost: LCP', 'ghost-lcp' ) ],
 		series: { 301: steady( 30, 0.5, 100 ) },
 	} ),
 	// createdAt in the FUTURE + zero points: stale, never permanently "warming up".
@@ -1233,7 +1255,7 @@ const SCENARIOS = {
 	} ),
 	nanpctPending: () => {
 		const fixture = SCENARIOS.nanpct();
-		fixture.series[ 301 ] = [ ...fixture.series[ 301 ].slice( 0, 21 ), ...seq( 5, 4.9, 100, 'q' ) ];
+		fixture.series[ 301 ] = fixture.series[ 301 ].slice( 0, 26 );
 		return fixture;
 	},
 	// 200-char unit must be clipped to 120 in every render site.
@@ -1686,12 +1708,22 @@ test( 'an unflagged step needs ten commits on each side and produces one digest 
 	assert.doesNotMatch( result.out, /single-pair|flag|pending/ );
 } );
 
+test( 'the scan rejects rises that revert before ten later commits', async () => {
+	const result = await runDigest( 'scannedReverts' );
+	assert.equal( result.code, 0, result.err );
+	assert.match( result.out, /No sustained metric regressions/ );
+} );
+
 test( 'Dashboard FCP is excluded from discovery and overrides', async () => {
-	for ( const env of [ {}, { METRIC_IDS: '201,0203' } ] ) {
-		const result = await runDigest( 'jetpackMetricPolicy', env );
+	for ( const [ scenario, env, opts ] of [
+		[ 'recreatedMetricPolicy', {}, {} ],
+		[ 'jetpackMetricPolicy', { METRIC_IDS: '201,0203' }, { discoFail: true } ],
+	] ) {
+		const result = await runDigest( scenario, env, opts );
 		assert.equal( result.code, 0, result.err );
-		assert.doesNotMatch( result.requests.join( '\n' ), /\/evolution\/0?203\?/ );
-		assert.doesNotMatch( result.out, /Dashboard FCP|Timing diagnostics could not be fully read/ );
+		assert.doesNotMatch( result.requests.join( '\n' ), /\/evolution\/(?:0?203|903)\?/ );
+		assert.doesNotMatch( result.out, /Dashboard FCP/ );
+		assert.match( result.err, /metric (?:0203|903): Dashboard FCP excluded/ );
 	}
 	const excludedOnly = await runDigest( 'jetpackMetricPolicy', { METRIC_IDS: '203' } );
 	assert.equal( excludedOnly.code, 1 );
@@ -1699,7 +1731,7 @@ test( 'Dashboard FCP is excluded from discovery and overrides', async () => {
 } );
 
 test( 'My Jetpack TTFB and FCP require twice the noise bar for the same rise', async () => {
-	const result = await runDigest( 'jetpackMetricPolicy' );
+	const result = await runDigest( 'recreatedMetricPolicy' );
 	assert.equal( result.code, 0, result.err );
 	const payload = JSON.parse( result.out );
 	const lines = payload.blocks.filter( block => block.text?.text.startsWith( '•' ) );

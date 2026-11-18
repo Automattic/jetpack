@@ -35,26 +35,26 @@ const clip = raw => {
 // rule cannot drift.
 const mrkdwn = text => ( { type: 'mrkdwn', text, verbatim: true } );
 const section = text => ( { type: 'section', text: mrkdwn( text ) } );
+const metricKey = ( key, field ) =>
+	SCENARIOS.find( scenario => scenario.key === key ).metrics.find(
+		metric => metric.field === field
+	).codevitalsKey;
 const PAGE_WEIGHT_KEYS = new Set(
-	[ 'formsResponses', 'myJetpack' ].map(
-		key =>
-			SCENARIOS.find( scenario => scenario.key === key ).metrics.find(
-				metric => metric.field === 'decodedBytesKB'
-			).codevitalsKey
-	)
+	[ 'formsResponses', 'myJetpack' ].map( key => metricKey( key, 'decodedBytesKB' ) )
 );
 const TIMING_CAVEAT = 'Timings: warm reload, test site with default data, simulated connection.';
 const LEVEL_WINDOW = 10;
-const DASHBOARD_FCP_ID = 203; // Dashboard FCP duplicates Dashboard LCP.
-// My Jetpack TTFB and FCP vary more between commits. Remove these factors once more loads lower their noise.
-const JETPACK_NOISE_FACTORS = new Map( [
-	[ 212, 2 ], // My Jetpack TTFB
-	[ 213, 2 ], // My Jetpack FCP
-] );
+const METRIC_POLICIES = [
+	{ id: '203', key: metricKey( 'jetpackConnected', 'fcp' ), exclude: true }, // Duplicates Dashboard LCP.
+	// My Jetpack TTFB and FCP vary more between commits. Remove these factors once more loads lower their noise.
+	{ id: '212', key: metricKey( 'myJetpack', 'ttfb' ), noiseFactor: 2 },
+	{ id: '213', key: metricKey( 'myJetpack', 'fcp' ), noiseFactor: 2 },
+];
+const isNumericId = id => /^[0-9]+$/.test( id );
 const robustScale = ( values, level ) =>
 	Math.max( 1.4826 * median( values.map( value => Math.abs( value - level ) ) ), 0.002 * level );
 
-const hasLevelRise = ( before, after, noiseFactor ) => {
+const hasLevelRise = ( before, after, noiseFactor = 1 ) => {
 	if ( before.length === 0 || after.length === 0 ) return false;
 	const pre = median( before );
 	const post = median( after );
@@ -77,6 +77,32 @@ const levelScore = ( before, fromCandidate, pre ) =>
 		0.001
 	);
 const strongestWindow = ( best, candidate ) => ( candidate.score > best.score ? candidate : best );
+
+const scanLevelHolds = ( rows, { position, pre, post, postValues }, noiseFactor ) => {
+	// Locate the change where assigning readings to the two medians gives the smallest total error.
+	let changeIndex = position - LEVEL_WINDOW;
+	let errorDifference = 0;
+	let bestError = 0;
+	for ( let i = changeIndex; i < position + LEVEL_WINDOW; i++ ) {
+		const { v } = rows[ i ];
+		errorDifference += Math.abs( v - pre ) - Math.abs( v - post );
+		if ( errorDifference < bestError ) {
+			bestError = errorDifference;
+			changeIndex = i + 1;
+		}
+	}
+	const after = rows.slice( changeIndex + 1, changeIndex + 1 + LEVEL_WINDOW ).map( row => row.v );
+	const midpoint = ( pre + post ) / 2;
+	if ( after.length < LEVEL_WINDOW || median( after ) < midpoint ) return false;
+
+	// A dip can be noise. Reject a return toward baseline only if the readings from the dip support it.
+	return ! after.some( ( value, i ) => {
+		if ( value >= midpoint ) return false;
+		const dip = changeIndex + 1 + i;
+		const following = rows.slice( dip, dip + LEVEL_WINDOW ).map( item => item.v );
+		return median( following ) < midpoint && hasLevelRise( following, postValues, noiseFactor );
+	} );
+};
 
 const fmt = v => ( Number.isInteger( v ) ? String( v ) : Number( v ).toFixed( 1 ) );
 const pctStr = p => {
@@ -217,7 +243,6 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 	const repoName = REPO.split( '/' ).pop() || REPO;
 	const repoTitle = repoName.charAt( 0 ).toUpperCase() + repoName.slice( 1 );
 	const isJetpackRepo = REPO.toLowerCase() === 'automattic/jetpack';
-	const isWatchedMetric = id => ! isJetpackRepo || Number( id ) !== DASHBOARD_FCP_ID;
 	const BRANCH = ( env.CODEVITALS_BRANCH || '' ).trim() || 'trunk';
 	// Token and channel are trimmed like DRY_RUN (a pasted trailing space must take the loud
 	// misconfig path, not a bare invalid_auth/channel_not_found). A CI secret placeholder (any
@@ -269,9 +294,7 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 			throw new Error(
 				'non-array /metrics response (a misconfigured CODEVITALS_EVOLUTION_URL serves the SPA HTML here)'
 			);
-		metaById = new Map(
-			rows.map( m => [ String( m.id ), m ] ).filter( ( [ id ] ) => isWatchedMetric( id ) )
-		);
+		metaById = new Map( rows.map( m => [ String( m.id ), m ] ) );
 	} catch ( e ) {
 		discoveryError = errMsg( e );
 		console.error( `metrics lookup failed: ${ discoveryError }` );
@@ -280,16 +303,24 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 		const m = metaById.get( String( id ) ) || {};
 		return esc( clip( m.name || m.key || `metric ${ id }` ) );
 	};
+	const metricPolicy = id => {
+		const canonicalId = id.replace( /^0+(?=\d)/, '' );
+		const key = ( metaById.get( id ) ?? metaById.get( canonicalId ) )?.key;
+		const hasKey = typeof key === 'string' && key.length > 0;
+		return METRIC_POLICIES.find( policy =>
+			hasKey ? policy.key === key : isJetpackRepo && policy.id === canonicalId
+		);
+	};
 
 	let metricIds;
 	let droppedIds = 0;
 	if ( METRIC_IDS_OVERRIDE.length > 0 ) {
-		metricIds = METRIC_IDS_OVERRIDE.filter( isWatchedMetric );
+		metricIds = METRIC_IDS_OVERRIDE;
 		if ( discoveryError ) console.error( '(names fall back to ids)' );
 	} else if ( ! discoveryError ) {
 		// Ids land in a URL path: a non-numeric id from a drifted contract must not pass through.
 		metricIds = [ ...metaById.keys() ]
-			.filter( id => /^[0-9]+$/.test( id ) )
+			.filter( isNumericId )
 			.sort( ( a, b ) => Number( a ) - Number( b ) );
 		droppedIds = metaById.size - metricIds.length;
 		// A dropped id is a metric that silently left the watch list, the exact false-clean
@@ -300,6 +331,13 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 				`${ droppedIds } discovered metric id(s) were non-numeric — dropped (API contract drift?)`
 			);
 	}
+	metricIds = metricIds?.filter( id => {
+		if ( ! metricPolicy( id )?.exclude ) return true;
+		console.error(
+			`metric ${ id }: Dashboard FCP excluded from the watch list because it duplicates Dashboard LCP`
+		);
+		return false;
+	} );
 	const discoveryFailed = ! metricIds || metricIds.length === 0;
 
 	const confirmed = []; // In-window sustained regressions.
@@ -314,7 +352,7 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 	let agedOutFlags = 0; // flags older than even the 2x look-back — designed silent exit (see below), but the count must not vanish entirely
 
 	for ( const id of discoveryFailed ? [] : metricIds ) {
-		const noiseFactor = ( isJetpackRepo && JETPACK_NOISE_FACTORS.get( Number( id ) ) ) || 1;
+		const { noiseFactor } = metricPolicy( id ) ?? {};
 		const meta = metaById.get( id ) || {};
 		const series = {
 			id,
@@ -713,7 +751,7 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 			else pending.push( entry );
 		}
 
-		// Neighbouring windows can see the same step. Choose its strongest window before applying the look-back.
+		// Neighbouring windows can see the same step even when a window between them fails the gate.
 		const scans = [];
 		for ( let position = LEVEL_WINDOW; position < byServe.length - LEVEL_WINDOW; position++ ) {
 			const { t } = byServe[ position ];
@@ -730,6 +768,7 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 				late: now - t > windowMs,
 				pre,
 				post: median( postValues ),
+				postValues,
 				score: levelScore( preValues, fromCandidate, pre ),
 				rangeStart: before[ 0 ].p.hash,
 				rangeEnd: after.at( -1 ).p.hash,
@@ -737,14 +776,18 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 				fromScan: true,
 			};
 			const group = scans.at( -1 );
-			if ( group?.at( -1 ).position === position - 1 ) group.push( entry );
+			if ( group && position - group.at( -1 ).position <= LEVEL_WINDOW ) group.push( entry );
 			else scans.push( [ entry ] );
 		}
+		const flagsCoveringScans = [ ...sustained, ...metricPending ];
 		for ( const group of scans ) {
 			const entry = group.reduce( strongestWindow );
 			if (
 				now - entry.t <= detectMs &&
-				! sustained.some( flag => Math.abs( flag.position - entry.position ) <= LEVEL_WINDOW )
+				! flagsCoveringScans.some(
+					flag => Math.abs( flag.position - entry.position ) <= LEVEL_WINDOW
+				) &&
+				scanLevelHolds( byServe, entry, noiseFactor )
 			) {
 				groups.push( [ entry ] );
 			}
@@ -1051,7 +1094,9 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 		const warmingUpIds = new Set( warmingUp );
 		const categoryFullyRead = categories.map( ( _, index ) => {
 			const inventory = [ ...metaById ].filter(
-				( [ , metric ] ) => PAGE_WEIGHT_KEYS.has( metric.key ) === ( index === 0 )
+				( [ id, metric ] ) =>
+					! ( isNumericId( id ) && metricPolicy( id )?.exclude ) &&
+					PAGE_WEIGHT_KEYS.has( metric.key ) === ( index === 0 )
 			);
 			return (
 				! discoveryError &&
