@@ -239,10 +239,10 @@ class Site_Accelerator extends Module_Product {
 	 */
 	public static function deactivate() {
 		// Do not reorder: the parent checks is_module_active(), which still sees the Asset CDN if it is on.
-		if ( class_exists( 'Jetpack' ) ) {
-			Jetpack::deactivate_module( self::ASSET_CDN_MODULE );
-		}
+		$asset_cdn_result = class_exists( 'Jetpack' ) && Jetpack::deactivate_module( self::ASSET_CDN_MODULE );
+		$result           = parent::deactivate();
 
-		return parent::deactivate();
+		// Turning off an Image CDN that was already off returns false, so count the Asset CDN change.
+		return is_wp_error( $result ) ? $result : ( $result || $asset_cdn_result );
 	}
 }
