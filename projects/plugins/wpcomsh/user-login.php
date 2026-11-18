@@ -273,13 +273,14 @@ function wpcomsh_follow_user_login_rename( $user_id, $old_login, $new_login ) {
 
 	$new_slug = get_userdata( $user_id )->user_nicename;
 
+	// Each slug is cleared from every user, so it redirects to whoever left it last, and a live slug
+	// (including one this user is taking back) never redirects at all.
 	if ( $new_slug !== $old_slug ) {
-		delete_user_meta( $user_id, WPCOMSH_OLD_AUTHOR_SLUG_META, $old_slug );
+		delete_metadata( 'user', 0, WPCOMSH_OLD_AUTHOR_SLUG_META, $old_slug, true );
 		add_user_meta( $user_id, WPCOMSH_OLD_AUTHOR_SLUG_META, $old_slug );
 	}
 
-	// Renaming back to an earlier login makes that slug live again.
-	delete_user_meta( $user_id, WPCOMSH_OLD_AUTHOR_SLUG_META, $new_slug );
+	delete_metadata( 'user', 0, WPCOMSH_OLD_AUTHOR_SLUG_META, $new_slug, true );
 
 	return true;
 }

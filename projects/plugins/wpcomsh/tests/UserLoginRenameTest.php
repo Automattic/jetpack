@@ -378,4 +378,19 @@ class UserLoginRenameTest extends WP_UnitTestCase {
 
 		$this->assertSame( get_author_posts_url( $user_id ), wpcomsh_get_old_author_slug_redirect_url() );
 	}
+
+	/**
+	 * When two users have left the same slug, it redirects to the one who left it last.
+	 */
+	public function test_an_old_slug_redirects_to_the_user_who_left_it_last() {
+		$first_id = $this->create_user( 'shared' );
+		wpcomsh_rename_user_login( $first_id, 'shared', 'first_after' );
+
+		$second_id = $this->create_user( 'shared', array( 'user_email' => 'second@example.com' ) );
+		wpcomsh_rename_user_login( $second_id, 'shared', 'second_after' );
+
+		$this->query_author( 'shared' );
+
+		$this->assertSame( get_author_posts_url( $second_id ), wpcomsh_get_old_author_slug_redirect_url() );
+	}
 }
