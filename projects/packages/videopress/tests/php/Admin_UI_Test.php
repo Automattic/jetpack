@@ -359,6 +359,34 @@ class Admin_UI_Test extends BaseTestCase {
 	}
 
 	/**
+	 * The page leaves the media library to the thumbnail picker, which loads it when clicked.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_enqueue_admin_scripts_does_not_load_the_media_library() {
+		Admin_UI::enqueue_admin_scripts();
+
+		$this->assertSame( 0, did_action( 'wp_enqueue_media' ) );
+	}
+
+	/**
+	 * The picker's endpoint is hooked without the admin menu, which admin-ajax never builds.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_init_hooks_the_media_library_endpoint() {
+		Admin_UI::init();
+
+		$this->assertNotFalse( has_action( 'wp_ajax_jetpack_media_library' ) );
+	}
+
+	/**
 	 * Data provider for test_shell_header_subtitle_drops_the_learn_more_link.
 	 *
 	 * @return array[] Translated dashboard string, expected subtitle.

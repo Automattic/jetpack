@@ -1,3 +1,4 @@
+let mockMounting = false;
 const mockInits = { a: jest.fn(), b: jest.fn() };
 // One mock for every copy of the shell: each test loads it again, and earlier copies still hear clicks.
 const mockShowHeader = jest.fn( () => () => {} );
@@ -7,7 +8,7 @@ jest.mock( '../../../src/admin-shell/adapter', () => ( {
 	bootFor: jest.fn( () => Promise.resolve( { initSinglePage: jest.fn() } ) ),
 	isolateRouters: jest.fn( ( getVisible, onWrite ) => ( {
 		listen: jest.fn(),
-		isMounting: () => false,
+		isMounting: () => mockMounting,
 		mount: jest.fn(),
 		mounted: jest.fn(),
 		pushUrl: jest.fn( url => {
@@ -19,6 +20,7 @@ jest.mock( '../../../src/admin-shell/adapter', () => ( {
 			onWrite();
 		} ),
 	} ) ),
+	loadPage: jest.fn(),
 	notifyRouters: jest.fn(),
 	prefetchBoot: jest.fn( () => Promise.resolve() ),
 	trackViewTransitions: jest.fn(),
@@ -77,10 +79,25 @@ const settle = async () => {
 	}
 };
 
-const hover = slug =>
-	document
-		.querySelector( `#adminmenu a[href$="page=${ slug }"]` )
-		.dispatchEvent( new Event( 'pointerover', { bubbles: true } ) );
+let mockConfigExtra = {};
+
+const menuLink = slug => document.querySelector( `#adminmenu a[href$="page=${ slug }"]` );
+const pointer = ( slug, type ) =>
+	menuLink( slug ).dispatchEvent( new Event( type, { bubbles: true } ) );
+
+// Rest the pointer on a menu link long enough for its dashboard to prewarm.
+const hover = slug => {
+	pointer( slug, 'pointerout' );
+	const faked = !! setTimeout.clock;
+	if ( ! faked ) {
+		jest.useFakeTimers();
+	}
+	pointer( slug, 'pointerover' );
+	jest.advanceTimersByTime( 100 );
+	if ( ! faked ) {
+		jest.useRealTimers();
+	}
+};
 
 beforeEach( () => {
 	mockShowHeader.mockClear();
@@ -101,6 +118,7 @@ beforeEach( () => {
 		},
 		guestAssetsUrl: '/wp-admin/admin-ajax.php',
 		headerStorageKey: 'test',
+		...mockConfigExtra,
 	};
 	document.body.innerHTML = `
 		<ul id="adminmenu">
@@ -148,7 +166,9 @@ const popTo = url => {
 		( [ type ] ) => type === 'popstate'
 	)[ 1 ];
 	globalThis.history.replaceState( null, '', url );
-	onPopState( { isTrusted: true } );
+	const event = { isTrusted: true, stopImmediatePropagation: jest.fn() };
+	onPopState( event );
+	return event;
 };
 
 const where = () => location.search;
@@ -262,6 +282,40 @@ describe( 'admin shell leave guard', () => {
 } );
 
 describe( 'admin shell prewarm', () => {
+	it( 'prewarms only the link the pointer rests on, not those it sweeps past', async () => {
+		jest.useFakeTimers();
+		pointer( 'guest-a', 'pointerover' );
+		jest.advanceTimersByTime( 60 );
+		pointer( 'guest-b', 'pointerover' );
+		jest.advanceTimersByTime( 60 );
+		pointer( 'guest-b', 'pointerout' );
+		jest.advanceTimersByTime( 200 );
+		pointer( 'guest-a2', 'pointerover' );
+		jest.advanceTimersByTime( 100 );
+		await jest.advanceTimersByTimeAsync( 0 );
+
+		expect(
+			require( '../../../src/admin-shell/guest-assets' ).applyGuestAssets.mock.calls.map(
+				( [ , slug ] ) => slug
+			)
+		).toEqual( [ 'guest-a2' ] );
+	} );
+
+	it( 'waits for the click while the user saves data', async () => {
+		Object.defineProperty( navigator, 'connection', {
+			value: { saveData: true },
+			configurable: true,
+		} );
+		try {
+			hover( 'guest-a' );
+			await settle();
+		} finally {
+			delete navigator.connection;
+		}
+
+		expect( mockInits.a ).not.toHaveBeenCalled();
+	} );
+
 	it( "retries a guest's init after it failed, without holding up other guests", async () => {
 		mockInits.a.mockRejectedValueOnce( new Error( 'apiFetch failed' ) );
 
@@ -327,6 +381,53 @@ describe( 'admin shell prewarm', () => {
 describe( 'admin shell switch', () => {
 	const A = '/wp-admin/admin.php?page=guest-a';
 	const B = '/wp-admin/admin.php?page=guest-b';
+
+	it.each( [
+		[ 'fresh', 4, false ],
+		[ 'stale', 5, true ],
+	] )( 'says a page kept mounted is %s after %i minutes hidden', async ( _, minutes, stale ) => {
+		const now = jest.spyOn( Date, 'now' ).mockReturnValue( 0 );
+		click( A );
+		await settle();
+		click( B );
+		await settle();
+		const shown = [];
+		const onShown = event => shown.push( event.detail );
+		window.addEventListener( 'jetpack-admin-shell:page-shown', onShown );
+
+		now.mockReturnValue( minutes * 60000 );
+		click( A );
+		await settle();
+		window.removeEventListener( 'jetpack-admin-shell:page-shown', onShown );
+
+		expect( shown ).toEqual( [
+			expect.objectContaining( { page: 'guest-a', hiddenFor: minutes * 60000, stale } ),
+		] );
+	} );
+
+	it( 'keeps a page stale through a show another switch overtook', async () => {
+		const now = jest.spyOn( Date, 'now' ).mockReturnValue( 0 );
+		click( A );
+		await settle();
+		click( B );
+		await settle();
+		const { closeDialogsOf } = require( '../../../src/admin-shell/overlays' );
+		closeDialogsOf.mockImplementationOnce( () => new Promise( () => {} ) );
+		now.mockReturnValue( 10 * 60000 );
+		click( A );
+		await settle();
+		click( B );
+		await settle();
+		const shown = [];
+		const onShown = event => shown.push( event.detail );
+		window.addEventListener( 'jetpack-admin-shell:page-shown', onShown );
+
+		click( A );
+		await settle();
+		window.removeEventListener( 'jetpack-admin-shell:page-shown', onShown );
+
+		expect( shown ).toEqual( [ expect.objectContaining( { page: 'guest-a', stale: true } ) ] );
+	} );
 
 	it( 'names the next page when it hides one, and says whether a shown page is new', async () => {
 		const events = [];
@@ -450,5 +551,170 @@ describe( 'admin shell stand-in header', () => {
 
 		expect( document.getElementById( 'guest-a2-app' ) ).not.toBeNull();
 		expect( mockShowHeader.mock.calls.map( ( [ slug ] ) => slug ) ).not.toContain( 'guest-a2' );
+	} );
+} );
+
+describe( 'admin shell live-app limit', () => {
+	const A = '/wp-admin/admin.php?page=guest-a';
+	// Whether the shell kept the last click, or left it to load the page.
+	let kept;
+	const keepClick = event => {
+		kept = event.defaultPrevented;
+		event.preventDefault();
+	};
+	const prewarmed = () =>
+		require( '../../../src/admin-shell/guest-assets' ).applyGuestAssets.mock.calls.map(
+			( [ , slug ] ) => slug
+		);
+
+	beforeAll( () => {
+		mockConfigExtra = { maxLiveApps: 3 };
+	} );
+	beforeEach( () => {
+		kept = undefined;
+		window.addEventListener( 'click', keepClick );
+	} );
+	afterEach( () => window.removeEventListener( 'click', keepClick ) );
+	afterAll( () => {
+		mockConfigExtra = {};
+	} );
+
+	// Fill the limit: the host, guest A mounted or only prewarmed, and guest B mounted.
+	const fill = async prewarmOnly => {
+		if ( prewarmOnly ) {
+			hover( 'guest-a' );
+		} else {
+			click( A );
+		}
+		await settle();
+		click( '/wp-admin/admin.php?page=guest-b' );
+		await settle();
+		kept = undefined;
+	};
+
+	it.each( [
+		[ 'mounted', false ],
+		[ 'only prewarmed', true ],
+	] )(
+		'loads the page for a new dashboard once the limit is reached with one %s',
+		async ( _, prewarmOnly ) => {
+			await fill( prewarmOnly );
+			click( '/wp-admin/admin.php?page=guest-a2' );
+			await settle();
+
+			expect( kept ).toBe( false );
+			expect( stateOf( 'guest-a2' ) ).toBeUndefined();
+			expect( prewarmed() ).toEqual( [ 'guest-a', 'guest-b' ] );
+		}
+	);
+
+	const A2 = '/wp-admin/admin.php?page=guest-a2';
+	const loaded = () => require( '../../../src/admin-shell/adapter' ).loadPage.mock.calls;
+
+	it( 'loads the page for Back/Forward to a new dashboard once the limit is reached', async () => {
+		await fill( false );
+		const back = popTo( A2 );
+		await settle();
+
+		expect( loaded() ).toEqual( [
+			[ expect.stringContaining( 'page=guest-a2' ), { replace: true } ],
+		] );
+		expect( stateOf( 'guest-a2' ) ).toBeUndefined();
+		expect( prewarmed() ).toEqual( [ 'guest-a', 'guest-b' ] );
+		// The visible app keeps its own URL, and its routers and guards never hear the popstate.
+		expect( where() ).toBe( '?page=guest-b' );
+		expect( back.stopImmediatePropagation ).toHaveBeenCalled();
+	} );
+
+	it( 'loads the page for Back/Forward while an app mounts, without asking', async () => {
+		mockStay.mockClear();
+		window.addEventListener( 'jetpack-admin-shell:before-leave', mockStay );
+		mockMounting = true;
+		try {
+			popTo( A2 );
+			await settle();
+		} finally {
+			mockMounting = false;
+		}
+
+		expect( loaded() ).toEqual( [
+			[ expect.stringContaining( 'page=guest-a2' ), { replace: true } ],
+		] );
+		expect( mockStay ).not.toHaveBeenCalled();
+		expect( where() ).toBe( '?page=host' );
+	} );
+
+	it.each( [
+		[ 'a click', () => click( A2 ) ],
+		[ 'Back/Forward', () => popTo( A2 ) ],
+	] )( 'stays past the limit when a hidden dashboard keeps its edits, on %s', async ( _, go ) => {
+		await fill( false );
+		mockStay.mockClear();
+		window.addEventListener( 'jetpack-admin-shell:before-leave', mockStay );
+		go();
+		await settle();
+
+		expect( mockStay ).toHaveBeenCalledWith(
+			expect.objectContaining( {
+				detail: { page: 'guest-a', url: expect.stringContaining( 'page=guest-a2' ) },
+			} )
+		);
+		expect( kept ).not.toBe( false );
+		expect( loaded() ).toEqual( [] );
+		expect( where() ).toBe( '?page=guest-b' );
+		expect( stateOf( 'guest-b' ) ).toBe( 'visible' );
+	} );
+
+	it.each( [
+		[ 'stays when a hidden dashboard keeps its edits', true, [] ],
+		[ 'loads the page otherwise', false, [ [ expect.stringContaining( 'page=guest-a2' ) ] ] ],
+	] )( '%s, when the last slot went while an overlay closed', async ( _, stays, expected ) => {
+		click( A );
+		await settle();
+		let closeOverlay;
+		require( '../../../src/admin-shell/overlays' ).closeOverlayAround.mockImplementationOnce(
+			() => new Promise( resolve => ( closeOverlay = resolve ) )
+		);
+		click( A2 );
+		click( '/wp-admin/admin.php?page=guest-b' );
+		await settle();
+		mockStay.mockClear();
+		if ( stays ) {
+			window.addEventListener( 'jetpack-admin-shell:before-leave', mockStay );
+		}
+		closeOverlay( true );
+		await settle();
+
+		expect( loaded() ).toEqual( expected );
+		expect( mockStay.mock.calls.length > 0 ).toBe( stays );
+		expect( stateOf( 'guest-a2' ) ).toBeUndefined();
+		expect( where() ).toBe( '?page=guest-b' );
+	} );
+
+	it.each( [
+		[ 'back to a mounted one', false, '/wp-admin/admin.php?page=host', 'host' ],
+		[ 'to one only prewarmed', true, A, 'guest-a' ],
+	] )( 'switches in place at the limit %s', async ( _, prewarmOnly, href, shown ) => {
+		await fill( prewarmOnly );
+		click( href );
+		await settle();
+
+		expect( kept ).toBe( true );
+		expect( stateOf( shown ) ).toBe( 'visible' );
+	} );
+
+	it( 'keeps the last slot for a click rather than a hover', async () => {
+		hover( 'guest-a' );
+		await settle();
+		hover( 'guest-b' );
+		await settle();
+
+		expect( prewarmed() ).toEqual( [ 'guest-a' ] );
+
+		click( '/wp-admin/admin.php?page=guest-b' );
+		await settle();
+
+		expect( kept ).toBe( true );
+		expect( stateOf( 'guest-b' ) ).toBe( 'visible' );
 	} );
 } );
