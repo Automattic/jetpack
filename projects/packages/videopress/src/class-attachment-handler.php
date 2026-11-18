@@ -117,8 +117,8 @@ class Attachment_Handler {
 	 * Attempts to delete a VideoPress video from wp.com.
 	 * Will block the deletion from continuing if certain errors return from the wp.com API.
 	 *
-	 * @param Boolean $delete if the deletion should occur or not (unused).
-	 * @param WP_Post $post the post object.
+	 * @param bool|null $delete Short-circuit value from earlier filters; null by default (unused).
+	 * @param WP_Post   $post   The post object.
 	 *
 	 * @return null|false null if deletion should continue, false to block it.
 	 */
