@@ -61,15 +61,11 @@ class Odyssey_Config_Data {
 	 * reducer would: seeded top-level fields win, while WordPress.com wins inside `options` and
 	 * `capabilities`. The app skips its blocking `jetpack/v4/site` request once `options.is_commercial` is set.
 	 *
-	 * @param array $site The seeded site record.
+	 * @param array  $site   The seeded site record.
+	 * @param object $record The WordPress.com site record.
 	 * @return array
 	 */
-	protected function merge_wpcom_site_record( array $site ) {
-		$record = $this->get_wpcom_site_record();
-		if ( null === $record ) {
-			return $site;
-		}
-
+	protected function merge_wpcom_site_record( array $site, $record ) {
 		$merged                 = array_merge( get_object_vars( $record ), $site );
 		$merged['options']      = array_merge( $site['options'], $this->get_object_field( $record, 'options' ) );
 		$merged['capabilities'] = array_merge( $site['capabilities'], $this->get_object_field( $record, 'capabilities' ) );
@@ -82,7 +78,7 @@ class Odyssey_Config_Data {
 	 *
 	 * Decoded to objects so that an empty object stays `{}` when it is printed again.
 	 *
-	 * @return object|null Null when WordPress.com could not supply one.
+	 * @return object|null Null when WordPress.com could not supply one, or the route would refuse this user.
 	 */
 	protected function get_wpcom_site_record() {
 		// method_exists guard: an older connection package may win the autoloader on another plugin.
@@ -90,7 +86,27 @@ class Odyssey_Config_Data {
 			return null;
 		}
 
-		$response = REST_Connector::site_data_response();
+		// `view_stats` can be granted to roles the route refuses; those users keep fetching it themselves.
+		if ( true !== REST_Connector::site_data_permission_check() ) {
+			return null;
+		}
+
+		// On a cache miss this runs before any HTML is sent, so give it the render budget `Dashboard::maybe_refresh_plan()` uses.
+		$cap_timeout = static function ( $args, $url ) {
+			if ( false !== strpos( $url, '/sites/' . Jetpack_Options::get_option( 'id' ) . '?force=wpcom' ) ) {
+				$args['timeout'] = min( (int) $args['timeout'], 5 );
+			}
+			return $args;
+		};
+
+		$response = null;
+		add_filter( 'http_request_args', $cap_timeout, 10, 2 );
+		try {
+			$response = REST_Connector::site_data_response();
+		} finally {
+			remove_filter( 'http_request_args', $cap_timeout, 10 );
+		}
+
 		if ( is_wp_error( $response ) ) {
 			return null;
 		}
@@ -189,6 +205,12 @@ class Odyssey_Config_Data {
 		$capabilities = $this->get_current_user_capabilities();
 		$can_blaze    = class_exists( 'Automattic\Jetpack\Blaze' ) && Blaze::should_initialize()['can_init'];
 
+		/*
+		 * Fetched first, as its `jetpack_site_data_fetched` listeners refresh the plan read below.
+		 * Simple sites do not serve `jetpack/v4/site`; the app fetches their record from WordPress.com.
+		 */
+		$record = $with_wpcom_site_record && ! $host->is_wpcom_simple() ? $this->get_wpcom_site_record() : null;
+
 		$site = array(
 			'ID'           => $blog_id,
 			'URL'          => site_url(),
@@ -214,8 +236,8 @@ class Odyssey_Config_Data {
 			),
 		);
 
-		if ( $with_wpcom_site_record ) {
-			$site = $this->merge_wpcom_site_record( $site );
+		if ( null !== $record ) {
+			$site = $this->merge_wpcom_site_record( $site, $record );
 		}
 
 		return array(
