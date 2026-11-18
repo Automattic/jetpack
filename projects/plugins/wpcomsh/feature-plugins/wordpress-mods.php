@@ -268,7 +268,8 @@ function wpcomsh_get_connection_owner_id( $reset = false ) {
 		return 0;
 	}
 
-	if ( null === $owner_id ) {
+	// Before pluggable.php loads, the storage provider cannot look up the owner, so do not cache that result.
+	if ( null === $owner_id || ! function_exists( 'get_user_by' ) ) {
 		$owner_id = class_exists( 'Jetpack_Options' ) ? (int) Jetpack_Options::get_option( 'master_user' ) : 0;
 	}
 
