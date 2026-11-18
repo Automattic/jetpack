@@ -5,6 +5,7 @@ export {
 	useScopeLockedIntervals,
 	type DateLimits,
 	type DateLimitUpsellCopy,
+	type OpenPeriodOptions,
 	type ReportScope,
 } from './providers/report-scope';
 export {
@@ -74,6 +75,10 @@ export {
 	computeDateRangeFromPreset,
 	getApiErrorCode,
 	getApiErrorStatus,
+	emailSendWindowParams,
+	emailSendWindowRange,
+	readEmailSendWindow,
+	type EmailSendWindow,
 	findAuthorRow,
 	isAccessDenied,
 	isAnalyticsSchemaOutdated,
@@ -81,6 +86,7 @@ export {
 	isUserRetryableError,
 	saveBlob,
 	shouldRetryApiError,
+	StatsResponseShapeError,
 	toAuthorId,
 	toPostId,
 	useSiteHomeUrl,

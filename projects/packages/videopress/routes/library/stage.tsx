@@ -548,6 +548,7 @@ const StageInner = () => {
 							</Tooltip.Popup>
 						</Tooltip.Root>
 						<RecordVideoButton
+							size="compact"
 							onRecorded={ file => handleFilesSelected( [ file ] ) }
 							disabled={ isAtLimit }
 						/>

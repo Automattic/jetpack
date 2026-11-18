@@ -276,7 +276,11 @@ const UploadDropzone = ( {
 					</Tooltip.Trigger>
 					<Tooltip.Popup>{ FREE_TIER_AT_LIMIT_MESSAGE }</Tooltip.Popup>
 				</Tooltip.Root>
-				<RecordVideoButton onRecorded={ file => onFiles( [ file ] ) } disabled={ disabled } />
+				<RecordVideoButton
+					__next40pxDefaultSize
+					onRecorded={ file => onFiles( [ file ] ) }
+					disabled={ disabled }
+				/>
 			</div>
 			<input
 				ref={ inputRef }

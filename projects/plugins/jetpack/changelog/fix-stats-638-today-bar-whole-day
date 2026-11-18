@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Premium Analytics: Draw all 24 hours when today's bar is opened from the Traffic chart, as classic Stats did.

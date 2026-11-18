@@ -304,16 +304,6 @@ export function hasAnySecurityFeature( state ) {
 }
 
 /**
- * Whether the Protect page is on, which replaces the Security tab. It is never available on WordPress.com sites.
- *
- * @param {object} state - Global state tree
- *
- * @return {boolean} True if the `protect-dashboard` module is active.
- */
-export function hasProtectPage( state ) {
-	return isModuleActivated( state, 'protect-dashboard' );
-}
-/**
  * Returns true if the module is activated
  * @param {object} state - Global state tree
  * @param {string} name  - A module's name

@@ -42,12 +42,12 @@ export function useOpenChartBucket( interval: IntervalType ) {
 
 		return ( clicked: ClickedBucket ) => {
 			const window = clicked.isComparison ? comparison : current;
-			const range = bucketRange( clicked, interval, window, {
+			const opened = bucketRange( clicked, interval, window, {
 				timeZone: reportingTimeZone(),
 			} );
 
-			if ( range ) {
-				openPeriod( range );
+			if ( opened ) {
+				openPeriod( opened.range, { step: opened.step } );
 			}
 		};
 	}, [

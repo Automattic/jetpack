@@ -78,6 +78,10 @@ describe( 'GoogleAnalyticsSettings', () => {
 		await waitFor( () => expect( posts() ).toHaveLength( 1 ) );
 		expect( posts()[ 0 ][ 0 ].data ).toEqual( { code: 'G-NEW123' } );
 		expect( JSON.stringify( mockRecordEvent.mock.calls ) ).not.toContain( 'G-NEW123' );
+		const [ [ event, props ] ] = mockRecordEvent.mock.calls;
+		expect( event ).toBe( 'jetpack_wpa_settings_change' );
+		expect( props ).toMatchObject( { module: 'google-analytics', setting: 'code' } );
+		expect( props ).not.toHaveProperty( 'value' );
 	} );
 
 	it( 'keeps a switch click made while the ID saves, and saves one at a time', async () => {
@@ -122,6 +126,7 @@ describe( 'GoogleAnalyticsSettings', () => {
 			setting: 'anonymize_ip',
 			toggled: 'on',
 			origin: 'my-jetpack-settings-panel',
+			event_version: 1,
 		} );
 	} );
 } );
