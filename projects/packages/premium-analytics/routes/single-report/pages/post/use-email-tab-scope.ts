@@ -2,7 +2,6 @@
  * External dependencies
  */
 import {
-	EMAIL_SEND_WINDOW_DAYS,
 	emailSendWindowRange,
 	readEmailSendWindow,
 	type ReportParams,
@@ -11,12 +10,10 @@ import {
 import {
 	PRESET_ALL_TIME,
 	computePrimaryRange,
-	endOfDayTZ,
 	type DateRange,
 } from '@jetpack-premium-analytics/datetime';
 import { encodeDateToSearchParam } from '@jetpack-premium-analytics/routing';
 import { useMemo } from '@wordpress/element';
-import { addDays } from 'date-fns';
 import type { SectionWidget } from '../adapter';
 
 /**
@@ -61,7 +58,7 @@ function emailChartRange(
  * An email goes out once and collects nearly all of its opens within the
  * first days, so the page's rolling presets ("last 7 days") would show a send
  * from months ago as an empty tail. The email tabs therefore report over a
- * window anchored at the publish day — `EMAIL_SEND_WINDOW_DAYS` long, or
+ * window anchored at the publish day — the chart's default one, or
  * through today for a younger send — and hand it to their widgets as report
  * params, which `WidgetRoot` reads in place of the URL. The URL keeps the
  * Post traffic tab's selection untouched for when the reader tabs back.
@@ -98,11 +95,16 @@ export function useEmailTabScope(
 			return undefined;
 		}
 
-		const windowEnd = endOfDayTZ( addDays( lifetime.from, EMAIL_SEND_WINDOW_DAYS - 1 ), timeZone );
-		const range = {
-			from: lifetime.from,
-			to: windowEnd < lifetime.to ? windowEnd : lifetime.to,
-		};
+		const window = emailSendWindowRange(
+			readEmailSendWindow( undefined ),
+			{ day: lifetime.from },
+			timeZone
+		);
+		if ( ! window ) {
+			return undefined;
+		}
+
+		const range = { from: window.from, to: window.to };
 		const from = encodeDateToSearchParam( range.from );
 		const to = encodeDateToSearchParam( range.to );
 

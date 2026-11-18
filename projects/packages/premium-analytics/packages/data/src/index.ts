@@ -74,7 +74,6 @@ export {
 	computeDateRangeFromPreset,
 	getApiErrorCode,
 	getApiErrorStatus,
-	EMAIL_SEND_WINDOW_DAYS,
 	emailSendWindowParams,
 	emailSendWindowRange,
 	readEmailSendWindow,

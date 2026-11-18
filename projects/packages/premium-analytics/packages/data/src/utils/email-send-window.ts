@@ -21,7 +21,7 @@ export type EmailSendWindow = ( typeof EMAIL_SEND_WINDOWS )[ number ];
 const DEFAULT_EMAIL_SEND_WINDOW: EmailSendWindow = 'first-30-days';
 
 /** The most daily buckets the timeline endpoint answers per request. */
-export const EMAIL_SEND_WINDOW_DAYS = 30;
+const EMAIL_SEND_WINDOW_DAYS = 30;
 
 /**
  * The most monthly buckets the timeline endpoint answers per request: ten years,

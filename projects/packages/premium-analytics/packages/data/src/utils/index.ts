@@ -9,7 +9,6 @@ export {
 	StatsResponseShapeError,
 } from './api-error';
 export {
-	EMAIL_SEND_WINDOW_DAYS,
 	emailSendWindowParams,
 	emailSendWindowRange,
 	readEmailSendWindow,
