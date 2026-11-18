@@ -476,6 +476,20 @@ class WPCOM_Stats {
 	}
 
 	/**
+	 * Get one breakdown of the opens or clicks of a post the site sent as an email, over all time.
+	 *
+	 * @param int    $post_id The post the site emailed.
+	 * @param string $stat    `opens` or `clicks`.
+	 * @param string $field   `rate`, `client`, `country` or `device`; for clicks also `link` or `user-content-link`.
+	 * @return array|WP_Error
+	 */
+	public function get_email_breakdown( $post_id, $stat, $field ) {
+		$this->resource = sprintf( '%s/emails/%d/%s', $stat, $post_id, $field );
+
+		return $this->fetch_stats();
+	}
+
+	/**
 	 * Get the site's subscriber count over time.
 	 *
 	 * @param array $args Optional query parameters: `unit`, `quantity`, `date`.

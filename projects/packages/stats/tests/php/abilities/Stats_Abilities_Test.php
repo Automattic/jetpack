@@ -461,7 +461,6 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 		return array(
 			'ended yesterday'    => array( '-1 day', true ),
 			'ended two days ago' => array( '-2 days', false ),
-			'ended months ago'   => array( '-90 days', false ),
 		);
 	}
 
@@ -472,30 +471,20 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 	 * @param bool   $current Whether the streak still counts as current.
 	 */
 	#[DataProvider( 'provide_streak_ends' )]
-	public function test_get_insights_counts_a_streak_only_while_it_lasts( string $ago, bool $current ): void {
-		$this->filter_wpcom_stats(
-			array(
-				'get_streak' => array(
-					'streak' => array(
-						'long'    => array(
-							'start'  => '2026-01-01',
-							'end'    => '2026-01-12',
-							'length' => 12,
-						),
-						'current' => array(
-							'start'  => '2026-04-21',
-							'end'    => gmdate( 'Y-m-d', strtotime( current_time( 'Y-m-d' ) . ' ' . $ago ) ),
-							'length' => 3,
-						),
-					),
-				),
-			)
-		);
+	public function test_get_insights_finds_the_streaks_among_the_posting_days( string $ago, bool $current ): void {
+		$end  = strtotime( current_time( 'Y-m-d' ) . ' ' . $ago );
+		$data = array();
+		// A three-day run ending `$ago`, and a four-day run before it.
+		foreach ( array( 0, 1, 2, 10, 11, 12, 13 ) as $back ) {
+			$data[ (string) ( new \DateTime( gmdate( 'Y-m-d', $end - $back * DAY_IN_SECONDS ) . ' 12:00', wp_timezone() ) )->getTimestamp() ] = 1;
+		}
+		$this->filter_wpcom_stats( array( 'get_streak' => array( 'data' => $data ) ) );
 
 		$streak = Stats_Abilities::get_insights()['streak'];
 
 		$this->assertSame( $current ? 3 : 0, $streak['current_length'] );
-		$this->assertSame( 12, $streak['longest_length'] );
+		$this->assertSame( 4, $streak['longest_length'] );
+		$this->assertSame( gmdate( 'Y-m-d', $end - 13 * DAY_IN_SECONDS ), $streak['longest_start'] );
 	}
 
 	/**
@@ -551,6 +540,7 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 			'author'      => array( 'get_author_views', array( 'author_id' => 7 ), array( 'get_author_views' ) ),
 			'insights'    => array( 'get_insights', array(), array( 'get_stats', 'get_insights', 'get_highlights', 'get_streak', 'get_stats_usage' ) ),
 			'emails'      => array( 'get_email_stats', array(), array( 'get_email_summary' ) ),
+			'email'       => array( 'get_email_detail', array( 'post_id' => 'new' ), array( 'get_email_breakdown' ) ),
 			'subscribers' => array( 'get_subscribers', array(), array( 'get_subscribers' ) ),
 			'ads'         => array( 'get_ad_stats', array(), array( 'get_wordads_stats', 'get_wordads_earnings' ) ),
 		);
@@ -610,6 +600,7 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 			),
 			'emails start'     => array( 'get_email_stats', array( 'start_date' => $bad_day ), 'jetpack_stats_invalid_date' ),
 			'emails empty end' => array( 'get_email_stats', array( 'end_date' => '' ), 'jetpack_stats_invalid_date' ),
+			'email no post'    => array( 'get_email_detail', array( 'post_id' => 999999 ), 'jetpack_stats_post_not_found' ),
 			'ads date'         => array( 'get_ad_stats', array( 'date' => $bad_day ), 'jetpack_stats_invalid_date' ),
 		);
 	}
@@ -2308,6 +2299,123 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 		$this->assertSame( 200, $result['posts'][0]['sent'] );
 		$this->assertSame( 40.0, $result['posts'][0]['open_rate'] );
 		$this->assertArrayHasKey( 'email_window', $result['definitions'] );
+	}
+
+	public function test_get_email_detail_breaks_one_email_down(): void {
+		$post_id   = wp_insert_post( array( 'post_title' => 'Launch' ) );
+		$responses = array(
+			'opens/rate'               => array(
+				'total_sends'  => 200,
+				'unique_opens' => 80,
+				'total_opens'  => 90,
+				'opens_rate'   => 0.4,
+			),
+			'opens/client'             => array(
+				'clients' => array(
+					'data' => array( array( 'Other', '10' ), array( 'Gmail', '80' ) ),
+				),
+			),
+			'opens/country'            => array(
+				'countries'      => array(
+					'data' => array( array( 'US', '60' ), array( 'BR', '20' ), array( 'A1', '10' ) ),
+				),
+				'countries-info' => array(
+					'US' => array( 'country_full' => 'United States' ),
+					'BR' => array( 'country_full' => 'Brazil' ),
+				),
+			),
+			'opens/device'             => new \WP_Error( 'boom', 'nope' ),
+			'clicks/link'              => array(
+				'links' => array(
+					'data' => array( array( 'user_link', '9' ), array( 'post-url', '4' ), array( 'remove-subscription', '1' ) ),
+				),
+			),
+			'clicks/user-content-link' => array(
+				'user-content-links' => array(
+					'data' => array( array( 'https://example.com/shop', '9' ) ),
+				),
+			),
+		);
+		$stub      = $this->createStub( WPCOM_Stats::class );
+		$stub->method( 'get_email_breakdown' )->willReturnCallback(
+			static function ( $post, $stat, $field ) use ( $post_id, $responses ) {
+				return $post === $post_id ? ( $responses[ "$stat/$field" ] ?? array() ) : new \WP_Error( 'wrong_post', 'nope' );
+			}
+		);
+		add_filter(
+			'jetpack_stats_abilities_wpcom_stats',
+			static function () use ( $stub ) {
+				return $stub;
+			}
+		);
+
+		$result = Stats_Abilities::get_email_detail(
+			array(
+				'post_id' => (string) $post_id,
+				'max'     => 2,
+			)
+		);
+
+		$this->assert_matches_output_schema( 'jetpack-stats/get-email-detail', $result );
+		$this->assertSame( 200, $result['sent'] );
+		$this->assertSame( 40.0, $result['opens']['rate'] );
+		$this->assertSame(
+			array(
+				array(
+					'label' => 'Gmail',
+					'value' => 80,
+				),
+				array(
+					'label' => 'Other',
+					'value' => 10,
+				),
+			),
+			$result['opens']['by_client']
+		);
+		$this->assertSame( array( 'United States', 'Brazil' ), array_column( $result['opens']['by_country'], 'label' ) );
+		$this->assertSame( array( 'https://example.com/shop', 'Post title' ), array_column( $result['clicks']['by_link'], 'label' ) );
+		$this->assertNull( $result['opens']['by_device'] );
+		$this->assertSame( array( 'opens/device' ), $result['errors'] );
+	}
+
+	public function test_get_insights_reads_a_year_of_posts_for_the_streak_and_calendar(): void {
+		update_option( 'timezone_string', 'America/New_York' );
+		$today    = current_time( 'Y-m-d' );
+		$day      = gmdate( 'Y-m-d', strtotime( $today . ' -3 days' ) );
+		$at       = static function ( string $time ) use ( $day ): string {
+			return (string) ( new \DateTime( "$day $time", wp_timezone() ) )->getTimestamp();
+		};
+		$requests = $this->filter_wpcom_stats(
+			array(
+				'get_streak' => array(
+					'streak' => array(),
+					'data'   => array(
+						$at( '00:30' ) => 1,
+						$at( '23:30' ) => 2,
+					),
+				),
+			)
+		);
+
+		$result = Stats_Abilities::get_insights();
+
+		$this->assertSame(
+			array(
+				'startDate' => gmdate( 'Y-m-d', strtotime( $today . ' -1 year +1 day' ) ),
+				'endDate'   => $today,
+				'max'       => Stats_Abilities::STREAK_MAX_POSTS,
+			),
+			$requests['get_streak']
+		);
+		$this->assertSame(
+			array(
+				array(
+					'date'  => $day,
+					'posts' => 3,
+				),
+			),
+			$result['calendar']['days']
+		);
 	}
 
 	public function test_get_subscribers_lists_a_page_for_site_managers_only(): void {
