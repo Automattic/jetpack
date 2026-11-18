@@ -276,7 +276,7 @@ class Jetpack_Email_Design_Editor_Test extends WP_UnitTestCase {
 
 	public function test_a_self_hosted_site_gets_the_screen_without_anyone_turning_it_on() {
 		if ( Constants::is_true( 'IS_ATOMIC' ) ) {
-			$this->markTestSkipped( 'This process runs as Atomic, so it has no self-hosted default to read.' );
+			$this->markTestSkipped( 'This process runs as Atomic, where the sticker rather than the default answers the flag.' );
 		}
 
 		Jetpack_Email_Design_Editor::init();
@@ -293,8 +293,8 @@ class Jetpack_Email_Design_Editor_Test extends WP_UnitTestCase {
 	 */
 	#[PHPUnit\Framework\Attributes\DataProvider( 'provide_platform_defaults' )]
 	public function test_the_default_follows_the_platform( $constants, $expected ) {
-		if ( $expected && defined( 'WPCOMSH__PLUGIN_FILE' ) ) {
-			$this->markTestSkipped( 'This process loads wpcomsh, which makes any Atomic site here WoA.' );
+		if ( $expected && isset( $constants['ATOMIC_CLIENT_ID'] ) && defined( 'WPCOMSH__PLUGIN_FILE' ) ) {
+			$this->markTestSkipped( 'This process loads wpcomsh, which makes any Atomic platform site here WoA.' );
 		}
 
 		foreach ( $constants as $name => $value ) {
