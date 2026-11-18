@@ -294,7 +294,7 @@ The authoritative ranges are `SANITY_RANGES` in [scripts/scenarios.js](scripts/s
 
 Post a new metric to a `-staging` CodeVitals key first (e.g. `…-timeToFirstByte-staging`) for 2-3 builds. Inspect the values in the CodeVitals UI, then rename to the production key. This gives a safety window before a new metric reaches production.
 
-CodeVitals stores only registered keys. If the reported row count differs from the number of keys sent, the poster logs both counts and completes successfully.
+CodeVitals stores only registered keys. After each successful post with a reported row count, the poster logs how many keys it sent and how many rows CodeVitals stored.
 
 **Waiving the staging window (owner decision).** A scenario may post straight to production keys when the build owner accepts the risk, as the existing LCP, TTFB, FCP and decoded-payload metrics for `formsResponses` and `myJetpack` do; their TBT keys keep the staging window. The [admin backend metrics](#admin-backend-metrics-server-timing) have no waiver. The waiver is not automatic — it requires all of: the `SANITY_RANGES` row + the all-or-nothing gate as the substitute guardrail, manual sign-off before the first live post, and the PR that introduces the keys listing them and naming the waiver so the impact is visible in review. A dry run's `stdDev: 0` shows repeatability, not correctness, so it is not the safeguard. The per-scenario comment in `scenarios.js` records where a waiver is in effect.
 
@@ -304,17 +304,17 @@ A scenario that measures a specific admin page (a `path` + `waitForSelector`, li
 
 - **`expectUrlIncludes`** — a substring the page's final URL must contain after every redirect settles. A URL check alone cannot prove the requested content rendered; verify the readiness selector against rendered content rather than the app mount point.
 - **`expectUrlHash`** — an exact final hash, including `#`, checked after route and resource settling. Rejects routes that merely start with the expected hash.
-- **`minResourceCount`** — an iteration whose capture returns fewer resources than a healthy load is dropped from the sample. The current values live in `scenarios.js` (the single source of truth, with per-page derivations) rather than being restated here where they would drift. This is a **count** floor, not an "editor asset is present" check: the bundle-size metric is meant to fall when the editor lazy-loads, which removes a few large files rather than the bulk of the count, so a count floor catches a truncated capture without clipping the legitimate improvement. Scope: the floor catches captures _below_ its value; a capture between the floor and the real count relies on the readiness settle (see the `formsResponses` readiness note above) and `SANITY_RANGES`.
+- **`minResourceCount`** — an iteration whose capture returns fewer resources than a healthy load is dropped from the sample. If half or more of the loads fall short, the scenario fails. The current values live in `scenarios.js` (the single source of truth, with per-page derivations) rather than being restated here where they would drift. This is a **count** floor, not an "editor asset is present" check: the bundle-size metric is meant to fall when the editor lazy-loads, which removes a few large files rather than the bulk of the count, so a count floor catches a truncated capture without clipping the legitimate improvement. Scope: the floor catches captures _below_ its value; a capture between the floor and the real count relies on the readiness settle (see the `formsResponses` readiness note above) and `SANITY_RANGES`.
 
 ### Per-scenario failure isolation
 
-Each scenario needs successful measurements from more than half of its attempted loads, three out of five by default. Each posted field also needs a finite sample from more than half of the attempted loads.
+Each scenario needs successful measurements from more than half of its attempted loads, three out of five by default. Each posted field needs a finite sample from more than half of the successful loads.
 
 Every scenario in `scenarios.js` declares an `optional` flag, read by `computeRunOutcome()` in `measure-lcp.js`. The posting policy lives once, in the measure step's exit code — exit 0 means "every required scenario measured; safe to post":
 
 | Run outcome                                               | measure-lcp exit          | Posting step                                            | Build                            |
 | --------------------------------------------------------- | ------------------------- | ------------------------------------------------------- | -------------------------------- |
-| All scenarios measured                                    | 0                         | sends all measured keys                                 | green                            |
+| All scenarios measured                                    | 0                         | posts everything                                        | green                            |
 | Optional scenario(s) failed, all required OK              | 0, with warnings          | posts survivors (the poster skips errored measurements) | green + TeamCity WARNING message |
 | Any required scenario failed                              | 1                         | never reached                                           | red, nothing posted              |
 | ALL scenarios in the run set failed                       | 1                         | never reached                                           | red, nothing posted              |

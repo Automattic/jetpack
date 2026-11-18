@@ -561,15 +561,17 @@ function readIterationField( result, field ) {
 }
 
 /**
- * Summarize a field only when a majority of attempted loads yield finite samples.
+ * Summarize one field across valid iterations, rounded to whole units.
+ * Require a strict majority of finite samples so missing captures cannot become
+ * fabricated zeros or low-confidence medians in the append-only store.
  *
- * @param {Array<number|null|undefined>} values     - Field values from successful loads.
- * @param {number}                       iterations - Total loads attempted.
+ * @param {Array<number|null|undefined>} values - Raw per-iteration values for the field.
  * @return {{median:number,mean:number,min:number,max:number,stdDev:number}|null} Rounded stats, or null.
  */
-function summarizeField( values, iterations ) {
+function summarizeField( values ) {
 	const finite = values.filter( v => typeof v === 'number' && Number.isFinite( v ) );
-	if ( finite.length * 2 <= iterations ) {
+	// A strict majority rejects ties, such as one finite sample from two successful loads.
+	if ( finite.length * 2 <= values.length ) {
 		return null;
 	}
 	return {
@@ -584,23 +586,20 @@ function summarizeField( values, iterations ) {
 /**
  * Build the measurement summary from the per-iteration results.
  *
- * Produces a nested `summary.<field>` block ({ median, mean, min, max, stdDev }) for each
- * field with enough finite samples, and mirrors the LCP block's stats on the summary root for
+ * Produces a nested `summary.<field>` block ({ median, mean, min, max, stdDev }) for every
+ * field with finite samples, AND mirrors the LCP block's stats flat on the summary root for
  * backward-compat: the poster's legacy `metricKey` path and older dashboards read
  * `summary.median` directly, and it must keep returning the same LCP number as before.
  *
  * @param {Array}    validResults - Iteration results already filtered to successful runs.
- * @param {number}   iterations   - Total loads attempted, used to set the sample minimum.
+ * @param {number}   iterations   - Total iterations attempted (for the summary counters).
  * @param {string[]} [fields]     - Metric fields to aggregate (defaults to SUMMARY_FIELDS).
  * @return {object} The summary object.
  */
 function buildSummary( validResults, iterations, fields = SUMMARY_FIELDS ) {
 	const perField = {};
 	for ( const field of fields ) {
-		const stats = summarizeField(
-			validResults.map( r => readIterationField( r, field ) ),
-			iterations
-		);
+		const stats = summarizeField( validResults.map( r => readIterationField( r, field ) ) );
 		if ( stats ) {
 			perField[ field ] = stats;
 		}
@@ -622,7 +621,20 @@ function buildSummary( validResults, iterations, fields = SUMMARY_FIELDS ) {
 }
 
 /**
- * List posted fields without a finite median, using LCP for legacy scenarios.
+ * Names of the posted fields a scenario's summary failed to aggregate.
+ *
+ * A summary can be truthy yet incomplete: summarizeField() returns null for a field whose
+ * finite samples miss a strict majority of the valid iterations (the flaky-page case the
+ * `optional` flag exists for), so buildSummary() omits that field's block entirely. The
+ * poster reads summary.<field>.median for every scenario.metrics[] entry; an omitted block
+ * reaches it as undefined, fails the sanity-range check, and — because the sanity gate is
+ * deliberately atomic — blanks the ENTIRE post, required survivors included. An incomplete
+ * summary is a MEASUREMENT failure, not a data-integrity event, so finalizeMeasurement()
+ * below throws on it and main()'s catch records a scenario error, where the `optional`
+ * flag can isolate it and the skipped-scenario warnings name the culprit. Scenarios
+ * without a metrics[] array (legacy
+ * metricKey/metricPrefix shapes) post from the flat LCP mirror, covered by the 'lcp'
+ * fallback.
  *
  * @param {object} scenario - Scenario definition; its metrics[] names the posted fields.
  * @param {object} summary  - Summary produced by buildSummary().
@@ -638,7 +650,8 @@ function findIncompleteSummaryFields( scenario, summary ) {
 /**
  * Turn the raw per-iteration results into the scenario's final measurement, or throw.
  *
- * Throw during measurement so the optional/required policy can handle insufficient samples.
+ * Reject incomplete summaries during measurement so the poster's sanity gate
+ * cannot block the entire post when an optional page is missing a metric.
  *
  * @param {object} scenario   - Scenario definition; its metrics[] names the posted fields.
  * @param {Array}  results    - Raw per-iteration results (successes and error records).
@@ -666,7 +679,7 @@ function finalizeMeasurement( scenario, results, iterations, url ) {
 	if ( incompleteFields.length > 0 ) {
 		throw new Error(
 			`summary is missing posted field(s): ${ incompleteFields.join( ', ' ) } — ` +
-				`too few finite samples across ${ iterations } attempted loads`
+				`too few finite samples across the ${ validResults.length } valid iteration(s)`
 		);
 	}
 

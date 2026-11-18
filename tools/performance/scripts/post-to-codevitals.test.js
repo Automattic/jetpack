@@ -1385,20 +1385,20 @@ test( 'a required measurement with no summary fails closed, not a TypeError cras
 
 // --- live POST branch (fetch stubbed; never touches the network) ---
 
-test( 'a stored row count below the number of keys sent warns and still posts successfully', async t => {
+test( 'a successful post logs the keys sent and any integer row count returned', async t => {
 	const file = writeResults( 120 );
-	for ( const [ count, expectedWarnings ] of [
-		[ 3, [ 'Warning: Sent 6 metric keys to CodeVitals, which stored 3 rows.' ] ],
-		[ 6, [] ],
+	for ( const [ count, expectedLogs ] of [
+		[ 3, [ 'Sent 6 keys. CodeVitals stored 3.' ] ],
+		[ 6, [ 'Sent 6 keys. CodeVitals stored 6.' ] ],
 		[ undefined, [] ],
 	] ) {
 		const fetch = t.mock.method( global, 'fetch', async () => ( {
 			ok: true,
 			json: async () => ( count === undefined ? {} : { count } ),
 		} ) );
-		const warnings = [];
+		const logs = [];
 		const result = await silenced( () => {
-			console.warn = message => warnings.push( message );
+			console.log = message => logs.push( message );
 			return postToCodeVitals( file, {
 				codeVitalsUrl: 'https://codevitals.test',
 				codeVitalsToken: 'tok',
@@ -1406,8 +1406,8 @@ test( 'a stored row count below the number of keys sent warns and still posts su
 		} );
 		assert.equal( result.posted, true );
 		assert.deepEqual(
-			warnings.filter( message => message.startsWith( 'Warning: Sent' ) ),
-			expectedWarnings
+			logs.filter( message => message.startsWith( 'Sent' ) ),
+			expectedLogs
 		);
 		fetch.mock.restore();
 	}

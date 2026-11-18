@@ -415,16 +415,19 @@ test( 'finalizeMeasurement returns the measurement when three of five loads succ
 	assert.deepEqual( findIncompleteSummaryFields( forms, measurement.summary ), [] );
 } );
 
-test( 'finalizeMeasurement refuses a page when only two of five loads succeed', () => {
+test( 'finalizeMeasurement refuses a page when half or fewer of its loads succeed', () => {
 	const forms = SCENARIOS.find( s => s.key === 'formsResponses' );
-	const results = [
-		...[ 1, 2 ].map( healthyIteration ),
-		...[ 3, 4, 5 ].map( iteration => ( { iteration, error: 'boom' } ) ),
-	];
-	assert.throws(
-		() => finalizeMeasurement( forms, results, 5, 'u' ),
-		/Only 2 of 5 loads succeeded\. At least 3 are required\./
-	);
+	for ( const [ attempted, successful, minimum ] of [
+		[ 5, 2, 3 ],
+		[ 2, 1, 2 ],
+	] ) {
+		const results = Array.from( { length: attempted }, ( _, index ) =>
+			index < successful ? healthyIteration( index + 1 ) : { iteration: index + 1, error: 'boom' }
+		);
+		assert.throws( () => finalizeMeasurement( forms, results, attempted, 'u' ), {
+			message: `Only ${ successful } of ${ attempted } loads succeeded. At least ${ minimum } are required.`,
+		} );
+	}
 } );
 
 test( 'finalizeMeasurement throws when every iteration failed', () => {
@@ -532,11 +535,11 @@ test( 'finalizeMeasurement throws on a partial summary, naming the dropped field
 	results[ 2 ].metrics = { ...results[ 2 ].metrics, ttfb: null };
 	assert.throws(
 		() => finalizeMeasurement( forms, results, 3, 'u' ),
-		/summary is missing posted field\(s\): ttfb/
+		/summary is missing posted field\(s\): ttfb — too few finite samples across the 3 valid iteration\(s\)/
 	);
 } );
 
-test( 'finalizeMeasurement refuses a posted field with samples from only two of five loads', () => {
+test( 'finalizeMeasurement counts valid iterations, not attempted ones, in the partial message', () => {
 	const forms = SCENARIOS.find( s => s.key === 'formsResponses' );
 	const results = [
 		...[ 1, 2, 3 ].map( healthyIteration ),
@@ -544,10 +547,8 @@ test( 'finalizeMeasurement refuses a posted field with samples from only two of 
 		{ iteration: 5, error: 'boom' },
 	];
 	results[ 1 ].metrics = { ...results[ 1 ].metrics, ttfb: null };
-	assert.throws(
-		() => finalizeMeasurement( forms, results, 5, 'u' ),
-		/summary is missing posted field\(s\): ttfb — too few finite samples across 5 attempted loads/
-	);
+	results[ 2 ].metrics = { ...results[ 2 ].metrics, ttfb: null };
+	assert.throws( () => finalizeMeasurement( forms, results, 5, 'u' ), /the 3 valid iteration/ );
 } );
 
 // --- tcEscape (TeamCity service-message value escaping) ---
