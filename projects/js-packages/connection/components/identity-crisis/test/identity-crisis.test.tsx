@@ -5,7 +5,7 @@ import type { ConnectedPlugin } from '../../../helpers/site-words';
 import type { IdentityCrisisState } from '../../../types';
 
 const migrateIDC = jest.fn< () => Promise< unknown > >();
-const startIDCFresh = jest.fn< ( redirectUri?: string ) => Promise< unknown > >();
+const startIDCFresh = jest.fn< ( redirectUri?: string, from?: string ) => Promise< unknown > >();
 const confirmIDCSafeMode = jest.fn< () => Promise< unknown > >();
 jest.unstable_mockModule( '@automattic/jetpack-api', () => ( {
 	__esModule: true,
@@ -41,36 +41,49 @@ describe( 'IdentityCrisis', () => {
 	} );
 
 	it.each( [
-		[ [ 'This site’s old address' ], 'Update address', migrateIDC, { action: 'migrate' } ],
+		[ [ 'This site’s old address' ], 'Update address', migrateIDC, [], { action: 'migrate' } ],
 		[
 			[ 'The original site', 'Give it its own connection' ],
 			'Connect separately',
 			startIDCFresh,
+			[ 'admin.php?page=jetpack', 'connection_safe_mode' ],
 			{ action: 'start-fresh', connectUrl: 'https://wordpress.com/connect' },
 		],
 		[
 			[ 'A copy of this site', 'I’m not sure' ],
 			'Stay in Safe Mode',
 			confirmIDCSafeMode,
+			[],
 			{ action: 'confirm-safe-mode' },
 		],
-	] )( 'answers %j, then %s calls the endpoint', async ( answers, button, request, result ) => {
-		const user = userEvent.setup();
-		request.mockResolvedValue( 'https://wordpress.com/connect' );
-		const onActionSuccess = jest.fn();
-		render( <IdentityCrisis context="notice" onActionSuccess={ onActionSuccess } /> );
+	] )(
+		'answers %j, then %s calls the endpoint',
+		async ( answers, button, request, args, result ) => {
+			const user = userEvent.setup();
+			request.mockResolvedValue( 'https://wordpress.com/connect' );
+			const onActionSuccess = jest.fn();
+			render(
+				<IdentityCrisis
+					context="notice"
+					redirectUri="admin.php?page=jetpack"
+					from="connection_safe_mode"
+					onActionSuccess={ onActionSuccess }
+				/>
+			);
 
-		for ( const [ index, answer ] of answers.entries() ) {
-			await user.click( screen.getByRole( 'radio', { name: answer } ) );
-			if ( index < answers.length - 1 ) {
-				await user.click( screen.getByRole( 'button', { name: 'Next' } ) );
+			for ( const [ index, answer ] of answers.entries() ) {
+				await user.click( screen.getByRole( 'radio', { name: answer } ) );
+				if ( index < answers.length - 1 ) {
+					await user.click( screen.getByRole( 'button', { name: 'Next' } ) );
+				}
 			}
-		}
-		await user.click( screen.getByRole( 'button', { name: button } ) );
+			await user.click( screen.getByRole( 'button', { name: button } ) );
 
-		expect( request ).toHaveBeenCalledTimes( 1 );
-		expect( onActionSuccess ).toHaveBeenCalledWith( result );
-	} );
+			expect( request ).toHaveBeenCalledTimes( 1 );
+			expect( request ).toHaveBeenCalledWith( ...args );
+			expect( onActionSuccess ).toHaveBeenCalledWith( result );
+		}
+	);
 
 	it( 'shows the consequence of the selected answer only', async () => {
 		const user = userEvent.setup();

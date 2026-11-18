@@ -42,11 +42,12 @@ function IdentityCrisisResolver( {
 	plugins,
 	context,
 	redirectUri,
+	from,
 	hostActions,
 	onActionSuccess,
 	onMigratedDone,
 }: ResolverProps ): ReactNode {
-	const actions = useIdentityCrisisActions( { redirectUri } );
+	const actions = useIdentityCrisisActions( { redirectUri, from } );
 	const ctx: FlowContext = useMemo(
 		() => ( {
 			isDevelopmentSite: state.isDevelopmentSite,

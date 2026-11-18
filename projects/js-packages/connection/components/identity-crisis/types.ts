@@ -15,7 +15,7 @@ export interface IdentityCrisisProps {
 	context: 'notice' | 'my-jetpack' | 'connectors';
 	/** Admin path to return to after a fresh connection. */
 	redirectUri?: string;
-	/** `CONNECTION_FROM` entry for a fresh connection; passed to the actions hook once it takes one (CONNECT-621). */
+	/** Name from `CONNECTION_FROM`, reported to WordPress.com with a fresh connection. */
 	from?: string;
 	/** Host actions below the content, e.g. Disconnect on the Connectors card. Shown only to viewers who can resolve Safe Mode. */
 	hostActions?: ReactNode;
