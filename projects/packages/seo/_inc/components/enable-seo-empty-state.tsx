@@ -6,6 +6,17 @@ import styles from './enable-seo-empty-state.module.scss';
 import type { SeoTracksScreen } from '../data/record-seo-event';
 import type { FC } from 'react';
 
+/* translators: %s: name of an active SEO plugin, e.g. Yoast SEO. */
+const pausedDescription = __(
+	"%s is active on this site. Enabling Jetpack's SEO tools will not deactivate it, and overlapping SEO output will remain paused.",
+	'jetpack-seo'
+);
+/* translators: %s: name of an active SEO plugin, e.g. Yoast SEO. */
+const activeDescription = __(
+	"%s is active on this site. Enabling Jetpack's SEO tools will not deactivate it.",
+	'jetpack-seo'
+);
+
 /**
  * Offer module activation while identifying any competing SEO provider.
  *
@@ -22,19 +33,9 @@ const EnableSeoEmptyState: FC< { screen: SeoTracksScreen } > = ( { screen } ) =>
 	);
 
 	if ( plugin ) {
-		description = sprintf(
-			/* translators: %s: name of an active SEO plugin, e.g. Yoast SEO. */
-			__( '%s is active on this site.', 'jetpack-seo' ),
-			plugin
-		);
-		description +=
-			' ' +
-			( paused
-				? __(
-						"Enabling Jetpack's SEO tools gives you access to its settings, but overlapping SEO output will remain paused.",
-						'jetpack-seo'
-					)
-				: __( "Enabling Jetpack's SEO tools gives you access to its settings.", 'jetpack-seo' ) );
+		description = paused
+			? sprintf( pausedDescription, plugin )
+			: sprintf( activeDescription, plugin );
 	}
 
 	return (

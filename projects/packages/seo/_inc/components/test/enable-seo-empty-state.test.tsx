@@ -39,11 +39,11 @@ describe( 'EnableSeoEmptyState', () => {
 	it.each( [
 		[
 			true,
-			"Yoast SEO is active on this site. Enabling Jetpack's SEO tools gives you access to its settings, but overlapping SEO output will remain paused.",
+			"Yoast SEO is active on this site. Enabling Jetpack's SEO tools will not deactivate it, and overlapping SEO output will remain paused.",
 		],
 		[
 			false,
-			"Yoast SEO is active on this site. Enabling Jetpack's SEO tools gives you access to its settings.",
+			"Yoast SEO is active on this site. Enabling Jetpack's SEO tools will not deactivate it.",
 		],
 	] )(
 		'explains enabling alongside the competing plugin with paused output %s',
@@ -84,5 +84,8 @@ describe( 'EnableSeoEmptyState', () => {
 			'aria-disabled',
 			'true'
 		);
+		// eslint-disable-next-line testing-library/prefer-user-event -- Exercise the existing single-click activation path.
+		fireEvent.click( screen.getByRole( 'button', { name: 'Enable SEO tools' } ) );
+		expect( enable ).not.toHaveBeenCalled();
 	} );
 } );
