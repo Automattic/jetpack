@@ -1385,6 +1385,37 @@ test( 'a required measurement with no summary fails closed, not a TypeError cras
 
 // --- live POST branch (fetch stubbed; never touches the network) ---
 
+test( 'a successful post logs the keys sent and any integer row count returned', async t => {
+	const file = writeResults( 120 );
+	for ( const [ body, expectedLogs ] of [
+		[ { count: 3 }, [ 'Sent 6 keys. CodeVitals stored 3.' ] ],
+		[ { count: 6 }, [ 'Sent 6 keys. CodeVitals stored 6.' ] ],
+		[ { count: 0 }, [ 'Sent 6 keys. CodeVitals stored 0.' ] ],
+		[ { count: '3' }, [] ],
+		[ null, [] ],
+		[ {}, [] ],
+	] ) {
+		const fetch = t.mock.method( global, 'fetch', async () => ( {
+			ok: true,
+			json: async () => body,
+		} ) );
+		const logs = [];
+		const result = await silenced( () => {
+			console.log = message => logs.push( message );
+			return postToCodeVitals( file, {
+				codeVitalsUrl: 'https://codevitals.test',
+				codeVitalsToken: 'tok',
+			} );
+		} );
+		assert.equal( result.posted, true );
+		assert.deepEqual(
+			logs.filter( message => message.startsWith( 'Sent' ) ),
+			expectedLogs
+		);
+		fetch.mock.restore();
+	}
+} );
+
 test( 'a live POST carries Dashboard deltas and the existing absolutes together', async () => {
 	const file = writeResults( 120 );
 	const data = JSON.parse( fs.readFileSync( file, 'utf8' ) );

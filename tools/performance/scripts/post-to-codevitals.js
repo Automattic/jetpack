@@ -690,6 +690,11 @@ async function postToCodeVitals( resultsPath, config ) {
 				cause: jsonError,
 			} );
 		}
+		const rowsStored = data?.count;
+		if ( Number.isInteger( rowsStored ) ) {
+			const keysSent = Object.keys( metrics ).length;
+			console.log( `Sent ${ keysSent } keys. CodeVitals stored ${ rowsStored }.` );
+		}
 		console.log( '✓ Metrics posted successfully to CodeVitals' );
 		return { posted: true, data, validationFailed };
 	} catch ( error ) {
