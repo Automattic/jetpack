@@ -309,7 +309,7 @@ VideoPress: `register_widget_types()` registers `videopress/top-videos` the same
 
 ### Who calls it
 
-Ads is the section's story, in [Dashboard sections](dashboard-sections.md#a-real-consumer-the-ads-section): the WordAds module outside the WordPress.com platform, `jetpack-mu-wpcom` on Simple and Atomic where the plan includes WordAds and the site has it on.
+Ads is the section's story, in [Dashboard sections](dashboard-sections.md#a-real-consumer-the-ads-section): the WordAds module outside the WordPress.com platform, `jetpack-mu-wpcom` on Simple and Atomic where the site has WordAds on.
 
 VideoPress follows `Status::is_active()`: `Initializer::active_initialization()` calls `init()` where the VideoPress module of the Jetpack plugin or the standalone plugin is active, and `init()` returns early on the WordPress.com platform. `jetpack-mu-wpcom` calls the two registrants from `src/features/premium-analytics/videopress-widgets.php` on Simple and Atomic where `wpcom_site_has_feature( 'videopress' )` holds. Both run against the copy the Jetpack plugin bundles, so Simple, which runs no Jetpack module, serves the bundles from it too.
 
