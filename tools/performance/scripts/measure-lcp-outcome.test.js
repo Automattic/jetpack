@@ -76,38 +76,6 @@ const DOUBLES = [ REQUIRED, OPT_A, OPT_B ];
 const ok = { summary: { median: 100 } };
 const failed = { error: 'boom' };
 
-test( 'results config records the browser, agent and calibration', () => {
-	const calibratedAt = '2026-01-01T00:00:00.000Z';
-	const config = buildResultsConfig( {
-		iterations: 5,
-		scenario: 'all',
-		browserVersion: '150.0.0.0',
-		agentName: 'test-agent',
-		calibration: { cpuRate: 3, calibratedAt, samples: [ 2.9, 3, 3.1 ] },
-	} );
-
-	assert.deepEqual( config, {
-		iterations: 5,
-		scenario: 'all',
-		browserVersion: '150.0.0.0',
-		agentName: 'test-agent',
-		cpuThrottling: { enabled: true, rate: 3, calibratedAt, samples: [ 2.9, 3, 3.1 ] },
-	} );
-} );
-
-test( 'results config records an unthrottled run without a build agent', () => {
-	const config = buildResultsConfig( {
-		iterations: 5,
-		scenario: 'all',
-		browserVersion: '150.0.0.0',
-		calibration: null,
-	} );
-	const saved = JSON.parse( JSON.stringify( config ) );
-
-	assert.equal( saved.agentName, '' );
-	assert.deepEqual( saved.cpuThrottling, { enabled: false, rate: 1, samples: [] } );
-} );
-
 // --- resolveScenarioSet (SCENARIO filter validation) ---
 
 test( "resolveScenarioSet returns every scenario for 'all'", () => {
@@ -269,6 +237,40 @@ test( 'a single measured optional scenario: exit 0 (the all-failed rule needs a 
 test( 'empty measurements: exit 1 (backstop behind the validated filter)', () => {
 	assert.equal( computeRunOutcome( {}, DOUBLES ).exitCode, 1 );
 	assert.equal( computeRunOutcome( {}, SCENARIOS ).exitCode, 1 );
+} );
+
+// --- buildResultsConfig ---
+
+test( 'results config records the browser, agent and calibration', () => {
+	const calibratedAt = '2026-01-01T00:00:00.000Z';
+	const config = buildResultsConfig( {
+		iterations: 5,
+		scenario: 'all',
+		browserVersion: '150.0.0.0',
+		agentName: 'test-agent',
+		calibration: { cpuRate: 3, calibratedAt, samples: [ 2.9, 3, 3.1 ] },
+	} );
+
+	assert.deepEqual( config, {
+		iterations: 5,
+		scenario: 'all',
+		browserVersion: '150.0.0.0',
+		agentName: 'test-agent',
+		cpuThrottling: { enabled: true, rate: 3, calibratedAt, samples: [ 2.9, 3, 3.1 ] },
+	} );
+} );
+
+test( 'results config records an unthrottled run without a build agent', () => {
+	const config = buildResultsConfig( {
+		iterations: 5,
+		scenario: 'all',
+		browserVersion: '150.0.0.0',
+		calibration: null,
+	} );
+	const saved = JSON.parse( JSON.stringify( config ) );
+
+	assert.equal( saved.agentName, '' );
+	assert.deepEqual( saved.cpuThrottling, { enabled: false, rate: 1, samples: [] } );
 } );
 
 // --- findIncompleteSummaryFields (the partial-summary → measurement-failure boundary) ---

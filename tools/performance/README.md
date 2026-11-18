@@ -16,6 +16,10 @@ The test suite is designed to run in TeamCity.
 
 The results file records the Chromium version and CPU calibration. To record the TeamCity agent name, expose the `teamcity.agent.name` parameter as `TEAMCITY_AGENT_NAME` in the build environment. The agent name is empty when the variable is unset.
 
+The Playwright version and fixture image digests are pinned to keep performance runs comparable.
+Renovate holds updates on the Dependency Dashboard under "Performance tool dependencies".
+When approving an update, run the tool on the same Jetpack commit before and after changing the pins.
+
 ### Environment Variables
 
 | Variable               | Description                                                                                                                                                                                                                                                                           |
