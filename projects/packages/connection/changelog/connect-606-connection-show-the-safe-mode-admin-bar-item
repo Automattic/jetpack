@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Safe Mode: Show the Jetpack Safe Mode admin bar item while the choice is still pending, style it on the front end of the site too, and show the Safe Mode screen on Jetpack dashboards such as Social and Backup.
+Safe Mode: Show the Jetpack Safe Mode admin bar item while the choice is still pending, and style it on the front end of the site too.
