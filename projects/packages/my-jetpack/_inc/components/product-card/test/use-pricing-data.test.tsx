@@ -12,7 +12,6 @@ jest.mock( '../../../data/products/use-activate-plugins' );
 jest.mock( '../../../data/products/use-activate-search-free-product' );
 jest.mock( '../../../data/products/use-install-plugins' );
 jest.mock( '../../../data/products/use-product' );
-jest.mock( '../../../hooks/use-analytics', () => () => ( { recordEvent: jest.fn() } ) );
 jest.mock( '../../../hooks/use-my-jetpack-connection', () => () => ( { isUserConnected: true } ) );
 jest.mock( '../../../data/utils/get-my-jetpack-window-state', () => ( {
 	getMyJetpackWindowInitialState: () => ( {
