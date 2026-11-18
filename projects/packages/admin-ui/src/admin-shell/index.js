@@ -5,12 +5,14 @@
 import {
 	bootFor,
 	isolateRouters,
+	loadPage,
 	notifyRouters,
 	prefetchBoot,
 	trackViewTransitions,
 	transitionSettled,
 } from './adapter';
 import { createApp, whenRendered } from './app';
+import { liveAppLimit, mayPrewarm } from './budget';
 import { announcePage, menuLabel, pageOf, updateChrome } from './chrome';
 import { debugEnabled, log, stopwatch } from './debug';
 import { applyGuestAssets } from './guest-assets';
@@ -19,7 +21,11 @@ import { closeDialogsOf, closeOverlayAround, showOverlaysOf, trackOverlays } fro
 
 const CONFIG_ID = 'wp-script-module-data-@automattic/jetpack-admin-shell';
 const RENDER_TIMEOUT = 15000;
+// A kept-mounted app shown again after this long is `stale` in its page-shown, so it refetches.
+const STALE_AFTER = 5 * 60 * 1000;
 const INIT_TIMEOUT = 15000;
+// How long the pointer rests on a menu link before its dashboard prewarms, so a sweep down the menu doesn't.
+const HOVER_DELAY = 100;
 
 const readConfig = () => {
 	try {
@@ -53,7 +59,7 @@ const routeOf = href => {
 	return url.search + url.hash;
 };
 
-const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
+const start = ( { host, members, guestAssetsUrl, headerStorageKey, maxLiveApps } ) => {
 	const hostEl = document.getElementById( members[ host ].mountId );
 	if ( ! hostEl ) {
 		return;
@@ -62,12 +68,17 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 	members[ host ].adminTitle = document.title;
 	configureHeaders( headerStorageKey, members );
 	trackViewTransitions();
-	// A member declares the header of the view its bare menu link opens; other views only get a title.
+	// A member declares the header of the view its bare menu link opens; other views only get its title.
 	const showHeaderAt = ( slug, el, url ) => {
 		const { header, defaultPath, title } = members[ slug ];
+		if ( header === false ) {
+			log( 'header', `${ slug } opts out of the stand-in header` );
+			return () => {};
+		}
 		const path = new URL( url, location.href ).searchParams.get( 'p' ) ?? '/';
 		const landing = [ '/', defaultPath ].includes( path );
-		return showHeader( slug, el, menuLabel( slug ) ?? title, landing ? header : null );
+		const heading = header?.title ?? menuLabel( slug ) ?? title;
+		return showHeader( slug, el, heading, landing ? header : null );
 	};
 
 	log(
@@ -80,6 +91,7 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 	// Where each page was left, so its menu link reopens it there, and how far it was scrolled.
 	const lastUrl = { [ host ]: location.href };
 	const scrollOf = {};
+	const hiddenAt = {};
 	const gate = isolateRouters(
 		() => visible,
 		() => {
@@ -124,6 +136,15 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 		return run;
 	};
 	const warm = {};
+	const liveLimit = liveAppLimit( maxLiveApps );
+	// Past the limit, opening another dashboard loads the page, which frees every hidden one.
+	const hasRoomFor = ( slug, spare = 0 ) =>
+		apps.has( slug ) ||
+		Object.hasOwn( warm, slug ) ||
+		new Set( [ ...apps.keys(), ...Object.keys( warm ) ] ).size < liveLimit - spare;
+	// A page load drops the hidden apps too, edits and all; the visible one has its own beforeunload.
+	const mayUnload = url =>
+		[ ...apps.keys() ].every( slug => slug === visible || mayLeave( slug, url ) );
 	// Everything short of mounting: a mounted router would start reading the visible page's URL.
 	const prewarm = ( slug, reason ) => {
 		if ( warm[ slug ] ) {
@@ -302,6 +323,8 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 			removeHeader( previous );
 		}
 		apps.get( previous )?.place( false );
+		// Kept until a page-shown reports it, so a show another switch overtakes doesn't reset it.
+		hiddenAt[ previous ] ??= Date.now();
 		const dialogsClosed = closeDialogsOf( previous );
 		showOverlaysOf( slug );
 		emit( 'page-hidden', {
@@ -342,12 +365,16 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 				);
 				apps.get( slug ).focusHeading();
 				announcePage( members[ slug ].adminTitle );
+				const hiddenFor = app ? Math.max( 0, Date.now() - ( hiddenAt[ slug ] ?? Date.now() ) ) : 0;
+				delete hiddenAt[ slug ];
 				emit( 'page-shown', {
 					page: slug,
 					previous,
 					firstShow: ! app,
 					// The member's router saw the new route and recorded the view itself.
 					routeChanged: !! app && retargets,
+					hiddenFor,
+					stale: hiddenFor >= STALE_AFTER,
 					url: location.href,
 				} );
 			}
@@ -387,8 +414,16 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 			lastUrl[ visible ] = location.href;
 		}
 		if ( event.isTrusted && isMemberUrl( location.href ) && pageOf( location.href ) !== visible ) {
-			if ( gate.isMounting() ) {
-				location.reload();
+			const mounting = gate.isMounting();
+			if ( mounting || ! hasRoomFor( pageOf( location.href ) ) ) {
+				const target = location.href;
+				// Keep the visible app on its own URL, and its routers and guards out of a navigation they don't own.
+				gate.replaceUrl( lastUrl[ visible ] );
+				event.stopImmediatePropagation();
+				// Back/Forward can't be called off, so staying keeps the visible app.
+				if ( mounting || mayUnload( target ) ) {
+					loadPage( target, { replace: true } );
+				}
 				return;
 			}
 			show( location.href, { push: false, via: 'back/forward' } );
@@ -422,16 +457,50 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 			log( 'switch', 'an app is still mounting: letting the link load the page' );
 			return;
 		}
+		if ( ! hasRoomFor( pageOf( a.href ) ) ) {
+			if ( mayUnload( a.href ) ) {
+				log( 'switch', `${ liveLimit } dashboards are live: letting the link load the page` );
+			} else {
+				event.preventDefault();
+			}
+			return;
+		}
 		event.preventDefault();
 		closeOverlayAround( a )
 			.then( closed => closed && transitionSettled() )
-			.then( () => navigate( a.href, inMenu ? 'menu click' : 'link click' ) );
+			.then( () =>
+				// Another switch may have taken the last slot while the overlay closed.
+				hasRoomFor( pageOf( a.href ) )
+					? navigate( a.href, inMenu ? 'menu click' : 'link click' )
+					: mayUnload( a.href ) && loadPage( a.href )
+			);
 	} );
 
-	document.getElementById( 'adminmenu' )?.addEventListener( 'pointerover', event => {
-		const a = event.target.closest?.( 'a[href]' );
-		if ( a && isMemberUrl( a.href ) && ! apps.has( pageOf( a.href ) ) ) {
-			prewarm( pageOf( a.href ), 'menu hover' ).catch( () => {} );
+	const menu = document.getElementById( 'adminmenu' );
+	let hovered = null;
+	let hoverTimer;
+	menu?.addEventListener( 'pointerover', event => {
+		const a = event.target.closest?.( 'a[href]' ) ?? null;
+		if ( a === hovered ) {
+			return;
+		}
+		clearTimeout( hoverTimer );
+		hovered = a;
+		const slug = a && isMemberUrl( a.href ) ? pageOf( a.href ) : null;
+		if ( ! slug ) {
+			return;
+		}
+		hoverTimer = setTimeout( () => {
+			// Keep the last slot for a click: passing over links on the way shouldn't spend it.
+			if ( ! apps.has( slug ) && hasRoomFor( slug, 1 ) && mayPrewarm() ) {
+				prewarm( slug, 'menu hover' ).catch( () => {} );
+			}
+		}, HOVER_DELAY );
+	} );
+	menu?.addEventListener( 'pointerout', event => {
+		if ( hovered && ! hovered.contains( event.relatedTarget ) ) {
+			clearTimeout( hoverTimer );
+			hovered = null;
 		}
 	} );
 
@@ -453,6 +522,8 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 					previous: null,
 					firstShow: true,
 					routeChanged: false,
+					hiddenFor: 0,
+					stale: false,
 					url: location.href,
 				} );
 			}
@@ -467,6 +538,7 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 		window.jetpackAdminShell = {
 			apps,
 			members,
+			liveLimit,
 			get visible() {
 				return visible;
 			},
