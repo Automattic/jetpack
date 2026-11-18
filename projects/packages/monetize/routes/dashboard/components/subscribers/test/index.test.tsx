@@ -116,4 +116,40 @@ describe( 'Subscribers', () => {
 		).resolves.toBeVisible();
 		expect( screen.getAllByRole( 'heading', { name: 'b@example.com' } ) ).toHaveLength( 1 );
 	} );
+
+	it( 'closes the details once their subscription is cancelled from them', async () => {
+		( wpcomFetch as jest.Mock ).mockImplementation( ( { path } ) =>
+			Promise.resolve(
+				path === 'memberships/subscribers'
+					? { total: 1, ownerships: [ ownership( 2, 'b@example.com' ) ] }
+					: { success: true }
+			)
+		);
+		renderTab();
+
+		await userEvent.click( await screen.findByRole( 'button', { name: 'View b@example.com' } ) );
+		await userEvent.click(
+			within( screen.getByRole( 'dialog' ) ).getByRole( 'button', { name: 'Cancel payment' } )
+		);
+		await userEvent.click(
+			within( screen.getByRole( 'alertdialog' ) ).getByRole( 'button', { name: 'Cancel payment' } )
+		);
+
+		await waitFor( () => expect( screen.queryByRole( 'alertdialog' ) ).not.toBeInTheDocument() );
+		expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'heading', { name: 'b@example.com' } ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'loads the list when trying again after it failed', async () => {
+		( wpcomFetch as jest.Mock )
+			.mockRejectedValueOnce( new Error( 'Something went wrong' ) )
+			.mockResolvedValue( { total: 1, ownerships: [ ownership( 2, 'b@example.com' ) ] } );
+		renderTab();
+
+		await userEvent.click( await screen.findByRole( 'button', { name: 'Try again' } ) );
+
+		await expect(
+			screen.findByRole( 'heading', { name: 'b@example.com' } )
+		).resolves.toBeVisible();
+	} );
 } );
