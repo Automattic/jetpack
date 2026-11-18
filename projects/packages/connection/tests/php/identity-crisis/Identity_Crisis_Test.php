@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
+use Automattic\Jetpack\IdentityCrisis\UI;
 use Automattic\Jetpack\IdentityCrisis\URL_Secret;
 use Automattic\Jetpack\Status\Cache as StatusCache;
 use Jetpack_Options;
@@ -2051,6 +2052,101 @@ class Identity_Crisis_Test extends BaseTestCase {
 		Identity_Crisis::$is_safe_mode_confirmed = true;
 
 		$this->assertNull( $this->render_admin_bar_button() );
+	}
+
+	/**
+	 * With the new screen, the admin bar item ignores a plugin's own label.
+	 *
+	 * @param bool   $use_new_screen Whether the `connection-idc-screen` flag is on.
+	 * @param string $expected       The label.
+	 *
+	 * @dataProvider data_provider_test_admin_bar_button_label
+	 */
+	#[DataProvider( 'data_provider_test_admin_bar_button_label' )]
+	public function test_admin_bar_button_label( $use_new_screen, $expected ) {
+		$this->set_current_user( true );
+		$consumers = static function () {
+			return array(
+				array(
+					'slug'          => 'woocommerce-payments',
+					'admin_page'    => '/wp-admin/admin.php?page=wc-admin',
+					'customContent' => array( 'adminBarSafeModeLabel' => 'WooPayments Safe Mode' ),
+				),
+			);
+		};
+		add_filter( 'jetpack_idc_consumers', $consumers );
+		add_filter( 'jetpack_feature_flag_enabled_' . Identity_Crisis::NEW_SCREEN_FLAG, $use_new_screen ? '__return_true' : '__return_false' );
+
+		$node = $this->render_admin_bar_button();
+
+		remove_filter( 'jetpack_idc_consumers', $consumers );
+		remove_all_filters( 'jetpack_feature_flag_enabled_' . Identity_Crisis::NEW_SCREEN_FLAG );
+		$this->reset_ui_consumers();
+		$this->assertStringContainsString( $expected, $node->title );
+	}
+
+	/**
+	 * Data provider for test_admin_bar_button_label.
+	 *
+	 * @return array
+	 */
+	public static function data_provider_test_admin_bar_button_label() {
+		return array(
+			'old screen' => array( false, 'WooPayments Safe Mode' ),
+			'new screen' => array( true, 'Jetpack Connection Safe Mode' ),
+		);
+	}
+
+	/**
+	 * With the new screen, Safe Mode loads the Tracks script only when tracking is allowed.
+	 *
+	 * @param bool $use_new_screen   Whether the `connection-idc-screen` flag is on.
+	 * @param bool $tracking_allowed Whether the site has agreed to the terms of service.
+	 * @param bool $expected         Whether the script is enqueued.
+	 *
+	 * @dataProvider data_provider_test_ui_tracks_script
+	 */
+	#[DataProvider( 'data_provider_test_ui_tracks_script' )]
+	public function test_ui_tracks_script( $use_new_screen, $tracking_allowed, $expected ) {
+		$this->check_identity_crisis_return_error( array( 'test' ) );
+		Jetpack_Options::update_option( 'tos_agreed', $tracking_allowed );
+		add_filter( 'jetpack_feature_flag_enabled_' . Identity_Crisis::NEW_SCREEN_FLAG, $use_new_screen ? '__return_true' : '__return_false' );
+		unset( $GLOBALS['wp_actions']['jetpack_identity_crisis_ui_init'] );
+
+		UI::init();
+		$enqueued = wp_script_is( 'jp-tracks-functions', 'enqueued' );
+
+		remove_all_filters( 'jetpack_feature_flag_enabled_' . Identity_Crisis::NEW_SCREEN_FLAG );
+		remove_action( 'admin_enqueue_scripts', array( UI::class, 'enqueue_scripts' ) );
+		$this->clean_up_check_identity_crisis_return_error();
+		Jetpack_Options::delete_option( 'tos_agreed' );
+		$GLOBALS['wp_scripts'] = null;
+		$this->assertSame( $expected, $enqueued );
+	}
+
+	/**
+	 * Data provider for test_ui_tracks_script.
+	 *
+	 * @return array
+	 */
+	public static function data_provider_test_ui_tracks_script() {
+		return array(
+			'old screen, tracking not allowed' => array( false, false, true ),
+			'new screen, tracking allowed'     => array( true, true, true ),
+			'new screen, tracking not allowed' => array( true, false, false ),
+		);
+	}
+
+	/**
+	 * Forget the consumer UI::get_consumer_data() keeps for the rest of the request.
+	 */
+	private function reset_ui_consumers() {
+		$property = ( new \ReflectionClass( UI::class ) )->getProperty( 'consumers' );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$property->setAccessible( true );
+		}
+		$property->setValue( null, null );
 	}
 
 	/**

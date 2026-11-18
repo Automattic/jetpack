@@ -11,6 +11,7 @@ use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Identity_Crisis;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
+use Automattic\Jetpack\Terms_Of_Service;
 use Automattic\Jetpack\Tracking;
 use Jetpack_Options;
 use Jetpack_Tracks_Client;
@@ -50,7 +51,11 @@ class UI {
 
 		add_action( 'admin_enqueue_scripts', array( static::class, 'enqueue_scripts' ) );
 
-		Tracking::register_tracks_functions_scripts( true );
+		// Guarded for the same reason as in Initial_State::get_identity_crisis_data().
+		$use_new_screen = method_exists( Identity_Crisis::class, 'is_new_screen_enabled' ) && Identity_Crisis::is_new_screen_enabled();
+		if ( ! $use_new_screen || ( new Tracking() )->should_enable_tracking( new Terms_Of_Service(), new Status() ) ) {
+			Tracking::register_tracks_functions_scripts( true );
+		}
 	}
 
 	/**

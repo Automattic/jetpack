@@ -1,6 +1,24 @@
 import { createRoot } from '@wordpress/element';
 import { act } from 'react';
+import { goTo, reloadPage } from '../navigate';
 
+let mockIdentityCrisis = null;
+let mockScreenProps = null;
+const mockNewScreen = props => {
+	mockScreenProps = props;
+	return 'New Safe Mode screen';
+};
+const mockConnection = {
+	CONNECTION_FROM: { connectionSafeModeNotice: 'connection_safe_mode_notice' },
+	CONNECTION_STORE_ID: 'jetpack-connection',
+	IdentityCrisis: mockNewScreen,
+};
+
+jest.mock( '@automattic/jetpack-connection', () => mockConnection );
+jest.mock( '@wordpress/data', () => ( {
+	select: () => ( { getIdentityCrisis: () => mockIdentityCrisis } ),
+} ) );
+jest.mock( '../navigate', () => ( { goTo: jest.fn(), reloadPage: jest.fn() } ) );
 jest.mock( '@automattic/jetpack-idc', () => ( { IDCScreen: () => 'Safe Mode choices' } ) );
 jest.mock( '@wordpress/element', () => {
 	const element = jest.requireActual( '@wordpress/element' );
@@ -45,6 +63,10 @@ describe( 'Safe Mode screen', () => {
 		createRoot.mockClear();
 		document.body.innerHTML = '';
 		delete window.JP_IDENTITY_CRISIS__INITIAL_STATE;
+		mockIdentityCrisis = null;
+		mockScreenProps = null;
+		mockConnection.IdentityCrisis = mockNewScreen;
+		jest.clearAllMocks();
 	} );
 
 	it( 'renders into a container that exists when the page loads', () => {
@@ -105,5 +127,87 @@ describe( 'Safe Mode screen', () => {
 		} finally {
 			observe.mockRestore();
 		}
+	} );
+
+	it.each( [
+		[ 'the flag is on', { useNewScreen: true }, true, undefined, 'New Safe Mode screen' ],
+		[ 'the flag is off', { useNewScreen: false }, true, undefined, 'Safe Mode choices' ],
+		[ 'the state has no Safe Mode entry', null, true, undefined, 'Safe Mode choices' ],
+		[
+			'the shared script has no new screen',
+			{ useNewScreen: true },
+			false,
+			undefined,
+			'Safe Mode choices',
+		],
+		[
+			"it is My Jetpack's container",
+			{ useNewScreen: true },
+			true,
+			lateContainerId,
+			'Safe Mode choices',
+		],
+	] )(
+		'shows the right screen when %s',
+		( _, identityCrisis, hasNewScreen, containerID, expected ) => {
+			mockIdentityCrisis = identityCrisis;
+			if ( ! hasNewScreen ) {
+				mockConnection.IdentityCrisis = undefined;
+			}
+			window.JP_IDENTITY_CRISIS__INITIAL_STATE.containerID = containerID;
+			const container = addElement( containerID ?? 'jp-identity-crisis-container' );
+
+			act( () => onLoad() );
+
+			expect( container ).toHaveTextContent( expected );
+		}
+	);
+
+	describe( 'with the new screen', () => {
+		beforeEach( () => {
+			mockIdentityCrisis = { useNewScreen: true };
+			window.JP_IDENTITY_CRISIS__INITIAL_STATE.redirectUri = '/edit.php';
+			addElement( 'jp-identity-crisis-container' );
+			act( () => onLoad() );
+		} );
+
+		it( 'tells the screen where it shows', () => {
+			expect( mockScreenProps ).toMatchObject( {
+				context: 'notice',
+				from: 'connection_safe_mode_notice',
+				redirectUri: '/edit.php',
+			} );
+		} );
+
+		it.each( [
+			[
+				'a fresh connection goes on to connect',
+				props =>
+					props.onActionSuccess( {
+						action: 'start-fresh',
+						connectUrl: 'https://wordpress.com/connect',
+					} ),
+				[ [ 'https://wordpress.com/connect' ] ],
+				0,
+			],
+			[
+				'staying in Safe Mode reloads',
+				props => props.onActionSuccess( { action: 'confirm-safe-mode' } ),
+				[],
+				1,
+			],
+			[
+				'migrating waits for its done view',
+				props => props.onActionSuccess( { action: 'migrate' } ),
+				[],
+				0,
+			],
+			[ 'the migrate done view reloads', props => props.onMigratedDone(), [], 1 ],
+		] )( '%s', ( _, trigger, goToCalls, reloads ) => {
+			trigger( mockScreenProps );
+
+			expect( goTo.mock.calls ).toEqual( goToCalls );
+			expect( reloadPage ).toHaveBeenCalledTimes( reloads );
+		} );
 	} );
 } );
