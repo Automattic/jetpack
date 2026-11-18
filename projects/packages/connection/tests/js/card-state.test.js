@@ -1,11 +1,20 @@
 const assert = require( 'node:assert/strict' );
 const { before, describe, it } = require( 'node:test' );
 
-let decorateAuthUrl, getCardConnection, getProtectedOwnerStatus, withoutClearConfirmation;
+let decorateAuthUrl,
+	getCardConnection,
+	getProtectedOwnerStatus,
+	withoutClearConfirmation,
+	withSkipPricing;
 
 before( async () => {
-	( { decorateAuthUrl, getCardConnection, getProtectedOwnerStatus, withoutClearConfirmation } =
-		await import( '../../src/connectors/js/card-state.mjs' ) );
+	( {
+		decorateAuthUrl,
+		getCardConnection,
+		getProtectedOwnerStatus,
+		withoutClearConfirmation,
+		withSkipPricing,
+	} = await import( '../../src/connectors/js/card-state.mjs' ) );
 } );
 
 const ownerUser = { id: 1, isMaster: true, wpcomUser: { display_name: 'Owner', login: 'owner' } };
@@ -207,20 +216,6 @@ describe( 'decorateAuthUrl', () => {
 	it( 'returns a URL it cannot parse unchanged', () => {
 		assert.equal( decorateAuthUrl( '/relative' ), '/relative' );
 	} );
-
-	it( 'leaves a from the server set', () => {
-		const url = new URL(
-			decorateAuthUrl(
-				'https://wordpress.com/jetpack/connect?from=connection_safe_mode_connectors',
-				{
-					setFrom: false,
-				}
-			)
-		);
-
-		assert.equal( url.searchParams.get( 'from' ), 'connection_safe_mode_connectors' );
-		assert.equal( url.searchParams.get( 'skip_pricing' ), 'true' );
-	} );
 } );
 
 describe( 'withoutClearConfirmation', () => {
@@ -231,5 +226,18 @@ describe( 'withoutClearConfirmation', () => {
 			),
 			'https://example.com/wp-admin/options-connectors.php?connector=wordpress_com'
 		);
+	} );
+} );
+
+describe( 'withSkipPricing', () => {
+	it( 'adds skip_pricing and keeps the from the server set', () => {
+		const url = new URL(
+			withSkipPricing(
+				'https://wordpress.com/jetpack/connect?from=connection_safe_mode_connectors'
+			)
+		);
+
+		assert.equal( url.searchParams.get( 'from' ), 'connection_safe_mode_connectors' );
+		assert.equal( url.searchParams.get( 'skip_pricing' ), 'true' );
 	} );
 } );
