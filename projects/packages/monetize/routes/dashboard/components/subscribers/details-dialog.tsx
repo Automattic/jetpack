@@ -114,7 +114,11 @@ export default function DetailsDialog( {
 						<div className="jp-monetize-subscribers__figures">
 							<Figure
 								icon={ <Icon icon={ payment } /> }
-								label={ __( 'Last payment', 'jetpack-monetize' ) }
+								label={
+									isOneTime( subscription )
+										? __( 'Payment', 'jetpack-monetize' )
+										: __( 'Next payment', 'jetpack-monetize' )
+								}
 								value={ formatCurrency( subscription.renewalPrice, subscription.currency ) }
 							/>
 							<Figure

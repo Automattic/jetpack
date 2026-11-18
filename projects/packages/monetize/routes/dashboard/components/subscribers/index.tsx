@@ -13,7 +13,7 @@ import type { PaidSubscription } from '../../data/subscribers';
 import type { Action, Field, View } from '@wordpress/dataviews';
 import './style.scss';
 
-// The table only pages: WordPress.com can't sort, filter or resize its pages.
+// WordPress.com only pages, at a fixed size: no sorting, filtering or hiding.
 const FIXED = { enableSorting: false, enableHiding: false, filterBy: false } as const;
 
 const DEFAULT_VIEW: View = {
