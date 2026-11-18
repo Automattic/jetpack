@@ -32,13 +32,15 @@ import {
 import JetpackAiProductPage from './components/product-interstitial/jetpack-ai/product-page';
 import ProtectProductPage from './components/product-interstitial/protect/product-page';
 import RedeemTokenScreen from './components/redeem-token-screen';
+import { useSettingsPanelTracking } from './components/settings-panel/use-settings-panel-tracking';
 import { MyJetpackRoutes } from './constants';
 import { useRefreshProductsOnSwitch } from './data/products/use-refresh-products-on-switch';
 import { getMyJetpackWindowInitialState } from './data/utils/get-my-jetpack-window-state';
 import { isOfflineFeatures } from './data/utils/offline-features';
 import { usePaidMenuSync } from './hooks/use-paid-menu-sync';
 import Providers from './providers';
-import { RouterBridge } from './router-bridge';
+import { RouterBridge, useRouteSearch } from './router-bridge';
+import { isSettingsConsolidationEnabled } from './utils/settings-consolidation';
 import './style.module.scss';
 
 /**
@@ -91,6 +93,25 @@ function ProductsSwitchSync() {
 }
 
 /**
+ * Record a settings panel the page loaded open; later opens record at their trigger.
+ *
+ * @return {null} Renders nothing.
+ */
+function SettingsPanelDeepLink() {
+	const configure = String( useRouteSearch().configure ?? '' );
+	const { trackPanelOpen } = useSettingsPanelTracking( configure );
+
+	useEffect( () => {
+		if ( isSettingsConsolidationEnabled() && configure ) {
+			trackPanelOpen( 'deep-link' );
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps -- Once per page load.
+	}, [] );
+
+	return null;
+}
+
+/**
  * The My Jetpack app tree, rendered by the wp-build stage.
  *
  * @return {import('react').ReactElement} The App component.
@@ -115,6 +136,7 @@ export default function App() {
 				<ScrollToTop />
 				<PaidMenuSync />
 				<ProductsSwitchSync />
+				<SettingsPanelDeepLink />
 				<PartnerCouponGate>
 					<Routes>
 						<Route path={ MyJetpackRoutes.Home } element={ <MyJetpackScreen /> } />
