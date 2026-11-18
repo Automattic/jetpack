@@ -181,6 +181,9 @@ class Embeds extends WP_REST_Controller {
 		/**
 		 * Supply the oEmbed data for a URL, skipping the cache and the provider.
 		 *
+		 * Every visitor sees what this returns, and the open preview route serves it publicly cached, so return only what anyone may see.
+		 * Cache it yourself, and return false when $fetch is false so previews stay rate limited.
+		 *
 		 * @since $$next-version$$
 		 *
 		 * @param null|object|string|false $pre   Null to look it up. An object shaped like oEmbed data, '' for none, or false for not available without fetching.
