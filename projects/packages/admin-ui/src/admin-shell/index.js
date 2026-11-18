@@ -368,8 +368,9 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey, maxLiveApps }
 			const mounting = gate.isMounting();
 			if ( mounting || ! hasRoomFor( pageOf( location.href ) ) ) {
 				const target = location.href;
-				// The visible app's router hears this popstate next: hand it back its own URL, in this entry.
+				// Keep the visible app on its own URL, and its routers and guards out of a navigation they don't own.
 				gate.replaceUrl( lastUrl[ visible ] );
+				event.stopImmediatePropagation();
 				// Back/Forward can't be called off, so staying keeps the visible app.
 				if ( mounting || mayUnload( target ) ) {
 					loadPage( target, { replace: true } );
