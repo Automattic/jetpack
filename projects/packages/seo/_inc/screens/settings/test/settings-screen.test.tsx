@@ -7,10 +7,6 @@ import type { ReactElement, ReactNode } from 'react';
 
 // `--experimental-vm-modules` (true ESM): mock with `jest.unstable_mockModule`
 // and import the components under test dynamically after the mocks are registered.
-jest.unstable_mockModule( '../../../data/is-gated', () => ( {
-	isGated: () => false,
-	getUpsellUrl: () => 'https://wordpress.com/checkout/example.com/value_bundle',
-} ) );
 
 jest.unstable_mockModule( '@wordpress/route', () => ( {
 	useSearch: () => ( {} ),
@@ -181,7 +177,7 @@ describe( 'Jetpack SEO output paused', () => {
 			expect( screen.getByText( /^Shown under your site name/ ) ).toBeInTheDocument();
 			// The previews stay visible, read-only, with the same line.
 			expect( SocialPreviewsCard.mock.lastCall?.[ 0 ] ).toEqual(
-				expect.objectContaining( { paused: true } )
+				expect.objectContaining( { paused: true, disabled: true } )
 			);
 		}
 	);
@@ -651,5 +647,23 @@ describe( 'Search & social previews', () => {
 		expect( SocialPreviewsCard.mock.lastCall?.[ 0 ] ).toEqual(
 			expect.objectContaining( { frontPageTitleFormat: [] } )
 		);
+	} );
+
+	it( 'keeps the default share image editable in the manual settings', () => {
+		const image = { id: 12, src: 'https://example.com/share.jpg', alt_text: 'Share image' };
+		const form = buildForm( { default_share_image: image, share_image_preview: image.src } );
+
+		render( <SettingsScreen form={ form } /> );
+
+		const props = SocialPreviewsCard.mock.lastCall?.[ 0 ];
+		expect( props ).toEqual(
+			expect.objectContaining( {
+				defaultImage: image,
+				resolvedImage: image.src,
+				disabled: false,
+			} )
+		);
+		( props?.onImageChange as ( image: number ) => void )( 34 );
+		expect( form.commit ).toHaveBeenCalledWith( { default_share_image: 34 } );
 	} );
 } );
