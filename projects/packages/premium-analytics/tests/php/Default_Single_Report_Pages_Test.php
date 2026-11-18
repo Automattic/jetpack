@@ -127,6 +127,23 @@ class Default_Single_Report_Pages_Test extends BaseTestCase {
 		$this->assertSame( $post['sections'], $record['sections'] );
 	}
 
+	public function test_a_site_with_its_post_types_outside_rest_keeps_the_post_page() {
+		$this->login_as( 'administrator' );
+
+		$types = array( get_post_type_object( 'post' ), get_post_type_object( 'page' ) );
+		foreach ( $types as $type ) {
+			$type->show_in_rest = false;
+		}
+
+		try {
+			$this->assertSame( array( 'analytics/author', 'analytics/post' ), array_column( get_available_single_report_page_records(), 'id' ) );
+		} finally {
+			foreach ( $types as $type ) {
+				$type->show_in_rest = true;
+			}
+		}
+	}
+
 	public function test_the_rest_route_lists_the_pages() {
 		global $wp_rest_server;
 		$wp_rest_server = new WP_REST_Server();

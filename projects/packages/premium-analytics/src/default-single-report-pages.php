@@ -204,6 +204,8 @@ function register_default_single_report_pages( $registry = null ) {
 			'dashboard_section' => 'traffic',
 			'icon'              => 'jpa/post',
 			'sections'          => $post_sections,
+			// Its adapter reads the entry from Stats, so the type need not be in REST.
+			'is_available'      => array( Capabilities::class, 'current_user_can_view_stats' ),
 		),
 		'analytics/page'   => array(
 			'entity'            => array(
