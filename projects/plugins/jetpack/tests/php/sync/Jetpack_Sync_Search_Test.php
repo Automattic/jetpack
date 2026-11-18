@@ -85,7 +85,7 @@ class Jetpack_Sync_Search_Test extends Jetpack_Sync_TestBase {
 	}
 
 	/**
-	 * Cover core taxonomies and sample ten other allowed taxonomies.
+	 * Data Provider of allowed taxonomies.
 	 *
 	 * @return string[][]
 	 */
@@ -95,7 +95,10 @@ class Jetpack_Sync_Search_Test extends Jetpack_Sync_TestBase {
 			'nav_menu'      => array( 'nav_menu' ),
 			'post_format'   => array( 'post_format' ),
 		);
-		$keys   = array_diff( Modules\Search::get_all_taxonomies(), array_keys( $params ) );
+
+		$allowed = array_unique( Modules\Search::get_all_taxonomies() );
+		$params  = array_intersect_key( $params, array_flip( $allowed ) );
+		$keys    = array_diff( $allowed, array_keys( $params ) );
 		foreach ( array_rand( $keys, 10 ) as $k ) {
 			$params[ $keys[ $k ] ] = array( $keys[ $k ] );
 		}
@@ -238,6 +241,11 @@ class Jetpack_Sync_Search_Test extends Jetpack_Sync_TestBase {
 			$this->assertIsArray( $term_obj );
 			$term_id = $term_obj['term_id'];
 			wp_set_post_terms( $this->post_id, array( $term_id ), $taxonomy, false );
+			$this->assertSame(
+				array( $term_id ),
+				wp_get_post_terms( $this->post_id, $taxonomy, array( 'fields' => 'ids' ) ),
+				'The fixture post must have the new term before Sync runs.'
+			);
 			$this->sender->do_sync();
 
 			$this->assertEquals(
