@@ -19,7 +19,7 @@ export type ResetLayoutActionProps = {
 /**
  * The Reset to default action beside the dashboard's own Cancel and Done while
  * customizing: an icon button, as in the configurations design, that asks first.
- * A narrow header has no room for it, where `StatsOptionsMenu` offers it instead.
+ * On a narrow header (`useNarrowPageHeader`), `StatsOptionsMenu` offers it instead.
  *
  * @param props         - Component props.
  * @param props.onReset - Called once the reader confirms.
@@ -43,7 +43,7 @@ export function ResetLayoutAction( { onReset }: ResetLayoutActionProps ) {
 					onClick={ open }
 				/>
 			) }
-			{ /* Outlives the button on purpose: a reader who narrows the window mid-confirmation keeps the dialog, and their place in it, rather than having it vanish and reappear on the way back out. */ }
+			{ /* Not gated on the button, so a resize mid-confirmation keeps the dialog. */ }
 			{ isOpen && <ResetLayoutDialog onConfirm={ onReset } onClose={ close } /> }
 		</>
 	);
