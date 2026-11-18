@@ -326,7 +326,7 @@ jest.mock( '../../widget-module-i18n', () => ( {
 
 // The video adapter's real header over a summary the test controls.
 jest.mock( '../pages', () => ( {
-	getSingleReportAdapter: ( path: string ) => mockAdapters[ path ],
+	getSingleReportAdapter: ( page: { path: string } ) => mockAdapters[ page.path ],
 } ) );
 
 const refetch = jest.fn();

@@ -10,8 +10,8 @@ namespace Automattic\Jetpack\PremiumAnalytics;
 /**
  * Describes one single-report page registered with the dashboard.
  *
- * The record is declarative: the client renders the page from it. What a record cannot
- * express, the entity's summary and header, lives in a client-side page adapter keyed by `path`.
+ * The record is declarative. `entity` names the core-data record the page is about; the summary
+ * and header still come from a client-side adapter: the page's own, or the post one for a post type.
  *
  * @since 0.16.0
  */
@@ -37,6 +37,13 @@ class Single_Report_Page {
 	 * @var string
 	 */
 	public $id;
+
+	/**
+	 * Core-data entity the page is about (`kind`, `name`, optional `key`), or null.
+	 *
+	 * @var array|null
+	 */
+	public $entity = null;
 
 	/**
 	 * URL segment, the public identity of the page: `/report/{path}/{id}`.
@@ -141,6 +148,7 @@ class Single_Report_Page {
 		$this->id             = $id;
 		$this->path           = self::derive_path( $id );
 		$this->label          = $id;
+		$this->apply_post_type_defaults( is_array( $args ) ? $args : array() );
 		$this->set_props( $args );
 
 		if ( empty( $this->preferences_scope ) ) {
@@ -242,6 +250,7 @@ class Single_Report_Page {
 	public function to_array() {
 		return array(
 			'id'                => $this->id,
+			'entity'            => $this->entity,
 			'path'              => $this->path,
 			'label'             => $this->label,
 			'dashboard_section' => $this->dashboard_section,
@@ -296,6 +305,80 @@ class Single_Report_Page {
 		if ( isset( $args['sections'] ) && is_array( $args['sections'] ) ) {
 			$this->sections = self::normalize_sections( $args['sections'] );
 		}
+
+		if ( array_key_exists( 'entity', $args ) ) {
+			$this->entity = self::normalize_entity( $args['entity'] );
+		}
+	}
+
+	/**
+	 * Default path, label and reports page for a `postType` entity, before explicit arguments.
+	 *
+	 * A post type name with an underscore is not a valid path, so that page keeps the id's name.
+	 *
+	 * @param array $args Page arguments.
+	 */
+	private function apply_post_type_defaults( array $args ) {
+		$entity = self::normalize_entity( $args['entity'] ?? null );
+		if ( null === $entity || 'postType' !== $entity['kind'] ) {
+			return;
+		}
+
+		$post_type = get_post_type_object( $entity['name'] );
+		if ( ! $post_type instanceof \WP_Post_Type ) {
+			return;
+		}
+
+		if ( self::is_valid_slug( $post_type->name ) ) {
+			$this->path = $post_type->name;
+		}
+
+		$singular = $post_type->labels->singular_name ?? '';
+		if ( is_string( $singular ) && '' !== $singular ) {
+			$this->label = $singular;
+		}
+
+		$this->scope_param  = 'post_id';
+		$this->reports_page = 'posts';
+	}
+
+	/**
+	 * The entity block when it names a kind and a name, or null.
+	 *
+	 * @param mixed $entity Declared entity.
+	 * @return array|null
+	 */
+	private static function normalize_entity( $entity ) {
+		if ( ! is_array( $entity ) ) {
+			return null;
+		}
+
+		$kind = $entity['kind'] ?? null;
+		$name = $entity['name'] ?? null;
+		if ( ! self::is_entity_token( $kind ) || ! self::is_entity_token( $name ) ) {
+			return null;
+		}
+
+		$normalized = array(
+			'kind' => $kind,
+			'name' => $name,
+		);
+
+		if ( self::is_entity_token( $entity['key'] ?? null ) ) {
+			$normalized['key'] = $entity['key'];
+		}
+
+		return $normalized;
+	}
+
+	/**
+	 * Whether a value can be a core-data kind, name or key.
+	 *
+	 * @param mixed $value Candidate.
+	 * @return bool
+	 */
+	private static function is_entity_token( $value ) {
+		return is_string( $value ) && 1 === preg_match( '/^[A-Za-z0-9_-]+$/', $value );
 	}
 
 	/**

@@ -461,7 +461,7 @@ function SingleReport(): JSX.Element | null {
 			key={ page.path }
 			page={ page }
 			entityId={ id }
-			adapter={ getSingleReportAdapter( page.path ) ?? RECORD_ADAPTER }
+			adapter={ getSingleReportAdapter( page ) ?? RECORD_ADAPTER }
 		/>
 	);
 }
