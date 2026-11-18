@@ -6,6 +6,7 @@ use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Boost_Core\Lib\Boost_API;
 use Automattic\Jetpack\Boost_Core\Lib\Transient;
 use Automattic\Jetpack\Connection\Manager;
+use Automattic\Jetpack\My_Jetpack\Product;
 use Automattic\Jetpack_Boost\Admin\Admin;
 use Automattic\Jetpack_Boost\Data_Sync\Modules_State_Entry;
 use Automattic\Jetpack_Boost\Data_Sync\Performance_History_Entry;
@@ -22,19 +23,22 @@ use Automattic\Jetpack_Boost\Tests\Base_TestCase;
 use Brain\Monkey\Actions;
 use Brain\Monkey\Functions;
 use Mockery;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 class Premium_Features_Test extends Base_TestCase {
 	private $options      = array();
 	private $api_response = array();
 	private $api_calls;
 	private $original_get;
+	private $site_features;
 
 	protected function set_up() {
 		parent::set_up();
-		$this->options      = array();
-		$this->api_calls    = 0;
-		$this->original_get = $_GET;
-		$this->api_response = array();
+		$this->options       = array();
+		$this->api_calls     = 0;
+		$this->original_get  = $_GET;
+		$this->api_response  = array();
+		$this->site_features = null;
 		if ( ! defined( 'DAY_IN_SECONDS' ) ) {
 			define( 'DAY_IN_SECONDS', 86400 );
 		}
@@ -43,6 +47,13 @@ class Premium_Features_Test extends Base_TestCase {
 			function () {
 				++$this->api_calls;
 				return $this->api_response;
+			}
+		);
+		\Patchwork\redefine( Connection::class . '::is_connected', \Patchwork\always( true ) );
+		\Patchwork\redefine(
+			Product::class . '::get_site_features_from_wpcom',
+			function () {
+				return $this->site_features;
 			}
 		);
 		Functions\when( 'sanitize_title' )->returnArg();
@@ -324,5 +335,40 @@ class Premium_Features_Test extends Base_TestCase {
 		$this->observe_plan( array( Premium_Features::CLOUD_CSS ) );
 		$this->assertTrue( ( new Status( Cloud_CSS::get_slug() ) )->get() );
 		$this->assertTrue( get_option( 'jetpack_boost_ds_cloud_css_upgrade_notice' ) );
+	}
+
+	/**
+	 * @dataProvider provide_site_features
+	 * @param array      $cached        Features Boost cached.
+	 * @param array|null $site_features What My Jetpack reports for the site.
+	 * @param int        $fetches       Expected Boost feature fetches.
+	 */
+	#[DataProvider( 'provide_site_features' )]
+	public function test_boost_page_refetches_only_when_site_features_disagree( $cached, $site_features, $fetches ) {
+		Transient::set( Premium_Features::TRANSIENT_KEY, $cached, 3600 );
+		$this->site_features = $site_features;
+		$this->api_response  = $cached;
+		Functions\when( 'current_user_can' )->justReturn( true );
+		$this->dashboard_admin( true )->admin_init();
+		$this->assertSame( $fetches, $this->api_calls );
+	}
+
+	public static function provide_site_features() {
+		$cached = array( Premium_Features::CLOUD_CSS, 'image-size-analysis' );
+		return array(
+			'same plan'            => array( $cached, array( 'active' => array( 'akismet', Premium_Features::CLOUD_CSS, 'image-size-analysis' ) ), 0 ),
+			'plan changed'         => array( $cached, array( 'active' => array( Premium_Features::CLOUD_CSS, Premium_Features::PERFORMANCE_HISTORY, 'image-size-analysis' ) ), 1 ),
+			'site features failed' => array( $cached, null, 1 ),
+		);
+	}
+
+	public function test_upgrade_cached_by_another_request_still_enables_cloud_css() {
+		Actions\expectDone( 'jetpack_boost_module_status_updated' )->once()->with( 'cloud_css', true );
+		$this->observe_plan( array() );
+		Transient::set( Premium_Features::TRANSIENT_KEY, array( Premium_Features::CLOUD_CSS ), 3600 );
+		$this->site_features = array( 'active' => array( Premium_Features::CLOUD_CSS ) );
+		$this->dashboard_admin( true )->admin_init();
+		$this->assertSame( 1, $this->api_calls );
+		$this->assertTrue( ( new Status( 'cloud_css' ) )->get() );
 	}
 }
