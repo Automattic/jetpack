@@ -108,14 +108,19 @@
 		}
 	}
 
-	&__row--bottom {
-		display: grid;
-		grid-template-columns: repeat(2, 1fr);
-		gap: 24px;
+	// The grid of the tab's widgets keeps the spacing of the page.
+	--wp-grid-gap: 24px;
 
-		@media (max-width: 782px) {
-			grid-template-columns: 1fr;
-		}
+	&__performance {
+		display: flex;
+		flex-direction: column;
+		gap: 24px;
+	}
+
+	&__dashboard-loading {
+		display: flex;
+		justify-content: center;
+		padding-block: 48px;
 	}
 
 	&__chart-frame {

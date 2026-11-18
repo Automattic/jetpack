@@ -1,4 +1,4 @@
-import { toStatsPeriod } from '../stats-period';
+import { lastDaysReportDates, toStatsPeriod } from '../stats-period';
 
 describe( 'toStatsPeriod', () => {
 	it.each( [
@@ -20,5 +20,20 @@ describe( 'toStatsPeriod', () => {
 		[ 'a value that is not a date', 'last-week', '2026-06-07', undefined ],
 	] )( 'reads %s', ( _case, from, to, expected ) => {
 		expect( toStatsPeriod( from, to ) ).toEqual( expected );
+	} );
+} );
+
+describe( 'lastDaysReportDates', () => {
+	afterEach( () => {
+		jest.useRealTimers();
+	} );
+
+	it( 'spans the days up to today, in the form toStatsPeriod reads back', () => {
+		jest.useFakeTimers().setSystemTime( new Date( '2026-06-07T15:00:00Z' ) );
+
+		const dates = lastDaysReportDates( 30 );
+
+		expect( dates ).toEqual( { from: '2026-05-09T00:00:00', to: '2026-06-07T23:59:59' } );
+		expect( toStatsPeriod( dates.from, dates.to ) ).toEqual( { to: '2026-06-07', days: 30 } );
 	} );
 } );

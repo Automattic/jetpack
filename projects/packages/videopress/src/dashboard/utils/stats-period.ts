@@ -30,3 +30,18 @@ export function toStatsPeriod( from: unknown, to: unknown ): StatsPeriod | undef
 
 	return days >= 1 ? { to: lastDay, days: Math.min( days, MAX_DAYS ) } : undefined;
 }
+
+/**
+ * The report dates of the last `days` days, today included: what `toStatsPeriod` reads back.
+ *
+ * @param days - Days the range spans.
+ * @return The first and last moment of the range, as the dashboard writes report dates.
+ */
+export function lastDaysReportDates( days: number ): { from: string; to: string } {
+	const today = new Date().toISOString().slice( 0, 10 );
+	const firstDay = new Date( Date.parse( `${ today }T00:00:00Z` ) - ( days - 1 ) * DAY_MS )
+		.toISOString()
+		.slice( 0, 10 );
+
+	return { from: `${ firstDay }T00:00:00`, to: `${ today }T23:59:59` };
+}

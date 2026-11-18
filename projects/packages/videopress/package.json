@@ -71,6 +71,7 @@
 		"@wordpress/theme": "4.0.0",
 		"@wordpress/ui": "0.26.0",
 		"@wordpress/url": "5.1.0",
+		"@wordpress/widget-dashboard": "0.11.0",
 		"@wordpress/widget-primitives": "0.11.0",
 		"clsx": "2.1.1",
 		"debug": "4.4.3",
