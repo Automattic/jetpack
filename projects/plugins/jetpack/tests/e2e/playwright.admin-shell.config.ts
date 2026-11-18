@@ -47,6 +47,11 @@ const browsers = [
 // ADMIN_SHELL_SMOKE=1 runs only the tests tagged @smoke; the login setup always runs.
 const smoke = process.env.ADMIN_SHELL_SMOKE === '1' ? { grep: /@smoke/ } : {};
 
+/* Specs that change or watch site-wide state, so they need the site to themselves. They run only with
+ * ADMIN_SHELL_ALONE=1, which bin/admin-shell-ci.sh sets for a one-worker run of their own. */
+const ALONE = [ 'feature-off.test.ts', 'hover-side-effects.test.ts' ];
+const alone = process.env.ADMIN_SHELL_ALONE === '1';
+
 export default defineConfig( {
 	testDir: './specs/admin-shell',
 	outputDir: `${ runDir }/results`,
@@ -83,12 +88,11 @@ export default defineConfig( {
 		},
 		...browsers.map( browser => ( {
 			name: `shell on: ${ browser.name }`,
-			testIgnore: [
-				'auth.setup.ts',
-				'shell-off.test.ts',
-				'standalone.test.ts',
-				'hover-side-effects.test.ts',
-			],
+			...( alone
+				? { testMatch: 'feature-off.test.ts' }
+				: {
+						testIgnore: [ 'auth.setup.ts', 'shell-off.test.ts', 'standalone.test.ts', ...ALONE ],
+					} ),
 			dependencies: [ 'admin shell login' ],
 			...smoke,
 			use: {
@@ -98,8 +102,8 @@ export default defineConfig( {
 				storageState: STATE_ON,
 			},
 		} ) ),
-		// Only with ADMIN_SHELL_HOVER=1; see bin/admin-shell-ci.sh.
-		...( process.env.ADMIN_SHELL_HOVER === '1' && browserNames.includes( 'chromium' )
+		// Chromium only: it checks the server, not the browser.
+		...( alone && browserNames.includes( 'chromium' )
 			? [
 					{
 						name: 'hover side effects',

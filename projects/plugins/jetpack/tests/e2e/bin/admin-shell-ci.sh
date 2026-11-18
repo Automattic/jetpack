@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# Runs the admin shell suite against the e2e Docker site from `pnpm env:up`: hover side effects, shell on, then shell off.
+# Runs the admin shell suite against the e2e Docker site from `pnpm env:up`: site-wide state specs, shell on, then shell off.
 # Extra arguments go to every Playwright run. ADMIN_SHELL_SMOKE=1 runs only the @smoke tests.
 
 set -uo pipefail
@@ -38,9 +38,13 @@ echo "::group::Shell on"
 # Jetpack AI's sidebar item shows only with the ai module on, and it needs the stubbed connection to activate.
 "${WP[@]}" jetpack module activate ai || exit 1
 "${WP[@]}" option delete e2e_admin_shell_off >/dev/null 2>&1
-# A run of its own, first: other tests' requests would mix into the hover test's write log.
-if [[ "${ADMIN_SHELL_SMOKE:-}" != 1 && " ${BROWSERS[*]} " == *" chromium "* ]]; then
-	ADMIN_SHELL_RUN=hover ADMIN_SHELL_HOVER=1 playwright test -c playwright.admin-shell.config.ts --project='hover side effects' "$@" || STATUS=1
+# The specs that need the site to themselves (ALONE in the config), first and one at a time.
+if [[ "${ADMIN_SHELL_SMOKE:-}" != 1 ]]; then
+	ALONE_PROJECTS=( --project='shell on: *' )
+	# The config defines the hover project only for Chromium.
+	[[ " ${BROWSERS[*]} " == *" chromium "* ]] && ALONE_PROJECTS+=( --project='hover side effects' )
+	ADMIN_SHELL_RUN=alone ADMIN_SHELL_ALONE=1 PLAYWRIGHT_WORKERS=1 \
+		playwright test -c playwright.admin-shell.config.ts "${ALONE_PROJECTS[@]}" "$@" || STATUS=1
 fi
 ADMIN_SHELL_RUN=shell-on playwright test -c playwright.admin-shell.config.ts --project='shell on: *' "$@" || STATUS=1
 echo "::endgroup::"

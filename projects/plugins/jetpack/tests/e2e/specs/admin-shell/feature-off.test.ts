@@ -26,12 +26,13 @@ const FORMS = 'jetpack-forms-responses-wp-admin';
 async function switchForms( page: Page, active: boolean ): Promise< void > {
 	const ok = await page.evaluate( async on => {
 		const nonce = await ( await fetch( '/wp-admin/admin-ajax.php?action=rest-nonce' ) ).text();
-		const response = await fetch( '/wp-json/wpcom/v2/my-jetpack/site/features/bulk', {
+		// `rest_route`: the e2e site has no pretty permalinks, and there `/wp-json/` serves the home page with a 200.
+		const response = await fetch( '/?rest_route=/wpcom/v2/my-jetpack/site/features/bulk', {
 			method: 'POST',
 			headers: { 'X-WP-Nonce': nonce, 'Content-Type': 'application/json' },
 			body: JSON.stringify( { active: on, modules: [ 'contact-form' ] } ),
 		} );
-		return response.ok;
+		return response.ok && ( response.headers.get( 'content-type' ) ?? '' ).includes( 'json' );
 	}, active );
 	expect( ok, `Forms switched ${ active ? 'on' : 'off' }` ).toBe( true );
 }
