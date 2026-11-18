@@ -3,9 +3,11 @@ import { getScriptData } from '@automattic/jetpack-script-data';
 import { __ } from '@wordpress/i18n';
 import { Link, Notice, RadioGroupControl, Stack, Text } from '@wordpress/ui';
 import { useCallback, useId } from 'react';
+import { LearnMoreLink } from './learn-more-link';
 import { PanelModuleToggle } from './panel-module-toggle';
 import styles from './styles.module.scss';
 import { useModuleSetting } from './use-module-option';
+import { useSettingsPanelTracking } from './use-settings-panel-tracking';
 import type { ModuleSettingsProps } from './registry';
 
 // Printed by the Jetpack plugin, which knows the themes it ships Infinite Scroll support for.
@@ -26,14 +28,27 @@ const toScroll = ( stored: unknown ) => stored === undefined || Boolean( stored 
 export function InfiniteScrollSettings( { module: $module, disabled }: ModuleSettingsProps ) {
 	const scroll = useModuleSetting( $module, 'infinite_scroll', toScroll );
 	const labelId = useId();
+	const { trackSettingChange, trackClick } = useSettingsPanelTracking( $module.module );
 	const themeSupported =
 		( getScriptData() as JetpackPluginScriptData | undefined )?.jetpack?.themeSupports
 			?.infiniteScroll !== false;
 
 	const { setValue: setScroll } = scroll;
 	const onModeChange = useCallback(
-		( value: unknown ) => setScroll( value === 'scroll' ),
-		[ setScroll ]
+		( value: unknown ) => {
+			trackSettingChange( 'infinite_scroll', String( value ) );
+			setScroll( value === 'scroll' );
+		},
+		[ setScroll, trackSettingChange ]
+	);
+	const onLearnMore = useCallback(
+		() =>
+			trackClick( {
+				target: 'learn-more',
+				feature: 'infinite-scroll',
+				extra: 'not-supported-link',
+			} ),
+		[ trackClick ]
 	);
 
 	return (
@@ -45,6 +60,7 @@ export function InfiniteScrollSettings( { module: $module, disabled }: ModuleSet
 						{ __( "Your current theme doesn't support Infinite Scroll.", 'jetpack-my-jetpack' ) }{ ' ' }
 						<Link
 							href={ getRedirectUrl( 'jetpack-support-infinite-scroll', { anchor: 'theme' } ) }
+							onClick={ onLearnMore }
 							target="_blank"
 							rel="noopener noreferrer"
 						>
@@ -59,13 +75,12 @@ export function InfiniteScrollSettings( { module: $module, disabled }: ModuleSet
 					'jetpack-my-jetpack'
 				) }
 			</Text>
-			<Link
+			<LearnMoreLink
+				module={ $module.module }
 				href={ getRedirectUrl( 'jetpack-support-infinite-scroll' ) }
-				target="_blank"
-				rel="noopener noreferrer"
 			>
 				{ __( 'Learn more about Infinite Scroll', 'jetpack-my-jetpack' ) }
-			</Link>
+			</LearnMoreLink>
 
 			<Stack
 				direction="row"

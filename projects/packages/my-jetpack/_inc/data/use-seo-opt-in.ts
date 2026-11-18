@@ -5,6 +5,8 @@ import { REST_API_SEO_OPT_IN_ENDPOINT, QUERY_SEO_OPT_IN_KEY } from './constants'
 import useSimpleMutation from './use-simple-mutation';
 import { getMyJetpackWindowInitialState } from './utils/get-my-jetpack-window-state';
 
+export type SeoOptInSurface = 'overview' | 'settings-panel';
+
 type SeoOptInResponse = {
 	success: boolean;
 	redirect: string;
@@ -18,9 +20,10 @@ type SeoOptInResponse = {
  * sent to that URL. The endpoint is the source of truth for the destination; the bootstrapped
  * `seoOptIn.redirect` is only a fallback for an unexpected empty response.
  *
+ * @param surface - Where the opt-in card shows, recorded with the success event.
  * @return The mutation result, exposing `optIn` (the mutate fn) and its `isPending` state.
  */
-export default function useSeoOptIn() {
+export default function useSeoOptIn( surface: SeoOptInSurface = 'overview' ) {
 	const { recordEvent } = useAnalytics();
 
 	const { mutate: optIn, isPending } = useSimpleMutation< SeoOptInResponse >( {
@@ -31,7 +34,7 @@ export default function useSeoOptIn() {
 		},
 		options: {
 			onSuccess: ( { redirect } ) => {
-				recordEvent( 'jetpack_myjetpack_seo_opt_in_card_success', {} );
+				recordEvent( 'jetpack_myjetpack_seo_opt_in_card_success', { surface } );
 
 				const { redirect: fallbackRedirect } = getMyJetpackWindowInitialState( 'seoOptIn' );
 				// Navigate via the wrapper so the redirect is mockable in tests
