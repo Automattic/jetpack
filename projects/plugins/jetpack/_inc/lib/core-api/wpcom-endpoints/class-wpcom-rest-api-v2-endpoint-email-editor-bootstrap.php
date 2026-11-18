@@ -169,7 +169,7 @@ class WPCOM_REST_API_V2_Endpoint_Email_Editor_Bootstrap extends WP_REST_Controll
 	}
 
 	/**
-	 * Proxies the request, minus a `post_id` the current user may not edit here, and remembers a refusal.
+	 * Proxies the request, minus a `post_id` the current user may not edit here.
 	 *
 	 * Off Simple only: WordPress.com checks `edit_post` against the shadow blog rather than against
 	 * this site, so the same check has to happen locally too. On Simple its check is this check on
@@ -185,19 +185,7 @@ class WPCOM_REST_API_V2_Endpoint_Email_Editor_Bootstrap extends WP_REST_Controll
 	 * @return mixed|WP_Error Response from WordPress.com, or an error.
 	 */
 	public function proxy_to_wpcom( $request ) {
-		$response = $this->proxy_request_to_wpcom_as_user( $this->drop_unauthorized_post_id( $request ) );
-
-		// WordPress.com's rollout rule turned this site away, which an outage never answers with.
-		// The screen's class loads only with the Subscriptions module, and without it there is no screen.
-		if (
-			is_wp_error( $response )
-			&& 'email_editor_not_enabled' === $response->get_error_code()
-			&& class_exists( 'Jetpack_Email_Design_Editor', false )
-		) {
-			Jetpack_Email_Design_Editor::remember_refusal();
-		}
-
-		return $response;
+		return $this->proxy_request_to_wpcom_as_user( $this->drop_unauthorized_post_id( $request ) );
 	}
 
 	/**

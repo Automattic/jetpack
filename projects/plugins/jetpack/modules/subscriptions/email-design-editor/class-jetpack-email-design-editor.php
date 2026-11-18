@@ -45,11 +45,6 @@ class Jetpack_Email_Design_Editor {
 	const STICKER = 'email-design-editor';
 
 	/**
-	 * Set while WordPress.com's rollout rule is known to refuse this site. See NL-1201.
-	 */
-	const REFUSED_TRANSIENT = 'jetpack_email_design_refused';
-
-	/**
 	 * The script handle, and the id of the element the editor mounts into.
 	 */
 	const HANDLE = 'jetpack-email-design-editor';
@@ -83,7 +78,6 @@ class Jetpack_Email_Design_Editor {
 		// Last, so that on Atomic the sticker cannot be overridden by a filter added later --
 		// a flag that outlives the sticker is not a kill switch.
 		add_filter( 'jetpack_feature_flag_enabled_' . self::FEATURE_FLAG, array( __CLASS__, 'filter_flag_for_atomic' ), PHP_INT_MAX );
-		add_filter( 'jetpack_feature_flag_enabled_' . self::FEATURE_FLAG, array( __CLASS__, 'filter_flag_for_refusal' ) );
 
 		add_action( 'admin_menu', array( __CLASS__, 'add_admin_page' ) );
 
@@ -179,26 +173,6 @@ class Jetpack_Email_Design_Editor {
 		// `AT_PROXIED_REQUEST` call sites do, so this branch is reachable from tests at all.
 		return (bool) wpcomsh_is_site_sticker_active( self::STICKER )
 			|| Constants::is_true( 'AT_PROXIED_REQUEST' );
-	}
-
-	/**
-	 * Hide the screen for a day, after WordPress.com refused this site its bootstrap.
-	 *
-	 * When the day is up the screen returns and its next load asks again, so a site the rollout
-	 * lets back in gets the screen back without anyone clearing this.
-	 */
-	public static function remember_refusal() {
-		set_transient( self::REFUSED_TRANSIENT, 1, DAY_IN_SECONDS );
-	}
-
-	/**
-	 * Close the screen while a refusal is remembered. On WoA the sticker filter answers after this.
-	 *
-	 * @param bool $enabled Whether the flag is enabled so far.
-	 * @return bool
-	 */
-	public static function filter_flag_for_refusal( $enabled ) {
-		return $enabled && ! get_transient( self::REFUSED_TRANSIENT );
 	}
 
 	/**

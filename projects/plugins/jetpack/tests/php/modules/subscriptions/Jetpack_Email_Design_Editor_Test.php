@@ -285,22 +285,6 @@ class Jetpack_Email_Design_Editor_Test extends WP_UnitTestCase {
 		$this->assertTrue( Jetpack_Email_Design_Editor::is_enabled() );
 	}
 
-	public function test_a_refusal_closes_the_screen_for_a_day() {
-		if ( Constants::is_true( 'IS_ATOMIC' ) ) {
-			$this->markTestSkipped( 'This process runs as Atomic, where the sticker rather than the default answers the flag.' );
-		}
-
-		Jetpack_Email_Design_Editor::init();
-		Jetpack_Email_Design_Editor::remember_refusal();
-
-		$this->assertFalse( Jetpack_Email_Design_Editor::is_enabled() );
-		$this->assertEqualsWithDelta( time() + DAY_IN_SECONDS, (int) get_option( '_transient_timeout_' . Jetpack_Email_Design_Editor::REFUSED_TRANSIENT ), 5 );
-
-		delete_transient( Jetpack_Email_Design_Editor::REFUSED_TRANSIENT );
-
-		$this->assertTrue( Jetpack_Email_Design_Editor::is_enabled() );
-	}
-
 	/**
 	 * @param array $constants What the platform defines.
 	 * @param bool  $expected  Whether the screen is on by default there.

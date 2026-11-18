@@ -1,4 +1,4 @@
 Significance: patch
 Type: enhancement
 
-Newsletter: Hide the Email Design screen for a day when WordPress.com says it is not available for the site.
+Newsletter: Say the Email Design screen is not available on a site WordPress.com does not offer it to, rather than asking for a reload.
