@@ -865,8 +865,7 @@ class Jetpack_Mu_Wpcom {
 	}
 
 	/**
-	 * Whether Jetpack Comments handles the current blog's comments. A process that loads it for one blog
-	 * and then switches to another keeps its hooks, so this is asked again for each blog.
+	 * Whether Jetpack Comments handles the current blog's comments.
 	 *
 	 * @param bool $enabled Whether Jetpack Comments is enabled.
 	 * @return bool
