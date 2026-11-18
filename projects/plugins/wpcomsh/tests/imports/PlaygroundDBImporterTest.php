@@ -179,6 +179,26 @@ class PlaygroundDBImporterTest extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Databases without the MySQL index definitions fall back to SQLite's own indices.
+	 */
+	public function test_generate_sql_falls_back_to_the_sqlite_indexes() {
+		$db_path = wp_tempnam( 'no-index-definitions.sqlite' );
+		copy( self::$fixtures_path . '/valid/plain.sqlite', $db_path );
+
+		$db = new SQLite3( $db_path );
+		$db->exec( 'DROP TABLE `' . Playground_DB_Importer::SQLITE_INDEXES_TABLE . '`' );
+		$db->close();
+
+		$result = $this->db_importer->generate_sql( $db_path );
+		unlink( $db_path );
+
+		$this->assertNotWPError( $result );
+		$this->assertStringContainsString( '  KEY `slug` (`slug`)', $result );
+		$this->assertStringContainsString( '  UNIQUE KEY `term_id_taxonomy` (`term_id`, `taxonomy`)', $result );
+		$this->assertStringContainsString( '  UNIQUE KEY `option_name` (`option_name`)', $result );
+	}
+
+	/**
 	 * Generate a sql dump with custom output prefix.
 	 *
 	 * @dataProvider provide_valid_fixture_files
