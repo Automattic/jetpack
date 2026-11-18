@@ -156,6 +156,49 @@ class PlaygroundDBImporterTest extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Indices come from the MySQL definitions the SQLite driver keeps: real names, even with `__`
+	 * (Solid Security), and prefix lengths on text columns (TranslatePress), which SQLite's own indices lose.
+	 */
+	public function test_generate_sql_uses_the_mysql_index_definitions() {
+		$db_path = wp_tempnam( 'plugin-tables.sqlite' );
+		copy( self::$fixtures_path . '/valid/plain.sqlite', $db_path );
+
+		$db = new SQLite3( $db_path );
+		$db->exec( file_get_contents( self::$fixtures_path . '/plugin-tables.sql' ) ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+		$db->close();
+
+		$result = $this->db_importer->generate_sql( $db_path );
+		unlink( $db_path );
+
+		$this->assertNotWPError( $result );
+		$this->assertStringContainsString( '  KEY `gettext_index_original` (`original`(100)),', $result );
+		$this->assertStringContainsString( '  KEY `gettext_lookup_original_domain_context` (`original`(100), `domain`(100), `context`(100))', $result );
+		$this->assertStringContainsString( '  UNIQUE KEY `gettext_lookup_hash_unique` (`lookup_hash`)', $result );
+		$this->assertStringContainsString( '  UNIQUE KEY `event_slug__time__consolidated` (`event_slug`, `event_time`, `event_consolidated`)', $result );
+		$this->assertStringNotContainsString( 'KEY ``', $result );
+	}
+
+	/**
+	 * Databases without the MySQL index definitions fall back to SQLite's own indices.
+	 */
+	public function test_generate_sql_falls_back_to_the_sqlite_indexes() {
+		$db_path = wp_tempnam( 'no-index-definitions.sqlite' );
+		copy( self::$fixtures_path . '/valid/plain.sqlite', $db_path );
+
+		$db = new SQLite3( $db_path );
+		$db->exec( 'DROP TABLE `' . Playground_DB_Importer::SQLITE_INDEXES_TABLE . '`' );
+		$db->close();
+
+		$result = $this->db_importer->generate_sql( $db_path );
+		unlink( $db_path );
+
+		$this->assertNotWPError( $result );
+		$this->assertStringContainsString( '  KEY `slug` (`slug`)', $result );
+		$this->assertStringContainsString( '  UNIQUE KEY `term_id_taxonomy` (`term_id`, `taxonomy`)', $result );
+		$this->assertStringContainsString( '  UNIQUE KEY `option_name` (`option_name`)', $result );
+	}
+
+	/**
 	 * Generate a sql dump with custom output prefix.
 	 *
 	 * @dataProvider provide_valid_fixture_files
