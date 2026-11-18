@@ -59,7 +59,8 @@ final class Announcement_Registry {
 	 * @return array|false The registered announcement, or false when it is refused.
 	 */
 	public function register( $id, $args ) {
-		if ( ! is_string( $id ) || ! preg_match( '#^' . self::ID_PATTERN . '$#', $id ) ) {
+		// `D`: without it `$` also matches before a line break that ends the id.
+		if ( ! is_string( $id ) || ! preg_match( '#^' . self::ID_PATTERN . '$#D', $id ) ) {
 			return self::refuse( __( 'Announcement ids are lowercase and carry a namespace prefix. Example: my-plugin/my-announcement', 'jetpack-announcements' ) );
 		}
 

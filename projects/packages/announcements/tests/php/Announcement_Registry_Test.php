@@ -124,6 +124,7 @@ class Announcement_Registry_Test extends BaseTestCase {
 			'id without a namespace' => array( 'arrange-tabs', self::VALID_ARGS ),
 			'id with uppercase'      => array( 'Premium-Analytics/arrange-tabs', self::VALID_ARGS ),
 			'id that is no string'   => array( 12, self::VALID_ARGS ),
+			'id ending a line'       => array( "a/b\n", self::VALID_ARGS ),
 			'no date'                => array( 'a/b', array_diff_key( self::VALID_ARGS, array( 'date' => 1 ) ) ),
 			'date that is no date'   => array( 'a/b', array_merge( self::VALID_ARGS, array( 'date' => 'tomorrow' ) ) ),
 			'date that never comes'  => array( 'a/b', array_merge( self::VALID_ARGS, array( 'date' => '2026-02-30' ) ) ),
