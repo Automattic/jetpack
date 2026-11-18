@@ -157,9 +157,10 @@
 			addLabels: [ '[Feature] Search', 'Instant Search' ],
 		},
 
-		// Review dependency changes that could shift the performance measurements.
+		// Review updates that could shift performance measurements without delaying other projects.
 		{
 			matchFileNames: [ 'tools/performance/**' ],
+			groupName: 'Performance tool dependencies',
 			dependencyDashboardApproval: true,
 		},
 	],
