@@ -1,5 +1,6 @@
 import type { JetpackFooterMenuItem } from '../jetpack-footer/types.ts';
-import type { ReactNode } from 'react';
+import type { Page } from '@wordpress/admin-ui';
+import type { ComponentProps, ReactNode } from 'react';
 
 export type AdminPageProps = {
 	/**
@@ -22,7 +23,7 @@ export type AdminPageProps = {
 	 * Product title displayed in the unified header (e.g. "Social", "Backup").
 	 * When provided, renders the admin-ui Page header instead of the legacy header slot.
 	 */
-	title?: string;
+	title?: ReactNode;
 
 	/**
 	 * Optional tagline displayed below the title in the unified header.
@@ -47,12 +48,17 @@ export type AdminPageProps = {
 	globalControls?: ReactNode;
 
 	/**
-	 * Breadcrumb navigation displayed next to the title in the unified header.
+	 * Breadcrumb trail shown in place of the title in the unified header; the last item is the page heading.
 	 */
-	breadcrumbs?: ReactNode;
+	breadcrumbs?: ComponentProps< typeof Page >[ 'breadcrumbs' ];
 
 	/**
-	 * Accessible name of the page region. Defaults to `title`, so pass it when the header shows `breadcrumbs` instead.
+	 * Header link components, such as `link` for a client-side router link used by `breadcrumbs`.
+	 */
+	components?: ComponentProps< typeof Page >[ 'components' ];
+
+	/**
+	 * Accessible name of the page region. Defaults to `title`, or else the last `breadcrumbs` item.
 	 */
 	ariaLabel?: string;
 

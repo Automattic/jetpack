@@ -294,7 +294,7 @@ export const BULK_ACTIONS = {
 // this does and does not buy: it checks the options shape (a misspelled `to` fails),
 // but not path *values* — the route tree isn't registered as a type in this build, so
 // `to` widens to `string` and a typo'd path still compiles. Same limitation the
-// `search` cast in `routes/response/breadcrumbs.tsx` works around.
+// `search` cast in `src/dashboard/wp-build/components/router-link` works around.
 type NavigateFunction = UseNavigateResult< string >;
 
 type GetActionsParams = {
@@ -358,7 +358,7 @@ export function getActions( {
 			}
 
 			// Open the standalone single response page rather than the inspector panel.
-			// Router types aren't registered in this build; same cast as breadcrumbs.tsx.
+			// Router types aren't registered in this build; same cast as router-link.
 			navigate( buildResponseLink( item.id, pinnedView ) as unknown as never );
 		},
 	};
@@ -383,7 +383,7 @@ export function getActions( {
 
 			// The standalone page owns the print stylesheet and consumes `print=1`
 			// once the response is on screen.
-			// Router types aren't registered in this build; same cast as breadcrumbs.tsx.
+			// Router types aren't registered in this build; same cast as router-link.
 			navigate( buildResponseLink( item.id, pinnedView, { print: 1 } ) as unknown as never );
 		},
 	};

@@ -96,3 +96,7 @@ patchedDependencies:
   # until Jetpack's minimum WordPress version requests the @wordpress/build 0.26 list,
   # even if upstream fixes init-module handling first.
   "@wordpress/build": .pnpm-patches/@wordpress__build.patch
+
+# TEMP: test WordPress/gutenberg#86982 (Page `breadcrumbs` as items). Built from the PR branch; do not merge.
+overrides:
+  '@wordpress/admin-ui': file:.pr-tarballs/wordpress-admin-ui-3.1.0-pr86982.09296ca1.tgz

@@ -4,7 +4,7 @@
 import { Button, Icon } from '@jetpack-premium-analytics/externals';
 import { jetpack } from '@jetpack-premium-analytics/icons';
 import { useReportDateFilters, useSectionTab } from '@jetpack-premium-analytics/routing';
-import { StatsBreadcrumbs } from '@jetpack-premium-analytics/ui';
+import { useStatsBreadcrumbs } from '@jetpack-premium-analytics/ui';
 import {
 	ReportDrilldownTable,
 	ReportPageLayout,
@@ -93,11 +93,15 @@ function UtmReport(): JSX.Element {
 	const buildUrlAction = useBuildUrlAction( setBuilderValues );
 	const actions = useMemo( () => [ buildUrlAction ], [ buildUrlAction ] );
 
+	const statsBreadcrumbs = useStatsBreadcrumbs( {
+		items: [ { label: getLabel() } ],
+		className: reportPageStyles.page,
+	} );
+
 	return (
 		<Page
-			className={ reportPageStyles.page }
+			{ ...statsBreadcrumbs }
 			visual={ <Icon icon={ jetpack } /> }
-			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
 			actions={
 				<>
 					<Button variant="outline" size="compact" onClick={ openBlankBuilder }>

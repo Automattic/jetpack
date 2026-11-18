@@ -20,7 +20,7 @@ export default function BoostPage( { isSubpage, children, subpage, actions }: Pr
 			title={ isSubpage ? undefined : 'Boost' }
 			ariaLabel="Boost"
 			// Not undefined on subpages: AdminPage would switch layout and remount the portal slots.
-			breadcrumbs={ isSubpage ? <></> : undefined }
+			breadcrumbs={ isSubpage ? [] : undefined }
 			subTitle={ __( 'Improve your site speed and performance.', 'jetpack-boost' ) }
 			actions={ actions }
 			globalControls={ getHeaderControlsSlot( 'boost' ) }

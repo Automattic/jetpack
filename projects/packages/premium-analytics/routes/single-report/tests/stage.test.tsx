@@ -141,8 +141,8 @@ jest.mock( '@jetpack-premium-analytics/routing', () => ( {
 
 jest.mock( '@jetpack-premium-analytics/ui', () => ( {
 	SectionHeader: jest.requireActual( '../../../packages/ui/src/section-header' ).SectionHeader,
-	StatsBreadcrumbs: jest.requireActual( '../../../packages/ui/src/stats-breadcrumbs' )
-		.StatsBreadcrumbs,
+	useStatsBreadcrumbs: jest.requireActual( '../../../packages/ui/src/stats-breadcrumbs' )
+		.useStatsBreadcrumbs,
 	SectionTabs: jest.requireActual( '../../../packages/ui/src/section-tabs/section-tabs' )
 		.SectionTabs,
 	PeriodChangeStatus: jest.requireActual(
@@ -266,37 +266,25 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 const mockUseStoredLayout = useStoredDetailLayout as jest.Mock;
 
 jest.mock( '@wordpress/admin-ui', () => ( {
-	Breadcrumbs: ( { items }: { items: Array< { label: string; to?: string } > } ) => (
-		<nav aria-label="Breadcrumbs">
-			{ items.map( ( item, index ) => {
-				let content: ReactNode = item.label;
-				if ( item.to ) {
-					content = <a href={ item.to }>{ item.label }</a>;
-				} else if ( index === items.length - 1 ) {
-					content = <h1>{ item.label }</h1>;
-				}
-
-				return (
-					<span key={ index } role="listitem">
-						{ content }
-					</span>
-				);
-			} ) }
-		</nav>
-	),
 	Page: ( {
-		breadcrumbs,
+		breadcrumbs = [],
 		badges,
 		actions,
 		children,
 	}: {
-		breadcrumbs: ReactNode;
+		breadcrumbs?: Array< { label: string; href?: string } >;
 		badges?: ReactNode;
 		actions?: ReactNode;
 		children: ReactNode;
 	} ) => (
 		<main>
-			{ breadcrumbs }
+			<nav aria-label="Breadcrumbs">
+				{ breadcrumbs.map( ( item, index ) => (
+					<span key={ index } role="listitem">
+						{ item.href ? <a href={ item.href }>{ item.label }</a> : <h1>{ item.label }</h1> }
+					</span>
+				) ) }
+			</nav>
 			{ badges }
 			<div data-testid="page-actions">{ actions }</div>
 			{ children }

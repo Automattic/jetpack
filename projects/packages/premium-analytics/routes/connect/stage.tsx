@@ -7,7 +7,7 @@ import {
 } from '@jetpack-premium-analytics/data';
 import { Button, Icon, JetpackFooter, Notice } from '@jetpack-premium-analytics/externals';
 import { jetpack } from '@jetpack-premium-analytics/icons';
-import { StatsBreadcrumbs } from '@jetpack-premium-analytics/ui';
+import { useStatsBreadcrumbs } from '@jetpack-premium-analytics/ui';
 import { StatsOptionsMenu, useTrackEvent } from '@jetpack-premium-analytics/widgets-toolkit';
 import { Page } from '@wordpress/admin-ui';
 import { useCallback, useEffect } from '@wordpress/element';
@@ -39,6 +39,8 @@ function PlanChoice() {
 	}, [ trackEvent, isOfflineMode, siteSuffix ] );
 
 	const chooseExisting = useCallback( () => choose( 'existing' ), [ choose ] );
+
+	const statsBreadcrumbs = useStatsBreadcrumbs( { isRoot: true } );
 
 	let content;
 
@@ -74,8 +76,8 @@ function PlanChoice() {
 
 	return (
 		<Page
+			{ ...statsBreadcrumbs }
 			visual={ <Icon icon={ jetpack } /> }
-			breadcrumbs={ <StatsBreadcrumbs isRoot /> }
 			actions={
 				<>
 					{ ! isOfflineMode && (

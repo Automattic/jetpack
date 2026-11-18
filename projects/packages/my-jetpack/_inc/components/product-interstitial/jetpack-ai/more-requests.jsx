@@ -47,7 +47,7 @@ export function JetpackAIInterstitialMoreRequests( { onClickGoBack = () => {} } 
 	return (
 		<AdminPage
 			showBackground={ false }
-			breadcrumbs={
+			title={
 				<GoBackLink
 					onClick={ onClickGoBack }
 					to={ MyJetpackRoutes.Features }

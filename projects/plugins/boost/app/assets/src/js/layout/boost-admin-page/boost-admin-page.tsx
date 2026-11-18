@@ -7,18 +7,21 @@ import {
 	isAddLicenseAvailable,
 	isMyJetpackAvailable,
 } from '../../../../../../_inc/overview/lib/use-modules-state';
-import type { ReactNode } from 'react';
+import type { ComponentProps, ReactNode } from 'react';
 
-type BoostAdminPageProps = {
+type BoostAdminPageProps = Pick<
+	ComponentProps< typeof AdminPage >,
+	'breadcrumbs' | 'components'
+> & {
 	children: ReactNode;
 	showActivateLicense?: boolean;
-	breadcrumbs?: ReactNode;
 };
 
 const BoostAdminPage = ( {
 	children,
 	showActivateLicense = true,
 	breadcrumbs,
+	components,
 }: BoostAdminPageProps ) => {
 	const activateLicenseUrl = 'admin.php?page=my-jetpack#/add-license';
 	const premiumFeatures = usePremiumFeatures();
@@ -42,6 +45,7 @@ const BoostAdminPage = ( {
 			}
 			subTitle={ __( 'Optimize your site performance and loading speed.', 'jetpack-boost' ) }
 			breadcrumbs={ breadcrumbs }
+			components={ components }
 			actions={ licenseAction }
 			showBackground={ false }
 		>

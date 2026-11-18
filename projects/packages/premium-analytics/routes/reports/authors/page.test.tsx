@@ -23,18 +23,14 @@ jest.mock( '@jetpack-premium-analytics/routing', () => ( {
 
 jest.mock( '@jetpack-premium-analytics/ui', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/ui' ),
+	// The trail's router links need router context this page-level test has no need to provide.
+	useStatsBreadcrumbs: () => ( {} ),
 	DateFiltersPanel: () => null,
 } ) );
 
 jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/widgets-toolkit' ),
 	ReportDrilldownTable: jest.fn( () => null ),
-} ) );
-
-// `Breadcrumbs` reaches for router context this page-level test has no need to provide.
-jest.mock( '@wordpress/admin-ui', () => ( {
-	...jest.requireActual( '@wordpress/admin-ui' ),
-	Breadcrumbs: () => null,
 } ) );
 
 jest.mock( '@wordpress/route', () => ( {

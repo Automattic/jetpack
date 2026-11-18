@@ -5,7 +5,7 @@ import { isStatsFeatureLocked, usePrefetchViewerCountry } from '@jetpack-premium
 import { Icon, type View } from '@jetpack-premium-analytics/externals';
 import { jetpack } from '@jetpack-premium-analytics/icons';
 import { useReportDateFilters, useSectionTab } from '@jetpack-premium-analytics/routing';
-import { StatsBreadcrumbs } from '@jetpack-premium-analytics/ui';
+import { useStatsBreadcrumbs } from '@jetpack-premium-analytics/ui';
 import {
 	ExporterCsvAction,
 	LOCATIONS_GEO_MODES,
@@ -164,11 +164,15 @@ export default function LocationsReportPage(): JSX.Element {
 	// Stays mounted while the rows load, so a map the user collapsed stays collapsed.
 	const showMap = !! countryFilter || records.table.rows.length > 0 || records.table.isLoading;
 
+	const statsBreadcrumbs = useStatsBreadcrumbs( {
+		items: [ { label: getLabel() } ],
+		className: reportPageStyles.page,
+	} );
+
 	return (
 		<Page
-			className={ reportPageStyles.page }
+			{ ...statsBreadcrumbs }
 			visual={ <Icon icon={ jetpack } /> }
-			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
 			actions={
 				<>
 					{ ! tabLocked && (

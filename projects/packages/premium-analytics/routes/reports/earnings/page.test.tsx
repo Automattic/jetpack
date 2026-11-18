@@ -32,16 +32,16 @@ jest.mock( '@jetpack-premium-analytics/routing', () => ( {
 	useSectionTab: jest.fn(),
 } ) );
 
+jest.mock( '@jetpack-premium-analytics/ui', () => ( {
+	...jest.requireActual( '@jetpack-premium-analytics/ui' ),
+	// The trail's router links need router context this page-level test has no need to provide.
+	useStatsBreadcrumbs: () => ( {} ),
+} ) );
+
 jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/widgets-toolkit' ),
 	ReportCsvAction: jest.fn( () => null ),
 	ReportPageTabs: jest.fn( () => null ),
-} ) );
-
-// `Breadcrumbs` reaches for router context this page-level test has no need to provide.
-jest.mock( '@wordpress/admin-ui', () => ( {
-	...jest.requireActual( '@wordpress/admin-ui' ),
-	Breadcrumbs: () => null,
 } ) );
 
 const useRecordsMock = jest.mocked( useEarningsReportRecords );

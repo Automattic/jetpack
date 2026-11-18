@@ -20,7 +20,7 @@ import {
 } from '../../../src/dashboard/test-utils/query-client-wrapper';
 import { stage as Stage } from '../stage';
 import type { QueryClient } from '@tanstack/react-query';
-import type { ReactNode } from 'react';
+import type { ComponentType, ReactNode } from 'react';
 
 jest.mock( '@automattic/jetpack-analytics', () => ( {
 	__esModule: true,
@@ -54,50 +54,44 @@ jest.mock( '@wordpress/route', () => ( {
 	useParams: () => ( { id: mockVideoId } ),
 	// ChaptersSummary builds its deep link through useLinkProps.
 	useLinkProps: ( { to }: { to: string } ) => ( { href: to } ),
-	Link: ( { to, children }: { to: string; children: ReactNode } ) => (
-		<a href={ to }>{ children }</a>
+	Link: ( { to, children, ...props }: { to: string; children: ReactNode } ) => (
+		<a href={ to } { ...props }>
+			{ children }
+		</a>
 	),
 } ) );
 
-// The AdminPage/Breadcrumbs chrome needs the full admin shell; reduce it to
-// the slots the tests interact with (breadcrumbs, actions, body).
 jest.mock( '@automattic/jetpack-components/admin-page', () => ( {
 	__esModule: true,
+	// Renders the trail as admin-ui's `Page` does: links through `components.link`, last item the <h1>.
 	default: ( {
-		breadcrumbs,
+		breadcrumbs = [],
+		components,
 		actions,
 		children,
 	}: {
-		breadcrumbs?: ReactNode;
+		breadcrumbs?: { label: string; href?: string }[];
+		components?: { link?: ComponentType< { href: string; children: ReactNode } > };
 		actions?: ReactNode;
 		children?: ReactNode;
-	} ) => (
-		<div>
-			<div>{ breadcrumbs }</div>
-			<div>{ actions }</div>
-			{ children }
-		</div>
-	),
-} ) );
-// Renders `items` rather than a hardcoded trail, splitting link-vs-<h1> the
-// way the real component does (@wordpress/admin-ui breadcrumbs/index.tsx:
-// every item but the last is a router link; the last, when it carries no
-// `to`, is the page's only <h1>). The live-title cases below read that
-// heading, so a hardcoded stub would make them assert nothing.
-jest.mock( '@wordpress/admin-ui', () => ( {
-	Breadcrumbs: ( { items }: { items: { label: string; to?: string }[] } ) => {
-		const last = items[ items.length - 1 ];
+	} ) => {
+		const LinkComponent = components?.link ?? 'a';
 		return (
-			<nav>
-				<ul>
-					{ items.slice( 0, -1 ).map( ( item, index ) => (
-						<li key={ index }>
-							<a href={ item.to }>{ item.label }</a>
-						</li>
-					) ) }
-					<li>{ last.to ? <a href={ last.to }>{ last.label }</a> : <h1>{ last.label }</h1> }</li>
-				</ul>
-			</nav>
+			<div>
+				<nav>
+					{ breadcrumbs.map( ( { label, href } ) =>
+						href ? (
+							<LinkComponent key={ label } href={ href }>
+								{ label }
+							</LinkComponent>
+						) : (
+							<h1 key={ label }>{ label }</h1>
+						)
+					) }
+				</nav>
+				<div>{ actions }</div>
+				{ children }
+			</div>
 		);
 	},
 } ) );

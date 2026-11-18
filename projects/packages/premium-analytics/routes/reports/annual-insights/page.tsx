@@ -3,7 +3,7 @@
  */
 import { Icon } from '@jetpack-premium-analytics/externals';
 import { jetpack } from '@jetpack-premium-analytics/icons';
-import { StatsBreadcrumbs } from '@jetpack-premium-analytics/ui';
+import { useStatsBreadcrumbs } from '@jetpack-premium-analytics/ui';
 import {
 	ExporterCsvAction,
 	ReportPageLayout,
@@ -65,11 +65,15 @@ function AnnualInsightsReport(): JSX.Element {
 
 	const { getLabel } = REPORTS[ 'annual-insights' ];
 
+	const statsBreadcrumbs = useStatsBreadcrumbs( {
+		items: [ { label: getLabel() } ],
+		className: reportPageStyles.page,
+	} );
+
 	return (
 		<Page
-			className={ reportPageStyles.page }
+			{ ...statsBreadcrumbs }
 			visual={ <Icon icon={ jetpack } /> }
-			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
 			actions={
 				<>
 					<ExporterCsvAction

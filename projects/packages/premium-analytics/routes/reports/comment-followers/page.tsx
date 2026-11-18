@@ -4,7 +4,7 @@
 import { type StatsCommentFollowersItem } from '@jetpack-premium-analytics/data';
 import { Icon, Text } from '@jetpack-premium-analytics/externals';
 import { jetpack } from '@jetpack-premium-analytics/icons';
-import { StatsBreadcrumbs } from '@jetpack-premium-analytics/ui';
+import { useStatsBreadcrumbs } from '@jetpack-premium-analytics/ui';
 import {
 	MetricValue,
 	ReportPageLayout,
@@ -91,11 +91,15 @@ function CommentFollowersReport(): JSX.Element {
 	const hasAllPostsFollowers = ( records.allPostsFollowers ?? 0 ) > 0;
 	const hasPostRows = records.rows.length > 0;
 
+	const statsBreadcrumbs = useStatsBreadcrumbs( {
+		items: [ { label: getLabel() } ],
+		className: reportPageStyles.page,
+	} );
+
 	return (
 		<Page
-			className={ reportPageStyles.page }
+			{ ...statsBreadcrumbs }
 			visual={ <Icon icon={ jetpack } /> }
-			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
 			actions={
 				<>
 					{ canExport && (

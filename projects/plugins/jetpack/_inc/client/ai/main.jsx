@@ -16,7 +16,15 @@
 import { AdminPage, JitmSlot } from '@automattic/jetpack-components';
 import { useConnectionErrorNotice } from '@automattic/jetpack-connection';
 import { useDispatch } from '@wordpress/data';
-import { Suspense, lazy, useCallback, useEffect, useRef, useState } from '@wordpress/element';
+import {
+	Suspense,
+	lazy,
+	useCallback,
+	useEffect,
+	useMemo,
+	useRef,
+	useState,
+} from '@wordpress/element';
 import { __, isRTL, sprintf } from '@wordpress/i18n';
 import { chevronLeft, chevronRight, Icon } from '@wordpress/icons';
 import { store as noticesStore } from '@wordpress/notices';
@@ -120,36 +128,25 @@ function LoadErrorNotice( { message } ) {
 }
 
 /**
- * Breadcrumb nav shown on MCP sub-views: "AI / Read", "AI / Write", etc.
- * Replaces both the page title and the ← Back button.
+ * Creates the header's breadcrumb link. Its only link is the "Jetpack AI" root, which goes back
+ * rather than pushing its href, so the sub-view's history entry is popped.
  *
- * @param {object}   props            - Component props.
- * @param {string}   props.view       - Current sub-view key.
- * @param {Function} props.onNavigate - Called with no args to go back to the MCP tab.
- * @return {object} Component markup.
+ * @param {Function} onBack - Called with no args to go back.
+ * @return {Function} The link component for admin-ui's `Page` `components.link`.
  */
-function Breadcrumbs( { view, onNavigate } ) {
-	return (
-		<nav aria-label={ __( 'Breadcrumbs', 'jetpack' ) }>
-			<ul className="admin-ui-breadcrumbs__list jetpack-ai-admin__breadcrumbs">
-				<li>
-					<button
-						type="button"
-						className="jetpack-ai-admin__breadcrumb-link"
-						onClick={ onNavigate }
-					>
-						{ /** "Jetpack AI" is a product name and should not be translated. */ }
-						Jetpack AI
-					</button>
-				</li>
-				<li>
-					<span className="jetpack-ai-admin__breadcrumb-current" aria-current="page">
-						{ VIEW_TITLES[ view ] }
-					</span>
-				</li>
-			</ul>
-		</nav>
-	);
+function createBackLink( onBack ) {
+	return function BackLink( { href, children, ...props } ) {
+		const handleClick = useCallback( event => {
+			event.preventDefault();
+			onBack();
+		}, [] );
+
+		return (
+			<a { ...props } href={ href } onClick={ handleClick }>
+				{ children }
+			</a>
+		);
+	};
 }
 
 /**
@@ -403,6 +400,11 @@ export default function App() {
 		window.history.back();
 	}, [] );
 
+	const headerComponents = useMemo(
+		() => ( { link: createBackLink( navigateBack ) } ),
+		[ navigateBack ]
+	);
+
 	// MCP navigation targets are sub-views; McpHub calls this with their bare
 	// keys ('read' | 'write' | 'setup'), which live under the mcp path segment.
 	const handleMcpNavigate = useCallback(
@@ -440,8 +442,15 @@ export default function App() {
 					: __( 'Create, connect, and automate with Jetpack AI.', 'jetpack' )
 			}
 			breadcrumbs={
-				isSubView ? <Breadcrumbs view={ view } onNavigate={ navigateBack } /> : undefined
+				isSubView
+					? [
+							// "Jetpack AI" is a product name and should not be translated.
+							{ label: 'Jetpack AI', href: '#/' + activeTab },
+							{ label: VIEW_TITLES[ view ] },
+						]
+					: undefined
 			}
+			components={ headerComponents }
 			// The tab bar visually separates the header from the content; the
 			// border is only needed in the MCP-only shape where no tabs render.
 			showBottomBorder={ isSubView && tabViews.length === 1 }

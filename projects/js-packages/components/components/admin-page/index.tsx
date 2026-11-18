@@ -36,6 +36,7 @@ const AdminPage: FC< AdminPageProps > = ( {
 	actions,
 	globalControls,
 	breadcrumbs,
+	components,
 	ariaLabel,
 	tabs,
 	showBottomBorder = true,
@@ -85,6 +86,7 @@ const AdminPage: FC< AdminPageProps > = ( {
 					className="jp-admin-page__page"
 					visual={ logo || <JetpackLogo showText={ false } height={ 20 } /> }
 					breadcrumbs={ breadcrumbs }
+					components={ components }
 					title={ title }
 					ariaLabel={ ariaLabel }
 					subTitle={ subTitle }

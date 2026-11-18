@@ -7,11 +7,14 @@ not a bespoke page per module.
 
 ```tsx
 const label = __( 'All pages' );
+const statsBreadcrumbs = useStatsBreadcrumbs( {
+	items: [ { label } ],
+	className: reportPageStyles.page,
+} );
 
 <Page
-	className={ reportPageStyles.page }
+	{ ...statsBreadcrumbs }
 	visual={ <Icon icon={ jetpack } /> }
-	breadcrumbs={ <StatsBreadcrumbs items={ [ { label } ] } /> }
 	actions={
 		<>
 			{ downloadButton }
@@ -91,17 +94,17 @@ alone. It pins at the top of the layout's scroll area and condenses on scroll,
 as the dashboard's does: the layout only declares the timeline scope the
 header's own pin marker publishes into.
 
-Pass `StatsBreadcrumbs` from `@jetpack-premium-analytics/ui` to Core's `Page`
-`breadcrumbs` slot. It owns the leading `Stats` crumb and links it back to the
-dashboard through `useDashboardLink()`, carrying the shared date range and
-comparison so Back returns to the same view. The trailing item carries no `to`
-and renders as the page's `h1`, so `Page` takes no separate title prop. Render
-the shared Jetpack icon through `Page`'s `visual` slot.
+Spread `useStatsBreadcrumbs()` from `@jetpack-premium-analytics/ui` onto Core's
+`Page`: it returns the `breadcrumbs` items, a router `components.link`, and the
+page `className` merged with the trail's. It owns the leading `Stats` crumb and
+links it back to the dashboard through `useDashboardLink()`, carrying the shared
+date range and comparison so Back returns to the same view. The trailing item
+carries no `href` and renders as the page's `h1`, so `Page` takes no separate
+title prop. Render the shared Jetpack icon through `Page`'s `visual` slot.
 
-`StatsBreadcrumbs` renders router links, so it needs a mounted router. That is
-why `Page` receives it as a plain `ReactNode` and the route, not
-`ReportPageLayout`, builds it. The content layout can still render
-outside a router, which is what lets its story compose it independently.
+`useStatsBreadcrumbs` reads the router, so the route, not `ReportPageLayout`,
+calls it. The content layout can still render outside a router, which is what
+lets its story compose it independently.
 
 These components do not fetch: the page owns the data hooks and the
 `reportParams` derived from the URL (`useReportDateFilters`), and passes

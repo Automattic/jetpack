@@ -39,7 +39,7 @@ export {
 	type SpotlightStepProps,
 } from './spotlight-step';
 export { StaleDataNotice } from './stale-data-notice';
-export { StatsBreadcrumbs, type StatsBreadcrumbsProps } from './stats-breadcrumbs';
+export { useStatsBreadcrumbs, type UseStatsBreadcrumbsOptions } from './stats-breadcrumbs';
 export { StatsTierSlider } from './stats-tier-slider';
 export { usePaginatedView, type PaginatedView } from './use-paginated-view';
 export { WidgetGridAnimation, type WidgetGridAnimationProps } from './widget-grid-animation';

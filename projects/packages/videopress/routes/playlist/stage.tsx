@@ -1,5 +1,4 @@
 import AdminPage from '@automattic/jetpack-components/admin-page';
-import { Breadcrumbs } from '@wordpress/admin-ui';
 import { useDispatch } from '@wordpress/data';
 import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
@@ -36,6 +35,7 @@ import {
 	PlaybackCard,
 } from '../../src/dashboard/components/playlists/settings-cards';
 import QueryClientWrapper from '../../src/dashboard/components/query-client-wrapper';
+import RouterLink, { useGuardedRouterLink } from '../../src/dashboard/components/router-link';
 import { useAdminShellLeaveGuard } from '../../src/dashboard/hooks/use-admin-shell-leave-guard';
 import {
 	useDeletePlaylist,
@@ -55,12 +55,15 @@ import type { ReactNode } from 'react';
 type FormValues = Pick< PlaylistItem, 'title' | 'description' | 'videos' | 'settings' >;
 
 const PARENT_BREADCRUMBS = [
-	{ label: 'VideoPress', to: '/' },
-	{ label: __( 'Playlists', 'jetpack-videopress-pkg' ), to: '/playlists' },
+	{ label: 'VideoPress', href: '/' },
+	{ label: __( 'Playlists', 'jetpack-videopress-pkg' ), href: '/playlists' },
 ];
 
 const Shell = ( { label, children }: { label: string; children: ReactNode } ) => (
-	<AdminPage breadcrumbs={ <Breadcrumbs items={ [ ...PARENT_BREADCRUMBS, { label } ] } /> }>
+	<AdminPage
+		breadcrumbs={ [ ...PARENT_BREADCRUMBS, { label } ] }
+		components={ { link: RouterLink } }
+	>
 		<div className="vp-playlist-editor">{ children }</div>
 	</AdminPage>
 );
@@ -266,28 +269,25 @@ const Editor = ( { playlist }: { playlist: PlaylistItem } ) => {
 		? __( 'View', 'jetpack-videopress-pkg' )
 		: __( 'Preview', 'jetpack-videopress-pkg' );
 
-	const confirmLeave = () =>
-		! isDirty ||
-		// eslint-disable-next-line no-alert -- Navigation must synchronously confirm before leaving the form.
-		window.confirm(
-			__( 'You have unsaved changes. Leave this page and discard them?', 'jetpack-videopress-pkg' )
-		);
+	const confirmLeave = useCallback(
+		() =>
+			! isDirty ||
+			// eslint-disable-next-line no-alert -- Navigation must synchronously confirm before leaving the form.
+			window.confirm(
+				__(
+					'You have unsaved changes. Leave this page and discard them?',
+					'jetpack-videopress-pkg'
+				)
+			),
+		[ isDirty ]
+	);
+	const guardedLink = useGuardedRouterLink( confirmLeave );
 	useAdminShellLeaveGuard( () => isDirty );
 
 	return (
 		<AdminPage
-			breadcrumbs={
-				<div
-					onClickCapture={ event => {
-						if ( ( event.target as HTMLElement ).closest( 'a' ) && ! confirmLeave() ) {
-							event.preventDefault();
-							event.stopPropagation();
-						}
-					} }
-				>
-					<Breadcrumbs items={ [ ...PARENT_BREADCRUMBS, { label: playlistTitle( values ) } ] } />
-				</div>
-			}
+			breadcrumbs={ [ ...PARENT_BREADCRUMBS, { label: playlistTitle( values ) } ] }
+			components={ { link: guardedLink } }
 			actions={
 				<Stack direction="row" gap="sm" align="center">
 					<PlaylistStatusBadge item={ playlist } />

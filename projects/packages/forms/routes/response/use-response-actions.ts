@@ -177,7 +177,7 @@ export default function useResponseActions(
 	);
 
 	const goToList = useCallback( () => {
-		// Router types aren't registered in this build; same cast as breadcrumbs.tsx.
+		// Router types aren't registered in this build; same cast as router-link.
 		navigate( buildListLink( pinned ) as unknown as never );
 	}, [ navigate, pinned ] );
 

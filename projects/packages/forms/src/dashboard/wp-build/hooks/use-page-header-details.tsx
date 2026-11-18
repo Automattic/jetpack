@@ -3,7 +3,7 @@
  */
 import jetpackAnalytics from '@automattic/jetpack-analytics';
 import JetpackLogo from '@automattic/jetpack-components/jetpack-logo';
-import { Breadcrumbs } from '@wordpress/admin-ui';
+import { type Page } from '@wordpress/admin-ui';
 import { DropdownMenu, Button } from '@wordpress/components';
 import { useViewportMatch } from '@wordpress/compose';
 import { store as coreDataStore } from '@wordpress/core-data';
@@ -44,7 +44,7 @@ import { getFormEditUrl } from '../../utils.ts';
 import ManageIntegrationsButton from '../components/manage-integrations-button';
 import useFormItemActions from './use-form-item-actions';
 import { useRenameForm } from './use-rename-form';
-import type { ReactNode } from 'react';
+import type { ComponentProps, ReactNode } from 'react';
 
 type ResponsesStatusView = 'inbox' | 'spam' | 'trash';
 
@@ -61,7 +61,7 @@ type UsePageHeaderDetailsProps = {
 
 type UsePageHeaderDetailsReturn = {
 	ariaLabel: string;
-	breadcrumbs: ReactNode;
+	breadcrumbs?: ComponentProps< typeof Page >[ 'breadcrumbs' ];
 	title?: string;
 	visual: ReactNode;
 	badges?: ReactNode;
@@ -466,17 +466,13 @@ export default function usePageHeaderDetails(
 
 	const breadcrumbs = useMemo( () => {
 		if ( ! isSingleFormScreen ) {
-			return null;
+			return undefined;
 		}
 
-		return (
-			<Breadcrumbs
-				items={ [
-					{ label: __( 'Forms', 'jetpack-forms' ), to: '/forms' },
-					{ label: formTitle || __( 'Form responses', 'jetpack-forms' ) },
-				] }
-			/>
-		);
+		return [
+			{ label: __( 'Forms', 'jetpack-forms' ), href: '/forms' },
+			{ label: formTitle || __( 'Form responses', 'jetpack-forms' ) },
+		];
 	}, [ isSingleFormScreen, formTitle ] );
 
 	const subtitle = useMemo( () => {

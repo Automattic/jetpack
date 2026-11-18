@@ -212,7 +212,7 @@ export default function ProductInterstitial( {
 	return (
 		<AdminPage
 			showBackground={ false }
-			breadcrumbs={
+			title={
 				<GoBackLink
 					onClick={ onClickGoBack }
 					to={ backTo }

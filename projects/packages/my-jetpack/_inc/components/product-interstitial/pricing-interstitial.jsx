@@ -435,7 +435,7 @@ export default function PricingInterstitial( { slug } ) {
 	return (
 		<AdminPage
 			showBackground={ false }
-			breadcrumbs={
+			title={
 				<GoBackLink
 					onClick={ handleGoBack }
 					to={ backTo }

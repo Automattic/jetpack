@@ -36,14 +36,18 @@ describe( 'AdminPage', () => {
 		expect( screen.queryAllByRole( 'separator' ) ).toHaveLength( separators );
 	} );
 
-	it( 'names the page region from the aria label when breadcrumbs replace the title', () => {
+	it( 'names the page region from the last breadcrumb when breadcrumbs replace the title', () => {
 		render(
-			<AdminPage breadcrumbs={ <nav /> } ariaLabel="Protect" showFooter={ false }>
+			<AdminPage
+				breadcrumbs={ [ { label: 'Protect', href: '/' }, { label: 'Threat report' } ] }
+				showFooter={ false }
+			>
 				Content
 			</AdminPage>
 		);
 
-		expect( screen.getByRole( 'region', { name: 'Protect' } ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'region', { name: 'Threat report' } ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'link', { name: 'Protect' } ) ).toHaveAttribute( 'href', '/' );
 	} );
 
 	it( 'leaves the shared REST client alone when no API root or nonce is passed', () => {

@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { computePrimaryRange } from '@jetpack-premium-analytics/datetime';
-import { Icon, Text, type Field } from '@jetpack-premium-analytics/externals';
+import { Icon, type Field } from '@jetpack-premium-analytics/externals';
 import { jetpack } from '@jetpack-premium-analytics/icons';
 import { Page } from '@wordpress/admin-ui';
 import '@wordpress/dataviews/build-style/style.css';
@@ -72,19 +72,8 @@ interface ReportPageStoryControls {
 	isEmpty?: boolean;
 }
 
-/**
- * Stand-in for `Breadcrumbs`, which renders router links Storybook has no
- * router for. The trailing crumb is the page's `h1`.
- *
- * @return The breadcrumb stand-in.
- */
-function StoryBreadcrumbs() {
-	return (
-		<Text variant="heading-lg" render={ <h1 /> }>
-			Stats / Pages
-		</Text>
-	);
-}
+// Plain links: Storybook mounts no router for `useStatsBreadcrumbs`' router links.
+const STORY_BREADCRUMBS = [ { label: 'Stats', href: '#' }, { label: 'Pages' } ];
 
 const STORY_TIMEZONE = FIXTURE_SITE_TIME_ZONE;
 const STORY_RANGE = computePrimaryRange( 'last-30-days', STORY_TIMEZONE );
@@ -123,7 +112,7 @@ function ComposedReportPage( { isLoading, isEmpty }: ReportPageStoryControls ) {
 		<Page
 			className={ styles.page }
 			visual={ <Icon icon={ jetpack } /> }
-			breadcrumbs={ <StoryBreadcrumbs /> }
+			breadcrumbs={ STORY_BREADCRUMBS }
 			actions={ <Button variant="secondary">Download</Button> }
 		>
 			<ReportPageLayout title="Posts & Pages" dateFilters={ STORY_DATE_FILTERS }>

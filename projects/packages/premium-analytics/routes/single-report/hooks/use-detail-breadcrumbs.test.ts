@@ -91,8 +91,8 @@ describe( 'useDetailBreadcrumbs', () => {
 			const { result } = renderHook( () => useDetailBreadcrumbs( 'Detail title' ) );
 
 			expect( result.current.map( item => item.label ) ).toEqual( [ label, 'Detail title' ] );
-			expectReportLink( result.current[ 0 ].to, report, section );
-			expect( result.current[ 1 ].to ).toBeUndefined();
+			expectReportLink( result.current[ 0 ].href, report, section );
+			expect( result.current[ 1 ].href ).toBeUndefined();
 		}
 	);
 
@@ -105,7 +105,7 @@ describe( 'useDetailBreadcrumbs', () => {
 
 		const { result } = renderHook( () => useDetailBreadcrumbs( 'Detail title' ) );
 
-		expectReportLink( result.current[ 0 ].to, report );
+		expectReportLink( result.current[ 0 ].href, report );
 	} );
 
 	it( 'returns only the title crumb when no origin is present', () => {

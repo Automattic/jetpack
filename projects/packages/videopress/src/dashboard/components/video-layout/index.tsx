@@ -5,8 +5,8 @@ import AdminPage from '@automattic/jetpack-components/admin-page';
 import useConnectionErrorNotice, {
 	ConnectionError,
 } from '@automattic/jetpack-connection/use-connection-error-notice';
-import { Breadcrumbs } from '@wordpress/admin-ui';
 import { Stack } from '@wordpress/ui';
+import RouterLink from '../router-link';
 import VideoNav, { type VideoNavTab } from '../video-nav';
 import './style.scss';
 import type { ReactNode } from 'react';
@@ -19,9 +19,9 @@ import type { ReactNode } from 'react';
  *
  * @return The parent breadcrumb item.
  */
-const getParentBreadcrumbItem = (): { label: string; to: string } => {
+const getParentBreadcrumbItem = (): { label: string; href: string } => {
 	const from = ( window.history.state as { from?: string } | null )?.from;
-	return { label: 'VideoPress', to: from === 'stats' ? '/stats' : '/' };
+	return { label: 'VideoPress', href: from === 'stats' ? '/stats' : '/' };
 };
 
 type Props = {
@@ -62,11 +62,9 @@ export default function VideoLayout( {
 
 	return (
 		<AdminPage
-			breadcrumbs={
-				<div className="vp-video-layout__breadcrumbs">
-					<Breadcrumbs items={ [ getParentBreadcrumbItem(), { label: breadcrumbLabel } ] } />
-				</div>
-			}
+			className="vp-video-layout"
+			breadcrumbs={ [ getParentBreadcrumbItem(), { label: breadcrumbLabel } ] }
+			components={ { link: RouterLink } }
 			actions={ actions }
 		>
 			{ hasConnectionError && (

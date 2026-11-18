@@ -8,7 +8,7 @@ import {
 import { Icon } from '@jetpack-premium-analytics/externals';
 import { jetpack } from '@jetpack-premium-analytics/icons';
 import { useReportDateFilters, useSectionTab } from '@jetpack-premium-analytics/routing';
-import { StatsBreadcrumbs } from '@jetpack-premium-analytics/ui';
+import { useStatsBreadcrumbs } from '@jetpack-premium-analytics/ui';
 import {
 	ReportPageLayout,
 	ReportErrorState,
@@ -199,11 +199,15 @@ function PostsReport(): JSX.Element {
 
 	const { getLabel } = REPORTS.posts;
 
+	const statsBreadcrumbs = useStatsBreadcrumbs( {
+		items: [ { label: getLabel() } ],
+		className: reportPageStyles.page,
+	} );
+
 	return (
 		<Page
-			className={ reportPageStyles.page }
+			{ ...statsBreadcrumbs }
 			visual={ <Icon icon={ jetpack } /> }
-			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
 			actions={
 				<>
 					{ csvAction }

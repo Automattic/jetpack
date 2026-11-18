@@ -1,7 +1,7 @@
 /* No jest-dom or user-event in this project. */
-/* eslint-disable jest-dom/prefer-in-document, jest-dom/prefer-to-have-attribute, testing-library/prefer-user-event */
-import { fireEvent, render, screen } from '@testing-library/react';
-import SubpageBreadcrumbs from './subpage-breadcrumbs';
+/* eslint-disable testing-library/prefer-user-event */
+import { fireEvent, render, renderHook, screen } from '@testing-library/react';
+import { useSubpageBreadcrumbs } from './use-subpage-breadcrumbs';
 
 jest.mock( '$lib/navigation/navigation-context', () => ( {
 	useBoostNavigation: () => ( { returnToSettings: mockReturn, settingsHref: '/settings-href' } ),
@@ -10,22 +10,23 @@ jest.mock( '$lib/utils/analytics', () => ( { recordBoostEvent: jest.fn() } ) );
 
 const mockReturn = jest.fn();
 
-describe( 'SubpageBreadcrumbs', () => {
+describe( 'useSubpageBreadcrumbs', () => {
 	beforeEach( () => jest.clearAllMocks() );
 
 	it( 'links Boost to Settings and names the current page', () => {
-		render( <SubpageBreadcrumbs title="Cache debug log" /> );
+		const { result } = renderHook( () => useSubpageBreadcrumbs( 'Cache debug log' ) );
 
-		expect( screen.getByRole( 'navigation', { name: 'Breadcrumbs' } ) ).toBeTruthy();
-		expect( screen.getByRole( 'link', { name: 'Boost' } ).getAttribute( 'href' ) ).toBe(
-			'/settings-href'
-		);
-		expect( screen.getByText( 'Cache debug log' ) ).toBeTruthy();
+		expect( result.current.breadcrumbs ).toEqual( [
+			{ label: 'Boost', href: '/settings-href' },
+			{ label: 'Cache debug log' },
+		] );
 	} );
 
 	it( 'returns to Settings without a reload and records the click', () => {
 		const { recordBoostEvent } = jest.requireMock( '$lib/utils/analytics' );
-		render( <SubpageBreadcrumbs title="Cache debug log" /> );
+		const { result } = renderHook( () => useSubpageBreadcrumbs( 'Cache debug log' ) );
+		const Link = result.current.components!.link!;
+		render( <Link href="/settings-href">Boost</Link> );
 
 		const prevented = ! fireEvent.click( screen.getByRole( 'link', { name: 'Boost' } ) );
 

@@ -8,12 +8,12 @@ import { useSearch } from '@wordpress/route';
  */
 import { getReportDefinition, resolveReportOrigin } from '../../reports/registry';
 
-type BreadcrumbItem = { label: string; to?: string };
+type BreadcrumbItem = { label: string; href?: string };
 
 /**
  * Build the breadcrumbs a single-report page adds after the Stats root.
  *
- * `StatsBreadcrumbs` renders the root crumb and its dashboard link, so this
+ * `useStatsBreadcrumbs` adds the root crumb and its dashboard link, so this
  * hook returns only the crumbs that follow it.
  *
  * @param title            - The resolved detail-page title.
@@ -35,7 +35,7 @@ export function useDetailBreadcrumbs(
 	if ( crumb ) {
 		items.push( {
 			label: crumb.getLabel(),
-			to: buildReportLink( crumb.id, search, definition ? originSection : undefined ),
+			href: buildReportLink( crumb.id, search, definition ? originSection : undefined ),
 		} );
 	}
 

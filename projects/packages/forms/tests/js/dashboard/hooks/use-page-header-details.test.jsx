@@ -14,10 +14,6 @@ await jest.unstable_mockModule( '@automattic/jetpack-components/jetpack-logo', (
 	default: () => null,
 } ) );
 
-await jest.unstable_mockModule( '@wordpress/admin-ui', () => ( {
-	Breadcrumbs: ( { items } ) => items.map( item => item.label ).join( ' > ' ),
-} ) );
-
 await jest.unstable_mockModule( '@wordpress/components', () => ( {
 	DropdownMenu: () => null,
 	Button: ( { children } ) => children,
@@ -310,20 +306,23 @@ describe( 'usePageHeaderDetails', () => {
 	} );
 
 	describe( 'title and breadcrumbs', () => {
-		it( 'returns undefined title and non-null breadcrumbs for single form screen', () => {
+		it( 'returns undefined title and a Forms trail for single form screen', () => {
 			const { result } = renderHook( () => usePageHeaderDetails( defaultProps ) );
 
 			expect( result.current.title ).toBeUndefined();
-			expect( result.current.breadcrumbs ).not.toBeNull();
+			expect( result.current.breadcrumbs ).toEqual( [
+				{ label: 'Forms', href: '/forms' },
+				expect.objectContaining( { label: expect.any( String ) } ),
+			] );
 		} );
 
-		it( 'returns title and null breadcrumbs for forms screen', () => {
+		it( 'returns title and no breadcrumbs for forms screen', () => {
 			const { result } = renderHook( () =>
 				usePageHeaderDetails( { ...defaultProps, screen: 'forms', sourceId: undefined } )
 			);
 
 			expect( result.current.title ).toBeDefined();
-			expect( result.current.breadcrumbs ).toBeNull();
+			expect( result.current.breadcrumbs ).toBeUndefined();
 		} );
 	} );
 

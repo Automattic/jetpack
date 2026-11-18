@@ -8,7 +8,7 @@ import type { MouseEvent, ReactNode } from 'react';
  * Go Back Link component.
  *
  * Used as the page back-link for product interstitials, also rendered into
- * AdminPage's `breadcrumbs` slot to act as the page title.
+ * AdminPage's `title` slot.
  *
  * @param props         - Component props.
  * @param props.onClick - Optional click handler for the link.

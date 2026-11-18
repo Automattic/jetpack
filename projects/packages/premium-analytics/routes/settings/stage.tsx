@@ -3,7 +3,7 @@
  */
 import { Icon, JetpackFooter, Stack } from '@jetpack-premium-analytics/externals';
 import { jetpack } from '@jetpack-premium-analytics/icons';
-import { StatsBreadcrumbs } from '@jetpack-premium-analytics/ui';
+import { useStatsBreadcrumbs } from '@jetpack-premium-analytics/ui';
 import {
 	DashboardSectionProvider,
 	StatsOptionsMenu,
@@ -21,21 +21,21 @@ import type { JSX } from 'react';
 const SETTINGS_ORIGIN = 'settings';
 
 /**
- * Settings route stage: the plan usage, the Stats settings, and where to switch Stats off.
+ * Settings page: the plan usage, the Stats settings, and where to switch Stats off.
  *
  * @return The Settings page.
  */
-export function stage(): JSX.Element {
+function SettingsPage(): JSX.Element {
+	const statsBreadcrumbs = useStatsBreadcrumbs( {
+		items: [ { label: __( 'Settings', 'jetpack-premium-analytics-pkg' ) } ],
+		className: styles.page,
+	} );
+
 	return (
 		<Page
+			{ ...statsBreadcrumbs }
 			visual={ <Icon icon={ jetpack } /> }
-			breadcrumbs={
-				<StatsBreadcrumbs
-					items={ [ { label: __( 'Settings', 'jetpack-premium-analytics-pkg' ) } ] }
-				/>
-			}
 			actions={ <StatsOptionsMenu /> }
-			className={ styles.page }
 		>
 			<Stack direction="column" justify="space-between" className={ styles.scroll }>
 				<DashboardSectionProvider section={ SETTINGS_ORIGIN }>
@@ -48,4 +48,13 @@ export function stage(): JSX.Element {
 			</Stack>
 		</Page>
 	);
+}
+
+/**
+ * Settings route stage.
+ *
+ * @return The Settings page.
+ */
+export function stage(): JSX.Element {
+	return <SettingsPage />;
 }

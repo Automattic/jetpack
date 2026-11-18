@@ -3,7 +3,6 @@ import useConnectionErrorNotice, {
 	ConnectionError,
 } from '@automattic/jetpack-connection/use-connection-error-notice';
 import { useQueryClient } from '@tanstack/react-query';
-import { Breadcrumbs } from '@wordpress/admin-ui';
 import { useDispatch } from '@wordpress/data';
 import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -14,6 +13,7 @@ import CaptionManagerModal from '../../src/client/components/caption-manager-mod
 import { getVideoInfoQueryKeyPrefix } from '../../src/client/components/caption-manager-modal/use-video-tracks';
 import { DeleteVideoConfirmationDialog } from '../../src/dashboard/components/delete-video-confirmation-modal';
 import QueryClientWrapper from '../../src/dashboard/components/query-client-wrapper';
+import RouterLink, { useGuardedRouterLink } from '../../src/dashboard/components/router-link';
 import ChaptersHelpModal from '../../src/dashboard/components/video-details/chapters-help-modal';
 import HeaderActions from '../../src/dashboard/components/video-details/header-actions';
 import PreviewPlayer from '../../src/dashboard/components/video-details/preview-player';
@@ -57,21 +57,18 @@ const isEditable = ( item: LibraryItem ): boolean =>
  *
  * @return The parent breadcrumb item.
  */
-const getParentBreadcrumbItem = (): { label: string; to: string } => {
+const getParentBreadcrumbItem = (): { label: string; href: string } => {
 	const from = ( window.history.state as { from?: string } | null )?.from;
-	return { label: 'VideoPress', to: from === 'stats' ? '/stats' : '/' };
+	return { label: 'VideoPress', href: from === 'stats' ? '/stats' : '/' };
 };
 
 const NotFound = () => (
 	<AdminPage
-		breadcrumbs={
-			<Breadcrumbs
-				items={ [
-					getParentBreadcrumbItem(),
-					{ label: __( 'Not found', 'jetpack-videopress-pkg' ) },
-				] }
-			/>
-		}
+		breadcrumbs={ [
+			getParentBreadcrumbItem(),
+			{ label: __( 'Not found', 'jetpack-videopress-pkg' ) },
+		] }
+		components={ { link: RouterLink } }
 	>
 		<div className="vp-video-details vp-video-details__not-found">
 			<Stack direction="column" gap="md" align="center">
@@ -87,14 +84,11 @@ const NotFound = () => (
 // blanking out the viewport for the duration of the fetch.
 const Loading = () => (
 	<AdminPage
-		breadcrumbs={
-			<Breadcrumbs
-				items={ [
-					getParentBreadcrumbItem(),
-					{ label: __( 'Loading…', 'jetpack-videopress-pkg' ) },
-				] }
-			/>
-		}
+		breadcrumbs={ [
+			getParentBreadcrumbItem(),
+			{ label: __( 'Loading…', 'jetpack-videopress-pkg' ) },
+		] }
+		components={ { link: RouterLink } }
 	>
 		<div className="vp-video-details vp-video-details__loading" aria-busy="true" />
 	</AdminPage>
@@ -223,6 +217,7 @@ const Editor = ( {
 			)
 		);
 	}, [ isDirty ] );
+	const guardedLink = useGuardedRouterLink( confirmNavigation );
 	useAdminShellLeaveGuard( () => isDirty );
 
 	let progressStatus: UploadProgressStatus = 'pending';
@@ -244,26 +239,12 @@ const Editor = ( {
 
 	return (
 		<AdminPage
-			breadcrumbs={
-				<div
-					className="vp-video-details__breadcrumbs"
-					onClickCapture={ event => {
-						if ( ( event.target as HTMLElement ).closest( 'a' ) && ! confirmNavigation() ) {
-							event.preventDefault();
-							event.stopPropagation();
-						}
-					} }
-				>
-					<Breadcrumbs
-						items={ [
-							getParentBreadcrumbItem(),
-							{
-								label: values.title.trim() || __( 'Untitled', 'jetpack-videopress-pkg' ),
-							},
-						] }
-					/>
-				</div>
-			}
+			className="vp-video-details-page"
+			breadcrumbs={ [
+				getParentBreadcrumbItem(),
+				{ label: values.title.trim() || __( 'Untitled', 'jetpack-videopress-pkg' ) },
+			] }
+			components={ { link: guardedLink } }
 			actions={
 				<HeaderActions
 					guid={ video.guid }

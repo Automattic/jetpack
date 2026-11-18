@@ -1,1 +1,1 @@
-export { StatsBreadcrumbs, type StatsBreadcrumbsProps } from './stats-breadcrumbs';
+export { useStatsBreadcrumbs, type UseStatsBreadcrumbsOptions } from './use-stats-breadcrumbs';

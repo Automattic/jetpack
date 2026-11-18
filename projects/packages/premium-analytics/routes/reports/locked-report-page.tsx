@@ -3,7 +3,7 @@
  */
 import { Icon } from '@jetpack-premium-analytics/externals';
 import { jetpack } from '@jetpack-premium-analytics/icons';
-import { StatsBreadcrumbs } from '@jetpack-premium-analytics/ui';
+import { useStatsBreadcrumbs } from '@jetpack-premium-analytics/ui';
 import {
 	LockedPage,
 	ReportPageLayout,
@@ -33,11 +33,15 @@ type LockedReportPageProps = {
  * @return The locked report page.
  */
 export function LockedReportPage( { label, feature }: LockedReportPageProps ): JSX.Element {
+	const statsBreadcrumbs = useStatsBreadcrumbs( {
+		items: [ { label } ],
+		className: reportPageStyles.page,
+	} );
+
 	return (
 		<Page
-			className={ reportPageStyles.page }
+			{ ...statsBreadcrumbs }
 			visual={ <Icon icon={ jetpack } /> }
-			breadcrumbs={ <StatsBreadcrumbs items={ [ { label } ] } /> }
 			actions={ <StatsOptionsMenu /> }
 		>
 			<ReportPageLayout title={ label }>

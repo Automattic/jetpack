@@ -3,6 +3,7 @@
  */
 import JetpackFooter from '@automattic/jetpack-components/jetpack-footer';
 import { Page } from '@wordpress/admin-ui';
+import RouterLink from '../router-link/index.tsx';
 import type { JSX, ComponentProps, ReactNode } from 'react';
 
 type PageProps = ComponentProps< typeof Page >;
@@ -39,7 +40,7 @@ export default function FormsPage( {
 }: FormsPageProps ): JSX.Element {
 	return (
 		<div className="jp-admin-page">
-			<Page className="jp-admin-page__page" { ...pageProps }>
+			<Page className="jp-admin-page__page" components={ { link: RouterLink } } { ...pageProps }>
 				{ children }
 				{ showFooter && <JetpackFooter /> }
 			</Page>

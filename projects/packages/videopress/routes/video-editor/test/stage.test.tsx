@@ -13,7 +13,7 @@ import {
 } from '../../../src/dashboard/test-utils/query-client-wrapper';
 import { stage as Stage } from '../stage';
 import type { QueryClient } from '@tanstack/react-query';
-import type { ReactNode } from 'react';
+import type { ComponentType, ReactNode } from 'react';
 
 // Declared here (and not only inside test-utils/mock-api-fetch) because this
 // file imports hook modules BEFORE the test-utils helper: jest.mock calls
@@ -37,35 +37,46 @@ jest.mock( '@wordpress/route', () => ( {
 	__esModule: true,
 	useNavigate: jest.fn(),
 	useParams: () => ( { id: '42' } ),
-	Link: ( { to, children }: { to: string; children: ReactNode } ) => (
-		<a href={ to }>{ children }</a>
+	Link: ( { to, children, ...props }: { to: string; children: ReactNode } ) => (
+		<a href={ to } { ...props }>
+			{ children }
+		</a>
 	),
 } ) );
 
-// VideoLayout's AdminPage/Breadcrumbs chrome needs the full admin shell;
-// reduce it to the slots the tests interact with (breadcrumbs, actions, body).
 jest.mock( '@automattic/jetpack-components/admin-page', () => ( {
 	__esModule: true,
+	// Renders the trail as admin-ui's `Page` does: links through `components.link`, last item the <h1>.
 	default: ( {
-		breadcrumbs,
+		breadcrumbs = [],
+		components,
 		actions,
 		children,
 	}: {
-		breadcrumbs?: ReactNode;
+		breadcrumbs?: { label: string; href?: string }[];
+		components?: { link?: ComponentType< { href: string; children: ReactNode } > };
 		actions?: ReactNode;
 		children?: ReactNode;
-	} ) => (
-		<div>
-			<div>{ breadcrumbs }</div>
-			<div>{ actions }</div>
-			{ children }
-		</div>
-	),
-} ) );
-// The parent breadcrumb is a real router link in production; rendering it as
-// a plain anchor lets the in-app link navigation guard be exercised.
-jest.mock( '@wordpress/admin-ui', () => ( {
-	Breadcrumbs: () => <a href="/">VideoPress</a>,
+	} ) => {
+		const LinkComponent = components?.link ?? 'a';
+		return (
+			<div>
+				<nav>
+					{ breadcrumbs.map( ( { label, href } ) =>
+						href ? (
+							<LinkComponent key={ label } href={ href }>
+								{ label }
+							</LinkComponent>
+						) : (
+							<h1 key={ label }>{ label }</h1>
+						)
+					) }
+				</nav>
+				<div>{ actions }</div>
+				{ children }
+			</div>
+		);
+	},
 } ) );
 
 jest.mock( '@automattic/jetpack-connection/use-connection-error-notice', () => ( {

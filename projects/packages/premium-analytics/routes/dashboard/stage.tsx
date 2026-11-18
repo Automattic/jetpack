@@ -23,7 +23,7 @@ import {
 	PeriodChangeStatus,
 	SectionHeader,
 	SectionTabPanel,
-	StatsBreadcrumbs,
+	useStatsBreadcrumbs,
 } from '@jetpack-premium-analytics/ui';
 import {
 	canSendFeedback,
@@ -408,6 +408,8 @@ function Dashboard(): JSX.Element {
 		}
 	}, [] );
 
+	const statsBreadcrumbs = useStatsBreadcrumbs( { isRoot: true, className: styles.dashboard } );
+
 	// WidgetDashboard treats a transiently-empty layout as "no widgets" and
 	// force-opens edit mode, so it must not mount before the sections resolve.
 	if ( ! hasResolvedSections ) {
@@ -499,8 +501,8 @@ function Dashboard(): JSX.Element {
 							onEditChange={ onEditChange }
 						>
 							<Page
+								{ ...statsBreadcrumbs }
 								visual={ <Icon icon={ jetpack } /> }
-								breadcrumbs={ <StatsBreadcrumbs isRoot /> }
 								actions={
 									<Stack direction="row" gap="sm">
 										{ /* At rest these would add a second Customize beside the menu's. */ }
@@ -523,7 +525,6 @@ function Dashboard(): JSX.Element {
 										</Stack>
 									</Stack>
 								}
-								className={ styles.dashboard }
 							>
 								<DashboardSections
 									sections={ tabBarSections }

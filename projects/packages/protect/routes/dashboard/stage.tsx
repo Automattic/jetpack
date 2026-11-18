@@ -4,7 +4,7 @@ import { __ } from '@wordpress/i18n';
 import { useNavigate, useSearch } from '@wordpress/route';
 import { Tabs } from '@wordpress/ui';
 import Overview from './components/overview';
-import PageBreadcrumbs from './components/page-breadcrumbs';
+import RouterLink from './components/router-link';
 import SettingsTab from './components/settings-tab';
 import { recordPageView } from './data/page-views';
 import useProtectSettings from './data/use-protect-settings';
@@ -170,8 +170,12 @@ const Stage = () => {
 		return (
 			<AdminPage
 				className="jp-protect-dashboard"
-				breadcrumbs={ <PageBreadcrumbs current={ reportTitle } /> }
-				ariaLabel={ reportTitle }
+				breadcrumbs={ [
+					// "Protect" is a product name and is not translated.
+					{ label: 'Protect', href: '/' },
+					{ label: reportTitle },
+				] }
+				components={ { link: RouterLink } }
 			>
 				<div className="jp-protect-dashboard__body">
 					<ThreatReport

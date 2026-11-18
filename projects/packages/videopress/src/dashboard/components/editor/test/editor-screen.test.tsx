@@ -11,7 +11,7 @@ import { makeLibraryItem } from '../../../test-utils/library-item';
 import { createTestWrapper } from '../../../test-utils/query-client-wrapper';
 import TrimCutEditor from '../editor-screen';
 import type { EditsJob, VideoEdits } from '../../../types/edits';
-import type { ReactNode } from 'react';
+import type { ComponentType, ReactNode } from 'react';
 
 jest.mock( '@wordpress/notices', () => ( { store: 'core/notices' } ) );
 jest.mock( '@wordpress/data', () => ( {
@@ -28,13 +28,37 @@ jest.mock( '@wordpress/data', () => ( {
 } ) );
 jest.mock( '@automattic/jetpack-components/admin-page', () => ( {
 	__esModule: true,
-	default: ( { breadcrumbs, actions, children }: Record< string, ReactNode > ) => (
-		<>
-			{ breadcrumbs }
-			{ actions }
-			{ children }
-		</>
-	),
+	// Renders the trail as admin-ui's `Page` does: links through `components.link`, last item the <h1>.
+	default: ( {
+		breadcrumbs = [],
+		components,
+		actions,
+		children,
+	}: {
+		breadcrumbs?: { label: string; href?: string }[];
+		components?: { link?: ComponentType< { href: string; children: ReactNode } > };
+		actions?: ReactNode;
+		children?: ReactNode;
+	} ) => {
+		const LinkComponent = components?.link ?? 'a';
+		return (
+			<div>
+				<nav>
+					{ breadcrumbs.map( ( { label, href } ) =>
+						href ? (
+							<LinkComponent key={ label } href={ href }>
+								{ label }
+							</LinkComponent>
+						) : (
+							<h1 key={ label }>{ label }</h1>
+						)
+					) }
+				</nav>
+				<div>{ actions }</div>
+				{ children }
+			</div>
+		);
+	},
 } ) );
 jest.mock( '@automattic/jetpack-connection/use-connection-error-notice', () => ( {
 	__esModule: true,
@@ -42,8 +66,10 @@ jest.mock( '@automattic/jetpack-connection/use-connection-error-notice', () => (
 } ) );
 jest.mock( '@wordpress/route', () => ( {
 	useNavigate: jest.fn(),
-	Link: ( { to, children }: { to: string; children: ReactNode } ) => (
-		<a href={ to }>{ children }</a>
+	Link: ( { to, children, ...props }: { to: string; children: ReactNode } ) => (
+		<a href={ to } { ...props }>
+			{ children }
+		</a>
 	),
 } ) );
 jest.mock( '../../../utils/chapters-editor', () => ( { isChaptersEditorEnabled: () => true } ) );

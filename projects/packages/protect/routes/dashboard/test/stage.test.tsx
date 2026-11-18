@@ -20,12 +20,14 @@ jest.mock( '@automattic/jetpack-components/admin-page', () => {
 	const { createElement, Fragment } = jest.requireActual( 'react' );
 	return {
 		__esModule: true,
-		default: ( { title, breadcrumbs, actions, children } ) =>
+		default: ( { title, breadcrumbs = [], actions, children } ) =>
 			createElement(
 				Fragment,
 				null,
 				title && createElement( 'h1', null, title ),
-				breadcrumbs,
+				breadcrumbs.map( ( { label, href } ) =>
+					createElement( href ? 'a' : 'h1', { key: label, href }, label )
+				),
 				actions,
 				children
 			),

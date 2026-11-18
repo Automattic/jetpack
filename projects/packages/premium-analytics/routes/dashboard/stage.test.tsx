@@ -157,7 +157,7 @@ jest.mock( '@jetpack-premium-analytics/ui', () => ( {
 		( mockMountedSectionSlugs ?? [ mockActiveSectionSlug ] ).includes( value ) ? (
 			<div>{ children }</div>
 		) : null,
-	StatsBreadcrumbs: () => null,
+	useStatsBreadcrumbs: () => ( {} ),
 } ) );
 
 const mockTrackCustomize = {

@@ -3,16 +3,15 @@ import clsx from 'clsx';
 import BoostAdminPage from '$layout/boost-admin-page/boost-admin-page';
 import CopyLogButton from '$features/page-cache/copy-log-button/copy-log-button';
 import { useDebugLog } from '$features/page-cache/lib/stores';
-import SubpageBreadcrumbs from '$features/ui/subpage-breadcrumbs/subpage-breadcrumbs';
+import { useSubpageBreadcrumbs } from '$features/ui/subpage-breadcrumbs/use-subpage-breadcrumbs';
 import styles from './cache-debug-log.module.scss';
 
 const CacheDebugLog = () => {
 	const [ { data: debugLog } ] = useDebugLog();
+	const subpageBreadcrumbs = useSubpageBreadcrumbs( __( 'Cache debug log', 'jetpack-boost' ) );
 
 	return (
-		<BoostAdminPage
-			breadcrumbs={ <SubpageBreadcrumbs title={ __( 'Cache debug log', 'jetpack-boost' ) } /> }
-		>
+		<BoostAdminPage { ...subpageBreadcrumbs }>
 			<div id="jb-dashboard" className="jb-dashboard jb-dashboard--main">
 				<div className={ clsx( 'jb-section jb-section--main', styles.section ) }>
 					<div className="jb-container">

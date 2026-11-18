@@ -22,37 +22,6 @@
 	text-align: center;
 }
 
-// Breadcrumb trail in the page header. Hand-rolled (see breadcrumbs.tsx) so the
-// form crumb can carry a search param. Link color/weight + underline come from
-// the shared wp-build dashboard stylesheet (`nav[aria-label="Breadcrumbs"] a`),
-// so this only owns the trail layout, the separators, and the current crumb.
-.jp-forms__single-response-breadcrumbs {
-	display: flex;
-	align-items: center;
-	flex-wrap: wrap;
-
-	&__link {
-		font-size: var(--wpds-typography-font-size-lg);
-		line-height: var(--wpds-typography-line-height-md);
-	}
-
-	&__sep {
-		color: var(--jp-gray-20, #dbdbdb);
-		margin-inline: 8px;
-		user-select: none;
-	}
-
-	&__current {
-		margin: 0;
-		font-family: var(--wpds-typography-font-family-heading);
-		font-size: var(--wpds-typography-font-size-lg);
-		font-weight: var(--wpds-typography-font-weight-emphasis);
-		line-height: var(--wpds-typography-line-height-sm);
-		// Match the page-title color used on the other dashboard headers.
-		color: var(--wpds-color-foreground-content-neutral);
-	}
-}
-
 .jp-forms__single-response-card {
 	// `width: 100%` keeps the column a constant width regardless of each
 	// response's content: this is a flex item, and one with only `max-width` +

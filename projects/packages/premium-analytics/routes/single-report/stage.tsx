@@ -17,7 +17,11 @@ import {
 	usePeriodHost,
 	useReportDateFilters,
 } from '@jetpack-premium-analytics/routing';
-import { PeriodChangeStatus, SectionTabs, StatsBreadcrumbs } from '@jetpack-premium-analytics/ui';
+import {
+	PeriodChangeStatus,
+	SectionTabs,
+	useStatsBreadcrumbs,
+} from '@jetpack-premium-analytics/ui';
 import {
 	CustomizingBadge,
 	DetailPageActions,
@@ -375,6 +379,8 @@ function SingleReportBody( { page, entityId, adapter }: SingleReportBodyProps ):
 		/>
 	) : undefined;
 
+	const statsBreadcrumbs = useStatsBreadcrumbs( { items: breadcrumbs, className: styles.page } );
+
 	return (
 		<>
 			<PeriodChangeStatus periodChange={ attention } />
@@ -397,9 +403,8 @@ function SingleReportBody( { page, entityId, adapter }: SingleReportBodyProps ):
 							onEditChange={ onEditChange }
 						>
 							<Page
-								className={ styles.page }
+								{ ...statsBreadcrumbs }
 								visual={ <Icon icon={ jetpack } /> }
-								breadcrumbs={ <StatsBreadcrumbs items={ breadcrumbs } /> }
 								badges={ isCustomizing ? <CustomizingBadge /> : undefined }
 								actions={
 									<DetailPageActions

@@ -39,64 +39,6 @@ body.jetpack_page_jetpack-ai {
 		}
 	}
 
-	&__breadcrumbs {
-		// admin-ui sets list-style:none but no flex layout — add it here.
-		display: flex;
-		flex-direction: row;
-		align-items: center;
-		min-height: auto;
-		padding: 0;
-		margin: 0;
-
-		li {
-			display: flex;
-			align-items: center;
-			margin-bottom: 0;
-		}
-
-		// Render a "/" separator between adjacent breadcrumb items.
-		// Mirrors @wordpress/admin-ui's Breadcrumbs component, which we
-		// can't drop in directly because it requires @wordpress/route
-		// for navigation — we use hash-based routing here.
-		li + li::before {
-			content: "/";
-			margin: 0 8px;
-			color: var(--wpds-color-stroke-surface-neutral);
-		}
-	}
-
-	// Both pieces of the breadcrumb match the wpds `heading-lg` type token
-	// (the same one admin-ui's Page uses for the hub's "AI" h1 title), so
-	// the header on sub-views reads as "AI / Read" with the same size and
-	// weight as the hub heading.
-	&__breadcrumb-link,
-	&__breadcrumb-current {
-		font-family: var(--wpds-typography-font-family-heading);
-		font-size: var(--wpds-typography-font-size-lg);
-		font-weight: var(--wpds-typography-font-weight-emphasis);
-		line-height: var(--wpds-typography-line-height-sm);
-	}
-
-	&__breadcrumb-link {
-		display: inline-flex;
-		align-items: center;
-		gap: 6px;
-		background: none;
-		border: none;
-		padding: 0;
-		cursor: pointer;
-		color: inherit;
-		text-decoration: none;
-
-		&:hover {
-			text-decoration: underline;
-		}
-	}
-
-	&__breadcrumb-current {
-		margin: 0;
-	}
-
 	// Back-link eyebrow above sub-view content ("‹ MCP Settings"), quiet at
 	// rest with a rounded pill background on hover/focus (ChatGPT-style back
 	// control, translated to light mode). The pill padding is always present

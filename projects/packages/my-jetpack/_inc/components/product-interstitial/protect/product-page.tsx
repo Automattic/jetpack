@@ -114,7 +114,7 @@ export default function ProtectProductPage() {
 	return (
 		<AdminPage
 			showBackground={ true }
-			breadcrumbs={
+			title={
 				<GoBackLink
 					onClick={ onClickGoBack }
 					to={ backTo }

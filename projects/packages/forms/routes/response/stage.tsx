@@ -28,7 +28,7 @@ import useFormRecord from '../../src/dashboard/hooks/use-form-record.ts';
 import useMarkAsReadOnView from '../../src/dashboard/hooks/use-mark-as-read-on-view.ts';
 import { useMarkAsSpam } from '../../src/dashboard/hooks/use-mark-as-spam.ts';
 import FormsPage from '../../src/dashboard/wp-build/components/page';
-import SingleResponseBreadcrumbs from './breadcrumbs.tsx';
+import getSingleResponseBreadcrumbs from './breadcrumbs.ts';
 import SingleResponseActions from './page-actions.tsx';
 import pickResponseRecord from './pick-record.ts';
 import { getPinnedView } from './pinned-view.ts';
@@ -265,7 +265,7 @@ function Stage(): React.JSX.Element {
 	const renderMessagePage = ( currentLabel: string, ariaLabel: string, child: React.ReactNode ) => (
 		<FormsPage
 			visual={ <JetpackLogo showText={ false } height={ 20 } /> }
-			breadcrumbs={ <SingleResponseBreadcrumbs currentLabel={ currentLabel } pinned={ pinned } /> }
+			breadcrumbs={ getSingleResponseBreadcrumbs( { currentLabel, pinned } ) }
 			ariaLabel={ ariaLabel }
 			showFooter={ false }
 		>
@@ -303,13 +303,11 @@ function Stage(): React.JSX.Element {
 	return (
 		<FormsPage
 			visual={ <JetpackLogo showText={ false } height={ 20 } /> }
-			breadcrumbs={
-				<SingleResponseBreadcrumbs
-					response={ response }
-					formTitle={ formName || formTitle }
-					pinned={ pinned }
-				/>
-			}
+			breadcrumbs={ getSingleResponseBreadcrumbs( {
+				response,
+				formTitle: formName || formTitle,
+				pinned,
+			} ) }
 			badges={ <ResponseStatusBadge status={ response.status } /> }
 			subTitle={ subTitle }
 			ariaLabel={ displayName }

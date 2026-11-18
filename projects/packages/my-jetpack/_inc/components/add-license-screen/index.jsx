@@ -57,7 +57,7 @@ export default function AddLicenseScreen() {
 	return (
 		<AdminPage
 			showBackground={ false }
-			breadcrumbs={
+			title={
 				<GoBackLink
 					onClick={ onClickGoBack }
 					to={ `${ MyJetpackRoutes.Features }${ hasActivatedLicense ? '?reload=true' : '' }` }

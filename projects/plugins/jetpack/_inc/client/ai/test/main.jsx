@@ -823,7 +823,7 @@ describe( 'AI admin page (main.jsx)', () => {
 			render( <App /> );
 
 			await expect(
-				screen.findByRole( 'button', { name: 'Jetpack AI' } )
+				screen.findByRole( 'link', { name: 'Jetpack AI' } )
 			).resolves.toBeInTheDocument();
 			expect( screen.queryByText( MASTER_OFF_TITLE, IGNORE_A11Y ) ).not.toBeInTheDocument();
 		} );
@@ -1163,9 +1163,9 @@ describe( 'AI admin page (main.jsx)', () => {
 		render( <App /> );
 
 		await expect(
-			screen.findByRole( 'button', { name: 'Jetpack AI' } )
+			screen.findByRole( 'link', { name: 'Jetpack AI' } )
 		).resolves.toBeInTheDocument();
-		expect( screen.queryByRole( 'button', { name: 'AI' } ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'link', { name: 'AI' } ) ).not.toBeInTheDocument();
 	} );
 
 	test( 'MCP sub-views: the tab bar stays visible alongside the breadcrumbs', async () => {
@@ -1178,7 +1178,7 @@ describe( 'AI admin page (main.jsx)', () => {
 
 		// Breadcrumbs render for the sub-view…
 		await expect(
-			screen.findByRole( 'button', { name: 'Jetpack AI' } )
+			screen.findByRole( 'link', { name: 'Jetpack AI' } )
 		).resolves.toBeInTheDocument();
 		// …and the top-level tabs are still there for navigation, with the
 		// owning MCP tab marked selected (the view is nested under it).
@@ -1201,7 +1201,7 @@ describe( 'AI admin page (main.jsx)', () => {
 
 		// On the sub-view: breadcrumbs are present.
 		await expect(
-			screen.findByRole( 'button', { name: 'Jetpack AI' } )
+			screen.findByRole( 'link', { name: 'Jetpack AI' } )
 		).resolves.toBeInTheDocument();
 
 		// The MCP tab is selected here, and Tabs never emit the already-selected
@@ -1211,7 +1211,7 @@ describe( 'AI admin page (main.jsx)', () => {
 
 		// Back on the hub: breadcrumbs are gone.
 		await waitFor( () =>
-			expect( screen.queryByRole( 'button', { name: 'Jetpack AI' } ) ).not.toBeInTheDocument()
+			expect( screen.queryByRole( 'link', { name: 'Jetpack AI' } ) ).not.toBeInTheDocument()
 		);
 		expect( window.location.hash ).toBe( '#/mcp' );
 	} );
@@ -1229,7 +1229,7 @@ describe( 'AI admin page (main.jsx)', () => {
 
 		// Back on the hub: breadcrumbs and the eyebrow itself are gone.
 		await waitFor( () =>
-			expect( screen.queryByRole( 'button', { name: 'Jetpack AI' } ) ).not.toBeInTheDocument()
+			expect( screen.queryByRole( 'link', { name: 'Jetpack AI' } ) ).not.toBeInTheDocument()
 		);
 		expect(
 			screen.queryByRole( 'button', { name: 'Back to MCP and Connectors' } )
