@@ -21,8 +21,8 @@ namespace Automattic\Jetpack\Announcements;
  *     @type string[] $channels   The channels it is published to, such as `premium-analytics`.
  *     @type string   $excerpt    Optional. Plain text, one or two sentences.
  *     @type string   $content    Optional. HTML.
- *     @type array    $media      Optional. `type` (`image` or `video`), `url` and `alt`.
- *     @type string   $link       Optional. URL of the full article.
+ *     @type array    $media      Optional. `type` (`image` or `video`), `url` (http or https) and `alt`.
+ *     @type string   $link       Optional. URL of the full article, http or https.
  *     @type string   $capability Optional. Hides the announcement from users without it.
  * }
  * @return array|false The registered announcement, or false when it is refused.

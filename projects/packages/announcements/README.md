@@ -36,6 +36,8 @@ A channel is a label. An announcement is published to channels, and a host shows
 
 The registrant translates its own strings. Every value is sanitized at registration, and a duplicate id is refused.
 
+A URL is kept when it is http or https.
+
 Do no I/O in the action: the read that fires it may be a REST request.
 
 ## Showing the surface

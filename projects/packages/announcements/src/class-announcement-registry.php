@@ -31,6 +31,11 @@ final class Announcement_Registry {
 	const MEDIA_TYPES = array( 'image', 'video' );
 
 	/**
+	 * Protocols the URLs of an announcement may use.
+	 */
+	private const URL_PROTOCOLS = array( 'http', 'https' );
+
+	/**
 	 * Registered announcements, as `$id => $announcement` pairs.
 	 *
 	 * @var array[]
@@ -180,9 +185,9 @@ final class Announcement_Registry {
 			'date'       => $date,
 			'title'      => $title,
 			'excerpt'    => self::sanitize_text( $args['excerpt'] ?? '' ),
-			'content'    => is_string( $args['content'] ?? null ) ? wp_kses_post( $args['content'] ) : '',
+			'content'    => is_string( $args['content'] ?? null ) ? wp_kses( $args['content'], 'post', self::URL_PROTOCOLS ) : '',
 			'media'      => self::sanitize_media( $args['media'] ?? null ),
-			'link'       => is_string( $args['link'] ?? null ) ? esc_url_raw( $args['link'] ) : '',
+			'link'       => is_string( $args['link'] ?? null ) ? esc_url_raw( $args['link'], self::URL_PROTOCOLS ) : '',
 			'channels'   => $channels,
 			'capability' => is_string( $args['capability'] ?? null ) ? $args['capability'] : '',
 		);
@@ -232,7 +237,7 @@ final class Announcement_Registry {
 			return null;
 		}
 
-		$url = is_string( $media['url'] ?? null ) ? esc_url_raw( $media['url'] ) : '';
+		$url = is_string( $media['url'] ?? null ) ? esc_url_raw( $media['url'], self::URL_PROTOCOLS ) : '';
 		if ( '' === $url ) {
 			return null;
 		}

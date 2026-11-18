@@ -134,6 +134,43 @@ class Announcement_Registry_Test extends BaseTestCase {
 		);
 	}
 
+	/**
+	 * @dataProvider provide_urls_of_other_protocols
+	 *
+	 * @param string $url A URL that is neither http nor https.
+	 */
+	#[DataProvider( 'provide_urls_of_other_protocols' )]
+	public function test_drops_a_url_that_is_neither_http_nor_https( $url ) {
+		$registry = new Announcement_Registry();
+
+		$announcement = $registry->register(
+			'a/b',
+			array_merge(
+				self::VALID_ARGS,
+				array(
+					'content' => '<a href="' . $url . '">Open</a>',
+					'media'   => array(
+						'type' => 'image',
+						'url'  => $url,
+					),
+					'link'    => $url,
+				)
+			)
+		);
+
+		$this->assertSame( '', $announcement['link'] );
+		$this->assertNull( $announcement['media'] );
+		$this->assertStringNotContainsString( strtok( $url, ':' ) . ':', $announcement['content'] );
+	}
+
+	public static function provide_urls_of_other_protocols() {
+		return array(
+			'mailto' => array( 'mailto:someone@example.com' ),
+			'tel'    => array( 'tel:123456' ),
+			'ftp'    => array( 'ftp://example.com/file' ),
+		);
+	}
+
 	public function test_refuses_a_duplicate_id_and_keeps_the_first() {
 		$registry = new Announcement_Registry();
 		$registry->register( 'a/b', self::VALID_ARGS );
