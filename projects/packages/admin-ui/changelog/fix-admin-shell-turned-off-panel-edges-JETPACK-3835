@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Admin shell: Let the newest feature check decide whether a page shows the turned-off panel, don't prewarm a page known to be off on hover, and send no page-hidden when leaving the panel.
