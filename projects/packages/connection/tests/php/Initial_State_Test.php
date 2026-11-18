@@ -48,6 +48,7 @@ class Initial_State_Test extends TestCase {
 		remove_all_filters( 'jetpack_sync_home_url' );
 		remove_all_filters( 'jetpack_sync_site_url' );
 		remove_all_filters( 'home_url' );
+		remove_all_filters( 'site_url' );
 		if ( $this->caps_manager ) {
 			remove_filter( 'map_meta_cap', array( $this->caps_manager, 'jetpack_connection_custom_caps' ), 1 );
 			$this->caps_manager = null;
@@ -372,14 +373,35 @@ class Initial_State_Test extends TestCase {
 	}
 
 	/**
-	 * @dataProvider provide_home_url_schemes
+	 * @dataProvider provide_current_url_schemes
 	 *
-	 * @param string $home     The home URL.
-	 * @param bool   $expected The expected isCurrentUrlHttps.
+	 * @param string|null $error_code The stored error's code, null for none.
+	 * @param string      $home       The home URL.
+	 * @param string      $site       The site URL.
+	 * @param bool        $expected   The expected isCurrentUrlHttps.
 	 */
-	#[DataProvider( 'provide_home_url_schemes' )]
-	public function test_get_data_identity_crisis_says_whether_the_site_loads_over_https( $home, $expected ) {
+	#[DataProvider( 'provide_current_url_schemes' )]
+	public function test_get_data_identity_crisis_says_whether_the_current_url_uses_https( $error_code, $home, $site, $expected ) {
+		\Jetpack_Options::update_option( 'blog_token', 'test.secret' );
+		\Jetpack_Options::update_option( 'id', 12345 );
+		// WorDBless can't serve the raw URLs Urls reads.
+		add_filter( 'jetpack_sync_home_url', fn () => 'https://local.example' );
+		add_filter( 'jetpack_sync_site_url', fn () => 'https://local.example/wp' );
+		if ( $error_code ) {
+			\Jetpack_Options::update_option(
+				'sync_error_idc',
+				Identity_Crisis::get_sync_error_idc_option(
+					array(
+						'error_code'    => $error_code,
+						'wpcom_home'    => 'https://wpcom.example',
+						'wpcom_siteurl' => 'https://wpcom.example/wp',
+					)
+				)
+			);
+		}
 		add_filter( 'home_url', fn () => $home );
+		add_filter( 'site_url', fn () => $site );
+		Identity_Crisis::$is_safe_mode_confirmed = true;
 		self::enter_safe_mode();
 		$this->act_as( 'administrator' );
 
@@ -387,14 +409,15 @@ class Initial_State_Test extends TestCase {
 	}
 
 	/**
-	 * Data provider for test_get_data_identity_crisis_says_whether_the_site_loads_over_https.
+	 * Data provider for test_get_data_identity_crisis_says_whether_the_current_url_uses_https.
 	 *
 	 * @return array
 	 */
-	public static function provide_home_url_schemes() {
+	public static function provide_current_url_schemes() {
 		return array(
-			'https' => array( 'https://example.com', true ),
-			'http'  => array( 'http://example.com', false ),
+			'home mismatch reads home'     => array( 'jetpack_home_url_mismatch', 'http://local.example', 'https://local.example/wp', false ),
+			'site URL mismatch reads site' => array( 'jetpack_site_url_mismatch', 'http://local.example', 'https://local.example/wp', true ),
+			'no stored error reads home'   => array( null, 'https://local.example', 'http://local.example/wp', true ),
 		);
 	}
 
