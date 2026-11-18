@@ -48,10 +48,9 @@ function exitCodeForError( error ) {
  * drives the sanity-range check; untyped legacy entries are posted unchecked.
  *
  * Three shapes, in precedence order. A `metrics` array yields one typed entry per element,
- * each reading its value from summary.<field>.median and posting to its own key (the
- * FORMS-707 multi-metric-per-scenario path). A single `metricKey` yields one typed entry
- * reading the flat summary.median (legacy). A `metricPrefix` yields five untyped
- * prefix-suffixed entries, posted unchecked (legacy).
+ * each reading its value from summary.<field>.median and posting to its own key.
+ * A single `metricKey` yields one typed entry from the flat summary.median (legacy).
+ * A `metricPrefix` yields five untyped entries with key suffixes (legacy).
  */
 function extractScenarioMetrics( scenario, summary ) {
 	const scenarioLabel = scenario.key ?? 'unknown';
@@ -362,9 +361,9 @@ function resolvePostTimestamp( results, config ) {
  *
  * IMPORTANT: the read and write backends must match before dedup can be trusted. This
  * reads gitaudit (metric `config.dedupMetricId`) while the POST targets
- * `config.codeVitalsUrl` (codevitals.run today). Until the two are reconciled (the
- * FORMS-705 host/metric work), a hash written to codevitals.run may not appear here, so
- * dedup is effectively a no-op. The "can only fail to skip, never wrongly skip" guarantee
+ * `config.codeVitalsUrl` (codevitals.run by default). While the backends differ, a hash
+ * written to codevitals.run may not appear here, so dedup is effectively a no-op.
+ * The "can only fail to skip, never wrongly skip" guarantee
  * holds ONLY while dedup is off (the default): with no read, no skip can happen. If an
  * operator enables dedup before the backends match, metric 58 is a different, *populated*
  * trunk series (not the codevitals.run write target), so a coincidental hash match there

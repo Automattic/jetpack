@@ -64,7 +64,7 @@ Future Dashboard controls should reuse the matched images, setup and instrumenta
 
 `admin.php?page=jetpack-forms-responses-wp-admin&p=%2Fresponses%2Finbox`, measured on the same simulated-connection instance as the Dashboard. The `p` route is pinned to the responses inbox: a bare page URL server-redirects to the default tab (`/forms`, the forms list, under Central Form Management), so the scenario asserts the final URL to avoid measuring the wrong page.
 
-Readiness (FORMS-729): this scenario is the one that does **not** use `networkidle` — the page's `canUser` OPTIONS probe to `/wp/v2/settings` can stay pending forever in the local fixture, which would black-hole every navigation. It sets `loadState: 'load'` and readiness is carried by the visible `.boot-layout` selector, the hydration wait, and an **in-flight-aware resource settle**: the completed-resource count must hold steady while an in-flight-request ledger (which excludes only that one known-stuck probe) reads zero — `networkidle`'s own quiet + nothing-in-flight guarantee, minus the request that breaks it. If either signal is still active at the settle's deadline the iteration fails closed. The settle proves quiescence, and shares `networkidle`'s inherent blind spot for a gap before the page issues its next resource wave; in that gap the working defense is the settle's ~1s-quiet requirement (double `networkidle`'s 500ms), with `minResourceCount` catching captures below its floor (the wide `decodedBytesKB` sanity range cannot catch an undercount). See the comments on the scenario in `scenarios.js` for the full mechanics.
+Readiness: this scenario is the one that does **not** use `networkidle` — the page's `canUser` OPTIONS probe to `/wp/v2/settings` can stay pending forever in the local fixture, which would black-hole every navigation. It sets `loadState: 'load'` and readiness is carried by the visible `.boot-layout` selector, the hydration wait, and an **in-flight-aware resource settle**: the completed-resource count must hold steady while an in-flight-request ledger (which excludes only that one known-stuck probe) reads zero — `networkidle`'s own quiet + nothing-in-flight guarantee, minus the request that breaks it. If either signal is still active at the settle's deadline the iteration fails closed. The settle proves quiescence, and shares `networkidle`'s inherent blind spot for a gap before the page issues its next resource wave; in that gap the working defense is the settle's ~1s-quiet requirement (double `networkidle`'s 500ms), with `minResourceCount` catching captures below its floor (the wide `decodedBytesKB` sanity range cannot catch an undercount). See the comments on the scenario in `scenarios.js` for the full mechanics.
 
 | CodeVitals key                                            | Field            | Type             | Description                                               |
 | --------------------------------------------------------- | ---------------- | ---------------- | --------------------------------------------------------- |
@@ -141,7 +141,7 @@ The final LCP element is the Security message heading (“Your site is protected
 
 This tooling flips `jetpack_offline_mode` off install-wide (required for My Jetpack, condition 1 above). Because all connected scenarios share one WordPress install, this shifts what the **existing** `wp-admin-dashboard-connection-sim-*` and `forms-responses-connection-sim-*` trends measure at the commit it lands: Jetpack runs more code paths when it is not offline. Locally measured before/after on the Dashboard scenario (the one existing scenario that measures cleanly here — see the Forms note below) was small: LCP 140→140 ms, TTFB 57→60 ms, FCP 140→140 ms, decodedBytesKB 4098→4205, resources 89→98. The timing metrics move within noise; the real signal is +9 resources / +107 KB decoded (the extra non-offline code paths). Expect a one-time baseline level shift of that order at the landing commit — every later point measures the non-offline fixture, so the trend settles at the new level rather than returning to the old one. It is a measurement-boundary change, not an ongoing regression.
 
-The `forms-responses-*` trends could not be measured before/after locally at the time this landed: the Forms page's `canUser` OPTIONS probe to `/wp/v2/settings` stalls in the local headless-Chromium fixture (later tracing for FORMS-729 showed the server answers in milliseconds — a browser-side delivery stall, local-only, with offline on or off), so under the scenario's original `networkidle` gate every iteration timed out. FORMS-729 has since moved the Forms scenario to `loadState: 'load'` plus a fail-closed resource-count settle (see `scenarios.js`), which measures cleanly despite the stall. Flagged here so a Forms-trend gap around this commit is not mistaken for a regression.
+Local before-and-after measurements of the offline-mode change were unavailable for the `forms-responses-*` trends. The Forms page's `canUser` OPTIONS probe to `/wp/v2/settings` stalled in the local headless-Chromium fixture, so every iteration timed out under the original `networkidle` gate. Tracing showed that the server answered in milliseconds with offline mode on or off and the response stalled in the local browser. The Forms scenario uses `loadState: 'load'` and waits for resources to settle (see `scenarios.js`), so it can measure despite the stall. A gap in the stored Forms trend around the offline-mode change leaves too little data to tell whether performance regressed.
 
 ### Simulated connection IDs — attribution note
 
@@ -203,7 +203,7 @@ The eight new delta keys below use `-staging`. Do not register them or any Dashb
 
 ### Known fixture behavior on the My Jetpack page
 
-Accepted as-is (mock realism is tracked in BOOST-456, not fixed here):
+The connection simulator has two known limitations:
 
 - The page's `wpcom/v2/jetpack-partners` call falls through to the mu-plugin's generic `{"success":true}` fallback and logs a `[WPCom Simulator] Unhandled endpoint (using fallback response): …/jetpack-partners` line each load. This is expected fixture noise, not an error.
 - Calls scoped under `/sites/{id}/...` (stats, protect scan, videopress) are shadowed by the mock's `/sites/999999999` site-info branch (it precedes the `/stats/*` branches in the first-match chain) and receive site-info-shaped 200s — semantically wrong, so those cards render empty. Deterministic; fine for trend tracking.
@@ -278,7 +278,7 @@ Deduplication only sees the fetched slice (up to 1000 rows), so a re-run whose o
 
 ## Safeguards
 
-CodeVitals is an **append-only** store with no self-service rollback. Once a bad point lands (wrong key, out-of-range value, scale error), the trend graph stays polluted until a CodeVitals admin corrects it. The safeguards below keep bad data out.
+CodeVitals is an **append-only** store with no self-service rollback. Once a bad point lands (wrong key, out-of-range value, scale error), the trend graph stays polluted until the CodeVitals maintainers correct it. The safeguards below keep bad data out.
 
 ### Dry run
 
@@ -329,14 +329,18 @@ The all-failed row keeps targeted runs honest: `SCENARIO=forms-responses` with a
 
 Classifying a scenario: default NEW scenarios to `optional: true` — a new page's teething failures shouldn't blank the established trends. Promoting a scenario to `optional: false` (required) is a deliberate act; `jetpackConnected` (the wp-admin Dashboard baseline) is the required one.
 
-A green build can therefore carry a skipped scenario. Where to look: the TeamCity WARNING message on the build page, the per-scenario `FAILED (optional — build continues…)` summary line in the build log, and — once live — the FORMS-723 staleness alert as the systemic detector for a series that has quietly gone dark.
+A green build can therefore carry a skipped scenario. Look for the TeamCity WARNING on the build page and the `FAILED (optional — build continues…)` summary in the build log. The weekly digest's per-metric staleness warning flags series that stop receiving points.
 
 ### If bad data lands anyway
 
-A bad point must be corrected by the CodeVitals admin. Steps:
+The CodeVitals maintainers can correct bad data points.
 
 1. **Stop posting.** Pause the CodeVitals Jetpack Performance Scheduler build in TeamCity.
 2. **Document the extent.** Record the affected metric keys, the commit range (monorepo hashes), the time window (build start to end), and whether the values are isolated or systematic.
-3. **Request a correction.** CodeVitals runs outside this project; send the request through the team channel named in the FORMS-696 runbook. Include metric ID 113, the affected keys, the commit/timestamp range, and the root cause.
+3. **Request a correction.** CodeVitals runs outside this project. If the incident involves `CODEVITALS_TOKEN`, rotate it first. Open an issue in the public [Automattic/gitaudit repository](https://github.com/Automattic/gitaudit/issues). Include the affected metric IDs and keys, the commit/timestamp range, and the root cause. Keep credentials out of the issue.
 4. **Fix the root cause.** Add or tighten a sanity range or staging gate. Don't re-enable the Scheduler until the fix merges.
-5. **Record the incident.** Add the failure mode, detection timing, and prevention measures to the FORMS-696 maintenance runbook.
+5. **Record the incident.** Until a maintenance runbook exists, add a dated entry under **Incident notes** with the failure mode, detection timing, and prevention measures.
+
+#### Incident notes
+
+None recorded yet.
