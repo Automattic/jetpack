@@ -113,6 +113,7 @@ class Analytics_Dashboard_Test extends BaseTestCase {
 			array(
 				Analytics_Dashboard::STORE_PERFORMANCE_TYPE,
 				Analytics_Dashboard::TOP_PERFORMING_PRODUCTS_TYPE,
+				Analytics_Dashboard::ITEMS_SOLD_TYPE,
 				Analytics_Dashboard::AVERAGE_ORDER_VALUE_TYPE,
 				Analytics_Dashboard::AVERAGE_ITEMS_PER_ORDER_TYPE,
 				Analytics_Dashboard::CONVERSION_RATE_TYPE,
