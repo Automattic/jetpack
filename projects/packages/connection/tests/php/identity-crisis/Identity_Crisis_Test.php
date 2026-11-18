@@ -41,8 +41,7 @@ class Identity_Crisis_Test extends BaseTestCase {
 		StatusCache::clear();
 
 		// Reset IDC singleton.
-		$idc        = Identity_Crisis::init();
-		$reflection = new \ReflectionClass( $idc );
+		$reflection = new \ReflectionClass( Identity_Crisis::class );
 		$instance   = $reflection->getProperty( 'instance' );
 
 		// @todo Remove this call once we no longer need to support PHP <8.1.
@@ -57,7 +56,10 @@ class Identity_Crisis_Test extends BaseTestCase {
 		$_GET = array();
 		wp_set_current_user( 0 );
 		$GLOBALS['wp_styles']      = null;
+		$GLOBALS['wp_scripts']     = null;
 		$GLOBALS['show_admin_bar'] = null;
+		unset( $GLOBALS['current_screen'], $GLOBALS['wp_actions']['jetpack_identity_crisis_ui_init'] );
+		$this->reset_ui_consumers();
 	}
 
 	/**
@@ -2079,9 +2081,6 @@ class Identity_Crisis_Test extends BaseTestCase {
 
 		$node = $this->render_admin_bar_button();
 
-		remove_filter( 'jetpack_idc_consumers', $consumers );
-		remove_all_filters( 'jetpack_feature_flag_enabled_' . Identity_Crisis::NEW_SCREEN_FLAG );
-		$this->reset_ui_consumers();
 		$this->assertStringContainsString( $expected, $node->title );
 	}
 
@@ -2111,17 +2110,10 @@ class Identity_Crisis_Test extends BaseTestCase {
 		$this->check_identity_crisis_return_error( array( 'test' ) );
 		Jetpack_Options::update_option( 'tos_agreed', $tracking_allowed );
 		add_filter( 'jetpack_feature_flag_enabled_' . Identity_Crisis::NEW_SCREEN_FLAG, $use_new_screen ? '__return_true' : '__return_false' );
-		unset( $GLOBALS['wp_actions']['jetpack_identity_crisis_ui_init'] );
 
 		UI::init();
-		$enqueued = wp_script_is( 'jp-tracks-functions', 'enqueued' );
 
-		remove_all_filters( 'jetpack_feature_flag_enabled_' . Identity_Crisis::NEW_SCREEN_FLAG );
-		remove_action( 'admin_enqueue_scripts', array( UI::class, 'enqueue_scripts' ) );
-		$this->clean_up_check_identity_crisis_return_error();
-		Jetpack_Options::delete_option( 'tos_agreed' );
-		$GLOBALS['wp_scripts'] = null;
-		$this->assertSame( $expected, $enqueued );
+		$this->assertSame( $expected, wp_script_is( 'jp-tracks-functions', 'enqueued' ) );
 	}
 
 	/**
@@ -2134,6 +2126,41 @@ class Identity_Crisis_Test extends BaseTestCase {
 			'old screen, tracking not allowed' => array( false, false, true ),
 			'new screen, tracking allowed'     => array( true, true, true ),
 			'new screen, tracking not allowed' => array( true, false, false ),
+		);
+	}
+
+	/**
+	 * The notice script needs the shared connection script only to show the new screen.
+	 *
+	 * @param bool $use_new_screen Whether the `connection-idc-screen` flag is on.
+	 * @param bool $is_confirmed   Whether Safe Mode is confirmed.
+	 * @param bool $expected       Whether the notice script depends on `jetpack-connection`.
+	 *
+	 * @dataProvider data_provider_test_ui_shared_script_dependency
+	 */
+	#[DataProvider( 'data_provider_test_ui_shared_script_dependency' )]
+	public function test_ui_shared_script_dependency( $use_new_screen, $is_confirmed, $expected ) {
+		require_once ABSPATH . 'wp-admin/includes/class-wp-screen.php';
+		require_once ABSPATH . 'wp-admin/includes/screen.php';
+		set_current_screen( 'dashboard' );
+		add_filter( 'jetpack_feature_flag_enabled_' . Identity_Crisis::NEW_SCREEN_FLAG, $use_new_screen ? '__return_true' : '__return_false' );
+		Identity_Crisis::$is_safe_mode_confirmed = $is_confirmed;
+
+		UI::enqueue_scripts();
+
+		$this->assertSame( $expected, in_array( 'jetpack-connection', wp_scripts()->registered['jp_identity_crisis_banner']->deps, true ) );
+	}
+
+	/**
+	 * Data provider for test_ui_shared_script_dependency.
+	 *
+	 * @return array
+	 */
+	public static function data_provider_test_ui_shared_script_dependency() {
+		return array(
+			'old screen'                      => array( false, false, false ),
+			'new screen'                      => array( true, false, true ),
+			'new screen, Safe Mode confirmed' => array( true, true, false ),
 		);
 	}
 

@@ -8,13 +8,12 @@ const mockNewScreen = props => {
 	mockScreenProps = props;
 	return 'New Safe Mode screen';
 };
-const mockConnection = {
+const sharedScript = {
 	CONNECTION_FROM: { connectionSafeModeNotice: 'connection_safe_mode_notice' },
 	CONNECTION_STORE_ID: 'jetpack-connection',
 	IdentityCrisis: mockNewScreen,
 };
 
-jest.mock( '@automattic/jetpack-connection', () => mockConnection );
 jest.mock( '@wordpress/data', () => ( {
 	select: () => ( { getIdentityCrisis: () => mockIdentityCrisis } ),
 } ) );
@@ -56,6 +55,7 @@ describe( 'Safe Mode screen', () => {
 
 	beforeEach( () => {
 		window.JP_IDENTITY_CRISIS__INITIAL_STATE = { consumerData: {}, isSafeModeConfirmed: false };
+		window.JetpackConnection = { ...sharedScript };
 	} );
 
 	afterEach( () => {
@@ -63,9 +63,9 @@ describe( 'Safe Mode screen', () => {
 		createRoot.mockClear();
 		document.body.innerHTML = '';
 		delete window.JP_IDENTITY_CRISIS__INITIAL_STATE;
+		delete window.JetpackConnection;
 		mockIdentityCrisis = null;
 		mockScreenProps = null;
-		mockConnection.IdentityCrisis = mockNewScreen;
 		jest.clearAllMocks();
 	} );
 
@@ -130,38 +130,40 @@ describe( 'Safe Mode screen', () => {
 	} );
 
 	it.each( [
-		[ 'the flag is on', { useNewScreen: true }, true, undefined, 'New Safe Mode screen' ],
-		[ 'the flag is off', { useNewScreen: false }, true, undefined, 'Safe Mode choices' ],
-		[ 'the state has no Safe Mode entry', null, true, undefined, 'Safe Mode choices' ],
+		[ 'the flag is on', { useNewScreen: true }, sharedScript, undefined, 'New Safe Mode screen' ],
+		[ 'the flag is off', { useNewScreen: false }, sharedScript, undefined, 'Safe Mode choices' ],
+		[
+			'the shared script is not loaded',
+			{ useNewScreen: true },
+			undefined,
+			undefined,
+			'Safe Mode choices',
+		],
+		[ 'the state has no Safe Mode entry', null, sharedScript, undefined, 'Safe Mode choices' ],
 		[
 			'the shared script has no new screen',
 			{ useNewScreen: true },
-			false,
+			{ ...sharedScript, IdentityCrisis: undefined },
 			undefined,
 			'Safe Mode choices',
 		],
 		[
 			"it is My Jetpack's container",
 			{ useNewScreen: true },
-			true,
+			sharedScript,
 			lateContainerId,
 			'Safe Mode choices',
 		],
-	] )(
-		'shows the right screen when %s',
-		( _, identityCrisis, hasNewScreen, containerID, expected ) => {
-			mockIdentityCrisis = identityCrisis;
-			if ( ! hasNewScreen ) {
-				mockConnection.IdentityCrisis = undefined;
-			}
-			window.JP_IDENTITY_CRISIS__INITIAL_STATE.containerID = containerID;
-			const container = addElement( containerID ?? 'jp-identity-crisis-container' );
+	] )( 'shows the right screen when %s', ( _, identityCrisis, script, containerID, expected ) => {
+		mockIdentityCrisis = identityCrisis;
+		window.JetpackConnection = script;
+		window.JP_IDENTITY_CRISIS__INITIAL_STATE.containerID = containerID;
+		const container = addElement( containerID ?? 'jp-identity-crisis-container' );
 
-			act( () => onLoad() );
+		act( () => onLoad() );
 
-			expect( container ).toHaveTextContent( expected );
-		}
-	);
+		expect( container ).toHaveTextContent( expected );
+	} );
 
 	describe( 'with the new screen', () => {
 		beforeEach( () => {

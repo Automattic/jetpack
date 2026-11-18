@@ -1,8 +1,3 @@
-import {
-	CONNECTION_FROM,
-	CONNECTION_STORE_ID,
-	IdentityCrisis,
-} from '@automattic/jetpack-connection';
 import { IDCScreen } from '@automattic/jetpack-idc';
 import { select } from '@wordpress/data';
 import * as WPElement from '@wordpress/element';
@@ -57,16 +52,20 @@ function waitForContainer( containerId ) {
 }
 
 /**
- * Whether the `connection-idc-screen` flag is on and the shared connection script has the new screen.
+ * The shared connection script, when the `connection-idc-screen` flag is on and the script has the new screen.
  *
- * @return {boolean} Whether to show the new screen.
+ * Read at runtime, not imported: the server loads the script for this notice only with the flag on.
+ *
+ * @return {object|null} The script's exports, or null for the old screen.
  */
-function shouldUseNewScreen() {
+function getNewScreenScript() {
+	const connection = window.JetpackConnection;
 	// An older connection package can supply a shared script without the screen, or a state without `identityCrisis`.
-	return (
-		typeof IdentityCrisis === 'function' &&
-		true === select( CONNECTION_STORE_ID )?.getIdentityCrisis?.()?.useNewScreen
-	);
+	if ( typeof connection?.IdentityCrisis !== 'function' ) {
+		return null;
+	}
+	const state = select( connection.CONNECTION_STORE_ID )?.getIdentityCrisis?.();
+	return true === state?.useNewScreen ? connection : null;
 }
 
 /**
@@ -112,8 +111,10 @@ function renderInto( container, isNotice ) {
 	}
 
 	const root = WPElement.createRoot( container );
+	const newScreenScript = isNotice ? getNewScreenScript() : null;
 
-	if ( isNotice && shouldUseNewScreen() ) {
+	if ( newScreenScript ) {
+		const { IdentityCrisis, CONNECTION_FROM } = newScreenScript;
 		root.render(
 			<div className="jp-identity-crisis-notice">
 				<IdentityCrisis

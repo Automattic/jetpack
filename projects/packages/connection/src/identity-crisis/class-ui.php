@@ -51,11 +51,19 @@ class UI {
 
 		add_action( 'admin_enqueue_scripts', array( static::class, 'enqueue_scripts' ) );
 
-		// Guarded for the same reason as in Initial_State::get_identity_crisis_data().
-		$use_new_screen = method_exists( Identity_Crisis::class, 'is_new_screen_enabled' ) && Identity_Crisis::is_new_screen_enabled();
-		if ( ! $use_new_screen || ( new Tracking() )->should_enable_tracking( new Terms_Of_Service(), new Status() ) ) {
+		if ( ! static::use_new_screen() || ( new Tracking() )->should_enable_tracking( new Terms_Of_Service(), new Status() ) ) {
 			Tracking::register_tracks_functions_scripts( true );
 		}
+	}
+
+	/**
+	 * Whether the `connection-idc-screen` flag is on.
+	 *
+	 * @return bool
+	 */
+	private static function use_new_screen() {
+		// Guarded for the same reason as in Initial_State::get_identity_crisis_data().
+		return method_exists( Identity_Crisis::class, 'is_new_screen_enabled' ) && Identity_Crisis::is_new_screen_enabled();
 	}
 
 	/**
@@ -68,8 +76,10 @@ class UI {
 				'../../dist/identity-crisis.js',
 				__FILE__,
 				array(
-					'in_footer'  => true,
-					'textdomain' => 'jetpack-connection',
+					'in_footer'    => true,
+					'textdomain'   => 'jetpack-connection',
+					// The new screen comes from the shared connection script, which the old screen doesn't need; a confirmed Safe Mode shows neither.
+					'dependencies' => static::use_new_screen() && ! Identity_Crisis::$is_safe_mode_confirmed ? array( 'jetpack-connection' ) : array(),
 				)
 			);
 			Assets::enqueue_script( 'jp_identity_crisis_banner' );
