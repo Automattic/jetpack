@@ -490,6 +490,116 @@ class Scan_Status_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Test that an expired status is fetched once, while other requests serve the stored one.
+	 *
+	 * @param bool $lock_held         Whether another request holds the refresh lock.
+	 * @param bool $refreshed         Whether another request stored a fresh status after this one loaded its options.
+	 * @param bool $has_stored_status Whether a status was stored before it expired.
+	 * @param int  $expected_fetches  How many times WordPress.com should be asked.
+	 *
+	 * @dataProvider concurrent_refresh_data
+	 */
+	#[DataProvider( 'concurrent_refresh_data' )]
+	public function test_get_status_while_another_request_refreshes( $lock_held, $refreshed, $has_stored_status, $expected_fetches ) {
+		global $wpdb;
+
+		$this->mock_connection();
+		if ( $has_stored_status ) {
+			update_option( Scan_Status::OPTION_NAME, $this->get_sample_response() );
+		}
+		update_option( Scan_Status::OPTION_TIMESTAMP_NAME, time() - 1 );
+
+		$fetches = 0;
+		$count   = function ( $response ) use ( &$fetches ) {
+			++$fetches;
+			return $response;
+		};
+		add_filter( 'pre_http_request', $count, 20 );
+
+		// No real database here, so stand in one holding what the other request wrote.
+		$original_wpdb = $wpdb;
+		$wpdb          = new class( $lock_held, $refreshed ) extends \Db_Less_Wpdb { // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+			/**
+			 * Whether the lock row belongs to another request.
+			 *
+			 * @var bool
+			 */
+			private $lock_held;
+
+			/**
+			 * Whether the stored timestamp is fresh.
+			 *
+			 * @var bool
+			 */
+			private $refreshed;
+
+			/**
+			 * Constructor.
+			 *
+			 * @param bool $lock_held Whether the lock row belongs to another request.
+			 * @param bool $refreshed Whether the stored timestamp is fresh.
+			 */
+			public function __construct( $lock_held, $refreshed ) {
+				parent::__construct();
+				$this->lock_held = $lock_held;
+				$this->refreshed = $refreshed;
+			}
+
+			/**
+			 * Report whether the lock was taken.
+			 *
+			 * @param string $query The SQL query.
+			 * @return int|bool
+			 */
+			public function query( $query ) {
+				if ( false !== strpos( $query, Scan_Status::REFRESH_LOCK_NAME ) ) {
+					return $this->lock_held ? 0 : 1;
+				}
+				return parent::query( $query );
+			}
+
+			/**
+			 * Return the stored timestamp.
+			 *
+			 * @param string|null $query The SQL query.
+			 * @param int         $x     Column.
+			 * @param int         $y     Row.
+			 * @return string|null
+			 */
+			public function get_var( $query = null, $x = 0, $y = 0 ) {
+				if ( false !== strpos( (string) $query, Scan_Status::OPTION_TIMESTAMP_NAME ) ) {
+					return (string) ( $this->refreshed ? time() + 60 : time() - 1 );
+				}
+				return parent::get_var( $query, $x, $y );
+			}
+		};
+		$wpdb->set_prefix( $original_wpdb->base_prefix );
+
+		$status = null;
+		try {
+			$status = Scan_Status::get_status();
+		} finally {
+			$wpdb = $original_wpdb; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+			remove_filter( 'pre_http_request', $count, 20 );
+		}
+
+		$this->assertSame( $expected_fetches, $fetches );
+		$this->assertEquals( static::get_sample_status(), $status );
+	}
+
+	/**
+	 * Data provider for test_get_status_while_another_request_refreshes
+	 */
+	public static function concurrent_refresh_data() {
+		return array(
+			'lock held, stored status served'    => array( true, false, true, 0 ),
+			'lock held, nothing stored, fetched' => array( true, false, false, 1 ),
+			'lock taken after another refresh'   => array( false, true, true, 0 ),
+			'lock taken, still expired, fetched' => array( false, false, true, 1 ),
+		);
+	}
+
+	/**
 	 * A failed most recent scan is flagged, and the threats from earlier scans are kept.
 	 */
 	public function test_get_status_flags_failed_scan() {

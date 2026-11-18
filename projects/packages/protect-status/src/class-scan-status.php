@@ -57,6 +57,20 @@ class Scan_Status extends Status {
 	const OPTION_EXPIRES_AFTER = 300; // 5 minutes.
 
 	/**
+	 * Name of the option row held by the one request refreshing an expired status.
+	 *
+	 * @var string
+	 */
+	const REFRESH_LOCK_NAME = 'jetpack_scan_status_refresh_lock';
+
+	/**
+	 * Seconds after which another request may take over a lock that was never released; longer than the fetch timeout.
+	 *
+	 * @var int
+	 */
+	const REFRESH_LOCK_EXPIRES_AFTER = 60;
+
+	/**
 	 * Where a threat with no severity sorts: just above Low (below 3), as sortThreatSeverity does in js-packages/scan.
 	 *
 	 * @var float
@@ -74,8 +88,10 @@ class Scan_Status extends Status {
 			return self::$status;
 		}
 
-		if ( $refresh_from_wpcom || ! self::should_use_cache() || self::is_cache_expired() ) {
+		if ( $refresh_from_wpcom || ! self::should_use_cache() ) {
 			$status = self::fetch_from_api();
+		} elseif ( self::is_cache_expired() ) {
+			$status = self::refresh_expired_status();
 		} else {
 			$status = self::get_from_options();
 		}
@@ -94,6 +110,90 @@ class Scan_Status extends Status {
 
 		self::$status = $status;
 		return $status;
+	}
+
+	/**
+	 * Fetches the expired status, or serves the stored one while another request is fetching it or just has.
+	 *
+	 * @return WP_Error|object
+	 */
+	private static function refresh_expired_status() {
+		$lock = self::acquire_refresh_lock();
+
+		try {
+			if ( null === $lock || self::was_refreshed_since_load() ) {
+				$stored = self::get_from_options();
+				if ( is_object( $stored ) ) {
+					return $stored;
+				}
+			}
+
+			return self::fetch_from_api();
+		} finally {
+			if ( null !== $lock ) {
+				self::release_refresh_lock( $lock );
+			}
+		}
+	}
+
+	/**
+	 * Whether another request stored a fresh status after this one loaded its options.
+	 *
+	 * @return bool
+	 */
+	private static function was_refreshed_since_load() {
+		global $wpdb;
+
+		// Read the row itself: get_option() still holds the expired timestamp this request loaded at boot.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery -- See above.
+		$expires = (int) $wpdb->get_var( $wpdb->prepare( "SELECT option_value FROM {$wpdb->options} WHERE option_name = %s", self::OPTION_TIMESTAMP_NAME ) );
+
+		return time() <= $expires;
+	}
+
+	/**
+	 * Take the lock for refreshing an expired status.
+	 *
+	 * @return string|null The lock's value, to release it with, or null when another request holds it.
+	 */
+	private static function acquire_refresh_lock() {
+		global $wpdb;
+
+		$now = time();
+		// The time it was taken, then digits that tell this request's lock from any other.
+		$value = sprintf( '%d.%09d', $now, wp_rand( 0, 999999999 ) );
+
+		// INSERT IGNORE adds the row only when there is none, as WP_Upgrader::create_lock() does.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery -- The Options API cannot add a row only when it is missing.
+		$taken = $wpdb->query( $wpdb->prepare( "INSERT IGNORE INTO {$wpdb->options} (option_name, option_value, autoload) VALUES (%s, %s, 'off')", self::REFRESH_LOCK_NAME, $value ) );
+
+		if ( ! $taken ) {
+			// Take over a lock that a request left behind without releasing it.
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery -- See above.
+			$taken = $wpdb->query( $wpdb->prepare( "UPDATE {$wpdb->options} SET option_value = %s WHERE option_name = %s AND option_value + 0 < %d", $value, self::REFRESH_LOCK_NAME, $now - self::REFRESH_LOCK_EXPIRES_AFTER ) );
+		}
+
+		return $taken ? $value : null;
+	}
+
+	/**
+	 * Release the lock for refreshing an expired status.
+	 *
+	 * @param string $lock The value acquire_refresh_lock() returned.
+	 * @return void
+	 */
+	private static function release_refresh_lock( $lock ) {
+		global $wpdb;
+
+		// Matching the value leaves the row alone when another request has since taken the lock over.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery -- The lock row is not written through the Options API.
+		$wpdb->delete(
+			$wpdb->options,
+			array(
+				'option_name'  => self::REFRESH_LOCK_NAME,
+				'option_value' => $lock,
+			)
+		);
 	}
 
 	/**
