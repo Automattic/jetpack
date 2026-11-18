@@ -53,7 +53,10 @@ export function isDrillableInterval( interval: IntervalType ): interval is Drill
  * The window behind one chart bucket: the range a click on it should open.
  *
  * Boundaries are cut in `date`'s own timezone, so a `TZDate` carrying the site
- * zone closes its buckets on the site's clock rather than the browser's.
+ * zone closes its buckets on the site's clock rather than the browser's. A day in
+ * progress opens whole, as the Today preset does, so its hourly chart keeps 24 bars
+ * all day; a longer bucket still closes at the clock, since this week opened whole
+ * would set three days of data against seven in the comparison.
  *
  * @param date     - Any instant inside the bucket, typically the datum's date.
  * @param interval - The interval the bucket was drawn in.
@@ -77,5 +80,5 @@ export function drillDateRange(
 
 	const to = end ? endOfDay( end ) : bounds.end( date );
 
-	return { from, to: to.getTime() > now.getTime() ? now : to };
+	return { from, to: interval !== 'day' && to.getTime() > now.getTime() ? now : to };
 }
