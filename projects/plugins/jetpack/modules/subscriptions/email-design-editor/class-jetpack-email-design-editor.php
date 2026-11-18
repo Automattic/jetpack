@@ -131,19 +131,10 @@ class Jetpack_Email_Design_Editor {
 	}
 
 	/**
-	 * Whether this platform gets the screen without anyone turning it on.
+	 * Whether this platform gets the screen without anyone turning it on: self-hosted only (NL-1120).
 	 *
-	 * Self-hosted only (NL-1120). There is no per-site switch that reaches a self-hosted site
-	 * soon enough to be one -- the plan record it could ride on refreshes daily -- so the release
-	 * carrying this is the rollout, and sites arrive as they update.
-	 *
-	 * Both WordPress.com platforms keep the switch they have, because a default cannot be rolled
-	 * back: Simple's mu-plugin turns the flag on alongside the sticker, and on Atomic the sticker
-	 * is the rollback, which a flag that is on by default would outlive.
-	 *
-	 * `IS_ATOMIC` is checked as well as the platform constants because a host can define it alone,
-	 * and {@see self::filter_flag_for_atomic()} passes the flag through where it cannot read a
-	 * sticker -- so a default would be the only answer left.
+	 * WordPress.com keeps its sticker switch, since a default would outlive the sticker rollback.
+	 * `IS_ATOMIC` is checked alone too: a host can define it without wpcomsh, leaving no sticker to read.
 	 *
 	 * @return bool
 	 */
@@ -176,7 +167,7 @@ class Jetpack_Email_Design_Editor {
 	 * @return bool
 	 */
 	public static function filter_flag_for_atomic( $enabled ) {
-		if ( ! defined( 'IS_ATOMIC' ) || ! IS_ATOMIC || ! function_exists( 'wpcomsh_is_site_sticker_active' ) ) {
+		if ( ! Constants::is_true( 'IS_ATOMIC' ) || ! function_exists( 'wpcomsh_is_site_sticker_active' ) ) {
 			return (bool) $enabled;
 		}
 

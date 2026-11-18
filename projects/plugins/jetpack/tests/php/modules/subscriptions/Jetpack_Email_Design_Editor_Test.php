@@ -98,7 +98,21 @@ class Jetpack_Email_Design_Editor_Test extends WP_UnitTestCase {
 		remove_all_actions( 'enqueue_block_assets' );
 		remove_all_actions( 'enqueue_block_editor_assets' );
 
+		// In set-up too, so a platform constant another test class leaked cannot pick the default.
+		$this->reset_platform();
+
 		wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
+	}
+
+	/**
+	 * Clear the platforms a test may have stood this site up as, and the default read from them.
+	 */
+	private function reset_platform() {
+		foreach ( array( 'IS_WPCOM', 'IS_ATOMIC', 'ATOMIC_SITE_ID', 'ATOMIC_CLIENT_ID', 'WPCOMSH__PLUGIN_FILE' ) as $name ) {
+			Constants::clear_single_constant( $name );
+		}
+
+		Jetpack_Email_Design_Editor::register_feature_flags();
 	}
 
 	/**
@@ -124,14 +138,7 @@ class Jetpack_Email_Design_Editor_Test extends WP_UnitTestCase {
 
 		Constants::clear_single_constant( 'AT_PROXIED_REQUEST' );
 
-		// The platforms a test may have stood this site up as.
-		foreach ( array( 'IS_WPCOM', 'IS_ATOMIC', 'ATOMIC_SITE_ID', 'ATOMIC_CLIENT_ID', 'WPCOMSH__PLUGIN_FILE' ) as $name ) {
-			Constants::clear_single_constant( $name );
-		}
-
-		// The registered default is read from those constants, so a test that stood this site up
-		// as another platform would otherwise leave that platform's default behind it.
-		Jetpack_Email_Design_Editor::register_feature_flags();
+		$this->reset_platform();
 
 		// Held for the request, so a test that turned offline mode off would otherwise answer for
 		// the next one. {@see self::allow_tracking()}
@@ -266,10 +273,6 @@ class Jetpack_Email_Design_Editor_Test extends WP_UnitTestCase {
 		return (bool) $definition['default'];
 	}
 
-	/**
-	 * The release carrying this is the whole rollout for a self-hosted site (NL-1120), so the
-	 * screen has to be there with nothing turned on and nothing filtered.
-	 */
 	public function test_a_self_hosted_site_gets_the_screen_without_anyone_turning_it_on() {
 		if ( Constants::is_true( 'IS_ATOMIC' ) ) {
 			$this->markTestSkipped( 'This process runs as Atomic, so it has no self-hosted default to read.' );
@@ -282,9 +285,6 @@ class Jetpack_Email_Design_Editor_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Both WordPress.com platforms keep the switch they have, because a default cannot be rolled
-	 * back: removing the sticker is the rollback, and a default would outlive it.
-	 *
 	 * @param array $constants What the platform defines.
 	 *
 	 * @dataProvider provide_wordpress_com_platforms
