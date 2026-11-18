@@ -4,7 +4,7 @@ The visibility command center for WordPress sites in the agentic web — a unifi
 
 This package is built up across a stacked series of PRs (see #48154 for the split plan). It currently provides, on a wp-admin page registered at `admin.php?page=jetpack-seo` (gated on the `seo-tools` module being active):
 
-- **Overview** — a dashboard with **Site visibility**, **Site verification**, **AI access**, and **Content SEO** cards. Visibility reports indexing directly and the sitemap by its *effective* state; verification lists Google, Bing and Facebook plus any other service the site has verified with. AI access summarizes the crawler groups and llms.txt, or the one reason per-crawler settings can't apply. Content SEO shows factual coverage rings (schema, SEO title, meta description, search visibility) with literal counts, each deep-linking to the content still missing that field. The visibility/verification cards deep-link into the matching Settings sections, AI access into the GEO tab.
+- **Overview** — a dashboard with **Site visibility**, **Site verification**, **AI access**, and **Content SEO** cards. Visibility reports indexing directly and the sitemap by its _effective_ state; verification lists Google, Bing and Facebook plus any other service the site has verified with. AI access summarizes the crawler groups and llms.txt, or the one reason per-crawler settings can't apply. Content SEO shows factual coverage rings (schema, SEO title, meta description, search visibility) with literal counts, each deep-linking to the content still missing that field. The visibility/verification cards deep-link into the matching Settings sections, AI access into the GEO tab.
 - **Settings** — search-engine indexing, the XML sitemap (with a "View sitemap" link whenever it's on, and turning it off removes the site's sitemap entirely — including WordPress core's own — for a proper 404; the toggle is disabled while indexing is blocked, since a sitemap can't be served then), canonical URLs, the title structure for all page types (front page, posts, pages, tags, archives), the front-page description, site verification codes, and a single site-level **Schema** module (a BreadcrumbList toggle plus the site's Organization details, with LocalBusiness nested as a refinement of the Organization and one Save for both), plus the signed-in user's **Author profile** card, and search & social previews of the home page (Google / Facebook / X), with a Media Library picker for the default share image. Content-specific and Social-selected images take precedence over the default. SEO tools is turned off from My Jetpack › Features, not from this page; while it's off the Jetpack › SEO menu item is hidden, like other Jetpack modules. New sites get it on at their first connection, since the module auto-activates; existing sites keep their setting.
 - **Content** — a DataViews list of published content across every supported post type, showing each item's SEO state (schema type, meta description set, search visibility). Rows link to the Gutenberg editor and open a per-post **SEO inspector** (custom title, description, schema type, noindex, SERP preview) in the dashboard sidebar. Filters for post type, schema type, description state, and search visibility run client-side over the merged set. The Schema type control and SEO columns also appear in the block editor and `edit.php` post-list tables respectively; the post-list columns are hidden by default and opted into per user via Screen Options. JSON-LD (Article / FAQ) is emitted on `wp_head`.
 - **GEO** — llms.txt generation, the plan-gated AI SEO Enhancer, and per-crawler allow/block controls for answer engines and training crawlers (written to the virtual robots.txt). (Generative Engine Optimization; internal route/id `ai`.)
@@ -31,23 +31,23 @@ On private and coming-soon Atomic sites, module writes temporarily bypass wpcoms
 
 ### Text hierarchy
 
-`@wordpress/ui`'s `Text` variants are easy to pick wrong, because **the heading and body ramps don't share a scale** — `heading-sm` is *smaller* than `body-md`. Resolved from the WPDS tokens (`@wordpress/theme`):
+`@wordpress/ui`'s `Text` variants are easy to pick wrong, because **the heading and body ramps don't share a scale** — `heading-sm` is _smaller_ than `body-md`. Resolved from the WPDS tokens (`@wordpress/theme`):
 
-| Variant | Size | Weight | Transform | Use it for |
-| -- | -- | -- | -- | -- |
-| `heading-lg` | 15px | medium | — | card title |
-| `heading-md` | 13px | medium | — | sub-heading inside a module |
-| `heading-sm` | **11px** | medium | **UPPERCASE** | field label |
-| `body-md` | 13px | regular | — | body copy |
-| `body-sm` | 12px | regular | — | field explainer |
+| Variant      | Size     | Weight  | Transform     | Use it for                  |
+| ------------ | -------- | ------- | ------------- | --------------------------- |
+| `heading-lg` | 15px     | medium  | —             | card title                  |
+| `heading-md` | 13px     | medium  | —             | sub-heading inside a module |
+| `heading-sm` | **11px** | medium  | **UPPERCASE** | field label                 |
+| `body-md`    | 13px     | regular | —             | body copy                   |
+| `body-sm`    | 12px     | regular | —             | field explainer             |
 
 "Small heading" is a **field label**, not a small sub-heading. Reach for `heading-md` when you want a sub-heading.
 
 The rule for prose, which the modules drifted away from once already:
 
 - **`body-md`** — a module's or section's own prose. Things the reader is meant to read.
-- **`body-sm` + `.muted`** — explainer text *attached to a field*: hints under an input, help under a group label. Not general copy.
-- **`body-md` + `.muted`** — the third case, and deliberately narrow: chrome inside the SERP and social preview mockups (`social-previews-card`, `serp-preview`). Those imitate how Google and Facebook render a link, so their type follows *someone else's* design, not ours. Don't extend this case to real UI.
+- **`body-sm` + `.muted`** — explainer text _attached to a field_: hints under an input, help under a group label. Not general copy.
+- **`body-md` + `.muted`** — the third case, and deliberately narrow: chrome inside the SERP and social preview mockups (`social-previews-card`, `serp-preview`). Those imitate how Google and Facebook render a link, so their type follows _someone else's_ design, not ours. Don't extend this case to real UI.
 
 Field labels should be uppercase across the board. Where a `TextControl` renders the label, that's automatic; where a label is drawn by hand, use `heading-sm` so it matches (same size and casing — the control label is weight 600 against `heading-sm`'s medium, so they read alike without being pixel-identical).
 
@@ -57,7 +57,7 @@ Field labels should be uppercase across the board. Where a `TextControl` renders
 
 - Prose → `render={ <p /> }`.
 - A real sub-heading → `render={ <h3 /> }`. Card headers are `h2` (the page `<h1>` is in `Admin_Page`), so a module's own sub-headings are `h3`. Without this a screen-reader user navigating by heading finds the card title and nothing beneath it.
-- A hand-drawn field label heading a *group* of controls rather than one input → keep it a `span`, but give the wrapper `role="group"` and `aria-labelledby` pointing at it (see `google-verification-field`), or it announces as a label attached to nothing.
+- A hand-drawn field label heading a _group_ of controls rather than one input → keep it a `span`, but give the wrapper `role="group"` and `aria-labelledby` pointing at it (see `google-verification-field`), or it announces as a label attached to nothing.
 
 Rendering as `<p>` or a heading is safe: `Text` always applies both of `@wordpress/ui`'s global-CSS defenses, and every variant defines `--_gcd-heading-*` alongside `--_gcd-p-*`, so the element change doesn't alter the type.
 
@@ -78,6 +78,26 @@ pnpm --filter='@automattic/jetpack-seo' run test
 ```
 
 The built JS/CSS lives in `build/` and is included in the vendored Jetpack plugin distribution via `.gitattributes` (`/build/** production-include`).
+
+### IndexNow background delivery
+
+Pending notifications use non-autoloaded options, with stable records for normal post updates and historical URLs. Repeated changes are combined for five minutes before background delivery. Workers recheck visibility, consent, and URL scope, and preserve newer changes when acknowledging older work. Both new admissions and replacements check the queue generation. Results from a worker that predates a queue reset cannot restore old status or cooldowns.
+
+The following filters accept integers:
+
+- `jetpack_seo_indexnow_batch_size`: maximum URLs per request, default 100, bounded to 1 through 10,000.
+- `jetpack_seo_indexnow_queue_capacity`: maximum pending records admitted, default 10,000, bounded to 1 through 50,000.
+
+Normal updates coalesce by post ID, with the current URL resolved during delivery. Old-address and removal notifications retain the exact URL. Existing URL-based records remain readable, and duplicate resolved URLs are sent only once per batch.
+
+Lowering capacity preserves existing entries and allows updates to an already pending record. New records are refused while the queue remains above the admission limit. Simple also refuses additions or growing replacements that would take estimated serialized options storage above 750,000 bytes, leaving headroom for other settings and delivery bookkeeping. Unchanged or smaller records can still be refreshed. Refused notifications are not saved for later replay; post saving continues normally. Overflow is reported separately from delivery status.
+
+Workers read pages of 250 rows and normally inspect at most 5,000 rows per run. Larger configured batches can increase that scan budget. A 1 MiB payload budget, including resolved URLs and rechecked before delivery, can reduce the actual batch size. Workers check a 20-second processing budget between pages. Scheduler delays can extend delivery time.
+
+Disable IndexNow before reverting to a URL-only worker. Older workers discard ID-only records without submitting them, while remaining URL snapshots are still understood. Keep IndexNow disabled on Simple until a version with the storage bound is restored.
+
+HTTP 202 records receipt with ownership verification pending, without consuming retries. HTTP 429 pauses all site submissions and respects `Retry-After`, with a minimum ten-minute cooldown. Other temporary failures receive bounded backoff, with five retries and a maximum entry age of 48 hours. Receipt does not establish crawling or indexing. Delivery can repeat after an interruption with an ambiguous response.
+
 
 ### IndexNow metadata reconciliation
 

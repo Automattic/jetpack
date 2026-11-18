@@ -224,6 +224,7 @@ class Initializer {
 	 */
 	public static function register_write_hooks() {
 		Indexnow_Events::init();
+		Indexnow_Queue::init();
 		Content_Coverage::register_invalidation();
 		Llms_Txt::register_always_include();
 		Llms_Txt::register_invalidation();

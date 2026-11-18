@@ -57,7 +57,7 @@ class Indexnow_Client {
 			&& $allowed
 			&& get_option( self::SCOPE_OPTION, '' ) === self::scope()
 			&& Initializer::is_available() && ( new Modules() )->is_active( 'seo-tools' )
-			&& self::site_is_public()
+			&& ! ( new Host() )->is_vip_site() && self::site_is_public()
 			&& ! Seo_Tools::is_disabled();
 	}
 
@@ -136,6 +136,22 @@ class Indexnow_Client {
 	}
 
 	/**
+	 * Bound the configurable request size to the protocol maximum.
+	 *
+	 * @return int
+	 */
+	public static function batch_size() {
+		/**
+		 * Filters the maximum URLs in one IndexNow request.
+		 *
+		 * @since $$next-version$$
+		 * @param int $size Maximum URLs, between 1 and 10,000.
+		 */
+		$size = apply_filters( 'jetpack_seo_indexnow_batch_size', self::BATCH_SIZE );
+		return is_int( $size ) ? max( 1, min( 10000, $size ) ) : self::BATCH_SIZE;
+	}
+
+	/**
 	 * Send an already eligible batch to one participating endpoint.
 	 *
 	 * @param string[] $urls Public URLs.
@@ -163,7 +179,7 @@ class Indexnow_Client {
 			}
 		}
 		$urls = array_values( array_unique( $urls ) );
-		if ( count( $urls ) > self::BATCH_SIZE ) {
+		if ( count( $urls ) > self::batch_size() ) {
 			return array(
 				'state' => 'disabled_or_invalid',
 				'retry' => false,
