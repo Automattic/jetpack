@@ -17,11 +17,12 @@ class UserLoginRenameTest extends WP_UnitTestCase {
 	 * Creates a user with a known login.
 	 *
 	 * @param string $login Login to create the user with.
+	 * @param array  $extra Other fields to pass to wp_insert_user().
 	 * @return int User ID.
 	 */
-	private function create_user( $login ) {
+	private function create_user( $login, $extra = array() ) {
 		return wp_insert_user(
-			array(
+			$extra + array(
 				'user_login' => $login,
 				'user_pass'  => wp_generate_password(),
 				'user_email' => $login . '@example.com',
@@ -198,5 +199,143 @@ class UserLoginRenameTest extends WP_UnitTestCase {
 		wpcomsh_rename_user_login( $user_id, 'oldlogin', 'newlogin' );
 
 		$this->assertSame( array( array( $user_id, 'oldlogin', 'newlogin' ) ), $fired );
+	}
+
+	public function test_moves_the_names_derived_from_the_old_login() {
+		$user_id = $this->create_user( 'oldlogin' );
+
+		wpcomsh_rename_user_login( $user_id, 'oldlogin', 'newlogin' );
+
+		$user = get_userdata( $user_id );
+		$this->assertSame( 'newlogin', $user->user_nicename );
+		$this->assertSame( 'newlogin', $user->display_name );
+		$this->assertSame( 'newlogin', $user->nickname );
+	}
+
+	public function test_keeps_names_the_user_chose() {
+		$user_id = $this->create_user(
+			'oldlogin',
+			array(
+				'user_nicename' => 'jane',
+				'display_name'  => 'Jane Doe',
+				'nickname'      => 'JD',
+			)
+		);
+
+		wpcomsh_rename_user_login( $user_id, 'oldlogin', 'newlogin' );
+
+		$user = get_userdata( $user_id );
+		$this->assertSame( 'jane', $user->user_nicename );
+		$this->assertSame( 'Jane Doe', $user->display_name );
+		$this->assertSame( 'JD', $user->nickname );
+		$this->assertSame( array(), get_user_meta( $user_id, WPCOMSH_OLD_AUTHOR_SLUG_META, false ) );
+	}
+
+	/**
+	 * A re-run must finish a rename whose login landed but whose profile update did not.
+	 */
+	public function test_already_applied_rename_moves_the_names() {
+		$user_id = $this->create_user( 'oldlogin' );
+		$this->set_login( $user_id, 'newlogin' );
+
+		$result = wpcomsh_rename_user_login( $user_id, 'oldlogin', 'newlogin' );
+
+		$this->assertSame( WPCOMSH_USER_LOGIN_ALREADY_APPLIED, $result );
+		$this->assertSame( 'newlogin', get_userdata( $user_id )->user_nicename );
+	}
+
+	/**
+	 * Only a slug WordPress derived from the old login moves with it.
+	 *
+	 * @param string $slug     The user's author slug.
+	 * @param string $login    The login it may derive from.
+	 * @param bool   $expected Whether it is that login's default slug.
+	 *
+	 * @dataProvider data_author_slugs
+	 */
+	#[DataProvider( 'data_author_slugs' )]
+	public function test_recognizes_a_default_author_slug( $slug, $login, $expected ) {
+		$this->assertSame( $expected, wpcomsh_is_default_author_slug( $slug, $login ) );
+	}
+
+	/**
+	 * Slugs and whether wp_insert_user() would have derived them from the login.
+	 *
+	 * @return array[]
+	 */
+	public static function data_author_slugs() {
+		$long = str_repeat( 'a', 60 );
+
+		return array(
+			'same as the login'               => array( 'oldlogin', 'oldlogin', true ),
+			'sanitized from the login'        => array( 'old-login', 'old.login', true ),
+			'suffixed after a collision'      => array( 'oldlogin-2', 'oldlogin', true ),
+			'long login, cut to 50'           => array( str_repeat( 'a', 50 ), $long, true ),
+			'long login, cut for the suffix'  => array( str_repeat( 'a', 48 ) . '-2', $long, true ),
+			'chosen by the user'              => array( 'jane', 'oldlogin', false ),
+			'suffix on another login\'s slug' => array( 'other-2', 'oldlogin', false ),
+		);
+	}
+
+	/**
+	 * An old archive, feed or page link lands on the same view under the new slug.
+	 *
+	 * @param string $query    Query string requesting the old slug.
+	 * @param string $expected Name of the URL builder the redirect must match.
+	 *
+	 * @dataProvider data_old_author_slug_requests
+	 */
+	#[DataProvider( 'data_old_author_slug_requests' )]
+	public function test_redirects_an_old_author_slug( $query, $expected ) {
+		$user_id = $this->create_user( 'oldlogin' );
+		wpcomsh_rename_user_login( $user_id, 'oldlogin', 'newlogin' );
+
+		$this->go_to( home_url( '/?author_name=oldlogin' . $query ) );
+
+		$urls = array(
+			'archive' => get_author_posts_url( $user_id ),
+			'feed'    => get_author_feed_link( $user_id, 'atom' ),
+			'paged'   => add_query_arg( 'paged', 2, get_author_posts_url( $user_id ) ),
+		);
+		$this->assertSame( $urls[ $expected ], wpcomsh_get_old_author_slug_redirect_url() );
+	}
+
+	/**
+	 * Requests for the old slug and where each must land.
+	 *
+	 * @return array[]
+	 */
+	public static function data_old_author_slug_requests() {
+		return array(
+			'archive' => array( '', 'archive' ),
+			'feed'    => array( '&feed=atom', 'feed' ),
+			'paged'   => array( '&paged=2', 'paged' ),
+		);
+	}
+
+	/**
+	 * Someone who later takes the old slug keeps their archive.
+	 */
+	public function test_a_live_slug_is_not_redirected() {
+		$user_id = $this->create_user( 'oldlogin' );
+		wpcomsh_rename_user_login( $user_id, 'oldlogin', 'newlogin' );
+		$this->create_user( 'oldlogin', array( 'user_email' => 'other@example.com' ) );
+
+		$this->go_to( home_url( '/?author_name=oldlogin' ) );
+
+		$this->assertNull( wpcomsh_get_old_author_slug_redirect_url() );
+	}
+
+	/**
+	 * Each rename leaves its slug behind, so a link from two renames ago still resolves.
+	 */
+	public function test_redirects_every_earlier_slug() {
+		$user_id = $this->create_user( 'login_a' );
+		wpcomsh_rename_user_login( $user_id, 'login_a', 'login_b' );
+		wpcomsh_rename_user_login( $user_id, 'login_b', 'login_c' );
+
+		$this->go_to( home_url( '/?author_name=login_a' ) );
+
+		$this->assertSame( get_author_posts_url( $user_id ), wpcomsh_get_old_author_slug_redirect_url() );
 	}
 }

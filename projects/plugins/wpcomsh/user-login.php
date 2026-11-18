@@ -21,6 +21,11 @@ const WPCOMSH_USER_LOGIN_ALREADY_APPLIED = 'already_applied';
 const WPCOMSH_USER_LOGIN_SUPERSEDED = 'superseded';
 
 /**
+ * User meta holding each author slug a user had before a login rename, one row per slug.
+ */
+const WPCOMSH_OLD_AUTHOR_SLUG_META = 'wpcomsh_old_author_slug';
+
+/**
  * Renames a user's user_login, provided they still hold the login the caller expects.
  *
  * WordPress cannot: wp_insert_user() writes user_login on insert only, so wp_update_user()
@@ -68,6 +73,11 @@ function wpcomsh_rename_user_login( $user_id, $expected_login, $new_login ) {
 
 	$wpdb->get_var( $wpdb->prepare( 'SELECT RELEASE_LOCK(%s)', $lock ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 
+	if ( WPCOMSH_USER_LOGIN_ALREADY_APPLIED === $result ) {
+		// Lets a re-run finish a rename whose profile update never happened.
+		wpcomsh_follow_user_login_rename( $user_id, (string) $expected_login, $new_login );
+	}
+
 	if ( WPCOMSH_USER_LOGIN_RENAMED !== $result ) {
 		return $result;
 	}
@@ -76,6 +86,8 @@ function wpcomsh_rename_user_login( $user_id, $expected_login, $new_login ) {
 	// Cleaning only the refreshed user leaves the old name resolving.
 	clean_user_cache( $user );
 	clean_user_cache( $user_id );
+
+	wpcomsh_follow_user_login_rename( $user_id, (string) $expected_login, $new_login );
 
 	/**
 	 * Fires after a user's user_login has been renamed on this site.
@@ -159,3 +171,143 @@ function wpcomsh_write_user_login( $user_id, $expected_login, $new_login ) {
 		sprintf( 'Could not write the new login for user %d: %s', $user_id, $db_error )
 	);
 }
+
+/**
+ * Moves the author slug, display name and nickname to the new login, where they still hold the
+ * defaults WordPress derived from the old one. Values the user chose are kept.
+ *
+ * @since $$next-version$$
+ *
+ * @param int    $user_id   ID of the renamed user.
+ * @param string $old_login Login the user held before the rename.
+ * @param string $new_login Login the user holds now.
+ */
+function wpcomsh_follow_user_login_rename( $user_id, $old_login, $new_login ) {
+	$user = get_userdata( $user_id );
+	if ( ! $user ) {
+		return;
+	}
+
+	$changes  = array();
+	$old_slug = $user->user_nicename;
+
+	if ( $old_login === $user->display_name ) {
+		$changes['display_name'] = $new_login;
+	}
+
+	if ( $old_login === $user->nickname ) {
+		$changes['nickname'] = $new_login;
+	}
+
+	if ( wpcomsh_is_default_author_slug( $old_slug, $old_login ) ) {
+		// wp_insert_user() sanitizes this and adds a -2 style suffix if another user holds it.
+		$changes['user_nicename'] = mb_substr( $new_login, 0, 50 );
+	}
+
+	if ( ! $changes ) {
+		return;
+	}
+
+	$changes['ID'] = $user_id;
+	if ( is_wp_error( wp_update_user( $changes ) ) ) {
+		return;
+	}
+
+	$new_slug = get_userdata( $user_id )->user_nicename;
+
+	if ( $new_slug !== $old_slug ) {
+		delete_user_meta( $user_id, WPCOMSH_OLD_AUTHOR_SLUG_META, $old_slug );
+		add_user_meta( $user_id, WPCOMSH_OLD_AUTHOR_SLUG_META, $old_slug );
+	}
+
+	// Renaming back to an earlier login makes that slug live again.
+	delete_user_meta( $user_id, WPCOMSH_OLD_AUTHOR_SLUG_META, $new_slug );
+}
+
+/**
+ * Whether an author slug is the one wp_insert_user() derives from a login.
+ *
+ * @since $$next-version$$
+ *
+ * @param string $slug  The user's user_nicename.
+ * @param string $login The login it may have been derived from.
+ * @return bool
+ */
+function wpcomsh_is_default_author_slug( $slug, $login ) {
+	$base = sanitize_title( mb_substr( $login, 0, 50 ) );
+
+	if ( $slug === $base ) {
+		return true;
+	}
+
+	// A slug another user held gets a numeric suffix, with the base cut to keep 50 characters.
+	return (bool) preg_match( '/^(.+)-(\d+)$/', $slug, $matches )
+		&& mb_substr( $base, 0, 49 - strlen( $matches[2] ) ) === $matches[1];
+}
+
+/**
+ * Finds where a request for an author slug left behind by a login rename should go.
+ *
+ * @since $$next-version$$
+ *
+ * @return string|null The new author archive or feed URL, or null when no user left that slug.
+ */
+function wpcomsh_get_old_author_slug_redirect_url() {
+	global $wp_rewrite;
+
+	$slug = (string) get_query_var( 'author_name' );
+
+	// A slug a user holds now always wins over one somebody left behind.
+	if ( '' === $slug || get_user_by( 'slug', $slug ) ) {
+		return null;
+	}
+
+	$user_ids = get_users(
+		array(
+			'meta_key'    => WPCOMSH_OLD_AUTHOR_SLUG_META, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
+			'meta_value'  => $slug, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
+			'number'      => 1,
+			'fields'      => 'ID',
+			'count_total' => false,
+		)
+	);
+
+	if ( ! $user_ids ) {
+		return null;
+	}
+
+	$user_id = (int) $user_ids[0];
+
+	if ( is_feed() ) {
+		$feed = get_query_var( 'feed' );
+
+		// `/author/<slug>/feed/` sets the feed to 'feed', which means the default feed.
+		return get_author_feed_link( $user_id, 'feed' === $feed ? '' : $feed );
+	}
+
+	$url   = get_author_posts_url( $user_id );
+	$paged = (int) get_query_var( 'paged' );
+
+	if ( $paged > 1 ) {
+		$url = $wp_rewrite->using_permalinks()
+			? user_trailingslashit( trailingslashit( $url ) . $wp_rewrite->pagination_base . '/' . $paged, 'paged' )
+			: add_query_arg( 'paged', $paged, $url );
+	}
+
+	return $url;
+}
+
+/**
+ * Redirects an author slug left behind by a login rename to the user's current one.
+ *
+ * @since $$next-version$$
+ */
+function wpcomsh_redirect_old_author_slug() {
+	$url = wpcomsh_get_old_author_slug_redirect_url();
+
+	if ( $url ) {
+		wp_safe_redirect( $url, 301 );
+		exit( 0 );
+	}
+}
+add_action( 'template_redirect', 'wpcomsh_redirect_old_author_slug' );
