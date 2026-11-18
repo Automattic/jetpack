@@ -252,7 +252,7 @@ test( 'legacy prefix yields five untyped entries', () => {
 	);
 } );
 
-// --- extractScenarioMetrics: the FORMS-707 multi-metric (metrics-array) path ---
+// --- extractScenarioMetrics: the metrics array path ---
 
 test( 'a metrics array yields one typed entry per element, each from its own summary field', () => {
 	const entries = extractScenarioMetrics(
@@ -447,7 +447,7 @@ test( 'every posted keyed metric declares a type with a matching sanity range', 
 	// Config contract for the real SCENARIOS: any scenario that posts a keyed metric — via a
 	// single metricKey OR a metrics array — must declare a type that has a SANITY_RANGES row,
 	// or it would post unchecked (or throw at extraction). Covers both the legacy single-key
-	// shape and the FORMS-707 multi-metric shape, so neither can regress the fail-closed rule.
+	// shape and the metrics array, so neither can regress the fail-closed rule.
 	const posted = SCENARIOS.filter(
 		s => s.postToCodeVitals && ( s.metricKey || Array.isArray( s.metrics ) )
 	);
@@ -473,9 +473,6 @@ test( 'every posted keyed metric declares a type with a matching sanity range', 
 } );
 
 test( 'the jetpackConnected scenario posts LCP, TTFB and FCP to their production keys', () => {
-	// Pins the FORMS-707 config: the dashboard scenario declares exactly the three production
-	// keys, each reading its own summary field, so a future edit that drops or renames one
-	// (or swaps in a -staging key) fails here rather than silently in production.
 	const scenario = SCENARIOS.find( s => s.key === 'jetpackConnected' );
 	assert.ok( Array.isArray( scenario.metrics ), 'jetpackConnected must use the metrics array' );
 	assert.deepEqual(
@@ -530,12 +527,8 @@ test( 'the formsResponses scenario retains production keys and adds staging TBT'
 	// wrong tab cannot quietly populate the responses keys from the forms list.
 	assert.equal( scenario.expectUrlIncludes, '/responses/inbox' );
 	// A resource-count floor so a partial capture can't post an undercounted decodedBytesKB.
-	// Pin the exact value (siblings pin every field by equality) so a later edit toward the
-	// ~91-resource load can't erode the margin silently, and exercise the real guard at the
-	// boundary: one below the floor must throw, the floor itself must not. Honest scope: the
-	// floor only catches captures BELOW 64 — a quiet-gap settle at 64–90 passes it (the same
-	// residual window networkidle itself has; see the residual-risk test in the FORMS-729
-	// block) — so it is a backstop under the in-flight-aware settle, not a completeness proof.
+	// The 64-resource floor leaves room below a typical 91-resource load.
+	// A capture during a quiet gap can still pass, as the resource-settling tests show.
 	assert.equal( scenario.minResourceCount, 64 );
 	assert.throws(
 		() => assertCaptureComplete( { totalRequests: 63 }, scenario ),
@@ -657,9 +650,7 @@ test( 'Settings extracts four typed staging metrics and rejects wrong routes or 
 } );
 
 test( 'every scenario declares an explicit failure policy; the Dashboard stays required', () => {
-	// FORMS-728: computeRunOutcome reads `optional` off every scenario, so the flag must be
-	// an explicit boolean — a missing flag would silently classify a scenario as required
-	// (undefined is falsy) and let its failure blank every other trend.
+	// A missing `optional` flag makes the scenario required, so its failure blocks all posting.
 	for ( const scenario of SCENARIOS ) {
 		assert.equal(
 			typeof scenario.optional,
@@ -675,9 +666,7 @@ test( 'every scenario declares an explicit failure policy; the Dashboard stays r
 	// Guard against accidentally demoting the baseline: the wp-admin Dashboard is the one
 	// required scenario, whose failure reds the build and suppresses ALL posting.
 	assert.equal( SCENARIOS.find( s => s.key === 'jetpackConnected' ).optional, false );
-	// Pin the exact live policy map, not just the flag's type: Forms or My Jetpack silently
-	// becoming required would reincarnate the FORMS-728 failure coupling with every generic
-	// test still green. Any policy change must show up as an explicit test edit in review.
+	// A failure in Forms or My Jetpack must still allow the Dashboard metrics to post.
 	assert.equal( SCENARIOS.find( s => s.key === 'formsResponses' ).optional, true );
 	assert.equal( SCENARIOS.find( s => s.key === 'myJetpack' ).optional, true );
 	assert.ok(
@@ -1154,8 +1143,6 @@ test( 'a duplicate key within a scenario metrics array fails closed through the 
 } );
 
 test( 'backward-compat: a legacy single metricKey scenario still posts unchanged', async () => {
-	// FORMS-707 must not regress the legacy shape: a scenario with metricKey/metricType (no
-	// metrics array) still extracts one typed entry from the flat summary.median and posts it.
 	const legacy = {
 		key: 'legacyKeyed',
 		name: 'Legacy Keyed',
@@ -1224,9 +1211,6 @@ test( 'a non-finite metric is rejected through the posting path', async () => {
 } );
 
 test( 'a mixed valid/invalid run keeps the valid metric and excludes the rejected key from the payload', async () => {
-	// The core contract, pinned on payload contents (not just the validationFailed flag):
-	// an out-of-range metric is never in what would be posted, while a valid metric in the
-	// same run still is. Reachable only with a 2nd posted metric (FORMS-707 territory).
 	const extra = {
 		key: 'extraMetric',
 		name: 'Extra Metric',
@@ -1267,8 +1251,7 @@ test( 'a mixed valid/invalid run keeps the valid metric and excludes the rejecte
 test( 'two scenarios posting the same CodeVitals key fail closed as a validation error', async () => {
 	// CodeVitals appends to a per-key trend, so two scenarios writing the same key would
 	// silently clobber one with the other and post a coin-flip survivor. That must fail
-	// closed (exit 2), not slip through with validationFailed:false. Reachable once a 2nd
-	// posted scenario exists (FORMS-707); guarded now so the foundation can't be misused.
+	// closed (exit 2), not slip through with validationFailed:false.
 	const dup = {
 		key: 'dupMetric',
 		name: 'Dup Metric',
@@ -1853,12 +1836,7 @@ test(
 );
 
 test( 'a sanity-check failure suppresses the live POST entirely (atomic per-run posting)', async () => {
-	// Reachable only with 2+ posted metrics (FORMS-707 territory): one metric fails the
-	// sanity check (validationFailed=true) while valid survivors remain. The run is
-	// already committed to exit 2, and CodeVitals is append-only with dedup off by
-	// default — so POSTing the survivors would re-append them as duplicate trend points
-	// when the red build is retried. The live path must post NOTHING: fetch is never
-	// called, and the result still carries validationFailed for main()'s exit-2 mapping.
+	// Posting valid metrics from a failed run would duplicate them when the build is retried.
 	const extra = {
 		key: 'extraMetric',
 		name: 'Extra Metric',
@@ -2254,7 +2232,7 @@ test( 'summarizeResources returns coherent zeros for an empty capture (never NaN
 	} );
 } );
 
-// --- buildSummary (measure-lcp per-field aggregation; the load-bearing FORMS-707 change) ---
+// --- buildSummary: per-field aggregation ---
 
 test( 'buildSummary aggregates every field into its own block and mirrors LCP flat', () => {
 	// Each field gets a nested { median, mean, min, max, stdDev } block, and the LCP block is
@@ -2492,10 +2470,6 @@ test( 'missing backend summary refuses the whole live post before any network ca
 } );
 
 test( 'buildSummary aggregates decodedBytesKB from the per-iteration metrics block', () => {
-	// FORMS-704: measure-lcp.js folds the summed per-resource decodedBodySize into each
-	// iteration's metrics as decodedBytesKB, and SUMMARY_FIELDS now includes it, so buildSummary
-	// produces summary.decodedBytesKB.median for the poster to read. Decoded bytes are
-	// deterministic, so the median is exact.
 	const results = [
 		{ lcp: 100, metrics: { lcp: 100, ttfb: 50, fcp: 200, decodedBytesKB: 5600 } },
 		{ lcp: 200, metrics: { lcp: 200, ttfb: 70, fcp: 400, decodedBytesKB: 5602 } },
@@ -3023,7 +2997,7 @@ test( 'a dry run makes no dedup read even when dedup is fully configured', async
 	}
 } );
 
-// --- FORMS-729: forms readiness selector + stuck-request-proof settle ---
+// --- Forms readiness selector and resource settling ---
 
 /**
  * Fake Playwright page for waitForResourceCountIdle. `counts` is the sequence

@@ -1,5 +1,5 @@
 /**
- * Unit tests for the per-scenario failure-isolation policy (FORMS-728).
+ * Unit tests for the per-scenario failure-isolation policy.
  *
  * The posting policy lives once, in measure-lcp's exit semantics: exit 0 means "every
  * required scenario measured — safe to post". These tests pin that policy's two helpers
@@ -200,8 +200,6 @@ test( 'all scenarios measured: exit 0, no failures', () => {
 } );
 
 test( 'optional-only failures with the required scenario OK: exit 0, names reported', () => {
-	// The FORMS-728 case itself: a broken optional scenario must not blank the required
-	// scenario's posting. Green build, loud warning, keys skip the build.
 	const outcome = computeRunOutcome( { req: ok, optA: failed, optB: ok }, DOUBLES );
 	assert.equal( outcome.exitCode, 0 );
 	assert.deepEqual( outcome.requiredFailures, [] );
