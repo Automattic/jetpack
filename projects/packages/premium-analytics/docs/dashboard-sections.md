@@ -108,7 +108,7 @@ On the server, `get_available_dashboard_sections()` keeps the sections whose `is
 
 `to_array()` serializes `id`, `slug`, `label`, `title`, `order`, `date_filter`, `date_filter_options`, `requires_sync`, the resolved `notice` (null unless it is a non-empty string), the resolved `default_layout`, and the resolved `insertable_widget_types`.
 
-The route `GET /wpcom/v2/dashboards/{name}/sections` returns that array, and `GET …/sections/{section}/default-layout` returns one section's layout. Both are gated on `Capabilities::current_user_can_view_analytics()`, and `get_dashboard_section_schema()` documents the shape.
+The route `GET /wpcom/v2/dashboards/{name}/sections` returns that array, and `GET …/sections/{section}/default-layout` returns one section's layout. Both are gated on `Capabilities::current_user_can_view_dashboard()` for the dashboard the route names: the reader needs one of its sections available to them. `get_dashboard_section_schema()` documents the shape.
 
 The `wpcom/v2` namespace is what lets WordPress.com expose the route through public-api for Simple sites without a second registration.
 
