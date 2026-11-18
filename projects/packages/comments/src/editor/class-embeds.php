@@ -178,6 +178,21 @@ class Embeds extends WP_REST_Controller {
 	 * @return object|string|false The data, '' when the provider had none, or false when not cached and not fetched.
 	 */
 	private static function data( $url, $fetch = true ) {
+		/**
+		 * Supply the oEmbed data for a URL, skipping the cache and the provider.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param null|object|string|false $pre   Null to look it up. An object shaped like oEmbed data, '' for none, or false for not available without fetching.
+		 * @param string                   $url   The trusted URL.
+		 * @param bool                     $fetch Whether the lookup may ask the provider.
+		 */
+		$pre = apply_filters( 'jetpack_comments_pre_embed_data', null, $url, $fetch );
+
+		if ( null !== $pre ) {
+			return $pre;
+		}
+
 		$cache_key = 'jetpack_comments_embed_' . md5( $url );
 		$cached    = get_transient( $cache_key );
 		$lookup    = self::lookup_url( $url );
@@ -377,6 +392,7 @@ class Embeds extends WP_REST_Controller {
 		// Core's social link icons, in each brand's color but X's black, which a dark theme would lose.
 		$brands = array(
 			'x'              => array( 'x', 'currentColor' ),
+			'github'         => array( 'github', 'currentColor' ),
 			'bluesky social' => array( 'bluesky', '#1185fe' ),
 			'reddit'         => array( 'reddit', '#ff4500' ),
 		);
@@ -454,7 +470,23 @@ class Embeds extends WP_REST_Controller {
 
 		$url = esc_url_raw( $url, array( 'http', 'https' ) );
 
-		if ( '' === $url || false === _wp_oembed_get_object()->get_provider( self::lookup_url( $url ), array( 'discover' => false ) ) ) {
+		if ( '' === $url ) {
+			return false;
+		}
+
+		/**
+		 * Let a host embed a URL that core has no oEmbed provider for.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param bool   $handled Whether the host handles the URL. Default false.
+		 * @param string $url     The cleaned URL.
+		 */
+		if ( (bool) apply_filters( 'jetpack_comments_embed_handled', false, $url ) ) {
+			return $url;
+		}
+
+		if ( false === _wp_oembed_get_object()->get_provider( self::lookup_url( $url ), array( 'discover' => false ) ) ) {
 			return false;
 		}
 
