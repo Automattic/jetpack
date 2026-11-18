@@ -153,6 +153,7 @@ export const buildEnv = argv => {
 	}
 
 	envOpts.COMPOSE_PROJECT_NAME = getProjectName( argv );
+	envOpts.JETPACK_DOCKER_TYPE = argv.type;
 
 	// Add versions from versions.sh
 	const versions = envfile.parse(

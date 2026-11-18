@@ -53,5 +53,6 @@ services:
       - WP_FORCE_ADMIN_USER=${WP_FORCE_ADMIN_USER:-}
       - WP_FORCE_ADMIN_PASS=${WP_FORCE_ADMIN_PASS:-}
       - COMPOSE_PROJECT_NAME=$COMPOSE_PROJECT_NAME
+      - JETPACK_DOCKER_TYPE=${JETPACK_DOCKER_TYPE:-dev}
     extra_hosts:
       - 'host.docker.internal:host-gateway'

@@ -295,6 +295,7 @@ Each of the above needs the same `--name` you used when bringing the instance up
 * The `mailpit` container is no longer globally named — each instance gets its own `jetpack_<name>-mailpit-1`. Internal SMTP routing still uses the compose service name `mailpit`, so PHP mail from within any container routes to that instance's MailPit.
 * WordPress's `WP_SITEURL` / `WP_HOME` are dynamic via `HTTP_HOST`, so the same DB will happily serve requests on both the source and target ports after cloning. In practice this means your Jetpack connection works across instances on different localhost ports without reconnecting.
 * `e2e` keeps its defaults (`jetpack_e2e`, port `8889`) when no flags are passed — parallel-mode flags don't affect the e2e workflow.
+* Every instance except `--type e2e` downloads WordPress's PHPUnit helpers into `tools/docker/wordpress-develop` on start, so `jetpack docker phpunit jetpack --name <name>` works with no extra setup. Instances started from the same checkout share that directory.
 
 ### Running unit tests
 
