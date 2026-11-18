@@ -236,6 +236,13 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 		}
 	}
 
+	public function test_every_input_schema_validates_an_unexpected_key_without_a_php_error(): void {
+		foreach ( Stats_Abilities::get_abilities() as $slug => $spec ) {
+			$result = rest_validate_value_from_schema( array( 'unexpected' => 1 ), $spec['input_schema'], 'input' );
+			$this->assertInstanceOf( \WP_Error::class, $result, "{$slug} must reject an unexpected key." );
+		}
+	}
+
 	public function test_every_ability_opts_into_mcp_as_public_tool(): void {
 		foreach ( Stats_Abilities::get_abilities() as $slug => $spec ) {
 			$this->assertSame( true, $spec['meta']['mcp']['public'], "{$slug} must opt into MCP." );
