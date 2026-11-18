@@ -6,9 +6,10 @@ It reports uncaught exceptions only. An API failure the UI already handles and s
 
 ## Sources
 
-Every report carries one of three sources.
+Every report carries one of four sources.
 
 - `boundary`: `StatsErrorBoundary` caught a render error. React already proved the error came from our tree, so the report is sent whether or not the stack has a dashboard frame. The boundary then rethrows, so the host's own boundary still renders the fallback UI.
+- `module`: a widget module failed to load, reported from the resolver every widget import passes through. No boundary can see that failure, because the boundary is inside the module that never arrived.
 - `error`: the window `error` event, installed by `installGlobalErrorHandlers()`.
 - `unhandledrejection`: the window `unhandledrejection` event, installed by the same call.
 
@@ -48,9 +49,9 @@ The Premium Analytics package version travels in `properties.version`. The endpo
 
 ## Errors that are not ours
 
-Two kinds of crash reach us through the boundary without being a bug of ours. Both carry a tag so a search on this feature can exclude them.
+Two kinds of crash are not a bug of ours. Both carry a tag so a search on this feature can exclude them.
 
-A tab left open across a deploy asks for a module file that no longer exists. `React.lazy` turns the failed import into a render error, so the boundary reports it. Those carry `chunk-load`, matched from the wordings that differ per browser and bundler, one of which only names the error rather than wording the message.
+A tab left open across a deploy asks for a module file that no longer exists. A widget module is reported from the resolver as `module`, and `React.lazy` then throws the same failure in render, where the dedupe drops the boundary's duplicate. A route chunk has no reporting call of its own and arrives as `unhandledrejection`, recognised by the script its message names rather than by a frame of ours. Both carry `chunk-load`, matched from the wordings that differ per browser and bundler, one of which only names the error rather than wording the message.
 
 The page then reloads, which is the fix for that case, because the reload is served the build that is deployed now. The report goes first and `keepalive` carries it through the navigation. One attempt per tab per minute is recorded in `sessionStorage`: a failure a reload cannot fix, such as a blocked CDN, reloads once and then stops rather than looping, and a tab whose store cannot be read or written does not reload at all, because nothing would be left to stop it. Calypso keeps the same flag in the URL, which does not port here: this dashboard's query string is its own state, rewritten on navigation and copied into any link a reader shares.
 
