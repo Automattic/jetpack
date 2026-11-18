@@ -31,7 +31,7 @@ const SETTINGS_PATH = '/settings';
 
 /**
  * The menu's link to the Settings page, with the report window and the tab to return to.
- * Disabled on the Settings page itself.
+ * Disabled on the Settings page itself, and when the caller says the page cannot open.
  *
  * @param {object}  props          - The component props.
  * @param {boolean} props.disabled - Whether the page cannot open from here.
