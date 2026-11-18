@@ -84,7 +84,7 @@ class WPCOM_JSON_API_Date {
 	}
 
 	/**
-	 * The blog's UTC offset at a moment, from its time zone or its fixed offset.
+	 * The blog's UTC offset at a moment, from its time zone, or its fixed offset if it has no valid time zone.
 	 *
 	 * @param int $timestamp_gmt Seconds since the epoch.
 	 *
@@ -94,8 +94,12 @@ class WPCOM_JSON_API_Date {
 		$timezone_string = get_option( 'timezone_string' );
 
 		if ( $timezone_string ) {
-			$timezone = timezone_open( $timezone_string );
-			return $timezone ? $timezone->getOffset( date_create( "@$timestamp_gmt" ) ) : 0;
+			try {
+				// Unlike timezone_open(), this throws on an unknown name instead of raising a warning.
+				$timezone = new DateTimeZone( $timezone_string );
+				return $timezone->getOffset( new DateTime( "@$timestamp_gmt" ) );
+			} catch ( Exception $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch -- Fall back to the fixed offset below.
+			}
 		}
 
 		return (int) round( HOUR_IN_SECONDS * (float) get_option( 'gmt_offset' ) );
