@@ -59,6 +59,10 @@ class REST_Endpoints {
 				'callback'            => __CLASS__ . '::start_fresh_connection',
 				'permission_callback' => __CLASS__ . '::identity_crisis_mitigation_permission_check',
 				'args'                => array(
+					'from'         => array(
+						'description' => __( 'Indicates where the registration action was triggered for tracking/segmentation purposes', 'jetpack-connection' ),
+						'type'        => 'string',
+					),
 					'redirect_uri' => array(
 						'description' => __( 'URI of the admin page where the user should be redirected after connection flow', 'jetpack-connection' ),
 						'type'        => 'string',
@@ -227,6 +231,7 @@ class REST_Endpoints {
 	 *
 	 * @since 0.2.0
 	 * @since-jetpack 4.4.0
+	 * @since $$next-version$$ Accepts `from`, reported to WordPress.com for the registration and the authorization.
 	 *
 	 * @param \WP_REST_Request $request The request sent to the WP REST API.
 	 *
@@ -242,7 +247,14 @@ class REST_Endpoints {
 		do_action( 'jetpack_idc_disconnect' );
 
 		$connection = new Connection_Manager();
-		$result     = $connection->try_registration( true, true );
+
+		// Before registering, so the registration is attributed too, as in the connection/register endpoint.
+		$from = (string) $request->get_param( 'from' );
+		if ( '' !== $from ) {
+			$connection->add_register_request_param( 'from', $from );
+		}
+
+		$result = $connection->try_registration( true, true );
 
 		if ( is_wp_error( $result ) ) {
 			return $result;
@@ -257,7 +269,7 @@ class REST_Endpoints {
 		 *
 		 * @param \WP_REST_Response|WP_Error    $connection_url Connection URL user should be redirected to.
 		 */
-		$response = apply_filters( 'jetpack_idc_authorization_url', rest_ensure_response( $connection->get_authorization_url( null, $redirect_uri ) ) );
+		$response = apply_filters( 'jetpack_idc_authorization_url', rest_ensure_response( $connection->get_authorization_url( null, $redirect_uri, $from ) ) );
 
 		if ( is_wp_error( $response ) ) {
 			return $response;

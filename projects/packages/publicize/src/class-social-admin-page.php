@@ -164,8 +164,7 @@ class Social_Admin_Page {
 		$host = new Host();
 		// The same gates add_menu() applies, since admin-ajax never builds the menu.
 		if (
-			$host->is_wpcom_simple()
-			|| ! Utils::can_open_social_dashboard()
+			! Utils::can_open_social_dashboard()
 			|| ( ! defined( 'JETPACK_SOCIAL_PLUGIN_DIR' ) && ! $host->is_wpcom_platform() && ! ( new Connection_Manager() )->is_connected() )
 			|| ! file_exists( self::wp_build_index_path() )
 		) {

@@ -208,6 +208,67 @@ class Settings_Test extends BaseTestCase {
 	}
 
 	/**
+	 * The shell offers Newsletter where the menu shows it: connected sites, and Simple, whose menu doesn't check the connection.
+	 *
+	 * @dataProvider provide_admin_shell_member_cases
+	 *
+	 * @param bool $simple        Whether the site is WordPress.com Simple.
+	 * @param bool $connected     Whether the site has a blog token.
+	 * @param bool $subscriptions Whether the subscriptions module is active.
+	 * @param bool $expected      Whether Newsletter joins the shell.
+	 */
+	#[DataProvider( 'provide_admin_shell_member_cases' )]
+	public function test_admin_shell_member( $simple, $connected, $subscriptions, $expected ) {
+		if ( $connected ) {
+			\Jetpack_Options::update_option( 'id', 1234 );
+			\Jetpack_Options::update_option( 'blog_token', 'test_token.secret' );
+		}
+		( new Connection_Manager() )->reset_connection_status();
+		if ( $simple ) {
+			\Automattic\Jetpack\Constants::set_constant( 'IS_WPCOM', true );
+		}
+		if ( $subscriptions ) {
+			add_filter( 'jetpack_active_modules', array( $this, 'mock_subscriptions_active' ) );
+		}
+		$this->set_wp_build_index( __FILE__ );
+
+		try {
+			$members = ( new Settings() )->add_admin_shell_member( array() );
+		} finally {
+			$this->set_wp_build_index( null );
+		}
+
+		$this->assertSame( $expected, isset( $members[ Settings::ADMIN_PAGE_SLUG ] ) );
+	}
+
+	/**
+	 * Admin shell member cases.
+	 *
+	 * @return array<string, array{bool, bool, bool, bool}>
+	 */
+	public static function provide_admin_shell_member_cases() {
+		return array(
+			'connected'                 => array( false, true, true, true ),
+			'not connected'             => array( false, false, true, false ),
+			'Simple, no token'          => array( true, false, true, true ),
+			'Simple, subscriptions off' => array( true, false, false, false ),
+		);
+	}
+
+	/**
+	 * Point the class at a build entry point, or back at the real one with null.
+	 *
+	 * @param string|null $path Entry point path.
+	 */
+	private function set_wp_build_index( $path ) {
+		$property = new \ReflectionProperty( Settings::class, 'wp_build_index' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$property->setAccessible( true );
+		}
+		$property->setValue( null, $path );
+	}
+
+	/**
 	 * Test that the legacy (unmodernized) dashboard still registers the menu when
 	 * the subscriptions module is inactive — the module gate must not change
 	 * non-modernized behavior.

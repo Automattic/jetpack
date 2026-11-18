@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Admin shell: Record one page view, not two, when the shell reopens Settings or Jetpack AI at another route.

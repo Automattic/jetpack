@@ -9,6 +9,7 @@ import Search from 'components/search';
 import analytics from 'lib/analytics';
 import { getAdsSettingsUrl, isSettingsConsolidationEnabled } from 'lib/settings-consolidation';
 import {
+	hasProtectPage as _hasProtectPage,
 	userCanManageModules as _userCanManageModules,
 	userIsSubscriber as _userIsSubscriber,
 	userCanPublish,
@@ -17,7 +18,6 @@ import {
 	hasAnyOfTheseModules,
 	hasAnyPerformanceFeature,
 	hasAnySecurityFeature,
-	hasProtectPage as _hasProtectPage,
 	isModuleActivated,
 } from 'state/modules';
 import { filterSearch, getSearchTerm } from 'state/search';

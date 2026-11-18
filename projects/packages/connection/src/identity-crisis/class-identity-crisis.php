@@ -60,10 +60,9 @@ class Identity_Crisis {
 	public static $wpcom_home_url;
 
 	/**
-	 * Has safe mode been confirmed?
-	 * Beware, it never contains `true` for non-admins, so doesn't always reflect the actual value.
+	 * Has safe mode been confirmed? Set on `init` during an identity crisis, null otherwise.
 	 *
-	 * @var bool
+	 * @var bool|null
 	 */
 	public static $is_safe_mode_confirmed;
 
@@ -184,16 +183,15 @@ class Identity_Crisis {
 	 * @return void
 	 */
 	public function wordpress_init() {
-		if ( current_user_can( 'jetpack_disconnect' ) ) {
-			if (
-				isset( $_GET['jetpack_idc_clear_confirmation'] ) && isset( $_GET['_wpnonce'] ) &&
-				wp_verify_nonce( $_GET['_wpnonce'], 'jetpack_idc_clear_confirmation' ) // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- WordPress core doesn't unslash or verify nonces either.
-			) {
-				Jetpack_Options::delete_option( 'safe_mode_confirmed' );
-				self::$is_safe_mode_confirmed = false;
-			} else {
-				self::$is_safe_mode_confirmed = (bool) Jetpack_Options::get_option( 'safe_mode_confirmed' );
-			}
+		if (
+			current_user_can( 'jetpack_disconnect' ) &&
+			isset( $_GET['jetpack_idc_clear_confirmation'] ) && isset( $_GET['_wpnonce'] ) &&
+			wp_verify_nonce( $_GET['_wpnonce'], 'jetpack_idc_clear_confirmation' ) // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- WordPress core doesn't unslash or verify nonces either.
+		) {
+			Jetpack_Options::delete_option( 'safe_mode_confirmed' );
+			self::$is_safe_mode_confirmed = false;
+		} else {
+			self::$is_safe_mode_confirmed = (bool) Jetpack_Options::get_option( 'safe_mode_confirmed' );
 		}
 
 		// 121 Priority so that it's the most inner Jetpack item in the admin bar.
@@ -258,6 +256,11 @@ class Identity_Crisis {
 	 */
 	public function display_admin_bar_button() {
 		global $wp_admin_bar;
+
+		// Its link clears the confirmation, which only these users can do.
+		if ( ! current_user_can( 'jetpack_disconnect' ) ) {
+			return;
+		}
 
 		$href = is_admin()
 			? add_query_arg( 'jetpack_idc_clear_confirmation', '1' )
