@@ -271,7 +271,7 @@ jobs:
           JSON_ARGS: ${{ toJSON(matrix.testArgs) }}
           TEST_SCRIPT: ${{ matrix.testScript || 'test:run' }}
           # Set by e2e-matrix.js on pull requests that don't change the admin shell or a dashboard it switches to.
-          ADMIN_SHELL_SMOKE: ${{ case( matrix.smoke, '1', '' ) }}
+          ADMIN_SHELL_SMOKE: ${{ case( matrix.smoke == true, '1', '' ) }}
         run: |
           mapfile -t TEST_ARGS < <(jq -r '.[]' <<<"$JSON_ARGS")
           pnpm run "$TEST_SCRIPT" "${TEST_ARGS[@]}"
