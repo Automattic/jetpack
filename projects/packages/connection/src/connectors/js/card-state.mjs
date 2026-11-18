@@ -161,16 +161,36 @@ export function getProtectedOwnerStatus( protectedOwner ) {
  * TEMPORARY: `skip_pricing` can be dropped once Calypso recognises
  * `from=jetpack-connector` natively and redirects to redirectAfterAuth.
  *
- * @param {string} url - Calypso authorize URL.
+ * @param {string}  url                    - Calypso authorize URL.
+ * @param {object}  [options]              - Options.
+ * @param {boolean} [options.setFrom=true] - False when the server already put the flow's own `from` in the URL.
  * @return {string} Decorated URL (unchanged if it can't be parsed).
  */
-export function decorateAuthUrl( url ) {
+export function decorateAuthUrl( url, { setFrom = true } = {} ) {
 	try {
 		const parsed = new URL( url );
-		parsed.searchParams.set( 'from', 'jetpack-connector' );
+		if ( setFrom ) {
+			parsed.searchParams.set( 'from', 'jetpack-connector' );
+		}
 		parsed.searchParams.set( 'skip_pricing', 'true' );
 		return parsed.toString();
 	} catch {
 		return url;
 	}
+}
+
+/**
+ * The page URL to reload after confirming Safe Mode.
+ *
+ * The admin bar's Safe Mode link adds `jetpack_idc_clear_confirmation` and its nonce, so reloading with them would
+ * clear the confirmation again.
+ *
+ * @param {string} href - The current page URL.
+ * @return {string} The URL without those arguments.
+ */
+export function withoutClearConfirmation( href ) {
+	const url = new URL( href );
+	url.searchParams.delete( 'jetpack_idc_clear_confirmation' );
+	url.searchParams.delete( '_wpnonce' );
+	return url.toString();
 }

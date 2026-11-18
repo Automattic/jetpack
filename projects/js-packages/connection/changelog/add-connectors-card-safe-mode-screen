@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Safe Mode: Let the new Safe Mode screen run on the Connectors card, including on a site where Safe Mode is already confirmed.

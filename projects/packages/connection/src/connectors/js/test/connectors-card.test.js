@@ -37,6 +37,9 @@ jest.mock( '@automattic/jetpack-connection', () => {
 		TransferConnectionOwnership: stub( 'transfer-ownership' ),
 		ProtectedOwnerConfirmation: stub( 'protected-owner-confirmation' ),
 		ProtectedOwnerRelease: stub( 'protected-owner-release' ),
+		IdentityCrisis: jest.fn( ( { hostActions } ) =>
+			createElement( 'div', { 'data-testid': 'identity-crisis' }, hostActions )
+		),
 	};
 } );
 
@@ -635,6 +638,76 @@ describe( 'Connectors card', () => {
 			expect( connection.bumpConnectionStat.mock.calls ).toEqual(
 				bumped ? [ [ 'jetpack-idc', 'migrate' ] ] : []
 			);
+		} );
+	} );
+
+	describe( 'new Safe Mode screen', () => {
+		const newScreen = {
+			...connectedAsOwner,
+			connectionStatus: { ...connectedStatus, isInSafeMode: true },
+			identityCrisis: { useNewScreen: true, isSafeModeConfirmed: false, canResolve: true },
+		};
+
+		/**
+		 * Open the card's Safe Mode screen.
+		 *
+		 * @param {object} data   - The card's script module data.
+		 * @param {string} search - The page's query string.
+		 * @return {Promise<object>} The user-event instance, the props the screen got and the decorateAuthUrl spy.
+		 */
+		async function openScreen( data = {}, search = '' ) {
+			const { user, connection, decorateAuthUrl } = renderCard( {
+				state: newScreen,
+				data,
+				search,
+			} );
+			await user.click( screen.getByRole( 'button', { name: 'Resolve' } ) );
+			return { user, props: connection.IdentityCrisis.mock.calls.at( -1 )[ 0 ], decorateAuthUrl };
+		}
+
+		it.each( [
+			[ 'offers', {}, true ],
+			[ 'does not offer on WoA', { isWoaSite: true }, false ],
+		] )( 'replaces the Safe Mode panel, and %s Disconnect', async ( _, data, hasDisconnect ) => {
+			const { props } = await openScreen( { redirectUri: 'options-connectors.php', ...data } );
+
+			expect( props ).toMatchObject( {
+				context: 'connectors',
+				redirectUri: 'options-connectors.php',
+				from: 'connection_safe_mode_connectors',
+			} );
+			expect( screen.queryByRole( 'button', { name: 'Update address' } ) ).not.toBeInTheDocument();
+			expect( Boolean( screen.queryByRole( 'button', { name: 'Disconnect site' } ) ) ).toBe(
+				hasDisconnect
+			);
+		} );
+
+		it.each( [
+			[ 'goes to the connect URL as given', { action: 'start-fresh', connectUrl: AUTH_URL } ],
+			// From the admin bar link; reloading without its arguments is a navigation.
+			[
+				'reloads without clearing the confirmation again',
+				{ action: 'confirm-safe-mode' },
+				'?jetpack_idc_clear_confirmation=1&_wpnonce=abc',
+			],
+		] )( 'after an action, %s', async ( _, result, search = '' ) => {
+			const { props, decorateAuthUrl } = await openScreen( {}, search );
+
+			act( () => props.onActionSuccess( result ) );
+
+			await expectNavigation();
+			// The endpoint already put `from` in the URL.
+			expect( decorateAuthUrl.mock.calls ).toEqual(
+				result.connectUrl ? [ [ result.connectUrl, { setFrom: false } ] ] : []
+			);
+		} );
+
+		it( "opens the card's own disconnect dialog", async () => {
+			const { user } = await openScreen();
+
+			await user.click( screen.getByRole( 'button', { name: 'Disconnect site' } ) );
+
+			expect( screen.getByTestId( 'disconnect-dialog' ) ).toBeInTheDocument();
 		} );
 	} );
 

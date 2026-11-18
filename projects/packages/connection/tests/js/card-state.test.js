@@ -1,10 +1,10 @@
 const assert = require( 'node:assert/strict' );
 const { before, describe, it } = require( 'node:test' );
 
-let decorateAuthUrl, getCardConnection, getProtectedOwnerStatus;
+let decorateAuthUrl, getCardConnection, getProtectedOwnerStatus, withoutClearConfirmation;
 
 before( async () => {
-	( { decorateAuthUrl, getCardConnection, getProtectedOwnerStatus } =
+	( { decorateAuthUrl, getCardConnection, getProtectedOwnerStatus, withoutClearConfirmation } =
 		await import( '../../src/connectors/js/card-state.mjs' ) );
 } );
 
@@ -206,5 +206,30 @@ describe( 'decorateAuthUrl', () => {
 
 	it( 'returns a URL it cannot parse unchanged', () => {
 		assert.equal( decorateAuthUrl( '/relative' ), '/relative' );
+	} );
+
+	it( 'leaves a from the server set', () => {
+		const url = new URL(
+			decorateAuthUrl(
+				'https://wordpress.com/jetpack/connect?from=connection_safe_mode_connectors',
+				{
+					setFrom: false,
+				}
+			)
+		);
+
+		assert.equal( url.searchParams.get( 'from' ), 'connection_safe_mode_connectors' );
+		assert.equal( url.searchParams.get( 'skip_pricing' ), 'true' );
+	} );
+} );
+
+describe( 'withoutClearConfirmation', () => {
+	it( "drops the admin bar's clear-confirmation arguments and keeps the rest", () => {
+		assert.equal(
+			withoutClearConfirmation(
+				'https://example.com/wp-admin/options-connectors.php?connector=wordpress_com&jetpack_idc_clear_confirmation=1&_wpnonce=abc'
+			),
+			'https://example.com/wp-admin/options-connectors.php?connector=wordpress_com'
+		);
 	} );
 } );
