@@ -113,7 +113,7 @@ class WPCOM_JSON_API_Links {
 		// Escape any % in args before using sprintf.
 		$escaped_args = array();
 		foreach ( $args as $arg_key => $arg_value ) {
-			$escaped_args[ $arg_key ] = str_replace( '%', '%%', $arg_value );
+			$escaped_args[ $arg_key ] = is_string( $arg_value ) ? str_replace( '%', '%%', $arg_value ) : $arg_value;
 		}
 
 		$relative_path = vsprintf( $format, $escaped_args );
