@@ -71,6 +71,15 @@ export const isInSettingsPanel = state =>
 	isSettingsConsolidationEnabled() && userCanManageModules( state );
 
 /**
+ * Whether Post by Email's card gives way to a pointer to the user's Profile page, which holds the same settings.
+ *
+ * @param {object} state - Global state tree.
+ * @return {boolean} True once settings move out, for users who cannot manage modules.
+ */
+export const isPostByEmailOnProfile = state =>
+	isSettingsConsolidationEnabled() && ! userCanManageModules( state );
+
+/**
  * Whether a module's Settings toggle gives way to its switch in My Jetpack › Features, leaving only a search result that points there.
  *
  * Users who cannot manage modules have no Features, so they keep the toggle.
