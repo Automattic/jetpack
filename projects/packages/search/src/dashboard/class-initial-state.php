@@ -31,14 +31,23 @@ class Initial_State {
 	protected $module_control;
 
 	/**
+	 * Whether the admin shell is readying the page behind another dashboard, where nothing may be saved.
+	 *
+	 * @var bool
+	 */
+	protected $is_admin_shell_guest;
+
+	/**
 	 * Constructor
 	 *
-	 * @param Connection_Manager $connection_manager - Connection mananger instance.
-	 * @param Module_Control     $module_control - Module control instance.
+	 * @param Connection_Manager|null $connection_manager   - Connection manager instance.
+	 * @param Module_Control|null     $module_control       - Module control instance.
+	 * @param bool                    $is_admin_shell_guest - Whether the admin shell is readying the page behind another dashboard.
 	 */
-	public function __construct( $connection_manager = null, $module_control = null ) {
-		$this->connection_manager = $connection_manager ? $connection_manager : new Connection_Manager( Package::SLUG );
-		$this->module_control     = $module_control ? $module_control : new Module_Control();
+	public function __construct( $connection_manager = null, $module_control = null, $is_admin_shell_guest = false ) {
+		$this->connection_manager   = $connection_manager ? $connection_manager : new Connection_Manager( Package::SLUG );
+		$this->module_control       = $module_control ? $module_control : new Module_Control();
+		$this->is_admin_shell_guest = $is_admin_shell_guest;
 	}
 
 	/**
@@ -417,7 +426,8 @@ class Initial_State {
 
 		$purchase_token = Jetpack_Options::get_option( 'purchase_token', false );
 
-		if ( $purchase_token ) {
+		// A menu hover readies the page through the admin shell; the page's own load creates the token.
+		if ( $purchase_token || $this->is_admin_shell_guest ) {
 			return $purchase_token;
 		}
 		// If the purchase token is not saved in the options table yet, then add it.

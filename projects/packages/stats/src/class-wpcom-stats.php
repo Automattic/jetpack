@@ -127,7 +127,7 @@ class WPCOM_Stats {
 	 *
 	 * @link https://developer.wordpress.com/docs/api/1.1/get/sites/%24site/stats/video/%24post_id/
 	 * @param int   $post_id The video's ID.
-	 * @param array $args    Optional query parameters.
+	 * @param array $args    Optional query parameters: `statType`, `period`, `num`, `date`.
 	 * @return array|WP_Error
 	 */
 	public function get_video_details( $post_id, $args = array() ) {
@@ -425,11 +425,151 @@ class WPCOM_Stats {
 	}
 
 	/**
+	 * Get the site's views by UTM parameter value.
+	 *
+	 * @param string $utm_param UTM parameter, or a comma-separated combination WordPress.com groups by, e.g. `utm_source,utm_medium`.
+	 * @param array  $args      Optional query parameters: `days`, `date`, `max`, `post_id`.
+	 * @return array|WP_Error
+	 */
+	public function get_utm_views( $utm_param, $args = array() ) {
+		$this->resource = sprintf( 'utm/%s', $utm_param );
+
+		return $this->fetch_stats( $args );
+	}
+
+	/**
+	 * Get the site's views by device property.
+	 *
+	 * @param string $property One of `browser`, `platform` or `screensize`.
+	 * @param array  $args     Optional query parameters: `days`, `date`, `max`.
+	 * @return array|WP_Error
+	 */
+	public function get_device_views( $property, $args = array() ) {
+		$this->resource = sprintf( 'devices/%s', $property );
+
+		return $this->fetch_stats( $args );
+	}
+
+	/**
+	 * Get one author's views, likes and comments.
+	 *
+	 * @param int   $author_id The author's user ID, as `stats/top-authors` reports it.
+	 * @param array $args      Optional query parameters: `period`, `date`, `num`.
+	 * @return array|WP_Error
+	 */
+	public function get_author_views( $author_id, $args = array() ) {
+		$this->resource = sprintf( 'author/%d', $author_id );
+
+		return $this->fetch_stats( $args );
+	}
+
+	/**
+	 * Get the opens and clicks of the posts the site sent as emails.
+	 *
+	 * @param array $args Optional query parameters: `quantity`, `sort_field`, `sort_order`, `start_date`, `end_date`.
+	 * @return array|WP_Error
+	 */
+	public function get_email_summary( $args = array() ) {
+		$this->resource = 'emails/summary';
+
+		return $this->fetch_stats( $args );
+	}
+
+	/**
+	 * Get one breakdown of the opens or clicks of a post the site sent as an email, over all time.
+	 *
+	 * @param int    $post_id The post the site emailed.
+	 * @param string $stat    `opens` or `clicks`.
+	 * @param string $field   `rate`, `client`, `country` or `device`; for clicks also `link` or `user-content-link`.
+	 * @return array|WP_Error
+	 */
+	public function get_email_breakdown( $post_id, $stat, $field ) {
+		$this->resource = sprintf( '%s/emails/%d/%s', $stat, $post_id, $field );
+
+		return $this->fetch_stats();
+	}
+
+	/**
+	 * Get the site's subscriber count over time.
+	 *
+	 * @param array $args Optional query parameters: `unit`, `quantity`, `date`.
+	 * @return array|WP_Error
+	 */
+	public function get_subscriber_history( $args = array() ) {
+		$this->resource = 'subscribers';
+
+		return $this->fetch_stats( $args );
+	}
+
+	/**
+	 * Get the site's current subscriber counts by kind.
+	 *
+	 * @return array|WP_Error
+	 */
+	public function get_subscriber_counts() {
+		$this->resource = '/subscribers/counts';
+
+		return $this->fetch_stats( array(), '2', 'wpcom' );
+	}
+
+	/**
+	 * Get a page of the site's subscribers.
+	 *
+	 * @param array $args Optional query parameters: `page`, `per_page`, `search`, `sort`, `sort_order`, `filter`.
+	 * @return array|WP_Error
+	 */
+	public function get_subscribers( $args = array() ) {
+		$this->resource = '/subscribers';
+
+		return $this->fetch_stats( $args, '2', 'wpcom' );
+	}
+
+	/**
+	 * Get the site's Stats plan usage: views counted this billing month and the plan's limit.
+	 *
+	 * @return array|WP_Error
+	 */
+	public function get_stats_usage() {
+		$this->resource = '/jetpack-stats/usage';
+
+		return $this->fetch_stats( array(), '2', 'wpcom' );
+	}
+
+	/**
+	 * Get the site's ad impressions and revenue over time.
+	 *
+	 * @param array $args Optional query parameters: `unit`, `quantity`, `date`.
+	 * @return array|WP_Error
+	 */
+	public function get_wordads_stats( $args = array() ) {
+		$this->resource = '/wordads/stats';
+
+		return $this->fetch_stats( $args );
+	}
+
+	/**
+	 * Get the site's ad earnings by month, and the amounts paid and owed.
+	 *
+	 * @return array|WP_Error
+	 */
+	public function get_wordads_earnings() {
+		$this->resource = '/wordads/earnings';
+
+		return $this->fetch_stats();
+	}
+
+	/**
 	 * Build WPCOM REST API endpoint.
+	 *
+	 * A resource starting with `/` is a path under the site; any other is a path under its Stats.
 	 *
 	 * @return string
 	 */
 	protected function build_endpoint() {
+		if ( str_starts_with( $this->resource, '/' ) ) {
+			return sprintf( '/sites/%d%s', Jetpack_Options::get_option( 'id' ), $this->resource );
+		}
+
 		$resource = ltrim( $this->resource, '/' );
 
 		return sprintf( '/sites/%d/stats/%s', Jetpack_Options::get_option( 'id' ), $resource );
@@ -438,13 +578,14 @@ class WPCOM_Stats {
 	/**
 	 * Fetches stats data from WPCOM or local Cache. Caches locally for 5 minutes.
 	 *
-	 * @param array $args Optional query parameters.
+	 * @param array  $args          Optional query parameters.
+	 * @param string $api_version   WordPress.com API version.
+	 * @param string $base_api_path WordPress.com API base path: `rest` for v1.x, `wpcom` for v2.
 	 *
 	 * @return array|WP_Error
 	 */
-	protected function fetch_stats( $args = array() ) {
+	protected function fetch_stats( $args = array(), $api_version = self::STATS_REST_API_VERSION, $base_api_path = 'rest' ) {
 		$endpoint       = $this->build_endpoint();
-		$api_version    = self::STATS_REST_API_VERSION;
 		$cache_key      = md5( implode( '|', array( $endpoint, $api_version, wp_json_encode( $args, JSON_UNESCAPED_SLASHES ) ) ) );
 		$transient_name = self::STATS_CACHE_TRANSIENT_PREFIX . $cache_key;
 		$stats_cache    = $this->should_bypass_cache() ? false : get_transient( $transient_name );
@@ -460,7 +601,7 @@ class WPCOM_Stats {
 			return array_merge( array( 'cached_at' => $time ), (array) json_decode( $data, true ) );
 		}
 
-		$wpcom_stats = $this->fetch_remote_stats( $endpoint, $args );
+		$wpcom_stats = $this->fetch_remote_stats( $endpoint, $args, $api_version, $base_api_path );
 
 		/*
 		 * Connection failures stop being true as soon as the site reconnects. Do not cache
@@ -616,15 +757,17 @@ class WPCOM_Stats {
 	 * Fetches stats data from WPCOM.
 	 *
 	 * @link https://developer.wordpress.com/docs/api/1.1/get/sites/%24site/stats/
-	 * @param string $endpoint The stats endpoint.
-	 * @param array  $args The query arguments.
+	 * @param string $endpoint      The stats endpoint.
+	 * @param array  $args          The query arguments.
+	 * @param string $api_version   WordPress.com API version.
+	 * @param string $base_api_path WordPress.com API base path: `rest` for v1.x, `wpcom` for v2.
 	 * @return array|WP_Error
 	 */
-	protected function fetch_remote_stats( $endpoint, $args ) {
+	protected function fetch_remote_stats( $endpoint, $args, $api_version = self::STATS_REST_API_VERSION, $base_api_path = 'rest' ) {
 		if ( is_array( $args ) && ! empty( $args ) ) {
 			$endpoint .= '?' . http_build_query( $args );
 		}
-		$response      = Client::wpcom_json_api_request_as_blog( $endpoint, self::STATS_REST_API_VERSION, array( 'timeout' => 20 ) );
+		$response      = Client::wpcom_json_api_request_as_blog( $endpoint, $api_version, array( 'timeout' => 20 ), null, $base_api_path );
 		$response_code = wp_remote_retrieve_response_code( $response );
 		$response_body = wp_remote_retrieve_body( $response );
 		$data          = json_decode( $response_body, true );
@@ -640,7 +783,12 @@ class WPCOM_Stats {
 		}
 
 		if ( is_wp_error( $response ) || 200 !== $response_code || empty( $response_body ) ) {
-			return is_wp_error( $response ) ? $response : new WP_Error( 'stats_error', 'Failed to fetch Stats from WPCOM' );
+			if ( is_wp_error( $response ) ) {
+				return $response;
+			}
+			// WordPress.com says why it refused, e.g. that the site's plan does not include a report.
+			$message = is_array( $data ) && is_string( $data['message'] ?? null ) && '' !== $data['message'] ? $data['message'] : 'Failed to fetch Stats from WPCOM';
+			return new WP_Error( 'stats_error', $message, array( 'status' => $response_code ) );
 		}
 
 		return $data;

@@ -109,6 +109,11 @@ class Jetpack_Settings_React_Page extends Jetpack_Admin_Page {
 			'build_page'   => self::WP_BUILD_PAGE_ID,
 			'init_modules' => array( '@jetpack-plugin/init' ),
 			'title'        => __( 'Settings', 'jetpack' ),
+			// The landing tab, and so its subtitle, is picked in the browser from modules, plan and pages.
+			'header'       => array(
+				'title'    => __( 'Settings', 'jetpack' ),
+				'subtitle' => null,
+			),
 			'capability'   => 'jetpack_admin_page',
 			'handles'      => array( 'react-plugin', 'jetpack-script-data', 'jp-tracks', 'wp-jp-i18n-loader' ),
 			'load'         => array( $this, 'load_as_admin_shell_guest' ),
@@ -124,10 +129,48 @@ class Jetpack_Settings_React_Page extends Jetpack_Admin_Page {
 	 * @return void
 	 */
 	public function load_as_admin_shell_guest() {
+		// A menu hover builds the page state, which saves module defaults and copies of per-user values; the page's own load saves them.
+		if ( self::is_admin_shell_guest_request() ) {
+			$user_id     = get_current_user_id();
+			$keep_stored = static function ( $value, $old_value ) {
+				return $old_value;
+			};
+			foreach ( array( 'sharing-options', 'monitor_receive_notifications' . $user_id, 'post_by_email_address' . $user_id ) as $option ) {
+				add_filter( 'pre_update_option_' . $option, $keep_stored, 10, 2 );
+			}
+			// The purchase token lives among the connection tokens, so hold back only that key.
+			add_filter(
+				'pre_update_option_jetpack_private_options',
+				static function ( $value, $old_value ) {
+					if ( ! is_array( $value ) ) {
+						return $value;
+					}
+					if ( is_array( $old_value ) && isset( $old_value['purchase_token'] ) ) {
+						$value['purchase_token'] = $old_value['purchase_token'];
+					} else {
+						unset( $value['purchase_token'] );
+					}
+					return $value;
+				},
+				10,
+				2
+			);
+		}
+
 		$this->is_wp_build_loaded = Jetpack_WP_Build_Page::load( self::WP_BUILD_PAGE_ID, false );
 		if ( $this->is_wp_build_loaded ) {
 			add_action( 'admin_enqueue_scripts', array( $this, 'page_admin_scripts' ) );
 		}
+	}
+
+	/**
+	 * Whether this is the admin shell's hover request, not another dashboard's page readying Settings for a switch.
+	 *
+	 * @return bool
+	 */
+	private static function is_admin_shell_guest_request() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Compared only; the shell checks the nonce.
+		return wp_doing_ajax() && isset( $_GET['action'] ) && \Automattic\Jetpack\Admin_UI\Admin_Shell::GUEST_ACTION === wp_unslash( $_GET['action'] );
 	}
 
 	/**
