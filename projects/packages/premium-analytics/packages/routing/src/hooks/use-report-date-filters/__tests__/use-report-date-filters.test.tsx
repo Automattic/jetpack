@@ -828,6 +828,10 @@ describe( 'useReportDateFilters', () => {
 			'the applied window is not inside the stored one',
 			{ up_from: '2026-07-10T00:00:00.000+00:00', up_to: '2026-07-20T23:59:59.999+00:00' },
 		],
+		[
+			'the applied window is before a stored one that had no comparison',
+			{ up_preset: 'last-7-days' },
+		],
 		[ 'the stored window does not resolve', { up_from: 'not-a-date', up_to: 'not-a-date' } ],
 	] )( 'offers no zoom out while %s', ( _name, search ) => {
 		jest.useFakeTimers().setSystemTime( Date.parse( '2026-07-30T12:00:00.000Z' ) );
@@ -839,6 +843,19 @@ describe( 'useReportDateFilters', () => {
 		} );
 
 		expect( result.current.zoomOut ).toBeUndefined();
+	} );
+
+	it( 'offers a zoom out from a bar of the period the stored window was compared with', () => {
+		jest.useFakeTimers().setSystemTime( Date.parse( '2026-07-30T12:00:00.000Z' ) );
+		const { result } = renderDateFilters( {
+			from: '2026-07-20T00:00:00.000+00:00',
+			to: '2026-07-20T23:59:59.999+00:00',
+			preset: 'custom',
+			up_preset: 'last-7-days',
+			up_compare_preset: 'previous-period',
+		} );
+
+		expect( result.current.zoomOut ).toMatchObject( { presetId: 'last-7-days' } );
 	} );
 
 	// The preset is read as today's window, like the applied one, and the bucket it was read

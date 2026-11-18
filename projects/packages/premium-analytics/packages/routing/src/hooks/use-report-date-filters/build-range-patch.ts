@@ -64,11 +64,11 @@ type BuildRangePatchArgs = {
 	step?: DateStepId;
 
 	/**
-	 * The window `nextRange` was zoomed in from, when a widget opened it: the
-	 * zoom-out control returns there. Any other range change clears the window
-	 * the URL carries.
+	 * Keep `effective` as the window `nextRange` was zoomed in from, when a widget
+	 * opened it: the zoom-out control returns there. Any other range change clears
+	 * the window the URL carries.
 	 */
-	zoomedInFrom?: ReportQuerySearchParams;
+	withZoomOut?: boolean;
 
 	/**
 	 * The current effective search params, used to re-derive the comparison
@@ -116,7 +116,7 @@ export function buildRangePatch( {
 	exactRange,
 	resetIntervalOnPresetChange,
 	step,
-	zoomedInFrom,
+	withZoomOut = false,
 	effective,
 	lockedIntervals,
 }: BuildRangePatchArgs ): ReportQuerySearchParams | null {
@@ -130,7 +130,11 @@ export function buildRangePatch( {
 		patch.from = rangeFrom;
 		patch.to = rangeTo;
 		patch.step = step;
-		Object.assign( patch, clearZoomOutParams(), zoomOutParams( zoomedInFrom, rangeFrom, rangeTo ) );
+		Object.assign(
+			patch,
+			clearZoomOutParams(),
+			zoomOutParams( withZoomOut ? effective : undefined, rangeFrom, rangeTo )
+		);
 
 		// Without the reset, the interval carries unless the new range disallows it.
 		patch.interval = resetIntervalOnPresetChange

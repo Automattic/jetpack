@@ -134,32 +134,42 @@ function toPickerRange( from: string | undefined, to: string | undefined, timeZo
 }
 
 /**
- * Whether `applied` is a hand-picked window strictly inside `target`, as a window a widget
- * opened from it is. Unparseable ends fail the comparison.
+ * Whether `outer` holds all of `inner`. Unparseable ends fail the comparison.
  *
- * @param applied         - The window the widgets are querying with.
- * @param target          - The window to zoom back out to.
- * @param appliedPresetId - The applied window's preset.
+ * @param inner - The window that may sit inside.
+ * @param outer - The window that may hold it.
+ * @return Whether it does.
+ */
+function isWithin( inner: DateRange, outer: DateRange | undefined ): boolean {
+	if ( ! inner.from || ! inner.to || ! outer?.from || ! outer.to ) {
+		return false;
+	}
+
+	return inner.from.getTime() >= outer.from.getTime() && inner.to.getTime() <= outer.to.getTime();
+}
+
+/**
+ * Whether `applied` is a hand-picked window a widget opened from `target`: a part of it, or
+ * of the period it was compared with, whose bars open too.
+ *
+ * @param applied          - The window the widgets are querying with.
+ * @param target           - The window to zoom back out to.
+ * @param targetComparison - The period `target` was compared with, when it was.
+ * @param appliedPresetId  - The applied window's preset.
  * @return Whether zooming out to `target` is a change back.
  */
 function isZoomedInto(
 	applied: DateRange,
 	target: DateRange,
+	targetComparison: DateRange | undefined,
 	appliedPresetId: PrimaryPresetId | undefined
 ): boolean {
 	if ( appliedPresetId !== undefined && appliedPresetId !== PRESET_CUSTOM ) {
 		return false;
 	}
-	if ( ! applied.from || ! applied.to || ! target.from || ! target.to ) {
-		return false;
-	}
-	const inside =
-		applied.from.getTime() >= target.from.getTime() && applied.to.getTime() <= target.to.getTime();
-	const same =
-		applied.from.getTime() === target.from.getTime() &&
-		applied.to.getTime() === target.to.getTime();
+	const isPartOfTarget = isWithin( applied, target ) && ! isWithin( target, applied );
 
-	return inside && ! same;
+	return isPartOfTarget || isWithin( applied, targetComparison );
 }
 
 /**
@@ -401,7 +411,10 @@ export function useReportDateFilters< TFrom extends string >(
 		);
 		const targetPresetId = target.preset ?? PRESET_CUSTOM;
 		const targetRange = toPickerRange( target.from, target.to, timeZone );
-		if ( ! isZoomedInto( appliedRange, targetRange, appliedPresetId ) ) {
+		const targetComparison = target.comp
+			? toPickerRange( target.compare_from, target.compare_to, timeZone )
+			: undefined;
+		if ( ! isZoomedInto( appliedRange, targetRange, targetComparison, appliedPresetId ) ) {
 			return undefined;
 		}
 
@@ -414,7 +427,7 @@ export function useReportDateFilters< TFrom extends string >(
 						nextRange: targetRange,
 						nextPresetId: targetPresetId,
 						exactRange: true,
-						step: origin.step as DateStepId | undefined,
+						step: target.step as DateStepId | undefined,
 						// The comparison stays as the reader has it now, by the preset it had there where it still has one.
 						effective: {
 							...effective,

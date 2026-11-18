@@ -60,7 +60,7 @@ export function useCommitExactRange(): CommitExactRange {
 				nextRange: range,
 				nextPresetId: PRESET_CUSTOM,
 				exactRange: true,
-				zoomedInFrom: withZoomOut ? effective : undefined,
+				withZoomOut,
 				step,
 				effective,
 				lockedIntervals,

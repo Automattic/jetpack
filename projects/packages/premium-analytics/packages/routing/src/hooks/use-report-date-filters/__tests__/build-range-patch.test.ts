@@ -219,7 +219,7 @@ describe( 'buildRangePatch', () => {
 			nextRange: { from, to },
 			nextPresetId: 'custom',
 			exactRange: true,
-			zoomedInFrom: { preset: 'last-30-days', interval: 'week', up_preset: 'last-7-days' },
+			withZoomOut: true,
 			effective: { preset: 'last-30-days', interval: 'week', up_preset: 'last-7-days' },
 		} );
 
@@ -246,7 +246,7 @@ describe( 'buildRangePatch', () => {
 			nextRange: { from, to },
 			nextPresetId: 'custom',
 			exactRange: true,
-			zoomedInFrom: effective,
+			withZoomOut: true,
 			effective,
 		} );
 
