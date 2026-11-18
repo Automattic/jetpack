@@ -144,7 +144,9 @@ describe( 'IdentityCrisis', () => {
 
 	it( 'once Safe Mode is confirmed, says so and still offers every answer', () => {
 		storeState = { state: { ...resolvable, isSafeModeConfirmed: true }, plugins: jetpack };
-		render( <IdentityCrisis context="connectors" onActionSuccess={ jest.fn() } /> );
+		render(
+			<IdentityCrisis context="connectors" showHeader={ false } onActionSuccess={ jest.fn() } />
+		);
 
 		expect( screen.getByText( /You chose to stay in Safe Mode\./ ) ).toBeInTheDocument();
 		expect( screen.getAllByRole( 'radio' ) ).toHaveLength( 3 );

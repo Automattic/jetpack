@@ -40,7 +40,7 @@ interface ResolverProps extends IdentityCrisisProps {
 function IdentityCrisisResolver( {
 	state,
 	plugins,
-	context,
+	showHeader = true,
 	redirectUri,
 	from,
 	hostActions,
@@ -126,7 +126,7 @@ function IdentityCrisisResolver( {
 		return (
 			<IdentityCrisisLayout
 				logoUrl={ state.logoUrl }
-				showHeader={ context !== 'connectors' }
+				showHeader={ showHeader }
 				hostActions={ hostActions }
 			>
 				{ addresses }
@@ -144,7 +144,7 @@ function IdentityCrisisResolver( {
 	return (
 		<IdentityCrisisLayout
 			logoUrl={ state.logoUrl }
-			showHeader={ context !== 'connectors' }
+			showHeader={ showHeader }
 			hostActions={ hostActions }
 		>
 			{ addresses }
@@ -198,7 +198,7 @@ export default function IdentityCrisis( props: IdentityCrisisProps ): ReactNode 
 
 	if ( ! state.canResolve ) {
 		return (
-			<IdentityCrisisLayout showHeader={ props.context !== 'connectors' }>
+			<IdentityCrisisLayout showHeader={ props.showHeader ?? true }>
 				<IdentityCrisisNonAdmin isStore={ hasWooPlugin( plugins ) } onDismiss={ props.onDismiss } />
 			</IdentityCrisisLayout>
 		);

@@ -273,7 +273,8 @@ import { TransferConnectionOwnership } from '@automattic/jetpack-connection';
 - The copy says "store" instead of "site" when a WooCommerce-family plugin is connected, and names Stats and Backups only when a Jetpack-family plugin is. `hasWooPlugin()` and `hasJetpackPlugin()` export those rules, and `toConnectedPlugins()` reads the store's plugin list for them.
 
 Props:
-- `context` (required): `notice`, `my-jetpack` or `connectors`. `connectors` hides the logo and heading, which the card already shows.
+- `context` (required): `notice`, `my-jetpack` or `connectors`, recorded with the Safe Mode events.
+- `showHeader`: `false` hides the logo and heading where the host already shows both, as the Connectors card does.
 - `onActionSuccess( result )` (required): `{ action: 'migrate' }` as soon as Migrate succeeds (the screen then shows that the address update started), `{ action: 'start-fresh', connectUrl }` for the host to open, or `{ action: 'confirm-safe-mode' }`. The package never navigates.
 - `redirectUri`: admin path to return to after a fresh connection.
 - `from`: a name from `CONNECTION_FROM`, reported to WordPress.com with a fresh connection.
