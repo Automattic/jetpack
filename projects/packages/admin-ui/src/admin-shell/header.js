@@ -2,7 +2,8 @@
  * A stand-in for a page, drawn the moment the page is opened and removed once its app renders:
  * its saved header and tabs, or another page's header with its title and subtitle. Each page's
  * header, and the CSS it uses, is saved whenever it is on screen: the dashboards add most of their
- * CSS from JavaScript, which hasn't run yet.
+ * CSS from JavaScript, which hasn't run yet. Its CSS rules and style attributes are saved once, under
+ * one key, for every page that uses them: the dashboards share most of them.
  */
 import { log } from './debug';
 
@@ -16,6 +17,8 @@ const PAGE_CLASS = 'jetpack-admin-shell-page';
 let keyPrefix = KEY_ROOT;
 let bodyClassOf = () => null;
 const storageKey = slug => keyPrefix + slug;
+// Not a page slug, which is a sanitized key.
+const piecesKey = () => keyPrefix + '*';
 
 /**
  * Set where headers are saved, and drop the ones an earlier release saved for this site and user.
@@ -69,6 +72,37 @@ export function removeHeader( slug ) {
 	}
 }
 
+const readJson = key => {
+	try {
+		return JSON.parse( localStorage.getItem( key ) );
+	} catch {
+		return null;
+	}
+};
+
+const pageKeys = () =>
+	Object.keys( localStorage ).filter( key => key.startsWith( keyPrefix ) && key !== piecesKey() );
+
+// Saved markup has a piece's id for each style attribute's value.
+const STYLE_ATTRIBUTE = /\sstyle="([^"]*)"/g;
+const piecesOf = ( { html, css } ) => [
+	...css,
+	...[ ...String( html ).matchAll( STYLE_ATTRIBUTE ) ].map( ( [ , id ] ) => id ),
+];
+
+// Name each piece by the id the same text already has, or a new one.
+const namer = pieces => {
+	const ids = new Map( Object.entries( pieces ).map( ( [ id, text ] ) => [ text, id ] ) );
+	let next = Math.max( -1, ...Object.keys( pieces ).map( id => parseInt( id, 36 ) ) ) + 1;
+	return text => {
+		if ( ! ids.has( text ) ) {
+			ids.set( text, ( next++ ).toString( 36 ) );
+			pieces[ ids.get( text ) ] = text;
+		}
+		return ids.get( text );
+	};
+};
+
 // A copy of the parts of `node` that hold one of `keep`, and of each kept element whole.
 const pruned = ( node, keep ) => {
 	const copy = node.cloneNode( false );
@@ -82,7 +116,7 @@ const pruned = ( node, keep ) => {
 	return copy;
 };
 
-// The app's page wrappers, empty, around a copy of its header and tab bar.
+// The app's page wrappers, empty, around a copy of its header and tab bar, and the elements copied.
 const frameOf = el => {
 	const h1 = el.querySelector( 'h1' );
 	const page = h1?.closest( '.admin-ui-navigable-region' );
@@ -98,7 +132,14 @@ const frameOf = el => {
 		wrapper.append( frame );
 		frame = wrapper;
 	}
-	return frame;
+	const copied = new Set();
+	for ( const kept of keep ) {
+		for ( let node = kept.parentElement; node !== el; node = node.parentElement ) {
+			copied.add( node );
+		}
+		[ kept, ...kept.querySelectorAll( '*' ) ].forEach( node => copied.add( node ) );
+	}
+	return { frame, copied: [ ...copied ] };
 };
 
 // The copy is for looking at only: no ids to collide with the real app's, nothing that runs.
@@ -119,47 +160,103 @@ const inertCopy = html => {
 	return template.content;
 };
 
-// Every rule that styles one of these classes, or defines design tokens, in grouping rules too.
-const rulesFor = classNames => {
-	const selectors = [ ...classNames ].map( name => `.${ CSS.escape( name ) }` );
-	const pick = ( rules, fromStyleTag ) => {
-		let css = '';
+// A selector matches no element while it names a pseudo-element.
+const PSEUDO_ELEMENT =
+	/::?(before|after|marker|placeholder|selection|backdrop|first-line|first-letter|file-selector-button|-webkit-[\w-]+|-moz-[\w-]+)/g;
+
+const matchesAny = ( selector, nodes ) => {
+	const plain = selector.replace( PSEUDO_ELEMENT, '' );
+	try {
+		return nodes.some( node => node.matches( plain ) );
+	} catch {
+		return false;
+	}
+};
+
+/*
+ * Every rule that applies to one of these elements, or defines design tokens on the page, each inside
+ * its own copy of its grouping rules so pages that share it save the same text.
+ */
+const rulesFor = nodes => {
+	const selectors = [ ...new Set( nodes.flatMap( node => [ ...node.classList ] ) ) ].map(
+		name => `.${ CSS.escape( name ) }`
+	);
+	const roots = [ document.documentElement, document.body ];
+	const found = [];
+	const pick = ( rules, wrap, fromStyleTag ) => {
 		for ( const rule of rules ) {
 			if ( rule instanceof CSSStyleRule ) {
-				const styled = selectors.some( selector => rule.selectorText.includes( selector ) );
+				// The class test is cheap and rules out most rules before the real one.
+				const styled =
+					selectors.some( selector => rule.selectorText.includes( selector ) ) &&
+					matchesAny( rule.selectorText, nodes );
 				const definesTokens =
-					fromStyleTag && [ ...rule.style ].some( name => name.startsWith( '--wpds-' ) );
+					fromStyleTag &&
+					[ ...rule.style ].some( name => name.startsWith( '--wpds-' ) ) &&
+					matchesAny( rule.selectorText, roots );
 				if ( styled || definesTokens ) {
-					css += rule.cssText;
+					found.push( wrap( rule.cssText ) );
 				}
 			} else if ( rule.cssRules ) {
-				const inner = pick( rule.cssRules, fromStyleTag );
-				if ( inner ) {
-					css += `${ rule.cssText.slice( 0, rule.cssText.indexOf( '{' ) ) }{${ inner }}`;
-				}
+				const head = rule.cssText.slice( 0, rule.cssText.indexOf( '{' ) );
+				pick( rule.cssRules, css => wrap( `${ head }{${ css }}` ), fromStyleTag );
 			}
 		}
-		return css;
 	};
-	let css = '';
 	for ( const sheet of document.styleSheets ) {
 		try {
-			css += pick( sheet.cssRules, sheet.ownerNode?.tagName === 'STYLE' );
+			pick( sheet.cssRules, css => css, sheet.ownerNode?.tagName === 'STYLE' );
 		} catch {
 			// A cross-origin stylesheet can't be read; it is a <link> that loads with the page anyway.
 		}
 	}
-	return css;
+	return found;
 };
 
 // The header HTML last saved for each page in this document, so a check doesn't parse storage.
 const savedHtml = new Map();
 
+// A page's saved header with its pieces filled in, or null if any of them is gone.
 const readSaved = slug => {
-	try {
-		return JSON.parse( localStorage.getItem( storageKey( slug ) ) );
-	} catch {
+	const saved = readJson( storageKey( slug ) );
+	if ( ! Array.isArray( saved?.css ) ) {
 		return null;
+	}
+	const pieces = readJson( piecesKey() ) ?? {};
+	if ( ! piecesOf( saved ).every( id => Object.hasOwn( pieces, id ) ) ) {
+		return null;
+	}
+	const template = document.createElement( 'template' );
+	template.innerHTML = saved.html;
+	for ( const node of template.content.querySelectorAll( '[style]' ) ) {
+		node.setAttribute( 'style', pieces[ node.getAttribute( 'style' ) ] );
+	}
+	return { html: template.innerHTML, css: saved.css.map( id => pieces[ id ] ).join( '' ) };
+};
+
+// Save a page's header and the pieces it names, and drop the pieces no page uses any more.
+const write = ( slug, saved, pieces ) => {
+	const used = [ saved ];
+	try {
+		for ( const key of pageKeys() ) {
+			const record = key !== storageKey( slug ) && readJson( key );
+			if ( Array.isArray( record?.css ) ) {
+				used.push( record );
+			}
+		}
+		const kept = {};
+		for ( const id of used.flatMap( piecesOf ) ) {
+			kept[ id ] = pieces[ id ];
+		}
+		localStorage.setItem( piecesKey(), JSON.stringify( kept ) );
+		localStorage.setItem( storageKey( slug ), JSON.stringify( saved ) );
+	} catch {
+		// Storage full or blocked: the next opening shows no stand-in.
+		try {
+			localStorage.removeItem( storageKey( slug ) );
+		} catch {
+			// Blocked: nothing was saved either.
+		}
 	}
 };
 
@@ -170,7 +267,7 @@ const readSaved = slug => {
  * @param {HTMLElement} el   - The app's mount element.
  */
 export function rememberHeader( slug, el ) {
-	const frame = frameOf( el );
+	const { frame, copied } = frameOf( el ) ?? {};
 	if ( ! frame ) {
 		return;
 	}
@@ -184,32 +281,36 @@ export function rememberHeader( slug, el ) {
 	savedHtml.set( slug, html );
 	// Walking every stylesheet takes a few milliseconds; keep it off the click that switches pages.
 	( window.requestIdleCallback ?? setTimeout )( () => {
-		const classNames = new Set(
-			[ frame, ...frame.querySelectorAll( '[class]' ) ].flatMap( node => [ ...node.classList ] )
-		);
+		// Rules are matched against the elements on screen: once the app redraws, save it next time.
+		if ( ! copied.every( node => node.isConnected ) ) {
+			savedHtml.delete( slug );
+			return;
+		}
+		const pieces = readJson( piecesKey() ) ?? {};
+		const add = namer( pieces );
+		for ( const node of [ frame, ...frame.querySelectorAll( '[style]' ) ] ) {
+			if ( node.hasAttribute( 'style' ) ) {
+				node.setAttribute( 'style', add( node.getAttribute( 'style' ) ) );
+			}
+		}
 		const bodyClass = bodyClassOf( slug );
-		let css = rulesFor( classNames );
-		if ( bodyClass ) {
-			// Dashboards scope their page layout to WordPress's per-page body class.
-			css = css.replace( new RegExp( `\\b${ bodyClass }(?![\\w-])`, 'g' ), PAGE_CLASS );
-		}
-		log( 'header', `saved ${ slug }'s header with ${ Math.round( css.length / 1024 ) }KB of CSS` );
-		try {
-			localStorage.setItem( storageKey( slug ), JSON.stringify( { html, css } ) );
-		} catch {
-			// Storage full or blocked: the next opening shows no stand-in.
-		}
+		// Dashboards scope their page layout to WordPress's per-page body class.
+		const pageScoped = bodyClass && new RegExp( `\\b${ bodyClass }(?![\\w-])`, 'g' );
+		const css = rulesFor( copied ).map( rule =>
+			add( pageScoped ? rule.replace( pageScoped, PAGE_CLASS ) : rule )
+		);
+		log( 'header', `saved ${ slug }'s header with ${ css.length } CSS rules` );
+		write( slug, { html: frame.outerHTML, css }, pieces );
 	} );
 }
 
 // A saved standard page header: a custom one's styles don't survive having parts taken out.
 const donor = () => {
 	try {
-		const entries = Object.keys( localStorage )
-			.filter( key => key.startsWith( keyPrefix ) )
+		const entries = pageKeys()
 			.sort()
 			// The markup only: the saved CSS names classes the markup may not use.
-			.map( key => [ key, String( readSaved( key.slice( keyPrefix.length ) )?.html ?? '' ) ] )
+			.map( key => [ key, String( readJson( key )?.html ?? '' ) ] )
 			.filter( ( [ , html ] ) => html.includes( '__header-title' ) );
 		const has = ( ...marks ) =>
 			entries.find( ( [ , html ] ) => marks.every( mark => html.includes( mark ) ) );
