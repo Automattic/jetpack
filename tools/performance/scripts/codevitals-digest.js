@@ -784,6 +784,10 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 		let coveredScans = 0;
 		let unheldScans = 0;
 		for ( const group of scans ) {
+			// The reported later level must hold, or a short excursion inflates the total.
+			while ( group.length > 1 && ! scanLevelHolds( byServe, group.at( -1 ), noiseFactor ) ) {
+				group.pop();
+			}
 			const entry = group.reduce( strongestWindow );
 			const first = group[ 0 ];
 			const last = group.at( -1 );

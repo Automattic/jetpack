@@ -298,6 +298,41 @@ const SCENARIOS = {
 			),
 		},
 	} ),
+	scanSecondRise: ( { pending = false, gap = 15 } = {} ) => ( {
+		series: {
+			301: flaggedSeries(
+				[
+					...Array( 30 ).fill( 100 ),
+					...Array( gap ).fill( 107 ),
+					...Array( 6 ).fill( 123 ),
+					...Array( pending ? 0 : 20 ).fill( 107 ),
+				],
+				pending ? [ 30 + gap ] : [],
+				'secondrise'
+			),
+		},
+	} ),
+	scanThenPending: () => SCENARIOS.scanSecondRise( { pending: true } ),
+	scanNearPending: () => SCENARIOS.scanSecondRise( { pending: true, gap: 10 } ),
+	scanRerunMargin: () => {
+		const rows = flaggedSeries(
+			[ ...Array( 10 ).fill( 100 ), ...Array( 11 ).fill( 110 ) ],
+			[],
+			'scanrerun'
+		);
+		rows.splice( 11, 0, pt( 8 - 10.5 * 0.1, 150, 'scanrerun0', true, ( 150 / 110 - 1 ) * 100 ) );
+		return { series: { 301: rows } };
+	},
+	agedScan: () => ( {
+		series: {
+			301: flaggedSeries(
+				[ ...Array( 30 ).fill( 100 ), ...Array( 30 ).fill( 107 ) ],
+				[],
+				'agedscan',
+				40
+			),
+		},
+	} ),
 	jetpackMetricPolicy: ( { excludedId = 203, ttfbId = 212, fcpId = 213 } = {} ) => {
 		const pre = [ ...Array( 5 ).fill( 90 ), ...Array( 5 ).fill( 110 ) ];
 		const rise = levelSeries( pre, 125, Array( 10 ).fill( 125 ) );
@@ -1838,6 +1873,41 @@ test( 'a matching pending flag takes precedence over a held scan rise', async ()
 		result.err,
 		/metric 301: scan groups skipped — 0 outside the look-back, 1 covered by flags, 0 rises that did not hold/
 	);
+} );
+
+test( 'a reverted second rise does not increase the sustained total', async () => {
+	const result = await runDigest( 'scanSecondRise' );
+	assert.equal( result.code, 0, result.err );
+	assert.match( result.out, /1 sustained regression\(s\)/ );
+	assert.match( result.out, /median \+7\.0% \(100→107ms\)/ );
+} );
+
+test( 'a pending second rise stays out of the sustained total', async () => {
+	const result = await runDigest( 'scanThenPending' );
+	assert.equal( result.code, 0, result.err );
+	assert.match( result.out, /1 sustained regression\(s\), 1 pending/ );
+	assert.match( result.out, /median \+7\.0% \(100→107ms\)/ );
+} );
+
+test( 'a nearby pending flag at a different level preserves the held rise', async () => {
+	const result = await runDigest( 'scanNearPending' );
+	assert.equal( result.code, 0, result.err );
+	assert.match( result.out, /1 sustained regression\(s\), 1 pending/ );
+	assert.match( result.out, /median \+7\.0% \(100→107ms\)/ );
+} );
+
+test( 'an off-time re-run one position outside the scan covers the same rise', async () => {
+	const result = await runDigest( 'scanRerunMargin' );
+	assert.equal( result.code, 0, result.err );
+	assert.match( result.out, /1 sustained regression\(s\)/ );
+	assert.match( result.out, /median \+10\.0% \(100→110ms\).*flag from a re-run/ );
+} );
+
+test( 'a scan outside the look-back is counted in the log', async () => {
+	const result = await runDigest( 'agedScan', { STALENESS_DAYS: '60' } );
+	assert.equal( result.code, 0, result.err );
+	assert.match( result.out, /0 sustained regression\(s\)/ );
+	assert.match( result.err, /metric 301: scan groups skipped — 1 outside the look-back/ );
 } );
 
 test( 'Dashboard FCP is excluded from discovery and overrides', async () => {
