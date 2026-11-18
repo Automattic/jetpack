@@ -21,6 +21,8 @@ import { closeDialogsOf, closeOverlayAround, showOverlaysOf, trackOverlays } fro
 
 const CONFIG_ID = 'wp-script-module-data-@automattic/jetpack-admin-shell';
 const RENDER_TIMEOUT = 15000;
+// A kept-mounted app shown again after this long is `stale` in its page-shown, so it refetches.
+const STALE_AFTER = 5 * 60 * 1000;
 const INIT_TIMEOUT = 15000;
 // How long the pointer rests on a menu link before its dashboard prewarms, so a sweep down the menu doesn't.
 const HOVER_DELAY = 100;
@@ -84,6 +86,7 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey, maxLiveApps }
 	// Where each page was left, so its menu link reopens it there, and how far it was scrolled.
 	const lastUrl = { [ host ]: location.href };
 	const scrollOf = {};
+	const hiddenAt = {};
 	const gate = isolateRouters(
 		() => visible,
 		() => {
@@ -280,6 +283,8 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey, maxLiveApps }
 			removeHeader( previous );
 		}
 		apps.get( previous )?.place( false );
+		// Kept until a page-shown reports it, so a show another switch overtakes doesn't reset it.
+		hiddenAt[ previous ] ??= Date.now();
 		const dialogsClosed = closeDialogsOf( previous );
 		showOverlaysOf( slug );
 		emit( 'page-hidden', {
@@ -320,12 +325,16 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey, maxLiveApps }
 				);
 				apps.get( slug ).focusHeading();
 				announcePage( members[ slug ].adminTitle );
+				const hiddenFor = app ? Math.max( 0, Date.now() - ( hiddenAt[ slug ] ?? Date.now() ) ) : 0;
+				delete hiddenAt[ slug ];
 				emit( 'page-shown', {
 					page: slug,
 					previous,
 					firstShow: ! app,
 					// The member's router saw the new route and recorded the view itself.
 					routeChanged: !! app && retargets,
+					hiddenFor,
+					stale: hiddenFor >= STALE_AFTER,
 					url: location.href,
 				} );
 			}
@@ -473,6 +482,8 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey, maxLiveApps }
 					previous: null,
 					firstShow: true,
 					routeChanged: false,
+					hiddenFor: 0,
+					stale: false,
 					url: location.href,
 				} );
 			}

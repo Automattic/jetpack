@@ -382,6 +382,53 @@ describe( 'admin shell switch', () => {
 	const A = '/wp-admin/admin.php?page=guest-a';
 	const B = '/wp-admin/admin.php?page=guest-b';
 
+	it.each( [
+		[ 'fresh', 4, false ],
+		[ 'stale', 5, true ],
+	] )( 'says a page kept mounted is %s after %i minutes hidden', async ( _, minutes, stale ) => {
+		const now = jest.spyOn( Date, 'now' ).mockReturnValue( 0 );
+		click( A );
+		await settle();
+		click( B );
+		await settle();
+		const shown = [];
+		const onShown = event => shown.push( event.detail );
+		window.addEventListener( 'jetpack-admin-shell:page-shown', onShown );
+
+		now.mockReturnValue( minutes * 60000 );
+		click( A );
+		await settle();
+		window.removeEventListener( 'jetpack-admin-shell:page-shown', onShown );
+
+		expect( shown ).toEqual( [
+			expect.objectContaining( { page: 'guest-a', hiddenFor: minutes * 60000, stale } ),
+		] );
+	} );
+
+	it( 'keeps a page stale through a show another switch overtook', async () => {
+		const now = jest.spyOn( Date, 'now' ).mockReturnValue( 0 );
+		click( A );
+		await settle();
+		click( B );
+		await settle();
+		const { closeDialogsOf } = require( '../../../src/admin-shell/overlays' );
+		closeDialogsOf.mockImplementationOnce( () => new Promise( () => {} ) );
+		now.mockReturnValue( 10 * 60000 );
+		click( A );
+		await settle();
+		click( B );
+		await settle();
+		const shown = [];
+		const onShown = event => shown.push( event.detail );
+		window.addEventListener( 'jetpack-admin-shell:page-shown', onShown );
+
+		click( A );
+		await settle();
+		window.removeEventListener( 'jetpack-admin-shell:page-shown', onShown );
+
+		expect( shown ).toEqual( [ expect.objectContaining( { page: 'guest-a', stale: true } ) ] );
+	} );
+
 	it( 'names the next page when it hides one, and says whether a shown page is new', async () => {
 		const events = [];
 		const record = event => events.push( [ event.type.split( ':' )[ 1 ], event.detail ] );
