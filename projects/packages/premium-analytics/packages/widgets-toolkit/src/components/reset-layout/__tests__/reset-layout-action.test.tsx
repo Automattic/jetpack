@@ -35,6 +35,33 @@ describe( 'ResetLayoutAction', () => {
 		await waitFor( () => expect( screen.queryByRole( 'alertdialog' ) ).not.toBeInTheDocument() );
 	} );
 
+	it( 'drops an open dialog on the way to the narrow header, and does not bring it back', async () => {
+		const user = userEvent.setup();
+		const { rerender } = render(
+			<ViewportWidth value={ 601 }>
+				<ResetLayoutAction onReset={ () => {} } />
+			</ViewportWidth>
+		);
+
+		await user.click( screen.getByRole( 'button', { name: 'Reset to default' } ) );
+		await expect( screen.findByRole( 'alertdialog' ) ).resolves.toBeVisible();
+
+		rerender(
+			<ViewportWidth value={ 599 }>
+				<ResetLayoutAction onReset={ () => {} } />
+			</ViewportWidth>
+		);
+		expect( screen.queryByRole( 'alertdialog' ) ).not.toBeInTheDocument();
+
+		rerender(
+			<ViewportWidth value={ 601 }>
+				<ResetLayoutAction onReset={ () => {} } />
+			</ViewportWidth>
+		);
+
+		expect( screen.queryByRole( 'alertdialog' ) ).not.toBeInTheDocument();
+	} );
+
 	// Not 600: the width provider treats it as wide, a real `max-width: 600px` query as narrow.
 	it.each( [
 		[ 'stands down on a narrow header, where the Stats options menu carries it', 599, false ],

@@ -15,7 +15,7 @@ import {
 	rotateLeft,
 } from '@wordpress/icons';
 import { Link as RouteLink, useLinkProps } from '@wordpress/route';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 /**
  * Internal dependencies
  */
@@ -155,6 +155,12 @@ export function StatsOptionsMenu( {
 	const closeArrangeTabs = useCallback( () => setIsArrangingTabs( false ), [] );
 	const openReset = useCallback( () => setIsResetting( true ), [] );
 	const closeReset = useCallback( () => setIsResetting( false ), [] );
+
+	// Crossing the breakpoint hands the action back to `ResetLayoutAction`'s button,
+	// so an open dialog left standing would sit beside the one that button opens.
+	useEffect( () => {
+		setIsResetting( false );
+	}, [ isNarrow ] );
 
 	if (
 		! onCustomize &&

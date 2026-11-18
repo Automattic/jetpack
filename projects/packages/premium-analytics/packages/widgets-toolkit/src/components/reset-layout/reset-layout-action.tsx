@@ -4,7 +4,7 @@
 import { IconButton } from '@jetpack-premium-analytics/externals';
 import { __ } from '@wordpress/i18n';
 import { rotateLeft } from '@wordpress/icons';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 /**
  * Internal dependencies
  */
@@ -30,6 +30,12 @@ export function ResetLayoutAction( { onReset }: ResetLayoutActionProps ) {
 	const open = useCallback( () => setIsOpen( true ), [] );
 	const close = useCallback( () => setIsOpen( false ), [] );
 	const isNarrow = useNarrowPageHeader();
+
+	// Crossing the breakpoint hands the action to the menu, so an open dialog left
+	// standing would come back on the way out, or sit beside the menu's own.
+	useEffect( () => {
+		setIsOpen( false );
+	}, [ isNarrow ] );
 
 	if ( isNarrow ) {
 		return null;
