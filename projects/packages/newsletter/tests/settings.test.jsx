@@ -377,6 +377,21 @@ describe( 'NewsletterSettingsApp', () => {
 			expect( leavePage() ).toBe( true );
 		} );
 
+		it( 'leaves a page load the admin shell already asked about to the shell, then asks again', async () => {
+			await stageSubscribeModalChange();
+
+			window.dispatchEvent(
+				new CustomEvent( 'jetpack-admin-shell:before-leave', {
+					detail: { page: 'jetpack-newsletter' },
+					cancelable: true,
+				} )
+			);
+			expect( leavePage() ).toBe( false );
+
+			await act( () => new Promise( resolve => setTimeout( resolve ) ) );
+			expect( leavePage() ).toBe( true );
+		} );
+
 		it( 'asks before leaving while the sender name has unsaved changes', async () => {
 			const onDirtyChange = jest.fn();
 			render( <NewsletterSettingsBody onDirtyChange={ onDirtyChange } /> );
