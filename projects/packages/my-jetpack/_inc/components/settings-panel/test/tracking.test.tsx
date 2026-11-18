@@ -2,6 +2,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
+import useAnalytics from '../../../hooks/use-analytics';
 import { CarouselSettings } from '../carousel';
 import { CommentsSettings } from '../comments';
 import { GoogleAnalyticsSettings } from '../google-analytics';
@@ -10,7 +11,7 @@ import { MarkdownSettings } from '../markdown';
 import { PostByEmailSettings } from '../post-by-email';
 import type { MyJetpackModule } from '../../../types';
 
-const mockRecordEvent = jest.fn();
+const mockRecordEvent = jest.mocked( jest.mocked( useAnalytics )().recordEvent );
 
 jest.mock( '@wordpress/api-fetch', () => jest.fn() );
 jest.mock( '@automattic/jetpack-shared-stores', () => ( { store: {} } ) );
@@ -24,10 +25,6 @@ jest.mock( '@wordpress/data', () => ( {
 } ) );
 jest.mock( '../../my-jetpack-tab-panel/features/feature-state', () => ( {
 	useAccountConnected: () => true,
-} ) );
-jest.mock( '../../../hooks/use-analytics', () => ( {
-	__esModule: true,
-	default: () => ( { recordEvent: mockRecordEvent } ),
 } ) );
 jest.mock( '../../module-toggle', () => ( {
 	ModuleToggle: ( { onSwitch }: { onSwitch?: ( active: boolean ) => void } ) => (
