@@ -155,7 +155,7 @@ class Social_Admin_Page {
 	/**
 	 * Register Jetpack Social with the admin shell, which switches between Jetpack dashboards without a page load.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.89.0
 	 *
 	 * @param array $members Shell members keyed by admin page slug.
 	 * @return array
@@ -164,8 +164,7 @@ class Social_Admin_Page {
 		$host = new Host();
 		// The same gates add_menu() applies, since admin-ajax never builds the menu.
 		if (
-			$host->is_wpcom_simple()
-			|| ! Utils::can_open_social_dashboard()
+			! Utils::can_open_social_dashboard()
 			|| ( ! defined( 'JETPACK_SOCIAL_PLUGIN_DIR' ) && ! $host->is_wpcom_platform() && ! ( new Connection_Manager() )->is_connected() )
 			|| ! file_exists( self::wp_build_index_path() )
 		) {
@@ -206,7 +205,7 @@ class Social_Admin_Page {
 	/**
 	 * Ready the Jetpack Social routes and page data while another dashboard's page is open, without the screen ID alias.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.89.0
 	 *
 	 * @return void
 	 */
@@ -221,7 +220,7 @@ class Social_Admin_Page {
 	/**
 	 * Hydrate the connection store on a script of its own: the prerequisites script only exists on the Social page.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.89.0
 	 *
 	 * @return void
 	 */

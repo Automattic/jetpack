@@ -142,7 +142,7 @@ class Tokens {
 	/**
 	 * Obtains the auth token.
 	 *
-	 * @since $$next-version$$ Added the `$extra_body` and `$token_details` parameters.
+	 * @since 9.18.0 Added the `$extra_body` and `$token_details` parameters.
 	 *
 	 * @param array      $data          The request data.
 	 * @param string     $token_api_url The URL of the Jetpack "token" API.

@@ -42,6 +42,7 @@ import {
 } from './presets/types';
 import type { DateRangeSpan, DateRangeSpanUnit } from './date-range-span';
 import type { DateRange } from './get-comparison-range';
+import type { IntervalType } from './interval';
 import type { TZDate } from '@date-fns/tz';
 
 /**
@@ -148,6 +149,30 @@ export function getStepSpan( stepId: DateStepId ): DateRangeSpan {
 	return isSelectablePreset( stepId )
 		? PRESET_STEP_SPANS[ stepId ]
 		: ( parseDuration( stepId ) as DateRangeSpan );
+}
+
+/**
+ * The step a chart bucket opened as the period moves by: its own unit, so Previous from
+ * today's bar is the whole of yesterday however little of today has passed.
+ *
+ * @param interval - The interval the bucket was drawn in.
+ * @return The step id, or `undefined` for an interval whose buckets do not open.
+ */
+export function bucketStepId( interval: IntervalType ): DateStepDuration | undefined {
+	switch ( interval ) {
+		case 'day':
+			return 'P1D';
+		case 'week':
+			return 'P7D';
+		case 'month':
+			return 'P1M';
+		case 'quarter':
+			return 'P3M';
+		case 'year':
+			return 'P1Y';
+		default:
+			return undefined;
+	}
 }
 
 /**

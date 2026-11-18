@@ -103,7 +103,7 @@ class Analytics_Dashboard {
 	 * The layout names the package's player and the dashboard's own video detail widget types,
 	 * until those move here too.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.63.0
 	 *
 	 * @param object $registry The single-report page registry being hydrated.
 	 * @return void

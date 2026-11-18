@@ -18,13 +18,6 @@ jest.mock( '../../../../utils/reload-page', () => ( { reloadPage: jest.fn() } ) 
 const mockCreateErrorNotice = jest.fn();
 const mockFetchModules = jest.fn().mockResolvedValue( true );
 
-jest.mock( '@automattic/jetpack-components', () => ( {
-	useGlobalNotices: () => ( {
-		createSuccessNotice: jest.fn(),
-		createErrorNotice: mockCreateErrorNotice,
-	} ),
-} ) );
-
 jest.mock( '@automattic/jetpack-shared-stores', () => ( { store: 'modules-store' } ) );
 jest.mock( '@wordpress/notices', () => ( { store: 'core/notices' } ) );
 
@@ -35,6 +28,8 @@ jest.mock( '@automattic/jetpack-connection/use-connection-error-notice', () => (
 jest.mock( '@wordpress/data', () => ( {
 	useDispatch: () => ( {
 		fetchModules: mockFetchModules,
+		createSuccessNotice: jest.fn(),
+		createErrorNotice: mockCreateErrorNotice,
 	} ),
 	useSelect: () => undefined,
 	createReduxStore: jest.fn(),
@@ -410,7 +405,9 @@ describe( 'useFeaturePlugin', () => {
 
 		act( () => void result.current.akismet.run( 'deactivate' ) );
 
-		await waitFor( () => expect( mockCreateErrorNotice ).toHaveBeenCalledWith( 'nope' ) );
+		await waitFor( () =>
+			expect( mockCreateErrorNotice ).toHaveBeenCalledWith( 'nope', { type: 'snackbar' } )
+		);
 		expect( mockFetchModules ).not.toHaveBeenCalled();
 		expect( result.current.akismet.isBusy ).toBe( true );
 
@@ -444,7 +441,9 @@ describe( 'useFeaturePlugin', () => {
 
 		act( () => void result.current.bulk.run( result.current.states, false ) );
 
-		await waitFor( () => expect( mockCreateErrorNotice ).toHaveBeenCalledWith( 'Server error.' ) );
+		await waitFor( () =>
+			expect( mockCreateErrorNotice ).toHaveBeenCalledWith( 'Server error.', { type: 'snackbar' } )
+		);
 		expect( mockFetchModules ).not.toHaveBeenCalled();
 		expect( result.current.bulk.isRunning ).toBe( true );
 

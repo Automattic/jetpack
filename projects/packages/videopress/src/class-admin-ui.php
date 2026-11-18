@@ -349,7 +349,7 @@ class Admin_UI {
 	/**
 	 * Register VideoPress with the admin shell, which switches between Jetpack dashboards without a page load.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.63.0
 	 *
 	 * @param array $members Shell members keyed by admin page slug.
 	 * @return array
@@ -396,7 +396,7 @@ class Admin_UI {
 	/**
 	 * Ready the VideoPress routes and page data while another dashboard's page is open, without the screen ID alias.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.63.0
 	 *
 	 * @return void
 	 */
@@ -409,7 +409,7 @@ class Admin_UI {
 	/**
 	 * Attach the initial state to a script of its own: the prerequisites script only exists on the VideoPress page.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.63.0
 	 *
 	 * @return void
 	 */

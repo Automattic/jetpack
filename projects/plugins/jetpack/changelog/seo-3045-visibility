@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+SEO: Warn when site visibility restricts search indexing in Settings and the SEO dashboard.

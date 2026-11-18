@@ -76,5 +76,4 @@ export { default as MarkedLines } from './components/marked-lines/index.tsx';
 export { default as DetailsViewer } from './components/details-viewer/index.tsx';
 export { default as SidebarFooter } from './components/sidebar-footer/index.tsx';
 export type { SidebarFooterProps } from './components/sidebar-footer/types.ts';
-export * from './components/global-notices/index.ts';
 export * from './components/navigator-modal/index.tsx';

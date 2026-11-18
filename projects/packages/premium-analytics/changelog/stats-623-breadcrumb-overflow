@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Shorten the breadcrumb trail and hide the Customizing badge on phones, instead of letting them cover the header buttons.

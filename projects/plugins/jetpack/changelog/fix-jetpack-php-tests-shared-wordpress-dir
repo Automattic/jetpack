@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-Comment: Tests: Give each parallel PHP test run its own WordPress directory.
-

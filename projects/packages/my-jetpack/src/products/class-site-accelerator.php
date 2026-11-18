@@ -116,7 +116,7 @@ class Site_Accelerator extends Module_Product {
 	 * @return string
 	 */
 	public static function get_description() {
-		return __( 'Draw your readers from one post to another', 'jetpack-my-jetpack' );
+		return __( "Speed up your site with Jetpack's global CDN", 'jetpack-my-jetpack' );
 	}
 
 	/**
@@ -125,7 +125,7 @@ class Site_Accelerator extends Module_Product {
 	 * @return string
 	 */
 	public static function get_long_description() {
-		return __( 'Draw your readers from one post to another, increasing overall traffic on your site', 'jetpack-my-jetpack' );
+		return __( "Speed up your site by serving its images and static files, like CSS and JavaScript, from Jetpack's global CDN", 'jetpack-my-jetpack' );
 	}
 
 	/**

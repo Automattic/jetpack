@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Infinite Scroll: Respect the "Load more posts with a button" setting saved from Jetpack settings.

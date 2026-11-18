@@ -64,7 +64,7 @@ class Jetpack_Security_Menu_Matrix_Test extends WP_UnitTestCase {
 	public static function provide_sites() {
 		$protect = array( array( 'Protect', 'jetpack-protect' ) );
 
-		return array(
+		$sites = array(
 			'self-hosted, no Scan'                 => array( false, false, false, true, $protect ),
 			'self-hosted, with Scan'               => array( true, false, false, true, $protect ),
 			'self-hosted, with the Protect plugin' => array( true, true, false, true, $protect ),
@@ -72,6 +72,9 @@ class Jetpack_Security_Menu_Matrix_Test extends WP_UnitTestCase {
 			'Atomic, with the Protect plugin'      => array( true, true, true, true, $protect ),
 			'Atomic, Protect page off'             => array( true, false, true, false, null ),
 		);
+
+		// Atomic sites are never multisite. Leaving those rows out saves a process each, which would only skip.
+		return is_multisite() ? array_filter( $sites, static fn( $site ) => ! $site[2] ) : $sites;
 	}
 
 	/**
@@ -87,10 +90,6 @@ class Jetpack_Security_Menu_Matrix_Test extends WP_UnitTestCase {
 	 */
 	#[DataProvider( 'provide_sites' )]
 	public function test_jetpack_menu_has_one_security_entry( $has_scan, $has_protect_plugin, $is_atomic, $protect_page_on, $expected ) {
-		if ( $is_atomic && is_multisite() ) {
-			$this->markTestSkipped( 'Atomic sites are never multisite.' );
-		}
-
 		$this->set_scan_entitlement( $has_scan );
 
 		if ( $is_atomic ) {

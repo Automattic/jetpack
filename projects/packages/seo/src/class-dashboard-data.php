@@ -17,7 +17,6 @@ namespace Automattic\Jetpack\SEO;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
-use Jetpack_SEO_Utils;
 use WP_Error;
 use WP_REST_Request;
 
@@ -69,14 +68,13 @@ class Dashboard_Data {
 	/**
 	 * Option holding the front page meta description.
 	 *
-	 * Mirrors `Jetpack_SEO_Utils::FRONT_PAGE_META_OPTION`, which the package can't
-	 * rely on being loaded. Doubles as the REST key for the setting, which stays
+	 * Doubles as the REST key for the setting, which stays
 	 * stable even when the value is stored in the legacy option instead
 	 * ({@see self::front_page_description_option()}).
 	 *
 	 * @var string
 	 */
-	const FRONT_PAGE_META_OPTION = 'advanced_seo_front_page_description';
+	const FRONT_PAGE_META_OPTION = Seo_Tools::FRONT_PAGE_META_OPTION;
 
 	/**
 	 * Option holding the AI SEO Enhancer's on/off state.
@@ -87,12 +85,11 @@ class Dashboard_Data {
 
 	/**
 	 * Legacy option the front page meta description is stored in on WordPress.com
-	 * sites that set one while SEO tools were free for every Simple site. Mirrors
-	 * `Jetpack_SEO_Utils::LEGACY_META_OPTION`.
+	 * sites that set one while SEO tools were free for every Simple site.
 	 *
 	 * @var string
 	 */
-	const LEGACY_FRONT_PAGE_META_OPTION = 'seo_meta_description';
+	const LEGACY_FRONT_PAGE_META_OPTION = Seo_Tools::LEGACY_FRONT_PAGE_META_OPTION;
 
 	/**
 	 * Map of read-only dashboard routes: tab slug => data-builder callable. The
@@ -402,17 +399,14 @@ class Dashboard_Data {
 	}
 
 	/**
-	 * Per-page-type schema for a title structure, restoring the contract
-	 * `Jetpack_SEO_Titles::are_valid_title_formats()` enforced on the Jetpack settings
-	 * endpoint: both keys are required (the renderer reads `type` on every public
+	 * Per-page-type schema for a title structure, restoring the contract the Jetpack
+	 * settings endpoint enforced: both keys are required (the renderer reads `type` on every public
 	 * request), and a token has to be one this page type actually offers.
 	 *
 	 * @return array<string, array>
 	 */
 	private static function title_format_schemas() {
-		// Mirrors `Jetpack_SEO_Titles::get_allowed_tokens()`. Duplicated rather than
-		// called: that class ships with the Jetpack plugin, and the schema has to hold
-		// wherever the package runs.
+		// Mirrors the Jetpack plugin's title-token list, so the schema holds wherever the package runs.
 		$allowed_tokens = array(
 			'front_page' => array( 'site_name', 'tagline' ),
 			'posts'      => array( 'site_name', 'tagline', 'post_title' ),
@@ -476,118 +470,14 @@ class Dashboard_Data {
 	 *
 	 * A WordPress.com site that set a description while SEO tools were free for every
 	 * Simple site keeps editing that legacy option while it's plan-gated, because the
-	 * front end still reads the description from there. Decided from the site's own
-	 * state — the gate and the stored value — rather than from `Jetpack_SEO_Utils`,
-	 * which ships with the Jetpack plugin: reading it through `class_exists()` would
-	 * quietly answer "modern" wherever the plugin's SEO files aren't loaded, and the
-	 * save would then overwrite the wrong option and drop a live legacy description.
+	 * front end still reads the description from there.
 	 *
 	 * @return string
 	 */
 	private static function front_page_description_option() {
-		return self::has_legacy_front_page_meta()
+		return Seo_Tools::has_legacy_front_page_meta()
 			? self::LEGACY_FRONT_PAGE_META_OPTION
 			: self::FRONT_PAGE_META_OPTION;
-	}
-
-	/**
-	 * Whether the front page description still lives in the legacy option — Jetpack's
-	 * SEO output is off for this site and a description is stored there, so that's what
-	 * the front end reads and what an edit has to write back to.
-	 *
-	 * The rule `Jetpack_SEO_Utils::has_legacy_front_page_meta()` applies, evaluated from
-	 * the site's own state so that the read path, the write path and the front end can't
-	 * disagree on a site where that class isn't loaded.
-	 *
-	 * @return bool
-	 */
-	private static function has_legacy_front_page_meta() {
-		return ! self::is_jetpack_seo_enabled() && (bool) get_option( self::LEGACY_FRONT_PAGE_META_OPTION );
-	}
-
-	/**
-	 * The front page meta description this site's front end actually emits.
-	 *
-	 * `Jetpack_SEO_Utils::get_front_page_meta_description()` reproduced for sites that
-	 * don't load it — which includes WordPress.com Simple, where reading it through
-	 * `class_exists()` returned `''` for every site and left the Settings field blank
-	 * over a live description. Same shape as {@see self::is_jetpack_seo_enabled()}:
-	 * defer to the helper wherever it's loaded, reproduce it exactly everywhere else,
-	 * so the field the user edits is the value the front end reads.
-	 *
-	 * @return string
-	 */
-	private static function get_front_page_meta_description() {
-		if ( class_exists( 'Jetpack_SEO_Utils' ) ) {
-			// @phan-suppress-next-line PhanUndeclaredClassMethod -- Jetpack_SEO_Utils lives in plugins/jetpack and is guarded by class_exists.
-			return (string) Jetpack_SEO_Utils::get_front_page_meta_description();
-		}
-
-		return self::get_front_page_meta_description_without_helper();
-	}
-
-	/**
-	 * `Jetpack_SEO_Utils::get_front_page_meta_description()` reproduced for sites that
-	 * don't load it — which includes WordPress.com Simple.
-	 *
-	 * Split out from {@see self::get_front_page_meta_description()} so this branch is
-	 * reachable from a test even where the helper class is loaded, the same way
-	 * {@see self::is_jetpack_seo_enabled_without_helper()} is.
-	 *
-	 * @return string
-	 */
-	private static function get_front_page_meta_description_without_helper() {
-		if ( self::is_jetpack_seo_enabled_without_helper() ) {
-			$modern = get_option( self::FRONT_PAGE_META_OPTION );
-			return (string) ( $modern ? $modern : get_option( self::LEGACY_FRONT_PAGE_META_OPTION, '' ) );
-		}
-
-		return (string) get_option( self::LEGACY_FRONT_PAGE_META_OPTION, '' );
-	}
-
-	/**
-	 * Whether Jetpack's SEO output is live for this site, which is what decides
-	 * where the front page description is stored and read from.
-	 *
-	 * Defers to `Jetpack_SEO_Utils` wherever it's loaded, because that helper is what the
-	 * front end reads the description by and the two must not disagree. Everywhere else
-	 * {@see self::is_jetpack_seo_enabled_without_helper()} reproduces it.
-	 *
-	 * @return bool
-	 */
-	private static function is_jetpack_seo_enabled() {
-		if ( class_exists( 'Jetpack_SEO_Utils' ) ) {
-			// @phan-suppress-next-line PhanUndeclaredClassMethod -- Jetpack_SEO_Utils lives in plugins/jetpack and is guarded by class_exists.
-			return (bool) Jetpack_SEO_Utils::is_enabled_jetpack_seo();
-		}
-
-		return self::is_jetpack_seo_enabled_without_helper();
-	}
-
-	/**
-	 * `Jetpack_SEO_Utils::is_enabled_jetpack_seo()` reproduced for sites that don't load
-	 * it — which includes WordPress.com Simple, where this decides which option a save
-	 * targets.
-	 *
-	 * Exactly, not approximately: the conflicting-plugin filter, then the plan gate on
-	 * WordPress.com **Simple only**. The helper plan-gates behind `IS_WPCOM`, so an
-	 * Atomic site is never gated by it even without `advanced-seo`, and a wider copy
-	 * would send that site's edits to the legacy option while its front end kept reading
-	 * the modern one.
-	 *
-	 * Split out from {@see self::is_jetpack_seo_enabled()} so this branch is reachable
-	 * from a test even where the helper class is loaded.
-	 *
-	 * @return bool
-	 */
-	private static function is_jetpack_seo_enabled_without_helper() {
-		if ( Seo_Tools::is_disabled() ) {
-			return false;
-		}
-
-		// `Initializer::is_gated()` on Simple reduces to the helper's own
-		// `wpcom_site_has_feature( 'advanced-seo' )` check.
-		return ( new Host() )->is_wpcom_simple() ? ! Initializer::is_gated() : true;
 	}
 
 	/**
@@ -606,7 +496,7 @@ class Dashboard_Data {
 	 * @return void
 	 */
 	public static function after_setting_write() {
-		if ( self::is_jetpack_seo_enabled() ) {
+		if ( Seo_Tools::is_enabled() ) {
 			delete_option( self::LEGACY_FRONT_PAGE_META_OPTION );
 		}
 	}
@@ -1068,12 +958,12 @@ class Dashboard_Data {
 	public static function get_settings_data() {
 		$modules = new Modules();
 
-		// Read the stored values directly: Jetpack_SEO_Titles::get_custom_title_formats()
+		// Read the stored values directly: the Jetpack plugin's title helper
 		// intentionally hides them while another SEO plugin controls output, but the
 		// dashboard must still show the saved values without allowing edits.
 		$title_formats          = self::normalize_title_formats( get_option( 'advanced_seo_title_formats', array() ) );
-		$title_formats_editable = self::is_jetpack_seo_enabled();
-		$front_page_desc        = self::get_front_page_meta_description();
+		$title_formats_editable = Seo_Tools::is_enabled();
+		$front_page_desc        = Seo_Tools::get_front_page_meta_description();
 
 		if ( Seo_Tools::is_disabled() ) {
 			// Same for the description, which the helper swaps for the legacy fallback while
@@ -1086,7 +976,7 @@ class Dashboard_Data {
 		// WordPress.com Simple sites keeps editing it, even when otherwise plan-gated:
 		// the value stays live in the legacy option. The gated Settings uses this to keep
 		// that one field editable, and it's the same rule the save writes by.
-		$has_legacy_front_page_meta = self::has_legacy_front_page_meta();
+		$has_legacy_front_page_meta = Seo_Tools::has_legacy_front_page_meta();
 
 		$codes = get_option( 'verification_services_codes', array() );
 		if ( ! is_array( $codes ) ) {
@@ -1151,8 +1041,7 @@ class Dashboard_Data {
 	 * (a wpcom round-trip we don't want to make on every page load).
 	 *
 	 * Both `Keyring_Helper` (Publicize package) and the connection `Manager` are provided
-	 * by the host Jetpack plugin, so they're guarded with `class_exists` like the
-	 * `Jetpack_SEO_*` helpers. On a disconnected self-hosted site `is_connected` is false
+	 * by the host Jetpack plugin, so they're guarded with `class_exists`. On a disconnected self-hosted site `is_connected` is false
 	 * and the UI falls back to manual code entry only.
 	 *
 	 * @return array

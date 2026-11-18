@@ -2,6 +2,17 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## [7.0.0] - 2026-11-17
+### Removed
+- Remove the deprecated `GlobalNotices` component, `useGlobalNotices` hook and `globalNoticesStore`; use `@wordpress/notices` directly. [#55007]
+
+## [6.3.0] - 2026-11-16
+### Added
+- Add a HighlightBanner component: Jetpack's dark green banner with gradient orbs, previously copied into the Jetpack plugin and My Jetpack. [#54518]
+
+### Changed
+- Update package dependencies. [#54703]
+
 ## [6.2.1] - 2026-11-06
 ### Fixed
 - Footer: Show the Features link to administrators only.
@@ -2067,6 +2078,8 @@
 ### Changed
 - Update node version requirement to 14.16.1
 
+[7.0.0]: https://github.com/Automattic/jetpack-components/compare/6.3.0...7.0.0
+[6.3.0]: https://github.com/Automattic/jetpack-components/compare/6.2.1...6.3.0
 [6.2.1]: https://github.com/Automattic/jetpack-components/compare/6.2.0...6.2.1
 [6.2.0]: https://github.com/Automattic/jetpack-components/compare/6.1.1...6.2.0
 [6.1.1]: https://github.com/Automattic/jetpack-components/compare/6.1.0...6.1.1

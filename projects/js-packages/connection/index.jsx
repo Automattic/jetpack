@@ -32,6 +32,7 @@ export { default as DisconnectDialog } from './components/disconnect-dialog';
 export { default as DisconnectCard } from './components/disconnect-card';
 export { default as DisconnectUserDialog } from './components/disconnect-user-dialog';
 export { default as useConnection } from './components/use-connection';
+export * from './components/identity-crisis';
 export { default as ManageConnectionDialog } from './components/manage-connection-dialog';
 export { default as TransferConnectionOwnership } from './components/transfer-connection-ownership';
 export * from './components/transfer-connection-ownership/types.ts';
@@ -67,6 +68,7 @@ export {
 } from './helpers/connection-from.ts';
 export * from './helpers/get-user-connect-kind.ts';
 export { getReconnectErrorMessage } from './helpers/get-reconnect-error-message.ts';
+export { formatSiteAddress } from './helpers/format-site-address.ts';
 export { getTracksIdentity, initializeTracksIdentity } from './helpers/tracks-identity.ts';
 export {
 	CONNECTION_EVENTS,
@@ -92,6 +94,8 @@ export { STORE_ID as CONNECTION_STORE_ID } from './state/store';
 export { default as useProductCheckoutWorkflow } from './hooks/use-product-checkout-workflow';
 export { default as useRestoreConnection } from './hooks/use-restore-connection';
 export { default as useConnectionErrorNotice } from './hooks/use-connection-error-notice';
+export { default as useIdentityCrisisActions } from './hooks/use-identity-crisis-actions';
+export * from './hooks/use-identity-crisis-actions/types.ts';
 export {
 	isOtherUsersConnectionError,
 	getConnectionErrorUserScope,

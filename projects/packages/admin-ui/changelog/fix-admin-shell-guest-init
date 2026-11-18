@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Admin shell: Retry a dashboard's setup after it fails, and set up one dashboard at a time so each loads with its own configuration.

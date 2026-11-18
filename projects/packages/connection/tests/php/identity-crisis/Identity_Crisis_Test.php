@@ -48,7 +48,12 @@ class Identity_Crisis_Test extends BaseTestCase {
 			$instance->setAccessible( true );
 		}
 		$instance->setValue( null, null );
+		Identity_Crisis::$is_safe_mode_confirmed = false;
 		$this->reset_connection_status();
+
+		Jetpack_Options::delete_option( 'safe_mode_confirmed' );
+		$_GET = array();
+		wp_set_current_user( 0 );
 	}
 
 	/**
@@ -1017,14 +1022,17 @@ class Identity_Crisis_Test extends BaseTestCase {
 	/**
 	 * Test the get_mismatched_urls method.
 	 *
-	 * @param mixed $idc_error       The value of the jetpack_sync_idc_error option.
-	 * @param mixed $expected_result The value that the get_mismatched_value method should return.
+	 * @param mixed $idc_error           The value of the jetpack_sync_idc_error option.
+	 * @param mixed $expected_result     The value that the get_mismatched_value method should return.
+	 * @param bool  $safe_mode_confirmed Whether an admin confirmed Safe Mode.
 	 *
 	 * @dataProvider data_provider_test_get_mismatched_urls
 	 */
 	#[DataProvider( 'data_provider_test_get_mismatched_urls' )]
-	public function test_get_mismatched_urls( $idc_error, $expected_result ) {
+	public function test_get_mismatched_urls( $idc_error, $expected_result, $safe_mode_confirmed = false ) {
 		$this->check_identity_crisis_return_error( $idc_error );
+		Identity_Crisis::$is_safe_mode_confirmed = $safe_mode_confirmed;
+
 		$result = Identity_Crisis::get_mismatched_urls();
 		$this->clean_up_check_identity_crisis_return_error();
 
@@ -1134,6 +1142,17 @@ class Identity_Crisis_Test extends BaseTestCase {
 					'wpcom_url'   => 'example.com/wpcom_home',
 					'current_url' => 'example.com/remote_home',
 				),
+			),
+			'safe_mode_confirmed'     => array(
+				'idc_error'           => array(
+					'error_code'    => 'jetpack_url_mismatch',
+					'wpcom_siteurl' => 'example.com/wpcom_siteurl',
+					'wpcom_home'    => 'example.com/wpcom_home',
+					'siteurl'       => 'example.com/remote_siteurl',
+					'home'          => 'example.com/remote_home',
+				),
+				'expected_result'     => false,
+				'safe_mode_confirmed' => true,
 			),
 		);
 	}
@@ -1801,5 +1820,131 @@ class Identity_Crisis_Test extends BaseTestCase {
 		$this->assertGreaterThan( $initial_sync_error['last_checked'], $stored_option['last_checked'] );
 		// next_check_delay should be doubled (exponential backoff).
 		$this->assertEquals( 7200, $stored_option['next_check_delay'] );
+	}
+
+	/**
+	 * Non-admins see Safe Mode as confirmed once an admin has confirmed it.
+	 */
+	public function test_wordpress_init_reads_confirmation_for_non_admins() {
+		Jetpack_Options::update_option( 'safe_mode_confirmed', true );
+		$this->set_current_user( false );
+
+		Identity_Crisis::init()->wordpress_init();
+
+		$this->assertTrue( Identity_Crisis::$is_safe_mode_confirmed );
+	}
+
+	/**
+	 * An admin following the admin bar link clears the confirmation.
+	 */
+	public function test_wordpress_init_admin_clears_confirmation() {
+		Jetpack_Options::update_option( 'safe_mode_confirmed', true );
+		$this->set_current_user( true );
+		$this->set_clear_confirmation_request();
+
+		Identity_Crisis::init()->wordpress_init();
+
+		$this->assertFalse( Identity_Crisis::$is_safe_mode_confirmed );
+		$this->assertFalse( Jetpack_Options::get_option( 'safe_mode_confirmed', false ) );
+	}
+
+	/**
+	 * A non-admin cannot clear the confirmation, even with a valid nonce.
+	 */
+	public function test_wordpress_init_non_admin_cannot_clear_confirmation() {
+		Jetpack_Options::update_option( 'safe_mode_confirmed', true );
+		$this->set_current_user( false );
+		$this->set_clear_confirmation_request();
+
+		Identity_Crisis::init()->wordpress_init();
+
+		$this->assertTrue( Identity_Crisis::$is_safe_mode_confirmed );
+		$this->assertTrue( Jetpack_Options::get_option( 'safe_mode_confirmed' ) );
+	}
+
+	/**
+	 * The admin bar item is hidden until Safe Mode is confirmed.
+	 *
+	 * @param bool        $is_confirmed   Whether Safe Mode is confirmed.
+	 * @param string|null $expected_class The node's class.
+	 *
+	 * @dataProvider data_provider_test_admin_bar_button_for_admins
+	 */
+	#[DataProvider( 'data_provider_test_admin_bar_button_for_admins' )]
+	public function test_admin_bar_button_for_admins( $is_confirmed, $expected_class ) {
+		$this->set_current_user( true );
+		Identity_Crisis::$is_safe_mode_confirmed = $is_confirmed;
+
+		$node = $this->render_admin_bar_button();
+
+		$this->assertNotNull( $node );
+		$this->assertSame( $expected_class, $node->meta['class'] ?? null );
+		$this->assertStringContainsString( 'Jetpack Safe Mode', $node->title );
+		$this->assertStringContainsString( 'jetpack_idc_clear_confirmation=1', $node->href );
+	}
+
+	/**
+	 * Data provider for test_admin_bar_button_for_admins.
+	 *
+	 * @return array
+	 */
+	public static function data_provider_test_admin_bar_button_for_admins() {
+		return array(
+			'pending'   => array( false, 'hide' ),
+			'confirmed' => array( true, null ),
+		);
+	}
+
+	/**
+	 * Non-admins get no admin bar item, since its link only works for admins.
+	 */
+	public function test_admin_bar_button_not_added_for_non_admins() {
+		$this->set_current_user( false );
+		Identity_Crisis::$is_safe_mode_confirmed = true;
+
+		$this->assertNull( $this->render_admin_bar_button() );
+	}
+
+	/**
+	 * Log in a new user, with or without the capability to resolve Safe Mode.
+	 *
+	 * @param bool $can_resolve Whether the user has `jetpack_disconnect`.
+	 */
+	private function set_current_user( $can_resolve ) {
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'idc_user_' . wp_generate_password( 8, false ),
+				'user_pass'  => 'pass',
+				'role'       => 'editor',
+			)
+		);
+		$user    = get_userdata( $user_id );
+		if ( $can_resolve ) {
+			$user->add_cap( 'jetpack_disconnect' );
+		}
+		wp_set_current_user( $user_id );
+	}
+
+	/**
+	 * Simulate the request the admin bar link makes.
+	 */
+	private function set_clear_confirmation_request() {
+		$_GET['jetpack_idc_clear_confirmation'] = '1';
+		$_GET['_wpnonce']                       = wp_create_nonce( 'jetpack_idc_clear_confirmation' );
+	}
+
+	/**
+	 * Render the admin bar item and return its node.
+	 *
+	 * @return object|null The node, or null when none was added.
+	 */
+	private function render_admin_bar_button() {
+		global $wp_admin_bar;
+		require_once ABSPATH . 'wp-includes/class-wp-admin-bar.php';
+		$wp_admin_bar = new \WP_Admin_Bar();
+
+		Identity_Crisis::init()->display_admin_bar_button();
+
+		return $wp_admin_bar->get_node( 'jetpack-idc' );
 	}
 }

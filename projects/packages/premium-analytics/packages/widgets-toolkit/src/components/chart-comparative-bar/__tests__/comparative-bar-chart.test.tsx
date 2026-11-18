@@ -549,6 +549,21 @@ describe( 'ComparativeBarChart', () => {
 			expect( recordedOptions() ).not.toHaveProperty( 'yScale' );
 		} );
 
+		it( 'pins the rates left on 0-100% when the legend hides the one past 100%', () => {
+			setMockHiddenSeries( [ 'Retention' ] );
+			render(
+				<ComparativeBarChart
+					series={ [
+						{ label: 'Rate', group: 'rate', data: [ { date: JULY_1, value: 0.4 } ] },
+						{ label: 'Retention', group: 'retention', data: [ { date: JULY_1, value: 32.5 } ] },
+					] }
+					dataFormat={ { type: 'percentage' } }
+				/>
+			);
+
+			expect( recordedOptions().yScale?.domain ).toEqual( [ 0, 1 ] );
+		} );
+
 		it( 'leaves the pinned domain to size its own gutter', () => {
 			render( <ComparativeBarChart series={ ZERO_SERIES } dataFormat={ DATA_FORMAT } /> );
 

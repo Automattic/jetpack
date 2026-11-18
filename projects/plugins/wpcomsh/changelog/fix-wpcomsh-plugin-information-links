@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Plugins: Keep plugin details links from themes in wp-admin so their popup loads.

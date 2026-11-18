@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-monetize",
-	"version": "0.1.0",
+	"version": "0.2.0",
 	"private": true,
 	"description": "The Monetize dashboard: payments, paid subscribers and ads in wp-admin.",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/monetize/#readme",
@@ -55,6 +55,8 @@
 		"@jetpack-monetize/init": "link:packages/init",
 		"@tanstack/react-query": "5.102.8",
 		"@wordpress/api-fetch": "8.1.0",
+		"@wordpress/date": "6.1.0",
+		"@wordpress/dom": "5.1.0",
 		"@wordpress/element": "10.1.0",
 		"@wordpress/i18n": "7.1.0",
 		"@wordpress/icons": "20.0.0",

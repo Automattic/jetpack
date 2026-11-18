@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Abilities: Add a definitions block to every Stats reader response, saying what each metric counts and which time window it covers.

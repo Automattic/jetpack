@@ -415,7 +415,7 @@ class Contact_Form_Plugin {
 	 * Not wp_get_global_styles(): core's resolver drops `label` before WP 7.1, and a missing
 	 * path returns the whole styles tree instead of nothing.
 	 *
-	 * @since $$next-version$$
+	 * @since 8.4.0
 	 *
 	 * @return array Style object for the label element, keyed as in theme.json.
 	 */
@@ -441,7 +441,7 @@ class Contact_Form_Plugin {
 	 * Global Styles emits `label { ... }` at (0,0,1), which loses to grunion.css at (0,1,0), so
 	 * the contested properties are re-asserted only when the site has set label styles.
 	 *
-	 * @since $$next-version$$
+	 * @since 8.4.0
 	 *
 	 * @return void
 	 */
@@ -460,7 +460,7 @@ class Contact_Form_Plugin {
 	 *
 	 * Every rule is (0,1,0) and printed after grunion.css, so source order decides each tie.
 	 *
-	 * @since $$next-version$$
+	 * @since 8.4.0
 	 *
 	 * @param array $label Style object for the label element, keyed as in theme.json.
 	 * @return string CSS, or an empty string when there is nothing to emit.
@@ -3115,7 +3115,7 @@ class Contact_Form_Plugin {
 	/**
 	 * Yields the export header row, then one row per response.
 	 *
-	 * @since $$next-version$$
+	 * @since 8.4.0
 	 *
 	 * @param int[] $feedback_ids           Feedback IDs to export.
 	 * @param bool  $include_test_responses Whether to include responses submitted from form preview.
@@ -3360,7 +3360,7 @@ class Contact_Form_Plugin {
 	 *
 	 * Does no permission checks; callers must.
 	 *
-	 * @since $$next-version$$
+	 * @since 8.4.0
 	 *
 	 * @param array $filters {
 	 *     Optional. Filters to narrow the export.
@@ -3609,7 +3609,7 @@ class Contact_Form_Plugin {
 	/**
 	 * Writes export rows as CSV: the header row as-is, then every response row through esc_csv().
 	 *
-	 * @since $$next-version$$
+	 * @since 8.4.0
 	 *
 	 * @param resource   $output Writable stream.
 	 * @param \Generator $rows   Rows from get_export_rows(), header first.

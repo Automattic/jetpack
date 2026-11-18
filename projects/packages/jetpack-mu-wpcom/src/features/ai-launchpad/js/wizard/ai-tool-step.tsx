@@ -268,7 +268,7 @@ export default function AiToolStep( {
 								</Text>
 							</Stack>
 							<span className="ai-launchpad-wizard__ai-tool-action">
-								{ /* Hover-only, like the setup choice's badge tooltip. */ }
+								{ /* Hover-only, per the design: the tooltip is not announced and does not show on touch. */ }
 								<Tooltip.Root disabled={ ! status || ! existingTools.includes( item.tool ) }>
 									<Tooltip.Trigger
 										render={

@@ -187,18 +187,16 @@ class Jetpack_Sitemap_Librarian_Test extends WP_UnitTestCase {
 	public function test_sitemap_librarian_delete_contiguously_named_rows() {
 		$librarian = new Jetpack_Sitemap_Librarian();
 
-		// Store some contiguous data.
-		$librarian->store_sitemap_data( 'name-1', JP_PAGE_SITEMAP_TYPE, 'foo', '1970-01-01 00:00:00' );
-		$librarian->store_sitemap_data( 'name-2', JP_PAGE_SITEMAP_TYPE, 'foo', '1970-01-01 00:00:00' );
-		$librarian->store_sitemap_data( 'name-3', JP_PAGE_SITEMAP_TYPE, 'foo', '1970-01-01 00:00:00' );
+		foreach ( array( 1, 2, 3 ) as $n ) {
+			$librarian->store_sitemap_data( $n, JP_PAGE_SITEMAP_TYPE, 'foo', '1970-01-01 00:00:00' );
+			$this->assertNotNull( $librarian->read_sitemap_data( jp_sitemap_filename( JP_PAGE_SITEMAP_TYPE, $n ), JP_PAGE_SITEMAP_TYPE ) );
+		}
 
-		// Delete it.
-		$librarian->delete_numbered_sitemap_rows_after( 0, 'type' );
+		$librarian->delete_numbered_sitemap_rows_after( 0, JP_PAGE_SITEMAP_TYPE );
 
-		// It's gone!
-		$this->assertTrue( $librarian->read_sitemap_data( 'name-1', 'type' ) === null );
-		$this->assertTrue( $librarian->read_sitemap_data( 'name-2', 'type' ) === null );
-		$this->assertTrue( $librarian->read_sitemap_data( 'name-3', 'type' ) === null );
+		foreach ( array( 1, 2, 3 ) as $n ) {
+			$this->assertNull( $librarian->read_sitemap_data( jp_sitemap_filename( JP_PAGE_SITEMAP_TYPE, $n ), JP_PAGE_SITEMAP_TYPE ) );
+		}
 	}
 
 	/**

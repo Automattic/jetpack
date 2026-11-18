@@ -195,6 +195,34 @@ Stats and Premium Analytics register this way, under the keys `jetpack-stats` an
 
 Unlike `add_menu()`, the page gets neither the core-notice CSS nor the WPDS design tokens; call `Admin_Menu::hide_core_admin_notices()` or `Admin_Menu::enqueue_design_tokens()` on its own `load-` hook for either. Registering only top level items never builds the Jetpack menu.
 
+### Admin shell: page events
+
+With the admin shell on, opening a member doesn't load the page, so work a dashboard does once per page load doesn't run again. The shell dispatches two events on `window` instead:
+
+* `jetpack-admin-shell:page-shown` once a member is on screen and its URL is written, with `detail: { page, previous, firstShow, routeChanged, url }`. `previous` is the page the shell switched from, or `null` on a page load. `firstShow` is `true` the first time the app renders in this document and `false` when the shell shows an app it kept mounted. `routeChanged` is `true` only when the shell reopened a kept-mounted app at a URL whose query or hash differs from where it was left, such as through a link or Back, so the app's router has already seen a navigation. It is `false` on a first show, on a return to the route the app was left on, and when unsaved changes kept the app where it was.
+* `jetpack-admin-shell:page-hidden` as a member leaves the screen, with `detail: { page, previous: null, next, firstShow: false, url }`. `next` is the page the shell is switching to. `page` can be a page that never finished rendering, if the user moved on before it did.
+
+Don't pair the two events: a switch dispatches no `page-shown` when another switch overtakes it before its page renders, or when it returns to a page still rendering from an earlier switch. A later `page-shown` can name a page that never rendered as `previous`. If `next` fails to open while the user is still waiting on it, the shell falls back to loading it.
+
+A dashboard that records a Tracks page view when it mounts records it again on `page-shown` for its own page when `firstShow` is `false`: its mount has already counted the first show, and with the shell off every visit is a page load that counts. A dashboard whose router also records a view on each route change skips that replay when `routeChanged` is `true`, since its router has already counted it.
+```JS
+useEffect( () => {
+	const onShown = event => {
+		if (
+			event.detail?.page === 'my-dashboard' &&
+			! event.detail.firstShow &&
+			! event.detail.routeChanged
+		) {
+			recordPageView();
+		}
+	};
+	window.addEventListener( 'jetpack-admin-shell:page-shown', onShown );
+	return () => window.removeEventListener( 'jetpack-admin-shell:page-shown', onShown );
+}, [] );
+```
+
+Neither event fires while the shell is off.
+
 ### Admin shell: unsaved changes
 
 With the admin shell on, member dashboards stay mounted while hidden, so switching away keeps an edit. A navigation that would open a member at a different route than where it was left would unmount that view, so first the shell dispatches a cancelable `jetpack-admin-shell:before-leave` event on `window`, with `detail: { page, url }`: the member's admin page slug and the URL about to open.

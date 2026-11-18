@@ -1,16 +1,18 @@
 <?php
 /**
- * The package's own reports, handler and provider.
+ * The package's own reports, handlers and providers.
  *
  * @package automattic/jetpack-woocommerce-stats
  */
 
 namespace Automattic\Jetpack\WooCommerceStats\Report_Execution;
 
+use Automattic\Jetpack\WooCommerceStats\Analytics_Dashboard;
 use Automattic\Jetpack\WooCommerceStats\Api_Proxy_Controller;
 
 /**
- * Registers the reports WordPress.com serves, on `Report_Registry::REGISTER_ACTION`.
+ * Registers the reports WordPress.com serves, and on a WooCommerce site the local handler of
+ * `orders.by_date`, on `Report_Registry::REGISTER_ACTION`.
  *
  * @since 0.3.3
  */
@@ -94,6 +96,10 @@ class Default_Reports {
 
 		$registry->register_provider( 'wpcom', new Wpcom_Report_Provider() );
 		$registry->register_handler( Report_Registry::ANY_REPORT, 'wpcom', new Wpcom_Forward_Handler( new Api_Proxy_Controller() ) );
+		if ( Analytics_Dashboard::is_woocommerce_available() ) {
+			$registry->register_provider( 'local', new Local_Report_Provider() );
+			$registry->register_handler( 'orders.by_date', 'local', new Core_Revenue_Stats_Handler() );
+		}
 
 		$contracts = array(
 			'orders.by_date'     => new Report_Definition( 'orders.by_date', 1, array( self::ROUTES['orders.by_date'] ), self::ORDERS_BY_DATE_FIELDS, array( 'orders' ), self::ORDER_SEMANTICS ),

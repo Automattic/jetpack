@@ -11,6 +11,7 @@ namespace Automattic\Jetpack\Stats\Abilities;
 
 use Automattic\Jetpack\Stats\Settings;
 use Automattic\Jetpack\Stats\WPCOM_Stats;
+use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\WP_Abilities\Registrar;
 use Jetpack_Options;
 use WP_Error;
@@ -25,8 +26,8 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Exposes a small, consolidated surface for reading Jetpack Stats traffic
  * insights and managing site-level Stats settings so AI agents can
  * answer site-owner questions through the standard `wp-abilities/v1` REST
- * surface. Seven abilities wrap ~25 atomic WPCOM Stats endpoints plus the
- * `stats_options` WP option.
+ * surface. Twelve abilities wrap the WPCOM Stats, subscriber and WordAds
+ * endpoints plus the `stats_options` WP option.
  */
 class Stats_Abilities extends Registrar {
 
@@ -36,12 +37,65 @@ class Stats_Abilities extends Registrar {
 	/**
 	 * Allowed `type` values for `get-top-content`.
 	 */
-	const TOP_CONTENT_TYPES = array( 'posts', 'referrers', 'search-terms', 'clicks', 'tags', 'authors', 'countries', 'downloads', 'video-plays' );
+	const TOP_CONTENT_TYPES = array( 'posts', 'referrers', 'search-terms', 'clicks', 'tags', 'authors', 'countries', 'regions', 'cities', 'browsers', 'platforms', 'screen-sizes', 'utm', 'commenters', 'commented-posts', 'downloads', 'video-plays' );
+
+	/**
+	 * `get-top-content` types WordPress.com reads as a number of days ending on a date, mapped to the endpoint path.
+	 */
+	const DAYS_WINDOW_TYPES = array(
+		'browsers'     => 'browser',
+		'platforms'    => 'platform',
+		'screen-sizes' => 'screensize',
+		'utm'          => 'utm',
+	);
+
+	/**
+	 * `get-top-content` types that rank locations below country, mapped to WordPress.com's geo mode.
+	 */
+	const LOCATION_TYPES = array(
+		'regions' => 'region',
+		'cities'  => 'city',
+	);
+
+	/**
+	 * `get-top-content` types that cover the site's whole history whatever the window asks.
+	 */
+	const UNDATED_TYPES = array( 'tags', 'commenters', 'commented-posts' );
+
+	/**
+	 * UTM parameters, and the combinations of them, WordPress.com groups views by.
+	 */
+	const UTM_PARAMS = array( 'utm_source,utm_medium', 'utm_campaign,utm_source,utm_medium', 'utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content', 'utm_id', 'utm_source_platform', 'utm_creative_format', 'utm_marketing_tactic' );
+
+	/**
+	 * Most authors WordPress.com ranks in one `stats/top-authors` response.
+	 */
+	const TOP_AUTHORS_LIMIT = 20;
+
+	/**
+	 * Fields `get-subscribers` can sort by.
+	 */
+	const SUBSCRIBER_SORTS = array( 'date_subscribed', 'email', 'name', 'plan', 'subscription_status' );
+
+	/**
+	 * Kinds of subscriber `get-subscribers` can list.
+	 */
+	const SUBSCRIBER_FILTERS = array( 'all', 'email_subscriber', 'reader_subscriber', 'paid', 'comp', 'free', 'unconfirmed_subscriber', 'blocked_subscriber' );
+
+	/**
+	 * Fields `get-email-stats` can sort by.
+	 */
+	const EMAIL_SORTS = array( 'post_date', 'opens', 'clicks' );
 
 	/**
 	 * Allowed aggregation periods for timeseries + top-content reads.
 	 */
 	const PERIODS = array( 'day', 'week', 'month', 'year' );
+
+	/**
+	 * Comparison presets, named as in the Stats dashboard's Compare menu.
+	 */
+	const COMPARE_PRESETS = array( 'previous-period', 'previous-period-match-day-of-week', 'previous-year', 'previous-year-match-day-of-week' );
 
 	/**
 	 * Allowed metric fields for `get-visits`.
@@ -64,47 +118,63 @@ class Stats_Abilities extends Registrar {
 	 * several terms, no `days` envelope) are special-cased in the callback.
 	 */
 	const TOP_CONTENT_MAP = array(
-		'posts'        => array(
+		'posts'           => array(
 			'list'  => 'postviews',
 			'label' => 'title',
 			'value' => 'views',
 			'href'  => 'href',
 			'id'    => 'id',
 		),
-		'referrers'    => array(
+		'referrers'       => array(
 			// WPCOM `stats/referrers` keys per-day data under `groups`, not `referrers` —
 			// each group exposes `name`, `total`, and (sometimes) `url`.
-			'list'  => 'groups',
-			'label' => 'name',
-			'value' => 'total',
-			'href'  => 'url',
+			'list'     => 'groups',
+			'label'    => 'name',
+			'value'    => 'total',
+			'href'     => 'url',
+			'children' => 'results',
 		),
-		'search-terms' => array(
+		'search-terms'    => array(
 			'list'  => 'search_terms',
 			'label' => 'term',
 			'value' => 'views',
 		),
-		'clicks'       => array(
-			'list'  => 'clicks',
-			'label' => array( 'name', 'url' ),
-			'value' => 'views',
-			'href'  => 'url',
+		'clicks'          => array(
+			'list'     => 'clicks',
+			'label'    => array( 'name', 'url' ),
+			'value'    => 'views',
+			'href'     => 'url',
+			'children' => 'children',
 		),
-		'authors'      => array(
-			'list'  => 'authors',
-			'label' => 'name',
-			'value' => 'views',
+		'authors'         => array(
+			'list'     => 'authors',
+			'label'    => 'name',
+			'value'    => 'views',
+			'id'       => 'author_id',
+			'children' => 'posts',
 		),
-		'downloads'    => array(
+		'downloads'       => array(
 			'list'  => 'files',
 			'label' => array( 'filename', 'relative_url' ),
 			'value' => array( 'downloads', 'download_count' ),
 			'href'  => array( 'download_url', 'relative_url' ),
 		),
-		'video-plays'  => array(
+		'video-plays'     => array(
 			'list'  => 'plays',
 			'label' => 'title',
 			'value' => 'plays',
+		),
+		'commenters'      => array(
+			'list'  => 'authors',
+			'label' => 'name',
+			'value' => 'comments',
+		),
+		'commented-posts' => array(
+			'list'  => 'posts',
+			'label' => 'name',
+			'value' => 'comments',
+			'href'  => 'link',
+			'id'    => 'id',
 		),
 	);
 
@@ -136,6 +206,11 @@ class Stats_Abilities extends Registrar {
 			'jetpack-stats/get-post-views'    => self::spec_get_post_views(),
 			'jetpack-stats/get-visits'        => self::spec_get_visits(),
 			'jetpack-stats/get-followers'     => self::spec_get_followers(),
+			'jetpack-stats/get-author-views'  => self::spec_get_author_views(),
+			'jetpack-stats/get-insights'      => self::spec_get_insights(),
+			'jetpack-stats/get-email-stats'   => self::spec_get_email_stats(),
+			'jetpack-stats/get-subscribers'   => self::spec_get_subscribers(),
+			'jetpack-stats/get-ad-stats'      => self::spec_get_ad_stats(),
 			'jetpack-stats/get-settings'      => self::spec_get_settings(),
 			'jetpack-stats/update-settings'   => self::spec_update_settings(),
 		);
@@ -154,13 +229,15 @@ class Stats_Abilities extends Registrar {
 		return array(
 			'label'               => __( 'Get site stats overview', 'jetpack-stats-pkg' ),
 			'description'         => __(
-				'Answer "how is my site doing right now?" in one zero-argument call, from today\'s and recent Stats. `views_week` and `views_month` are rolling totals for the last 7 and 30 days, today included (not calendar weeks or months). `streak.current_length` is 0 unless the latest posting streak reaches today or yesterday. `top_post` is today\'s most-viewed post or page (the home page / archives row is skipped, so `id` is always a real post ID); `top_post` and `top_referrer` are null when there is none today. Composes the WPCOM stats/visits, stats/streak, stats/top-posts, and stats/referrers endpoints — if any sub-call fails, `partial` is true and `errors` lists the failed sub-calls: `visits` (every views and visitors field), `streak`, `top_posts` (`top_post`), and `referrers` (`top_referrer`). Fields fed by a failed sub-call are null, `streak` included, as is a total covering a day WordPress.com did not report, so a 0 is a value WordPress.com reported. If every sub-call fails, returns `jetpack_stats_data_unavailable`. `site` is the WordPress.com blog ID and home URL of the site whose Stats were read. Precondition: the site must be connected to WordPress.com. Results cached for ~5 minutes by WPCOM_Stats — safe to poll.',
+				'Answer "how is my site doing right now?" in one call, from today\'s and recent Stats. With `compare`, `comparison` holds the same four figures for the earlier windows the preset names, as in the Stats dashboard\'s Compare menu: `previous-period` (yesterday, the 7 days before the last 7, the 30 days before the last 30), `previous-period-match-day-of-week` (shifted back by whole weeks), `previous-year` (the same dates a year earlier), `previous-year-match-day-of-week` (52 weeks earlier). `views_week` and `views_month` are rolling totals for the last 7 and 30 days, today included (not calendar weeks or months). `top_post` is today\'s most-viewed post or page (the home page / archives row is skipped, so `id` is always a real post ID); `top_post` and `top_referrer` are null when there is none today. Composes the WPCOM stats/visits, stats/top-posts, and stats/referrers endpoints — if any sub-call fails, `partial` is true and `errors` lists the failed sub-calls: `visits` (every views and visitors field), `top_posts` (`top_post`), `referrers` (`top_referrer`), and `comparison` (every `comparison` figure). Fields fed by a failed sub-call are null, as is a total covering a day WordPress.com did not report, so a 0 is a value WordPress.com reported. If every sub-call fails, returns `jetpack_stats_data_unavailable`. `site` is the WordPress.com blog ID and home URL of the site whose Stats were read. `definitions` explains, in plain words, each metric and time window in the response — read it before reporting a number. Precondition: the site must be connected to WordPress.com. Results cached for ~5 minutes by WPCOM_Stats — safe to poll.',
 				'jetpack-stats-pkg'
 			),
 			'input_schema'        => array(
 				'type'                 => 'object',
 				'default'              => array(),
-				'properties'           => new \stdClass(),
+				'properties'           => array(
+					'compare' => self::compare_schema(),
+				),
 				'additionalProperties' => false,
 			),
 			'output_schema'       => array(
@@ -172,15 +249,6 @@ class Stats_Abilities extends Registrar {
 					'visitors_today' => array( 'type' => array( 'integer', 'null' ) ),
 					'views_week'     => array( 'type' => array( 'integer', 'null' ) ),
 					'views_month'    => array( 'type' => array( 'integer', 'null' ) ),
-					'streak'         => array(
-						'type'       => array( 'object', 'null' ),
-						'properties' => array(
-							'current_length' => array( 'type' => 'integer' ),
-							'longest_length' => array( 'type' => 'integer' ),
-							'longest_start'  => array( 'type' => 'string' ),
-							'longest_end'    => array( 'type' => 'string' ),
-						),
-					),
 					'top_post'       => array(
 						'type'       => array( 'object', 'null' ),
 						'properties' => array(
@@ -196,24 +264,35 @@ class Stats_Abilities extends Registrar {
 							'views' => array( 'type' => 'integer' ),
 						),
 					),
+					'comparison'     => array(
+						'type'       => 'object',
+						'properties' => array(
+							'preset'         => array( 'type' => 'string' ),
+							'views_today'    => array( 'type' => array( 'integer', 'null' ) ),
+							'visitors_today' => array( 'type' => array( 'integer', 'null' ) ),
+							'views_week'     => array( 'type' => array( 'integer', 'null' ) ),
+							'views_month'    => array( 'type' => array( 'integer', 'null' ) ),
+							'windows'        => array(
+								'type'                 => 'object',
+								// `today`, `week` and `month`, each the dates its figure covers.
+								'additionalProperties' => array(
+									'type'       => 'object',
+									'properties' => array(
+										'from' => array( 'type' => 'string' ),
+										'to'   => array( 'type' => 'string' ),
+									),
+								),
+							),
+						),
+					),
 					'partial'        => array( 'type' => 'boolean' ),
 					'errors'         => self::errors_schema(),
+					'definitions'    => self::definitions_schema(),
 				),
 			),
 			'execute_callback'    => array( __CLASS__, 'get_site_overview' ),
 			'permission_callback' => array( __CLASS__, 'can_view_stats' ),
-			'meta'                => array(
-				'annotations'  => array(
-					'readonly'    => true,
-					'destructive' => false,
-					'idempotent'  => true,
-				),
-				'show_in_rest' => true,
-				'mcp'          => array(
-					'public' => true,
-					'type'   => 'tool', // default is already "tool", but can be explicit.
-				),
-			),
+			'meta'                => self::reader_meta(),
 		);
 	}
 
@@ -224,42 +303,53 @@ class Stats_Abilities extends Registrar {
 		return array(
 			'label'               => __( 'Get top stats content', 'jetpack-stats-pkg' ),
 			'description'         => __(
-				'Return the top items for a chosen content type — posts, referrers, search terms, outbound clicks, tags/categories, authors, countries, downloads, or video plays — in one filtered call. Replaces nine atomic WPCOM endpoints with a single ability. Every type returns the same item shape. `label` is human-readable (post title, referrer host, search term, country name, etc.); a tags item names every tag and category it groups, and countries WordPress.com cannot place share one item. `value` is the view/hit count for that item. `href` is present only when the item has a canonical URL. `id` is the post ID on posts items other than the home page / archives row — pass it to jetpack-stats/get-post-views. With `num` above 1, items are totals across the `num` periods ending with the one containing `date` (e.g. period=day, num=7 is the last seven days). `tags` ignores `period`, `date` and `num` and covers the seven days ending yesterday. `site` is the WordPress.com blog ID and home URL of the site whose Stats were read. Precondition: site must be connected to WordPress.com.',
+				'Return the top items for a chosen content type in one filtered call: posts, referrers, search terms, outbound clicks, tags/categories, authors, countries, regions, cities, browsers, platforms (operating systems), screen sizes, UTM campaign values, commenters, commented posts, downloads, or video plays. Every type returns the same item shape. `label` is human-readable (post title, referrer host, search term, place name, browser, etc.); a tags item names every tag and category it groups, and countries WordPress.com cannot place share one item. `value` is the count for that item: views for most types, clicks, comments, downloads or plays where the type says so, and for `screen-sizes` the percent of views. `country` is the ISO country code of a region or city item. `max` caps the items; `max=0` returns every item. With `expand=true`, an item that groups other rows lists them in `children`. Referrers group the pages that sent views (and the Search Engines item each engine), clicks group the links under one domain, authors group their posts, and a tags item lists each tag and category (`type`), which share its views so carry no `value` of their own. `max` caps each item\'s children too, as WordPress.com does at every level; `max=0` returns them all. `truncated` is true when more items exist than `max` returned; WordPress.com ranks at most 20 authors, so a full authors list is flagged too. `href` is present only when the item has a canonical URL, and is where a link leads rather than WordPress.com\'s href.li redirect. `id` is the post ID on posts and commented-posts items other than the home page / archives row (pass it to jetpack-stats/get-post-views), and the author\'s user ID on authors items. With `num` above 1, items are totals across the `num` periods ending with the one containing `date` (e.g. period=day, num=7 is the last seven days). `utm` groups views by `utm_param`. `tags` ignores `period`, `date` and `num` and covers the seven days ending yesterday; `commenters` and `commented-posts` ignore them too and count every comment ever approved. Regions, cities, browsers, platforms, screen sizes and UTM values need a Stats plan that includes them; on other sites WordPress.com refuses with `stats_error` and says so. `downloads` only works on WordPress.com sites that do not use Jetpack; elsewhere it returns `jetpack_stats_invalid_type`. `site` is the WordPress.com blog ID and home URL of the site whose Stats were read. `definitions` explains, in plain words, each metric and time window in the response — read it before reporting a number. Precondition: site must be connected to WordPress.com.',
 				'jetpack-stats-pkg'
 			),
 			'input_schema'        => array(
 				'type'                 => 'object',
 				'required'             => array( 'type' ),
 				'properties'           => array(
-					'type'   => array(
+					'type'      => array(
 						'type'        => 'string',
 						'description' => __( 'Which top-N surface to fetch.', 'jetpack-stats-pkg' ),
 						'enum'        => self::TOP_CONTENT_TYPES,
 					),
-					'period' => array(
+					'period'    => array(
 						'type'        => 'string',
 						'description' => __( 'Aggregation period.', 'jetpack-stats-pkg' ),
 						'enum'        => self::PERIODS,
 						'default'     => 'day',
 					),
-					'date'   => array(
+					'date'      => array(
 						'type'        => 'string',
 						'description' => __( 'End date (YYYY-MM-DD). Defaults to today.', 'jetpack-stats-pkg' ),
 						'pattern'     => '^[0-9]{4}-[0-9]{2}-[0-9]{2}$',
 					),
-					'num'    => array(
+					'num'       => array(
 						'type'        => 'integer',
 						'description' => __( 'How many prior periods to roll up (1-90).', 'jetpack-stats-pkg' ),
 						'minimum'     => 1,
 						'maximum'     => 90,
 						'default'     => 1,
 					),
-					'max'    => array(
+					'max'       => array(
 						'type'        => 'integer',
-						'description' => __( 'Results cap (1-100).', 'jetpack-stats-pkg' ),
-						'minimum'     => 1,
+						'description' => __( 'Results cap (1-100), or 0 for every item.', 'jetpack-stats-pkg' ),
+						'minimum'     => 0,
 						'maximum'     => 100,
 						'default'     => 20,
+					),
+					'expand'    => array(
+						'type'        => 'boolean',
+						'description' => __( 'Also return the rows each item groups, as the Stats dashboard does when a row is opened: the pages and engines under a referrer, the links under a clicked domain, an author\'s posts, and the terms in a tags item.', 'jetpack-stats-pkg' ),
+						'default'     => false,
+					),
+					'utm_param' => array(
+						'type'        => 'string',
+						'description' => __( 'For `type=utm`: the UTM parameter, or combination of them, to group views by.', 'jetpack-stats-pkg' ),
+						'enum'        => self::UTM_PARAMS,
+						'default'     => 'utm_source,utm_medium',
 					),
 				),
 				'additionalProperties' => false,
@@ -267,42 +357,51 @@ class Stats_Abilities extends Registrar {
 			'output_schema'       => array(
 				'type'       => 'object',
 				'properties' => array(
-					'site'   => self::site_schema(),
-					'type'   => array( 'type' => 'string' ),
-					'period' => array( 'type' => 'string' ),
-					'date'   => array( 'type' => 'string' ),
-					'num'    => array( 'type' => 'integer' ),
-					'max'    => array( 'type' => 'integer' ),
-					'items'  => array(
+					'site'        => self::site_schema(),
+					'type'        => array( 'type' => 'string' ),
+					'period'      => array( 'type' => 'string' ),
+					'date'        => array( 'type' => 'string' ),
+					'num'         => array( 'type' => 'integer' ),
+					'max'         => array( 'type' => 'integer' ),
+					'expand'      => array( 'type' => 'boolean' ),
+					'utm_param'   => array( 'type' => 'string' ),
+					'truncated'   => array( 'type' => 'boolean' ),
+					'items'       => array(
 						'type'  => 'array',
 						'items' => array(
 							'type'       => 'object',
 							'properties' => array(
-								'rank'  => array( 'type' => 'integer' ),
-								'label' => array( 'type' => 'string' ),
-								'value' => array( 'type' => 'integer' ),
-								'href'  => array( 'type' => 'string' ),
-								'id'    => array( 'type' => 'integer' ),
+								'rank'     => array( 'type' => 'integer' ),
+								'label'    => array( 'type' => 'string' ),
+								'value'    => array( 'type' => 'integer' ),
+								'href'     => array( 'type' => 'string' ),
+								'id'       => array( 'type' => 'integer' ),
+								'country'  => array( 'type' => 'string' ),
+								'children' => array(
+									'type'  => 'array',
+									'items' => array(
+										'type'       => 'object',
+										'properties' => array(
+											'label'    => array( 'type' => 'string' ),
+											'value'    => array( 'type' => 'integer' ),
+											'href'     => array( 'type' => 'string' ),
+											'type'     => array( 'type' => 'string' ),
+											// Rows a child groups in turn, in the same shape.
+											'children' => array( 'type' => 'array' ),
+										),
+										'required'   => array( 'label' ),
+									),
+								),
 							),
 							'required'   => array( 'rank', 'label', 'value' ),
 						),
 					),
+					'definitions' => self::definitions_schema(),
 				),
 			),
 			'execute_callback'    => array( __CLASS__, 'get_top_content' ),
 			'permission_callback' => array( __CLASS__, 'can_view_stats' ),
-			'meta'                => array(
-				'annotations'  => array(
-					'readonly'    => true,
-					'destructive' => false,
-					'idempotent'  => true,
-				),
-				'show_in_rest' => true,
-				'mcp'          => array(
-					'public' => true,
-					'type'   => 'tool', // default is already "tool", but can be explicit.
-				),
-			),
+			'meta'                => self::reader_meta(),
 		);
 	}
 
@@ -313,7 +412,7 @@ class Stats_Abilities extends Registrar {
 		return array(
 			'label'               => __( 'Get views for a post', 'jetpack-stats-pkg' ),
 			'description'         => __(
-				'Return views history for a single post: total views, timeseries of per-period views, and the period metadata. `total_views` is the post\'s all-time view count; when WordPress.com does not report it, it and every `series` value are null. `series` always has `num` rows, oldest first, ending with the period that contains `date`; each row\'s `date` is the first day of its period (weeks start on Monday) and periods with no views are 0. Returns `jetpack_stats_post_not_found` when no post has that ID. Accepts post_id as integer or numeric string (the literal "0" is rejected only because WordPress has no post 0 — any positive numeric value is legal). `site` is the WordPress.com blog ID and home URL of the site whose Stats were read. Precondition: site must be connected to WordPress.com. Related: call jetpack-stats/get-top-content with type=posts first and pass an item\'s `id` as `post_id`.',
+				'Return views history for a single post: total views, timeseries of per-period views, and the period metadata. `total_views` is the post\'s all-time view count; when WordPress.com does not report it, it and every `series` value are null. `series` always has `num` rows, oldest first, ending with the period that contains `date`; each row\'s `date` is the first day of its period (weeks start on Monday) and periods with no views are 0. Returns `jetpack_stats_post_not_found` when no post has that ID. Accepts post_id as integer or numeric string (the literal "0" is rejected only because WordPress has no post 0 — any positive numeric value is legal). `site` is the WordPress.com blog ID and home URL of the site whose Stats were read. `definitions` explains, in plain words, each metric and time window in the response — read it before reporting a number. Precondition: site must be connected to WordPress.com. Related: call jetpack-stats/get-top-content with type=posts first and pass an item\'s `id` as `post_id`.',
 				'jetpack-stats-pkg'
 			),
 			'input_schema'        => array(
@@ -364,22 +463,12 @@ class Stats_Abilities extends Registrar {
 							),
 						),
 					),
+					'definitions' => self::definitions_schema(),
 				),
 			),
 			'execute_callback'    => array( __CLASS__, 'get_post_views' ),
 			'permission_callback' => array( __CLASS__, 'can_view_stats' ),
-			'meta'                => array(
-				'annotations'  => array(
-					'readonly'    => true,
-					'destructive' => false,
-					'idempotent'  => true,
-				),
-				'show_in_rest' => true,
-				'mcp'          => array(
-					'public' => true,
-					'type'   => 'tool', // default is already "tool", but can be explicit.
-				),
-			),
+			'meta'                => self::reader_meta(),
 		);
 	}
 
@@ -390,32 +479,32 @@ class Stats_Abilities extends Registrar {
 		return array(
 			'label'               => __( 'Get site visits timeseries', 'jetpack-stats-pkg' ),
 			'description'         => __(
-				'Return a site-level views/visitors/likes/comments timeseries — answers "is traffic trending up?". Every series row always includes every field listed in the request (no per-row omission); a value WordPress.com did not report, or reported as negative, is null rather than 0. `site` is the WordPress.com blog ID and home URL of the site whose Stats were read. Precondition: site must be connected to WordPress.com.',
+				'Return a site-level views/visitors/likes/comments timeseries — answers "is traffic trending up?". With `compare`, `comparison.series` holds the same rows for an earlier window, row for row, as in the Stats dashboard\'s Compare menu: `previous-period` (the `num` periods before), `previous-period-match-day-of-week` (daily rows shifted back by whole weeks), `previous-year` (a year earlier; weeks shift 52 weeks), `previous-year-match-day-of-week` (52 weeks earlier). The weekday presets accept only day and week periods. If WordPress.com cannot read the compared window, `comparison.series` is null, `partial` is true and `errors` lists `comparison`. Each row\'s `date` is the first day of its period (weeks start on Monday). Every series row always includes every field listed in the request (no per-row omission); a value WordPress.com did not report, or reported as negative, is null rather than 0. `site` is the WordPress.com blog ID and home URL of the site whose Stats were read. `definitions` explains, in plain words, each metric and time window in the response — read it before reporting a number. Precondition: site must be connected to WordPress.com.',
 				'jetpack-stats-pkg'
 			),
 			'input_schema'        => array(
 				'type'                 => 'object',
 				'default'              => array(),
 				'properties'           => array(
-					'period' => array(
+					'period'  => array(
 						'type'        => 'string',
 						'description' => __( 'Granularity of each data point.', 'jetpack-stats-pkg' ),
 						'enum'        => self::PERIODS,
 						'default'     => 'day',
 					),
-					'num'    => array(
+					'num'     => array(
 						'type'        => 'integer',
 						'description' => __( 'How many data points to return (1-90).', 'jetpack-stats-pkg' ),
 						'minimum'     => 1,
 						'maximum'     => 90,
 						'default'     => 30,
 					),
-					'date'   => array(
+					'date'    => array(
 						'type'        => 'string',
 						'description' => __( 'End date (YYYY-MM-DD). Defaults to today.', 'jetpack-stats-pkg' ),
 						'pattern'     => '^[0-9]{4}-[0-9]{2}-[0-9]{2}$',
 					),
-					'fields' => array(
+					'fields'  => array(
 						'type'        => 'array',
 						'description' => __( 'Which metrics to include in each row. Defaults to views+visitors.', 'jetpack-stats-pkg' ),
 						'items'       => array(
@@ -424,50 +513,41 @@ class Stats_Abilities extends Registrar {
 						),
 						'default'     => self::DEFAULT_VISIT_FIELDS,
 					),
+					'compare' => self::compare_schema(),
 				),
 				'additionalProperties' => false,
 			),
 			'output_schema'       => array(
 				'type'       => 'object',
 				'properties' => array(
-					'site'   => self::site_schema(),
-					'period' => array( 'type' => 'string' ),
-					'num'    => array( 'type' => 'integer' ),
-					'date'   => array( 'type' => 'string' ),
-					'fields' => array(
+					'site'        => self::site_schema(),
+					'period'      => array( 'type' => 'string' ),
+					'num'         => array( 'type' => 'integer' ),
+					'date'        => array( 'type' => 'string' ),
+					'fields'      => array(
 						'type'  => 'array',
 						'items' => array(
 							'type' => 'string',
 							'enum' => self::VISIT_FIELDS,
 						),
 					),
-					'series' => array(
-						'type'  => 'array',
-						'items' => array(
-							'type'                 => 'object',
-							'properties'           => array(
-								'date' => array( 'type' => 'string' ),
-							),
-							// Each row carries every name in `fields`.
-							'additionalProperties' => array( 'type' => array( 'integer', 'null' ) ),
+					'series'      => self::visits_series_schema(),
+					'comparison'  => array(
+						'type'       => 'object',
+						'properties' => array(
+							'preset' => array( 'type' => 'string' ),
+							'date'   => array( 'type' => 'string' ),
+							'series' => self::visits_series_schema( true ),
 						),
 					),
+					'partial'     => array( 'type' => 'boolean' ),
+					'errors'      => self::errors_schema(),
+					'definitions' => self::definitions_schema(),
 				),
 			),
 			'execute_callback'    => array( __CLASS__, 'get_visits' ),
 			'permission_callback' => array( __CLASS__, 'can_view_stats' ),
-			'meta'                => array(
-				'annotations'  => array(
-					'readonly'    => true,
-					'destructive' => false,
-					'idempotent'  => true,
-				),
-				'show_in_rest' => true,
-				'mcp'          => array(
-					'public' => true,
-					'type'   => 'tool', // default is already "tool", but can be explicit.
-				),
-			),
+			'meta'                => self::reader_meta(),
 		);
 	}
 
@@ -478,46 +558,460 @@ class Stats_Abilities extends Registrar {
 		return array(
 			'label'               => __( 'Get follower counts', 'jetpack-stats-pkg' ),
 			'description'         => __(
-				'Return the site\'s follower counts by source — answers "how is my audience growing?" in one call. `email` and `wpcom` are the site\'s email subscribers and WordPress.com followers; `comment` counts people following the comments on every post (following one post\'s comments is not counted), and is reported as unknown through `errors` when WordPress.com does not list that count on its first page; `publicize` is an object, empty when no social connection reports followers. Composes three WPCOM endpoints — if any sub-call fails, `partial` is true and `errors` lists the failed sub-calls: `followers` (`email` and `wpcom`), `comment_followers`, and `publicize_followers`. Counts fed by a failed sub-call are null, `publicize` included, and `total` is null whenever any count is, so a 0 is a value WordPress.com reported. `site` is the WordPress.com blog ID and home URL of the site whose Stats were read. Precondition: site must be connected to WordPress.com.',
+				'Return the site\'s follower counts by source — answers "how is my audience growing?" in one call. `email` and `wpcom` are the site\'s email subscribers and WordPress.com followers; `comment` counts people following the comments on every post (following one post\'s comments is not counted), and is reported as unknown through `errors` when WordPress.com does not list that count on its first page; `publicize` is an object, empty when no social connection reports followers. Composes three WPCOM endpoints — if any sub-call fails, `partial` is true and `errors` lists the failed sub-calls: `followers` (`email` and `wpcom`), `comment_followers`, and `publicize_followers`. Counts fed by a failed sub-call are null, `publicize` included, and `total` is null whenever any count is, so a 0 is a value WordPress.com reported. `paid` counts paid subscribers, who are also in `email` or `wpcom`, and is null when the `subscriber_counts` sub-call fails. With `period`, `series` tracks the subscriber count over the last `num` periods, as the Stats dashboard\'s Subscribers chart does; it is null when the `subscriber_history` sub-call fails. `site` is the WordPress.com blog ID and home URL of the site whose Stats were read. `definitions` explains, in plain words, each metric and time window in the response — read it before reporting a number. Precondition: site must be connected to WordPress.com.',
 				'jetpack-stats-pkg'
 			),
 			'input_schema'        => array(
 				'type'                 => 'object',
 				'default'              => array(),
-				'properties'           => new \stdClass(),
+				'properties'           => array(
+					'period' => array(
+						'type'        => 'string',
+						'description' => __( 'Also chart the subscriber count, one row per period.', 'jetpack-stats-pkg' ),
+						'enum'        => self::PERIODS,
+					),
+					'date'   => self::date_schema(),
+					'num'    => array(
+						'type'        => 'integer',
+						'description' => __( 'How many periods to chart, ending with the one containing `date` (1-90).', 'jetpack-stats-pkg' ),
+						'minimum'     => 1,
+						'maximum'     => 90,
+						'default'     => 30,
+					),
+				),
 				'additionalProperties' => false,
 			),
 			'output_schema'       => array(
 				'type'       => 'object',
 				'properties' => array(
-					'site'      => self::site_schema(),
-					'total'     => array( 'type' => array( 'integer', 'null' ) ),
-					'email'     => array( 'type' => array( 'integer', 'null' ) ),
-					'wpcom'     => array( 'type' => array( 'integer', 'null' ) ),
-					'comment'   => array( 'type' => array( 'integer', 'null' ) ),
-					'publicize' => array(
+					'site'        => self::site_schema(),
+					'total'       => array( 'type' => array( 'integer', 'null' ) ),
+					'email'       => array( 'type' => array( 'integer', 'null' ) ),
+					'wpcom'       => array( 'type' => array( 'integer', 'null' ) ),
+					'comment'     => array( 'type' => array( 'integer', 'null' ) ),
+					'paid'        => array( 'type' => array( 'integer', 'null' ) ),
+					'publicize'   => array(
 						'type'                 => array( 'object', 'null' ),
 						// Follower count keyed by service slug.
 						'additionalProperties' => array( 'type' => 'integer' ),
 					),
-					'partial'   => array( 'type' => 'boolean' ),
-					'errors'    => self::errors_schema(),
+					'series'      => array(
+						'type'  => array( 'array', 'null' ),
+						'items' => array(
+							'type'       => 'object',
+							'properties' => array(
+								'date'        => array( 'type' => 'string' ),
+								'subscribers' => array( 'type' => 'integer' ),
+								'change'      => array( 'type' => 'integer' ),
+							),
+						),
+					),
+					'partial'     => array( 'type' => 'boolean' ),
+					'errors'      => self::errors_schema(),
+					'definitions' => self::definitions_schema(),
 				),
 			),
 			'execute_callback'    => array( __CLASS__, 'get_followers' ),
 			'permission_callback' => array( __CLASS__, 'can_view_stats' ),
-			'meta'                => array(
-				'annotations'  => array(
-					'readonly'    => true,
-					'destructive' => false,
-					'idempotent'  => true,
+			'meta'                => self::reader_meta(),
+		);
+	}
+
+	/**
+	 * Spec: jetpack-stats/get-author-views.
+	 */
+	private static function spec_get_author_views(): array {
+		return array(
+			'label'               => __( 'Get views for an author', 'jetpack-stats-pkg' ),
+			'description'         => __(
+				'Report one author\'s views over time, with the likes and comments their content received in the same window. `series` has one row per period, oldest first; `views`, `likes` and `comments` are totals for the whole window. `views` counts every post and page the author wrote, so it can exceed their authors item, which counts only the site\'s most-viewed posts each day. `content_counts` is the author\'s published content by post type, and `first_content_date` when they first published, in GMT. An author with 50,000 or more posts returns `stats_error`. `site` is the WordPress.com blog ID and home URL of the site whose Stats were read. `definitions` explains, in plain words, each metric and time window in the response — read it before reporting a number. Precondition: site must be connected to WordPress.com.',
+				'jetpack-stats-pkg'
+			),
+			'input_schema'        => array(
+				'type'                 => 'object',
+				'required'             => array( 'author_id' ),
+				'properties'           => array(
+					'author_id' => array(
+						'type'        => 'integer',
+						'description' => __( 'The author\'s user ID, as Stats reports it on a top author.', 'jetpack-stats-pkg' ),
+						'minimum'     => 1,
+					),
+					'period'    => self::period_schema(),
+					'date'      => self::date_schema(),
+					'num'       => array(
+						'type'        => 'integer',
+						'description' => __( 'How many periods, ending with the one containing `date` (1-90).', 'jetpack-stats-pkg' ),
+						'minimum'     => 1,
+						'maximum'     => 90,
+						'default'     => 30,
+					),
 				),
-				'show_in_rest' => true,
-				'mcp'          => array(
-					'public' => true,
-					'type'   => 'tool', // default is already "tool", but can be explicit.
+				'additionalProperties' => false,
+			),
+			'output_schema'       => array(
+				'type'       => 'object',
+				'properties' => array(
+					'site'               => self::site_schema(),
+					'author'             => array(
+						'type'       => 'object',
+						'properties' => array(
+							'id'   => array( 'type' => 'integer' ),
+							'name' => array( 'type' => 'string' ),
+						),
+					),
+					'period'             => array( 'type' => 'string' ),
+					'date'               => array( 'type' => 'string' ),
+					'num'                => array( 'type' => 'integer' ),
+					'views'              => array( 'type' => 'integer' ),
+					'likes'              => array( 'type' => 'integer' ),
+					'comments'           => array( 'type' => 'integer' ),
+					'series'             => self::visits_series_schema(),
+					'content_counts'     => array(
+						'type'                 => 'object',
+						'additionalProperties' => array( 'type' => 'integer' ),
+					),
+					'first_content_date' => array( 'type' => array( 'string', 'null' ) ),
+					'definitions'        => self::definitions_schema(),
 				),
 			),
+			'execute_callback'    => array( __CLASS__, 'get_author_views' ),
+			'permission_callback' => array( __CLASS__, 'can_view_stats' ),
+			'meta'                => self::reader_meta(),
+		);
+	}
+
+	/**
+	 * Spec: jetpack-stats/get-insights.
+	 */
+	private static function spec_get_insights(): array {
+		return array(
+			'label'               => __( 'Get site stats insights', 'jetpack-stats-pkg' ),
+			'description'         => __(
+				'Answer "what does the site\'s history say about its audience?" in one call, as the Stats dashboard\'s Insights page does. `all_time` holds the site\'s lifetime totals and its best day. `busiest` names the hour (0-23, site timezone) that drew the most views over the last 60 days and the weekday that drew the most over the last 10 weeks, each with its share of views. `recent` compares the last 7 and 30 days, both ending yesterday, with the windows just before them. `streak` is the posting streak: the current and longest runs of consecutive days with a published post. `years` totals each year\'s published posts and the words, likes and comments on them. `plan_usage` is the views counted toward the site\'s Stats plan this billing month against its limit (`views_limit` null for no limit). Composes five WPCOM endpoints — if any sub-call fails, `partial` is true, `errors` lists the failed sub-calls (`summary`, `insights`, `highlights`, `streak`, `usage`), and the fields they feed are null; `years` comes with `insights`. If every sub-call fails, returns `jetpack_stats_data_unavailable`. `site` is the WordPress.com blog ID and home URL of the site whose Stats were read. `definitions` explains, in plain words, each metric and time window in the response — read it before reporting a number. Precondition: site must be connected to WordPress.com.',
+				'jetpack-stats-pkg'
+			),
+			'input_schema'        => array(
+				'type'                 => 'object',
+				'default'              => array(),
+				'additionalProperties' => false,
+			),
+			'output_schema'       => array(
+				'type'       => 'object',
+				'properties' => array(
+					'site'        => self::site_schema(),
+					'all_time'    => array(
+						'type'       => array( 'object', 'null' ),
+						'properties' => array(
+							'views'          => array( 'type' => 'integer' ),
+							'visitors'       => array( 'type' => 'integer' ),
+							'posts'          => array( 'type' => 'integer' ),
+							'comments'       => array( 'type' => 'integer' ),
+							'shares'         => array( 'type' => 'integer' ),
+							'best_day'       => array( 'type' => array( 'string', 'null' ) ),
+							'best_day_views' => array( 'type' => 'integer' ),
+						),
+					),
+					'busiest'     => array(
+						'type'       => array( 'object', 'null' ),
+						'properties' => array(
+							'hour'                => array( 'type' => 'integer' ),
+							'hour_percent'        => array( 'type' => 'number' ),
+							'day_of_week'         => array( 'type' => 'string' ),
+							'day_of_week_percent' => array( 'type' => 'number' ),
+						),
+					),
+					'recent'      => array(
+						'type'                 => array( 'object', 'null' ),
+						// Keyed by window: the last and previous 7 days, and the last and previous 30.
+						'additionalProperties' => array(
+							'type'       => 'object',
+							'properties' => array(
+								'from'     => array( 'type' => 'string' ),
+								'to'       => array( 'type' => 'string' ),
+								'views'    => array( 'type' => 'integer' ),
+								'visitors' => array( 'type' => 'integer' ),
+								'likes'    => array( 'type' => 'integer' ),
+								'comments' => array( 'type' => 'integer' ),
+							),
+						),
+					),
+					'streak'      => array(
+						'type'       => array( 'object', 'null' ),
+						'properties' => array(
+							'current_length' => array( 'type' => 'integer' ),
+							'longest_length' => array( 'type' => 'integer' ),
+							'longest_start'  => array( 'type' => 'string' ),
+							'longest_end'    => array( 'type' => 'string' ),
+						),
+					),
+					'years'       => array(
+						'type'  => array( 'array', 'null' ),
+						'items' => array(
+							'type'       => 'object',
+							'properties' => array(
+								'year'     => array( 'type' => 'string' ),
+								'posts'    => array( 'type' => 'integer' ),
+								'words'    => array( 'type' => 'integer' ),
+								'likes'    => array( 'type' => 'integer' ),
+								'comments' => array( 'type' => 'integer' ),
+							),
+						),
+					),
+					'plan_usage'  => array(
+						'type'       => array( 'object', 'null' ),
+						'properties' => array(
+							'plan'         => array( 'type' => array( 'string', 'null' ) ),
+							'views'        => array( 'type' => 'integer' ),
+							'views_limit'  => array( 'type' => array( 'integer', 'null' ) ),
+							'period_start' => array( 'type' => 'string' ),
+							'period_end'   => array( 'type' => 'string' ),
+							'over_limit'   => array( 'type' => 'boolean' ),
+						),
+					),
+					'partial'     => array( 'type' => 'boolean' ),
+					'errors'      => self::errors_schema(),
+					'definitions' => self::definitions_schema(),
+				),
+			),
+			'execute_callback'    => array( __CLASS__, 'get_insights' ),
+			'permission_callback' => array( __CLASS__, 'can_view_stats' ),
+			'meta'                => self::reader_meta(),
+		);
+	}
+
+	/**
+	 * Spec: jetpack-stats/get-email-stats.
+	 */
+	private static function spec_get_email_stats(): array {
+		return array(
+			'label'               => __( 'Get newsletter email stats', 'jetpack-stats-pkg' ),
+			'description'         => __(
+				'Report how the posts the site sent to subscribers as emails performed: for each post, the emails sent, opens and clicks, as on the Stats dashboard\'s Emails page. Posts come newest first unless `sort` says otherwise; `max` caps them. `opens` and `clicks` count every open and click; `unique_opens` and `unique_clicks` count people, and `open_rate` and `click_rate` are percents of `sent`. With `start_date` (and optionally `end_date`, up to 31 days apart) `opens` and `clicks` cover only those days, while the unique counts and rates stay all-time; without them every figure is all-time. `site` is the WordPress.com blog ID and home URL of the site whose Stats were read. `definitions` explains, in plain words, each metric and time window in the response — read it before reporting a number. Precondition: site must be connected to WordPress.com.',
+				'jetpack-stats-pkg'
+			),
+			'input_schema'        => array(
+				'type'                 => 'object',
+				'default'              => array(),
+				'properties'           => array(
+					'sort'       => array(
+						'type'        => 'string',
+						'description' => __( 'Sort posts by send date, opens or clicks.', 'jetpack-stats-pkg' ),
+						'enum'        => self::EMAIL_SORTS,
+						'default'     => 'post_date',
+					),
+					'order'      => array(
+						'type'        => 'string',
+						'description' => __( 'Sort direction: highest or newest first (`desc`) or the reverse.', 'jetpack-stats-pkg' ),
+						'enum'        => array( 'desc', 'asc' ),
+						'default'     => 'desc',
+					),
+					'max'        => array(
+						'type'        => 'integer',
+						'description' => __( 'Posts cap (1-100).', 'jetpack-stats-pkg' ),
+						'minimum'     => 1,
+						'maximum'     => 100,
+						'default'     => 10,
+					),
+					'start_date' => array(
+						'type'        => 'string',
+						'description' => __( 'First day to count opens and clicks for (YYYY-MM-DD).', 'jetpack-stats-pkg' ),
+						'pattern'     => '^[0-9]{4}-[0-9]{2}-[0-9]{2}$',
+					),
+					'end_date'   => array(
+						'type'        => 'string',
+						'description' => __( 'Last day to count opens and clicks for (YYYY-MM-DD). Defaults to today when `start_date` is given.', 'jetpack-stats-pkg' ),
+						'pattern'     => '^[0-9]{4}-[0-9]{2}-[0-9]{2}$',
+					),
+				),
+				'additionalProperties' => false,
+			),
+			'output_schema'       => array(
+				'type'       => 'object',
+				'properties' => array(
+					'site'        => self::site_schema(),
+					'start_date'  => array( 'type' => 'string' ),
+					'end_date'    => array( 'type' => 'string' ),
+					'posts'       => array(
+						'type'  => 'array',
+						'items' => array(
+							'type'       => 'object',
+							'properties' => array(
+								'id'            => array( 'type' => 'integer' ),
+								'title'         => array( 'type' => 'string' ),
+								'href'          => array( 'type' => 'string' ),
+								'date'          => array( 'type' => 'string' ),
+								'sent'          => array( 'type' => 'integer' ),
+								'opens'         => array( 'type' => 'integer' ),
+								'unique_opens'  => array( 'type' => 'integer' ),
+								'open_rate'     => array( 'type' => 'number' ),
+								'clicks'        => array( 'type' => 'integer' ),
+								'unique_clicks' => array( 'type' => 'integer' ),
+								'click_rate'    => array( 'type' => 'number' ),
+							),
+						),
+					),
+					'definitions' => self::definitions_schema(),
+				),
+			),
+			'execute_callback'    => array( __CLASS__, 'get_email_stats' ),
+			'permission_callback' => array( __CLASS__, 'can_view_stats' ),
+			'meta'                => self::reader_meta(),
+		);
+	}
+
+	/**
+	 * Spec: jetpack-stats/get-subscribers.
+	 */
+	private static function spec_get_subscribers(): array {
+		return array(
+			'label'               => __( 'List subscribers', 'jetpack-stats-pkg' ),
+			'description'         => __(
+				'List the people subscribed to the site, one page at a time, newest first unless `sort` says otherwise — the Subscribers page of the Stats dashboard. Each subscriber carries their email address, so treat the list as personal data: report counts and names unless the site owner asks for addresses. `email_subscriber` is true for someone who gets posts by email rather than only in the Reader; `status` is WordPress.com\'s subscription status. `total` counts every subscriber the `filter` and `search` match, across all pages. Only users who can manage the site may list subscribers. `site` is the WordPress.com blog ID and home URL of the site whose subscribers were read. Precondition: site must be connected to WordPress.com.',
+				'jetpack-stats-pkg'
+			),
+			'input_schema'        => array(
+				'type'                 => 'object',
+				'default'              => array(),
+				'properties'           => array(
+					'page'     => array(
+						'type'        => 'integer',
+						'description' => __( 'Page of results, from 1.', 'jetpack-stats-pkg' ),
+						'minimum'     => 1,
+						'default'     => 1,
+					),
+					'per_page' => array(
+						'type'        => 'integer',
+						'description' => __( 'Subscribers per page (1-100).', 'jetpack-stats-pkg' ),
+						'minimum'     => 1,
+						'maximum'     => 100,
+						'default'     => 20,
+					),
+					'search'   => array(
+						'type'        => 'string',
+						'description' => __( 'Match subscribers by name or email address.', 'jetpack-stats-pkg' ),
+					),
+					'filter'   => array(
+						'type'        => 'string',
+						'description' => __( 'Which subscribers to list: email subscribers, Reader-only followers, paid, complimentary, free, unconfirmed, or blocked.', 'jetpack-stats-pkg' ),
+						'enum'        => self::SUBSCRIBER_FILTERS,
+						'default'     => 'all',
+					),
+					'sort'     => array(
+						'type'        => 'string',
+						'description' => __( 'Sort subscribers by subscription date, email, name, plan or status.', 'jetpack-stats-pkg' ),
+						'enum'        => self::SUBSCRIBER_SORTS,
+						'default'     => 'date_subscribed',
+					),
+					'order'    => array(
+						'type'        => 'string',
+						'description' => __( 'Sort direction: newest or last first (`desc`) or the reverse.', 'jetpack-stats-pkg' ),
+						'enum'        => array( 'desc', 'asc' ),
+						'default'     => 'desc',
+					),
+				),
+				'additionalProperties' => false,
+			),
+			'output_schema'       => array(
+				'type'       => 'object',
+				'properties' => array(
+					'site'        => self::site_schema(),
+					'total'       => array( 'type' => 'integer' ),
+					'page'        => array( 'type' => 'integer' ),
+					'pages'       => array( 'type' => 'integer' ),
+					'subscribers' => array(
+						'type'  => 'array',
+						'items' => array(
+							'type'       => 'object',
+							'properties' => array(
+								'subscription_id'  => array( 'type' => 'integer' ),
+								'user_id'          => array( 'type' => array( 'integer', 'null' ) ),
+								'name'             => array( 'type' => 'string' ),
+								'email'            => array( 'type' => 'string' ),
+								'url'              => array( 'type' => 'string' ),
+								'subscribed_at'    => array( 'type' => 'string' ),
+								'status'           => array( 'type' => 'string' ),
+								'email_subscriber' => array( 'type' => 'boolean' ),
+							),
+						),
+					),
+				),
+			),
+			'execute_callback'    => array( __CLASS__, 'get_subscribers' ),
+			'permission_callback' => array( __CLASS__, 'can_manage_settings' ),
+			'meta'                => self::reader_meta(),
+		);
+	}
+
+	/**
+	 * Spec: jetpack-stats/get-ad-stats.
+	 */
+	private static function spec_get_ad_stats(): array {
+		return array(
+			'label'               => __( 'Get ad stats', 'jetpack-stats-pkg' ),
+			'description'         => __(
+				'Report the site\'s WordAds performance, as on the Stats dashboard\'s Ads page: ad impressions, revenue and CPM per period, and the earnings WordAds has recorded by month. `series` has one row per period, oldest first, ending with the one containing `date`; `revenue` is in US dollars and `cpm` is revenue per thousand impressions. `earnings.total` is everything the site has earned, `earnings.owed` the part not yet paid out, and `earnings.months` each month\'s amount, newest first. Composes two WPCOM endpoints — if one fails, `partial` is true, `errors` names it (`stats` or `earnings`), and what it feeds is null; if both fail, returns `jetpack_stats_data_unavailable`. A site not in WordAds reports empty figures. Only users who can manage the site or its ads may read them. `site` is the WordPress.com blog ID and home URL of the site whose ads were read. Precondition: site must be connected to WordPress.com.',
+				'jetpack-stats-pkg'
+			),
+			'input_schema'        => array(
+				'type'                 => 'object',
+				'default'              => array(),
+				'properties'           => array(
+					'period' => self::period_schema(),
+					'date'   => self::date_schema(),
+					'num'    => array(
+						'type'        => 'integer',
+						'description' => __( 'How many periods, ending with the one containing `date` (1-90).', 'jetpack-stats-pkg' ),
+						'minimum'     => 1,
+						'maximum'     => 90,
+						'default'     => 30,
+					),
+				),
+				'additionalProperties' => false,
+			),
+			'output_schema'       => array(
+				'type'       => 'object',
+				'properties' => array(
+					'site'     => self::site_schema(),
+					'period'   => array( 'type' => 'string' ),
+					'date'     => array( 'type' => 'string' ),
+					'num'      => array( 'type' => 'integer' ),
+					'series'   => array(
+						'type'  => array( 'array', 'null' ),
+						'items' => array(
+							'type'       => 'object',
+							'properties' => array(
+								'date'        => array( 'type' => 'string' ),
+								'impressions' => array( 'type' => 'integer' ),
+								'revenue'     => array( 'type' => 'number' ),
+								'cpm'         => array( 'type' => 'number' ),
+							),
+						),
+					),
+					'earnings' => array(
+						'type'       => array( 'object', 'null' ),
+						'properties' => array(
+							'total'  => array( 'type' => 'number' ),
+							'owed'   => array( 'type' => 'number' ),
+							'months' => array(
+								'type'  => 'array',
+								'items' => array(
+									'type'       => 'object',
+									'properties' => array(
+										'month'  => array( 'type' => 'string' ),
+										'amount' => array( 'type' => 'number' ),
+										'paid'   => array( 'type' => 'boolean' ),
+									),
+								),
+							),
+						),
+					),
+					'partial'  => array( 'type' => 'boolean' ),
+					'errors'   => self::errors_schema(),
+				),
+			),
+			'execute_callback'    => array( __CLASS__, 'get_ad_stats' ),
+			'permission_callback' => array( __CLASS__, 'can_view_ads' ),
+			'meta'                => self::reader_meta(),
 		);
 	}
 
@@ -534,7 +1028,6 @@ class Stats_Abilities extends Registrar {
 			'input_schema'        => array(
 				'type'                 => 'object',
 				'default'              => array(),
-				'properties'           => new \stdClass(),
 				'additionalProperties' => false,
 			),
 			'output_schema'       => array(
@@ -543,18 +1036,7 @@ class Stats_Abilities extends Registrar {
 			),
 			'execute_callback'    => array( __CLASS__, 'get_settings' ),
 			'permission_callback' => array( __CLASS__, 'can_manage_settings' ),
-			'meta'                => array(
-				'annotations'  => array(
-					'readonly'    => true,
-					'destructive' => false,
-					'idempotent'  => true,
-				),
-				'show_in_rest' => true,
-				'mcp'          => array(
-					'public' => true,
-					'type'   => 'tool', // default is already "tool", but can be explicit.
-				),
-			),
+			'meta'                => self::reader_meta(),
 		);
 	}
 
@@ -659,6 +1141,15 @@ class Stats_Abilities extends Registrar {
 	}
 
 	/**
+	 * Ads permission: manage_options or activate_wordads, as on the Stats dashboard's Ads page.
+	 *
+	 * @return bool
+	 */
+	public static function can_view_ads(): bool {
+		return current_user_can( 'manage_options' ) || current_user_can( 'activate_wordads' ); // phpcs:ignore WordPress.WP.Capabilities.Unknown -- WordPress.com grants it to the site's ad managers.
+	}
+
+	/**
 	 * Settings permission, for reads and writes: manage_options, as on the Stats settings screen.
 	 *
 	 * The `stats_options` WP option includes the very roles that gate `view_stats`,
@@ -683,7 +1174,11 @@ class Stats_Abilities extends Registrar {
 	 * @return array|WP_Error
 	 */
 	public static function get_site_overview( $input = null ) {
-		unset( $input );
+		$input  = is_array( $input ) ? $input : array();
+		$preset = self::pick_compare( $input['compare'] ?? null );
+		if ( is_wp_error( $preset ) ) {
+			return $preset;
+		}
 		$stats = self::get_wpcom_stats();
 		$today = self::today();
 		$day   = array(
@@ -694,20 +1189,36 @@ class Stats_Abilities extends Registrar {
 		// A few rows, so a post can be found below the home page / archives row.
 		$post_rows = 10;
 
-		$composed = self::compose_subcalls(
-			array(
-				'visits'    => $stats->get_visits(
-					array(
-						'unit'        => 'day',
-						'quantity'    => 30,
-						'date'        => $today,
-						'stat_fields' => 'views,visitors',
-					)
-				),
-				'streak'    => $stats->get_streak(),
-				'top_posts' => $stats->get_top_posts( $day + array( 'max' => $post_rows ) ),
-				'referrers' => $stats->get_referrers( $day + array( 'max' => 1 ) ),
+		$subcalls = array(
+			'visits'    => $stats->get_visits(
+				array(
+					'unit'        => 'day',
+					'quantity'    => 30,
+					'date'        => $today,
+					'stat_fields' => 'views,visitors',
+				)
 			),
+			'top_posts' => $stats->get_top_posts( $day + array( 'max' => $post_rows ) ),
+			'referrers' => $stats->get_referrers( $day + array( 'max' => 1 ) ),
+		);
+
+		$windows = null === $preset ? array() : self::overview_compare_windows( $today, $preset );
+		if ( $windows ) {
+			// One read covers the earliest to the latest day the compared windows need.
+			$first                  = min( array_column( $windows, 'from' ) );
+			$last                   = max( array_column( $windows, 'to' ) );
+			$subcalls['comparison'] = $stats->get_visits(
+				array(
+					'unit'        => 'day',
+					'quantity'    => self::days_between( $first, $last ) + 1,
+					'date'        => $last,
+					'stat_fields' => 'views,visitors',
+				)
+			);
+		}
+
+		$composed = self::compose_subcalls(
+			$subcalls,
 			__( 'Stats data could not be fetched from WordPress.com. Confirm the site is connected and try again.', 'jetpack-stats-pkg' )
 		);
 		if ( is_wp_error( $composed ) ) {
@@ -720,8 +1231,8 @@ class Stats_Abilities extends Registrar {
 		$days     = self::normalize_visits_series( $values['visits'], array( 'views', 'visitors' ) );
 		$last_day = end( $days );
 		$last_day = false === $last_day ? array() : $last_day;
-		$top_post = self::first_post( self::normalize_top_content_items( 'posts', $values['top_posts'], $post_rows ) );
-		$top_ref  = self::normalize_top_content_items( 'referrers', $values['referrers'], 1 )[0] ?? null;
+		$top_post = self::first_post( self::rank_and_cap( self::top_content_rows( 'posts', $values['top_posts'] ), $post_rows ) );
+		$top_ref  = self::rank_and_cap( self::top_content_rows( 'referrers', $values['referrers'] ), 1 )[0] ?? null;
 
 		$out = array(
 			'site'           => self::site(),
@@ -730,7 +1241,6 @@ class Stats_Abilities extends Registrar {
 			'visitors_today' => $last_day['visitors'] ?? null,
 			'views_week'     => self::sum_or_null( array_slice( $days, -7 ), 'views' ),
 			'views_month'    => self::sum_or_null( $days, 'views' ),
-			'streak'         => in_array( 'streak', $errors, true ) ? null : self::extract_streak_summary( $values['streak'], $today ),
 			'top_post'       => null === $top_post ? null : array(
 				'id'    => $top_post['id'],
 				'title' => $top_post['label'],
@@ -741,7 +1251,13 @@ class Stats_Abilities extends Registrar {
 				'views' => $top_ref['value'],
 			),
 			'partial'        => ! empty( $errors ),
+			'definitions'    => self::definitions( array( 'date', 'views', 'visitors', 'views_today', 'visitors_today', 'views_week', 'views_month', 'top_post', 'top_referrer' ) ),
 		);
+
+		if ( null !== $preset && $windows ) {
+			$out['comparison']                = self::overview_comparison( $preset, $windows, $values['comparison'], in_array( 'comparison', $errors, true ) );
+			$out['definitions']['comparison'] = self::definition_texts()['comparison_overview'];
+		}
 
 		if ( ! empty( $errors ) ) {
 			$out['errors'] = $errors;
@@ -770,43 +1286,75 @@ class Stats_Abilities extends Registrar {
 			);
 		}
 
+		// WordPress.com answers stats/file-downloads with a 404 for every Jetpack-connected site.
+		if ( 'downloads' === $input['type'] && ! ( new Host() )->is_wpcom_simple() ) {
+			return new WP_Error(
+				self::ERROR_PREFIX . 'invalid_type',
+				__( 'WordPress.com does not keep file download stats for Jetpack-connected sites. Choose another type.', 'jetpack-stats-pkg' )
+			);
+		}
+
 		$type   = $input['type'];
 		$period = self::pick_period( $input['period'] ?? null );
 		$date   = self::resolve_date( $input['date'] ?? null );
 		$num    = self::clamp_int( $input['num'] ?? 1, 1, 90, 1 );
-		$max    = self::clamp_int( $input['max'] ?? 20, 1, 100, 20 );
+		$max    = self::clamp_int( $input['max'] ?? 20, 0, 100, 20 );
+		$expand = true === ( $input['expand'] ?? false );
 		if ( is_wp_error( $date ) ) {
 			return $date;
 		}
 
+		$utm_param = isset( $input['utm_param'] ) && in_array( $input['utm_param'], self::UTM_PARAMS, true ) ? $input['utm_param'] : self::UTM_PARAMS[0];
+
 		$args = array(
 			'period' => $period,
 			'date'   => $date,
-			'max'    => $max,
+			// WordPress.com returns every row for max=0; otherwise one extra row shows whether the list was cut.
+			'max'    => 0 === $max ? 0 : $max + 1,
 		);
-		// Without `summarize`, WPCOM returns each period separately and only the first would be read.
-		// Several summarized endpoints ignore `period` and read `num` as days, so ask for the days the periods cover.
-		if ( $num > 1 ) {
+		if ( isset( self::DAYS_WINDOW_TYPES[ $type ] ) ) {
+			// These endpoints take the window as a number of days ending on a date.
+			$window = self::summary_window( $period, $num, $date );
+			$args   = array(
+				'date' => $window['date'],
+				'days' => $window['num'],
+				'max'  => $args['max'],
+			);
+		} elseif ( $num > 1 ) {
+			// Without `summarize`, WPCOM returns each period separately and only the first would be read.
+			// Several summarized endpoints ignore `period` and read `num` as days, so ask for the days the periods cover.
 			$args = array_merge( $args, self::summary_window( $period, $num, $date ) );
 		}
 
 		$stats = self::get_wpcom_stats();
-		$raw   = self::fetch_top_content_raw( $stats, $type, $args );
+		$raw   = self::fetch_top_content_raw( $stats, $type, $args, $utm_param );
 		if ( is_wp_error( $raw ) ) {
 			return $raw;
 		}
 
-		$items = self::normalize_top_content_items( $type, $raw, $max, isset( $args['summarize'] ) );
+		$summarized = isset( $args['summarize'] );
+		$rows       = self::top_content_rows( $type, $raw, $summarized );
+		// Countries drops and folds rows, so whether WordPress.com held more is read from its own list.
+		$sent = 'countries' === $type ? count( self::rows_at( self::first_period_block( $raw, $summarized ), 'views' ) ) : count( $rows );
+		// WordPress.com stops at its authors cap without saying whether more authors had views.
+		$capped = 'authors' === $type && $sent >= self::TOP_AUTHORS_LIMIT && ( 0 === $max || $max >= self::TOP_AUTHORS_LIMIT );
 
-		return array(
-			'site'   => self::site(),
-			'type'   => $type,
-			'period' => $period,
-			'date'   => $date,
-			'num'    => $num,
-			'max'    => $max,
-			'items'  => $items,
+		$out = array(
+			'site'        => self::site(),
+			'type'        => $type,
+			'period'      => $period,
+			'date'        => $date,
+			'num'         => $num,
+			'max'         => $max,
+			'expand'      => $expand,
+			'truncated'   => $capped || ( $max > 0 && $sent > $max ),
+			'items'       => self::rank_and_cap( $rows, $max, $expand ),
+			'definitions' => self::top_content_definitions( $type, $expand ),
 		);
+		if ( 'utm' === $type ) {
+			$out['utm_param'] = $utm_param;
+		}
+		return $out;
 	}
 
 	/**
@@ -867,6 +1415,7 @@ class Stats_Abilities extends Registrar {
 			'num'         => $num,
 			'date'        => $date,
 			'series'      => $series,
+			'definitions' => self::definitions( array( 'total_views', 'series', 'views' ) ),
 		);
 	}
 
@@ -894,6 +1443,15 @@ class Stats_Abilities extends Registrar {
 			$fields = self::DEFAULT_VISIT_FIELDS;
 		}
 
+		$preset = self::pick_compare( $input['compare'] ?? null );
+		if ( is_wp_error( $preset ) ) {
+			return $preset;
+		}
+		$compare_date = null === $preset ? null : self::compare_end_date( $date, $preset, $period, $num );
+		if ( is_wp_error( $compare_date ) ) {
+			return $compare_date;
+		}
+
 		$args = array(
 			'unit'        => $period,
 			'quantity'    => $num,
@@ -907,7 +1465,7 @@ class Stats_Abilities extends Registrar {
 			return $raw;
 		}
 
-		return array(
+		$out = array(
 			'site'   => self::site(),
 			'period' => $period,
 			'num'    => $num,
@@ -915,6 +1473,24 @@ class Stats_Abilities extends Registrar {
 			'fields' => $fields,
 			'series' => self::normalize_visits_series( $raw, $fields ),
 		);
+
+		$out['definitions'] = self::definitions( array_merge( array( 'series' ), $fields ) );
+		if ( null !== $compare_date ) {
+			// The same periods, shifted back by whole periods, so row i compares with row i.
+			$compare_raw                      = $stats->get_visits( array( 'date' => $compare_date ) + $args );
+			$out['comparison']                = array(
+				'preset' => $preset,
+				'date'   => $compare_date,
+				'series' => is_wp_error( $compare_raw ) ? null : self::normalize_visits_series( $compare_raw, $fields ),
+			);
+			$out['definitions']['comparison'] = self::definition_texts()['comparison_series'];
+			if ( is_wp_error( $compare_raw ) ) {
+				$out['partial'] = true;
+				$out['errors']  = array( 'comparison' );
+			}
+		}
+
+		return $out;
 	}
 
 	/**
@@ -924,20 +1500,37 @@ class Stats_Abilities extends Registrar {
 	 * @return array|WP_Error
 	 */
 	public static function get_followers( $input = null ) {
-		unset( $input );
+		$input  = is_array( $input ) ? $input : array();
+		$period = isset( $input['period'] ) && in_array( $input['period'], self::PERIODS, true ) ? $input['period'] : null;
+		$date   = self::resolve_date( $input['date'] ?? null );
+		if ( is_wp_error( $date ) ) {
+			return $date;
+		}
 		$stats = self::get_wpcom_stats();
 
-		$composed = self::compose_subcalls(
-			array(
-				'followers'           => $stats->get_followers(
-					array(
-						'type' => 'all',
-						'max'  => 1,
-					)
-				),
-				'comment_followers'   => $stats->get_comment_followers(),
-				'publicize_followers' => $stats->get_publicize_followers(),
+		$calls = array(
+			'followers'           => $stats->get_followers(
+				array(
+					'type' => 'all',
+					'max'  => 1,
+				)
 			),
+			'comment_followers'   => $stats->get_comment_followers(),
+			'publicize_followers' => $stats->get_publicize_followers(),
+			'subscriber_counts'   => $stats->get_subscriber_counts(),
+		);
+		if ( null !== $period ) {
+			$calls['subscriber_history'] = $stats->get_subscriber_history(
+				array(
+					'unit'     => $period,
+					'quantity' => self::clamp_int( $input['num'] ?? 30, 1, 90, 30 ),
+					'date'     => $date,
+				)
+			);
+		}
+
+		$composed = self::compose_subcalls(
+			$calls,
 			__( 'Follower data could not be fetched from WordPress.com. Confirm the site is connected and try again.', 'jetpack-stats-pkg' )
 		);
 		if ( is_wp_error( $composed ) ) {
@@ -974,7 +1567,7 @@ class Stats_Abilities extends Registrar {
 			$total = $email + $wpcom + $comment + array_sum( $publicize_by_service );
 		}
 
-		$out = array(
+		$out   = array(
 			'site'      => self::site(),
 			'total'     => $total,
 			'email'     => $email,
@@ -982,13 +1575,386 @@ class Stats_Abilities extends Registrar {
 			'comment'   => $comment,
 			// An empty PHP array would encode as `[]`, not the object the schema promises.
 			'publicize' => null === $publicize_by_service ? null : (object) $publicize_by_service,
-			'partial'   => ! empty( $errors ),
+			'paid'      => in_array( 'subscriber_counts', $errors, true ) ? null : self::count_or_null( $composed['values']['subscriber_counts']['counts']['paid_subscribers'] ?? null ),
 		);
+		$terms = array( 'total', 'email', 'wpcom', 'comment', 'publicize', 'paid' );
+		if ( null !== $period ) {
+			$out['series'] = in_array( 'subscriber_history', $errors, true ) ? null : self::subscriber_series( $composed['values']['subscriber_history'] );
+			$terms[]       = 'subscriber_series';
+		}
+		$out['partial']     = ! empty( $errors );
+		$out['definitions'] = self::definitions( $terms );
 
 		if ( ! empty( $errors ) ) {
 			$out['errors'] = $errors;
 		}
 
+		return $out;
+	}
+
+	/**
+	 * Execute: get-author-views.
+	 *
+	 * @param array|null $input Input matching the ability's input_schema.
+	 * @return array|WP_Error
+	 */
+	public static function get_author_views( $input = null ) {
+		$input = is_array( $input ) ? $input : array();
+		if ( ! isset( $input['author_id'] ) || ! is_numeric( $input['author_id'] ) || (int) $input['author_id'] <= 0 ) {
+			return new WP_Error(
+				self::ERROR_PREFIX . 'missing_author_id',
+				__( 'A positive author_id is required.', 'jetpack-stats-pkg' )
+			);
+		}
+
+		$author_id = (int) $input['author_id'];
+		$period    = self::pick_period( $input['period'] ?? null );
+		$num       = self::clamp_int( $input['num'] ?? 30, 1, 90, 30 );
+		$date      = self::resolve_date( $input['date'] ?? null );
+		if ( is_wp_error( $date ) ) {
+			return $date;
+		}
+
+		$raw = self::get_wpcom_stats()->get_author_views(
+			$author_id,
+			array(
+				'period' => $period,
+				'date'   => $date,
+				'num'    => $num,
+			)
+		);
+		if ( is_wp_error( $raw ) ) {
+			return $raw;
+		}
+
+		$counts = array();
+		foreach ( (array) ( $raw['content_counts'] ?? array() ) as $post_type => $count ) {
+			$counts[ (string) $post_type ] = (int) $count;
+		}
+
+		return array(
+			'site'               => self::site(),
+			'author'             => array(
+				'id'   => $author_id,
+				'name' => html_entity_decode( (string) ( $raw['author']['name'] ?? '' ), ENT_QUOTES | ENT_HTML5, 'UTF-8' ),
+			),
+			'period'             => $period,
+			'date'               => $date,
+			'num'                => $num,
+			'views'              => self::as_int( $raw, 'views' ),
+			'likes'              => self::as_int( $raw, 'likes' ),
+			'comments'           => self::as_int( $raw, 'comments' ),
+			'series'             => self::normalize_visits_series( $raw, array( 'views' ) ),
+			// An empty PHP array would encode as `[]`, not the object the schema promises.
+			'content_counts'     => (object) $counts,
+			'first_content_date' => is_string( $raw['first_content_date'] ?? null ) ? $raw['first_content_date'] : null,
+			'definitions'        => self::definitions( array( 'views', 'author_views', 'series' ) ),
+		);
+	}
+
+	/**
+	 * Execute: get-insights.
+	 *
+	 * @param array|null $input Ignored — zero-arg ability.
+	 * @return array|WP_Error
+	 */
+	public static function get_insights( $input = null ) {
+		unset( $input );
+		$stats = self::get_wpcom_stats();
+
+		$composed = self::compose_subcalls(
+			array(
+				'summary'    => $stats->get_stats(),
+				'insights'   => $stats->get_insights(),
+				'highlights' => $stats->get_highlights(),
+				'streak'     => $stats->get_streak( array( 'max' => 1 ) ),
+				'usage'      => $stats->get_stats_usage(),
+			),
+			__( 'Stats insights could not be fetched from WordPress.com. Confirm the site is connected and try again.', 'jetpack-stats-pkg' )
+		);
+		if ( is_wp_error( $composed ) ) {
+			return $composed;
+		}
+		$values = $composed['values'];
+		$errors = $composed['errors'];
+		$failed = static function ( string $tag ) use ( $errors ): bool {
+			return in_array( $tag, $errors, true );
+		};
+
+		$summary  = is_array( $values['summary']['stats'] ?? null ) ? $values['summary']['stats'] : array();
+		$insights = $values['insights'];
+		$usage    = $values['usage'];
+
+		$recent = array();
+		foreach ( array(
+			'last_7_days'      => 'past_seven_days',
+			'previous_7_days'  => 'between_past_eight_and_fifteen_days',
+			'last_30_days'     => 'past_thirty_days',
+			'previous_30_days' => 'between_past_thirty_one_and_sixty_days',
+		) as $key => $wpcom_key ) {
+			$window         = is_array( $values['highlights'][ $wpcom_key ] ?? null ) ? $values['highlights'][ $wpcom_key ] : array();
+			$recent[ $key ] = array(
+				'from'     => (string) ( $window['range']['start'] ?? '' ),
+				'to'       => (string) ( $window['range']['end'] ?? '' ),
+				'views'    => self::as_int( $window, 'views' ),
+				'visitors' => self::as_int( $window, 'visitors' ),
+				'likes'    => self::as_int( $window, 'likes' ),
+				'comments' => self::as_int( $window, 'comments' ),
+			);
+		}
+
+		$years = array();
+		foreach ( self::rows_at( $insights, 'years' ) as $year ) {
+			$years[] = array(
+				'year'     => (string) ( $year['year'] ?? '' ),
+				'posts'    => self::as_int( $year, 'total_posts' ),
+				'words'    => self::as_int( $year, 'total_words' ),
+				'likes'    => self::as_int( $year, 'total_likes' ),
+				'comments' => self::as_int( $year, 'total_comments' ),
+			);
+		}
+
+		$weekdays = array( 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday' );
+		$weekday  = (int) ( $insights['highest_day_of_week'] ?? -1 );
+
+		$out = array(
+			'site'        => self::site(),
+			'all_time'    => $failed( 'summary' ) ? null : array(
+				'views'          => self::as_int( $summary, 'views' ),
+				'visitors'       => self::as_int( $summary, 'visitors' ),
+				'posts'          => self::as_int( $summary, 'posts' ),
+				'comments'       => self::as_int( $summary, 'comments' ),
+				'shares'         => self::as_int( $summary, 'shares' ),
+				'best_day'       => is_string( $summary['views_best_day'] ?? null ) && '' !== $summary['views_best_day'] ? $summary['views_best_day'] : null,
+				'best_day_views' => self::as_int( $summary, 'views_best_day_total' ),
+			),
+			'busiest'     => $failed( 'insights' ) || ! isset( $weekdays[ $weekday ] ) ? null : array(
+				'hour'                => self::as_int( $insights, 'highest_hour' ),
+				'hour_percent'        => round( (float) ( $insights['highest_hour_percent'] ?? 0 ), 1 ),
+				'day_of_week'         => $weekdays[ $weekday ],
+				'day_of_week_percent' => round( (float) ( $insights['highest_day_percent'] ?? 0 ), 1 ),
+			),
+			'recent'      => $failed( 'highlights' ) ? null : $recent,
+			'streak'      => $failed( 'streak' ) ? null : self::extract_streak_summary( $values['streak'], self::today() ),
+			'years'       => $failed( 'insights' ) ? null : $years,
+			'plan_usage'  => $failed( 'usage' ) ? null : array(
+				'plan'         => is_string( $usage['current_tier']['slug'] ?? null ) ? $usage['current_tier']['slug'] : null,
+				'views'        => self::as_int( is_array( $usage['current_usage'] ?? null ) ? $usage['current_usage'] : array(), 'views_count' ),
+				'views_limit'  => self::count_or_null( $usage['views_limit'] ?? null ),
+				'period_start' => (string) ( $usage['current_usage']['current_start'] ?? '' ),
+				'period_end'   => (string) ( $usage['current_usage']['next_start'] ?? '' ),
+				'over_limit'   => true === ( $usage['is_over_limit'] ?? false ),
+			),
+			'partial'     => ! empty( $errors ),
+			'definitions' => self::definitions( array( 'views', 'visitors', 'all_time', 'busiest', 'recent', 'streak', 'years', 'plan_usage' ) ),
+		);
+		if ( ! empty( $errors ) ) {
+			$out['errors'] = $errors;
+		}
+		return $out;
+	}
+
+	/**
+	 * Execute: get-email-stats.
+	 *
+	 * @param array|null $input Input matching the ability's input_schema.
+	 * @return array|WP_Error
+	 */
+	public static function get_email_stats( $input = null ) {
+		$input = is_array( $input ) ? $input : array();
+		$args  = array(
+			'quantity'   => self::clamp_int( $input['max'] ?? 10, 1, 100, 10 ),
+			'sort_field' => isset( $input['sort'] ) && in_array( $input['sort'], self::EMAIL_SORTS, true ) ? $input['sort'] : 'post_date',
+			'sort_order' => 'asc' === ( $input['order'] ?? null ) ? 'asc' : 'desc',
+		);
+		foreach ( array( 'start_date', 'end_date' ) as $key ) {
+			if ( isset( $input[ $key ] ) ) {
+				$day = self::resolve_date( $input[ $key ] );
+				if ( is_wp_error( $day ) || '' === $input[ $key ] ) {
+					return new WP_Error(
+						self::ERROR_PREFIX . 'invalid_date',
+						/* translators: %s: the input field name. */
+						sprintf( __( '`%s` must be a real day in YYYY-MM-DD format, such as 2026-04-23.', 'jetpack-stats-pkg' ), $key )
+					);
+				}
+				$args[ $key ] = $day;
+			}
+		}
+
+		$raw = self::get_wpcom_stats()->get_email_summary( $args );
+		if ( is_wp_error( $raw ) ) {
+			return $raw;
+		}
+
+		$posts = array();
+		foreach ( self::rows_at( $raw, 'posts' ) as $row ) {
+			$posts[] = array(
+				'id'            => self::as_int( $row, 'id' ),
+				'title'         => html_entity_decode( (string) ( $row['title'] ?? '' ), ENT_QUOTES | ENT_HTML5, 'UTF-8' ),
+				'href'          => (string) ( $row['href'] ?? '' ),
+				'date'          => (string) ( $row['date'] ?? '' ),
+				'sent'          => self::as_int( $row, 'total_sends' ),
+				'opens'         => self::as_int( $row, 'opens' ),
+				'unique_opens'  => self::as_int( $row, 'unique_opens' ),
+				'open_rate'     => (float) ( $row['opens_rate'] ?? 0 ),
+				'clicks'        => self::as_int( $row, 'clicks' ),
+				'unique_clicks' => self::as_int( $row, 'unique_clicks' ),
+				'click_rate'    => (float) ( $row['clicks_rate'] ?? 0 ),
+			);
+		}
+
+		$out = array( 'site' => self::site() );
+		foreach ( array( 'start_date', 'end_date' ) as $key ) {
+			if ( is_string( $raw[ $key ] ?? null ) ) {
+				$out[ $key ] = $raw[ $key ];
+			}
+		}
+		$out['posts']       = $posts;
+		$out['definitions'] = self::definitions( array( 'sent', 'opens', 'clicks', 'email_rates', isset( $out['start_date'] ) ? 'email_window' : 'email_all_time' ) );
+		return $out;
+	}
+
+	/**
+	 * Execute: get-subscribers.
+	 *
+	 * @param array|null $input Input matching the ability's input_schema.
+	 * @return array|WP_Error
+	 */
+	public static function get_subscribers( $input = null ) {
+		$input = is_array( $input ) ? $input : array();
+		$args  = array(
+			'page'       => self::clamp_int( $input['page'] ?? 1, 1, PHP_INT_MAX, 1 ),
+			'per_page'   => self::clamp_int( $input['per_page'] ?? 20, 1, 100, 20 ),
+			'sort'       => isset( $input['sort'] ) && in_array( $input['sort'], self::SUBSCRIBER_SORTS, true ) ? $input['sort'] : 'date_subscribed',
+			'sort_order' => 'asc' === ( $input['order'] ?? null ) ? 'asc' : 'desc',
+		);
+		if ( isset( $input['filter'] ) && in_array( $input['filter'], self::SUBSCRIBER_FILTERS, true ) && 'all' !== $input['filter'] ) {
+			$args['filter'] = $input['filter'];
+		}
+		if ( isset( $input['search'] ) && is_string( $input['search'] ) && '' !== trim( $input['search'] ) ) {
+			$args['search'] = trim( $input['search'] );
+		}
+
+		$raw = self::get_wpcom_stats()->get_subscribers( $args );
+		if ( is_wp_error( $raw ) ) {
+			return $raw;
+		}
+
+		$subscribers = array();
+		foreach ( self::rows_at( $raw, 'subscribers' ) as $row ) {
+			$user_id       = self::as_int( $row, 'user_id' );
+			$subscribers[] = array(
+				'subscription_id'  => self::as_int( $row, 'subscription_id' ),
+				'user_id'          => $user_id > 0 ? $user_id : null,
+				'name'             => html_entity_decode( (string) ( $row['display_name'] ?? '' ), ENT_QUOTES | ENT_HTML5, 'UTF-8' ),
+				'email'            => (string) ( $row['email_address'] ?? '' ),
+				'url'              => (string) ( $row['url'] ?? '' ),
+				'subscribed_at'    => (string) ( $row['date_subscribed'] ?? '' ),
+				'status'           => (string) ( $row['subscription_status'] ?? '' ),
+				'email_subscriber' => true === ( $row['is_email_subscriber'] ?? false ),
+			);
+		}
+
+		return array(
+			'site'        => self::site(),
+			'total'       => self::as_int( $raw, 'total' ),
+			'page'        => $args['page'],
+			'pages'       => self::as_int( $raw, 'pages' ),
+			'subscribers' => $subscribers,
+		);
+	}
+
+	/**
+	 * Execute: get-ad-stats.
+	 *
+	 * @param array|null $input Input matching the ability's input_schema.
+	 * @return array|WP_Error
+	 */
+	public static function get_ad_stats( $input = null ) {
+		$input  = is_array( $input ) ? $input : array();
+		$period = self::pick_period( $input['period'] ?? null );
+		$num    = self::clamp_int( $input['num'] ?? 30, 1, 90, 30 );
+		$date   = self::resolve_date( $input['date'] ?? null );
+		if ( is_wp_error( $date ) ) {
+			return $date;
+		}
+
+		$stats    = self::get_wpcom_stats();
+		$composed = self::compose_subcalls(
+			array(
+				'stats'    => $stats->get_wordads_stats(
+					array(
+						'unit'     => $period,
+						'quantity' => $num,
+						'date'     => $date,
+					)
+				),
+				'earnings' => $stats->get_wordads_earnings(),
+			),
+			__( 'WordAds data could not be fetched from WordPress.com. Confirm the site is connected and try again.', 'jetpack-stats-pkg' )
+		);
+		if ( is_wp_error( $composed ) ) {
+			return $composed;
+		}
+		$errors = $composed['errors'];
+
+		$series = null;
+		if ( ! in_array( 'stats', $errors, true ) ) {
+			$raw    = $composed['values']['stats'];
+			$fields = array_flip( is_array( $raw['fields'] ?? null ) ? $raw['fields'] : array() );
+			$series = array();
+			foreach ( is_array( $raw['data'] ?? null ) ? $raw['data'] : array() as $row ) {
+				if ( ! is_array( $row ) ) {
+					continue;
+				}
+				$series[] = array(
+					'date'        => self::period_start_date( (string) ( $row[ $fields['period'] ?? 0 ] ?? '' ) ),
+					'impressions' => (int) ( $row[ $fields['impressions'] ?? 1 ] ?? 0 ),
+					'revenue'     => round( (float) ( $row[ $fields['revenue'] ?? 2 ] ?? 0 ), 2 ),
+					'cpm'         => round( (float) ( $row[ $fields['cpm'] ?? 3 ] ?? 0 ), 2 ),
+				);
+			}
+		}
+
+		$earnings = null;
+		if ( ! in_array( 'earnings', $errors, true ) ) {
+			$raw    = is_array( $composed['values']['earnings']['earnings'] ?? null ) ? $composed['values']['earnings']['earnings'] : array();
+			$months = array();
+			// WordAds, sponsored posts and adjustments each list amounts by `YYYY-MM`; a month is paid once every part of it is.
+			foreach ( array( 'wordads', 'sponsored', 'adjustment' ) as $network ) {
+				foreach ( self::rows_at( $raw, $network ) as $month => $row ) {
+					$month            = (string) $month;
+					$paid             = 1 === (int) ( $row['status'] ?? 0 );
+					$months[ $month ] = array(
+						'month'  => $month,
+						'amount' => ( $months[ $month ]['amount'] ?? 0 ) + (float) ( $row['amount'] ?? 0 ),
+						'paid'   => ( $months[ $month ]['paid'] ?? true ) && $paid,
+					);
+				}
+			}
+			krsort( $months );
+			foreach ( $months as $month => $row ) {
+				$months[ $month ]['amount'] = round( $row['amount'], 2 );
+			}
+			$earnings = array(
+				'total'  => round( (float) ( $raw['total_earnings'] ?? 0 ), 2 ),
+				'owed'   => round( (float) ( $raw['total_amount_owed'] ?? 0 ), 2 ),
+				'months' => array_values( $months ),
+			);
+		}
+
+		$out = array(
+			'site'     => self::site(),
+			'period'   => $period,
+			'date'     => $date,
+			'num'      => $num,
+			'series'   => $series,
+			'earnings' => $earnings,
+			'partial'  => ! empty( $errors ),
+		);
+		if ( ! empty( $errors ) ) {
+			$out['errors'] = $errors;
+		}
 		return $out;
 	}
 
@@ -1085,11 +2051,26 @@ class Stats_Abilities extends Registrar {
 	 *
 	 * @param WPCOM_Stats $stats Client.
 	 * @param string      $type  Content type enum.
-	 * @param array       $args  Pre-built `{ period, date, max, num?, summarize? }` args — `tags` takes only `max`.
+	 * @param array       $args      Pre-built `{ period, date, max, num?, summarize? }` args, or `{ date, days, max }` for
+	 *                               the DAYS_WINDOW_TYPES — `tags` takes only `max`, and the comment types none.
+	 * @param string      $utm_param UTM parameter or combination, for `utm`.
 	 * @return array|WP_Error
 	 */
-	private static function fetch_top_content_raw( WPCOM_Stats $stats, string $type, array $args ) {
+	private static function fetch_top_content_raw( WPCOM_Stats $stats, string $type, array $args, string $utm_param = '' ) {
+		if ( isset( self::LOCATION_TYPES[ $type ] ) ) {
+			return $stats->get_views_by_location( self::LOCATION_TYPES[ $type ], $args );
+		}
+		if ( 'utm' === $type ) {
+			return $stats->get_utm_views( $utm_param, $args );
+		}
+		if ( isset( self::DAYS_WINDOW_TYPES[ $type ] ) ) {
+			return $stats->get_device_views( self::DAYS_WINDOW_TYPES[ $type ], $args );
+		}
+
 		switch ( $type ) {
+			case 'commenters':
+			case 'commented-posts':
+				return $stats->get_top_comments();
 			case 'posts':
 				return $stats->get_top_posts( $args );
 			case 'referrers':
@@ -1115,7 +2096,7 @@ class Stats_Abilities extends Registrar {
 	}
 
 	/**
-	 * Normalize a WPCOM top-content response into the uniform item shape.
+	 * Project a WPCOM top-content response into label/value rows, in WordPress.com's order.
 	 *
 	 * Most `type` values follow the `days -> <date> -> <list-key>` shape (or
 	 * `summary -> <list-key>` when summarized) and project through
@@ -1123,19 +2104,28 @@ class Stats_Abilities extends Registrar {
 	 *
 	 * @param string $type       Content type enum.
 	 * @param array  $raw        Raw WPCOM response.
-	 * @param int    $max        Result cap.
 	 * @param bool   $summarized Whether the request asked WPCOM to `summarize`.
-	 * @return array List of { rank, label, value, href?, id? } items.
+	 * @return array List of { label, value, href?, id? } rows.
 	 */
-	private static function normalize_top_content_items( string $type, array $raw, int $max, bool $summarized = false ): array {
+	private static function top_content_rows( string $type, array $raw, bool $summarized = false ): array {
 		if ( 'tags' === $type ) {
-			return self::rank_and_cap( self::tag_rows( $raw ), $max );
+			return self::tag_rows( $raw );
 		}
 
 		$day_data = self::first_period_block( $raw, $summarized );
 
 		if ( 'countries' === $type ) {
-			return self::rank_and_cap( self::country_rows( $day_data, self::rows_at( $raw, 'country-info' ) ), $max );
+			return self::country_rows( $day_data, self::rows_at( $raw, 'country-info' ) );
+		}
+		if ( isset( self::LOCATION_TYPES[ $type ] ) ) {
+			return self::location_rows( $day_data );
+		}
+		if ( isset( self::DAYS_WINDOW_TYPES[ $type ] ) ) {
+			return self::value_map_rows( $raw[ 'utm' === $type ? 'top_utm_values' : 'top_values' ] ?? null );
+		}
+		if ( in_array( $type, array( 'commenters', 'commented-posts' ), true ) ) {
+			// These lists are not split into periods.
+			$day_data = $raw;
 		}
 
 		$map = self::TOP_CONTENT_MAP[ $type ] ?? null;
@@ -1146,13 +2136,38 @@ class Stats_Abilities extends Registrar {
 		$rows = array();
 		foreach ( self::rows_at( $day_data, $map['list'] ) as $row ) {
 			$rows[] = array(
-				'label' => self::pick_field( $row, $map['label'] ),
-				'value' => self::pick_field( $row, $map['value'] ),
-				'href'  => isset( $map['href'] ) ? self::pick_field( $row, $map['href'] ) : null,
-				'id'    => isset( $map['id'] ) ? self::pick_field( $row, $map['id'] ) : null,
+				'label'    => self::pick_field( $row, $map['label'] ),
+				'value'    => self::pick_field( $row, $map['value'] ),
+				'href'     => isset( $map['href'] ) ? self::pick_field( $row, $map['href'] ) : null,
+				'id'       => isset( $map['id'] ) ? self::pick_field( $row, $map['id'] ) : null,
+				'children' => isset( $map['children'] ) ? self::child_rows( $row[ $map['children'] ] ?? null ) : array(),
 			);
 		}
-		return self::rank_and_cap( $rows, $max );
+		return $rows;
+	}
+
+	/**
+	 * Project the rows a referrer, click or author row groups, and the rows those group in turn.
+	 *
+	 * A referrer group with nothing under it reports `results` as `{ views }` rather than a list, so it has none.
+	 *
+	 * @param mixed $list Raw list of `{ name|title, url, views, children? }`, or anything else for none.
+	 * @return array Rows of `{ label, value, href, children }`.
+	 */
+	private static function child_rows( $list ): array {
+		if ( ! is_array( $list ) || array_values( $list ) !== $list ) {
+			return array();
+		}
+		$rows = array();
+		foreach ( array_filter( $list, 'is_array' ) as $row ) {
+			$rows[] = array(
+				'label'    => self::pick_field( $row, array( 'name', 'title', 'url' ) ),
+				'value'    => $row['views'] ?? 0,
+				'href'     => self::pick_field( $row, 'url' ),
+				'children' => self::child_rows( $row['children'] ?? null ),
+			);
+		}
+		return $rows;
 	}
 
 	/**
@@ -1169,9 +2184,19 @@ class Stats_Abilities extends Registrar {
 		foreach ( self::rows_at( $raw, 'tags' ) as $row ) {
 			$terms  = self::rows_at( $row, 'tags' );
 			$rows[] = array(
-				'label' => implode( ', ', array_column( $terms, 'name' ) ),
-				'value' => $row['views'] ?? 0,
-				'href'  => 1 === count( $terms ) ? ( array_column( $terms, 'link' )[0] ?? null ) : null,
+				'label'    => implode( ', ', array_column( $terms, 'name' ) ),
+				'value'    => $row['views'] ?? 0,
+				'href'     => 1 === count( $terms ) ? ( array_column( $terms, 'link' )[0] ?? null ) : null,
+				'children' => 1 === count( $terms ) ? array() : array_map(
+					function ( $term ) {
+						return array(
+							'label' => $term['name'] ?? '',
+							'href'  => $term['link'] ?? null,
+							'type'  => $term['type'] ?? null,
+						);
+					},
+					array_values( $terms )
+				),
 			);
 		}
 		return $rows;
@@ -1213,6 +2238,48 @@ class Stats_Abilities extends Registrar {
 	}
 
 	/**
+	 * Project a `stats/location-views/{region,city}` period block into label/value rows.
+	 *
+	 * @param array $day_data Period block holding the `views` rows of `{ location, views, country_code }`.
+	 * @return array
+	 */
+	private static function location_rows( array $day_data ): array {
+		$rows = array();
+		foreach ( self::rows_at( $day_data, 'views' ) as $row ) {
+			$rows[] = array(
+				'label'   => (string) ( $row['location'] ?? '' ),
+				'value'   => $row['views'] ?? 0,
+				'country' => $row['country_code'] ?? null,
+			);
+		}
+		return $rows;
+	}
+
+	/**
+	 * Project a WordPress.com `{ value: count }` map into label/value rows, in its order.
+	 *
+	 * A UTM combination is keyed by the JSON list of its values, which reads as `google / cpc`.
+	 *
+	 * @param mixed $map Map of value => count, or anything else for none.
+	 * @return array
+	 */
+	private static function value_map_rows( $map ): array {
+		if ( ! is_array( $map ) ) {
+			return array();
+		}
+		$rows = array();
+		foreach ( $map as $label => $count ) {
+			$label  = (string) $label;
+			$values = json_decode( $label, true );
+			$rows[] = array(
+				'label' => is_array( $values ) ? implode( ' / ', array_map( 'strval', $values ) ) : $label,
+				'value' => (int) round( (float) $count ),
+			);
+		}
+		return $rows;
+	}
+
+	/**
 	 * Return the block of a WPCOM list response that holds the rows to report.
 	 *
 	 * A `summarize=1` request totals the periods under `summary` (`days -> summary`
@@ -1238,7 +2305,7 @@ class Stats_Abilities extends Registrar {
 	/**
 	 * Return the first posts item that is a post or page, skipping the home page / archives row.
 	 *
-	 * @param array $items Items from normalize_top_content_items().
+	 * @param array $items Items from rank_and_cap().
 	 * @return array|null
 	 */
 	private static function first_post( array $items ): ?array {
@@ -1281,29 +2348,101 @@ class Stats_Abilities extends Registrar {
 	/**
 	 * Cap rows and turn them into ranked items, dropping empty `href`s and non-positive `id`s.
 	 *
-	 * @param array $rows Rows of `{ label, value, href?, id? }`.
-	 * @param int   $max  Result cap.
-	 * @return array Items of `{ rank, label, value, href?, id? }`.
+	 * @param array $rows   Rows of `{ label, value, href?, id?, children? }`.
+	 * @param int   $max    Result cap; 0 keeps every row.
+	 * @param bool  $expand Whether to keep each row's `children`.
+	 * @return array Items of `{ rank, label, value, href?, id?, children? }`.
 	 */
-	private static function rank_and_cap( array $rows, int $max ): array {
+	private static function rank_and_cap( array $rows, int $max, bool $expand = false ): array {
 		$items = array();
-		foreach ( array_slice( $rows, 0, $max ) as $i => $row ) {
-			$item = array(
-				'rank'  => $i + 1,
-				// WordPress.com sends titles and names HTML-encoded.
-				'label' => html_entity_decode( (string) ( $row['label'] ?? '' ), ENT_QUOTES | ENT_HTML5, 'UTF-8' ),
-				'value' => (int) ( $row['value'] ?? 0 ),
-			);
-			if ( isset( $row['href'] ) && '' !== $row['href'] ) {
-				$item['href'] = (string) $row['href'];
-			}
-			$id = (int) ( $row['id'] ?? 0 );
+		foreach ( 0 === $max ? $rows : array_slice( $rows, 0, $max ) as $i => $row ) {
+			$item = array( 'rank' => $i + 1 ) + self::item( $row );
+			$id   = (int) ( $row['id'] ?? 0 );
 			if ( $id > 0 ) {
 				$item['id'] = $id;
+			}
+			if ( $expand && ! empty( $row['children'] ) ) {
+				$item['children'] = self::child_items( $row['children'], $max );
 			}
 			$items[] = $item;
 		}
 		return $items;
+	}
+
+	/**
+	 * Turn child rows into items, nested as WordPress.com nests them.
+	 *
+	 * WordPress.com caps every level at the requested `max`, which is one more than the cap asked for.
+	 *
+	 * @param array $rows Rows of `{ label, value?, href?, type?, children? }`.
+	 * @param int   $max  Cap per level; 0 keeps every row.
+	 * @return array Items of `{ label, value?, href?, type?, children? }`.
+	 */
+	private static function child_items( array $rows, int $max ): array {
+		$items = array();
+		foreach ( 0 === $max ? $rows : array_slice( $rows, 0, $max ) as $row ) {
+			$item = self::item( $row );
+			if ( ! empty( $row['type'] ) ) {
+				$item['type'] = (string) $row['type'];
+			}
+			if ( ! empty( $row['children'] ) ) {
+				$item['children'] = self::child_items( $row['children'], $max );
+			}
+			$items[] = $item;
+		}
+		return $items;
+	}
+
+	/**
+	 * The label, value and href of one row; a row without a `value` key (a term in a tags item) gets none.
+	 *
+	 * @param array $row Row of `{ label, value?, href? }`.
+	 * @return array
+	 */
+	private static function item( array $row ): array {
+		// WordPress.com sends titles and names HTML-encoded.
+		$item = array( 'label' => html_entity_decode( (string) ( $row['label'] ?? '' ), ENT_QUOTES | ENT_HTML5, 'UTF-8' ) );
+		if ( array_key_exists( 'value', $row ) ) {
+			$item['value'] = (int) ( $row['value'] ?? 0 );
+		}
+		if ( ! empty( $row['country'] ) ) {
+			$item['country'] = (string) $row['country'];
+		}
+		if ( isset( $row['href'] ) && '' !== $row['href'] ) {
+			// Links off a WordPress.com site go through the href.li redirector; report where they lead.
+			$item['href'] = (string) preg_replace( '#^https?://href\.li/\?#', '', (string) $row['href'] );
+		}
+		return $item;
+	}
+
+	/**
+	 * Project a `stats/subscribers` response into `{ date, subscribers, change }` rows, oldest first.
+	 *
+	 * WordPress.com lists the periods newest first.
+	 *
+	 * @param array $raw Raw response: `{ fields: [ period, subscribers, subscribers_change ], data: [ [ … ] ] }`.
+	 * @return array
+	 */
+	private static function subscriber_series( array $raw ): array {
+		$fields = array_flip( is_array( $raw['fields'] ?? null ) ? $raw['fields'] : array() );
+		$series = array();
+		foreach ( is_array( $raw['data'] ?? null ) ? $raw['data'] : array() as $row ) {
+			if ( ! is_array( $row ) ) {
+				continue;
+			}
+			$series[] = array(
+				'date'        => self::period_start_date( (string) ( $row[ $fields['period'] ?? 0 ] ?? '' ) ),
+				'subscribers' => (int) ( $row[ $fields['subscribers'] ?? 1 ] ?? 0 ),
+				'change'      => (int) ( $row[ $fields['subscribers_change'] ?? 2 ] ?? 0 ),
+			);
+		}
+		usort(
+			$series,
+			static function ( $a, $b ) {
+				return strcmp( $a['date'], $b['date'] );
+			}
+		);
+		return $series;
 	}
 
 	/**
@@ -1459,6 +2598,177 @@ class Stats_Abilities extends Registrar {
 	}
 
 	/**
+	 * Input schema for `compare`.
+	 *
+	 * @return array
+	 */
+	private static function compare_schema(): array {
+		return array(
+			'type'        => 'string',
+			'description' => __( 'Also return the same figures for an earlier window, as the Stats dashboard\'s Compare menu does: the window just before, the window just before shifted by whole weeks so weekdays line up, the same dates a year earlier, or 52 weeks earlier so weekdays line up.', 'jetpack-stats-pkg' ),
+			'enum'        => self::COMPARE_PRESETS,
+		);
+	}
+
+	/**
+	 * Resolve the `compare` input.
+	 *
+	 * @param mixed $raw Raw input value.
+	 * @return string|null|WP_Error A preset, null when none was asked for, or jetpack_stats_invalid_compare.
+	 */
+	private static function pick_compare( $raw ) {
+		if ( null === $raw || '' === $raw ) {
+			return null;
+		}
+		if ( is_string( $raw ) && in_array( $raw, self::COMPARE_PRESETS, true ) ) {
+			return $raw;
+		}
+		return new WP_Error(
+			self::ERROR_PREFIX . 'invalid_compare',
+			sprintf(
+				/* translators: %s: comma-separated list of valid compare values. */
+				__( 'Unknown `compare` preset. Valid values: %s.', 'jetpack-stats-pkg' ),
+				implode( ', ', self::COMPARE_PRESETS )
+			)
+		);
+	}
+
+	/**
+	 * End date of the window a preset compares with, for `num` periods ending with the one containing `date`.
+	 *
+	 * The shifts are the dashboard's: the previous period steps back by the window's length, a weekday
+	 * match rounds that up to whole weeks, the previous year keeps the calendar date and a weekday-matched
+	 * year steps back 52 weeks. Weeks, months and years step back whole periods. WordPress.com ends the
+	 * last row on `date`, so shifting `date` itself ends both last rows at the same point in their period.
+	 * Weeks already line up by weekday; months and years cannot.
+	 *
+	 * @param string $date   YYYY-MM-DD.
+	 * @param string $preset One of self::COMPARE_PRESETS.
+	 * @param string $period One of self::PERIODS.
+	 * @param int    $num    Number of periods in the window.
+	 * @return string|WP_Error YYYY-MM-DD, or jetpack_stats_invalid_compare for a weekday match on months or years.
+	 */
+	private static function compare_end_date( string $date, string $preset, string $period, int $num ) {
+		$day       = \DateTimeImmutable::createFromFormat( '!Y-m-d', $date, new \DateTimeZone( 'UTC' ) );
+		$by_week   = in_array( $preset, array( 'previous-period-match-day-of-week', 'previous-year-match-day-of-week' ), true );
+		$prev_year = in_array( $preset, array( 'previous-year', 'previous-year-match-day-of-week' ), true );
+
+		if ( $by_week && in_array( $period, array( 'month', 'year' ), true ) ) {
+			return new WP_Error(
+				self::ERROR_PREFIX . 'invalid_compare',
+				__( 'Months and years cannot line up by weekday. Use previous-period or previous-year.', 'jetpack-stats-pkg' )
+			);
+		}
+
+		switch ( $period ) {
+			case 'day':
+				if ( 'previous-year' === $preset ) {
+					return self::months_earlier( $day, 12 )->format( 'Y-m-d' );
+				}
+				$days = $prev_year ? 364 : ( $by_week ? (int) ceil( $num / 7 ) * 7 : $num );
+				return $day->modify( "-{$days} days" )->format( 'Y-m-d' );
+			case 'week':
+				return $day->modify( '-' . ( $prev_year ? 52 : $num ) . ' weeks' )->format( 'Y-m-d' );
+		}
+
+		$months = ( 'year' === $period ? 12 : 1 ) * ( $prev_year ? ( 'year' === $period ? 1 : 12 ) : $num );
+		return self::months_earlier( $day, $months )->format( 'Y-m-d' );
+	}
+
+	/**
+	 * The same day some months earlier, clamped to that month's length; a month's last day stays its last.
+	 *
+	 * @param \DateTimeImmutable $day    Day.
+	 * @param int                $months Months to step back.
+	 * @return \DateTimeImmutable
+	 */
+	private static function months_earlier( \DateTimeImmutable $day, int $months ): \DateTimeImmutable {
+		$first = $day->modify( 'first day of this month' )->modify( "-{$months} months" );
+		$last  = (int) $first->format( 't' );
+		$date  = (int) $day->format( 'j' ) === (int) $day->format( 't' ) ? $last : min( (int) $day->format( 'j' ), $last );
+		return $first->setDate( (int) $first->format( 'Y' ), (int) $first->format( 'n' ), $date );
+	}
+
+	/**
+	 * The windows the overview compares today, the last 7 days and the last 30 days with.
+	 *
+	 * @param string $today  YYYY-MM-DD.
+	 * @param string $preset One of self::COMPARE_PRESETS.
+	 * @return array<string, array{from: string, to: string, days: int}> Keyed `today`, `week`, `month`.
+	 */
+	private static function overview_compare_windows( string $today, string $preset ): array {
+		$windows = array();
+		foreach ( array(
+			'today' => 1,
+			'week'  => 7,
+			'month' => 30,
+		) as $name => $days ) {
+			$to               = (string) self::compare_end_date( $today, $preset, 'day', $days );
+			$windows[ $name ] = array(
+				'from' => \DateTimeImmutable::createFromFormat( '!Y-m-d', $to, new \DateTimeZone( 'UTC' ) )->modify( '-' . ( $days - 1 ) . ' days' )->format( 'Y-m-d' ),
+				'to'   => $to,
+				'days' => $days,
+			);
+		}
+		return $windows;
+	}
+
+	/**
+	 * The overview's figures for the compared windows, read from one daily `stats/visits` response.
+	 *
+	 * @param string $preset  One of self::COMPARE_PRESETS.
+	 * @param array  $windows From overview_compare_windows().
+	 * @param array  $raw     Daily `stats/visits` response covering every window.
+	 * @param bool   $failed  Whether that read failed.
+	 * @return array
+	 */
+	private static function overview_comparison( string $preset, array $windows, array $raw, bool $failed ): array {
+		$rows = $failed ? array() : self::normalize_visits_series( $raw, array( 'views', 'visitors' ) );
+		$in   = array();
+		foreach ( $windows as $name => $window ) {
+			$in[ $name ] = array_filter(
+				$rows,
+				function ( $row ) use ( $window ) {
+					return $row['date'] >= $window['from'] && $row['date'] <= $window['to'];
+				}
+			);
+			// A window WordPress.com did not report every day of has no total.
+			if ( count( $in[ $name ] ) !== $window['days'] ) {
+				$in[ $name ] = array();
+			}
+		}
+
+		return array(
+			'preset'         => $preset,
+			'views_today'    => self::sum_or_null( $in['today'], 'views' ),
+			'visitors_today' => self::sum_or_null( $in['today'], 'visitors' ),
+			'views_week'     => self::sum_or_null( $in['week'], 'views' ),
+			'views_month'    => self::sum_or_null( $in['month'], 'views' ),
+			'windows'        => array_map(
+				function ( $window ) {
+					return array(
+						'from' => $window['from'],
+						'to'   => $window['to'],
+					);
+				},
+				$windows
+			),
+		);
+	}
+
+	/**
+	 * Whole days from one date to a later one.
+	 *
+	 * @param string $from YYYY-MM-DD.
+	 * @param string $to   YYYY-MM-DD.
+	 * @return int
+	 */
+	private static function days_between( string $from, string $to ): int {
+		$utc = new \DateTimeZone( 'UTC' );
+		return (int) \DateTimeImmutable::createFromFormat( '!Y-m-d', $from, $utc )->diff( \DateTimeImmutable::createFromFormat( '!Y-m-d', $to, $utc ) )->days;
+	}
+
+	/**
 	 * First day of the period containing a date; weeks start on Monday, as in WordPress.com Stats.
 	 *
 	 * @param string $date   YYYY-MM-DD.
@@ -1507,7 +2817,7 @@ class Stats_Abilities extends Registrar {
 				continue;
 			}
 			$entry = array(
-				'date' => isset( $row[ $date_idx ] ) ? (string) $row[ $date_idx ] : '',
+				'date' => self::period_start_date( (string) ( $row[ $date_idx ] ?? '' ) ),
 			);
 			foreach ( $fields as $field ) {
 				$idx             = $field_idx[ $field ] ?? null;
@@ -1516,6 +2826,18 @@ class Stats_Abilities extends Registrar {
 			$series[] = $entry;
 		}
 		return $series;
+	}
+
+	/**
+	 * Turn a `stats/visits` period label into the first day of its period.
+	 *
+	 * Weeks come labelled with their Monday as `2026W10W19`; every other period already is a YYYY-MM-DD date.
+	 *
+	 * @param string $label Period label from WordPress.com.
+	 * @return string
+	 */
+	private static function period_start_date( string $label ): string {
+		return (string) preg_replace( '/^(\d{4})W(\d{2})W(\d{2})$/', '$1-$2-$3', $label );
 	}
 
 	/**
@@ -1615,6 +2937,25 @@ class Stats_Abilities extends Registrar {
 	}
 
 	/**
+	 * Output schema for a visits `series`: one row per period, carrying every name in `fields`.
+	 *
+	 * @param bool $nullable Whether the series is null when WordPress.com could not be read.
+	 * @return array
+	 */
+	private static function visits_series_schema( bool $nullable = false ): array {
+		return array(
+			'type'  => $nullable ? array( 'array', 'null' ) : 'array',
+			'items' => array(
+				'type'                 => 'object',
+				'properties'           => array(
+					'date' => array( 'type' => 'string' ),
+				),
+				'additionalProperties' => array( 'type' => array( 'integer', 'null' ) ),
+			),
+		);
+	}
+
+	/**
 	 * Output schema for `errors`: the names of the WordPress.com sub-calls that failed.
 	 *
 	 * @return array
@@ -1623,6 +2964,177 @@ class Stats_Abilities extends Registrar {
 		return array(
 			'type'  => 'array',
 			'items' => array( 'type' => 'string' ),
+		);
+	}
+
+	/**
+	 * Plain-language meaning of each metric and time window the readers return, keyed by term.
+	 *
+	 * The readers' numbers differ in window (a day, a rolling week, all time) and in what they count,
+	 * and agents misread them without this: a 7-day rolling total reported as "this week", or daily
+	 * visitors added up as if they were unique people.
+	 *
+	 * @return array<string, string>
+	 */
+	private static function definition_texts(): array {
+		return array(
+			'views'                 => __( 'A view is one load of a page on the site in a browser that runs the Stats script. Feeds, previews, embeds and API reads are not views; logged-in visits count only for the roles chosen in the Stats settings; bots that run JavaScript can be counted.', 'jetpack-stats-pkg' ),
+			'visitors'              => __( 'Visitors are the unique browsers seen in one row\'s period. Each row counts its own uniques, so adding rows together overcounts people who came back; there is no unique total across rows.', 'jetpack-stats-pkg' ),
+			'likes'                 => __( 'Likes given to the site\'s posts during the row\'s period.', 'jetpack-stats-pkg' ),
+			'comments'              => __( 'Comments posted on the site during the row\'s period.', 'jetpack-stats-pkg' ),
+			'series'                => __( 'One row per period (day, week from Monday to Sunday, month, or year) in the site\'s timezone, oldest first. A row\'s `date` is the first day of its period; the last row is the period containing the requested `date`, so it may be incomplete.', 'jetpack-stats-pkg' ),
+			'date'                  => __( 'Today in the site\'s timezone.', 'jetpack-stats-pkg' ),
+			'views_today'           => __( 'Views so far today, in the site\'s timezone.', 'jetpack-stats-pkg' ),
+			'visitors_today'        => __( 'Unique visitors so far today, in the site\'s timezone.', 'jetpack-stats-pkg' ),
+			'views_week'            => __( 'Views over the last 7 days, today included: a rolling total, not the calendar week.', 'jetpack-stats-pkg' ),
+			'views_month'           => __( 'Views over the last 30 days, today included: a rolling total, not the calendar month.', 'jetpack-stats-pkg' ),
+			'streak'                => __( 'Consecutive days with at least one published post. The current streak is 0 unless it reaches today or yesterday.', 'jetpack-stats-pkg' ),
+			'top_post'              => __( 'The post or page with the most views today, not counting the home page.', 'jetpack-stats-pkg' ),
+			'top_referrer'          => __( 'The referrer that sent the most views today.', 'jetpack-stats-pkg' ),
+			'total_views'           => __( 'All-time views of the post since it was published, not limited to the series window.', 'jetpack-stats-pkg' ),
+			'window_top_content'    => __( 'Item values are totals across the `num` periods ending with the one containing `date`, in the site\'s timezone. The current period may be incomplete.', 'jetpack-stats-pkg' ),
+			'window_tags'           => __( 'Tags and categories cover the seven days ending yesterday, whatever `period`, `date` and `num` say.', 'jetpack-stats-pkg' ),
+			'value_posts'           => __( 'An item\'s `value` is the views of that post or page; the home page and archives share one item.', 'jetpack-stats-pkg' ),
+			'value_referrers'       => __( 'An item\'s `value` is the views that arrived from that referrer.', 'jetpack-stats-pkg' ),
+			'value_search-terms'    => __( 'An item\'s `value` is the views from searches for that term. Search engines hide most terms, so this list is a small sample.', 'jetpack-stats-pkg' ),
+			'value_clicks'          => __( 'An item\'s `value` is the clicks on links leading off the site to that destination.', 'jetpack-stats-pkg' ),
+			'children_referrers'    => __( 'An item\'s `children` are the pages, apps or search engines within that referrer that sent the views, each with its own `value`; a child can group further rows. Each item lists at most `max` children, its top ones, so they can add up to less than the item.', 'jetpack-stats-pkg' ),
+			'children_clicks'       => __( 'An item\'s `children` are the links under that domain that were clicked, each with its own `value`. Each item lists at most `max` children, its top ones, so they can add up to less than the item.', 'jetpack-stats-pkg' ),
+			'children_tags'         => __( 'An item\'s `children` are the tags and categories it groups. Posts filed under all of them share the item\'s `value`, so a child has none of its own.', 'jetpack-stats-pkg' ),
+			'value_tags'            => __( 'An item\'s `value` is the views of posts filed under those tags and categories.', 'jetpack-stats-pkg' ),
+			'value_authors'         => __( 'An item\'s `value` is the views of that author\'s posts and pages.', 'jetpack-stats-pkg' ),
+			'value_countries'       => __( 'An item\'s `value` is the views from visitors in that country.', 'jetpack-stats-pkg' ),
+			'value_regions'         => __( 'An item\'s `value` is the views from visitors in that region; `country` is the region\'s country.', 'jetpack-stats-pkg' ),
+			'value_cities'          => __( 'An item\'s `value` is the views from visitors in that city; `country` is the city\'s country. Cities that share a name within a country share one item.', 'jetpack-stats-pkg' ),
+			'value_browsers'        => __( 'An item\'s `value` is the views from that browser.', 'jetpack-stats-pkg' ),
+			'value_platforms'       => __( 'An item\'s `value` is the views from that operating system.', 'jetpack-stats-pkg' ),
+			'value_screen-sizes'    => __( 'An item\'s `value` is the percent of views from screens of that size, rounded to a whole number: a share, not a count.', 'jetpack-stats-pkg' ),
+			'value_utm'             => __( 'An item\'s `value` is the views of pages opened from a link tagged with those UTM values, listed in the order `utm_param` names them.', 'jetpack-stats-pkg' ),
+			'value_commenters'      => __( 'An item\'s `value` is every approved comment that person has left on the site. WordPress.com picks the people from the latest 2,000 comments, so a long-quiet commenter can be missing.', 'jetpack-stats-pkg' ),
+			'value_commented-posts' => __( 'An item\'s `value` is the approved comments on that post. WordPress.com ranks the latest 1,000 published posts.', 'jetpack-stats-pkg' ),
+			'window_comments'       => __( 'Comment counts cover the site\'s whole history, whatever `period`, `date` and `num` say.', 'jetpack-stats-pkg' ),
+			'children_authors'      => __( 'An item\'s `children` are the author\'s posts and pages that had views, each with its own `value`. Each item lists at most `max` children, its top ones, so they can add up to less than the item.', 'jetpack-stats-pkg' ),
+			'value_downloads'       => __( 'An item\'s `value` is the downloads of that file.', 'jetpack-stats-pkg' ),
+			'value_video-plays'     => __( 'An item\'s `value` is the plays of that video.', 'jetpack-stats-pkg' ),
+			'total'                 => __( 'The sum of `email`, `wpcom`, `comment` and every `publicize` count. One person following in several ways is counted once for each, and the total is null when any count is unknown.', 'jetpack-stats-pkg' ),
+			'email'                 => __( 'People subscribed to the site by email, now.', 'jetpack-stats-pkg' ),
+			'wpcom'                 => __( 'WordPress.com users following the site in the Reader, now.', 'jetpack-stats-pkg' ),
+			'comment'               => __( 'People following the comments on every post, now. Following one post\'s comments is not counted.', 'jetpack-stats-pkg' ),
+			'publicize'             => __( 'Followers of each connected social media account, now.', 'jetpack-stats-pkg' ),
+			'author_views'          => __( 'The author\'s `views` are views of every post and page they wrote, in any status; `likes` and `comments` are those their content received in the same window, not all time.', 'jetpack-stats-pkg' ),
+			'all_time'              => __( 'Totals since the site started counting Stats: views, unique visitors summed day by day, published posts, approved comments and social shares. `best_day` is the day with the most views ever.', 'jetpack-stats-pkg' ),
+			'busiest'               => __( 'The hour of the day (in the site\'s timezone) with the most views over the last 60 days, and the weekday with the most over the last 10 weeks, each with its percent of the views in that span.', 'jetpack-stats-pkg' ),
+			'recent'                => __( 'The last 7 and 30 days end yesterday, so today is not included; each `previous_` window is the same number of days just before. Visitors are unique within each window.', 'jetpack-stats-pkg' ),
+			'years'                 => __( 'Each year\'s published posts, the words in them, and the likes and comments those posts have received since.', 'jetpack-stats-pkg' ),
+			'plan_usage'            => __( 'Views counted toward the site\'s Stats plan from `period_start` up to `period_end`, when the count resets. `views_limit` is null when the plan has no limit.', 'jetpack-stats-pkg' ),
+			'sent'                  => __( '`sent` is how many subscribers the post was emailed to.', 'jetpack-stats-pkg' ),
+			'opens'                 => __( '`opens` counts every time the email was opened, including repeat opens by one person; `unique_opens` counts people. Mail apps that load images automatically or block them make opens approximate.', 'jetpack-stats-pkg' ),
+			'clicks'                => __( '`clicks` counts every click on a link in the email; `unique_clicks` counts people.', 'jetpack-stats-pkg' ),
+			'email_rates'           => __( '`open_rate` and `click_rate` are unique opens and unique clicks as a percent of `sent`, over all time.', 'jetpack-stats-pkg' ),
+			'email_window'          => __( '`opens` and `clicks` count only the days from `start_date` to `end_date`; unique counts and rates are all-time.', 'jetpack-stats-pkg' ),
+			'email_all_time'        => __( 'Every figure covers all time since the post was sent.', 'jetpack-stats-pkg' ),
+			'paid'                  => __( 'People with a paid subscription to the site, now. They are also counted in `email` or `wpcom`.', 'jetpack-stats-pkg' ),
+			'subscriber_series'     => __( 'One row per period, oldest first: `subscribers` is the count at the end of the period and `change` the net gain or loss during it.', 'jetpack-stats-pkg' ),
+			'comparison_series'     => __( 'The same figures for the window `compare` names, ending on `comparison.date`: row i of `comparison.series` is the earlier period matching row i of `series`. Weeks, months and years shift by whole periods, so a previous year of weeks is 52 weeks earlier, and both last rows end at the same point in their period.', 'jetpack-stats-pkg' ),
+			'comparison_overview'   => __( 'The same figures for the windows `compare` names, listed in `comparison.windows`: today, the 7 days and the 30 days, each shifted back. The current figures include today so far while the compared windows are whole days, so early in the day today trails its comparison. A figure is null when WordPress.com did not report every day of its window.', 'jetpack-stats-pkg' ),
+		);
+	}
+
+	/**
+	 * The definitions block for a response.
+	 *
+	 * @param string[] $terms Terms the response uses, in order.
+	 * @return array<string, string>
+	 */
+	private static function definitions( array $terms ): array {
+		return array_intersect_key( self::definition_texts(), array_flip( $terms ) );
+	}
+
+	/**
+	 * The definitions block for get-top-content: what an item's `value` counts for this type, and the window it covers.
+	 *
+	 * @param string $type   Content type enum.
+	 * @param bool   $expand Whether the items carry `children`.
+	 * @return array<string, string>
+	 */
+	private static function top_content_definitions( string $type, bool $expand = false ): array {
+		$texts  = self::definition_texts();
+		$window = 'window_top_content';
+		if ( 'tags' === $type ) {
+			$window = 'window_tags';
+		} elseif ( in_array( $type, self::UNDATED_TYPES, true ) ) {
+			$window = 'window_comments';
+		}
+		$out = array(
+			'value' => $texts[ 'value_' . $type ],
+			'items' => $texts[ $window ],
+		);
+		if ( $expand && isset( $texts[ 'children_' . $type ] ) ) {
+			$out['children'] = $texts[ 'children_' . $type ];
+		}
+		// Clicks, comments, downloads and plays are not views.
+		if ( ! in_array( $type, array( 'clicks', 'commenters', 'commented-posts', 'downloads', 'video-plays' ), true ) ) {
+			$out['views'] = $texts['views'];
+		}
+		return $out;
+	}
+
+	/**
+	 * Output schema for `definitions`.
+	 *
+	 * @return array
+	 */
+	private static function definitions_schema(): array {
+		return array(
+			'type'                 => 'object',
+			'additionalProperties' => array( 'type' => 'string' ),
+		);
+	}
+
+	/**
+	 * Input schema for `period`.
+	 *
+	 * @return array
+	 */
+	private static function period_schema(): array {
+		return array(
+			'type'        => 'string',
+			'description' => __( 'Aggregation period.', 'jetpack-stats-pkg' ),
+			'enum'        => self::PERIODS,
+			'default'     => 'day',
+		);
+	}
+
+	/**
+	 * Input schema for `date`.
+	 *
+	 * @return array
+	 */
+	private static function date_schema(): array {
+		return array(
+			'type'        => 'string',
+			'description' => __( 'End date (YYYY-MM-DD). Defaults to today.', 'jetpack-stats-pkg' ),
+			'pattern'     => '^[0-9]{4}-[0-9]{2}-[0-9]{2}$',
+		);
+	}
+
+	/**
+	 * The `meta` of a read-only ability, public over MCP.
+	 *
+	 * @return array
+	 */
+	private static function reader_meta(): array {
+		return array(
+			'annotations'  => array(
+				'readonly'    => true,
+				'destructive' => false,
+				'idempotent'  => true,
+			),
+			'show_in_rest' => true,
+			'mcp'          => array(
+				'public' => true,
+				'type'   => 'tool',
+			),
 		);
 	}
 

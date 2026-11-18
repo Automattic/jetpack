@@ -25,7 +25,9 @@ jest.mock( '../../../src/admin-shell/adapter', () => ( {
 	transitionSettled: jest.fn( () => Promise.resolve() ),
 } ) );
 jest.mock( '../../../src/admin-shell/app', () => ( {
-	createApp: jest.requireActual( '../../../src/admin-shell/app' ).createApp,
+	createApp: jest.fn( ( ...args ) =>
+		jest.requireActual( '../../../src/admin-shell/app' ).createApp( ...args )
+	),
 	whenRendered: jest.fn( () => Promise.resolve() ),
 } ) );
 jest.mock( '../../../src/admin-shell/guest-assets', () => ( {
@@ -139,6 +141,16 @@ const click = href => {
 	).click();
 };
 
+// Back/Forward to `url`, as the browser reports it to the shell.
+const popTo = url => {
+	const { isolateRouters } = require( '../../../src/admin-shell/adapter' );
+	const onPopState = isolateRouters.mock.results[ 0 ].value.listen.mock.calls.find(
+		( [ type ] ) => type === 'popstate'
+	)[ 1 ];
+	globalThis.history.replaceState( null, '', url );
+	onPopState( { isTrusted: true } );
+};
+
 const where = () => location.search;
 const stateOf = slug =>
 	document.querySelector( `[data-shell-page="${ slug }"]` )?.dataset.shellState;
@@ -146,16 +158,6 @@ const stateOf = slug =>
 describe( 'admin shell leave guard', () => {
 	const A = '/wp-admin/admin.php?page=guest-a';
 	const B = '/wp-admin/admin.php?page=guest-b';
-
-	// Back/Forward to `url`, as the browser reports it to the shell.
-	const popTo = url => {
-		const { isolateRouters } = require( '../../../src/admin-shell/adapter' );
-		const onPopState = isolateRouters.mock.results[ 0 ].value.listen.mock.calls.find(
-			( [ type ] ) => type === 'popstate'
-		)[ 1 ];
-		globalThis.history.replaceState( null, '', url );
-		onPopState( { isTrusted: true } );
-	};
 
 	beforeEach( async () => {
 		click( `${ A }&p=%2Fone` );
@@ -319,6 +321,104 @@ describe( 'admin shell prewarm', () => {
 		await settle();
 
 		expect( mockCapturedSlug ).toEqual( { a: 'a', b: 'b' } );
+	} );
+} );
+
+describe( 'admin shell switch', () => {
+	const A = '/wp-admin/admin.php?page=guest-a';
+	const B = '/wp-admin/admin.php?page=guest-b';
+
+	it( 'names the next page when it hides one, and says whether a shown page is new', async () => {
+		const events = [];
+		const record = event => events.push( [ event.type.split( ':' )[ 1 ], event.detail ] );
+		window.addEventListener( 'jetpack-admin-shell:page-hidden', record );
+		window.addEventListener( 'jetpack-admin-shell:page-shown', record );
+
+		try {
+			click( A );
+			await settle();
+			click( B );
+			await settle();
+			click( A );
+			await settle();
+		} finally {
+			window.removeEventListener( 'jetpack-admin-shell:page-hidden', record );
+			window.removeEventListener( 'jetpack-admin-shell:page-shown', record );
+		}
+
+		expect(
+			events.map( ( [ type, { page, previous, next, firstShow, routeChanged } ] ) =>
+				type === 'page-hidden'
+					? [ type, page, next ]
+					: [ type, page, previous, firstShow, routeChanged ]
+			)
+		).toEqual( [
+			[ 'page-hidden', 'host', 'guest-a' ],
+			[ 'page-shown', 'guest-a', 'host', true, false ],
+			[ 'page-hidden', 'guest-a', 'guest-b' ],
+			[ 'page-shown', 'guest-b', 'guest-a', true, false ],
+			[ 'page-hidden', 'guest-b', 'guest-a' ],
+			[ 'page-shown', 'guest-a', 'guest-b', false, false ],
+		] );
+	} );
+
+	it.each( [
+		[ 'a link opens it at another route', true, () => click( `${ A }&p=%2Ftwo` ) ],
+		[ 'Back opens it at another route', true, () => popTo( `${ A }&p=%2Fzero` ) ],
+		[ 'Back returns to the route it was left on', false, () => popTo( `${ A }&p=%2Fone` ) ],
+		[
+			'its unsaved changes keep it on the route it was left on',
+			false,
+			() => {
+				window.addEventListener( 'jetpack-admin-shell:before-leave', mockStay );
+				popTo( `${ A }&p=%2Fzero` );
+			},
+		],
+	] )( 'says whether a kept page changed route when %s', async ( _, expected, reopen ) => {
+		click( `${ A }&p=%2Fone` );
+		await settle();
+		click( B );
+		await settle();
+		const shown = [];
+		const record = event => shown.push( event.detail );
+		window.addEventListener( 'jetpack-admin-shell:page-shown', record );
+
+		try {
+			reopen();
+			await settle();
+		} finally {
+			window.removeEventListener( 'jetpack-admin-shell:page-shown', record );
+		}
+
+		expect( shown ).toEqual( [
+			expect.objectContaining( { page: 'guest-a', firstShow: false, routeChanged: expected } ),
+		] );
+	} );
+
+	it( 'shows a page once when a switch back to it overtakes one still waiting on a dialog', async () => {
+		click( A );
+		await settle();
+		click( B );
+		await settle();
+		const { createApp } = require( '../../../src/admin-shell/app' );
+		const { closeDialogsOf } = require( '../../../src/admin-shell/overlays' );
+		const appA = createApp.mock.results.find( ( { value } ) => value.slug === 'guest-a' ).value;
+		const focusHeading = jest.spyOn( appA, 'focusHeading' );
+		const closeDialogs = [];
+		closeDialogsOf.mockImplementation(
+			() => new Promise( resolve => closeDialogs.push( resolve ) )
+		);
+
+		click( A );
+		await settle();
+		click( B );
+		await settle();
+		click( A );
+		await settle();
+		closeDialogs.forEach( resolve => resolve() );
+		await settle();
+
+		expect( focusHeading ).toHaveBeenCalledTimes( 1 );
 	} );
 } );
 

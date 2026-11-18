@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Send connection requests to the site's REST API even before a connection component has rendered.

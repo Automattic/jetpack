@@ -5,8 +5,12 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\SEO\Seo_Tools;
+
 /**
  * Class containing utility static methods that other SEO tools are relying on.
+ *
+ * The SEO package owns the logic of the methods that forward to it.
  */
 class Jetpack_SEO_Utils {
 	/**
@@ -26,24 +30,7 @@ class Jetpack_SEO_Utils {
 	 * @return bool True if SEO tools are enabled, false otherwise.
 	 */
 	public static function is_enabled_jetpack_seo() {
-		/**
-		 * Can be used by SEO plugin authors to disable the conflicting output of SEO Tools.
-		 *
-		 * @module seo-tools
-		 *
-		 * @since 5.0.0
-		 *
-		 * @param bool True if SEO Tools should be disabled, false otherwise.
-		 */
-		if ( apply_filters( 'jetpack_disable_seo_tools', false ) ) {
-			return false;
-		}
-
-		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			return wpcom_site_has_feature( 'advanced-seo', get_current_blog_id() );
-		}
-
-		return true;
+		return Seo_Tools::is_enabled();
 	}
 
 	/**
@@ -52,7 +39,7 @@ class Jetpack_SEO_Utils {
 	 * @return bool True if we should enable legacy usage, false otherwise.
 	 */
 	public static function has_legacy_front_page_meta() {
-		return ! self::is_enabled_jetpack_seo() && get_option( self::LEGACY_META_OPTION );
+		return Seo_Tools::has_legacy_front_page_meta();
 	}
 
 	/**
@@ -81,13 +68,7 @@ class Jetpack_SEO_Utils {
 	 * @return string Front page meta description string or empty string.
 	 */
 	public static function get_front_page_meta_description() {
-		if ( self::is_enabled_jetpack_seo() ) {
-			$front_page_meta = get_option( self::FRONT_PAGE_META_OPTION );
-			return $front_page_meta ? $front_page_meta : get_option( self::LEGACY_META_OPTION, '' );
-		}
-
-		// Support legacy usage for WPcom simple sites.
-		return get_option( self::LEGACY_META_OPTION, '' );
+		return Seo_Tools::get_front_page_meta_description();
 	}
 
 	/**

@@ -24,7 +24,6 @@
 		"build-production": "echo 'Not implemented.'",
 		"build-production-js": "NODE_ENV=production BABEL_ENV=production pnpm build-js && pnpm build:strip-unminified-prod",
 		"clean": "rm -rf src/build/ src/build-module/ build/",
-		"e2e-tests": "playwright test --config src/features/verbum-comments/playwright.config.ts",
 		"sync:newspack-blocks": "./bin/sync-newspack-blocks.sh",
 		"test": "node --test --test-reporter spec 'src/**/test/*.test.mjs' 'src/**/*.test.mts'",
 		"test-coverage": "c8 --report-dir=\"$COVERAGE_DIR\" --temp-directory=\"$ARTIFACTS_DIR/v8\" pnpm run test",

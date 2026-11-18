@@ -10,6 +10,7 @@ namespace Automattic\Jetpack;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Urls;
+use Automattic\Jetpack\Feature_Flags\Feature_Flags;
 use Automattic\Jetpack\IdentityCrisis\Exception;
 use Automattic\Jetpack\IdentityCrisis\UI;
 use Automattic\Jetpack\IdentityCrisis\URL_Secret;
@@ -40,6 +41,11 @@ class Identity_Crisis {
 	const IDC_VALIDATION_MAX_DELAY = 2592000;
 
 	/**
+	 * Feature flag that switches every Safe Mode surface to the shared screen.
+	 */
+	const NEW_SCREEN_FLAG = 'connection-idc-screen';
+
+	/**
 	 * Instance of the object.
 	 *
 	 * @var Identity_Crisis
@@ -54,10 +60,9 @@ class Identity_Crisis {
 	public static $wpcom_home_url;
 
 	/**
-	 * Has safe mode been confirmed?
-	 * Beware, it never contains `true` for non-admins, so doesn't always reflect the actual value.
+	 * Has safe mode been confirmed? Set on `init` during an identity crisis, null otherwise.
 	 *
-	 * @var bool
+	 * @var bool|null
 	 */
 	public static $is_safe_mode_confirmed;
 
@@ -87,6 +92,8 @@ class Identity_Crisis {
 	 * @return void
 	 */
 	private function __construct() {
+		self::register_feature_flags();
+
 		add_action( 'jetpack_sync_processed_actions', array( $this, 'maybe_clear_migrate_option' ) );
 		add_action( 'rest_api_init', array( 'Automattic\\Jetpack\\IdentityCrisis\\REST_Endpoints', 'initialize_rest_api' ) );
 		add_action( 'jetpack_idc_disconnect', array( __CLASS__, 'do_jetpack_idc_disconnect' ) );
@@ -176,16 +183,15 @@ class Identity_Crisis {
 	 * @return void
 	 */
 	public function wordpress_init() {
-		if ( current_user_can( 'jetpack_disconnect' ) ) {
-			if (
-				isset( $_GET['jetpack_idc_clear_confirmation'] ) && isset( $_GET['_wpnonce'] ) &&
-				wp_verify_nonce( $_GET['_wpnonce'], 'jetpack_idc_clear_confirmation' ) // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- WordPress core doesn't unslash or verify nonces either.
-			) {
-				Jetpack_Options::delete_option( 'safe_mode_confirmed' );
-				self::$is_safe_mode_confirmed = false;
-			} else {
-				self::$is_safe_mode_confirmed = (bool) Jetpack_Options::get_option( 'safe_mode_confirmed' );
-			}
+		if (
+			current_user_can( 'jetpack_disconnect' ) &&
+			isset( $_GET['jetpack_idc_clear_confirmation'] ) && isset( $_GET['_wpnonce'] ) &&
+			wp_verify_nonce( $_GET['_wpnonce'], 'jetpack_idc_clear_confirmation' ) // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- WordPress core doesn't unslash or verify nonces either.
+		) {
+			Jetpack_Options::delete_option( 'safe_mode_confirmed' );
+			self::$is_safe_mode_confirmed = false;
+		} else {
+			self::$is_safe_mode_confirmed = (bool) Jetpack_Options::get_option( 'safe_mode_confirmed' );
 		}
 
 		// 121 Priority so that it's the most inner Jetpack item in the admin bar.
@@ -250,6 +256,11 @@ class Identity_Crisis {
 	 */
 	public function display_admin_bar_button() {
 		global $wp_admin_bar;
+
+		// Its link clears the confirmation, which only these users can do.
+		if ( ! current_user_can( 'jetpack_disconnect' ) ) {
+			return;
+		}
 
 		$href = is_admin()
 			? add_query_arg( 'jetpack_idc_clear_confirmation', '1' )
@@ -760,7 +771,7 @@ class Identity_Crisis {
 	 * @return WP_Error|string
 	 * @since 0.2.0
 	 * @since-jetpack 4.4.0
-	 * @since $$next-version$$ Lowercases the host.
+	 * @since 9.18.0 Lowercases the host.
 	 */
 	public static function normalize_url_protocol_agnostic( $url ) {
 		$parsed_url = wp_parse_url( trailingslashit( esc_url_raw( $url ) ) );
@@ -884,15 +895,55 @@ class Identity_Crisis {
 	}
 
 	/**
+	 * Register the Safe Mode feature flags.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return void
+	 */
+	private static function register_feature_flags() {
+		Feature_Flags::register(
+			self::NEW_SCREEN_FLAG,
+			array(
+				'default'     => false,
+				'description' => 'Show the shared Safe Mode screen from the connection package in the admin notice, the My Jetpack window and the Connectors card.',
+				'owner'       => 'connection',
+			)
+		);
+	}
+
+	/**
+	 * Whether the Safe Mode surfaces show the shared screen.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	public static function is_new_screen_enabled() {
+		return Feature_Flags::is_enabled( self::NEW_SCREEN_FLAG );
+	}
+
+	/**
 	 * Returns the mismatched URLs.
 	 *
 	 * @return array|bool The mismatched urls, or false if the site is not connected, offline, in safe mode, or the IDC error is not valid.
 	 */
 	public static function get_mismatched_urls() {
-		if ( ! static::has_identity_crisis() ) {
+		if ( static::$is_safe_mode_confirmed ) {
 			return false;
 		}
 
+		return static::get_stored_mismatched_urls();
+	}
+
+	/**
+	 * Returns the mismatched URLs from the stored Safe Mode error, including once Safe Mode is confirmed.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return array|bool The mismatched urls, or false if the site is not connected, offline, or the IDC error is not valid.
+	 */
+	public static function get_stored_mismatched_urls() {
 		$data = static::check_identity_crisis();
 
 		if ( ! $data ||

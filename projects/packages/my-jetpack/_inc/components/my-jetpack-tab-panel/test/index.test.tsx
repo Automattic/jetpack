@@ -89,6 +89,25 @@ describe( 'MyJetpackTabPanel', () => {
 		);
 	} );
 
+	it( 'records the tab view again when the admin shell shows My Jetpack again', () => {
+		mockSection = MY_JETPACK_SECTION_FEATURES;
+		render( <MyJetpackTabPanel /> );
+
+		window.dispatchEvent(
+			new CustomEvent( 'jetpack-admin-shell:page-shown', {
+				detail: { page: 'my-jetpack', firstShow: false },
+			} )
+		);
+
+		expect( callsFor( 'jetpack_myjetpack_tab_view' ) ).toEqual( [
+			[ 'jetpack_myjetpack_tab_view', expect.objectContaining( { tab_name: 'features' } ) ],
+			[
+				'jetpack_myjetpack_tab_view',
+				{ tab_name: 'features', user_type: 'returning', navigation_source: 'external' },
+			],
+		] );
+	} );
+
 	it( 'does not record a tab click when the multi-section panel mounts', async () => {
 		mockSection = MY_JETPACK_SECTION_OVERVIEW;
 

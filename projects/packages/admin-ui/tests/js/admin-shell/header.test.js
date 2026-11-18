@@ -167,6 +167,20 @@ describe( 'header stand-in', () => {
 		expect( [ ...row.classList ] ).toEqual( [ 't__text', 'b__header-subtitle', 't__body-md' ] );
 	} );
 
+	it( 'does not save a header its page hides', () => {
+		jest.useFakeTimers();
+		const app = document.getElementById( 'app' );
+		app.innerHTML =
+			'<div class="admin-ui-navigable-region"><header><h1>Boost</h1></header><main>Pricing</main></div>';
+		app.querySelector( 'h1' ).checkVisibility = () => false;
+
+		rememberHeader( 'boost', app );
+		jest.runAllTimers();
+
+		expect( Object.keys( localStorage ) ).toEqual( [] );
+		jest.useRealTimers();
+	} );
+
 	it( 'moves a saved header’s page-scoped styles to the page it is shown for', () => {
 		jest.useFakeTimers();
 		document.head.innerHTML =

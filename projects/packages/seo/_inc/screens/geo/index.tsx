@@ -424,7 +424,7 @@ const GeoScreen: FC< Props > = ( { form, searchEnginesVisible } ) => {
 			);
 		}
 
-		// A static robots.txt file in the WordPress installation is separate from
+		// A static robots.txt file in the public directory is separate from
 		// the virtual output these settings change.
 		if ( crawlers.staticRobotsTxt ) {
 			return (
@@ -432,7 +432,7 @@ const GeoScreen: FC< Props > = ( { form, searchEnginesVisible } ) => {
 					<Notice.Root intent="warning">
 						<Notice.Description>
 							{ __(
-								"Jetpack detected a static robots.txt file in the WordPress installation directory. These settings only change WordPress's virtual robots.txt; edit or remove the static file to manage AI crawler access here.",
+								"Jetpack detected a static robots.txt file in your site's public directory. These settings only change WordPress's virtual robots.txt; edit or remove the static file to manage AI crawler access here.",
 								'jetpack-seo'
 							) }
 						</Notice.Description>

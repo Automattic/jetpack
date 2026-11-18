@@ -88,7 +88,7 @@ class Transcript_Index {
 		/**
 		 * Filters whether VideoPress keeps a searchable transcript of each video.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.63.0
 		 *
 		 * @param bool $enabled Defaults to whether the channel feature is enabled.
 		 */
@@ -107,7 +107,7 @@ class Transcript_Index {
 		 * Filters the languages, in order, whose caption track becomes a video's transcript.
 		 * A video with tracks in none of them has no transcript; there is no implicit fallback.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.63.0
 		 *
 		 * @param string[] $languages Defaults to the site language.
 		 */
@@ -415,7 +415,7 @@ class Transcript_Index {
 		/**
 		 * Filters the video details whose `tracks` and `file_url_base` the transcript index reads.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.63.0
 		 *
 		 * @param object|null $details VideoPress video details, or null when unavailable.
 		 * @param string      $guid    VideoPress GUID.
@@ -585,7 +585,7 @@ class Transcript_Index {
 		/**
 		 * Filters whether channel searches match words spoken in the videos.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.63.0
 		 *
 		 * @param bool $enabled Defaults to whether the transcript index is enabled.
 		 */
