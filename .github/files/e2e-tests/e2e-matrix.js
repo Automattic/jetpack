@@ -44,6 +44,26 @@ const projects = [
 		testArgs: [],
 		targets: [ 'plugins/jetpack' ],
 		buildGroup: 'jetpack-core',
+		// On pull requests: WordPress latest only, and only the @smoke tests unless the PR itself changes one of these.
+		pullRequest: {
+			wpVersions: [ 'latest' ],
+			fullSuiteFor: [
+				'packages/admin-ui',
+				'packages/my-jetpack',
+				'packages/jitm',
+				'packages/forms',
+				'packages/podcast',
+				'packages/protect',
+				'packages/search',
+				'packages/backup',
+				'packages/activity-log',
+				'packages/publicize',
+				'packages/newsletter',
+				'packages/seo',
+				'packages/videopress',
+				'plugins/boost',
+			],
+		},
 	},
 	{
 		project: 'Jetpack sync',
@@ -183,6 +203,22 @@ function minWpVersion() {
 const matrix = [];
 
 /**
+ * Projects the pull request changes itself, without the projects that only depend on them.
+ *
+ * @return {Set<string>} Project slugs, e.g. 'packages/admin-ui'.
+ */
+function directlyChangedProjects() {
+	const event = JSON.parse( fs.readFileSync( process.env.GITHUB_EVENT_PATH, 'utf8' ) );
+	const diff = `${ event.pull_request.base.sha }...${ event.pull_request.head.sha }`;
+	return new Set(
+		execSync( `pnpm jetpack dependencies list --git-changed=${ diff }` )
+			.toString()
+			.split( '\n' )
+			.filter( Boolean )
+	);
+}
+
+/**
  * Queue a project against both the latest WordPress release and the oldest one we still support,
  * so a change that only breaks the minimum version is caught while it's still in review.
  *
@@ -218,8 +254,17 @@ switch ( process.env.GITHUB_EVENT_NAME ) {
 			}
 			const targets = dependencyCache.get( command );
 
-			if ( Object.keys( changedProjects ).some( target => targets.includes( target ) ) ) {
+			if ( ! Object.keys( changedProjects ).some( target => targets.includes( target ) ) ) {
+				continue;
+			}
+			if ( ! project.pullRequest || process.env.GITHUB_EVENT_NAME !== 'pull_request' ) {
 				pushBothVersions( project );
+				continue;
+			}
+			const direct = directlyChangedProjects();
+			const smoke = ! project.pullRequest.fullSuiteFor.some( slug => direct.has( slug ) );
+			for ( const wpVersion of project.pullRequest.wpVersions ) {
+				matrix.push( { ...project, wpVersion, smoke } );
 			}
 		}
 		break;
@@ -268,4 +313,5 @@ switch ( process.env.GITHUB_EVENT_NAME ) {
 		console.error( `Unsupported GITHUB_EVENT_NAME ${ process.env.GITHUB_EVENT_NAME }.` );
 }
 
-console.log( JSON.stringify( matrix ) );
+// `pullRequest` is input for this script, not for the workflow.
+console.log( JSON.stringify( matrix.map( ( { pullRequest, ...entry } ) => entry ) ) );

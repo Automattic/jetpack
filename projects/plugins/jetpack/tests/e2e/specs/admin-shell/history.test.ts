@@ -1,11 +1,9 @@
 import { test, expect, type Page } from '@playwright/test';
 import {
-	MEMBERS,
 	expectShown,
 	installShellProbe,
 	menuLink,
 	openMember,
-	skipUnlessOnSite,
 	switchTo,
 	waitForShown,
 	where,
@@ -86,15 +84,6 @@ test.describe( 'Admin shell: history', () => {
 			await expect(
 				page.getByRole( 'tab', { name: tabs[ 0 ] } ).filter( { visible: true } )
 			).toHaveAttribute( 'aria-selected', 'true' );
-		} );
-	}
-
-	for ( const m of MEMBERS ) {
-		test( `full load of ${ m.slug } renders with the shell on`, async ( { page } ) => {
-			await skipUnlessOnSite( page, m.slug );
-			await openMember( page, m.slug );
-			await expectShown( page, m.slug );
-			expect( await where( page ) ).toMatch( m.landing );
 		} );
 	}
 

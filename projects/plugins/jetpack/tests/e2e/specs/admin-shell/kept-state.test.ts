@@ -4,6 +4,7 @@ import {
 	menuLink,
 	openMember,
 	switchTo,
+	waitForQuiet,
 	where,
 } from '../../helpers/admin-shell-helper';
 
@@ -53,6 +54,8 @@ test.describe( 'Admin shell: state survives a round trip', () => {
 	test( 'scroll position survives a round trip', async ( { page } ) => {
 		await page.setViewportSize( { width: 1280, height: 500 } );
 		await openMember( page, 'my-jetpack' );
+		// Late cards above the fold would shift a scroll position set now (scroll anchoring).
+		await waitForQuiet( page, 8000 );
 		// Playwright scrolls a link out from under the fixed admin bar before clicking it, moving the page.
 		const belowAdminBar = await menuLink( page, FORMS ).evaluate(
 			a =>

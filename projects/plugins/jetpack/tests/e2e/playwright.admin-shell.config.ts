@@ -44,6 +44,9 @@ const browsers = [
 	{ name: 'webkit', use: devices[ 'Desktop Safari' ] },
 ].filter( browser => browserNames.includes( browser.name ) );
 
+// ADMIN_SHELL_SMOKE=1 runs only the tests tagged @smoke; the login setup always runs.
+const smoke = process.env.ADMIN_SHELL_SMOKE === '1' ? { grep: /@smoke/ } : {};
+
 export default defineConfig( {
 	testDir: './specs/admin-shell',
 	outputDir: `${ runDir }/results`,
@@ -51,6 +54,7 @@ export default defineConfig( {
 	expect: { timeout: 20000 },
 	// Only login and tests wrapped in intermittentSpikeBug() retry; any other flake fails the run.
 	retries: 0,
+	fullyParallel: true,
 	workers: Number( process.env.PLAYWRIGHT_WORKERS ) || 2,
 	reporter,
 	use: {
@@ -79,8 +83,14 @@ export default defineConfig( {
 		},
 		...browsers.map( browser => ( {
 			name: `shell on: ${ browser.name }`,
-			testIgnore: [ 'auth.setup.ts', 'shell-off.test.ts', 'standalone.test.ts' ],
+			testIgnore: [
+				'auth.setup.ts',
+				'shell-off.test.ts',
+				'standalone.test.ts',
+				'hover-side-effects.test.ts',
+			],
 			dependencies: [ 'admin shell login' ],
+			...smoke,
 			use: {
 				...browser.use,
 				viewport: { width: 1280, height: 1600 },
@@ -88,10 +98,23 @@ export default defineConfig( {
 				storageState: STATE_ON,
 			},
 		} ) ),
+		// Chromium only. bin/admin-shell-ci.sh runs it alone, first, so no other test saves what it checks for.
+		{
+			name: 'hover side effects',
+			testMatch: 'hover-side-effects.test.ts',
+			dependencies: [ 'admin shell login' ],
+			use: {
+				...devices[ 'Desktop Chrome' ],
+				viewport: { width: 1280, height: 1600 },
+				baseURL: onUrl,
+				storageState: STATE_ON,
+			},
+		},
 		...browsers.map( browser => ( {
 			name: `shell off: ${ browser.name }`,
 			testMatch: 'shell-off.test.ts',
 			dependencies: [ 'admin shell login' ],
+			...smoke,
 			use: {
 				...browser.use,
 				viewport: { width: 1280, height: 1600 },

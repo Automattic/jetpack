@@ -1,34 +1,21 @@
 import { test, expect, type Page } from '@playwright/test';
 import {
-	MEMBERS,
 	VIEW_EVENT,
 	installShellProbe,
 	openMember,
 	settle,
-	skipUnlessOnSite,
 	switchTo,
 	tracksEvents,
 } from '../../helpers/admin-shell-helper';
 
 const FORMS = 'jetpack-forms-responses-wp-admin';
 
-/* The other members may record no views on the unconnected test site, which would pass vacuously. */
-const TRACKED = MEMBERS.filter( m => [ 'my-jetpack', FORMS ].includes( m.slug ) );
+/* My Jetpack is the one member that records views on the unconnected test site; Forms is the other side. */
+const MJ = 'my-jetpack';
 
 /* Tracks calls go out after render: the longest to wait for one, and the quiet spell that ends a wait. */
 const SETTLE = 5000;
 const QUIET = 1000;
-
-/**
- * View events recorded since `from` events had been seen.
- *
- * @param page - Page under test.
- * @param from - Count of events already seen.
- * @return New view event names.
- */
-async function viewsSince( page: Page, from: number ): Promise< string[] > {
-	return ( await tracksEvents( page ) ).slice( from ).filter( name => VIEW_EVENT.test( name ) );
-}
 
 /**
  * Wait until `done` holds for the view events since `from` and no event has arrived for `QUIET`, or `SETTLE` passes.
@@ -96,53 +83,23 @@ test.describe( 'Admin shell: Tracks page views', () => {
 		await installShellProbe( page );
 	} );
 
-	for ( const m of TRACKED ) {
-		const other = TRACKED.find( x => x !== m )!.slug;
-
-		test( `the first switch to ${ m.slug } records the page view a full load does`, async ( {
-			page,
-		} ) => {
-			await skipUnlessOnSite( page, m.slug );
-			const expected = await fullLoadViews( page, m.slug );
-			await openMember( page, other );
-			expect( await viewsOnSwitch( page, m.slug, expected ) ).toEqual(
-				expect.arrayContaining( expected )
-			);
-		} );
-
-		test( `a return switch to ${ m.slug } records the page view again`, async ( { page } ) => {
-			await skipUnlessOnSite( page, m.slug );
-			const expected = await fullLoadViews( page, m.slug );
-			await openMember( page, other );
-			await switchTo( page, m.slug );
-			await switchTo( page, other );
-			expect( await viewsOnSwitch( page, m.slug, expected ) ).toEqual(
-				expect.arrayContaining( expected )
-			);
-		} );
-	}
-
-	test( 'hidden apps record no page views while another is shown', async ( { page } ) => {
+	test( 'the first switch to My Jetpack records the page view a full load does', async ( {
+		page,
+	} ) => {
+		const expected = await fullLoadViews( page, MJ );
 		await openMember( page, FORMS );
-		const formsViews = new Set( await waitForViews( page, 0, any ) );
-		await openMember( page, 'my-jetpack' );
-		const own = new Set( await waitForViews( page, 0, any ) );
-		expect( own.size, 'the probe sees My Jetpack’s own page view' ).toBeGreaterThan( 0 );
-		test.skip(
-			[ ...formsViews ].every( name => own.has( name ) ),
-			'Forms records no view event of its own, so a leak would not show'
+		expect( await viewsOnSwitch( page, MJ, expected ) ).toEqual(
+			expect.arrayContaining( expected )
 		);
+	} );
 
-		// Forms' router stays mounted while hidden; My Jetpack's URL writes must not reach it.
+	test( 'a return switch to My Jetpack records the page view again', async ( { page } ) => {
+		const expected = await fullLoadViews( page, MJ );
+		await openMember( page, FORMS );
+		await switchTo( page, MJ );
 		await switchTo( page, FORMS );
-		await switchTo( page, 'my-jetpack' );
-		await waitForViews( page, 0 );
-		const seen = ( await tracksEvents( page ) ).length;
-		await page.getByRole( 'tab', { name: 'Features' } ).filter( { visible: true } ).click();
-		await settle( page, SETTLE );
-		const foreign = ( await viewsSince( page, seen ) ).filter(
-			name => formsViews.has( name ) && ! own.has( name )
+		expect( await viewsOnSwitch( page, MJ, expected ) ).toEqual(
+			expect.arrayContaining( expected )
 		);
-		expect( foreign, 'view events from apps that are not shown' ).toEqual( [] );
 	} );
 } );

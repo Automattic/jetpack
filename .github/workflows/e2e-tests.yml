@@ -165,6 +165,8 @@ jobs:
       # Used in tests for enhanced reporting of global projects. The WordPress version is part of the
       # name so the two runs of a project are distinguishable in the report.
       PROJECT_NAME: '${{ matrix.project }} WP ${{ matrix.wpVersion }}'
+      # Admin shell suite: Chromium on pull requests, every browser after merge and on manual runs.
+      ADMIN_SHELL_BROWSERS: ${{ case( github.event_name == 'repository_dispatch' || github.event_name == 'workflow_dispatch', 'chromium,firefox,webkit', 'chromium' ) }}
     strategy:
       fail-fast: false
       matrix:
@@ -263,13 +265,21 @@ jobs:
           nohup pnpm run tunnel:up "$HOME/tunnel.log"
           echo "::endgroup::"
 
+      - name: Cache Playwright browsers
+        if: matrix.testScript == 'test:admin-shell:ci'
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.cache/ms-playwright
+          # The Playwright version is pinned in package.json.
+          key: playwright-${{ runner.os }}-${{ hashFiles( format( '{0}/package.json', matrix.path ) ) }}-${{ env.ADMIN_SHELL_BROWSERS }}
+
       - name: Run ${{ matrix.project }} tests
         working-directory: ${{ matrix.path }}
         env:
           JSON_ARGS: ${{ toJSON(matrix.testArgs) }}
           TEST_SCRIPT: ${{ matrix.testScript || 'test:run' }}
-          # Admin shell suite: Chromium on pull requests, every browser after merge and on manual runs.
-          ADMIN_SHELL_BROWSERS: ${{ case( github.event_name == 'repository_dispatch' || github.event_name == 'workflow_dispatch', 'chromium,firefox,webkit', 'chromium' ) }}
+          # Set by e2e-matrix.js on pull requests that don't change the admin shell or a dashboard it switches to.
+          ADMIN_SHELL_SMOKE: ${{ case( matrix.smoke, '1', '' ) }}
         run: |
           mapfile -t TEST_ARGS < <(jq -r '.[]' <<<"$JSON_ARGS")
           pnpm run "$TEST_SCRIPT" "${TEST_ARGS[@]}"

@@ -24,12 +24,15 @@ test.describe( 'Admin shell: navigation matrix', () => {
 	} );
 
 	for ( const [ a, b ] of pairs ) {
-		test( `${ a.slug } → ${ b.slug } → ${ a.slug }`, async ( { page } ) => {
+		test( `${ a.slug } → ${ b.slug } → ${ a.slug }`, { tag: '@smoke' }, async ( { page } ) => {
 			await skipUnlessOnSite( page, a.slug, b.slug );
 			await openMember( page, a.slug );
 			await expect( menuLink( page, b.slug ), `${ b.slug } is in the menu` ).toBeAttached();
 			await expectShown( page, a.slug );
 			const leftAt = await where( page );
+			expect( leftAt, `a full load of ${ a.slug } lands where it does with the shell off` ).toMatch(
+				a.landing
+			);
 
 			await switchTo( page, b.slug );
 			await expectShown( page, b.slug );
