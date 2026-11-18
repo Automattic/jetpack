@@ -42,12 +42,7 @@ class WPCOM_JSON_API_Date {
 			return self::format( $timestamp_gmt + $offset, $offset );
 		}
 
-		// The dates disagree. A local date moved later is usually the newer edit; otherwise trust GMT, as feeds do.
-		$local_offset = self::site_offset_at_local( $timestamp );
-		if ( $timestamp - $local_offset > $timestamp_gmt ) {
-			return self::format( $timestamp, $local_offset );
-		}
-
+		// The dates disagree. Only the GMT date pins down a moment, so print it in the site's time zone.
 		$offset = self::site_offset( $timestamp_gmt );
 		return self::format( $timestamp_gmt + $offset, $offset );
 	}
