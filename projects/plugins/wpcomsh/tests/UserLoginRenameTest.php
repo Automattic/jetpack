@@ -55,6 +55,18 @@ class UserLoginRenameTest extends WP_UnitTestCase {
 		clean_user_cache( $user_id );
 	}
 
+	/**
+	 * Runs the main query for an author archive.
+	 *
+	 * Not go_to(): it fires `parse_request`, where private-site exits with a login page on a private test site.
+	 *
+	 * @param string $slug  Author slug to request.
+	 * @param string $query Further query string, starting with `&`.
+	 */
+	private function query_author( $slug, $query = '' ) {
+		$GLOBALS['wp_query']->query( 'author_name=' . $slug . $query );
+	}
+
 	public function test_renames_the_login() {
 		$user_id = $this->create_user( 'oldlogin' );
 
@@ -320,7 +332,7 @@ class UserLoginRenameTest extends WP_UnitTestCase {
 		$user_id = $this->create_user( 'oldlogin' );
 		wpcomsh_rename_user_login( $user_id, 'oldlogin', 'newlogin' );
 
-		$this->go_to( home_url( '/?author_name=oldlogin' . $query ) );
+		$this->query_author( 'oldlogin', $query );
 
 		$urls = array(
 			'archive' => get_author_posts_url( $user_id ),
@@ -351,7 +363,7 @@ class UserLoginRenameTest extends WP_UnitTestCase {
 		wpcomsh_rename_user_login( $user_id, 'oldlogin', 'newlogin' );
 		$this->create_user( 'oldlogin', array( 'user_email' => 'other@example.com' ) );
 
-		$this->go_to( home_url( '/?author_name=oldlogin' ) );
+		$this->query_author( 'oldlogin' );
 
 		$this->assertNull( wpcomsh_get_old_author_slug_redirect_url() );
 	}
@@ -364,7 +376,7 @@ class UserLoginRenameTest extends WP_UnitTestCase {
 		wpcomsh_rename_user_login( $user_id, 'login_a', 'login_b' );
 		wpcomsh_rename_user_login( $user_id, 'login_b', 'login_c' );
 
-		$this->go_to( home_url( '/?author_name=login_a' ) );
+		$this->query_author( 'login_a' );
 
 		$this->assertSame( get_author_posts_url( $user_id ), wpcomsh_get_old_author_slug_redirect_url() );
 	}
