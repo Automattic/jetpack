@@ -7,6 +7,7 @@ import {
 	ReportScopeProvider,
 	isPlanDateLimitedSection,
 } from '@jetpack-premium-analytics/data';
+import { PRESET_CUSTOM, type PrimaryPresetId } from '@jetpack-premium-analytics/datetime';
 import { Icon } from '@jetpack-premium-analytics/externals';
 import { jetpack, lookupWidgetIcon } from '@jetpack-premium-analytics/icons';
 import {
@@ -62,7 +63,6 @@ import {
 	type SingleReportPageSection,
 } from './registry';
 import styles from './stage.module.scss';
-import type { PrimaryPresetId } from '@jetpack-premium-analytics/datetime';
 import type { WidgetType } from '@wordpress/widget-primitives';
 import type { JSX } from 'react';
 
@@ -277,6 +277,15 @@ function SingleReportBody( { page, entityId, adapter }: SingleReportBodyProps ):
 		! isPinned,
 		dateLimits
 	);
+	// A period a card opens applies at once, as the custom range it commits.
+	const onOpenPeriod = useCallback< typeof openPeriod >(
+		( range, options ) => {
+			openPeriod( range, options );
+			trackedOnChange( range, PRESET_CUSTOM, { exactRange: true, trigger: 'widget' } );
+			trackedOnApply();
+		},
+		[ openPeriod, trackedOnChange, trackedOnApply ]
+	);
 
 	const reportSearch = pickReportNavigationParams( search );
 
@@ -380,7 +389,7 @@ function SingleReportBody( { page, entityId, adapter }: SingleReportBodyProps ):
 		<>
 			<PeriodChangeStatus periodChange={ attention } />
 			<ReportScopeProvider
-				openPeriod={ openPeriod }
+				openPeriod={ onOpenPeriod }
 				attentionId={ attention?.id }
 				dateLimits={ dateLimits }
 			>
