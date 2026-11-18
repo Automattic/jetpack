@@ -11,6 +11,7 @@ use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync;
 use Automattic\Jetpack_Boost\Admin\Admin;
 use Automattic\Jetpack_Boost\Admin\Config;
+use Automattic\Jetpack_Boost\Data_Sync\Getting_Started_Entry;
 use Automattic\Jetpack_Boost\Lib\Debug;
 use Automattic\Jetpack_Boost\Tests\Base_TestCase;
 use Brain\Monkey\Filters;
@@ -527,8 +528,9 @@ class Admin_Test extends Base_TestCase {
 	 * @dataProvider admin_shell_member_cases
 	 */
 	#[DataProvider( 'admin_shell_member_cases' )]
-	public function test_admin_shell_member_follows_modern_dashboard( $modern, $build_exists, $joins ) {
+	public function test_admin_shell_member_follows_modern_dashboard( $modern, $build_exists, $joins, $getting_started = false ) {
 		Filters\expectApplied( Admin::MODERNIZATION_FILTER )->andReturn( $modern );
+		\Patchwork\redefine( Getting_Started_Entry::class . '::get', \Patchwork\always( $getting_started ) );
 		Functions\when( 'Automattic\\Jetpack_Boost\\Admin\\file_exists' )->justReturn( $build_exists );
 		$admin = new Admin();
 
@@ -538,6 +540,10 @@ class Admin_Test extends Base_TestCase {
 		$this->assertArrayHasKey( 'my-jetpack', $members );
 		if ( $joins ) {
 			$this->assertSame( array( $admin, 'load_as_admin_shell_guest' ), $members[ JETPACK_BOOST_SLUG ]['load'] );
+			$this->assertContains( 'my-jetpack-header-controls', $members[ JETPACK_BOOST_SLUG ]['handles'] );
+			// Getting Started hides the page header, so the shell shows no stand-in for it.
+			$this->assertSame( ! $getting_started, is_array( $members[ JETPACK_BOOST_SLUG ]['header'] ) );
+			$this->assertSame( $getting_started, false === $members[ JETPACK_BOOST_SLUG ]['header'] );
 		}
 	}
 
@@ -579,6 +585,7 @@ class Admin_Test extends Base_TestCase {
 			'modern dashboard'         => array( true, true, true ),
 			'legacy dashboard'         => array( false, true, false ),
 			'modern build not present' => array( true, false, false ),
+			'getting started pending'  => array( true, true, true, true ),
 		);
 	}
 

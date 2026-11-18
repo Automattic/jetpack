@@ -188,7 +188,7 @@ class InitializerTest extends TestCase {
 
 	/**
 	 * WordPress.com's API requests call register_write_hooks() without init(), so it alone must
-	 * register the "Always include" page field and hook the coverage and llms.txt clearing.
+	 * register the "Always include" field and hook the coverage and llms.txt clearing.
 	 */
 	public function test_write_hooks_register_without_init() {
 		$hooks = array_map(
@@ -198,12 +198,12 @@ class InitializerTest extends TestCase {
 			$GLOBALS['wp_filter']
 		);
 		unset( $GLOBALS['wp_filter']['transition_post_status'], $GLOBALS['wp_filter']['clean_post_cache'] );
-		unregister_meta_key( 'post', Llms_Txt::META_ALWAYS_INCLUDE, 'page' );
+		unregister_meta_key( 'post', Llms_Txt::META_ALWAYS_INCLUDE );
 		remove_action( 'wp_after_insert_post', array( Indexnow_Events::class, 'saved' ) );
 		remove_action( Indexnow_Queue::HOOK, array( Indexnow_Queue::class, 'work' ) );
 		try {
 			Initializer::register_write_hooks();
-			$this->assertTrue( registered_meta_key_exists( 'post', Llms_Txt::META_ALWAYS_INCLUDE, 'page' ) );
+			$this->assertTrue( registered_meta_key_exists( 'post', Llms_Txt::META_ALWAYS_INCLUDE ) );
 			$this->assertNotFalse(
 				has_action( 'transition_post_status', array( Content_Coverage::class, 'invalidate_on_status_change' ) )
 			);

@@ -13,6 +13,7 @@ jest.mock( '../custom-content-types-moved', () => ( {
 jest.mock( '../post-by-email', () => () => 'Post by Email card' );
 jest.mock( '../post-by-email-moved', () => ( {
 	PostByEmailMoved: () => 'Post by Email pointer',
+	PostByEmailOnProfile: () => 'Post by Email profile pointer',
 } ) );
 jest.mock( '../theme-enhancements', () => () => <p>Infinite Scroll card</p> );
 jest.mock( '../widgets', () => () => null );
@@ -176,24 +177,24 @@ describe( 'Writing settings', () => {
 	} );
 
 	it.each( [
-		[ 'in the tab', '' ],
-		[ 'in a search', 'post-by-email' ],
-	] )(
-		'keeps the Post by Email card, %s, for a user who cannot manage modules',
-		( _name, searchTerm ) => {
-			window.JetpackScriptData = { myJetpack: { settingsConsolidation: true } };
-			render(
-				<UnconnectedWriting
-					active
-					userCanEditPosts
-					searchTerm={ searchTerm }
-					isModuleFound={ findsOnly[ 'post-by-email' ] }
-					isModuleActivated={ isActive }
-					getActiveFeatureDetails={ noFeatureDetails }
-				/>
-			);
+		[ 'the card, with the settings flag off', false, '', 'Post by Email card' ],
+		[ 'a pointer to their profile, with the flag on', true, '', 'Post by Email profile pointer' ],
+		[ 'that pointer in a search', true, 'post-by-email', 'Post by Email profile pointer' ],
+	] )( 'shows a user who cannot manage modules %s', ( _name, flag, searchTerm, shown ) => {
+		window.JetpackScriptData = { myJetpack: { settingsConsolidation: flag } };
+		render(
+			<UnconnectedWriting
+				active
+				userCanEditPosts
+				isPostByEmailOnProfile={ flag }
+				searchTerm={ searchTerm }
+				isModuleFound={ findsOnly[ 'post-by-email' ] }
+				isModuleActivated={ isActive }
+				getActiveFeatureDetails={ noFeatureDetails }
+			/>
+		);
 
-			expect( screen.getByText( 'Post by Email card' ) ).toBeInTheDocument();
-		}
-	);
+		const cards = [ 'Post by Email card', 'Post by Email profile pointer' ];
+		expect( cards.filter( text => screen.queryByText( text ) ) ).toEqual( [ shown ] );
+	} );
 } );

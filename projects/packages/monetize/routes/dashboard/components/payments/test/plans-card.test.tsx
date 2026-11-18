@@ -42,4 +42,16 @@ describe( 'PlansCard', () => {
 		await expect( screen.findByText( 'you', { selector: 'strong' } ) ).resolves.toBeVisible();
 		expect( screen.queryByText( /\*\*/ ) ).not.toBeInTheDocument();
 	} );
+
+	it.each( [
+		[ '#add-new-payment-plan', 'Add a payment plan' ],
+		[ '#add-tier-plan', 'Add a newsletter tier' ],
+		[ '#add-newsletter-payment-plan', 'Add a newsletter tier' ],
+	] )( 'opens %s as “%s”, then clears the hash', async ( hash, title ) => {
+		window.history.replaceState( null, '', hash );
+		renderCard( {} );
+
+		await expect( screen.findByRole( 'dialog', { name: title } ) ).resolves.toBeVisible();
+		expect( window.location.hash ).toBe( '' );
+	} );
 } );

@@ -274,7 +274,7 @@ class Indexnow_Events {
 				self::$pending_metadata[ $identity ]['post']    = $post_id;
 				self::$pending_metadata[ $identity ]['changed'] = true;
 			}
-			if ( ! self::removal_allowed( $post ) && ! isset( self::$previous_urls[ $identity ] ) ) {
+			if ( ! self::removal_allowed( $post ) ) {
 				self::notify_restriction( $post_id );
 				delete_post_meta( $post_id, self::PUBLIC_URL_META );
 			}

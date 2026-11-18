@@ -3,7 +3,7 @@ import { useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import SearchVisibilityNotice from '../components/search-visibility-notice';
-import { recordScreenViewOnce } from '../data/record-seo-event';
+import { recordScreenViewOnce, recordSeoEvent } from '../data/record-seo-event';
 import DashboardNav from './dashboard-nav';
 import '../admin-page-layout.scss';
 import type { SeoTab } from './dashboard-nav';
@@ -63,6 +63,18 @@ const DashboardPage = ( {
 	children,
 }: Props ) => {
 	useEffect( () => recordScreenViewOnce( active ), [ active ] );
+
+	// The admin shell keeps this page mounted, so a return to it is a new visit: see the admin-ui README.
+	useEffect( () => {
+		const onShown = ( event: Event ) => {
+			const { page, firstShow } = ( event as CustomEvent ).detail ?? {};
+			if ( page === 'jetpack-seo' && ! firstShow ) {
+				recordSeoEvent( 'jetpack_seo_screen_viewed', active );
+			}
+		};
+		window.addEventListener( 'jetpack-admin-shell:page-shown', onShown );
+		return () => window.removeEventListener( 'jetpack-admin-shell:page-shown', onShown );
+	}, [ active ] );
 
 	const content = (
 		<>

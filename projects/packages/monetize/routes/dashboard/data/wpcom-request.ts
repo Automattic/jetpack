@@ -64,6 +64,12 @@ export function toWpcomApiError( error: unknown ): WpcomApiError {
 		return error;
 	}
 
+	// The memberships endpoints nest `{ code, message }` under `error`, which apiFetch rejects with as is.
+	const nested = ( error as { error?: unknown } | null )?.error;
+	if ( nested && typeof nested === 'object' ) {
+		return toWpcomApiError( nested );
+	}
+
 	const {
 		code = 'error',
 		message = '',
