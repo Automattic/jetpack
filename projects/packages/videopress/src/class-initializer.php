@@ -194,6 +194,23 @@ class Initializer {
 	}
 
 	/**
+	 * Read a preview-on-hover time ( milliseconds ) from the poster data, falling back for missing or invalid values.
+	 *
+	 * @param mixed  $poster_data   The block's posterData attribute.
+	 * @param string $key           Attribute key.
+	 * @param int    $default_value Value used when the attribute is missing or not a non-negative number.
+	 * @return int
+	 */
+	private static function get_preview_on_hover_time( $poster_data, $key, $default_value ) {
+		$value = is_array( $poster_data ) && isset( $poster_data[ $key ] ) ? $poster_data[ $key ] : null;
+		if ( ! is_numeric( $value ) || ! is_finite( (float) $value ) || (float) $value < 0 ) {
+			return $default_value;
+		}
+
+		return (int) $value;
+	}
+
+	/**
 	 * Initialize VideoPress features that should be initialized only when the module is active
 	 *
 	 * @return void
@@ -412,10 +429,10 @@ class Initializer {
 
 		if ( $is_poh_enabled ) {
 			$preview_on_hover = array(
-				'previewAtTime'       => $block_attributes['posterData']['previewAtTime'],
-				'previewLoopDuration' => $block_attributes['posterData']['previewLoopDuration'],
-				'autoplay'            => $autoplay,
-				'showControls'        => $controls,
+				'previewAtTime'       => self::get_preview_on_hover_time( $block_attributes['posterData'], 'previewAtTime', 0 ),
+				'previewLoopDuration' => self::get_preview_on_hover_time( $block_attributes['posterData'], 'previewLoopDuration', 5000 ),
+				'autoplay'            => (bool) $autoplay,
+				'showControls'        => (bool) $controls,
 			);
 
 			// Create inline style in case video has a custom poster.
