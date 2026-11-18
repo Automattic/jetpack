@@ -80,19 +80,20 @@ class Jetpack_Subscription_Site_Test extends WP_UnitTestCase {
 	 * An anchor block without innerBlocks must not break the filter.
 	 */
 	public function test_navigation_anchor_without_inner_blocks_does_not_error() {
+		$block_type   = 'jetpack/subscriptions';
 		$hooked_block = array(
-			'blockName' => 'jetpack/subscriptions',
+			'blockName' => $block_type,
 			'attrs'     => array(),
 		);
 		$result       = apply_filters(
-			'hooked_block_jetpack/subscriptions',
+			"hooked_block_{$block_type}",
 			$hooked_block,
-			'jetpack/subscriptions',
+			$block_type,
 			'last_child',
 			array( 'blockName' => 'core/navigation' ),
 			null
 		);
-		$this->assertSame( 'jetpack/subscriptions', $result['blockName'] );
+		$this->assertSame( $block_type, $result['blockName'] );
 	}
 
 	/**
