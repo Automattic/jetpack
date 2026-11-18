@@ -38,9 +38,9 @@ echo "::group::Shell on"
 # Jetpack AI's sidebar item shows only with the ai module on, and it needs the stubbed connection to activate.
 "${WP[@]}" jetpack module activate ai || exit 1
 "${WP[@]}" option delete e2e_admin_shell_off >/dev/null 2>&1
-# Alone and first, so no other test saves what it checks that hovering does not.
+# A run of its own, first: other tests' requests would mix into the hover test's write log.
 if [[ "${ADMIN_SHELL_SMOKE:-}" != 1 ]]; then
-	ADMIN_SHELL_RUN=hover playwright test -c playwright.admin-shell.config.ts --project='hover side effects' "$@" || STATUS=1
+	ADMIN_SHELL_RUN=hover ADMIN_SHELL_HOVER=1 playwright test -c playwright.admin-shell.config.ts --project='hover side effects' "$@" || STATUS=1
 fi
 ADMIN_SHELL_RUN=shell-on playwright test -c playwright.admin-shell.config.ts --project='shell on: *' "$@" || STATUS=1
 echo "::endgroup::"

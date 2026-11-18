@@ -265,14 +265,6 @@ jobs:
           nohup pnpm run tunnel:up "$HOME/tunnel.log"
           echo "::endgroup::"
 
-      - name: Cache Playwright browsers
-        if: matrix.testScript == 'test:admin-shell:ci'
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        with:
-          path: ~/.cache/ms-playwright
-          # The Playwright version is pinned in package.json.
-          key: playwright-${{ runner.os }}-${{ hashFiles( format( '{0}/package.json', matrix.path ) ) }}-${{ env.ADMIN_SHELL_BROWSERS }}
-
       - name: Run ${{ matrix.project }} tests
         working-directory: ${{ matrix.path }}
         env:

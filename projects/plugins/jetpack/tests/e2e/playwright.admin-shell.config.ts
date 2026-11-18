@@ -98,18 +98,22 @@ export default defineConfig( {
 				storageState: STATE_ON,
 			},
 		} ) ),
-		// Chromium only. bin/admin-shell-ci.sh runs it alone, first, so no other test saves what it checks for.
-		{
-			name: 'hover side effects',
-			testMatch: 'hover-side-effects.test.ts',
-			dependencies: [ 'admin shell login' ],
-			use: {
-				...devices[ 'Desktop Chrome' ],
-				viewport: { width: 1280, height: 1600 },
-				baseURL: onUrl,
-				storageState: STATE_ON,
-			},
-		},
+		// Only with ADMIN_SHELL_HOVER=1; see bin/admin-shell-ci.sh.
+		...( process.env.ADMIN_SHELL_HOVER === '1' && browserNames.includes( 'chromium' )
+			? [
+					{
+						name: 'hover side effects',
+						testMatch: 'hover-side-effects.test.ts',
+						dependencies: [ 'admin shell login' ],
+						use: {
+							...devices[ 'Desktop Chrome' ],
+							viewport: { width: 1280, height: 1600 },
+							baseURL: onUrl,
+							storageState: STATE_ON,
+						},
+					},
+				]
+			: [] ),
 		...browsers.map( browser => ( {
 			name: `shell off: ${ browser.name }`,
 			testMatch: 'shell-off.test.ts',

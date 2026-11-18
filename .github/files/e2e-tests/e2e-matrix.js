@@ -44,7 +44,7 @@ const projects = [
 		testArgs: [],
 		targets: [ 'plugins/jetpack' ],
 		buildGroup: 'jetpack-core',
-		// On pull requests: WordPress latest only, and only the @smoke tests unless the PR itself changes one of these.
+		// On pull requests: WordPress latest only, and only the @smoke tests unless the PR itself changes one of these projects or files.
 		pullRequest: {
 			wpVersions: [ 'latest' ],
 			fullSuiteFor: [
@@ -61,8 +61,15 @@ const projects = [
 				'packages/newsletter',
 				'packages/seo',
 				'packages/videopress',
-				'plugins/boost',
 			],
+			// The Settings and AI dashboards and the shell wiring in the Jetpack plugin, the suite itself, and how CI runs it.
+			fullSuiteForFiles: new RegExp(
+				[
+					'^projects/plugins/jetpack/(_inc/lib/admin-pages/|routes/(settings|ai-hub)/|load-jetpack\\.php|class\\.jetpack-admin\\.php)',
+					'^projects/plugins/jetpack/tests/e2e/(specs/admin-shell/|helpers/admin-shell|plugins/e2e-admin-shell|bin/admin-shell|playwright\\.admin-shell)',
+					'^\\.github/(workflows/e2e-tests\\.yml|files/e2e-tests/)',
+				].join( '|' )
+			),
 		},
 	},
 	{
@@ -203,15 +210,37 @@ function minWpVersion() {
 const matrix = [];
 
 /**
+ * The pull request's diff range, for `git diff`.
+ *
+ * @return {string} `base...head`.
+ */
+function pullRequestDiff() {
+	const event = JSON.parse( fs.readFileSync( process.env.GITHUB_EVENT_PATH, 'utf8' ) );
+	return `${ event.pull_request.base.sha }...${ event.pull_request.head.sha }`;
+}
+
+/**
+ * Files the pull request changes.
+ *
+ * @return {string[]} Paths from the repository root.
+ */
+function changedFiles() {
+	return execSync( `git diff --name-only ${ pullRequestDiff() }` )
+		.toString()
+		.split( '\n' )
+		.filter( Boolean );
+}
+
+/**
  * Projects the pull request changes itself, without the projects that only depend on them.
  *
  * @return {Set<string>} Project slugs, e.g. 'packages/admin-ui'.
  */
 function directlyChangedProjects() {
-	const event = JSON.parse( fs.readFileSync( process.env.GITHUB_EVENT_PATH, 'utf8' ) );
-	const diff = `${ event.pull_request.base.sha }...${ event.pull_request.head.sha }`;
+	const diff = pullRequestDiff();
 	return new Set(
-		execSync( `pnpm jetpack dependencies list --git-changed=${ diff }` )
+		// `--extra=e2e`: a change to the e2e environment counts as a change to every project.
+		execSync( `pnpm jetpack dependencies list --extra=e2e --git-changed=${ diff }` )
 			.toString()
 			.split( '\n' )
 			.filter( Boolean )
@@ -261,8 +290,11 @@ switch ( process.env.GITHUB_EVENT_NAME ) {
 				pushBothVersions( project );
 				continue;
 			}
+			const { fullSuiteFor, fullSuiteForFiles } = project.pullRequest;
 			const direct = directlyChangedProjects();
-			const smoke = ! project.pullRequest.fullSuiteFor.some( slug => direct.has( slug ) );
+			const smoke =
+				! fullSuiteFor.some( slug => direct.has( slug ) ) &&
+				! changedFiles().some( file => fullSuiteForFiles.test( file ) );
 			for ( const wpVersion of project.pullRequest.wpVersions ) {
 				matrix.push( { ...project, wpVersion, smoke } );
 			}

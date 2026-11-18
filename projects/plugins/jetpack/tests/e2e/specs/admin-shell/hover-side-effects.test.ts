@@ -31,7 +31,9 @@ test.describe( 'Admin shell: hover side effects', () => {
 
 	test( 'hovering each dashboard in the menu saves nothing', async ( { page } ) => {
 		const reset = await page.request.get( `${ LOG }&reset=1` );
-		test.skip( ! reset.ok(), 'Needs the e2e-admin-shell plugin' );
+		// In CI the plugin is always on, so a failed reset there is a broken site, not a missing plugin.
+		test.skip( ! reset.ok() && ! process.env.CI, 'Needs the e2e-admin-shell plugin' );
+		expect( reset.ok(), 'the e2e plugin resets its log' ).toBe( true );
 		const fetched = new Set< string >();
 		// Finished, not just answered: the plugin logs the writes as the request shuts down.
 		page.on( 'requestfinished', request => {
@@ -45,7 +47,7 @@ test.describe( 'Admin shell: hover side effects', () => {
 		for ( const slug of GUESTS ) {
 			await menuLink( page, slug ).hover();
 			await expect
-				.poll( () => fetched.has( slug ), { message: `hovering ${ slug } prewarms it` } )
+				.poll( () => fetched.has( slug ), { message: `${ slug }'s guest data was fetched` } )
 				.toBe( true );
 		}
 

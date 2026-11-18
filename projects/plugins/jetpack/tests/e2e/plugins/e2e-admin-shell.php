@@ -115,7 +115,7 @@ if ( wp_doing_ajax() && isset( $_GET['action'] ) && 'jetpack_admin_shell_guest' 
 				false
 			);
 		},
-		0
+		PHP_INT_MAX
 	);
 }
 
