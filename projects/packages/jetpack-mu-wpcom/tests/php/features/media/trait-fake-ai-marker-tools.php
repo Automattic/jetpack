@@ -172,7 +172,9 @@ trait Fake_AI_Marker_Tools {
 		if ( ! $this->temp_dir ) {
 			return;
 		}
-		array_map( 'unlink', glob( $this->temp_dir . '/*' ) );
+		foreach ( (array) glob( $this->temp_dir . '/*' ) as $file ) {
+			unlink( $file );
+		}
 		rmdir( $this->temp_dir );
 		$this->temp_dir = '';
 	}
