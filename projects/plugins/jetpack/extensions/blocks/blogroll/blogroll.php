@@ -151,6 +151,20 @@ function get_opml_post() {
 }
 
 /**
+ * An absolute http(s) URL from a block attribute, or an empty string.
+ *
+ * An OPML file has no base URL, so a relative URL cannot be resolved by a reader.
+ *
+ * @param mixed $url Attribute value.
+ * @return string
+ */
+function get_opml_url( $url ) {
+	$url   = is_string( $url ) ? esc_url_raw( $url, array( 'http', 'https' ) ) : '';
+	$parts = wp_parse_url( $url );
+	return ! empty( $parts['scheme'] ) && ! empty( $parts['host'] ) ? $url : '';
+}
+
+/**
  * Collect the subscribable items of the blogroll blocks, including nested ones and synced patterns.
  *
  * Items without a feed URL cannot be subscribed to, so they are left out.
@@ -162,13 +176,13 @@ function get_opml_post() {
  */
 function get_opml_items( $blocks, $items = array(), $refs = array() ) {
 	foreach ( $blocks as $block ) {
-		$feed_url = 'jetpack/blogroll-item' === $block['blockName'] ? esc_url_raw( $block['attrs']['feed_url'] ?? '', array( 'http', 'https' ) ) : '';
+		$feed_url = 'jetpack/blogroll-item' === $block['blockName'] ? get_opml_url( $block['attrs']['feed_url'] ?? '' ) : '';
 		// The same feed with another scheme or without the trailing slash is listed once.
 		$key = untrailingslashit( set_url_scheme( $feed_url, 'https' ) );
 		if ( '' !== $feed_url && ! isset( $items[ $key ] ) ) {
 			$items[ $key ] = array(
-				'name'     => wp_strip_all_tags( $block['attrs']['name'] ?? '' ),
-				'url'      => esc_url_raw( $block['attrs']['url'] ?? '', array( 'http', 'https' ) ),
+				'name'     => is_string( $block['attrs']['name'] ?? '' ) ? wp_strip_all_tags( $block['attrs']['name'] ?? '' ) : '',
+				'url'      => get_opml_url( $block['attrs']['url'] ?? '' ),
 				'feed_url' => $feed_url,
 			);
 		}
@@ -219,25 +233,12 @@ function get_opml( $post ) {
 }
 
 /**
- * Register the `opml` query var.
- *
- * @param string[] $vars Public query vars.
- * @return string[]
- */
-function add_opml_query_var( $vars ) {
-	$vars[] = 'opml';
-	return $vars;
-}
-add_filter( 'query_vars', __NAMESPACE__ . '\add_opml_query_var' );
-
-/**
  * Serve the blogroll of the current post as OPML on `?opml`.
  */
 function serve_opml() {
-	global $wp;
-
-	// A bare ?opml has an empty value, so test presence.
-	$post = isset( $wp->query_vars['opml'] ) ? get_opml_post() : null;
+	// Not a query var: any extra query var stops WP_Query from resolving a static front page.
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only, public document.
+	$post = isset( $_GET['opml'] ) ? get_opml_post() : null;
 	if ( ! $post ) {
 		return;
 	}
