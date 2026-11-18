@@ -100,7 +100,7 @@ const brokenOwner = {
  * @param {string}  options.search       - The page's query string.
  * @param {object}  options.errorNotice  - What useConnectionErrorNotice() returns.
  * @param {boolean} options.hasNewScreen - Whether the shared script provides IdentityCrisis.
- * @return {object} A user-event instance, this load's mocked connection package and the authorize URL spies.
+ * @return {object} A user-event instance, this load's mocked connection package and the card-state URL spies.
  */
 function renderCard( {
 	state = connectedAsOwner,
@@ -126,6 +126,7 @@ function renderCard( {
 			...actual,
 			decorateAuthUrl: jest.fn( actual.decorateAuthUrl ),
 			withSkipPricing: jest.fn( actual.withSkipPricing ),
+			withoutClearConfirmation: jest.fn( actual.withoutClearConfirmation ),
 		};
 	} );
 	const connection = require( '@automattic/jetpack-connection' );
@@ -141,8 +142,18 @@ function renderCard( {
 	const { render: Card, ...props } = registerConnector.mock.calls[ 0 ][ 1 ];
 
 	render( React.createElement( Card, props ) );
-	const { decorateAuthUrl, withSkipPricing } = require( '../card-state.mjs' );
-	return { user: userEvent.setup(), connection, decorateAuthUrl, withSkipPricing };
+	const {
+		decorateAuthUrl,
+		withSkipPricing,
+		withoutClearConfirmation,
+	} = require( '../card-state.mjs' );
+	return {
+		user: userEvent.setup(),
+		connection,
+		decorateAuthUrl,
+		withSkipPricing,
+		withoutClearConfirmation,
+	};
 }
 
 /**
@@ -668,21 +679,16 @@ describe( 'Connectors card', () => {
 		 *
 		 * @param {object} data   - The card's script module data.
 		 * @param {string} search - The page's query string.
-		 * @return {Promise<object>} The user-event instance, the props the screen got and the authorize URL spies.
+		 * @return {Promise<object>} The user-event instance, the props the screen got and the card-state URL spies.
 		 */
 		async function openScreen( data = {}, search = '' ) {
-			const { user, connection, decorateAuthUrl, withSkipPricing } = renderCard( {
+			const { user, connection, ...spies } = renderCard( {
 				state: newScreen,
 				data,
 				search,
 			} );
 			await user.click( screen.getByRole( 'button', { name: 'Resolve' } ) );
-			return {
-				user,
-				props: connection.IdentityCrisis.mock.calls.at( -1 )[ 0 ],
-				decorateAuthUrl,
-				withSkipPricing,
-			};
+			return { user, props: connection.IdentityCrisis.mock.calls.at( -1 )[ 0 ], ...spies };
 		}
 
 		it.each( [
@@ -702,24 +708,28 @@ describe( 'Connectors card', () => {
 			);
 		} );
 
-		it.each( [
-			[ 'goes to the connect URL as given', { action: 'start-fresh', connectUrl: AUTH_URL } ],
-			// From the admin bar link; reloading without its arguments is a navigation.
-			[
-				'reloads without clearing the confirmation again',
-				{ action: 'confirm-safe-mode' },
-				'?jetpack_idc_clear_confirmation=1&_wpnonce=abc',
-			],
-		] )( 'after an action, %s', async ( _, result, search = '' ) => {
-			const { props, decorateAuthUrl, withSkipPricing } = await openScreen( {}, search );
+		it( 'after a fresh connection, goes to the connect URL with only skip_pricing added', async () => {
+			const { props, decorateAuthUrl, withSkipPricing } = await openScreen();
 
-			act( () => props.onActionSuccess( result ) );
+			act( () => props.onActionSuccess( { action: 'start-fresh', connectUrl: AUTH_URL } ) );
 
 			await expectNavigation();
-			// The endpoint already put `from` in the URL, so only `skip_pricing` is added.
+			// The endpoint already put `from` in the URL.
 			expect( decorateAuthUrl ).not.toHaveBeenCalled();
-			expect( withSkipPricing.mock.calls ).toEqual(
-				result.connectUrl ? [ [ result.connectUrl ] ] : []
+			expect( withSkipPricing ).toHaveBeenCalledWith( AUTH_URL );
+		} );
+
+		it( 'after staying in Safe Mode, reloads without the admin bar link arguments', async () => {
+			const { props, withoutClearConfirmation } = await openScreen(
+				{},
+				'?jetpack_idc_clear_confirmation=1&_wpnonce=abc'
+			);
+
+			act( () => props.onActionSuccess( { action: 'confirm-safe-mode' } ) );
+
+			await expectNavigation();
+			expect( withoutClearConfirmation.mock.results[ 0 ].value ).toBe(
+				'http://localhost/wp-admin/options-connectors.php'
 			);
 		} );
 
