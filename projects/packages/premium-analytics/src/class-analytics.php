@@ -155,8 +155,8 @@ class Analytics {
 	/**
 	 * Whether this request can render an admin screen.
 	 *
-	 * Core also sets is_admin() on admin-ajax.php and admin-post.php, which render no dashboard
-	 * and get no handlers from this package, so neither needs the build parsed.
+	 * Core also sets is_admin() on admin-ajax.php and admin-post.php, which render no screen, so neither
+	 * parses the build here; the admin shell's guest endpoint loads it later, in load_as_admin_shell_guest().
 	 *
 	 * @return bool
 	 */
@@ -472,7 +472,8 @@ class Analytics {
 	 * Unhook wp-build's full-page render interceptor — security-relevant: it renders
 	 * `?page=jetpack-premium-analytics` from admin_init with no capability check, and only
 	 * renders_admin_chrome() gates the admin-post.php/admin-ajax.php paths that reach admin_init
-	 * without Core's own slug check.
+	 * without Core's own slug check. The admin shell's guest endpoint loads the build on admin-ajax.php
+	 * only after admin_init has run, so the interceptor never fires there either.
 	 *
 	 * Because remove_action() no-ops on a callback name it can't find, a wp-build rename would
 	 * silently restore this entry point — hence the _doing_it_wrong() below when that happens.
@@ -516,7 +517,7 @@ class Analytics {
 	 * @return void
 	 */
 	private static function register_admin_page() {
-		if ( self::is_dashboard_request() ) {
+		if ( self::renders_dashboard() ) {
 			self::register_polyfills();
 
 			add_action( 'admin_enqueue_scripts', array( static::class, 'enqueue_i18n_loader' ) );
@@ -567,6 +568,8 @@ class Analytics {
 			'capability'   => Capabilities::dashboard_page_capability(),
 			'handles'      => array( 'jetpack-script-data', 'wp-api-fetch', 'wp-jp-i18n-loader', 'jp-tracks' ),
 			'load'         => array( static::class, 'load_as_admin_shell_guest' ),
+			// The Settings card links to Features through menu_page_url().
+			'admin_menu'   => true,
 		);
 		return $members;
 	}
@@ -582,10 +585,6 @@ class Analytics {
 		// The guest endpoint runs on admin-ajax, where load_dashboard_surface() loads nothing.
 		if ( wp_doing_ajax() ) {
 			self::load_dashboard();
-			// The dashboard hooks these to admin_init, which the endpoint is already past. Its first visit
-			// is left to the sections request, since the shell also calls this on a menu hover.
-			maybe_refresh_jetpack_plan();
-			maybe_invalidate_stats_caches();
 		} else {
 			self::register_polyfills();
 		}
@@ -635,15 +634,26 @@ class Analytics {
 			return false;
 		}
 
-		// The admin shell's guest endpoint loading this dashboard into another page counts too.
-		if ( method_exists( Admin_Shell::class, 'requested_guest' ) && self::MENU_PAGE_SLUG === Admin_Shell::requested_guest() ) {
-			return true;
-		}
-
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Reading the menu page slug to scope asset loading; no state is changed.
 		$page = isset( $_GET['page'] ) ? sanitize_key( wp_unslash( $_GET['page'] ) ) : '';
 
 		return self::MENU_PAGE_SLUG === $page;
+	}
+
+	/**
+	 * Whether the current request renders the dashboard: its own page, or the admin shell loading it into another one.
+	 *
+	 * The shell also loads it on a menu hover, so code that marks a visit or writes anything checks is_dashboard_request() instead.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	public static function renders_dashboard() {
+		if ( method_exists( Admin_Shell::class, 'requested_guest' ) && self::MENU_PAGE_SLUG === Admin_Shell::requested_guest() ) {
+			return true;
+		}
+		return self::is_dashboard_request();
 	}
 
 	/**

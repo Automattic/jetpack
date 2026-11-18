@@ -445,6 +445,8 @@ class Analytics_Test extends TestCase {
 		call_user_func( $member['load'] );
 		$this->assertNotFalse( has_action( 'admin_enqueue_scripts', array( Analytics::class, 'enqueue_tracks_transport' ) ), 'The dashboard surface loaded.' );
 		$this->assertFalse( get_option( DASHBOARD_FIRST_VISIT_OPTION ), 'A menu hover preloads the guest, so loading it is not a visit.' );
+		$this->assertTrue( Analytics::renders_dashboard() );
+		$this->assertFalse( Analytics::is_dashboard_request(), 'Code that marks a visit or writes, such as the plan refresh, stays off on a hover.' );
 	}
 
 	/**

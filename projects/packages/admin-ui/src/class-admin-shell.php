@@ -115,7 +115,7 @@ class Admin_Shell {
 	/**
 	 * Member dashboards, keyed by admin page slug. Entries that don't match the contract are dropped.
 	 *
-	 * @return array<string, array{build_prefix: string, build_page: string, init_modules: string[], title: string, header: array{title: string, subtitle: string|null}|false|null, default_path: string|null, load: callable, capability: string, handles: string[]}>
+	 * @return array<string, array{build_prefix: string, build_page: string, init_modules: string[], title: string, header: array{title: string, subtitle: string|null}|false|null, default_path: string|null, load: callable, capability: string, handles: string[], admin_menu: bool}>
 	 */
 	public static function get_members() {
 		/**
@@ -131,6 +131,7 @@ class Admin_Shell {
 		 * - load (callable)         Loads the build that defines `<build_prefix>_get_<build_page>_wp_admin_routes()`, leaving its page init action to the shell, registers the page's scripts and prints its initial data. Must be safe to run twice, and must not redirect, print or write options. Add print hook callbacks here, not from admin_enqueue_scripts: the guest endpoint drops what those print.
 		 * - capability (string)     Optional, default `manage_options`. Required to load the page into the shell.
 		 * - handles (string[])      Optional. Script and style handles the guest endpoint prints, with their dependencies; nothing else is enqueued.
+		 * - admin_menu (bool)       Optional, default false. Build the admin menu on the guest endpoint, after `load`, for page data read through menu_page_url(). What its callbacks print or hook is dropped.
 		 *
 		 * @since 0.14.15
 		 *
@@ -638,7 +639,9 @@ class Admin_Shell {
 
 		$snapshot = self::hook_snapshot();
 		call_user_func( $members[ $slug ]['load'] );
-		self::register_admin_menu_pages();
+		if ( $members[ $slug ]['admin_menu'] ) {
+			self::register_admin_menu_pages();
+		}
 		self::run_page_init( $members[ $slug ] );
 		$own         = self::added_keys( $snapshot );
 		$hook_suffix = self::screen_id( $slug );
@@ -663,14 +666,14 @@ class Admin_Shell {
 	}
 
 	/**
-	 * Register the admin menu's pages, which admin-ajax never does, so page data built from menu_page_url() matches a page load.
+	 * Register the admin menu's pages, which admin-ajax never does, keeping only the pages: what its callbacks print or hook is dropped.
 	 *
 	 * Runs `admin_menu` alone: core's wp-admin/menu.php would also run its page access check, which dies on admin-ajax.
 	 *
 	 * @return void
 	 */
 	private static function register_admin_menu_pages() {
-		global $menu, $submenu;
+		global $menu, $submenu, $wp_filter;
 		if ( did_action( 'admin_menu' ) ) {
 			return;
 		}
@@ -678,7 +681,25 @@ class Admin_Shell {
 		$menu    = is_array( $menu ) ? $menu : array();
 		$submenu = is_array( $submenu ) ? $submenu : array();
 		// phpcs:enable WordPress.WP.GlobalVariablesOverride.Prohibited
+		$before = array();
+		foreach ( $wp_filter as $hook => $callbacks ) {
+			$before[ $hook ] = $callbacks->callbacks;
+		}
+
+		ob_start();
 		do_action( 'admin_menu', '' ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Core hook.
+		ob_end_clean();
+
+		// A hover must not run them: Jetpack's plan check on current_screen, for one, turns off modules.
+		foreach ( $wp_filter as $hook => $callbacks ) {
+			foreach ( $callbacks->callbacks as $priority => $by_id ) {
+				foreach ( $by_id as $id => $callback ) {
+					if ( ! isset( $before[ $hook ][ $priority ][ $id ] ) ) {
+						remove_filter( $hook, $callback['function'], $priority );
+					}
+				}
+			}
+		}
 	}
 
 	/**
@@ -892,12 +913,14 @@ class Admin_Shell {
 			'default_path' => null,
 			'capability'   => 'manage_options',
 			'handles'      => array(),
+			'admin_menu'   => false,
 		);
 
 		if (
 			! self::is_string_list( $member['init_modules'] )
 			|| ! self::is_string_list( $member['handles'] )
 			|| ! is_string( $member['capability'] ) || '' === $member['capability']
+			|| ! is_bool( $member['admin_menu'] )
 			|| ( null !== $member['default_path'] && ! is_string( $member['default_path'] ) )
 		) {
 			return null;

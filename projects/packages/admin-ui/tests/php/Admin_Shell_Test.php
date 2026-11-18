@@ -160,6 +160,7 @@ class Admin_Shell_Test extends TestCase {
 			'default_path' => '/responses',
 			'capability'   => 'edit_posts',
 			'handles'      => array( 'jetpack-forms-dashboard' ),
+			'admin_menu'   => true,
 			'header'       => array(
 				'title'    => 'Forms',
 				'subtitle' => '',
@@ -171,6 +172,7 @@ class Admin_Shell_Test extends TestCase {
 			'default_path' => null,
 			'capability'   => 'manage_options',
 			'handles'      => array(),
+			'admin_menu'   => false,
 			'header'       => null,
 		);
 		$picked   = array(
@@ -863,6 +865,69 @@ class Admin_Shell_Test extends TestCase {
 		$this->assertStringContainsString( 'dep.js', $html, 'dependencies of a member handle come along' );
 		$this->assertStringContainsString( 'init.js', $html, 'what its page init action registers comes along' );
 		$this->assertStringNotContainsString( 'other.js', $html );
+	}
+
+	/**
+	 * A member that asks for the admin menu gets its pages and its top-level screen, but nothing its callbacks print or hook.
+	 *
+	 * @dataProvider provide_admin_menu_opt_in
+	 *
+	 * @param bool $admin_menu Whether the guest asks for the admin menu.
+	 * @return void
+	 */
+	#[DataProvider( 'provide_admin_menu_opt_in' )]
+	public function test_guest_assets_builds_the_admin_menu_only_for_a_member_that_asks( $admin_menu ) {
+		require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		unset( $GLOBALS['wp_actions']['admin_menu'] );
+		$this->unhook_emoji_styles = remove_action( 'wp_print_styles', 'print_emoji_styles' );
+		$seen                      = array( '', null );
+		$plan_checked              = false;
+		$plan_check                = static function () use ( &$plan_checked ) {
+			$plan_checked = true;
+		};
+		$this->add_action(
+			'admin_menu',
+			static function () use ( $plan_check ) {
+				add_menu_page( 'Guest', 'Guest', 'manage_options', 'guest-page', '__return_null' );
+				add_action( 'current_screen', $plan_check );
+				echo 'menu-output';
+			}
+		);
+		$this->start_host_page(
+			function () use ( &$seen ) {
+				$this->add_action(
+					'admin_enqueue_scripts',
+					static function ( $hook_suffix ) use ( &$seen ) {
+						$seen = array( menu_page_url( 'guest-page', false ), $hook_suffix );
+					}
+				);
+			},
+			'manage_options',
+			array(),
+			array( 'admin_menu' => $admin_menu )
+		);
+
+		$this->expectOutputString( '' );
+		$html = Admin_Shell::guest_assets( 'guest-page' );
+		remove_action( 'current_screen', $plan_check );
+
+		$this->assertIsString( $html );
+		$this->assertSame( $admin_menu, false !== strpos( $seen[0], 'page=guest-page' ) );
+		$this->assertSame( $admin_menu ? 'toplevel_page_guest-page' : 'jetpack_page_guest-page', $seen[1] );
+		$this->assertStringNotContainsString( 'menu-output', $html );
+		$this->assertFalse( $plan_checked, 'What a menu callback hooks would run on a hover.' );
+	}
+
+	/**
+	 * Whether the guest asks for the admin menu.
+	 *
+	 * @return array<string, array{bool}>
+	 */
+	public static function provide_admin_menu_opt_in() {
+		return array(
+			'asks'         => array( true ),
+			'does not ask' => array( false ),
+		);
 	}
 
 	/**
