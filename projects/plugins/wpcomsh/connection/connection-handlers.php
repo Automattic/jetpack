@@ -35,8 +35,14 @@ function wpcomsh_init_connection_handlers() {
  * @return bool Whether the provider was registered.
  */
 function wpcomsh_init_external_storage() {
-	// Skip external storage initialization during PHPUnit tests to avoid logging
-	if ( defined( 'PHPUNIT_JETPACK_TESTSUITE' ) ) {
+	/**
+	 * Filters whether to register the Atomic external storage provider.
+	 *
+	 * The default skips it during PHPUnit tests to avoid logging. Tests of the registration turn it on.
+	 *
+	 * @param bool $register Whether to register the provider.
+	 */
+	if ( ! apply_filters( 'wpcomsh_register_external_storage_provider', ! defined( 'PHPUNIT_JETPACK_TESTSUITE' ) ) ) {
 		return false;
 	}
 
