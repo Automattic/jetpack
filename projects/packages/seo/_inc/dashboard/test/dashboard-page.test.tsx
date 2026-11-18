@@ -29,7 +29,7 @@ jest.unstable_mockModule( '../../data/record-seo-event', () => ( {
 	recordSeoEvent: jest.fn(),
 } ) );
 jest.unstable_mockModule( '../../components/search-visibility-notice', () => ( {
-	default: () => null,
+	default: () => <div>notice</div>,
 } ) );
 
 const { default: DashboardPage } = await import( '../dashboard-page' );
@@ -40,8 +40,9 @@ describe( 'DashboardPage', () => {
 		render( <DashboardPage active="overview">content</DashboardPage> );
 
 		expect( screen.getByRole( 'tablist' ) ).toBeInTheDocument();
-		expect( screen.getByText( 'content' ) ).toHaveClass( 'jetpack-seo-page-content' );
-		expect( screen.getByText( 'content' ) ).not.toHaveClass( 'jetpack-seo-page-content--centered' );
+		const column = screen.getByText( 'content' );
+		expect( column ).toHaveClass( 'jetpack-seo-page-column', 'jetpack-seo-page-column--wide' );
+		expect( column ).toContainElement( screen.getByText( 'notice' ) );
 	} );
 
 	it( 'drops the tab bar but keeps the header when tabs are hidden', () => {

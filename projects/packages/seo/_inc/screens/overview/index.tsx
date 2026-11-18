@@ -93,7 +93,7 @@ const OverviewScreen: FC = () => {
 		return (
 			// Column Stack (matching the Settings tab) so the upsell banner — which sits
 			// below the cards and isn't dismissible — has space above it.
-			<Stack direction="column" gap="lg" className={ styles.root }>
+			<Stack direction="column" gap="lg">
 				{ data.site_visibility.seo_tools_active && <SeoPausedBanner /> }
 				<div className={ styles.grid }>
 					<SiteVisibilityCard
@@ -112,7 +112,7 @@ const OverviewScreen: FC = () => {
 	}
 
 	return (
-		<div className={ styles.root }>
+		<>
 			<SeoPausedBanner className={ styles.notice } />
 			<div className={ styles.grid }>
 				<SiteVisibilityCard
@@ -142,7 +142,7 @@ const OverviewScreen: FC = () => {
 					onFilter={ goToContentNeeds }
 				/>
 			</div>
-		</div>
+		</>
 	);
 };
 

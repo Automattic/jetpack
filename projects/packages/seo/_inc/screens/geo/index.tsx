@@ -321,8 +321,7 @@ const CrawlerSection: FC< CrawlerSectionProps > = ( {
 };
 
 /**
- * GEO (Generative Engine Optimization) tab. Stacks (in a single centered column
- * matching the Settings tab's width): a one-line intro spelling out "GEO",
+ * GEO (Generative Engine Optimization) tab. Stacks a one-line intro spelling out "GEO",
  * llms.txt, the plan-gated AI SEO Enhancer, then the AI-crawler controls — split
  * into answer-engine and training groups. When the controls can't take effect,
  * they are replaced by an explanation instead of ineffective toggles.

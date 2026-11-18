@@ -9,6 +9,13 @@ import '../admin-page-layout.scss';
 import type { SeoTab } from './dashboard-nav';
 import type { ReactNode } from 'react';
 
+// Each tab's content column. The Content tab runs full width.
+const COLUMN_BY_TAB: Partial< Record< SeoTab, 'narrow' | 'wide' > > = {
+	overview: 'wide',
+	settings: 'narrow',
+	geo: 'narrow',
+};
+
 interface Props {
 	/** The tab for the currently rendered route (drives the active nav state). */
 	active: SeoTab;
@@ -76,16 +83,25 @@ const DashboardPage = ( {
 		return () => window.removeEventListener( 'jetpack-admin-shell:page-shown', onShown );
 	}, [ active ] );
 
+	// Top the column with the notice so the two line up; full-bleed and centered stages have no column.
+	const column = ! flush && ! centered && COLUMN_BY_TAB[ active ];
 	const content = (
 		<>
-			<SearchVisibilityNotice />
+			{ ! column && <SearchVisibilityNotice /> }
 			<div
 				className={ clsx( 'jetpack-seo-page-content', {
 					'jetpack-seo-page-content--flush': flush,
 					'jetpack-seo-page-content--centered': centered,
 				} ) }
 			>
-				{ children }
+				{ column ? (
+					<div className={ `jetpack-seo-page-column jetpack-seo-page-column--${ column }` }>
+						<SearchVisibilityNotice />
+						{ children }
+					</div>
+				) : (
+					children
+				) }
 			</div>
 		</>
 	);
