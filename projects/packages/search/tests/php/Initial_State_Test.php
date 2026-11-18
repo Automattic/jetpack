@@ -94,6 +94,7 @@ class Initial_State_Test extends Search_TestCase {
 		return array(
 			'stored plan'                            => array( $plan, $plan ),
 			'no plan, and WordPress.com unreachable' => array( false, null ),
+			'malformed stored plan'                  => array( 'x', null ),
 		);
 	}
 
