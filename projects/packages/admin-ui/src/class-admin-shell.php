@@ -45,11 +45,6 @@ class Admin_Shell {
 	const DEFERRED_HOOKS = array( 'admin_enqueue_scripts', 'admin_print_scripts', 'admin_print_footer_scripts', 'jetpack_admin_js_script_data' );
 
 	/**
-	 * The script and style handles wp_enqueue_media() enqueues, printed for members that set `media`.
-	 */
-	const MEDIA_HANDLES = Media_Library::HANDLES;
-
-	/**
 	 * Whether init() has run.
 	 *
 	 * @var bool
@@ -114,7 +109,7 @@ class Admin_Shell {
 	/**
 	 * Member dashboards, keyed by admin page slug. Entries that don't match the contract are dropped.
 	 *
-	 * @return array<string, array{build_prefix: string, build_page: string, init_modules: string[], title: string, header: array{title: string, subtitle: string}|null, default_path: string|null, load: callable, capability: string, handles: string[], media: bool}>
+	 * @return array<string, array{build_prefix: string, build_page: string, init_modules: string[], title: string, header: array{title: string, subtitle: string}|null, default_path: string|null, load: callable, capability: string, handles: string[]}>
 	 */
 	public static function get_members() {
 		/**
@@ -130,7 +125,6 @@ class Admin_Shell {
 		 * - load (callable)         Loads the build that defines `<build_prefix>_get_<build_page>_wp_admin_routes()`, leaving its page init action to the shell, registers the page's scripts and prints its initial data. Must be safe to run twice, and must not redirect, print or write options.
 		 * - capability (string)     Optional, default `manage_options`. Required to load the page into the shell.
 		 * - handles (string[])      Optional. Script and style handles the guest endpoint prints, with their dependencies; nothing else is enqueued.
-		 * - media (bool)            Optional, default false. Whether the page opens the media library: the endpoint then prints it and its templates too.
 		 *
 		 * @since 0.14.15
 		 *
@@ -423,10 +417,7 @@ class Admin_Shell {
 
 		ob_start();
 		do_action( 'admin_enqueue_scripts', $hook_suffix ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Core hook.
-		if ( $members[ $slug ]['media'] ) {
-			wp_enqueue_media();
-		}
-		$handles = self::printed_handles( $members[ $slug ] );
+		$handles = $members[ $slug ]['handles'];
 		// Only the member's own handles, and what they depend on, go back to the page. Printing them
 		// even when nothing enqueued them: a page can rely on another script pulling one in.
 		foreach ( array( wp_scripts(), wp_styles() ) as $dependencies ) {
@@ -439,10 +430,6 @@ class Admin_Shell {
 		print_head_scripts();
 		print_footer_scripts();
 		do_action( 'admin_print_footer_scripts' ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Core hook.
-		// Core prints these on admin_footer, which the endpoint doesn't run.
-		if ( $members[ $slug ]['media'] ) {
-			wp_print_media_templates();
-		}
 		return ob_get_clean();
 	}
 
@@ -464,16 +451,6 @@ class Admin_Shell {
 			}
 		}
 		wp_scripts()->add_data( 'wp-api-fetch', 'after', $after );
-	}
-
-	/**
-	 * The script and style handles the guest endpoint prints for a member.
-	 *
-	 * @param array $member Normalized member.
-	 * @return string[]
-	 */
-	private static function printed_handles( array $member ): array {
-		return $member['media'] ? array( ...$member['handles'], ...self::MEDIA_HANDLES ) : $member['handles'];
 	}
 
 	/**
@@ -564,7 +541,6 @@ class Admin_Shell {
 			'default_path' => null,
 			'capability'   => 'manage_options',
 			'handles'      => array(),
-			'media'        => false,
 		);
 
 		if (
@@ -572,7 +548,6 @@ class Admin_Shell {
 			|| ! self::is_string_list( $member['handles'] )
 			|| ! is_string( $member['capability'] ) || '' === $member['capability']
 			|| ( null !== $member['default_path'] && ! is_string( $member['default_path'] ) )
-			|| ! is_bool( $member['media'] )
 		) {
 			return null;
 		}
