@@ -226,6 +226,7 @@ export default function Subscribers() {
 							variant="outline"
 							tone="neutral"
 							href={ exportUrl }
+							openInNewTab
 							onClick={ onExportClick }
 						>
 							{ __( 'Export as CSV', 'jetpack-monetize' ) }
