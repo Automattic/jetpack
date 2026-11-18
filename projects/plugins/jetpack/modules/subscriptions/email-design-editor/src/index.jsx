@@ -1245,6 +1245,18 @@ function LoadError( { error } ) {
 		);
 	}
 
+	// This admin's own WordPress.com account isn't connected, which the proxy needs.
+	if ( error?.code === 'rest_unauthorized' ) {
+		return (
+			<Notice status="warning" isDismissible={ false }>
+				{ __(
+					'Connect your WordPress.com account to Jetpack to edit the email design.',
+					'jetpack'
+				) }
+			</Notice>
+		);
+	}
+
 	return (
 		<Notice status="error" isDismissible={ false }>
 			{ __(

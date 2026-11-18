@@ -485,18 +485,21 @@ describe( 'Email design editor entry point', () => {
 			expect( renderedTheErrorState() ).toBe( true );
 		} );
 
-		it( 'says the screen is unavailable, rather than to reload, when WordPress.com refuses the site', async () => {
-			mockApiFetch.mockRejectedValue( {
-				code: 'email_editor_not_enabled',
-				message: 'The email design editor is not enabled for this site.',
-				data: { status: 501 },
-			} );
+		it.each( [
+			[ 'email_editor_not_enabled', 501, 'Email design is not available on this site.' ],
+			[
+				'rest_unauthorized',
+				403,
+				'Connect your WordPress.com account to Jetpack to edit the email design.',
+			],
+		] )( 'explains a %s refusal rather than asking for a reload', async ( code, status, text ) => {
+			mockApiFetch.mockRejectedValue( { code, message: 'Refused.', data: { status } } );
 			window.JetpackEmailDesignEditor = pageData();
 
 			await loadEntryPoint();
 			const { container } = render( mockRender.mock.calls[ 0 ][ 0 ] );
 
-			expect( container ).toHaveTextContent( 'Email design is not available on this site.' );
+			expect( container ).toHaveTextContent( text );
 			expect( container ).not.toHaveTextContent( /reload the page/ );
 		} );
 
