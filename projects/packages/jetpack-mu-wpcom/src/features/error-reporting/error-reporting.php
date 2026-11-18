@@ -15,6 +15,9 @@ use Automattic\Jetpack\Jetpack_Mu_Wpcom;
  * @see index.js
  */
 function wpcom_head_error_handler() {
+	if ( wpcom_error_reporting_is_delegated() ) {
+		return;
+	}
 	?><script type="text/javascript">
 		window._headJsErrorHandler = function( errEvent ) {
 			window._jsErr = window._jsErr || [];
@@ -59,11 +62,34 @@ function wpcom_add_crossorigin_to_script_elements( $tag ) {
 }
 
 /**
+ * Whether the screen being rendered reports its own JavaScript errors.
+ *
+ * @return bool
+ */
+function wpcom_error_reporting_is_delegated() {
+	/**
+	 * Filters whether this handler stands down because the screen reports for itself.
+	 *
+	 * An admin screen that sends its own errors to the JS error endpoint filters this to true,
+	 * so a window error is not reported twice. ETK is detected by its script handle instead.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param bool $delegated Whether another reporter owns the screen.
+	 */
+	return (bool) apply_filters( 'wpcom_error_reporting_delegated', false );
+}
+
+/**
  * Enqueue assets
  */
 function wpcom_enqueue_error_reporting_script() {
 	// Bail if ETK has enqueued its script.
 	if ( wp_script_is( 'a8c-fse-error-reporting-script' ) ) {
+		return;
+	}
+
+	if ( wpcom_error_reporting_is_delegated() ) {
 		return;
 	}
 
