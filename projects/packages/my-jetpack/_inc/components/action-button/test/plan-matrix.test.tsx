@@ -120,12 +120,13 @@ const OWNED_STATUSES = [
 
 const UPSELL_LABELS = [ 'Learn more', 'Get plan' ];
 
-const primaryActionFor = ( status: string, isOwned: boolean ) => {
+const primaryActionFor = ( status: string, isOwned: boolean, hostPurchaseUrl?: string ) => {
 	mockUseProduct.mockReturnValue( {
 		detail: {
 			status,
 			manageUrl: 'https://example.org/manage',
 			purchaseUrl: 'https://example.org/purchase',
+			hostPurchaseUrl,
 			managePaidPlanPurchaseUrl: 'https://example.org/manage-plan',
 			renewPaidPlanPurchaseUrl: 'https://example.org/renew',
 			requiresUserConnection: false,
@@ -168,6 +169,15 @@ describe( 'the product card primary action', () => {
 		UPSELL_LABELS.forEach( upsell => {
 			expect( action ).not.toHaveTextContent( exactly( upsell ) );
 		} );
+	} );
+
+	it.each( [
+		[ 'its pricing page', undefined, '#/add-videopress' ],
+		[ 'the plans its host sells', 'https://example.com/plans', 'https://example.com/plans' ],
+	] )( 'sends a product the site lacks to %s', ( _name, hostPurchaseUrl, href ) => {
+		const action = primaryActionFor( PRODUCT_STATUSES.ABSENT, false, hostPurchaseUrl );
+
+		expect( action ).toHaveAttribute( 'href', href );
 	} );
 
 	it.each( [
