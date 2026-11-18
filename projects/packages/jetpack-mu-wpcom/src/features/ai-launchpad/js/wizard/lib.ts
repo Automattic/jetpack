@@ -56,14 +56,14 @@ export function findNewConnections(
 }
 
 /**
- * Whether the account's MCP access level leaves AI tools unable to build. Only `full` allows every write tool;
- * `read_only`, and null for an account whose settings match neither level, may not.
+ * Whether the account is gated as read only; only a clean Read only account is. Null means the user kept their
+ * per-tool settings on the ChatGPT or Claude consent screen, and we don't override those.
  *
  * @param level - The `access_level` the endpoint returned.
- * @return True unless the level is full.
+ * @return True only when the level is `read_only`.
  */
 export function isReadOnlyAccess( level: string | null | undefined ): boolean {
-	return level !== 'full';
+	return level === 'read_only';
 }
 
 /** Which version of the "Which AI do you use?" view to show, which picks its title and subtitle. */

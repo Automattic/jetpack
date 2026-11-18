@@ -101,10 +101,10 @@ describe( 'AI tool connection', () => {
 		assert.deepEqual( findNewConnections( [ 'chatgpt' ], clicked, 'claude', [ 'chatgpt' ] ), [] );
 	} );
 
-	it( 'treats only full access as able to build', () => {
-		assert.equal( isReadOnlyAccess( 'full' ), false );
-		for ( const level of [ 'read_only', null, undefined, 'custom' ] ) {
-			assert.equal( isReadOnlyAccess( level ), true );
+	it( 'treats only read_only access as read only', () => {
+		assert.equal( isReadOnlyAccess( 'read_only' ), true );
+		for ( const level of [ 'full', null, undefined, 'custom' ] ) {
+			assert.equal( isReadOnlyAccess( level ), false );
 		}
 	} );
 } );

@@ -1177,8 +1177,8 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	 * Read from wpcom's `wpcom_mcp_get_user_connections()`, newest first. Where it is not defined the list is empty, so
 	 * the wizard keeps waiting.
 	 *
-	 * `access_level` is the account-wide MCP access level shared by every tool (`full`, `read_only`, or null when
-	 * unknown), read only once something is connected because it is costly.
+	 * `access_level` is the account-wide MCP access level shared by every tool (`full`, `read_only`, or null for a
+	 * fresh account or one tuned per tool), read only once something is connected because it is costly.
 	 *
 	 * @return array{connections: string[], access_level: string|null}
 	 */
