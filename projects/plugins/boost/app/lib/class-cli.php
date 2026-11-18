@@ -12,7 +12,9 @@ namespace Automattic\Jetpack_Boost\Lib;
 use Automattic\Jetpack_Boost\Data_Sync\Getting_Started_Entry;
 use Automattic\Jetpack_Boost\Modules\Module;
 use Automattic\Jetpack_Boost\Modules\Modules_Setup;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Page_Cache;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Page_Cache_Setup;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Boost_Cache_Error;
 
 /**
  * Control your local Jetpack Boost installation.
@@ -121,6 +123,13 @@ class CLI {
 		}
 
 		$module->update( $status );
+
+		if ( $module_slug === Page_Cache::get_slug() && ! $status ) {
+			$deactivate_result = $module->on_deactivate();
+			if ( $deactivate_result instanceof Boost_Cache_Error ) {
+				\WP_CLI::error( $deactivate_result->get_error_message() );
+			}
+		}
 
 		if ( $module_slug === 'page_cache' && $status ) {
 			$setup_result = Page_Cache_Setup::enable();

@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Admin shell: Turn the shell on by default for Automatticians on WordPress.com, with a kill switch that can force it off.

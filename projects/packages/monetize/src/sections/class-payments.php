@@ -1,6 +1,6 @@
 <?php
 /**
- * The Payments section: Stripe, plans and the commission WordPress.com takes.
+ * The Payments section: Stripe, plans, coupons and the commission WordPress.com takes.
  *
  * @package automattic/jetpack-monetize
  */
@@ -81,6 +81,9 @@ class Payments implements Dashboard_Section {
 			)
 		);
 
+		WPCOM_Proxy::register_route( 'wpcom/v2', 'memberships/product', 'POST', self::get_product_args() );
+		WPCOM_Proxy::register_route( 'wpcom/v2', 'memberships/product/(?P<id>\d+)', 'POST', self::get_product_args() );
+
 		WPCOM_Proxy::register_route(
 			'wpcom/v2',
 			'memberships/product/(?P<id>\d+)',
@@ -88,6 +91,48 @@ class Payments implements Dashboard_Section {
 			array(
 				'cancel_subscriptions' => array( 'type' => 'boolean' ),
 			)
+		);
+
+		WPCOM_Proxy::register_route( 'wpcom/v2', 'memberships/coupons', 'GET' );
+		WPCOM_Proxy::register_route( 'wpcom/v2', 'memberships/coupon/(?P<id>\d+)', 'DELETE' );
+	}
+
+	/**
+	 * The fields a plan is created or updated with, as WordPress.com reads them.
+	 *
+	 * @return array
+	 */
+	private static function get_product_args() {
+		return array(
+			'title'                        => array(
+				'type'     => 'string',
+				'required' => true,
+			),
+			'price'                        => array(
+				'type'     => 'number',
+				'required' => true,
+			),
+			'currency'                     => array(
+				'type'     => 'string',
+				'required' => true,
+			),
+			'interval'                     => array(
+				'type'     => 'string',
+				'enum'     => array( '1 month', '1 year', 'one-time' ),
+				'required' => true,
+			),
+			'type'                         => array(
+				'type' => 'string',
+				'enum' => array( 'tier', 'donation' ),
+			),
+			// A tier's annual product names its monthly one.
+			'tier'                         => array( 'type' => 'integer' ),
+			'description'                  => array( 'type' => 'string' ),
+			'welcome_email_content'        => array( 'type' => 'string' ),
+			'buyer_can_change_amount'      => array( 'type' => 'boolean' ),
+			'multiple_per_user'            => array( 'type' => 'boolean' ),
+			'subscribe_as_site_subscriber' => array( 'type' => 'boolean' ),
+			'is_editable'                  => array( 'type' => 'boolean' ),
 		);
 	}
 }

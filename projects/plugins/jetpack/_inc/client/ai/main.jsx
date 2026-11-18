@@ -77,9 +77,9 @@ const getTabViews = () => {
 
 // The first tab is the default: Overview when visible (matching the design),
 // otherwise the MCP hub. A hash pointing at a hidden view falls back too.
-const getRouteFromHash = () => {
+const getRouteFromHash = ( hash = window.location.hash ) => {
 	const tabViews = getTabViews();
-	const raw = window.location.hash.replace( /^#\//, '' );
+	const raw = hash.replace( /^#\//, '' );
 	const { view, anchor } = splitViewAnchor(
 		LEGACY_VIEW_ALIASES[ raw ] ?? raw,
 		[ ...tabViews, ...MCP_SUB_VIEWS ],
@@ -277,19 +277,36 @@ export default function App() {
 	// parent tab (MCP and Connectors) selected.
 	const activeTab = view.split( '/' )[ 0 ];
 
+	const hiddenTab = useRef( activeTab );
 	useEffect( () => {
 		if ( ! showFeaturesView ) {
 			return;
 		}
 		recordAiHubEvent( EVENTS.VIEWED, { tab: activeTab } );
 		// The admin shell keeps this page mounted, so a return to it is a new visit: see the admin-ui README.
+		const onHidden = event => {
+			if ( event.detail?.page === 'jetpack-ai' ) {
+				hiddenTab.current = activeTab;
+			}
+		};
 		const onShown = event => {
-			if ( event.detail?.page === 'jetpack-ai' && ! event.detail.firstShow ) {
+			const { page, firstShow, routeChanged, url } = event.detail ?? {};
+			if ( page !== 'jetpack-ai' || firstShow ) {
+				return;
+			}
+			// This effect records a return to another tab, but not to another view of the same tab.
+			const shownTab =
+				routeChanged && getRouteFromHash( new URL( url ).hash ).view.split( '/' )[ 0 ];
+			if ( ! routeChanged || shownTab === hiddenTab.current ) {
 				recordAiHubEvent( EVENTS.VIEWED, { tab: activeTab } );
 			}
 		};
+		window.addEventListener( 'jetpack-admin-shell:page-hidden', onHidden );
 		window.addEventListener( 'jetpack-admin-shell:page-shown', onShown );
-		return () => window.removeEventListener( 'jetpack-admin-shell:page-shown', onShown );
+		return () => {
+			window.removeEventListener( 'jetpack-admin-shell:page-hidden', onHidden );
+			window.removeEventListener( 'jetpack-admin-shell:page-shown', onShown );
+		};
 	}, [ activeTab, showFeaturesView ] );
 
 	useEffect( () => {

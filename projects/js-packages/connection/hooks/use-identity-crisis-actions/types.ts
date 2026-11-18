@@ -15,6 +15,8 @@ export interface IdentityCrisisError {
 export interface UseIdentityCrisisActionsOptions {
 	/** Admin path, relative to `wp-admin/`, to return to after a fresh connection. */
 	redirectUri?: string;
+	/** Name from `CONNECTION_FROM`, reported to WordPress.com with a fresh connection. */
+	from?: string;
 }
 
 export interface IdentityCrisisActions {

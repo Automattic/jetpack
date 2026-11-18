@@ -38,6 +38,32 @@ The registrant translates its own strings. Every value is sanitized at registrat
 
 Do no I/O in the action: the read that fires it may be a REST request.
 
+## Showing the surface
+
+The surface is "What's new". It ships as one script module, `packages/whats-new`, registered as `@automattic/jetpack-announcements`.
+
+A host mounts it from its own JavaScript, with the channels it subscribes to. The [`@automattic/jetpack-announcements` js-package](../../js-packages/announcements/README.md) holds the contract and explains the build setup.
+
+```ts
+const { mountWhatsNew } = await import( '@automattic/jetpack-announcements' );
+
+mountWhatsNew( { channels: [ 'my-plugin' ] } );
+```
+
+The call returns the function that takes the surface off the page. A page has one surface: a later mount takes it over.
+
+The module reads WordPress scripts from their globals, core-data among them, and does not enqueue them. A wp-build page provides them all.
+
+
+## REST routes
+
+| Route                                             | Method | Purpose                                     |
+| ------------------------------------------------- | ------ | ------------------------------------------- |
+| `/wpcom/v2/jetpack-announcements`                 | `GET`  | The announcements the current user may see. |
+| `/wpcom/v2/jetpack-announcements/<vendor>/<slug>` | `GET`  | One announcement.                           |
+
+Both routes require a logged-in user. An announcement that names a `capability` is left out for users without it.
+
 ## Using this package in your WordPress plugin
 
 If you plan on using this package in your WordPress plugin, we would recommend that you use [Jetpack Autoloader](https://packagist.org/packages/automattic/jetpack-autoloader) as your autoloader. This will allow for maximum interoperability with other plugins that use this package as well.

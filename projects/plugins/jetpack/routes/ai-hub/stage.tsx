@@ -1,21 +1,17 @@
-import apiFetch from '@wordpress/api-fetch';
 import AiHubApp from '../../_inc/client/ai/main';
 import analytics from '../../_inc/client/lib/analytics';
 import './route.scss';
 import type { ComponentType } from 'react';
 
-const { apiRoot, apiNonce, tracksUserData } = window?.jetpackAiSettings ?? {};
+/*
+ * No apiFetch middleware here: core's wp-api-fetch setup already sets the root and nonce, and the
+ * admin shell imports this module on menu hover, so anything added would reach every dashboard.
+ */
+const { tracksUserData } = window?.jetpackAiSettings ?? {};
 
 // Identify the connected user so Tracks events aren't anonymous.
 if ( tracksUserData?.userid && tracksUserData?.username ) {
 	analytics.initialize( tracksUserData.userid, tracksUserData.username );
-}
-
-if ( apiRoot ) {
-	apiFetch.use( apiFetch.createRootURLMiddleware( apiRoot ) );
-}
-if ( apiNonce ) {
-	apiFetch.use( apiFetch.createNonceMiddleware( apiNonce ) );
 }
 
 /**
