@@ -15,7 +15,9 @@ import {
 	isReadOnlyAccess,
 	goalsVariation,
 	isLastStep,
+	mcpPollSchedule,
 	pickPlaceholder,
+	rewaitOnReturn,
 	showsSetupChoice,
 	viewedStep,
 	type AiTool,
@@ -106,6 +108,39 @@ describe( 'opening on the AI tool view', () => {
 	] as const ) {
 		it( `shows Go to my dashboard: ${ shows } (copied ${ promptCopied }, exit ${ exit })`, () => {
 			assert.equal( footerShowsDashboard( promptCopied, exit ), shows );
+		} );
+	}
+} );
+
+describe( 'waiting again on return to the tab', () => {
+	for ( const [ readOnly, connected, timedOut, remote, tool ] of [
+		[ true, [ 'chatgpt' ], null, false, 'chatgpt' ],
+		[ false, [], 'claude', true, 'claude' ],
+		[ false, [], 'claude', false, null ],
+		[ false, [ 'claude' ], 'claude', true, null ],
+		[ false, [], null, true, null ],
+	] as const ) {
+		it( `waits for ${ tool } (read-only ${ readOnly }, connected ${ connected.join( '+' ) || 'nothing' }, timed out ${ timedOut }, remote ${ remote })`, () => {
+			assert.equal(
+				rewaitOnReturn( {
+					readOnly,
+					connected: [ ...connected ],
+					timedOut,
+					pollsRemotely: remote,
+				} ),
+				tool
+			);
+		} );
+	}
+} );
+
+describe( 'AI tool connection checks', () => {
+	for ( const [ remote, schedule ] of [
+		[ false, { intervalMs: 4000, whileHidden: true, onStart: false, onFocus: false } ],
+		[ true, { intervalMs: 30000, whileHidden: false, onStart: true, onFocus: true } ],
+	] as const ) {
+		it( `checks every ${ schedule.intervalMs } ms, hidden tab ${ schedule.whileHidden }, on start and focus ${ schedule.onStart } (remote ${ remote })`, () => {
+			assert.deepEqual( mcpPollSchedule( remote ), schedule );
 		} );
 	}
 } );

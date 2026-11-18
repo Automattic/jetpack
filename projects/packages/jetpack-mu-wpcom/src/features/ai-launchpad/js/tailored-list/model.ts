@@ -74,6 +74,8 @@ export interface LaunchpadData {
 	// The goals step's ExPlat variation, or null when the user is not in the experiment.
 	goals_variation?: string | null;
 	mcp_detection?: boolean;
+	// Whether each GET /mcp-connections asks WordPress.com over the network, as on Atomic.
+	mcp_remote?: boolean;
 	// Whether POST /mcp-access can allow full MCP access in place.
 	mcp_allow_full?: boolean;
 	// Calypso's setup chooser, where Back leads when the page opened with `start=ai-tool`; null otherwise.

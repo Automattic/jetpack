@@ -18,8 +18,9 @@ import {
 	COPIED_RESET_MS,
 	findNewConnections,
 	isReadOnlyAccess,
-	MCP_POLL_INTERVAL_MS,
 	MCP_POLL_TIMEOUT_MS,
+	mcpPollSchedule,
+	rewaitOnReturn,
 	type AiTool,
 	type GoalsVariation,
 } from './lib.ts';
@@ -30,6 +31,8 @@ interface Props {
 	variation: GoalsVariation | null;
 	// Whether a new connection can be detected. Without it, Connect only opens the AI tool.
 	detectsConnections: boolean;
+	// Whether each check asks WordPress.com over the network.
+	pollsRemotely: boolean;
 	// The AI tools shown as connected, in the order they connected.
 	connected: AiTool[];
 	// Called with each AI tool once its connection shows up, and whether it was connected before the view opened.
@@ -48,13 +51,14 @@ interface Props {
 /**
  * The "Which AI do you use?" view, shown when Continue is clicked on "Build with AI".
  *
- * After a Connect click it waits for the new connection, checking when the tab is shown again and every few
- * seconds, then shows the tool as connected. With read-only access it keeps checking, so allowing full access shows
- * the tool as connected.
+ * After a Connect click it waits for the new connection, checking when the tab is shown again and on
+ * `mcpPollSchedule()`'s timer, then shows the tool as connected. With read-only access it keeps checking, so
+ * allowing full access shows the tool as connected.
  *
  * @param props                       - Component props.
  * @param props.variation             - The goals_variation the view's events report.
  * @param props.detectsConnections    - Whether a new connection can be detected.
+ * @param props.pollsRemotely         - Whether each check asks WordPress.com over the network.
  * @param props.connected             - The AI tools shown as connected.
  * @param props.onConnected           - Called with the AI tool once its new connection shows up.
  * @param props.readOnly              - Whether a connected tool has only read-only access.
@@ -67,6 +71,7 @@ interface Props {
 export default function AiToolStep( {
 	variation,
 	detectsConnections,
+	pollsRemotely,
 	connected,
 	onConnected,
 	readOnly,
@@ -81,6 +86,8 @@ export default function AiToolStep( {
 	const [ clicked, setClicked ] = useState< AiTool[] >( [] );
 	// The tool clicked most recently, while still waiting for a connection.
 	const [ waitingFor, setWaitingFor ] = useState< AiTool | null >( null );
+	// The tool whose wait last timed out.
+	const [ timedOut, setTimedOut ] = useState< AiTool | null >( null );
 	// When Copy prompt last copied, in milliseconds, or 0 while it shows Copy prompt.
 	const [ copiedAt, setCopiedAt ] = useState( 0 );
 	// The tools that were connected before the view opened.
@@ -143,7 +150,13 @@ export default function AiToolStep( {
 			return;
 		}
 		let stopped = false;
+		let inFlight = false;
 		const check = () => {
+			// A tab return fires both visibilitychange and focus.
+			if ( pollsRemotely && inFlight ) {
+				return;
+			}
+			inFlight = true;
 			apiFetch< { connections?: string[]; access_level?: string | null } >( {
 				path: '/wpcom/v2/ai-launchpad/mcp-connections',
 			} )
@@ -168,24 +181,43 @@ export default function AiToolStep( {
 						setWaitingFor( null );
 					}
 				} )
-				.catch( () => {} );
+				.catch( () => {} )
+				.finally( () => {
+					inFlight = false;
+				} );
 		};
 		const onVisibilityChange = () => {
 			if ( document.visibilityState === 'visible' ) {
 				check();
 			}
 		};
-		const interval = setInterval( check, MCP_POLL_INTERVAL_MS );
+		const schedule = mcpPollSchedule( pollsRemotely );
+		const interval = setInterval( () => {
+			if ( schedule.whileHidden || document.visibilityState === 'visible' ) {
+				check();
+			}
+		}, schedule.intervalMs );
 		// Measured from the latest click, since each click re-runs this effect.
-		const timeout = setTimeout( () => setWaitingFor( null ), MCP_POLL_TIMEOUT_MS );
+		const timeout = setTimeout( () => {
+			setTimedOut( waitingFor );
+			setWaitingFor( null );
+		}, MCP_POLL_TIMEOUT_MS );
 		document.addEventListener( 'visibilitychange', onVisibilityChange );
+		if ( schedule.onFocus ) {
+			window.addEventListener( 'focus', check );
+		}
+		// A wait restarted on return to the tab starts after that event, so the next interval would be the first check.
+		if ( schedule.onStart ) {
+			check();
+		}
 		return () => {
 			stopped = true;
 			clearInterval( interval );
 			clearTimeout( timeout );
 			document.removeEventListener( 'visibilitychange', onVisibilityChange );
+			window.removeEventListener( 'focus', check );
 		};
-	}, [ waitingFor, clicked, connected, onConnected, onReadOnlyChange ] );
+	}, [ waitingFor, pollsRemotely, clicked, connected, onConnected, onReadOnlyChange ] );
 
 	// Like Copy prompt on /me/mcp, the label goes back after a moment.
 	useEffect( () => {
@@ -203,19 +235,28 @@ export default function AiToolStep( {
 		}
 	}, [ readOnly, waitingFor, connected ] );
 
-	// Once a read-only wait times out, coming back to the tab waits again, so allowing full access still shows.
 	useEffect( () => {
-		if ( ! readOnly || waitingFor ) {
+		const tool = waitingFor
+			? null
+			: rewaitOnReturn( { readOnly, connected, timedOut, pollsRemotely } );
+		if ( ! tool ) {
 			return;
 		}
+		const rewait = () => setWaitingFor( tool );
 		const onVisibilityChange = () => {
 			if ( document.visibilityState === 'visible' ) {
-				setWaitingFor( connected[ connected.length - 1 ] );
+				rewait();
 			}
 		};
 		document.addEventListener( 'visibilitychange', onVisibilityChange );
-		return () => document.removeEventListener( 'visibilitychange', onVisibilityChange );
-	}, [ readOnly, waitingFor, connected ] );
+		if ( pollsRemotely ) {
+			window.addEventListener( 'focus', rewait );
+		}
+		return () => {
+			document.removeEventListener( 'visibilitychange', onVisibilityChange );
+			window.removeEventListener( 'focus', rewait );
+		};
+	}, [ readOnly, waitingFor, connected, timedOut, pollsRemotely ] );
 
 	return (
 		<Stack direction="column" gap="lg">
@@ -311,6 +352,8 @@ export default function AiToolStep( {
 													integration: item.tool,
 												} );
 												setWaitingFor( item.tool );
+												// A new wait replaces a timed-out one, so a return can't bring the old one back.
+												setTimedOut( null );
 											}
 										} }
 									>

@@ -113,6 +113,7 @@ export function App() {
 				aiBuilt={ !! initialData?.ai_built }
 				goalsVariation={ initialData?.goals_variation }
 				mcpDetection={ !! initialData?.mcp_detection }
+				mcpRemote={ !! initialData?.mcp_remote }
 				mcpAllowFull={ !! initialData?.mcp_allow_full }
 				startOnAiTool={ startsOnAiTool( window.location.search, view ) }
 				aiToolBackUrl={ initialData?.ai_tool_back_url ?? undefined }
