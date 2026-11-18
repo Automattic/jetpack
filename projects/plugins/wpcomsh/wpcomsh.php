@@ -176,6 +176,10 @@ require_once __DIR__ . '/feature-plugins/wordpress-mods.php';
 require_once __DIR__ . '/feature-plugins/wpcom-reader-link.php';
 require_once __DIR__ . '/feature-plugins/featured-image-in-email.php';
 
+// Jetpack Connection Handlers (external storage and protected owner).
+// Load this file before jetpack-mu-wpcom, so that the storage provider is in place before its init() reads the blog ID.
+require_once __DIR__ . '/connection/connection-handlers.php';
+
 /**
  * Conditionally load the jetpack-mu-wpcom package.
  *
@@ -224,9 +228,6 @@ require_once __DIR__ . '/support-session.php';
 
 // Adds fallback behavior for non-Gutenframed sites to be able to use the 'Share Post' functionality from WPCOM Reader.
 require_once __DIR__ . '/share-post/share-post.php';
-
-// Jetpack Connection Handlers (external storage and protected owner).
-require_once __DIR__ . '/connection/connection-handlers.php';
 
 // Require a Jetpack Connection Owner.
 require_once __DIR__ . '/jetpack-require-connection-owner/class-wpcomsh-require-connection-owner.php';

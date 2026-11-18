@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Admin shell: Keep up to 10 dashboards live on devices with less than 8 GB of memory, or when the browser does not report it.

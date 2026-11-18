@@ -35,7 +35,7 @@ class Turned_Off_Page {
 	/**
 	 * The card's script: reports the view, shows Turn on is under way, and drops a failed Turn on's error from the URL.
 	 *
-	 * Back from the feature's page restores this one from the bfcache, still busy, hence pageshow.
+	 * Runs again each time the admin shell inserts the card. Back from the feature's page restores this one from the bfcache, still busy, hence pageshow.
 	 */
 	const SCRIPT = '( function ( card ) {
 		var data = new FormData();
@@ -64,7 +64,9 @@ class Turned_Off_Page {
 			form.setAttribute( "aria-busy", on ? "true" : "false" );
 		}
 		function restore( event ) {
-			if ( event.persisted ) {
+			if ( ! form.isConnected ) {
+				window.removeEventListener( "pageshow", restore );
+			} else if ( event.persisted ) {
 				busy( false );
 			}
 		}
@@ -119,9 +121,11 @@ class Turned_Off_Page {
 	);
 
 	/**
-	 * The card's styles, which travel with the card.
+	 * The card's styles. They travel with the card, since the admin shell drops it into pages that never loaded them.
 	 */
 	const STYLES = '.jetpack-feature-off{box-sizing:border-box;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:24px;align-items:start;max-inline-size:600px;margin-block:48px;margin-inline:auto;padding:24px;background:#fff;border:1px solid #ddd;border-radius:8px}'
+		// A wp-build dashboard behind the card paints the page in the menu colour, inline (@wordpress/boot's useSyncBodyBackground).
+		. 'body.wp-admin:has(.jetpack-feature-off){background:#f0f0f1!important}'
 		. '.jetpack-feature-off__icon{display:block;inline-size:24px;block-size:24px;color:#757575}'
 		. '.jetpack-feature-off__icon>svg{display:block;inline-size:100%;block-size:100%}'
 		. '.jetpack-feature-off .jetpack-feature-off__title{margin-block:16px 8px;padding:0;font-size:15px;font-weight:600;line-height:1.4;color:#1e1e1e}'
@@ -148,6 +152,7 @@ class Turned_Off_Page {
 		// After every Jetpack page has registered, and before core checks the user may open this one.
 		add_action( 'admin_menu', array( __CLASS__, 'maybe_register' ), 100000 );
 		add_action( 'admin_post_' . self::ACTION, array( __CLASS__, 'handle_turn_on' ) );
+		add_filter( 'jetpack_admin_shell_feature_off_card', array( __CLASS__, 'filter_admin_shell_card' ), 10, 2 );
 		add_action( 'wp_ajax_' . self::VIEW_ACTION, array( __CLASS__, 'ajax_track_view' ) );
 	}
 
@@ -241,6 +246,28 @@ class Turned_Off_Page {
 		foreach ( array( 'admin_notices', 'all_admin_notices', 'network_admin_notices', 'user_admin_notices' ) as $hook ) {
 			remove_all_actions( $hook );
 		}
+	}
+
+	/**
+	 * The card the admin shell shows in place of a member page whose feature is off.
+	 *
+	 * @param string $html Card HTML so far.
+	 * @param string $page Admin page slug of the member.
+	 * @return string
+	 */
+	public static function filter_admin_shell_card( $html, $page ) {
+		$feature = self::get_feature_for_page( (string) $page );
+		if ( null === $feature || ! Menu_Visibility::can_offer( $feature['gate'] ) ) {
+			return $html;
+		}
+		// Over admin-ajax, a failed Turn on's error is only in the URL of the page that asked.
+		if ( wp_doing_ajax() ) {
+			parse_str( (string) wp_parse_url( (string) wp_get_raw_referer(), PHP_URL_QUERY ), $query );
+		} else {
+			$query = wp_unslash( $_GET ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Only picks the error to show.
+		}
+		$error = isset( $query['page'] ) && isset( $query[ self::ERROR_ARG ] ) && $page === $query['page'] && is_string( $query[ self::ERROR_ARG ] ) ? sanitize_key( $query[ self::ERROR_ARG ] ) : '';
+		return self::get_card_html( $feature, admin_url( 'admin.php?page=' . $page ), $error, 'admin_shell' );
 	}
 
 	/**

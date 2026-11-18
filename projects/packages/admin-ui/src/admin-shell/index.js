@@ -15,6 +15,7 @@ import { createApp, whenRendered } from './app';
 import { liveAppLimit, mayPrewarm } from './budget';
 import { announcePage, menuLabel, pageOf, updateChrome } from './chrome';
 import { debugEnabled, log, stopwatch } from './debug';
+import { checkFeature, showFeatureOff } from './feature';
 import { applyGuestAssets } from './guest-assets';
 import { configureHeaders, rememberHeader, removeHeader, showHeader } from './header';
 import { closeDialogsOf, closeOverlayAround, showOverlaysOf, trackOverlays } from './overlays';
@@ -59,7 +60,15 @@ const routeOf = href => {
 	return url.search + url.hash;
 };
 
-const start = ( { host, members, guestAssetsUrl, headerStorageKey, maxLiveApps } ) => {
+const start = ( {
+	host,
+	members,
+	guestAssetsUrl,
+	headerStorageKey,
+	maxLiveApps,
+	featureUrl,
+	featureOff,
+} ) => {
 	const hostEl = document.getElementById( members[ host ].mountId );
 	if ( ! hostEl ) {
 		return;
@@ -226,16 +235,50 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey, maxLiveApps }
 		return warm[ slug ];
 	};
 
+	// Panels standing in for pages whose feature is off, by page.
+	const offPanels = new Map();
+	const onScreen = slug => visible === slug && ! offPanels.has( slug );
+	const featureOf = slug =>
+		members[ slug ].gate && featureUrl
+			? checkFeature( featureUrl, slug, members[ slug ].gate, members[ slug ].gateNonce )
+			: Promise.resolve( { on: true, card: '' } );
+	// Places the panel only: the switch that opened the page moves focus and announces it.
+	const showOff = ( slug, card ) => {
+		if ( offPanels.has( slug ) ) {
+			return;
+		}
+		apps.get( slug )?.place( false );
+		removeHeader( slug );
+		offPanels.set(
+			slug,
+			showFeatureOff( {
+				after: [ ...apps.values() ].at( -1 )?.el ?? hostEl,
+				slug,
+				title: menuLabel( slug ) ?? members[ slug ].title,
+				gate: members[ slug ].gate,
+				gateNonce: members[ slug ].gateNonce,
+				url: featureUrl,
+				strings: featureOff,
+				card,
+			} )
+		);
+	};
+	const hideOff = slug => {
+		offPanels.get( slug )?.remove();
+		offPanels.delete( slug );
+	};
+
 	// Once an app's first route is on screen.
 	const markReady = app => {
 		app.to( 'ready' );
-		app.place( visible === app.slug );
+		app.place( onScreen( app.slug ) );
 		rememberHeader( app.slug, app.el );
 		// Tab bars and actions often render just after the heading.
-		setTimeout( () => visible === app.slug && rememberHeader( app.slug, app.el ), 1000 );
+		setTimeout( () => onScreen( app.slug ) && rememberHeader( app.slug, app.el ), 1000 );
 	};
 
-	const bootGuest = async ( slug, url ) => {
+	// Registered and given its stand-in header at once, so a second visit finds it while the check is out.
+	const bootGuest = async ( slug, url, feature ) => {
 		// Not a div: the host page's critical CSS hides every `#wpbody-content > div` but its own app.
 		const el = document.createElement( 'section' );
 		el.id = members[ slug ].mountId;
@@ -250,6 +293,13 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey, maxLiveApps }
 		const removeStandIn = showHeaderAt( slug, el, url );
 
 		try {
+			// After the check, so a page whose feature is off downloads nothing.
+			if ( ! ( await feature ).on ) {
+				log( 'switch', `${ slug }: its feature is off, not booting it` );
+				removeStandIn();
+				discard();
+				return;
+			}
 			const waited = stopwatch();
 			const boot = await prewarm( slug, 'switch' );
 			log( 'switch', `${ slug }: waited ${ waited() } for prewarm` );
@@ -323,6 +373,9 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey, maxLiveApps }
 			removeHeader( previous );
 		}
 		apps.get( previous )?.place( false );
+		hideOff( previous );
+		// Asked on every visit: the feature may have been switched off since the menu was drawn.
+		const feature = featureOf( slug );
 		// Kept until a page-shown reports it, so a show another switch overtakes doesn't reset it.
 		hiddenAt[ previous ] ??= Date.now();
 		const dialogsClosed = closeDialogsOf( previous );
@@ -352,12 +405,21 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey, maxLiveApps }
 			} else {
 				log( 'switch', `${ slug } has not booted yet` );
 				window.scrollTo( 0, 0 );
-				await bootGuest( slug, url );
+				await bootGuest( slug, url, feature );
+			}
+			// A booted page shows at once, as it usually is still on; swapped for the panel if not.
+			const { on, card } = await feature;
+			if ( ! on && visible === slug ) {
+				showOff( slug, card );
 			}
 			// Focus and speech inside a closing modal's `aria-hidden` would go unheard.
 			await dialogsClosed;
 			// A later switch, even back to this page, takes over its focus and announcement.
-			if ( thisSwitch === switches && apps.get( slug )?.state === 'visible' ) {
+			const current = thisSwitch === switches;
+			if ( current && offPanels.has( slug ) ) {
+				offPanels.get( slug ).querySelector( 'h1' )?.focus( { preventScroll: true } );
+				announcePage( members[ slug ].adminTitle );
+			} else if ( current && apps.get( slug )?.state === 'visible' ) {
 				log(
 					'switch',
 					`${ slug } on screen ${ elapsed() } after the switch started`,
@@ -509,6 +571,10 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey, maxLiveApps }
 	const hostApp = createApp( host, hostEl );
 	apps.set( host, hostApp );
 	const removeHostHeader = showHeaderAt( host, hostEl, location.href );
+	// The page load already said its feature is off, and sent the card with the config.
+	if ( members[ host ].featureOn === false ) {
+		showOff( host, members[ host ].featureCard ?? '' );
+	}
 	gate.mount( host );
 	log( 'host', `${ host } boots from the page load` );
 	whenRendered( hostEl, 30000 )
@@ -516,7 +582,7 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey, maxLiveApps }
 			log( 'host', `${ host } rendered its first route` );
 			removeHostHeader();
 			markReady( hostApp );
-			if ( visible === host ) {
+			if ( onScreen( host ) ) {
 				emit( 'page-shown', {
 					page: host,
 					previous: null,

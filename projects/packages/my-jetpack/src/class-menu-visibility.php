@@ -40,6 +40,9 @@ class Menu_Visibility {
 		}
 
 		Admin_Menu::set_visibility_resolver( array( __CLASS__, 'resolve' ) );
+		if ( method_exists( Admin_Menu::class, 'set_feature_activator' ) ) {
+			Admin_Menu::set_feature_activator( array( __CLASS__, 'activate' ), array( __CLASS__, 'offers' ) );
+		}
 
 		// Memoized answers last one registration pass, which is as long as they can stay true.
 		add_action( 'admin_menu', array( __CLASS__, 'forget_resolved_gates' ), 0 );
@@ -236,6 +239,27 @@ class Menu_Visibility {
 		return ! self::is_module_removed( $module )
 			&& ! self::is_module_held_off( $module )
 			&& ! ( $product_class && $product_class::is_held_off() );
+	}
+
+	/**
+	 * Whether the admin shell should offer to turn a gate's feature on: it can, and the Features tab lists it, so My Jetpack has its card.
+	 *
+	 * A page with no card, such as SEO's, keeps its own way to turn its feature back on.
+	 *
+	 * @param array $args The item's visibility declaration.
+	 * @return bool
+	 */
+	public static function offers( $args ) {
+		$listed = false;
+		foreach ( Main_Features::get_feature_definitions() as $definition ) {
+			if ( ( ! empty( $args['product'] ) && ( $definition['product'] ?? '' ) === $args['product'] )
+				|| ( empty( $args['product'] ) && ! empty( $args['module'] ) && ( $definition['module'] ?? '' ) === $args['module'] ) ) {
+				$listed = true;
+				break;
+			}
+		}
+
+		return $listed && self::can_offer( $args );
 	}
 
 	/**
