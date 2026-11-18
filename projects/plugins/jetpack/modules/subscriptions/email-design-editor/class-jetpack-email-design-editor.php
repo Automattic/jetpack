@@ -134,16 +134,14 @@ class Jetpack_Email_Design_Editor {
 	 * Whether this platform gets the screen without anyone turning it on: self-hosted only (NL-1120).
 	 *
 	 * WordPress.com keeps its sticker switch, since a default would outlive the sticker rollback.
-	 * `IS_ATOMIC` is checked alone too: a host can define it without wpcomsh, leaving no sticker to read.
+	 * WoA only, not the whole Atomic platform: wpcom's rule counts WP Cloud partner sites as self-hosted.
 	 *
 	 * @return bool
 	 */
 	private static function default_for_this_platform() {
 		$host = new Host();
 
-		return ! $host->is_wpcom_simple()
-			&& ! $host->is_atomic_platform()
-			&& ! Constants::is_true( 'IS_ATOMIC' );
+		return ! $host->is_wpcom_simple() && ! $host->is_woa_site();
 	}
 
 	/**

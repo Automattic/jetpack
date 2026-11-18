@@ -111,6 +111,7 @@ class Jetpack_Email_Design_Editor_Test extends WP_UnitTestCase {
 		foreach ( array( 'IS_WPCOM', 'IS_ATOMIC', 'ATOMIC_SITE_ID', 'ATOMIC_CLIENT_ID', 'WPCOMSH__PLUGIN_FILE' ) as $name ) {
 			Constants::clear_single_constant( $name );
 		}
+		\Automattic\Jetpack\Status\Cache::clear();
 
 		Jetpack_Email_Design_Editor::register_feature_flags();
 	}
@@ -286,34 +287,48 @@ class Jetpack_Email_Design_Editor_Test extends WP_UnitTestCase {
 
 	/**
 	 * @param array $constants What the platform defines.
+	 * @param bool  $expected  Whether the screen is on by default there.
 	 *
-	 * @dataProvider provide_wordpress_com_platforms
+	 * @dataProvider provide_platform_defaults
 	 */
-	#[PHPUnit\Framework\Attributes\DataProvider( 'provide_wordpress_com_platforms' )]
-	public function test_no_wordpress_com_platform_gets_the_screen_by_default( $constants ) {
+	#[PHPUnit\Framework\Attributes\DataProvider( 'provide_platform_defaults' )]
+	public function test_the_default_follows_the_platform( $constants, $expected ) {
+		if ( $expected && defined( 'WPCOMSH__PLUGIN_FILE' ) ) {
+			$this->markTestSkipped( 'This process loads wpcomsh, which makes any Atomic site here WoA.' );
+		}
+
 		foreach ( $constants as $name => $value ) {
 			Constants::set_constant( $name, $value );
 		}
+		\Automattic\Jetpack\Status\Cache::clear();
 
 		Jetpack_Email_Design_Editor::register_feature_flags();
 
-		$this->assertFalse( $this->registered_default() );
+		$this->assertSame( $expected, $this->registered_default() );
 	}
 
 	/**
 	 * @return array
 	 */
-	public static function provide_wordpress_com_platforms() {
+	public static function provide_platform_defaults() {
 		return array(
-			'Simple'                 => array( array( 'IS_WPCOM' => true ) ),
+			'Simple'                 => array( array( 'IS_WPCOM' => true ), false ),
 			'WoA'                    => array(
 				array(
 					'ATOMIC_SITE_ID'       => 123,
-					'ATOMIC_CLIENT_ID'     => 456,
+					'ATOMIC_CLIENT_ID'     => 2,
 					'WPCOMSH__PLUGIN_FILE' => '/wpcomsh.php',
 				),
+				false,
 			),
-			'Atomic without wpcomsh' => array( array( 'IS_ATOMIC' => true ) ),
+			'WP Cloud partner'       => array(
+				array(
+					'ATOMIC_SITE_ID'   => 123,
+					'ATOMIC_CLIENT_ID' => 3,
+				),
+				true,
+			),
+			'Atomic without wpcomsh' => array( array( 'IS_ATOMIC' => true ), true ),
 		);
 	}
 
