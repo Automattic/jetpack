@@ -73,6 +73,7 @@ export {
 	ensureCoreSettingsReady,
 	isSelectablePreset,
 	computeDateRangeFromPreset,
+	decodeHtmlText,
 	getApiErrorCode,
 	getApiErrorStatus,
 	findAuthorRow,

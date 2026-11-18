@@ -1,5 +1,6 @@
 export { useReport } from './use-report';
 export {
+	useMediaThumbnail,
 	usePostThumbnail,
 	usePostThumbnails,
 	type PostThumbnailSource,

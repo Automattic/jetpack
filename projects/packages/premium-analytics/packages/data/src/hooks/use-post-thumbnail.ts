@@ -54,6 +54,32 @@ function getThumbnailUrl( media?: MediaEntity ): string | undefined {
 }
 
 /**
+ * Resolve an attachment's thumbnail from core data.
+ *
+ * @param mediaId - Attachment ID.
+ * @return The thumbnail URL, falling back to the full-size source.
+ */
+export function useMediaThumbnail( mediaId?: number ): string | undefined {
+	const numericMediaId = Number( mediaId );
+	const canResolveMedia = Number.isInteger( numericMediaId ) && numericMediaId > 0;
+	const media = useSelect(
+		select => {
+			if ( ! canResolveMedia ) {
+				return undefined;
+			}
+
+			const core = select( coreStore ) as unknown as EntityRecordsSelector;
+			return core.getEntityRecord( 'postType', 'attachment', numericMediaId, {
+				context: 'view',
+			} ) as MediaEntity | undefined;
+		},
+		[ canResolveMedia, numericMediaId ]
+	);
+
+	return getThumbnailUrl( media );
+}
+
+/**
  * Resolve a post's featured-image thumbnail from core data.
  *
  * @param postId   - Post ID.
@@ -81,22 +107,8 @@ export function usePostThumbnail(
 		},
 		[ canResolvePost, numericPostId, postType ]
 	);
-	const mediaId = post?.featured_media ?? 0;
-	const media = useSelect(
-		select => {
-			if ( ! canResolvePost || mediaId <= 0 ) {
-				return undefined;
-			}
 
-			const core = select( coreStore ) as unknown as EntityRecordsSelector;
-			return core.getEntityRecord( 'postType', 'attachment', mediaId, {
-				context: 'view',
-			} ) as MediaEntity | undefined;
-		},
-		[ canResolvePost, mediaId ]
-	);
-
-	return getThumbnailUrl( media );
+	return useMediaThumbnail( post?.featured_media );
 }
 
 /**
