@@ -3,6 +3,24 @@ import { __ } from '@wordpress/i18n';
 
 type BeforeLeaveDetail = { page?: string; url?: string };
 
+let asked = false;
+window.addEventListener( 'jetpack-admin-shell:before-leave', event => {
+	if (
+		( event as CustomEvent< BeforeLeaveDetail | null > ).detail?.page === 'jetpack-newsletter'
+	) {
+		asked = true;
+		// A page load the shell asked about starts within this task.
+		setTimeout( () => ( asked = false ) );
+	}
+} );
+
+/**
+ * Whether the admin shell asked about leaving Newsletter during this task, so `beforeunload` needn't ask again.
+ *
+ * @return False without the shell.
+ */
+export const askedByShell = (): boolean => asked;
+
 /**
  * Answer the admin shell's `jetpack-admin-shell:before-leave` event; see the admin-ui README.
  *
