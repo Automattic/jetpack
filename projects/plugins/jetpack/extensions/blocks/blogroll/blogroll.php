@@ -12,6 +12,7 @@ namespace Automattic\Jetpack\Extensions\Blogroll;
 require_once __DIR__ . '/blogroll-item/blogroll-item.php';
 
 use Automattic\Jetpack\Blocks;
+use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Abstract_Token_Subscription_Service;
 use Automattic\Jetpack\Status\Request;
 use Jetpack_Gutenberg;
 
@@ -137,7 +138,34 @@ function has_opml( $post ) {
 		&& 'publish' === $post->post_status
 		&& ! post_password_required( $post )
 		&& ( has_block( 'jetpack/blogroll', $post ) || has_block( 'core/block', $post ) )
-		&& get_opml_items( parse_blocks( $post->post_content ) );
+		&& get_opml_items( get_public_blocks( $post ) );
+}
+
+/**
+ * The blocks of a post that every visitor can see, so gated blogrolls stay out of the OPML.
+ *
+ * Mirrors add_paywall(): a gated post is public only above its Paywall block.
+ *
+ * @param \WP_Post $post Post object.
+ * @return array Parsed blocks.
+ */
+function get_public_blocks( $post ) {
+	$blocks = parse_blocks( $post->post_content );
+	if ( ! has_filter( 'the_content', 'Automattic\Jetpack\Extensions\Subscriptions\add_paywall' ) ) {
+		return $blocks;
+	}
+
+	require_once JETPACK__PLUGIN_DIR . 'modules/memberships/class-jetpack-memberships.php';
+	if ( Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY === \Jetpack_Memberships::get_post_access_level( $post->ID ) ) {
+		return $blocks;
+	}
+
+	foreach ( $blocks as $i => $block ) {
+		if ( 'jetpack/paywall' === $block['blockName'] ) {
+			return array_slice( $blocks, 0, $i );
+		}
+	}
+	return array();
 }
 
 /**
@@ -176,6 +204,11 @@ function get_opml_url( $url ) {
  */
 function get_opml_items( $blocks, $items = array(), $refs = array() ) {
 	foreach ( $blocks as $block ) {
+		// Only rendered for subscribers, see render_subscriber_view_block().
+		if ( 'premium-content/subscriber-view' === $block['blockName'] ) {
+			continue;
+		}
+
 		$feed_url = 'jetpack/blogroll-item' === $block['blockName'] ? get_opml_url( $block['attrs']['feed_url'] ?? '' ) : '';
 		// The same feed with another scheme or without the trailing slash is listed once.
 		$key = untrailingslashit( set_url_scheme( $feed_url, 'https' ) );
@@ -217,7 +250,7 @@ function get_opml( $post ) {
 	$opml .= "\t</head>\n";
 	$opml .= "\t<body>\n";
 
-	foreach ( get_opml_items( parse_blocks( $post->post_content ) ) as $item ) {
+	foreach ( get_opml_items( get_public_blocks( $post ) ) as $item ) {
 		$opml .= sprintf(
 			"\t\t" . '<outline type="rss" text="%1$s" xmlUrl="%2$s"%3$s />' . "\n",
 			esc_xml( $item['name'] ),
@@ -234,13 +267,16 @@ function get_opml( $post ) {
 
 /**
  * Serve the blogroll of the current post as OPML on `?opml`.
+ *
+ * @param string $template Template to load.
+ * @return string
  */
-function serve_opml() {
+function serve_opml( $template ) {
 	// Not a query var: any extra query var stops WP_Query from resolving a static front page.
 	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only, public document.
 	$post = isset( $_GET['opml'] ) ? get_opml_post() : null;
 	if ( ! $post ) {
-		return;
+		return $template;
 	}
 
 	header( 'Content-Type: text/x-opml; charset=' . get_option( 'blog_charset' ) );
@@ -248,8 +284,8 @@ function serve_opml() {
 	echo get_opml( $post ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in get_opml().
 	exit( 0 );
 }
-// After redirect_canonical(), so the file is only served at the canonical URL.
-add_action( 'template_redirect', __NAMESPACE__ . '\serve_opml', 11 );
+// Last, after redirect_canonical() and template gates like Coming Soon.
+add_filter( 'template_include', __NAMESPACE__ . '\serve_opml', PHP_INT_MAX );
 
 /**
  * Print the rel="blogroll" discovery link on a post with a blogroll.

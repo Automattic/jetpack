@@ -231,6 +231,50 @@ class Blogroll_Test extends \WP_UnitTestCase {
 	}
 
 	/**
+	 * Gated blogrolls stay out of the OPML, as add_paywall() hides them from visitors.
+	 *
+	 * @dataProvider provide_gated_posts
+	 *
+	 * @param string $access   Newsletter access level, or an empty string for none.
+	 * @param string $content  Post content.
+	 * @param array  $expected Feed URL keys in the OPML.
+	 */
+	#[DataProvider( 'provide_gated_posts' )]
+	public function test_gated_content( $access, $content, $expected ) {
+		require_once JETPACK__PLUGIN_DIR . 'modules/memberships/class-jetpack-memberships.php';
+		add_filter( 'the_content', 'Automattic\Jetpack\Extensions\Subscriptions\add_paywall', 8 );
+
+		$post = self::factory()->post->create_and_get( array( 'post_content' => wp_slash( $content ) ) );
+		if ( $access ) {
+			update_post_meta( $post->ID, \Automattic\Jetpack\Extensions\Subscriptions\META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, $access );
+		}
+
+		$this->assertSame( $expected, array_keys( Blogroll\get_opml_items( Blogroll\get_public_blocks( $post ) ) ) );
+	}
+
+	/**
+	 * Posts with gated blogrolls.
+	 *
+	 * @return array
+	 */
+	public static function provide_gated_posts() {
+		$public = self::blogroll( self::item( array( 'feed_url' => 'https://public.example/feed' ) ) );
+		$gated  = self::blogroll( self::item( array( 'feed_url' => 'https://gated.example/feed' ) ) );
+
+		return array(
+			'everybody'         => array( 'everybody', $public, array( 'https://public.example/feed' ) ),
+			'subscribers'       => array( 'subscribers', $public, array() ),
+			'paid subscribers'  => array( 'paid_subscribers', $public, array() ),
+			'below the paywall' => array( '', $public . '<!-- wp:jetpack/paywall /-->' . $gated, array( 'https://public.example/feed' ) ),
+			'subscriber view'   => array(
+				'',
+				'<!-- wp:premium-content/container --><div><!-- wp:premium-content/subscriber-view --><div>' . $gated . '</div><!-- /wp:premium-content/subscriber-view --><!-- wp:premium-content/logged-out-view --><div>' . $public . '</div><!-- /wp:premium-content/logged-out-view --></div><!-- /wp:premium-content/container -->',
+				array( 'https://public.example/feed' ),
+			),
+		);
+	}
+
+	/**
 	 * The discovery link is printed on a post with a blogroll only.
 	 */
 	public function test_print_opml_link() {
