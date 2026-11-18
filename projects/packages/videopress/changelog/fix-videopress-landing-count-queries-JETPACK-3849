@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Dashboard: Skip the library count requests the Library page can answer without them.
