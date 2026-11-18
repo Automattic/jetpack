@@ -22,7 +22,7 @@ type FeedbackBannerProps = {
 
 /**
  * Stands above the widgets asking what the reader makes of the preview, and
- * hands them the same modal the page options menu does.
+ * hands them the same modal the Stats options menu does.
  *
  * @param {FeedbackBannerProps} props - Component props.
  * @return The banner, the modal it opens, or nothing.

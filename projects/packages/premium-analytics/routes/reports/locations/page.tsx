@@ -15,6 +15,7 @@ import {
 	ReportPageTabs,
 	ReportRecordsTable,
 	LockedPage,
+	StatsOptionsMenu,
 	locationsCsvExporter,
 	supportsLocationsCountryFilter,
 	type LocationsGeoRow,
@@ -169,14 +170,17 @@ export default function LocationsReportPage(): JSX.Element {
 			visual={ <Icon icon={ jetpack } /> }
 			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
 			actions={
-				tabLocked ? undefined : (
-					<ExporterCsvAction
-						exporter={ csvExporter }
-						items={ records.table.rows }
-						status={ records.table }
-						reportParams={ reportParams }
-					/>
-				)
+				<>
+					{ ! tabLocked && (
+						<ExporterCsvAction
+							exporter={ csvExporter }
+							items={ records.table.rows }
+							status={ records.table }
+							reportParams={ reportParams }
+						/>
+					) }
+					<StatsOptionsMenu />
+				</>
 			}
 		>
 			<ReportPageLayout

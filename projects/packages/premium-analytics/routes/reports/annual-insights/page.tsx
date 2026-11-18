@@ -9,6 +9,7 @@ import {
 	ReportPageLayout,
 	ReportErrorState,
 	ReportRecordsTable,
+	StatsOptionsMenu,
 	annualInsightsCsvExporter,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { Page } from '@wordpress/admin-ui';
@@ -70,12 +71,15 @@ function AnnualInsightsReport(): JSX.Element {
 			visual={ <Icon icon={ jetpack } /> }
 			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
 			actions={
-				<ExporterCsvAction
-					exporter={ annualInsightsCsvExporter }
-					items={ records.rows }
-					status={ records }
-					reportParams={ reportParams }
-				/>
+				<>
+					<ExporterCsvAction
+						exporter={ annualInsightsCsvExporter }
+						items={ records.rows }
+						status={ records }
+						reportParams={ reportParams }
+					/>
+					<StatsOptionsMenu />
+				</>
 			}
 		>
 			<ReportPageLayout title={ getLabel() }>

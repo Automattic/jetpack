@@ -68,6 +68,7 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 	flagUrl: ( countryCode: string ) => `https://example.com/${ countryCode }.svg`,
 	ReportErrorState: jest.requireActual( '@jetpack-premium-analytics/widgets-toolkit' )
 		.ReportErrorState,
+	StatsOptionsMenu: () => null,
 	ReportPageLayout: ( { tabs, children }: { tabs: ReactNode; children: ReactNode } ) => (
 		<>
 			{ tabs }

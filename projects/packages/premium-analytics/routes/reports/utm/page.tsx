@@ -11,6 +11,7 @@ import {
 	ReportErrorState,
 	ReportPageTabs,
 	ExporterCsvAction,
+	StatsOptionsMenu,
 	utmCsvExporters,
 	UtmUrlBuilderDialog,
 	type UtmReportRow,
@@ -108,6 +109,7 @@ function UtmReport(): JSX.Element {
 						status={ records }
 						reportParams={ reportParams }
 					/>
+					<StatsOptionsMenu />
 				</>
 			}
 		>

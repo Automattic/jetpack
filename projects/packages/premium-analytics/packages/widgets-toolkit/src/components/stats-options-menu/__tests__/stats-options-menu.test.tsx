@@ -14,8 +14,8 @@ import { store as preferencesStore } from '@wordpress/preferences';
 import { resetTracksIdentityForTesting } from '../../../hooks/use-track-event';
 import { readinessSummary } from '../feedback-fields';
 import { FeedbackModal } from '../feedback-modal';
-import { PageOptionsMenu } from '../page-options-menu';
 import * as classicStats from '../return-to-classic-stats';
+import { StatsOptionsMenu } from '../stats-options-menu';
 import { SwitchOffDialog } from '../switch-off-dialog';
 
 jest.mock(
@@ -63,13 +63,13 @@ async function enterComment( user: ReturnType< typeof setupUser >, text: string 
  */
 async function pickFromMenu( entry: string ) {
 	const user = setupUser();
-	render( <PageOptionsMenu /> );
-	await user.click( screen.getByRole( 'button', { name: 'Page options' } ) );
+	render( <StatsOptionsMenu /> );
+	await user.click( screen.getByRole( 'button', { name: 'Stats options' } ) );
 	await user.click( await screen.findByRole( 'menuitem', { name: entry } ) );
 	return user;
 }
 
-describe( 'page-options-menu', () => {
+describe( 'stats-options-menu', () => {
 	let returnToClassicStats: jest.SpiedFunction< typeof classicStats.returnToClassicStats >;
 
 	beforeEach( () => {
@@ -95,13 +95,13 @@ describe( 'page-options-menu', () => {
 		jest.useRealTimers();
 	} );
 
-	describe( 'PageOptionsMenu', () => {
+	describe( 'StatsOptionsMenu', () => {
 		it( 'offers switching off only to those who can change site settings', async () => {
 			jest.mocked( currentUserCan ).mockReturnValue( false );
 			const user = setupUser();
-			render( <PageOptionsMenu /> );
+			render( <StatsOptionsMenu /> );
 
-			await user.click( screen.getByRole( 'button', { name: 'Page options' } ) );
+			await user.click( screen.getByRole( 'button', { name: 'Stats options' } ) );
 
 			await expect(
 				screen.findByRole( 'menuitem', { name: 'Any feedback?' } )
@@ -117,9 +117,9 @@ describe( 'page-options-menu', () => {
 				premium_analytics: { classic_stats_url: null },
 			} as ReturnType< typeof getScriptData > );
 			const user = setupUser();
-			render( <PageOptionsMenu /> );
+			render( <StatsOptionsMenu /> );
 
-			await user.click( screen.getByRole( 'button', { name: 'Page options' } ) );
+			await user.click( screen.getByRole( 'button', { name: 'Stats options' } ) );
 
 			await expect(
 				screen.findByRole( 'menuitem', { name: 'Any feedback?' } )
@@ -132,9 +132,9 @@ describe( 'page-options-menu', () => {
 		it( 'puts Customize first where the page has a layout to arrange', async () => {
 			const user = setupUser();
 			const onCustomize = jest.fn();
-			render( <PageOptionsMenu onCustomize={ onCustomize } /> );
+			render( <StatsOptionsMenu onCustomize={ onCustomize } /> );
 
-			await user.click( screen.getByRole( 'button', { name: 'Page options' } ) );
+			await user.click( screen.getByRole( 'button', { name: 'Stats options' } ) );
 			const items = await screen.findAllByRole( 'menuitem' );
 
 			expect( items.map( item => item.textContent ) ).toEqual( [
@@ -152,16 +152,21 @@ describe( 'page-options-menu', () => {
 		} );
 
 		it.each( [
-			[ 'from those who may not read Stats, where it is sent', { can_view_stats: false } ],
-			[ 'once classic Stats is retired', { can_view_stats: true, classic_stats_retired: true } ],
-		] )( 'withholds feedback %s', async ( _case, premiumAnalytics ) => {
+			[ 'from those who may not read Stats, where it is sent', { can_view_stats: false }, true ],
+			[
+				'once classic Stats is retired',
+				{ can_view_stats: true, classic_stats_retired: true },
+				true,
+			],
+			[ 'on a site that is not connected, which it is sent through', {}, false ],
+		] )( 'withholds feedback %s', async ( _case, premiumAnalytics, isSiteConnected ) => {
 			jest.mocked( getScriptData ).mockReturnValue( {
 				premium_analytics: premiumAnalytics,
 			} as ReturnType< typeof getScriptData > );
 			const user = setupUser();
-			render( <PageOptionsMenu onCustomize={ jest.fn() } /> );
+			render( <StatsOptionsMenu onCustomize={ jest.fn() } isSiteConnected={ isSiteConnected } /> );
 
-			await user.click( screen.getByRole( 'button', { name: 'Page options' } ) );
+			await user.click( screen.getByRole( 'button', { name: 'Stats options' } ) );
 			const items = await screen.findAllByRole( 'menuitem' );
 
 			expect( items.map( item => item.textContent ) ).toEqual( [
@@ -175,16 +180,16 @@ describe( 'page-options-menu', () => {
 				premium_analytics: { can_view_stats: false },
 			} as ReturnType< typeof getScriptData > );
 			jest.mocked( currentUserCan ).mockReturnValue( false );
-			render( <PageOptionsMenu /> );
+			render( <StatsOptionsMenu /> );
 
-			expect( screen.queryByRole( 'button', { name: 'Page options' } ) ).not.toBeInTheDocument();
+			expect( screen.queryByRole( 'button', { name: 'Stats options' } ) ).not.toBeInTheDocument();
 		} );
 
 		it( 'leaves Customize out where there is nothing to arrange', async () => {
 			const user = setupUser();
-			render( <PageOptionsMenu /> );
+			render( <StatsOptionsMenu /> );
 
-			await user.click( screen.getByRole( 'button', { name: 'Page options' } ) );
+			await user.click( screen.getByRole( 'button', { name: 'Stats options' } ) );
 
 			await expect(
 				screen.findByRole( 'menuitem', { name: 'Any feedback?' } )
@@ -228,7 +233,7 @@ describe( 'page-options-menu', () => {
 			await user.click( screen.getByRole( 'button', { name: 'Cancel' } ) );
 			await waitFor( () => expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument() );
 
-			await user.click( screen.getByRole( 'button', { name: 'Page options' } ) );
+			await user.click( screen.getByRole( 'button', { name: 'Stats options' } ) );
 			await user.click( await screen.findByRole( 'menuitem', { name: 'Switch off the preview' } ) );
 
 			expect( screen.getByRole( 'radio', { name: 'Not yet' } ) ).not.toBeChecked();
@@ -303,7 +308,7 @@ describe( 'page-options-menu', () => {
 			expect( dialog.getByText( THANKS ) ).toBeInTheDocument();
 			expect(
 				dialog.getByText(
-					"It'll help us decide what to fix before the new Stats replaces the old one. You can send more any time from the page options menu."
+					"It'll help us decide what to fix before the new Stats replaces the old one. You can send more any time from the Stats options menu."
 				)
 			).toBeInTheDocument();
 			expect( screen.queryByRole( 'radiogroup' ) ).not.toBeInTheDocument();

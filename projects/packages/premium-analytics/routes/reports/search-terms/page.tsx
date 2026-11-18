@@ -10,6 +10,7 @@ import {
 	ReportErrorState,
 	ReportRecordsTable,
 	ExporterCsvAction,
+	StatsOptionsMenu,
 	searchTermsCsvExporter,
 	type SearchTermRow,
 } from '@jetpack-premium-analytics/widgets-toolkit';
@@ -70,12 +71,15 @@ export default function SearchTermsReportPage(): JSX.Element {
 			visual={ <Icon icon={ jetpack } /> }
 			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
 			actions={
-				<ExporterCsvAction
-					exporter={ searchTermsCsvExporter }
-					items={ records.table.rows }
-					status={ records.table }
-					reportParams={ reportParams }
-				/>
+				<>
+					<ExporterCsvAction
+						exporter={ searchTermsCsvExporter }
+						items={ records.table.rows }
+						status={ records.table }
+						reportParams={ reportParams }
+					/>
+					<StatsOptionsMenu />
+				</>
 			}
 		>
 			<ReportPageLayout title={ getLabel() } dateFilters={ dateFilters } withAllTime>

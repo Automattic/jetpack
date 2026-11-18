@@ -16,6 +16,7 @@ import {
 	ReportDrilldownTable,
 	ReportRecordsTable,
 	ExporterCsvAction,
+	StatsOptionsMenu,
 	archivesCsvExporter,
 	postsPagesCsvExporter,
 	toViewLiveUrl,
@@ -203,7 +204,12 @@ function PostsReport(): JSX.Element {
 			className={ reportPageStyles.page }
 			visual={ <Icon icon={ jetpack } /> }
 			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
-			actions={ csvAction }
+			actions={
+				<>
+					{ csvAction }
+					<StatsOptionsMenu />
+				</>
+			}
 		>
 			<ReportPageLayout
 				title={ getTabLabel( activeTab ) }

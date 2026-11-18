@@ -9,6 +9,7 @@ import {
 	ReportPageLayout,
 	ReportErrorState,
 	ReportRecordsTable,
+	StatsOptionsMenu,
 	emailsCsvExporter,
 	toViewLiveUrl,
 } from '@jetpack-premium-analytics/widgets-toolkit';
@@ -83,12 +84,15 @@ function EmailsReport(): JSX.Element {
 			visual={ <Icon icon={ jetpack } /> }
 			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
 			actions={
-				<ExporterCsvAction
-					exporter={ emailsCsvExporter }
-					items={ records.rows }
-					status={ records }
-					reportParams={ reportParams }
-				/>
+				<>
+					<ExporterCsvAction
+						exporter={ emailsCsvExporter }
+						items={ records.rows }
+						status={ records }
+						reportParams={ reportParams }
+					/>
+					<StatsOptionsMenu />
+				</>
 			}
 		>
 			<ReportPageLayout title={ getLabel() }>

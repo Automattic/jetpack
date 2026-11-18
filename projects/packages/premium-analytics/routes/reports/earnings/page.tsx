@@ -11,6 +11,7 @@ import {
 	ReportErrorState,
 	ReportPageTabs,
 	ReportRecordsTable,
+	StatsOptionsMenu,
 	getEarningsStatus,
 	getWordAdsHistoryFields,
 	useReportCsvExport,
@@ -135,9 +136,12 @@ function EarningsReport(): JSX.Element {
 			visual={ <Icon icon={ jetpack } /> }
 			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
 			actions={
-				canExport ? (
-					<ReportCsvAction columns={ csvColumns } rows={ csvRows } filename={ csvFilename } />
-				) : undefined
+				<>
+					{ canExport && (
+						<ReportCsvAction columns={ csvColumns } rows={ csvRows } filename={ csvFilename } />
+					) }
+					<StatsOptionsMenu />
+				</>
 			}
 		>
 			{ /* No date filters: the `wordads/earnings` endpoint is all-time, and the Ads tab has no global date controls. */ }

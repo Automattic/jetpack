@@ -30,6 +30,7 @@ const AUTHORIZE_URL = 'https://jetpack.wordpress.com/jetpack.authorize/1/?client
 jest.mock( './navigate', () => ( { navigateTo: jest.fn() } ) );
 jest.mock( '@wordpress/route', () => ( {
 	Link: jest.requireActual( '../../tests/js/route-test-utils' ).mockWordPressRoute.Link,
+	useLinkProps: () => ( {} ),
 	useSearch: () => ( {} ),
 } ) );
 jest.mock( '@wordpress/admin-ui', () => ( {
@@ -103,6 +104,7 @@ describe( 'Connect stage', () => {
 
 	afterEach( () => {
 		jest.useRealTimers();
+		delete window.JetpackScriptData;
 	} );
 
 	it( 'sends a paid choice to the upgrade page once the site is registered', async () => {
@@ -229,6 +231,30 @@ describe( 'Connect stage', () => {
 		expect( screen.getByText( /offline mode/ ) ).toBeInTheDocument();
 		expect( screen.queryByRole( 'button', { name: 'Start for free' } ) ).not.toBeInTheDocument();
 	} );
+
+	it.each( [
+		{ mode: 'beside the plan choice', isOfflineMode: false },
+		{ mode: 'in offline mode', isOfflineMode: true },
+	] )(
+		'offers the Stats options menu $mode, less what needs the connection',
+		async ( { isOfflineMode } ) => {
+			window.JetpackScriptData = {
+				site: { admin_url: 'https://example.com/wp-admin/' },
+				premium_analytics: { stats_settings: { roles: [], features_url: null } },
+				user: { current_user: { capabilities: { manage_options: true } } },
+			} as unknown as typeof window.JetpackScriptData;
+			setIsOfflineMode( isOfflineMode );
+			const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
+			render( <Stage /> );
+
+			await user.click( screen.getByRole( 'button', { name: 'Stats options' } ) );
+
+			await expect(
+				screen.findByRole( 'menuitem', { name: 'Settings' } )
+			).resolves.toHaveAttribute( 'aria-disabled', 'true' );
+			expect( screen.queryByRole( 'menuitem', { name: 'Any feedback?' } ) ).not.toBeInTheDocument();
+		}
+	);
 
 	it( 'prices the paid plan per month from the yearly product', async () => {
 		render( <Stage /> );
