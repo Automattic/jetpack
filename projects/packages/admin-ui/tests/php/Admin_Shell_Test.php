@@ -160,18 +160,29 @@ class Admin_Shell_Test extends TestCase {
 			),
 		);
 
+		$defaults = array(
+			'init_modules' => array(),
+			'default_path' => null,
+			'capability'   => 'manage_options',
+			'handles'      => array(),
+			'header'       => null,
+		);
+		$picked   = array(
+			'title'    => 'Settings',
+			'subtitle' => null,
+		);
+
 		return array(
-			'required keys only' => array(
-				self::valid_member(),
-				array(
-					'init_modules' => array(),
-					'default_path' => null,
-					'capability'   => 'manage_options',
-					'handles'      => array(),
-					'header'       => null,
-				),
+			'required keys only'                  => array( self::valid_member(), $defaults ),
+			'every key set'                       => array( $set + self::valid_member(), $set ),
+			'no stand-in header'                  => array(
+				array( 'header' => false ) + self::valid_member(),
+				array( 'header' => false ) + $defaults,
 			),
-			'every key set'      => array( $set + self::valid_member(), $set ),
+			'subtitle picked as the page renders' => array(
+				array( 'header' => $picked ) + self::valid_member(),
+				array( 'header' => $picked ) + $defaults,
+			),
 		);
 	}
 
@@ -253,15 +264,16 @@ class Admin_Shell_Test extends TestCase {
 	 */
 	public static function provide_invalid_headers() {
 		return array(
-			'not an array'      => array( 'Forms' ),
-			'no subtitle'       => array( array( 'title' => 'Forms' ) ),
-			'subtitle not text' => array(
+			'not an array'                => array( 'Forms' ),
+			'true, not the false opt-out' => array( true ),
+			'no subtitle'                 => array( array( 'title' => 'Forms' ) ),
+			'subtitle not text'           => array(
 				array(
 					'title'    => 'Forms',
 					'subtitle' => 1,
 				),
 			),
-			'empty title'       => array(
+			'empty title'                 => array(
 				array(
 					'title'    => '',
 					'subtitle' => 'Sub',

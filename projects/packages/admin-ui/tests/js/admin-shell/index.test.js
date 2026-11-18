@@ -114,7 +114,7 @@ beforeEach( () => {
 			'guest-a': { ...member( 'guest-a', 'a' ), header: { title: 'Guest A', subtitle: 'Sub' } },
 			'guest-b': member( 'guest-b', 'b' ),
 			// Another page built from guest A's package: same init module.
-			'guest-a2': member( 'guest-a2', 'a', null ),
+			'guest-a2': { ...member( 'guest-a2', 'a', null ), header: false },
 		},
 		guestAssetsUrl: '/wp-admin/admin-ajax.php',
 		headerStorageKey: 'test',
@@ -527,20 +527,30 @@ describe( 'admin shell stand-in header', () => {
 	it.each( [
 		[
 			'its declared header on the view a bare link opens',
+			'guest-a',
 			'',
+			'Guest A',
 			{ title: 'Guest A', subtitle: 'Sub' },
 		],
-		[ 'only its menu label on any other view', '&p=%2Fdeep', null ],
-	] )( 'gives a page %s', async ( _, query, header ) => {
-		jest.spyOn( window, 'scrollTo' ).mockImplementation( () => {} );
+		[ 'only its declared title on any other view', 'guest-a', '&p=%2Fdeep', 'Guest A', null ],
+		[ 'its menu label when it declares no header', 'guest-b', '', 'B', undefined ],
+	] )( 'gives a page %s', async ( _, slug, query, title, header ) => {
 		const link = document.createElement( 'a' );
-		link.href = `/wp-admin/admin.php?page=guest-a${ query }`;
+		link.href = `/wp-admin/admin.php?page=${ slug }${ query }`;
 		document.body.append( link );
 
 		link.click();
 		await settle();
 
-		expect( mockShowHeader ).toHaveBeenCalledWith( 'guest-a', expect.anything(), 'A', header );
+		expect( mockShowHeader ).toHaveBeenCalledWith( slug, expect.anything(), title, header );
+	} );
+
+	it( 'shows none for a page that opts out of it', async () => {
+		document.querySelector( '#adminmenu a[href$="page=guest-a2"]' ).click();
+		await settle();
+
+		expect( document.getElementById( 'guest-a2-app' ) ).not.toBeNull();
+		expect( mockShowHeader.mock.calls.map( ( [ slug ] ) => slug ) ).not.toContain( 'guest-a2' );
 	} );
 } );
 

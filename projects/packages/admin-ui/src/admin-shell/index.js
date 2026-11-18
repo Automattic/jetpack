@@ -68,12 +68,17 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey, maxLiveApps }
 	members[ host ].adminTitle = document.title;
 	configureHeaders( headerStorageKey, members );
 	trackViewTransitions();
-	// A member declares the header of the view its bare menu link opens; other views only get a title.
+	// A member declares the header of the view its bare menu link opens; other views only get its title.
 	const showHeaderAt = ( slug, el, url ) => {
 		const { header, defaultPath, title } = members[ slug ];
+		if ( header === false ) {
+			log( 'header', `${ slug } opts out of the stand-in header` );
+			return () => {};
+		}
 		const path = new URL( url, location.href ).searchParams.get( 'p' ) ?? '/';
 		const landing = [ '/', defaultPath ].includes( path );
-		return showHeader( slug, el, menuLabel( slug ) ?? title, landing ? header : null );
+		const heading = header?.title ?? menuLabel( slug ) ?? title;
+		return showHeader( slug, el, heading, landing ? header : null );
 	};
 
 	log(
