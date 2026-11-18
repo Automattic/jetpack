@@ -27,9 +27,10 @@ export async function getXunitBlocks() {
 				continue;
 			}
 
-			const title = getTestCaseTitle( testCase );
-			const details =
-				issues.map( getIssueText ).filter( Boolean ).join( '\n\n' ) || 'unknown error';
+			const title = escapeMrkdwn( getTestCaseTitle( testCase ) );
+			const details = escapeMrkdwn(
+				issues.map( getIssueText ).filter( Boolean ).join( '\n\n' ) || 'unknown error'
+			);
 			const content = `\`\`\`${ details }\`\`\``;
 
 			failedTests.push( `- ${ title }` );
@@ -210,4 +211,15 @@ function toArray( value ) {
 	}
 
 	return Array.isArray( value ) ? value : [ value ];
+}
+
+/**
+ * Escapes the characters Slack parses as mentions and links in mrkdwn text.
+ *
+ * @see https://docs.slack.dev/messaging/formatting-message-text/#escaping
+ * @param {string} text - untrusted report text.
+ * @return {string} text safe to embed in mrkdwn.
+ */
+function escapeMrkdwn( text ) {
+	return text.replace( /&/g, '&amp;' ).replace( /</g, '&lt;' ).replace( />/g, '&gt;' );
 }

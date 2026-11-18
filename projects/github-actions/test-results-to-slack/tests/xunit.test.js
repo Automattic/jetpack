@@ -62,6 +62,23 @@ describe( 'xUnit report content', () => {
 		);
 	} );
 
+	test( 'escapes Slack control characters in test names and failure details', async () => {
+		setInputData( { xunitReportPath: `${ rootPath }/special-characters.xml` } );
+
+		const { getXunitBlocks } = await import( '../src/xunit.js' );
+		const blocks = await getXunitBlocks();
+
+		expect( blocks[ 1 ].elements[ 0 ].text ).toBe(
+			'- Slack: keeps &lt;!channel&gt; &amp; links as text'
+		);
+		expect( blocks[ 3 ].elements[ 0 ].text ).toBe(
+			'*Slack: keeps &lt;!channel&gt; &amp; links as text*'
+		);
+		expect( blocks[ 3 ].elements[ 1 ].text ).toBe(
+			'```Expected &lt;@U123&gt;\nSee &lt;https://example.com|this link&gt; &amp; retry```'
+		);
+	} );
+
 	test.each`
 		description               | xunitReportPath
 		${ 'all tests passed' }   | ${ `${ rootPath }/all-passed.xml` }
