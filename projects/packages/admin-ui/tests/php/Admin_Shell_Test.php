@@ -65,6 +65,9 @@ class Admin_Shell_Test extends TestCase {
 		remove_all_actions( 'guest-page-wp-admin_init' );
 		remove_all_filters( 'wp_doing_ajax' );
 		remove_all_filters( 'wp_die_ajax_handler' );
+		Admin_Menu::set_visibility_resolver( null );
+		Admin_Menu::set_feature_activator( null );
+		Admin_Menu::reset();
 		foreach ( $this->added_actions as list( $hook, $callback, $priority ) ) {
 			remove_action( $hook, $callback, $priority );
 		}
@@ -580,6 +583,122 @@ class Admin_Shell_Test extends TestCase {
 
 		$this->assertFalse( has_filter( 'script_module_data_' . Admin_Shell::CLIENT_MODULE ) );
 		$this->assertFalse( has_filter( 'host-page-wp-admin_boot_dependencies' ) );
+	}
+
+	/**
+	 * The host page says whether its own feature is on, with the card to show when it is off; guests are asked when they are opened.
+	 *
+	 * @return void
+	 */
+	public function test_setup_reports_the_host_feature_and_each_gate() {
+		$card = static function ( $html, $slug ) {
+			return 'card for ' . $slug;
+		};
+		add_filter( 'jetpack_admin_shell_feature_off_card', $card, 10, 2 );
+		Admin_Menu::add_menu( 'Host', 'Host', 'manage_options', 'host-page', '__return_null', null, array( 'module' => 'host-module' ) );
+		Admin_Menu::add_menu( 'Guest', 'Guest', 'manage_options', 'guest-page', '__return_null', null, array( 'product' => 'guest-product' ) );
+		Admin_Menu::set_visibility_resolver( '__return_false' );
+		Admin_Menu::set_feature_activator( '__return_true' );
+		$this->start_host_page(
+			static function () {
+				$GLOBALS['jetpack_shell_test_guest_page_routes_data'] = array( array( 'path' => '/' ) );
+			}
+		);
+
+		Admin_Shell::setup();
+
+		$members = apply_filters( 'script_module_data_' . Admin_Shell::CLIENT_MODULE, array() )['members'];
+		remove_filter( 'jetpack_admin_shell_feature_off_card', $card );
+		$this->assertSame( array( 'module' => 'host-module' ), $members['host-page']['gate'] );
+		$this->assertFalse( $members['host-page']['featureOn'] );
+		$this->assertSame( 'card for host-page', $members['host-page']['featureCard'] );
+		$this->assertArrayNotHasKey( 'featureCard', $members['guest-page'] );
+		$this->assertSame( array( 'product' => 'guest-product' ), $members['guest-page']['gate'] );
+		$this->assertTrue( $members['guest-page']['featureOn'] );
+
+		$nonce = $members['guest-page']['gateNonce'];
+		$this->assertTrue( Admin_Shell::is_member_gate( 'guest-page', array( 'product' => 'guest-product' ), $nonce ) );
+		$this->assertFalse( Admin_Shell::is_member_gate( 'guest-page', array( 'product' => 'other-product' ), $nonce ), 'another gate' );
+		$this->assertFalse( Admin_Shell::is_member_gate( 'host-page', array( 'product' => 'guest-product' ), $nonce ), 'another member' );
+	}
+
+	/**
+	 * A feature that can't be turned on here, as when a host holds it off, leaves its page to show itself.
+	 *
+	 * @return void
+	 */
+	public function test_feature_leaves_alone_what_it_cannot_turn_on() {
+		$this->start_host_page( '__return_null' );
+		Admin_Menu::set_visibility_resolver( '__return_false' );
+		Admin_Menu::set_feature_activator( '__return_true', '__return_false' );
+
+		$this->assertTrue( Admin_Shell::feature( 'guest-page', array( 'module' => 'm' ) ) );
+		$this->assertSame( 404, Admin_Shell::feature( 'dropped-out-page', array( 'module' => 'm' ) ), 'a member that left the shell is unknown' );
+		$this->assertSame( 'not_available', Admin_Shell::feature( 'guest-page', array( 'module' => 'm' ), true )->get_error_code() );
+	}
+
+	/**
+	 * Data provider for test_feature_refuses.
+	 *
+	 * @return array[] Member slug asked for, gate, capability the guest requires, expected status.
+	 */
+	public static function provide_refused_features() {
+		return array(
+			'not a member'  => array( 'jetpack-settings', array( 'module' => 'm' ), 'manage_options', 404 ),
+			'no gate'       => array( 'guest-page', array(), 'manage_options', 404 ),
+			'no capability' => array( 'guest-page', array( 'module' => 'm' ), 'jetpack_shell_test_no_one_has_this', 403 ),
+		);
+	}
+
+	/**
+	 * The feature endpoint answers only for gated members, and only to users who can open them.
+	 *
+	 * @dataProvider provide_refused_features
+	 *
+	 * @param string $slug       Member slug asked for.
+	 * @param array  $gate       Gate sent.
+	 * @param string $capability Capability the guest requires.
+	 * @param int    $expected   Expected HTTP status.
+	 * @return void
+	 */
+	#[DataProvider( 'provide_refused_features' )]
+	public function test_feature_refuses( $slug, $gate, $capability, $expected ) {
+		$this->start_host_page( '__return_null', $capability );
+		Admin_Menu::set_feature_activator( '__return_true' );
+
+		$this->assertSame( $expected, Admin_Shell::feature( $slug, $gate, true ) );
+	}
+
+	/**
+	 * Turning a feature on goes through the activator, and the answer is read back after it.
+	 *
+	 * @return void
+	 */
+	public function test_feature_turns_on_through_the_activator() {
+		$this->start_host_page( '__return_null' );
+		$on = false;
+		Admin_Menu::set_visibility_resolver(
+			static function () use ( &$on ) {
+				return $on;
+			}
+		);
+		Admin_Menu::set_feature_activator(
+			static function ( $gate ) use ( &$on ) {
+				$on = array( 'module' => 'm' ) === $gate;
+				return true;
+			}
+		);
+
+		$this->assertFalse( Admin_Shell::feature( 'guest-page', array( 'module' => 'm' ) ), 'only a POST turns it on' );
+		$this->assertFalse( Admin_Shell::feature( 'dropped-out-page', array( 'module' => 'm' ) ), 'a member that left the shell with its feature still reads as off' );
+		$this->assertTrue( Admin_Shell::feature( 'guest-page', array( 'module' => 'm' ), true ) );
+
+		Admin_Menu::set_feature_activator(
+			static function () {
+				return new \WP_Error( 'not_allowed', 'No.' );
+			}
+		);
+		$this->assertSame( 'No.', Admin_Shell::feature( 'guest-page', array( 'module' => 'm' ), true )->get_error_message() );
 	}
 
 	/**

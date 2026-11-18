@@ -35,6 +35,11 @@ class Admin_Shell {
 	const GUEST_ACTION = 'jetpack_admin_shell_guest';
 
 	/**
+	 * The admin-ajax action that says whether a member's feature is on, and turns it on.
+	 */
+	const FEATURE_ACTION = 'jetpack_admin_shell_feature';
+
+	/**
 	 * Script module ID of the client.
 	 */
 	const CLIENT_MODULE = '@automattic/jetpack-admin-shell';
@@ -81,6 +86,7 @@ class Admin_Shell {
 		// Priority 0: guests must register their modules before the host page builds its import map.
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'setup' ), 0 );
 		add_action( 'wp_ajax_' . self::GUEST_ACTION, array( __CLASS__, 'ajax_guest_assets' ) );
+		add_action( 'wp_ajax_' . self::FEATURE_ACTION, array( __CLASS__, 'ajax_feature' ) );
 		// Plugins call init() on admin-ajax requests too, where the shell's members load the media library.
 		Media_Library::init();
 	}
@@ -335,10 +341,27 @@ class Admin_Shell {
 				),
 				admin_url( 'admin-ajax.php' )
 			),
+			'featureUrl'       => add_query_arg(
+				array(
+					'action' => self::FEATURE_ACTION,
+					'nonce'  => wp_create_nonce( self::FEATURE_ACTION ),
+				),
+				admin_url( 'admin-ajax.php' )
+			),
+			'featureOff'       => array(
+				/* translators: %s is a feature name, e.g. "Jetpack Forms". */
+				'heading' => __( '%s is off', 'jetpack-admin-ui' ),
+				'text'    => __( 'It was switched off in My Jetpack. Turning it on brings this page and its menu item back.', 'jetpack-admin-ui' ),
+				/* translators: %s is a feature name, e.g. "Jetpack Forms". */
+				'button'  => __( 'Turn on %s', 'jetpack-admin-ui' ),
+				'busy'    => __( 'Turning on…', 'jetpack-admin-ui' ),
+				'failed'  => __( 'It could not be turned on. Try again from My Jetpack.', 'jetpack-admin-ui' ),
+			),
 			'maxLiveApps'      => self::max_live_apps(),
 		);
 		foreach ( array( $host => array() ) + $guests as $slug => $routes ) {
 			$member                     = $members[ $slug ];
+			$gate                       = self::feature_gate( $slug );
 			$config['members'][ $slug ] = array(
 				'mountId'     => $member['build_page'] . '-wp-admin-app',
 				'routes'      => $routes,
@@ -348,9 +371,163 @@ class Admin_Shell {
 				'header'      => $member['header'],
 				'adminTitle'  => self::admin_title( $slug, $member['title'] ),
 				'bodyClass'   => self::screen_id( $slug ),
+				'gate'        => $gate,
+				// Ties the gate to this member, so the feature endpoint answers for no other.
+				'gateNonce'   => null === $gate ? null : wp_create_nonce( self::gate_action( $slug, $gate ) ),
+				// Guests are checked when they are opened; the host is on screen already.
+				'featureOn'   => $slug !== $host || null === $gate || ! self::stands_in( $gate ),
 			);
+			// So the host shows its card without asking again.
+			if ( false === $config['members'][ $slug ]['featureOn'] ) {
+				$config['members'][ $slug ]['featureCard'] = self::feature_off_card( $slug );
+			}
 		}
 		return $config;
+	}
+
+	/**
+	 * The gate a member's menu item declared, while this admin-ui can answer for it.
+	 *
+	 * @param string $slug Admin page slug.
+	 * @return array|null
+	 */
+	private static function feature_gate( $slug ) {
+		// The admin-ui that won the autoloader may predate these methods.
+		if ( ! method_exists( Admin_Menu::class, 'get_feature_gate' ) ) {
+			return null;
+		}
+		return Admin_Menu::get_feature_gate( $slug );
+	}
+
+	/**
+	 * Say whether a member's feature is on, or, on a POST with `activate`, turn it on.
+	 *
+	 * @return void
+	 */
+	public static function ajax_feature() {
+		check_ajax_referer( self::FEATURE_ACTION, 'nonce' );
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended, WordPress.Security.NonceVerification.Missing -- Checked above.
+		$slug = isset( $_REQUEST['member'] ) && is_string( $_REQUEST['member'] ) ? sanitize_key( wp_unslash( $_REQUEST['member'] ) ) : '';
+		$gate = array();
+		foreach ( array( 'product', 'module' ) as $key ) {
+			if ( isset( $_REQUEST[ $key ] ) && is_string( $_REQUEST[ $key ] ) && '' !== $_REQUEST[ $key ] ) {
+				$gate[ $key ] = sanitize_key( wp_unslash( $_REQUEST[ $key ] ) );
+			}
+		}
+		$activate   = isset( $_SERVER['REQUEST_METHOD'] ) && 'POST' === $_SERVER['REQUEST_METHOD'] && ! empty( $_POST['activate'] );
+		$gate_nonce = isset( $_REQUEST['gate_nonce'] ) && is_string( $_REQUEST['gate_nonce'] ) ? sanitize_key( wp_unslash( $_REQUEST['gate_nonce'] ) ) : '';
+		// phpcs:enable
+
+		if ( ! self::is_member_gate( $slug, $gate, $gate_nonce ) ) {
+			wp_send_json_error( null, 403, JSON_UNESCAPED_SLASHES );
+		}
+
+		$result = self::feature( $slug, $gate, $activate );
+		if ( is_int( $result ) ) {
+			wp_send_json_error( null, $result, JSON_UNESCAPED_SLASHES );
+		}
+		if ( is_wp_error( $result ) ) {
+			wp_send_json_error( array( 'message' => $result->get_error_message() ), 200, JSON_UNESCAPED_SLASHES );
+		}
+		$data = array( 'on' => $result );
+		if ( ! $result ) {
+			$data['card'] = self::feature_off_card( $slug );
+		}
+		wp_send_json_success( $data, 200, JSON_UNESCAPED_SLASHES );
+	}
+
+	/**
+	 * The HTML the shell shows in place of a member page whose feature is off.
+	 *
+	 * @param string $slug Admin page slug of the member.
+	 * @return string Empty for the shell's plain panel.
+	 */
+	private static function feature_off_card( $slug ) {
+		/**
+		 * Filters the HTML the shell shows in place of a member page whose feature is off. Empty for the shell's plain panel.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param string $html Card HTML.
+		 * @param string $slug Admin page slug of the member.
+		 */
+		return (string) apply_filters( 'jetpack_admin_shell_feature_off_card', '', $slug );
+	}
+
+	/**
+	 * Whether a member's page shows as itself, after turning its feature on when asked to.
+	 *
+	 * @param string $slug     Member page slug.
+	 * @param array  $gate     The gate the member's menu item declared.
+	 * @param bool   $activate Whether to turn the feature on first.
+	 * @return bool|\WP_Error|int False when the shell stands in for it, the activation error, or an HTTP status: 404 for no such member or gate, 403 when the user can't open it.
+	 */
+	public static function feature( $slug, array $gate, $activate = false ) {
+		if ( ! self::is_enabled() || ! $gate || ! method_exists( Admin_Menu::class, 'is_feature_on' ) ) {
+			return 404;
+		}
+		$members = self::get_members();
+		if ( isset( $members[ $slug ] ) && ! current_user_can( $members[ $slug ]['capability'] ) ) {
+			return 403;
+		}
+		// Most members stop joining the shell while their feature is off, so a missing one is known only when the shell stands in for it.
+		if ( ! isset( $members[ $slug ] ) && ! self::stands_in( $gate ) ) {
+			return 404;
+		}
+		if ( $activate ) {
+			$result = self::can_turn_on( $gate )
+				? Admin_Menu::turn_feature_on( $gate )
+				: new \WP_Error( 'not_available', __( 'This feature can only be turned on from My Jetpack.', 'jetpack-admin-ui' ) );
+			if ( is_wp_error( $result ) ) {
+				return $result;
+			}
+		}
+		return ! self::stands_in( $gate );
+	}
+
+	/**
+	 * Whether the shell shows a turn-on panel instead of a page: its feature is off and can be turned on here.
+	 *
+	 * @param array $gate A member's gate.
+	 * @return bool
+	 */
+	private static function stands_in( array $gate ) {
+		return ! Admin_Menu::is_feature_on( $gate ) && self::can_turn_on( $gate );
+	}
+
+	/**
+	 * Whether this admin-ui and the site's activator can turn a gate's feature on.
+	 *
+	 * @param array $gate A member's gate.
+	 * @return bool
+	 */
+	private static function can_turn_on( array $gate ) {
+		// An older Admin_Menu, loaded first from another plugin's copy, predates the check.
+		return method_exists( Admin_Menu::class, 'can_turn_feature_on' ) && Admin_Menu::can_turn_feature_on( $gate );
+	}
+
+	/**
+	 * Whether a gate is the one this site gave the member, by the nonce sent with the shell config.
+	 *
+	 * @param string $slug  Member page slug.
+	 * @param array  $gate  Gate from the request.
+	 * @param string $nonce Gate nonce from the request.
+	 * @return bool
+	 */
+	public static function is_member_gate( $slug, array $gate, $nonce ) {
+		return '' !== $nonce && false !== wp_verify_nonce( $nonce, self::gate_action( $slug, $gate ) );
+	}
+
+	/**
+	 * The nonce action that ties a gate to its member.
+	 *
+	 * @param string $slug Member page slug.
+	 * @param array  $gate Its gate.
+	 * @return string
+	 */
+	private static function gate_action( $slug, array $gate ) {
+		ksort( $gate );
+		return self::FEATURE_ACTION . '|' . $slug . '|' . http_build_query( $gate );
 	}
 
 	/**
