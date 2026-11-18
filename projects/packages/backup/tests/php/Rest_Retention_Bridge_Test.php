@@ -77,6 +77,20 @@ class Rest_Retention_Bridge_Test extends TestCase {
 	}
 
 	/**
+	 * The dashboard re-reads `retention_days` from `/site/backup/size` right after, so it must not come from cache.
+	 */
+	public function test_forgets_the_cached_storage_figures() {
+		set_transient( Jetpack_Backup::SITE_SIZE_TRANSIENT, array( 'retention_days' => 30 ) );
+		$this->arrange_wpcom( array( 'success' => true ) );
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/site/backup/retention' );
+		$request->set_param( 'retention_days', 120 );
+		Retention_Bridge::update_retention( $request );
+
+		$this->assertFalse( get_transient( Jetpack_Backup::SITE_SIZE_TRANSIENT ) );
+	}
+
+	/**
 	 * A VaultPress refusal inside a 200 must not read as saved.
 	 */
 	public function test_treats_a_200_without_success_as_a_failure() {
