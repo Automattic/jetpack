@@ -1823,45 +1823,60 @@ class Identity_Crisis_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The WordPress.com URLs still read back correctly after remote validations that leave the IDC in place.
+	 * A remote validation that leaves the IDC in place saves the WordPress.com URLs reversed, so they read back correctly.
+	 *
+	 * @dataProvider provide_stored_wpcom_url_forms
+	 *
+	 * @param bool $left_unreversed Whether an earlier save left the URLs un-reversed.
 	 */
-	public function test_remote_validate_idc_keeps_wpcom_urls_readable() {
+	#[DataProvider( 'provide_stored_wpcom_url_forms' )]
+	public function test_remote_validate_idc_saves_wpcom_urls_reversed( $left_unreversed ) {
 		Identity_Crisis::init();
-		$api_base_original = Constants::get_constant( 'JETPACK__WPCOM_JSON_API_BASE' );
 		Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
 		Jetpack_Options::update_option( 'id', 12345 );
 		Jetpack_Options::update_option( 'blog_token', 'test.token' );
-		Jetpack_Options::update_option(
-			'sync_error_idc',
-			Identity_Crisis::get_sync_error_idc_option(
-				array(
-					'error_code'    => 'jetpack_url_mismatch',
-					'wpcom_home'    => 'https://wpcom.example.com',
-					'wpcom_siteurl' => 'https://wpcom.example.com/wp',
-				)
+		$sync_error = Identity_Crisis::get_sync_error_idc_option(
+			array(
+				'error_code'    => 'jetpack_url_mismatch',
+				'wpcom_home'    => 'https://wpcom.example.com',
+				'wpcom_siteurl' => 'https://wpcom.example.com/wp',
 			)
 		);
+		Jetpack_Options::update_option( 'sync_error_idc', $left_unreversed ? Identity_Crisis::reverse_wpcom_urls_for_idc( $sync_error ) : $sync_error );
+
+		$writes       = array();
+		$capture      = function ( $name, $value ) use ( &$writes ) {
+			$writes[] = array( $value['wpcom_home'], $value['wpcom_siteurl'], $value['reversed_url'] );
+		};
 		$fail_request = function () {
 			return new \WP_Error( 'http_request_failed', 'Network error' );
 		};
+		add_action( 'pre_update_jetpack_option_sync_error_idc', $capture, 10, 2 );
 		add_filter( 'pre_http_request', $fail_request );
 
-		// Two rounds, because a second wrong reversal would hide the first.
-		$read_back = array();
-		for ( $i = 0; $i < 2; $i++ ) {
-			delete_transient( 'jetpack_idc_validation_lock' );
-			Identity_Crisis::remote_validate_idc( Jetpack_Options::get_option( 'sync_error_idc' ) );
-			$stored      = Jetpack_Options::get_option( 'sync_error_idc' );
-			$read_back[] = array( $stored['wpcom_home'], $stored['wpcom_siteurl'] );
-		}
+		Identity_Crisis::remote_validate_idc( Jetpack_Options::get_option( 'sync_error_idc' ) );
+		$read_back = Jetpack_Options::get_option( 'sync_error_idc' );
 
 		remove_filter( 'pre_http_request', $fail_request );
+		remove_action( 'pre_update_jetpack_option_sync_error_idc', $capture, 10 );
 		Jetpack_Options::delete_option( array( 'id', 'blog_token', 'sync_error_idc' ) );
-		delete_transient( 'jetpack_idc_validation_lock' );
-		Constants::$set_constants['JETPACK__WPCOM_JSON_API_BASE'] = $api_base_original;
 
-		$expected = array( 'wpcom.example.com/', 'wpcom.example.com/wp/' );
-		$this->assertSame( array( $expected, $expected ), $read_back );
+		$this->assertNotEmpty( $writes );
+		$reversed = array( strrev( 'wpcom.example.com/' ), strrev( 'wpcom.example.com/wp/' ), true );
+		$this->assertSame( array_fill( 0, count( $writes ), $reversed ), $writes );
+		$this->assertSame( array( 'wpcom.example.com/', 'wpcom.example.com/wp/' ), array( $read_back['wpcom_home'], $read_back['wpcom_siteurl'] ) );
+	}
+
+	/**
+	 * How the sync error's WordPress.com URLs sit in the database before the validation.
+	 *
+	 * @return array
+	 */
+	public static function provide_stored_wpcom_url_forms() {
+		return array(
+			'reversed'                         => array( false ),
+			'left un-reversed by earlier save' => array( true ),
+		);
 	}
 
 	/**
