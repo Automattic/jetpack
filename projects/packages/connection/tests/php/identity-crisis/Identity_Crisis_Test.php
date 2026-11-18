@@ -1823,6 +1823,48 @@ class Identity_Crisis_Test extends BaseTestCase {
 	}
 
 	/**
+	 * The WordPress.com URLs still read back correctly after remote validations that leave the IDC in place.
+	 */
+	public function test_remote_validate_idc_keeps_wpcom_urls_readable() {
+		Identity_Crisis::init();
+		$api_base_original = Constants::get_constant( 'JETPACK__WPCOM_JSON_API_BASE' );
+		Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
+		Jetpack_Options::update_option( 'id', 12345 );
+		Jetpack_Options::update_option( 'blog_token', 'test.token' );
+		Jetpack_Options::update_option(
+			'sync_error_idc',
+			Identity_Crisis::get_sync_error_idc_option(
+				array(
+					'error_code'    => 'jetpack_url_mismatch',
+					'wpcom_home'    => 'https://wpcom.example.com',
+					'wpcom_siteurl' => 'https://wpcom.example.com/wp',
+				)
+			)
+		);
+		$fail_request = function () {
+			return new \WP_Error( 'http_request_failed', 'Network error' );
+		};
+		add_filter( 'pre_http_request', $fail_request );
+
+		// Two rounds, because a second wrong reversal would hide the first.
+		$read_back = array();
+		for ( $i = 0; $i < 2; $i++ ) {
+			delete_transient( 'jetpack_idc_validation_lock' );
+			Identity_Crisis::remote_validate_idc( Jetpack_Options::get_option( 'sync_error_idc' ) );
+			$stored      = Jetpack_Options::get_option( 'sync_error_idc' );
+			$read_back[] = array( $stored['wpcom_home'], $stored['wpcom_siteurl'] );
+		}
+
+		remove_filter( 'pre_http_request', $fail_request );
+		Jetpack_Options::delete_option( array( 'id', 'blog_token', 'sync_error_idc' ) );
+		delete_transient( 'jetpack_idc_validation_lock' );
+		Constants::$set_constants['JETPACK__WPCOM_JSON_API_BASE'] = $api_base_original;
+
+		$expected = array( 'wpcom.example.com/', 'wpcom.example.com/wp/' );
+		$this->assertSame( array( $expected, $expected ), $read_back );
+	}
+
+	/**
 	 * Non-admins see Safe Mode as confirmed once an admin has confirmed it.
 	 */
 	public function test_wordpress_init_reads_confirmation_for_non_admins() {

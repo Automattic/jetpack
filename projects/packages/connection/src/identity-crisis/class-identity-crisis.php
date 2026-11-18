@@ -664,7 +664,7 @@ class Identity_Crisis {
 		$sync_error['last_checked'] = time();
 		// Note: update_option may return false if value unchanged, which is OK.
 		// We only bail if we can't verify the option exists with correct timestamp.
-		Jetpack_Options::update_option( 'sync_error_idc', $sync_error );
+		Jetpack_Options::update_option( 'sync_error_idc', self::get_sync_error_for_storage( $sync_error ) );
 
 		// Verify the critical timing field was persisted.
 		// This protects against caching/DB issues that would cause request floods.
@@ -734,13 +734,28 @@ class Identity_Crisis {
 		} else {
 			// Network error, invalid JSON, or non-200 - just update last_checked without backoff.
 			$sync_error['last_checked'] = time();
-			Jetpack_Options::update_option( 'sync_error_idc', $sync_error );
+			Jetpack_Options::update_option( 'sync_error_idc', self::get_sync_error_for_storage( $sync_error ) );
 			self::invalidate_idc_option_cache();
 		}
 
 		delete_transient( $lock_key );
 		$is_validating = false;
 		return false;
+	}
+
+	/**
+	 * Puts a sync error read through `Jetpack_Options::get_option()` back in its stored form.
+	 *
+	 * The `jetpack_options` filter un-reverses the WordPress.com URLs on read, so saving them as read would reverse them again on the next read.
+	 *
+	 * @param array $sync_error The sync_error_idc option as read.
+	 * @return array The value to save.
+	 */
+	private static function get_sync_error_for_storage( $sync_error ) {
+		if ( false === has_filter( 'jetpack_options', array( static::class, 'reverse_wpcom_urls_for_idc' ) ) ) {
+			return $sync_error;
+		}
+		return self::reverse_wpcom_urls_for_idc( $sync_error );
 	}
 
 	/**
