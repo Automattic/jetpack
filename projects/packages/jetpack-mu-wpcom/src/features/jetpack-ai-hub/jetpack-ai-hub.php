@@ -26,9 +26,17 @@ function configure( $config ) {
 	return $config;
 }
 
-// Scheduled tasks are a WordPress.com-backed experience and should be visible
-// whenever the AI Hub integration is loaded on Simple sites.
-add_filter( 'jetpack_feature_flag_enabled_ai-hub-scheduled-tasks', '__return_true' );
+/**
+ * Enable Scheduled tasks for sites with the Scheduled tasks sticker.
+ *
+ * @param bool $enabled Whether the flag is already enabled.
+ * @return bool Whether Scheduled tasks are enabled.
+ */
+function enable_scheduled_tasks( $enabled ) {
+	return $enabled || wpcom_has_blog_sticker( 'wpcom-agent-scheduled-tasks', get_wpcom_blog_id() );
+}
+
+add_filter( 'jetpack_feature_flag_enabled_ai-hub-scheduled-tasks', __NAMESPACE__ . '\\enable_scheduled_tasks' );
 
 /**
  * Register the upstream AI Hub page on WordPress.com Simple.
