@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Move the author slug and default display name to the new login when a user's login is renamed, and redirect links to the old author slug.
+Move the author slug to the new login when a user's login is renamed, and redirect links to the old author slug.
