@@ -116,6 +116,7 @@ jest.mock( '../src/settings/sections', () => ( {
 
 import { useConnection } from '@automattic/jetpack-connection';
 import { act, render, screen, waitFor } from '@testing-library/react';
+import { useAdminShellLeaveGuard } from '../_inc/hooks/use-admin-shell-leave-guard';
 import { NewsletterSettingsApp } from '../src/settings';
 import { fetchSettings, updateSettings } from '../src/settings/api';
 import {
@@ -377,7 +378,16 @@ describe( 'NewsletterSettingsApp', () => {
 			expect( leavePage() ).toBe( true );
 		} );
 
-		it( 'leaves a page load the admin shell already asked about to the shell, then asks again', async () => {
+		it.each( [
+			[ 'leaves the page load to the admin shell once the user discarded there', true, false ],
+			[ 'still asks when the admin shell had nothing to ask about', false, true ],
+		] )( '%s, then asks again', async ( _, guardIsDirty, asks ) => {
+			const confirm = jest.spyOn( window, 'confirm' ).mockReturnValue( true );
+			const Guard = () => {
+				useAdminShellLeaveGuard( () => guardIsDirty );
+				return null;
+			};
+			render( <Guard /> );
 			await stageSubscribeModalChange();
 
 			window.dispatchEvent(
@@ -386,10 +396,11 @@ describe( 'NewsletterSettingsApp', () => {
 					cancelable: true,
 				} )
 			);
-			expect( leavePage() ).toBe( false );
+			expect( leavePage() ).toBe( asks );
 
 			await act( () => new Promise( resolve => setTimeout( resolve ) ) );
 			expect( leavePage() ).toBe( true );
+			confirm.mockRestore();
 		} );
 
 		it( 'asks before leaving while the sender name has unsaved changes', async () => {
