@@ -1,10 +1,12 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
-import { Link, SelectControl, Stack, SwitchControl, Text } from '@wordpress/ui';
+import { SelectControl, Stack, SwitchControl, Text } from '@wordpress/ui';
 import { useCallback, useId } from 'react';
+import { LearnMoreLink } from './learn-more-link';
 import { PanelModuleToggle } from './panel-module-toggle';
 import styles from './styles.module.scss';
 import { useModuleOption, useModuleSetting } from './use-module-option';
+import { useSettingsPanelTracking } from './use-settings-panel-tracking';
 import type { ModuleSettingsProps } from './registry';
 
 const COLOR_OPTION = 'carousel_background_color';
@@ -27,6 +29,7 @@ export function CarouselSettings( { module: $module, disabled }: ModuleSettingsP
 	const color = useModuleSetting( $module, COLOR_OPTION, toColor );
 	const optionsDisabled = ! $module.activated || disabled;
 	const labelId = useId();
+	const { trackSettingChange } = useSettingsPanelTracking( $module.module );
 
 	const colorOption = (
 		Array.isArray( $module.options ) ? undefined : $module.options?.[ COLOR_OPTION ]
@@ -39,10 +42,11 @@ export function CarouselSettings( { module: $module, disabled }: ModuleSettingsP
 	const onColorChange = useCallback(
 		( item: { value: string | null } | null ) => {
 			if ( item?.value ) {
+				trackSettingChange( COLOR_OPTION, item.value );
 				setColor( item.value );
 			}
 		},
-		[ setColor ]
+		[ setColor, trackSettingChange ]
 	);
 
 	return (
@@ -53,13 +57,12 @@ export function CarouselSettings( { module: $module, disabled }: ModuleSettingsP
 					'jetpack-my-jetpack'
 				) }
 			</Text>
-			<Link
+			<LearnMoreLink
+				module={ $module.module }
 				href={ getRedirectUrl( 'jetpack-support-carousel' ) }
-				target="_blank"
-				rel="noopener noreferrer"
 			>
 				{ __( 'Learn more about Carousel', 'jetpack-my-jetpack' ) }
-			</Link>
+			</LearnMoreLink>
 
 			<Stack
 				direction="row"

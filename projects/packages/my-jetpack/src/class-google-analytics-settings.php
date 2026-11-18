@@ -124,7 +124,15 @@ class Google_Analytics_Settings {
 	 * @return true|WP_Error
 	 */
 	public static function update( $value ) {
-		$value = array_intersect_key( is_array( $value ) ? $value : array(), self::get() );
+		$value   = array_intersect_key( is_array( $value ) ? $value : array(), self::get() );
+		$manager = GA_Manager::get_instance();
+
+		// Older GA_Manager copies have no shared save, so the code below stays as the fallback.
+		if ( method_exists( $manager, 'update_google_analytics_settings' ) ) {
+			$result = $manager->update_google_analytics_settings( $value, array_keys( self::get() ) );
+
+			return is_wp_error( $result ) ? $result : true;
+		}
 
 		if ( isset( $value['code'] ) ) {
 			$value['code'] = trim( (string) $value['code'] );

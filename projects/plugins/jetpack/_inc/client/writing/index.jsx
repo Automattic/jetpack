@@ -6,6 +6,7 @@ import QuerySite from 'components/data/query-site';
 import {
 	isInSettingsPanel,
 	isMovedOut,
+	isPostByEmailOnProfile,
 	isSettingsConsolidationEnabled,
 	isSwitchedInFeatures,
 } from 'lib/settings-consolidation';
@@ -26,7 +27,7 @@ import CustomContentTypes from './custom-content-types';
 import { CustomContentTypesMoved } from './custom-content-types-moved';
 import { InfiniteScrollMoved } from './infinite-scroll-moved';
 import PostByEmail from './post-by-email';
-import { PostByEmailMoved } from './post-by-email-moved';
+import { PostByEmailMoved, PostByEmailOnProfile } from './post-by-email-moved';
 import ThemeEnhancements from './theme-enhancements';
 import Widgets from './widgets';
 import WritingMedia from './writing-media';
@@ -143,6 +144,20 @@ export class Writing extends Component {
 				this.props.userCanManageModules ||
 				( this.props.userCanEditPosts && this.props.isModuleActivated( 'post-by-email' ) );
 
+		let postByEmail = (
+			<PostByEmail
+				{ ...commonProps }
+				connectUrl={ this.props.connectUrl }
+				isLinked={ this.props.isLinked }
+				userCanManageModules={ this.props.userCanManageModules }
+			/>
+		);
+		if ( this.props.isPostByEmailMoved ) {
+			postByEmail = this.props.searchTerm && <PostByEmailMoved getModule={ this.props.module } />;
+		} else if ( this.props.isPostByEmailOnProfile ) {
+			postByEmail = <PostByEmailOnProfile />;
+		}
+
 		return (
 			<div>
 				<QuerySite />
@@ -171,18 +186,7 @@ export class Writing extends Component {
 					<ThemeEnhancements { ...commonProps } />
 				) }
 				<Widgets { ...commonProps } />
-				{ this.props.isModuleFound( 'post-by-email' ) &&
-					showPostByEmail &&
-					( this.props.isPostByEmailMoved ? (
-						this.props.searchTerm && <PostByEmailMoved getModule={ this.props.module } />
-					) : (
-						<PostByEmail
-							{ ...commonProps }
-							connectUrl={ this.props.connectUrl }
-							isLinked={ this.props.isLinked }
-							userCanManageModules={ this.props.userCanManageModules }
-						/>
-					) ) }
+				{ this.props.isModuleFound( 'post-by-email' ) && showPostByEmail && postByEmail }
 				{ ! showComposing && ! showPostByEmail && (
 					<Card>
 						{ __(
@@ -208,6 +212,7 @@ export default connect(
 			isLinked: isCurrentUserLinked( state ),
 			userCanManageModules: userCanManageModules( state ),
 			isPostByEmailMoved: isInSettingsPanel( state ),
+			isPostByEmailOnProfile: isPostByEmailOnProfile( state ),
 			isModuleFound: module_name =>
 				isModuleFound( state, module_name ) &&
 				! isMovedOut( module_name, state ) &&

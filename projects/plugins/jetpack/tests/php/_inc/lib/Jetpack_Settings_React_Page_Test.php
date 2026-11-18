@@ -7,8 +7,10 @@
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack\Status\Cache as Status_Cache;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 require_once JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class-jetpack-settings-react-page.php';
 
@@ -172,6 +174,47 @@ class Jetpack_Settings_React_Page_Test extends WP_UnitTestCase {
 		Admin_Menu::remove_hidden_menu_items();
 
 		$this->assertNotContains( 'jetpack-settings', array_column( $GLOBALS['submenu']['jetpack'] ?? array(), 2 ) );
+	}
+
+	/**
+	 * @dataProvider provide_settings_consolidation
+	 *
+	 * @param bool $consolidation Whether settings move to My Jetpack.
+	 * @param bool $has_entry     Whether the editor should see the Settings entry.
+	 */
+	#[DataProvider( 'provide_settings_consolidation' )]
+	public function test_post_by_email_gives_linked_editors_the_entry_until_it_moves_to_their_profile( $consolidation, $has_entry ) {
+		$active_modules = Jetpack_Options::get_option( 'active_modules' );
+		$editor_id      = self::factory()->user->create( array( 'role' => 'editor' ) );
+		wp_set_current_user( $editor_id );
+		Jetpack_Options::update_option( 'user_tokens', Jetpack_Options::get_option( 'user_tokens' ) + array( $editor_id => "honey.badger.$editor_id" ) );
+		Jetpack_Options::update_option( 'active_modules', array( 'post-by-email' ) );
+		// An earlier test can leave a local site URL, which Status reads as offline.
+		add_filter( 'jetpack_offline_mode', '__return_false' );
+		add_filter( 'jetpack_feature_flag_enabled_' . My_Jetpack_Initializer::SETTINGS_CONSOLIDATION_FLAG, $consolidation ? '__return_true' : '__return_false' );
+
+		try {
+			$this->register_and_list_slugs();
+			Admin_Menu::remove_hidden_menu_items();
+
+			$this->assertSame( $has_entry, in_array( 'jetpack-settings', array_column( $GLOBALS['submenu']['jetpack'] ?? array(), 2 ), true ) );
+		} finally {
+			remove_all_filters( 'jetpack_feature_flag_enabled_' . My_Jetpack_Initializer::SETTINGS_CONSOLIDATION_FLAG );
+			remove_filter( 'jetpack_offline_mode', '__return_false' );
+			Jetpack_Options::update_option( 'active_modules', $active_modules );
+		}
+	}
+
+	/**
+	 * Whether settings move to My Jetpack, and whether an editor with only Post by Email keeps Settings.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_settings_consolidation() {
+		return array(
+			'settings stay'     => array( false, true ),
+			'settings move out' => array( true, false ),
+		);
 	}
 
 	/**
