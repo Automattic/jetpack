@@ -34,6 +34,7 @@ class WpcomCurrentBlogIdTest extends WP_UnitTestCase {
 		}
 		$provider->setValue( null, null );
 		delete_option( 'jetpack_options' );
+		// @phan-suppress-next-line PhanUndeclaredStaticMethod -- The test mock of Atomic_Persistent_Data defines it.
 		Atomic_Persistent_Data::delete( 'WPCOM_PURCHASES' );
 		parent::tear_down();
 	}
@@ -84,6 +85,7 @@ class WpcomCurrentBlogIdTest extends WP_UnitTestCase {
 	public function test_purchases_accept_the_local_blog_id_as_the_current_site() {
 		update_option( 'jetpack_options', array( 'version' => '14.0:1700000000' ) );
 		$this->register_external_storage( array( 'id' => 98765432 ) );
+		// @phan-suppress-next-line PhanUndeclaredStaticMethod -- The test mock of Atomic_Persistent_Data defines it.
 		Atomic_Persistent_Data::set( 'WPCOM_PURCHASES', wp_json_encode( array( array( 'product_slug' => 'business-bundle' ) ), JSON_UNESCAPED_SLASHES ) );
 
 		$purchases = wpcom_get_site_purchases( get_current_blog_id() );
