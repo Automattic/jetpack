@@ -142,6 +142,14 @@ describe( 'IdentityCrisis', () => {
 		}
 	);
 
+	it( 'once Safe Mode is confirmed, says so and still offers every answer', () => {
+		storeState = { state: { ...resolvable, isSafeModeConfirmed: true }, plugins: jetpack };
+		render( <IdentityCrisis context="connectors" onActionSuccess={ jest.fn() } /> );
+
+		expect( screen.getByText( /You chose to stay in Safe Mode\./ ) ).toBeInTheDocument();
+		expect( screen.getAllByRole( 'radio' ) ).toHaveLength( 3 );
+	} );
+
 	it.each( [
 		[ 'jetpack', /This site is registered/, /— like Stats and Backups —/, false ],
 		[ 'woocommerce-payments', /This store is registered/, /WordPress\.com are paused/, true ],

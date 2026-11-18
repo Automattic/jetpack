@@ -6,7 +6,7 @@ import useIdentityCrisisActions from '../../hooks/use-identity-crisis-actions';
 import IdentityCrisisAddresses from './addresses';
 import IdentityCrisisErrorNotice from './error-notice';
 import ChoiceStep from './flow/choice-step';
-import { getOptionCopy, getStagingNote } from './flow/copy';
+import { getConfirmedNote, getOptionCopy, getStagingNote } from './flow/copy';
 import Intro from './flow/intro';
 import StepActions from './flow/step-actions';
 import { getOptions, getPath } from './flow/steps';
@@ -152,6 +152,11 @@ function IdentityCrisisResolver( {
 			{ flow.isFirstView && ctx.isDevelopmentSite && (
 				<Text variant="body-md" render={ <p /> } className={ styles.note }>
 					{ getStagingNote( copy ) }
+				</Text>
+			) }
+			{ flow.isFirstView && state.isSafeModeConfirmed && (
+				<Text variant="body-md" render={ <p /> } className={ styles.note }>
+					{ getConfirmedNote() }
 				</Text>
 			) }
 			<Stack direction="column" gap="md">

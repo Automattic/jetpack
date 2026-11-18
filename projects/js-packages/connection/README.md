@@ -268,6 +268,7 @@ import { TransferConnectionOwnership } from '@automattic/jetpack-connection';
 `IdentityCrisis` is the new Safe Mode (identity crisis) screen. It reads the Safe Mode state and the connected plugins from the connection store's initial state, sends no request until the user picks an action, and renders nothing outside Safe Mode. It renders no frame of its own: the host supplies the frame and decides what happens after each action.
 
 - An administrator answers "What is {registered address}?" and, for a copy, one follow-up question; each answer shows its consequence once selected, and one button runs the matching action. A site WordPress marks as staging starts at "What should happen to this copy?" with Safe Mode preselected.
+- Once an administrator chose to stay in Safe Mode, a host that still shows the screen, such as the Connectors card, gets a note that Safe Mode is on above the same questions.
 - A viewer who cannot resolve Safe Mode sees what is paused and that an administrator needs to resolve it.
 - The copy says "store" instead of "site" when a WooCommerce-family plugin is connected, and names Stats and Backups only when a Jetpack-family plugin is. `hasWooPlugin()` and `hasJetpackPlugin()` export those rules, and `toConnectedPlugins()` reads the store's plugin list for them.
 
