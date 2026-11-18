@@ -1,4 +1,4 @@
 Significance: patch
 Type: bugfix
 
-REST API: Return a valid UTC offset for dates whose stored local and GMT times disagree.
+REST API: Return a valid date when a post's stored local and GMT dates disagree, using the GMT date in the site's time zone.

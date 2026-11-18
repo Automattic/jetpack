@@ -32,7 +32,7 @@ class WPCOM_JSON_API_Date {
 		$timestamp = $date_time ? (int) date_format( $date_time, 'U' ) : 0;
 
 		// Drafts have a GMT date of "0000-00-00 00:00:00" (-62169984000), so only the local date is known.
-		if ( -62169984000 === $timestamp_gmt ) {
+		if ( false === $timestamp_gmt || -62169984000 === $timestamp_gmt ) {
 			return self::format( $timestamp, self::site_offset_at_local( $timestamp ) );
 		}
 
