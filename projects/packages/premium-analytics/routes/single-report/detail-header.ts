@@ -25,6 +25,29 @@ export function formatPublishedDate( publishedDate: string | undefined ): string
 }
 
 /**
+ * States when an entry was published, naming its kind.
+ *
+ * @param label         - The kind, translated: "Post", "Page", "Product".
+ * @param publishedDate - The publish date as the summary carries it.
+ * @return The sentence, or undefined without a date to state.
+ */
+export function publishedSentence(
+	label: string,
+	publishedDate: string | undefined
+): string | undefined {
+	const formattedDate = formatPublishedDate( publishedDate );
+
+	return formattedDate
+		? sprintf(
+				/* translators: %1$s: "Post", "Page" or "Product". %2$s: the publish date, e.g. "Aug 19, 2025". */
+				__( '%1$s published on %2$s.', 'jetpack-premium-analytics-pkg' ),
+				label,
+				formattedDate
+			)
+		: undefined;
+}
+
+/**
  * States the window every widget below the header reflects.
  *
  * @param range - The committed report date range. Both bounds render in the
