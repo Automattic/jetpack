@@ -89,11 +89,11 @@ class Concatenate_CSS_Style_Loader_Tag_Test extends BaseTestCase {
 	}
 
 	/**
-	 * @dataProvider provide_filters_that_keep_a_stylesheet_link
+	 * @dataProvider provide_filters_that_keep_the_bundle
 	 * @param callable $filter A style_loader_tag callback.
 	 */
-	#[DataProvider( 'provide_filters_that_keep_a_stylesheet_link' )]
-	public function test_filter_that_keeps_a_stylesheet_link_leaves_bundle_concatenated( $filter ) {
+	#[DataProvider( 'provide_filters_that_keep_the_bundle' )]
+	public function test_filter_leaves_bundle_concatenated( $filter ) {
 		add_filter( 'style_loader_tag', $filter, 10, 4 );
 
 		$output = $this->render_styles();
@@ -102,7 +102,7 @@ class Concatenate_CSS_Style_Loader_Tag_Test extends BaseTestCase {
 		$this->assertStringNotContainsString( 'nav.css', $output );
 	}
 
-	public static function provide_filters_that_keep_a_stylesheet_link() {
+	public static function provide_filters_that_keep_the_bundle() {
 		return array(
 			'Critical CSS defers it inside a noscript fallback' => array(
 				array( new Display_Critical_CSS( 'body{color:red}' ), 'asynchronize_stylesheets' ),
@@ -110,6 +110,11 @@ class Concatenate_CSS_Style_Loader_Tag_Test extends BaseTestCase {
 			'a preload hint is printed before it' => array(
 				static function ( $tag, $handle, $href ) {
 					return "<link rel='preload' as='style' href='$href' />" . $tag;
+				},
+			),
+			'every stylesheet is loaded async without noscript' => array(
+				static function ( $tag ) {
+					return str_replace( "rel='stylesheet'", "rel='preload' as='style' onload=\"this.rel='stylesheet'\"", $tag );
 				},
 			),
 		);

@@ -249,9 +249,10 @@ class Concatenate_CSS extends WP_Styles {
 		 */
 		$filtered_tag = apply_filters( 'style_loader_tag', $style_tag, implode( ',', $handles ), $href, $media );
 
-		// Print each handle on its own when a filter stops the bundle loading as a stylesheet: filters see
-		// the comma-joined handles, so one that matches a handle prefix rewrites every stylesheet in it.
-		if ( count( $handles ) > 1 && $this->has_stylesheet_link( $style_tag ) && ! $this->has_stylesheet_link( $filtered_tag ) ) {
+		// Print each handle on its own when a filter stops the bundle loading as a stylesheet but would spare
+		// some handle: filters see the comma-joined handles, so one matching a handle prefix rewrites them all.
+		if ( count( $handles ) > 1 && $this->has_stylesheet_link( $style_tag ) && ! $this->has_stylesheet_link( $filtered_tag )
+			&& ! $this->filter_drops_stylesheet_for_every_handle( $style_tag, $handles, $href, $media ) ) {
 			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 				printf( "\n<!-- No Concat CSS %s => style_loader_tag dropped rel=stylesheet -->\n", esc_html( implode( ',', $handles ) ) );
 			}
@@ -266,6 +267,17 @@ class Concatenate_CSS extends WP_Styles {
 		echo $style_tag . "\n";
 
 		array_map( array( $this, 'print_inline_style' ), $handles );
+	}
+
+	private function filter_drops_stylesheet_for_every_handle( $style_tag, $handles, $href, $media ) {
+		foreach ( $handles as $handle ) {
+			/** This filter is documented in print_style_tag(). */
+			if ( $this->has_stylesheet_link( apply_filters( 'style_loader_tag', $style_tag, $handle, $href, $media ) ) ) {
+				return false;
+			}
+		}
+
+		return true;
 	}
 
 	private function has_stylesheet_link( $tag ) {

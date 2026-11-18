@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Concatenate CSS: Keep styles applied when another plugin rewrites the tag of a stylesheet it shares a bundle with.
+Concatenate CSS: Keep styles applied when another plugin stops one stylesheet in a bundle from loading as a stylesheet, as Trustindex review widgets 15.0 do.
