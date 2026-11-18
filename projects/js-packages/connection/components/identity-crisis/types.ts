@@ -1,3 +1,4 @@
+import type { IdentityCrisisContext } from '../../helpers/connection-tracking';
 import type {
 	IdentityCrisisAction,
 	IdentityCrisisError,
@@ -11,8 +12,8 @@ export type IdentityCrisisActionResult =
 	| { action: 'confirm-safe-mode' };
 
 export interface IdentityCrisisProps {
-	/** Where the screen shows; the events' `context` (CONNECT-620). */
-	context: 'notice' | 'my-jetpack' | 'connectors';
+	/** Where the screen shows. Sets the events' `placement`, and their `context` except on the notice, which sends the admin screen id. */
+	context: IdentityCrisisContext;
 	/** Show the logo and heading; false where the host already shows both, as the Connectors card does. Defaults to true. */
 	showHeader?: boolean;
 	/** Admin path to return to after a fresh connection. */

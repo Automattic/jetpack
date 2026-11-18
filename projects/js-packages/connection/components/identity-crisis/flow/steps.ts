@@ -1,5 +1,7 @@
 import type { IdentityCrisisAction } from '../../../hooks/use-identity-crisis-actions/types';
 
+// The `jetpack_idc_*` events send these ids, so renaming one changes their data.
+
 /** A question in the Safe Mode flow. */
 export type ChoiceStepId = 'main' | 'copy' | 'replaced';
 
@@ -11,11 +13,11 @@ export type ResultStepId = 'two-addresses' | 'ask' | 'later';
 
 export type StepId = ChoiceStepId | GuideStepId | ResultStepId;
 
-/** An answer to a question, named the same as in the `jetpack_idc_*` events' `path`. */
+/** An answer to a question. */
 export type OptionId =
 	'same' | 'old' | 'original' | 'copyof' | 'safe' | 'fresh' | 'yes' | 'no' | 'unsure';
 
-/** An answer to a guide question, named the same as in the `jetpack_idc_*` events' `path`. */
+/** An answer to a guide question. */
 export type GuideAnswerId =
 	| 'forwards'
 	| 'nothing'
@@ -68,11 +70,10 @@ export type FlowHistoryEntry = Pick< FlowState, 'entry' | 'step' | 'pick' > & {
 	answer: OptionId | GuideAnswerId | null;
 };
 
-/** A change of the flow, as the Safe Mode events describe it. */
+/** A flow change the Safe Mode events record; `question` is the step answered or left. */
 export type IdentityCrisisFlowEvent =
-	| { type: 'answer'; question: StepId; answer: OptionId }
-	| { type: 'back'; to: StepId }
-	| { type: 'support'; step: StepId; path: string };
+	| { type: 'answer'; question: StepId; answer: OptionId | GuideAnswerId; path: string }
+	| { type: 'back' | 'open_guide' | 'later'; question: StepId; path?: string };
 
 // The copy for each option and result lives in `copy.tsx`, looked up by its id.
 const CHOICE_STEPS: Readonly< Record< ChoiceStepId, readonly Option[] > > = {
@@ -389,4 +390,45 @@ export function getGuideTrail( state: FlowState ): GuideTrailItem[] {
 		}
 	} );
 	return items;
+}
+
+/**
+ * The event a change sends: an answer or Back for `jetpack_idc_question_click`, opening or leaving the guide for `jetpack_idc_guide_click`.
+ *
+ * @param state  - The flow state before the change.
+ * @param action - The change.
+ * @param ctx    - The flow context.
+ * @return The event, or null for a pick, a restart, or a change that does not apply.
+ */
+export function getFlowEvent(
+	state: FlowState,
+	action: FlowAction,
+	ctx: FlowContext
+): IdentityCrisisFlowEvent | null {
+	const next = flowReducer( state, action );
+	if ( next === state ) {
+		return null;
+	}
+	// The answers that led to the step left; a pick isn't an answer until it moves the flow on.
+	const before = getPath( { ...state, pick: null }, ctx );
+	const path = before === 'none' ? undefined : before;
+	const question = state.step;
+	switch ( action.type ) {
+		case 'next':
+		case 'answer': {
+			const answer = action.type === 'next' ? state.pick : action.answer;
+			return answer
+				? { type: 'answer', question, answer, path: getPath( { ...next, pick: null }, ctx ) }
+				: null;
+		}
+		case 'back':
+		case 'back-to':
+			return { type: 'back', question, path };
+		case 'open-guide':
+			return { type: 'open_guide', question, path };
+		case 'later':
+			return { type: 'later', question, path };
+		default:
+			return null;
+	}
 }

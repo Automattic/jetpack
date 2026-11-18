@@ -28,6 +28,7 @@ jest.mock( '@automattic/jetpack-connection', () => {
 	return {
 		...jest.requireActual( '@automattic/jetpack-connection' ),
 		trackConnectionEvent: jest.fn(),
+		trackIdentityCrisisEvent: jest.fn(),
 		bumpConnectionStat: jest.fn(),
 		initializeTracksIdentity: jest.fn(),
 		useConnectionErrorNotice: jest.fn( () => ( { hasConnectionError: false } ) ),
@@ -778,12 +779,33 @@ describe( 'Connectors card', () => {
 			expect( screen.getByRole( 'button', { name: 'Resolve' } ) ).toBeInTheDocument();
 		} );
 
-		it( "opens the card's own disconnect dialog", async () => {
-			const { user } = await openScreen();
+		it( "opens the card's own disconnect dialog, and records a Safe Mode disconnect once it succeeds", async () => {
+			const { user, connection } = await openScreen();
+			const {
+				CONNECTION_EVENTS,
+				DisconnectDialog,
+				trackConnectionEvent,
+				trackIdentityCrisisEvent,
+			} = connection;
 
 			await user.click( screen.getByRole( 'button', { name: 'Disconnect site' } ) );
 
 			expect( screen.getByTestId( 'disconnect-dialog' ) ).toBeInTheDocument();
+			expect( trackConnectionEvent ).toHaveBeenLastCalledWith(
+				CONNECTION_EVENTS.cardActionClick,
+				'connectors',
+				{ action: 'safe_mode_disconnect_site', viewer_connection_type: 'owner' }
+			);
+			expect( trackIdentityCrisisEvent ).not.toHaveBeenCalled();
+
+			act( () => DisconnectDialog.mock.calls.at( -1 )[ 0 ].onDisconnected() );
+
+			expect( trackIdentityCrisisEvent ).toHaveBeenCalledWith(
+				CONNECTION_EVENTS.idcDisconnectSite,
+				'connectors',
+				{ use_beacon: true }
+			);
+			await expectNavigation();
 		} );
 	} );
 

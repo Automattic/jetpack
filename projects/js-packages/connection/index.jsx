@@ -75,6 +75,7 @@ export {
 	CONNECTION_EVENTS,
 	bumpConnectionStat,
 	trackConnectionEvent,
+	trackIdentityCrisisEvent,
 } from './helpers/connection-tracking.ts';
 export {
 	getConnectScreenErrorMessage,
