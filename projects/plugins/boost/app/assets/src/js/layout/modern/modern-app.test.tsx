@@ -177,6 +177,58 @@ describe( 'ModernApp', () => {
 		] );
 	} );
 
+	it( 'records the route again when the admin shell shows the page again, not on its first show', () => {
+		renderApp();
+		goTo( '#/cache-debug-log' );
+		const shown = ( page: string, firstShow: boolean ) =>
+			act( () => {
+				window.dispatchEvent(
+					new CustomEvent( 'jetpack-admin-shell:page-shown', { detail: { page, firstShow } } )
+				);
+			} );
+
+		shown( 'jetpack-boost', true );
+		shown( 'my-jetpack', false );
+		shown( 'jetpack-boost', false );
+
+		expect( mockRecordBoostEvent.mock.calls.map( ( [ name ] ) => name ) ).toEqual( [
+			'page_view_overview',
+			'page_view_cache_debug_log',
+			'page_view_cache_debug_log',
+		] );
+	} );
+
+	it.each( [
+		[ 'another page', '#/cache-debug-log', 'page_view_cache_debug_log' ],
+		[ 'the same page with another scroll destination', SETTINGS_ARG, 'page_view_overview' ],
+	] )( 'records one view when the admin shell shows the page again at %s', ( _, suffix, view ) => {
+		renderApp();
+		mockRecordBoostEvent.mockClear();
+
+		act( () => {
+			window.dispatchEvent(
+				new CustomEvent( 'jetpack-admin-shell:page-hidden', {
+					detail: { page: 'jetpack-boost', next: 'my-jetpack' },
+				} )
+			);
+		} );
+		goTo( suffix );
+		act( () => {
+			window.dispatchEvent(
+				new CustomEvent( 'jetpack-admin-shell:page-shown', {
+					detail: {
+						page: 'jetpack-boost',
+						firstShow: false,
+						routeChanged: true,
+						url: window.location.href,
+					},
+				} )
+			);
+		} );
+
+		expect( mockRecordBoostEvent.mock.calls.map( ( [ name ] ) => name ) ).toEqual( [ view ] );
+	} );
+
 	it( 'records Overview on a cold load of the former Settings route', () => {
 		window.history.replaceState( null, '', `${ BASE_URL }${ SETTINGS_ARG }` );
 

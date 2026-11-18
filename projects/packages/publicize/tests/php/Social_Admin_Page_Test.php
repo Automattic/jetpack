@@ -218,7 +218,7 @@ class Social_Admin_Page_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Who the admin shell offers Social to: the users the Social menu shows it to, on a built, non-Simple site.
+	 * Who the admin shell offers Social to: the users the Social menu shows it to, on a built site.
 	 *
 	 * @return array
 	 */
@@ -228,7 +228,7 @@ class Social_Admin_Page_Test extends BaseTestCase {
 			'author, Publicize off' => array( 'author', false, true, false, true, false ),
 			'author, Publicize on'  => array( 'author', true, true, false, true, true ),
 			'unbuilt'               => array( 'administrator', false, false, false, true, false ),
-			'Simple'                => array( 'administrator', false, true, true, true, false ),
+			'Simple, no blog token' => array( 'administrator', false, true, true, false, true ),
 			'not connected'         => array( 'administrator', false, true, false, false, false ),
 		);
 	}

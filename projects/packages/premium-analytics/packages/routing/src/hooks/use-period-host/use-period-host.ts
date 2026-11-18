@@ -48,7 +48,13 @@ export function usePeriodHost(
 	const earliestDate = dateLimits?.earliestDate;
 
 	const openPeriod = useCallback< OpenPeriod >(
-		range => commitExactRange( surface, range, { lockedIntervals, earliestDate, withZoomOut } ),
+		( range, options ) =>
+			commitExactRange( surface, range, {
+				lockedIntervals,
+				earliestDate,
+				withZoomOut,
+				step: options?.step,
+			} ),
 		[ commitExactRange, surface, lockedIntervals, earliestDate, withZoomOut ]
 	);
 

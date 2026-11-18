@@ -6,7 +6,11 @@ import {
 	useRaisePeriodChange,
 	type LockableInterval,
 } from '@jetpack-premium-analytics/data';
-import { PRESET_CUSTOM, type DateRange } from '@jetpack-premium-analytics/datetime';
+import {
+	PRESET_CUSTOM,
+	type DateRange,
+	type DateStepId,
+} from '@jetpack-premium-analytics/datetime';
 import { useCallback } from 'react';
 /**
  * Internal dependencies
@@ -29,6 +33,8 @@ export type CommitExactRange = (
 		withZoomOut?: boolean;
 		/** The first day the surface's plan shows; a range starting earlier is committed unsignalled. */
 		earliestDate?: Date;
+		/** How the arrows step the range, when the widget knows: a bucket's own unit. */
+		step?: DateStepId;
 	}
 ) => void;
 
@@ -48,13 +54,14 @@ export function useCommitExactRange(): CommitExactRange {
 		(
 			surface,
 			range,
-			{ opensSection = false, lockedIntervals, withZoomOut = false, earliestDate } = {}
+			{ opensSection = false, lockedIntervals, withZoomOut = false, earliestDate, step } = {}
 		) => {
 			const patch = buildRangePatch( {
 				nextRange: range,
 				nextPresetId: PRESET_CUSTOM,
 				exactRange: true,
 				zoomedInFrom: withZoomOut ? effective : undefined,
+				step,
 				effective,
 				lockedIntervals,
 			} );

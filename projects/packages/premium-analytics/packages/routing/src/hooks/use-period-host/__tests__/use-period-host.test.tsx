@@ -127,6 +127,14 @@ describe( 'usePeriodHost', () => {
 		expect( result.current.dateFilters.zoomOut?.presetId ).toBe( presetId );
 	} );
 
+	it( 'keeps the step a widget opens its period with, for the arrows', () => {
+		const { result } = renderStage();
+
+		act( () => result.current.host.openPeriod( WEEK, { step: 'P7D' } ) );
+
+		expect( mockSearch ).toMatchObject( { preset: 'custom', step: 'P7D' } );
+	} );
+
 	it( 'commits a period the plan will move away from without drawing the control to it', () => {
 		const { result } = renderStage( {
 			lockedIntervals: [],

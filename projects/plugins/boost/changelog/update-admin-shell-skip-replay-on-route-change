@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Admin shell: Record one page view, not two, when the shell reopens Boost at another page.
