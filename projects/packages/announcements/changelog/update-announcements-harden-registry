@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Limit the HTML the body of an announcement may carry, and its URLs to http and https.

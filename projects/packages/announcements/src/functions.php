@@ -20,7 +20,7 @@ namespace Automattic\Jetpack\Announcements;
  *     @type string   $title      Plain text.
  *     @type string[] $channels   The channels it is published to, such as `premium-analytics`.
  *     @type string   $excerpt    Optional. Plain text, one or two sentences.
- *     @type string   $content    Optional. HTML.
+ *     @type string   $content    Optional. HTML: text, links, lists, headings, images and video, without styles.
  *     @type array    $media      Optional. `type` (`image` or `video`), `url` (http or https) and `alt`.
  *     @type string   $link       Optional. URL of the full article, http or https.
  *     @type string   $capability Optional. Hides the announcement from users without it.

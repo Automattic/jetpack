@@ -36,6 +36,39 @@ final class Announcement_Registry {
 	private const URL_PROTOCOLS = array( 'http', 'https' );
 
 	/**
+	 * Elements the body of an announcement may carry, with their attributes.
+	 *
+	 * No `style`, `class`, `id` or `data-*`: the body is shown inside wp-admin and must not restyle it.
+	 */
+	private const CONTENT_TAGS = array(
+		'p'      => array(),
+		'br'     => array(),
+		'strong' => array(),
+		'em'     => array(),
+		'code'   => array(),
+		'a'      => array( 'href' => true ),
+		'ul'     => array(),
+		'ol'     => array(),
+		'li'     => array(),
+		'h2'     => array(),
+		'h3'     => array(),
+		'h4'     => array(),
+		'img'    => array(
+			'src'    => true,
+			'alt'    => true,
+			'width'  => true,
+			'height' => true,
+		),
+		'video'  => array(
+			'src'      => true,
+			'poster'   => true,
+			'controls' => true,
+			'width'    => true,
+			'height'   => true,
+		),
+	);
+
+	/**
 	 * Registered announcements, as `$id => $announcement` pairs.
 	 *
 	 * @var array[]
@@ -185,7 +218,7 @@ final class Announcement_Registry {
 			'date'       => $date,
 			'title'      => $title,
 			'excerpt'    => self::sanitize_text( $args['excerpt'] ?? '' ),
-			'content'    => is_string( $args['content'] ?? null ) ? wp_kses( $args['content'], 'post', self::URL_PROTOCOLS ) : '',
+			'content'    => is_string( $args['content'] ?? null ) ? wp_kses( $args['content'], self::CONTENT_TAGS, self::URL_PROTOCOLS ) : '',
 			'media'      => self::sanitize_media( $args['media'] ?? null ),
 			'link'       => is_string( $args['link'] ?? null ) ? esc_url_raw( $args['link'], self::URL_PROTOCOLS ) : '',
 			'channels'   => $channels,

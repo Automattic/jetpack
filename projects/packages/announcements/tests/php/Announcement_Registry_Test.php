@@ -134,6 +134,25 @@ class Announcement_Registry_Test extends BaseTestCase {
 		);
 	}
 
+	public function test_keeps_the_body_to_text_links_lists_headings_and_media() {
+		$registry = new Announcement_Registry();
+
+		$announcement = $registry->register(
+			'a/b',
+			array_merge(
+				self::VALID_ARGS,
+				array(
+					'content' => '<div style="position:fixed;inset:0" class="notice"><h2 id="title">Title</h2><p data-a="1">Text <strong>bold</strong> <a href="https://example.com/" target="_blank" class="button">link</a></p><ul><li>One</li></ul><img src="https://example.com/a.png" alt="A" style="width:9999px" /><video src="https://example.com/v.mp4" autoplay loop controls></video><button>Go</button></div>',
+				)
+			)
+		);
+
+		$this->assertSame(
+			'<h2>Title</h2><p>Text <strong>bold</strong> <a href="https://example.com/">link</a></p><ul><li>One</li></ul><img src="https://example.com/a.png" alt="A" /><video src="https://example.com/v.mp4" controls></video>Go',
+			$announcement['content']
+		);
+	}
+
 	/**
 	 * @dataProvider provide_urls_of_other_protocols
 	 *
