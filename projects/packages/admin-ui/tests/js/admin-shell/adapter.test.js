@@ -1,6 +1,7 @@
 import {
 	isolateRouters,
 	renameBootStore,
+	routeAt,
 	trackViewTransitions,
 	transitionSettled,
 } from '../../../src/admin-shell/adapter';
@@ -132,5 +133,27 @@ describe( 'renameBootStore', () => {
 		[ 'named twice', `const a="wordpress/boot",b=\`wordpress/boot\`;${ unlock }` ],
 	] )( 'refuses a build whose store name is %s', ( _, source ) => {
 		expect( () => renameBootStore( source, 'jetpack-forms' ) ).toThrow( 'exactly once' );
+	} );
+} );
+
+describe( 'routeAt', () => {
+	const routes = [ '/', '/$', '/forms', '/responses/$view', '/video/$id', '/video/$id/editor' ].map(
+		path => ( { path } )
+	);
+
+	it.each( [
+		[ '/', '/' ],
+		[ '/forms', '/forms' ],
+		[ '/Forms/', '/forms' ],
+		[ '/responses/inbox', '/responses/$view' ],
+		[ '/video/7/editor', '/video/$id/editor' ],
+		[ '/responses', '/$' ],
+		[ '/anything/else', '/$' ],
+	] )( 'matches %s to %s', ( path, expected ) => {
+		expect( routeAt( routes, path )?.path ).toBe( expected );
+	} );
+
+	it( 'finds nothing when no route matches', () => {
+		expect( routeAt( routes.slice( 2 ), '/responses' ) ).toBeNull();
 	} );
 } );
