@@ -162,6 +162,8 @@ class Initializer {
 
 		self::register_write_hooks();
 
+		Indexnow::init();
+
 		Indexnow_Client::init();
 
 		// The settings surface only comes online once SEO tools are active — there's

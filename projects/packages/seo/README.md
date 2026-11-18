@@ -96,8 +96,17 @@ Workers read pages of 250 rows and normally inspect at most 5,000 rows per run. 
 
 Disable IndexNow before reverting to a URL-only worker. Older workers discard ID-only records without submitting them, while remaining URL snapshots are still understood. Keep IndexNow disabled on Simple until a version with the storage bound is restored.
 
-HTTP 202 records receipt with ownership verification pending, without consuming retries. HTTP 429 pauses all site submissions and respects `Retry-After`, with a minimum ten-minute cooldown. Other temporary failures receive bounded backoff, with five retries and a maximum entry age of 48 hours. Receipt does not establish crawling or indexing. Delivery can repeat after an interruption with an ambiguous response.
+HTTP 202 records receipt with ownership verification pending, without consuming retries. HTTP 429 pauses all site submissions and respects `Retry-After`, with a minimum ten-minute cooldown. Other temporary failures receive bounded backoff, with five retries and a maximum entry age of 48 hours. Permanent failures are dropped, and status counts them apart from records kept for retry. A received or accepted batch clears the admission warning recorded before that batch, without erasing a newer one. Receipt does not establish crawling or indexing. Delivery can repeat after an interruption with an ambiguous response.
 
+### IndexNow settings
+
+The Site visibility section has one off-by-default "Notify search engines when content changes" toggle. It does not affect the existing completion badge. Enabling it creates verification automatically and applies only to subsequent eligible content changes. Disabling it clears pending work and obsolete delivery warnings without changing other SEO settings. Dated accepted history is retained for the current site address; pending-verification receipts and former-address history are discarded.
+
+Status distinguishes received notifications awaiting ownership verification from accepted notifications; neither confirms indexing. Receipt times use the site timezone and the locale's default date format. Contextual warnings explain throttling, delayed scheduling, and missed notifications; timing warnings use the server clock and allow an hour of scheduler delay. While delivery is paused, the row shows only the pause reason. Status refreshes when the section opens, the window regains focus, or a settings save settles. Visibility and notification saves cannot overlap, and a refresh preserves unrelated unsaved edits. Delivery limits are configured through the filters above, with no tuning controls in the dashboard.
+
+The notification row only mounts when the backend advertises support; unavailable hosts do not request the status endpoint.
+
+WordPress.com Simple also requires the guarded native route registration before this interface is released. The companion can deploy before the package because it tolerates versions without the controller.
 
 ### IndexNow metadata reconciliation
 
