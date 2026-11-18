@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Share one use-analytics mock across JS tests.
+
+
