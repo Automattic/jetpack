@@ -121,6 +121,7 @@ class Single_Report_Page_Test extends BaseTestCase {
 		$this->assertSame(
 			array(
 				'id'                => 'example/video',
+				'entity'            => null,
 				'path'              => 'video',
 				'label'             => 'Video',
 				'dashboard_section' => null,
@@ -357,6 +358,131 @@ class Single_Report_Page_Test extends BaseTestCase {
 				null,
 			),
 		);
+	}
+
+	public function test_a_post_type_entity_derives_the_page_from_the_post_type() {
+		$page = register_single_report_page(
+			DASHBOARD_NAME,
+			'analytics/page',
+			array(
+				'entity' => array(
+					'kind' => 'postType',
+					'name' => 'page',
+				),
+				'icon'   => 'jpa/page',
+			)
+		);
+
+		$record = $page->to_array();
+
+		$this->assertSame(
+			array(
+				'kind' => 'postType',
+				'name' => 'page',
+			),
+			$record['entity']
+		);
+		$this->assertSame( 'page', $record['path'] );
+		$this->assertSame( get_post_type_object( 'page' )->labels->singular_name, $record['label'] );
+		$this->assertSame( 'post_id', $record['scope_param'] );
+		$this->assertSame( '^[1-9]\d*$', $record['id_pattern'] );
+		$this->assertSame( 'posts', $record['reports_page'] );
+		$this->assertSame( 'jetpack-premium-analytics/page-detail', $record['preferences_scope'] );
+
+		$this->set_admin_user();
+		$this->assertTrue( $page->is_available() );
+	}
+
+	public function test_a_post_type_entity_keeps_an_explicit_path() {
+		$page = register_single_report_page(
+			DASHBOARD_NAME,
+			'analytics/page',
+			array(
+				'entity' => array(
+					'kind' => 'postType',
+					'name' => 'page',
+				),
+				'path'   => 'clip',
+			)
+		);
+
+		$this->assertSame( 'clip', $page->path );
+		$this->assertSame( 'jetpack-premium-analytics/clip-detail', $page->preferences_scope );
+		$this->assertSame( 'posts', $page->reports_page );
+	}
+
+	public function test_the_record_keeps_a_valid_entity_and_drops_the_rest() {
+		$kept    = register_single_report_page(
+			DASHBOARD_NAME,
+			'example/author',
+			array(
+				'entity' => array(
+					'kind'  => 'root',
+					'name'  => 'user',
+					'key'   => 'id',
+					'extra' => 'no',
+				),
+			)
+		)->to_array();
+		$dropped = register_single_report_page(
+			DASHBOARD_NAME,
+			'example/video',
+			array(
+				'entity' => array( 'kind' => 'postType' ),
+			)
+		)->to_array();
+
+		$this->assertSame(
+			array(
+				'kind' => 'root',
+				'name' => 'user',
+				'key'  => 'id',
+			),
+			$kept['entity']
+		);
+		$this->assertNull( $kept['reports_page'] );
+		$this->assertNull( $dropped['entity'] );
+	}
+
+	public function test_an_unknown_post_type_entity_derives_nothing() {
+		$page = register_single_report_page(
+			DASHBOARD_NAME,
+			'example/not-a-type',
+			array(
+				'entity' => array(
+					'kind' => 'postType',
+					'name' => 'not-a-type',
+				),
+			)
+		);
+
+		$this->assertSame( 'not-a-type', $page->path );
+		$this->assertSame( 'example/not-a-type', $page->label );
+		$this->assertNull( $page->reports_page );
+	}
+
+	public function test_a_post_type_page_is_offered_without_its_type_in_rest() {
+		register_post_type( 'jpa-hidden', array( 'show_in_rest' => false ) );
+
+		try {
+			$page = register_single_report_page(
+				DASHBOARD_NAME,
+				'example/jpa-hidden',
+				array(
+					'entity' => array(
+						'kind' => 'postType',
+						'name' => 'jpa-hidden',
+					),
+				)
+			);
+
+			$this->set_admin_user();
+
+			// The post adapter reads the entry from Stats, so its type need not be in REST.
+			$this->assertTrue( $page->is_available() );
+		} finally {
+			unregister_post_type( 'jpa-hidden' );
+		}
 	}
 
 	public function test_the_rest_schema_names_every_record_and_section_field() {

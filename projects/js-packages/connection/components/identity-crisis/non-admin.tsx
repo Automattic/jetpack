@@ -1,30 +1,42 @@
-import { createInterpolateElement } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
-import { Stack, Text } from '@wordpress/ui';
+import { __, _x } from '@wordpress/i18n';
+import { Button, Stack, Text } from '@wordpress/ui';
 import styles from './styles.module.scss';
 import SupportLink from './support-link';
+import type { IdentityCrisisNonAdminProps } from './types';
 import type { ReactNode } from 'react';
 
 /**
  * Safe Mode for a user who cannot resolve it.
  *
+ * @param {IdentityCrisisNonAdminProps} props - Component props.
  * @return {ReactNode} The view.
  */
-export default function IdentityCrisisNonAdmin(): ReactNode {
+export default function IdentityCrisisNonAdmin( {
+	isStore = false,
+	onDismiss,
+}: IdentityCrisisNonAdminProps ): ReactNode {
 	return (
-		<Stack direction="column" gap="md">
-			<Text variant="heading-xl" render={ <h2 /> }>
-				{ __( 'Jetpack is in Safe Mode', 'jetpack-connection-js' ) }
+		<Stack direction="column" gap="md" align="flex-start">
+			<Text variant="body-md" render={ <p /> } className={ styles.prose }>
+				{ isStore
+					? _x(
+							'Features that sync with WordPress.com are paused because this store is registered with WordPress.com at a different address. Payments will not be interrupted. An administrator needs to resolve this.',
+							'WooCommerce store',
+							'jetpack-connection-js'
+						)
+					: __(
+							'Features that sync with WordPress.com are paused because this site is registered with WordPress.com at a different address. An administrator needs to resolve this.',
+							'jetpack-connection-js'
+						) }
 			</Text>
-			<Text variant="body-lg" render={ <p /> } className={ styles.prose }>
-				{ createInterpolateElement(
-					__(
-						'This site’s address no longer matches the one WordPress.com has on record, so features that sync with WordPress.com are paused. A site administrator can fix this. <safeModeLink>Learn about Safe Mode</safeModeLink>',
-						'jetpack-connection-js'
-					),
-					{ safeModeLink: <SupportLink /> }
+			<Stack direction="row" gap="md" align="center" wrap="wrap">
+				{ onDismiss && (
+					<Button variant="outline" onClick={ onDismiss }>
+						{ __( 'Dismiss', 'jetpack-connection-js' ) }
+					</Button>
 				) }
-			</Text>
+				<SupportLink>{ __( 'Learn more about Safe Mode', 'jetpack-connection-js' ) }</SupportLink>
+			</Stack>
 		</Stack>
 	);
 }

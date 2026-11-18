@@ -44,7 +44,7 @@ class Jetpack_Settings_React_Page_Test extends WP_UnitTestCase {
 	 * Clear the connection, the menus and the request.
 	 */
 	public function tear_down() {
-		foreach ( array( 'master_user', 'id', 'blog_token', 'user_tokens' ) as $option ) {
+		foreach ( array( 'master_user', 'id', 'blog_token', 'user_tokens', 'purchase_token' ) as $option ) {
 			Jetpack_Options::delete_option( $option );
 		}
 		unset( $_GET['page'] );
@@ -54,6 +54,15 @@ class Jetpack_Settings_React_Page_Test extends WP_UnitTestCase {
 		$this->reset_menus();
 
 		wp_deregister_script( 'react-plugin' );
+		remove_all_filters( 'pre_http_request' );
+		remove_filter( 'wp_doing_ajax', '__return_true' );
+		unset( $_GET['action'] );
+		$user_id = get_current_user_id();
+		foreach ( array( 'sharing-options', "monitor_receive_notifications$user_id", "post_by_email_address$user_id" ) as $option ) {
+			remove_all_filters( "pre_update_option_$option" );
+			delete_option( $option );
+		}
+		remove_all_filters( 'pre_update_option_jetpack_private_options' );
 		wp_dequeue_style( 'components-css' );
 		set_current_screen( 'front' );
 
@@ -151,7 +160,7 @@ class Jetpack_Settings_React_Page_Test extends WP_UnitTestCase {
 	 * Tests that an unconnected site keeps the page for the connection screen but hides its entry.
 	 */
 	public function test_unconnected_site_keeps_the_page_but_hides_the_entry() {
-		foreach ( array( 'master_user', 'id', 'blog_token', 'user_tokens' ) as $option ) {
+		foreach ( array( 'master_user', 'id', 'blog_token', 'user_tokens', 'purchase_token' ) as $option ) {
 			Jetpack_Options::delete_option( $option );
 		}
 		( new Connection_Manager() )->reset_connection_status();
@@ -354,6 +363,100 @@ class Jetpack_Settings_React_Page_Test extends WP_UnitTestCase {
 		foreach ( wp_styles()->queue as $handle ) {
 			$this->assertStringNotContainsString( '_inc/build/admin', (string) wp_styles()->registered[ $handle ]->src );
 		}
+	}
+
+	/**
+	 * @dataProvider provide_admin_shell_loads
+	 *
+	 * @param bool $is_hover Whether the shell's hover request readies the page, rather than another dashboard's page.
+	 */
+	#[DataProvider( 'provide_admin_shell_loads' )]
+	public function test_only_the_admin_shell_hover_builds_the_state_without_saving_options( $is_hover ) {
+		if ( $is_hover ) {
+			add_filter( 'wp_doing_ajax', '__return_true' );
+			$_GET['action'] = \Automattic\Jetpack\Admin_UI\Admin_Shell::GUEST_ACTION;
+		}
+		$user_id = get_current_user_id();
+		$options = array( 'sharing-options', "monitor_receive_notifications$user_id", "post_by_email_address$user_id" );
+		// Monitor and Post by Email read the user's values from WordPress.com over XML-RPC.
+		add_filter(
+			'pre_http_request',
+			static function () {
+				return array(
+					'response' => array( 'code' => 200 ),
+					'body'     => '<?xml version="1.0"?><methodResponse><params><param><value><string>pbe@example.com</string></value></param></params></methodResponse>',
+				);
+			}
+		);
+
+		$page = $this->page_on_wp_build();
+		$page->load_as_admin_shell_guest();
+		$page->page_admin_scripts();
+
+		$saved = array();
+		foreach ( $options as $option ) {
+			$saved[ $option ] = false !== get_option( $option );
+		}
+		$this->assertStringContainsString( 'pbe@example.com', implode( '', (array) wp_scripts()->get_data( 'react-plugin', 'before' ) ) );
+		$this->assertSame( array_fill_keys( $options, ! $is_hover ), $saved );
+	}
+
+	/**
+	 * @dataProvider provide_admin_shell_loads
+	 *
+	 * @param bool $is_hover Whether the shell's hover request readies the page, rather than another dashboard's page.
+	 */
+	#[DataProvider( 'provide_admin_shell_loads' )]
+	public function test_only_the_admin_shell_hover_skips_creating_the_purchase_token( $is_hover ) {
+		if ( $is_hover ) {
+			add_filter( 'wp_doing_ajax', '__return_true' );
+			$_GET['action'] = \Automattic\Jetpack\Admin_UI\Admin_Shell::GUEST_ACTION;
+		}
+		// A site connection with no connected user, the only state that gets a purchase token.
+		Jetpack_Options::delete_option( array( 'master_user', 'user_tokens' ) );
+		( new Connection_Manager() )->reset_connection_status();
+		add_filter( 'pre_http_request', array( $this, 'reject_http_request' ) );
+
+		$page = $this->page_on_wp_build();
+		$page->load_as_admin_shell_guest();
+		$page->page_admin_scripts();
+
+		$this->assertSame( ! $is_hover, (bool) Jetpack_Options::get_option( 'purchase_token' ) );
+		$this->assertSame( 'asdasd.123123', Jetpack_Options::get_option( 'blog_token' ), 'The other private options are untouched.' );
+	}
+
+	public function test_admin_shell_hover_holds_back_only_the_purchase_token() {
+		add_filter( 'wp_doing_ajax', '__return_true' );
+		$_GET['action'] = \Automattic\Jetpack\Admin_UI\Admin_Shell::GUEST_ACTION;
+		Jetpack_Options::update_option( 'purchase_token', 'stored' );
+
+		$this->page_on_wp_build()->load_as_admin_shell_guest();
+		Jetpack_Options::update_option( 'purchase_token', 'replaced' );
+		Jetpack_Options::update_option( 'blog_token', 'new.token' );
+
+		$this->assertSame( 'stored', Jetpack_Options::get_option( 'purchase_token' ) );
+		$this->assertSame( 'new.token', Jetpack_Options::get_option( 'blog_token' ) );
+	}
+
+	/**
+	 * Fail every outgoing request, so building the page state stays offline.
+	 *
+	 * @return WP_Error
+	 */
+	public function reject_http_request() {
+		return new WP_Error( 'offline', 'No requests in tests.' );
+	}
+
+	/**
+	 * The shell's hover request, and another dashboard's page readying Settings for a later switch.
+	 *
+	 * @return array<string, array{bool}>
+	 */
+	public static function provide_admin_shell_loads() {
+		return array(
+			'hover request'       => array( true ),
+			'another member page' => array( false ),
+		);
 	}
 
 	public function test_wp_build_page_carries_the_state_without_the_bundle() {

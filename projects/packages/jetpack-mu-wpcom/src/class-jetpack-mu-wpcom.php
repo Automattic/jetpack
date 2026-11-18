@@ -164,7 +164,7 @@ class Jetpack_Mu_Wpcom {
 			add_filter( 'jetpack_protect_threat_ignoring_enabled', '__return_false' );
 		}
 
-		// Premium Analytics offers the Ads tab on Simple and Atomic sites whose plan includes WordAds and that have it on.
+		// Premium Analytics offers the Ads tab on Simple and Atomic sites that have WordAds on.
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_premium_analytics_wordads_section' ) );
 
 		// Premium Analytics seeds the Top videos widget wherever the plan includes VideoPress, on Simple and Atomic.
@@ -430,6 +430,7 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/layout-grid-usage-tracking/layout-grid-usage-tracking.php';
 		require_once __DIR__ . '/features/logo-tool/logo-tool.php';
 		require_once __DIR__ . '/features/marketplace-products-updater/class-marketplace-products-updater.php';
+		require_once __DIR__ . '/features/media/ai-marker-image-editor.php';
 		require_once __DIR__ . '/features/media/heif-support.php';
 		if ( Constants::is_true( 'IS_ATOMIC' ) ) {
 			require_once __DIR__ . '/features/plugin-conflicts-guardian/plugin-conflicts-guardian.php';
@@ -864,6 +865,21 @@ class Jetpack_Mu_Wpcom {
 	}
 
 	/**
+	 * Whether Jetpack Comments handles the current blog's comments.
+	 *
+	 * @param bool $enabled Whether Jetpack Comments is enabled.
+	 * @return bool
+	 */
+	public static function jetpack_comments_enabled_for_blog( $enabled ) {
+		static $by_blog = array();
+
+		$blog_id               = get_current_blog_id();
+		$by_blog[ $blog_id ] ??= ! self::should_disable_comment_experience( $blog_id );
+
+		return $enabled && $by_blog[ $blog_id ];
+	}
+
+	/**
 	 * Load Verbum Comments.
 	 */
 	public static function load_verbum_comments() {
@@ -890,6 +906,7 @@ class Jetpack_Mu_Wpcom {
 			}
 
 			if ( \Automattic\Jetpack\Comments\Comments::is_enabled() ) {
+				add_filter( 'jetpack_comments_enabled', array( __CLASS__, 'jetpack_comments_enabled_for_blog' ) );
 				\Automattic\Jetpack\Comments\Comments::init();
 				return;
 			}
@@ -978,7 +995,7 @@ class Jetpack_Mu_Wpcom {
 	}
 
 	/**
-	 * Register the Ads tab of the Premium Analytics dashboard where the plan includes WordAds and it is on.
+	 * Register the Ads tab of the Premium Analytics dashboard where WordAds is on.
 	 *
 	 * Hooks the dashboard's registry action, which only fires once the package boots, so this
 	 * is inert on a site without the dashboard.

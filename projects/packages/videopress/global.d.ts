@@ -1,4 +1,4 @@
-export declare global {
+declare global {
 	const JPVIDEOPRESS_INITIAL_STATE:
 		| undefined
 		| {
@@ -54,3 +54,5 @@ export declare global {
 				};
 		  };
 }
+
+export {};
