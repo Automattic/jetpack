@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Error reporting: Add a filter so an admin screen that reports its own JavaScript errors can stand the wp-admin handler down.
