@@ -211,8 +211,8 @@ class Jetpack_Sync_Search_Test extends Jetpack_Sync_TestBase {
 	 */
 	#[DataProvider( 'get_random_allowed_taxonomies' )]
 	public function test_add_taxonomy( $taxonomy ) {
-		$registered = ! taxonomy_exists( $taxonomy );
-		if ( $registered ) {
+		$owns_taxonomy = ! taxonomy_exists( $taxonomy );
+		if ( $owns_taxonomy ) {
 			register_taxonomy(
 				$taxonomy,
 				'post',
@@ -248,7 +248,7 @@ class Jetpack_Sync_Search_Test extends Jetpack_Sync_TestBase {
 
 		// clean up - speeds up tests.
 		wp_remove_object_terms( $this->post_id, array( $term_obj['term_id'] ), $taxonomy );
-		if ( $registered ) {
+		if ( $owns_taxonomy ) {
 			unregister_taxonomy( $taxonomy );
 		}
 	}
