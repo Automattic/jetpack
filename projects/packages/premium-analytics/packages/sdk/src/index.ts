@@ -22,17 +22,24 @@ export {
 	flattenEarningsBreakdown,
 	getVideoPosterUrl,
 	useOpenChartBucket,
+	useDetailPageCustomize,
 	useReportActions,
+	useStoredDetailLayout,
+	useWidgetModuleResolver,
+	useWidgetModules,
 	useWidgetRootContext,
+	useWidgetTypesWithI18n,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 export {
 	ReportScopeProvider,
 	chartInterval,
+	useDashboardSectionRecords,
 	useReport,
 	useStatsVideoPlays,
 	useStatsWordAdsEarnings,
 	useStatsWordAdsStats,
 } from '@jetpack-premium-analytics/data';
+export { registerDashboardHost } from '@jetpack-premium-analytics/init';
 export {
 	defaultReportParamsForGrain,
 	reportParamsAttributeField,

@@ -9,7 +9,7 @@ import {
 	LOCKED_RENDER_MODULE_PREFIX,
 	resolvePlanLockedWidgetModule,
 	withPlanLockedRenderModules,
-} from './plan-locked-widgets';
+} from '../plan-locked-widgets';
 import type { WidgetType } from '@wordpress/widget-primitives';
 import type { ReactElement } from 'react';
 
@@ -17,7 +17,7 @@ jest.mock( '@jetpack-premium-analytics/data', () => ( {
 	getLockedWidgetFeature: jest.fn(),
 } ) );
 
-jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
+jest.mock( '../../../components/locked-widget', () => ( {
 	LockedWidget: () => null,
 } ) );
 

@@ -1,7 +1,11 @@
 /**
  * External dependencies
  */
-import { getSectionDatePolicy } from '@jetpack-premium-analytics/data';
+import {
+	DASHBOARD_SECTIONS_QUERY,
+	WIDGET_MODULES_QUERY,
+	getSectionDatePolicy,
+} from '@jetpack-premium-analytics/data';
 import { store as coreStore } from '@wordpress/core-data';
 import { resolveSelect } from '@wordpress/data';
 import { redirect } from '@wordpress/route';
@@ -11,8 +15,6 @@ import { redirect } from '@wordpress/route';
 import { dateWindowRedirect } from '../date-window-redirect';
 import { isPremiumAnalyticsSiteConnected } from '../site-readiness';
 import { dashboardSectionOf, withoutCarriedYearWindow } from '../stats-date-window';
-import { WIDGET_MODULES_QUERY } from '../use-widget-modules';
-import { DASHBOARD_SECTIONS_QUERY } from './hooks/use-dashboard-sections';
 import { seedDashboardDateSearch, type DashboardSearch } from './section-date-window';
 
 // Settings was a dashboard tab before it had a route; the server keeps the slug reserved.

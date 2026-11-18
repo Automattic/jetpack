@@ -34,6 +34,9 @@ import {
 	useHostLinkSearch,
 	useTrackCustomize,
 	useTrackedDateRangeApply,
+	useWidgetModuleResolver,
+	useWidgetModules,
+	useWidgetTypesWithI18n,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { Page } from '@wordpress/admin-ui';
 import { Spinner } from '@wordpress/components';
@@ -42,8 +45,6 @@ import { WidgetDashboard } from '@wordpress/widget-dashboard';
 import { useDateWindowNotice } from '../date-window-notice';
 import { isPremiumAnalyticsInitialSyncFinished } from '../site-readiness';
 import { useStatsDateLimits } from '../use-stats-date-limits';
-import { useWidgetModules } from '../use-widget-modules';
-import { useWidgetModuleResolver, useWidgetTypesWithI18n } from '../widget-module-i18n';
 import {
 	DashboardNotices,
 	DashboardSections,

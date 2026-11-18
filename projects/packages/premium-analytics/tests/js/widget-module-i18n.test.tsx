@@ -5,14 +5,14 @@ import {
 import { renderHook, waitFor } from '@testing-library/react';
 import { useEffect, useState } from '@wordpress/element';
 import { useWidgetTypes } from '@wordpress/widget-primitives';
-import { LOCKED_RENDER_MODULE_PREFIX } from '../../routes/plan-locked-widgets';
+import { LOCKED_RENDER_MODULE_PREFIX } from '../../packages/widgets-toolkit/src/host/plan-locked-widgets/plan-locked-widgets';
 import {
 	createWidgetModuleResolver,
 	preloadWidgetModuleCatalogs,
 	resolveWidgetModuleWithI18n,
 	useWidgetTypesWithI18n,
 	widgetModuleBundlePath,
-} from '../../routes/widget-module-i18n';
+} from '../../packages/widgets-toolkit/src/host/widget-module-i18n/widget-module-i18n';
 import type { ResolveWidgetModule, WidgetModuleRecord } from '@wordpress/widget-primitives';
 import type { ReactElement } from 'react';
 

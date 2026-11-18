@@ -28,7 +28,7 @@ import { useWidgetTypes } from '@wordpress/widget-primitives';
 /**
  * Internal dependencies
  */
-import { resolvePlanLockedWidgetModule, withPlanLockedRenderModules } from './plan-locked-widgets';
+import { resolvePlanLockedWidgetModule, withPlanLockedRenderModules } from '../plan-locked-widgets';
 import type {
 	ResolveWidgetModule,
 	WidgetModuleRecord,

@@ -9,7 +9,10 @@ import {
 	useReportScope,
 } from '@jetpack-premium-analytics/data';
 import { createTZDateFromParts, endOfDayTZ } from '@jetpack-premium-analytics/datetime';
-import { useDashboardOriginSearch } from '@jetpack-premium-analytics/widgets-toolkit';
+import {
+	useDashboardOriginSearch,
+	useWidgetTypesWithI18n,
+} from '@jetpack-premium-analytics/widgets-toolkit';
 import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { dispatch, select } from '@wordpress/data';
@@ -19,7 +22,6 @@ import { useCallback } from 'react';
  * Internal dependencies
  */
 import { useStatsDateLimits } from '../use-stats-date-limits';
-import { useWidgetTypesWithI18n } from '../widget-module-i18n';
 import { onboardingTourSteps } from './components';
 import { DATE_FILTER_RANGE, DATE_FILTER_YEAR } from './config';
 import {
@@ -206,6 +208,9 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 		</button>
 	),
 	useTrackedDateRangeApply: ( ...args: unknown[] ) => mockUseTrackedDateRangeApply( ...args ),
+	useWidgetModules: () => [],
+	useWidgetModuleResolver: () => jest.fn(),
+	useWidgetTypesWithI18n: jest.fn( () => [ [], false ] ),
 } ) );
 
 jest.mock( '../use-stats-date-limits', () => ( {
@@ -227,8 +232,6 @@ jest.mock( '@wordpress/components', () => ( {
 } ) );
 
 jest.mock( '@wordpress/core-data', () => ( { store: {} } ) );
-
-jest.mock( '../use-widget-modules', () => ( { useWidgetModules: () => [] } ) );
 
 /**
  * Reads the scope the dashboard declares, from where the header's date controls
@@ -437,11 +440,6 @@ jest.mock( './components', () => ( {
 			</button>
 		</div>
 	),
-} ) );
-
-jest.mock( '../widget-module-i18n', () => ( {
-	useWidgetModuleResolver: () => jest.fn(),
-	useWidgetTypesWithI18n: jest.fn( () => [ [], false ] ),
 } ) );
 
 jest.mock( './config', () => {

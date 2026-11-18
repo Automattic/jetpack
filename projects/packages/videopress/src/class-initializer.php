@@ -209,6 +209,7 @@ class Initializer {
 		Transcript_Index::init();
 		Playlist_Index::init();
 		Analytics_Dashboard::init();
+		Stats_Dashboard::init();
 
 		/*
 		 * These endpoints only add their routes on REST init, so defer calling

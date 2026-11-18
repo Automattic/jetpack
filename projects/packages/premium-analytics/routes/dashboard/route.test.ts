@@ -1,13 +1,17 @@
-import { needsReportDateParamsSeed } from '@jetpack-premium-analytics/data';
+import {
+	DASHBOARD_SECTIONS_QUERY,
+	WIDGET_MODULES_QUERY,
+	needsReportDateParamsSeed,
+} from '@jetpack-premium-analytics/data';
 import {
 	isPremiumAnalyticsInitialSyncFinished,
 	isPremiumAnalyticsSiteConnected,
 } from '../site-readiness';
-import { WIDGET_MODULES_QUERY } from '../use-widget-modules';
-import { DASHBOARD_SECTIONS_QUERY } from './hooks/use-dashboard-sections';
 import { route } from './route';
 
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
+	DASHBOARD_SECTIONS_QUERY: { per_page: -1 },
+	WIDGET_MODULES_QUERY: { per_page: -1 },
 	ensureCoreSettingsReady: jest.fn( () => Promise.resolve() ),
 	getPolicyDefaultPreset: jest.fn( () => undefined ),
 	getSectionDatePolicy: () => ( { lockedIntervals: [] } ),

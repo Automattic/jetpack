@@ -118,12 +118,13 @@ function inject_single_report_pages_script_data( array $data ): array {
 }
 
 /**
- * Permission callback of the single-report pages route: the dashboard capability.
+ * Permission callback of the single-report pages route: the capability of the dashboard it names.
  *
+ * @param \WP_REST_Request $request REST request carrying the dashboard name.
  * @return bool
  */
-function check_single_report_pages_permission() {
-	return Capabilities::current_user_can_view_analytics();
+function check_single_report_pages_permission( $request ) {
+	return Capabilities::current_user_can_view_dashboard( $request['name'] );
 }
 
 /**

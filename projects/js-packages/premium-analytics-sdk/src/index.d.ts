@@ -324,3 +324,45 @@ export declare const Progress: {
 export declare const Stack: AnyComponent;
 export declare const Text: AnyComponent;
 export declare const VisuallyHidden: AnyComponent;
+
+// Host: what a page needs to mount a widget dashboard of its own. A widget imports none of it.
+// Records, widget types and layouts stay loose: their types come with the dashboard packages the host imports.
+
+// Runs the page's one-time registrations: field types, the icon resolver, the dashboard's entities.
+export declare function registerDashboardHost( dashboardName?: string ): void;
+
+// The registered widget module records, or `null` while they resolve.
+export declare function useWidgetModules(): any[] | null;
+
+// The widget types for `WidgetDashboard`, held back until their translation catalogs load.
+export declare function useWidgetTypesWithI18n(
+	records: any[] | null | undefined,
+	options?: { visibleNames?: string[] | null; includeAll?: boolean }
+): readonly [ any[], boolean ];
+
+// The `resolveWidgetModule` for `WidgetDashboard`: loads a module's catalog, then imports it.
+export declare function useWidgetModuleResolver(
+	records: any[] | null | undefined
+): ( moduleId: string ) => Promise< any >;
+
+// The sections of a dashboard, as its sections route serves them.
+export declare function useDashboardSectionRecords< Section = DashboardSectionRecord >(
+	dashboardName?: string
+): { sections: Section[] | null; hasResolved: boolean };
+export type DashboardSectionRecord = {
+	id: string;
+	slug: string;
+	label: string;
+	default_layout: any[];
+	insertable_widget_types?: string[];
+};
+
+// A layout the reader may rearrange: kept in preferences under the host's scope, the fixed one otherwise.
+export declare function useStoredDetailLayout(
+	scope: string,
+	layoutId: string,
+	fixedLayout: any[]
+): { layout: any[]; setLayout: ( layout: any[] ) => void; resetLayout: () => void };
+
+// Customize mode over that layout: the reader moves and resizes, never adds or removes.
+export declare function useDetailPageCustomize( layout: any[], options?: any ): any;

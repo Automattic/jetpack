@@ -1,29 +1,32 @@
 import { PeriodSelector } from '@automattic/jetpack-components';
-import { useMemo } from '@wordpress/element';
+import {
+	ReportScopeProvider,
+	useDashboardSectionRecords,
+	useDetailPageCustomize,
+	useStoredDetailLayout,
+	useWidgetModuleResolver,
+	useWidgetModules,
+	useWidgetTypesWithI18n,
+} from '@automattic/jetpack-premium-analytics-sdk';
+import { Spinner } from '@wordpress/components';
+import { useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Button, Notice, Stack } from '@wordpress/ui';
+import { WidgetDashboard, type DashboardWidget } from '@wordpress/widget-dashboard';
 import DashboardLayout from '../../src/dashboard/components/dashboard-layout';
-import FetchErrorNotice from '../../src/dashboard/components/fetch-error-notice';
 import FreeTierNotice from '../../src/dashboard/components/free-tier-notice';
-import KpiCardsRow from '../../src/dashboard/components/overview/kpi-cards-row';
-import MostViewedCard from '../../src/dashboard/components/overview/most-viewed-card';
 import StorageMeterCard from '../../src/dashboard/components/overview/storage-meter-card';
-import TopByWatchTimeCard from '../../src/dashboard/components/overview/top-by-watch-time-card';
-import ViewsTrendsCard from '../../src/dashboard/components/overview/views-trends-card';
 import QueryClientWrapper from '../../src/dashboard/components/query-client-wrapper';
 import { useFreeTier } from '../../src/dashboard/hooks/use-free-tier';
-import { useStats } from '../../src/dashboard/hooks/use-stats';
+import { DATE_RANGE_DAYS, type DateRange } from '../../src/dashboard/types/stats';
+import { lastDaysReportDates } from '../../src/dashboard/utils/stats-period';
+import { STATS_DASHBOARD_NAME, STATS_GRID, STATS_PREFERENCES_SCOPE } from './config';
 import './style.scss';
-import type { ActiveMetric, DateRange } from '../../src/dashboard/types/stats';
 import type { PeriodPreset } from '@automattic/jetpack-components';
+import type { ReactNode } from 'react';
 
-// Stable ids that wire the KPI tablist to the chart tabpanel via ARIA.
-// Defined here so both children agree without a separate constants file.
-const TRENDS_PANEL_ID = 'vp-overview-trends-panel';
-const KPI_TAB_IDS: Record< ActiveMetric, string > = {
-	views: 'vp-overview-kpi-tab-views',
-	impressions: 'vp-overview-kpi-tab-impressions',
-	watch_time: 'vp-overview-kpi-tab-watch-time',
-};
+const DEFAULT_DATE_RANGE: DateRange = 'last_30_days';
+const NO_WIDGETS: DashboardWidget[] = [];
 
 const getDateRangePresets = (): PeriodPreset< DateRange >[] => [
 	{ value: 'last_7_days', label: __( 'Last 7 days', 'jetpack-videopress-pkg' ) },
@@ -33,94 +36,136 @@ const getDateRangePresets = (): PeriodPreset< DateRange >[] => [
 ];
 
 const StageInner = () => {
-	const {
-		stats,
-		isLoading,
-		isError,
-		error: statsError,
-		hasData,
-		refetch,
-		dateRange,
-		setDateRange,
-		granularity,
-		setGranularity,
-		activeMetric,
-		setActiveMetric,
-		compare,
-		setCompare,
-	} = useStats();
+	const [ dateRange, setDateRange ] = useState< DateRange >( DEFAULT_DATE_RANGE );
 	const { isFree, isAtomic, isUnlimited, videoCount, videoCountKnown } = useFreeTier();
 	const dateRangePresets = useMemo( getDateRangePresets, [] );
 
+	const { sections, hasResolved } = useDashboardSectionRecords( STATS_DASHBOARD_NAME );
+	const section = sections?.[ 0 ];
+
+	// The period reaches each widget as `reportParams` on the fixed layout: a stored arrangement
+	// keeps only what differs from it, so the dates are never persisted.
+	const fixedLayout = useMemo< DashboardWidget[] >( () => {
+		const reportParams = lastDaysReportDates( DATE_RANGE_DAYS[ dateRange ] );
+
+		return ( section?.default_layout ?? NO_WIDGETS ).map( ( widget: DashboardWidget ) => ( {
+			...widget,
+			attributes: {
+				...( widget.attributes as Record< string, unknown > | undefined ),
+				reportParams,
+			},
+		} ) );
+	}, [ section, dateRange ] );
+
+	const { layout, setLayout, resetLayout } = useStoredDetailLayout(
+		STATS_PREFERENCES_SCOPE,
+		section?.slug ?? '',
+		fixedLayout
+	);
+	const {
+		isCustomizing,
+		canCustomize,
+		canPerform,
+		startCustomizing,
+		resetToDefault,
+		onEditChange,
+		onLayoutChange,
+	} = useDetailPageCustomize( layout, {
+		layoutId: section?.slug,
+		onLayoutReset: resetLayout,
+		onLayoutChange: setLayout,
+	} );
+
+	const records = useWidgetModules();
+	const visibleNames = useMemo(
+		() => ( hasResolved ? layout.map( ( widget: DashboardWidget ) => widget.type ) : null ),
+		[ hasResolved, layout ]
+	);
+	const [ widgetTypes, isResolvingWidgetTypes ] = useWidgetTypesWithI18n( records, {
+		visibleNames,
+	} );
+	const resolveWidgetModule = useWidgetModuleResolver( records );
+
 	const showStorageMeter = isFree === false && videoCount > 0 && ! isUnlimited && ! isAtomic;
-	// A failed stats request would otherwise render as all-zero KPI cards —
-	// indistinguishable from a genuine zero-activity site. Only when there's
-	// no (cached) data behind it, though: a failed *background* refetch keeps
-	// the stats already on screen instead of swapping them for the error pane.
-	const statsUnavailable = isError && ! hasData;
+
+	let widgets: ReactNode;
+	if ( ! hasResolved ) {
+		widgets = (
+			<div className="vp-overview__dashboard-loading">
+				<Spinner />
+			</div>
+		);
+	} else if ( ! section ) {
+		widgets = (
+			<Notice.Root intent="error">
+				<Notice.Description>
+					{ __( 'We couldn’t load your video stats.', 'jetpack-videopress-pkg' ) }
+				</Notice.Description>
+			</Notice.Root>
+		);
+	} else {
+		widgets = <WidgetDashboard.Widgets />;
+	}
 
 	return (
-		<DashboardLayout
-			activeTab="stats"
-			actions={
-				<PeriodSelector< DateRange >
-					label={ __( 'Date range', 'jetpack-videopress-pkg' ) }
-					presets={ dateRangePresets }
-					value={ dateRange }
-					onChange={ setDateRange }
-				/>
-			}
-		>
-			<div className="vp-overview">
-				{ isFree && (
-					<FreeTierNotice
-						location="overview"
-						videoCount={ videoCountKnown ? videoCount : undefined }
-					/>
-				) }
-				{ statsUnavailable ? (
-					<FetchErrorNotice
-						className="vp-overview__error"
-						message={ __( 'We couldn’t load your video stats.', 'jetpack-videopress-pkg' ) }
-						error={ statsError }
-						onRetry={ () => refetch() }
-					/>
-				) : (
-					<>
-						<KpiCardsRow
-							views={ stats.views }
-							impressions={ stats.impressions }
-							watchTimeSeconds={ stats.watchTimeSeconds }
-							isLoading={ isLoading }
-							activeMetric={ activeMetric }
-							onChangeActiveMetric={ setActiveMetric }
-							tabIds={ KPI_TAB_IDS }
-							panelId={ TRENDS_PANEL_ID }
-						/>
-						<ViewsTrendsCard
-							series={ stats.series }
-							activeMetric={ activeMetric }
-							compare={ compare }
-							granularity={ granularity }
-							isLoading={ isLoading }
-							onChangeCompare={ setCompare }
-							onChangeGranularity={ setGranularity }
-							panelId={ TRENDS_PANEL_ID }
-							activeTabId={ KPI_TAB_IDS[ activeMetric ] }
-						/>
-					</>
-				) }
-				{ /* Storage isn't stats-derived (it sources its own data via
-				     useSite), so a stats failure doesn't take it down. */ }
-				{ showStorageMeter && <StorageMeterCard /> }
-				{ ! statsUnavailable && (
-					<div className="vp-overview__row--bottom">
-						<MostViewedCard videos={ stats.topVideos } isLoading={ isLoading } />
-						<TopByWatchTimeCard videos={ stats.topVideosByWatchTime } isLoading={ isLoading } />
-					</div>
-				) }
-			</div>
-		</DashboardLayout>
+		<ReportScopeProvider offersComparison={ false }>
+			<WidgetDashboard.Policy canPerform={ canPerform }>
+				<WidgetDashboard
+					widgetTypes={ widgetTypes }
+					isResolvingWidgetTypes={ isResolvingWidgetTypes }
+					resolveWidgetModule={ resolveWidgetModule }
+					layout={ layout }
+					onLayoutChange={ onLayoutChange }
+					onLayoutReset={ resetLayout }
+					gridSettings={ STATS_GRID }
+					editMode={ isCustomizing }
+					onEditChange={ onEditChange }
+				>
+					<DashboardLayout
+						activeTab="stats"
+						actions={
+							<Stack direction="row" gap="sm" align="center">
+								{ isCustomizing ? (
+									<>
+										<Button variant="outline" onClick={ resetToDefault }>
+											{ __( 'Reset to default', 'jetpack-videopress-pkg' ) }
+										</Button>
+										<WidgetDashboard.Actions />
+									</>
+								) : (
+									<>
+										<PeriodSelector< DateRange >
+											label={ __( 'Date range', 'jetpack-videopress-pkg' ) }
+											presets={ dateRangePresets }
+											value={ dateRange }
+											onChange={ setDateRange }
+										/>
+										{ canCustomize && (
+											<Button variant="outline" onClick={ startCustomizing }>
+												{ __( 'Customize', 'jetpack-videopress-pkg' ) }
+											</Button>
+										) }
+									</>
+								) }
+							</Stack>
+						}
+					>
+						<div className="vp-overview">
+							{ isFree && (
+								<FreeTierNotice
+									location="overview"
+									videoCount={ videoCountKnown ? videoCount : undefined }
+								/>
+							) }
+							{ widgets }
+							{ /* Storage isn't stats-derived (it sources its own data via
+							     useSite), so a stats failure doesn't take it down. */ }
+							{ showStorageMeter && <StorageMeterCard /> }
+						</div>
+					</DashboardLayout>
+				</WidgetDashboard>
+			</WidgetDashboard.Policy>
+		</ReportScopeProvider>
 	);
 };
 

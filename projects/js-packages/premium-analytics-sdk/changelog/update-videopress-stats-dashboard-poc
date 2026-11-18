@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add the hooks and the registration call a page uses to mount a widget dashboard: `useWidgetModules`, `useWidgetTypesWithI18n`, `useWidgetModuleResolver`, `useDashboardSectionRecords`, `useStoredDetailLayout`, `useDetailPageCustomize` and `registerDashboardHost`.

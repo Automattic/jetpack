@@ -50,6 +50,21 @@ type StatsQueryParams = {
 	date: string; // YYYY-MM-DD, most recent day included
 };
 
+/**
+ * A period the caller owns, in place of the hook's own date range state.
+ */
+export type StatsPeriod = {
+	/*
+	 * Last day of the period, as YYYY-MM-DD.
+	 */
+	to: string;
+
+	/*
+	 * Days the period spans, its last day included.
+	 */
+	days: number;
+};
+
 const REST_PATH = '/jetpack/v4/videopress/stats/video-plays';
 // On WordPress.com Simple the jetpack/v4 proxy doesn't exist; apiFetch's
 // rest/v1.1 middleware site-prefixes this path and unwraps the envelope,
@@ -106,16 +121,19 @@ function shiftIsoDate( iso: string, days: number ): string {
  * abut without overlap.
  *
  * @param rangeDays - Active range length in days.
+ * @param lastDay   - Most recent day of the current window. Today by default.
  * @return Two parameter sets ready to feed `videoPlaysQueryOptions`.
  */
-function computeWindows( rangeDays: number ): {
+function computeWindows(
+	rangeDays: number,
+	lastDay: string = todayIso()
+): {
 	current: StatsQueryParams;
 	previous: StatsQueryParams;
 } {
-	const today = todayIso();
 	return {
-		current: { num: rangeDays, date: today },
-		previous: { num: rangeDays, date: shiftIsoDate( today, -rangeDays ) },
+		current: { num: rangeDays, date: lastDay },
+		previous: { num: rangeDays, date: shiftIsoDate( lastDay, -rangeDays ) },
 	};
 }
 
@@ -360,16 +378,18 @@ export function transformVideoPlays(
  * state; data is fetched as two `useQuery` calls (current + previous
  * window) coordinated via `useQueries`.
  *
+ * @param period - A period the caller owns. Without one, the hook's own date range applies.
  * @return Stats state and setters.
  */
-export function useStats() {
+export function useStats( period?: StatsPeriod ) {
 	const [ dateRange, setDateRange ] = useState< DateRange >( DEFAULTS.dateRange );
 	const [ granularity, setGranularity ] = useState< Granularity >( DEFAULTS.granularity );
 	const [ activeMetric, setActiveMetricRaw ] = useState< ActiveMetric >( DEFAULTS.activeMetric );
 	const [ compare, setCompare ] = useState< ChartCompare >( DEFAULTS.compare );
 
-	const rangeDays = DATE_RANGE_DAYS[ dateRange ];
-	const windows = useMemo( () => computeWindows( rangeDays ), [ rangeDays ] );
+	const rangeDays = period?.days ?? DATE_RANGE_DAYS[ dateRange ];
+	const lastDay = period?.to;
+	const windows = useMemo( () => computeWindows( rangeDays, lastDay ), [ rangeDays, lastDay ] );
 
 	const [ currentQuery, previousQuery ] = useQueries( {
 		queries: [

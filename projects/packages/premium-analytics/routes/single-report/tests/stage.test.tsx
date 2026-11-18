@@ -1,12 +1,15 @@
 import { TZDate } from '@date-fns/tz';
 import { useReportScope, useStatsEmailClicksBreakdown } from '@jetpack-premium-analytics/data';
 import { PRESET_ALL_TIME, computePrimaryRange } from '@jetpack-premium-analytics/datetime';
-import { useStoredDetailLayout } from '@jetpack-premium-analytics/widgets-toolkit';
+import {
+	useStoredDetailLayout,
+	useWidgetModuleResolver,
+	useWidgetTypesWithI18n,
+} from '@jetpack-premium-analytics/widgets-toolkit';
 import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useCallback } from '@wordpress/element';
 import { getNoticeAnnouncement, getNoticeText } from '../../../tests/js/notice-test-utils';
-import { useWidgetModuleResolver, useWidgetTypesWithI18n } from '../../widget-module-i18n';
 import { stage } from '../stage';
 import type { EntitySummary, SingleReportAdapter } from '../pages';
 import type { PeriodChange } from '@jetpack-premium-analytics/data';
@@ -261,6 +264,9 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 		resetLayout: () => {},
 		hasCustomLayout: false,
 	} ) ),
+	useWidgetModules: () => [],
+	useWidgetTypesWithI18n: jest.fn(),
+	useWidgetModuleResolver: jest.fn(),
 } ) );
 
 const mockUseStoredLayout = useStoredDetailLayout as jest.Mock;
@@ -314,15 +320,6 @@ jest.mock( '@wordpress/route', () => {
 		useNavigate: () => mockNavigate,
 	};
 } );
-
-jest.mock( '../../use-widget-modules', () => ( {
-	useWidgetModules: () => [],
-} ) );
-
-jest.mock( '../../widget-module-i18n', () => ( {
-	useWidgetTypesWithI18n: jest.fn(),
-	useWidgetModuleResolver: jest.fn(),
-} ) );
 
 // The video adapter's real header over a summary the test controls.
 jest.mock( '../pages', () => ( {

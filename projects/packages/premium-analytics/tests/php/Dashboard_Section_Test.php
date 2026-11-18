@@ -988,17 +988,39 @@ class Dashboard_Section_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Sections route returns an empty list for syntactically valid unknown dashboards.
+	 * The route answers for the dashboard it names: an administrator reads the package's own, not an unknown one.
 	 */
-	public function test_sections_route_returns_empty_array_for_unknown_dashboard() {
+	public function test_sections_route_refuses_a_dashboard_without_sections() {
 		$this->set_admin_user();
 
 		$response = rest_get_server()->dispatch(
 			new WP_REST_Request( 'GET', '/wpcom/v2/dashboards/unregistered_dashboard/sections' )
 		);
 
+		$this->assertSame( 403, $response->get_status() );
+	}
+
+	/**
+	 * A reader the package's own dashboard refuses still reads a dashboard that has a section for them.
+	 */
+	public function test_sections_route_serves_a_dashboard_to_a_reader_of_its_sections() {
+		register_dashboard_section(
+			'route_reader_dashboard',
+			'example/open',
+			array(
+				'label'        => 'Open',
+				'is_available' => '__return_true',
+			)
+		);
+
+		$this->set_editor_user();
+
+		$response = rest_get_server()->dispatch(
+			new WP_REST_Request( 'GET', '/wpcom/v2/dashboards/route_reader_dashboard/sections' )
+		);
+
 		$this->assertSame( 200, $response->get_status() );
-		$this->assertSame( array(), $response->get_data() );
+		$this->assertSame( array( 'example/open' ), array_column( $response->get_data(), 'id' ) );
 	}
 
 	/**
@@ -1834,6 +1856,8 @@ class Dashboard_Section_Test extends BaseTestCase {
 	 * Default-layout route returns 404 for unknown sections.
 	 */
 	public function test_default_layout_route_returns_404_for_unknown_section() {
+		register_dashboard_section( 'route_layout_dashboard', 'analytics/traffic', array( 'label' => 'Traffic' ) );
+
 		$this->set_admin_user();
 
 		$response = rest_get_server()->dispatch(
@@ -1857,6 +1881,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 				'is_available' => '__return_false',
 			)
 		);
+		register_dashboard_section( 'route_unavailable_dashboard', 'analytics/traffic', array( 'label' => 'Traffic' ) );
 
 		$this->set_admin_user();
 

@@ -1,0 +1,9 @@
+{
+	"name": "videopress/most-viewed",
+	"icon": "jpa/video",
+	"title": "Most viewed",
+	"description": "The videos your visitors viewed most often.",
+	"category": "stats",
+	"presentation": "full-bleed",
+	"textdomain": "jetpack-videopress-pkg"
+}

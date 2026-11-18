@@ -1,9 +1,12 @@
 /**
  * External dependencies
  */
-import { createElement } from '@wordpress/element';
 import { getLockedWidgetFeature } from '@jetpack-premium-analytics/data';
-import { LockedWidget } from '@jetpack-premium-analytics/widgets-toolkit';
+import { createElement } from '@wordpress/element';
+/**
+ * Internal dependencies
+ */
+import { LockedWidget } from '../../components/locked-widget';
 import type { ResolveWidgetModule, WidgetType } from '@wordpress/widget-primitives';
 
 type WidgetModule = Awaited< ReturnType< ResolveWidgetModule > >;

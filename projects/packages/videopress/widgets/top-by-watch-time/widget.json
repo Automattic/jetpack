@@ -1,0 +1,9 @@
+{
+	"name": "videopress/top-by-watch-time",
+	"icon": "jpa/video",
+	"title": "Top videos by watch time",
+	"description": "The videos your visitors spent the most time watching.",
+	"category": "stats",
+	"presentation": "full-bleed",
+	"textdomain": "jetpack-videopress-pkg"
+}

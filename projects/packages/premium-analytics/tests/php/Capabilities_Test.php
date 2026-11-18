@@ -337,6 +337,25 @@ class Capabilities_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Each dashboard answers from its own sections, whichever a request asks about first.
+	 */
+	public function test_a_dashboard_is_read_through_its_own_sections() {
+		register_dashboard_section(
+			'test_other-dashboard',
+			'test/open',
+			array(
+				'label'        => 'Open',
+				'is_available' => '__return_true',
+			)
+		);
+		$this->login_as( 'subscriber' );
+
+		$this->assertFalse( Capabilities::current_user_can_view_analytics(), 'The package\'s own dashboard has no section for them.' );
+		$this->assertTrue( Capabilities::current_user_can_view_dashboard( 'test_other-dashboard' ) );
+		$this->assertFalse( Capabilities::current_user_can_view_dashboard( 'test_unregistered-dashboard' ) );
+	}
+
+	/**
 	 * A section gated on the dashboard capability itself does not count towards it, rather than
 	 * recursing.
 	 */
