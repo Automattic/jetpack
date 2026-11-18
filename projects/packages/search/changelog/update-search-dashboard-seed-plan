@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Dashboard: Load settings and stats alongside the plan request for sites with a Search plan, and skip the pricing request they never see.
