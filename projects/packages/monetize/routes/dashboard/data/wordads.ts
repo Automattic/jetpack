@@ -5,6 +5,7 @@ import { wpcomFetch } from './wpcom-fetch';
 import type { WpcomApiError } from './wpcom-request';
 
 const ACCOUNT_KEY = [ 'monetize', 'ads', 'account' ];
+export const ADS_MODULE_KEY = [ 'monetize', 'ads', 'module' ];
 
 /** Why WordPress.com won't serve ads on the site, as `wordads/account` reports it. */
 export type UnsafeReason = 'mature' | 'spam' | 'private' | 'other';
@@ -13,12 +14,15 @@ export interface AdsAccount {
 	approved: boolean;
 	active: boolean;
 	unsafe: UnsafeReason | false;
+	/** WordPress.com's program status, e.g. `ineligible` once the plan lapses; false if it has none. */
+	status: string | false;
 }
 
 interface AccountResponse {
 	approved?: boolean;
 	active?: boolean;
 	unsafe?: string | false;
+	status?: string | false;
 }
 
 const UNSAFE_REASONS: readonly string[] = [ 'mature', 'spam', 'private', 'other' ];
@@ -37,7 +41,12 @@ export function useAdsAccount() {
 			if ( data.unsafe ) {
 				unsafe = UNSAFE_REASONS.includes( data.unsafe ) ? ( data.unsafe as UnsafeReason ) : 'other';
 			}
-			return { approved: Boolean( data.approved ), active: Boolean( data.active ), unsafe };
+			return {
+				approved: Boolean( data.approved ),
+				active: Boolean( data.active ),
+				unsafe,
+				status: data.status || false,
+			};
 		},
 	} );
 }
@@ -45,7 +54,7 @@ export function useAdsAccount() {
 /**
  * Whether ads are on: the `wordads` module on Jetpack sites, WordPress.com's own state on Simple.
  *
- * Refetched on each visit to the tab, since the Settings tab can switch the module.
+ * The Settings tab invalidates the module query when it switches the module.
  *
  * @return Whether ads are on, undefined while that loads, and whether it failed to.
  */
@@ -53,7 +62,7 @@ export function useAdsActive(): { active: boolean | undefined; isError: boolean 
 	const simple = isSimpleSite();
 	const account = useAdsAccount();
 	const module = useQuery( {
-		queryKey: [ 'monetize', 'ads', 'module' ],
+		queryKey: ADS_MODULE_KEY,
 		queryFn: async () => {
 			const settings = await apiFetch< { wordads?: unknown } >( { path: '/jetpack/v4/settings' } );
 			return Boolean( settings.wordads );

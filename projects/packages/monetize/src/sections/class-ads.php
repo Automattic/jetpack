@@ -36,15 +36,26 @@ class Ads implements Dashboard_Section {
 	}
 
 	/**
-	 * Whether the plan includes WordAds, and whether WordPress.com is behind the site's Ads settings.
+	 * Whether the plan includes WordAds, who can join it, and whether WordPress.com is behind the site's Ads settings.
 	 *
 	 * @return array
 	 */
 	public function get_state() {
 		return array(
 			'hasWordAds'     => Current_Plan::supports( 'wordads' ),
+			'canJoinWordAds' => self::can_join_wordads(),
 			'wpcomOutOfDate' => Ads_Wpcom_Settings::is_out_of_date(),
 		);
+	}
+
+	/**
+	 * Whether the current user may join WordAds on Simple, which WordPress.com allows only the site owner.
+	 *
+	 * @return bool
+	 */
+	private static function can_join_wordads() {
+		return function_exists( 'wpcom_get_blog_owner' )
+			&& get_current_user_id() === (int) wpcom_get_blog_owner();
 	}
 
 	/**

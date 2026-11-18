@@ -3,7 +3,7 @@ import { isSimpleSite } from '@automattic/jetpack-script-data';
 import { __ } from '@wordpress/i18n';
 import { Button, ButtonLink, Card, Notice, Stack, Text } from '@wordpress/ui';
 import { useCallback } from 'react';
-import { getPageData } from '../../data/state';
+import { getPageData, getSectionState } from '../../data/state';
 import { trackAdsEvent } from '../../data/tracking';
 import { useAdsAccount, useJoinWordAds } from '../../data/wordads';
 import type { UnsafeReason } from '../../data/wordads';
@@ -92,7 +92,7 @@ export function UpsellCard() {
 }
 
 /**
- * The way to start showing ads with a plan that includes them: joining on Simple, the Settings switch elsewhere.
+ * The way to start showing ads with a plan that includes them: joining on Simple (owner only), the Settings switch elsewhere.
  *
  * @param props         - Component props.
  * @param props.openTab - Opens another of the page's tabs.
@@ -100,6 +100,9 @@ export function UpsellCard() {
  */
 export function StartCard( { openTab }: { openTab: OpenTab } ) {
 	const simple = isSimpleSite();
+	const canJoin = Boolean(
+		getSectionState< { canJoinWordAds?: boolean } >( 'ads' )?.canJoinWordAds
+	);
 	const { data: account } = useAdsAccount();
 	const join = useJoinWordAds();
 
@@ -116,7 +119,7 @@ export function StartCard( { openTab }: { openTab: OpenTab } ) {
 			<Card.Header>
 				<Card.Title render={ <h2 /> }>
 					{ simple
-						? __( 'Apply to join WordAds', 'jetpack-monetize' )
+						? __( 'Join WordAds', 'jetpack-monetize' )
 						: __( 'Start earning from ads', 'jetpack-monetize' ) }
 				</Card.Title>
 			</Card.Header>
@@ -136,7 +139,10 @@ export function StartCard( { openTab }: { openTab: OpenTab } ) {
 							</Notice.Description>
 						</Notice.Root>
 					) }
-					{ simple ? (
+					{ simple && ! canJoin && (
+						<Text>{ __( 'Only the site owner can join WordAds.', 'jetpack-monetize' ) }</Text>
+					) }
+					{ simple && canJoin && (
 						<Button
 							variant="solid"
 							onClick={ onJoin }
@@ -145,7 +151,8 @@ export function StartCard( { openTab }: { openTab: OpenTab } ) {
 						>
 							{ __( 'Join WordAds', 'jetpack-monetize' ) }
 						</Button>
-					) : (
+					) }
+					{ ! simple && (
 						<Button variant="solid" onClick={ onSetUp }>
 							{ __( 'Turn on ads', 'jetpack-monetize' ) }
 						</Button>

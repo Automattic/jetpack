@@ -1,7 +1,11 @@
 import jetpackAnalytics from '@automattic/jetpack-analytics';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act, renderHook, waitFor } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
+import { createElement } from 'react';
 import { useAdsSettings } from '../use-ads-settings';
+import { ADS_MODULE_KEY } from '../wordads';
+import type { ReactNode } from 'react';
 
 jest.mock( '@wordpress/api-fetch', () => ( { __esModule: true, default: jest.fn() } ) );
 jest.mock( '@automattic/jetpack-analytics', () => ( {
@@ -32,9 +36,12 @@ const STORED = {
  */
 async function renderLoaded() {
 	mockedApiFetch.mockResolvedValueOnce( STORED );
-	const view = renderHook( () => useAdsSettings() );
+	const queryClient = new QueryClient();
+	const wrapper = ( { children }: { children: ReactNode } ) =>
+		createElement( QueryClientProvider, { client: queryClient }, children );
+	const view = renderHook( () => useAdsSettings(), { wrapper } );
 	await waitFor( () => expect( view.result.current.values ).toBeDefined() );
-	return view;
+	return { ...view, queryClient };
 }
 
 describe( 'useAdsSettings', () => {
@@ -75,7 +82,8 @@ describe( 'useAdsSettings', () => {
 	} );
 
 	it( 'switches ads through the module endpoint', async () => {
-		const { result } = await renderLoaded();
+		const { result, queryClient } = await renderLoaded();
+		queryClient.setQueryData( ADS_MODULE_KEY, true );
 		mockedApiFetch.mockResolvedValueOnce( {} );
 
 		await act( () => result.current.setModuleActive( false ) );
@@ -91,6 +99,8 @@ describe( 'useAdsSettings', () => {
 			origin: 'monetize-settings-tab',
 		} );
 		expect( result.current.values?.wordads ).toBe( false );
+		// The Ads tab reads the switch from this query.
+		expect( queryClient.getQueryState( ADS_MODULE_KEY )?.isInvalidated ).toBe( true );
 	} );
 
 	it( 'goes back to the stored value when a save fails', async () => {

@@ -1,5 +1,5 @@
 import { formatCurrency } from '@automattic/number-formatters';
-import { __, sprintf } from '@wordpress/i18n';
+import { __, _x, sprintf } from '@wordpress/i18n';
 import { Badge, Card, Notice, Stack, Text } from '@wordpress/ui';
 import { useAdsPayments } from '../../data/wordads';
 import type { AdsPayment } from '../../data/wordads';
@@ -11,6 +11,12 @@ const STATUS_INTENTS: Record< string, BadgeIntent > = {
 	paid: 'stable',
 	pending: 'informational',
 	failed: 'high',
+};
+
+const STATUS_LABELS: Record< string, () => string > = {
+	paid: () => _x( 'Paid', 'payout status', 'jetpack-monetize' ),
+	pending: () => _x( 'Pending', 'payout status', 'jetpack-monetize' ),
+	failed: () => _x( 'Failed', 'payout status', 'jetpack-monetize' ),
 };
 
 /**
@@ -97,7 +103,7 @@ export default function PaymentsCard( { paypal }: { paypal?: string } ) {
 									<td>{ formatCurrency( payment.amount, 'USD' ) }</td>
 									<td>
 										<Badge intent={ STATUS_INTENTS[ payment.status ] ?? 'medium' }>
-											{ payment.status }
+											{ STATUS_LABELS[ payment.status ]?.() ?? payment.status }
 										</Badge>
 									</td>
 									<td>{ payment.paypalEmail }</td>

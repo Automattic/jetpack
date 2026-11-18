@@ -5,7 +5,7 @@ import { getPageData, getSectionState } from '../../data/state';
 import { trackAdsEvent } from '../../data/tracking';
 import { useSiteHasFeature } from '../../data/use-site-feature';
 import { usePayout } from '../../data/use-wpcom-ads-settings';
-import { useAdsActive, useAdsEarnings } from '../../data/wordads';
+import { useAdsAccount, useAdsActive, useAdsEarnings } from '../../data/wordads';
 import EarningsCard from './earnings-card';
 import PaymentsCard from './payments-card';
 import { StartCard, UnsafeNotice, UpsellCard } from './status';
@@ -24,8 +24,11 @@ export default function Ads( { openTab }: { openTab: ( next: string ) => void } 
 	const cached = Boolean( getSectionState< { hasWordAds?: boolean } >( 'ads' )?.hasWordAds );
 	const hasWordAds = useSiteHasFeature( 'wordads', cached );
 	const { active, isError } = useAdsActive();
+	const { data: account } = useAdsAccount();
 	const earnings = useAdsEarnings();
-	const payout = usePayout( Boolean( active ) );
+	// A site that stopped showing ads can still be owed, so its history stays.
+	const showEarnings = Boolean( active ) || ( earnings.data?.total ?? 0 ) > 0;
+	const payout = usePayout( showEarnings );
 	const { upgradeUrl } = getPageData();
 
 	const onAddPaypal = useCallback( () => {
@@ -51,8 +54,6 @@ export default function Ads( { openTab }: { openTab: ( next: string ) => void } 
 		);
 	}
 
-	// A site that stopped showing ads can still be owed, so its history stays.
-	const showEarnings = active || ( earnings.data?.total ?? 0 ) > 0;
 	let start = null;
 	if ( ! active ) {
 		start = hasWordAds ? <StartCard openTab={ openTab } /> : <UpsellCard />;
@@ -61,7 +62,7 @@ export default function Ads( { openTab }: { openTab: ( next: string ) => void } 
 	return (
 		<Stack direction="column" gap="2xl">
 			<UnsafeNotice />
-			{ active && ! hasWordAds && (
+			{ active && ! hasWordAds && account?.status === 'ineligible' && (
 				<Notice.Root intent="warning">
 					<Notice.Description>
 						{ __(
@@ -78,7 +79,7 @@ export default function Ads( { openTab }: { openTab: ( next: string ) => void } 
 					) }
 				</Notice.Root>
 			) }
-			{ active && payout.data && ! payout.data.paypal && (
+			{ ( earnings.data?.owed ?? 0 ) > 0 && payout.data && ! payout.data.paypal && (
 				<Notice.Root intent="warning">
 					<Notice.Description>
 						{ __(

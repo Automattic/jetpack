@@ -1,6 +1,8 @@
+import { useQueryClient } from '@tanstack/react-query';
 import apiFetch from '@wordpress/api-fetch';
 import { useCallback, useEffect, useState } from 'react';
 import { trackModuleToggle, trackSettingToggle } from './tracking';
+import { ADS_MODULE_KEY } from './wordads';
 import type { APIFetchOptions } from '@wordpress/api-fetch';
 
 export const ADS_OPTIONS = [
@@ -58,6 +60,7 @@ function parseValues( settings: Record< string, unknown > ): AdsValues {
  * @return The values, load and save state, and the setters.
  */
 export function useAdsSettings( onSaved?: () => void ) {
+	const queryClient = useQueryClient();
 	const [ stored, setStored ] = useState< AdsValues >();
 	const [ requested, setRequested ] = useState< Partial< AdsValues > >( {} );
 	const [ loadError, setLoadError ] = useState( false );
@@ -80,6 +83,9 @@ export function useAdsSettings( onSaved?: () => void ) {
 			try {
 				await apiFetch( request );
 				setStored( prev => prev && { ...prev, [ key ]: value } );
+				if ( key === 'wordads' ) {
+					queryClient.invalidateQueries( { queryKey: ADS_MODULE_KEY } );
+				}
 				onSaved?.();
 			} catch {
 				setSaveError( true );
@@ -91,7 +97,7 @@ export function useAdsSettings( onSaved?: () => void ) {
 				} );
 			}
 		},
-		[ onSaved ]
+		[ onSaved, queryClient ]
 	);
 
 	const setOption = useCallback(

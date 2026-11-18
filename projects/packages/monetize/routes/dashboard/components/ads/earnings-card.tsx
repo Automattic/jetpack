@@ -25,6 +25,25 @@ export function getStatusLabel( status: EarningStatus | null ) {
 	return status ? STATUS_LABELS[ status ]() : '?';
 }
 
+const PERIOD_FORMAT = new Intl.DateTimeFormat( undefined, {
+	month: 'long',
+	year: 'numeric',
+	timeZone: 'UTC',
+} );
+
+/**
+ * A `YYYY-MM` month in the reader's locale, e.g. `October 2026`.
+ *
+ * @param period - The month.
+ * @return The label, or the month as given if it isn't `YYYY-MM`.
+ */
+export function formatPeriod( period: string ) {
+	const match = /^(\d{4})-(\d{2})$/.exec( period );
+	return match
+		? PERIOD_FORMAT.format( Date.UTC( Number( match[ 1 ] ), Number( match[ 2 ] ) - 1 ) )
+		: period;
+}
+
 /**
  * One kind of earnings, a row per month.
  *
@@ -54,7 +73,7 @@ function HistoryTable( { title, periods }: { title: string; periods: EarningsPer
 					<tbody>
 						{ periods.map( ( { period, amount, adsServed, status } ) => (
 							<tr key={ period }>
-								<td>{ period }</td>
+								<td>{ formatPeriod( period ) }</td>
 								<td>{ formatCurrency( amount, CURRENCY ) }</td>
 								{ showAdsServed && (
 									<td>{ adsServed === null ? '' : formatNumber( adsServed ) }</td>
