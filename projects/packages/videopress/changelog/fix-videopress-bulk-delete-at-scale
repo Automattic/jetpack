@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Media Library: Delete selected VideoPress videos a few at a time, with progress and per-item errors, and stop reporting a video as deleted when WordPress.com did not confirm it.
