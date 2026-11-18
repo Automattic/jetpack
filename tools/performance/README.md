@@ -329,11 +329,11 @@ A green build can therefore carry a skipped scenario. Look for the TeamCity WARN
 
 ### If bad data lands anyway
 
-A bad point must be corrected by the CodeVitals admin. Steps:
+The CodeVitals maintainers can correct bad data points.
 
 1. **Stop posting.** Pause the CodeVitals Jetpack Performance Scheduler build in TeamCity.
 2. **Document the extent.** Record the affected metric keys, the commit range (monorepo hashes), the time window (build start to end), and whether the values are isolated or systematic.
-3. **Request a correction.** CodeVitals runs outside this project. Send the request to the CodeVitals maintainers. The service code is in the public [Automattic/gitaudit repository](https://github.com/Automattic/gitaudit). Include the affected metric IDs and keys, the commit/timestamp range, and the root cause.
+3. **Request a correction.** CodeVitals runs outside this project. If the incident involves `CODEVITALS_TOKEN`, rotate it first. Open an issue in the public [Automattic/gitaudit repository](https://github.com/Automattic/gitaudit/issues). Include the affected metric IDs and keys, the commit/timestamp range, and the root cause. Keep credentials out of the issue.
 4. **Fix the root cause.** Add or tighten a sanity range or staging gate. Don't re-enable the Scheduler until the fix merges.
 5. **Record the incident.** Until a maintenance runbook exists, add a dated entry under **Incident notes** with the failure mode, detection timing, and prevention measures.
 
