@@ -21,6 +21,7 @@ type ReportsOrdersByDateSummary = {
 	product_net_revenue: string;
 	profit_margin: string;
 	refunds: string;
+	total_items: string;
 	total_sales: string;
 	unpaid_orders_count: string;
 	unpaid_net_sales: string;

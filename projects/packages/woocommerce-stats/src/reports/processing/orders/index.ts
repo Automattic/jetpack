@@ -24,6 +24,7 @@ type SanitizedOrdersByDateItem = Override<
 		product_net_revenue: number;
 		profit_margin: number;
 		refunds: number;
+		total_items: number;
 		total_sales: number;
 		unpaid_orders_count: number;
 		unpaid_net_sales: number;
@@ -55,6 +56,7 @@ function sanitizeOrderItem(
 		product_net_revenue: safeParseFloat( item.product_net_revenue ),
 		profit_margin: safeParseFloat( item.profit_margin ),
 		refunds: safeParseFloat( item.refunds ),
+		total_items: safeParseInt( item.total_items ),
 		total_sales: safeParseFloat( item.total_sales ),
 		unpaid_orders_count: safeParseInt( item.unpaid_orders_count ),
 		unpaid_net_sales: safeParseFloat( item.unpaid_net_sales ),
