@@ -56,6 +56,7 @@ function GlobalStylesWarningNotice( { themeColor } ) {
 					) }
 				</Notice.Description>
 				<Notice.Actions>
+					{ /* Workaround: switch once https://github.com/WordPress/gutenberg/pull/86959 is available. */ }
 					<ButtonLink
 						variant="solid"
 						size="compact"
@@ -160,7 +161,6 @@ function GlobalStylesEditNotice() {
 				onClick: previewPost,
 				variant: 'secondary',
 				noDefaultClasses: true,
-				className: 'wpcom-global-styles-action-has-icon wpcom-global-styles-action-is-external',
 			} );
 		}
 
