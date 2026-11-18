@@ -166,7 +166,9 @@ const popTo = url => {
 		( [ type ] ) => type === 'popstate'
 	)[ 1 ];
 	globalThis.history.replaceState( null, '', url );
-	onPopState( { isTrusted: true } );
+	const event = { isTrusted: true, stopImmediatePropagation: jest.fn() };
+	onPopState( event );
+	return event;
 };
 
 const where = () => location.search;
@@ -601,7 +603,7 @@ describe( 'admin shell live-app limit', () => {
 
 	it( 'loads the page for Back/Forward to a new dashboard once the limit is reached', async () => {
 		await fill( false );
-		popTo( A2 );
+		const back = popTo( A2 );
 		await settle();
 
 		expect( loaded() ).toEqual( [
@@ -609,8 +611,9 @@ describe( 'admin shell live-app limit', () => {
 		] );
 		expect( stateOf( 'guest-a2' ) ).toBeUndefined();
 		expect( prewarmed() ).toEqual( [ 'guest-a', 'guest-b' ] );
-		// The visible app's router, which hears the popstate next, still reads its own URL.
+		// The visible app keeps its own URL, and its routers and guards never hear the popstate.
 		expect( where() ).toBe( '?page=guest-b' );
+		expect( back.stopImmediatePropagation ).toHaveBeenCalled();
 	} );
 
 	it( 'loads the page for Back/Forward while an app mounts, without asking', async () => {
