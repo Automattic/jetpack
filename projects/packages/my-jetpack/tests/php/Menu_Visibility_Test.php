@@ -9,7 +9,9 @@ namespace Automattic\Jetpack\My_Jetpack;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Connection\Tokens;
+use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\My_Jetpack\Products\Backup;
+use Automattic\Jetpack\My_Jetpack\Products\Videopress;
 use Jetpack_Options;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -440,6 +442,47 @@ class Menu_Visibility_Test extends TestCase {
 
 		$this->assertSame( $installed ? true : 'not_available', is_wp_error( $result ) ? $result->get_error_code() : $result );
 		$this->assertSame( $expected, Sample_Gated_Product::$activation_attempts );
+	}
+
+	/**
+	 * A hybrid product whose standalone plugin is missing is not offered, even with the Jetpack plugin installed but off.
+	 *
+	 * Product::activate() would install the standalone plugin from WordPress.org.
+	 */
+	public function test_hybrid_product_without_its_own_plugin_is_not_offered() {
+		$jetpack_only = static function () {
+			return array( 'jetpack/jetpack.php' => array( 'Name' => 'Jetpack' ) );
+		};
+		add_filter( 'all_plugins', $jetpack_only );
+		update_option( 'active_plugins', array() );
+		wp_set_current_user(
+			wp_insert_user(
+				array(
+					'user_login' => 'menu_visibility_hybrid',
+					'user_pass'  => '123',
+					'role'       => 'administrator',
+				)
+			)
+		);
+		$requests      = 0;
+		$count_request = function () use ( &$requests ) {
+			++$requests;
+			return new \WP_Error( 'http_request_failed', 'No request expected.' );
+		};
+		add_filter( 'pre_http_request', $count_request );
+
+		$installed = Videopress::is_plugin_installed();
+		$on_offer  = in_array( 'videopress', ( new Modules() )->get_available(), true );
+		$offered   = Menu_Visibility::can_offer( array( 'product' => 'videopress' ) );
+		$result    = Menu_Visibility::activate( array( 'product' => 'videopress' ) );
+		remove_filter( 'pre_http_request', $count_request );
+		remove_filter( 'all_plugins', $jetpack_only );
+
+		$this->assertTrue( $installed, 'The hybrid product has to read as installed off the Jetpack plugin for this test to mean anything.' );
+		$this->assertFalse( $on_offer, 'Its module has to be out of reach for this test to mean anything.' );
+		$this->assertFalse( $offered );
+		$this->assertSame( 'not_available', is_wp_error( $result ) ? $result->get_error_code() : $result );
+		$this->assertSame( 0, $requests );
 	}
 
 	/**

@@ -119,7 +119,8 @@ class Menu_Visibility {
 		if ( ! $product_class ) {
 			return new WP_Error( 'not_found', __( 'That feature was not found.', 'jetpack-my-jetpack' ) );
 		}
-		if ( ! $product_class::is_plugin_installed() ) {
+		// Not is_plugin_installed(): a hybrid product counts the Jetpack plugin, and activation would install its own.
+		if ( ! $product_class::get_installed_plugin_filename() ) {
 			return new WP_Error( 'not_available', __( 'This feature needs a plugin installed from My Jetpack.', 'jetpack-my-jetpack' ) );
 		}
 		if ( ! REST_Products::edit_permissions_callback() ) {
@@ -228,7 +229,7 @@ class Menu_Visibility {
 		list( $product_class, $module ) = self::get_targets( $args );
 
 		// A site without the plugin never had the feature on, say Stats on a Boost-only site.
-		if ( ! self::is_module_on_offer( $module ) && ! ( $product_class && $product_class::is_plugin_installed() ) ) {
+		if ( ! self::is_module_on_offer( $module ) && ! ( $product_class && $product_class::get_installed_plugin_filename() ) ) {
 			return false;
 		}
 

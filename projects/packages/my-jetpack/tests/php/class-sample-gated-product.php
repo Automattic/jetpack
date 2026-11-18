@@ -48,19 +48,24 @@ class Sample_Gated_Product extends Products\Stats {
 	}
 
 	/**
-	 * What is_plugin_installed() should answer.
+	 * Whether the product's standalone plugin reads as installed.
 	 *
 	 * @var bool
 	 */
 	public static $installed = true;
 
 	/**
-	 * Whether the product's plugin is installed.
+	 * The standalone plugin's filename while $installed, and the Jetpack plugin's as found on disk.
 	 *
-	 * @return bool
+	 * @param string $plugin Which plugin to check. jetpack for the jetpack plugin or product for the product specific plugin.
+	 * @return ?string
 	 */
-	public static function is_plugin_installed() {
-		return static::$installed;
+	public static function get_installed_plugin_filename( $plugin = 'product' ) {
+		if ( self::JETPACK_PLUGIN_SLUG === $plugin ) {
+			return parent::get_installed_plugin_filename( $plugin );
+		}
+
+		return static::$installed ? 'jetpack-stats/jetpack-stats.php' : null;
 	}
 
 	/**
