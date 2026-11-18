@@ -135,10 +135,12 @@ add_action(
 		$log   = array_map( 'get_option', $names );
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Test-only, admins only.
 		if ( ! empty( $_GET['reset'] ) ) {
-			array_map( 'delete_option', $names );
+			foreach ( $names as $name ) {
+				delete_option( $name );
+			}
 			// What the Forms hover bug saved. Settings' hover writes need WordPress.com answers this site never gets.
 			delete_option( 'jetpack_forms_classic_state' );
 		}
-		wp_send_json_success( $log, null, JSON_UNESCAPED_SLASHES );
+		wp_send_json_success( $log, 200, JSON_UNESCAPED_SLASHES );
 	}
 );

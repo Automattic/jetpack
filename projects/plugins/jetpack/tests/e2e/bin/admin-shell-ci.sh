@@ -39,7 +39,7 @@ echo "::group::Shell on"
 "${WP[@]}" jetpack module activate ai || exit 1
 "${WP[@]}" option delete e2e_admin_shell_off >/dev/null 2>&1
 # A run of its own, first: other tests' requests would mix into the hover test's write log.
-if [[ "${ADMIN_SHELL_SMOKE:-}" != 1 ]]; then
+if [[ "${ADMIN_SHELL_SMOKE:-}" != 1 && " ${BROWSERS[*]} " == *" chromium "* ]]; then
 	ADMIN_SHELL_RUN=hover ADMIN_SHELL_HOVER=1 playwright test -c playwright.admin-shell.config.ts --project='hover side effects' "$@" || STATUS=1
 fi
 ADMIN_SHELL_RUN=shell-on playwright test -c playwright.admin-shell.config.ts --project='shell on: *' "$@" || STATUS=1
