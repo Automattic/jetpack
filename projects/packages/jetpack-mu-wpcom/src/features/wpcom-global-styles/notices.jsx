@@ -184,7 +184,6 @@ function GlobalStylesEditNotice() {
 				id: NOTICE_ID,
 				actions: actions,
 				isDismissible: false,
-				icon: null,
 			}
 		);
 
