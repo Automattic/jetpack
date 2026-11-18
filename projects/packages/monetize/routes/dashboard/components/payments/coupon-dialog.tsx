@@ -64,6 +64,19 @@ function durationLabel( duration: string ): string {
 }
 
 /**
+ * Marks a field invalid and shows its error in red below its description.
+ *
+ * @param message - The error, if any.
+ * @return Props for the field.
+ */
+function errorProps( message: string | undefined ) {
+	return {
+		'aria-invalid': Boolean( message ),
+		details: message ? <ValidityIndicator type="invalid" message={ message } /> : undefined,
+	};
+}
+
+/**
  * Adds or edits a coupon.
  *
  * @param props            - Component props.
@@ -225,6 +238,22 @@ export default function CouponDialog( { coupon, codes, currencies, onClose }: Pr
 				? __( 'Enter a whole number from 1 to 100.', 'jetpack-monetize' )
 				: __( 'Enter a whole amount of at least 1.', 'jetpack-monetize' );
 	}
+	const startDateError = errors.includes( 'startDate' )
+		? __( 'Enter a start date.', 'jetpack-monetize' )
+		: undefined;
+	const endDateError = errors.includes( 'endDate' )
+		? __( 'Choose a date that’s not in the past or before the start date.', 'jetpack-monetize' )
+		: undefined;
+	const emailsError = errors.includes( 'emails' )
+		? sprintf(
+				/* translators: %s: a comma-separated list of email addresses. */
+				__( 'Fix these email addresses: %s', 'jetpack-monetize' ),
+				invalidEmails( form.emails ).join( ', ' )
+			)
+		: undefined;
+	const limitError = errors.includes( 'limitPerUser' )
+		? __( 'Enter a whole number of at least 1.', 'jetpack-monetize' )
+		: undefined;
 
 	// Wait for the plans, so a missing one is caught before saving.
 	const canSave =
@@ -262,13 +291,11 @@ export default function CouponDialog( { coupon, codes, currencies, onClose }: Pr
 									</Button>
 								</InputLayout.Slot>
 							}
-							description={
-								codeError ??
-								__(
-									'Customers enter this at checkout. Letters, numbers, and hyphens; not case-sensitive.',
-									'jetpack-monetize'
-								)
-							}
+							description={ __(
+								'Customers enter this at checkout. Letters, numbers, and hyphens; not case-sensitive.',
+								'jetpack-monetize'
+							) }
+							{ ...errorProps( codeError ) }
 						/>
 						<div className="jp-monetize-payments__prices">
 							<SelectControl
@@ -305,7 +332,7 @@ export default function CouponDialog( { coupon, codes, currencies, onClose }: Pr
 								}
 								value={ form.discount }
 								onValueChange={ onDiscountChange }
-								description={ discountError }
+								{ ...errorProps( discountError ) }
 							/>
 						</div>
 						<div className="jp-monetize-payments__prices">
@@ -315,11 +342,7 @@ export default function CouponDialog( { coupon, codes, currencies, onClose }: Pr
 								label={ __( 'Start date', 'jetpack-monetize' ) }
 								value={ form.startDate }
 								onValueChange={ onStartDateChange }
-								description={
-									errors.includes( 'startDate' )
-										? __( 'Enter a start date.', 'jetpack-monetize' )
-										: undefined
-								}
+								{ ...errorProps( startDateError ) }
 							/>
 							<InputControl
 								disabled={ isPending }
@@ -327,14 +350,7 @@ export default function CouponDialog( { coupon, codes, currencies, onClose }: Pr
 								label={ __( 'Expiration date (optional)', 'jetpack-monetize' ) }
 								value={ form.endDate }
 								onValueChange={ onEndDateChange }
-								description={
-									errors.includes( 'endDate' )
-										? __(
-												'Choose a date that’s not in the past or before the start date.',
-												'jetpack-monetize'
-											)
-										: undefined
-								}
+								{ ...errorProps( endDateError ) }
 							/>
 						</div>
 						<SelectControl
@@ -379,18 +395,11 @@ export default function CouponDialog( { coupon, codes, currencies, onClose }: Pr
 							label={ __( 'Limit to specific emails (optional)', 'jetpack-monetize' ) }
 							value={ form.emails }
 							onValueChange={ onEmailsChange }
-							description={
-								errors.includes( 'emails' )
-									? sprintf(
-											/* translators: %s: a comma-separated list of email addresses. */
-											__( 'Fix these email addresses: %s', 'jetpack-monetize' ),
-											invalidEmails( form.emails ).join( ', ' )
-										)
-									: __(
-											'Separate emails with commas. Use * to match part of an email, e.g. *@university.edu.',
-											'jetpack-monetize'
-										)
-							}
+							description={ __(
+								'Separate emails with commas. Use * to match part of an email, e.g. *@university.edu.',
+								'jetpack-monetize'
+							) }
+							{ ...errorProps( emailsError ) }
 						/>
 						<InputControl
 							disabled={ isPending }
@@ -400,14 +409,11 @@ export default function CouponDialog( { coupon, codes, currencies, onClose }: Pr
 							label={ __( 'Usage limit (optional)', 'jetpack-monetize' ) }
 							value={ form.limitPerUser }
 							onValueChange={ onLimitChange }
-							description={
-								errors.includes( 'limitPerUser' )
-									? __( 'Enter a whole number of at least 1.', 'jetpack-monetize' )
-									: __(
-											'How many times each customer can use this coupon. Leave empty for no limit.',
-											'jetpack-monetize'
-										)
-							}
+							description={ __(
+								'How many times each customer can use this coupon. Leave empty for no limit.',
+								'jetpack-monetize'
+							) }
+							{ ...errorProps( limitError ) }
 						/>
 						<SwitchControl
 							disabled={ isPending }
