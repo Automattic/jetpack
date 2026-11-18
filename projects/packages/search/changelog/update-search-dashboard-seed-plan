@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Dashboard: Show the dashboard to sites with a Search plan without waiting for the plan request, and skip the pricing request they never see.
