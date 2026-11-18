@@ -1861,7 +1861,7 @@ class Identity_Crisis_Test extends BaseTestCase {
 		remove_action( 'pre_update_jetpack_option_sync_error_idc', $capture, 10 );
 		Jetpack_Options::delete_option( array( 'id', 'blog_token', 'sync_error_idc' ) );
 
-		$this->assertNotEmpty( $writes );
+		$this->assertCount( 2, $writes );
 		$reversed = array( strrev( 'wpcom.example.com/' ), strrev( 'wpcom.example.com/wp/' ), true );
 		$this->assertSame( array_fill( 0, count( $writes ), $reversed ), $writes );
 		$this->assertSame( array( 'wpcom.example.com/', 'wpcom.example.com/wp/' ), array( $read_back['wpcom_home'], $read_back['wpcom_siteurl'] ) );
