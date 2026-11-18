@@ -199,6 +199,8 @@ class InitializerTest extends TestCase {
 		);
 		unset( $GLOBALS['wp_filter']['transition_post_status'], $GLOBALS['wp_filter']['clean_post_cache'] );
 		unregister_meta_key( 'post', Llms_Txt::META_ALWAYS_INCLUDE );
+		remove_action( 'wp_after_insert_post', array( Indexnow_Events::class, 'saved' ) );
+		remove_action( Indexnow_Queue::HOOK, array( Indexnow_Queue::class, 'work' ) );
 		try {
 			Initializer::register_write_hooks();
 			$this->assertTrue( registered_meta_key_exists( 'post', Llms_Txt::META_ALWAYS_INCLUDE ) );
@@ -206,6 +208,8 @@ class InitializerTest extends TestCase {
 				has_action( 'transition_post_status', array( Content_Coverage::class, 'invalidate_on_status_change' ) )
 			);
 			$this->assertNotFalse( has_action( 'clean_post_cache', array( Llms_Txt::class, 'clear_cache_for_post' ) ) );
+			$this->assertNotFalse( has_action( 'wp_after_insert_post', array( Indexnow_Events::class, 'saved' ) ) );
+			$this->assertNotFalse( has_action( Indexnow_Queue::HOOK, array( Indexnow_Queue::class, 'work' ) ) );
 		} finally {
 			$GLOBALS['wp_filter'] = $hooks; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		}

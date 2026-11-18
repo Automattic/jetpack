@@ -164,6 +164,8 @@ class Initializer {
 
 		self::register_write_hooks();
 
+		Indexnow_Client::init();
+
 		// The settings surface only comes online once SEO tools are active — there's
 		// nothing to configure while the module is off, so we don't register its REST
 		// endpoints until then. Everything the dashboard saves is exposed to WordPress
@@ -215,13 +217,14 @@ class Initializer {
 	}
 
 	/**
-	 * Hook what any request that saves content needs: the page fields the SEO page saves, and
-	 * clearing the Overview counts and the stored llms.txt. WordPress.com calls this on its API
-	 * requests, which skip init().
+	 * Register content-write hooks for ordinary and centralized API requests.
+	 * Centralized API requests select their site after plugins_loaded and skip init().
 	 *
 	 * @return void
 	 */
 	public static function register_write_hooks() {
+		Indexnow_Events::init();
+		Indexnow_Queue::init();
 		Content_Coverage::register_invalidation();
 		Llms_Txt::register_always_include();
 		Llms_Txt::register_invalidation();
