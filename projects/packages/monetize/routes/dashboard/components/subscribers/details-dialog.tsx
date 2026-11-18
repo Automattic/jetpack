@@ -1,30 +1,63 @@
 import { formatCurrency } from '@automattic/number-formatters';
 import { __ } from '@wordpress/i18n';
-import { Button, ButtonLink, Dialog, Stack, Text } from '@wordpress/ui';
+import { chartBar, payment } from '@wordpress/icons';
+import { Avatar, Button, ButtonLink, Card, Dialog, Icon, Stack, Text } from '@wordpress/ui';
 import { useCallback } from 'react';
 import { trackSubscribersEvent } from '../../data/tracking';
 import { getStripeUrl, isOneTime, startDateLabel, subscriptionPriceLabel } from './subscriptions';
 import type { PaidSubscription } from '../../data/subscribers';
+import type { ReactNode } from 'react';
 
 /**
- * One labelled value in the details, left out when it's empty.
+ * One headline amount, such as the total spent.
  *
  * @param props       - Component props.
+ * @param props.icon  - The icon.
  * @param props.label - The label.
- * @param props.value - The value.
- * @return The pair.
+ * @param props.value - The amount.
+ * @return The card.
  */
-function Detail( { label, value }: { label: string; value: string } ) {
-	if ( ! value ) {
-		return null;
-	}
+function Figure( { icon, label, value }: { icon: ReactNode; label: string; value: string } ) {
 	return (
-		<Stack direction="column" gap="xs">
-			<Text variant="body-sm">{ label }</Text>
-			<Text variant="heading-sm" render={ <p /> }>
-				{ value }
-			</Text>
-		</Stack>
+		<Card.Root>
+			<Card.Content>
+				<Stack direction="column" gap="sm">
+					{ icon }
+					<Text variant="body-md">{ label }</Text>
+					<Text variant="heading-xl">{ value }</Text>
+				</Stack>
+			</Card.Content>
+		</Card.Root>
+	);
+}
+
+/**
+ * A titled group of labelled values, leaving out the empty ones.
+ *
+ * @param props       - Component props.
+ * @param props.title - The section title.
+ * @param props.items - The label and value pairs.
+ * @return The card.
+ */
+function Section( { title, items }: { title: string; items: [ string, string ][] } ) {
+	return (
+		<Card.Root>
+			<Card.Header>
+				<Card.Title render={ <h3 /> }>{ title }</Card.Title>
+			</Card.Header>
+			<Card.Content>
+				<dl className="jp-monetize-subscribers__details">
+					{ items
+						.filter( ( [ , value ] ) => value )
+						.map( ( [ label, value ] ) => (
+							<div key={ label } className="jp-monetize-subscribers__detail">
+								<dt>{ label }</dt>
+								<dd>{ value }</dd>
+							</div>
+						) ) }
+				</dl>
+			</Card.Content>
+		</Card.Root>
 	);
 }
 
@@ -56,35 +89,53 @@ export default function DetailsDialog( {
 	);
 	const onStripeClick = useCallback( () => trackSubscribersEvent( 'stripe_click' ), [] );
 	const onCancelClick = useCallback( () => onCancel( subscription ), [ onCancel, subscription ] );
+	const name = subscription.name || subscription.email;
 
 	return (
 		<Dialog.Root open onOpenChange={ onOpenChange }>
 			<Dialog.Popup size="large">
 				<Dialog.Header>
-					<Dialog.Title>{ subscription.name || subscription.email }</Dialog.Title>
+					<Stack direction="row" gap="md" align="center">
+						<Avatar.Root size="lg">
+							{ subscription.avatarUrl && <Avatar.Image src={ subscription.avatarUrl } alt="" /> }
+							<Avatar.Initials name={ name } />
+						</Avatar.Root>
+						<Stack direction="column" gap="xs">
+							<Dialog.Title>{ name }</Dialog.Title>
+							{ subscription.name && subscription.email && (
+								<Text variant="body-sm">{ subscription.email }</Text>
+							) }
+						</Stack>
+					</Stack>
 					<Dialog.CloseIconButton />
 				</Dialog.Header>
 				<Dialog.Content>
-					<div className="jp-monetize-subscribers__details">
-						<Detail label={ __( 'Email', 'jetpack-monetize' ) } value={ subscription.email } />
-						<Detail label={ __( 'Plan', 'jetpack-monetize' ) } value={ subscription.planTitle } />
-						<Detail
-							label={
-								isOneTime( subscription )
-									? __( 'Payment', 'jetpack-monetize' )
-									: __( 'Renews at', 'jetpack-monetize' )
-							}
-							value={ subscriptionPriceLabel( subscription ) }
+					<Stack direction="column" gap="lg">
+						<div className="jp-monetize-subscribers__figures">
+							<Figure
+								icon={ <Icon icon={ payment } /> }
+								label={ __( 'Last payment', 'jetpack-monetize' ) }
+								value={ formatCurrency( subscription.renewalPrice, subscription.currency ) }
+							/>
+							<Figure
+								icon={ <Icon icon={ chartBar } /> }
+								label={ __( 'Total spent', 'jetpack-monetize' ) }
+								value={ formatCurrency( subscription.allTimeTotal, subscription.currency ) }
+							/>
+						</div>
+						<Section
+							title={ __( 'Details', 'jetpack-monetize' ) }
+							items={ [
+								[ __( 'Plan', 'jetpack-monetize' ), subscription.planTitle ],
+								[ __( 'Amount', 'jetpack-monetize' ), subscriptionPriceLabel( subscription ) ],
+								[ __( 'Since', 'jetpack-monetize' ), startDateLabel( subscription ) ],
+							] }
 						/>
-						<Detail
-							label={ __( 'Total paid', 'jetpack-monetize' ) }
-							value={ formatCurrency( subscription.allTimeTotal, subscription.currency ) }
+						<Section
+							title={ __( 'Supporter information', 'jetpack-monetize' ) }
+							items={ [ [ __( 'Email', 'jetpack-monetize' ), subscription.email ] ] }
 						/>
-						<Detail
-							label={ __( 'Since', 'jetpack-monetize' ) }
-							value={ startDateLabel( subscription ) }
-						/>
-					</div>
+					</Stack>
 				</Dialog.Content>
 				<Dialog.Footer>
 					<Button variant="outline" tone="neutral" onClick={ onCancelClick }>
