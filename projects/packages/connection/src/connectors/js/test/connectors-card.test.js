@@ -94,21 +94,14 @@ const brokenOwner = {
 /**
  * Register and render the card.
  *
- * @param {object}  options              - Test setup.
- * @param {object}  options.state        - The jetpack-connection store's initial state.
- * @param {object}  options.data         - The card's script module data.
- * @param {string}  options.search       - The page's query string.
- * @param {object}  options.errorNotice  - What useConnectionErrorNotice() returns.
- * @param {boolean} options.hasNewScreen - Whether the shared script provides IdentityCrisis.
+ * @param {object} options             - Test setup.
+ * @param {object} options.state       - The jetpack-connection store's initial state.
+ * @param {object} options.data        - The card's script module data.
+ * @param {string} options.search      - The page's query string.
+ * @param {object} options.errorNotice - What useConnectionErrorNotice() returns.
  * @return {object} A user-event instance, this load's mocked connection package and the card-state URL spies.
  */
-function renderCard( {
-	state = connectedAsOwner,
-	data = {},
-	search = '',
-	errorNotice,
-	hasNewScreen = true,
-} = {} ) {
+function renderCard( { state = connectedAsOwner, data = {}, search = '', errorNotice } = {} ) {
 	window.JP_CONNECTION_INITIAL_STATE = state;
 	window.history.replaceState( null, '', '/wp-admin/options-connectors.php' + search );
 	const dataEl = document.createElement( 'script' );
@@ -130,10 +123,6 @@ function renderCard( {
 		};
 	} );
 	const connection = require( '@automattic/jetpack-connection' );
-	if ( ! hasNewScreen ) {
-		// This load's fresh copy, read at render time, so later tests still get the component.
-		delete connection.IdentityCrisis;
-	}
 	if ( errorNotice ) {
 		connection.useConnectionErrorNotice.mockReturnValue( errorNotice );
 	}
@@ -732,15 +721,6 @@ describe( 'Connectors card', () => {
 			expect( withoutClearConfirmation.mock.results[ 0 ].value ).toBe(
 				'http://localhost/wp-admin/options-connectors.php'
 			);
-		} );
-
-		it( 'falls back to the Safe Mode panel when the shared script has no new screen', async () => {
-			const { user, connection } = renderCard( { state: newScreen, hasNewScreen: false } );
-
-			await user.click( screen.getByRole( 'button', { name: 'Resolve' } ) );
-
-			expect( connection.IdentityCrisis ).toBeUndefined();
-			expect( screen.getByRole( 'button', { name: 'Update address' } ) ).toBeInTheDocument();
 		} );
 
 		it( "opens the card's own disconnect dialog", async () => {
