@@ -72,7 +72,7 @@ class Block_Editor_Content {
 			'cover'           => true,  // Whether to scale the video to its container
 			'muted'           => false, // Whether the video should start without sound
 			'controls'        => true,  // Whether the video should display controls
-			'playsinline'     => false, // Whether the video should be allowed to play inline (for browsers that support this)
+			'playsinline'     => true,  // Whether the video plays in the page on an iPhone, instead of in the system's fullscreen player
 			'useaveragecolor' => false, // Whether the video should use the seekbar automatic average color
 			'preloadcontent'  => 'metadata',
 		);

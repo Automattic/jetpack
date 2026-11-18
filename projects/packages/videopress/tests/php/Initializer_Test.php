@@ -127,6 +127,15 @@ class Initializer_Test extends BaseTestCase {
 		$this->assertStringNotContainsString( 'preloadContent=metadata', $html );
 	}
 
+	/** Tests that a block plays in the page unless its "Play inline" switch is off. */
+	public function test_block_embed_plays_inline_unless_told_not_to() {
+		$this->assertStringContainsString( 'playsinline=1', $this->render() );
+
+		$html = $this->render( array( 'playsinline' => false ) );
+		$this->assertStringContainsString( 'playsinline=0', $html );
+		$this->assertStringNotContainsString( 'playsinline=1', $html );
+	}
+
 	/**
 	 * Tests that the inline player replaces the iframe when the site turns it on.
 	 *
