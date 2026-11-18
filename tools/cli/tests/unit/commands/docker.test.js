@@ -10,6 +10,7 @@ const fsStub = {
 	mkdirSync: jest.fn(),
 	closeSync: jest.fn(),
 	openSync: jest.fn( () => 0 ),
+	realpathSync: jest.fn( p => `/real/${ p }` ),
 };
 jest.unstable_mockModule( 'fs', () => ( {
 	default: fsStub,
@@ -29,6 +30,7 @@ const {
 	getProjectName,
 	buildEnv,
 	buildExecCmd,
+	otherInstancesSharingCheckout,
 	resolveDevCloneSource,
 	normalizeProjectShortName,
 	pipeDbDump,
@@ -655,5 +657,37 @@ describe( 'pipeDbDump', () => {
 		await expect( pipeDbDump( 'src-wp-1', 'tgt-wp-1', '/var/www/html' ) ).rejects.toThrow(
 			/source.*exit 1.*target.*exit 3/is
 		);
+	} );
+} );
+
+describe( 'otherInstancesSharingCheckout', () => {
+	test.each( [
+		[
+			'leaves out this instance and repeats',
+			'jetpack_feature\njetpack_dev\njetpack_dev\n',
+			0,
+			[ 'jetpack_dev' ],
+		],
+		[ 'is empty when only this instance runs', 'jetpack_feature\njetpack_feature\n', 0, [] ],
+		[ 'is null when Docker cannot be asked', '', 1, null ],
+	] )( '%s', ( _label, stdout, status, expected ) => {
+		cpStub.spawnSync.mockReturnValueOnce( { status, stdout, stderr: '' } );
+		expect( otherInstancesSharingCheckout( { type: 'dev', name: 'feature' } ) ).toEqual( expected );
+	} );
+} );
+
+describe( 'buildExecCmd uninstall', () => {
+	beforeEach( () => jest.spyOn( console, 'warn' ).mockImplementation( () => {} ) );
+	afterEach( () => jest.restoreAllMocks() );
+
+	test.each( [
+		[ 'keeps shared files while another instance runs', 'jetpack_other\n', 0, true ],
+		[ 'keeps shared files when Docker cannot be asked', '', 1, true ],
+		[ 'removes them when no other instance runs', '', 0, false ],
+	] )( '%s', ( _label, stdout, status, keep ) => {
+		cpStub.spawnSync.mockReturnValueOnce( { status, stdout, stderr: '' } );
+		const opts = buildExecCmd( { _: [ 'docker', 'uninstall' ], type: 'dev' } );
+		expect( opts.includes( 'JETPACK_KEEP_SHARED_FILES=1' ) ).toBe( keep );
+		expect( opts.at( -1 ) ).toBe( '/var/scripts/uninstall.sh' );
 	} );
 } );

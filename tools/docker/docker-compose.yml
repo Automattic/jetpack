@@ -25,7 +25,7 @@ services:
   ## - The container will be named jetpack_dev_wordpress_1 or jetpack_dev-wordpress-1 (depending on your Docker compose version) for easy reference when running Docker commands
   ##
   ## Here we map the following:
-  ##  - The docker/wordpress-develop directory where we'll get WordPress source code with unit tests
+  ##  - The docker/wordpress-develop/<project> directory where we'll get WordPress source code with unit tests
   ##  - The docker/wordpress directory so we can have WordPress source code modifiable from the host file system
   ##  - The docker/logs/apache2 directory so we can access Apache log files directly from the host file system
   ##  - The docker/logs/php directory so we can access PHP log files directly from the host file system
@@ -39,7 +39,7 @@ services:
       ## WordPress and its plugins and themes should be defined in volumeMappings in jetpack-docker-config-default.yml or jetpack-docker-config.yml, not here!
       ## That avoids having to define them both here and in the "sftp" service.
       - dockerdirectory:/usr/local/src/jetpack-monorepo/tools/docker
-      - ./wordpress-develop:/tmp/wordpress-develop
+      - ./wordpress-develop/${COMPOSE_PROJECT_NAME}:/tmp/wordpress-develop
       - ./logs/${COMPOSE_PROJECT_NAME}/apache2/:/var/log/apache2
       - ./logs/${COMPOSE_PROJECT_NAME}/php:/var/log/php
       - ./bin:/var/scripts

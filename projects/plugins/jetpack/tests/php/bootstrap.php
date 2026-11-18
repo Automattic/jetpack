@@ -83,7 +83,8 @@ if ( ! isset( $test_root ) || ! file_exists( $test_root . '/includes/bootstrap.p
 Looks like you're using the Jetpack Docker dev env, but the wordpress-develop checkout is incomplete.
 Try running `jetpack docker stop && jetpack docker up` to repopulate it.
 
-If that doesn't fix it, try (on the host) deleting `tools/docker/wordpress-develop/tests/` and then
+If that doesn't fix it, try (on the host) deleting `tools/docker/wordpress-develop/<project>/tests/`, where
+`<project>` is the instance's `COMPOSE_PROJECT_NAME` (e.g. `jetpack_dev`), and then
 running `jetpack docker stop && jetpack docker up` again to repopulate it.
 
 EOF
