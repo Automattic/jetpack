@@ -58,12 +58,20 @@ describe( 'drillDateRange', () => {
 		expect( range?.to?.getTime() ).toBe( Date.parse( '2026-12-31T23:59:59.999Z' ) );
 	} );
 
-	it( 'stops the window at now when the bucket is still in progress', () => {
+	it( 'stops the window at now when a week, month or year is still in progress', () => {
+		const now = utc( '2026-07-21T10:30:00.000Z' );
+		const range = drillDateRange( utc( '2026-07-21T09:00:00.000Z' ), 'week', now );
+
+		expect( range?.from?.getTime() ).toBe( Date.parse( '2026-07-20T00:00:00.000Z' ) );
+		expect( range?.to?.getTime() ).toBe( now.getTime() );
+	} );
+
+	it( 'opens the day in progress whole, as the Today preset does', () => {
 		const now = utc( '2026-07-21T10:30:00.000Z' );
 		const range = drillDateRange( utc( '2026-07-21T09:00:00.000Z' ), 'day', now );
 
 		expect( range?.from?.getTime() ).toBe( Date.parse( '2026-07-21T00:00:00.000Z' ) );
-		expect( range?.to?.getTime() ).toBe( now.getTime() );
+		expect( range?.to?.getTime() ).toBe( Date.parse( '2026-07-21T23:59:59.999Z' ) );
 	} );
 
 	it( 'refuses a bucket that has not started', () => {

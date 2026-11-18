@@ -53,10 +53,9 @@ export const route = {
 	},
 
 	/**
-	 * Validates that the route can be accessed.
-	 * Checks if the feedback post type exists.
+	 * Converts a legacy email-link hash into the matching wp-build URL.
 	 */
-	beforeLoad: async () => {
+	beforeLoad: () => {
 		// Redirect legacy hash from email links (e.g. #/responses?status=inbox&r=2879&mark_as_spam).
 		// The hash survives server redirects but is never sent to the server, so we must
 		// convert it client-side to the wp-build URL with responseIds in the path.
@@ -85,15 +84,6 @@ export const route = {
 					href: redirectUrl,
 				} );
 			}
-		}
-
-		// The feedback post type is registered by Jetpack Forms
-		// This will throw notFound() if the post type doesn't exist
-		try {
-			await resolveSelect( 'core' ).getPostType( 'feedback' );
-		} catch {
-			// Post type doesn't exist - Jetpack Forms not active
-			// For now, we'll let it fail gracefully in the component
 		}
 	},
 };

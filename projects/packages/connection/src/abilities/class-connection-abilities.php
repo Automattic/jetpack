@@ -81,7 +81,6 @@ class Connection_Abilities extends Registrar {
 			),
 			'input_schema'        => array(
 				'type'                 => 'object',
-				'properties'           => new \stdClass(),
 				'additionalProperties' => false,
 			),
 			'output_schema'       => array(

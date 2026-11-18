@@ -1474,7 +1474,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/jitm",
-                "reference": "6375a38a7e591b3bca07db3d5bb6521e0ba878ef"
+                "reference": "414708f5f1ed763824d3f23a3fc7679b585815b9"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "@dev",
@@ -1522,6 +1522,9 @@
                 ],
                 "phpunit": [
                     "phpunit-select-config phpunit.#.xml.dist --colors=always"
+                ],
+                "test-js": [
+                    "pnpm run test"
                 ],
                 "test-php": [
                     "@composer phpunit"

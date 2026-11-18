@@ -54,6 +54,7 @@ The call returns the function that takes the surface off the page. A page has on
 
 The module reads WordPress scripts from their globals, core-data among them, and does not enqueue them. A wp-build page provides them all.
 
+
 ## REST routes
 
 | Route                                             | Method | Purpose                                     |
