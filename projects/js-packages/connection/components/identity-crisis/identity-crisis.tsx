@@ -1,5 +1,6 @@
 import { Stack, Text } from '@wordpress/ui';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { CONNECTION_EVENTS, trackIdentityCrisisEvent } from '../../helpers/connection-tracking';
 import { formatSiteAddress } from '../../helpers/format-site-address';
 import { hasJetpackPlugin, hasWooPlugin } from '../../helpers/site-words';
 import useIdentityCrisisActions from '../../hooks/use-identity-crisis-actions';
@@ -16,8 +17,9 @@ import IdentityCrisisMigrated from './migrated';
 import IdentityCrisisNonAdmin from './non-admin';
 import styles from './styles.module.scss';
 import useIdentityCrisisState from './use-identity-crisis-state';
+import useIdentityCrisisView from './use-identity-crisis-view';
 import type { CopyContext } from './flow/copy';
-import type { FlowContext } from './flow/steps';
+import type { FlowContext, IdentityCrisisFlowEvent } from './flow/steps';
 import type { IdentityCrisisProps } from './types';
 import type { ConnectedPlugin } from '../../helpers/site-words';
 import type { IdentityCrisisActionPath } from '../../hooks/use-identity-crisis-actions/types';
@@ -47,7 +49,12 @@ function IdentityCrisisResolver( {
 	onActionSuccess,
 	onMigratedDone,
 }: ResolverProps ): ReactNode {
-	const actions = useIdentityCrisisActions( { redirectUri, from } );
+	const actions = useIdentityCrisisActions( {
+		redirectUri,
+		from,
+		context,
+		isDevelopmentSite: state.isDevelopmentSite,
+	} );
 	const ctx: FlowContext = useMemo(
 		() => ( {
 			isDevelopmentSite: state.isDevelopmentSite,
@@ -63,7 +70,18 @@ function IdentityCrisisResolver( {
 		x: formatSiteAddress( state.currentUrl ),
 		z: formatSiteAddress( state.wpcomHomeUrl ),
 	};
-	const flow = useIdentityCrisisFlow( ctx, actions.clearError );
+	const trackFlowEvent = useCallback(
+		( event: IdentityCrisisFlowEvent ) =>
+			trackIdentityCrisisEvent( CONNECTION_EVENTS.idcQuestionClick, context, {
+				action: event.type,
+				question: event.question,
+				answer: event.type === 'answer' ? event.answer : undefined,
+				path: event.path,
+				is_development_site: state.isDevelopmentSite,
+			} ),
+		[ context, state.isDevelopmentSite ]
+	);
+	const flow = useIdentityCrisisFlow( ctx, actions.clearError, trackFlowEvent );
 
 	// Focus the new question when the step changes, but not on the first render.
 	const legendRef = useRef< HTMLDivElement >( null );
@@ -187,17 +205,24 @@ function IdentityCrisisResolver( {
  */
 export default function IdentityCrisis( props: IdentityCrisisProps ): ReactNode {
 	const { state, plugins } = useIdentityCrisisState();
+	const viewRef = useIdentityCrisisView( { context: props.context, state } );
 	if ( ! state ) {
 		return null;
 	}
 
-	if ( ! state.canResolve ) {
-		return (
-			<IdentityCrisisLayout showHeader={ props.context !== 'connectors' }>
-				<IdentityCrisisNonAdmin isStore={ hasWooPlugin( plugins ) } onDismiss={ props.onDismiss } />
-			</IdentityCrisisLayout>
-		);
-	}
-
-	return <IdentityCrisisResolver { ...props } state={ state } plugins={ plugins } />;
+	// One root around every view, so the questions and "Address update started" count one view.
+	return (
+		<div ref={ viewRef }>
+			{ state.canResolve ? (
+				<IdentityCrisisResolver { ...props } state={ state } plugins={ plugins } />
+			) : (
+				<IdentityCrisisLayout showHeader={ props.context !== 'connectors' }>
+					<IdentityCrisisNonAdmin
+						isStore={ hasWooPlugin( plugins ) }
+						onDismiss={ props.onDismiss }
+					/>
+				</IdentityCrisisLayout>
+			) }
+		</div>
+	);
 }
