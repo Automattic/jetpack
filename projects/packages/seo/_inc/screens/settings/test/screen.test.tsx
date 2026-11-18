@@ -7,20 +7,13 @@ import type { ReactNode } from 'react';
 
 // `--experimental-vm-modules` (true ESM): mock with `jest.unstable_mockModule`
 // and import the component under test dynamically after the mocks are registered.
-const isGated = jest.fn< () => boolean >();
-
-jest.unstable_mockModule( '../../../data/is-gated', () => ( {
-	isGated,
-	getUpsellUrl: () => 'https://wordpress.com/checkout/example.com/value_bundle',
-} ) );
 
 jest.unstable_mockModule( '@wordpress/route', () => ( {
 	useSearch: () => ( {} ),
 	Link: ( { children }: { children?: ReactNode } ) => <a href="#">{ children }</a>,
 } ) );
 
-// Heavy child cards are paid surfaces hidden when gated; stub them so the screen
-// renders in isolation and the presence of the front-page field is unambiguous.
+// Stub child cards to exercise the settings screen in isolation.
 jest.unstable_mockModule( '../author-profile-card', () => ( {
 	default: () => <div>author</div>,
 } ) );
@@ -90,36 +83,25 @@ const buildForm = ( hasLegacy: boolean ): SettingsForm => {
 	} as unknown as SettingsForm;
 };
 
-describe( 'SettingsScreen — gated front-page description', () => {
+describe( 'SettingsScreen availability', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
 	} );
 
-	it( 'hides the front-page description on a gated site with no legacy value', () => {
-		isGated.mockReturnValue( true );
-
+	it( 'offers all manual settings', () => {
 		render( <SettingsScreen form={ buildForm( false ) } /> );
 
-		expect( screen.queryByLabelText( FRONT_PAGE_LABEL ) ).not.toBeInTheDocument();
-		expect( screen.queryByRole( 'button', { name: 'Canonical URLs' } ) ).not.toBeInTheDocument();
+		expect( screen.getByLabelText( FRONT_PAGE_LABEL ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'button', { name: 'Canonical URLs' } ) ).toBeInTheDocument();
 	} );
 
-	it( 'keeps the front-page description on a gated site that has a legacy value', () => {
-		isGated.mockReturnValue( true );
-
+	it( 'keeps a stored front-page description editable', () => {
 		render( <SettingsScreen form={ buildForm( true ) } /> );
 
 		expect( screen.getByLabelText( FRONT_PAGE_LABEL ) ).toHaveAttribute( 'maxlength', '300' );
 		expect( screen.getByLabelText( FRONT_PAGE_LABEL ) ).toBeEnabled();
 	} );
 
-	it( 'shows the front-page description on an ungated site regardless of the legacy flag', () => {
-		isGated.mockReturnValue( false );
-
-		render( <SettingsScreen form={ buildForm( false ) } /> );
-
-		expect( screen.getByLabelText( FRONT_PAGE_LABEL ) ).toBeInTheDocument();
-	} );
 	describe( 'while Jetpack SEO output is paused', () => {
 		afterEach( () => {
 			delete ( window as unknown as { JetpackScriptData?: unknown } ).JetpackScriptData;
@@ -140,7 +122,6 @@ describe( 'SettingsScreen — gated front-page description', () => {
 		] )(
 			'shows the banner and locks the legacy description, with "%s" in charge',
 			( plugin, banner, line ) => {
-				isGated.mockReturnValue( true );
 				( window as unknown as { JetpackScriptData?: unknown } ).JetpackScriptData = {
 					site: { admin_url: 'https://example.com/wp-admin/' },
 					seo: { output: { paused: true, conflicting_plugin: plugin } },

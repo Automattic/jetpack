@@ -2,7 +2,6 @@ import { useCallback } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import { useNavigate } from '@wordpress/route';
 import { Tabs } from '@wordpress/ui';
-import { isGated } from '../data/is-gated';
 import type { ReactNode } from 'react';
 
 export type SeoTab = 'overview' | 'settings' | 'content' | 'geo';
@@ -39,11 +38,6 @@ const isSeoTab = ( value: string | null ): value is SeoTab =>
 const DashboardNav = ( { active, children }: { active: SeoTab; children: ReactNode } ) => {
 	const navigate = useNavigate();
 
-	// On plan-gated sites (below-Premium WordPress.com) the Content and GEO tabs are
-	// paid features, so only Overview + Settings show. Their routes also redirect to
-	// Overview if reached directly (see the route stages).
-	const gated = isGated();
-
 	const onTabChange = useCallback(
 		( next: string | null ) => {
 			if ( isSeoTab( next ) ) {
@@ -58,16 +52,14 @@ const DashboardNav = ( { active, children }: { active: SeoTab; children: ReactNo
 			<div className="jp-admin-page-tabs jp-admin-page-tabs--minimal">
 				<Tabs.List variant="minimal">
 					<Tabs.Tab value="overview">{ __( 'Overview', 'jetpack-seo' ) }</Tabs.Tab>
-					{ ! gated && <Tabs.Tab value="content">{ __( 'Content', 'jetpack-seo' ) }</Tabs.Tab> }
-					{ ! gated && (
-						<Tabs.Tab value="geo">
-							{ _x(
-								'GEO',
-								'Generative Engine Optimization; the SEO dashboard tab label',
-								'jetpack-seo'
-							) }
-						</Tabs.Tab>
-					) }
+					<Tabs.Tab value="content">{ __( 'Content', 'jetpack-seo' ) }</Tabs.Tab>
+					<Tabs.Tab value="geo">
+						{ _x(
+							'GEO',
+							'Generative Engine Optimization; the SEO dashboard tab label',
+							'jetpack-seo'
+						) }
+					</Tabs.Tab>
 					<Tabs.Tab value="settings">{ __( 'Settings', 'jetpack-seo' ) }</Tabs.Tab>
 				</Tabs.List>
 			</div>
