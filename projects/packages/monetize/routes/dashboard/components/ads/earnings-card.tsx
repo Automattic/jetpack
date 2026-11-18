@@ -1,8 +1,12 @@
 import { formatCurrency, formatNumber } from '@automattic/number-formatters';
+import { dateI18n } from '@wordpress/date';
 import { __, _x } from '@wordpress/i18n';
 import { Card, Notice, Skeleton, Stack, Text } from '@wordpress/ui';
+import { useMemo } from 'react';
+import DataTable from './data-table';
 import type { AdsEarnings, EarningStatus, EarningsPeriod } from '../../data/wordads';
 import type { WpcomApiError } from '../../data/wpcom-request';
+import type { Field } from '@wordpress/dataviews';
 
 // WordPress.com pays ad earnings in US dollars only.
 const CURRENCY = 'USD';
@@ -25,24 +29,51 @@ export function getStatusLabel( status: EarningStatus | null ) {
 	return status ? STATUS_LABELS[ status ]() : '?';
 }
 
-const PERIOD_FORMAT = new Intl.DateTimeFormat( undefined, {
-	month: 'long',
-	year: 'numeric',
-	timeZone: 'UTC',
-} );
-
 /**
- * A `YYYY-MM` month in the reader's locale, e.g. `October 2026`.
+ * A `YYYY-MM` month in the user's language, e.g. `October 2026`.
  *
  * @param period - The month.
  * @return The label, or the month as given if it isn't `YYYY-MM`.
  */
 export function formatPeriod( period: string ) {
-	const match = /^(\d{4})-(\d{2})$/.exec( period );
-	return match
-		? PERIOD_FORMAT.format( Date.UTC( Number( match[ 1 ] ), Number( match[ 2 ] ) - 1 ) )
+	return /^\d{4}-\d{2}$/.test( period )
+		? dateI18n( 'F Y', `${ period }-01T00:00:00Z`, true )
 		: period;
 }
+
+/**
+ * The history table's columns.
+ *
+ * @param showAdsServed - Whether to include ads served, which only ad network earnings count.
+ * @return The fields.
+ */
+function getPeriodFields( showAdsServed: boolean ): Field< EarningsPeriod >[] {
+	const fields: Field< EarningsPeriod >[] = [
+		{
+			id: 'period',
+			label: __( 'Period', 'jetpack-monetize' ),
+			getValue: ( { item } ) => formatPeriod( item.period ),
+		},
+		{
+			id: 'amount',
+			label: __( 'Earnings', 'jetpack-monetize' ),
+			getValue: ( { item } ) => formatCurrency( item.amount, CURRENCY ),
+		},
+		{
+			id: 'adsServed',
+			label: __( 'Ads served', 'jetpack-monetize' ),
+			getValue: ( { item } ) => ( item.adsServed === null ? '' : formatNumber( item.adsServed ) ),
+		},
+		{
+			id: 'status',
+			label: __( 'Status', 'jetpack-monetize' ),
+			getValue: ( { item } ) => getStatusLabel( item.status ),
+		},
+	];
+	return showAdsServed ? fields : fields.filter( field => field.id !== 'adsServed' );
+}
+
+const getPeriodId = ( { period }: EarningsPeriod ) => period;
 
 /**
  * One kind of earnings, a row per month.
@@ -54,36 +85,14 @@ export function formatPeriod( period: string ) {
  */
 function HistoryTable( { title, periods }: { title: string; periods: EarningsPeriod[] } ) {
 	const showAdsServed = periods.some( ( { adsServed } ) => adsServed !== null );
+	const fields = useMemo( () => getPeriodFields( showAdsServed ), [ showAdsServed ] );
 
 	return (
 		<Stack direction="column" gap="sm">
 			<Text variant="heading-sm" render={ <h3 /> }>
 				{ title }
 			</Text>
-			<div className="jp-monetize-ads__table-scroll">
-				<table className="jp-monetize-ads__table">
-					<thead>
-						<tr>
-							<th scope="col">{ __( 'Period', 'jetpack-monetize' ) }</th>
-							<th scope="col">{ __( 'Earnings', 'jetpack-monetize' ) }</th>
-							{ showAdsServed && <th scope="col">{ __( 'Ads served', 'jetpack-monetize' ) }</th> }
-							<th scope="col">{ __( 'Status', 'jetpack-monetize' ) }</th>
-						</tr>
-					</thead>
-					<tbody>
-						{ periods.map( ( { period, amount, adsServed, status } ) => (
-							<tr key={ period }>
-								<td>{ formatPeriod( period ) }</td>
-								<td>{ formatCurrency( amount, CURRENCY ) }</td>
-								{ showAdsServed && (
-									<td>{ adsServed === null ? '' : formatNumber( adsServed ) }</td>
-								) }
-								<td>{ getStatusLabel( status ) }</td>
-							</tr>
-						) ) }
-					</tbody>
-				</table>
-			</div>
+			<DataTable data={ periods } fields={ fields } getItemId={ getPeriodId } />
 		</Stack>
 	);
 }

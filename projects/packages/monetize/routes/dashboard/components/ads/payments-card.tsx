@@ -1,8 +1,12 @@
 import { formatCurrency } from '@automattic/number-formatters';
+import { dateI18n, getSettings } from '@wordpress/date';
 import { __, _x, sprintf } from '@wordpress/i18n';
 import { Badge, Card, Notice, Stack, Text } from '@wordpress/ui';
+import { useMemo } from 'react';
 import { useAdsPayments } from '../../data/wordads';
+import DataTable from './data-table';
 import type { AdsPayment } from '../../data/wordads';
+import type { Field } from '@wordpress/dataviews';
 import type { ComponentProps } from 'react';
 
 type BadgeIntent = ComponentProps< typeof Badge >[ 'intent' ];
@@ -18,6 +22,60 @@ const STATUS_LABELS: Record< string, () => string > = {
 	pending: () => _x( 'Pending', 'payout status', 'jetpack-monetize' ),
 	failed: () => _x( 'Failed', 'payout status', 'jetpack-monetize' ),
 };
+
+/**
+ * A payout's date in the site's date format, or its estimate while pending.
+ *
+ * @param payment - The payout.
+ * @return The label.
+ */
+export function formatPaymentDate( payment: AdsPayment ) {
+	const { date, status } = payment;
+	const formatted = /^\d{4}-\d{2}-\d{2}$/.test( date )
+		? dateI18n( getSettings().formats.date, `${ date }T00:00:00Z`, true )
+		: date;
+	return status === 'pending'
+		? sprintf(
+				/* translators: %s: the date a payout is expected. */
+				__( 'Estimated: %s', 'jetpack-monetize' ),
+				formatted
+			)
+		: formatted;
+}
+
+/**
+ * The payouts table's columns.
+ *
+ * @return The fields.
+ */
+function getPaymentFields(): Field< AdsPayment >[] {
+	return [
+		{
+			id: 'date',
+			label: __( 'Date', 'jetpack-monetize' ),
+			getValue: ( { item } ) => formatPaymentDate( item ),
+		},
+		{
+			id: 'amount',
+			label: __( 'Amount', 'jetpack-monetize' ),
+			getValue: ( { item } ) => formatCurrency( item.amount, 'USD' ),
+		},
+		{
+			id: 'status',
+			label: __( 'Status', 'jetpack-monetize' ),
+			getValue: ( { item } ) => STATUS_LABELS[ item.status ]?.() ?? item.status,
+			render: ( { item } ) => (
+				<Badge intent={ STATUS_INTENTS[ item.status ] ?? 'medium' }>
+					{ STATUS_LABELS[ item.status ]?.() ?? item.status }
+				</Badge>
+			),
+		},
+		{ id: 'paypalEmail', label: __( 'PayPal', 'jetpack-monetize' ) },
+		{ id: 'description', label: __( 'Description', 'jetpack-monetize' ) },
+	];
+}
+
+const getPaymentId = ( { id }: AdsPayment ) => String( id );
 
 /**
  * Whether a pending payout goes to an address other than the current one.
@@ -42,6 +100,7 @@ export function hasPendingMismatch( payments: AdsPayment[], paypal: string ) {
  */
 export default function PaymentsCard( { paypal }: { paypal?: string } ) {
 	const { data: payments, isError, error } = useAdsPayments();
+	const fields = useMemo( getPaymentFields, [] );
 
 	let content;
 	if ( isError ) {
@@ -77,42 +136,7 @@ export default function PaymentsCard( { paypal }: { paypal?: string } ) {
 						</Notice.Description>
 					</Notice.Root>
 				) }
-				<div className="jp-monetize-ads__table-scroll">
-					<table className="jp-monetize-ads__table">
-						<thead>
-							<tr>
-								<th scope="col">{ __( 'Date', 'jetpack-monetize' ) }</th>
-								<th scope="col">{ __( 'Amount', 'jetpack-monetize' ) }</th>
-								<th scope="col">{ __( 'Status', 'jetpack-monetize' ) }</th>
-								<th scope="col">{ __( 'PayPal', 'jetpack-monetize' ) }</th>
-								<th scope="col">{ __( 'Description', 'jetpack-monetize' ) }</th>
-							</tr>
-						</thead>
-						<tbody>
-							{ payments.map( payment => (
-								<tr key={ payment.id }>
-									<td>
-										{ payment.status === 'pending'
-											? sprintf(
-													/* translators: %s: the date a payout is expected. */
-													__( 'Estimated: %s', 'jetpack-monetize' ),
-													payment.date
-												)
-											: payment.date }
-									</td>
-									<td>{ formatCurrency( payment.amount, 'USD' ) }</td>
-									<td>
-										<Badge intent={ STATUS_INTENTS[ payment.status ] ?? 'medium' }>
-											{ STATUS_LABELS[ payment.status ]?.() ?? payment.status }
-										</Badge>
-									</td>
-									<td>{ payment.paypalEmail }</td>
-									<td>{ payment.description }</td>
-								</tr>
-							) ) }
-						</tbody>
-					</table>
-				</div>
+				<DataTable data={ payments } fields={ fields } getItemId={ getPaymentId } />
 			</Stack>
 		);
 	}

@@ -1,3 +1,5 @@
+@use "sass:meta";
+
 .jp-monetize-ads {
 
 	&__figures {
@@ -11,24 +13,9 @@
 		block-size: 1.75rem;
 	}
 
-	&__table-scroll {
-		overflow-x: auto;
-	}
-
+	// DataViews ships its styles separately from the component.
 	&__table {
-		inline-size: 100%;
-		border-collapse: collapse;
 
-		th,
-		td {
-			padding-block: var(--wpds-dimension-gap-sm);
-			padding-inline: 0 var(--wpds-dimension-gap-xl);
-			text-align: start;
-			white-space: nowrap;
-		}
-
-		tbody tr {
-			border-block-start: 1px solid var(--wpds-color-stroke-surface-neutral-weak);
-		}
+		@include meta.load-css("@wordpress/dataviews/build-style/style");
 	}
 }
