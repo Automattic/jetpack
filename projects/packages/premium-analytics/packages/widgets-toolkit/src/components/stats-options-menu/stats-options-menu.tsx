@@ -83,7 +83,7 @@ type StatsOptionsMenuProps = {
 
 	/*
 	 * Resets the layout on show to its default; on offer only when given, and only
-	 * on a narrow header, where `ResetLayoutAction`'s button has no room.
+	 * on a narrow header (`useNarrowPageHeader`).
 	 */
 	onReset?: () => void | Promise< void >;
 
@@ -103,8 +103,8 @@ type StatsOptionsMenuProps = {
  * The Stats options menu of a Premium Analytics page: arranging the layout and the
  * tabs, where the page has them, the Settings page and, apart from them, feedback
  * and the way back to classic Stats. After the configurations design (WOOA7S-2055)
- * less its Usage entry. It also carries Reset to default on a narrow header, where
- * `ResetLayoutAction`'s button has no room (STATS-630).
+ * less its Usage entry. It also carries Reset to default on a narrow header
+ * (`useNarrowPageHeader`).
  *
  * `WidgetDashboard.Actions` takes no items, so these cannot join its overflow menu (WOOA7S-2098).
  *
