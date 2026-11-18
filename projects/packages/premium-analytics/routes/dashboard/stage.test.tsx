@@ -1244,6 +1244,7 @@ describe( 'Dashboard header date control', () => {
 		expect( trackedOnChange ).toHaveBeenCalledWith( JULY_2026, 'last-month', {
 			exactRange: true,
 			interval: 'week',
+			trigger: 'arrow',
 		} );
 		expect( trackedOnApply ).toHaveBeenCalledTimes( 1 );
 		// Last 12 months → Previous → Next lands on the year to date in December;
@@ -1275,6 +1276,26 @@ describe( 'Dashboard header date control', () => {
 		expect( trackedOnChange ).toHaveBeenCalledWith( JULY_2026, 'last-month', {
 			exactRange: true,
 			interval: 'week',
+			trigger: 'zoom_out',
+		} );
+		expect( trackedOnApply ).toHaveBeenCalledTimes( 1 );
+	} );
+
+	it( 'tracks a period a widget opens as an applied custom range', async () => {
+		const trackedOnChange = jest.fn();
+		const trackedOnApply = jest.fn();
+		mockUseTrackedDateRangeApply.mockReturnValue( { trackedOnChange, trackedOnApply } );
+		mockSection( { date_filter: DATE_FILTER_RANGE } );
+		const user = userEvent.setup();
+
+		render( <Dashboard /> );
+		await user.click(
+			screen.getByRole( 'button', { name: 'Set July from a chart on this section' } )
+		);
+
+		expect( trackedOnChange ).toHaveBeenCalledWith( JULY_2026, 'custom', {
+			exactRange: true,
+			trigger: 'widget',
 		} );
 		expect( trackedOnApply ).toHaveBeenCalledTimes( 1 );
 	} );

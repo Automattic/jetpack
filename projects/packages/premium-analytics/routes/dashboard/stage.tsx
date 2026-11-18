@@ -7,6 +7,7 @@ import {
 	queryClient,
 	ReportScopeProvider,
 } from '@jetpack-premium-analytics/data';
+import { PRESET_CUSTOM } from '@jetpack-premium-analytics/datetime';
 import { Icon, JetpackFooter, Stack } from '@jetpack-premium-analytics/externals';
 import { jetpack } from '@jetpack-premium-analytics/icons';
 import {
@@ -374,6 +375,7 @@ function Dashboard(): JSX.Element {
 				trackedOnChange( stepped.range, stepped.presetId, {
 					exactRange: true,
 					interval: stepped.interval,
+					trigger: 'arrow',
 				} );
 				trackedOnApply();
 			}
@@ -395,6 +397,7 @@ function Dashboard(): JSX.Element {
 			trackedOnChange( zoomed.range, zoomed.presetId, {
 				exactRange: true,
 				interval: zoomed.interval,
+				trigger: 'zoom_out',
 			} );
 			trackedOnApply();
 		}
@@ -402,6 +405,15 @@ function Dashboard(): JSX.Element {
 	const dateZoomOut = useMemo(
 		() => zoomOut && { ...zoomOut, onZoomOut: onDateZoomOut },
 		[ zoomOut, onDateZoomOut ]
+	);
+	// A period a widget opens applies at once as well, as the custom range it commits.
+	const onOpenPeriod = useCallback< typeof openPeriod >(
+		( range, options ) => {
+			openPeriod( range, options );
+			trackedOnChange( range, PRESET_CUSTOM, { exactRange: true, trigger: 'widget' } );
+			trackedOnApply();
+		},
+		[ openPeriod, trackedOnChange, trackedOnApply ]
 	);
 
 	/*
@@ -501,7 +513,7 @@ function Dashboard(): JSX.Element {
 			 */ }
 			<ReportScopeProvider
 				offersComparison={ offersComparison }
-				openPeriod={ openPeriod }
+				openPeriod={ onOpenPeriod }
 				dateLimits={ dateLimits }
 			>
 				{ /* Outside the dashboard: the inserter mounts beyond `children`. */ }
