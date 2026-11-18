@@ -699,6 +699,7 @@ describe( 'Connectors card', () => {
 
 			expect( props ).toMatchObject( {
 				context: 'connectors',
+				showHeader: false,
 				redirectUri: 'options-connectors.php',
 				from: 'connection_safe_mode_connectors',
 			} );

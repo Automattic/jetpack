@@ -1521,6 +1521,7 @@ function DisconnectSite() {
 function SafeModeScreen() {
 	return createElement( IdentityCrisis, {
 		context: 'connectors',
+		showHeader: false,
 		redirectUri: redirectUri || undefined,
 		from: CONNECTION_FROM.connectionSafeModeConnectors,
 		hostActions: isManagedPlatformSite ? null : createElement( DisconnectSite ),
