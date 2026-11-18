@@ -39,6 +39,6 @@ class Footer_Links {
 	public static function shows_my_jetpack_links() {
 		return self::is_my_jetpack_available()
 			/** This filter is documented in projects/packages/my-jetpack/src/class-initializer.php */
-			&& apply_filters( 'jetpack_my_jetpack_modules_management_available', true );
+			&& (bool) apply_filters( 'jetpack_my_jetpack_modules_management_available', true );
 	}
 }
