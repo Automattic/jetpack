@@ -38,8 +38,7 @@
 		"getIconBySlug",
 		"getProductCheckoutUrl",
 		"getRedirectUrl",
-		"getUserLocale",
-		"useGlobalNotices"
+		"getUserLocale"
 	],
 	"connection": [
 		"CONNECTION_STORE_ID",
