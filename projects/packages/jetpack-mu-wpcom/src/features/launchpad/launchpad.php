@@ -423,7 +423,7 @@ add_action( 'init', 'wpcom_register_default_launchpad_checklists', 11 );
  * @return string[] Retired site intents.
  */
 function wpcom_launchpad_get_retired_site_intents() {
-	return array( 'start-writing', 'readymade-template' );
+	return array( 'start-writing' );
 }
 
 /**

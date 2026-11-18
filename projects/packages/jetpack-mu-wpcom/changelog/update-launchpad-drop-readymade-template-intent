@@ -1,0 +1,4 @@
+Significance: patch
+Type: removed
+
+Launchpad: Stop accepting the readymade-template site intent as a retired checklist slug.
