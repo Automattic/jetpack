@@ -134,8 +134,11 @@ function EmailTimeSeriesReport( {
 	const metricTabs = useMemo< MetricTab[] >( () => {
 		const points = ( report?.data ?? [] ).flatMap( point => {
 			const date = resolveBucketStamp( point.date_start, active.timezone );
+			// The tooltip names a month the window cuts by the days it covers.
+			const endDate = resolveBucketStamp( point.date_end, active.timezone );
+			const value = Number( point[ field ] ?? 0 );
 
-			return date ? [ { date, value: Number( point[ field ] ?? 0 ) } ] : [];
+			return date ? [ endDate ? { date, endDate, value } : { date, value } ] : [];
 		} );
 
 		return [

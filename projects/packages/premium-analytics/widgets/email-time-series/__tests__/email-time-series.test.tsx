@@ -30,7 +30,7 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 			key: string;
 			label: string;
 			value: number;
-			current: { date: Date; value: number }[];
+			current: { date: Date; endDate?: Date; value: number }[];
 			countLabel?: ( count: number ) => string;
 		}[];
 		chartType?: string;
@@ -46,6 +46,9 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 			data-metric-total={ String( metrics[ 0 ]?.value ) }
 			data-values={ metrics[ 0 ]?.current.map( point => point.value ).join( ',' ) }
 			data-dates={ metrics[ 0 ]?.current.map( point => point.date.toISOString() ).join( ',' ) }
+			data-end-dates={ metrics[ 0 ]?.current
+				.map( point => point.endDate?.toISOString() )
+				.join( ',' ) }
 			data-chart-type={ String( chartType ) }
 			data-tick-resolution={ String( tickResolution ) }
 			data-hide-single-metric-label={ String( hideSingleMetricLabel ) }
@@ -218,6 +221,51 @@ describe( 'EmailTimeSeriesWidget', () => {
 		// The trim window is sanitizer-only and must never reach the API.
 		expect( requestParams.get( 'window_start' ) ).toBeNull();
 		expect( requestParams.get( 'window_end' ) ).toBeNull();
+	} );
+
+	it( 'ends each month where the window does, for the tooltip to name the days it covers', async () => {
+		jest.useFakeTimers( { now: new Date( '2026-08-28T12:00:00Z' ), doNotFake: [ 'nextTick' ] } );
+		mockApiFetch.mockResolvedValue( {
+			timeline: {
+				unit: 'month',
+				fields: [ 'date', 'opens_count' ],
+				data: [
+					[ '2026-06-01', 5 ],
+					[ '2026-07-01', 1 ],
+					[ '2026-08-01', 0 ],
+				],
+			},
+		} );
+
+		try {
+			render(
+				<EmailTimeSeriesWidget
+					attributes={ {
+						reportParams: {
+							...getDefaultQueryParams( false ),
+							preset: undefined,
+							from: '2026-06-22T00:00:00.000+00:00',
+							to: '2026-07-21T23:59:59.999+00:00',
+							post_id: 1234,
+						},
+						metric: 'opens',
+						sendWindow: 'all-time',
+					} }
+				/>
+			);
+
+			const chart = await screen.findByTestId( 'metric-tabs-chart' );
+			expect( chart ).toHaveAttribute(
+				'data-dates',
+				'2026-06-22T00:00:00.000Z,2026-07-01T00:00:00.000Z,2026-08-01T00:00:00.000Z'
+			);
+			expect( chart ).toHaveAttribute(
+				'data-end-dates',
+				'2026-06-30T23:59:59.000Z,2026-07-31T23:59:59.000Z,2026-08-28T23:59:59.000Z'
+			);
+		} finally {
+			jest.useRealTimers();
+		}
 	} );
 
 	it( 'ignores comparison report params: one request, single series', async () => {
