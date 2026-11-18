@@ -1,3 +1,4 @@
+import { getSettings, setSettings } from '@wordpress/date';
 import { toCoupon } from '../../../data/coupons';
 import { initialForm, toPayload, validate } from '../coupon-form';
 import type { CouponForm, CouponFormContext } from '../coupon-form';
@@ -13,7 +14,7 @@ const form = ( overrides: Partial< CouponForm > = {} ): CouponForm => ( {
 } );
 
 describe( 'validate', () => {
-	beforeAll( () => jest.useFakeTimers( { now: new Date( 2026, 5, 15 ) } ) );
+	beforeAll( () => jest.useFakeTimers( { now: new Date( '2026-06-15T00:00:00Z' ) } ) );
 	afterAll( () => jest.useRealTimers() );
 
 	const NEW: CouponFormContext = { isEditing: false, takenCodes: [], planIds: [ 1, 2 ] };
@@ -58,6 +59,19 @@ describe( 'validate', () => {
 		],
 	] )( 'flags %s', ( _name, coupon, context, errors ) => {
 		expect( validate( coupon, context ) ).toEqual( errors );
+	} );
+
+	it.each( [
+		[ 'behind', -12, [] ],
+		[ 'ahead of', 12, [ 'endDate' ] ],
+	] )( 'takes today from a site %s UTC, not the browser', ( _name, offset, errors ) => {
+		const settings = getSettings();
+		setSettings( { ...settings, timezone: { ...settings.timezone, offset, string: '' } } );
+		try {
+			expect( validate( form( { endDate: '2026-06-14' } ), NEW ) ).toEqual( errors );
+		} finally {
+			setSettings( settings );
+		}
 	} );
 } );
 

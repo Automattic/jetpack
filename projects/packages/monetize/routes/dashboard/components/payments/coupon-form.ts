@@ -1,3 +1,4 @@
+import { date } from '@wordpress/date';
 import { defaultCurrency } from './plan-form';
 import type { Coupon, CouponPayload } from '../../data/coupons';
 import type { StripeStatus } from '../../data/memberships';
@@ -44,15 +45,12 @@ export interface CouponFormContext {
 }
 
 /**
- * Today in the browser's timezone, as `Y-m-d`.
+ * Today in the site's timezone, as `Y-m-d`.
  *
  * @return The date.
  */
 export function today(): string {
-	const now = new Date();
-	return [ now.getFullYear(), now.getMonth() + 1, now.getDate() ]
-		.map( part => String( part ).padStart( 2, '0' ) )
-		.join( '-' );
+	return date( 'Y-m-d' );
 }
 
 /**
