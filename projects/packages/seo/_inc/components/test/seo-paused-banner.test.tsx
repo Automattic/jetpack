@@ -6,11 +6,8 @@ const isSeoToolsActive = jest.fn( () => true );
 jest.unstable_mockModule( '../../data/is-seo-tools-active', () => ( {
 	default: isSeoToolsActive,
 } ) );
-jest.unstable_mockModule( '../../components/search-visibility-notice', () => ( {
-	default: () => null,
-} ) );
 
-const { default: DashboardNotices } = await import( '../dashboard-notices' );
+const { default: SeoPausedBanner } = await import( '../seo-paused-banner' );
 
 const setPaused = ( plugin: string ) => {
 	( window as unknown as { JetpackScriptData?: unknown } ).JetpackScriptData = {
@@ -19,7 +16,7 @@ const setPaused = ( plugin: string ) => {
 	};
 };
 
-describe( 'DashboardNotices', () => {
+describe( 'SeoPausedBanner', () => {
 	afterEach( () => {
 		delete ( window as unknown as { JetpackScriptData?: unknown } ).JetpackScriptData;
 		isSeoToolsActive.mockReturnValue( true );
@@ -34,17 +31,17 @@ describe( 'DashboardNotices', () => {
 			'',
 			'Jetpack’s SEO titles, descriptions, structured data and llms.txt are turned off on this site. Your saved settings are kept.',
 		],
-	] )( 'shows the paused banner with "%s" in charge', ( plugin, banner ) => {
+	] )( 'shows the banner with "%s" in charge', ( plugin, banner ) => {
 		setPaused( plugin );
 
-		render( <DashboardNotices /> );
+		render( <SeoPausedBanner /> );
 
 		expect( screen.getByText( banner ) ).toBeInTheDocument();
 	} );
 
 	it( 'links to the Plugins screen only when a plugin is named', () => {
 		setPaused( 'Yoast SEO' );
-		const { unmount } = render( <DashboardNotices /> );
+		const { unmount } = render( <SeoPausedBanner /> );
 
 		expect( screen.getByRole( 'link', { name: 'Manage plugins' } ) ).toHaveAttribute(
 			'href',
@@ -53,22 +50,22 @@ describe( 'DashboardNotices', () => {
 
 		unmount();
 		setPaused( '' );
-		render( <DashboardNotices /> );
+		render( <SeoPausedBanner /> );
 
 		expect( screen.queryByRole( 'link', { name: 'Manage plugins' } ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'leaves the paused banner out while SEO tools are off', () => {
+	it( 'stays hidden while SEO tools are off', () => {
 		setPaused( 'Yoast SEO' );
 		isSeoToolsActive.mockReturnValue( false );
 
-		render( <DashboardNotices /> );
+		render( <SeoPausedBanner /> );
 
 		expect( screen.queryByText( /SEO titles, descriptions/ ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'shows no paused banner while Jetpack owns the output', () => {
-		render( <DashboardNotices /> );
+	it( 'stays hidden while Jetpack owns the output', () => {
+		render( <SeoPausedBanner /> );
 
 		expect( screen.queryByText( /SEO titles, descriptions/ ) ).not.toBeInTheDocument();
 	} );
