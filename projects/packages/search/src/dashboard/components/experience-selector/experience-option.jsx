@@ -1,7 +1,7 @@
 import { useDispatch, useSelect } from '@wordpress/data';
 import { createInterpolateElement, useState } from '@wordpress/element';
 import { __, _x, sprintf } from '@wordpress/i18n';
-import { Icon, cancelCircleFilled } from '@wordpress/icons';
+import { Icon, close } from '@wordpress/icons';
 import { AlertDialog, Badge, Stack } from '@wordpress/ui';
 import clsx from 'clsx';
 import { STORE_ID } from 'store';
@@ -396,11 +396,7 @@ const CardCopy = ( { experience } ) => {
 			<ul className="jp-search-experience-option__loss-list">
 				{ offLosses.map( ( loss, index ) => (
 					<li key={ index }>
-						<Icon
-							className="jp-search-experience-option__loss-icon"
-							icon={ cancelCircleFilled }
-							size={ 18 }
-						/>
+						<Icon className="jp-search-experience-option__loss-icon" icon={ close } size={ 18 } />
 						<span>{ createInterpolateElement( loss, { strong: <strong /> } ) }</span>
 					</li>
 				) ) }

@@ -35,7 +35,7 @@ import {
 	check,
 	people,
 	currencyDollar,
-	cautionFilled as warning,
+	caution as warning,
 	styles,
 } from '@wordpress/icons';
 import { Link, VisuallyHidden } from '@wordpress/ui';

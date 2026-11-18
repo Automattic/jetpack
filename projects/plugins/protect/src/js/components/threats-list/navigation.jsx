@@ -3,7 +3,7 @@ import { __ } from '@wordpress/i18n';
 import {
 	wordpress as coreIcon,
 	plugins as pluginsIcon,
-	cautionFilled as warningIcon,
+	caution as warningIcon,
 	color as themesIcon,
 	code as filesIcon,
 	grid as databaseIcon,

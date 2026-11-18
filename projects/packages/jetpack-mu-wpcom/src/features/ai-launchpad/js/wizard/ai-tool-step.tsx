@@ -1,7 +1,7 @@
 import { speak } from '@wordpress/a11y';
 import apiFetch from '@wordpress/api-fetch';
 import { useEffect, useId, useState } from '@wordpress/element';
-import { comment, copySmall } from '@wordpress/icons';
+import { comment, copy as copyIcon } from '@wordpress/icons';
 import { Button, ButtonLink, Dialog, Icon, Stack, Text, Tooltip } from '@wordpress/ui';
 import {
 	trackWizardMcpLinkClicked,
@@ -355,7 +355,7 @@ export default function AiToolStep( {
 						} }
 					>
 						{ copiedAt ? copy.copied : copy.copyPrompt }
-						<Icon icon={ copySmall } />
+						<Icon icon={ copyIcon } />
 					</Button>
 				</div>
 			</Stack>
