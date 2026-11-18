@@ -271,6 +271,7 @@ class Main_Features {
 				'long_description' => __( 'Generate posts, tables, forms and images from a prompt, then change the tone, translate, or fix unclear sentences to make your writing easier to read. Before you publish, improve your title and create a featured image in one click.', 'jetpack-my-jetpack' ),
 				'icon'             => 'star',
 				'product'          => 'jetpack-ai',
+				'off_pages'        => array( 'jetpack-ai' ),
 				'needs_account'    => true,
 				'interstitial'     => '/add-jetpack-ai',
 				'free_highlights'  => array(
@@ -419,6 +420,7 @@ class Main_Features {
 				'long_description' => __( 'Visitors see relevant results as they type and can filter by category, tag, date or author, so they find what they need instead of leaving. Match search to your theme without writing code.', 'jetpack-my-jetpack' ),
 				'icon'             => 'search',
 				'product'          => 'search',
+				'off_pages'        => array( 'jetpack-search' ),
 				'interstitial'     => '/add-search',
 				'setup_note'       => __( 'To start using it, choose a plan next, including a free one.', 'jetpack-my-jetpack' ),
 				'free_highlights'  => array(
@@ -449,6 +451,7 @@ class Main_Features {
 				'long_description' => __( 'Reach your followers on Facebook, Instagram, Threads, Bluesky, LinkedIn, Mastodon, Nextdoor and Tumblr without leaving WordPress. Posts share automatically when you publish, and you can re-share or schedule them later.', 'jetpack-my-jetpack' ),
 				'icon'             => 'share',
 				'product'          => 'social',
+				'off_pages'        => array( 'jetpack-social' ),
 				'needs_account'    => true,
 				'interstitial'     => '/add-social',
 				'free_highlights'  => array(

@@ -349,7 +349,7 @@ class Menu_Visibility_Test extends TestCase {
 		};
 		add_filter( 'jetpack_get_available_modules', $offer );
 		add_filter( 'jetpack_get_available_standalone_modules', $offer_standalone );
-		$this->assertTrue( Menu_Visibility::can_offer( array( 'product' => 'stats' ) ), 'Offered before anything holds it off.' );
+		$this->assertTrue( Menu_Visibility::offers( array( 'product' => 'stats' ) ), 'Offered before anything holds it off.' );
 
 		if ( 'removed' === $cause ) {
 			add_filter( 'jetpack_get_module_path', array( $this, 'ship_stats_module' ), 10, 2 );
@@ -366,7 +366,7 @@ class Menu_Visibility_Test extends TestCase {
 		}
 
 		$resolved = Menu_Visibility::resolve( array( 'product' => 'stats' ) );
-		$offered  = Menu_Visibility::can_offer( array( 'product' => 'stats' ) );
+		$offered  = Menu_Visibility::offers( array( 'product' => 'stats' ) );
 		$result   = Menu_Visibility::activate( array( 'product' => 'stats' ) );
 		remove_filter( 'jetpack_get_available_modules', $offer );
 		remove_filter( 'jetpack_get_available_standalone_modules', $offer_standalone );
@@ -375,6 +375,14 @@ class Menu_Visibility_Test extends TestCase {
 		$this->assertFalse( $resolved, 'The sidebar still hides it.' );
 		$this->assertFalse( $offered );
 		$this->assertSame( 'not_available', $result->get_error_code() );
+	}
+
+	/**
+	 * The admin shell offers only features the Features tab lists, so a page such as SEO's keeps its own way back on.
+	 */
+	public function test_shell_offers_only_features_the_features_tab_lists() {
+		$this->assertTrue( Menu_Visibility::offers( array( 'product' => 'stats' ) ) );
+		$this->assertFalse( Menu_Visibility::offers( array( 'module' => 'seo-tools' ) ) );
 	}
 
 	/**

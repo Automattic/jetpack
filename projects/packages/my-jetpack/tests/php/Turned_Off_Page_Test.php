@@ -39,6 +39,7 @@ class Turned_Off_Page_Test extends TestCase {
 		remove_filter( 'jetpack_get_available_modules', array( $this, 'offer_activity_log_with_version' ) );
 		remove_filter( 'jetpack_active_modules', array( $this, 'offer_activity_log' ) );
 		unset( $_GET['page'] );
+		unset( $_SERVER['HTTP_REFERER'] );
 		remove_all_actions( 'load-admin_page_jetpack-activity-log' );
 		$GLOBALS['_registered_pages'] = array();
 		Menu_Visibility::forget_resolved_gates();
@@ -54,10 +55,14 @@ class Turned_Off_Page_Test extends TestCase {
 	 */
 	public static function provide_pages() {
 		return array(
-			'listed in off_pages' => array( 'jetpack-forms-responses-wp-admin', 'jetpack-forms' ),
-			'its admin_page'      => array( 'jetpack-activity-log', 'activity-log' ),
-			'Protect'             => array( 'jetpack-protect', 'protect-dashboard' ),
-			'not a feature page'  => array( 'jetpack-settings', null ),
+			'listed in off_pages'        => array( 'jetpack-forms-responses-wp-admin', 'jetpack-forms' ),
+			'its admin_page'             => array( 'jetpack-activity-log', 'activity-log' ),
+			// The admin shell's gated members, which need the card too.
+			'Jetpack AI, kept while off' => array( 'jetpack-ai', 'jetpack-ai' ),
+			'Protect'                    => array( 'jetpack-protect', 'protect-dashboard' ),
+			'Social, kept while off'     => array( 'jetpack-social', 'social' ),
+			'Search, kept while off'     => array( 'jetpack-search', 'search' ),
+			'not a feature page'         => array( 'jetpack-settings', null ),
 		);
 	}
 
@@ -160,7 +165,7 @@ class Turned_Off_Page_Test extends TestCase {
 			)
 		);
 
-		$html = Turned_Off_Page::get_card_html( Turned_Off_Page::get_feature_for_page( 'jetpack-activity-log' ), admin_url() );
+		$html = Turned_Off_Page::filter_admin_shell_card( '', 'jetpack-activity-log' );
 		remove_filter( 'map_meta_cap', $map );
 
 		$this->assertStringContainsString( 'features/images/activity-log.webp', $html );
@@ -187,5 +192,50 @@ class Turned_Off_Page_Test extends TestCase {
 	public function offer_activity_log_with_version( $modules ) {
 		$modules['activity-log'] = '1.0';
 		return $modules;
+	}
+
+	/**
+	 * Data provider for test_shell_card_shows_the_error_of_its_own_page.
+	 *
+	 * @return array[] Whether the shell asked over admin-ajax, the page whose URL carries the error, whether the card shows it.
+	 */
+	public static function provide_shell_referers() {
+		return array(
+			'asked from its own page'    => array( true, 'jetpack-activity-log', true ),
+			'asked from some other page' => array( true, 'jetpack-newsletter', false ),
+			// The shell's host page prints its card with the page load.
+			'printed with its own page'  => array( false, 'jetpack-activity-log', true ),
+		);
+	}
+
+	/**
+	 * The shell's card shows a failed Turn on's error, which only the URL of the page that asked carries.
+	 *
+	 * @dataProvider provide_shell_referers
+	 *
+	 * @param bool   $ajax     Whether the shell asked over admin-ajax.
+	 * @param string $page     Page whose URL carries the error.
+	 * @param bool   $expected Whether the card shows the error.
+	 */
+	#[DataProvider( 'provide_shell_referers' )]
+	public function test_shell_card_shows_the_error_of_its_own_page( $ajax, $page, $expected ) {
+		$query = array(
+			'page'                     => $page,
+			Turned_Off_Page::ERROR_ARG => 'failed',
+		);
+		if ( $ajax ) {
+			add_filter( 'wp_doing_ajax', '__return_true' );
+			$_SERVER['HTTP_REFERER'] = add_query_arg( $query, admin_url( 'admin.php' ) );
+		} else {
+			$_GET = $query;
+		}
+
+		$html = Turned_Off_Page::filter_admin_shell_card( '', 'jetpack-activity-log' );
+		remove_filter( 'wp_doing_ajax', '__return_true' );
+		$_GET = array();
+		unset( $_SERVER['HTTP_REFERER'] );
+
+		$this->assertStringContainsString( 'features/images/activity-log.webp', $html );
+		$this->assertSame( $expected, str_contains( $html, 'class="jetpack-feature-off__error"' ) );
 	}
 }
