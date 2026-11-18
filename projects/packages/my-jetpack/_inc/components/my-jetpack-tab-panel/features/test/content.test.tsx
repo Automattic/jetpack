@@ -2,6 +2,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, renderHook, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, useLocation } from 'react-router';
+import useAnalytics from '../../../../hooks/use-analytics';
 import {
 	ConnectResume,
 	rememberConnectIntent,
@@ -37,7 +38,7 @@ let mockMainFeatures: Record< string, unknown > = {
 let mockModules: Record< string, MyJetpackModule > = {};
 let mockModulesLoaded = true;
 let mockModulesFailed = false;
-const mockRecordEvent = jest.fn();
+const mockRecordEvent = jest.mocked( jest.mocked( useAnalytics )().recordEvent );
 jest.mock( '../use-all-jetpack-modules', () => ( {
 	useAllJetpackModules: () => ( {
 		modules: mockModules,
@@ -63,13 +64,6 @@ jest.mock( '../../../module-toggle', () => ( {
 } ) );
 
 let mockIsLoading = false;
-
-// The tab mounts its tracking provider, which would otherwise reach the connection and
-// analytics packages for a test about which layout renders.
-jest.mock( '../../../../hooks/use-analytics', () => ( {
-	__esModule: true,
-	default: () => ( { recordEvent: mockRecordEvent } ),
-} ) );
 
 jest.mock( '../feature-state', () => ( {
 	...jest.requireActual( '../feature-state' ),
