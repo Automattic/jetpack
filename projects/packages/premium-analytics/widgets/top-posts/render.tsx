@@ -4,6 +4,7 @@
 import {
 	useStatsArchives,
 	useStatsTopPosts,
+	type ReportParams,
 	type StatsArchivesComparisonItem,
 	type StatsTopPostsComparisonItem,
 } from '@jetpack-premium-analytics/data';
@@ -70,6 +71,11 @@ export type TopPostRow = {
 	 */
 	type: string;
 	/**
+	 * Whether the post went live inside the selected period. Such rows carry a
+	 * mark, as classic Stats drew them.
+	 */
+	publishedInPeriod?: boolean;
+	/**
 	 * Child rows to drill into (the Archives view's grouped items). Rows with
 	 * children render as drill-down rows instead of links.
 	 */
@@ -122,6 +128,9 @@ function buildLeaderboardData(
 			label: row.label,
 			media: { kind: 'none' },
 			action: resolveRowAction( row, detailSearch, onDrillDown ),
+			indicator: row.publishedInPeriod
+				? __( 'Published in this period', 'jetpack-premium-analytics-pkg' )
+				: undefined,
 		} ),
 		currentValue: row.value,
 		previousValue: row.previousValue,
@@ -180,10 +189,26 @@ export const TopPostsLeaderboard = ( {
 };
 
 /**
+ * Whether a post date, as the API sends it (`YYYY-MM-DD HH:MM:SS`, site time), falls on
+ * a day of the window, both ends included. The homepage and archive rows have none.
+ */
+function isPublishedWithin( date: unknown, { from, to }: Pick< ReportParams, 'from' | 'to' > ) {
+	if ( typeof date !== 'string' || date.length < 10 ) {
+		return false;
+	}
+
+	const day = date.slice( 0, 10 );
+	return day >= from && day <= to;
+}
+
+/**
  * Maps merged top-posts rows to leaderboard shape. With `skip_archives=1` the
  * API still returns a link-less "Homepage (Latest posts)" entry, kept unlinked.
  */
-function toTopPostRows( items: StatsTopPostsComparisonItem[] ): TopPostRow[] {
+function toTopPostRows(
+	items: StatsTopPostsComparisonItem[],
+	window: Pick< ReportParams, 'from' | 'to' >
+): TopPostRow[] {
 	return items.map( item => {
 		const postId = Number( item.id );
 		const href = safeHttpUrl( item.link );
@@ -197,6 +222,7 @@ function toTopPostRows( items: StatsTopPostsComparisonItem[] ): TopPostRow[] {
 			// The homepage entry (id 0) has no post-detail page.
 			...( Number.isFinite( postId ) && postId > 0 ? { postId } : {} ),
 			type: String( item.type ?? '' ),
+			...( isPublishedWithin( item.date, window ) ? { publishedInPeriod: true } : {} ),
 		};
 	} );
 }
@@ -218,7 +244,10 @@ function TopPostsReport() {
 	const { primary, comparisonRows, hasComparison, isLoading, isFetching, isError, refetch } =
 		useStatsTopPosts( statsParams, { maxRows: WIDGET_ROW_LIMIT } );
 
-	const rows = useMemo( () => toTopPostRows( comparisonRows?.rows ?? [] ), [ comparisonRows ] );
+	const rows = useMemo(
+		() => toTopPostRows( comparisonRows?.rows ?? [], reportParams ),
+		[ comparisonRows, reportParams ]
+	);
 	const detailSearch = useWidgetNavigationSearch( {
 		origin: { report: 'posts', section: 'posts-pages' },
 	} );

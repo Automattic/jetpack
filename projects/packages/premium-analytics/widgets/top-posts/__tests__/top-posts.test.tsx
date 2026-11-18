@@ -89,6 +89,38 @@ describe( 'TopPostsWidget', () => {
 		expect( search.get( 'ref_section' ) ).toBe( 'posts-pages' );
 	} );
 
+	it( 'marks only the rows published inside the selected period', async () => {
+		mockApiFetch.mockResolvedValue( {
+			...TOP_POSTS_RESPONSE,
+			summary: {
+				...TOP_POSTS_RESPONSE.summary,
+				postviews: [
+					...TOP_POSTS_RESPONSE.summary.postviews,
+					{
+						id: 3,
+						href: 'https://example.com/older/',
+						date: '2026-05-31 23:59:59',
+						title: 'Older Post',
+						type: 'post',
+						views: 3,
+					},
+				],
+			},
+		} );
+		render(
+			<TopPostsWidget attributes={ { reportParams: { from: '2026-06-01', to: '2026-06-10' } } } />
+		);
+
+		// Hello World went live on the window's first day; Older Post the day before, and
+		// the About page carries no date.
+		const marks = await screen.findAllByRole( 'img', { name: 'Published in this period' } );
+		expect( marks ).toHaveLength( 1 );
+		// eslint-disable-next-line testing-library/no-node-access -- The row wrapper has no accessible query target.
+		expect( marks[ 0 ].parentElement ).toContainElement(
+			screen.getByRole( 'link', { name: /^Hello World Post$/ } )
+		);
+	} );
+
 	it( 'requests the dashboard date range from report params', async () => {
 		render(
 			<TopPostsWidget attributes={ { reportParams: { from: '2026-03-01', to: '2026-03-10' } } } />

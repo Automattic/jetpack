@@ -98,6 +98,11 @@ export type LeaderboardRowProps = {
 	media: LeaderboardRowMedia;
 	/** The look of the chart the row sits in. Only `list` insets the label and sizes the bar. */
 	variant?: LeaderboardVariant;
+	/**
+	 * Names a mark drawn at the row's start, e.g. "Published in this period". It sits
+	 * beside the label's own control, so the control keeps its name.
+	 */
+	indicator?: string;
 } & (
 	| {
 			/** The mutually exclusive action applied to this chart row. */
@@ -168,10 +173,14 @@ export function LeaderboardRow( {
 	action,
 	trailingAction,
 	variant = 'list',
+	indicator,
 }: LeaderboardRowProps ): ReactElement {
 	const rowClassName = clsx( styles.row, variant === 'bars' && styles.bars );
 	const rowLinkClassName = clsx( styles.rowLink, variant === 'bars' && styles.bars );
 	const trailing = trailingAction && <span className={ styles.rowAction }>{ trailingAction }</span>;
+	const mark = indicator && (
+		<span role="img" aria-label={ indicator } className={ styles.indicator } />
+	);
 
 	if ( action.kind === 'postLink' || action.kind === 'videoLink' ) {
 		const TitleLink = action.kind === 'postLink' ? PostTitleLink : VideoTitleLink;
@@ -192,11 +201,12 @@ export function LeaderboardRow( {
 			title: label,
 		};
 
-		// A row with a trailing action holds two controls, so the row chrome goes on a
-		// wrapper and the title keeps the tooltip.
-		if ( liveUrl !== undefined || trailing ) {
+		// A row with a trailing action or a mark holds more than the title, so the row
+		// chrome goes on a wrapper and the title keeps the tooltip.
+		if ( liveUrl !== undefined || trailing || mark ) {
 			return (
 				<span className={ rowClassName }>
+					{ mark }
 					<TitleLink
 						{ ...titleLinkProps }
 						classNames={ {
@@ -235,6 +245,7 @@ export function LeaderboardRow( {
 	if ( ( action.kind === 'drillDown' || action.kind === 'static' ) && action.link ) {
 		return (
 			<span className={ styles.row } title={ label }>
+				{ mark }
 				<InternalLink { ...action.link } className={ styles.labelLink }>
 					<LeaderboardLabel label={ label } media={ media } decorativeMedia />
 				</InternalLink>
@@ -251,6 +262,7 @@ export function LeaderboardRow( {
 	if ( action.kind === 'viewLink' || ( action.kind !== 'link' && trailing ) ) {
 		return (
 			<span className={ rowClassName }>
+				{ mark }
 				<span className={ styles.plainLabel } title={ label }>
 					{ content }
 				</span>
@@ -265,6 +277,7 @@ export function LeaderboardRow( {
 	if ( action.kind === 'link' ) {
 		return (
 			<ExternalLink className={ rowLinkClassName } href={ action.href } title={ label }>
+				{ mark }
 				{ content }
 			</ExternalLink>
 		);
@@ -272,6 +285,7 @@ export function LeaderboardRow( {
 
 	return (
 		<span className={ rowClassName } title={ label }>
+			{ mark }
 			{ content }
 		</span>
 	);

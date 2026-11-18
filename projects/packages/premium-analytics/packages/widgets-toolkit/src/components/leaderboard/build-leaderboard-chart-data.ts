@@ -56,6 +56,10 @@ export type LeaderboardRowInput = {
 	 */
 	action?: LeaderboardRowInputAction;
 	/**
+	 * Names a mark drawn at the row's start, e.g. "Published in this period".
+	 */
+	indicator?: string;
+	/**
 	 * Rows one level down, shown when the row is selected.
 	 */
 	children?: readonly LeaderboardRowInput[];
@@ -150,6 +154,7 @@ export function buildLeaderboardChartData(
 			media: row.media ?? NO_MEDIA,
 			action: resolveAction( row, detailSearch, drillDown ),
 			variant,
+			indicator: row.indicator,
 		} ),
 		currentValue: row.value,
 		previousValue: row.previousValue,

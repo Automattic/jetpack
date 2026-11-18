@@ -35,7 +35,7 @@ return (
 );
 ```
 
-A row's `media` defaults to none and its `action` to static. A `postLink` or `videoLink` action without `search` gets the dashboard window; pass `search: {}` to navigate without one on purpose.
+A row's `media` defaults to none and its `action` to static. An `indicator` names a mark drawn at the row's start, as Top pages marks a post published in the period. A `postLink` or `videoLink` action without `search` gets the dashboard window; pass `search: {}` to navigate without one on purpose.
 
 Pass `error` as `describeError()` builds it, so an access-denied failure offers no Retry. Without an `error`, the component shows the generic message with a Retry bound to `status.refetch`.
 
