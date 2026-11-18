@@ -67,6 +67,23 @@ jest.mock(
 	{ virtual: true }
 );
 
+jest.mock(
+	'test-guest-a2/route',
+	() => {
+		mockCapturedSlug.a2 = globalThis.jetpackConfig?.consumer_slug;
+		return {};
+	},
+	{ virtual: true }
+);
+jest.mock(
+	'test-guest-h2/route',
+	() => {
+		mockCapturedSlug.h2 = globalThis.jetpackConfig?.consumer_slug;
+		return {};
+	},
+	{ virtual: true }
+);
+
 const member = ( slug, guest, routes = guest ) => ( {
 	mountId: `${ slug }-app`,
 	initModules: guest ? [ `test-guest-${ guest }/init` ] : [],
@@ -105,16 +122,20 @@ beforeEach( () => {
 	mockInits.b.mockReset();
 	delete mockCapturedSlug.a;
 	delete mockCapturedSlug.b;
+	delete mockCapturedSlug.a2;
+	delete mockCapturedSlug.h2;
 	delete globalThis.jetpackConfig;
 	window.history.replaceState( null, '', '/wp-admin/admin.php?page=host' );
 	const config = {
 		host: 'host',
 		members: {
-			host: member( 'host' ),
+			host: { ...member( 'host' ), initModules: [ 'test-guest-h/init' ] },
 			'guest-a': { ...member( 'guest-a', 'a' ), header: { title: 'Guest A', subtitle: 'Sub' } },
 			'guest-b': member( 'guest-b', 'b' ),
 			// Another page built from guest A's package: same init module.
-			'guest-a2': { ...member( 'guest-a2', 'a', null ), header: false },
+			'guest-a2': { ...member( 'guest-a2', 'a', 'a2' ), header: false },
+			// Built from the host's package: the host page already ran its init.
+			'guest-h2': member( 'guest-h2', 'h', 'h2' ),
 		},
 		guestAssetsUrl: '/wp-admin/admin-ajax.php',
 		headerStorageKey: 'test',
@@ -125,6 +146,7 @@ beforeEach( () => {
 			<li><a href="/wp-admin/admin.php?page=guest-a">A</a></li>
 			<li><a href="/wp-admin/admin.php?page=guest-b">B</a></li>
 			<li><a href="/wp-admin/admin.php?page=guest-a2">A2</a></li>
+			<li><a href="/wp-admin/admin.php?page=guest-h2">H2</a></li>
 		</ul>
 		<div id="host-app"></div>
 		<script type="application/json" id="wp-script-module-data-@automattic/jetpack-admin-shell">${ JSON.stringify(
@@ -376,6 +398,80 @@ describe( 'admin shell prewarm', () => {
 
 		expect( mockCapturedSlug ).toEqual( { a: 'a', b: 'b' } );
 	} );
+
+	it( "keeps the page's Jetpack config, and gives a page sharing an init module that init's config", async () => {
+		// Set after the shell starts, as the host's own init does on DOMContentLoaded.
+		const pageConfig = { consumer_slug: 'host' };
+		globalThis.jetpackConfig = pageConfig;
+		mockInits.a.mockImplementation( () => {
+			globalThis.jetpackConfig = { consumer_slug: 'a' };
+		} );
+		mockInits.b.mockImplementation( () => {
+			globalThis.jetpackConfig = { consumer_slug: 'b' };
+		} );
+
+		for ( const slug of [ 'guest-a', 'guest-b', 'guest-a2', 'guest-h2' ] ) {
+			hover( slug );
+			await settle();
+		}
+
+		expect( mockCapturedSlug ).toEqual( { a: 'a', b: 'b', a2: 'a', h2: 'host' } );
+		expect( globalThis.jetpackConfig ).toBe( pageConfig );
+	} );
+
+	it( "keeps a Jetpack config the host's init sets while a guest prewarms", async () => {
+		let finishB;
+		mockInits.b.mockImplementation( () => {
+			globalThis.jetpackConfig = { consumer_slug: 'b' };
+			return new Promise( resolve => ( finishB = resolve ) );
+		} );
+
+		hover( 'guest-b' );
+		await settle();
+		const hostConfig = { consumer_slug: 'host' };
+		globalThis.jetpackConfig = hostConfig;
+		finishB();
+		await settle();
+
+		expect( mockCapturedSlug.b ).toBe( 'b' );
+		expect( globalThis.jetpackConfig ).toBe( hostConfig );
+	} );
+
+	it( "gives a page sharing an init that set no Jetpack config the page's current one", async () => {
+		globalThis.jetpackConfig = { consumer_slug: 'old' };
+		hover( 'guest-a' );
+		await settle();
+		globalThis.jetpackConfig = { consumer_slug: 'host' };
+		hover( 'guest-a2' );
+		await settle();
+
+		expect( mockCapturedSlug ).toEqual( { a: 'old', a2: 'host' } );
+	} );
+
+	it.each( [
+		[
+			'throws',
+			() => {
+				throw new Error( 'init failed' );
+			},
+		],
+		[ 'rejects', () => Promise.reject( new Error( 'init failed' ) ) ],
+	] )(
+		"puts the page's Jetpack config back when a guest's init %s after setting its own",
+		async ( _, fail ) => {
+			const pageConfig = { consumer_slug: 'host' };
+			globalThis.jetpackConfig = pageConfig;
+			mockInits.a.mockImplementationOnce( () => {
+				globalThis.jetpackConfig = { consumer_slug: 'a' };
+				return fail();
+			} );
+
+			hover( 'guest-a' );
+			await settle();
+
+			expect( globalThis.jetpackConfig ).toBe( pageConfig );
+		}
+	);
 } );
 
 describe( 'admin shell switch', () => {

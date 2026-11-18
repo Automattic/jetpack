@@ -112,13 +112,26 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey, maxLiveApps }
 
 	// Pages built from one package share an init module; run each once.
 	const ranInit = new Set( members[ host ].initModules );
+	// The Jetpack config a guest's init set, for another page built from its package.
+	const configOfInit = new Map();
+	const guestConfigs = new Set();
+	// The page's own config is the newest one no guest set: the host's init sets it on DOMContentLoaded.
+	let pageConfig;
+	const pageConfigNow = () => {
+		if ( ! guestConfigs.has( globalThis.jetpackConfig ) ) {
+			pageConfig = globalThis.jetpackConfig;
+		}
+		return pageConfig;
+	};
 	/*
 	 * One guest's init and route-module imports at a time: an init sets globals such as
 	 * `window.jetpackConfig` that its route modules read when they are evaluated.
 	 */
 	let booting = Promise.resolve();
 	const oneAtATime = task => {
-		const run = booting.then( task );
+		const run = booting.then( task ).finally( () => {
+			globalThis.jetpackConfig = pageConfigNow();
+		} );
 		booting = run.catch( () => {} );
 		return run;
 	};
@@ -145,18 +158,33 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey, maxLiveApps }
 			const added = await applyGuestAssets( guestAssetsUrl, slug );
 			log( 'prewarm', `${ slug }: page data fetched and applied in ${ step() }`, added );
 			return oneAtATime( async () => {
+				let guestConfig;
 				for ( const id of members[ slug ].initModules ) {
-					if ( ! ranInit.has( id ) ) {
+					if ( ranInit.has( id ) ) {
+						guestConfig = configOfInit.get( id ) ?? guestConfig;
+					} else {
 						step = stopwatch();
 						// Not bundled: wp-build's modules resolve through the page's import map at runtime.
 						const initModule = await import( /* webpackIgnore: true */ id );
+						const configBefore = ( globalThis.jetpackConfig = pageConfigNow() );
+						let running;
+						try {
+							running = initModule.init?.();
+						} catch ( error ) {
+							running = Promise.reject( error );
+						}
+						// Members set it before their first await; a later change may be the host's own init.
+						const ownConfig = globalThis.jetpackConfig;
+						if ( ownConfig !== configBefore ) {
+							guestConfigs.add( ownConfig );
+						}
 						/*
 						 * Bounded, so a hung init can't hold up every guest queued behind it. A timed-out init
 						 * may still finish later and set its globals; it runs again on the next attempt.
 						 */
 						let timer;
 						await Promise.race( [
-							initModule.init?.(),
+							running,
 							new Promise( ( resolve, reject ) => {
 								timer = setTimeout(
 									() => reject( new Error( `Admin shell: ${ id } timed out` ) ),
@@ -166,6 +194,10 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey, maxLiveApps }
 						] ).finally( () => clearTimeout( timer ) );
 						// Only once it succeeded, so a failed init runs again on the next attempt.
 						ranInit.add( id );
+						if ( ownConfig !== configBefore ) {
+							configOfInit.set( id, ownConfig );
+							guestConfig = ownConfig;
+						}
 						log( 'prewarm', `${ slug }: ran ${ id } in ${ step() }` );
 					}
 				}
@@ -174,6 +206,9 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey, maxLiveApps }
 					.flatMap( route => [ route.route_module, route.content_module ] )
 					.filter( Boolean );
 				step = stopwatch();
+				// Set again here, in case the host's init replaced it while this guest's init ran.
+				const current = pageConfigNow();
+				globalThis.jetpackConfig = guestConfig ?? current;
 				await Promise.all( modules.map( id => import( /* webpackIgnore: true */ id ) ) );
 				log(
 					'prewarm',
