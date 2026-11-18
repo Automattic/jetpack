@@ -693,7 +693,6 @@ class Stats_Abilities extends Registrar {
 			'input_schema'        => array(
 				'type'                 => 'object',
 				'default'              => array(),
-				'properties'           => new \stdClass(),
 				'additionalProperties' => false,
 			),
 			'output_schema'       => array(
@@ -1029,7 +1028,6 @@ class Stats_Abilities extends Registrar {
 			'input_schema'        => array(
 				'type'                 => 'object',
 				'default'              => array(),
-				'properties'           => new \stdClass(),
 				'additionalProperties' => false,
 			),
 			'output_schema'       => array(
