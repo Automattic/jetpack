@@ -1,8 +1,8 @@
-import { useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import apiFetch from '@wordpress/api-fetch';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
+import { ADS_ACCOUNT_KEY, ADS_SETTINGS_KEY } from './ads-keys';
 import { trackModuleToggle, trackSettingToggle } from './tracking';
-import { ADS_MODULE_KEY } from './wordads';
 import type { APIFetchOptions } from '@wordpress/api-fetch';
 
 export const ADS_OPTIONS = [
@@ -52,6 +52,23 @@ function parseValues( settings: Record< string, unknown > ): AdsValues {
 }
 
 /**
+ * The stored Ads switch and options, loaded once for every tab that reads them.
+ *
+ * @param enabled - Whether to load them.
+ * @return The query.
+ */
+export function useStoredAdsValues( enabled = true ) {
+	return useQuery( {
+		queryKey: ADS_SETTINGS_KEY,
+		queryFn: async () =>
+			parseValues(
+				await apiFetch< Record< string, unknown > >( { path: '/jetpack/v4/settings' } )
+			),
+		enabled,
+	} );
+}
+
+/**
  * The Ads switch and options: loads them once, then saves each change as it is made.
  *
  * The asked-for value shows until its save settles, and goes back to the stored one if the save fails.
@@ -61,20 +78,9 @@ function parseValues( settings: Record< string, unknown > ): AdsValues {
  */
 export function useAdsSettings( onSaved?: () => void ) {
 	const queryClient = useQueryClient();
-	const [ stored, setStored ] = useState< AdsValues >();
+	const { data: stored, isError: loadError } = useStoredAdsValues();
 	const [ requested, setRequested ] = useState< Partial< AdsValues > >( {} );
-	const [ loadError, setLoadError ] = useState( false );
 	const [ saveError, setSaveError ] = useState( false );
-
-	useEffect( () => {
-		let current = true;
-		apiFetch< Record< string, unknown > >( { path: '/jetpack/v4/settings' } )
-			.then( settings => current && setStored( parseValues( settings ) ) )
-			.catch( () => current && setLoadError( true ) );
-		return () => {
-			current = false;
-		};
-	}, [] );
 
 	const save = useCallback(
 		async ( key: AdsKey, value: boolean | string, request: APIFetchOptions ) => {
@@ -82,9 +88,17 @@ export function useAdsSettings( onSaved?: () => void ) {
 			setSaveError( false );
 			try {
 				await apiFetch( request );
-				setStored( prev => prev && { ...prev, [ key ]: value } );
+				queryClient.setQueryData< AdsValues >(
+					ADS_SETTINGS_KEY,
+					prev => prev && { ...prev, [ key ]: value }
+				);
 				if ( key === 'wordads' ) {
-					queryClient.invalidateQueries( { queryKey: ADS_MODULE_KEY } );
+					// Simple sites read the switch from WordPress.com, which confirms it in the background.
+					queryClient.setQueryData< { active?: boolean } >(
+						ADS_ACCOUNT_KEY,
+						prev => prev && { ...prev, active: Boolean( value ) }
+					);
+					queryClient.invalidateQueries( { queryKey: ADS_ACCOUNT_KEY } );
 				}
 				onSaved?.();
 			} catch {

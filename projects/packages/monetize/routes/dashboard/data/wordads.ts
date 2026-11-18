@@ -1,11 +1,9 @@
 import { isSimpleSite } from '@automattic/jetpack-script-data';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import apiFetch from '@wordpress/api-fetch';
+import { ADS_ACCOUNT_KEY } from './ads-keys';
+import { useStoredAdsValues } from './use-ads-settings';
 import { wpcomFetch } from './wpcom-fetch';
 import type { WpcomApiError } from './wpcom-request';
-
-const ACCOUNT_KEY = [ 'monetize', 'ads', 'account' ];
-export const ADS_MODULE_KEY = [ 'monetize', 'ads', 'module' ];
 
 /** Why WordPress.com won't serve ads on the site, as `wordads/account` reports it. */
 export type UnsafeReason = 'mature' | 'spam' | 'private' | 'other';
@@ -34,7 +32,7 @@ const UNSAFE_REASONS: readonly string[] = [ 'mature', 'spam', 'private', 'other'
  */
 export function useAdsAccount() {
 	return useQuery< AccountResponse, WpcomApiError, AdsAccount >( {
-		queryKey: ACCOUNT_KEY,
+		queryKey: ADS_ACCOUNT_KEY,
 		queryFn: () => wpcomFetch( { api: 'rest/v1.1', path: 'wordads/account' } ),
 		select: data => {
 			let unsafe: UnsafeReason | false = false;
@@ -54,25 +52,18 @@ export function useAdsAccount() {
 /**
  * Whether ads are on: the `wordads` module on Jetpack sites, WordPress.com's own state on Simple.
  *
- * The Settings tab invalidates the module query when it switches the module.
+ * Both come from caches the Settings tab updates when it switches ads, so neither waits on a refetch.
  *
  * @return Whether ads are on, undefined while that loads, and whether it failed to.
  */
 export function useAdsActive(): { active: boolean | undefined; isError: boolean } {
 	const simple = isSimpleSite();
 	const account = useAdsAccount();
-	const module = useQuery( {
-		queryKey: ADS_MODULE_KEY,
-		queryFn: async () => {
-			const settings = await apiFetch< { wordads?: unknown } >( { path: '/jetpack/v4/settings' } );
-			return Boolean( settings.wordads );
-		},
-		enabled: ! simple,
-	} );
+	const settings = useStoredAdsValues( ! simple );
 
 	return simple
 		? { active: account.data?.active, isError: account.isError }
-		: { active: module.data, isError: module.isError };
+		: { active: settings.data?.wordads, isError: settings.isError };
 }
 
 /**
@@ -84,7 +75,7 @@ export function useJoinWordAds() {
 	const queryClient = useQueryClient();
 	return useMutation< unknown, WpcomApiError >( {
 		mutationFn: () => wpcomFetch( { api: 'rest/v1.1', path: 'wordads/approve', method: 'POST' } ),
-		onSettled: () => queryClient.invalidateQueries( { queryKey: ACCOUNT_KEY } ),
+		onSettled: () => queryClient.invalidateQueries( { queryKey: ADS_ACCOUNT_KEY } ),
 	} );
 }
 

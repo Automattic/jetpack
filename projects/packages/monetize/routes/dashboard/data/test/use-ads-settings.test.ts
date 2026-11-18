@@ -3,8 +3,8 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act, renderHook, waitFor } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
 import { createElement } from 'react';
+import { ADS_ACCOUNT_KEY, ADS_SETTINGS_KEY } from '../ads-keys';
 import { useAdsSettings } from '../use-ads-settings';
-import { ADS_MODULE_KEY } from '../wordads';
 import type { ReactNode } from 'react';
 
 jest.mock( '@wordpress/api-fetch', () => ( { __esModule: true, default: jest.fn() } ) );
@@ -83,7 +83,7 @@ describe( 'useAdsSettings', () => {
 
 	it( 'switches ads through the module endpoint', async () => {
 		const { result, queryClient } = await renderLoaded();
-		queryClient.setQueryData( ADS_MODULE_KEY, true );
+		queryClient.setQueryData( ADS_ACCOUNT_KEY, { active: true } );
 		mockedApiFetch.mockResolvedValueOnce( {} );
 
 		await act( () => result.current.setModuleActive( false ) );
@@ -99,8 +99,9 @@ describe( 'useAdsSettings', () => {
 			origin: 'monetize-settings-tab',
 		} );
 		expect( result.current.values?.wordads ).toBe( false );
-		// The Ads tab reads the switch from this query.
-		expect( queryClient.getQueryState( ADS_MODULE_KEY )?.isInvalidated ).toBe( true );
+		// The Ads tab reads the switch from these, so it shows the change without refetching.
+		expect( queryClient.getQueryData( ADS_SETTINGS_KEY ) ).toMatchObject( { wordads: false } );
+		expect( queryClient.getQueryData( ADS_ACCOUNT_KEY ) ).toEqual( { active: false } );
 	} );
 
 	it( 'goes back to the stored value when a save fails', async () => {
