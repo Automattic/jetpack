@@ -1,5 +1,5 @@
 diff --git a/templates/page-wp-admin.php.template b/templates/page-wp-admin.php.template
-index 5b0d639..b8485e0 100644
+index 5b0d639..0bcb546 100644
 --- a/templates/page-wp-admin.php.template
 +++ b/templates/page-wp-admin.php.template
 @@ -95,6 +95,8 @@ function {{PREFIX}}_{{PAGE_SLUG_UNDERSCORE}}_wp_admin_preload_data() {
@@ -11,7 +11,17 @@ index 5b0d639..b8485e0 100644
  		array( '/wp/v2/settings', 'OPTIONS' ),
  	);
  
-@@ -199,7 +201,26 @@ function {{PREFIX}}_{{PAGE_SLUG_UNDERSCORE}}_wp_admin_enqueue_scripts( $hook_suf
+@@ -147,7 +149,8 @@ function {{PREFIX}}_{{PAGE_SLUG_UNDERSCORE}}_wp_admin_enqueue_scripts( $hook_suf
+ 			$current_screen &&
+ 			'{{PAGE_SLUG}}' === $current_screen->id &&
+ 			isset( $GLOBALS['pagenow'] ) &&
+-			'{{PAGE_SLUG}}.php' === $GLOBALS['pagenow']
++			// Jetpack serves its pages at admin.php?page=… and aliases the screen ID there.
++			in_array( $GLOBALS['pagenow'], array( '{{PAGE_SLUG}}.php', 'admin.php' ), true )
+ 		)
+ 	);
+ 
+@@ -199,7 +202,26 @@ function {{PREFIX}}_{{PAGE_SLUG_UNDERSCORE}}_wp_admin_enqueue_scripts( $hook_suf
  		( mountId, routes, initModules ) => {
  			const run = async () => {
  				const mod = await import( "@wordpress/boot" );
@@ -39,7 +49,7 @@ index 5b0d639..b8485e0 100644
  			};
  			if ( document.readyState === "loading" ) {
  				document.addEventListener( "DOMContentLoaded", run );
-@@ -207,7 +228,7 @@ function {{PREFIX}}_{{PAGE_SLUG_UNDERSCORE}}_wp_admin_enqueue_scripts( $hook_suf
+@@ -207,7 +229,7 @@ function {{PREFIX}}_{{PAGE_SLUG_UNDERSCORE}}_wp_admin_enqueue_scripts( $hook_suf
  				run();
  			}
  		}
