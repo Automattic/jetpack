@@ -435,6 +435,24 @@ class Block_Editor {
 	}
 
 	/**
+	 * Whether the editor keeps a block it does not offer.
+	 *
+	 * @param array $block The parsed block.
+	 * @return bool
+	 */
+	private static function keeps( array $block ) {
+		/**
+		 * Keep a block the editor does not offer, as written.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param bool  $keep  Whether to keep the block. Default false.
+		 * @param array $block The parsed block.
+		 */
+		return null !== $block['blockName'] && (bool) apply_filters( 'jetpack_comments_keep_block', false, $block );
+	}
+
+	/**
 	 * Whether any block, at any depth, is one the jetpack_comments_keep_block filter keeps.
 	 *
 	 * @param array $blocks Parsed blocks.
@@ -442,7 +460,7 @@ class Block_Editor {
 	 */
 	private static function holds_kept_block( array $blocks ) {
 		foreach ( $blocks as $block ) {
-			if ( null !== $block['blockName'] && (bool) apply_filters( 'jetpack_comments_keep_block', false, $block ) ) {
+			if ( self::keeps( $block ) ) {
 				return true;
 			}
 
@@ -489,21 +507,13 @@ class Block_Editor {
 				continue;
 			}
 
-			/**
-			 * Keep a block the editor does not offer, as written.
-			 *
-			 * @since $$next-version$$
-			 *
-			 * @param bool  $keep  Whether to keep the block. Default false.
-			 * @param array $block The parsed block.
-			 */
-			if ( null !== $block['blockName'] && (bool) apply_filters( 'jetpack_comments_keep_block', false, $block ) ) {
-				// Rendered for display, so its own render callback and render_block filters run before the delimiters are stripped.
+			if ( self::keeps( $block ) ) {
 				if ( null === $render ) {
 					$kept[] = $block;
 					continue;
 				}
 
+				// Rendered for display, so its own render callback and render_block filters run before the delimiters are stripped.
 				$html   = render_block( $block );
 				$kept[] = array(
 					'blockName'    => null,

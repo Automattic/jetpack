@@ -31,13 +31,6 @@ class Block_Editor_Test extends BaseTestCase {
 		);
 	}
 
-	public function tear_down() {
-		remove_all_filters( 'jetpack_comments_keep_block' );
-		remove_all_filters( 'render_block' );
-
-		parent::tear_down();
-	}
-
 	public function test_render_outputs_a_kept_block_as_html() {
 		$this->keep_p2_blocks();
 		add_filter(
@@ -54,27 +47,23 @@ class Block_Editor_Test extends BaseTestCase {
 		$this->assertStringNotContainsString( '<!-- wp:', $output );
 	}
 
-	public function test_keep_allowed_blocks_saves_a_kept_block_with_its_delimiters() {
-		$this->keep_p2_blocks();
-		$content = "<!-- wp:p2/embed-github -->\n<div>GH</div>\n<!-- /wp:p2/embed-github -->";
-
-		$this->assertSame( $content, wp_unslash( Block_Editor::init()->keep_allowed_blocks( wp_slash( $content ) ) ) );
-	}
-
 	/**
 	 * @dataProvider provide_keep_allowed_blocks
 	 */
 	#[DataProvider( 'provide_keep_allowed_blocks' )]
 	public function test_keep_allowed_blocks( $content, $expected ) {
+		$this->keep_p2_blocks();
 		$this->assertSame( $expected, wp_unslash( Block_Editor::init()->keep_allowed_blocks( wp_slash( $content ) ) ) );
 	}
 
 	public static function provide_keep_allowed_blocks() {
 		$paragraph = "<!-- wp:paragraph -->\n<p>Hi</p>\n<!-- /wp:paragraph -->";
+		$p2        = "<!-- wp:p2/embed-github -->\n<div>GH</div>\n<!-- /wp:p2/embed-github -->";
 
 		return array(
 			'plain text is untouched'    => array( 'Hi <b>there</b>', 'Hi <b>there</b>' ),
 			'paragraph is kept'          => array( $paragraph, $paragraph ),
+			'host block is kept'         => array( $p2, $p2 ),
 			'html block is dropped'      => array( "<!-- wp:html --><script>x()</script><!-- /wp:html -->\n\n$paragraph", "\n\n$paragraph" ),
 			'empty paragraph is dropped' => array( "$paragraph\n\n<!-- wp:paragraph -->\n<p><br></p>\n<!-- /wp:paragraph -->\n\n$paragraph", "$paragraph\n\n\n\n$paragraph" ),
 			'heading becomes bold'       => array( '<!-- wp:heading --><h2>Hi</h2><!-- /wp:heading -->', "<!-- wp:paragraph -->\n<p><strong>Hi</strong></p>\n<!-- /wp:paragraph -->" ),
