@@ -164,7 +164,7 @@ class Jetpack_Mu_Wpcom {
 			add_filter( 'jetpack_protect_threat_ignoring_enabled', '__return_false' );
 		}
 
-		// Premium Analytics offers the Ads tab on Simple and Atomic sites whose plan includes WordAds and that have it on.
+		// Premium Analytics offers the Ads tab on Simple and Atomic sites that have WordAds on.
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_premium_analytics_wordads_section' ) );
 
 		// Premium Analytics seeds the Top videos widget wherever the plan includes VideoPress, on Simple and Atomic.
@@ -979,7 +979,7 @@ class Jetpack_Mu_Wpcom {
 	}
 
 	/**
-	 * Register the Ads tab of the Premium Analytics dashboard where the plan includes WordAds and it is on.
+	 * Register the Ads tab of the Premium Analytics dashboard where WordAds is on.
 	 *
 	 * Hooks the dashboard's registry action, which only fires once the package boots, so this
 	 * is inert on a site without the dashboard.

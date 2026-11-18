@@ -12,6 +12,7 @@ use Automattic\Jetpack\PremiumAnalytics\Widget_Type_Registry;
 use Automattic\Jetpack\WordAds\Analytics_Dashboard;
 use Brain\Monkey\Functions;
 use PHPUnit\Framework\Attributes\CoversFunction;
+use PHPUnit\Framework\Attributes\DataProvider;
 use function Automattic\Jetpack\PremiumAnalytics\get_registered_dashboard_section;
 use const Automattic\Jetpack\PremiumAnalytics\DASHBOARD_NAME;
 
@@ -27,7 +28,7 @@ require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/premium-analytics/wordads
 require_once __DIR__ . '/wordads-manifest-stand-in.php';
 
 /**
- * WordAds being on decides, not the plan; the WordAds package registers.
+ * WordAds being on decides, plus the plan on Atomic; the WordAds package registers.
  *
  * @covers ::wpcom_premium_analytics_register_wordads_section
  * @covers ::wpcom_premium_analytics_register_wordads_widget_types
@@ -58,9 +59,10 @@ class Wordads_Section_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Atomic with the WordAds module on: the shape every registering test uses.
+	 * Atomic with the WordAds module on and the plan feature: the shape every registering test uses.
 	 */
 	private function enable_wordads_on_atomic() {
+		Functions\when( 'wpcom_site_has_feature' )->justReturn( true );
 		update_option( 'jetpack_active_modules', array( 'wordads' ) );
 	}
 
@@ -93,14 +95,32 @@ class Wordads_Section_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * A plan that could use WordAds is not a site that does: on Atomic the module decides, as in
-	 * classic Stats.
+	 * On Atomic both the module and the plan must be there: the module stays on after a downgrade.
+	 *
+	 * @dataProvider provide_atomic_states_without_the_tab
+	 *
+	 * @param string[] $active_modules   Stored active modules.
+	 * @param bool     $has_plan_feature Whether the plan includes WordAds.
 	 */
-	public function test_skips_on_atomic_while_the_wordads_module_is_off() {
-		update_option( 'jetpack_active_modules', array( 'stats' ) );
+	#[DataProvider( 'provide_atomic_states_without_the_tab' )]
+	public function test_skips_on_atomic_without_the_module_or_the_plan( $active_modules, $has_plan_feature ) {
+		Functions\when( 'wpcom_site_has_feature' )->justReturn( $has_plan_feature );
+		update_option( 'jetpack_active_modules', $active_modules );
 
 		$this->assertNull( get_registered_dashboard_section( DASHBOARD_NAME, Analytics_Dashboard::SECTION_ID ) );
 		$this->assertNull( Widget_Type_Registry::get_instance()->get_registered( 'wordads/chart-tabs' ) );
+	}
+
+	/**
+	 * Atomic states that must not show the Ads tab.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_atomic_states_without_the_tab() {
+		return array(
+			'module off, plan feature'   => array( array( 'stats' ), true ),
+			'module on, no plan feature' => array( array( 'wordads' ), false ),
+		);
 	}
 
 	/**
@@ -116,9 +136,6 @@ class Wordads_Section_Test extends \WorDBless\BaseTestCase {
 		$this->assertNull( Widget_Type_Registry::get_instance()->get_registered( 'wordads/chart-tabs' ) );
 	}
 
-	/**
-	 * Sites approved before WordAds needed a plan still run ads on lower plans.
-	 */
 	public function test_simple_registers_the_ads_section_for_an_approved_site_without_the_plan_feature() {
 		Constants::set_constant( 'IS_WPCOM', true );
 		Functions\when( 'wpcom_site_has_feature' )->justReturn( false );

@@ -3,8 +3,9 @@
  * The Ads section of the Premium Analytics dashboard on the WordPress.com platform.
  *
  * Simple runs no Jetpack plugin, so the module registrant skips the platform and this file decides
- * for both: the site must have WordAds on (Atomic: the WordAds module; Simple: the WordAds approval
- * stickers), as classic Stats does. No plan check: sites approved before WordAds needed a plan still run ads.
+ * for both: the site must have WordAds on (Simple: the WordAds approval stickers; Atomic: the WordAds
+ * module and the plan feature), as classic Stats does. Simple skips the plan: sites approved before
+ * WordAds needed a plan still run ads.
  * The section, its layout and the widgets come from the jetpack-ads package, which
  * the Jetpack plugin bundles: WordPress.com loads that copy, so this package does not.
  *
@@ -29,8 +30,8 @@ function wpcom_premium_analytics_site_has_wordads() {
 
 /**
  * Whether the site is using WordAds, read as classic Stats in wp-admin reads it: the
- * approval stickers on Simple, the WordAds module on Atomic. A plan that could use WordAds
- * is not a site that does.
+ * approval stickers on Simple, the WordAds module and the plan feature on Atomic. A plan that
+ * could use WordAds is not a site that does.
  *
  * @since 6.11.0
  *
@@ -45,8 +46,10 @@ function wpcom_premium_analytics_wordads_is_enabled() {
 
 	// Atomic runs the Jetpack plugin, and a site with the WordAds module off is not running ads,
 	// whatever its approval sticker says. Not `available_only`: the module list is not loaded on
-	// every request that hydrates the registry.
-	return ( new Modules() )->is_active( 'wordads', false );
+	// every request that hydrates the registry. The plan too: nothing turns the module off on a downgrade.
+	return ( new Modules() )->is_active( 'wordads', false )
+		&& function_exists( 'wpcom_site_has_feature' )
+		&& wpcom_site_has_feature( 'wordads' );
 }
 
 /**
