@@ -64,7 +64,7 @@ class Scan_Status extends Status {
 	const REFRESH_LOCK_NAME = 'jetpack_scan_status_refresh_lock';
 
 	/**
-	 * Seconds after which another request may take over a lock that was never released; longer than the fetch timeout.
+	 * Seconds before a lock that was never released can be taken over. Longer than the fetch timeout.
 	 *
 	 * @var int
 	 */
@@ -121,14 +121,8 @@ class Scan_Status extends Status {
 		$lock = self::acquire_refresh_lock();
 
 		try {
-			if ( null === $lock || self::was_refreshed_since_load() ) {
-				$stored = self::get_from_options();
-				if ( is_object( $stored ) ) {
-					return $stored;
-				}
-			}
-
-			return self::fetch_from_api();
+			$stored = null === $lock ? self::get_from_options() : self::get_status_stored_since_load();
+			return is_object( $stored ) ? $stored : self::fetch_from_api();
 		} finally {
 			if ( null !== $lock ) {
 				self::release_refresh_lock( $lock );
@@ -137,18 +131,24 @@ class Scan_Status extends Status {
 	}
 
 	/**
-	 * Whether another request stored a fresh status after this one loaded its options.
+	 * Gets a fresh status that another request stored after this one loaded its options.
 	 *
-	 * @return bool
+	 * @return object|null Null when the stored status is still expired or missing.
 	 */
-	private static function was_refreshed_since_load() {
+	private static function get_status_stored_since_load() {
 		global $wpdb;
 
-		// Read the row itself: get_option() still holds the expired timestamp this request loaded at boot.
+		// Read the rows themselves: get_option() still holds what this request loaded at boot.
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery -- See above.
-		$expires = (int) $wpdb->get_var( $wpdb->prepare( "SELECT option_value FROM {$wpdb->options} WHERE option_name = %s", self::OPTION_TIMESTAMP_NAME ) );
+		$rows = $wpdb->get_results( $wpdb->prepare( "SELECT option_name, option_value FROM {$wpdb->options} WHERE option_name IN (%s, %s)", self::OPTION_NAME, self::OPTION_TIMESTAMP_NAME ), OBJECT_K );
 
-		return time() <= $expires;
+		if ( ! isset( $rows[ self::OPTION_NAME ] ) || ! isset( $rows[ self::OPTION_TIMESTAMP_NAME ] ) || time() > (int) $rows[ self::OPTION_TIMESTAMP_NAME ]->option_value ) {
+			return null;
+		}
+
+		// Stored serialized twice: update_option() serializes what update_status_option() already did.
+		$status = maybe_unserialize( maybe_unserialize( $rows[ self::OPTION_NAME ]->option_value ) );
+		return is_object( $status ) ? $status : null;
 	}
 
 	/**
@@ -166,6 +166,11 @@ class Scan_Status extends Status {
 		// INSERT IGNORE adds the row only when there is none, as WP_Upgrader::create_lock() does.
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery -- The Options API cannot add a row only when it is missing.
 		$taken = $wpdb->query( $wpdb->prepare( "INSERT IGNORE INTO {$wpdb->options} (option_name, option_value, autoload) VALUES (%s, %s, 'off')", self::REFRESH_LOCK_NAME, $value ) );
+
+		if ( false === $taken ) {
+			// A database error, not a lock held elsewhere: fetch rather than serve the expired status indefinitely.
+			return $value;
+		}
 
 		if ( ! $taken ) {
 			// Take over a lock that a request left behind without releasing it.

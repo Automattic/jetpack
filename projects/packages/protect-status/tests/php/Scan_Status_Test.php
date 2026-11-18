@@ -492,20 +492,20 @@ class Scan_Status_Test extends BaseTestCase {
 	/**
 	 * Test that an expired status is fetched once, while other requests serve the stored one.
 	 *
-	 * @param bool $lock_held         Whether another request holds the refresh lock.
-	 * @param bool $refreshed         Whether another request stored a fresh status after this one loaded its options.
-	 * @param bool $has_stored_status Whether a status was stored before it expired.
-	 * @param int  $expected_fetches  How many times WordPress.com should be asked.
+	 * @param string $lock              The lock row: free, held by another request, or stale.
+	 * @param bool   $refreshed         Whether another request stored a fresh status after this one loaded its options.
+	 * @param bool   $has_stored_status Whether this request loaded a stored status at boot.
+	 * @param int    $expected_fetches  How many times WordPress.com should be asked.
 	 *
 	 * @dataProvider concurrent_refresh_data
 	 */
 	#[DataProvider( 'concurrent_refresh_data' )]
-	public function test_get_status_while_another_request_refreshes( $lock_held, $refreshed, $has_stored_status, $expected_fetches ) {
+	public function test_get_status_while_another_request_refreshes( $lock, $refreshed, $has_stored_status, $expected_fetches ) {
 		global $wpdb;
 
 		$this->mock_connection();
 		if ( $has_stored_status ) {
-			update_option( Scan_Status::OPTION_NAME, $this->get_sample_response() );
+			update_option( Scan_Status::OPTION_NAME, maybe_serialize( $this->get_sample_response() ) );
 		}
 		update_option( Scan_Status::OPTION_TIMESTAMP_NAME, time() - 1 );
 
@@ -518,66 +518,99 @@ class Scan_Status_Test extends BaseTestCase {
 
 		// No real database here, so stand in one holding what the other request wrote.
 		$original_wpdb = $wpdb;
-		$wpdb          = new class( $lock_held, $refreshed ) extends \Db_Less_Wpdb { // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$wpdb          = new class( $lock, $refreshed ? serialize( maybe_serialize( $this->get_sample_response() ) ) : null ) extends \Db_Less_Wpdb { // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited, WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
 			/**
-			 * Whether the lock row belongs to another request.
+			 * The lock row.
 			 *
-			 * @var bool
+			 * @var string
 			 */
-			private $lock_held;
+			private $lock;
 
 			/**
-			 * Whether the stored timestamp is fresh.
+			 * The status row as stored, when another request refreshed it.
 			 *
-			 * @var bool
+			 * @var string|null
 			 */
-			private $refreshed;
+			private $refreshed_row;
+
+			/**
+			 * Lock values this request deleted.
+			 *
+			 * @var string[]
+			 */
+			public $released = array();
 
 			/**
 			 * Constructor.
 			 *
-			 * @param bool $lock_held Whether the lock row belongs to another request.
-			 * @param bool $refreshed Whether the stored timestamp is fresh.
+			 * @param string      $lock          The lock row.
+			 * @param string|null $refreshed_row The status row as stored.
 			 */
-			public function __construct( $lock_held, $refreshed ) {
+			public function __construct( $lock, $refreshed_row ) {
 				parent::__construct();
-				$this->lock_held = $lock_held;
-				$this->refreshed = $refreshed;
+				$this->lock          = $lock;
+				$this->refreshed_row = $refreshed_row;
 			}
 
 			/**
-			 * Report whether the lock was taken.
+			 * Answer the lock queries.
 			 *
 			 * @param string $query The SQL query.
 			 * @return int|bool
 			 */
 			public function query( $query ) {
-				if ( false !== strpos( $query, Scan_Status::REFRESH_LOCK_NAME ) ) {
-					return $this->lock_held ? 0 : 1;
+				if ( false === strpos( $query, Scan_Status::REFRESH_LOCK_NAME ) ) {
+					return parent::query( $query );
 				}
-				return parent::query( $query );
+				if ( 0 === strpos( $query, 'INSERT' ) ) {
+					return 'free' === $this->lock ? 1 : 0;
+				}
+				return 'stale' === $this->lock ? 1 : 0;
 			}
 
 			/**
-			 * Return the stored timestamp.
+			 * Return the status rows another request stored.
 			 *
-			 * @param string|null $query The SQL query.
-			 * @param int         $x     Column.
-			 * @param int         $y     Row.
-			 * @return string|null
+			 * @param string|null $query  The SQL query.
+			 * @param string      $output Output type.
+			 * @return array
 			 */
-			public function get_var( $query = null, $x = 0, $y = 0 ) {
-				if ( false !== strpos( (string) $query, Scan_Status::OPTION_TIMESTAMP_NAME ) ) {
-					return (string) ( $this->refreshed ? time() + 60 : time() - 1 );
+			public function get_results( $query = null, $output = OBJECT ) {
+				if ( false === strpos( (string) $query, Scan_Status::OPTION_TIMESTAMP_NAME ) ) {
+					return parent::get_results( $query, $output );
 				}
-				return parent::get_var( $query, $x, $y );
+				if ( null === $this->refreshed_row ) {
+					return array();
+				}
+				return array(
+					Scan_Status::OPTION_NAME           => (object) array( 'option_value' => $this->refreshed_row ),
+					Scan_Status::OPTION_TIMESTAMP_NAME => (object) array( 'option_value' => (string) ( time() + 60 ) ),
+				);
+			}
+
+			/**
+			 * Record a released lock.
+			 *
+			 * @param string       $table        Table name.
+			 * @param array        $where        Columns to match.
+			 * @param array|string $where_format Formats.
+			 * @return int|false
+			 */
+			public function delete( $table, $where, $where_format = null ) {
+				if ( isset( $where['option_name'] ) && Scan_Status::REFRESH_LOCK_NAME === $where['option_name'] ) {
+					$this->released[] = $where['option_value'];
+					return 1;
+				}
+				return parent::delete( $table, $where, $where_format );
 			}
 		};
 		$wpdb->set_prefix( $original_wpdb->base_prefix );
 
-		$status = null;
+		$status   = null;
+		$released = array();
 		try {
-			$status = Scan_Status::get_status();
+			$status   = Scan_Status::get_status();
+			$released = $wpdb->released;
 		} finally {
 			$wpdb = $original_wpdb; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 			remove_filter( 'pre_http_request', $count, 20 );
@@ -585,6 +618,7 @@ class Scan_Status_Test extends BaseTestCase {
 
 		$this->assertSame( $expected_fetches, $fetches );
 		$this->assertEquals( static::get_sample_status(), $status );
+		$this->assertCount( 'held' === $lock ? 0 : 1, $released, 'Only a lock this request took is released.' );
 	}
 
 	/**
@@ -592,10 +626,11 @@ class Scan_Status_Test extends BaseTestCase {
 	 */
 	public static function concurrent_refresh_data() {
 		return array(
-			'lock held, stored status served'    => array( true, false, true, 0 ),
-			'lock held, nothing stored, fetched' => array( true, false, false, 1 ),
-			'lock taken after another refresh'   => array( false, true, true, 0 ),
-			'lock taken, still expired, fetched' => array( false, false, true, 1 ),
+			'lock held, stored status served'    => array( 'held', false, true, 0 ),
+			'lock held, nothing stored, fetched' => array( 'held', false, false, 1 ),
+			'lock taken after another refresh'   => array( 'free', true, false, 0 ),
+			'lock taken, still expired, fetched' => array( 'free', false, true, 1 ),
+			'stale lock taken over, fetched'     => array( 'stale', false, true, 1 ),
 		);
 	}
 
