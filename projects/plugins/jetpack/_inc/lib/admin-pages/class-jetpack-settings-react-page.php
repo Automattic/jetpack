@@ -109,6 +109,11 @@ class Jetpack_Settings_React_Page extends Jetpack_Admin_Page {
 			'build_page'   => self::WP_BUILD_PAGE_ID,
 			'init_modules' => array( '@jetpack-plugin/init' ),
 			'title'        => __( 'Settings', 'jetpack' ),
+			// The landing tab, and so its subtitle, is picked in the browser from modules, plan and pages.
+			'header'       => array(
+				'title'    => __( 'Settings', 'jetpack' ),
+				'subtitle' => null,
+			),
 			'capability'   => 'jetpack_admin_page',
 			'handles'      => array( 'react-plugin', 'jetpack-script-data', 'jp-tracks', 'wp-jp-i18n-loader' ),
 			'load'         => array( $this, 'load_as_admin_shell_guest' ),
