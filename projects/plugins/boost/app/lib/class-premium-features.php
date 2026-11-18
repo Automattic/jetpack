@@ -137,7 +137,8 @@ class Premium_Features {
 	/**
 	 * Whether the cached features match the site features My Jetpack fetches for the same page.
 	 *
-	 * A mismatch, or no answer from My Jetpack, means the cache needs a fresh fetch.
+	 * A mismatch, or no answer from My Jetpack, means the cache needs a fresh fetch. My Jetpack keeps
+	 * its answer for 15 seconds, so a plan change can take that long to show.
 	 *
 	 * @since $$next-version$$
 	 *
@@ -145,7 +146,7 @@ class Premium_Features {
 	 */
 	public static function is_cache_confirmed() {
 		$cached = Transient::get( self::TRANSIENT_KEY, false );
-		if ( ! is_array( $cached ) || ! ( new Connection() )->is_connected() ) {
+		if ( ! is_array( $cached ) || ! method_exists( Product::class, 'get_site_features_from_wpcom' ) || ! ( new Connection() )->is_connected() ) {
 			return false;
 		}
 

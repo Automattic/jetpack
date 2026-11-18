@@ -341,13 +341,15 @@ class Premium_Features_Test extends Base_TestCase {
 	 * @dataProvider provide_site_features
 	 * @param array      $cached        Features Boost cached.
 	 * @param array|null $site_features What My Jetpack reports for the site.
+	 * @param bool       $connected     Whether the site is connected.
 	 * @param int        $fetches       Expected Boost feature fetches.
 	 */
 	#[DataProvider( 'provide_site_features' )]
-	public function test_boost_page_refetches_only_when_site_features_disagree( $cached, $site_features, $fetches ) {
+	public function test_boost_page_refetches_only_when_site_features_disagree( $cached, $site_features, $connected, $fetches ) {
 		Transient::set( Premium_Features::TRANSIENT_KEY, $cached, 3600 );
 		$this->site_features = $site_features;
 		$this->api_response  = $cached;
+		\Patchwork\redefine( Connection::class . '::is_connected', \Patchwork\always( $connected ) );
 		Functions\when( 'current_user_can' )->justReturn( true );
 		$this->dashboard_admin( true )->admin_init();
 		$this->assertSame( $fetches, $this->api_calls );
@@ -355,20 +357,24 @@ class Premium_Features_Test extends Base_TestCase {
 
 	public static function provide_site_features() {
 		$cached = array( Premium_Features::CLOUD_CSS, 'image-size-analysis' );
+		$same   = array( 'active' => array( 'akismet', Premium_Features::CLOUD_CSS, 'image-size-analysis' ) );
 		return array(
-			'same plan'            => array( $cached, array( 'active' => array( 'akismet', Premium_Features::CLOUD_CSS, 'image-size-analysis' ) ), 0 ),
-			'plan changed'         => array( $cached, array( 'active' => array( Premium_Features::CLOUD_CSS, Premium_Features::PERFORMANCE_HISTORY, 'image-size-analysis' ) ), 1 ),
-			'site features failed' => array( $cached, null, 1 ),
+			'same plan'            => array( $cached, $same, true, 0 ),
+			'plan upgraded'        => array( $cached, array( 'active' => array( Premium_Features::CLOUD_CSS, Premium_Features::PERFORMANCE_HISTORY, 'image-size-analysis' ) ), true, 1 ),
+			'plan downgraded'      => array( $cached, array( 'active' => array( 'image-size-analysis' ) ), true, 1 ),
+			'site features failed' => array( $cached, null, true, 1 ),
+			'site disconnected'    => array( $cached, $same, false, 1 ),
 		);
 	}
 
 	public function test_upgrade_cached_by_another_request_still_enables_cloud_css() {
 		Actions\expectDone( 'jetpack_boost_module_status_updated' )->once()->with( 'cloud_css', true );
 		$this->observe_plan( array() );
+		$fetches = $this->api_calls;
 		Transient::set( Premium_Features::TRANSIENT_KEY, array( Premium_Features::CLOUD_CSS ), 3600 );
 		$this->site_features = array( 'active' => array( Premium_Features::CLOUD_CSS ) );
 		$this->dashboard_admin( true )->admin_init();
-		$this->assertSame( 1, $this->api_calls );
+		$this->assertSame( $fetches, $this->api_calls );
 		$this->assertTrue( ( new Status( 'cloud_css' ) )->get() );
 	}
 }
