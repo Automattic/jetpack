@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\Podcast;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\My_Jetpack\Products as My_Jetpack_Products;
+use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
 use Automattic\Jetpack\Status\Host;
 use Jetpack_Options;
 
@@ -111,17 +112,24 @@ class Podcast_Gate {
 			return $cached;
 		}
 
-		$response = Client::wpcom_json_api_request_as_blog(
-			sprintf( '/upgrades?site=%d', (int) Jetpack_Options::get_option( 'id' ) ),
-			'1.2',
-			array( 'method' => 'GET' )
-		);
+		if ( method_exists( Wpcom_Products::class, 'get_site_current_purchases' ) ) {
+			// My Jetpack reads the same list on the Podcast page, so reuse its request.
+			$purchases = Wpcom_Products::get_site_current_purchases();
+			$decoded   = is_array( $purchases ) ? json_decode( wp_json_encode( $purchases, JSON_UNESCAPED_SLASHES ), true ) : null;
+		} else {
+			$response = Client::wpcom_json_api_request_as_blog(
+				sprintf( '/upgrades?site=%d', (int) Jetpack_Options::get_option( 'id' ) ),
+				'1.2',
+				array( 'method' => 'GET' )
+			);
 
-		if ( is_wp_error( $response ) || 200 !== (int) wp_remote_retrieve_response_code( $response ) ) {
-			return array();
+			if ( is_wp_error( $response ) || 200 !== (int) wp_remote_retrieve_response_code( $response ) ) {
+				return array();
+			}
+
+			$decoded = json_decode( wp_remote_retrieve_body( $response ), true );
 		}
 
-		$decoded = json_decode( wp_remote_retrieve_body( $response ), true );
 		if ( ! is_array( $decoded ) ) {
 			return array();
 		}
