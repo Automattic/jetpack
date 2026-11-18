@@ -936,7 +936,7 @@ class Admin_UI {
 	 *
 	 * @return bool
 	 */
-	private static function is_videopress_admin_request() {
+	public static function is_videopress_admin_request() {
 		if ( ! is_admin() || ! isset( $_GET['page'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			return false;
 		}
