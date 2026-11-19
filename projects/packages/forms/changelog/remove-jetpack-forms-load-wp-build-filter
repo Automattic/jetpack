@@ -1,4 +1,4 @@
 Significance: minor
 Type: removed
 
-Remove the `jetpack_forms_load_wp_build` filter.
+Remove the `jetpack_forms_load_wp_build` filter and the deprecation notice for the retired `jetpack_forms_alpha` filter.

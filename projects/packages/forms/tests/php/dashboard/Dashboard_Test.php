@@ -31,13 +31,6 @@ class Dashboard_Test extends BaseTestCase {
 	private $doing_it_wrong = array();
 
 	/**
-	 * Hook names captured from _deprecated_hook() during a test.
-	 *
-	 * @var string[]
-	 */
-	private $deprecations = array();
-
-	/**
 	 * The Dashboard instance the submenu was registered from.
 	 *
 	 * @var Dashboard|null
@@ -326,64 +319,6 @@ class Dashboard_Test extends BaseTestCase {
 		$_GET['page'] = Dashboard::FORMS_WPBUILD_ADMIN_SLUG;
 
 		$this->assertNull( $this->capture_cross_variant_redirect() );
-	}
-
-	/**
-	 * `jetpack_forms_alpha` no longer selects anything, so anyone still filtering it
-	 * is told rather than left wondering why their filter stopped working.
-	 */
-	public function test_announces_the_retired_filter() {
-		$this->capture_deprecations();
-
-		add_filter( 'jetpack_forms_alpha', '__return_false' );
-		( new Dashboard() )->init();
-		do_action( 'admin_notices' );
-		remove_filter( 'jetpack_forms_alpha', '__return_false' );
-
-		$this->assertContains( 'jetpack_forms_alpha', $this->deprecations );
-	}
-
-	/**
-	 * ...and stays quiet for the overwhelming majority who never used it.
-	 */
-	public function test_is_silent_without_the_retired_filter() {
-		$this->capture_deprecations();
-
-		( new Dashboard() )->init();
-		do_action( 'admin_notices' );
-
-		$this->assertNotContains( 'jetpack_forms_alpha', $this->deprecations );
-	}
-
-	/**
-	 * Nothing may be emitted while init() runs. This class loads at after_setup_theme
-	 * priority -2, and printing there sends headers before load_wp_build() and
-	 * redirect_dashboard_url_cross_variant() can redirect — both would then die on
-	 * "headers already sent". Waiting for admin_notices also keeps the notice out of
-	 * admin-ajax and admin-post responses.
-	 */
-	public function test_does_not_announce_before_admin_notices() {
-		$this->capture_deprecations();
-
-		add_filter( 'jetpack_forms_alpha', '__return_false' );
-		( new Dashboard() )->init();
-		remove_filter( 'jetpack_forms_alpha', '__return_false' );
-
-		$this->assertNotContains( 'jetpack_forms_alpha', $this->deprecations );
-	}
-
-	/**
-	 * Record deprecated-hook reports instead of letting them raise.
-	 */
-	private function capture_deprecations() {
-		$this->deprecations = array();
-		add_filter( 'deprecated_hook_trigger_error', '__return_false' );
-		add_action(
-			'deprecated_hook_run',
-			function ( $hook ) {
-				$this->deprecations[] = $hook;
-			}
-		);
 	}
 
 	/**

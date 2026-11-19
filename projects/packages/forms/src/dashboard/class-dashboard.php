@@ -152,7 +152,6 @@ class Dashboard {
 	public function init() {
 		add_action( 'admin_menu', array( $this, 'add_admin_submenu' ), self::MENU_PRIORITY );
 		add_action( 'admin_menu', array( __CLASS__, 'redirect_dashboard_url_cross_variant' ), 1 );
-		add_action( 'admin_notices', array( __CLASS__, 'announce_retired_filter' ) );
 
 		self::load_wp_build();
 
@@ -239,38 +238,6 @@ class Dashboard {
 	private static function is_admin_shell_guest_request() {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Compared only; the shell checks the nonce.
 		return wp_doing_ajax() && isset( $_GET['action'] ) && Admin_Shell::GUEST_ACTION === wp_unslash( $_GET['action'] );
-	}
-
-	/**
-	 * Tell anyone still filtering `jetpack_forms_alpha` that it no longer does anything.
-	 *
-	 * The filter gated the wp-build dashboard while it was in development. That dashboard
-	 * is now the only one, so a `false` return has nothing left to select and is ignored.
-	 *
-	 * Announced rather than applied: _deprecated_hook() reports the hook without honoring
-	 * it, where apply_filters_deprecated() would return a `false` this code can no longer
-	 * act on. Guarded by has_filter() so sites that never used it stay silent.
-	 *
-	 * Hooked to `admin_notices` rather than called from init(). This class loads at
-	 * `after_setup_theme` priority -2, so with WP_DEBUG display on the notice would print
-	 * — and send headers — before load_wp_build() and redirect_dashboard_url_cross_variant()
-	 * get to redirect, leaving both on "headers already sent" and a blank page.
-	 *
-	 * That hook also fires only while an admin screen renders, so the notice stays out of
-	 * admin-ajax and admin-post responses, which `is_admin()` would have let through. And
-	 * it runs late enough that has_filter() sees callbacks registered on `init`, not just
-	 * those added at file scope.
-	 *
-	 * @since 8.1.0
-	 */
-	public static function announce_retired_filter() {
-		if ( ! has_filter( 'jetpack_forms_alpha' ) ) {
-			return;
-		}
-
-		// Kept on one line: replace-next-version-tag.sh only recognizes the token in a
-		// single-line deprecation call, and errors the build out otherwise.
-		_deprecated_hook( 'jetpack_forms_alpha', 'jetpack-forms-8.1.0', '', 'The legacy Forms dashboard has been removed, so this filter no longer selects anything.' );
 	}
 
 	/**

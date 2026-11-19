@@ -59,9 +59,7 @@ class Jetpack_Forms_Test extends BaseTestCase {
 	}
 
 	/**
-	 * `jetpack_forms_dashboard_enable` gates whether the dashboard is registered at all,
-	 * which is why it survives the retirement of `jetpack_forms_alpha`. That is only
-	 * worth keeping if it still works.
+	 * `jetpack_forms_dashboard_enable` gates whether the dashboard is registered at all.
 	 */
 	public function test_dashboard_gate_returning_false_wires_nothing() {
 		add_filter( 'jetpack_forms_dashboard_enable', '__return_false' );

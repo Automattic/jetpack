@@ -19,9 +19,7 @@ type EditEntityRecord = DispatchActions[ 'editEntityRecord' ];
  * if the request fails.
  *
  * Used by both inbox inspectors (via `useMarkAsReadOnView`) so the "mark as read
- * on view" behaviour cannot drift between the wp-build and legacy dashboards —
- * the divergence that previously left the sidebar badge stale until a page
- * refresh. It mirrors (but does not yet share) the equivalent per-item logic in
+ * on view" behaviour cannot drift between them. It mirrors (but does not yet share) the equivalent per-item logic in
  * the "Mark as read" row/bulk actions; consolidating those is a possible
  * follow-up.
  *
