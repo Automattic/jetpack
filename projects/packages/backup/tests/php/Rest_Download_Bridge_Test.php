@@ -5,7 +5,7 @@
  * @package automattic/jetpack-backup-plugin
  */
 
-namespace Automattic\Jetpack\Backup\V0005\REST;
+namespace Automattic\Jetpack\Backup\V0006\REST;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -25,7 +25,7 @@ require_once __DIR__ . '/trait-wpcom-request-mock.php';
 /**
  * Tests for the /jetpack/v4/backups/download/* routes.
  *
- * @covers \Automattic\Jetpack\Backup\V0005\REST\Download_Bridge
+ * @covers \Automattic\Jetpack\Backup\V0006\REST\Download_Bridge
  */
 #[CoversClass( Download_Bridge::class )]
 class Rest_Download_Bridge_Test extends TestCase {

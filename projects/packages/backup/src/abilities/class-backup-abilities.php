@@ -9,9 +9,9 @@
  * @package automattic/jetpack-backup
  */
 
-namespace Automattic\Jetpack\Backup\V0005\Abilities;
+namespace Automattic\Jetpack\Backup\V0006\Abilities;
 
-use Automattic\Jetpack\Backup\V0005\Jetpack_Backup;
+use Automattic\Jetpack\Backup\V0006\Jetpack_Backup;
 use Automattic\Jetpack\My_Jetpack\Products\Backup as My_Jetpack_Backup;
 use Automattic\Jetpack\WP_Abilities\Registrar;
 use WP_Error;
