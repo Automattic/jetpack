@@ -320,6 +320,8 @@ class Main_Features {
 					'free'    => true,
 				),
 				'plans'                    => array( 'pro', 'complete' ),
+				// The WordPress.com site feature that gates the file upload field.
+				'paid_feature'             => 'field-file',
 			),
 			'newsletter'        => array(
 				'info_url'         => 'https://jetpack.com/newsletter/',
@@ -379,6 +381,8 @@ class Main_Features {
 					'free'    => true,
 				),
 				'plans'            => array( 'growth', 'pro', 'complete' ),
+				// Every self-hosted Jetpack site has `podcasting`, so it tells free from paid only on WordPress.com.
+				'paid_feature'     => ( new Host() )->is_wpcom_platform() ? 'podcasting' : '',
 			),
 			'protect-dashboard' => array(
 				'info_url'         => 'https://jetpack.com/protect/',
