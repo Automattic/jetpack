@@ -5,6 +5,7 @@
  */
 
 let activeTransition = null;
+let tracking = false;
 
 /**
  * Keep view transitions from erroring when one navigation's transition cuts off another's.
@@ -13,9 +14,10 @@ let activeTransition = null;
  * navigations close together, from one app or two, skip the first one.
  */
 export function trackViewTransitions() {
-	if ( typeof document.startViewTransition !== 'function' ) {
+	if ( tracking || typeof document.startViewTransition !== 'function' ) {
 		return;
 	}
+	tracking = true;
 	const start = document.startViewTransition.bind( document );
 	document.startViewTransition = ( ...args ) => {
 		const transition = start( ...args );
