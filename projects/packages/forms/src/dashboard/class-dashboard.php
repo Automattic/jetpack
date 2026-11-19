@@ -28,18 +28,7 @@ class Dashboard {
 	 * This is for the new DataViews-based responses list.
 	 */
 	public static function load_wp_build() {
-		// Always load for the standalone Forms page.
-		$should_load = self::get_admin_query_page() === self::FORMS_WPBUILD_ADMIN_SLUG;
-
-		/**
-		 * Filter whether to load the wp-build asset registrations.
-		 * Host applications (e.g., CIAB) can return true to opt in.
-		 *
-		 * @param bool $should_load Whether build.php should be loaded.
-		 */
-		$should_load = apply_filters( 'jetpack_forms_load_wp_build', $should_load );
-
-		if ( ! $should_load ) {
+		if ( self::get_admin_query_page() !== self::FORMS_WPBUILD_ADMIN_SLUG ) {
 			return;
 		}
 
@@ -47,11 +36,6 @@ class Dashboard {
 
 		if ( file_exists( $wp_build_index ) ) {
 			require_once $wp_build_index;
-		}
-
-		// The remaining setup only applies to the standalone Forms page.
-		if ( self::get_admin_query_page() !== self::FORMS_WPBUILD_ADMIN_SLUG ) {
-			return;
 		}
 
 		// Register polyfills for WP < 7.0 (must run before enqueue).
@@ -492,9 +476,8 @@ class Dashboard {
 	 * Render an error notice when the wp-build dashboard cannot render.
 	 *
 	 * The wp-build dashboard renders through a callback generated into `build/build.php`.
-	 * That file is missing when the package ships without a complete build, and it is
-	 * never loaded when a host application filters `jetpack_forms_load_wp_build` to false.
-	 * So report the problem instead of rendering a blank page.
+	 * That file is missing when the package ships without a complete build, so report
+	 * the problem instead of rendering a blank page.
 	 *
 	 * @since 7.25.0
 	 */
@@ -505,7 +488,7 @@ class Dashboard {
 			<h1>Jetpack Forms</h1>
 			<div class="notice notice-error">
 				<p><?php esc_html_e( 'The Forms dashboard is missing the files it needs to load.', 'jetpack-forms' ); ?></p>
-				<p><?php esc_html_e( 'Reinstalling or updating the plugin usually fixes this. If this site is configured not to load the Forms dashboard, contact your site administrator or host.', 'jetpack-forms' ); ?></p>
+				<p><?php esc_html_e( 'Reinstalling or updating the plugin usually fixes this.', 'jetpack-forms' ); ?></p>
 			</div>
 		</div>
 		<?php
