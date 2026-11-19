@@ -6,12 +6,16 @@ The `Registrar` base class owns the boilerplate every consumer would otherwise h
 
 ## Usage
 
-Extend `Registrar`, override the three static getters, and call `init()` from the consumer's bootstrap.
+Extend `Registrar`, override the three static getters and `enabled_by_default()`, and call `init()` from the consumer's bootstrap.
 
 ```php
 use Automattic\Jetpack\WP_Abilities\Registrar;
 
 class My_Plugin_Abilities extends Registrar {
+
+	protected static function enabled_by_default(): bool {
+		return true;
+	}
 
 	public static function get_category_slug(): string {
 		return 'my-plugin';

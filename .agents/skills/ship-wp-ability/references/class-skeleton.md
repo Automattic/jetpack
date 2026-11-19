@@ -43,7 +43,7 @@ public static function register_category() {
 
 `register_abilities()` keeps its normal behavior. Ability slugs are still product-namespaced (`jetpack-backup/get-backup-overview`) — the category and the slug prefix are independent.
 
-The subclass just needs the three abstract getters plus execute + permission callbacks.
+The subclass just needs the three abstract getters, the `enabled_by_default()` override, plus execute + permission callbacks.
 
 ## Plugin-context template
 
