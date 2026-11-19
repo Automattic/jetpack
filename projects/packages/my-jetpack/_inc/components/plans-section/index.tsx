@@ -88,9 +88,35 @@ export function getPurchaseExpiry( purchase: Purchase ): PurchaseExpiry {
 	};
 }
 
+/**
+ * Records a click on a plan's Renew or Resume link.
+ *
+ * @param tracksProperties - Added to the event, e.g. where the link is shown.
+ * @return The click handler, taking the purchase the link is for.
+ */
+export function useRecordRenewClick( tracksProperties?: TracksProperties ) {
+	const { recordEvent } = useAnalytics();
+
+	return useCallback(
+		( { expiry_status, product_slug }: Purchase ) => {
+			recordEvent( 'jetpack_myjetpack_plans_renew_click', {
+				...tracksProperties,
+				action: PRODUCT_STATUSES.EXPIRED === expiry_status ? 'resume' : 'renew',
+				product_slug,
+			} );
+		},
+		[ recordEvent, tracksProperties ]
+	);
+}
+
 const PlanExpiry: FC< PlanSectionProps > = ( { purchase } ) => {
 	const { product_name, subscribed_date } = purchase;
 	const { state, date, partnerName, actionUrl } = getPurchaseExpiry( purchase );
+	const recordRenewClick = useRecordRenewClick();
+	const onActionClick = useCallback(
+		() => recordRenewClick( purchase ),
+		[ purchase, recordRenewClick ]
+	);
 
 	const isExpired = state === 'expired';
 	const isExpiringSoon = state === 'expiring-soon';
@@ -147,18 +173,18 @@ const PlanExpiry: FC< PlanSectionProps > = ( { purchase } ) => {
 
 		if ( isExpiringSoon ) {
 			return (
-				<Link href={ actionUrl } openInNewTab>
+				<Link href={ actionUrl } onClick={ onActionClick } openInNewTab>
 					{ __( 'Renew subscription', 'jetpack-my-jetpack' ) }
 				</Link>
 			);
 		}
 
 		return (
-			<Link href={ actionUrl } openInNewTab>
+			<Link href={ actionUrl } onClick={ onActionClick } openInNewTab>
 				{ __( 'Resume subscription', 'jetpack-my-jetpack' ) }
 			</Link>
 		);
-	}, [ actionUrl, isExpiringPurchase, isExpiringSoon ] );
+	}, [ actionUrl, isExpiringPurchase, isExpiringSoon, onActionClick ] );
 
 	if ( isLifetimePurchase( purchase ) ) {
 		return (

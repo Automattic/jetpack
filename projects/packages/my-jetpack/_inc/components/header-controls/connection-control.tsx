@@ -8,10 +8,11 @@ import {
 import { __, sprintf } from '@wordpress/i18n';
 import { Badge, Link, Popover, Stack, Text } from '@wordpress/ui';
 import clsx from 'clsx';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { connectionStatusEmptyAvatar as emptyAvatar } from '../../assets/inline-svgs';
 import useSitePurchases from '../../data/use-site-purchases';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
+import useAnalytics from '../../hooks/use-analytics';
 import useConnectionErrorTracking from '../../hooks/use-connection-error-tracking';
 import { useConnectionState } from '../../hooks/use-connection-state';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
@@ -77,6 +78,37 @@ const ConnectionControl: FC< ConnectionControlProps > = ( { trackingContext } ) 
 			reconnectRedirectUrl: window.location.href,
 		} );
 	const [ isOpen, setIsOpen ] = useState( false );
+	const { recordEvent } = useAnalytics();
+	const tracksProperties = useMemo(
+		() => ( { context: trackingContext || null, connection_state: state.id } ),
+		[ trackingContext, state.id ]
+	);
+	const onOpenChange = useCallback(
+		( open: boolean ) => {
+			setIsOpen( open );
+			if ( open ) {
+				recordEvent( 'jetpack_myjetpack_header_connection_open', tracksProperties );
+			}
+		},
+		[ recordEvent, tracksProperties ]
+	);
+	// The REPAIR buttons are left out: the connection package records them with `placement: 'header'`.
+	const recordActionClick = useCallback(
+		( action: 'connect_user' | 'connect_site' | 'manage_connection' ) =>
+			recordEvent( 'jetpack_myjetpack_header_connection_action_click', {
+				...tracksProperties,
+				action,
+			} ),
+		[ recordEvent, tracksProperties ]
+	);
+	const onConnectClick = useCallback(
+		() => recordActionClick( state.action === 'CONNECT_USER' ? 'connect_user' : 'connect_site' ),
+		[ recordActionClick, state.action ]
+	);
+	const onManageConnectionClick = useCallback(
+		() => recordActionClick( 'manage_connection' ),
+		[ recordActionClick ]
+	);
 	const [ isDialogOpen, setIsDialogOpen ] = useState( false );
 	const triggerRef = useRef< HTMLButtonElement >( null );
 	const popupRef = useRef< HTMLDivElement >( null );
@@ -96,9 +128,10 @@ const ConnectionControl: FC< ConnectionControlProps > = ( { trackingContext } ) 
 
 	// The dialog cannot open on top of the popover: close it first and hand focus over.
 	const openManageDialog = useCallback( () => {
+		onManageConnectionClick();
 		setIsOpen( false );
 		setIsDialogOpen( true );
-	}, [] );
+	}, [ onManageConnectionClick ] );
 	const closeManageDialog = useCallback( () => {
 		returnFocusRef.current = true;
 		setIsDialogOpen( false );
@@ -122,7 +155,7 @@ const ConnectionControl: FC< ConnectionControlProps > = ( { trackingContext } ) 
 
 	return (
 		<>
-			<Popover.Root open={ isOpen } onOpenChange={ setIsOpen }>
+			<Popover.Root open={ isOpen } onOpenChange={ onOpenChange }>
 				<Popover.Trigger
 					ref={ triggerRef }
 					className={ styles.trigger }
@@ -174,9 +207,13 @@ const ConnectionControl: FC< ConnectionControlProps > = ( { trackingContext } ) 
 							{ state.status !== 'success' && state.description && (
 								<Text variant="body-sm">{ state.description }</Text>
 							) }
-							<PrimaryAction action={ state.action } repairActions={ actions } />
+							<PrimaryAction
+								action={ state.action }
+								repairActions={ actions }
+								onConnect={ onConnectClick }
+							/>
 							{ state.manageConnection?.type === 'link' && (
-								<Link href={ state.manageConnection.url }>
+								<Link href={ state.manageConnection.url } onClick={ onManageConnectionClick }>
 									{ __( 'Manage connection', 'jetpack-my-jetpack' ) }
 								</Link>
 							) }
@@ -189,7 +226,11 @@ const ConnectionControl: FC< ConnectionControlProps > = ( { trackingContext } ) 
 						{ ( purchases || ( hasPurchasesError && isAdmin ) ) && (
 							<hr className={ styles.divider } />
 						) }
-						<PlanSummary purchases={ purchases } hasFailed={ hasPurchasesError } />
+						<PlanSummary
+							purchases={ purchases }
+							hasFailed={ hasPurchasesError }
+							trackingContext={ trackingContext }
+						/>
 					</Stack>
 				</Popover.Popup>
 			</Popover.Root>
