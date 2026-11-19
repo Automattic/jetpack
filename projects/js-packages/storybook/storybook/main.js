@@ -80,8 +80,8 @@ const sbconfig = {
 					},
 				},
 
-				// The published SDK is a stub that throws, because the dashboard registers the real module at runtime.
-				// Bundling the facade from source means a story never exercises the SDK a site serves, so it cannot catch version skew, a skipped `register_sdk_script_module()` or broken externalisation.
+				// The published SDK is a stub that throws; the dashboard registers the real module at runtime.
+				// Stories bundle the facade source instead, so they cannot catch version skew or externalisation failures.
 				{
 					name: 'premium-analytics-sdk-facade-source',
 					enforce: 'pre',
