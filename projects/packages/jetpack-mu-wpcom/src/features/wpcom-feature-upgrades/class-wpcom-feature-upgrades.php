@@ -30,6 +30,13 @@ class WPCOM_Feature_Upgrades {
 	const MONETIZE_SLUG = 'monetize-dashboard';
 
 	/**
+	 * The plan feature the flow filters Monetize's upgrade on: Calypso's plan lists name ads `wordads-instant`.
+	 *
+	 * @var string
+	 */
+	const MONETIZE_PLAN_FEATURE = 'wordads-instant';
+
+	/**
 	 * Plans with none above them: Commerce, and Woo Hosted Pro, whose stores the upgrade flow keeps on Woo Hosted plans.
 	 *
 	 * Slugs, because `Current_Plan` gives Commerce the same `business` class as Business.
@@ -68,7 +75,7 @@ class WPCOM_Feature_Upgrades {
 	}
 
 	/**
-	 * Send the Monetize page's upgrade links to the WordPress.com plan upgrade flow, which comes back to the page.
+	 * Send the Monetize page's upgrade links to the WordPress.com plans with ads, which come back to the page.
 	 *
 	 * @since $$next-version$$
 	 *
@@ -90,6 +97,7 @@ class WPCOM_Feature_Upgrades {
 			'url'  => add_query_arg(
 				array(
 					'siteSlug'    => rawurlencode( wpcom_get_site_slug() ),
+					'feature'     => self::MONETIZE_PLAN_FEATURE,
 					'back_to'     => $back,
 					'redirect_to' => $back,
 				),

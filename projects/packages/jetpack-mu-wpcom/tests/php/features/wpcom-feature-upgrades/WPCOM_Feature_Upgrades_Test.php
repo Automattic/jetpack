@@ -16,7 +16,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 class WPCOM_Feature_Upgrades_Test extends \WorDBless\BaseTestCase {
 
 	/**
-	 * Monetize's upgrade goes to the plan upgrade flow, which returns to the linking page on this site.
+	 * Monetize's upgrade offers the plans with ads, and returns to the linking page on this site.
 	 *
 	 * @dataProvider provide_monetize_back_urls
 	 *
@@ -33,6 +33,7 @@ class WPCOM_Feature_Upgrades_Test extends \WorDBless\BaseTestCase {
 		parse_str( (string) wp_parse_url( $upgrade['url'], PHP_URL_QUERY ), $query );
 
 		$this->assertStringStartsWith( 'https://wordpress.com/setup/plan-upgrade?', $upgrade['url'] );
+		$this->assertSame( 'wordads-instant', $query['feature'] );
 		$this->assertStringEndsWith( $expected, $query['back_to'] );
 		$this->assertSame( $query['back_to'], $query['redirect_to'] );
 	}
