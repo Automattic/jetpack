@@ -81,6 +81,7 @@ class Dashboard_Announcements_Test extends BaseTestCase {
 	}
 
 	public function test_registers_nothing_while_the_flag_is_off() {
+		$this->log_in_user_registered( '2020-01-01 00:00:00' );
 		Dashboard_Announcements::configure();
 
 		$this->assertSame( array(), Announcement_Registry::get_instance()->get_all_registered() );
