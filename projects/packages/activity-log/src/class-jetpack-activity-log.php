@@ -392,6 +392,9 @@ class Jetpack_Activity_Log {
 		}
 
 		require_once $build_index;
+		if ( class_exists( \Automattic\Jetpack\Admin_UI\Shared_Modules::class ) ) {
+			\Automattic\Jetpack\Admin_UI\Shared_Modules::init();
+		}
 
 		// The generated `modules.php` registers standalone script modules (the
 		// `@jetpack-activity-log/init` i18n bootstrap) on `wp_default_scripts`.

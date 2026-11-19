@@ -431,6 +431,9 @@ class Analytics {
 		$build_entry = self::build_entry_path();
 		if ( file_exists( $build_entry ) ) {
 			require_once $build_entry;
+			if ( class_exists( \Automattic\Jetpack\Admin_UI\Shared_Modules::class ) ) {
+				\Automattic\Jetpack\Admin_UI\Shared_Modules::init();
+			}
 			require_once __DIR__ . '/sdk-module.php';
 		}
 	}

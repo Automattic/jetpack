@@ -908,6 +908,9 @@ class Initializer {
 	 */
 	public static function load_as_admin_shell_guest() {
 		require_once dirname( __DIR__ ) . '/build/build.php';
+		if ( class_exists( \Automattic\Jetpack\Admin_UI\Shared_Modules::class ) ) {
+			\Automattic\Jetpack\Admin_UI\Shared_Modules::init();
+		}
 
 		if ( function_exists( 'jetpack_my_jetpack_register_script_modules' ) ) {
 			jetpack_my_jetpack_register_script_modules(); // @phan-suppress-current-line PhanUndeclaredFunction -- Checked with function_exists(); defined in the generated build/modules.php, which Phan excludes.
@@ -936,6 +939,9 @@ class Initializer {
 				array( __CLASS__, 'restore_screen_id_after_wp_build' ),
 				function () use ( $build_index ) {
 					require_once $build_index;
+					if ( class_exists( \Automattic\Jetpack\Admin_UI\Shared_Modules::class ) ) {
+						\Automattic\Jetpack\Admin_UI\Shared_Modules::init();
+					}
 				}
 			);
 			return;
@@ -943,6 +949,9 @@ class Initializer {
 
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'alias_screen_id_for_wp_build' ) );
 		require_once $build_index;
+		if ( class_exists( \Automattic\Jetpack\Admin_UI\Shared_Modules::class ) ) {
+			\Automattic\Jetpack\Admin_UI\Shared_Modules::init();
+		}
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'restore_screen_id_after_wp_build' ) );
 	}
 

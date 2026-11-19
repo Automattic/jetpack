@@ -359,6 +359,9 @@ class Dashboard {
 
 		$load_wp_build = static function () use ( $build_index ) {
 			require_once $build_index;
+			if ( class_exists( \Automattic\Jetpack\Admin_UI\Shared_Modules::class ) ) {
+				\Automattic\Jetpack\Admin_UI\Shared_Modules::init();
+			}
 		};
 
 		// Fallback: an older wp-build-polyfills under the jetpack-autoloader may predate load_with_alias().

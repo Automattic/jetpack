@@ -20,7 +20,8 @@ class Shared_Modules {
 	private static $initialized = false;
 
 	/**
-	 * Hook the registration.
+	 * Hook the registration. Each opted-in dashboard calls it when it loads its build, as well as
+	 * Admin_Shell::init(): another plugin can load an older Admin_Shell early, one that doesn't call it.
 	 *
 	 * @return void
 	 */
