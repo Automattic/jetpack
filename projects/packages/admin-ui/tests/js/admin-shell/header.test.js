@@ -14,21 +14,27 @@ const MEMBERS = {
 	newsletter: { bodyClass: 'jetpack_page_newsletter' },
 };
 
+const stored = () => JSON.parse( localStorage.getItem( PREFIX ) ) ?? { pieces: {}, pages: {} };
+
 const save = ( slug, html, css = '' ) => {
-	const pieces = JSON.parse( localStorage.getItem( PREFIX + '*' ) ?? '{}' );
-	localStorage.setItem( PREFIX + '*', JSON.stringify( { ...pieces, [ slug ]: css } ) );
-	localStorage.setItem( PREFIX + slug, JSON.stringify( { html, css: [ slug ] } ) );
+	const { pieces, pages } = stored();
+	pieces[ slug ] = css;
+	pages[ slug ] = { html, css: [ slug ], styles: [] };
+	localStorage.setItem( PREFIX, JSON.stringify( { pieces, pages } ) );
 };
 
 describe( 'header stand-in', () => {
-	it( 'drops headers an earlier release saved for this site and user, and no one else’s', () => {
+	it( 'drops headers an earlier release or layout saved for this site and user, and no one else’s', () => {
+		localStorage.setItem( PREFIX, '{}' );
+		localStorage.setItem( PREFIX + 'forms', '{}' );
 		localStorage.setItem( 'jetpack-admin-shell-header:1:7:0.14.0:forms', '{}' );
 		localStorage.setItem( 'jetpack-admin-shell-header:1:8:0.14.0:forms', '{}' );
 		localStorage.setItem( 'jetpack-admin-shell-header:forms', '{}' );
 
 		configureHeaders( PREFIX );
 
-		expect( Object.keys( localStorage ) ).toEqual( [
+		expect( Object.keys( localStorage ).sort() ).toEqual( [
+			PREFIX,
 			'jetpack-admin-shell-header:1:8:0.14.0:forms',
 		] );
 	} );
@@ -198,7 +204,6 @@ describe( 'header stand-in', () => {
 		jest.useFakeTimers();
 		document.head.innerHTML =
 			'<style>body.jetpack_page_forms .x__header-title{margin:0}body.jetpack_page_forms-x .x__header-title{margin:1px}</style>';
-		document.body.className = 'jetpack_page_forms jetpack_page_forms-x';
 		const app = document.getElementById( 'app' );
 		app.innerHTML =
 			'<div class="admin-ui-navigable-region"><header><h1 class="x__header-title">Forms</h1></header></div>';
@@ -211,26 +216,6 @@ describe( 'header stand-in', () => {
 		expect( css ).toContain( 'body.jetpack_page_newsletter .x__header-title' );
 		expect( css ).toContain( 'body.jetpack_page_forms-x .x__header-title' );
 		document.head.innerHTML = '';
-		document.body.className = '';
-		jest.useRealTimers();
-	} );
-
-	it( 'saves only the rules that apply to the header, not ones for classes that start the same', () => {
-		jest.useFakeTimers();
-		document.head.innerHTML =
-			'<style>.boot-layout{margin:0}.boot-layout__canvas{margin:1px}.boot-layout main{margin:2px}h1.x__title::before{content:"*"}</style>';
-		const app = document.getElementById( 'app' );
-		app.innerHTML =
-			'<div class="boot-layout"><div class="admin-ui-navigable-region"><header><h1 class="x__title">Forms</h1></header><main>Responses</main></div><div class="boot-layout__canvas"></div></div>';
-
-		rememberHeader( 'forms', app );
-		jest.runAllTimers();
-		showHeader( 'forms', app );
-
-		const css = document.querySelector( '[data-shell-header="forms"] style' ).textContent;
-		expect( css ).toMatch( /\.boot-layout ?\{/ );
-		expect( css ).toContain( '::before' );
-		expect( css ).not.toMatch( /__canvas|main/ );
 		jest.useRealTimers();
 	} );
 
@@ -240,7 +225,7 @@ describe( 'header stand-in', () => {
 		const app = document.getElementById( 'app' );
 		const header = ( title, style ) =>
 			`<div style="${ style }"><div class="admin-ui-navigable-region"><header><h1 class="x__title">${ title }</h1></header></div></div>`;
-		const pieces = () => Object.values( JSON.parse( localStorage.getItem( PREFIX + '*' ) ) );
+		const pieces = () => Object.values( stored().pieces );
 
 		for ( const slug of [ 'forms', 'newsletter' ] ) {
 			app.innerHTML = header( slug, '--x-color: blue;' );

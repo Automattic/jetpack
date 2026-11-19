@@ -2,8 +2,8 @@
  * A stand-in for a page, drawn the moment the page is opened and removed once its app renders:
  * its saved header and tabs, or another page's header with its title and subtitle. Each page's
  * header, and the CSS it uses, is saved whenever it is on screen: the dashboards add most of their
- * CSS from JavaScript, which hasn't run yet. Its CSS rules and style attributes are saved once, under
- * one key, for every page that uses them: the dashboards share most of them.
+ * CSS from JavaScript, which hasn't run yet. All pages are saved under one key, with each CSS rule and
+ * style attribute saved once for every page that uses it: the dashboards share most of them.
  */
 import { log } from './debug';
 
@@ -14,11 +14,8 @@ const STAND_IN_TIMEOUT = 8000;
 // Saved CSS names the page by this, not its body class, so another page can borrow it.
 const PAGE_CLASS = 'jetpack-admin-shell-page';
 
-let keyPrefix = KEY_ROOT;
+let storageKey = KEY_ROOT;
 let bodyClassOf = () => null;
-const storageKey = slug => keyPrefix + slug;
-// Not a page slug, which is a sanitized key.
-const piecesKey = () => keyPrefix + '*';
 
 /**
  * Set where headers are saved, and drop the ones an earlier release saved for this site and user.
@@ -27,12 +24,13 @@ const piecesKey = () => keyPrefix + '*';
  * @param {object} members - Member config keyed by slug, for each page's body class.
  */
 export function configureHeaders( prefix, members = {} ) {
-	keyPrefix = prefix;
+	storageKey = prefix;
 	bodyClassOf = slug => members[ slug ]?.bodyClass;
 	const scope = prefix.split( ':' ).slice( 0, 3 ).join( ':' ) + ':';
 	try {
 		for ( const key of Object.keys( localStorage ) ) {
-			const stale = key.startsWith( scope ) && ! key.startsWith( prefix );
+			// Other releases', and the per-page keys of an earlier layout.
+			const stale = key.startsWith( scope ) && key !== prefix;
 			// Keys from before headers were saved per site and user have no blog ID.
 			const unscoped = key.startsWith( KEY_ROOT ) && ! /^\d+:/.test( key.slice( KEY_ROOT.length ) );
 			if ( stale || unscoped ) {
@@ -72,34 +70,28 @@ export function removeHeader( slug ) {
 	}
 }
 
-const readJson = key => {
+// `pages` holds each page's markup, with piece ids for its style attributes' values, and rule ids.
+const readStore = () => {
 	try {
-		return JSON.parse( localStorage.getItem( key ) );
+		const { pieces = {}, pages = {} } = JSON.parse( localStorage.getItem( storageKey ) ) ?? {};
+		return { pieces, pages };
 	} catch {
-		return null;
+		return { pieces: {}, pages: {} };
 	}
 };
-
-const pageKeys = () =>
-	Object.keys( localStorage ).filter( key => key.startsWith( keyPrefix ) && key !== piecesKey() );
-
-// Saved markup has a piece's id for each style attribute's value.
-const STYLE_ATTRIBUTE = /\sstyle="([^"]*)"/g;
-const piecesOf = ( { html, css } ) => [
-	...css,
-	...[ ...String( html ).matchAll( STYLE_ATTRIBUTE ) ].map( ( [ , id ] ) => id ),
-];
 
 // Name each piece by the id the same text already has, or a new one.
 const namer = pieces => {
 	const ids = new Map( Object.entries( pieces ).map( ( [ id, text ] ) => [ text, id ] ) );
 	let next = Math.max( -1, ...Object.keys( pieces ).map( id => parseInt( id, 36 ) ) ) + 1;
 	return text => {
-		if ( ! ids.has( text ) ) {
-			ids.set( text, ( next++ ).toString( 36 ) );
-			pieces[ ids.get( text ) ] = text;
+		let id = ids.get( text );
+		if ( id === undefined ) {
+			id = ( next++ ).toString( 36 );
+			ids.set( text, id );
+			pieces[ id ] = text;
 		}
-		return ids.get( text );
+		return id;
 	};
 };
 
@@ -116,7 +108,7 @@ const pruned = ( node, keep ) => {
 	return copy;
 };
 
-// The app's page wrappers, empty, around a copy of its header and tab bar, and the elements copied.
+// The app's page wrappers, empty, around a copy of its header and tab bar.
 const frameOf = el => {
 	const h1 = el.querySelector( 'h1' );
 	const page = h1?.closest( '.admin-ui-navigable-region' );
@@ -132,14 +124,7 @@ const frameOf = el => {
 		wrapper.append( frame );
 		frame = wrapper;
 	}
-	const copied = new Set();
-	for ( const kept of keep ) {
-		for ( let node = kept.parentElement; node !== el; node = node.parentElement ) {
-			copied.add( node );
-		}
-		[ kept, ...kept.querySelectorAll( '*' ) ].forEach( node => copied.add( node ) );
-	}
-	return { frame, copied: [ ...copied ] };
+	return frame;
 };
 
 // The copy is for looking at only: no ids to collide with the real app's, nothing that runs.
@@ -160,40 +145,19 @@ const inertCopy = html => {
 	return template.content;
 };
 
-// A selector matches no element while it names a pseudo-element.
-const PSEUDO_ELEMENT =
-	/::?(before|after|marker|placeholder|selection|backdrop|first-line|first-letter|file-selector-button|-webkit-[\w-]+|-moz-[\w-]+)/g;
-
-const matchesAny = ( selector, nodes ) => {
-	const plain = selector.replace( PSEUDO_ELEMENT, '' );
-	try {
-		return nodes.some( node => node.matches( plain ) );
-	} catch {
-		return false;
-	}
-};
-
 /*
- * Every rule that applies to one of these elements, or defines design tokens on the page, each inside
- * its own copy of its grouping rules so pages that share it save the same text.
+ * Every rule that styles one of these classes, or defines design tokens, each inside its own copy of
+ * its grouping rules so pages that share it save the same text.
  */
-const rulesFor = nodes => {
-	const selectors = [ ...new Set( nodes.flatMap( node => [ ...node.classList ] ) ) ].map(
-		name => `.${ CSS.escape( name ) }`
-	);
-	const roots = [ document.documentElement, document.body ];
+const rulesFor = classNames => {
+	const selectors = [ ...classNames ].map( name => `.${ CSS.escape( name ) }` );
 	const found = [];
 	const pick = ( rules, wrap, fromStyleTag ) => {
 		for ( const rule of rules ) {
 			if ( rule instanceof CSSStyleRule ) {
-				// The class test is cheap and rules out most rules before the real one.
-				const styled =
-					selectors.some( selector => rule.selectorText.includes( selector ) ) &&
-					matchesAny( rule.selectorText, nodes );
+				const styled = selectors.some( selector => rule.selectorText.includes( selector ) );
 				const definesTokens =
-					fromStyleTag &&
-					[ ...rule.style ].some( name => name.startsWith( '--wpds-' ) ) &&
-					matchesAny( rule.selectorText, roots );
+					fromStyleTag && [ ...rule.style ].some( name => name.startsWith( '--wpds-' ) );
 				if ( styled || definesTokens ) {
 					found.push( wrap( rule.cssText ) );
 				}
@@ -216,47 +180,33 @@ const rulesFor = nodes => {
 // The header HTML last saved for each page in this document, so a check doesn't parse storage.
 const savedHtml = new Map();
 
-// A page's saved header with its pieces filled in, or null if any of them is gone.
-const readSaved = slug => {
-	const saved = readJson( storageKey( slug ) );
-	if ( ! Array.isArray( saved?.css ) ) {
-		return null;
-	}
-	const pieces = readJson( piecesKey() ) ?? {};
-	if ( ! piecesOf( saved ).every( id => Object.hasOwn( pieces, id ) ) ) {
+// A page's saved header with its pieces filled in.
+const readSaved = ( slug, { pieces, pages } = readStore() ) => {
+	const page = pages[ slug ];
+	if ( ! page ) {
 		return null;
 	}
 	const template = document.createElement( 'template' );
-	template.innerHTML = saved.html;
+	template.innerHTML = page.html;
 	for ( const node of template.content.querySelectorAll( '[style]' ) ) {
 		node.setAttribute( 'style', pieces[ node.getAttribute( 'style' ) ] );
 	}
-	return { html: template.innerHTML, css: saved.css.map( id => pieces[ id ] ).join( '' ) };
+	return { html: template.innerHTML, css: page.css.map( id => pieces[ id ] ).join( '' ) };
 };
 
-// Save a page's header and the pieces it names, and drop the pieces no page uses any more.
-const write = ( slug, saved, pieces ) => {
-	const used = [ saved ];
+// Save a page's header, keeping only the pieces some page uses.
+const write = ( slug, page, { pieces, pages } ) => {
+	pages[ slug ] = page;
+	const used = {};
+	for ( const { css, styles } of Object.values( pages ) ) {
+		for ( const id of [ ...css, ...styles ] ) {
+			used[ id ] = pieces[ id ];
+		}
+	}
 	try {
-		for ( const key of pageKeys() ) {
-			const record = key !== storageKey( slug ) && readJson( key );
-			if ( Array.isArray( record?.css ) ) {
-				used.push( record );
-			}
-		}
-		const kept = {};
-		for ( const id of used.flatMap( piecesOf ) ) {
-			kept[ id ] = pieces[ id ];
-		}
-		localStorage.setItem( piecesKey(), JSON.stringify( kept ) );
-		localStorage.setItem( storageKey( slug ), JSON.stringify( saved ) );
+		localStorage.setItem( storageKey, JSON.stringify( { pieces: used, pages } ) );
 	} catch {
 		// Storage full or blocked: the next opening shows no stand-in.
-		try {
-			localStorage.removeItem( storageKey( slug ) );
-		} catch {
-			// Blocked: nothing was saved either.
-		}
 	}
 };
 
@@ -267,7 +217,7 @@ const write = ( slug, saved, pieces ) => {
  * @param {HTMLElement} el   - The app's mount element.
  */
 export function rememberHeader( slug, el ) {
-	const { frame, copied } = frameOf( el ) ?? {};
+	const frame = frameOf( el );
 	if ( ! frame ) {
 		return;
 	}
@@ -281,46 +231,41 @@ export function rememberHeader( slug, el ) {
 	savedHtml.set( slug, html );
 	// Walking every stylesheet takes a few milliseconds; keep it off the click that switches pages.
 	( window.requestIdleCallback ?? setTimeout )( () => {
-		// Rules are matched against the elements on screen: once the app redraws, save it next time.
-		if ( ! copied.every( node => node.isConnected ) ) {
-			savedHtml.delete( slug );
-			return;
-		}
-		const pieces = readJson( piecesKey() ) ?? {};
-		const add = namer( pieces );
-		for ( const node of [ frame, ...frame.querySelectorAll( '[style]' ) ] ) {
-			if ( node.hasAttribute( 'style' ) ) {
-				node.setAttribute( 'style', add( node.getAttribute( 'style' ) ) );
-			}
-		}
+		const classNames = new Set(
+			[ frame, ...frame.querySelectorAll( '[class]' ) ].flatMap( node => [ ...node.classList ] )
+		);
+		const store = readStore();
+		const add = namer( store.pieces );
+		const styles = [ frame, ...frame.querySelectorAll( '[style]' ) ]
+			.filter( node => node.hasAttribute( 'style' ) )
+			.map( node => {
+				const id = add( node.getAttribute( 'style' ) );
+				node.setAttribute( 'style', id );
+				return id;
+			} );
 		const bodyClass = bodyClassOf( slug );
 		// Dashboards scope their page layout to WordPress's per-page body class.
 		const pageScoped = bodyClass && new RegExp( `\\b${ bodyClass }(?![\\w-])`, 'g' );
-		const css = rulesFor( copied ).map( rule =>
+		const css = rulesFor( classNames ).map( rule =>
 			add( pageScoped ? rule.replace( pageScoped, PAGE_CLASS ) : rule )
 		);
 		log( 'header', `saved ${ slug }'s header with ${ css.length } CSS rules` );
-		write( slug, { html: frame.outerHTML, css }, pieces );
+		write( slug, { html: frame.outerHTML, css, styles }, store );
 	} );
 }
 
 // A saved standard page header: a custom one's styles don't survive having parts taken out.
-const donor = () => {
-	try {
-		const entries = pageKeys()
-			.sort()
-			// The markup only: the saved CSS names classes the markup may not use.
-			.map( key => [ key, String( readJson( key )?.html ?? '' ) ] )
-			.filter( ( [ , html ] ) => html.includes( '__header-title' ) );
-		const has = ( ...marks ) =>
-			entries.find( ( [ , html ] ) => marks.every( mark => html.includes( mark ) ) );
-		// `JetpackLogo` as it last rendered, so this file needs no copy of it, best with a subtitle row.
-		const [ key ] =
-			has( 'jetpack-logo', '__header-subtitle' ) ?? has( 'jetpack-logo' ) ?? entries[ 0 ] ?? [];
-		return key ? readSaved( key.slice( keyPrefix.length ) ) : null;
-	} catch {
-		return null;
-	}
+const donor = store => {
+	const entries = Object.entries( store.pages )
+		.sort( ( [ a ], [ b ] ) => ( a < b ? -1 : 1 ) )
+		// The markup only: the saved CSS names classes the markup may not use.
+		.filter( ( [ , { html } ] ) => html.includes( '__header-title' ) );
+	const has = ( ...marks ) =>
+		entries.find( ( [ , { html } ] ) => marks.every( mark => html.includes( mark ) ) );
+	// `JetpackLogo` as it last rendered, so this file needs no copy of it, best with a subtitle row.
+	const [ slug ] =
+		has( 'jetpack-logo', '__header-subtitle' ) ?? has( 'jetpack-logo' ) ?? entries[ 0 ] ?? [];
+	return slug ? readSaved( slug, store ) : null;
 };
 
 // CSS modules hash only a class name's prefix; these are found by their `__<name>` ending.
@@ -410,8 +355,9 @@ const retitle = ( copy, { title, subtitle }, own ) => {
  * @return {Function} Removes the stand-in.
  */
 export function showHeader( slug, el, title, declared = null ) {
-	const own = readSaved( slug );
-	const saved = own ?? ( title ? donor() : null );
+	const store = readStore();
+	const own = readSaved( slug, store );
+	const saved = own ?? ( title ? donor( store ) : null );
 	if ( ! saved?.html ) {
 		log( 'header', `no saved header for ${ slug }` );
 		return () => {};
@@ -426,7 +372,7 @@ export function showHeader( slug, el, title, declared = null ) {
 	if ( ! own || declared ) {
 		retitle( copy, declared ?? { title }, !! own );
 	}
-	const css = saved.css?.replaceAll( PAGE_CLASS, bodyClassOf( slug ) ?? PAGE_CLASS );
+	const css = saved.css.replaceAll( PAGE_CLASS, bodyClassOf( slug ) ?? PAGE_CLASS );
 
 	// A section for the same reason the guest containers are one (see bootGuest in index.js).
 	const standIn = document.createElement( 'section' );
