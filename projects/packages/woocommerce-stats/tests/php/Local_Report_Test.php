@@ -357,14 +357,15 @@ class Local_Report_Test extends BaseTestCase {
 	/**
 	 * @dataProvider data_settings
 	 *
-	 * @param string|null $option   Stored provider names, null when unset.
+	 * @param mixed       $option   Stored provider names, null when unset.
 	 * @param mixed       $filtered What the filter returns, null when unfiltered.
 	 * @param array       $params   Params replacing `provider=auto` and the local defaults; null removes one.
 	 * @param int         $status   Expected status.
 	 * @param string      $answer   Expected provider header, or error code.
+	 * @param string|null $names    Provider the error message names.
 	 */
 	#[DataProvider( 'data_settings' )]
-	public function test_serves_auto_from_the_providers_the_site_setting_allows( $option, $filtered, array $params, $status, $answer ) {
+	public function test_serves_auto_from_the_providers_the_site_setting_allows( $option, $filtered, array $params, $status, $answer, $names = null ) {
 		if ( null !== $option ) {
 			update_option( 'jetpack_woocommerce_stats_report_providers', $option );
 		}
@@ -376,10 +377,13 @@ class Local_Report_Test extends BaseTestCase {
 
 		$this->assertSame( $status, $response->get_status() );
 		$this->assertSame( $answer, 200 === $status ? $response->get_headers()['X-Jetpack-Report-Provider'] : $response->get_data()['code'] );
+		if ( null !== $names ) {
+			$this->assertStringContainsString( $names . ' provider', $response->get_data()['message'] );
+		}
 	}
 
 	/**
-	 * @return array<string, array{0: string|null, 1: mixed, 2: array, 3: int, 4: string}>
+	 * @return array<string, array{0: mixed, 1: mixed, 2: array, 3: int, 4: string, 5?: string}>
 	 */
 	public static function data_settings() {
 		return array(
@@ -393,7 +397,8 @@ class Local_Report_Test extends BaseTestCase {
 			'the filter over the option, as a list'  => array( 'local', array( 'wpcom' ), array(), 200, 'wpcom' ),
 			'an unregistered provider first'         => array( 'mars,local', null, array(), 200, 'local' ),
 			'unregistered first, local refuses'      => array( 'mars,local', null, array( 'report_fields' => null ), 422, 'unsupported_fields' ),
-			'only an unregistered provider'          => array( 'mars', null, array(), 422, 'unsupported_provider' ),
+			'only an unregistered provider'          => array( 'mars', null, array(), 422, 'unsupported_provider', 'mars' ),
+			'only blank names'                       => array( array( ' ', '' ), null, array(), 200, 'wpcom' ),
 			'a filter returning an object'           => array( 'local', new \stdClass(), array(), 200, 'wpcom' ),
 			'no provider on a local site'            => array( 'local', null, array( 'provider' => null ), 200, 'wpcom' ),
 			'provider=wpcom on a local site'         => array( 'local', null, array( 'provider' => 'wpcom' ), 200, 'wpcom' ),

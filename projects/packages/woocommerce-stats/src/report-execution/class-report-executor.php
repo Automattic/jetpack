@@ -20,7 +20,7 @@ class Report_Executor {
 	/**
 	 * `provider` value that follows the site's `Provider_Setting`.
 	 */
-	const AUTO = 'auto';
+	private const AUTO = 'auto';
 
 	/**
 	 * Response header naming the provider that served the report.
@@ -133,6 +133,10 @@ class Report_Executor {
 		foreach ( $names as $name ) {
 			$handler = $this->registry->get_handler( $request->definition->id, $name );
 			if ( null === $handler ) {
+				// Skip a name nothing registered, but keep a registered provider's refusal.
+				if ( null !== $this->registry->get_provider( $name ) ) {
+					$refusals[] = self::unsupported_provider( $name );
+				}
 				continue;
 			}
 

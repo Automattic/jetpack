@@ -279,7 +279,18 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 		return array(
 			'an unregistered name' => array( 'mars', 422, 'unsupported_provider' ),
 			'a malformed name'     => array( 'Mars/../x', 400, 'rest_invalid_param' ),
+			'a trailing newline'   => array( "mars\n", 400, 'rest_invalid_param' ),
 		);
+	}
+
+	public function test_auto_names_the_registered_provider_that_lacks_a_handler() {
+		update_option( 'jetpack_woocommerce_stats_report_providers', 'mars,local' );
+		$this->register_partial_local_handler();
+
+		$response = $this->get_report( 'products', array( 'provider' => 'auto' ) );
+
+		$this->assertSame( 'unsupported_provider', $response->get_data()['code'] );
+		$this->assertStringContainsString( 'local provider', $response->get_data()['message'] );
 	}
 
 	public function test_answers_unsupported_provider_for_a_provider_without_a_handler() {

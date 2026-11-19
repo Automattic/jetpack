@@ -46,8 +46,11 @@ class Provider_Setting {
 		 * @param string[]|string $providers Registered provider names, such as `wpcom` or `local`, as a list or comma-separated.
 		 */
 		$providers = apply_filters( self::FILTER, get_option( self::OPTION, array() ) );
-		$providers = is_array( $providers ) || is_string( $providers ) ? array_values( array_unique( array_filter( wp_parse_list( $providers ), 'is_string' ) ) ) : array();
+		$names     = array();
+		if ( is_array( $providers ) || is_string( $providers ) ) {
+			$names = array_values( array_unique( array_filter( array_map( 'trim', array_filter( wp_parse_list( $providers ), 'is_string' ) ) ) ) );
+		}
 
-		return $providers ? $providers : array( self::DEFAULT_PROVIDER );
+		return $names ? $names : array( self::DEFAULT_PROVIDER );
 	}
 }
