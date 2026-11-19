@@ -53,6 +53,7 @@ const IconTooltip: FC< IconTooltipProps > = ( {
 	trigger,
 	onTriggerClick,
 	closeOnClickOutside = true,
+	closeOnClickOutsideExceptRef,
 	forceShow = false,
 	hoverShow = false,
 	wide = false,
@@ -182,7 +183,12 @@ const IconTooltip: FC< IconTooltipProps > = ( {
 		},
 		onFocusOutside: ( event: FocusEvent ) => {
 			// A pointer press on our own trigger dismisses through that trigger instead.
-			if ( closeOnClickOutside && ! wrapperRef.current?.contains( event.relatedTarget as Node ) ) {
+			const related = event.relatedTarget as Node;
+			if (
+				closeOnClickOutside &&
+				! wrapperRef.current?.contains( related ) &&
+				! closeOnClickOutsideExceptRef?.current?.contains( related )
+			) {
 				hideTooltip();
 			}
 		},
@@ -208,28 +214,45 @@ const IconTooltip: FC< IconTooltipProps > = ( {
 		const doc = wrapperRef.current?.ownerDocument;
 		const handlePointerDown = ( event: PointerEvent ) => {
 			const target = event.target as Node;
-			if ( ! wrapperRef.current?.contains( target ) && ! popoverRef.current?.contains( target ) ) {
+			if (
+				! wrapperRef.current?.contains( target ) &&
+				! popoverRef.current?.contains( target ) &&
+				! closeOnClickOutsideExceptRef?.current?.contains( target )
+			) {
 				hideTooltip();
 			}
 		};
 		doc?.addEventListener( 'pointerdown', handlePointerDown );
 		return () => doc?.removeEventListener( 'pointerdown', handlePointerDown );
-	}, [ isVisible, isForcedToShow, closeOnClickOutside, hideTooltip ] );
+	}, [
+		isVisible,
+		isForcedToShow,
+		closeOnClickOutside,
+		closeOnClickOutsideExceptRef,
+		hideTooltip,
+	] );
 
-	// Hover leaves focus elsewhere, so Escape is watched directly to keep the content dismissible.
+	// Hover, or a press in closeOnClickOutsideExceptRef, leaves focus off the trigger, so Escape
+	// is watched directly to keep the content dismissible.
 	useEffect( () => {
-		if ( ! isVisible || ! openedByHover.current ) {
+		if ( ! isVisible || ! ( openedByHover.current || closeOnClickOutsideExceptRef ) ) {
 			return;
 		}
 		const doc = wrapperRef.current?.ownerDocument;
 		const handleKeyDown = ( event: globalThis.KeyboardEvent ) => {
-			if ( event.key === 'Escape' ) {
+			// With an except-ref field, skip an Escape something else handled or that dismisses an
+			// IME candidate list (keyCode 229 covers Safari, which can send it with isComposing false);
+			// other tooltips keep closing on any Escape.
+			const leftToField =
+				closeOnClickOutsideExceptRef &&
+				( event.defaultPrevented || event.isComposing || event.keyCode === 229 );
+			if ( event.key === 'Escape' && ! leftToField ) {
 				hideTooltip();
 			}
 		};
 		doc?.addEventListener( 'keydown', handleKeyDown );
 		return () => doc?.removeEventListener( 'keydown', handleKeyDown );
-	}, [ isVisible, hideTooltip ] );
+	}, [ isVisible, closeOnClickOutsideExceptRef, hideTooltip ] );
 
 	useEffect( () => {
 		if ( isForcedToShow || isVisible ) {
