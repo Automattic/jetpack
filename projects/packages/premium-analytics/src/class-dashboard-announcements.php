@@ -119,6 +119,6 @@ class Dashboard_Announcements {
 	private static function predates_current_user( $date ) {
 		$registered = strtotime( wp_get_current_user()->user_registered . ' +0000' );
 
-		return false !== $registered && strtotime( $date ) < $registered;
+		return false !== $registered && strtotime( $date . ' +0000' ) < $registered;
 	}
 }
