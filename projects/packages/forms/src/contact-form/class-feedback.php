@@ -41,6 +41,15 @@ class Feedback {
 	public const STATUS_READ = 'closed';
 
 	/**
+	 * Comment type for notes left on a response.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @var string
+	 */
+	public const NOTE_COMMENT_TYPE = 'jetpack_form_note';
+
+	/**
 	 * Meta key used to store the source post ID on feedback posts.
 	 *
 	 * @var string

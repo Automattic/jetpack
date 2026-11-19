@@ -4,6 +4,7 @@ namespace Automattic\Jetpack\Forms\ContactForm;
 
 require_once __DIR__ . '/class-utility.php';
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
@@ -1921,5 +1922,62 @@ JSON_DATA{"1_name":"Test Author","2_email":"author@example.com","3_file":{"field
 		$this->assertEquals( 200, $response->get_status() );
 		$this->assertSame( 'HereTogetherCRM/HereTogetherCRM', $data['pluginFile'] );
 		$this->assertTrue( $data['isActive'] );
+	}
+
+	/**
+	 * Only users who can manage responses may read a response's notes, using the dashboard's query.
+	 *
+	 * @dataProvider provide_note_readers
+	 *
+	 * @param string|null $role            Role of the requesting user, or null when logged out.
+	 * @param int         $expected_status Expected HTTP status.
+	 */
+	#[DataProvider( 'provide_note_readers' )]
+	public function test_feedback_notes_are_readable_only_by_response_managers( $role, $expected_status ) {
+		$feedback_id = wp_insert_post(
+			array(
+				'post_type'   => 'feedback',
+				'post_status' => 'publish',
+			)
+		);
+
+		$user_id = 0;
+		if ( null !== $role ) {
+			$user_id = wp_insert_user(
+				array(
+					'user_login' => 'note_reader_' . $role,
+					'user_pass'  => 'password',
+					'role'       => $role,
+				)
+			);
+		}
+		wp_set_current_user( $user_id );
+
+		$request = new WP_REST_Request( 'GET', '/wp/v2/comments' );
+		$request->set_query_params(
+			array(
+				'post'   => $feedback_id,
+				'status' => 'all',
+				'type'   => Feedback::NOTE_COMMENT_TYPE,
+			)
+		);
+		$response = $this->server->dispatch( $request );
+
+		$this->assertSame( $expected_status, $response->get_status() );
+	}
+
+	/**
+	 * Roles and the status each gets when listing a response's notes.
+	 *
+	 * @return array
+	 */
+	public static function provide_note_readers() {
+		return array(
+			'logged out'    => array( null, 401 ),
+			'subscriber'    => array( 'subscriber', 403 ),
+			'author'        => array( 'author', 403 ),
+			'editor'        => array( 'editor', 200 ),
+			'administrator' => array( 'administrator', 200 ),
+		);
 	}
 }

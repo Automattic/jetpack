@@ -246,6 +246,14 @@ class Contact_Form_Plugin {
 
 		// Restrict feedback comments to logged-in users only
 		add_filter( 'comments_open', array( $this, 'restrict_feedback_comments_to_logged_in' ), 10, 2 );
+		// Notes come in through REST and through wp_new_comment() (e.g. the WordPress.com v1.1 replies endpoint).
+		// Priority 20 so these run after Akismet's verdict at 1 and 10.
+		add_filter( 'pre_comment_approved', array( $this, 'hold_feedback_notes' ), 20, 2 );
+		add_filter( 'preprocess_comment', array( $this, 'prepare_feedback_note' ), 20 );
+		add_filter( 'rest_pre_insert_comment', array( $this, 'prepare_feedback_note' ), 20 );
+		add_action( 'transition_comment_status', array( $this, 'keep_feedback_notes_out_of_spam' ), 20, 3 );
+		add_action( 'pre_get_comments', array( $this, 'exclude_feedback_notes_from_comment_queries' ) );
+		add_filter( 'notify_moderator', array( $this, 'skip_moderation_email_for_feedback_notes' ), 10, 2 );
 
 		// custom post type we'll use to keep copies of the feedback items
 		register_post_type(
@@ -2747,6 +2755,11 @@ class Contact_Form_Plugin {
 			'callback'               => array( $this, 'personal_data_exporter' ),
 		);
 
+		$exporters['jetpack-feedback-notes'] = array(
+			'exporter_friendly_name' => __( 'Form response notes', 'jetpack-forms' ),
+			'callback'               => array( $this, 'personal_data_notes_exporter' ),
+		);
+
 		return $exporters;
 	}
 
@@ -2765,7 +2778,59 @@ class Contact_Form_Plugin {
 			'callback'             => array( $this, 'personal_data_eraser' ),
 		);
 
+		$erasers['jetpack-feedback-notes'] = array(
+			'eraser_friendly_name' => __( 'Form response notes', 'jetpack-forms' ),
+			'callback'             => array( $this, 'personal_data_notes_eraser' ),
+		);
+
 		return $erasers;
+	}
+
+	/**
+	 * Exports notes left on responses, which core's comment exporter skips because of their comment type.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $email Email address.
+	 * @param int    $page  Page to export.
+	 * @return array Associative array with keys expected by core.
+	 */
+	public function personal_data_notes_exporter( $email, $page = 1 ) {
+		return self::run_for_feedback_notes_only( 'wp_comments_personal_data_exporter', $email, $page );
+	}
+
+	/**
+	 * Anonymizes notes left on responses, which core's comment eraser skips because of their comment type.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $email Email address.
+	 * @param int    $page  Page to erase.
+	 * @return array Associative array with keys expected by core.
+	 */
+	public function personal_data_notes_eraser( $email, $page = 1 ) {
+		return self::run_for_feedback_notes_only( 'wp_comments_personal_data_eraser', $email, $page );
+	}
+
+	/**
+	 * Run a core comment privacy callback with its comment queries limited to response notes.
+	 *
+	 * @param callable $callback Core exporter or eraser.
+	 * @param string   $email    Email address.
+	 * @param int      $page     Page number.
+	 * @return array
+	 */
+	private static function run_for_feedback_notes_only( $callback, $email, $page ) {
+		$only_notes = static function ( $query ) {
+			$query->query_vars['type'] = Feedback::NOTE_COMMENT_TYPE;
+		};
+
+		add_action( 'pre_get_comments', $only_notes, 5 );
+		try {
+			return $callback( $email, $page );
+		} finally {
+			remove_action( 'pre_get_comments', $only_notes, 5 );
+		}
 	}
 
 	/**
@@ -3950,6 +4015,109 @@ class Contact_Form_Plugin {
 		// For feedback posts, comments are always open for users that can read pages.
 		// regardless of comment_status (which we use for read/unread tracking).
 		return current_user_can( 'edit_pages' );
+	}
+
+	/**
+	 * Whether a post ID belongs to a feedback post.
+	 *
+	 * @param mixed $post_id Post ID.
+	 * @return bool
+	 */
+	private static function is_feedback_post( $post_id ) {
+		return ! empty( $post_id ) && Feedback::POST_TYPE === get_post_type( (int) $post_id );
+	}
+
+	/**
+	 * Store notes on feedback posts held; reads are gated by the endpoint, not by this status.
+	 *
+	 * Only people who can manage responses can leave notes, so spam and trash verdicts don't apply.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param int|string|\WP_Error $approved    The approval status.
+	 * @param array                $commentdata Comment data.
+	 * @return int|string|\WP_Error
+	 */
+	public function hold_feedback_notes( $approved, $commentdata ) {
+		if ( is_wp_error( $approved ) || ! self::is_feedback_post( $commentdata['comment_post_ID'] ?? 0 ) ) {
+			return $approved;
+		}
+
+		return 0;
+	}
+
+	/**
+	 * Give comments on feedback posts the note comment type, and keep them held.
+	 *
+	 * Core's REST API only accepts core types on create, and Akismet sets its REST verdict after the approval check.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array|\WP_Error $commentdata Comment data.
+	 * @return array|\WP_Error
+	 */
+	public function prepare_feedback_note( $commentdata ) {
+		if ( ! is_array( $commentdata ) || ! self::is_feedback_post( $commentdata['comment_post_ID'] ?? 0 ) ) {
+			return $commentdata;
+		}
+
+		$commentdata['comment_type'] = Feedback::NOTE_COMMENT_TYPE;
+		if ( isset( $commentdata['comment_approved'] ) ) {
+			$commentdata['comment_approved'] = 0;
+		}
+
+		return $commentdata;
+	}
+
+	/**
+	 * Put a note back on hold when it's marked as spam, such as by Akismet's bulk recheck of held comments.
+	 *
+	 * Notes don't appear in wp-admin's Spam view, so Akismet would otherwise delete them unseen.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string      $new_status New comment status.
+	 * @param string      $old_status Previous comment status.
+	 * @param \WP_Comment $comment    Comment object.
+	 */
+	public function keep_feedback_notes_out_of_spam( $new_status, $old_status, $comment ) { //phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		if ( 'spam' === $new_status && Feedback::NOTE_COMMENT_TYPE === $comment->comment_type ) {
+			wp_set_comment_status( $comment->comment_ID, 'hold' );
+		}
+	}
+
+	/**
+	 * Leave notes out of comment queries that don't ask for them, as core does for its `note` type.
+	 *
+	 * This keeps them out of the Comments screen, its counts, and the Activity dashboard widget.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param \WP_Comment_Query $query Comment query.
+	 */
+	public function exclude_feedback_notes_from_comment_queries( $query ) {
+		$requested = array_merge( (array) $query->query_vars['type'], (array) $query->query_vars['type__in'] );
+
+		if ( in_array( 'all', $requested, true ) || in_array( Feedback::NOTE_COMMENT_TYPE, $requested, true ) ) {
+			return;
+		}
+
+		$query->query_vars['type__not_in'] = array_merge( (array) $query->query_vars['type__not_in'], array( Feedback::NOTE_COMMENT_TYPE ) );
+	}
+
+	/**
+	 * Don't email moderators about notes, which are held by design rather than awaiting review.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param bool $maybe_notify Whether to notify the moderators.
+	 * @param int  $comment_id   Comment ID.
+	 * @return bool
+	 */
+	public function skip_moderation_email_for_feedback_notes( $maybe_notify, $comment_id ) {
+		$comment = get_comment( $comment_id );
+
+		return $comment && Feedback::NOTE_COMMENT_TYPE === $comment->comment_type ? false : $maybe_notify;
 	}
 
 	/**

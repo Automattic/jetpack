@@ -10,6 +10,7 @@ import { store as noticesStore } from '@wordpress/notices';
 /**
  * Internal dependencies
  */
+import { NOTE_COMMENT_TYPE } from '../../constants';
 import CommentItem from './comment-item';
 import type { FeedbackComment } from '../../../types';
 import type { JSX } from 'react';
@@ -51,19 +52,21 @@ const FeedbackComments = ( { postId }: FeedbackCommentsProps ): JSX.Element => {
 		isLoadingComments,
 	} = useSelect(
 		select => {
-			const commentsData = select( coreStore ).getEntityRecords( 'root', 'comment', {
+			// Notes have their own type, which core only returns when asked. `all` also keeps a note a moderator approved.
+			// One shared query so the total comes from the same request as the records.
+			const query = {
 				per_page: perPage,
 				page,
+				post: postId,
+				status: 'all',
+				type: NOTE_COMMENT_TYPE,
 				orderby: 'date',
 				order: 'asc',
-				post: postId,
-			} ) as FeedbackComment[] | null | undefined;
+			};
+			const commentsData = select( coreStore ).getEntityRecords( 'root', 'comment', query ) as
+				FeedbackComment[] | null | undefined;
 
-			const total = select( coreStore ).getEntityRecordsTotalItems( 'root', 'comment', {
-				per_page: perPage,
-				page,
-				post: postId,
-			} );
+			const total = select( coreStore ).getEntityRecordsTotalItems( 'root', 'comment', query );
 
 			return {
 				comments: commentsData,
