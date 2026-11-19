@@ -1,13 +1,12 @@
 /**
- * The store report paths of the WooCommerce dashboard tab, mocked for Storybook.
- */
-/**
  * External dependencies
  */
 import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
  */
+// This import pulls @jetpack-premium-analytics/data into woo's Jest program, so a woo test
+// failure can originate in Premium Analytics source with nothing in this package to say so.
 import { resetForcedStateQueries } from '../../../../premium-analytics/packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import {
 	buildOrdersByDateResponse,
