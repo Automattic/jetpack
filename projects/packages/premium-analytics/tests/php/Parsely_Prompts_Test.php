@@ -8,7 +8,9 @@
 namespace Automattic\Jetpack\PremiumAnalytics;
 
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Feature_Flags\Feature_Flags;
 use Automattic\Jetpack\Status\Cache;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\CoversFunction;
 use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
@@ -22,7 +24,7 @@ require_once __DIR__ . '/../../src/parsely-prompts.php';
  * @covers ::Automattic\Jetpack\PremiumAnalytics\has_parsely_integration
  * @covers ::Automattic\Jetpack\PremiumAnalytics\get_monthly_stats_views
  * @covers ::Automattic\Jetpack\PremiumAnalytics\fetch_monthly_stats_views
- * @covers ::Automattic\Jetpack\PremiumAnalytics\register_parsely_prompts_feature_flag
+ * @covers Automattic\Jetpack\PremiumAnalytics\Parsely_Prompts
  * @covers ::Automattic\Jetpack\PremiumAnalytics\configure_parsely_prompts
  * @covers ::Automattic\Jetpack\PremiumAnalytics\inject_parsely_prompts_script_data
  */
@@ -30,7 +32,7 @@ require_once __DIR__ . '/../../src/parsely-prompts.php';
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\has_parsely_integration' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\get_monthly_stats_views' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\fetch_monthly_stats_views' )]
-#[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\register_parsely_prompts_feature_flag' )]
+#[CoversClass( Parsely_Prompts::class )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\configure_parsely_prompts' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\inject_parsely_prompts_script_data' )]
 class Parsely_Prompts_Test extends BaseTestCase {
@@ -48,6 +50,8 @@ class Parsely_Prompts_Test extends BaseTestCase {
 	public function set_up() {
 		parent::set_up();
 		Cache::clear();
+		// The registry is static, so without this a test could read a flag an earlier one registered.
+		Feature_Flags::reset();
 
 		$user_id = wp_insert_user(
 			array(
@@ -62,7 +66,7 @@ class Parsely_Prompts_Test extends BaseTestCase {
 		\Jetpack_Options::update_option( 'blog_token', 'blog_token.secret' );
 		Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
 
-		add_filter( 'jetpack_feature_flag_enabled_' . PARSELY_PROMPTS_FLAG, '__return_true' );
+		add_filter( 'jetpack_feature_flag_enabled_' . Parsely_Prompts::FLAG, '__return_true' );
 		add_filter( STATS_PLAN_TIER_FILTER, array( $this, 'return_commercial_tier' ) );
 
 		// Defeat the stats client's own cache, so the request counts below answer for this file's cache alone.
@@ -76,7 +80,7 @@ class Parsely_Prompts_Test extends BaseTestCase {
 	 */
 	public function tear_down() {
 		remove_all_filters( 'pre_http_request' );
-		remove_all_filters( 'jetpack_feature_flag_enabled_' . PARSELY_PROMPTS_FLAG );
+		remove_all_filters( 'jetpack_feature_flag_enabled_' . Parsely_Prompts::FLAG );
 		remove_all_filters( STATS_PLAN_TIER_FILTER );
 		remove_all_filters( OFFERS_PARSELY_PROMPTS_FILTER );
 		remove_all_filters( 'jetpack_fetch_stats_cache_expiration' );
@@ -231,7 +235,7 @@ class Parsely_Prompts_Test extends BaseTestCase {
 	}
 
 	public function test_the_flag_closes_the_gate_without_a_request() {
-		remove_all_filters( 'jetpack_feature_flag_enabled_' . PARSELY_PROMPTS_FLAG );
+		remove_all_filters( 'jetpack_feature_flag_enabled_' . Parsely_Prompts::FLAG );
 		$this->answer_stats_usage_with( self::usage_with_views( 150000 ) );
 
 		$this->assertFalse( offers_parsely_prompts() );
@@ -318,9 +322,9 @@ class Parsely_Prompts_Test extends BaseTestCase {
 	}
 
 	public function test_the_flag_is_registered_off_by_default() {
-		register_parsely_prompts_feature_flag();
+		Parsely_Prompts::register_feature_flag();
 
-		$this->assertSame( false, \Automattic\Jetpack\Feature_Flags\Feature_Flags::get( PARSELY_PROMPTS_FLAG )['default'] );
+		$this->assertSame( false, Feature_Flags::get( Parsely_Prompts::FLAG )['default'] );
 	}
 
 	/**
@@ -367,10 +371,9 @@ class Parsely_Prompts_Test extends BaseTestCase {
 		$this->assertTrue( $data['premium_analytics']['offers_parsely_prompts'] );
 	}
 
-	public function test_configure_registers_the_flag_and_the_filter() {
+	public function test_configure_adds_the_script_data_filter() {
 		configure_parsely_prompts();
 
-		$this->assertSame( false, \Automattic\Jetpack\Feature_Flags\Feature_Flags::get( PARSELY_PROMPTS_FLAG )['default'] );
 		$this->assertSame( 20, has_filter( 'jetpack_admin_js_script_data', __NAMESPACE__ . '\\inject_parsely_prompts_script_data' ) );
 	}
 }

@@ -7,18 +7,10 @@
 
 namespace Automattic\Jetpack\PremiumAnalytics;
 
-use Automattic\Jetpack\Feature_Flags\Feature_Flags;
 use Automattic\Jetpack\Stats\WPCOM_Stats;
 use Automattic\Jetpack\Status\Host;
 
 require_once __DIR__ . '/stats-plan-gates.php';
-
-/**
- * Flag that turns the Upgrade to Parsely prompts on for the sites that qualify.
- *
- * @var string
- */
-const PARSELY_PROMPTS_FLAG = 'jetpack-stats-parsely-prompts';
 
 /**
  * Filter overriding whether the site and user see the prompts.
@@ -56,32 +48,13 @@ const PARSELY_PROMPTS_VIEWS_TRANSIENT = 'jetpack_premium_analytics_parsely_views
 const PARSELY_PROMPTS_VIEWS_TTL = 12 * HOUR_IN_SECONDS;
 
 /**
- * Register the flag, so feature-flag tooling lists it.
- *
- * @since $$next-version$$
- *
- * @return void
- */
-function register_parsely_prompts_feature_flag() {
-	Feature_Flags::register(
-		PARSELY_PROMPTS_FLAG,
-		array(
-			'default'     => false,
-			'description' => 'Show the Upgrade to Parsely prompts to sites that qualify: a paid Stats plan, 100,000 monthly views, and no Parsely of their own.',
-			'owner'       => 'jetpack-stats',
-		)
-	);
-}
-
-/**
- * Configures the Upgrade to Parsely prompts.
+ * Configures the Upgrade to Parsely prompts. The flag registers earlier, at package boot.
  *
  * @since $$next-version$$
  *
  * @return void
  */
 function configure_parsely_prompts() {
-	register_parsely_prompts_feature_flag();
 	add_filter( 'jetpack_admin_js_script_data', __NAMESPACE__ . '\\inject_parsely_prompts_script_data', 20 );
 }
 
@@ -115,7 +88,7 @@ function inject_parsely_prompts_script_data( array $data ): array {
  * @return bool
  */
 function offers_parsely_prompts() {
-	$offers = Feature_Flags::is_enabled( PARSELY_PROMPTS_FLAG )
+	$offers = Parsely_Prompts::is_enabled()
 		&& current_user_can( 'manage_options' )
 		// WordPress.com Simple cannot complete the one-step Parsely setup yet.
 		&& ! ( new Host() )->is_wpcom_simple()
