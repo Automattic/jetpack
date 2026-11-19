@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Admin shell: Save the CSS and theme styles that dashboard headers share once, rather than once per dashboard, and only the rules that style the header.
+Admin shell: Save the CSS and theme styles that dashboard headers share once, rather than once per dashboard.
