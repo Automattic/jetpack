@@ -1,6 +1,6 @@
 <?php
 /**
- * PayPal Payment Buttons V2 rollout on WordPress.com: a percent of Simple sites, Atomic at 100, behind a kill switch.
+ * PayPal API-managed buttons rollout on WordPress.com: a percent of Simple sites, Atomic once PERCENT is 100, behind a kill switch.
  *
  * @package automattic/jetpack-mu-wpcom
  */
@@ -14,6 +14,7 @@ use Automattic\Jetpack\Constants;
  *
  * Precedence, highest first: kill switch, the site's Tools > Feature Flags override, the rollout default.
  * Temporary: remove once PERCENT is 100, the flag defaults on everywhere, and the kill switch is retired.
+ * The PayPal onboarding endpoint calls is_killed(), so remove that call with this class.
  */
 class Wpcom_PayPal_Buttons_Rollout {
 
@@ -23,17 +24,18 @@ class Wpcom_PayPal_Buttons_Rollout {
 	const FLAG = 'paypal-payments-api-managed-buttons';
 
 	/**
-	 * Network option that, when truthy, turns V2 off on every Simple site. Atomic reads its own options, so use KILLED there.
+	 * Network option that, when truthy, turns the flag off on every Simple site and refuses live PayPal for every caller.
+	 * Atomic reads its own options, so use KILLED there.
 	 */
 	const KILL_SWITCH_OPTION = 'wpcom_paypal_buttons_kill_switch';
 
 	/**
-	 * Percent of Simple sites that get V2, 0-100. Atomic gets it at 100. Only ever raise it.
+	 * Percent of Simple sites with the flag on, 0-100. Atomic turns on at 100. Only ever raise it.
 	 */
 	const PERCENT = 0;
 
 	/**
-	 * True turns V2 off on Simple and Atomic.
+	 * True turns the flag off on Simple and Atomic, and refuses live PayPal for every caller.
 	 */
 	const KILLED = false;
 
@@ -51,7 +53,7 @@ class Wpcom_PayPal_Buttons_Rollout {
 	/**
 	 * Turn the flag on for sites in the rollout and off for the rest.
 	 *
-	 * Ignores the registered default, so flipping it in the package leaves WordPress.com on the rollout.
+	 * WordPress.com stays on the rollout whatever default the package registers.
 	 *
 	 * @param bool   $enabled Whether the flag is enabled.
 	 * @param string $name    Flag name.
@@ -70,7 +72,7 @@ class Wpcom_PayPal_Buttons_Rollout {
 	}
 
 	/**
-	 * Force V2 off while the kill switch is on.
+	 * Force the flag off while the kill switch is on.
 	 *
 	 * @param bool $enabled Whether the flag is enabled.
 	 * @return bool Whether the flag is enabled.
@@ -86,11 +88,11 @@ class Wpcom_PayPal_Buttons_Rollout {
 	 */
 	public static function is_killed() {
 		/**
-		 * Filters whether PayPal Payment Buttons V2 is forced off on WordPress.com, ahead of every other setting.
+		 * Filters whether the PayPal API-managed buttons kill switch is on. When on, it forces the flag off and refuses live PayPal for every caller.
 		 *
 		 * @since $$next-version$$
 		 *
-		 * @param bool $killed Whether V2 is forced off. Defaults to KILLED or the `wpcom_paypal_buttons_kill_switch` network option.
+		 * @param bool $killed Whether the kill switch is on. Defaults to KILLED or the `wpcom_paypal_buttons_kill_switch` network option.
 		 */
 		return (bool) apply_filters( 'wpcom_paypal_buttons_kill_switch', static::KILLED || wp_validate_boolean( get_site_option( self::KILL_SWITCH_OPTION, false ) ) );
 	}
@@ -102,7 +104,7 @@ class Wpcom_PayPal_Buttons_Rollout {
 	 */
 	private static function percent() {
 		/**
-		 * Filters the PayPal Payment Buttons V2 rollout percent, for tests. Ramp by raising PERCENT.
+		 * Filters the PayPal API-managed buttons rollout percent, for tests. Ramp by raising PERCENT.
 		 *
 		 * @since $$next-version$$
 		 *
