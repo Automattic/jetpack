@@ -281,6 +281,7 @@ class Jetpack_Shortcodes_CrowdSignal_Test extends WP_UnitTestCase {
 
 		preg_match( '/PDRTJS_settings_\w+=(\{.*?\});/', wp_scripts()->get_inline_script_data( 'crowdsignal-rating', 'before' ), $matches );
 		$settings = json_decode( $matches[1], true );
+		$this->assertIsArray( $settings );
 
 		$this->assertSame( 'Apprenez à votre IA : Don’t panic', $settings['title'] );
 	}
