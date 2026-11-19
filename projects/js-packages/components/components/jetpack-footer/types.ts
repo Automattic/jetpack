@@ -16,4 +16,9 @@ export type JetpackFooterProps = {
 	 * Additional links to display in the footer.
 	 */
 	menu?: JetpackFooterMenuItem[];
+
+	/**
+	 * Whether to show the default Features link. Defaults to true.
+	 */
+	showFeaturesLink?: boolean;
 };

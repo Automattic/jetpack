@@ -140,6 +140,13 @@ describe( 'JetpackFooter', () => {
 			expect( screen.getByRole( 'link', { name: 'Help' } ) ).toBeInTheDocument();
 		} );
 
+		it( 'leaves Features out when the page opts out of it', () => {
+			render( <JetpackFooter showFeaturesLink={ false } /> );
+
+			expect( screen.queryByRole( 'link', { name: 'Features' } ) ).not.toBeInTheDocument();
+			expect( screen.getByRole( 'link', { name: 'Help' } ) ).toBeInTheDocument();
+		} );
+
 		it.each( [
 			[ 'shows', 'a WordPress.com site that shows My Jetpack', true, true ],
 			[ 'hides', 'a WordPress.com site whose host hides My Jetpack', true, false ],
