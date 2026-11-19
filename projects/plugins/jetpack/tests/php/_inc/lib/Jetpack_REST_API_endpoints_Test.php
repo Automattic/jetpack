@@ -1017,6 +1017,10 @@ class Jetpack_REST_API_endpoints_Test extends WP_UnitTestCase {
 	public function test_settings_lang_id_en_us_returns_the_settings_response() {
 		$user = $this->create_and_get_user( 'administrator' );
 		$user->add_cap( 'jetpack_configure_modules' );
+		if ( is_multisite() ) {
+			// Only super admins can install languages on multisite.
+			grant_super_admin( $user->ID );
+		}
 		wp_set_current_user( $user->ID );
 
 		foreach ( array( 'fr_FR', '' ) as $current ) {
