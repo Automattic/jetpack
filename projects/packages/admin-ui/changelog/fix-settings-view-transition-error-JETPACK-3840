@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+Comment: Move the view transition wrapper into its own module so a page outside the admin shell can use it.
+

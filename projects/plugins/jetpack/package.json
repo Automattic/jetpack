@@ -134,6 +134,7 @@
 	"devDependencies": {
 		"@automattic/babel-plugin-replace-textdomain": "workspace:*",
 		"@automattic/color-studio": "4.1.0",
+		"@automattic/jetpack-admin-ui": "workspace:*",
 		"@automattic/jetpack-base-styles": "workspace:*",
 		"@automattic/jetpack-webpack-config": "workspace:*",
 		"@automattic/jetpack-wp-build-polyfills": "workspace:*",
