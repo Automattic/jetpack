@@ -141,12 +141,7 @@ class Initializer {
 
 		Indexnow_Client::init();
 
-		// Independent settings remain usable while SEO Tools is off. Register settings
-		// after init-time conflict filters and before core builds its settings route.
-		add_action( 'rest_api_init', array( Dashboard_Data::class, 'register_rest_settings' ), 5 );
-		add_action( 'rest_api_init', array( Dashboard_Data::class, 'register_module_routes' ) );
-
-		// SEO-dependent output and schema editing still follow the saved module choice.
+		// Editing routes and output follow the saved SEO Tools activation choice.
 		if ( self::is_seo_tools_module_active() ) {
 			Share_Image::init();
 			Schema_Builder::init();
@@ -154,6 +149,10 @@ class Initializer {
 			Canonical_Urls::init();
 			Llms_Txt::init();
 			Ai_Crawlers::init();
+
+			// Wait for init-time conflict filters before core builds its settings route.
+			add_action( 'rest_api_init', array( Dashboard_Data::class, 'register_rest_settings' ), 5 );
+			add_action( 'rest_api_init', array( Dashboard_Data::class, 'register_module_routes' ) );
 
 			// Package-owned route for the site-level Schema settings (see the controller).
 			add_action( 'rest_api_init', array( Schema_Settings_Controller::class, 'register_routes' ) );

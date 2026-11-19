@@ -86,14 +86,14 @@ class InitializerTest extends TestCase {
 	}
 
 	/**
-	 * An old discoverability value cannot block independent settings or activate modules.
+	 * Migration preserves saved preferences and module-dependent editing routes.
 	 *
 	 * @dataProvider migration_states
 	 * @param string|null $visibility Saved discoverability value.
 	 * @param bool        $seo_active Whether SEO Tools was already active.
 	 */
 	#[DataProvider( 'migration_states' )]
-	public function test_migration_registers_independent_settings_without_activating_seo( $visibility, $seo_active ) {
+	public function test_migration_preserves_module_gates_and_saved_choices( $visibility, $seo_active ) {
 		$hooks            = array_map(
 			static function ( $hook ) {
 				return clone $hook;
@@ -130,8 +130,8 @@ class InitializerTest extends TestCase {
 		}
 		try {
 			Initializer::init();
-			$this->assertSame( 5, has_action( 'rest_api_init', array( Dashboard_Data::class, 'register_rest_settings' ) ) );
-			$this->assertSame( 10, has_action( 'rest_api_init', array( Dashboard_Data::class, 'register_module_routes' ) ) );
+			$this->assertSame( $seo_active ? 5 : false, has_action( 'rest_api_init', array( Dashboard_Data::class, 'register_rest_settings' ) ) );
+			$this->assertSame( $seo_active ? 10 : false, has_action( 'rest_api_init', array( Dashboard_Data::class, 'register_module_routes' ) ) );
 			$this->assertNotFalse( has_action( 'admin_menu', array( Admin_Page::class, 'maybe_load_wp_build' ) ) );
 			$this->assertSame( $visibility, get_option( Initializer::VISIBILITY_OPTION, null ) );
 			$this->assertSame( $modules, get_option( 'jetpack_active_modules' ) );
@@ -212,12 +212,12 @@ class InitializerTest extends TestCase {
 	}
 
 	/**
-	 * @return array Dashboard visibility and module activation states that suppress output.
+	 * @return array Legacy visibility preferences and SEO Tools activation states.
 	 */
 	public static function provide_hidden_output_states() {
 		return array(
-			'module off'       => array( true, false ),
-			'hidden dashboard' => array( false, true ),
+			'module off'               => array( true, false ),
+			'legacy hidden preference' => array( false, true ),
 		);
 	}
 

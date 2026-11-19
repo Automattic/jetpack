@@ -9,7 +9,7 @@ This package is built up across a stacked series of PRs (see #48154 for the spli
 - **Content** — a DataViews list of published content across every supported post type, showing each item's SEO state (schema type, meta description set, search visibility). Rows link to the Gutenberg editor and open a per-post **SEO inspector** (custom title, description, schema type, noindex, SERP preview) in the dashboard sidebar. Filters for post type, schema type, description state, and search visibility run client-side over the merged set. The Schema type control and SEO columns also appear in the block editor and `edit.php` post-list tables respectively; the post-list columns are hidden by default and opted into per user via Screen Options. JSON-LD (Article / FAQ) is emitted on `wp_head`.
 - **GEO** — llms.txt generation, the plan-gated AI SEO Enhancer, and per-crawler allow/block controls for answer engines and training crawlers (written to the virtual robots.txt). (Generative Engine Optimization; route/id `geo`.)
 
-While SEO Tools is off, Settings remains reachable and exposes independent indexing, sitemap, verification, and canonical URL controls where the host supports them. SEO-dependent editors and output still follow module activation. Opening the dashboard does not activate modules or replace saved settings.
+Migration removes the opt-in requirement without changing saved settings or module activation. While SEO Tools is off, the dashboard retains its existing activation prompt. Activation, sidebar navigation, and independent settings access are coordinated separately in JETPACK-1807.
 
 ## Architecture
 

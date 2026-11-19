@@ -50,22 +50,7 @@ const IndexnowSettings = jest.fn< ( props: Record< string, unknown > ) => ReactE
 ) );
 jest.unstable_mockModule( '../indexnow-settings', () => ( { default: IndexnowSettings } ) );
 
-let routeForm: SettingsForm;
-jest.unstable_mockModule( '../../../dashboard/dashboard-page', () => ( {
-	default: ( { children }: { children: ReactNode } ) => children,
-} ) );
-jest.unstable_mockModule( '../../../data/is-seo-tools-active', () => ( {
-	default: () => false,
-} ) );
-jest.unstable_mockModule( '../../../data/use-ensure-tab-data', () => ( {
-	default: () => ( { status: 'ready' } ),
-} ) );
-jest.unstable_mockModule( '../../../data/use-settings', () => ( {
-	useSettingsForm: () => routeForm,
-} ) );
-
 const { default: SettingsScreen } = await import( '../index' );
-const { stage: SettingsStage } = await import( '../../../../routes/settings/stage' );
 
 const EMPTY_VERIFICATION = {
 	google: '',
@@ -713,27 +698,4 @@ describe( 'Notification settings inside Site visibility', () => {
 		expect( indexing ).toBeEnabled();
 		expect( sitemap ).toBeEnabled();
 	} );
-} );
-
-it( 'keeps independent module controls reachable through Settings when SEO tools are off', async () => {
-	IndexnowSettings.mockClear();
-	( window as unknown as { JetpackScriptData?: unknown } ).JetpackScriptData = {
-		seo: { indexnow_available: true },
-	};
-	const form = buildForm( { search_engines_visible: true } );
-	routeForm = form;
-	render( <SettingsStage /> );
-	expect( screen.getByRole( 'button', { name: 'Enable SEO tools' } ) ).toBeInTheDocument();
-	expect( screen.getByRole( 'checkbox', { name: 'Generate an XML sitemap' } ) ).toBeInTheDocument();
-	// eslint-disable-next-line testing-library/prefer-user-event -- Existing disclosure-test convention.
-	fireEvent.click( screen.getByRole( 'button', { name: 'Canonical URLs' } ) );
-	await expect(
-		screen.findByRole( 'checkbox', { name: 'Add canonical URLs to archive pages' } )
-	).resolves.toBeInTheDocument();
-	expect( screen.getByText( 'google field' ) ).toBeInTheDocument();
-	expect( screen.queryByTestId( 'schema' ) ).not.toBeInTheDocument();
-	expect( screen.queryByText( 'title structure' ) ).not.toBeInTheDocument();
-	expect( form.commit ).not.toHaveBeenCalled();
-	expect( IndexnowSettings ).toHaveBeenCalled();
-	delete ( window as unknown as { JetpackScriptData?: unknown } ).JetpackScriptData;
 } );

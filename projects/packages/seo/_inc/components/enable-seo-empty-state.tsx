@@ -28,7 +28,7 @@ const EnableSeoEmptyState: FC< { screen: SeoTracksScreen } > = ( { screen } ) =>
 	const { isEnabling, enable } = useEnableSeoTools( screen );
 	const { paused, conflicting_plugin: plugin } = getOutput();
 	let description: string = __(
-		'Enable SEO tools to edit titles, meta descriptions, and structured data. You can manage visibility, sitemaps, and site verification separately in Settings.',
+		'SEO tools help your content get found: customize titles and meta descriptions, generate a sitemap, verify your site with search engines, and control how pages look when shared. Turn it on to manage all of it from here.',
 		'jetpack-seo'
 	);
 

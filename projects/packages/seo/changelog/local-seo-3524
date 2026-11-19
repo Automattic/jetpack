@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Make the dashboard available without opting in, and keep independent settings accessible while SEO tools are off.
+Make the dashboard available to existing sites without a separate opt-in.
