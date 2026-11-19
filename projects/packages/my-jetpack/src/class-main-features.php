@@ -320,6 +320,8 @@ class Main_Features {
 					'free'    => true,
 				),
 				'plans'                    => array( 'pro', 'complete' ),
+				// The WordPress.com site feature that gates the file upload field.
+				'paid_feature'             => 'field-file',
 			),
 			'newsletter'        => array(
 				'info_url'         => 'https://jetpack.com/newsletter/',
@@ -379,6 +381,8 @@ class Main_Features {
 					'free'    => true,
 				),
 				'plans'            => array( 'growth', 'pro', 'complete' ),
+				// WordPress.com's half of Podcast_Gate::has_product_access(); the bundles in `plans` cover self-hosted.
+				'paid_feature'     => ( new Host() )->is_wpcom_platform() ? 'podcasting' : '',
 			),
 			'protect-dashboard' => array(
 				'info_url'         => 'https://jetpack.com/protect/',
@@ -734,7 +738,7 @@ class Main_Features {
 			}
 		}
 
-		// Covers plans no bundle class lists, such as the legacy Jetpack Personal, Premium and Professional.
+		// Covers plans no bundle class lists: WordPress.com plans and the legacy Jetpack Personal, Premium and Professional.
 		return ! empty( $definition['paid_feature'] ) && Product::does_site_have_feature( $definition['paid_feature'] );
 	}
 
