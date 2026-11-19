@@ -1,7 +1,6 @@
 import { spawn, spawnSync } from 'child_process';
 import { Resolver } from 'dns/promises';
 import fs from 'fs';
-import path from 'path';
 import chalk from 'chalk';
 import * as envfile from 'envfile';
 import { dockerFolder, setConfig } from '../helpers/docker-config.js';
@@ -124,51 +123,6 @@ export const getProjectName = argv => {
 	}
 
 	return 'jetpack_' + project;
-};
-
-/**
- * Lists the other running instances started from this checkout, which share its `tools/docker/wordpress`.
- *
- * @param {object} argv - Yargs
- * @return {string[]|null} Their project names, or null if Docker couldn't be asked.
- */
-export const otherInstancesSharingCheckout = argv => {
-	// Compose labels each container with the real host path of tools/docker. Inside the monorepo
-	// container that path can't be resolved, so HOST_CWD (set by tools/docker/bin/monorepo) stands in.
-	const hostDockerFolder = process.env.HOST_CWD
-		? path.resolve( process.env.HOST_CWD, dockerFolder )
-		: fs.realpathSync( dockerFolder );
-	const res = spawnSync(
-		'docker',
-		[
-			'ps',
-			'--filter',
-			`label=com.docker.compose.project.working_dir=${ hostDockerFolder }`,
-			'--format',
-			'{{.Label "com.docker.compose.project"}}',
-		],
-		{ encoding: 'utf8' }
-	);
-	if ( res.status !== 0 ) {
-		return null;
-	}
-
-	const own = getProjectName( argv );
-	const projects = ( res.stdout || '' ).split( '\n' ).map( line => line.trim() );
-	return [ ...new Set( projects.filter( project => project && project !== own ) ) ];
-};
-
-/**
- * Warns that shared WordPress files were kept because other instances may be using them.
- *
- * @param {string[]|null} others - Result of otherInstancesSharingCheckout().
- * @param {string}        what   - What was kept.
- */
-const warnKeptSharedFiles = ( others, what ) => {
-	const users = others
-		? others.join( ', ' )
-		: 'other running instances (Docker could not be asked)';
-	console.warn( chalk.yellow( `Kept ${ what }. Also in use by: ${ users }.` ) );
 };
 
 /**
@@ -1095,11 +1049,6 @@ export const buildExecCmd = argv => {
 	} else if ( cmd === 'tail' ) {
 		opts.push( '/var/scripts/tail.sh' );
 	} else if ( cmd === 'uninstall' ) {
-		const others = otherInstancesSharingCheckout( argv );
-		if ( others === null || others.length ) {
-			warnKeptSharedFiles( others, 'wp-content/uploads' );
-			opts.splice( 1, 0, '-e', 'JETPACK_KEEP_SHARED_FILES=1' );
-		}
 		opts.push( '/var/scripts/uninstall.sh' );
 	} else if ( cmd === 'multisite-convert' ) {
 		opts.push( '/var/scripts/multisite-convert.sh' );
@@ -1268,24 +1217,22 @@ export function dockerDefine( yargs ) {
 					handler: async argv => {
 						await defaultDockerCmdHandler( argv );
 						const project = getProjectName( argv );
-						const paths = [
-							`${ dockerFolder }/wordpress-develop/${ project }/`,
-							`${ dockerFolder }/logs/${ project }/`,
-							`${ dockerFolder }/data/${ project }_mysql/`,
-						];
-						const others = otherInstancesSharingCheckout( argv );
-						if ( others && ! others.length ) {
-							// Nothing else from this checkout is running, so stopped instances' helpers and the
-							// pre-<project> layout's leftovers can go too; they're downloaded again on start.
-							paths.unshift(
-								`${ dockerFolder }/wordpress/`,
-								`${ dockerFolder }/wordpress-develop/*`
-							);
-						} else {
-							warnKeptSharedFiles( others, `${ dockerFolder }/wordpress/` );
-						}
 						const res = executor( argv, () =>
-							shellExecutor( argv, 'rm', [ '-rf', ...paths ], { shell: true } )
+							shellExecutor(
+								argv,
+								'rm',
+								[
+									'-rf',
+									`${ dockerFolder }/wordpress/`,
+									// Only this instance's PHPUnit helpers, plus the shared layout's leftovers no instance uses now.
+									`${ dockerFolder }/wordpress-develop/${ project }/`,
+									`${ dockerFolder }/wordpress-develop/tests/`,
+									`${ dockerFolder }/wordpress-develop/wp-tests-config.php`,
+									`${ dockerFolder }/logs/${ project }/`,
+									`${ dockerFolder }/data/${ project }_mysql/`,
+								],
+								{ shell: true }
+							)
 						);
 						checkProcessResult( res );
 					},

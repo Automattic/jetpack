@@ -6,13 +6,9 @@ echo "Emptying the WordPress DB..."
 wp db reset --yes
 
 echo
-# Other instances from the same checkout serve these files too, so the CLI asks us to keep them.
-if [[ -n "$JETPACK_KEEP_SHARED_FILES" ]]; then
-	echo "Keeping the upload and upgrade folders, which other running instances share..."
-else
-	echo "Removing upload and upgrade folders..."
-	rm -rf /var/www/html/wp-content/uploads /var/www/html/wp-content/upgrade
-fi
+echo "Removing upload and upgrade folders..."
+# Remove "uploads" and "upgrade" folders
+rm -rf /var/www/html/wp-content/uploads /var/www/html/wp-content/upgrade
 
 echo
 echo "Emptying the WP debug log..."

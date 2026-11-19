@@ -585,55 +585,20 @@ const runRsyncWithProxy = async ( monorepoRoot, args ) => {
 /**
  * Removes an instance's local files after `docker compose down -v`.
  *
- * `tools/docker/wordpress` is the WordPress install every instance from this checkout serves,
- * so it's kept while any other instance from the checkout is running.
- *
  * @param {string} monorepoRoot - Monorepo root.
  * @param {string} projectName  - The instance's COMPOSE_PROJECT_NAME.
  */
 const cleanLocalFiles = ( monorepoRoot, projectName ) => {
 	const dockerDir = resolve( monorepoRoot, 'tools/docker' );
 	const paths = [
+		resolve( dockerDir, 'wordpress' ),
+		// Only this instance's PHPUnit helpers, plus the shared layout's leftovers no instance uses now.
 		resolve( dockerDir, 'wordpress-develop', projectName ),
+		resolve( dockerDir, 'wordpress-develop', 'tests' ),
+		resolve( dockerDir, 'wordpress-develop', 'wp-tests-config.php' ),
 		resolve( dockerDir, 'logs', projectName ),
 		resolve( dockerDir, 'data', `${ projectName }_mysql` ),
 	];
-
-	// Compose labels each container with the real (symlink-free) path of its project directory.
-	const ps = spawnSync(
-		'docker',
-		[
-			'ps',
-			'--filter',
-			`label=com.docker.compose.project.working_dir=${ fs.realpathSync( dockerDir ) }`,
-			'--format',
-			'{{.Label "com.docker.compose.project"}}',
-		],
-		{ encoding: 'utf8' }
-	);
-	const others =
-		ps.status === 0
-			? [ ...new Set( ps.stdout.split( '\n' ).map( line => line.trim() ) ) ].filter(
-					project => project && project !== projectName
-				)
-			: null;
-	if ( others && ! others.length ) {
-		// Nothing else from this checkout is running, so stopped instances' helpers and the
-		// pre-<project> layout's leftovers can go too; they're downloaded again on start.
-		const developDir = resolve( dockerDir, 'wordpress-develop' );
-		const developEntries = fs.existsSync( developDir ) ? fs.readdirSync( developDir ) : [];
-		paths.unshift(
-			resolve( dockerDir, 'wordpress' ),
-			...developEntries
-				.filter( name => name !== '.gitkeep' )
-				.map( name => resolve( developDir, name ) )
-		);
-	} else {
-		const users = others
-			? others.join( ', ' )
-			: 'other running instances (Docker could not be asked)';
-		console.warn( chalk.yellow( `Kept tools/docker/wordpress. Also in use by: ${ users }.` ) );
-	}
 
 	for ( const path of paths ) {
 		try {

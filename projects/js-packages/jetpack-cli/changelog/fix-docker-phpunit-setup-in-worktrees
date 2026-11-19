@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Docker: Make `jp docker clean` remove the current instance's files, and keep the WordPress install while another instance from the same checkout is running.
+Docker: Make `jp docker clean` remove only the current instance's PHPUnit helpers, logs and database.
