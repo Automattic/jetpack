@@ -14,6 +14,7 @@ const baseReturn: UseAllProductsReturn = {
 	isLoading: false,
 	isRefetching: false,
 	isError: false,
+	failureCount: 0,
 };
 
 const mockReturn = ( overrides: Partial< UseAllProductsReturn > = {} ) =>

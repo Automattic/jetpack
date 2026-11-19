@@ -5,6 +5,7 @@ import useActivatePlugins from '../../../data/products/use-activate-plugins';
 import useActivateSearchFreeProduct from '../../../data/products/use-activate-search-free-product';
 import useInstallPlugins from '../../../data/products/use-install-plugins';
 import useProduct from '../../../data/products/use-product';
+import useAnalytics from '../../../hooks/use-analytics';
 import PriceComponent from '../pricing-component';
 import RecommendationActions from '../recommendation-actions';
 import usePricingData from '../use-pricing-data';
@@ -41,6 +42,7 @@ const mockUseInstallPlugins = useInstallPlugins as jest.MockedFunction< typeof u
 const mockUseActivateSearchFreeProduct = useActivateSearchFreeProduct as jest.MockedFunction<
 	typeof useActivateSearchFreeProduct
 >;
+const mockRecordEvent = jest.mocked( jest.mocked( useAnalytics )().recordEvent );
 
 let activate: jest.Mock;
 let runSearchFreeActivation: jest.Mock;
@@ -176,9 +178,15 @@ describe( 'usePricingData connect link', () => {
 
 describe( 'RecommendationActions', () => {
 	const toBuy = { isFeature: false, status: PRODUCT_STATUSES.NEEDS_PLAN };
+	const hostSold = { ...toBuy, hostPurchaseUrl: 'https://example.com/plans' };
 
 	it.each( [
 		[ 'a product to buy', toBuy, { 'Learn more': '#/add-search' } ],
+		[
+			'a product its host sells',
+			hostSold,
+			{ Purchase: 'https://example.com/plans', 'Learn more': 'https://example.com/plans' },
+		],
 		[
 			'a feature that is on',
 			{ status: PRODUCT_STATUSES.ACTIVE },
@@ -207,6 +215,19 @@ describe( 'RecommendationActions', () => {
 		await userEvent.click( screen.getByRole( 'button', { name: 'Purchase' } ) );
 
 		expect( mockRunFreeCheckout ).toHaveBeenCalledTimes( 1 );
+	} );
+
+	it( "records a click on a host-sold product without starting Jetpack's checkout", () => {
+		mockUseProduct.mockReturnValue( productState( featureDetail( hostSold ) ) );
+
+		const { result } = renderHook( () => usePricingData( 'search' ) );
+		act( () => result.current.primaryAction.onClick() );
+
+		expect( mockRecordEvent ).toHaveBeenCalledWith(
+			'jetpack_myjetpack_evaluation_recommendations_checkout_click',
+			{ slug: 'search' }
+		);
+		expect( mockRunFreeCheckout ).not.toHaveBeenCalled();
 	} );
 } );
 
