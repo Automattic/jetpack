@@ -918,7 +918,7 @@ class Main_Features_Test extends TestCase {
 	}
 
 	/**
-	 * A WordPress.com plan owns no Jetpack bundle, so only its site features say what it includes.
+	 * A WordPress.com plan includes a feature when its site features grant it.
 	 *
 	 * @dataProvider provide_wpcom_site_features
 	 *
