@@ -1368,6 +1368,7 @@ class Initializer {
 	 */
 	public static function add_admin_script_data( $data ) {
 		$data['myJetpack']['isAvailable']           = self::is_admin_page_available();
+		$data['myJetpack']['isShownByHost']         = self::host_shows_my_jetpack();
 		$data['myJetpack']['assetsUrl']             = self::get_assets_url();
 		$data['myJetpack']['productsSection']       = self::get_products_section();
 		$data['myJetpack']['settingsConsolidation'] = self::is_settings_consolidation_enabled();
@@ -1673,6 +1674,7 @@ class Initializer {
 		 *
 		 * @since 6.11.0
 		 * @since 6.17.1 False also keeps settings on the Settings screen.
+		 * @since $$next-version$$ False also removes the links to My Jetpack from Jetpack admin headers and footers.
 		 * @param bool $available True to allow the Features tab; false keeps the classic Modules and Settings screens, for a host where My Jetpack is not shown.
 		 */
 		return (bool) apply_filters( 'jetpack_my_jetpack_modules_management_available', true );
