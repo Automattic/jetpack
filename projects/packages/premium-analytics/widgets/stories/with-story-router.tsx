@@ -38,12 +38,12 @@ const reportRoute = createRoute( {
 	getParentRoute: () => rootRoute,
 	path: '/reports/$report',
 } );
-const postDetailRoute = createRoute( {
+const singleReportRoute = createRoute( {
 	getParentRoute: () => rootRoute,
-	path: '/post/$postId',
+	path: '/report/$kind/$id',
 } );
 const storyRouter = createRouter( {
-	routeTree: rootRoute.addChildren( [ dashboardRoute, reportRoute, postDetailRoute ] ),
+	routeTree: rootRoute.addChildren( [ dashboardRoute, reportRoute, singleReportRoute ] ),
 	history: createMemoryHistory( { initialEntries: [ '/' ] } ),
 	// TanStack's options type requires strictNullChecks, which this package does not enable.
 } as never );
@@ -53,7 +53,7 @@ const STORY_DOCUMENT_URL = `https://example.com/wp-admin/admin.php?page=${ DASHB
 
 /**
  * Provides the router context that widget links need in Storybook. The report
- * and post-detail routes let the detail links build the same real href shapes
+ * and single-report routes let the detail links build the same real href shapes
  * as the app, and the widget host mounts the router link for an action href
  * that targets one of them.
  */

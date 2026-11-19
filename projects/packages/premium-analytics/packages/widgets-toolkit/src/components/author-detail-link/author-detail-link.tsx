@@ -33,8 +33,8 @@ const authorDetailSearch = ( current: Record< string, unknown > ) =>
  */
 export function authorDetailLinkProps( authorId: number | string ) {
 	return {
-		to: '/author/$authorId',
-		params: { authorId: String( authorId ) },
+		to: '/report/$kind/$id',
+		params: { kind: 'author', id: String( authorId ) },
 		search: authorDetailSearch,
 	};
 }

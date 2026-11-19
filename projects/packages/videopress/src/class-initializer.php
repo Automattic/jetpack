@@ -194,6 +194,23 @@ class Initializer {
 	}
 
 	/**
+	 * Read a preview-on-hover time ( milliseconds ) from the poster data, falling back for missing or invalid values.
+	 *
+	 * @param mixed  $poster_data   The block's posterData attribute.
+	 * @param string $key           Attribute key.
+	 * @param int    $default_value Value used when the attribute is missing or not a non-negative number.
+	 * @return int
+	 */
+	private static function get_preview_on_hover_time( $poster_data, $key, $default_value ) {
+		$value = is_array( $poster_data ) && isset( $poster_data[ $key ] ) ? $poster_data[ $key ] : null;
+		if ( ! is_numeric( $value ) || ! is_finite( (float) $value ) || (float) $value < 0 ) {
+			return $default_value;
+		}
+
+		return (int) $value;
+	}
+
+	/**
 	 * Initialize VideoPress features that should be initialized only when the module is active
 	 *
 	 * @return void
@@ -412,10 +429,10 @@ class Initializer {
 
 		if ( $is_poh_enabled ) {
 			$preview_on_hover = array(
-				'previewAtTime'       => $block_attributes['posterData']['previewAtTime'],
-				'previewLoopDuration' => $block_attributes['posterData']['previewLoopDuration'],
-				'autoplay'            => $autoplay,
-				'showControls'        => $controls,
+				'previewAtTime'       => self::get_preview_on_hover_time( $block_attributes['posterData'], 'previewAtTime', 0 ),
+				'previewLoopDuration' => self::get_preview_on_hover_time( $block_attributes['posterData'], 'previewLoopDuration', 5000 ),
+				'autoplay'            => (bool) $autoplay,
+				'showControls'        => (bool) $controls,
 			);
 
 			// Create inline style in case video has a custom poster.
@@ -872,7 +889,7 @@ class Initializer {
 			'<form class="videopress-video-browser" method="get" action="%1$s" role="search">%2$s' .
 				'<input type="hidden" name="%3$s" value="%4$s" />' .
 				'<input type="search" class="videopress-video-browser__search" name="%5$s" value="%6$s" placeholder="%7$s" aria-label="%7$s" />' .
-				'<button type="submit" class="videopress-video-browser__submit">%8$s</button>' .
+				'<button type="submit" class="videopress-video-browser__submit wp-element-button">%8$s</button>' .
 				'<div class="videopress-video-browser__sorts" role="group" aria-label="%9$s">%10$s</div>' .
 				'<select class="videopress-video-browser__length" name="%11$s" aria-label="%12$s">%13$s</select>' .
 			'</form>' .

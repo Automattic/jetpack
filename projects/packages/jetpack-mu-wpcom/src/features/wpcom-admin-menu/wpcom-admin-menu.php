@@ -34,7 +34,7 @@ function wpcom_register_native_activity_log_flag() {
 	Feature_Flags::register(
 		WPCOM_NATIVE_ACTIVITY_LOG_FLAG,
 		array(
-			'default'     => false,
+			'default'     => true,
 			'description' => 'Show the native wp-admin Activity Log page on Simple sites instead of linking to Calypso.',
 			'owner'       => 'jetpack-mu-wpcom',
 		)
@@ -147,7 +147,7 @@ function wpcom_add_hosting_menu() {
 		__( 'Hosting', 'jetpack-mu-wpcom' ),
 		$menu_title,
 		'manage_options',
-		esc_url( "https://wordpress.com/overview/$domain" ),
+		esc_url( "https://my.wordpress.com/sites/$domain" ),
 		null, // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal
 		'dashicons-cloud',
 		2.98
@@ -526,7 +526,7 @@ function wpcom_add_jetpack_submenu() {
 	// package registers at `admin.php?page=jetpack-activity-log`, whichever admin
 	// interface the site uses, and behave like a self-hosted site when that page is
 	// not available: the Calypso Activity Log screen is being retired. Simple sites
-	// get the native page behind a feature flag, and link to wordpress.com/activity-log otherwise.
+	// get the native page too unless its flag is off, and link to wordpress.com/activity-log otherwise.
 	if ( $is_simple_site && ! wpcom_add_native_activity_log_submenu() ) {
 		wpcom_hide_submenu_page( 'jetpack', 'jetpack-activity-log' );
 		add_submenu_page(
@@ -846,7 +846,6 @@ function wpcom_add_tools_menu() {
 		'tools.php',
 		array(
 			'tools.php',
-			'advertising-moved',
 			'monetize',
 			'import',
 			'export.php',

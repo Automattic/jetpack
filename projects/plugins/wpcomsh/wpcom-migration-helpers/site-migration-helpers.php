@@ -17,33 +17,6 @@ function wpcomsh_is_migration_in_progress() {
 }
 
 /**
- * Redirect the user to Calypso's Migrate status page if there's an active migration.
- *
- * This is a lock on `WP-Admin` to prevent users losing changes if they change something
- * that will get overwritten after the restore.
- */
-function wpcomsh_redirect_if_active_migration() {
-	if ( wpcomsh_is_migration_in_progress() && ! wp_doing_ajax() ) {
-		$redirect_url = 'https://wordpress.com/migrate/' . str_replace(
-			'/',
-			'::',
-			str_replace(
-				array(
-					'https://',
-					'http://',
-				),
-				'',
-				untrailingslashit( site_url( '/' ) )
-			)
-		);
-
-		wp_safe_redirect( $redirect_url, 302 );
-		exit( 0 );
-	}
-}
-add_action( 'admin_init', 'wpcomsh_redirect_if_active_migration' );
-
-/**
  * Allow setting the `site_migration_status` from WPCOM to the target site through Jetpack.
  *
  * @param array $options List of allowed Jetpack options.

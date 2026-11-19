@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Fetch an expired Scan status once when several requests need it at the same time, serving the stored status to the others.

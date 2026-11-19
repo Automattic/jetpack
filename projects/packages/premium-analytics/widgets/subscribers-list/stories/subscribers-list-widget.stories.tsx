@@ -110,6 +110,7 @@ export const Empty: Story = {
  * Renders the real registered widget through the shared dashboard harness.
  */
 export const WidgetDashboardWithWidget: DashboardStory = {
+	tags: [ 'widget-dashboard' ],
 	render: args => (
 		<WidgetDashboardWithWidgetStory
 			{ ...args }

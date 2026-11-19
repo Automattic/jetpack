@@ -2,6 +2,7 @@ import type {
 	LocalBusinessSettings,
 	OpeningHoursDay,
 	OrganizationSettings,
+	PersonSettings,
 } from './schema-settings-types';
 
 export const normalizeProfileUrl = ( profile: string ): string => {
@@ -27,6 +28,11 @@ export const cleanProfileUrls = ( sameAs: string[] ): string[] =>
 export const cleanOrganization = ( organization: OrganizationSettings ): OrganizationSettings => ( {
 	...organization,
 	sameAs: cleanProfileUrls( organization.sameAs ),
+} );
+
+export const cleanPerson = ( person: PersonSettings ): PersonSettings => ( {
+	...person,
+	sameAs: cleanProfileUrls( person.sameAs ),
 } );
 
 const trim = ( value: string ): string => value.trim();

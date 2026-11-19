@@ -13,6 +13,7 @@ export const PRESET_LAST_MONTH = 'last-month' as const;
 export const PRESET_YEAR_TO_DATE = 'year-to-date' as const;
 export const PRESET_LAST_12_MONTHS = 'last-12-months' as const;
 export const PRESET_LAST_YEAR = 'last-year' as const;
+export const PRESET_LAST_3_YEARS = 'last-3-years' as const;
 
 /**
  * All selectable (non-custom) preset IDs, in display order. Wider than what the
@@ -32,6 +33,7 @@ export const SELECTABLE_PRESETS = [
 	PRESET_YEAR_TO_DATE,
 	PRESET_LAST_12_MONTHS,
 	PRESET_LAST_YEAR,
+	PRESET_LAST_3_YEARS,
 ] as const;
 
 export type SelectablePresetId = ( typeof SELECTABLE_PRESETS )[ number ];
@@ -79,7 +81,7 @@ export type QuickSurfacePresetId = SelectablePresetId | typeof PRESET_ALL_TIME;
 export const MENU_SURFACE_PRESET_GROUPS = [
 	[ PRESET_TODAY, PRESET_YESTERDAY, PRESET_LAST_24_HOURS, PRESET_LAST_7_DAYS, PRESET_LAST_30_DAYS ],
 	[ PRESET_MONTH_TO_DATE, PRESET_LAST_MONTH ],
-	[ PRESET_YEAR_TO_DATE, PRESET_LAST_12_MONTHS ],
+	[ PRESET_YEAR_TO_DATE, PRESET_LAST_12_MONTHS, PRESET_LAST_3_YEARS ],
 	[ PRESET_ALL_TIME ],
 ] as const;
 

@@ -58,7 +58,7 @@ describe( 'UTM report fields', () => {
 
 		const link = screen.getByRole( 'link', { name: row.label } );
 		const url = getMockRouteLinkUrl( link );
-		expect( url.pathname ).toBe( '/post/41' );
+		expect( url.pathname ).toBe( '/report/post/41' );
 		expect( Object.fromEntries( url.searchParams ) ).toEqual( {
 			from: '2026-06-01',
 			to: '2026-06-16',

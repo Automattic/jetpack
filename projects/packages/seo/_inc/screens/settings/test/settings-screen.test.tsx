@@ -7,10 +7,6 @@ import type { ReactElement, ReactNode } from 'react';
 
 // `--experimental-vm-modules` (true ESM): mock with `jest.unstable_mockModule`
 // and import the components under test dynamically after the mocks are registered.
-jest.unstable_mockModule( '../../../data/is-gated', () => ( {
-	isGated: () => false,
-	getUpsellUrl: () => 'https://wordpress.com/checkout/example.com/value_bundle',
-} ) );
 
 jest.unstable_mockModule( '@wordpress/route', () => ( {
 	useSearch: () => ( {} ),
@@ -48,6 +44,11 @@ jest.unstable_mockModule( '../title-structure-field', () => ( {
 jest.unstable_mockModule( '../google-verification-field', () => ( {
 	default: () => <div>google field</div>,
 } ) );
+
+const IndexnowSettings = jest.fn< ( props: Record< string, unknown > ) => ReactElement >( () => (
+	<div>notification settings</div>
+) );
+jest.unstable_mockModule( '../indexnow-settings', () => ( { default: IndexnowSettings } ) );
 
 const { default: SettingsScreen } = await import( '../index' );
 
@@ -181,7 +182,7 @@ describe( 'Jetpack SEO output paused', () => {
 			expect( screen.getByText( /^Shown under your site name/ ) ).toBeInTheDocument();
 			// The previews stay visible, read-only, with the same line.
 			expect( SocialPreviewsCard.mock.lastCall?.[ 0 ] ).toEqual(
-				expect.objectContaining( { paused: true } )
+				expect.objectContaining( { paused: true, disabled: true } )
 			);
 		}
 	);
@@ -548,21 +549,23 @@ describe( 'WordPress.com Simple settings', () => {
 	);
 
 	it.each( [ true, false ] )(
-		'keeps the sitemap control read-only without claiming publication when indexing is %s',
+		'makes the read-only Simple sitemap switch follow indexing, not the module, when indexing is %s',
 		searchEnginesVisible => {
 			setSimpleSite();
 			const form = buildForm( {
 				search_engines_visible: searchEnginesVisible,
-				sitemap_active: true,
+				sitemap_active: false,
 				sitemap_switchable: true,
 				sitemap_url: 'https://example.com/sitemap.xml',
 			} );
 
 			render( <SettingsScreen form={ form } /> );
 
-			const toggle = screen.getByRole( 'checkbox', { name: /Generate an XML sitemap/i } );
+			const toggle = screen.getByRole( 'checkbox', {
+				name: /Generate an XML sitemap/i,
+				checked: searchEnginesVisible,
+			} );
 			expect( toggle ).toBeDisabled();
-			expect( toggle ).not.toBeChecked();
 			expect( statusFor( 'Site visibility' ) ).toBe(
 				searchEnginesVisible ? 'Complete' : 'Not started'
 			);
@@ -573,7 +576,7 @@ describe( 'WordPress.com Simple settings', () => {
 				'href',
 				'https://wordpress.com/support/activate-your-plan/'
 			);
-			expect( screen.queryByRole( 'link', { name: 'View sitemap' } ) ).not.toBeInTheDocument();
+			expect( screen.queryByRole( 'link', { name: /View sitemap/ } ) ).not.toBeInTheDocument();
 			expect( form.commit ).not.toHaveBeenCalled();
 		}
 	);
@@ -649,5 +652,78 @@ describe( 'Search & social previews', () => {
 		expect( SocialPreviewsCard.mock.lastCall?.[ 0 ] ).toEqual(
 			expect.objectContaining( { frontPageTitleFormat: [] } )
 		);
+	} );
+
+	it( 'keeps the default share image editable in the manual settings', () => {
+		const image = { id: 12, src: 'https://example.com/share.jpg', alt_text: 'Share image' };
+		const form = buildForm( { default_share_image: image, share_image_preview: image.src } );
+
+		render( <SettingsScreen form={ form } /> );
+
+		const props = SocialPreviewsCard.mock.lastCall?.[ 0 ];
+		expect( props ).toEqual(
+			expect.objectContaining( {
+				defaultImage: image,
+				resolvedImage: image.src,
+				disabled: false,
+			} )
+		);
+		( props?.onImageChange as ( image: number ) => void )( 34 );
+		expect( form.commit ).toHaveBeenCalledWith( { default_share_image: 34 } );
+	} );
+} );
+
+describe( 'Notification settings inside Site visibility', () => {
+	beforeEach( () => {
+		( window as unknown as { JetpackScriptData?: unknown } ).JetpackScriptData = {
+			seo: { indexnow_available: true },
+		};
+		IndexnowSettings.mockClear();
+	} );
+
+	afterEach( () => {
+		delete ( window as unknown as { JetpackScriptData?: unknown } ).JetpackScriptData;
+	} );
+
+	it.each( [ false, undefined ] )(
+		'does not mount notifications when host availability is %s',
+		available => {
+			( window as unknown as { JetpackScriptData?: unknown } ).JetpackScriptData = {
+				seo: { indexnow_available: available },
+			};
+			render( <SettingsScreen form={ buildForm() } /> );
+			expect( IndexnowSettings ).not.toHaveBeenCalled();
+			expect( screen.queryByText( 'notification settings' ) ).not.toBeInTheDocument();
+		}
+	);
+
+	it( 'places notifications after the sitemap and forwards the parent save state', () => {
+		const form = { ...buildForm(), isSaving: true };
+		render( <SettingsScreen form={ form } /> );
+		expect( IndexnowSettings.mock.lastCall?.[ 0 ] ).toEqual(
+			expect.objectContaining( { isSaving: true, onSavingChange: expect.any( Function ) } )
+		);
+		const sitemap = screen.getByRole( 'checkbox', { name: /Generate an XML sitemap/i } );
+		const notifications = screen.getByText( 'notification settings' );
+		expect( sitemap.compareDocumentPosition( notifications ) ).toBe(
+			Node.DOCUMENT_POSITION_FOLLOWING
+		);
+		// eslint-disable-next-line testing-library/no-node-access -- The section anchor owns the inline controls.
+		expect( notifications.closest( '#visibility' ) ).not.toBeNull();
+	} );
+
+	it( 'locks visibility toggles only while a notification save is in flight', () => {
+		render( <SettingsScreen form={ buildForm( { search_engines_visible: true } ) } /> );
+		const indexing = screen.getByRole( 'checkbox', { name: /Allow search engines/i } );
+		const sitemap = screen.getByRole( 'checkbox', { name: /Generate an XML sitemap/i } );
+		const onSavingChange = IndexnowSettings.mock.lastCall?.[ 0 ].onSavingChange as (
+			saving: boolean
+		) => void;
+		act( () => onSavingChange( true ) );
+		expect( indexing ).toBeDisabled();
+		expect( sitemap ).toBeDisabled();
+		act( () => onSavingChange( false ) );
+		expect( indexing ).toBeEnabled();
+		expect( sitemap ).toBeEnabled();
 	} );
 } );

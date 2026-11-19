@@ -26,6 +26,7 @@ import {
 import {
 	PRESET_LAST_12_MONTHS,
 	PRESET_LAST_24_HOURS,
+	PRESET_LAST_3_YEARS,
 	PRESET_LAST_30_DAYS,
 	PRESET_LAST_365_DAYS,
 	PRESET_LAST_7_DAYS,
@@ -41,6 +42,7 @@ import {
 } from './presets/types';
 import type { DateRangeSpan, DateRangeSpanUnit } from './date-range-span';
 import type { DateRange } from './get-comparison-range';
+import type { IntervalType } from './interval';
 import type { TZDate } from '@date-fns/tz';
 
 /**
@@ -77,6 +79,7 @@ const PRESET_STEP_SPANS: Record< SelectablePresetId, DateRangeSpan > = {
 	[ PRESET_YEAR_TO_DATE ]: { unit: 'year', value: 1 },
 	[ PRESET_LAST_12_MONTHS ]: { unit: 'month', value: 12 },
 	[ PRESET_LAST_YEAR ]: { unit: 'year', value: 1 },
+	[ PRESET_LAST_3_YEARS ]: { unit: 'year', value: 3 },
 };
 
 const DURATION_PATTERN = /^P(?:T(\d+)H|(\d+)D|(\d+)M|(\d+)Y)$/;
@@ -146,6 +149,30 @@ export function getStepSpan( stepId: DateStepId ): DateRangeSpan {
 	return isSelectablePreset( stepId )
 		? PRESET_STEP_SPANS[ stepId ]
 		: ( parseDuration( stepId ) as DateRangeSpan );
+}
+
+/**
+ * The step a chart bucket opened as the period moves by: its own unit, so Previous from
+ * today's bar is the whole of yesterday however little of today has passed.
+ *
+ * @param interval - The interval the bucket was drawn in.
+ * @return The step id, or `undefined` for an interval whose buckets do not open.
+ */
+export function bucketStepId( interval: IntervalType ): DateStepDuration | undefined {
+	switch ( interval ) {
+		case 'day':
+			return 'P1D';
+		case 'week':
+			return 'P7D';
+		case 'month':
+			return 'P1M';
+		case 'quarter':
+			return 'P3M';
+		case 'year':
+			return 'P1Y';
+		default:
+			return undefined;
+	}
 }
 
 /**

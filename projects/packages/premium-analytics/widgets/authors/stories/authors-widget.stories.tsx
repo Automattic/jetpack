@@ -135,6 +135,7 @@ function AuthorsDashboardStory( { withComparison, ...dashboardArgs }: AuthorsDas
 }
 
 export const WidgetDashboardWithWidget: StoryObj< AuthorsDashboardStoryProps > = {
+	tags: [ 'widget-dashboard' ],
 	render: args => <AuthorsDashboardStory { ...args } />,
 	args: {
 		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,

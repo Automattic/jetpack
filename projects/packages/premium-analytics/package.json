@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-premium-analytics",
-	"version": "0.17.0",
+	"version": "0.18.0",
 	"private": true,
 	"type": "module",
 	"scripts": {
@@ -51,6 +51,7 @@
 		"@date-fns/tz": "1.5.0",
 		"@jetpack-premium-analytics/data": "link:packages/data",
 		"@jetpack-premium-analytics/datetime": "link:packages/datetime",
+		"@jetpack-premium-analytics/error-reporting": "link:packages/error-reporting",
 		"@jetpack-premium-analytics/externals": "link:packages/externals",
 		"@jetpack-premium-analytics/fields": "link:packages/fields",
 		"@jetpack-premium-analytics/formatters": "link:packages/formatters",
@@ -97,7 +98,7 @@
 		"@automattic/jetpack-premium-analytics-sdk": "workspace:*",
 		"@automattic/jetpack-webpack-config": "workspace:*",
 		"@automattic/jetpack-wp-build-polyfills": "workspace:*",
-		"@babel/core": "7.29.7",
+		"@babel/core": "7.29.13",
 		"@storybook/react": "10.6.3",
 		"@tanstack/react-query-devtools": "5.102.8",
 		"@tanstack/react-router": "1.167.1",

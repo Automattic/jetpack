@@ -75,6 +75,7 @@ class Random_Redirect_Test extends WP_UnitTestCase {
 	 */
 	protected function get_redirect_location() {
 		try {
+			// @phan-suppress-next-line PhanDeprecatedFunction -- Still the handler on WordPress before 7.2.
 			jetpack_matt_random_redirect();
 		} catch ( Exception $e ) {
 			return $e->getMessage();

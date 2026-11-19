@@ -20,8 +20,25 @@ body.jetpack_page_my-jetpack {
 	flex-shrink: 0;
 }
 
+// Wider than HighlightBanner's 520px, up to where its orbs start
+// (56px from the edge, 180px wide).
+.wpcom-my-jetpack__body .jp-highlight-banner .jp-highlight-banner__content {
+	max-inline-size: min(760px, max(520px, calc(100% - 248px)));
+}
+
+// Larger than HighlightBanner's default, which is hard to read on this page.
+.wpcom-my-jetpack__body .jp-highlight-banner .jp-highlight-banner__description {
+	font-size: 15px;
+	line-height: 24px;
+}
+
 .wpcom-my-jetpack__blurb {
 	color: var(--wpds-color-foreground-content-neutral-weak);
+}
+
+// The plan line beside the banner's button, in the banner's own text color.
+.wpcom-my-jetpack__plan {
+	color: #daffdc;
 }
 
 // As many columns as fit, three on a wide screen, down to one on a phone.

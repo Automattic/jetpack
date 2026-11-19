@@ -53,6 +53,10 @@
 		"imageId": {
 			"type": "number"
 		},
+		"images": {
+			"type": "array",
+			"default": []
+		},
 		"buttonText": {
 			"type": "string",
 			"default": ""

@@ -5,10 +5,13 @@ import { getDefaultQueryParams, queryClient } from '@jetpack-premium-analytics/d
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
+import { getSettings, setSettings } from '@wordpress/date';
 import type { ReactNode } from 'react';
 /**
  * Internal dependencies
  */
+import { renderWithActionsHost } from '../../../tests/js/widget-host-test-utils';
+import { captureCsvDownloads } from '../../test-utils';
 import VideoDetailViewsPerformanceWidget from '../render';
 
 jest.mock( '@wordpress/api-fetch', () => jest.fn() );
@@ -366,5 +369,62 @@ describe( 'VideoDetailViewsPerformanceWidget', () => {
 			screen.findByText( "You don't have access to this data." )
 		).resolves.toBeInTheDocument();
 		expect( screen.queryByRole( 'button', { name: 'Retry' } ) ).not.toBeInTheDocument();
+	} );
+	describe( 'CSV download', () => {
+		let downloads: ReturnType< typeof captureCsvDownloads > | undefined;
+		let defaultSettings: ReturnType< typeof getSettings >;
+
+		beforeEach( () => {
+			defaultSettings = getSettings();
+			setSettings( {
+				...defaultSettings,
+				timezone: { string: 'Pacific/Kiritimati', offset: 14, offsetFormatted: '14', abbr: '' },
+			} );
+		} );
+
+		afterEach( () => {
+			downloads?.restore();
+			downloads = undefined;
+			setSettings( defaultSettings );
+		} );
+
+		it( 'saves every tab per bucket, with retention as a percentage', async () => {
+			downloads = captureCsvDownloads();
+			mockApiFetch.mockImplementation(
+				respondByWindow( {
+					'2026-07-01': buildSingleVideoResponse( [
+						[ '2026-07-02', 5, 51.3 ],
+						[ '2026-07-04', 7, 60 ],
+					] ),
+				} )
+			);
+
+			const { findDeclaredAction } = renderWithActionsHost(
+				<VideoDetailViewsPerformanceWidget attributes={ { reportParams: WINDOW_PARAMS } } />
+			);
+			await downloads.runAndSave( await findDeclaredAction( 'download-csv' ) );
+			const lines = await downloads.lines();
+
+			expect( downloads.files[ 0 ].filename ).toBe(
+				'video-105-performance-2026-07-01_2026-07-07.csv'
+			);
+			expect( lines.slice( 0, 3 ) ).toEqual( [
+				'"Date","Views","Impressions","Hours watched","Retention rate (%)"',
+				'"2026-07-01","0","0","0","0"',
+				'"2026-07-02","5","10","1.25","51.3"',
+			] );
+			expect( lines ).toHaveLength( 8 );
+		} );
+
+		it( 'offers no download for a window without plays', async () => {
+			mockApiFetch.mockImplementation( respondByWindow( {} ) );
+
+			const { declaredAction } = renderWithActionsHost(
+				<VideoDetailViewsPerformanceWidget attributes={ { reportParams: WINDOW_PARAMS } } />
+			);
+			await expect( screen.findByTestId( 'metric-tabs-chart' ) ).resolves.toBeInTheDocument();
+
+			expect( declaredAction( 'download-csv' ) ).toBeUndefined();
+		} );
 	} );
 } );

@@ -17,12 +17,22 @@ use WorDBless\BaseTestCase;
  */
 #[CoversClass( Dashboard_Threats::class )]
 class Dashboard_Threats_Test extends BaseTestCase {
+	use Plugin_Cache;
 
 	/**
-	 * Forget the fixes each test records.
+	 * Start each test with no plugins installed.
+	 */
+	public function set_up() {
+		parent::set_up();
+		self::seed_plugin_cache();
+	}
+
+	/**
+	 * Forget the fixes and plugins each test records.
 	 */
 	public function tear_down() {
 		delete_option( Dashboard_Threats::RESOLVED_OPTION );
+		self::clear_plugin_cache();
 		parent::tear_down();
 	}
 
@@ -211,10 +221,7 @@ class Dashboard_Threats_Test extends BaseTestCase {
 	 */
 	#[DataProvider( 'provider_plugin_state' )]
 	public function test_plugin_state( $is_active, $expected ) {
-		$file = WP_PLUGIN_DIR . '/protect-state-test.php';
-		wp_mkdir_p( WP_PLUGIN_DIR );
-		file_put_contents( $file, "<?php\n/**\n * Plugin Name: Protect State Test\n */\n" ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
-		wp_clean_plugins_cache( false );
+		self::seed_plugin_cache( array( 'protect-state-test.php' ) );
 		update_option( 'active_plugins', $is_active ? array( 'protect-state-test.php' ) : array() );
 
 		$threat = Dashboard_Threats::format(
@@ -225,7 +232,6 @@ class Dashboard_Threats_Test extends BaseTestCase {
 				),
 			)
 		);
-		wp_delete_file( $file );
 
 		$this->assertSame( $expected, $threat['extension']['state'] );
 	}
@@ -252,10 +258,7 @@ class Dashboard_Threats_Test extends BaseTestCase {
 	 */
 	#[DataProvider( 'provider_delete_action' )]
 	public function test_delete_action( $status, $expected ) {
-		$file = WP_PLUGIN_DIR . '/protect-state-test.php';
-		wp_mkdir_p( WP_PLUGIN_DIR );
-		file_put_contents( $file, "<?php\n/**\n * Plugin Name: Protect State Test\n */\n" ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
-		wp_clean_plugins_cache( false );
+		self::seed_plugin_cache( array( 'protect-state-test.php' ) );
 		update_option( 'active_plugins', array() );
 		wp_set_current_user(
 			wp_insert_user(
@@ -276,7 +279,6 @@ class Dashboard_Threats_Test extends BaseTestCase {
 				),
 			)
 		);
-		wp_delete_file( $file );
 		wp_set_current_user( 0 );
 
 		$this->assertSame( $expected, ! empty( $threat['extension']['actions']['delete'] ) );

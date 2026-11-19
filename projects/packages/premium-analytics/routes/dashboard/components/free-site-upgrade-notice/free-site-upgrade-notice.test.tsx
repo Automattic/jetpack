@@ -111,7 +111,7 @@ function mockEndpoints( state: Record< string, boolean | undefined > = {}, views
 async function renderNotices() {
 	const view = render(
 		<RegistryProvider value={ notices.registry }>
-			<DashboardNotices onOpenSettings={ jest.fn() } />
+			<DashboardNotices />
 		</RegistryProvider>
 	);
 	await act( () => jest.runAllTimersAsync() );

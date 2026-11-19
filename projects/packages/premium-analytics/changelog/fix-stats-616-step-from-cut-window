@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Date control: Step from a chart bar clicked today by the bar's own unit, so the arrows land on the whole of yesterday, last week or last month.

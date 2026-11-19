@@ -99,11 +99,11 @@ describe( 'Leaderboard', () => {
 		);
 		expect( screen.getByRole( 'link', { name: 'Hello world' } ) ).toHaveAttribute(
 			'href',
-			`/post/9?${ dashboardWindow }`
+			`/report/post/9?${ dashboardWindow }`
 		);
 		expect( screen.getByRole( 'link', { name: 'Own window' } ) ).toHaveAttribute(
 			'href',
-			'/post/3'
+			'/report/post/3'
 		);
 	} );
 

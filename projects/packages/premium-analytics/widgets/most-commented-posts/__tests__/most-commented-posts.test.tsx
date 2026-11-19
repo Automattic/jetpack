@@ -52,7 +52,7 @@ describe( 'MostCommentedPostsWidget', () => {
 		const link = await screen.findByRole( 'link', { name: 'Hello world' } );
 		const url = new URL( link.getAttribute( 'href' ) ?? '', 'https://example.com' );
 
-		expect( url.pathname ).toBe( '/post/42' );
+		expect( url.pathname ).toBe( '/report/post/42' );
 		expect( url.searchParams.get( 'post_url' ) ).toBe( 'https://example.com/hello-world/' );
 		expect( url.searchParams.get( 'ref' ) ).toBe( 'comments' );
 		expect( url.searchParams.get( 'ref_section' ) ).toBe( 'posts' );

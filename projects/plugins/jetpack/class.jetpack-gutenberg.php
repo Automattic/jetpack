@@ -141,7 +141,6 @@ class Jetpack_Gutenberg {
 		'google-docs-embed',
 		'image-compare',
 		'like',
-		'markdown',
 		'nextdoor',
 		'payments-intro',
 		'pinterest',

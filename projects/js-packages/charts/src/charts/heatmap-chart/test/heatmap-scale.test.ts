@@ -36,15 +36,21 @@ describe.each( [
 		}
 	);
 
-	it.each( PRIMARIES )( 'runs the scale of %s out to 6:1', primary => {
+	it.each( PRIMARIES )( 'runs the scale of %s out to 9:1', primary => {
 		const { high } = getHeatmapScale( primary, background );
 
 		expect( contrastRatio( high, background ) ).toBeGreaterThanOrEqual( HEATMAP_HIGH_CONTRAST );
 	} );
+
+	it.each( PRIMARIES )( 'keeps the ends of %s at least 3:1 apart', primary => {
+		const { low, high } = getHeatmapScale( primary, background, emptyCell );
+
+		expect( contrastRatio( low, high ) ).toBeGreaterThanOrEqual( 3 );
+	} );
 } );
 
 describe( 'getHeatmapScale', () => {
-	it( 'keeps a primary already past 6:1 as the high end', () => {
+	it( 'keeps a primary already past 9:1 as the high end', () => {
 		expect( getHeatmapScale( '#1d2327', '#ffffff' ).high ).toBe( '#1d2327' );
 	} );
 
@@ -100,7 +106,10 @@ describe( 'getHeatmapScale', () => {
 		}
 	);
 
-	it( 'ends on black or white when the background leaves no room for 6:1', () => {
-		expect( getHeatmapScale( '#3858e9', '#808080' ).high ).toBe( '#000000' );
+	it( 'ends on black or white when the background leaves no room for 9:1', () => {
+		const { low, high } = getHeatmapScale( '#3858e9', '#808080' );
+
+		expect( high ).toBe( '#000000' );
+		expect( contrastRatio( low, high ) ).toBeGreaterThanOrEqual( HEATMAP_STEP_CONTRAST );
 	} );
 } );

@@ -9,9 +9,11 @@ import {
 	getOverrideReason,
 } from '../my-jetpack-tab-panel/features/module-availability';
 import { useAllJetpackModules } from '../my-jetpack-tab-panel/features/use-all-jetpack-modules';
+import { useMainFeatures } from '../my-jetpack-tab-panel/features/use-main-features';
 import { FallbackSettings } from './fallback-settings';
-import { moduleSettings } from './registry';
+import { entrySettings, moduleSettings } from './registry';
 import styles from './styles.module.scss';
+import { useSettingsPanelTracking } from './use-settings-panel-tracking';
 import type { KeyboardEvent } from 'react';
 
 /**
@@ -28,10 +30,16 @@ export function SettingsPanel() {
 	const $module =
 		modules && Object.hasOwn( modules, slug ) ? modules[ slug as keyof typeof modules ] : undefined;
 	const Settings = $module && moduleSettings[ slug ];
+	const { settings_entries: entries } = useMainFeatures();
+	// A settings entry needs no module, so it does not wait for the modules to load.
+	const entry = $module ? undefined : entries?.find( item => item.slug === slug );
+	const EntrySettings =
+		entry && Object.hasOwn( entrySettings, slug ) ? entrySettings[ slug ] : undefined;
 	const headingId = useId();
 	const headingRef = useRef< HTMLHeadingElement >( null );
 	const rootRef = useRef< HTMLElement >( null );
 	const openerRef = useRef< HTMLElement | null >( null );
+	const { trackPanelClose } = useSettingsPanelTracking( slug );
 
 	const onClose = useCallback( () => {
 		type NavigateOptions = Parameters< typeof navigate >[ 0 ];
@@ -67,11 +75,17 @@ export function SettingsPanel() {
 	const onKeyDown = useCallback(
 		( event: KeyboardEvent< HTMLElement > ) => {
 			if ( event.key === 'Escape' && ! event.defaultPrevented ) {
+				trackPanelClose( 'escape' );
 				onClose();
 			}
 		},
-		[ onClose ]
+		[ onClose, trackPanelClose ]
 	);
+
+	const onCloseButton = useCallback( () => {
+		trackPanelClose( 'close-button' );
+		onClose();
+	}, [ onClose, trackPanelClose ] );
 
 	// Jetpack's own verdict, which covers offline mode, a missing connection or owner, and the plan.
 	const availability = $module ? getModuleAvailability( $module ) : undefined;
@@ -99,6 +113,8 @@ export function SettingsPanel() {
 				) }
 			</>
 		);
+	} else if ( EntrySettings ) {
+		body = <EntrySettings />;
 	} else if ( hasLoaded ) {
 		body = (
 			<Notice.Root intent="warning">
@@ -125,7 +141,7 @@ export function SettingsPanel() {
 						variant="heading-md"
 						render={ <h2 id={ headingId } ref={ headingRef } tabIndex={ -1 } /> }
 					>
-						{ $module?.name ?? __( 'Feature settings', 'jetpack-my-jetpack' ) }
+						{ $module?.name ?? entry?.name ?? __( 'Feature settings', 'jetpack-my-jetpack' ) }
 					</Text>
 					<IconButton
 						icon={ close }
@@ -133,7 +149,7 @@ export function SettingsPanel() {
 						variant="minimal"
 						tone="neutral"
 						size="compact"
-						onClick={ onClose }
+						onClick={ onCloseButton }
 					/>
 				</Stack>
 				{ body }

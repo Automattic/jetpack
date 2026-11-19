@@ -33,6 +33,37 @@ function getRedirectUri(): string | undefined {
 }
 
 /**
+ * The tab a `?tab=` value shows.
+ *
+ * @param tab - The `tab` search value.
+ * @return The tab.
+ */
+function resolveTab( tab: unknown ): NewsletterTab {
+	// When `jetpack_wp_admin_subscriber_management_enabled` is filtered to
+	// false on the server, the page is Settings-only — pin the tab
+	// there so we never try to render the Subscribers body.
+	const newsletterData = getNewsletterScriptData();
+	if ( newsletterData?.subscriberManagementEnabled === false || tab === 'settings' ) {
+		return 'settings';
+	}
+	if ( tab === 'subscribers' ) {
+		return 'subscribers';
+	}
+	return newsletterData?.overviewEnabled === true ? 'overview' : 'subscribers';
+}
+
+/**
+ * The tab a page URL shows; the router keeps its route in the `p` query arg.
+ *
+ * @param url - The page URL.
+ * @return The tab.
+ */
+function tabOf( url: string ): NewsletterTab {
+	const route = new URL( url ).searchParams.get( 'p' ) ?? '/';
+	return resolveTab( new URL( route, 'https://route.invalid' ).searchParams.get( 'tab' ) );
+}
+
+/**
  * Single stage that owns the unified Newsletter page chrome — Page header,
  * tab nav, and one `Tabs.Root` that persists across tab changes so the
  * active-tab indicator slides between tabs instead of remounting on each
@@ -52,18 +83,10 @@ const Stage = () => {
 	} ) as StageSearch;
 	const [ hasUnsavedChanges, setHasUnsavedChanges ] = useState( false );
 
-	// When `jetpack_wp_admin_subscriber_management_enabled` is filtered to
-	// false on the server, the page is Settings-only — pin `activeTab`
-	// there so we never try to render the Subscribers body.
 	const newsletterData = getNewsletterScriptData();
 	const subscribersEnabled = newsletterData?.subscriberManagementEnabled !== false;
 	const overviewEnabled = newsletterData?.overviewEnabled === true;
-	let activeTab: NewsletterTab = overviewEnabled ? 'overview' : 'subscribers';
-	if ( ! subscribersEnabled || search.tab === 'settings' ) {
-		activeTab = 'settings';
-	} else if ( search.tab === 'subscribers' ) {
-		activeTab = 'subscribers';
-	}
+	const activeTab = resolveTab( search.tab );
 
 	const {
 		isRegistered,
@@ -130,6 +153,35 @@ const Stage = () => {
 			tab: activeTab,
 			...( previousTab ? { previous_tab: previousTab } : {} ),
 		} );
+	}, [ activeTab ] );
+
+	// The admin shell keeps this page mounted, so a return to it is a new visit: see the admin-ui README.
+	const hiddenTab = useRef( activeTab );
+	useEffect( () => {
+		const onHidden = ( event: Event ) => {
+			if ( ( event as CustomEvent ).detail?.page === 'jetpack-newsletter' ) {
+				hiddenTab.current = activeTab;
+			}
+		};
+		const onShown = ( event: Event ) => {
+			const { page, firstShow, routeChanged, url } = ( event as CustomEvent ).detail ?? {};
+			if ( page !== 'jetpack-newsletter' || firstShow ) {
+				return;
+			}
+			// The effect above records a return to another tab, but not to another URL of the same tab.
+			if ( ! routeChanged || tabOf( url ) === hiddenTab.current ) {
+				analytics.tracks.recordEvent( 'jetpack_newsletter_tab_view', {
+					site_type: getSiteType(),
+					tab: activeTab,
+				} );
+			}
+		};
+		window.addEventListener( 'jetpack-admin-shell:page-hidden', onHidden );
+		window.addEventListener( 'jetpack-admin-shell:page-shown', onShown );
+		return () => {
+			window.removeEventListener( 'jetpack-admin-shell:page-hidden', onHidden );
+			window.removeEventListener( 'jetpack-admin-shell:page-shown', onShown );
+		};
 	}, [ activeTab ] );
 
 	return (
