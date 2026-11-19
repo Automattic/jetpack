@@ -15,7 +15,7 @@ type Mount = {
 	/*
 	 * What the host that mounted asked for.
 	 */
-	options: Contract.WhatsNewOptions;
+	options: Parameters< typeof Contract.mountWhatsNew >[ 0 ];
 };
 
 const DOM_ELEMENT_ID = 'jetpack-whats-new';

@@ -6,7 +6,7 @@
  * package external.
  */
 
-export type WhatsNewOptions = {
+type WhatsNewOptions = {
 	/*
 	 * The channels the host subscribes to. An announcement is shown when it is published to one of them.
 	 */
