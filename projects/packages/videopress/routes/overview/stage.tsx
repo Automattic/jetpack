@@ -1,5 +1,6 @@
 import { PeriodSelector } from '@automattic/jetpack-components';
 import {
+	DashboardWidgetHostProvider,
 	ReportScopeProvider,
 	useDashboardSectionRecords,
 	useDetailPageCustomize,
@@ -109,62 +110,64 @@ const StageInner = () => {
 
 	return (
 		<ReportScopeProvider offersComparison={ false }>
-			<WidgetDashboard.Policy canPerform={ canPerform }>
-				<WidgetDashboard
-					widgetTypes={ widgetTypes }
-					isResolvingWidgetTypes={ isResolvingWidgetTypes }
-					resolveWidgetModule={ resolveWidgetModule }
-					layout={ layout }
-					onLayoutChange={ onLayoutChange }
-					onLayoutReset={ resetLayout }
-					gridSettings={ STATS_GRID }
-					editMode={ isCustomizing }
-					onEditChange={ onEditChange }
-				>
-					<DashboardLayout
-						activeTab="stats"
-						actions={
-							<Stack direction="row" gap="sm" align="center">
-								{ isCustomizing ? (
-									<>
-										<Button variant="outline" onClick={ resetToDefault }>
-											{ __( 'Reset to default', 'jetpack-videopress-pkg' ) }
-										</Button>
-										<WidgetDashboard.Actions />
-									</>
-								) : (
-									<>
-										<PeriodSelector< DateRange >
-											label={ __( 'Date range', 'jetpack-videopress-pkg' ) }
-											presets={ dateRangePresets }
-											value={ dateRange }
-											onChange={ setDateRange }
-										/>
-										{ canCustomize && (
-											<Button variant="outline" onClick={ startCustomizing }>
-												{ __( 'Customize', 'jetpack-videopress-pkg' ) }
-											</Button>
-										) }
-									</>
-								) }
-							</Stack>
-						}
+			<DashboardWidgetHostProvider>
+				<WidgetDashboard.Policy canPerform={ canPerform }>
+					<WidgetDashboard
+						widgetTypes={ widgetTypes }
+						isResolvingWidgetTypes={ isResolvingWidgetTypes }
+						resolveWidgetModule={ resolveWidgetModule }
+						layout={ layout }
+						onLayoutChange={ onLayoutChange }
+						onLayoutReset={ resetLayout }
+						gridSettings={ STATS_GRID }
+						editMode={ isCustomizing }
+						onEditChange={ onEditChange }
 					>
-						<div className="vp-overview">
-							{ isFree && (
-								<FreeTierNotice
-									location="overview"
-									videoCount={ videoCountKnown ? videoCount : undefined }
-								/>
-							) }
-							{ widgets }
-							{ /* Storage isn't stats-derived (it sources its own data via
-							     useSite), so a stats failure doesn't take it down. */ }
-							{ showStorageMeter && <StorageMeterCard /> }
-						</div>
-					</DashboardLayout>
-				</WidgetDashboard>
-			</WidgetDashboard.Policy>
+						<DashboardLayout
+							activeTab="stats"
+							actions={
+								<Stack direction="row" gap="sm" align="center">
+									{ isCustomizing ? (
+										<>
+											<Button variant="outline" onClick={ resetToDefault }>
+												{ __( 'Reset to default', 'jetpack-videopress-pkg' ) }
+											</Button>
+											<WidgetDashboard.Actions />
+										</>
+									) : (
+										<>
+											<PeriodSelector< DateRange >
+												label={ __( 'Date range', 'jetpack-videopress-pkg' ) }
+												presets={ dateRangePresets }
+												value={ dateRange }
+												onChange={ setDateRange }
+											/>
+											{ canCustomize && (
+												<Button variant="outline" onClick={ startCustomizing }>
+													{ __( 'Customize', 'jetpack-videopress-pkg' ) }
+												</Button>
+											) }
+										</>
+									) }
+								</Stack>
+							}
+						>
+							<div className="vp-overview">
+								{ isFree && (
+									<FreeTierNotice
+										location="overview"
+										videoCount={ videoCountKnown ? videoCount : undefined }
+									/>
+								) }
+								{ widgets }
+								{ /* Storage isn't stats-derived (it sources its own data via
+								     useSite), so a stats failure doesn't take it down. */ }
+								{ showStorageMeter && <StorageMeterCard /> }
+							</div>
+						</DashboardLayout>
+					</WidgetDashboard>
+				</WidgetDashboard.Policy>
+			</DashboardWidgetHostProvider>
 		</ReportScopeProvider>
 	);
 };
