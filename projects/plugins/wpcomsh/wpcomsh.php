@@ -44,6 +44,7 @@ require_once __DIR__ . '/wpcom-features/functions-wpcom-features.php';
 require_once __DIR__ . '/wpcom-marketplace/software/class-marketplace-software-manager.php';
 require_once __DIR__ . '/functions.php';
 require_once __DIR__ . '/user-login.php';
+require_once __DIR__ . '/author-slug-redirect.php';
 require_once __DIR__ . '/i18n.php';
 require_once __DIR__ . '/lib/require-lib.php';
 

@@ -1,4 +1,4 @@
 Significance: patch
-Type: changed
+Type: added
 
-Move the author slug to the new login when a user's login is renamed, and redirect links to the old author slug.
+Redirect author links that use an author's previous slug, such as after a WordPress.com username change, to their current author page.
