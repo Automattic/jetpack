@@ -1,15 +1,19 @@
 import { DASHBOARD_PAGE_SLUG } from '../dashboard-href';
 import { getCurrentRoutePath, onLocationChange } from './current-route';
 
+const openUrl = ( search: string ): void => {
+	window.history.replaceState( null, '', search );
+};
+
 // The router keeps the route in `p`, with its search params as a query string of its own.
 const openRoute = ( route?: string ): void => {
 	const p = route === undefined ? '' : `&p=${ encodeURIComponent( route ) }`;
-	window.history.replaceState( null, '', `?page=${ DASHBOARD_PAGE_SLUG }${ p }` );
+	openUrl( `?page=${ DASHBOARD_PAGE_SLUG }${ p }` );
 };
 
 describe( 'getCurrentRoutePath', () => {
 	afterEach( () => {
-		window.history.replaceState( null, '', window.location.pathname );
+		openUrl( window.location.pathname );
 	} );
 
 	it.each< [ string, string | undefined, string ] >( [
@@ -20,6 +24,13 @@ describe( 'getCurrentRoutePath', () => {
 		openRoute( route );
 
 		expect( getCurrentRoutePath() ).toBe( path );
+	} );
+
+	// The admin shell runs this from other pages, some with a router of their own.
+	it( 'reads no route from the URL of another page', () => {
+		openUrl( '?page=jetpack-videopress&p=%2Flibrary' );
+
+		expect( getCurrentRoutePath() ).toBeNull();
 	} );
 } );
 
@@ -40,7 +51,12 @@ describe( 'onLocationChange', () => {
 		expect( listener ).toHaveBeenCalledTimes( 1 );
 	} );
 
-	it( 'stays quiet in a browser without the Navigation API', () => {
-		expect( () => onLocationChange( jest.fn() ) ).not.toThrow();
+	it( 'runs the listener when the admin shell shows a page', () => {
+		const listener = jest.fn();
+
+		onLocationChange( listener );
+		window.dispatchEvent( new CustomEvent( 'jetpack-admin-shell:page-shown' ) );
+
+		expect( listener ).toHaveBeenCalledTimes( 1 );
 	} );
 } );

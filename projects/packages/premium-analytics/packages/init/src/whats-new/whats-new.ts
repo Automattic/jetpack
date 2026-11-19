@@ -15,10 +15,16 @@ const MAIN_SECTION = 'main';
  *
  * The section is the first segment of the path of the route.
  *
- * @return The channels.
+ * @return The channels, none while another page is on screen.
  */
 function getChannels(): string[] {
-	const [ section = MAIN_SECTION ] = getCurrentRoutePath().split( '/' ).filter( Boolean );
+	const path = getCurrentRoutePath();
+
+	if ( path === null ) {
+		return [];
+	}
+
+	const [ section = MAIN_SECTION ] = path.split( '/' ).filter( Boolean );
 
 	return [ CHANNEL, `${ CHANNEL }/${ section }` ];
 }
@@ -38,14 +44,22 @@ export function showWhatsNew(): void {
 	import( '@automattic/jetpack-announcements' )
 		.then( ( { mountWhatsNew } ) => {
 			let subscribed = '';
+			let unmount = (): void => undefined;
 
 			const subscribe = () => {
 				const channels = getChannels();
 
 				// The location also changes within a page, and several routes share a section.
-				if ( channels.join() !== subscribed ) {
-					subscribed = channels.join();
-					mountWhatsNew( { channels } );
+				if ( channels.join() === subscribed ) {
+					return;
+				}
+
+				subscribed = channels.join();
+
+				if ( channels.length ) {
+					unmount = mountWhatsNew( { channels } );
+				} else {
+					unmount();
 				}
 			};
 

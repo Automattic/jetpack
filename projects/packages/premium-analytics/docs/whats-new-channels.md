@@ -39,6 +39,8 @@ The announcements of the dashboard are registered in `src/class-dashboard-announ
 
 It learns both from `packages/routing/src/current-route/current-route.ts`, which reads the URL for now and says what that cannot see.
 
+Under the admin shell the dashboard stays loaded while another Jetpack page is on screen. The surface leaves with the dashboard and comes back with it.
+
 ## Whose convention this is
 
 It belongs to this package. Jetpack Announcements matches channels by name and knows nothing of pages or routes, so another host is free to name its channels another way.

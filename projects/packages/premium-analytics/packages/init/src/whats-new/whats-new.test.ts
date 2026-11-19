@@ -17,6 +17,8 @@ jest.mock( '@jetpack-premium-analytics/routing', () => ( {
 	onLocationChange: jest.fn(),
 } ) );
 
+const unmount = jest.fn();
+
 const setFlag = ( enabled: boolean ): void => {
 	Object.defineProperty( window, 'JetpackScriptData', {
 		configurable: true,
@@ -24,12 +26,13 @@ const setFlag = ( enabled: boolean ): void => {
 	} );
 };
 
-const openRoute = ( path: string ): void => {
+// No path while another page is on screen, as under the admin shell.
+const openRoute = ( path: string | null ): void => {
 	jest.mocked( getCurrentRoutePath ).mockReturnValue( path );
 };
 
 // The route on screen changes first, then the listener of the location runs.
-const navigateTo = ( path: string ): void => {
+const navigateTo = ( path: string | null ): void => {
 	openRoute( path );
 	jest.mocked( onLocationChange ).mock.calls[ 0 ][ 0 ]();
 };
@@ -41,10 +44,15 @@ const showAndSettle = async (): Promise< void > => {
 };
 
 describe( 'showWhatsNew', () => {
+	beforeEach( () => {
+		jest.mocked( mountWhatsNew ).mockReturnValue( unmount );
+	} );
+
 	afterEach( () => {
 		delete window.JetpackScriptData;
-		jest.mocked( mountWhatsNew ).mockClear();
+		jest.mocked( mountWhatsNew ).mockReset();
 		jest.mocked( onLocationChange ).mockClear();
+		unmount.mockClear();
 	} );
 
 	it.each( [
@@ -89,6 +97,29 @@ describe( 'showWhatsNew', () => {
 		navigateTo( '/reports/referrers' );
 
 		expect( mountWhatsNew ).toHaveBeenCalledTimes( 1 );
+	} );
+
+	it( 'mounts nothing while another page is on screen', async () => {
+		setFlag( true );
+		openRoute( null );
+
+		await showAndSettle();
+
+		expect( mountWhatsNew ).not.toHaveBeenCalled();
+	} );
+
+	it( 'leaves the screen with the dashboard, and comes back with it', async () => {
+		setFlag( true );
+		openRoute( '/' );
+		await showAndSettle();
+
+		navigateTo( null );
+
+		expect( unmount ).toHaveBeenCalledTimes( 1 );
+
+		navigateTo( '/' );
+
+		expect( mountWhatsNew ).toHaveBeenCalledTimes( 2 );
 	} );
 
 	it( 'mounts nothing while the flag is off', async () => {
