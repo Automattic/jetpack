@@ -12,6 +12,10 @@ import { store as bootStore } from '@wordpress/boot';
 import { dispatch } from '@wordpress/data';
 import { chartBar } from '@wordpress/icons';
 import { registerIconResolver } from '@wordpress/widget-primitives';
+/**
+ * Internal dependencies
+ */
+import { showWhatsNew } from './whats-new';
 
 // apiFetch middleware registers onto a shared, process-wide chain. Guard so
 // repeated init() calls (re-mount, HMR, a future second boot) don't stack
@@ -81,20 +85,4 @@ export async function init(): Promise< void > {
 	ensureDashboardEntities();
 
 	showWhatsNew();
-}
-
-/**
- * Show the What's new surface with the dashboard's announcements, while its feature flag is on.
- *
- * Imported on demand and never awaited, so the surface stays out of the dashboard's first
- * render. A load that fails leaves the dashboard without it.
- */
-function showWhatsNew(): void {
-	if ( ! getScriptData()?.premium_analytics?.whats_new_enabled ) {
-		return;
-	}
-
-	import( '@automattic/jetpack-announcements' )
-		.then( ( { mountWhatsNew } ) => mountWhatsNew( { channels: [ 'premium-analytics' ] } ) )
-		.catch( () => undefined );
 }
