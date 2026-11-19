@@ -1,9 +1,4 @@
-// Centered fixed-width column. 660px is the established Jetpack settings-page
-// width (see Newsletter's settings/style.scss: "MSD and future JP settings
-// pages are 660px wide"); there is no design token for it.
 .root {
-	max-inline-size: 660px;
-	margin-inline: auto;
 
 	input:disabled:not([type="checkbox"], [type="radio"]),
 	textarea:disabled {

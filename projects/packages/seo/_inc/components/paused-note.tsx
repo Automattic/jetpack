@@ -10,7 +10,7 @@ const offLabel = __( 'Paused on this site.', 'jetpack-seo' );
 
 /**
  * The short line at the top of a card that is locked while Jetpack's SEO output is
- * paused. The tab's `SeoPausedBanner` explains the cause, so this only says which
+ * paused. The page's `SeoPausedBanner` explains the cause, so this only says which
  * cards it applies to.
  *
  * @param props    - Component props.

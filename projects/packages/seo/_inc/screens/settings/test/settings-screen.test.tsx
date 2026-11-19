@@ -156,51 +156,23 @@ describe( 'Jetpack SEO output paused', () => {
 
 	// A filter can switch Jetpack's output off without a plugin; the lock can't depend on the name.
 	it.each( [
-		[
-			'Yoast SEO',
-			'Yoast SEO is managing your site’s SEO, so Jetpack has paused its SEO titles, descriptions, canonical URLs, structured data and llms.txt. Your saved settings are kept. Deactivate Yoast SEO to use them.',
-			'Paused while Yoast SEO is active.',
-		],
-		[
-			'',
-			'Jetpack’s SEO titles, descriptions, structured data and llms.txt are turned off on this site. Your saved settings are kept.',
-			'Paused on this site.',
-		],
-	] )(
-		'with "%s" in charge, explains it once and locks the cards it feeds',
-		async ( plugin, banner, line ) => {
-			setPaused( plugin );
-			render( <SettingsScreen form={ buildForm( { title_formats_editable: false } ) } /> );
+		[ 'Yoast SEO', 'Paused while Yoast SEO is active.' ],
+		[ '', 'Paused on this site.' ],
+	] )( 'with "%s" in charge, locks the cards it feeds', async ( plugin, line ) => {
+		setPaused( plugin );
+		render( <SettingsScreen form={ buildForm( { title_formats_editable: false } ) } /> );
 
-			expect( screen.getByText( banner ) ).toBeInTheDocument();
-			expect( statusFor( 'Front-page description' ) ).toBe( 'Paused' );
-			expect( screen.getByTestId( 'schema' ) ).toHaveAttribute( 'aria-disabled', 'true' );
-			expect( screen.getByTestId( 'author' ) ).toHaveAttribute( 'aria-disabled', 'true' );
-			await expect( openDescription() ).resolves.toBeDisabled();
-			expect( screen.getByText( line ) ).toBeInTheDocument();
-			// The description keeps its usual help; the banner carries the cause.
-			expect( screen.getByText( /^Shown under your site name/ ) ).toBeInTheDocument();
-			// The previews stay visible, read-only, with the same line.
-			expect( SocialPreviewsCard.mock.lastCall?.[ 0 ] ).toEqual(
-				expect.objectContaining( { paused: true, disabled: true } )
-			);
-		}
-	);
-
-	it( 'links to the Plugins screen only when a plugin is named', () => {
-		setPaused( 'Yoast SEO' );
-		const { unmount } = render( <SettingsScreen form={ buildForm() } /> );
-
-		expect( screen.getByRole( 'link', { name: 'Manage plugins' } ) ).toHaveAttribute(
-			'href',
-			'https://example.com/wp-admin/plugins.php'
+		expect( statusFor( 'Front-page description' ) ).toBe( 'Paused' );
+		expect( screen.getByTestId( 'schema' ) ).toHaveAttribute( 'aria-disabled', 'true' );
+		expect( screen.getByTestId( 'author' ) ).toHaveAttribute( 'aria-disabled', 'true' );
+		await expect( openDescription() ).resolves.toBeDisabled();
+		expect( screen.getByText( line ) ).toBeInTheDocument();
+		// The description keeps its usual help; the banner carries the cause.
+		expect( screen.getByText( /^Shown under your site name/ ) ).toBeInTheDocument();
+		// The previews stay visible, read-only, with the same line.
+		expect( SocialPreviewsCard.mock.lastCall?.[ 0 ] ).toEqual(
+			expect.objectContaining( { paused: true, disabled: true } )
 		);
-
-		unmount();
-		setPaused( '' );
-		render( <SettingsScreen form={ buildForm() } /> );
-
-		expect( screen.queryByRole( 'link', { name: 'Manage plugins' } ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'leaves everything alone while Jetpack owns the output', async () => {
