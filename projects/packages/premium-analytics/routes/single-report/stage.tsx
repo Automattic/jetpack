@@ -26,6 +26,7 @@ import {
 	PageEmptyState,
 	PageNotice,
 	describeError,
+	useCrowdedPageHeader,
 	useDetailPageCustomize,
 	useHostLinkSearch,
 	useStoredDetailLayout,
@@ -321,6 +322,10 @@ function SingleReportBody( { page, entityId, adapter }: SingleReportBodyProps ):
 		surface,
 	} );
 
+	// The customize buttons hold their width, leaving the lockup too little room for even
+	// the page icon, which cannot shrink and would paint over them (STATS-630).
+	const hasTightHeader = useCrowdedPageHeader() && isCustomizing;
+
 	// One title for the crumb and the header: the entity's, else the adapter's untitled one.
 	const title = summary.title?.trim() || adapter.untitledTitle?.( summary ) || page.label;
 	const breadcrumbs = useDetailBreadcrumbs(
@@ -409,8 +414,10 @@ function SingleReportBody( { page, entityId, adapter }: SingleReportBodyProps ):
 						>
 							<Page
 								className={ styles.page }
-								visual={ <Icon icon={ jetpack } /> }
-								breadcrumbs={ <StatsBreadcrumbs items={ breadcrumbs } /> }
+								visual={ hasTightHeader ? undefined : <Icon icon={ jetpack } /> }
+								breadcrumbs={
+									hasTightHeader ? undefined : <StatsBreadcrumbs items={ breadcrumbs } />
+								}
 								badges={ isCustomizing ? <CustomizingBadge /> : undefined }
 								actions={
 									<DetailPageActions

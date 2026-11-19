@@ -324,6 +324,7 @@ export {
 	DashboardSectionProvider,
 	useAttributesWithSearchFallback,
 	useChartTheme,
+	useCrowdedPageHeader,
 	useDashboardOriginSearch,
 	useElementSize,
 	type ElementSize,
