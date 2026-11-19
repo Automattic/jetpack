@@ -1,8 +1,9 @@
-import { __ } from '@wordpress/i18n';
-import { Button, Stack, Text } from '@wordpress/ui';
+import { __, _n, sprintf } from '@wordpress/i18n';
+import { Badge, Button, Stack, Text } from '@wordpress/ui';
 import clsx from 'clsx';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useId, useMemo, useState } from 'react';
 import formatNumber from '../../../utils/format-number';
+import formatPercentage from '../../../utils/format-percentage';
 import LoadingBlock from '../../loading-block';
 import { transformStatsDataForChart } from '../../stats-section/cards';
 import StatsChart from '../../stats-section/stats-chart';
@@ -14,6 +15,8 @@ type Metric = 'views' | 'visitors' | 'likes' | 'comments';
 type OverviewStatsProps = {
 	isLoading?: boolean;
 	counts: Partial< Record< Metric, number > >;
+	previousCounts?: Partial< Record< Metric, number > >;
+	days?: number;
 	chartData: object | null;
 	detailedStatsHref?: string;
 	onDetailedStatsClick: () => void;
@@ -34,10 +37,19 @@ type TabProps = {
 	count?: number;
 	isLoading: boolean;
 	isSelected: boolean;
+	describedBy?: string;
 	onSelect: ( metric: Metric ) => void;
 };
 
-const Tab: FC< TabProps > = ( { metric, label, count, isLoading, isSelected, onSelect } ) => {
+const Tab: FC< TabProps > = ( {
+	metric,
+	label,
+	count,
+	isLoading,
+	isSelected,
+	describedBy,
+	onSelect,
+} ) => {
 	const handleClick = useCallback( () => onSelect( metric ), [ metric, onSelect ] );
 
 	return (
@@ -45,6 +57,7 @@ const Tab: FC< TabProps > = ( { metric, label, count, isLoading, isSelected, onS
 			variant="unstyled"
 			className={ clsx( styles.tab, { [ styles[ 'is-selected' ] ]: isSelected } ) }
 			aria-pressed={ isSelected }
+			aria-describedby={ describedBy }
 			disabled={ isLoading }
 			onClick={ handleClick }
 		>
@@ -64,6 +77,60 @@ const Tab: FC< TabProps > = ( { metric, label, count, isLoading, isSelected, onS
 };
 
 /**
+ * The whole-percent change from the previous period.
+ *
+ * @param {number|undefined} count    - This period's total.
+ * @param {number|undefined} previous - The previous period's total.
+ * @return {number|null} The change, or null with nothing to compare against.
+ */
+export const getPercentChange = ( count?: number, previous?: number ): number | null => {
+	if ( typeof count !== 'number' || typeof previous !== 'number' || previous <= 0 ) {
+		return null;
+	}
+	// `|| 0` turns Math.round's -0 into 0, so a tiny drop reads as no change.
+	return Math.round( ( ( count - previous ) / previous ) * 100 ) || 0;
+};
+
+const ChangeBadge: FC< { id: string; percent: number; days: number } > = ( {
+	id,
+	percent,
+	days,
+} ) => {
+	if ( percent === 0 ) {
+		return (
+			<Badge id={ id } intent="none">
+				{ sprintf(
+					/* translators: %d: number of days in the period. */
+					_n(
+						'No change compared to previous %d day',
+						'No change compared to previous %d days',
+						days,
+						'jetpack-my-jetpack'
+					),
+					days
+				) }
+			</Badge>
+		);
+	}
+
+	return (
+		<Badge id={ id } intent={ percent > 0 ? 'stable' : 'medium' }>
+			{ sprintf(
+				/* translators: %1$s: signed percent change, e.g. "+9%" or "-8%". %2$d: number of days in the period. */
+				_n(
+					'%1$s compared to previous %2$d day',
+					'%1$s compared to previous %2$d days',
+					days,
+					'jetpack-my-jetpack'
+				),
+				formatPercentage( percent / 100, { style: 'percent', signDisplay: 'always' } ),
+				days
+			) }
+		</Badge>
+	);
+};
+
+/**
  * The Overview's Stats: a tab per metric with its total for the period, above an area chart of the selected one.
  *
  * @param {OverviewStatsProps} props - Component props.
@@ -72,11 +139,19 @@ const Tab: FC< TabProps > = ( { metric, label, count, isLoading, isSelected, onS
 const OverviewStats: FC< OverviewStatsProps > = ( {
 	isLoading = false,
 	counts,
+	previousCounts,
+	days,
 	chartData,
 	detailedStatsHref,
 	onDetailedStatsClick,
 } ) => {
 	const [ selectedMetric, setSelectedMetric ] = useState< Metric >( 'views' );
+	const badgeId = useId();
+	const percentChange =
+		isLoading || ! days
+			? null
+			: getPercentChange( counts?.[ selectedMetric ], previousCounts?.[ selectedMetric ] );
+	const hasBadge = percentChange !== null;
 	const series = useMemo(
 		() => transformStatsDataForChart( chartData, selectedMetric, CHART_COLOR ),
 		[ chartData, selectedMetric ]
@@ -93,10 +168,16 @@ const OverviewStats: FC< OverviewStatsProps > = ( {
 						count={ counts?.[ metric ] }
 						isLoading={ isLoading }
 						isSelected={ ! isLoading && selectedMetric === metric }
+						describedBy={ hasBadge && selectedMetric === metric ? badgeId : undefined }
 						onSelect={ setSelectedMetric }
 					/>
 				) ) }
 			</div>
+			{ percentChange !== null && !! days && (
+				<div>
+					<ChangeBadge id={ badgeId } percent={ percentChange } days={ days } />
+				</div>
+			) }
 			<StatsChart
 				data={ series }
 				isLoading={ isLoading }

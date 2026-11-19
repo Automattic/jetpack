@@ -19,7 +19,7 @@ describe( 'useStatsPeriod', () => {
 		act( () => result.current.setDays( days ) );
 
 		expect( getStatsPeriodVisitsOptions( result.current ) ).toMatchObject( {
-			quantity: days,
+			quantity: days * 2,
 			date: VISITS_OPTIONS.date,
 		} );
 
