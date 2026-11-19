@@ -1,7 +1,5 @@
-import { isSimpleSite } from '@automattic/jetpack-script-data';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ADS_ACCOUNT_KEY } from './ads-keys';
-import { useStoredAdsValues } from './use-ads-settings';
 import { wpcomFetch } from './wpcom-fetch';
 import type { WpcomApiError } from './wpcom-request';
 
@@ -49,23 +47,6 @@ export function useAdsAccount( enabled = true ) {
 			};
 		},
 	} );
-}
-
-/**
- * Whether ads are on: the `wordads` module on Jetpack sites, WordPress.com's own state on Simple.
- *
- * Both come from caches the Settings tab updates when it switches ads, so neither waits on a refetch.
- *
- * @return Whether ads are on, undefined while that loads, and whether it failed to.
- */
-export function useAdsActive(): { active: boolean | undefined; isError: boolean } {
-	const simple = isSimpleSite();
-	const account = useAdsAccount();
-	const settings = useStoredAdsValues( ! simple );
-
-	return simple
-		? { active: account.data?.active, isError: account.isError }
-		: { active: settings.data?.wordads, isError: settings.isError };
 }
 
 /**

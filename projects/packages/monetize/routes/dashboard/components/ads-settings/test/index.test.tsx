@@ -5,11 +5,19 @@ import apiFetch from '@wordpress/api-fetch';
 import { getAdsSettingsData } from '../../../data/ads-settings-data';
 import { useAdsSettings } from '../../../data/use-ads-settings';
 import { usePayout, useSavePayout } from '../../../data/use-wpcom-ads-settings';
+import { useAdsAccount } from '../../../data/wordads';
 import { AdsSettings } from '../index';
 import type { AdsSettingsData } from '../../../data/ads-settings-data';
 import type { AdsValues } from '../../../data/use-ads-settings';
 
+let mockSimple = false;
+
 jest.mock( '@wordpress/api-fetch', () => ( { __esModule: true, default: jest.fn() } ) );
+jest.mock( '@automattic/jetpack-script-data', () => ( {
+	isSimpleSite: () => mockSimple,
+	isWpcomPlatformSite: () => mockSimple,
+} ) );
+jest.mock( '../../../data/wordads', () => ( { useAdsAccount: jest.fn() } ) );
 jest.mock( '../../../data/ads-settings-data' );
 jest.mock( '../../../data/state', () => ( {
 	getPageData: () => ( { upgradeUrl: MOCK_UPGRADE_URL, tracks: true } ),
@@ -99,6 +107,11 @@ const openTab = jest.fn();
 
 describe( 'AdsSettings', () => {
 	beforeEach( () => {
+		mockSimple = false;
+		( useAdsAccount as jest.Mock ).mockReturnValue( {
+			data: { approved: true },
+			isPending: false,
+		} );
 		mockedApiFetch.mockReset();
 		openTab.mockReset();
 		acceptTerms.mockReset().mockResolvedValue( {} );
@@ -111,10 +124,12 @@ describe( 'AdsSettings', () => {
 	} );
 
 	it.each( [
-		[ 'accepts the terms before turning ads on', false, true, true ],
-		[ 'leaves ads off when the terms cannot be accepted', false, false, false ],
-		[ 'turns ads on straight away once the terms are signed', true, true, true ],
-	] )( '%s', async ( _name, tosSigned, accepted, activated ) => {
+		[ 'accepts the terms before turning ads on', false, true, true, false ],
+		[ 'leaves ads off when the terms cannot be accepted', false, false, false, false ],
+		[ 'turns ads on straight away once the terms are signed', true, true, true, false ],
+		[ 'turns ads on and signs the terms in one save on Simple', false, true, true, true ],
+	] )( '%s', async ( _name, tosSigned, accepted, activated, simple ) => {
+		mockSimple = simple;
 		( usePayout as jest.Mock ).mockReturnValue( { data: { paypal: '', tosSigned } } );
 		if ( ! accepted ) {
 			acceptTerms.mockRejectedValue( new Error() );
@@ -125,7 +140,7 @@ describe( 'AdsSettings', () => {
 		await userEvent.click( screen.getByRole( 'switch', { name: SWITCH } ) );
 		await act( () => Promise.resolve() );
 
-		expect( acceptTerms ).toHaveBeenCalledTimes( tosSigned ? 0 : 1 );
+		expect( acceptTerms ).toHaveBeenCalledTimes( tosSigned || simple ? 0 : 1 );
 		expect( setModuleActive ).toHaveBeenCalledTimes( activated ? 1 : 0 );
 	} );
 
@@ -204,6 +219,35 @@ describe( 'AdsSettings', () => {
 		expect(
 			screen.getByRole( 'switch', { name: 'Enable GDPR Consent Banner' } )
 		).toBeInTheDocument();
+	} );
+
+	it( 'shows Simple’s own options, and none it cannot save', () => {
+		mockSimple = true;
+		renderTab();
+
+		expect(
+			screen.getByRole( 'switch', { name: 'Only show ads to logged-out visitors' } )
+		).toBeInTheDocument();
+		expect( screen.getByRole( 'switch', { name: 'Sidebar' } ) ).toBeInTheDocument();
+		expect(
+			screen.queryByRole( 'switch', { name: 'Enable GDPR Consent Banner' } )
+		).not.toBeInTheDocument();
+		expect(
+			screen.queryByRole( 'switch', { name: 'Customize your ads.txt file' } )
+		).not.toBeInTheDocument();
+	} );
+
+	it( 'sends a Simple site that has not joined WordAds to the Ads tab', async () => {
+		mockSimple = true;
+		( useAdsAccount as jest.Mock ).mockReturnValue( {
+			data: { approved: false },
+			isPending: false,
+		} );
+		renderTab();
+
+		expect( screen.queryByRole( 'switch', { name: SWITCH } ) ).not.toBeInTheDocument();
+		await userEvent.click( screen.getByRole( 'button', { name: 'Join WordAds' } ) );
+		expect( openTab ).toHaveBeenCalledWith( 'ads' );
 	} );
 
 	it( 'opens the Ads tab in place for earnings', async () => {
