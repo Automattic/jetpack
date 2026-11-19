@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Protect;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Admin_UI\Admin_Shell;
+use Automattic\Jetpack\Admin_UI\Page_Layout;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Protect_Status\Plan;
@@ -633,6 +634,9 @@ class Dashboard {
 	public static function enqueue_i18n_loader() {
 		if ( wp_script_is( 'wp-jp-i18n-loader', 'registered' ) ) {
 			wp_enqueue_script( 'wp-jp-i18n-loader' );
+		}
+		if ( class_exists( Page_Layout::class ) ) {
+			Page_Layout::enqueue();
 		}
 	}
 

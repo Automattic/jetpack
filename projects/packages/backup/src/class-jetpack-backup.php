@@ -17,6 +17,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Admin_UI\Admin_Shell;
+use Automattic\Jetpack\Admin_UI\Page_Layout;
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Backup\V0005\Initial_State as Backup_Initial_State;
 use Automattic\Jetpack\Config;
@@ -435,6 +436,10 @@ class Jetpack_Backup {
 	public static function enqueue_admin_scripts() {
 		// Hooked only for the Backup page: via `load-{$page_suffix}` in `add_wp_admin_submenu()`,
 		// or by the admin shell's guest load, so there's no need to re-check the page here.
+		if ( class_exists( Page_Layout::class ) ) {
+			Page_Layout::enqueue();
+		}
+
 		if ( self::is_wp_build_dashboard_active() ) {
 			// The i18n loader is registered on every admin page by jetpack-assets but
 			// only enqueued when depended on; the esbuild bundles don't pull it in.

@@ -19,8 +19,6 @@
 	// Jetpack pages.
 	body.jetpack_page_jetpack-backup {
 
-		@include jetpack-admin-page-layout-wp-build;
-
 		// `<Page>` from `@wordpress/admin-ui` puts the page title and
 		// the caller-supplied actions on the same flex row inside the
 		// header content slot. The row doesn't wrap by default, so on

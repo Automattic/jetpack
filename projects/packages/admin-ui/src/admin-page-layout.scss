@@ -1,0 +1,9 @@
+@use "@automattic/jetpack-base-styles/admin-page-layout" as *;
+
+// Printed in <head> by Page_Layout::enqueue(), so a
+// dashboard is laid out before its JS runs. My Jetpack's onboarding
+// sets `jetpack-admin-full-screen` and keeps its own layout.
+body:not(.jetpack-admin-full-screen) {
+
+	@include jetpack-admin-page-layout-wp-build;
+}

@@ -23,7 +23,6 @@ $spacing-base: var(--spacing-base, 8px);
 // Outer container: flex row with tabs + search side by side.
 .jp-settings-nav {
 	display: flex;
-	align-items: center;
 	position: relative;
 	border-bottom: 1px solid colors.$gray-100;
 	padding-inline: calc(#{$spacing-base} * 3); // 24px — matches admin-ui header

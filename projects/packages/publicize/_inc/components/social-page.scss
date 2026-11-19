@@ -1,4 +1,3 @@
-@use "@automattic/jetpack-base-styles/admin-page-layout" as *;
 
 // Layout — the Social dashboard mounts `AdminPage` from
 // `@automattic/jetpack-components`, so the shared
@@ -14,11 +13,6 @@ $jetpack-social-inset: var(--wpds-dimension-padding-2xl);
 // (standalone Social plugin).
 body.jetpack_page_jetpack-social,
 body.toplevel_page_jetpack-social {
-
-	// `-wp-build` variant: the Social dashboard mounts `@wordpress/admin-ui`
-	// 2.x components, so layer that variant's defensive resets (breadcrumb
-	// `ul`/`a` overrides) on top of the shared layout.
-	@include jetpack-admin-page-layout-wp-build;
 
 	// Off-white page surface so white content cards stand out against the
 	// background. `AdminPage` paints `.jp-admin-page` (its outer wrapper) and

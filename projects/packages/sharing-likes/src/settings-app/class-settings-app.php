@@ -179,6 +179,9 @@ final class Settings_App {
 		if ( wp_script_is( 'wp-jp-i18n-loader', 'registered' ) ) {
 			wp_enqueue_script( 'wp-jp-i18n-loader' );
 		}
+		if ( class_exists( \Automattic\Jetpack\Admin_UI\Page_Layout::class ) ) {
+			\Automattic\Jetpack\Admin_UI\Page_Layout::enqueue();
+		}
 	}
 
 	/**

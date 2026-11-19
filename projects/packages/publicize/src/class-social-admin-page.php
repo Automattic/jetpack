@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\Publicize;
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Admin_UI\Admin_Shell;
 use Automattic\Jetpack\Admin_UI\Media_Library;
+use Automattic\Jetpack\Admin_UI\Page_Layout;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Current_Plan;
@@ -273,6 +274,10 @@ class Social_Admin_Page {
 	 * Enqueue admin scripts and styles.
 	 */
 	public function enqueue_admin_scripts() {
+		if ( class_exists( Page_Layout::class ) ) {
+			Page_Layout::enqueue();
+		}
+
 		/*
 		 * wp-build owns its own enqueue pipeline. The chassis reads connection
 		 * state via `useConnection()`, which has no REST resolver, so hydrate it

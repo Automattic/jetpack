@@ -536,6 +536,10 @@ class Jetpack_Network {
 	 * @since 15.7
 	 */
 	public function enqueue_network_admin_scripts() {
+		if ( class_exists( \Automattic\Jetpack\Admin_UI\Page_Layout::class ) ) {
+			\Automattic\Jetpack\Admin_UI\Page_Layout::enqueue();
+		}
+
 		$build_dir         = JETPACK__PLUGIN_DIR . '_inc/build/';
 		$script_asset_path = $build_dir . 'network-admin.asset.php';
 

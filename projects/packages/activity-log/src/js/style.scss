@@ -1,4 +1,3 @@
-@use "@automattic/jetpack-base-styles/admin-page-layout" as *;
 @use "sass:meta";
 // Component styles are forwarded from this main entry rather than
 // imported via per-component side-effect imports in each .tsx file —
@@ -11,12 +10,6 @@
 // the JS. See projects/packages/forms/routes/shared.scss for the same pattern.
 @include meta.load-css("@wordpress/dataviews/build-style/style.css");
 
-
-body.toplevel_page_jetpack-activity-log,
-body.jetpack_page_jetpack-activity-log {
-
-	@include jetpack-admin-page-layout;
-}
 
 // AdminPage provides the Jetpack header + footer + viewport-pinned
 // scroll column; let the DataViews table live full-bleed inside it with

@@ -21,6 +21,8 @@ const adminUi = {
 		// Token-only stylesheet (`:root{--wpds-*}`) shipped from @wordpress/theme so every
 		// Jetpack admin page has a runtime source for WPDS design tokens. See class-admin-menu.php.
 		'design-tokens': [ './src/design-tokens.css' ],
+		// The shared dashboard page layout. See Page_Layout::enqueue().
+		'admin-page-layout': [ './src/admin-page-layout.scss' ],
 	},
 	plugins: [ ...jetpackWebpackConfig.StandardPlugins() ],
 	module: {
