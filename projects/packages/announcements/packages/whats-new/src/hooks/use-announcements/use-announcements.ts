@@ -18,9 +18,10 @@ const ENTITY_NAME = 'announcement';
 // Without `per_page: -1` core-data pages the list on the client.
 const ALL_ANNOUNCEMENTS = { per_page: -1 };
 
-// One scope and one key for every host: what is seen in one is seen in all of them.
+// One scope for every host: what is seen or turned off in one is so in all of them.
 const PREFERENCES_SCOPE = 'jetpack-announcements/whats-new';
 const SEEN_KEY = 'seen';
+const TEASER_OFF_KEY = 'teaserOff';
 
 const NOTHING_SEEN: SeenDates = {};
 
@@ -39,7 +40,7 @@ export type UseAnnouncementsResult = {
 	announcements: Announcement[];
 
 	/*
-	 * The announcement to tease, or null.
+	 * The announcement to tease, or null. Always null while the user has the teaser off.
 	 */
 	teaser: Announcement | null;
 
@@ -88,7 +89,8 @@ export function ensureAnnouncementEntity(): void {
  * Reads the announcements of the given channels, and what the user has seen of them.
  *
  * The only module that knows the data layer: components receive values and callbacks.
- * What is seen lives in the user's preferences, which WordPress persists.
+ * What is seen and the switch that turns the teaser off live in the user's preferences, which
+ * WordPress persists.
  *
  * @param channels - The channels the host subscribes to.
  * @return The announcements, the one to tease and the callback that marks one as seen.
@@ -109,6 +111,15 @@ export function useAnnouncements( channels: string[] ): UseAnnouncementsResult {
 					SEEN_KEY
 				)
 			),
+		[]
+	);
+
+	const isTeaserOff = useSelect(
+		storeSelect =>
+			( storeSelect( preferencesStore ) as PreferencesSelectors ).get(
+				PREFERENCES_SCOPE,
+				TEASER_OFF_KEY
+			) === true,
 		[]
 	);
 
@@ -136,5 +147,9 @@ export function useAnnouncements( channels: string[] ): UseAnnouncementsResult {
 		[ registry ]
 	);
 
-	return { announcements, teaser: selectTeaser( announcements, seen ), markSeen };
+	return {
+		announcements,
+		teaser: isTeaserOff ? null : selectTeaser( announcements, seen ),
+		markSeen,
+	};
 }
