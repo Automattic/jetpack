@@ -54,6 +54,7 @@ class Analytics_Dashboard_Test extends BaseTestCase {
 	public function tear_down() {
 		remove_action( Analytics_Dashboard::REGISTER_WIDGET_TYPES_ACTION, array( Analytics_Dashboard::class, 'register_widget_types' ), 20 );
 		remove_action( Analytics_Dashboard::REGISTER_SINGLE_REPORT_PAGES_ACTION, array( Analytics_Dashboard::class, 'register_single_report_pages' ), 20 );
+		remove_filter( 'jetpack_premium_analytics_error_reporting_script_origins', array( Analytics_Dashboard::class, 'add_error_reporting_origin' ) );
 		remove_filter( Analytics_Dashboard::DEFAULT_LAYOUT_FILTER, array( Analytics_Dashboard::class, 'add_default_layout_instance' ), 10 );
 		remove_filter( 'jetpack_premium_analytics_widgets_manifest_path', array( $this, 'use_absent_widget_manifest' ) );
 		remove_filter( REGISTRABLE_WIDGET_TYPES_FILTER, 'jetpack_videopress_test_widget_manifest' );
@@ -196,6 +197,22 @@ class Analytics_Dashboard_Test extends BaseTestCase {
 		$this->assertSame( 'jetpack-videopress/widgets/video-player/render', $player->render_module );
 		$this->assertSame( 'full-bleed', $player->presentation );
 		$this->assertSame( 'videos', $player->plan_feature );
+	}
+
+	/**
+	 * The dashboard reports errors thrown by the package's widgets and modules, and not by the rest
+	 * of its build, which is mostly the player and the editors. The origins are derived from a URL
+	 * the registration itself publishes, so a build served from somewhere else cannot pass.
+	 */
+	public function test_publishes_its_widget_and_module_urls_as_error_reporting_origins() {
+		$registry = new Widget_Type_Registry();
+
+		Analytics_Dashboard::register_widget_types( $registry );
+
+		$origins = apply_filters( 'jetpack_premium_analytics_error_reporting_script_origins', array() );
+		$build   = trailingslashit( dirname( $registry->get_registered( Analytics_Dashboard::TOP_VIDEOS_TYPE )->i18n_manifest ) );
+
+		$this->assertSame( array( $build . 'widgets/', $build . 'modules/' ), $origins );
 	}
 
 	/**

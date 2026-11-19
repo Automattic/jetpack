@@ -1394,6 +1394,72 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 		$this->assertStringContainsString( '\\"value\\":\\"' . $test_email, $result, 'Should include JSON value pattern' );
 	}
 
+	/**
+	 * Data provider for test_personal_data_search_filter_matches_whole_email.
+	 *
+	 * @return array
+	 */
+	public static function provide_personal_data_search_emails() {
+		return array(
+			'same address'               => array( 'foo@example.com', true ),
+			'requested address + suffix' => array( 'foo@example.com.au', false ),
+		);
+	}
+
+	/**
+	 * Runs the generated LIKE clauses against a V3 feedback post_content as it is stored.
+	 *
+	 * @param string $stored_email   Email address saved in the feedback.
+	 * @param bool   $expected_match Whether a request for foo@example.com should find it.
+	 * @dataProvider provide_personal_data_search_emails
+	 */
+	#[DataProvider( 'provide_personal_data_search_emails' )]
+	public function test_personal_data_search_filter_matches_whole_email( $stored_email, $expected_match ) {
+		global $wpdb;
+
+		$plugin = Contact_Form_Plugin::init();
+		$plugin->set_pde_email_address( 'foo@example.com' );
+		$sql = $wpdb->remove_placeholder_escape( $plugin->personal_data_search_filter( '..PDE..AUTHOR EMAIL:..PDE..' ) );
+
+		$post_content = wp_json_encode(
+			array(
+				'fields' => array(
+					array(
+						'key'   => '1_Email',
+						'label' => 'Email',
+						'value' => $stored_email,
+						'type'  => 'email',
+					),
+				),
+			),
+			JSON_UNESCAPED_SLASHES | JSON_HEX_TAG
+		);
+
+		preg_match_all( "/LIKE '(.*?)'(?= OR | \))/s", $sql, $matches );
+		$this->assertNotEmpty( $matches[1] );
+
+		$matched = false;
+		foreach ( $matches[1] as $like ) {
+			// Translate the LIKE pattern: `\x` is a literal x, `%` any run, `_` any one character.
+			$regex   = preg_replace_callback(
+				'/\\\\(.)|%|_|[^\\\\%_]+/s',
+				function ( $token ) {
+					if ( isset( $token[1] ) && '' !== $token[1] ) {
+						return preg_quote( $token[1], '/' );
+					}
+					if ( '%' === $token[0] ) {
+						return '.*';
+					}
+					return '_' === $token[0] ? '.' : preg_quote( $token[0], '/' );
+				},
+				$like
+			);
+			$matched = $matched || (bool) preg_match( '/^' . $regex . '$/is', $post_content );
+		}
+
+		$this->assertSame( $expected_match, $matched );
+	}
+
 	public function test_get_unread_count_zero() {
 		delete_option( 'jetpack_feedback_unread_count' );
 		$this->assertIsInt( Contact_Form_Plugin::get_unread_count() );

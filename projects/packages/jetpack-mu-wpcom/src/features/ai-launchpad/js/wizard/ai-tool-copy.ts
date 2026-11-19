@@ -2,9 +2,9 @@ import { __, sprintf } from '@wordpress/i18n';
 import type { AiTool } from './lib.ts';
 
 /**
- * The "Bring your AI tool" experiment's copy: the setup choice and the "Which AI do you use?" view.
+ * The setup choice and "Which AI do you use?" copy, shared by the experiment and the `start=ai-tool` link.
  *
- * @return The experiment's copy.
+ * @return The copy.
  */
 export function bringYourAiToolCopy() {
 	const toolName = ( aiTool: AiTool ) =>

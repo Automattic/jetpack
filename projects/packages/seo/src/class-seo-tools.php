@@ -7,8 +7,6 @@
 
 namespace Automattic\Jetpack\SEO;
 
-use Automattic\Jetpack\Constants;
-
 /**
  * Separates plugin conflicts from other reasons to disable SEO output.
  */
@@ -73,10 +71,6 @@ class Seo_Tools {
 	public static function is_enabled() {
 		if ( self::is_disabled() ) {
 			return false;
-		}
-
-		if ( Constants::is_true( 'IS_WPCOM' ) && function_exists( 'wpcom_site_has_feature' ) ) {
-			return wpcom_site_has_feature( 'advanced-seo', get_current_blog_id() );
 		}
 
 		return true;

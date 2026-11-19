@@ -2,8 +2,6 @@ import { renderHook } from '@testing-library/react';
 import useAnalytics from '../../../hooks/use-analytics';
 import usePageView from '../use-page-view';
 
-jest.mock( '../../../hooks/use-analytics' );
-
 const recordEvent = jest.fn();
 const LOADED = {
 	redBubbleAlerts: { 'backup-failure': {} },

@@ -14,7 +14,6 @@ import type { ConnectionState } from '../../../hooks/use-connection-state';
 import type { ReactElement } from 'react';
 
 jest.mock( '@wordpress/api-fetch' );
-jest.mock( '../../../hooks/use-analytics' );
 jest.mock( '../../../hooks/use-connection-state' );
 jest.mock( '../../../hooks/use-my-jetpack-connection' );
 jest.mock( '../../../data/notices/use-fetching-error-notice', () => ( {

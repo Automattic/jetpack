@@ -8,7 +8,6 @@ import SeoOptInCard from '../index';
 
 jest.mock( '../../../data/use-seo-opt-in' );
 jest.mock( '../../../data/utils/get-my-jetpack-window-state' );
-jest.mock( '../../../hooks/use-analytics' );
 
 const mockUseSeoOptIn = useSeoOptIn as jest.MockedFunction< typeof useSeoOptIn >;
 const mockGetWindowState = getMyJetpackWindowInitialState as jest.MockedFunction<
