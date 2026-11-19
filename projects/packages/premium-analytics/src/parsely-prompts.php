@@ -42,6 +42,20 @@ const PARSELY_PROMPTS_VIEWS_THRESHOLD = 100000;
 const PARSELY_PROMPTS_TIERS = array( STATS_TIER_COMMERCIAL, STATS_TIER_PAID );
 
 /**
+ * Transient holding the views figure the threshold is measured against.
+ *
+ * @var string
+ */
+const PARSELY_PROMPTS_VIEWS_TRANSIENT = 'jetpack_premium_analytics_parsely_views';
+
+/**
+ * How long that figure stands. A promo can lag a site crossing the threshold.
+ *
+ * @var int
+ */
+const PARSELY_PROMPTS_VIEWS_TTL = 12 * HOUR_IN_SECONDS;
+
+/**
  * Register the flag, so feature-flag tooling lists it.
  *
  * @since $$next-version$$
@@ -80,7 +94,6 @@ function configure_parsely_prompts() {
  * @return array
  */
 function inject_parsely_prompts_script_data( array $data ): array {
-	// Script data prints on every Jetpack admin page; only the dashboard shows the prompts.
 	if ( ! Analytics::renders_dashboard() ) {
 		return $data;
 	}
@@ -147,6 +160,31 @@ function has_parsely_integration() {
  * @return int|null
  */
 function get_monthly_stats_views() {
+	$cached = get_transient( PARSELY_PROMPTS_VIEWS_TRANSIENT );
+
+	if ( is_array( $cached ) ) {
+		return $cached['views'];
+	}
+
+	$views = fetch_monthly_stats_views();
+
+	/*
+	 * A failure is cached too: the stats client refuses to cache a connection failure, so without
+	 * this a site whose blog token has gone stale re-sends the request on every admin page render.
+	 */
+	set_transient( PARSELY_PROMPTS_VIEWS_TRANSIENT, array( 'views' => $views ), PARSELY_PROMPTS_VIEWS_TTL );
+
+	return $views;
+}
+
+/**
+ * Ask WordPress.com for the site's views this billing month.
+ *
+ * @since $$next-version$$
+ *
+ * @return int|null
+ */
+function fetch_monthly_stats_views() {
 	$usage = ( new WPCOM_Stats() )->get_stats_usage();
 
 	if ( is_wp_error( $usage ) || ! is_array( $usage['current_usage'] ?? null ) ) {
