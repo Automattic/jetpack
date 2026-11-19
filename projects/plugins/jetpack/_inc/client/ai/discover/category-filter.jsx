@@ -9,8 +9,8 @@ import { useCallback } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { chevronDown } from '@wordpress/icons';
 import { Icon, Menu, SelectControl } from '@wordpress/ui';
-import { CATEGORY_ICONS } from './category-icons';
-import { CATEGORY_LABELS, PINNED_CATEGORIES } from './skills';
+import { getCategoryIcon } from './category-icons';
+import { CATEGORY_ORDER, PINNED_CATEGORY_COUNT, getCategories, getCategoryName } from './skills';
 
 export const ALL = 'all';
 
@@ -20,22 +20,30 @@ export const ALL = 'all';
  * @param {string} key - Category key, or 'all'.
  * @return {string} The category's name.
  */
-const labelFor = key => ( key === ALL ? __( 'All', 'jetpack' ) : CATEGORY_LABELS[ key ] );
+const labelFor = key => ( key === ALL ? __( 'All', 'jetpack' ) : getCategoryName( key ) );
 
 /**
- * One pill's face: label and count.
+ * One pill's face: the category's icon, label and count. All has no icon.
  *
- * @param {object} props       - Component props.
- * @param {string} props.label - Category name.
- * @param {number} props.count - Skills in the category.
+ * @param {object} props          - Component props.
+ * @param {string} props.category - Category key, or 'all'.
+ * @param {number} props.count    - Skills in the category.
  * @return {object} Component markup.
  */
-function PillFace( { label, count } ) {
+function PillFace( { category, count } ) {
 	// The space names the pill "SEO 2", not "SEO2". The pill is a flex box, so
 	// it collapses on screen and the count's margin does the spacing.
 	return (
 		<>
-			{ label } <span className="jetpack-ai-discover__pill-count">{ count }</span>
+			{ category !== ALL && (
+				<Icon
+					icon={ getCategoryIcon( category ) }
+					size={ 18 }
+					className="jetpack-ai-discover__pill-icon"
+					aria-hidden="true"
+				/>
+			) }
+			{ labelFor( category ) } <span className="jetpack-ai-discover__pill-count">{ count }</span>
 		</>
 	);
 }
@@ -59,7 +67,7 @@ function FilterPill( { category, isActive, count, onSelect } ) {
 			aria-pressed={ isActive }
 			onClick={ handleClick }
 		>
-			<PillFace label={ labelFor( category ) } count={ count } />
+			<PillFace category={ category } count={ count } />
 		</button>
 	);
 }
@@ -74,11 +82,17 @@ function FilterPill( { category, isActive, count, onSelect } ) {
  * @return {object} Component markup.
  */
 export default function CategoryFilter( { value, counts, onChange } ) {
-	const pinned = [ ALL, ...PINNED_CATEGORIES.filter( key => counts[ key ] ) ];
-	// Alphabetical in the reader's language, since the menu reads as a list.
-	const more = Object.keys( CATEGORY_LABELS )
-		.filter( key => ! PINNED_CATEGORIES.includes( key ) && counts[ key ] )
-		.sort( ( a, b ) => CATEGORY_LABELS[ a ].localeCompare( CATEGORY_LABELS[ b ] ) );
+	// Set order first, then the rest by size; the first few get pills, the rest go in More.
+	const rank = key => {
+		const index = CATEGORY_ORDER.indexOf( key );
+		return index === -1 ? CATEGORY_ORDER.length : index;
+	};
+	const present = getCategories()
+		.map( category => category.slug )
+		.filter( key => counts[ key ] )
+		.sort( ( a, b ) => rank( a ) - rank( b ) || counts[ b ] - counts[ a ] );
+	const pinned = [ ALL, ...present.slice( 0, PINNED_CATEGORY_COUNT ) ];
+	const more = present.slice( PINNED_CATEGORY_COUNT );
 	const moreSelected = more.includes( value );
 	const groupLabel = __( 'Filter skills by category', 'jetpack' );
 
@@ -121,13 +135,13 @@ export default function CategoryFilter( { value, counts, onChange } ) {
 									? sprintf(
 											/* translators: %s: the selected category, e.g. "Security". */
 											__( 'More categories, %s selected', 'jetpack' ),
-											CATEGORY_LABELS[ value ]
+											labelFor( value )
 										)
 									: __( 'More categories', 'jetpack' )
 							}
 						>
 							{ moreSelected ? (
-								<PillFace label={ CATEGORY_LABELS[ value ] } count={ counts[ value ] } />
+								<PillFace category={ value } count={ counts[ value ] } />
 							) : (
 								__( 'More', 'jetpack' )
 							) }
@@ -141,10 +155,10 @@ export default function CategoryFilter( { value, counts, onChange } ) {
 										value={ key }
 										// Picking a category is the whole job of this menu.
 										closeOnClick
-										prefix={ <Menu.PrefixIcon icon={ CATEGORY_ICONS[ key ] } size={ 20 } /> }
+										prefix={ <Menu.PrefixIcon icon={ getCategoryIcon( key ) } size={ 20 } /> }
 										suffix={ <span className="jetpack-ai-discover__muted">{ counts[ key ] }</span> }
 									>
-										<Menu.ItemLabel>{ CATEGORY_LABELS[ key ] }</Menu.ItemLabel>
+										<Menu.ItemLabel>{ labelFor( key ) }</Menu.ItemLabel>
 									</Menu.RadioItem>
 								) ) }
 							</Menu.RadioGroup>

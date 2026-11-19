@@ -3,13 +3,11 @@ import { SnackbarNotices } from '@wordpress/notices';
 import analytics from 'lib/analytics';
 import { getSkill } from '../skills';
 import useSendSkill, { getSiteName } from '../use-send-skill';
+import { SEO_PROMPT, SKILLS_INDEX } from './fixtures';
 
 // tracks.js imports the webpack-aliased 'lib/analytics', which doesn't resolve
 // under jest — provide it virtually. (jest.mock is hoisted above the imports.)
 jest.mock( 'lib/analytics', () => ( { tracks: { recordEvent: jest.fn() } } ), { virtual: true } );
-
-const SEO_PROMPT =
-	'Use the WordPress.com connector to run the seo-audit skill on example.com. Run an SEO audit and show me the top five fixes.';
 
 // Snackbars mirror their text into a hidden wp.a11y.speak live region, so a
 // bare text query matches twice. Ignore that region.
@@ -25,8 +23,8 @@ describe( 'useSendSkill', () => {
 
 	beforeEach( () => {
 		window.jetpackAiSettings = {
-			isSelfHosted: true,
 			siteAdminUrl: 'https://example.com/wp-admin/',
+			skills: SKILLS_INDEX,
 		};
 		writeText = jest.fn( () => Promise.resolve() );
 		Object.defineProperty( window.navigator, 'clipboard', {
@@ -37,7 +35,7 @@ describe( 'useSendSkill', () => {
 		// The snackbar list restores the scroll position, which jsdom lacks.
 		scrollSpy = jest.spyOn( window, 'scrollTo' ).mockImplementation( () => {} );
 		analytics.tracks.recordEvent.mockClear();
-		skill = getSkill( 'seo-audit', true );
+		skill = getSkill( 'site-seo-audit' );
 	} );
 
 	afterEach( () => {
@@ -74,7 +72,7 @@ describe( 'useSendSkill', () => {
 		expect( screen.getByText( 'Prompt copied. Opening Claude…', IGNORE_A11Y ) ).toBeInTheDocument();
 		expect( sentCalls() ).toEqual( [
 			expect.objectContaining( {
-				skill: 'seo-audit',
+				skill: 'site-seo-audit',
 				agent: 'claude',
 				location: 'overview_hero',
 				outcome: 'sent',

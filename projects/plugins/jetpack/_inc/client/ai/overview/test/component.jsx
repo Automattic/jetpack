@@ -5,6 +5,7 @@ import apiFetch from '@wordpress/api-fetch';
 import { dispatch } from '@wordpress/data';
 import { store as preferencesStore } from '@wordpress/preferences';
 import analytics from 'lib/analytics';
+import { SKILLS_INDEX } from '../../discover/test/fixtures';
 import AiOverview from '../index';
 import { depletedPayload, freePayload, paidPayload, tieredPayload } from './fixtures';
 
@@ -424,6 +425,7 @@ describe( 'AiOverview', () => {
 		).not.toBeInTheDocument();
 
 		window.jetpackAiSettings.featureFlags = { 'ai-hub-discover': true };
+		window.jetpackAiSettings.skills = SKILLS_INDEX;
 		rerender( <AiOverview { ...PROPS } /> );
 		expect(
 			screen.getByRole( 'heading', { level: 2, name: 'Run your site from your AI agent' } )
@@ -455,6 +457,7 @@ describe( 'AiOverview', () => {
 
 	test( 'section order: opening with connect, usage, skills, activity log, documentation', async () => {
 		window.jetpackAiSettings.featureFlags = { 'ai-hub-discover': true };
+		window.jetpackAiSettings.skills = SKILLS_INDEX;
 		apiFetch.mockResolvedValueOnce( freePayload() );
 
 		render( <AiOverview { ...PROPS } /> );

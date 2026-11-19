@@ -1,5 +1,5 @@
 /**
- * A skill in the catalog: icon, title, blurb, and a footer with the Send to
+ * A skill in the catalog: icon, title, description, and a footer with the Send to
  * agent menu and a link that opens the skill's panel. In the grid it is a
  * card; in the list it is a row, with the footer's actions at its end.
  */
@@ -9,9 +9,9 @@ import { __, isRTL, sprintf } from '@wordpress/i18n';
 import { arrowLeft, arrowRight } from '@wordpress/icons';
 import { Badge, Icon, Link, Text, VisuallyHidden } from '@wordpress/ui';
 import clsx from 'clsx';
-import { CATEGORY_ICONS } from './category-icons';
+import { getCategoryIcon } from './category-icons';
 import SendToAgentMenu from './send-to-agent';
-import { CATEGORY_LABELS, FIRST_SKILL_SLUG } from './skills';
+import { FIRST_SKILL_SLUG, getCategoryName } from './skills';
 
 /**
  * The square category tile shared by the card and the skill's panel.
@@ -23,7 +23,7 @@ import { CATEGORY_LABELS, FIRST_SKILL_SLUG } from './skills';
 export function CategoryTile( { category } ) {
 	return (
 		<span className="jetpack-ai-discover__tile" aria-hidden="true">
-			<Icon icon={ CATEGORY_ICONS[ category ] } size={ 20 } />
+			<Icon icon={ getCategoryIcon( category ) } size={ 20 } />
 		</span>
 	);
 }
@@ -106,14 +106,17 @@ export default function SkillCard( {
 						</Text>
 						<FirstSkillBadge slug={ skill.slug } />
 					</div>
-					<VisuallyHidden render={ <p /> }>{ CATEGORY_LABELS[ skill.category ] }</VisuallyHidden>
-					<Text render={ <p /> } variant="body-md" className="jetpack-ai-discover__muted">
-						{ skill.blurb }
+					<VisuallyHidden render={ <p /> }>{ getCategoryName( skill.category ) }</VisuallyHidden>
+					<Text
+						render={ <p /> }
+						variant="body-md"
+						className="jetpack-ai-discover__muted jetpack-ai-discover__card-summary"
+					>
+						{ skill.summary || skill.description }
 					</Text>
 				</div>
 			</div>
 			<div className="jetpack-ai-discover__card-footer">
-				{ /* The trigger repeats on every card, so it takes a lighter stroke. */ }
 				<SendToAgentMenu
 					className="jetpack-ai-discover__agent-trigger"
 					onSend={ handleSend }
@@ -130,6 +133,7 @@ export default function SkillCard( {
 				<Link
 					href={ `#/discover/${ skill.slug }` }
 					className="jetpack-ai-discover__view-link"
+					tone="neutral"
 					onClick={ handleView }
 					aria-label={ sprintf(
 						/* translators: %s: skill name, e.g. "SEO audit". */

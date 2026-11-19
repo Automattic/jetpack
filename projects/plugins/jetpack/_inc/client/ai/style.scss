@@ -32,8 +32,8 @@ body.jetpack_page_jetpack-ai {
 	// Use border-box so the 24px padding is included in the 100% width,
 	// preventing horizontal overflow from content-box sizing.
 	// Every tab reads as one 660px column, plus this column's padding.
-	// Discover alone is as wide as My Jetpack's Features grid (944px plus
-	// padding), the width its card grid needs.
+	// The Skills tab alone is 1080px, room for its card grid and a one-row
+	// toolbar.
 	&__content {
 		box-sizing: border-box;
 		width: 100%;
@@ -55,7 +55,7 @@ body.jetpack_page_jetpack-ai {
 		}
 
 		&--discover {
-			max-width: 992px;
+			max-width: 1080px;
 		}
 	}
 

@@ -4,13 +4,11 @@ import { SnackbarNotices } from '@wordpress/notices';
 import analytics from 'lib/analytics';
 import Discover from '../index';
 import { VIEW_STORAGE_KEY } from '../view-toggle';
+import { SEO_PROMPT, SKILLS_INDEX } from './fixtures';
 
 // tracks.js imports the webpack-aliased 'lib/analytics', which doesn't resolve
 // under jest — provide it virtually. (jest.mock is hoisted above the imports.)
 jest.mock( 'lib/analytics', () => ( { tracks: { recordEvent: jest.fn() } } ), { virtual: true } );
-
-const SEO_PROMPT =
-	'Use the WordPress.com connector to run the seo-audit skill on example.com. Run an SEO audit and show me the top five fixes.';
 
 const renderDiscover = () =>
 	render(
@@ -44,8 +42,8 @@ describe( 'Discover', () => {
 		// clipboard, which would otherwise replace ours.
 		user = userEvent.setup();
 		window.jetpackAiSettings = {
-			isSelfHosted: true,
 			siteAdminUrl: 'https://example.com/wp-admin/',
+			skills: SKILLS_INDEX,
 		};
 		writeText = jest.fn( () => Promise.resolve() );
 		Object.defineProperty( window.navigator, 'clipboard', {
@@ -66,11 +64,10 @@ describe( 'Discover', () => {
 		window.localStorage.clear();
 	} );
 
-	test( 'lists the skills for this kind of site, naming the site', () => {
+	test( 'lists every skill in the index', () => {
 		renderDiscover();
 
-		expect( cards() ).toHaveLength( 15 );
-		expect( cards() ).not.toContain( 'Set up a staging site' );
+		expect( cards() ).toHaveLength( 7 );
 		expect( screen.getByText( 'Give your agent the expertise to run your site.' ) ).toBeVisible();
 	} );
 
@@ -170,13 +167,13 @@ describe( 'Discover', () => {
 		expect( trigger ).toHaveClass( 'jetpack-ai-discover__agent-trigger' );
 	} );
 
-	test( 'WordPress.com sites get their own skills instead of the Jetpack-only one', () => {
-		window.jetpackAiSettings.isSelfHosted = false;
+	test( 'says so when the catalog couldn’t be loaded', () => {
+		window.jetpackAiSettings.skills = { categories: [], skills: [] };
 		renderDiscover();
 
-		expect( cards() ).toHaveLength( 17 );
-		expect( cards() ).toContain( 'Set up a staging site' );
-		expect( cards() ).not.toContain( 'Fix a broken Jetpack connection' );
+		expect( cards() ).toEqual( [] );
+		expect( screen.getByText( 'Skills couldn’t be loaded' ) ).toBeVisible();
+		expect( screen.getByRole( 'link', { name: /Browse the full catalog/ } ) ).toBeVisible();
 	} );
 
 	test( 'a category pill narrows the list and reports it', async () => {
@@ -206,23 +203,39 @@ describe( 'Discover', () => {
 		).toBeVisible();
 	} );
 
-	test( 'the pills carry a label and count, with no icon', () => {
+	test( 'pills follow the set category order, then the rest by size', () => {
+		window.jetpackAiSettings.skills = {
+			...SKILLS_INDEX,
+			categories: [ ...SKILLS_INDEX.categories ].reverse(),
+		};
 		renderDiscover();
 
 		const group = screen.getByRole( 'group', { name: 'Filter skills by category' } );
-		const all = within( group ).getByRole( 'button', { name: 'All 15' } );
+		const pills = within( group )
+			.getAllByRole( 'button' )
+			.map( pill => pill.textContent );
+		expect( pills ).toEqual( [ 'All 7', 'General 1', 'SEO 2', 'Marketing 1', 'More' ] );
+	} );
+
+	test( 'category pills lead with their icon, which stays out of the name; All has none', () => {
+		renderDiscover();
+
+		const group = screen.getByRole( 'group', { name: 'Filter skills by category' } );
+		const all = within( group ).getByRole( 'button', { name: 'All 7' } );
+		const seo = within( group ).getByRole( 'button', { name: 'SEO 2' } );
 		expect( all ).toHaveAttribute( 'aria-pressed', 'true' );
 		expect( all.innerHTML ).not.toContain( '<svg' );
+		expect( seo.innerHTML ).toMatch( /^<svg/ );
 	} );
 
 	test( 'the narrow-width select lists every category with a count and filters', async () => {
 		renderDiscover();
 
 		const select = screen.getByRole( 'combobox', { name: 'Filter skills by category' } );
-		expect( select ).toHaveTextContent( 'All (15)' );
+		expect( select ).toHaveTextContent( 'All (7)' );
 		await user.click( select );
 		const options = ( await screen.findAllByRole( 'option' ) ).map( node => node.textContent );
-		expect( options[ 0 ] ).toBe( 'All (15)' );
+		expect( options[ 0 ] ).toBe( 'All (7)' );
 		expect( options ).toContain( 'SEO (2)' );
 		expect( options ).toContain( 'Security (1)' );
 		await user.click( screen.getByRole( 'option', { name: 'Security (1)' } ) );
@@ -259,11 +272,11 @@ describe( 'Discover', () => {
 
 		expect( search ).toHaveValue( '' );
 		expect( search ).toHaveFocus();
-		expect( cards() ).toHaveLength( 15 );
+		expect( cards() ).toHaveLength( 7 );
 		expect( screen.queryByRole( 'button', { name: 'Clear search' } ) ).not.toBeInTheDocument();
 	} );
 
-	test( 'search matches the blurb as well as the title', async () => {
+	test( 'search matches the description as well as the title', async () => {
 		renderDiscover();
 
 		await user.type( screen.getByRole( 'searchbox', { name: 'Search skills' } ), 'inbox' );
@@ -330,7 +343,7 @@ describe( 'Discover', () => {
 		expect( analytics.tracks.recordEvent ).toHaveBeenCalledWith(
 			'jetpack_ai_hub_discover_skill_sent',
 			expect.objectContaining( {
-				skill: 'seo-audit',
+				skill: 'site-seo-audit',
 				agent: 'claude',
 				location: 'card',
 				outcome: 'sent',
@@ -401,10 +414,10 @@ describe( 'Discover', () => {
 		await user.click( within( card( 'SEO audit' ) ).getByRole( 'link', { name: /View skill/ } ) );
 
 		const route = new URL( window.location.href ).searchParams.get( 'p' );
-		expect( route ).toBe( '/?skill=seo-audit' );
+		expect( route ).toBe( '/?skill=site-seo-audit' );
 		expect( window.location.hash ).toBe( '#/skills' );
 		// The list stays where it was, beside the panel.
-		expect( cards() ).toHaveLength( 15 );
+		expect( cards() ).toHaveLength( 7 );
 		window.history.replaceState( null, '', '/' );
 	} );
 } );

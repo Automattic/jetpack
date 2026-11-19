@@ -14,12 +14,12 @@
 import { useViewportMatch } from '@wordpress/compose';
 import { useCallback, useEffect, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Icon, close, copySmall } from '@wordpress/icons';
+import { close, copySmall } from '@wordpress/icons';
 import { Button, Card, IconButton, Stack, Text } from '@wordpress/ui';
+import LoadingSpinner from '../components/loading-spinner';
 import { EVENTS, recordAiHubEvent } from '../tracks';
-import { CATEGORY_ICONS } from './category-icons';
 import SendToAgentMenu from './send-to-agent';
-import { FirstSkillBadge } from './skill-card';
+import { CategoryTile, FirstSkillBadge } from './skill-card';
 import {
 	PANEL_TITLE_ID,
 	closeSkillPanel,
@@ -27,9 +27,10 @@ import {
 	takeOpenSource,
 	useOpenSkillSlug,
 } from './skill-panel-state';
-import { APPLIES_LABELS, CATEGORY_LABELS, SECTION_TITLES, buildPrompt } from './skills';
+import { buildPrompt, getCategoryName } from './skills';
 import useCloseOnEscape from './use-close-on-escape';
 import useSendSkill from './use-send-skill';
+import useSkillBody from './use-skill-body';
 import { useIsWordPressAgentAvailable } from './wordpress-agent';
 
 // Discover's own sheet first: the panel reuses its tile and muted text. It
@@ -62,6 +63,29 @@ function PanelSection( { title, action, children } ) {
 			<Card.Content>{ children }</Card.Content>
 		</Card.Root>
 	);
+}
+
+/**
+ * The instructions the agent follows, loaded when the panel opens.
+ *
+ * @param {object} props       - Component props.
+ * @param {object} props.skill - The skill.
+ * @return {object} Component markup.
+ */
+function SkillInstructions( { skill } ) {
+	const { body, isLoading, hasError } = useSkillBody( skill.slug );
+
+	if ( isLoading ) {
+		return <LoadingSpinner />;
+	}
+	if ( hasError ) {
+		return (
+			<Text render={ <p /> } variant="body-md">
+				{ __( 'The instructions couldn’t be loaded.', 'jetpack' ) }
+			</Text>
+		);
+	}
+	return <pre className="jetpack-ai-skill-panel__instructions">{ body }</pre>;
 }
 
 /**
@@ -99,10 +123,10 @@ export function SkillPanel( {
 			aria-modal={ isModal ? 'true' : undefined }
 		>
 			<Stack direction="row" align="center" gap="sm" className="jetpack-ai-skill-panel__header">
-				<Stack direction="row" align="center" gap="xs" className="jetpack-ai-skill-panel__category">
-					<Icon icon={ CATEGORY_ICONS[ skill.category ] } size={ 20 } aria-hidden="true" />
+				<Stack direction="row" align="center" gap="sm" className="jetpack-ai-skill-panel__category">
+					<CategoryTile category={ skill.category } />
 					<Text variant="body-md" className="jetpack-ai-discover__muted">
-						{ CATEGORY_LABELS[ skill.category ] }
+						{ getCategoryName( skill.category ) }
 					</Text>
 				</Stack>
 				<IconButton
@@ -125,7 +149,7 @@ export function SkillPanel( {
 						{ skill.title }
 					</Text>
 					<Text render={ <p /> } variant="body-md" className="jetpack-ai-discover__muted">
-						{ APPLIES_LABELS[ skill.applies ] }
+						{ skill.description }
 					</Text>
 				</Stack>
 				<SendToAgentMenu
@@ -139,7 +163,7 @@ export function SkillPanel( {
 				<PanelSection title={ __( 'Prerequisites', 'jetpack' ) }>
 					<Stack direction="column" gap="sm">
 						<Text render={ <p /> } variant="body-md">
-							{ skill.prereq }
+							{ skill.prerequisites }
 						</Text>
 						<Text render={ <p /> } variant="body-sm" className="jetpack-ai-discover__muted">
 							{ __( 'Your agent checks these first and tells you what’s missing.', 'jetpack' ) }
@@ -178,28 +202,7 @@ export function SkillPanel( {
 				</PanelSection>
 
 				<PanelSection title={ __( 'Instructions', 'jetpack' ) }>
-					<div className="jetpack-ai-skill-panel__instructions">
-						<Text render={ <p /> } variant="body-md">
-							<strong>{ __( 'Goal:', 'jetpack' ) }</strong> { skill.goal }
-						</Text>
-						{ skill.sections.map( section => {
-							const List = section.type === 'steps' ? 'ol' : 'ul';
-							return (
-								<section key={ section.type }>
-									<Text render={ <h4 /> } variant="heading-md">
-										{ SECTION_TITLES[ section.type ] }
-									</Text>
-									<List>
-										{ section.items.map( item => (
-											<Text key={ item } render={ <li /> } variant="body-md">
-												{ item }
-											</Text>
-										) ) }
-									</List>
-								</section>
-							);
-						} ) }
-					</div>
+					<SkillInstructions skill={ skill } />
 				</PanelSection>
 			</Stack>
 		</section>

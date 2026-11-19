@@ -72,7 +72,7 @@ function writeUrl( url, route ) {
 
 /**
  * The skill a slug names, when it can open here: Discover is on and the skill
- * runs on this kind of site. Anything else opens nothing.
+ * is in the catalog. Anything else opens nothing.
  *
  * @param {unknown} slug - The param's value; the router may parse it as a number.
  * @return {object|undefined} The skill.
@@ -81,7 +81,7 @@ export function getPanelSkill( slug ) {
 	if ( ! isDiscoverEnabled() || ( typeof slug !== 'string' && typeof slug !== 'number' ) ) {
 		return undefined;
 	}
-	return getSkill( String( slug ), window?.jetpackAiSettings?.isSelfHosted === true );
+	return getSkill( String( slug ) );
 }
 
 /**

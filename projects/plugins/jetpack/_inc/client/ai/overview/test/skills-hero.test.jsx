@@ -4,6 +4,7 @@ import analytics from 'lib/analytics';
 import DiscoverSkillPanel from '../../discover/skill-panel';
 import { getOpenSkillSlug, getSkillParam } from '../../discover/skill-panel-state';
 import { getCatalog } from '../../discover/skills';
+import { SKILLS_INDEX } from '../../discover/test/fixtures';
 import useSendSkill from '../../discover/use-send-skill';
 import SkillsHero, { pickSuggestedSkills } from '../skills-hero';
 
@@ -13,6 +14,8 @@ jest.mock( 'lib/analytics', () => ( { tracks: { recordEvent: jest.fn() } } ), { 
 // The hand-off itself (prompt, snackbars, Tracks) is the shared hook's job and
 // has its own suite; here it only has to be asked, with the right location.
 jest.mock( '../../discover/use-send-skill', () => ( { __esModule: true, default: jest.fn() } ) );
+// The panel loads the skill's instructions; never settling keeps them loading.
+jest.mock( '@wordpress/api-fetch', () => jest.fn( () => new Promise( () => {} ) ) );
 
 const PAGE = '/wp-admin/admin.php?page=jetpack-ai';
 
@@ -27,9 +30,9 @@ describe( 'SkillsHero', () => {
 	beforeEach( () => {
 		user = userEvent.setup();
 		window.jetpackAiSettings = {
-			isSelfHosted: true,
 			siteAdminUrl: 'https://example.com/wp-admin/',
 			featureFlags: { 'ai-hub-discover': true },
+			skills: SKILLS_INDEX,
 		};
 		send = jest.fn( () => Promise.resolve( true ) );
 		useSendSkill.mockReturnValue( { send } );
@@ -72,36 +75,37 @@ describe( 'SkillsHero', () => {
 		expect( cards ).toHaveLength( 2 );
 		const views = within( group ).getAllByRole( 'link' );
 		expect( views.map( link => link.getAttribute( 'href' ) ) ).toEqual( [
-			'#/discover/performance-audit',
-			'#/discover/monthly-site-report',
+			'#/discover/site-seo-audit',
+			'#/discover/check-your-sites-security-and-health',
 		] );
 		// Each card is Discover's: named by its title, with its own Send to agent.
-		expect( cards[ 0 ] ).toHaveAccessibleName( 'Performance audit' );
+		expect( cards[ 0 ] ).toHaveAccessibleName( 'SEO audit' );
 		expect(
-			within( cards[ 0 ] ).getByRole( 'button', { name: 'Send to agent: Performance audit' } )
+			within( cards[ 0 ] ).getByRole( 'button', { name: 'Send to agent: SEO audit' } )
 		).toBeInTheDocument();
 	} );
 
 	test( 'a card’s Send to agent sends that skill, marked as the Overview card’s', async () => {
 		render( <SkillsHero /> );
 
-		await user.click( screen.getByRole( 'button', { name: 'Send to agent: Performance audit' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Send to agent: SEO audit' } ) );
 		await user.click( await screen.findByRole( 'menuitem', { name: /Open in ChatGPT/ } ) );
 
 		expect( send ).toHaveBeenCalledWith(
-			expect.objectContaining( { slug: 'performance-audit' } ),
+			expect.objectContaining( { slug: 'site-seo-audit' } ),
 			'chatgpt',
 			'overview_card'
 		);
 	} );
 
-	test( 'pickSuggestedSkills: skips a suggestion this site can’t run and tops up from the catalog', () => {
-		const catalog = getCatalog( true ).filter( skill => skill.slug !== 'monthly-site-report' );
+	test( 'pickSuggestedSkills: skips a suggestion missing from the catalog and tops up from it', () => {
+		const catalog = getCatalog().filter(
+			skill => skill.slug !== 'check-your-sites-security-and-health'
+		);
 
 		const slugs = pickSuggestedSkills( catalog ).map( skill => skill.slug );
 
-		expect( slugs ).toEqual( [ 'performance-audit', 'write-meta-descriptions' ] );
-		expect( slugs ).not.toContain( 'monthly-site-report' );
+		expect( slugs ).toEqual( [ 'site-seo-audit', 'performance-audit' ] );
 	} );
 
 	test( 'a card opens Discover with that skill’s panel, in one history entry', async () => {
@@ -133,12 +137,12 @@ describe( 'SkillsHero', () => {
 		);
 		const before = window.history.length;
 
-		await user.click( screen.getByRole( 'link', { name: 'View skill: Performance audit' } ) );
+		await user.click( screen.getByRole( 'link', { name: 'View skill: SEO audit' } ) );
 
 		expect( writes ).toEqual( [ 'push' ] );
 		expect( window.location.hash ).toBe( '#/skills' );
-		expect( getSkillParam() ).toBe( 'performance-audit' );
-		expect( getOpenSkillSlug() ).toBe( 'performance-audit' );
+		expect( getSkillParam() ).toBe( 'site-seo-audit' );
+		expect( getOpenSkillSlug() ).toBe( 'site-seo-audit' );
 		// One entry for the hash and the param, so Back returns to the
 		// Overview in one step.
 		expect( window.history ).toHaveLength( before + 1 );
@@ -146,23 +150,23 @@ describe( 'SkillsHero', () => {
 		// The hub's hashchange (the view switch) finds the param already
 		// where it belongs.
 		await hashChanged;
-		expect( getOpenSkillSlug() ).toBe( 'performance-audit' );
+		expect( getOpenSkillSlug() ).toBe( 'site-seo-audit' );
 
 		// The panel opens with focus on its title: the card that was clicked
 		// leaves with the Overview.
-		const panel = await screen.findByRole( 'region', { name: 'Performance audit' } );
+		const panel = await screen.findByRole( 'region', { name: 'SEO audit' } );
 		await waitFor( () =>
 			expect(
-				within( panel ).getByRole( 'heading', { level: 2, name: 'Performance audit' } )
+				within( panel ).getByRole( 'heading', { level: 2, name: 'SEO audit' } )
 			).toHaveFocus()
 		);
 		expect( linkClicks() ).toEqual( [
-			expect.objectContaining( { link_type: 'overview_skill', link: 'performance-audit' } ),
+			expect.objectContaining( { link_type: 'overview_skill', link: 'site-seo-audit' } ),
 		] );
 		// Told apart from a Discover card's open in Tracks.
 		expect( analytics.tracks.recordEvent ).toHaveBeenCalledWith(
 			'jetpack_ai_hub_discover_skill_viewed',
-			expect.objectContaining( { skill: 'performance-audit', source: 'overview' } )
+			expect.objectContaining( { skill: 'site-seo-audit', source: 'overview' } )
 		);
 		pushSpy.mockRestore();
 		replaceSpy.mockRestore();
@@ -170,7 +174,7 @@ describe( 'SkillsHero', () => {
 
 	test( 'a modified click leaves the link to the browser', async () => {
 		render( <SkillsHero /> );
-		const link = screen.getByRole( 'link', { name: 'View skill: Performance audit' } );
+		const link = screen.getByRole( 'link', { name: 'View skill: SEO audit' } );
 		// jsdom can't open a new tab; stop it treating the click as navigation.
 		const cancel = event => event.preventDefault();
 		document.addEventListener( 'click', cancel );
@@ -189,7 +193,7 @@ describe( 'SkillsHero', () => {
 		window.history.replaceState(
 			null,
 			'',
-			PAGE + '&p=' + encodeURIComponent( '/?skill=seo-audit' ) + '#/overview'
+			PAGE + '&p=' + encodeURIComponent( '/?skill=site-seo-audit' ) + '#/overview'
 		);
 		const hashChanged = new Promise( resolve =>
 			window.addEventListener( 'hashchange', resolve, { once: true } )

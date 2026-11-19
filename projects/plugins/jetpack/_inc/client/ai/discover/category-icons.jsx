@@ -1,18 +1,16 @@
 /**
- * One icon per skill category, from the WordPress icon set. The set has no
- * lightning bolt, so Performance draws its own on the same 24-unit grid.
+ * Icons for the skill categories, from the WordPress icon set; categories come
+ * from the remote catalog, so one missing here gets a generic grid. The set has
+ * no lightning bolt or accessibility figure, so those are drawn on its 24-unit grid.
  */
 
 import {
-	chartBar,
+	category as categoryIcon,
 	cog,
-	layout,
+	grid,
 	megaphone,
 	pencil,
-	people,
-	seen,
 	shield,
-	tool,
 	trendingUp,
 } from '@wordpress/icons';
 import { Path, SVG } from '@wordpress/primitives';
@@ -23,16 +21,31 @@ const bolt = (
 	</SVG>
 );
 
-export const CATEGORY_ICONS = {
-	admin: chartBar,
-	content: pencil,
-	inspection: seen,
-	maintenance: tool,
+const accessibility = (
+	<SVG viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+		<Path
+			fillRule="evenodd"
+			d="M12 2a10 10 0 1 1 0 20 10 10 0 0 1 0-20Zm0 1.5a8.5 8.5 0 1 0 0 17 8.5 8.5 0 0 0 0-17Zm1.25 4a1.25 1.25 0 1 1-2.5 0 1.25 1.25 0 0 1 2.5 0ZM7 9.5h10V11h-3.25v2.25l1.5 4.25-1.4.5L12 14.2 10.15 18l-1.4-.5 1.5-4.25V11H7V9.5Z"
+		/>
+	</SVG>
+);
+
+// One icon per category, none shared, so the icon alone tells categories apart.
+const CATEGORY_ICONS = {
+	accessibility,
+	general: categoryIcon,
 	marketing: megaphone,
-	'page-building': layout,
 	performance: bolt,
 	seo: trendingUp,
-	security: shield,
-	setup: cog,
-	users: people,
+	'setup-launch': cog,
+	'site-health': shield,
+	writing: pencil,
 };
+
+/**
+ * A category's icon.
+ *
+ * @param {string} slug - The category's slug.
+ * @return {object} The icon.
+ */
+export const getCategoryIcon = slug => CATEGORY_ICONS[ slug ] ?? grid;

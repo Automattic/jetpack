@@ -29,6 +29,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 require_once dirname( __DIR__ ) . '/class-jetpack-ai-feature-flags.php';
 require_once dirname( __DIR__ ) . '/class-jetpack-ai-settings.php';
+require_once dirname( __DIR__ ) . '/class-jetpack-ai-skills-catalog.php';
 require_once __DIR__ . '/class-jetpack-wp-build-page.php';
 
 /**
@@ -380,6 +381,8 @@ class Jetpack_AI_Page {
 
 		$plan_info = $show_gated_views ? self::get_ai_plan_info() : array( 'name' => '' );
 
+		$is_discover_enabled = Feature_Flags::is_enabled( Jetpack_AI_Feature_Flags::DISCOVER );
+
 		$settings = array(
 			'blogId'              => $blog_id ? (int) $blog_id : 0,
 			'activityLogUrl'      => $activity_log_url,
@@ -422,7 +425,7 @@ class Jetpack_AI_Page {
 			// Both tabs ship disabled by default.
 			'featureFlags'        => array(
 				Jetpack_AI_Feature_Flags::SCHEDULED_TASKS => $show_scheduled_tasks_view,
-				Jetpack_AI_Feature_Flags::DISCOVER        => Feature_Flags::is_enabled( Jetpack_AI_Feature_Flags::DISCOVER ),
+				Jetpack_AI_Feature_Flags::DISCOVER        => $is_discover_enabled,
 			),
 			// The usage endpoint proxies as the current user, which needs
 			// their own WordPress.com account linked — not just the site.
@@ -437,6 +440,8 @@ class Jetpack_AI_Page {
 			'tracksUserData'      => $can_send_tracks ? self::get_tracks_user_data() : null,
 			'mcpSettingsApi'      => $config['mcpSettingsApi'] ?? array(),
 			'isSelfHosted'        => true === ( $config['isSelfHosted'] ?? false ),
+			// Fetched from the catalog at most once a day, so only when the Skills tab can show it.
+			'skills'              => $is_discover_enabled ? Jetpack_AI_Skills_Catalog::get_index() : null,
 		);
 
 		wp_add_inline_script(

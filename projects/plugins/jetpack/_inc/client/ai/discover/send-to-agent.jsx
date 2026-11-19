@@ -98,7 +98,7 @@ export default function SendToAgentMenu( {
 				render={
 					<Button
 						variant={ variant }
-						tone={ variant === 'solid' ? 'brand' : 'neutral' }
+						tone="brand"
 						size={ size }
 						className={ className }
 						aria-label={ label }
@@ -109,6 +109,14 @@ export default function SendToAgentMenu( {
 				<Icon icon={ chevronDown } size={ 18 } />
 			</Menu.Trigger>
 			<Menu.Popup>
+				<AgentItem
+					agent="chatgpt"
+					icon={ EXTERNAL_AGENTS.chatgpt.icon }
+					label={ __( 'Open in ChatGPT', 'jetpack' ) }
+					suffix={ externalSuffix }
+					opensInNewTab
+					onSend={ onSend }
+				/>
 				{ showWordPressAgent && (
 					<AgentItem
 						agent="wordpress"
@@ -121,14 +129,6 @@ export default function SendToAgentMenu( {
 					agent="claude"
 					icon={ EXTERNAL_AGENTS.claude.icon }
 					label={ __( 'Open in Claude', 'jetpack' ) }
-					suffix={ externalSuffix }
-					opensInNewTab
-					onSend={ onSend }
-				/>
-				<AgentItem
-					agent="chatgpt"
-					icon={ EXTERNAL_AGENTS.chatgpt.icon }
-					label={ __( 'Open in ChatGPT', 'jetpack' ) }
 					suffix={ externalSuffix }
 					opensInNewTab
 					onSend={ onSend }

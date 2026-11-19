@@ -761,15 +761,25 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * The Discover tab stays hidden unless its feature flag is on.
+	 * The Discover tab, and the skill index it fetches, stay off unless its feature flag is on.
 	 */
 	public function test_discover_view_follows_feature_flag() {
+		$index = array(
+			'categories' => array(),
+			'skills'     => array( array( 'slug' => 'site-seo-audit' ) ),
+		);
+		set_transient( Jetpack_AI_Skills_Catalog::INDEX_TRANSIENT, $index );
+
 		$settings = $this->get_injected_settings();
 		$this->assertFalse( $settings['featureFlags'][ Jetpack_AI_Feature_Flags::DISCOVER ] );
+		$this->assertNull( $settings['skills'] );
 
 		add_filter( 'jetpack_feature_flag_enabled_ai-hub-discover', '__return_true' );
 		$settings = $this->get_injected_settings();
 		$this->assertTrue( $settings['featureFlags'][ Jetpack_AI_Feature_Flags::DISCOVER ] );
+		$this->assertSame( $index, $settings['skills'] );
+
+		delete_transient( Jetpack_AI_Skills_Catalog::INDEX_TRANSIENT );
 	}
 
 	/**

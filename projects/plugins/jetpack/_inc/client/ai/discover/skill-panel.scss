@@ -25,8 +25,9 @@
 		flex: 1;
 		min-inline-size: 0;
 
-		svg {
-			fill: #008710;
+		.jetpack-ai-discover__tile {
+			width: 30px;
+			height: 30px;
 		}
 	}
 
@@ -107,28 +108,21 @@
 		overflow-wrap: anywhere;
 	}
 
+	// The skill's raw markdown, as the agent reads it. Scrolls on its own so a
+	// long skill doesn't push the panel's other sections out of reach.
 	&__instructions {
-		display: flex;
-		flex-direction: column;
-		gap: var(--wpds-dimension-gap-lg);
-
-		h4 {
-			margin-block-end: var(--wpds-dimension-gap-xs);
-		}
-
-		ol,
-		ul {
-			margin: 0;
-			padding-inline-start: var(--wpds-dimension-padding-xl);
-		}
-
-		ul {
-			list-style: disc;
-		}
-
-		li + li {
-			margin-block-start: var(--wpds-dimension-gap-xs);
-		}
+		box-sizing: border-box;
+		inline-size: 100%;
+		max-block-size: 60vh;
+		margin: 0;
+		padding: var(--wpds-dimension-padding-sm) var(--wpds-dimension-padding-md);
+		overflow: auto;
+		border-radius: var(--wpds-border-radius-md);
+		font-family: var(--wpds-typography-font-family-mono);
+		font-size: var(--wpds-typography-font-size-sm);
+		background: var(--wpds-color-background-surface-neutral-weak);
+		white-space: pre-wrap;
+		overflow-wrap: anywhere;
 	}
 }
 

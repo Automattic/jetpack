@@ -8,6 +8,7 @@ import { SnackbarNotices, store as noticesStore } from '@wordpress/notices';
 import analytics from 'lib/analytics';
 import Discover from '../discover';
 import { closeSkillPanel, getOpenSkillSlug, isSkillPanelOpen } from '../discover/skill-panel-state';
+import { SKILLS_INDEX } from '../discover/test/fixtures';
 import App from '../main';
 // Compiles the lazy tab module before the tests run, so the flag test's 1s wait
 // covers the render and not Jest's cold transform of DataViews on CI.
@@ -1581,9 +1582,9 @@ describe( 'Discover tab (main.jsx)', () => {
 		window.jetpackAiSettings = {
 			showFeaturesView: true,
 			blogId: 1,
-			isSelfHosted: true,
 			siteAdminUrl: 'https://example.com/wp-admin/',
 			featureFlags: { 'ai-hub-discover': true },
+			skills: SKILLS_INDEX,
 		};
 		mockApiFetch( { mcpGet: connectedMcpGet() } );
 	} );
@@ -1614,7 +1615,7 @@ describe( 'Discover tab (main.jsx)', () => {
 
 	test( 'stays hidden, and its links fall back, without the flag', async () => {
 		delete window.jetpackAiSettings.featureFlags;
-		window.history.replaceState( null, '', '#/discover/seo-audit' );
+		window.history.replaceState( null, '', '#/discover/site-seo-audit' );
 		render( <App /> );
 
 		expect( screen.queryByRole( 'tab', { name: 'Skills' } ) ).not.toBeInTheDocument();
@@ -1641,7 +1642,7 @@ describe( 'Discover tab (main.jsx)', () => {
 	} );
 
 	test( 'an old skill page link lands on Discover with that skill’s panel open', async () => {
-		window.history.replaceState( null, '', PAGE + '#/discover/seo-audit' );
+		window.history.replaceState( null, '', PAGE + '#/discover/site-seo-audit' );
 		const before = window.history.length;
 		render( <App /> );
 
@@ -1654,7 +1655,7 @@ describe( 'Discover tab (main.jsx)', () => {
 		);
 		// Replaced, not pushed, so Back leaves as it would have.
 		expect( window.location.hash ).toBe( '#/skills' );
-		expect( routeSearch().get( 'skill' ) ).toBe( 'seo-audit' );
+		expect( routeSearch().get( 'skill' ) ).toBe( 'site-seo-audit' );
 		expect( window.history ).toHaveLength( before );
 		// No skill page any more: the tab bar is the only navigation.
 		expect( screen.queryByRole( 'navigation', { name: 'Breadcrumbs' } ) ).not.toBeInTheDocument();
@@ -1662,7 +1663,7 @@ describe( 'Discover tab (main.jsx)', () => {
 	} );
 
 	test( 'another tab closes the panel and keeps the rest of the address', async () => {
-		window.history.replaceState( null, '', withSkill( 'seo-audit', '#/skills' ) );
+		window.history.replaceState( null, '', withSkill( 'site-seo-audit', '#/skills' ) );
 		render( <App /> );
 
 		await userEvent.click( screen.getByRole( 'tab', { name: 'Settings' } ) );
@@ -1681,7 +1682,7 @@ describe( 'Discover tab (main.jsx)', () => {
 			( breakpoint, operator ) => breakpoint === 'medium' && operator === '<'
 		);
 		try {
-			window.history.replaceState( null, '', withSkill( 'seo-audit', '#/skills' ) );
+			window.history.replaceState( null, '', withSkill( 'site-seo-audit', '#/skills' ) );
 			render( <App /> );
 			const root = adminPageRoot();
 
@@ -1695,7 +1696,7 @@ describe( 'Discover tab (main.jsx)', () => {
 	} );
 
 	test( 'beside a panel on a wide screen, the hub stays reachable', async () => {
-		window.history.replaceState( null, '', withSkill( 'seo-audit', '#/skills' ) );
+		window.history.replaceState( null, '', withSkill( 'site-seo-audit', '#/skills' ) );
 		render( <App /> );
 
 		await expect(
@@ -1705,7 +1706,7 @@ describe( 'Discover tab (main.jsx)', () => {
 	} );
 
 	test( 'a typed hash change leaves the address alone while boot navigates', async () => {
-		window.history.replaceState( null, '', withSkill( 'seo-audit', '#/skills' ) );
+		window.history.replaceState( null, '', withSkill( 'site-seo-audit', '#/skills' ) );
 		render( <App /> );
 		await expect(
 			screen.findByRole( 'heading', { name: 'Skills for your AI agent' } )
@@ -1714,13 +1715,13 @@ describe( 'Discover tab (main.jsx)', () => {
 
 		try {
 			await act( async () => {
-				window.history.pushState( null, '', withSkill( 'seo-audit', '#/mcp' ) );
+				window.history.pushState( null, '', withSkill( 'site-seo-audit', '#/mcp' ) );
 				window.dispatchEvent( new Event( 'hashchange' ) );
 			} );
 
 			expect( replaceState ).not.toHaveBeenCalled();
 			// The gate reads another tab as closed, param or not.
-			expect( isSkillPanelOpen( { skill: 'seo-audit' } ) ).toBe( false );
+			expect( isSkillPanelOpen( { skill: 'site-seo-audit' } ) ).toBe( false );
 			expect( screen.getByRole( 'tab', { name: 'Settings' } ) ).toHaveAttribute(
 				'aria-selected',
 				'true'
@@ -1734,13 +1735,13 @@ describe( 'Discover tab (main.jsx)', () => {
 		window.history.replaceState( null, '', PAGE + '#/overview' );
 		render( <App /> );
 		await expect(
-			screen.findByRole( 'link', { name: 'View skill: Performance audit' } )
+			screen.findByRole( 'link', { name: 'View skill: SEO audit' } )
 		).resolves.toBeInTheDocument();
 		const replaceState = jest.spyOn( window.history, 'replaceState' );
 
 		try {
 			await act( async () => {
-				window.history.pushState( null, '', PAGE + '#/discover/seo-audit' );
+				window.history.pushState( null, '', PAGE + '#/discover/site-seo-audit' );
 				window.dispatchEvent( new Event( 'hashchange' ) );
 			} );
 
@@ -1749,8 +1750,8 @@ describe( 'Discover tab (main.jsx)', () => {
 			// hash reads as open as it is.
 			await new Promise( resolve => window.requestAnimationFrame( resolve ) );
 			expect( replaceState ).not.toHaveBeenCalled();
-			expect( window.location.hash ).toBe( '#/discover/seo-audit' );
-			expect( getOpenSkillSlug() ).toBe( 'seo-audit' );
+			expect( window.location.hash ).toBe( '#/discover/site-seo-audit' );
+			expect( getOpenSkillSlug() ).toBe( 'site-seo-audit' );
 			expect( isSkillPanelOpen( {} ) ).toBe( true );
 			expect( screen.getByRole( 'tab', { name: 'Skills' } ) ).toHaveAttribute(
 				'aria-selected',
@@ -1769,7 +1770,7 @@ describe( 'Discover tab (main.jsx)', () => {
 	test( 'an Overview card switches to Discover with its panel in one push, and Back returns', async () => {
 		window.history.replaceState( null, '', PAGE + '#/overview' );
 		render( <App /> );
-		const card = await screen.findByRole( 'link', { name: 'View skill: Performance audit' } );
+		const card = await screen.findByRole( 'link', { name: 'View skill: SEO audit' } );
 		const pushState = jest.spyOn( window.history, 'pushState' );
 		const replaceState = jest.spyOn( window.history, 'replaceState' );
 
@@ -1782,7 +1783,7 @@ describe( 'Discover tab (main.jsx)', () => {
 					'true'
 				)
 			);
-			expect( routeSearch().get( 'skill' ) ).toBe( 'performance-audit' );
+			expect( routeSearch().get( 'skill' ) ).toBe( 'site-seo-audit' );
 			expect( pushState ).toHaveBeenCalledTimes( 1 );
 			expect( replaceState ).not.toHaveBeenCalled();
 
@@ -1808,15 +1809,15 @@ describe( 'Discover tab (main.jsx)', () => {
 	} );
 
 	test( 'a panel left in the address of another tab is dropped', async () => {
-		window.history.replaceState( null, '', withSkill( 'seo-audit', '#/mcp' ) );
+		window.history.replaceState( null, '', withSkill( 'site-seo-audit', '#/mcp' ) );
 		render( <App /> );
 
 		await waitFor( () => expect( routeSearch().has( 'skill' ) ).toBe( false ) );
 		expect( window.location.hash ).toBe( '#/mcp' );
 	} );
 
-	test.each( [ 'not-a-skill', 'set-up-a-staging-site' ] )(
-		'a link to a skill this site cannot run (%s) falls back to the first tab',
+	test.each( [ 'not-a-skill' ] )(
+		'a link to a skill not in the catalog (%s) falls back to the first tab',
 		async slug => {
 			window.history.replaceState( null, '', PAGE + '#/discover/' + slug );
 			render( <App /> );

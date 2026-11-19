@@ -72,17 +72,12 @@
 		}
 	}
 
-	// My Jetpack's layout switch: one soft track, the active layout a tile
-	// inside it. The padding takes the compact (32px) buttons to the search
-	// box's 40px height, and the track's radius nests the buttons' corners.
+	// The layout switch. The padding takes the compact (32px) buttons to the
+	// search box's 40px height.
 	&__view-group {
 		flex-shrink: 0;
 		gap: 2px;
 		padding: var(--wpds-dimension-padding-xs);
-		border-radius: calc(var(--wpds-border-radius-md) + var(--wpds-dimension-padding-xs));
-		// The groove colour, not the button's own hover fill: those are the
-		// same value, so hovering an unpressed button would show no change.
-		background: var(--wpds-color-background-track-neutral);
 	}
 
 	// A mouse click leaves focus on the button, and a focused button keeps a
@@ -112,9 +107,9 @@
 
 	// Gives up width, down to its floor, before anything wraps onto a second row.
 	&__search {
-		flex: 1 1 8rem;
+		flex: 1 1 7rem;
 		margin-inline-start: auto;
-		min-inline-size: 8rem;
+		min-inline-size: 7rem;
 		max-inline-size: 16rem;
 
 		// The icon sits close, as in My Jetpack's search: the input's own
@@ -201,6 +196,11 @@
 			}
 		}
 
+		// The icon's own side bearing stands in for part of the padding.
+		&:has(> .jetpack-ai-discover__pill-icon) {
+			padding-inline-start: 0.625rem;
+		}
+
 		// The chevron's own side bearing stands in for part of the padding.
 		// The gap spaces the count too, so it drops its own margin.
 		&--more {
@@ -211,6 +211,13 @@
 				margin-inline-start: 0;
 			}
 		}
+	}
+
+	// Drawn in the pill's text color, so it follows the active and hover states.
+	&__pill-icon {
+		flex: none;
+		margin-inline-end: var(--wpds-dimension-gap-xs);
+		fill: currentColor;
 	}
 
 	// The pill's own color at less weight, so it reads as a count rather than a
@@ -316,6 +323,15 @@
 	// The title takes the heading-md variant as it is, the same as the
 	// Overview's cards for the same skills. The heading around it only drops
 	// wp-admin's margin; the Text inside sets its own type.
+	// A backstop for a catalog summary that runs long; the panel has it all.
+	&__card-summary {
+		display: -webkit-box;
+		overflow: hidden;
+		-webkit-box-orient: vertical;
+		-webkit-line-clamp: 2;
+		line-clamp: 2;
+	}
+
 	&__card-heading {
 		margin: 0;
 	}
@@ -325,32 +341,20 @@
 	}
 
 	// Kept barely off white: the weak surface alone reads as grey here, so it
-	// is mixed half and half with the card's own surface. The line is the
-	// card's border stroke, the weakest there is. Both are tokens, so they
-	// follow the theme.
+	// is mixed half and half with the card's own surface.
 	&__card-footer {
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
 		gap: var(--wpds-dimension-gap-sm);
 		padding: var(--wpds-dimension-padding-md) var(--wpds-dimension-padding-xl);
-		border-block-start: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral-weak);
 		border-end-start-radius: calc(var(--wpds-border-radius-lg) - var(--wpds-border-width-xs));
 		border-end-end-radius: calc(var(--wpds-border-radius-lg) - var(--wpds-border-width-xs));
 		background: color-mix(in sRGB, var(--wpds-color-background-surface-neutral-weak) 50%, var(--wpds-color-background-surface-neutral-strong));
 	}
 
-	// The outline button's stroke is the interactive one, dark enough to be a
-	// control's only outline. This button's label already identifies it, so its
-	// border is decoration and can take the surface stroke at rest. Only the
-	// rest state is overridden: hover, focus, the open menu and the disabled
-	// state keep the button's own strokes. The focus ring is its own too.
 	&__agent-trigger {
 		white-space: nowrap;
-
-		&:not(:hover, :active, :focus-visible, [data-popup-open], [data-disabled]) {
-			border-color: var(--wpds-color-stroke-surface-neutral);
-		}
 	}
 
 	&__view-link {
@@ -413,12 +417,20 @@
 	scroll-margin-block-start: calc(var(--jetpack-ai-discover-toolbar-offset, 0px) + var(--jetpack-ai-discover-toolbar-height, 0px) + var(--wpds-dimension-gap-md));
 }
 
-// The pills and More measure about 49.5rem in English beside a minimum-width
-// search and the layout switch; the rest is headroom for a long More pick
-// such as "Page Building 1", which adds about 4rem, and for longer counts.
-// The toolbar is 57.4rem inside at the column's widest. Below this the select
-// takes over from the pills.
-@container discover-toolbar (max-width: 54rem) {
+// While the pills show (the toolbar is wider than 47.5rem inside, 49.13rem
+// outside), pills that don't fit wrap inside their group instead of pushing
+// the search and the layout switch onto a row of their own.
+@container discover (min-width: 49.13rem) {
+
+	.jetpack-ai-discover__toolbar {
+		flex-wrap: nowrap;
+	}
+}
+
+// The pills, with their icons, and More measure about 34.5rem in English beside
+// a minimum-width search and the layout switch, 47.5rem in all. The toolbar is
+// 62.9rem inside at the column's widest. Below this the select takes over.
+@container discover-toolbar (max-width: 47.5rem) {
 
 	.jetpack-ai-discover__pills {
 		display: none;

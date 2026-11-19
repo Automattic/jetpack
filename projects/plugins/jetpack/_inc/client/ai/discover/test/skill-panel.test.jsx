@@ -1,5 +1,6 @@
 import { act, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import apiFetch from '@wordpress/api-fetch';
 import { useViewportMatch } from '@wordpress/compose';
 import { StrictMode } from '@wordpress/element';
 import { SnackbarNotices } from '@wordpress/notices';
@@ -7,6 +8,8 @@ import analytics from 'lib/analytics';
 import Discover from '../index';
 import DiscoverSkillPanel from '../skill-panel';
 import { getViewHref, isSkillPanelOpen } from '../skill-panel-state';
+import { resetSkillBodies } from '../use-skill-body';
+import { SEO_PROMPT, SKILLS_INDEX } from './fixtures';
 
 // tracks.js imports the webpack-aliased 'lib/analytics', which doesn't resolve
 // under jest — provide it virtually. (jest.mock is hoisted above the imports.)
@@ -17,9 +20,7 @@ jest.mock( '@wordpress/compose', () => ( {
 	...jest.requireActual( '@wordpress/compose' ),
 	useViewportMatch: jest.fn( () => false ),
 } ) );
-
-const SEO_PROMPT =
-	'Use the WordPress.com connector to run the seo-audit skill on example.com. Run an SEO audit and show me the top five fixes.';
+jest.mock( '@wordpress/api-fetch', () => jest.fn() );
 
 // Snackbars mirror their text into a hidden wp.a11y.speak live region, so a
 // bare text query matches twice. Ignore that region.
@@ -53,6 +54,10 @@ const viewedCalls = () =>
 
 const panel = () => screen.getByRole( 'region', { name: 'SEO audit' } );
 const queryPanel = () => screen.queryByRole( 'region', { name: 'SEO audit' } );
+const resolveBody = () =>
+	apiFetch.mockImplementation( ( { path } ) =>
+		Promise.resolve( { slug: path.split( '/' ).pop(), body: '## Steps\n\n1. Read the site.' } )
+	);
 const card = title => screen.getByRole( 'article', { name: title } );
 const viewLink = title => within( card( title ) ).getByRole( 'link', { name: /View skill/ } );
 
@@ -66,10 +71,14 @@ describe( 'Skill panel', () => {
 		// clipboard, which would otherwise replace ours.
 		user = userEvent.setup();
 		window.jetpackAiSettings = {
-			isSelfHosted: true,
 			siteAdminUrl: 'https://example.com/wp-admin/',
 			featureFlags: { 'ai-hub-discover': true },
+			skills: SKILLS_INDEX,
 		};
+		resetSkillBodies();
+		// Left loading unless a test resolves it, so no update lands after a sync test ends.
+		apiFetch.mockReset();
+		apiFetch.mockImplementation( () => new Promise( () => {} ) );
 		writeText = jest.fn( () => Promise.resolve() );
 		Object.defineProperty( window.navigator, 'clipboard', {
 			value: { writeText },
@@ -95,7 +104,7 @@ describe( 'Skill panel', () => {
 
 		await user.click( viewLink( 'SEO audit' ) );
 
-		expect( routeSearch().get( 'skill' ) ).toBe( 'seo-audit' );
+		expect( routeSearch().get( 'skill' ) ).toBe( 'site-seo-audit' );
 		expect( window.location.hash ).toBe( '#/skills' );
 		expect( window.history ).toHaveLength( before + 1 );
 		// The list stays, with the panel beside it and the open skill's card marked.
@@ -106,19 +115,18 @@ describe( 'Skill panel', () => {
 		expect( title ).toHaveFocus();
 		expect( analytics.tracks.recordEvent ).toHaveBeenCalledWith(
 			'jetpack_ai_hub_discover_skill_viewed',
-			expect.objectContaining( { skill: 'seo-audit', source: 'card' } )
+			expect.objectContaining( { skill: 'site-seo-audit', source: 'card' } )
 		);
 	} );
 
-	test( 'shows the skill, its prompt, prerequisites and instructions', () => {
-		window.history.replaceState( null, '', panelUrl( 'seo-audit' ) );
+	test( 'shows the skill, its prompt, prerequisites and instructions', async () => {
+		resolveBody();
+		window.history.replaceState( null, '', panelUrl( 'site-seo-audit' ) );
 		renderHub();
 
 		const region = panel();
 		expect( within( region ).getByText( 'SEO' ) ).toBeVisible();
-		expect(
-			within( region ).getByText( 'Works on WordPress.com and Jetpack sites' )
-		).toBeVisible();
+		expect( within( region ).getByText( /Audit titles, metas, and headings/ ) ).toBeVisible();
 		expect( within( region ).getByText( SEO_PROMPT ) ).toBeVisible();
 		expect(
 			within( region ).getByRole( 'heading', { name: 'Prerequisites', level: 3 } )
@@ -129,17 +137,42 @@ describe( 'Skill panel', () => {
 		expect(
 			within( region ).getByRole( 'heading', { name: 'Instructions', level: 3 } )
 		).toBeVisible();
-		expect( within( region ).getByRole( 'heading', { name: 'Steps', level: 4 } ) ).toBeVisible();
-		expect( within( region ).getByText( 'Goal:' ) ).toBeVisible();
+		await expect( within( region ).findByText( /1\. Read the site\./ ) ).resolves.toBeVisible();
+		expect( apiFetch ).toHaveBeenCalledWith( {
+			path: '/wpcom/v2/jetpack-ai/skills/site-seo-audit',
+		} );
+	} );
+
+	test( 'loads the instructions once, however often the panel opens', async () => {
+		resolveBody();
+		window.history.replaceState( null, '', panelUrl( 'site-seo-audit' ) );
+		const { unmount } = renderHub();
+		await expect( within( panel() ).findByText( /Read the site/ ) ).resolves.toBeVisible();
+		unmount();
+
+		renderHub();
+
+		expect( within( panel() ).getByText( /Read the site/ ) ).toBeVisible();
+		expect( apiFetch ).toHaveBeenCalledTimes( 1 );
+	} );
+
+	test( 'says so when the instructions don’t load', async () => {
+		apiFetch.mockImplementation( () => Promise.reject( new Error( 'Bad gateway' ) ) );
+		window.history.replaceState( null, '', panelUrl( 'site-seo-audit' ) );
+		renderHub();
+
+		await expect(
+			within( panel() ).findByText( 'The instructions couldn’t be loaded.' )
+		).resolves.toBeVisible();
 	} );
 
 	test( 'a link that lands open records the view as from a link, and leaves focus be', () => {
-		window.history.replaceState( null, '', panelUrl( 'seo-audit' ) );
+		window.history.replaceState( null, '', panelUrl( 'site-seo-audit' ) );
 		renderHub();
 
 		expect( analytics.tracks.recordEvent ).toHaveBeenCalledWith(
 			'jetpack_ai_hub_discover_skill_viewed',
-			expect.objectContaining( { skill: 'seo-audit', source: 'link' } )
+			expect.objectContaining( { skill: 'site-seo-audit', source: 'link' } )
 		);
 		// Focused in code with no click first, the title would draw a focus ring.
 		expect( within( panel() ).getByRole( 'heading', { level: 2 } ) ).not.toHaveFocus();
@@ -151,7 +184,7 @@ describe( 'Skill panel', () => {
 		);
 		try {
 			// A link, which on a wide screen leaves focus be (above).
-			window.history.replaceState( null, '', panelUrl( 'seo-audit' ) );
+			window.history.replaceState( null, '', panelUrl( 'site-seo-audit' ) );
 			renderHub();
 
 			const dialog = screen.getByRole( 'dialog', { name: 'SEO audit' } );
@@ -163,7 +196,7 @@ describe( 'Skill panel', () => {
 	} );
 
 	test( 'beside the hub, it is a plain region', () => {
-		window.history.replaceState( null, '', panelUrl( 'seo-audit' ) );
+		window.history.replaceState( null, '', panelUrl( 'site-seo-audit' ) );
 		renderHub();
 
 		expect( panel() ).not.toHaveAttribute( 'aria-modal' );
@@ -176,7 +209,7 @@ describe( 'Skill panel', () => {
 		await user.click( viewLink( 'SEO audit' ) );
 
 		expect( viewedCalls() ).toHaveLength( 1 );
-		expect( viewedCalls()[ 0 ][ 1 ] ).toMatchObject( { skill: 'seo-audit', source: 'card' } );
+		expect( viewedCalls()[ 0 ][ 1 ] ).toMatchObject( { skill: 'site-seo-audit', source: 'card' } );
 		expect( within( panel() ).getByRole( 'heading', { level: 2 } ) ).toHaveFocus();
 	} );
 
@@ -191,7 +224,7 @@ describe( 'Skill panel', () => {
 	} );
 
 	test( 'the outline starts at the title and skips no level', () => {
-		window.history.replaceState( null, '', panelUrl( 'seo-audit' ) );
+		window.history.replaceState( null, '', panelUrl( 'site-seo-audit' ) );
 		renderHub();
 
 		const headings = within( panel() ).getAllByRole( 'heading' );
@@ -230,7 +263,7 @@ describe( 'Skill panel', () => {
 	} );
 
 	test( 'Escape closes the panel', async () => {
-		window.history.replaceState( null, '', panelUrl( 'seo-audit' ) );
+		window.history.replaceState( null, '', panelUrl( 'site-seo-audit' ) );
 		renderHub();
 
 		await user.keyboard( '{Escape}' );
@@ -240,7 +273,7 @@ describe( 'Skill panel', () => {
 	} );
 
 	test( 'Escape in the open Send to agent menu closes the menu, not the panel', async () => {
-		window.history.replaceState( null, '', panelUrl( 'seo-audit' ) );
+		window.history.replaceState( null, '', panelUrl( 'site-seo-audit' ) );
 		renderHub();
 
 		await user.click( within( panel() ).getByRole( 'button', { name: 'Send to agent' } ) );
@@ -273,7 +306,7 @@ describe( 'Skill panel', () => {
 	} );
 
 	test( 'Send to agent in the panel uses Discover’s hand-off', async () => {
-		window.history.replaceState( null, '', panelUrl( 'seo-audit' ) );
+		window.history.replaceState( null, '', panelUrl( 'site-seo-audit' ) );
 		renderHub();
 
 		await user.click( within( panel() ).getByRole( 'button', { name: 'Send to agent' } ) );
@@ -291,7 +324,7 @@ describe( 'Skill panel', () => {
 		expect( analytics.tracks.recordEvent ).toHaveBeenCalledWith(
 			'jetpack_ai_hub_discover_skill_sent',
 			expect.objectContaining( {
-				skill: 'seo-audit',
+				skill: 'site-seo-audit',
 				agent: 'claude',
 				location: 'panel',
 				outcome: 'sent',
@@ -300,7 +333,7 @@ describe( 'Skill panel', () => {
 	} );
 
 	test( 'the bar holds the category and Close; the title and Send to agent lead the panel', () => {
-		window.history.replaceState( null, '', panelUrl( 'seo-audit' ) );
+		window.history.replaceState( null, '', panelUrl( 'site-seo-audit' ) );
 		renderHub();
 
 		const region = panel();
@@ -319,7 +352,7 @@ describe( 'Skill panel', () => {
 	} );
 
 	test( 'the great first skill is badged beside its title; others are not', () => {
-		window.history.replaceState( null, '', panelUrl( 'seo-audit' ) );
+		window.history.replaceState( null, '', panelUrl( 'site-seo-audit' ) );
 		const { unmount } = renderHub();
 		expect( within( panel() ).getByText( 'Great first skill' ) ).toBeVisible();
 		// The badge stays out of the heading, so the panel is still named by the title.
@@ -335,7 +368,7 @@ describe( 'Skill panel', () => {
 	} );
 
 	test( 'Copy copies the prompt', async () => {
-		window.history.replaceState( null, '', panelUrl( 'seo-audit' ) );
+		window.history.replaceState( null, '', panelUrl( 'site-seo-audit' ) );
 		renderHub();
 
 		await user.click( within( panel() ).getByRole( 'button', { name: 'Copy' } ) );
@@ -344,7 +377,11 @@ describe( 'Skill panel', () => {
 		await expect( screen.findByText( 'Prompt copied', IGNORE_A11Y ) ).resolves.toBeInTheDocument();
 		expect( analytics.tracks.recordEvent ).toHaveBeenCalledWith(
 			'jetpack_ai_hub_discover_skill_sent',
-			expect.objectContaining( { skill: 'seo-audit', agent: 'copy', location: 'panel_prompt' } )
+			expect.objectContaining( {
+				skill: 'site-seo-audit',
+				agent: 'copy',
+				location: 'panel_prompt',
+			} )
 		);
 	} );
 
@@ -361,8 +398,7 @@ describe( 'Skill panel', () => {
 	} );
 
 	test.each( [
-		[ 'another tab', `${ PAGE }&p=${ encodeURIComponent( '/?skill=seo-audit' ) }#/mcp` ],
-		[ 'a skill this site can’t run', panelUrl( 'set-up-a-staging-site' ) ],
+		[ 'another tab', `${ PAGE }&p=${ encodeURIComponent( '/?skill=site-seo-audit' ) }#/mcp` ],
 		[ 'no skill at all', panelUrl( 'not-a-skill' ) ],
 	] )( 'opens nothing for %s', ( _label, url ) => {
 		window.history.replaceState( null, '', url );
@@ -374,7 +410,7 @@ describe( 'Skill panel', () => {
 
 describe( 'Skill panel gate', () => {
 	beforeEach( () => {
-		window.jetpackAiSettings = { isSelfHosted: true, featureFlags: { 'ai-hub-discover': true } };
+		window.jetpackAiSettings = { featureFlags: { 'ai-hub-discover': true }, skills: SKILLS_INDEX };
 		window.history.replaceState( null, '', PAGE + '#/skills' );
 	} );
 
@@ -384,24 +420,24 @@ describe( 'Skill panel gate', () => {
 	} );
 
 	test( 'shows boot’s inspector while `skill` names a skill on the Discover tab', () => {
-		expect( isSkillPanelOpen( { skill: 'seo-audit' } ) ).toBe( true );
+		expect( isSkillPanelOpen( { skill: 'site-seo-audit' } ) ).toBe( true );
 		expect( isSkillPanelOpen( {} ) ).toBe( false );
 		expect( isSkillPanelOpen( undefined ) ).toBe( false );
 	} );
 
-	test( 'stays shut on other tabs, for other hosts’ skills, and without the flag', () => {
-		expect( isSkillPanelOpen( { skill: 'set-up-a-staging-site' } ) ).toBe( false );
+	test( 'stays shut on other tabs, for unknown skills, and without the flag', () => {
+		expect( isSkillPanelOpen( { skill: 'not-a-skill' } ) ).toBe( false );
 
 		window.history.replaceState( null, '', PAGE + '#/mcp' );
-		expect( isSkillPanelOpen( { skill: 'seo-audit' } ) ).toBe( false );
+		expect( isSkillPanelOpen( { skill: 'site-seo-audit' } ) ).toBe( false );
 
 		window.history.replaceState( null, '', PAGE + '#/skills' );
 		delete window.jetpackAiSettings.featureFlags;
-		expect( isSkillPanelOpen( { skill: 'seo-audit' } ) ).toBe( false );
+		expect( isSkillPanelOpen( { skill: 'site-seo-audit' } ) ).toBe( false );
 	} );
 
 	test( 'tab links drop the panel and keep the rest of the address', () => {
-		window.history.replaceState( null, '', panelUrl( 'seo-audit' ) );
+		window.history.replaceState( null, '', panelUrl( 'site-seo-audit' ) );
 
 		expect( getViewHref( 'mcp/setup' ) ).toBe( PAGE + '#/mcp/setup' );
 	} );

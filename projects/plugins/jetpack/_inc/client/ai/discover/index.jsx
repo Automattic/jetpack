@@ -32,10 +32,10 @@ import { useIsWordPressAgentAvailable } from './wordpress-agent';
 
 import './style.scss';
 
-// TODO: swap in the real destinations (a suggestion form and the public skill
-// catalog) through the redirect service before this leaves the feature flag.
+// TODO: swap in the real suggestion form through the redirect service before
+// this leaves the feature flag.
 export const SUGGEST_SKILL_URL = 'https://jetpack.com/contact-support/';
-export const CATALOG_URL = 'https://jetpack.com/support/jetpack-ai/';
+export const CATALOG_URL = 'https://agentskills.wordpress.com/';
 
 /**
  * Put the skill worth running first at the front of the catalog.
@@ -54,8 +54,7 @@ function leadWithFirstSkill( catalog ) {
  * @return {object} Component markup.
  */
 export default function Discover() {
-	const isSelfHosted = window?.jetpackAiSettings?.isSelfHosted === true;
-	const catalog = useMemo( () => getCatalog( isSelfHosted ), [ isSelfHosted ] );
+	const catalog = useMemo( () => getCatalog(), [] );
 	const leading = useMemo( () => leadWithFirstSkill( catalog ), [ catalog ] );
 	const showWordPressAgent = useIsWordPressAgentAvailable();
 	const [ category, setCategory ] = useState( ALL );
@@ -146,8 +145,19 @@ export default function Discover() {
 	const matching = ( isNarrowed ? catalog : leading ).filter(
 		item =>
 			( category === ALL || item.category === category ) &&
-			( ! needle || ( item.title + ' ' + item.blurb ).toLocaleLowerCase().includes( needle ) )
+			( ! needle || ( item.title + ' ' + item.description ).toLocaleLowerCase().includes( needle ) )
 	);
+
+	let emptyTitle = __( 'No skills match', 'jetpack' );
+	if ( ! catalog.length ) {
+		emptyTitle = __( 'Skills couldn’t be loaded', 'jetpack' );
+	} else if ( trimmed ) {
+		emptyTitle = sprintf(
+			/* translators: %s: what the user searched for. */
+			__( 'No skills match “%s”', 'jetpack' ),
+			trimmed
+		);
+	}
 
 	const recordLink = link => () =>
 		recordAiHubEvent( EVENTS.LINK_CLICK, { link_type: 'discover', link } );
@@ -227,20 +237,14 @@ export default function Discover() {
 			) : (
 				<EmptyState.Root className="jetpack-ai-discover__empty">
 					<EmptyState.Icon icon={ search } />
-					<EmptyState.Title>
-						{ trimmed
-							? sprintf(
-									/* translators: %s: what the user searched for. */
-									__( 'No skills match “%s”', 'jetpack' ),
-									trimmed
-								)
-							: __( 'No skills match', 'jetpack' ) }
-					</EmptyState.Title>
+					<EmptyState.Title>{ emptyTitle }</EmptyState.Title>
 					<EmptyState.Description>
-						{ __(
-							'Tell us what you need, or browse everything in the public catalog.',
-							'jetpack'
-						) }
+						{ catalog.length
+							? __(
+									'Tell us what you need, or browse everything in the public catalog.',
+									'jetpack'
+								)
+							: __( 'Try again later, or browse everything in the public catalog.', 'jetpack' ) }
 					</EmptyState.Description>
 					<EmptyState.Actions>
 						<ButtonLink

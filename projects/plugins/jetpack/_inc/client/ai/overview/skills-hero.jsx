@@ -23,13 +23,9 @@ import { EVENTS, recordAiHubEvent } from '../tracks';
 // Discover's card styles, which the suggestions reuse.
 import '../discover/style.scss';
 
-// The skills the row suggests, in order. Any this site can't run is
+// The skills the row suggests, in order. Any missing from the catalog is
 // skipped, and the catalog fills the gap.
-export const SUGGESTED_SKILL_SLUGS = [
-	'performance-audit',
-	'monthly-site-report',
-	'write-meta-descriptions',
-];
+export const SUGGESTED_SKILL_SLUGS = [ 'site-seo-audit', 'check-your-sites-security-and-health' ];
 
 const SUGGESTION_COUNT = 2;
 
@@ -72,11 +68,10 @@ export function pickSuggestedSkills( catalog ) {
  * @param {boolean}  [props.isMcpEnabled]  - Whether agents can reach the site yet.
  * @param {Function} [props.onMcpNavigate] - Opens a Settings sub-view ('setup').
  * @param {*}        [props.beforeSkills]  - Shown between the opening and the skills.
- * @return {object|null} Component markup, or null when this site has no skills to suggest.
+ * @return {object} Component markup.
  */
 export default function SkillsHero( { isMcpEnabled = true, onMcpNavigate, beforeSkills } = {} ) {
-	const isSelfHosted = window?.jetpackAiSettings?.isSelfHosted === true;
-	const catalog = useMemo( () => getCatalog( isSelfHosted ), [ isSelfHosted ] );
+	const catalog = useMemo( () => getCatalog(), [] );
 	const suggestions = useMemo( () => pickSuggestedSkills( catalog ), [ catalog ] );
 	const showWordPressAgent = useIsWordPressAgentAvailable();
 	const { send } = useSendSkill( { location: 'overview_hero' } );
@@ -121,11 +116,6 @@ export default function SkillsHero( { isMcpEnabled = true, onMcpNavigate, before
 		);
 	}, [] );
 
-	// A hero with nothing to offer is no hero.
-	if ( ! suggestions.length ) {
-		return null;
-	}
-
 	return (
 		<section className="jetpack-ai-overview__skills" aria-labelledby={ headingId }>
 			<div className="jetpack-ai-overview__hero">
@@ -150,39 +140,44 @@ export default function SkillsHero( { isMcpEnabled = true, onMcpNavigate, before
 
 			{ beforeSkills }
 
-			{ /* Names the cards below; a label, not a heading, so the cards' own
-			     titles keep their level under the page's h2. */ }
-			<Text
-				render={ <p /> }
-				id={ pickHeadingId }
-				variant="heading-sm"
-				className="jetpack-ai-overview__section-label jetpack-ai-overview__pick-label"
-			>
-				{ __( 'Start with a skill', 'jetpack' ) }
-			</Text>
-			{ /* The skills tab's cards on its grid, inside its root class so its
-			     styles and its one-column breakpoint apply. */ }
-			<div className="jetpack-ai-discover" role="group" aria-labelledby={ pickHeadingId }>
-				<div className="jetpack-ai-discover__grid">
-					{ suggestions.map( skill => (
-						<SkillCard
-							key={ skill.slug }
-							skill={ skill }
-							onView={ handleView }
-							onSend={ handleCardSend }
-							showWordPressAgent={ showWordPressAgent }
-						/>
-					) ) }
-				</div>
-			</div>
+			{ /* The catalog can fail to load; the opening and usage still stand without it. */ }
+			{ suggestions.length > 0 && (
+				<>
+					{ /* Names the cards below; a label, not a heading, so the cards' own
+					     titles keep their level under the page's h2. */ }
+					<Text
+						render={ <p /> }
+						id={ pickHeadingId }
+						variant="heading-sm"
+						className="jetpack-ai-overview__section-label jetpack-ai-overview__pick-label"
+					>
+						{ __( 'Start with a skill', 'jetpack' ) }
+					</Text>
+					{ /* The skills tab's cards on its grid, inside its root class so its
+					     styles and its one-column breakpoint apply. */ }
+					<div className="jetpack-ai-discover" role="group" aria-labelledby={ pickHeadingId }>
+						<div className="jetpack-ai-discover__grid">
+							{ suggestions.map( skill => (
+								<SkillCard
+									key={ skill.slug }
+									skill={ skill }
+									onView={ handleView }
+									onSend={ handleCardSend }
+									showWordPressAgent={ showWordPressAgent }
+								/>
+							) ) }
+						</div>
+					</div>
 
-			{ /* Built without the skill param, so a panel left open before the
-			     Overview doesn't come back with the link. */ }
-			<div className="jetpack-ai-overview__browse">
-				<Link href={ getViewHref( 'skills' ) } onClick={ handleBrowse }>
-					{ __( 'Browse all skills', 'jetpack' ) }
-				</Link>
-			</div>
+					{ /* Built without the skill param, so a panel left open before the
+					     Overview doesn't come back with the link. */ }
+					<div className="jetpack-ai-overview__browse">
+						<Link href={ getViewHref( 'skills' ) } onClick={ handleBrowse }>
+							{ __( 'Browse all skills', 'jetpack' ) }
+						</Link>
+					</div>
+				</>
+			) }
 		</section>
 	);
 }
