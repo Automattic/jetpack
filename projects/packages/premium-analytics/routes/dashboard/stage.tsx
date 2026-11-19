@@ -34,7 +34,6 @@ import {
 	ResetLayoutAction,
 	useCrowdedPageHeader,
 	useHostLinkSearch,
-	useNarrowPageHeader,
 	useTrackCustomize,
 	useTrackedDateRangeApply,
 } from '@jetpack-premium-analytics/widgets-toolkit';
@@ -42,6 +41,7 @@ import { Page } from '@wordpress/admin-ui';
 import { Spinner } from '@wordpress/components';
 import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import { WidgetDashboard } from '@wordpress/widget-dashboard';
+import clsx from 'clsx';
 import { useDateWindowNotice } from '../date-window-notice';
 import { isPremiumAnalyticsInitialSyncFinished } from '../site-readiness';
 import { useStatsDateLimits } from '../use-stats-date-limits';
@@ -96,10 +96,9 @@ import type { JSX } from 'react';
 function Dashboard(): JSX.Element {
 	const { sections, hasResolved: hasResolvedSections } = useDashboardSections();
 	const [ editMode, setEditMode ] = useState( false );
-	const isNarrowHeader = useNarrowPageHeader();
-	// The customize buttons hold their width, leaving the lockup too little room for even
-	// the page icon, which cannot shrink and would paint over them (STATS-630).
-	const hasTightHeader = useCrowdedPageHeader() && editMode;
+	const isCrowdedHeader = useCrowdedPageHeader();
+	// Only while customizing: at rest the actions leave the lockup room.
+	const hasTightHeader = isCrowdedHeader && editMode;
 	const switchSearch = useCallback(
 		( id: string, search: Record< string, unknown > ) =>
 			dateWindowForSectionSwitch(
@@ -539,9 +538,9 @@ function Dashboard(): JSX.Element {
 						>
 							<Page
 								visual={ hasTightHeader ? undefined : <Icon icon={ jetpack } /> }
-								breadcrumbs={ hasTightHeader ? undefined : <StatsBreadcrumbs isRoot /> }
+								breadcrumbs={ <StatsBreadcrumbs isRoot /> }
 								actions={
-									<Stack direction="row" gap={ isNarrowHeader ? 'xs' : 'sm' }>
+									<Stack direction="row" gap={ isCrowdedHeader ? 'xs' : 'sm' }>
 										{ /* At rest these would add a second Customize beside the menu's. */ }
 										{ editMode && (
 											<>
@@ -562,7 +561,7 @@ function Dashboard(): JSX.Element {
 										</Stack>
 									</Stack>
 								}
-								className={ styles.dashboard }
+								className={ clsx( styles.dashboard, hasTightHeader && styles.tightHeader ) }
 							>
 								<DashboardSections
 									sections={ tabBarSections }
