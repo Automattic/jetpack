@@ -208,7 +208,7 @@ class Concatenate_CSS extends WP_Styles {
 							$href = $siteurl . jetpack_boost_get_static_prefix() . '??' . $file_name;
 						}
 
-						$this->print_style_tag( $href, array_keys( $css_group ), $media );
+						$this->print_style_tag( $href, array_keys( $css_group ), $media, $group );
 					}
 				}
 			}
@@ -217,7 +217,7 @@ class Concatenate_CSS extends WP_Styles {
 		return $this->done;
 	}
 
-	private function print_style_tag( $href, $handles, $media ) {
+	private function print_style_tag( $href, $handles, $media, $group ) {
 		$css_id = sanitize_title_with_dashes( $media ) . '-css-' . md5( $href );
 		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 			$style_tag = "<link data-handles='" . esc_attr( implode( ',', $handles ) ) . "' rel='stylesheet' id='$css_id' href='$href' type='text/css' media='$media' />";
@@ -247,12 +247,49 @@ class Concatenate_CSS extends WP_Styles {
 		 *
 		 * @since   1.0.0
 		 */
-		$style_tag = apply_filters( 'style_loader_tag', $style_tag, implode( ',', $handles ), $href, $media );
+		$filtered_tag = apply_filters( 'style_loader_tag', $style_tag, implode( ',', $handles ), $href, $media );
+
+		// Print each handle on its own when a filter stops the bundle loading as a stylesheet but would spare
+		// some handle: filters see the comma-joined handles, so one matching a handle prefix rewrites them all.
+		if ( count( $handles ) > 1 && $this->has_stylesheet_link( $style_tag ) && ! $this->has_stylesheet_link( $filtered_tag )
+			&& ! $this->filter_drops_stylesheet_for_every_handle( $style_tag, $handles, $href, $media ) ) {
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				printf( "\n<!-- No Concat CSS %s => style_loader_tag dropped rel=stylesheet -->\n", esc_html( implode( ',', $handles ) ) );
+			}
+			foreach ( $handles as $handle ) {
+				$this->do_item( $handle, $group );
+			}
+			return;
+		}
+		$style_tag = $filtered_tag;
 
 		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		echo $style_tag . "\n";
 
 		array_map( array( $this, 'print_inline_style' ), $handles );
+	}
+
+	private function filter_drops_stylesheet_for_every_handle( $style_tag, $handles, $href, $media ) {
+		foreach ( $handles as $handle ) {
+			/** This filter is documented in print_style_tag(). */
+			if ( $this->has_stylesheet_link( apply_filters( 'style_loader_tag', $style_tag, $handle, $href, $media ) ) ) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	private function has_stylesheet_link( $tag ) {
+		$processor = new \WP_HTML_Tag_Processor( (string) $tag );
+		while ( $processor->next_tag( 'link' ) ) {
+			$rel = $processor->get_attribute( 'rel' );
+			if ( is_string( $rel ) && in_array( 'stylesheet', preg_split( '/\s+/', strtolower( trim( $rel ) ) ), true ) ) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	public function __isset( $key ) {

@@ -58,9 +58,9 @@ class Channel_Data {
 	const DEFAULT_HANDLE_PREFIX = '@';
 
 	/**
-	 * Per-request cache of the video lists, keyed by blog ID and then search term.
+	 * Per-request cache of the video lists, keyed by blog ID, search scope and search term.
 	 *
-	 * @var array<int, array<string, array[]>>
+	 * @var array<int, array<string, array<string, array[]>>>
 	 */
 	private static $videos = array();
 
@@ -91,8 +91,9 @@ class Channel_Data {
 	public static function videos( $search = '' ) {
 		$search  = is_string( $search ) ? trim( $search ) : '';
 		$blog_id = get_current_blog_id();
-		if ( isset( self::$videos[ $blog_id ][ $search ] ) ) {
-			return self::$videos[ $blog_id ][ $search ];
+		$scope   = self::search_scope( $search );
+		if ( isset( self::$videos[ $blog_id ][ $scope ][ $search ] ) ) {
+			return self::$videos[ $blog_id ][ $scope ][ $search ];
 		}
 
 		/**
@@ -113,7 +114,7 @@ class Channel_Data {
 			}
 		}
 
-		self::$videos[ $blog_id ][ $search ] = $videos;
+		self::$videos[ $blog_id ][ $scope ][ $search ] = $videos;
 		return $videos;
 	}
 
@@ -126,7 +127,18 @@ class Channel_Data {
 	 * @return string
 	 */
 	public static function cache_key( $what, $search = '' ) {
-		return implode( ':', array( $what, get_current_blog_id(), wp_cache_get_last_changed( 'posts' ), md5( (string) $search ) ) );
+		return implode( ':', array( $what, get_current_blog_id(), wp_cache_get_last_changed( 'posts' ), self::search_scope( $search ), md5( (string) $search ) ) );
+	}
+
+	/**
+	 * Who a search's matches are for, since members also match private videos' transcripts.
+	 *
+	 * @param string $search Search term.
+	 *
+	 * @return string
+	 */
+	private static function search_scope( $search ) {
+		return '' !== (string) $search && current_user_can( 'read' ) ? 'member' : 'public';
 	}
 
 	/**
@@ -477,7 +489,7 @@ class Channel_Data {
 		$search = trim( (string) ( $state['search'] ?? '' ) );
 		if ( '' !== $search && Transcript_Index::is_search_enabled() ) {
 			foreach ( $result['entries'] as &$entry ) {
-				$match = Transcript_Index::match( (int) $entry['id'], $search );
+				$match = Transcript_Index::can_read_transcript( (int) $entry['id'] ) ? Transcript_Index::match( (int) $entry['id'], $search ) : null;
 				if ( $match ) {
 					$entry['snippet']      = $match['text'];
 					$entry['snippetMatch'] = $match['needle'];

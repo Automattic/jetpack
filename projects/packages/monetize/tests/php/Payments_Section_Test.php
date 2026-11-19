@@ -33,6 +33,8 @@ class Payments_Section_Test extends BaseTestCase {
 			'plans'             => array( '/jetpack/v4/monetize/wpcom/v2/memberships/products', 'GET' ),
 			'plan deletion'     => array( '/jetpack/v4/monetize/wpcom/v2/memberships/product/(?P<id>\\d+)', 'DELETE' ),
 			'coupons'           => array( '/jetpack/v4/monetize/wpcom/v2/memberships/coupons', 'GET' ),
+			'coupon creation'   => array( '/jetpack/v4/monetize/wpcom/v2/memberships/coupons', 'POST' ),
+			'coupon update'     => array( '/jetpack/v4/monetize/wpcom/v2/memberships/coupon/(?P<id>\\d+)', 'PUT' ),
 			'coupon deletion'   => array( '/jetpack/v4/monetize/wpcom/v2/memberships/coupon/(?P<id>\\d+)', 'DELETE' ),
 		);
 	}

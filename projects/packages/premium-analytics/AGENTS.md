@@ -19,7 +19,9 @@ Jetpack Premium Analytics is the unified analytics dashboard for Jetpack-connect
 
 `Analytics::init()` loads the generated `build/build.php` on requests that render an admin screen
 (not on front-end page views, REST, cron, `admin-ajax.php`, or `admin-post.php` — see
-`renders_admin_chrome()`). The dashboard is served from one URL,
+`renders_admin_chrome()`). The one exception is the admin shell's guest endpoint, an `admin-ajax.php`
+request that loads it through `load_as_admin_shell_guest()` after `admin_init`, to show Stats inside
+another Jetpack page. The dashboard is served from one URL,
 `?page=jetpack-premium-analytics-wp-admin` (`Analytics::MENU_PAGE_SLUG`), registered with
 `Admin_Menu::add_top_level_menu()` so hosts can hide it via `jetpack_admin_menu_visibility`, and
 gated on `Capabilities::VIEW_ANALYTICS`. REST requests reach the dashboard's data
@@ -84,8 +86,8 @@ English until the next `pnpm run build`.
 
 Storybook's Vite config maps bare `@jetpack-premium-analytics/*` imports to `src/`, but that only
 takes effect for packages whose `package.json` declares no `module` field (`datetime`,
-`formatters`, `icons`, `routing`). The rest — `data`, `externals`, `fields`, `init`, `sdk`,
-`site-sync`, `ui`, `widgets-toolkit` — point `module` at `build-module/index.mjs`, and Storybook
+`formatters`, `icons`, `routing`). The rest — `data`, `error-reporting`, `externals`, `fields`,
+`init`, `sdk`, `site-sync`, `ui`, `widgets-toolkit` — point `module` at `build-module/index.mjs`, and Storybook
 loads that artifact instead, so an edit to their source is invisible there until it is rebuilt. A
 newly added export surfaces as `The requested module '…/build-module/index.mjs' does not provide an
 export named 'X'`, and a changed one silently renders the old behaviour. Run `pnpm run build` (or
@@ -511,8 +513,9 @@ give it a story for each; both mocks are 403s, so neither waits out the query's 
 - Setting the period of the surface a widget sits on by writing the URL (`useReportDateFilters`,
   `useStagedSearch`) — call `useReportScope().openPeriod` instead. The host owns the period: it
   commits the range and draws the date control's attention to it. A host that offers none leaves
-  `openPeriod` undefined, so the click must degrade to inert. Opening another dashboard section
-  over a range is `useOpenSectionRange`.
+  `openPeriod` undefined, so the click must degrade to inert. On the dashboard the host also
+  keeps the window left (`up_*` params) for the date control's zoom-out. Opening another
+  dashboard section over a range is `useOpenSectionRange`.
 - Writing `<button>` without an explicit `type` — the HTML default is `type="submit"`, which
   can fire accidental form submissions. Use `type="button"` for non-submit actions.
 - Do not use inline `style={{ … }}` props in production widget render files — all widget
@@ -570,8 +573,8 @@ it owns the list with flags, the map and the states. Everything else renders its
 `<WidgetState>` from `@jetpack-premium-analytics/widgets-toolkit`
 rather than hand-rolling `if ( isError )` / empty branches or a `WidgetLoadingOverlay`. Map the
 data/view hook's result to its four signals. For Stats API errors, pass the raw `error` to the
-shared `describeError()` mapper so failures a retry cannot fix (403 access failures, the
-author post limit and an outdated WooCommerce analytics schema) get
+shared `describeError()` mapper so failures a retry cannot fix (403 access failures, an
+unusable response, the author post limit and an outdated WooCommerce analytics schema) get
 their own copy and no retry action, while other failures — including the proxy's
 `no_connection` 403, which can heal after reconnecting — offer Retry. Pass the retryable copy
 as a full sentence (not a fragment interpolated into a shared frame) so translators see the whole

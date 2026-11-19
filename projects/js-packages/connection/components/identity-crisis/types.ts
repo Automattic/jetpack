@@ -4,9 +4,34 @@ import type {
 } from '../../hooks/use-identity-crisis-actions/types';
 import type { ReactNode } from 'react';
 
+/** What a host does after an action succeeds. */
+export type IdentityCrisisActionResult =
+	| { action: 'migrate' }
+	| { action: 'start-fresh'; connectUrl: string }
+	| { action: 'confirm-safe-mode' };
+
+export interface IdentityCrisisProps {
+	/** Where the screen shows; the events' `context` (CONNECT-620). `connectors` hides the header, which the card already shows. */
+	context: 'notice' | 'my-jetpack' | 'connectors';
+	/** Admin path to return to after a fresh connection. */
+	redirectUri?: string;
+	/** Name from `CONNECTION_FROM`, reported to WordPress.com with a fresh connection. */
+	from?: string;
+	/** Host actions below the content, e.g. Disconnect on the Connectors card. Shown only to viewers who can resolve Safe Mode. */
+	hostActions?: ReactNode;
+	/** After an action succeeds; the host reloads, navigates or closes. Migrate fires before its done view shows. */
+	onActionSuccess: ( result: IdentityCrisisActionResult ) => void;
+	/** "Got it, thanks" on the migrate-done view; no button without it. */
+	onMigratedDone?: () => void;
+	/** Dismiss for viewers who cannot resolve Safe Mode; no button without it. */
+	onDismiss?: () => void;
+}
+
 export interface IdentityCrisisLayoutProps {
 	/** `identityCrisis.logoUrl` from the connection state: the connected plugins' marks. Defaults to the Jetpack logo. */
 	logoUrl?: string;
+	/** Show the logo and heading; hide them where the host already shows both. Defaults to true. */
+	showHeader?: boolean;
 	children: ReactNode;
 	/** Actions the host adds below the content, such as Disconnect on the Connectors card. */
 	hostActions?: ReactNode;
@@ -26,8 +51,15 @@ export interface IdentityCrisisAddressesProps {
 	wpcomHomeUrl?: string;
 	/** This site's address. */
 	currentUrl?: string;
-	/** `move` for Migrate (an arrow), `separate` for a fresh connection (a dash). */
-	variant: 'move' | 'separate';
+	/** Say "store" instead of "site": a WooCommerce-family plugin is connected. */
+	isStore?: boolean;
+}
+
+export interface IdentityCrisisNonAdminProps {
+	/** Say "store" instead of "site", and that payments continue. */
+	isStore?: boolean;
+	/** Omit to show no Dismiss button; the host decides what dismissing does. */
+	onDismiss?: () => void;
 }
 
 export interface IdentityCrisisErrorNoticeProps {

@@ -259,6 +259,12 @@ A range the surface's plan will move (one starting before `dateLimits.earliestDa
 but not signalled: the route redirects to the plan's window and explains it, and the control never
 draws attention to a period it does not show.
 
+A host that asks for it (`usePeriodHost(..., { withZoomOut: true })`, the dashboard) also keeps
+the window the widget zoomed in from in the URL (`up_*` params, the shape of a detail page's
+`ref_*`), and `useReportDateFilters().zoomOut` offers it back: `DateFiltersPanel` renders a
+zoom-out control before the arrows while the applied window is a hand-picked one inside it, or
+inside the period it was compared with. Any other range change clears it.
+
 ## Architecture
 
 ```

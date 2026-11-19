@@ -1,5 +1,8 @@
+import { loadMediaLibrary } from '@automattic/jetpack-components/tools/load-media-library';
+import { useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { media, upload } from '@wordpress/icons';
+import { store as noticesStore } from '@wordpress/notices';
 import { Card, Field, Skeleton, Stack, Text } from '@wordpress/ui';
 import { addQueryArgs } from '@wordpress/url';
 import { useState } from 'react';
@@ -38,6 +41,8 @@ function EditableThumbnailCard( { video }: Props ): ReactElement {
 	const updatePoster = useUpdateVideoPoster();
 	const posterUrl = usePosterUrl( video );
 	const [ dialogOpen, setDialogOpen ] = useState( false );
+	const [ isLoadingLibrary, setIsLoadingLibrary ] = useState( false );
+	const { createErrorNotice } = useDispatch( noticesStore );
 	const playbackToken = usePlaybackTokenQuery( video.guid, video.isPrivate && dialogOpen );
 	const sourceUrl = video.playbackUrl ?? video.sourceUrl;
 	const isSourceLoading = video.isPrivate && ! playbackToken.data && playbackToken.isFetching;
@@ -64,7 +69,20 @@ function EditableThumbnailCard( { video }: Props ): ReactElement {
 	};
 
 	const handleUploadImage = async () => {
-		const attachment = await selectImageFromMediaLibrary().catch( () => null );
+		let attachment;
+		try {
+			setIsLoadingLibrary( true );
+			await loadMediaLibrary();
+			setIsLoadingLibrary( false );
+			attachment = await selectImageFromMediaLibrary();
+		} catch {
+			setIsLoadingLibrary( false );
+			createErrorNotice(
+				__( 'The media library could not be opened. Try again.', 'jetpack-videopress-pkg' ),
+				{ type: 'snackbar' }
+			);
+			return;
+		}
 		if ( ! attachment ) {
 			return;
 		}
@@ -77,6 +95,12 @@ function EditableThumbnailCard( { video }: Props ): ReactElement {
 	};
 
 	const isBusy = updatePoster.isPending;
+	let uploadLabel: string = __( 'Upload image', 'jetpack-videopress-pkg' );
+	if ( isBusy ) {
+		uploadLabel = __( 'Updating…', 'jetpack-videopress-pkg' );
+	} else if ( isLoadingLibrary ) {
+		uploadLabel = __( 'Opening…', 'jetpack-videopress-pkg' );
+	}
 
 	return (
 		<Card.Root>
@@ -116,12 +140,8 @@ function EditableThumbnailCard( { video }: Props ): ReactElement {
 						</div>
 						<ThumbnailTile
 							icon={ upload }
-							label={
-								isBusy
-									? __( 'Updating…', 'jetpack-videopress-pkg' )
-									: __( 'Upload image', 'jetpack-videopress-pkg' )
-							}
-							disabled={ isBusy || ! ( window.wp as WpGlobal | undefined )?.media }
+							label={ uploadLabel }
+							disabled={ isBusy || isLoadingLibrary }
 							onClick={ handleUploadImage }
 						/>
 						<ThumbnailTile

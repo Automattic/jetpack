@@ -451,6 +451,36 @@ class Analytics_Test extends TestCase {
 	}
 
 	/**
+	 * The admin shell's guest endpoint is admin-ajax, where the dashboard surface never loaded.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_admin_shell_guest_endpoint_loads_the_dashboard() {
+		$this->use_fixture_build();
+		$this->connect_site();
+		$this->login_as( 'administrator' );
+		set_current_screen( 'admin-ajax' );
+		define( 'DOING_AJAX', true );
+		$_REQUEST['action'] = \Automattic\Jetpack\Admin_UI\Admin_Shell::GUEST_ACTION;
+		$_GET['member']     = self::MENU_SLUG;
+
+		Analytics::init();
+		do_action( 'init' );
+		$member = apply_filters( 'jetpack_admin_shell_members', array() )[ self::MENU_SLUG ] ?? array();
+
+		$this->assertTrue( current_user_can( $member['capability'] ?? 'do_not_allow' ), 'The endpoint checks the capability before it loads the guest.' );
+		$this->assertSame( 20, has_filter( 'jetpack_admin_js_script_data', array( Stats_Settings::class, 'add_script_data' ) ), 'Hooks scoped to the dashboard at init are on.' );
+		call_user_func( $member['load'] );
+		$this->assertNotFalse( has_action( 'admin_enqueue_scripts', array( Analytics::class, 'enqueue_tracks_transport' ) ), 'The dashboard surface loaded.' );
+		$this->assertFalse( get_option( DASHBOARD_FIRST_VISIT_OPTION ), 'A menu hover preloads the guest, so loading it is not a visit.' );
+		$this->assertTrue( Analytics::renders_dashboard() );
+		$this->assertFalse( Analytics::is_dashboard_request(), 'Code that marks a visit or writes, such as the plan refresh, stays off on a hover.' );
+	}
+
+	/**
 	 * The admin-post.php endpoint sets is_admin() true the way admin-ajax does,
 	 * and renders no dashboard either, so it does not get the build.
 	 *
@@ -1366,6 +1396,33 @@ class Analytics_Test extends TestCase {
 			),
 			'The Tracks identity is published after the connection fills current_user in.'
 		);
+	}
+
+	/**
+	 * Without this registration the script data key disappears and the error reporter reads
+	 * `undefined` as its gate.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_dashboard_request_publishes_the_error_reporting_script_data() {
+		$this->use_fixture_build();
+		$_GET['page'] = self::MENU_SLUG;
+		set_current_screen( self::MENU_HOOKNAME );
+
+		Analytics::init();
+		do_action( 'init' );
+
+		$this->assertSame(
+			20,
+			has_filter( 'jetpack_admin_js_script_data', __NAMESPACE__ . '\\add_error_reporting_script_data' )
+		);
+
+		$data = apply_filters( 'jetpack_admin_js_script_data', array() );
+
+		$this->assertArrayHasKey( 'error_reporting', $data['premium_analytics'] );
 	}
 
 	/**
