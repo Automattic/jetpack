@@ -358,7 +358,7 @@ Before introducing new dependencies:
 - **Git merge conflicts**: after resolving, use `git commit --no-edit --no-verify` — pre-commit hooks can make unintended changes to merge commit files
 - **Do NOT hand-edit generated Phan stubs** — `.phan/stubs/wpcom-stubs.php` (and other generated stub files) are regenerated from the wpcom repo; any manual edit is overwritten. See *Referencing wpcom-only symbols from Jetpack* below.
 - **Connect links take their `from` from `CONNECTION_FROM`** in `@automattic/jetpack-connection` — read *Adding a connect button* in `projects/js-packages/connection/README.md` before adding or changing one.
-- **Do NOT fix behavior by patching a dependency** (`.pnpm-patches/`, `patchedDependencies` in `pnpm-workspace.yaml`) — search the dependency's issues and PRs, then open a PR upstream for its maintainers to review, and don't consume the fix until they release it (no fork or git URL dependency); meanwhile, work around it in our own code.
+- **Do NOT add or extend a dependency patch** (`.pnpm-patches/`, `patchedDependencies` in `pnpm-workspace.yaml`) — search the dependency's issues and PRs, then open a PR upstream for its maintainers to review, and don't consume the fix until they release it (no fork or git URL dependency); meanwhile, work around it in our own code. Keep existing patches applying across version bumps without growing them.
 
 ## Referencing wpcom-only symbols from Jetpack (Phan stubs)
 
