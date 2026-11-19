@@ -96,10 +96,11 @@ class Stats_Dashboard_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The section lists under the package's dashboard, with its three widgets, and not under Premium Analytics'.
+	 * The section lists under the package's dashboard, with its widgets, and not under Premium Analytics'.
 	 */
 	public function test_the_section_registers_under_the_dashboard_of_the_package() {
-		foreach ( array( Stats_Dashboard::PERFORMANCE_TYPE, Stats_Dashboard::MOST_VIEWED_TYPE, Stats_Dashboard::TOP_BY_WATCH_TIME_TYPE ) as $type ) {
+		$types = array( Stats_Dashboard::PERFORMANCE_TYPE, Stats_Dashboard::MOST_VIEWED_TYPE, Stats_Dashboard::TOP_BY_WATCH_TIME_TYPE, Analytics_Dashboard::TOP_VIDEOS_TYPE );
+		foreach ( $types as $type ) {
 			Widget_Type_Registry::get_instance()->register( $type, array( 'render_module' => 'jetpack-videopress/widgets/example/render' ) );
 		}
 		Stats_Dashboard::init();
@@ -108,10 +109,7 @@ class Stats_Dashboard_Test extends BaseTestCase {
 		$sections = get_available_dashboard_sections( Stats_Dashboard::DASHBOARD_NAME );
 
 		$this->assertSame( array( Stats_Dashboard::SECTION_ID ), wp_list_pluck( $sections, 'id' ) );
-		$this->assertSame(
-			array( Stats_Dashboard::PERFORMANCE_TYPE, Stats_Dashboard::MOST_VIEWED_TYPE, Stats_Dashboard::TOP_BY_WATCH_TIME_TYPE ),
-			array_column( $sections[0]->get_default_layout(), 'type' )
-		);
+		$this->assertSame( $types, array_column( $sections[0]->get_default_layout(), 'type' ) );
 		$this->assertNull( get_registered_dashboard_section( DASHBOARD_NAME, Stats_Dashboard::SECTION_ID ) );
 	}
 

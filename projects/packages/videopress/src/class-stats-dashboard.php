@@ -106,7 +106,8 @@ class Stats_Dashboard {
 	}
 
 	/**
-	 * The section's default layout: performance across the grid, the two rankings side by side.
+	 * The section's default layout: performance across the grid, then the rankings and the top
+	 * videos, two per row.
 	 *
 	 * @return array[] Widget instances.
 	 */
@@ -115,6 +116,7 @@ class Stats_Dashboard {
 			get_dashboard_default_widget_instance( 'videopress-performance', self::PERFORMANCE_TYPE, 10, 'full', self::PERFORMANCE_HEIGHT ),
 			get_dashboard_default_widget_instance( 'videopress-most-viewed', self::MOST_VIEWED_TYPE, 20, 1, DASHBOARD_TILE_CARD ),
 			get_dashboard_default_widget_instance( 'videopress-top-by-watch-time', self::TOP_BY_WATCH_TIME_TYPE, 30, 1, DASHBOARD_TILE_CARD ),
+			get_dashboard_default_widget_instance( 'videopress-top-videos', Analytics_Dashboard::TOP_VIDEOS_TYPE, 40, 1, DASHBOARD_TILE_CARD ),
 		);
 	}
 
