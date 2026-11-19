@@ -980,6 +980,19 @@ abstract class Product {
 	}
 
 	/**
+	 * Whether something other than its switch keeps the product off, such as a host or a filter.
+	 *
+	 * Turning its module or plugin on can't bring it back, so nothing should offer to.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	public static function is_held_off() {
+		return false;
+	}
+
+	/**
 	 * Checks whether the site has switched the product on, whether or not it has a plan for it.
 	 *
 	 * Unlike is_active(), this never asks WordPress.com, so it is safe on every admin page load.

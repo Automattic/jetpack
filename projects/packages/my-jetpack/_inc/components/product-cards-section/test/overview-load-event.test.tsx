@@ -1,14 +1,14 @@
 import { render } from '@testing-library/react';
+import useAnalytics from '../../../hooks/use-analytics';
 import BoostOverviewItem from '../boost-card/overview';
 import ProtectOverviewItem from '../protect-card/overview';
 import StatsOverviewItem from '../stats-card/overview';
 import type { FC } from 'react';
 
-const mockRecordEvent = jest.fn();
+const mockRecordEvent = jest.mocked( jest.mocked( useAnalytics )().recordEvent );
 let mockProductStatus = 'active';
 let mockStatsVisits = {};
 
-jest.mock( '../../../hooks/use-analytics', () => () => ( { recordEvent: mockRecordEvent } ) );
 jest.mock( '../../../hooks/use-my-jetpack-connection', () => () => ( {
 	blogID: '1',
 	isSiteConnected: true,

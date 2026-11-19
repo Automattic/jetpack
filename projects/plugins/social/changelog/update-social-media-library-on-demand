@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Dashboard: Load the media library only when choosing a default image, so the dashboard loads less on each visit.

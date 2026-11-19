@@ -1,8 +1,8 @@
-import { getRedirectUrl } from '@automattic/jetpack-components';
 import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { useCallback } from 'react';
 import { HelpCards } from './cards';
+import { getHelpLinks } from './links';
 import styles from './styles.module.scss';
 import { useHelpTracking } from './use-help-tracking';
 
@@ -29,7 +29,7 @@ export function HelpContent() {
 			</p>
 			<Button
 				variant="primary"
-				href={ getRedirectUrl( 'jetpack-support' ) }
+				href={ getHelpLinks().documentation }
 				target="_blank"
 				rel="noopener noreferrer"
 				className={ styles.cta }

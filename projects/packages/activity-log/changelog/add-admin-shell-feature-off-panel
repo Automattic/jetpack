@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Declare the Activity Log module on the sidebar item, so the admin shell can tell when it is switched off.

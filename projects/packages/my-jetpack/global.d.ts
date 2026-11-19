@@ -606,6 +606,8 @@ interface Window {
 		isUserFromKnownHost: string;
 		loadAddLicenseScreen: string;
 		myJetpackCheckoutUri: string;
+		/** A host's own plan links, from `jetpack_my_jetpack_plan_urls`: '' keeps Jetpack's link, false hides the link. */
+		planUrls?: { purchase: string | false; manage: string | false };
 		myJetpackFlags: {
 			accountConnect?: boolean;
 			headerControls?: boolean;

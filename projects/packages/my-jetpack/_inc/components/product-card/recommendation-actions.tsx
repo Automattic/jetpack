@@ -1,7 +1,25 @@
-import { Button } from '@wordpress/ui';
+import { Button, ButtonLink } from '@wordpress/ui';
 import clsx from 'clsx';
 import styles from './style.module.scss';
 import usePricingData from './use-pricing-data';
+
+type ActionProps = {
+	action: { label: string; href?: string; onClick?: () => void };
+	variant?: 'outline';
+	disabled: boolean;
+};
+
+// An action that goes somewhere renders as a link: a button ignores `href`.
+const Action = ( { action: { label, href, onClick }, variant, disabled }: ActionProps ) =>
+	href ? (
+		<ButtonLink size="small" variant={ variant } href={ href } onClick={ onClick }>
+			{ label }
+		</ButtonLink>
+	) : (
+		<Button size="small" variant={ variant } disabled={ disabled } onClick={ onClick }>
+			{ label }
+		</Button>
+	);
 
 const RecommendationActions = ( { slug }: { slug: string } ) => {
 	const { secondaryAction, primaryAction, isFeature, isActivating, isInstalling } =
@@ -11,18 +29,13 @@ const RecommendationActions = ( { slug }: { slug: string } ) => {
 		<div className={ styles.actions }>
 			<div className={ clsx( styles.buttons, styles.upsell ) }>
 				{ primaryAction && (
-					<Button
-						size="small"
+					<Action
+						action={ primaryAction }
 						disabled={ isFeature && ( isActivating || isInstalling ) }
-						{ ...primaryAction }
-					>
-						{ primaryAction.label }
-					</Button>
+					/>
 				) }
 				{ secondaryAction && (
-					<Button size="small" variant="outline" disabled={ isActivating } { ...secondaryAction }>
-						{ secondaryAction.label }
-					</Button>
+					<Action action={ secondaryAction } variant="outline" disabled={ isActivating } />
 				) }
 			</div>
 		</div>
