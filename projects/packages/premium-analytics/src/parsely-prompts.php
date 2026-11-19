@@ -20,7 +20,7 @@ require_once __DIR__ . '/stats-plan-gates.php';
 const OFFERS_PARSELY_PROMPTS_FILTER = 'jetpack_premium_analytics_offers_parsely_prompts';
 
 /**
- * Views a site must get in the current month to qualify.
+ * Billable monthly views a site must reach to qualify.
  *
  * @var int
  */
@@ -46,6 +46,13 @@ const PARSELY_PROMPTS_VIEWS_TRANSIENT = 'jetpack_premium_analytics_parsely_views
  * @var int
  */
 const PARSELY_PROMPTS_VIEWS_TTL = 12 * HOUR_IN_SECONDS;
+
+/**
+ * How long a failed lookup stands, so one bad response does not hide the prompt all day.
+ *
+ * @var int
+ */
+const PARSELY_PROMPTS_VIEWS_RETRY_TTL = HOUR_IN_SECONDS;
 
 /**
  * Configures the Upgrade to Parsely prompts. The flag registers earlier, at package boot.
@@ -135,7 +142,8 @@ function has_parsely_integration() {
 function get_monthly_stats_views() {
 	$cached = get_transient( PARSELY_PROMPTS_VIEWS_TRANSIENT );
 
-	if ( is_array( $cached ) ) {
+	// A cache of any other shape is refetched rather than read, so a stale one heals itself.
+	if ( is_array( $cached ) && array_key_exists( 'views', $cached ) ) {
 		return $cached['views'];
 	}
 
@@ -145,7 +153,11 @@ function get_monthly_stats_views() {
 	 * A failure is cached too: the stats client refuses to cache a connection failure, so without
 	 * this a site whose blog token has gone stale re-sends the request on every admin page render.
 	 */
-	set_transient( PARSELY_PROMPTS_VIEWS_TRANSIENT, array( 'views' => $views ), PARSELY_PROMPTS_VIEWS_TTL );
+	set_transient(
+		PARSELY_PROMPTS_VIEWS_TRANSIENT,
+		array( 'views' => $views ),
+		null === $views ? PARSELY_PROMPTS_VIEWS_RETRY_TTL : PARSELY_PROMPTS_VIEWS_TTL
+	);
 
 	return $views;
 }
