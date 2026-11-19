@@ -91,6 +91,7 @@ export const getPercentChange = ( count?: number, previous?: number ): number | 
 	return Math.round( ( ( count - previous ) / previous ) * 100 ) || 0;
 };
 
+// `dir="auto"`: an untranslated string on an RTL site would otherwise read "8%-".
 const ChangeBadge: FC< { id: string; percent: number; days: number } > = ( {
 	id,
 	percent,
@@ -98,7 +99,7 @@ const ChangeBadge: FC< { id: string; percent: number; days: number } > = ( {
 } ) => {
 	if ( percent === 0 ) {
 		return (
-			<Badge id={ id } intent="none">
+			<Badge id={ id } intent="none" dir="auto">
 				{ sprintf(
 					/* translators: %d: number of days in the period. */
 					_n(
@@ -114,7 +115,7 @@ const ChangeBadge: FC< { id: string; percent: number; days: number } > = ( {
 	}
 
 	return (
-		<Badge id={ id } intent={ percent > 0 ? 'stable' : 'medium' }>
+		<Badge id={ id } intent={ percent > 0 ? 'stable' : 'medium' } dir="auto">
 			{ sprintf(
 				/* translators: %1$s: signed percent change, e.g. "+9%" or "-8%". %2$d: number of days in the period. */
 				_n(
