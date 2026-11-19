@@ -16,13 +16,15 @@ type NavigationEvents = {
 /**
  * The channels of the page on screen: the channel of the dashboard, alone and with the section.
  *
- * The section is the first segment of the route, which the router keeps in the `p` query argument.
+ * The section is the first segment of the path of the route. The router keeps the route in the
+ * `p` query argument, with the filters of the page as a query string of its own.
  *
  * @return The channels.
  */
 function getChannels(): string[] {
 	const route = new URLSearchParams( window.location.search ).get( 'p' ) ?? '';
-	const [ section = MAIN_SECTION ] = route.split( '/' ).filter( Boolean );
+	const [ path ] = route.split( /[?#]/ );
+	const [ section = MAIN_SECTION ] = path.split( '/' ).filter( Boolean );
 
 	return [ CHANNEL, `${ CHANNEL }/${ section }` ];
 }

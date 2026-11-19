@@ -18,14 +18,10 @@ const setFlag = ( enabled: boolean ): void => {
 	} );
 };
 
-// The router keeps the route in `p`, next to the filters of the page.
-const openRoute = ( route?: string, filters = '' ): void => {
+// The router keeps the route in `p`, with the filters of the page as its own query string.
+const openRoute = ( route?: string ): void => {
 	const p = route === undefined ? '' : `&p=${ encodeURIComponent( route ) }`;
-	window.history.replaceState(
-		null,
-		'',
-		`?page=jetpack-premium-analytics-wp-admin${ p }${ filters }`
-	);
+	window.history.replaceState( null, '', `?page=jetpack-premium-analytics-wp-admin${ p }` );
 };
 
 // jsdom has no Navigation API, so a test that navigates brings its own.
@@ -53,10 +49,15 @@ describe( 'showWhatsNew', () => {
 	it.each< [ string, string | undefined, string ] >( [
 		[ 'the dashboard', undefined, 'premium-analytics/main' ],
 		[ 'the dashboard, by its route', '/', 'premium-analytics/main' ],
+		[
+			'the dashboard with its filters',
+			'/?section=traffic&from=2026-11-01',
+			'premium-analytics/main',
+		],
 		[ 'Settings', '/settings', 'premium-analytics/settings' ],
 		[
 			'a report, by the first segment of its route',
-			'/reports/clicks',
+			'/reports/clicks?from=2026-11-01',
 			'premium-analytics/reports',
 		],
 	] )(
@@ -93,7 +94,7 @@ describe( 'showWhatsNew', () => {
 		openRoute( '/' );
 		await showAndSettle();
 
-		openRoute( '/', '&from=2026-11-01&to=2026-11-30' );
+		openRoute( '/?from=2026-11-01&to=2026-11-30' );
 		navigation.dispatchEvent( new Event( 'currententrychange' ) );
 
 		expect( mountWhatsNew ).toHaveBeenCalledTimes( 1 );
