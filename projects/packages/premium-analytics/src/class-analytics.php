@@ -249,6 +249,10 @@ class Analytics {
 
 		self::register_script_data();
 
+		// Registered here, not with the rest of the prompts: a flag must be discoverable through
+		// Feature_Flags::all() on every request, not only the ones that render the dashboard.
+		Parsely_Prompts::register_feature_flag();
+
 		// Stats links elsewhere (post list table, admin bar, action bar) open this dashboard.
 		Stats_Links::register();
 
