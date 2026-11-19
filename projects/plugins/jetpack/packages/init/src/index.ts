@@ -1,5 +1,5 @@
-import { trackViewTransitions } from '@automattic/jetpack-admin-ui/src/admin-shell/view-transitions';
 import { loadI18nCatalogs } from '@automattic/jetpack-wp-build-polyfills/src/js/load-i18n-catalogs';
+import { trackViewTransitions } from '@automattic/jetpack-wp-build-polyfills/src/js/view-transitions';
 import { provideJetpackConfig } from './jetpack-config';
 
 /**

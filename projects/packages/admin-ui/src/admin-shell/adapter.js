@@ -5,7 +5,10 @@
 import { pageOf } from './chrome';
 import { log } from './debug';
 
-export { trackViewTransitions, transitionSettled } from './view-transitions';
+export {
+	trackViewTransitions,
+	transitionSettled,
+} from '@automattic/jetpack-wp-build-polyfills/src/js/view-transitions';
 
 /**
  * Keep each app's router deaf to URLs that belong to another app.
