@@ -1,3 +1,4 @@
 Significance: patch
-Type: other
-Comment: Update a PayPal Payment Buttons code comment.
+Type: bugfix
+
+PayPal Payment Buttons: Show an error in an editor left open after the API-managed payment buttons are turned off, instead of marking payment links as deleted, clearing the block on disconnect, or saving without syncing to PayPal.
