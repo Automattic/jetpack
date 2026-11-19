@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Publicize;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Admin_UI\Admin_Shell;
+use Automattic\Jetpack\Admin_UI\Media_Library;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Current_Plan;
@@ -85,6 +86,11 @@ class Social_Admin_Page {
 		if ( class_exists( Admin_Shell::class ) ) {
 			add_filter( 'jetpack_admin_shell_members', array( $this, 'add_admin_shell_member' ) );
 		}
+
+		// The default image picker loads the media library from this endpoint.
+		if ( method_exists( Media_Library::class, 'init' ) ) {
+			Media_Library::init();
+		}
 	}
 
 	/**
@@ -155,7 +161,7 @@ class Social_Admin_Page {
 	/**
 	 * Register Jetpack Social with the admin shell, which switches between Jetpack dashboards without a page load.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.89.0
 	 *
 	 * @param array $members Shell members keyed by admin page slug.
 	 * @return array
@@ -164,8 +170,7 @@ class Social_Admin_Page {
 		$host = new Host();
 		// The same gates add_menu() applies, since admin-ajax never builds the menu.
 		if (
-			$host->is_wpcom_simple()
-			|| ! Utils::can_open_social_dashboard()
+			! Utils::can_open_social_dashboard()
 			|| ( ! defined( 'JETPACK_SOCIAL_PLUGIN_DIR' ) && ! $host->is_wpcom_platform() && ! ( new Connection_Manager() )->is_connected() )
 			|| ! file_exists( self::wp_build_index_path() )
 		) {
@@ -178,18 +183,34 @@ class Social_Admin_Page {
 			'init_modules' => array( '@jetpack-social/init' ),
 			/** "Jetpack Social" is a product name, do not translate. */
 			'title'        => 'Jetpack Social',
+			'header'       => array(
+				'title'    => 'Social',
+				'subtitle' => self::landing_subtitle(),
+			),
 			'capability'   => 'publish_posts',
 			'handles'      => array( self::GUEST_DATA_HANDLE, 'jetpack-script-data', 'wp-jp-i18n-loader' ),
-			'media'        => true,
 			'load'         => array( $this, 'load_as_admin_shell_guest' ),
 		);
 		return $members;
 	}
 
 	/**
+	 * The subtitle of the tab a bare dashboard URL opens, as the dashboard renders it.
+	 *
+	 * @return string
+	 */
+	private static function landing_subtitle() {
+		// Settings opens while Social is off and the user can turn it on: canToggleSocialModule() in _inc/utils/misc.ts.
+		if ( 'wpcom' !== ( new Host() )->get_known_host_guess() && current_user_can( 'jetpack_manage_modules' ) && ! Utils::is_publicize_active() ) {
+			return __( 'Customize how your posts are shared to social media.', 'jetpack-publicize-pkg' );
+		}
+		return __( 'Connect your social accounts and see what drives traffic.', 'jetpack-publicize-pkg' );
+	}
+
+	/**
 	 * Ready the Jetpack Social routes and page data while another dashboard's page is open, without the screen ID alias.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.89.0
 	 *
 	 * @return void
 	 */
@@ -204,7 +225,7 @@ class Social_Admin_Page {
 	/**
 	 * Hydrate the connection store on a script of its own: the prerequisites script only exists on the Social page.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.89.0
 	 *
 	 * @return void
 	 */
@@ -232,9 +253,6 @@ class Social_Admin_Page {
 		 * Use priority 20 to ensure that we can dequeue the old Social assets.
 		 */
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ), 20 );
-
-		// Initialize the media library for the social image generator.
-		wp_enqueue_media();
 	}
 
 	/**

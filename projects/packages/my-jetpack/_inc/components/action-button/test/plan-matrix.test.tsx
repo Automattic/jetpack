@@ -47,11 +47,6 @@ jest.mock( '../../../hooks/use-my-jetpack-navigate', () => {
 	return { __esModule: true, default: () => navigate };
 } );
 
-jest.mock( '../../../hooks/use-analytics', () => {
-	const result = { recordEvent: () => {} };
-	return { __esModule: true, default: () => result };
-} );
-
 jest.mock( '../../../hooks/use-outside-alerter', () => ( {
 	__esModule: true,
 	default: () => {},

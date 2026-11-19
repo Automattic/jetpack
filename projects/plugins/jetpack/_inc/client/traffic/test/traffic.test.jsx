@@ -6,7 +6,10 @@ jest.mock( 'components/pointer-card', () => ( {
 	FeaturesPointer: ( { search } ) => `${ search } pointer`,
 } ) );
 jest.mock( '../blaze', () => () => 'blaze card' );
-jest.mock( '../google-analytics', () => ( { GoogleAnalytics: () => null } ) );
+jest.mock( '../google-analytics', () => ( { GoogleAnalytics: () => 'ga card' } ) );
+jest.mock( '../google-analytics-moved', () => ( {
+	GoogleAnalyticsMoved: ( { href } ) => <a href={ href }>ga pointer</a>,
+} ) );
 jest.mock( '../related-posts', () => ( { RelatedPosts: () => 'related-posts card' } ) );
 jest.mock( '../related-posts-moved', () => ( {
 	RelatedPostsMoved: () => 'related-posts pointer',
@@ -24,7 +27,10 @@ const findsOnly = {
 	'related-posts': module => module === 'related-posts',
 	blaze: module => module === 'blaze',
 	shortlinks: module => module === 'shortlinks',
+	ga: () => false,
 };
+
+const PANEL_URL = 'admin.php?page=my-jetpack&p=%2Ffeatures%3Fconfigure%3Dgoogle-analytics';
 
 describe( 'Traffic settings', () => {
 	it( 'renders the SEO opt-in banner when a search finds only the sitemaps section', () => {
@@ -58,11 +64,16 @@ describe( 'Traffic settings', () => {
 		[ 'shortlinks', 'off, in the tab', false, '', [ 'shortlinks card' ], '' ],
 		[ 'shortlinks', 'on, in the tab', true, '', [], '' ],
 		[ 'shortlinks', 'on, in a search', true, 'shortlinks', [ 'shortlinks pointer' ], '' ],
+		[ 'ga', 'off, in the tab', false, '', [ 'ga card' ], 'woa' ],
+		[ 'ga', 'on, in the tab', true, '', [], 'woa' ],
+		[ 'ga', 'on, in a search', true, 'analytics', [ 'ga pointer' ], 'woa' ],
+		[ 'ga', 'on, in another search', true, 'sitemap', [], 'woa' ],
+		[ 'ga', 'on without the panel', true, '', [ 'ga card' ], 'woa', false ],
 	] )(
 		'shows %s with the settings flag %s',
-		( module, _when, flag, searchTerm, expected, host ) => {
+		( module, _when, flag, searchTerm, expected, host, gaPanel = PANEL_URL ) => {
 			window.JetpackScriptData = {
-				myJetpack: { settingsConsolidation: flag },
+				myJetpack: { settingsConsolidation: flag, googleAnalyticsPanel: gaPanel },
 				site: { host },
 			};
 			try {
@@ -79,4 +90,21 @@ describe( 'Traffic settings', () => {
 			}
 		}
 	);
+} );
+
+it( 'links the Google Analytics pointer to the panel URL from My Jetpack', () => {
+	window.JetpackScriptData = {
+		myJetpack: { settingsConsolidation: true, googleAnalyticsPanel: PANEL_URL },
+		site: { host: 'woa' },
+	};
+	try {
+		render( <Traffic active searchTerm="google" isModuleFound={ findsOnly.ga } /> );
+
+		expect( screen.getByRole( 'link', { name: 'ga pointer' } ) ).toHaveAttribute(
+			'href',
+			PANEL_URL
+		);
+	} finally {
+		delete window.JetpackScriptData;
+	}
 } );

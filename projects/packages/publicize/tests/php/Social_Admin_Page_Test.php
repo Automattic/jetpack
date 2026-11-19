@@ -10,8 +10,11 @@ namespace Automattic\Jetpack\Publicize;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Tokens;
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Status\Cache;
 use Jetpack_Options;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use WorDBless\BaseTestCase;
 
 /**
@@ -150,6 +153,34 @@ class Social_Admin_Page_Test extends BaseTestCase {
 	}
 
 	/**
+	 * The page leaves the media library to the image picker, which loads it when clicked.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_admin_init_does_not_load_the_media_library() {
+		Social_Admin_Page::init()->admin_init();
+
+		$this->assertSame( 0, did_action( 'wp_enqueue_media' ) );
+	}
+
+	/**
+	 * The picker's endpoint is hooked without the admin menu, which admin-ajax never builds.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_init_hooks_the_media_library_endpoint() {
+		Social_Admin_Page::init();
+
+		$this->assertNotFalse( has_action( 'wp_ajax_jetpack_media_library' ) );
+	}
+
+	/**
 	 * The wp-build dashboard owns its own enqueue pipeline, so the enqueue step
 	 * never registers a legacy admin script.
 	 */
@@ -217,7 +248,7 @@ class Social_Admin_Page_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Who the admin shell offers Social to: the users the Social menu shows it to, on a built, non-Simple site.
+	 * Who the admin shell offers Social to: the users the Social menu shows it to, on a built site.
 	 *
 	 * @return array
 	 */
@@ -227,7 +258,7 @@ class Social_Admin_Page_Test extends BaseTestCase {
 			'author, Publicize off' => array( 'author', false, true, false, true, false ),
 			'author, Publicize on'  => array( 'author', true, true, false, true, true ),
 			'unbuilt'               => array( 'administrator', false, false, false, true, false ),
-			'Simple'                => array( 'administrator', false, true, true, true, false ),
+			'Simple, no blog token' => array( 'administrator', false, true, true, false, true ),
 			'not connected'         => array( 'administrator', false, true, false, false, false ),
 		);
 	}
@@ -294,6 +325,57 @@ class Social_Admin_Page_Test extends BaseTestCase {
 
 		$this->assertTrue( wp_script_is( Social_Admin_Page::GUEST_DATA_HANDLE, 'enqueued' ) );
 		$this->assertNotEmpty( wp_scripts()->get_data( Social_Admin_Page::GUEST_DATA_HANDLE, 'before' ) );
+	}
+
+	/**
+	 * Data provider for test_admin_shell_header_opens_settings_while_social_is_off.
+	 *
+	 * @return array[] Whether the site is WoA.
+	 */
+	public static function provide_hosts_that_can_turn_social_on() {
+		return array(
+			'self-hosted' => array( false ),
+			'WoA'         => array( true ),
+		);
+	}
+
+	/**
+	 * Like the dashboard's canToggleSocialModule(), only Simple keeps an admin off Settings while Social is off.
+	 *
+	 * @dataProvider provide_hosts_that_can_turn_social_on
+	 *
+	 * @param bool $woa Whether the site is WoA.
+	 */
+	#[DataProvider( 'provide_hosts_that_can_turn_social_on' )]
+	public function test_admin_shell_header_opens_settings_while_social_is_off( $woa ) {
+		$this->set_wp_build_index( __DIR__ . '/files/build-entry/build.php' );
+		( new Tokens() )->update_blog_token( 'blog.token' );
+		( new Connection_Manager() )->reset_connection_status();
+		if ( $woa ) {
+			Constants::set_constant( 'ATOMIC_SITE_ID', 1 );
+			Constants::set_constant( 'ATOMIC_CLIENT_ID', 2 );
+			Constants::set_constant( 'WPCOMSH__PLUGIN_FILE', __FILE__ );
+		}
+		$can_manage_modules = static function ( $caps ) {
+			return array( 'jetpack_manage_modules' => true ) + $caps;
+		};
+		add_filter( 'user_has_cap', $can_manage_modules );
+		add_filter( 'jetpack_active_modules', '__return_empty_array' );
+		Cache::clear();
+
+		$members = array();
+		try {
+			$members = Social_Admin_Page::init()->add_admin_shell_member( array() );
+		} finally {
+			remove_filter( 'user_has_cap', $can_manage_modules );
+			remove_filter( 'jetpack_active_modules', '__return_empty_array' );
+			Jetpack_Options::delete_option( 'blog_token' );
+			( new Connection_Manager() )->reset_connection_status();
+			Constants::clear_constants();
+			Cache::clear();
+		}
+
+		$this->assertSame( 'Customize how your posts are shared to social media.', $members['jetpack-social']['header']['subtitle'] ?? null );
 	}
 
 	/**

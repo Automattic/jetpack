@@ -18,7 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Keeps WordPress.com's Ads settings caught up with the site's, which always win.
  *
- * @since $$next-version$$
+ * @since 0.2.0
  */
 class Ads_Wpcom_Settings {
 

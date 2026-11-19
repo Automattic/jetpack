@@ -9,7 +9,9 @@ import type {
 } from '../types/playlists';
 import type { View } from '@wordpress/dataviews';
 
-const REST_PATH = '/jetpack/v4/videopress/playlists';
+// wpcom/v3, not jetpack/v4: WordPress.com's public API only proxies jetpack/v4
+// to Jetpack-connected sites, so Simple sites would 404.
+const REST_PATH = '/wpcom/v3/videopress/playlists';
 
 export const PLAYLISTS_QUERY_KEY = 'jetpack-videopress-playlists' as const;
 

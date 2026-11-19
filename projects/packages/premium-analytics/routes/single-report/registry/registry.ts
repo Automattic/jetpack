@@ -58,6 +58,15 @@ export type SingleReportPageRecord = {
 	id: string;
 
 	/*
+	 * The core-data entity the page is about. Null when the page names none.
+	 */
+	entity?: {
+		kind: string;
+		name: string;
+		key?: string;
+	} | null;
+
+	/*
 	 * The `$kind` segment of `/report/$kind/$id`.
 	 */
 	path: string;

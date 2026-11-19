@@ -32,14 +32,6 @@ class Jetpack_Shortcodes_Slideshare_Test extends WP_UnitTestCase {
 		$this->assertNotEquals( $content, $shortcode_content );
 	}
 
-	public function test_shortcodes_slideshare_id() {
-		$content = '[slideshare id=5342235]';
-
-		$shortcode_content = apply_shortcodes( $content );
-
-		$this->assertNotEquals( $content, $shortcode_content );
-	}
-
 	public function test_shortcodes_slideshare_id_content() {
 		$content = '[slideshare id=5342235]';
 

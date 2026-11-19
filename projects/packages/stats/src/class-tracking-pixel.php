@@ -446,7 +446,7 @@ if ( document.readyState === "loading" ) {
 	 * Register AMP_Consent_Sanitizer when the WP Consent API is active.
 	 * Do not use this function directly, it is hooked into `amp_content_sanitizers`.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.24.2
 	 *
 	 * @param array $sanitizers Sanitizer classes and their args.
 	 * @return array

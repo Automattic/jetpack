@@ -46,10 +46,10 @@ import {
 	getCurrentVersion,
 	getTracksUserData,
 	getPluginBaseUrl,
+	hasProtectPage,
 	hasSocialPage,
 	userIsSubscriber,
 } from 'state/initial-state';
-import { hasProtectPage } from 'state/modules';
 import { getRewindStatus } from 'state/rewind';
 import { getSearchTerm } from 'state/search';
 import { areThereUnsavedSettings, clearUnsavedSettingsFlag } from 'state/settings';
@@ -79,12 +79,47 @@ export class Main extends Component {
 		window.addEventListener( 'beforeunload', this.props.clearUnsavedSettingsFlag );
 
 		// Track initial page view
+		this.recordPageView();
+	}
+
+	componentDidMount() {
+		window.addEventListener( 'jetpack-admin-shell:page-hidden', this.onShellPageHidden );
+		window.addEventListener( 'jetpack-admin-shell:page-shown', this.onShellPageShown );
+	}
+
+	componentWillUnmount() {
+		window.removeEventListener( 'jetpack-admin-shell:page-hidden', this.onShellPageHidden );
+		window.removeEventListener( 'jetpack-admin-shell:page-shown', this.onShellPageShown );
+	}
+
+	recordPageView() {
 		this.props.isSiteConnected &&
 			analytics.tracks.recordEvent( 'jetpack_wpa_page_view', {
 				path: this.props.location.pathname,
 				current_version: this.props.currentVersion,
 			} );
 	}
+
+	// The admin shell keeps this page mounted, so a return to it is a new visit: see the admin-ui README.
+	hiddenPathname = this.props.location.pathname;
+
+	onShellPageHidden = event => {
+		if ( event.detail?.page === 'jetpack-settings' ) {
+			this.hiddenPathname = this.props.location.pathname;
+		}
+	};
+
+	onShellPageShown = event => {
+		const { page, firstShow, routeChanged, url } = event.detail ?? {};
+		if ( page !== 'jetpack-settings' || firstShow ) {
+			return;
+		}
+		// componentDidUpdate records a new path, but not a new `?term=` in the same path.
+		const pathname = new URL( url ?? '', location.href ).hash.slice( 1 ).split( '?' )[ 0 ] || '/';
+		if ( ! routeChanged || pathname === this.hiddenPathname ) {
+			this.recordPageView();
+		}
+	};
 
 	/*
 	 * Shows a confirmation dialog if there are unsaved module settings.
@@ -138,12 +173,7 @@ export class Main extends Component {
 
 	componentDidUpdate( prevProps ) {
 		// Track page view on change only
-		prevProps.location.pathname !== this.props.location.pathname &&
-			this.props.isSiteConnected &&
-			analytics.tracks.recordEvent( 'jetpack_wpa_page_view', {
-				path: this.props.location.pathname,
-				current_version: this.props.currentVersion,
-			} );
+		prevProps.location.pathname !== this.props.location.pathname && this.recordPageView();
 
 		// Not taking into account offline mode here because changing the connection
 		// status without reloading is possible only by disconnecting a live site not
@@ -284,9 +314,22 @@ export class Main extends Component {
 					break;
 				}
 			// Falls through.
-			case '/settings':
 			case '/writing':
+				// Only admins get here, and they find every Writing setting in Features once settings move out.
+				if ( '/writing' === route && isSettingsConsolidationEnabled() ) {
+					window.location.replace( getAdminUrl( 'admin.php?page=my-jetpack#/features' ) );
+					break;
+				}
+			// Falls through.
 			case '/discussion':
+				if ( '/discussion' === route && isSettingsConsolidationEnabled() ) {
+					window.location.replace(
+						getAdminUrl( 'admin.php?page=my-jetpack&p=%2Ffeatures%3Fconfigure%3Dcomments' )
+					);
+					break;
+				}
+			// Falls through.
+			case '/settings':
 			case '/traffic':
 			case '/privacy':
 				pageComponent = (

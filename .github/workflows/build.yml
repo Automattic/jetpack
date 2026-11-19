@@ -24,27 +24,25 @@ env:
   XZ_OPT: -3 -T0
 
 jobs:
-  prepare:
-    name: Prepare build matrix
+  # Runs alongside the builds so the pending reminder appears early. merge_artifacts adds the testing instructions.
+  reminder_comment:
+    name: Check WordPress.com test reminder
     runs-on: ubuntu-latest
     timeout-minutes: 5  # 2026-04-07: Should take about a minute.
+    if: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.event.pull_request.base.repo.full_name }}
     permissions:
       # actions/checkout
       contents: read
       # Comment posting
       pull-requests: write
     outputs:
-      changed_projects: ${{ steps.changed.outputs.projects }}
-      build_matrix: ${{ steps.changed.outputs.build-matrix }}
       comment_id: ${{ steps.check-test-reminder-comment.outputs.result }}
 
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
-      # For pull requests, list-changed-projects.sh needs the merge base.
-      # But it doesn't have to be checked out.
+      # list-changed-projects.sh needs the merge base, but it doesn't have to be checked out.
       - name: Deepen to merge base
-        if: github.event_name == 'pull_request'
         uses: $/.github/actions/deepen-to-merge-base
         with:
           checkout: false
@@ -57,47 +55,13 @@ jobs:
       - name: Pnpm install
         run: pnpm install
 
-      # For trunk merges, we build everything but split into two jobs: 'wpcom' and 'non-wpcom'. The 'wpcom' job pushes certain plugins to mirrors.
-      # For everything else, we do a single build job.
       - name: Detect changed projects
         id: changed
-        run: |
-          if [[ "$GITHUB_EVENT_NAME" == 'push' && "$GITHUB_REF" == 'refs/heads/trunk' ]]; then
-            pnpm jetpack dependencies list --extra=build --ignore-root | sort > all.txt
-            pnpm jetpack dependencies list --extra=build --ignore-root --add-dependencies plugins/jetpack plugins/mu-wpcom-plugin | sort > wpcom.txt
-            comm -23 all.txt wpcom.txt > non-wpcom.txt
-
-            CHANGED=$( jq -ncR 'reduce inputs as $i ({}; .[$i] |= true)' all.txt )
-            echo "projects=${CHANGED}" >> "$GITHUB_OUTPUT"
-
-            WPCOM=$( jq -ncR 'reduce inputs as $i ({}; .[$i] |= true)' wpcom.txt )
-            NONWPCOM=$( jq -ncR 'reduce inputs as $i ({}; .[$i] |= true)' non-wpcom.txt )
-
-            MATRIX=$( jq -nc --arg WPCOM "$WPCOM" --arg NONWPCOM "$NONWPCOM" '{
-              wpcom: {
-                changed: $WPCOM,
-              },
-              nonwpcom: {
-                changed: $NONWPCOM,
-              }
-            }' )
-            echo "build-matrix=$MATRIX" >> "$GITHUB_OUTPUT"
-          else
-            CHANGED="$(EXTRA=build .github/files/list-changed-projects.sh)"
-            echo "projects=${CHANGED}" >> "$GITHUB_OUTPUT"
-
-            MATRIX=$( jq -nc --arg CHANGED "$CHANGED" '{
-              all: {
-                changed: $CHANGED,
-              }
-            }' )
-            echo "build-matrix=$MATRIX" >> "$GITHUB_OUTPUT"
-          fi
+        run: echo "projects=$(EXTRA=build .github/files/list-changed-projects.sh)" >> "$GITHUB_OUTPUT"
 
       - name: Check if a WordPress.com test reminder comment is needed.
         id: check-test-reminder-comment
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
-        if: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.event.pull_request.base.repo.full_name }}
         env:
           CHANGED: ${{ steps.changed.outputs.projects }}
         with:
@@ -106,15 +70,14 @@ jobs:
             const data = await checkTestPendingComment( github, context, core );
             return data;
 
+  # Trunk pushes build everything, split into 'wpcom' and 'nonwpcom' jobs so the 'wpcom' job can push certain plugins to mirrors. Everything else gets the single 'all' job.
   # Have to manually matrix with yaml anchors, because `update_wpcom_mirrors` needs to depend on only `build_wpcom` and that's not possible with normal matrixing.
   build_all:
     name: Build all projects
     runs-on: ubuntu-latest
-    needs: prepare
-    if: ${{ fromJson( needs.prepare.outputs.build_matrix ).all }}
+    if: ${{ ! ( github.event_name == 'push' && github.ref == 'refs/heads/trunk' ) }}
     env:
       FILENAME: partial-build-all.tar.xz
-      CHANGED: ${{ fromJson( needs.prepare.outputs.build_matrix ).all.changed }}
       # Hard-code a specific directory to avoid paths in vendor/composer/installed.json changing every build.
       BUILD_BASE: /tmp/jetpack-build
     timeout-minutes: 30  # 2026-08-18: Successful runs take ~18 minutes.
@@ -122,11 +85,36 @@ jobs:
     steps: &build_steps
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
+      # For pull requests, list-changed-projects.sh needs the merge base.
+      # But it doesn't have to be checked out.
+      - name: Deepen to merge base
+        if: github.event_name == 'pull_request'
+        uses: $/.github/actions/deepen-to-merge-base
+        with:
+          checkout: false
+
       - name: Setup tools
         uses: $/.github/actions/tool-setup
 
       - name: Pnpm install
         run: pnpm install
+
+      - name: Detect changed projects
+        shell: bash
+        run: |
+          if [[ "$GITHUB_JOB" == build_all ]]; then
+            CHANGED="$(EXTRA=build .github/files/list-changed-projects.sh)"
+          else
+            pnpm jetpack dependencies list --extra=build --ignore-root --add-dependencies plugins/jetpack plugins/mu-wpcom-plugin | sort > "$RUNNER_TEMP/wpcom.txt"
+            if [[ "$GITHUB_JOB" == build_nonwpcom ]]; then
+              pnpm jetpack dependencies list --extra=build --ignore-root | sort > "$RUNNER_TEMP/all.txt"
+              LIST=$( comm -23 "$RUNNER_TEMP/all.txt" "$RUNNER_TEMP/wpcom.txt" )
+            else
+              LIST=$(< "$RUNNER_TEMP/wpcom.txt" )
+            fi
+            CHANGED=$( jq -ncR 'reduce inputs as $i ({}; .[$i] |= true)' <<<"$LIST" )
+          fi
+          echo "CHANGED=${CHANGED}" >> "$GITHUB_ENV"
 
       # We need the tree (but not the blob) for packages that will have -alpha version numbers so the timestamp appending works right.
       # We also need the tree for js-packages/social-logos/src/svg so the font build will work right.
@@ -186,11 +174,9 @@ jobs:
   build_wpcom:
     name: Build wpcom projects
     runs-on: ubuntu-latest
-    needs: prepare
-    if: ${{ fromJson( needs.prepare.outputs.build_matrix ).wpcom }}
+    if: &trunk_push ${{ github.event_name == 'push' && github.ref == 'refs/heads/trunk' }}
     env:
       FILENAME: partial-build-wpcom.tar.xz
-      CHANGED: ${{ fromJson( needs.prepare.outputs.build_matrix ).wpcom.changed }}
       # Hard-code a specific directory to avoid paths in vendor/composer/installed.json changing every build.
       BUILD_BASE: /tmp/jetpack-build
     timeout-minutes: 25  # 2026-08-18: Successful runs take ~13 minutes.
@@ -199,11 +185,9 @@ jobs:
   build_nonwpcom:
     name: Build non-wpcom projects
     runs-on: ubuntu-latest
-    needs: prepare
-    if: ${{ fromJson( needs.prepare.outputs.build_matrix ).nonwpcom }}
+    if: *trunk_push
     env:
       FILENAME: partial-build-nonwpcom.tar.xz
-      CHANGED: ${{ fromJson( needs.prepare.outputs.build_matrix ).nonwpcom.changed }}
       # Hard-code a specific directory to avoid paths in vendor/composer/installed.json changing every build.
       BUILD_BASE: /tmp/jetpack-build
     timeout-minutes: 25  # 2026-08-18: Successful runs seem to take ~13 minutes.
@@ -213,7 +197,7 @@ jobs:
     name: Merge build artifacts
     runs-on: ubuntu-latest
     timeout-minutes: 10  # 2026-04-07: Should take a minute or two.
-    needs: [ prepare, build_all, build_wpcom, build_nonwpcom ]
+    needs: [ reminder_comment, build_all, build_wpcom, build_nonwpcom ]
     permissions:
       # actions/checkout, actions/upload-artifact, actions/download-artifact
       contents: read
@@ -225,7 +209,6 @@ jobs:
     # Have to check the probably-skipped build jobs manually, by default GH will skip this job if any of them skipped.
     if: >
       ! cancelled() &&
-      needs.prepare.result == 'success' &&
       ( needs.build_all.result == 'success' || needs.build_all.result == 'skipped' ) &&
       ( needs.build_wpcom.result == 'success' || needs.build_wpcom.result == 'skipped' ) &&
       ( needs.build_nonwpcom.result == 'success' || needs.build_nonwpcom.result == 'skipped' ) &&
@@ -390,10 +373,10 @@ jobs:
       - name: Update reminder with testing instructions
         id: update-reminder-comment
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
-        if: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.event.pull_request.base.repo.full_name && fromJSON(needs.prepare.outputs.comment_id)['commentId'] != 0 }}
+        if: ${{ needs.reminder_comment.result == 'success' && fromJSON(needs.reminder_comment.outputs.comment_id)['commentId'] != 0 }}
         env:
           BRANCH_NAME: ${{ github.head_ref }}
-          DATA: ${{ needs.prepare.outputs.comment_id }}
+          DATA: ${{ needs.reminder_comment.outputs.comment_id }}
         with:
           script: |
             const { checkTestReminderComment } = require('./monorepo/.github/files/build-reminder-comment/check-test-reminder-comment.js')
@@ -551,7 +534,7 @@ jobs:
   update_all_mirrors:
     name: Push to mirror repos
     runs-on: ubuntu-latest
-    needs: [ prepare, merge_artifacts, await_update_all_mirrors ]
+    needs: [ merge_artifacts, await_update_all_mirrors ]
     concurrency:
       group: build-push_all
       queue: max
@@ -573,7 +556,7 @@ jobs:
           mkdir build
           tar --xz -k -xvvf jetpack-build.tar.xz build
       - name: Filter mirrors.txt
-        if: ${{ fromJson( needs.prepare.outputs.build_matrix ).wpcom }}
+        if: *trunk_push
         run: |
           # Skip the plugins pushed by update_wpcom_mirrors, if it was supposed to have run.
           grep -vFx -e 'Automattic/jetpack-production' -e 'Automattic/jetpack-mu-wpcom-plugin' build/mirrors.txt > build/mirrors.txt.tmp || true

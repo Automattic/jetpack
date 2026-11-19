@@ -789,6 +789,17 @@ class Action_Bar {
 					?>
 						<li class="actnbr-btn actnbr-hidden">
 							<?php self::follow_links( $is_following ); ?>
+							<?php if ( $is_logged_in ) : ?>
+								<div class="actnbr-undo no-display">
+									<span>
+										<?php
+										/* translators: %s: site name */
+										echo esc_html( sprintf( __( 'Unsubscribed from %s.', 'jetpack-newsletter' ), $site_name ) );
+										?>
+									</span>
+									<button type="button" class="actnbr-undo__button"><?php esc_html_e( 'Undo', 'jetpack-newsletter' ); ?></button>
+								</div>
+							<?php endif; ?>
 							<div class="actnbr-popover actnbr-panel actnbr-notice" id="follow-bubble" role="dialog" aria-label="<?php echo esc_attr( sprintf( /* translators: %s: site name */ __( 'Subscribe to %s', 'jetpack-newsletter' ), $site_name ) ); ?>">
 								<div class="actnbr-follow-bubble">
 								<?php self::site_title( $site_url, $site_name, $blavatar ); ?>

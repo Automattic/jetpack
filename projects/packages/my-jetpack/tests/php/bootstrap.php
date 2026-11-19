@@ -35,6 +35,7 @@ if ( empty( $_SERVER['HTTP_HOST'] ) ) {
 }
 
 define( 'WP_DEBUG', true );
+define( 'WP_HTTP_BLOCK_EXTERNAL', true );
 define( 'JETPACK_ENABLE_MY_JETPACK', true );
 
 // Its own plugins folder, since other projects' tests add and remove plugins in the shared one in parallel CI runs.

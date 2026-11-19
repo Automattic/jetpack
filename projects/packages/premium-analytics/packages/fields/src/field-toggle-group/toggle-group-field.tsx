@@ -110,7 +110,7 @@ export default function ToggleGroupField< Item >( {
 
 	return (
 		<ToggleGroupControl
-			className={ styles.control }
+			className={ iconOptions ? styles.control : `${ styles.control } ${ styles.text }` }
 			label={ label }
 			help={ description }
 			hideLabelFromVision={ hideLabelFromVision }

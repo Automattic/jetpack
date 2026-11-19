@@ -3,6 +3,7 @@ import clsx from 'clsx';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router';
 import { useValueStore } from '../../context/value-store/valueStoreContext';
+import useAdminShellReturn from '../../hooks/use-admin-shell-return';
 import useAnalytics from '../../hooks/use-analytics';
 import { getHistoryEntryKey } from '../../hooks/use-go-back';
 import useIsJetpackUserNew from '../../hooks/use-is-jetpack-user-new';
@@ -110,6 +111,17 @@ export function MyJetpackTabPanel( { beforeContent }: { beforeContent?: ReactNod
 		} );
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [] ); // track this only on page load
+
+	// A page load's view: its navigation source is external.
+	useAdminShellReturn(
+		useCallback( () => {
+			recordEvent( 'jetpack_myjetpack_tab_view', {
+				tab_name: currentTab,
+				user_type: isNewUser ? 'new' : 'returning',
+				navigation_source: 'external',
+			} );
+		}, [ recordEvent, currentTab, isNewUser ] )
+	);
 
 	const [ , setLastTab ] = useValueStore( 'lastTab', null );
 	useEffect( () => {

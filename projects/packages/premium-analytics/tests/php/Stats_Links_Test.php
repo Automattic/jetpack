@@ -297,9 +297,23 @@ class Stats_Links_Test extends BaseTestCase {
 	 * @return array
 	 */
 	public static function provide_legacy_routes() {
+		// The site runs on UTC, so a day's ends carry a zero offset.
+		$august = 'from%3D2026-08-01T00%253A00%253A00.000%252B00%253A00%26to%3D2026-08-07T23%253A59%253A59.999%252B00%253A00';
+		$a_day  = 'from%3D2026-08-01T00%253A00%253A00.000%252B00%253A00%26to%3D2026-08-01T23%253A59%253A59.999%252B00%253A00';
+
 		return array(
 			'no route'             => array( '', '%2F' ),
 			'traffic period'       => array( '#!/stats/day/123', '%2F%3Fsection%3Dtraffic' ),
+			'traffic by the hour'  => array( '#!/stats/hour/123', '%2F%3Fsection%3Dtraffic%26preset%3Dtoday' ),
+			'summary'              => array( '#!/stats/day/referrers/123?startDate=2026-10-01', '%2Freports%2Freferrers' ),
+			'summary, other name'  => array( '#!/stats/year/searchterms/123', '%2Freports%2Fsearch-terms' ),
+			'summary, downloads'   => array( '#!/stats/day/filedownloads/123', '%2Freports%2Fdownloads' ),
+			'summary, annual'      => array( '#!/stats/annualstats/123', '%2Freports%2Fannual-insights' ),
+			'summary by the hour'  => array( '#!/stats/hour/countryviews/123', '%2Freports%2Flocations' ),
+			'summary, no period'   => array( '#!/stats/videoplays/123', '%2Freports%2Fvideos' ),
+			'summary, no report'   => array( '#!/stats/day/devices/123', '%2F%3Fsection%3Dtraffic' ),
+			'emails'               => array( '#!/stats/day/emails/123', '%2Freports%2Femails' ),
+			'comment followers'    => array( '#!/stats/follows/comment/2/123', '%2Freports%2Fcomment-followers' ),
 			'insights'             => array( '#!/stats/insights/example.org', '%2F%3Fsection%3Dinsights' ),
 			'subscribers'          => array( '#!/stats/subscribers/example.org', '%2F%3Fsection%3Dsubscribers' ),
 			'store'                => array( '#!/stats/store/orders/day/example.org', '%2F%3Fsection%3Dwoocommerce' ),
@@ -309,6 +323,21 @@ class Stats_Links_Test extends BaseTestCase {
 			'post without an ID'   => array( '#!/stats/post/0/123', '%2F' ),
 			'email opens'          => array( '#!/stats/email/opens/day/29/123', '%2Fpost%2F29%3Fsection%3Demail-opens' ),
 			'email clicks'         => array( '#!/stats/email/clicks/day/29/123', '%2Fpost%2F29%3Fsection%3Demail-clicks' ),
+			'traffic on days'      => array( '#!/stats/week/123?chartStart=2026-08-01&chartEnd=2026-08-07', '%2F%3Fsection%3Dtraffic%26' . $august ),
+			'days without zeros'   => array( '#!/stats/day/123?chartStart=2026-8-1&chartEnd=2026-8-7', '%2F%3Fsection%3Dtraffic%26' . $august ),
+			'days ending first'    => array( '#!/stats/day/123?chartStart=2026-08-07&chartEnd=2026-08-01', '%2F%3Fsection%3Dtraffic' ),
+			'days that are not'    => array( '#!/stats/day/123?chartStart=last&chartEnd=2026-08-07', '%2F%3Fsection%3Dtraffic' ),
+			'nonexistent days'     => array( '#!/stats/day/123?chartStart=2026-02-30&chartEnd=2026-03-05&startDate=2026-08-01&endDate=2026-08-07', '%2F%3Fsection%3Dtraffic%26' . $august ),
+			'older day params'     => array( '#!/stats/day/123?chartStart=x&startDate=2026-08-01&endDate=2026-08-07', '%2F%3Fsection%3Dtraffic%26' . $august ),
+			'hour on a day'        => array( '#!/stats/hour/123?chartStart=2026-08-01&chartEnd=2026-08-01', '%2F%3Fsection%3Dtraffic%26' . $a_day ),
+			'summary on days'      => array( '#!/stats/day/referrers/123?chartStart=2026-08-01&chartEnd=2026-08-07&shortcut=custom', '%2Freports%2Freferrers%3F' . $august ),
+			'other tabs drop days' => array( '#!/stats/insights/123?chartStart=2026-08-01&chartEnd=2026-08-07', '%2F%3Fsection%3Dinsights' ),
+			'locations by region'  => array( '#!/stats/day/locations/123?geoMode=regions', '%2Freports%2Flocations%3Fsection%3Dregions' ),
+			'locations on days'    => array( '#!/stats/day/countryviews/123?geoMode=cities&chartStart=2026-08-01&chartEnd=2026-08-07', '%2Freports%2Flocations%3Fsection%3Dcities%26' . $august ),
+			'unknown geo mode'     => array( '#!/stats/day/locations/123?geoMode=planets', '%2Freports%2Flocations' ),
+			'geo mode elsewhere'   => array( '#!/stats/day/referrers/123?geoMode=regions', '%2Freports%2Freferrers' ),
+			'video'                => array( '#!/stats/day/videodetails/123?post=29', '%2Freport%2Fvideo%2F29' ),
+			'video without an ID'  => array( '#!/stats/day/videodetails/123', '%2Freports%2Fvideos' ),
 			'no dashboard page'    => array( '#!/stats/purchase/123?from=x', '%2F' ),
 			'not a Stats fragment' => array( '#/insights', '%2F' ),
 		);

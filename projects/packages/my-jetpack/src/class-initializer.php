@@ -48,7 +48,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '6.17.1';
+	const PACKAGE_VERSION = '6.18.2';
 
 	/**
 	 * Feature flag that swaps the single-screen onboarding takeover for the setup wizard.
@@ -155,7 +155,7 @@ class Initializer {
 	/**
 	 * Modules whose Jetpack settings link opens in the Features panel. A subset of `moduleSettings` in `settings-panel/registry.ts`; see there for which modules stay out.
 	 */
-	public const SETTINGS_PANEL_MODULES = array( 'carousel', 'infinite-scroll', 'post-by-email', 'related-posts' );
+	public const SETTINGS_PANEL_MODULES = array( 'carousel', 'comments', 'infinite-scroll', 'markdown', 'post-by-email', 'related-posts' );
 
 	/**
 	 * Holds info/data about the site (from the /sites/%d endpoint)
@@ -202,6 +202,7 @@ class Initializer {
 
 		// Answer "is this product on?" for admin menu registration.
 		Menu_Visibility::init();
+		Turned_Off_Page::init();
 
 		self::register_settings_panel_urls();
 
@@ -869,7 +870,7 @@ class Initializer {
 	/**
 	 * Register My Jetpack with the admin shell, which switches between Jetpack dashboards without a page load.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.18.0
 	 *
 	 * @param array $members Shell members keyed by admin page slug.
 	 * @return array
@@ -885,6 +886,10 @@ class Initializer {
 			'build_page'   => self::WP_BUILD_PAGE_ID,
 			'init_modules' => array( '@jetpack-my-jetpack/init' ),
 			'title'        => 'My Jetpack',
+			'header'       => array(
+				'title'    => 'Jetpack',
+				'subtitle' => '',
+			),
 			'capability'   => 'edit_posts',
 			'handles'      => array( 'my_jetpack_main_app', 'my_jetpack_ai_app', 'jetpack-script-data', 'jetpack-connection', 'my-jetpack-header-controls', 'wp-jp-i18n-loader' ),
 			'load'         => array( __CLASS__, 'load_as_admin_shell_guest' ),
@@ -897,7 +902,7 @@ class Initializer {
 	 *
 	 * Skips the screen ID alias: on another page it would make the generated enqueue boot a second app.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.18.0
 	 *
 	 * @return void
 	 */
@@ -1331,6 +1336,9 @@ class Initializer {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Only selects which navigation data to seed.
 		if ( in_array( $_GET['page'] ?? '', array( 'my-jetpack', 'jetpack-settings', 'jetpack' ), true ) ) {
 			$data['myJetpack']['modulesManagementUrl'] = self::get_modules_management_url();
+			$data['myJetpack']['googleAnalyticsPanel'] = Google_Analytics_Settings::is_available()
+				? self::get_settings_panel_url( Google_Analytics_Settings::SLUG )
+				: false;
 		}
 
 		// Only administrators can open the pages this points at, so spare everyone else the lookup.
@@ -1695,10 +1703,22 @@ class Initializer {
 			return $fallback;
 		}
 
+		return self::get_settings_panel_url( $module );
+	}
+
+	/**
+	 * The URL that opens a settings panel in Features.
+	 *
+	 * @since 6.18.0
+	 *
+	 * @param string $slug The module or settings entry slug.
+	 * @return string
+	 */
+	public static function get_settings_panel_url( $slug ) {
 		return add_query_arg(
 			array(
 				'page' => 'my-jetpack',
-				'p'    => rawurlencode( '/features?configure=' . $module ),
+				'p'    => rawurlencode( '/features?configure=' . $slug ),
 			),
 			admin_url( 'admin.php' )
 		);
@@ -1714,28 +1734,7 @@ class Initializer {
 	}
 
 	/**
-	 * Build the state the My Jetpack "try the new SEO experience" opt-in card hydrates from.
-	 *
-	 * The card invites an existing self-hosted install to switch over to the new Jetpack SEO
-	 * dashboard (JETPACK-1700). Gating lives server-side, where the signals actually are. The
-	 * card shows only when all of:
-	 *
-	 * - the new SEO product is available — the `rsm_jetpack_seo` feature filter is on (the SEO
-	 *   package autoloads regardless, so `class_exists()` alone isn't enough; the filter is the
-	 *   real availability switch and the same one the SEO package gates its own surface behind);
-	 * - the site is self-hosted — WordPress.com (Simple + Atomic) decides its own SEO surface, so
-	 *   the opt-in card is for self-hosted installs only;
-	 * - the install hasn't opted in yet — the SEO surface isn't visible. On wpcom
-	 *   the SEO package's `is_seo_surface_visible()` short-circuits to `true`, so the
-	 *   "not visible yet" check also doubles as the self-hosted guard, but we check the platform
-	 *   explicitly for clarity.
-	 *
-	 * Referenced through `class_exists()` rather than a hard composer dependency: both packages
-	 * ship inside the Jetpack plugin and the SEO surface is feature-flagged, so a guarded read of
-	 * its public API keeps this from adding plumbing to consumers that don't load SEO.
-	 *
-	 * The on-success destination is computed by the opt-in endpoint itself; we only seed the card
-	 * with the same admin URL so the button has a sensible fallback before the request resolves.
+	 * Build the legacy SEO opt-in card state through the package availability API.
 	 *
 	 * @return array{showCard: bool, redirect: string}
 	 */

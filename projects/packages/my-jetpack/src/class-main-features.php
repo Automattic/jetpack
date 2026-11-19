@@ -103,6 +103,7 @@ class Main_Features {
 				'description'      => __( 'See what changed on your site, when it happened, and who did it.', 'jetpack-my-jetpack' ),
 				'long_description' => __( 'When something breaks, see exactly what changed and who changed it, from published posts to plugin updates and logins. Every connected site gets its 20 most recent events for free.', 'jetpack-my-jetpack' ),
 				'icon'             => 'list',
+				// The page a feature opens; `off_pages` lists its others. Each shows the turned-off card while the feature is off.
 				'admin_page'       => 'jetpack-activity-log',
 				'module'           => 'activity-log',
 				'needs_account'    => true,
@@ -270,6 +271,7 @@ class Main_Features {
 				'long_description' => __( 'Generate posts, tables, forms and images from a prompt, then change the tone, translate, or fix unclear sentences to make your writing easier to read. Before you publish, improve your title and create a featured image in one click.', 'jetpack-my-jetpack' ),
 				'icon'             => 'star',
 				'product'          => 'jetpack-ai',
+				'off_pages'        => array( 'jetpack-ai' ),
 				'needs_account'    => true,
 				'interstitial'     => '/add-jetpack-ai',
 				'free_highlights'  => array(
@@ -299,6 +301,7 @@ class Main_Features {
 				'long_description' => __( 'Break long forms into steps with a progress bar, and get every response by email and in your dashboard, with no limit on responses. Upgrade to add secure file uploads that keep harmful files off your server.', 'jetpack-my-jetpack' ),
 				'icon'             => 'list-bullets',
 				'product'          => 'jetpack-forms',
+				'off_pages'        => array( 'jetpack-forms-responses-wp-admin', 'jetpack-forms-admin' ),
 				'essential'        => true,
 				'free_highlights'  => array(
 					__( 'Unlimited responses, by email and in your dashboard', 'jetpack-my-jetpack' ),
@@ -325,6 +328,7 @@ class Main_Features {
 				'icon'             => 'envelope',
 				'product'          => 'newsletter',
 				'module'           => 'subscriptions',
+				'off_pages'        => array( 'jetpack-newsletter' ),
 				'needs_account'    => true,
 				'free_highlights'  => array(
 					__( 'No limit on subscribers or email sends', 'jetpack-my-jetpack' ),
@@ -384,6 +388,7 @@ class Main_Features {
 				'product'          => 'protect',
 				// Not `protect`: that module is Login protection, which has its own row.
 				'module'           => Products\Protect::DASHBOARD_MODULE_NAME,
+				'off_pages'        => array( 'jetpack-protect' ),
 				'essential'        => true,
 				'interstitial'     => '/add-protect',
 				'free_highlights'  => array(
@@ -415,6 +420,7 @@ class Main_Features {
 				'long_description' => __( 'Visitors see relevant results as they type and can filter by category, tag, date or author, so they find what they need instead of leaving. Match search to your theme without writing code.', 'jetpack-my-jetpack' ),
 				'icon'             => 'search',
 				'product'          => 'search',
+				'off_pages'        => array( 'jetpack-search' ),
 				'interstitial'     => '/add-search',
 				'setup_note'       => __( 'To start using it, choose a plan next, including a free one.', 'jetpack-my-jetpack' ),
 				'free_highlights'  => array(
@@ -445,6 +451,7 @@ class Main_Features {
 				'long_description' => __( 'Reach your followers on Facebook, Instagram, Threads, Bluesky, LinkedIn, Mastodon, Nextdoor and Tumblr without leaving WordPress. Posts share automatically when you publish, and you can re-share or schedule them later.', 'jetpack-my-jetpack' ),
 				'icon'             => 'share',
 				'product'          => 'social',
+				'off_pages'        => array( 'jetpack-social' ),
 				'needs_account'    => true,
 				'interstitial'     => '/add-social',
 				'free_highlights'  => array(
@@ -475,6 +482,7 @@ class Main_Features {
 				'long_description' => __( 'Track views, visitors, top posts, referrers and visitor countries right from your WordPress dashboard. Learn what works without seeing who your individual visitors are.', 'jetpack-my-jetpack' ),
 				'icon'             => 'chart-bar',
 				'product'          => 'stats',
+				'off_pages'        => array( 'stats' ),
 				'essential'        => true,
 				'interstitial'     => '/add-stats',
 				'free_highlights'  => array(
@@ -504,6 +512,7 @@ class Main_Features {
 				'long_description' => __( 'Keep the focus on your videos with ad-free playback that fits your brand. Drag and drop videos into the WordPress editor to get started.', 'jetpack-my-jetpack' ),
 				'icon'             => 'video',
 				'product'          => 'videopress',
+				'off_pages'        => array( 'jetpack-videopress' ),
 				'interstitial'     => '/add-videopress',
 				'free_highlights'  => array(
 					__( 'Host one video', 'jetpack-my-jetpack' ),
@@ -1028,7 +1037,7 @@ class Main_Features {
 	/**
 	 * Settings that have no module but open in the settings panel, for the current user on this site.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.18.0
 	 *
 	 * @return array[] Entries with `slug`, `name`, `description` and `status` (`active`, `inactive` or `needs-setup`) keys.
 	 */

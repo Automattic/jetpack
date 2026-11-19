@@ -413,7 +413,7 @@ return [
         'tests/php/sync/Jetpack_Sync_Post_Test.php' => ['PhanTypeExpectedObjectPropAccess', 'PhanTypeMismatchArgumentProbablyReal'],
         'tests/php/sync/Jetpack_Sync_Queue_Dedicated_Table_Test.php' => ['PhanTypeMismatchArgumentProbablyReal'],
         'tests/php/sync/Jetpack_Sync_Queue_Options_Table_Test.php' => ['PhanTypeMismatchArgumentProbablyReal'],
-        'tests/php/sync/Jetpack_Sync_Queue_Test.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal'],
+        'tests/php/sync/Jetpack_Sync_Queue_Test.php' => ['PhanTypeMismatchArgumentProbablyReal'],
         'tests/php/sync/Jetpack_Sync_Queue_TestBase.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal'],
         'tests/php/sync/Jetpack_Sync_Sender_Test.php' => ['PhanTypeMismatchArgumentProbablyReal'],
         'tests/php/sync/Jetpack_Sync_Term_Relationships_Test.php' => ['PhanPluginUnreachableCode'],

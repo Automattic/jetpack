@@ -5,7 +5,7 @@ $padding: calc(var(--wpds-dimension-padding-xs) + var(--wpds-border-width-focus)
 // Shared with the trail's separator and current label beside the link.
 @mixin text {
 	font-size: 13px;
-	font-weight: 500;
+	font-weight: var(--wpds-typography-font-weight-default);
 	line-height: 20px;
 }
 

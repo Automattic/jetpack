@@ -2,9 +2,9 @@ import { __, sprintf } from '@wordpress/i18n';
 import type { AiTool } from './lib.ts';
 
 /**
- * The "Bring your AI tool" experiment's copy: the setup choice and the "Which AI do you use?" view.
+ * The setup choice and "Which AI do you use?" copy, shared by the experiment and the `start=ai-tool` link.
  *
- * @return The experiment's copy.
+ * @return The copy.
  */
 export function bringYourAiToolCopy() {
 	const toolName = ( aiTool: AiTool ) =>
@@ -19,11 +19,6 @@ export function bringYourAiToolCopy() {
 		useAiTitle: __( 'Build with AI', 'jetpack-mu-wpcom' ),
 		useAiDescription: __(
 			'Connect ChatGPT or Claude and build your site by chatting.',
-			'jetpack-mu-wpcom'
-		),
-		freeBadge: __( 'Through November', 'jetpack-mu-wpcom' ),
-		freeTooltip: __(
-			'Using your AI with WordPress.com usually needs a paid plan. It’s free on your site through November.',
 			'jetpack-mu-wpcom'
 		),
 		toolName,

@@ -537,6 +537,33 @@ describe( 'ComparativeBarChart', () => {
 			expect( recordedOptions().yScale?.domain ).toEqual( [ 0, 1 ] );
 		} );
 
+		it( 'scales a percentage metric to the data once a value passes 100%', () => {
+			render(
+				<ComparativeBarChart
+					series={ [ { label: 'July', group: 'rate', data: [ { date: JULY_1, value: 32.5 } ] } ] }
+					dataFormat={ { type: 'percentage' } }
+				/>
+			);
+
+			// Pinned at 100%, a 3,250% bar would run off the top of the plot.
+			expect( recordedOptions() ).not.toHaveProperty( 'yScale' );
+		} );
+
+		it( 'pins the rates left on 0-100% when the legend hides the one past 100%', () => {
+			setMockHiddenSeries( [ 'Retention' ] );
+			render(
+				<ComparativeBarChart
+					series={ [
+						{ label: 'Rate', group: 'rate', data: [ { date: JULY_1, value: 0.4 } ] },
+						{ label: 'Retention', group: 'retention', data: [ { date: JULY_1, value: 32.5 } ] },
+					] }
+					dataFormat={ { type: 'percentage' } }
+				/>
+			);
+
+			expect( recordedOptions().yScale?.domain ).toEqual( [ 0, 1 ] );
+		} );
+
 		it( 'leaves the pinned domain to size its own gutter', () => {
 			render( <ComparativeBarChart series={ ZERO_SERIES } dataFormat={ DATA_FORMAT } /> );
 

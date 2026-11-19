@@ -4,11 +4,35 @@
 	"title": "Email performance",
 	"description": "A single email's opens or clicks over time since it was sent.",
 	"help": {
-		"content": "How a single email performed over time: opens or clicks per day over the window the page reports — on the post detail page, the first 30 days after the send."
+		"content": "How a single email performed since it was sent: opens or clicks by the hour over the first 24 hours, by the day over the first week or the first 30 days, or by the month over all time."
 	},
 	"category": "stats",
 	"presentation": "framed",
 	"attributes": [
+		{
+			"id": "sendWindow",
+			"type": "jpa/select",
+			"label": "Time since send",
+			"relevance": "high",
+			"elements": [
+				{
+					"value": "first-24-hours",
+					"label": "First 24 hours"
+				},
+				{
+					"value": "first-week",
+					"label": "First week"
+				},
+				{
+					"value": "first-30-days",
+					"label": "First 30 days"
+				},
+				{
+					"value": "all-time",
+					"label": "All time"
+				}
+			]
+		},
 		{
 			"id": "chartType",
 			"type": "jpa/toggle-group",

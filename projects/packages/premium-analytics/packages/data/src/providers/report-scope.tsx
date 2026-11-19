@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { type DateRange } from '@jetpack-premium-analytics/datetime';
+import { type DateRange, type DateStepId } from '@jetpack-premium-analytics/datetime';
 import { createContext, useContext, useMemo, type ReactNode } from 'react';
 /**
  * Internal dependencies
@@ -29,6 +29,12 @@ export type DateLimits = Pick<
 	intervalUpsell?: DateLimitUpsellCopy;
 };
 
+/** What a widget says about the period it opens. */
+export type OpenPeriodOptions = {
+	/** How the date arrows step it: the bucket's own unit, so a bar opened today steps whole. */
+	step?: DateStepId;
+};
+
 /**
  * What the surface a widget or table is rendering on offers.
  */
@@ -39,10 +45,10 @@ export type ReportScope = {
 	 * Applies a range a widget computed as the surface's period, drawing the date
 	 * control's attention to it. Absent where the host offers none.
 	 */
-	openPeriod?: ( range: Required< DateRange > ) => void;
+	openPeriod?: ( range: Required< DateRange >, options?: OpenPeriodOptions ) => void;
 	/**
-	 * The id the host's date control draws attention with while a period a widget set
-	 * lands; undefined while nothing is pending. Travels with `openPeriod`.
+	 * The id the host's date control draws attention with while a period a widget set is
+	 * highlighted; undefined otherwise. Travels with `openPeriod`.
 	 */
 	attentionId?: number;
 	/** The date options the site's plan locks; absent where the host applies no limits. */
@@ -60,7 +66,7 @@ const ReportScopeContext = createContext< ReportScope >( DEFAULT_REPORT_SCOPE );
  * @param props                  - Provider props.
  * @param props.offersComparison - Whether this surface offers the date comparison.
  * @param props.openPeriod       - How a widget sets this surface's period.
- * @param props.attentionId      - The id the host's date control draws attention with; undefined while nothing is pending.
+ * @param props.attentionId      - The id the host's date control draws attention with; undefined while nothing is highlighted.
  * @param props.dateLimits       - Date options the plan withholds.
  * @param props.children         - The surface's tree.
  * @return The provider.

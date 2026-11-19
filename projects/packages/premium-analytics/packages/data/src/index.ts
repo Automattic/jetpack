@@ -5,6 +5,7 @@ export {
 	useScopeLockedIntervals,
 	type DateLimits,
 	type DateLimitUpsellCopy,
+	type OpenPeriodOptions,
 	type ReportScope,
 } from './providers/report-scope';
 export {
@@ -13,6 +14,7 @@ export {
 	postSurface,
 	useRaisePeriodChange,
 	useSettlePeriodChange,
+	type PeriodChange,
 } from './providers/period-change-signal';
 export * from './hooks';
 export { STATS_SITE_SUMMARY_FIELDS } from './queries/stats-site-query';
@@ -73,6 +75,10 @@ export {
 	computeDateRangeFromPreset,
 	getApiErrorCode,
 	getApiErrorStatus,
+	emailSendWindowParams,
+	emailSendWindowRange,
+	readEmailSendWindow,
+	type EmailSendWindow,
 	findAuthorRow,
 	isAccessDenied,
 	isAnalyticsSchemaOutdated,
@@ -126,6 +132,7 @@ export {
 	isPlanDateLimitedSection,
 	isPresetLockedByPolicy,
 	OPEN_DATE_POLICY,
+	startsBeforePolicy,
 	type DateLimitFeature,
 	type StatsDatePolicy,
 } from './utils/stats-date-policy';

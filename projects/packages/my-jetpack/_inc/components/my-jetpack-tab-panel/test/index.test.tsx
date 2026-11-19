@@ -2,6 +2,7 @@ import '@testing-library/jest-dom';
 import { currentUserCan, isSimpleSite } from '@automattic/jetpack-script-data';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import useAnalytics from '../../../hooks/use-analytics';
 import {
 	MY_JETPACK_SECTION_FEATURES,
 	MY_JETPACK_SECTION_HELP,
@@ -28,11 +29,7 @@ jest.mock( 'react-router', () => ( {
 	useParams: () => ( { section: mockSection } ),
 } ) );
 
-const mockRecordEvent = jest.fn();
-jest.mock( '../../../hooks/use-analytics', () => ( {
-	__esModule: true,
-	default: () => ( { recordEvent: mockRecordEvent } ),
-} ) );
+const mockRecordEvent = jest.mocked( jest.mocked( useAnalytics )().recordEvent );
 
 jest.mock( '../../../hooks/use-is-jetpack-user-new', () => ( {
 	__esModule: true,
@@ -87,6 +84,25 @@ describe( 'MyJetpackTabPanel', () => {
 			'jetpack_myjetpack_tab_view',
 			expect.objectContaining( { tab_name: MY_JETPACK_SECTION_FEATURES } )
 		);
+	} );
+
+	it( 'records the tab view again when the admin shell shows My Jetpack again', () => {
+		mockSection = MY_JETPACK_SECTION_FEATURES;
+		render( <MyJetpackTabPanel /> );
+
+		window.dispatchEvent(
+			new CustomEvent( 'jetpack-admin-shell:page-shown', {
+				detail: { page: 'my-jetpack', firstShow: false },
+			} )
+		);
+
+		expect( callsFor( 'jetpack_myjetpack_tab_view' ) ).toEqual( [
+			[ 'jetpack_myjetpack_tab_view', expect.objectContaining( { tab_name: 'features' } ) ],
+			[
+				'jetpack_myjetpack_tab_view',
+				{ tab_name: 'features', user_type: 'returning', navigation_source: 'external' },
+			],
+		] );
 	} );
 
 	it( 'does not record a tab click when the multi-section panel mounts', async () => {

@@ -7,7 +7,6 @@
 
 namespace Automattic\Jetpack\My_Jetpack;
 
-use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Tokens;
 use Automattic\Jetpack\Connection\Utils;
@@ -133,12 +132,8 @@ class Jetpack_Manage_Test extends BaseTestCase {
 			Utils::set_wpcom_user_id( $user_id, $this->wpcom_id( $user_id ) );
 		}
 
-		// The first signed request in a PHP process always fails with `invalid_signature`, and
-		// every one after it succeeds. Burn that first call here so these tests do not depend on
-		// some earlier test file having burned it — otherwise they pass in a full suite run and
-		// fail when run alone. It makes no HTTP request, so it consumes no canned response and
-		// does not move `$http_request_count`.
-		Client::wpcom_json_api_request_as_user( '/jetpack-partners' );
+		// Without the default API constants, a signed request's URL is malformed and it fails to sign.
+		Utils::init_default_constants();
 	}
 
 	/**

@@ -184,16 +184,26 @@ class Newsletter_Abilities_Test extends WP_UnitTestCase {
 	}
 
 	public function test_get_settings_reflects_stored_options() {
+		update_option( 'jetpack_subscriptions_subscribe_post_end_enabled', 1 );
 		update_option( 'stb_enabled', 0 );
 		update_option( 'social_notifications_subscribe', 'off' );
 		update_option( 'jetpack_subscriptions_reply_to', 'author' );
 		update_option( 'jetpack_subscriptions_from_name', 'My Sender' );
 
 		$result = Newsletter_Abilities::get_settings();
-		$this->assertFalse( $result['subscribe_post_end_enabled'] );
+		$this->assertTrue( $result['subscribe_post_end_enabled'] );
 		$this->assertFalse( $result['notify_admin_on_subscribe'] );
 		$this->assertSame( 'author', $result['reply_to'] );
 		$this->assertSame( 'My Sender', $result['from_name'] );
+	}
+
+	public function test_get_settings_defaults_subscribe_post_end_to_false_when_unset() {
+		// stb_enabled is the comment-form option; it must not leak into the end-of-post field.
+		delete_option( 'jetpack_subscriptions_subscribe_post_end_enabled' );
+		update_option( 'stb_enabled', 1 );
+
+		$result = Newsletter_Abilities::get_settings();
+		$this->assertFalse( $result['subscribe_post_end_enabled'] );
 	}
 
 	public function test_update_settings_with_empty_input_is_noop() {
@@ -229,20 +239,22 @@ class Newsletter_Abilities_Test extends WP_UnitTestCase {
 	}
 
 	public function test_update_settings_translates_booleans_to_storage_form() {
+		update_option( 'stb_enabled', 1 );
 		Newsletter_Abilities::update_settings(
 			array(
-				'subscribe_post_end_enabled' => false,
+				'subscribe_post_end_enabled' => true,
 				'notify_admin_on_subscribe'  => false,
 			)
 		);
 
-		// Booleans persist as 1/0 for stb_enabled, 'on'/'off' for social_notifications_subscribe.
-		$this->assertSame( '0', (string) get_option( 'stb_enabled' ) );
+		// Booleans persist as 1/0 for the end-of-post option, 'on'/'off' for social_notifications_subscribe.
+		$this->assertSame( '1', (string) get_option( 'jetpack_subscriptions_subscribe_post_end_enabled' ) );
 		$this->assertSame( 'off', get_option( 'social_notifications_subscribe' ) );
+		$this->assertSame( '1', (string) get_option( 'stb_enabled' ), 'The comment form follow-blog option must be left alone.' );
 
 		// And the public response casts them back to bool.
 		$result = Newsletter_Abilities::get_settings();
-		$this->assertFalse( $result['subscribe_post_end_enabled'] );
+		$this->assertTrue( $result['subscribe_post_end_enabled'] );
 		$this->assertFalse( $result['notify_admin_on_subscribe'] );
 	}
 

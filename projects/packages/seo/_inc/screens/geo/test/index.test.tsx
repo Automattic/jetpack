@@ -290,8 +290,7 @@ describe( 'GeoScreen (GEO tab) — crawler policy state', () => {
 		render( <GeoScreen form={ crawlerForm( { staticRobotsTxt: true } ) } searchEnginesVisible /> );
 
 		expect(
-			screen.getAllByText( /static robots\.txt file in the WordPress installation directory/i )
-				.length
+			screen.getAllByText( /static robots\.txt file in your site's public directory/i ).length
 		).toBeGreaterThan( 0 );
 		expect( screen.queryByText( /can't reach.*robots\.txt/i ) ).not.toBeInTheDocument();
 	} );

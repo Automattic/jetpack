@@ -46,6 +46,8 @@ export interface SiteData {
 	edit_url?: string | null;
 	// The site language (WordPress locale), which the AI output is written in.
 	language?: string;
+	// The site_intent option, which preselects the wizard goal when it matches one.
+	site_intent?: string;
 	// Copy written into the site's posts and pages, translated into the site language.
 	copy?: SiteCopy;
 }
@@ -74,8 +76,12 @@ export interface LaunchpadData {
 	// The goals step's ExPlat variation, or null when the user is not in the experiment.
 	goals_variation?: string | null;
 	mcp_detection?: boolean;
+	// Whether each GET /mcp-connections asks WordPress.com over the network, as on Atomic.
+	mcp_remote?: boolean;
 	// Whether POST /mcp-access can allow full MCP access in place.
 	mcp_allow_full?: boolean;
+	// Calypso's setup chooser, where Back leads when the page opened with `start=ai-tool`; null otherwise.
+	ai_tool_back_url?: string | null;
 }
 
 /** How a task's "Get started" CTA behaves when clicked. */

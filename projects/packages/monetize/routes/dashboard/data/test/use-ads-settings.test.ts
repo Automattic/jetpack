@@ -11,7 +11,7 @@ jest.mock( '@automattic/jetpack-analytics', () => ( {
 jest.mock( '@automattic/jetpack-script-data', () => ( {
 	getScriptData: () => ( {
 		user: { current_user: { wpcom: { ID: 7, login: 'owner' } } },
-		monetize: { adsSettings: { tracks: true } },
+		monetize: { tracks: true },
 	} ),
 } ) );
 

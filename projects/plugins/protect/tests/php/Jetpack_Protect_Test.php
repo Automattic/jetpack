@@ -75,7 +75,8 @@ class Jetpack_Protect_Test extends BaseTestCase {
 		Status::$status = null;
 		Protect_Status::delete_option();
 		( new Connection_Manager() )->reset_connection_status();
-		delete_option( Jetpack_Protect::OPTED_IN_MODULES_OPTION );
+		delete_option( Jetpack_Protect::OPTED_IN_OPTION_PREFIX . 'sso' );
+		delete_option( Jetpack_Protect::OPTED_IN_OPTION_PREFIX . 'monitor' );
 		remove_all_filters( 'jetpack_active_modules' );
 		remove_all_actions( 'jetpack_pre_activate_module' );
 		remove_all_actions( 'jetpack_activate_module' );
@@ -134,7 +135,7 @@ class Jetpack_Protect_Test extends BaseTestCase {
 		Jetpack_Protect::record_opt_in( 'sso' );
 
 		$this->assertSame( array( 'sso', 'monitor' ), Jetpack_Protect::filter_opt_in_modules( array( 'sso', 'monitor' ) ) );
-		$this->assertSame( array(), get_option( Jetpack_Protect::OPTED_IN_MODULES_OPTION, array() ) );
+		$this->assertFalse( get_option( Jetpack_Protect::OPTED_IN_OPTION_PREFIX . 'sso' ) );
 	}
 
 	public function test_turning_an_opt_in_module_off_removes_it_and_needs_a_new_opt_in() {

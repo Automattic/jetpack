@@ -1,4 +1,5 @@
 export {
+	CustomizingBadge,
 	DetailPageActions,
 	useDetailPageCustomize,
 	type DetailPageActionsProps,

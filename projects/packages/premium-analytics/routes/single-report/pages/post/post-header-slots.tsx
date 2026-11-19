@@ -10,6 +10,7 @@ import { envelope as envelopeIcon } from '@wordpress/icons';
  */
 import {
 	DETAIL_HEADER_GLYPH_SIZE,
+	chartWindowSentence,
 	formatPublishedDate,
 	performanceSentence,
 } from '../../detail-header';
@@ -26,16 +27,17 @@ import type { HeaderContext, SingleReportHeaderSlots } from '../adapter';
  * instead: envelope tile, "Email sent on…".
  *
  * @param summary                  - The post summary, in any state.
- * @param context                  - The active section and the window the page reports over.
+ * @param context                  - The title the page states, the active section and the window it reports over.
+ * @param context.title            - The title the page states: the post's, or the untitled one for its type.
  * @param context.section          - The active section, if the page has sections.
  * @param context.performanceRange - The committed report date range.
  * @return The header slots for this post.
  */
 export function postHeaderSlots(
 	summary: PostSummary,
-	{ section, performanceRange }: HeaderContext
+	{ title, section, performanceRange }: HeaderContext
 ): SingleReportHeaderSlots {
-	const { title, type, publishedDate, imageUrl } = summary;
+	const { type, publishedDate, imageUrl } = summary;
 	const variant = section && isEmailSection( section.section.slug ) ? 'email' : 'post';
 	// Until the send check answers, the email header stays a skeleton, so it never
 	// names a send that the not-sent state then replaces.
@@ -63,9 +65,11 @@ export function postHeaderSlots(
 					);
 	}
 
-	const subtitle = [ publishedSentence, performanceSentence( performanceRange ) ]
-		.filter( Boolean )
-		.join( ' ' );
+	const windowSentence =
+		variant === 'email'
+			? chartWindowSentence( performanceRange )
+			: performanceSentence( performanceRange );
+	const subtitle = [ publishedSentence, windowSentence ].filter( Boolean ).join( ' ' );
 
 	// Email variant always shows the envelope tile, even with a featured
 	// image, so email tabs read as the newsletter send, not the post.
@@ -108,6 +112,5 @@ export function postHeaderSlots(
 		};
 	}
 
-	// A post saved without a title still owes the reader an `h1`.
-	return { visual, title: title?.trim() || copy.untitled, subTitle: subtitle || undefined };
+	return { visual, title, subTitle: subtitle || undefined };
 }

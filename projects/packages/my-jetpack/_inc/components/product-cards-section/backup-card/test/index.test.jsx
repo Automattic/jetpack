@@ -30,11 +30,6 @@ jest.mock( '../../../../data/use-simple-query', () => ( {
 	} ),
 } ) );
 
-jest.mock( '../../../../hooks/use-analytics', () => ( {
-	__esModule: true,
-	default: () => ( { recordEvent: () => {} } ),
-} ) );
-
 jest.mock(
 	'../../../../hooks/use-notification-watcher/use-get-readable-failed-backup-reason',
 	() => ( {
