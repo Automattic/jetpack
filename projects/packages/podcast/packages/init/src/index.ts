@@ -6,7 +6,7 @@ import { loadI18nCatalogs } from '@automattic/jetpack-wp-build-polyfills/src/js/
 export async function init(): Promise< void > {
 	/*
 	 * wp-build has no `jetpackConfig` external, so @automattic/jetpack-config reads this global.
-	 * The slug is `jetpack` because only the Jetpack plugin loads this page.
+	 * The slug is `jetpack` because Podcast only runs as a Jetpack module.
 	 */
 	( globalThis as typeof globalThis & { jetpackConfig?: object } ).jetpackConfig = {
 		consumer_slug: 'jetpack',
