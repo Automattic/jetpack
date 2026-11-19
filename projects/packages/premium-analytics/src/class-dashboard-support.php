@@ -11,8 +11,8 @@ namespace Automattic\Jetpack\PremiumAnalytics;
  * Loads what a page needs to host a widget dashboard: the dashboard API and the shared
  * script modules a widget bundle imports.
  *
- * Analytics::init() and Analytics::init_wpcom_simple() call the same method, so there is one
- * implementation, not two. The REST half is Dashboard_Support_Routes::register().
+ * It injects no section script data, and for now the page hooks add_widget_modules_to_boot_deps()
+ * to its own boot dependencies filter. The REST half is Dashboard_Support_Routes::register().
  *
  * @since $$next-version$$
  */
