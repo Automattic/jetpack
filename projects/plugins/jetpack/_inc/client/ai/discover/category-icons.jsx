@@ -5,7 +5,14 @@
  * or accessibility figure, so those four are drawn here in its outline style.
  */
 
-import { category as categoryIcon, grid, megaphone, shield, trendingUp } from '@wordpress/icons';
+import {
+	category as categoryIcon,
+	grid,
+	megaphone,
+	shield,
+	starEmpty,
+	trendingUp,
+} from '@wordpress/icons';
 import { Circle, Path, SVG } from '@wordpress/primitives';
 
 const OUTLINE = {
@@ -48,6 +55,7 @@ const pencil = (
 // One icon per category, none shared, so the icon alone tells categories apart.
 const CATEGORY_ICONS = {
 	accessibility,
+	'good-first-skills': starEmpty,
 	general: categoryIcon,
 	marketing: megaphone,
 	performance: bolt,

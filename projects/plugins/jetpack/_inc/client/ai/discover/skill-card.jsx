@@ -1,16 +1,19 @@
 /**
- * A skill in the catalog: icon, title, description, the Send to agent menu and
- * a chevron. Anywhere else on the card opens the skill's panel.
+ * A skill in the catalog: icon and arrow, title, category and description,
+ * then the Send to agent menu. Anywhere else on the card opens the skill's panel.
  */
 
 import { useCallback, useId } from '@wordpress/element';
 import { __, isRTL, sprintf } from '@wordpress/i18n';
-import { chevronLeft, chevronRight } from '@wordpress/icons';
-import { Badge, Icon, Text, VisuallyHidden } from '@wordpress/ui';
-import clsx from 'clsx';
+import { Path, SVG } from '@wordpress/primitives';
+import { Icon, Text } from '@wordpress/ui';
 import { getCategoryIcon } from './category-icons';
 import SendToAgentMenu from './send-to-agent';
-import { FIRST_SKILL_SLUG, getCategoryName } from './skills';
+import { getCategoryName } from './skills';
+
+// jetpack.com/prompts' card arrow, mirrored for right-to-left.
+const ARROW_UP_RIGHT = 'M7 17 17 7M8 7h9v9';
+const ARROW_UP_LEFT = 'M17 17 7 7M16 7H7v9';
 
 /**
  * The square category tile shared by the card and the skill's panel.
@@ -28,21 +31,6 @@ export function CategoryTile( { category } ) {
 }
 
 /**
- * The badge on the skill Discover suggests running first, shared by the card
- * and the skill's panel. Nothing for any other skill.
- *
- * @param {object} props      - Component props.
- * @param {string} props.slug - The skill's slug.
- * @return {object|null} Component markup.
- */
-export function FirstSkillBadge( { slug } ) {
-	if ( slug !== FIRST_SKILL_SLUG ) {
-		return null;
-	}
-	return <Badge intent="informational">{ __( 'Great first skill', 'jetpack' ) }</Badge>;
-}
-
-/**
  * Skill card.
  *
  * @param {object}   props                    - Component props.
@@ -51,7 +39,7 @@ export function FirstSkillBadge( { slug } ) {
  * @param {boolean}  [props.isOpen]           - Whether this skill's panel is open.
  * @param {Function} props.onSend             - Called with the skill and the agent key.
  * @param {boolean}  props.showWordPressAgent - Whether to offer the WordPress Agent.
- * @param {string}   [props.layout]           - 'grid' for a card, 'list' for a row.
+ * @param {number}   [props.headingLevel]     - The title's heading level.
  * @return {object} Component markup.
  */
 export default function SkillCard( {
@@ -60,8 +48,9 @@ export default function SkillCard( {
 	isOpen,
 	onSend,
 	showWordPressAgent,
-	layout = 'grid',
+	headingLevel = 3,
 } ) {
+	const Heading = `h${ headingLevel }`;
 	const titleId = useId();
 	const handleSend = useCallback( agent => onSend( skill, agent ), [ skill, onSend ] );
 	const handleView = useCallback(
@@ -78,33 +67,30 @@ export default function SkillCard( {
 	);
 
 	return (
-		// An article named by its title, so each card reads as one unit. Laid
-		// out as My Jetpack's Features card: a link covers the card, and Send to
-		// agent sits above it as its own control.
+		// An article named by its title, so each card reads as one unit. A link
+		// covers the card, and Send to agent sits above it as its own control.
 		<article
-			className={ clsx(
-				'jetpack-ai-discover__card',
-				layout === 'list' && 'jetpack-ai-discover__card--row'
-			) }
+			className="jetpack-ai-discover__card"
 			aria-labelledby={ titleId }
 			data-open={ isOpen ? 'true' : undefined }
 		>
 			<div className="jetpack-ai-discover__card-layout">
 				<CategoryTile category={ skill.category } />
 				<div className="jetpack-ai-discover__card-text">
-					{ /* The badge sits beside the heading rather than in it, so the card
-					     is still named by its title alone. */ }
-					<div className="jetpack-ai-discover__card-heading-row">
-						<Text
-							variant="body-md"
-							render={ <h3 id={ titleId } /> }
-							className="jetpack-ai-discover__card-heading jetpack-ai-discover__card-title"
-						>
-							{ skill.title }
-						</Text>
-						<FirstSkillBadge slug={ skill.slug } />
-					</div>
-					<VisuallyHidden render={ <p /> }>{ getCategoryName( skill.category ) }</VisuallyHidden>
+					<Text
+						variant="body-lg"
+						render={ <Heading id={ titleId } /> }
+						className="jetpack-ai-discover__card-heading jetpack-ai-discover__card-title"
+					>
+						{ skill.title }
+					</Text>
+					<Text
+						render={ <p /> }
+						variant="body-sm"
+						className="jetpack-ai-discover__muted jetpack-ai-discover__card-category"
+					>
+						{ getCategoryName( skill.category ) }
+					</Text>
 					<Text
 						render={ <p /> }
 						variant="body-md"
@@ -127,6 +113,7 @@ export default function SkillCard( {
 				/>
 				<div className="jetpack-ai-discover__card-action">
 					<SendToAgentMenu
+						variant="minimal"
 						className="jetpack-ai-discover__agent-trigger"
 						onSend={ handleSend }
 						showWordPressAgent={ showWordPressAgent }
@@ -138,7 +125,18 @@ export default function SkillCard( {
 					/>
 				</div>
 				<span className="jetpack-ai-discover__card-chevron" aria-hidden="true">
-					<Icon icon={ isRTL() ? chevronLeft : chevronRight } size={ 24 } />
+					<SVG
+						viewBox="0 0 24 24"
+						width={ 16 }
+						height={ 16 }
+						fill="none"
+						stroke="currentColor"
+						strokeWidth={ 1.75 }
+						strokeLinecap="round"
+						strokeLinejoin="round"
+					>
+						<Path d={ isRTL() ? ARROW_UP_LEFT : ARROW_UP_RIGHT } />
+					</SVG>
 				</span>
 			</div>
 		</article>

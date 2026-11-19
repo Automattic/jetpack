@@ -9,18 +9,28 @@ import { __, sprintf } from '@wordpress/i18n';
 /** How many categories get their own filter pill; the rest sit in the More menu. */
 export const PINNED_CATEGORY_COUNT = 3;
 
-/** Category slugs in display order. Any the catalog adds later follow, biggest first. */
+/** The catalog's category that cuts across the others; a skill's own category is any other. */
+export const GOOD_FIRST = 'good-first-skills';
+
+/** Category slugs in display order. The rest follow, biggest first. */
 export const CATEGORY_ORDER = [
-	'general',
+	GOOD_FIRST,
 	'setup-launch',
-	'seo',
-	'marketing',
-	'accessibility',
 	'writing',
+	'seo',
+	'accessibility',
+	'site-health',
 ];
 
-/** The skill the Skills tab suggests running first. */
-export const FIRST_SKILL_SLUG = 'site-seo-audit';
+/** Skills that lead a category, ahead of catalog order, by category slug. */
+export const LEADING_SKILL_SLUGS = {
+	[ GOOD_FIRST ]: [
+		'site-seo-audit',
+		'check-your-sites-accessibility',
+		'check-your-sites-security-and-health',
+	],
+	writing: [ 'humanizer' ],
+};
 
 // The catalog's prompts name this placeholder site.
 const PLACEHOLDER_SITE = 'example.com';
@@ -34,9 +44,31 @@ const CONNECTOR_NAME = 'WordPress.com connector';
  */
 function getIndex() {
 	const index = window?.jetpackAiSettings?.skills;
+	const skills = Array.isArray( index?.skills ) ? index.skills : [];
+	if ( ! normalized.has( skills ) ) {
+		normalized.set( skills, skills.map( withOwnCategory ) );
+	}
 	return {
 		categories: Array.isArray( index?.categories ) ? index.categories : [],
-		skills: Array.isArray( index?.skills ) ? index.skills : [],
+		skills: normalized.get( skills ),
+	};
+}
+
+// Each index's skills, normalized once, so a skill keeps its identity between calls.
+const normalized = new WeakMap();
+
+/**
+ * A skill with `category`, its own category, beside all of them in `categories`.
+ *
+ * @param {object} skill - A skill as the index has it.
+ * @return {object} The skill.
+ */
+function withOwnCategory( skill ) {
+	const categories = Array.isArray( skill.categories ) ? skill.categories : [];
+	return {
+		...skill,
+		categories,
+		category: categories.find( slug => slug !== GOOD_FIRST ) ?? categories[ 0 ] ?? '',
 	};
 }
 
@@ -56,6 +88,34 @@ export function getCatalog() {
  */
 export function getCategories() {
 	return getIndex().categories;
+}
+
+/**
+ * The categories that have skills: the set order first, then the rest by size.
+ *
+ * @param {object} counts - Skill count per category key.
+ * @return {string[]} Category keys.
+ */
+export function getOrderedCategoryKeys( counts ) {
+	const rank = key => {
+		const index = CATEGORY_ORDER.indexOf( key );
+		return index === -1 ? CATEGORY_ORDER.length : index;
+	};
+	return getCategories()
+		.map( category => category.slug )
+		.filter( key => counts[ key ] )
+		.sort( ( a, b ) => rank( a ) - rank( b ) || counts[ b ] - counts[ a ] );
+}
+
+/**
+ * Whether a skill is in a category, its own or another it's also filed under.
+ *
+ * @param {object} skill - The skill.
+ * @param {string} key   - The category key.
+ * @return {boolean} Whether it is.
+ */
+export function isInCategory( skill, key ) {
+	return skill.categories.includes( key );
 }
 
 /**

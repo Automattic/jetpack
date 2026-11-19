@@ -1,10 +1,8 @@
 /**
- * Discover view: a catalog of skills the site owner can hand to an AI agent.
- * Lists the skills that run on this kind of site, filtered by category and
- * search, as a grid of cards or a list of rows, each sending its skill to an
- * agent through the shared hand-off (use-send-skill.js). The skill worth
- * running first leads the unfiltered list. View skill opens a skill in the
- * side panel beside the catalog (skill-panel.jsx).
+ * Discover view: a catalog of skills the site owner can hand to an AI agent,
+ * a row per category, or one grid once filtered or searched. Each card sends
+ * its skill to an agent through the shared hand-off (use-send-skill.js) and
+ * opens it in the side panel beside the catalog (skill-panel.jsx).
  */
 
 import { useCallback, useEffect, useMemo, useRef, useState } from '@wordpress/element';
@@ -22,12 +20,18 @@ import {
 } from '@wordpress/ui';
 import { EVENTS, recordAiHubEvent } from '../tracks';
 import CategoryFilter, { ALL } from './category-filter';
+import CategoryRow, { CategoryHeading } from './category-row';
 import SkillCard from './skill-card';
 import { PANEL_TITLE_ID, openSkillPanel, useOpenSkillSlug } from './skill-panel-state';
-import { FIRST_SKILL_SLUG, getCatalog } from './skills';
+import {
+	LEADING_SKILL_SLUGS,
+	getCatalog,
+	getCategoryName,
+	getOrderedCategoryKeys,
+	isInCategory,
+} from './skills';
 import useSendSkill from './use-send-skill';
 import useToolbarOffset from './use-toolbar-offset';
-import ViewToggle, { useDiscoverView } from './view-toggle';
 import { useIsWordPressAgentAvailable } from './wordpress-agent';
 
 import './style.scss';
@@ -38,14 +42,18 @@ export const SUGGEST_SKILL_URL = 'https://jetpack.com/contact-support/';
 export const CATALOG_URL = 'https://agentskills.wordpress.com/';
 
 /**
- * Put the skill worth running first at the front of the catalog.
+ * A category's skills, its leading ones first, the rest in the order given.
  *
- * @param {Array} catalog - This site's skills, in catalog order.
- * @return {Array} The same skills, the first skill leading.
+ * @param {Array}  skills - The skills to pick from.
+ * @param {string} key    - The category key.
+ * @return {Array} The category's skills.
  */
-function leadWithFirstSkill( catalog ) {
-	const first = catalog.find( skill => skill.slug === FIRST_SKILL_SLUG );
-	return first ? [ first, ...catalog.filter( skill => skill !== first ) ] : catalog;
+function inCategory( skills, key ) {
+	const members = skills.filter( skill => isInCategory( skill, key ) );
+	const leaders = ( LEADING_SKILL_SLUGS[ key ] ?? [] )
+		.map( slug => members.find( skill => skill.slug === slug ) )
+		.filter( Boolean );
+	return [ ...leaders, ...members.filter( skill => ! leaders.includes( skill ) ) ];
 }
 
 /**
@@ -55,11 +63,9 @@ function leadWithFirstSkill( catalog ) {
  */
 export default function Discover() {
 	const catalog = useMemo( () => getCatalog(), [] );
-	const leading = useMemo( () => leadWithFirstSkill( catalog ), [ catalog ] );
 	const showWordPressAgent = useIsWordPressAgentAvailable();
 	const [ category, setCategory ] = useState( ALL );
 	const [ query, setQuery ] = useState( '' );
-	const [ view, setView ] = useDiscoverView();
 	const searchRef = useRef( null );
 
 	// The toolbar sticks just under the hub's tab strip, not on top of it.
@@ -121,7 +127,7 @@ export default function Discover() {
 			// a clicked link. Either way the card's own link stands in.
 			const target = opener?.isConnected
 				? opener
-				: Array.from( document.querySelectorAll( '.jetpack-ai-discover__view-link' ) ).find( link =>
+				: Array.from( document.querySelectorAll( '.jetpack-ai-discover__card-open' ) ).find( link =>
 						link.getAttribute( 'href' )?.endsWith( '/' + closed )
 					);
 			( target ?? searchRef.current )?.focus();
@@ -134,19 +140,26 @@ export default function Discover() {
 		recordAiHubEvent( EVENTS.DISCOVER_FILTERED, { category: key } );
 	}, [] );
 
-	const counts = catalog.reduce(
-		( result, { category: key } ) => ( { ...result, [ key ]: ( result[ key ] ?? 0 ) + 1 } ),
-		{ [ ALL ]: catalog.length }
+	// A skill counts toward each category it's in.
+	const counts = { [ ALL ]: catalog.length };
+	catalog.forEach( item =>
+		item.categories.forEach( key => ( counts[ key ] = ( counts[ key ] ?? 0 ) + 1 ) )
 	);
 	const trimmed = query.trim();
 	const needle = trimmed.toLocaleLowerCase();
-	// Unfiltered, the first skill leads; a filter or search keeps catalog order.
+	// A category's leading skills head it, as a row or filtered; a search
+	// keeps catalog order.
 	const isNarrowed = category !== ALL || !! needle;
-	const matching = ( isNarrowed ? catalog : leading ).filter(
+	const searched = catalog.filter(
 		item =>
-			( category === ALL || item.category === category ) &&
-			( ! needle || ( item.title + ' ' + item.description ).toLocaleLowerCase().includes( needle ) )
+			! needle || ( item.title + ' ' + item.description ).toLocaleLowerCase().includes( needle )
 	);
+	let matching = searched;
+	if ( category !== ALL ) {
+		matching = needle
+			? searched.filter( item => isInCategory( item, category ) )
+			: inCategory( searched, category );
+	}
 
 	let emptyTitle = __( 'No skills match', 'jetpack' );
 	if ( ! catalog.length ) {
@@ -158,6 +171,22 @@ export default function Discover() {
 			trimmed
 		);
 	}
+
+	const renderCard = ( item, headingLevel ) => (
+		<SkillCard
+			key={ item.slug }
+			skill={ item }
+			headingLevel={ headingLevel }
+			onView={ openSkill }
+			// The cards mark the open skill with data-open.
+			isOpen={ item.slug === openSlug }
+			onSend={ send }
+			showWordPressAgent={ showWordPressAgent }
+		/>
+	);
+
+	// Unfiltered, a row per category; a filter or a search shows one grid.
+	const byCategory = ! isNarrowed;
 
 	const recordLink = link => () =>
 		recordAiHubEvent( EVENTS.LINK_CLICK, { link_type: 'discover', link } );
@@ -214,27 +243,31 @@ export default function Discover() {
 						) : null
 					}
 				/>
-				<ViewToggle value={ view } onChange={ setView } />
 			</div>
 
-			{ matching.length > 0 ? (
-				<div
-					className={ view === 'list' ? 'jetpack-ai-discover__list' : 'jetpack-ai-discover__grid' }
-				>
-					{ matching.map( item => (
-						<SkillCard
-							key={ item.slug }
-							skill={ item }
-							layout={ view }
-							onView={ openSkill }
-							// The cards mark the open skill with data-open.
-							isOpen={ item.slug === openSlug }
-							onSend={ send }
-							showWordPressAgent={ showWordPressAgent }
-						/>
+			{ matching.length > 0 && byCategory && (
+				<div className="jetpack-ai-discover__rows">
+					{ getOrderedCategoryKeys( counts ).map( key => (
+						<CategoryRow key={ key } title={ getCategoryName( key ) } count={ counts[ key ] }>
+							{ inCategory( matching, key ).map( item => renderCard( item, 4 ) ) }
+						</CategoryRow>
 					) ) }
 				</div>
-			) : (
+			) }
+			{ matching.length > 0 && ! byCategory ? (
+				<div className="jetpack-ai-discover__row">
+					{ /* A filtered category keeps its heading, as its row has. */ }
+					{ category !== ALL && (
+						<div className="jetpack-ai-discover__row-header">
+							<CategoryHeading title={ getCategoryName( category ) } count={ matching.length } />
+						</div>
+					) }
+					<div className="jetpack-ai-discover__grid">
+						{ matching.map( item => renderCard( item, category !== ALL ? 4 : 3 ) ) }
+					</div>
+				</div>
+			) : null }
+			{ matching.length === 0 && (
 				<EmptyState.Root className="jetpack-ai-discover__empty">
 					<EmptyState.Icon icon={ search } />
 					<EmptyState.Title>{ emptyTitle }</EmptyState.Title>

@@ -19,7 +19,7 @@ import { Button, Card, IconButton, Stack, Text } from '@wordpress/ui';
 import LoadingSpinner from '../components/loading-spinner';
 import { EVENTS, recordAiHubEvent } from '../tracks';
 import SendToAgentMenu from './send-to-agent';
-import { CategoryTile, FirstSkillBadge } from './skill-card';
+import { CategoryTile } from './skill-card';
 import {
 	PANEL_TITLE_ID,
 	closeSkillPanel,
@@ -140,7 +140,6 @@ export function SkillPanel( {
 			</Stack>
 			<Stack direction="column" gap="lg" className="jetpack-ai-skill-panel__intro">
 				<Stack direction="column" gap="sm" align="flex-start">
-					<FirstSkillBadge slug={ skill.slug } />
 					<Text
 						variant="heading-xl"
 						className="jetpack-ai-skill-panel__title"

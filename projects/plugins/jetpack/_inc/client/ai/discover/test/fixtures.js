@@ -5,13 +5,13 @@
 
 const CATALOG = 'https://agentskills.wordpress.com/';
 
-const skill = ( slug, title, category, description, tryPrompt ) => ( {
+const skill = ( slug, title, category, description, tryPrompt, also = [] ) => ( {
 	slug,
 	title,
 	description,
 	prerequisites: 'Editor or administrator role on the site.',
 	tryPrompt,
-	category,
+	categories: [ ...also, category ],
 	url: CATALOG + slug + '/',
 } );
 
@@ -23,6 +23,7 @@ export const SKILLS_INDEX = {
 		{ slug: 'marketing', name: 'Marketing' },
 		{ slug: 'security', name: 'Security' },
 		{ slug: 'performance', name: 'Performance' },
+		{ slug: 'good-first-skills', name: 'Good first skills' },
 	],
 	skills: [
 		skill(
@@ -37,7 +38,8 @@ export const SKILLS_INDEX = {
 			'SEO audit',
 			'seo',
 			'Audit titles, metas, and headings sitewide and fix what falls short.',
-			'Use the WordPress.com connector to run the SEO audit on example.com'
+			'Use the WordPress.com connector to run the SEO audit on example.com',
+			[ 'good-first-skills' ]
 		),
 		skill(
 			'write-meta-descriptions',
@@ -51,7 +53,8 @@ export const SKILLS_INDEX = {
 			'Security checkup',
 			'security',
 			'Check logins, plugins and backups for weak spots.',
-			'Use the WordPress.com connector to run a security checkup on example.com'
+			'Use the WordPress.com connector to run a security checkup on example.com',
+			[ 'good-first-skills' ]
 		),
 		skill(
 			'build-a-contact-form',

@@ -44,7 +44,7 @@ class Jetpack_AI_Skills_Catalog_Test extends \WP_UnitTestCase {
 					'slug'       => 'site-seo-audit',
 					'title'      => array( 'rendered' => 'Site SEO and AIO&nbsp;audit' ),
 					'excerpt'    => array( 'rendered' => "<p>Use when someone asks about SEO, e.g. rankings. Audits the site&#8217;s titles.</p>\n" ),
-					'categories' => array( 1958 ),
+					'categories' => array( 1958, 54 ),
 					'link'       => 'https://agentskills.wordpress.com/2026/11/site-seo-audit/',
 					'meta'       => array(
 						'agent_skill_prerequisites' => 'Editor role.',
@@ -134,7 +134,7 @@ class Jetpack_AI_Skills_Catalog_Test extends \WP_UnitTestCase {
 				'summary'       => 'Use when someone asks about SEO, e.g. rankings.',
 				'prerequisites' => 'Editor role.',
 				'tryPrompt'     => 'Run the audit on example.com',
-				'category'      => 'seo',
+				'categories'    => array( 'seo', 'general' ),
 				'url'           => 'https://agentskills.wordpress.com/2026/11/site-seo-audit/',
 			),
 			$index['skills'][0]

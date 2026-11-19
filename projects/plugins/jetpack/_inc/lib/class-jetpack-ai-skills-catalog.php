@@ -33,7 +33,7 @@ class Jetpack_AI_Skills_Catalog {
 	 *
 	 * @var string
 	 */
-	const INDEX_TRANSIENT = 'jetpack_ai_skills_index_v2';
+	const INDEX_TRANSIENT = 'jetpack_ai_skills_index_v3';
 
 	/**
 	 * Transient prefix for one skill's body.
@@ -69,7 +69,7 @@ class Jetpack_AI_Skills_Catalog {
 	 * @return array {
 	 *     @type array[] $categories Each with `slug` and `name`, in catalog order.
 	 *     @type array[] $skills     Each with `slug`, `title`, `description`, `summary`, `prerequisites`,
-	 *                               `tryPrompt`, `category` and `url`.
+	 *                               `tryPrompt`, `categories` (slugs) and `url`.
 	 * }
 	 */
 	public static function get_index() {
@@ -178,12 +178,11 @@ class Jetpack_AI_Skills_Catalog {
 				continue;
 			}
 
-			$category = '';
+			$categories = array();
 			foreach ( (array) ( $post['categories'] ?? array() ) as $term_id ) {
 				if ( isset( $terms_by_id[ (int) $term_id ] ) ) {
-					$category               = $terms_by_id[ (int) $term_id ]['slug'];
+					$categories[]           = $terms_by_id[ (int) $term_id ]['slug'];
 					$used[ (int) $term_id ] = true;
-					break;
 				}
 			}
 
@@ -196,7 +195,7 @@ class Jetpack_AI_Skills_Catalog {
 				'summary'       => self::first_sentence( $description ),
 				'prerequisites' => self::to_text( $meta['agent_skill_prerequisites'] ?? '' ),
 				'tryPrompt'     => self::to_text( $meta['agent_skill_try_prompt'] ?? '' ),
-				'category'      => $category,
+				'categories'    => $categories,
 				'url'           => self::catalog_url( $post['link'] ?? '' ),
 			);
 		}

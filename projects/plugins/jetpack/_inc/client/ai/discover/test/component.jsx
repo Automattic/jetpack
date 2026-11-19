@@ -3,7 +3,6 @@ import userEvent from '@testing-library/user-event';
 import { SnackbarNotices } from '@wordpress/notices';
 import analytics from 'lib/analytics';
 import Discover from '../index';
-import { VIEW_STORAGE_KEY } from '../view-toggle';
 import { SEO_PROMPT, SKILLS_INDEX } from './fixtures';
 
 // tracks.js imports the webpack-aliased 'lib/analytics', which doesn't resolve
@@ -22,10 +21,14 @@ const renderDiscover = () =>
 // bare text query matches twice. Ignore that region.
 const IGNORE_A11Y = { ignore: '.a11y-speak-region, script, style' };
 
+// Card titles in page order: h3 in the flat grid and list, h4 in category rows.
 const cards = () =>
-	screen.queryAllByRole( 'heading', { level: 3 } ).map( node => node.textContent );
+	screen
+		.queryAllByRole( 'article' )
+		.map( node => within( node ).getAllByRole( 'heading' )[ 0 ].textContent );
 
-const card = title => screen.getByRole( 'article', { name: title } );
+// A good first skill also shows in its own category's row; the first copy stands in.
+const card = title => screen.getAllByRole( 'article', { name: title } )[ 0 ];
 
 let user;
 
@@ -61,24 +64,35 @@ describe( 'Discover', () => {
 		delete window.__agentsManagerActions;
 		openSpy.mockRestore();
 		scrollSpy.mockRestore();
-		window.localStorage.clear();
 	} );
 
 	test( 'lists every skill in the index', () => {
 		renderDiscover();
 
-		expect( cards() ).toHaveLength( 7 );
+		expect( new Set( cards() ).size ).toBe( 7 );
 		expect( screen.getByText( 'Give your agent the expertise to run your site.' ) ).toBeVisible();
 	} );
 
-	test( 'the great first skill leads the list, badged, and no other card is', () => {
+	test( 'unfiltered, Good first skills leads, then a row per category', () => {
 		renderDiscover();
 
-		expect( cards()[ 0 ] ).toBe( 'SEO audit' );
-		expect( within( card( 'SEO audit' ) ).getByText( 'Great first skill' ) ).toBeVisible();
-		expect( screen.getAllByText( 'Great first skill' ) ).toHaveLength( 1 );
-		// The badge sits beside the heading, so the card is still named by its title.
-		expect( screen.getByRole( 'heading', { level: 3, name: 'SEO audit' } ) ).toBeVisible();
+		expect(
+			screen.getAllByRole( 'heading', { level: 3 } ).map( node => node.textContent )
+		).toEqual( [
+			'Good first skills2',
+			'SEO2',
+			'General1',
+			'Content1',
+			'Marketing1',
+			'Security1',
+			'Performance1',
+		] );
+		expect( cards().slice( 0, 4 ) ).toEqual( [
+			'SEO audit',
+			'Security checkup',
+			'SEO audit',
+			'Write meta descriptions',
+		] );
 	} );
 
 	test( 'a search keeps catalog order, and the first skill still shows in it', async () => {
@@ -88,57 +102,6 @@ describe( 'Discover', () => {
 
 		expect( cards()[ 0 ] ).toBe( 'Performance audit' );
 		expect( cards() ).toContain( 'SEO audit' );
-		expect( within( card( 'SEO audit' ) ).getByText( 'Great first skill' ) ).toBeVisible();
-	} );
-
-	test( 'the grid is the default, and the list view is remembered', async () => {
-		const { unmount } = renderDiscover();
-		const layout = screen.getByRole( 'group', { name: 'Layout' } );
-		const grid = within( layout ).getByRole( 'button', { name: 'Grid view' } );
-		const list = within( layout ).getByRole( 'button', { name: 'List view' } );
-		expect( grid ).toHaveAttribute( 'aria-pressed', 'true' );
-		expect( list ).toHaveAttribute( 'aria-pressed', 'false' );
-		expect( card( 'SEO audit' ) ).not.toHaveClass( 'jetpack-ai-discover__card--row' );
-
-		await user.click( list );
-
-		expect( list ).toHaveAttribute( 'aria-pressed', 'true' );
-		expect( card( 'SEO audit' ) ).toHaveClass( 'jetpack-ai-discover__card--row' );
-		// Rows keep each skill's actions.
-		expect(
-			within( card( 'SEO audit' ) ).getByRole( 'button', { name: 'Send to agent: SEO audit' } )
-		).toBeVisible();
-		expect( window.localStorage.getItem( VIEW_STORAGE_KEY ) ).toBe( 'list' );
-
-		unmount();
-		renderDiscover();
-		expect( screen.getByRole( 'button', { name: 'List view' } ) ).toHaveAttribute(
-			'aria-pressed',
-			'true'
-		);
-
-		await user.click( screen.getByRole( 'button', { name: 'Grid view' } ) );
-		expect( window.localStorage.getItem( VIEW_STORAGE_KEY ) ).toBeNull();
-	} );
-
-	test( 'the layout switch still works where storage throws', async () => {
-		const getItem = jest.spyOn( Storage.prototype, 'getItem' ).mockImplementation( () => {
-			throw new Error( 'blocked' );
-		} );
-		const setItem = jest.spyOn( Storage.prototype, 'setItem' ).mockImplementation( () => {
-			throw new Error( 'blocked' );
-		} );
-		try {
-			renderDiscover();
-			expect( card( 'SEO audit' ) ).not.toHaveClass( 'jetpack-ai-discover__card--row' );
-
-			await user.click( screen.getByRole( 'button', { name: 'List view' } ) );
-
-			expect( card( 'SEO audit' ) ).toHaveClass( 'jetpack-ai-discover__card--row' );
-		} finally {
-			getItem.mockRestore();
-			setItem.mockRestore();
-		}
 	} );
 
 	// In document order: the title, the suggest link, then the toolbar's search.
@@ -174,18 +137,33 @@ describe( 'Discover', () => {
 		expect( screen.getByRole( 'link', { name: /Browse the full catalog/ } ) ).toBeVisible();
 	} );
 
-	test( 'a category pill narrows the list and reports it', async () => {
+	test( 'a category pill narrows the list under its heading and reports it', async () => {
 		renderDiscover();
 
 		const seo = screen.getByRole( 'button', { name: /^SEO/ } );
 		await user.click( seo );
 
 		expect( seo ).toHaveAttribute( 'aria-pressed', 'true' );
+		expect(
+			screen.getAllByRole( 'heading', { level: 3 } ).map( node => node.textContent )
+		).toEqual( [ 'SEO2' ] );
 		expect( cards() ).toEqual( [ 'SEO audit', 'Write meta descriptions' ] );
 		expect( analytics.tracks.recordEvent ).toHaveBeenCalledWith(
 			'jetpack_ai_hub_discover_filtered',
 			expect.objectContaining( { category: 'seo' } )
 		);
+	} );
+
+	test( 'the Good first skills pill leads with the site-wide checks, whatever the catalog order', async () => {
+		window.jetpackAiSettings.skills = {
+			...SKILLS_INDEX,
+			skills: [ ...SKILLS_INDEX.skills ].reverse(),
+		};
+		renderDiscover();
+
+		await user.click( screen.getByRole( 'button', { name: /^Good first skills/ } ) );
+
+		expect( cards() ).toEqual( [ 'SEO audit', 'Security checkup' ] );
 	} );
 
 	test( 'the More menu holds the other categories and closes on pick', async () => {
@@ -212,7 +190,7 @@ describe( 'Discover', () => {
 		const pills = within( group )
 			.getAllByRole( 'button' )
 			.map( pill => pill.textContent );
-		expect( pills ).toEqual( [ 'All 7', 'General 1', 'SEO 2', 'Marketing 1', 'More' ] );
+		expect( pills ).toEqual( [ 'All 7', 'Good first skills 2', 'SEO 2', 'Performance 1', 'More' ] );
 	} );
 
 	test( 'category pills lead with their icon, which stays out of the name; All has none', () => {
@@ -270,7 +248,7 @@ describe( 'Discover', () => {
 
 		expect( search ).toHaveValue( '' );
 		expect( search ).toHaveFocus();
-		expect( cards() ).toHaveLength( 7 );
+		expect( new Set( cards() ).size ).toBe( 7 );
 		expect( screen.queryByRole( 'button', { name: 'Clear search' } ) ).not.toBeInTheDocument();
 	} );
 
@@ -415,7 +393,7 @@ describe( 'Discover', () => {
 		expect( route ).toBe( '/?skill=site-seo-audit' );
 		expect( window.location.hash ).toBe( '#/skills' );
 		// The list stays where it was, beside the panel.
-		expect( cards() ).toHaveLength( 7 );
+		expect( new Set( cards() ).size ).toBe( 7 );
 		window.history.replaceState( null, '', '/' );
 	} );
 } );

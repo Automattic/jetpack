@@ -22,6 +22,18 @@ describe( 'Discover skills', () => {
 		expect( getCategoryName( 'seo' ) ).toBe( '' );
 	} );
 
+	test.each( [
+		[ 'listed after it', [ 'seo', 'good-first-skills' ], 'seo' ],
+		[ 'listed before it, as the catalog sorts by name', [ 'good-first-skills', 'seo' ], 'seo' ],
+		[ 'the only one', [ 'good-first-skills' ], 'good-first-skills' ],
+	] )( 'a skill’s own category skips Good first skills %s', ( _, categories, own ) => {
+		window.jetpackAiSettings = {
+			skills: { ...SKILLS_INDEX, skills: [ { slug: 'a-skill', title: 'A skill', categories } ] },
+		};
+
+		expect( getSkill( 'a-skill' ).category ).toBe( own );
+	} );
+
 	test( 'reads skills and category names from the index', () => {
 		expect( getCatalog() ).toHaveLength( SKILLS_INDEX.skills.length );
 		expect( getSkill( 'site-seo-audit' )?.title ).toBe( 'SEO audit' );

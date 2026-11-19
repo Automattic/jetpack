@@ -10,7 +10,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import { chevronDown } from '@wordpress/icons';
 import { Icon, Menu, SelectControl } from '@wordpress/ui';
 import { getCategoryIcon } from './category-icons';
-import { CATEGORY_ORDER, PINNED_CATEGORY_COUNT, getCategories, getCategoryName } from './skills';
+import { PINNED_CATEGORY_COUNT, getCategoryName, getOrderedCategoryKeys } from './skills';
 
 export const ALL = 'all';
 
@@ -82,15 +82,8 @@ function FilterPill( { category, isActive, count, onSelect } ) {
  * @return {object} Component markup.
  */
 export default function CategoryFilter( { value, counts, onChange } ) {
-	// Set order first, then the rest by size; the first few get pills, the rest go in More.
-	const rank = key => {
-		const index = CATEGORY_ORDER.indexOf( key );
-		return index === -1 ? CATEGORY_ORDER.length : index;
-	};
-	const present = getCategories()
-		.map( category => category.slug )
-		.filter( key => counts[ key ] )
-		.sort( ( a, b ) => rank( a ) - rank( b ) || counts[ b ] - counts[ a ] );
+	// The first few get pills, the rest go in More.
+	const present = getOrderedCategoryKeys( counts );
 	const pinned = [ ALL, ...present.slice( 0, PINNED_CATEGORY_COUNT ) ];
 	const more = present.slice( PINNED_CATEGORY_COUNT );
 	const moreSelected = more.includes( value );

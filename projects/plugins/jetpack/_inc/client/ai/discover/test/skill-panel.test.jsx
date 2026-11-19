@@ -58,7 +58,8 @@ const resolveBody = () =>
 	apiFetch.mockImplementation( ( { path } ) =>
 		Promise.resolve( { slug: path.split( '/' ).pop(), body: '## Steps\n\n1. Read the site.' } )
 	);
-const card = title => screen.getByRole( 'article', { name: title } );
+// A good first skill also shows in its own category's row; the first copy stands in.
+const card = title => screen.getAllByRole( 'article', { name: title } )[ 0 ];
 const viewLink = title => within( card( title ) ).getByRole( 'link', { name: /View skill/ } );
 
 let user;
@@ -349,22 +350,6 @@ describe( 'Skill panel', () => {
 		expect( title.compareDocumentPosition( send ) ).toBe( Node.DOCUMENT_POSITION_FOLLOWING );
 		expect( send.compareDocumentPosition( prereq ) ).toBe( Node.DOCUMENT_POSITION_FOLLOWING );
 		expect( send ).toHaveClass( 'jetpack-ai-skill-panel__send' );
-	} );
-
-	test( 'the great first skill is badged beside its title; others are not', () => {
-		window.history.replaceState( null, '', panelUrl( 'site-seo-audit' ) );
-		const { unmount } = renderHub();
-		expect( within( panel() ).getByText( 'Great first skill' ) ).toBeVisible();
-		// The badge stays out of the heading, so the panel is still named by the title.
-		expect( within( panel() ).getByRole( 'heading', { level: 2 } ) ).toHaveTextContent(
-			/^SEO audit$/
-		);
-		unmount();
-
-		window.history.replaceState( null, '', panelUrl( 'write-meta-descriptions' ) );
-		renderHub();
-		const region = screen.getByRole( 'region', { name: 'Write meta descriptions' } );
-		expect( within( region ).queryByText( 'Great first skill' ) ).not.toBeInTheDocument();
 	} );
 
 	test( 'Copy copies the prompt', async () => {
