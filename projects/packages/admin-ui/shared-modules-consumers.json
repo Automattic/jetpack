@@ -1,0 +1,815 @@
+{
+	"activity-log": {
+		"analytics": [
+			"default"
+		],
+		"api": [
+			"default"
+		],
+		"components": [
+			"AdminPage",
+			"JetpackLogo",
+			"ThemeProvider",
+			"getRedirectUrl"
+		],
+		"dataviews": [
+			"DataViews"
+		],
+		"react-query": [
+			"QueryClient",
+			"QueryClientProvider",
+			"queryOptions",
+			"useQuery"
+		],
+		"script-data": [
+			"getJetpackAdminPageUrl",
+			"getMyJetpackUrl",
+			"getScriptData"
+		],
+		"ui": [
+			"Badge",
+			"Link",
+			"Notice",
+			"RangeCalendar",
+			"Stack",
+			"Text",
+			"Tooltip",
+			"VisuallyHidden"
+		]
+	},
+	"backup": {
+		"admin-ui": [
+			"Page"
+		],
+		"analytics": [
+			"default"
+		],
+		"api": [
+			"default"
+		],
+		"components": [
+			"getProductCheckoutUrl",
+			"getRedirectUrl"
+		],
+		"dataviews": [
+			"DataViews"
+		],
+		"number-formatters": [
+			"formatCurrency",
+			"formatNumber"
+		],
+		"react-query": [
+			"QueryClient",
+			"QueryClientProvider",
+			"keepPreviousData",
+			"useInfiniteQuery",
+			"useMutation",
+			"useQuery",
+			"useQueryClient"
+		],
+		"script-data": [
+			"currentUserCan",
+			"getAdminUrl",
+			"getJetpackAdminPageUrl",
+			"getMyJetpackUrl",
+			"getScriptData",
+			"isWpcomPlatformSite"
+		],
+		"ui": [
+			"Badge",
+			"Button",
+			"ButtonLink",
+			"Card",
+			"CheckboxControl",
+			"Collapsible",
+			"Dialog",
+			"EmptyState",
+			"Fieldset",
+			"IconButton",
+			"Link",
+			"Notice",
+			"Popover",
+			"Progress",
+			"SelectControl",
+			"Skeleton",
+			"Spinner",
+			"Stack",
+			"Text",
+			"Tooltip",
+			"VisuallyHidden"
+		]
+	},
+	"forms": {
+		"admin-ui": [
+			"Breadcrumbs",
+			"Page"
+		],
+		"analytics": [
+			"default"
+		],
+		"api": [
+			"default"
+		],
+		"dataviews": [
+			"DataViews"
+		],
+		"number-formatters": [
+			"formatNumber",
+			"formatNumberCompact"
+		],
+		"script-data": [
+			"currentUserCan",
+			"getAdminUrl",
+			"getScriptData",
+			"isSimpleSite",
+			"isWoASite",
+			"isWpcomPlatformSite"
+		],
+		"ui": [
+			"AlertDialog",
+			"Badge",
+			"Button",
+			"ButtonLink",
+			"Dialog",
+			"EmptyState",
+			"Link",
+			"Notice",
+			"Spinner",
+			"Stack",
+			"Tabs",
+			"Text",
+			"Tooltip",
+			"VisuallyHidden"
+		]
+	},
+	"monetize": {
+		"admin-ui": [
+			"Page"
+		],
+		"analytics": [
+			"default"
+		],
+		"api": [
+			"default"
+		],
+		"number-formatters": [
+			"formatCurrency",
+			"formatNumber"
+		],
+		"react-query": [
+			"QueryClient",
+			"QueryClientProvider",
+			"useMutation",
+			"useQuery",
+			"useQueryClient"
+		],
+		"script-data": [
+			"currentUserCan",
+			"getAdminUrl",
+			"getJetpackAdminPageUrl",
+			"getMyJetpackUrl",
+			"getScriptData",
+			"getSiteData",
+			"isSimpleSite",
+			"isWoASite",
+			"isWpcomPlatformSite"
+		],
+		"ui": [
+			"AlertDialog",
+			"Badge",
+			"Button",
+			"ButtonLink",
+			"Card",
+			"CheckboxControl",
+			"Collapsible",
+			"Dialog",
+			"Fieldset",
+			"Icon",
+			"InputControl",
+			"InputLayout",
+			"Link",
+			"Notice",
+			"SearchableChipSelectControl",
+			"SelectControl",
+			"Skeleton",
+			"Spinner",
+			"Stack",
+			"SwitchControl",
+			"Tabs",
+			"Text",
+			"TextareaControl",
+			"ValidityIndicator"
+		]
+	},
+	"my-jetpack": {
+		"analytics": [
+			"default"
+		],
+		"api": [
+			"default"
+		],
+		"charts": [
+			"BarChart",
+			"LineChart"
+		],
+		"components": [
+			"ActionButton",
+			"AdminPage",
+			"AiIcon",
+			"BoostScoreBar",
+			"Button",
+			"CheckmarkIcon",
+			"Col",
+			"Container",
+			"JetpackIcon",
+			"JetpackLogo",
+			"LoadingPlaceholder",
+			"PeriodSelector",
+			"PricingTable",
+			"PricingTableColumn",
+			"PricingTableHeader",
+			"PricingTableItem",
+			"ProductPrice",
+			"StatsIcon",
+			"TermsOfService",
+			"Text",
+			"ThemeProvider",
+			"UpsellBanner",
+			"getIconBySlug",
+			"getProductCheckoutUrl",
+			"getRedirectUrl",
+			"getUserLocale"
+		],
+		"connection": [
+			"CONNECTION_FROM",
+			"CONNECTION_STORE_ID",
+			"ConnectScreen",
+			"ConnectionErrorDetails",
+			"ConnectionErrorSupportLink",
+			"ManageConnectionDialog",
+			"formatConnectionErrorDetailLine",
+			"getReconnectErrorMessage",
+			"getUserConnectionUrl",
+			"isStandardEntryPoint",
+			"useConnection",
+			"useConnectionErrorNotice",
+			"useProductCheckoutWorkflow"
+		],
+		"number-formatters": [
+			"formatCurrency",
+			"formatNumber",
+			"formatNumberCompact",
+			"getCurrencyObject"
+		],
+		"react-query": [
+			"QueryClient",
+			"QueryClientContext",
+			"QueryClientProvider",
+			"useIsMutating",
+			"useMutation",
+			"useMutationState",
+			"useQuery",
+			"useQueryClient"
+		],
+		"script-data": [
+			"currentUserCan",
+			"getAdminUrl",
+			"getJetpackAdminPageUrl",
+			"getMyJetpackUrl",
+			"getScriptData",
+			"isSimpleSite",
+			"isWoASite"
+		],
+		"ui": [
+			"Badge",
+			"Button",
+			"ButtonLink",
+			"Card",
+			"Dialog",
+			"EmptyState",
+			"Icon",
+			"IconButton",
+			"InputControl",
+			"InputLayout",
+			"Link",
+			"Notice",
+			"Popover",
+			"RadioGroupControl",
+			"SelectControl",
+			"Spinner",
+			"Stack",
+			"Switch",
+			"SwitchControl",
+			"Tabs",
+			"Text",
+			"ValidatedInputControl",
+			"VisuallyHidden"
+		]
+	},
+	"newsletter": {
+		"admin-ui": [
+			"Page"
+		],
+		"analytics": [
+			"default"
+		],
+		"api": [
+			"default"
+		],
+		"charts": [
+			"LineChart"
+		],
+		"components": [
+			"JetpackIcon"
+		],
+		"dataviews": [
+			"DataForm",
+			"DataViews",
+			"useFormValidity"
+		],
+		"number-formatters": [
+			"formatCurrency",
+			"formatNumber"
+		],
+		"react-query": [
+			"QueryClient",
+			"QueryClientProvider",
+			"keepPreviousData",
+			"useMutation",
+			"useQuery",
+			"useQueryClient"
+		],
+		"script-data": [
+			"currentUserCan",
+			"getAdminUrl",
+			"getJetpackAdminPageUrl",
+			"getMyJetpackUrl",
+			"getScriptData",
+			"getSiteData",
+			"getSiteType",
+			"isSimpleSite",
+			"isWpcomPlatformSite"
+		],
+		"ui": [
+			"AlertDialog",
+			"Badge",
+			"Button",
+			"ButtonLink",
+			"Card",
+			"Checkbox",
+			"CollapsibleCard",
+			"Dialog",
+			"EmptyState",
+			"Field",
+			"Fieldset",
+			"Icon",
+			"InputControl",
+			"Link",
+			"Notice",
+			"Progress",
+			"Skeleton",
+			"Spinner",
+			"Stack",
+			"Tabs",
+			"Text",
+			"Tooltip",
+			"VisuallyHidden"
+		]
+	},
+	"plugin-jetpack": {
+		"analytics": [
+			"default"
+		],
+		"api": [
+			"default"
+		],
+		"components": [
+			"AdminPage",
+			"AiIcon",
+			"JetpackFooter",
+			"JetpackLogo",
+			"JitmSlot",
+			"ThemeProvider",
+			"getRedirectUrl"
+		],
+		"connection": [
+			"CONNECTION_STORE_ID",
+			"ConnectScreen",
+			"ConnectionError",
+			"DisconnectCard",
+			"DisconnectDialog",
+			"getUserConnectionUrl",
+			"useConnection",
+			"useConnectionErrorNotice",
+			"useRestoreConnection"
+		],
+		"dataviews": [
+			"DataViews",
+			"filterSortAndPaginate"
+		],
+		"number-formatters": [
+			"formatNumber"
+		],
+		"script-data": [
+			"currentUserCan",
+			"getAdminUrl",
+			"getMyJetpackUrl",
+			"getScriptData",
+			"getSiteType",
+			"isJetpackSelfHostedSite",
+			"isSimpleSite",
+			"isWoASite",
+			"isWpcomPlatformSite"
+		],
+		"ui": [
+			"Badge",
+			"Button",
+			"ButtonLink",
+			"Card",
+			"EmptyState",
+			"Icon",
+			"Link",
+			"Notice",
+			"Popover",
+			"Progress",
+			"Skeleton",
+			"Spinner",
+			"Stack",
+			"SwitchControl",
+			"Tabs",
+			"Text",
+			"TextareaControl",
+			"VisuallyHidden"
+		]
+	},
+	"podcast": {
+		"admin-ui": [
+			"Page"
+		],
+		"analytics": [
+			"default"
+		],
+		"api": [
+			"default"
+		],
+		"charts": [
+			"BarChart",
+			"GeoChart",
+			"formatPercentage",
+			"parseAsLocalDate"
+		],
+		"components": [
+			"getProductCheckoutUrl"
+		],
+		"dataviews": [
+			"DataViews"
+		],
+		"number-formatters": [
+			"formatNumber"
+		],
+		"script-data": [
+			"currentUserCan",
+			"getAdminUrl",
+			"getMyJetpackUrl",
+			"getScriptData",
+			"getSiteData",
+			"isWpcomPlatformSite"
+		],
+		"ui": [
+			"Button",
+			"ButtonLink",
+			"Card",
+			"EmptyState",
+			"Link",
+			"Popover",
+			"RangeCalendar",
+			"Stack",
+			"Tabs",
+			"Text",
+			"VisuallyHidden"
+		]
+	},
+	"premium-analytics": {
+		"admin-ui": [
+			"Breadcrumbs",
+			"Page"
+		],
+		"analytics": [
+			"default"
+		],
+		"api": [
+			"default"
+		],
+		"charts": [
+			"BarChart",
+			"ConversionFunnelChart",
+			"GeoChart",
+			"GlobalChartsProvider",
+			"GoogleDataTableColumnRoleType",
+			"HeatmapChart",
+			"LeaderboardChartUnresponsive",
+			"Legend",
+			"LineChart",
+			"PieChartUnresponsive",
+			"PieSemiCircleChart",
+			"TooltipBox",
+			"buildCalendarHeatmapData",
+			"getBucketInfo",
+			"lightenHexColor",
+			"mixHexColors",
+			"normalizeColorToHex",
+			"useBarColors",
+			"useBarLegendItems",
+			"useGlobalChartsContext",
+			"useMonthCalendarHeatmapData"
+		],
+		"components": [
+			"ThemeProvider"
+		],
+		"connection": [
+			"useConnection"
+		],
+		"dataviews": [
+			"DataForm",
+			"DataViews",
+			"DataViewsPicker",
+			"filterSortAndPaginate"
+		],
+		"number-formatters": [
+			"createNumberFormatters",
+			"formatCurrency",
+			"formatNumber",
+			"formatNumberCompact",
+			"getCurrencyObject"
+		],
+		"react-query": [
+			"QueryCache",
+			"QueryClient",
+			"QueryClientProvider",
+			"queryOptions",
+			"useMutation",
+			"usePrefetchQuery",
+			"useQueries",
+			"useQuery",
+			"useQueryClient"
+		],
+		"script-data": [
+			"currentUserCan",
+			"getAdminUrl",
+			"getScriptData",
+			"getSiteData",
+			"isSimpleSite",
+			"isWpcomPlatformSite"
+		],
+		"ui": [
+			"AlertDialog",
+			"Badge",
+			"Button",
+			"ButtonLink",
+			"Card",
+			"Dialog",
+			"Drawer",
+			"EmptyState",
+			"Field",
+			"Fieldset",
+			"Icon",
+			"IconButton",
+			"Input",
+			"InputControl",
+			"Link",
+			"Menu",
+			"Meter",
+			"Notice",
+			"Popover",
+			"Progress",
+			"RangeCalendar",
+			"SearchableChipSelectControl",
+			"SelectControl",
+			"Skeleton",
+			"Spinner",
+			"Stack",
+			"Tabs",
+			"Text",
+			"TextareaControl",
+			"Tooltip",
+			"ValidatedInputControl",
+			"VisuallyHidden"
+		]
+	},
+	"protect": {
+		"admin-ui": [
+			"Page"
+		],
+		"analytics": [
+			"default"
+		],
+		"api": [
+			"default"
+		],
+		"dataviews": [
+			"DataViews",
+			"filterSortAndPaginate"
+		],
+		"script-data": [
+			"currentUserCan",
+			"getAdminUrl",
+			"getScriptData",
+			"isWpcomPlatformSite"
+		],
+		"ui": [
+			"AlertDialog",
+			"Badge",
+			"Breadcrumb",
+			"Button",
+			"ButtonLink",
+			"Card",
+			"Collapsible",
+			"Dialog",
+			"EmptyState",
+			"Icon",
+			"IconButton",
+			"InputControl",
+			"Link",
+			"Notice",
+			"Skeleton",
+			"Spinner",
+			"Stack",
+			"SwitchControl",
+			"Tabs",
+			"Text",
+			"TextareaControl",
+			"Tooltip",
+			"VisuallyHidden"
+		]
+	},
+	"publicize": {
+		"admin-ui": [
+			"Page"
+		],
+		"analytics": [
+			"default"
+		],
+		"api": [
+			"default"
+		],
+		"charts": [
+			"LineChart"
+		],
+		"components": [
+			"PeriodSelector",
+			"SocialServiceIcon",
+			"ThemeProvider",
+			"getRedirectUrl"
+		],
+		"number-formatters": [
+			"formatCurrency"
+		],
+		"react-query": [
+			"QueryClient",
+			"QueryClientProvider"
+		],
+		"script-data": [
+			"currentUserCan",
+			"getAdminUrl",
+			"getJetpackAdminPageUrl",
+			"getMyJetpackUrl",
+			"getScriptData",
+			"getSiteData",
+			"isJetpackSelfHostedSite",
+			"isSimpleSite",
+			"isWpcomPlatformSite",
+			"siteHasFeature"
+		],
+		"ui": [
+			"AlertDialog",
+			"Button",
+			"ButtonLink",
+			"Card",
+			"Collapsible",
+			"Dialog",
+			"EmptyState",
+			"Icon",
+			"IconButton",
+			"InputControl",
+			"Link",
+			"Notice",
+			"Spinner",
+			"Stack",
+			"Tabs",
+			"Text",
+			"Tooltip",
+			"VisuallyHidden"
+		]
+	},
+	"seo": {
+		"admin-ui": [
+			"Page"
+		],
+		"analytics": [
+			"default"
+		],
+		"components": [
+			"AdminPage",
+			"DonutMeter",
+			"ThemeProvider"
+		],
+		"dataviews": [
+			"DataViews",
+			"filterSortAndPaginate"
+		],
+		"script-data": [
+			"getAdminUrl",
+			"getScriptData",
+			"isSimpleSite"
+		],
+		"ui": [
+			"Badge",
+			"Button",
+			"ButtonLink",
+			"Card",
+			"CollapsibleCard",
+			"EmptyState",
+			"Fieldset",
+			"Icon",
+			"IconButton",
+			"Link",
+			"Notice",
+			"Stack",
+			"SwitchControl",
+			"Tabs",
+			"Text",
+			"Tooltip",
+			"VisuallyHidden"
+		]
+	},
+	"videopress": {
+		"admin-ui": [
+			"Breadcrumbs",
+			"Page"
+		],
+		"analytics": [
+			"default"
+		],
+		"api": [
+			"default"
+		],
+		"charts": [
+			"LineChart"
+		],
+		"components": [
+			"PeriodSelector",
+			"getRedirectUrl"
+		],
+		"dataviews": [
+			"DataViews",
+			"DataViewsPicker"
+		],
+		"number-formatters": [
+			"getCurrencyObject"
+		],
+		"react-query": [
+			"QueryClient",
+			"QueryClientProvider",
+			"keepPreviousData",
+			"queryOptions",
+			"useMutation",
+			"useQueries",
+			"useQuery",
+			"useQueryClient"
+		],
+		"script-data": [
+			"currentUserCan",
+			"getAdminUrl",
+			"getJetpackAdminPageUrl",
+			"getMyJetpackUrl",
+			"getScriptData",
+			"getSiteData",
+			"isSimpleSite",
+			"isWoASite",
+			"isWpcomPlatformSite"
+		],
+		"ui": [
+			"Badge",
+			"Button",
+			"ButtonLink",
+			"Card",
+			"CollapsibleCard",
+			"Dialog",
+			"EmptyState",
+			"Field",
+			"IconButton",
+			"InputControl",
+			"Link",
+			"Notice",
+			"Progress",
+			"RadioGroupControl",
+			"Skeleton",
+			"Stack",
+			"SwitchControl",
+			"Tabs",
+			"Text",
+			"TextareaControl",
+			"Tooltip"
+		]
+	}
+}
