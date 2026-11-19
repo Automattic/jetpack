@@ -3,7 +3,6 @@ import { jest } from '@jest/globals';
 import { render, screen } from '@testing-library/react';
 
 const useEnsureTabData = jest.fn< () => { status: string; retry: () => void } >();
-const isSeoToolsActive = jest.fn< () => boolean >();
 
 jest.unstable_mockModule( '../../../_inc/components/dashboard-load-error', () => ( {
 	default: () => 'load-error',
@@ -11,18 +10,11 @@ jest.unstable_mockModule( '../../../_inc/components/dashboard-load-error', () =>
 jest.unstable_mockModule( '../../../_inc/components/dashboard-skeleton', () => ( {
 	default: () => 'skeleton',
 } ) );
-jest.unstable_mockModule( '../../../_inc/components/seo-disabled-stage', () => ( {
-	default: () => 'seo-disabled',
-} ) );
 jest.unstable_mockModule( '../../../_inc/dashboard/dashboard-page', () => ( {
 	default: ( { children }: { children: React.ReactNode } ) => children,
 } ) );
 jest.unstable_mockModule( '../../../_inc/data/get-preloaded', () => ( {
 	CONTENT_PATH: '/jetpack/v4/seo/content',
-	OVERVIEW_PATH: '/jetpack/v4/seo/overview',
-} ) );
-jest.unstable_mockModule( '../../../_inc/data/is-seo-tools-active', () => ( {
-	default: isSeoToolsActive,
 } ) );
 jest.unstable_mockModule( '../../../_inc/data/use-ensure-tab-data', () => ( {
 	default: useEnsureTabData,
@@ -32,7 +24,7 @@ jest.unstable_mockModule( '../../../_inc/screens/content', () => ( {
 } ) );
 
 const { stage: Stage } = await import( '../../../routes/content/stage' );
-const { CONTENT_PATH, OVERVIEW_PATH } = await import( '../../../_inc/data/get-preloaded' );
+const { CONTENT_PATH } = await import( '../../../_inc/data/get-preloaded' );
 
 /**
  * Render the stage. Every branch's children are stubbed to a distinct string
@@ -45,24 +37,17 @@ const renderStage = () => render( <Stage /> );
 describe( 'Content route stage', () => {
 	beforeEach( () => {
 		useEnsureTabData.mockReset();
-		isSeoToolsActive.mockReset();
-		isSeoToolsActive.mockReturnValue( true );
 	} );
 
 	/**
-	 * The Content tab reads both its own slice and the Overview slice — it gates on
-	 * the `seo-tools` state, which lives in Overview — so a missing preload for
-	 * either has to be recovered before the list renders.
+	 * A missing preload of the Content slice has to be recovered before the list renders.
 	 */
-	it( 'ensures both the overview and content slices are available', () => {
+	it( 'ensures the content slice is available', () => {
 		useEnsureTabData.mockReturnValue( { status: 'ready', retry: jest.fn() } );
 
 		Stage();
 
-		expect( useEnsureTabData ).toHaveBeenCalledWith( [
-			{ path: OVERVIEW_PATH },
-			{ path: CONTENT_PATH },
-		] );
+		expect( useEnsureTabData ).toHaveBeenCalledWith( [ { path: CONTENT_PATH } ] );
 	} );
 
 	/**
@@ -90,7 +75,7 @@ describe( 'Content route stage', () => {
 	} );
 
 	/**
-	 * With data ready and the module on, the tab renders the content list.
+	 * With data ready, the tab renders the content list.
 	 */
 	it( 'renders the content list once the data is ready', () => {
 		useEnsureTabData.mockReturnValue( { status: 'ready', retry: jest.fn() } );
@@ -98,19 +83,5 @@ describe( 'Content route stage', () => {
 		renderStage();
 
 		expect( screen.getByText( 'content-screen' ) ).toBeInTheDocument();
-	} );
-
-	/**
-	 * With the `seo-tools` module off, per-post SEO meta has no effect, so the tab
-	 * offers the enable affordance instead of a list the user can't act on.
-	 */
-	it( 'offers the enable affordance when the seo-tools module is off', () => {
-		useEnsureTabData.mockReturnValue( { status: 'ready', retry: jest.fn() } );
-		isSeoToolsActive.mockReturnValue( false );
-
-		renderStage();
-
-		expect( screen.getByText( 'seo-disabled' ) ).toBeInTheDocument();
-		expect( screen.queryByText( 'content-screen' ) ).not.toBeInTheDocument();
 	} );
 } );

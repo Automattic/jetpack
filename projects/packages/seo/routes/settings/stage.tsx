@@ -17,9 +17,11 @@ import type { SettingsResponse } from '../../_inc/data/settings-types';
 // populated by then.
 const SettingsReady = () => {
 	const form = useSettingsForm();
+	const seoToolsActive = isSeoToolsActive();
+	// While SEO tools are off, the other tabs redirect here, so there is no tab bar.
 	return (
-		<DashboardPage active="settings">
-			<SettingsScreen form={ form } independentOnly={ ! isSeoToolsActive() } />
+		<DashboardPage active="settings" showTabs={ seoToolsActive }>
+			<SettingsScreen form={ form } independentOnly={ ! seoToolsActive } />
 		</DashboardPage>
 	);
 };
@@ -36,7 +38,7 @@ const Stage = () => {
 
 	if ( status === 'loading' ) {
 		return (
-			<DashboardPage active="settings">
+			<DashboardPage active="settings" showTabs={ isSeoToolsActive() }>
 				<DashboardSkeleton />
 			</DashboardPage>
 		);
@@ -44,7 +46,7 @@ const Stage = () => {
 
 	if ( status === 'error' ) {
 		return (
-			<DashboardPage active="settings">
+			<DashboardPage active="settings" showTabs={ isSeoToolsActive() }>
 				<DashboardLoadError onRetry={ retry } />
 			</DashboardPage>
 		);

@@ -17,6 +17,7 @@ import AuthorProfileCard from './author-profile-card';
 import IndexnowSettings from './indexnow-settings';
 import SchemaCard from './schema-card';
 import SeoToolsCard from './seo-tools-card';
+import SeoToolsOffNotice from './seo-tools-off-notice';
 import SocialPreviewsCard from './social-previews-card';
 import styles from './style.module.scss';
 import TitleStructureField from './title-structure-field';
@@ -288,8 +289,7 @@ const SettingsScreen: FC< Props > = ( { form, independentOnly = false } ) => {
 
 	return (
 		<Stack direction="column" gap="lg" className={ styles.root }>
-			{ /* Simple has no modules to switch: it reports SEO Tools on, and always will. */ }
-			{ ! simpleSite && <SeoToolsCard active={ ! independentOnly } /> }
+			{ independentOnly && <SeoToolsOffNotice /> }
 
 			<div id="visibility" className={ styles.section }>
 				<CollapsibleCard.Root defaultOpen>
@@ -470,6 +470,9 @@ const SettingsScreen: FC< Props > = ( { form, independentOnly = false } ) => {
 						onImageChange={ image => commit( { default_share_image: image } ) }
 						disabled={ isSaving || outputLocked }
 					/>
+
+					{ /* Simple has no modules to switch: it reports SEO Tools on, and always will. */ }
+					{ ! simpleSite && <SeoToolsCard /> }
 				</>
 			) }
 		</Stack>

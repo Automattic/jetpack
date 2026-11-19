@@ -50,15 +50,20 @@ const IndexnowSettings = jest.fn< ( props: Record< string, unknown > ) => ReactE
 ) );
 jest.unstable_mockModule( '../indexnow-settings', () => ( { default: IndexnowSettings } ) );
 jest.unstable_mockModule( '../seo-tools-card', () => ( {
-	default: ( { active }: { active: boolean } ) => (
-		<div data-testid="seo-tools-switch" data-active={ String( active ) } />
-	),
+	default: () => <div data-testid="seo-tools-switch" />,
+} ) );
+jest.unstable_mockModule( '../seo-tools-off-notice', () => ( {
+	default: () => <div data-testid="seo-tools-off" />,
 } ) );
 
 let routeForm: SettingsForm;
 let routeSeoToolsActive = false;
 jest.unstable_mockModule( '../../../dashboard/dashboard-page', () => ( {
-	default: ( { children }: { children: ReactNode } ) => children,
+	default: ( { children, showTabs }: { children: ReactNode; showTabs?: boolean } ) => (
+		<div data-testid="page" data-show-tabs={ String( showTabs ?? true ) }>
+			{ children }
+		</div>
+	),
 } ) );
 jest.unstable_mockModule( '../../../data/is-seo-tools-active', () => ( {
 	default: () => routeSeoToolsActive,
@@ -721,23 +726,19 @@ describe( 'Notification settings inside Site visibility', () => {
 	} );
 } );
 
-describe( 'Settings while SEO tools are off', () => {
+describe( 'Settings and the SEO tools switch', () => {
 	afterEach( () => {
 		delete ( window as unknown as { JetpackScriptData?: unknown } ).JetpackScriptData;
 		routeSeoToolsActive = false;
 	} );
 
 	it.each( [ false, true ] )(
-		'keeps the module-independent settings and offers the SEO tools switch when active is %s',
+		'keeps the module-independent settings when SEO tools active is %s',
 		async active => {
 			routeSeoToolsActive = active;
 			routeForm = buildForm( { search_engines_visible: true } );
 			render( <SettingsStage /> );
 
-			expect( screen.getByTestId( 'seo-tools-switch' ) ).toHaveAttribute(
-				'data-active',
-				String( active )
-			);
 			expect(
 				screen.getByRole( 'checkbox', { name: 'Generate an XML sitemap' } )
 			).toBeInTheDocument();
@@ -752,6 +753,32 @@ describe( 'Settings while SEO tools are off', () => {
 			expect( routeForm.commit ).not.toHaveBeenCalled();
 		}
 	);
+
+	it( 'drops the tabs and tops Settings with the off notice while SEO tools are off', () => {
+		routeForm = buildForm();
+		render( <SettingsStage /> );
+
+		expect( screen.getByTestId( 'page' ) ).toHaveAttribute( 'data-show-tabs', 'false' );
+		const notice = screen.getByTestId( 'seo-tools-off' );
+		expect( notice.compareDocumentPosition( screen.getByText( 'google field' ) ) ).toBe(
+			Node.DOCUMENT_POSITION_FOLLOWING
+		);
+		expect( screen.queryByTestId( 'seo-tools-switch' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'keeps the tabs and ends Settings with the switch while SEO tools are on', () => {
+		routeSeoToolsActive = true;
+		routeForm = buildForm();
+		render( <SettingsStage /> );
+
+		expect( screen.getByTestId( 'page' ) ).toHaveAttribute( 'data-show-tabs', 'true' );
+		expect(
+			screen
+				.getByText( 'social previews' )
+				.compareDocumentPosition( screen.getByTestId( 'seo-tools-switch' ) )
+		).toBe( Node.DOCUMENT_POSITION_FOLLOWING );
+		expect( screen.queryByTestId( 'seo-tools-off' ) ).not.toBeInTheDocument();
+	} );
 
 	it( 'leaves the switch out on WordPress.com Simple, which runs SEO tools on every site', () => {
 		( window as unknown as { JetpackScriptData?: unknown } ).JetpackScriptData = {
