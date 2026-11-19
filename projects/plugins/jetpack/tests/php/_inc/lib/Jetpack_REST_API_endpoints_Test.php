@@ -1009,6 +1009,37 @@ class Jetpack_REST_API_endpoints_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Switching the site language to English answers like any other setting, whether
+	 * or not a language was set, and still saves the settings sent with it.
+	 *
+	 * @return void
+	 */
+	public function test_settings_lang_id_en_us_returns_the_settings_response() {
+		$user = $this->create_and_get_user( 'administrator' );
+		$user->add_cap( 'jetpack_configure_modules' );
+		wp_set_current_user( $user->ID );
+
+		foreach ( array( 'fr_FR', '' ) as $current ) {
+			update_option( 'WPLANG', $current );
+			update_option( 'jetpack_portfolio', 0 );
+
+			$response = $this->create_and_get_request(
+				'settings',
+				array(
+					'lang_id'           => 'en_US',
+					'jetpack_portfolio' => true,
+				),
+				'POST'
+			);
+
+			$this->assertResponseStatus( 200, $response );
+			$this->assertSame( 'success', $response->get_data()['code'], $current );
+			$this->assertSame( '', get_option( 'WPLANG', '' ), $current );
+			$this->assertSame( '1', (string) get_option( 'jetpack_portfolio' ), $current );
+		}
+	}
+
+	/**
 	 * Regression for NL-618: re-posting newsletter categories with the same selection the option
 	 * already holds must return 200, not a `some_updated` 400. The previous code left `$updated`
 	 * false on the "values equal" short-circuit, so any save without an actual change blew up.
