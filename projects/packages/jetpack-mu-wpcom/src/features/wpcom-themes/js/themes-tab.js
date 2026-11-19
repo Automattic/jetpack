@@ -29,6 +29,28 @@
 			list.addEventListener( 'scroll', markClipped, { passive: true } );
 			new window.ResizeObserver( markClipped ).observe( list );
 		}
+
+		// A mouse wheel only turns one way, so it scrolls the tabs while they have further to go.
+		list.addEventListener(
+			'wheel',
+			event => {
+				if ( event.ctrlKey || Math.abs( event.deltaX ) >= Math.abs( event.deltaY ) ) {
+					return;
+				}
+
+				// Firefox counts a wheel in lines, and a page is the whole of what shows.
+				const unit = [ 1, 16, list.clientWidth ][ event.deltaMode ] || 1;
+				const forward = document.dir === 'rtl' ? -1 : 1;
+				const before = list.scrollLeft;
+				list.scrollLeft += event.deltaY * unit * forward;
+
+				// At either end, and where the tabs do not scroll at all, the page scrolls as usual.
+				if ( list.scrollLeft !== before ) {
+					event.preventDefault();
+				}
+			},
+			{ passive: false }
+		);
 	}
 
 	const views = window.wp && window.wp.themes && window.wp.themes.view;
