@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { act, renderHook } from '@testing-library/react';
+import { act, renderHook, waitFor } from '@testing-library/react';
 import { createElement } from 'react';
 import { ADS_ACCOUNT_KEY } from '../ads-keys';
 import { toAdsEarnings, useJoinWordAds } from '../wordads';
@@ -50,7 +50,7 @@ describe( 'useJoinWordAds', () => {
 
 		await act( () => result.current.mutateAsync().catch( () => undefined ) );
 
-		expect( result.current.isError ).toBe( ! approved );
+		await waitFor( () => expect( result.current.isError ).toBe( ! approved ) );
 		expect( queryClient.getQueryData( ADS_ACCOUNT_KEY ) ).toEqual( { approved, active: false } );
 	} );
 } );
