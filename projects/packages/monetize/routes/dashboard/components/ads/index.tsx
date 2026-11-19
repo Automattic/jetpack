@@ -83,7 +83,7 @@ export default function Ads( { openTab }: { openTab: ( next: string ) => void } 
 				<Notice.Root intent="warning">
 					<Notice.Description>
 						{ __(
-							'Your ad earnings are held until you add a PayPal address to be paid at.',
+							'Your ad earnings are held until you add a PayPal address for payouts.',
 							'jetpack-monetize'
 						) }
 					</Notice.Description>
