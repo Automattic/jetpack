@@ -150,7 +150,7 @@ beforeEach( () => {
 	// An unchanged block is not re-sent, and that memo outlives a test.
 	forgetSyncedRequests();
 	forgetPostSaves();
-	// isConnected() runs before the sync, so the connection has to answer yes for a
+	// The connection check runs before the sync, so the connection has to answer yes for a
 	// test to reach what it measures.
 	apiFetch.mockImplementation( ( { path } ) =>
 		Promise.resolve( path === `${ API_BASE }/connection` ? { connected: true } : {} )

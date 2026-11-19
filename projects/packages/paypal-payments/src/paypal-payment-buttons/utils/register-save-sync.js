@@ -14,8 +14,9 @@ import { addAction, addFilter } from '@wordpress/hooks';
 import { __, sprintf } from '@wordpress/i18n';
 import metadata from '../block.json';
 import { API_BASE } from './api-base';
-import { syncBlocksBeforeSave } from './sync-on-save';
+import { isReadyForPayPal, notSavedMessage, syncBlocksBeforeSave } from './sync-on-save';
 import { toast } from './toast';
+import { isForbidden } from './validation';
 
 // Successful post saves other than autosaves.
 let postSaves = 0;
@@ -70,19 +71,6 @@ function payPalBlocks() {
 		.getClientIdsWithDescendants()
 		.map( clientId => store.getBlock( clientId ) )
 		.filter( block => block?.name === metadata.name );
-}
-
-/**
- * The site's PayPal connection.
- *
- * @return {Promise<?Object>} The `/connection` response, or null if the request fails.
- */
-async function isConnected() {
-	try {
-		return await apiFetch( { path: `${ API_BASE }/connection` } );
-	} catch {
-		return null;
-	}
 }
 
 const CREATED_MESSAGE = __( 'Payment button successfully created.', 'jetpack-paypal-payments' );
@@ -187,7 +175,21 @@ export function registerSaveSync( isEnabled ) {
 				return edits;
 			}
 
-			const connection = await isConnected();
+			let connection;
+			try {
+				connection = await apiFetch( { path: `${ API_BASE }/connection` } );
+			} catch ( err ) {
+				// Only PayPal managers sync. Anyone else gets a 403 and saves without it.
+				if ( isForbidden( err ) ) {
+					return edits;
+				}
+				// The check failed, so nothing was sent to PayPal.
+				const { reportError } = syncDeps();
+				blocks
+					.filter( block => isReadyForPayPal( block.attributes ) )
+					.forEach( block => reportError( block, notSavedMessage( block.attributes, err ) ) );
+				return edits;
+			}
 
 			if ( ! connection?.connected ) {
 				return edits;

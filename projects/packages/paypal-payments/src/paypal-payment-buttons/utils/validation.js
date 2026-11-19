@@ -563,11 +563,17 @@ export function getUserFriendlyError( err ) {
 /**
  * Whether an API error says the payment no longer exists at PayPal.
  *
+ * The routes answer 404 rest_no_route while the feature flag is off, but that
+ * says nothing about the payment.
+ *
  * @param {object} err - The apiFetch error.
- * @return {boolean} True for a 404.
+ * @return {boolean} True for a 404 other than rest_no_route.
  */
 export function isNotFound( err ) {
-	return err?.code === 'paypal_api_resource_not_found' || err?.data?.status === 404;
+	return (
+		err?.code === 'paypal_api_resource_not_found' ||
+		( err?.data?.status === 404 && err?.code !== 'rest_no_route' )
+	);
 }
 
 /**

@@ -376,11 +376,21 @@ class PayPal_REST_Controller {
 	}
 
 	/**
-	 * Permission check: current user can manage_options.
+	 * Permission check: the API-managed buttons flag is on and the current user can
+	 * manage_options. Flag off returns core's 404 rest_no_route, as if the route were
+	 * missing.
 	 *
 	 * @return bool|WP_Error True if permitted, WP_Error otherwise.
 	 */
 	public static function manage_options_permission_check() {
+		if ( ! PayPal_Payment_Buttons::is_api_managed_enabled() ) {
+			return new WP_Error(
+				'rest_no_route',
+				__( 'No route was found matching the URL and request method.', 'jetpack-paypal-payments' ),
+				array( 'status' => 404 )
+			);
+		}
+
 		if ( ! current_user_can( 'manage_options' ) ) {
 			return new WP_Error(
 				'rest_forbidden',
