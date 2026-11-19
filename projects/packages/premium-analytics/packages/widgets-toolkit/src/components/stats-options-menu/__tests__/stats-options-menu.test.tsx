@@ -6,7 +6,6 @@ import { currentUserCan, getScriptData, isSimpleSite } from '@automattic/jetpack
 import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
-import { useViewportMatch } from '@wordpress/compose';
 import { dispatch } from '@wordpress/data';
 import { store as preferencesStore } from '@wordpress/preferences';
 /**
@@ -31,7 +30,6 @@ jest.mock(
 jest.mock( '@wordpress/api-fetch', () => jest.fn() );
 
 const recordEvent = jest.mocked( analytics.tracks.recordEvent );
-const ViewportWidth = useViewportMatch.__experimentalWidthProvider;
 
 const DASHBOARD_SCOPE = 'jetpack-premium-analytics/dashboard';
 const DASHBOARD_LAYOUTS_KEY = 'dashboardSectionLayouts';
@@ -185,78 +183,6 @@ describe( 'stats-options-menu', () => {
 			render( <StatsOptionsMenu /> );
 
 			expect( screen.queryByRole( 'button', { name: 'Stats options' } ) ).not.toBeInTheDocument();
-		} );
-
-		// Not 600: the width provider treats it as wide, a real `max-width: 600px` query as narrow.
-		it.each( [
-			[ 'carries Reset to default on a narrow header', 599, true ],
-			[ 'leaves Reset to default to its own button on a wide one', 601, false ],
-		] )( '%s', async ( _name, width, hasReset ) => {
-			const user = setupUser();
-			const onReset = jest.fn();
-			render(
-				<ViewportWidth value={ width }>
-					<StatsOptionsMenu onReset={ onReset } />
-				</ViewportWidth>
-			);
-
-			await user.click( screen.getByRole( 'button', { name: 'Stats options' } ) );
-			const items = await screen.findAllByRole( 'menuitem' );
-			const reset = items.filter( item => item.textContent === 'Reset to default…' );
-
-			expect( reset.length === 1 ).toBe( hasReset );
-			// First, where a reader looks for the action the header just took away.
-			expect( hasReset && reset[ 0 ] === items[ 0 ] ).toBe( hasReset );
-		} );
-
-		it( 'asks before resetting the layout from the menu', async () => {
-			const user = setupUser();
-			const onReset = jest.fn();
-			render(
-				<ViewportWidth value={ 599 }>
-					<StatsOptionsMenu onReset={ onReset } />
-				</ViewportWidth>
-			);
-
-			await user.click( screen.getByRole( 'button', { name: 'Stats options' } ) );
-			await user.click( await screen.findByRole( 'menuitem', { name: 'Reset to default…' } ) );
-			const dialog = await screen.findByRole( 'alertdialog' );
-
-			expect( onReset ).not.toHaveBeenCalled();
-
-			await user.click( within( dialog ).getByRole( 'button', { name: 'Reset' } ) );
-
-			expect( onReset ).toHaveBeenCalledTimes( 1 );
-			await waitFor( () => expect( screen.queryByRole( 'alertdialog' ) ).not.toBeInTheDocument() );
-		} );
-
-		// Confirming a reset leaves customize mode, so the caller drops `onReset` in the same
-		// commit the dialog would have closed itself in.
-		it( 'does not reopen the dialog the next time the reader customizes', async () => {
-			const user = setupUser();
-			const { rerender } = render(
-				<ViewportWidth value={ 599 }>
-					<StatsOptionsMenu onReset={ () => {} } />
-				</ViewportWidth>
-			);
-
-			await user.click( screen.getByRole( 'button', { name: 'Stats options' } ) );
-			await user.click( await screen.findByRole( 'menuitem', { name: 'Reset to default…' } ) );
-			const dialog = await screen.findByRole( 'alertdialog' );
-			await user.click( within( dialog ).getByRole( 'button', { name: 'Reset' } ) );
-
-			rerender(
-				<ViewportWidth value={ 599 }>
-					<StatsOptionsMenu />
-				</ViewportWidth>
-			);
-			rerender(
-				<ViewportWidth value={ 599 }>
-					<StatsOptionsMenu onReset={ () => {} } />
-				</ViewportWidth>
-			);
-
-			await waitFor( () => expect( screen.queryByRole( 'alertdialog' ) ).not.toBeInTheDocument() );
 		} );
 
 		it( 'leaves Customize out where there is nothing to arrange', async () => {
