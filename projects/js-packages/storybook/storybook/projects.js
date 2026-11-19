@@ -18,6 +18,7 @@ export const projects = [
 	'projects/packages/publicize/_inc/components',
 	'projects/packages/search/src/dashboard/components',
 	'projects/packages/videopress/src/client/block-editor',
+	'projects/packages/woocommerce-stats/widgets',
 	'projects/packages/videopress/src/client/components',
 	'projects/plugins/boost/app/assets/src/js',
 	'projects/plugins/jetpack/extensions/',
