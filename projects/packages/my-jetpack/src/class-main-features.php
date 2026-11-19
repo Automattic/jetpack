@@ -381,7 +381,7 @@ class Main_Features {
 					'free'    => true,
 				),
 				'plans'            => array( 'growth', 'pro', 'complete' ),
-				// Every self-hosted Jetpack site has `podcasting`, so it tells free from paid only on WordPress.com.
+				// WordPress.com's half of Podcast_Gate::has_product_access(); the bundles in `plans` cover self-hosted.
 				'paid_feature'     => ( new Host() )->is_wpcom_platform() ? 'podcasting' : '',
 			),
 			'protect-dashboard' => array(
@@ -681,7 +681,7 @@ class Main_Features {
 			}
 		}
 
-		// Covers plans no bundle class lists, such as the legacy Jetpack Personal, Premium and Professional.
+		// Covers plans no bundle class lists: WordPress.com plans and the legacy Jetpack Personal, Premium and Professional.
 		return ! empty( $definition['paid_feature'] ) && Product::does_site_have_feature( $definition['paid_feature'] );
 	}
 
