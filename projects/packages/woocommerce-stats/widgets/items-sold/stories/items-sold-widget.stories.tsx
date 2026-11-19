@@ -59,16 +59,6 @@ function renderItemsSoldWidget( { withComparison, chartType }: ItemsSoldStoryCon
 }
 
 /**
- * Adapts the host's untyped render props to the widget's.
- *
- * @param props - The props the dashboard host passes.
- * @return The widget.
- */
-function ItemsSoldDashboardRender( props: WidgetRenderProps< unknown > ) {
-	return <ItemsSoldRender { ...( props as ComponentProps< typeof ItemsSoldRender > ) } />;
-}
-
-/**
  * Mounts the real widget dashboard around the widget, with the story controls as its attributes.
  *
  * @param props                - The dashboard controls plus the story controls.
@@ -86,7 +76,7 @@ function ItemsSoldDashboardStory( {
 			{ ...dashboardArgs }
 			widgetType={ storyWidgetType }
 			renderModule={ ITEMS_SOLD_RENDER_MODULE }
-			renderComponent={ ItemsSoldDashboardRender as ComponentType< WidgetRenderProps< unknown > > }
+			renderComponent={ ItemsSoldRender as ComponentType< WidgetRenderProps< unknown > > }
 			attributes={ { reportParams: storyReportParams( { withComparison } ), chartType } }
 		/>
 	);
@@ -109,15 +99,16 @@ const meta = {
 
 export default meta;
 
+type Story = StoryObj< ItemsSoldStoryControls >;
 type DashboardStory = StoryObj< ItemsSoldDashboardStoryProps >;
 
-export const Default: StoryObj< ItemsSoldStoryControls > = {
+export const Default: Story = {
 	render: renderItemsSoldWidget,
 	args: { withComparison: false, chartType: 'line' },
 	decorators: [ withWidgetCanvas ],
 };
 
-export const WithComparison: StoryObj< ItemsSoldStoryControls > = {
+export const WithComparison: Story = {
 	render: renderItemsSoldWidget,
 	args: { withComparison: true, chartType: 'line' },
 	decorators: [ withWidgetCanvas ],
@@ -127,7 +118,7 @@ export const WithComparison: StoryObj< ItemsSoldStoryControls > = {
  * First load: the fetch is in flight, so the widget shows its loading state. The
  * mock is forced to never resolve for the duration of this story.
  */
-export const Loading: StoryObj< ItemsSoldStoryControls > = {
+export const Loading: Story = {
 	render: renderItemsSoldWidget,
 	args: { withComparison: false, chartType: 'line' },
 	tags: [ '!autodocs' ],
@@ -138,7 +129,7 @@ export const Loading: StoryObj< ItemsSoldStoryControls > = {
 /**
  * Resolved with no rows: the widget shows the generic empty state.
  */
-export const Empty: StoryObj< ItemsSoldStoryControls > = {
+export const Empty: Story = {
 	render: renderItemsSoldWidget,
 	args: { withComparison: false, chartType: 'line' },
 	tags: [ '!autodocs' ],
@@ -151,7 +142,7 @@ export const Empty: StoryObj< ItemsSoldStoryControls > = {
  * "You don't have access to this data." copy and no Retry action, since a
  * permission gate is deterministic and retrying cannot clear it.
  */
-export const ErrorState: StoryObj< ItemsSoldStoryControls > = {
+export const ErrorState: Story = {
 	render: renderItemsSoldWidget,
 	args: { withComparison: false, chartType: 'line' },
 	tags: [ '!autodocs' ],
@@ -164,7 +155,7 @@ export const ErrorState: StoryObj< ItemsSoldStoryControls > = {
  * widget shows its retryable copy with a Retry action, which re-runs the query
  * (still mocked as failing while this story is active).
  */
-export const ErrorRetryable: StoryObj< ItemsSoldStoryControls > = {
+export const ErrorRetryable: Story = {
 	render: renderItemsSoldWidget,
 	args: { withComparison: false, chartType: 'line' },
 	tags: [ '!autodocs' ],
