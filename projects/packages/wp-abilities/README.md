@@ -70,7 +70,9 @@ If an ability spec omits `category`, the registrar auto-injects `get_category_sl
 
 ## Turning registration off
 
-Registration is on by default. `init()` checks the `jetpack_wp_abilities_enabled` filter, which defaults to `true`. Return `false` to turn registration off for a site or a single request.
+Registration is on by default for Jetpack's own registrars. `init()` checks the `jetpack_wp_abilities_enabled` filter, whose default comes from the registrar's `enabled_by_default()`. Return `false` to turn registration off for a site or a single request.
+
+`enabled_by_default()` returns `false` unless a registrar overrides it. The newest copy of `Registrar` on a site loads for every plugin, so a registrar from an older plugin release, which doesn't override it, stays off. Override it to return `true` in a new registrar once its abilities are ready to be on by default.
 
 ```php
 // Turn Jetpack abilities off on this site.

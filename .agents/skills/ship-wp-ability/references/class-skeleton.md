@@ -10,7 +10,7 @@ Canonical reference for the base class: `projects/packages/wp-abilities/src/clas
 
 Do not re-implement any of this in the subclass:
 
-- **Top-level switch** — reads `apply_filters( 'jetpack_wp_abilities_enabled', true )`. On by default; a site can return `false` to turn Jetpack's abilities off.
+- **Top-level switch** — reads `apply_filters( 'jetpack_wp_abilities_enabled', static::enabled_by_default() )`; a site can return `false` to turn Jetpack's abilities off. `enabled_by_default()` is `false` in the base class, so a registrar from an older plugin release stays off when a newer `Registrar` loads. Override it to return `true`, as the skeletons below do.
 - **Lifecycle hooks** — wires `wp_abilities_api_categories_init` and `wp_abilities_api_init`. Call `init()` before WordPress fires them. Inside `wp_abilities_api_categories_init`, `init()` registers right away. WordPress rejects registrations made after them, so a later call registers nothing, and no notice says so.
 - **Per-category / per-ability allow-listing** — every registration passes through `apply_filters( 'jetpack_wp_abilities_should_register', true, $type, $slug )` so site owners can gate individual slugs.
 - **WP < 6.9 compatibility** — guards every call to `wp_register_ability_category()` and `wp_register_ability()` with `function_exists()`.
@@ -71,6 +71,10 @@ use Automattic\Jetpack\WP_Abilities\Registrar;
  * surface.
  */
 class <Name>_Abilities extends Registrar {
+
+	protected static function enabled_by_default(): bool {
+		return true;
+	}
 
 	public static function get_category_slug(): string {
 		return 'jetpack-<name>';
@@ -326,6 +330,10 @@ namespace Automattic\Jetpack\<Pkg>\Abilities;
 use Automattic\Jetpack\WP_Abilities\Registrar;
 
 class <Name>_Abilities extends Registrar {
+
+	protected static function enabled_by_default(): bool {
+		return true;
+	}
 
 	public static function get_category_slug(): string {
 		return 'jetpack-<pkg>';

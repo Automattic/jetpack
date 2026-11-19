@@ -50,6 +50,13 @@ class Newsletter_Abilities extends Registrar {
 	private const REPLY_TO_VALUES = array( 'comment', 'author', 'no-reply' );
 
 	/**
+	 * {@inheritDoc}
+	 */
+	protected static function enabled_by_default(): bool {
+		return true;
+	}
+
+	/**
 	 * Returns the abilities category, definition, or registered abilities.
 	 *
 	 * @inheritDoc

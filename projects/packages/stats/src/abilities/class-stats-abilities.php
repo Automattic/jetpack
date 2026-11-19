@@ -218,6 +218,13 @@ class Stats_Abilities extends Registrar {
 	/**
 	 * {@inheritDoc}
 	 */
+	protected static function enabled_by_default(): bool {
+		return true;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public static function get_category_slug(): string {
 		return self::CATEGORY_SLUG;
 	}

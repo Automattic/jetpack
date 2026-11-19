@@ -101,6 +101,7 @@ Follow `references/class-skeleton.md`. Three abstract methods must be implemente
 - `get_category_slug(): string` — returns the kebab-case slug from step 4.
 - `get_category_definition(): array` — returns `[ 'label' => ..., 'description' => ... ]`.
 - `get_abilities(): array` — returns a `[ slug => spec ]` map.
+- `enabled_by_default(): bool` — override it to return `true`. The base class returns `false`, so a registrar without the override registers nothing unless a site returns `true` from `jetpack_wp_abilities_enabled`.
 
 Do NOT write an `init()` method. `Registrar::init()` handles the hook lifecycle and the `jetpack_wp_abilities_enabled` gate. Call `<Name>_Abilities::init()` from the bootstrap before WordPress fires `wp_abilities_api_categories_init`, for example on `plugins_loaded`. WordPress rejects registrations after that action, so a later call registers nothing, and no notice says so.
 
@@ -322,7 +323,7 @@ Mark the PR ready-for-review only after the review loop converges (no open block
 
 ## Failure modes / debugging
 
-- **Nothing registers at runtime.** `jetpack_wp_abilities_enabled` defaults to `true`, so check whether something returns `false` from it, or from `jetpack_wp_abilities_should_register` for your slug.
+- **Nothing registers at runtime.** Check that the registrar overrides `enabled_by_default()` to return `true`, then whether something returns `false` from `jetpack_wp_abilities_enabled`, or from `jetpack_wp_abilities_should_register` for your slug.
 - **The class loads but no abilities appear.** `init()` ran after WordPress fired `wp_abilities_api_init`, which happens the first time anything reads the abilities registry. WordPress rejects later registrations, so `Registrar::init()` registers nothing, and no notice says so. Call `init()` earlier, for example on `plugins_loaded`, and never from code that runs on `rest_api_init`.
 - **You see the legacy manual-hook pattern elsewhere** (e.g. `projects/plugins/jetpack/src/abilities/class-modules-abilities.php`, `projects/packages/forms/src/abilities/class-forms-abilities.php`). These predate the `Registrar` package. Don't copy them. Extend `Registrar` and implement the three abstract methods.
 - **Module-backed ability landed in `projects/plugins/jetpack/src/abilities/` and is wired from `class.jetpack.php`** (the PR #48284 pattern). Colocation lint will catch this. The ability loads on every request regardless of module state, pollutes the API surface when the module is off, and pays autoload cost for nothing. Move the file into `modules/<slug>/abilities/` and wire from `modules/<slug>.php`.
