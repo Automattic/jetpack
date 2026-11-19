@@ -1,7 +1,7 @@
 /**
  * Internal dependencies
  */
-import { ANCHOR_DAY, bucketsForWindow, count, money } from './interval-buckets';
+import { ANCHOR_DAY, bucketsForWindow, count, money, windowDays } from './interval-buckets';
 
 /** How much the store grows per day, and how far a product's season swings its share. */
 const GROWTH_PER_DAY = 0.004;
@@ -124,8 +124,7 @@ function storeRevenue( dayIndex: number, spanDays: number ): number {
 
 /**
  * The products report of a window: the store's catalogue ranked by net revenue, sliced to the
- * requested `limit`. Revenue follows the window, so an earlier window reads lower and ranks its
- * products differently. The ranking is always by net revenue, whatever `orderby` asks for.
+ * requested `limit`. The ranking ignores `orderby` and always sorts by net revenue.
  *
  * @param {URLSearchParams} query - The request's query params (`from`, `to`, `limit`).
  * @return {unknown} The raw report response.
@@ -136,7 +135,8 @@ export function buildProductsResponse( query: URLSearchParams ): unknown {
 	const limit = Number( query.get( 'limit' ) ) || PRODUCT_CATALOGUE.length;
 
 	const weights = PRODUCT_CATALOGUE.map( product => seasonalWeight( product, dayIndex ) );
-	const revenuePerWeight = storeRevenue( dayIndex, buckets.length ) / ( sum( weights ) || 1 );
+	const revenuePerWeight =
+		storeRevenue( dayIndex, windowDays( buckets ) ) / ( sum( weights ) || 1 );
 
 	const ranked = PRODUCT_CATALOGUE.map( ( product, index ) => ( {
 		product,

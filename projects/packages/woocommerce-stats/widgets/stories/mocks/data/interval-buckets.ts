@@ -122,6 +122,19 @@ export function dayIndexOf( dateText: string ): number {
 export const ANCHOR_DAY = dayIndexOf( '2026-01-01' );
 
 /**
+ * How many days a set of buckets covers. Taken from the dates rather than the bucket
+ * count, which only agree while the interval is a day.
+ *
+ * @param {ReportBucket[]} buckets - The window's buckets, oldest first.
+ * @return {number} The number of days covered, or 0 for an empty window.
+ */
+export function windowDays( buckets: ReportBucket[] ): number {
+	const last = buckets[ buckets.length - 1 ];
+
+	return last ? dayIndexOf( last.date_end ) - buckets[ 0 ].dayIndex + 1 : 0;
+}
+
+/**
  * The buckets a report request covers, oldest first, with the bounds and label the live
  * endpoint gives them. The first and last bucket are clipped to the requested window.
  *
