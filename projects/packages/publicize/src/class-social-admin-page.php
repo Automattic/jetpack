@@ -273,6 +273,10 @@ class Social_Admin_Page {
 	 * Enqueue admin scripts and styles.
 	 */
 	public function enqueue_admin_scripts() {
+		if ( method_exists( Admin_Menu::class, 'enqueue_page_layout' ) ) {
+			Admin_Menu::enqueue_page_layout();
+		}
+
 		/*
 		 * wp-build owns its own enqueue pipeline. The chassis reads connection
 		 * state via `useConnection()`, which has no REST resolver, so hydrate it

@@ -1,4 +1,3 @@
-@use "@automattic/jetpack-base-styles/admin-page-layout" as *;
 
 // Apply the shared Jetpack admin-page layout so `<AdminPage>` owns the page
 // chrome: fixed header, scrollable middle, pinned footer. We use the
@@ -16,8 +15,6 @@ body.toplevel_page_jetpack-seo {
 	// canvas adopted by the other modernized pages (Newsletter, Social,
 	// VideoPress) so the product stays consistent.
 	--jetpack-seo-page-bg-canvas: #fcfcfc;
-
-	@include jetpack-admin-page-layout-wp-build;
 
 	// Off-white canvas so the white settings cards stand out against the
 	// background. Three layers paint here: the body (the page outside the

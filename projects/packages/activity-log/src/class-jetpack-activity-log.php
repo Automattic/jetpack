@@ -525,6 +525,10 @@ class Jetpack_Activity_Log {
 	 * @return void
 	 */
 	public static function enqueue_initial_state() {
+		if ( method_exists( Admin_Menu::class, 'enqueue_page_layout' ) ) {
+			Admin_Menu::enqueue_page_layout();
+		}
+
 		wp_register_script( self::DATA_SCRIPT_HANDLE, false, array(), Package_Version::PACKAGE_VERSION, true );
 		wp_enqueue_script( self::DATA_SCRIPT_HANDLE );
 

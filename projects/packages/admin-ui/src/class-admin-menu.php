@@ -107,6 +107,13 @@ class Admin_Menu {
 	const DESIGN_TOKENS_HANDLE = 'jetpack-admin-ui-design-tokens';
 
 	/**
+	 * Handle for the shared dashboard page layout stylesheet.
+	 *
+	 * @var string
+	 */
+	const PAGE_LAYOUT_HANDLE = 'jetpack-admin-ui-page-layout';
+
+	/**
 	 * Handle for the source-less stylesheet that hides WordPress core admin notices.
 	 *
 	 * @var string
@@ -1078,6 +1085,36 @@ class Admin_Menu {
 			$asset['dependencies'] ?? array(),
 			$asset['version'] ?? self::PACKAGE_VERSION
 		);
+	}
+
+	/**
+	 * Enqueues the shared Jetpack dashboard page layout: the viewport-pinned content column and
+	 * the resets of wp-admin's chrome around it.
+	 *
+	 * Call it from the dashboard page's own asset hook. Printed in <head>, the layout applies before
+	 * the dashboard's JavaScript runs, so the page doesn't shift when it does.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return void
+	 */
+	public static function enqueue_page_layout() {
+		if ( ! wp_style_is( self::PAGE_LAYOUT_HANDLE, 'registered' ) ) {
+			$build_dir  = dirname( __DIR__ ) . '/build/';
+			$asset_file = $build_dir . 'admin-page-layout.asset.php';
+			$asset      = file_exists( $asset_file ) ? require $asset_file : array();
+			// Not `wp_style_add_data( 'rtl', 'replace' )`: core looks for `-rtl.css`, webpack writes `.rtl.css`.
+			$file = is_rtl() && file_exists( $build_dir . 'admin-page-layout.rtl.css' ) ? 'admin-page-layout.rtl.css' : 'admin-page-layout.css';
+
+			wp_register_style(
+				self::PAGE_LAYOUT_HANDLE,
+				plugins_url( '../build/' . $file, __FILE__ ),
+				$asset['dependencies'] ?? array(),
+				$asset['version'] ?? self::PACKAGE_VERSION
+			);
+		}
+
+		wp_enqueue_style( self::PAGE_LAYOUT_HANDLE );
 	}
 
 	/**

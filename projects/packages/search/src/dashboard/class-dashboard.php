@@ -407,6 +407,10 @@ class Dashboard {
 	 * Enqueue admin scripts.
 	 */
 	public function load_admin_scripts() {
+		if ( method_exists( Admin_Menu::class, 'enqueue_page_layout' ) ) {
+			Admin_Menu::enqueue_page_layout();
+		}
+
 		if ( $this->should_enqueue_tracking_script() ) {
 			// Required for Analytics.
 			Tracking::register_tracks_functions_scripts( true );

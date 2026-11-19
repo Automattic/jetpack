@@ -304,6 +304,9 @@ class Jetpack_Protect {
 	 * Enqueue plugin admin scripts and styles.
 	 */
 	public function enqueue_admin_scripts() {
+		if ( method_exists( Admin_Menu::class, 'enqueue_page_layout' ) ) {
+			Admin_Menu::enqueue_page_layout();
+		}
 
 		Assets::register_script(
 			'jetpack-protect',

@@ -356,6 +356,10 @@ abstract class WPCOM_WP_Build_Page {
 			return;
 		}
 
+		if ( method_exists( \Automattic\Jetpack\Admin_UI\Admin_Menu::class, 'enqueue_page_layout' ) ) {
+			\Automattic\Jetpack\Admin_UI\Admin_Menu::enqueue_page_layout();
+		}
+
 		// wp-build has no `jetpackConfig` external, so @automattic/jetpack-config reads this global.
 		wp_add_inline_script( $handle, 'window.jetpackConfig = ' . wp_json_encode( array( 'consumer_slug' => 'jetpack-mu-wpcom' ), JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_SLASHES ) . ';', 'before' );
 

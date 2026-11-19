@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add a shared dashboard page layout stylesheet, so a dashboard is laid out before its scripts run.

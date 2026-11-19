@@ -327,6 +327,10 @@ class Dashboard {
 			return;
 		}
 
+		if ( method_exists( Admin_Menu::class, 'enqueue_page_layout' ) ) {
+			Admin_Menu::enqueue_page_layout();
+		}
+
 		// Attach the shared inline data (connection initial state + REST preload) to
 		// wp-api-fetch, which is always on the page.
 		$inline_handle    = 'wp-api-fetch';

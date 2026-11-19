@@ -952,6 +952,9 @@ class Initializer {
 	 * @return void
 	 */
 	public static function enqueue_scripts() {
+		if ( method_exists( Admin_Menu::class, 'enqueue_page_layout' ) ) {
+			Admin_Menu::enqueue_page_layout();
+		}
 		if ( self::is_offline_features_enabled() ) {
 			$data_handle = self::DATA_SCRIPT_HANDLE;
 			wp_register_script( $data_handle, false, array(), self::PACKAGE_VERSION, true );

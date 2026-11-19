@@ -458,6 +458,10 @@ class Settings {
 		);
 
 		if ( self::is_modernized() ) {
+			if ( method_exists( Admin_Menu::class, 'enqueue_page_layout' ) ) {
+				Admin_Menu::enqueue_page_layout();
+			}
+
 			// The i18n loader is registered on every admin page by jetpack-assets but
 			// only enqueued when depended on; the esbuild bundles don't pull it in.
 			// Enqueue it so the wp-build dashboard's init module can download its JS

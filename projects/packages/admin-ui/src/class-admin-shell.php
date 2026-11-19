@@ -650,7 +650,8 @@ class Admin_Shell {
 
 		ob_start();
 		do_action( 'admin_enqueue_scripts', $hook_suffix ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Core hook.
-		$handles = $members[ $slug ]['handles'];
+		// Every dashboard's page layout is the same stylesheet, so no member has to list it.
+		$handles = array_merge( $members[ $slug ]['handles'], array( Admin_Menu::PAGE_LAYOUT_HANDLE ) );
 		// Only the member's own handles, and what they depend on, go back to the page. Printing them
 		// even when nothing enqueued them: a page can rely on another script pulling one in.
 		foreach ( array( wp_scripts(), wp_styles() ) as $dependencies ) {

@@ -434,6 +434,9 @@ class Dashboard {
 		if ( wp_script_is( 'wp-jp-i18n-loader', 'registered' ) ) {
 			wp_enqueue_script( 'wp-jp-i18n-loader' );
 		}
+		if ( method_exists( Admin_Menu::class, 'enqueue_page_layout' ) ) {
+			Admin_Menu::enqueue_page_layout();
+		}
 	}
 
 	/**

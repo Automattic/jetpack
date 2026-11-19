@@ -314,6 +314,10 @@ class Admin {
 	 * @since    1.0.0
 	 */
 	public function enqueue_scripts() {
+		if ( method_exists( Admin_Menu::class, 'enqueue_page_layout' ) ) {
+			Admin_Menu::enqueue_page_layout();
+		}
+
 		/**
 		 * Filters the internal path to the distributed assets used by the plugin
 		 *
