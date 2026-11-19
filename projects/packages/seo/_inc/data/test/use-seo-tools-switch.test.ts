@@ -24,9 +24,9 @@ jest.unstable_mockModule( '@wordpress/notices', () => ( {
 	store: 'core/notices',
 } ) );
 
-const { default: useEnableSeoTools } = await import( '../use-enable-seo-tools' );
+const { default: useSeoToolsSwitch } = await import( '../use-seo-tools-switch' );
 
-describe( 'useEnableSeoTools', () => {
+describe( 'useSeoToolsSwitch', () => {
 	// The success path calls `window.location.reload()`. jsdom can't navigate and
 	// can't be made to spy on `location.reload` (`window.location` is
 	// non-configurable and can't be redefined), so the call surfaces as a
@@ -46,27 +46,30 @@ describe( 'useEnableSeoTools', () => {
 		consoleErrorSpy.mockRestore();
 	} );
 
-	it( 'POSTs active: true to the module endpoint on success', async () => {
-		mockApiFetch.mockResolvedValue( undefined );
+	it.each( [ true, false ] )(
+		'POSTs active: %s to the module endpoint on success',
+		async active => {
+			mockApiFetch.mockResolvedValue( undefined );
 
-		const { result } = renderHook( () => useEnableSeoTools( 'overview' ) );
+			const { result } = renderHook( () => useSeoToolsSwitch( 'overview' ) );
 
-		expect( result.current.isEnabling ).toBe( false );
+			expect( result.current.isSwitching ).toBe( false );
 
-		await act( async () => {
-			await result.current.enable();
-		} );
+			await act( async () => {
+				await result.current.setActive( active );
+			} );
 
-		expect( mockApiFetch ).toHaveBeenCalledWith( {
-			path: '/jetpack/v4/module/seo-tools/active',
-			method: 'POST',
-			data: { active: true },
-		} );
-		// On success we reload rather than notify, so no error notice is raised.
-		expect( createErrorNotice ).not.toHaveBeenCalled();
-	} );
+			expect( mockApiFetch ).toHaveBeenCalledWith( {
+				path: '/jetpack/v4/module/seo-tools/active',
+				method: 'POST',
+				data: { active },
+			} );
+			// On success we reload rather than notify, so no error notice is raised.
+			expect( createErrorNotice ).not.toHaveBeenCalled();
+		}
+	);
 
-	it( 'sets isEnabling while the request is in flight', async () => {
+	it( 'sets isSwitching while the request is in flight', async () => {
 		let resolveFetch: () => void;
 		mockApiFetch.mockReturnValue(
 			new Promise< void >( resolve => {
@@ -74,13 +77,13 @@ describe( 'useEnableSeoTools', () => {
 			} )
 		);
 
-		const { result } = renderHook( () => useEnableSeoTools( 'overview' ) );
+		const { result } = renderHook( () => useSeoToolsSwitch( 'overview' ) );
 
 		act( () => {
-			result.current.enable();
+			result.current.setActive( true );
 		} );
 
-		await waitFor( () => expect( result.current.isEnabling ).toBe( true ) );
+		await waitFor( () => expect( result.current.isSwitching ).toBe( true ) );
 
 		await act( async () => {
 			resolveFetch();
@@ -90,20 +93,26 @@ describe( 'useEnableSeoTools', () => {
 		expect( createErrorNotice ).not.toHaveBeenCalled();
 	} );
 
-	it( 'surfaces an error snackbar notice and clears isEnabling when the request rejects', async () => {
-		mockApiFetch.mockRejectedValue( new Error( 'nope' ) );
+	it.each( [
+		[ true, 'Could not enable SEO tools. Please try again.' ],
+		[ false, 'Could not disable SEO tools. Please try again.' ],
+	] )(
+		'surfaces an error snackbar notice and clears isSwitching when active: %s is rejected',
+		async ( active, message ) => {
+			mockApiFetch.mockRejectedValue( new Error( 'nope' ) );
 
-		const { result } = renderHook( () => useEnableSeoTools( 'overview' ) );
+			const { result } = renderHook( () => useSeoToolsSwitch( 'overview' ) );
 
-		await act( async () => {
-			await result.current.enable();
-		} );
+			await act( async () => {
+				await result.current.setActive( active );
+			} );
 
-		// On failure we don't reload (no jsdom navigation error) — just notify.
-		expect( createErrorNotice ).toHaveBeenCalledWith(
-			'Could not enable SEO tools. Please try again.',
-			{ id: 'seo-tools-toggle', type: 'snackbar' }
-		);
-		await waitFor( () => expect( result.current.isEnabling ).toBe( false ) );
-	} );
+			// On failure we don't reload (no jsdom navigation error) — just notify.
+			expect( createErrorNotice ).toHaveBeenCalledWith( message, {
+				id: 'seo-tools-toggle',
+				type: 'snackbar',
+			} );
+			await waitFor( () => expect( result.current.isSwitching ).toBe( false ) );
+		}
+	);
 } );

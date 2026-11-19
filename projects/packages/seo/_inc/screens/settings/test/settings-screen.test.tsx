@@ -49,8 +49,34 @@ const IndexnowSettings = jest.fn< ( props: Record< string, unknown > ) => ReactE
 	<div>notification settings</div>
 ) );
 jest.unstable_mockModule( '../indexnow-settings', () => ( { default: IndexnowSettings } ) );
+jest.unstable_mockModule( '../seo-tools-card', () => ( {
+	default: () => <div data-testid="seo-tools-switch" />,
+} ) );
+jest.unstable_mockModule( '../seo-tools-off-notice', () => ( {
+	default: () => <div data-testid="seo-tools-off" />,
+} ) );
+
+let routeForm: SettingsForm;
+let routeSeoToolsActive = false;
+jest.unstable_mockModule( '../../../dashboard/dashboard-page', () => ( {
+	default: ( { children, showTabs }: { children: ReactNode; showTabs?: boolean } ) => (
+		<div data-testid="page" data-show-tabs={ String( showTabs ?? true ) }>
+			{ children }
+		</div>
+	),
+} ) );
+jest.unstable_mockModule( '../../../data/is-seo-tools-active', () => ( {
+	default: () => routeSeoToolsActive,
+} ) );
+jest.unstable_mockModule( '../../../data/use-ensure-tab-data', () => ( {
+	default: () => ( { status: 'ready' } ),
+} ) );
+jest.unstable_mockModule( '../../../data/use-settings', () => ( {
+	useSettingsForm: () => routeForm,
+} ) );
 
 const { default: SettingsScreen } = await import( '../index' );
+const { stage: SettingsStage } = await import( '../../../../routes/settings/stage' );
 
 const EMPTY_VERIFICATION = {
 	google: '',
@@ -697,5 +723,69 @@ describe( 'Notification settings inside Site visibility', () => {
 		act( () => onSavingChange( false ) );
 		expect( indexing ).toBeEnabled();
 		expect( sitemap ).toBeEnabled();
+	} );
+} );
+
+describe( 'Settings and the SEO tools switch', () => {
+	afterEach( () => {
+		delete ( window as unknown as { JetpackScriptData?: unknown } ).JetpackScriptData;
+		routeSeoToolsActive = false;
+	} );
+
+	it.each( [ false, true ] )(
+		'keeps the module-independent settings when SEO tools active is %s',
+		async active => {
+			routeSeoToolsActive = active;
+			routeForm = buildForm( { search_engines_visible: true } );
+			render( <SettingsStage /> );
+
+			expect(
+				screen.getByRole( 'checkbox', { name: 'Generate an XML sitemap' } )
+			).toBeInTheDocument();
+			expect( screen.getByText( 'google field' ) ).toBeInTheDocument();
+			// eslint-disable-next-line testing-library/prefer-user-event -- Existing disclosure-test convention.
+			fireEvent.click( screen.getByRole( 'button', { name: 'Canonical URLs' } ) );
+			await expect(
+				screen.findByRole( 'checkbox', { name: 'Add canonical URLs to archive pages' } )
+			).resolves.toBeInTheDocument();
+			expect( screen.queryByTestId( 'schema' ) !== null ).toBe( active );
+			expect( screen.queryByText( 'title structure' ) !== null ).toBe( active );
+			expect( routeForm.commit ).not.toHaveBeenCalled();
+		}
+	);
+
+	it( 'drops the tabs and tops Settings with the off notice while SEO tools are off', () => {
+		routeForm = buildForm();
+		render( <SettingsStage /> );
+
+		expect( screen.getByTestId( 'page' ) ).toHaveAttribute( 'data-show-tabs', 'false' );
+		const notice = screen.getByTestId( 'seo-tools-off' );
+		expect( notice.compareDocumentPosition( screen.getByText( 'google field' ) ) ).toBe(
+			Node.DOCUMENT_POSITION_FOLLOWING
+		);
+		expect( screen.queryByTestId( 'seo-tools-switch' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'keeps the tabs and ends Settings with the switch while SEO tools are on', () => {
+		routeSeoToolsActive = true;
+		routeForm = buildForm();
+		render( <SettingsStage /> );
+
+		expect( screen.getByTestId( 'page' ) ).toHaveAttribute( 'data-show-tabs', 'true' );
+		expect(
+			screen
+				.getByText( 'social previews' )
+				.compareDocumentPosition( screen.getByTestId( 'seo-tools-switch' ) )
+		).toBe( Node.DOCUMENT_POSITION_FOLLOWING );
+		expect( screen.queryByTestId( 'seo-tools-off' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'leaves the switch out on WordPress.com Simple, which runs SEO tools on every site', () => {
+		( window as unknown as { JetpackScriptData?: unknown } ).JetpackScriptData = {
+			site: { host: 'wpcom' },
+		};
+		render( <SettingsScreen form={ buildForm() } /> );
+
+		expect( screen.queryByTestId( 'seo-tools-switch' ) ).not.toBeInTheDocument();
 	} );
 } );

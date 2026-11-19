@@ -9,7 +9,6 @@
 namespace Automattic\Jetpack\SEO;
 
 use Automattic\Jetpack\Current_Plan;
-use Automattic\Jetpack\Modules;
 
 /**
  * Whether AI SEO is offered on this site.
@@ -30,7 +29,7 @@ class Ai_Seo {
 		/** This filter is documented in projects/plugins/jetpack/_inc/lib/class.core-rest-api-endpoints.php */
 		return (bool) apply_filters( 'ai_seo_enhancer_enabled', true )
 			&& ! Seo_Tools::is_disabled()
-			&& ( new Modules() )->is_active( 'seo-tools' )
+			&& Initializer::is_seo_tools_active()
 			&& Current_Plan::supports( 'ai-seo-enhancer' );
 	}
 

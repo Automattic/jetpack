@@ -45,19 +45,16 @@ describe( 'DashboardPage', () => {
 		expect( column ).toContainElement( screen.getByText( 'notice' ) );
 	} );
 
-	it( 'drops the tab bar but keeps the header when tabs are hidden', () => {
+	it( 'drops the tab bar but keeps the header and column when tabs are hidden', () => {
 		render(
-			<DashboardPage active="settings" showTabs={ false } centered>
+			<DashboardPage active="settings" showTabs={ false }>
 				content
 			</DashboardPage>
 		);
 
 		expect( screen.getByRole( 'heading', { level: 1, name: 'SEO' } ) ).toBeInTheDocument();
 		expect( screen.queryByRole( 'tablist' ) ).not.toBeInTheDocument();
-		expect( screen.getByText( 'content' ) ).toHaveClass(
-			'jetpack-seo-page-content',
-			'jetpack-seo-page-content--centered'
-		);
+		expect( screen.getByText( 'content' ) ).toHaveClass( 'jetpack-seo-page-column--narrow' );
 	} );
 
 	it( 'records the screen view again when the admin shell shows the page again, not on its first show', () => {

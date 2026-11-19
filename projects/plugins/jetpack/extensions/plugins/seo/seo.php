@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Extensions\Seo;
 
 use Automattic\Jetpack\Modules;
+use Automattic\Jetpack\SEO\Initializer;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
@@ -62,5 +63,10 @@ add_filter(
  * @return bool
  */
 function is_seo_disabled(): bool {
+	// Hidden from everyone while the SEO switch holds SEO Tools off.
+	if ( method_exists( Initializer::class, 'get_paused_modules' ) && in_array( 'seo-tools', Initializer::get_paused_modules(), true ) ) {
+		return true;
+	}
+
 	return ! ( new Modules() )->is_active( 'seo-tools' ) && ! current_user_can( 'jetpack_activate_modules' );
 }

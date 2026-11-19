@@ -34,7 +34,16 @@ class Main_Features_Test extends TestCase {
 		$plugins = function () {
 			return array( 'jetpack-boost-dev/jetpack-boost.php' => array( 'Name' => 'Boost' ) );
 		};
+		// The SEO card shows only where Jetpack offers its module, with or without the mock plugin loaded.
+		$seo_module         = static function ( $modules ) {
+			return array_merge( (array) $modules, array( Main_Features::SEO_MODULE ) );
+		};
+		$seo_module_version = static function ( $modules ) {
+			return array_merge( (array) $modules, array( Main_Features::SEO_MODULE => '1.0' ) );
+		};
 		add_filter( 'all_plugins', $plugins );
+		add_filter( 'jetpack_get_available_standalone_modules', $seo_module );
+		add_filter( 'jetpack_get_available_modules', $seo_module_version );
 		try {
 			$state    = Main_Features::get_state( true );
 			$features = array_column( $state['features'], null, 'slug' );
@@ -54,6 +63,8 @@ class Main_Features_Test extends TestCase {
 			}
 		} finally {
 			remove_filter( 'all_plugins', $plugins );
+			remove_filter( 'jetpack_get_available_standalone_modules', $seo_module );
+			remove_filter( 'jetpack_get_available_modules', $seo_module_version );
 		}
 	}
 

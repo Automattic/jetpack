@@ -378,7 +378,7 @@ class Menu_Visibility_Test extends TestCase {
 	}
 
 	/**
-	 * The admin shell offers only features the Features tab lists, so a page such as SEO's keeps its own way back on.
+	 * The admin shell offers only features the Features tab lists, so a page gated on an unlisted module keeps its own way back on.
 	 */
 	public function test_shell_offers_only_features_the_features_tab_lists() {
 		$this->assertTrue( Menu_Visibility::offers( array( 'product' => 'stats' ) ) );

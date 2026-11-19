@@ -7,9 +7,8 @@ import getOverview from './get-overview';
  * bootstraps on every SEO route (see `Admin_Page::inject_script_data()`), so
  * any tab can gate its controls synchronously without loading its own data.
  *
- * Treats a missing bootstrap as inactive: the settings REST endpoints are only
- * registered when the module is active (`Initializer::init()`), so a tab should
- * never present editable-but-dead controls when the module state is unknown.
+ * Treats a missing bootstrap as inactive, so SEO-dependent controls stay hidden
+ * until the module state is known. Independent settings remain available.
  *
  * @return Whether the `seo-tools` module is active.
  */

@@ -16,6 +16,8 @@ import isVerificationSwitchable from '../../data/is-verification-switchable';
 import AuthorProfileCard from './author-profile-card';
 import IndexnowSettings from './indexnow-settings';
 import SchemaCard from './schema-card';
+import SeoToolsCard from './seo-tools-card';
+import SeoToolsOffNotice from './seo-tools-off-notice';
 import SocialPreviewsCard from './social-previews-card';
 import styles from './style.module.scss';
 import TitleStructureField from './title-structure-field';
@@ -86,6 +88,7 @@ const descriptionMaxLength = 300;
 
 interface Props {
 	form: SettingsForm;
+	independentOnly?: boolean;
 }
 
 interface SeoHostingData {
@@ -101,11 +104,12 @@ type SettingsSearch = Record< string, unknown > & { focus?: string };
  * sections (title structure, front-page description) edit local state while
  * typing and persist on an explicit per-section Save button.
  *
- * @param props      - Component props.
- * @param props.form - The settings form controller from `useSettingsForm`.
+ * @param props                 - Component props.
+ * @param props.form            - The settings form controller from `useSettingsForm`.
+ * @param props.independentOnly - Show only the controls that work while SEO Tools is off.
  * @return The Settings tab content.
  */
-const SettingsScreen: FC< Props > = ( { form } ) => {
+const SettingsScreen: FC< Props > = ( { form, independentOnly = false } ) => {
 	const [ indexnowSaving, setIndexnowSaving ] = useState( false );
 	const {
 		local,
@@ -285,6 +289,8 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 
 	return (
 		<Stack direction="column" gap="lg" className={ styles.root }>
+			{ independentOnly && <SeoToolsOffNotice /> }
+
 			<div id="visibility" className={ styles.section }>
 				<CollapsibleCard.Root defaultOpen>
 					<CollapsibleCard.Header render={ <h2 /> }>
@@ -392,21 +398,25 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 				/>
 			</div>
 
-			{ /* Container for the site-level schema controls delivered by later
-				   issues. Own `id` so it can be deep-linked like `#verification`. */ }
-			<div id="schema" className={ styles.section }>
-				<SchemaCard
-					initialSettings={ local.schema }
-					onSave={ setSchemaSettings }
-					disabled={ outputLocked }
-				/>
-			</div>
+			{ ! independentOnly && (
+				<>
+					{ /* Container for the site-level schema controls delivered by later
+					   issues. Own `id` so it can be deep-linked like `#verification`. */ }
+					<div id="schema" className={ styles.section }>
+						<SchemaCard
+							initialSettings={ local.schema }
+							onSave={ setSchemaSettings }
+							disabled={ outputLocked }
+						/>
+					</div>
 
-			{ /* The signed-in user's Person / ProfilePage schema source — per-user,
-				   unlike the site-level Schema card above. */ }
-			<div id="author-profile" className={ styles.section }>
-				<AuthorProfileCard disabled={ outputLocked } />
-			</div>
+					{ /* The signed-in user's Person / ProfilePage schema source — per-user,
+					   unlike the site-level Schema card above. */ }
+					<div id="author-profile" className={ styles.section }>
+						<AuthorProfileCard disabled={ outputLocked } />
+					</div>
+				</>
+			) }
 
 			<CollapsibleCard.Root defaultOpen={ false }>
 				<CollapsibleCard.Header render={ <h2 /> }>
@@ -434,30 +444,37 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 				</CollapsibleCard.Content>
 			</CollapsibleCard.Root>
 
-			<TitleStructureField
-				formats={ local.title_formats }
-				onChange={ ( pageType, next ) =>
-					setField( { title_formats: { ...local.title_formats, [ pageType ]: next } } )
-				}
-				onSaveFormat={ pageType => commitTitleFormat( pageType ) }
-				isFormatDirty={ pageType => isTitleFormatDirty( pageType ) }
-				titleSeparator={ local.title_separator }
-				editable={ ! outputLocked }
-				disabled={ isSaving }
-			/>
+			{ ! independentOnly && (
+				<>
+					<TitleStructureField
+						formats={ local.title_formats }
+						onChange={ ( pageType, next ) =>
+							setField( { title_formats: { ...local.title_formats, [ pageType ]: next } } )
+						}
+						onSaveFormat={ pageType => commitTitleFormat( pageType ) }
+						isFormatDirty={ pageType => isTitleFormatDirty( pageType ) }
+						titleSeparator={ local.title_separator }
+						editable={ ! outputLocked }
+						disabled={ isSaving }
+					/>
 
-			{ frontPageDescriptionCard }
+					{ frontPageDescriptionCard }
 
-			<SocialPreviewsCard
-				description={ local.front_page_description }
-				frontPageTitleFormat={ local.title_formats.front_page ?? [] }
-				titleSeparator={ local.title_separator }
-				paused={ outputLocked }
-				defaultImage={ local.default_share_image }
-				resolvedImage={ local.share_image_preview }
-				onImageChange={ image => commit( { default_share_image: image } ) }
-				disabled={ isSaving || outputLocked }
-			/>
+					<SocialPreviewsCard
+						description={ local.front_page_description }
+						frontPageTitleFormat={ local.title_formats.front_page ?? [] }
+						titleSeparator={ local.title_separator }
+						paused={ outputLocked }
+						defaultImage={ local.default_share_image }
+						resolvedImage={ local.share_image_preview }
+						onImageChange={ image => commit( { default_share_image: image } ) }
+						disabled={ isSaving || outputLocked }
+					/>
+
+					{ /* Simple has no modules to switch: it reports SEO Tools on, and always will. */ }
+					{ ! simpleSite && <SeoToolsCard /> }
+				</>
+			) }
 		</Stack>
 	);
 };

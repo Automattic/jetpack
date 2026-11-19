@@ -2034,7 +2034,15 @@ class Jetpack {
 			$is_site_connection = self::connection()->is_site_connection();
 		}
 
+		// The SEO switch holds these off. Skip them rather than drop them from $modules,
+		// which a failed include below saves as the active list.
+		$paused_modules = method_exists( Jetpack_SEO_Initializer::class, 'get_paused_modules' ) ? Jetpack_SEO_Initializer::get_paused_modules() : array();
+
 		foreach ( $modules as $index => $module ) {
+			if ( in_array( $module, $paused_modules, true ) ) {
+				continue;
+			}
+
 			// If we're in offline/site-connection mode, disable modules requiring a connection/user connection.
 			if ( $status->is_offline_mode() || $is_site_connection ) {
 				// Prime the pump if we need to.
