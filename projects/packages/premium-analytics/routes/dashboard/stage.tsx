@@ -32,6 +32,7 @@ import {
 	DashboardSectionProvider,
 	StatsOptionsMenu,
 	ResetLayoutAction,
+	useCrowdedPageHeader,
 	useHostLinkSearch,
 	useNarrowPageHeader,
 	useTrackCustomize,
@@ -96,6 +97,9 @@ function Dashboard(): JSX.Element {
 	const { sections, hasResolved: hasResolvedSections } = useDashboardSections();
 	const [ editMode, setEditMode ] = useState( false );
 	const isNarrowHeader = useNarrowPageHeader();
+	// The customize buttons hold their width, leaving the lockup too little room for even
+	// the page icon, which cannot shrink and would paint over them (STATS-630).
+	const hasTightHeader = useCrowdedPageHeader() && editMode;
 	const switchSearch = useCallback(
 		( id: string, search: Record< string, unknown > ) =>
 			dateWindowForSectionSwitch(
@@ -534,8 +538,8 @@ function Dashboard(): JSX.Element {
 							onEditChange={ onEditChange }
 						>
 							<Page
-								visual={ <Icon icon={ jetpack } /> }
-								breadcrumbs={ <StatsBreadcrumbs isRoot /> }
+								visual={ hasTightHeader ? undefined : <Icon icon={ jetpack } /> }
+								breadcrumbs={ hasTightHeader ? undefined : <StatsBreadcrumbs isRoot /> }
 								actions={
 									<Stack direction="row" gap={ isNarrowHeader ? 'xs' : 'sm' }>
 										{ /* At rest these would add a second Customize beside the menu's. */ }

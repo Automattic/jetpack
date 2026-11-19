@@ -34,15 +34,3 @@
 	// Not inherited: the crumbs' `text-wrap: pretty` turns wrapping back on.
 	white-space: nowrap;
 }
-
-/* The header's row squeezes the trail's lockup alone, and the page icon beside
- * the trail cannot shrink, so on a phone the two paint over the actions. A
- * second row costs nothing above the width where one row still fits. */
-:global([class*="__header-content"]):has(.trail) {
-	flex-wrap: wrap;
-}
-
-/* `space-between` puts the only item on a wrapped line at its start. */
-:global([class*="__header-content"]):has(.trail) > :global([class*="__header-actions"]) {
-	margin-inline-start: auto;
-}
