@@ -8,7 +8,7 @@
 namespace Automattic\Jetpack\Jetpack_Mu_Wpcom;
 
 /**
- * Answers My Jetpack's `jetpack_feature_upgrade` and `jetpack_my_jetpack_plan_urls` filters with WordPress.com's plans.
+ * Answers the `jetpack_feature_upgrade` and `jetpack_my_jetpack_plan_urls` filters of My Jetpack and the Monetize page with WordPress.com's plans.
  */
 class WPCOM_Feature_Upgrades {
 
@@ -77,6 +77,8 @@ class WPCOM_Feature_Upgrades {
 	/**
 	 * Send the Monetize page's upgrade links to the WordPress.com plans with ads, which come back to the page.
 	 *
+	 * Staging and fully managed agency sites can't buy a plan, so they get no upgrade link, as in filter_plan_urls().
+	 *
 	 * @since $$next-version$$
 	 *
 	 * @param array  $upgrade Where the upgrade goes: `path`, `name`, `back_url`, and optionally `url`.
@@ -88,8 +90,11 @@ class WPCOM_Feature_Upgrades {
 			return $upgrade;
 		}
 
-		$back = wp_validate_redirect( (string) ( $upgrade['back_url'] ?? '' ), '' );
-		$back = rawurlencode( $back ? $back : admin_url( 'admin.php?page=jetpack-monetize' ) );
+		if ( get_option( 'wpcom_is_staging_site' ) || is_fully_managed_agency_site() ) {
+			return array( 'url' => '' ) + $upgrade;
+		}
+
+		$back = rawurlencode( (string) ( $upgrade['back_url'] ?? admin_url( 'admin.php?page=jetpack-monetize' ) ) );
 
 		return array(
 			'path' => '',

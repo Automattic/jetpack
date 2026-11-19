@@ -45,20 +45,24 @@ export function AdsPrompt( { data }: { data: AdsSettingsData } ) {
 		);
 	}
 
+	const { upgradeUrl } = getPageData();
+
 	return (
 		<Notice.Root intent="info">
 			<Notice.Description>
 				{ __( 'Generate income with high-quality ads.', 'jetpack-monetize' ) }
 			</Notice.Description>
-			<Notice.Actions>
-				<Notice.ActionLink href={ getPageData().upgradeUrl } onClick={ trackUpgradeClick }>
-					{ _x(
-						'Upgrade',
-						'A caption for a button to upgrade an existing paid feature to a higher tier.',
-						'jetpack-monetize'
-					) }
-				</Notice.ActionLink>
-			</Notice.Actions>
+			{ upgradeUrl && (
+				<Notice.Actions>
+					<Notice.ActionLink href={ upgradeUrl } onClick={ trackUpgradeClick }>
+						{ _x(
+							'Upgrade',
+							'A caption for a button to upgrade an existing paid feature to a higher tier.',
+							'jetpack-monetize'
+						) }
+					</Notice.ActionLink>
+				</Notice.Actions>
+			) }
 		</Notice.Root>
 	);
 }

@@ -20,16 +20,15 @@ class WPCOM_Feature_Upgrades_Test extends \WorDBless\BaseTestCase {
 	 *
 	 * @dataProvider provide_monetize_back_urls
 	 *
-	 * @param string $back_url The page the link is on; `admin:` prefixes a wp-admin path.
-	 * @param string $expected How the flow's `back_to` and `redirect_to` should end.
+	 * @param string|null $back_url The page the link is on, `admin:` prefixing a wp-admin path, or null for none.
+	 * @param string      $expected How the flow's `back_to` and `redirect_to` should end.
 	 */
 	#[DataProvider( 'provide_monetize_back_urls' )]
 	public function test_monetize_upgrade_goes_to_the_plan_upgrade_flow( $back_url, $expected ) {
-		if ( str_starts_with( $back_url, 'admin:' ) ) {
-			$back_url = admin_url( substr( $back_url, 6 ) );
-		}
-
-		$upgrade = WPCOM_Feature_Upgrades::filter_monetize_upgrade( array( 'back_url' => $back_url ), WPCOM_Feature_Upgrades::MONETIZE_SLUG );
+		$upgrade = WPCOM_Feature_Upgrades::filter_monetize_upgrade(
+			null === $back_url ? array() : array( 'back_url' => admin_url( substr( $back_url, 6 ) ) ),
+			WPCOM_Feature_Upgrades::MONETIZE_SLUG
+		);
 		parse_str( (string) wp_parse_url( $upgrade['url'], PHP_URL_QUERY ), $query );
 
 		$this->assertStringStartsWith( 'https://wordpress.com/setup/plan-upgrade?', $upgrade['url'] );
@@ -45,9 +44,34 @@ class WPCOM_Feature_Upgrades_Test extends \WorDBless\BaseTestCase {
 	 */
 	public static function provide_monetize_back_urls() {
 		return array(
-			'from a tab'   => array( 'admin:admin.php?page=jetpack-monetize&p=%2F%3Ftab%3Dads', '/wp-admin/admin.php?page=jetpack-monetize&p=%2F%3Ftab%3Dads' ),
-			'no page'      => array( '', '/wp-admin/admin.php?page=jetpack-monetize' ),
-			'another site' => array( 'https://example.net/wp-admin/', '/wp-admin/admin.php?page=jetpack-monetize' ),
+			'from a tab' => array( 'admin:admin.php?page=jetpack-monetize&p=%2F%3Ftab%3Dads', '/wp-admin/admin.php?page=jetpack-monetize&p=%2F%3Ftab%3Dads' ),
+			'no page'    => array( null, '/wp-admin/admin.php?page=jetpack-monetize' ),
+		);
+	}
+
+	/**
+	 * @dataProvider provide_sites_without_purchases
+	 *
+	 * @param string $option The option that marks the site.
+	 */
+	#[DataProvider( 'provide_sites_without_purchases' )]
+	public function test_monetize_upgrade_offers_nothing_where_the_site_cannot_buy( $option ) {
+		update_option( $option, 1 );
+
+		$upgrade = WPCOM_Feature_Upgrades::filter_monetize_upgrade( array( 'name' => 'Jetpack Creator' ), WPCOM_Feature_Upgrades::MONETIZE_SLUG );
+
+		$this->assertSame( '', $upgrade['url'] );
+	}
+
+	/**
+	 * Data provider for test_monetize_upgrade_offers_nothing_where_the_site_cannot_buy.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_sites_without_purchases() {
+		return array(
+			'staging site' => array( 'wpcom_is_staging_site' ),
+			'agency site'  => array( 'is_fully_managed_agency_site' ),
 		);
 	}
 
