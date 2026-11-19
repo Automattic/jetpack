@@ -169,18 +169,20 @@ class Parsely_Prompts_Test extends BaseTestCase {
 	public function test_the_views_figure_is_cached() {
 		$this->answer_stats_usage_with( self::usage_with_views( 150000 ) );
 
-		offers_parsely_prompts();
-		offers_parsely_prompts();
+		$first  = offers_parsely_prompts();
+		$second = offers_parsely_prompts();
 
+		$this->assertSame( $first, $second );
 		$this->assertSame( 1, $this->usage_requests );
 	}
 
 	public function test_a_failed_lookup_is_cached_too() {
 		$this->answer_stats_usage_with( new WP_Error( 'no_possible_tokens', 'The site has no blog token.' ) );
 
-		offers_parsely_prompts();
-		offers_parsely_prompts();
+		$first  = offers_parsely_prompts();
+		$second = offers_parsely_prompts();
 
+		$this->assertSame( $first, $second );
 		$this->assertSame( 1, $this->usage_requests );
 	}
 
@@ -324,7 +326,7 @@ class Parsely_Prompts_Test extends BaseTestCase {
 	public function test_the_flag_is_registered_off_by_default() {
 		Parsely_Prompts::register_feature_flag();
 
-		$this->assertSame( false, Feature_Flags::get( Parsely_Prompts::FLAG )['default'] );
+		$this->assertSame( false, Feature_Flags::get( Parsely_Prompts::FLAG )['default'] ?? null );
 	}
 
 	/**
