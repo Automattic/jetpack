@@ -206,7 +206,7 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 - Abilities: Set up the page cache when the set-module-status ability turns it on, report a setup failure, and pass on its notices, such as WP Super Cache being switched off.
 - Concatenate CSS: Keep styles applied when another plugin stops one stylesheet in a bundle from loading as a stylesheet, as Trustindex review widgets 15.0 do.
 - Connection: Let a second administrator fix a broken connection owner by connecting their own account, keep the progress indicator on screen after clicking Restore Connection, and stop showing a connection error notice for a request signature mismatch, which reconnecting rarely fixes.
-- Dashboard: Show the account control in Boost's header when opening Boost from My Jetpack in the Jetpack admin shell.
+- Dashboard: Show the account control in Boost's header when you open Boost from My Jetpack with the Jetpack admin shell on.
 - My Jetpack: Fix the Security and Growth filters on the Features tab showing no features, the Overview showing a product's old status after a feature switch, and the Features list's checkbox colors and doubled focus rings.
 - My Jetpack: Show what went wrong and let users retry when the onboarding connection to WordPress.com fails, keep the Jetpack Pro card inside phone screens, and stop the upgrade screen from briefly offering Jetpack Complete before Jetpack Pro.
 
