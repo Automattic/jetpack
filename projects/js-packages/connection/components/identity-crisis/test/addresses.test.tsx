@@ -1,26 +1,19 @@
-import { render, screen } from '@testing-library/react';
+import { render } from '@testing-library/react';
 import IdentityCrisisAddresses from '../addresses';
 
 describe( 'IdentityCrisisAddresses', () => {
-	it.each( [
-		[ 'move', 'From old.example to new.example' ],
-		[ 'separate', 'old.example and new.example, connected separately' ],
-	] as const )( 'names the WordPress.com address first for %s', ( variant, label ) => {
-		render(
-			<IdentityCrisisAddresses
-				wpcomHomeUrl="old.example/"
-				currentUrl="new.example/"
-				variant={ variant }
-			/>
+	it( 'shows the WordPress.com address before the one the site now loads at', () => {
+		const { container } = render(
+			<IdentityCrisisAddresses wpcomHomeUrl="old.example/" currentUrl="new.example/" isStore />
 		);
 
-		expect( screen.getByRole( 'img', { name: label } ) ).toBeInTheDocument();
+		expect( container ).toHaveTextContent(
+			'This store is registered with WordPress.com at old.example, but now loads at new.example.'
+		);
 	} );
 
 	it( 'renders nothing without both addresses', () => {
-		const { container } = render(
-			<IdentityCrisisAddresses wpcomHomeUrl="old.example/" variant="move" />
-		);
+		const { container } = render( <IdentityCrisisAddresses wpcomHomeUrl="old.example/" /> );
 
 		expect( container ).toBeEmptyDOMElement();
 	} );

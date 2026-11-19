@@ -7,7 +7,6 @@ let mockQueryData: unknown;
 let mockQueryError: { code: string } | null = null;
 const mockLoadEvent = jest.fn();
 
-jest.mock( '../../../hooks/use-analytics', () => () => ( { recordEvent: jest.fn() } ) );
 jest.mock( '../../../data/products/use-product', () => () => ( {
 	detail: { name: 'Product', ...mockDetail },
 	isLoading: false,

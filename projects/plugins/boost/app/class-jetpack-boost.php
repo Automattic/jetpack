@@ -421,7 +421,36 @@ class Jetpack_Boost {
 			)
 		);
 
+		add_action( 'added_option', array( $this, 'maybe_sync_module_status' ) );
+		add_action( 'updated_option', array( $this, 'maybe_sync_module_status' ) );
+		add_action( 'deleted_option', array( $this, 'maybe_sync_module_status' ) );
+
 		$jetpack_config->ensure( 'identity_crisis' );
+	}
+
+	/**
+	 * Queue a fresh `boost_modules` snapshot when a module status option changes.
+	 *
+	 * Sync sends callables only when something else triggers a send, so a toggle alone can leave WP.com stale.
+	 *
+	 * @param string $option Option name.
+	 */
+	public function maybe_sync_module_status( $option ) {
+		if ( ! str_starts_with( $option, Status::OPTION_PREFIX ) ) {
+			return;
+		}
+
+		// Deferred: some writes land before Sync's listener loads, and mapped modules change after the toggle.
+		add_action( 'shutdown', array( $this, 'sync_module_status' ) );
+	}
+
+	/**
+	 * Send the current module status map to WP.com.
+	 *
+	 * This skips Sync's callable checksum, so its next routine callables check may send the same map again.
+	 */
+	public function sync_module_status() {
+		do_action( 'jetpack_sync_callable', 'boost_modules', ( new Modules_Setup() )->get_status() );
 	}
 
 	/**

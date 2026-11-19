@@ -461,28 +461,51 @@ class Single_Report_Page_Test extends BaseTestCase {
 		$this->assertNull( $page->reports_page );
 	}
 
-	public function test_a_post_type_page_is_offered_without_its_type_in_rest() {
-		register_post_type( 'jpa-hidden', array( 'show_in_rest' => false ) );
+	/**
+	 * @param bool  $show_in_rest Whether the page's post type is registered in REST.
+	 * @param array $args         The page arguments besides `entity`.
+	 * @param bool  $expected     Whether the page is offered.
+	 *
+	 * @dataProvider provide_post_type_page_availability
+	 */
+	#[DataProvider( 'provide_post_type_page_availability' )]
+	public function test_a_post_type_page_needs_its_type_in_rest_unless_it_declares_its_own_rule( $show_in_rest, $args, $expected ) {
+		register_post_type( 'jpa-type', array( 'show_in_rest' => $show_in_rest ) );
 
 		try {
 			$page = register_single_report_page(
 				DASHBOARD_NAME,
-				'example/jpa-hidden',
-				array(
-					'entity' => array(
-						'kind' => 'postType',
-						'name' => 'jpa-hidden',
+				'example/jpa-type',
+				array_merge(
+					array(
+						'entity' => array(
+							'kind' => 'postType',
+							'name' => 'jpa-type',
+						),
 					),
+					$args
 				)
 			);
 
 			$this->set_admin_user();
 
-			// The post adapter reads the entry from Stats, so its type need not be in REST.
-			$this->assertTrue( $page->is_available() );
+			$this->assertSame( $expected, $page->is_available() );
 		} finally {
-			unregister_post_type( 'jpa-hidden' );
+			unregister_post_type( 'jpa-type' );
 		}
+	}
+
+	/**
+	 * A post type in or outside REST, the page's own rule if any, and whether the page is offered.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_post_type_page_availability() {
+		return array(
+			'in REST'                    => array( true, array(), true ),
+			'outside REST'               => array( false, array(), false ),
+			'outside REST, its own rule' => array( false, array( 'is_available' => '__return_true' ), true ),
+		);
 	}
 
 	public function test_the_rest_schema_names_every_record_and_section_field() {

@@ -86,12 +86,10 @@ class Admin {
 			'load'         => array( $this, 'load_as_admin_shell_guest' ),
 		);
 		// The Getting Started screen, which a bare menu link opens until it's done, has no page header.
-		if ( ! ( new Getting_Started_Entry() )->get() ) {
-			$members[ JETPACK_BOOST_SLUG ]['header'] = array(
-				'title'    => 'Boost',
-				'subtitle' => __( 'Improve your site speed and performance.', 'jetpack-boost' ),
-			);
-		}
+		$members[ JETPACK_BOOST_SLUG ]['header'] = ( new Getting_Started_Entry() )->get() ? false : array(
+			'title'    => 'Boost',
+			'subtitle' => __( 'Improve your site speed and performance.', 'jetpack-boost' ),
+		);
 		return $members;
 	}
 

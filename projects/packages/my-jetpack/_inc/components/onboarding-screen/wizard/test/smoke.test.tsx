@@ -2,6 +2,7 @@ import { act, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { border, drafts, published } from '@wordpress/icons';
 import { Children, isValidElement } from 'react';
+import useAnalytics from '../../../../hooks/use-analytics';
 import { startBenefits } from '../lib';
 import { Wizard } from '../wizard';
 import type { UserEvent } from '@testing-library/user-event';
@@ -43,12 +44,7 @@ jest.mock( '@automattic/jetpack-connection', () => ( {
 		.getConnectScreenErrorMessage,
 } ) );
 
-const mockRecordEvent = jest.fn();
-
-jest.mock( '../../../../hooks/use-analytics', () => ( {
-	__esModule: true,
-	default: () => ( { recordEvent: mockRecordEvent } ),
-} ) );
+const mockRecordEvent = jest.mocked( jest.mocked( useAnalytics )().recordEvent );
 
 const mockApiFetch = jest.fn( () => Promise.resolve( {} ) );
 

@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack;
 
+use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Urls;
@@ -196,6 +197,8 @@ class Identity_Crisis {
 
 		// 121 Priority so that it's the most inner Jetpack item in the admin bar.
 		add_action( 'admin_bar_menu', array( $this, 'display_admin_bar_button' ), 121 );
+		add_action( 'admin_enqueue_scripts', array( $this, 'add_admin_bar_styles' ) );
+		add_action( 'wp_enqueue_scripts', array( $this, 'add_admin_bar_styles' ) );
 
 		UI::init();
 	}
@@ -262,11 +265,7 @@ class Identity_Crisis {
 			return;
 		}
 
-		$href = is_admin()
-			? add_query_arg( 'jetpack_idc_clear_confirmation', '1' )
-			: add_query_arg( 'jetpack_idc_clear_confirmation', '1', admin_url() );
-
-		$href = wp_nonce_url( $href, 'jetpack_idc_clear_confirmation' );
+		$href = wp_nonce_url( add_query_arg( 'jetpack_idc_clear_confirmation', '1', self::get_admin_bar_button_target() ), 'jetpack_idc_clear_confirmation' );
 
 		$consumer_data = UI::get_consumer_data();
 		$label         = isset( $consumer_data['customContent']['adminBarSafeModeLabel'] )
@@ -284,15 +283,51 @@ class Identity_Crisis {
 			'title'  => $title,
 			'href'   => esc_url( $href ),
 			'parent' => 'top-secondary',
+			// Router-driven dashboards such as Stats would otherwise swallow the click.
+			'meta'   => array( 'target' => '_self' ),
 		);
 
-		if ( ! self::$is_safe_mode_confirmed ) {
-			$menu['meta'] = array(
-				'class' => 'hide',
-			);
+		$wp_admin_bar->add_node( $menu );
+	}
+
+	/**
+	 * Where the admin bar item leads: a page that shows the Safe Mode screen.
+	 *
+	 * @return string|false The URL, or false for the current page, as add_query_arg() takes it.
+	 */
+	private static function get_admin_bar_button_target() {
+		if ( ! is_admin() ) {
+			return admin_url();
 		}
 
-		$wp_admin_bar->add_node( $menu );
+		// Jetpack dashboards hide admin notices, and the Safe Mode screen with them; My Jetpack shows it in its own container.
+		if ( ! wp_style_is( Admin_Menu::HIDE_CORE_NOTICES_HANDLE ) ) {
+			return false;
+		}
+
+		return '' !== menu_page_url( 'my-jetpack', false ) ? admin_url( 'admin.php?page=my-jetpack' ) : admin_url();
+	}
+
+	/**
+	 * Style the admin bar item, in wp-admin and on the front end.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return void
+	 */
+	public function add_admin_bar_styles() {
+		if ( ! is_admin_bar_showing() || ! current_user_can( 'jetpack_disconnect' ) ) {
+			return;
+		}
+
+		wp_add_inline_style(
+			'admin-bar',
+			'#wpadminbar #wp-admin-bar-jetpack-idc { margin-inline-end: 5px; }
+			#wpadminbar #wp-admin-bar-jetpack-idc .ab-item { padding: 0; background: #e68b28; }
+			#wpadminbar #wp-admin-bar-jetpack-idc .jp-idc-admin-bar { border-radius: 2px; font-weight: 500; font-size: 14px; line-height: 20px; color: #efeff0; padding: 6px 8px; }
+			#wpadminbar #wp-admin-bar-jetpack-idc .dashicons { font-family: dashicons; margin-block-start: -6px; }
+			#wpadminbar #wp-admin-bar-jetpack-idc .dashicons::before { font-size: 18px; }'
+		);
 	}
 
 	/**

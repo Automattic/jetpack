@@ -1,11 +1,13 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import useAnalytics from '../../../hooks/use-analytics';
 import { SettingsPanel } from '../index';
 import { entrySettings, moduleSettings } from '../registry';
 import type { MyJetpackModule } from '../../../types';
 
+const mockRecordEvent = jest.mocked( jest.mocked( useAnalytics )().recordEvent );
+
 const mockNavigate = jest.fn();
-const mockRecordEvent = jest.fn();
 let mockSearch: Record< string, unknown > = {};
 let mockModules: { modules: Record< string, MyJetpackModule >; hasLoaded: boolean };
 
@@ -18,10 +20,6 @@ let mockEntries: MainFeatureSettingsEntry[] = [];
 jest.mock( '../../my-jetpack-tab-panel/features/use-main-features', () => ( {
 	QUERY_KEY: [ 'my-jetpack-main-features' ],
 	useMainFeatures: () => ( { settings_entries: mockEntries } ),
-} ) );
-jest.mock( '../../../hooks/use-analytics', () => ( {
-	__esModule: true,
-	default: () => ( { recordEvent: mockRecordEvent } ),
 } ) );
 jest.mock( '../../module-toggle', () => ( {
 	ModuleToggle: ( {
