@@ -13,14 +13,18 @@
 		margin: 0;
 	}
 
+	// Stays in view while the panel scrolls, on the intro's surface below it.
 	&__header {
+		position: sticky;
+		inset-block-start: 0;
+		z-index: 1;
+		background: #fcfcfc;
 		padding-block: var(--wpds-dimension-padding-md);
 		padding-inline: var(--wpds-dimension-padding-2xl) var(--wpds-dimension-padding-lg);
 		border-block-end: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral-weak);
 	}
 
-	// Takes the bar's free width, so Close stays at the end. The icon is the
-	// Overview sparkle's jetpack-green-50, which has no design-system token.
+	// Takes the bar's free width, so Close stays at the end.
 	&__category {
 		flex: 1;
 		min-inline-size: 0;

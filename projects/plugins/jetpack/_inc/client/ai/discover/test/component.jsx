@@ -154,17 +154,15 @@ describe( 'Discover', () => {
 		expect( suggest.compareDocumentPosition( search ) ).toBe( Node.DOCUMENT_POSITION_FOLLOWING );
 	} );
 
-	test( 'each card ends with the Send to agent menu, then View skill', () => {
+	test( 'each card ends with View skill, then the Send to agent menu', () => {
 		renderDiscover();
 
 		const seo = card( 'SEO audit' );
 		const blurb = within( seo ).getByText( /Audit titles, metas, and headings/ );
+		const view = within( seo ).getByRole( 'link', { name: 'View skill: SEO audit' } );
 		const trigger = within( seo ).getByRole( 'button', { name: 'Send to agent: SEO audit' } );
-		const view = within( seo ).getByRole( 'link', { name: /View skill/ } );
-		expect( blurb.compareDocumentPosition( trigger ) ).toBe( Node.DOCUMENT_POSITION_FOLLOWING );
-		expect( trigger.compareDocumentPosition( view ) ).toBe( Node.DOCUMENT_POSITION_FOLLOWING );
-		// The card's outline trigger takes the lighter stroke.
-		expect( trigger ).toHaveClass( 'jetpack-ai-discover__agent-trigger' );
+		expect( blurb.compareDocumentPosition( view ) ).toBe( Node.DOCUMENT_POSITION_FOLLOWING );
+		expect( view.compareDocumentPosition( trigger ) ).toBe( Node.DOCUMENT_POSITION_FOLLOWING );
 	} );
 
 	test( 'says so when the catalog couldn’t be loaded', () => {

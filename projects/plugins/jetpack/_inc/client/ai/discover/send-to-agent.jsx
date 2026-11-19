@@ -98,7 +98,7 @@ export default function SendToAgentMenu( {
 				render={
 					<Button
 						variant={ variant }
-						tone="brand"
+						tone={ variant === 'solid' ? 'brand' : 'neutral' }
 						size={ size }
 						className={ className }
 						aria-label={ label }

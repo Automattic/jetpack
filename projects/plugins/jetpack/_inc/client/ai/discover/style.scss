@@ -60,7 +60,7 @@
 		inset-block-start: var(--jetpack-ai-discover-toolbar-offset, 0);
 		z-index: 10;
 		padding: var(--wpds-dimension-padding-md);
-		border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
+		border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral-weak);
 		border-radius: var(--wpds-border-radius-lg);
 		background: var(--wpds-color-background-surface-neutral-strong);
 		container: discover-toolbar / inline-size;
@@ -236,15 +236,81 @@
 		gap: var(--wpds-dimension-gap-lg);
 	}
 
-	// My Jetpack's Features card, value for value, minus its hover: here only
-	// the footer's controls do anything. The footer sits outside the padding so
-	// its line and fill run edge to edge.
+	// My Jetpack's Features card: the whole card opens the skill, so it takes
+	// the same hover and draws keyboard focus itself, unclipped by its radius.
 	&__card {
-		display: flex;
-		flex-direction: column;
-		border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
+		position: relative;
+		border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral-weak);
 		border-radius: var(--wpds-border-radius-lg);
 		background: var(--wpds-color-background-surface-neutral-strong);
+		transition: background-color 120ms ease-out, border-color 120ms ease-out;
+
+		&:hover {
+			background: var(--wpds-color-background-surface-neutral-weak);
+			border-color: var(--wpds-color-stroke-surface-neutral);
+		}
+
+		&:focus-within {
+			outline: var(--wpds-border-width-focus) solid var(--wpds-color-stroke-focus);
+			outline-offset: calc(var(--wpds-border-width-focus) * -1);
+		}
+
+		@media (prefers-reduced-motion: reduce) {
+			transition: none;
+		}
+	}
+
+	// Send to agent sits under the text, pinned to the bottom so it lines up
+	// across a row of the grid.
+	&__card-layout {
+		display: grid;
+		grid-template-columns: auto minmax(0, 1fr) auto;
+		grid-template-rows: 1fr auto;
+		grid-template-areas:
+			"tile text chevron"
+			". action chevron";
+		gap: var(--wpds-dimension-gap-md);
+		block-size: 100%;
+		box-sizing: border-box;
+		padding: var(--wpds-dimension-padding-xl);
+
+		> .jetpack-ai-discover__tile {
+			grid-area: tile;
+			// Optical alignment with the cap height of the title beside it.
+			margin-block-start: 2px;
+		}
+	}
+
+	&__card-action {
+		grid-area: action;
+		justify-self: start;
+		// Above the title's stretched link, so the menu stays its own control.
+		position: relative;
+		z-index: 1;
+	}
+
+	&__card-chevron {
+		display: flex;
+		grid-area: chevron;
+		align-self: center;
+		color: var(--wpds-color-foreground-content-neutral);
+
+		svg {
+			fill: currentColor;
+		}
+	}
+
+	// The card's own link, laid over all of it. The card draws its focus ring.
+	&__card-open {
+		position: absolute;
+		inset: 0;
+		border-radius: inherit;
+
+		&:focus,
+		&:focus-visible {
+			outline: none;
+			box-shadow: none;
+		}
 	}
 
 	// The list view: My Jetpack's Features list, one outline around rows split
@@ -259,44 +325,18 @@
 		background: var(--wpds-color-background-surface-neutral-strong);
 	}
 
-	// A card flattened into a row of the list: the list draws the outline, and
-	// the footer's actions sit at the row's end with no line or fill.
+	// A card flattened into a row of the list: the list draws the outline.
 	&__card--row {
-		flex-direction: row;
-		align-items: center;
 		border: 0;
 		border-radius: 0;
 
 		& + & {
 			border-block-start: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral-weak);
 		}
-
-		.jetpack-ai-discover__card-footer {
-			flex-shrink: 0;
-			gap: var(--wpds-dimension-gap-lg);
-			padding-block: 0;
-			padding-inline: 0 var(--wpds-dimension-padding-xl);
-			border: 0;
-			border-radius: 0;
-			background: none;
-		}
-	}
-
-	// Grows to fill the card, which pins the footer to the bottom.
-	&__card-body {
-		display: flex;
-		flex: 1;
-		align-items: flex-start;
-		gap: var(--wpds-dimension-gap-md);
-		padding: var(--wpds-dimension-padding-xl);
-
-		// Optical alignment with the cap height of the title beside it.
-		.jetpack-ai-discover__tile {
-			margin-block-start: 2px;
-		}
 	}
 
 	&__card-text {
+		grid-area: text;
 		display: flex;
 		flex: 1;
 		flex-direction: column;
@@ -320,9 +360,6 @@
 		min-block-size: calc(var(--wpds-typography-line-height-xs) + 2 * var(--wpds-dimension-padding-xs));
 	}
 
-	// The title takes the heading-md variant as it is, the same as the
-	// Overview's cards for the same skills. The heading around it only drops
-	// wp-admin's margin; the Text inside sets its own type.
 	// A backstop for a catalog summary that runs long; the panel has it all.
 	&__card-summary {
 		display: -webkit-box;
@@ -336,36 +373,13 @@
 		margin: 0;
 	}
 
+	// My Jetpack's card titles render at body size and weight, so this matches.
 	&__card-title {
 		color: var(--wpds-color-foreground-content-neutral);
 	}
 
-	// Kept barely off white: the weak surface alone reads as grey here, so it
-	// is mixed half and half with the card's own surface.
-	&__card-footer {
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		gap: var(--wpds-dimension-gap-sm);
-		padding: var(--wpds-dimension-padding-md) var(--wpds-dimension-padding-xl);
-		border-end-start-radius: calc(var(--wpds-border-radius-lg) - var(--wpds-border-width-xs));
-		border-end-end-radius: calc(var(--wpds-border-radius-lg) - var(--wpds-border-width-xs));
-		background: color-mix(in sRGB, var(--wpds-color-background-surface-neutral-weak) 50%, var(--wpds-color-background-surface-neutral-strong));
-	}
-
 	&__agent-trigger {
 		white-space: nowrap;
-	}
-
-	&__view-link {
-		display: inline-flex;
-		align-items: center;
-		gap: var(--wpds-dimension-gap-xs);
-		white-space: nowrap;
-
-		svg {
-			fill: currentColor;
-		}
 	}
 
 	// My Jetpack's Features icon tile: the Jetpack brand icon palette, which
@@ -472,28 +486,11 @@
 
 // The list also narrows beside an open skill panel, at any window width: 400
 // wide at 1024, where two cards would break Send to agent's label. Below
-// 40rem a card would fall under about 312, the least that fits its footer and
-// a readable blurb, so the grid drops to one column.
+// 40rem a card would fall under about 312, the least that fits Send to agent
+// and a readable blurb, so the grid drops to one column.
 @container discover (max-width: 40rem) {
 
 	.jetpack-ai-discover__grid {
 		grid-template-columns: minmax(0, 1fr);
-	}
-
-	// A row that narrow can't hold its actions beside the text, so they drop
-	// under it, spread as on a card.
-	.jetpack-ai-discover__card--row {
-		flex-direction: column;
-		align-items: stretch;
-
-		.jetpack-ai-discover__card-footer {
-			justify-content: space-between;
-			padding-block-end: var(--wpds-dimension-padding-xl);
-			padding-inline: var(--wpds-dimension-padding-xl);
-		}
-
-		.jetpack-ai-discover__card-body {
-			padding-block-end: var(--wpds-dimension-padding-md);
-		}
 	}
 }

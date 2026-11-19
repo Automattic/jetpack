@@ -1,13 +1,12 @@
 /**
- * A skill in the catalog: icon, title, description, and a footer with the Send to
- * agent menu and a link that opens the skill's panel. In the grid it is a
- * card; in the list it is a row, with the footer's actions at its end.
+ * A skill in the catalog: icon, title, description, the Send to agent menu and
+ * a chevron. Anywhere else on the card opens the skill's panel.
  */
 
 import { useCallback, useId } from '@wordpress/element';
 import { __, isRTL, sprintf } from '@wordpress/i18n';
-import { arrowLeft, arrowRight } from '@wordpress/icons';
-import { Badge, Icon, Link, Text, VisuallyHidden } from '@wordpress/ui';
+import { chevronLeft, chevronRight } from '@wordpress/icons';
+import { Badge, Icon, Text, VisuallyHidden } from '@wordpress/ui';
 import clsx from 'clsx';
 import { getCategoryIcon } from './category-icons';
 import SendToAgentMenu from './send-to-agent';
@@ -80,8 +79,8 @@ export default function SkillCard( {
 
 	return (
 		// An article named by its title, so each card reads as one unit. Laid
-		// out like My Jetpack's Features card, with the actions in a footer
-		// rather than beside the text, since the body opens nothing itself.
+		// out as My Jetpack's Features card: a link covers the card, and Send to
+		// agent sits above it as its own control.
 		<article
 			className={ clsx(
 				'jetpack-ai-discover__card',
@@ -90,15 +89,14 @@ export default function SkillCard( {
 			aria-labelledby={ titleId }
 			data-open={ isOpen ? 'true' : undefined }
 		>
-			<div className="jetpack-ai-discover__card-body">
+			<div className="jetpack-ai-discover__card-layout">
 				<CategoryTile category={ skill.category } />
 				<div className="jetpack-ai-discover__card-text">
-					{ /* heading-md, as the Overview's cards for the same skills. The
-					     badge sits beside the heading rather than in it, so the card is
-					     still named by its title alone. */ }
+					{ /* The badge sits beside the heading rather than in it, so the card
+					     is still named by its title alone. */ }
 					<div className="jetpack-ai-discover__card-heading-row">
 						<Text
-							variant="heading-md"
+							variant="body-md"
 							render={ <h3 id={ titleId } /> }
 							className="jetpack-ai-discover__card-heading jetpack-ai-discover__card-title"
 						>
@@ -115,25 +113,10 @@ export default function SkillCard( {
 						{ skill.summary || skill.description }
 					</Text>
 				</div>
-			</div>
-			<div className="jetpack-ai-discover__card-footer">
-				<SendToAgentMenu
-					className="jetpack-ai-discover__agent-trigger"
-					onSend={ handleSend }
-					showWordPressAgent={ showWordPressAgent }
-					label={ sprintf(
-						/* translators: %s: skill name, e.g. "SEO audit". */
-						__( 'Send to agent: %s', 'jetpack' ),
-						skill.title
-					) }
-				/>
-				{ /* Named in full by aria-label, as the menu is: a hidden span inside
-				     the link is laid out as a block and reads with a stray space.
-				     aria-current tells assistive tech which card's panel is open. */ }
-				<Link
+				{ /* Covers the whole card; aria-current marks the open skill. */ }
+				<a
 					href={ `#/discover/${ skill.slug }` }
-					className="jetpack-ai-discover__view-link"
-					tone="neutral"
+					className="jetpack-ai-discover__card-open"
 					onClick={ handleView }
 					aria-label={ sprintf(
 						/* translators: %s: skill name, e.g. "SEO audit". */
@@ -141,10 +124,22 @@ export default function SkillCard( {
 						skill.title
 					) }
 					aria-current={ isOpen ? 'true' : undefined }
-				>
-					{ __( 'View skill', 'jetpack' ) }
-					<Icon icon={ isRTL() ? arrowLeft : arrowRight } size={ 18 } />
-				</Link>
+				/>
+				<div className="jetpack-ai-discover__card-action">
+					<SendToAgentMenu
+						className="jetpack-ai-discover__agent-trigger"
+						onSend={ handleSend }
+						showWordPressAgent={ showWordPressAgent }
+						label={ sprintf(
+							/* translators: %s: skill name, e.g. "SEO audit". */
+							__( 'Send to agent: %s', 'jetpack' ),
+							skill.title
+						) }
+					/>
+				</div>
+				<span className="jetpack-ai-discover__card-chevron" aria-hidden="true">
+					<Icon icon={ isRTL() ? chevronLeft : chevronRight } size={ 24 } />
+				</span>
 			</div>
 		</article>
 	);
