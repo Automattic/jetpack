@@ -93,6 +93,9 @@ class Social_Abilities_Test extends BaseTestCase {
 		if ( ! function_exists( 'wp_register_ability' ) ) {
 			$this->markTestSkipped( 'Abilities API not available.' );
 		}
+		// The package's own plugins_loaded wiring already hooked these while the test environment loaded.
+		remove_action( 'wp_abilities_api_categories_init', array( Social_Abilities::class, 'register_category' ) );
+		remove_action( 'wp_abilities_api_init', array( Social_Abilities::class, 'register_abilities' ) );
 		add_filter( 'jetpack_social_abilities_should_load', '__return_true' );
 		global $wp_current_filter;
 		$wp_current_filter[] = 'wp_abilities_api_init';

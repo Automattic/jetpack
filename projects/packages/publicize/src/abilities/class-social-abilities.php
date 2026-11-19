@@ -107,7 +107,7 @@ class Social_Abilities extends Registrar {
 		$connection_id_schema = array(
 			'type'        => 'integer',
 			'minimum'     => 1,
-			'description' => __( 'Connection ID, as returned by jetpack-social/get-connections.', 'jetpack-publicize-pkg' ),
+			'description' => __( 'Connection ID from the list of the site\'s social connections.', 'jetpack-publicize-pkg' ),
 		);
 
 		$mcp = array(
@@ -119,7 +119,7 @@ class Social_Abilities extends Registrar {
 			'jetpack-social/get-connections'   => array(
 				'label'               => __( 'Get social connections', 'jetpack-publicize-pkg' ),
 				'description'         => __(
-					'List the social network accounts connected to this site through Jetpack Social. Shape: { total, connections: [ { connection_id, service_name, service_label, display_name, external_handle, profile_link, shared, status } ] }. `shared` is true when every author on the site can use the connection. Filter by `service_name` (for example facebook or linkedin). Set `test_connections` to check each connection against its network, which is slower; `status` is then ok, broken or must_reauth, and is null without it. A connection that is not ok cannot publish until it is reconnected in the Jetpack Social settings. Returns an empty list when nothing is connected. Use connection_id with jetpack-social/delete-connection. On a Jetpack site the current user must be connected to WordPress.com.',
+					'List the social network accounts connected to this site through Jetpack Social. `shared` is true when every author on the site can use the connection. Filter by `service_name` (for example facebook or linkedin). Set `test_connections` to check each connection against its network, which is slower; `status` is then ok, broken or must_reauth, and is null without it. A connection that is not ok cannot publish until it is reconnected in the Jetpack Social settings. Returns an empty list when nothing is connected. On a Jetpack site the current user must be connected to WordPress.com.',
 					'jetpack-publicize-pkg'
 				),
 				'input_schema'        => array(
@@ -165,7 +165,7 @@ class Social_Abilities extends Registrar {
 			'jetpack-social/share-post'        => array(
 				'label'               => __( 'Share a post to social networks', 'jetpack-publicize-pkg' ),
 				'description'         => __(
-					'Share one published post to the site\'s connected social networks right now, as a new public post on each network. Shape: { post_id, queued, connections }, where connections counts the working accounts the share goes to. Each connection is checked against its network first, and the call returns an error when no working connection would receive the share. The shares are queued and go out in the background, so the call returns before they are posted. Each call publishes again, so repeating it posts a duplicate. Only published posts without a password can be shared, and only post types that Jetpack Social supports (posts by default). `message` is optional text posted with the link. Connections listed in `skipped_connections` are left out; list connection IDs with jetpack-social/get-connections. Requires at least one working connection. Works on posts the user can edit. On a Jetpack site the current user must be connected to WordPress.com.',
+					'Share one published post to the site\'s connected social networks right now, as a new public post on each network. `connections` in the result counts the working accounts the share goes to. Each connection is checked against its network first, and the call returns an error when no working connection would receive the share. The shares are queued and go out in the background, so the call returns before they are posted. Each call publishes again, so repeating it posts a duplicate. Only published posts without a password can be shared, and only post types that Jetpack Social supports (posts by default). `message` is optional text posted with the link. Connections listed in `skipped_connections` are left out. Requires at least one working connection. Works on posts the user can edit. On a Jetpack site the current user must be connected to WordPress.com.',
 					'jetpack-publicize-pkg'
 				),
 				'input_schema'        => array(
@@ -216,7 +216,7 @@ class Social_Abilities extends Registrar {
 			'jetpack-social/delete-connection' => array(
 				'label'               => __( 'Delete a social connection', 'jetpack-publicize-pkg' ),
 				'description'         => __(
-					'Remove one connected social account from the site. Shape: { deleted: bool, connection_id }. Posts already shared stay on the network; future shares skip this account. A connection cannot be restored through abilities, because connecting an account needs a sign-in on the network in the Jetpack Social settings. Editors can delete any connection; other users can delete their own. An unknown connection_id returns an error. Find IDs with jetpack-social/get-connections. On a Jetpack site the current user must be connected to WordPress.com.',
+					'Remove one connected social account from the site. Posts already shared stay on the network; future shares skip this account. A connection cannot be restored through abilities, because connecting an account needs a sign-in on the network in the Jetpack Social settings. Editors can delete any connection; other users can delete their own. An unknown connection_id returns an error. On a Jetpack site the current user must be connected to WordPress.com.',
 					'jetpack-publicize-pkg'
 				),
 				'input_schema'        => array(
