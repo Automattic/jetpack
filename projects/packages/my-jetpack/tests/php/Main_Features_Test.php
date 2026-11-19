@@ -3,6 +3,7 @@
 namespace Automattic\Jetpack\My_Jetpack;
 
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Status\Cache as StatusCache;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
@@ -843,6 +844,54 @@ class Main_Features_Test extends TestCase {
 		$upgrades = array_column( Main_Features::get_features(), 'upgrade', 'slug' );
 
 		$this->assertSame( '', $upgrades['activity-log']['path'] );
+	}
+
+	/**
+	 * Whether the site is on WordPress.com Atomic, the site feature it has, the feature card, and whether the plan includes it.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_wpcom_site_features() {
+		return array(
+			'Atomic plan with podcasting'                  => array( true, 'podcasting', 'podcast', true ),
+			'self-hosted, where every site has podcasting' => array( false, 'podcasting', 'podcast', false ),
+			'Atomic plan with file uploads'                => array( true, 'field-file', 'jetpack-forms', true ),
+		);
+	}
+
+	/**
+	 * A WordPress.com plan owns no Jetpack bundle, so only its site features say what it includes.
+	 *
+	 * @dataProvider provide_wpcom_site_features
+	 *
+	 * @param bool   $is_atomic    Whether the site is on WordPress.com Atomic.
+	 * @param string $site_feature The site feature WordPress.com reports as active.
+	 * @param string $slug         The feature card.
+	 * @param bool   $expected     Whether the card counts as included in the plan.
+	 */
+	#[DataProvider( 'provide_wpcom_site_features' )]
+	public function test_included_follows_the_site_features_of_a_wpcom_plan( $is_atomic, $site_feature, $slug, $expected ) {
+		if ( $is_atomic ) {
+			Constants::set_constant( 'ATOMIC_SITE_ID', 123 );
+			Constants::set_constant( 'ATOMIC_CLIENT_ID', 123 );
+			Constants::set_constant( 'WPCOMSH__PLUGIN_FILE', '/tmp/wpcomsh/wpcomsh.php' );
+		}
+		StatusCache::clear();
+		// Definitions are memoized per locale, so a locale nothing else uses gets a fresh build.
+		$locale = static function () use ( $is_atomic ) {
+			return 'wpcom_site_features_' . ( $is_atomic ? 'atomic' : 'self_hosted' );
+		};
+		add_filter( 'locale', $locale );
+		set_transient( Product::MY_JETPACK_SITE_FEATURES_TRANSIENT_KEY, array( 'active' => array( $site_feature ) ), HOUR_IN_SECONDS );
+
+		$included = array_column( Main_Features::get_features(), 'included', 'slug' );
+
+		remove_filter( 'locale', $locale );
+		Constants::clear_single_constant( 'ATOMIC_SITE_ID' );
+		Constants::clear_single_constant( 'ATOMIC_CLIENT_ID' );
+		Constants::clear_single_constant( 'WPCOMSH__PLUGIN_FILE' );
+		StatusCache::clear();
+		$this->assertSame( $expected, $included[ $slug ] );
 	}
 
 	/**
