@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Webhooks: Add a link to each uploaded file and to the response, which open for logged-in editors.
