@@ -195,6 +195,7 @@ export function DetailPageActions( {
 }: DetailPageActionsProps ) {
 	const frame = useRef< HTMLDivElement >( null );
 	const wasCustomizing = useRef( isCustomizing );
+	const isNarrow = useNarrowPageHeader();
 
 	useEffect( () => {
 		if ( wasCustomizing.current === isCustomizing ) {
@@ -208,7 +209,7 @@ export function DetailPageActions( {
 	}, [ isCustomizing ] );
 
 	return (
-		<Stack ref={ frame } direction="row" align="center" gap="sm">
+		<Stack ref={ frame } direction="row" align="center" gap={ isNarrow ? 'xs' : 'sm' }>
 			{ isCustomizing ? editingActions : children }
 			{ isCustomizing && onReset && <ResetLayoutAction onReset={ onReset } /> }
 			<StatsOptionsMenu
