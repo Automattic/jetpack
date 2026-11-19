@@ -77,6 +77,21 @@ export function collectNamespaces( abilities, savedGroups, view ) {
 }
 
 /**
+ * Every allowlist key a view's remote cards write: group keys and ability-level keys.
+ *
+ * @param {Array}                   abilities   - Published abilities.
+ * @param {Record<string, boolean>} savedGroups - Saved allowlist.
+ * @param {'read'|'write'}          view        - View to collect for.
+ * @return {string[]} Allowlist keys.
+ */
+export function collectRemoteKeys( abilities, savedGroups, view ) {
+	return [ ...collectNamespaces( abilities, savedGroups, view ).values() ].flatMap( group => [
+		...group.keys,
+		...group.abilityKeys,
+	] );
+}
+
+/**
  * Remote abilities section for the Read or Write view.
  *
  * @param {object}         props                 - Component props.
