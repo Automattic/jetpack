@@ -1,5 +1,6 @@
 import {
 	isolateRouters,
+	preloadModules,
 	renameBootStore,
 	routeAt,
 	routesLoadedBy,
@@ -169,6 +170,8 @@ describe( 'routeAt', () => {
 } );
 
 describe( 'routesLoadedBy', () => {
+	afterEach( () => delete URL.createObjectURL );
+
 	it( "hands each stand-in's import to the loader, and leaves a route's missing modules out", async () => {
 		const sources = new Map();
 		// jsdom has no createObjectURL.
@@ -202,6 +205,32 @@ describe( 'routesLoadedBy', () => {
 			canvas: undefined,
 		} );
 		expect( load ).toHaveBeenCalledWith( 'a/content' );
-		delete URL.createObjectURL;
+	} );
+} );
+
+describe( 'preloadModules', () => {
+	afterEach( () => jest.restoreAllMocks() );
+
+	it( 'downloads the modules the import map knows, and settles once each loads or fails', async () => {
+		jest.spyOn( DOMTokenList.prototype, 'supports' ).mockReturnValue( true );
+		document.head.innerHTML = `<script type="importmap">${ JSON.stringify( {
+			imports: { 'a/route': '/a/route.js?ver=1', 'b/route': '/b/route.js' },
+		} ) }</script>`;
+		let settled = false;
+		const preloading = preloadModules( [ 'a/route', 'b/route', 'unknown' ] ).then(
+			() => ( settled = true )
+		);
+		const links = [ ...document.head.querySelectorAll( 'link[rel="modulepreload"]' ) ];
+
+		expect( links.map( link => link.getAttribute( 'href' ) ) ).toEqual( [
+			`${ location.origin }/a/route.js?ver=1`,
+			`${ location.origin }/b/route.js`,
+		] );
+		links[ 0 ].dispatchEvent( new Event( 'load' ) );
+		await Promise.resolve();
+		expect( settled ).toBe( false );
+		links[ 1 ].dispatchEvent( new Event( 'error' ) );
+		await preloading;
+		expect( document.head.querySelector( 'link' ) ).toBeNull();
 	} );
 } );
