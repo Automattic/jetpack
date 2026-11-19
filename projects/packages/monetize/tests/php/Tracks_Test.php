@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\Monetize;
 
+use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Status\Cache;
 use Jetpack_Options;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -25,6 +27,8 @@ class Tracks_Test extends BaseTestCase {
 		unset( $_GET['page'] );
 		Jetpack_Options::delete_option( 'tos_agreed' );
 		wp_dequeue_script( 'jp-tracks' );
+		Constants::clear_constants();
+		Cache::clear();
 		parent::tear_down();
 	}
 
@@ -39,6 +43,38 @@ class Tracks_Test extends BaseTestCase {
 		Tracks::enqueue_transport();
 		$this->assertTrue( wp_script_is( 'jp-tracks', 'enqueued' ) );
 		$this->assertTrue( Tracks::is_allowed() );
+	}
+
+	public function test_simple_allows_tracks_and_leaves_the_script_to_wordpress_com() {
+		$_GET['page'] = Dashboard::MENU_SLUG;
+		Constants::set_constant( 'IS_WPCOM', true );
+
+		Tracks::enqueue_transport();
+
+		$this->assertTrue( Tracks::is_allowed() );
+		$this->assertFalse( wp_script_is( 'jp-tracks', 'enqueued' ) );
+	}
+
+	public function test_simple_identifies_the_current_user() {
+		Constants::set_constant( 'IS_WPCOM', true );
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'simpleuser',
+				'user_pass'  => 'pass',
+				'role'       => 'administrator',
+			)
+		);
+		wp_set_current_user( $user_id );
+
+		$data = Tracks::add_identity( array() );
+
+		$this->assertSame(
+			array(
+				'ID'    => $user_id,
+				'login' => 'simpleuser',
+			),
+			$data['user']['current_user']['wpcom']
+		);
 	}
 
 	/**
