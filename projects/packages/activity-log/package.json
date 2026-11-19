@@ -31,6 +31,7 @@
 	],
 	"wpPlugin": {
 		"name": "jetpack_activity_log",
+		"sharedModules": "../admin-ui/package.json",
 		"scriptGlobal": "jetpackActivityLog",
 		"packageNamespace": "jetpack-activity-log",
 		"handlePrefix": "jetpack-activity-log",

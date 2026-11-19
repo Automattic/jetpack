@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Dashboards: Load the libraries Jetpack dashboards share once per page, instead of a copy in each dashboard.
