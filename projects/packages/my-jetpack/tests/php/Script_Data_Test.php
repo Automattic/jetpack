@@ -321,6 +321,22 @@ class Script_Data_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Footers hide their My Jetpack links where the host says it does not show the page.
+	 */
+	public function test_reports_whether_the_host_shows_my_jetpack() {
+		$host_filter = 'jetpack_my_jetpack_modules_management_available';
+
+		$this->assertTrue( Initializer::add_admin_script_data( array() )['myJetpack']['isShownByHost'] );
+
+		add_filter( $host_filter, '__return_false' );
+		try {
+			$this->assertFalse( Initializer::add_admin_script_data( array() )['myJetpack']['isShownByHost'] );
+		} finally {
+			remove_filter( $host_filter, '__return_false' );
+		}
+	}
+
+	/**
 	 * Covers requests other than the My Jetpack page's own.
 	 */
 	public function test_the_image_base_url_is_registered_off_the_my_jetpack_page() {

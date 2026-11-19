@@ -213,6 +213,25 @@ class Main_Features_Test extends TestCase {
 	}
 
 	/**
+	 * @dataProvider provide_local_flags
+	 * @param bool $local Whether the catalog is built for offline Features.
+	 */
+	#[DataProvider( 'provide_local_flags' )]
+	public function test_forms_names_its_cloud_parts_only_offline( $local ) {
+		$forms = array_column( Main_Features::get_features( $local ), 'long_description', 'slug' )['jetpack-forms'];
+
+		$this->assertSame( $local, str_contains( $forms, 'need a WordPress.com connection' ) );
+		$this->assertSame( ! $local, str_contains( $forms, 'Upgrade' ) );
+	}
+
+	public static function provide_local_flags() {
+		return array(
+			'offline' => array( true ),
+			'online'  => array( false ),
+		);
+	}
+
+	/**
 	 * Every feature's artwork ships with the package, under the name its URL points at.
 	 */
 	public function test_every_feature_has_a_bundled_image() {

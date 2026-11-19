@@ -80,6 +80,7 @@ class Main_Features {
 	 * Keyed by feature slug. `delivery` says what switches the feature: Protect ships inside
 	 * Jetpack too, but its switch is its own plugin, so it sets `jetpack` false and names
 	 * only that. `needs_account` repeats the feature module's "Requires User Connection" header.
+	 * `offline_long_description` replaces `long_description` in offline Features.
 	 *
 	 * @return array<string, array<string, mixed>> Feature definitions keyed by feature slug.
 	 */
@@ -294,30 +295,31 @@ class Main_Features {
 				'paid_product'     => __( 'Jetpack AI Assistant', 'jetpack-my-jetpack' ),
 			),
 			'jetpack-forms'     => array(
-				'info_url'         => 'https://jetpack.com/forms/',
-				'docs_url'         => 'https://jetpack.com/support/jetpack-blocks/contact-form/',
-				'name'             => __( 'Forms', 'jetpack-my-jetpack' ),
-				'description'      => __( 'From quick contact forms to multistep surveys, everything you need is included.', 'jetpack-my-jetpack' ),
-				'long_description' => __( 'Break long forms into steps with a progress bar, and get every response by email and in your dashboard, with no limit on responses. Upgrade to add secure file uploads that keep harmful files off your server.', 'jetpack-my-jetpack' ),
-				'icon'             => 'list-bullets',
-				'product'          => 'jetpack-forms',
-				'off_pages'        => array( 'jetpack-forms-responses-wp-admin', 'jetpack-forms-admin' ),
-				'essential'        => true,
-				'free_highlights'  => array(
+				'info_url'                 => 'https://jetpack.com/forms/',
+				'docs_url'                 => 'https://jetpack.com/support/jetpack-blocks/contact-form/',
+				'name'                     => __( 'Forms', 'jetpack-my-jetpack' ),
+				'description'              => __( 'From quick contact forms to multistep surveys, everything you need is included.', 'jetpack-my-jetpack' ),
+				'long_description'         => __( 'Break long forms into steps with a progress bar, and get every response by email and in your dashboard, with no limit on responses. Upgrade to add secure file uploads that keep harmful files off your server.', 'jetpack-my-jetpack' ),
+				'offline_long_description' => __( 'Break long forms into steps with a progress bar, and get every response by email and in your dashboard, with no limit on responses. File uploads, AI, Google Sheets and push notifications need a WordPress.com connection.', 'jetpack-my-jetpack' ),
+				'icon'                     => 'list-bullets',
+				'product'                  => 'jetpack-forms',
+				'off_pages'                => array( 'jetpack-forms-responses-wp-admin', 'jetpack-forms-admin' ),
+				'essential'                => true,
+				'free_highlights'          => array(
 					__( 'Unlimited responses, by email and in your dashboard', 'jetpack-my-jetpack' ),
 					__( 'Multi-step forms with a progress bar', 'jetpack-my-jetpack' ),
 				),
-				'paid_highlights'  => array(
+				'paid_highlights'          => array(
 					__( 'Secure file uploads that keep harmful files off your server', 'jetpack-my-jetpack' ),
 					__( 'Visitors’ files stay private, visible only to you and your editors', 'jetpack-my-jetpack' ),
 					__( 'Up to 10 files per field, 20 MB each', 'jetpack-my-jetpack' ),
 				),
-				'delivery'         => array(
+				'delivery'                 => array(
 					'jetpack' => true,
 					'plugin'  => '',
 					'free'    => true,
 				),
-				'plans'            => array( 'pro', 'complete' ),
+				'plans'                    => array( 'pro', 'complete' ),
 			),
 			'newsletter'        => array(
 				'info_url'         => 'https://jetpack.com/newsletter/',
@@ -1068,8 +1070,9 @@ class Main_Features {
 	/**
 	 * The feature catalog merged with each feature's live state, sorted by name.
 	 *
-	 * @param bool $local Keep only local management URLs, set upgrade to null, and omit
-	 *                    included, setup_note, and plan owned fields without resolving ownership.
+	 * @param bool $local Keep only local management URLs, set upgrade to null, use any offline
+	 *                    long description, and omit included, setup_note, and plan owned fields
+	 *                    without resolving ownership.
 	 * @return array List of features, each with slug, name, description, icon, manage_url,
 	 *               the plugin it ships as and the product/module join keys.
 	 */
@@ -1094,7 +1097,7 @@ class Main_Features {
 				'slug'             => $slug,
 				'name'             => $definition['name'],
 				'description'      => $definition['description'],
-				'long_description' => $definition['long_description'] ?? '',
+				'long_description' => $local && isset( $definition['offline_long_description'] ) ? $definition['offline_long_description'] : ( $definition['long_description'] ?? '' ),
 				'icon'             => $definition['icon'],
 				'manage_url'       => self::get_feature_manage_url( $definition, $product_class, $local ),
 				'essential'        => ! empty( $definition['essential'] ),
