@@ -21,6 +21,7 @@ require_once __DIR__ . '/../../src/parsely-prompts.php';
  * @covers ::Automattic\Jetpack\PremiumAnalytics\offers_parsely_prompts
  * @covers ::Automattic\Jetpack\PremiumAnalytics\has_parsely_integration
  * @covers ::Automattic\Jetpack\PremiumAnalytics\get_monthly_stats_views
+ * @covers ::Automattic\Jetpack\PremiumAnalytics\fetch_monthly_stats_views
  * @covers ::Automattic\Jetpack\PremiumAnalytics\register_parsely_prompts_feature_flag
  * @covers ::Automattic\Jetpack\PremiumAnalytics\configure_parsely_prompts
  * @covers ::Automattic\Jetpack\PremiumAnalytics\inject_parsely_prompts_script_data
@@ -28,6 +29,7 @@ require_once __DIR__ . '/../../src/parsely-prompts.php';
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\offers_parsely_prompts' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\has_parsely_integration' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\get_monthly_stats_views' )]
+#[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\fetch_monthly_stats_views' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\register_parsely_prompts_feature_flag' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\configure_parsely_prompts' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\inject_parsely_prompts_script_data' )]
@@ -63,7 +65,7 @@ class Parsely_Prompts_Test extends BaseTestCase {
 		add_filter( 'jetpack_feature_flag_enabled_' . PARSELY_PROMPTS_FLAG, '__return_true' );
 		add_filter( STATS_PLAN_TIER_FILTER, array( $this, 'return_commercial_tier' ) );
 
-		// The five-minute stats cache would otherwise carry one test's payload into the next.
+		// Defeat the stats client's own cache, so the request counts below answer for this file's cache alone.
 		add_filter( 'jetpack_fetch_stats_cache_expiration', array( $this, 'expire_stats_cache_at_once' ) );
 
 		$this->usage_requests = 0;
@@ -80,6 +82,7 @@ class Parsely_Prompts_Test extends BaseTestCase {
 		remove_all_filters( 'jetpack_fetch_stats_cache_expiration' );
 		remove_filter( 'jetpack_admin_js_script_data', __NAMESPACE__ . '\\inject_parsely_prompts_script_data', 20 );
 		unset( $_GET['page'], $GLOBALS['current_screen'] );
+		delete_transient( PARSELY_PROMPTS_VIEWS_TRANSIENT );
 		delete_option( 'parsely' );
 		wp_set_current_user( 0 );
 		\Jetpack_Options::delete_option( array( 'id', 'blog_token' ) );
@@ -155,6 +158,25 @@ class Parsely_Prompts_Test extends BaseTestCase {
 		$this->answer_stats_usage_with( self::usage_with_views( 150000 ) );
 
 		$this->assertTrue( offers_parsely_prompts() );
+		$this->assertSame( 1, $this->usage_requests, 'The answer came from the mocked payload.' );
+	}
+
+	public function test_the_views_figure_is_cached() {
+		$this->answer_stats_usage_with( self::usage_with_views( 150000 ) );
+
+		offers_parsely_prompts();
+		offers_parsely_prompts();
+
+		$this->assertSame( 1, $this->usage_requests );
+	}
+
+	public function test_a_failed_lookup_is_cached_too() {
+		$this->answer_stats_usage_with( new WP_Error( 'no_possible_tokens', 'The site has no blog token.' ) );
+
+		offers_parsely_prompts();
+		offers_parsely_prompts();
+
+		$this->assertSame( 1, $this->usage_requests );
 	}
 
 	public function test_exactly_the_threshold_offers_the_prompts() {
@@ -189,6 +211,7 @@ class Parsely_Prompts_Test extends BaseTestCase {
 		$this->answer_stats_usage_with( self::usage_with_views( 150000 ) );
 
 		$this->assertSame( $expected, offers_parsely_prompts() );
+		$this->assertSame( $expected ? 1 : 0, $this->usage_requests, 'An unqualified tier is answered before the request.' );
 	}
 
 	/**
@@ -226,6 +249,7 @@ class Parsely_Prompts_Test extends BaseTestCase {
 		$this->answer_stats_usage_with( self::usage_with_views( 150000 ) );
 
 		$this->assertFalse( offers_parsely_prompts() );
+		$this->assertSame( 0, $this->usage_requests, 'The capability is answered before the request.' );
 	}
 
 	public function test_wpcom_simple_does_not_offer_the_prompts() {
@@ -234,6 +258,7 @@ class Parsely_Prompts_Test extends BaseTestCase {
 		$this->answer_stats_usage_with( self::usage_with_views( 150000 ) );
 
 		$this->assertFalse( offers_parsely_prompts() );
+		$this->assertSame( 0, $this->usage_requests, 'The platform is answered before the request.' );
 	}
 
 	public function test_a_parsely_customer_does_not_offer_the_prompts() {
@@ -241,6 +266,7 @@ class Parsely_Prompts_Test extends BaseTestCase {
 		$this->answer_stats_usage_with( self::usage_with_views( 150000 ) );
 
 		$this->assertFalse( offers_parsely_prompts() );
+		$this->assertSame( 0, $this->usage_requests, 'A customer is answered before the request.' );
 	}
 
 	public function test_an_empty_parsely_api_key_is_not_a_customer() {
@@ -277,7 +303,7 @@ class Parsely_Prompts_Test extends BaseTestCase {
 		return array(
 			'empty'               => array( array() ),
 			'no views'            => array( array( 'current_usage' => array( 'days_to_reset' => 12 ) ) ),
-			'views not a number'  => array( array( 'current_usage' => array( 'views_count' => 'lots' ) ) ),
+			'views not a number'  => array( array( 'current_usage' => array( 'views_count' => '150000 views' ) ) ),
 			'current usage wrong' => array( array( 'current_usage' => 'none' ) ),
 		);
 	}
