@@ -13,6 +13,7 @@
 namespace Automattic\Jetpack\SEO;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
+use Automattic\Jetpack\Admin_UI\Page_Layout;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Modules;
@@ -149,8 +150,8 @@ class Admin_Page {
 	 * @return void
 	 */
 	public static function enqueue_page_layout() {
-		if ( method_exists( Admin_Menu::class, 'enqueue_page_layout' ) ) {
-			Admin_Menu::enqueue_page_layout();
+		if ( class_exists( Page_Layout::class ) ) {
+			Page_Layout::enqueue();
 		}
 	}
 

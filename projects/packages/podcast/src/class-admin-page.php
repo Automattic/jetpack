@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\Podcast;
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Admin_UI\Admin_Shell;
 use Automattic\Jetpack\Admin_UI\Media_Library;
+use Automattic\Jetpack\Admin_UI\Page_Layout;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\My_Jetpack\Products as My_Jetpack_Products;
 use Automattic\Jetpack\Status;
@@ -188,8 +189,8 @@ class Admin_Page {
 	public static function admin_init() {
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_tracks_transport' ) );
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_i18n_loader' ) );
-		if ( method_exists( Admin_Menu::class, 'enqueue_page_layout' ) ) {
-			Admin_Menu::enqueue_page_layout();
+		if ( class_exists( Page_Layout::class ) ) {
+			Page_Layout::enqueue();
 		}
 	}
 

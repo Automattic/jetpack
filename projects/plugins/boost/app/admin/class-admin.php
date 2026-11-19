@@ -10,6 +10,7 @@ namespace Automattic\Jetpack_Boost\Admin;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Admin_UI\Admin_Shell;
+use Automattic\Jetpack\Admin_UI\Page_Layout;
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Boost_Speed_Score\Speed_Score;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
@@ -314,8 +315,8 @@ class Admin {
 	 * @since    1.0.0
 	 */
 	public function enqueue_scripts() {
-		if ( method_exists( Admin_Menu::class, 'enqueue_page_layout' ) ) {
-			Admin_Menu::enqueue_page_layout();
+		if ( class_exists( Page_Layout::class ) ) {
+			Page_Layout::enqueue();
 		}
 
 		/**

@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Forms\Dashboard;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Admin_UI\Admin_Shell;
+use Automattic\Jetpack\Admin_UI\Page_Layout;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Forms\ContactForm\Contact_Form;
 use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin;
@@ -327,8 +328,8 @@ class Dashboard {
 			return;
 		}
 
-		if ( method_exists( Admin_Menu::class, 'enqueue_page_layout' ) ) {
-			Admin_Menu::enqueue_page_layout();
+		if ( class_exists( Page_Layout::class ) ) {
+			Page_Layout::enqueue();
 		}
 
 		// Attach the shared inline data (connection initial state + REST preload) to

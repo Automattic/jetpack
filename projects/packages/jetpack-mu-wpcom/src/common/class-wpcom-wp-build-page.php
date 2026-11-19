@@ -356,8 +356,8 @@ abstract class WPCOM_WP_Build_Page {
 			return;
 		}
 
-		if ( method_exists( \Automattic\Jetpack\Admin_UI\Admin_Menu::class, 'enqueue_page_layout' ) ) {
-			\Automattic\Jetpack\Admin_UI\Admin_Menu::enqueue_page_layout();
+		if ( class_exists( \Automattic\Jetpack\Admin_UI\Page_Layout::class ) ) {
+			\Automattic\Jetpack\Admin_UI\Page_Layout::enqueue();
 		}
 
 		// wp-build has no `jetpackConfig` external, so @automattic/jetpack-config reads this global.
