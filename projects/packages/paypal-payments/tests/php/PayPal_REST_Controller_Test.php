@@ -44,10 +44,25 @@ class PayPal_REST_Controller_Test extends TestCase {
 	);
 
 	/**
+	 * Per-flag filter for the API-managed buttons flag.
+	 */
+	private const FLAG_FILTER = 'jetpack_feature_flag_enabled_' . PayPal_Payment_Buttons::API_MANAGED_BUTTONS_FLAG;
+
+	/**
+	 * Turn the API-managed buttons flag on, so the route handlers run.
+	 */
+	protected function setUp(): void {
+		parent::setUp();
+		add_filter( self::FLAG_FILTER, '__return_true' );
+	}
+
+	/**
 	 * Clean up after each test.
 	 */
 	protected function tearDown(): void {
 		parent::tearDown();
+
+		remove_all_filters( self::FLAG_FILTER );
 
 		// Clean up all options and transients.
 		delete_option( PayPal_OAuth::CREDENTIALS_OPTION_KEY );
@@ -148,10 +163,14 @@ class PayPal_REST_Controller_Test extends TestCase {
 
 	/**
 	 * Test that manage_options_permission_check returns WP_Error for unauthorized users.
+	 *
+	 * @param string $role Role of the current user; empty for logged out.
+	 * @dataProvider unauthorized_users_provider
 	 */
-	public function test_permission_check_returns_error_for_unauthorized_user() {
+	#[DataProvider( 'unauthorized_users_provider' )]
+	public function test_permission_check_returns_error_for_unauthorized_user( $role ) {
 		// Ensure the current user does not have manage_options.
-		wp_set_current_user( 0 );
+		wp_set_current_user( $role ? self::create_user( $role ) : 0 );
 
 		$result = PayPal_REST_Controller::manage_options_permission_check();
 
@@ -160,6 +179,18 @@ class PayPal_REST_Controller_Test extends TestCase {
 
 		$data = $result->get_error_data();
 		$this->assertEquals( 403, $data['status'] );
+	}
+
+	/**
+	 * A logged-out visitor and a subscriber.
+	 *
+	 * @return array<string, array{0: string}>
+	 */
+	public static function unauthorized_users_provider() {
+		return array(
+			'logged out' => array( '' ),
+			'subscriber' => array( 'subscriber' ),
+		);
 	}
 
 	/**
@@ -2084,20 +2115,69 @@ class PayPal_REST_Controller_Test extends TestCase {
 	}
 
 	/**
-	 * Every registered endpoint is guarded by a permission callback.
+	 * Every registered PayPal endpoint uses the shared permission check.
 	 *
 	 * A missing permission_callback would expose merchant credentials and button
-	 * management to anonymous requests.
+	 * management to anonymous requests, and any other callback skips the flag check.
 	 */
-	public function test_every_registered_endpoint_has_a_permission_callback() {
-		$routes = $this->register_paypal_routes();
+	public function test_every_registered_endpoint_uses_the_shared_permission_check() {
+		$paypal_routes = array_filter(
+			$this->register_paypal_routes(),
+			function ( $route ) {
+				return 0 === strpos( $route, '/wpcom/v2/paypal/' );
+			},
+			ARRAY_FILTER_USE_KEY
+		);
 
-		foreach ( array_keys( $this->expected_routes() ) as $route ) {
-			foreach ( $routes[ '/wpcom/v2/paypal' . $route ] as $endpoint ) {
-				$this->assertArrayHasKey( 'permission_callback', $endpoint, "No permission_callback on $route." );
-				$this->assertIsCallable( $endpoint['permission_callback'], "Uncallable permission_callback on $route." );
+		$this->assertNotEmpty( $paypal_routes );
+		foreach ( $paypal_routes as $route => $endpoints ) {
+			foreach ( $endpoints as $endpoint ) {
+				$this->assertSame(
+					array( PayPal_REST_Controller::class, 'manage_options_permission_check' ),
+					$endpoint['permission_callback'] ?? null,
+					$route
+				);
 			}
 		}
+	}
+
+	/**
+	 * With the flag off, a read route and a write route answer 404 rest_no_route to any user.
+	 *
+	 * Core validates params before the permission check, so the test uses two routes that take none.
+	 *
+	 * @param string $role   Role of the user making the request; empty for logged out.
+	 * @param string $method HTTP method.
+	 * @param string $route  Route to dispatch against.
+	 * @dataProvider flag_off_requests_provider
+	 */
+	#[DataProvider( 'flag_off_requests_provider' )]
+	public function test_routes_answer_404_while_the_flag_is_off( $role, $method, $route ) {
+		remove_filter( self::FLAG_FILTER, '__return_true' );
+		add_filter( self::FLAG_FILTER, '__return_false' );
+		$this->register_paypal_routes();
+		wp_set_current_user( $role ? self::create_user( $role ) : 0 );
+
+		$response = rest_get_server()->dispatch( new \WP_REST_Request( $method, $route ) );
+
+		// A matched route shows the permission check sent this 404.
+		$this->assertSame(
+			array( 404, 'rest_no_route', $route ),
+			array( $response->get_status(), $response->get_data()['code'] ?? null, $response->get_matched_route() )
+		);
+	}
+
+	/**
+	 * An administrator, a subscriber and a logged-out visitor, across a read route and a write route.
+	 *
+	 * @return array<string, array{0: string, 1: string, 2: string}>
+	 */
+	public static function flag_off_requests_provider() {
+		return array(
+			'administrator, connection' => array( 'administrator', 'GET', '/wpcom/v2/paypal/connection' ),
+			'subscriber, disconnect'    => array( 'subscriber', 'POST', '/wpcom/v2/paypal/disconnect' ),
+			'logged out, connection'    => array( '', 'GET', '/wpcom/v2/paypal/connection' ),
+		);
 	}
 
 	/**
@@ -3513,22 +3593,34 @@ class PayPal_REST_Controller_Test extends TestCase {
 	/**
 	 * Create an admin user for testing.
 	 *
-	 * Uses wp_insert_user directly since the WP test factory may not be
-	 * available in all test bootstrap configurations.
-	 *
 	 * @return int The user ID.
 	 */
 	private static function factory_create_admin_user() {
-		$user_id = username_exists( 'testadmin_rest_controller' );
+		return self::create_user( 'administrator' );
+	}
+
+	/**
+	 * Create a user with this role for testing.
+	 *
+	 * Uses wp_insert_user directly since the WP test factory may not be
+	 * available in all test bootstrap configurations.
+	 *
+	 * @param string $role The user's role.
+	 * @return int The user ID.
+	 */
+	private static function create_user( $role ) {
+		$user_login = "test{$role}_rest_controller";
+
+		$user_id = username_exists( $user_login );
 		if ( $user_id ) {
 			return $user_id;
 		}
 
 		$user_id = wp_insert_user(
 			array(
-				'user_login' => 'testadmin_rest_controller',
+				'user_login' => $user_login,
 				'user_pass'  => wp_generate_password(),
-				'role'       => 'administrator',
+				'role'       => $role,
 			)
 		);
 
