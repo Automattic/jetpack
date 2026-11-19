@@ -30,7 +30,6 @@ export const ScanAndThreatStatus: FC< ScanAndThreatStatusProps > = ( { data } ) 
 		last_checked: lastChecked = null,
 		status: scanStatus,
 	} = data?.scanData || {};
-	// Protect counts affected items; the free report's `num_threats` counts each vulnerability.
 	const numThreats = threats.length;
 
 	const criticalScanThreatCount = useMemo( () => {
