@@ -1,6 +1,6 @@
 <?php
 /**
- * Sends Jetpack's upgrade and plan links on WoA to WordPress.com's plans.
+ * Sends Jetpack's upgrade and plan links on WordPress.com sites to WordPress.com's plans.
  *
  * @package automattic/jetpack-mu-wpcom
  */
@@ -21,6 +21,13 @@ class WPCOM_Feature_Upgrades {
 		'backup'            => WPCOM_Backup::class,
 		'protect-dashboard' => WPCOM_Scan::class,
 	);
+
+	/**
+	 * The slug the Monetize page's upgrade links pass to `jetpack_feature_upgrade`.
+	 *
+	 * @var string
+	 */
+	const MONETIZE_SLUG = 'monetize-dashboard';
 
 	/**
 	 * Plans with none above them: Commerce, and Woo Hosted Pro, whose stores the upgrade flow keeps on Woo Hosted plans.
@@ -57,6 +64,37 @@ class WPCOM_Feature_Upgrades {
 			'path' => '',
 			'name' => 'WordPress.com Business', // Product name, do not translate.
 			'url'  => $page::get_plan_upgrade_url( (string) ( $upgrade['back_url'] ?? '' ) ),
+		);
+	}
+
+	/**
+	 * Send the Monetize page's upgrade links to the WordPress.com plan upgrade flow, which comes back to the page.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array  $upgrade Where the upgrade goes: `path`, `name`, `back_url`, and optionally `url`.
+	 * @param string $slug    The feature slug.
+	 * @return array
+	 */
+	public static function filter_monetize_upgrade( $upgrade, $slug ) {
+		if ( self::MONETIZE_SLUG !== $slug ) {
+			return $upgrade;
+		}
+
+		$back = wp_validate_redirect( (string) ( $upgrade['back_url'] ?? '' ), '' );
+		$back = rawurlencode( $back ? $back : admin_url( 'admin.php?page=jetpack-monetize' ) );
+
+		return array(
+			'path' => '',
+			'name' => 'WordPress.com', // Product name, do not translate.
+			'url'  => add_query_arg(
+				array(
+					'siteSlug'    => rawurlencode( wpcom_get_site_slug() ),
+					'back_to'     => $back,
+					'redirect_to' => $back,
+				),
+				'https://wordpress.com/setup/plan-upgrade'
+			),
 		);
 	}
 

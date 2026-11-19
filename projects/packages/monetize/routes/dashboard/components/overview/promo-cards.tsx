@@ -1,3 +1,4 @@
+import { isWpcomPlatformSite } from '@automattic/jetpack-script-data';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { currencyDollar, envelope, lock, megaphone, payment, tip } from '@wordpress/icons';
@@ -152,7 +153,9 @@ function AdsCard( { openTab }: { openTab: ( tab: TabValue ) => void } ) {
 						<>
 							{ ' ' }
 							<em>
-								{ __( 'Available with Jetpack Creator, or a bundled plan.', 'jetpack-monetize' ) }
+								{ isWpcomPlatformSite()
+									? __( 'Available with an upgraded plan.', 'jetpack-monetize' )
+									: __( 'Available with Jetpack Creator, or a bundled plan.', 'jetpack-monetize' ) }
 							</em>
 						</>
 					) }

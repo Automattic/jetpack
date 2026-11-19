@@ -1,5 +1,6 @@
 import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
+import { getAdsSettingsData } from './ads-settings-data';
 
 export type TabValue = 'overview' | 'payments' | 'subscribers' | 'ads' | 'settings';
 
@@ -9,7 +10,7 @@ interface Tab {
 }
 
 // Labels are functions so they translate after the init module loads the catalogs.
-export const TABS: Tab[] = [
+const TABS: Tab[] = [
 	{
 		value: 'overview',
 		label: () => __( 'Overview', 'jetpack-monetize' ),
@@ -33,13 +34,22 @@ export const TABS: Tab[] = [
 ];
 
 /**
+ * The site's tabs: Settings only where the Jetpack plugin sends its data, which it doesn't on Simple.
+ *
+ * @return The tabs.
+ */
+export function getTabs(): Tab[] {
+	return getAdsSettingsData() ? TABS : TABS.filter( tab => tab.value !== 'settings' );
+}
+
+/**
  * The tab a `?tab=` value names, falling back to Overview.
  *
  * @param value - The `tab` search param.
  * @return The tab.
  */
 export function getTab( value: unknown ): Tab {
-	return TABS.find( tab => tab.value === value ) ?? TABS[ 0 ];
+	return getTabs().find( tab => tab.value === value ) ?? TABS[ 0 ];
 }
 
 /**

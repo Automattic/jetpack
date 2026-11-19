@@ -12,7 +12,7 @@ import Payments from './components/payments';
 import Placeholder from './components/placeholder';
 import Subscribers from './components/subscribers';
 import { queryClient } from './data/query-client';
-import { TABS, getTab, getTabSearch } from './data/tabs';
+import { getTab, getTabSearch, getTabs } from './data/tabs';
 import type { TabValue } from './data/tabs';
 import './route.scss';
 
@@ -67,6 +67,7 @@ const Stage = () => {
 	const search: Record< string, unknown > = useSearch( { from: '/' as never, strict: false } );
 	const activeTab = getTab( search.tab ).value;
 	const navigate = useNavigate();
+	const tabs = getTabs();
 	const openTab = useCallback(
 		( next: string ) => {
 			navigate( {
@@ -86,7 +87,7 @@ const Stage = () => {
 				<Tabs.Root value={ activeTab } onValueChange={ openTab }>
 					<div className="jp-admin-page-tabs jp-admin-page-tabs--minimal">
 						<Tabs.List variant="minimal">
-							{ TABS.map( tab => (
+							{ tabs.map( tab => (
 								<Tabs.Tab key={ tab.value } value={ tab.value }>
 									{ tab.label() }
 								</Tabs.Tab>
@@ -96,7 +97,7 @@ const Stage = () => {
 					<div className="jp-monetize-dashboard__body">
 						{ /* The JITM script moves its card here, since the page template hides the default spot. */ }
 						<div id="jp-admin-notices" />
-						{ TABS.map( tab => (
+						{ tabs.map( tab => (
 							<Tabs.Panel key={ tab.value } value={ tab.value }>
 								<TabContent tab={ tab.value } openTab={ openTab } />
 							</Tabs.Panel>

@@ -476,14 +476,16 @@ function wpcom_add_jetpack_submenu() {
 	}
 
 	// Jetpack > Monetize.
-	add_submenu_page(
-		'jetpack',
-		esc_attr__( 'Monetize', 'jetpack-mu-wpcom' ),
-		__( 'Monetize', 'jetpack-mu-wpcom' ),
-		'manage_options',
-		'https://wordpress.com/earn/' . $domain,
-		null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-	);
+	if ( ! wpcom_add_monetize_submenu() ) {
+		add_submenu_page(
+			'jetpack',
+			esc_attr__( 'Monetize', 'jetpack-mu-wpcom' ),
+			__( 'Monetize', 'jetpack-mu-wpcom' ),
+			'manage_options',
+			'https://wordpress.com/earn/' . $domain,
+			null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
+		);
+	}
 
 	// Jetpack > Subscribers. Always hide the auto-added Calypso redirect link.
 	wpcom_hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'jetpack-menu-jetpack-manage-subscribers', array( 'site' => $blog_id ) ) ) );
@@ -652,6 +654,24 @@ function wpcom_add_native_activity_log_submenu() {
 	// A package predating Simple support returns null, which keeps the Calypso link.
 	// @phan-suppress-next-line PhanUndeclaredClassMethod -- class_exists guarded above; provided by sibling autoloader.
 	return null !== \Automattic\Jetpack\Activity_Log\Jetpack_Activity_Log::add_wp_admin_submenu();
+}
+
+/**
+ * Registers the Monetize page under Jetpack wherever it loaded: from the Jetpack module on WoA, or from this package on Simple.
+ *
+ * @return bool Whether the page was registered.
+ */
+function wpcom_add_monetize_submenu() {
+	// No leading backslash: has_action() matches the class name init() hooked with.
+	$dashboard = 'Automattic\\Jetpack\\Monetize\\Dashboard';
+
+	// Dashboard::init() hooks this on every host, so it tells whether the page loaded.
+	if ( ! class_exists( $dashboard ) || false === has_action( 'admin_menu', array( $dashboard, 'maybe_load_wp_build' ) ) ) {
+		return false;
+	}
+
+	$dashboard::add_wp_admin_submenu();
+	return true;
 }
 
 /*
