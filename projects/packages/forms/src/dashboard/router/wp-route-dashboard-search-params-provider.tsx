@@ -19,9 +19,6 @@ import type { JSX, PropsWithChildren } from 'react';
 type Props = PropsWithChildren< {
 	/**
 	 * Route id to bind `useSearch` / `useNavigate` to.
-	 *
-	 * Required because ciab-admin doesn't provide a
-	 * "nearest match" for `useSearch()` to infer.
 	 */
 	from: string;
 } >;
