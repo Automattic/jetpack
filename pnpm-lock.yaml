@@ -5771,6 +5771,9 @@ importers:
       '@babel/core':
         specifier: 7.29.13
         version: 7.29.13
+      '@storybook/react':
+        specifier: 10.6.3
+        version: 10.6.3(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(storybook@10.6.3(@types/react@19.3.0)(react@19.3.0))(typescript@6.0.3)
       '@testing-library/dom':
         specifier: 10.4.2
         version: 10.4.2
@@ -5795,6 +5798,9 @@ importers:
       jest:
         specifier: 30.5.2
         version: 30.5.2
+      storybook:
+        specifier: 10.6.3
+        version: 10.6.3(@types/react@19.3.0)(react@19.3.0)
       typescript:
         specifier: 6.0.3
         version: 6.0.3
