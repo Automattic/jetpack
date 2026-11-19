@@ -114,10 +114,6 @@ export const WithComparison: Story = {
 	decorators: [ withWidgetCanvas ],
 };
 
-/**
- * First load: the fetch is in flight, so the widget shows its loading state. The
- * mock is forced to never resolve for the duration of this story.
- */
 export const Loading: Story = {
 	render: renderItemsSoldWidget,
 	args: { withComparison: false, chartType: 'line' },
@@ -126,9 +122,6 @@ export const Loading: Story = {
 	beforeEach: forceWooReportState( ORDERS_REPORT_PATH, 'loading' ),
 };
 
-/**
- * Resolved with no rows: the widget shows the generic empty state.
- */
 export const Empty: Story = {
 	render: renderItemsSoldWidget,
 	args: { withComparison: false, chartType: 'line' },
@@ -137,11 +130,6 @@ export const Empty: Story = {
 	beforeEach: forceWooReportState( ORDERS_REPORT_PATH, 'empty' ),
 };
 
-/**
- * The fetch failed with a permission-gated 403: the widget shows the neutral
- * "You don't have access to this data." copy and no Retry action, since a
- * permission gate is deterministic and retrying cannot clear it.
- */
 export const ErrorState: Story = {
 	render: renderItemsSoldWidget,
 	args: { withComparison: false, chartType: 'line' },
@@ -150,11 +138,6 @@ export const ErrorState: Story = {
 	beforeEach: forceWooReportState( ORDERS_REPORT_PATH, 'error' ),
 };
 
-/**
- * The fetch failed in a way that can heal, the proxy's `no_connection` 403: the
- * widget shows its retryable copy with a Retry action, which re-runs the query
- * (still mocked as failing while this story is active).
- */
 export const ErrorRetryable: Story = {
 	render: renderItemsSoldWidget,
 	args: { withComparison: false, chartType: 'line' },
