@@ -151,6 +151,24 @@ class PlaygroundImporterTest extends WP_UnitTestCase {
 	}
 
 	/**
+	 * The table prefix is read from the backup's `wp-config.php`.
+	 */
+	public function test_get_table_prefix_reads_wp_config() {
+		$destination = $this->create_backup_dir( true, false );
+
+		$this->assertNull( Playground_Importer::get_table_prefix( $destination ) );
+
+		file_put_contents( $destination . 'wp-config.php', "<?php\n// \$table_prefix = 'old_';\n\$table_prefix = 'wpx_';\n" ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+		$this->assertSame( 'wpx_', Playground_Importer::get_table_prefix( $destination ) );
+
+		file_put_contents( $destination . 'wp-config.php', "<?php\n\$table_prefix  =  \"wp_\" ;\n" ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+		$this->assertSame( 'wp_', Playground_Importer::get_table_prefix( $destination ) );
+
+		file_put_contents( $destination . 'wp-config.php', "<?php\n\$table_prefix = getenv( 'PREFIX' );\n" ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+		$this->assertNull( Playground_Importer::get_table_prefix( $destination ) );
+	}
+
+	/**
 	 * Create a temporary backup folder, optionally with a database file in each supported location.
 	 *
 	 * @param bool $with_default Whether to create `wp-content/database/.ht.sqlite`.

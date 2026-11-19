@@ -8,7 +8,6 @@ import { getMyJetpackWindowInitialState } from '../utils/get-my-jetpack-window-s
 import type { FC, ReactNode } from 'react';
 
 jest.mock( '@wordpress/api-fetch' );
-jest.mock( '../../hooks/use-analytics' );
 jest.mock( '../../hooks/use-notification-watcher/assignLocation' );
 jest.mock( '../utils/get-my-jetpack-window-state' );
 

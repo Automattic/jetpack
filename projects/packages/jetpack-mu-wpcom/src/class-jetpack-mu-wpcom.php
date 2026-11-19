@@ -1342,7 +1342,7 @@ class Jetpack_Mu_Wpcom {
 	 * Resolve the WP.com blog ID for a logstash record.
 	 *
 	 * `get_wpcom_blog_id()` falls back to `get_current_blog_id()` on Atomic
-	 * when `jetpack_options['id']` isn't readable — that returns `1` on a
+	 * when the WP.com blog ID isn't readable — that returns `1` on a
 	 * single-site install, which is a valid-looking but wrong WP.com blog ID
 	 * and makes log records impossible to attribute. Emit `0` instead when
 	 * the real WP.com blog ID is unknown, so the gap is obvious in Kibana.
@@ -1354,9 +1354,12 @@ class Jetpack_Mu_Wpcom {
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			return (int) get_current_blog_id();
 		}
-		// Atomic / connected Jetpack: the WP.com blog ID lives in the
-		// `jetpack_options` option. Read it directly (no `Jetpack_Options`
-		// dependency) and return 0 — never the local blog ID — when absent.
+		// Atomic / connected Jetpack: `Jetpack_Options` reads the platform's
+		// external storage, then the `jetpack_options` row. It returns false
+		// when both lack the ID, and the cast gives 0 — never the local blog ID.
+		if ( class_exists( 'Jetpack_Options' ) ) {
+			return (int) \Jetpack_Options::get_option( 'id' );
+		}
 		$jetpack_options = get_option( 'jetpack_options' );
 		if ( is_array( $jetpack_options ) && ! empty( $jetpack_options['id'] ) ) {
 			return (int) $jetpack_options['id'];

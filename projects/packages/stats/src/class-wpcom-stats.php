@@ -438,6 +438,20 @@ class WPCOM_Stats {
 	}
 
 	/**
+	 * Get the posts that got the views of one UTM value.
+	 *
+	 * @param string $utm_param UTM parameter, or a comma-separated combination WordPress.com groups by, e.g. `utm_source,utm_medium`.
+	 * @param string $value     The value as `get_utm_views()` keys it: plain for one parameter, a JSON array for a combination.
+	 * @param array  $args      Optional query parameters: `days`, `date`, `max`.
+	 * @return array|WP_Error
+	 */
+	public function get_utm_top_posts( $utm_param, $value, $args = array() ) {
+		$this->resource = sprintf( 'utm/%s/top_posts', $utm_param );
+
+		return $this->fetch_stats( array( 'utm_param_values' => $value ) + $args );
+	}
+
+	/**
 	 * Get the site's views by device property.
 	 *
 	 * @param string $property One of `browser`, `platform` or `screensize`.

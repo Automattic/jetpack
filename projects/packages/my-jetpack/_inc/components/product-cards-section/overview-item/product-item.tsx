@@ -13,6 +13,7 @@ type ProductOverviewItemProps = {
 	admin: boolean;
 	actionLabel: string;
 	upgradeLabel?: string;
+	name?: string;
 	// The rest lets a product show what its card shows.
 	label?: string;
 	value?: string;
@@ -34,6 +35,7 @@ const ProductOverviewItem: FC< ProductOverviewItemProps > = ( {
 	admin,
 	actionLabel,
 	upgradeLabel = __( 'Upgrade', 'jetpack-my-jetpack' ),
+	name: nameOverride,
 	label,
 	value,
 	statusLabel,
@@ -43,14 +45,16 @@ const ProductOverviewItem: FC< ProductOverviewItemProps > = ( {
 	error,
 } ) => {
 	const { detail, isLoading: isProductLoading } = useProduct( slug );
-	const { name = '', status, manageUrl, purchaseUrl } = detail || {};
+	const { name: productName = '', status, manageUrl, purchaseUrl } = detail || {};
+	const name = nameOverride ?? productName;
 	const isLoading = isProductLoading || isValueLoading;
 	const { recordEvent } = useAnalytics();
 	const { action: statusAction, forcedOffReason } = useStatusAction(
 		slug,
 		/* translators: %s is a product name, such as Social. */
 		sprintf( __( 'Activate %s', 'jetpack-my-jetpack' ), name ),
-		null
+		null,
+		name
 	);
 	useOverviewLoadEvent( slug, isLoading, loadTracks );
 
