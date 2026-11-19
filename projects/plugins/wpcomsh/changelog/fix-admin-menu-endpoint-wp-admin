@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Admin menu: Fix plugin menu items missing from the WordPress.com sidebar after the WordPress 7.1.5 security release.
