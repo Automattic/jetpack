@@ -496,6 +496,11 @@ body .sd-content ul li.share-custom.no-icon a span {
 	max-height: 18px;
 }
 
+/* Override theme iframe margins so buttons line up with Pinterest's. */
+.sd-social-official .sd-content ul > li iframe {
+	margin: 0;
+}
+
 .sd-social-official .sd-content ul > li .option-smart-off {
 	margin-right: 8px;
 }
