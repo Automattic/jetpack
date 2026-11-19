@@ -201,6 +201,36 @@ const importMapUrl = id =>
 		.map( el => JSON.parse( el.textContent ).imports?.[ id ] )
 		.find( Boolean );
 
+/**
+ * Download and parse modules without evaluating them, so a later import only has to evaluate.
+ *
+ * @param {string[]} ids - Module IDs in the page's import map.
+ * @return {Promise<void>} Resolves once each has loaded or failed; the import reports a failure.
+ */
+export function preloadModules( ids ) {
+	// A browser without modulepreload would fire neither load nor error.
+	if ( ! document.createElement( 'link' ).relList?.supports?.( 'modulepreload' ) ) {
+		return Promise.resolve();
+	}
+	return Promise.all(
+		ids.map( id => {
+			const url = importMapUrl( id );
+			if ( ! url ) {
+				return null;
+			}
+			const link = Object.assign( document.createElement( 'link' ), {
+				rel: 'modulepreload',
+				href: new URL( url, location.href ).href,
+			} );
+			const loaded = new Promise( resolve => {
+				link.onload = link.onerror = resolve;
+			} ).then( () => link.remove() );
+			document.head.append( link );
+			return loaded;
+		} )
+	).then( () => undefined );
+}
+
 let bootSource;
 
 /**
@@ -291,7 +321,9 @@ const outranks = ( a, b ) => {
 		return b.splat;
 	}
 	const differs = a.score.findIndex( ( rank, i ) => rank !== b.score[ i ] );
-	return differs === -1 ? a.score.length > b.score.length : a.score[ differs ] > b.score[ differs ];
+	return differs === -1
+		? a.score.length > b.score.length
+		: a.score[ differs ] > ( b.score[ differs ] ?? 0 );
 };
 
 /**

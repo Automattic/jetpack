@@ -2,6 +2,7 @@ import {
 	isolateRouters,
 	renameBootStore,
 	routeAt,
+	routesLoadedBy,
 	trackViewTransitions,
 	transitionSettled,
 } from '../../../src/admin-shell/adapter';
@@ -137,9 +138,16 @@ describe( 'renameBootStore', () => {
 } );
 
 describe( 'routeAt', () => {
-	const routes = [ '/', '/$', '/forms', '/responses/$view', '/video/$id', '/video/$id/editor' ].map(
-		path => ( { path } )
-	);
+	const routes = [
+		'/',
+		'/$',
+		'/forms',
+		'/responses/$view',
+		'/video/$id',
+		'/video/new',
+		'/video/$id/editor',
+		'/video/$',
+	].map( path => ( { path } ) );
 
 	it.each( [
 		[ '/', '/' ],
@@ -147,13 +155,53 @@ describe( 'routeAt', () => {
 		[ '/Forms/', '/forms' ],
 		[ '/responses/inbox', '/responses/$view' ],
 		[ '/video/7/editor', '/video/$id/editor' ],
+		[ '/video/new', '/video/new' ],
 		[ '/responses', '/$' ],
 		[ '/anything/else', '/$' ],
+		[ '/video/7/8', '/video/$' ],
 	] )( 'matches %s to %s', ( path, expected ) => {
 		expect( routeAt( routes, path )?.path ).toBe( expected );
 	} );
 
 	it( 'finds nothing when no route matches', () => {
 		expect( routeAt( routes.slice( 2 ), '/responses' ) ).toBeNull();
+	} );
+} );
+
+describe( 'routesLoadedBy', () => {
+	it( "hands each stand-in's import to the loader, and leaves a route's missing modules out", async () => {
+		const sources = new Map();
+		// jsdom has no createObjectURL.
+		URL.createObjectURL = blob => {
+			const url = `blob:${ sources.size }`;
+			sources.set( url, blob.text() );
+			return url;
+		};
+		const load = jest.fn( async id => ( { route: id, stage: 'stage' } ) );
+		const [ both, routeOnly ] = routesLoadedBy(
+			[
+				{ path: '/', route_module: 'a/route', content_module: 'a/content' },
+				{ path: '/b', route_module: 'b/route' },
+			],
+			load
+		);
+		// jsdom can't import a blob module, so its body runs as a function that returns what it exports.
+		const run = async url =>
+			new Function(
+				`return ( async () => { ${ ( await sources.get( url ) ).replace(
+					/export const \{ (.*) \} = m;/,
+					'const { $1 } = m; return { $1 };'
+				) } } )();`
+			)();
+
+		expect( routeOnly ).toEqual( { path: '/b', route_module: expect.stringMatching( /^blob:/ ) } );
+		await expect( run( both.content_module ) ).resolves.toEqual( {
+			route: 'a/content',
+			stage: 'stage',
+			inspector: undefined,
+			canvas: undefined,
+		} );
+		expect( load ).toHaveBeenCalledWith( 'a/content' );
+		delete URL.createObjectURL;
 	} );
 } );

@@ -25,6 +25,7 @@ jest.mock( '../../../src/admin-shell/adapter', () => ( {
 	loadPage: jest.fn(),
 	notifyRouters: jest.fn(),
 	prefetchBoot: jest.fn( () => Promise.resolve() ),
+	preloadModules: jest.fn( () => Promise.resolve() ),
 	routeAt: ( ...args ) =>
 		jest.requireActual( '../../../src/admin-shell/adapter' ).routeAt( ...args ),
 	// jsdom can't import the blob stand-ins, so tests call each guest's loader themselves.
@@ -486,6 +487,22 @@ describe( 'admin shell prewarm', () => {
 
 		expect( mockCapturedSlug ).toEqual( { a: 'a', aOther: 'a' } );
 		expect( globalThis.jetpackConfig ).toBe( pageConfig );
+	} );
+
+	it( "starts downloading a route a guest reaches while another guest's prewarm holds the queue", async () => {
+		const { preloadModules } = require( '../../../src/admin-shell/adapter' );
+		click( '/wp-admin/admin.php?page=guest-a' );
+		await settle();
+		mockInits.b.mockImplementation( () => new Promise( () => {} ) );
+		hover( 'guest-b' );
+		await settle();
+
+		const loading = mockRouteLoaders[ 0 ]( 'test-guest-a/other' );
+		await settle();
+
+		expect( preloadModules ).toHaveBeenLastCalledWith( [ 'test-guest-a/other' ] );
+		expect( mockCapturedSlug.aOther ).toBeUndefined();
+		loading.catch( () => {} );
 	} );
 
 	it( "keeps the page's Jetpack config, and gives a page sharing an init module that init's config", async () => {

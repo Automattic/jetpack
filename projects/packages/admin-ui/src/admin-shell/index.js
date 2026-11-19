@@ -8,6 +8,7 @@ import {
 	loadPage,
 	notifyRouters,
 	prefetchBoot,
+	preloadModules,
 	routeAt,
 	routesLoadedBy,
 	trackViewTransitions,
@@ -164,6 +165,8 @@ const start = ( {
 			return import( /* webpackIgnore: true */ id );
 		}
 		log( 'switch', `${ slug }: importing ${ id } on first use` );
+		// Downloaded outside the queue, so a prewarm another guest has queued doesn't hold up the visible one.
+		await preloadModules( [ id ] );
 		const [ module ] = await oneAtATime( () => evaluateAs( slug, [ id ] ) );
 		return module;
 	};
@@ -188,9 +191,15 @@ const start = ( {
 		const total = stopwatch();
 		log( 'prewarm', `${ slug }: start (${ reason })`, url );
 		prefetchBoot().catch( () => {} ); // Download in parallel; bootFor() reports a failure.
+		const path = new URL( url, location.href ).searchParams.get( 'p' ) ?? '/';
+		const route = routeAt( members[ slug ].routes, path );
+		const modules = [ route?.route_module, route?.content_module ].filter( Boolean );
+		// Downloaded before this guest takes the queue, which then holds it only to evaluate them.
+		const preloaded = preloadModules( [ ...members[ slug ].initModules, ...modules ] );
 		warm[ slug ] = ( async () => {
 			let step = stopwatch();
 			const added = await applyGuestAssets( guestAssetsUrl, slug );
+			await preloaded;
 			log( 'prewarm', `${ slug }: page data fetched and applied in ${ step() }`, added );
 			return oneAtATime( async () => {
 				let guestConfig;
@@ -237,9 +246,6 @@ const start = ( {
 					}
 				}
 				const boot = await bootFor( slug );
-				const path = new URL( url, location.href ).searchParams.get( 'p' ) ?? '/';
-				const route = routeAt( members[ slug ].routes, path );
-				const modules = [ route?.route_module, route?.content_module ].filter( Boolean );
 				step = stopwatch();
 				configOf[ slug ] = guestConfig;
 				await evaluateAs( slug, modules );
