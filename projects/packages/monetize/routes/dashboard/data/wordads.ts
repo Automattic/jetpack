@@ -28,12 +28,14 @@ const UNSAFE_REASONS: readonly string[] = [ 'mature', 'spam', 'private', 'other'
 /**
  * The site's WordAds approval, from WordPress.com.
  *
+ * @param enabled - Whether to load it.
  * @return The query.
  */
-export function useAdsAccount() {
+export function useAdsAccount( enabled = true ) {
 	return useQuery< AccountResponse, WpcomApiError, AdsAccount >( {
 		queryKey: ADS_ACCOUNT_KEY,
 		queryFn: () => wpcomFetch( { api: 'rest/v1.1', path: 'wordads/account' } ),
+		enabled,
 		select: data => {
 			let unsafe: UnsafeReason | false = false;
 			if ( data.unsafe ) {
