@@ -1,9 +1,14 @@
 /**
  * Internal dependencies
  */
-import { bucketsForWindow, dayIndexOf, type ReportBucket } from './interval-buckets';
-
-const ANCHOR_DAY = dayIndexOf( '2026-01-01' );
+import {
+	ANCHOR_DAY,
+	bucketsForWindow,
+	count,
+	dayIndexOf,
+	money,
+	type ReportBucket,
+} from './interval-buckets';
 
 /** Which bucket of a window has no orders, as a share of its length. */
 const EMPTY_BUCKET_SHARE = 1 / 3;
@@ -32,10 +37,6 @@ const NO_ORDERS: OrderTotals = {
 	paidNet: 0,
 };
 
-const money = ( value: number ) => value.toFixed( 2 );
-
-const count = ( value: number ) => String( Math.round( value ) );
-
 const ordersPerDay = ( dayIndex: number ) =>
 	Math.max(
 		1,
@@ -46,6 +47,8 @@ const ordersPerDay = ( dayIndex: number ) =>
 	);
 
 const averageOrderValue = ( dayIndex: number ) => 42 + 8 * Math.sin( dayIndex / 9 );
+
+const cogsShare = ( dayIndex: number ) => 0.55 + 0.06 * Math.sin( dayIndex / 17 );
 
 /**
  * A bucket's order totals, on a trend anchored to its own days rather than to its position in the
@@ -69,7 +72,7 @@ function totalsFor( bucket: ReportBucket ): OrderTotals {
 		refunds,
 		coupons,
 		net,
-		cogs: net * 0.55,
+		cogs: net * cogsShare( bucket.dayIndex ),
 		paidOrders: Math.round( orders * 0.86 ),
 		paidNet: net * 0.86,
 	};
@@ -113,7 +116,8 @@ function toRawRow( totals: OrderTotals, bounds: Record< string, string > ) {
 		profit_margin: net ? ( ( ( net - cogs ) / net ) * 100 ).toFixed( 2 ) : '0.00',
 		refunds: money( refunds ),
 		total_items: count( items ),
-		total_sales: money( net ),
+		// Gross sales less refunds, so it reads above the net figures, which drop coupons too.
+		total_sales: money( gross - refunds ),
 		unpaid_orders_count: count( orders - paidOrders ),
 		unpaid_net_sales: money( net - paidNet ),
 	};

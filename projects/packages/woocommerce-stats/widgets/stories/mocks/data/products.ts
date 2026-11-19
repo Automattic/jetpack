@@ -1,9 +1,7 @@
 /**
  * Internal dependencies
  */
-import { bucketsForWindow, dayIndexOf } from './interval-buckets';
-
-const ANCHOR_DAY = dayIndexOf( '2026-01-01' );
+import { ANCHOR_DAY, bucketsForWindow, count, money } from './interval-buckets';
 
 /** How much the store grows per day, and how far a product's season swings its share. */
 const GROWTH_PER_DAY = 0.004;
@@ -105,10 +103,6 @@ export const PRODUCT_CATALOGUE: CatalogueProduct[] = [
 	},
 ];
 
-const money = ( value: number ) => value.toFixed( 2 );
-
-const count = ( value: number ) => String( Math.round( value ) );
-
 const seasonalWeight = ( product: CatalogueProduct, dayIndex: number ) =>
 	product.dailyRevenue * ( 1 + SEASONAL_SWING * Math.sin( dayIndex / 40 + product.phase ) );
 
@@ -131,7 +125,7 @@ function storeRevenue( dayIndex: number, spanDays: number ): number {
 /**
  * The products report of a window: the store's catalogue ranked by net revenue, sliced to the
  * requested `limit`. Revenue follows the window, so an earlier window reads lower and ranks its
- * products differently.
+ * products differently. The ranking is always by net revenue, whatever `orderby` asks for.
  *
  * @param {URLSearchParams} query - The request's query params (`from`, `to`, `limit`).
  * @return {unknown} The raw report response.

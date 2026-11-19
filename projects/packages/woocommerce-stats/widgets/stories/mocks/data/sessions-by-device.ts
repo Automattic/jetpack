@@ -1,9 +1,7 @@
 /**
  * Internal dependencies
  */
-import { bucketsForWindow, dayIndexOf } from './interval-buckets';
-
-const ANCHOR_DAY = dayIndexOf( '2026-01-01' );
+import { ANCHOR_DAY, bucketsForWindow } from './interval-buckets';
 
 /** The share of sessions the report attributes to no device at all. */
 const UNATTRIBUTED_SHARE = 0.07;
@@ -42,6 +40,7 @@ export function buildSessionsByDeviceResponse( query: URLSearchParams ): unknown
 
 	return {
 		summary: {
+			// Plus one session: rounding swallows the unattributed share on a small total.
 			active_sessions: String( Math.round( rowTotal * ( 1 + UNATTRIBUTED_SHARE ) ) + 1 ),
 			total_orders: String( Math.round( rowTotal * 0.021 ) ),
 			date_start: buckets[ 0 ]?.date_start ?? '',

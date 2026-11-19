@@ -103,6 +103,17 @@ it( 'returns the report shape as strings', async () => {
 	}
 } );
 
+it( 'moves the margin and keeps total sales above net sales', async () => {
+	const { data } = await request< OrdersResponse >( DAILY_OCTOBER );
+	const withOrders = data.filter( row => row.orders_no !== '0' );
+	const margins = new Set( withOrders.map( row => row.profit_margin ) );
+
+	expect( margins.size ).toBeGreaterThan( 1 );
+	withOrders.forEach( row =>
+		expect( Number( row.total_sales ) ).toBeGreaterThan( Number( row.orders_value_net ) )
+	);
+} );
+
 it( 'ranks products by net revenue and honours `limit`', async () => {
 	const { data } = await request< ProductsResponse >(
 		`${ REPORTS }/products?from=2026-10-01&to=2026-10-30&limit=5`
@@ -142,9 +153,16 @@ it( 'omits one requested product from the details response', async () => {
 	);
 
 	expect( products ).toHaveLength( 2 );
-	expect( products.map( product => product.id ) ).toEqual( [ 18, 19 ] );
+	// The gap falls in the middle of the ranking, not at the end of the list.
+	expect( products.map( product => product.id ) ).toEqual( [ 18, 20 ] );
 	expect( products[ 0 ].images[ 0 ].src ).toBe( 'https://picsum.photos/seed/18/96/96' );
 	expect( products[ 0 ].permalink ).toMatch( /^https:\/\// );
+} );
+
+it( 'answers a single-product request in full', async () => {
+	const products = await request< ProductDetail[] >( '/wc/v3/products?include=18&per_page=1' );
+
+	expect( products.map( product => product.id ) ).toEqual( [ 18 ] );
 } );
 
 it( 'breaks sessions down by device with a row carrying no device', async () => {
@@ -194,6 +212,15 @@ describe( 'setWooReportMockState', () => {
 
 		expect( response.data ).toEqual( [] );
 		expect( response.summary ).toBeDefined();
+	} );
+
+	it( 'resolves with an empty collection for a store endpoint', async () => {
+		// A story forcing `products` catches `/wc/v3/products` too, which reads an array.
+		setWooReportMockState( 'products', 'empty' );
+
+		await expect( request( '/wc/v3/products?include=18' ) ).resolves.toEqual( [] );
+
+		setWooReportMockState( 'products', null );
 	} );
 
 	it( 'never settles for `loading`', async () => {
