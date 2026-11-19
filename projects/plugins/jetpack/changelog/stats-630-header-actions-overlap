@@ -1,4 +1,4 @@
 Significance: patch
 Type: bugfix
 
-Premium Analytics: Move Reset to default into the Stats options menu on phones, instead of letting the customize buttons cover the breadcrumb trail.
+Premium Analytics: Stop the customize buttons covering the breadcrumb trail on a narrow screen.
