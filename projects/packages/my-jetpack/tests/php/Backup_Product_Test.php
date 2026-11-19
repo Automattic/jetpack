@@ -586,4 +586,81 @@ class Backup_Product_Test extends TestCase {
 		delete_transient( Backup::BACKUP_STATUS_TRANSIENT_KEY );
 		delete_transient( Wpcom_Products::MY_JETPACK_PURCHASES_TRANSIENT_KEY );
 	}
+
+	/**
+	 * Tests summarize_latest_backups() reads the newest backup records.
+	 *
+	 * @param array $backups  Backup records, newest first.
+	 * @param array $expected The summary.
+	 * @dataProvider provide_latest_backups
+	 */
+	#[DataProvider( 'provide_latest_backups' )]
+	public function test_summarize_latest_backups( $backups, $expected ) {
+		$this->assertSame( $expected, Backup::summarize_latest_backups( $backups ) );
+	}
+
+	/**
+	 * Data provider for test_summarize_latest_backups.
+	 *
+	 * @return array
+	 */
+	public static function provide_latest_backups() {
+		$finished = (object) array(
+			'is_backup'    => '1',
+			'status'       => 'finished',
+			'last_updated' => '2026-09-08 14:05:00',
+		);
+
+		return array(
+			'no backups yet'           => array(
+				array(),
+				array(
+					'is_backing_up'    => false,
+					'last_backup_time' => null,
+				),
+			),
+			'first backup running'     => array(
+				array(
+					(object) array(
+						'is_backup' => '1',
+						'status'    => 'started',
+					),
+				),
+				array(
+					'is_backing_up'    => true,
+					'last_backup_time' => null,
+				),
+			),
+			'running after a finished' => array(
+				array(
+					(object) array(
+						'is_backup' => '1',
+						'status'    => 'started',
+					),
+					(object) array(
+						'is_backup' => '0',
+						'status'    => 'finished',
+					),
+					$finished,
+				),
+				array(
+					'is_backing_up'    => true,
+					'last_backup_time' => '2026-09-08T14:05:00+00:00',
+				),
+			),
+			'finished after a failure' => array(
+				array(
+					(object) array(
+						'is_backup' => '1',
+						'status'    => 'error',
+					),
+					$finished,
+				),
+				array(
+					'is_backing_up'    => false,
+					'last_backup_time' => '2026-09-08T14:05:00+00:00',
+				),
+			),
+		);
+	}
 }
