@@ -173,10 +173,9 @@ export type DetailPageActionsProps = {
 /**
  * The actions slot of a detail page. Idle, it holds the page's own actions
  * and the Stats options menu, Customize included; customizing, the dashboard's
- * own Cancel and Done take the actions' place, Reset to default beside them
- * or in the menu on a narrow header, and the menu stays, less Customize.
- * Leaving unmounts the focused control, so focus is moved back onto the menu
- * trigger.
+ * own Cancel and Done take the actions' place, Reset to default beside them,
+ * and the menu stays, less Customize. Leaving unmounts the focused control, so
+ * focus is moved back onto the menu trigger.
  *
  * @param props                - Component props.
  * @param props.isCustomizing  - Whether the page is in customize mode.
@@ -212,10 +211,7 @@ export function DetailPageActions( {
 		<Stack ref={ frame } direction="row" align="center" gap={ isNarrow ? 'xs' : 'sm' }>
 			{ isCustomizing ? editingActions : children }
 			{ isCustomizing && onReset && <ResetLayoutAction onReset={ onReset } /> }
-			<StatsOptionsMenu
-				onCustomize={ isCustomizing ? undefined : onCustomize }
-				onReset={ isCustomizing ? onReset : undefined }
-			/>
+			<StatsOptionsMenu onCustomize={ isCustomizing ? undefined : onCustomize } />
 		</Stack>
 	);
 }
