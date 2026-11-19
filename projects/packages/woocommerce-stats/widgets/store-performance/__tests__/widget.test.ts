@@ -39,6 +39,7 @@ describe( 'the hiddenMetrics field', () => {
 			'visitors',
 			'conversion-rate',
 			'customers',
+			'items-sold',
 			'extra',
 		] );
 	} );
@@ -49,6 +50,8 @@ describe( 'the hiddenMetrics field', () => {
 				item: { hiddenMetrics: [ 'gone' ] },
 				value: [ 'net-sales', 'visitors' ],
 			} )
-		).toEqual( { hiddenMetrics: [ 'gone', 'orders', 'conversion-rate', 'customers' ] } );
+		).toEqual( {
+			hiddenMetrics: [ 'gone', 'orders', 'conversion-rate', 'customers', 'items-sold' ],
+		} );
 	} );
 } );
