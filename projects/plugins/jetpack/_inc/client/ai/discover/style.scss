@@ -180,15 +180,15 @@
 		}
 	}
 
-	// Drawn in the pill's text color, so it follows the active and hover states.
+	// The icon and count take the pill's own color at less weight, so they
+	// read as secondary to the label in either state.
 	&__pill-icon {
 		flex: none;
 		margin-inline-end: var(--wpds-dimension-gap-xs);
 		fill: currentColor;
+		opacity: 0.6;
 	}
 
-	// The pill's own color at less weight, so it reads as a count rather than a
-	// second label in either state.
 	&__pill-count {
 		margin-inline-start: var(--wpds-dimension-gap-xs);
 		opacity: 0.6;

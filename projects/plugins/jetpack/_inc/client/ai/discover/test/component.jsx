@@ -150,7 +150,7 @@ describe( 'Discover', () => {
 		expect( cards() ).toEqual( [ 'SEO audit', 'Write meta descriptions' ] );
 		expect( analytics.tracks.recordEvent ).toHaveBeenCalledWith(
 			'jetpack_ai_hub_discover_filtered',
-			expect.objectContaining( { category: 'seo' } )
+			expect.objectContaining( { category: 'seo-aio' } )
 		);
 	} );
 
