@@ -103,6 +103,47 @@ class PlaygroundDBImporterTest extends WP_UnitTestCase {
 	}
 
 	/**
+	 * NULL must stay NULL: written as `''`, two NULLs in a UNIQUE index, like Borlabs Cookie's
+	 * `iab_vendor_id`, become duplicate `0` values and MySQL rejects the restore.
+	 */
+	public function test_generate_sql_keeps_null_values() {
+		$db_path = wp_tempnam( 'null-values.sqlite' );
+		copy( self::$fixtures_path . '/valid/plain.sqlite', $db_path );
+
+		$db = new SQLite3( $db_path );
+		$db->exec(
+			'CREATE TABLE `wp_borlabs_cookie_providers` (
+				`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+				`key` TEXT COLLATE NOCASE NOT NULL,
+				`iab_vendor_id` INTEGER DEFAULT NULL,
+				`description` TEXT COLLATE NOCASE DEFAULT NULL
+			);'
+		);
+		$db->exec( "INSERT INTO `wp_borlabs_cookie_providers` VALUES (1, 'a', NULL, NULL), (2, 'b', NULL, NULL), (3, 'c', 7, '100% it''s')" );
+		$columns = array(
+			array( 'id', 1, 'NO', 'int', 'int(10) unsigned', 'PRI', 'auto_increment' ),
+			array( 'key', 2, 'NO', 'varchar', 'varchar(64)', '', '' ),
+			array( 'iab_vendor_id', 3, 'YES', 'int', 'int(11)', 'UNI', '' ),
+			array( 'description', 4, 'YES', 'text', 'text', '', '' ),
+		);
+		foreach ( $columns as $column ) {
+			$db->exec(
+				sprintf(
+					"INSERT INTO `_wp_sqlite_mysql_information_schema_columns` (TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME, ORDINAL_POSITION, IS_NULLABLE, DATA_TYPE, COLUMN_TYPE, COLUMN_KEY, EXTRA, PRIVILEGES) VALUES ('sqlite_database', 'wp_borlabs_cookie_providers', '%s', %d, '%s', '%s', '%s', '%s', '%s', 'select,insert,update,references')",
+					...$column
+				)
+			);
+		}
+		$db->close();
+
+		$result = $this->db_importer->generate_sql( $db_path );
+		unlink( $db_path );
+
+		$this->assertNotWPError( $result );
+		$this->assertStringContainsString( "('1','a',NULL,NULL),\n('2','b',NULL,NULL),\n('3','c','7','100% it\\'s');", $result );
+	}
+
+	/**
 	 * Test loading valid fixture database files.
 	 *
 	 * @dataProvider provide_valid_fixture_files
