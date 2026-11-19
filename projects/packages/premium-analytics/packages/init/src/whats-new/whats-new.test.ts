@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { mountWhatsNew } from '@automattic/jetpack-announcements';
+import { getCurrentRoutePath, onLocationChange } from '@jetpack-premium-analytics/routing';
 /**
  * Internal dependencies
  */
@@ -11,6 +12,11 @@ jest.mock( '@automattic/jetpack-announcements', () => ( {
 	mountWhatsNew: jest.fn(),
 } ) );
 
+jest.mock( '@jetpack-premium-analytics/routing', () => ( {
+	getCurrentRoutePath: jest.fn(),
+	onLocationChange: jest.fn(),
+} ) );
+
 const setFlag = ( enabled: boolean ): void => {
 	Object.defineProperty( window, 'JetpackScriptData', {
 		configurable: true,
@@ -18,18 +24,14 @@ const setFlag = ( enabled: boolean ): void => {
 	} );
 };
 
-// The router keeps the route in `p`, with the filters of the page as its own query string.
-const openRoute = ( route?: string ): void => {
-	const p = route === undefined ? '' : `&p=${ encodeURIComponent( route ) }`;
-	window.history.replaceState( null, '', `?page=jetpack-premium-analytics-wp-admin${ p }` );
+const openRoute = ( path: string ): void => {
+	jest.mocked( getCurrentRoutePath ).mockReturnValue( path );
 };
 
-// jsdom has no Navigation API, so a test that navigates brings its own.
-const addNavigation = (): EventTarget => {
-	const navigation = new EventTarget();
-	Object.defineProperty( window, 'navigation', { configurable: true, value: navigation } );
-
-	return navigation;
+// The route on screen changes first, then the listener of the location runs.
+const navigateTo = ( path: string ): void => {
+	openRoute( path );
+	jest.mocked( onLocationChange ).mock.calls[ 0 ][ 0 ]();
 };
 
 // The surface is imported on demand, so the mount lands a turn after the call.
@@ -41,30 +43,23 @@ const showAndSettle = async (): Promise< void > => {
 describe( 'showWhatsNew', () => {
 	afterEach( () => {
 		delete window.JetpackScriptData;
-		delete ( window as { navigation?: unknown } ).navigation;
-		window.history.replaceState( null, '', window.location.pathname );
 		jest.mocked( mountWhatsNew ).mockClear();
+		jest.mocked( onLocationChange ).mockClear();
 	} );
 
-	it.each< [ string, string | undefined, string ] >( [
-		[ 'the dashboard', undefined, 'premium-analytics/main' ],
-		[ 'the dashboard, by its route', '/', 'premium-analytics/main' ],
-		[
-			'the dashboard with its filters',
-			'/?section=traffic&from=2026-11-01',
-			'premium-analytics/main',
-		],
+	it.each( [
+		[ 'the dashboard', '/', 'premium-analytics/main' ],
 		[ 'Settings', '/settings', 'premium-analytics/settings' ],
 		[
 			'a report, by the first segment of its route',
-			'/reports/clicks?from=2026-11-01',
+			'/reports/clicks',
 			'premium-analytics/reports',
 		],
 	] )(
 		'subscribes %s to the channel of the dashboard and to its own',
-		async ( _case, route, own ) => {
+		async ( _case, path, own ) => {
 			setFlag( true );
-			openRoute( route );
+			openRoute( path );
 
 			await showAndSettle();
 
@@ -74,13 +69,11 @@ describe( 'showWhatsNew', () => {
 	);
 
 	it( 'follows the page on screen', async () => {
-		const navigation = addNavigation();
 		setFlag( true );
 		openRoute( '/' );
 		await showAndSettle();
 
-		openRoute( '/settings' );
-		navigation.dispatchEvent( new Event( 'currententrychange' ) );
+		navigateTo( '/settings' );
 
 		expect( mountWhatsNew ).toHaveBeenCalledTimes( 2 );
 		expect( mountWhatsNew ).toHaveBeenLastCalledWith( {
@@ -88,14 +81,12 @@ describe( 'showWhatsNew', () => {
 		} );
 	} );
 
-	it( 'does not mount again while the page stays the same', async () => {
-		const navigation = addNavigation();
+	it( 'does not mount again while the section stays the same', async () => {
 		setFlag( true );
-		openRoute( '/' );
+		openRoute( '/reports/clicks' );
 		await showAndSettle();
 
-		openRoute( '/?from=2026-11-01&to=2026-11-30' );
-		navigation.dispatchEvent( new Event( 'currententrychange' ) );
+		navigateTo( '/reports/referrers' );
 
 		expect( mountWhatsNew ).toHaveBeenCalledTimes( 1 );
 	} );
@@ -114,6 +105,7 @@ describe( 'showWhatsNew', () => {
 			throw new Error( 'mount failed' );
 		} );
 		setFlag( true );
+		openRoute( '/' );
 
 		await showAndSettle();
 

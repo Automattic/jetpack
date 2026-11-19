@@ -35,9 +35,9 @@ The announcements of the dashboard are registered in `src/class-dashboard-announ
 
 ## How it works
 
-`packages/init/src/whats-new/whats-new.ts` mounts the surface when the app boots and computes the channels from the route, which the router keeps in the `p` query argument.
+`packages/init/src/whats-new/whats-new.ts` mounts the surface when the app boots and computes the channels from the path of the route on screen. It subscribes again when the page changes.
 
-It subscribes again when the page changes. It learns that from the `currententrychange` event of the Navigation API, so a browser without that API keeps the channels of the page it loaded on.
+It learns both from `packages/routing/src/current-route/current-route.ts`, which reads the URL for now and says what that cannot see.
 
 ## Whose convention this is
 

@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { getScriptData } from '@automattic/jetpack-script-data';
+import { getCurrentRoutePath, onLocationChange } from '@jetpack-premium-analytics/routing';
 
 // Every page of the dashboard subscribes to this channel, and to it followed by its own section.
 const CHANNEL = 'premium-analytics';
@@ -9,22 +10,15 @@ const CHANNEL = 'premium-analytics';
 // The section of the route `/`, which has no segment to take a name from.
 const MAIN_SECTION = 'main';
 
-type NavigationEvents = {
-	addEventListener: ( type: 'currententrychange', listener: () => void ) => void;
-};
-
 /**
  * The channels of the page on screen: the channel of the dashboard, alone and with the section.
  *
- * The section is the first segment of the path of the route. The router keeps the route in the
- * `p` query argument, with the filters of the page as a query string of its own.
+ * The section is the first segment of the path of the route.
  *
  * @return The channels.
  */
 function getChannels(): string[] {
-	const route = new URLSearchParams( window.location.search ).get( 'p' ) ?? '';
-	const [ path ] = route.split( /[?#]/ );
-	const [ section = MAIN_SECTION ] = path.split( '/' ).filter( Boolean );
+	const [ section = MAIN_SECTION ] = getCurrentRoutePath().split( '/' ).filter( Boolean );
 
 	return [ CHANNEL, `${ CHANNEL }/${ section }` ];
 }
@@ -48,7 +42,7 @@ export function showWhatsNew(): void {
 			const subscribe = () => {
 				const channels = getChannels();
 
-				// The URL also changes within a page, with its filters.
+				// The location also changes within a page, and several routes share a section.
 				if ( channels.join() !== subscribed ) {
 					subscribed = channels.join();
 					mountWhatsNew( { channels } );
@@ -56,12 +50,7 @@ export function showWhatsNew(): void {
 			};
 
 			subscribe();
-
-			// A browser without the Navigation API keeps the channels of the page it loaded on.
-			( window as { navigation?: NavigationEvents } ).navigation?.addEventListener(
-				'currententrychange',
-				subscribe
-			);
+			onLocationChange( subscribe );
 		} )
 		.catch( () => undefined );
 }
