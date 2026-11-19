@@ -88,6 +88,8 @@ class Initializer {
 			return;
 		}
 
+		Llms_Txt::register_redirect_filters();
+
 		// Before anything can read the AI crawler choices.
 		Ai_Crawlers::register_legacy_migration();
 

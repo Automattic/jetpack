@@ -1,4 +1,4 @@
-import { render } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import useAnalytics from '../../../hooks/use-analytics';
 import BoostOverviewItem from '../boost-card/overview';
 import ProtectOverviewItem from '../protect-card/overview';
@@ -8,13 +8,18 @@ import type { FC } from 'react';
 const mockRecordEvent = jest.mocked( jest.mocked( useAnalytics )().recordEvent );
 let mockProductStatus = 'active';
 let mockStatsVisits = {};
+let mockHostPurchaseUrl: string | undefined;
 
 jest.mock( '../../../hooks/use-my-jetpack-connection', () => () => ( {
 	blogID: '1',
 	isSiteConnected: true,
 } ) );
 jest.mock( '../../../data/products/use-product', () => () => ( {
-	detail: { status: mockProductStatus, manageUrl: 'https://example.org/manage' },
+	detail: {
+		status: mockProductStatus,
+		manageUrl: 'https://example.org/manage',
+		hostPurchaseUrl: mockHostPurchaseUrl,
+	},
 	isLoading: false,
 } ) );
 jest.mock( '../../../data/products/use-products-by-ownership', () => () => ( {
@@ -71,5 +76,22 @@ describe( 'Overview load event', () => {
 				( [ name ] ) => name === 'jetpack_myjetpack_product_card_load'
 			)
 		).toHaveLength( 1 );
+	} );
+} );
+
+describe( "Protect's Scan upsell", () => {
+	afterEach( () => {
+		mockHostPurchaseUrl = undefined;
+	} );
+
+	it.each( [
+		[ 'its pricing page', undefined, '#/add-protect' ],
+		[ 'the plans its host sells', 'https://example.com/plans', 'https://example.com/plans' ],
+	] )( 'goes to %s', ( _, hostPurchaseUrl, href ) => {
+		mockProductStatus = 'active';
+		mockHostPurchaseUrl = hostPurchaseUrl;
+		render( <ProtectOverviewItem admin /> );
+
+		expect( screen.getByRole( 'link', { name: 'Scan threats' } ) ).toHaveAttribute( 'href', href );
 	} );
 } );

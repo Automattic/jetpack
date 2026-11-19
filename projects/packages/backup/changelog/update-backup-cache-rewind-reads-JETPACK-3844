@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Cache the storage figures and plan check for five minutes, so returning to the Backup page asks WordPress.com less.
