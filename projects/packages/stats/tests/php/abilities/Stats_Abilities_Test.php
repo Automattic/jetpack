@@ -2212,6 +2212,25 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 		);
 		$this->assertArrayHasKey( 'children', $result['definitions'] );
 
+		// A value whose posts cannot be read keeps its row and flags the gap.
+		$this->filter_wpcom_stats(
+			array(
+				'get_utm_views'     => array( 'top_utm_values' => array( 'email' => 5 ) ),
+				'get_utm_top_posts' => new \WP_Error( 'boom', 'bad' ),
+			)
+		);
+		$failed = Stats_Abilities::get_top_content(
+			array(
+				'type'      => 'utm',
+				'utm_param' => 'utm_source',
+				'expand'    => true,
+			)
+		);
+		$this->assertSame( 5, $failed['items'][0]['value'] );
+		$this->assertArrayNotHasKey( 'children', $failed['items'][0] );
+		$this->assertTrue( $failed['partial'] );
+		$this->assertSame( array( 'children' ), $failed['errors'] );
+
 		// One read per value keeps an expanded UTM list short.
 		$this->assertSame(
 			'jetpack_stats_invalid_max',
