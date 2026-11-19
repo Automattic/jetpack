@@ -39,7 +39,11 @@ const base: OverviewState = {
  * @param account  - WordPress.com's Ads account, which makes the site a Simple one.
  * @return The openTab mock.
  */
-function setup( state: Partial< OverviewState > = {}, features: string[] = [], account?: Account ) {
+function setup(
+	state: Partial< OverviewState > = {},
+	features: string[] = [],
+	account?: Account | Promise< Account >
+) {
 	mockSimple = Boolean( account );
 	mockState.mockReturnValue( { ...base, ...state } );
 	mockedApiFetch.mockImplementation( ( { path }: { path: string } ) =>
@@ -106,6 +110,14 @@ describe( 'PromoCards', () => {
 			expect( screen.queryByRole( 'link', { name: 'Upgrade' } ) ).not.toBeInTheDocument();
 		}
 	);
+
+	it( 'on Simple, the Ads card offers no way in until WordPress.com says whether ads are on', () => {
+		setup( { hasWordAds: true }, [], new Promise( () => {} ) );
+
+		expect(
+			screen.queryByRole( 'button', { name: /ad revenue|ad dashboard/ } )
+		).not.toBeInTheDocument();
+	} );
 
 	it( 'without ads in the plan, the Ads card offers the upgrade', async () => {
 		setup();

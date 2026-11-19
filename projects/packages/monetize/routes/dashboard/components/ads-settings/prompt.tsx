@@ -3,7 +3,7 @@ import { getUserConnectionUrl } from '@automattic/jetpack-connection/get-user-co
 import { __, _x } from '@wordpress/i18n';
 import { Notice } from '@wordpress/ui';
 import { useCallback } from 'react';
-import { getPageData } from '../../data/state';
+import { getPageData, getSectionState } from '../../data/state';
 import { trackBannerClick } from '../../data/tracking';
 import type { AdsSettingsData } from '../../data/ads-settings-data';
 import type { TabValue } from '../../data/tabs';
@@ -78,6 +78,19 @@ export function AdsPrompt( { data }: { data: AdsSettingsData } ) {
  */
 export function JoinPrompt( { openTab }: { openTab: ( tab: TabValue ) => void } ) {
 	const openAds = useCallback( () => openTab( 'ads' ), [ openTab ] );
+
+	if ( ! getSectionState< { canJoinWordAds?: boolean } >( 'ads' )?.canJoinWordAds ) {
+		return (
+			<Notice.Root intent="info">
+				<Notice.Description>
+					{ __(
+						'Only the site owner can join WordAds, which lets you turn on ads and change where they appear.',
+						'jetpack-monetize'
+					) }
+				</Notice.Description>
+			</Notice.Root>
+		);
+	}
 
 	return (
 		<Notice.Root intent="info">

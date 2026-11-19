@@ -125,7 +125,9 @@ function AdsCard( { openTab }: { openTab: ( tab: TabValue ) => void } ) {
 		: __( 'Earn ad revenue', 'jetpack-monetize' );
 
 	let actions: ReactNode = null;
-	if ( hasWordAds || isWordAdsActive ) {
+	// No action until WordPress.com says whether ads are on, so it can't point at the wrong tab.
+	const activeKnown = ! simple || ! account.isPending;
+	if ( activeKnown && ( hasWordAds || isWordAdsActive ) ) {
 		actions = (
 			<Button variant="outline" size="compact" onClick={ open }>
 				{ title }

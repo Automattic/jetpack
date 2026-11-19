@@ -181,6 +181,13 @@ describe( 'useAdsSettings', () => {
 		[ 'a placement', 'wordads_display_page', true, { display_options: { display_page: true } } ],
 		[ 'the sidebar', 'sidebar', true, { display_options: { sidebar: true } } ],
 		[ 'ads for everyone', 'logged_out_only', false, { show_to_logged_in: 'yes' } ],
+		[ 'US privacy', 'wordads_ccpa_enabled', false, { ccpa_enabled: false } ],
+		[
+			'the privacy policy',
+			'wordads_ccpa_privacy_policy_url',
+			'https://example.com/privacy',
+			{ ccpa_privacy_policy_url: 'https://example.com/privacy' },
+		],
 		[ 'ads off', 'wordads', false, { show_to_logged_in: 'pause' } ],
 		[ 'ads on', 'wordads', true, { show_to_logged_in: 'no', tos: 'signed' } ],
 	] as const )( 'saves %s on WordPress.com on Simple', async ( _case, name, value, data ) => {

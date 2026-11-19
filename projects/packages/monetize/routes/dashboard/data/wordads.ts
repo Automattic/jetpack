@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ADS_ACCOUNT_KEY } from './ads-keys';
 import { wpcomFetch } from './wpcom-fetch';
-import type { WpcomApiError } from './wpcom-request';
+import { WpcomApiError } from './wpcom-request';
 
 /** Why WordPress.com won't serve ads on the site, as `wordads/account` reports it. */
 export type UnsafeReason = 'mature' | 'spam' | 'private' | 'other';
@@ -57,7 +57,17 @@ export function useAdsAccount( enabled = true ) {
 export function useJoinWordAds() {
 	const queryClient = useQueryClient();
 	return useMutation< unknown, WpcomApiError >( {
-		mutationFn: () => wpcomFetch( { api: 'rest/v1.1', path: 'wordads/approve', method: 'POST' } ),
+		mutationFn: async () => {
+			const { approved } = await wpcomFetch< { approved?: boolean } >( {
+				api: 'rest/v1.1',
+				path: 'wordads/approve',
+				method: 'POST',
+			} );
+			// WordPress.com can answer 200 without approving the site.
+			if ( ! approved ) {
+				throw new WpcomApiError( 'not_approved', '' );
+			}
+		},
 		// So Settings, which it opens next, offers the switch without waiting on the refetch.
 		onSuccess: () =>
 			queryClient.setQueryData< { approved?: boolean } >(

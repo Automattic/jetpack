@@ -43,6 +43,9 @@ export function usePayout( enabled = true ) {
 	} );
 }
 
+/** A payout save, and on Simple whether ads are off, which keeps the save from switching them on. */
+type PayoutChange = { paypal?: string; tos: boolean; adsOff?: boolean };
+
 /**
  * Save the PayPal address, the terms when first signed, or both.
  *
@@ -51,13 +54,17 @@ export function usePayout( enabled = true ) {
 export function useSavePayout() {
 	const queryClient = useQueryClient();
 
-	return useMutation< Payout, WpcomApiError, { paypal?: string; tos: boolean } >( {
-		mutationFn: async ( { paypal, tos } ) =>
+	return useMutation< Payout, WpcomApiError, PayoutChange >( {
+		mutationFn: async ( { paypal, tos, adsOff } ) =>
 			toPayout(
 				await wpcomFetch< WpcomAdsSettings >( {
 					...WPCOM_ADS_SETTINGS,
 					method: 'POST',
-					data: { ...( paypal ? { paypal } : {} ), ...( tos ? { tos: 'signed' } : {} ) },
+					data: {
+						...( paypal ? { paypal } : {} ),
+						...( tos ? { tos: 'signed' } : {} ),
+						...( adsOff && isSimpleSite() ? { show_to_logged_in: 'pause' } : {} ),
+					},
 				} )
 			),
 		onSuccess: payout => {

@@ -51,7 +51,7 @@ const renderTab = ( {
 	);
 	( wpcomFetch as jest.Mock ).mockImplementation( ( { path, method } ) => {
 		if ( method === 'POST' ) {
-			return Promise.resolve( {} );
+			return Promise.resolve( { approved: true } );
 		}
 		const responses: Record< string, unknown > = {
 			'wordads/account': { approved, active, unsafe: false, status },

@@ -11,6 +11,7 @@ import type { AdsSettingsData } from '../../../data/ads-settings-data';
 import type { AdsValues } from '../../../data/use-ads-settings';
 
 let mockSimple = false;
+let mockCanJoin = true;
 
 jest.mock( '@wordpress/api-fetch', () => ( { __esModule: true, default: jest.fn() } ) );
 jest.mock( '@automattic/jetpack-script-data', () => ( {
@@ -21,6 +22,7 @@ jest.mock( '../../../data/wordads', () => ( { useAdsAccount: jest.fn() } ) );
 jest.mock( '../../../data/ads-settings-data' );
 jest.mock( '../../../data/state', () => ( {
 	getPageData: () => ( { upgradeUrl: MOCK_UPGRADE_URL, tracks: true } ),
+	getSectionState: () => ( { canJoinWordAds: mockCanJoin } ),
 } ) );
 jest.mock( '../../../data/tracking' );
 jest.mock( '../../../data/use-ads-settings', () => ( {
@@ -108,6 +110,7 @@ const openTab = jest.fn();
 describe( 'AdsSettings', () => {
 	beforeEach( () => {
 		mockSimple = false;
+		mockCanJoin = true;
 		( useAdsAccount as jest.Mock ).mockReturnValue( {
 			data: { approved: true },
 			isPending: false,
@@ -248,6 +251,19 @@ describe( 'AdsSettings', () => {
 		expect( screen.queryByRole( 'switch', { name: SWITCH } ) ).not.toBeInTheDocument();
 		await userEvent.click( screen.getByRole( 'button', { name: 'Join WordAds' } ) );
 		expect( openTab ).toHaveBeenCalledWith( 'ads' );
+	} );
+
+	it( 'tells an admin who is not the owner that only the owner can join', () => {
+		mockSimple = true;
+		mockCanJoin = false;
+		( useAdsAccount as jest.Mock ).mockReturnValue( {
+			data: { approved: false },
+			isPending: false,
+		} );
+		renderTab();
+
+		expect( screen.getByText( /Only the site owner can join WordAds/ ) ).toBeVisible();
+		expect( screen.queryByRole( 'button', { name: 'Join WordAds' } ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'opens the Ads tab in place for earnings', async () => {

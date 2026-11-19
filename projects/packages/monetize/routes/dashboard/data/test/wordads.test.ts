@@ -37,19 +37,20 @@ describe( 'toAdsEarnings', () => {
 } );
 
 describe( 'useJoinWordAds', () => {
-	it( 'marks the site approved at once, so Settings offers the switch without a refetch', async () => {
-		( wpcomFetch as jest.Mock ).mockResolvedValue( {} );
+	it.each( [
+		[ 'marks the site approved at once when WordPress.com approves it', true ],
+		[ 'fails, leaving the site unapproved, when WordPress.com does not', false ],
+	] )( '%s', async ( _case, approved ) => {
+		( wpcomFetch as jest.Mock ).mockResolvedValue( { approved } );
 		const queryClient = new QueryClient();
 		queryClient.setQueryData( ADS_ACCOUNT_KEY, { approved: false, active: false } );
 		const wrapper = ( { children }: { children: ReactNode } ) =>
 			createElement( QueryClientProvider, { client: queryClient }, children );
 		const { result } = renderHook( () => useJoinWordAds(), { wrapper } );
 
-		await act( () => result.current.mutateAsync() );
+		await act( () => result.current.mutateAsync().catch( () => undefined ) );
 
-		expect( queryClient.getQueryData( ADS_ACCOUNT_KEY ) ).toEqual( {
-			approved: true,
-			active: false,
-		} );
+		expect( result.current.isError ).toBe( ! approved );
+		expect( queryClient.getQueryData( ADS_ACCOUNT_KEY ) ).toEqual( { approved, active: false } );
 	} );
 } );
