@@ -1249,10 +1249,7 @@ function LoadError( { error } ) {
 	if ( error?.code === 'rest_unauthorized' ) {
 		return (
 			<Notice status="warning" isDismissible={ false }>
-				{ __(
-					'Connect your WordPress.com account to Jetpack to edit the email design.',
-					'jetpack'
-				) }
+				{ __( 'Connect your WordPress.com account to edit the email design.', 'jetpack' ) }
 			</Notice>
 		);
 	}
@@ -1393,7 +1390,7 @@ export async function mountEmailDesignEditor() {
 			reason: typeof error?.code === 'string' ? error.code : 'unknown',
 		} );
 
-		// The notice deliberately does not name which half failed; this does.
+		// The generic notice does not name which half failed; this does.
 		// eslint-disable-next-line no-console
 		console.error( 'Jetpack email design editor:', error );
 		root.render( <LoadError error={ error } /> );

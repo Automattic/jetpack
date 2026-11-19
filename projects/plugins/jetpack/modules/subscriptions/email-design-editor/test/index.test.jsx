@@ -487,11 +487,7 @@ describe( 'Email design editor entry point', () => {
 
 		it.each( [
 			[ 'email_editor_not_enabled', 501, 'Email design is not available on this site.' ],
-			[
-				'rest_unauthorized',
-				403,
-				'Connect your WordPress.com account to Jetpack to edit the email design.',
-			],
+			[ 'rest_unauthorized', 403, 'Connect your WordPress.com account to edit the email design.' ],
 		] )( 'explains a %s refusal rather than asking for a reload', async ( code, status, text ) => {
 			mockApiFetch.mockRejectedValue( { code, message: 'Refused.', data: { status } } );
 			window.JetpackEmailDesignEditor = pageData();
