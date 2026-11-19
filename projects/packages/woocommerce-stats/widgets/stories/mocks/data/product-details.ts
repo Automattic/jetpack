@@ -5,8 +5,7 @@ import { PRODUCT_CATALOGUE } from './products';
 
 /**
  * The `/wc/v3/products` details of the products a report listed, minus one in the middle of the
- * ids, so the branch for a product the store has deleted is live in every story and the gap falls
- * where a reviewer sees it rather than at the end of a list.
+ * ids, so every story exercises the branch for a product the store has deleted.
  *
  * @param {string|undefined} include - The requested product ids, comma separated.
  * @return {unknown} The raw products response.
