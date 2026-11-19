@@ -1,0 +1,44 @@
+# What's new: channels and pages
+
+The dashboard hosts the What's new surface of the Jetpack Announcements package. The surface is mounted once, for the whole app.
+
+Which announcements a page shows is decided by channels, with a convention of this package: a channel names a page the way its route does.
+
+## The convention
+
+Every page subscribes to two channels: `premium-analytics`, and `premium-analytics/<section>`.
+
+The section is the first segment of the route of the page. The route `/` has no segment, so its section is `main`.
+
+| Page                         | Route             | Subscribes to                                     |
+| ---------------------------- | ----------------- | ------------------------------------------------- |
+| Dashboard, with all its tabs | `/`               | `premium-analytics`, `premium-analytics/main`     |
+| Settings                     | `/settings`       | `premium-analytics`, `premium-analytics/settings` |
+| A report                     | `/reports/clicks` | `premium-analytics`, `premium-analytics/reports`  |
+| A post                       | `/post/12`        | `premium-analytics`, `premium-analytics/post`     |
+
+A section here is a page of the app, not a tab of the dashboard: every tab is the same page, `main`.
+
+A new route needs nothing: its first segment is its section.
+
+## Publishing
+
+An announcement chooses where it shows by the channel it is published to.
+
+| Published to                 | Shows on           |
+| ---------------------------- | ------------------ |
+| `premium-analytics`          | Every page         |
+| `premium-analytics/main`     | The dashboard only |
+| `premium-analytics/settings` | Settings only      |
+
+The announcements of the dashboard are registered in `src/class-dashboard-announcements.php`.
+
+## How it works
+
+`packages/init/src/whats-new/whats-new.ts` mounts the surface when the app boots and computes the channels from the route, which the router keeps in the `p` query argument.
+
+It subscribes again when the page changes. It learns that from the `currententrychange` event of the Navigation API, so a browser without that API keeps the channels of the page it loaded on.
+
+## Whose convention this is
+
+It belongs to this package. Jetpack Announcements matches channels by name and knows nothing of pages or routes, so another host is free to name its channels another way.
