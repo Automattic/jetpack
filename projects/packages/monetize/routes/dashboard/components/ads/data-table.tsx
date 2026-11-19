@@ -42,12 +42,18 @@ export default function DataTable< Item >( {
 		page: 1,
 		perPage,
 		fields: fields.map( field => field.id ),
-		layout: {},
+		layout: { enableMoving: false },
 	} );
 
-	// Not sortable or hideable: the column header menus would offer nothing.
+	// With no sorting, hiding, filtering or moving, headers render as plain text rather than menus.
 	const columns = useMemo(
-		() => fields.map( field => ( { enableSorting: false, enableHiding: false, ...field } ) ),
+		() =>
+			fields.map( field => ( {
+				enableSorting: false,
+				enableHiding: false,
+				filterBy: false as const,
+				...field,
+			} ) ),
 		[ fields ]
 	);
 	const page = useMemo(

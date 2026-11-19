@@ -17,5 +17,19 @@
 	&__table {
 
 		@include meta.load-css("@wordpress/dataviews/build-style/style");
+
+		// Line the edge columns up with the card's headings.
+		.dataviews-view-table tr {
+
+			td:first-child,
+			th:first-child {
+				padding-inline-start: 0;
+			}
+
+			td:last-child,
+			th:last-child {
+				padding-inline-end: 0;
+			}
+		}
 	}
 }
