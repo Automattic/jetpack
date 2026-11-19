@@ -223,7 +223,7 @@ A section that fails its rule is absent from the sections route, from the script
 
 ## A real consumer: the Ads section
 
-![The WordAds module registers the Ads section on self-hosted sites and skips the WordPress.com platform, jetpack-mu-wpcom registers it on Atomic and Simple by plan feature and WordAds being on, both at priority 20 skipping an existing ads slug, and the standalone plugin has no registrant.](diagrams/sections-ads-owners.svg)
+![The WordAds module registers the Ads section on self-hosted sites and skips the WordPress.com platform, jetpack-mu-wpcom registers it on Atomic and Simple where WordAds is on, both at priority 20 skipping an existing ads slug, and the standalone plugin has no registrant.](diagrams/sections-ads-owners.svg)
 
 ### Who owns the section
 
@@ -235,7 +235,7 @@ WordAds is a module of the Jetpack plugin, so the module calls `Analytics_Dashbo
 
 ### On WordPress.com
 
-The module registrant skips the platform, `Host::is_wpcom_platform()`. `jetpack-mu-wpcom` calls the package's registrants instead when the plan includes WordAds and the site has it on, from `src/features/premium-analytics/wordads-section.php`: the WordAds module on Atomic, the approval stickers on Simple, as classic Stats reads them. A plan that could use WordAds is not a site that does.
+The module registrant skips the platform, `Host::is_wpcom_platform()`. `jetpack-mu-wpcom` calls the package's registrants instead when the site has WordAds on, from `src/features/premium-analytics/wordads-section.php`: the approval stickers on Simple, as classic Stats reads them, and the WordAds module plus the plan feature on Atomic. A plan that could use WordAds is not a site that does, and Simple skips the plan because sites approved before WordAds needed one still run ads.
 
 Simple runs no Jetpack plugin, so that one file decides for both environments. One owner per environment, decided in code rather than by hook order.
 

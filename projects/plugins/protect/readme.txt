@@ -8,13 +8,13 @@ Stable tag: 7.0.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Free daily vulnerability scans & WordPress security, powered by WPScan (an Automattic brand) and its 60,000+ vulnerability database. No setup needed!
+Free WordPress security: daily vulnerability scans powered by WPScan's 60,000+ vulnerability database, plus downtime alerts. No setup needed!
 
 == Description ==
 
 == TOTAL SITE SECURITY FROM WORDPRESS EXPERTS ==
 
-Jetpack Protect is a free and essential WordPress security plugin that scans your site and warns you about vulnerabilities, keeping your site one step ahead of security threats. It’s easy to use; setup requires just a few clicks!
+Jetpack Protect is a free and essential WordPress security plugin that scans your site and warns you about vulnerabilities, keeping your site one step ahead of security threats. It also watches your site around the clock with Jetpack Monitor and emails you if it goes down. It’s easy to use; setup requires just a few clicks!
 
 By upgrading Protect, you also unlock malware scanning with one-click fixes for most issues and instant notifications when threats are detected. Our automated Web Application Firewall (WAF) also protects your site from bad actors around the clock.
 
@@ -68,6 +68,17 @@ That’s where Jetpack Protect comes in. Our state-of-the-art security tools aut
 
 On average, Jetpack blocks 5,193 WordPress brute force attacks over a site’s lifetime. It allows you to protect yourself against both traditional brute force attacks and distributed brute force attacks that use many servers against your site.
 
+== DOWNTIME MONITORING WITH JETPACK MONITOR ==
+
+Find out your site is down before your visitors do. Jetpack Monitor checks your site every five minutes and emails you within minutes if it stops responding, then again when it’s back up.
+
+- Free with Jetpack Protect; turn it on from the Settings tab
+- Email alerts sent to your WordPress.com account’s address
+- Uptime history for the last 40 days, right on the Protect page, so you can spot problem days at a glance
+
+= Why does downtime matter? =
+Every minute your site is down, visitors leave, sales are lost, and search engines take note. Outages can come from a hosting problem, an expired domain, a plugin conflict, or an attack. The sooner you know, the sooner you can fix it.
+
 == UPGRADE PROTECT TO REMOVE MALWARE IN ONE CLICK AND BE PROTECTED BY OUR WAF ==
 By upgrading Protect, you unlock total site security from WordPress experts:
 - Automated daily malware scanning in addition to vulnerability checks
@@ -108,7 +119,7 @@ There’s nothing to configure – the setup process is as easy as:
 1. Install and activate the plugin
 2. Set up it with one click.
 
-After you activate the plugin, Jetpack Protect will run daily automatic malware scans on your WordPress site and update you on vulnerabilities associated with your installed plugins, themes, and WordPress core.
+After you activate the plugin, Jetpack Protect will run daily automatic malware scans on your WordPress site and update you on vulnerabilities associated with your installed plugins, themes, and WordPress core. Connect your WordPress.com account to turn on downtime monitoring as well.
 
 == WITH 💚 BY JETPACK ==
 
@@ -164,6 +175,10 @@ When the vulnerability scanner finds a security threat, you can view the recomme
 
 If you have upgraded Protect, your site will also be automatically scanned for malware each day, and you will be notified instantly via email if any threats are detected. You will be able to fix most issues in one click.
 
+= How does downtime monitoring work? =
+
+Jetpack Monitor checks your site from WordPress.com every five minutes. If your site stops responding, Jetpack Monitor checks it again from several locations around the world, so a problem in one place doesn’t set off a false alarm. Once the outage is confirmed, it emails you within minutes, and again when your site is back up. The Overview tab of the Protect page shows your uptime for the last 40 days. Downtime monitoring is free and needs your WordPress.com account to be connected, since that is where alerts are sent.
+
 = Where do I turn on downtime monitoring or logging in with WordPress.com? =
 
 On the Settings tab of the Protect page. If you had them on with the Jetpack plugin and then removed it, they stay off until you turn them on there.
@@ -187,9 +202,11 @@ The new Jetpack Protect plugin is different from the Jetpack feature formerly kn
 == Screenshots ==
 
 1. Focus on running your business while Jetpack Protect automatically scans your site.
-2. Keep your site one step ahead of security threats and malware.
+2. Find out your site is down before your visitors do, with Jetpack Monitor’s uptime history and email alerts.
 3. View all the found vulnerabilities in your site and learn how to fix them.
-4. The Jetpack Firewall is a web application firewall (known as WAF) designed to protect your WordPress site from malicious requests.
+4. Turn on the firewall, downtime monitoring, and login protection from one Settings tab.
+5. Scans run in the background, so you can keep working while Jetpack Protect checks your plugins and themes.
+6. Block brute force attacks, protect accounts with weak or leaked passwords, and let users log in with WordPress.com.
 
 == Changelog ==
 ### 7.0.0 - 2026-11-16

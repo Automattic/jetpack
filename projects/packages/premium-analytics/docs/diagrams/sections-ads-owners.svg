@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 335" width="1000" height="335" role="img" aria-label="The WordAds module registers the Ads section on self-hosted sites and skips the WordPress.com platform, jetpack-mu-wpcom registers it on Atomic and Simple by plan feature and WordAds being on, both at priority 20 skipping an existing ads slug, and the standalone plugin has no registrant.">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 335" width="1000" height="335" role="img" aria-label="The WordAds module registers the Ads section on self-hosted sites and skips the WordPress.com platform, jetpack-mu-wpcom registers it on Atomic and Simple where WordAds is on, both at priority 20 skipping an existing ads slug, and the standalone plugin has no registrant.">
   <style>
     text { font: 12px ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; fill: #1f2328; }
     .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px; }

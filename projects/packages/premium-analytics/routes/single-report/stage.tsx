@@ -7,6 +7,8 @@ import {
 	ReportScopeProvider,
 	isPlanDateLimitedSection,
 } from '@jetpack-premium-analytics/data';
+import { PRESET_CUSTOM, type PrimaryPresetId } from '@jetpack-premium-analytics/datetime';
+import { StatsErrorBoundary } from '@jetpack-premium-analytics/error-reporting';
 import { Icon } from '@jetpack-premium-analytics/externals';
 import { jetpack, lookupWidgetIcon } from '@jetpack-premium-analytics/icons';
 import {
@@ -62,7 +64,6 @@ import {
 	type SingleReportPageSection,
 } from './registry';
 import styles from './stage.module.scss';
-import type { PrimaryPresetId } from '@jetpack-premium-analytics/datetime';
 import type { WidgetType } from '@wordpress/widget-primitives';
 import type { JSX } from 'react';
 
@@ -277,6 +278,15 @@ function SingleReportBody( { page, entityId, adapter }: SingleReportBodyProps ):
 		! isPinned,
 		dateLimits
 	);
+	// A period a card opens applies at once, as the custom range it commits.
+	const onOpenPeriod = useCallback< typeof openPeriod >(
+		( range, options ) => {
+			openPeriod( range, options );
+			trackedOnChange( range, PRESET_CUSTOM, { exactRange: true, trigger: 'widget' } );
+			trackedOnApply();
+		},
+		[ openPeriod, trackedOnChange, trackedOnApply ]
+	);
 
 	const reportSearch = pickReportNavigationParams( search );
 
@@ -322,7 +332,8 @@ function SingleReportBody( { page, entityId, adapter }: SingleReportBodyProps ):
 		label: page.label,
 		title,
 		section: activeState,
-		performanceRange: pinnedWindow?.range ?? dateFilters.appliedRange,
+		performanceRange:
+			pinnedWindow?.headerRange?.( layout ) ?? pinnedWindow?.range ?? dateFilters.appliedRange,
 	} );
 	const recordIcon = ( page.icon && lookupWidgetIcon( page.icon ) ) || jetpack;
 	const reportsPage = page.reports_page ? getReportDefinition( page.reports_page ) : undefined;
@@ -379,7 +390,7 @@ function SingleReportBody( { page, entityId, adapter }: SingleReportBodyProps ):
 		<>
 			<PeriodChangeStatus periodChange={ attention } />
 			<ReportScopeProvider
-				openPeriod={ openPeriod }
+				openPeriod={ onOpenPeriod }
 				attentionId={ attention?.id }
 				dateLimits={ dateLimits }
 			>
@@ -473,13 +484,15 @@ function SingleReport(): JSX.Element | null {
  */
 export function stage(): JSX.Element {
 	return (
-		<AnalyticsQueryClientProvider>
-			{ /* No compared period on this page, whatever a hand-edited URL carries. */ }
-			<ReportScopeProvider offersComparison={ false }>
-				<PeriodChangeSignalProvider>
-					<SingleReport />
-				</PeriodChangeSignalProvider>
-			</ReportScopeProvider>
-		</AnalyticsQueryClientProvider>
+		<StatsErrorBoundary>
+			<AnalyticsQueryClientProvider>
+				{ /* No compared period on this page, whatever a hand-edited URL carries. */ }
+				<ReportScopeProvider offersComparison={ false }>
+					<PeriodChangeSignalProvider>
+						<SingleReport />
+					</PeriodChangeSignalProvider>
+				</ReportScopeProvider>
+			</AnalyticsQueryClientProvider>
+		</StatsErrorBoundary>
 	);
 }

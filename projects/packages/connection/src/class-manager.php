@@ -2584,7 +2584,7 @@ class Manager {
 	 * @param bool $tos_agree Whether the user agreed to TOS.
 	 * @param bool $force     Whether this attempt was explicitly requested by a user.
 	 *
-	 * @return bool|WP_Error
+	 * @return true|WP_Error
 	 */
 	public function try_registration( $tos_agree = true, $force = false ) {
 		if ( ! $force ) {
@@ -2640,7 +2640,7 @@ class Manager {
 		remove_filter( 'jetpack_register_request_body', array( Utils::class, 'filter_register_request_body' ) );
 
 		// If there was an error with registration and the site was not registered, record this so we can show a message.
-		if ( ! $result || is_wp_error( $result ) ) {
+		if ( is_wp_error( $result ) ) {
 			return $result;
 		}
 

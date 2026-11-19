@@ -59,7 +59,8 @@ export default function useIdentityCrisisActions( {
 		[ setBusy ]
 	);
 
-	const migrate = useCallback( async () => {
+	// Each action takes an `IdentityCrisisActionPath` for CONNECT-620's events; nothing reads it yet.
+	const migrate: IdentityCrisisActions[ 'migrate' ] = useCallback( async () => {
 		const result = await run( 'migrate', () => restApi.migrateIDC() );
 		if ( ! result ) {
 			return false;
@@ -69,7 +70,7 @@ export default function useIdentityCrisisActions( {
 		return true;
 	}, [ run, setBusy ] );
 
-	const startFresh = useCallback( async () => {
+	const startFresh: IdentityCrisisActions[ 'startFresh' ] = useCallback( async () => {
 		const result = await run( 'start-fresh', async () => {
 			const url: unknown = await restApi.startIDCFresh( redirectUri, from );
 			// The host navigates to it, so anything but a web URL counts as a server failure.
@@ -83,7 +84,7 @@ export default function useIdentityCrisisActions( {
 		return result ? result.response : null;
 	}, [ run, redirectUri, from ] );
 
-	const confirmSafeMode = useCallback( async () => {
+	const confirmSafeMode: IdentityCrisisActions[ 'confirmSafeMode' ] = useCallback( async () => {
 		const result = await run( 'confirm-safe-mode', () => restApi.confirmIDCSafeMode() );
 		return Boolean( result );
 	}, [ run ] );

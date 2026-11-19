@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Admin menu and dashboard widget: Link the Hosting menu item and the Hosting Overview button straight to the site's page in the dashboard instead of redirecting through the Overview page.

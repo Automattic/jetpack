@@ -86,12 +86,10 @@ class Admin {
 			'load'         => array( $this, 'load_as_admin_shell_guest' ),
 		);
 		// The Getting Started screen, which a bare menu link opens until it's done, has no page header.
-		if ( ! ( new Getting_Started_Entry() )->get() ) {
-			$members[ JETPACK_BOOST_SLUG ]['header'] = array(
-				'title'    => 'Boost',
-				'subtitle' => __( 'Improve your site speed and performance.', 'jetpack-boost' ),
-			);
-		}
+		$members[ JETPACK_BOOST_SLUG ]['header'] = ( new Getting_Started_Entry() )->get() ? false : array(
+			'title'    => 'Boost',
+			'subtitle' => __( 'Improve your site speed and performance.', 'jetpack-boost' ),
+		);
 		return $members;
 	}
 
@@ -289,11 +287,14 @@ class Admin {
 	 * Enqueue scripts and styles for the admin page.
 	 */
 	public function admin_init() {
-		// Clear premium features cache when the plugin settings page is loaded.
-		Premium_Features::clear_cache();
+		// Refetch the premium features unless the site features this page loads anyway still match them.
+		$cache_confirmed = Premium_Features::is_cache_confirmed();
+		if ( ! $cache_confirmed ) {
+			Premium_Features::clear_cache();
+		}
 		if ( current_user_can( 'manage_options' ) ) {
 			$already_activated = get_option( Premium_Features::CLOUD_CSS_ACTIVATED_OPTION );
-			Premium_Features::enable_cloud_css_after_upgrade();
+			Premium_Features::enable_cloud_css_after_upgrade( $cache_confirmed );
 			if ( $this->modern_dashboard_loaded && ! $already_activated && get_option( Premium_Features::CLOUD_CSS_ACTIVATED_OPTION ) ) {
 				jetpack_boost_ds_set( 'cloud_css_upgrade_notice', true );
 			}

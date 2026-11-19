@@ -78,6 +78,7 @@ class Dashboard {
 	const SECTIONS = array(
 		Sections\Overview::class,
 		Sections\Payments::class,
+		Sections\Subscribers::class,
 		Sections\Ads::class,
 	);
 

@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Admin shell: Prewarm only the route a menu link opens, and load a dashboard's other routes when it first reaches them.

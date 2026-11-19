@@ -8,6 +8,7 @@ import {
 	setTracksContext,
 	trackViewed,
 	trackWizardBackClicked,
+	trackWizardBackToSetupChooser,
 	trackWizardGoalClicked,
 	trackWizardMcpAllowFullAccessClicked,
 	trackWizardMcpConnectedViewed,
@@ -27,12 +28,16 @@ import {
 	AI_TOOL_CHAT_URLS,
 	buildWizardPayload,
 	canContinue,
+	dashboardIntegration,
+	firstScreen,
+	footerExit,
+	footerShowsDashboard,
+	trackedVariation,
 	GOAL_SLUGS,
 	goalsVariation,
 	isLastStep,
 	isReadOnlyAccess,
 	MCP_SETTINGS_URL,
-	showsSetupChoice,
 	TOTAL_STEPS,
 	viewedStep,
 	type AiTool,
@@ -63,8 +68,14 @@ interface Props {
 	goalsVariation?: string | null;
 	// Whether the AI tool view can detect a new connection; without it, Connect only opens the tool.
 	mcpDetection?: boolean;
+	// Whether each connection check asks WordPress.com over the network.
+	mcpRemote?: boolean;
 	// Whether "Allow full access" can allow it in place; without it, the button opens the MCP settings.
 	mcpAllowFull?: boolean;
+	// Whether to open on the AI tool view, skipping the setup choice; Back then leaves for aiToolBackUrl.
+	startOnAiTool?: boolean;
+	// Where Back leaves Site Setup for from the AI tool view it opened on; without it, Go to my dashboard shows instead.
+	aiToolBackUrl?: string;
 	// Fired once Finish completes, with the persisted input and the in-flight
 	// tailor promise, so the host can swap to the tailored list.
 	onComplete?: ( input: WizardInput, tailoring: Promise< TailorResult > ) => void;
@@ -84,7 +95,10 @@ interface Props {
  * @param props.aiBuilt         - Whether the site was built with AI, which changes the fallback list.
  * @param props.goalsVariation  - The goals step's ExPlat variation from the server.
  * @param props.mcpDetection    - Whether the AI tool view can detect a new connection.
+ * @param props.mcpRemote       - Whether each connection check asks WordPress.com over the network.
  * @param props.mcpAllowFull    - Whether "Allow full access" can allow it in place.
+ * @param props.startOnAiTool   - Whether to open on the AI tool view.
+ * @param props.aiToolBackUrl   - Where Back leaves Site Setup for from the AI tool view it opened on.
  * @param props.onComplete      - Called with the input and tailor promise on Finish.
  * @return The wizard element.
  */
@@ -98,7 +112,10 @@ export function Wizard( {
 	aiBuilt = false,
 	goalsVariation: assignedVariation = null,
 	mcpDetection = false,
+	mcpRemote = false,
 	mcpAllowFull = false,
+	startOnAiTool = false,
+	aiToolBackUrl,
 	onComplete,
 }: Props ) {
 	const [ step, setStep ] = useState< WizardStep >( 0 );
@@ -106,18 +123,20 @@ export function Wizard( {
 		() => GOAL_SLUGS.find( slug => slug === initialGoal ) ?? null
 	);
 	const variation = goalsVariation( assignedVariation );
+	const first = firstScreen( variation, startOnAiTool );
+	const reportedVariation = trackedVariation( variation, startOnAiTool );
 	const [ siteName, setSiteName ] = useState< string >( initialSiteName );
 	const [ intent, setIntent ] = useState< string >( initialIntent );
 	const [ skipping, setSkipping ] = useState( false );
 	// Whether the "Which AI do you use?" view replaces the goals step. It is not a numbered step.
-	const [ showAiTool, setShowAiTool ] = useState( false );
+	const [ showAiTool, setShowAiTool ] = useState( first === 'ai_tool' );
 	const goalsTitleRef = useRef< HTMLHeadingElement >( null );
 	const aiToolTitleRef = useRef< HTMLHeadingElement >( null );
 	// The AI tools connected from the AI tool view, in the order they connected.
 	const [ connectedTools, setConnectedTools ] = useState< AiTool[] >( [] );
 	// Whether the account's MCP access was read only at the AI tool view's last check. It applies to every tool.
 	const [ readOnlyAccess, setReadOnlyAccess ] = useState( false );
-	// The account's MCP access level at the last check: `full`, `read_only`, or null when settings match neither.
+	// The account's MCP access level at the last check: `full`, `read_only`, or null for a fresh account or one tuned per tool.
 	const [ accessLevel, setAccessLevel ] = useState< string | null >( null );
 	// Once full access is allowed here, a check already in flight can still report read only, so it is ignored.
 	const fullAccessAllowed = useRef( false );
@@ -126,8 +145,8 @@ export function Wizard( {
 	const [ allowFullAccessFailed, setAllowFullAccessFailed ] = useState( false );
 	const [ promptCopied, setPromptCopied ] = useState( false );
 	const readOnly = readOnlyAccess && connectedTools.length > 0;
-	// The treatment opens on "Guide me" or "Build with AI" before the goals.
-	const [ choosing, setChoosing ] = useState( showsSetupChoice( variation ) );
+	// The treatment opens on "Guide me" or "Build with AI" before the goals, unless the URL opened the AI tool view.
+	const [ choosing, setChoosing ] = useState( first === 'setup_choice' );
 	const [ setupChoice, setSetupChoice ] = useState< SetupChoice | null >( null );
 	const choiceTitleRef = useRef< HTMLHeadingElement >( null );
 
@@ -136,7 +155,7 @@ export function Wizard( {
 	// The analytics name of the current step, shared by every event that reports one.
 	const stepName = 0 === step ? 'goal' : 'site_details';
 
-	const viewed = viewedStep( step, choosing, showAiTool );
+	const viewed = viewedStep( step, choosing, showAiTool, startOnAiTool );
 
 	// One viewed event per screen shown, re-firing when Back re-shows the setup choice or goal step.
 	useEffect( () => {
@@ -158,9 +177,9 @@ export function Wizard( {
 
 	useEffect( () => {
 		if ( showAiTool ) {
-			trackWizardMcpScreenViewed( { goals_variation: variation } );
+			trackWizardMcpScreenViewed( { goals_variation: reportedVariation } );
 		}
-	}, [ showAiTool, variation ] );
+	}, [ showAiTool, reportedVariation ] );
 
 	// The tools that were connected before the AI tool view opened.
 	const alreadyConnected = useRef< AiTool[] >( [] );
@@ -187,29 +206,28 @@ export function Wizard( {
 			.forEach( tool => {
 				connectedTracked.current.push( tool );
 				trackWizardMcpConnectedViewed( {
-					goals_variation: variation,
+					goals_variation: reportedVariation,
 					integration: tool,
 					already_connected: alreadyConnected.current.includes( tool ),
 				} );
 			} );
-	}, [ readOnly, connectedTools, variation ] );
+	}, [ readOnly, connectedTools, reportedVariation ] );
 
 	useEffect( () => {
 		if ( readOnly ) {
 			trackWizardMcpReadOnlyViewed( {
-				goals_variation: variation,
+				goals_variation: reportedVariation,
 				integration: connectedTools[ connectedTools.length - 1 ],
 			} );
 		}
-	}, [ readOnly, connectedTools, variation ] );
+	}, [ readOnly, connectedTools, reportedVariation ] );
 
 	const handleReadOnlyChange = useCallback( ( level: string | null ) => {
 		setAccessLevel( level );
 		setReadOnlyAccess( isReadOnlyAccess( level ) && ! fullAccessAllowed.current );
 	}, [] );
 
-	// Only a clean read-only account is switched in place. An account tuned per tool (null) goes to the settings,
-	// since allowing full access would clear its per-tool choices.
+	// Only a read-only account is switched in place; POST /mcp-access refuses any other level.
 	const allowsFullAccessInPlace =
 		mcpAllowFull && ! allowFullAccessFailed && accessLevel === 'read_only';
 
@@ -223,14 +241,14 @@ export function Wizard( {
 			} );
 			fullAccessAllowed.current = true;
 			trackWizardMcpAllowFullAccessClicked( {
-				goals_variation: variation,
+				goals_variation: reportedVariation,
 				integration,
 				result: 'success',
 			} );
 			setReadOnlyAccess( false );
 		} catch {
 			trackWizardMcpAllowFullAccessClicked( {
-				goals_variation: variation,
+				goals_variation: reportedVariation,
 				integration,
 				result: 'error',
 			} );
@@ -243,8 +261,8 @@ export function Wizard( {
 
 	const handleGoToDashboard = () => {
 		trackWizardMcpGoToDashboardClicked( {
-			goals_variation: variation,
-			integration: connectedTools[ connectedTools.length - 1 ] ?? 'other',
+			goals_variation: reportedVariation,
+			integration: dashboardIntegration( connectedTools, promptCopied ),
 		} );
 		window.location.assign( 'index.php' );
 	};
@@ -333,17 +351,23 @@ export function Wizard( {
 		window.location.href = 'index.php';
 	};
 
-	// In the treatment, every view after the setup choice leads back towards it instead of skipping.
-	const backReplacesSkip = showAiTool || ( showsSetupChoice( variation ) && ! choosing );
+	const exit = footerExit( {
+		variation,
+		choosing,
+		showAiTool,
+		startOnAiTool,
+		hasBackUrl: !! aiToolBackUrl,
+	} );
 
 	return (
-		// The wizard cannot be dismissed: Escape and backdrop clicks are ignored, and
-		// "Skip" is the only way out, apart from "Go to my dashboard" once an AI tool is connected.
+		// The wizard cannot be dismissed: Escape and backdrop clicks are ignored.
 		<Dialog.Root open onOpenChange={ () => undefined } disablePointerDismissal>
 			<Dialog.Popup
 				size="medium"
 				className="ai-launchpad-wizard"
-				initialFocus={ choosing ? choiceTitleRef : goalsTitleRef }
+				initialFocus={
+					{ setup_choice: choiceTitleRef, ai_tool: aiToolTitleRef, goal: goalsTitleRef }[ first ]
+				}
 				portal={ <Dialog.Portal className="ai-launchpad-wizard__portal" /> }
 			>
 				<Dialog.Content>
@@ -367,8 +391,9 @@ export function Wizard( {
 					{ showAiTool && (
 						<AiToolStep
 							titleRef={ aiToolTitleRef }
-							variation={ variation }
+							variation={ reportedVariation }
 							detectsConnections={ mcpDetection }
+							pollsRemotely={ mcpRemote }
 							connected={ connectedTools }
 							onConnected={ handleConnected }
 							readOnly={ readOnly }
@@ -434,7 +459,7 @@ export function Wizard( {
 											readOnly
 												? () =>
 														trackWizardMcpAllowFullAccessClicked( {
-															goals_variation: variation,
+															goals_variation: reportedVariation,
 															integration: connectedTools[ connectedTools.length - 1 ],
 															result: 'settings_link',
 														} )
@@ -452,23 +477,38 @@ export function Wizard( {
 						) }
 					</Stack>
 				) : (
-					<Stack render={ <Dialog.Footer /> } align="center" justify="space-between" gap="md">
-						{ backReplacesSkip ? (
-							<Button variant="minimal" onClick={ handleBack }>
-								{ __( 'Back', 'jetpack-mu-wpcom' ) }
-							</Button>
-						) : (
+					<Stack
+						render={ <Dialog.Footer /> }
+						align="center"
+						justify={ exit ? 'space-between' : 'flex-end' }
+						gap="md"
+					>
+						{ exit === 'back' &&
+							( startOnAiTool && aiToolBackUrl ? (
+								<ButtonLink
+									variant="minimal"
+									href={ aiToolBackUrl }
+									onClick={ trackWizardBackToSetupChooser }
+								>
+									{ __( 'Back', 'jetpack-mu-wpcom' ) }
+								</ButtonLink>
+							) : (
+								<Button variant="minimal" onClick={ handleBack }>
+									{ __( 'Back', 'jetpack-mu-wpcom' ) }
+								</Button>
+							) ) }
+						{ exit === 'skip' && (
 							<Button variant="minimal" onClick={ handleSkip } disabled={ skipping }>
 								{ __( 'Skip', 'jetpack-mu-wpcom' ) }
 							</Button>
 						) }
 						<Stack gap="sm">
-							{ step > 0 && ! backReplacesSkip && (
+							{ step > 0 && exit !== 'back' && (
 								<Button variant="outline" onClick={ handleBack } disabled={ skipping }>
 									{ __( 'Back', 'jetpack-mu-wpcom' ) }
 								</Button>
 							) }
-							{ showAiTool && promptCopied && (
+							{ showAiTool && footerShowsDashboard( promptCopied, exit ) && (
 								<Button variant="solid" onClick={ handleGoToDashboard }>
 									{ aiCopy.goToDashboard }
 								</Button>

@@ -1,0 +1,3 @@
+Significance: patch
+Type: changed
+Comment: Prepare an internal IndexNow component; the owner-facing feature is added with the opt-in UI.

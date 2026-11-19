@@ -3,6 +3,7 @@ import { useDispatch } from '@wordpress/data';
 import { useCallback, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
+import { recordSeoEvent } from './record-seo-event';
 import { cleanLocalBusiness, cleanOrganization, cleanPerson } from './schema-settings-utils';
 import type {
 	BreadcrumbListSettings,
@@ -20,10 +21,80 @@ const ENDPOINT = '/jetpack/v4/seo/schema-settings';
 // Single snackbar id reused across a save so "Saving…" is replaced in place by the result.
 const NOTICE_ID = 'jetpack-seo-schema-settings-save';
 
+const hasStoredValue = ( value: unknown ): boolean => {
+	if ( value && typeof value === 'object' ) {
+		return Object.values( value ).some( hasStoredValue );
+	}
+	return typeof value === 'string' ? value.trim().length > 0 : Boolean( value );
+};
+
 type EditableSchemaSections = Pick<
 	SchemaSettings,
 	'siteRepresents' | 'breadcrumbList' | 'organization' | 'localBusiness' | 'person'
 >;
+
+/**
+ * Normalize schema values before comparing their contents.
+ *
+ * @param settings - Schema values to compare.
+ * @return Normalized schema sections.
+ */
+function normalizedSections( settings: EditableSchemaSections ): EditableSchemaSections {
+	return {
+		...settings,
+		organization: cleanOrganization( settings.organization ),
+		localBusiness: cleanLocalBusiness( settings.localBusiness ),
+		person: cleanPerson( settings.person ),
+	};
+}
+
+/**
+ * Record submitted schema values that differ from the saved baseline.
+ *
+ * @param event    - Success or failure event name.
+ * @param baseline - Last-saved schema values.
+ * @param settings - Saved values or the attempted values on failure.
+ * @param sections - Sections submitted by this request.
+ */
+function recordSchemaChanges(
+	event: 'jetpack_seo_setting_updated' | 'jetpack_seo_setting_update_failed',
+	baseline: EditableSchemaSections,
+	settings: EditableSchemaSections,
+	sections: ( keyof EditableSchemaSections )[]
+): void {
+	const previous = normalizedSections( baseline );
+	const next = normalizedSections( settings );
+	const record = ( section: string, value: string | boolean ) =>
+		recordSeoEvent( event, 'settings', {
+			setting: `schema_${ section }`,
+			verification_service: 'none',
+			setting_value: value,
+		} );
+
+	for ( const section of sections ) {
+		if ( section === 'localBusiness' ) {
+			const { enabled: wasEnabled, ...previousFields } = previous.localBusiness;
+			const { enabled, ...nextFields } = next.localBusiness;
+			if ( wasEnabled !== enabled ) {
+				record( 'localBusiness_enabled', enabled );
+			}
+			if ( JSON.stringify( previousFields ) !== JSON.stringify( nextFields ) ) {
+				record( section, hasStoredValue( nextFields ) ? 'set' : 'cleared' );
+			}
+			continue;
+		}
+		if ( JSON.stringify( previous[ section ] ) === JSON.stringify( next[ section ] ) ) {
+			continue;
+		}
+		if ( section === 'siteRepresents' ) {
+			record( section, next.siteRepresents );
+		} else if ( section === 'breadcrumbList' ) {
+			record( section, next.breadcrumbList.enabled );
+		} else {
+			record( section, hasStoredValue( next[ section ] ) ? 'set' : 'cleared' );
+		}
+	}
+}
 
 export interface SchemaSettingsForm {
 	/** Which entity the site represents (its publisher / main entity). */
@@ -117,6 +188,8 @@ export function useSchemaSettings(
 			onSuccess: ( settings: SchemaSettings ) => void,
 			onError?: () => void
 		) => {
+			const baseline = baselineRef.current;
+			const submittedSections = Object.keys( data ) as ( keyof EditableSchemaSections )[];
 			setIsSaving( true );
 			createInfoNotice( savingNotice, {
 				id: NOTICE_ID,
@@ -124,7 +197,22 @@ export function useSchemaSettings(
 				isDismissible: false,
 			} );
 			apiFetch< SchemaSettings >( { path: ENDPOINT, method: 'POST', data } )
+				.catch( error => {
+					recordSchemaChanges(
+						'jetpack_seo_setting_update_failed',
+						baseline,
+						{ ...baseline, ...data },
+						submittedSections
+					);
+					throw error;
+				} )
 				.then( settings => {
+					recordSchemaChanges(
+						'jetpack_seo_setting_updated',
+						baseline,
+						settings,
+						submittedSections
+					);
 					onSuccess( settings );
 					onSave?.( settings );
 					createSuccessNotice( __( 'Schema settings saved.', 'jetpack-seo' ), {

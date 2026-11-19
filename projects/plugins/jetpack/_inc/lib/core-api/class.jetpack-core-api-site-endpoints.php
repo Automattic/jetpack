@@ -6,6 +6,7 @@
  */
 
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
 use Automattic\Jetpack\Publicize\Publicize;
 use Automattic\Jetpack\Stats\WPCOM_Stats;
 
@@ -64,27 +65,12 @@ class Jetpack_Core_API_Site_Endpoint {
 	/**
 	 * Returns the result of `/upgrades` endpoint call.
 	 *
-	 * @return array of site purchases.
+	 * @return WP_REST_Response|WP_Error The site purchases, or an error if they could not be fetched.
 	 */
 	public static function get_purchases() {
-		// Make the API request.
-		$request  = sprintf( '/upgrades?site=%d', Jetpack_Options::get_option( 'id' ) );
-		$response = Client::wpcom_json_api_request_as_blog( $request, '1.2' );
-
-		// Bail if there was an error or malformed response.
-		if ( is_wp_error( $response ) || ! is_array( $response ) || ! isset( $response['body'] ) ) {
-			return self::get_failed_fetch_error();
-		}
-
-		if ( 200 !== (int) wp_remote_retrieve_response_code( $response ) ) {
-			return self::get_failed_fetch_error();
-		}
-
-		// Decode the results.
-		$results = json_decode( $response['body'], true );
-
-		// Bail if there were no results or purchase details returned.
-		if ( ! is_array( $results ) ) {
+		// Share My Jetpack's cached lookup, which other Jetpack pages also read, instead of asking WordPress.com again.
+		$purchases = Wpcom_Products::get_site_current_purchases();
+		if ( ! is_array( $purchases ) ) {
 			return self::get_failed_fetch_error();
 		}
 
@@ -92,7 +78,7 @@ class Jetpack_Core_API_Site_Endpoint {
 			array(
 				'code'    => 'success',
 				'message' => esc_html__( 'Site purchases correctly received.', 'jetpack' ),
-				'data'    => wp_remote_retrieve_body( $response ),
+				'data'    => wp_json_encode( $purchases, JSON_UNESCAPED_SLASHES ),
 			)
 		);
 	}
