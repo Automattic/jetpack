@@ -9,6 +9,8 @@ import { WhatsNew } from './components';
 import { ensureAnnouncementEntity } from './hooks';
 import type * as Contract from '@automattic/jetpack-announcements';
 
+export { useTeaserSwitch } from './hooks';
+
 type Mount = {
 	/*
 	 * What the host that mounted asked for.
