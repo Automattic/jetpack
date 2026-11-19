@@ -94,6 +94,16 @@ class Llms_Txt {
 	}
 
 	/**
+	 * Protect the document's URL before SEO is enabled or the dashboard is visible.
+	 *
+	 * @return void
+	 */
+	public static function register_redirect_filters() {
+		add_filter( 'redirect_canonical', array( __CLASS__, 'preserve_llms_txt_request' ) );
+		add_filter( 'old_slug_redirect_url', array( __CLASS__, 'preserve_llms_txt_request' ) );
+	}
+
+	/**
 	 * Register the always-include meta for core REST and keep it off on hidden content.
 	 *
 	 * @return void
@@ -287,20 +297,34 @@ class Llms_Txt {
 	}
 
 	/**
+	 * Prevent cached post redirects from outliving the document's disabled state.
+	 *
+	 * @param string|false $redirect_url The proposed redirect destination.
+	 * @return string|false
+	 */
+	public static function preserve_llms_txt_request( $redirect_url ) {
+		return 'llms.txt' === self::request_path() ? false : $redirect_url;
+	}
+
+	/**
+	 * Whether this request can receive the generated document.
+	 *
+	 * @return bool
+	 */
+	private static function should_serve() {
+		return 'llms.txt' === self::request_path()
+			&& self::is_enabled()
+			&& self::can_serve()
+			&& (bool) get_option( 'blog_public' );
+	}
+
+	/**
 	 * Serve llms.txt when enabled and the request is for it; otherwise no-op.
 	 *
 	 * @return void
 	 */
 	public static function maybe_serve() {
-		if ( ! self::is_enabled() || 'llms.txt' !== self::request_path() || ! self::can_serve() ) {
-			return;
-		}
-
-		// Respect the site's "discourage search engines" setting. When indexing is
-		// discouraged, WordPress emits `Disallow: /` in robots.txt — serving an AI
-		// content map would contradict that signal, and would expose a content map
-		// on staging/private sites, so we don't serve it.
-		if ( ! get_option( 'blog_public' ) ) {
+		if ( ! self::should_serve() ) {
 			return;
 		}
 

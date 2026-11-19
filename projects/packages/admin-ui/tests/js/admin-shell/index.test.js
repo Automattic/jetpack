@@ -4,6 +4,7 @@ const mockInits = { a: jest.fn(), b: jest.fn() };
 const mockShowHeader = jest.fn( () => () => {} );
 const mockCapturedSlug = {};
 const mockFeature = { on: true, card: '' };
+const mockRouteLoaders = [];
 
 jest.mock( '../../../src/admin-shell/adapter', () => ( {
 	bootFor: jest.fn( () => Promise.resolve( { initSinglePage: jest.fn() } ) ),
@@ -24,6 +25,14 @@ jest.mock( '../../../src/admin-shell/adapter', () => ( {
 	loadPage: jest.fn(),
 	notifyRouters: jest.fn(),
 	prefetchBoot: jest.fn( () => Promise.resolve() ),
+	preloadModules: jest.fn( () => Promise.resolve() ),
+	routeAt: ( ...args ) =>
+		jest.requireActual( '../../../src/admin-shell/adapter' ).routeAt( ...args ),
+	// jsdom can't import the blob stand-ins, so tests call each guest's loader themselves.
+	routesLoadedBy: jest.fn( ( routes, load ) => {
+		mockRouteLoaders.push( load );
+		return routes;
+	} ),
 	trackViewTransitions: jest.fn(),
 	transitionSettled: jest.fn( () => Promise.resolve() ),
 } ) );
@@ -69,6 +78,15 @@ jest.mock(
 );
 
 jest.mock(
+	'test-guest-a/other',
+	() => {
+		mockCapturedSlug.aOther = globalThis.jetpackConfig?.consumer_slug;
+		return {};
+	},
+	{ virtual: true }
+);
+
+jest.mock(
 	'test-guest-a2/route',
 	() => {
 		mockCapturedSlug.a2 = globalThis.jetpackConfig?.consumer_slug;
@@ -88,7 +106,7 @@ jest.mock(
 const member = ( slug, guest, routes = guest ) => ( {
 	mountId: `${ slug }-app`,
 	initModules: guest ? [ `test-guest-${ guest }/init` ] : [],
-	routes: routes ? [ { route_module: `test-guest-${ routes }/route` } ] : [],
+	routes: routes ? [ { path: '/$', route_module: `test-guest-${ routes }/route` } ] : [],
 } );
 
 const settle = async () => {
@@ -122,6 +140,8 @@ beforeEach( () => {
 	mockShowHeader.mockClear();
 	mockInits.a.mockReset();
 	mockInits.b.mockReset();
+	mockRouteLoaders.length = 0;
+	delete mockCapturedSlug.aOther;
 	delete mockCapturedSlug.a;
 	delete mockCapturedSlug.b;
 	delete mockCapturedSlug.a2;
@@ -132,7 +152,14 @@ beforeEach( () => {
 		host: 'host',
 		members: {
 			host: { ...member( 'host' ), initModules: [ 'test-guest-h/init' ] },
-			'guest-a': { ...member( 'guest-a', 'a' ), header: { title: 'Guest A', subtitle: 'Sub' } },
+			'guest-a': {
+				...member( 'guest-a', 'a' ),
+				routes: [
+					...member( 'guest-a', 'a' ).routes,
+					{ path: '/other', route_module: 'test-guest-a/other' },
+				],
+				header: { title: 'Guest A', subtitle: 'Sub' },
+			},
 			'guest-b': member( 'guest-b', 'b' ),
 			// Another page built from guest A's package: same init module.
 			'guest-a2': { ...member( 'guest-a2', 'a', 'a2' ), header: false },
@@ -420,6 +447,62 @@ describe( 'admin shell prewarm', () => {
 		await settle();
 
 		expect( mockCapturedSlug ).toEqual( { a: 'a', b: 'b' } );
+	} );
+
+	it.each( [
+		[ 'its landing route', 'guest-a', { a: 'a' } ],
+		[ 'the route its link opens', 'guest-a&p=%2Fother', { aOther: 'a' } ],
+	] )( 'prewarms only %s', async ( _, page, captured ) => {
+		mockInits.a.mockImplementation( () => {
+			globalThis.jetpackConfig = { consumer_slug: 'a' };
+		} );
+		document
+			.querySelector( '#adminmenu' )
+			.insertAdjacentHTML(
+				'beforeend',
+				`<li><a id="link" href="/wp-admin/admin.php?page=${ page }">A</a></li>`
+			);
+
+		jest.useFakeTimers();
+		document
+			.getElementById( 'link' )
+			.dispatchEvent( new Event( 'pointerover', { bubbles: true } ) );
+		jest.advanceTimersByTime( 100 );
+		jest.useRealTimers();
+		await settle();
+
+		expect( mockCapturedSlug ).toEqual( captured );
+	} );
+
+	it( "evaluates a route a guest reaches later with that guest's Jetpack config", async () => {
+		const pageConfig = { consumer_slug: 'host' };
+		globalThis.jetpackConfig = pageConfig;
+		mockInits.a.mockImplementation( () => {
+			globalThis.jetpackConfig = { consumer_slug: 'a' };
+		} );
+		click( '/wp-admin/admin.php?page=guest-a' );
+		await settle();
+
+		await mockRouteLoaders[ 0 ]( 'test-guest-a/other' );
+
+		expect( mockCapturedSlug ).toEqual( { a: 'a', aOther: 'a' } );
+		expect( globalThis.jetpackConfig ).toBe( pageConfig );
+	} );
+
+	it( "starts downloading a route a guest reaches while another guest's prewarm holds the queue", async () => {
+		const { preloadModules } = require( '../../../src/admin-shell/adapter' );
+		click( '/wp-admin/admin.php?page=guest-a' );
+		await settle();
+		mockInits.b.mockImplementation( () => new Promise( () => {} ) );
+		hover( 'guest-b' );
+		await settle();
+
+		const loading = mockRouteLoaders[ 0 ]( 'test-guest-a/other' );
+		await settle();
+
+		expect( preloadModules ).toHaveBeenLastCalledWith( [ 'test-guest-a/other' ] );
+		expect( mockCapturedSlug.aOther ).toBeUndefined();
+		loading.catch( () => {} );
 	} );
 
 	it( "keeps the page's Jetpack config, and gives a page sharing an init module that init's config", async () => {

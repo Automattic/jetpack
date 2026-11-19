@@ -207,7 +207,7 @@ class Playground_DB_Importer {
 			$output_table = $this->get_output_table_name( $table_name );
 
 			$generator->start_table( $output_table, $types_map['map'], $types_map['auto_increment'] );
-			$this->generate_inserts( $generator, $table['name'], $types_map['format'], $types_map['field_names'] );
+			$this->generate_inserts( $generator, $table['name'], $types_map['formats'], $types_map['field_names'] );
 			$generator->end_table_inserts();
 
 			if ( ! $this->options['all_tables'] ) {
@@ -259,12 +259,12 @@ class Playground_DB_Importer {
 	 *
 	 * @param SQL_Generator $generator   The SQL generator.
 	 * @param string        $table_name  The table name.
-	 * @param string        $format      The format string.
+	 * @param string[]      $formats     The format of each column.
 	 * @param string        $field_names The field names.
 	 *
 	 * @return void|WP_Error
 	 */
-	private function generate_inserts( SQL_Generator $generator, string $table_name, string $format, string $field_names ) {
+	private function generate_inserts( SQL_Generator $generator, string $table_name, array $formats, string $field_names ) {
 		$entries = $this->db->query( "SELECT * FROM {$table_name}" );
 
 		if ( ! $entries ) {
@@ -272,8 +272,39 @@ class Playground_DB_Importer {
 		}
 
 		while ( $entry = $entries->fetchArray( SQLITE3_ASSOC ) ) { // phpcs:ignore Generic.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition
-			$generator->table_insert( $field_names, $this->prepare( $format, $entry ) );
+			$generator->table_insert( $field_names, $this->prepare_row( $formats, array_values( $entry ) ) );
 		}
+	}
+
+	/**
+	 * Format a row's values for an INSERT, keeping NULL as NULL.
+	 *
+	 * `wpdb::prepare()` writes NULL as `''`, which MySQL stores as `0` in a number column or as `''`. Two
+	 * of those in a UNIQUE index, like Borlabs Cookie's or MailPoet's nullable unique columns, collide
+	 * and fail the restore with a duplicate entry error.
+	 *
+	 * @param string[] $formats The format of each column.
+	 * @param array    $values  The row's values, in column order.
+	 *
+	 * @return string
+	 */
+	private function prepare_row( array $formats, array $values ): string {
+		$placeholders = array();
+		$args         = array();
+
+		foreach ( $values as $i => $value ) {
+			if ( null === $value ) {
+				$placeholders[] = 'NULL';
+				continue;
+			}
+
+			$placeholders[] = $formats[ $i ] ?? '%s';
+			$args[]         = $value;
+		}
+
+		$row = '(' . implode( ',', $placeholders ) . ')';
+
+		return empty( $args ) ? $row : (string) $this->prepare( $row, $args );
 	}
 
 	/**
@@ -576,6 +607,7 @@ class Playground_DB_Importer {
 			'auto_increment' => $auto_increment,
 			'field_names'    => '(`' . implode( '`,`', $field_names ) . '`)',
 			'format'         => '(' . implode( ',', $formats ) . ')',
+			'formats'        => $formats,
 		);
 	}
 

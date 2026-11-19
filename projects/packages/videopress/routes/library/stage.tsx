@@ -26,7 +26,7 @@ import {
 	type VideoDeletionItem,
 } from '../../src/dashboard/hooks/use-delete-video';
 import { useFreeTier } from '../../src/dashboard/hooks/use-free-tier';
-import { useLibrary } from '../../src/dashboard/hooks/use-library';
+import { isWholeLibraryView, useLibrary } from '../../src/dashboard/hooks/use-library';
 import { useLibraryInteractions } from '../../src/dashboard/hooks/use-library-interactions';
 import { usePersistedView } from '../../src/dashboard/hooks/use-persisted-view';
 import { useSetPrivacy } from '../../src/dashboard/hooks/use-set-privacy';
@@ -83,10 +83,10 @@ const DEFAULT_VIEW: View = {
 	search: '',
 };
 
-// The whole library, unfiltered — `paginationInfo` on the user's own view is
-// scoped to their filters and search, so it cannot answer "is there anything
-// at all". A perPage=1 read keeps it cheap, and the shape is stable so the
-// query caches across screens.
+// The whole library, unfiltered — `paginationInfo` on a filtered or searched
+// view is scoped to it, so it cannot answer "is there anything at all". A
+// perPage=1 read keeps it cheap, and the shape is stable so the query caches
+// across screens.
 const TOTAL_COUNT_VIEW: View = {
 	type: 'table',
 	page: 1,
@@ -122,6 +122,7 @@ const StageInner = () => {
 	const {
 		items,
 		isLoading,
+		isPlaceholderData,
 		paginationInfo,
 		isError,
 		error: libraryError,
@@ -131,11 +132,15 @@ const StageInner = () => {
 	// notice this dashboard already renders carries the diagnosis and the
 	// reconnect button, so the row only has to point at it.
 	const { hasConnectionError } = useConnectionErrorNotice();
-	const {
-		paginationInfo: totalPagination,
-		isLoading: isTotalLoading,
-		isError: isTotalError,
-	} = useLibrary( TOTAL_COUNT_VIEW, { poll: false } );
+	// An unfiltered listing already carries the library total, so only a narrowed view needs the count request.
+	const listCountsLibrary = isWholeLibraryView( view );
+	const totalQuery = useLibrary( TOTAL_COUNT_VIEW, { poll: false, enabled: ! listCountsLibrary } );
+	const libraryTotal = listCountsLibrary
+		? paginationInfo.totalItems
+		: totalQuery.paginationInfo.totalItems;
+	// A placeholder still holds the previous view's total.
+	const isTotalLoading = listCountsLibrary ? isLoading || isPlaceholderData : totalQuery.isLoading;
+	const isTotalError = listCountsLibrary ? isError : totalQuery.isError;
 	const { mutateAsync: deleteVideo } = useDeleteVideo();
 	const { mutateAsync: setPrivacyAsync } = useSetPrivacy();
 	const { mutateAsync: uploadFromLibrary } = useUploadFromLibrary();
@@ -447,7 +452,7 @@ const StageInner = () => {
 		! isTotalError &&
 		items.length === 0 &&
 		uploadQueue.length === 0 &&
-		totalPagination.totalItems === 0;
+		libraryTotal === 0;
 
 	const renderViewport = () => {
 		// A failed listing request would otherwise render as DataViews'

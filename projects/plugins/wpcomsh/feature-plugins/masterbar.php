@@ -20,7 +20,7 @@ function wpcomsh_is_admin_menu_api_request() {
 }
 
 /**
- * Sets WP_ADMIN constant on API requests for admin menus.
+ * Makes `is_admin()` return true on API requests for admin menus.
  *
  * Attempt to increase our chances that third-party plugins will
  * register their menu items based on `is_admin()` returning true.
@@ -30,11 +30,14 @@ function wpcomsh_is_admin_menu_api_request() {
 function wpcomsh_mimic_admin_page_load() {
 	if ( wpcomsh_is_admin_menu_api_request() ) {
 		// Display errors can cause the API request to fail due to the PHP notice
-		// triggered by `$pagenow` not being correctly determined when `WP_ADMIN`
+		// triggered by `$pagenow` not being correctly determined when `is_admin()`
 		// is forced on a non-WP Admin page.
 		@ini_set( 'display_errors', false ); // phpcs:ignore
 
-		define( 'WP_ADMIN', true );
+		// Not WP_ADMIN: rest_api_loaded() refuses to serve any request that defines it.
+		require_once ABSPATH . 'wp-admin/includes/class-wp-screen.php';
+		$GLOBALS['current_screen'] = WP_Screen::get( 'dashboard' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+
 		add_action(
 			'wp_loaded',
 			function () {

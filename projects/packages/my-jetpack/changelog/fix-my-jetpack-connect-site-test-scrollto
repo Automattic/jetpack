@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+Comment: Stub window.scrollTo in the useConnectSite test so its delayed scroll can't fail it intermittently.
+

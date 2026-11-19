@@ -148,6 +148,7 @@ class WPCOM_Stats_Connection_Test extends StatsBaseTestCase {
 		return array(
 			'device views'      => array( 'get_device_views', array( 'browser', array( 'days' => 7 ) ), 'https://public-api.wordpress.com/rest/v1.1/sites/1234/stats/devices/browser?days=7' ),
 			'utm views'         => array( 'get_utm_views', array( 'utm_source,utm_medium' ), 'https://public-api.wordpress.com/rest/v1.1/sites/1234/stats/utm/utm_source,utm_medium' ),
+			'utm top posts'     => array( 'get_utm_top_posts', array( 'utm_source', 'email', array( 'days' => 7 ) ), 'https://public-api.wordpress.com/rest/v1.1/sites/1234/stats/utm/utm_source/top_posts?utm_param_values=email&days=7' ),
 			'author views'      => array( 'get_author_views', array( 7, array( 'num' => 2 ) ), 'https://public-api.wordpress.com/rest/v1.1/sites/1234/stats/author/7?num=2' ),
 			'subscriber counts' => array( 'get_subscriber_counts', array(), 'https://public-api.wordpress.com/wpcom/v2/sites/1234/subscribers/counts' ),
 			'subscribers'       => array( 'get_subscribers', array( array( 'page' => 2 ) ), 'https://public-api.wordpress.com/wpcom/v2/sites/1234/subscribers?page=2' ),

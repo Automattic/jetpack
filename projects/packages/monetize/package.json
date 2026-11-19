@@ -56,6 +56,7 @@
 		"@tanstack/react-query": "5.102.8",
 		"@wordpress/api-fetch": "8.2.0",
 		"@wordpress/data": "11.2.0",
+		"@wordpress/dataviews": "22.1.0",
 		"@wordpress/date": "6.2.0",
 		"@wordpress/dom": "5.2.0",
 		"@wordpress/element": "10.2.0",

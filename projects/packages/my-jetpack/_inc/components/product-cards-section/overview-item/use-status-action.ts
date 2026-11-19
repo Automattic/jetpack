@@ -14,12 +14,14 @@ import type { OverviewItemLink } from '.';
  * @param {JetpackModuleWithCard} slug          - The product slug.
  * @param {string}                label         - The label for activating the product.
  * @param {string | null}         [absentLabel] - The label for adding it while its plugin is missing, or null for the card's own.
+ * @param {string}                [name]        - The product name for the connect link, if not the product's own.
  * @return {{action: OverviewItemLink | undefined, forcedOffReason: string | null}} The link, and why the host keeps the product off.
  */
 const useStatusAction = (
 	slug: JetpackModuleWithCard,
 	label: string,
-	absentLabel: string | null = label
+	absentLabel: string | null = label,
+	name?: string
 ) => {
 	const { detail, refetch } = useProduct( slug );
 	const { isRegistered } = useMyJetpackConnection();
@@ -70,7 +72,7 @@ const useStatusAction = (
 						? sprintf(
 								/* translators: %s is a product name, such as Stats. */
 								__( 'Connect %s', 'jetpack-my-jetpack' ),
-								detail?.name
+								name ?? detail?.name
 							)
 						: undefined,
 				};

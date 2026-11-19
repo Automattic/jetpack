@@ -4,11 +4,13 @@ import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useNavigate, useSearch } from '@wordpress/route';
 import { Tabs } from '@wordpress/ui';
+import Ads from './components/ads';
 import { AdsSettings } from './components/ads-settings';
 import ConnectionGate from './components/connection-gate';
 import Overview from './components/overview';
 import Payments from './components/payments';
 import Placeholder from './components/placeholder';
+import Subscribers from './components/subscribers';
 import { queryClient } from './data/query-client';
 import { TABS, getTab, getTabSearch } from './data/tabs';
 import type { TabValue } from './data/tabs';
@@ -30,6 +32,18 @@ function TabContent( { tab, openTab }: { tab: TabValue; openTab: ( next: string 
 			return (
 				<ConnectionGate>
 					<Payments />
+				</ConnectionGate>
+			);
+		case 'subscribers':
+			return (
+				<ConnectionGate>
+					<Subscribers />
+				</ConnectionGate>
+			);
+		case 'ads':
+			return (
+				<ConnectionGate>
+					<Ads openTab={ openTab } />
 				</ConnectionGate>
 			);
 		case 'settings':

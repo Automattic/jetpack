@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Settings: Fix the admin menu showing as an empty dark panel when opened on phones.
