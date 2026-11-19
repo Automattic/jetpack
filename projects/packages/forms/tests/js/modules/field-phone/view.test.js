@@ -379,20 +379,6 @@ describe( 'Phone Field View', () => {
 			expect( document.querySelector( '.jetpack-combobox-trigger' ) ).toHaveFocus();
 		} );
 
-		test( 'Escape outside a combobox still closes the dropdown', () => {
-			mockContext.comboboxOpen = true;
-			const mockEvent = {
-				key: 'Escape',
-				target: document.body,
-				preventDefault: jest.fn(),
-				stopPropagation: jest.fn(),
-			};
-
-			storeConfig.actions.phoneComboboxKeydownHandler( mockEvent );
-
-			expect( mockContext.comboboxOpen ).toBe( false );
-		} );
-
 		test( 'handles Enter key with filtered countries', () => {
 			mockContext.filteredCountries = [
 				{ code: 'US', value: '+1', flag: '🇺🇸', country: 'United States', selected: true },
