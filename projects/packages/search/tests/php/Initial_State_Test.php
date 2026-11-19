@@ -29,6 +29,7 @@ class Initial_State_Test extends Search_TestCase {
 	 */
 	public function tearDown(): void {
 		remove_all_filters( 'jetpack_search_blocks_enabled' );
+		remove_all_filters( 'jetpack_my_jetpack_should_enable_add_license_screen' );
 		$this->unregister_guidelines_page();
 		parent::tearDown();
 	}
@@ -52,6 +53,15 @@ class Initial_State_Test extends Search_TestCase {
 		add_filter( 'jetpack_search_blocks_enabled', '__return_false' );
 		$state = ( new Initial_State() )->get_initial_state();
 		$this->assertFalse( $state['siteData']['searchBlocksEnabled'] );
+	}
+
+	/**
+	 * Test that the license link follows My Jetpack's add-license screen, which offline mode turns off.
+	 */
+	public function test_add_license_follows_the_add_license_screen() {
+		add_filter( 'jetpack_my_jetpack_should_enable_add_license_screen', '__return_false' );
+		$state = ( new Initial_State() )->get_initial_state();
+		$this->assertFalse( $state['siteData']['addLicense'] );
 	}
 
 	/**
