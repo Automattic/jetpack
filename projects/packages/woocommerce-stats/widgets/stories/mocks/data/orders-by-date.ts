@@ -127,10 +127,9 @@ function toRawRow( totals: OrderTotals, bounds: Record< string, string > ) {
 }
 
 /**
- * The orders-by-date report of a window: one row per interval bucket, every figure a deterministic
- * function of the window, plus one bucket with no orders once the window is long enough to hold
- * one. The shipped story windows are chosen so the comparison period reads lower, which the
- * seasonal terms do not give for an arbitrary pair of windows.
+ * The orders-by-date report of a window: one row per interval bucket, every figure derived from
+ * the window alone, plus one bucket with no orders once the window is long enough to hold one.
+ * Only the shipped story windows read lower in the comparison period; an arbitrary pair does not.
  *
  * @param {URLSearchParams} query - The request's query params (`from`, `to`, `interval`).
  * @return {unknown} The raw report response.
