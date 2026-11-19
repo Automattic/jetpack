@@ -2,7 +2,14 @@
  * External dependencies
  */
 import { mountWhatsNew } from '@automattic/jetpack-announcements';
+import {
+	DASHBOARD_ONBOARDING_KEY,
+	DASHBOARD_PREFERENCES_SCOPE,
+	DASHBOARD_STORE_ONBOARDING_KEY,
+} from '@jetpack-premium-analytics/data';
 import { getCurrentRoutePath, onLocationChange } from '@jetpack-premium-analytics/routing';
+import { dispatch } from '@wordpress/data';
+import { store as preferencesStore } from '@wordpress/preferences';
 /**
  * Internal dependencies
  */
@@ -17,12 +24,26 @@ jest.mock( '@jetpack-premium-analytics/routing', () => ( {
 	onLocationChange: jest.fn(),
 } ) );
 
+const SEEN = '2026-11-01T00:00:00.000Z';
+
 const unmount = jest.fn();
 
-const setFlag = ( enabled: boolean ): void => {
+type PreferencesActions = {
+	set: ( scope: string, key: string, value: string | undefined ) => unknown;
+};
+
+const setPreference = ( key: string, value: string | undefined ): void => {
+	void ( dispatch( preferencesStore ) as unknown as PreferencesActions ).set(
+		DASHBOARD_PREFERENCES_SCOPE,
+		key,
+		value
+	);
+};
+
+const setFlag = ( enabled: boolean, sections?: string[] ): void => {
 	Object.defineProperty( window, 'JetpackScriptData', {
 		configurable: true,
-		value: { premium_analytics: { whats_new_enabled: enabled } },
+		value: { premium_analytics: { whats_new_enabled: enabled, sections } },
 	} );
 };
 
@@ -44,11 +65,15 @@ const showAndSettle = async (): Promise< void > => {
 };
 
 describe( 'showWhatsNew', () => {
+	// A reader who knows Stats, unless a test says otherwise.
 	beforeEach( () => {
 		jest.mocked( mountWhatsNew ).mockReturnValue( unmount );
+		setPreference( DASHBOARD_ONBOARDING_KEY, SEEN );
 	} );
 
 	afterEach( () => {
+		setPreference( DASHBOARD_ONBOARDING_KEY, undefined );
+		setPreference( DASHBOARD_STORE_ONBOARDING_KEY, undefined );
 		delete window.JetpackScriptData;
 		jest.mocked( mountWhatsNew ).mockReset();
 		jest.mocked( onLocationChange ).mockClear();
@@ -120,6 +145,29 @@ describe( 'showWhatsNew', () => {
 		navigateTo( '/' );
 
 		expect( mountWhatsNew ).toHaveBeenCalledTimes( 2 );
+	} );
+
+	it.each< [ string, string | undefined, string | undefined, string[] | undefined, number ] >( [
+		[ 'holds for a reader who has seen nothing', undefined, undefined, [ 'traffic' ], 0 ],
+		[
+			'holds while the WooCommerce tab is still to be introduced',
+			SEEN,
+			undefined,
+			[ 'traffic', 'woocommerce' ],
+			0,
+		],
+		[ 'holds for that tab under its older `store` slug', SEEN, undefined, [ 'store' ], 0 ],
+		[ 'mounts once both journeys are done', SEEN, SEEN, [ 'traffic', 'woocommerce' ], 1 ],
+		[ 'mounts when no list of tabs was published', SEEN, undefined, undefined, 1 ],
+	] )( '%s', async ( _case, statsSeen, storeSeen, sections, mounts ) => {
+		setPreference( DASHBOARD_ONBOARDING_KEY, statsSeen );
+		setPreference( DASHBOARD_STORE_ONBOARDING_KEY, storeSeen );
+		setFlag( true, sections );
+		openRoute( '/' );
+
+		await showAndSettle();
+
+		expect( mountWhatsNew ).toHaveBeenCalledTimes( mounts );
 	} );
 
 	it( 'mounts nothing while the flag is off', async () => {
