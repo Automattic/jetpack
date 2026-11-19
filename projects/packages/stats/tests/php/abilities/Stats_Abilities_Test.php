@@ -245,6 +245,9 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 
 	public function test_every_ability_opts_into_mcp_as_public_tool(): void {
 		foreach ( Stats_Abilities::get_abilities() as $slug => $spec ) {
+			$this->assertArrayHasKey( 'public', $spec['meta'], "{$slug} must declare meta.public." );
+			$this->assertSame( true, $spec['meta']['public'], "{$slug} must be marked public." );
+			$this->assertSame( true, $spec['meta']['show_in_rest'], "{$slug} must be exposed through the Abilities REST API." );
 			$this->assertSame( true, $spec['meta']['mcp']['public'], "{$slug} must opt into MCP." );
 			$this->assertSame( 'tool', $spec['meta']['mcp']['type'], "{$slug} must be exposed as an MCP tool." );
 		}

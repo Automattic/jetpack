@@ -63,6 +63,35 @@ class IndexnowClientTest extends SeoTestCase {
 		}
 	}
 
+	/** @dataProvider resolved_scopes */
+	#[DataProvider( 'resolved_scopes' )]
+	public function test_consent_matches_the_resolved_address_independently_of_http_or_https( $stored, $resolved, $expected ) {
+		update_option( Indexnow_Client::SCOPE_OPTION, $stored );
+		$resolve = static function () use ( $resolved ) {
+			return $resolved;
+		};
+		add_filter( 'home_url', $resolve );
+		try {
+			$this->assertSame( $expected, Indexnow_Client::enabled() );
+		} finally {
+			remove_filter( 'home_url', $resolve );
+		}
+	}
+
+	public static function resolved_scopes() {
+		return array(
+			'HTTP consent, HTTPS front-end' => array( 'http://example.com/blog/', 'https://example.com/blog/', true ),
+			'HTTPS consent, HTTP API'       => array( 'https://example.com/blog/', 'http://example.com/blog/', true ),
+			'HTTP-only site'                => array( 'http://example.com/blog/', 'http://example.com/blog/', true ),
+			'changed host'                  => array( 'http://previous.example/blog/', 'https://example.com/blog/', false ),
+			'changed home path'             => array( 'http://example.com/previous/', 'https://example.com/blog/', false ),
+			'changed port'                  => array( 'http://example.com:8080/blog/', 'https://example.com/blog/', false ),
+			'changed path boundary'         => array( 'http://example.com/blog/', 'https://example.com/blog2/', false ),
+			'unsupported scheme'            => array( 'ftp://example.com/blog/', 'https://example.com/blog/', false ),
+			'malformed stored scope'        => array( array( 'http://example.com/blog/' ), 'https://example.com/blog/', false ),
+		);
+	}
+
 	public function test_ordinary_paths_do_not_read_notification_options() {
 		$uri    = $_SERVER['REQUEST_URI'] ?? null;
 		$filter = 'pre_option_' . Indexnow_Client::ENABLED_OPTION;
