@@ -1,6 +1,5 @@
 /**
- * Storybook store-report mocking via a `@wordpress/api-fetch` middleware: Storybook has no store
- * behind it, so this answers the store report paths and leaves every other path to `next`.
+ * The store report paths of the WooCommerce dashboard tab, mocked for Storybook.
  */
 /**
  * External dependencies
@@ -19,14 +18,9 @@ import {
 import type { APIFetchMiddleware, APIFetchOptions } from '@wordpress/api-fetch';
 
 const REPORTS_PATH = '/jetpack/v4/woocommerce-stats/proxy/v2/analytics/reports/';
-const WC_PRODUCTS_PATH = '/wc/v3/products';
+const WC_REST_PATH = '/wc/v3/';
+const WC_PRODUCTS_PATH = `${ WC_REST_PATH }products`;
 
-/**
- * Forced response state for a request path fragment, so stories can exercise a widget's loading,
- * error, and empty UI. `error` is a permission-gated 403; `error-retryable` is the proxy's
- * `no_connection` 403 (which `describeError` renders with Retry); `loading` never settles;
- * `empty` resolves with no rows.
- */
 export type WooReportMockState = 'error' | 'error-retryable' | 'loading' | 'empty';
 
 const mockStateOverrides = new Map< string, WooReportMockState >();
@@ -41,29 +35,27 @@ const queryOf = ( requestPath: string ) =>
  * @return {Promise<unknown>|undefined} The forced response, or undefined when none is forced.
  */
 function forcedResponse( requestPath: string ): Promise< unknown > | undefined {
+	// The four states behave as the toolkit's `register-report-mocks.ts` does, which documents them.
 	for ( const [ fragment, state ] of mockStateOverrides ) {
 		if ( ! requestPath.includes( fragment ) ) {
 			continue;
 		}
 		if ( state === 'loading' ) {
-			// Never settles: the query stays in its loading state.
 			return new Promise< never >( () => {} );
 		}
 		if ( state === 'empty' ) {
-			// A valid report with no rows, so the widget resolves to its empty state.
-			return Promise.resolve( { summary: {}, data: [] } );
+			// The store's own endpoints answer with a collection, the reports with a report.
+			return Promise.resolve(
+				requestPath.startsWith( WC_REST_PATH ) ? [] : { summary: {}, data: [] }
+			);
 		}
 		if ( state === 'error-retryable' ) {
-			// The local proxy's `no_connection` shape: still a 403, but `describeError` keeps it
-			// retryable because a broken connection can heal.
 			return Promise.reject( {
 				code: 'no_connection',
 				message: 'Mocked connection failure for Storybook.',
 				data: { status: 403 },
 			} );
 		}
-		// The WPCOM pass-through envelope. A 403 is not retried, so the error UI shows at once and
-		// `describeError` reads it as a permission gate and drops Retry.
 		return Promise.reject( {
 			error: 'unauthorized',
 			message: 'Mocked error response for Storybook.',
@@ -110,8 +102,7 @@ const wooReportMocksMiddleware: APIFetchMiddleware = async ( options: APIFetchOp
 let registered = false;
 
 /**
- * Registers the store-report mocking `apiFetch` middleware. Idempotent: repeated calls after the
- * first are no-ops.
+ * Registers the store-report mocking `apiFetch` middleware, once however often it is called.
  *
  * @return {void}
  */
@@ -124,9 +115,7 @@ export function registerWooReportMocks(): void {
 }
 
 /**
- * Forces every request whose path contains `pathFragment` into a loading or error state (or
- * clears it with `null`), for a story's `beforeEach`. Keyed by path, so scope stories that use it
- * out of autodocs (`tags: [ '!autodocs' ]`) to avoid bleeding into siblings.
+ * Forces every request whose path contains `pathFragment` into a state, or clears it with `null`.
  *
  * @param {string}                  pathFragment - Substring matched against the request path.
  * @param {WooReportMockState|null} state        - The forced state, or `null` to clear.
@@ -145,8 +134,7 @@ export function setWooReportMockState(
 }
 
 /**
- * Story `beforeEach` that forces the matching requests into a loading, error, or empty state and
- * clears it again on cleanup.
+ * Story `beforeEach` that forces the matching requests into a state and clears it on cleanup.
  *
  * @param {string}             pathFragment - Substring matched against the request path.
  * @param {WooReportMockState} state        - The forced state.

@@ -3,6 +3,10 @@ const DAY_MS = 24 * 60 * 60 * 1000;
 /** A window wide enough for any story, and a stop for a malformed one. */
 const MAX_BUCKETS = 400;
 
+// The value shapes every store report sends: a monetary amount, and a whole count.
+export const money = ( value: number ) => value.toFixed( 2 );
+export const count = ( value: number ) => String( Math.round( value ) );
+
 export type ReportBucket = {
 	date_start: string;
 	date_end: string;
@@ -113,6 +117,9 @@ function utcMidnight( value: string | null | undefined ): number {
 export function dayIndexOf( dateText: string ): number {
 	return Math.floor( utcMidnight( dateText ) / DAY_MS );
 }
+
+/** The day every fixture's trend grows from, shared so the reports stay consistent with each other. */
+export const ANCHOR_DAY = dayIndexOf( '2026-01-01' );
 
 /**
  * The buckets a report request covers, oldest first, with the bounds and label the live
