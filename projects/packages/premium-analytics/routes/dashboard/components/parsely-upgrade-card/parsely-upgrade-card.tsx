@@ -7,9 +7,9 @@ import {
 	useSiteHomeUrl,
 } from '@jetpack-premium-analytics/data';
 import {
-	Badge,
 	ButtonLink,
 	Card,
+	Icon,
 	IconButton,
 	Stack,
 	Text,
@@ -17,7 +17,7 @@ import {
 import { useTrackEvent } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
-import { close } from '@wordpress/icons';
+import { arrowUpRight, close } from '@wordpress/icons';
 import { store as preferencesStore } from '@wordpress/preferences';
 import { useCallback, useEffect, useId, useState } from 'react';
 /**
@@ -127,9 +127,12 @@ export function ParselyUpgradeCard( { enabled }: ParselyUpgradeCardProps ): JSX.
 		<Card.Root role="region" aria-labelledby={ titleId } className={ styles.root }>
 			<Card.Header>
 				<Stack direction="row" justify="space-between" align="center" gap="md">
-					<Card.Title id={ titleId }>
-						{ __( 'The next step after Stats', 'jetpack-premium-analytics-pkg' ) }
-					</Card.Title>
+					<Stack direction="row" align="center" gap="sm">
+						<Icon icon={ arrowUpRight } size={ 20 } />
+						<Card.Title id={ titleId }>
+							{ __( 'The next step after Stats', 'jetpack-premium-analytics-pkg' ) }
+						</Card.Title>
+					</Stack>
 					<IconButton
 						variant="minimal"
 						tone="neutral"
@@ -142,11 +145,11 @@ export function ParselyUpgradeCard( { enabled }: ParselyUpgradeCardProps ): JSX.
 			</Card.Header>
 			<Card.Content>
 				<div className={ styles.content }>
-					<Stack direction="column" gap="sm">
+					<Stack direction="column" gap="xs">
 						<Text variant="heading-xl" render={ <h3 /> }>
 							{ __( 'You’ve outgrown counting.', 'jetpack-premium-analytics-pkg' ) }
 						</Text>
-						<Text variant="body-lg" className={ styles.description }>
+						<Text variant="body-md" className={ styles.description }>
 							{ __(
 								'Grow with Parsely, the favorite analytics provider for professional brands and media companies. See which stories hold attention, not just which ones get clicks.',
 								'jetpack-premium-analytics-pkg'
@@ -154,8 +157,8 @@ export function ParselyUpgradeCard( { enabled }: ParselyUpgradeCardProps ): JSX.
 						</Text>
 					</Stack>
 
-					<Stack direction="column" gap="md">
-						<Stack direction="column" gap="xs">
+					<Stack direction="column" gap="sm">
+						<Stack direction="column">
 							<Text variant="heading-xl" className={ styles.metrics }>
 								{ __( '30+ audience metrics', 'jetpack-premium-analytics-pkg' ) }
 							</Text>
@@ -175,9 +178,14 @@ export function ParselyUpgradeCard( { enabled }: ParselyUpgradeCardProps ): JSX.
 							className={ styles.features }
 						>
 							{ features.map( feature => (
-								<li key={ feature }>
-									<Badge intent="none">{ feature }</Badge>
-								</li>
+								<Text
+									key={ feature }
+									render={ <li /> }
+									variant="body-sm"
+									className={ styles.feature }
+								>
+									{ feature }
+								</Text>
 							) ) }
 							<Text render={ <li /> } variant="body-md" className={ styles.description }>
 								{ __( 'and much more', 'jetpack-premium-analytics-pkg' ) }

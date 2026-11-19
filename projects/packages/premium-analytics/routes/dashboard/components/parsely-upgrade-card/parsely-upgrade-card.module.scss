@@ -5,15 +5,19 @@
 
 .content {
 	display: grid;
-	gap: var(--wpds-dimension-gap-xl);
+	gap: var(--wpds-dimension-gap-lg) var(--wpds-dimension-gap-xl);
 	align-items: center;
+}
+
+.action {
+	justify-self: start;
 }
 
 // Copy, metrics and the button side by side on a wide dashboard.
 @container (min-inline-size: 960px) {
 
 	.content {
-		grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+		grid-template-columns: minmax(0, 2fr) minmax(0, 3fr) auto;
 	}
 }
 
@@ -31,6 +35,9 @@
 	list-style: none;
 }
 
-.action {
-	justify-self: start;
+.feature {
+	padding: 2px var(--wpds-dimension-padding-md);
+	border-radius: 9999px;
+	background: var(--wpds-color-background-surface-brand);
+	white-space: nowrap;
 }
