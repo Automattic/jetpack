@@ -70,10 +70,8 @@ export class Traffic extends Component {
 				isWoASite() && ( ! gaInPanel || searchFindsGoogleAnalytics( this.props.searchTerm ) ),
 			foundBlaze = this.props.isModuleFound( 'blaze' );
 
-		// Once the site is on the new SEO experience (fresh install / opted-in /
-		// WordPress.com), the SEO, Sitemaps, and Verification sections live in the
-		// dedicated SEO dashboard, so hide those legacy sections here. Existing
-		// self-hosted installs that haven't opted in keep them (JETPACK-1682).
+		// Eligible sites use the dedicated SEO dashboard. Hosts excluded from that
+		// experience retain their existing Traffic controls.
 		const seoMovedToDashboard = getScriptData()?.seo?.surface_visible === true;
 		// The opt-in notice covers every section that moves, so show it for any of those,
 		// including a "sitemap" or "verification" search that misses the SEO section.

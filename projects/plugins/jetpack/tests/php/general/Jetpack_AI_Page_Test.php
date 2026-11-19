@@ -439,7 +439,7 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 	public static function seo_settings_url_cases() {
 		return array(
 			'visible surface with plan features'    => array( array( 'unrelated-feature' ), true, 'admin.php?page=jetpack-seo' ),
-			'existing install not opted in'         => array( array( 'unrelated-feature' ), false, 'admin.php?page=jetpack-settings#/traffic' ),
+			'existing install not opted in'         => array( array( 'unrelated-feature' ), false, 'admin.php?page=jetpack-seo' ),
 			'visible surface without plan features' => array( array(), true, 'admin.php?page=jetpack-seo' ),
 		);
 	}
