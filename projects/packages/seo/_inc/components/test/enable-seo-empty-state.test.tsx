@@ -7,11 +7,11 @@ import { fireEvent, render, screen } from '@testing-library/react';
 const getScriptData = jest.fn< () => unknown >( () => ( {} ) );
 jest.unstable_mockModule( '@automattic/jetpack-script-data', () => ( { getScriptData } ) );
 
-const enable = jest.fn();
-const useEnableSeoTools = jest.fn( () => ( { isEnabling: false, enable } ) );
+const setActive = jest.fn();
+const useSeoToolsSwitch = jest.fn( () => ( { isSwitching: false, setActive } ) );
 
-jest.unstable_mockModule( '../../data/use-enable-seo-tools', () => ( {
-	default: useEnableSeoTools,
+jest.unstable_mockModule( '../../data/use-seo-tools-switch', () => ( {
+	default: useSeoToolsSwitch,
 } ) );
 
 const { default: EnableSeoEmptyState } = await import( '../enable-seo-empty-state' );
@@ -20,7 +20,7 @@ describe( 'EnableSeoEmptyState', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
 		getScriptData.mockReturnValue( {} );
-		useEnableSeoTools.mockReturnValue( { isEnabling: false, enable } );
+		useSeoToolsSwitch.mockReturnValue( { isSwitching: false, setActive } );
 	} );
 
 	it( 'renders the heading, the explanation and the enable button', () => {
@@ -31,7 +31,7 @@ describe( 'EnableSeoEmptyState', () => {
 		expect( screen.getByRole( 'button', { name: 'Enable SEO tools' } ) ).toBeInTheDocument();
 		expect(
 			screen.getByText(
-				'SEO tools help your content get found: customize titles and meta descriptions, generate a sitemap, verify your site with search engines, and control how pages look when shared. Turn it on to manage all of it from here.'
+				'Enable SEO tools to edit titles, meta descriptions, structured data, social previews, llms.txt, and AI crawler access. You can manage search visibility, sitemaps, site verification, and canonical URLs separately in Settings.'
 			)
 		).toBeInTheDocument();
 	} );
@@ -56,7 +56,7 @@ describe( 'EnableSeoEmptyState', () => {
 			expect( screen.getByText( description ) ).toBeInTheDocument();
 			// eslint-disable-next-line testing-library/prefer-user-event -- Match the existing single-click activation check.
 			fireEvent.click( screen.getByRole( 'button', { name: 'Enable SEO tools' } ) );
-			expect( enable ).toHaveBeenCalled();
+			expect( setActive ).toHaveBeenCalledWith( true );
 		}
 	);
 
@@ -66,17 +66,17 @@ describe( 'EnableSeoEmptyState', () => {
 		// eslint-disable-next-line testing-library/prefer-user-event -- fireEvent keeps this off the @testing-library/user-event devDep (avoids lockfile churn) for a single click.
 		fireEvent.click( screen.getByRole( 'button', { name: 'Enable SEO tools' } ) );
 
-		expect( enable ).toHaveBeenCalled();
+		expect( setActive ).toHaveBeenCalledWith( true );
 	} );
 
 	it( 'reports the screen it was rendered on, not always the Overview', () => {
 		render( <EnableSeoEmptyState screen="geo" /> );
 
-		expect( useEnableSeoTools ).toHaveBeenCalledWith( 'geo' );
+		expect( useSeoToolsSwitch ).toHaveBeenCalledWith( 'geo' );
 	} );
 
 	it( 'disables the button while enabling', () => {
-		useEnableSeoTools.mockReturnValue( { isEnabling: true, enable } );
+		useSeoToolsSwitch.mockReturnValue( { isSwitching: true, setActive } );
 
 		render( <EnableSeoEmptyState screen="overview" /> );
 
@@ -86,6 +86,6 @@ describe( 'EnableSeoEmptyState', () => {
 		);
 		// eslint-disable-next-line testing-library/prefer-user-event -- Exercise the existing single-click activation path.
 		fireEvent.click( screen.getByRole( 'button', { name: 'Enable SEO tools' } ) );
-		expect( enable ).not.toHaveBeenCalled();
+		expect( setActive ).not.toHaveBeenCalled();
 	} );
 } );

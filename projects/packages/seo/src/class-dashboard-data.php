@@ -169,8 +169,9 @@ class Dashboard_Data {
 	 * `manage_options` capability, so it works on every platform with one code path.
 	 *
 	 * Only settings registered with `show_in_rest` round-trip through that
-	 * endpoint, and it silently ignores keys that aren't registered. These routes
-	 * follow the same SEO Tools activation gate as the dashboard's editors.
+	 * endpoint, and it silently ignores keys that aren't registered. Independent
+	 * settings must stay registered while SEO Tools is off; the dashboard hides the
+	 * SEO-dependent editors until that module is active.
 	 *
 	 * Hooked on `rest_api_init`, not earlier: which option the front page description is
 	 * stored in depends on `jetpack_disable_seo_tools`, and a conflicting SEO plugin can

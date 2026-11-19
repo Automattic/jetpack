@@ -1,7 +1,6 @@
 import { useDispatch } from '@wordpress/data';
 import DashboardLoadError from '../../_inc/components/dashboard-load-error';
 import DashboardSkeleton from '../../_inc/components/dashboard-skeleton';
-import SeoDisabledStage from '../../_inc/components/seo-disabled-stage';
 import DashboardPage from '../../_inc/dashboard/dashboard-page';
 import { OVERVIEW_PATH, SETTINGS_PATH } from '../../_inc/data/get-preloaded';
 import isSeoToolsActive from '../../_inc/data/is-seo-tools-active';
@@ -20,16 +19,16 @@ const SettingsReady = () => {
 	const form = useSettingsForm();
 	return (
 		<DashboardPage active="settings">
-			<SettingsScreen form={ form } />
+			<SettingsScreen form={ form } independentOnly={ ! isSeoToolsActive() } />
 		</DashboardPage>
 	);
 };
 
 const Stage = () => {
 	const { setSettings } = useDispatch( settingsStore );
-	// Settings gates on the seo-tools state, which lives in the Overview slice, so
-	// ensure both are available. A recovered Settings payload is pushed into the
-	// store so the form (seeded from it) reflects it.
+	// The SEO Tools state, in the Overview slice, decides which editors show, so load
+	// it alongside Settings. A recovered Settings payload is pushed into the store so
+	// the form (seeded from it) reflects it.
 	const { status, retry } = useEnsureTabData( [
 		{ path: OVERVIEW_PATH },
 		{ path: SETTINGS_PATH, seed: body => setSettings( body as SettingsResponse ) },
@@ -51,9 +50,7 @@ const Stage = () => {
 		);
 	}
 
-	// When the `seo-tools` module is off, show the enable affordance instead of the
-	// settings controls — they can't save (the REST endpoints aren't registered).
-	return isSeoToolsActive() ? <SettingsReady /> : <SeoDisabledStage active="settings" />;
+	return <SettingsReady />;
 };
 
 export { Stage as stage };

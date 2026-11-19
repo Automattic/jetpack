@@ -1,7 +1,8 @@
+import { useCallback } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { Button, EmptyState } from '@wordpress/ui';
 import getOutput from '../data/get-output';
-import useEnableSeoTools from '../data/use-enable-seo-tools';
+import useSeoToolsSwitch from '../data/use-seo-tools-switch';
 import styles from './enable-seo-empty-state.module.scss';
 import type { SeoTracksScreen } from '../data/record-seo-event';
 import type { FC } from 'react';
@@ -25,10 +26,11 @@ const activeDescription = __(
  * @return The enable-SEO-tools empty state.
  */
 const EnableSeoEmptyState: FC< { screen: SeoTracksScreen } > = ( { screen } ) => {
-	const { isEnabling, enable } = useEnableSeoTools( screen );
+	const { isSwitching, setActive } = useSeoToolsSwitch( screen );
+	const enable = useCallback( () => setActive( true ), [ setActive ] );
 	const { paused, conflicting_plugin: plugin } = getOutput();
 	let description: string = __(
-		'SEO tools help your content get found: customize titles and meta descriptions, generate a sitemap, verify your site with search engines, and control how pages look when shared. Turn it on to manage all of it from here.',
+		'Enable SEO tools to edit titles, meta descriptions, structured data, social previews, llms.txt, and AI crawler access. You can manage search visibility, sitemaps, site verification, and canonical URLs separately in Settings.',
 		'jetpack-seo'
 	);
 
@@ -43,7 +45,7 @@ const EnableSeoEmptyState: FC< { screen: SeoTracksScreen } > = ( { screen } ) =>
 			<EmptyState.Title>{ __( 'Enable SEO tools', 'jetpack-seo' ) }</EmptyState.Title>
 			<EmptyState.Description>{ description }</EmptyState.Description>
 			<EmptyState.Actions>
-				<Button onClick={ enable } loading={ isEnabling } disabled={ isEnabling }>
+				<Button onClick={ enable } loading={ isSwitching } disabled={ isSwitching }>
 					{ __( 'Enable SEO tools', 'jetpack-seo' ) }
 				</Button>
 			</EmptyState.Actions>

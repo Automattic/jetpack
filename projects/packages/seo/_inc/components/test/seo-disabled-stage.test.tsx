@@ -6,7 +6,7 @@ import type { ReactNode } from 'react';
 // True-ESM Jest (`--experimental-vm-modules`): register mocks with
 // `jest.unstable_mockModule`, then import the component under test dynamically.
 // Stub the chrome and the empty state so this is a focused unit test of the
-// wrapper's wiring (which tab it reports, that it hides the tabs and centers the
+// wrapper's wiring (which tab it reports, that it retains the tabs and centers the
 // enable prompt).
 const DashboardPage = jest.fn(
 	( {
@@ -54,11 +54,11 @@ describe( 'SeoDisabledStage', () => {
 		expect( screen.getByTestId( 'enable-seo-empty-state' ) ).toBeInTheDocument();
 	} );
 
-	it( 'hides the tabs and centers the prompt', () => {
+	it( 'keeps navigation available while centering the prompt', () => {
 		render( <SeoDisabledStage active="settings" /> );
 
 		const page = screen.getByTestId( 'dashboard-page' );
-		expect( page ).toHaveAttribute( 'data-show-tabs', 'false' );
+		expect( page ).toHaveAttribute( 'data-show-tabs', 'true' );
 		expect( page ).toHaveAttribute( 'data-centered', 'true' );
 	} );
 

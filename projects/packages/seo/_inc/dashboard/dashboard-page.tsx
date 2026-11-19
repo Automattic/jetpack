@@ -31,8 +31,7 @@ interface Props {
 	 */
 	flush?: boolean;
 	/**
-	 * Whether to render the tab bar. The module-off stage hides it because every
-	 * tab would show the same enable prompt. Defaults to `true`.
+	 * Whether to render the tab bar. Defaults to `true`.
 	 */
 	showTabs?: boolean;
 	/**

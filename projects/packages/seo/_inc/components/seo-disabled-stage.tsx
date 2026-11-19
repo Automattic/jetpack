@@ -11,7 +11,7 @@ import type { FC } from 'react';
  * @return The module activation prompt.
  */
 const SeoDisabledStage: FC< { active: SeoTab } > = ( { active } ) => (
-	<DashboardPage active={ active } showTabs={ false } centered>
+	<DashboardPage active={ active } centered>
 		<EnableSeoEmptyState screen={ active } />
 	</DashboardPage>
 );

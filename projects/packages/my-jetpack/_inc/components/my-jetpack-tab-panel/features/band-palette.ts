@@ -23,6 +23,7 @@ const PALETTES: Record< string, Palette > = {
 	podcast: [ PEACH, YELLOW, PERIWINKLE, 22, 22, 64, 26, 76, 90 ],
 	'protect-dashboard': [ MINT, SKY, YELLOW, 28, 28, 70, 20, 62, 96 ],
 	search: [ PERIWINKLE, SKY, MINT, 26, 20, 66, 30, 70, 92 ],
+	seo: [ YELLOW, SKY, LILAC, 26, 24, 68, 28, 66, 94 ],
 	social: [ LILAC, PEACH, SKY, 30, 26, 72, 22, 64, 90 ],
 	stats: [ MINT, YELLOW, PERIWINKLE, 24, 30, 64, 24, 74, 94 ],
 	backup: [ SKY, PERIWINKLE, MINT, 28, 22, 70, 30, 60, 90 ],

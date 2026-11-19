@@ -127,10 +127,23 @@ class AdminPageTest extends TestCase {
 	}
 
 	/**
-	 * The menu item hides while seo-tools is off, like other Jetpack modules.
+	 * The menu item follows the SEO switch where Jetpack offers one, else seo-tools.
+	 *
+	 * @dataProvider provide_menu_gates
+	 * @param bool   $offered Whether the Jetpack plugin offers the SEO switch.
+	 * @param string $module  The module the item should follow.
 	 */
-	public function test_menu_item_is_gated_on_seo_tools() {
-		Admin_Page::add_menu_item();
+	#[DataProvider( 'provide_menu_gates' )]
+	public function test_menu_item_is_gated_on_the_seo_switch( $offered, $module ) {
+		$available = static function ( $modules ) use ( $offered ) {
+			return $offered ? array_merge( (array) $modules, array( Initializer::DASHBOARD_MODULE ) ) : $modules;
+		};
+		add_filter( 'jetpack_get_available_standalone_modules', $available );
+		try {
+			Admin_Page::add_menu_item();
+		} finally {
+			remove_filter( 'jetpack_get_available_standalone_modules', $available );
+		}
 
 		$menu_items = new \ReflectionProperty( Admin_Menu::class, 'menu_items' );
 		if ( \PHP_VERSION_ID < 80100 ) {
@@ -145,8 +158,16 @@ class AdminPageTest extends TestCase {
 		}
 
 		$this->assertNotNull( $seo_item, 'SEO menu item was not registered' );
-		$this->assertSame( 'seo-tools', $seo_item['args']['module'] ?? null );
+		$this->assertSame( $module, $seo_item['args']['module'] ?? null );
 		$this->assertSame( 'jetpack-seo', $seo_item['args']['key'] ?? null );
+	}
+
+	/** @return array Whether the SEO switch is offered, and the module the menu item follows. */
+	public static function provide_menu_gates() {
+		return array(
+			'SEO switch' => array( true, 'seo-dashboard' ),
+			'no switch'  => array( false, 'seo-tools' ),
+		);
 	}
 
 	/**
@@ -319,15 +340,21 @@ class AdminPageTest extends TestCase {
 	 * @param bool $seo_tools       Whether the seo-tools module is active.
 	 * @param bool $simple          Whether the site is WordPress.com Simple.
 	 * @param bool $expected_listed Whether SEO should join the shell.
+	 * @param bool $seo_switch      Whether Jetpack offers the SEO switch, which is on.
 	 */
 	#[DataProvider( 'admin_shell_member_cases' )]
-	public function test_admin_shell_member( $built, $seo_tools, $simple, $expected_listed ) {
+	public function test_admin_shell_member( $built, $seo_tools, $simple, $expected_listed, $seo_switch = false ) {
 		$this->set_wp_build_index( __DIR__ . ( $built ? '/files/build-entry/build.php' : '/files/build-entry/absent.php' ) );
-		$modules = static function ( $active ) use ( $seo_tools ) {
+		$modules   = static function ( $active ) use ( $seo_tools, $seo_switch ) {
 			$active = array_diff( (array) $active, array( 'seo-tools' ) );
+			$active = $seo_switch ? array_merge( $active, array( Initializer::DASHBOARD_MODULE ) ) : $active;
 			return $seo_tools ? array_merge( $active, array( 'seo-tools' ) ) : $active;
 		};
+		$available = static function ( $available ) use ( $seo_switch ) {
+			return $seo_switch ? array_merge( (array) $available, array( Initializer::DASHBOARD_MODULE ) ) : $available;
+		};
 		add_filter( 'jetpack_active_modules', $modules );
+		add_filter( 'jetpack_get_available_standalone_modules', $available );
 		if ( $simple ) {
 			Constants::set_constant( 'IS_WPCOM', true );
 		}
@@ -336,6 +363,7 @@ class AdminPageTest extends TestCase {
 			$members = Admin_Page::add_admin_shell_member( array( 'other' => array() ) );
 		} finally {
 			remove_filter( 'jetpack_active_modules', $modules );
+			remove_filter( 'jetpack_get_available_standalone_modules', $available );
 			Constants::clear_single_constant( 'IS_WPCOM' );
 		}
 
@@ -349,7 +377,7 @@ class AdminPageTest extends TestCase {
 	/**
 	 * Admin shell member cases.
 	 *
-	 * @return array<string, array{bool, bool, bool, bool}>
+	 * @return array<string, array{0: bool, 1: bool, 2: bool, 3: bool, 4?: bool}>
 	 */
 	public static function admin_shell_member_cases() {
 		return array(
@@ -357,6 +385,7 @@ class AdminPageTest extends TestCase {
 			'unbuilt'                          => array( false, true, false, false ),
 			'seo-tools off'                    => array( true, false, false, false ),
 			'Simple'                           => array( true, true, true, true ),
+			'SEO switch on, seo-tools off'     => array( true, false, false, true, true ),
 		);
 	}
 

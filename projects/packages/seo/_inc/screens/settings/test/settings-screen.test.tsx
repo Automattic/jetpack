@@ -49,8 +49,29 @@ const IndexnowSettings = jest.fn< ( props: Record< string, unknown > ) => ReactE
 	<div>notification settings</div>
 ) );
 jest.unstable_mockModule( '../indexnow-settings', () => ( { default: IndexnowSettings } ) );
+jest.unstable_mockModule( '../seo-tools-card', () => ( {
+	default: ( { active }: { active: boolean } ) => (
+		<div data-testid="seo-tools-switch" data-active={ String( active ) } />
+	),
+} ) );
+
+let routeForm: SettingsForm;
+let routeSeoToolsActive = false;
+jest.unstable_mockModule( '../../../dashboard/dashboard-page', () => ( {
+	default: ( { children }: { children: ReactNode } ) => children,
+} ) );
+jest.unstable_mockModule( '../../../data/is-seo-tools-active', () => ( {
+	default: () => routeSeoToolsActive,
+} ) );
+jest.unstable_mockModule( '../../../data/use-ensure-tab-data', () => ( {
+	default: () => ( { status: 'ready' } ),
+} ) );
+jest.unstable_mockModule( '../../../data/use-settings', () => ( {
+	useSettingsForm: () => routeForm,
+} ) );
 
 const { default: SettingsScreen } = await import( '../index' );
+const { stage: SettingsStage } = await import( '../../../../routes/settings/stage' );
 
 const EMPTY_VERIFICATION = {
 	google: '',
@@ -697,5 +718,47 @@ describe( 'Notification settings inside Site visibility', () => {
 		act( () => onSavingChange( false ) );
 		expect( indexing ).toBeEnabled();
 		expect( sitemap ).toBeEnabled();
+	} );
+} );
+
+describe( 'Settings while SEO tools are off', () => {
+	afterEach( () => {
+		delete ( window as unknown as { JetpackScriptData?: unknown } ).JetpackScriptData;
+		routeSeoToolsActive = false;
+	} );
+
+	it.each( [ false, true ] )(
+		'keeps the module-independent settings and offers the SEO tools switch when active is %s',
+		async active => {
+			routeSeoToolsActive = active;
+			routeForm = buildForm( { search_engines_visible: true } );
+			render( <SettingsStage /> );
+
+			expect( screen.getByTestId( 'seo-tools-switch' ) ).toHaveAttribute(
+				'data-active',
+				String( active )
+			);
+			expect(
+				screen.getByRole( 'checkbox', { name: 'Generate an XML sitemap' } )
+			).toBeInTheDocument();
+			expect( screen.getByText( 'google field' ) ).toBeInTheDocument();
+			// eslint-disable-next-line testing-library/prefer-user-event -- Existing disclosure-test convention.
+			fireEvent.click( screen.getByRole( 'button', { name: 'Canonical URLs' } ) );
+			await expect(
+				screen.findByRole( 'checkbox', { name: 'Add canonical URLs to archive pages' } )
+			).resolves.toBeInTheDocument();
+			expect( screen.queryByTestId( 'schema' ) !== null ).toBe( active );
+			expect( screen.queryByText( 'title structure' ) !== null ).toBe( active );
+			expect( routeForm.commit ).not.toHaveBeenCalled();
+		}
+	);
+
+	it( 'leaves the switch out on WordPress.com Simple, which runs SEO tools on every site', () => {
+		( window as unknown as { JetpackScriptData?: unknown } ).JetpackScriptData = {
+			site: { host: 'wpcom' },
+		};
+		render( <SettingsScreen form={ buildForm() } /> );
+
+		expect( screen.queryByTestId( 'seo-tools-switch' ) ).not.toBeInTheDocument();
 	} );
 } );
