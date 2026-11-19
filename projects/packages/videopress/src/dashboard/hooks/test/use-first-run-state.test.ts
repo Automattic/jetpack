@@ -265,6 +265,24 @@ describe( 'useObserveFirstRunSignals', () => {
 		expect( hasEstablishedLibrary() ).toBe( false );
 		expect( hasPublishedVideo() ).toBe( false );
 	} );
+
+	it.each( [
+		[ 'requests the library count until a library is remembered', false, true ],
+		[ 'skips the library count once a library is remembered', true, false ],
+	] )( '%s', ( _label, established, countEnabled ) => {
+		if ( established ) {
+			markEstablishedLibrary();
+		}
+		mockLibraryCount( { totalItems: 3, isLoading: false } );
+
+		renderHook( () => useObserveFirstRunSignals() );
+
+		expect( useLibrary ).toHaveBeenCalledWith( expect.anything(), {
+			poll: false,
+			enabled: countEnabled,
+		} );
+		expect( useOnboardingCounts ).toHaveBeenCalledWith( { includeLocal: false } );
+	} );
 } );
 
 describe( 'useSettledFirstRunState', () => {

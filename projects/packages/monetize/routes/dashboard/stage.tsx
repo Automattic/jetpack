@@ -9,6 +9,7 @@ import ConnectionGate from './components/connection-gate';
 import Overview from './components/overview';
 import Payments from './components/payments';
 import Placeholder from './components/placeholder';
+import Subscribers from './components/subscribers';
 import { queryClient } from './data/query-client';
 import { TABS, getTab, getTabSearch } from './data/tabs';
 import type { TabValue } from './data/tabs';
@@ -30,6 +31,12 @@ function TabContent( { tab, openTab }: { tab: TabValue; openTab: ( next: string 
 			return (
 				<ConnectionGate>
 					<Payments />
+				</ConnectionGate>
+			);
+		case 'subscribers':
+			return (
+				<ConnectionGate>
+					<Subscribers />
 				</ConnectionGate>
 			);
 		case 'settings':

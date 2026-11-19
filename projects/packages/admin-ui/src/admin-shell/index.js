@@ -8,6 +8,9 @@ import {
 	loadPage,
 	notifyRouters,
 	prefetchBoot,
+	preloadModules,
+	routeAt,
+	routesLoadedBy,
 	trackViewTransitions,
 	transitionSettled,
 } from './adapter';
@@ -144,6 +147,29 @@ const start = ( {
 		booting = run.catch( () => {} );
 		return run;
 	};
+	// The config each guest's init set; none means the page's current one.
+	const configOf = {};
+	const imported = new Set();
+	// Route modules keep the Jetpack config they are evaluated with: each gets its own page's.
+	const evaluateAs = async ( slug, ids ) => {
+		// Read first, to keep a config the host's init set since the last guest finished.
+		const current = pageConfigNow();
+		globalThis.jetpackConfig = configOf[ slug ] ?? current;
+		const modules = await Promise.all( ids.map( id => import( /* webpackIgnore: true */ id ) ) );
+		ids.forEach( id => imported.add( id ) );
+		return modules;
+	};
+	// What a booted guest's router imports when it first reaches a route.
+	const routeModuleLoader = slug => async id => {
+		if ( imported.has( id ) ) {
+			return import( /* webpackIgnore: true */ id );
+		}
+		log( 'switch', `${ slug }: importing ${ id } on first use` );
+		// Downloaded outside the queue, so a prewarm another guest has queued doesn't hold up the visible one.
+		await preloadModules( [ id ] );
+		const [ module ] = await oneAtATime( () => evaluateAs( slug, [ id ] ) );
+		return module;
+	};
 	const warm = {};
 	const liveLimit = liveAppLimit( maxLiveApps );
 	// Past the limit, opening another dashboard loads the page, which frees every hidden one.
@@ -154,17 +180,26 @@ const start = ( {
 	// A page load drops the hidden apps too, edits and all; the visible one has its own beforeunload.
 	const mayUnload = url =>
 		[ ...apps.keys() ].every( slug => slug === visible || mayLeave( slug, url ) );
-	// Everything short of mounting: a mounted router would start reading the visible page's URL.
-	const prewarm = ( slug, reason ) => {
+	/*
+	 * Everything short of mounting, for the route `url` opens: a mounted router would start reading
+	 * the visible page's URL. Other routes load when the app first reaches them.
+	 */
+	const prewarm = ( slug, reason, url ) => {
 		if ( warm[ slug ] ) {
 			return warm[ slug ];
 		}
 		const total = stopwatch();
-		log( 'prewarm', `${ slug }: start (${ reason })` );
+		log( 'prewarm', `${ slug }: start (${ reason })`, url );
 		prefetchBoot().catch( () => {} ); // Download in parallel; bootFor() reports a failure.
+		const path = new URL( url, location.href ).searchParams.get( 'p' ) ?? '/';
+		const route = routeAt( members[ slug ].routes, path );
+		const modules = [ route?.route_module, route?.content_module ].filter( Boolean );
+		// Downloaded before this guest takes the queue, which then holds it only to evaluate them.
+		const preloaded = preloadModules( [ ...members[ slug ].initModules, ...modules ] );
 		warm[ slug ] = ( async () => {
 			let step = stopwatch();
 			const added = await applyGuestAssets( guestAssetsUrl, slug );
+			await preloaded;
 			log( 'prewarm', `${ slug }: page data fetched and applied in ${ step() }`, added );
 			return oneAtATime( async () => {
 				let guestConfig;
@@ -211,17 +246,12 @@ const start = ( {
 					}
 				}
 				const boot = await bootFor( slug );
-				const modules = members[ slug ].routes
-					.flatMap( route => [ route.route_module, route.content_module ] )
-					.filter( Boolean );
 				step = stopwatch();
-				// Set again here, in case the host's init replaced it while this guest's init ran.
-				const current = pageConfigNow();
-				globalThis.jetpackConfig = guestConfig ?? current;
-				await Promise.all( modules.map( id => import( /* webpackIgnore: true */ id ) ) );
+				configOf[ slug ] = guestConfig;
+				await evaluateAs( slug, modules );
 				log(
 					'prewarm',
-					`${ slug }: imported ${ modules.length } route modules in ${ step() }`,
+					`${ slug }: imported ${ modules.length } modules for ${ path } in ${ step() }`,
 					modules
 				);
 				log( 'prewarm', `${ slug }: ready to boot, ${ total() } in all` );
@@ -322,7 +352,7 @@ const start = ( {
 				return;
 			}
 			const waited = stopwatch();
-			const boot = await prewarm( slug, 'switch' );
+			const boot = await prewarm( slug, 'switch', url );
 			log( 'switch', `${ slug }: waited ${ waited() } for prewarm` );
 			if ( visible !== slug ) {
 				// Left before it could boot; it boots on the next visit, at that visit's URL.
@@ -334,7 +364,10 @@ const start = ( {
 			gate.mount( slug );
 			const render = stopwatch();
 			log( 'switch', `${ slug }: initSinglePage into #${ el.id }` );
-			boot.initSinglePage( { mountId: el.id, routes: members[ slug ].routes } );
+			boot.initSinglePage( {
+				mountId: el.id,
+				routes: routesLoadedBy( members[ slug ].routes, routeModuleLoader( slug ) ),
+			} );
 			await whenRendered( el, RENDER_TIMEOUT );
 			log( 'switch', `${ slug }: first route rendered ${ render() } after boot` );
 		} catch ( error ) {
@@ -480,19 +513,21 @@ const start = ( {
 		}
 	};
 
-	const navigate = ( href, via ) => {
+	// A bare menu link reopens its page where it was left, or else at the page's default path.
+	const destinationOf = href => {
 		const url = new URL( href, location.href );
 		const slug = pageOf( url );
 		const bare = [ ...url.searchParams.keys() ].length === 1 && ! url.hash;
 		if ( bare && slug !== visible && lastUrl[ slug ] ) {
-			log( 'switch', `bare menu link: reopening ${ slug } where it was left` );
-			return show( lastUrl[ slug ], { push: true, via } );
+			return lastUrl[ slug ];
 		}
 		if ( ! url.searchParams.has( 'p' ) && members[ slug ].defaultPath ) {
 			url.searchParams.set( 'p', members[ slug ].defaultPath );
 		}
-		return show( url.href, { push: true, via } );
+		return url.href;
 	};
+
+	const navigate = ( href, via ) => show( destinationOf( href ), { push: true, via } );
 
 	// Not gated: the shell itself must hear Back/Forward across pages.
 	gate.listen( 'popstate', event => {
@@ -583,7 +618,7 @@ const start = ( {
 			 * A hover isn't a visit, so it checks no feature, only skips one a visit found off.
 			 */
 			if ( ! apps.has( slug ) && ! knownOff.has( slug ) && hasRoomFor( slug, 1 ) && mayPrewarm() ) {
-				prewarm( slug, 'menu hover' ).catch( () => {} );
+				prewarm( slug, 'menu hover', destinationOf( a.href ) ).catch( () => {} );
 			}
 		}, HOVER_DELAY );
 	} );
