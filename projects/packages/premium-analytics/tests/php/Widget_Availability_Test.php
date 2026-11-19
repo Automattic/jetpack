@@ -83,22 +83,6 @@ class Widget_Availability_Test extends BaseTestCase {
 				'category' => 'traffic',
 			),
 			array(
-				'name'     => 'jpa/total-views',
-				'category' => 'stats',
-			),
-			array(
-				'name'     => 'jpa/total-visitors',
-				'category' => 'stats',
-			),
-			array(
-				'name'     => 'jpa/popular-days',
-				'category' => 'stats',
-			),
-			array(
-				'name'     => 'jpa/popular-hours',
-				'category' => 'stats',
-			),
-			array(
 				'name'     => 'jpa/hello-world',
 				'category' => 'demo',
 			),
@@ -167,19 +151,6 @@ class Widget_Availability_Test extends BaseTestCase {
 	 */
 	public function test_type_policy_keeps_file_downloads_on_simple() {
 		$this->assertContains( 'jpa/file-downloads', $this->available_names( true ) );
-	}
-
-	/**
-	 * The period widgets are held back regardless of host or features (WOOA7S-2020).
-	 */
-	public function test_type_policy_removes_period_widgets_everywhere() {
-		$period = array( 'jpa/total-views', 'jpa/total-visitors', 'jpa/popular-days', 'jpa/popular-hours' );
-
-		foreach ( $period as $name ) {
-			$this->assertNotContains( $name, $this->available_names( false, false ), $name );
-			$this->assertNotContains( $name, $this->available_names( true, true ), $name );
-		}
-		$this->assertContains( 'jpa/hello-world', $this->available_names( false, false ) );
 	}
 
 	/**
@@ -270,18 +241,6 @@ class Widget_Availability_Test extends BaseTestCase {
 		sort( $video_names );
 
 		$this->assertSame( $gated, $video_names, 'Every video widget must be listed in VIDEOPRESS_WIDGET_TYPES.' );
-	}
-
-	/**
-	 * Every held period type names a real manifest, so a renamed or moved widget
-	 * cannot lift the hold while the absence assertions stay green.
-	 */
-	public function test_period_widget_types_match_the_manifest() {
-		$names = $this->manifest_widget_names();
-
-		foreach ( PERIOD_WIDGET_TYPES as $held ) {
-			$this->assertContains( $held, $names, "$held is held back but no manifest declares it." );
-		}
 	}
 
 	/**

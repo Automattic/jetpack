@@ -42,6 +42,8 @@ interface DeviceViewsState {
 	isLoading: boolean;
 	isFetching: boolean;
 	isError: boolean;
+	csvIsError: boolean;
+	csvIsPlaceholderData: boolean;
 	error: unknown;
 	refetch: () => void;
 }
@@ -84,7 +86,7 @@ export default function useDeviceViews( {
 		deviceProperty,
 	};
 
-	const { comparisonRows, hasComparison, isLoading, isFetching, isError, error, refetch } =
+	const { primary, comparisonRows, hasComparison, isLoading, isFetching, isError, error, refetch } =
 		useStatsDevices( statsParams, { maxRows: max } );
 
 	const items = useMemo(
@@ -105,6 +107,8 @@ export default function useDeviceViews( {
 		isLoading,
 		isFetching,
 		isError: showError,
+		csvIsError: primary.isError,
+		csvIsPlaceholderData: primary.isPlaceholderData,
 		error: showError ? error : null,
 		refetch,
 	};

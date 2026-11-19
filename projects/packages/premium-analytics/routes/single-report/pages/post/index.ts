@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { getPostTypeCopy } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
@@ -19,6 +20,7 @@ import type { PostSummary } from './use-post-summary';
  */
 export const postAdapter: SingleReportAdapter< PostSummary > = {
 	useSummary: usePostSummary,
+	untitledTitle: summary => getPostTypeCopy( summary.type ).untitled,
 	headerSlots: postHeaderSlots,
 	headerActions: postHeaderActions,
 	useSections: usePostSections,

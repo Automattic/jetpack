@@ -44,19 +44,32 @@ interface DashboardView {
 
 /**
  * Record `jetpack_podcast_dashboard_viewed` once per page load — the
- * denominator every other dashboard event is missing.
+ * denominator every other dashboard event is missing — and again each time
+ * the admin shell shows the dashboard again, as a page load would.
  *
  * No episode count: the probe behind it is a REST request, and
  * `wpcom_podcast_episode_published` already answers it server-side.
  *
  * @param props - View properties.
+ * @return Stops recording admin shell returns with these properties.
  */
-export function recordDashboardView( props: DashboardView ): void {
-	if ( viewRecorded ) {
-		return;
+export function recordDashboardView( props: DashboardView ): () => void {
+	const record = () => {
+		initializeAnalytics();
+		jetpackAnalytics.tracks.recordEvent( 'jetpack_podcast_dashboard_viewed', props );
+	};
+	if ( ! viewRecorded ) {
+		viewRecorded = true;
+		record();
 	}
-	viewRecorded = true;
 
-	initializeAnalytics();
-	jetpackAnalytics.tracks.recordEvent( 'jetpack_podcast_dashboard_viewed', props );
+	// The admin shell keeps this page mounted, so a return to it is a new visit: see the admin-ui README.
+	const onShown = ( event: Event ) => {
+		const { page, firstShow } = ( event as CustomEvent ).detail ?? {};
+		if ( page === 'jetpack-podcast' && ! firstShow ) {
+			record();
+		}
+	};
+	window.addEventListener( 'jetpack-admin-shell:page-shown', onShown );
+	return () => window.removeEventListener( 'jetpack-admin-shell:page-shown', onShown );
 }

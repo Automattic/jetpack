@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Firewall: Show up-to-date blocked request counts on sites with a persistent object cache.

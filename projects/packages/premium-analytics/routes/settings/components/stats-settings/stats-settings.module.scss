@@ -1,0 +1,7 @@
+.root {
+	inline-size: 100%;
+	// Widget sections open with a section header; this page has none.
+	padding-block-start: var(--wpds-dimension-padding-2xl);
+	max-inline-size: 720px;
+	margin-inline: auto;
+}

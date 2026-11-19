@@ -4,14 +4,14 @@ import type { SeoTab } from '../dashboard/dashboard-nav';
 import type { FC } from 'react';
 
 /**
- * Show the enable prompt while retaining navigation to independent Settings.
+ * Show the module activation prompt when the SEO dashboard cannot save settings.
  *
  * @param props        - Component props.
- * @param props.active - The current tab and Tracks screen.
- * @return The module-off stage for the given tab.
+ * @param props.active - Current route.
+ * @return The module activation prompt.
  */
 const SeoDisabledStage: FC< { active: SeoTab } > = ( { active } ) => (
-	<DashboardPage active={ active } showTabs centered>
+	<DashboardPage active={ active } centered>
 		<EnableSeoEmptyState screen={ active } />
 	</DashboardPage>
 );

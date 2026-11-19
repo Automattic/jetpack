@@ -1,6 +1,6 @@
 <?php
 /**
- * Legacy discoverability and opt-in APIs for the SEO dashboard.
+ * SEO dashboard visibility and legacy opt-in compatibility.
  *
  * @package automattic/jetpack-seo-package
  */
@@ -10,12 +10,12 @@ namespace Automattic\Jetpack\SEO;
 use Automattic\Jetpack\Modules;
 
 /**
- * Retain discoverability and opt-in contracts for older clients.
+ * Makes the dashboard discoverable while retaining the legacy opt-in API.
  */
 class Surface_Visibility {
 
 	/**
-	 * Whether the SEO surface is discoverable, independent of install age.
+	 * Whether the dashboard is available, regardless of an older opt-in preference.
 	 *
 	 * @return bool
 	 */
@@ -24,7 +24,7 @@ class Surface_Visibility {
 	}
 
 	/**
-	 * Retain the legacy opt-in contract without offering a redundant migration.
+	 * Retain the discovery signal without offering a redundant opt-in.
 	 *
 	 * @return bool
 	 */
@@ -33,7 +33,7 @@ class Surface_Visibility {
 	}
 
 	/**
-	 * Expose legacy opt-in and dashboard visibility state to other admin surfaces.
+	 * Expose legacy opt-in and dashboard visibility state to other admin screens.
 	 *
 	 * @param array $data Script data being injected onto the page.
 	 * @return array
@@ -44,7 +44,7 @@ class Surface_Visibility {
 		}
 
 		$data[ Initializer::SCRIPT_DATA_KEY ]['optin_available'] = self::is_optin_available();
-		// Hide the legacy Traffic controls now that eligible installs use the dashboard.
+		// Eligible sites use the dashboard; VIP keeps its existing Traffic controls.
 		$data[ Initializer::SCRIPT_DATA_KEY ]['surface_visible'] = self::is_visible();
 
 		return $data;
@@ -52,6 +52,9 @@ class Surface_Visibility {
 
 	/**
 	 * Retain the opt-in REST route for older clients that still offer migration.
+	 *
+	 * An explicit request still preserves its activation contract. Migration itself does
+	 * not call this route or change module choices. See {@see self::handle_optin()}.
 	 *
 	 * @return void
 	 */

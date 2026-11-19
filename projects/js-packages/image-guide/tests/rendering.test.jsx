@@ -105,7 +105,7 @@ it( 'staggers each bubble entrance once on first appearance', async () => {
 	const bubbles = target.querySelectorAll( '.interaction-area' );
 	bubbles.forEach( ( bubble, index ) => {
 		expect( bubble ).toHaveClass( 'jb-ig-bubble-fly' );
-		expect( bubble ).toHaveStyle( { animationDelay: `${ 150 + 50 * index }ms` } );
+		expect( bubble ).toHaveStyle( { animationDelay: `${ ( 150 + 50 * index ) / 1000.0 }s` } );
 	} );
 	await act( async () => commands.updateImage( stores[ 0 ].id, { loading: false } ) );
 	expect( target.querySelector( '.interaction-area' ) ).toBe( bubbles[ 0 ] );

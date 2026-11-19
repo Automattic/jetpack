@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Keep text typed with a Japanese, Chinese, or Korean input method in a choice option when Enter confirms the conversion.

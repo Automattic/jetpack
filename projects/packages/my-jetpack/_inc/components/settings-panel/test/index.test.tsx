@@ -1,8 +1,11 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import useAnalytics from '../../../hooks/use-analytics';
 import { SettingsPanel } from '../index';
-import { moduleSettings } from '../registry';
+import { entrySettings, moduleSettings } from '../registry';
 import type { MyJetpackModule } from '../../../types';
+
+const mockRecordEvent = jest.mocked( jest.mocked( useAnalytics )().recordEvent );
 
 const mockNavigate = jest.fn();
 let mockSearch: Record< string, unknown > = {};
@@ -13,9 +16,10 @@ jest.mock( '../../../router-bridge', () => ( { useRouteSearch: () => mockSearch 
 jest.mock( '../../my-jetpack-tab-panel/features/use-all-jetpack-modules', () => ( {
 	useAllJetpackModules: () => mockModules,
 } ) );
-jest.mock( '../../../hooks/use-analytics', () => ( {
-	__esModule: true,
-	default: () => ( { recordEvent: jest.fn() } ),
+let mockEntries: MainFeatureSettingsEntry[] = [];
+jest.mock( '../../my-jetpack-tab-panel/features/use-main-features', () => ( {
+	QUERY_KEY: [ 'my-jetpack-main-features' ],
+	useMainFeatures: () => ( { settings_entries: mockEntries } ),
 } ) );
 jest.mock( '../../module-toggle', () => ( {
 	ModuleToggle: ( {
@@ -56,16 +60,31 @@ beforeEach( () => {
 
 afterEach( () => {
 	delete moduleSettings[ 'tiled-gallery' ];
+	delete entrySettings[ 'entry-test' ];
+	mockEntries = [];
 } );
 
 describe( 'SettingsPanel', () => {
+	it( 'opens a settings entry without waiting for the modules to load', () => {
+		mockSearch = { configure: 'entry-test' };
+		mockModules = { modules: {}, hasLoaded: false };
+		mockEntries = [
+			{ slug: 'entry-test', name: 'Entry Test', description: '', status: 'inactive' },
+		];
+		entrySettings[ 'entry-test' ] = () => <p>Entry settings</p>;
+		render( <SettingsPanel /> );
+
+		expect( screen.getByRole( 'heading', { name: 'Entry Test' } ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Entry settings' ) ).toBeInTheDocument();
+	} );
+
 	it( 'shows the fallback for a module with no settings of its own', () => {
 		render( <SettingsPanel /> );
 
 		expect( screen.getByRole( 'heading', { name: 'Tiled Galleries' } ) ).toHaveFocus();
 		expect( screen.getByText( tiledGallery.description ) ).toBeInTheDocument();
 		expect( screen.getByRole( 'checkbox', { name: 'Activate this feature' } ) ).toBeEnabled();
-		expect( screen.getByRole( 'link', { name: 'Manage in Settings' } ) ).toHaveAttribute(
+		expect( screen.getByRole( 'link', { name: 'Manage in Jetpack Settings' } ) ).toHaveAttribute(
 			'href',
 			tiledGallery.configure_url
 		);
@@ -75,7 +94,9 @@ describe( 'SettingsPanel', () => {
 		mockSearch = { configure: 'likes' };
 		render( <SettingsPanel /> );
 
-		expect( screen.queryByRole( 'link', { name: 'Manage in Settings' } ) ).not.toBeInTheDocument();
+		expect(
+			screen.queryByRole( 'link', { name: 'Manage in Jetpack Settings' } )
+		).not.toBeInTheDocument();
 	} );
 
 	it( 'shows a registered component in place of the fallback', () => {
@@ -85,7 +106,9 @@ describe( 'SettingsPanel', () => {
 		render( <SettingsPanel /> );
 
 		expect( screen.getByText( 'Options of Tiled Galleries' ) ).toBeInTheDocument();
-		expect( screen.queryByRole( 'link', { name: 'Manage in Settings' } ) ).not.toBeInTheDocument();
+		expect(
+			screen.queryByRole( 'link', { name: 'Manage in Jetpack Settings' } )
+		).not.toBeInTheDocument();
 	} );
 
 	it.each( [
@@ -184,11 +207,18 @@ describe( 'SettingsPanel', () => {
 		[
 			'the close button',
 			() => userEvent.click( screen.getByRole( 'button', { name: 'Close' } ) ),
+			'close-button',
 		],
-		[ 'Escape', () => userEvent.keyboard( '{Escape}' ) ],
-	] )( 'closes on %s, dropping only the configure param', async ( _name, close ) => {
+		[ 'Escape', () => userEvent.keyboard( '{Escape}' ), 'escape' ],
+	] )( 'closes on %s, dropping only the configure param', async ( _name, close, method ) => {
 		render( <SettingsPanel /> );
 		await close();
+
+		expect( mockRecordEvent ).toHaveBeenLastCalledWith( 'jetpack_myjetpack_settings_panel_close', {
+			feature_slug: 'tiled-gallery',
+			method,
+			event_version: 1,
+		} );
 
 		expect( mockNavigate ).toHaveBeenCalledTimes( 1 );
 		const options = mockNavigate.mock.calls[ 0 ][ 0 ];

@@ -1,4 +1,4 @@
-import { createReduxStore, register } from '@wordpress/data';
+import { createReduxStore, register, select } from '@wordpress/data';
 import { GEO_PATH, getPreloaded } from './get-preloaded';
 import type { GeoState } from './geo-types';
 
@@ -114,6 +114,8 @@ const store = createReduxStore( STORE_NAME, {
 	selectors,
 } );
 
-register( store );
+if ( ! select( STORE_NAME ) ) {
+	register( store );
+}
 
 export { store as geoStore };

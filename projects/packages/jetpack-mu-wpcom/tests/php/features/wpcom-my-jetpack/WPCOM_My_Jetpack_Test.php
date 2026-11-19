@@ -53,8 +53,21 @@ class WPCOM_My_Jetpack_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function tear_down() {
 		remove_all_filters( 'stylesheet' );
+		remove_all_filters( 'jetpack_stats_url' );
+		remove_filter( 'user_has_cap', array( $this, 'grant_view_stats' ) );
 		Constants::clear_single_constant( 'IS_WPCOM' );
 		parent::tear_down();
+	}
+
+	/**
+	 * Gives the current user `view_stats`, which the Stats package maps on a real site.
+	 *
+	 * @param array $allcaps The user's capabilities.
+	 * @return array
+	 */
+	public function grant_view_stats( $allcaps ) {
+		$allcaps['view_stats'] = true;
+		return $allcaps;
 	}
 
 	/**
@@ -190,6 +203,35 @@ class WPCOM_My_Jetpack_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Stats, a top-level menu the Jetpack menu walk never sees, leads Growth for a user who can view stats, and goes where the host sends Stats links.
+	 */
+	public function test_tools_lead_with_stats_for_stats_viewers() {
+		add_filter( 'user_has_cap', array( $this, 'grant_view_stats' ) );
+		add_filter(
+			'jetpack_stats_url',
+			function ( $url, $args ) {
+				return 'dashboard' === ( $args['view'] ?? null ) ? admin_url( 'admin.php?page=stats-v2' ) : $url;
+			},
+			10,
+			2
+		);
+
+		$tools = WPCOM_My_Jetpack::get_tools();
+
+		$this->assertSame(
+			array(
+				'title'       => 'Stats',
+				'description' => 'See your visitors, views and top posts',
+				'key'         => 'stats',
+				'section'     => 'growth',
+				'url'         => admin_url( 'admin.php?page=stats-v2' ),
+			),
+			$tools[0]
+		);
+		$this->assertCount( 5, $tools );
+	}
+
+	/**
 	 * Two menu entries with the same destination make one card.
 	 */
 	public function test_tools_skip_repeated_destinations() {
@@ -252,6 +294,38 @@ class WPCOM_My_Jetpack_Test extends \WorDBless\BaseTestCase {
 		);
 
 		$this->assertSame( array( 'Good' ), array_column( WPCOM_My_Jetpack::get_tools(), 'title' ) );
+	}
+
+	/**
+	 * Admins get the plan link and Editors don't, though both get the tools.
+	 */
+	public function test_state_gives_the_plan_link_to_admins_only() {
+		$state = WPCOM_My_Jetpack::get_initial_state();
+		$this->assertSame( 'https://wordpress.com/plans/' . $this->domain, $state['plan']['url'] );
+
+		wp_set_current_user( $this->insert_user( 'editor' ) );
+
+		$state = WPCOM_My_Jetpack::get_initial_state();
+		$this->assertNull( $state['plan'] );
+		$this->assertCount( 4, $state['tools'] );
+	}
+
+	/**
+	 * Staging sites don't get the plan link, as they don't get the Upgrades menu.
+	 */
+	public function test_state_leaves_the_plan_link_off_staging_sites() {
+		update_option( 'wpcom_is_staging_site', true );
+
+		$this->assertNull( WPCOM_My_Jetpack::get_initial_state()['plan'] );
+	}
+
+	/**
+	 * Sites an agency fully manages don't get the plan link, as the agency handles billing.
+	 */
+	public function test_state_leaves_the_plan_link_off_agency_managed_sites() {
+		update_option( 'is_fully_managed_agency_site', true );
+
+		$this->assertNull( WPCOM_My_Jetpack::get_initial_state()['plan'] );
 	}
 
 	/**

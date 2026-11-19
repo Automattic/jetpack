@@ -2,13 +2,12 @@
  * External dependencies
  */
 import { isWpcomPlatformSite } from '@automattic/jetpack-script-data';
-import { pickReportNavigationParams } from '@jetpack-premium-analytics/routing';
 import { Link as RouteLink } from '@wordpress/route';
 import { useMemo } from 'react';
 /**
  * Internal dependencies
  */
-import { useDashboardOriginSearch } from '../../hooks/use-dashboard-origin-search';
+import { useReportNavigationSearch } from '../../hooks/use-report-navigation-search';
 import type { JSX } from 'react';
 
 export type StatsUpgradeLinkProps = { href: string } | { render: JSX.Element };
@@ -25,7 +24,7 @@ export function useStatsUpgradeLinkProps(
 	from: string,
 	wpcomHref?: string
 ): StatsUpgradeLinkProps | undefined {
-	const dashboardOrigin = useDashboardOriginSearch();
+	const navigationSearch = useReportNavigationSearch();
 	const isWpcom = isWpcomPlatformSite();
 
 	return useMemo( () => {
@@ -34,8 +33,7 @@ export function useStatsUpgradeLinkProps(
 		}
 
 		const search = ( current: Record< string, unknown > ) => ( {
-			...pickReportNavigationParams( current ),
-			...dashboardOrigin,
+			...navigationSearch( current ),
 			// Not `from`, which the report window uses for its start date.
 			source: from,
 		} );
@@ -44,5 +42,5 @@ export function useStatsUpgradeLinkProps(
 			// Route types cannot resolve here.
 			render: <RouteLink to="/upgrade" search={ search as unknown as never } />,
 		};
-	}, [ isWpcom, wpcomHref, dashboardOrigin, from ] );
+	}, [ isWpcom, wpcomHref, navigationSearch, from ] );
 }

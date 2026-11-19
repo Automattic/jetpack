@@ -15,8 +15,8 @@ interface EnableSeoTools {
 
 /**
  * Turn the `seo-tools` module on from the SEO page; turning it off lives in My Jetpack.
- * Reloads on success, since the server registers the rest of the surface only while the
- * module is active; a snackbar wouldn't survive that, so only failure shows a notice.
+ * Reloads on success to load the module-dependent output and editing controls.
+ * A snackbar would not survive that, so only failure shows a notice.
  *
  * @param screen - The screen the button was used from, for Tracks.
  * @return The enable controller.

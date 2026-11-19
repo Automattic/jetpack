@@ -5,10 +5,9 @@ import { store as coreStore, type Settings } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 
 /**
- * Read the site URL from the core site settings — the same entity the route
- * guards already resolve via `ensureCoreSettingsReady()`, so the record is
- * warm by the time report pages render. Callers must handle the undefined
- * fallback: the settings read requires `manage_options`.
+ * Read the site URL from the core site settings, which the route guards start loading via
+ * `ensureCoreSettingsReady()`. Callers must handle undefined: the record may still be loading,
+ * and the settings read requires `manage_options`.
  */
 export function useSiteHomeUrl(): string | undefined {
 	return useSelect( select => {

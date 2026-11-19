@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.0] - 2026-11-16
+### Added
+- Add a settings route so the dashboard works without the Jetpack plugin. [#53685]
+- Join the admin shell, so switching to and from other Jetpack dashboards skips the page load when the admin shell flag is on. [#54768]
+- Scan: Let sites without Scan turn off the daily vulnerability check from Settings. [#54600]
+
+### Changed
+- Admin shell: Declare the page title and subtitle shown while the dashboard opens, when the admin shell flag is on. [#54945]
+- Dashboard: Show the Scan site button in the page header as a primary button. [#54507]
+- Firewall and Login protection: Hide the add-my-IP suggestion when the configured trusted IP header cannot be resolved. [#54649]
+- Update package dependencies. [#54703]
+
+### Fixed
+- Dashboard: Save nothing when a settings change includes an unavailable feature, show WordPress.com's reason when downtime email settings can't be saved, and ask for a reload once the site's connection goes away. [#54761]
+
 ## [0.6.0] - 2026-11-09
 ### Added
 - Scan: View the whole file a threat was found in, with the flagged lines highlighted and what the file belongs to, and delete a stray file or restore a changed WordPress core file from there. [#54570]
@@ -124,6 +139,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Initial version. [#53298]
 - Protect dashboard: Add a Scan history tab for sites with Jetpack Scan, show threat actions on row hover, and offer to delete unused plugins and themes that have threats. [#53196]
 
+[0.7.0]: https://github.com/Automattic/jetpack-protect/compare/v0.6.0...v0.7.0
 [0.6.0]: https://github.com/Automattic/jetpack-protect/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/Automattic/jetpack-protect/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/Automattic/jetpack-protect/compare/v0.3.0...v0.4.0

@@ -78,13 +78,24 @@ class WPCOM_My_Jetpack extends WPCOM_WP_Build_Page {
 	 * @return array
 	 */
 	public static function get_initial_state() {
+		$plan = null;
+
+		// Agencies handle billing for the sites they fully manage, so their clients get no upsell.
+		if ( current_user_can( 'manage_options' ) && ! get_option( 'wpcom_is_staging_site' ) && ! is_fully_managed_agency_site() ) {
+			$plan = array(
+				'name' => function_exists( 'wpcom_get_current_plan_name' ) ? wpcom_get_current_plan_name() : null,
+				'url'  => 'https://wordpress.com/plans/' . wpcom_get_site_slug(),
+			);
+		}
+
 		return array(
 			'tools' => static::get_tools(),
+			'plan'  => $plan,
 		);
 	}
 
 	/**
-	 * Gets the tools to list: the visible Jetpack menu items, in menu order.
+	 * Gets the tools to list: Stats, then the visible Jetpack menu items, in menu order.
 	 *
 	 * @return array[] Tools with `title`, `description`, `key`, `section` and `url` keys.
 	 */
@@ -99,6 +110,11 @@ class WPCOM_My_Jetpack extends WPCOM_WP_Build_Page {
 
 		$known = static::get_known_tools();
 		$tools = array();
+
+		$stats = static::get_stats_tool();
+		if ( $stats ) {
+			$tools[ $stats['url'] ] = $stats;
+		}
 
 		foreach ( $submenu[ static::PARENT_SLUG ] ?? array() as $item ) {
 			if ( static::MENU_SLUG === $item[2] || str_contains( $item[4] ?? '', 'hide-if-js' ) ) {
@@ -127,6 +143,31 @@ class WPCOM_My_Jetpack extends WPCOM_WP_Build_Page {
 		}
 
 		return array_values( $tools );
+	}
+
+	/**
+	 * Gets the Stats tool, which the menu walk misses because Stats is a top-level menu on Simple.
+	 *
+	 * @return array|null The tool, or null when the user can't view stats.
+	 */
+	private static function get_stats_tool() {
+		if ( ! current_user_can( 'view_stats' ) ) {
+			return null;
+		}
+
+		/** This filter is documented in projects/packages/stats-admin/src/class-admin-bar.php */
+		$url = esc_url_raw( apply_filters( 'jetpack_stats_url', admin_url( 'admin.php?page=stats' ), array( 'view' => 'dashboard' ) ) );
+		if ( '' === $url ) {
+			return null;
+		}
+
+		return array(
+			'title'       => __( 'Stats', 'jetpack-mu-wpcom' ),
+			'description' => __( 'See your visitors, views and top posts', 'jetpack-mu-wpcom' ),
+			'key'         => 'stats',
+			'section'     => 'growth',
+			'url'         => $url,
+		);
 	}
 
 	/**
@@ -205,7 +246,7 @@ class WPCOM_My_Jetpack extends WPCOM_WP_Build_Page {
 			'growth'   => array(
 				'advertising'       => __( 'Promote posts across WordPress.com and Tumblr', 'jetpack-mu-wpcom' ),
 				'earn'              => __( 'Earn from ads, donations and paid content', 'jetpack-mu-wpcom' ),
-				'marketing/traffic' => __( 'Analytics and site verification', 'jetpack-mu-wpcom' ),
+				'marketing/traffic' => __( 'Google Analytics and site verification', 'jetpack-mu-wpcom' ),
 				'newsletter'        => __( 'Send your posts to subscribers', 'jetpack-mu-wpcom' ),
 				'seo'               => __( 'Titles and descriptions for search engines', 'jetpack-mu-wpcom' ),
 				'social'            => __( 'Share posts to your social accounts', 'jetpack-mu-wpcom' ),

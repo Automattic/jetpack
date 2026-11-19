@@ -6,7 +6,7 @@ exports[`JetpackFooter Render the component should match the snapshot: all props
     aria-label="Jetpack"
     class="_8e8e79c1a2eec43b__stack jetpack-footer sample-classname"
     role="contentinfo"
-    style="gap: var(--wpds-dimension-gap-xl, 24px); align-items: center; justify-content: flex-start; flex-direction: row; flex-wrap: wrap;"
+    style="gap: var(--wpds-dimension-gap-xl, 24px); align-items: center; justify-content: flex-start; flex-flow: wrap;"
   >
     <div
       class="_8e8e79c1a2eec43b__stack jetpack-footer__logo"
@@ -41,7 +41,7 @@ exports[`JetpackFooter Render the component should match the snapshot: all props
     </div>
     <ul
       class="_8e8e79c1a2eec43b__stack"
-      style="gap: var(--wpds-dimension-gap-lg, 16px); flex-direction: row; flex-wrap: wrap;"
+      style="gap: var(--wpds-dimension-gap-lg, 16px); flex-flow: wrap;"
     >
       <li>
         <a

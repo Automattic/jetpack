@@ -1,19 +1,18 @@
 <?php
 /**
- * Initialize the SEO dashboard and its front-end integrations.
+ * Bootstrap the Jetpack SEO dashboard and its services.
  *
  * @package automattic/jetpack-seo-package
  */
 
 namespace Automattic\Jetpack\SEO;
 
-use Automattic\Jetpack\Current_Plan;
+use Automattic\Jetpack\Admin_UI\Admin_Shell;
 use Automattic\Jetpack\Modules;
-use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 
 /**
- * Boots the package and carries its cross-plugin contract: the feature flag,
+ * Boots the package and carries its cross-plugin contract:
  * the script-data key, and the option names / visibility reads other plugins consume.
  */
 class Initializer {
@@ -23,29 +22,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '0.11.0';
-
-	/**
-	 * WordPress.com site feature that enables the Jetpack SEO surface.
-	 *
-	 * Kept separate from `advanced-seo`, which gates the paid parts of the
-	 * dashboard after this product-level availability check has passed.
-	 *
-	 * @var string
-	 */
-	const FEATURE_SLUG = 'seo-admin-ui';
-
-	/**
-	 * Filter name that can enable the entire Jetpack SEO surface.
-	 *
-	 * The surface is available when this filter returns true or the current site's
-	 * active features include {@see self::FEATURE_SLUG}. When neither is enabled,
-	 * the package registers no admin menu or assets and changes nothing about the
-	 * existing Jetpack UI.
-	 *
-	 * @var string
-	 */
-	const FEATURE_FILTER = 'rsm_jetpack_seo';
+	const PACKAGE_VERSION = '0.12.0';
 
 	/**
 	 * Key under `window.JetpackScriptData` the React app reads its state from
@@ -55,14 +32,26 @@ class Initializer {
 	const SCRIPT_DATA_KEY = 'seo';
 
 	/**
-	 * Whether the owner deliberately disabled all sitemaps, including WordPress core's fallback.
+	 * Option recording that the user has deliberately turned the site's sitemap OFF,
+	 * so WordPress core's own sitemap should be suppressed too ("off" means no sitemap
+	 * at all, not a fallback to `/wp-sitemap.xml`).
+	 *
+	 * Set when the sitemaps module is switched off and cleared when it's switched on
+	 * (see {@see self::flag_sitemap_user_disabled()} / {@see self::clear_sitemap_user_disabled()}),
+	 * so it captures a deliberate off — a *transition* — rather than the ambient
+	 * off-state. A site that simply never enabled the sitemap never fires the toggle,
+	 * so the flag stays absent and its existing (e.g. WordPress-native) sitemap is left
+	 * untouched.
 	 *
 	 * @var string
 	 */
 	const SUPPRESS_WP_SITEMAP_OPTION = 'jetpack_seo_suppress_wp_sitemap';
 
 	/**
-	 * Legacy opt-in preference, retained for compatibility with older clients.
+	 * Legacy discoverability preference, retained for older clients and integrations.
+	 *
+	 * The dashboard is available on eligible hosts regardless of this value. Migration
+	 * leaves the saved preference untouched and does not change module activation.
 	 *
 	 * @var string
 	 */
@@ -88,7 +77,6 @@ class Initializer {
 		}
 		self::$initialized = true;
 
-		// Check host eligibility before registering package hooks.
 		if ( ! self::is_available() ) {
 			return;
 		}
@@ -96,23 +84,13 @@ class Initializer {
 		// Before anything can read the AI crawler choices.
 		Ai_Crawlers::register_legacy_migration();
 
-		// Retain the opt-in endpoint for older clients.
+		// Keep the explicit opt-in route for older clients; the new surface no longer offers it.
 		add_action( 'rest_api_init', array( Surface_Visibility::class, 'register_optin_route' ) );
 
-		// Tell legacy admin surfaces that the dashboard has replaced their SEO controls.
+		// Legacy admin surfaces use these signals to retire their replaced controls.
 		add_filter( 'jetpack_admin_js_script_data', array( Surface_Visibility::class, 'inject_optin_availability' ) );
 
-		// Sitemap output is a front-end concern tied to the SEO feature itself, not to
-		// whether the admin dashboard is visible — so register it here, ahead of the
-		// cohort gate. This keeps the deliberate-off behavior consistent in the two
-		// edges the surface gate would otherwise break: a site that turns the sitemap
-		// off while the dashboard is still hidden (an existing self-hosted install that
-		// hasn't opted in), and a flag set while the dashboard was visible that must
-		// stay honored if the dashboard is later hidden.
-		//
-		// Maintain the deliberate-off flag as the sitemap is toggled: these fire only on
-		// a genuine module toggle (not wpcomsh's private-site suppression, which is a
-		// filter, not a deactivation), and are registered before the toggle's REST write.
+		// Honor a deliberate sitemap-off choice independently of dashboard visibility.
 		add_action( 'jetpack_deactivate_module_sitemaps', array( __CLASS__, 'flag_sitemap_user_disabled' ) );
 		add_action( 'jetpack_activate_module_sitemaps', array( __CLASS__, 'clear_sitemap_user_disabled' ) );
 
@@ -143,6 +121,10 @@ class Initializer {
 		add_action( 'admin_menu', array( Admin_Page::class, 'maybe_load_wp_build' ), 1 );
 		add_action( 'admin_menu', array( Admin_Page::class, 'add_menu_item' ), 10 );
 
+		if ( class_exists( Admin_Shell::class ) ) {
+			add_filter( 'jetpack_admin_shell_members', array( Admin_Page::class, 'add_admin_shell_member' ) );
+		}
+
 		// Read-only REST routes the dashboard hydrates its initial state from. Preloaded
 		// into the page (see Admin_Page::inject_script_data) so a normal load resolves
 		// them with no request, and fetched by the app when that preload is missing or
@@ -153,33 +135,23 @@ class Initializer {
 
 		self::register_write_hooks();
 
-		// Register independent settings after conflict filters settle and before core builds its settings route.
+		Indexnow::init();
+
+		Indexnow_Client::init();
+
+		// Independent settings remain usable while SEO Tools is off. Register settings
+		// after init-time conflict filters and before core builds its settings route.
 		add_action( 'rest_api_init', array( Dashboard_Data::class, 'register_rest_settings' ), 5 );
 		add_action( 'rest_api_init', array( Dashboard_Data::class, 'register_module_routes' ) );
 
+		// SEO-dependent output and schema editing still follow the saved module choice.
 		if ( self::is_seo_tools_module_active() ) {
-			// Front-end JSON-LD schema output and author profile schema fields.
-			// Intentionally NOT gated: every site keeps emitting its structured data —
-			// a plan-gated site loses the schema *settings* card (a paid control), but
-			// stripping the schema its pages already carry would hurt SEO it has today.
-			// (Finer per-type gating — e.g. sitewide LocalBusiness to paid plans on
-			// self-hosted — is a separate follow-up, tracked in the schema project.)
+			Share_Image::init();
 			Schema_Builder::init();
 			Author_Schema_Node::init();
-
-			// Paid front-end output. A plan-gated WordPress.com site has these controls
-			// hidden from its dashboard, so it must not keep emitting their output either —
-			// otherwise it would still serve /llms.txt, AI-crawler robots.txt directives and
-			// Simple's archive canonical tags it doesn't qualify for. Self-hosted is never gated.
-			if ( ! self::is_gated() ) {
-				Canonical_Urls::init();
-				// The /llms.txt handler. Self-hooks a front-end action, so it no-ops off
-				// the front end and stays behind the same gates as the schema above.
-				Llms_Txt::init();
-				// robots.txt directives for blocked AI crawlers. Self-hooks the
-				// `robots_txt` filter, so it stays inert off the front end.
-				Ai_Crawlers::init();
-			}
+			Canonical_Urls::init();
+			Llms_Txt::init();
+			Ai_Crawlers::init();
 
 			// Package-owned route for the site-level Schema settings (see the controller).
 			add_action( 'rest_api_init', array( Schema_Settings_Controller::class, 'register_routes' ) );
@@ -194,13 +166,14 @@ class Initializer {
 	}
 
 	/**
-	 * Hook what any request that saves content needs: the page fields the SEO page saves, and
-	 * clearing the Overview counts and the stored llms.txt. WordPress.com calls this on its API
-	 * requests, which skip init().
+	 * Register content-write hooks for ordinary and centralized API requests.
+	 * Centralized API requests select their site after plugins_loaded and skip init().
 	 *
 	 * @return void
 	 */
 	public static function register_write_hooks() {
+		Indexnow_Events::init();
+		Indexnow_Queue::init();
 		Content_Coverage::register_invalidation();
 		Llms_Txt::register_always_include();
 		Llms_Txt::register_invalidation();
@@ -209,25 +182,12 @@ class Initializer {
 	/**
 	 * Whether the Jetpack SEO product is available on this site.
 	 *
-	 * Apply legacy feature checks only after establishing host eligibility.
+	 * Availability is independent of plan refreshes and connection state.
 	 *
 	 * @return bool
 	 */
 	public static function is_available() {
-		if ( ( new Host() )->is_vip_site() ) {
-			return false;
-		}
-
-		if ( (bool) apply_filters( self::FEATURE_FILTER, false ) ) {
-			return true;
-		}
-
-		// Only active features are needed for this check.
-		$features = ( new Host() )->is_wpcom_simple()
-			? Current_Plan::get_simple_site_specific_features( false )
-			: Current_Plan::get()['features'];
-
-		return in_array( self::FEATURE_SLUG, $features['active'] ?? array(), true );
+		return ! ( new Host() )->is_vip_site();
 	}
 
 	/**
@@ -240,60 +200,12 @@ class Initializer {
 	}
 
 	/**
-	 * Whether to offer an existing install the chance to opt into the new SEO experience.
+	 * Legacy opt-in signal retained for older admin clients.
 	 *
 	 * @return bool
 	 */
 	public static function is_optin_available() {
 		return Surface_Visibility::is_optin_available();
-	}
-
-	/**
-	 * Whether the SEO dashboard is plan-gated for this site.
-	 *
-	 * Gating applies only on WordPress.com (Simple + Atomic): `advanced-seo` is in the
-	 * FREE plan's supports list, so `Current_Plan::supports( 'advanced-seo' )` returns
-	 * true on self-hosted (never gated) and hijacks to `wpcom_site_has_feature()` on
-	 * WordPress.com, where it's false below the Premium plan. Mirrors the AI SEO
-	 * Enhancer's plan check in {@see Dashboard_Data::get_geo_data()}.
-	 *
-	 * Public because {@see Admin_Page::inject_script_data()} reads it to build the
-	 * dashboard's gating payload, and {@see self::init()} uses it to decide whether the
-	 * paid front-end output registers at all.
-	 *
-	 * @return bool
-	 */
-	public static function is_gated() {
-		return ( new Host() )->is_wpcom_platform()
-			&& ! Current_Plan::supports( 'advanced-seo' );
-	}
-
-	/**
-	 * Return the Premium checkout URL, or an empty string when upgrades are unavailable.
-	 *
-	 * @return string
-	 */
-	public static function get_upsell_url() {
-		$host = new Host();
-		if ( $host->is_p2_site() ) {
-			return '';
-		}
-
-		$plan       = $host->is_wpcom_simple() && class_exists( '\WPCOM_Store_API' )
-			? \WPCOM_Store_API::get_current_plan( get_current_blog_id() )
-			: Current_Plan::get();
-		$term       = substr( $plan['product_slug'] ?? '', -3 );
-		$product    = in_array( $term, array( '-2y', '-3y' ), true ) ? 'value_bundle' . $term : 'value_bundle';
-		$site_slug  = ( new Status() )->get_site_suffix();
-		$return_url = rawurlencode( Admin_Page::get_url() );
-
-		return add_query_arg(
-			array(
-				'redirect_to'     => $return_url,
-				'checkoutBackUrl' => $return_url,
-			),
-			sprintf( 'https://wordpress.com/checkout/%s/%s', $site_slug, $product )
-		);
 	}
 
 	/**

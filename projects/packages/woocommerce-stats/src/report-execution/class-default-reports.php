@@ -1,20 +1,63 @@
 <?php
 /**
- * The package's own reports, handler and provider.
+ * The package's own reports, handlers and providers.
  *
  * @package automattic/jetpack-woocommerce-stats
  */
 
 namespace Automattic\Jetpack\WooCommerceStats\Report_Execution;
 
+use Automattic\Jetpack\WooCommerceStats\Analytics_Dashboard;
 use Automattic\Jetpack\WooCommerceStats\Api_Proxy_Controller;
 
 /**
- * Registers the reports WordPress.com serves, on `Report_Registry::REGISTER_ACTION`.
+ * Registers the reports WordPress.com serves, and on a WooCommerce site the local handler of
+ * `orders.by_date`, on `Report_Registry::REGISTER_ACTION`.
  *
  * @since 0.3.3
  */
 class Default_Reports {
+
+	/**
+	 * Summary fields of `orders.by_date`, from WordPress.com's orders data store. The averages are null without orders.
+	 */
+	private const ORDERS_BY_DATE_FIELDS = array(
+		'orders_no'                => 'number',
+		'orders_value_net'         => 'currency',
+		'orders_value_gross'       => 'currency',
+		'total_sales'              => 'currency',
+		'average_order_value'      => 'currency',
+		'avg_items'                => 'average',
+		'coupons'                  => 'currency',
+		'refunds'                  => 'currency',
+		'total_items'              => 'number',
+		'total_items_refunded'     => 'number',
+		'total_orders_with_refund' => 'number',
+		'paid_orders_count'        => 'number',
+		'paid_net_sales'           => 'currency',
+		'unpaid_orders_count'      => 'number',
+		'unpaid_net_sales'         => 'currency',
+		'product_net_revenue'      => 'currency',
+		'cogs_amount'              => 'currency',
+		'profit_margin'            => 'currency',
+	);
+
+	/**
+	 * Summary fields of `sessions.by_device`, from WordPress.com's sessions data store.
+	 */
+	private const SESSIONS_BY_DEVICE_FIELDS = array(
+		'active_sessions' => 'number',
+		'total_orders'    => 'number',
+	);
+
+	/**
+	 * What an orders report counts, and by which calendar.
+	 */
+	private const ORDER_SEMANTICS = array(
+		'population' => 'analytics_statuses',
+		'week_start' => 'site',
+		'timezone'   => 'site',
+	);
 
 	/**
 	 * Reports WordPress.com serves, by id => route pattern.
@@ -53,9 +96,18 @@ class Default_Reports {
 
 		$registry->register_provider( 'wpcom', new Wpcom_Report_Provider() );
 		$registry->register_handler( Report_Registry::ANY_REPORT, 'wpcom', new Wpcom_Forward_Handler( new Api_Proxy_Controller() ) );
+		if ( Analytics_Dashboard::is_woocommerce_available() ) {
+			$registry->register_provider( 'local', new Local_Report_Provider() );
+			$registry->register_handler( 'orders.by_date', 'local', new Core_Revenue_Stats_Handler() );
+		}
+
+		$contracts = array(
+			'orders.by_date'     => new Report_Definition( 'orders.by_date', 1, array( self::ROUTES['orders.by_date'] ), self::ORDERS_BY_DATE_FIELDS, array( 'orders' ), self::ORDER_SEMANTICS ),
+			'sessions.by_device' => new Report_Definition( 'sessions.by_device', 1, array( self::ROUTES['sessions.by_device'] ), self::SESSIONS_BY_DEVICE_FIELDS, array( 'sessions' ), array( 'timezone' => 'site' ) ),
+		);
 
 		foreach ( self::ROUTES as $id => $route ) {
-			$registry->register_report( new Report_Definition( $id, 0, array( $route ) ) );
+			$registry->register_report( $contracts[ $id ] ?? new Report_Definition( $id, 0, array( $route ) ) );
 		}
 	}
 }

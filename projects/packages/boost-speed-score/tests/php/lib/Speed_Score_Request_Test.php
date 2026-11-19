@@ -56,18 +56,26 @@ class Speed_Score_Request_Test extends Base_TestCase {
 	public $api_response = array();
 
 	/**
+	 * The response the stubbed API client returns when the request is dispatched.
+	 *
+	 * @var array
+	 */
+	public $post_response = array();
+
+	/**
 	 * Set up the WordPress and Boost API stubs this test needs.
 	 */
 	protected function set_up() {
 		parent::set_up();
 
-		$this->options      = array(
+		$this->options       = array(
 			'home'    => 'http://example.com',
 			'siteurl' => 'http://example.com',
 		);
-		$this->autoload     = array();
-		$this->theme_name   = 'Twenty Twenty-Four';
-		$this->api_response = array();
+		$this->autoload      = array();
+		$this->theme_name    = 'Twenty Twenty-Four';
+		$this->api_response  = array();
+		$this->post_response = array();
 
 		// Name aware, unlike the stub in Speed_Score_History_Test. This test touches more than
 		// one option, so a single shared value would hide which one was written.
@@ -204,7 +212,7 @@ class Speed_Score_Request_Test extends Base_TestCase {
 			}
 
 			/**
-			 * Answer a POST with an empty success.
+			 * Answer a POST with the canned dispatch response.
 			 *
 			 * @param string  $path    Request path.
 			 * @param mixed[] $payload Request payload.
@@ -212,7 +220,7 @@ class Speed_Score_Request_Test extends Base_TestCase {
 			 * @return mixed
 			 */
 			public function post( $path, $payload = array(), $args = null ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- Signature is fixed by Boost_API_Client.
-				return array();
+				return $this->test->post_response;
 			}
 		};
 	}
@@ -929,5 +937,105 @@ class Speed_Score_Request_Test extends Base_TestCase {
 		Speed_Score_Durations::record_finished_run( array( $reloaded ) );
 
 		$this->assertSame( array( 30 ), $this->options[ Speed_Score_Durations::OPTION_NAME ] ?? null );
+	}
+
+	/**
+	 * @dataProvider provide_cloud_progress
+	 *
+	 * @param array $reported What WordPress.com reported on a pending poll.
+	 * @param array $kept     The progress the request keeps.
+	 */
+	#[DataProvider( 'provide_cloud_progress' )]
+	public function test_a_pending_poll_keeps_only_the_progress_the_dashboard_understands( $reported, $kept ) {
+		$this->api_response = array_merge( array( 'status' => 'pending' ), $reported );
+		$request            = new Speed_Score_Request( self::URL );
+		$this->assertTrue( $request->poll_update() );
+
+		$this->assertSame( $kept, $request->get_cloud_progress() );
+	}
+
+	/**
+	 * Progress as WordPress.com reports it, and what the request keeps of it.
+	 *
+	 * @return array
+	 */
+	public static function provide_cloud_progress() {
+		return array(
+			'a finished mobile run' => array(
+				array(
+					'stage'            => 'desktop',
+					'scores'           => array( 'mobile' => 71 ),
+					'estimatedSeconds' => 42,
+				),
+				array(
+					'stage'            => 'desktop',
+					'scores'           => array( 'mobile' => 71 ),
+					'estimatedSeconds' => 42,
+				),
+			),
+			'out-of-range scores'   => array(
+				array(
+					'scores' => array(
+						'mobile'  => 140,
+						'desktop' => -5,
+					),
+				),
+				array(
+					'scores' => array(
+						'mobile'  => 100,
+						'desktop' => 0,
+					),
+				),
+			),
+			'unknown values'        => array(
+				array(
+					'stage'            => 'tablet',
+					'scores'           => array( 'mobile' => 'soon' ),
+					'estimatedSeconds' => 0,
+				),
+				array(),
+			),
+		);
+	}
+
+	public function test_the_estimate_from_dispatch_survives_reloading_the_request() {
+		Functions\when( 'remove_query_arg' )->returnArg( 2 );
+		Functions\when( 'wp_parse_url' )->alias( 'parse_url' );
+		$this->post_response = array(
+			'status'           => 'pending',
+			'stage'            => 'queued',
+			'estimatedSeconds' => 42,
+		);
+		$request             = new Speed_Score_Request( self::URL );
+		$request->store();
+		$this->assertTrue( $request->execute() );
+
+		$this->assertSame(
+			array(
+				'stage'            => 'queued',
+				'estimatedSeconds' => 42,
+			),
+			Speed_Score_Request::get( $request->get_cache_id() )->get_cloud_progress()
+		);
+	}
+
+	/**
+	 * A retried run starts again from mobile, so an earlier attempt's mobile score must not linger.
+	 */
+	public function test_each_pending_poll_replaces_the_previous_progress() {
+		$request            = new Speed_Score_Request( self::URL );
+		$this->api_response = array(
+			'status' => 'pending',
+			'stage'  => 'desktop',
+			'scores' => array( 'mobile' => 71 ),
+		);
+		$this->assertTrue( $request->poll_update() );
+		$this->api_response = array(
+			'status' => 'pending',
+			'stage'  => 'mobile',
+		);
+		$this->assertTrue( $request->poll_update() );
+
+		$this->assertSame( array( 'stage' => 'mobile' ), $request->get_cloud_progress() );
 	}
 }

@@ -36,6 +36,11 @@ export interface SubscribersChartState {
 	/** True while fetching, including granularity-switch refetches. */
 	isFetching: boolean;
 	isError: boolean;
+	/** The request's own error, which `isError` hides while points stay on screen. */
+	csvIsError: boolean;
+	csvIsPlaceholderData: boolean;
+	/** The zone the bucket dates are in. */
+	timezone: string;
 	refetch: () => void;
 }
 
@@ -84,6 +89,9 @@ export default function useSubscribersChart(
 		// `placeholderData` keeps stale points in `current` after a failed refetch; only
 		// surface the error once there is nothing on screen to show.
 		isError: current.length === 0 && report.isError,
+		csvIsError: report.primary.isError,
+		csvIsPlaceholderData: report.primary.isPlaceholderData,
+		timezone: zone,
 		refetch: report.refetch,
 	};
 }

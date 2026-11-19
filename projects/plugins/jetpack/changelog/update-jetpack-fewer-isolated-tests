@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: Run four PHPUnit tests in the main process instead of separate ones.
+
+

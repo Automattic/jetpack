@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Abilities: Explain that file download stats are not available on Jetpack-connected sites, instead of failing with a generic error.

@@ -7,10 +7,6 @@ import type { ReactElement, ReactNode } from 'react';
 
 // `--experimental-vm-modules` (true ESM): mock with `jest.unstable_mockModule`
 // and import the components under test dynamically after the mocks are registered.
-jest.unstable_mockModule( '../../../data/is-gated', () => ( {
-	isGated: () => false,
-	getUpsellUrl: () => 'https://wordpress.com/checkout/example.com/value_bundle',
-} ) );
 
 jest.unstable_mockModule( '@wordpress/route', () => ( {
 	useSearch: () => ( {} ),
@@ -49,7 +45,27 @@ jest.unstable_mockModule( '../google-verification-field', () => ( {
 	default: () => <div>google field</div>,
 } ) );
 
+const IndexnowSettings = jest.fn< ( props: Record< string, unknown > ) => ReactElement >( () => (
+	<div>notification settings</div>
+) );
+jest.unstable_mockModule( '../indexnow-settings', () => ( { default: IndexnowSettings } ) );
+
+let routeForm: SettingsForm;
+jest.unstable_mockModule( '../../../dashboard/dashboard-page', () => ( {
+	default: ( { children }: { children: ReactNode } ) => children,
+} ) );
+jest.unstable_mockModule( '../../../data/is-seo-tools-active', () => ( {
+	default: () => false,
+} ) );
+jest.unstable_mockModule( '../../../data/use-ensure-tab-data', () => ( {
+	default: () => ( { status: 'ready' } ),
+} ) );
+jest.unstable_mockModule( '../../../data/use-settings', () => ( {
+	useSettingsForm: () => routeForm,
+} ) );
+
 const { default: SettingsScreen } = await import( '../index' );
+const { stage: SettingsStage } = await import( '../../../../routes/settings/stage' );
 
 const EMPTY_VERIFICATION = {
 	google: '',
@@ -181,7 +197,7 @@ describe( 'Jetpack SEO output paused', () => {
 			expect( screen.getByText( /^Shown under your site name/ ) ).toBeInTheDocument();
 			// The previews stay visible, read-only, with the same line.
 			expect( SocialPreviewsCard.mock.lastCall?.[ 0 ] ).toEqual(
-				expect.objectContaining( { paused: true } )
+				expect.objectContaining( { paused: true, disabled: true } )
 			);
 		}
 	);
@@ -652,11 +668,90 @@ describe( 'Search & social previews', () => {
 			expect.objectContaining( { frontPageTitleFormat: [] } )
 		);
 	} );
+
+	it( 'keeps the default share image editable in the manual settings', () => {
+		const image = { id: 12, src: 'https://example.com/share.jpg', alt_text: 'Share image' };
+		const form = buildForm( { default_share_image: image, share_image_preview: image.src } );
+
+		render( <SettingsScreen form={ form } /> );
+
+		const props = SocialPreviewsCard.mock.lastCall?.[ 0 ];
+		expect( props ).toEqual(
+			expect.objectContaining( {
+				defaultImage: image,
+				resolvedImage: image.src,
+				disabled: false,
+			} )
+		);
+		( props?.onImageChange as ( image: number ) => void )( 34 );
+		expect( form.commit ).toHaveBeenCalledWith( { default_share_image: 34 } );
+	} );
 } );
 
-it( 'keeps independent module controls reachable when SEO tools are off', async () => {
+describe( 'Notification settings inside Site visibility', () => {
+	beforeEach( () => {
+		( window as unknown as { JetpackScriptData?: unknown } ).JetpackScriptData = {
+			seo: { indexnow_available: true },
+		};
+		IndexnowSettings.mockClear();
+	} );
+
+	afterEach( () => {
+		delete ( window as unknown as { JetpackScriptData?: unknown } ).JetpackScriptData;
+	} );
+
+	it.each( [ false, undefined ] )(
+		'does not mount notifications when host availability is %s',
+		available => {
+			( window as unknown as { JetpackScriptData?: unknown } ).JetpackScriptData = {
+				seo: { indexnow_available: available },
+			};
+			render( <SettingsScreen form={ buildForm() } /> );
+			expect( IndexnowSettings ).not.toHaveBeenCalled();
+			expect( screen.queryByText( 'notification settings' ) ).not.toBeInTheDocument();
+		}
+	);
+
+	it( 'places notifications after the sitemap and forwards the parent save state', () => {
+		const form = { ...buildForm(), isSaving: true };
+		render( <SettingsScreen form={ form } /> );
+		expect( IndexnowSettings.mock.lastCall?.[ 0 ] ).toEqual(
+			expect.objectContaining( { isSaving: true, onSavingChange: expect.any( Function ) } )
+		);
+		const sitemap = screen.getByRole( 'checkbox', { name: /Generate an XML sitemap/i } );
+		const notifications = screen.getByText( 'notification settings' );
+		expect( sitemap.compareDocumentPosition( notifications ) ).toBe(
+			Node.DOCUMENT_POSITION_FOLLOWING
+		);
+		// eslint-disable-next-line testing-library/no-node-access -- The section anchor owns the inline controls.
+		expect( notifications.closest( '#visibility' ) ).not.toBeNull();
+	} );
+
+	it( 'locks visibility toggles only while a notification save is in flight', () => {
+		render( <SettingsScreen form={ buildForm( { search_engines_visible: true } ) } /> );
+		const indexing = screen.getByRole( 'checkbox', { name: /Allow search engines/i } );
+		const sitemap = screen.getByRole( 'checkbox', { name: /Generate an XML sitemap/i } );
+		const onSavingChange = IndexnowSettings.mock.lastCall?.[ 0 ].onSavingChange as (
+			saving: boolean
+		) => void;
+		act( () => onSavingChange( true ) );
+		expect( indexing ).toBeDisabled();
+		expect( sitemap ).toBeDisabled();
+		act( () => onSavingChange( false ) );
+		expect( indexing ).toBeEnabled();
+		expect( sitemap ).toBeEnabled();
+	} );
+} );
+
+it( 'keeps independent module controls reachable through Settings when SEO tools are off', async () => {
+	IndexnowSettings.mockClear();
+	( window as unknown as { JetpackScriptData?: unknown } ).JetpackScriptData = {
+		seo: { indexnow_available: true },
+	};
 	const form = buildForm( { search_engines_visible: true } );
-	render( <SettingsScreen form={ form } independentOnly /> );
+	routeForm = form;
+	render( <SettingsStage /> );
+	expect( screen.getByRole( 'button', { name: 'Enable SEO tools' } ) ).toBeInTheDocument();
 	expect( screen.getByRole( 'checkbox', { name: 'Generate an XML sitemap' } ) ).toBeInTheDocument();
 	// eslint-disable-next-line testing-library/prefer-user-event -- Existing disclosure-test convention.
 	fireEvent.click( screen.getByRole( 'button', { name: 'Canonical URLs' } ) );
@@ -667,4 +762,6 @@ it( 'keeps independent module controls reachable when SEO tools are off', async 
 	expect( screen.queryByTestId( 'schema' ) ).not.toBeInTheDocument();
 	expect( screen.queryByText( 'title structure' ) ).not.toBeInTheDocument();
 	expect( form.commit ).not.toHaveBeenCalled();
+	expect( IndexnowSettings ).toHaveBeenCalled();
+	delete ( window as unknown as { JetpackScriptData?: unknown } ).JetpackScriptData;
 } );

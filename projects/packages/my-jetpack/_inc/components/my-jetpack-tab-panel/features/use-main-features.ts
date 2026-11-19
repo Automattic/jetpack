@@ -1,4 +1,3 @@
-import { useGlobalNotices } from '@automattic/jetpack-components';
 import { store as modulesStore } from '@automattic/jetpack-shared-stores';
 import {
 	useIsMutating,
@@ -10,6 +9,7 @@ import {
 import apiFetch from '@wordpress/api-fetch';
 import { useDispatch } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
+import { store as noticesStore } from '@wordpress/notices';
 import { useCallback, useMemo } from 'react';
 import { QUERY_PRODUCT_BY_OWNERSHIP_KEY } from '../../../data/constants';
 import { queueActivationRequest } from '../../../data/queue-activation-request';
@@ -136,7 +136,7 @@ type PluginRequest = { action: PluginAction; leavesPage: boolean };
  */
 export function useFeaturePlugin( plugin: string, name: string ) {
 	const queryClient = useQueryClient();
-	const { createSuccessNotice, createErrorNotice } = useGlobalNotices();
+	const { createSuccessNotice, createErrorNotice } = useDispatch( noticesStore );
 	const { fetchModules } = useDispatch( modulesStore );
 
 	const mutationKey = pluginMutationKey( plugin );
@@ -177,7 +177,7 @@ export function useFeaturePlugin( plugin: string, name: string ) {
 				return;
 			}
 
-			createSuccessNotice( message );
+			createSuccessNotice( message, { type: 'snackbar' } );
 		},
 		onError: async ( error: { message?: string }, { action } ) => {
 			// A failed install is shown on the feature itself instead (see useInstallError).
@@ -189,7 +189,8 @@ export function useFeaturePlugin( plugin: string, name: string ) {
 							/* translators: %s is a plugin or feature name. */
 							__( 'Could not change %s. Please try again.', 'jetpack-my-jetpack' ),
 							name
-						)
+						),
+					{ type: 'snackbar' }
 				);
 			}
 

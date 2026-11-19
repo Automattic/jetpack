@@ -3,6 +3,11 @@ import { jest } from '@jest/globals';
 import { render, screen } from '@testing-library/react';
 import type { ReactNode } from 'react';
 
+// True-ESM Jest (`--experimental-vm-modules`): register mocks with
+// `jest.unstable_mockModule`, then import the component under test dynamically.
+// Stub the chrome and the empty state so this is a focused unit test of the
+// wrapper's wiring (which tab it reports, that it retains the tabs and centers the
+// enable prompt).
 const DashboardPage = jest.fn(
 	( {
 		active,
@@ -49,7 +54,7 @@ describe( 'SeoDisabledStage', () => {
 		expect( screen.getByTestId( 'enable-seo-empty-state' ) ).toBeInTheDocument();
 	} );
 
-	it( 'keeps independent Settings reachable and centers the prompt', () => {
+	it( 'keeps navigation available while centering the prompt', () => {
 		render( <SeoDisabledStage active="settings" /> );
 
 		const page = screen.getByTestId( 'dashboard-page' );

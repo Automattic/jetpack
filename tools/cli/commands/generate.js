@@ -62,8 +62,9 @@ export function generateDefine( yargs ) {
 		yarg => {
 			yarg
 				.positional( 'type', {
-					describe: 'Type of project being worked on, e.g. package, plugin, etc',
+					describe: 'Type of project to create.',
 					type: 'string',
+					choices: projectTypes.map( type => pluralize.singular( type ) ),
 				} )
 				.options( 'name', {
 					alias: 'n',
@@ -642,7 +643,6 @@ function createSkeleton( type, dir, name ) {
 function createPackageJson( packageJson, answers ) {
 	packageJson.description = answers.description;
 	packageJson.name = `@automattic/jetpack-${ answers.name }`;
-	packageJson.version = '0.1.0-alpha';
 	packageJson.repository.directory = `projects/${ pluralize( answers.type ) }/${ answers.name }`;
 
 	if ( answers.type !== 'plugin' ) {

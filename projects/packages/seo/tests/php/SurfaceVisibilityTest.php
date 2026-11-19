@@ -1,6 +1,6 @@
 <?php
 /**
- * Tests for the SEO surface's discoverability cohort and opt-in.
+ * Tests for SEO dashboard visibility and legacy opt-in signals.
  *
  * @package automattic/jetpack-seo
  */
@@ -17,16 +17,6 @@ use PHPUnit\Framework\TestCase;
  */
 #[CoversClass( Surface_Visibility::class )]
 class SurfaceVisibilityTest extends TestCase {
-
-	protected function setUp(): void {
-		parent::setUp();
-		add_filter( 'rsm_jetpack_seo', '__return_true' );
-	}
-
-	protected function tearDown(): void {
-		remove_filter( 'rsm_jetpack_seo', '__return_true' );
-		parent::tearDown();
-	}
 
 	/**
 	 * @dataProvider vip_visibility_preferences
@@ -67,25 +57,65 @@ class SurfaceVisibilityTest extends TestCase {
 		);
 	}
 
-	public function test_migration_keeps_module_choices_and_saved_values() {
-		update_option( Initializer::VISIBILITY_OPTION, '' );
-		update_option( 'jetpack_active_modules', array( 'sitemaps', 'verification-tools' ) );
-		update_option( 'advanced_seo_front_page_description', 'Saved description' );
-		$this->assertTrue( Surface_Visibility::is_visible() );
-		$this->assertFalse( Surface_Visibility::is_optin_available() );
-		$this->assertSame( array( 'sitemaps', 'verification-tools' ), get_option( 'jetpack_active_modules' ) );
-		$this->assertSame( 'Saved description', get_option( 'advanced_seo_front_page_description' ) );
-		$this->assertSame( '', get_option( Initializer::VISIBILITY_OPTION ) );
-		delete_option( Initializer::VISIBILITY_OPTION );
-		delete_option( 'jetpack_active_modules' );
-		delete_option( 'advanced_seo_front_page_description' );
+	/**
+	 * @dataProvider saved_visibility_preferences
+	 * @param string|null $visibility Older saved discoverability preference.
+	 */
+	#[DataProvider( 'saved_visibility_preferences' )]
+	public function test_existing_installs_get_the_dashboard_without_changing_preferences( $visibility ) {
+		$previous = get_option( Initializer::VISIBILITY_OPTION, null );
+		if ( null === $visibility ) {
+			delete_option( Initializer::VISIBILITY_OPTION );
+		} else {
+			update_option( Initializer::VISIBILITY_OPTION, $visibility );
+		}
+		try {
+			$this->assertTrue( Surface_Visibility::is_visible() );
+			$this->assertFalse( Surface_Visibility::is_optin_available() );
+			$this->assertSame( $visibility, get_option( Initializer::VISIBILITY_OPTION, null ) );
+		} finally {
+			if ( null === $previous ) {
+				delete_option( Initializer::VISIBILITY_OPTION );
+			} else {
+				update_option( Initializer::VISIBILITY_OPTION, $previous );
+			}
+		}
 	}
 
-	public function test_migration_script_data_retires_the_optin_without_losing_other_data() {
+	/** @return array Saved visibility states. */
+	public static function saved_visibility_preferences() {
+		return array(
+			'absent' => array( null ),
+			'off'    => array( '0' ),
+			'on'     => array( '1' ),
+		);
+	}
+
+	/**
+	 * WordPress.com sites (here: Simple, via the IS_WPCOM constant) are always
+	 * discoverable, bypassing the cohort option entirely.
+	 */
+	public function test_is_visible_always_true_on_wpcom() {
+		delete_option( Initializer::VISIBILITY_OPTION ); // Hidden for self-hosted...
+		\Automattic\Jetpack\Constants::set_constant( 'IS_WPCOM', true );
+
+		try {
+			$this->assertTrue( Surface_Visibility::is_visible() );
+		} finally {
+			\Automattic\Jetpack\Constants::clear_single_constant( 'IS_WPCOM' );
+		}
+	}
+
+	public function test_inject_optin_availability_preserves_other_script_data() {
 		delete_option( Initializer::VISIBILITY_OPTION );
-		$data = Surface_Visibility::inject_optin_availability( array( 'keep' => 1 ) );
-		$this->assertTrue( $data[ Initializer::SCRIPT_DATA_KEY ]['surface_visible'] );
+		$data = Surface_Visibility::inject_optin_availability( null );
 		$this->assertFalse( $data[ Initializer::SCRIPT_DATA_KEY ]['optin_available'] );
+		$this->assertTrue( $data[ Initializer::SCRIPT_DATA_KEY ]['surface_visible'] );
+		update_option( Initializer::VISIBILITY_OPTION, '1' );
+		$data = Surface_Visibility::inject_optin_availability( array( 'keep' => 1 ) );
+		$this->assertFalse( $data[ Initializer::SCRIPT_DATA_KEY ]['optin_available'] );
+		$this->assertTrue( $data[ Initializer::SCRIPT_DATA_KEY ]['surface_visible'] );
 		$this->assertSame( 1, $data['keep'] );
+		delete_option( Initializer::VISIBILITY_OPTION );
 	}
 }

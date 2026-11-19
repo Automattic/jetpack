@@ -1,29 +1,47 @@
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { Button, EmptyState } from '@wordpress/ui';
+import getOutput from '../data/get-output';
 import useEnableSeoTools from '../data/use-enable-seo-tools';
 import styles from './enable-seo-empty-state.module.scss';
 import type { SeoTracksScreen } from '../data/record-seo-event';
 import type { FC } from 'react';
 
+/* translators: %s: name of an active SEO plugin, e.g. Yoast SEO. */
+const pausedDescription = __(
+	"%s is active on this site. Enabling Jetpack's SEO tools will not deactivate it, and overlapping SEO output will remain paused.",
+	'jetpack-seo'
+);
+/* translators: %s: name of an active SEO plugin, e.g. Yoast SEO. */
+const activeDescription = __(
+	"%s is active on this site. Enabling Jetpack's SEO tools will not deactivate it.",
+	'jetpack-seo'
+);
+
 /**
- * Offer SEO activation, which reloads the page to register module-dependent controls.
+ * Offer module activation while identifying any competing SEO provider.
  *
  * @param props        - Component props.
- * @param props.screen - The screen this renders on; it appears on every tab's module-off stage.
+ * @param props.screen - The screen displaying the enable card.
  * @return The enable-SEO-tools empty state.
  */
 const EnableSeoEmptyState: FC< { screen: SeoTracksScreen } > = ( { screen } ) => {
 	const { isEnabling, enable } = useEnableSeoTools( screen );
+	const { paused, conflicting_plugin: plugin } = getOutput();
+	let description: string = __(
+		'Enable SEO tools to edit titles, meta descriptions, and structured data. You can manage visibility, sitemaps, and site verification separately in Settings.',
+		'jetpack-seo'
+	);
+
+	if ( plugin ) {
+		description = paused
+			? sprintf( pausedDescription, plugin )
+			: sprintf( activeDescription, plugin );
+	}
 
 	return (
 		<EmptyState.Root className={ styles.root }>
 			<EmptyState.Title>{ __( 'Enable SEO tools', 'jetpack-seo' ) }</EmptyState.Title>
-			<EmptyState.Description>
-				{ __(
-					'SEO tools help your content get found: customize titles and meta descriptions, add structured data, and manage content discovery. Sitemap, site verification and visibility settings remain available separately.',
-					'jetpack-seo'
-				) }
-			</EmptyState.Description>
+			<EmptyState.Description>{ description }</EmptyState.Description>
 			<EmptyState.Actions>
 				<Button onClick={ enable } loading={ isEnabling } disabled={ isEnabling }>
 					{ __( 'Enable SEO tools', 'jetpack-seo' ) }

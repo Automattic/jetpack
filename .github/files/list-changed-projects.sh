@@ -42,7 +42,7 @@ elif [[ "${GITHUB_EVENT_NAME:?}" == "push" ]]; then
 		fi
 	elif [[ "${GITHUB_REF:?}" == refs/heads/*/branch-* ]]; then
 		REF=${GITHUB_REF#refs/heads/}
-		TMP="$(jq -r --arg P "${REF%%/branch-*}" '.extra["release-branch-prefix"] | if type == "array" then . else [ . ] end | if index( $P ) then input_filename | match( "^projects/([^/]+/[^/]+)/composer.json$" ).captures[0].string else empty end' projects/*/*/composer.json)"
+		TMP="$(jq -r --arg P "${REF%%/branch-*}" 'if .extra["release-branch-prefix"] == $P then input_filename | match( "^projects/([^/]+/[^/]+)/composer.json$" ).captures[0].string else empty end' projects/*/*/composer.json)"
 		if [[ -n "$TMP" ]]; then
 			debug "GITHUB_EVENT_NAME is push and branch $REF seems to be a release branch, considering matching projects changed: ${TMP//$'\n'/ }"
 			while IFS= read -r LINE; do
@@ -66,6 +66,8 @@ if [[ -n "$EXTRA" ]]; then
 	ARGS+=( --extra="$EXTRA" )
 	if [[ "$EXTRA" == "build" ]]; then
 		ARGS+=( --ignore-root )
+	elif [[ "$EXTRA" == "test" ]]; then
+		ARGS+=( --only-direct-dev-dependents )
 	fi
 fi
 

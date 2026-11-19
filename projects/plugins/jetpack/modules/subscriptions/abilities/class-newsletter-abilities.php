@@ -83,7 +83,7 @@ class Newsletter_Abilities extends Registrar {
 			'properties'           => array(
 				'subscribe_post_end_enabled' => array(
 					'type'        => 'boolean',
-					'description' => __( 'Show a "subscribe to blog" checkbox at the end of every post. Default true.', 'jetpack' ),
+					'description' => __( 'Add a Subscribe block at the end of every post. Default false.', 'jetpack' ),
 				),
 				'subscribe_comments_enabled' => array(
 					'type'        => 'boolean',
@@ -390,9 +390,9 @@ class Newsletter_Abilities extends Registrar {
 	private static function settings_map(): array {
 		return array(
 			'subscribe_post_end_enabled' => array(
-				'option'  => 'stb_enabled',
+				'option'  => 'jetpack_subscriptions_subscribe_post_end_enabled',
 				'type'    => self::TYPE_BOOL,
-				'default' => 1,
+				'default' => 0,
 			),
 			'subscribe_comments_enabled' => array(
 				'option'  => 'stc_enabled',

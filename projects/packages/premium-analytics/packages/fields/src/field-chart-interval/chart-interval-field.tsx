@@ -8,6 +8,7 @@ import {
 	normalizeReportParams,
 	useReportScope,
 	useScopeLockedIntervals,
+	useSiteDay,
 	type IntervalExtension,
 	type IntervalRange,
 	type StatsPeriod,
@@ -61,9 +62,11 @@ function createChartIntervalControl< T extends ChartIntervalFieldAttributes >(
 		const elements = field.elements;
 		const lockedIntervals = useScopeLockedIntervals();
 		const intervalUpsell = useReportScope().dateLimits?.intervalUpsell;
+		const siteDay = useSiteDay();
 
 		// Clamp, don't rewrite: the saved bucket shows again once the range allows it.
 		const { options, lockedOptions, unavailableOptions, unavailableHint, value } = useMemo( () => {
+			void siteDay;
 			const periods = (
 				elements?.length ? elements.map( ( { value: period } ) => period ) : INTERVAL_TYPES
 			) as [ StatsPeriod, ...StatsPeriod[] ];
@@ -80,7 +83,7 @@ function createChartIntervalControl< T extends ChartIntervalFieldAttributes >(
 					extension
 				),
 			};
-		}, [ elements, ownRange, search, data, lockedIntervals ] );
+		}, [ elements, ownRange, search, data, lockedIntervals, siteDay ] );
 
 		return (
 			<DateIntervalDropdown

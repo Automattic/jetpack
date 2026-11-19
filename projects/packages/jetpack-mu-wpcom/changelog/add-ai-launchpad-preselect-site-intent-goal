@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+AI Launchpad: Preselect the Site Setup wizard goal when the site already declares one, such as a site from the newsletter signup flow.

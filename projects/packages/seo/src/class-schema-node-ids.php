@@ -41,6 +41,19 @@ class Schema_Node_Ids {
 	}
 
 	/**
+	 * `@id` for the site-level Person node — the person a personal site represents
+	 * (its publisher / main entity), distinct from a per-author Person node.
+	 *
+	 * Anchored to the site root, e.g. `https://example.com/#person`, so publisher
+	 * references resolve to the same entity on every page.
+	 *
+	 * @return string
+	 */
+	public static function site_person() {
+		return self::site_anchor( 'person' );
+	}
+
+	/**
 	 * `@id` for an author's Person node.
 	 *
 	 * @param int    $user_id       User ID.

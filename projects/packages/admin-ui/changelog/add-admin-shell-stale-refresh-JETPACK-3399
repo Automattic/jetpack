@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Admin shell: Say in page-shown how long a dashboard was hidden, and whether that left it stale.

@@ -131,6 +131,34 @@ describe( 'requestSpeedScores', () => {
 		] );
 	} );
 
+	it( 'passes on the cloud stage and finished scores, dropping what it does not know', async () => {
+		jest.useFakeTimers();
+		post
+			.mockResolvedValueOnce( {
+				status: 'pending',
+				progress: { elapsed: 5, expected: 40, stage: 'desktop', scores: { mobile: 71 } },
+			} )
+			.mockResolvedValueOnce( {
+				status: 'pending',
+				progress: { elapsed: 10, expected: 40, stage: 'tablet', scores: { mobile: 'soon' } },
+			} )
+			.mockResolvedValue( mockData );
+		const onProgress = jest.fn();
+		const request = requestSpeedScores(
+			true,
+			'https://example.com/wp-json/',
+			'https://example.com',
+			'nonce',
+			{ onProgress }
+		);
+		await jest.advanceTimersByTimeAsync( 10000 );
+		await expect( request ).resolves.toEqual( mockData.scores );
+		expect( onProgress.mock.calls ).toEqual( [
+			[ { elapsed: 5, expected: 40, stage: 'desktop', scores: { mobile: 71 } } ],
+			[ { elapsed: 10, expected: 40 } ],
+		] );
+	} );
+
 	it( 'does not report pending when scores are ready', async () => {
 		post.mockResolvedValue( mockData );
 		const onPending = jest.fn();

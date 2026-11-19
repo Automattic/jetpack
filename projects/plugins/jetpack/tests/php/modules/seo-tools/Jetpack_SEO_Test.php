@@ -5,6 +5,8 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\SEO\Initializer;
+use Automattic\Jetpack\SEO\Llms_Txt;
 use PHPUnit\Framework\Attributes\DataProvider;
 
 require_once JETPACK__PLUGIN_DIR . 'modules/seo-tools/class-jetpack-seo-posts.php';
@@ -13,7 +15,7 @@ require_once JETPACK__PLUGIN_DIR . 'modules/seo-tools/class-jetpack-seo-utils.ph
 require_once JETPACK__PLUGIN_DIR . 'modules/seo-tools/class-jetpack-seo.php';
 
 /**
- * Tests that Jetpack_SEO applies per-post SEO settings only on singular views.
+ * Tests Jetpack's SEO output and post metadata registration.
  */
 class Jetpack_SEO_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
@@ -41,7 +43,78 @@ class Jetpack_SEO_Test extends WP_UnitTestCase {
 		delete_option( 'page_on_front' );
 		delete_option( 'page_for_posts' );
 		delete_option( Jetpack_SEO_Utils::FRONT_PAGE_META_OPTION );
+		delete_option( Jetpack_SEO_Titles::TITLE_FORMATS_OPTION );
 		parent::tear_down();
+	}
+
+	/**
+	 * @dataProvider provide_rest_post_types
+	 * @param string $post_type Post type slug.
+	 */
+	#[DataProvider( 'provide_rest_post_types' )]
+	public function test_rest_unhide_and_include_preserves_llms_txt_inclusion( $post_type ) {
+		register_post_type(
+			'seo_book',
+			array(
+				'public'       => true,
+				'show_in_rest' => true,
+				'rest_base'    => 'seo-books',
+				'supports'     => array( 'title', 'editor', 'custom-fields' ),
+			)
+		);
+		$post_id         = self::factory()->post->create( array( 'post_type' => $post_type ) );
+		$user_id         = self::factory()->user->create( array( 'role' => 'administrator' ) );
+		$registered_meta = $GLOBALS['wp_meta_keys'];
+		wp_set_current_user( $user_id );
+
+		try {
+			$GLOBALS['wp_rest_server'] = null;
+			unregister_meta_key( 'post', Jetpack_SEO_Posts::NOINDEX_META_KEY );
+			unregister_meta_key( 'post', Llms_Txt::META_ALWAYS_INCLUDE );
+			Initializer::register_write_hooks();
+			$this->seo->init();
+
+			$route   = '/wp/v2/' . get_post_type_object( $post_type )->rest_base . '/' . $post_id;
+			$request = new WP_REST_Request( 'POST', $route );
+			$request->set_body_params( array( 'meta' => array( Jetpack_SEO_Posts::NOINDEX_META_KEY => true ) ) );
+			$response = rest_do_request( $request );
+			$this->assertSame( 200, $response->get_status() );
+			$this->assertTrue( $response->get_data()['meta'][ Jetpack_SEO_Posts::NOINDEX_META_KEY ] );
+
+			$request = new WP_REST_Request( 'POST', $route );
+			$request->set_body_params(
+				array(
+					'meta' => array(
+						Jetpack_SEO_Posts::NOINDEX_META_KEY => false,
+						Llms_Txt::META_ALWAYS_INCLUDE => true,
+					),
+				)
+			);
+			$response = rest_do_request( $request );
+			$this->assertSame( 200, $response->get_status() );
+			$this->assertFalse( $response->get_data()['meta'][ Jetpack_SEO_Posts::NOINDEX_META_KEY ] );
+			$this->assertTrue( $response->get_data()['meta'][ Llms_Txt::META_ALWAYS_INCLUDE ] );
+
+			$response = rest_do_request( new WP_REST_Request( 'GET', $route ) );
+			$this->assertSame( 200, $response->get_status() );
+			$this->assertTrue( $response->get_data()['meta'][ Llms_Txt::META_ALWAYS_INCLUDE ] );
+		} finally {
+			$GLOBALS['wp_meta_keys']   = $registered_meta;
+			$GLOBALS['wp_rest_server'] = null;
+			unregister_post_type( 'seo_book' );
+			wp_set_current_user( 0 );
+		}
+	}
+
+	/**
+	 * @return array
+	 */
+	public static function provide_rest_post_types() {
+		return array(
+			'Post'        => array( 'post' ),
+			'Page'        => array( 'page' ),
+			'Custom type' => array( 'seo_book' ),
+		);
 	}
 
 	/**
@@ -149,6 +222,61 @@ class Jetpack_SEO_Test extends WP_UnitTestCase {
 			'neither set'                       => array( array( 'post_excerpt' => '' ), '', '', 'Our Blog' ),
 			'password-protected'                => array( $excerpt + array( 'post_password' => 'secret' ), 'Blog SEO description.', '', 'Our Blog' ),
 			'private page'                      => array( $excerpt + array( 'post_status' => 'private' ), 'Blog SEO description.', '', '' ),
+		);
+	}
+
+	/**
+	 * The posts page's title comes from its own SEO title, then the Pages title format, never from a listed post.
+	 *
+	 * @dataProvider provide_posts_page_titles
+	 *
+	 * @param array  $page_args      Post fields for the posts page.
+	 * @param string $seo_title      SEO title saved on the posts page.
+	 * @param bool   $pages_format   Whether a Pages title format is set.
+	 * @param string $expected_title Expected document title.
+	 * @param string $expected_og    Expected og:title, or empty for none.
+	 */
+	#[DataProvider( 'provide_posts_page_titles' )]
+	public function test_posts_page_title( $page_args, $seo_title, $pages_format, $expected_title, $expected_og ) {
+		$post_id = self::factory()->post->create( array( 'post_title' => 'Latest Post' ) );
+		update_post_meta( $post_id, Jetpack_SEO_Posts::HTML_TITLE_META_KEY, 'Post SEO Title' );
+
+		if ( $pages_format ) {
+			update_option(
+				Jetpack_SEO_Titles::TITLE_FORMATS_OPTION,
+				array(
+					'pages' => array(
+						array(
+							'type'  => 'token',
+							'value' => 'page_title',
+						),
+						array(
+							'type'  => 'string',
+							'value' => ' | Pages format',
+						),
+					),
+				)
+			);
+		}
+
+		$this->go_to_posts_page( $page_args, '' );
+		update_post_meta( get_queried_object_id(), Jetpack_SEO_Posts::HTML_TITLE_META_KEY, $seo_title );
+
+		$this->assertSame( $expected_title, Jetpack_SEO_Titles::get_custom_title( 'Default Title' ) );
+		$this->assertSame( $expected_og, $this->seo->set_custom_og_tags( array() )['og:title'] ?? '' );
+	}
+
+	/**
+	 * Data provider for test_posts_page_title.
+	 *
+	 * @return array
+	 */
+	public static function provide_posts_page_titles() {
+		return array(
+			'SEO title'          => array( array(), 'Blog SEO Title', false, 'Blog SEO Title', 'Blog SEO Title' ),
+			'pages title format' => array( array(), '', true, 'Our Blog | Pages format', 'Our Blog | Pages format' ),
+			'neither set'        => array( array(), '', false, 'Default Title', 'Our Blog' ),
+			'private page'       => array( array( 'post_status' => 'private' ), 'Blog SEO Title', true, 'Default Title', '' ),
 		);
 	}
 

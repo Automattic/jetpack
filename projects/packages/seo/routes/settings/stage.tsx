@@ -28,8 +28,8 @@ const SettingsReady = () => {
 
 const Stage = () => {
 	const { setSettings } = useDispatch( settingsStore );
-	// Settings gates on the seo-tools state, which lives in the Overview slice, so
-	// ensure both are available. A recovered Settings payload is pushed into the
+	// The SEO Tools state determines which editors are available, so load the
+	// Overview slice alongside Settings. A recovered Settings payload is pushed into the
 	// store so the form (seeded from it) reflects it.
 	const { status, retry } = useEnsureTabData( [
 		{ path: OVERVIEW_PATH },

@@ -28,45 +28,16 @@ class InitializerTest extends TestCase {
 	}
 
 	/**
-	 * The feature gates use the expected slugs.
+	 * Disconnected sites must not need a plan refresh to expose the SEO page.
 	 */
-	public function test_feature_gate_constants_are_defined() {
-		$this->assertSame( 'seo-admin-ui', Initializer::FEATURE_SLUG );
-		$this->assertSame( 'rsm_jetpack_seo', Initializer::FEATURE_FILTER );
-	}
-
-	/**
-	 * Either the existing filter or the WordPress.com site feature can make SEO
-	 * available; neither path is required when the other is enabled.
-	 */
-	public function test_is_available_uses_filter_or_site_feature() {
+	public function test_is_available_without_plan_features() {
 		$plan                       = Current_Plan::get();
 		$plan['features']['active'] = array();
 		update_option( Current_Plan::PLAN_OPTION, $plan );
 		self::reset_current_plan_cache();
-
-		// The rollout feature deliberately uses the active feature list rather than
-		// WordPress.com's separate plan-entitlement check.
-		\Wpcom_Test_Features::$known    = array( Initializer::FEATURE_SLUG );
-		\Wpcom_Test_Features::$entitled = array();
-
-		try {
-			$this->assertFalse( Initializer::is_available() );
-
-			add_filter( Initializer::FEATURE_FILTER, '__return_true' );
-			$this->assertTrue( Initializer::is_available() );
-			remove_filter( Initializer::FEATURE_FILTER, '__return_true' );
-
-			$plan['features']['active'] = array( Initializer::FEATURE_SLUG );
-			update_option( Current_Plan::PLAN_OPTION, $plan );
-			self::reset_current_plan_cache();
-			$this->assertTrue( Initializer::is_available() );
-		} finally {
-			remove_filter( Initializer::FEATURE_FILTER, '__return_true' );
-			delete_option( Current_Plan::PLAN_OPTION );
-			self::reset_current_plan_cache();
-			\Wpcom_Test_Features::reset();
-		}
+		$this->assertTrue( Initializer::is_available() );
+		delete_option( Current_Plan::PLAN_OPTION );
+		self::reset_current_plan_cache();
 	}
 
 	public function test_vip_is_excluded_before_registering_seo_hooks() {
@@ -85,7 +56,6 @@ class InitializerTest extends TestCase {
 		$was_initialized = $initialized->getValue();
 		$initialized->setValue( null, false );
 		Constants::set_constant( 'WPCOM_IS_VIP_ENV', true );
-		add_filter( 'rsm_jetpack_seo', '__return_true' );
 
 		try {
 			$this->assertFalse( Initializer::is_available() );
@@ -100,7 +70,6 @@ class InitializerTest extends TestCase {
 			$this->assertFalse( has_action( 'admin_menu', array( Admin_Page::class, 'add_menu_item' ) ) );
 			$this->assertFalse( has_action( 'jetpack_deactivate_module_sitemaps', array( Initializer::class, 'flag_sitemap_user_disabled' ) ) );
 		} finally {
-			remove_filter( 'rsm_jetpack_seo', '__return_true' );
 			Constants::clear_single_constant( 'WPCOM_IS_VIP_ENV' );
 			$GLOBALS['wp_filter'] = $hooks; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 			if ( null === $visibility ) {
@@ -110,6 +79,88 @@ class InitializerTest extends TestCase {
 			}
 			$initialized->setValue( null, $was_initialized );
 		}
+	}
+
+	/**
+	 * An old discoverability value cannot block independent settings or activate modules.
+	 *
+	 * @dataProvider migration_states
+	 * @param string|null $visibility Saved discoverability value.
+	 * @param bool        $seo_active Whether SEO Tools was already active.
+	 */
+	#[DataProvider( 'migration_states' )]
+	public function test_migration_registers_independent_settings_without_activating_seo( $visibility, $seo_active ) {
+		$hooks            = array_map(
+			static function ( $hook ) {
+				return clone $hook;
+			},
+			$GLOBALS['wp_filter']
+		);
+		$previous         = get_option( Initializer::VISIBILITY_OPTION, null );
+		$previous_modules = get_option( 'jetpack_active_modules', null );
+		$modules          = $seo_active ? array( 'seo-tools', 'verification-tools' ) : array( 'verification-tools', 'sitemaps' );
+		$module_filter    = static function () use ( $modules ) {
+			return $modules;
+		};
+		$initialized      = new \ReflectionProperty( Initializer::class, 'initialized' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$initialized->setAccessible( true );
+		}
+		$was_initialized = $initialized->getValue();
+		$initialized->setValue( null, false );
+		if ( null === $visibility ) {
+			delete_option( Initializer::VISIBILITY_OPTION );
+		} else {
+			update_option( Initializer::VISIBILITY_OPTION, $visibility );
+		}
+		update_option( 'jetpack_active_modules', $modules );
+		add_filter( 'jetpack_active_modules', $module_filter );
+		$callbacks = array(
+			array( 'rest_api_init', array( Dashboard_Data::class, 'register_rest_settings' ), 5 ),
+			array( 'rest_api_init', array( Dashboard_Data::class, 'register_module_routes' ), 10 ),
+			array( 'wp_head', array( Schema_Builder::class, 'emit' ), 10 ),
+			array( 'template_redirect', array( Llms_Txt::class, 'maybe_serve' ), 10 ),
+		);
+		foreach ( $callbacks as $callback ) {
+			remove_action( $callback[0], $callback[1], $callback[2] );
+		}
+		try {
+			Initializer::init();
+			$this->assertSame( 5, has_action( 'rest_api_init', array( Dashboard_Data::class, 'register_rest_settings' ) ) );
+			$this->assertSame( 10, has_action( 'rest_api_init', array( Dashboard_Data::class, 'register_module_routes' ) ) );
+			$this->assertNotFalse( has_action( 'admin_menu', array( Admin_Page::class, 'maybe_load_wp_build' ) ) );
+			$this->assertSame( $visibility, get_option( Initializer::VISIBILITY_OPTION, null ) );
+			$this->assertSame( $modules, get_option( 'jetpack_active_modules' ) );
+			if ( ! $seo_active ) {
+				$this->assertFalse( has_action( 'wp_head', array( Schema_Builder::class, 'emit' ) ) );
+				$this->assertFalse( has_action( 'template_redirect', array( Llms_Txt::class, 'maybe_serve' ) ) );
+			}
+		} finally {
+			$GLOBALS['wp_filter'] = $hooks; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+			foreach ( array(
+				Initializer::VISIBILITY_OPTION => $previous,
+				'jetpack_active_modules'       => $previous_modules,
+			) as $key => $value ) {
+				if ( null === $value ) {
+					delete_option( $key );
+				} else {
+					update_option( $key, $value );
+				}
+			}
+			$initialized->setValue( null, $was_initialized );
+		}
+	}
+
+	/** @return array Saved state combinations from existing installs. */
+	public static function migration_states() {
+		return array(
+			'absent, SEO off' => array( null, false ),
+			'false, SEO off'  => array( '0', false ),
+			'true, SEO off'   => array( '1', false ),
+			'absent, SEO on'  => array( null, true ),
+			'false, SEO on'   => array( '0', true ),
+			'true, SEO on'    => array( '1', true ),
+		);
 	}
 
 	/**
@@ -133,7 +184,6 @@ class InitializerTest extends TestCase {
 		$this->assertTrue( method_exists( Initializer::class, 'is_optin_available' ) );
 
 		// The delegators track Surface_Visibility's answer, not a stale copy of it.
-		add_filter( 'rsm_jetpack_seo', '__return_true' );
 		delete_option( Initializer::VISIBILITY_OPTION );
 		try {
 			$this->assertTrue( Initializer::is_seo_surface_visible() );
@@ -142,51 +192,47 @@ class InitializerTest extends TestCase {
 			$this->assertTrue( Initializer::is_seo_surface_visible() );
 			$this->assertFalse( Initializer::is_optin_available() );
 		} finally {
-			remove_filter( 'rsm_jetpack_seo', '__return_true' );
 			delete_option( Initializer::VISIBILITY_OPTION );
 		}
 	}
 
 	/**
-	 * @dataProvider module_states
-	 * @param bool $seo_active Whether SEO tools are active.
+	 * With SEO Tools active, init() registers the front-end schema, GEO, and admin/REST hooks.
+	 * Module state is supplied through a filter because the package has no on-disk modules.
 	 */
-	#[DataProvider( 'module_states' )]
-	public function test_init_keeps_independent_settings_reachable( $seo_active ) {
+	public function test_init_registers_schema_and_hooks_when_enabled() {
 		$initialized = new \ReflectionProperty( Initializer::class, 'initialized' );
 		if ( PHP_VERSION_ID < 80100 ) {
 			$initialized->setAccessible( true );
 		}
 		$initialized->setValue( null, false );
 
-		$rest_hooks = isset( $GLOBALS['wp_filter']['rest_api_init'] ) ? clone $GLOBALS['wp_filter']['rest_api_init'] : null;
-		remove_action( 'rest_api_init', array( Dashboard_Data::class, 'register_rest_settings' ), 5 );
-		remove_action( 'rest_api_init', array( Dashboard_Data::class, 'register_module_routes' ) );
-		$enable_module = static function () use ( $seo_active ) {
-			return $seo_active ? array( 'seo-tools' ) : array();
+		$enable_module = static function () {
+			return array( 'seo-tools' );
 		};
-		add_filter( 'rsm_jetpack_seo', '__return_true' );
 		add_filter( 'jetpack_active_modules', $enable_module );
-		update_option( Initializer::VISIBILITY_OPTION, '' );
 
 		try {
 			Initializer::init();
 
-			if ( $seo_active ) {
-				$this->assertNotFalse(
-					has_action( 'wp_head', array( Schema_Builder::class, 'emit' ) )
-				);
-				$this->assertNotFalse(
-					has_action( 'template_redirect', array( Llms_Txt::class, 'maybe_serve' ) )
-				);
-				$this->assertNotFalse(
-					has_filter( 'robots_txt', array( Ai_Crawlers::class, 'append_directives' ) )
-				);
-			}
-			$this->assertSame( '', get_option( Initializer::VISIBILITY_OPTION ) );
+			// Lines proving the body ran past the module gate: the front-end features
+			// self-hook, and init() registers its admin/REST callbacks.
+			$this->assertNotFalse(
+				has_action( 'wp_head', array( Schema_Builder::class, 'emit' ) )
+			);
+			$this->assertNotFalse(
+				has_action( 'template_redirect', array( Llms_Txt::class, 'maybe_serve' ) )
+			);
+			$this->assertNotFalse(
+				has_filter( 'robots_txt', array( Ai_Crawlers::class, 'append_directives' ) )
+			);
 			$this->assertNotFalse(
 				has_action( 'admin_menu', array( Admin_Page::class, 'maybe_load_wp_build' ) )
 			);
+			// Settings register on `rest_api_init`, after every chance a conflicting SEO
+			// plugin has to filter `jetpack_disable_seo_tools` and change which option the
+			// front page description belongs in, and before core builds the settings route
+			// from the registry at priority 99.
 			$this->assertSame(
 				5,
 				has_action( 'rest_api_init', array( Dashboard_Data::class, 'register_rest_settings' ) )
@@ -211,31 +257,14 @@ class InitializerTest extends TestCase {
 				);
 			}
 		} finally {
-			remove_filter( 'rsm_jetpack_seo', '__return_true' );
 			remove_filter( 'jetpack_active_modules', $enable_module );
-			delete_option( Initializer::VISIBILITY_OPTION );
 			$initialized->setValue( null, false );
-			if ( null === $rest_hooks ) {
-				unset( $GLOBALS['wp_filter']['rest_api_init'] );
-			} else {
-				$GLOBALS['wp_filter']['rest_api_init'] = $rest_hooks;
-			}
 		}
 	}
 
 	/**
-	 * @return array Module states.
-	 */
-	public static function module_states() {
-		return array(
-			'SEO off' => array( false ),
-			'SEO on'  => array( true ),
-		);
-	}
-
-	/**
 	 * WordPress.com's API requests call register_write_hooks() without init(), so it alone must
-	 * register the "Always include" page field and hook the coverage and llms.txt clearing.
+	 * register the "Always include" field and hook the coverage and llms.txt clearing.
 	 */
 	public function test_write_hooks_register_without_init() {
 		$hooks = array_map(
@@ -245,14 +274,18 @@ class InitializerTest extends TestCase {
 			$GLOBALS['wp_filter']
 		);
 		unset( $GLOBALS['wp_filter']['transition_post_status'], $GLOBALS['wp_filter']['clean_post_cache'] );
-		unregister_meta_key( 'post', Llms_Txt::META_ALWAYS_INCLUDE, 'page' );
+		unregister_meta_key( 'post', Llms_Txt::META_ALWAYS_INCLUDE );
+		remove_action( 'wp_after_insert_post', array( Indexnow_Events::class, 'saved' ) );
+		remove_action( Indexnow_Queue::HOOK, array( Indexnow_Queue::class, 'work' ) );
 		try {
 			Initializer::register_write_hooks();
-			$this->assertTrue( registered_meta_key_exists( 'post', Llms_Txt::META_ALWAYS_INCLUDE, 'page' ) );
+			$this->assertTrue( registered_meta_key_exists( 'post', Llms_Txt::META_ALWAYS_INCLUDE ) );
 			$this->assertNotFalse(
 				has_action( 'transition_post_status', array( Content_Coverage::class, 'invalidate_on_status_change' ) )
 			);
 			$this->assertNotFalse( has_action( 'clean_post_cache', array( Llms_Txt::class, 'clear_cache_for_post' ) ) );
+			$this->assertNotFalse( has_action( 'wp_after_insert_post', array( Indexnow_Events::class, 'saved' ) ) );
+			$this->assertNotFalse( has_action( Indexnow_Queue::HOOK, array( Indexnow_Queue::class, 'work' ) ) );
 		} finally {
 			$GLOBALS['wp_filter'] = $hooks; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		}
@@ -284,17 +317,11 @@ class InitializerTest extends TestCase {
 	}
 
 	/**
-	 * Run `init()` with the surface visible, the `seo-tools` module active and Simple's
-	 * canonical switch on, and report whether each paid front-end service hooked itself.
+	 * Run init() with SEO Tools active and Simple's canonical switch on.
 	 *
-	 * Mirrors test_init_keeps_independent_settings_reachable()'s setup: module
-	 * state is driven through `jetpack_active_modules` (the package test context has
-	 * no on-disk modules), the cohort surface is marked visible, and the one-shot
-	 * `$initialized` guard is reset so the body runs.
-	 *
-	 * @return array{llms_txt: bool, ai_crawlers: bool, canonical: bool}
+	 * @return array{llms_txt: bool, ai_crawlers: bool, canonical: bool} Registered services.
 	 */
-	private function init_and_check_paid_services() {
+	private function init_and_check_services() {
 		$initialized = new \ReflectionProperty( Initializer::class, 'initialized' );
 		if ( PHP_VERSION_ID < 80100 ) {
 			$initialized->setAccessible( true );
@@ -304,9 +331,7 @@ class InitializerTest extends TestCase {
 		$enable_module = static function () {
 			return array( 'seo-tools' );
 		};
-		add_filter( 'rsm_jetpack_seo', '__return_true' );
 		add_filter( 'jetpack_active_modules', $enable_module );
-		update_option( Initializer::VISIBILITY_OPTION, '1' );
 		update_option( Canonical_Urls::OPTION, 1 );
 
 		// The services self-hook on init(), so a stale registration from an earlier
@@ -324,36 +349,25 @@ class InitializerTest extends TestCase {
 				'canonical'   => false !== has_action( 'after_setup_theme', array( Canonical_Urls::class, 'load_module' ) ),
 			);
 		} finally {
-			remove_filter( 'rsm_jetpack_seo', '__return_true' );
 			remove_filter( 'jetpack_active_modules', $enable_module );
-			delete_option( Initializer::VISIBILITY_OPTION );
 			delete_option( Canonical_Urls::OPTION );
 			remove_action( 'after_setup_theme', array( Canonical_Urls::class, 'load_module' ) );
 			$initialized->setValue( null, false );
 		}
 	}
 
-	/**
-	 * A self-hosted (never-gated) site registers both GEO-tab front-end services:
-	 * /llms.txt is served and the AI-crawler robots.txt directives are appended.
-	 */
-	public function test_init_registers_paid_services_when_not_gated() {
-		$hooked = $this->init_and_check_paid_services();
+	public function test_init_registers_services_on_self_hosted_sites() {
+		$hooked = $this->init_and_check_services();
 
 		$this->assertTrue( $hooked['llms_txt'] );
 		$this->assertTrue( $hooked['ai_crawlers'] );
 	}
 
-	/**
-	 * A WordPress.com site entitled to `advanced-seo` (Premium and above) is not
-	 * gated, so it registers the paid services too — gating keys off entitlement,
-	 * not merely off being on WordPress.com.
-	 */
-	public function test_init_registers_paid_services_on_entitled_wpcom_site() {
+	public function test_init_registers_services_on_entitled_wpcom_site() {
 		$this->simulate_wpcom_site( true );
 
 		try {
-			$hooked = $this->init_and_check_paid_services();
+			$hooked = $this->init_and_check_services();
 
 			$this->assertTrue( $hooked['llms_txt'] );
 			$this->assertTrue( $hooked['ai_crawlers'] );
@@ -363,34 +377,25 @@ class InitializerTest extends TestCase {
 		}
 	}
 
-	/**
-	 * A plan-gated WordPress.com site must not merely hide the paid controls — it must
-	 * stop running the services behind them, or it would keep emitting output it isn't
-	 * entitled to.
-	 */
-	public function test_init_skips_paid_services_when_gated() {
+	public function test_init_registers_services_without_wpcom_entitlement() {
 		$this->simulate_wpcom_site( false );
 
 		try {
-			$hooked = $this->init_and_check_paid_services();
+			$hooked = $this->init_and_check_services();
 
-			$this->assertFalse( $hooked['llms_txt'] );
-			$this->assertFalse( $hooked['ai_crawlers'] );
-			$this->assertFalse( $hooked['canonical'] );
+			$this->assertTrue( $hooked['llms_txt'] );
+			$this->assertTrue( $hooked['ai_crawlers'] );
+			$this->assertTrue( $hooked['canonical'] );
 		} finally {
 			$this->reset_wpcom_site();
 		}
 	}
 
-	/**
-	 * Gating only suppresses the paid services — the schema output and the admin
-	 * surface still register, so a gated site keeps the free subset of the dashboard.
-	 */
-	public function test_init_still_registers_schema_and_menu_when_gated() {
+	public function test_init_registers_schema_and_menu_without_wpcom_entitlement() {
 		$this->simulate_wpcom_site( false );
 
 		try {
-			$this->init_and_check_paid_services();
+			$this->init_and_check_services();
 
 			$this->assertNotFalse( has_action( 'wp_head', array( Schema_Builder::class, 'emit' ) ) );
 			$this->assertNotFalse(
@@ -402,25 +407,22 @@ class InitializerTest extends TestCase {
 	}
 
 	/**
-	 * Run init() with the given deliberate-off flag state and surface visibility, and
+	 * Run init() with the given deliberate-off flag and legacy discoverability value, and
 	 * report whether it suppressed WordPress core's own sitemap (registered the
 	 * `wp_sitemaps_enabled` → false filter). Mirrors the schema/GEO test setup.
 	 *
-	 * @param bool $user_disabled   Whether SUPPRESS_WP_SITEMAP_OPTION (deliberate off) is set.
-	 * @param bool $surface_visible Whether the SEO dashboard surface is visible. Sitemap
-	 *                              suppression is tied to the feature, not the surface, so
-	 *                              a set flag must be honored either way.
+	 * @param bool $user_disabled  Whether SUPPRESS_WP_SITEMAP_OPTION (deliberate off) is set.
+	 * @param bool $legacy_visible Whether the old discoverability preference is set.
 	 * @return bool Whether init() registered the core-sitemap-suppression filter.
 	 */
-	private function init_and_report_core_sitemaps_disabled( $user_disabled, $surface_visible = true ) {
+	private function init_and_report_core_sitemaps_disabled( $user_disabled, $legacy_visible = true ) {
 		$initialized = new \ReflectionProperty( Initializer::class, 'initialized' );
 		if ( PHP_VERSION_ID < 80100 ) {
 			$initialized->setAccessible( true );
 		}
 		$initialized->setValue( null, false );
 
-		add_filter( 'rsm_jetpack_seo', '__return_true' );
-		if ( $surface_visible ) {
+		if ( $legacy_visible ) {
 			update_option( Initializer::VISIBILITY_OPTION, '1' );
 		} else {
 			delete_option( Initializer::VISIBILITY_OPTION );
@@ -437,7 +439,6 @@ class InitializerTest extends TestCase {
 			Initializer::init();
 			return false !== has_filter( 'wp_sitemaps_enabled', '__return_false' );
 		} finally {
-			remove_filter( 'rsm_jetpack_seo', '__return_true' );
 			remove_filter( 'wp_sitemaps_enabled', '__return_false' );
 			$this->remove_sitemap_toggle_hooks();
 			delete_option( Initializer::VISIBILITY_OPTION );
@@ -477,12 +478,9 @@ class InitializerTest extends TestCase {
 	}
 
 	/**
-	 * A deliberate-off flag is honored even when the SEO dashboard is still hidden — the
-	 * suppression is tied to the SEO feature, not the admin surface. This covers the site
-	 * that turned the sitemap off while visible and later had the surface hidden, and the
-	 * install that toggled it off from a legacy surface before opting into the dashboard.
+	 * An older unset discoverability preference must not weaken a deliberate sitemap-off choice.
 	 */
-	public function test_init_suppresses_core_sitemaps_when_off_even_if_surface_hidden() {
+	public function test_init_suppresses_core_sitemaps_with_legacy_visibility_unset() {
 		$this->assertTrue( $this->init_and_report_core_sitemaps_disabled( true, false ) );
 	}
 
@@ -498,7 +496,6 @@ class InitializerTest extends TestCase {
 		}
 		$initialized->setValue( null, false );
 
-		add_filter( 'rsm_jetpack_seo', '__return_true' );
 		update_option( Initializer::VISIBILITY_OPTION, '1' );
 		delete_option( Initializer::SUPPRESS_WP_SITEMAP_OPTION );
 		$this->remove_sitemap_toggle_hooks();
@@ -514,7 +511,6 @@ class InitializerTest extends TestCase {
 			do_action( 'jetpack_activate_module_sitemaps' );
 			$this->assertFalse( get_option( Initializer::SUPPRESS_WP_SITEMAP_OPTION, false ) );
 		} finally {
-			remove_filter( 'rsm_jetpack_seo', '__return_true' );
 			$this->remove_sitemap_toggle_hooks();
 			delete_option( Initializer::VISIBILITY_OPTION );
 			delete_option( Initializer::SUPPRESS_WP_SITEMAP_OPTION );
@@ -523,13 +519,13 @@ class InitializerTest extends TestCase {
 	}
 
 	/**
-	 * Run init() with the surface visible or hidden, and return the "Configure" URL
+	 * Run init() with either legacy visibility preference, and return the "Configure" URL
 	 * each SEO module resolves to.
 	 *
-	 * @param bool $surface_visible Whether the SEO dashboard surface is visible.
+	 * @param bool $legacy_visible Whether the old discoverability preference is set.
 	 * @return array<string, string> Module slug => configuration URL.
 	 */
-	private function init_and_get_configuration_urls( $surface_visible ) {
+	private function init_and_get_configuration_urls( $legacy_visible ) {
 		$initialized = new \ReflectionProperty( Initializer::class, 'initialized' );
 		if ( PHP_VERSION_ID < 80100 ) {
 			$initialized->setAccessible( true );
@@ -537,13 +533,12 @@ class InitializerTest extends TestCase {
 		$initialized->setValue( null, false );
 
 		$modules = array( 'seo-tools', 'verification-tools', 'sitemaps' );
-		add_filter( 'rsm_jetpack_seo', '__return_true' );
-		if ( $surface_visible ) {
+		if ( $legacy_visible ) {
 			update_option( Initializer::VISIBILITY_OPTION, '1' );
 		} else {
 			delete_option( Initializer::VISIBILITY_OPTION );
 		}
-		// Other tests run init() with the surface visible and leave these filters behind.
+		// Discard registrations left by other initialization tests.
 		foreach ( $modules as $module ) {
 			remove_filter( 'jetpack_module_configuration_url_' . $module, array( Admin_Page::class, 'get_url' ) );
 		}
@@ -560,7 +555,6 @@ class InitializerTest extends TestCase {
 			foreach ( $modules as $module ) {
 				remove_filter( 'jetpack_module_configuration_url_' . $module, array( Admin_Page::class, 'get_url' ) );
 			}
-			remove_filter( 'rsm_jetpack_seo', '__return_true' );
 			$this->remove_sitemap_toggle_hooks();
 			delete_option( Initializer::VISIBILITY_OPTION );
 			$initialized->setValue( null, false );
@@ -584,7 +578,9 @@ class InitializerTest extends TestCase {
 		);
 	}
 
-	/** Existing visibility preferences must not keep Configure links on legacy settings. */
+	/**
+	 * An older hidden preference must not keep configuration links on the legacy settings.
+	 */
 	public function test_configuration_urls_use_the_dashboard_for_existing_installs() {
 		$this->assertSame(
 			array(
@@ -593,6 +589,40 @@ class InitializerTest extends TestCase {
 				'sitemaps'           => Admin_Page::get_url(),
 			),
 			$this->init_and_get_configuration_urls( false )
+		);
+	}
+
+	/**
+	 * The admin shell lists SEO only when init() registers the SEO page.
+	 *
+	 * @dataProvider surface_visibility
+	 *
+	 * @param bool $surface_visible Whether the SEO dashboard surface is visible.
+	 */
+	#[DataProvider( 'surface_visibility' )]
+	public function test_admin_shell_member_registers_with_the_page( $surface_visible ) {
+		remove_filter( 'jetpack_admin_shell_members', array( Admin_Page::class, 'add_admin_shell_member' ) );
+		$this->init_and_get_configuration_urls( $surface_visible );
+
+		try {
+			$this->assertSame(
+				true,
+				false !== has_filter( 'jetpack_admin_shell_members', array( Admin_Page::class, 'add_admin_shell_member' ) )
+			);
+		} finally {
+			remove_filter( 'jetpack_admin_shell_members', array( Admin_Page::class, 'add_admin_shell_member' ) );
+		}
+	}
+
+	/**
+	 * Surface visibility cases.
+	 *
+	 * @return array<string, array{bool}>
+	 */
+	public static function surface_visibility() {
+		return array(
+			'visible' => array( true ),
+			'hidden'  => array( false ),
 		);
 	}
 }
