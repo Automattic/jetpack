@@ -1478,8 +1478,9 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 		};
 
 		return array(
-			'week'  => array( 'week', $daily, array( $row( '2026-09-14', 0 ), $row( '2026-09-21', 1 ), $row( '2026-09-28', 2 + 3 ), $row( '2026-10-05', 4 + 5 ) ) ),
-			'month' => array( 'month', $daily, array( $row( '2026-09-01', 1 + 2 ), $row( '2026-10-01', 3 + 4 + 5 ) ) ),
+			'week'    => array( 'week', $daily, array( $row( '2026-09-14', 0 ), $row( '2026-09-21', 1 ), $row( '2026-09-28', 2 + 3 ), $row( '2026-10-05', 4 + 5 ) ) ),
+			'month'   => array( 'month', $daily, array( $row( '2026-09-01', 1 + 2 ), $row( '2026-10-01', 3 + 4 + 5 ) ) ),
+			'quarter' => array( 'quarter', $daily, array( $row( '2026-04-01', 0 ), $row( '2026-07-01', 7 + 1 + 2 ), $row( '2026-10-01', 3 + 4 + 5 ) ) ),
 		);
 	}
 
@@ -1651,6 +1652,9 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 			'month end stays month end'      => array( 'month', 1, '2026-03-31', 'previous-period', '2026-02-28' ),
 			'months a year earlier'          => array( 'month', 3, '2026-03-31', 'previous-year', '2025-03-31' ),
 			'previous years'                 => array( 'year', 2, '2026-04-23', 'previous-period', '2024-04-23' ),
+			'previous quarters'              => array( 'quarter', 2, '2026-11-18', 'previous-period', '2026-05-18' ),
+			'quarter end stays quarter end'  => array( 'quarter', 1, '2026-12-31', 'previous-period', '2026-09-30' ),
+			'quarters a year earlier'        => array( 'quarter', 4, '2026-11-18', 'previous-year', '2025-11-18' ),
 		);
 	}
 
@@ -1741,7 +1745,7 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 	public function test_get_visits_refuses_to_line_up_months_or_years_by_weekday(): void {
 		$this->filter_wpcom_stats( array( 'get_visits' => array() ) );
 
-		foreach ( array( 'month', 'year' ) as $period ) {
+		foreach ( array( 'month', 'quarter', 'year' ) as $period ) {
 			$result = Stats_Abilities::get_visits(
 				array(
 					'period'  => $period,
@@ -2141,6 +2145,84 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 		$this->assert_matches_output_schema( 'jetpack-stats/get-top-content', $result );
 		$this->assertSame( $items, $result['items'] );
 		$this->assertNotContains( '', $result['definitions'] );
+	}
+
+	public function test_get_top_content_expand_lists_the_posts_each_utm_value_sent_views_to(): void {
+		$requests = $this->filter_wpcom_stats(
+			array(
+				'get_utm_views'     => array(
+					'top_utm_values' => array(
+						'["guides","email"]'       => 249,
+						'["google","paid_search"]' => 81,
+					),
+				),
+				'get_utm_top_posts' => array(
+					'top_posts' => array(
+						array(
+							'id'    => 89335,
+							'href'  => 'https://example.com/chores/',
+							'title' => 'Four Website Chores',
+							'views' => 108,
+						),
+					),
+				),
+			)
+		);
+
+		$result = Stats_Abilities::get_top_content(
+			array(
+				'type'   => 'utm',
+				'date'   => '2026-11-18',
+				'max'    => 1,
+				'expand' => true,
+			)
+		);
+		$this->assert_matches_output_schema( 'jetpack-stats/get-top-content', $result );
+
+		// The value is passed back exactly as WordPress.com keyed it, over the same days.
+		$this->assertSame(
+			array(
+				'utm_source,utm_medium',
+				'["guides","email"]',
+				array(
+					'max'  => 1,
+					'date' => '2026-11-18',
+					'days' => 1,
+				),
+			),
+			$requests['get_utm_top_posts']
+		);
+		$this->assertSame(
+			array(
+				array(
+					'rank'     => 1,
+					'label'    => 'guides / email',
+					'value'    => 249,
+					'children' => array(
+						array(
+							'label' => 'Four Website Chores',
+							'value' => 108,
+							'href'  => 'https://example.com/chores/',
+							'id'    => 89335,
+						),
+					),
+				),
+			),
+			$result['items']
+		);
+		$this->assertArrayHasKey( 'children', $result['definitions'] );
+
+		// One read per value keeps an expanded UTM list short.
+		$this->assertSame(
+			'jetpack_stats_invalid_max',
+			Stats_Abilities::get_top_content(
+				array(
+					'type'   => 'utm',
+					'max'    => 0,
+					'expand' => true,
+				)
+			)->get_error_code()
+		);
 	}
 
 	public function test_get_top_content_asks_device_and_utm_reports_for_days_ending_on_a_date(): void {
