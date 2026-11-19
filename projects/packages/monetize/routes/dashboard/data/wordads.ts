@@ -58,6 +58,12 @@ export function useJoinWordAds() {
 	const queryClient = useQueryClient();
 	return useMutation< unknown, WpcomApiError >( {
 		mutationFn: () => wpcomFetch( { api: 'rest/v1.1', path: 'wordads/approve', method: 'POST' } ),
+		// So Settings, which it opens next, offers the switch without waiting on the refetch.
+		onSuccess: () =>
+			queryClient.setQueryData< { approved?: boolean } >(
+				ADS_ACCOUNT_KEY,
+				prev => prev && { ...prev, approved: true }
+			),
 		onSettled: () => queryClient.invalidateQueries( { queryKey: ADS_ACCOUNT_KEY } ),
 	} );
 }
