@@ -1477,7 +1477,7 @@ class Colors_Manager_Common {
 		$css = preg_replace_callback(
 			// Regex lookahead adapted from here:
 			// https://github.com/tubalmartin/YUI-CSS-compressor-PHP-port/blob/v4.1.1/src/Minifier.php#L590
-			'/(hsl\(\s*)(-?\d*\.\d+)(?=[\s0-9,.%-]*\))/',
+			'/(hsl\(\s*)(-?\d*\.\d+)(?=[\s,.%-][\s0-9,.%-]*\)|\))/',
 			static function ( $m ) {
 				return $m[1] . (int) $m[2];
 			},
