@@ -6,6 +6,7 @@ export { useDelayedLoading } from './use-delayed-loading';
 export { DashboardSectionProvider, useDashboardOriginSearch } from './use-dashboard-origin-search';
 export { useElementSize, type ElementSize } from './use-element-size';
 export { useLockedPrimaryLegendItems } from './use-locked-primary-legend-items';
+export { useNarrowPageHeader } from './use-narrow-page-header';
 export { useHostLinkSearch } from './use-host-link-search';
 export { useNormalizedReportParams } from './use-normalized-report-params';
 export { useReportNavigationSearch } from './use-report-navigation-search';

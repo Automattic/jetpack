@@ -33,6 +33,7 @@ import {
 	StatsOptionsMenu,
 	ResetLayoutAction,
 	useHostLinkSearch,
+	useNarrowPageHeader,
 	useTrackCustomize,
 	useTrackedDateRangeApply,
 } from '@jetpack-premium-analytics/widgets-toolkit';
@@ -94,6 +95,7 @@ import type { JSX } from 'react';
 function Dashboard(): JSX.Element {
 	const { sections, hasResolved: hasResolvedSections } = useDashboardSections();
 	const [ editMode, setEditMode ] = useState( false );
+	const isNarrowHeader = useNarrowPageHeader();
 	const switchSearch = useCallback(
 		( id: string, search: Record< string, unknown > ) =>
 			dateWindowForSectionSwitch(
@@ -535,7 +537,7 @@ function Dashboard(): JSX.Element {
 								visual={ <Icon icon={ jetpack } /> }
 								breadcrumbs={ <StatsBreadcrumbs isRoot /> }
 								actions={
-									<Stack direction="row" gap="sm">
+									<Stack direction="row" gap={ isNarrowHeader ? 'xs' : 'sm' }>
 										{ /* At rest these would add a second Customize beside the menu's. */ }
 										{ editMode && (
 											<>

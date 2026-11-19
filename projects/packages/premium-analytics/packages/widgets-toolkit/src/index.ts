@@ -329,6 +329,7 @@ export {
 	type ElementSize,
 	useHostLinkSearch,
 	useMapName,
+	useNarrowPageHeader,
 	useReportNavigationSearch,
 	useOpenChartBucket,
 	useWidgetNavigationSearch,
