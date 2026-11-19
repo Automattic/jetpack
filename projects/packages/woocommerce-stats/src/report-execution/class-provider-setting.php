@@ -27,9 +27,14 @@ class Provider_Setting {
 	const FILTER = 'jetpack_woocommerce_stats_report_providers';
 
 	/**
-	 * Provider names to try, in order, for a `provider=auto` request; none when the site has no setting.
+	 * Provider of a site without a setting, and of a request that names none.
+	 */
+	const DEFAULT_PROVIDER = 'wpcom';
+
+	/**
+	 * Provider names to try, in order, for a `provider=auto` request; the default provider when the site has no setting.
 	 *
-	 * @return string[]
+	 * @return non-empty-array<string>
 	 */
 	public static function get_providers() {
 		/**
@@ -41,10 +46,8 @@ class Provider_Setting {
 		 * @param string[]|string $providers Registered provider names, such as `wpcom` or `local`, as a list or comma-separated.
 		 */
 		$providers = apply_filters( self::FILTER, get_option( self::OPTION, array() ) );
-		if ( ! is_array( $providers ) && ! is_string( $providers ) ) {
-			return array();
-		}
+		$providers = is_array( $providers ) || is_string( $providers ) ? array_values( array_unique( array_filter( wp_parse_list( $providers ), 'is_string' ) ) ) : array();
 
-		return array_values( array_unique( array_filter( wp_parse_list( $providers ), 'is_string' ) ) );
+		return $providers ? $providers : array( self::DEFAULT_PROVIDER );
 	}
 }

@@ -18,14 +18,9 @@ use WP_Error;
 class Report_Executor {
 
 	/**
-	 * `provider` value that follows the site's `Provider_Setting`, or the default provider without one.
+	 * `provider` value that follows the site's `Provider_Setting`.
 	 */
 	const AUTO = 'auto';
-
-	/**
-	 * Provider of a request that names none.
-	 */
-	private const DEFAULT_PROVIDER = 'wpcom';
 
 	/**
 	 * Response header naming the provider that served the report.
@@ -86,18 +81,13 @@ class Report_Executor {
 
 		// A request naming no provider leaves readiness to the handler: the forward serves its cache before checking the connection.
 		if ( null === $provider ) {
-			$name    = self::DEFAULT_PROVIDER;
+			$name    = Provider_Setting::DEFAULT_PROVIDER;
 			$handler = $this->registry->get_handler( $definition->id, $name );
 			if ( null === $handler ) {
 				return self::unsupported_provider( $name );
 			}
 		} else {
-			$names = self::AUTO === $provider ? Provider_Setting::get_providers() : array( $provider );
-			if ( ! $names ) {
-				$names = array( self::DEFAULT_PROVIDER );
-			}
-
-			$chosen = $this->choose( $names, $request );
+			$chosen = $this->choose( self::AUTO === $provider ? Provider_Setting::get_providers() : array( $provider ), $request );
 			if ( is_wp_error( $chosen ) ) {
 				return $chosen;
 			}
