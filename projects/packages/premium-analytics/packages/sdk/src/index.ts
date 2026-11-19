@@ -6,6 +6,7 @@
 export {
 	ChartEmptyState,
 	Columns,
+	DashboardWidgetHostProvider,
 	Donut,
 	EarningsHistoryList,
 	Funnel,

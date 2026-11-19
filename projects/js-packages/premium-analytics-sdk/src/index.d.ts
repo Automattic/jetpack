@@ -5,7 +5,7 @@
  * this package external.
  */
 /* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars -- PoC: the contract gets precise types before the package is published. */
-import type { ComponentType } from 'react';
+import type { ComponentType, ReactNode } from 'react';
 
 type AnyComponent = ComponentType< any >;
 
@@ -366,3 +366,6 @@ export declare function useStoredDetailLayout(
 
 // Customize mode over that layout: the reader moves and resizes, never adds or removes.
 export declare function useDetailPageCustomize( layout: any[], options?: any ): any;
+
+// Lets a widget action whose href names a route of the page navigate through the page's router.
+export declare const DashboardWidgetHostProvider: ComponentType< { children: ReactNode } >;

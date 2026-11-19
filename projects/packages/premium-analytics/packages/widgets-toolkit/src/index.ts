@@ -347,7 +347,12 @@ export {
 /**
  * Host: what a page needs to mount a widget dashboard.
  */
-export { useWidgetModuleResolver, useWidgetModules, useWidgetTypesWithI18n } from './host';
+export {
+	DashboardWidgetHostProvider,
+	useWidgetModuleResolver,
+	useWidgetModules,
+	useWidgetTypesWithI18n,
+} from './host';
 
 /**
  * Types
