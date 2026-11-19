@@ -79,10 +79,13 @@ const ConnectionControl: FC< ConnectionControlProps > = ( { trackingContext } ) 
 		} );
 	const [ isOpen, setIsOpen ] = useState( false );
 	const { recordEvent } = useAnalytics();
+	const context = trackingContext || null;
 	const tracksProperties = useMemo(
-		() => ( { context: trackingContext || null, connection_state: state.id } ),
-		[ trackingContext, state.id ]
+		() => ( { context, connection_state: state.id } ),
+		[ context, state.id ]
 	);
+	// `location` tells the plan links apart from the same ones on the Overview.
+	const planTracksProperties = useMemo( () => ( { location: 'header', context } ), [ context ] );
 	const onOpenChange = useCallback(
 		( open: boolean ) => {
 			setIsOpen( open );
@@ -229,7 +232,7 @@ const ConnectionControl: FC< ConnectionControlProps > = ( { trackingContext } ) 
 						<PlanSummary
 							purchases={ purchases }
 							hasFailed={ hasPurchasesError }
-							trackingContext={ trackingContext }
+							tracksProperties={ planTracksProperties }
 						/>
 					</Stack>
 				</Popover.Popup>

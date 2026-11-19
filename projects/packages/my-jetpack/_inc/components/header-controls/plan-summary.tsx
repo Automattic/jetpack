@@ -12,10 +12,11 @@ import {
 	PlanSectionFooter,
 	getCompleteUpgradeSlug,
 	getPurchaseExpiry,
-	useRecordRenewClick,
+	useRenewClickHandler,
 } from '../plans-section';
 import styles from './style.module.scss';
 import type { Purchase } from '../../data/types';
+import type { TracksProperties } from '../../hooks/use-analytics';
 import type { PurchaseExpiryState } from '../plans-section';
 import type { FC, ReactNode } from 'react';
 
@@ -126,21 +127,21 @@ const PlanRow: FC< {
 /**
  * A purchase's row, reporting which plan its Renew or Resume link is for.
  *
- * @param props               - Component props.
- * @param props.purchase      - A WPCOM purchase.
- * @param props.status        - The purchase's status, from `getPlanStatus()`.
- * @param props.onActionClick - Records a click on the row's Renew or Resume link.
+ * @param props                  - Component props.
+ * @param props.purchase         - A WPCOM purchase.
+ * @param props.status           - The purchase's status, from `getPlanStatus()`.
+ * @param props.tracksProperties - Added to the link's Tracks event.
  * @return The row.
  */
 const PurchaseRow: FC< {
 	purchase: Purchase;
 	status: PlanStatus;
-	onActionClick: ( purchase: Purchase ) => void;
-} > = ( { purchase, status, onActionClick } ) => {
-	const onClick = useCallback( () => onActionClick( purchase ), [ onActionClick, purchase ] );
+	tracksProperties: TracksProperties;
+} > = ( { purchase, status, tracksProperties } ) => {
+	const onActionClick = useRenewClickHandler( purchase, tracksProperties );
 
 	return (
-		<PlanRow name={ purchase.product_name } status={ status } onActionClick={ onClick }>
+		<PlanRow name={ purchase.product_name } status={ status } onActionClick={ onActionClick }>
 			{ isLifetimePurchase( purchase ) && (
 				<GoldenTokenTooltip
 					productName={ purchase.product_name }
@@ -154,25 +155,19 @@ const PurchaseRow: FC< {
 /**
  * The site's plans, those that need attention first, with the Overview's plan links.
  *
- * @param props                 - Component props.
- * @param props.purchases       - The site's purchases, or null until they load.
- * @param props.hasFailed       - Whether loading the purchases failed.
- * @param props.trackingContext - The host page, sent as `context` on the plan links' Tracks events.
+ * @param props                  - Component props.
+ * @param props.purchases        - The site's purchases, or null until they load.
+ * @param props.hasFailed        - Whether loading the purchases failed.
+ * @param props.tracksProperties - Added to the plan links' Tracks events.
  * @return The plans and their links, only the links when the plans fail to load, or nothing while they load.
  */
 const PlanSummary: FC< {
 	purchases: Purchase[] | null;
 	hasFailed?: boolean;
-	trackingContext: string | undefined;
-} > = ( { purchases, hasFailed = false, trackingContext } ) => {
+	tracksProperties: TracksProperties;
+} > = ( { purchases, hasFailed = false, tracksProperties } ) => {
 	const [ showAll, setShowAll ] = useState( false );
 	const toggleShowAll = useCallback( () => setShowAll( value => ! value ), [] );
-	// `location` tells these links apart from the same ones on the Overview, `context` the page the header is on.
-	const tracksProperties = useMemo(
-		() => ( { location: 'header', context: trackingContext || null } ),
-		[ trackingContext ]
-	);
-	const recordRenewClick = useRecordRenewClick( tracksProperties );
 	// Array#sort is stable, so plans in the same state keep their order.
 	const plans = useMemo(
 		() =>
@@ -214,7 +209,7 @@ const PlanSummary: FC< {
 							key={ purchase.ID }
 							purchase={ purchase }
 							status={ status }
-							onActionClick={ recordRenewClick }
+							tracksProperties={ tracksProperties }
 						/>
 					) )
 				) : (

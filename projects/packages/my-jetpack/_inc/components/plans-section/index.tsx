@@ -89,34 +89,29 @@ export function getPurchaseExpiry( purchase: Purchase ): PurchaseExpiry {
 }
 
 /**
- * Records a click on a plan's Renew or Resume link.
+ * The click handler for a plan's Renew or Resume link, recording which plan it was.
  *
+ * @param purchase         - The purchase the link is for.
  * @param tracksProperties - Added to the event, e.g. where the link is shown.
- * @return The click handler, taking the purchase the link is for.
+ * @return The click handler.
  */
-export function useRecordRenewClick( tracksProperties?: TracksProperties ) {
+export function useRenewClickHandler( purchase: Purchase, tracksProperties?: TracksProperties ) {
 	const { recordEvent } = useAnalytics();
+	const { expiry_status, product_slug } = purchase;
 
-	return useCallback(
-		( { expiry_status, product_slug }: Purchase ) => {
-			recordEvent( 'jetpack_myjetpack_plans_renew_click', {
-				...tracksProperties,
-				action: PRODUCT_STATUSES.EXPIRED === expiry_status ? 'resume' : 'renew',
-				product_slug,
-			} );
-		},
-		[ recordEvent, tracksProperties ]
-	);
+	return useCallback( () => {
+		recordEvent( 'jetpack_myjetpack_plans_renew_click', {
+			...tracksProperties,
+			action: PRODUCT_STATUSES.EXPIRED === expiry_status ? 'resume' : 'renew',
+			product_slug,
+		} );
+	}, [ expiry_status, product_slug, recordEvent, tracksProperties ] );
 }
 
 const PlanExpiry: FC< PlanSectionProps > = ( { purchase } ) => {
 	const { product_name, subscribed_date } = purchase;
 	const { state, date, partnerName, actionUrl } = getPurchaseExpiry( purchase );
-	const recordRenewClick = useRecordRenewClick();
-	const onActionClick = useCallback(
-		() => recordRenewClick( purchase ),
-		[ purchase, recordRenewClick ]
-	);
+	const onActionClick = useRenewClickHandler( purchase );
 
 	const isExpired = state === 'expired';
 	const isExpiringSoon = state === 'expiring-soon';
