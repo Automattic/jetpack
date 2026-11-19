@@ -7,7 +7,8 @@
 		"src/store-performance/**/*",
 		"types/**/*",
 		"widgets/**/*",
-		// The story helpers compile against Premium Analytics source, which these declare for.
+		// The story helpers compile against Premium Analytics source; without these, its files
+		// report `premium_analytics` missing on `JetpackScriptData`.
 		"../premium-analytics/types/**/*",
 		"../premium-analytics/packages/site-sync/src/jetpack-script-data.d.ts",
 		"../../js-packages/connection/declarations.d.ts"

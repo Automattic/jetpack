@@ -13,6 +13,9 @@ import {
 /** Which bucket of a window has no orders, as a share of its length. */
 const EMPTY_BUCKET_SHARE = 1 / 3;
 
+/** The shortest window with room for a zero-order bucket beside buckets that have orders. */
+const MIN_BUCKETS_WITH_EMPTY = 3;
+
 type OrderTotals = {
 	orders: number;
 	items: number;
@@ -102,7 +105,7 @@ function toRawRow( totals: OrderTotals, bounds: Record< string, string > ) {
 
 	return {
 		...bounds,
-		// Null for a period with no orders, which is what the live endpoint sends.
+		// Null, not a zero average, for a period with no orders, so the null case stays covered.
 		average_order_value: orders ? money( net / orders ) : null,
 		avg_items: orders ? ( items / orders ).toFixed( 2 ) : null,
 		cogs_amount: money( cogs ),
@@ -124,17 +127,20 @@ function toRawRow( totals: OrderTotals, bounds: Record< string, string > ) {
 }
 
 /**
- * The orders-by-date report of a window: one row per interval bucket, on a date-anchored trend
- * so an earlier window reads lower, plus one bucket with no orders in every window.
+ * The orders-by-date report of a window: one row per interval bucket, every figure a deterministic
+ * function of the window, plus one bucket with no orders once the window is long enough to hold
+ * one. The shipped story windows are chosen so the comparison period reads lower, which the
+ * seasonal terms do not give for an arbitrary pair of windows.
  *
  * @param {URLSearchParams} query - The request's query params (`from`, `to`, `interval`).
  * @return {unknown} The raw report response.
  */
 export function buildOrdersByDateResponse( query: URLSearchParams ): unknown {
 	const buckets = bucketsForWindow( query );
+	const hasEmptyBucket = buckets.length >= MIN_BUCKETS_WITH_EMPTY;
 	const emptyBucket = Math.floor( buckets.length * EMPTY_BUCKET_SHARE );
 	const totals = buckets.map( ( bucket, index ) =>
-		index === emptyBucket ? NO_ORDERS : totalsFor( bucket )
+		hasEmptyBucket && index === emptyBucket ? NO_ORDERS : totalsFor( bucket )
 	);
 
 	return {
