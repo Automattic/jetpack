@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix IndexNow verification and delivery when a site's address resolves as HTTP or HTTPS.
