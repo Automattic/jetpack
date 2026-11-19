@@ -661,6 +661,13 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu_Test extends Jetpack_REST_TestCase {
 				null,
 				'https://jetpack.com/redirect/?source=calypso-backups&site=example.org',
 			),
+			// WordPress.com dashboard.
+			array(
+				'https://my.wordpress.com/sites/example.org',
+				'',
+				null,
+				'https://my.wordpress.com/sites/example.org',
+			),
 			// WooCommerce URLs.
 			array(
 				'product_attributes',
@@ -703,6 +710,12 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu_Test extends Jetpack_REST_TestCase {
 			),
 			array(
 				'https://wordpress.commerce.malicious-site.com',
+				'',
+				null,
+				'',
+			),
+			array(
+				'https://my.wordpress.com.malicious-site.com/sites/example.org',
 				'',
 				null,
 				'',

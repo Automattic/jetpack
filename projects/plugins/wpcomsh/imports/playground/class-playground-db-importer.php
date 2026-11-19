@@ -59,7 +59,8 @@ class Playground_DB_Importer {
 	 *     @type string $output_file    The output file path. If not set, a temporary file will be used.
 	 *     @type int    $output_mode    Output mode. Defaults to SQL_Generator::OUTPUT_TYPE_STRING.
 	 *     @type string $output_prefix  The generated tables prefix.
-	 *     @type string $prefix         The input tables prefix. (Always `wp_` for Playground databases)
+	 *     @type string $prefix         The input tables prefix, usually the backup's `$table_prefix`. Used when the
+	 *                                  database has that prefix's options table; otherwise it's detected. Defaults to `wp_`.
 	 *     @type string $tmp_prefix     The temporary tables prefix.
 	 *     @type bool   $tmp_tables     Whether to generate temporary tables instead of TRANSACTION. Defaults to false.
 	 * }
@@ -107,6 +108,8 @@ class Playground_DB_Importer {
 		try {
 			// Try to open the database file.
 			$this->db = new SQLite3( $database_file_path, SQLITE3_OPEN_READONLY );
+
+			$this->options['prefix'] = $this->get_input_prefix( (string) $this->options['prefix'] );
 
 			$ret = $this->parse_database();
 
@@ -271,6 +274,42 @@ class Playground_DB_Importer {
 		while ( $entry = $entries->fetchArray( SQLITE3_ASSOC ) ) { // phpcs:ignore Generic.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition
 			$generator->table_insert( $field_names, $this->prepare( $format, $entry ) );
 		}
+	}
+
+	/**
+	 * Get the prefix of the database's WordPress tables.
+	 *
+	 * Studio sites pulled from a site that uses another table prefix, like `wpx_`, keep it. The
+	 * requested prefix is used when its options table holds a site URL. Otherwise, the prefix of the
+	 * options table that does is used, preferring `wp_`.
+	 *
+	 * @param string $requested_prefix The prefix to use when its options table exists.
+	 *
+	 * @return string
+	 */
+	private function get_input_prefix( string $requested_prefix ): string {
+		$prefixes = array();
+		$results  = $this->db->query( "SELECT name FROM sqlite_master WHERE type='table' AND name LIKE '%options'" );
+
+		while ( $results && $table = $results->fetchArray( SQLITE3_ASSOC ) ) { // phpcs:ignore Generic.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition
+			$table_name = $table['name'];
+			$prefix     = substr( $table_name, 0, -strlen( 'options' ) );
+
+			// Only a WordPress options table holds a site URL. Other tables return false here.
+			$query = $this->prepare( 'SELECT COUNT(*) FROM "' . str_replace( '"', '""', $table_name ) . '" WHERE option_name = %s', 'siteurl' );
+
+			if ( @$this->db->querySingle( $query ) > 0 ) { // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+				$prefixes[] = $prefix;
+			}
+		}
+
+		foreach ( array( $requested_prefix, 'wp_' ) as $prefix ) {
+			if ( in_array( $prefix, $prefixes, true ) ) {
+				return $prefix;
+			}
+		}
+
+		return count( $prefixes ) === 1 ? $prefixes[0] : $requested_prefix;
 	}
 
 	/**
@@ -523,8 +562,8 @@ class Playground_DB_Importer {
 	 * @return array
 	 */
 	private function finish_table_types_map( string $table_name, array $map, bool $has_autoinc, array $field_names, array $formats ): array {
-		// Hot fix: add the missing index sizes.
-		$map = $this->hot_fix_missing_indexes( $table_name, $map );
+		// Hot fix: add the missing index sizes. The fixes are listed under the `wp_` prefix.
+		$map = $this->hot_fix_missing_indexes( 'wp_' . $this->get_input_table_name( $table_name ), $map );
 
 		$auto_increment = 0;
 

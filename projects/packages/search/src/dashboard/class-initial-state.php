@@ -65,7 +65,7 @@ class Initial_State {
 	 * @return array
 	 */
 	public function get_initial_state() {
-		return array(
+		$state = array(
 			'siteData'        => array(
 				'WP_API_root'             => esc_url_raw( rest_url() ),
 				'wpcomOriginApiUrl'       => $this->get_wp_api_root(),
@@ -172,6 +172,14 @@ class Initial_State {
 				isset( $_GET['features'] ) ? explode( ',', wp_unslash( $_GET['features'] ) ) : array()
 			),
 		);
+
+		// The last plan the site saved, so the page can pick its view before the plan request returns.
+		$plan_info = get_option( Plan::JETPACK_SEARCH_PLAN_INFO_OPTION_KEY );
+		if ( is_array( $plan_info ) ) {
+			$state['sitePlan'] = $plan_info;
+		}
+
+		return $state;
 	}
 
 	/**

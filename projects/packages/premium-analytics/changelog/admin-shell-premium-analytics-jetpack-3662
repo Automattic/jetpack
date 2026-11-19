@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Join the Jetpack admin shell, so switching to and from Stats does not reload the page.

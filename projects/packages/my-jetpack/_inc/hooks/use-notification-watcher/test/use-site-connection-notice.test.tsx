@@ -2,6 +2,7 @@ import { renderHook } from '@testing-library/react';
 import { NoticeContext } from '../../../context/notices/noticeContext';
 import { getConnectUrl } from '../../../utils/connect-url';
 import { leavePageFor } from '../../../utils/reload-page';
+import useAnalytics from '../../use-analytics';
 import useConnectSite from '../../use-connect-site';
 import useSiteConnectionNotice from '../use-site-connection-notice';
 import type { NoticeContextType, NoticeOptions } from '../../../context/notices/types';
@@ -11,7 +12,7 @@ const NAMES = {
 	myJetpackNoticeUser: 'my_jetpack_notice_user',
 	myJetpackNoticeSite: 'my_jetpack_notice_site',
 };
-const mockRecordEvent = jest.fn();
+const mockRecordEvent = jest.mocked( jest.mocked( useAnalytics )().recordEvent );
 let mockConnectionFrom: typeof NAMES | undefined;
 
 jest.mock( '@automattic/jetpack-connection', () => ( {
@@ -35,7 +36,6 @@ jest.mock( '../../../data/products/use-products-by-ownership', () => () => ( {
 	refetch: jest.fn(),
 } ) );
 jest.mock( '../../../data/utils/get-product-slugs-that-require-user-connection', () => () => [] );
-jest.mock( '../../use-analytics', () => () => ( { recordEvent: mockRecordEvent } ) );
 jest.mock( '../../use-connect-site', () => jest.fn( () => ( { connectSite: jest.fn() } ) ) );
 jest.mock( '../../use-my-jetpack-connection', () => () => ( {
 	siteIsRegistering: false,

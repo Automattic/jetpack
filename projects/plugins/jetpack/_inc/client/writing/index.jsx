@@ -52,8 +52,9 @@ export class Writing extends Component {
 			customContentTypeIsOverridden: customContentTypeOverrideStatusInitialState,
 			customContentKeywords: [],
 		};
+	}
 
-		// Call async initialization directly
+	componentDidMount() {
 		this.initializeCustomContentTypes();
 	}
 
