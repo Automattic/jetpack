@@ -51,9 +51,9 @@
 	}
 }
 
-/* The tab and the pricing filter make core's bar need ~1,430px to stay in one row.
-   Above the width where core stacks the bar, the search box gives up room first,
-   then the tabs scroll. */
+/* The tab and the pricing filter make core's bar need ~1,430px to stay in
+   one row. Above the width where core stacks the bar, the search box gives
+   up room first, then the tabs scroll. */
 @media screen and (min-width: 1001px) {
 
 	.wp-filter {
@@ -66,11 +66,11 @@
 		overflow-x: auto;
 		white-space: nowrap;
 		scrollbar-width: none;
-		mask-image: linear-gradient(to right, transparent, #000 var(--wpcom-themes-tab-fade-start, 0px), #000 calc(100% - var(--wpcom-themes-tab-fade-end, 0px)), transparent);
+		mask-image: linear-gradient(to right, transparent, #000 var(--wpcom-themes-tab-fade-start, 0), #000 calc(100% - var(--wpcom-themes-tab-fade-end, 0px)), transparent);
 	}
 
 	.rtl .wp-filter .filter-links {
-		mask-image: linear-gradient(to left, transparent, #000 var(--wpcom-themes-tab-fade-start, 0px), #000 calc(100% - var(--wpcom-themes-tab-fade-end, 0px)), transparent);
+		mask-image: linear-gradient(to left, transparent, #000 var(--wpcom-themes-tab-fade-start, 0), #000 calc(100% - var(--wpcom-themes-tab-fade-end, 0px)), transparent);
 	}
 
 	.wp-filter .filter-links.is-clipped-start {
