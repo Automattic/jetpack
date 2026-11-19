@@ -109,7 +109,7 @@ final class Stats_Settings {
 	public static function configure() {
 		add_action( 'rest_api_init', array( __CLASS__, 'register' ) );
 		// Counting users per role costs a query, so only the dashboard pays for it.
-		if ( Analytics::is_dashboard_request() ) {
+		if ( Analytics::renders_dashboard() ) {
 			add_filter( 'jetpack_admin_js_script_data', array( __CLASS__, 'add_script_data' ), 20 );
 		}
 	}

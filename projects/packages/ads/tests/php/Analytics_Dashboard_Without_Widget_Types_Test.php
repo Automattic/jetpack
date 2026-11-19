@@ -22,7 +22,8 @@ require_once __DIR__ . '/../../vendor/automattic/jetpack-premium-analytics/src/d
 require_once __DIR__ . '/../../vendor/automattic/jetpack-premium-analytics/src/default-dashboard-sections.php';
 
 /**
- * Without the widget contract version, the section still registers and the widget types wait.
+ * Without the widget contract version, the section still registers, the widget types wait, and the
+ * error reporting origin is published anyway.
  *
  * Each test runs in its own process: the other test files define the constant for the whole run.
  *
@@ -50,5 +51,21 @@ class Analytics_Dashboard_Without_Widget_Types_Test extends BaseTestCase {
 		Analytics_Dashboard::register_widget_types( $registry );
 
 		$this->assertSame( array(), $registry->get_all_registered() );
+	}
+
+	/**
+	 * On WordPress.com Simple the registrant is called directly, so the origins must reach the
+	 * dashboard even on the run where the registrant registers nothing.
+	 */
+	public function test_the_error_reporting_origins_do_not_wait() {
+		$this->assertFalse( defined( 'Automattic\\Jetpack\\PremiumAnalytics\\WIDGET_API_VERSION' ) );
+
+		Analytics_Dashboard::register_widget_types( new Widget_Type_Registry() );
+
+		$origins = apply_filters( 'jetpack_premium_analytics_error_reporting_script_origins', array() );
+
+		$this->assertCount( 2, $origins );
+		$this->assertStringEndsWith( '/widgets/', $origins[0] );
+		$this->assertStringEndsWith( '/modules/', $origins[1] );
 	}
 }

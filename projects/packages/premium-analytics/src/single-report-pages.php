@@ -100,7 +100,7 @@ function configure_single_report_pages_script_data() {
  * @return array
  */
 function inject_single_report_pages_script_data( array $data ): array {
-	if ( ! Analytics::is_dashboard_request() ) {
+	if ( ! Analytics::renders_dashboard() ) {
 		return $data;
 	}
 

@@ -80,6 +80,7 @@ class Main_Features {
 	 * Keyed by feature slug. `delivery` says what switches the feature: Protect ships inside
 	 * Jetpack too, but its switch is its own plugin, so it sets `jetpack` false and names
 	 * only that. `needs_account` repeats the feature module's "Requires User Connection" header.
+	 * `offline_long_description` replaces `long_description` in offline Features.
 	 *
 	 * @return array<string, array<string, mixed>> Feature definitions keyed by feature slug.
 	 */
@@ -103,6 +104,7 @@ class Main_Features {
 				'description'      => __( 'See what changed on your site, when it happened, and who did it.', 'jetpack-my-jetpack' ),
 				'long_description' => __( 'When something breaks, see exactly what changed and who changed it, from published posts to plugin updates and logins. Every connected site gets its 20 most recent events for free.', 'jetpack-my-jetpack' ),
 				'icon'             => 'list',
+				// The page a feature opens; `off_pages` lists its others. Each shows the turned-off card while the feature is off.
 				'admin_page'       => 'jetpack-activity-log',
 				'module'           => 'activity-log',
 				'needs_account'    => true,
@@ -270,6 +272,7 @@ class Main_Features {
 				'long_description' => __( 'Generate posts, tables, forms and images from a prompt, then change the tone, translate, or fix unclear sentences to make your writing easier to read. Before you publish, improve your title and create a featured image in one click.', 'jetpack-my-jetpack' ),
 				'icon'             => 'star',
 				'product'          => 'jetpack-ai',
+				'off_pages'        => array( 'jetpack-ai' ),
 				'needs_account'    => true,
 				'interstitial'     => '/add-jetpack-ai',
 				'free_highlights'  => array(
@@ -292,29 +295,31 @@ class Main_Features {
 				'paid_product'     => __( 'Jetpack AI Assistant', 'jetpack-my-jetpack' ),
 			),
 			'jetpack-forms'     => array(
-				'info_url'         => 'https://jetpack.com/forms/',
-				'docs_url'         => 'https://jetpack.com/support/jetpack-blocks/contact-form/',
-				'name'             => __( 'Forms', 'jetpack-my-jetpack' ),
-				'description'      => __( 'From quick contact forms to multistep surveys, everything you need is included.', 'jetpack-my-jetpack' ),
-				'long_description' => __( 'Break long forms into steps with a progress bar, and get every response by email and in your dashboard, with no limit on responses. Upgrade to add secure file uploads that keep harmful files off your server.', 'jetpack-my-jetpack' ),
-				'icon'             => 'list-bullets',
-				'product'          => 'jetpack-forms',
-				'essential'        => true,
-				'free_highlights'  => array(
+				'info_url'                 => 'https://jetpack.com/forms/',
+				'docs_url'                 => 'https://jetpack.com/support/jetpack-blocks/contact-form/',
+				'name'                     => __( 'Forms', 'jetpack-my-jetpack' ),
+				'description'              => __( 'From quick contact forms to multistep surveys, everything you need is included.', 'jetpack-my-jetpack' ),
+				'long_description'         => __( 'Break long forms into steps with a progress bar, and get every response by email and in your dashboard, with no limit on responses. Upgrade to add secure file uploads that keep harmful files off your server.', 'jetpack-my-jetpack' ),
+				'offline_long_description' => __( 'Break long forms into steps with a progress bar, and get every response by email and in your dashboard, with no limit on responses. File uploads, AI, Google Sheets and push notifications need a WordPress.com connection.', 'jetpack-my-jetpack' ),
+				'icon'                     => 'list-bullets',
+				'product'                  => 'jetpack-forms',
+				'off_pages'                => array( 'jetpack-forms-responses-wp-admin', 'jetpack-forms-admin' ),
+				'essential'                => true,
+				'free_highlights'          => array(
 					__( 'Unlimited responses, by email and in your dashboard', 'jetpack-my-jetpack' ),
 					__( 'Multi-step forms with a progress bar', 'jetpack-my-jetpack' ),
 				),
-				'paid_highlights'  => array(
+				'paid_highlights'          => array(
 					__( 'Secure file uploads that keep harmful files off your server', 'jetpack-my-jetpack' ),
 					__( 'Visitors’ files stay private, visible only to you and your editors', 'jetpack-my-jetpack' ),
 					__( 'Up to 10 files per field, 20 MB each', 'jetpack-my-jetpack' ),
 				),
-				'delivery'         => array(
+				'delivery'                 => array(
 					'jetpack' => true,
 					'plugin'  => '',
 					'free'    => true,
 				),
-				'plans'            => array( 'pro', 'complete' ),
+				'plans'                    => array( 'pro', 'complete' ),
 			),
 			'newsletter'        => array(
 				'info_url'         => 'https://jetpack.com/newsletter/',
@@ -325,6 +330,7 @@ class Main_Features {
 				'icon'             => 'envelope',
 				'product'          => 'newsletter',
 				'module'           => 'subscriptions',
+				'off_pages'        => array( 'jetpack-newsletter' ),
 				'needs_account'    => true,
 				'free_highlights'  => array(
 					__( 'No limit on subscribers or email sends', 'jetpack-my-jetpack' ),
@@ -384,6 +390,7 @@ class Main_Features {
 				'product'          => 'protect',
 				// Not `protect`: that module is Login protection, which has its own row.
 				'module'           => Products\Protect::DASHBOARD_MODULE_NAME,
+				'off_pages'        => array( 'jetpack-protect' ),
 				'essential'        => true,
 				'interstitial'     => '/add-protect',
 				'free_highlights'  => array(
@@ -415,6 +422,7 @@ class Main_Features {
 				'long_description' => __( 'Visitors see relevant results as they type and can filter by category, tag, date or author, so they find what they need instead of leaving. Match search to your theme without writing code.', 'jetpack-my-jetpack' ),
 				'icon'             => 'search',
 				'product'          => 'search',
+				'off_pages'        => array( 'jetpack-search' ),
 				'interstitial'     => '/add-search',
 				'setup_note'       => __( 'To start using it, choose a plan next, including a free one.', 'jetpack-my-jetpack' ),
 				'free_highlights'  => array(
@@ -445,6 +453,7 @@ class Main_Features {
 				'long_description' => __( 'Reach your followers on Facebook, Instagram, Threads, Bluesky, LinkedIn, Mastodon, Nextdoor and Tumblr without leaving WordPress. Posts share automatically when you publish, and you can re-share or schedule them later.', 'jetpack-my-jetpack' ),
 				'icon'             => 'share',
 				'product'          => 'social',
+				'off_pages'        => array( 'jetpack-social' ),
 				'needs_account'    => true,
 				'interstitial'     => '/add-social',
 				'free_highlights'  => array(
@@ -475,6 +484,7 @@ class Main_Features {
 				'long_description' => __( 'Track views, visitors, top posts, referrers and visitor countries right from your WordPress dashboard. Learn what works without seeing who your individual visitors are.', 'jetpack-my-jetpack' ),
 				'icon'             => 'chart-bar',
 				'product'          => 'stats',
+				'off_pages'        => array( 'stats' ),
 				'essential'        => true,
 				'interstitial'     => '/add-stats',
 				'free_highlights'  => array(
@@ -504,6 +514,7 @@ class Main_Features {
 				'long_description' => __( 'Keep the focus on your videos with ad-free playback that fits your brand. Drag and drop videos into the WordPress editor to get started.', 'jetpack-my-jetpack' ),
 				'icon'             => 'video',
 				'product'          => 'videopress',
+				'off_pages'        => array( 'jetpack-videopress' ),
 				'interstitial'     => '/add-videopress',
 				'free_highlights'  => array(
 					__( 'Host one video', 'jetpack-my-jetpack' ),
@@ -1059,8 +1070,9 @@ class Main_Features {
 	/**
 	 * The feature catalog merged with each feature's live state, sorted by name.
 	 *
-	 * @param bool $local Keep only local management URLs, set upgrade to null, and omit
-	 *                    included, setup_note, and plan owned fields without resolving ownership.
+	 * @param bool $local Keep only local management URLs, set upgrade to null, use any offline
+	 *                    long description, and omit included, setup_note, and plan owned fields
+	 *                    without resolving ownership.
 	 * @return array List of features, each with slug, name, description, icon, manage_url,
 	 *               the plugin it ships as and the product/module join keys.
 	 */
@@ -1085,7 +1097,7 @@ class Main_Features {
 				'slug'             => $slug,
 				'name'             => $definition['name'],
 				'description'      => $definition['description'],
-				'long_description' => $definition['long_description'] ?? '',
+				'long_description' => $local && isset( $definition['offline_long_description'] ) ? $definition['offline_long_description'] : ( $definition['long_description'] ?? '' ),
 				'icon'             => $definition['icon'],
 				'manage_url'       => self::get_feature_manage_url( $definition, $product_class, $local ),
 				'essential'        => ! empty( $definition['essential'] ),

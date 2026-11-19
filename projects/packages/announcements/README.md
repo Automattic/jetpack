@@ -36,7 +36,26 @@ A channel is a label. An announcement is published to channels, and a host shows
 
 The registrant translates its own strings. Every value is sanitized at registration, and a duplicate id is refused.
 
+The body keeps the HTML WordPress allows in a post, and loses styles, classes and ids. A URL is kept when it is http or https.
+
 Do no I/O in the action: the read that fires it may be a REST request.
+
+## Showing the surface
+
+The surface is "What's new". It ships as one script module, `packages/whats-new`, registered as `@automattic/jetpack-announcements`.
+
+A host mounts it from its own JavaScript, with the channels it subscribes to. The [`@automattic/jetpack-announcements` js-package](../../js-packages/announcements/README.md) holds the contract and explains the build setup.
+
+```ts
+const { mountWhatsNew } = await import( '@automattic/jetpack-announcements' );
+
+mountWhatsNew( { channels: [ 'my-plugin' ] } );
+```
+
+The call returns the function that takes the surface off the page. A page has one surface: a later mount takes it over.
+
+The module reads WordPress scripts from their globals, core-data among them, and does not enqueue them. A wp-build page provides them all.
+
 
 ## REST routes
 

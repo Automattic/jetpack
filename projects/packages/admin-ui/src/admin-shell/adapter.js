@@ -180,6 +180,22 @@ export function notifyRouters() {
 	window.dispatchEvent( new PopStateEvent( 'popstate', { state: history.state } ) );
 }
 
+/**
+ * Load a page, dropping every app in this document. Kept here so tests can see it: jsdom can't stub `location`.
+ *
+ * @param {string}  url             - The page to load.
+ * @param {object}  options         - Options.
+ * @param {boolean} options.replace - Load it into the current history entry instead of a new one.
+ */
+export function loadPage( url, { replace = false } = {} ) {
+	log( 'shell', `loading ${ url }` );
+	if ( replace ) {
+		location.replace( url );
+	} else {
+		location.assign( url );
+	}
+}
+
 const importMapUrl = id =>
 	[ ...document.querySelectorAll( 'script[type="importmap"]' ) ]
 		.map( el => JSON.parse( el.textContent ).imports?.[ id ] )

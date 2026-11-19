@@ -6,6 +6,7 @@ import { useCallback, useMemo } from 'react';
 /**
  * Internal dependencies
  */
+import { whenDashboardShown } from '../../admin-shell-visibility';
 import { useStagedValue } from '../use-staged-value';
 
 type AnyObject = Record< string, unknown >;
@@ -96,11 +97,13 @@ export function useStagedSearch< TSearch extends AnyObject, TFrom extends string
 	 */
 	const writeToSearch = useCallback(
 		( _staged: TSearch, patch: Partial< TSearch >, commitOpts?: { replace?: boolean } ) => {
-			navigate( {
-				replace: commitOpts?.replace ?? false, // explicit commits push into history
-				viewTransition: false,
-				search: prev => ( { ...prev, ...patch } ),
-			} );
+			whenDashboardShown( () =>
+				navigate( {
+					replace: commitOpts?.replace ?? false, // explicit commits push into history
+					viewTransition: false,
+					search: prev => ( { ...prev, ...patch } ),
+				} )
+			);
 		},
 		[ navigate ]
 	);

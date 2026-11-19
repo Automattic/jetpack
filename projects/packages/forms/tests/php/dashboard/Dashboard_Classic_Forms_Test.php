@@ -7,8 +7,11 @@
 
 namespace Automattic\Jetpack\Forms\Dashboard;
 
+use Automattic\Jetpack\Admin_UI\Admin_Shell;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use WorDBless\BaseTestCase;
 
 /**
@@ -44,7 +47,23 @@ class Dashboard_Classic_Forms_Test extends BaseTestCase {
 	protected function tear_down() {
 		$this->remove_query_stubs();
 		delete_option( self::OPTION_NAME );
+		$this->set_static( 'is_admin_shell_guest', false );
+		$this->set_static( 'wp_build_index', null );
 		parent::tear_down();
+	}
+
+	/**
+	 * Set a private static property of the Dashboard.
+	 *
+	 * @param string $name  Property name.
+	 * @param mixed  $value Value.
+	 */
+	private function set_static( $name, $value ) {
+		$property = new \ReflectionProperty( Dashboard::class, $name );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$property->setAccessible( true );
+		}
+		$property->setValue( null, $value );
 	}
 
 	/**
@@ -115,6 +134,50 @@ class Dashboard_Classic_Forms_Test extends BaseTestCase {
 
 		$this->assertEquals( self::STATE_CLASSIC, $state );
 		$this->assertEquals( self::STATE_CLASSIC, get_option( self::OPTION_NAME ) );
+	}
+
+	/**
+	 * Test that only the admin shell's hover request detects the state without saving it.
+	 *
+	 * @dataProvider provide_admin_shell_loads
+	 *
+	 * @param bool $is_hover Whether the shell's hover request readies Forms, rather than another dashboard's page.
+	 *
+	 * Isolated because the fixture's render callback would clash with a local build that a later test loads.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[DataProvider( 'provide_admin_shell_loads' )]
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_only_the_admin_shell_hover_does_not_save_the_detected_state( $is_hover ) {
+		if ( $is_hover ) {
+			add_filter( 'wp_doing_ajax', '__return_true' );
+			$_GET['action'] = Admin_Shell::GUEST_ACTION;
+		}
+		$this->simulate_classic_forms_detected();
+		$this->set_static( 'wp_build_index', __DIR__ . '/../fixtures/build-entry/build.php' );
+
+		Dashboard::load_as_admin_shell_guest();
+		$state = ( new Dashboard() )->get_classic_forms_state();
+		remove_filter( 'wp_doing_ajax', '__return_true' );
+		unset( $_GET['action'] );
+
+		$this->assertEquals( self::STATE_CLASSIC, $state );
+		$this->assertSame( $is_hover ? false : self::STATE_CLASSIC, get_option( self::OPTION_NAME ) );
+	}
+
+	/**
+	 * The shell's hover request, and another dashboard's page readying Forms for a later switch.
+	 *
+	 * @return array<string, array{bool}>
+	 */
+	public static function provide_admin_shell_loads() {
+		return array(
+			'hover request'       => array( true ),
+			'another member page' => array( false ),
+		);
 	}
 
 	/**

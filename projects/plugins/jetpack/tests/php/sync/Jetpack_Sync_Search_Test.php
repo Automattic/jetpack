@@ -90,10 +90,17 @@ class Jetpack_Sync_Search_Test extends Jetpack_Sync_TestBase {
 	 * @return string[][]
 	 */
 	public static function get_random_allowed_taxonomies() {
-		$params = array();
-		$keys   = Modules\Search::get_all_taxonomies();
+		$params = array(
+			'link_category' => array( 'link_category' ),
+			'nav_menu'      => array( 'nav_menu' ),
+			'post_format'   => array( 'post_format' ),
+		);
+
+		$allowed = array_unique( Modules\Search::get_all_taxonomies() );
+		$params  = array_intersect_key( $params, array_flip( $allowed ) );
+		$keys    = array_diff( $allowed, array_keys( $params ) );
 		foreach ( array_rand( $keys, 10 ) as $k ) {
-			$params[] = array( $keys[ $k ] );
+			$params[ $keys[ $k ] ] = array( $keys[ $k ] );
 		}
 
 		return $params;
@@ -211,41 +218,61 @@ class Jetpack_Sync_Search_Test extends Jetpack_Sync_TestBase {
 	 */
 	#[DataProvider( 'get_random_allowed_taxonomies' )]
 	public function test_add_taxonomy( $taxonomy ) {
-		register_taxonomy(
-			$taxonomy,
-			'post',
-			array(
-				'label'        => __( 'Taxonomy Test', 'jetpack' ),
-				'rewrite'      => array( 'slug' => $taxonomy ),
-				'hierarchical' => true,
-			)
-		);
-
-		$term = md5( (string) wp_rand() );
-		if ( 'post_format' === $taxonomy ) {
-			// Special case in Core.
-			$term = 'Standard';
+		$original_taxonomy   = get_taxonomy( $taxonomy );
+		$original_post_types = $original_taxonomy ? $original_taxonomy->object_type : array();
+		$attach_to_post      = $original_taxonomy && ! is_object_in_taxonomy( 'post', $taxonomy );
+		if ( ! $original_taxonomy ) {
+			register_taxonomy(
+				$taxonomy,
+				'post',
+				array(
+					'label'        => __( 'Taxonomy Test', 'jetpack' ),
+					'rewrite'      => array( 'slug' => $taxonomy ),
+					'hierarchical' => true,
+				)
+			);
+		} elseif ( $attach_to_post ) {
+			register_taxonomy_for_object_type( $taxonomy, 'post' );
 		}
-		$term_obj = wp_insert_term( $term, $taxonomy );
-		wp_set_post_terms( $this->post_id, array( $term_obj['term_id'] ), $taxonomy, false );
-		$this->sender->do_sync();
 
-		// Check taxonomy and added term.
-		$this->assertEquals(
-			$this->get_terms( $taxonomy ),
-			$this->server_replica_storage->get_terms( $taxonomy ),
-			'Terms on cache site match do not match client site'
-		);
+		try {
+			$term     = 'post_format' === $taxonomy ? 'Standard' : md5( (string) wp_rand() );
+			$term_obj = wp_insert_term( $term, $taxonomy );
+			$this->assertIsArray( $term_obj );
+			$term_id = $term_obj['term_id'];
+			wp_set_post_terms( $this->post_id, array( $term_id ), $taxonomy, false );
+			$this->assertSame(
+				array( $term_id ),
+				wp_get_post_terms( $this->post_id, $taxonomy, array( 'fields' => 'ids' ) ),
+				'The fixture post must have the new term before Sync runs.'
+			);
+			$this->sender->do_sync();
 
-		$this->assertEqualsObject(
-			get_the_terms( $this->post_id, $taxonomy ),
-			$this->server_replica_storage->get_the_terms( $this->post_id, $taxonomy ),
-			'Adeded term does not match local term.'
-		);
+			$this->assertEquals(
+				$this->get_terms( $taxonomy ),
+				$this->server_replica_storage->get_terms( $taxonomy ),
+				'Terms on the replica do not match the client site.'
+			);
 
-		// clean up - speeds up tests.
-		wp_remove_object_terms( $this->post_id, array( $term_obj['term_id'] ), $taxonomy );
-		unregister_taxonomy( $taxonomy );
+			$this->assertEqualsObject(
+				get_the_terms( $this->post_id, $taxonomy ),
+				$this->server_replica_storage->get_the_terms( $this->post_id, $taxonomy ),
+				'The added term does not match the local term.'
+			);
+		} finally {
+			if ( isset( $term_id ) ) {
+				wp_remove_object_terms( $this->post_id, array( $term_id ), $taxonomy );
+			}
+			if ( ! $original_taxonomy ) {
+				unregister_taxonomy( $taxonomy );
+			} elseif ( $attach_to_post ) {
+				unregister_taxonomy_for_object_type( $taxonomy, 'post' );
+			}
+		}
+
+		$restored_taxonomy = get_taxonomy( $taxonomy );
+		$this->assertSame( $original_taxonomy, $restored_taxonomy, 'Existing taxonomy registrations must be preserved.' );
+		$this->assertSame( $original_post_types, $restored_taxonomy->object_type ?? array(), 'Original taxonomy object types must be restored.' );
 	}
 
 	/**

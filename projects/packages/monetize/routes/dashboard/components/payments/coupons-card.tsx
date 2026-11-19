@@ -4,34 +4,13 @@ import { Button, Card, Notice, Stack, Text } from '@wordpress/ui';
 import { useCallback, useState } from 'react';
 import { useCoupons } from '../../data/coupons';
 import { useStripeStatus } from '../../data/memberships';
+import CouponDialog from './coupon-dialog';
 import { discountLabel } from './coupons';
 import DeleteCouponDialog from './delete-coupon-dialog';
-import ListRow from './list-row';
+import ListRow, { RowAction } from './list-row';
 import { getPaymentsState } from './state';
 import type { Coupon } from '../../data/coupons';
-
-/**
- * Opens the delete dialog for one coupon.
- *
- * @param props          - Component props.
- * @param props.coupon   - The coupon.
- * @param props.onDelete - Opens the dialog.
- * @return The button.
- */
-function DeleteButton( {
-	coupon,
-	onDelete,
-}: {
-	coupon: Coupon;
-	onDelete: ( coupon: Coupon ) => void;
-} ) {
-	const onClick = useCallback( () => onDelete( coupon ), [ onDelete, coupon ] );
-	return (
-		<Button variant="minimal" tone="neutral" size="compact" onClick={ onClick }>
-			{ __( 'Delete', 'jetpack-monetize' ) }
-		</Button>
-	);
-}
+import type { StripeStatus } from '../../data/memberships';
 
 /**
  * A coupon's badges, as Calypso shows them.
@@ -56,10 +35,10 @@ function couponBadges( coupon: Coupon ): string[] {
 	if ( coupon.firstTimeOnly ) {
 		badges.push( __( 'First-time order only', 'jetpack-monetize' ) );
 	}
-	if ( coupon.limitedToEmails ) {
+	if ( coupon.emails.length ) {
 		badges.push( __( 'Limited to specific emails', 'jetpack-monetize' ) );
 	}
-	if ( coupon.limitedToPlans ) {
+	if ( coupon.planIds.length ) {
 		badges.push( __( 'Limited to specific plans', 'jetpack-monetize' ) );
 	}
 	return badges;
@@ -68,13 +47,20 @@ function couponBadges( coupon: Coupon ): string[] {
 /**
  * The site's coupons.
  *
+ * @param props        - Component props.
+ * @param props.status - The site's Stripe connection.
  * @return The card.
  */
-function Coupons() {
+function Coupons( { status }: { status: StripeStatus } ) {
 	const { canManagePlans } = getPaymentsState();
 	const { data: coupons, isError, error } = useCoupons();
 	const [ deleting, setDeleting ] = useState< Coupon | null >( null );
+	// The coupon being edited, or null while adding one.
+	const [ editing, setEditing ] = useState< { coupon: Coupon | null } | null >( null );
 	const closeDelete = useCallback( () => setDeleting( null ), [] );
+	const closeEdit = useCallback( () => setEditing( null ), [] );
+	const openAdd = useCallback( () => setEditing( { coupon: null } ), [] );
+	const openEdit = useCallback( ( coupon: Coupon ) => setEditing( { coupon } ), [] );
 
 	let content;
 	if ( isError ) {
@@ -99,7 +85,24 @@ function Coupons() {
 			<Stack direction="column" gap="lg">
 				{ coupons.map( coupon => (
 					<ListRow key={ coupon.id } title={ coupon.code } badges={ couponBadges( coupon ) }>
-						{ canManagePlans && <DeleteButton coupon={ coupon } onDelete={ setDeleting } /> }
+						{ canManagePlans && (
+							<Stack direction="row" gap="xs">
+								<RowAction
+									item={ coupon }
+									label={ __( 'Edit', 'jetpack-monetize' ) }
+									/* translators: %s: a coupon code. */
+									ariaLabel={ sprintf( __( 'Edit %s', 'jetpack-monetize' ), coupon.code ) }
+									onSelect={ openEdit }
+								/>
+								<RowAction
+									item={ coupon }
+									label={ __( 'Delete', 'jetpack-monetize' ) }
+									/* translators: %s: a coupon code. */
+									ariaLabel={ sprintf( __( 'Delete %s', 'jetpack-monetize' ), coupon.code ) }
+									onSelect={ setDeleting }
+								/>
+							</Stack>
+						) }
 					</ListRow>
 				) ) }
 			</Stack>
@@ -109,10 +112,25 @@ function Coupons() {
 	return (
 		<Card.Root>
 			<Card.Header>
-				<Card.Title render={ <h2 /> }>{ __( 'Coupons', 'jetpack-monetize' ) }</Card.Title>
+				<Stack direction="row" gap="md" align="center" justify="space-between">
+					<Card.Title render={ <h2 /> }>{ __( 'Coupons', 'jetpack-monetize' ) }</Card.Title>
+					{ canManagePlans && (
+						<Button size="compact" onClick={ openAdd }>
+							{ __( 'Add a coupon', 'jetpack-monetize' ) }
+						</Button>
+					) }
+				</Stack>
 			</Card.Header>
 			<Card.Content>{ content }</Card.Content>
 			{ deleting && <DeleteCouponDialog coupon={ deleting } onClose={ closeDelete } /> }
+			{ editing && (
+				<CouponDialog
+					coupon={ editing.coupon }
+					codes={ ( coupons ?? [] ).map( coupon => coupon.code ) }
+					currencies={ status }
+					onClose={ closeEdit }
+				/>
+			) }
 		</Card.Root>
 	);
 }
@@ -124,5 +142,5 @@ function Coupons() {
  */
 export default function CouponsCard() {
 	const { data: status } = useStripeStatus();
-	return status?.couponsEnabled ? <Coupons /> : null;
+	return status?.couponsEnabled ? <Coupons status={ status } /> : null;
 }
