@@ -1,7 +1,7 @@
 /**
  * Internal dependencies
  */
-import { ANCHOR_DAY, bucketsForWindow } from './interval-buckets';
+import { ANCHOR_DAY, bucketsForWindow, windowDays } from './interval-buckets';
 
 /** How far the report's own session count sits above the sum of its device rows. */
 const SUMMARY_UPLIFT_SHARE = 0.07;
@@ -28,7 +28,7 @@ const sessionsPerDay = ( dayIndex: number ) =>
 export function buildSessionsByDeviceResponse( query: URLSearchParams ): unknown {
 	const buckets = bucketsForWindow( query );
 	const dayIndex = buckets[ 0 ]?.dayIndex ?? 0;
-	const sessions = sessionsPerDay( dayIndex ) * buckets.length;
+	const sessions = sessionsPerDay( dayIndex ) * windowDays( buckets );
 
 	const rows = DEVICES.map( device => ( {
 		device_type: device.device_type,

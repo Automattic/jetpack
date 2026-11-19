@@ -227,6 +227,7 @@ it( 'falls through for a path it does not own', async () => {
 describe( 'setWooReportMockState', () => {
 	afterEach( () => {
 		setWooReportMockState( 'orders/by-date', null );
+		setWooReportMockState( 'products', null );
 	} );
 
 	it( 'rejects with a 403 permission envelope for `error`', async () => {
@@ -261,8 +262,6 @@ describe( 'setWooReportMockState', () => {
 		setWooReportMockState( 'products', 'empty' );
 
 		await expect( request( '/wc/v3/products?include=18' ) ).resolves.toEqual( [] );
-
-		setWooReportMockState( 'products', null );
 	} );
 
 	it( 'never settles for `loading`', async () => {
