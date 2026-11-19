@@ -5,7 +5,9 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Constants;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-ai-skills-catalog.php';
 
@@ -88,6 +90,7 @@ class Jetpack_AI_Skills_Catalog_Test extends \WP_UnitTestCase {
 	 */
 	public function tear_down() {
 		remove_filter( 'pre_http_request', array( $this, 'stub_http' ), 10 );
+		Constants::clear_constants();
 		delete_transient( Jetpack_AI_Skills_Catalog::INDEX_TRANSIENT );
 		delete_transient( Jetpack_AI_Skills_Catalog::BODY_TRANSIENT_PREFIX . 'site-seo-audit' );
 		parent::tear_down();
@@ -143,6 +146,40 @@ class Jetpack_AI_Skills_Catalog_Test extends \WP_UnitTestCase {
 		$this->assertSame( array( 'general', 'seo' ), wp_list_pluck( $index['categories'], 'slug' ) );
 		$this->assertStringContainsString( '_fields=', $this->requests[0] );
 		$this->assertStringNotContainsString( 'content', $this->requests[0] );
+	}
+
+	/**
+	 * Each host asks the catalog for its own skills: WordPress.com sites for `wpcom` ones, the rest for `jetpack` ones.
+	 *
+	 * @dataProvider provide_hosts
+	 *
+	 * @param bool   $is_wpcom Whether the site is on WordPress.com.
+	 * @param string $host     The host whose term it should ask for.
+	 */
+	#[DataProvider( 'provide_hosts' )]
+	public function test_index_asks_for_the_hosts_skills( $is_wpcom, $host ) {
+		if ( $is_wpcom ) {
+			Constants::set_constant( 'IS_WPCOM', true );
+		}
+
+		Jetpack_AI_Skills_Catalog::get_index();
+
+		$this->assertStringContainsString(
+			'agent_skill_applies_to=' . Jetpack_AI_Skills_Catalog::HOST_TERMS[ $host ],
+			$this->requests[0]
+		);
+	}
+
+	/**
+	 * Hosts and the term each asks for.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_hosts() {
+		return array(
+			'self-hosted'   => array( false, 'jetpack' ),
+			'WordPress.com' => array( true, 'wpcom' ),
+		);
 	}
 
 	/**

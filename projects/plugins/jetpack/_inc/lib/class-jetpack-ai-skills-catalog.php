@@ -5,6 +5,8 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Status\Host;
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
 }
@@ -29,11 +31,22 @@ class Jetpack_AI_Skills_Catalog {
 	const CATALOG_HOST = 'agentskills.wordpress.com';
 
 	/**
+	 * The catalog's "Applies to" terms, by host: WordPress.com sites (Simple
+	 * and Atomic) get `wpcom` skills, self-hosted sites `jetpack` ones.
+	 *
+	 * @var int[]
+	 */
+	const HOST_TERMS = array(
+		'jetpack' => 788021843,
+		'wpcom'   => 788021842,
+	);
+
+	/**
 	 * Transient holding the index. Bump the suffix when its shape changes.
 	 *
 	 * @var string
 	 */
-	const INDEX_TRANSIENT = 'jetpack_ai_skills_index_v3';
+	const INDEX_TRANSIENT = 'jetpack_ai_skills_index_v4';
 
 	/**
 	 * Transient prefix for one skill's body.
@@ -64,7 +77,7 @@ class Jetpack_AI_Skills_Catalog {
 	const UNAVAILABLE = 'unavailable';
 
 	/**
-	 * The skill index, without bodies.
+	 * The skills that apply to this site's host, without bodies.
 	 *
 	 * @return array {
 	 *     @type array[] $categories Each with `slug` and `name`, in catalog order.
@@ -78,7 +91,8 @@ class Jetpack_AI_Skills_Catalog {
 			return $cached;
 		}
 
-		$index = self::fetch_index();
+		$host  = ( new Host() )->is_wpcom_platform() ? 'wpcom' : 'jetpack';
+		$index = self::fetch_index( self::HOST_TERMS[ $host ] );
 		set_transient(
 			self::INDEX_TRANSIENT,
 			$index ?? self::empty_index(),
@@ -131,17 +145,19 @@ class Jetpack_AI_Skills_Catalog {
 	}
 
 	/**
-	 * Fetch the index from the catalog.
+	 * Fetch the index from the catalog: the skills that apply to one host.
 	 *
+	 * @param int $host_term The host's "Applies to" term ID.
 	 * @return array|null The index, or null when the request failed.
 	 */
-	private static function fetch_index() {
+	private static function fetch_index( $host_term ) {
 		$posts = self::request(
 			'/posts',
 			array(
-				'per_page' => 100,
+				'per_page'               => 100,
+				'agent_skill_applies_to' => $host_term,
 				// Without this the API returns every skill's full body.
-				'_fields'  => 'slug,title.rendered,excerpt.rendered,categories,link,meta.agent_skill_prerequisites,meta.agent_skill_try_prompt',
+				'_fields'                => 'slug,title.rendered,excerpt.rendered,categories,link,meta.agent_skill_prerequisites,meta.agent_skill_try_prompt',
 			)
 		);
 		$terms = self::request(
