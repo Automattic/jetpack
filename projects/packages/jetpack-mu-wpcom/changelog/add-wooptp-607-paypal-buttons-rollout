@@ -1,4 +1,4 @@
 Significance: patch
 Type: added
 
-PayPal Payment Buttons: Add a percent rollout of API-managed buttons on WordPress.com, starting at 0%, with a kill switch.
+PayPal Payment Buttons: Add a percent rollout of API-managed buttons on WordPress.com, starting at 0%, with a kill switch. Live PayPal on the platform endpoints is open whatever the flag says, and the kill switch closes it.

@@ -1,6 +1,6 @@
 <?php
 /**
- * Tests for the PayPal Payment Buttons V2 rollout on WordPress.com.
+ * Tests for the PayPal API-managed buttons rollout on WordPress.com.
  *
  * @package automattic/jetpack-mu-wpcom
  */
@@ -16,8 +16,8 @@ use PHPUnit\Framework\Attributes\DataProvider;
 /**
  * Covers the precedence: kill switch, then the per-site override, then the rollout default.
  *
- * Tests run on the hooks the package bootstrap wires.
- * Tests set the percent and the kill switch themselves, so PRs that only change PERCENT or KILLED stay green.
+ * Tests run on the hooks the package bootstrap adds, and set the percent and the kill switch themselves,
+ * so they pass at any shipped PERCENT or KILLED.
  */
 class Wpcom_PayPal_Buttons_Rollout_Test extends \WorDBless\BaseTestCase {
 
@@ -32,7 +32,7 @@ class Wpcom_PayPal_Buttons_Rollout_Test extends \WorDBless\BaseTestCase {
 	const KILL_SWITCH_OPTION = 'wpcom_paypal_buttons_kill_switch';
 
 	/**
-	 * Measured buckets: crc32( 'paypal-payments-api-managed-buttons:' . $blog_id ) % 100.
+	 * Each blog's bucket: crc32( 'paypal-payments-api-managed-buttons:' . $blog_id ) % 100.
 	 */
 	const BUCKETS = array(
 		1   => 14,
@@ -156,8 +156,8 @@ class Wpcom_PayPal_Buttons_Rollout_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * A Simple site is off up to its bucket and on above it.
-	 * Runs as a subscriber and an administrator. test_precedence runs logged out. A bucket that depends on the user fails one of them.
+	 * A Simple site turns on once the percent passes its bucket.
+	 * Runs as a subscriber and an administrator, and test_precedence() runs logged out, so a bucket that depends on the user fails one of them.
 	 *
 	 * @dataProvider provide_blog_ids
 	 *
@@ -165,7 +165,7 @@ class Wpcom_PayPal_Buttons_Rollout_Test extends \WorDBless\BaseTestCase {
 	 * @param string $role    The current user's role.
 	 */
 	#[DataProvider( 'provide_blog_ids' )]
-	public function test_simple_site_is_on_above_its_bucket( $blog_id, $role ) {
+	public function test_simple_site_turns_on_once_the_percent_passes_its_bucket( $blog_id, $role ) {
 		wp_set_current_user(
 			wp_insert_user(
 				array(
@@ -188,7 +188,7 @@ class Wpcom_PayPal_Buttons_Rollout_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Data for test_simple_site_is_on_above_its_bucket().
+	 * Data for test_simple_site_turns_on_once_the_percent_passes_its_bucket().
 	 *
 	 * @return array<string, array{int, string}>
 	 */
@@ -286,7 +286,7 @@ class Wpcom_PayPal_Buttons_Rollout_Test extends \WorDBless\BaseTestCase {
 	/**
 	 * Simple and Atomic both pass PERCENT to the percent filter.
 	 */
-	public function test_rollout_follows_percent() {
+	public function test_simple_and_atomic_read_percent() {
 		$received = array();
 		add_filter(
 			'wpcom_paypal_buttons_rollout_percent',
