@@ -10,8 +10,9 @@ const mockModules = jest.fn();
 const mockConnection = jest.fn();
 let mockHasConnectionError = false;
 
-jest.mock( '@automattic/jetpack-connection/use-connection-error-notice', () => () => ( {
-	hasConnectionError: mockHasConnectionError,
+jest.mock( '@automattic/jetpack-connection', () => ( {
+	CONNECTION_STORE_ID: 'jetpack-connection',
+	useConnectionErrorNotice: () => ( { hasConnectionError: mockHasConnectionError } ),
 } ) );
 
 jest.mock( '@wordpress/data', () => ( {

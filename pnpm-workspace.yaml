@@ -95,4 +95,6 @@ patchedDependencies:
   # The patch also preloads WordPress 7.1's site-data field list. Keep that preload
   # until Jetpack's minimum WordPress version requests the @wordpress/build 0.26 list,
   # even if upstream fixes init-module handling first.
+  # It adds `wpPlugin.scriptExternals`, so a route can use a shared Jetpack script
+  # (e.g. jetpack-connection) instead of bundling its own copy; upstream only externalizes by namespace.
   "@wordpress/build": .pnpm-patches/@wordpress__build.patch

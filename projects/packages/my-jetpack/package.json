@@ -127,6 +127,12 @@
 		"scriptGlobal": "jetpackMyJetpack",
 		"packageNamespace": "jetpack-my-jetpack",
 		"handlePrefix": "jetpack-my-jetpack",
+		"scriptExternals": {
+			"@automattic/jetpack-connection": {
+				"global": "JetpackConnection",
+				"handle": "jetpack-connection"
+			}
+		},
 		"pages": [
 			{
 				"id": "my-jetpack-dashboard",

@@ -952,6 +952,11 @@ class Initializer {
 	 * @return void
 	 */
 	public static function enqueue_scripts() {
+		// The dashboard route reads @automattic/jetpack-connection from this script instead of bundling a copy.
+		if ( self::should_render_wp_build() ) {
+			wp_enqueue_script( 'jetpack-connection' );
+		}
+
 		if ( self::is_offline_features_enabled() ) {
 			$data_handle = self::DATA_SCRIPT_HANDLE;
 			wp_register_script( $data_handle, false, array(), self::PACKAGE_VERSION, true );

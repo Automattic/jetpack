@@ -7,7 +7,7 @@ settings:
 pnpmfileChecksum: sha256-1hiCL/+wKFirv0BclRIGYHDHW9b60ObkaNLbqliNL7Q=
 
 patchedDependencies:
-  '@wordpress/build': bbcac5b08698d64339f3d6ad560d14b8214f10b24f4adc5f23de9bd4fdacb72f
+  '@wordpress/build': 59229d5d129b127e9611a87604fe72d62dd9f0ff82cc741f47d58657d8dc7e86
 
 importers:
 
@@ -1902,7 +1902,7 @@ importers:
         version: 7.1.0
       '@wordpress/build':
         specifier: 0.27.0
-        version: 0.27.0(patch_hash=bbcac5b08698d64339f3d6ad560d14b8214f10b24f4adc5f23de9bd4fdacb72f)(@wordpress/theme@4.0.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))
+        version: 0.27.0(patch_hash=59229d5d129b127e9611a87604fe72d62dd9f0ff82cc741f47d58657d8dc7e86)(@wordpress/theme@4.0.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))
       '@wordpress/theme':
         specifier: 4.0.0
         version: 4.0.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
@@ -1993,7 +1993,7 @@ importers:
         version: 7.1.0
       '@wordpress/build':
         specifier: 0.27.0
-        version: 0.27.0(patch_hash=bbcac5b08698d64339f3d6ad560d14b8214f10b24f4adc5f23de9bd4fdacb72f)
+        version: 0.27.0(patch_hash=59229d5d129b127e9611a87604fe72d62dd9f0ff82cc741f47d58657d8dc7e86)
       typescript:
         specifier: 6.0.3
         version: 6.0.3
@@ -2263,7 +2263,7 @@ importers:
         version: 7.1.0
       '@wordpress/build':
         specifier: 0.27.0
-        version: 0.27.0(patch_hash=bbcac5b08698d64339f3d6ad560d14b8214f10b24f4adc5f23de9bd4fdacb72f)(@wordpress/theme@4.0.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))
+        version: 0.27.0(patch_hash=59229d5d129b127e9611a87604fe72d62dd9f0ff82cc741f47d58657d8dc7e86)(@wordpress/theme@4.0.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))
       '@wordpress/theme-build-tools':
         specifier: 1.0.0
         version: 1.0.0(@wordpress/theme@4.0.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(postcss@8.5.23)
@@ -3036,7 +3036,7 @@ importers:
         version: 7.1.0
       '@wordpress/build':
         specifier: 0.27.0
-        version: 0.27.0(patch_hash=bbcac5b08698d64339f3d6ad560d14b8214f10b24f4adc5f23de9bd4fdacb72f)(@wordpress/theme@4.0.0(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))
+        version: 0.27.0(patch_hash=59229d5d129b127e9611a87604fe72d62dd9f0ff82cc741f47d58657d8dc7e86)(@wordpress/theme@4.0.0(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))
       '@wordpress/date':
         specifier: 6.1.0
         version: 6.1.0
@@ -3381,7 +3381,7 @@ importers:
         version: 7.1.0
       '@wordpress/build':
         specifier: 0.27.0
-        version: 0.27.0(patch_hash=bbcac5b08698d64339f3d6ad560d14b8214f10b24f4adc5f23de9bd4fdacb72f)(@wordpress/theme@4.0.0(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))
+        version: 0.27.0(patch_hash=59229d5d129b127e9611a87604fe72d62dd9f0ff82cc741f47d58657d8dc7e86)(@wordpress/theme@4.0.0(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))
       '@wordpress/theme-build-tools':
         specifier: 1.0.0
         version: 1.0.0(@wordpress/theme@4.0.0(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(postcss@8.5.23)
@@ -3601,7 +3601,7 @@ importers:
         version: 7.1.0
       '@wordpress/build':
         specifier: 0.27.0
-        version: 0.27.0(patch_hash=bbcac5b08698d64339f3d6ad560d14b8214f10b24f4adc5f23de9bd4fdacb72f)
+        version: 0.27.0(patch_hash=59229d5d129b127e9611a87604fe72d62dd9f0ff82cc741f47d58657d8dc7e86)
       browserslist:
         specifier: ^4.24.0
         version: 4.28.9
@@ -3775,7 +3775,7 @@ importers:
         version: 7.1.0
       '@wordpress/build':
         specifier: 0.27.0
-        version: 0.27.0(patch_hash=bbcac5b08698d64339f3d6ad560d14b8214f10b24f4adc5f23de9bd4fdacb72f)(@wordpress/theme@4.0.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))
+        version: 0.27.0(patch_hash=59229d5d129b127e9611a87604fe72d62dd9f0ff82cc741f47d58657d8dc7e86)(@wordpress/theme@4.0.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))
       '@wordpress/theme-build-tools':
         specifier: 1.0.0
         version: 1.0.0(@wordpress/theme@4.0.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(postcss@8.5.23)
@@ -3965,7 +3965,7 @@ importers:
         version: 7.1.0
       '@wordpress/build':
         specifier: 0.27.0
-        version: 0.27.0(patch_hash=bbcac5b08698d64339f3d6ad560d14b8214f10b24f4adc5f23de9bd4fdacb72f)(@wordpress/theme@4.0.0(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))
+        version: 0.27.0(patch_hash=59229d5d129b127e9611a87604fe72d62dd9f0ff82cc741f47d58657d8dc7e86)(@wordpress/theme@4.0.0(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))
       '@wordpress/theme-build-tools':
         specifier: 1.0.0
         version: 1.0.0(@wordpress/theme@4.0.0(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(postcss@8.5.23)
@@ -4327,7 +4327,7 @@ importers:
         version: 7.1.0
       '@wordpress/build':
         specifier: 0.27.0
-        version: 0.27.0(patch_hash=bbcac5b08698d64339f3d6ad560d14b8214f10b24f4adc5f23de9bd4fdacb72f)(@wordpress/theme@4.0.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))
+        version: 0.27.0(patch_hash=59229d5d129b127e9611a87604fe72d62dd9f0ff82cc741f47d58657d8dc7e86)(@wordpress/theme@4.0.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))
       '@wordpress/theme':
         specifier: 4.0.0
         version: 4.0.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
@@ -4568,7 +4568,7 @@ importers:
         version: 15.0.0
       '@wordpress/build':
         specifier: 0.27.0
-        version: 0.27.0(patch_hash=bbcac5b08698d64339f3d6ad560d14b8214f10b24f4adc5f23de9bd4fdacb72f)(@wordpress/theme@4.0.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))
+        version: 0.27.0(patch_hash=59229d5d129b127e9611a87604fe72d62dd9f0ff82cc741f47d58657d8dc7e86)(@wordpress/theme@4.0.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))
       browserslist:
         specifier: 4.28.9
         version: 4.28.9
@@ -4683,7 +4683,7 @@ importers:
         version: 7.1.0
       '@wordpress/build':
         specifier: 0.27.0
-        version: 0.27.0(patch_hash=bbcac5b08698d64339f3d6ad560d14b8214f10b24f4adc5f23de9bd4fdacb72f)
+        version: 0.27.0(patch_hash=59229d5d129b127e9611a87604fe72d62dd9f0ff82cc741f47d58657d8dc7e86)
       browserslist:
         specifier: ^4.24.0
         version: 4.28.9
@@ -4862,7 +4862,7 @@ importers:
         version: 7.1.0
       '@wordpress/build':
         specifier: 0.27.0
-        version: 0.27.0(patch_hash=bbcac5b08698d64339f3d6ad560d14b8214f10b24f4adc5f23de9bd4fdacb72f)(@wordpress/theme@4.0.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))
+        version: 0.27.0(patch_hash=59229d5d129b127e9611a87604fe72d62dd9f0ff82cc741f47d58657d8dc7e86)(@wordpress/theme@4.0.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))
       '@wordpress/theme-build-tools':
         specifier: 1.0.0
         version: 1.0.0(@wordpress/theme@4.0.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(postcss@8.5.23)
@@ -5167,7 +5167,7 @@ importers:
         version: 7.1.0
       '@wordpress/build':
         specifier: 0.27.0
-        version: 0.27.0(patch_hash=bbcac5b08698d64339f3d6ad560d14b8214f10b24f4adc5f23de9bd4fdacb72f)(@wordpress/theme@4.0.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))
+        version: 0.27.0(patch_hash=59229d5d129b127e9611a87604fe72d62dd9f0ff82cc741f47d58657d8dc7e86)(@wordpress/theme@4.0.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))
       '@wordpress/dependency-extraction-webpack-plugin':
         specifier: 7.1.0
         version: 7.1.0(webpack@5.112.2)
@@ -5330,7 +5330,7 @@ importers:
         version: 7.1.0
       '@wordpress/build':
         specifier: 0.27.0
-        version: 0.27.0(patch_hash=bbcac5b08698d64339f3d6ad560d14b8214f10b24f4adc5f23de9bd4fdacb72f)(@wordpress/theme@4.0.0(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))
+        version: 0.27.0(patch_hash=59229d5d129b127e9611a87604fe72d62dd9f0ff82cc741f47d58657d8dc7e86)(@wordpress/theme@4.0.0(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))
       '@wordpress/theme':
         specifier: 4.0.0
         version: 4.0.0(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
@@ -5454,7 +5454,7 @@ importers:
         version: 7.1.0
       '@wordpress/build':
         specifier: 0.27.0
-        version: 0.27.0(patch_hash=bbcac5b08698d64339f3d6ad560d14b8214f10b24f4adc5f23de9bd4fdacb72f)(@wordpress/theme@4.0.0(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))
+        version: 0.27.0(patch_hash=59229d5d129b127e9611a87604fe72d62dd9f0ff82cc741f47d58657d8dc7e86)(@wordpress/theme@4.0.0(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))
       '@wordpress/theme':
         specifier: 4.0.0
         version: 4.0.0(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
@@ -5688,7 +5688,7 @@ importers:
         version: 7.1.0
       '@wordpress/build':
         specifier: 0.27.0
-        version: 0.27.0(patch_hash=bbcac5b08698d64339f3d6ad560d14b8214f10b24f4adc5f23de9bd4fdacb72f)(@wordpress/theme@4.0.0(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))
+        version: 0.27.0(patch_hash=59229d5d129b127e9611a87604fe72d62dd9f0ff82cc741f47d58657d8dc7e86)(@wordpress/theme@4.0.0(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))
       '@wordpress/theme-build-tools':
         specifier: 1.0.0
         version: 1.0.0(@wordpress/theme@4.0.0(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(postcss@8.5.23)
@@ -5791,7 +5791,7 @@ importers:
         version: 7.1.0
       '@wordpress/build':
         specifier: 0.27.0
-        version: 0.27.0(patch_hash=bbcac5b08698d64339f3d6ad560d14b8214f10b24f4adc5f23de9bd4fdacb72f)
+        version: 0.27.0(patch_hash=59229d5d129b127e9611a87604fe72d62dd9f0ff82cc741f47d58657d8dc7e86)
       jest:
         specifier: 30.5.2
         version: 30.5.2
@@ -5831,7 +5831,7 @@ importers:
         version: 7.1.0
       '@wordpress/build':
         specifier: 0.27.0
-        version: 0.27.0(patch_hash=bbcac5b08698d64339f3d6ad560d14b8214f10b24f4adc5f23de9bd4fdacb72f)(@wordpress/theme@4.0.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))
+        version: 0.27.0(patch_hash=59229d5d129b127e9611a87604fe72d62dd9f0ff82cc741f47d58657d8dc7e86)(@wordpress/theme@4.0.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))
       '@wordpress/compose':
         specifier: 9.1.0
         version: 9.1.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
@@ -6215,7 +6215,7 @@ importers:
         version: 7.1.0
       '@wordpress/build':
         specifier: 0.27.0
-        version: 0.27.0(patch_hash=bbcac5b08698d64339f3d6ad560d14b8214f10b24f4adc5f23de9bd4fdacb72f)(@wordpress/theme@4.0.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))
+        version: 0.27.0(patch_hash=59229d5d129b127e9611a87604fe72d62dd9f0ff82cc741f47d58657d8dc7e86)(@wordpress/theme@4.0.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))
       '@wordpress/i18n':
         specifier: 7.1.0
         version: 7.1.0
@@ -6612,7 +6612,7 @@ importers:
         version: 6.1.0
       '@wordpress/build':
         specifier: 0.27.0
-        version: 0.27.0(patch_hash=bbcac5b08698d64339f3d6ad560d14b8214f10b24f4adc5f23de9bd4fdacb72f)(@wordpress/theme@4.0.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))
+        version: 0.27.0(patch_hash=59229d5d129b127e9611a87604fe72d62dd9f0ff82cc741f47d58657d8dc7e86)(@wordpress/theme@4.0.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))
       '@wordpress/components':
         specifier: 44.0.0
         version: 44.0.0(@date-fns/tz@1.5.0)(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
@@ -23561,7 +23561,7 @@ snapshots:
 
   '@wordpress/browserslist-config@7.1.0': {}
 
-  '@wordpress/build@0.27.0(patch_hash=bbcac5b08698d64339f3d6ad560d14b8214f10b24f4adc5f23de9bd4fdacb72f)':
+  '@wordpress/build@0.27.0(patch_hash=59229d5d129b127e9611a87604fe72d62dd9f0ff82cc741f47d58657d8dc7e86)':
     dependencies:
       '@wordpress/browserslist-config': 7.1.0
       '@wordpress/style-runtime': 0.15.0
@@ -23585,7 +23585,7 @@ snapshots:
       - stylelint
       - vite
 
-  '@wordpress/build@0.27.0(patch_hash=bbcac5b08698d64339f3d6ad560d14b8214f10b24f4adc5f23de9bd4fdacb72f)(@wordpress/theme@4.0.0(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))':
+  '@wordpress/build@0.27.0(patch_hash=59229d5d129b127e9611a87604fe72d62dd9f0ff82cc741f47d58657d8dc7e86)(@wordpress/theme@4.0.0(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))':
     dependencies:
       '@wordpress/browserslist-config': 7.1.0
       '@wordpress/style-runtime': 0.15.0
@@ -23611,7 +23611,7 @@ snapshots:
       - stylelint
       - vite
 
-  '@wordpress/build@0.27.0(patch_hash=bbcac5b08698d64339f3d6ad560d14b8214f10b24f4adc5f23de9bd4fdacb72f)(@wordpress/theme@4.0.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))':
+  '@wordpress/build@0.27.0(patch_hash=59229d5d129b127e9611a87604fe72d62dd9f0ff82cc741f47d58657d8dc7e86)(@wordpress/theme@4.0.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))':
     dependencies:
       '@wordpress/browserslist-config': 7.1.0
       '@wordpress/style-runtime': 0.15.0

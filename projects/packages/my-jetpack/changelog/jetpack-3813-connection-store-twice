@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Dashboard: Load the shared connection script instead of bundling a second copy, so switching to another Jetpack dashboard no longer registers the connection store twice.
