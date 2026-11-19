@@ -23,7 +23,14 @@ function Inspector() {
 	// ThemeProvider themes this frame instead of adding its own wrapper div, which has no height.
 	const [ frame, setFrame ] = useState< HTMLDivElement | null >( null );
 
-	const onClose = useCallback( () => navigate( { href: '/content' } ), [ navigate ] );
+	const onClose = useCallback(
+		() =>
+			navigate( {
+				to: '/content',
+				search: { ...search, postId: undefined, postType: undefined } as never,
+			} ),
+		[ navigate, search ]
+	);
 
 	const postId = Number( search.postId );
 	if ( ! postId ) {
@@ -39,6 +46,7 @@ function Inspector() {
 					     instead of reseeding over another post's unsaved edits. */ }
 					<SeoInspector
 						key={ postId }
+						frame={ frame }
 						postId={ postId }
 						postType={ postType }
 						onClose={ onClose }

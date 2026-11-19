@@ -49,7 +49,7 @@ const SerpPreview: FC< Props > = ( { link, postTitle, customTitle, description }
 
 	return (
 		<Stack direction="column" gap="sm" className={ styles.preview }>
-			<Text variant="heading-sm" className={ styles.muted }>
+			<Text variant="heading-sm" render={ <h3 /> } className={ styles.muted }>
 				{ __( 'Search engine preview', 'jetpack-seo' ) }
 			</Text>
 			<Stack direction="column" gap="xs">

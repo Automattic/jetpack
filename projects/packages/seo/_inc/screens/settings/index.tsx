@@ -6,7 +6,7 @@ import { useEffect, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { home, link, seen } from '@wordpress/icons';
 import { useSearch } from '@wordpress/route';
-import { Button, Card, CollapsibleCard, Link, Notice, Stack, Text, Tooltip } from '@wordpress/ui';
+import { Button, Card, CollapsibleCard, Link, Notice, Stack, Text } from '@wordpress/ui';
 import clsx from 'clsx';
 import CardTitleIcon from '../../components/card-title-icon';
 import PausedNote from '../../components/paused-note';
@@ -54,7 +54,6 @@ const indexingComingSoonHelp = __(
 	'Your site is in Coming Soon mode, so search engines cannot see it yet. Launch it in your site visibility settings to change this.',
 	'jetpack-seo'
 );
-const indexingLockedTooltip = __( 'Managed in your site visibility settings', 'jetpack-seo' );
 const sitemapViewLabel = __( 'View sitemap', 'jetpack-seo' );
 const platformManagedHelp = __(
 	'This setting is managed by your hosting platform and cannot be changed here.',
@@ -305,24 +304,16 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 					<CollapsibleCard.Content>
 						<Stack direction="column" gap="lg">
 							<Stack direction="column" gap="xs">
-								{ /* A div trigger: the default button can't wrap the toggle's input. */ }
-								<Tooltip.Root disabled={ ! local.site_is_private }>
-									<Tooltip.Trigger render={ <div /> }>
-										<ToggleControl
-											label={ __( 'Allow search engines to index this site', 'jetpack-seo' ) }
-											help={ indexingHelpText }
-											checked={ local.search_engines_visible }
-											onChange={ next => commit( { search_engines_visible: next } ) }
-											// A private site is unpublished, not de-indexed. Turning this on would
-											// have to publish it, which is not this surface's decision to make.
-											disabled={ isSaving || indexnowSaving || local.site_is_private }
-											__nextHasNoMarginBottom
-										/>
-									</Tooltip.Trigger>
-									<Tooltip.Popup positioner={ <Tooltip.Positioner align="start" /> }>
-										{ indexingLockedTooltip }
-									</Tooltip.Popup>
-								</Tooltip.Root>
+								<ToggleControl
+									label={ __( 'Allow search engines to index this site', 'jetpack-seo' ) }
+									help={ indexingHelpText }
+									checked={ local.search_engines_visible }
+									onChange={ next => commit( { search_engines_visible: next } ) }
+									// A private site is unpublished, not de-indexed. Turning this on would
+									// have to publish it, which is not this surface's decision to make.
+									disabled={ isSaving || indexnowSaving || local.site_is_private }
+									__nextHasNoMarginBottom
+								/>
 								{ local.site_is_private && (
 									<Link className={ styles.toggleLink } href={ local.site_visibility_url }>
 										{ __( 'Manage site visibility', 'jetpack-seo' ) }

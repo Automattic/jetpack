@@ -2,7 +2,7 @@ import { DonutMeter } from '@automattic/jetpack-components';
 import { useCallback } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { formatListBullets } from '@wordpress/icons';
-import { Button, Card, Stack, Text, Tooltip } from '@wordpress/ui';
+import { Button, Card, Stack, Text, Tooltip, VisuallyHidden } from '@wordpress/ui';
 import CardHeaderIcon from './card-header-icon';
 import styles from './style.module.scss';
 import type { ContentCoverage } from '../../data/overview-types';
@@ -22,8 +22,7 @@ interface Props {
 
 interface RingProps {
 	label: string;
-	// Localized action for the interactive ring: describes what filtering to the
-	// unconfigured rows will show, and seeds the ring's accessible name.
+	// The action is available in the tooltip and the accessible name.
 	action: string;
 	segment: number;
 	total: number;
@@ -72,10 +71,7 @@ const CoverageRing: FC< RingProps > = ( { label, action, segment, total, need, o
 
 	const inner: ReactNode = (
 		<>
-			{ /* Chart is decorative: the interactive ring's aria-label carries the action
-			     and count, and the count/label are visible text below, so the DonutMeter
-			     and the centered percentage are aria-hidden — this also removes the
-			     DonutMeter's native SVG `<title>` tooltip, which duplicated the tooltip. */ }
+			{ /* The donut is decorative; the visible percentage and count carry its value. */ }
 			<div className={ styles.donutWrap }>
 				<DonutMeter
 					totalCount={ total }
@@ -83,14 +79,18 @@ const CoverageRing: FC< RingProps > = ( { label, action, segment, total, need, o
 					donutWidth="112px"
 					thickness="4"
 				/>
-				<span className={ styles.pct } aria-hidden="true">
+				<span className={ styles.pct } aria-hidden={ segment >= total }>
 					<Text variant="heading-lg" className={ styles.pctValue }>
 						{ percent }
 					</Text>
 				</span>
 			</div>
-			<Text variant="heading-lg">{ count }</Text>
-			<Text variant="body-sm">{ label }</Text>
+			<Text variant="heading-lg" render={ <div /> }>
+				{ count }
+			</Text>
+			<Text variant="body-sm" render={ <div /> }>
+				{ label }
+			</Text>
 		</>
 	);
 
@@ -103,26 +103,12 @@ const CoverageRing: FC< RingProps > = ( { label, action, segment, total, need, o
 		);
 	}
 
-	// The button's aria-label overrides its contents for the accessible name, so
-	// fold the count in — otherwise a screen reader hears the action but loses the
-	// coverage value the sighted user sees.
-	const accessibleName = sprintf(
-		/* translators: %1$s: the action (e.g. "Set SEO titles"); %2$d: posts with the field set; %3$d: total posts. */
-		__( '%1$s. %2$d of %3$d.', 'jetpack-seo' ),
-		action,
-		segment,
-		total
-	);
-
 	return (
 		<Tooltip.Root>
-			<Tooltip.Trigger
-				className={ styles.ringTrigger }
-				aria-label={ accessibleName }
-				onClick={ handleFilter }
-			>
+			<Tooltip.Trigger className={ styles.ringTrigger } onClick={ handleFilter }>
 				<Stack direction="column" align="center" gap="xs" className={ styles.ring }>
 					{ inner }
+					<VisuallyHidden>{ action }</VisuallyHidden>
 				</Stack>
 			</Tooltip.Trigger>
 			<Tooltip.Popup>{ action }</Tooltip.Popup>
