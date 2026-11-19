@@ -158,7 +158,7 @@ export function ParselyUpgradeCard( { enabled }: ParselyUpgradeCardProps ): JSX.
 					</Stack>
 
 					<Stack direction="column" gap="sm">
-						<Stack direction="column">
+						<div className={ styles.headline }>
 							<Text variant="heading-xl" className={ styles.metrics }>
 								{ __( '30+ audience metrics', 'jetpack-premium-analytics-pkg' ) }
 							</Text>
@@ -168,7 +168,7 @@ export function ParselyUpgradeCard( { enabled }: ParselyUpgradeCardProps ): JSX.
 									'jetpack-premium-analytics-pkg'
 								) }
 							</Text>
-						</Stack>
+						</div>
 						<Stack
 							render={ <ul /> }
 							direction="row"

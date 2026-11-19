@@ -10,7 +10,15 @@
 }
 
 .action {
-	justify-self: start;
+	justify-self: end;
+}
+
+// One line while it fits, as the narrow design draws it.
+.headline {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0 var(--wpds-dimension-gap-md);
+	align-items: baseline;
 }
 
 // Copy, metrics and the button side by side on a wide dashboard.
@@ -18,6 +26,11 @@
 
 	.content {
 		grid-template-columns: minmax(0, 2fr) minmax(0, 3fr) auto;
+	}
+
+	.headline {
+		flex-direction: column;
+		align-items: flex-start;
 	}
 }
 
