@@ -16,7 +16,9 @@ use function Automattic\Jetpack\Announcements\register_announcement;
 class Dashboard_Announcements {
 
 	/**
-	 * Channel of the dashboard: its announcements are published to it and its surface subscribes to it.
+	 * Channel every page of the dashboard subscribes to, alone and followed by `/` and its section.
+	 *
+	 * @see docs/whats-new-channels.md
 	 */
 	const CHANNEL = 'premium-analytics';
 
@@ -105,7 +107,7 @@ class Dashboard_Announcements {
 				'title'    => __( 'Arrange your tabs', 'jetpack-premium-analytics-pkg' ),
 				'excerpt'  => __( 'Reorder the dashboard tabs and choose the one that opens first.', 'jetpack-premium-analytics-pkg' ),
 				'content'  => '<p>' . esc_html__( 'Open the Stats options menu and choose Arrange tabs to reorder the tabs and to choose the one that opens first.', 'jetpack-premium-analytics-pkg' ) . '</p>',
-				'channels' => array( self::CHANNEL ),
+				'channels' => array( self::CHANNEL . '/main' ),
 			),
 		);
 	}
