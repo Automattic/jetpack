@@ -5,11 +5,7 @@ import { ButtonLink } from '@wordpress/ui';
  * Where a license key is redeemed. My Jetpack owns redemption for the
  * standalone plugins; Backup has no redemption UI of its own.
  *
- * Relative on purpose: the legacy header built this from the connection
- * store's `adminUrl`, which comes from `JPBACKUP_INITIAL_STATE` — and
- * the modernized page deliberately does not emit that. This only ever
- * renders from `admin.php`, so the browser resolves a relative path
- * against the same directory the absolute form would have produced.
+ * Relative: this only renders from `admin.php`.
  */
 const ADD_LICENSE_URL = 'admin.php?page=my-jetpack#/add-license';
 
