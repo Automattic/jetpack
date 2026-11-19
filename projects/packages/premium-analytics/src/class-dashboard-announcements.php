@@ -104,7 +104,7 @@ class Dashboard_Announcements {
 				'date'     => '2026-11-12',
 				'title'    => __( 'Arrange your tabs', 'jetpack-premium-analytics-pkg' ),
 				'excerpt'  => __( 'Reorder the dashboard tabs and choose the one that opens first.', 'jetpack-premium-analytics-pkg' ),
-				'content'  => '<p>' . esc_html__( 'Open the page options menu and choose Arrange tabs to reorder the tabs and to choose the one that opens first.', 'jetpack-premium-analytics-pkg' ) . '</p>',
+				'content'  => '<p>' . esc_html__( 'Open the Stats options menu and choose Arrange tabs to reorder the tabs and to choose the one that opens first.', 'jetpack-premium-analytics-pkg' ) . '</p>',
 				'channels' => array( self::CHANNEL ),
 			),
 		);
