@@ -185,7 +185,14 @@ function get_monthly_stats_views() {
  * @return int|null
  */
 function fetch_monthly_stats_views() {
-	$usage = ( new WPCOM_Stats() )->get_stats_usage();
+	$stats = new WPCOM_Stats();
+
+	// Another plugin can load an older jetpack-stats, whose class has no usage endpoint.
+	if ( ! method_exists( $stats, 'get_stats_usage' ) ) {
+		return null;
+	}
+
+	$usage = $stats->get_stats_usage();
 
 	if ( is_wp_error( $usage ) ) {
 		return null;
