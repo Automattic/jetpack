@@ -1,6 +1,4 @@
 import { __ } from '@wordpress/i18n';
-import { Link } from '@wordpress/route';
-import { Stack } from '@wordpress/ui';
 import RankingCard, { type RankingItem } from './ranking-card';
 import VideoTitleLink from './video-title-link';
 import type { TopVideo } from '../../types/stats';
@@ -12,15 +10,14 @@ type Props = {
 };
 
 /**
- * "Most viewed" card. Rows link to the details screen at
- * `/video/$id`; the footer "See all videos" link routes to the Library
- * tab.
+ * "Most viewed" ranking. Rows link to the details screen at
+ * `/video/$id`.
  *
  * @param props           - Component props.
  * @param props.videos    - Top videos for the active range.
  * @param props.isLoading - When true, renders skeleton rows so the card
  *                        height does not collapse.
- * @return The card element.
+ * @return The ranking.
  */
 export default function MostViewedCard( { videos, isLoading }: Props ): ReactElement {
 	const items: RankingItem[] = videos.map( v => ( {
@@ -31,18 +28,12 @@ export default function MostViewedCard( { videos, isLoading }: Props ): ReactEle
 
 	return (
 		<RankingCard
-			title={ __( 'Most viewed', 'jetpack-videopress-pkg' ) }
 			ariaLabel={ __( 'Most viewed videos', 'jetpack-videopress-pkg' ) }
 			columnHeader={ __( 'TITLE', 'jetpack-videopress-pkg' ) }
 			valueColumnHeader={ __( 'VIEWS', 'jetpack-videopress-pkg' ) }
 			items={ items }
 			isLoading={ isLoading }
 			emptyMessage={ __( 'No videos viewed in the chosen period.', 'jetpack-videopress-pkg' ) }
-			footer={
-				<Stack direction="row" justify="center" className="vp-overview__ranking-footer">
-					<Link to="/">{ __( 'See all videos', 'jetpack-videopress-pkg' ) }</Link>
-				</Stack>
-			}
 		/>
 	);
 }

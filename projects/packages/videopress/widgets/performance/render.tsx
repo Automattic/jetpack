@@ -44,6 +44,7 @@ export default function Performance( props: StatsWidgetProps ) {
 						tabIds={ KPI_TAB_IDS }
 						panelId={ TRENDS_PANEL_ID }
 					/>
+
 					<ViewsTrendsCard
 						series={ stats.series }
 						activeMetric={ activeMetric }

@@ -4,6 +4,14 @@
 	"title": "Top videos by watch time",
 	"description": "The videos your visitors spent the most time watching.",
 	"category": "stats",
-	"presentation": "full-bleed",
+	"presentation": "framed",
+	"actions": [
+		{
+			"id": "view-all",
+			"label": "See all videos",
+			"relevance": "high",
+			"href": "admin.php?page=jetpack-videopress&p=%2F"
+		}
+	],
 	"textdomain": "jetpack-videopress-pkg"
 }

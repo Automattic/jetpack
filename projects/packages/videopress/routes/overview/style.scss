@@ -114,7 +114,8 @@
 	&__performance {
 		display: flex;
 		flex-direction: column;
-		gap: 24px;
+		justify-content: space-between;
+		gap: 16px;
 	}
 
 	&__dashboard-loading {
@@ -167,10 +168,6 @@
 	&__ranking-values {
 		text-align: right;
 		font-variant-numeric: tabular-nums;
-	}
-
-	&__ranking-footer {
-		margin-top: 8px;
 	}
 
 	&__ranking-empty {

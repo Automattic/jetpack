@@ -4,6 +4,14 @@
 	"title": "Most viewed",
 	"description": "The videos your visitors viewed most often.",
 	"category": "stats",
-	"presentation": "full-bleed",
-	"textdomain": "jetpack-videopress-pkg"
+	"textdomain": "jetpack-videopress-pkg",
+	"presentation": "framed",
+	"actions": [
+		{
+			"id": "view-all",
+			"label": "See all videos",
+			"relevance": "high",
+			"href": "admin.php?page=jetpack-videopress&p=%2F"
+		}
+	]
 }
