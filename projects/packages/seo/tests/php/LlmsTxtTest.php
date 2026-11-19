@@ -261,6 +261,7 @@ class LlmsTxtTest extends SeoTestCase {
 			$wp_query->is_404          = true;
 			$wp_query->query_vars      = array( 'name' => 'llms-txt' );
 			Llms_Txt::init();
+			Llms_Txt::register_redirect_filters();
 
 			if ( 'canonical' === $redirect ) {
 				$this->assertSame( get_permalink( $post_id ), redirect_guess_404_permalink() );
@@ -319,13 +320,15 @@ class LlmsTxtTest extends SeoTestCase {
 	}
 
 	/**
-	 * Requests outside the document's serving conditions keep the proposed post redirect.
+	 * Only the normalized document path suppresses post redirects, without reading settings.
 	 *
-	 * @dataProvider provide_redirect_passthrough_states
-	 * @param string $state Request condition.
+	 * @dataProvider provide_redirect_requests
+	 * @param string       $state Request condition.
+	 * @param string       $uri Request URI.
+	 * @param string|false $expected Expected redirect destination.
 	 */
-	#[DataProvider( 'provide_redirect_passthrough_states' )]
-	public function test_post_redirect_passthrough( $state ) {
+	#[DataProvider( 'provide_redirect_requests' )]
+	public function test_post_redirect_depends_only_on_path( $state, $uri, $expected ) {
 		$original_uri    = $_SERVER['REQUEST_URI'] ?? null;
 		$original_public = get_option( 'blog_public' );
 		$conflict        = static function ( $paused ) use ( $state ) {
@@ -335,20 +338,18 @@ class LlmsTxtTest extends SeoTestCase {
 			return 'host restriction' !== $state && $allowed;
 		};
 		$unexpected      = static function () {
-			throw new \UnexpectedValueException( 'Unrelated redirect read llms.txt settings.' );
+			throw new \UnexpectedValueException( 'Redirect protection read llms.txt settings.' );
 		};
 
-		$_SERVER['REQUEST_URI'] = 'unrelated path' === $state ? '/guide/' : '/llms.txt';
+		$_SERVER['REQUEST_URI'] = $uri;
 		update_option( Llms_Txt::OPTION, 'disabled' !== $state );
 		update_option( 'blog_public', 'discouraged' === $state ? 0 : 1 );
 		add_filter( 'jetpack_disable_seo_tools', $conflict );
 		add_filter( 'jetpack_seo_llms_txt_can_serve', $host );
-		if ( 'unrelated path' === $state ) {
-			add_filter( 'pre_option_' . Llms_Txt::OPTION, $unexpected );
-		}
+		add_filter( 'pre_option_' . Llms_Txt::OPTION, $unexpected );
 
 		try {
-			$this->assertSame( 'https://example.org/guide/', Llms_Txt::preserve_llms_txt_request( 'https://example.org/guide/' ) );
+			$this->assertSame( $expected, Llms_Txt::preserve_llms_txt_request( 'https://example.org/guide/' ) );
 		} finally {
 			remove_filter( 'jetpack_disable_seo_tools', $conflict );
 			remove_filter( 'jetpack_seo_llms_txt_can_serve', $host );
@@ -363,15 +364,19 @@ class LlmsTxtTest extends SeoTestCase {
 	}
 
 	/**
-	 * @return array Requests that must retain WordPress's redirect behavior.
+	 * @return array Request conditions and their expected redirect destinations.
 	 */
-	public static function provide_redirect_passthrough_states() {
+	public static function provide_redirect_requests() {
 		return array(
-			'disabled'         => array( 'disabled' ),
-			'unrelated path'   => array( 'unrelated path' ),
-			'conflict'         => array( 'conflict' ),
-			'host restriction' => array( 'host restriction' ),
-			'discouraged'      => array( 'discouraged' ),
+			'disabled'         => array( 'disabled', '/llms.txt', false ),
+			'conflict'         => array( 'conflict', '/llms.txt', false ),
+			'host restriction' => array( 'host restriction', '/llms.txt', false ),
+			'discouraged'      => array( 'discouraged', '/llms.txt', false ),
+			'query string'     => array( 'enabled', '/llms.txt?check=1', false ),
+			'trailing slash'   => array( 'enabled', '/llms.txt/', false ),
+			'unrelated path'   => array( 'enabled', '/guide/', 'https://example.org/guide/' ),
+			'nested path'      => array( 'enabled', '/nested/llms.txt', 'https://example.org/guide/' ),
+			'similar slug'     => array( 'enabled', '/llms-txt', 'https://example.org/guide/' ),
 		);
 	}
 

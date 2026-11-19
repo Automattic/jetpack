@@ -91,6 +91,14 @@ class Llms_Txt {
 	 */
 	public static function init() {
 		add_action( 'template_redirect', array( __CLASS__, 'maybe_serve' ) );
+	}
+
+	/**
+	 * Protect the document's URL before SEO is enabled or the dashboard is visible.
+	 *
+	 * @return void
+	 */
+	public static function register_redirect_filters() {
 		add_filter( 'redirect_canonical', array( __CLASS__, 'preserve_llms_txt_request' ) );
 		add_filter( 'old_slug_redirect_url', array( __CLASS__, 'preserve_llms_txt_request' ) );
 	}
@@ -289,13 +297,13 @@ class Llms_Txt {
 	}
 
 	/**
-	 * Keep WordPress's post redirects from claiming the virtual document before it is served.
+	 * Prevent cached post redirects from outliving the document's disabled state.
 	 *
 	 * @param string|false $redirect_url The proposed redirect destination.
 	 * @return string|false
 	 */
 	public static function preserve_llms_txt_request( $redirect_url ) {
-		return self::should_serve() ? false : $redirect_url;
+		return 'llms.txt' === self::request_path() ? false : $redirect_url;
 	}
 
 	/**
@@ -304,7 +312,6 @@ class Llms_Txt {
 	 * @return bool
 	 */
 	private static function should_serve() {
-		// Match the serving gate without reading settings for unrelated redirects.
 		return 'llms.txt' === self::request_path()
 			&& self::is_enabled()
 			&& self::can_serve()
