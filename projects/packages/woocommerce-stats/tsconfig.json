@@ -6,6 +6,10 @@
 		"src/reports/**/*",
 		"src/store-performance/**/*",
 		"types/**/*",
-		"widgets/**/*"
+		"widgets/**/*",
+		// The story helpers compile against Premium Analytics source, which these declare for.
+		"../premium-analytics/types/**/*",
+		"../premium-analytics/packages/site-sync/src/jetpack-script-data.d.ts",
+		"../../js-packages/connection/declarations.d.ts"
 	]
 }
