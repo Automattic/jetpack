@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [4.9.0-beta] - 2026-11-17
+## [4.9.0] - 2026-11-19
 ### Added
 - Dashboard: Open Boost from other Jetpack dashboards without a page load when the Jetpack admin shell is on. [#54917]
 - Dashboard: Show how far along a speed test is and which step it is on, show scores as meters, and show each new score as soon as it is measured instead of waiting for the comparison test that runs without Boost. [#54357] [#54364] [#54758] [#54791]
@@ -18,7 +18,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Abilities: Set up the page cache when the set-module-status ability turns it on, report a setup failure, and pass on its notices, such as WP Super Cache being switched off. [#53558]
+- Concatenate CSS: Keep styles applied when another plugin stops one stylesheet in a bundle from loading as a stylesheet, as Trustindex review widgets 15.0 do. [#55144]
 - Connection: Let a second administrator fix a broken connection owner by connecting their own account, keep the progress indicator on screen after clicking Restore Connection, and stop showing a connection error notice for a request signature mismatch, which reconnecting rarely fixes. [#54469] [#54744]
+- Dashboard: Show the account control in Boost's header when opening Boost from My Jetpack in the Jetpack admin shell. [#55108]
 - My Jetpack: Fix the Security and Growth filters on the Features tab showing no features, the Overview showing a product's old status after a feature switch, and the Features list's checkbox colors and doubled focus rings. [#54311] [#54496] [#54608]
 - My Jetpack: Show what went wrong and let users retry when the onboarding connection to WordPress.com fails, keep the Jetpack Pro card inside phone screens, and stop the upgrade screen from briefly offering Jetpack Complete before Jetpack Pro. [#54613] [#54839] [#54841]
 
@@ -1134,7 +1136,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - First public alpha release
 
-[4.9.0-beta]: https://github.com/Automattic/jetpack-boost-production/compare/4.8.2...4.9.0-beta
+[4.9.0]: https://github.com/Automattic/jetpack-boost-production/compare/4.8.2...4.9.0
 [4.8.2]: https://github.com/Automattic/jetpack-boost-production/compare/4.8.1...4.8.2
 [4.8.1]: https://github.com/Automattic/jetpack-boost-production/compare/4.8.0...4.8.1
 [4.8.0]: https://github.com/Automattic/jetpack-boost-production/compare/4.7.1...4.8.0
