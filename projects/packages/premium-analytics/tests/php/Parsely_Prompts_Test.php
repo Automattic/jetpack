@@ -146,11 +146,12 @@ class Parsely_Prompts_Test extends BaseTestCase {
 	 */
 	private static function usage_with_views( $views ) {
 		return array(
+			'billable_monthly_views' => $views,
+			// Month-to-date, and deliberately far below the threshold: the gate must not read it.
 			'current_usage'          => array(
-				'views_count'   => $views,
+				'views_count'   => 1,
 				'days_to_reset' => 12,
 			),
-			'billable_monthly_views' => 1,
 		);
 	}
 
@@ -301,10 +302,10 @@ class Parsely_Prompts_Test extends BaseTestCase {
 	 */
 	public static function provide_unusable_usage_payloads() {
 		return array(
-			'empty'               => array( array() ),
-			'no views'            => array( array( 'current_usage' => array( 'days_to_reset' => 12 ) ) ),
-			'views not a number'  => array( array( 'current_usage' => array( 'views_count' => '150000 views' ) ) ),
-			'current usage wrong' => array( array( 'current_usage' => 'none' ) ),
+			'empty'              => array( array() ),
+			'views null'         => array( array( 'billable_monthly_views' => null ) ),
+			'views not a number' => array( array( 'billable_monthly_views' => '150000 views' ) ),
+			'views an array'     => array( array( 'billable_monthly_views' => array( 150000 ) ) ),
 		);
 	}
 

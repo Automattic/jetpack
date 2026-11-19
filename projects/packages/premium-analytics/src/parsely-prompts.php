@@ -153,7 +153,7 @@ function has_parsely_integration() {
 }
 
 /**
- * The site's views so far this billing month, or null when WordPress.com does not say.
+ * The site's billable views for a month, or null when WordPress.com does not say.
  *
  * @since $$next-version$$
  *
@@ -178,7 +178,7 @@ function get_monthly_stats_views() {
 }
 
 /**
- * Ask WordPress.com for the site's views this billing month.
+ * Ask WordPress.com for the site's billable views for a month.
  *
  * @since $$next-version$$
  *
@@ -187,11 +187,15 @@ function get_monthly_stats_views() {
 function fetch_monthly_stats_views() {
 	$usage = ( new WPCOM_Stats() )->get_stats_usage();
 
-	if ( is_wp_error( $usage ) || ! is_array( $usage['current_usage'] ?? null ) ) {
+	if ( is_wp_error( $usage ) ) {
 		return null;
 	}
 
-	$views = $usage['current_usage']['views_count'] ?? null;
+	/*
+	 * Not `current_usage.views_count`, which counts the open billing period so far: a site that
+	 * reliably clears the threshold would qualify late each month and lose it at every reset.
+	 */
+	$views = $usage['billable_monthly_views'] ?? null;
 
 	return is_numeric( $views ) ? (int) $views : null;
 }
