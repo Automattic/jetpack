@@ -155,6 +155,36 @@ const importMapUrl = id =>
 		.map( el => JSON.parse( el.textContent ).imports?.[ id ] )
 		.find( Boolean );
 
+/**
+ * Download and parse modules without evaluating them, so a later import only has to evaluate.
+ *
+ * @param {string[]} ids - Module IDs in the page's import map.
+ * @return {Promise<void>} Resolves once each has loaded or failed; the import reports a failure.
+ */
+export function preloadModules( ids ) {
+	// A browser without modulepreload would fire neither load nor error.
+	if ( ! document.createElement( 'link' ).relList?.supports?.( 'modulepreload' ) ) {
+		return Promise.resolve();
+	}
+	return Promise.all(
+		ids.map( id => {
+			const url = importMapUrl( id );
+			if ( ! url ) {
+				return null;
+			}
+			const link = Object.assign( document.createElement( 'link' ), {
+				rel: 'modulepreload',
+				href: new URL( url, location.href ).href,
+			} );
+			const loaded = new Promise( resolve => {
+				link.onload = link.onerror = resolve;
+			} ).then( () => link.remove() );
+			document.head.append( link );
+			return loaded;
+		} )
+	).then( () => undefined );
+}
+
 let bootSource;
 
 /**
@@ -217,4 +247,88 @@ export async function bootFor( slug ) {
 	} finally {
 		URL.revokeObjectURL( blobUrl );
 	}
+}
+
+// A static segment outranks a `$param`, which outranks the `$` splat, as TanStack ranks them.
+const matchRoute = ( pattern, parts ) => {
+	const score = [];
+	for ( const [ i, segment ] of pattern.entries() ) {
+		if ( segment === '$' ) {
+			return i === pattern.length - 1 ? { score, splat: true } : null;
+		}
+		if ( i >= parts.length ) {
+			return null;
+		}
+		if ( segment.startsWith( '$' ) ) {
+			score.push( 1 );
+		} else if ( segment.toLowerCase() === parts[ i ].toLowerCase() ) {
+			score.push( 2 );
+		} else {
+			return null;
+		}
+	}
+	return pattern.length === parts.length ? { score, splat: false } : null;
+};
+
+const outranks = ( a, b ) => {
+	if ( a.splat !== b.splat ) {
+		return b.splat;
+	}
+	const differs = a.score.findIndex( ( rank, i ) => rank !== b.score[ i ] );
+	return differs === -1
+		? a.score.length > b.score.length
+		: a.score[ differs ] > ( b.score[ differs ] ?? 0 );
+};
+
+/**
+ * The route boot renders for a path.
+ *
+ * @param {object[]} routes - wp-build routes, each with a `path` such as `/responses/$view`.
+ * @param {string}   path   - The path boot reads from the `p` query argument.
+ * @return {object|null} The matching route, or null when boot would show "Route not found".
+ */
+export function routeAt( routes, path ) {
+	const parts = path.split( '/' ).filter( Boolean );
+	let best = null;
+	for ( const route of routes ) {
+		const match = matchRoute( ( route.path ?? '' ).split( '/' ).filter( Boolean ), parts );
+		if ( match && ( ! best || outranks( match, best.match ) ) ) {
+			best = { route, match };
+		}
+	}
+	return best?.route ?? null;
+}
+
+const LOADERS = Symbol.for( 'jetpack-admin-shell.route-loaders' );
+
+/**
+ * Routes whose modules boot loads through `load( id )`, so the shell decides what they are evaluated with.
+ *
+ * Boot imports a route's modules by ID the first time it reaches that route. Each ID becomes a
+ * stand-in that awaits `load( id )` and re-exports what boot reads: `route`, `stage`, `inspector`, `canvas`.
+ *
+ * @param {object[]} routes - wp-build routes.
+ * @param {Function} load   - Imports a module ID and resolves to the module.
+ * @return {object[]} The routes, with stand-ins for their modules.
+ */
+export function routesLoadedBy( routes, load ) {
+	const loaders = ( globalThis[ LOADERS ] ??= [] );
+	const key = loaders.push( load ) - 1;
+	const lookup = `globalThis[ Symbol.for( ${ JSON.stringify( LOADERS.description ) } ) ][ ${ key } ]`;
+	// Never revoked: boot may first import one long after it boots, when the app reaches that route.
+	const standIn = id =>
+		URL.createObjectURL(
+			new Blob(
+				[
+					`const m = await ${ lookup }( ${ JSON.stringify( id ) } );\n`,
+					'export const { route, stage, inspector, canvas } = m;\n',
+				],
+				{ type: 'text/javascript' }
+			)
+		);
+	return routes.map( route => ( {
+		...route,
+		...( route.route_module && { route_module: standIn( route.route_module ) } ),
+		...( route.content_module && { content_module: standIn( route.content_module ) } ),
+	} ) );
 }

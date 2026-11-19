@@ -665,6 +665,8 @@ interface Window {
 					has_paid_plan_for_product: boolean;
 					has_protect_page?: boolean;
 					scan_results_url?: string;
+					host_may_sell?: boolean;
+					host_purchase_url?: string | null;
 					is_bundle: boolean;
 					is_feature: boolean;
 					is_plugin_active: boolean;

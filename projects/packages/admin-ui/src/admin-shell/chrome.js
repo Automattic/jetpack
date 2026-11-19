@@ -57,6 +57,16 @@ const highlightMenu = slug => {
 	} );
 };
 
+// A page load closes core's mobile sidebar (common.js's `wp-responsive-open`), so a switch must too.
+const closeMobileMenu = () => {
+	const wrap = document.getElementById( 'wpwrap' );
+	if ( ! wrap?.classList.contains( 'wp-responsive-open' ) ) {
+		return;
+	}
+	wrap.classList.remove( 'wp-responsive-open' );
+	document.querySelector( '#wp-admin-bar-menu-toggle a' )?.setAttribute( 'aria-expanded', 'false' );
+};
+
 /**
  * Make the chrome match the page on screen.
  *
@@ -69,6 +79,7 @@ export function updateChrome( slug, members ) {
 		document.body.classList.toggle( bodyClass, member === slug );
 	}
 	highlightMenu( slug );
+	closeMobileMenu();
 	document.title = members[ slug ].adminTitle;
 
 	// After Back/Forward, focus would keep the previous page's menu link lit.
