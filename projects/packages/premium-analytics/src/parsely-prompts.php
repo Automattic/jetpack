@@ -60,6 +60,41 @@ function register_parsely_prompts_feature_flag() {
 }
 
 /**
+ * Configures the Upgrade to Parsely prompts.
+ *
+ * @since $$next-version$$
+ *
+ * @return void
+ */
+function configure_parsely_prompts() {
+	register_parsely_prompts_feature_flag();
+	add_filter( 'jetpack_admin_js_script_data', __NAMESPACE__ . '\\inject_parsely_prompts_script_data', 20 );
+}
+
+/**
+ * Injects whether the prompts are offered into JetpackScriptData.
+ *
+ * @since $$next-version$$
+ *
+ * @param array $data The script data passed by the assets package.
+ * @return array
+ */
+function inject_parsely_prompts_script_data( array $data ): array {
+	// Script data prints on every Jetpack admin page; only the dashboard shows the prompts.
+	if ( ! Analytics::renders_dashboard() ) {
+		return $data;
+	}
+
+	if ( ! isset( $data['premium_analytics'] ) || ! is_array( $data['premium_analytics'] ) ) {
+		$data['premium_analytics'] = array();
+	}
+
+	$data['premium_analytics']['offers_parsely_prompts'] = offers_parsely_prompts();
+
+	return $data;
+}
+
+/**
  * Whether this site and user see the Upgrade to Parsely prompts.
  *
  * @since $$next-version$$

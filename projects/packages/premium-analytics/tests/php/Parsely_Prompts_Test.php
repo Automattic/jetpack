@@ -22,11 +22,15 @@ require_once __DIR__ . '/../../src/parsely-prompts.php';
  * @covers ::Automattic\Jetpack\PremiumAnalytics\has_parsely_integration
  * @covers ::Automattic\Jetpack\PremiumAnalytics\get_monthly_stats_views
  * @covers ::Automattic\Jetpack\PremiumAnalytics\register_parsely_prompts_feature_flag
+ * @covers ::Automattic\Jetpack\PremiumAnalytics\configure_parsely_prompts
+ * @covers ::Automattic\Jetpack\PremiumAnalytics\inject_parsely_prompts_script_data
  */
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\offers_parsely_prompts' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\has_parsely_integration' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\get_monthly_stats_views' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\register_parsely_prompts_feature_flag' )]
+#[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\configure_parsely_prompts' )]
+#[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\inject_parsely_prompts_script_data' )]
 class Parsely_Prompts_Test extends BaseTestCase {
 
 	/**
@@ -74,6 +78,8 @@ class Parsely_Prompts_Test extends BaseTestCase {
 		remove_all_filters( STATS_PLAN_TIER_FILTER );
 		remove_all_filters( OFFERS_PARSELY_PROMPTS_FILTER );
 		remove_all_filters( 'jetpack_fetch_stats_cache_expiration' );
+		remove_filter( 'jetpack_admin_js_script_data', __NAMESPACE__ . '\\inject_parsely_prompts_script_data', 20 );
+		unset( $_GET['page'], $GLOBALS['current_screen'] );
 		delete_option( 'parsely' );
 		wp_set_current_user( 0 );
 		\Jetpack_Options::delete_option( array( 'id', 'blog_token' ) );
@@ -288,5 +294,56 @@ class Parsely_Prompts_Test extends BaseTestCase {
 		register_parsely_prompts_feature_flag();
 
 		$this->assertSame( false, \Automattic\Jetpack\Feature_Flags\Feature_Flags::get( PARSELY_PROMPTS_FLAG )['default'] );
+	}
+
+	/**
+	 * Put the request on the dashboard page, which is the only place the key is published.
+	 */
+	private function enter_dashboard() {
+		$_GET['page'] = Analytics::MENU_PAGE_SLUG;
+		set_current_screen( 'toplevel_page_' . Analytics::MENU_PAGE_SLUG );
+	}
+
+	public function test_the_dashboard_carries_the_answer() {
+		$this->enter_dashboard();
+		$this->answer_stats_usage_with( self::usage_with_views( 150000 ) );
+
+		$data = inject_parsely_prompts_script_data( array() );
+
+		$this->assertTrue( $data['premium_analytics']['offers_parsely_prompts'] );
+	}
+
+	public function test_an_unqualified_site_carries_false() {
+		$this->enter_dashboard();
+		remove_all_filters( STATS_PLAN_TIER_FILTER );
+		add_filter( STATS_PLAN_TIER_FILTER, static fn() => STATS_TIER_FREE );
+
+		$data = inject_parsely_prompts_script_data( array() );
+
+		$this->assertFalse( $data['premium_analytics']['offers_parsely_prompts'] );
+	}
+
+	public function test_another_admin_page_carries_nothing() {
+		$_GET['page'] = 'jetpack';
+		set_current_screen( 'toplevel_page_jetpack' );
+
+		$this->assertArrayNotHasKey( 'premium_analytics', inject_parsely_prompts_script_data( array() ) );
+	}
+
+	public function test_existing_premium_analytics_data_survives() {
+		$this->enter_dashboard();
+		$this->answer_stats_usage_with( self::usage_with_views( 150000 ) );
+
+		$data = inject_parsely_prompts_script_data( array( 'premium_analytics' => array( 'csv_exports_enabled' => true ) ) );
+
+		$this->assertTrue( $data['premium_analytics']['csv_exports_enabled'] );
+		$this->assertTrue( $data['premium_analytics']['offers_parsely_prompts'] );
+	}
+
+	public function test_configure_registers_the_flag_and_the_filter() {
+		configure_parsely_prompts();
+
+		$this->assertSame( false, \Automattic\Jetpack\Feature_Flags\Feature_Flags::get( PARSELY_PROMPTS_FLAG )['default'] );
+		$this->assertSame( 20, has_filter( 'jetpack_admin_js_script_data', __NAMESPACE__ . '\\inject_parsely_prompts_script_data' ) );
 	}
 }
