@@ -42,6 +42,25 @@ export const SUGGEST_SKILL_URL = 'https://jetpack.com/contact-support/';
 export const CATALOG_URL = 'https://agentskills.wordpress.com/';
 
 /**
+ * Scroll the page back to its top: AdminPage scrolls its middle, so that
+ * scroller rather than the window, wherever it has room to scroll.
+ *
+ * @param {HTMLElement} node - An element inside the page.
+ */
+function scrollToTop( node ) {
+	const reduce = window.matchMedia?.( '(prefers-reduced-motion: reduce)' ).matches;
+	const options = { top: 0, behavior: reduce ? 'auto' : 'smooth' };
+	for ( let parent = node?.parentElement; parent; parent = parent.parentElement ) {
+		const { overflowY } = window.getComputedStyle( parent );
+		if ( /(auto|scroll)/.test( overflowY ) && parent.scrollHeight > parent.clientHeight ) {
+			parent.scrollTo( options );
+			return;
+		}
+	}
+	window.scrollTo( options );
+}
+
+/**
  * A category's skills, its leading ones first, the rest in the order given.
  *
  * @param {Array}  skills - The skills to pick from.
@@ -135,9 +154,11 @@ export default function Discover() {
 		return () => window.cancelAnimationFrame( frame );
 	}, [ openSlug ] );
 
+	// A new category starts from the top, not wherever the last one was scrolled.
 	const handleCategory = useCallback( key => {
 		setCategory( key );
 		recordAiHubEvent( EVENTS.DISCOVER_FILTERED, { category: key } );
+		scrollToTop( rootRef.current );
 	}, [] );
 
 	// A skill counts toward each category it's in.

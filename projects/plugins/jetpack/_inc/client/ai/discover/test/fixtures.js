@@ -17,7 +17,7 @@ const skill = ( slug, title, category, description, tryPrompt, also = [] ) => ( 
 
 export const SKILLS_INDEX = {
 	categories: [
-		{ slug: 'seo-aio', name: 'SEO' },
+		{ slug: 'seo-ai-search', name: 'SEO' },
 		{ slug: 'general', name: 'General' },
 		{ slug: 'content', name: 'Content' },
 		{ slug: 'marketing', name: 'Marketing' },
@@ -36,7 +36,7 @@ export const SKILLS_INDEX = {
 		skill(
 			'site-seo-audit',
 			'SEO audit',
-			'seo-aio',
+			'seo-ai-search',
 			'Audit titles, metas, and headings sitewide and fix what falls short.',
 			'Use the WordPress.com connector to run the SEO audit on example.com',
 			[ 'good-first-skills' ]
@@ -44,7 +44,7 @@ export const SKILLS_INDEX = {
 		skill(
 			'write-meta-descriptions',
 			'Write meta descriptions',
-			'seo-aio',
+			'seo-ai-search',
 			'Write a meta description for every post that lacks one.',
 			'Use the WordPress.com connector to write missing meta descriptions on example.com'
 		),

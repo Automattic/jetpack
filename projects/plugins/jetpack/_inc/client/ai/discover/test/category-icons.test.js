@@ -6,7 +6,7 @@ const SLUGS = [
 	'general',
 	'marketing',
 	'performance',
-	'seo-aio',
+	'seo-ai-search',
 	'setup-launch',
 	'site-health',
 	'writing',

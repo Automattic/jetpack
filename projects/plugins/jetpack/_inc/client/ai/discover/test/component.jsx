@@ -137,20 +137,21 @@ describe( 'Discover', () => {
 		expect( screen.getByRole( 'link', { name: /Browse the full catalog/ } ) ).toBeVisible();
 	} );
 
-	test( 'a category pill narrows the list under its heading and reports it', async () => {
+	test( 'a category pill narrows the list under its heading, scrolls up and reports it', async () => {
 		renderDiscover();
 
 		const seo = screen.getByRole( 'button', { name: /^SEO/ } );
 		await user.click( seo );
 
 		expect( seo ).toHaveAttribute( 'aria-pressed', 'true' );
+		expect( scrollSpy ).toHaveBeenCalledWith( expect.objectContaining( { top: 0 } ) );
 		expect(
 			screen.getAllByRole( 'heading', { level: 3 } ).map( node => node.textContent )
 		).toEqual( [ 'SEO2' ] );
 		expect( cards() ).toEqual( [ 'SEO audit', 'Write meta descriptions' ] );
 		expect( analytics.tracks.recordEvent ).toHaveBeenCalledWith(
 			'jetpack_ai_hub_discover_filtered',
-			expect.objectContaining( { category: 'seo-aio' } )
+			expect.objectContaining( { category: 'seo-ai-search' } )
 		);
 	} );
 

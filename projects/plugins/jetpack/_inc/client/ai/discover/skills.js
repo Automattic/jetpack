@@ -17,7 +17,7 @@ export const CATEGORY_ORDER = [
 	GOOD_FIRST,
 	'setup-launch',
 	'writing',
-	'seo-aio',
+	'seo-ai-search',
 	'accessibility',
 	'site-health',
 ];

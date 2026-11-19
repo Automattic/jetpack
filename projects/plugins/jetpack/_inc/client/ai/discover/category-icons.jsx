@@ -59,7 +59,7 @@ const CATEGORY_ICONS = {
 	general: categoryIcon,
 	marketing: megaphone,
 	performance: bolt,
-	'seo-aio': trendingUp,
+	'seo-ai-search': trendingUp,
 	'setup-launch': cog,
 	'site-health': shield,
 	writing: pencil,

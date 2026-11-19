@@ -38,7 +38,7 @@ describe( 'Discover skills', () => {
 		expect( getCatalog() ).toHaveLength( SKILLS_INDEX.skills.length );
 		expect( getSkill( 'site-seo-audit' )?.title ).toBe( 'SEO audit' );
 		expect( getSkill( 'not-a-skill' ) ).toBeUndefined();
-		expect( getCategoryName( 'seo-aio' ) ).toBe( 'SEO' );
+		expect( getCategoryName( 'seo-ai-search' ) ).toBe( 'SEO' );
 	} );
 
 	test.each( [
