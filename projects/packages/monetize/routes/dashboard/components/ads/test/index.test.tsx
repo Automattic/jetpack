@@ -18,6 +18,7 @@ let mockSimple = false;
 const renderTab = ( {
 	hasWordAds,
 	active,
+	approved = active,
 	paypal = 'me@example.com',
 	totalEarnings = 0,
 	owed = 0,
@@ -26,6 +27,7 @@ const renderTab = ( {
 }: {
 	hasWordAds: boolean;
 	active: boolean;
+	approved?: boolean;
 	paypal?: string;
 	totalEarnings?: number;
 	owed?: number;
@@ -40,7 +42,7 @@ const renderTab = ( {
 	);
 	( wpcomFetch as jest.Mock ).mockImplementation( ( { path } ) => {
 		const responses: Record< string, unknown > = {
-			'wordads/account': { approved: active, active, unsafe: false, status },
+			'wordads/account': { approved, active, unsafe: false, status },
 			'wordads/earnings': {
 				earnings: { total_earnings: totalEarnings, total_amount_owed: owed },
 			},
@@ -74,6 +76,11 @@ describe( 'Ads', () => {
 			'Simple, not the owner',
 			{ hasWordAds: true, active: false, simple: true },
 			'Only the site owner can join WordAds.',
+		],
+		[
+			'Simple, joined, ads off',
+			{ hasWordAds: true, active: false, approved: true, simple: true },
+			'Turn on ads',
 		],
 		[
 			'ads off, owed earnings',

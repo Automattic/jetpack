@@ -92,19 +92,20 @@ export function UpsellCard() {
 }
 
 /**
- * The way to start showing ads with a plan that includes them: joining on Simple (owner only), the Settings switch elsewhere.
+ * The way to start showing ads with a plan that includes them: joining on Simple (owner only), the Settings switch once joined or elsewhere.
  *
  * @param props         - Component props.
  * @param props.openTab - Opens another of the page's tabs.
  * @return The card.
  */
 export function StartCard( { openTab }: { openTab: OpenTab } ) {
-	const simple = isSimpleSite();
 	const canJoin = Boolean(
 		getSectionState< { canJoinWordAds?: boolean } >( 'ads' )?.canJoinWordAds
 	);
 	const { data: account } = useAdsAccount();
 	const join = useJoinWordAds();
+	// A Simple site that joined and then switched ads off turns them back on in Settings.
+	const mustJoin = isSimpleSite() && ! account?.approved;
 
 	const onSetUp = useCallback( () => {
 		trackAdsEvent( 'setup_click' );
@@ -118,7 +119,7 @@ export function StartCard( { openTab }: { openTab: OpenTab } ) {
 		<Card.Root>
 			<Card.Header>
 				<Card.Title render={ <h2 /> }>
-					{ simple
+					{ mustJoin
 						? __( 'Join WordAds', 'jetpack-monetize' )
 						: __( 'Start earning from ads', 'jetpack-monetize' ) }
 				</Card.Title>
@@ -139,10 +140,10 @@ export function StartCard( { openTab }: { openTab: OpenTab } ) {
 							</Notice.Description>
 						</Notice.Root>
 					) }
-					{ simple && ! canJoin && (
+					{ mustJoin && ! canJoin && (
 						<Text>{ __( 'Only the site owner can join WordAds.', 'jetpack-monetize' ) }</Text>
 					) }
-					{ simple && canJoin && (
+					{ mustJoin && canJoin && (
 						<Button
 							variant="solid"
 							onClick={ onJoin }
@@ -152,7 +153,7 @@ export function StartCard( { openTab }: { openTab: OpenTab } ) {
 							{ __( 'Join WordAds', 'jetpack-monetize' ) }
 						</Button>
 					) }
-					{ ! simple && (
+					{ ! mustJoin && (
 						<Button variant="solid" onClick={ onSetUp }>
 							{ __( 'Turn on ads', 'jetpack-monetize' ) }
 						</Button>
