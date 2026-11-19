@@ -186,6 +186,24 @@ class Parsely_Prompts_Test extends BaseTestCase {
 		$this->assertSame( 1, $this->usage_requests );
 	}
 
+	public function test_a_failed_lookup_is_retried_sooner_than_an_answer() {
+		$this->answer_stats_usage_with( new WP_Error( 'api_error', 'WordPress.com is unavailable.' ) );
+
+		offers_parsely_prompts();
+		$timeout = (int) get_option( '_transient_timeout_' . PARSELY_PROMPTS_VIEWS_TRANSIENT );
+
+		$this->assertGreaterThan( time(), $timeout );
+		$this->assertLessThanOrEqual( time() + PARSELY_PROMPTS_VIEWS_RETRY_TTL, $timeout );
+	}
+
+	public function test_a_cache_of_another_shape_is_refetched() {
+		set_transient( PARSELY_PROMPTS_VIEWS_TRANSIENT, array( 'an earlier shape' => 150000 ), PARSELY_PROMPTS_VIEWS_TTL );
+		$this->answer_stats_usage_with( self::usage_with_views( 150000 ) );
+
+		$this->assertTrue( offers_parsely_prompts() );
+		$this->assertSame( 1, $this->usage_requests );
+	}
+
 	public function test_exactly_the_threshold_offers_the_prompts() {
 		$this->answer_stats_usage_with( self::usage_with_views( 100000 ) );
 
