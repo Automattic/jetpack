@@ -44,9 +44,9 @@ if [ ! -f /var/www/html/wp-config.php ]; then
 	wp config set WP_DEBUG_DISPLAY false --raw --type=constant
 	wp config set SCRIPT_DEBUG true --raw --type=constant
 
-	# Respecting Dockerfile-forwarded environment variables
-	# Allow to be reverse-proxied from https
-	wp config set "_SERVER['HTTPS']" "isset( \$_SERVER['HTTP_X_FORWARDED_PROTO'] ) && \$_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https' ? 'on' : NULL" \
+	# WP-CLI requires a variable identifier, so preserve $_SERVER while updating HTTPS.
+	# Honor the reverse proxy's protocol before building the site URL.
+	wp config set _SERVER "array_replace( \$_SERVER, array( 'HTTPS' => isset( \$_SERVER['HTTP_X_FORWARDED_PROTO'] ) && \$_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https' ? 'on' : NULL ) )" \
 		--raw \
 		--type=variable
 
