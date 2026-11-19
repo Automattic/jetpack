@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Jetpack_Mu_Wpcom\Jetpack_AI_Hub;
 
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use WorDBless\BaseTestCase;
@@ -73,6 +74,39 @@ class Jetpack_AI_Hub_Test extends BaseTestCase {
 		$this->load_integration();
 
 		$this->assertTrue( enable_scheduled_tasks( true ) );
+	}
+
+	/**
+	 * Sticker states for the Scheduled tasks flag.
+	 *
+	 * @return array
+	 */
+	public static function provide_scheduled_tasks_stickers() {
+		return array(
+			'with the sticker'    => array( array( 'wpcom-agent-scheduled-tasks' ), true ),
+			'without the sticker' => array( array(), false ),
+		);
+	}
+
+	/**
+	 * Loading the page turns on the Scheduled tasks flag only for sticker sites.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 * @dataProvider provide_scheduled_tasks_stickers
+	 *
+	 * @param array $stickers Site stickers.
+	 * @param bool  $expected Whether the flag is on.
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	#[DataProvider( 'provide_scheduled_tasks_stickers' )]
+	public function test_scheduled_tasks_flag_follows_sticker( $stickers, $expected ) {
+		$GLOBALS['wpcom_site_stickers_test_value'] = $stickers;
+		$this->load_integration();
+
+		// phpcs:ignore WordPress.NamingConventions.ValidHookName.UseUnderscores -- the hook suffix is the registered feature flag name.
+		$this->assertSame( $expected, apply_filters( 'jetpack_feature_flag_enabled_ai-hub-scheduled-tasks', false ) );
 	}
 
 	/**
