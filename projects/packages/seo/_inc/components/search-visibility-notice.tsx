@@ -60,7 +60,7 @@ export default function SearchVisibilityNotice() {
 	const settingsUrl =
 		settings && 'site_visibility_url' in settings ? settings.site_visibility_url : undefined;
 	return (
-		<Notice.Root intent="warning" className="jetpack-seo-visibility-notice">
+		<Notice.Root intent="warning">
 			<Notice.Description>{ message }</Notice.Description>
 			<Notice.Actions>
 				<Notice.ActionLink

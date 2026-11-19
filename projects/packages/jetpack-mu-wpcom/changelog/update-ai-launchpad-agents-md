@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+Comment: AI Launchpad: add agent documentation, fix stale schema descriptions and drop an unused fixtures file.
+

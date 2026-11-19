@@ -29,6 +29,8 @@ export type CommitExactRange = (
 	options?: {
 		opensSection?: boolean;
 		lockedIntervals?: readonly LockableInterval[];
+		/** Keep the window being left in the URL, for the date control to zoom back out to. */
+		withZoomOut?: boolean;
 		/** The first day the surface's plan shows; a range starting earlier is committed unsignalled. */
 		earliestDate?: Date;
 		/** How the arrows step the range, when the widget knows: a bucket's own unit. */
@@ -49,11 +51,16 @@ export function useCommitExactRange(): CommitExactRange {
 	const raisePeriodChange = useRaisePeriodChange();
 
 	return useCallback(
-		( surface, range, { opensSection = false, lockedIntervals, earliestDate, step } = {} ) => {
+		(
+			surface,
+			range,
+			{ opensSection = false, lockedIntervals, withZoomOut = false, earliestDate, step } = {}
+		) => {
 			const patch = buildRangePatch( {
 				nextRange: range,
 				nextPresetId: PRESET_CUSTOM,
 				exactRange: true,
+				withZoomOut,
 				step,
 				effective,
 				lockedIntervals,

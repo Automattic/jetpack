@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import { act, render, screen } from 'test/test-utils';
 import Writing, { Writing as UnconnectedWriting } from '../index';
 
@@ -13,6 +14,7 @@ jest.mock( '../custom-content-types-moved', () => ( {
 jest.mock( '../post-by-email', () => () => 'Post by Email card' );
 jest.mock( '../post-by-email-moved', () => ( {
 	PostByEmailMoved: () => 'Post by Email pointer',
+	PostByEmailOnProfile: () => 'Post by Email profile pointer',
 } ) );
 jest.mock( '../theme-enhancements', () => () => <p>Infinite Scroll card</p> );
 jest.mock( '../widgets', () => () => null );
@@ -175,25 +177,52 @@ describe( 'Writing settings', () => {
 		} );
 	} );
 
-	it.each( [
-		[ 'in the tab', '' ],
-		[ 'in a search', 'post-by-email' ],
-	] )(
-		'keeps the Post by Email card, %s, for a user who cannot manage modules',
-		( _name, searchTerm ) => {
-			window.JetpackScriptData = { myJetpack: { settingsConsolidation: true } };
-			render(
-				<UnconnectedWriting
-					active
-					userCanEditPosts
-					searchTerm={ searchTerm }
-					isModuleFound={ findsOnly[ 'post-by-email' ] }
-					isModuleActivated={ isActive }
-					getActiveFeatureDetails={ noFeatureDetails }
-				/>
-			);
+	it( 'looks up custom content types once when a sibling suspends its first render', async () => {
+		let resolve;
+		const pending = new Promise( r => ( resolve = r ) );
+		let ready = false;
+		pending.then( () => ( ready = true ) );
+		const SuspendsOnce = () => {
+			if ( ! ready ) {
+				throw pending;
+			}
+			return null;
+		};
+		const getActiveFeatureDetails = jest.fn( noFeatureDetails );
 
-			expect( screen.getByText( 'Post by Email card' ) ).toBeInTheDocument();
-		}
-	);
+		render(
+			<Suspense fallback={ null }>
+				<UnconnectedWriting
+					isModuleFound={ findsNothing }
+					getActiveFeatureDetails={ getActiveFeatureDetails }
+				/>
+				<SuspendsOnce />
+			</Suspense>
+		);
+		await act( async () => resolve() );
+
+		expect( getActiveFeatureDetails ).toHaveBeenCalledTimes( 1 );
+	} );
+
+	it.each( [
+		[ 'the card, with the settings flag off', false, '', 'Post by Email card' ],
+		[ 'a pointer to their profile, with the flag on', true, '', 'Post by Email profile pointer' ],
+		[ 'that pointer in a search', true, 'post-by-email', 'Post by Email profile pointer' ],
+	] )( 'shows a user who cannot manage modules %s', ( _name, flag, searchTerm, shown ) => {
+		window.JetpackScriptData = { myJetpack: { settingsConsolidation: flag } };
+		render(
+			<UnconnectedWriting
+				active
+				userCanEditPosts
+				isPostByEmailOnProfile={ flag }
+				searchTerm={ searchTerm }
+				isModuleFound={ findsOnly[ 'post-by-email' ] }
+				isModuleActivated={ isActive }
+				getActiveFeatureDetails={ noFeatureDetails }
+			/>
+		);
+
+		const cards = [ 'Post by Email card', 'Post by Email profile pointer' ];
+		expect( cards.filter( text => screen.queryByText( text ) ) ).toEqual( [ shown ] );
+	} );
 } );

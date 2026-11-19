@@ -180,10 +180,12 @@
 		this.pane.style.top = positionTop + this.button.offsetHeight + 3 + 'px';
 
 		showNode( this.pane );
+		this.button.setAttribute( 'aria-expanded', 'true' );
 	};
 
 	MoreButton.prototype.close = function () {
 		hideNode( this.pane );
+		this.button.setAttribute( 'aria-expanded', 'false' );
 		this.openedBy = null;
 	};
 

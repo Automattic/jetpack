@@ -10,13 +10,11 @@ import { Button, Card, CollapsibleCard, Link, Notice, Stack, Text, Tooltip } fro
 import clsx from 'clsx';
 import CardTitleIcon from '../../components/card-title-icon';
 import PausedNote from '../../components/paused-note';
-import SeoPausedBanner from '../../components/seo-paused-banner';
 import StatusIndicator from '../../components/status-indicator';
-import UpsellBanner from '../../components/upsell-banner';
 import getOutput from '../../data/get-output';
-import { isGated } from '../../data/is-gated';
 import isVerificationSwitchable from '../../data/is-verification-switchable';
 import AuthorProfileCard from './author-profile-card';
+import IndexnowSettings from './indexnow-settings';
 import SchemaCard from './schema-card';
 import SocialPreviewsCard from './social-previews-card';
 import styles from './style.module.scss';
@@ -91,7 +89,7 @@ interface Props {
 }
 
 interface SeoHostingData {
-	seo?: { hosting_options_url?: string };
+	seo?: { hosting_options_url?: string; indexnow_available?: boolean };
 }
 
 type SettingsSearch = Record< string, unknown > & { focus?: string };
@@ -108,6 +106,7 @@ type SettingsSearch = Record< string, unknown > & { focus?: string };
  * @return The Settings tab content.
  */
 const SettingsScreen: FC< Props > = ( { form } ) => {
+	const [ indexnowSaving, setIndexnowSaving ] = useState( false );
 	const {
 		local,
 		isSaving,
@@ -215,17 +214,8 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 		? canonicalHelp
 		: platformManagedHelp;
 
-	// On plan-gated sites (below-Premium WordPress.com) the Settings tab keeps only
-	// the two always-valid sections (site visibility + verification, both backed by
-	// core WordPress options) topped with the upsell banner. Schema, author profile,
-	// canonical URLs, title structure and social previews are paid surfaces, hidden
-	// here. The front-page description is the one exception: a site that set it back
-	// when it was free for all WordPress.com Simple sites keeps editing it even when
-	// gated (the value stays live), so its card is shown below in that case too.
-	const gated = isGated();
-
 	// Jetpack's SEO output is paused, so the fields that feed it are locked. That
-	// includes a gated site's grandfathered description: Jetpack stops printing it too.
+	// includes the legacy description: Jetpack stops printing it too.
 	const outputLocked = getOutput().paused;
 	if ( outputLocked ) {
 		frontPageStatus = 'paused';
@@ -295,7 +285,6 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 
 	return (
 		<Stack direction="column" gap="lg" className={ styles.root }>
-			<SeoPausedBanner />
 			<div id="visibility" className={ styles.section }>
 				<CollapsibleCard.Root defaultOpen>
 					<CollapsibleCard.Header render={ <h2 /> }>
@@ -323,7 +312,7 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 											onChange={ next => commit( { search_engines_visible: next } ) }
 											// A private site is unpublished, not de-indexed. Turning this on would
 											// have to publish it, which is not this surface's decision to make.
-											disabled={ isSaving || local.site_is_private }
+											disabled={ isSaving || indexnowSaving || local.site_is_private }
 											__nextHasNoMarginBottom
 										/>
 									</Tooltip.Trigger>
@@ -347,6 +336,7 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 									disabled={
 										simpleSite ||
 										isSaving ||
+										indexnowSaving ||
 										! local.search_engines_visible ||
 										! local.sitemap_switchable
 									}
@@ -373,6 +363,9 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 									</Link>
 								) }
 							</Stack>
+							{ ( getScriptData() as SeoHostingData )?.seo?.indexnow_available === true && (
+								<IndexnowSettings isSaving={ isSaving } onSavingChange={ setIndexnowSaving } />
+							) }
 						</Stack>
 					</CollapsibleCard.Content>
 				</CollapsibleCard.Root>
@@ -399,67 +392,61 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 				/>
 			</div>
 
-			{ ! gated && (
-				<>
-					{ /* Container for the site-level schema controls delivered by later
+			{ /* Container for the site-level schema controls delivered by later
 				   issues. Own `id` so it can be deep-linked like `#verification`. */ }
-					<div id="schema" className={ styles.section }>
-						<SchemaCard
-							initialSettings={ local.schema }
-							onSave={ setSchemaSettings }
-							disabled={ outputLocked }
-						/>
-					</div>
+			<div id="schema" className={ styles.section }>
+				<SchemaCard
+					initialSettings={ local.schema }
+					onSave={ setSchemaSettings }
+					disabled={ outputLocked }
+				/>
+			</div>
 
-					{ /* The signed-in user's Person / ProfilePage schema source — per-user,
+			{ /* The signed-in user's Person / ProfilePage schema source — per-user,
 				   unlike the site-level Schema card above. */ }
-					<div id="author-profile" className={ styles.section }>
-						<AuthorProfileCard disabled={ outputLocked } />
-					</div>
+			<div id="author-profile" className={ styles.section }>
+				<AuthorProfileCard disabled={ outputLocked } />
+			</div>
 
-					<CollapsibleCard.Root defaultOpen={ false }>
-						<CollapsibleCard.Header render={ <h2 /> }>
-							<Stack direction="row" justify="space-between" align="center" gap="sm">
-								<Card.Title>
-									<CardTitleIcon icon={ link } title={ __( 'Canonical URLs', 'jetpack-seo' ) } />
-								</Card.Title>
-								<CollapsibleCard.HeaderDescription>
-									<StatusIndicator status={ canonicalStatus } />
-								</CollapsibleCard.HeaderDescription>
-							</Stack>
-						</CollapsibleCard.Header>
-						<CollapsibleCard.Content>
-							<Stack direction="column" gap="md">
-								{ local.canonical_conflicted && <PausedNote /> }
-								<ToggleControl
-									label={ __( 'Add canonical URLs to archive pages', 'jetpack-seo' ) }
-									help={ canonicalHelpText }
-									checked={ local.canonical_active }
-									onChange={ next => commit( { canonical_active: next } ) }
-									disabled={
-										isSaving || ! local.canonical_switchable || local.canonical_conflicted
-									}
-									__nextHasNoMarginBottom
-								/>
-							</Stack>
-						</CollapsibleCard.Content>
-					</CollapsibleCard.Root>
+			<CollapsibleCard.Root defaultOpen={ false }>
+				<CollapsibleCard.Header render={ <h2 /> }>
+					<Stack direction="row" justify="space-between" align="center" gap="sm">
+						<Card.Title>
+							<CardTitleIcon icon={ link } title={ __( 'Canonical URLs', 'jetpack-seo' ) } />
+						</Card.Title>
+						<CollapsibleCard.HeaderDescription>
+							<StatusIndicator status={ canonicalStatus } />
+						</CollapsibleCard.HeaderDescription>
+					</Stack>
+				</CollapsibleCard.Header>
+				<CollapsibleCard.Content>
+					<Stack direction="column" gap="md">
+						{ local.canonical_conflicted && <PausedNote /> }
+						<ToggleControl
+							label={ __( 'Add canonical URLs to archive pages', 'jetpack-seo' ) }
+							help={ canonicalHelpText }
+							checked={ local.canonical_active }
+							onChange={ next => commit( { canonical_active: next } ) }
+							disabled={ isSaving || ! local.canonical_switchable || local.canonical_conflicted }
+							__nextHasNoMarginBottom
+						/>
+					</Stack>
+				</CollapsibleCard.Content>
+			</CollapsibleCard.Root>
 
-					<TitleStructureField
-						formats={ local.title_formats }
-						onChange={ ( pageType, next ) =>
-							setField( { title_formats: { ...local.title_formats, [ pageType ]: next } } )
-						}
-						onSaveFormat={ pageType => commitTitleFormat( pageType ) }
-						isFormatDirty={ pageType => isTitleFormatDirty( pageType ) }
-						titleSeparator={ local.title_separator }
-						editable={ ! outputLocked }
-						disabled={ isSaving }
-					/>
+			<TitleStructureField
+				formats={ local.title_formats }
+				onChange={ ( pageType, next ) =>
+					setField( { title_formats: { ...local.title_formats, [ pageType ]: next } } )
+				}
+				onSaveFormat={ pageType => commitTitleFormat( pageType ) }
+				isFormatDirty={ pageType => isTitleFormatDirty( pageType ) }
+				titleSeparator={ local.title_separator }
+				editable={ ! outputLocked }
+				disabled={ isSaving }
+			/>
 
-					{ frontPageDescriptionCard }
-				</>
-			) }
+			{ frontPageDescriptionCard }
 
 			<SocialPreviewsCard
 				description={ local.front_page_description }
@@ -471,19 +458,6 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 				onImageChange={ image => commit( { default_share_image: image } ) }
 				disabled={ isSaving || outputLocked }
 			/>
-
-			{ /* Grandfathered exception: a gated site that kept a front-page description
-			   from the era it was free for all Simple sites keeps editing that one
-			   field — the value is still live, and the platform still reads/writes it. */ }
-			{ gated && local.has_legacy_front_page_meta && (
-				<div id="front-page-description" className={ styles.section }>
-					{ frontPageDescriptionCard }
-				</div>
-			) }
-
-			{ /* Not dismissible, so it sits below the settings rather than pushing them
-			   down; the Stack's lg gap keeps space between it and the last section. */ }
-			{ gated && <UpsellBanner /> }
 		</Stack>
 	);
 };

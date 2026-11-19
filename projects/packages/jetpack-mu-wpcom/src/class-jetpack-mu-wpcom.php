@@ -141,6 +141,8 @@ class Jetpack_Mu_Wpcom {
 		// A lightweight My Jetpack page for Simple, which steps aside wherever the real My Jetpack registers.
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_my_jetpack' ) );
+			// Elsewhere load-jetpack.php starts the admin shell, and Simple never loads that file.
+			add_action( 'plugins_loaded', array( __CLASS__, 'load_admin_shell' ) );
 		}
 
 		// At mu-plugin scope, because the Jetpack plugin can resolve these filters before plugins_loaded loads the pages.
@@ -148,6 +150,7 @@ class Jetpack_Mu_Wpcom {
 			add_filter( 'jetpack_backup_dashboard_enabled', array( \Automattic\Jetpack\Jetpack_Mu_Wpcom\WPCOM_Backup::class, 'filter_jetpack_backup_dashboard' ) );
 			add_filter( 'jetpack_get_available_modules', array( \Automattic\Jetpack\Jetpack_Mu_Wpcom\WPCOM_Scan::class, 'filter_available_modules' ) );
 			add_filter( 'jetpack_feature_upgrade', array( \Automattic\Jetpack\Jetpack_Mu_Wpcom\WPCOM_Feature_Upgrades::class, 'filter_feature_upgrade' ), 10, 3 );
+			add_filter( 'jetpack_my_jetpack_plan_urls', array( \Automattic\Jetpack\Jetpack_Mu_Wpcom\WPCOM_Feature_Upgrades::class, 'filter_plan_urls' ) );
 			// WoA runs a platform firewall, which is why Jetpack's stays off there.
 			add_filter( 'jetpack_protect_firewall_provided_by_host', '__return_true' );
 			// WoA sites should list threats, but not announce them.
@@ -162,7 +165,7 @@ class Jetpack_Mu_Wpcom {
 			add_filter( 'jetpack_protect_threat_ignoring_enabled', '__return_false' );
 		}
 
-		// Premium Analytics offers the Ads tab on Simple and Atomic sites whose plan includes WordAds and that have it on.
+		// Premium Analytics offers the Ads tab on Simple and Atomic sites that have WordAds on.
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_premium_analytics_wordads_section' ) );
 
 		// Premium Analytics seeds the Top videos widget wherever the plan includes VideoPress, on Simple and Atomic.
@@ -428,6 +431,7 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/layout-grid-usage-tracking/layout-grid-usage-tracking.php';
 		require_once __DIR__ . '/features/logo-tool/logo-tool.php';
 		require_once __DIR__ . '/features/marketplace-products-updater/class-marketplace-products-updater.php';
+		require_once __DIR__ . '/features/media/ai-marker-image-editor.php';
 		require_once __DIR__ . '/features/media/heif-support.php';
 		if ( Constants::is_true( 'IS_ATOMIC' ) ) {
 			require_once __DIR__ . '/features/plugin-conflicts-guardian/plugin-conflicts-guardian.php';
@@ -862,6 +866,21 @@ class Jetpack_Mu_Wpcom {
 	}
 
 	/**
+	 * Whether Jetpack Comments handles the current blog's comments.
+	 *
+	 * @param bool $enabled Whether Jetpack Comments is enabled.
+	 * @return bool
+	 */
+	public static function jetpack_comments_enabled_for_blog( $enabled ) {
+		static $by_blog = array();
+
+		$blog_id               = get_current_blog_id();
+		$by_blog[ $blog_id ] ??= ! self::should_disable_comment_experience( $blog_id );
+
+		return $enabled && $by_blog[ $blog_id ];
+	}
+
+	/**
 	 * Load Verbum Comments.
 	 */
 	public static function load_verbum_comments() {
@@ -888,6 +907,7 @@ class Jetpack_Mu_Wpcom {
 			}
 
 			if ( \Automattic\Jetpack\Comments\Comments::is_enabled() ) {
+				add_filter( 'jetpack_comments_enabled', array( __CLASS__, 'jetpack_comments_enabled_for_blog' ) );
 				\Automattic\Jetpack\Comments\Comments::init();
 				return;
 			}
@@ -951,6 +971,24 @@ class Jetpack_Mu_Wpcom {
 	}
 
 	/**
+	 * Start the Jetpack admin shell, which stays inert until its `jetpack-admin-shell` flag is on.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return void
+	 */
+	public static function load_admin_shell() {
+		// Admin UI ships with Jetpack, and an older copy may predate the shell.
+		if ( ! method_exists( \Automattic\Jetpack\Admin_UI\Admin_Shell::class, 'init' ) || ! method_exists( \Automattic\Jetpack\Admin_UI\Admin_Shell::class, 'register_feature_flag' ) ) {
+			return;
+		}
+
+		\Automattic\Jetpack\Admin_UI\Admin_Shell::register_feature_flag();
+		// Not left to Admin_Menu: admin-ajax requests never build the menu, and the guest endpoint lives there.
+		\Automattic\Jetpack\Admin_UI\Admin_Shell::init();
+	}
+
+	/**
 	 * Load Odyssey Stats in Simple sites.
 	 */
 	public static function load_wpcom_simple_odyssey_stats() {
@@ -958,7 +996,7 @@ class Jetpack_Mu_Wpcom {
 	}
 
 	/**
-	 * Register the Ads tab of the Premium Analytics dashboard where the plan includes WordAds and it is on.
+	 * Register the Ads tab of the Premium Analytics dashboard where WordAds is on.
 	 *
 	 * Hooks the dashboard's registry action, which only fires once the package boots, so this
 	 * is inert on a site without the dashboard.
@@ -1305,7 +1343,7 @@ class Jetpack_Mu_Wpcom {
 	 * Resolve the WP.com blog ID for a logstash record.
 	 *
 	 * `get_wpcom_blog_id()` falls back to `get_current_blog_id()` on Atomic
-	 * when `jetpack_options['id']` isn't readable — that returns `1` on a
+	 * when the WP.com blog ID isn't readable — that returns `1` on a
 	 * single-site install, which is a valid-looking but wrong WP.com blog ID
 	 * and makes log records impossible to attribute. Emit `0` instead when
 	 * the real WP.com blog ID is unknown, so the gap is obvious in Kibana.
@@ -1317,9 +1355,12 @@ class Jetpack_Mu_Wpcom {
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			return (int) get_current_blog_id();
 		}
-		// Atomic / connected Jetpack: the WP.com blog ID lives in the
-		// `jetpack_options` option. Read it directly (no `Jetpack_Options`
-		// dependency) and return 0 — never the local blog ID — when absent.
+		// Atomic / connected Jetpack: `Jetpack_Options` reads the platform's
+		// external storage, then the `jetpack_options` row. It returns false
+		// when both lack the ID, and the cast gives 0 — never the local blog ID.
+		if ( class_exists( 'Jetpack_Options' ) ) {
+			return (int) \Jetpack_Options::get_option( 'id' );
+		}
 		$jetpack_options = get_option( 'jetpack_options' );
 		if ( is_array( $jetpack_options ) && ! empty( $jetpack_options['id'] ) ) {
 			return (int) $jetpack_options['id'];

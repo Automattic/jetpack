@@ -9,6 +9,7 @@ import { getBlockThemeMigration } from '../../../utils/block-theme-migration';
 import { getProtectPageUrl } from '../../../utils/protect-page';
 import { isSettingsConsolidationEnabled } from '../../../utils/settings-consolidation';
 import { getLeavingLinkLabel } from '../../../utils/settings-link-label';
+import { useSettingsPanelTracking } from '../../settings-panel/use-settings-panel-tracking';
 import { FeatureAction } from './feature-action';
 import { FeatureIcon } from './feature-icon';
 import { FeatureInstallNotice } from './feature-install-notice';
@@ -29,7 +30,7 @@ import { getDeprecatedModules } from './use-more-features';
 import type { FeatureState } from './feature-state';
 import type { FeatureActionOrigin } from './features-tracking-context';
 import type { MyJetpackModule } from '../../../types';
-import type { ReactNode } from 'react';
+import type { MouseEvent, ReactNode } from 'react';
 
 /**
  * The module's settings link, unless all it would lead to is the switch the card already has.
@@ -82,11 +83,24 @@ export function opensInSettingsPanel( url: string ): boolean {
  */
 function PanelConfigureLink( { slug, name }: { slug: string; name: string } ) {
 	const [ searchParams ] = useSearchParams();
+	const { trackPanelOpen } = useSettingsPanelTracking( slug );
+	const isOpen = searchParams.get( 'configure' ) === slug;
+	const onClick = useCallback(
+		( event: MouseEvent ) => {
+			// A modified click opens a new tab, which records its own deep-link open.
+			const modified = event.metaKey || event.ctrlKey || event.shiftKey || event.altKey;
+			if ( ! isOpen && ! modified ) {
+				trackPanelOpen( 'configure-link' );
+			}
+		},
+		[ isOpen, trackPanelOpen ]
+	);
 	const next = new URLSearchParams( searchParams );
 	next.set( 'configure', slug );
 
 	return (
 		<Link
+			onClick={ onClick }
 			render={ <RouterLink to={ { search: `?${ next }` } } replace /> }
 			aria-label={ sprintf(
 				/* translators: %s is the feature name. */

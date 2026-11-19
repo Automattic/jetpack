@@ -29,7 +29,7 @@ function configure_assets_url() {
  * @return array
  */
 function inject_assets_url_script_data( array $data ): array {
-	if ( ! Analytics::is_dashboard_request() ) {
+	if ( ! Analytics::renders_dashboard() ) {
 		return $data;
 	}
 

@@ -81,7 +81,6 @@ class Connection_Abilities extends Registrar {
 			),
 			'input_schema'        => array(
 				'type'                 => 'object',
-				'properties'           => new \stdClass(),
 				'additionalProperties' => false,
 			),
 			'output_schema'       => array(
@@ -103,6 +102,7 @@ class Connection_Abilities extends Registrar {
 					'destructive' => false,
 					'idempotent'  => true,
 				),
+				'public'       => true,
 				'show_in_rest' => true,
 				'mcp'          => array(
 					'public' => true,

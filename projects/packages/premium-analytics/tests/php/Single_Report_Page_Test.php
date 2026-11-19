@@ -121,6 +121,7 @@ class Single_Report_Page_Test extends BaseTestCase {
 		$this->assertSame(
 			array(
 				'id'                => 'example/video',
+				'entity'            => null,
 				'path'              => 'video',
 				'label'             => 'Video',
 				'dashboard_section' => null,
@@ -356,6 +357,154 @@ class Single_Report_Page_Test extends BaseTestCase {
 				null,
 				null,
 			),
+		);
+	}
+
+	public function test_a_post_type_entity_derives_the_page_from_the_post_type() {
+		$page = register_single_report_page(
+			DASHBOARD_NAME,
+			'analytics/page',
+			array(
+				'entity' => array(
+					'kind' => 'postType',
+					'name' => 'page',
+				),
+				'icon'   => 'jpa/page',
+			)
+		);
+
+		$record = $page->to_array();
+
+		$this->assertSame(
+			array(
+				'kind' => 'postType',
+				'name' => 'page',
+			),
+			$record['entity']
+		);
+		$this->assertSame( 'page', $record['path'] );
+		$this->assertSame( get_post_type_object( 'page' )->labels->singular_name, $record['label'] );
+		$this->assertSame( 'post_id', $record['scope_param'] );
+		$this->assertSame( '^[1-9]\d*$', $record['id_pattern'] );
+		$this->assertSame( 'posts', $record['reports_page'] );
+		$this->assertSame( 'jetpack-premium-analytics/page-detail', $record['preferences_scope'] );
+
+		$this->set_admin_user();
+		$this->assertTrue( $page->is_available() );
+	}
+
+	public function test_a_post_type_entity_keeps_an_explicit_path() {
+		$page = register_single_report_page(
+			DASHBOARD_NAME,
+			'analytics/page',
+			array(
+				'entity' => array(
+					'kind' => 'postType',
+					'name' => 'page',
+				),
+				'path'   => 'clip',
+			)
+		);
+
+		$this->assertSame( 'clip', $page->path );
+		$this->assertSame( 'jetpack-premium-analytics/clip-detail', $page->preferences_scope );
+		$this->assertSame( 'posts', $page->reports_page );
+	}
+
+	public function test_the_record_keeps_a_valid_entity_and_drops_the_rest() {
+		$kept    = register_single_report_page(
+			DASHBOARD_NAME,
+			'example/author',
+			array(
+				'entity' => array(
+					'kind'  => 'root',
+					'name'  => 'user',
+					'key'   => 'id',
+					'extra' => 'no',
+				),
+			)
+		)->to_array();
+		$dropped = register_single_report_page(
+			DASHBOARD_NAME,
+			'example/video',
+			array(
+				'entity' => array( 'kind' => 'postType' ),
+			)
+		)->to_array();
+
+		$this->assertSame(
+			array(
+				'kind' => 'root',
+				'name' => 'user',
+				'key'  => 'id',
+			),
+			$kept['entity']
+		);
+		$this->assertNull( $kept['reports_page'] );
+		$this->assertNull( $dropped['entity'] );
+	}
+
+	public function test_an_unknown_post_type_entity_derives_nothing() {
+		$page = register_single_report_page(
+			DASHBOARD_NAME,
+			'example/not-a-type',
+			array(
+				'entity' => array(
+					'kind' => 'postType',
+					'name' => 'not-a-type',
+				),
+			)
+		);
+
+		$this->assertSame( 'not-a-type', $page->path );
+		$this->assertSame( 'example/not-a-type', $page->label );
+		$this->assertNull( $page->reports_page );
+	}
+
+	/**
+	 * @param bool  $show_in_rest Whether the page's post type is registered in REST.
+	 * @param array $args         The page arguments besides `entity`.
+	 * @param bool  $expected     Whether the page is offered.
+	 *
+	 * @dataProvider provide_post_type_page_availability
+	 */
+	#[DataProvider( 'provide_post_type_page_availability' )]
+	public function test_a_post_type_page_needs_its_type_in_rest_unless_it_declares_its_own_rule( $show_in_rest, $args, $expected ) {
+		register_post_type( 'jpa-type', array( 'show_in_rest' => $show_in_rest ) );
+
+		try {
+			$page = register_single_report_page(
+				DASHBOARD_NAME,
+				'example/jpa-type',
+				array_merge(
+					array(
+						'entity' => array(
+							'kind' => 'postType',
+							'name' => 'jpa-type',
+						),
+					),
+					$args
+				)
+			);
+
+			$this->set_admin_user();
+
+			$this->assertSame( $expected, $page->is_available() );
+		} finally {
+			unregister_post_type( 'jpa-type' );
+		}
+	}
+
+	/**
+	 * A post type in or outside REST, the page's own rule if any, and whether the page is offered.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_post_type_page_availability() {
+		return array(
+			'in REST'                    => array( true, array(), true ),
+			'outside REST'               => array( false, array(), false ),
+			'outside REST, its own rule' => array( false, array( 'is_available' => '__return_true' ), true ),
 		);
 	}
 

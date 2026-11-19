@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+AI: Stop the AI page from adding REST request settings that also applied to other Jetpack pages loaded alongside it.

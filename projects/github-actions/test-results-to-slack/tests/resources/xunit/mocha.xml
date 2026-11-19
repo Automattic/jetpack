@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="Mocha Tests" tests="1" failures="1" errors="0" skipped="0">
+	<testcase classname="Calculator" name="adds numbers" time="0.001"><failure>expected 4 to equal 3
+AssertionError: expected 4 to equal 3</failure></testcase>
+</testsuite>

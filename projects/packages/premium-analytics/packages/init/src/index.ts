@@ -4,6 +4,7 @@
 import { getScriptData } from '@automattic/jetpack-script-data';
 import { loadI18nCatalogs } from '@automattic/jetpack-wp-build-polyfills/src/js/load-i18n-catalogs';
 import { ensureDashboardEntities } from '@jetpack-premium-analytics/data';
+import { installGlobalErrorHandlers } from '@jetpack-premium-analytics/error-reporting';
 import { registerFieldTypes } from '@jetpack-premium-analytics/fields';
 import { resolveWidgetIcon } from '@jetpack-premium-analytics/icons';
 import apiFetch from '@wordpress/api-fetch';
@@ -45,6 +46,8 @@ function setupApiFetch(): void {
  * Runs before routes render.
  */
 export async function init(): Promise< void > {
+	installGlobalErrorHandlers();
+
 	// Kick off the JS translation catalog downloads first (async), then do the
 	// synchronous setup in parallel while they're in flight.
 	const catalogs = loadI18nCatalogs( 'jetpack-premium-analytics-pkg', import.meta.url );

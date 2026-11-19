@@ -124,8 +124,23 @@ export function trackPaymentsEvent(
 		| 'plan_save'
 		| 'plan_delete'
 		| 'free_tier_edit_click'
-		| 'free_tier_update',
+		| 'free_tier_update'
+		| 'coupon_save'
+		| 'coupon_delete',
 	properties: Record< string, unknown > = {}
 ) {
 	record( `jetpack_monetize_payments_${ action }`, properties );
+}
+
+/**
+ * Record an action on the Paid subscribers tab.
+ *
+ * @param action     - What was done, e.g. `cancel`.
+ * @param properties - Event properties.
+ */
+export function trackSubscribersEvent(
+	action: 'cancel' | 'details_view' | 'export_click' | 'stripe_click',
+	properties: Record< string, unknown > = {}
+) {
+	record( `jetpack_monetize_subscribers_${ action }`, properties );
 }

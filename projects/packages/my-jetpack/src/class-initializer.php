@@ -202,6 +202,7 @@ class Initializer {
 
 		// Answer "is this product on?" for admin menu registration.
 		Menu_Visibility::init();
+		Turned_Off_Page::init();
 
 		self::register_settings_panel_urls();
 
@@ -1058,6 +1059,7 @@ class Initializer {
 				'myJetpackFlags'         => self::get_my_jetpack_flags(),
 				'fileSystemWriteAccess'  => self::has_file_system_write_access(),
 				'loadAddLicenseScreen'   => self::is_licensing_ui_enabled(),
+				'planUrls'               => self::get_plan_urls(),
 				'adminUrl'               => esc_url( admin_url() ),
 				'assetsUrl'              => self::get_assets_url(),
 				'IDCContainerID'         => static::get_idc_container_id(),
@@ -1124,6 +1126,43 @@ class Initializer {
 			// `connector` names the connection package's card, which opens its details for it.
 			'connectorsUrl' => file_exists( ABSPATH . 'wp-admin/options-connectors.php' ) ? admin_url( 'options-connectors.php?connector=wordpress_com' ) : null,
 		);
+	}
+
+	/**
+	 * Where a host sends the plan links, in place of Jetpack's own checkout and purchases.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return array{purchase: string|false, manage: string|false} An empty string keeps Jetpack's own link; false hides the link.
+	 */
+	public static function get_plan_urls() {
+		$plan_urls = array(
+			'purchase' => '',
+			'manage'   => '',
+		);
+
+		/**
+		 * Filters where My Jetpack's "Purchase a plan" and "Manage your plan" links go, for a host that sells its own plans.
+		 *
+		 * An answer that is neither an http or https URL nor false is discarded, keeping Jetpack's own link.
+		 *
+		 * @since $$next-version$$
+		 * @param array{purchase: string|false, manage: string|false} $plan_urls The URL of each link; an empty string keeps Jetpack's own, and false hides the link.
+		 */
+		$filtered = apply_filters( 'jetpack_my_jetpack_plan_urls', $plan_urls );
+		$filtered = is_array( $filtered ) ? $filtered : array();
+
+		foreach ( array_keys( $plan_urls ) as $link ) {
+			$answer = $filtered[ $link ] ?? null;
+
+			if ( is_string( $answer ) ) {
+				$plan_urls[ $link ] = esc_url_raw( $answer, array( 'http', 'https' ) );
+			} elseif ( false === $answer ) {
+				$plan_urls[ $link ] = false;
+			}
+		}
+
+		return $plan_urls;
 	}
 
 	/**
@@ -1329,6 +1368,7 @@ class Initializer {
 	 */
 	public static function add_admin_script_data( $data ) {
 		$data['myJetpack']['isAvailable']           = self::is_admin_page_available();
+		$data['myJetpack']['isShownByHost']         = self::host_shows_my_jetpack();
 		$data['myJetpack']['assetsUrl']             = self::get_assets_url();
 		$data['myJetpack']['productsSection']       = self::get_products_section();
 		$data['myJetpack']['settingsConsolidation'] = self::is_settings_consolidation_enabled();
@@ -1634,6 +1674,7 @@ class Initializer {
 		 *
 		 * @since 6.11.0
 		 * @since 6.17.1 False also keeps settings on the Settings screen.
+		 * @since $$next-version$$ False also removes the links to My Jetpack from Jetpack admin headers and footers.
 		 * @param bool $available True to allow the Features tab; false keeps the classic Modules and Settings screens, for a host where My Jetpack is not shown.
 		 */
 		return (bool) apply_filters( 'jetpack_my_jetpack_modules_management_available', true );

@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Drop per-file use-analytics test mocks that repeat the shared one.
+
+

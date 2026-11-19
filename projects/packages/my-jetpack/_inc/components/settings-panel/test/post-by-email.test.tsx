@@ -3,14 +3,16 @@ import userEvent from '@testing-library/user-event';
 import { speak } from '@wordpress/a11y';
 import apiFetch from '@wordpress/api-fetch';
 import { clearRequestedSwitch, setRequestedSwitch } from '../../../data/requested-switch-state';
+import useAnalytics from '../../../hooks/use-analytics';
 import { PostByEmailSettings } from '../post-by-email';
 import type { MyJetpackModule } from '../../../types';
+
+const mockRecordEvent = jest.mocked( jest.mocked( useAnalytics )().recordEvent );
 
 const mockFetchModules = jest.fn();
 const mockCreateErrorNotice = jest.fn();
 const mockCreateSuccessNotice = jest.fn();
 const mockCopyRef = jest.fn();
-const mockRecordEvent = jest.fn();
 const mockUseCopyToClipboard = jest.fn< typeof mockCopyRef, [ string, () => void, () => void ] >(
 	() => mockCopyRef
 );
@@ -41,10 +43,6 @@ jest.mock( '@wordpress/compose', () => {
 } );
 jest.mock( '../../my-jetpack-tab-panel/features/feature-state', () => ( {
 	useAccountConnected: () => mockAccountConnected,
-} ) );
-jest.mock( '../../../hooks/use-analytics', () => ( {
-	__esModule: true,
-	default: () => ( { recordEvent: mockRecordEvent } ),
 } ) );
 jest.mock( '../../module-toggle', () => ( {
 	ModuleToggle: ( {
@@ -152,6 +150,11 @@ describe( 'PostByEmailSettings', () => {
 			method: 'POST',
 			data: { post_by_email_address: 'regenerate' },
 		} );
+		expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_wpa_click', {
+			target: 'pbe-regenerage-email',
+			origin: 'my-jetpack-settings-panel',
+			event_version: 1,
+		} );
 		expect( field() ).toHaveValue( ADDRESS );
 		expect( screen.getByRole( 'button', { name: 'Regenerate address' } ) ).toHaveAttribute(
 			'aria-disabled',
@@ -205,6 +208,7 @@ describe( 'PostByEmailSettings', () => {
 			module: 'post-by-email',
 			toggled: 'on',
 			origin: 'my-jetpack-settings-panel',
+			event_version: 1,
 		} );
 	} );
 

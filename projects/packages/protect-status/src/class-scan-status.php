@@ -57,6 +57,20 @@ class Scan_Status extends Status {
 	const OPTION_EXPIRES_AFTER = 300; // 5 minutes.
 
 	/**
+	 * Name of the option row held by the one request refreshing an expired status.
+	 *
+	 * @var string
+	 */
+	const REFRESH_LOCK_NAME = 'jetpack_scan_status_refresh_lock';
+
+	/**
+	 * Seconds before a lock that was never released can be taken over. Longer than the fetch timeout.
+	 *
+	 * @var int
+	 */
+	const REFRESH_LOCK_EXPIRES_AFTER = 60;
+
+	/**
 	 * Where a threat with no severity sorts: just above Low (below 3), as sortThreatSeverity does in js-packages/scan.
 	 *
 	 * @var float
@@ -74,8 +88,10 @@ class Scan_Status extends Status {
 			return self::$status;
 		}
 
-		if ( $refresh_from_wpcom || ! self::should_use_cache() || self::is_cache_expired() ) {
+		if ( $refresh_from_wpcom || ! self::should_use_cache() ) {
 			$status = self::fetch_from_api();
+		} elseif ( self::is_cache_expired() ) {
+			$status = self::refresh_expired_status();
 		} else {
 			$status = self::get_from_options();
 		}
@@ -94,6 +110,95 @@ class Scan_Status extends Status {
 
 		self::$status = $status;
 		return $status;
+	}
+
+	/**
+	 * Fetches the expired status, or serves the stored one while another request is fetching it or just has.
+	 *
+	 * @return WP_Error|object
+	 */
+	private static function refresh_expired_status() {
+		$lock = self::acquire_refresh_lock();
+
+		try {
+			$stored = null === $lock ? self::get_from_options() : self::get_status_stored_since_load();
+			return is_object( $stored ) ? $stored : self::fetch_from_api();
+		} finally {
+			if ( null !== $lock ) {
+				self::release_refresh_lock( $lock );
+			}
+		}
+	}
+
+	/**
+	 * Gets a fresh status that another request stored after this one loaded its options.
+	 *
+	 * @return object|null Null when the stored status is still expired or missing.
+	 */
+	private static function get_status_stored_since_load() {
+		global $wpdb;
+
+		// Read the rows themselves: get_option() still holds what this request loaded at boot.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery -- See above.
+		$rows = $wpdb->get_results( $wpdb->prepare( "SELECT option_name, option_value FROM {$wpdb->options} WHERE option_name IN (%s, %s)", self::OPTION_NAME, self::OPTION_TIMESTAMP_NAME ), OBJECT_K );
+
+		if ( ! isset( $rows[ self::OPTION_NAME ] ) || ! isset( $rows[ self::OPTION_TIMESTAMP_NAME ] ) || time() > (int) $rows[ self::OPTION_TIMESTAMP_NAME ]->option_value ) {
+			return null;
+		}
+
+		// Stored serialized twice: update_option() serializes what update_status_option() already did.
+		$status = maybe_unserialize( maybe_unserialize( $rows[ self::OPTION_NAME ]->option_value ) );
+		return is_object( $status ) ? $status : null;
+	}
+
+	/**
+	 * Take the lock for refreshing an expired status.
+	 *
+	 * @return string|null The lock's value, to release it with, or null when another request holds it.
+	 */
+	private static function acquire_refresh_lock() {
+		global $wpdb;
+
+		$now = time();
+		// The time it was taken, then digits that tell this request's lock from any other.
+		$value = sprintf( '%d.%09d', $now, wp_rand( 0, 999999999 ) );
+
+		// INSERT IGNORE adds the row only when there is none, as WP_Upgrader::create_lock() does.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery -- The Options API cannot add a row only when it is missing.
+		$taken = $wpdb->query( $wpdb->prepare( "INSERT IGNORE INTO {$wpdb->options} (option_name, option_value, autoload) VALUES (%s, %s, 'off')", self::REFRESH_LOCK_NAME, $value ) );
+
+		if ( false === $taken ) {
+			// A database error, not a lock held elsewhere: fetch rather than serve the expired status indefinitely.
+			return $value;
+		}
+
+		if ( ! $taken ) {
+			// Take over a lock that a request left behind without releasing it.
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery -- See above.
+			$taken = $wpdb->query( $wpdb->prepare( "UPDATE {$wpdb->options} SET option_value = %s WHERE option_name = %s AND option_value + 0 < %d", $value, self::REFRESH_LOCK_NAME, $now - self::REFRESH_LOCK_EXPIRES_AFTER ) );
+		}
+
+		return $taken ? $value : null;
+	}
+
+	/**
+	 * Release the lock for refreshing an expired status.
+	 *
+	 * @param string $lock The value acquire_refresh_lock() returned.
+	 * @return void
+	 */
+	private static function release_refresh_lock( $lock ) {
+		global $wpdb;
+
+		// Matching the value leaves the row alone when another request has since taken the lock over.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery -- The lock row is not written through the Options API.
+		$wpdb->delete(
+			$wpdb->options,
+			array(
+				'option_name'  => self::REFRESH_LOCK_NAME,
+				'option_value' => $lock,
+			)
+		);
 	}
 
 	/**
