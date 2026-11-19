@@ -1,13 +1,36 @@
 import '@testing-library/jest-dom';
 import { jest } from '@jest/globals';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { useCallback } from '@wordpress/element';
+import { makeSchemaSettings } from '../../../data/test/fixtures/schema-settings-fixtures';
+import type { SettingsResponse } from '../../../data/settings-types';
 
 const apiFetch = jest.fn< ( options: unknown ) => Promise< unknown > >();
 const setCrawlers = jest.fn();
 jest.unstable_mockModule( '@wordpress/api-fetch', () => ( { default: apiFetch } ) );
-jest.unstable_mockModule( '@wordpress/data', () => ( { useDispatch: () => ( { setCrawlers } ) } ) );
+let storedSettings: SettingsResponse;
+jest.unstable_mockModule( '@wordpress/data', () => ( {
+	select: () => ( { getSettings: () => storedSettings } ),
+	useDispatch: () => ( {
+		setCrawlers,
+		setSettings: ( value: SettingsResponse ) => {
+			storedSettings = value;
+		},
+		createInfoNotice: jest.fn(),
+		createSuccessNotice: jest.fn(),
+		createErrorNotice: jest.fn(),
+	} ),
+} ) );
+jest.unstable_mockModule( '../../../data/settings-store', () => ( {
+	settingsStore: 'seo/settings',
+} ) );
+jest.unstable_mockModule( '../../../data/record-seo-event', () => ( {
+	recordSeoEvent: jest.fn(),
+} ) );
+jest.unstable_mockModule( '@wordpress/notices', () => ( { store: 'core/notices' } ) );
 jest.unstable_mockModule( '../../../data/geo-store', () => ( { geoStore: {} } ) );
 const { default: DataSharingSettings } = await import( '../data-sharing-settings' );
+const { useSettingsForm } = await import( '../../../data/use-settings' );
 const status = {
 	prevent_sharing: false,
 	locked: false,
@@ -187,3 +210,167 @@ it( 'hides an unconfirmed value when a failed save cannot re-read storage', asyn
 	).resolves.toBeInTheDocument();
 	expect( screen.queryByRole( 'switch' ) ).not.toBeInTheDocument();
 } );
+
+const SharingWithSettingsForm = () => {
+	const form = useSettingsForm();
+	const changeIndexing = useCallback(
+		() => form.commit( { search_engines_visible: ! form.local!.search_engines_visible } ),
+		[ form ]
+	);
+	return (
+		<>
+			<button onClick={ changeIndexing }>Change indexing</button>
+			<DataSharingSettings
+				disabled={ form.isSaving }
+				visibility={ String( form.local!.search_engines_visible ) }
+			/>
+		</>
+	);
+};
+
+it.each( [
+	[ true, true ],
+	[ false, true ],
+	[ true, false ],
+	[ false, false ],
+] )(
+	'confirms sharing after indexing changes from %s, write succeeds: %s',
+	async ( initiallyVisible, succeeds ) => {
+		storedSettings = {
+			front_page_description: '',
+			has_legacy_front_page_meta: false,
+			title_formats: {},
+			title_separator: '-',
+			title_formats_editable: true,
+			verification_tools_active: true,
+			verification: { google: '', bing: '', pinterest: '', yandex: '', facebook: '' },
+			search_engines_visible: initiallyVisible,
+			site_is_private: false,
+			site_is_coming_soon: false,
+			site_visibility_url: '',
+			sitemap_active: false,
+			sitemap_switchable: true,
+			sitemap_url: '',
+			canonical_active: false,
+			canonical_switchable: true,
+			canonical_conflicted: false,
+			schema: makeSchemaSettings(),
+		};
+		let serverVisible = initiallyVisible;
+		let finishWrite!: ( value: unknown ) => void;
+		let failWrite!: ( reason: unknown ) => void;
+		const write = new Promise( ( resolve, reject ) => {
+			finishWrite = resolve;
+			failWrite = reject;
+		} );
+		let confirmSharing!: ( value: unknown ) => void;
+		const confirmation = new Promise( resolve => {
+			confirmSharing = resolve;
+		} );
+		let reads = 0;
+		let writeStarted = false;
+		let writeSettled = false;
+		apiFetch.mockImplementation( async options => {
+			const request = options as { path: string; method?: string };
+			if ( request.path === '/jetpack/v4/seo/data-sharing' ) {
+				reads++;
+				return reads === 1 || ! writeSettled
+					? { ...status, locked: ! serverVisible }
+					: confirmation;
+			}
+			if ( request.path === '/wp/v2/settings' && request.method === 'POST' ) {
+				writeStarted = true;
+				return write;
+			}
+			if ( request.path === '/jetpack/v4/seo/settings' ) {
+				return { ...storedSettings, search_engines_visible: serverVisible };
+			}
+			throw new Error( 'Unexpected settings request' );
+		} );
+		render( <SharingWithSettingsForm /> );
+		const control = await screen.findByRole( 'switch' );
+		// eslint-disable-next-line testing-library/prefer-user-event -- Match the package settings tests.
+		fireEvent.click( screen.getByRole( 'button', { name: 'Change indexing' } ) );
+		await waitFor( () => expect( writeStarted ).toBe( true ) );
+		expect( reads ).toBe( 1 );
+		expect( screen.getByRole( 'switch' ) ).toBe( control );
+		expect( control ).toHaveAttribute( 'aria-disabled', 'true' );
+		expect( screen.queryByText( 'Loading sharing preference…' ) ).not.toBeInTheDocument();
+		await act( async () => {
+			writeSettled = true;
+			if ( succeeds ) {
+				serverVisible = ! initiallyVisible;
+				finishWrite( { blog_public: serverVisible ? 1 : 0 } );
+			} else {
+				failWrite( new Error( 'Indexing save rejected' ) );
+			}
+		} );
+		await waitFor( () => expect( reads ).toBe( 2 ) );
+		expect( screen.getByRole( 'switch' ) ).toBe( control );
+		expect( control ).toHaveAttribute( 'aria-disabled', 'true' );
+		await act( async () => confirmSharing( { ...status, locked: ! serverVisible } ) );
+		expect( screen.getByRole( 'switch', { checked: ! serverVisible } ) ).toBe( control );
+		expect( control.getAttribute( 'aria-disabled' ) === 'true' ).toBe( ! serverVisible );
+		expect(
+			apiFetch.mock.calls.filter(
+				( [ options ] ) => ( options as { method?: string } ).method === 'POST'
+			)
+		).toEqual( [
+			[
+				{
+					path: '/wp/v2/settings',
+					method: 'POST',
+					data: { blog_public: initiallyVisible ? 0 : 1 },
+				},
+			],
+		] );
+	}
+);
+
+it( 'keeps the confirmed switch disabled if refreshing after a settings save fails', async () => {
+	apiFetch.mockResolvedValueOnce( status );
+	const { rerender } = render( <DataSharingSettings visibility="public" /> );
+	const control = await screen.findByRole( 'switch' );
+	apiFetch.mockRejectedValueOnce( new Error( 'Readback unavailable' ) );
+	rerender( <DataSharingSettings visibility="discouraged" disabled /> );
+	rerender( <DataSharingSettings visibility="discouraged" /> );
+	await expect(
+		screen.findByText( 'Unable to load the sharing preference. Reload this page to try again.' )
+	).resolves.toBeInTheDocument();
+	expect( screen.getByRole( 'switch' ) ).toBe( control );
+	expect( control ).toHaveAttribute( 'aria-disabled', 'true' );
+	const calls = apiFetch.mock.calls.length;
+	// eslint-disable-next-line testing-library/prefer-user-event -- Match the package settings tests.
+	fireEvent.click( control );
+	expect( apiFetch ).toHaveBeenCalledTimes( calls );
+} );
+
+it.each( [ false, true ] )(
+	'ignores an older status read after a newer save, rejected: %s',
+	async rejected => {
+		apiFetch.mockResolvedValueOnce( status );
+		const { rerender } = render( <DataSharingSettings visibility="public" /> );
+		const control = await screen.findByRole( 'switch' );
+		let resolveOld!: ( value: unknown ) => void;
+		let rejectOld!: ( error: Error ) => void;
+		apiFetch.mockReturnValueOnce(
+			new Promise( ( resolve, reject ) => {
+				resolveOld = resolve;
+				rejectOld = reject;
+			} )
+		);
+		rerender( <DataSharingSettings visibility="discouraged" /> );
+		rerender( <DataSharingSettings visibility="public" disabled /> );
+		apiFetch.mockResolvedValueOnce( status );
+		rerender( <DataSharingSettings visibility="public" /> );
+		await waitFor( () => expect( control ).not.toHaveAttribute( 'aria-disabled', 'true' ) );
+		await act( async () =>
+			rejected
+				? rejectOld( new Error( 'Stale read failed' ) )
+				: resolveOld( { ...status, locked: true } )
+		);
+		expect( control ).not.toBeChecked();
+		expect( control ).not.toHaveAttribute( 'aria-disabled', 'true' );
+		expect( screen.queryByText( /Unable to load the sharing preference/ ) ).not.toBeInTheDocument();
+	}
+);

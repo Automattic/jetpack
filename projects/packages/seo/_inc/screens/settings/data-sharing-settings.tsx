@@ -22,11 +22,14 @@ const unconfirmedMessage = __(
 const DataSharingSettings = ( {
 	disabled = false,
 	visibility,
+	onSavingChange,
 }: {
 	disabled?: boolean;
 	visibility: string;
+	onSavingChange?: ( saving: boolean ) => void;
 } ) => {
 	const [ status, setStatus ] = useState< SharingStatus | null >( null );
+	const [ hasCurrentStatus, setHasCurrentStatus ] = useState( false );
 	const [ busy, setBusy ] = useState( false );
 	const [ error, setError ] = useState( '' );
 	const { setCrawlers } = useDispatch( geoStore );
@@ -35,30 +38,39 @@ const DataSharingSettings = ( {
 	useEffect( () => {
 		let active = true;
 		++visibilityRevision.current;
-		setStatus( null );
-		setError( '' );
-		apiFetch< SharingStatus >( { path: PATH } ).then(
-			value => active && setStatus( value ),
-			() =>
-				active &&
-				setError(
-					__(
-						'Unable to load the sharing preference. Reload this page to try again.',
-						'jetpack-seo'
+		setHasCurrentStatus( false );
+		// The parent keeps controls disabled until its writes and settings readback settle.
+		if ( ! disabled ) {
+			setError( '' );
+			apiFetch< SharingStatus >( { path: PATH } ).then(
+				value => {
+					if ( active ) {
+						setStatus( value );
+						setHasCurrentStatus( true );
+					}
+				},
+				() =>
+					active &&
+					setError(
+						__(
+							'Unable to load the sharing preference. Reload this page to try again.',
+							'jetpack-seo'
+						)
 					)
-				)
-		);
+			);
+		}
 		return () => {
 			active = false;
 			// eslint-disable-next-line react-hooks/exhaustive-deps -- This numeric generation invalidates pending requests during cleanup.
 			++visibilityRevision.current;
 		};
-	}, [ visibility ] );
+	}, [ visibility, disabled ] );
 
 	const save = useCallback(
 		async ( preventSharing: boolean ) => {
 			const revision = visibilityRevision.current;
 			setBusy( true );
+			onSavingChange?.( true );
 			setError( '' );
 			try {
 				let updated: SharingStatus;
@@ -116,9 +128,10 @@ const DataSharingSettings = ( {
 				}
 			} finally {
 				setBusy( false );
+				onSavingChange?.( false );
 			}
 		},
-		[ setCrawlers ]
+		[ setCrawlers, onSavingChange ]
 	);
 
 	return (
@@ -143,7 +156,7 @@ const DataSharingSettings = ( {
 						<SwitchControl
 							label={ __( 'Prevent third-party sharing', 'jetpack-seo' ) }
 							checked={ status.locked || status.prevent_sharing }
-							disabled={ disabled || busy || status.locked }
+							disabled={ disabled || busy || ! hasCurrentStatus || status.locked }
 							onCheckedChange={ save }
 						/>
 					) : (
