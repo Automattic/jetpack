@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Add Storybook stories for the Items sold, Top performing products and Sessions by device widgets, and guard the widget import boundary with ESLint.
