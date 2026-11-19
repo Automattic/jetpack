@@ -15,6 +15,7 @@ import StatusIndicator from '../../components/status-indicator';
 import getOutput from '../../data/get-output';
 import isVerificationSwitchable from '../../data/is-verification-switchable';
 import AuthorProfileCard from './author-profile-card';
+import DataSharingSettings from './data-sharing-settings';
 import IndexnowSettings from './indexnow-settings';
 import SchemaCard from './schema-card';
 import SocialPreviewsCard from './social-previews-card';
@@ -287,6 +288,12 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 	return (
 		<Stack direction="column" gap="lg" className={ styles.root }>
 			<SeoPausedBanner />
+			{ local.data_sharing_available && (
+				<DataSharingSettings
+					disabled={ isSaving }
+					visibility={ `${ local.search_engines_visible }:${ local.site_is_private }:${ local.site_is_coming_soon }` }
+				/>
+			) }
 			<div id="visibility" className={ styles.section }>
 				<CollapsibleCard.Root defaultOpen>
 					<CollapsibleCard.Header render={ <h2 /> }>
