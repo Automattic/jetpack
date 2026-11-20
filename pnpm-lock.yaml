@@ -132,6 +132,9 @@ importers:
       minimatch:
         specifier: 11.0.3
         version: 11.0.3
+      xml2js:
+        specifier: 0.6.2
+        version: 0.6.2
     devDependencies:
       jest:
         specifier: 30.5.2
@@ -1924,6 +1927,9 @@ importers:
       '@automattic/jetpack-webpack-config':
         specifier: workspace:*
         version: link:../../js-packages/webpack-config
+      '@automattic/jetpack-wp-build-polyfills':
+        specifier: workspace:*
+        version: link:../wp-build-polyfills
       '@wordpress/browserslist-config':
         specifier: 7.1.0
         version: 7.1.0
@@ -3547,6 +3553,9 @@ importers:
       '@wordpress/data':
         specifier: 11.1.0
         version: 11.1.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      '@wordpress/dataviews':
+        specifier: 22.0.0
+        version: 22.0.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@wordpress/date':
         specifier: 6.1.0
         version: 6.1.0

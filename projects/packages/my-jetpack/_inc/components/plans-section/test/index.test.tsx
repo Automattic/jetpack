@@ -187,22 +187,82 @@ describe( 'PlansSection', () => {
 		);
 	} );
 
-	it( 'sends a site with Pro to Complete checkout and reports which Complete', async () => {
-		window.myJetpackInitialState.blogID = '123';
-		setPurchases( [
-			{ ...buildPurchase( 'Jetpack Pro' ), product_slug: 'jetpack_pro_yearly' } as Purchase,
-		] );
-		render( <PlansSection /> );
-		const link = screen.getByRole( 'link', { name: /Upgrade to Complete/ } );
-		link.addEventListener( 'click', event => event.preventDefault() );
+	const HOST_PLANS = 'https://host.example/plans?site=a&back=b';
+	const HOST_PURCHASES = 'https://host.example/purchases';
+	const COMPLETE_UPSELL = [
+		expect.stringContaining( 'Upgrade to Complete' ),
+		expect.stringContaining( 'wordpress.com/checkout/123/jetpack_complete?' ),
+	];
 
-		expect( link ).toHaveAttribute(
-			'href',
-			expect.stringContaining( 'wordpress.com/checkout/123/jetpack_complete?' )
+	it.each( [
+		[
+			'sends a site with Pro to Complete checkout',
+			'jetpack_pro_yearly',
+			{ purchase: '', manage: '' },
+			[ COMPLETE_UPSELL ],
+			[ 'https://example.org/manage' ],
+			[ { product_slug: 'jetpack_complete' } ],
+		],
+		[
+			'keeps the Complete upsell when the host answers only for manage',
+			'jetpack_pro_yearly',
+			{ purchase: '', manage: HOST_PURCHASES },
+			[ COMPLETE_UPSELL ],
+			[ HOST_PURCHASES ],
+			[ { product_slug: 'jetpack_complete' } ],
+		],
+		[
+			"sends a site with Pro to the host's plans, with no Complete upsell",
+			'jetpack_pro_yearly',
+			{ purchase: HOST_PLANS, manage: HOST_PURCHASES },
+			[ [ expect.stringContaining( 'Upgrade your plan' ), HOST_PLANS ] ],
+			[ HOST_PURCHASES ],
+			[ {} ],
+		],
+		[
+			"sends a site with no purchases to the host's plans, with nothing to manage",
+			null,
+			{ purchase: HOST_PLANS, manage: HOST_PURCHASES },
+			[ [ expect.stringContaining( 'Upgrade your plan' ), HOST_PLANS ] ],
+			[],
+			[ {} ],
+		],
+		[
+			'offers nothing to manage when the host hides the manage link',
+			'jetpack_pro_yearly',
+			{ purchase: HOST_PLANS, manage: false as const },
+			[ [ expect.stringContaining( 'Upgrade your plan' ), HOST_PLANS ] ],
+			[],
+			[ {} ],
+		],
+		[
+			"offers nothing to buy when the host has no plan above the site's",
+			'jetpack_pro_yearly',
+			{ purchase: false as const, manage: HOST_PURCHASES },
+			[],
+			[ HOST_PURCHASES ],
+			[],
+		],
+	] )( '%s', async ( _, productSlug, planUrls, purchaseLinks, manageLinks, clicks ) => {
+		window.myJetpackInitialState.blogID = '123';
+		window.myJetpackInitialState.planUrls = planUrls;
+		setPurchases(
+			productSlug ? [ { ...buildPurchase( 'A plan' ), product_slug: productSlug } as Purchase ] : []
 		);
-		await userEvent.click( link );
-		expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_myjetpack_plans_purchase_click', {
-			product_slug: 'jetpack_complete',
-		} );
+		render( <PlansSection /> );
+		const hrefs = ( name: RegExp ) =>
+			screen.queryAllByRole( 'link', { name } ).map( link => link.getAttribute( 'href' ) );
+		const links = screen.queryAllByRole( 'link', { name: /Purchase a plan|Upgrade/ } );
+		links.forEach( link => link.addEventListener( 'click', event => event.preventDefault() ) );
+
+		expect( links.map( link => [ link.textContent, link.getAttribute( 'href' ) ] ) ).toEqual(
+			purchaseLinks
+		);
+		expect( hrefs( /Manage your plan/ ) ).toEqual( manageLinks );
+		expect( screen.getByRole( 'link', { name: /Activate a license/ } ) ).toBeInTheDocument();
+		await Promise.all( links.map( link => userEvent.click( link ) ) );
+		expect( mockRecordEvent.mock.calls ).toEqual(
+			clicks.map( properties => [ 'jetpack_myjetpack_plans_purchase_click', properties ] )
+		);
 	} );
 } );

@@ -215,6 +215,7 @@ class Backup_Abilities extends Registrar {
 						'destructive' => false,
 						'idempotent'  => true,
 					),
+					'public'       => true,
 					'mcp'          => array(
 						'public' => true,
 						'type'   => 'tool',
@@ -295,6 +296,7 @@ class Backup_Abilities extends Registrar {
 						'destructive' => false,
 						'idempotent'  => true,
 					),
+					'public'       => true,
 					'mcp'          => array(
 						'public' => true,
 						'type'   => 'tool',
@@ -346,6 +348,7 @@ class Backup_Abilities extends Registrar {
 						'destructive' => false,
 						'idempotent'  => true,
 					),
+					'public'       => true,
 					'mcp'          => array(
 						'public' => true,
 						'type'   => 'tool',
@@ -381,6 +384,7 @@ class Backup_Abilities extends Registrar {
 						'destructive' => false,
 						'idempotent'  => false,
 					),
+					'public'       => true,
 					'mcp'          => array(
 						'public' => true,
 						'type'   => 'tool',

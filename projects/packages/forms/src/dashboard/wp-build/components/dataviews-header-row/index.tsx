@@ -60,7 +60,7 @@ export default function DataViewsHeaderRow( {
 	const navigate = useNavigate();
 	const isCFMEnabled = useConfigValue( 'isCentralFormManagementEnabled' );
 	const { all: formsCount } = useFormStatusCounts();
-	usePreloadTopTab( activeTab, isSingleFormView || ! isCFMEnabled );
+	const preloadProps = usePreloadTopTab( activeTab, isSingleFormView || ! isCFMEnabled );
 
 	const responsesInboxCount = useSelect( select => {
 		// Pass an explicit empty object so @wordpress/data resolver deduplication
@@ -97,7 +97,7 @@ export default function DataViewsHeaderRow( {
 						isCFMEnabled && (
 							<Tabs.Root value={ activeTab } onValueChange={ onTabChange }>
 								<Tabs.List variant="minimal">
-									<Tabs.Tab value="forms">
+									<Tabs.Tab value="forms" { ...( activeTab === 'forms' ? {} : preloadProps ) }>
 										<span>
 											{ __( 'Forms', 'jetpack-forms' ) }
 											<Badge intent="draft" className="jp-forms-tabs-count">
@@ -105,7 +105,10 @@ export default function DataViewsHeaderRow( {
 											</Badge>
 										</span>
 									</Tabs.Tab>
-									<Tabs.Tab value="responses">
+									<Tabs.Tab
+										value="responses"
+										{ ...( activeTab === 'responses' ? {} : preloadProps ) }
+									>
 										<span>
 											{ __( 'Responses', 'jetpack-forms' ) }
 											<Badge intent="draft" className="jp-forms-tabs-count">

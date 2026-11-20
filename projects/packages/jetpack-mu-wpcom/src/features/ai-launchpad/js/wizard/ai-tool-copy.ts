@@ -58,16 +58,16 @@ export function bringYourAiToolCopy() {
 		readOnlyTitle: ( aiTool: AiTool ) =>
 			sprintf(
 				/* translators: %s: the AI tool's name, ChatGPT or Claude. */
-				__( '%s can’t build your site yet', 'jetpack-mu-wpcom' ),
+				__( 'Let %s make changes to your site', 'jetpack-mu-wpcom' ),
 				toolName( aiTool )
 			),
 		readOnlySubtitle: __(
-			'It has read-only access, so it can view your site but not change it.',
+			'It can view your site right now. Allow full access so it can build it for you.',
 			'jetpack-mu-wpcom'
 		),
-		bothReadOnlyTitle: __( 'ChatGPT and Claude can’t build your site yet', 'jetpack-mu-wpcom' ),
+		bothReadOnlyTitle: __( 'Let ChatGPT and Claude make changes to your site', 'jetpack-mu-wpcom' ),
 		bothReadOnlySubtitle: __(
-			'They have read-only access, so they can view your site but not change it.',
+			'They can view your site right now. Allow full access so they can build it for you.',
 			'jetpack-mu-wpcom'
 		),
 		readOnlyDescription: __( 'Can view your site, but not change it', 'jetpack-mu-wpcom' ),

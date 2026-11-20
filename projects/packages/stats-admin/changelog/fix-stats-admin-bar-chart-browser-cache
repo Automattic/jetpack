@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Admin bar: Let the browser reuse the views chart image for five minutes instead of fetching it on every page view.

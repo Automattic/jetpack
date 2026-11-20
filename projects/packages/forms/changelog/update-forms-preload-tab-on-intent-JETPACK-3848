@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Dashboard: Load the other top tab's code when you point at or focus its tab, not on every visit.
