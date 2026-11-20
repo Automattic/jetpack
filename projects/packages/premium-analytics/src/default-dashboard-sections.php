@@ -346,8 +346,9 @@ function register_default_dashboard_sections( $registry = null ) {
 		),
 		'analytics/ai'          => array(
 			'label'        => __( 'AI', 'jetpack-premium-analytics-pkg' ),
-			'title'        => __( 'AI and bot traffic', 'jetpack-premium-analytics-pkg' ),
-			'order'        => 40,
+			'title'        => __( 'AI activity', 'jetpack-premium-analytics-pkg' ),
+			// Right after Traffic, ahead of Insights.
+			'order'        => 15,
 			'is_available' => array( AI_Traffic::class, 'is_available' ),
 		),
 	);
