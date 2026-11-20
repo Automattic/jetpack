@@ -43,6 +43,7 @@ FROM_RELEASE_BRANCH_STEPS=(
 	'do_packagist_check'
 	'do_push_release_branch'
 	'do_create_backport_PR'
+	'do_final_instructions'
 )
 
 # Instructions
@@ -488,15 +489,16 @@ function do_final_instructions {
 		DEPLOY_STEP="Deploy to SVN: \`./tools/deploy-to-svn.sh ${PLUGIN#plugins/} <tag>\`"
 	fi
 
-	# @todo: only show stable tag message if it's a stable release.
 	cat <<-EOM
 
-	For $PLUGIN:
+	The release script has completed. The final steps are as follows:
 	  1. Wait for the release to be automatically tagged in GitHub.
 	  2. $DEPLOY_STEP
 	  3. Smoke test.
-	  4. Update the stable tag (if stable release): \`./tools/stable-tag.sh ${PLUGIN#plugins/}\`
 	EOM
+	if [[ $VERSION != *-* ]]; then
+		echo "  4. Update the stable tag: \`./tools/stable-tag.sh ${PLUGIN#plugins/}\`"
+	fi
 }
 
 preflight_checks
