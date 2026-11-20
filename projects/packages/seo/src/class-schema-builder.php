@@ -96,10 +96,46 @@ class Schema_Builder {
 							$graph->add( $site_entity );
 						}
 					}
-					$person = self::build_person_node( (int) $post->post_author, null !== $organization );
-					if ( null !== $person ) {
-						$post_node['author'] = array( '@id' => $person['@id'] );
-						$graph->add( $person );
+					$person  = self::build_person_node( (int) $post->post_author, null !== $organization );
+					$authors = null !== $person ? array( $person ) : array();
+
+					/**
+					 * Filters the Person nodes credited as the Article's authors, e.g. to add
+					 * co-authors or guest authors that aren't the post's WordPress user.
+					 *
+					 * Nodes are output as given: pass plain-text names and absolute URLs. For a
+					 * WordPress user, use `Schema_Node_Ids::person()` as the `@id` so it matches
+					 * their author archive.
+					 *
+					 * @since $$next-version$$
+					 *
+					 * @param array[]|array $authors Person nodes, each with an `@id`, or a single node. Defaults to the post author.
+					 * @param \WP_Post      $post    The post the Article describes.
+					 */
+					$authors = apply_filters( 'jetpack_seo_schema_article_authors', $authors, $post );
+					if ( is_array( $authors ) && isset( $authors['@id'] ) ) {
+						$authors = array( $authors ); // A single node instead of a list.
+					}
+
+					// Keyed by @id so an author returned twice is only output once.
+					$authors_by_id = array();
+					foreach ( (array) $authors as $author ) {
+						if ( is_array( $author ) && is_string( $author['@id'] ?? null ) && '' !== $author['@id'] ) {
+							$authors_by_id[ $author['@id'] ] = $author;
+						}
+					}
+
+					// The site entity is already in the graph on the front page, and always for a person site.
+					$site_entity_in_graph = $has_site_entity && ( is_front_page() || null === $organization );
+					$author_refs          = array();
+					foreach ( $authors_by_id as $author_id => $author ) {
+						$author_refs[] = array( '@id' => $author_id );
+						if ( ! ( $site_entity_in_graph && $publisher_id === $author_id ) ) {
+							$graph->add( $author );
+						}
+					}
+					if ( $author_refs ) {
+						$post_node['author'] = 1 === count( $author_refs ) ? $author_refs[0] : $author_refs;
 					}
 				}
 				$graph->add( $post_node );
