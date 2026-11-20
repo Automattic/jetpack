@@ -84,14 +84,8 @@ export default function SkillsHero( { isMcpEnabled = true, onMcpNavigate, before
 		[ send ]
 	);
 	// One push writes the hash and the skill param together, so boot's router
-	// sees a single navigation. Setting the hash first and then adding the
-	// param was two, and the second cancelled the first's view transition with
-	// an uncaught error. A push fires no hashchange, so the hub is told by
-	// hand; as a navigation it switches to Discover and leaves the param alone.
-	// Back returns to Overview in one step. As any source but 'link',
-	// 'overview' hands focus to the panel's title, which keyboard users need
-	// here: the card unmounts with the Overview. Tracks tells it from
-	// Discover's. The card keeps modified clicks for the browser.
+	// sees a single navigation; two would cancel the first's view transition.
+	// A push fires no hashchange, so the hub is told by hand.
 	const handleView = useCallback( skill => {
 		recordAiHubEvent( EVENTS.LINK_CLICK, { link_type: 'overview_skill', link: skill.slug } );
 		const oldURL = window.location.href;

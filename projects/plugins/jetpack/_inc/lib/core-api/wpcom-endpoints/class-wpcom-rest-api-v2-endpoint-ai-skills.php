@@ -46,7 +46,8 @@ class WPCOM_REST_API_V2_Endpoint_AI_Skills extends WP_REST_Controller {
 	public function register_routes() {
 		register_rest_route(
 			$this->namespace,
-			'/' . $this->rest_base . '/(?P<slug>[a-z0-9-]+)',
+			// Any slug the catalog has; get_body() refuses one that isn't in the index.
+			'/' . $this->rest_base . '/(?P<slug>[^/]+)',
 			array(
 				array(
 					'methods'             => WP_REST_Server::READABLE,

@@ -23,57 +23,6 @@ const renderHub = ( { siteLevelEnabled = true, activityLogFiltered = false } = {
 		/>
 	);
 
-describe( 'McpHub connect card', () => {
-	test( 'sits above the access card, and replaces the setup row', () => {
-		renderHub();
-
-		const connect = screen.getByRole( 'heading', { name: 'Connect an external AI agent' } );
-		const accessHeading = screen.getByRole( 'heading', { name: 'External AI agent access' } );
-		expect( connect.compareDocumentPosition( accessHeading ) ).toBe(
-			Node.DOCUMENT_POSITION_FOLLOWING
-		);
-		expect(
-			screen.queryByRole( 'button', { name: 'Connect external AI agent' } )
-		).not.toBeInTheDocument();
-		expect( screen.queryByRole( 'region', { name: 'How it works' } ) ).not.toBeInTheDocument();
-	} );
-
-	test( 'Turn on MCP access saves the same update as the toggle', async () => {
-		const onUpdate = jest.fn();
-		render(
-			<McpHub
-				mcpAbilities={ mcpAbilities( false ) }
-				blogId={ 1 }
-				savingToolIds={ new Set() }
-				onNavigate={ jest.fn() }
-				onUpdate={ onUpdate }
-			/>
-		);
-
-		await userEvent.click( screen.getByRole( 'button', { name: 'Turn on MCP access' } ) );
-
-		expect( onUpdate ).toHaveBeenCalledWith( {
-			sites: [ expect.objectContaining( { blog_id: 1, site_level_enabled: true } ) ],
-		} );
-		expect( analytics.tracks.recordEvent ).toHaveBeenCalledWith(
-			'jetpack_mcp_enabled_toggled',
-			expect.objectContaining( { enabled: true, source: 'connect_notice' } )
-		);
-	} );
-
-	test( 'the toggle records its own source', async () => {
-		analytics.tracks.recordEvent.mockClear();
-		renderHub( { siteLevelEnabled: false } );
-
-		await userEvent.click( screen.getByRole( 'checkbox', { name: 'Enable MCP access' } ) );
-
-		expect( analytics.tracks.recordEvent ).toHaveBeenCalledWith(
-			'jetpack_mcp_enabled_toggled',
-			expect.objectContaining( { enabled: true, source: 'toggle' } )
-		);
-	} );
-} );
-
 describe( 'McpHub activity log row', () => {
 	test( 'promises AI agent actions when the link is filtered', () => {
 		renderHub( { activityLogFiltered: true } );

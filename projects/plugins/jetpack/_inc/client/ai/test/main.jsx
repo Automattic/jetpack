@@ -2166,7 +2166,7 @@ describe( 'AI features section (main.jsx)', () => {
 } );
 
 describe( 'MCP view: connection notices (main.jsx)', () => {
-	const OFFLINE = 'Jetpack AI is not available in offline mode.';
+	const OFFLINE = 'Jetpack AI is not available in Offline Mode.';
 	const SITE = 'This site is not connected to WordPress.com.';
 	const ACCOUNT = 'Your WordPress.com account isn’t connected.';
 	const CALLOUT = 'A user connection lets agents securely act on your behalf.';
@@ -2390,7 +2390,7 @@ describe( 'Settings tab (main.jsx)', () => {
 	} );
 
 	test.each( [
-		[ 'offline mode', { isOfflineMode: true }, 'Jetpack AI is not available in offline mode.' ],
+		[ 'offline mode', { isOfflineMode: true }, 'Jetpack AI is not available in Offline Mode.' ],
 		[
 			'a site with no connection owner',
 			{ isConnected: false },

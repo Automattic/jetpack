@@ -28,10 +28,11 @@ class WPCOM_REST_API_V2_Endpoint_AI_Skills_Test extends Jetpack_REST_TestCase {
 			Jetpack_AI_Skills_Catalog::INDEX_TRANSIENT,
 			array(
 				'categories' => array(),
-				'skills'     => array( array( 'slug' => 'site-seo-audit' ) ),
+				'skills'     => array( array( 'slug' => 'site-seo-audit' ), array( 'slug' => 'check_site' ) ),
 			)
 		);
 		set_transient( Jetpack_AI_Skills_Catalog::BODY_TRANSIENT_PREFIX . 'site-seo-audit', '## Steps' );
+		set_transient( Jetpack_AI_Skills_Catalog::BODY_TRANSIENT_PREFIX . 'check_site', '## Check' );
 	}
 
 	/**
@@ -40,6 +41,7 @@ class WPCOM_REST_API_V2_Endpoint_AI_Skills_Test extends Jetpack_REST_TestCase {
 	public function tear_down() {
 		delete_transient( Jetpack_AI_Skills_Catalog::INDEX_TRANSIENT );
 		delete_transient( Jetpack_AI_Skills_Catalog::BODY_TRANSIENT_PREFIX . 'site-seo-audit' );
+		delete_transient( Jetpack_AI_Skills_Catalog::BODY_TRANSIENT_PREFIX . 'check_site' );
 		remove_filter( 'jetpack_feature_flag_enabled_ai-hub-discover', '__return_true' );
 		wp_set_current_user( 0 );
 		parent::tear_down();
@@ -52,10 +54,11 @@ class WPCOM_REST_API_V2_Endpoint_AI_Skills_Test extends Jetpack_REST_TestCase {
 	 */
 	public static function provide_requests() {
 		return array(
-			'subscriber is refused'          => array( 'subscriber', 'site-seo-audit', 403, true ),
-			'admin gets a known skill'       => array( 'administrator', 'site-seo-audit', 200, true ),
-			'admin gets 404 for an unknown'  => array( 'administrator', 'not-a-skill', 404, true ),
-			'admin gets 404 with Skills off' => array( 'administrator', 'site-seo-audit', 404, false ),
+			'subscriber is refused'                 => array( 'subscriber', 'site-seo-audit', 403, true ),
+			'admin gets a known skill'              => array( 'administrator', 'site-seo-audit', 200, true ),
+			'admin gets a skill with an underscore' => array( 'administrator', 'check_site', 200, true ),
+			'admin gets 404 for an unknown'         => array( 'administrator', 'not-a-skill', 404, true ),
+			'admin gets 404 with Skills off'        => array( 'administrator', 'site-seo-audit', 404, false ),
 		);
 	}
 
@@ -80,13 +83,8 @@ class WPCOM_REST_API_V2_Endpoint_AI_Skills_Test extends Jetpack_REST_TestCase {
 
 		$this->assertSame( $status, $response->get_status() );
 		if ( 200 === $status ) {
-			$this->assertSame(
-				array(
-					'slug' => 'site-seo-audit',
-					'body' => '## Steps',
-				),
-				$response->get_data()
-			);
+			$this->assertSame( $slug, $response->get_data()['slug'] );
+			$this->assertSame( get_transient( Jetpack_AI_Skills_Catalog::BODY_TRANSIENT_PREFIX . $slug ), $response->get_data()['body'] );
 		}
 	}
 }

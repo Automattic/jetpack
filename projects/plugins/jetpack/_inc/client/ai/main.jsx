@@ -474,7 +474,7 @@ export default function App() {
 		root.setAttribute( 'inert', '' );
 		return () => root.removeAttribute( 'inert' );
 	}, [ isPanelCovering ] );
-	const isMcpContext = view === 'mcp' || MCP_SUB_VIEWS.includes( view );
+	const isMcpContext = view === 'mcp' || isSubView;
 	// The first path segment names the owning tab, so sub-views keep their
 	// parent tab (Settings) selected.
 	const activeTab = view.split( '/' )[ 0 ];
@@ -660,8 +660,9 @@ export default function App() {
 	// Settings navigation targets are sub-views; McpHub calls this with their
 	// bare keys ('read' | 'write' | 'setup'), which live under the mcp path
 	// segment.
-	// Whether the Settings hub itself renders: the access toggle, the Read and
-	// Write rows and the setup sub-view all need a linked site with MCP access.
+	// Whether the Settings hub renders: the access toggle and the Read and Write
+	// rows need a linked site with MCP access. The setup steps render without it,
+	// like the connect buttons: installing the connector happens in the agent.
 	const hasHub = ! isLoading && ! error && !! blogId && ! userUnlinked && hasMcpAccess;
 
 	const handleMcpNavigate = useCallback(
