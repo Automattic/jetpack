@@ -1,4 +1,4 @@
 Significance: minor
 Type: added
 
-Open the WooCommerce tab on a disconnected store whose report providers put local data first, without starting sync, and say when its WooCommerce Analytics data is incomplete or needs a re-import.
+Open the WooCommerce tab on a disconnected store whose report providers put local data first, without starting sync, and say when WooCommerce Analytics is off or hasn't imported every order yet.
