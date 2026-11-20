@@ -127,7 +127,7 @@ class WPCOM_Stats {
 	 *
 	 * @link https://developer.wordpress.com/docs/api/1.1/get/sites/%24site/stats/video/%24post_id/
 	 * @param int   $post_id The video's ID.
-	 * @param array $args    Optional query parameters.
+	 * @param array $args    Optional query parameters: `statType`, `period`, `num`, `date`.
 	 * @return array|WP_Error
 	 */
 	public function get_video_details( $post_id, $args = array() ) {
@@ -438,6 +438,32 @@ class WPCOM_Stats {
 	}
 
 	/**
+	 * Get the posts that got the views of one UTM value.
+	 *
+	 * @param string $utm_param UTM parameter, or a comma-separated combination WordPress.com groups by, e.g. `utm_source,utm_medium`.
+	 * @param string $value     The value as `get_utm_views()` keys it: plain for one parameter, a JSON array for a combination.
+	 * @param array  $args      Optional query parameters: `days`, `date`, `max`.
+	 * @return array|WP_Error
+	 */
+	public function get_utm_top_posts( $utm_param, $value, $args = array() ) {
+		$this->resource = sprintf( 'utm/%s/top_posts', $utm_param );
+
+		return $this->fetch_stats( array( 'utm_param_values' => $value ) + $args );
+	}
+
+	/**
+	 * Get the people who liked a post, most recent first, with `found` counting them all.
+	 *
+	 * @param int $post_id The post ID.
+	 * @return array|WP_Error
+	 */
+	public function get_post_likes( $post_id ) {
+		$this->resource = sprintf( '/posts/%d/likes', $post_id );
+
+		return $this->fetch_stats();
+	}
+
+	/**
 	 * Get the site's views by device property.
 	 *
 	 * @param string $property One of `browser`, `platform` or `screensize`.
@@ -473,6 +499,20 @@ class WPCOM_Stats {
 		$this->resource = 'emails/summary';
 
 		return $this->fetch_stats( $args );
+	}
+
+	/**
+	 * Get one breakdown of the opens or clicks of a post the site sent as an email, over all time.
+	 *
+	 * @param int    $post_id The post the site emailed.
+	 * @param string $stat    `opens` or `clicks`.
+	 * @param string $field   `rate`, `client`, `country` or `device`; for clicks also `link` or `user-content-link`.
+	 * @return array|WP_Error
+	 */
+	public function get_email_breakdown( $post_id, $stat, $field ) {
+		$this->resource = sprintf( '%s/emails/%d/%s', $stat, $post_id, $field );
+
+		return $this->fetch_stats();
 	}
 
 	/**

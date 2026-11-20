@@ -125,7 +125,7 @@ The slug list exists because the report registry lives in the client today. Once
 
 ## The order the reader arranges
 
-The server's order is the default. A reader rearranges the tabs in the Arrange tabs dialog of the page options menu, and the result is stored as `sectionOrder`, a list of slugs, in their preferences under the dashboard scope.
+The server's order is the default. A reader rearranges the tabs in the Arrange tabs dialog of the Stats options menu, and the result is stored as `sectionOrder`, a list of slugs, in their preferences under the dashboard scope.
 
 `orderSections()` applies it. The slugs the list names come first, in its order, and every other available section follows in the server's order, so a section registered later lands after the ones the reader arranged. A slug with no available section is skipped and kept, also when the reader saves a new order, so the section returns to its place once it is available again.
 
@@ -135,7 +135,7 @@ When the order changes under a URL that names no section, `useActiveSection()` k
 
 While the dialog is open, the tab bar previews the order the reader is trying: the dialog reports each move through `onPreview`, and the stage applies it to the sections it hands the tab bar and to nothing else. Nothing is stored until the reader saves, and the preview is gone with the dialog, however it closes.
 
-Another screen with tabs offers the dialog by handing `PageOptionsMenu` its `tabs`: the screen's preferences scope, its `{ slug, label }` items and, for the preview, an `onPreview` callback.
+Another screen with tabs offers the dialog by handing `StatsOptionsMenu` its `tabs`: the screen's preferences scope, its `{ slug, label }` items and, for the preview, an `onPreview` callback.
 
 ## Default layouts
 
@@ -223,7 +223,7 @@ A section that fails its rule is absent from the sections route, from the script
 
 ## A real consumer: the Ads section
 
-![The WordAds module registers the Ads section on self-hosted sites and skips the WordPress.com platform, jetpack-mu-wpcom registers it on Atomic and Simple by plan feature and WordAds being on, both at priority 20 skipping an existing ads slug, and the standalone plugin has no registrant.](diagrams/sections-ads-owners.svg)
+![The WordAds module registers the Ads section on self-hosted sites and skips the WordPress.com platform, jetpack-mu-wpcom registers it on Atomic and Simple where WordAds is on, both at priority 20 skipping an existing ads slug, and the standalone plugin has no registrant.](diagrams/sections-ads-owners.svg)
 
 ### Who owns the section
 
@@ -235,7 +235,7 @@ WordAds is a module of the Jetpack plugin, so the module calls `Analytics_Dashbo
 
 ### On WordPress.com
 
-The module registrant skips the platform, `Host::is_wpcom_platform()`. `jetpack-mu-wpcom` calls the package's registrants instead when the plan includes WordAds and the site has it on, from `src/features/premium-analytics/wordads-section.php`: the WordAds module on Atomic, the approval stickers on Simple, as classic Stats reads them. A plan that could use WordAds is not a site that does.
+The module registrant skips the platform, `Host::is_wpcom_platform()`. `jetpack-mu-wpcom` calls the package's registrants instead when the site has WordAds on, from `src/features/premium-analytics/wordads-section.php`: the approval stickers on Simple, as classic Stats reads them, and the WordAds module plus the plan feature on Atomic. A plan that could use WordAds is not a site that does, and Simple skips the plan because sites approved before WordAds needed one still run ads.
 
 Simple runs no Jetpack plugin, so that one file decides for both environments. One owner per environment, decided in code rather than by hook order.
 
@@ -271,7 +271,7 @@ The widget it seeds is the registrant's story, in [Dashboard widget types](dashb
 | The VideoPress package's layout seed, with and without the widget contract loaded, and its WordPress.com registrant | `projects/packages/videopress/tests/php/Analytics_Dashboard_Test.php`, `projects/packages/videopress/tests/php/Analytics_Dashboard_Without_Widget_Types_Test.php`, `projects/packages/jetpack-mu-wpcom/tests/php/features/premium-analytics/Videopress_Widgets_Test.php` |
 | The REST entry point WordPress.com calls                                                                            | `tests/php/Dashboard_Support_Routes_Test.php`                                                                                                                                                                                                                            |
 | Navigation, active section, stored layouts, section heading                                                         | `routes/dashboard/**/*.test.ts(x)`                                                                                                                                                                                                                                       |
-| The order the reader arranges, and the dialog that stores it                                                        | `packages/data/src/defaults/__tests__/section-order.test.ts`, `routes/stats-date-window.test.ts`, `packages/widgets-toolkit/src/components/page-options-menu/__tests__/arrange-tabs-dialog.test.tsx`                                                                     |
+| The order the reader arranges, and the dialog that stores it                                                        | `packages/data/src/defaults/__tests__/section-order.test.ts`, `routes/stats-date-window.test.ts`, `packages/widgets-toolkit/src/components/stats-options-menu/__tests__/arrange-tabs-dialog.test.tsx`                                                                    |
 | Reports behind a hidden section                                                                                     | `routes/reports/registry.test.ts`, `packages/data/src/utils/__tests__/dashboard-sections.test.ts`                                                                                                                                                                        |
 
 ## Not covered here

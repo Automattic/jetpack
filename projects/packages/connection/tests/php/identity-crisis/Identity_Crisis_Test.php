@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack;
 
+use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\IdentityCrisis\URL_Secret;
 use Automattic\Jetpack\Status\Cache as StatusCache;
 use Jetpack_Options;
@@ -54,6 +55,8 @@ class Identity_Crisis_Test extends BaseTestCase {
 		Jetpack_Options::delete_option( 'safe_mode_confirmed' );
 		$_GET = array();
 		wp_set_current_user( 0 );
+		$GLOBALS['wp_styles']      = null;
+		$GLOBALS['show_admin_bar'] = null;
 	}
 
 	/**
@@ -1823,6 +1826,63 @@ class Identity_Crisis_Test extends BaseTestCase {
 	}
 
 	/**
+	 * A remote validation that leaves the IDC in place saves the WordPress.com URLs reversed, so they read back correctly.
+	 *
+	 * @dataProvider provide_stored_wpcom_url_forms
+	 *
+	 * @param bool $left_unreversed Whether an earlier save left the URLs un-reversed.
+	 */
+	#[DataProvider( 'provide_stored_wpcom_url_forms' )]
+	public function test_remote_validate_idc_saves_wpcom_urls_reversed( $left_unreversed ) {
+		Identity_Crisis::init();
+		Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
+		Jetpack_Options::update_option( 'id', 12345 );
+		Jetpack_Options::update_option( 'blog_token', 'test.token' );
+		$sync_error = Identity_Crisis::get_sync_error_idc_option(
+			array(
+				'error_code'    => 'jetpack_url_mismatch',
+				'wpcom_home'    => 'https://wpcom.example.com',
+				'wpcom_siteurl' => 'https://wpcom.example.com/wp',
+			)
+		);
+		Jetpack_Options::update_option( 'sync_error_idc', $left_unreversed ? Identity_Crisis::reverse_wpcom_urls_for_idc( $sync_error ) : $sync_error );
+
+		$writes       = array();
+		$capture      = function ( $name, $value ) use ( &$writes ) {
+			$writes[] = array( $value['wpcom_home'], $value['wpcom_siteurl'], $value['reversed_url'] );
+		};
+		$fail_request = function () {
+			return new \WP_Error( 'http_request_failed', 'Network error' );
+		};
+		add_action( 'pre_update_jetpack_option_sync_error_idc', $capture, 10, 2 );
+		add_filter( 'pre_http_request', $fail_request );
+
+		Identity_Crisis::remote_validate_idc( Jetpack_Options::get_option( 'sync_error_idc' ) );
+		$read_back = Jetpack_Options::get_option( 'sync_error_idc' );
+
+		remove_filter( 'pre_http_request', $fail_request );
+		remove_action( 'pre_update_jetpack_option_sync_error_idc', $capture, 10 );
+		Jetpack_Options::delete_option( array( 'id', 'blog_token', 'sync_error_idc' ) );
+
+		$this->assertCount( 2, $writes );
+		$reversed = array( strrev( 'wpcom.example.com/' ), strrev( 'wpcom.example.com/wp/' ), true );
+		$this->assertSame( array_fill( 0, count( $writes ), $reversed ), $writes );
+		$this->assertSame( array( 'wpcom.example.com/', 'wpcom.example.com/wp/' ), array( $read_back['wpcom_home'], $read_back['wpcom_siteurl'] ) );
+	}
+
+	/**
+	 * How the sync error's WordPress.com URLs sit in the database before the validation.
+	 *
+	 * @return array
+	 */
+	public static function provide_stored_wpcom_url_forms() {
+		return array(
+			'reversed'                         => array( false ),
+			'left un-reversed by earlier save' => array( true ),
+		);
+	}
+
+	/**
 	 * Non-admins see Safe Mode as confirmed once an admin has confirmed it.
 	 */
 	public function test_wordpress_init_reads_confirmation_for_non_admins() {
@@ -1863,24 +1923,24 @@ class Identity_Crisis_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The admin bar item is hidden until Safe Mode is confirmed.
+	 * Admins get a visible admin bar item whether or not Safe Mode is confirmed.
 	 *
-	 * @param bool        $is_confirmed   Whether Safe Mode is confirmed.
-	 * @param string|null $expected_class The node's class.
+	 * @param bool $is_confirmed Whether Safe Mode is confirmed.
 	 *
 	 * @dataProvider data_provider_test_admin_bar_button_for_admins
 	 */
 	#[DataProvider( 'data_provider_test_admin_bar_button_for_admins' )]
-	public function test_admin_bar_button_for_admins( $is_confirmed, $expected_class ) {
+	public function test_admin_bar_button_for_admins( $is_confirmed ) {
 		$this->set_current_user( true );
 		Identity_Crisis::$is_safe_mode_confirmed = $is_confirmed;
 
 		$node = $this->render_admin_bar_button();
 
 		$this->assertNotNull( $node );
-		$this->assertSame( $expected_class, $node->meta['class'] ?? null );
+		$this->assertArrayNotHasKey( 'class', $node->meta );
 		$this->assertStringContainsString( 'Jetpack Safe Mode', $node->title );
 		$this->assertStringContainsString( 'jetpack_idc_clear_confirmation=1', $node->href );
+		$this->assertSame( '_self', $node->meta['target'] );
 	}
 
 	/**
@@ -1890,8 +1950,96 @@ class Identity_Crisis_Test extends BaseTestCase {
 	 */
 	public static function data_provider_test_admin_bar_button_for_admins() {
 		return array(
-			'pending'   => array( false, 'hide' ),
-			'confirmed' => array( true, null ),
+			'pending'   => array( false ),
+			'confirmed' => array( true ),
+		);
+	}
+
+	/**
+	 * The admin bar item leads to a page that shows the Safe Mode screen.
+	 *
+	 * @param bool   $in_admin       Whether the request is for wp-admin.
+	 * @param bool   $hides_notices  Whether the page hides admin notices, as Jetpack dashboards do.
+	 * @param bool   $has_my_jetpack Whether My Jetpack is registered.
+	 * @param string $expected       Where the link leads: `current`, `my-jetpack` or `dashboard`.
+	 *
+	 * @dataProvider data_provider_test_admin_bar_button_target
+	 */
+	#[DataProvider( 'data_provider_test_admin_bar_button_target' )]
+	public function test_admin_bar_button_target( $in_admin, $hides_notices, $has_my_jetpack, $expected ) {
+		global $_parent_pages;
+		require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		require_once ABSPATH . 'wp-admin/includes/class-wp-screen.php';
+		require_once ABSPATH . 'wp-admin/includes/screen.php';
+		$this->set_current_user( true );
+		$request_uri            = $_SERVER['REQUEST_URI'] ?? null;
+		$_SERVER['REQUEST_URI'] = '/wp-admin/edit.php';
+		if ( $in_admin ) {
+			set_current_screen( 'dashboard' );
+		}
+		if ( $hides_notices ) {
+			wp_register_style( Admin_Menu::HIDE_CORE_NOTICES_HANDLE, false, array(), '1' );
+			wp_enqueue_style( Admin_Menu::HIDE_CORE_NOTICES_HANDLE );
+		}
+		if ( $has_my_jetpack ) {
+			$_parent_pages['my-jetpack'] = false;
+		}
+
+		$node = $this->render_admin_bar_button();
+
+		unset( $GLOBALS['current_screen'], $_parent_pages['my-jetpack'] );
+		wp_deregister_style( Admin_Menu::HIDE_CORE_NOTICES_HANDLE );
+		$_SERVER['REQUEST_URI'] = $request_uri;
+
+		$prefixes = array(
+			'current'    => '/wp-admin/edit.php?',
+			'my-jetpack' => admin_url( 'admin.php?page=my-jetpack' ) . '&',
+			'dashboard'  => admin_url() . '?',
+		);
+		$this->assertStringStartsWith( $prefixes[ $expected ], html_entity_decode( $node->href, ENT_QUOTES ) );
+	}
+
+	/**
+	 * Data provider for test_admin_bar_button_target.
+	 *
+	 * @return array
+	 */
+	public static function data_provider_test_admin_bar_button_target() {
+		return array(
+			'front end'                        => array( false, false, true, 'dashboard' ),
+			'admin page showing the screen'    => array( true, false, true, 'current' ),
+			'Jetpack dashboard'                => array( true, true, true, 'my-jetpack' ),
+			'Jetpack dashboard, no My Jetpack' => array( true, true, false, 'dashboard' ),
+		);
+	}
+
+	/**
+	 * The admin bar item's styles load wherever the admin bar shows, for users who get the item.
+	 *
+	 * @param bool $can_resolve Whether the user can resolve Safe Mode.
+	 *
+	 * @dataProvider data_provider_test_add_admin_bar_styles
+	 */
+	#[DataProvider( 'data_provider_test_add_admin_bar_styles' )]
+	public function test_add_admin_bar_styles( $can_resolve ) {
+		$this->set_current_user( $can_resolve );
+		show_admin_bar( true );
+
+		Identity_Crisis::init()->add_admin_bar_styles();
+
+		$inline = implode( '', (array) wp_styles()->get_data( 'admin-bar', 'after' ) );
+		$this->assertSame( $can_resolve, false !== strpos( $inline, '#wp-admin-bar-jetpack-idc' ) );
+	}
+
+	/**
+	 * Data provider for test_add_admin_bar_styles.
+	 *
+	 * @return array
+	 */
+	public static function data_provider_test_add_admin_bar_styles() {
+		return array(
+			'admin'     => array( true ),
+			'non-admin' => array( false ),
 		);
 	}
 

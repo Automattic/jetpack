@@ -591,7 +591,7 @@ function configure_stats_plan_gates() {
  */
 function inject_stats_plan_gates_script_data( array $data ): array {
 	// Script data prints on every Jetpack admin page; only the dashboard reads the gates.
-	if ( ! Analytics::is_dashboard_request() ) {
+	if ( ! Analytics::renders_dashboard() ) {
 		return $data;
 	}
 

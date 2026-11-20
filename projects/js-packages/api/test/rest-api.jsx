@@ -71,6 +71,25 @@ describe( 'restApi', () => {
 			} );
 		} );
 
+		// `type: string` on the endpoint rejects a null `from` with a 400, so only a given one is sent.
+		it.each( [
+			[
+				'sends a given from',
+				'connection_safe_mode_notice',
+				{ from: 'connection_safe_mode_notice' },
+			],
+			[ 'leaves out a null from', null, {} ],
+		] )( 'startIDCFresh %s', async ( _, from, expectedFrom ) => {
+			fetch.mockFetchResponse(
+				JSON.stringify( 'https://jetpack.wordpress.com/jetpack.authorize/1/' )
+			);
+			await restApi.startIDCFresh( 'admin.php?page=jetpack', from );
+			expect( JSON.parse( fetch.mock.calls[ 0 ][ 1 ].body ) ).toEqual( {
+				redirect_uri: 'admin.php?page=jetpack',
+				...expectedFrom,
+			} );
+		} );
+
 		it( 'can fetchBackupPreflightStatus', async () => {
 			fetch.mockFetchResponse( { ok: true, tests: [] } );
 			const preflightStatus = await restApi.fetchBackupPreflightStatus();

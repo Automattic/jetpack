@@ -27,6 +27,11 @@ class Playground_DB_Importer {
 	public const SQLITE_SEQUENCE_TABLE = 'sqlite_sequence';
 
 	/**
+	 * Name of the table where SQLite stores the MySQL index definitions.
+	 */
+	public const SQLITE_INDEXES_TABLE = '_wp_sqlite_mysql_information_schema_statistics';
+
+	/**
 	 * The database connection.
 	 *
 	 * @var ?SQLite3
@@ -54,7 +59,8 @@ class Playground_DB_Importer {
 	 *     @type string $output_file    The output file path. If not set, a temporary file will be used.
 	 *     @type int    $output_mode    Output mode. Defaults to SQL_Generator::OUTPUT_TYPE_STRING.
 	 *     @type string $output_prefix  The generated tables prefix.
-	 *     @type string $prefix         The input tables prefix. (Always `wp_` for Playground databases)
+	 *     @type string $prefix         The input tables prefix, usually the backup's `$table_prefix`. Used when the
+	 *                                  database has that prefix's options table; otherwise it's detected. Defaults to `wp_`.
 	 *     @type string $tmp_prefix     The temporary tables prefix.
 	 *     @type bool   $tmp_tables     Whether to generate temporary tables instead of TRANSACTION. Defaults to false.
 	 * }
@@ -102,6 +108,8 @@ class Playground_DB_Importer {
 		try {
 			// Try to open the database file.
 			$this->db = new SQLite3( $database_file_path, SQLITE3_OPEN_READONLY );
+
+			$this->options['prefix'] = $this->get_input_prefix( (string) $this->options['prefix'] );
 
 			$ret = $this->parse_database();
 
@@ -199,7 +207,7 @@ class Playground_DB_Importer {
 			$output_table = $this->get_output_table_name( $table_name );
 
 			$generator->start_table( $output_table, $types_map['map'], $types_map['auto_increment'] );
-			$this->generate_inserts( $generator, $table['name'], $types_map['format'], $types_map['field_names'] );
+			$this->generate_inserts( $generator, $table['name'], $types_map['formats'], $types_map['field_names'] );
 			$generator->end_table_inserts();
 
 			if ( ! $this->options['all_tables'] ) {
@@ -251,12 +259,12 @@ class Playground_DB_Importer {
 	 *
 	 * @param SQL_Generator $generator   The SQL generator.
 	 * @param string        $table_name  The table name.
-	 * @param string        $format      The format string.
+	 * @param string[]      $formats     The format of each column.
 	 * @param string        $field_names The field names.
 	 *
 	 * @return void|WP_Error
 	 */
-	private function generate_inserts( SQL_Generator $generator, string $table_name, string $format, string $field_names ) {
+	private function generate_inserts( SQL_Generator $generator, string $table_name, array $formats, string $field_names ) {
 		$entries = $this->db->query( "SELECT * FROM {$table_name}" );
 
 		if ( ! $entries ) {
@@ -264,8 +272,75 @@ class Playground_DB_Importer {
 		}
 
 		while ( $entry = $entries->fetchArray( SQLITE3_ASSOC ) ) { // phpcs:ignore Generic.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition
-			$generator->table_insert( $field_names, $this->prepare( $format, $entry ) );
+			$generator->table_insert( $field_names, $this->prepare_row( $formats, array_values( $entry ) ) );
 		}
+	}
+
+	/**
+	 * Format a row's values for an INSERT, keeping NULL as NULL.
+	 *
+	 * `wpdb::prepare()` writes NULL as `''`, which MySQL stores as `0` in a number column or as `''`. Two
+	 * of those in a UNIQUE index, like Borlabs Cookie's or MailPoet's nullable unique columns, collide
+	 * and fail the restore with a duplicate entry error.
+	 *
+	 * @param string[] $formats The format of each column.
+	 * @param array    $values  The row's values, in column order.
+	 *
+	 * @return string
+	 */
+	private function prepare_row( array $formats, array $values ): string {
+		$placeholders = array();
+		$args         = array();
+
+		foreach ( $values as $i => $value ) {
+			if ( null === $value ) {
+				$placeholders[] = 'NULL';
+				continue;
+			}
+
+			$placeholders[] = $formats[ $i ] ?? '%s';
+			$args[]         = $value;
+		}
+
+		$row = '(' . implode( ',', $placeholders ) . ')';
+
+		return empty( $args ) ? $row : (string) $this->prepare( $row, $args );
+	}
+
+	/**
+	 * Get the prefix of the database's WordPress tables.
+	 *
+	 * Studio sites pulled from a site that uses another table prefix, like `wpx_`, keep it. The
+	 * requested prefix is used when its options table holds a site URL. Otherwise, the prefix of the
+	 * options table that does is used, preferring `wp_`.
+	 *
+	 * @param string $requested_prefix The prefix to use when its options table exists.
+	 *
+	 * @return string
+	 */
+	private function get_input_prefix( string $requested_prefix ): string {
+		$prefixes = array();
+		$results  = $this->db->query( "SELECT name FROM sqlite_master WHERE type='table' AND name LIKE '%options'" );
+
+		while ( $results && $table = $results->fetchArray( SQLITE3_ASSOC ) ) { // phpcs:ignore Generic.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition
+			$table_name = $table['name'];
+			$prefix     = substr( $table_name, 0, -strlen( 'options' ) );
+
+			// Only a WordPress options table holds a site URL. Other tables return false here.
+			$query = $this->prepare( 'SELECT COUNT(*) FROM "' . str_replace( '"', '""', $table_name ) . '" WHERE option_name = %s', 'siteurl' );
+
+			if ( @$this->db->querySingle( $query ) > 0 ) { // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+				$prefixes[] = $prefix;
+			}
+		}
+
+		foreach ( array( $requested_prefix, 'wp_' ) as $prefix ) {
+			if ( in_array( $prefix, $prefixes, true ) ) {
+				return $prefix;
+			}
+		}
+
+		return count( $prefixes ) === 1 ? $prefixes[0] : $requested_prefix;
 	}
 
 	/**
@@ -401,7 +476,15 @@ class Playground_DB_Importer {
 			}
 		}
 
-		// Load table indices.
+		// Load the table's indices as MySQL defined them, with their real names and prefix lengths.
+		$schema_indexes = $this->get_schema_indexes( $table_name );
+		if ( $schema_indexes !== null ) {
+			$map = array_merge( $map, $schema_indexes );
+
+			return $this->finish_table_types_map( $table_name, $map, $has_autoinc, $field_names, $formats );
+		}
+
+		// Fall back to the SQLite indices, for databases without the MySQL index definitions.
 		$query   = $this->prepare( 'SELECT name, sql FROM sqlite_master WHERE type=\'index\' AND tbl_name=%s', $table_name );
 		$results = $this->db->query( $query );
 
@@ -439,8 +522,79 @@ class Playground_DB_Importer {
 			$map[] = $new_index;
 		}
 
-		// Hot fix: add the missing index sizes.
-		$map = $this->hot_fix_missing_indexes( $table_name, $map );
+		return $this->finish_table_types_map( $table_name, $map, $has_autoinc, $field_names, $formats );
+	}
+
+	/**
+	 * The table's indices from the MySQL index definitions the SQLite driver keeps.
+	 *
+	 * SQLite's own indices lose MySQL's prefix lengths, like TranslatePress's `original`(100) on a text column,
+	 * and their names are rebuilt from `<table>__<index>`, which breaks on index names containing `__`.
+	 *
+	 * @param string $table_name The table name.
+	 *
+	 * @return array|null The index map entries, or null if the definitions aren't available.
+	 */
+	private function get_schema_indexes( string $table_name ): ?array {
+		$query = $this->prepare( 'SELECT name FROM sqlite_master WHERE type=\'table\' AND name=%s', self::SQLITE_INDEXES_TABLE );
+		if ( ! $this->db->querySingle( $query ) ) {
+			return null;
+		}
+
+		$query   = $this->prepare( 'SELECT INDEX_NAME, NON_UNIQUE, SEQ_IN_INDEX, COLUMN_NAME, SUB_PART, INDEX_TYPE FROM ' . self::SQLITE_INDEXES_TABLE . ' WHERE TABLE_NAME=%s ORDER BY rowid', $table_name );
+		$results = $this->db->query( $query );
+		if ( ! $results ) {
+			return null;
+		}
+
+		$indexes = array();
+		while ( $row = $results->fetchArray( SQLITE3_ASSOC ) ) { // phpcs:ignore Generic.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition
+			// The primary key is output from the columns.
+			if ( $row['INDEX_NAME'] === 'PRIMARY' ) {
+				continue;
+			}
+
+			$name = $row['INDEX_NAME'];
+			if ( ! isset( $indexes[ $name ] ) ) {
+				if ( strtoupper( (string) $row['INDEX_TYPE'] ) === 'FULLTEXT' ) {
+					$type = 'FULLTEXT';
+				} else {
+					$type = ( (int) $row['NON_UNIQUE'] === 0 ) ? 'UNIQUE' : 'KEY';
+				}
+
+				$indexes[ $name ] = array(
+					'name'    => $name,
+					'type'    => $type,
+					'columns' => array(),
+				);
+			}
+
+			$indexes[ $name ]['columns'][ (int) $row['SEQ_IN_INDEX'] ] = '`' . $row['COLUMN_NAME'] . '`' . ( $row['SUB_PART'] ? '(' . (int) $row['SUB_PART'] . ')' : '' );
+		}
+
+		// Keep the indices in creation order, and their columns in index order.
+		foreach ( $indexes as $name => $index ) {
+			ksort( $index['columns'] );
+			$indexes[ $name ]['columns'] = '(' . implode( ', ', $index['columns'] ) . ')';
+		}
+
+		return array_values( $indexes );
+	}
+
+	/**
+	 * Apply the index hot fixes and build the table types map.
+	 *
+	 * @param string $table_name  The table name.
+	 * @param array  $map         The columns and indices map.
+	 * @param bool   $has_autoinc Whether the table has an AUTO_INCREMENT column.
+	 * @param array  $field_names The field names.
+	 * @param array  $formats     The field formats.
+	 *
+	 * @return array
+	 */
+	private function finish_table_types_map( string $table_name, array $map, bool $has_autoinc, array $field_names, array $formats ): array {
+		// Hot fix: add the missing index sizes. The fixes are listed under the `wp_` prefix.
+		$map = $this->hot_fix_missing_indexes( 'wp_' . $this->get_input_table_name( $table_name ), $map );
 
 		$auto_increment = 0;
 
@@ -453,6 +607,7 @@ class Playground_DB_Importer {
 			'auto_increment' => $auto_increment,
 			'field_names'    => '(`' . implode( '`,`', $field_names ) . '`)',
 			'format'         => '(' . implode( ',', $formats ) . ')',
+			'formats'        => $formats,
 		);
 	}
 

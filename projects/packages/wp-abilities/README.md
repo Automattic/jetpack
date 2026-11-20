@@ -43,7 +43,12 @@ class My_Plugin_Abilities extends Registrar {
 						'destructive' => false,
 						'idempotent'  => true,
 					),
+					'public'       => true,
 					'show_in_rest' => true,
+					'mcp'          => array(
+						'public' => true,
+						'type'   => 'tool',
+					),
 				),
 			),
 		);
@@ -63,21 +68,18 @@ My_Plugin_Abilities::init();
 
 If an ability spec omits `category`, the registrar auto-injects `get_category_slug()`. If the spec sets `category` explicitly (for cross-registrar shared abilities), the explicit value is preserved.
 
-## Gating registration for gradual rollout
+## Turning registration off
 
-Registration is **opt-in**. `init()` checks the `jetpack_wp_abilities_enabled` filter, which defaults to `false`. Return `true` to turn registration on for this request, typically gated on a site option, user capability, or feature flag.
+Registration is on by default. `init()` checks the `jetpack_wp_abilities_enabled` filter, which defaults to `true`. Return `false` to turn registration off for a site or a single request.
 
 ```php
-// Enable Jetpack abilities registration on sites that have opted in.
-add_filter(
-	'jetpack_wp_abilities_enabled',
-	static function ( bool $enabled ): bool {
-		return (bool) get_option( 'my_abilities_rollout_enabled', false );
-	}
-);
+// Turn Jetpack abilities off on this site.
+add_filter( 'jetpack_wp_abilities_enabled', '__return_false' );
 ```
 
-Because the default is `false`, a plugin that extends `Registrar` and calls `MyRegistrar::init()` registers nothing until a site explicitly flips the flag.
+Add the filter in an mu-plugin. Registration starts before a theme loads, so a theme's `functions.php` is too late.
+
+The filter does not cover Forms: its abilities shipped before the filter existed and register whatever it returns.
 
 ### Per-registration gate
 

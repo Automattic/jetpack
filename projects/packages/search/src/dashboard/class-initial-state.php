@@ -31,14 +31,23 @@ class Initial_State {
 	protected $module_control;
 
 	/**
+	 * Whether the admin shell is readying the page behind another dashboard, where nothing may be saved.
+	 *
+	 * @var bool
+	 */
+	protected $is_admin_shell_guest;
+
+	/**
 	 * Constructor
 	 *
-	 * @param Connection_Manager $connection_manager - Connection mananger instance.
-	 * @param Module_Control     $module_control - Module control instance.
+	 * @param Connection_Manager|null $connection_manager   - Connection manager instance.
+	 * @param Module_Control|null     $module_control       - Module control instance.
+	 * @param bool                    $is_admin_shell_guest - Whether the admin shell is readying the page behind another dashboard.
 	 */
-	public function __construct( $connection_manager = null, $module_control = null ) {
-		$this->connection_manager = $connection_manager ? $connection_manager : new Connection_Manager( Package::SLUG );
-		$this->module_control     = $module_control ? $module_control : new Module_Control();
+	public function __construct( $connection_manager = null, $module_control = null, $is_admin_shell_guest = false ) {
+		$this->connection_manager   = $connection_manager ? $connection_manager : new Connection_Manager( Package::SLUG );
+		$this->module_control       = $module_control ? $module_control : new Module_Control();
+		$this->is_admin_shell_guest = $is_admin_shell_guest;
 	}
 
 	/**
@@ -56,7 +65,7 @@ class Initial_State {
 	 * @return array
 	 */
 	public function get_initial_state() {
-		return array(
+		$state = array(
 			'siteData'        => array(
 				'WP_API_root'             => esc_url_raw( rest_url() ),
 				'wpcomOriginApiUrl'       => $this->get_wp_api_root(),
@@ -163,6 +172,14 @@ class Initial_State {
 				isset( $_GET['features'] ) ? explode( ',', wp_unslash( $_GET['features'] ) ) : array()
 			),
 		);
+
+		// The last plan the site saved, so the page can pick its view before the plan request returns.
+		$plan_info = get_option( Plan::JETPACK_SEARCH_PLAN_INFO_OPTION_KEY );
+		if ( is_array( $plan_info ) ) {
+			$state['sitePlan'] = $plan_info;
+		}
+
+		return $state;
 	}
 
 	/**
@@ -417,7 +434,8 @@ class Initial_State {
 
 		$purchase_token = Jetpack_Options::get_option( 'purchase_token', false );
 
-		if ( $purchase_token ) {
+		// A menu hover readies the page through the admin shell; the page's own load creates the token.
+		if ( $purchase_token || $this->is_admin_shell_guest ) {
 			return $purchase_token;
 		}
 		// If the purchase token is not saved in the options table yet, then add it.

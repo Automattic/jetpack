@@ -23,6 +23,12 @@
 		]
 	},
 	"scripts": {
+		"build-development": "pnpm run build",
+		"build-production": "pnpm run build-production",
+		"watch": [
+			"Composer\\Config::disableProcessTimeout",
+			"pnpm run watch"
+		],
 		"phpunit": [
 			"phpunit-select-config phpunit.#.xml.dist --colors=always"
 		],
@@ -31,6 +37,12 @@
 		],
 		"test-php-coverage": [
 			"php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
+		],
+		"test-js": [
+			"pnpm run test"
+		],
+		"test-js-coverage": [
+			"pnpm run test-coverage"
 		]
 	},
 	"repositories": [
@@ -45,12 +57,16 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
+		"mirror-repo": "Automattic/jetpack-announcements",
 		"branch-alias": {
 			"dev-trunk": "0.1.x-dev"
 		},
 		"textdomain": "jetpack-announcements",
 		"version-constants": {
 			"::PACKAGE_VERSION": "src/class-announcements.php"
+		},
+		"changelogger": {
+			"link-template": "https://github.com/Automattic/jetpack-announcements/compare/v${old}...v${new}"
 		}
 	},
 	"config": {

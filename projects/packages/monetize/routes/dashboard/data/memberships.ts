@@ -2,6 +2,8 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRef } from 'react';
 import { wpcomFetch } from './wpcom-fetch';
 
+export const EARNINGS_KEY = [ 'monetize', 'memberships', 'earnings' ];
+
 interface EarningsResponse {
 	total?: number;
 	last_month?: number;
@@ -26,7 +28,7 @@ export interface MembershipsEarnings {
  */
 export function useMembershipsEarnings() {
 	return useQuery( {
-		queryKey: [ 'monetize', 'memberships', 'earnings' ],
+		queryKey: EARNINGS_KEY,
 		queryFn: () =>
 			wpcomFetch< EarningsResponse >( { api: 'wpcom/v2', path: 'memberships/earnings' } ),
 		select: ( data ): MembershipsEarnings => ( {

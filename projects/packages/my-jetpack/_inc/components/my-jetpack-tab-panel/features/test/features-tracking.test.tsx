@@ -19,7 +19,6 @@ const mockRun = jest.fn< Promise< boolean >, [ unknown ] >( () => Promise.resolv
 const mockSetModuleActive = jest.fn();
 const recordEvent = jest.fn();
 
-jest.mock( '../../../../hooks/use-analytics' );
 jest.mock( '../../../../utils/reload-page', () => ( {
 	reloadPage: jest.fn(),
 	leavePageFor: jest.fn(),

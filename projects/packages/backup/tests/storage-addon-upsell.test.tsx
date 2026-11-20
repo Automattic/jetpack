@@ -417,9 +417,14 @@ describe( 'the checkout link', () => {
 			`https://wordpress.com/checkout/${ SITE }/jetpack_backup_addon_storage_100gb_monthly`
 		);
 		expect( href.searchParams.get( 'site' ) ).toBe( SITE );
-		// The page the reader is standing on: the modernized dashboard emits no admin
-		// URL, and legacy's rebuilt one resolves to the same place.
-		expect( href.searchParams.get( 'redirect_to' ) ).toBe( window.location.href );
+		/* The page the reader is standing on: the modernized dashboard emits no admin URL,
+		   and legacy's rebuilt one resolves to the same place. The flag makes the server
+		   read the storage figures again. */
+		const back = new URL( href.searchParams.get( 'redirect_to' ) as string );
+		expect( back.origin + back.pathname ).toBe(
+			new URL( window.location.href ).origin + new URL( window.location.href ).pathname
+		);
+		expect( back.searchParams.get( 'storage_purchased' ) ).toBe( '1' );
 	} );
 
 	it( 'shows no link at all when the connection global carries no site slug', async () => {

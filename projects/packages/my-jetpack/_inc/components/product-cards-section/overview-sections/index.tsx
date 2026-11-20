@@ -59,6 +59,8 @@ const OverviewSections: FC< { className?: string } > = ( { className = '' } ) =>
 				key="jetpack-ai"
 				slug={ PRODUCT_SLUGS.JETPACK_AI }
 				admin={ admin }
+				// The product name, 'AI', also heads its card; Features and the menu say Jetpack AI.
+				name={ __( 'Jetpack AI', 'jetpack-my-jetpack' ) }
 				actionLabel={ __( 'More about AI', 'jetpack-my-jetpack' ) }
 				upgradeLabel={ __( 'Increase usage', 'jetpack-my-jetpack' ) }
 			/>

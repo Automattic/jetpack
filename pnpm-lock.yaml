@@ -132,6 +132,9 @@ importers:
       minimatch:
         specifier: 11.0.3
         version: 11.0.3
+      xml2js:
+        specifier: 0.6.2
+        version: 0.6.2
     devDependencies:
       jest:
         specifier: 30.5.2
@@ -276,6 +279,12 @@ importers:
         specifier: 30.5.2
         version: 30.5.2
 
+  projects/js-packages/announcements:
+    devDependencies:
+      '@typescript/native-preview':
+        specifier: 7.0.0-dev.20260707.2
+        version: 7.0.0-dev.20260707.2
+
   projects/js-packages/api:
     dependencies:
       '@automattic/jetpack-config':
@@ -355,9 +364,6 @@ importers:
       '@visx/gradient':
         specifier: ^4.0.0
         version: 4.0.0(@types/react@19.3.0)(react@19.3.0)
-      '@visx/grid':
-        specifier: ^4.0.0
-        version: 4.0.0(@types/react@19.3.0)(react@19.3.0)
       '@visx/group':
         specifier: ^4.0.0
         version: 4.0.0(@types/react@19.3.0)(react@19.3.0)
@@ -418,9 +424,6 @@ importers:
       react-google-charts:
         specifier: ^5.2.1
         version: 5.2.1(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
-      tslib:
-        specifier: 2.8.1
-        version: 2.8.1
     devDependencies:
       '@automattic/jetpack-webpack-config':
         specifier: workspace:*
@@ -467,12 +470,6 @@ importers:
       '@visx/glyph':
         specifier: 4.0.0
         version: 4.0.0(@types/react@19.3.0)(react@19.3.0)
-      '@wordpress/element':
-        specifier: 10.1.0
-        version: 10.1.0(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
-      '@wordpress/private-apis':
-        specifier: 3.1.0
-        version: 3.1.0
       '@wordpress/theme-build-tools':
         specifier: 1.0.0
         version: 1.0.0(@wordpress/theme@4.0.0(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(lightningcss@1.33.0)
@@ -485,9 +482,6 @@ importers:
       jest:
         specifier: 30.5.2
         version: 30.5.2(@types/node@24.19.2)
-      jest-extended:
-        specifier: 7.0.0
-        version: 7.0.0(jest@30.5.2(@types/node@24.19.2))(typescript@6.0.3)
       lightningcss:
         specifier: ^1.33.0
         version: 1.33.0
@@ -1933,6 +1927,9 @@ importers:
       '@automattic/jetpack-webpack-config':
         specifier: workspace:*
         version: link:../../js-packages/webpack-config
+      '@automattic/jetpack-wp-build-polyfills':
+        specifier: workspace:*
+        version: link:../wp-build-polyfills
       '@wordpress/browserslist-config':
         specifier: 7.1.0
         version: 7.1.0
@@ -2045,6 +2042,82 @@ importers:
       webpack-cli:
         specifier: 7.2.1
         version: 7.2.1(webpack@5.112.2)
+
+  projects/packages/announcements:
+    dependencies:
+      '@wordpress/core-data':
+        specifier: 9.1.0
+        version: 9.1.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      '@wordpress/data':
+        specifier: 11.1.0
+        version: 11.1.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      '@wordpress/date':
+        specifier: 6.1.0
+        version: 6.1.0
+      '@wordpress/element':
+        specifier: 10.1.0
+        version: 10.1.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      '@wordpress/i18n':
+        specifier: 7.1.0
+        version: 7.1.0
+      '@wordpress/icons':
+        specifier: 20.0.0
+        version: 20.0.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      '@wordpress/preferences':
+        specifier: 5.1.0
+        version: 5.1.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      '@wordpress/ui':
+        specifier: 0.26.0
+        version: 0.26.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      react:
+        specifier: 19.3.0
+        version: 19.3.0
+      react-dom:
+        specifier: 19.3.0
+        version: 19.3.0(react@19.3.0)
+    devDependencies:
+      '@automattic/jetpack-announcements':
+        specifier: workspace:*
+        version: link:../../js-packages/announcements
+      '@automattic/jetpack-webpack-config':
+        specifier: workspace:*
+        version: link:../../js-packages/webpack-config
+      '@automattic/jetpack-wp-build-polyfills':
+        specifier: workspace:*
+        version: link:../wp-build-polyfills
+      '@babel/core':
+        specifier: 7.29.13
+        version: 7.29.13
+      '@testing-library/dom':
+        specifier: 10.4.2
+        version: 10.4.2
+      '@testing-library/react':
+        specifier: 16.3.3
+        version: 16.3.3(@testing-library/dom@10.4.2)(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      '@testing-library/user-event':
+        specifier: 14.6.8
+        version: 14.6.8(@testing-library/dom@10.4.2)
+      '@types/jest':
+        specifier: 30.0.0
+        version: 30.0.0
+      '@types/react':
+        specifier: 19.3.0
+        version: 19.3.0
+      '@typescript/native-preview':
+        specifier: 7.0.0-dev.20260707.2
+        version: 7.0.0-dev.20260707.2
+      '@wordpress/browserslist-config':
+        specifier: 7.1.0
+        version: 7.1.0
+      '@wordpress/build':
+        specifier: 0.27.0
+        version: 0.27.0(patch_hash=bbcac5b08698d64339f3d6ad560d14b8214f10b24f4adc5f23de9bd4fdacb72f)
+      jest:
+        specifier: 30.5.2
+        version: 30.5.2
+      typescript:
+        specifier: 6.0.3
+        version: 6.0.3
 
   projects/packages/assets:
     dependencies:
@@ -3477,6 +3550,12 @@ importers:
       '@wordpress/api-fetch':
         specifier: 8.1.0
         version: 8.1.0
+      '@wordpress/data':
+        specifier: 11.1.0
+        version: 11.1.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      '@wordpress/dataviews':
+        specifier: 22.0.0
+        version: 22.0.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@wordpress/date':
         specifier: 6.1.0
         version: 6.1.0
@@ -3492,6 +3571,9 @@ importers:
       '@wordpress/icons':
         specifier: 20.0.0
         version: 20.0.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      '@wordpress/notices':
+        specifier: 6.1.0
+        version: 6.1.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@wordpress/route':
         specifier: 0.25.0
         version: 0.25.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
@@ -4243,6 +4325,15 @@ importers:
       '@babel/runtime':
         specifier: 7.29.13
         version: 7.29.13
+      '@testing-library/dom':
+        specifier: 10.4.2
+        version: 10.4.2
+      '@testing-library/react':
+        specifier: 16.3.3
+        version: 16.3.3(@testing-library/dom@10.4.2)(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      '@testing-library/user-event':
+        specifier: 14.6.8
+        version: 14.6.8(@testing-library/dom@10.4.2)
       '@types/canvas-confetti':
         specifier: 1.9.0
         version: 1.9.0
@@ -4327,6 +4418,9 @@ importers:
       '@jetpack-premium-analytics/datetime':
         specifier: link:packages/datetime
         version: link:packages/datetime
+      '@jetpack-premium-analytics/error-reporting':
+        specifier: link:packages/error-reporting
+        version: link:packages/error-reporting
       '@jetpack-premium-analytics/externals':
         specifier: link:packages/externals
         version: link:packages/externals
@@ -5188,6 +5282,9 @@ importers:
       '@wordpress/dataviews':
         specifier: 22.0.0
         version: 22.0.0(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      '@wordpress/date':
+        specifier: 6.1.0
+        version: 6.1.0
       '@wordpress/element':
         specifier: 10.1.0
         version: 10.1.0(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
@@ -29216,13 +29313,6 @@ snapshots:
       jest-mock: 30.5.2
       jest-util: 30.5.1
       jest-validate: 30.5.1
-
-  jest-extended@7.0.0(jest@30.5.2(@types/node@24.19.2))(typescript@6.0.3):
-    dependencies:
-      jest-diff: 30.5.2
-      typescript: 6.0.3
-    optionalDependencies:
-      jest: 30.5.2(@types/node@24.19.2)
 
   jest-extended@7.0.0(jest@30.5.2)(typescript@6.0.3):
     dependencies:
