@@ -214,7 +214,10 @@ class PrivateSiteTest extends WP_UnitTestCase {
 	 */
 	public function test_minimal_index_does_not_build_the_core_index() {
 		wp_set_current_user( 0 );
-		$seen = null;
+		$seen = array(
+			'namespaces' => null,
+			'routes'     => null,
+		);
 		add_filter(
 			'rest_index',
 			function ( $response ) use ( &$seen ) {
@@ -447,10 +450,11 @@ class PrivateSiteTest extends WP_UnitTestCase {
 			E_WARNING
 		);
 
+		$html = '';
 		try {
 			ob_start();
 			require dirname( __DIR__ ) . '/private-site/' . $template;
-			$html = ob_get_clean();
+			$html = (string) ob_get_clean();
 		} finally {
 			restore_error_handler();
 		}
