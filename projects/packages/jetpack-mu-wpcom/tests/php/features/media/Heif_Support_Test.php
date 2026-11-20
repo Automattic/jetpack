@@ -69,6 +69,11 @@ class Heif_Support_Test extends \WorDBless\BaseTestCase {
 		jetpack_wpcom_ai_marker_register_flag();
 	}
 
+	public function tear_down() {
+		$this->remove_temp_dir();
+		parent::tear_down();
+	}
+
 	public function test_copies_the_heic_type_into_the_jpeg() {
 		$this->fake_exiftool( self::AI_MARKER );
 		$heic              = $this->heic();
@@ -133,13 +138,25 @@ class Heif_Support_Test extends \WorDBless\BaseTestCase {
 		$this->assertSame( $stats, $this->stats );
 	}
 
+	public function test_converts_when_the_tool_path_filter_throws() {
+		add_filter(
+			'jetpack_wpcom_ai_marker_tool_path',
+			/** @return never */ function () {
+				throw new \RuntimeException( 'No path.' );
+			},
+			30
+		);
+
+		$this->assertTrue( jetpack_wpcom_maybe_convert_heif_to_jpg( $this->heic() ) );
+	}
+
 	/**
-	 * Returns the path of a file with a HEIC header.
+	 * Returns the path of a file with a HEIC header, named as PHP names an upload.
 	 *
 	 * @return string
 	 */
 	private function heic() {
-		$path = $this->temp_path( 'heic' );
+		$path = $this->temp_path( '' );
 		file_put_contents( $path, "\0\0\0\x18ftypheic\0\0\0\0mif1heic" );
 
 		return $path;
