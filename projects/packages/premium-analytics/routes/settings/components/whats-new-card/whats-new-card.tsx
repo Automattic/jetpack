@@ -53,10 +53,7 @@ function TeaserSwitchForm( { isOn, onChange }: TeaserSwitchFormProps ): JSX.Elem
 				type: 'boolean',
 				Edit: 'toggle',
 				label: __( 'Show a teaser when there is something new', 'jetpack-premium-analytics-pkg' ),
-				description: __(
-					'Only for you, on every Jetpack dashboard of this site.',
-					'jetpack-premium-analytics-pkg'
-				),
+				description: __( 'Only for you, on this site.', 'jetpack-premium-analytics-pkg' ),
 			},
 		],
 		[]
