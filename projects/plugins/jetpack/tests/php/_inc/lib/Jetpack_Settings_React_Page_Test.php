@@ -371,6 +371,13 @@ class Jetpack_Settings_React_Page_Test extends WP_UnitTestCase {
 				array( 'security' ),
 			),
 			'Traffic for the legacy SEO settings'      => array( array( 'seo_page' => false ) + $settled, array( 'traffic' ) ),
+			'Traffic for canonical URLs alone'         => array(
+				array(
+					'modules'  => array( 'canonical-urls' ),
+					'seo_page' => false,
+				) + $settled,
+				array( 'traffic' ),
+			),
 			'Traffic for classic Stats'                => array( array( 'odyssey' => false ) + $settled, array( 'traffic' ) ),
 			'nothing left on Stats v2'                 => array(
 				array(
