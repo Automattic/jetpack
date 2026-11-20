@@ -285,6 +285,19 @@ class The_Neverending_Home_Page_Test extends WP_UnitTestCase {
 		$this->assertArrayNotHasKey( 'styles', $results );
 	}
 
+	public function test_footer_keeps_duotone_svg_filters_and_restores_core_action() {
+		$html = do_blocks( '<!-- wp:image {"style":{"color":{"duotone":["#000000","#ff0000"]}}} --><figure class="wp-block-image"><img src="https://example.org/a.jpg" alt=""/></figure><!-- /wp:image -->' );
+		$this->assertSame( 1, preg_match( '/wp-duotone-000000-ff0000-\d+/', $html, $class ) );
+		// Core unhooks this deprecated callback on wp_enqueue_scripts, which this test doesn't fire.
+		remove_action( 'wp_footer', 'the_block_template_skip_link' );
+
+		$svgs = The_Neverending_Home_Page::do_footer_and_get_duotone_svgs();
+
+		$this->assertStringStartsWith( '<svg', $svgs );
+		$this->assertStringContainsString( '<filter id="' . $class[0] . '">', $svgs );
+		$this->assertSame( 10, has_action( 'wp_footer', array( 'WP_Duotone', 'output_footer_assets' ) ) );
+	}
+
 	/**
 	 * Gets the test data for test_max_posts_per_page_in_request().
 	 *
