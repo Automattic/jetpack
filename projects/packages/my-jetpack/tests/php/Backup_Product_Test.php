@@ -247,6 +247,8 @@ class Backup_Product_Test extends TestCase {
 
 		remove_filter( 'jetpack_get_available_modules', array( $this, 'add_backup_module' ) );
 		remove_filter( 'jetpack_get_available_standalone_modules', array( $this, 'add_standalone_backup_module' ) );
+		remove_filter( 'pre_http_request', array( $this, 'mock_undo_event_response' ) );
+		Constants::clear_constants();
 		WorDBless_Options::init()->clear_options();
 		WorDBless_Users::init()->clear_all_users();
 	}
@@ -585,5 +587,129 @@ class Backup_Product_Test extends TestCase {
 
 		delete_transient( Backup::BACKUP_STATUS_TRANSIENT_KEY );
 		delete_transient( Wpcom_Products::MY_JETPACK_PURCHASES_TRANSIENT_KEY );
+	}
+
+	/**
+	 * Requests made to the rewindable activity endpoint.
+	 *
+	 * @var int
+	 */
+	private $undo_event_calls = 0;
+
+	/**
+	 * The HTTP status the mocked rewindable activity endpoint answers with.
+	 *
+	 * @var int
+	 */
+	private $undo_event_status = 200;
+
+	/**
+	 * Answers the rewindable activity endpoint with one undoable plugin update after a backup.
+	 *
+	 * @param false|array $pre  The short-circuit value.
+	 * @param array       $args Request arguments.
+	 * @param string      $url  Request URL.
+	 * @return false|array
+	 */
+	public function mock_undo_event_response( $pre, $args, $url ) {
+		if ( false === strpos( $url, '/activity/rewindable' ) ) {
+			return $pre;
+		}
+		++$this->undo_event_calls;
+
+		return array(
+			'response' => array( 'code' => $this->undo_event_status ),
+			'body'     => wp_json_encode(
+				array(
+					'current' => array(
+						'orderedItems' => array(
+							array(
+								'is_rewindable' => true,
+								'name'          => 'plugin__updated',
+								'rewind_id'     => '2',
+							),
+							array(
+								'is_rewindable' => true,
+								'name'          => 'rewind__backup_complete_full',
+								'rewind_id'     => '1',
+							),
+						),
+					),
+				),
+				JSON_UNESCAPED_SLASHES
+			),
+		);
+	}
+
+	/**
+	 * Connects the site and the current user, and mocks the rewindable activity endpoint.
+	 */
+	private function connect_and_mock_undo_event() {
+		( new Tokens() )->update_blog_token( 'test.test.1' );
+		( new Tokens() )->update_user_token( self::$user_id, 'test.test.' . self::$user_id, true );
+		Jetpack_Options::update_option( 'id', 123 );
+		Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
+		Constants::set_constant( 'JETPACK__API_VERSION', 1 );
+		add_filter( 'pre_http_request', array( $this, 'mock_undo_event_response' ), 10, 3 );
+	}
+
+	/**
+	 * The undo event the endpoint would send, or null when it finds none.
+	 *
+	 * @return array|null
+	 */
+	private function undo_event() {
+		$response = Backup::get_site_backup_undo_event();
+		return $response instanceof \WP_REST_Response ? $response->get_data() : $response;
+	}
+
+	/**
+	 * A repeat visit by the same user reuses the undo event instead of asking WPCOM again.
+	 */
+	public function test_undo_event_is_reused_for_the_same_user() {
+		$this->connect_and_mock_undo_event();
+
+		$first  = $this->undo_event();
+		$second = $this->undo_event();
+
+		$this->assertSame( 1, $this->undo_event_calls );
+		$this->assertSame( '1', $first['undo_backup_id'] ?? null );
+		$this->assertSame( $first, $second );
+	}
+
+	/**
+	 * WPCOM answers as the user, so another admin who isn't connected never gets the cached event.
+	 */
+	public function test_undo_event_is_not_shared_with_another_user() {
+		$this->connect_and_mock_undo_event();
+		$this->undo_event();
+
+		$other_admin = wp_insert_user(
+			array(
+				'user_login' => 'unconnected_admin',
+				'user_pass'  => '123',
+				'role'       => 'administrator',
+			)
+		);
+		wp_set_current_user( $other_admin );
+		$result = $this->undo_event();
+
+		$this->assertNull( $result );
+	}
+
+	/**
+	 * A failed lookup is not stored, so the next visit asks WPCOM again.
+	 */
+	public function test_failed_undo_event_lookup_is_retried() {
+		$this->connect_and_mock_undo_event();
+		$this->undo_event_status = 500;
+		$failed                  = $this->undo_event();
+
+		$this->undo_event_status = 200;
+		$retried                 = $this->undo_event();
+
+		$this->assertNull( $failed );
+		$this->assertSame( 2, $this->undo_event_calls );
+		$this->assertSame( '1', $retried['undo_backup_id'] ?? null );
 	}
 }
