@@ -569,21 +569,25 @@ class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Protect shows beside Calypso's Scan, in the menu's A to Z order, whichever page serves it.
+	 * Protect replaces Calypso's Scan wherever a visible entry serves it; Scan stays where nothing does.
 	 *
 	 * @dataProvider provide_protect_entry_cases
 	 *
-	 * @param string   $served_by 'protect page', 'upgrade prompt', or 'nothing'.
+	 * @param string   $served_by 'protect page', 'hidden protect page', 'upgrade prompt', or 'nothing'.
 	 * @param string[] $expected  The visible entries, in menu order.
 	 */
 	#[DataProvider( 'provide_protect_entry_cases' )]
-	public function test_jetpack_submenu_shows_protect_beside_scan( $served_by, $expected ) {
+	public function test_jetpack_submenu_shows_scan_until_protect_replaces_it( $served_by, $expected ) {
 		global $submenu;
 
 		\Jetpack_Options::update_option( 'id', 200 );
 		$submenu['jetpack'][] = array( 'Search', 'manage_options', 'jetpack-search', 'Search' );
 		if ( 'protect page' === $served_by ) {
 			$submenu['jetpack'][] = array( 'Protect', 'manage_options', 'jetpack-protect', 'Protect' );
+		}
+		if ( 'hidden protect page' === $served_by ) {
+			// As WPCOM_Scan::register_page() leaves it while the owner has the dashboard switched off.
+			$submenu['jetpack'][] = array( 'Protect', 'manage_options', 'jetpack-protect', 'Protect', 'hide-if-js' );
 		}
 		if ( 'upgrade prompt' === $served_by ) {
 			WPCOM_Scan::register_page();
@@ -609,10 +613,12 @@ class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 	 */
 	public static function provide_protect_entry_cases() {
 		return array(
-			'Protect page'   => array( 'protect page', array( 'jetpack-protect', 'calypso', 'jetpack-search' ) ),
-			'upgrade prompt' => array( 'upgrade prompt', array( 'jetpack-protect', 'calypso', 'jetpack-search' ) ),
+			'Protect page'        => array( 'protect page', array( 'jetpack-protect', 'jetpack-search' ) ),
+			'upgrade prompt'      => array( 'upgrade prompt', array( 'jetpack-protect', 'jetpack-search' ) ),
+			// The owner switched the dashboard off: Scan stays as the way back in.
+			'hidden Protect page' => array( 'hidden protect page', array( 'calypso', 'jetpack-search' ) ),
 			// As while the dashboard's feature flag is off on a plan that includes Scan.
-			'nothing'        => array( 'nothing', array( 'calypso', 'jetpack-search' ) ),
+			'nothing'             => array( 'nothing', array( 'calypso', 'jetpack-search' ) ),
 		);
 	}
 
