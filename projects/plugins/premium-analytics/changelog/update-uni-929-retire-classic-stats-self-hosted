@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Keep the e2e opt-in spec on a site that keeps classic Stats, now that the retirement flag is on by default.
+
+
