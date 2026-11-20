@@ -16,7 +16,7 @@ type OverviewStatsProps = {
 	isLoading?: boolean;
 	counts: Partial< Record< Metric, number > >;
 	previousCounts?: Partial< Record< Metric, number > >;
-	days?: number;
+	days: number;
 	chartData: object | null;
 	detailedStatsHref?: string;
 	onDetailedStatsClick: () => void;
@@ -148,10 +148,9 @@ const OverviewStats: FC< OverviewStatsProps > = ( {
 } ) => {
 	const [ selectedMetric, setSelectedMetric ] = useState< Metric >( 'views' );
 	const badgeId = useId();
-	const percentChange =
-		isLoading || ! days
-			? null
-			: getPercentChange( counts?.[ selectedMetric ], previousCounts?.[ selectedMetric ] );
+	const percentChange = isLoading
+		? null
+		: getPercentChange( counts?.[ selectedMetric ], previousCounts?.[ selectedMetric ] );
 	const hasBadge = percentChange !== null;
 	const series = useMemo(
 		() => transformStatsDataForChart( chartData, selectedMetric, CHART_COLOR ),
@@ -174,7 +173,7 @@ const OverviewStats: FC< OverviewStatsProps > = ( {
 					/>
 				) ) }
 			</div>
-			{ percentChange !== null && !! days && (
+			{ hasBadge && (
 				<div>
 					<ChangeBadge id={ badgeId } percent={ percentChange } days={ days } />
 				</div>

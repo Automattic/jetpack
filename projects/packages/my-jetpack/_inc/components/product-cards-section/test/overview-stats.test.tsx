@@ -16,6 +16,7 @@ describe( 'OverviewStats', () => {
 		render(
 			<OverviewStats
 				counts={ { views: 10, visitors: 5, likes: 2, comments: 1 } }
+				days={ 7 }
 				chartData={ chartData }
 				onDetailedStatsClick={ jest.fn() }
 			/>
@@ -45,6 +46,7 @@ describe( 'OverviewStats', () => {
 			<OverviewStats
 				isLoading
 				counts={ {} }
+				days={ 7 }
 				chartData={ null }
 				onDetailedStatsClick={ jest.fn() }
 			/>
@@ -111,6 +113,7 @@ describe( 'OverviewStats', () => {
 			<OverviewStats
 				isLoading={ isLoading }
 				counts={ { views: 10, visitors: 5, likes: 2, comments: 1 } }
+				days={ 7 }
 				chartData={ chartData }
 				onDetailedStatsClick={ jest.fn() }
 			/>
