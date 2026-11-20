@@ -37,7 +37,10 @@ export function statsYearlyProductQuery( currency?: string ) {
 			} );
 
 			if ( ! response.ok ) {
-				throw new Error( `Products request failed with ${ response.status }` );
+				// The status lets the shared retry rule give up on a permanent failure.
+				throw Object.assign( new Error( `Products request failed with ${ response.status }` ), {
+					status: response.status,
+				} );
 			}
 
 			const products = ( await response.json() ) as Record<

@@ -110,6 +110,16 @@ describe( 'useStatsUpgradeTiers', () => {
 		expect( result.current.tiers.map( tier => tier.views ) ).toEqual( [ 250000 ] );
 	} );
 
+	it( 'gives up on a price list request WordPress.com refuses, instead of retrying it', async () => {
+		mockEndpoints( () => Promise.resolve( PURCHASED_100K ) );
+		mockFetch.mockResolvedValue( { ok: false, status: 404 } );
+
+		const { result } = await renderTiers();
+
+		expect( result.current.isError ).toBe( true );
+		expect( mockFetch ).toHaveBeenCalledTimes( 1 );
+	} );
+
 	it( 'reports a plan usage failure as an error, not as a full list of tiers', async () => {
 		mockEndpoints( () => Promise.reject( { code: 'api_error', data: { status: 502 } } ) );
 
@@ -137,7 +147,9 @@ describe( 'useStatsUpgradeTiers', () => {
 		await renderTiers();
 
 		const url = productsRequestUrl();
-		expect( url.origin ).toBe( 'https://public-api.wordpress.com' );
+		expect( url.origin + url.pathname ).toBe(
+			'https://public-api.wordpress.com/rest/v1.1/products'
+		);
 		expect( url.searchParams.has( 'currency' ) ).toBe( false );
 	} );
 } );
