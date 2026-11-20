@@ -19,6 +19,7 @@ export const projects = [
 	'projects/packages/search/src/dashboard/components',
 	'projects/packages/videopress/src/client/block-editor',
 	'projects/packages/videopress/src/client/components',
+	'projects/packages/woocommerce-stats/widgets',
 	'projects/plugins/boost/app/assets/src/js',
 	'projects/plugins/jetpack/extensions/',
 	'projects/plugins/protect/src/js/components',
