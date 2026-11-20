@@ -336,6 +336,34 @@ describe( 'buildLeaderboardRow', () => {
 		expect( screen.getByTitle( 'Hello' ) ).toContainElement( screen.getByRole( 'presentation' ) );
 	} );
 
+	it( 'opens the report page of the row post type', () => {
+		Object.defineProperty( window, 'JetpackScriptData', {
+			configurable: true,
+			value: {
+				premium_analytics: {
+					single_report_pages: [ { path: 'page', entity: { kind: 'postType', name: 'page' } } ],
+				},
+			},
+		} );
+
+		try {
+			const row = buildLeaderboardRow( {
+				label: 'About',
+				media: { kind: 'none' },
+				action: { kind: 'postLink', id: 7, postType: 'page', search: {} },
+			} );
+
+			render( row.label );
+
+			expect( screen.getByRole( 'link', { name: 'About' } ) ).toHaveAttribute(
+				'href',
+				expect.stringMatching( /^\/report\/page\/7/ )
+			);
+		} finally {
+			delete window.JetpackScriptData;
+		}
+	} );
+
 	it( 'adds a "View" action beside the title when a post row also has a public URL', () => {
 		const row = buildLeaderboardRow( {
 			label: 'Hello',

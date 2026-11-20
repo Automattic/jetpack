@@ -114,6 +114,7 @@ export {
 	POST_DETAIL_SECTION,
 	type DashboardSectionSlug,
 } from './utils/dashboard-sections';
+export { getPostReportKind } from './utils/single-report-pages';
 export {
 	getLockedFeature,
 	getLockedSection,
