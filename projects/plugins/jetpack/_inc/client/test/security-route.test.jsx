@@ -80,6 +80,7 @@ describe( 'Main routes that leave Settings once settings move out', () => {
 		[ '/reader', 'admin.php?page=my-jetpack#/features?search=reader' ],
 		[ '/writing', 'admin.php?page=my-jetpack#/features' ],
 		[ '/discussion', 'admin.php?page=my-jetpack&p=%2Ffeatures%3Fconfigure%3Dcomments' ],
+		[ '/traffic', 'admin.php?page=my-jetpack#/features' ],
 	] )( 'sends %s to %s with the settings flag on', ( route, destination ) => {
 		isSettingsConsolidationEnabled.mockReturnValue( true );
 		renderAt( route, false );
@@ -89,7 +90,7 @@ describe( 'Main routes that leave Settings once settings move out', () => {
 		expect( screen.queryByTestId( 'searchable-settings' ) ).not.toBeInTheDocument();
 	} );
 
-	it.each( [ '/performance', '/sharing', '/reader', '/writing', '/discussion' ] )(
+	it.each( [ '/performance', '/sharing', '/reader', '/writing', '/discussion', '/traffic' ] )(
 		'keeps %s on Settings with the settings flag off',
 		route => {
 			renderAt( route, false );
@@ -105,6 +106,14 @@ describe( 'Main routes that leave Settings once settings move out', () => {
 		expect( getAdminUrl ).toHaveBeenCalledWith( 'admin.php?page=jetpack-social' );
 		expect( console ).toHaveErroredWith( 'Not implemented: navigation to another Document' );
 		expect( screen.queryByTestId( 'searchable-settings' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'keeps #/traffic on Settings with the settings flag on while a card is left', () => {
+		isSettingsConsolidationEnabled.mockReturnValue( true );
+		renderAt( '/traffic', false, { hasTrafficCards: true } );
+
+		expect( getAdminUrl ).not.toHaveBeenCalled();
+		expect( screen.getByTestId( 'searchable-settings' ) ).toBeInTheDocument();
 	} );
 
 	it( 'keeps #/security on Settings with the settings flag on and no Protect page', () => {

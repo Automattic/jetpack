@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Report whether the host shows My Jetpack, so Jetpack footers can link to it on WordPress.com sites that have it.

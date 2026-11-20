@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Redirect author links that use an author's previous slug, such as after a WordPress.com username change, to their current author page.

@@ -171,11 +171,13 @@ class Single_Report_Page {
 	/**
 	 * Whether the page is available to the current reader.
 	 *
+	 * By default: Stats access, and a post type's page only where the type is registered in REST.
+	 *
 	 * @return bool
 	 */
 	public function is_available() {
 		if ( null === $this->is_available ) {
-			return Capabilities::current_user_can_view_stats();
+			return Capabilities::current_user_can_view_stats() && $this->is_entity_in_rest();
 		}
 
 		if ( is_callable( $this->is_available ) ) {
@@ -183,6 +185,21 @@ class Single_Report_Page {
 		}
 
 		return (bool) $this->is_available;
+	}
+
+	/**
+	 * Whether core-data can load the page's entity: a post type's has to be registered in REST.
+	 *
+	 * @return bool
+	 */
+	private function is_entity_in_rest() {
+		if ( null === $this->entity || 'postType' !== $this->entity['kind'] ) {
+			return true;
+		}
+
+		$post_type = get_post_type_object( $this->entity['name'] );
+
+		return $post_type instanceof \WP_Post_Type && (bool) $post_type->show_in_rest;
 	}
 
 	/**

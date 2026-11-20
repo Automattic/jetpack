@@ -73,7 +73,7 @@ if ( ! class_exists( 'Jetpack_Color' ) ) {
 		 * @throws RangeException Invalid color code range error.
 		 */
 		public function fromHex( $hex_value ) {
-			$hex_value = str_replace( '#', '', $hex_value );
+			$hex_value = preg_replace( '/[^0-9a-f]/i', '', $hex_value );
 			// handle short hex codes like #fff.
 			if ( 3 === strlen( $hex_value ) ) {
 				$hex_value = $hex_value[0] . $hex_value[0] . $hex_value[1] . $hex_value[1] . $hex_value[2] . $hex_value[2];

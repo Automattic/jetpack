@@ -18,6 +18,7 @@ export interface ShareImage {
 }
 
 export interface SettingsResponse {
+	data_sharing_available?: boolean;
 	default_share_image?: ShareImage | null;
 	share_image_preview?: string | null;
 	front_page_description: string;

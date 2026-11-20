@@ -439,7 +439,7 @@ class Indexnow_Queue {
 				continue;
 			}
 			$receipt = maybe_unserialize( $row['option_value'] );
-			if ( self::ACCEPTED_OPTION === $option && is_array( $receipt ) && 'accepted' === ( $receipt['state'] ?? '' ) && get_option( Indexnow_Client::SCOPE_OPTION, '' ) === Indexnow_Client::scope() ) {
+			if ( self::ACCEPTED_OPTION === $option && is_array( $receipt ) && 'accepted' === ( $receipt['state'] ?? '' ) && Indexnow_Client::matches_scope( get_option( Indexnow_Client::SCOPE_OPTION, '' ) ) ) {
 				continue;
 			}
 			$history[] = $row;
@@ -555,7 +555,7 @@ class Indexnow_Queue {
 						$expired += self::compare_and_swap( $row, null ) ? 1 : 0;
 						continue;
 					}
-					if ( ( $item['scope'] ?? '' ) !== Indexnow_Client::scope() || ( isset( $item['url'] ) && ! Indexnow_Client::in_scope( $item['url'] ) ) ) {
+					if ( ! Indexnow_Client::matches_scope( $item['scope'] ?? '' ) || ( isset( $item['url'] ) && ! Indexnow_Client::in_scope( $item['url'] ) ) ) {
 						self::compare_and_swap( $row, null );
 						continue;
 					}
