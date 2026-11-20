@@ -12,7 +12,7 @@ jest.mock( 'components/search', () => ( {
 	default: () => null,
 } ) );
 
-const buildInitialState = ( protectPage, extraModules = {} ) => ( {
+const buildInitialState = ( protectPage, extraModules = {}, isOdysseyStatsEnabled = false ) => ( {
 	jetpack: {
 		initialState: {
 			userData: {
@@ -21,6 +21,7 @@ const buildInitialState = ( protectPage, extraModules = {} ) => ( {
 				},
 			},
 			siteData: { hasProtectPage: protectPage },
+			isOdysseyStatsEnabled,
 		},
 		modules: {
 			items: {
@@ -85,6 +86,27 @@ describe( 'SettingsNavTabs', () => {
 		);
 
 		expect( screen.queryAllByRole( 'tab', { name: 'Performance' } ) ).toHaveLength( tabs );
+	} );
+
+	it.each( [
+		[ 'shows', 'while the settings flag is off', false, true, 1 ],
+		[ 'shows', 'while classic Stats keeps its settings here', true, false, 1 ],
+		[ 'hides', 'once Stats links to its own settings page', true, true, 0 ],
+	] )( '%s the Traffic tab %s', ( _verb, _when, flag, odyssey, tabs ) => {
+		window.JetpackScriptData = {
+			site: {},
+			seo: { surface_visible: true },
+			myJetpack: { settingsConsolidation: flag },
+		};
+
+		render(
+			<MemoryRouter initialEntries={ [ '/security' ] }>
+				<SettingsNavTabs />
+			</MemoryRouter>,
+			{ initialState: buildInitialState( false, {}, odyssey ) }
+		);
+
+		expect( screen.queryAllByRole( 'tab', { name: 'Traffic' } ) ).toHaveLength( tabs );
 	} );
 
 	it.each( [

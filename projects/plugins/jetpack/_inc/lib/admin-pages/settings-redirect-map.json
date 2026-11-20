@@ -19,6 +19,7 @@
 		"adsSettingsHome": "Jetpack_Ads_Settings_Home::is_moved_off_settings(): settings consolidation is on and the Monetize page shows the Ads settings.",
 		"seoSurfaceVisible": "Automattic\\Jetpack\\SEO\\Initializer::is_seo_surface_visible().",
 		"odysseyStats": "Stats_Options::get_option( 'enable_odyssey_stats' ).",
+		"analyticsDashboard": "Jetpack::is_premium_analytics_enabled(): Stats v2 is the site's analytics UI (script data analytics.enabled).",
 		"googleAnalyticsPanel": "Automattic\\Jetpack\\My_Jetpack\\Google_Analytics_Settings::is_available()."
 	},
 	"everySource": [
@@ -175,6 +176,10 @@
 			"rules": [
 				{ "when": { "host": "atomic", "googleAnalyticsPanel": false }, "pending": [ "D7" ] },
 				{ "when": { "seoSurfaceVisible": false }, "pending": [ "D10" ] },
+				{
+					"when": { "odysseyStats": false, "analyticsDashboard": false },
+					"pending": [ "flag:jetpack-stats-classic-page-retired" ]
+				},
 				{ "destination": "admin.php?page=my-jetpack#/features" }
 			],
 			"linkedFrom": [
@@ -298,6 +303,10 @@
 			"source": "jetpack stats",
 			"rules": [
 				{
+					"when": { "analyticsDashboard": true },
+					"destinationFrom": "Automattic\\Jetpack\\PremiumAnalytics\\Analytics::dashboard_url( '/settings' )"
+				},
+				{
 					"when": { "odysseyStats": false },
 					"pending": [ "flag:jetpack-stats-classic-page-retired" ]
 				},
@@ -309,6 +318,10 @@
 		{
 			"source": "stats",
 			"rules": [
+				{
+					"when": { "analyticsDashboard": true },
+					"destinationFrom": "Automattic\\Jetpack\\PremiumAnalytics\\Analytics::dashboard_url( '/settings' )"
+				},
 				{
 					"when": { "odysseyStats": false },
 					"pending": [ "flag:jetpack-stats-classic-page-retired" ]

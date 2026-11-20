@@ -19,7 +19,11 @@ import SettingsAdminPage from 'components/settings-admin-page';
 import SettingsNavTabs from 'components/settings-nav-tabs';
 import Tracker from 'components/tracker';
 import analytics from 'lib/analytics';
-import { getAdsSettingsUrl, isSettingsConsolidationEnabled } from 'lib/settings-consolidation';
+import {
+	getAdsSettingsUrl,
+	hasTrafficCardsLeft,
+	isSettingsConsolidationEnabled,
+} from 'lib/settings-consolidation';
 import { openProtectSettings } from 'security/protect-page';
 import SearchableSettings from 'settings/index.jsx';
 import {
@@ -329,8 +333,17 @@ export class Main extends Component {
 					break;
 				}
 			// Falls through.
-			case '/settings':
 			case '/traffic':
+				if (
+					'/traffic' === route &&
+					isSettingsConsolidationEnabled() &&
+					! this.props.hasTrafficCards
+				) {
+					window.location.replace( getAdminUrl( 'admin.php?page=my-jetpack#/features' ) );
+					break;
+				}
+			// Falls through.
+			case '/settings':
 			case '/privacy':
 				pageComponent = (
 					<SearchableSettings
@@ -494,6 +507,7 @@ export default connect(
 			isSubscriber: userIsSubscriber( state ),
 			hasProtectPage: hasProtectPage( state ),
 			hasSocialPage: hasSocialPage( state ),
+			hasTrafficCards: hasTrafficCardsLeft( state ),
 		};
 	},
 	dispatch => ( {
