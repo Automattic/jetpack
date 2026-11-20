@@ -266,9 +266,6 @@ class Analytics_Dashboard {
 				case Local_Data_Status::IMPORT_INCOMPLETE:
 					$messages[] = __( 'Some orders aren’t in WooCommerce Analytics yet, so reports may be incomplete. Import them in WooCommerce › Analytics › Settings › Import historical data.', 'jetpack-woocommerce-stats-pkg' );
 					break;
-				case Local_Data_Status::REIMPORT_NEEDED:
-					$messages[] = __( 'Your store’s time zone changed after some orders were imported, so they may show in the wrong hour or day. Import them again in WooCommerce › Analytics › Settings › Import historical data, without skipping previously imported orders.', 'jetpack-woocommerce-stats-pkg' );
-					break;
 			}
 		}
 
