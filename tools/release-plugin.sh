@@ -12,6 +12,8 @@ BASE=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 . "$BASE/tools/includes/normalize-version.sh"
 . "$BASE/tools/includes/changelogger.sh"
 
+export GH_REPO="${GH_REPO:-Automattic/jetpack}"
+
 VERSION_REGEX='^[0-9]+(\.[0-9]+)+(-.*)?$'
 CUR_STEP=0
 FROM_RELEASE_BRANCH=false
@@ -207,7 +209,7 @@ function do_prerelease_branch_prep() {
 	# @todo: Push once we're ready to test more lively.
 	$FROM_RELEASE_BRANCH && return
 	if ! git push -u origin HEAD; then
-		die "Branch push failed. Check #jetpack-releases and make sure no one is doing a release already, then delete the branch at https://github.com/Automattic/jetpack/branches"
+		die "Branch push failed. Check #jetpack-releases and make sure no one is doing a release already, then delete the branch at https://github.com/$GH_REPO/branches"
 	fi
 }
 
@@ -404,7 +406,7 @@ function do_create_prerelease_PR {
 	fi
 	git push
 
-	sed "s/%RELEASED_PLUGIN%/$RELEASED_PLUGIN/g" .github/files/BACKPORT_RELEASE_CHANGES.md | gh pr create --title "Backport $RELEASED_PLUGIN changes" --body-file - --label "[Status] Needs Review" --label "[Type] Janitorial" --repo "Automattic/jetpack" --head "$(git rev-parse --abbrev-ref HEAD)"
+	sed "s/%RELEASED_PLUGIN%/$RELEASED_PLUGIN/g" .github/files/BACKPORT_RELEASE_CHANGES.md | gh pr create --title "Backport $RELEASED_PLUGIN changes" --body-file - --label "[Status] Needs Review" --label "[Type] Janitorial" --head "$(git rev-parse --abbrev-ref HEAD)"
 }
 
 # Rebuild prerelease from trunk with the release branch's patches and changelogs, then open a PR.
@@ -462,7 +464,7 @@ function do_create_backport_PR {
 	# Replaces the prerelease branch pushed from the release branch.
 	git push -u --force origin prerelease
 	RELEASED_PLUGIN="$(basename "$PLUGIN") $VERSION"
-	sed "s/%RELEASED_PLUGIN%/$RELEASED_PLUGIN/g" .github/files/BACKPORT_RELEASE_CHANGES.md | gh pr create --title "Backport $RELEASED_PLUGIN changes" --body-file - --label "[Status] Needs Review" --label "[Type] Janitorial" --repo "Automattic/jetpack" --head prerelease
+	sed "s/%RELEASED_PLUGIN%/$RELEASED_PLUGIN/g" .github/files/BACKPORT_RELEASE_CHANGES.md | gh pr create --title "Backport $RELEASED_PLUGIN changes" --body-file - --label "[Status] Needs Review" --label "[Type] Janitorial" --head prerelease
 }
 
 function do_final_instructions {
