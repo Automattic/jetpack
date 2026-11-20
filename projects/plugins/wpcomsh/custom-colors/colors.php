@@ -1470,6 +1470,20 @@ class Colors_Manager_Common {
 			}
 		}
 
+		// CssMin's hslToRgb() applies `%` to the hue:
+		// https://github.com/tubalmartin/YUI-CSS-compressor-PHP-port/blob/v4.1.1/src/Utils.php#L41
+		// Fractional values emit deprecation notices, and the library is not maintained, so for now
+		// let's just truncate the value ourselves.
+		$css = preg_replace_callback(
+			// Regex lookahead adapted from here:
+			// https://github.com/tubalmartin/YUI-CSS-compressor-PHP-port/blob/v4.1.1/src/Minifier.php#L590
+			'/(hsl\(\s*)(-?\d*\.\d+)(?=[\s,.%-][\s0-9,.%-]*\)|\))/',
+			static function ( $m ) {
+				return $m[1] . (int) $m[2];
+			},
+			$css
+		);
+
 		// Minify & cache for future use.
 		$minifier = new tubalmartin\CssMin\Minifier();
 		$css      = $minifier->run( $css );

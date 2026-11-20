@@ -88,6 +88,8 @@ class Initializer {
 			return;
 		}
 
+		Llms_Txt::register_redirect_filters();
+
 		// Before anything can read the AI crawler choices.
 		Ai_Crawlers::register_legacy_migration();
 
@@ -165,6 +167,7 @@ class Initializer {
 		Indexnow::init();
 
 		Indexnow_Client::init();
+		add_action( 'rest_api_init', array( Data_Sharing::class, 'register_routes' ) );
 
 		// The settings surface only comes online once SEO tools are active — there's
 		// nothing to configure while the module is off, so we don't register its REST

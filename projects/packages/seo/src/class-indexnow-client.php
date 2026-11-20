@@ -55,7 +55,7 @@ class Indexnow_Client {
 		$allowed = (bool) apply_filters( 'jetpack_seo_indexnow_can_notify', true );
 		return (bool) get_option( self::ENABLED_OPTION, false )
 			&& $allowed
-			&& get_option( self::SCOPE_OPTION, '' ) === self::scope()
+			&& self::matches_scope( get_option( self::SCOPE_OPTION, '' ) )
 			&& Initializer::is_available() && ( new Modules() )->is_active( 'seo-tools' )
 			&& ! ( new Host() )->is_vip_site() && self::site_is_public()
 			&& ! Seo_Tools::is_disabled();
@@ -82,13 +82,25 @@ class Indexnow_Client {
 	}
 
 	/**
-	 * Site scope independent of the current request's transport.
+	 * Current site's URL scope.
 	 *
 	 * @since $$next-version$$
 	 * @return string
 	 */
 	public static function scope() {
 		return home_url( '/', wp_parse_url( get_option( 'home' ), PHP_URL_SCHEME ) );
+	}
+
+	/**
+	 * Match the same address when HTTP and HTTPS resolve differently across requests.
+	 *
+	 * @since $$next-version$$
+	 * @param mixed $scope Saved consent or notification scope.
+	 * @return bool
+	 */
+	public static function matches_scope( $scope ) {
+		return is_string( $scope )
+			&& preg_replace( '#^http://#', 'https://', $scope ) === preg_replace( '#^http://#', 'https://', self::scope() );
 	}
 
 	/**

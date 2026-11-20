@@ -5,7 +5,6 @@ import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useNavigate } from '@wordpress/route';
 import { Notice } from '@wordpress/ui';
-import SeoPausedBanner from '../../components/seo-paused-banner';
 import { ROUTE_BY_TAB } from '../../dashboard/dashboard-nav';
 import { coverageStore } from '../../data/coverage-store';
 import { geoStore } from '../../data/geo-store';
@@ -81,8 +80,7 @@ const OverviewScreen: FC = () => {
 	};
 
 	return (
-		<div className={ styles.root }>
-			<SeoPausedBanner className={ styles.notice } />
+		<>
 			<div className={ styles.grid }>
 				<SiteVisibilityCard
 					data={ siteVisibilityData }
@@ -111,7 +109,7 @@ const OverviewScreen: FC = () => {
 					onFilter={ goToContentNeeds }
 				/>
 			</div>
-		</div>
+		</>
 	);
 };
 

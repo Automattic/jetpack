@@ -577,9 +577,10 @@ class Main_Features {
 	 * @param array  $upgrade          The Jetpack route, from get_upgrade().
 	 * @param string $slug             The feature slug.
 	 * @param bool   $site_has_feature Whether the site already has the feature.
+	 * @param string $back_route       The My Jetpack route the link is on, empty for the Overview.
 	 * @return array{path: string, name: string, url?: string}
 	 */
-	private static function filter_upgrade( array $upgrade, $slug, $site_has_feature ) {
+	private static function filter_upgrade( array $upgrade, $slug, $site_has_feature, $back_route = '#/features' ) {
 		/**
 		 * Filters where a feature's upgrade link goes, so a host can send it to its own plans.
 		 *
@@ -588,13 +589,14 @@ class Main_Features {
 		 *
 		 * @since 6.14.0
 		 * @since 6.16.0 No longer reads `manage_url`; a feature's manage link is always My Jetpack's own.
+		 * @since $$next-version$$ Also asked for the purchase links of the feature's product, with the Overview as `back_url`.
 		 *
 		 * @param array  $upgrade          `path` (a My Jetpack route) and `name` (the product sold), both empty when nothing is,
 		 *                                 and `back_url`, the admin page the link is on, for a host flow to return to.
 		 * @param string $slug             The My Jetpack feature slug.
 		 * @param bool   $site_has_feature Whether the site already has the feature.
 		 */
-		$filtered = apply_filters( 'jetpack_feature_upgrade', $upgrade + array( 'back_url' => admin_url( 'admin.php?page=my-jetpack#/features' ) ), $slug, $site_has_feature );
+		$filtered = apply_filters( 'jetpack_feature_upgrade', $upgrade + array( 'back_url' => admin_url( 'admin.php?page=my-jetpack' . $back_route ) ), $slug, $site_has_feature );
 
 		if ( ! is_array( $filtered ) ) {
 			return $upgrade;
@@ -611,6 +613,61 @@ class Main_Features {
 		}
 
 		return $result;
+	}
+
+	/**
+	 * Where a host sells the feature a product delivers, for the purchase links outside the Features tab.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $product_slug A My Jetpack product slug, matched to the catalog's `product` key.
+	 * @return ?string Null when the host names no address, the site has the feature, or no feature is the product's.
+	 */
+	public static function get_host_purchase_url( $product_slug ) {
+		// No host listening settles the answer, and spares the ownership lookups below.
+		if ( ! has_filter( 'jetpack_feature_upgrade' ) ) {
+			return null;
+		}
+
+		$slug = self::get_product_feature_slug( $product_slug );
+		if ( null === $slug ) {
+			return null;
+		}
+
+		$definition    = self::get_feature_definitions()[ $slug ];
+		$product_class = Products::get_product_class( $product_slug );
+		$included      = self::is_included_in_plan( $definition, $product_class );
+		$upgrade       = self::filter_upgrade( self::get_upgrade( $definition, $product_class, $included ), $slug, $included, '' );
+
+		return empty( $upgrade['url'] ) ? null : $upgrade['url'];
+	}
+
+	/**
+	 * Whether a host could be selling the feature a product delivers, told without asking it or looking up ownership.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $product_slug A My Jetpack product slug.
+	 * @return bool True when a host listens and the product has a feature; get_host_purchase_url() has the answer.
+	 */
+	public static function may_host_sell_product( $product_slug ) {
+		return has_filter( 'jetpack_feature_upgrade' ) && null !== self::get_product_feature_slug( $product_slug );
+	}
+
+	/**
+	 * The catalog feature a product delivers, which is the slug a host is asked about.
+	 *
+	 * @param string $product_slug A My Jetpack product slug.
+	 * @return ?string The feature slug, null for a product with no feature, such as a bundle.
+	 */
+	private static function get_product_feature_slug( $product_slug ) {
+		foreach ( self::get_feature_definitions() as $slug => $definition ) {
+			if ( ( $definition['product'] ?? '' ) === $product_slug ) {
+				return $slug;
+			}
+		}
+
+		return null;
 	}
 
 	/**

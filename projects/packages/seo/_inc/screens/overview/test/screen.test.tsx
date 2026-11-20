@@ -61,39 +61,4 @@ describe( 'OverviewScreen', () => {
 		expect( screen.queryByText( UPSELL_TITLE ) ).not.toBeInTheDocument();
 		expect( screen.getByText( 'Content SEO' ) ).toBeInTheDocument();
 	} );
-
-	describe( 'while Jetpack SEO output is paused', () => {
-		const setPaused = ( plugin: string ) => {
-			( window as unknown as { JetpackScriptData?: unknown } ).JetpackScriptData = {
-				site: { admin_url: 'https://example.com/wp-admin/' },
-				seo: { output: { paused: true, conflicting_plugin: plugin } },
-			};
-		};
-
-		afterEach( () => {
-			delete ( window as unknown as { JetpackScriptData?: unknown } ).JetpackScriptData;
-		} );
-
-		// Plugin conflicts still explain why output is paused.
-		it.each( [
-			[
-				'Yoast SEO',
-				'Yoast SEO is managing your site’s SEO, so Jetpack has paused its SEO titles, descriptions, canonical URLs, structured data and llms.txt. Your saved settings are kept. Deactivate Yoast SEO to use them.',
-			],
-			[
-				'',
-				'Jetpack’s SEO titles, descriptions, structured data and llms.txt are turned off on this site. Your saved settings are kept.',
-			],
-		] )(
-			'shows the pause banner without an upgrade prompt, with "%s" in charge',
-			( plugin, banner ) => {
-				setPaused( plugin );
-
-				render( <OverviewScreen /> );
-
-				expect( screen.getByText( banner ) ).toBeInTheDocument();
-				expect( screen.queryByText( UPSELL_TITLE ) ).not.toBeInTheDocument();
-			}
-		);
-	} );
 } );

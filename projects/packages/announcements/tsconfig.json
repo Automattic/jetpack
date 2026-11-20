@@ -1,4 +1,4 @@
 {
 	"extends": "jetpack-js-tools/tsconfig.base.json",
-	"include": [ "packages/**/*" ]
+	"include": [ "packages/**/*", "types/**/*" ]
 }

@@ -33,8 +33,9 @@ class Jetpack_Email_Design_Editor {
 	const PAGE_SLUG = 'jetpack-email-design';
 
 	/**
-	 * The feature flag gating the screen. Registered off, and on Atomic answered by the filter
-	 * below rather than by `wp companion feature-flag enable jetpack-email-design`.
+	 * The feature flag gating the screen. Registered on for a self-hosted site and off on both
+	 * WordPress.com platforms, and on WoA answered by the filter below rather than by
+	 * `wp companion feature-flag enable jetpack-email-design`.
 	 */
 	const FEATURE_FLAG = 'jetpack-email-design';
 
@@ -122,11 +123,25 @@ class Jetpack_Email_Design_Editor {
 		Feature_Flags::register(
 			self::FEATURE_FLAG,
 			array(
-				'default'     => false,
+				'default'     => self::default_for_this_platform(),
 				'description' => 'Edit the newsletter email design in wp-admin, under Appearance.',
 				'owner'       => 'jetpack-newsletter',
 			)
 		);
+	}
+
+	/**
+	 * Whether this platform gets the screen without anyone turning it on: self-hosted only (NL-1120).
+	 *
+	 * WordPress.com keeps its sticker switch, since a default would outlive the sticker rollback.
+	 * WoA only, not the whole Atomic platform: wpcom's rule counts WP Cloud partner sites as self-hosted.
+	 *
+	 * @return bool
+	 */
+	private static function default_for_this_platform() {
+		$host = new Host();
+
+		return ! $host->is_wpcom_simple() && ! $host->is_woa_site();
 	}
 
 	/**
@@ -150,7 +165,7 @@ class Jetpack_Email_Design_Editor {
 	 * @return bool
 	 */
 	public static function filter_flag_for_atomic( $enabled ) {
-		if ( ! defined( 'IS_ATOMIC' ) || ! IS_ATOMIC || ! function_exists( 'wpcomsh_is_site_sticker_active' ) ) {
+		if ( ! Constants::is_true( 'IS_ATOMIC' ) || ! function_exists( 'wpcomsh_is_site_sticker_active' ) ) {
 			return (bool) $enabled;
 		}
 
@@ -163,10 +178,10 @@ class Jetpack_Email_Design_Editor {
 	/**
 	 * Whether the screen should exist on this site.
 	 *
-	 * On Atomic the `email-design-editor` sticker and the a8c proxy decide, through the filter
-	 * above; on Simple wpcom's mu-plugin turns the flag on alongside the sticker. A self-hosted
-	 * site cannot read its own blog's stickers, so the flag is the gate there -- the sticker
-	 * still gates the bootstrap.
+	 * On WoA the `email-design-editor` sticker and the a8c proxy decide, through the filter
+	 * above; on Simple wpcom's mu-plugin turns the flag on alongside the sticker. Any other
+	 * site cannot read its own blog's stickers, so the registered default is the gate there --
+	 * wpcom's rollout rule still gates the bootstrap, and so the emails.
 	 *
 	 * @return bool
 	 */

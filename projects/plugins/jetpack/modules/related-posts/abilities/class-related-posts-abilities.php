@@ -36,6 +36,13 @@ class Related_Posts_Abilities extends Registrar {
 	private const DEFAULT_SIZE = 3;
 
 	/**
+	 * {@inheritDoc}
+	 */
+	protected static function enabled_by_default(): bool {
+		return true;
+	}
+
+	/**
 	 * Returns the category slug this registrar owns.
 	 */
 	public static function get_category_slug(): string {
@@ -126,6 +133,7 @@ class Related_Posts_Abilities extends Registrar {
 						'destructive' => false,
 						'idempotent'  => true,
 					),
+					'public'       => true,
 					'show_in_rest' => true,
 					'mcp'          => array(
 						'public' => true,
