@@ -43,9 +43,9 @@ function GlobalStylesWarningNotice() {
 			<Notice.Root intent="warning" icon={ null } className="wpcom-global-styles-notice">
 				<Notice.Description>
 					{ sprintf(
-						/* translators: %s is the short-form Premium plan name */
+						/* translators: %s is the short-form name of the plan that unlocks site styles. Site styles are the sitewide changes made in the Styles panel (Global Styles). Visitors only see them on a paid plan. */
 						__(
-							'Your site includes premium styles that are only visible to visitors after upgrading to the %s plan or higher.',
+							'Your sitewide styles (changes made in Styles) are only visible to visitors after upgrading to the %s plan or higher.',
 							'jetpack-mu-wpcom'
 						),
 						planName
@@ -146,7 +146,8 @@ function GlobalStylesEditNotice() {
 
 		if ( isPostEditor && canPreviewPost ) {
 			actions.push( {
-				label: __( 'Preview without premium styles', 'jetpack-mu-wpcom' ),
+				/* translators: Opens a preview of the post without the site styles. Site styles are the sitewide changes made in the Styles panel (Global Styles). Visitors only see them on a paid plan. */
+				label: __( 'Preview without site styles', 'jetpack-mu-wpcom' ),
 				onClick: previewPost,
 				variant: 'secondary',
 				noDefaultClasses: true,
@@ -162,9 +163,9 @@ function GlobalStylesEditNotice() {
 		const planName = wpcomGlobalStyles.planName;
 		createWarningNotice(
 			sprintf(
-				/* translators: %s is the short-form Premium plan name */
+				/* translators: %s is the short-form name of the plan that unlocks site styles. Site styles are the sitewide changes made in the Styles panel (Global Styles). Visitors only see them on a paid plan. */
 				__(
-					'Your site includes premium styles that are only visible to visitors after upgrading to the %s plan or higher.',
+					'Your sitewide styles (changes made in Styles) are only visible to visitors after upgrading to the %s plan or higher.',
 					'jetpack-mu-wpcom'
 				),
 				planName
