@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Admin shell: Add an optional member `data` key for the page data a guest dashboard needs.

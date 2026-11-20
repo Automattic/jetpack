@@ -160,6 +160,7 @@ class Admin_Shell_Test extends TestCase {
 			'default_path' => '/responses',
 			'capability'   => 'edit_posts',
 			'handles'      => array( 'jetpack-forms-dashboard' ),
+			'data'         => '__return_empty_string',
 			'admin_menu'   => true,
 			'header'       => array(
 				'title'    => 'Forms',
@@ -172,6 +173,7 @@ class Admin_Shell_Test extends TestCase {
 			'default_path' => null,
 			'capability'   => 'manage_options',
 			'handles'      => array(),
+			'data'         => null,
 			'admin_menu'   => false,
 			'header'       => null,
 		);
@@ -239,6 +241,7 @@ class Admin_Shell_Test extends TestCase {
 			'handles holds non-text' => array( 'jetpack-forms', array( 'handles' => array( 1 ) ) + $valid ),
 			'empty capability'       => array( 'jetpack-forms', array( 'capability' => '' ) + $valid ),
 			'default_path not text'  => array( 'jetpack-forms', array( 'default_path' => 1 ) + $valid ),
+			'data not callable'      => array( 'jetpack-forms', array( 'data' => 'jetpack_no_such_function' ) + $valid ),
 		);
 	}
 
@@ -1025,6 +1028,31 @@ class Admin_Shell_Test extends TestCase {
 		$this->assertMatchesRegularExpression( '/id="shell-test-guest-js-after">[^<]*window\.guestAfter = 1;/', $html );
 		$this->assertStringContainsString( 'window.attachedOnPrint = 1;', $html, 'data another callback attaches to a member handle' );
 		$this->assertStringContainsString( 'id="wp-script-module-data-@jetpack/shell-test-guest"', $html, 'core prints the member\'s script module data' );
+	}
+
+	/**
+	 * A member's data script prints before the scripts that read it.
+	 *
+	 * @return void
+	 */
+	public function test_guest_assets_prints_the_members_data_first() {
+		$this->unhook_emoji_styles = remove_action( 'wp_print_styles', 'print_emoji_styles' );
+		wp_register_script( 'shell-test-guest', 'https://example.com/guest.js', array(), '1', true );
+		$this->start_host_page(
+			'__return_null',
+			'manage_options',
+			array( 'shell-test-guest' ),
+			array(
+				'data' => static function () {
+					return 'window.guestState = 1;';
+				},
+			)
+		);
+
+		$html = Admin_Shell::guest_assets( 'guest-page' );
+
+		$this->assertIsString( $html );
+		$this->assertMatchesRegularExpression( '/window\.guestState = 1;.*guest\.js/s', $html );
 	}
 
 	/**
