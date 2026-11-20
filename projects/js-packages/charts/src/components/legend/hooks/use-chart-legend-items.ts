@@ -6,7 +6,7 @@ import {
 	type GetElementStylesParams,
 	type ElementStyles,
 } from '../../../providers';
-import { formatPercentage } from '../../../utils';
+import { formatDataPointValue } from '../../../utils';
 import type {
 	ComparisonItemLabel,
 	SeriesData,
@@ -15,11 +15,12 @@ import type {
 	LegendShape,
 	SeriesChartLegendConfig,
 } from '../../../types';
+import type { LegendValueDisplay } from '../../../utils';
 import type { BaseLegendItem } from '../types';
 import type { GlyphProps } from '@visx/xychart';
 import type { ReactNode } from 'react';
 
-export type LegendValueDisplay = 'percentage' | 'value' | 'valueDisplay' | 'none';
+export type { LegendValueDisplay };
 
 export interface ChartLegendOptions {
 	withGlyph?: boolean;
@@ -80,16 +81,7 @@ function formatPointValue(
 
 	// Handle DataPointPercentageCalculated (pie chart data with calculated percentage)
 	if ( 'percentage' in point ) {
-		switch ( legendValueDisplay ) {
-			case 'percentage':
-				return formatPercentage( point.percentage );
-			case 'value':
-				return formatNumber( point.value );
-			case 'valueDisplay':
-				return point.valueDisplay || formatNumber( point.value );
-			default:
-				return '';
-		}
+		return formatDataPointValue( point, legendValueDisplay );
 	}
 
 	// Handle DataPointDate (time series data)

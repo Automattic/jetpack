@@ -802,18 +802,25 @@ describe( 'LeaderboardChart', () => {
 			);
 			expect( screen.getAllByRole( 'button' ) ).toHaveLength( 1 );
 		} );
+
+		it( 'titles only an interactive row’s string label with its full text', () => {
+			const [ interactive, inert ] = mockData;
+			render( <LeaderboardChart data={ [ { ...interactive, onClick: jest.fn() }, inert ] } /> );
+			expect( screen.getByText( String( interactive.label ) ) ).toHaveAttribute(
+				'title',
+				interactive.label
+			);
+			expect( screen.getByText( String( inert.label ) ) ).not.toHaveAttribute( 'title' );
+		} );
 	} );
 
-	describe( 'grid gaps', () => {
-		// eslint-disable-next-line testing-library/no-node-access -- The grid is rendered by `Grid` from @wordpress/components, which takes no test id.
-		const grid = () => document.querySelector< HTMLElement >( '[data-leaderboard-grid]' );
-		const templateColumns = () =>
-			grid().style.getPropertyValue( '--wp-components-grid-template-columns' );
+	describe( 'grid columns', () => {
+		const grid = () => screen.getByRole( 'list', { name: 'Leaderboard chart' } );
 
 		it( 'lays the rows out without a delta track when not comparing', () => {
 			render( <LeaderboardChart data={ mockData } withComparison={ false } /> );
 
-			expect( templateColumns() ).toBe( 'minmax(0, 1fr) auto' );
+			expect( grid() ).not.toHaveClass( 'grid--comparison' );
 		} );
 
 		it.each( [ [ 'Previous period' ], [ 'Current period' ] ] )(
@@ -829,24 +836,12 @@ describe( 'LeaderboardChart', () => {
 					/>
 				);
 
-				expect( templateColumns() ).toBe( 'minmax(0, 1fr) auto auto' );
+				expect( grid() ).toHaveClass( 'grid--comparison' );
 
 				await user.click( screen.getByRole( 'button', { name: new RegExp( legendItem ) } ) );
 
-				expect( templateColumns() ).toBe( 'minmax(0, 1fr) auto' );
+				expect( grid() ).not.toHaveClass( 'grid--comparison' );
 			}
 		);
-
-		it( 'hands the catalog role to the grid', () => {
-			render( <LeaderboardChart data={ mockData } /> );
-
-			// Grid writes its gaps into custom properties and reads them from a stylesheet.
-			expect( grid().style.getPropertyValue( '--wp-components-grid-row-gap' ) ).toBe(
-				'var(--a8c-charts-dimension-leaderboard-row-gap, 12px)'
-			);
-			expect( grid().style.getPropertyValue( '--wp-components-grid-column-gap' ) ).toBe(
-				'var(--a8c-charts-dimension-leaderboard-column-gap, 4px)'
-			);
-		} );
 	} );
 } );

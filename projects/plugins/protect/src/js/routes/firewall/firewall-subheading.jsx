@@ -36,7 +36,7 @@ const FirewallSubheading = () => {
 		const textSegments = [];
 
 		if ( wafSupported && isBruteForceModuleEnabled ) {
-			textSegments.push( __( 'Brute force protection is active.', 'jetpack-protect' ) );
+			textSegments.push( __( 'Login protection is active.', 'jetpack-protect' ) );
 		}
 
 		if ( wafRules.noRules ) {

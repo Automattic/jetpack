@@ -1,3 +1,4 @@
+import analytics from '@automattic/jetpack-analytics';
 import useProductCheckoutWorkflow from '@automattic/jetpack-connection/hooks/use-product-checkout-workflow';
 import useConnection from '@automattic/jetpack-connection/use-connection';
 import { render, screen } from '@testing-library/react';
@@ -5,7 +6,12 @@ import userEvent from '@testing-library/user-event';
 import { dispatch, select } from '@wordpress/data';
 import { store as noticesStore } from '@wordpress/notices';
 import PricingUpsell from '../pricing-upsell';
-import type { ReactNode } from 'react';
+import type { ReactNode, Ref } from 'react';
+
+jest.mock( '@automattic/jetpack-analytics', () => ( {
+	__esModule: true,
+	default: { tracks: { recordEvent: jest.fn() } },
+} ) );
 
 jest.mock( '@automattic/jetpack-connection/use-connection', () => ( {
 	__esModule: true,
@@ -34,15 +40,26 @@ jest.mock( '@automattic/jetpack-components/product-price', () => ( {
 	__esModule: true,
 	default: () => <div>price</div>,
 } ) );
-jest.mock( '@automattic/jetpack-components/button', () => ( {
-	__esModule: true,
-	default: ( { children, onClick }: { children: ReactNode; onClick?: () => void } ) => (
-		<button onClick={ onClick }>{ children }</button>
-	),
-} ) );
+jest.mock( '@automattic/jetpack-components/button', () => {
+	const { forwardRef } = jest.requireActual( 'react' );
+	return {
+		__esModule: true,
+		default: forwardRef(
+			(
+				{ children, onClick }: { children: ReactNode; onClick?: () => void },
+				ref: Ref< HTMLButtonElement >
+			) => (
+				<button ref={ ref } onClick={ onClick }>
+					{ children }
+				</button>
+			)
+		),
+	};
+} );
 
 const mockUseConnection = useConnection as jest.Mock;
 const mockCheckoutWorkflow = useProductCheckoutWorkflow as jest.Mock;
+const recordEvent = analytics.tracks.recordEvent as jest.Mock;
 
 const PRICING = {
 	title: 'High quality, ad-free video',
@@ -85,6 +102,16 @@ describe( 'PricingUpsell', () => {
 		setPricing( PRICING );
 	} );
 
+	it( 'counts the rendered paid button, without claiming a known video count', async () => {
+		render( <PricingUpsell /> );
+		await Promise.resolve();
+		expect( screen.getByRole( 'button', { name: 'Get VideoPress' } ) ).toBeInTheDocument();
+		expect( recordEvent ).toHaveBeenCalledWith( 'jetpack_videopress_upsell_impression', {
+			location: 'pricing_upsell',
+			video_count_known: false,
+		} );
+	} );
+
 	it( 'drives the checkout workflow with the yearly product slug and redirect', () => {
 		render( <PricingUpsell /> );
 
@@ -103,12 +130,21 @@ describe( 'PricingUpsell', () => {
 	it( 'runs checkout on "Get VideoPress" and registers the site on "Start for free"', async () => {
 		const user = userEvent.setup();
 		render( <PricingUpsell /> );
+		await Promise.resolve();
+		recordEvent.mockClear();
 
 		await user.click( screen.getByRole( 'button', { name: 'Get VideoPress' } ) );
 		expect( mockRun ).toHaveBeenCalledTimes( 1 );
+		expect( recordEvent ).toHaveBeenCalledWith( 'jetpack_videopress_upgrade_trigger_link_click', {
+			location: 'pricing_upsell',
+		} );
+		expect( recordEvent.mock.invocationCallOrder[ 0 ] ).toBeLessThan(
+			mockRun.mock.invocationCallOrder[ 0 ]
+		);
 
 		await user.click( screen.getByRole( 'button', { name: 'Start for free' } ) );
 		expect( mockRegisterSite ).toHaveBeenCalledTimes( 1 );
+		expect( recordEvent ).toHaveBeenCalledTimes( 1 );
 	} );
 
 	it( 'shows an error snackbar when checkout fails', () => {
@@ -143,9 +179,23 @@ describe( 'PricingUpsell', () => {
 		expect( screen.getByRole( 'alert' ) ).toHaveTextContent( /blocked WordPress\.com/ );
 	} );
 
-	it( 'renders nothing when pricing data is absent', () => {
+	it( 'waits for pricing data before counting the rendered offer', async () => {
 		setPricing( undefined );
-		const { container } = render( <PricingUpsell /> );
+		const { container, rerender } = render( <PricingUpsell /> );
+		await Promise.resolve();
 		expect( container ).toBeEmptyDOMElement();
+		expect( recordEvent ).not.toHaveBeenCalled();
+
+		setPricing( PRICING );
+		rerender( <PricingUpsell /> );
+		rerender( <PricingUpsell /> );
+		await Promise.resolve();
+		expect( screen.getByRole( 'button', { name: 'Get VideoPress' } ) ).toBeInTheDocument();
+		expect( recordEvent.mock.calls ).toEqual( [
+			[
+				'jetpack_videopress_upsell_impression',
+				{ location: 'pricing_upsell', video_count_known: false },
+			],
+		] );
 	} );
 } );

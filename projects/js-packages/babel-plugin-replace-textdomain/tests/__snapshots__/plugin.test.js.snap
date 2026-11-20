@@ -593,3 +593,5 @@ exports[`@automattic/babel-plugin-replace-textdomain 29. requireI18nSource: stam
   ],
 ]
 `;
+
+exports[`@automattic/babel-plugin-replace-textdomain 37. requireI18nSource: ignores a member call on an inline object: debug calls 1`] = `[]`;

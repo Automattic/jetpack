@@ -149,6 +149,15 @@ async function expectNavigation() {
 	);
 }
 
+/**
+ * The protected-owner shield keeps the components Tooltip until core serves `@wordpress/ui` as a script module.
+ */
+function expectTooltipDeprecation() {
+	expect( console ).toHaveWarnedWith(
+		'wp.components.Tooltip is deprecated since version 7.3 and will be removed in version 7.5. Please use Tooltip from @wordpress/ui instead.'
+	);
+}
+
 beforeEach( () => {
 	// eslint-disable-next-line jest/prefer-spy-on -- jsdom has no fetch to spy on.
 	window.fetch = jest.fn();
@@ -298,6 +307,9 @@ describe( 'Connectors card', () => {
 			for ( const text of hidden ) {
 				expect( screen.queryByText( text ) ).not.toBeInTheDocument();
 			}
+			if ( data.protectedOwner ) {
+				expectTooltipDeprecation();
+			}
 		} );
 
 		/**
@@ -361,6 +373,22 @@ describe( 'Connectors card', () => {
 			);
 			await expectNavigation();
 			expect( decorateAuthUrl ).toHaveBeenCalledWith( AUTH_URL );
+		} );
+
+		it.each( [
+			[ 'offers the owner slot', true, /you can become the new connection owner/ ],
+			[ 'does not offer an owner slot it cannot take', false, /You can still connect/ ],
+		] )( '%s to an admin connecting past a broken owner', ( _, transferable, copy ) => {
+			renderCard( {
+				state: {
+					...unlinkedAdmin,
+					connectionStatus: { isRegistered: true, hasConnectedOwner: false },
+					canTakeOwnerSlot: transferable,
+				},
+				search: '?connector=wordpress_com',
+			} );
+
+			expect( screen.getByText( copy ) ).toBeInTheDocument();
 		} );
 
 		it( 'shows why registration failed and lets the admin retry', async () => {
@@ -481,6 +509,7 @@ describe( 'Connectors card', () => {
 				await user.click( screen.getByRole( 'button', { name: button } ) );
 				act( () => props()[ onSuccess ]() );
 				await expectNavigation();
+				expectTooltipDeprecation();
 			}
 		);
 	} );

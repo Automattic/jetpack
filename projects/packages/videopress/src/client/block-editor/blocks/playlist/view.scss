@@ -620,3 +620,147 @@ $vpp-mono: ui-monospace, menlo, monospace;
 		}
 	}
 }
+
+/*
+ * Latest Videos browse controls: playlist tokens, the theme's font, and
+ * `wp-element-button` on Search so theme.json button styles apply.
+ */
+.videopress-playlist {
+
+	.videopress-video-browser {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: stretch;
+		gap: 8px;
+		margin-block-end: 12px;
+		font-size: 0.875rem;
+	}
+
+	.videopress-video-browser__search,
+	.videopress-video-browser__length,
+	.videopress-video-browser__sort,
+	.videopress-video-browser__page {
+		box-sizing: border-box;
+		min-block-size: 36px;
+		margin: 0;
+		padding: 7px 12px;
+		border: 1px solid var(--vpp-border);
+		border-radius: 6px;
+		background: transparent;
+		font: inherit;
+		line-height: 1.4;
+		color: var(--vpp-text);
+	}
+
+	.videopress-video-browser__search {
+		flex: 1 1 220px;
+		min-inline-size: 0;
+	}
+
+	.videopress-video-browser__search::placeholder {
+		color: var(--vpp-muted);
+		opacity: 1;
+	}
+
+	.videopress-video-browser__submit {
+		margin: 0;
+		font-size: inherit;
+	}
+
+	/* Sort: a segmented control, current option styled like the playing entry. */
+	.videopress-video-browser__sorts {
+		display: inline-flex;
+		border: 1px solid var(--vpp-border);
+		border-radius: 6px;
+		overflow: hidden;
+	}
+
+	.videopress-video-browser__sort {
+		appearance: none;
+		border: 0;
+		border-radius: 0;
+		color: var(--vpp-muted);
+		cursor: pointer;
+	}
+
+	.videopress-video-browser__sort + .videopress-video-browser__sort {
+		border-inline-start: 1px solid var(--vpp-border-soft);
+	}
+
+	.videopress-video-browser__sort:hover {
+		color: var(--vpp-text);
+	}
+
+	.videopress-video-browser__sort.is-current {
+		background: var(--vpp-accent-tint);
+		color: var(--vpp-accent);
+		font-weight: 600;
+	}
+
+	.videopress-video-browser__length {
+		appearance: none;
+		padding-inline-end: 32px;
+		background-image:
+			linear-gradient(45deg, transparent 50%, var(--vpp-muted) 50%),
+			linear-gradient(135deg, var(--vpp-muted) 50%, transparent 50%);
+		background-position:
+			calc(100% - 17px) 50%,
+			calc(100% - 12px) 50%;
+		background-size: 5px 5px;
+		background-repeat: no-repeat;
+		cursor: pointer;
+	}
+
+	:is(.videopress-video-browser__search, .videopress-video-browser__length, .videopress-video-browser__sort, .videopress-video-browser__page):focus-visible {
+		outline: 2px solid var(--vpp-accent);
+		outline-offset: -2px;
+	}
+
+	.videopress-video-browser__summary {
+		margin: 0 0 12px;
+		color: var(--vpp-muted);
+		font-family: $vpp-mono;
+		font-size: 0.71875rem;
+	}
+
+	.videopress-video-browser__empty {
+		margin: 0;
+		padding: 32px 16px;
+		border: 1px dashed var(--vpp-border);
+		border-radius: 6px;
+		color: var(--vpp-muted);
+		text-align: center;
+	}
+
+	.videopress-video-browser__pagination {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 6px;
+		margin-block-start: 16px;
+		font-size: 0.875rem;
+	}
+
+	.videopress-video-browser__page {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		min-inline-size: 36px;
+		text-decoration: none;
+	}
+
+	a.videopress-video-browser__page:hover {
+		background: var(--vpp-accent-tint);
+	}
+
+	.videopress-video-browser__page.is-current {
+		border-color: var(--vpp-accent);
+		background: var(--vpp-accent-tint);
+		color: var(--vpp-accent);
+		font-weight: 600;
+	}
+
+	.videopress-video-browser__page.is-disabled {
+		color: var(--vpp-muted);
+		opacity: 0.5;
+	}
+}

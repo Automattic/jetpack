@@ -64,7 +64,6 @@ function SearchTermsInner() {
 
 	return (
 		<Leaderboard
-			chartTitle={ __( 'Top searched terms', 'jetpack-premium-analytics-pkg' ) }
 			rows={ rows }
 			columns={ { label: __( 'Search terms', 'jetpack-premium-analytics-pkg' ), metric: 'views' } }
 			status={ {

@@ -41,7 +41,7 @@ second current-period series keeps its own dates.
 | `compactWhenShort`            | `boolean`                     | No       | Drop the axes, grid and legend while the chart is shorter than `theme.compactWhenShort.below` (140px by default)                                                                                                                                                                |
 | `maxWidth`                    | `number`                      | No       | Maximum chart width                                                                                                                                                                                                                                               |
 | `className`                   | `string`                      | No       | CSS class for the chart container                                                                                                                                                                                                                                 |
-| `chartTitle`                  | `string`                      | No       | What the chart shows, such as the widget title; the chart is named "Chart: <title>"                                                                                                                                                                               |
+| `chartTitle`                  | `string`                      | No       | What the chart shows, when that is not the widget title; the chart is named "Chart: <title>"                                                                                                                                                                               |
 | `chartId`                     | `string`                      | No       | Identity the charts provider keys visibility on; generated when omitted. Change it whenever `defaultHiddenSeries` should be applied again                                                                                                                         |
 | `defaultHiddenSeries`         | `readonly string[]`           | No       | Labels of series hidden until revealed from the legend. Applied once per `chartId`, so only useful with `legendInteractive` or `previousPeriodShown`                                                                                                              |
 | `legendInteractive`           | `boolean`                     | No       | Let the reader click legend items to show and hide series; the first item stays locked. Defaults to `false`                                                                                                                                                       |
@@ -71,5 +71,5 @@ unreadable. A previous period whose bars are hidden still gives its values, as t
 ## Y-axis domain
 
 Percentage metrics are pinned to 0%–100% and an all-zero period gets a readable axis instead of a
-flat baseline, both via the shared `getFixedYAxis` helper. Zero-value bars are drawn as hairline
-stubs (`showZeroValues`) so a quiet day reads as zero rather than missing data.
+flat baseline, both via the shared `getFixedYAxis` helper. Once a visible bar passes 100%, as a
+replayed video's retention rate does, the axis scales to the data instead.

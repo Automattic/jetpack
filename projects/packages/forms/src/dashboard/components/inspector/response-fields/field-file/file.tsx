@@ -1,11 +1,11 @@
 /**
  * External dependencies
  */
-import { Button, Icon, Tooltip } from '@wordpress/components';
+import { Button, Icon } from '@wordpress/components';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __, sprintf } from '@wordpress/i18n';
 import { download } from '@wordpress/icons';
-import { Link } from '@wordpress/ui';
+import { Link, Tooltip } from '@wordpress/ui';
 import clsx from 'clsx';
 /**
  * Internal dependencies
@@ -49,6 +49,7 @@ const FieldFile = ( { file, onClick } ) => {
 	const fileIconsUrl = useConfigValue( 'fileIconsUrl' );
 
 	const iconType = extensionMap[ fileExtension ] || mimeMap[ fileType ] || 'txt';
+	const downloadLabel = __( 'Download', 'jetpack-forms' );
 	const iconClass = clsx( 'jp-forms__inbox-response-file__icon', {
 		[ 'icon-' + iconType ]: ! file.is_previewable,
 		'has-thumbnail': file.is_previewable,
@@ -86,11 +87,21 @@ const FieldFile = ( { file, onClick } ) => {
 				</div>
 			</div>
 			<span className="jp-forms__inbox-response-file__item-actions">
-				<Tooltip text={ __( 'Download', 'jetpack-forms' ) }>
-					<Button variant="secondary" href={ file.url } target="_blank">
-						<Icon icon={ download } />
-					</Button>
-				</Tooltip>
+				<Tooltip.Root>
+					<Tooltip.Trigger
+						render={
+							<Button
+								variant="secondary"
+								href={ file.url }
+								target="_blank"
+								aria-label={ downloadLabel }
+							>
+								<Icon icon={ download } />
+							</Button>
+						}
+					/>
+					<Tooltip.Popup>{ downloadLabel }</Tooltip.Popup>
+				</Tooltip.Root>
 			</span>
 		</div>
 	);

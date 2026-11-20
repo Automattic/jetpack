@@ -2,6 +2,33 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## [7.0.0] - 2026-11-17
+### Removed
+- Remove the deprecated `GlobalNotices` component, `useGlobalNotices` hook and `globalNoticesStore`; use `@wordpress/notices` directly. [#55007]
+
+## [6.3.0] - 2026-11-16
+### Added
+- Add a HighlightBanner component: Jetpack's dark green banner with gradient orbs, previously copied into the Jetpack plugin and My Jetpack. [#54518]
+
+### Changed
+- Update package dependencies. [#54703]
+
+## [6.2.1] - 2026-11-06
+### Fixed
+- Footer: Show the Features link to administrators only.
+
+## [6.2.0] - 2026-11-04
+### Added
+- Add a SidebarFooter component for actions pinned to the bottom of a sidebar. [#54229]
+
+### Changed
+- Gravatar Hovercards: Update @gravatar-com/hovercards to 0.17.0, which adds defensive escaping of Gravatar profile data. [#54379]
+- StatCard: Use the design system tooltip. [#54512]
+- Update package dependencies. [#54512]
+
+### Fixed
+- JetpackFooter: Keep the footer styles in production builds. [#54512]
+
 ## [6.1.1] - 2026-11-02
 ### Changed
 - Update package dependencies. [#53869]
@@ -2051,6 +2078,10 @@
 ### Changed
 - Update node version requirement to 14.16.1
 
+[7.0.0]: https://github.com/Automattic/jetpack-components/compare/6.3.0...7.0.0
+[6.3.0]: https://github.com/Automattic/jetpack-components/compare/6.2.1...6.3.0
+[6.2.1]: https://github.com/Automattic/jetpack-components/compare/6.2.0...6.2.1
+[6.2.0]: https://github.com/Automattic/jetpack-components/compare/6.1.1...6.2.0
 [6.1.1]: https://github.com/Automattic/jetpack-components/compare/6.1.0...6.1.1
 [6.1.0]: https://github.com/Automattic/jetpack-components/compare/6.0.0...6.1.0
 [6.0.0]: https://github.com/Automattic/jetpack-components/compare/5.0.1...6.0.0

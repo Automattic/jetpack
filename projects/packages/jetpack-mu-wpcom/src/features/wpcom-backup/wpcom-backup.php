@@ -65,15 +65,6 @@ class WPCOM_Backup extends WPCOM_Hosting_Feature_Page {
 	}
 
 	/**
-	 * Left to wpcom_add_jetpack_submenu(), which hides the entry only where it links Calypso's Backup instead.
-	 *
-	 * @return bool
-	 */
-	public static function hides_menu_entry() {
-		return false;
-	}
-
-	/**
 	 * Keep the Jetpack plugin's Backup dashboard off a WoA site whose plan lacks backups.
 	 *
 	 * Otherwise it claims the slug first and this page's upgrade prompt steps aside.

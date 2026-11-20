@@ -291,7 +291,7 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 		chartRef,
 		svgRef,
 		selectedArc,
-		getSegmentHandlers,
+		getSegmentProps,
 		getKeyboardTooltipAnchor,
 		selectionOutputProps,
 		chartProps,
@@ -300,6 +300,7 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 		withTooltips,
 		tooltipOffsetX,
 		tooltipOffsetY,
+		legendValueDisplay,
 	} );
 
 	if ( ! isValid ) {
@@ -337,7 +338,7 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 	);
 
 	return (
-		<ChartInstanceContext.Provider value={ { chartId } }>
+		<ChartInstanceContext.Provider value={ { chartId, legendItems, chartType: 'pie-semi-circle' } }>
 			<ChartLayout
 				legendPosition={ legendPosition }
 				legendElement={ legendElement }
@@ -412,10 +413,7 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 										arcs.map( arcDatum => (
 											<g
 												key={ arcDatum.data.label }
-												{ ...getSegmentHandlers(
-													arcDatum.data,
-													navigationArcs.indexOf( arcDatum )
-												) }
+												{ ...getSegmentProps( arcDatum.data, navigationArcs.indexOf( arcDatum ) ) }
 											>
 												<path
 													d={ path( arcDatum ) || '' }
@@ -507,7 +505,9 @@ const PieSemiCircleChart = attachSubComponents( PieSemiCircleChartWithProvider, 
 
 // Create responsive PieSemiCircleChart with composition API
 const PieSemiCircleChartResponsive = attachSubComponents(
-	withResponsive< PieSemiCircleChartProps >( PieSemiCircleChartWithProvider ),
+	withResponsive< PieSemiCircleChartProps >( PieSemiCircleChartWithProvider, {
+		derivesOwnHeight: true,
+	} ),
 	{
 		Legend: Legend,
 		SVG: ChartSVG,

@@ -49,7 +49,7 @@ const meta: Meta< StoryArgs > = {
 		},
 		layout: {
 			control: { type: 'radio' },
-			options: [ 'grouped', 'overlap' ],
+			options: [ 'grouped', 'overlap', 'stacked' ],
 			description: 'How series share a category',
 			table: { category: 'Visual Style' },
 		},
@@ -921,6 +921,69 @@ export const ComparisonMultiOverlap: Story = {
 			description: {
 				story:
 					'`layout="overlap"` with two groups. Views and Visitors share the current period\'s slot, with Visitors as the narrower bar in front; Previous views and Previous visitors share the slot beside it. Each slot is toned from its palette color so every bar keeps 3:1 contrast against the background or the bar behind it, and the legend swatches match. With `legend.collapseGroups` each group is one legend item, so hiding Visitors hides Previous visitors too; the other bars keep their slots and widths. `legend.comparisonItem` names the comparison slot with one static item, in the color of its back bar. Turn the `legendCollapseGroups` control off to list each series alone, in slot order. Arrow keys step one slot at a time. Some days have gaps: Wednesday has no current reading and Tuesday no previous one, so those slots draw nothing and their tooltips read "No data". Saturday\'s current visitors and Friday\'s previous period are real zeros, drawn as stubs with `showZeroValues`.',
+			},
+		},
+	},
+};
+
+// Four weeks of daily views by device, as the Devices and Sales by Device widgets chart them.
+const deviceViewsData: SeriesData[] = [
+	{ label: 'Desktop', base: 1500, spread: 500, step: 137 },
+	{ label: 'Mobile', base: 1300, spread: 500, step: 89 },
+	{ label: 'Tablet', base: 300, spread: 200, step: 53 },
+].map( ( { label, base, spread, step } ) => ( {
+	label,
+	data: Array.from( { length: 28 }, ( _, day ) => ( {
+		date: new Date( 2026, 4, 15 + day ),
+		value: base + ( ( day * step ) % spread ),
+	} ) ),
+} ) );
+
+export const Stacked: Story = {
+	args: {
+		...Default.args,
+		layout: 'stacked',
+		data: deviceViewsData,
+		showLegend: true,
+		legendInteractive: true,
+		withBandHighlight: true,
+		gridVisibility: 'x',
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'`layout="stacked"` draws every series of a day as one bar, the first series at the bottom. The value axis covers the tallest stack. Hover a bar, or tab in and use the arrow keys, to read the whole day: each device from the top segment down, then the total. Hide a device from the legend and the stacks close up and the axis rescales.',
+			},
+		},
+	},
+};
+
+export const StackedHorizontal: Story = {
+	args: {
+		...Default.args,
+		layout: 'stacked',
+		orientation: 'horizontal',
+		showLegend: true,
+		legendInteractive: true,
+		gridVisibility: 'none',
+		data: [ medalCountsData[ 0 ], medalCountsData[ 1 ], medalCountsData[ 2 ] ].map(
+			( series, index ) =>
+				index === 1
+					? {
+							...series,
+							data: series.data.map( ( point, pointIndex ) =>
+								pointIndex === 2 ? { ...point, value: null } : point
+							),
+						}
+					: series
+		),
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'The stacked layout with `orientation="horizontal"`. The middle series has no reading in the third category, so that stack skips it and the next segment starts where the first one ends.',
 			},
 		},
 	},

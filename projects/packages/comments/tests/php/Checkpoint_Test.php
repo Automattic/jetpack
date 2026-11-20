@@ -38,6 +38,7 @@ class Checkpoint_Test extends BaseTestCase {
 		$_POST   = array();
 		$_COOKIE = array();
 		unset( $_SERVER['HTTP_ORIGIN'] );
+		wp_set_current_user( 0 );
 		parent::tear_down();
 	}
 
@@ -75,6 +76,36 @@ class Checkpoint_Test extends BaseTestCase {
 		);
 	}
 
+	public function test_admit_logged_in_redeems_code_without_refusing() {
+		wp_set_current_user(
+			wp_insert_user(
+				array(
+					'user_login' => 'reader',
+					'user_pass'  => 'pass',
+				)
+			)
+		);
+		$_POST[ Checkpoint::CODE_FIELD ] = 'abc';
+		$_SERVER['HTTP_ORIGIN']          = home_url();
+		$requested                       = false;
+		add_filter(
+			'pre_http_request',
+			function () use ( &$requested ) {
+				$requested = true;
+				return array(
+					'headers'  => array(),
+					'body'     => wp_json_encode( array( 'code' => 'code_used' ), JSON_UNESCAPED_SLASHES ),
+					'response' => array( 'code' => 400 ),
+					'cookies'  => array(),
+				);
+			}
+		);
+
+		Checkpoint::init()->admit();
+
+		$this->assertTrue( $requested );
+	}
+
 	public function test_admit_with_passport() {
 		$_POST[ Checkpoint::PASSPORT_FIELD ] = '1';
 		$_COOKIE[ Passport::COOKIE ]         = Passport_Test::cookie();
@@ -83,5 +114,34 @@ class Checkpoint_Test extends BaseTestCase {
 		Checkpoint::init()->admit();
 
 		$this->assertSame( 0, get_option( 'comment_registration', 1 ) );
+	}
+
+	public function test_attribute_carries_identity_as_comment_meta() {
+		$checkpoint = Checkpoint::init();
+		$property   = new \ReflectionProperty( Checkpoint::class, 'identity' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$property->setAccessible( true );
+		}
+		$property->setValue(
+			$checkpoint,
+			array(
+				'site_commenter_id' => 'abc',
+				'name'              => 'Pat',
+				'email'             => 'pat@example.com',
+				'avatar'            => 'https://example.com/a.png',
+			)
+		);
+
+		$data = $checkpoint->attribute( array( 'comment_meta' => array( 'other' => 'kept' ) ) );
+		$property->setValue( $checkpoint, null );
+
+		$this->assertSame(
+			array(
+				'other'                 => 'kept',
+				Checkpoint::META_ID     => 'abc',
+				Checkpoint::META_AVATAR => 'https://example.com/a.png',
+			),
+			$data['comment_meta']
+		);
 	}
 }

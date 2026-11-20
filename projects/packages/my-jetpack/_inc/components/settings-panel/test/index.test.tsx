@@ -1,8 +1,11 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import useAnalytics from '../../../hooks/use-analytics';
 import { SettingsPanel } from '../index';
-import { moduleSettings } from '../registry';
+import { entrySettings, moduleSettings } from '../registry';
 import type { MyJetpackModule } from '../../../types';
+
+const mockRecordEvent = jest.mocked( jest.mocked( useAnalytics )().recordEvent );
 
 const mockNavigate = jest.fn();
 let mockSearch: Record< string, unknown > = {};
@@ -12,6 +15,11 @@ jest.mock( '@wordpress/route', () => ( { useNavigate: () => mockNavigate } ) );
 jest.mock( '../../../router-bridge', () => ( { useRouteSearch: () => mockSearch } ) );
 jest.mock( '../../my-jetpack-tab-panel/features/use-all-jetpack-modules', () => ( {
 	useAllJetpackModules: () => mockModules,
+} ) );
+let mockEntries: MainFeatureSettingsEntry[] = [];
+jest.mock( '../../my-jetpack-tab-panel/features/use-main-features', () => ( {
+	QUERY_KEY: [ 'my-jetpack-main-features' ],
+	useMainFeatures: () => ( { settings_entries: mockEntries } ),
 } ) );
 jest.mock( '../../module-toggle', () => ( {
 	ModuleToggle: ( {
@@ -32,9 +40,9 @@ jest.mock( '../../module-toggle', () => ( {
 	),
 } ) );
 
-const carousel = {
-	module: 'carousel',
-	name: 'Carousel',
+const tiledGallery = {
+	module: 'tiled-gallery',
+	name: 'Tiled Galleries',
 	description: 'Show images in a slideshow.',
 	configure_url: 'https://example.com/settings',
 } as MyJetpackModule;
@@ -46,24 +54,39 @@ const likes = {
 
 beforeEach( () => {
 	jest.clearAllMocks();
-	mockSearch = { configure: 'carousel', view: 'list' };
-	mockModules = { modules: { carousel, likes }, hasLoaded: true };
+	mockSearch = { configure: 'tiled-gallery', view: 'list' };
+	mockModules = { modules: { 'tiled-gallery': tiledGallery, likes }, hasLoaded: true };
 } );
 
 afterEach( () => {
-	delete moduleSettings.carousel;
+	delete moduleSettings[ 'tiled-gallery' ];
+	delete entrySettings[ 'entry-test' ];
+	mockEntries = [];
 } );
 
 describe( 'SettingsPanel', () => {
+	it( 'opens a settings entry without waiting for the modules to load', () => {
+		mockSearch = { configure: 'entry-test' };
+		mockModules = { modules: {}, hasLoaded: false };
+		mockEntries = [
+			{ slug: 'entry-test', name: 'Entry Test', description: '', status: 'inactive' },
+		];
+		entrySettings[ 'entry-test' ] = () => <p>Entry settings</p>;
+		render( <SettingsPanel /> );
+
+		expect( screen.getByRole( 'heading', { name: 'Entry Test' } ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Entry settings' ) ).toBeInTheDocument();
+	} );
+
 	it( 'shows the fallback for a module with no settings of its own', () => {
 		render( <SettingsPanel /> );
 
-		expect( screen.getByRole( 'heading', { name: 'Carousel' } ) ).toHaveFocus();
-		expect( screen.getByText( carousel.description ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'heading', { name: 'Tiled Galleries' } ) ).toHaveFocus();
+		expect( screen.getByText( tiledGallery.description ) ).toBeInTheDocument();
 		expect( screen.getByRole( 'checkbox', { name: 'Activate this feature' } ) ).toBeEnabled();
-		expect( screen.getByRole( 'link', { name: 'Manage in Settings' } ) ).toHaveAttribute(
+		expect( screen.getByRole( 'link', { name: 'Manage in Jetpack Settings' } ) ).toHaveAttribute(
 			'href',
-			carousel.configure_url
+			tiledGallery.configure_url
 		);
 	} );
 
@@ -71,15 +94,21 @@ describe( 'SettingsPanel', () => {
 		mockSearch = { configure: 'likes' };
 		render( <SettingsPanel /> );
 
-		expect( screen.queryByRole( 'link', { name: 'Manage in Settings' } ) ).not.toBeInTheDocument();
+		expect(
+			screen.queryByRole( 'link', { name: 'Manage in Jetpack Settings' } )
+		).not.toBeInTheDocument();
 	} );
 
 	it( 'shows a registered component in place of the fallback', () => {
-		moduleSettings.carousel = ( { module: $module } ) => <p>Options of { $module.name }</p>;
+		moduleSettings[ 'tiled-gallery' ] = ( { module: $module } ) => (
+			<p>Options of { $module.name }</p>
+		);
 		render( <SettingsPanel /> );
 
-		expect( screen.getByText( 'Options of Carousel' ) ).toBeInTheDocument();
-		expect( screen.queryByRole( 'link', { name: 'Manage in Settings' } ) ).not.toBeInTheDocument();
+		expect( screen.getByText( 'Options of Tiled Galleries' ) ).toBeInTheDocument();
+		expect(
+			screen.queryByRole( 'link', { name: 'Manage in Jetpack Settings' } )
+		).not.toBeInTheDocument();
 	} );
 
 	it.each( [
@@ -87,14 +116,14 @@ describe( 'SettingsPanel', () => {
 		[ 'a registered component', 'Show captions', true ],
 	] )( 'locks %s for a module the site cannot use, and says why', ( _name, label, registered ) => {
 		if ( registered ) {
-			moduleSettings.carousel = ( { disabled } ) => (
+			moduleSettings[ 'tiled-gallery' ] = ( { disabled } ) => (
 				<input type="checkbox" aria-label="Show captions" disabled={ disabled } />
 			);
 		}
 		mockModules = {
 			modules: {
-				carousel: {
-					...carousel,
+				'tiled-gallery': {
+					...tiledGallery,
 					available: false,
 					unavailable_reason: 'Unavailable in Offline Mode',
 				},
@@ -108,8 +137,11 @@ describe( 'SettingsPanel', () => {
 	} );
 
 	it( 'says the host forced a module on, and leaves its options unlocked', () => {
-		mockModules = { modules: { carousel: { ...carousel, override: 'active' } }, hasLoaded: true };
-		moduleSettings.carousel = ( { disabled } ) => (
+		mockModules = {
+			modules: { 'tiled-gallery': { ...tiledGallery, override: 'active' } },
+			hasLoaded: true,
+		};
+		moduleSettings[ 'tiled-gallery' ] = ( { disabled } ) => (
 			<input type="checkbox" aria-label="Show captions" disabled={ disabled } />
 		);
 		render( <SettingsPanel /> );
@@ -148,7 +180,7 @@ describe( 'SettingsPanel', () => {
 		rerender( <SettingsPanel /> );
 
 		expect( screen.getByRole( 'heading', { name: 'Likes' } ) ).toHaveFocus();
-		expect( screen.queryByText( carousel.description ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( tiledGallery.description ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'shows a plain failure notice for a slug the site does not have, once the modules have loaded', () => {
@@ -175,16 +207,23 @@ describe( 'SettingsPanel', () => {
 		[
 			'the close button',
 			() => userEvent.click( screen.getByRole( 'button', { name: 'Close' } ) ),
+			'close-button',
 		],
-		[ 'Escape', () => userEvent.keyboard( '{Escape}' ) ],
-	] )( 'closes on %s, dropping only the configure param', async ( _name, close ) => {
+		[ 'Escape', () => userEvent.keyboard( '{Escape}' ), 'escape' ],
+	] )( 'closes on %s, dropping only the configure param', async ( _name, close, method ) => {
 		render( <SettingsPanel /> );
 		await close();
+
+		expect( mockRecordEvent ).toHaveBeenLastCalledWith( 'jetpack_myjetpack_settings_panel_close', {
+			feature_slug: 'tiled-gallery',
+			method,
+			event_version: 1,
+		} );
 
 		expect( mockNavigate ).toHaveBeenCalledTimes( 1 );
 		const options = mockNavigate.mock.calls[ 0 ][ 0 ];
 		expect( options ).toMatchObject( { replace: true, viewTransition: false } );
-		expect( options.search( { configure: 'carousel', view: 'list' } ) ).toEqual( {
+		expect( options.search( { configure: 'tiled-gallery', view: 'list' } ) ).toEqual( {
 			configure: undefined,
 			view: 'list',
 		} );
@@ -199,7 +238,7 @@ describe( 'SettingsPanel', () => {
 		if ( handled ) {
 			event.preventDefault();
 		}
-		screen.getByRole( 'heading', { name: 'Carousel' } ).dispatchEvent( event );
+		screen.getByRole( 'heading', { name: 'Tiled Galleries' } ).dispatchEvent( event );
 
 		expect( mockNavigate ).not.toHaveBeenCalled();
 	} );

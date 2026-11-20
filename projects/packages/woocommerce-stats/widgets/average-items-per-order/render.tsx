@@ -39,7 +39,6 @@ function AverageItemsPerOrder( { chartType }: { chartType?: ChartDisplayChartTyp
 		<ReportMetricChart
 			report={ useReportOrders( reportParams ) }
 			chartType={ chartType }
-			chartTitle={ __( 'Average items per order', 'jetpack-woocommerce-stats-pkg' ) }
 			field="avg_items"
 			label={ __( 'Average items per order', 'jetpack-woocommerce-stats-pkg' ) }
 			dataFormat={ { type: 'average' } }

@@ -14,7 +14,7 @@ const open = jest.fn();
 const threatIn = ( id: number | string ): ScanThreat => ( {
 	id,
 	title: 'Vulnerable plugin',
-	fixable: { fixer: 'update' },
+	fixable: { fixer: 'replace' },
 	extension: {
 		type: 'plugins',
 		slug: 'akismet',
@@ -60,21 +60,41 @@ describe( 'useThreatRowActions', () => {
 	} );
 
 	it.each( [
-		[ 'an update fix', { fixer: 'update' }, [ 'auto-fix' ] ],
-		[ 'a delete fix', { fixer: 'delete' }, [ 'auto-fix-delete' ] ],
+		[ 'a replace fix', { fixer: 'replace' }, {}, [ 'auto-fix', 'delete' ] ],
+		[ 'an update fix', { fixer: 'update' }, {}, [ 'auto-fix-update', 'delete' ] ],
+		[ 'a delete fix, without a second Delete', { fixer: 'delete' }, {}, [ 'auto-fix-delete' ] ],
+		[ 'a delete fix the plan can’t run', { fixer: 'delete' }, { canAct: false }, [ 'delete' ] ],
+		[ 'an ignored delete fix', { fixer: 'delete' }, { status: 'ignored' }, [ 'delete' ] ],
+		[ 'a fixed delete fix', { fixer: 'delete' }, { status: 'fixed' }, [ 'delete' ] ],
 		[
 			'a fix left out of bulk fixes',
-			{ fixer: 'update', extras: { isBulkFixable: false } },
-			[ 'auto-fix' ],
+			{ fixer: 'replace', extras: { isBulkFixable: false } },
+			{},
+			[ 'auto-fix', 'delete' ],
 		],
-	] as const )( 'picks the Auto-fix action for %s', ( _name, fixable, expected ) => {
-		const item = { ...threatIn( 4 ), signature: 'Vulnerable.WP.Extension', fixable };
-		const { result } = renderHook( () => useThreatRowActions( open, true ) );
+	] as const )(
+		'picks the Auto-fix and Delete actions for %s',
+		(
+			_name,
+			fixable,
+			{ canAct = true, status = 'current' }: { canAct?: boolean; status?: string },
+			expected
+		) => {
+			const item = {
+				...threatIn( 4 ),
+				signature: 'Vulnerable.WP.Extension',
+				fixable,
+				status,
+			} as ScanThreat;
+			const { result } = renderHook( () => useThreatRowActions( open, canAct ) );
 
-		expect(
-			eligibleIds( result.current, item ).filter( id => id.startsWith( 'auto-fix' ) )
-		).toEqual( expected );
-	} );
+			expect(
+				eligibleIds( result.current, item ).filter(
+					id => id.startsWith( 'auto-fix' ) || id === 'delete'
+				)
+			).toEqual( expected );
+		}
+	);
 
 	it( 'gives a row its actions back when the fix fails', async () => {
 		let reject: ( e: unknown ) => void = () => {};
@@ -112,7 +132,7 @@ describe( 'useThreatRowActions', () => {
 } );
 
 describe( 'useThreatRowActions with bulk actions', () => {
-	const BULK = [ 'auto-fix', 'ignore' ];
+	const BULK = [ 'auto-fix', 'auto-fix-update', 'ignore' ];
 	const threats = [ threatIn( 10 ), threatIn( 11 ) ];
 
 	// Scan history and the threat report pass no onBulk, so they must not grow checkboxes.
@@ -173,4 +193,25 @@ describe( 'useThreatRowActions where the host decides about ignoring', () => {
 			expect( isEligible( false ) ).toBe( offered );
 		}
 	);
+} );
+
+describe( 'useThreatRowActions where the user may not see the site’s code', () => {
+	afterEach( () => {
+		delete window.jetpackProtectDashboard;
+		resetScan();
+	} );
+
+	it( 'offers View file only to a user who may view threat files', () => {
+		const threat = { ...threatIn( 30 ), filename: '/htdocs/wp-content/uploads/x.php' };
+		const isEligible = ( canViewFiles: boolean ) => {
+			window.jetpackProtectDashboard = { scan: { hasPlan: true, url: '', canViewFiles } };
+			resetScan();
+			return renderHook( () => useThreatRowActions( open, true ) )
+				.result.current.find( action => action.id === 'view-file' )
+				?.isEligible?.( threat );
+		};
+
+		expect( isEligible( true ) ).toBe( true );
+		expect( isEligible( false ) ).toBe( false );
+	} );
 } );

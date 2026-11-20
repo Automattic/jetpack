@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Dashboard: Load the media library when a thumbnail upload opens it, instead of on every page load.

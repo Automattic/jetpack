@@ -33,6 +33,13 @@ class Admin_Bar {
 	const CHART_ACTION = 'jetpack_stats_admin_bar_chart';
 
 	/**
+	 * How long, in seconds, the browser may reuse a chart image. Short, because the chart's last bar is the current hour.
+	 *
+	 * @var int
+	 */
+	const CHART_MAX_AGE = 300;
+
+	/**
 	 * The handle of the 7-day chart script and style.
 	 *
 	 * @var string
@@ -306,7 +313,7 @@ class Admin_Bar {
 		 * Return `$url` unchanged for a view the dashboard has no page for.
 		 *
 		 * @since 0.39.0
-		 * @since $$next-version$$ The `dashboard` view may carry a `section` and a `range`.
+		 * @since 0.40.0 The `dashboard` view may carry a `section` and a `range`.
 		 *
 		 * @param string $url  The Stats URL.
 		 * @param array  $args The page the link opens.
@@ -388,6 +395,10 @@ class Admin_Bar {
 			exit( 0 );
 		}
 
+		// Replaces the no-store headers admin.php and admin-post.php send, so the browser reuses the chart across page views.
+		header_remove( 'Expires' );
+		header_remove( 'Pragma' );
+		header( 'Cache-Control: private, max-age=' . self::CHART_MAX_AGE );
 		header( 'Content-Type: ' . $image['type'] );
 		header( 'Content-Length: ' . strlen( $image['body'] ) );
 		echo $image['body']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Binary image data.

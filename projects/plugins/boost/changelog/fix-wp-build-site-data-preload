@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Dashboard: Fix "Something went wrong!" on WordPress 7.1 when the site data request fails.

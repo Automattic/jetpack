@@ -16,6 +16,12 @@ declare module '@automattic/jetpack-script-data' {
 			// The single-report pages the reader may open, as `routes/single-report/registry.ts` reads them. Absent until the page registry is hydrated.
 			single_report_pages?: Array< {
 				id: string;
+				// The core-data entity the page is about. Absent from servers that predate the binding, null when the page names none.
+				entity?: {
+					kind: string;
+					name: string;
+					key?: string;
+				} | null;
 				path: string;
 				label: string;
 				dashboard_section: string | null;
@@ -38,10 +44,14 @@ declare module '@automattic/jetpack-script-data' {
 			can_view_stats?: boolean;
 			// Where switching the dashboard off lands: the classic Stats page, or null while no plugin registers one.
 			classic_stats_url?: string | null;
+			// Whether the classic Stats page is retired, which also retires the feedback prompts.
+			classic_stats_retired?: boolean;
 			// Slugs of the tabs the dashboard exposes. Absent until the section registry is hydrated.
 			sections?: string[];
 			// Slugs of the tabs whose dates follow the plan's Stats limits. Absent with `sections`.
 			plan_date_limited_sections?: string[];
+			// The locale's default date format, used when the site's own lacks a day, month or year.
+			default_date_format?: string;
 			// The WooCommerce store currency, set by the WooCommerce stats package; absent without WooCommerce.
 			store_currency?: { code: string; symbol: string; precision?: number };
 			// The settings the site offers, the roles the Stats settings list, the screen that switches Stats on and off, and the visitor consent setup; absent for users who cannot manage options, or when the host offers no setting.
@@ -93,6 +103,8 @@ declare module '@automattic/jetpack-script-data' {
 			};
 			// URL of the dashboard's copied `build/images/` directory, with a trailing slash. Dashboard only.
 			assets_url?: string;
+			// Whether the dashboard reports its errors, the package version sent with them, and the URL prefixes that mark a stack frame as dashboard code. Dashboard only.
+			error_reporting?: { enabled: boolean; version: string; script_origins: string[] };
 			// The Stats purchase this page load returned from checkout with; absent on every other load.
 			purchase_success?: { type: 'paid' | 'free' };
 		};

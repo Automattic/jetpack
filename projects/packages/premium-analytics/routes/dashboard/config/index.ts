@@ -4,7 +4,6 @@ export {
 	isSectionAwaitingSync,
 	resolveSectionHeading,
 	resolveSectionId,
-	SETTINGS_SECTION,
 	type DashboardSection,
 	type DashboardSectionId,
 } from './sections';
@@ -28,3 +27,5 @@ export {
 	type WidgetTypeName,
 	type WidgetTypeRenameRecord,
 } from './widget-type-renames';
+
+export { DASHBOARD_GRID } from './grid';

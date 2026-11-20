@@ -5,7 +5,6 @@ import {
 	WidgetRoot,
 	type ReportParamsFieldAttributes,
 } from '@automattic/jetpack-premium-analytics-sdk';
-import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
@@ -32,7 +31,7 @@ export default function SalesByDeviceRender( {
 }: WidgetRenderProps< SalesByDeviceRenderAttributes > ) {
 	return (
 		<WidgetRoot attributes={ attributes }>
-			<SalesByDevice chartTitle={ __( 'Sales by device', 'jetpack-woocommerce-stats-pkg' ) } />
+			<SalesByDevice />
 		</WidgetRoot>
 	);
 }

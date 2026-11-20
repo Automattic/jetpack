@@ -490,6 +490,151 @@ class Scan_Status_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Test that an expired status is fetched once, while other requests serve the stored one.
+	 *
+	 * @param string $lock              The lock row: free, held by another request, or stale.
+	 * @param bool   $refreshed         Whether another request stored a fresh status after this one loaded its options.
+	 * @param bool   $has_stored_status Whether this request loaded a stored status at boot.
+	 * @param int    $expected_fetches  How many times WordPress.com should be asked.
+	 *
+	 * @dataProvider concurrent_refresh_data
+	 */
+	#[DataProvider( 'concurrent_refresh_data' )]
+	public function test_get_status_while_another_request_refreshes( $lock, $refreshed, $has_stored_status, $expected_fetches ) {
+		global $wpdb;
+
+		$this->mock_connection();
+		if ( $has_stored_status ) {
+			update_option( Scan_Status::OPTION_NAME, maybe_serialize( $this->get_sample_response() ) );
+		}
+		update_option( Scan_Status::OPTION_TIMESTAMP_NAME, time() - 1 );
+
+		$fetches = 0;
+		$count   = function ( $response ) use ( &$fetches ) {
+			++$fetches;
+			return $response;
+		};
+		add_filter( 'pre_http_request', $count, 20 );
+
+		// No real database here, so stand in one holding what the other request wrote.
+		$original_wpdb = $wpdb;
+		$wpdb          = new class( $lock, $refreshed ? serialize( maybe_serialize( $this->get_sample_response() ) ) : null ) extends \Db_Less_Wpdb { // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited, WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
+			/**
+			 * The lock row.
+			 *
+			 * @var string
+			 */
+			private $lock;
+
+			/**
+			 * The status row as stored, when another request refreshed it.
+			 *
+			 * @var string|null
+			 */
+			private $refreshed_row;
+
+			/**
+			 * Lock values this request deleted.
+			 *
+			 * @var string[]
+			 */
+			public $released = array();
+
+			/**
+			 * Constructor.
+			 *
+			 * @param string      $lock          The lock row.
+			 * @param string|null $refreshed_row The status row as stored.
+			 */
+			public function __construct( $lock, $refreshed_row ) {
+				parent::__construct();
+				$this->lock          = $lock;
+				$this->refreshed_row = $refreshed_row;
+			}
+
+			/**
+			 * Answer the lock queries.
+			 *
+			 * @param string $query The SQL query.
+			 * @return int|bool
+			 */
+			public function query( $query ) {
+				if ( false === strpos( $query, Scan_Status::REFRESH_LOCK_NAME ) ) {
+					return parent::query( $query );
+				}
+				if ( 0 === strpos( $query, 'INSERT' ) ) {
+					return 'free' === $this->lock ? 1 : 0;
+				}
+				return 'stale' === $this->lock ? 1 : 0;
+			}
+
+			/**
+			 * Return the status rows another request stored.
+			 *
+			 * @param string|null $query  The SQL query.
+			 * @param string      $output Output type.
+			 * @return array
+			 */
+			public function get_results( $query = null, $output = OBJECT ) {
+				if ( false === strpos( (string) $query, Scan_Status::OPTION_TIMESTAMP_NAME ) ) {
+					return parent::get_results( $query, $output );
+				}
+				if ( null === $this->refreshed_row ) {
+					return array();
+				}
+				return array(
+					Scan_Status::OPTION_NAME           => (object) array( 'option_value' => $this->refreshed_row ),
+					Scan_Status::OPTION_TIMESTAMP_NAME => (object) array( 'option_value' => (string) ( time() + 60 ) ),
+				);
+			}
+
+			/**
+			 * Record a released lock.
+			 *
+			 * @param string       $table        Table name.
+			 * @param array        $where        Columns to match.
+			 * @param array|string $where_format Formats.
+			 * @return int|false
+			 */
+			public function delete( $table, $where, $where_format = null ) {
+				if ( isset( $where['option_name'] ) && Scan_Status::REFRESH_LOCK_NAME === $where['option_name'] ) {
+					$this->released[] = $where['option_value'];
+					return 1;
+				}
+				return parent::delete( $table, $where, $where_format );
+			}
+		};
+		$wpdb->set_prefix( $original_wpdb->base_prefix );
+
+		$status   = null;
+		$released = array();
+		try {
+			$status   = Scan_Status::get_status();
+			$released = $wpdb->released;
+		} finally {
+			$wpdb = $original_wpdb; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+			remove_filter( 'pre_http_request', $count, 20 );
+		}
+
+		$this->assertSame( $expected_fetches, $fetches );
+		$this->assertEquals( static::get_sample_status(), $status );
+		$this->assertCount( 'held' === $lock ? 0 : 1, $released, 'Only a lock this request took is released.' );
+	}
+
+	/**
+	 * Data provider for test_get_status_while_another_request_refreshes
+	 */
+	public static function concurrent_refresh_data() {
+		return array(
+			'lock held, stored status served'    => array( 'held', false, true, 0 ),
+			'lock held, nothing stored, fetched' => array( 'held', false, false, 1 ),
+			'lock taken after another refresh'   => array( 'free', true, false, 0 ),
+			'lock taken, still expired, fetched' => array( 'free', false, true, 1 ),
+			'stale lock taken over, fetched'     => array( 'stale', false, true, 1 ),
+		);
+	}
+
+	/**
 	 * A failed most recent scan is flagged, and the threats from earlier scans are kept.
 	 */
 	public function test_get_status_flags_failed_scan() {
@@ -511,6 +656,123 @@ class Scan_Status_Test extends BaseTestCase {
 		$this->assertTrue( $status->last_scan_failed );
 		$this->assertCount( 4, $status->threats );
 		$this->assertTrue( Scan_Status::get_cached_status()->last_scan_failed );
+	}
+
+	/**
+	 * A vulnerability is left out once its plugin or theme is updated to the fixed version, before Scan scans again.
+	 *
+	 * @param string $plugin_version The installed WooCommerce version.
+	 * @param string $theme_version  The installed theme version.
+	 * @param array  $listed         The extension threats still listed.
+	 * @dataProvider updated_extension_data
+	 */
+	#[DataProvider( 'updated_extension_data' )]
+	public function test_get_status_after_extension_update( $plugin_version, $theme_version, $listed ) {
+		$this->mock_connection();
+		$update   = function ( $target ) {
+			return (object) array(
+				'fixer'  => 'update',
+				'target' => $target,
+			);
+		};
+		$response = $this->get_sample_response();
+
+		$response->threats[1]->fixer = $update( '3.0.2' );
+		$response->threats[]         = (object) array(
+			'id'        => 'malware',
+			'signature' => 'PHP.Generic.Malware',
+			'status'    => 'current',
+			'fixer'     => $update( '3.0.2' ),
+			'extension' => (object) array(
+				'type'    => 'plugin',
+				'slug'    => 'woocommerce',
+				'version' => '3.0.0',
+			),
+		);
+		$response->threats[]         = (object) array(
+			'id'        => 'theme',
+			'signature' => 'Vulnerable.WP.Extension',
+			'status'    => 'current',
+			'fixer'     => $update( '1.0.3' ),
+			'extension' => (object) array(
+				'type'    => 'theme',
+				'slug'    => 'theme-1',
+				'version' => '1.0.2',
+			),
+		);
+		$filters                     = array(
+			'pre_http_request'                 => function () use ( $response ) {
+				return array(
+					'body'     => wp_json_encode( $response, JSON_UNESCAPED_SLASHES ),
+					'response' => array( 'code' => 200 ),
+				);
+			},
+			'all_plugins'                      => function () use ( $plugin_version ) {
+				return array(
+					'woocommerce' => array(
+						'Name'    => 'Woocommerce',
+						'Version' => $plugin_version,
+					),
+				);
+			},
+			'jetpack_sync_get_themes_callable' => function () use ( $theme_version ) {
+				return array(
+					'theme-1' => array(
+						'Name'    => 'Sample Theme',
+						'Version' => $theme_version,
+					),
+				);
+			},
+		);
+		foreach ( $filters as $hook => $filter ) {
+			add_filter( $hook, $filter, 11 );
+		}
+
+		$ids = array_column( Scan_Status::get_status()->threats, 'id' );
+		foreach ( $filters as $hook => $filter ) {
+			remove_filter( $hook, $filter, 11 );
+		}
+
+		$this->assertEqualsCanonicalizing( $listed, array_values( array_intersect( $ids, array( '71625245', 'malware', 'theme' ) ) ) );
+	}
+
+	/**
+	 * Data provider for test_get_status_after_extension_update
+	 */
+	public static function updated_extension_data() {
+		return array(
+			'still below the fix' => array( '3.0.1', '1.0.2', array( '71625245', 'malware', 'theme' ) ),
+			'a rollback'          => array( '2.9', '1.0.2', array( '71625245', 'malware', 'theme' ) ),
+			'plugin at the fix'   => array( '3.0.2', '1.0.2', array( 'malware', 'theme' ) ),
+			'plugin past the fix' => array( '3.1', '1.0.2', array( 'malware', 'theme' ) ),
+			'theme at the fix'    => array( '3.0.0', '1.0.3', array( '71625245', 'malware' ) ),
+		);
+	}
+
+	/**
+	 * Test that a threat with no severity sorts between Low and High.
+	 */
+	public function test_sort_threats_puts_unrated_between_low_and_high() {
+		$threats = array_map(
+			function ( $severity ) {
+				return new Threat_Model(
+					array(
+						'id'             => (string) $severity,
+						'status'         => 'current',
+						'severity'       => $severity,
+						'first_detected' => '2024-01-01T00:00:00.000Z',
+					)
+				);
+			},
+			array( 2, null, 3 )
+		);
+		$sort    = new \ReflectionMethod( Scan_Status::class, 'sort_threats' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$sort->setAccessible( true );
+		}
+
+		$sorted = $sort->invoke( null, $threats );
+		$this->assertSame( array( 3, null, 2 ), array_column( $sorted, 'severity' ) );
 	}
 
 	/**

@@ -5,7 +5,6 @@ import {
 	WidgetRoot,
 	type ReportParamsFieldAttributes,
 } from '@automattic/jetpack-premium-analytics-sdk';
-import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
@@ -35,10 +34,7 @@ export default function BookingsRevenueByCustomerTypeRender( {
 }: WidgetRenderProps< BookingsRevenueByCustomerTypeRenderAttributes > ) {
 	return (
 		<WidgetRoot attributes={ attributes }>
-			<RevenueByCustomerType
-				filters={ FILTERS }
-				chartTitle={ __( 'Bookings revenue by customer type', 'jetpack-woocommerce-stats-pkg' ) }
-			/>
+			<RevenueByCustomerType filters={ FILTERS } />
 		</WidgetRoot>
 	);
 }

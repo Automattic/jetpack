@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.89.0] - 2026-11-16
+### Added
+- Admin shell: Join the admin shell, loading the dashboard's page data from a new REST endpoint when it opens from another Jetpack dashboard, so switching between dashboards skips the page load when the admin shell flag is on. [#54821]
+- Block editor: Add a "Social preview" item to the Preview dropdown that opens the link preview. [#54636]
+
+### Changed
+- Admin shell: Declare the page title and subtitle shown while the dashboard opens, when the admin shell flag is on. [#54945]
+- Replace the deprecated ResponsiveWrapper component in the media picker. [#54743]
+- Social Image Generator: Allow WebP background images. [#54733]
+- Update package dependencies. [#54703]
+
+### Fixed
+- Fix the missing icon on the remove button of the default image picker. [#54743]
+
+## [0.88.10] - 2026-11-09
+### Changed
+- Connections list: Use the design system switch for the connection toggles. [#54512]
+- Sharing activity: Use the design system tooltip for share times. [#54512]
+- Update package dependencies. [#54391] [#54512]
+
 ## [0.88.9] - 2026-11-02
 ### Changed
 - Overview: Replace the traffic chart's date range dropdown with a menu button. [#54203]
@@ -1737,6 +1757,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update package.json metadata.
 
+[0.89.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.88.10...v0.89.0
+[0.88.10]: https://github.com/Automattic/jetpack-publicize/compare/v0.88.9...v0.88.10
 [0.88.9]: https://github.com/Automattic/jetpack-publicize/compare/v0.88.8...v0.88.9
 [0.88.8]: https://github.com/Automattic/jetpack-publicize/compare/v0.88.7...v0.88.8
 [0.88.7]: https://github.com/Automattic/jetpack-publicize/compare/v0.88.6...v0.88.7

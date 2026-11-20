@@ -153,7 +153,6 @@ Keys are fixed strings, so they survive a page's slug changing.
 | `jetpack-podcast` | Podcast, except on WordPress.com Simple and Atomic sites |
 | `jetpack-premium-analytics` | Premium Analytics (top level) |
 | `jetpack-protect` | Protect, from the Jetpack plugin or the Protect plugin |
-| `jetpack-scan` | Scan |
 | `jetpack-scan-cloud` | Scan ↗, the link to Jetpack Cloud |
 | `jetpack-search` | Search |
 | `jetpack-seo` | SEO |
@@ -195,6 +194,89 @@ A gate removes the item wherever it resolves false, so check it holds in every c
 Stats and Premium Analytics register this way, under the keys `jetpack-stats` and `jetpack-premium-analytics`.
 
 Unlike `add_menu()`, the page gets neither the core-notice CSS nor the WPDS design tokens; call `Admin_Menu::hide_core_admin_notices()` or `Admin_Menu::enqueue_design_tokens()` on its own `load-` hook for either. Registering only top level items never builds the Jetpack menu.
+
+### Admin shell: page events
+
+With the admin shell on, opening a member doesn't load the page, so work a dashboard does once per page load doesn't run again. The shell dispatches two events on `window` instead:
+
+* `jetpack-admin-shell:page-shown` once a member is on screen and its URL is written, with `detail: { page, previous, firstShow, routeChanged, hiddenFor, stale, url }`. `previous` is the page the shell switched from, or `null` on a page load. `firstShow` is `true` the first time the app renders in this document and `false` when the shell shows an app it kept mounted. `routeChanged` is `true` only when the shell reopened a kept-mounted app at a URL whose query or hash differs from where it was left, such as through a link or Back, so the app's router has already seen a navigation. It is `false` on a first show, on a return to the route the app was left on, and when unsaved changes kept the app where it was. `hiddenFor` is how many milliseconds a kept-mounted app was hidden since its last `page-shown`, and `0` on a first show. `stale` is `true` once that reaches five minutes.
+* `jetpack-admin-shell:page-hidden` as a member leaves the screen, with `detail: { page, previous: null, next, firstShow: false, url }`. `next` is the page the shell is switching to. `page` can be a page that never finished rendering, if the user moved on before it did.
+
+Don't pair the two events: a switch dispatches no `page-shown` when another switch overtakes it before its page renders, or when it returns to a page still rendering from an earlier switch. A later `page-shown` can name a page that never rendered as `previous`. If `next` fails to open while the user is still waiting on it, the shell falls back to loading it.
+
+A dashboard that records a Tracks page view when it mounts records it again on `page-shown` for its own page when `firstShow` is `false`: its mount has already counted the first show, and with the shell off every visit is a page load that counts. A dashboard whose router also records a view on each route change skips that replay when `routeChanged` is `true`, since its router has already counted it.
+```JS
+useEffect( () => {
+	const onShown = event => {
+		if (
+			event.detail?.page === 'my-dashboard' &&
+			! event.detail.firstShow &&
+			! event.detail.routeChanged
+		) {
+			recordPageView();
+		}
+	};
+	window.addEventListener( 'jetpack-admin-shell:page-shown', onShown );
+	return () => window.removeEventListener( 'jetpack-admin-shell:page-shown', onShown );
+}, [] );
+```
+
+A hidden dashboard isn't remounted when it's shown again, so data it fetched before it was hidden stays on screen. On `page-shown` for its own page with `stale` set, a dashboard refetches its queries, such as with `queryClient.invalidateQueries()`, rather than remounting.
+
+A page whose feature was switched off since the menu was drawn opens to a panel that offers to turn it back on. The panel dispatches neither event, since the dashboard isn't on screen: its next `page-shown` comes once the dashboard is, and its `hiddenFor` counts the time behind the panel.
+
+Neither event fires while the shell is off.
+
+### Admin shell: memory
+
+Every dashboard the shell prewarms or mounts stays in the document until the next page load, since a booted app can't be disposed of. So the shell keeps at most a few dashboards live, the one the page loaded included, and once that many are live, opening another dashboard is a normal page load, which frees the rest. Prewarming downloads only the route the link opens; the dashboard's other routes load when it first navigates to them. A menu link prewarms its dashboard once the pointer rests on it for 100 ms, so sweeping down the menu prewarms nothing, and hovering never spends the last slot, so the dashboard the user clicks next still opens in place. Hovering doesn't prewarm a dashboard whose page last opened to the turned-off panel. When the browser reports Save-Data, 2 GB of memory or less, or a 2G connection, hovering doesn't prewarm at all, and the dashboard loads on the click. It sizes the limit from the device memory the browser reports: 3 at 2 GB or less, 10 below 8 GB or when the browser doesn't say, and no limit from 8 GB. A site can set it with the `jetpack_admin_shell_max_live_apps` filter:
+
+```PHP
+add_filter( 'jetpack_admin_shell_max_live_apps', fn() => 4 );
+```
+
+Anything but a positive integer leaves it to the device's memory.
+
+### Admin shell: unsaved changes
+
+With the admin shell on, member dashboards stay mounted while hidden, so switching away keeps an edit. A navigation that would open a member at a different route than where it was left would unmount that view, so first the shell dispatches a cancelable `jetpack-admin-shell:before-leave` event on `window`, with `detail: { page, url }`: the member's admin page slug and the URL about to open.
+
+A member with unsaved changes asks the user and calls `preventDefault()` to stay. The user may be looking at another dashboard, so the question should name the member, such as "You have unsaved changes in Newsletter. Discard them?". A click is then cancelled. Back/Forward can't be, so the shell reopens the member where it was left, in the same history entry. When the shell is off, or an older Admin UI is loaded, nothing dispatches the event.
+
+Past the live-app limit, opening another dashboard loads the page, which would drop every hidden member, so the shell first asks each one the same way, with the URL about to load. If one stays, the click is cancelled, and Back/Forward keeps the visible dashboard in the same history entry. The visible member isn't asked: to it, that's an ordinary page load. A hidden member that also prompts from `beforeunload` should skip that prompt right after it lets a `before-leave` go on, such as with a flag it clears in a `setTimeout`, or the user is asked twice.
+
+```JS
+window.addEventListener( 'jetpack-admin-shell:before-leave', event => {
+	if ( event.detail?.page === 'my-dashboard' && isDirty && ! window.confirm( message ) ) {
+		event.preventDefault();
+	}
+} );
+```
+
+The shell asks before its own navigation, and a screen that also guards `popstate` hears that navigation in the same task: let it skip its own prompt then, so the user is asked once. Such a guard also hears popstates while its page is hidden, so let it stand down from `jetpack-admin-shell:page-hidden` until `jetpack-admin-shell:page-shown` for its page.
+
+### Media library on demand
+
+A dashboard that opens the WordPress media library from one control doesn't need `wp_enqueue_media()` on every page load. Await `loadMediaLibrary()` from `@automattic/jetpack-components` in that control's click handler instead: the first call fetches the media scripts and templates from this package's `jetpack_media_library` admin-ajax action and resolves once `wp.media` is ready, and later calls resolve at once. It rejects when the library can't be loaded, so show the user an error, and a later call tries again. The user needs the `upload_files` capability.
+
+```JS
+import { loadMediaLibrary } from '@automattic/jetpack-components/tools/load-media-library';
+
+const onClick = async () => {
+	setBusy( true );
+	try {
+		await loadMediaLibrary();
+	} catch {
+		showError( __( 'The media library could not be loaded. Try again.' ) );
+		return;
+	} finally {
+		setBusy( false );
+	}
+	window.wp.media( { title, library: { type: 'image' } } ).open();
+};
+```
+
+The endpoint must be hooked on admin-ajax requests, which never build the admin menu, so call `Media_Library::init()` from the package's own init. `Admin_Shell::init()` calls it too.
 
 ## Security
 

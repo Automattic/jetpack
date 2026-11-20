@@ -27,7 +27,6 @@ import { ModuleToggle } from '../components/module-toggle';
 import PlanIcon from '../components/plans/plan-icon';
 import Textarea from '../components/textarea';
 import { getSiteAdminUrl } from '../state/initial-state';
-import { isPluginActive } from '../state/site/plugins';
 import { updateWafSettings } from '../state/waf/actions';
 import {
 	getAutomaticRulesAvailable,
@@ -35,12 +34,7 @@ import {
 	isFetchingWafSettings,
 	isUpdatingWafSettings,
 } from '../state/waf/reducer';
-
-const PROTECT_PLUGIN_FILES = [
-	'protect/jetpack-protect.php',
-	'jetpack-protect/jetpack-protect.php',
-	'jetpack-protect-dev/jetpack-protect.php',
-];
+import { getProtectPluginUrl, isProtectPluginActive } from './protect-page';
 
 export const Waf = class extends Component {
 	/**
@@ -531,10 +525,8 @@ export default connect(
 		return {
 			automaticRulesAvailable: getAutomaticRulesAvailable( state ),
 			hasScan: siteHasFeature( state, 'scan' ),
-			protectAdminUrl: `${ getSiteAdminUrl( state ) }admin.php?page=jetpack-protect#/firewall`,
-			isProtectActive: PROTECT_PLUGIN_FILES.some( pluginFile =>
-				isPluginActive( state, pluginFile )
-			),
+			protectAdminUrl: `${ getProtectPluginUrl( getSiteAdminUrl( state ) ) }#/firewall`,
+			isProtectActive: isProtectPluginActive( state ),
 			getProtectUrl: `${ getSiteAdminUrl( state ) }admin.php?page=my-jetpack#/add-protect`,
 			isFetchingSettings: isFetchingWafSettings( state ),
 			isUpdatingWafSettings: isUpdatingWafSettings( state ),

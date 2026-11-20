@@ -102,7 +102,7 @@ Follow `references/class-skeleton.md`. Three abstract methods must be implemente
 - `get_category_definition(): array` — returns `[ 'label' => ..., 'description' => ... ]`.
 - `get_abilities(): array` — returns a `[ slug => spec ]` map.
 
-Do NOT write an `init()` method. `Registrar::init()` handles the hook lifecycle, the `jetpack_wp_abilities_enabled` gate, and `did_action()` late-load. Just call `<Name>_Abilities::init()` from the bootstrap.
+Do NOT write an `init()` method. `Registrar::init()` handles the hook lifecycle and the `jetpack_wp_abilities_enabled` gate. Call `<Name>_Abilities::init()` from the bootstrap before WordPress fires `wp_abilities_api_categories_init`, for example on `plugins_loaded`. WordPress rejects registrations after that action, so a later call registers nothing, and no notice says so.
 
 ### 6) Write each ability spec
 
@@ -119,8 +119,9 @@ For every entry in `get_abilities()`:
 - `execute_callback` — `[ __CLASS__, 'method_name' ]`. Method signature is `( $input = null )`. Return value is a plain array (or `WP_Error`). Keep the shape **high-signal** — don't return raw `$mod` / `WP_Post` / option dumps; summarize. See the anti-patterns section of `references/agent-ergonomics.md`.
 - `permission_callback` — `[ __CLASS__, 'can_method' ]`. See the permissions table below.
 - `meta.annotations` — `readonly`, `destructive`, `idempotent` booleans. These must match execute behavior; `wp-abilities-verify` will flag mismatches.
-- `meta.mcp` — every ability gets `'mcp' => array( 'public' => true, 'type' => 'tool' )`. This is what surfaces the ability to MCP-bridged AI agents as a tool. Matches the convention used by Stats / Boost / Modules abilities; leaving it off makes the ability invisible to MCP consumers even though it shows up in `/wp-abilities/v1/abilities/`. Flip `public => false` only when the ability is for internal callers and explicitly shouldn't be agent-discoverable.
-- `meta.show_in_rest` — `true` when the ability should be callable via REST.
+- `meta.public` — `true` for every agent-facing ability. This is the WordPress-level flag that marks an ability as available to clients. MCP adapter 0.6.0+ falls back to it when `meta.mcp.public` is not set, and WordPress 7.1+ uses it as the default for `show_in_rest`.
+- `meta.show_in_rest` — keep `true` explicit. WordPress 7.0 does not derive it from `meta.public`, so leaving it out hides the ability from `/wp-abilities/v1/abilities/` there.
+- `meta.mcp` — every ability also gets `'mcp' => array( 'public' => true, 'type' => 'tool' )`. MCP adapters older than 0.6.0 read only `meta.mcp.public`, so keep it alongside `meta.public`. For an ability meant only for internal callers, set both `meta.public` and `meta.mcp.public` to `false`: an explicit `meta.mcp.public` overrides `meta.public` for MCP. Also set `show_in_rest` to `false` unless those callers need REST, because an explicit `true` keeps the ability in `/wp-abilities/v1/abilities/` and in WordPress.com's remote ability discovery. Leave that slug out of the public-flag test in `references/test-templates.md`.
 - **Do NOT set `category`** in the spec. `Registrar` auto-injects it. Setting it duplicates info that drifts.
 - `WP_Error` codes — use the shared vocabulary in `wp-abilities-api/references/error-code-vocabulary.md` (`<plugin>_not_initialized`, `<plugin>_missing_<field>`, `<plugin>_invalid_<field>`, `<plugin>_<resource>_data_unavailable`). The **message** should tell the agent *what to do next* — e.g. "Unknown module slug. Call jetpack-modules/get-modules to enumerate." — not just restate the error condition.
 - **Pagination** — any list-shaped read needs `page`/`per_page` (or `limit`/`cursor`) with a `default` of ~20 and a `maximum` of ~100. Enforce the max in the callback. Even if today's dataset is small, don't ship ability specs that return unbounded lists.
@@ -133,13 +134,14 @@ Inline decision table:
 |---|---|---|
 | Public read | `return true;` | rare; site-wide catalog |
 | Authenticated read | `is_user_logged_in()` | "my drafts" |
-| Admin view | `current_user_can( 'jetpack_admin_page' )` | list modules |
+| Read whose REST route uses the Jetpack admin page cap | `current_user_can( 'jetpack_admin_page' )` | list modules |
 | Admin write | `current_user_can( 'jetpack_manage_modules' ) && current_user_can( 'jetpack_activate_modules' )` | toggle module |
 | Per-object write | `current_user_can( 'edit_post', $id )` | update a specific response |
 | Core fallback | `current_user_can( 'manage_options' )` | only when no Jetpack-specific cap fits |
 
 Rules:
 
+- Use the capability the matching REST route or settings screen checks, never a looser one. `jetpack_admin_page` maps to `edit_posts` outside offline mode (so Contributors pass; offline mode maps it to `manage_options`) and exists only inside the Jetpack plugin: never use it for a write, or for data its route keeps admin-only.
 - Prefer narrow Jetpack-specific caps over `manage_options`.
 - Differentiate read (`can_view_*`) from write (`can_manage_*`). Never reuse a view check to gate a write.
 - `permission_callback` returns `bool` or `WP_Error`. Never throws.
@@ -211,9 +213,8 @@ The test file lives at:
 Required coverage:
 
 - **Registrar wiring** (the differentiating value-add):
-  - `jetpack_wp_abilities_enabled` defaulting false → `init()` registers nothing.
+  - `jetpack_wp_abilities_enabled` returning false → `init()` registers nothing.
   - Filter enabled, neither action fired → both lifecycle hooks added.
-  - Filter enabled, `wp_abilities_api_categories_init` already fired → category registered directly, abilities still hooked.
   - Per-ability `jetpack_wp_abilities_should_register` filter — returning false skips that ability.
   - Category auto-injection — abilities whose spec omits `category` get the subclass's slug.
 - **Abstract getters** — `get_category_slug`, `get_category_definition`, `get_abilities` return the expected shapes.
@@ -321,8 +322,8 @@ Mark the PR ready-for-review only after the review loop converges (no open block
 
 ## Failure modes / debugging
 
-- **Nothing registers at runtime.** `jetpack_wp_abilities_enabled` defaults to `false`. Tests must filter it true (`Filters\expectApplied('jetpack_wp_abilities_enabled')->andReturn(true)`), and live sites need to opt in via a feature flag, option, or site-specific filter.
-- **The class loads but hooks don't fire.** You're loading the file too late — after `wp_abilities_api_init` has already fired — and you also skipped `Registrar::init()`'s late-load path by overriding `init()`. Don't override `init()`; let the base class run.
+- **Nothing registers at runtime.** `jetpack_wp_abilities_enabled` defaults to `true`, so check whether something returns `false` from it, or from `jetpack_wp_abilities_should_register` for your slug.
+- **The class loads but no abilities appear.** `init()` ran after WordPress fired `wp_abilities_api_init`, which happens the first time anything reads the abilities registry. WordPress rejects later registrations, so `Registrar::init()` registers nothing, and no notice says so. Call `init()` earlier, for example on `plugins_loaded`, and never from code that runs on `rest_api_init`.
 - **You see the legacy manual-hook pattern elsewhere** (e.g. `projects/plugins/jetpack/src/abilities/class-modules-abilities.php`, `projects/packages/forms/src/abilities/class-forms-abilities.php`). These predate the `Registrar` package. Don't copy them. Extend `Registrar` and implement the three abstract methods.
 - **Module-backed ability landed in `projects/plugins/jetpack/src/abilities/` and is wired from `class.jetpack.php`** (the PR #48284 pattern). Colocation lint will catch this. The ability loads on every request regardless of module state, pollutes the API surface when the module is off, and pays autoload cost for nothing. Move the file into `modules/<slug>/abilities/` and wire from `modules/<slug>.php`.
 - **Adding `if ( Jetpack::is_module_active( '<slug>' ) )` around the `::init()` call in `class.jetpack.php`.** Better than not guarding, but still wrong — you're re-implementing what `load_modules()` does for free. Move the wiring into the module file instead.

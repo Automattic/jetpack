@@ -37,6 +37,7 @@
 /routes/**                                               production-exclude
 /packages/**                                             production-exclude
 /_inc/content-guidelines-ai/**                           production-exclude
+/_inc/lib/admin-pages/settings-redirect-map.json         production-exclude
 /_inc/site-switcher.jsx                                  production-exclude
 /css/*.css.map                                           production-exclude
 /css/*.css.min.map                                       production-exclude

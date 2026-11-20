@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { GlobalChartsProvider } from '@jetpack-premium-analytics/externals';
-import { render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 /**
  * Internal dependencies
@@ -45,10 +45,9 @@ describe( 'LeaderboardChart', () => {
 		renderChart( { columns: { label: 'Pages', metric: 'views' } } );
 
 		await user.hover( screen.getByText( '4.2K' ) );
+		await act( () => jest.runAllTimersAsync() );
 
-		await expect(
-			screen.findByRole( 'tooltip', undefined, { timeout: 3000 } )
-		).resolves.toHaveTextContent( '4,186 views' );
+		expect( screen.getByTestId( 'abbreviated-value-tooltip' ) ).toHaveTextContent( '4,186 views' );
 	} );
 
 	it.each( [

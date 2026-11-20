@@ -8,10 +8,19 @@
 namespace Automattic\Jetpack\Protect;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
+use Automattic\Jetpack\Admin_UI\Admin_Shell;
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Current_Plan;
+use Automattic\Jetpack\Protect\Sections\Scan;
+use Automattic\Jetpack\Protect_Status\Plan;
+use Automattic\Jetpack\Protect_Status\Protect_Status;
+use Automattic\Jetpack\Protect_Status\Scan_Status;
 use Automattic\Jetpack\Status\Cache;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use WorDBless\BaseTestCase;
 
 /**
@@ -37,16 +46,31 @@ class Dashboard_Test extends BaseTestCase {
 	public function tear_down() {
 		Admin_Menu::reset();
 		self::reset_sections();
-		unset( $_GET['page'] );
 		remove_all_actions( 'admin_menu' );
 		remove_all_actions( 'rest_api_init' );
 		remove_all_actions( 'doing_it_wrong_run' );
 		remove_all_filters( 'doing_it_wrong_trigger_error' );
 		remove_all_actions( 'admin_enqueue_scripts' );
 		remove_all_filters( 'jetpack_offline_mode' );
+		remove_all_actions( 'add_option_' . Scan_Status::OPTION_NAME );
+		remove_all_actions( 'update_option_' . Scan_Status::OPTION_NAME );
+		delete_option( Scan_Status::OPTION_NAME );
+		delete_option( Dashboard_Threats::RESOLVED_OPTION );
 		wp_dequeue_script( 'jp-tracks' );
 		wp_deregister_script( 'jp-tracks' );
-		\Jetpack_Options::delete_option( array( 'tos_agreed', 'blog_token', 'user_tokens' ) );
+		\Jetpack_Options::delete_option( array( 'tos_agreed', 'blog_token', 'user_tokens', 'id' ) );
+		foreach ( array( Protect_Status::OPTION_NAME, Protect_Status::OPTION_TIMESTAMP_NAME, Scan_Status::OPTION_TIMESTAMP_NAME ) as $option ) {
+			remove_all_filters( 'pre_update_option_' . $option );
+			delete_option( $option );
+		}
+		remove_all_filters( 'pre_update_option_' . Scan_Status::OPTION_NAME );
+		remove_all_filters( 'pre_http_request' );
+		Protect_Status::$status = null;
+		Scan_Status::$status    = null;
+		delete_option( Current_Plan::SITE_PRODUCTS_OPTION );
+		Plan::has_required_plan( true );
+		\Automattic\Jetpack\Constants::clear_constants();
+		( new Connection_Manager() )->reset_connection_status();
 		wp_set_current_user( 0 );
 		Cache::clear();
 		foreach ( array_keys( Dashboard::MODULE_SECTIONS ) as $module ) {
@@ -58,6 +82,74 @@ class Dashboard_Test extends BaseTestCase {
 			remove_all_actions( 'load-' . $prefix . Dashboard::MENU_SLUG . '-network' );
 		}
 		parent::tear_down();
+	}
+
+	/**
+	 * Only the admin shell's hover request fetches the report without caching it.
+	 *
+	 * @dataProvider provide_admin_shell_loads
+	 *
+	 * @param bool $is_hover Whether the shell's hover request readies the page, rather than another dashboard's page.
+	 * @param bool $has_plan Whether the site has Scan, which reads Scan's report instead of Protect's.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[DataProvider( 'provide_admin_shell_loads' )]
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_only_the_admin_shell_hover_fetches_the_report_without_caching_it( $is_hover, $has_plan ) {
+		if ( $is_hover ) {
+			add_filter( 'wp_doing_ajax', '__return_true' );
+			$_GET['action'] = Admin_Shell::GUEST_ACTION;
+		}
+		if ( $has_plan ) {
+			update_option( Current_Plan::SITE_PRODUCTS_OPTION, array( array( 'product_slug' => 'jetpack_scan' ) ) );
+		}
+		Plan::has_required_plan( true );
+		\Automattic\Jetpack\Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
+		\Jetpack_Options::update_option( 'id', 123 );
+		\Jetpack_Options::update_option( 'blog_token', 'blog.secret' );
+		add_filter(
+			'pre_http_request',
+			static function () {
+				return array(
+					'response' => array( 'code' => 200 ),
+					'body'     => wp_json_encode(
+						array(
+							'state'        => 'idle',
+							'status'       => 'idle',
+							'last_checked' => '2026-11-01 00:00:00',
+						),
+						JSON_UNESCAPED_SLASHES
+					),
+				);
+			}
+		);
+
+		Dashboard::load_as_admin_shell_guest();
+		$state = ( new Scan() )->get_state();
+		remove_filter( 'wp_doing_ajax', '__return_true' );
+		unset( $_GET['action'] );
+
+		$this->assertSame( $has_plan, $state['hasPlan'] );
+		$this->assertFalse( $state['error'] );
+		$status = $has_plan ? Scan_Status::class : Protect_Status::class;
+		$this->assertSame( ! $is_hover, false !== get_option( $status::OPTION_NAME ) );
+		$this->assertSame( ! $is_hover, false !== get_option( $status::OPTION_TIMESTAMP_NAME ) );
+	}
+
+	/**
+	 * The shell's hover request, with and without Scan, and another dashboard's page readying Protect for a later switch.
+	 *
+	 * @return array<string, array{bool, bool}>
+	 */
+	public static function provide_admin_shell_loads() {
+		return array(
+			'hover request'           => array( true, false ),
+			'hover request with Scan' => array( true, true ),
+			'another member page'     => array( false, false ),
+		);
 	}
 
 	/**
@@ -298,34 +390,6 @@ class Dashboard_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Requested `page` values and whether each is the dashboard's.
-	 *
-	 * @return array[]
-	 */
-	public static function provide_page_requests() {
-		return array(
-			'the Protect page' => array( Dashboard::MENU_SLUG, true ),
-			'another page'     => array( 'jetpack', false ),
-			'no page'          => array( null, false ),
-		);
-	}
-
-	/**
-	 * @dataProvider provide_page_requests
-	 *
-	 * @param string|null $page     The requested `page`, or null for none.
-	 * @param bool        $expected Whether the request is for the dashboard.
-	 */
-	#[DataProvider( 'provide_page_requests' )]
-	public function test_is_dashboard_request_matches_only_the_protect_page( $page, $expected ) {
-		if ( null !== $page ) {
-			$_GET['page'] = $page;
-		}
-
-		$this->assertSame( $expected, Dashboard::is_dashboard_request() );
-	}
-
-	/**
 	 * Threat report requests and the dashboard URL each should redirect to.
 	 *
 	 * @return array[]
@@ -541,5 +605,46 @@ class Dashboard_Test extends BaseTestCase {
 		$data = Dashboard::add_tracks_identity( array( 'user' => array( 'current_user' => array( 'wpcom' => $wpcom ) ) ) );
 
 		$this->assertSame( $expected, $data['user']['current_user']['wpcom'] );
+	}
+
+	/**
+	 * Whether a scan stored after the fix failed, and which fixes stay recorded.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_stored_scans() {
+		return array(
+			'a first completed scan clears the fix' => array( false, false, array() ),
+			'a first failed scan keeps it'          => array( true, false, array( '1' ) ),
+			'a later completed scan clears the fix' => array( false, true, array() ),
+			'a later failed scan keeps it'          => array( true, true, array( '1' ) ),
+		);
+	}
+
+	/**
+	 * Test that storing a completed scan clears the fixes it answers for, even before anything reads it.
+	 *
+	 * @dataProvider provide_stored_scans
+	 *
+	 * @param bool     $failed   Whether the stored scan failed.
+	 * @param bool     $replaces Whether an earlier scan is already stored, so update_option fires instead of add_option.
+	 * @param string[] $expected Ids still recorded.
+	 */
+	#[DataProvider( 'provide_stored_scans' )]
+	public function test_storing_a_scan_prunes_recorded_fixes( $failed, $replaces, $expected ) {
+		if ( $replaces ) {
+			update_option( Scan_Status::OPTION_NAME, maybe_serialize( (object) array( 'most_recent' => (object) array( 'timestamp' => gmdate( 'c', time() - DAY_IN_SECONDS ) ) ) ) );
+		}
+		Dashboard_Threats::resolve( array( 'id' => '1' ) );
+		$scan = (object) array(
+			'most_recent' => (object) array(
+				'timestamp' => gmdate( 'c', time() + HOUR_IN_SECONDS ),
+				'error'     => $failed,
+			),
+		);
+
+		Scan_Status::update_status_option( $scan );
+
+		$this->assertSame( $expected, array_map( 'strval', array_keys( Dashboard_Threats::get_resolved() ) ) );
 	}
 }

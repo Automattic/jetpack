@@ -1,6 +1,7 @@
-import { Icon, Spinner, Tooltip } from '@wordpress/components';
+import { Icon, Spinner } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { plugins } from '@wordpress/icons';
+import { Tooltip } from '@wordpress/ui';
 import { isValidSalesforceOrgId } from '../helpers/salesforce.tsx';
 import './style.scss';
 
@@ -66,31 +67,35 @@ export default function ActiveIntegrations( { integrations, attributes, isLoadin
 
 	return (
 		<div className="jetpack-forms-active-integrations">
-			{ activeIntegrations.map( integration => (
-				<Tooltip
-					key={ integration.id }
-					text={ integration.activeTooltip || integration.title || '' }
-				>
-					<span className="jetpack-forms-active-integrations__item">
-						{ integration.iconUrl ? (
-							<img
-								src={ integration.iconUrl }
-								alt={ integration.title || integration.id }
-								width={ 30 }
-								height={ 30 }
-								className="jetpack-forms-active-integrations__icon"
-							/>
-						) : (
-							<Icon
-								icon={ plugins }
-								size={ 30 }
-								className="jetpack-forms-active-integrations__icon"
-							/>
-						) }
-						<span className="jetpack-forms-active-integrations__status" />
-					</span>
-				</Tooltip>
-			) ) }
+			{ activeIntegrations.map( integration => {
+				const text = integration.activeTooltip || integration.title;
+
+				return (
+					<Tooltip.Root key={ integration.id } disabled={ ! text }>
+						<Tooltip.Trigger
+							render={ <span className="jetpack-forms-active-integrations__item" /> }
+						>
+							{ integration.iconUrl ? (
+								<img
+									src={ integration.iconUrl }
+									alt={ integration.title || integration.id }
+									width={ 30 }
+									height={ 30 }
+									className="jetpack-forms-active-integrations__icon"
+								/>
+							) : (
+								<Icon
+									icon={ plugins }
+									size={ 30 }
+									className="jetpack-forms-active-integrations__icon"
+								/>
+							) }
+							<span className="jetpack-forms-active-integrations__status" />
+						</Tooltip.Trigger>
+						<Tooltip.Popup>{ text }</Tooltip.Popup>
+					</Tooltip.Root>
+				);
+			} ) }
 		</div>
 	);
 }

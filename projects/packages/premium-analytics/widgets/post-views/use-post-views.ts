@@ -33,9 +33,11 @@ export type PostViewsPoint = {
  */
 export interface PostViewsState {
 	current: PostViewsPoint[];
+	postType?: string;
 	isLoading: boolean;
 	isFetching: boolean;
 	isError: boolean;
+	isPlaceholderData: boolean;
 	hasData: boolean;
 	refetch: () => void;
 }
@@ -145,9 +147,10 @@ export default function usePostViews(
 	reportParams: ReportParams,
 	period: StatsChartBucketPeriod
 ): PostViewsState {
-	const { data, isLoading, isFetching, isError, refetch } = useStatsPost( {
+	const { data, isLoading, isFetching, isError, isPlaceholderData, refetch } = useStatsPost( {
 		postId,
-		fields: [ 'data' ],
+		// Matches the highlights card's fields so both share one `stats/post` query.
+		fields: [ 'data', 'like_count', 'post' ],
 	} );
 
 	const current = useMemo( () => {
@@ -160,9 +163,11 @@ export default function usePostViews(
 
 	return {
 		current,
+		postType: data?.post?.post_type,
 		isLoading,
 		isFetching,
 		isError,
+		isPlaceholderData,
 		hasData: !! data,
 		refetch,
 	};

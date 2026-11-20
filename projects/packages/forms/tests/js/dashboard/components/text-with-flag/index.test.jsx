@@ -1,8 +1,9 @@
 /**
  * External dependencies
  */
-import { describe, expect, it, jest } from '@jest/globals';
+import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 
 // Mock getTranslatedCountryName
 await jest.unstable_mockModule( '../../../../../src/util/country-names-translated.js', () => ( {
@@ -42,6 +43,23 @@ describe( 'TextWithFlag', () => {
 			render( <TextWithFlag countryCode="US">Test content</TextWithFlag> );
 
 			expect( screen.getByText( 'Test content' ) ).toBeInTheDocument();
+		} );
+	} );
+
+	describe( 'Country name tooltip', () => {
+		beforeEach( () => jest.useFakeTimers() );
+		afterEach( () => jest.useRealTimers() );
+
+		it( 'names the country in a tooltip on hover', async () => {
+			const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
+			render( <TextWithFlag countryCode="US">Test content</TextWithFlag> );
+
+			await user.hover( screen.getByRole( 'img' ) );
+
+			// The flag's text is the emoji, so only the popup can match the name.
+			await expect(
+				screen.findByText( 'Country: US', undefined, { timeout: 3000 } )
+			).resolves.toBeInTheDocument();
 		} );
 	} );
 

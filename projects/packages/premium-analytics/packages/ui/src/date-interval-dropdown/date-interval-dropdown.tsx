@@ -76,6 +76,8 @@ export function getIntervalLabel( interval: IntervalType ): string {
 			return __( 'By weeks', 'jetpack-premium-analytics-pkg' );
 		case 'month':
 			return __( 'By months', 'jetpack-premium-analytics-pkg' );
+		case 'quarter':
+			return __( 'By quarters', 'jetpack-premium-analytics-pkg' );
 		case 'year':
 			return __( 'By years', 'jetpack-premium-analytics-pkg' );
 	}

@@ -80,10 +80,10 @@ const ConnectedPricingTable = () => {
 				name: __( 'Daily automated scans', 'jetpack-protect' ),
 			},
 			{
-				name: __( 'Web Application Firewall', 'jetpack-protect' ),
+				name: __( 'Firewall', 'jetpack-protect' ),
 			},
 			{
-				name: __( 'Brute force protection', 'jetpack-protect' ),
+				name: __( 'Login protection', 'jetpack-protect' ),
 			},
 			{
 				name: __( 'Account protection', 'jetpack-protect' ),

@@ -1,7 +1,13 @@
 // eslint-disable-next-line import/no-unresolved -- This is a virtual module provided by a webpack plugin.
 import { extensionToLang } from '@@codemirrorLanguageData@@';
-// @ts-expect-error No types.
-import * as wpBlockEditor from '@wordpress/block-editor';
+import {
+	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
+	__experimentalGetElementClassName,
+	BlockControls,
+	InspectorControls,
+	useBlockProps,
+	withColors,
+} from '@wordpress/block-editor';
 import { registerBlockStyle } from '@wordpress/blocks';
 import {
 	Button,
@@ -26,14 +32,6 @@ import {
 } from '../common/block.ts';
 import { ColorTools } from './color-tools.tsx';
 import { transforms } from './transforms.ts';
-
-const {
-	__experimentalGetElementClassName,
-	BlockControls,
-	InspectorControls,
-	useBlockProps,
-	withColors,
-}: Window[ 'wp' ][ 'blockEditor' ] = wpBlockEditor;
 
 const LINE_NUMBER_START_MIN = 0;
 const LINE_NUMBER_START_MAX = 10_000;

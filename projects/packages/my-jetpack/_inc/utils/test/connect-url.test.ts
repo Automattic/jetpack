@@ -1,4 +1,9 @@
-import { connectionScreenRoute, getConnectUrl } from '../connect-url';
+import {
+	connectionScreenRoute,
+	getConnectUrl,
+	productsFrom,
+	recommendationsFrom,
+} from '../connect-url';
 
 jest.mock( '@automattic/jetpack-script-data', () => ( {
 	getJetpackAdminPageUrl: () => 'https://example.org/wp-admin/admin.php?page=jetpack',
@@ -8,13 +13,13 @@ jest.mock( '@automattic/jetpack-script-data', () => ( {
 const queryOf = ( url: string ) => Object.fromEntries( new URL( url ).searchParams );
 
 describe( 'getConnectUrl', () => {
-	it( 'sends the name, returns to the current page and skips no pricing', () => {
+	it( 'sends the name and returns to the current page without the plans page', () => {
 		expect( queryOf( getConnectUrl( 'my_jetpack_header' ) ) ).toEqual( {
 			page: 'jetpack',
 			connect_url_redirect: '1',
 			from: 'my_jetpack_header',
 			redirect_after_auth: window.location.href,
-			skip_pricing: 'false',
+			skip_pricing: 'true',
 		} );
 	} );
 
@@ -24,6 +29,19 @@ describe( 'getConnectUrl', () => {
 		expect( queryOf( getConnectUrl( 'my_jetpack_plans', returnTo ) ).redirect_after_auth ).toBe(
 			returnTo
 		);
+	} );
+} );
+
+describe( 'productsFrom', () => {
+	it( "is the product's name, with My Jetpack's slug overrides", () => {
+		expect( productsFrom( 'backup' ) ).toBe( 'my_jetpack_products_backup' );
+		expect( productsFrom( 'jetpack-ai' ) ).toBe( 'my_jetpack_products_ai' );
+	} );
+} );
+
+describe( 'recommendationsFrom', () => {
+	it( "is the recommendation's name", () => {
+		expect( recommendationsFrom( 'newsletter' ) ).toBe( 'my_jetpack_recommendations_newsletter' );
 	} );
 } );
 

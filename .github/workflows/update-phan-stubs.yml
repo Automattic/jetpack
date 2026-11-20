@@ -25,6 +25,11 @@ jobs:
           # Use the matticbot token so CI runs on the created PR.
           token: ${{ secrets.STUB_UPDATE_TOKEN_GITHUB }}
 
+      - name: Setup tools
+        uses: $/.github/actions/tool-setup
+        with:
+          node: false
+
       - name: Update stubs
         env:
           # Generic token is fine here.

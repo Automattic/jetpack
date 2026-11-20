@@ -29,6 +29,11 @@ class WPCOM_Scan extends WPCOM_Hosting_Feature_Page {
 	const DASHBOARD_MODULE = 'protect-dashboard';
 
 	/**
+	 * Set once the Protect dashboard has been on, so a site that turns it off later keeps it off.
+	 */
+	const DASHBOARD_MODULE_ACTIVATED_OPTION = 'wpcom_protect_dashboard_activated';
+
+	/**
 	 * As declared in routes/wpcom-scan/package.json.
 	 */
 	const WP_BUILD_PAGE = 'wpcom-scan';
@@ -99,10 +104,21 @@ class WPCOM_Scan extends WPCOM_Hosting_Feature_Page {
 	 */
 	public static function get_state( $blog_id ) {
 		if ( self::is_atomic() && self::has_feature() && self::is_dashboard_module_off() ) {
-			return self::STATE_ENABLE;
+			return self::is_awaiting_connection() ? self::STATE_IN_PROGRESS : self::STATE_ENABLE;
 		}
 
 		return parent::get_state( $blog_id );
+	}
+
+	/**
+	 * Whether a dashboard that has never been on is waiting for the connection, as just after a transfer.
+	 *
+	 * Nobody turned it off: maybe_activate_protect_dashboard_module() turns it on once the connection is ready.
+	 *
+	 * @return bool
+	 */
+	public static function is_awaiting_connection() {
+		return ! get_option( self::DASHBOARD_MODULE_ACTIVATED_OPTION ) && ! ( new Connection_Manager() )->is_connected();
 	}
 
 	/**
@@ -112,6 +128,10 @@ class WPCOM_Scan extends WPCOM_Hosting_Feature_Page {
 	 */
 	public static function get_initial_state() {
 		$state = parent::get_initial_state();
+
+		if ( self::STATE_IN_PROGRESS === $state['state'] && self::is_atomic() ) {
+			$state['awaitingConnection'] = true;
+		}
 
 		if ( self::STATE_ENABLE === $state['state'] ) {
 			$state['enableUrl'] = add_query_arg(
@@ -127,6 +147,45 @@ class WPCOM_Scan extends WPCOM_Hosting_Feature_Page {
 		}
 
 		return $state;
+	}
+
+	/**
+	 * Register the page, keeping its entry out of the sidebar while it only offers to turn the dashboard back on.
+	 *
+	 * Turning the module off hides the dashboard on purpose, so the entry goes as on self-hosted while links still land.
+	 *
+	 * @return void
+	 */
+	public static function register_page() {
+		global $submenu;
+
+		parent::register_page();
+
+		if ( ! self::owns_page() || self::STATE_ENABLE !== self::get_state( get_current_blog_id() ) ) {
+			return;
+		}
+
+		// For Calypso's sidebar, whose REST request never reaches admin_head.
+		foreach ( $submenu[ self::PARENT_SLUG ] ?? array() as $i => $item ) {
+			if ( self::MENU_SLUG === ( $item[2] ?? null ) ) {
+				// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+				$submenu[ self::PARENT_SLUG ][ $i ][4] = trim( ( $item[4] ?? '' ) . ' hide-if-js' );
+			}
+		}
+
+		add_action( 'admin_head', array( self::class, 'remove_menu_entry' ) );
+	}
+
+	/**
+	 * Take the entry out of wp-admin's sidebar, after core's access check and page title have read it.
+	 *
+	 * Removed rather than left hidden: My Jetpack refreshes the sidebar by link, so a hidden entry sharing the
+	 * dashboard's link would keep whichever state was on screen when the module is switched.
+	 *
+	 * @return void
+	 */
+	public static function remove_menu_entry() {
+		remove_submenu_page( self::PARENT_SLUG, self::MENU_SLUG );
 	}
 
 	/**
@@ -159,20 +218,6 @@ class WPCOM_Scan extends WPCOM_Hosting_Feature_Page {
 	}
 
 	/**
-	 * Calypso's Scan page, since nothing serves this slug on WoA once Scan is live.
-	 *
-	 * Drop this override to land back on `jetpack-protect` once the Jetpack plugin serves it.
-	 *
-	 * @param string|null $new_host The site's address after a transfer, when it changes.
-	 * @return string
-	 */
-	public static function get_live_feature_url( $new_host = null ) {
-		$host = $new_host ?? wp_parse_url( home_url(), PHP_URL_HOST );
-
-		return 'https://wordpress.com/scan/' . rawurlencode( (string) $host );
-	}
-
-	/**
 	 * Keep the Jetpack plugin's Protect dashboard off a WoA site whose plan lacks Scan, so this page's upgrade prompt keeps the slug.
 	 *
 	 * @param array $modules Available modules, keyed by slug.
@@ -187,30 +232,44 @@ class WPCOM_Scan extends WPCOM_Hosting_Feature_Page {
 	}
 
 	/**
-	 * Keep the Jetpack plugin's Protect page out of the sidebar while Calypso's Scan owns the nav.
+	 * Turn the Protect dashboard on once for a WoA site that can have it.
 	 *
-	 * Matched on the item's module: the standalone Protect plugin shares the slug and keeps its entry.
+	 * WoA sites passed the module's First Introduced version while it was unavailable there, so Jetpack's upgrade never turned it on.
 	 *
-	 * @param array $states     Map of Jetpack menu item key to visibility state.
-	 * @param array $menu_items The registered Jetpack menu items.
-	 * @return array
+	 * @return void
 	 */
-	public static function filter_admin_menu_visibility( $states, $menu_items ) {
-		// With the standalone Protect plugin active, its users keep a Protect entry, whichever page serves it.
-		if ( class_exists( 'Jetpack_Protect' ) ) {
-			return $states;
+	public static function maybe_activate_protect_dashboard_module() {
+		if ( ! self::is_atomic() || ! is_admin() || get_option( self::DASHBOARD_MODULE_ACTIVATED_OPTION ) ) {
+			return;
 		}
 
-		foreach ( (array) $menu_items as $item ) {
-			if ( self::MENU_SLUG === ( $item['menu_slug'] ?? null ) && self::DASHBOARD_MODULE === ( $item['args']['module'] ?? null ) ) {
-				$states[ $item['args']['key'] ?? self::MENU_SLUG ] = 'hidden';
-			}
+		$modules = new Modules();
+		// Unavailable without the Jetpack plugin, without self-serve Scan, or beside the standalone Protect plugin, so it is retried once offered.
+		if ( ! in_array( self::DASHBOARD_MODULE, $modules->get_available(), true ) ) {
+			return;
 		}
 
-		return $states;
+		$was_active = $modules->is_active( self::DASHBOARD_MODULE );
+		if ( ! $was_active ) {
+			$modules->activate( self::DASHBOARD_MODULE, false, false );
+		}
+
+		// Checked again rather than trusting activate(), which also refuses while the connection is not ready.
+		if ( ! $modules->is_active( self::DASHBOARD_MODULE ) ) {
+			return;
+		}
+
+		update_option( self::DASHBOARD_MODULE_ACTIVATED_OPTION, true, false );
+
+		// This page already claimed the slug at init 10, but the dashboard only loads on the next request.
+		if ( ! $was_active && self::is_page_request() ) {
+			wp_safe_redirect( self::get_page_url() );
+			exit( 0 );
+		}
 	}
 }
 
 add_action( 'init', array( WPCOM_Scan::class, 'init' ) );
 add_action( 'admin_post_' . WPCOM_Scan::ENABLE_ACTION, array( WPCOM_Scan::class, 'handle_enable' ) );
-add_filter( 'jetpack_admin_menu_visibility', array( WPCOM_Scan::class, 'filter_admin_menu_visibility' ), 10, 2 );
+// After Jetpack::activate_new_modules() on init 10, and before admin_menu registers the page.
+add_action( 'init', array( WPCOM_Scan::class, 'maybe_activate_protect_dashboard_module' ), 20 );

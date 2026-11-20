@@ -144,12 +144,6 @@
 	pointer-events: auto;
 }
 
-/* A drill-down row slides its value over the label end by the chevron reserve
- * on hover, so a trailing action stops that much short of it. */
-.chevronReserve {
-	padding-inline-end: calc(var(--wpds-dimension-padding-md) + var(--wpds-dimension-gap-2xl));
-}
-
 /* Beside a "View" action the title keeps its own width so the arrow follows it,
  * and stretches over the row so the click target stays the row. */
 .row {

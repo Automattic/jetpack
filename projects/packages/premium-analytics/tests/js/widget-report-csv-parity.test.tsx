@@ -44,7 +44,15 @@ jest.mock(
 	'@wordpress/route',
 	() => jest.requireActual( './route-test-utils' ).mockWordPressRoute
 );
-jest.mock( '@wordpress/admin-ui', () => ( { Breadcrumbs: () => null } ) );
+jest.mock( '@wordpress/admin-ui', () => ( {
+	Breadcrumbs: () => null,
+	Page: ( { actions, children }: { actions?: ReactNode; children: ReactNode } ) => (
+		<>
+			{ actions }
+			{ children }
+		</>
+	),
+} ) );
 jest.mock( '@automattic/jetpack-script-data', () => ( {
 	...jest.requireActual( '@automattic/jetpack-script-data' ),
 	getScriptData: () => undefined,
@@ -59,7 +67,6 @@ jest.mock( '@jetpack-premium-analytics/ui', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/ui' ),
 	DateFiltersPanel: () => null,
 	StatsBreadcrumbs: () => null,
-	StatsPageIcon: () => null,
 } ) );
 jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/widgets-toolkit' ),
@@ -69,12 +76,6 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 	ReportLocationsMap: () => null,
 	ReportRecordsTable: MockRecordsTable,
 	ReportPageLayout: ( { children }: { children: ReactNode } ) => <>{ children }</>,
-	ReportPageShell: ( { actions, children }: { actions?: ReactNode; children: ReactNode } ) => (
-		<>
-			{ actions }
-			{ children }
-		</>
-	),
 	ReportPageTabs: () => null,
 } ) );
 

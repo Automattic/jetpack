@@ -317,9 +317,9 @@ export type BarStyles = {
 };
 
 /**
- * How a bar chart places its series in a category. `grouped` puts each primary series in a slot of its own; `overlap` puts every primary in one slot and every comparison in a second, and overlaps the `group`s within each slot.
+ * How a bar chart places its series in a category. `grouped` puts each primary series in a slot of its own; `overlap` puts every primary in one slot and every comparison in a second, and overlaps the `group`s within each slot; `stacked` stacks every primary in one bar, the first series at the bottom.
  */
-export type BarChartLayout = 'grouped' | 'overlap';
+export type BarChartLayout = 'grouped' | 'overlap' | 'stacked';
 
 export type MultipleDataPointsDate = {
 	label: string;

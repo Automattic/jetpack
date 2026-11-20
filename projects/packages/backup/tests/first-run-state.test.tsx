@@ -196,7 +196,7 @@ describe( 'BackupStatusPanel', () => {
 	// backup starts.
 	it( 'takes a value once the first backup starts', () => {
 		const { rerender } = render( <BackupStatusPanel state="no-backups" progress={ 0 } /> );
-		expect( screen.getByRole( 'progressbar' ) ).not.toHaveAttribute( 'value' );
+		expect( screen.getByRole( 'progressbar' ) ).not.toHaveAttribute( 'aria-valuenow' );
 
 		rerender( <BackupStatusPanel state="in-progress" progress={ 19 } /> );
 

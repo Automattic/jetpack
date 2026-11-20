@@ -25,7 +25,7 @@ export function MovedSettings( {
 			<h2 className="jp-settings__section-title">{ __( 'Security', 'jetpack' ) }</h2>
 			{ showProtect && (
 				<PointerCard
-					header={ __( 'Security settings', 'jetpack' ) }
+					header={ __( 'Protect settings', 'jetpack' ) }
 					href={ getProtectSettingsUrl( siteAdminUrl ) }
 					linkText={ __( 'Open Protect settings', 'jetpack' ) }
 				>

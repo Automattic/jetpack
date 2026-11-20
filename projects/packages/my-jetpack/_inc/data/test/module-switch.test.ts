@@ -23,6 +23,23 @@ describe( 'hasPlainSwitch', () => {
 	it( 'is false for a module whose control is a block-theme migration', () => {
 		expect( hasPlainSwitch( buildModule( { module: 'sharedaddy' } ) ) ).toBe( false );
 	} );
+
+	// A batch switching Blaze off would skip the warning about its running campaigns.
+	it.each( [
+		[ false, 'on, with the settings flag on', true, true ],
+		[ true, 'off, with the settings flag on', false, true ],
+		[ true, 'on, with the settings flag off', true, false ],
+	] )( 'is %s for Blaze switched %s', ( expected, _label, activated, settingsConsolidation ) => {
+		window.JetpackScriptData = {
+			myJetpack: { settingsConsolidation },
+		} as Window[ 'JetpackScriptData' ];
+
+		try {
+			expect( hasPlainSwitch( buildModule( { module: 'blaze', activated } ) ) ).toBe( expected );
+		} finally {
+			delete window.JetpackScriptData;
+		}
+	} );
 } );
 
 describe( 'requestModuleSwitch', () => {

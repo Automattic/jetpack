@@ -423,6 +423,7 @@ type ProtectData = {
 		files: string[];
 		has_unchecked_items?: boolean;
 		last_checked: string;
+		last_scan_failed?: boolean;
 		num_plugins_threats: number;
 		num_themes_threats: number;
 		num_threats: number;
@@ -492,6 +493,16 @@ type MainFeaturesState = {
 	hidden_modules?: string[];
 	available_admin_pages?: string[];
 	plugin_installs?: MainFeatureInstallAccess;
+	settings_entries?: MainFeatureSettingsEntry[];
+};
+
+// A setting with no module that opens in the settings panel, such as Google Analytics.
+type MainFeatureSettingsEntry = {
+	slug: string;
+	name: string;
+	description: string;
+	// On but missing what it needs to work, such as GA's Measurement ID, is `needs-setup`.
+	status: 'active' | 'inactive' | 'needs-setup';
 };
 
 type OfflineFeaturesSeed = {
@@ -507,7 +518,10 @@ type OfflineFeaturesScriptData = import( '@automattic/jetpack-script-data' ).MyJ
 
 type MainFeatureModuleGroup = {
 	label: string;
+	groups?: string[];
 	modules: string[];
+	// Settings entries listed under this heading when the site has them.
+	settings?: string[];
 };
 
 // Whether the current user may install plugins here: not while file changes are off site-wide, or not with their role.
@@ -543,6 +557,8 @@ type MainFeature = {
 	screenshot: string;
 	// `owned` is per plan: a site on Growth owns that one and can still buy Complete.
 	plans: Array< { slug: string; name: string; owned?: boolean } >;
+	// The Security and Growth filter pills' categories.
+	groups: string[];
 	info_url: string;
 	docs_url: string;
 	product: string;
@@ -590,6 +606,8 @@ interface Window {
 		isUserFromKnownHost: string;
 		loadAddLicenseScreen: string;
 		myJetpackCheckoutUri: string;
+		/** A host's own plan links, from `jetpack_my_jetpack_plan_urls`: '' keeps Jetpack's link, false hides the link. */
+		planUrls?: { purchase: string | false; manage: string | false };
 		myJetpackFlags: {
 			accountConnect?: boolean;
 			headerControls?: boolean;
@@ -603,6 +621,7 @@ interface Window {
 		purchaseToken: string;
 		lifecycleStats: {
 			historicallyActiveModules: JetpackModule[];
+			historicallyActiveModulesRefreshDue?: boolean;
 			brokenModules: {
 				needs_site_connection: JetpackModule[];
 				needs_user_connection: JetpackModule[];
@@ -646,6 +665,8 @@ interface Window {
 					has_paid_plan_for_product: boolean;
 					has_protect_page?: boolean;
 					scan_results_url?: string;
+					host_may_sell?: boolean;
+					host_purchase_url?: string | null;
 					is_bundle: boolean;
 					is_feature: boolean;
 					is_plugin_active: boolean;
@@ -666,6 +687,7 @@ interface Window {
 					} | null;
 					related_plan_slugs: Array< string >;
 					pricing_for_ui?: {
+						is_free?: boolean;
 						available: boolean;
 						catalog_available?: boolean;
 						requires_support?: boolean;

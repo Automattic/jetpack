@@ -1,6 +1,6 @@
 import { useCallback, useMemo } from 'react';
-import { isSameCategory } from './use-overlap-slots';
-import type { OverlapSlots } from './use-overlap-slots';
+import { isSameCategory } from './category';
+import type { BarSlots } from './use-bar-slots';
 import type { DataPointDate, SeriesData } from '../../../types';
 
 type SeriesEntry = { series: SeriesData; index: number };
@@ -17,34 +17,34 @@ export type BarStops = {
 };
 
 /**
- * Lays out the keyboard stops: one per slot and category in an overlap layout, else one per primary bar, series-major within each category.
+ * Lays out the keyboard stops: one per slot and category in a slotted layout, else one per primary bar, series-major within each category.
  *
- * @param overlapSlots   - The overlap layout, or undefined for a grouped one.
+ * @param barSlots       - The overlap or stacked slots, or undefined for a grouped layout.
  * @param primaryEntries - The visible primary series.
  * @return The stops.
  */
 export function useBarStops(
-	overlapSlots: OverlapSlots | undefined,
+	barSlots: BarSlots | undefined,
 	primaryEntries: SeriesEntry[]
 ): BarStops {
 	const series = useMemo(
-		() => ( overlapSlots ? [] : primaryEntries.map( entry => entry.series ) ),
-		[ overlapSlots, primaryEntries ]
+		() => ( barSlots ? [] : primaryEntries.map( entry => entry.series ) ),
+		[ barSlots, primaryEntries ]
 	);
 
 	const count =
-		overlapSlots?.positions.length ??
+		barSlots?.positions.length ??
 		Math.max( 0, ...series.map( item => item.data.length ) ) * series.length;
 
 	const key = useMemo(
-		() => JSON.stringify( overlapSlots?.keys ?? series.map( item => item.label ) ),
-		[ overlapSlots, series ]
+		() => JSON.stringify( barSlots?.keys ?? series.map( item => item.label ) ),
+		[ barSlots, series ]
 	);
 
 	const barAt = useCallback(
 		( stop: number ): StopBar | undefined => {
-			if ( overlapSlots ) {
-				const position = overlapSlots.positions[ stop ];
+			if ( barSlots ) {
+				const position = barSlots.positions[ stop ];
 				return (
 					position && {
 						datum: position.datum,
@@ -61,17 +61,17 @@ export function useBarStops(
 			const datum = item?.data[ index ] as DataPointDate | undefined;
 			return item && datum ? { datum, index, key: item.label } : undefined;
 		},
-		[ overlapSlots, series ]
+		[ barSlots, series ]
 	);
 
 	const stopOf = useCallback(
 		( seriesKey: string, dataPointIndex: number ): number | undefined => {
-			if ( overlapSlots ) {
-				const hovered = overlapSlots.entries.find( entry => entry.series.label === seriesKey )
-					?.series.data[ dataPointIndex ] as DataPointDate | undefined;
-				const slotKey = overlapSlots.slotOf( seriesKey );
+			if ( barSlots ) {
+				const hovered = barSlots.entries.find( entry => entry.series.label === seriesKey )?.series
+					.data[ dataPointIndex ] as DataPointDate | undefined;
+				const slotKey = barSlots.slotOf( seriesKey );
 				const stop = hovered
-					? overlapSlots.positions.findIndex(
+					? barSlots.positions.findIndex(
 							position => position.slotKey === slotKey && isSameCategory( position.datum, hovered )
 						)
 					: -1;
@@ -80,7 +80,7 @@ export function useBarStops(
 			const seriesIndex = series.findIndex( item => item.label === seriesKey );
 			return seriesIndex >= 0 ? dataPointIndex * series.length + seriesIndex : undefined;
 		},
-		[ overlapSlots, series ]
+		[ barSlots, series ]
 	);
 
 	return { count, key, barAt, stopOf };

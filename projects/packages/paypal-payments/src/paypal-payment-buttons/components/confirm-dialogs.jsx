@@ -101,12 +101,12 @@ export function LogOutDialog( { onConfirm, onCancel } ) {
 
 /**
  * The unsaved-changes confirmation, for leaving a saved link's form with changes
- * the post has not saved.
+ * PayPal has not been sent.
  *
  * @param {object}   props           - Component props.
- * @param {boolean}  props.canSave   - Whether the form is valid, so the post can be saved.
- * @param {boolean}  props.isSaving  - Whether the post is being saved; the dialog stays up until it is.
- * @param {Function} props.onSave    - Save the post, then leave.
+ * @param {boolean}  props.canSave   - Whether the form is valid, so it can be sent to PayPal.
+ * @param {boolean}  props.isSaving  - Whether the payment button is being saved; the dialog stays up until it is.
+ * @param {Function} props.onSave    - Save the payment button, then leave.
  * @param {Function} props.onDiscard - Put the link back as it was, then leave.
  * @param {Function} props.onCancel  - Close and stay on the form.
  * @return {Element} The dialog.

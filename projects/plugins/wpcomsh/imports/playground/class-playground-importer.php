@@ -87,17 +87,45 @@ class Playground_Importer extends \Imports\Backup_Importer {
 	}
 
 	/**
+	 * Read the table prefix from an extracted backup's `wp-config.php`.
+	 *
+	 * @param string $destination_path The path where the backup was extracted.
+	 *
+	 * @return string|null The `$table_prefix`, or null if it can't be read.
+	 */
+	public static function get_table_prefix( string $destination_path ): ?string {
+		$wp_config_path = trailingslashit( $destination_path ) . 'wp-config.php';
+
+		if ( ! is_file( $wp_config_path ) || ! is_readable( $wp_config_path ) ) {
+			return null;
+		}
+
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- A local file.
+		$wp_config = file_get_contents( $wp_config_path );
+
+		if ( false === $wp_config || ! preg_match( '/^\s*\$table_prefix\s*=\s*([\'"])(\w+)\1\s*;/m', $wp_config, $matches ) ) {
+			return null;
+		}
+
+		return $matches[2];
+	}
+
+	/**
 	 * Preprocess the backup before importing.
 	 *
 	 * @return bool|\WP_Error True on success, or a WP_Error on failure.
 	 */
 	public function preprocess() {
-		$options = array(
+		$options      = array(
 			'output_mode' => SQL_Generator::OUTPUT_TYPE_FILE,
 			'output_file' => $this->tmp_database,
 			'tmp_tables'  => true,
 			'tmp_prefix'  => $this->tmp_prefix,
 		);
+		$table_prefix = self::get_table_prefix( $this->destination_path );
+		if ( null !== $table_prefix ) {
+			$options['prefix'] = $table_prefix;
+		}
 		$db_path = $this->get_sqlite_db_path();
 		if ( null === $db_path ) {
 			return new \WP_Error( 'database-file-not-exists', 'Database file not exists' );

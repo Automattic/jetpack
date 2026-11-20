@@ -48,7 +48,7 @@ class Critical_CSS_Storage {
 	/**
 	 * Delete Critical CSS for a provider that cannot use its generated result.
 	 *
-	 * @since $$next-version$$
+	 * @since 4.8.2
 	 * @param string $key Provider key.
 	 */
 	public function delete_css( $key ) {

@@ -4,11 +4,12 @@ import apiFetch from '@wordpress/api-fetch';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Link, Stack, SwitchControl, Text } from '@wordpress/ui';
-import { useEffect, useId, useState } from 'react';
-import { ModuleToggle } from '../module-toggle';
+import { useCallback, useEffect, useId, useState } from 'react';
+import { PanelModuleToggle } from './panel-module-toggle';
 import { RelatedPostsPreview } from './related-posts-preview';
 import styles from './styles.module.scss';
 import { useModuleOption } from './use-module-option';
+import { useSettingsPanelTracking } from './use-settings-panel-tracking';
 import type { ModuleSettingsProps } from './registry';
 
 const SUPPORT_URL = getRedirectUrl( 'jetpack-support-related-posts' );
@@ -19,6 +20,12 @@ const SUPPORT_URL = getRedirectUrl( 'jetpack-support-related-posts' );
  * @return The link.
  */
 function AppearanceLink() {
+	const { trackClick } = useSettingsPanelTracking( 'related-posts' );
+	const onClick = useCallback(
+		() => trackClick( { target: 'configure-related-posts' } ),
+		[ trackClick ]
+	);
+
 	if ( getScriptData()?.myJetpack?.siteEditor?.isBlockTheme ) {
 		return (
 			<Link
@@ -27,6 +34,7 @@ function AppearanceLink() {
 				} ) }
 				target="_blank"
 				rel="noopener noreferrer"
+				onClick={ onClick }
 			>
 				{ __(
 					'Add a Related Posts Block to your site’s template in the site editor',
@@ -36,15 +44,17 @@ function AppearanceLink() {
 		);
 	}
 
-	return <CustomizerLink />;
+	return <CustomizerLink onClick={ onClick } />;
 }
 
 /**
  * The Customizer section, previewing the latest post: its controls show only on a single post.
  *
+ * @param props         - Component props.
+ * @param props.onClick - Called on click.
  * @return The link.
  */
-function CustomizerLink() {
+function CustomizerLink( { onClick }: { onClick: () => void } ) {
 	const [ postUrl, setPostUrl ] = useState< string >();
 
 	useEffect( () => {
@@ -65,14 +75,14 @@ function CustomizerLink() {
 	}
 
 	return (
-		<Link href={ customizer.href }>
+		<Link href={ customizer.href } onClick={ onClick }>
 			{ __( 'Configure related posts in the Customizer', 'jetpack-my-jetpack' ) }
 		</Link>
 	);
 }
 
 /**
- * The Related Posts options, moved here from the Settings screen's Traffic tab.
+ * The Related Posts options.
  *
  * @param props          - Component props.
  * @param props.module   - The module.
@@ -106,7 +116,7 @@ export function RelatedPostsSettings( { module: $module, disabled }: ModuleSetti
 				<Text variant="body-md" id={ labelId }>
 					{ __( 'Show related content after posts', 'jetpack-my-jetpack' ) }
 				</Text>
-				<ModuleToggle module={ $module } labelledby={ labelId } disabled={ disabled } />
+				<PanelModuleToggle module={ $module } labelledby={ labelId } disabled={ disabled } />
 			</Stack>
 
 			<SwitchControl

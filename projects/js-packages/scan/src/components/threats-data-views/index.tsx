@@ -24,7 +24,12 @@ import {
 	type ReactElement,
 	type ReactNode,
 } from 'react';
-import { ThreatSeverityBadge, getThreatType, type Threat } from '@automattic/jetpack-scan';
+import {
+	ThreatSeverityBadge,
+	sortThreatSeverity,
+	getThreatType,
+	type Threat,
+} from '@automattic/jetpack-scan';
 import ThreatFixerButton from '../threat-fixer-button/index.tsx';
 import {
 	THREAT_ACTION_FIX,
@@ -389,8 +394,9 @@ export default function ThreatsDataViews( {
 							label: __( 'Severity', 'jetpack-scan' ),
 							type: 'integer' as FieldTypeName,
 							getValue( { item }: { item: Threat } ) {
-								return item.severity ?? 0;
+								return item.severity;
 							},
+							sort: sortThreatSeverity,
 							render( { item }: { item: Threat } ) {
 								return <ThreatSeverityBadge severity={ item.severity } />;
 							},

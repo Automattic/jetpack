@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [8.4.3] - 2026-11-16
+### Added
+- Join the admin shell, so switching to and from other Jetpack dashboards skips the page load when the admin shell flag is on. [#54829]
+
+### Changed
+- Admin shell: Declare the page title and subtitle shown while the dashboard opens, when the admin shell flag is on. [#54945]
+- Remove the strip dependency in favor of an inline helper. [#54936]
+- Update package dependencies. [#54703]
+
+## [8.4.2] - 2026-11-09
+### Changed
+- Update dependencies. [#54609]
+
+## [8.4.1] - 2026-11-04
+### Changed
+- Update package dependencies. [#54391] [#54512]
+
 ## [8.4.0] - 2026-11-02
 ### Changed
 - Update package dependencies. [#53869]
@@ -1983,6 +2000,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update PHPUnit configs to include just what needs coverage rather than include everything then try to exclude stuff that doesn't.
 
+[8.4.3]: https://github.com/Automattic/jetpack-search/compare/v8.4.2...v8.4.3
+[8.4.2]: https://github.com/Automattic/jetpack-search/compare/v8.4.1...v8.4.2
+[8.4.1]: https://github.com/Automattic/jetpack-search/compare/v8.4.0...v8.4.1
 [8.4.0]: https://github.com/Automattic/jetpack-search/compare/v8.3.5...v8.4.0
 [8.3.5]: https://github.com/Automattic/jetpack-search/compare/v8.3.4...v8.3.5
 [8.3.4]: https://github.com/Automattic/jetpack-search/compare/v8.3.3...v8.3.4

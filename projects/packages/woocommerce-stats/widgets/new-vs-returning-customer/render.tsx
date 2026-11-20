@@ -71,7 +71,6 @@ function NewVsReturningCustomer() {
 	return (
 		<Donut
 			segments={ segments }
-			chartTitle={ __( 'New vs returning customer', 'jetpack-woocommerce-stats-pkg' ) }
 			status={ {
 				isLoading,
 				isFetching,

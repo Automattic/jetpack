@@ -11,9 +11,19 @@ import {
 	trackTaskSkipped,
 	trackViewed,
 	trackWizardBackClicked,
+	trackWizardBackToSetupChooser,
 	trackWizardBypassed,
 	trackWizardCompleted,
 	trackWizardGoalClicked,
+	trackWizardMcpAllowFullAccessClicked,
+	trackWizardMcpConnectedViewed,
+	trackWizardMcpGoToDashboardClicked,
+	trackWizardMcpLinkClicked,
+	trackWizardMcpPromptCopied,
+	trackWizardMcpReadOnlyViewed,
+	trackWizardMcpWaitingViewed,
+	trackWizardSetupChoiceSelected,
+	trackWizardMcpScreenViewed,
 	trackWizardSiteDetailsChanged,
 	trackWizardStepCompleted,
 	trackWizardStepSkipped,
@@ -73,7 +83,84 @@ describe( 'ai-launchpad tracks', () => {
 	// The context is all null here, so these also pin that null keys never override the bootstrap.
 	const RECORDERS: Array< [ event: string, fired: () => TrackEventProps ] > = [
 		[ 'viewed', fire( trackViewed, { step: 'goal' } ) ],
+		[ 'viewed', fire( trackViewed, { step: 'setup_choice' } ) ],
+		[
+			'wizard_setup_choice_selected',
+			fire( trackWizardSetupChoiceSelected, {
+				choice: 'guide',
+				goals_variation: 'bring_your_ai_tool',
+			} ),
+		],
+		[
+			'wizard_mcp_waiting_viewed',
+			fire( trackWizardMcpWaitingViewed, {
+				goals_variation: 'bring_your_ai_tool',
+				integration: 'chatgpt',
+			} ),
+		],
+		[
+			'wizard_mcp_read_only_viewed',
+			fire( trackWizardMcpReadOnlyViewed, {
+				goals_variation: 'bring_your_ai_tool',
+				integration: 'claude',
+			} ),
+		],
+		[
+			'wizard_mcp_prompt_copied',
+			fire( trackWizardMcpPromptCopied, { goals_variation: 'bring_your_ai_tool' } ),
+		],
 		[ 'wizard_goal_clicked', fire( trackWizardGoalClicked, { goal_clicked: 'sell' } ) ],
+		[
+			'wizard_goal_clicked',
+			fire( trackWizardGoalClicked, { goal_clicked: 'sell', goals_variation: 'control' } ),
+		],
+		[
+			'wizard_mcp_screen_viewed',
+			fire( trackWizardMcpScreenViewed, { goals_variation: 'bring_your_ai_tool' } ),
+		],
+		[
+			'wizard_mcp_chatgpt_clicked',
+			fire( props => trackWizardMcpLinkClicked( 'chatgpt', props ), {
+				goals_variation: 'bring_your_ai_tool',
+			} ),
+		],
+		[
+			'wizard_mcp_claude_clicked',
+			fire( props => trackWizardMcpLinkClicked( 'claude', props ), {
+				goals_variation: 'bring_your_ai_tool',
+			} ),
+		],
+		[
+			'wizard_mcp_connected_viewed',
+			fire( trackWizardMcpConnectedViewed, {
+				goals_variation: 'bring_your_ai_tool',
+				integration: 'claude',
+				already_connected: true,
+			} ),
+		],
+		[
+			'wizard_mcp_allow_full_access_clicked',
+			fire( trackWizardMcpAllowFullAccessClicked, {
+				goals_variation: 'bring_your_ai_tool',
+				integration: 'claude',
+				result: 'success',
+			} ),
+		],
+		[
+			'wizard_mcp_allow_full_access_clicked',
+			fire( trackWizardMcpAllowFullAccessClicked, {
+				goals_variation: 'bring_your_ai_tool',
+				integration: 'chatgpt',
+				result: 'settings_link',
+			} ),
+		],
+		[
+			'wizard_mcp_go_to_dashboard_clicked',
+			fire( trackWizardMcpGoToDashboardClicked, {
+				goals_variation: 'bring_your_ai_tool',
+				integration: 'chatgpt',
+			} ),
+		],
 		[ 'wizard_step_completed', fire( trackWizardStepCompleted, { step: 'goal' } ) ],
 		[ 'wizard_step_skipped', fire( trackWizardStepSkipped, { step: 'site_details' } ) ],
 		[ 'wizard_back_clicked', fire( trackWizardBackClicked, { step: 'site_details' } ) ],
@@ -95,6 +182,15 @@ describe( 'ai-launchpad tracks', () => {
 			] );
 		} );
 	}
+
+	it( 'records Back to the setup chooser with use_beacon, since the page is leaving', () => {
+		trackWizardBackToSetupChooser();
+		assert.deepEqual( lastEvent(), [
+			'recordEvent',
+			'jetpack_ai_launchpad_wizard_back_clicked',
+			{ ...BOOTSTRAP.props, step: 'ai_tool', use_beacon: true },
+		] );
+	} );
 
 	it( 'lets a fresh tailor override the tailoring-scoped props', () => {
 		setTracksContext(

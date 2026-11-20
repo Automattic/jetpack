@@ -23,7 +23,7 @@ export const LoginsBlockedStatus: FC< LoginsBlockedStatusProps > = ( { data } ) 
 	const { blocked_logins: blockedLoginsCount, brute_force_protection: hasBruteForceProtection } =
 		data?.wafConfig || {};
 
-	// The Brute Force Protection module is available when either the Jetpack plugin Or the Protect plugin is active.
+	// The Login protection module is available when either the Jetpack plugin Or the Protect plugin is active.
 	const isPluginActive = isProtectPluginActive || isJetpackPluginActive();
 
 	if ( isPluginActive && isSiteConnected ) {
@@ -55,7 +55,7 @@ const BlockedStatus: FC< BlockedStatusProps > = ( { status, data } ) => {
 		return blockedLoginsCount > 0 ? (
 			<>
 				<div className="value-section__heading">
-					{ __( 'Logins Blocked', 'jetpack-my-jetpack' ) }
+					{ __( 'Blocked login attempts', 'jetpack-my-jetpack' ) }
 				</div>
 				<div className="value-section__data">
 					<div className="logins_blocked__count">{ formatNumberCompact( blockedLoginsCount ) }</div>
@@ -64,9 +64,9 @@ const BlockedStatus: FC< BlockedStatusProps > = ( { status, data } ) => {
 		) : (
 			<>
 				<div className="value-section__heading">
-					{ __( 'Logins Blocked', 'jetpack-my-jetpack' ) }
+					{ __( 'Blocked login attempts', 'jetpack-my-jetpack' ) }
 					<ProtectInfoPopover
-						label={ __( 'Logins Blocked', 'jetpack-my-jetpack' ) }
+						label={ __( 'Blocked login attempts', 'jetpack-my-jetpack' ) }
 						title={ blockedLoginsTooltip.title }
 						text={ blockedLoginsTooltip.text }
 						tracksEventProps={ {
@@ -81,10 +81,7 @@ const BlockedStatus: FC< BlockedStatusProps > = ( { status, data } ) => {
 						<img
 							className="value-section__status-icon"
 							src={ ShieldPartial }
-							alt={ __(
-								'Shield icon - Brute Force Protection Status: Active',
-								'jetpack-my-jetpack'
-							) }
+							alt={ __( 'Shield icon - Login protection status: Active', 'jetpack-my-jetpack' ) }
 						/>
 					</div>
 					<div className="logins_blocked__count">{ formatNumberCompact( 0 ) }</div>
@@ -96,9 +93,9 @@ const BlockedStatus: FC< BlockedStatusProps > = ( { status, data } ) => {
 		return (
 			<>
 				<div className="value-section__heading">
-					{ __( 'Logins Blocked', 'jetpack-my-jetpack' ) }
+					{ __( 'Blocked login attempts', 'jetpack-my-jetpack' ) }
 					<ProtectInfoPopover
-						label={ __( 'Logins Blocked', 'jetpack-my-jetpack' ) }
+						label={ __( 'Blocked login attempts', 'jetpack-my-jetpack' ) }
 						title={ blockedLoginsTooltip.title }
 						text={ blockedLoginsTooltip.text }
 						tracksEventProps={ {
@@ -115,7 +112,7 @@ const BlockedStatus: FC< BlockedStatusProps > = ( { status, data } ) => {
 									className="value-section__status-icon"
 									src={ ShieldOff }
 									alt={ __(
-										'Shield icon - Brute Force Protection Status: Inactive',
+										'Shield icon - Login protection status: Inactive',
 										'jetpack-my-jetpack'
 									) }
 								/>
@@ -130,7 +127,7 @@ const BlockedStatus: FC< BlockedStatusProps > = ( { status, data } ) => {
 								className="value-section__status-icon"
 								src={ ShieldOff }
 								alt={ __(
-									'Shield icon - Brute Force Protection Status: Inactive',
+									'Shield icon - Login protection status: Inactive',
 									'jetpack-my-jetpack'
 								) }
 							/>
@@ -142,13 +139,15 @@ const BlockedStatus: FC< BlockedStatusProps > = ( { status, data } ) => {
 	}
 	return (
 		<>
-			<div className="value-section__heading">{ __( 'Logins Blocked', 'jetpack-my-jetpack' ) }</div>
+			<div className="value-section__heading">
+				{ __( 'Blocked login attempts', 'jetpack-my-jetpack' ) }
+			</div>
 			<div className="value-section__data">
 				<div>
 					<img
 						className="value-section__status-icon"
 						src={ ShieldOff }
-						alt={ __( 'Shield icon - Brute Force Protection Status: Off', 'jetpack-my-jetpack' ) }
+						alt={ __( 'Shield icon - Login protection status: Off', 'jetpack-my-jetpack' ) }
 					/>
 				</div>
 				<div className="value-section__status-text">{ __( 'Off', 'jetpack-my-jetpack' ) }</div>

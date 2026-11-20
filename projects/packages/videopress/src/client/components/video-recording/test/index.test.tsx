@@ -81,13 +81,15 @@ it( 'keeps the recorded file local until the user chooses upload', async () => {
 	expect( stopTrack ).toHaveBeenCalled();
 } );
 
-it( 'allows retrying denied permissions without uploading anything', async () => {
+it( 'explains denied permissions and allows retrying without uploading anything', async () => {
 	getUserMedia.mockRejectedValueOnce( new DOMException( 'Permission denied', 'NotAllowedError' ) );
 	const onRecorded = jest.fn();
 	render( <RecordingModal onClose={ jest.fn() } onRecorded={ onRecorded } /> );
-	await expect(
-		within( screen.getByRole( 'dialog' ) ).findByText( /Check your browser permissions/ )
-	).resolves.toBeVisible();
+	const alert = await screen.findByRole( 'alert' );
+	expect( alert ).toHaveAccessibleName( 'Camera and microphone access is blocked' );
+	expect( within( alert ).getByText( /address bar/ ) ).toBeVisible();
+	expect( screen.queryByRole( 'button', { name: 'Start recording' } ) ).not.toBeInTheDocument();
+	expect( screen.getByRole( 'button', { name: 'Try again' } ) ).toHaveFocus();
 	await userEvent.click( screen.getByRole( 'button', { name: 'Try again' } ) );
 	await expect( screen.findByRole( 'button', { name: 'Start recording' } ) ).resolves.toBeVisible();
 	expect( getUserMedia ).toHaveBeenCalledTimes( 2 );
@@ -154,8 +156,26 @@ it( 'keeps the selected effect current while recording', async () => {
 it( 'does not request a camera when the uploader-compatible format is unavailable', async () => {
 	jest.mocked( getRecordingMimeType ).mockReturnValue( undefined );
 	render( <RecordingModal onClose={ jest.fn() } onRecorded={ jest.fn() } /> );
-	await expect(
-		within( screen.getByRole( 'dialog' ) ).findByText( /recording is unavailable/ )
-	).resolves.toBeVisible();
+	await expect( screen.findByRole( 'alert' ) ).resolves.toHaveAccessibleName(
+		'This browser can’t record video'
+	);
+	expect( screen.queryByRole( 'button', { name: 'Try again' } ) ).not.toBeInTheDocument();
 	expect( getUserMedia ).not.toHaveBeenCalled();
+} );
+
+it( 'asks for the camera again once it is allowed in the browser’s site settings', async () => {
+	const camera = Object.assign( new EventTarget(), { state: 'denied' } );
+	Object.defineProperty( navigator, 'permissions', {
+		configurable: true,
+		value: { query: async () => camera },
+	} );
+	getUserMedia.mockRejectedValueOnce( new DOMException( 'Permission denied', 'NotAllowedError' ) );
+	render( <RecordingModal onClose={ jest.fn() } onRecorded={ jest.fn() } /> );
+	await expect( screen.findByRole( 'alert' ) ).resolves.toBeVisible();
+	await act( async () => {
+		camera.state = 'granted';
+		camera.dispatchEvent( new Event( 'change' ) );
+	} );
+	await expect( screen.findByRole( 'button', { name: 'Start recording' } ) ).resolves.toBeVisible();
+	expect( getUserMedia ).toHaveBeenCalledTimes( 2 );
 } );

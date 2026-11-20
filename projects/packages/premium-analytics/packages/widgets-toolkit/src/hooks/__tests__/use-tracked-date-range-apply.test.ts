@@ -73,7 +73,22 @@ describe( 'useTrackedDateRangeApply', () => {
 			preset: 'last-7-days',
 			interval: 'day',
 			comparison: 'none',
+			trigger: 'picker',
 		} );
+	} );
+
+	it.each( [
+		[ 'the picker when the caller names none', undefined ],
+		[ 'the control the caller names', { trigger: 'zoom_out' } as const ],
+	] )( 'records %s as the trigger', ( _case, options ) => {
+		const { trackedOnChange, trackedOnApply } = renderTracked();
+
+		act( () => {
+			trackedOnChange( LAST_7_DAYS, 'last-7-days', options );
+			trackedOnApply();
+		} );
+
+		expect( trackedProperties() ).toMatchObject( { trigger: options?.trigger ?? 'picker' } );
 	} );
 
 	it( 'records the new preset default when switching from a preset that allowed the rendered interval', () => {
@@ -89,6 +104,19 @@ describe( 'useTrackedDateRangeApply', () => {
 		} );
 
 		expect( trackedProperties() ).toMatchObject( { preset: 'last-30-days', interval: 'day' } );
+	} );
+
+	// A step back out of Last 30 days and forward again: the URL keeps the
+	// weeks, where the preset's own default would say days.
+	it( 'records the interval the caller says the change kept', () => {
+		const { trackedOnChange, trackedOnApply } = renderTracked( { presetId: 'custom' } );
+
+		act( () => {
+			trackedOnChange( LAST_30_DAYS, 'last-30-days', { exactRange: true, interval: 'week' } );
+			trackedOnApply();
+		} );
+
+		expect( trackedProperties() ).toMatchObject( { preset: 'last-30-days', interval: 'week' } );
 	} );
 
 	// Over a year allows months only; the rendered 30 days would keep weeks.
@@ -111,7 +139,7 @@ describe( 'useTrackedDateRangeApply', () => {
 	it( 'records the bucket the chart draws when the plan locks the range default', () => {
 		const { trackedOnChange, trackedOnApply } = renderTracked(
 			{},
-			{ ...DASHBOARD, lockedIntervals: [ 'week', 'month', 'year' ] }
+			{ ...DASHBOARD, lockedIntervals: [ 'week', 'month', 'quarter', 'year' ] }
 		);
 
 		act( () => {
@@ -197,6 +225,7 @@ describe( 'useTrackedDateRangeApply', () => {
 			preset: 'last-7-days',
 			interval: 'day',
 			comparison: 'none',
+			trigger: 'picker',
 		} );
 	} );
 } );

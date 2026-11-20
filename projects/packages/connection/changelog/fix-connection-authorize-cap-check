@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Check the user's capability before requesting a user token, so a user without it can retry the connection instead of being left half-connected on WordPress.com.

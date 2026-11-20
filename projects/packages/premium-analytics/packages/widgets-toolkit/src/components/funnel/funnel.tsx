@@ -8,7 +8,7 @@ import { useCallback, useMemo, type JSX } from 'react';
 /**
  * Internal dependencies
  */
-import { formatChartName } from '../../helpers/format-chart-name';
+import { useChartName } from '../../hooks/use-chart-name';
 import { exactFormatOf } from '../chart-tooltip/utils';
 import { MetricWithComparison } from '../metric-with-comparison';
 import {
@@ -44,7 +44,7 @@ export type FunnelProps = {
 	 * Format of the step counts, in the tooltip. Defaults to compact integers.
 	 */
 	format?: DataFormat;
-	/** What the chart shows, such as the widget title; the chart is named "Chart: <title>". */
+	/** What the chart shows, when that is not the widget title; the chart is named "Chart: <title>". */
 	chartTitle?: string;
 };
 
@@ -75,6 +75,7 @@ export function Funnel( {
 	format = DEFAULT_FORMAT,
 	chartTitle,
 }: FunnelProps ): JSX.Element {
+	const chartName = useChartName( chartTitle );
 	const { isLoading, isFetching, isError, refetch } = status;
 	const hasComparison = !! status.hasComparison;
 
@@ -118,7 +119,7 @@ export function Funnel( {
 		>
 			<ConversionFunnelChart
 				className={ styles.chart }
-				ariaLabel={ formatChartName( chartTitle ) }
+				ariaLabel={ chartName }
 				steps={ chartSteps }
 				mainRate={ rate * 100 }
 				getTooltipContent={ getTooltipContent }

@@ -78,7 +78,7 @@ export const LockedBuckets: Story = {
 			options={ [ 'day' ] }
 			lockedOptions={ [ 'week', 'month' ] }
 			lockUpsell={ {
-				description: 'Group your charts by week, month or year.',
+				description: 'Group your charts by week, month, quarter or year.',
 				supportUrl: '',
 				upgradeUrl: 'https://wordpress.com/plans',
 			} }

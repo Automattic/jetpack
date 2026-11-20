@@ -117,9 +117,18 @@ class Schema_Settings_Controller {
 		}
 
 		if ( Seo_Tools::is_disabled() ) {
+			$plugin  = Seo_Tools::get_conflicting_plugin();
+			$message = $plugin
+				? sprintf(
+					/* translators: %s: name of the SEO plugin that manages the site's SEO, e.g. Yoast SEO. */
+					__( '%s is managing your site’s SEO, so Jetpack has paused its structured data. Your changes were not saved. Reload this page to see the current settings.', 'jetpack-seo' ),
+					$plugin
+				)
+				: __( 'Jetpack’s structured data is turned off on this site. Your changes were not saved. Reload this page to see the current settings.', 'jetpack-seo' );
+
 			return new \WP_Error(
 				'jetpack_seo_tools_disabled',
-				__( 'Jetpack SEO is disabled on this site. Your changes were not saved. Reload this page to see the current settings.', 'jetpack-seo' ),
+				$message,
 				array( 'status' => 409 )
 			);
 		}

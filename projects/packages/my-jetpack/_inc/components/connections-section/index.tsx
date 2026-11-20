@@ -1,5 +1,3 @@
-import { getUserConnectionUrl } from '@automattic/jetpack-connection';
-import { useCallback } from 'react';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import ConnectionStatusCard from '../connection-status-card';
@@ -27,15 +25,11 @@ export default function ConnectionsSection() {
 		document?.location?.reload();
 	};
 
-	const onConnectUser = useCallback( () => {
-		window.location.href = getUserConnectionUrl();
-	}, [] );
 	return (
 		<ConnectionStatusCard
 			apiRoot={ apiRoot }
 			apiNonce={ apiNonce }
 			redirectUri={ topJetpackMenuItemUrl }
-			onConnectUser={ onConnectUser }
 			connectedPlugins={ connectedPlugins as { name: string; slug: string }[] }
 			// eslint-disable-next-line react/jsx-no-bind
 			onDisconnected={ onFullyDisconnected }

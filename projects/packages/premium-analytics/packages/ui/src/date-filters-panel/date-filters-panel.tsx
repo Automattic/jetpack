@@ -9,6 +9,7 @@ import {
 	type IntervalType,
 	type PrimaryPresetId,
 	type QuickSurfacePresetId,
+	type StepDirection,
 } from '@jetpack-premium-analytics/datetime';
 import { Stack } from '@jetpack-premium-analytics/externals';
 import { BaseControl } from '@wordpress/components';
@@ -20,6 +21,8 @@ import { DateComparisonDropdown } from '../date-comparison-dropdown';
 import { DateIntervalDropdown } from '../date-interval-dropdown';
 import { DateLimitUpsell } from '../date-limit-upsell';
 import { DatePeriodDropdown } from '../date-period-dropdown';
+import { DatePeriodNavigation } from '../date-period-navigation';
+import { DateZoomOut, type ZoomOutTarget } from '../date-zoom-out';
 import { useComparisonDatePresets } from '../use-comparison-date-presets';
 import type { DateControlTriggerProps } from '../utils/date-control-trigger';
 
@@ -28,6 +31,17 @@ import './date-filters-panel.scss';
 type DatePeriodDropdownProps = Parameters< typeof DatePeriodDropdown >[ 0 ];
 
 export type DateRange = DatePeriodDropdownProps[ 'range' ];
+
+/**
+ * The step the arrows offer, and whether each has somewhere to go, as the date
+ * filters decided it: the plan's earliest date behind, a window that has begun
+ * ahead. An arrow with nowhere to go is disabled, not hidden.
+ */
+export type DateStepping = {
+	onStep: ( direction: StepDirection ) => void;
+	canStepBackward: boolean;
+	canStepForward: boolean;
+};
 
 export type DateFiltersPanelProps = {
 	range: DateRange;
@@ -101,6 +115,19 @@ export type DateFiltersPanelProps = {
 	onIntervalChange?: ( interval: IntervalType ) => void;
 
 	/**
+	 * The arrows that step the applied window by its own length. Left out, they
+	 * are not rendered at all: a surface whose range is not a movable window has
+	 * nowhere to step.
+	 */
+	stepping?: DateStepping;
+
+	/**
+	 * The window a widget zoomed in from, offered as a zoom back out before the
+	 * arrows. Left out, or while there is none, nothing is rendered.
+	 */
+	zoomOut?: ZoomOutTarget;
+
+	/**
 	 * Props for the date range popover.
 	 */
 	rangeControlProps?: Omit< Parameters< typeof BaseControl >[ 0 ], 'children' >;
@@ -156,6 +183,8 @@ export function DateFiltersPanel( {
 	onChange,
 	onComparisonChange,
 	onIntervalChange,
+	stepping,
+	zoomOut,
 	rangeControlProps = {
 		label: null,
 		help: null,
@@ -253,6 +282,16 @@ export function DateFiltersPanel( {
 		]
 	);
 
+	const navigationControl = useMemo(
+		() => ( stepping ? <DatePeriodNavigation { ...stepping } disabled={ disabled } /> : null ),
+		[ disabled, stepping ]
+	);
+
+	const zoomOutControl = useMemo(
+		() => ( zoomOut ? <DateZoomOut { ...zoomOut } disabled={ disabled } /> : null ),
+		[ disabled, zoomOut ]
+	);
+
 	const intervalControl = useMemo(
 		() =>
 			withIntervalControl && intervalOptions && onIntervalChange ? (
@@ -281,6 +320,10 @@ export function DateFiltersPanel( {
 	return (
 		<div className="date-filters-panel">
 			<Stack className="date-filters-panel__row" direction="row" gap="sm">
+				{ /* First, so the arrows keep their place when it comes and goes: the row is end-aligned. */ }
+				{ zoomOutControl }
+				{ navigationControl }
+
 				<BaseControl
 					className="date-filters-panel__primary"
 					label={ rangeControlProps.label }

@@ -28,9 +28,10 @@ export async function connect( page: Page, admin: Admin ) {
 
 	await startForFreeButton.click();
 
+	// Connecting reloads the page, and a connected site gets the shared dashboard instead of this app.
 	await expect(
-		page.getByText( 'vulnerabilities found' ).or( page.getByText( 'ready soon' ) ),
-		'"Vulnerabilities found" or "ready soon" message should be visible'
+		page.getByRole( 'tab', { name: 'Overview' } ),
+		'The shared dashboard should load once connected'
 	).toBeVisible( {
 		timeout: 30_000,
 	} );

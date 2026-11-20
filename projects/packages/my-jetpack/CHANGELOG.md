@@ -5,6 +5,95 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.18.2] - 2026-11-17
+### Changed
+- Use WordPress Design System tokens for the info popover trigger styles. [#55046]
+- Use `@wordpress/notices` directly instead of the deprecated global notices hook. [#55007]
+
+### Fixed
+- Show the account issue tooltip above the header's connection panel instead of behind it. [#54989]
+
+## [6.18.1] - 2026-11-16
+### Changed
+- Internal updates.
+
+## [6.18.0] - 2026-11-16
+### Added
+- Join the admin shell, so switching to and from other Jetpack dashboards skips the page load when the admin shell flag is on. [#54708]
+- Settings panel: Add Google Analytics to Features on WordPress.com plans that include it, when the settings consolidation flag is on. [#54823]
+
+### Changed
+- Admin shell: Declare the page title and subtitle shown while the dashboard opens, when the admin shell flag is on. [#54945]
+- Connection: Show the WordPress.com connection screen made for the site's plugins when connecting an account, connecting the site or restoring the connection from the header, and return to the page the header is on. [#54748]
+- Connection: Show the WordPress.com connection screen made for the site's plugins when connecting an account from a product card or a recommendation. [#54615]
+- Connection: Show the WordPress.com connection screen made for the site's plugins when connecting an account from the Features tab. [#54867]
+- Connection: Show the WordPress.com connection screen made for the site's plugins when connecting an account or restoring the connection from the Overview's Connection card. [#54682]
+- Features: Remember whether you last picked the grid or the list layout on the Features tab, and open the tab in that layout next time. [#54925]
+- Features: Use the shared HighlightBanner from Jetpack components for the banner above the features grid. [#54518]
+- Header: Highlight expiring and expired plans in the account panel, list them first with a renew link, and show other plans as active until their renewal date. [#54781]
+- On sites with Jetpack Pro, replace "Purchase a plan" with "Upgrade to Complete", which goes straight to checkout. [#54862]
+- Protect: Show Scan as off on the Protect card while the daily vulnerability check is turned off. [#54600]
+- Return to the license screen after connecting an account from "Activate a license", and show the WordPress.com connection screen made for the site's plugins. [#54697]
+- Update package dependencies. [#54703]
+
+### Removed
+- Jetpack Manage: Remove the sidebar link. The agency dashboard is reached through Automattic for Agencies. [#54381]
+
+### Fixed
+- Features: Fill checked checkboxes in the Features list with the selected filter's color, show their focus ring only for keyboard focus, and show one focus ring per control instead of two. [#54608]
+- Onboarding wizard: Let the user retry, and explain what went wrong, after the hand-off to WordPress.com fails. [#54613]
+- Show a lapsed Scan purchase as Expired, with a link to resume it and an expired-plan notice, instead of offering an upgrade. [#54698]
+- Upgrade screens: Keep the Jetpack Pro card inside narrow columns and phone screens. [#54841]
+- Upgrade screens: Show a placeholder instead of a retired bundle while plan prices load. [#54839]
+
+## [6.17.1] - 2026-11-09
+### Changed
+- Connection: Return to My Jetpack after connecting from the connection screen, instead of showing the plans page. [#54572]
+- Connection: Show the WordPress.com connection screen made for the site's plugins when connecting an account from the missing user connection or connection error notice. [#54580]
+- Protect: Use the Protect page's feature names on the Protect card, its product page and the Features tab. [#54592]
+- Reduce repeated requests on page load: reuse product ownership data and refresh the historically active modules list at most hourly. [#54322]
+- Scan: Read the Scan product slug prefix from Protect Status instead of keeping a separate list. [#54590]
+- Show the firewall, login protection and other Protect modules under the Security filter on the Features tab. [#54677]
+
+### Fixed
+- Features: Move a wide card button under the text instead of squeezing the text. [#54586]
+- Fix the Overview showing a product's old status after a feature is switched on or off on the Features tab. [#54311]
+- Fix the Security and Growth filters on the Features tab showing no features. [#54496]
+- Settings panel: Keep the Post by Email Copy button on one line and announce the copy result, behind the settings consolidation flag. [#54617]
+
+## [6.17.0] - 2026-11-06
+### Added
+- Settings panel: Add the Infinite Scroll settings, behind the settings consolidation flag.
+- Settings panel: Add the Post by Email settings, behind the settings consolidation flag.
+- Settings panel: Record Tracks events when a module or option is switched, behind the settings consolidation flag.
+
+### Changed
+- Scan: Decide whether the site owns Scan with the same check as the Protect card and page.
+
+### Fixed
+- Protect card: Show that a site with Scan hasn't been scanned yet instead of calling it secure.
+- Protect card: Show when the last scan didn't complete instead of calling the site secure.
+- Settings panel: Record the Tracks event for the Post by Email switch, behind the settings consolidation flag.
+
+## [6.16.0] - 2026-11-04
+### Added
+- Add a settings panel that Configure on a More Features row opens, behind a feature flag that is off by default. [#54431]
+- Settings panel: Add the Carousel settings, behind the settings consolidation flag. [#54499]
+- Settings panel: Add the Related Posts options, behind the settings flag. [#54435]
+- Settings panel: Add the SEO opt-in invitation, behind the settings flag. [#54436]
+- Settings panel: Lock the settings of a feature the site cannot use, and say why, behind the settings flag. [#54489]
+
+### Changed
+- Products: Point the Creator and VideoPress manage links at their new homes, behind the settings flag. [#54503]
+- Protect: On WordPress.com sites without the Protect page, send Scan's manage links to the WordPress.com dashboard instead of Jetpack Cloud. [#54243]
+- Protect: Open the Protect page from My Jetpack on WordPress.com sites that have it, rather than WordPress.com's Scan. The `jetpack_feature_upgrade` filter no longer reads `manage_url`. [#54243]
+- Update package dependencies. [#54512]
+- Use the design system switch for module and feature toggles. [#54512]
+
+### Fixed
+- Connection: Stop sending a broken return URL when connecting the site from a product card or notice. [#54420]
+- Stop showing $0 and NaN for paid plans on the Boost, Protect and Jetpack AI upgrade pages, and $0.00 on recommendation cards, when prices cannot be loaded. [#54458]
+
 ## [6.15.0] - 2026-11-02
 ### Added
 - Add a feature flag for consolidating settings in My Jetpack, off by default. [#54376]
@@ -3196,6 +3285,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[6.18.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.18.1...6.18.2
+[6.18.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.18.0...6.18.1
+[6.18.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.17.1...6.18.0
+[6.17.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.17.0...6.17.1
+[6.17.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.16.0...6.17.0
+[6.16.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.15.0...6.16.0
 [6.15.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.14.0...6.15.0
 [6.14.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.13.0...6.14.0
 [6.13.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.12.0...6.13.0

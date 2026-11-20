@@ -3,6 +3,8 @@ import {
 	isPremiumAnalyticsInitialSyncFinished,
 	isPremiumAnalyticsSiteConnected,
 } from '../site-readiness';
+import { WIDGET_MODULES_QUERY } from '../use-widget-modules';
+import { DASHBOARD_SECTIONS_QUERY } from './hooks/use-dashboard-sections';
 import { route } from './route';
 
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
@@ -52,6 +54,18 @@ jest.mock( '../stats-date-window', () => ( {
 	withoutCarriedYearWindow: ( search: object ) => ( { ...search } ),
 } ) );
 
+const mockGetEntityRecords = jest.fn( () => Promise.resolve( [] ) );
+
+jest.mock( '@wordpress/data', () => ( {
+	resolveSelect: () => ( { getEntityRecords: mockGetEntityRecords } ),
+	useSelect: jest.fn(),
+} ) );
+
+jest.mock( '@wordpress/core-data', () => ( {
+	store: 'core',
+	useEntityRecords: jest.fn(),
+} ) );
+
 jest.mock( '@wordpress/route', () => ( {
 	redirect: jest.fn( ( options: object ) => ( { isRedirect: true, ...options } ) ),
 } ) );
@@ -75,6 +89,12 @@ describe( 'dashboard route.beforeLoad', () => {
 		( isPremiumAnalyticsSiteConnected as jest.Mock ).mockReturnValueOnce( false );
 
 		await expect( beforeLoad( settledSearch ) ).rejects.toMatchObject( { to: '/connect' } );
+	} );
+
+	it( 'sends a link to the former Settings tab to the Settings page, with the rest of its search', async () => {
+		await expect( beforeLoad( { ...settledSearch, section: 'settings' } ) ).rejects.toEqual(
+			expect.objectContaining( { to: '/settings', replace: true, search: settledSearch } )
+		);
 	} );
 
 	// Only the store section's data waits on the analytics sync, so an unfinished
@@ -146,5 +166,22 @@ describe( 'dashboard route.beforeLoad', () => {
 		} );
 
 		expect( search ).toMatchObject( { comp: '1', compare_preset: 'previous-period' } );
+	} );
+} );
+
+describe( 'dashboard route.loader', () => {
+	it( 'requests the dashboard sections and widget modules', () => {
+		route.loader();
+
+		expect( mockGetEntityRecords ).toHaveBeenCalledWith(
+			'root',
+			'dashboardSection',
+			DASHBOARD_SECTIONS_QUERY
+		);
+		expect( mockGetEntityRecords ).toHaveBeenCalledWith(
+			'root',
+			'widgetModule',
+			WIDGET_MODULES_QUERY
+		);
 	} );
 } );

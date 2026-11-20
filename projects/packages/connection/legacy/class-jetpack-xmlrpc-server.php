@@ -245,7 +245,7 @@ class Jetpack_XMLRPC_Server {
 
 		$verified = $this->verify_action( array( 'authorize', $request['secret'], $request['state'] ) );
 
-		if ( is_a( $verified, 'IXR_Error' ) ) {
+		if ( $verified instanceof \IXR_Error ) {
 			return $this->error( $verified, 'remote_authorize' );
 		}
 
@@ -286,7 +286,7 @@ class Jetpack_XMLRPC_Server {
 			);
 		}
 
-		if ( is_wp_error( $user ) || is_a( $user, 'IXR_Error' ) ) {
+		if ( is_wp_error( $user ) || $user instanceof \IXR_Error ) {
 			return $this->error( $user, 'remote_register' );
 		}
 
@@ -388,7 +388,7 @@ class Jetpack_XMLRPC_Server {
 			);
 		}
 
-		if ( is_wp_error( $user ) || is_a( $user, 'IXR_Error' ) ) {
+		if ( is_wp_error( $user ) || $user instanceof \IXR_Error ) {
 			return $this->error( $user, 'remote_provision' );
 		}
 
@@ -459,7 +459,7 @@ class Jetpack_XMLRPC_Server {
 
 		$user = $this->fetch_and_verify_local_user( $request );
 
-		if ( ! $user || is_wp_error( $user ) || is_a( $user, 'IXR_Error' ) ) {
+		if ( ! $user || is_wp_error( $user ) || $user instanceof \IXR_Error ) {
 			return $this->error(
 				new WP_Error(
 					'input_error',
@@ -654,7 +654,7 @@ class Jetpack_XMLRPC_Server {
 				require_once ABSPATH . WPINC . '/class-IXR.php';
 			}
 			return new \IXR_Error( $code, $message );
-		} elseif ( is_a( $this->error, 'IXR_Error' ) ) {
+		} elseif ( $this->error instanceof \IXR_Error ) {
 			return $this->error;
 		}
 

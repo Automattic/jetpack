@@ -5,7 +5,6 @@ import {
 	WidgetRoot,
 	type ReportParamsFieldAttributes,
 } from '@automattic/jetpack-premium-analytics-sdk';
-import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
@@ -32,9 +31,7 @@ export default function ConversionRateRender( {
 }: WidgetRenderProps< ConversionRateRenderAttributes > ) {
 	return (
 		<WidgetRoot attributes={ attributes }>
-			<ConversionFunnel
-				chartTitle={ __( 'Store conversion rate', 'jetpack-woocommerce-stats-pkg' ) }
-			/>
+			<ConversionFunnel />
 		</WidgetRoot>
 	);
 }

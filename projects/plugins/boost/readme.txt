@@ -5,7 +5,7 @@ Tags: performance, speed, web vitals, critical css, cache
 Requires at least: 7.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 4.8.1
+Stable tag: 4.9.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -191,9 +191,24 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 4. Historical performance tracking with the upgraded plan.
 
 == Changelog ==
-### 4.8.1 - 2026-10-08
+### 4.9.0 - 2026-11-19
+#### Added
+- Dashboard: Open Boost from other Jetpack dashboards without a page load when the Jetpack admin shell is on.
+- Dashboard: Show how far along a speed test is and which step it is on, show scores as meters, and show each new score as soon as it is measured instead of waiting for the comparison test that runs without Boost.
+
+#### Changed
+- Connection: Show the WordPress.com connection screen made for your site's plugins when you connect your account from the Boost dashboard header, "Activate a license" or the Features tab, and return to the Boost dashboard or the license screen afterwards.
+- Dashboard: Remove the "Jetpack" link to My Jetpack from the page header.
+- My Jetpack: Highlight expiring and expired plans with a renew link in the account panel under your avatar, offer "Upgrade to Complete" straight to checkout on sites with Jetpack Pro, and remember the grid or list layout you last picked on the Features tab.
+- Update package dependencies.
+
 #### Fixed
-- Page Cache: Improve cache key handling and URL purges for unusual request URIs and parameters. Clear old cached pages once after updating.
+- Abilities: Set up the page cache when the set-module-status ability turns it on, report a setup failure, and pass on its notices, such as WP Super Cache being switched off.
+- Concatenate CSS: Keep styles applied when another plugin stops one stylesheet in a bundle from loading as a stylesheet, as Trustindex review widgets 15.0 do.
+- Connection: Let a second administrator fix a broken connection owner by connecting their own account, keep the progress indicator on screen after clicking Restore Connection, and stop showing a connection error notice for a request signature mismatch, which reconnecting rarely fixes.
+- Dashboard: Show the account control in Boost's header when you open Boost from My Jetpack with the Jetpack admin shell on.
+- My Jetpack: Fix the Security and Growth filters on the Features tab showing no features, the Overview showing a product's old status after a feature switch, and the Features list's checkbox colors and doubled focus rings.
+- My Jetpack: Show what went wrong and let users retry when the onboarding connection to WordPress.com fails, keep the Jetpack Pro card inside phone screens, and stop the upgrade screen from briefly offering Jetpack Complete before Jetpack Pro.
 
 --------
 

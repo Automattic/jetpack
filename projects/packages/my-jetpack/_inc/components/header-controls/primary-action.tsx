@@ -1,7 +1,8 @@
-import { getUserConnectionUrl, useConnectionErrorNotice } from '@automattic/jetpack-connection';
+import { CONNECTION_FROM, useConnectionErrorNotice } from '@automattic/jetpack-connection';
 import { __ } from '@wordpress/i18n';
 import { Button, Link, Stack } from '@wordpress/ui';
 import { MyJetpackRoutes } from '../../constants';
+import { connectionScreenRoute, getConnectUrl } from '../../utils/connect-url';
 import { getMyJetpackRouteUrl } from '../../utils/route-href';
 import type { ConnectionState } from '../../hooks/use-connection-state';
 import type { FC } from 'react';
@@ -18,9 +19,11 @@ const PrimaryAction: FC< {
 	action: ConnectionState[ 'action' ];
 	repairActions: ReturnType< typeof useConnectionErrorNotice >[ 'actions' ];
 } > = ( { action, repairActions } ) => {
+	const connectFrom = CONNECTION_FROM?.myJetpackHeader;
+
 	if ( action === 'CONNECT_USER' ) {
 		return (
-			<Link href={ getUserConnectionUrl() }>
+			<Link href={ getConnectUrl( connectFrom ?? 'my-jetpack' ) }>
 				{ __( 'Connect my account', 'jetpack-my-jetpack' ) }
 			</Link>
 		);
@@ -28,7 +31,11 @@ const PrimaryAction: FC< {
 
 	if ( action === 'CONNECT_SITE' ) {
 		return (
-			<Link href={ getMyJetpackRouteUrl( MyJetpackRoutes.Connection ) }>
+			<Link
+				href={ getMyJetpackRouteUrl(
+					connectFrom ? connectionScreenRoute( connectFrom ) : MyJetpackRoutes.Connection
+				) }
+			>
 				{ __( 'Connect site', 'jetpack-my-jetpack' ) }
 			</Link>
 		);

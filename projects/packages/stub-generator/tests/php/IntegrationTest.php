@@ -101,6 +101,8 @@ class IntegrationTest extends TestCase {
 			$actual                   = $srcs[ $src ];
 			if ( $type === 'replace' ) {
 				$srcs[ $src ] = str_replace( $val, $x[3], $srcs[ $src ] );
+			} elseif ( $type === 'replaceregex' ) {
+				$srcs[ $src ] = preg_replace( $val, $x[3], $srcs[ $src ] );
 			} elseif ( $type === 'contains' ) {
 				$this->assertStringContainsString( $val, $actual );
 			} elseif ( $type === 'regex' ) {
@@ -161,7 +163,8 @@ class IntegrationTest extends TestCase {
 				array(
 					array( 'stdout', 'exact', '' ),
 					array( 'stderr', 'replace', 'failed to open stream:', 'Failed to open stream:' ),
-					array( 'stderr', 'exact', "Failed to read test-application://foo: file_get_contents(test-application://foo): Failed to open stream: \"class@anonymous::stream_open\" call failed\n" ),
+					array( 'stderr', 'replaceregex', '/file_get_contents\([^)]*\)/', 'file_get_contents()' ),
+					array( 'stderr', 'exact', "Failed to read test-application://foo: file_get_contents(): Failed to open stream: \"class@anonymous::stream_open\" call failed\n" ),
 				),
 			),
 			'JSON config file isn\'t JSON'    => array(
@@ -173,7 +176,8 @@ class IntegrationTest extends TestCase {
 				1,
 				array(
 					array( 'stdout', 'exact', '' ),
-					array( 'stderr', 'exact', "Invalid JSON data in $dir/fixtures/bad-json.notjson: Syntax error\n" ),
+					array( 'stderr', 'replace', $dir, '<dir>' ),
+					array( 'stderr', 'regex', "#^Invalid JSON data in <dir>/fixtures/bad-json.notjson: Syntax error(?: near location 1:1)?\n$#" ),
 				),
 			),
 			'JSON config file non-array'      => array(
@@ -305,12 +309,13 @@ class IntegrationTest extends TestCase {
 				array(
 					array( 'stdout', 'exact', "<?php\n\n" ),
 					array( 'stderr', 'replace', 'failed to open stream:', 'Failed to open stream:' ),
+					array( 'stderr', 'replaceregex', '/file_get_contents\([^)]*\)/', 'file_get_contents()' ),
 					array(
 						'stderr',
 						'exact',
 						<<<ERR
 						File $dir/fixtures/files/does-not-exist.php does not exist or is not readable
-						Failed to read test-application://foo: file_get_contents(test-application://foo): Failed to open stream: "class@anonymous::stream_open" call failed
+						Failed to read test-application://foo: file_get_contents(): Failed to open stream: "class@anonymous::stream_open" call failed
 						Failed to parse $dir/fixtures/files/bad-php.notphp: Syntax error, unexpected T_STRING on line 3
 						ERR . "\n", // phpcs:ignore PHPCompatibility.Syntax.NewFlexibleHeredocNowdoc.ClosingMarkerNoNewLine -- https://github.com/PHPCompatibility/PHPCompatibility/issues/1696
 					),
@@ -360,6 +365,7 @@ class IntegrationTest extends TestCase {
 			1,
 			array(
 				array( 'stdout', 'exact', '' ),
+				array( 'stderr', 'replaceregex', '/file_put_contents\([^)]*\)/', 'file_put_contents()' ),
 				array(
 					'stderr',
 					'regex',

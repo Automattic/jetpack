@@ -10,6 +10,7 @@ import { VideoGUID } from '../../block-editor/blocks/video/types';
 import getMediaToken from '../get-media-token';
 import { VideoMediaProps } from './types';
 import type { MediaTokenProps } from '../../lib/get-media-token/types';
+import type { UploadAnalytics } from '../upload-analytics';
 
 const debug = debugFactory( 'videopress:resumable-file-uploader' );
 
@@ -47,6 +48,7 @@ type UploadVideoArguments = {
 	onError: ( error ) => void;
 	tokenData: MediaTokenProps;
 	signal?: AbortSignal;
+	analytics?: UploadAnalytics;
 };
 
 const getJwtKey = ( url: string ) => {
@@ -63,10 +65,17 @@ const resumableFileUploader = ( {
 	onSuccess,
 	onError,
 	signal,
+	analytics,
 }: UploadVideoArguments ) => {
 	const upload = new tus.Upload( file, {
-		onError,
-		onProgress,
+		onError: error => {
+			analytics?.fail( error, 'transfer' );
+			onError( error );
+		},
+		onProgress: ( sent, total ) => {
+			analytics?.progress( sent );
+			onProgress( sent, total );
+		},
 		endpoint: tokenData.url,
 		removeFingerprintOnSuccess: true,
 		overridePatchMethod: false,
@@ -74,6 +83,7 @@ const resumableFileUploader = ( {
 		metadata: {
 			filename: file.name,
 			filetype: file.type,
+			...analytics?.metadata(),
 		},
 		retryDelays: [ 0, 1000, 3000, 5000, 10000 ],
 		onShouldRetry: function ( err: tus.DetailedError ) {
@@ -86,9 +96,11 @@ const resumableFileUploader = ( {
 				return false;
 			}
 
+			analytics?.retryScheduled();
 			return true;
 		},
 		onBeforeRequest: async function ( req: VPUploadHttpRequest ) {
+			analytics?.requestStarted();
 			// make ALL requests be either POST or GET to honor the public-api.wordpress.com "contract".
 			const method = req._method;
 
@@ -147,6 +159,7 @@ const resumableFileUploader = ( {
 			const src = res.getHeader( SRC_URL_HEADER );
 
 			if ( guid && mediaId && src ) {
+				analytics?.succeed( guid );
 				onSuccess && onSuccess( { id: Number( mediaId ), guid, src }, file );
 				return;
 			}
@@ -172,19 +185,35 @@ const resumableFileUploader = ( {
 		},
 	} );
 
-	signal?.addEventListener( 'abort', () => void upload.abort(), { once: true } );
+	signal?.addEventListener(
+		'abort',
+		() => {
+			analytics?.pause();
+			void upload.abort();
+		},
+		{ once: true }
+	);
 
-	upload.findPreviousUploads().then( function ( previousUploads ) {
-		// `start()` clears tus's abort flag, so an abort that landed first must skip it.
-		if ( signal?.aborted ) {
-			return;
-		}
-		if ( previousUploads.length ) {
-			upload.resumeFromPreviousUpload( previousUploads[ 0 ] );
-		}
+	upload.findPreviousUploads().then(
+		function ( previousUploads ) {
+			// `start()` clears tus's abort flag, so an abort that landed first must skip it.
+			if ( signal?.aborted ) {
+				return;
+			}
+			if ( previousUploads.length ) {
+				upload.resumeFromPreviousUpload( previousUploads[ 0 ] );
+				analytics?.resumedExisting();
+			}
 
-		upload.start();
-	} );
+			upload.start();
+		},
+		error => {
+			if ( ! signal?.aborted ) {
+				analytics?.fail( error, 'resume_lookup' );
+				onError( error );
+			}
+		}
+	);
 
 	return upload;
 };

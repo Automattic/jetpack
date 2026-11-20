@@ -47,7 +47,11 @@ export default function MonitorSettingsCard( { state, settings }: MonitorContext
 		<ProtectCard icon={ gauge } title={ __( 'Downtime monitoring', 'jetpack-protect-pkg' ) }>
 			<CardRow>
 				<Stack direction="column" gap="md">
-					<MonitorToggle data={ monitorData } available={ available } />
+					<MonitorToggle
+						data={ monitorData }
+						available={ available }
+						userConnected={ userConnected }
+					/>
 					<SettingToggle
 						data={ settings }
 						name="monitor_receive_notifications"

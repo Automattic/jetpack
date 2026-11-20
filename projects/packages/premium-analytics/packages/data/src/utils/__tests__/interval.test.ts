@@ -115,45 +115,80 @@ describe( 'resolveIntervalForRange', () => {
 		).toEqual( [ 'day' ] );
 	} );
 
-	it( 'never offers quarters on the year-length ranges', () => {
+	it( 'offers quarters after months on the year-length ranges, keeping months the default', () => {
 		expect(
 			getAllowedIntervalsForPreset(
 				'last-12-months',
 				'2025-07-01T00:00:00.000Z',
 				'2026-06-30T23:59:59.999Z'
 			)
-		).toEqual( [ 'month', 'week' ] );
+		).toEqual( [ 'month', 'week', 'quarter' ] );
 		expect( getAllowedIntervalsForPreset( 'last-365-days', 'a', 'b' ) ).toEqual( [
 			'month',
 			'week',
+			'quarter',
 		] );
-		expect( getAllowedIntervalsForPreset( 'last-year', 'a', 'b' ) ).toEqual( [ 'month', 'week' ] );
+		expect( getAllowedIntervalsForPreset( 'last-year', 'a', 'b' ) ).toEqual( [
+			'month',
+			'week',
+			'quarter',
+		] );
 		expect(
 			getAllowedIntervalsForPreset(
 				'all-time',
 				'2020-01-01T00:00:00.000Z',
 				'2026-06-30T23:59:59.999Z'
 			)
-		).toEqual( [ 'month', 'year' ] );
+		).toEqual( [ 'month', 'quarter', 'year' ] );
+	} );
+
+	// The range offers this window years too, but opens on months, so the
+	// preset's own case is what makes years the bucket it is read in.
+	it( 'opens last 3 years in years, even early in January', () => {
+		expect(
+			getAllowedIntervalsForPreset(
+				'last-3-years',
+				'2024-01-01T00:00:00.000Z',
+				'2026-01-05T23:59:59.999Z'
+			)
+		).toEqual( [ 'year', 'month', 'quarter' ] );
+		expect(
+			resolveIntervalForRange(
+				'last-3-years',
+				'2024-01-01T00:00:00.000Z',
+				'2026-01-05T23:59:59.999Z'
+			)
+		).toBe( 'year' );
+	} );
+
+	it( 'coerces a bucket last 3 years does not offer', () => {
+		expect(
+			resolveIntervalForRange(
+				'last-3-years',
+				'2024-01-01T00:00:00.000Z',
+				'2026-11-09T23:59:59.999Z',
+				'week'
+			)
+		).toBe( 'year' );
 	} );
 
 	// The year surface carries a `year-YYYY` preset the switch does not know, so
 	// its list comes from the range instead and needs its own guard.
-	it( 'offers months and weeks on a year-length range with no matching preset', () => {
+	it( 'offers months, weeks and quarters on a year-length range with no matching preset', () => {
 		expect(
 			getAllowedIntervalsForPreset(
 				'year-2025',
 				'2025-01-01T00:00:00.000Z',
 				'2025-12-31T23:59:59.999Z'
 			)
-		).toEqual( [ 'month', 'week' ] );
+		).toEqual( [ 'month', 'week', 'quarter' ] );
 		expect(
 			getAllowedIntervalsForPreset(
 				'year-2024',
 				'2024-01-01T00:00:00.000Z',
 				'2024-12-31T23:59:59.999Z'
 			)
-		).toEqual( [ 'month', 'week' ] );
+		).toEqual( [ 'month', 'week', 'quarter' ] );
 		expect(
 			resolveIntervalForRange(
 				'year-2025',
@@ -161,7 +196,7 @@ describe( 'resolveIntervalForRange', () => {
 				'2025-12-31T23:59:59.999Z',
 				'quarter'
 			)
-		).toBe( 'month' );
+		).toBe( 'quarter' );
 	} );
 
 	it( 'flips the default from weeks to months where a range reaches a year', () => {
@@ -174,6 +209,7 @@ describe( 'resolveIntervalForRange', () => {
 		expect( getAllowedIntervalsForPreset( 'custom', from, '2025-12-31T23:59:59.999Z' ) ).toEqual( [
 			'month',
 			'week',
+			'quarter',
 		] );
 	} );
 
@@ -181,14 +217,29 @@ describe( 'resolveIntervalForRange', () => {
 		const from = '2025-01-01T00:00:00.000Z';
 		const to = '2026-01-02T23:59:59.999Z';
 
-		expect( getAllowedIntervalsForPreset( 'custom', from, to ) ).toEqual( [ 'month' ] );
+		expect( getAllowedIntervalsForPreset( 'custom', from, to ) ).toEqual( [ 'month', 'quarter' ] );
 		expect( resolveIntervalForRange( 'custom', from, to, 'week' ) ).toBe( 'month' );
 	} );
 
-	it( 'coerces a stored quarter onto the range default', () => {
+	it( 'offers years once a range covers three calendar years', () => {
+		const to = '2026-11-10T23:59:59.999Z';
+
+		expect( getAllowedIntervalsForPreset( 'custom', '2024-01-01T00:00:00.000Z', to ) ).toEqual( [
+			'month',
+			'quarter',
+			'year',
+		] );
+		expect( getAllowedIntervalsForPreset( 'custom', '2025-01-01T00:00:00.000Z', to ) ).toEqual( [
+			'month',
+			'quarter',
+		] );
+	} );
+
+	it( 'keeps a stored quarter only where the range offers it', () => {
 		expect(
 			resolveIntervalForRange( 'last-12-months', '2025-07-01', '2026-06-30', 'quarter' )
-		).toBe( 'month' );
+		).toBe( 'quarter' );
+		expect( resolveIntervalForRange( 'last-30-days', 'a', 'b', 'quarter' ) ).toBe( 'day' );
 	} );
 
 	it( 'defaults when no current interval is provided', () => {
@@ -198,6 +249,10 @@ describe( 'resolveIntervalForRange', () => {
 } );
 
 describe( 'needsReportDateParamsSeed', () => {
+	afterEach( () => {
+		jest.useRealTimers();
+	} );
+
 	it( 'seeds when from, to, or interval is missing', () => {
 		expect( needsReportDateParamsSeed( {} ) ).toBe( true );
 		expect(
@@ -254,17 +309,39 @@ describe( 'needsReportDateParamsSeed', () => {
 		).toBe( false );
 	} );
 
-	it( 'treats custom and year-surface presets as range-based', () => {
-		// `normalizeReportParams` keeps only selectable presets, so these must
-		// resolve from the range on both sides or the seed check would loop.
-		expect(
-			needsReportDateParamsSeed( {
-				from: '2020-01-01T00:00:00.000Z',
-				to: '2026-06-30T23:59:59.999Z',
-				preset: 'all-time',
-				interval: 'year',
-			} )
-		).toBe( false );
+	it.each( [
+		[
+			'year-to-date',
+			'2026-01-01T00:00:00.000+00:00',
+			'2026-01-05T23:59:59.999+00:00',
+			'day',
+			true,
+		],
+		[
+			'year-to-date',
+			'2026-01-01T00:00:00.000+00:00',
+			'2026-03-15T23:59:59.999+00:00',
+			'week',
+			false,
+		],
+		[ 'all-time', '2025-01-01T00:00:00.000+00:00', '2025-12-31T23:59:59.999+00:00', 'week', true ],
+		[
+			'all-time',
+			'2025-01-01T00:00:00.000+00:00',
+			'2025-12-31T23:59:59.999+00:00',
+			'month',
+			false,
+		],
+	] as const )(
+		'reads the %s link saved %s to %s by %s against the window it names today: reseed %s',
+		( preset, from, to, interval, expected ) => {
+			jest.useFakeTimers().setSystemTime( Date.parse( '2026-11-10T12:00:00.000Z' ) );
+
+			expect( needsReportDateParamsSeed( { from, to, preset, interval } ) ).toBe( expected );
+		}
+	);
+
+	it( 'reads a custom range as the dates the URL carries', () => {
 		expect(
 			needsReportDateParamsSeed( {
 				from: '2026-06-01T00:00:00.000Z',

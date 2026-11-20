@@ -19,7 +19,6 @@ const mockRun = jest.fn< Promise< boolean >, [ unknown ] >( () => Promise.resolv
 const mockSetModuleActive = jest.fn();
 const recordEvent = jest.fn();
 
-jest.mock( '../../../../hooks/use-analytics' );
 jest.mock( '../../../../utils/reload-page', () => ( {
 	reloadPage: jest.fn(),
 	leavePageFor: jest.fn(),
@@ -41,22 +40,23 @@ jest.mock( '../use-main-features', () => ( {
 	} ),
 } ) );
 
-// The real switch calls this; that it does is covered by the module-toggle tests, so here
-// it is held onto and called directly.
-const mockModuleSwitch: { onSwitch?: ( active: boolean ) => void } = {};
+// The real switch calls these; that it does is covered by the module-toggle tests, so here
+// they are held onto and called directly.
+type MockModuleSwitch = { onSwitch?: ( active: boolean ) => void; onManageClick?: () => void };
+const mockModuleSwitch: MockModuleSwitch = {};
 
 jest.mock( '../../../module-toggle', () => ( {
-	ModuleToggle: ( { onSwitch }: { onSwitch?: ( active: boolean ) => void } ) => {
-		mockModuleSwitch.onSwitch = onSwitch;
+	ModuleToggle: ( { onSwitch, onManageClick }: MockModuleSwitch ) => {
+		Object.assign( mockModuleSwitch, { onSwitch, onManageClick } );
 
 		// ds-allow: input -- stands in for the real ModuleToggle, which reaches the modules store.
-		return <input type="checkbox" aria-label="Module toggle" readOnly />;
+		return <input type="checkbox" role="switch" aria-label="Module toggle" readOnly />;
 	},
-	useModuleActivation: () => ( {
-		setModuleActive: mockSetModuleActive,
-		isUpdating: false,
-		isActive: false,
-	} ),
+	useModuleActivation: ( _module: unknown, { onSwitch, onManageClick }: MockModuleSwitch ) => {
+		Object.assign( mockModuleSwitch, { onSwitch, onManageClick } );
+
+		return { setModuleActive: mockSetModuleActive, isUpdating: false, isActive: false };
+	},
 } ) );
 
 const mockStates = [
@@ -66,13 +66,20 @@ const mockStates = [
 			name: 'Stats',
 			description: '',
 			plans: [ { slug: 'complete' } ],
+			groups: [],
 			essential: true,
 		},
 		status: 'active',
 		control: { kind: 'none' },
 	},
 	{
-		feature: { slug: 'boost', name: 'Boost', description: '', plans: [ { slug: 'complete' } ] },
+		feature: {
+			slug: 'boost',
+			name: 'Boost',
+			description: '',
+			plans: [ { slug: 'complete' } ],
+			groups: [],
+		},
 		status: 'inactive',
 		control: { kind: 'none' },
 	},
@@ -159,7 +166,7 @@ const buildState = ( control: FeatureState[ 'control' ], overrides = {} ): Featu
 // A row as the More Features section builds one: a module, carrying no plan.
 const moduleRow = ( slug: string, name: string ): FeatureState =>
 	( {
-		feature: { slug, name, description: '', plans: [], essential: false },
+		feature: { slug, name, description: '', plans: [], groups: [], essential: false },
 		status: 'inactive',
 		control: { kind: 'module', module: { module: slug, name, description: '' } },
 	} ) as unknown as FeatureState;
@@ -210,6 +217,7 @@ beforeEach( () => {
 	mockMoreFeatures = [];
 	mockPending = false;
 	mockModuleSwitch.onSwitch = undefined;
+	mockModuleSwitch.onManageClick = undefined;
 	mockModal.onStep = undefined;
 	mockGrid.onOpen = undefined;
 	mockUseAnalytics.mockReturnValue( { recordEvent } );
@@ -376,6 +384,7 @@ describe( 'Feature action tracking', () => {
 		expect( lastEvent( 'jetpack_myjetpack_feature_connection_start' ) ).toMatchObject( {
 			action,
 			origin,
+			from: 'my_jetpack_features_boost',
 			product: 'boost',
 			feature_slug: 'boost',
 			account_needed: true,
@@ -425,7 +434,7 @@ describe( 'Feature action tracking', () => {
 			/>
 		);
 
-		await userEvent.click( screen.getByRole( 'checkbox' ) );
+		await userEvent.click( screen.getByRole( 'switch' ) );
 
 		expect( lastEvent( 'jetpack_myjetpack_feature_action' ) ).toMatchObject( {
 			action: 'deactivate',
@@ -828,7 +837,7 @@ describe( 'A search left behind', () => {
 describe( 'Which list a module was switched from', () => {
 	const moduleState = () =>
 		( {
-			feature: { slug: 'monitor', name: 'Monitor', plans: [] },
+			feature: { slug: 'monitor', name: 'Monitor', plans: [], groups: [] },
 			status: 'inactive',
 			control: { kind: 'module', module: { module: 'monitor', activated: false } },
 		} ) as unknown as FeatureState;
@@ -856,6 +865,23 @@ describe( 'Which list a module was switched from', () => {
 			origin: 'card',
 		} );
 	} );
+
+	it.each( [
+		[ 'card', FeatureAction ],
+		[ 'details window', FeatureModalActions ],
+	] as const )(
+		"records leaving for Blaze's campaigns from the warning the %s switch opened",
+		( _origin, Control ) => {
+			renderTracked( <Control state={ { ...moduleState(), status: 'active' } } /> );
+
+			act( () => mockModuleSwitch.onManageClick?.() );
+
+			expect( lastEvent( 'jetpack_myjetpack_feature_manage_click' ) ).toMatchObject( {
+				source: 'campaigns_warning',
+				feature_slug: 'monitor',
+			} );
+		}
+	);
 } );
 
 describe( "The modal's own switches", () => {
@@ -870,6 +896,7 @@ describe( "The modal's own switches", () => {
 		);
 
 		await userEvent.click( screen.getByRole( 'button', { name: /Activate/ } ) );
+		act( () => mockModuleSwitch.onSwitch?.( true ) );
 
 		expect( lastEvent( 'jetpack_myjetpack_feature_action' ) ).toMatchObject( {
 			action: 'activate',

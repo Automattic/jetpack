@@ -50,6 +50,7 @@ jest.mock( './utm/config', () => ( {
 	getUtmFields: () => [],
 	getUtmTabLabel: () => 'Source / medium',
 	resolveSection: ( value: string | undefined ) => value ?? 'source-medium',
+	useBuildUrlAction: jest.requireActual( './utm/config/use-build-url-action' ).useBuildUrlAction,
 	useUtmReportRecords: jest.fn(),
 } ) );
 
@@ -216,6 +217,17 @@ describe( 'dated report pages', () => {
 					...page.tableProps,
 				} )
 			);
+		}
+	);
+
+	it.each( [ clicks, searchTerms, downloads, utm ] )(
+		'$name offers the Stats options menu in its header',
+		page => {
+			mockRecords( page, {} );
+
+			render( <page.Page /> );
+
+			expect( screen.getByRole( 'button', { name: 'Stats options' } ) ).toBeInTheDocument();
 		}
 	);
 } );

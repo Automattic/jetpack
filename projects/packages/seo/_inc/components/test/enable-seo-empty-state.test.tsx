@@ -4,11 +4,14 @@ import { fireEvent, render, screen } from '@testing-library/react';
 
 // `--experimental-vm-modules` (true ESM): mock with `jest.unstable_mockModule`
 // and import the component under test dynamically after the mock is registered.
-const setActive = jest.fn();
-const useSeoToolsToggle = jest.fn( () => ( { isToggling: false, setActive } ) );
+const getScriptData = jest.fn< () => unknown >( () => ( {} ) );
+jest.unstable_mockModule( '@automattic/jetpack-script-data', () => ( { getScriptData } ) );
 
-jest.unstable_mockModule( '../../data/use-seo-tools-toggle', () => ( {
-	default: useSeoToolsToggle,
+const enable = jest.fn();
+const useEnableSeoTools = jest.fn( () => ( { isEnabling: false, enable } ) );
+
+jest.unstable_mockModule( '../../data/use-enable-seo-tools', () => ( {
+	default: useEnableSeoTools,
 } ) );
 
 const { default: EnableSeoEmptyState } = await import( '../enable-seo-empty-state' );
@@ -16,7 +19,8 @@ const { default: EnableSeoEmptyState } = await import( '../enable-seo-empty-stat
 describe( 'EnableSeoEmptyState', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
-		useSeoToolsToggle.mockReturnValue( { isToggling: false, setActive } );
+		getScriptData.mockReturnValue( {} );
+		useEnableSeoTools.mockReturnValue( { isEnabling: false, enable } );
 	} );
 
 	it( 'renders the heading, the explanation and the enable button', () => {
@@ -32,23 +36,47 @@ describe( 'EnableSeoEmptyState', () => {
 		).toBeInTheDocument();
 	} );
 
-	it( 'calls setActive( true ) when the primary button is clicked', () => {
+	it.each( [
+		[
+			true,
+			"Yoast SEO is active on this site. Enabling Jetpack's SEO tools will not deactivate it, and overlapping SEO output will remain paused.",
+		],
+		[
+			false,
+			"Yoast SEO is active on this site. Enabling Jetpack's SEO tools will not deactivate it.",
+		],
+	] )(
+		'explains enabling alongside the competing plugin with paused output %s',
+		( paused, description ) => {
+			getScriptData.mockReturnValue( {
+				seo: { output: { paused, conflicting_plugin: 'Yoast SEO' } },
+			} );
+			render( <EnableSeoEmptyState screen="settings" /> );
+
+			expect( screen.getByText( description ) ).toBeInTheDocument();
+			// eslint-disable-next-line testing-library/prefer-user-event -- Match the existing single-click activation check.
+			fireEvent.click( screen.getByRole( 'button', { name: 'Enable SEO tools' } ) );
+			expect( enable ).toHaveBeenCalled();
+		}
+	);
+
+	it( 'enables SEO tools when the primary button is clicked', () => {
 		render( <EnableSeoEmptyState screen="overview" /> );
 
 		// eslint-disable-next-line testing-library/prefer-user-event -- fireEvent keeps this off the @testing-library/user-event devDep (avoids lockfile churn) for a single click.
 		fireEvent.click( screen.getByRole( 'button', { name: 'Enable SEO tools' } ) );
 
-		expect( setActive ).toHaveBeenCalledWith( true );
+		expect( enable ).toHaveBeenCalled();
 	} );
 
 	it( 'reports the screen it was rendered on, not always the Overview', () => {
 		render( <EnableSeoEmptyState screen="geo" /> );
 
-		expect( useSeoToolsToggle ).toHaveBeenCalledWith( 'geo' );
+		expect( useEnableSeoTools ).toHaveBeenCalledWith( 'geo' );
 	} );
 
-	it( 'disables the button while toggling', () => {
-		useSeoToolsToggle.mockReturnValue( { isToggling: true, setActive } );
+	it( 'disables the button while enabling', () => {
+		useEnableSeoTools.mockReturnValue( { isEnabling: true, enable } );
 
 		render( <EnableSeoEmptyState screen="overview" /> );
 
@@ -56,5 +84,8 @@ describe( 'EnableSeoEmptyState', () => {
 			'aria-disabled',
 			'true'
 		);
+		// eslint-disable-next-line testing-library/prefer-user-event -- Exercise the existing single-click activation path.
+		fireEvent.click( screen.getByRole( 'button', { name: 'Enable SEO tools' } ) );
+		expect( enable ).not.toHaveBeenCalled();
 	} );
 } );

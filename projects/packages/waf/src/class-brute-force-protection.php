@@ -346,13 +346,13 @@ class Brute_Force_Protection {
 	public function admin_jetpack_manage_notice() {
 		?>
 		<div class="jetpack-protect-warning notice notice-warning is-dismissible" data-dismiss-nonce="<?php echo esc_attr( wp_create_nonce( 'jetpack_protect_multisite_banner_opt_out' ) ); ?>">
-			<h2><?php esc_html_e( 'Brute Force Protection cannot keep your site secure', 'jetpack-waf' ); ?></h2>
+			<h2><?php esc_html_e( 'Login protection cannot keep your site secure', 'jetpack-waf' ); ?></h2>
 
 			<p>
 			<?php
 			printf(
 				/* Translators: placeholder is a plugin name (Jetpack Protect or Jetpack). */
-				esc_html__( 'Thanks for activating the Brute Force Protection feature! To start protecting your whole WordPress Multisite Network, please network activate the %1$s plugin. Due to the way logins are handled on WordPress Multisite Networks, %1$s must be network activated in order for the Brute Force Protection feature to work properly.', 'jetpack-waf' ),
+				esc_html__( 'Thanks for turning on login protection! To start protecting your whole WordPress Multisite Network, please network activate the %1$s plugin. Due to the way logins are handled on WordPress Multisite Networks, %1$s must be network activated in order for login protection to work properly.', 'jetpack-waf' ),
 				defined( 'JETPACK_PROTECT_NAME' ) ? esc_html( JETPACK_PROTECT_NAME ) : 'Jetpack'
 			);
 			?>
@@ -728,8 +728,9 @@ class Brute_Force_Protection {
 					return true;
 				}
 
-				if ( $item->range && isset( $item->range_low ) && isset( $item->range_high ) ) {
-					if ( IP_Utils::ip_address_is_in_range( $ip, $item->range_low, $item->range_high ) ) {
+				// A CIDR entry carries no range_high.
+				if ( $item->range && isset( $item->range_low ) ) {
+					if ( IP_Utils::ip_address_is_in_range( $ip, $item->range_low, $item->range_high ?? null ) ) {
 						return true;
 					}
 				}

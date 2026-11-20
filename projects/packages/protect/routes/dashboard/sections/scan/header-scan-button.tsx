@@ -21,6 +21,10 @@ export default function HeaderScanButton() {
 		checkScanAgain().finally( () => setIsChecking( false ) );
 	}, [] );
 
+	if ( scan.checksEnabled === false ) {
+		return null;
+	}
+
 	if ( isScanning && hasStoppedPolling ) {
 		return (
 			<Button variant="minimal" size="compact" onClick={ checkAgain } loading={ isChecking }>
@@ -40,7 +44,7 @@ export default function HeaderScanButton() {
 					: __( 'Scan site', 'jetpack-protect-pkg' )
 			}
 			disabled={ isScanning }
-			variant="minimal"
+			variant="solid"
 			size="compact"
 		/>
 	);

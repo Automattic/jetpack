@@ -6,11 +6,15 @@ const [ gatePath, scenario ] = process.argv.slice( 2 );
 const gate = fs.readFileSync( gatePath, 'utf8' );
 
 const listeners = { document: {}, window: {} };
-const on = target => ( type, listener ) => {
-	( listeners[ target ][ type ] = listeners[ target ][ type ] || [] ).push( listener );
+const on = target => ( type, listener, options ) => {
+	const capture = options === true || !! ( options && options.capture );
+	( listeners[ target ][ type ] = listeners[ target ][ type ] || [] ).push( { listener, capture } );
 };
-const dispatch = ( target, type, detail ) =>
-	( listeners[ target ][ type ] || [] ).forEach( listener => listener( { detail } ) );
+// An eventTarget means the event was fired at a script inside the document, which only capturing listeners see.
+const dispatch = ( target, type, detail, eventTarget ) =>
+	( listeners[ target ][ type ] || [] )
+		.filter( ( { capture } ) => capture || ! eventTarget )
+		.forEach( ( { listener } ) => listener( { detail, target: eventTarget } ) );
 
 const result = { views: 0, warnings: 0, error: null };
 const page = {
@@ -75,6 +79,60 @@ const scenarios = {
 		dispatch( 'document', 'DOMContentLoaded' );
 		page.wp_has_consent = () => true;
 		dispatch( 'window', 'load' );
+	},
+	'consent API that a delay-JS optimizer loads after the load event': () => {
+		loadGate();
+		dispatch( 'document', 'DOMContentLoaded' );
+		dispatch( 'window', 'load' );
+		page.wp_has_consent = () => true;
+		page.consent_api = { cookie_prefix: 'wp_consent' };
+		page.consent_api_get_cookie = name => ( name === 'wp_consent_statistics' ? 'allow' : '' );
+		dispatch( 'document', 'load', undefined, { tagName: 'SCRIPT' } );
+	},
+	'script load with no stored choice while the fallback allows': () => {
+		page.wp_has_consent = () => page.wp_consent_type !== 'optin';
+		page.consent_api = { cookie_prefix: 'wp_consent' };
+		page.consent_api_get_cookie = () => '';
+		loadGate();
+		dispatch( 'document', 'load', undefined, { tagName: 'SCRIPT' } );
+		page.wp_consent_type = 'optin';
+		dispatch( 'document', 'DOMContentLoaded' );
+		dispatch( 'window', 'load' );
+	},
+	'opt-out consent API that a delay-JS optimizer loads after the load event': () => {
+		loadGate();
+		dispatch( 'document', 'DOMContentLoaded' );
+		dispatch( 'window', 'load' );
+		page.wp_fallback_consent_type = 'optout';
+		page.wp_has_consent = () => true;
+		dispatch( 'document', 'load', undefined, { tagName: 'SCRIPT' } );
+	},
+	'custom opt-out consent API that a delay-JS optimizer loads after the load event': () => {
+		loadGate();
+		dispatch( 'document', 'DOMContentLoaded' );
+		dispatch( 'window', 'load' );
+		page.wp_fallback_consent_type = 'optout_us';
+		page.wp_has_consent = () => true;
+		dispatch( 'document', 'load', undefined, { tagName: 'SCRIPT' } );
+	},
+	'banner that sets opt-out before a delay-JS optimizer loads the consent API': () => {
+		loadGate();
+		dispatch( 'document', 'DOMContentLoaded' );
+		dispatch( 'window', 'load' );
+		page.wp_consent_type = 'optout';
+		page.wp_fallback_consent_type = '';
+		page.wp_has_consent = () => page.wp_consent_type === 'optout';
+		dispatch( 'document', 'load', undefined, { tagName: 'SCRIPT' } );
+	},
+	'banner whose opt-in never reaches the consent API in a delay-JS replay': () => {
+		loadGate();
+		dispatch( 'document', 'DOMContentLoaded' );
+		dispatch( 'window', 'load' );
+		page.wp_fallback_consent_type = '';
+		page.wp_has_consent = () => true;
+		dispatch( 'document', 'load', undefined, { tagName: 'SCRIPT' } );
+		dispatch( 'document', 'load', undefined, { tagName: 'SCRIPT' } );
+		dispatch( 'window', 'DOMContentLiteSpeedLoaded' );
 	},
 	'consent API that never loads': () => {
 		loadGate();

@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Reader: Explain failed repost embeds and add source links when the editor allows replacement.

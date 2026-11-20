@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.15.0] - 2026-11-16
+### Added
+- Add Edit and Change item to a saved payment button's block toolbar, next to Delete. [#54959]
+- Add product images to a payment button: up to five on the product and one per option of the first variant, uploaded to PayPal and shown at checkout. [#54529]
+- Payment Buttons: Show the discount on the button card, with the original price struck through and a discount tag. [#54960]
+
+### Changed
+- Update package dependencies. [#54703]
+
+## [0.14.0] - 2026-11-09
+### Added
+- Add a Create payment button action to the block settings form, so a payment button is created or saved without saving the post. [#54574]
+
+### Changed
+- Send the PayPal partner attribution header on every PayPal API call, whether made from the site or through WordPress.com. [#54482]
+- Show a saved payment link's details below the style controls instead of above them. [#54505]
+- Update dependencies. [#54497]
+- Update package dependencies. [#54512]
+
 ## [0.13.3] - 2026-11-02
 ### Changed
 - Update package dependencies. [#53869]
@@ -452,6 +471,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Simple Payments: Move Simple Payments block to PayPal Payments package. [#43413]
 
+[0.15.0]: https://github.com/Automattic/jetpack-paypal-payments/compare/v0.14.0...v0.15.0
+[0.14.0]: https://github.com/Automattic/jetpack-paypal-payments/compare/v0.13.3...v0.14.0
 [0.13.3]: https://github.com/Automattic/jetpack-paypal-payments/compare/v0.13.2...v0.13.3
 [0.13.2]: https://github.com/Automattic/jetpack-paypal-payments/compare/v0.13.1...v0.13.2
 [0.13.1]: https://github.com/Automattic/jetpack-paypal-payments/compare/v0.13.0...v0.13.1

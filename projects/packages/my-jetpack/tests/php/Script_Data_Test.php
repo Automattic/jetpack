@@ -69,7 +69,7 @@ class Script_Data_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The settings flag needs the flag on and My Jetpack available, and has no page check.
+	 * Settings consolidation needs the flag, a host that shows My Jetpack, and its registered page, on any screen.
 	 */
 	public function test_settings_consolidation_needs_the_flag_and_an_available_my_jetpack() {
 		global $_registered_pages, $wp_actions;
@@ -79,6 +79,7 @@ class Script_Data_Test extends BaseTestCase {
 		$user_id          = get_current_user_id();
 		$page_hook        = get_plugin_page_hookname( 'my-jetpack', 'jetpack' );
 		$flag_filter      = 'jetpack_feature_flag_enabled_' . Initializer::SETTINGS_CONSOLIDATION_FLAG;
+		$host_filter      = 'jetpack_my_jetpack_modules_management_available';
 		$key              = 'settingsConsolidation';
 
 		try {
@@ -103,10 +104,15 @@ class Script_Data_Test extends BaseTestCase {
 			add_filter( $flag_filter, '__return_true' );
 			$this->assertTrue( Initializer::add_admin_script_data( array() )['myJetpack'][ $key ] );
 
+			add_filter( $host_filter, '__return_false' );
+			$this->assertFalse( Initializer::add_admin_script_data( array() )['myJetpack'][ $key ] );
+			remove_filter( $host_filter, '__return_false' );
+
 			unset( $_registered_pages[ $page_hook ] );
 			$this->assertFalse( Initializer::add_admin_script_data( array() )['myJetpack'][ $key ] );
 		} finally {
 			remove_filter( $flag_filter, '__return_true' );
+			remove_filter( $host_filter, '__return_false' );
 			\Automattic\Jetpack\Feature_Flags\Feature_Flags::reset();
 			$_registered_pages = $registered_pages;
 			$wp_actions        = $actions;
@@ -165,9 +171,27 @@ class Script_Data_Test extends BaseTestCase {
 		);
 		\Automattic\Jetpack\Status\Cache::clear();
 		add_filter( 'jetpack_offline_mode', '__return_false' );
+		// Upgrade offers depend on the product catalog, so serve an on-sale bundle to compare against.
+		$products = function ( $preempt, $args, $url ) {
+			if ( ! str_contains( $url, '/rest/v1.1/products' ) ) {
+				return $preempt;
+			}
+			$pro = array(
+				'cost'          => 299,
+				'currency_code' => 'USD',
+				'product_term'  => 'year',
+				'available'     => true,
+			);
+			return array(
+				'response' => array( 'code' => 200 ),
+				'body'     => wp_json_encode( array( 'jetpack_pro_yearly' => $pro ), JSON_UNESCAPED_SLASHES ),
+			);
+		};
+		add_filter( 'pre_http_request', $products, 10, 3 );
 		try {
 			$_GET['page'] = 'my-jetpack';
 			$before       = Initializer::add_admin_script_data( array() );
+			$this->assertContains( '/add-pro', array_column( array_column( Main_Features::get_state()['features'], 'upgrade' ), 'path' ) );
 			add_filter( 'jetpack_my_jetpack_offline_features', '__return_true' );
 			$after = Initializer::add_admin_script_data( array() );
 			$this->assertArrayNotHasKey( 'offlineFeatures', $after['myJetpack'] );
@@ -175,6 +199,7 @@ class Script_Data_Test extends BaseTestCase {
 			$this->assertSame( Main_Features::get_state(), REST_Main_Features::get_state()->get_data() );
 			$this->assertTrue( Initializer::should_initialize() );
 		} finally {
+			remove_filter( 'pre_http_request', $products, 10 );
 			remove_all_filters( 'jetpack_offline_mode' );
 			\Automattic\Jetpack\Status\Cache::clear();
 			remove_all_filters( 'jetpack_my_jetpack_offline_features' );
@@ -292,6 +317,22 @@ class Script_Data_Test extends BaseTestCase {
 			$_registered_pages = $registered_pages;
 			$wp_actions        = $actions;
 			wp_set_current_user( $user_id );
+		}
+	}
+
+	/**
+	 * Footers hide their My Jetpack links where the host says it does not show the page.
+	 */
+	public function test_reports_whether_the_host_shows_my_jetpack() {
+		$host_filter = 'jetpack_my_jetpack_modules_management_available';
+
+		$this->assertTrue( Initializer::add_admin_script_data( array() )['myJetpack']['isShownByHost'] );
+
+		add_filter( $host_filter, '__return_false' );
+		try {
+			$this->assertFalse( Initializer::add_admin_script_data( array() )['myJetpack']['isShownByHost'] );
+		} finally {
+			remove_filter( $host_filter, '__return_false' );
 		}
 	}
 

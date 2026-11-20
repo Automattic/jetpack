@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Fix the Search dashboard failing to load on WordPress.com-hosted sites.

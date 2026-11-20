@@ -30,7 +30,7 @@ class Jetpack_Search_Test extends TestCase {
 	 */
 	public function test_deprecated_jetpack_search_class() {
 		$search = Classic_Search::instance();
-		self::assertTrue( is_a( $search, 'Automattic\Jetpack\Search\Classic_Search' ) );
+		self::assertInstanceOf( \Automattic\Jetpack\Search\Classic_Search::class, $search );
 	}
 
 	/**

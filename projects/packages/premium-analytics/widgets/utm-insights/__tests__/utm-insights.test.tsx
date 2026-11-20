@@ -127,7 +127,13 @@ describe( 'UtmInsightsWidget', () => {
 				label: 'jetpack-forms / email',
 				value: 30,
 				children: [
-					{ postId: 12, label: 'Jetpack Forms', value: 20, href: 'https://example.com/forms/' },
+					{
+						postId: 12,
+						label: 'Jetpack Forms',
+						value: 20,
+						href: 'https://example.com/forms/',
+						urlBuilder: null,
+					},
 				],
 			},
 		];
@@ -148,7 +154,7 @@ describe( 'UtmInsightsWidget', () => {
 		const titleLink = screen.getByRole( 'link', { name: 'Jetpack Forms' } );
 		const href = titleLink.getAttribute( 'href' ) ?? '';
 
-		expect( href ).toContain( '/post/12' );
+		expect( href ).toContain( '/report/post/12' );
 		expect( href ).toContain( 'from=2026-06-01' );
 		expect( href ).toContain( 'ref=utm' );
 		expect( href ).toContain( 'ref_section=source-medium' );
@@ -158,6 +164,77 @@ describe( 'UtmInsightsWidget', () => {
 		expect( titleLink ).not.toHaveAttribute( 'target', '_blank' );
 	} );
 
+	it( 'opens Build URL pre-filled from a drilled-in post row', async () => {
+		const user = setupUser();
+		mockRows = [
+			{
+				label: 'newsletter / email',
+				value: 30,
+				children: [
+					{
+						postId: 12,
+						label: 'Jetpack Forms',
+						value: 20,
+						href: 'https://example.com/forms/',
+						urlBuilder: {
+							destination: 'https://example.com/forms/',
+							source: 'newsletter',
+							medium: 'email',
+						},
+					},
+				],
+			},
+		];
+		render( <UtmInsightsWidget attributes={ {} } /> );
+
+		await user.click( screen.getByRole( 'button', { name: 'View posts for newsletter / email' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Build URL for "Jetpack Forms"' } ) );
+
+		expect( screen.getByLabelText( 'Destination URL' ) ).toHaveValue(
+			'https://example.com/forms/'
+		);
+		expect( screen.getByLabelText( 'UTM source' ) ).toHaveValue( 'newsletter' );
+		expect( screen.getByLabelText( 'UTM medium' ) ).toHaveValue( 'email' );
+	} );
+
+	it( 'opens the footer Build URL empty after a row opened it', async () => {
+		const user = setupUser();
+		mockRows = [
+			{
+				label: 'newsletter / email',
+				value: 30,
+				children: [
+					{
+						postId: 12,
+						label: 'Jetpack Forms',
+						value: 20,
+						href: 'https://example.com/forms/',
+						urlBuilder: {
+							destination: 'https://example.com/forms/',
+							source: 'newsletter',
+							medium: 'email',
+						},
+					},
+				],
+			},
+		];
+		const { findDeclaredAction, runDeclaredAction } = renderWithActionsHost(
+			<UtmInsightsWidget attributes={ {} } />
+		);
+		await user.click( screen.getByRole( 'button', { name: 'View posts for newsletter / email' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Build URL for "Jetpack Forms"' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Close' } ) );
+		expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument();
+
+		await findDeclaredAction( 'build-url' );
+		await runDeclaredAction( 'build-url' );
+
+		expect( screen.getByLabelText( 'Destination URL' ) ).toHaveValue( '' );
+		expect( screen.getByLabelText( 'UTM source' ) ).toHaveValue( '' );
+		expect( screen.getByLabelText( 'UTM medium' ) ).toHaveValue( '' );
+		expect( screen.getByLabelText( 'UTM campaign' ) ).toHaveValue( '' );
+	} );
+
 	it( 'names the active UTM dimension as the origin section', async () => {
 		const user = setupUser();
 		mockRows = [
@@ -165,7 +242,13 @@ describe( 'UtmInsightsWidget', () => {
 				label: 'spring-sale',
 				value: 18,
 				children: [
-					{ postId: 9, label: 'Landing page', value: 11, href: 'https://example.com/landing/' },
+					{
+						postId: 9,
+						label: 'Landing page',
+						value: 11,
+						href: 'https://example.com/landing/',
+						urlBuilder: null,
+					},
 				],
 			},
 		];

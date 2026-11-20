@@ -1,11 +1,21 @@
+import analytics from '@automattic/jetpack-analytics';
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { StrictMode } from 'react';
 import { makeLibraryItem } from '../../../src/dashboard/test-utils/library-item';
 import { makeVideoFile } from '../../../src/dashboard/test-utils/video-file';
 import { stage as Stage } from '../stage';
 import type { LibraryItem } from '../../../src/dashboard/types/library';
 import type { View } from '@wordpress/dataviews';
 import type { ReactNode } from 'react';
+
+jest.mock( '@automattic/jetpack-analytics', () => ( {
+	__esModule: true,
+	default: { tracks: { recordEvent: jest.fn() } },
+} ) );
+const recordEvent = analytics.tracks.recordEvent as jest.Mock;
+const getRefusalEvents = () =>
+	recordEvent.mock.calls.filter( ( [ event ] ) => event === 'jetpack_videopress_upload_refused' );
 
 jest.mock( '@wordpress/api-fetch', () => ( {
 	__esModule: true,
@@ -23,12 +33,25 @@ jest.mock( '@wordpress/route', () => ( {
 jest.mock( '@wordpress/dataviews', () => ( {
 	__esModule: true,
 	...jest.requireActual( '@wordpress/dataviews' ),
-	DataViews: ( { data, isLoading }: { data: LibraryItem[]; isLoading: boolean } ) => (
-		<ul data-testid="dataviews" aria-busy={ isLoading }>
-			{ data.map( item => (
-				<li key={ item.id }>{ item.id }</li>
-			) ) }
-		</ul>
+	DataViews: ( {
+		data,
+		isLoading,
+		view,
+		onChangeView,
+	}: {
+		data: LibraryItem[];
+		isLoading: boolean;
+		view: View;
+		onChangeView: ( next: View ) => void;
+	} ) => (
+		<>
+			<button onClick={ () => onChangeView( { ...view, type: 'table' } ) }>Table view</button>
+			<ul data-testid="dataviews" aria-busy={ isLoading }>
+				{ data.map( item => (
+					<li key={ item.id }>{ item.id }</li>
+				) ) }
+			</ul>
+		</>
 	),
 } ) );
 
@@ -56,14 +79,18 @@ let mockIsLoading = false;
 let mockIsTotalLoading = false;
 let mockIsError = false;
 let mockIsTotalError = false;
+let mockIsPlaceholderData = false;
 const mockUseLibrary = jest.fn();
 jest.mock( '../../../src/dashboard/hooks/use-library', () => ( {
 	LIBRARY_QUERY_KEY: 'videopress-library',
+	isWholeLibraryView: jest.requireActual( '../../../src/dashboard/hooks/use-library' )
+		.isWholeLibraryView,
 	useLibrary: ( view: View, ...rest: unknown[] ) => {
 		mockUseLibrary( view, ...rest );
 		return {
 			items: mockItems,
 			isLoading: view.perPage === 1 ? mockIsTotalLoading : mockIsLoading,
+			isPlaceholderData: view.perPage === 1 ? false : mockIsPlaceholderData,
 			isError: view.perPage === 1 ? mockIsTotalError : mockIsError,
 			error: null,
 			paginationInfo: { totalItems: mockLibraryTotal, totalPages: mockLibraryTotal ? 1 : 0 },
@@ -116,8 +143,12 @@ const mockUpgradeLocation = jest.fn();
 jest.mock( '../../../src/dashboard/hooks/use-videopress-upgrade', () => ( {
 	useVideoPressUpgrade: ( location: string ) => () => mockUpgradeLocation( location ),
 } ) );
+let mockViewSearch = '';
 jest.mock( '../../../src/dashboard/hooks/use-persisted-view', () => ( {
-	usePersistedView: ( fallback: unknown ) => [ fallback, jest.fn() ],
+	usePersistedView: ( fallback: View ) => [
+		mockViewSearch ? { ...fallback, search: mockViewSearch } : fallback,
+		jest.fn(),
+	],
 } ) );
 jest.mock( '@automattic/jetpack-connection/use-connection-error-notice', () => ( {
 	__esModule: true,
@@ -152,14 +183,34 @@ describe( 'library stage empty state', () => {
 		mockIsTotalLoading = false;
 		mockIsError = false;
 		mockIsTotalError = false;
+		mockIsPlaceholderData = false;
+		mockViewSearch = '';
 		mockFreeTier = { isAtLimit: false, isFree: false, isUnlimited: true, videoCount: 0, limit: 1 };
+	} );
+
+	it( 'records an actual view change once without tracking initial render or repeated selection', async () => {
+		const user = userEvent.setup();
+		render(
+			<StrictMode>
+				<Stage />
+			</StrictMode>
+		);
+		expect( analytics.tracks.recordEvent ).not.toHaveBeenCalled();
+		await user.click( screen.getByRole( 'button', { name: 'Table view' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Table view' } ) );
+		expect( analytics.tracks.recordEvent ).toHaveBeenCalledTimes( 1 );
+		expect( analytics.tracks.recordEvent ).toHaveBeenCalledWith(
+			'jetpack_videopress_library_interaction',
+			{ interaction: 'view', view_type: 'table' }
+		);
 	} );
 
 	it.each( [
 		[ 'both requests are pending', true, true ],
 		[ 'the count finishes first', true, false ],
 		[ 'the listing finishes first', false, true ],
-	] )( 'keeps DataViews loading when %s', ( _label, listingLoading, countLoading ) => {
+	] )( 'keeps a searched view loading when %s', ( _label, listingLoading, countLoading ) => {
+		mockViewSearch = 'cat';
 		mockLibraryTotal = 0;
 		mockIsLoading = listingLoading;
 		mockIsTotalLoading = countLoading;
@@ -178,6 +229,7 @@ describe( 'library stage empty state', () => {
 	} );
 
 	it( 'shows fetched videos without waiting for the count', () => {
+		mockViewSearch = 'cat';
 		mockLibraryTotal = 0;
 		mockIsTotalLoading = true;
 		mockItems = [ makeLibraryItem() ];
@@ -189,6 +241,7 @@ describe( 'library stage empty state', () => {
 	} );
 
 	it( 'does not treat a failed count as an empty library', () => {
+		mockViewSearch = 'cat';
 		mockLibraryTotal = 0;
 		mockIsTotalError = true;
 
@@ -196,6 +249,30 @@ describe( 'library stage empty state', () => {
 
 		expect( screen.getByTestId( 'dataviews' ) ).toHaveAttribute( 'aria-busy', 'false' );
 		expect( screen.queryByText( 'Upload your first video' ) ).not.toBeInTheDocument();
+	} );
+
+	it.each( [
+		[ 'skips the count request for an unfiltered view', '', false ],
+		[ 'requests the count for a searched view', 'cat', true ],
+	] )( '%s', ( _label, search, countEnabled ) => {
+		mockViewSearch = search;
+
+		render( <Stage /> );
+
+		expect( mockUseLibrary ).toHaveBeenCalledWith( expect.objectContaining( { perPage: 1 } ), {
+			poll: false,
+			enabled: countEnabled,
+		} );
+	} );
+
+	it( 'keeps the listing while a placeholder still holds the previous view’s empty total', () => {
+		mockLibraryTotal = 0;
+		mockIsPlaceholderData = true;
+
+		render( <Stage /> );
+
+		expect( screen.queryByText( 'Upload your first video' ) ).not.toBeInTheDocument();
+		expect( screen.getByTestId( 'dataviews' ) ).toHaveAttribute( 'aria-busy', 'true' );
 	} );
 
 	it( 'renders the upload dropzone instead of the grid when the library is empty', () => {
@@ -265,6 +342,48 @@ describe( 'library stage empty state', () => {
 		expect( mockUpgradeLocation ).toHaveBeenCalledTimes( 1 );
 		expect( mockUpgradeLocation ).toHaveBeenCalledWith( 'library_at_limit' );
 	} );
+
+	it( 'records an empty-library picker refusal once without claiming selected files', async () => {
+		mockLibraryTotal = 0;
+		mockFreeTier = { isAtLimit: true, isFree: true, isUnlimited: false, videoCount: 1, limit: 1 };
+		render( <Stage /> );
+		await userEvent.click( screen.getByRole( 'button', { name: 'Select a video to upload' } ) );
+		expect( getRefusalEvents() ).toEqual( [
+			[
+				'jetpack_videopress_upload_refused',
+				{
+					location: 'library_dropzone',
+					reason: 'plan_limit',
+					files_known: false,
+				},
+			],
+		] );
+		expect( mockStartUpload ).not.toHaveBeenCalled();
+	} );
+
+	it( 'records a rejected empty-library drop without passing it to intake', async () => {
+		mockLibraryTotal = 0;
+		mockFreeTier = { isAtLimit: true, isFree: true, isUnlimited: false, videoCount: 1, limit: 1 };
+		render( <Stage /> );
+		fireEvent.drop( screen.getByText( 'Drag and drop your video here' ), {
+			dataTransfer: { files: [ makeVideoFile( 'a.mp4' ) ] },
+		} );
+		await waitFor( () =>
+			expect( getRefusalEvents() ).toEqual( [
+				[
+					'jetpack_videopress_upload_refused',
+					{
+						location: 'library_dropzone',
+						reason: 'plan_limit',
+						files_known: true,
+						attempted_files: 1,
+						skipped_files: 1,
+					},
+				],
+			] )
+		);
+		expect( mockStartUpload ).not.toHaveBeenCalled();
+	} );
 } );
 
 describe( 'library stage upload hand-off', () => {
@@ -310,7 +429,10 @@ describe( 'library stage upload hand-off', () => {
 			dataTransfer: { files },
 		} );
 		await waitFor( () => expect( mockStartUpload ).toHaveBeenCalledTimes( 2 ) );
-		expect( mockStartUpload.mock.calls ).toEqual( [ [ files[ 0 ] ], [ files[ 1 ] ] ] );
+		expect( mockStartUpload.mock.calls ).toEqual( [
+			[ files[ 0 ], { isFree: false, videoCountBefore: undefined } ],
+			[ files[ 1 ], { isFree: false, videoCountBefore: undefined } ],
+		] );
 		expect( mockNavigate ).not.toHaveBeenCalled();
 	} );
 

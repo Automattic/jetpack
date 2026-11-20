@@ -1108,7 +1108,7 @@ test.describe( 'PayPal Payment Buttons Block', () => {
 		/**
 		 * Select the block, open the Settings sidebar and return the "Embed as" select.
 		 *
-		 * The switcher is in the sidebar in the top document, under the link details.
+		 * The switcher is in the sidebar in the top document, under the link's name and price.
 		 * It shows once the block has a payment link.
 		 *
 		 * @param {object} page  - Playwright page.

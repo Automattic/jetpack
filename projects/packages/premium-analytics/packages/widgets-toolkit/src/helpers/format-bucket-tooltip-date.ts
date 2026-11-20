@@ -8,22 +8,25 @@ import { __, sprintf } from '@wordpress/i18n';
  * Internal dependencies
  */
 import { dateFormatForResolution } from './tick-resolution-date-format';
+import type { BucketResolution } from './bucket-resolution';
 import type { BucketInfo } from '@jetpack-premium-analytics/externals';
 
 type BucketDatum = { date: Date; realDate?: Date; endDate?: Date };
 
 /**
  * The date a tooltip row names for a point: the days its own bucket covers when a
- * date-labelled bucket spans several (a week) or the range cuts a month or year,
- * otherwise the bucket's start.
+ * date-labelled bucket spans several (a week, a quarter) or the range cuts a month or
+ * year, otherwise the bucket's start.
  *
  * @param datum             - The point; a comparison point's own dates are in `realDate`.
  * @param displayResolution - The resolution the chart labels its buckets at.
+ * @param bucket            - The chart's declared bucket size, when it has one.
  * @return The formatted date or span.
  */
 export function formatBucketTooltipDate(
 	datum: BucketDatum,
-	displayResolution: BucketInfo[ 'displayResolution' ]
+	displayResolution: BucketInfo[ 'displayResolution' ],
+	bucket?: BucketResolution
 ): string {
 	const start = datum.realDate ?? datum.date;
 	const { endDate } = datum;
@@ -33,6 +36,8 @@ export function formatBucketTooltipDate(
 
 		if (
 			displayResolution === 'day' ||
+			// Quarters draw on month ticks, so a quarter cut to one whole month would read as that month.
+			bucket === 'quarter' ||
 			( ( displayResolution === 'month' || displayResolution === 'year' ) &&
 				! isWholePeriod( range, displayResolution ) )
 		) {

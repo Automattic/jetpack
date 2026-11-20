@@ -113,6 +113,7 @@ function TagsDashboardStory( dashboardArgs: WidgetDashboardWithWidgetControls ) 
 }
 
 export const WidgetDashboardWithWidget: StoryObj< WidgetDashboardWithWidgetControls > = {
+	tags: [ 'widget-dashboard' ],
 	render: args => <TagsDashboardStory { ...args } />,
 	args: {
 		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,

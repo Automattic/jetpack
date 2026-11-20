@@ -12,10 +12,19 @@ use Automattic\Jetpack\Stats_Admin\TestCase as Stats_TestCase;
  */
 class Odyssey_Config_Data_Test extends Stats_TestCase {
 	/**
+	 * Timeout the mocked `/sites/999` request was sent with, or null when it was not sent.
+	 *
+	 * @var int|null
+	 */
+	private $wpcom_site_record_timeout;
+
+	/**
 	 * Returning the environment into its initial state.
 	 */
 	public function tearDown(): void {
 		Constants::clear_single_constant( 'IS_WPCOM' );
+		remove_all_filters( 'pre_http_request', 5 );
+		$this->wpcom_site_record_timeout = null;
 		parent::tearDown();
 	}
 
@@ -95,6 +104,79 @@ class Odyssey_Config_Data_Test extends Stats_TestCase {
 		$this->assertSame(
 			array( 'stats-paid' ),
 			$data['intial_state']['sites']['features']['999']['data']['active']
+		);
+	}
+
+	public function test_config_data_merges_the_wpcom_site_record_like_the_app() {
+		wp_set_current_user( $this->admin_id );
+		$this->mock_wpcom_site_record(
+			200,
+			'{"ID":999,"jetpack":false,"name":"Remote","meta":{},"options":{"is_commercial":false,"admin_url":"https://stale.example/wp-admin/"},"capabilities":{"view_stats":false}}'
+		);
+
+		$site = ( new Odyssey_Config_Data() )->get_data( true )['intial_state']['sites']['items']['999'];
+
+		$this->assertSame( 5, $this->wpcom_site_record_timeout );
+		$this->assertSame( 'Remote', $site['name'] );
+		$this->assertTrue( $site['jetpack'] );
+		$this->assertFalse( $site['options']['is_commercial'] );
+		$this->assertSame( 'https://stale.example/wp-admin/', $site['options']['admin_url'] );
+		$this->assertTrue( $site['options']['has_stats_settings'] );
+		$this->assertFalse( $site['capabilities']['view_stats'] );
+		$this->assertArrayHasKey( 'manage_options', $site['capabilities'] );
+		$this->assertStringContainsString( '"meta":{}', wp_json_encode( $site, JSON_UNESCAPED_SLASHES ) );
+	}
+
+	public function test_config_data_keeps_the_seeded_site_when_wpcom_fails() {
+		wp_set_current_user( $this->admin_id );
+		$this->mock_wpcom_site_record( 500, '{"error":"unknown"}' );
+
+		$site = ( new Odyssey_Config_Data() )->get_data( true )['intial_state']['sites']['items']['999'];
+
+		$this->assertNotNull( $this->wpcom_site_record_timeout );
+		$this->assertArrayNotHasKey( 'is_commercial', $site['options'] );
+		$this->assertSame( admin_url(), $site['options']['admin_url'] );
+	}
+
+	public function test_config_data_leaves_out_the_wpcom_site_record_for_users_the_site_route_refuses() {
+		$subscriber = wp_insert_user(
+			array(
+				'user_login' => 'stats_subscriber',
+				'user_pass'  => 'pass',
+				'role'       => 'subscriber',
+			)
+		);
+		wp_set_current_user( $subscriber );
+		$this->mock_wpcom_site_record( 200, '{"ID":999,"name":"Remote","options":{"is_commercial":false}}' );
+
+		$site = ( new Odyssey_Config_Data() )->get_data( true )['intial_state']['sites']['items']['999'];
+
+		$this->assertNull( $this->wpcom_site_record_timeout );
+		$this->assertArrayNotHasKey( 'name', $site );
+		$this->assertArrayNotHasKey( 'is_commercial', $site['options'] );
+	}
+
+	/**
+	 * Answer the connection package's `/sites/999` request, recording the timeout it was sent with.
+	 *
+	 * @param int    $code HTTP status.
+	 * @param string $body Response body.
+	 */
+	private function mock_wpcom_site_record( $code, $body ) {
+		add_filter(
+			'pre_http_request',
+			function ( $response, $args, $url ) use ( $code, $body ) {
+				if ( false === strpos( $url, '/sites/999?force=wpcom' ) ) {
+					return $response;
+				}
+				$this->wpcom_site_record_timeout = $args['timeout'];
+				return array(
+					'response' => array( 'code' => $code ),
+					'body'     => $body,
+				);
+			},
+			5,
+			3
 		);
 	}
 

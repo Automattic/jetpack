@@ -1,6 +1,5 @@
 {
 	"name": "jetpack-cli",
-	"version": "1.0.0",
 	"private": true,
 	"description": "[Jetpack](https://jetpack.com/) is a WordPress plugin that supercharges your self-hosted WordPress site with the awesome cloud power of [WordPress.com](https://wordpress.com).",
 	"homepage": "https://jetpack.com",
@@ -44,7 +43,7 @@
 		"process": "0.11.10",
 		"semver": "7.7.3",
 		"tmp": "0.2.7",
-		"yargs": "18.0.0"
+		"yargs": "18.2.0"
 	},
 	"devDependencies": {
 		"@typescript/native-preview": "7.0.0-dev.20260707.2",

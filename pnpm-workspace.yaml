@@ -34,12 +34,14 @@ minimumReleaseAge: 1440
 minimumReleaseAgeExclude:
   # Packages we often want to immediately update after releasing them.
   - '@automattic/*'
+  - '@gravatar-com/*'
   - '@woocommerce/*'
   - '@wordpress/*'
   - 'gridicons'
   - 'wpcom-proxy-request'
-  # Renovate security update: zod@4.6.6
-  - zod@4.6.6
+  # Bump for deprecation
+  - tldts-core@7.4.22
+  - tldts@7.4.22
 
 trustPolicy: no-downgrade
 trustPolicyExclude:
@@ -48,7 +50,6 @@ trustPolicyExclude:
 
   # Packages where newer majors have provenance but we're still on an older one.
   - rxjs@7.8.2
-  - semver@6.3.1
 
 # Package compromise avoidance: require dep build script approval.
 strictDepBuilds: true

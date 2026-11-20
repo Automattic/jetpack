@@ -73,6 +73,9 @@ export const defaultCurrencyOverrides: Record< string, CurrencyOverride > = {
 	BWP: {
 		symbol: 'P',
 	},
+	BYN: {
+		symbol: 'Br',
+	},
 	BYR: {
 		symbol: 'р.',
 	},
@@ -277,6 +280,9 @@ export const defaultCurrencyOverrides: Record< string, CurrencyOverride > = {
 	MRO: {
 		symbol: 'UM',
 	},
+	MRU: {
+		symbol: 'UM',
+	},
 	MTL: {
 		symbol: '₤',
 	},
@@ -379,6 +385,9 @@ export const defaultCurrencyOverrides: Record< string, CurrencyOverride > = {
 	SHP: {
 		symbol: '£',
 	},
+	SLE: {
+		symbol: 'Le',
+	},
 	SLL: {
 		symbol: 'Le',
 	},
@@ -388,7 +397,13 @@ export const defaultCurrencyOverrides: Record< string, CurrencyOverride > = {
 	SRD: {
 		symbol: '$',
 	},
+	SSP: {
+		symbol: '£',
+	},
 	STD: {
+		symbol: 'Db',
+	},
+	STN: {
 		symbol: 'Db',
 	},
 	SVC: {
@@ -451,6 +466,9 @@ export const defaultCurrencyOverrides: Record< string, CurrencyOverride > = {
 	VEF: {
 		symbol: 'Bs. F.',
 	},
+	VES: {
+		symbol: 'Bs.S',
+	},
 	VND: {
 		symbol: '₫',
 	},
@@ -465,6 +483,9 @@ export const defaultCurrencyOverrides: Record< string, CurrencyOverride > = {
 	},
 	XCD: {
 		symbol: '$',
+	},
+	XCG: {
+		symbol: 'Cg',
 	},
 	XOF: {
 		symbol: 'F',
@@ -483,5 +504,8 @@ export const defaultCurrencyOverrides: Record< string, CurrencyOverride > = {
 	},
 	WON: {
 		symbol: '₩',
+	},
+	ZWG: {
+		symbol: 'ZWG',
 	},
 };

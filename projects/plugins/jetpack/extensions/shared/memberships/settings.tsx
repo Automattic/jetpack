@@ -33,6 +33,13 @@ import {
 } from './utils';
 import type { ReactElement } from 'react';
 
+// The setter writes the whole meta object back, so unlisted keys ride along as unknown.
+type PostMeta = Record< string, unknown > & {
+	[ META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS ]?: string;
+	[ META_NAME_FOR_POST_TIER_ID_SETTINGS ]?: number | string | null;
+	[ META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS ]?: boolean;
+};
+
 interface ReachForAccessLevelKeyArgs {
 	accessLevel: string;
 	subscribers?: number;
@@ -63,7 +70,7 @@ export function getReachForAccessLevelKey( {
 
 export function useSetAccess(): ( value: string ) => void {
 	const postType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
-	const [ metas, setPostMeta ] = useEntityProp( 'postType', postType, 'meta' );
+	const [ metas, setPostMeta ] = useEntityProp< PostMeta >( 'postType', postType, 'meta' );
 	return value => {
 		// We are removing the tier ID meta
 		delete metas[ META_NAME_FOR_POST_TIER_ID_SETTINGS ];
@@ -81,7 +88,7 @@ export function useSetAccess(): ( value: string ) => void {
  */
 export function useSetTier(): ( value: number | string | null ) => void {
 	const postType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
-	const [ metas, setPostMeta ] = useEntityProp( 'postType', postType, 'meta' );
+	const [ metas, setPostMeta ] = useEntityProp< PostMeta >( 'postType', postType, 'meta' );
 	return value => {
 		setPostMeta( {
 			...metas,
@@ -133,7 +140,7 @@ function TierSelector() {
 	// Find the current tier meta
 	const postType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
 	// Destructure the tierId from the meta (set tierId using the META_NAME_FOR_POST_TIER_ID_SETTINGS constant)
-	const [ { [ META_NAME_FOR_POST_TIER_ID_SETTINGS ]: tierId } ] = useEntityProp(
+	const [ { [ META_NAME_FOR_POST_TIER_ID_SETTINGS ]: tierId } ] = useEntityProp< PostMeta >(
 		'postType',
 		postType,
 		'meta'
@@ -473,7 +480,7 @@ export function NewsletterAccessDocumentSettings( { accessLevel }: { accessLevel
 export function useSetSendEmail(): ( sendEmail: boolean ) => void {
 	const postType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
 	const { saveEditedEntityRecord } = useDispatch( coreDataStore );
-	const [ postMeta, setPostMeta ] = useEntityProp( 'postType', postType, 'meta' );
+	const [ postMeta, setPostMeta ] = useEntityProp< PostMeta >( 'postType', postType, 'meta' );
 	const postId = useEntityId( 'postType', postType );
 
 	return sendEmail => {

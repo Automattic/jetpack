@@ -7,6 +7,8 @@ const SET_SITE_IS_REGISTERING = 'SET_SITE_IS_REGISTERING';
 const SET_USER_IS_CONNECTING = 'SET_USER_IS_CONNECTING';
 const SET_REGISTRATION_ERROR = 'SET_REGISTRATION_ERROR';
 const CLEAR_REGISTRATION_ERROR = 'CLEAR_REGISTRATION_ERROR';
+const SET_USER_CONNECTION_ERROR = 'SET_USER_CONNECTION_ERROR';
+const CLEAR_USER_CONNECTION_ERROR = 'CLEAR_USER_CONNECTION_ERROR';
 const REGISTER_SITE = 'REGISTER_SITE';
 const SET_AUTHORIZATION_URL = 'SET_AUTHORIZATION_URL';
 const CONNECT_USER = 'CONNECT_USER';
@@ -76,6 +78,14 @@ const clearRegistrationError = () => {
 	return { type: CLEAR_REGISTRATION_ERROR };
 };
 
+const setUserConnectionError = userConnectionError => {
+	return { type: SET_USER_CONNECTION_ERROR, userConnectionError };
+};
+
+const clearUserConnectionError = () => {
+	return { type: CLEAR_USER_CONNECTION_ERROR };
+};
+
 const setAuthorizationUrl = authorizationUrl => {
 	return { type: SET_AUTHORIZATION_URL, authorizationUrl };
 };
@@ -107,16 +117,28 @@ const setIsOfflineMode = isOfflineMode => {
 /**
  * Connect site with wp.com user
  *
+ * On failure the error is recorded, `userIsConnecting` is reset and the promise rejects.
+ * On success `userIsConnecting` stays set, so the UI stays busy while the browser leaves.
+ *
  * @param {object}   Object                   - contains from and redirectFunc
  * @param {string}   Object.from              - Value that represents the redirect origin
  * @param {Function} Object.redirectFunc      - A function to handle the redirect, defaults to location.assign
  * @param {string}   [Object.redirectUri]     - A URI that the user will be redirected to
  * @param {boolean}  [Object.skipPricingPage] - A flag to skip the pricing page in the connection flow
  * @yield {object} Action object that will be yielded
+ * @return {Promise|undefined} A rejected promise on failure, otherwise nothing
  */
 function* connectUser( { from, redirectFunc, redirectUri, skipPricingPage } = {} ) {
+	yield clearUserConnectionError();
 	yield setUserIsConnecting( true );
-	yield { type: CONNECT_USER, from, redirectFunc, redirectUri, skipPricingPage };
+
+	try {
+		yield { type: CONNECT_USER, from, redirectFunc, redirectUri, skipPricingPage };
+	} catch ( error ) {
+		yield setUserConnectionError( error );
+		yield setUserIsConnecting( false );
+		return Promise.reject( error );
+	}
 }
 
 /**
@@ -132,6 +154,7 @@ function* connectUser( { from, redirectFunc, redirectUri, skipPricingPage } = {}
  */
 function* registerSite( { registrationNonce, redirectUri, from = '' } ) {
 	yield clearRegistrationError();
+	yield clearUserConnectionError();
 	yield setSiteIsRegistering( true );
 
 	try {
@@ -214,6 +237,8 @@ const actions = {
 	setUserIsConnecting,
 	setRegistrationError,
 	clearRegistrationError,
+	setUserConnectionError,
+	clearUserConnectionError,
 	setAuthorizationUrl,
 	registerSite,
 	connectUser,
@@ -236,6 +261,8 @@ export {
 	SET_USER_IS_CONNECTING,
 	SET_REGISTRATION_ERROR,
 	CLEAR_REGISTRATION_ERROR,
+	SET_USER_CONNECTION_ERROR,
+	CLEAR_USER_CONNECTION_ERROR,
 	REGISTER_SITE,
 	SET_AUTHORIZATION_URL,
 	CONNECT_USER,

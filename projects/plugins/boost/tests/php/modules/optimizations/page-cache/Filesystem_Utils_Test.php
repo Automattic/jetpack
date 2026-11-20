@@ -34,6 +34,7 @@ class Filesystem_Utils_Test extends TestCase {
 			define( 'HOUR_IN_SECONDS', 3600 );
 		}
 		require_once __DIR__ . '/../../../../../app/modules/optimizations/page-cache/pre-wordpress/class-boost-cache.php';
+		require_once __DIR__ . '/../../../../../app/lib/minify/functions-helpers.php';
 
 		// Create a temporary test directory
 		$this->test_dir        = sys_get_temp_dir() . '/boost-test-' . uniqid();
@@ -419,6 +420,7 @@ class Filesystem_Utils_Test extends TestCase {
 
 	public function test_version_change_clears_old_cache_without_a_request_host() {
 		Functions\when( 'delete_site_option' )->justReturn( true );
+		Functions\when( 'get_site_option' )->justReturn( JETPACK_BOOST_MINIFY_CACHE_RULES_VERSION );
 		Functions\when( 'jetpack_boost_ds_get' )->justReturn( false );
 		Functions\when( 'jetpack_boost_minify_is_enabled' )->justReturn( false );
 		Functions\when( 'home_url' )->justReturn( 'https://example.com:8080' );

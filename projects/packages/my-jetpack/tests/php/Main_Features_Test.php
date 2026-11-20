@@ -177,12 +177,13 @@ class Main_Features_Test extends TestCase {
 	}
 
 	/**
-	 * Brute Force Protection sits with Security, Shortlinks with Engagement, and Infinite Scroll in Other.
+	 * Login protection sits with Protect, under the Security filter, Shortlinks with Engagement, and Infinite Scroll in Other.
 	 */
 	public function test_module_groups_place_the_regrouped_modules() {
 		$groups = array_column( Main_Features::get_module_groups(), 'modules', 'label' );
 
-		$this->assertContains( 'protect', $groups['Security'] );
+		$this->assertContains( 'protect', $groups['Protect'] );
+		$this->assertSame( array( 'security' ), array_column( Main_Features::get_module_groups(), 'groups', 'label' )['Protect'] );
 		$this->assertContains( 'shortlinks', $groups['Engagement'] );
 		$this->assertNotContains( 'infinite-scroll', array_merge( ...array_values( $groups ) ) );
 	}
@@ -209,6 +210,25 @@ class Main_Features_Test extends TestCase {
 		sort( $slugs );
 
 		$this->assertSame( array( 'activity-log', 'backup', 'jetpack-ai', 'newsletter', 'social' ), $slugs );
+	}
+
+	/**
+	 * @dataProvider provide_local_flags
+	 * @param bool $local Whether the catalog is built for offline Features.
+	 */
+	#[DataProvider( 'provide_local_flags' )]
+	public function test_forms_names_its_cloud_parts_only_offline( $local ) {
+		$forms = array_column( Main_Features::get_features( $local ), 'long_description', 'slug' )['jetpack-forms'];
+
+		$this->assertSame( $local, str_contains( $forms, 'need a WordPress.com connection' ) );
+		$this->assertSame( ! $local, str_contains( $forms, 'Upgrade' ) );
+	}
+
+	public static function provide_local_flags() {
+		return array(
+			'offline' => array( true ),
+			'online'  => array( false ),
+		);
 	}
 
 	/**
@@ -445,11 +465,11 @@ class Main_Features_Test extends TestCase {
 	}
 
 	/**
-	 * The pills filter on plan membership, so every feature has to carry the key they read.
+	 * The pills filter on feature groups, so every feature has to carry the key they read.
 	 */
 	public function test_every_feature_carries_the_keys_the_grid_reads() {
 		foreach ( Main_Features::get_features() as $feature ) {
-			foreach ( array( 'slug', 'name', 'description', 'icon', 'essential', 'plans', 'in_jetpack', 'plugin', 'plugin_status' ) as $key ) {
+			foreach ( array( 'slug', 'name', 'description', 'icon', 'essential', 'plans', 'groups', 'in_jetpack', 'plugin', 'plugin_status' ) as $key ) {
 				$this->assertArrayHasKey( $key, $feature, "Feature {$feature['slug']} is missing {$key}" );
 			}
 
@@ -670,56 +690,61 @@ class Main_Features_Test extends TestCase {
 	}
 
 	/**
-	 * A host's manage URL replaces the feature's only for a site that has it, without the standalone plugin, and only as a web address.
+	 * A product's purchase link follows its feature's host URL, asked for from the Overview once per
+	 * description; a bundle's never does.
 	 *
-	 * @dataProvider provide_host_manage_urls
+	 * @dataProvider provide_host_upgrade_urls
 	 *
-	 * @param string[] $owned      The products the site pays for.
-	 * @param string   $url        The URL the host sends.
-	 * @param bool     $to_host    Whether the feature's manage link becomes the host's.
-	 * @param bool     $standalone Whether the standalone Backup plugin is active.
+	 * @param string[]    $owned       The products the site pays for.
+	 * @param string      $url         The URL the host sends.
+	 * @param string|null $feature_url The URL the feature carries, or null or empty for none.
 	 */
-	#[DataProvider( 'provide_host_manage_urls' )]
-	public function test_host_manage_url( $owned, $url, $to_host, $standalone = false ) {
+	#[DataProvider( 'provide_host_upgrade_urls' )]
+	public function test_host_purchase_url_for_a_product( $owned, $url, $feature_url ) {
 		$this->own( $owned );
-		if ( $standalone ) {
-			$plugin_dir = WP_PLUGIN_DIR . '/' . Products\Backup::$plugin_slug;
-			if ( ! file_exists( $plugin_dir ) ) {
-				mkdir( $plugin_dir, 0777, true );
-			}
-			copy( __DIR__ . '/assets/backup-mock-plugin.txt', $plugin_dir . '/jetpack-backup.php' );
-			wp_cache_delete( 'plugins', 'plugins' );
-			activate_plugins( Products\Backup::$plugin_slug . '/jetpack-backup.php' );
-		}
-		$default      = array_column( Main_Features::get_features(), 'manage_url', 'slug' )['backup'];
-		$send_to_host = static function ( $upgrade ) use ( $url ) {
-			return array_merge( $upgrade, array( 'manage_url' => $url ) );
+		$asked        = array();
+		$send_to_host = static function ( $upgrade, $slug ) use ( $url, &$asked ) {
+			$asked[ $slug ][] = $upgrade['back_url'] ?? null;
+			return array_merge( $upgrade, array( 'url' => $url ) );
 		};
-		add_filter( 'jetpack_feature_upgrade', $send_to_host );
+		add_filter( 'jetpack_feature_upgrade', $send_to_host, 10, 2 );
 
-		$features = array_column( Main_Features::get_features(), null, 'slug' );
-		remove_filter( 'jetpack_feature_upgrade', $send_to_host );
+		$info       = Products\Backup::get_wpcom_info();
+		$bundle_url = Products\Complete::get_purchase_url();
+		$asked_once = $asked;
+		$later_url  = Products\Backup::get_purchase_url();
+		remove_filter( 'jetpack_feature_upgrade', $send_to_host, 10 );
 
-		if ( $standalone ) {
-			deactivate_plugins( Products\Backup::$plugin_slug . '/jetpack-backup.php' );
-		}
-
-		$this->assertSame( $to_host ? $url : $default, $features['backup']['manage_url'] );
-		$this->assertArrayNotHasKey( 'manage_url', $features['backup']['upgrade'] );
+		$expected = $feature_url ? $feature_url : null;
+		$this->assertSame( $expected, $info['purchase_url'] );
+		$this->assertSame( $expected, $info['host_purchase_url'] );
+		$this->assertNull( $bundle_url );
+		$this->assertSame( array( 'backup' => array( admin_url( 'admin.php?page=my-jetpack' ) ) ), $asked_once );
+		$this->assertSame( $expected, $later_url );
+		$this->assertCount( 2, $asked['backup'] ?? array() );
 	}
 
 	/**
-	 * Data provider for test_host_manage_url.
-	 *
-	 * @return array
+	 * The info every page load builds says a host may sell a product without asking the host.
 	 */
-	public static function provide_host_manage_urls() {
-		return array(
-			'owns Complete'            => array( array( 'jetpack_complete' ), 'https://example.com/backup', true ),
-			'no plan'                  => array( array(), 'https://example.com/backup', false ),
-			'javascript: URL'          => array( array( 'jetpack_complete' ), 'javascript:alert(1)', false ),
-			'standalone plugin active' => array( array( 'jetpack_complete' ), 'https://example.com/backup', false, true ),
-		);
+	public function test_static_product_info_flags_a_listening_host_without_asking_it() {
+		$asked = 0;
+		$spy   = static function ( $upgrade ) use ( &$asked ) {
+			++$asked;
+			return $upgrade;
+		};
+
+		$unheard = Products\Backup::get_info();
+		add_filter( 'jetpack_feature_upgrade', $spy );
+		$product = Products\Backup::get_info();
+		$bundle  = Products\Complete::get_info();
+		remove_filter( 'jetpack_feature_upgrade', $spy );
+
+		$this->assertSame( 0, $asked );
+		$this->assertArrayNotHasKey( 'host_purchase_url', $product );
+		$this->assertTrue( $product['host_may_sell'] );
+		$this->assertFalse( $bundle['host_may_sell'] );
+		$this->assertFalse( $unheard['host_may_sell'] );
 	}
 
 	/**
@@ -952,6 +977,8 @@ class Main_Features_Test extends TestCase {
 		$features = array_column( Main_Features::get_features(), null, 'slug' );
 		$this->assertNotContains( 'security', array_column( $features['backup']['plans'], 'slug' ) );
 		$this->assertNotContains( 'growth', array_column( $features['podcast']['plans'], 'slug' ) );
+		$this->assertSame( array( 'security' ), $features['backup']['groups'] );
+		$this->assertSame( array( 'growth' ), $features['podcast']['groups'] );
 		$this->assertSame( '/add-pro', $features['podcast']['upgrade']['path'] );
 		$this->own( array( 'jetpack_security_t1_yearly' ) );
 		$features = array_column( Main_Features::get_features(), null, 'slug' );

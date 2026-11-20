@@ -1,5 +1,8 @@
-import { normalizeReportParams } from '@jetpack-premium-analytics/data';
-import { deriveComparisonRange } from '../comparison';
+import {
+	deriveComparisonRange,
+	needsReportDateParamsSeed,
+	normalizeReportParams,
+} from '@jetpack-premium-analytics/data';
 import {
 	buildDashboardLink,
 	buildReportLink,
@@ -44,10 +47,11 @@ describe( 'pickReportDateParams', () => {
 			pickReportDateParams( {
 				from: '2026-01-01',
 				to: '2026-01-31',
+				step: 'P31D',
 				post_id: '42',
 				section: 'archives',
 			} )
-		).toEqual( { from: '2026-01-01', to: '2026-01-31' } );
+		).toEqual( { from: '2026-01-01', to: '2026-01-31', step: 'P31D' } );
 	} );
 
 	it( 'returns an empty object for undefined search', () => {
@@ -123,6 +127,10 @@ describe( 'origin window params', () => {
 		).toEqual( stored );
 	} );
 
+	it( 'marks a linking page that carried no window', () => {
+		expect( toReportOriginWindowParams( { post_id: '7' } ) ).toEqual( { ref_preset: 'none' } );
+	} );
+
 	it( 'keeps an interval the preset would not default to', () => {
 		expect(
 			toReportOriginWindowParams( {
@@ -132,10 +140,13 @@ describe( 'origin window params', () => {
 		).toEqual( { ref_preset: 'last-30-days', ref_interval: 'week' } );
 	} );
 
-	it( 'stores a custom range by its dates', () => {
+	it( 'stores a custom range by its dates, with the step that reached it', () => {
 		expect(
 			toReportOriginWindowParams( { from: '2026-01-01', to: '2026-01-31', interval: 'day' } )
 		).toEqual( { ref_from: '2026-01-01', ref_to: '2026-01-31' } );
+		expect(
+			toReportOriginWindowParams( { from: '2026-01-01', to: '2026-01-31', step: 'last-month' } )
+		).toEqual( { ref_from: '2026-01-01', ref_to: '2026-01-31', ref_step: 'last-month' } );
 	} );
 
 	it( 'stores a named comparison as its preset alone', () => {
@@ -151,9 +162,10 @@ describe( 'origin window params', () => {
 	} );
 
 	it( 'returns a custom comparison by its dates', () => {
+		const window = normalizeReportParams( { preset: 'last-7-days' } );
 		const comparison = { compare_from: '2025-01-01', compare_to: '2025-01-07' };
 		const stored = toReportOriginWindowParams( {
-			...normalizeReportParams( { preset: 'last-7-days' } ),
+			...window,
 			...comparison,
 			comp: '1',
 		} );
@@ -165,7 +177,7 @@ describe( 'origin window params', () => {
 		} );
 		expect.assertions( 3 );
 		expectLink( buildDashboardLink( { post_id: '42', ...stored } ), '/', {
-			preset: 'last-7-days',
+			...window,
 			...comparison,
 			comp: '1',
 		} );
@@ -177,7 +189,27 @@ describe( 'origin window params', () => {
 		).toEqual( { ref_preset: 'all-time', ref_from: '2020-03-04', ref_to: '2026-01-31' } );
 	} );
 
-	it( 'returns a detail page to its linking window, leaving the dates to the seed', () => {
+	it( 'returns the interval selected under plan limits', () => {
+		const linked = {
+			from: '2026-06-01',
+			to: '2026-09-30',
+			interval: 'day',
+		};
+		const stored = toReportOriginWindowParams( linked );
+		const link = buildReportLink( 'posts', { post_id: '42', ...stored } );
+		const search = parseSearch( new URL( link, 'https://example.com' ) );
+
+		expect.assertions( 4 );
+		expect( stored ).toEqual( {
+			ref_from: linked.from,
+			ref_to: linked.to,
+			ref_interval: linked.interval,
+		} );
+		expectLink( link, '/reports/posts', linked );
+		expect( needsReportDateParamsSeed( search, [ 'week', 'month' ] ) ).toBe( false );
+	} );
+
+	it( 'returns a complete linking window so the destination needs no redirect', () => {
 		const window = normalizeReportParams( { preset: 'last-30-days' } );
 		const linked = {
 			...window,
@@ -186,24 +218,24 @@ describe( 'origin window params', () => {
 			comp: '1',
 		};
 
-		const carried = Object.fromEntries(
-			[ 'preset', 'interval', 'compare_from', 'compare_to', 'compare_preset', 'comp' ].map( key => [
-				key,
-				linked[ key as keyof typeof linked ],
-			] )
-		);
+		const carried = pickReportDateParams( linked );
+		const detailSearch = {
+			from: '2020-03-04',
+			preset: 'all-time',
+			post_id: '42',
+			...toReportOriginWindowParams( linked ),
+		};
+		const links = [
+			[ buildDashboardLink( detailSearch ), '/' ],
+			[ buildReportLink( 'posts', detailSearch ), '/reports/posts' ],
+		] as const;
 
-		expect.assertions( 2 );
-		expectLink(
-			buildDashboardLink( {
-				from: '2020-03-04',
-				preset: 'all-time',
-				post_id: '42',
-				...toReportOriginWindowParams( linked ),
-			} ),
-			'/',
-			carried
-		);
+		expect.assertions( 6 );
+		for ( const [ link, pathname ] of links ) {
+			const search = parseSearch( new URL( link, 'https://example.com' ) );
+			expectLink( link, pathname, carried );
+			expect( needsReportDateParamsSeed( search ) ).toBe( false );
+		}
 	} );
 } );
 
@@ -240,6 +272,21 @@ describe( 'buildDashboardLink', () => {
 		expect( parseLikeRouter( query.get( 'preset' ) as string ) ).toBe( 'last-30-days' );
 		expect( parseLikeRouter( query.get( 'from' ) as string ) ).toBe(
 			'2026-07-05T00:00:00.000+08:00'
+		);
+	} );
+
+	it( 'returns a page scoped by any param to the origin window its seed stored', () => {
+		expect.assertions( 2 );
+		expectLink(
+			buildDashboardLink( {
+				preset: 'all-time',
+				from: '2020-03-04',
+				to: '2026-09-15',
+				author_id: '7',
+				ref_preset: 'last-7-days',
+			} ),
+			'/',
+			normalizeReportParams( { preset: 'last-7-days' } )
 		);
 	} );
 
@@ -335,9 +382,13 @@ describe( 'buildReportLink', () => {
 	} );
 
 	it( 'carries no window from a detail page opened without one', () => {
-		expect( buildReportLink( 'posts', { from: '2020-03-04', post_id: '42' } ) ).toBe(
-			'/reports/posts'
-		);
+		expect(
+			buildReportLink( 'posts', {
+				from: '2020-03-04',
+				post_id: '42',
+				...toReportOriginWindowParams( {} ),
+			} )
+		).toBe( '/reports/posts' );
 	} );
 
 	it( 'carries the dashboard tab to return to', () => {

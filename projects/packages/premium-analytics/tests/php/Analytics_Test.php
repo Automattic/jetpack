@@ -420,6 +420,36 @@ class Analytics_Test extends TestCase {
 	}
 
 	/**
+	 * The admin shell's guest endpoint is admin-ajax, where the dashboard surface never loaded.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_admin_shell_guest_endpoint_loads_the_dashboard() {
+		$this->use_fixture_build();
+		$this->connect_site();
+		$this->login_as( 'administrator' );
+		set_current_screen( 'admin-ajax' );
+		define( 'DOING_AJAX', true );
+		$_REQUEST['action'] = \Automattic\Jetpack\Admin_UI\Admin_Shell::GUEST_ACTION;
+		$_GET['member']     = self::MENU_SLUG;
+
+		Analytics::init();
+		do_action( 'init' );
+		$member = apply_filters( 'jetpack_admin_shell_members', array() )[ self::MENU_SLUG ] ?? array();
+
+		$this->assertTrue( current_user_can( $member['capability'] ?? 'do_not_allow' ), 'The endpoint checks the capability before it loads the guest.' );
+		$this->assertSame( 20, has_filter( 'jetpack_admin_js_script_data', array( Stats_Settings::class, 'add_script_data' ) ), 'Hooks scoped to the dashboard at init are on.' );
+		call_user_func( $member['load'] );
+		$this->assertNotFalse( has_action( 'admin_enqueue_scripts', array( Analytics::class, 'enqueue_tracks_transport' ) ), 'The dashboard surface loaded.' );
+		$this->assertFalse( get_option( DASHBOARD_FIRST_VISIT_OPTION ), 'A menu hover preloads the guest, so loading it is not a visit.' );
+		$this->assertTrue( Analytics::renders_dashboard() );
+		$this->assertFalse( Analytics::is_dashboard_request(), 'Code that marks a visit or writes, such as the plan refresh, stays off on a hover.' );
+	}
+
+	/**
 	 * The admin-post.php endpoint sets is_admin() true the way admin-ajax does,
 	 * and renders no dashboard either, so it does not get the build.
 	 *
@@ -752,6 +782,40 @@ class Analytics_Test extends TestCase {
 		$menu_item = $this->register_admin_menu_without_build();
 
 		$this->assertSame( $expected, $menu_item[0] ?? null );
+	}
+
+	/**
+	 * Asking for the Dashboard's own position would get a hashed fraction from core, long enough
+	 * for the menu's natural sort to put the entry after Upgrades, whichever label it carries.
+	 *
+	 * @dataProvider provide_classic_stats_states
+	 *
+	 * @param bool   $retired Whether the classic Stats page is retired.
+	 * @param string $label   The label the entry carries, which core hashes into that fraction.
+	 */
+	#[DataProvider( 'provide_classic_stats_states' )]
+	public function test_register_admin_menu_sits_between_my_home_and_hosting( $retired, $label ) {
+		add_filter( 'jetpack_feature_flag_enabled_' . Classic_Stats::RETIRED_FLAG, $retired ? '__return_true' : '__return_false' );
+		// The neighbours WordPress.com gives it, at the positions jetpack-mu-wpcom registers them.
+		add_action(
+			'admin_menu',
+			function () {
+				$GLOBALS['menu'][2] = array( 'Dashboard', 'read', 'index.php' );
+				add_menu_page( 'My Home', 'My Home', 'read', 'my-home', '__return_null', '', 2.01 );
+				add_menu_page( 'Hosting', 'Hosting', 'read', 'hosting', '__return_null', '', 2.98 );
+				add_menu_page( 'Upgrades', 'Upgrades', 'read', 'upgrades', '__return_null', '', 2.99 );
+			}
+		);
+
+		$this->register_admin_menu_without_build();
+		$sorted = $GLOBALS['menu'];
+		// As wp-admin/menu.php orders the menu before drawing it.
+		uksort( $sorted, 'strnatcasecmp' );
+
+		$this->assertSame(
+			array( 'Dashboard', 'My Home', $label, 'Hosting', 'Upgrades' ),
+			array_column( $sorted, 0 )
+		);
 	}
 
 	/**
@@ -1300,6 +1364,33 @@ class Analytics_Test extends TestCase {
 			),
 			'The Tracks identity is published after the connection fills current_user in.'
 		);
+	}
+
+	/**
+	 * Without this registration the script data key disappears and the error reporter reads
+	 * `undefined` as its gate.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_dashboard_request_publishes_the_error_reporting_script_data() {
+		$this->use_fixture_build();
+		$_GET['page'] = self::MENU_SLUG;
+		set_current_screen( self::MENU_HOOKNAME );
+
+		Analytics::init();
+		do_action( 'init' );
+
+		$this->assertSame(
+			20,
+			has_filter( 'jetpack_admin_js_script_data', __NAMESPACE__ . '\\add_error_reporting_script_data' )
+		);
+
+		$data = apply_filters( 'jetpack_admin_js_script_data', array() );
+
+		$this->assertArrayHasKey( 'error_reporting', $data['premium_analytics'] );
 	}
 
 	/**

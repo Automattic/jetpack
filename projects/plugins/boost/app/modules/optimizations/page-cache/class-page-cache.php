@@ -16,6 +16,7 @@ use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Data_Sync_Actions\
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Data_Sync_Actions\Deactivate_WPSC;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Data_Sync_Actions\Run_Setup;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Boost_Cache;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Boost_Cache_Error;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Boost_Cache_Settings;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Logger;
 
@@ -86,11 +87,25 @@ class Page_Cache implements Feature, Has_Deactivate, Has_Data_Sync, Optimization
 	}
 	/**
 	 * Runs cleanup when the feature is deactivated.
+	 *
+	 * @return true|Boost_Cache_Error True if cleanup succeeded, or an error otherwise.
 	 */
 	public static function deactivate() {
 		Garbage_Collection::deactivate();
-		Boost_Cache_Settings::get_instance()->set( array( 'enabled' => false ) );
-		Page_Cache_Setup::delete_advanced_cache();
+		$settings = Boost_Cache_Settings::get_instance();
+		// Avoid failing on read-only settings when caching is already disabled.
+		$settings_result = $settings->get_enabled() ? $settings->set( array( 'enabled' => false ) ) : true;
+		$drop_in_deleted = Page_Cache_Setup::delete_advanced_cache();
+
+		if ( $settings_result instanceof Boost_Cache_Error ) {
+			return $settings_result;
+		}
+
+		if ( ! $drop_in_deleted && file_exists( Page_Cache_Setup::get_advanced_cache_path() ) && Page_Cache_Setup::can_run_cache() ) {
+			return new Boost_Cache_Error( 'unable-to-delete-advanced-cache', __( 'Could not remove the Boost Page Cache drop-in.', 'jetpack-boost' ) );
+		}
+
+		return $settings_result;
 	}
 
 	/**

@@ -2,6 +2,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, renderHook, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, useLocation } from 'react-router';
+import useAnalytics from '../../../../hooks/use-analytics';
 import {
 	ConnectResume,
 	rememberConnectIntent,
@@ -15,7 +16,7 @@ import type { FeatureState } from '../feature-state';
 import type { MoreFeaturesGroup } from '../use-more-features';
 
 const activeStats = {
-	feature: { slug: 'stats', name: 'Stats', description: '', plans: [] },
+	feature: { slug: 'stats', name: 'Stats', description: '', plans: [], groups: [] },
 	status: 'active',
 	control: { kind: 'none' },
 } as unknown as FeatureState;
@@ -37,7 +38,7 @@ let mockMainFeatures: Record< string, unknown > = {
 let mockModules: Record< string, MyJetpackModule > = {};
 let mockModulesLoaded = true;
 let mockModulesFailed = false;
-const mockRecordEvent = jest.fn();
+const mockRecordEvent = jest.mocked( jest.mocked( useAnalytics )().recordEvent );
 jest.mock( '../use-all-jetpack-modules', () => ( {
 	useAllJetpackModules: () => ( {
 		modules: mockModules,
@@ -63,13 +64,6 @@ jest.mock( '../../../module-toggle', () => ( {
 } ) );
 
 let mockIsLoading = false;
-
-// The tab mounts its tracking provider, which would otherwise reach the connection and
-// analytics packages for a test about which layout renders.
-jest.mock( '../../../../hooks/use-analytics', () => ( {
-	__esModule: true,
-	default: () => ( { recordEvent: mockRecordEvent } ),
-} ) );
 
 jest.mock( '../feature-state', () => ( {
 	...jest.requireActual( '../feature-state' ),
@@ -335,6 +329,34 @@ describe( 'FeaturesContent', () => {
 			'aria-pressed',
 			'true'
 		);
+	} );
+
+	it( 'reopens on the layout chosen last when the route names none', async () => {
+		const { unmount } = renderAt( '/features' );
+		await userEvent.click( screen.getByRole( 'button', { name: 'List view' } ) );
+		unmount();
+
+		const { unmount: unmountList } = renderAt( '/features' );
+		expect( screen.getByText( 'list rows' ) ).toBeInTheDocument();
+		await userEvent.click( screen.getByRole( 'button', { name: 'Grid view' } ) );
+		unmountList();
+
+		renderAt( '/features' );
+		expect( screen.getByText( 'grid card' ) ).toBeInTheDocument();
+	} );
+
+	it.each( [
+		[ 'list', 'grid', 'grid card' ],
+		[ 'grid', 'list', 'list rows' ],
+	] )( 'lets the route override a remembered %s layout', async ( stored, routed, shown ) => {
+		const { unmount } = renderAt( '/features' );
+		await userEvent.click(
+			screen.getByRole( 'button', { name: stored === 'list' ? 'List view' : 'Grid view' } )
+		);
+		unmount();
+
+		renderAt( `/features?view=${ routed }` );
+		expect( screen.getByText( shown ) ).toBeInTheDocument();
 	} );
 
 	it( 'names the filter that matched nothing and switches back from the empty state', async () => {
@@ -692,7 +714,7 @@ describe( 'FeaturesContent', () => {
 describe( 'FeaturesContent after connecting the account', () => {
 	const off = ( slug: string, control: FeatureState[ 'control' ], overrides = {} ) =>
 		( {
-			feature: { slug, name: slug, plans: [] },
+			feature: { slug, name: slug, plans: [], groups: [] },
 			status: 'inactive',
 			control,
 			...overrides,

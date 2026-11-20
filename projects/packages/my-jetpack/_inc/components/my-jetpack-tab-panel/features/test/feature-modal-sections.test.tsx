@@ -1,6 +1,7 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import useAnalytics from '../../../../hooks/use-analytics';
 import { FeatureDelivery } from '../feature-delivery';
 import { FeatureItem } from '../feature-item';
 import { FeatureModal } from '../feature-modal';
@@ -9,11 +10,7 @@ import { resolveFeatureState } from '../feature-state';
 import { FeaturesTrackingProvider } from '../features-tracking-context';
 import type { FeatureState } from '../feature-state';
 
-const mockRecordEvent = jest.fn();
-jest.mock( '../../../../hooks/use-analytics', () => ( {
-	__esModule: true,
-	default: () => ( { recordEvent: mockRecordEvent } ),
-} ) );
+const mockRecordEvent = jest.mocked( jest.mocked( useAnalytics )().recordEvent );
 
 const feature = {
 	slug: 'jetpack-forms',
@@ -557,7 +554,7 @@ describe( 'FeatureModal Free column', () => {
 		const view = render( <FeatureItem state={ state } onOpen={ jest.fn() } /> );
 		expect( screen.getByText( 'Unavailable' ) ).toBeVisible();
 		expect( screen.getByText( 'A connection is required' ) ).toBeVisible();
-		expect( screen.queryByRole( 'checkbox' ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'switch' ) ).not.toBeInTheDocument();
 		view.unmount();
 		renderModal( state );
 		expect( screen.getByText( 'Unavailable' ) ).toBeVisible();

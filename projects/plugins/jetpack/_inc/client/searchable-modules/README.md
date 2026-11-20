@@ -7,6 +7,8 @@ UI in any of the other primary settings tabs.
 The results rendered will either show a Banner, with a prop to activate, or if the module is already active,
 it will show a standard info card about the feature.  The content in the 'active' cards is pulled from
 the module headers themselves from the {module-slug}.php files.
+Once settings move out (the `my-jetpack-settings-consolidation` flag), an available module points to
+My Jetpack › Features instead. One unavailable in Offline Mode or without a connected owner keeps its card.
 
 It is connected to the Redux store, which is where it gets the module data from.
 It only needs to be fed search terms (string) as a prop.

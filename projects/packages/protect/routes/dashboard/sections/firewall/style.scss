@@ -1,98 +1,3 @@
-.jp-protect-blocks-table {
-	inline-size: 100%;
-	border-collapse: collapse;
-	font-size: 13px;
-	text-align: start;
-
-	th,
-	td {
-		padding-block: 10px;
-		padding-inline: 0 16px;
-		border-block-end:
-			var(--wpds-border-width-xs) solid
-			var(--wpds-color-stroke-surface-neutral);
-		text-align: start;
-		vertical-align: middle;
-	}
-
-	th {
-		font-size: 11px;
-		font-weight: 500;
-		text-transform: uppercase;
-		color: var(--wpds-color-foreground-content-neutral-weak);
-	}
-
-	tbody tr:last-child td {
-		border-block-end: 0;
-	}
-
-	&__when,
-	&__reason {
-		white-space: nowrap;
-	}
-
-	// The badge resets white-space itself.
-	&__reason > * {
-		white-space: nowrap;
-	}
-
-	&__client {
-		white-space: nowrap;
-	}
-
-	// Takes the spare width; long URIs are cut, in full on hover.
-	&__request {
-		inline-size: 100%;
-		max-inline-size: 0;
-
-		code {
-			display: block;
-			overflow: hidden;
-			padding: 0;
-			background: none;
-			font-size: 12px;
-			text-overflow: ellipsis;
-			white-space: nowrap;
-		}
-	}
-
-	@media (max-width: 600px) {
-
-		thead {
-			display: none;
-		}
-
-		tr {
-			display: grid;
-			grid-template-columns: auto 1fr;
-			gap: 4px 16px;
-			padding-block: 10px;
-			border-block-end:
-				var(--wpds-border-width-xs) solid
-				var(--wpds-color-stroke-surface-neutral);
-		}
-
-		tbody tr:last-child {
-			border-block-end: 0;
-		}
-
-		td {
-			padding: 0;
-			border: 0;
-		}
-
-		&__request,
-		&__client {
-			grid-column: 1 / -1;
-			max-inline-size: none;
-		}
-
-		td.is-empty {
-			display: none;
-		}
-	}
-}
-
 .jp-protect-firewall-test {
 	display: flex;
 	flex-direction: column;
@@ -109,64 +14,6 @@
 		white-space: pre-wrap;
 		overflow-wrap: anywhere;
 	}
-}
-
-.jp-protect-firewall-overview {
-
-	&__empty {
-		display: flex;
-		justify-content: center;
-		padding-block: 40px;
-
-		// 8px between the title and its description, as designed.
-		> * {
-			gap: 8px;
-		}
-	}
-
-	&__check {
-		color: var(--wpds-color-foreground-content-success-weak);
-	}
-
-	// Edit block list | Edit allow list | Configure Firewall, split by rules.
-	&__links {
-		display: flex;
-		flex-wrap: wrap;
-		align-items: center;
-		gap: 8px 16px;
-
-		// Two classes, so the link buttons' own `padding: 0` can't win on load order.
-		&.jp-protect-card__row > * + * {
-			padding-inline-start: 16px;
-			border-inline-start:
-				var(--wpds-border-width-xs) solid
-				var(--wpds-color-stroke-surface-neutral);
-
-			// The links wrap here, and a rule would start the second line.
-			@media (max-width: 600px) {
-				padding-inline-start: 0;
-				border-inline-start: 0;
-			}
-		}
-
-		a,
-		.jp-protect-card__link-button {
-			font-size: 13px;
-			font-weight: 500;
-			text-decoration: none;
-
-			&:hover,
-			&:focus-visible {
-				text-decoration: underline;
-			}
-		}
-	}
-}
-
-.jp-protect-ip-rule__trigger {
-	display: inline-flex;
-	align-items: center;
-	gap: 8px;
 }
 
 .jp-protect-ip-rule__field {
@@ -206,5 +53,38 @@
 	&__link {
 		flex: none;
 		white-space: nowrap;
+	}
+}
+
+.jp-protect-firewall-empty {
+	display: flex;
+	justify-content: center;
+	padding-block: var(--wpds-dimension-padding-3xl);
+}
+
+.jp-protect-firewall-footer {
+
+	> * > :not(:last-child) {
+		padding-inline-end: var(--wpds-dimension-padding-lg);
+		border-inline-end:
+			var(--wpds-border-width-xs) solid
+			var(--wpds-color-stroke-surface-neutral);
+	}
+
+	a,
+	.jp-protect-card__link-button {
+		font-size: inherit;
+		text-decoration: none;
+	}
+}
+
+.jp-protect-firewall-summary {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: var(--wpds-dimension-gap-2xl);
+	padding-block: var(--wpds-dimension-padding-xl);
+
+	@media (max-width: 600px) {
+		grid-template-columns: minmax(0, 1fr);
 	}
 }

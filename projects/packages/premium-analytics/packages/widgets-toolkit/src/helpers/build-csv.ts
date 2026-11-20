@@ -8,7 +8,8 @@
  * External dependencies
  */
 import { saveBlob } from '@jetpack-premium-analytics/data';
-import { getDatePart } from '@jetpack-premium-analytics/datetime';
+import { getDatePart, toLocalTZ } from '@jetpack-premium-analytics/datetime';
+import { format } from 'date-fns';
 
 /**
  * A single CSV column: how to read a row value and the header label to print.
@@ -110,4 +111,16 @@ export function buildCsvDateRangeFilename( prefix: string, range: CsvDateRange )
 export function saveCsv( filename: string, csv: string ): void {
 	const blob = new Blob( [ '\ufeff', csv ], { type: 'text/csv;charset=utf-8' } );
 	saveBlob( blob, filename );
+}
+
+/**
+ * Write a bucket date as an ISO day, or day and minute, in the report's zone rather than the browser's.
+ *
+ * @param date     - The bucket start.
+ * @param zone     - The reporting zone.
+ * @param withTime - Whether the bucket is shorter than a day.
+ * @return The cell text, e.g. `2026-03-02` or `2026-03-02 14:00`.
+ */
+export function formatCsvDate( date: Date, zone: string, withTime = false ): string {
+	return format( toLocalTZ( date, zone ), withTime ? 'yyyy-MM-dd HH:mm' : 'yyyy-MM-dd' );
 }

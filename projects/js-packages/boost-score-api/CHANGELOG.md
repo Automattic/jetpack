@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.0] - 2026-11-16
+### Added
+- Add an onProgress option that reports how far along a running speed test is. [#54357]
+- Pass on the speed test step and any device score already measured while a test runs. [#54758]
+- Report when the comparison score without Boost is still being measured. [#54364]
+
+## [1.3.2] - 2026-11-04
+### Changed
+- Update package dependencies. [#54512]
+
 ## [1.3.1] - 2026-11-02
 ### Changed
 - Update package dependencies. [#53869]
@@ -559,6 +569,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Create package for the boost score bar API [#30781]
 
+[1.4.0]: https://github.com/Automattic/jetpack-boost-score-api/compare/v1.3.2...v1.4.0
+[1.3.2]: https://github.com/Automattic/jetpack-boost-score-api/compare/v1.3.1...v1.3.2
 [1.3.1]: https://github.com/Automattic/jetpack-boost-score-api/compare/v1.3.0...v1.3.1
 [1.3.0]: https://github.com/Automattic/jetpack-boost-score-api/compare/v1.2.3...v1.3.0
 [1.2.3]: https://github.com/Automattic/jetpack-boost-score-api/compare/v1.2.2...v1.2.3

@@ -81,7 +81,7 @@ describe( 'TopPostsWidget', () => {
 		const href = titleLink.getAttribute( 'href' ) ?? '';
 		const search = new URL( href, 'https://example.com' ).searchParams;
 
-		expect( href ).toContain( '/post/1' );
+		expect( href ).toContain( '/report/post/1' );
 		expect( search.get( 'from' ) ).toBe( '2026-03-01' );
 		expect( search.get( 'to' ) ).toBe( '2026-03-10' );
 		expect( search.get( 'post_url' ) ).toBe( 'https://example.com/hello-world/' );

@@ -8,7 +8,6 @@ import {
 	useBarColors,
 	useGlobalChartsContext,
 	type BarChartLayout,
-	type TickResolution,
 } from '@jetpack-premium-analytics/externals';
 import {
 	formatDate,
@@ -23,12 +22,14 @@ import { useCallback, useId, useMemo } from 'react';
 import { RESIZE_DEBOUNCE_MS } from '../../constants';
 import {
 	isEmptyChartData,
-	formatChartName,
 	getFixedYAxis,
 	getYTickDecimals,
 	formatBucketTooltipDate,
+	toTickResolution,
+	type BucketResolution,
 } from '../../helpers';
 import { resolvePrimarySeriesByGroup } from '../../helpers/resolve-series-names';
+import { useChartName } from '../../hooks/use-chart-name';
 import { useComparativeLegend } from '../../hooks/use-comparative-legend';
 import { alignSeriesDates } from '../chart-comparative-line/utils';
 import { DatedTooltip, buildDatedTooltipModel } from '../chart-tooltip';
@@ -55,7 +56,7 @@ export type ComparativeBarChartProps = {
 
 	className?: string;
 
-	/** What the chart shows, such as the widget title; the chart is named "Chart: <title>". */
+	/** What the chart shows, when that is not the widget title; the chart is named "Chart: <title>". */
 	chartTitle?: string;
 
 	/** Format for chart values: y-axis ticks and tooltips. */
@@ -69,7 +70,7 @@ export type ComparativeBarChartProps = {
 	 * from a known granularity instead of measuring the gaps between points, which a
 	 * single-bucket or DST-shortened series gives it no way to read.
 	 */
-	tickResolution?: TickResolution;
+	tickResolution?: BucketResolution;
 
 	/**
 	 * Drop the axes, grid and legend while the chart is shorter than
@@ -166,7 +167,9 @@ export function ComparativeBarChart( {
 	onPointerUp,
 	onDatumActivate,
 }: ComparativeBarChartProps ) {
-	const { displayResolution } = getBucketInfo( series, tickResolution );
+	const chartName = useChartName( chartTitle );
+	const libraryTickResolution = toTickResolution( tickResolution );
+	const { displayResolution } = getBucketInfo( series, libraryTickResolution );
 	const fallbackChartId = useId();
 	const chartId = providedChartId ?? fallbackChartId;
 	const { isSeriesVisible } = useGlobalChartsContext();
@@ -338,8 +341,9 @@ export function ComparativeBarChart( {
 	] );
 
 	const formatTooltipBucket = useCallback(
-		( point: ComparativeDatePointDate ) => formatBucketTooltipDate( point, displayResolution ),
-		[ displayResolution ]
+		( point: ComparativeDatePointDate ) =>
+			formatBucketTooltipDate( point, displayResolution, tickResolution ),
+		[ displayResolution, tickResolution ]
 	);
 
 	/**
@@ -419,12 +423,17 @@ export function ComparativeBarChart( {
 	);
 
 	/**
-	 * A pinned domain for percentage metrics and all-zero periods. Null lets the
-	 * chart scale to the data.
+	 * A pinned domain for percentage metrics and all-zero periods, read from the
+	 * bars the legend leaves visible. Null lets the chart scale to the data.
 	 */
 	const fixedYAxis = useMemo(
-		() => getFixedYAxis( dataFormat.type, isEmptyData ),
-		[ dataFormat.type, isEmptyData ]
+		() =>
+			getFixedYAxis(
+				dataFormat.type,
+				isEmptyData,
+				drawnSeries.filter( item => isSeriesVisible( chartId, item.label ) )
+			),
+		[ dataFormat.type, isEmptyData, drawnSeries, isSeriesVisible, chartId ]
 	);
 
 	const chartOptions = useMemo( () => {
@@ -432,7 +441,7 @@ export function ComparativeBarChart( {
 			axis: {
 				x: {
 					tickFormat: xTickFormat,
-					tickResolution,
+					tickResolution: libraryTickResolution,
 				},
 				y: {
 					tickFormat: yTickFormat,
@@ -446,13 +455,13 @@ export function ComparativeBarChart( {
 		}
 
 		return { ...baseOptions, yScale: { domain: fixedYAxis.domain } };
-	}, [ xTickFormat, tickResolution, yTickFormat, yTickDecimals, fixedYAxis ] );
+	}, [ xTickFormat, libraryTickResolution, yTickFormat, yTickDecimals, fixedYAxis ] );
 
 	return (
 		<Stack direction="column" className={ clsx( styles.chart, className ) }>
 			<BarChart
 				chartId={ chartId }
-				ariaLabel={ formatChartName( chartTitle ) }
+				ariaLabel={ chartName }
 				className={ styles.chartContent }
 				data={ drawnSeries }
 				layout={ layout }
@@ -462,9 +471,6 @@ export function ComparativeBarChart( {
 				maxWidth={ maxWidth }
 				compactWhenShort={ compactWhenShort }
 				resizeDebounceTime={ RESIZE_DEBOUNCE_MS }
-				// A zero-value bar has no height, so a quiet day would otherwise read as
-				// missing data. This draws it as a hairline stub instead.
-				showZeroValues
 				showLegend={ false }
 				withTooltips={ hasTooltipRows }
 				renderTooltip={ renderTooltip }

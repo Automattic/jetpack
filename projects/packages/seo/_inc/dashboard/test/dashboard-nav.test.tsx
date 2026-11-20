@@ -5,14 +5,9 @@ import { fireEvent, render, screen } from '@testing-library/react';
 // `--experimental-vm-modules` (true ESM): mock with `jest.unstable_mockModule`
 // and import the component under test dynamically after the mocks are registered.
 const navigate = jest.fn();
-const isGated = jest.fn< () => boolean >();
 
 jest.unstable_mockModule( '@wordpress/route', () => ( {
 	useNavigate: () => navigate,
-} ) );
-
-jest.unstable_mockModule( '../../data/is-gated', () => ( {
-	isGated,
 } ) );
 
 const { default: DashboardNav } = await import( '../dashboard-nav' );
@@ -20,7 +15,6 @@ const { default: DashboardNav } = await import( '../dashboard-nav' );
 describe( 'DashboardNav', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
-		isGated.mockReturnValue( false );
 	} );
 
 	it( 'labels the /geo tab "GEO" (not "AI")', () => {
@@ -39,25 +33,13 @@ describe( 'DashboardNav', () => {
 		expect( navigate ).toHaveBeenCalledWith( { href: '/geo' } );
 	} );
 
-	it( 'shows all four tabs, Settings last, when the dashboard is not gated', () => {
+	it( 'shows all four tabs with Settings last', () => {
 		render( <DashboardNav active="overview">content</DashboardNav> );
 
 		expect( screen.getAllByRole( 'tab' ).map( tab => tab.textContent ) ).toEqual( [
 			'Overview',
 			'Content',
 			'GEO',
-			'Settings',
-		] );
-	} );
-
-	it( 'hides the Content and GEO tabs when the dashboard is gated', () => {
-		isGated.mockReturnValue( true );
-
-		render( <DashboardNav active="overview">content</DashboardNav> );
-
-		// The two free tabs remain; the paid Content and GEO tabs are gone.
-		expect( screen.getAllByRole( 'tab' ).map( tab => tab.textContent ) ).toEqual( [
-			'Overview',
 			'Settings',
 		] );
 	} );

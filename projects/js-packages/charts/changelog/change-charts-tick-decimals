@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Axis: Add a `tickDecimals` option that keeps value-axis ticks to a number of decimal places, so rounded labels never repeat.

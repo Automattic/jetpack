@@ -2,25 +2,28 @@
  * External dependencies
  */
 import { type StatsCommentFollowersItem } from '@jetpack-premium-analytics/data';
-import { Text } from '@jetpack-premium-analytics/externals';
-import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
+import { Icon, Text } from '@jetpack-premium-analytics/externals';
+import { jetpack } from '@jetpack-premium-analytics/icons';
+import { StatsBreadcrumbs } from '@jetpack-premium-analytics/ui';
 import {
 	MetricValue,
 	ReportPageLayout,
 	ReportPageSection,
 	ReportErrorState,
-	ReportPageShell,
 	ReportRecordsTable,
 	ReportCsvAction,
+	StatsOptionsMenu,
 	useReportCsvExport,
 	type CsvColumn,
 } from '@jetpack-premium-analytics/widgets-toolkit';
+import { Page } from '@wordpress/admin-ui';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { type JSX } from 'react';
 /**
  * Internal dependencies
  */
+import reportPageStyles from '../page.module.scss';
 import { REPORTS } from '../registry';
 import { getCommentFollowersFields, useCommentFollowersReportRecords } from './config';
 import styles from './page.module.css';
@@ -89,13 +92,17 @@ function CommentFollowersReport(): JSX.Element {
 	const hasPostRows = records.rows.length > 0;
 
 	return (
-		<ReportPageShell
-			visual={ <StatsPageIcon /> }
+		<Page
+			className={ reportPageStyles.page }
+			visual={ <Icon icon={ jetpack } /> }
 			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
 			actions={
-				canExport ? (
-					<ReportCsvAction columns={ csvColumns } rows={ csvRows } filename={ csvFilename } />
-				) : undefined
+				<>
+					{ canExport && (
+						<ReportCsvAction columns={ csvColumns } rows={ csvRows } filename={ csvFilename } />
+					) }
+					<StatsOptionsMenu />
+				</>
 			}
 		>
 			<ReportPageLayout title={ getLabel() }>
@@ -130,13 +137,13 @@ function CommentFollowersReport(): JSX.Element {
 					) }
 				</ReportErrorState>
 			</ReportPageLayout>
-		</ReportPageShell>
+		</Page>
 	);
 }
 
 /**
  * Registry entry point; React Query and error handling come from the shared
- * report stage that renders this lazily.
+ * report stage that renders this.
  *
  * @return The Comments Subscribers report page.
  */

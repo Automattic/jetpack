@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Admin_UI;
 
+use Automattic\Jetpack\Feature_Flags\Feature_Flags;
 use Automattic\Jetpack\Feature_Policy;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
@@ -206,6 +207,20 @@ class Admin_Menu_Test extends TestCase {
 			has_action( 'load-' . $hook . '-network', array( Admin_Menu::class, 'hide_core_admin_notices' ) ),
 			'Expected the network-admin load hook to hide core admin notices to be registered.'
 		);
+	}
+
+	/**
+	 * Standalone plugins never run Jetpack's bootstrap, so adding a menu must list the admin shell flag.
+	 *
+	 * @return void
+	 */
+	public function test_add_menu_registers_the_admin_shell_flag() {
+		Feature_Flags::reset();
+
+		Admin_Menu::add_menu( 'Test', 'Test', 'edit_posts', 'shell_flag_menu', '__return_null' );
+
+		$this->assertNotNull( Feature_Flags::get( Admin_Shell::FLAG ) );
+		Feature_Flags::reset();
 	}
 
 	/**
@@ -958,6 +973,29 @@ class Admin_Menu_Test extends TestCase {
 		$this->render_menu();
 
 		$this->assertNotContains( 'gate-off', $this->get_submenu_slugs() );
+	}
+
+	/**
+	 * A page reads back the gate its menu item declared, and nothing for an item without one.
+	 */
+	public function test_get_feature_gate() {
+		Admin_Menu::add_menu(
+			'Gated',
+			'Gated',
+			'manage_options',
+			'gate-module',
+			'__return_null',
+			null,
+			array(
+				'module' => 'seo-tools',
+				'key'    => 'jetpack-seo',
+			)
+		);
+		Admin_Menu::add_menu( 'Ungated', 'Ungated', 'manage_options', 'gate-none', '__return_null', null, array( 'key' => 'none' ) );
+
+		$this->assertSame( array( 'module' => 'seo-tools' ), Admin_Menu::get_feature_gate( 'gate-module' ) );
+		$this->assertNull( Admin_Menu::get_feature_gate( 'gate-none' ) );
+		$this->assertNull( Admin_Menu::get_feature_gate( 'not-registered' ) );
 	}
 
 	/**

@@ -12,6 +12,7 @@ import SupportLink from 'components/support-link';
 import TextInput from 'components/text-input';
 import analytics from 'lib/analytics';
 import { FEATURE_GOOGLE_ANALYTICS_JETPACK } from 'lib/plans/constants';
+import { getAnalyticsUrl } from '../../shared/analytics-url';
 
 // The Google Analytics options are JSON-serialized under the following option
 const OPTION_NAME = 'jetpack_wga';
@@ -96,11 +97,12 @@ export const GoogleAnalytics = withModuleSettingsFormHelpers(
 								a: (
 									<a
 										href={
-											this.props.siteUsesWpAdminInterface
-												? this.props.siteAdminUrl + 'admin.php?page=jetpack#/stats'
+											getAnalyticsUrl( { view: 'dashboard' } ) ??
+											( this.props.siteUsesWpAdminInterface
+												? this.props.siteAdminUrl + 'admin.php?page=stats'
 												: getRedirectUrl( 'calypso-stats-day', {
 														site: this.props.siteRawUrl,
-													} )
+													} ) )
 										}
 									/>
 								),

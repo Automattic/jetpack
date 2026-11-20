@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-GEO: Add more AI crawlers, block every robots.txt name each one uses, and show those names under each toggle.

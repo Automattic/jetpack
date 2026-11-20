@@ -6,6 +6,13 @@
 	padding-block: var(--wpds-dimension-padding-md);
 }
 
+// The field's `width: 100%` squeezes the slot, wrapping the button's label and
+// shrinking its icon. Remove once WordPress/gutenberg#86446 ships in
+// @wordpress/ui.
+.post-by-email__copy-slot {
+	flex-shrink: 0;
+}
+
 .related-posts-preview {
 	container-type: inline-size;
 	padding: var(--wpds-dimension-padding-lg);

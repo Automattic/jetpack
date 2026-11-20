@@ -11,7 +11,7 @@ import {
 
 describe( 'uploadFromLibrary', () => {
 	it( 'returns guid + mediaId immediately when the first response is complete', async () => {
-		mockApiFetch( async () => ( {
+		const fetch = mockApiFetch( async () => ( {
 			status: 'complete',
 			uploaded_details: { guid: 'g', media_id: 42 },
 		} ) );
@@ -20,6 +20,7 @@ describe( 'uploadFromLibrary', () => {
 			guid: 'g',
 			mediaId: 42,
 		} );
+		expect( fetch ).toHaveBeenCalledWith( { path: '/videopress/v1/upload/1', method: 'POST' } );
 	} );
 
 	it( 'recognises the "uploaded" terminal status (zombie row safety net)', async () => {
@@ -45,14 +46,21 @@ describe( 'uploadFromLibrary', () => {
 			},
 		];
 		let i = 0;
-		mockApiFetch( async () => responses[ i++ ] );
+		const fetch = mockApiFetch( async () => responses[ i++ ] );
 
 		// A real (1ms) delay so the between-poll sleep path runs too.
-		await expect( uploadFromLibrary( 1, { delayMs: 1 } ) ).resolves.toEqual( {
+		await expect(
+			uploadFromLibrary( 1, { delayMs: 1, source: 'dashboard_promote' } )
+		).resolves.toEqual( {
 			guid: 'g',
 			mediaId: 9,
 		} );
 		expect( i ).toBe( 3 );
+		expect( fetch.mock.calls ).toEqual(
+			Array( 3 ).fill( [
+				{ path: '/videopress/v1/upload/1', method: 'POST', data: { source: 'dashboard_promote' } },
+			] )
+		);
 	} );
 
 	it( 'reports the upload percentage after each chunk response', async () => {
@@ -99,7 +107,7 @@ describe( 'uploadFromLibrary', () => {
 
 	it( 'tolerates a transient apiFetch failure and keeps polling', async () => {
 		let calls = 0;
-		mockApiFetch( async () => {
+		const fetch = mockApiFetch( async () => {
 			calls += 1;
 			if ( calls === 1 ) {
 				throw new Error( 'network blip' );
@@ -110,11 +118,18 @@ describe( 'uploadFromLibrary', () => {
 			};
 		} );
 
-		await expect( uploadFromLibrary( 1, { delayMs: 0 } ) ).resolves.toEqual( {
+		await expect(
+			uploadFromLibrary( 1, { delayMs: 0, source: 'dashboard_promote' } )
+		).resolves.toEqual( {
 			guid: 'g',
 			mediaId: 1,
 		} );
 		expect( calls ).toBe( 2 );
+		expect( fetch.mock.calls ).toEqual(
+			Array( 2 ).fill( [
+				{ path: '/videopress/v1/upload/1', method: 'POST', data: { source: 'dashboard_promote' } },
+			] )
+		);
 	} );
 
 	it( 'gives up after consecutive transient failures exceed maxAttempts', async () => {
@@ -144,19 +159,26 @@ describe( 'uploadFromLibrary', () => {
 } );
 
 describe( 'promoteOnSimple', () => {
-	it( 'POSTs the wpcom/v2 promote route once and maps the response', async () => {
-		const paths: ( string | undefined )[] = [];
-		mockApiFetch( async ( { path, method } ) => {
-			paths.push( path );
-			expect( method ).toBe( 'POST' );
-			// `already_videopress` (the idempotent-replay marker) is unread
-			// by the mapper — same result shape either way.
-			return { guid: 'AbCd1234', media_id: 5, already_videopress: true };
-		} );
+	it.each( [ undefined, 'dashboard_promote', 'block_editor' ] as const )(
+		'POSTs the wpcom/v2 promote route once with source %s and maps the response',
+		async source => {
+			const paths: ( string | undefined )[] = [];
+			mockApiFetch( async ( { path, method, data } ) => {
+				paths.push( path );
+				expect( method ).toBe( 'POST' );
+				expect( data ).toEqual( source ? { source } : undefined );
+				// `already_videopress` (the idempotent-replay marker) is unread
+				// by the mapper — same result shape either way.
+				return { guid: 'AbCd1234', media_id: 5, already_videopress: true };
+			} );
 
-		await expect( promoteOnSimple( 5 ) ).resolves.toEqual( { guid: 'AbCd1234', mediaId: 5 } );
-		expect( paths ).toEqual( [ '/wpcom/v2/videopress/promote/5' ] );
-	} );
+			await expect( promoteOnSimple( 5, source ) ).resolves.toEqual( {
+				guid: 'AbCd1234',
+				mediaId: 5,
+			} );
+			expect( paths ).toEqual( [ '/wpcom/v2/videopress/promote/5' ] );
+		}
+	);
 
 	it( 'rejects with an Error carrying the REST payload message', async () => {
 		mockApiFetch( async () => {
@@ -196,8 +218,9 @@ describe( 'useUploadFromLibrary', () => {
 	it( 'routes through the one-shot wpcom/v2 promote on Simple (no walker)', async () => {
 		setSimpleSite();
 		const paths: ( string | undefined )[] = [];
-		mockApiFetch( async ( { path } ) => {
+		mockApiFetch( async ( { path, data } ) => {
 			paths.push( path );
+			expect( data ).toEqual( { source: 'dashboard_promote' } );
 			return { guid: 'g1234567', media_id: 3 };
 		} );
 
@@ -219,9 +242,7 @@ describe( 'useUploadFromLibrary', () => {
 	} );
 
 	it( 'keeps walking the videopress/v1 upload endpoint off Simple', async () => {
-		const paths: ( string | undefined )[] = [];
-		mockApiFetch( async ( { path } ) => {
-			paths.push( path );
+		const fetch = mockApiFetch( async () => {
 			return { status: 'complete', uploaded_details: { guid: 'g', media_id: 3 } };
 		} );
 
@@ -232,6 +253,10 @@ describe( 'useUploadFromLibrary', () => {
 			await result.current.mutateAsync( { id: 3 } );
 		} );
 
-		expect( paths ).toEqual( [ '/videopress/v1/upload/3' ] );
+		expect( fetch ).toHaveBeenCalledWith( {
+			path: '/videopress/v1/upload/3',
+			method: 'POST',
+			data: { source: 'dashboard_promote' },
+		} );
 	} );
 } );

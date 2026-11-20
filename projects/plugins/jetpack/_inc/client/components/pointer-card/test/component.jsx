@@ -16,14 +16,45 @@ describe( 'FeaturesPointer', () => {
 		delete window.JetpackScriptData;
 	} );
 
-	it( 'links to the feature in My Jetpack Features', () => {
+	it.each( [
+		[ 'searches My Jetpack Features', { search: 'videopress' }, 'search=videopress' ],
+		[
+			'opens a card in My Jetpack Features',
+			{ feature: 'jetpack-forms' },
+			'feature=jetpack-forms',
+		],
+	] )( '%s', ( _label, props, query ) => {
 		window.JetpackScriptData = { site: { admin_url: 'https://example.com/wp-admin/' } };
 
-		render( <FeaturesPointer header="VideoPress" name="VideoPress" search="videopress" /> );
+		render( <FeaturesPointer header="VideoPress" name="VideoPress" { ...props } /> );
 
 		expect( screen.getByRole( 'link', { name: 'Open Features' } ) ).toHaveAttribute(
 			'href',
-			'https://example.com/wp-admin/admin.php?page=my-jetpack#/features?search=videopress'
+			`https://example.com/wp-admin/admin.php?page=my-jetpack#/features?${ query }`
 		);
+	} );
+
+	it.each( [
+		[
+			'mentions the settings Features links to by default',
+			undefined,
+			'Turn VideoPress on or off in My Jetpack › Features, which links to its settings.',
+		],
+		[
+			'mentions only the switch without settings',
+			false,
+			'Turn VideoPress on or off in My Jetpack › Features.',
+		],
+	] )( '%s', ( _label, linksToSettings, text ) => {
+		render(
+			<FeaturesPointer
+				header="VideoPress"
+				name="VideoPress"
+				search="videopress"
+				linksToSettings={ linksToSettings }
+			/>
+		);
+
+		expect( screen.getByText( text ) ).toBeInTheDocument();
 	} );
 } );

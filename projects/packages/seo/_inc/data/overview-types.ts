@@ -30,11 +30,6 @@ export interface OverviewResponse {
 	site_visibility: SiteVisibility;
 	site_verification: SiteVerification;
 	content_coverage: ContentCoverage;
-	plan: {
-		seo_enabled_for_site: boolean;
-	};
-	// See `SettingsResponse['conflicting_seo_plugin']`.
-	conflicting_seo_plugin: string;
 	// Whether the site-verification module can be switched on this site. False on
 	// WordPress.com Simple, which ships no Jetpack modules and reports every one of
 	// them active, so the Settings tab hides that toggle.

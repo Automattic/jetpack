@@ -15,6 +15,7 @@ require_once __DIR__ . '/dashboard-grammar.php';
 require_once __DIR__ . '/rest-namespace.php';
 require_once __DIR__ . '/class-dashboard-section.php';
 require_once __DIR__ . '/class-dashboard-section-registry.php';
+require_once __DIR__ . '/dashboard-first-visit.php';
 
 /**
  * Registers a dashboard section.
@@ -126,6 +127,9 @@ function inject_dashboard_sections_script_data( array $data ): array {
 
 	// Switching the dashboard off sends the reader to classic Stats, so the client is told where that is.
 	$data['premium_analytics']['classic_stats_url'] = Classic_Stats::page_url();
+
+	// Once classic Stats is retired, Stats v2 stops asking for feedback.
+	$data['premium_analytics']['classic_stats_retired'] = Classic_Stats::is_retired();
 
 	$sections = get_available_dashboard_section_slugs();
 
@@ -280,6 +284,11 @@ function get_dashboard_section_schema() {
  * @return \WP_REST_Response
  */
 function get_dashboard_sections_response( $request ) {
+	// Only a rendering dashboard asks for its sections, so this also counts a visit through the admin shell.
+	if ( DASHBOARD_NAME === $request['name'] ) {
+		store_dashboard_first_visit();
+	}
+
 	$sections = array_map(
 		static function ( Dashboard_Section $section ) {
 			return $section->to_array();

@@ -58,7 +58,7 @@ describe( 'comments fields', () => {
 
 		const link = screen.getByRole( 'link', { name: 'Hello world' } );
 		const url = getMockRouteLinkUrl( link );
-		expect( url.pathname ).toBe( '/post/42' );
+		expect( url.pathname ).toBe( '/report/post/42' );
 		expect( Object.fromEntries( url.searchParams ) ).toEqual( {
 			from: '2026-06-01',
 			to: '2026-06-16',

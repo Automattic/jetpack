@@ -166,6 +166,7 @@ function EmailTopRowDashboardStory( { metric, ...dashboardArgs }: EmailTopRowDas
 }
 
 export const WidgetDashboardWithWidget: StoryObj< EmailTopRowDashboardStoryProps > = {
+	tags: [ 'widget-dashboard' ],
 	render: args => <EmailTopRowDashboardStory { ...args } />,
 	args: {
 		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,

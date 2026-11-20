@@ -790,10 +790,12 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 					break;
 
 				case 'jetpack_protect_global_whitelist':
+					_deprecated_argument( 'jetpack/v4/settings', 'jetpack-16.5', esc_html__( 'The jetpack_protect_global_whitelist setting is deprecated. Use jetpack_waf_ip_allow_list instead.', 'jetpack' ) );
 					$updated = Brute_Force_Protection_Shared_Functions::save_allow_list( explode( PHP_EOL, str_replace( array( ' ', ',' ), array( '', "\n" ), $value ) ) );
 
 					if ( is_wp_error( $updated ) ) {
-						$error = $updated->get_error_message();
+						$error   = $updated->get_error_message();
+						$updated = false;
 					}
 					break;
 
@@ -1827,15 +1829,3 @@ function jetpack_do_after_gravatar_hovercards_deactivation() {
 	update_option( 'gravatar_disable_hovercards', 'disabled' );
 }
 add_action( 'jetpack_deactivate_module_gravatar-hovercards', 'jetpack_do_after_gravatar_hovercards_deactivation' );
-
-/**
- * Actions performed only when Markdown is activated through the endpoint call.
- *
- * @since 4.7.0
- */
-function jetpack_do_after_markdown_activation() {
-
-	// When Markdown is activated, enable support for post editing automatically.
-	update_option( 'wpcom_publish_posts_with_markdown', true );
-}
-add_action( 'jetpack_activate_module_markdown', 'jetpack_do_after_markdown_activation' );

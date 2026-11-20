@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Protect: Show Protect in the Jetpack menu beside Scan, land on it after upgrading, and show that it is being set up while a newly moved site finishes connecting.

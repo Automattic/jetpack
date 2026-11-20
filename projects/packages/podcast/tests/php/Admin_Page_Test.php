@@ -13,8 +13,12 @@ use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Podcast\Admin_Page;
 use Automattic\Jetpack\Podcast\Podcast_Gate;
 use Automattic\Jetpack\Podcast\Settings;
+use Automattic\Jetpack\Status\Cache as Status_Cache;
 use Jetpack_Options;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use WorDBless\BaseTestCase;
 use WorDBless\Options as WorDBless_Options;
 
@@ -37,7 +41,6 @@ class Admin_Page_Test extends BaseTestCase {
 	protected function tearDown(): void {
 		Constants::clear_constants();
 		remove_all_actions( 'load-jetpack_page_' . Admin_Page::ADMIN_PAGE_SLUG );
-		remove_action( 'admin_enqueue_scripts', 'wp_enqueue_media' );
 		remove_action( 'admin_enqueue_scripts', array( Admin_Page::class, 'enqueue_tracks_transport' ) );
 		remove_action( 'admin_enqueue_scripts', array( Admin_Page::class, 'enqueue_i18n_loader' ) );
 		wp_dequeue_script( 'wp-jp-i18n-loader' );
@@ -143,6 +146,68 @@ class Admin_Page_Test extends BaseTestCase {
 
 		$this->assertArrayHasKey( 'preload', $data['podcast'] );
 		$this->assertIsArray( $data['podcast']['preload'] );
+	}
+
+	/**
+	 * @param array       $options Site visibility options.
+	 * @param string|null $filter Status filter to force true.
+	 * @param bool        $expected Expected public visibility.
+	 * @dataProvider provide_site_visibility_states
+	 */
+	#[DataProvider( 'provide_site_visibility_states' )]
+	public function test_inject_script_data_reports_site_visibility( $options, $filter, $expected ) {
+		Status_Cache::clear();
+		foreach ( $options as $name => $value ) {
+			update_option( $name, $value );
+		}
+		if ( null !== $filter ) {
+			add_filter( $filter, '__return_true' );
+		}
+
+		try {
+			$data = Admin_Page::inject_podcast_script_data( array() );
+			$this->assertSame( $expected, $data['podcast']['is_site_public'] ?? null );
+		} finally {
+			if ( null !== $filter ) {
+				remove_filter( $filter, '__return_true' );
+			}
+			Status_Cache::clear();
+		}
+	}
+
+	public static function provide_site_visibility_states(): array {
+		return array(
+			'public without launch status' => array( array( 'blog_public' => '1' ), null, true ),
+			'public and launched'          => array(
+				array(
+					'blog_public'   => '1',
+					'launch-status' => 'launched',
+				),
+				null,
+				true,
+			),
+			'discouraged string'           => array( array( 'blog_public' => '0' ), null, false ),
+			'discouraged integer'          => array( array( 'blog_public' => 0 ), null, false ),
+			'private'                      => array( array( 'blog_public' => '-1' ), null, false ),
+			'unlaunched'                   => array(
+				array(
+					'blog_public'   => '1',
+					'launch-status' => 'unlaunched',
+				),
+				null,
+				false,
+			),
+			'coming soon option'           => array(
+				array(
+					'blog_public'              => '1',
+					'wpcom_public_coming_soon' => 1,
+				),
+				null,
+				false,
+			),
+			'private status filter'        => array( array( 'blog_public' => '1' ), 'jetpack_is_private_site', false ),
+			'coming soon status filter'    => array( array( 'blog_public' => '1' ), 'jetpack_is_coming_soon', false ),
+		);
 	}
 
 	/**
@@ -320,6 +385,26 @@ class Admin_Page_Test extends BaseTestCase {
 		$this->assertSame( 10, has_action( 'admin_enqueue_scripts', array( Admin_Page::class, 'enqueue_i18n_loader' ) ) );
 	}
 
+	/**
+	 * The picker's endpoint is hooked without the admin menu, which admin-ajax never builds.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_init_hooks_the_media_library_endpoint() {
+		Admin_Page::init();
+
+		$this->assertNotFalse( has_action( 'wp_ajax_jetpack_media_library' ) );
+	}
+
+	public function test_admin_init_leaves_the_media_library_to_the_cover_picker() {
+		Admin_Page::admin_init();
+
+		$this->assertFalse( has_action( 'admin_enqueue_scripts', 'wp_enqueue_media' ) );
+	}
+
 	public function test_enqueue_i18n_loader_enqueues_the_loader_when_it_is_registered() {
 		wp_register_script( 'wp-jp-i18n-loader', false, array(), '1.0', true );
 
@@ -334,5 +419,56 @@ class Admin_Page_Test extends BaseTestCase {
 		Admin_Page::enqueue_i18n_loader();
 
 		$this->assertFalse( wp_script_is( 'wp-jp-i18n-loader', 'enqueued' ) );
+	}
+
+	/**
+	 * The shell offers Podcast wherever its build exists, Simple included.
+	 *
+	 * @dataProvider provide_admin_shell_member_cases
+	 *
+	 * @param bool $built    Whether build/build.php exists.
+	 * @param bool $simple   Whether the site is WordPress.com Simple.
+	 * @param bool $expected Whether Podcast joins the shell.
+	 */
+	#[DataProvider( 'provide_admin_shell_member_cases' )]
+	public function test_admin_shell_member( $built, $simple, $expected ) {
+		$this->set_wp_build_index( $built ? __FILE__ : __DIR__ . '/absent.php' );
+		if ( $simple ) {
+			Constants::set_constant( 'IS_WPCOM', true );
+		}
+
+		try {
+			$members = Admin_Page::add_admin_shell_member( array() );
+		} finally {
+			$this->set_wp_build_index( null );
+		}
+
+		$this->assertSame( $expected, isset( $members[ Admin_Page::ADMIN_PAGE_SLUG ] ) );
+	}
+
+	/**
+	 * Admin shell member cases.
+	 *
+	 * @return array<string, array{bool, bool, bool}>
+	 */
+	public static function provide_admin_shell_member_cases() {
+		return array(
+			'built, self-hosted' => array( true, false, true ),
+			'built, Simple'      => array( true, true, true ),
+			'unbuilt'            => array( false, false, false ),
+		);
+	}
+
+	/**
+	 * Point the class at a build entry point, or back at the real one with null.
+	 *
+	 * @param string|null $path Entry point path.
+	 */
+	private function set_wp_build_index( $path ): void {
+		$property = new \ReflectionProperty( Admin_Page::class, 'wp_build_index' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$property->setAccessible( true );
+		}
+		$property->setValue( null, $path );
 	}
 }

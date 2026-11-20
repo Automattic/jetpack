@@ -3,7 +3,9 @@ import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import DashboardLayout from '../../src/dashboard/components/dashboard-layout';
 import FetchErrorNotice from '../../src/dashboard/components/fetch-error-notice';
-import FreeTierNotice from '../../src/dashboard/components/free-tier-notice';
+import FreeTierNotice, {
+	FREE_TIER_AT_LIMIT_MESSAGE,
+} from '../../src/dashboard/components/free-tier-notice';
 import KpiCardsRow from '../../src/dashboard/components/overview/kpi-cards-row';
 import MostViewedCard from '../../src/dashboard/components/overview/most-viewed-card';
 import StorageMeterCard from '../../src/dashboard/components/overview/storage-meter-card';
@@ -49,7 +51,7 @@ const StageInner = () => {
 		compare,
 		setCompare,
 	} = useStats();
-	const { isFree, isAtomic, isUnlimited, videoCount } = useFreeTier();
+	const { isFree, isAtomic, isUnlimited, isAtLimit, videoCount, videoCountKnown } = useFreeTier();
 	const dateRangePresets = useMemo( getDateRangePresets, [] );
 
 	const showStorageMeter = isFree === false && videoCount > 0 && ! isUnlimited && ! isAtomic;
@@ -72,7 +74,18 @@ const StageInner = () => {
 			}
 		>
 			<div className="vp-overview">
-				{ isFree && <FreeTierNotice location="overview" /> }
+				{ /* Once the free upload is used, say so in the Library's words:
+				     the generic "allows 1 video upload" copy reads as if one is
+				     still left (VIDP-250). The location stays `overview` so the
+				     impression series isn't split; its video_count tells the
+				     two states apart. */ }
+				{ isFree && (
+					<FreeTierNotice
+						location="overview"
+						message={ isAtLimit ? FREE_TIER_AT_LIMIT_MESSAGE : undefined }
+						videoCount={ videoCountKnown ? videoCount : undefined }
+					/>
+				) }
 				{ statsUnavailable ? (
 					<FetchErrorNotice
 						className="vp-overview__error"

@@ -39,7 +39,6 @@
 		"packages/premium-analytics": "No Premium Analytics assets were requested in the unconnected suite-page probe; no package notices in the connected Image CDN suite (WP latest).",
 		"packages/protect": "No Protect assets were requested in the unconnected suite-page probe; no package notices in the connected Image CDN suite (WP latest).",
 		"packages/publicize": "No Social assets were requested in the unconnected suite-page probe; no package notices in the connected Image CDN suite (WP latest).",
-		"packages/scan": "No Scan assets were requested in the unconnected suite-page probe; no package notices in the connected Image CDN suite (WP latest).",
 		"packages/search": "No Search assets were requested in the unconnected suite-page probe; no package notices in the connected Image CDN suite (WP latest).",
 		"packages/seo": "No SEO assets were requested in the unconnected suite-page probe; no package notices in the connected Image CDN suite (WP latest).",
 		"packages/sharing-likes": "No Sharing assets were requested in the unconnected suite-page probe; no package notices in the connected Image CDN suite (WP latest).",

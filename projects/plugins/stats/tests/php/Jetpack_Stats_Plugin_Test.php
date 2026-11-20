@@ -91,17 +91,20 @@ class Jetpack_Stats_Plugin_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The complete set of hooks `bootstrap()` registers, as `hook, method, priority`.
+	 * The complete set of hooks `bootstrap()` registers, as `hook, callback, priority`.
 	 */
 	private function bootstrap_hooks() {
+		$plugin = Jetpack_Stats_Plugin::class;
+
 		return array(
-			array( 'plugins_loaded', 'configure_packages', 1 ),
-			array( 'plugins_loaded', 'initialize_other_packages', 10 ),
-			array( 'activated_plugin', 'handle_plugin_activation', 10 ),
-			array( 'jetpack_site_registered', 'activate_stats_module', 10 ),
-			array( 'deactivate_jetpack/jetpack.php', 'activate_stats_module', 10 ),
-			array( 'plugin_action_links_' . JETPACK_STATS_PLUGIN__FILE_RELATIVE_PATH, 'plugin_page_add_links', 10 ),
-			array( 'jetpack_get_available_standalone_modules', 'filter_available_modules_add_stats', 10 ),
+			array( 'plugins_loaded', array( $plugin, 'configure_packages' ), 1 ),
+			array( 'plugins_loaded', array( $plugin, 'initialize_other_packages' ), 10 ),
+			array( 'activated_plugin', array( $plugin, 'handle_plugin_activation' ), 10 ),
+			array( 'jetpack_site_registered', array( $plugin, 'activate_stats_module' ), 10 ),
+			array( 'deactivate_jetpack/jetpack.php', array( $plugin, 'activate_stats_module' ), 10 ),
+			array( 'plugin_action_links_' . JETPACK_STATS_PLUGIN__FILE_RELATIVE_PATH, array( $plugin, 'plugin_page_add_links' ), 10 ),
+			array( 'jetpack_get_available_standalone_modules', array( $plugin, 'filter_available_modules_add_stats' ), 10 ),
+			array( 'wp_consent_api_registered_' . JETPACK_STATS_PLUGIN__FILE_RELATIVE_PATH, '__return_true', 10 ),
 		);
 	}
 
@@ -191,22 +194,22 @@ class Jetpack_Stats_Plugin_Test extends BaseTestCase {
 	 * WordPress stores actions as filters, so `has_filter()` and `remove_filter()` cover both.
 	 */
 	public function test_bootstrap_registers_every_hook() {
-		foreach ( $this->bootstrap_hooks() as list( $hook, $method, $priority ) ) {
-			remove_filter( $hook, array( Jetpack_Stats_Plugin::class, $method ), $priority );
+		foreach ( $this->bootstrap_hooks() as list( $hook, $callback, $priority ) ) {
+			remove_filter( $hook, $callback, $priority );
 
 			$this->assertFalse(
-				has_filter( $hook, array( Jetpack_Stats_Plugin::class, $method ) ),
-				"$hook still holds $method before bootstrap() runs."
+				has_filter( $hook, $callback ),
+				"$hook still holds its callback before bootstrap() runs."
 			);
 		}
 
 		Jetpack_Stats_Plugin::bootstrap();
 
-		foreach ( $this->bootstrap_hooks() as list( $hook, $method, $priority ) ) {
+		foreach ( $this->bootstrap_hooks() as list( $hook, $callback, $priority ) ) {
 			$this->assertSame(
 				$priority,
-				has_filter( $hook, array( Jetpack_Stats_Plugin::class, $method ) ),
-				"bootstrap() did not register $method on $hook."
+				has_filter( $hook, $callback ),
+				"bootstrap() did not register its callback on $hook."
 			);
 		}
 	}

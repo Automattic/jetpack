@@ -60,6 +60,8 @@ jest.mock( '@automattic/jetpack-shared-extension-utils', () => {
 
 // `@wordpress/ui` isn't resolvable in the jest environment; render a plain anchor.
 jest.mock( '@wordpress/ui', () => ( {
+	// components 44 builds its Spinner on this one.
+	Spinner: () => <span data-testid="spinner" />,
 	// Renders its children, so the accessible name still includes the hidden label.
 	VisuallyHidden: ( { children } ) => <span data-testid="visually-hidden">{ children }</span>,
 	Link: ( { children, href, openInNewTab, onClick, 'aria-label': ariaLabel, className } ) => (

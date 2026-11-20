@@ -15,12 +15,12 @@ import { useMemo } from 'react';
 /**
  * Internal dependencies
  */
-import { formatChartName } from '../../helpers/format-chart-name';
 import {
 	formatListMetricCount,
 	getListMetricLabel,
 	type ListMetric,
 } from '../../helpers/list-metrics';
+import { useChartName } from '../../hooks/use-chart-name';
 import { AbbreviatedValue } from '../abbreviated-value';
 import { ChartEmptyState } from '../chart-empty-state';
 import styles from './leaderboard-chart.module.scss';
@@ -81,7 +81,7 @@ export type LeaderboardChartProps = {
 	/** Names the rows and the metric above them, and the unit in the exact-value tooltip. */
 	columns?: LeaderboardColumns;
 
-	/** What the chart shows, such as the widget title; the chart is named "Chart: <title>". */
+	/** What the chart shows, when that is not the widget title; the chart is named "Chart: <title>". */
 	chartTitle?: string;
 };
 
@@ -108,6 +108,7 @@ export function LeaderboardChart( {
 	columns,
 	chartTitle,
 }: LeaderboardChartProps ) {
+	const chartName = useChartName( chartTitle );
 	const { getElementStyles } = useGlobalChartsContext();
 
 	const metric = columns?.metric;
@@ -155,7 +156,7 @@ export function LeaderboardChart( {
 			) }
 			<BaseLeaderboardChart
 				data={ data }
-				ariaLabel={ formatChartName( chartTitle ) }
+				ariaLabel={ chartName }
 				loading={ loading }
 				withComparison={ withComparison }
 				valueFormatter={ valueFormatter }

@@ -90,7 +90,7 @@ class LCP_Invalidator {
 	/**
 	 * Schedule a re-analysis of every cornerstone page after a template or site-wide style is saved.
 	 *
-	 * @since $$next-version$$
+	 * @since 4.8.2
 	 * @param int      $post_id The ID of the saved post.
 	 * @param \WP_Post $post    The saved post.
 	 * @return void
@@ -117,7 +117,7 @@ class LCP_Invalidator {
 	/**
 	 * Re-analyse every cornerstone page, serving the current results until new ones arrive.
 	 *
-	 * @since $$next-version$$
+	 * @since 4.8.2
 	 * @return void
 	 */
 	public static function reanalyze_cornerstone_pages() {

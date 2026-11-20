@@ -176,7 +176,6 @@ function TagsInner() {
 						<TagGroupMembers members={ selectedGroup.children } />
 					) : (
 						<LeaderboardChart
-							chartTitle={ __( 'Top tags & categories', 'jetpack-premium-analytics-pkg' ) }
 							data={ leaderboardData }
 							withOverlayLabel
 							showLegend={ false }

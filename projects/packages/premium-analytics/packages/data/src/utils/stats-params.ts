@@ -5,6 +5,7 @@ import { getDatePart, localTZDate } from '@jetpack-premium-analytics/datetime';
 import {
 	differenceInCalendarISOWeeks,
 	differenceInCalendarMonths,
+	differenceInCalendarQuarters,
 	differenceInCalendarYears,
 	differenceInMilliseconds,
 } from 'date-fns';
@@ -17,7 +18,7 @@ import type { StatsProxyParams } from '../api/stats-proxy-fetch';
 
 const MS_PER_HOUR = 60 * 60 * 1000;
 
-export type StatsPeriod = 'hour' | 'day' | 'week' | 'month' | 'year';
+export type StatsPeriod = 'hour' | 'day' | 'week' | 'month' | 'quarter' | 'year';
 
 export type StatsQueryParamFields = {
 	period?: StatsPeriod | string;
@@ -69,6 +70,8 @@ export function getStatsPeriodFromInterval( interval?: string ): StatsPeriod {
 			return 'week';
 		case 'month':
 			return 'month';
+		case 'quarter':
+			return 'quarter';
 		case 'year':
 			return 'year';
 		case 'day':
@@ -130,6 +133,7 @@ const BUCKET_COUNTERS: Record< StatsPeriod, ( from: string, to: string ) => numb
 	day: getDaysBetweenInclusive,
 	week: countCalendarBuckets( differenceInCalendarISOWeeks ),
 	month: countCalendarBuckets( differenceInCalendarMonths ),
+	quarter: countCalendarBuckets( differenceInCalendarQuarters ),
 	year: countCalendarBuckets( differenceInCalendarYears ),
 };
 

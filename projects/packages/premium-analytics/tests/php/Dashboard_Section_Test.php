@@ -98,6 +98,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 		remove_all_filters( 'jetpack_admin_js_script_data' );
 		remove_all_filters( DASHBOARD_INSERTABLE_WIDGET_TYPES_FILTER );
 		delete_option( Enablement_Setting::ENABLED_OPTION );
+		delete_option( DASHBOARD_FIRST_VISIT_OPTION );
 
 		if ( null !== $this->available_modules_filter ) {
 			remove_filter( 'jetpack_get_available_standalone_modules', $this->available_modules_filter );
@@ -670,7 +671,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The dashboard stage draws its own Settings tab at the `settings` slug.
+	 * The dashboard redirects `?section=settings` to the Settings page.
 	 */
 	public function test_register_rejects_the_settings_slug() {
 		$this->capture_doing_it_wrong();
@@ -999,6 +1000,38 @@ class Dashboard_Section_Test extends BaseTestCase {
 
 		$this->assertSame( 200, $response->get_status() );
 		$this->assertSame( array(), $response->get_data() );
+	}
+
+	/**
+	 * The admin shell's menu-hover preload never asks for sections, so only the Stats dashboard rendering starts the clock.
+	 *
+	 * @dataProvider provide_sections_requests
+	 *
+	 * @param string $dashboard Dashboard name in the route.
+	 * @param bool   $records   Whether the request stores the first visit.
+	 */
+	#[DataProvider( 'provide_sections_requests' )]
+	public function test_sections_route_records_the_stats_dashboard_first_visit( $dashboard, $records ) {
+		// Its sections would load the widget build, which this doesn't need.
+		remove_action( Dashboard_Section_Registry::REGISTER_ACTION, __NAMESPACE__ . '\\register_default_dashboard_sections' );
+		$request = new WP_REST_Request( 'GET' );
+		$request->set_param( 'name', $dashboard );
+
+		get_dashboard_sections_response( $request );
+
+		$this->assertSame( $records, false !== get_option( DASHBOARD_FIRST_VISIT_OPTION ) );
+	}
+
+	/**
+	 * Sections requests and whether they record a visit.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_sections_requests() {
+		return array(
+			'Stats dashboard'   => array( DASHBOARD_NAME, true ),
+			'another dashboard' => array( 'unregistered_dashboard', false ),
+		);
 	}
 
 	/**
@@ -1422,6 +1455,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 				'has_videopress'             => true,
 				'can_view_stats'             => true,
 				'classic_stats_url'          => null,
+				'classic_stats_retired'      => false,
 				'sections'                   => array( 'traffic', 'insights', 'subscribers' ),
 				'plan_date_limited_sections' => array( 'traffic' ),
 			),

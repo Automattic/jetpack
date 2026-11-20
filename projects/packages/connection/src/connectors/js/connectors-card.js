@@ -111,6 +111,7 @@ function useCardConnection() {
 		plugins,
 		isOfflineMode,
 		blogId,
+		canTakeOwnerSlot,
 	} = useSelect( select => {
 		const store = select( CONNECTION_STORE_ID );
 		return {
@@ -120,6 +121,8 @@ function useCardConnection() {
 			plugins: store.getConnectedPlugins(),
 			isOfflineMode: store.getIsOfflineMode(),
 			blogId: store.getBlogId() || null,
+			// Optional: an older shared connection bundle has no such selector.
+			canTakeOwnerSlot: store.getCanTakeOwnerSlot?.(),
 		};
 	}, [] );
 
@@ -138,6 +141,7 @@ function useCardConnection() {
 
 		return {
 			...connection,
+			canTakeOwnerSlot,
 			tracksIdentity: getTracksIdentity( connection.currentUser ),
 			subjectNoun: connection.hasWooPlugin
 				? _x(
@@ -147,7 +151,15 @@ function useCardConnection() {
 					)
 				: _x( 'site', 'The thing connected to WordPress.com.', 'jetpack-connection' ),
 		};
-	}, [ connectionStatus, userConnectionData, storeOwner, plugins, isOfflineMode, blogId ] );
+	}, [
+		connectionStatus,
+		userConnectionData,
+		storeOwner,
+		plugins,
+		isOfflineMode,
+		blogId,
+		canTakeOwnerSlot,
+	] );
 }
 
 const TRACKING_CONTEXT = 'connectors';
@@ -774,12 +786,14 @@ function ProtectedOwnerSection() {
  * @return {object} React element.
  */
 function ConnectPrompt( { onConnect, isConnecting } ) {
-	const { isRegistered, isConnected, isOfflineMode, owner, currentUser } = useCardConnection();
+	const { isRegistered, isConnected, isOfflineMode, owner, currentUser, canTakeOwnerSlot } =
+		useCardConnection();
 	const promptKind = getUserConnectKind( {
 		isRegistered,
 		hasConnectedOwner: isConnected,
 		owner,
 		currentUserId: currentUser?.id,
+		canTakeOwnerSlot,
 	} );
 	const isReconnectingOwner = 'reconnect-owner' === promptKind;
 	const promptText = getUserConnectMessage( promptKind );

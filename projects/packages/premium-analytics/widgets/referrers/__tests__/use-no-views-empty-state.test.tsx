@@ -26,7 +26,8 @@ jest.mock( '@wordpress/route', () => jest.requireActual( '../../test-utils' ).mo
 const mockApiFetch = jest.mocked( apiFetch );
 
 const GENERIC_TEXT = 'We couldn’t find results for this time period.';
-const SITE_SUMMARY_PATH = /\/stats(\?|$)/;
+const SITE_SUMMARY_PATH =
+	/\/stats\?stat_fields=views%2Cvisitors%2Cposts%2Ccomments%2Cviews_best_day%2Cviews_best_day_total$/;
 const SITE_SUMMARY_KEY = [ 'stats', 'site' ];
 const NONE_RECORDED = { description: 'None recorded.' };
 const EMPTY_LIST = { isLoading: false, isError: false, isEmpty: true };

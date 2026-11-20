@@ -126,6 +126,23 @@ export function viewToQueryArgs( view: View ): Record< string, string | number >
 }
 
 /**
+ * Whether a view lists the whole library, so its `X-WP-Total` is the library count.
+ *
+ * Mirrors the filters `viewToQueryArgs` skips; any other filter or search narrows the total.
+ *
+ * @param view - The current DataViews view.
+ * @return True when no search or filter narrows the listing.
+ */
+export function isWholeLibraryView( view: View ): boolean {
+	return (
+		! view.search?.trim() &&
+		( view.filters ?? [] ).every(
+			filter => filter.value === undefined || filter.value === null || filter.value === 'all'
+		)
+	);
+}
+
+/**
  * Fetch one raw page of /wp/v2/media results.
  *
  * @param args - Query args for addQueryArgs (page/per_page included).
@@ -173,12 +190,16 @@ async function fetchLibrary(
 /**
  * Fetch and cache the VideoPress media library from /wp/v2/media.
  *
- * @param view         - The current DataViews view (sort, filters, search, pagination).
- * @param options      - Query options.
- * @param options.poll - Poll processing items visible in the library.
+ * @param view            - The current DataViews view (sort, filters, search, pagination).
+ * @param options         - Query options.
+ * @param options.poll    - Poll processing items visible in the library.
+ * @param options.enabled - Send the request; a disabled query reads as settled with no data.
  * @return Items, loading/error state, pagination info, and a refetch callback.
  */
-export function useLibrary( view: View, { poll = true }: { poll?: boolean } = {} ) {
+export function useLibrary(
+	view: View,
+	{ poll = true, enabled = true }: { poll?: boolean; enabled?: boolean } = {}
+) {
 	// Anchor for when the current processing set was first seen, so the
 	// VIDP-298 poll cap can measure elapsed time across refetches without
 	// causing re-renders. Stored in a ref, not state, so mutating it never
@@ -190,6 +211,7 @@ export function useLibrary( view: View, { poll = true }: { poll?: boolean } = {}
 		// encoded in the server query args, so they alone key the cache.
 		queryKey: [ LIBRARY_QUERY_KEY, viewToQueryArgs( view ) ],
 		queryFn: () => fetchLibrary( view ),
+		enabled,
 		placeholderData: keepPreviousData,
 		// Only visible library items need processing updates; counts change on mutations.
 		refetchInterval: q => {
@@ -215,6 +237,8 @@ export function useLibrary( view: View, { poll = true }: { poll?: boolean } = {}
 	return {
 		items: query.data?.items ?? [],
 		isLoading: query.isLoading,
+		isSuccess: query.isSuccess,
+		isPlaceholderData: query.isPlaceholderData,
 		paginationInfo: query.data?.paginationInfo ?? { totalItems: 0, totalPages: 0 },
 		isError: query.isError,
 		error: query.error,

@@ -15,6 +15,9 @@ use Automattic\Jetpack\Jetpack_Mu_Wpcom;
  * @see index.js
  */
 function wpcom_head_error_handler() {
+	if ( wpcom_error_reporting_is_delegated() ) {
+		return;
+	}
 	?><script type="text/javascript">
 		window._headJsErrorHandler = function( errEvent ) {
 			window._jsErr = window._jsErr || [];
@@ -59,6 +62,25 @@ function wpcom_add_crossorigin_to_script_elements( $tag ) {
 }
 
 /**
+ * Whether the screen being rendered reports its own JavaScript errors.
+ *
+ * @return bool
+ */
+function wpcom_error_reporting_is_delegated() {
+	/**
+	 * Filters whether this handler stands down because the screen reports for itself.
+	 *
+	 * An admin screen that sends its own errors to the JS error endpoint filters this to true,
+	 * so a window error is not reported twice. ETK is detected by its script handle instead.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param bool $delegated Whether another reporter owns the screen.
+	 */
+	return (bool) apply_filters( 'wpcom_error_reporting_delegated', false );
+}
+
+/**
  * Enqueue assets
  */
 function wpcom_enqueue_error_reporting_script() {
@@ -67,33 +89,20 @@ function wpcom_enqueue_error_reporting_script() {
 		return;
 	}
 
+	if ( wpcom_error_reporting_is_delegated() ) {
+		return;
+	}
+
 	$asset_file          = include Jetpack_Mu_Wpcom::BASE_DIR . 'build/error-reporting/error-reporting.asset.php';
 	$script_dependencies = $asset_file['dependencies'] ?? array();
 	$script_version      = $asset_file['version'] ?? filemtime( Jetpack_Mu_Wpcom::BASE_DIR . 'build/error-reporting/error-reporting.js' );
-	$script_id           = 'wpcom-error-reporting-script';
 
 	wp_enqueue_script(
-		$script_id,
+		'wpcom-error-reporting-script',
 		plugins_url( 'build/error-reporting/error-reporting.js', Jetpack_Mu_Wpcom::BASE_FILE ),
 		$script_dependencies,
 		$script_version,
 		true
-	);
-
-	/**
-	 * Filter to enable Sentry error reporting.
-	 *
-	 * @param bool $enabled Whether Sentry should be activated.
-	 */
-	$activate_sentry = apply_filters( 'a8c_enable_sentry_error_reporting', false );
-
-	wp_localize_script(
-		$script_id,
-		'WPcom_Error_Reporting_Config',
-		array(
-			'shouldActivateSentry' => $activate_sentry ? 'true' : 'false',
-			'releaseName'          => defined( 'WPCOM_DEPLOYED_GIT_HASH' ) ? 'WPCOM_' . WPCOM_DEPLOYED_GIT_HASH : 'WPCOM_NO_RELEASE',
-		)
 	);
 }
 

@@ -1,11 +1,12 @@
 import '@testing-library/jest-dom';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import useAnalytics from '../../../../hooks/use-analytics';
 import { FirewallStatus } from '../firewall-status';
 
 const mockUseProduct = jest.fn();
 const mockConnection = { isSiteConnected: true };
-const mockRecordEvent = jest.fn();
+const mockRecordEvent = jest.mocked( jest.mocked( useAnalytics )().recordEvent );
 
 jest.mock( '../../../../data/products/use-product', () => ( {
 	__esModule: true,
@@ -16,11 +17,6 @@ jest.mock( '../../../../hooks/use-my-jetpack-connection', () => ( {
 	__esModule: true,
 	default: () => mockConnection,
 } ) );
-
-jest.mock( '../../../../hooks/use-analytics', () => {
-	const result = { recordEvent: ( ...args ) => mockRecordEvent( ...args ) };
-	return { __esModule: true, default: () => result };
-} );
 
 jest.mock( '../../../../data/utils/get-my-jetpack-window-state', () => ( {
 	getMyJetpackWindowInitialState: () => ( { plugins: {}, themes: {} } ),

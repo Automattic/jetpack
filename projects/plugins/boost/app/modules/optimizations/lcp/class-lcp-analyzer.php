@@ -49,19 +49,21 @@ class LCP_Analyzer {
 	}
 
 	/**
-	 * Start a partial analysis for the given pages.
-	 * Sets status to pending and updates only the pages that are in the $pages array.
-	 * Pages that are not in the $pages array will not be updated.
+	 * Start a partial analysis when the saved state has pages, marking only the given pages pending.
+	 * Otherwise return the state unchanged.
 	 *
 	 * @param array $pages The pages to analyze.
 	 * @return array The current state data
 	 */
 	public function start_partial_analysis( $pages ) {
-		$current_pages = $this->state->get_pages();
+		$current_state = $this->state->get();
+		if ( empty( $current_state['pages'] ) ) {
+			return $current_state;
+		}
 
 		$this->state
 			->prepare_request()
-			->set_pages( $current_pages )
+			->set_pages( $current_state['pages'] )
 			->set_pending_pages( $pages )
 			->save();
 

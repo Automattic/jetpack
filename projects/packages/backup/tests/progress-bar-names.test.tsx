@@ -1,13 +1,9 @@
 // Each progress bar has to say what it is measuring.
 //
-// The trap: `ProgressBar` supplies a generic "Loading …" `aria-label` and
-// spreads caller props after it, so a bare `<ProgressBar />` is labelled — just
-// not usefully — and any test that finds *a* progressbar passes against it. The
-// `<Text>` beside each bar never reaches the accessible name.
-//
-// These routes externalize `@wordpress/components`, so wp-admin runs core's
-// copy, not the one jest resolves. The override rests on that prop-spread
-// ordering, which is not a documented contract.
+// The trap: a bare `<Progress.Root>` is an unnamed progressbar, and the
+// `<Text>` beside each bar never reaches its accessible name — so any test
+// that finds *a* progressbar passes against a bar a screen reader cannot
+// place. Querying by name is what pins each label to its bar.
 
 const mockApiFetch = jest.fn();
 

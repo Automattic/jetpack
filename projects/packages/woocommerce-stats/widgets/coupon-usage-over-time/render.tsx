@@ -72,7 +72,6 @@ function CouponUsageOverTime() {
 	return (
 		<Donut
 			segments={ segments }
-			chartTitle={ __( 'Coupon usage over time', 'jetpack-woocommerce-stats-pkg' ) }
 			status={ {
 				isLoading,
 				isFetching,

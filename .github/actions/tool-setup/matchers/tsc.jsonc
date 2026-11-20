@@ -1,0 +1,19 @@
+// From https://github.com/actions/setup-node/blob/101b3474143230c3562bd21f0b3c3f8254784571/.github/tsc.json
+{
+	"problemMatcher": [
+		{
+			"owner": "tsc",
+			"pattern": [
+				{
+					"regexp": "^([^\\s].*)[\\(:](\\d+)[,:](\\d+)(?:\\):\\s+|\\s+-\\s+)(error|warning|info)\\s+TS(\\d+)\\s*:\\s*(.*)$",
+					"file": 1,
+					"line": 2,
+					"column": 3,
+					"severity": 4,
+					"code": 5,
+					"message": 6
+				}
+			]
+		}
+	]
+}

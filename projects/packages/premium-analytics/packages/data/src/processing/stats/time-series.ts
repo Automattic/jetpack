@@ -14,6 +14,7 @@ import {
 	startOfMonth,
 	startOfYear,
 } from 'date-fns';
+import { StatsResponseShapeError } from '../../utils/api-error';
 import { safeParseFloat } from '../../utils/parsing';
 import {
 	createStatsBucketWindowFilter,
@@ -318,9 +319,9 @@ function toRangeBound( value: string | undefined, time: string ) {
 }
 
 // Units whose edge buckets the range cuts through are stamped with its edges, so
-// no bucket claims a day outside it (UNI-842, STATS-551, STATS-554). A cut month or
-// year sits nearer its neighbour, so its chart must pass `tickResolution`, not infer it.
-const CLIPPED_UNITS = new Set( [ 'week', 'month', 'year' ] );
+// no bucket claims a day outside it (UNI-842, STATS-551, STATS-554). A cut month,
+// quarter or year sits nearer its neighbour, so its chart must pass `tickResolution`, not infer it.
+const CLIPPED_UNITS = new Set( [ 'week', 'month', 'quarter', 'year' ] );
 
 function clipToRange(
 	range: StatsIntervalFields,
@@ -431,6 +432,13 @@ export function sanitizeStatsEmailTimeSeriesResponse(
 	// stats_fields=timeline), unlike the generic time series endpoints that return it top-level.
 	const timeline = coerceStatsRecord( coerceStatsRecord( payload ).timeline );
 	const fields = coerceStatsArray< string >( timeline.fields );
+
+	// A backend that ignores `period` answers in its own unit, which would draw on the wrong axis.
+	if ( timeline.unit && query?.period && timeline.unit !== query.period ) {
+		throw new StatsResponseShapeError(
+			`Email timeline came back by ${ timeline.unit }, not by ${ query.period }.`
+		);
+	}
 
 	// Names an unlabeled trailing hour column so older/alternate payloads still
 	// resolve into per-hour buckets (matching Calypso's parseEmailChartData).

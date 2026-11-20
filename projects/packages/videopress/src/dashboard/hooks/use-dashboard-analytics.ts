@@ -6,7 +6,8 @@ import { useEffect } from '@wordpress/element';
 // (`admin-page/index.tsx`).
 const PAGE_VIEW_EVENT = 'jetpack_videopress_admin_page_view';
 
-export type DashboardRoute = 'overview' | 'library' | 'settings' | 'video' | 'video_editor';
+export type DashboardRoute =
+	'overview' | 'library' | 'playlists' | 'playlist' | 'settings' | 'video' | 'video_editor';
 
 // Share the once-per-load guard across separately bundled SPA route stages.
 const TRACKED_FLAG = '__jetpackVideoPressDashboardTracked' as const;
@@ -35,15 +36,36 @@ export function useDashboardAnalytics( route: DashboardRoute ): void {
 			analytics.initialize( wpcomUser.ID, wpcomUser.login );
 		}
 
-		const access =
-			typeof JPVIDEOPRESS_INITIAL_STATE !== 'undefined'
-				? JPVIDEOPRESS_INITIAL_STATE?.siteData?.hasVideoPressAccess
-				: undefined;
-
-		analytics.tracks.recordEvent( PAGE_VIEW_EVENT, {
-			route,
-			// Missing access data must not be counted as a free plan.
-			...( typeof access === 'boolean' ? { is_free: ! access } : {} ),
-		} );
+		recordPageView( route );
 	}, [ route ] );
+
+	// The admin shell keeps this page mounted, so a return to it is a new visit: see the admin-ui README.
+	useEffect( () => {
+		const onShown = ( event: Event ) => {
+			const { page, firstShow } = ( event as CustomEvent ).detail ?? {};
+			if ( page === 'jetpack-videopress' && ! firstShow ) {
+				recordPageView( route );
+			}
+		};
+		window.addEventListener( 'jetpack-admin-shell:page-shown', onShown );
+		return () => window.removeEventListener( 'jetpack-admin-shell:page-shown', onShown );
+	}, [ route ] );
+}
+
+/**
+ * Record the page view for a route.
+ *
+ * @param route - Bounded route name.
+ */
+function recordPageView( route: DashboardRoute ): void {
+	const access =
+		typeof JPVIDEOPRESS_INITIAL_STATE !== 'undefined'
+			? JPVIDEOPRESS_INITIAL_STATE?.siteData?.hasVideoPressAccess
+			: undefined;
+
+	analytics.tracks.recordEvent( PAGE_VIEW_EVENT, {
+		route,
+		// Missing access data must not be counted as a free plan.
+		...( typeof access === 'boolean' ? { is_free: ! access } : {} ),
+	} );
 }

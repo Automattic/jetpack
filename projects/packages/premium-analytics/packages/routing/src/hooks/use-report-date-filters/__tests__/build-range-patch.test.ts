@@ -11,6 +11,7 @@ jest.mock( '@jetpack-premium-analytics/datetime', () => ( {
  * External dependencies
  */
 import { TZDate } from '@date-fns/tz';
+import { planDateStep } from '@jetpack-premium-analytics/datetime';
 /**
  * Internal dependencies
  */
@@ -166,6 +167,90 @@ describe( 'buildRangePatch', () => {
 
 		expect( patch?.from ).toBe( '2026-07-09T14:30:00.000+00:00' );
 		expect( patch?.to ).toBe( '2026-07-10T14:30:00.000+00:00' );
+	} );
+
+	/*
+	 * Rounding a stepped `to` up to the end of its day stretches a rolling
+	 * window on every step and pushes its next window into the future, hiding
+	 * the forward arrow.
+	 */
+	it( 'steps a rolling window back and forward without changing its length', () => {
+		const hourFrom = new TZDate( '2026-07-09T15:00:00.000+00:00', 'UTC' );
+		const hourTo = new TZDate( '2026-07-10T14:59:59.999+00:00', 'UTC' );
+		const stepContext = { timeZone: 'UTC', now: hourTo, presetId: 'last-24-hours' } as const;
+		const previous = planDateStep( { from: hourFrom, to: hourTo }, 'previous', stepContext );
+		const back = buildRangePatch( {
+			nextRange: previous?.range,
+			nextPresetId: 'custom',
+			exactRange: true,
+			step: previous?.step,
+			effective: { preset: 'last-24-hours', interval: 'hour' },
+		} );
+
+		expect( back ).toMatchObject( {
+			from: '2026-07-08T15:00:00.000+00:00',
+			to: '2026-07-09T14:59:59.999+00:00',
+			interval: 'hour',
+			preset: 'custom',
+			step: 'last-24-hours',
+		} );
+
+		const backRange = {
+			from: new TZDate( back?.from ?? '', 'UTC' ),
+			to: new TZDate( back?.to ?? '', 'UTC' ),
+		};
+		const returned = planDateStep( backRange, 'next', {
+			...stepContext,
+			presetId: 'custom',
+			step: back?.step,
+		} )?.range;
+		expect( returned?.from.getTime() ).toBe( hourFrom.getTime() );
+		expect( returned?.to.getTime() ).toBe( hourTo.getTime() );
+	} );
+
+	it( 'clears the step the URL carries on any range change but a step', () => {
+		const patch = buildRangePatch( { nextRange: { from, to }, effective: { step: 'P7D' } } );
+
+		expect( patch ).toHaveProperty( 'step', undefined );
+	} );
+
+	it( 'keeps the window a widget zoomed in from, by its preset, and clears it on any other range change', () => {
+		const zoomedIn = buildRangePatch( {
+			nextRange: { from, to },
+			nextPresetId: 'custom',
+			exactRange: true,
+			withZoomOut: true,
+			effective: { preset: 'last-30-days', interval: 'week', up_preset: 'last-7-days' },
+		} );
+
+		// Its own, not the one it was itself zoomed in from.
+		expect( zoomedIn ).toMatchObject( {
+			up_preset: 'last-30-days',
+			up_interval: 'week',
+			up_from: undefined,
+		} );
+
+		const moved = buildRangePatch( { nextRange: { from, to: wideTo }, effective: zoomedIn ?? {} } );
+		expect( moved ).toHaveProperty( 'up_preset', undefined );
+		expect( moved ).toHaveProperty( 'up_interval', undefined );
+	} );
+
+	// A chart with one bar opens the window it is already drawing.
+	it( 'keeps no zoom-out window when a widget opens the window it is on', () => {
+		const effective = {
+			from: '2026-07-09T14:30:00.000+00:00',
+			to: '2026-07-10T14:30:00.000+00:00',
+			preset: 'custom',
+		} as const;
+		const patch = buildRangePatch( {
+			nextRange: { from, to },
+			nextPresetId: 'custom',
+			exactRange: true,
+			withZoomOut: true,
+			effective,
+		} );
+
+		expect( patch ).toMatchObject( { up_from: undefined, up_preset: undefined } );
 	} );
 
 	it( 're-derives the comparison range from the new primary range when enabled', () => {

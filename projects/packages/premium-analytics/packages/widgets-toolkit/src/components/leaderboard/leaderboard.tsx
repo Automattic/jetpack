@@ -108,7 +108,7 @@ export type LeaderboardProps = {
 	 * Destination tab and origin report for the detail links, see `useWidgetNavigationSearch()`.
 	 */
 	navigation?: Parameters< typeof useWidgetNavigationSearch >[ 0 ];
-	/** What the chart shows, such as the widget title; the chart is named "Chart: <title>". */
+	/** What the chart shows, when that is not the widget title; the chart is named "Chart: <title>". */
 	chartTitle?: string;
 };
 

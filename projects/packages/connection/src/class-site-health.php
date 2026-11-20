@@ -8,11 +8,10 @@
 namespace Automattic\Jetpack\Connection;
 
 /**
- * Integrates connection health tests into WordPress Site Health.
+ * Integrates the connection with WordPress Site Health.
  *
- * This class defers to the Jetpack plugin's own debugger integration when it
- * is present (old Jetpack versions). When no legacy integration is detected,
- * it registers the connection health tests directly.
+ * Registers the connection health tests on the Status tab, unless an old Jetpack plugin registers its own,
+ * and adds the Jetpack Connection section to the Info tab.
  *
  * @since 8.5.0
  */
@@ -39,6 +38,8 @@ class Site_Health {
 		self::$initialized = true;
 
 		add_action( 'admin_init', array( __CLASS__, 'maybe_register_site_health' ), 1 );
+
+		add_filter( 'debug_information', array( Debug_Data::class, 'add_section' ) );
 
 		// Deliberately hooked to the cron-only `jetpack_heartbeat` action (end of
 		// Heartbeat::cron_exec()) and not `jetpack_heartbeat_stats_array`, which

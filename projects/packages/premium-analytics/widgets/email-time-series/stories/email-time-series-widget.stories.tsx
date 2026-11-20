@@ -7,7 +7,6 @@
  * External dependencies
  */
 import { getDefaultQueryParams } from '@jetpack-premium-analytics/data';
-import { PRESET_LAST_24_HOURS } from '@jetpack-premium-analytics/datetime';
 /**
  * Internal dependencies
  */
@@ -23,7 +22,6 @@ import {
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
 import { createStoryWidgetType } from '../../stories/create-story-widget-type';
-import { presetForStoryInterval } from '../../stories/preset-for-story-interval';
 import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import {
 	siteTimeZoneArgTypes,
@@ -33,7 +31,7 @@ import {
 import EmailTimeSeriesRender from '../render';
 import widgetDefinition from '../widget';
 import widgetManifest from '../widget.json';
-import type { StatsChartBucketPeriod } from '@jetpack-premium-analytics/data';
+import type { EmailSendWindow } from '@jetpack-premium-analytics/data';
 import type { EmailTimeSeriesChartType, EmailTimeSeriesMetric } from '../widget';
 import type { Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
@@ -50,11 +48,13 @@ const MOCK_EMAIL_ID = 1234;
 // exposed as a user-facing attribute, so the story enumerates the union
 // directly to preview both tab instances.
 const METRIC_OPTIONS: EmailTimeSeriesMetric[] = [ 'opens', 'clicks' ];
-const INTERVAL_OPTIONS: StatsChartBucketPeriod[] = [ 'day', 'week', 'month' ];
+const SEND_WINDOW_OPTIONS = widgetManifest.attributes[ 0 ].elements.map(
+	element => element.value
+) as EmailSendWindow[];
 
 interface EmailTimeSeriesStoryControls extends SiteTimeZoneControls {
 	metric: EmailTimeSeriesMetric;
-	interval: StatsChartBucketPeriod;
+	sendWindow: EmailSendWindow;
 	chartType: EmailTimeSeriesChartType;
 }
 
@@ -63,16 +63,16 @@ interface EmailTimeSeriesStoryControls extends SiteTimeZoneControls {
  * params without duplicating the scoping rule.
  */
 function getEmailTimeSeriesAttributes(
-	{ metric, interval, chartType }: EmailTimeSeriesStoryControls,
+	{ metric, sendWindow, chartType }: EmailTimeSeriesStoryControls,
 	withComparison = false
 ): ComponentProps< typeof EmailTimeSeriesRender >[ 'attributes' ] {
 	return {
 		reportParams: {
-			...getDefaultQueryParams( withComparison, presetForStoryInterval( interval ) ),
-			interval,
+			...getDefaultQueryParams( withComparison ),
 			post_id: MOCK_EMAIL_ID,
 		},
 		metric,
+		sendWindow,
 		chartType,
 	};
 }
@@ -88,7 +88,7 @@ function renderEmailTimeSeriesForState( postId: number ) {
 	return (
 		<EmailTimeSeriesRender
 			attributes={ {
-				reportParams: { ...getDefaultQueryParams( false ), interval: 'day', post_id: postId },
+				reportParams: { ...getDefaultQueryParams( false ), post_id: postId },
 				metric: 'opens',
 			} }
 		/>
@@ -102,14 +102,14 @@ const meta = {
 	argTypes: {
 		...siteTimeZoneArgTypes,
 		metric: { control: 'select', options: METRIC_OPTIONS },
-		interval: { control: 'select', options: INTERVAL_OPTIONS },
+		sendWindow: { control: 'select', options: SEND_WINDOW_OPTIONS },
 		chartType: { control: 'radio', options: [ 'line', 'bar' ] },
 	},
 	parameters: {
 		docs: {
 			description: {
 				component:
-					'The "Email performance" widget. Draws a single sent email\'s opens or clicks per day as a line chart, spanning the dashboard date range — the chart section of the legacy email detail page. The bucket size follows the page\'s chart interval control: an hourly window (the last-24-hours preset) draws the hourly buckets directly, while weekly and monthly grouping aggregate the daily buckets client-side because the endpoint only reports hourly/daily. Scoped to one email via a mocked `reportParams.post_id`. The post detail page has no comparison control, so comparison report params are ignored.',
+					'The "Email performance" widget. Draws a single sent email\'s opens or clicks since it was sent — the chart section of the legacy email detail page. Its own "Time since send" control picks the window and with it the bucket: the first 24 hours by the hour, the first week or first 30 days by the day, all time by the month, each as the endpoint returns it. The window is counted from the start of the host\'s range, which the post page pins to the send day. Scoped to one email via a mocked `reportParams.post_id`. The post detail page has no comparison control, so comparison report params are ignored.',
 			},
 		},
 	},
@@ -121,11 +121,11 @@ export default meta;
 type Story = StoryObj< EmailTimeSeriesStoryControls >;
 
 /**
- * Default populated state — the selected email's opens per day.
+ * Default populated state — the selected email's opens per day over its first 30 days.
  */
 export const Default: Story = {
 	render: renderEmailTimeSeries,
-	args: { metric: 'opens', interval: 'day', chartType: 'line' },
+	args: { metric: 'opens', sendWindow: 'first-30-days', chartType: 'line' },
 	decorators: [ withWidgetCanvas ],
 };
 
@@ -134,42 +134,27 @@ export const Default: Story = {
  */
 export const Clicks: Story = {
 	render: renderEmailTimeSeries,
-	args: { metric: 'clicks', interval: 'day', chartType: 'line' },
+	args: { metric: 'clicks', sendWindow: 'first-30-days', chartType: 'line' },
 	decorators: [ withWidgetCanvas ],
 };
 
 /**
- * Weekly grouping: the daily buckets aggregate client-side into ISO weeks.
+ * All time: one bucket per calendar month, from the month of the send.
  */
-export const ByWeeks: Story = {
+export const AllTime: Story = {
 	render: renderEmailTimeSeries,
-	args: { metric: 'opens', interval: 'week', chartType: 'line' },
+	args: { metric: 'opens', sendWindow: 'all-time', chartType: 'line' },
 	decorators: [ withWidgetCanvas ],
 };
 
 /**
- * The last-24-hours preset: an hourly window that usually spans two calendar
- * days. The endpoint anchors its hourly buckets on the start day's midnight,
- * so the mock returns buckets from before the window opens — the data layer
- * trims them, and the chart draws exactly the selected 24 hours (WOOA7S-1840).
- * The preset pins the page interval to `hour`, so the interval control is
- * hidden here and no interval arg is wired.
+ * The first 24 hours. The endpoint anchors its hourly buckets on the start
+ * day's midnight, so the mock returns buckets from before the window opens and
+ * the data layer trims them (WOOA7S-1840).
  */
-export const LastTwentyFourHours: StoryObj< Omit< EmailTimeSeriesStoryControls, 'interval' > > = {
-	render: ( { metric, chartType } ) => (
-		<EmailTimeSeriesRender
-			attributes={ {
-				reportParams: {
-					...getDefaultQueryParams( false, PRESET_LAST_24_HOURS ),
-					post_id: MOCK_EMAIL_ID,
-				},
-				metric,
-				chartType,
-			} }
-		/>
-	),
-	args: { metric: 'opens', chartType: 'line' },
-	parameters: { controls: { exclude: [ 'interval' ] } },
+export const FirstTwentyFourHours: Story = {
+	render: renderEmailTimeSeries,
+	args: { metric: 'opens', sendWindow: 'first-24-hours', chartType: 'line' },
 	decorators: [ withWidgetCanvas ],
 };
 
@@ -238,7 +223,7 @@ interface EmailTimeSeriesDashboardStoryProps
  */
 function EmailTimeSeriesDashboardStory( {
 	metric,
-	interval,
+	sendWindow,
 	chartType,
 	...dashboardArgs
 }: EmailTimeSeriesDashboardStoryProps ) {
@@ -248,23 +233,24 @@ function EmailTimeSeriesDashboardStory( {
 			widgetType={ createStoryWidgetType( widgetManifest, widgetDefinition ) }
 			renderModule={ EMAIL_TIME_SERIES_RENDER_MODULE }
 			renderComponent={ EmailTimeSeriesRender as ComponentType< WidgetRenderProps< unknown > > }
-			attributes={ getEmailTimeSeriesAttributes( { metric, interval, chartType }, true ) }
+			attributes={ getEmailTimeSeriesAttributes( { metric, sendWindow, chartType }, true ) }
 		/>
 	);
 }
 
 export const WidgetDashboardWithWidget: StoryObj< EmailTimeSeriesDashboardStoryProps > = {
+	tags: [ 'widget-dashboard' ],
 	render: args => <EmailTimeSeriesDashboardStory { ...args } />,
 	args: {
 		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
 		metric: 'opens',
-		interval: 'day',
+		sendWindow: 'first-30-days',
 		chartType: 'line',
 	},
 	argTypes: {
 		...widgetDashboardWithWidgetArgTypes,
 		metric: { control: 'select', options: METRIC_OPTIONS },
-		interval: { control: 'select', options: INTERVAL_OPTIONS },
+		sendWindow: { control: 'select', options: SEND_WINDOW_OPTIONS },
 		chartType: { control: 'radio', options: [ 'line', 'bar' ] },
 	},
 };

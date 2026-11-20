@@ -89,7 +89,8 @@ jobs:
 
       - name: Extract wpcomsh build
         run: |
-          tar --xz -xvvf wpcomsh.tar.xz wpcomsh
+          mkdir wpcomsh
+          tar --xz -k -xvvf wpcomsh.tar.xz wpcomsh
 
       - name: Configure Github to be able to SSH to the WP Cloud site
         env:
@@ -138,7 +139,7 @@ jobs:
             curl -s --fail "$SITE_URL" > /dev/null || CODE=$?
             if [[ $CODE -ne 0 ]]; then
               echo '::error::Unable to load site! Something is wrong with the site.'
-              CODE=1
+              exit 1
             else
               echo 'No issues slurping site with `curl`.'
             fi

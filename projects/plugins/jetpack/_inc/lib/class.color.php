@@ -74,7 +74,7 @@ if ( ! class_exists( 'Jetpack_Color' ) ) {
 		 * @throws RangeException Invalid color code range error.
 		 */
 		public function fromHex( $hex_value ) {
-			$hex_value = str_replace( '#', '', $hex_value );
+			$hex_value = preg_replace( '/[^0-9a-f]/i', '', $hex_value );
 			// handle short hex codes like #fff.
 			if ( 3 === strlen( $hex_value ) ) {
 				$hex_value = $hex_value[0] . $hex_value[0] . $hex_value[1] . $hex_value[1] . $hex_value[2] . $hex_value[2];
@@ -629,7 +629,7 @@ if ( ! class_exists( 'Jetpack_Color' ) ) {
 		 * @return object                A Color object, an increased contrast $this compared against $bg_color
 		 */
 		public function getReadableContrastingColor( $bg_color = false, $min_contrast = 5 ) {
-			if ( ! $bg_color || ! is_a( $bg_color, 'Jetpack_Color' ) ) {
+			if ( ! $bg_color || ! $bg_color instanceof \Jetpack_Color ) {
 				return $this;
 			}
 			// you shouldn't use less than 5, but you might want to.

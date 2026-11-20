@@ -12,6 +12,8 @@ use function Automattic\Jetpack\PremiumAnalytics\get_dashboard_default_widget_in
 use function Automattic\Jetpack\PremiumAnalytics\register_dashboard_section;
 use function Automattic\Jetpack\PremiumAnalytics\register_widget_types_from_manifest;
 use const Automattic\Jetpack\PremiumAnalytics\DASHBOARD_NAME;
+use const Automattic\Jetpack\PremiumAnalytics\DASHBOARD_TILE_CARD;
+use const Automattic\Jetpack\PremiumAnalytics\DASHBOARD_TILE_STRIP;
 
 /**
  * Registers the Ads section, its default layout and its widget types on the Premium Analytics
@@ -19,14 +21,14 @@ use const Automattic\Jetpack\PremiumAnalytics\DASHBOARD_NAME;
  *
  * The package decides nothing about who gets Ads: the WordAds module of the Jetpack plugin calls
  * `init()` outside the WordPress.com platform, jetpack-mu-wpcom calls the registrants on Simple
- * and Atomic where the plan includes WordAds and the site has it on. Everything registers when the dashboard's registries
+ * and Atomic where the site has WordAds on. Everything registers when the dashboard's registries
  * hydrate, so a call on a site without the dashboard is inert.
  *
  * @since 0.1.0
  */
 class Analytics_Dashboard {
 
-	const PACKAGE_VERSION = '0.1.7';
+	const PACKAGE_VERSION = '0.1.9';
 
 	/**
 	 * Namespaced section identifier. Its slug, `ads`, keys the section's URL and stored layouts.
@@ -109,9 +111,9 @@ class Analytics_Dashboard {
 	 */
 	public static function get_default_layout() {
 		return array(
-			get_dashboard_default_widget_instance( 'default-wordads-chart-tabs-widget-instance', self::CHART_TABS_TYPE, 0, 3, 2 ),
-			get_dashboard_default_widget_instance( 'default-wordads-highlights-widget-instance', self::HIGHLIGHTS_TYPE, 1, 3, 1 ),
-			get_dashboard_default_widget_instance( 'default-wordads-earnings-history-widget-instance', self::EARNINGS_HISTORY_TYPE, 2, 1, 2 ),
+			get_dashboard_default_widget_instance( 'default-wordads-chart-tabs-widget-instance', self::CHART_TABS_TYPE, 0, 'full', DASHBOARD_TILE_CARD ),
+			get_dashboard_default_widget_instance( 'default-wordads-highlights-widget-instance', self::HIGHLIGHTS_TYPE, 1, 'full', DASHBOARD_TILE_STRIP ),
+			get_dashboard_default_widget_instance( 'default-wordads-earnings-history-widget-instance', self::EARNINGS_HISTORY_TYPE, 2, 1, DASHBOARD_TILE_CARD ),
 		);
 	}
 
@@ -125,6 +127,8 @@ class Analytics_Dashboard {
 	 * @return void
 	 */
 	public static function register_widget_types( $registry ) {
+		add_filter( 'jetpack_premium_analytics_error_reporting_script_origins', array( __CLASS__, 'add_error_reporting_origin' ) );
+
 		if ( ! self::widget_contract_is_supported() ) {
 			return;
 		}
@@ -142,6 +146,26 @@ class Analytics_Dashboard {
 			),
 			$registry
 		);
+	}
+
+	/**
+	 * Append this package's dashboard build directories to the error reporting origins.
+	 *
+	 * The widget and module directories rather than the whole build, which also carries script that
+	 * never runs on the dashboard. Every widget and module builds into one of these two, so a new
+	 * one needs no change here.
+	 *
+	 * @param string[] $origins Absolute URL prefixes, each ending in a slash.
+	 * @return string[]
+	 */
+	public static function add_error_reporting_origin( $origins ) {
+		$origins = is_array( $origins ) ? $origins : array();
+		$build   = trailingslashit( plugins_url( '', self::build_dir() . '/build.php' ) );
+
+		$origins[] = $build . 'widgets/';
+		$origins[] = $build . 'modules/';
+
+		return $origins;
 	}
 
 	/**

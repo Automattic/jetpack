@@ -1,12 +1,12 @@
 import { addFilter } from '@wordpress/hooks';
 
 const FOOTER_STRINGS: Record< string, string > = {
-	'%d Item': '%d subscriber',
-	'%d Items': '%d subscribers',
-	'%1$d of %2$d Item': '%1$d of %2$d subscriber',
-	'%1$d of %2$d Items': '%1$d of %2$d subscribers',
-	'%d Item selected': '%d subscriber selected',
-	'%d Items selected': '%d subscribers selected',
+	'%s item': '%s subscriber',
+	'%s items': '%s subscribers',
+	'%1$s of %2$s item': '%1$s of %2$s subscriber',
+	'%1$s of %2$s items': '%1$s of %2$s subscribers',
+	'%s item selected': '%s subscriber selected',
+	'%s items selected': '%s subscribers selected',
 };
 
 const FILTER_NAMESPACE = 'jetpack-newsletter/dataviews-footer';

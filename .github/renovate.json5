@@ -150,7 +150,6 @@
 				'progress-event',
 				'q-flat',
 				'qss',
-				'strip',
 				'uuid',
 				'@testing-library/preact',
 			],

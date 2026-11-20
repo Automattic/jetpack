@@ -21,6 +21,26 @@ function my_app_enqueue_script() {
 }
 ```
 
+## Adding a connect button
+
+Every connect link tells WordPress.com where it came from (`from`) and where to send the user afterwards. WordPress.com counts connections by `from` and picks its connection screen by it: a standard name gets the unified screen and returns the user straight to the return URL, without the plans page.
+
+- **Name it with `CONNECTION_FROM`.** For a new surface, add its name there first. A standard name is `owner_surface[_detail]` (the product, the screen, and optionally which button on it): lowercase letters, digits and underscores, at most 64 characters, such as `my_jetpack_header`. `isStandardEntryPoint()` checks the format and `isUnifiedConnectionFlow()` whether WordPress.com shows the unified screen; both mirror Calypso's [`entry-points.ts`](https://github.com/Automattic/wp-calypso/blob/99b8d308db6/client/jetpack-connect/entry-points.ts).
+- **Pass `getUserConnectionUrl()` an absolute `redirect_url`.** WordPress.com ignores a relative one and shows the plans page instead. `ConnectScreen`, `ConnectButton` and `useConnection()` are the opposite: their `redirectUri` is relative to wp-admin, because the connection REST API prefixes it with the admin URL.
+- **Give each surface its own name.** Don't reuse another surface's name to get its screen: every standard name already gets the unified screen, and a shared name merges both surfaces in WordPress.com's counts. The examples in this README use My Jetpack's own names.
+- **Never rename a name once it has shipped.** Reports key on it, and older plugin versions keep sending it.
+
+```jsx
+import { CONNECTION_FROM, getUserConnectionUrl } from '@automattic/jetpack-connection';
+
+const connectUrl = getUserConnectionUrl( {
+	from: CONNECTION_FROM.myJetpackHeader,
+	redirect_url: window.location.href,
+} );
+```
+
+Without `from` or `redirect_url`, `getUserConnectionUrl()` still falls back to `from=my-jetpack` and a return to My Jetpack. That fallback is deprecated, and in development it logs a warning, as does a `from` that `isUnifiedConnectionFlow()` rejects. For a reconnect, pass `reconnectFrom` and `reconnectRedirectUrl` to `useConnectionErrorNotice()` or `<ConnectionError />`.
+
 # Components
 ## Component `ConnectScreen`
 The component implements the connection screen page, and loads the `ConnectButton` component to handle the whole connection flow.
@@ -29,8 +49,8 @@ The component implements the connection screen page, and loads the `ConnectButto
 - *apiRoot* - string (required), API root URL.
 - *apiNonce* - string (required), API Nonce.
 - *registrationNonce* - string (required), registration nonce.
-- *redirectUrl* - string, wp-admin URI to redirect a user to after Calypso connection flow.
-- *from* - string, custom string parameter to identify where the request is coming from.
+- *redirectUri* - string, the page to return the user to after connecting, relative to wp-admin (e.g. `admin.php?page=my-jetpack`).
+- *from* - string, the entry-point name from `CONNECTION_FROM` (see [Adding a connect button](#adding-a-connect-button)).
 - *title* - string, page title.
 - *buttonLabel* - string, the "Connect" button label.
 - *statusCallback* - callback to pull connection status from the component.
@@ -41,7 +61,7 @@ The component implements the connection screen page, and loads the `ConnectButto
 ### Usage
 ```jsx
 import { useState, useCallback } from 'react';
-import { ConnectScreen } from '@automattic/jetpack-connection';
+import { CONNECTION_FROM, ConnectScreen } from '@automattic/jetpack-connection';
 
 const [ connectionStatus, setConnectionStatus ] = useState( {} );
 
@@ -56,8 +76,8 @@ const statusCallback = useCallback(
 	apiRoot="https://example.org/wp-json/" 
 	apiNonce="12345"
 	registrationNonce="54321"
-	from="my-jetpack"
-	redirectUri="tools.php?page=wpcom-connection-manager"
+	from={ CONNECTION_FROM.myJetpackConnectionScreen }
+	redirectUri="admin.php?page=my-jetpack"
 	statusCallback={ statusCallback }
 >
 	<p>The connection screen copy.</p>
@@ -72,8 +92,8 @@ The component displays the connection button and handles the connection process,
 - *apiRoot* - string (required), API root URL.
 - *apiNonce* - string (required), API Nonce.
 - *registrationNonce* - string (required), registration nonce.
-- *from* - string, custom string parameter to identify where the request is coming from.
-- *redirectUrl* - string, wp-admin URI to redirect a user to after Calypso connection flow.
+- *from* - string, the entry-point name from `CONNECTION_FROM` (see [Adding a connect button](#adding-a-connect-button)).
+- *redirectUri* - string, the page to return the user to after connecting, relative to wp-admin (e.g. `admin.php?page=my-jetpack`).
 - *statusCallback* - callback to pull connection status from the component.
 - *connectionStatus* - object, the connection status info.
 - *connectionStatusIsFetching* - boolean, whether the connection status is being fetched at the moment.
@@ -82,7 +102,7 @@ The component displays the connection button and handles the connection process,
 ### Basic Usage
 ```jsx
 import { useCallback } from 'react';
-import { ConnectButton } from '@automattic/jetpack-connection';
+import { CONNECTION_FROM, ConnectButton } from '@automattic/jetpack-connection';
 
 const onUserConnected = useCallback( () => alert( 'User Connected' ) );
 
@@ -90,8 +110,8 @@ const onUserConnected = useCallback( () => alert( 'User Connected' ) );
 	apiRoot="https://example.org/wp-json/" 
 	apiNonce="12345"
 	registrationNonce="54321"
-	from="my-jetpack"
-	redirectUri="tools.php?page=wpcom-connection-manager"
+	from={ CONNECTION_FROM.myJetpackConnectionCard }
+	redirectUri="admin.php?page=my-jetpack"
 	connectionStatus={ connectionStatus }
 	connectionStatusIsFetching={ isFetching }
 />
@@ -243,6 +263,46 @@ import { TransferConnectionOwnership } from '@automattic/jetpack-connection';
 	onTransferred={ () => setIsPanelOpen( false ) }
 />
 ```
+
+## Safe Mode screen
+`IdentityCrisis` is the new Safe Mode (identity crisis) screen. It reads the Safe Mode state and the connected plugins from the connection store's initial state, sends no request until the user picks an action, and renders nothing outside Safe Mode. It renders no frame of its own: the host supplies the frame and decides what happens after each action.
+
+- An administrator answers "What is {registered address}?" and, for a copy, one follow-up question; each answer shows its consequence once selected, and one button runs the matching action. A site WordPress marks as staging starts at "What should happen to this copy?" with Safe Mode preselected.
+- A viewer who cannot resolve Safe Mode sees what is paused and that an administrator needs to resolve it.
+- The copy says "store" instead of "site" when a WooCommerce-family plugin is connected, and names Stats and Backups only when a Jetpack-family plugin is. `hasWooPlugin()` and `hasJetpackPlugin()` export those rules, and `toConnectedPlugins()` reads the store's plugin list for them.
+
+Props:
+- `context` (required): `notice`, `my-jetpack` or `connectors`. `connectors` hides the logo and heading, which the card already shows.
+- `onActionSuccess( result )` (required): `{ action: 'migrate' }` as soon as Migrate succeeds (the screen then shows that the address update started), `{ action: 'start-fresh', connectUrl }` for the host to open, or `{ action: 'confirm-safe-mode' }`. The package never navigates.
+- `redirectUri`: admin path to return to after a fresh connection.
+- `from`: a name from `CONNECTION_FROM`, reported to WordPress.com with a fresh connection.
+- `hostActions`: actions only that host offers, such as Disconnect, shown to viewers who can resolve Safe Mode.
+- `onMigratedDone`: shows "Got it, thanks" after Migrate.
+- `onDismiss`: shows Dismiss to viewers who cannot resolve Safe Mode.
+
+```jsx
+import { IdentityCrisis } from '@automattic/jetpack-connection';
+
+<IdentityCrisis
+	context="notice"
+	redirectUri="admin.php?page=jetpack"
+	onActionSuccess={ result =>
+		result.action === 'start-fresh'
+			? window.location.assign( result.connectUrl )
+			: window.location.reload()
+	}
+/>
+```
+
+### Building blocks
+The screen is built from these, which hosts can also use directly. They take all site data as props.
+
+- `useIdentityCrisisActions( { redirectUri, from } )` calls the `migrate`, `start-fresh` and `confirm-safe-mode` endpoints through `@automattic/jetpack-api`, whose root and nonce the connection store sets from the initial state. It returns those three actions plus `busyAction`, `isMigrated`, `error` (`{ action, cause, code }`, where `code` is the REST error code or the client error's name, for tracking) and `clearError()`, for a host that moves the user to another step after a failure. Each action takes an optional `{ entry, path }` saying how the user reached it, for the Safe Mode events; nothing reads it yet. It never navigates or tracks: `startFresh()` resolves with the connect URL for the host to open, with `from` (a name from `CONNECTION_FROM`, see [Adding a connect button](#adding-a-connect-button)) already in it, or fails with a `server` error when the response isn't an `http(s)` URL. It and `confirmSafeMode()` stay busy after success, because the host is expected to leave or reload the page, so no button can be clicked in the meantime. While an action is busy, calling any of them sends no request and resolves as a failure (`false`, or `null` from `startFresh()`) without setting `error`, so a double click sends one request even if the host doesn't disable its buttons.
+- `IdentityCrisisLayout` holds the logo from `logoUrl` (the connected plugins' marks, from the Safe Mode state; Jetpack's by default) and the "Jetpack Connection is in Safe Mode" heading, its children and a `hostActions` slot for actions only that host offers. `showHeader={ false }` hides the logo and heading and labels the region instead.
+- `IdentityCrisisAddresses` shows the address WordPress.com has on record over the address the site now loads at, and renders nothing unless it has both. The address props are optional, like `wpcomHomeUrl` and `currentUrl` in the Safe Mode state, so a host can pass the state straight through. `isStore` says "store" instead of "site".
+- `IdentityCrisisMigrated`, `IdentityCrisisNonAdmin` and `IdentityCrisisErrorNotice` are the state after Migrate, the view for users who cannot resolve Safe Mode (with Dismiss when given `onDismiss`), and a failure message that names the cause. Give the notice an `action` to show only that action's failure, such as next to its button.
+
+The text and support link overrides that plugins send through the `jetpack_idc_consumers` filter don't apply: every plugin gets the same wording.
 
 ## Tracking connection events
 `ProtectedOwnerConfirmation`, `ProtectedOwnerRelease`, `TransferConnectionOwnership` and the transfer link in `DisconnectUserDialog` record Tracks events by default. The `trackingContext` prop (`context` for `DisconnectUserDialog`) is sent as the event's `context` property, or `null` when omitted. `context` names the page; when one page renders the same component in more than one place, `trackingPlacement` (`placement` for the dialogs) names which, and is left out of the event otherwise. Placements are a closed `ConnectionPlacement` type: add a new one there before passing it.

@@ -5,10 +5,11 @@ import {
 	useAnalytics,
 	getJetpackExtensionAvailability,
 } from '@automattic/jetpack-shared-extension-utils';
-import { Button, Tooltip } from '@wordpress/components';
+import { Button } from '@wordpress/components';
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { thumbsUp, thumbsDown } from '@wordpress/icons';
+import { Tooltip } from '@wordpress/ui';
 import clsx from 'clsx';
 /*
  * Internal dependencies
@@ -104,32 +105,47 @@ export default function AiFeedbackThumbs( {
 		}
 	};
 
+	const likeLabel = __( 'I like this', 'jetpack-ai-client' );
+	const dislikeLabel = __( "I don't find this useful", 'jetpack-ai-client' );
+
 	return (
 		<div className="ai-assistant-feedback__selection">
-			<Tooltip text={ __( 'I like this', 'jetpack-ai-client' ) }>
-				<Button
-					disabled={ disabled }
-					icon={ thumbsUp }
-					onClick={ () => rateAI( true ) }
-					iconSize={ iconSize }
-					showTooltip={ false }
-					className={ clsx( {
-						'ai-assistant-feedback__thumb-selected': checkThumb( 'thumbs-up' ),
-					} ) }
+			<Tooltip.Root>
+				<Tooltip.Trigger
+					render={
+						<Button
+							disabled={ disabled }
+							icon={ thumbsUp }
+							onClick={ () => rateAI( true ) }
+							iconSize={ iconSize }
+							aria-label={ likeLabel }
+							showTooltip={ false }
+							className={ clsx( {
+								'ai-assistant-feedback__thumb-selected': checkThumb( 'thumbs-up' ),
+							} ) }
+						/>
+					}
 				/>
-			</Tooltip>
-			<Tooltip text={ __( "I don't find this useful", 'jetpack-ai-client' ) }>
-				<Button
-					disabled={ disabled }
-					icon={ thumbsDown }
-					onClick={ () => rateAI( false ) }
-					iconSize={ iconSize }
-					showTooltip={ false }
-					className={ clsx( {
-						'ai-assistant-feedback__thumb-selected': checkThumb( 'thumbs-down' ),
-					} ) }
+				<Tooltip.Popup>{ likeLabel }</Tooltip.Popup>
+			</Tooltip.Root>
+			<Tooltip.Root>
+				<Tooltip.Trigger
+					render={
+						<Button
+							disabled={ disabled }
+							icon={ thumbsDown }
+							onClick={ () => rateAI( false ) }
+							iconSize={ iconSize }
+							aria-label={ dislikeLabel }
+							showTooltip={ false }
+							className={ clsx( {
+								'ai-assistant-feedback__thumb-selected': checkThumb( 'thumbs-down' ),
+							} ) }
+						/>
+					}
 				/>
-			</Tooltip>
+				<Tooltip.Popup>{ dislikeLabel }</Tooltip.Popup>
+			</Tooltip.Root>
 		</div>
 	);
 }

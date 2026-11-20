@@ -1,4 +1,9 @@
-import { isWpcomPlatformSite, getAdminUrl, getScriptData } from '@automattic/jetpack-script-data';
+import {
+	currentUserCan,
+	isWpcomPlatformSite,
+	getAdminUrl,
+	getScriptData,
+} from '@automattic/jetpack-script-data';
 import { __ } from '@wordpress/i18n';
 import { Stack, Text, Link } from '@wordpress/ui';
 import clsx from 'clsx';
@@ -18,30 +23,31 @@ declare global {
 }
 
 /**
- * JetpackFooter component displays a tiny Jetpack logo with the product name on the left and the Automattic Airline "by line" on the right.
+ * UnstyledJetpackFooter displays a tiny Jetpack logo with the product name on the left and the Automattic Airline "by line" on the right, without loading its stylesheet.
  *
  * @param {JetpackFooterProps} props - Component properties.
- * @return {ReactNode} JetpackFooter component.
+ * @return {ReactNode} UnstyledJetpackFooter component.
  */
-const JetpackFooter: FC< JetpackFooterProps > = ( { className, menu, ...otherProps } ) => {
+const UnstyledJetpackFooter: FC< JetpackFooterProps > = ( { className, menu, ...otherProps } ) => {
 	let items: JetpackFooterMenuItem[] = [];
 
-	if (
-		getScriptData()?.myJetpack?.isAvailable === true &&
-		! isWpcomPlatformSite() &&
-		! window?.JetpackNetworkAdminData
-	) {
-		items = [
-			{
+	const myJetpack = getScriptData()?.myJetpack;
+	// An older My Jetpack package does not say whether the host shows it, so keep the links off WordPress.com.
+	const isShownByHost = myJetpack?.isShownByHost ?? ! isWpcomPlatformSite();
+
+	if ( myJetpack?.isAvailable === true && isShownByHost && ! window?.JetpackNetworkAdminData ) {
+		// My Jetpack shows the Features tab to admins only.
+		if ( currentUserCan( 'manage_options' ) ) {
+			items.push( {
 				label: __( 'Features', 'jetpack-components' ),
 				href: getAdminUrl( 'admin.php?page=my-jetpack#/features' ),
-			},
-			{
-				label: __( 'Help', 'jetpack-components' ),
-				href: getAdminUrl( 'admin.php?page=my-jetpack#/help' ),
-			},
-			...items,
-		];
+			} );
+		}
+
+		items.push( {
+			label: __( 'Help', 'jetpack-components' ),
+			href: getAdminUrl( 'admin.php?page=my-jetpack#/help' ),
+		} );
 	}
 
 	if ( menu ) {
@@ -110,4 +116,4 @@ const JetpackFooter: FC< JetpackFooterProps > = ( { className, menu, ...otherPro
 	);
 };
 
-export default JetpackFooter;
+export default UnstyledJetpackFooter;

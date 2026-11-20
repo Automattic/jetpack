@@ -2,10 +2,12 @@
  * External dependencies
  */
 import { computePrimaryRange } from '@jetpack-premium-analytics/datetime';
-import { Text, type Field } from '@jetpack-premium-analytics/externals';
+import { Icon, Text, type Field } from '@jetpack-premium-analytics/externals';
+import { jetpack } from '@jetpack-premium-analytics/icons';
+import { Page } from '@wordpress/admin-ui';
 import '@wordpress/dataviews/build-style/style.css';
 import { Button } from '@wordpress/components';
-import { Icon, external } from '@wordpress/icons';
+import { external } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
@@ -13,7 +15,6 @@ import { FIXTURE_SITE_TIME_ZONE } from '../../../__fixtures__/wp-date-settings';
 import { applyFixtureSiteSettings } from '../../../stories/fixture-site';
 import { ReportEmptyState } from '../report-empty-state';
 import { ReportPageLayout } from '../report-page-layout';
-import { ReportPageShell } from '../report-page-shell';
 import { ReportRecordsTable } from '../report-records-table';
 import styles from './report-page.stories.module.scss';
 import type { ReportDateFilters } from '@jetpack-premium-analytics/routing';
@@ -102,6 +103,7 @@ const STORY_DATE_FILTERS: ReportDateFilters = {
 	onChange: () => {},
 	onComparisonChange: () => {},
 	onIntervalChange: () => {},
+	stepping: { canStepBackward: true, canStepForward: false, onStep: () => undefined },
 	onApply: () => {},
 	onCancel: () => {},
 	canApply: false,
@@ -118,7 +120,9 @@ const STORY_DATE_FILTERS: ReportDateFilters = {
  */
 function ComposedReportPage( { isLoading, isEmpty }: ReportPageStoryControls ) {
 	return (
-		<ReportPageShell
+		<Page
+			className={ styles.page }
+			visual={ <Icon icon={ jetpack } /> }
 			breadcrumbs={ <StoryBreadcrumbs /> }
 			actions={ <Button variant="secondary">Download</Button> }
 		>
@@ -157,7 +161,7 @@ function ComposedReportPage( { isLoading, isEmpty }: ReportPageStoryControls ) {
 					/>
 				) }
 			</ReportPageLayout>
-		</ReportPageShell>
+		</Page>
 	);
 }
 
@@ -174,7 +178,7 @@ const meta = {
 		docs: {
 			description: {
 				component:
-					'The shared report-page framework: `ReportPageShell` (the page header — breadcrumbs and actions), `ReportPageLayout` (optional tabs, the `SectionHeader` carrying the report title and its date controls, and the stacked sections), `ReportChartSection` (a chart card with the control below it that collapses it, and the optional heading, icon and info tip a chart names itself with — shared by every chart above a records table), and `ReportRecordsTable` (Core DataViews table with client-side search and sort). Module report pages compose these with their own data hook and field config.',
+					'The shared report-page framework: Core `Page` (the page header — breadcrumbs and actions), `ReportPageLayout` (optional tabs, the `SectionHeader` carrying the report title and its date controls, and the stacked sections), `ReportChartSection` (a chart card with the control below it that collapses it, and the optional heading, icon and info tip a chart names itself with — shared by every chart above a records table), and `ReportRecordsTable` (Core DataViews table with client-side search and sort). Module report pages compose these with their own data hook and field config.',
 			},
 		},
 	},

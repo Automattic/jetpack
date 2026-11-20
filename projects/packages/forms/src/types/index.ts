@@ -1,4 +1,5 @@
 import type { ILanguage } from '../contact-form/libs/date-picker/interfaces.ts';
+import type { useInnerBlocksProps } from '@wordpress/block-editor';
 import type { ReactNode } from 'react';
 
 /**
@@ -326,6 +327,13 @@ export type BlockEditorStoreSelect = {
 	getBlockIndex: ( clientId: string ) => number;
 	getBlockParentsByBlockName: ( clientId: string, blockName: string ) => string[];
 };
+
+type InnerBlocksOptions = NonNullable< Parameters< typeof useInnerBlocksProps >[ 1 ] >;
+
+/**
+ * An inner blocks template, as `useInnerBlocksProps` accepts it.
+ */
+export type BlockTemplate = NonNullable< InnerBlocksOptions[ 'template' ] >;
 
 /**
  * Forms script data exposed via JetpackScriptData.forms

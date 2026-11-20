@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Protect;
 
+use Automattic\Jetpack\Protect_Models\Status_Model;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
@@ -16,6 +17,24 @@ use WorDBless\BaseTestCase;
  */
 #[CoversClass( Dashboard_Threats::class )]
 class Dashboard_Threats_Test extends BaseTestCase {
+	use Plugin_Cache;
+
+	/**
+	 * Start each test with no plugins installed.
+	 */
+	public function set_up() {
+		parent::set_up();
+		self::seed_plugin_cache();
+	}
+
+	/**
+	 * Forget the fixes and plugins each test records.
+	 */
+	public function tear_down() {
+		delete_option( Dashboard_Threats::RESOLVED_OPTION );
+		self::clear_plugin_cache();
+		parent::tear_down();
+	}
 
 	/**
 	 * Threats, and the part of the formatted threat each one decides.
@@ -202,10 +221,7 @@ class Dashboard_Threats_Test extends BaseTestCase {
 	 */
 	#[DataProvider( 'provider_plugin_state' )]
 	public function test_plugin_state( $is_active, $expected ) {
-		$file = WP_PLUGIN_DIR . '/protect-state-test.php';
-		wp_mkdir_p( WP_PLUGIN_DIR );
-		file_put_contents( $file, "<?php\n/**\n * Plugin Name: Protect State Test\n */\n" ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
-		wp_clean_plugins_cache( false );
+		self::seed_plugin_cache( array( 'protect-state-test.php' ) );
 		update_option( 'active_plugins', $is_active ? array( 'protect-state-test.php' ) : array() );
 
 		$threat = Dashboard_Threats::format(
@@ -216,7 +232,6 @@ class Dashboard_Threats_Test extends BaseTestCase {
 				),
 			)
 		);
-		wp_delete_file( $file );
 
 		$this->assertSame( $expected, $threat['extension']['state'] );
 	}
@@ -243,10 +258,7 @@ class Dashboard_Threats_Test extends BaseTestCase {
 	 */
 	#[DataProvider( 'provider_delete_action' )]
 	public function test_delete_action( $status, $expected ) {
-		$file = WP_PLUGIN_DIR . '/protect-state-test.php';
-		wp_mkdir_p( WP_PLUGIN_DIR );
-		file_put_contents( $file, "<?php\n/**\n * Plugin Name: Protect State Test\n */\n" ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
-		wp_clean_plugins_cache( false );
+		self::seed_plugin_cache( array( 'protect-state-test.php' ) );
 		update_option( 'active_plugins', array() );
 		wp_set_current_user(
 			wp_insert_user(
@@ -267,7 +279,6 @@ class Dashboard_Threats_Test extends BaseTestCase {
 				),
 			)
 		);
-		wp_delete_file( $file );
 		wp_set_current_user( 0 );
 
 		$this->assertSame( $expected, ! empty( $threat['extension']['actions']['delete'] ) );
@@ -300,6 +311,7 @@ class Dashboard_Threats_Test extends BaseTestCase {
 	public static function provider_format_fixable_extras() {
 		return array(
 			'keys are camelCased'        => array( (object) array( 'is_dotorg' => false ), '{"isDotorg":false}' ),
+			'every word is camelCased'   => array( (object) array( 'is_bulk_fixable' => false ), '{"isBulkFixable":false}' ),
 			'empty extras are an object' => array( array(), '{}' ),
 		);
 	}
@@ -381,6 +393,23 @@ class Dashboard_Threats_Test extends BaseTestCase {
 
 		$this->assertSame( $expected_open, array_column( $open, 'id' ) );
 		$this->assertSame( $expected_kept, array_map( 'strval', array_keys( Dashboard_Threats::get_resolved() ) ) );
-		delete_option( Dashboard_Threats::RESOLVED_OPTION );
+	}
+
+	/**
+	 * Test that a scan that failed after the delete keeps the threat hidden.
+	 */
+	public function test_without_resolved_ignores_a_failed_scan() {
+		Dashboard_Threats::resolve( array( 'id' => '1' ) );
+		$status = new Status_Model(
+			array(
+				'last_checked'     => gmdate( 'Y-m-d H:i:s', time() + HOUR_IN_SECONDS ),
+				'last_scan_failed' => true,
+			)
+		);
+
+		$open = Dashboard_Threats::without_resolved( array( (object) array( 'id' => '1' ) ), Dashboard_Threats::get_scanned_at( $status ) );
+
+		$this->assertSame( array(), $open );
+		$this->assertSame( array( '1' ), array_map( 'strval', array_keys( Dashboard_Threats::get_resolved() ) ) );
 	}
 }

@@ -11,6 +11,12 @@
 	}
 }
 
+// WP 7.1 and older color only `.ab-icon::before` and load no color scheme on
+// the frontend, so SVG icons take the link color. TODO: Remove on WP 7.2+.
+:where(#wpadminbar .ab-icon) {
+	color: #a7aaad;
+}
+
 /**
  * Always shows WordPress.com logo
  */

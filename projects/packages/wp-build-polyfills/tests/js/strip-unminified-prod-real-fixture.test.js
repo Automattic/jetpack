@@ -130,14 +130,15 @@ describe(
 					src.includes( 'not-a-translatable-string' ),
 					`${ file }: the decoy call survived bundling, so this test still means something`
 				);
+				// The minifier quotes strings with backticks.
 				assert.match(
 					src,
-					/["']Hello from fixture["'],\s*["']jetpack-wp-build-polyfills["']/,
+					/["'`]Hello from fixture["'`],\s*["'`]jetpack-wp-build-polyfills["'`]/,
 					`${ file }: the real gettext call carries the domain`
 				);
 				assert.doesNotMatch(
 					src,
-					/not-a-translatable-string["'],\s*["']jetpack-wp-build-polyfills/,
+					/not-a-translatable-string["'`],\s*["'`]jetpack-wp-build-polyfills/,
 					`${ file }: the decoy call on an unrelated object was left alone`
 				);
 			}

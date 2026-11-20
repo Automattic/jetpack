@@ -208,6 +208,12 @@ class Verbum_Comments {
 		$vbe_cache_buster = max( $js_mtime, $css_mtime );
 		$color_scheme     = get_blog_option( $this->blog_id, 'jetpack_comment_form_color_scheme' );
 
+		// Only users with unfiltered_html get this signed nonce, the closest signed proxy for admin.
+		$retirement_notice_url = '';
+		if ( ! $is_blog_atomic && is_jetpack_comments() && ! empty( $__get['_wp_unfiltered_html_comment'] ) ) {
+			$retirement_notice_url = esc_url_raw( get_admin_url( $this->blog_id, 'plugins.php' ) );
+		}
+
 		$hovercard_i18n = array(
 			'Edit your profile →'      => __( 'Edit your profile →', 'jetpack-mu-wpcom' ),
 			'View profile →'           => __( 'View profile →', 'jetpack-mu-wpcom' ),
@@ -266,6 +272,8 @@ class Verbum_Comments {
 					'Enter your email address'           => __( 'Enter your email address', 'jetpack-mu-wpcom' ),
 					'Subscribe'                          => __( 'Subscribe', 'jetpack-mu-wpcom' ),
 					'Comment sent successfully'          => __( 'Comment sent successfully', 'jetpack-mu-wpcom' ),
+					'This comment form is being retired. Update Jetpack to keep comments working on your site.' => __( 'This comment form is being retired. Update Jetpack to keep comments working on your site.', 'jetpack-mu-wpcom' ),
+					'Update Jetpack'                     => __( 'Update Jetpack', 'jetpack-mu-wpcom' ),
 					'Save my name, email, and website in this browser for the next time I comment.' => __( 'Save my name, email, and website in this browser for the next time I comment.', 'jetpack-mu-wpcom' ),
 					'hovercardi18n'                      => $hovercard_i18n,
 					'siteId'                             => $this->blog_id,
@@ -294,6 +302,7 @@ class Verbum_Comments {
 					'vbeCacheBuster'                     => $vbe_cache_buster,
 					'iframeUniqueId'                     => $iframe_unique_id,
 					'colorScheme'                        => $color_scheme,
+					'retirementNoticeUrl'                => $retirement_notice_url,
 				),
 				JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
 			),

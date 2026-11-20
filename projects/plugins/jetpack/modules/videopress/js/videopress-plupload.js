@@ -281,10 +281,20 @@ window.wp = window.wp || {};
 				return error( pluploadL10n.default_error, e, file );
 			}
 
+			if ( response === null || typeof response !== 'object' ) {
+				return error( pluploadL10n.default_error, null, file );
+			}
+
 			if ( typeof response.media !== 'undefined' ) {
-				response = vp.handleRestApiResponse( response, file );
-			} else {
-				response = vp.handleStandardResponse( response, file );
+				if ( response.media.length !== 1 ) {
+					return error( pluploadL10n.default_error, null, file );
+				}
+
+				response = vp.handleRestApiResponse( response );
+			} else if ( typeof response.success === 'undefined' ) {
+				return error( pluploadL10n.default_error, null, file );
+			} else if ( ! response.success ) {
+				return error( response.data && response.data.message, response.data, file );
 			}
 
 			for ( const k of [ 'file', 'loaded', 'size', 'percent' ] ) {

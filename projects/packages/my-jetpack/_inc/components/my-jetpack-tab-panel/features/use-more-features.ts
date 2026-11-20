@@ -26,12 +26,14 @@ export type MoreFeaturesGroup = {
  * @param $module      - The module.
  * @param requested    - Switch key to the value asked of it, for a switch still in flight.
  * @param needsAccount - Whether the site has no connected owner and the current admin is not linked.
+ * @param groups       - The filter pills its heading puts it under, such as Security.
  * @return The module's state.
  */
 export function getModuleFeatureState(
 	$module: MyJetpackModule,
 	requested: Record< string, boolean >,
-	needsAccount = false
+	needsAccount = false,
+	groups: string[] = []
 ): FeatureState {
 	const asked = requested[ moduleSwitchKey( $module.module ) ];
 
@@ -41,6 +43,7 @@ export function getModuleFeatureState(
 			name: $module.name,
 			description: $module.description,
 			plans: [],
+			groups,
 			essential: false,
 		} as MainFeature,
 		status: ( asked ?? $module.activated ) ? 'active' : 'inactive',
@@ -57,6 +60,33 @@ export function getModuleFeatureState(
 		return { ...withAccountNeeded( state, $module ), status: state.status };
 	}
 	return getFeatureUnavailableReason( state ) ? { ...state, status: 'inactive' } : state;
+}
+
+/**
+ * A settings entry as a feature row: no switch, its status from the setting, and Configure to open its panel.
+ *
+ * @param entry  - The settings entry.
+ * @param groups - The filter pills its heading puts it under.
+ * @return The entry's state.
+ */
+export function getSettingsEntryFeatureState(
+	entry: MainFeatureSettingsEntry,
+	groups: string[] = []
+): FeatureState {
+	return {
+		feature: {
+			slug: entry.slug,
+			name: entry.name,
+			description: entry.description,
+			plans: [],
+			groups,
+			essential: false,
+		} as MainFeature,
+		status: entry.status === 'inactive' ? 'inactive' : 'active',
+		control: { kind: 'none' },
+		settingsEntry: true,
+		...( entry.status === 'needs-setup' && { needsSetup: true as const } ),
+	};
 }
 
 /**
@@ -81,6 +111,7 @@ function getStateModule( state: FeatureState ): MyJetpackModule | null {
  * @param requested      - Switch key to the value asked of it.
  * @param hidden         - Modules that do not apply to the site, left out entirely.
  * @param needsAccount   - Whether the site has no connected owner and the current admin is not linked.
+ * @param entries        - Settings entries the site has, each listed under the heading that names it.
  * @return Non-empty groups by label, each sorted by name, with eligible ungrouped modules under Other, last.
  */
 export function groupMoreFeatures(
@@ -90,7 +121,8 @@ export function groupMoreFeatures(
 	productModules: Record< string, string >,
 	requested: Record< string, boolean >,
 	hidden: ReadonlySet< string > = new Set(),
-	needsAccount = false
+	needsAccount = false,
+	entries: MainFeatureSettingsEntry[] = []
 ): MoreFeaturesGroup[] {
 	const groupOf = new Map(
 		groups.flatMap( ( group, index ) => group.modules.map( slug => [ slug, index ] as const ) )
@@ -115,9 +147,21 @@ export function groupMoreFeatures(
 
 		const index = groupOf.get( $module.module );
 		( index === undefined ? other : grouped[ index ].states ).push(
-			getModuleFeatureState( $module, requested, needsAccount )
+			getModuleFeatureState(
+				$module,
+				requested,
+				needsAccount,
+				index === undefined ? undefined : groups[ index ].groups
+			)
 		);
 	}
+	for ( const entry of entries ) {
+		const index = groups.findIndex( group => group.settings?.includes( entry.slug ) );
+		const target = index === -1 ? other : grouped[ index ].states;
+		target.push( getSettingsEntryFeatureState( entry, groups[ index ]?.groups ) );
+		target.sort( ( a, b ) => a.feature.name.localeCompare( b.feature.name ) );
+	}
+
 	// Sorted on the translated label, so the order holds in every locale.
 	grouped.sort( ( a, b ) => a.label.localeCompare( b.label ) );
 
@@ -226,7 +270,8 @@ export function useMoreFeatures( state: MainFeaturesState ): MoreFeaturesGroup[]
 							...getHiddenModules( modules ),
 							...( state.hidden_modules ?? getHiddenFeatures() ),
 						] ),
-						needsAccount
+						needsAccount,
+						state.settings_entries
 					)
 				: [],
 		[ state, modules, requested, needsAccount ]

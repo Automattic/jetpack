@@ -3,6 +3,10 @@
  */
 export class StatsResponseShapeError extends Error {}
 
+// About a minute of retries while sync creates a store's analytics tables, which usually takes seconds.
+const TABLES_NOT_READY_RETRIES = 20;
+const TABLES_NOT_READY_RETRY_DELAY = 3000;
+
 /**
  * Extract HTTP status code from common API error shapes.
  *
@@ -79,12 +83,32 @@ export function isAccessDenied( error: unknown ): boolean {
 }
 
 /**
+ * Whether WordPress.com has not created the store's analytics tables yet. Sync creates them seconds
+ * after Premium Analytics is turned on, so the same request succeeds soon.
+ */
+export function isAnalyticsTablesNotReady( error: unknown ): boolean {
+	return getApiErrorCode( error ) === 'woocommerce_analytics_tables_not_ready';
+}
+
+/**
+ * Whether the store's analytics tables are at a schema version older than the report needs. Only the
+ * store's next order or product sync upgrades them, so repeating the request does not help.
+ */
+export function isAnalyticsSchemaOutdated( error: unknown ): boolean {
+	return getApiErrorCode( error ) === 'woocommerce_analytics_schema_outdated';
+}
+
+/**
  * Whether offering the reader a Retry can plausibly help — distinct from
  * `shouldRetryApiError`'s automatic policy: a 401/404 is worth a manual retry
  * even though auto-retrying it three times unprompted is not.
  */
 export function isUserRetryableError( error: unknown ): boolean {
-	return ! ( error instanceof StatsResponseShapeError ) && ! isAccessDenied( error );
+	return (
+		! ( error instanceof StatsResponseShapeError ) &&
+		! isAccessDenied( error ) &&
+		! isAnalyticsSchemaOutdated( error )
+	);
 }
 
 /**
@@ -94,8 +118,12 @@ export function isUserRetryableError( error: unknown ): boolean {
  * current user/session, so retrying only delays the widget-specific error UI.
  */
 export function shouldRetryApiError( failureCount: number, error: unknown ): boolean {
-	if ( error instanceof StatsResponseShapeError ) {
+	if ( error instanceof StatsResponseShapeError || isAnalyticsSchemaOutdated( error ) ) {
 		return false;
+	}
+
+	if ( isAnalyticsTablesNotReady( error ) ) {
+		return failureCount < TABLES_NOT_READY_RETRIES;
 	}
 
 	const status = getApiErrorStatus( error );
@@ -105,4 +133,17 @@ export function shouldRetryApiError( failureCount: number, error: unknown ): boo
 	}
 
 	return failureCount < 3;
+}
+
+/**
+ * The wait before the next automatic retry. A store waiting for its analytics tables is retried at a
+ * steady pace, so the widget keeps its loading state until the tables exist; any other failure backs
+ * off as React Query does by default.
+ */
+export function getApiRetryDelay( failureCount: number, error: unknown ): number {
+	if ( isAnalyticsTablesNotReady( error ) ) {
+		return TABLES_NOT_READY_RETRY_DELAY;
+	}
+
+	return Math.min( 1000 * 2 ** failureCount, 30000 );
 }

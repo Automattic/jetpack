@@ -5,6 +5,11 @@ import userEvent from '@testing-library/user-event';
 import { GlobalChartsProvider, useGlobalChartsContext } from '../../../providers';
 import PieChart from '../pie-chart';
 
+// jsdom runs no layout, so the real useParentSize never reports and the chart waits for good.
+jest.mock( '@visx/responsive', () => ( {
+	useParentSize: () => ( { parentRef: () => {}, width: 600, height: 600 } ),
+} ) );
+
 describe( 'PieChart', () => {
 	const defaultProps = {
 		size: 500,
@@ -785,6 +790,21 @@ describe( 'PieChart', () => {
 				'd',
 				segment.getAttribute( 'd' )
 			);
+
+		test( 'names every segment, so the application container is not empty', () => {
+			render( <PieChart data={ data } /> );
+
+			expect( screen.getByRole( 'img', { name: 'MacOS: 57.69%' } ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'img', { name: 'Linux: 42.31%' } ) ).toBeInTheDocument();
+		} );
+
+		test( 'hides the drawn labels, which would repeat the names the segments carry', () => {
+			render( <PieChart data={ data } showLabels /> );
+
+			screen
+				.getAllByTestId( 'pie-label-group' )
+				.forEach( group => expect( group ).toHaveAttribute( 'aria-hidden', 'true' ) );
+		} );
 
 		test( 'arrow keys move the focused tooltip and highlight across segments', async () => {
 			const user = userEvent.setup();

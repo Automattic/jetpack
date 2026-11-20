@@ -18,7 +18,7 @@
 	"browserslist": [],
 	"devDependencies": {
 		"@automattic/_jetpack-e2e-commons": "workspace:*",
-		"@playwright/test": "1.60.0",
+		"@playwright/test": "1.65.0",
 		"config": "4.4.1",
 		"playwright-ctrf-json-reporter": "^0.0.26"
 	},

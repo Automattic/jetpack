@@ -4,7 +4,11 @@
 import { getScriptData } from '@automattic/jetpack-script-data';
 import { dispatch } from '@wordpress/data';
 import { store as preferencesStore } from '@wordpress/preferences';
-import { DASHBOARD_PREFERENCES_SCOPE, getStatsDatePolicy } from '@jetpack-premium-analytics/data';
+import {
+	DASHBOARD_PREFERENCES_SCOPE,
+	getStatsDatePolicy,
+	setSectionOrder,
+} from '@jetpack-premium-analytics/data';
 /**
  * Internal dependencies
  */
@@ -27,6 +31,7 @@ beforeEach( () => {
 afterEach( () => {
 	jest.useRealTimers();
 	dispatch( preferencesStore ).set( DASHBOARD_PREFERENCES_SCOPE, 'datePreset', undefined );
+	setSectionOrder( DASHBOARD_PREFERENCES_SCOPE );
 } );
 
 describe( 'limitStatsDateSearch', () => {
@@ -43,6 +48,22 @@ describe( 'limitStatsDateSearch', () => {
 
 		expect( limited ).toMatchObject( { preset: 'yesterday' } );
 	} );
+
+	// The step belongs to the window the arrows reached, not to the one the plan put in its place.
+	it( 'forgets the step of a window it moves', () => {
+		const stepped = {
+			preset: 'custom',
+			from: '2005-01-01',
+			to: '2005-01-30',
+			step: 'P30D',
+			interval: 'day',
+		};
+
+		const limited = limitStatsDateSearch( stepped, getStatsDatePolicy() );
+
+		expect( limited ).toBeDefined();
+		expect( limited ).not.toHaveProperty( 'step' );
+	} );
 } );
 
 describe( 'dashboardSectionOf', () => {
@@ -54,6 +75,16 @@ describe( 'dashboardSectionOf', () => {
 		[ 'unknown-tab', [ 'traffic' ], 'traffic' ],
 	] )( 'resolves %p among %p to %p', ( section, sections, expected ) => {
 		setLocks( [ 'recent-7-days' ], sections );
+
+		expect( dashboardSectionOf( section ) ).toBe( expected );
+	} );
+
+	it.each( [
+		[ 'the first tab of the order the reader arranged', [ 'store' ], undefined, 'store' ],
+		[ 'past a tab the server does not list', [ 'ads', 'store' ], undefined, 'store' ],
+		[ 'the tab the URL names all the same', [ 'store' ], 'traffic', 'traffic' ],
+	] )( 'opens on %s', ( _case, order, section, expected ) => {
+		setSectionOrder( DASHBOARD_PREFERENCES_SCOPE, order );
 
 		expect( dashboardSectionOf( section ) ).toBe( expected );
 	} );

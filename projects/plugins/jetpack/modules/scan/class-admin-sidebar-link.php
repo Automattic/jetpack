@@ -148,12 +148,12 @@ class Admin_Sidebar_Link {
 	/**
 	 * Check if we should display the Scan menu item history.
 	 *
-	 * It will only be displayed if site has Scan enabled, is an Atomic site.
+	 * It will only be displayed if site has Scan enabled, is an Atomic site, and no Protect page is registered.
 	 *
 	 * @return boolean
 	 */
 	private function should_show_scan_history_only() {
-		return $this->has_scan() && ( new Host() )->is_woa_site() && get_option( 'wpcom_admin_interface' ) === 'wp-admin';
+		return $this->has_scan() && ! $this->has_protect_page() && ( new Host() )->is_woa_site() && get_option( 'wpcom_admin_interface' ) === 'wp-admin';
 	}
 
 	/**

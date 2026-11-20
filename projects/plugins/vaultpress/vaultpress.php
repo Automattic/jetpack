@@ -875,7 +875,7 @@ class VaultPress {
 					</a>
 				</li>
 				<li class="jp-footer__link-item">
-					<a href="https://wordpress.com/tos/" class="jp-footer__link" title="<?php esc_attr_e( 'Terms of service', 'vaultpress' ) ?>" target="_blank" rel="noopener noreferrer">
+					<a href="https://automattic.com/tos/" class="jp-footer__link" title="<?php esc_attr_e( 'Terms of service', 'vaultpress' ); ?>" target="_blank" rel="noopener noreferrer">
 						<?php esc_html_e( 'Terms', 'vaultpress' ); ?>
 					</a>
 				</li>
