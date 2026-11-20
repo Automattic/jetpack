@@ -699,14 +699,8 @@ class Jetpack_Core_Json_Api_Endpoints {
 		$token   = $subscription_service->get_and_set_token_from_request();
 		$payload = $subscription_service->decode_token( $token );
 
-		// A silent check from the paywall sends the visitor back to the post, with or without a usable token.
-		if ( empty( $payload ) && ! empty( $request['silent'] ) ) {
-			$redirect_url = wp_validate_redirect( $request['redirect_url'], home_url( '/' ) );
-			return new WP_REST_Response( null, 302, array( 'location' => $redirect_url ) );
-		}
-
-		$is_valid_token = ! empty( $payload );
-		if ( ! $is_valid_token ) {
+		// A silent check from the paywall goes back to the post whether or not it brought a token.
+		if ( empty( $payload ) && empty( $request['silent'] ) ) {
 			return new WP_Error( 'invalid-token', 'Invalid Token', array( 'status' => 403 ) );
 		}
 

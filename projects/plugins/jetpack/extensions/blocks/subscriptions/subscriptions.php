@@ -10,7 +10,6 @@ namespace Automattic\Jetpack\Extensions\Subscriptions;
 use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Abstract_Token_Subscription_Service;
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Jetpack_Token_Subscription_Service;
-use Automattic\Jetpack\Identity_Crisis;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
@@ -1378,6 +1377,12 @@ function is_user_auth(): bool {
  * @since $$next-version$$
  */
 function print_silent_subscriber_check() {
+	// The visitor is on the way back from a check, so never send them round again.
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Only checks that the marker is present.
+	if ( isset( $_GET['jp_sub_check'] ) ) {
+		return;
+	}
+
 	/**
 	 * Filters whether the paywall checks for a WordPress.com subscriber without a click.
 	 *
@@ -1389,18 +1394,12 @@ function print_silent_subscriber_check() {
 		return;
 	}
 
-	// The visitor is on the way back from a check, so never send them round again.
-	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Only checks that the marker is present.
-	if ( isset( $_GET['jp_sub_check'] ) ) {
-		return;
-	}
-
-	$home      = wp_parse_url( home_url( '/' ) );
-	$home_host = $home['host'] ?? '';
+	$home = wp_parse_url( home_url( '/' ) );
 	// WordPress.com only issues a silent token over https.
-	if ( ! $home_host || 'https' !== ( $home['scheme'] ?? '' ) ) {
+	if ( 'https' !== ( $home['scheme'] ?? '' ) ) {
 		return;
 	}
+	$home_host = $home['host'] ?? '';
 
 	if ( ( new Host() )->is_wpcom_simple() ) {
 		// A *.wordpress.com address already shares the WordPress.com login.
@@ -1410,16 +1409,10 @@ function print_silent_subscriber_check() {
 		$site_id   = get_current_blog_id();
 		$auth_base = '';
 	} else {
-		// A staging copy or a site with a mismatched address would send visitors to the wrong host.
-		$status = new Status();
-		if ( $status->is_offline_mode() || $status->in_safe_mode() || Status::is_development_site() ) {
-			return;
-		}
-		if ( Identity_Crisis::has_identity_crisis() ) {
-			return;
-		}
 		$site_id = (int) \Jetpack_Options::get_option( 'id' );
-		if ( ! $site_id ) {
+		$status  = new Status();
+		// A staging copy or a site with a mismatched address would send visitors to the wrong host.
+		if ( ! $site_id || $status->is_offline_mode() || $status->in_safe_mode() || Status::is_development_site() ) {
 			return;
 		}
 		$auth_base = add_query_arg( 'silent', '1', rest_url( 'jetpack/v4/subscribers/auth' ) );
@@ -1427,9 +1420,8 @@ function print_silent_subscriber_check() {
 
 	$config = array(
 		'host'        => $home_host,
-		'tokenCookie' => Jetpack_Token_Subscription_Service::JWT_AUTH_TOKEN_COOKIE_NAME,
-		'pauseCookie' => Jetpack_Memberships::SILENT_SUBSCRIBER_CHECK_COOKIE,
-		'cookiePath'  => Jetpack_Memberships::get_silent_subscriber_check_cookie_path(),
+		'tokenCookie' => Abstract_Token_Subscription_Service::JWT_AUTH_TOKEN_COOKIE_NAME,
+		'pauseCookie' => Abstract_Token_Subscription_Service::SILENT_SUBSCRIBER_CHECK_COOKIE,
 		'jwtBase'     => add_query_arg(
 			array(
 				'site_id' => $site_id,
@@ -1443,10 +1435,7 @@ function print_silent_subscriber_check() {
 	$script = <<<'JS'
 ( function ( c ) {
 	try {
-		if ( window.top !== window.self || document.prerendering || ! navigator.cookieEnabled || navigator.webdriver ) {
-			return;
-		}
-		if ( 'https:' !== location.protocol || location.hostname !== c.host ) {
+		if ( window.top !== window.self || document.prerendering || navigator.webdriver || location.hostname !== c.host ) {
 			return;
 		}
 		if ( /bot|crawl|spider|slurp|facebookexternalhit|lighthouse|preview/i.test( navigator.userAgent ) ) {
@@ -1458,17 +1447,17 @@ function print_silent_subscriber_check() {
 		if ( hasCookie( c.tokenCookie ) || hasCookie( c.pauseCookie ) ) {
 			return;
 		}
-		document.cookie = c.pauseCookie + '=1; max-age=86400; path=' + c.cookiePath + '; SameSite=Lax; secure';
+		document.cookie = c.pauseCookie + '=1; max-age=86400; path=/; SameSite=Lax; secure';
 		if ( ! hasCookie( c.pauseCookie ) ) {
 			return;
 		}
-		var via = function ( base, url ) {
-			return base + '&redirect_url=' + encodeURIComponent( url );
-		};
 		var back = new URL( location.href );
 		back.searchParams.set( 'jp_sub_check', '1' );
-		back = back.toString();
-		location.replace( via( c.jwtBase, c.authBase ? via( c.authBase, back ) : back ) );
+		var url = back.toString();
+		if ( c.authBase ) {
+			url = c.authBase + '&redirect_url=' + encodeURIComponent( url );
+		}
+		location.replace( c.jwtBase + '&redirect_url=' + encodeURIComponent( url ) );
 	} catch ( e ) {}
 } )( %s );
 JS;
