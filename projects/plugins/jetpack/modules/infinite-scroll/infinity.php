@@ -1658,7 +1658,7 @@ class The_Neverending_Home_Page {
 				$results['html'] = '<div class="' . esc_attr( $wrapper_classes ) . '" id="infinite-view-' . $page . '" data-page-num="' . $page . '" role="region" aria-label="' . esc_attr( $aria_label ) . '">' . $results['html'] . '</div>';
 			}
 
-			// Fire wp_footer to ensure that all necessary scripts are enqueued. Output isn't used, but scripts are extracted in self::action_wp_footer.
+			// Fire wp_footer so scripts are enqueued (extracted in self::action_wp_footer); only the duotone SVG filters are kept.
 			$svg_filters = self::do_footer_and_get_duotone_svgs();
 
 			if ( 'success' === $results['type'] ) {
