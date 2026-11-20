@@ -1,4 +1,4 @@
 Significance: patch
 Type: added
 
-Tracks: Record opening the header's connection control and its links, which page the header's plan links are clicked on, and Renew and Resume clicks on plans.
+Tracks: Record header connection opens and clicks, and Renew and Resume clicks on plans.
