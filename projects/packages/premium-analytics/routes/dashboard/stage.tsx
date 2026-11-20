@@ -43,7 +43,10 @@ import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import { WidgetDashboard } from '@wordpress/widget-dashboard';
 import clsx from 'clsx';
 import { useDateWindowNotice } from '../date-window-notice';
-import { isPremiumAnalyticsInitialSyncFinished } from '../site-readiness';
+import {
+	isPremiumAnalyticsInitialSyncFinished,
+	isPremiumAnalyticsSiteConnected,
+} from '../site-readiness';
 import { useStatsDateLimits } from '../use-stats-date-limits';
 import { useWidgetModules } from '../use-widget-modules';
 import { useWidgetModuleResolver, useWidgetTypesWithI18n } from '../widget-module-i18n';
@@ -152,6 +155,8 @@ function Dashboard(): JSX.Element {
 	 * sync starts as soon as the dashboard opens rather than when the section is visited.
 	 */
 	const isSyncFinished = isPremiumAnalyticsInitialSyncFinished();
+	// Only tabs that run without a connection open on a disconnected site, so the Stats chrome stays off.
+	const isSiteConnected = isPremiumAnalyticsSiteConnected();
 	const sectionsAwaitSync = sections.some( section =>
 		isSectionAwaitingSync( section, isSyncFinished )
 	);
@@ -296,7 +301,8 @@ function Dashboard(): JSX.Element {
 	// The journey introduces the default section at rest: not another tab, and
 	// not while the reader is already customizing.
 	const onboarding = useOnboarding( {
-		enabled: hasResolvedSections && ! editMode && activeSection === defaultSection,
+		enabled:
+			isSiteConnected && hasResolvedSections && ! editMode && activeSection === defaultSection,
 		hasStoreSection: hasStoreSection( sections ),
 		stepCounts: {
 			stats: tourStepsByFlow.stats.length,
@@ -563,6 +569,7 @@ function Dashboard(): JSX.Element {
 											{ /* Outside the section panels, so the menu's links name the tab to return to. */ }
 											<DashboardSectionProvider section={ activeSection }>
 												<StatsOptionsMenu
+													isSiteConnected={ isSiteConnected }
 													onCustomize={
 														editMode || ! canCustomizeSection ? undefined : startCustomizing
 													}
@@ -600,12 +607,13 @@ function Dashboard(): JSX.Element {
 												<DashboardSectionProvider section={ section.slug }>
 													<div className={ styles.body }>
 														<RefreshFailureNotice />
-														{ ! editMode && <DashboardNotices /> }
+														{ ! editMode && isSiteConnected && <DashboardNotices /> }
 
 														{ /* Behind the onboarding journey: it introduces the tabs
 														     the banner asks about. */ }
 														<FeedbackBanner
 															enabled={
+																isSiteConnected &&
 																canSendFeedback() &&
 																! editMode &&
 																section.slug === defaultSection &&
