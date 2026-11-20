@@ -21,7 +21,10 @@ import { getOverridesToMatch } from './group-intents';
 import { groupToolsByGroup } from './groups';
 import McpGroupCard, { McpToolSections } from './mcp-group-card';
 import McpToolbar from './mcp-toolbar';
-import RemoteAbilitiesSection, { collectRemoteKeys } from './remote-abilities-section';
+import RemoteAbilitiesSection, {
+	areRemoteGroupsEnabled,
+	collectRemoteKeys,
+} from './remote-abilities-section';
 import { recordMcpTracksEvent } from './tracks';
 import useToolSearch from './use-tool-search';
 import {
@@ -99,7 +102,15 @@ export default function McpRead( {
 		[ blogId, onUpdate ]
 	);
 
-	const pageAllEnabled = readTools.length > 0 && readTools.every( ( [ , t ] ) => t.enabled );
+	const toolsAllEnabled = readTools.length > 0 && readTools.every( ( [ , t ] ) => t.enabled );
+	const pageAllEnabled =
+		toolsAllEnabled &&
+		areRemoteGroupsEnabled(
+			remoteAbilities?.abilities ?? [],
+			getSiteRemoteGroups( mcpAbilities, blogId ),
+			'read',
+			toolsAllEnabled
+		);
 	const isSavingAny = readTools.some( ( [ id ] ) => savingToolIds.has( id ) );
 
 	const handlePageToggle = useCallback(
@@ -216,7 +227,7 @@ export default function McpRead( {
 					mcpAbilities={ mcpAbilities }
 					blogId={ blogId }
 					remoteAbilities={ remoteAbilities }
-					defaultEnabled={ pageAllEnabled }
+					defaultEnabled={ toolsAllEnabled }
 					query={ query }
 					anchor={ anchor }
 					savingToolIds={ savingToolIds }

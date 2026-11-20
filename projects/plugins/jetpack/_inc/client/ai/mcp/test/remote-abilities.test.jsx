@@ -181,4 +181,22 @@ describe( 'page-level Enable all', () => {
 			} );
 		}
 	);
+
+	test( 'is off while a remote group is off, even with every tool on', () => {
+		render(
+			<McpRead
+				mcpAbilities={ {
+					account: { 'wpcom-mcp/tool': { title: 'Tool', enabled: true, readonly: true } },
+					sites: [
+						{ blog_id: 1, site_level_enabled: true, remote_groups: { 'read:akismet': false } },
+					],
+				} }
+				blogId={ 1 }
+				savingToolIds={ new Set() }
+				onUpdate={ onUpdate }
+				remoteAbilities={ { abilities: CATALOG, isLoading: false, isError: false } }
+			/>
+		);
+		expect( screen.getAllByRole( 'switch', { name: 'Enable all' } )[ 0 ] ).not.toBeChecked();
+	} );
 } );
