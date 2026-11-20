@@ -1075,7 +1075,9 @@ class Admin_Shell_Test extends TestCase {
 			wp_register_script( 'shell-test-shared', 'https://example.com/shared.js', array(), '1', true );
 			wp_add_inline_script( 'shell-test-shared', 'var sharedState = 1;', 'before' );
 			wp_add_inline_script( 'shell-test-shared', 'sharedSetup();' );
+			wp_localize_script( 'shell-test-shared', 'sharedL10n', array( 'save' => 'Save' ) );
 			wp_register_script( 'shell-test-guest', 'https://example.com/guest.js', array( 'shell-test-shared' ), '1', true );
+			wp_localize_script( 'shell-test-guest', 'guestL10n', array( 'save' => 'Save' ) );
 			wp_add_inline_script( 'shell-test-guest', 'var sharedState = 1;', 'before' );
 			wp_add_inline_script( 'shell-test-guest', 'var guestOnly = 1;', 'before' );
 			wp_add_inline_script( 'shell-test-guest', 'sharedSetup();' );
@@ -1096,7 +1098,7 @@ class Admin_Shell_Test extends TestCase {
 				'site'       => array( 'id' => 1 ),
 				'newsletter' => array( 'on' => false ),
 			)
-		); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Script_Data's filter.
+		);
 		$config  = apply_filters( 'script_module_data_' . Admin_Shell::CLIENT_MODULE, array() ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound -- Core's filter.
 		$printed = json_decode( (string) wp_json_encode( $config['printed'], JSON_UNESCAPED_SLASHES ), true );
 
@@ -1113,7 +1115,7 @@ class Admin_Shell_Test extends TestCase {
 						'site'       => array( 'id' => 1 ),
 						'newsletter' => array( 'on' => true ),
 					)
-				); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Script_Data's filter.
+				);
 				wp_add_inline_script( 'shell-test-guest', 'window.JetpackScriptData = ' . wp_json_encode( $data, JSON_UNESCAPED_SLASHES ) . ';', 'before' );
 			},
 			1
@@ -1123,9 +1125,54 @@ class Admin_Shell_Test extends TestCase {
 		$this->assertIsString( $html );
 		$this->assertStringContainsString( 'window.JetpackScriptData = {"newsletter":{"on":true}};', $html, 'only the script data keys that differ from the host' );
 		$this->assertStringNotContainsString( 'sharedState', $html, 'data the host printed before a script, on any handle' );
+		$this->assertStringNotContainsString( 'sharedL10n', $html, 'localized data the host printed' );
+		$this->assertStringContainsString( 'var guestL10n = ', $html );
 		$this->assertStringContainsString( 'var guestOnly = 1;', $html );
 		$this->assertSame( 1, substr_count( $html, 'sharedSetup();' ), 'data printed after a script is skipped only on the handle the host printed it on' );
 		$this->assertMatchesRegularExpression( '/id="shell-test-guest-js-after">\s*sharedSetup\(\);/', $html );
+	}
+
+	/**
+	 * Data provider for test_printed_on_host_keeps_only_hashes.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_printed_requests() {
+		$empty = array(
+			'scriptData' => array(),
+			'inline'     => array(),
+		);
+		return array(
+			'not JSON'      => array( '{', $empty ),
+			'a scalar'      => array( '"abc"', $empty ),
+			'wrong shapes'  => array( '{"scriptData":"x","inline":{"a":1}}', $empty ),
+			'mixed entries' => array(
+				'{"scriptData":{"site":"0123456789ab","user":"0123","seo":["0123456789ab"]},"inline":["0123456789ab","0123456789AB",1]}',
+				array(
+					'scriptData' => array( 'site' => '0123456789ab' ),
+					'inline'     => array( '0123456789ab' ),
+				),
+			),
+		);
+	}
+
+	/**
+	 * What the client sends as the host's printed data keeps only well-formed hashes, whatever it holds.
+	 *
+	 * @dataProvider provide_printed_requests
+	 * @param string $json     Request value.
+	 * @param array  $expected Parsed value.
+	 * @return void
+	 */
+	#[DataProvider( 'provide_printed_requests' )]
+	public function test_printed_on_host_keeps_only_hashes( $json, $expected ) {
+		$method = new \ReflectionMethod( Admin_Shell::class, 'printed_on_host' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			// @phan-suppress-next-line PhanDeprecatedFunctionInternal -- Required before PHP 8.1, a no-op since.
+			$method->setAccessible( true );
+		}
+
+		$this->assertSame( $expected, $method->invoke( null, $json ) );
 	}
 
 	/**
