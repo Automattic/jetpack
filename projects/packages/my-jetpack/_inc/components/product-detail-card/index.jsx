@@ -16,6 +16,7 @@ import useProduct from '../../data/products/use-product';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import useAnalytics from '../../hooks/use-analytics';
 import { useRedirectToReferrer } from '../../hooks/use-redirect-to-referrer';
+import CantInstallPluginNotice from '../cant-install-plugin-notice';
 import LoadingBlock from '../loading-block';
 import { getFeatureCheckoutReturnUrl } from '../my-jetpack-tab-panel/utils';
 import ProductDetailButton from '../product-detail-button';
@@ -465,30 +466,7 @@ const ProductDetailCard = ( {
 				) }
 
 				{ cantInstallPlugin && (
-					<Notice.Root intent="warning" role="status">
-						<Notice.Description render={ <div /> }>
-							<Text
-								variant="body-lg"
-								style={ { margin: 0 } }
-								render={
-									<p>
-										{ sprintf(
-											// translators: %s is the plugin name.
-											__(
-												"Due to your server settings, we can't automatically install the plugin for you. Please manually install the %s plugin.",
-												'jetpack-my-jetpack'
-											),
-											productMoniker
-										) }
-										&nbsp;
-										<Link openInNewTab href={ `https://wordpress.org/plugins/${ pluginSlug }` }>
-											{ __( 'Get plugin', 'jetpack-my-jetpack' ) }
-										</Link>
-									</p>
-								}
-							></Text>
-						</Notice.Description>
-					</Notice.Root>
+					<CantInstallPluginNotice productName={ productMoniker } pluginSlug={ pluginSlug } />
 				) }
 
 				{ ! hideTOS && ! bundleUnavailable && ! manageBundle && (

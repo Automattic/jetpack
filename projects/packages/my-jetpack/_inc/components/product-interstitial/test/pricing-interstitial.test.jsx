@@ -91,7 +91,7 @@ jest.mock( '@wordpress/ui', () => ( {
 		Root: ( { children } ) => <div role="status">{ children }</div>,
 		Description: ( { children } ) => <div>{ children }</div>,
 	},
-	Text: ( { render } ) => render,
+	Text: ( { render: element } ) => element,
 } ) );
 
 jest.mock( '@wordpress/components', () => ( { Spinner: () => <div /> } ) );
@@ -274,7 +274,7 @@ it.each( [
 it.each( [
 	[ 'no', 'plugin_absent', true ],
 	[ 'yes', 'plugin_absent', false ],
-	[ 'no', 'plugin_active', false ],
+	[ 'no', 'active', false ],
 ] )(
 	'with write access %s and status %s, blocks the install CTAs: %s',
 	( writeAccess, status, blocked ) => {

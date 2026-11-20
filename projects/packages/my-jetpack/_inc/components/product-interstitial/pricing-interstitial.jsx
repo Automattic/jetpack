@@ -14,8 +14,8 @@ import {
 import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
 import { getScriptData, getMyJetpackUrl } from '@automattic/jetpack-script-data';
 import { Spinner } from '@wordpress/components';
-import { __, sprintf } from '@wordpress/i18n';
-import { Button, ButtonLink, Link, Notice, Text } from '@wordpress/ui';
+import { __ } from '@wordpress/i18n';
+import { Button, ButtonLink } from '@wordpress/ui';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 /**
  * Internal dependencies
@@ -34,6 +34,7 @@ import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
 import { productsFrom } from '../../utils/connect-url';
 import { getMyJetpackRouteUrl } from '../../utils/route-href';
+import CantInstallPluginNotice from '../cant-install-plugin-notice';
 import GoBackLink from '../go-back-link';
 import { getFeatureCheckoutReturnUrl } from '../my-jetpack-tab-panel/utils';
 import ProductDetailCard from '../product-detail-card';
@@ -464,33 +465,10 @@ export default function PricingInterstitial( { slug } ) {
 			>
 				{ cantInstallPlugin && (
 					<Col>
-						<Notice.Root intent="warning" role="status">
-							<Notice.Description render={ <div /> }>
-								<Text
-									variant="body-lg"
-									style={ { margin: 0 } }
-									render={
-										<p>
-											{ sprintf(
-												// translators: %s is the plugin name.
-												__(
-													"Due to your server settings, we can't automatically install the plugin for you. Please manually install the %s plugin.",
-													'jetpack-my-jetpack'
-												),
-												detail.title
-											) }
-											&nbsp;
-											<Link
-												openInNewTab
-												href={ `https://wordpress.org/plugins/${ detail.pluginSlug }` }
-											>
-												{ __( 'Get plugin', 'jetpack-my-jetpack' ) }
-											</Link>
-										</p>
-									}
-								></Text>
-							</Notice.Description>
-						</Notice.Root>
+						<CantInstallPluginNotice
+							productName={ detail.title }
+							pluginSlug={ detail.pluginSlug }
+						/>
 					</Col>
 				) }
 				<Col>
