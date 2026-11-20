@@ -609,6 +609,8 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 			'emails empty end' => array( 'get_email_stats', array( 'end_date' => '' ), 'jetpack_stats_invalid_date' ),
 			'email missing'    => array( 'get_email_detail', array(), 'jetpack_stats_missing_post_id' ),
 			'email no post'    => array( 'get_email_detail', array( 'post_id' => 999999 ), 'jetpack_stats_post_not_found' ),
+			'detail missing'   => array( 'get_post_detail', array( 'post_id' => '0' ), 'jetpack_stats_missing_post_id' ),
+			'detail no post'   => array( 'get_post_detail', array( 'post_id' => 999999 ), 'jetpack_stats_post_not_found' ),
 			'video missing'    => array( 'get_video_stats', array( 'video_id' => 0 ), 'jetpack_stats_missing_video_id' ),
 			'video date'       => array(
 				'get_video_stats',
@@ -2730,6 +2732,10 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 		$this->assertNull( $page['utm'] );
 		$this->assertSame( array( 'utm' ), $page['errors'] );
 		$this->assertSame( 4029, $page['views'] );
+
+		// With nothing read from WordPress.com, there is no report to give.
+		$this->filter_wpcom_stats( array() );
+		$this->assertSame( 'jetpack_stats_data_unavailable', Stats_Abilities::get_post_detail( array( 'post_id' => $post_id ) )->get_error_code() );
 	}
 
 	public function test_get_insights_reads_a_year_of_posts_for_the_streak_and_calendar(): void {
