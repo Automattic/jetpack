@@ -81,17 +81,29 @@ const start = ( {
 	members[ host ].adminTitle = document.title;
 	configureHeaders( headerStorageKey, members );
 	trackViewTransitions();
-	// A member declares the header of the view its bare menu link opens; other views only get its title.
-	const showHeaderAt = ( slug, el, url ) => {
+	/*
+	 * Stand in for a page until it renders: the loader, and the header it declares for the view its bare
+	 * menu link opens, or else just its title. Returns what takes both down.
+	 */
+	const showStandIn = ( slug, el, url ) => {
 		const { header, defaultPath, title } = members[ slug ];
+		const removeLoaderOf = showLoader( slug, el, menuLabel( slug ) ?? title );
 		if ( header === false ) {
 			log( 'header', `${ slug } opts out of the stand-in header` );
-			return () => {};
+			return removeLoaderOf;
 		}
 		const path = new URL( url, location.href ).searchParams.get( 'p' ) ?? '/';
 		const landing = [ '/', defaultPath ].includes( path );
 		const heading = header?.title ?? menuLabel( slug ) ?? title;
-		return showHeader( slug, el, heading, landing ? header : null );
+		const removeHeaderOf = showHeader( slug, el, heading, landing ? header : null );
+		return () => {
+			removeLoaderOf();
+			removeHeaderOf();
+		};
+	};
+	const removeStandInOf = slug => {
+		removeLoader( slug );
+		removeHeader( slug );
 	};
 
 	log(
@@ -300,8 +312,7 @@ const start = ( {
 			return;
 		}
 		apps.get( slug )?.place( false );
-		removeHeader( slug );
-		removeLoader( slug );
+		removeStandInOf( slug );
 		offPanels.set(
 			slug,
 			showFeatureOff( {
@@ -343,9 +354,7 @@ const start = ( {
 			apps.delete( slug );
 			el.remove();
 		};
-		const removeStandIn = showHeaderAt( slug, el, url );
-		// eslint-disable-next-line @wordpress/no-unused-vars-before-return -- `finally` takes it down on every return.
-		const loader = showLoader( slug, el, menuLabel( slug ) ?? members[ slug ].title );
+		const removeStandIn = showStandIn( slug, el, url );
 
 		try {
 			// After the check, so a page whose feature is off downloads nothing.
@@ -355,11 +364,9 @@ const start = ( {
 				discard();
 				return;
 			}
-			loader.set( 0.2 );
 			const waited = stopwatch();
 			const boot = await prewarm( slug, 'switch', url );
 			log( 'switch', `${ slug }: waited ${ waited() } for prewarm` );
-			loader.set( 0.6 );
 			if ( visible !== slug ) {
 				// Left before it could boot; it boots on the next visit, at that visit's URL.
 				log( 'switch', `${ slug }: left before it booted` );
@@ -374,14 +381,12 @@ const start = ( {
 				mountId: el.id,
 				routes: routesLoadedBy( members[ slug ].routes, routeModuleLoader( slug ) ),
 			} );
-			loader.set( 0.75 );
 			await whenRendered( el, RENDER_TIMEOUT );
 			log( 'switch', `${ slug }: first route rendered ${ render() } after boot` );
 		} catch ( error ) {
 			discard();
 			throw error;
 		} finally {
-			loader.remove();
 			removeStandIn();
 			gate.mounted( slug );
 		}
@@ -432,8 +437,7 @@ const start = ( {
 			lastUrl[ slug ] = url;
 		}
 		if ( apps.get( previous )?.state === 'loading' ) {
-			removeHeader( previous );
-			removeLoader( previous );
+			removeStandInOf( previous );
 		}
 		apps.get( previous )?.place( false );
 		// The panel never showed the page, so taking it down doesn't hide the page either.
@@ -642,8 +646,7 @@ const start = ( {
 	trackOverlays( () => visible );
 	const hostApp = createApp( host, hostEl );
 	apps.set( host, hostApp );
-	const removeHostHeader = showHeaderAt( host, hostEl, location.href );
-	const hostLoader = showLoader( host, hostEl, menuLabel( host ) ?? members[ host ].title );
+	const removeHostStandIn = showStandIn( host, hostEl, location.href );
 	// The page load already said its feature is off, and sent the card with the config.
 	if ( members[ host ].featureOn === false ) {
 		hiddenAt[ host ] = Date.now();
@@ -654,8 +657,7 @@ const start = ( {
 	whenRendered( hostEl, 30000 )
 		.then( () => {
 			log( 'host', `${ host } rendered its first route` );
-			removeHostHeader();
-			hostLoader.remove();
+			removeHostStandIn();
 			markReady( hostApp );
 			if ( onScreen( host ) ) {
 				emit( 'page-shown', {
@@ -670,8 +672,7 @@ const start = ( {
 			}
 		} )
 		.catch( error => {
-			removeHostHeader();
-			hostLoader.remove();
+			removeHostStandIn();
 			log( 'host', `${ host } did not render`, error );
 		} )
 		.finally( () => gate.mounted( host ) );

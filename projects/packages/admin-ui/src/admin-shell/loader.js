@@ -1,10 +1,10 @@
 /*
- * A progress bar in the content area while a dashboard boots, the same for every page. It is gone
- * before the page's content shows, so the two never overlap.
+ * A progress bar in the content area while a dashboard boots, the same for every page. The shell
+ * takes it down with the stand-in header, once the page's own heading renders.
  */
 import { log } from './debug';
 
-// How far below the content area's top the last header seen ended, for a page showing none.
+// How far below the content area's top the last stand-in header ended, for a page showing none.
 const OFFSET_KEY = 'jetpack-admin-shell-loader-offset';
 // A switch that is over sooner shows nothing, so a prewarmed dashboard doesn't flash a bar.
 const SHOW_AFTER = 120;
@@ -13,7 +13,6 @@ const BAR_WIDTH = 200;
 
 const LOADER_CSS = `
 .jetpack-admin-shell-loader {
-	block-size: 0;
 	margin: 0 !important;
 	padding: 0 !important;
 	pointer-events: none;
@@ -32,7 +31,6 @@ const LOADER_CSS = `
 .jetpack-admin-shell-loader__fill {
 	position: absolute;
 	inset: 0;
-	border-radius: inherit;
 	background: var(--wp-admin-theme-color, #3858e9);
 	opacity: 0.85;
 	transform-origin: left center;
@@ -52,45 +50,44 @@ const addStyle = () => {
 	document.head.append( style );
 };
 
-const savedOffset = () => {
+let headerOffset = null;
+const readOffset = () => {
 	try {
-		return parseInt( localStorage.getItem( OFFSET_KEY ) ?? '0', 10 ) || 0;
+		headerOffset ??= parseInt( localStorage.getItem( OFFSET_KEY ) ?? '0', 10 ) || 0;
 	} catch {
-		return 0;
+		headerOffset ??= 0;
+	}
+	return headerOffset;
+};
+const saveOffset = () => {
+	try {
+		localStorage.setItem( OFFSET_KEY, String( headerOffset ) );
+	} catch {
+		// Blocked storage: a page with no stand-in puts the bar a little higher.
 	}
 };
 
-const saveOffset = offset => {
-	try {
-		localStorage.setItem( OFFSET_KEY, String( offset ) );
-	} catch {
-		// Blocked storage: a page with no header puts the bar a little higher.
-	}
-};
-
-// admin-ui's page header: its CSS module class ends in `__header`, and it holds the page heading.
-const headerIn = root =>
-	[ ...( root?.querySelectorAll( '[class*="__header"]' ) ?? [] ) ].find(
+// The page header in a stand-in: admin-ui's CSS module class ends in `__header`, and it holds the heading.
+const headerIn = standIn =>
+	[ ...( standIn?.querySelectorAll( '[class*="__header"]' ) ?? [] ) ].find(
 		node =>
 			[ ...node.classList ].some( name => name.endsWith( '__header' ) ) &&
-			node.querySelector( 'h1' ) &&
-			node.getClientRects().length
+			node.querySelector( 'h1' )
 	);
 
-// Centre the bar in the visible space under whichever header is on screen, stand-in or the page's own.
+// Centre the bar in the visible space under the page's stand-in header, or where one last ended.
 const place = ( track, slug, el ) => {
-	const content = document.getElementById( 'wpbody-content' ) ?? el.parentElement;
-	const box = content.getBoundingClientRect();
-	const standIn = document.querySelector( `[data-shell-header="${ CSS.escape( slug ) }"]` );
-	const header = headerIn( standIn ) ?? headerIn( el );
-	let top = box.top + savedOffset();
-	let { left, width } = box;
+	const box = (
+		document.getElementById( 'wpbody-content' ) ?? el.parentElement
+	).getBoundingClientRect();
+	const header = headerIn(
+		document.querySelector( `[data-shell-header="${ CSS.escape( slug ) }"]` )
+	)?.getBoundingClientRect();
 	if ( header ) {
-		const rect = header.getBoundingClientRect();
-		( { left, width } = rect );
-		top = rect.bottom;
-		saveOffset( Math.round( rect.bottom - box.top ) );
+		headerOffset = Math.round( header.bottom - box.top );
 	}
+	const { left, width } = header ?? box;
+	const top = header?.bottom ?? box.top + readOffset();
 	const adminBar = document.getElementById( 'wpadminbar' )?.getBoundingClientRect().bottom ?? 0;
 	const barWidth = Math.min( BAR_WIDTH, width );
 	Object.assign( track.style, {
@@ -100,7 +97,7 @@ const place = ( track, slug, el ) => {
 	} );
 };
 
-// Loaders on screen, by page.
+// Removers of the loaders on screen, by page.
 const loaders = new Map();
 
 /**
@@ -109,16 +106,16 @@ const loaders = new Map();
  * @param {string} slug - Page slug.
  */
 export function removeLoader( slug ) {
-	loaders.get( slug )?.remove();
+	loaders.get( slug )?.();
 }
 
 /**
- * Show the loader for a page until it renders.
+ * Show the loader for a page until it is removed.
  *
  * @param {string}      slug  - Page being opened.
  * @param {HTMLElement} el    - Its mount element; the loader goes right before it.
  * @param {string}      label - Page title, for assistive technology.
- * @return {{set: Function, remove: Function}} `set( 0..1 )` reports a milestone; `remove()` takes it down.
+ * @return {Function} Removes the loader.
  */
 export function showLoader( slug, el, label ) {
 	removeLoader( slug );
@@ -129,8 +126,6 @@ export function showLoader( slug, el, label ) {
 	node.dataset.shellLoader = slug;
 	node.setAttribute( 'role', 'progressbar' );
 	node.setAttribute( 'aria-label', label ?? slug );
-	node.setAttribute( 'aria-valuemin', '0' );
-	node.setAttribute( 'aria-valuemax', '100' );
 	const track = document.createElement( 'div' );
 	track.className = 'jetpack-admin-shell-loader__track';
 	const fill = document.createElement( 'div' );
@@ -143,45 +138,38 @@ export function showLoader( slug, el, label ) {
 	let progress = 0;
 	let trickle = 0;
 	let frame = 0;
-	let gone = false;
 	const paint = value => {
-		progress = Math.min( 1, Math.max( progress, value ) );
+		progress = value;
 		node.style.setProperty( '--jetpack-admin-shell-progress', progress.toFixed( 3 ) );
 		node.setAttribute( 'aria-valuenow', String( Math.round( progress * 100 ) ) );
 	};
+	// Re-placed every frame: the stand-in header it sits under can scroll with the page.
+	const follow = () => {
+		place( track, slug, el );
+		frame = requestAnimationFrame( follow );
+	};
 	const showTimer = setTimeout( () => {
+		follow();
 		node.classList.add( 'is-shown' );
 		paint( 0.08 );
 		// Creeps towards 90% on its own, ever slower, so it never stalls nor claims to be done.
 		trickle = setInterval( () => paint( progress + ( 0.9 - progress ) * 0.08 ), 250 );
 	}, SHOW_AFTER );
 
-	const controls = {
-		set: value => ! gone && paint( value ),
-		remove: () => {
-			gone = true;
-			clearTimeout( showTimer );
-			clearInterval( trickle );
-			cancelAnimationFrame( frame );
-			node.remove();
-			el.removeAttribute( 'aria-busy' );
-			if ( loaders.get( slug ) === controls ) {
-				loaders.delete( slug );
-			}
-		},
-	};
-	// Re-placed every frame: the header it sits under can scroll, or be swapped for the page's own.
-	const follow = () => {
-		// Gone the moment the page draws its heading, so it never sits on top of content.
-		if ( el.style.visibility !== 'hidden' && el.querySelector( 'h1' )?.getClientRects().length ) {
-			controls.remove();
-			return;
+	const remove = () => {
+		clearTimeout( showTimer );
+		clearInterval( trickle );
+		cancelAnimationFrame( frame );
+		if ( frame && headerOffset !== null ) {
+			saveOffset();
 		}
-		place( track, slug, el );
-		frame = requestAnimationFrame( follow );
+		node.remove();
+		el.removeAttribute( 'aria-busy' );
+		if ( loaders.get( slug ) === remove ) {
+			loaders.delete( slug );
+		}
 	};
-	loaders.set( slug, controls );
-	follow();
+	loaders.set( slug, remove );
 	log( 'loader', `showing the loader for ${ slug }` );
-	return controls;
+	return remove;
 }
