@@ -67,6 +67,8 @@ class Search_Product_Test extends TestCase {
 	 */
 	public function tearDown(): void {
 		parent::tearDown();
+		$this->start_new_request();
+		Constants::clear_constants();
 		WorDBless_Options::init()->clear_options();
 		WorDBless_Users::init()->clear_all_users();
 	}
@@ -380,7 +382,6 @@ class Search_Product_Test extends TestCase {
 		Search::get_pricing_from_wpcom( 120 );
 
 		remove_filter( 'pre_http_request', array( $this, 'count_pricing_success' ) );
-		Constants::clear_constants();
 
 		$this->assertSame( 2, $this->pricing_success_calls );
 	}
