@@ -5,13 +5,10 @@
 	align-items: center;
 	min-inline-size: 0;
 	max-inline-size: 100%;
-	overflow: hidden;
-	white-space: nowrap;
+	white-space: normal;
 }
 
 .text {
 	min-inline-size: 0;
-	overflow: hidden;
-	white-space: nowrap;
-	text-overflow: ellipsis;
+	overflow-wrap: anywhere;
 }

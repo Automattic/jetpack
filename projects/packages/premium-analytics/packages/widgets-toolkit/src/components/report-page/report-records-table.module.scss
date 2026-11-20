@@ -42,3 +42,17 @@
 	color: var(--wpds-color-foreground-interactive-brand);
 	text-decoration: underline;
 }
+
+/* DataViews keeps a cell on one line, so a long value widened the table past
+ * its card and pushed the other columns under the sticky actions column. */
+.root :global(.dataviews-view-table tbody .dataviews-view-table__cell-content-wrapper:not(.dataviews-view-table__cell-align-end)) {
+	white-space: normal;
+	overflow-wrap: anywhere;
+}
+
+/* The title column takes the spare width anyway, so a lower floor only
+ * matters on a phone. */
+.root :global(.dataviews-view-table tbody .dataviews-view-table__primary-column-content:not(.dataviews-column-primary__media)),
+.root :global(.dataviews-view-table tbody .dataviews-view-table__primary-column-content .dataviews-view-table__cell-content-wrapper:not(.dataviews-column-primary__media)) {
+	min-inline-size: 8ch;
+}
