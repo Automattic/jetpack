@@ -31,6 +31,7 @@ import {
 	getOrderedCategoryKeys,
 	isInCategory,
 } from './skills';
+import SkillsBanner from './skills-banner';
 import useSendSkill from './use-send-skill';
 import useToolbarOffset from './use-toolbar-offset';
 import { useIsWordPressAgentAvailable } from './wordpress-agent';
@@ -221,6 +222,8 @@ export default function Discover() {
 					{ __( 'Suggest a skill', 'jetpack' ) }
 				</Link>
 			</div>
+
+			<SkillsBanner />
 
 			<div className="jetpack-ai-discover__toolbar">
 				<CategoryFilter value={ category } counts={ counts } onChange={ handleCategory } />

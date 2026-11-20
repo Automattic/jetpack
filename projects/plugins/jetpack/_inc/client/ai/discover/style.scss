@@ -12,6 +12,41 @@
 	gap: var(--wpds-dimension-gap-xl);
 	container: discover / inline-size;
 
+	// The shared dark banner, compact: icon, a short title and copy on one
+	// line with the close, and only the top glow (the bottom orb would show
+	// as a solid sphere at this height).
+	// Doubled with the shell's class, so it wins whatever loads first.
+	&__banner.jetpack-ai-banner {
+		align-items: center;
+		padding-block: var(--wpds-dimension-padding-xl);
+		padding-inline: var(--wpds-dimension-padding-xl) 56px;
+	}
+
+	&__banner {
+
+		// Level with the title, not centred on the copy.
+		.jetpack-ai-banner__icon {
+			align-self: flex-start;
+		}
+
+		// A comfortable line length for the copy, with its lines evened out.
+		.jetpack-ai-banner__content {
+			gap: var(--wpds-dimension-gap-xs);
+			max-inline-size: 750px;
+			text-wrap: balance;
+		}
+
+		.jetpack-ai-banner__title {
+			font-size: 15px;
+			line-height: 20px;
+			font-weight: 600;
+		}
+
+		.jetpack-ai-banner__orb--bottom {
+			display: none;
+		}
+	}
+
 	// The title and subtitle, with the suggest link at the end of the title's
 	// line. Baseline alignment reads the text column's first line, the title.
 	// Where the row can't hold both, the link wraps under the subtitle.
@@ -228,6 +263,17 @@
 		margin-inline-start: var(--wpds-dimension-gap-sm);
 		color: var(--wpds-color-foreground-content-neutral-weak);
 		font-weight: var(--wpds-typography-font-weight-default);
+	}
+
+	// Paging buttons on a light stroke, as jetpack.com/prompts' carousel: the
+	// surface stroke at rest, fainter still where a row can't page further.
+	&__row-page {
+		--wp-ui-button-border-color: var(--wpds-color-stroke-surface-neutral);
+		--wp-ui-button-border-color-active: var(--wpds-color-stroke-interactive-neutral);
+		--wp-ui-button-border-color-disabled: var(--wpds-color-stroke-surface-neutral-weak);
+		--wp-ui-button-background-color: var(--wpds-color-background-surface-neutral-strong);
+		--wp-ui-button-background-color-disabled: var(--wpds-color-background-surface-neutral-strong);
+		border-radius: var(--wpds-border-radius-md);
 	}
 
 	&__row-actions {

@@ -93,6 +93,7 @@ export default function CategoryRow( { title, count, children } ) {
 								variant="outline"
 								tone="neutral"
 								size="compact"
+								className="jetpack-ai-discover__row-page"
 								disabled={ ! room.canBack }
 								onClick={ back }
 							/>
@@ -102,6 +103,7 @@ export default function CategoryRow( { title, count, children } ) {
 								variant="outline"
 								tone="neutral"
 								size="compact"
+								className="jetpack-ai-discover__row-page"
 								disabled={ ! room.canOn }
 								onClick={ on }
 							/>

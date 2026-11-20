@@ -17,6 +17,7 @@ import './style.scss';
  *
  * @param {object}   props              - Component props.
  * @param {string}   props.className    - Extra class for layout overrides (width, margins).
+ * @param {object}   [props.icon]       - A leading mark before the copy, hidden from assistive tech.
  * @param {string}   props.title        - Banner heading.
  * @param {string}   props.description  - Supporting copy under the heading.
  * @param {object}   props.actions      - Optional action buttons, rendered in a row under the copy.
@@ -26,6 +27,7 @@ import './style.scss';
  */
 export default function AiBanner( {
 	className,
+	icon,
 	title,
 	description,
 	actions,
@@ -34,6 +36,11 @@ export default function AiBanner( {
 } ) {
 	return (
 		<div className={ clsx( 'jetpack-ai-banner', className ) }>
+			{ icon && (
+				<div className="jetpack-ai-banner__icon" aria-hidden="true">
+					{ icon }
+				</div>
+			) }
 			<div className="jetpack-ai-banner__content">
 				<h2 className="jetpack-ai-banner__title">{ title }</h2>
 				<p className="jetpack-ai-banner__description">{ description }</p>
