@@ -1,9 +1,11 @@
 import type { IdentityCrisisAction } from '../../../hooks/use-identity-crisis-actions/types';
 
+// The `jetpack_idc_*` events send these ids, so renaming one changes their data.
+
 /** A question in the Safe Mode flow. */
 export type StepId = 'main' | 'copy' | 'replaced';
 
-/** An answer to a question, named the same as in the `jetpack_idc_*` events' `path`. */
+/** An answer to a question. */
 export type OptionId = 'old' | 'original' | 'copyof' | 'safe' | 'fresh' | 'yes' | 'no' | 'unsure';
 
 /** What the flow knows about the site, built once from the Safe Mode state. */
@@ -36,11 +38,10 @@ export interface FlowState {
 	history: Array< { step: StepId; pick: OptionId } >;
 }
 
-/** A change of the flow, as the Safe Mode events describe it. */
+/** Next or Back, for `jetpack_idc_question_click`. `question` is the one answered, or the one Back leaves. */
 export type IdentityCrisisFlowEvent =
-	| { type: 'answer'; question: StepId; answer: OptionId }
-	| { type: 'back'; to: StepId }
-	| { type: 'support'; step: StepId; path: string };
+	| { type: 'answer'; question: StepId; answer: OptionId; path: string }
+	| { type: 'back'; question: StepId; path: string };
 
 // The copy for each option lives in `copy.tsx`, looked up by its id.
 const STEPS: Readonly< Record< StepId, Step > > = {
@@ -175,4 +176,30 @@ export function getPath( state: FlowState, ctx: FlowContext ): string {
 		parts.push( state.pick );
 	}
 	return parts.join( '>' ) || 'none';
+}
+
+/**
+ * The question event a change sends: Next on a question that leads to another, or Back.
+ *
+ * @param state  - The flow state before the change.
+ * @param action - The change.
+ * @param ctx    - The flow context.
+ * @return The event, or null for a pick, a restart, or a change that does not apply.
+ */
+export function getFlowEvent(
+	state: FlowState,
+	action: FlowAction,
+	ctx: FlowContext
+): IdentityCrisisFlowEvent | null {
+	if ( action.type === 'next' ) {
+		const option = getOption( state.step, state.pick );
+		return option && 'next' in option
+			? { type: 'answer', question: state.step, answer: option.id, path: getPath( state, ctx ) }
+			: null;
+	}
+	if ( action.type === 'back' && state.history.length > 0 ) {
+		// The answers that led to the question left, without its pick.
+		return { type: 'back', question: state.step, path: getPath( { ...state, pick: null }, ctx ) };
+	}
+	return null;
 }

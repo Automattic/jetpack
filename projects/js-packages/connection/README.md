@@ -165,7 +165,7 @@ If an error occurs while trying to disconnect, a custmomizable error message wil
 - *onError* - callback, to be called when an error occurs while disconnecting.
 - *errorMessage* - string, error message to display when an error occurs while disconnecting. Defaults to: "Failed to disconnect. Please try again."
 - *context* - string, the surface recorded with the dialog's analytics events, e.g. `plugins`. Sent as `null` when omitted.
-- *placement* - `ConnectionPlacement` (`header`, `connection_card` or `page_notice`), where on the page the dialog was opened from. Sent as `placement` only when set.
+- *placement* - `ConnectionPlacement`, where on the page the dialog was opened from. Sent as `placement` only when set.
 
 ### Important Notes
 It's important to note that the `onDisconnected` callback will not immediately trigger upon receiving a successful API response. This happens because we want to display a success message to the user first within the `DisconnectDialog`.
@@ -209,7 +209,7 @@ The unlink itself runs through the store's `unlinkUser` action, which records th
 - *onUnlinked* - callback, called once the account has been disconnected. The dialog does not close itself, so the host decides what closes and whether to reload.
 - *onTransferOwnership* - callback, opens the host's ownership transfer flow. Omit it to hide that action from the owner's warning.
 - *context* - string, recorded with the dialog's analytics events. Leave it out only if the surface genuinely has no name: there is no default, so an omitted context is sent as `null` rather than attributed to another surface.
-- *placement* - `ConnectionPlacement` (`header`, `connection_card` or `page_notice`), where on the page the dialog was opened from. Sent as `placement` only when set.
+- *placement* - `ConnectionPlacement`, where on the page the dialog was opened from. Sent as `placement` only when set.
 
 ### Important Notes
 The dialog takes no props describing the viewer. It reads `isMaster` and the viewer's capabilities from the store, which `Initial_State` fills, so a host that renders it on a page without that script data will show the non-owner confirmation to everyone.
@@ -246,7 +246,7 @@ On success it updates the package store with the new owner, so surfaces reading 
 - *onTransferred* - callback, called with the new owner's local user ID once WordPress.com has accepted the change. Only needed for logic beyond the store update, such as analytics or closing the surrounding surface.
 - *onBusyChange* - callback, called with whether a transfer is in flight, so a host can hold its own exits shut while it runs.
 - *trackingContext* - string, the surface to report Tracks events as (`jetpack_connection_owner_transfer_attempt`, `_success` and `_error` with a `reason`). Sent as `context`, or `null` when omitted.
-- *trackingPlacement* - `ConnectionPlacement` (`header`, `connection_card` or `page_notice`), where on the page the flow sits. Sent as `placement` only when set.
+- *trackingPlacement* - `ConnectionPlacement`, where on the page the flow sits. Sent as `placement` only when set.
 
 ### Important Notes
 The component renders only the controls its own steps need: `Continue`, `Back` between steps, and the transfer itself. Leaving the flow is the host surface's business, so there is no Cancel, Close or Done button — add one in your own chrome if the surface needs it.
@@ -265,14 +265,14 @@ import { TransferConnectionOwnership } from '@automattic/jetpack-connection';
 ```
 
 ## Safe Mode screen
-`IdentityCrisis` is the new Safe Mode (identity crisis) screen. It reads the Safe Mode state and the connected plugins from the connection store's initial state, sends no request until the user picks an action, and renders nothing outside Safe Mode. It renders no frame of its own: the host supplies the frame and decides what happens after each action.
+`IdentityCrisis` is the new Safe Mode (identity crisis) screen. It reads the Safe Mode state and the connected plugins from the connection store's initial state, calls no endpoint until the user picks an action (it does record [Safe Mode events](#safe-mode-events) when it is seen and on Next and Back), and renders nothing outside Safe Mode. It renders no frame of its own: the host supplies the frame and decides what happens after each action.
 
 - An administrator answers "What is {registered address}?" and, for a copy, one follow-up question; each answer shows its consequence once selected, and one button runs the matching action. A site WordPress marks as staging starts at "What should happen to this copy?" with Safe Mode preselected.
 - A viewer who cannot resolve Safe Mode sees what is paused and that an administrator needs to resolve it.
 - The copy says "store" instead of "site" when a WooCommerce-family plugin is connected, and names Stats and Backups only when a Jetpack-family plugin is. `hasWooPlugin()` and `hasJetpackPlugin()` export those rules, and `toConnectedPlugins()` reads the store's plugin list for them.
 
 Props:
-- `context` (required): `notice`, `my-jetpack` or `connectors`. `connectors` hides the logo and heading, which the card already shows.
+- `context` (required): `notice`, `my-jetpack` or `connectors`. `connectors` hides the logo and heading, which the card already shows. It sets the [events'](#safe-mode-events) `placement`, and their `context` everywhere except on the notice, which sends the admin screen id instead.
 - `onActionSuccess( result )` (required): `{ action: 'migrate' }` as soon as Migrate succeeds (the screen then shows that the address update started), `{ action: 'start-fresh', connectUrl }` for the host to open, or `{ action: 'confirm-safe-mode' }`. The package never navigates.
 - `redirectUri`: admin path to return to after a fresh connection.
 - `from`: a name from `CONNECTION_FROM`, reported to WordPress.com with a fresh connection.
@@ -297,7 +297,7 @@ import { IdentityCrisis } from '@automattic/jetpack-connection';
 ### Building blocks
 The screen is built from these, which hosts can also use directly. They take all site data as props.
 
-- `useIdentityCrisisActions( { redirectUri, from } )` calls the `migrate`, `start-fresh` and `confirm-safe-mode` endpoints through `@automattic/jetpack-api`, whose root and nonce the connection store sets from the initial state. It returns those three actions plus `busyAction`, `isMigrated`, `error` (`{ action, cause, code }`, where `code` is the REST error code or the client error's name, for tracking) and `clearError()`, for a host that moves the user to another step after a failure. Each action takes an optional `{ entry, path }` saying how the user reached it, for the Safe Mode events; nothing reads it yet. It never navigates or tracks: `startFresh()` resolves with the connect URL for the host to open, with `from` (a name from `CONNECTION_FROM`, see [Adding a connect button](#adding-a-connect-button)) already in it, or fails with a `server` error when the response isn't an `http(s)` URL. It and `confirmSafeMode()` stay busy after success, because the host is expected to leave or reload the page, so no button can be clicked in the meantime. While an action is busy, calling any of them sends no request and resolves as a failure (`false`, or `null` from `startFresh()`) without setting `error`, so a double click sends one request even if the host doesn't disable its buttons.
+- `useIdentityCrisisActions( { redirectUri, from, context, isDevelopmentSite } )` calls the `migrate`, `start-fresh` and `confirm-safe-mode` endpoints through `@automattic/jetpack-api`, whose root and nonce the connection store sets from the initial state, and records each action's [Safe Mode events](#safe-mode-events). `context` is the screen's `context` prop and `isDevelopmentSite` comes from the Safe Mode state; both are optional, but without `context` the events are sent with a null `context` and no `placement`, and without `isDevelopmentSite` they leave out `is_development_site`. It returns those three actions plus `busyAction`, `isMigrated`, `error` (`{ action, cause, code }`, where `code` is the REST error code or the client error's name, for tracking) and `clearError()`, for a host that moves the user to another step after a failure. Each action takes an optional `{ entry, path }` saying how the user reached it, and its events send that `path`; an action called without one sends none. It never navigates: `startFresh()` resolves with the connect URL for the host to open, with `from` (a name from `CONNECTION_FROM`, see [Adding a connect button](#adding-a-connect-button)) already in it, or fails with a `server` error when the response isn't an `http(s)` URL. It and `confirmSafeMode()` stay busy after success, because the host is expected to leave or reload the page, so no button can be clicked in the meantime. While an action is busy, calling any of them sends no request and resolves as a failure (`false`, or `null` from `startFresh()`) without setting `error`, so a double click sends one request even if the host doesn't disable its buttons.
 - `IdentityCrisisLayout` holds the logo from `logoUrl` (the connected plugins' marks, from the Safe Mode state; Jetpack's by default) and the "Jetpack Connection is in Safe Mode" heading, its children and a `hostActions` slot for actions only that host offers. `showHeader={ false }` hides the logo and heading and labels the region instead.
 - `IdentityCrisisAddresses` shows the address WordPress.com has on record over the address the site now loads at, and renders nothing unless it has both. The address props are optional, like `wpcomHomeUrl` and `currentUrl` in the Safe Mode state, so a host can pass the state straight through. `isStore` says "store" instead of "site".
 - `IdentityCrisisMigrated`, `IdentityCrisisNonAdmin` and `IdentityCrisisErrorNotice` are the state after Migrate, the view for users who cannot resolve Safe Mode (with Dismiss when given `onDismiss`), and a failure message that names the cause. Give the notice an `action` to show only that action's failure, such as next to its button.
@@ -305,11 +305,44 @@ The screen is built from these, which hosts can also use directly. They take all
 The text and support link overrides that plugins send through the `jetpack_idc_consumers` filter don't apply: every plugin gets the same wording.
 
 ## Tracking connection events
-`ProtectedOwnerConfirmation`, `ProtectedOwnerRelease`, `TransferConnectionOwnership` and the transfer link in `DisconnectUserDialog` record Tracks events by default. The `trackingContext` prop (`context` for `DisconnectUserDialog`) is sent as the event's `context` property, or `null` when omitted. `context` names the page; when one page renders the same component in more than one place, `trackingPlacement` (`placement` for the dialogs) names which, and is left out of the event otherwise. Placements are a closed `ConnectionPlacement` type: add a new one there before passing it.
+`ProtectedOwnerConfirmation`, `ProtectedOwnerRelease`, `TransferConnectionOwnership` and the transfer link in `DisconnectUserDialog` record Tracks events by default. The `trackingContext` prop (`context` for `DisconnectUserDialog`) is sent as the event's `context` property, or `null` when omitted. `context` names the page; when one page renders the same component in more than one place, `trackingPlacement` (`placement` for the dialogs) names which, and is left out of the event otherwise. Placements are a closed `ConnectionPlacement` type, in `helpers/connection-tracking.ts`: add a new one there before passing it.
 
-Only the page's own entry point sets `context`. A component that can render on more than one page, such as one exported from a package or loaded onto other dashboards through a shared script, takes `context` from its host and never hard-codes it; it may still set its own `placement`. For example, My Jetpack's shared header is told `my-jetpack` or `boost` by the page it renders on.
+Only the page's own entry point sets `context`. A component that can render on more than one page, such as one exported from a package or loaded onto other dashboards through a shared script, takes `context` from its host and never hard-codes it; it may still set its own `placement`. For example, My Jetpack's shared header is told `my-jetpack` or `boost` by the page it renders on. The Safe Mode screen is the exception on the notice: shown across admin pages, it sends the admin screen id as `context` (see [Safe Mode events](#safe-mode-events)).
 
-The package also exports `CONNECTION_EVENTS` (the canonical event names) `trackConnectionEvent( event, context, props )` and `bumpConnectionStat( group, name )` (an MC stat) for hosts that cannot bundle `@automattic/jetpack-analytics`, such as the Connectors card. Neither throws. `bumpConnectionStat` skips the Tracks script, so check that the site allows tracking before calling it.
+The package also exports `CONNECTION_EVENTS` (the canonical event names), `trackConnectionEvent( event, context, props )`, `trackIdentityCrisisEvent( event, context, props )` (a Safe Mode event, with the properties every Safe Mode event carries) and `bumpConnectionStat( group, name )` (an MC stat) for hosts that cannot bundle `@automattic/jetpack-analytics`, such as the Connectors card. None of them throws. `bumpConnectionStat` skips the Tracks script, so check that the site allows tracking before calling it.
+
+### Safe Mode events
+`IdentityCrisis` records these Tracks events through `trackIdentityCrisisEvent()`; send a host's own Safe Mode events, such as the Connectors card's Disconnect, through it too. Views and action starts keep the old Safe Mode screen's names, so one query counts both screens, split by `screen_version`. Unlike the components above, the screen's events always carry `placement`, set from its required `context` prop.
+
+Every event carries:
+
+| Property | Value |
+| --- | --- |
+| `screen_version` | `2`. The old screen's events have none. |
+| `placement` | `page_notice` for the `notice` context, `page_modal` for `my-jetpack`, `connection_card` for `connectors`. Left out without a `context`. |
+| `context` | The `context` prop, except on the notice, which sends the admin screen id (`window.pagenow`, e.g. `dashboard` or `edit-post`), or `notice` when the page has none. |
+| `platform` | The old screen's values, from `site.host` in the script data: `woa`, `vip` or `newspack`, and `self-hosted` for any other host. Left out when the page has no `site.host`. Approximate for Newspack sites on Atomic or VIP. |
+| `blog_id` | `site.wpcom.blog_id` from the script data, when it is a positive integer. |
+
+| Event | When | Other properties |
+| --- | --- | --- |
+| `jetpack_idc_notice_view` | Once per mount, the first time the screen is in the viewport while the tab is visible, for a viewer who can resolve Safe Mode. | `is_development_site`, `dynamic_site_url_detected` |
+| `jetpack_idc_non_admin_notice_view` | The same, for a viewer who can't. | — |
+| `jetpack_idc_migrate`, `jetpack_idc_start_fresh`, `jetpack_idc_confirm_safe_mode` | An action starts, before its request. | `path`, `is_development_site` |
+| `jetpack_idc_action_success` | The action's request succeeded. Sent with `use_beacon`, so it survives the host reloading or leaving the page right after. | `action`, `path`, `is_development_site`, `use_beacon`; `new_blog_id` for `start_fresh` |
+| `jetpack_idc_action_error` | The action's request failed. | `action`, `path`, `is_development_site`, `error_code`, `error_cause` |
+| `jetpack_idc_question_click` | Next on a question that leads to another, or Back. A pick without Next sends nothing, and an answer that runs an action ends that action's `path` instead. | `action`, `question`, `answer` (answers only), `path`, `is_development_site` |
+| `jetpack_idc_disconnect_site` | The Connectors card's Safe Mode disconnect is confirmed. The card sends it. | — |
+
+- `action`: `migrate`, `start_fresh` or `confirm_safe_mode`, the start events' suffixes; on `jetpack_idc_question_click`, `answer` or `back`.
+- `path`: the answers that led to the action, joined with `>` (e.g. `original>fresh`), from `getPath()`. It starts with `detected_copy` on a staging or development site, which skips the first question (`detected_copy>safe`). On `jetpack_idc_question_click`, it is the answers so far, ending with the one given; for Back, the answers that led to the question left.
+- `question`: the question's step id, `main`, `copy` or `replaced`: the one answered, or the one Back leaves.
+- `answer`: the answer's id, as in `path`.
+- `error_code`: the hook's `error.code`; `unknown` when there is none, and `other` when it isn't a plain id of up to 64 letters, digits, `_` and `-`.
+- `error_cause`: the hook's `error.cause`: `offline`, `blocked`, `output`, `session`, `permission` or `server`.
+- `new_blog_id`: the blog the site registered as, from the connect URL's `client_id`, when it is a positive integer.
+
+An action called while another is busy records nothing. The screen doesn't identify the viewer to Tracks: its host does, for example with `initializeTracksIdentity()`.
 
 ## Fetching connection status and other data from the store
 The package relies on [controls](https://developer.wordpress.org/block-editor/reference-guides/packages/packages-data/#controls-2)

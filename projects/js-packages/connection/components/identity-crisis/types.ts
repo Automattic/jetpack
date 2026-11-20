@@ -1,3 +1,4 @@
+import type { IdentityCrisisContext } from '../../helpers/connection-tracking';
 import type {
 	IdentityCrisisAction,
 	IdentityCrisisError,
@@ -11,8 +12,11 @@ export type IdentityCrisisActionResult =
 	| { action: 'confirm-safe-mode' };
 
 export interface IdentityCrisisProps {
-	/** Where the screen shows; the events' `context` (CONNECT-620). `connectors` hides the header, which the card already shows. */
-	context: 'notice' | 'my-jetpack' | 'connectors';
+	/**
+	 * Where the screen shows. Sets the events' `placement`, and their `context` except on the notice, which sends the admin screen id.
+	 * `connectors` hides the header, which the card already shows.
+	 */
+	context: IdentityCrisisContext;
 	/** Admin path to return to after a fresh connection. */
 	redirectUri?: string;
 	/** Name from `CONNECTION_FROM`, reported to WordPress.com with a fresh connection. */
