@@ -1,12 +1,12 @@
-import { __, _n, sprintf } from '@wordpress/i18n';
-import { Badge, Button, Stack, Text } from '@wordpress/ui';
+import { __ } from '@wordpress/i18n';
+import { Button, Stack, Text } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useCallback, useId, useMemo, useState } from 'react';
 import formatNumber from '../../../utils/format-number';
-import formatPercentage from '../../../utils/format-percentage';
 import LoadingBlock from '../../loading-block';
 import { transformStatsDataForChart } from '../../stats-section/cards';
 import StatsChart from '../../stats-section/stats-chart';
+import ChangeBadge, { getPercentChange } from './change-badge';
 import styles from './overview-stats.module.scss';
 import type { FC } from 'react';
 
@@ -73,61 +73,6 @@ const Tab: FC< TabProps > = ( {
 				</Text>
 			) }
 		</Button>
-	);
-};
-
-/**
- * The whole-percent change from the previous period.
- *
- * @param {number|undefined} count    - This period's total.
- * @param {number|undefined} previous - The previous period's total.
- * @return {number|null} The change, or null with nothing to compare against.
- */
-export const getPercentChange = ( count?: number, previous?: number ): number | null => {
-	if ( typeof count !== 'number' || typeof previous !== 'number' || previous <= 0 ) {
-		return null;
-	}
-	// `|| 0` turns Math.round's -0 into 0, so a tiny drop reads as no change.
-	return Math.round( ( ( count - previous ) / previous ) * 100 ) || 0;
-};
-
-// `dir="auto"`: an untranslated string on an RTL site would otherwise read "8%-".
-const ChangeBadge: FC< { id: string; percent: number; days: number } > = ( {
-	id,
-	percent,
-	days,
-} ) => {
-	if ( percent === 0 ) {
-		return (
-			<Badge id={ id } intent="none" dir="auto">
-				{ sprintf(
-					/* translators: %d: number of days in the period. */
-					_n(
-						'No change compared to previous %d day',
-						'No change compared to previous %d days',
-						days,
-						'jetpack-my-jetpack'
-					),
-					days
-				) }
-			</Badge>
-		);
-	}
-
-	return (
-		<Badge id={ id } intent={ percent > 0 ? 'stable' : 'medium' } dir="auto">
-			{ sprintf(
-				/* translators: %1$s: signed percent change, e.g. "+9%" or "-8%". %2$d: number of days in the period. */
-				_n(
-					'%1$s compared to previous %2$d day',
-					'%1$s compared to previous %2$d days',
-					days,
-					'jetpack-my-jetpack'
-				),
-				formatPercentage( percent / 100, { style: 'percent', signDisplay: 'always' } ),
-				days
-			) }
-		</Badge>
 	);
 };
 

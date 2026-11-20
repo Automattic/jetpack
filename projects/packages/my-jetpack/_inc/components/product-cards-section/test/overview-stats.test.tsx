@@ -1,6 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import OverviewStats, { getPercentChange } from '../stats-card/overview-stats';
+import { getPercentChange } from '../stats-card/change-badge';
+import OverviewStats from '../stats-card/overview-stats';
 
 jest.mock( '../../stats-section/stats-chart', () => ( { data } ) => (
 	<div data-testid="chart">{ data[ 0 ]?.label }</div>
