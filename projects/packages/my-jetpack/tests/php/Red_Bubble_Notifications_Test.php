@@ -53,6 +53,11 @@ class Red_Bubble_Notifications_Test extends TestCase {
 		remove_filter( 'map_meta_cap', array( $this->manager, 'jetpack_connection_custom_caps' ), 1 );
 		remove_all_filters( 'jetpack_disconnect_cap' );
 		remove_all_filters( 'jetpack_protect_threat_notifications_enabled' );
+		remove_all_filters( 'my_jetpack_red_bubble_notification_slugs' );
+		remove_all_filters( 'pre_http_request' );
+		remove_all_actions( 'set_transient_' . Wpcom_Products::MY_JETPACK_PURCHASES_TRANSIENT_KEY );
+		remove_all_actions( 'upgrader_process_complete' );
+		remove_all_actions( 'deleted_plugin' );
 		Protect_Status::$status = null;
 		// Storing a different plan clears Current_Plan's cached copy, which outlives the option.
 		Current_Plan::update_from_site_record(
@@ -345,5 +350,140 @@ class Red_Bubble_Notifications_Test extends TestCase {
 
 		$this->assertFalse( Products\Protect::has_paid_plan_for_product() );
 		$this->assertContains( Products\Protect::get_name(), $alerts[ "$plan_slug--plan_expired" ]['products_effected'] ?? array() );
+	}
+
+	/**
+	 * Fetch the alerts through the REST route, as My Jetpack does.
+	 *
+	 * @param string[] $dismissal_cookies Cookies the page passes, as "name=value".
+	 * @return array
+	 */
+	private function fetch_alerts_over_rest( array $dismissal_cookies = array() ) {
+		$request = new \WP_REST_Request( 'POST', '/my-jetpack/v1/red-bubble-notifications' );
+		$request->set_param( 'dismissal_cookies', $dismissal_cookies );
+
+		return Red_Bubble_Notifications::rest_api_get_red_bubble_alerts( $request )->get_data();
+	}
+
+	/**
+	 * Add an alert on every computation and return a counter of the computations.
+	 *
+	 * @param string $slug The alert to add.
+	 * @return \ArrayObject Its `count` is how often the alerts were computed.
+	 */
+	private function add_alert_and_count_computations( $slug ) {
+		$computations = new \ArrayObject( array( 'count' => 0 ) );
+		Red_Bubble_Notifications::register_cache_invalidation();
+		set_transient( Wpcom_Products::MY_JETPACK_PURCHASES_TRANSIENT_KEY, array(), HOUR_IN_SECONDS );
+		add_filter(
+			'pre_http_request',
+			function () {
+				return new \WP_Error( 'blocked', 'No HTTP in tests.' );
+			}
+		);
+		add_filter(
+			'my_jetpack_red_bubble_notification_slugs',
+			function ( $alerts ) use ( $slug, $computations ) {
+				++$computations['count'];
+				$alerts[ $slug ] = array( 'type' => 'test' );
+				return $alerts;
+			},
+			20
+		);
+
+		return $computations;
+	}
+
+	/**
+	 * Data provider for test_rest_route_reads_the_cache_and_applies_dismissals_after.
+	 *
+	 * @return array
+	 */
+	public static function provide_dismissible_alerts() {
+		return array(
+			'backup failure'        => array( 'backup_failure', 'backup_failure_dismissed' ),
+			'Protect threats'       => array( 'protect_has_threats', 'protect_threats_detected_dismissed' ),
+			'plan expired'          => array( 'jetpack_scan--plan_expired', 'jetpack_scan--plan_expired_dismissed' ),
+			'plan expiring soon'    => array( 'jetpack_scan--plan_expiring_soon', 'jetpack_scan--plan_expiring_soon_dismissed' ),
+			'plugins need installs' => array( 'jetpack_complete--plugins_needing_installed_activated', 'jetpack_complete--plugins_needing_installed_dismissed' ),
+		);
+	}
+
+	/**
+	 * The REST route serves the cached alerts, leaving out only the ones this request dismisses.
+	 *
+	 * @param string $slug   The alert.
+	 * @param string $cookie The cookie that dismisses it.
+	 *
+	 * @dataProvider provide_dismissible_alerts
+	 */
+	#[DataProvider( 'provide_dismissible_alerts' )]
+	public function test_rest_route_reads_the_cache_and_applies_dismissals_after( $slug, $cookie ) {
+		$this->log_in_as( 'administrator' );
+		$computations = $this->add_alert_and_count_computations( $slug );
+
+		$this->assertArrayHasKey( $slug, $this->fetch_alerts_over_rest() );
+		$this->assertArrayNotHasKey( $slug, $this->fetch_alerts_over_rest( array( "$cookie=1" ) ) );
+		$this->assertArrayHasKey( $slug, $this->fetch_alerts_over_rest(), 'A dismissal must not reach the cache.' );
+		$this->assertSame( 1, $computations['count'] );
+	}
+
+	/**
+	 * Data provider for test_cached_alerts_are_recomputed_when_their_inputs_change.
+	 *
+	 * @return array
+	 */
+	public static function provide_alert_input_changes() {
+		return array(
+			'purchases change'  => array( 'purchases' ),
+			'plugin installed'  => array( 'upgrader' ),
+			'plugin activated'  => array( 'active_plugins' ),
+			'site disconnected' => array( 'disconnect' ),
+			'another user'      => array( 'user' ),
+		);
+	}
+
+	/**
+	 * A change to what the alerts are computed from shows new alerts on the next request.
+	 *
+	 * @param string $change The change to make.
+	 *
+	 * @dataProvider provide_alert_input_changes
+	 */
+	#[DataProvider( 'provide_alert_input_changes' )]
+	public function test_cached_alerts_are_recomputed_when_their_inputs_change( $change ) {
+		$this->log_in_as( 'administrator' );
+		$computations = $this->add_alert_and_count_computations( 'test_alert' );
+
+		$alerts = $this->fetch_alerts_over_rest();
+		$this->assertSame( $alerts, $this->fetch_alerts_over_rest() );
+		$this->assertSame( 1, $computations['count'] );
+
+		switch ( $change ) {
+			case 'purchases':
+				$purchase = (object) array(
+					'product_slug'  => 'jetpack_scan',
+					'expiry_status' => 'active',
+					'expiry_date'   => gmdate( 'Y-m-d H:i:s', strtotime( '+1 year' ) ),
+				);
+				set_transient( Wpcom_Products::MY_JETPACK_PURCHASES_TRANSIENT_KEY, array( $purchase ), HOUR_IN_SECONDS );
+				break;
+			case 'upgrader':
+				do_action( 'upgrader_process_complete', null, array( 'type' => 'plugin' ) );
+				break;
+			case 'active_plugins':
+				update_option( 'active_plugins', array( 'jetpack-boost/jetpack-boost.php' ) );
+				break;
+			case 'disconnect':
+				( new Tokens() )->delete_all();
+				( new Connection_Manager() )->reset_connection_status();
+				break;
+			case 'user':
+				$this->log_in_as( 'editor' );
+				break;
+		}
+
+		$this->fetch_alerts_over_rest();
+		$this->assertSame( 2, $computations['count'] );
 	}
 }
