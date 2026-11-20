@@ -6,11 +6,10 @@ import formatNumber from '../../../utils/format-number';
 import LoadingBlock from '../../loading-block';
 import { transformStatsDataForChart } from '../../stats-section/cards';
 import StatsChart from '../../stats-section/stats-chart';
-import ChangeBadge, { getPercentChange } from './change-badge';
+import ChangeBadge from './change-badge';
 import styles from './overview-stats.module.scss';
+import type { Metric } from './change-badge';
 import type { FC } from 'react';
-
-type Metric = 'views' | 'visitors' | 'likes' | 'comments';
 
 type OverviewStatsProps = {
 	isLoading?: boolean;
@@ -93,10 +92,6 @@ const OverviewStats: FC< OverviewStatsProps > = ( {
 } ) => {
 	const [ selectedMetric, setSelectedMetric ] = useState< Metric >( 'views' );
 	const badgeId = useId();
-	const percentChange = isLoading
-		? null
-		: getPercentChange( counts?.[ selectedMetric ], previousCounts?.[ selectedMetric ] );
-	const hasBadge = percentChange !== null;
 	const series = useMemo(
 		() => transformStatsDataForChart( chartData, selectedMetric, CHART_COLOR ),
 		[ chartData, selectedMetric ]
@@ -113,17 +108,22 @@ const OverviewStats: FC< OverviewStatsProps > = ( {
 						count={ counts?.[ metric ] }
 						isLoading={ isLoading }
 						isSelected={ ! isLoading && selectedMetric === metric }
-						describedBy={ hasBadge && selectedMetric === metric ? badgeId : undefined }
+						describedBy={ ! isLoading && selectedMetric === metric ? badgeId : undefined }
 						onSelect={ setSelectedMetric }
 					/>
 				) ) }
 			</div>
-			{ hasBadge && (
-				// The div stops the column Stack stretching the badge to the card's width.
-				<div>
-					<ChangeBadge id={ badgeId } percent={ percentChange } days={ days } />
-				</div>
-			) }
+			{ /* A row keeps the badge at its own width, and every state at one height. */ }
+			<Stack direction="row">
+				<ChangeBadge
+					id={ badgeId }
+					metric={ selectedMetric }
+					count={ counts?.[ selectedMetric ] }
+					previous={ previousCounts?.[ selectedMetric ] }
+					days={ days }
+					isLoading={ isLoading }
+				/>
+			</Stack>
 			<StatsChart
 				data={ series }
 				isLoading={ isLoading }

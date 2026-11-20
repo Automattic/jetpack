@@ -1,11 +1,20 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { getPercentChange } from '../stats-card/change-badge';
+import { getCountChangeText, getPercentChange } from '../stats-card/change-badge';
 import OverviewStats from '../stats-card/overview-stats';
 
 jest.mock( '../../stats-section/stats-chart', () => ( { data } ) => (
 	<div data-testid="chart">{ data[ 0 ]?.label }</div>
 ) );
+
+jest.mock( '@wordpress/ui', () => ( {
+	...jest.requireActual( '@wordpress/ui' ),
+	Badge: ( { intent, infotip, children, ...props } ) => (
+		<span data-intent={ intent } data-infotip={ !! infotip } { ...props }>
+			{ children }
+		</span>
+	),
+} ) );
 
 const chartData = {
 	fields: [ 'period', 'views', 'visitors', 'likes', 'comments' ],
@@ -55,17 +64,19 @@ describe( 'OverviewStats', () => {
 
 		expect( screen.queryByText( '0' ) ).not.toBeInTheDocument();
 		expect( screen.queryByRole( 'button', { pressed: true } ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( 'Nothing to compare yet' ) ).not.toBeInTheDocument();
 	} );
 
 	it.each( [
-		[ 110, 'stable', '+10% compared to previous 7 days' ],
-		[ 92, 'medium', '-8% compared to previous 7 days' ],
-		[ 100, 'none', 'No change compared to previous 7 days' ],
-	] )( 'labels a change to %d views from 100', ( views, intent, text ) => {
+		[ 110, 100, 'stable', '+10% compared to previous 7 days', true ],
+		[ 92, 100, 'medium', '-8% compared to previous 7 days', true ],
+		[ 100, 100, 'draft', 'No change compared to previous 7 days', false ],
+		[ 5, 0, 'draft', 'Nothing to compare yet', false ],
+	] )( 'labels %d views against %d', ( views, previous, intent, text, hasInfotip ) => {
 		render(
 			<OverviewStats
 				counts={ { views, visitors: 5, likes: 2, comments: 1 } }
-				previousCounts={ { views: 100, visitors: 5, likes: 0, comments: 1 } }
+				previousCounts={ { views: previous, visitors: 5, likes: 0, comments: 1 } }
 				days={ 7 }
 				chartData={ chartData }
 				onDetailedStatsClick={ jest.fn() }
@@ -73,10 +84,11 @@ describe( 'OverviewStats', () => {
 		);
 
 		expect( screen.getByRole( 'button', { name: /Views/ } ) ).toHaveAccessibleDescription( text );
-		expect( screen.getByText( text ).className ).toMatch( `__is-${ intent }-intent` );
+		expect( screen.getByText( text ) ).toHaveAttribute( 'data-intent', intent );
+		expect( screen.getByText( text ) ).toHaveAttribute( 'data-infotip', String( hasInfotip ) );
 	} );
 
-	it( 'moves the badge with the selected tab and drops it with nothing to compare', async () => {
+	it( 'moves the badge with the selected tab', async () => {
 		render(
 			<OverviewStats
 				counts={ { views: 110, visitors: 6, likes: 2, comments: 1 } }
@@ -96,7 +108,18 @@ describe( 'OverviewStats', () => {
 		);
 
 		await userEvent.click( screen.getByRole( 'button', { name: /Likes/ } ) );
-		expect( screen.queryByText( /compared to previous/ ) ).not.toBeInTheDocument();
+		expect( screen.getByRole( 'button', { name: /Likes/ } ) ).toHaveAccessibleDescription(
+			'Nothing to compare yet'
+		);
+	} );
+
+	it.each( [
+		[ 'views', 880, '880 more views' ],
+		[ 'visitors', -57, '57 fewer visitors' ],
+		[ 'likes', 1, '1 more like' ],
+		[ 'comments', -1234, '1,234 fewer comments' ],
+	] as const )( 'getCountChangeText( %p, %p ) is %p', ( metric, difference, expected ) => {
+		expect( getCountChangeText( metric, difference ) ).toBe( expected );
 	} );
 
 	it.each( [
