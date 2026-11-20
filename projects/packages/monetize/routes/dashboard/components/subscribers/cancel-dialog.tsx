@@ -1,6 +1,7 @@
 import { __, sprintf } from '@wordpress/i18n';
 import { AlertDialog } from '@wordpress/ui';
 import { useCallback } from 'react';
+import { showSuccessSnackbar } from '../../data/notices';
 import { useCancelSubscription } from '../../data/subscribers';
 import { trackSubscribersEvent } from '../../data/tracking';
 import { isOneTime } from './subscriptions';
@@ -40,6 +41,11 @@ export default function CancelDialog( {
 		try {
 			await cancelSubscription.mutateAsync( subscription );
 			trackSubscribersEvent( 'cancel', { one_time: oneTime } );
+			showSuccessSnackbar(
+				oneTime
+					? __( 'Payment removed.', 'jetpack-monetize' )
+					: __( 'Subscription cancelled.', 'jetpack-monetize' )
+			);
 			onCancelled?.();
 		} catch ( error ) {
 			return {

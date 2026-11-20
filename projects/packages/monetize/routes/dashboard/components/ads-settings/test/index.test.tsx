@@ -12,13 +12,18 @@ import type { AdsValues } from '../../../data/use-ads-settings';
 
 let mockSimple = false;
 let mockCanJoin = true;
+const mockJoin = jest.fn();
 
 jest.mock( '@wordpress/api-fetch', () => ( { __esModule: true, default: jest.fn() } ) );
 jest.mock( '@automattic/jetpack-script-data', () => ( {
 	isSimpleSite: () => mockSimple,
 	isWpcomPlatformSite: () => mockSimple,
 } ) );
-jest.mock( '../../../data/wordads', () => ( { useAdsAccount: jest.fn() } ) );
+jest.mock( '../../../data/wordads', () => ( {
+	useAdsAccount: jest.fn(),
+	useJoinWordAds: () => ( { mutate: mockJoin, isPending: false, isError: false } ),
+} ) );
+jest.mock( '../../../data/notices' );
 jest.mock( '../../../data/ads-settings-data' );
 jest.mock( '../../../data/state', () => ( {
 	getPageData: () => ( { upgradeUrl: MOCK_UPGRADE_URL, tracks: true } ),
@@ -240,7 +245,7 @@ describe( 'AdsSettings', () => {
 		).not.toBeInTheDocument();
 	} );
 
-	it( 'sends a Simple site that has not joined WordAds to the Ads tab', async () => {
+	it( 'lets the owner of a Simple site join WordAds in place', async () => {
 		mockSimple = true;
 		( useAdsAccount as jest.Mock ).mockReturnValue( {
 			data: { approved: false },
@@ -250,7 +255,8 @@ describe( 'AdsSettings', () => {
 
 		expect( screen.queryByRole( 'switch', { name: SWITCH } ) ).not.toBeInTheDocument();
 		await userEvent.click( screen.getByRole( 'button', { name: 'Join WordAds' } ) );
-		expect( openTab ).toHaveBeenCalledWith( 'ads' );
+		expect( mockJoin ).toHaveBeenCalled();
+		expect( openTab ).not.toHaveBeenCalled();
 	} );
 
 	it( 'tells an admin who is not the owner that only the owner can join', () => {

@@ -49,10 +49,7 @@ const renderTab = ( {
 	( apiFetch as unknown as jest.Mock ).mockImplementation( ( { path } ) =>
 		path === '/jetpack/v4/settings' ? Promise.resolve( { wordads: active } ) : Promise.reject()
 	);
-	( wpcomFetch as jest.Mock ).mockImplementation( ( { path, method } ) => {
-		if ( method === 'POST' ) {
-			return Promise.resolve( { approved: true } );
-		}
+	( wpcomFetch as jest.Mock ).mockImplementation( ( { path } ) => {
 		const responses: Record< string, unknown > = {
 			'wordads/account': { approved, active, unsafe: false, status },
 			'wordads/earnings': {
@@ -92,9 +89,14 @@ describe( 'Ads', () => {
 			'Only the site owner can join WordAds.',
 		],
 		[
+			'Simple, the owner',
+			{ hasWordAds: true, active: false, simple: true, canJoin: true },
+			'Join WordAds in Settings',
+		],
+		[
 			'Simple, joined, ads off',
 			{ hasWordAds: true, active: false, approved: true, simple: true },
-			'Turn on ads',
+			'Turn on ads in Settings',
 		],
 		[
 			'ads off, owed earnings',
@@ -114,17 +116,11 @@ describe( 'Ads', () => {
 		expect( screen.queryByText( /no longer includes ads/ ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'opens Settings once the Simple site’s owner joins', async () => {
-		const { openTab } = renderTab( {
-			hasWordAds: true,
-			active: false,
-			simple: true,
-			canJoin: true,
-		} );
+	it( 'opens Settings in place to turn on ads', async () => {
+		const { openTab } = renderTab( { hasWordAds: true, active: false } );
 
-		await userEvent.click( await screen.findByRole( 'button', { name: 'Join WordAds' } ) );
+		await userEvent.click( await screen.findByRole( 'link', { name: 'Turn on ads in Settings' } ) );
 
-		expect( wpcomFetch ).toHaveBeenCalledWith( expect.objectContaining( { method: 'POST' } ) );
 		expect( openTab ).toHaveBeenCalledWith( 'settings' );
 	} );
 

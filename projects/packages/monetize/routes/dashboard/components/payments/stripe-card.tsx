@@ -6,6 +6,7 @@ import {
 	useMembershipsEarnings,
 	useStripeStatus,
 } from '../../data/memberships';
+import { showSuccessSnackbar } from '../../data/notices';
 import { trackPaymentsEvent } from '../../data/tracking';
 import { CommissionFees } from '../overview/earnings-card';
 
@@ -25,6 +26,7 @@ export default function StripeCard() {
 		try {
 			await disconnect.mutateAsync();
 			trackPaymentsEvent( 'stripe_disconnect' );
+			showSuccessSnackbar( __( 'Stripe disconnected.', 'jetpack-monetize' ) );
 		} catch ( disconnectError ) {
 			return {
 				close: false,
