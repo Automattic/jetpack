@@ -1166,13 +1166,16 @@ class Admin_Shell_Test extends TestCase {
 	 */
 	#[DataProvider( 'provide_printed_requests' )]
 	public function test_printed_on_host_keeps_only_hashes( $json, $expected ) {
-		$method = new \ReflectionMethod( Admin_Shell::class, 'printed_on_host' );
-		if ( PHP_VERSION_ID < 80100 ) {
-			// @phan-suppress-next-line PhanDeprecatedFunctionInternal -- Required before PHP 8.1, a no-op since.
-			$method->setAccessible( true );
-		}
+		$parse = \Closure::bind(
+			static function ( $json ) {
+				// @phan-suppress-next-line PhanAccessMethodPrivate -- Bound to Admin_Shell's scope.
+				return Admin_Shell::printed_on_host( $json );
+			},
+			null,
+			Admin_Shell::class
+		);
 
-		$this->assertSame( $expected, $method->invoke( null, $json ) );
+		$this->assertSame( $expected, $parse( $json ) );
 	}
 
 	/**
