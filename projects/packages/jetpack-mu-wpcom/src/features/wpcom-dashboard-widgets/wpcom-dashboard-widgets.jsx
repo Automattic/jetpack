@@ -68,7 +68,8 @@ if ( studioSync && data.wpcomBlogId ) {
 			remoteSiteId: data.wpcomBlogId,
 		} );
 	};
-	openStudio( false );
+	// Opening the app while the page is still loading stalls the Dashboard until the prompt is answered.
+	window.addEventListener( 'load', () => openStudio( false ), { once: true } );
 
 	// The notice must stay up: navigating away dismisses Chrome's "Open Studio?" prompt.
 	const container = document.createElement( 'div' );
