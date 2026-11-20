@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+AI: Make the MCP Read and Write "Enable all" switch also turn site-published abilities on or off.

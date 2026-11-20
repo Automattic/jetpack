@@ -4,6 +4,7 @@ import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useNavigate, useSearch } from '@wordpress/route';
 import { Tabs } from '@wordpress/ui';
+import Ads from './components/ads';
 import { AdsSettings } from './components/ads-settings';
 import ConnectionGate from './components/connection-gate';
 import Overview from './components/overview';
@@ -37,6 +38,12 @@ function TabContent( { tab, openTab }: { tab: TabValue; openTab: ( next: string 
 			return (
 				<ConnectionGate>
 					<Subscribers />
+				</ConnectionGate>
+			);
+		case 'ads':
+			return (
+				<ConnectionGate>
+					<Ads openTab={ openTab } />
 				</ConnectionGate>
 			);
 		case 'settings':

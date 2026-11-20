@@ -434,10 +434,11 @@ const useShowActivateLicenseLink = () => {
 	const connectionStatus = useConnection();
 	const isFullyConnected = useIsFullyConnected();
 	const { capabilitiesLoaded, hasBackupPlan } = useCapabilities();
+	const canAddLicense = useSelect( select => select( STORE_ID ).getSiteData().addLicense, [] );
 
 	return useMemo( () => {
 		const connectionLoaded = Object.keys( connectionStatus ).length > 0;
-		if ( ! connectionLoaded ) {
+		if ( ! connectionLoaded || canAddLicense === false ) {
 			return false;
 		}
 
@@ -450,7 +451,7 @@ const useShowActivateLicenseLink = () => {
 		}
 
 		return ! hasBackupPlan;
-	}, [ connectionStatus, isFullyConnected, hasBackupPlan, capabilitiesLoaded ] );
+	}, [ connectionStatus, isFullyConnected, hasBackupPlan, capabilitiesLoaded, canAddLicense ] );
 };
 
 export default Admin;

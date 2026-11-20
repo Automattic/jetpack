@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Tracks: Record header connection opens and clicks, and Renew and Resume clicks on plans.
