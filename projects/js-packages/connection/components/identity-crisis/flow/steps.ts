@@ -1,10 +1,16 @@
 import type { IdentityCrisisAction } from '../../../hooks/use-identity-crisis-actions/types';
 
 /** A question in the Safe Mode flow. */
-export type StepId = 'main' | 'copy' | 'replaced';
+export type ChoiceStepId = 'main' | 'copy' | 'replaced';
+
+/** A step that explains a result and offers one action, without a question. */
+export type ResultStepId = 'two-addresses';
+
+export type StepId = ChoiceStepId | ResultStepId;
 
 /** An answer to a question, named the same as in the `jetpack_idc_*` events' `path`. */
-export type OptionId = 'old' | 'original' | 'copyof' | 'safe' | 'fresh' | 'yes' | 'no' | 'unsure';
+export type OptionId =
+	'same' | 'old' | 'original' | 'copyof' | 'safe' | 'fresh' | 'yes' | 'no' | 'unsure';
 
 /** What the flow knows about the site, built once from the Safe Mode state. */
 export interface FlowContext {
@@ -23,10 +29,6 @@ export type Option = {
 	isAvailable?: ( ctx: FlowContext ) => boolean;
 } & ( { next: StepId } | { action: IdentityCrisisAction } );
 
-interface Step {
-	options: readonly Option[];
-}
-
 /** Where the flow is. `entry` leaves room for the step-by-step guide (CONNECT-625). */
 export interface FlowState {
 	entry: 'main' | 'guide';
@@ -42,29 +44,53 @@ export type IdentityCrisisFlowEvent =
 	| { type: 'back'; to: StepId }
 	| { type: 'support'; step: StepId; path: string };
 
-// The copy for each option lives in `copy.tsx`, looked up by its id.
-const STEPS: Readonly< Record< StepId, Step > > = {
-	main: {
-		options: [
-			{ id: 'old', action: 'migrate' },
-			{ id: 'original', next: 'copy' },
-			{ id: 'copyof', next: 'replaced' },
-		],
-	},
-	copy: {
-		options: [
-			{ id: 'safe', action: 'confirm-safe-mode' },
-			{ id: 'fresh', action: 'start-fresh' },
-		],
-	},
-	replaced: {
-		options: [
-			{ id: 'yes', action: 'start-fresh' },
-			{ id: 'no', action: 'migrate' },
-			{ id: 'unsure', action: 'confirm-safe-mode' },
-		],
-	},
+// The copy for each option and result lives in `copy.tsx`, looked up by its id.
+const CHOICE_STEPS: Readonly< Record< ChoiceStepId, readonly Option[] > > = {
+	main: [
+		{
+			id: 'same',
+			next: 'two-addresses',
+			isAvailable: ctx => ctx.possibleDynamicSiteUrlDetected,
+		},
+		{ id: 'old', action: 'migrate' },
+		{ id: 'original', next: 'copy' },
+		{ id: 'copyof', next: 'replaced' },
+	],
+	copy: [
+		{ id: 'safe', action: 'confirm-safe-mode' },
+		{ id: 'fresh', action: 'start-fresh' },
+	],
+	replaced: [
+		{ id: 'yes', action: 'start-fresh' },
+		{ id: 'no', action: 'migrate' },
+		{ id: 'unsure', action: 'confirm-safe-mode' },
+	],
 };
+
+// The step-by-step guide reaches these too.
+const RESULT_STEPS: Readonly< Record< ResultStepId, IdentityCrisisAction > > = {
+	'two-addresses': 'confirm-safe-mode',
+};
+
+/**
+ * Whether a step asks a question, rather than showing a result.
+ *
+ * @param step - The step.
+ * @return True for a question.
+ */
+export function isChoiceStep( step: StepId ): step is ChoiceStepId {
+	return Object.hasOwn( CHOICE_STEPS, step );
+}
+
+/**
+ * The one action a result step offers.
+ *
+ * @param step - The result step.
+ * @return The action.
+ */
+export function getResultAction( step: ResultStepId ): IdentityCrisisAction {
+	return RESULT_STEPS[ step ];
+}
 
 /**
  * Where the flow starts: WordPress already says a staging or development site is a copy.
@@ -83,10 +109,8 @@ export function getHomeStep( ctx: FlowContext ): Pick< FlowState, 'step' | 'pick
  * @param ctx  - The flow context.
  * @return The available options, in order.
  */
-export function getOptions( step: StepId, ctx: FlowContext ): Option[] {
-	return STEPS[ step ].options.filter(
-		option => ! option.isAvailable || option.isAvailable( ctx )
-	);
+export function getOptions( step: ChoiceStepId, ctx: FlowContext ): Option[] {
+	return CHOICE_STEPS[ step ].filter( option => ! option.isAvailable || option.isAvailable( ctx ) );
 }
 
 /**
@@ -94,10 +118,13 @@ export function getOptions( step: StepId, ctx: FlowContext ): Option[] {
  *
  * @param step - The step.
  * @param id   - The answer, if any.
- * @return The option, or null when the step has no such answer.
+ * @return The option, or null when the step has no such answer or is a result.
  */
 export function getOption( step: StepId, id: OptionId | null ): Option | null {
-	return STEPS[ step ].options.find( option => option.id === id ) ?? null;
+	if ( ! isChoiceStep( step ) ) {
+		return null;
+	}
+	return CHOICE_STEPS[ step ].find( option => option.id === id ) ?? null;
 }
 
 /** A change to the flow; every change goes through `flowReducer()`. */
@@ -161,7 +188,7 @@ export function flowReducer( state: FlowState, action: FlowAction ): FlowState {
  *
  * @param state - The flow state.
  * @param ctx   - The flow context.
- * @return E.g. `original>safe` or `detected_copy>fresh`; `none` before any answer.
+ * @return E.g. `original>safe`, `same` or `detected_copy>fresh`; `none` before any answer.
  */
 export function getPath( state: FlowState, ctx: FlowContext ): string {
 	const parts: string[] = [];

@@ -127,12 +127,18 @@ class Initial_State {
 		}
 
 		$idc_urls = self::get_mismatched_urls();
+		$error    = \Jetpack_Options::get_option( 'sync_error_idc' );
+		// Same choice as Identity_Crisis::get_stored_mismatched_urls(), whose URLs have no scheme.
+		$current_url = $idc_urls && is_array( $error ) && 'jetpack_site_url_mismatch' === ( $error['error_code'] ?? '' )
+			? site_url()
+			: home_url();
 
 		return $data + array(
 			'wpcomHomeUrl'                   => $idc_urls ? $idc_urls['wpcom_url'] : '',
 			'currentUrl'                     => $idc_urls ? $idc_urls['current_url'] : ( Identity_Crisis::get_sync_error_idc_option()['home'] ?? '' ),
 			'isDevelopmentSite'              => (bool) Status::is_development_site(),
 			'possibleDynamicSiteUrlDetected' => (bool) Identity_Crisis::detect_possible_dynamic_site_url(),
+			'isCurrentUrlHttps'              => 'https' === wp_parse_url( $current_url, PHP_URL_SCHEME ),
 			'logoUrl'                        => Jetpack_Connector::get_connector_logo_url(),
 		);
 	}

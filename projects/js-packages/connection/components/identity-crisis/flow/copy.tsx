@@ -1,6 +1,6 @@
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
-import type { OptionId, StepId } from './steps';
+import type { ChoiceStepId, OptionId, ResultStepId } from './steps';
 import type { ReactNode } from 'react';
 
 // Store and Jetpack variants use `_x()`, so minification can't merge them with the `__()` variant into one call.
@@ -15,21 +15,46 @@ export interface CopyContext {
 	z: string;
 }
 
-export interface OptionCopy {
+/** A step's button, and its label while the action runs. */
+export interface ActionCopy {
+	button: string;
+	/** Steps that only move on have none. */
+	busy?: string;
+	/** Text of a how-to link beside the button, which replaces the footer's support link. */
+	link?: string;
+}
+
+export interface OptionCopy extends ActionCopy {
 	label: ReactNode;
 	/** Always shown. */
 	hint: ReactNode;
 	/** The consequence, shown once the option is selected. */
 	more?: ReactNode;
-	button: string;
-	/** The button while its action runs; options that only move on have none. */
-	busy?: string;
+}
+
+/** What the screen can tell from this site's address, for a result that explains it. */
+export interface AddressFacts {
+	/** WordPress takes the address from each request, per `wp-config.php`. */
+	isDynamic: boolean;
+	isIpAddress: boolean;
+	/** False when unknown. */
+	loadsWithoutHttps: boolean;
+}
+
+export interface ResultCopy extends ActionCopy {
+	title: ReactNode;
+	help: ReactNode;
+	/** One line per fact that applies. */
+	facts: Array< { key: keyof AddressFacts; text: ReactNode } >;
+	fixesLead: string;
+	fixes: ReactNode[];
+	link: string;
 }
 
 /**
  * Fills `<x />` and `<z />` with the addresses as elements, so nothing in an address is parsed as a tag.
  *
- * @param text - The translated text.
+ * @param text - The translated text; may also hold `<code>` tags.
  * @param c    - The copy context.
  * @return The text with the addresses in bold.
  */
@@ -37,6 +62,7 @@ function fill( text: string, c: CopyContext ): ReactNode {
 	return createInterpolateElement( text, {
 		x: <strong>{ c.x }</strong>,
 		z: <strong>{ c.z }</strong>,
+		code: <code />,
 	} );
 }
 
@@ -47,7 +73,7 @@ function fill( text: string, c: CopyContext ): ReactNode {
  * @param c    - The copy context.
  * @return The question.
  */
-export function getStepTitle( step: StepId, c: CopyContext ): ReactNode {
+export function getStepTitle( step: ChoiceStepId, c: CopyContext ): ReactNode {
 	switch ( step ) {
 		case 'main':
 			/* translators: <z />: the address WordPress.com has on record, e.g. example.com. */
@@ -90,6 +116,34 @@ export function getOptionCopy( id: OptionId, c: CopyContext ): OptionCopy {
 	const next = { button: __( 'Next', 'jetpack-connection-js' ) };
 
 	switch ( id ) {
+		case 'same':
+			return {
+				label: c.isStore
+					? _x(
+							'Another address for this same store',
+							'WooCommerce store',
+							'jetpack-connection-js'
+						)
+					: __( 'Another address for this same site', 'jetpack-connection-js' ),
+				hint: fill(
+					__(
+						'It opens at both. Its address is set dynamically in <code>wp-config.php</code>.',
+						'jetpack-connection-js'
+					),
+					c
+				),
+				more: c.isStore
+					? _x(
+							'Next: why WordPress.com sees two stores, and how to fix it.',
+							'WooCommerce store',
+							'jetpack-connection-js'
+						)
+					: __(
+							'Next: why WordPress.com sees two sites, and how to fix it.',
+							'jetpack-connection-js'
+						),
+				...next,
+			};
 		case 'old':
 			return {
 				label: c.isStore
@@ -297,6 +351,106 @@ export function getOptionCopy( id: OptionId, c: CopyContext ): OptionCopy {
 			};
 		default: {
 			const unhandled: never = id;
+			return unhandled;
+		}
+	}
+}
+
+/**
+ * A result's explanation, the fixes it offers and its button.
+ *
+ * @param step  - The result step.
+ * @param c     - The copy context.
+ * @param facts - What the screen can tell from the address.
+ * @return The copy.
+ */
+export function getResultCopy(
+	step: ResultStepId,
+	c: CopyContext,
+	facts: AddressFacts
+): ResultCopy {
+	switch ( step ) {
+		case 'two-addresses': {
+			const lines: ResultCopy[ 'facts' ] = [];
+			if ( facts.isDynamic ) {
+				lines.push( {
+					key: 'isDynamic',
+					text: fill(
+						__(
+							'Its address is set dynamically in <code>wp-config.php</code>, so it may be reachable at more than one address.',
+							'jetpack-connection-js'
+						),
+						c
+					),
+				} );
+			}
+			if ( facts.isIpAddress ) {
+				lines.push( {
+					key: 'isIpAddress',
+					/* translators: <x />: this site's address. */
+					text: fill( __( '<x /> is an IP address.', 'jetpack-connection-js' ), c ),
+				} );
+			}
+			if ( facts.loadsWithoutHttps ) {
+				lines.push( {
+					key: 'loadsWithoutHttps',
+					/* translators: <x />: this site's address. */
+					text: fill( __( '<x /> loads without HTTPS.', 'jetpack-connection-js' ), c ),
+				} );
+			}
+
+			return {
+				title: c.isStore
+					? _x(
+							'This is one store with two addresses',
+							'WooCommerce store',
+							'jetpack-connection-js'
+						)
+					: __( 'This is one site with two addresses', 'jetpack-connection-js' ),
+				help: c.isStore
+					? _x(
+							'WordPress.com could not confirm that both addresses are the same store. It has to reach each address to check.',
+							'WooCommerce store',
+							'jetpack-connection-js'
+						)
+					: __(
+							'WordPress.com could not confirm that both addresses are the same site. It has to reach each address to check.',
+							'jetpack-connection-js'
+						),
+				facts: lines,
+				fixesLead: __( 'Fix it one of two ways:', 'jetpack-connection-js' ),
+				fixes: [
+					fill(
+						c.isStore
+							? /* translators: <x />: this store's address. <z />: the address WordPress.com has on record. */
+								_x(
+									'Give the store one fixed address, in <code>wp-config.php</code> or in Settings › General. If you keep <z />, Safe Mode ends by itself. If you keep <x />, come back here and update the address.',
+									'WooCommerce store',
+									'jetpack-connection-js'
+								)
+							: /* translators: <x />: this site's address. <z />: the address WordPress.com has on record. */
+								__(
+									'Give the site one fixed address, in <code>wp-config.php</code> or in Settings › General. If you keep <z />, Safe Mode ends by itself. If you keep <x />, come back here and update the address.',
+									'jetpack-connection-js'
+								),
+						c
+					),
+					fill(
+						/* translators: <x />: this site's address. */
+						__(
+							'Keep both addresses, and make <x /> reachable from the internet. Then come back here, so Jetpack Connection can check again. Safe Mode ends once the check passes.',
+							'jetpack-connection-js'
+						),
+						c
+					),
+				],
+				link: __( 'How to set a fixed address', 'jetpack-connection-js' ),
+				button: __( 'Stay in Safe Mode for now', 'jetpack-connection-js' ),
+				busy: __( 'Saving…', 'jetpack-connection-js' ),
+			};
+		}
+		default: {
+			const unhandled: never = step;
 			return unhandled;
 		}
 	}
