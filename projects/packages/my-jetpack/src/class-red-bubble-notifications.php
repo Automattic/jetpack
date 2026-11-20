@@ -484,7 +484,7 @@ class Red_Bubble_Notifications {
 			return $stored_alerts;
 		}
 
-		// A failed request (purchases, scan status, backups) leaves alerts out, so those results are rechecked sooner.
+		// A failed request (purchases, scan status) leaves alerts out, so those results are rechecked sooner.
 		$has_failed_request = false;
 		$watch_requests     = function ( $response ) use ( &$has_failed_request ) {
 			if ( is_wp_error( $response ) || wp_remote_retrieve_response_code( $response ) >= 400 ) {
