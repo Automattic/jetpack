@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Reports: Wrap long titles in the nested report tables so the other columns stay in view on narrow screens.
