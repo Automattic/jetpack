@@ -3,7 +3,7 @@
 # Create or update a PR.
 # If the PR exists but fails the pr-update-to check, this script force-pushes.
 #
-# Usage: create-or-update-pr.sh --branch <name> --title <text> --body <text> [--label <label>]... [--changelog <entry>] -- <pathspec>...
+# Usage: create-or-update-pr.sh --branch <name> --title <text> --body <text> [--label <label>]... [--reviewer <reviewer>]... [--changelog <entry>] -- <pathspec>...
 
 set -eo pipefail
 
@@ -20,12 +20,14 @@ TITLE=
 BODY=
 CHANGELOG=
 LABELS=()
+REVIEWERS=()
 while [[ $# -gt 0 ]]; do
 	case "$1" in
 		--branch) BRANCH="$2"; shift 2 ;;
 		--title) TITLE="$2"; shift 2 ;;
 		--body) BODY="$2"; shift 2 ;;
 		--label) LABELS+=( --label "$2" ); shift 2 ;;
+		--reviewer) REVIEWERS+=( --reviewer "$2" ); shift 2 ;;
 		--changelog) CHANGELOG="$2"; shift 2 ;;
 		--) shift; break ;;
 		*) die "Unknown argument: $1" ;;
@@ -88,7 +90,7 @@ fi
 
 if [[ -z "$PR_ID" ]]; then
 	echo "::notice::Creating PR for branch '$BRANCH'."
-	if ! gh pr create --base trunk --head "$BRANCH" --title "$TITLE" --body "$BODY" "${LABELS[@]}" --reviewer Automattic/jetpack-monorepo; then
+	if ! gh pr create --base trunk --head "$BRANCH" --title "$TITLE" --body "$BODY" "${LABELS[@]}" "${REVIEWERS[@]}"; then
 		# Only clean up the branch if this run created it.
 		if ! $HAS_BRANCH; then
 			git push --delete origin "$BRANCH" || echo "::warning::Failed to delete branch '$BRANCH'."
