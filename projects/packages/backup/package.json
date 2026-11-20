@@ -91,6 +91,7 @@
 	},
 	"wpPlugin": {
 		"name": "jetpack_backup",
+		"sharedModules": "../admin-ui/package.json",
 		"scriptGlobal": "jetpackBackup",
 		"packageNamespace": "jetpack-backup",
 		"handlePrefix": "jetpack-backup",

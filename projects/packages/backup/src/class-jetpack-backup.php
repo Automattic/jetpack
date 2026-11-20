@@ -1405,6 +1405,9 @@ class Jetpack_Backup {
 		}
 
 		require_once $build_index;
+		if ( class_exists( \Automattic\Jetpack\Admin_UI\Shared_Modules::class ) ) {
+			\Automattic\Jetpack\Admin_UI\Shared_Modules::init();
+		}
 
 		// wp-build registers standalone modules (e.g. the init module) on
 		// wp_default_scripts, which has already fired by admin_menu. Register them

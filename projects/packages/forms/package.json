@@ -134,6 +134,7 @@
 	},
 	"wpPlugin": {
 		"name": "jetpack_forms",
+		"sharedModules": "../admin-ui/package.json",
 		"scriptGlobal": "jetpackForms",
 		"packageNamespace": "jetpack-forms",
 		"handlePrefix": "jetpack-forms",

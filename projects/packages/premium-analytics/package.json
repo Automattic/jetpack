@@ -23,6 +23,7 @@
 	},
 	"wpPlugin": {
 		"name": "jpa",
+		"sharedModules": "../admin-ui/package.json",
 		"packageNamespace": "jetpack-premium-analytics",
 		"handlePrefix": "jetpack-premium-analytics",
 		"pages": [

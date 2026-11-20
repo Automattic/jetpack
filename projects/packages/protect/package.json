@@ -33,6 +33,7 @@
 	],
 	"wpPlugin": {
 		"name": "jetpack_protect",
+		"sharedModules": "../admin-ui/package.json",
 		"scriptGlobal": "jetpackProtect",
 		"packageNamespace": "jetpack-protect",
 		"handlePrefix": "jetpack-protect",

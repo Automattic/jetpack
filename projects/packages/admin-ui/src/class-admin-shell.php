@@ -89,6 +89,7 @@ class Admin_Shell {
 		add_action( 'wp_ajax_' . self::FEATURE_ACTION, array( __CLASS__, 'ajax_feature' ) );
 		// Plugins call init() on admin-ajax requests too, where the shell's members load the media library.
 		Media_Library::init();
+		Shared_Modules::init();
 	}
 
 	/**

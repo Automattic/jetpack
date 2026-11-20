@@ -305,6 +305,9 @@ class Social_Admin_Page {
 		}
 
 		require_once $build_index;
+		if ( class_exists( \Automattic\Jetpack\Admin_UI\Shared_Modules::class ) ) {
+			\Automattic\Jetpack\Admin_UI\Shared_Modules::init();
+		}
 
 		// The wp-build dashboard (unlike the Social bundles) uses the full polyfill set:
 		// the @wordpress/boot|route|a11y modules, wp-notices, wp-views, etc.

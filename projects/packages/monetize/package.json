@@ -33,6 +33,7 @@
 	],
 	"wpPlugin": {
 		"name": "jetpack_monetize",
+		"sharedModules": "../admin-ui/package.json",
 		"scriptGlobal": "jetpackMonetize",
 		"packageNamespace": "jetpack-monetize",
 		"handlePrefix": "jetpack-monetize",

@@ -118,6 +118,7 @@
 	},
 	"wpPlugin": {
 		"name": "jetpack_videopress",
+		"sharedModules": "../admin-ui/package.json",
 		"scriptGlobal": "jetpackVideoPress",
 		"packageNamespace": "jetpack-videopress",
 		"handlePrefix": "jetpack-videopress",

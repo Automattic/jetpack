@@ -55,6 +55,9 @@ class Jetpack_WP_Build_Page {
 			add_action( 'admin_enqueue_scripts', array( __CLASS__, 'alias_screen_id' ) );
 		}
 		require_once $build_index;
+		if ( class_exists( \Automattic\Jetpack\Admin_UI\Shared_Modules::class ) ) {
+			\Automattic\Jetpack\Admin_UI\Shared_Modules::init();
+		}
 
 		// A stale or partial build can't render the page, so don't swap core's scripts for it.
 		$renders = function_exists( 'jetpack_plugin_' . str_replace( '-', '_', $page_id ) . '_wp_admin_render_page' );
