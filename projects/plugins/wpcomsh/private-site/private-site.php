@@ -104,8 +104,8 @@ function init() {
 	// Scrutinize REST API requests.
 	add_filter( 'rest_dispatch_request', '\Private_Site\rest_dispatch_request', 10, 3 );
 
-	// Reduce the REST index to the minimum an unauthenticated client needs to authenticate.
-	add_filter( 'rest_index', '\Private_Site\rest_index', PHP_INT_MAX );
+	// Answer unauthenticated reads of the REST index with only what a client needs to authenticate.
+	add_filter( 'rest_pre_dispatch', '\Private_Site\rest_pre_dispatch', 10, 3 );
 
 	// Prevent Pinterest pinning.
 	add_action( 'wp_head', '\Private_Site\private_no_pinning' );
@@ -452,9 +452,9 @@ function send_access_denied_error_response() {
 	}
 
 	/*
-	 * Advertise the REST API root so clients can discover how to authenticate. We set only the
-	 * `https://api.w.org/` link, not core's `rest_output_link_header()`, which also emits an
-	 * `alternate` link exposing the requested resource's REST route.
+	 * Advertise the REST API root so clients can discover how to authenticate. Emit the single
+	 * `https://api.w.org/` link directly rather than via `rest_output_link_header()`, so no
+	 * `alternate` link naming a private resource can appear if this ever runs after the main query.
 	 */
 	if ( ! headers_sent() ) {
 		$api_root = get_rest_url();
@@ -584,14 +584,6 @@ function rest_dispatch_request( $dispatch_result, $request, $route ) {
 		return null;
 	}
 
-	/*
-	 * Allow a read of the REST index so clients can discover how to authenticate.
-	 * `\Private_Site\rest_index()` strips the payload down to just that.
-	 */
-	if ( '/' === $route && WP_REST_Server::READABLE === $request->get_method() ) {
-		return null;
-	}
-
 	if ( should_prevent_site_access() ) {
 		return new WP_Error( 'private_site', __( 'This site is private.', 'wpcomsh' ), array( 'status' => 403 ) );
 	}
@@ -600,22 +592,55 @@ function rest_dispatch_request( $dispatch_result, $request, $route ) {
 }
 
 /**
- * Reduce the REST index to the minimum an unauthenticated visitor needs to discover
- * how to authenticate.
+ * Answer an unauthenticated read of the REST index with only what a client needs to authenticate.
  *
- * Built from an allowlist rather than by unsetting fields, so anything core or a plugin
- * adds to the index later stays hidden until allowlisted here. Runs at `PHP_INT_MAX` so
- * core has already populated `authentication` (hooked at the default priority) first.
+ * Short-circuits before core's `get_index()`, so the route table is never built for anonymous
+ * visitors, and trims after the `rest_index` filters, so no filter can add to what is served.
  *
- * @param WP_REST_Response $response REST index response.
- * @return WP_REST_Response
+ * @param mixed           $result  Response to replace the requested version with.
+ * @param WP_REST_Server  $server  Server instance.
+ * @param WP_REST_Request $request Request used to generate the response.
+ * @return mixed
  */
-function rest_index( $response ) {
-	if ( ! should_prevent_site_access() ) {
-		return $response;
+function rest_pre_dispatch( $result, $server, $request ) {
+	if (
+		null !== $result
+		|| '/' !== $request->get_route()
+		// Core serves HEAD with the GET handler, but `get_method()` still reports HEAD.
+		|| ! in_array( $request->get_method(), array( 'GET', 'HEAD' ), true )
+		|| ! should_prevent_site_access()
+	) {
+		return $result;
 	}
 
-	$data = $response->get_data();
+	// Shaped like core's index so `rest_index` filters can read and extend it as usual.
+	$seed = new WP_REST_Response(
+		array(
+			'name'           => '',
+			'description'    => '',
+			'url'            => '',
+			'home'           => '',
+			'gmt_offset'     => 0,
+			'namespaces'     => array(),
+			'authentication' => array(),
+			'routes'         => array(),
+		)
+	);
+
+	/** This filter is documented in wp-includes/rest-api/class-wp-rest-server.php */
+	$index = apply_filters( 'rest_index', $seed, $request );
+
+	return build_minimal_rest_index( $index );
+}
+
+/**
+ * Rebuild a REST index from an allowlist, so anything core or a plugin adds stays hidden until named here.
+ *
+ * @param WP_REST_Response $response REST index response, after the `rest_index` filters.
+ * @return WP_REST_Response
+ */
+function build_minimal_rest_index( $response ) {
+	$data = $response instanceof WP_REST_Response ? $response->get_data() : array();
 
 	// `authentication` and `routes` are maps: an empty PHP array would serialize as [], so coerce
 	// each to an object so clients that read them as objects (or validate a schema) don't break. A
@@ -623,9 +648,9 @@ function rest_index( $response ) {
 	$authentication = empty( $data['authentication'] ) ? (object) array() : $data['authentication'];
 
 	// Allowlist. Anything not named here is intentionally withheld.
-	return new WP_REST_Response(
+	$minimal = new WP_REST_Response(
 		array(
-			'name'           => get_bloginfo( 'name', 'display' ), // 'display' routes through `mask_site_name`; a raw read would leak the real name.
+			'name'           => get_bloginfo( 'name', 'display' ), // Masked exactly as the HTML page is: 'Private Site' on private sites, the real name on coming-soon sites.
 			'description'    => '',
 			'url'            => get_option( 'siteurl' ),
 			'home'           => home_url(),
@@ -635,6 +660,11 @@ function rest_index( $response ) {
 			'routes'         => (object) array(),
 		)
 	);
+
+	// Core only sends no-cache headers to logged-in users; the edge must not keep this past launch.
+	$minimal->header( 'Cache-Control', 'no-cache, no-store, must-revalidate, max-age=0' );
+
+	return $minimal;
 }
 
 /**

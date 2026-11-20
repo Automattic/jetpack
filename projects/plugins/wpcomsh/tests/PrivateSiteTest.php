@@ -5,6 +5,10 @@
  * @package wpcomsh
  */
 
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
+
 /**
  * Class PrivateSiteTest.
  */
@@ -111,29 +115,6 @@ class PrivateSiteTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * The REST index is readable so unauthenticated clients can discover how to authenticate.
-	 */
-	public function test_rest_dispatch_request_allows_reading_the_index() {
-		wp_set_current_user( 0 );
-
-		$result = \Private_Site\rest_dispatch_request( null, new WP_REST_Request( 'GET', '/' ), '/' );
-
-		$this->assertNull( $result );
-	}
-
-	/**
-	 * Only reads of the index are allowed; writes to it are still denied.
-	 */
-	public function test_rest_dispatch_request_denies_writing_the_index() {
-		wp_set_current_user( 0 );
-
-		$result = \Private_Site\rest_dispatch_request( null, new WP_REST_Request( 'POST', '/' ), '/' );
-
-		$this->assertWPError( $result );
-		$this->assertSame( 'private_site', $result->get_error_code() );
-	}
-
-	/**
 	 * Content endpoints remain denied for unauthenticated visitors.
 	 */
 	public function test_rest_dispatch_request_denies_content_endpoints() {
@@ -143,6 +124,20 @@ class PrivateSiteTest extends WP_UnitTestCase {
 
 		$this->assertWPError( $result );
 		$this->assertSame( 'private_site', $result->get_error_code() );
+	}
+
+	/**
+	 * The index has no carve-out at dispatch: anything reaching it unauthenticated is denied.
+	 */
+	public function test_rest_dispatch_request_denies_the_index_route() {
+		wp_set_current_user( 0 );
+
+		foreach ( array( 'GET', 'POST' ) as $method ) {
+			$result = \Private_Site\rest_dispatch_request( null, new WP_REST_Request( $method, '/' ), '/' );
+
+			$this->assertWPError( $result, $method );
+			$this->assertSame( 'private_site', $result->get_error_code(), $method );
+		}
 	}
 
 	/**
@@ -170,12 +165,156 @@ class PrivateSiteTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * The trimmed index exposes only the allowlisted keys; everything else is withheld.
+	 * Unauthenticated GET and HEAD of the index are both answered with the minimal index.
+	 *
+	 * @dataProvider provide_index_read_methods
+	 *
+	 * @param string $method HTTP method.
 	 */
-	public function test_rest_index_returns_only_allowlisted_keys() {
+	#[DataProvider( 'provide_index_read_methods' )]
+	public function test_reading_the_index_returns_the_minimal_index( $method ) {
 		wp_set_current_user( 0 );
 
-		$result = \Private_Site\rest_index( $this->full_rest_index_response() );
+		$response = $this->dispatch_index( $method );
+		$data     = $response->get_data();
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertSame( 'Private Site', $data['name'] );
+		$this->assertSame( array(), $data['namespaces'] );
+		$this->assertEquals( new \stdClass(), $data['routes'] );
+	}
+
+	/**
+	 * HTTP methods that read the index.
+	 *
+	 * @return array
+	 */
+	public static function provide_index_read_methods() {
+		return array(
+			'GET'  => array( 'GET' ),
+			'HEAD' => array( 'HEAD' ),
+		);
+	}
+
+	/**
+	 * Logged-out responses are edge-cacheable unless marked otherwise, which would outlive a launch.
+	 */
+	public function test_minimal_index_is_not_cacheable() {
+		wp_set_current_user( 0 );
+
+		$headers = $this->dispatch_index()->get_headers();
+
+		$this->assertArrayHasKey( 'Cache-Control', $headers );
+		$this->assertStringContainsString( 'no-store', $headers['Cache-Control'] );
+	}
+
+	/**
+	 * The `rest_index` chain starts from an empty seed, so core's full index (and `?context=help`
+	 * route schemas) is never built for an anonymous visitor.
+	 */
+	public function test_minimal_index_does_not_build_the_core_index() {
+		wp_set_current_user( 0 );
+		$seen = null;
+		add_filter(
+			'rest_index',
+			function ( $response ) use ( &$seen ) {
+				$seen = $response->get_data();
+				return $response;
+			},
+			1
+		);
+
+		$this->dispatch_index( 'GET', array( 'context' => 'help' ) );
+
+		$this->assertSame( array(), $seen['namespaces'] );
+		$this->assertSame( array(), $seen['routes'] );
+	}
+
+	/**
+	 * A filter running after everyone else can't add to the served index, and can write to the
+	 * seed's maps as arrays without fataling.
+	 */
+	public function test_minimal_index_ignores_additions_from_later_filters() {
+		wp_set_current_user( 0 );
+		add_filter(
+			'rest_index',
+			function ( $response ) {
+				$response->data['routes']['/secret-plugin/v1'] = array( 'namespace' => 'secret-plugin/v1' );
+				$response->data['namespaces'][]                = 'secret-plugin/v1';
+				$response->data['timezone_string']             = 'America/New_York';
+				return $response;
+			},
+			PHP_INT_MAX
+		);
+
+		$data = $this->dispatch_index()->get_data();
+
+		$this->assertEquals( new \stdClass(), $data['routes'] );
+		$this->assertSame( array(), $data['namespaces'] );
+		$this->assertArrayNotHasKey( 'timezone_string', $data );
+	}
+
+	/**
+	 * Only reads of the index are short-circuited; writes fall through to normal routing.
+	 */
+	public function test_rest_pre_dispatch_ignores_writes_to_the_index() {
+		wp_set_current_user( 0 );
+
+		$result = \Private_Site\rest_pre_dispatch( null, rest_get_server(), new WP_REST_Request( 'POST', '/' ) );
+
+		$this->assertNull( $result );
+	}
+
+	/**
+	 * Only the index is short-circuited; other routes fall through to `rest_dispatch_request()`.
+	 */
+	public function test_rest_pre_dispatch_ignores_other_routes() {
+		wp_set_current_user( 0 );
+
+		$result = \Private_Site\rest_pre_dispatch( null, rest_get_server(), new WP_REST_Request( 'GET', '/wp/v2/posts' ) );
+
+		$this->assertNull( $result );
+	}
+
+	/**
+	 * A pre-dispatch result from another plugin is left untouched.
+	 */
+	public function test_rest_pre_dispatch_preserves_a_prior_result() {
+		wp_set_current_user( 0 );
+
+		$prior  = new WP_REST_Response( 'handled elsewhere' );
+		$result = \Private_Site\rest_pre_dispatch( $prior, rest_get_server(), new WP_REST_Request( 'GET', '/' ) );
+
+		$this->assertSame( $prior, $result );
+	}
+
+	/**
+	 * Members get core's full, unmodified index. Runs in its own process because
+	 * `should_prevent_site_access()` caches its first answer.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_members_get_the_full_index() {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
+
+		$response = $this->dispatch_index();
+		$data     = $response->get_data();
+
+		$this->assertContains( 'wp/v2', $data['namespaces'] );
+		$this->assertNotEmpty( (array) $data['routes'] );
+		$this->assertArrayNotHasKey( 'Cache-Control', $response->get_headers() );
+	}
+
+	/**
+	 * The trimmed index exposes only the allowlisted keys; everything else is withheld.
+	 */
+	public function test_build_minimal_rest_index_returns_only_allowlisted_keys() {
+		wp_set_current_user( 0 );
+
+		$result = \Private_Site\build_minimal_rest_index( $this->full_rest_index_response() );
 		$data   = $result->get_data();
 
 		$this->assertSame(
@@ -186,93 +325,73 @@ class PrivateSiteTest extends WP_UnitTestCase {
 		$this->assertSame( 0, $data['gmt_offset'] );
 		$this->assertSame( array(), $data['namespaces'] );
 		$this->assertEquals( new \stdClass(), $data['routes'], 'routes is a map: empty must be {} (an object), not []' );
-		// The raw site name and _links (help, active-theme) must not survive the trim.
-		$this->assertNotSame( 'Secret Site Name', $data['name'] );
+		// _links (help, active-theme) must not survive the trim.
 		$this->assertSame( array(), $result->get_links() );
 	}
 
 	/**
 	 * The authentication block is the payload clients need, so it is copied through verbatim.
 	 */
-	public function test_rest_index_preserves_the_authentication_block() {
+	public function test_build_minimal_rest_index_preserves_the_authentication_block() {
 		wp_set_current_user( 0 );
 
 		$response = $this->full_rest_index_response();
 		$expected = $response->get_data()['authentication'];
 
-		$data = \Private_Site\rest_index( $response )->get_data();
+		$data = \Private_Site\build_minimal_rest_index( $response )->get_data();
 
 		$this->assertSame( $expected, $data['authentication'] );
-		$this->assertArrayHasKey( 'application-passwords', $data['authentication'] );
 	}
 
 	/**
-	 * `authentication` is a map, so an empty one (no SSL, no auth plugins) must still serialize as an
-	 * object, not `[]` -- core seeds it as an empty array, which would otherwise encode as `[]`.
+	 * `authentication` is a map, so an empty one (no SSL, no auth plugins) must still serialize as an object.
 	 */
-	public function test_rest_index_serializes_empty_authentication_as_an_object() {
+	public function test_build_minimal_rest_index_serializes_empty_authentication_as_an_object() {
 		wp_set_current_user( 0 );
 		$response = new WP_REST_Response( array( 'authentication' => array() ) );
 
-		$auth = \Private_Site\rest_index( $response )->get_data()['authentication'];
+		$auth = \Private_Site\build_minimal_rest_index( $response )->get_data()['authentication'];
 
 		$this->assertEquals( new \stdClass(), $auth, 'empty authentication must be {} (an object), not []' );
 	}
 
 	/**
-	 * End-to-end: the Application Passwords authorization URL — the whole point of exposing the
-	 * index — survives the trim. This only holds because the filter runs after core populates
-	 * `authentication` (both hook `rest_index`, ours at PHP_INT_MAX); a lower priority would drop it.
+	 * The Application Passwords authorization URL -- the reason the index is exposed -- survives the trim.
 	 */
-	public function test_rest_index_keeps_the_application_passwords_authorization_url() {
+	public function test_minimal_index_keeps_the_application_passwords_authorization_url() {
 		wp_set_current_user( 0 );
 		// Atomic sites have SSL, so core advertises Application Passwords; force that in the test env.
 		add_filter( 'wp_is_application_passwords_available', '__return_true' );
-		// Core hooks this on rest_api_init; re-add it explicitly since the suite's hook backup +
-		// the REST-server singleton can leave it detached by the time this test runs.
+		// The suite's hook backup can leave core's rest_api_init hook detached by the time this runs.
 		add_filter( 'rest_index', 'rest_add_application_passwords_to_index' );
-		// Register the filter exactly as init() does on a live private site.
-		add_filter( 'rest_index', '\Private_Site\rest_index', PHP_INT_MAX );
 
-		$data = rest_get_server()->dispatch( new WP_REST_Request( 'GET', '/' ) )->get_data();
+		$data = $this->dispatch_index()->get_data();
 
-		remove_filter( 'rest_index', '\Private_Site\rest_index', PHP_INT_MAX );
-		remove_filter( 'rest_index', 'rest_add_application_passwords_to_index' );
-		remove_filter( 'wp_is_application_passwords_available', '__return_true' );
-
-		$this->assertArrayHasKey( 'application-passwords', $data['authentication'] );
 		$this->assertStringContainsString(
 			'authorize-application.php',
 			$data['authentication']['application-passwords']['endpoints']['authorization']
 		);
-		$this->assertEquals( new \stdClass(), $data['routes'], 'the index is still stripped for unauthenticated visitors' );
 	}
 
 	/**
-	 * Running last (PHP_INT_MAX) means we snapshot every provider's contribution, so a third-party
-	 * auth plugin that follows core's convention -- adding its method under `authentication` -- is
-	 * kept alongside core's Application Passwords rather than clobbered.
+	 * A third-party auth plugin that adds its method under `authentication` is kept alongside core's.
 	 */
-	public function test_rest_index_preserves_other_plugins_authentication_methods() {
+	public function test_minimal_index_preserves_other_plugins_authentication_methods() {
 		wp_set_current_user( 0 );
 		add_filter( 'wp_is_application_passwords_available', '__return_true' );
 		add_filter( 'rest_index', 'rest_add_application_passwords_to_index' );
-		// A third-party auth plugin registering at a normal priority, i.e. before ours.
-		$acme = function ( $response ) {
-			$response->data['authentication']['acme-oauth'] = array(
-				'endpoints' => array( 'authorization' => 'https://example.com/acme/authorize' ),
-			);
-			return $response;
-		};
-		add_filter( 'rest_index', $acme, 20 );
-		add_filter( 'rest_index', '\Private_Site\rest_index', PHP_INT_MAX );
+		add_filter(
+			'rest_index',
+			function ( $response ) {
+				$response->data['authentication']['acme-oauth'] = array(
+					'endpoints' => array( 'authorization' => 'https://example.com/acme/authorize' ),
+				);
+				return $response;
+			},
+			20
+		);
 
-		$auth = rest_get_server()->dispatch( new WP_REST_Request( 'GET', '/' ) )->get_data()['authentication'];
-
-		remove_filter( 'rest_index', '\Private_Site\rest_index', PHP_INT_MAX );
-		remove_filter( 'rest_index', $acme, 20 );
-		remove_filter( 'rest_index', 'rest_add_application_passwords_to_index' );
-		remove_filter( 'wp_is_application_passwords_available', '__return_true' );
+		$auth = $this->dispatch_index()->get_data()['authentication'];
 
 		$this->assertArrayHasKey( 'application-passwords', $auth );
 		$this->assertArrayHasKey( 'acme-oauth', $auth );
@@ -281,16 +400,92 @@ class PrivateSiteTest extends WP_UnitTestCase {
 	/**
 	 * The index name is routed through the site-name mask rather than the raw option.
 	 */
-	public function test_rest_index_masks_the_site_name() {
+	public function test_build_minimal_rest_index_masks_the_site_name() {
 		wp_set_current_user( 0 );
 		update_option( 'blogname', 'Secret Site Name' );
 		add_filter( 'bloginfo', '\Private_Site\mask_site_name', 3, 2 );
 
-		$data = \Private_Site\rest_index( $this->full_rest_index_response() )->get_data();
+		$data = \Private_Site\build_minimal_rest_index( $this->full_rest_index_response() )->get_data();
 
 		$this->assertSame( 'Private Site', $data['name'] );
+	}
 
-		remove_filter( 'bloginfo', '\Private_Site\mask_site_name', 3 );
+	/**
+	 * Coming-soon sites show their real name on the HTML page, and the index matches it.
+	 */
+	public function test_build_minimal_rest_index_shows_the_real_name_on_coming_soon_sites() {
+		wp_set_current_user( 0 );
+		update_option( 'blogname', 'Launching Soon' );
+		add_filter( 'bloginfo', '\Private_Site\mask_site_name', 3, 2 );
+		wp_cache_set( 'wpcom_coming_soon', 1, 'wpcomsh' );
+
+		$data = \Private_Site\build_minimal_rest_index( $this->full_rest_index_response() )->get_data();
+		wp_cache_delete( 'wpcom_coming_soon', 'wpcomsh' );
+
+		$this->assertSame( 'Launching Soon', $data['name'] );
+	}
+
+	/**
+	 * Every access-denied page, including the one the apps get, advertises the REST API root.
+	 *
+	 * @dataProvider provide_access_denied_templates
+	 *
+	 * @param string $template Template file name.
+	 */
+	#[DataProvider( 'provide_access_denied_templates' )]
+	public function test_access_denied_templates_print_the_rest_api_discovery_link( $template ) {
+		wp_set_current_user( 0 );
+		$_SERVER['SERVER_NAME'] = 'example.org';
+		$_SERVER['REQUEST_URI'] = '/';
+		// Only the <head> matters here; the footer pulls in unrelated deprecated core callbacks.
+		remove_all_actions( 'wp_footer' );
+		// The test bootstrap has already printed output, so the templates' header() calls can only warn.
+		set_error_handler(
+			static function ( $errno, $errstr ) {
+				return 0 === strpos( $errstr, 'Cannot modify header information' );
+			},
+			E_WARNING
+		);
+
+		try {
+			ob_start();
+			require dirname( __DIR__ ) . '/private-site/' . $template;
+			$html = ob_get_clean();
+		} finally {
+			restore_error_handler();
+		}
+
+		$this->assertStringContainsString( '<link rel="https://api.w.org/" href="' . esc_url( get_rest_url() ) . '" />', $html );
+	}
+
+	/**
+	 * The three access-denied templates.
+	 *
+	 * @return array
+	 */
+	public static function provide_access_denied_templates() {
+		return array(
+			'private site' => array( 'access-denied-private-site-template.php' ),
+			'coming soon'  => array( 'access-denied-coming-soon-template.php' ),
+			'app preview'  => array( 'access-denied-preview-login-template.php' ),
+		);
+	}
+
+	/**
+	 * Dispatches a request for the REST index with the private-site hooks added as `init()` does.
+	 *
+	 * @param string $method HTTP method.
+	 * @param array  $params Query parameters.
+	 * @return WP_REST_Response
+	 */
+	private function dispatch_index( $method = 'GET', $params = array() ) {
+		add_filter( 'rest_pre_dispatch', '\Private_Site\rest_pre_dispatch', 10, 3 );
+		add_filter( 'bloginfo', '\Private_Site\mask_site_name', 3, 2 );
+
+		$request = new WP_REST_Request( $method, '/' );
+		$request->set_query_params( $params );
+
+		return rest_get_server()->dispatch( $request );
 	}
 
 	/**
