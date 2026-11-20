@@ -198,8 +198,7 @@ class Admin_UI {
 	 * @return void
 	 */
 	private static function enable_dashboard_menu() {
-		$callback = self::get_dashboard_render_callback();
-		if ( null === $callback ) {
+		if ( ! self::should_add_dashboard_menu() ) {
 			return;
 		}
 
@@ -209,7 +208,7 @@ class Admin_UI {
 			'VideoPress',
 			'manage_options',
 			self::ADMIN_PAGE_SLUG,
-			$callback,
+			self::get_dashboard_render_callback(),
 			null,
 			array(
 				'product' => 'videopress',
@@ -217,6 +216,15 @@ class Admin_UI {
 			)
 		);
 		add_action( 'load-' . $page_suffix, array( __CLASS__, 'admin_init' ) );
+	}
+
+	/**
+	 * Whether enable_menu() registers the dashboard page, and so whether the admin shell may serve it.
+	 *
+	 * @return bool
+	 */
+	private static function should_add_dashboard_menu() {
+		return VideoPress_Status::is_active() && null !== self::get_dashboard_render_callback();
 	}
 
 	/**
@@ -361,11 +369,9 @@ class Admin_UI {
 	 * @return array
 	 */
 	public static function add_admin_shell_member( $members ) {
-		// The same gates enable_dashboard_menu() applies, since admin-ajax never builds the menu.
 		if (
 			( new Host() )->is_wpcom_simple()
-			|| ! self::is_modernized()
-			|| ! VideoPress_Status::is_active()
+			|| ! self::should_add_dashboard_menu()
 			|| ! file_exists( dirname( __DIR__ ) . '/build/build.php' )
 		) {
 			return $members;

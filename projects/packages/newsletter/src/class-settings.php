@@ -131,6 +131,21 @@ class Settings {
 	}
 
 	/**
+	 * Whether the menu code registers the Newsletter page, and so whether the admin shell may serve it.
+	 *
+	 * @return bool
+	 */
+	private function should_add_menu() {
+		// Simple sites need no Jetpack connection.
+		if ( ! ( new Host() )->is_wpcom_simple() && ! ( new Connection_Manager() )->is_connected() ) {
+			return false;
+		}
+
+		// The modernized screen is only useful while the subscriptions module is on; the legacy one keeps its page.
+		return ! self::is_modernized() || $this->is_subscriptions_active();
+	}
+
+	/**
 	 * Subscribe to necessary hooks.
 	 */
 	public function init_hooks() {
@@ -231,15 +246,7 @@ class Settings {
 	 * add_wp_admin_submenu() called from wpcom-admin-menu.php instead.
 	 */
 	public function add_wp_admin_menu() {
-		// On sites using Jetpack, only show the menu if the site is connected.
-		if ( ! ( new Connection_Manager() )->is_connected() ) {
-			return;
-		}
-
-		// On the modernized dashboard, the Newsletter screen is only useful when the
-		// subscriptions module is active, so skip registering the menu entirely when it
-		// is off. Gated on the modernization flag to leave legacy behavior unchanged.
-		if ( self::is_modernized() && ! $this->is_subscriptions_active() ) {
+		if ( ! $this->should_add_menu() ) {
 			return;
 		}
 
@@ -295,10 +302,7 @@ class Settings {
 	 * (999999) when the Jetpack menu already exists.
 	 */
 	public function add_wp_admin_submenu() {
-		// On the modernized dashboard, the Newsletter screen is only useful when the
-		// subscriptions module is active, so skip registering the menu entirely when it
-		// is off. Gated on the modernization flag to leave legacy behavior unchanged.
-		if ( self::is_modernized() && ! $this->is_subscriptions_active() ) {
+		if ( ! $this->should_add_menu() ) {
 			return;
 		}
 
@@ -330,13 +334,11 @@ class Settings {
 	 * @return array
 	 */
 	public function add_admin_shell_member( $members ) {
-		// The menu's gates, since admin-ajax never builds it; Simple's menu has no connection check.
 		if (
 			! file_exists( self::wp_build_index_path() )
 			|| ! self::is_modernized()
 			|| ! $this->should_show_menu_item()
-			|| ! $this->is_subscriptions_active()
-			|| ( ! ( new Host() )->is_wpcom_simple() && ! ( new Connection_Manager() )->is_connected() )
+			|| ! $this->should_add_menu()
 		) {
 			return $members;
 		}
