@@ -153,10 +153,12 @@ function render_cookie_consent_template() {
 	if ( ! empty( $parsed[0] ) ) {
 		$parsed[0]['attrs']['render_from_template'] = true;
 
-		$custom_css_before = get_custom_css_rules();
-		$banner            = render_block( $parsed[0] );
+		$custom_css_before     = get_custom_css_rules();
+		$block_supports_before = get_block_supports_rules();
+		$banner                = render_block( $parsed[0] );
 		if ( '' !== $banner ) {
 			print_late_custom_css_rules( $custom_css_before );
+			print_late_block_supports_rules( $block_supports_before );
 			echo $banner; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		}
 	}
@@ -197,6 +199,46 @@ function print_late_custom_css_rules( $rules_before ) {
 		$processor->set_modifiable_text( implode( '', $new_rules ) );
 		echo $processor->get_updated_html(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
+}
+
+/**
+ * Get the style engine's block-supports rules, keyed by selector.
+ *
+ * @since $$next-version$$
+ *
+ * @return \WP_Style_Engine_CSS_Rule[]
+ */
+function get_block_supports_rules() {
+	return \WP_Style_Engine_CSS_Rules_Store::get_store( 'block-supports' )->get_all_rules();
+}
+
+/**
+ * Print block-supports rules the banner queued since the snapshot, such as its link color.
+ *
+ * Core compiles the block-supports store before the footer renders the banner.
+ *
+ * @since $$next-version$$
+ *
+ * @param \WP_Style_Engine_CSS_Rule[] $rules_before Rules from get_block_supports_rules() before the render.
+ */
+function print_late_block_supports_rules( $rules_before ) {
+	$new_rules = array_diff_key( get_block_supports_rules(), $rules_before );
+	if ( ! $new_rules ) {
+		return;
+	}
+
+	$processor = new \WP_Style_Engine_Processor();
+	$processor->add_rules( array_values( $new_rules ) );
+	$css = $processor->get_css( array( 'prettify' => false ) );
+	if ( '' === $css ) {
+		return;
+	}
+
+	$tag = new \WP_HTML_Tag_Processor( '<style></style>' );
+	$tag->next_tag();
+	$tag->set_attribute( 'id', 'jetpack-cookie-consent-block-supports-css' );
+	$tag->set_modifiable_text( $css );
+	echo $tag->get_updated_html(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 }
 
 /**
