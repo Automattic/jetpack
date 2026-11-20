@@ -1,7 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import StatsOverviewItem from '../stats-card/overview';
 
-jest.mock( '../../../hooks/use-analytics', () => () => ( { recordEvent: jest.fn() } ) );
 jest.mock( '../../../hooks/use-my-jetpack-connection', () => () => ( {
 	blogID: '1',
 	isSiteConnected: true,

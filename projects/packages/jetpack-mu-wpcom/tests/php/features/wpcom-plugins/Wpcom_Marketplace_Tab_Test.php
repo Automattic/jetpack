@@ -8,6 +8,7 @@
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom\Marketplace_Catalog;
 use Brain\Monkey\Functions;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 
@@ -319,6 +320,74 @@ class Wpcom_Marketplace_Tab_Test extends \WorDBless\BaseTestCase {
 		$this->assertSame( array( 'gravityforms', 'second' ), array_column( $result->plugins, 'slug' ) );
 		$this->assertSame( 2, $result->info['results'] );
 		$this->assertSame( 1, $result->info['pages'] );
+	}
+
+	/**
+	 * Cases for test_core_sees_installed_products_without_rechecking_updates().
+	 *
+	 * @return array[]
+	 */
+	public static function provide_installed_product_versions() {
+		return array(
+			'older, no update entry'   => array( '3.1.0', false, '3.1.0', 'latest_installed' ),
+			'older, update entry'      => array( '3.1.0', true, '3.1.1', 'update_available' ),
+			'same version as the card' => array( '3.1.1', false, '3.1.1', 'latest_installed' ),
+		);
+	}
+
+	/**
+	 * An installed product older than its card must not send core back to the update API, once per card.
+	 *
+	 * @dataProvider provide_installed_product_versions
+	 *
+	 * @param string $installed     Version installed on the site.
+	 * @param bool   $has_update    Whether update_plugins lists an update for it.
+	 * @param string $core_version  Version core should be handed.
+	 * @param string $core_status   Status core should then report.
+	 */
+	#[DataProvider( 'provide_installed_product_versions' )]
+	public function test_core_sees_installed_products_without_rechecking_updates( $installed, $has_update, $core_version, $core_status ) {
+		require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		require_once ABSPATH . 'wp-admin/includes/plugin-install.php';
+
+		// wp_mkdir_p() refuses the test environment's "../" plugin path.
+		$dir = realpath( WP_PLUGIN_DIR ) . '/gravityforms';
+		wp_mkdir_p( $dir );
+		file_put_contents( $dir . '/gravityforms.php', "<?php\n/**\n * Plugin Name: Gravity Forms\n * Version: {$installed}\n */\n" ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+		wp_cache_delete( 'plugins', 'plugins' );
+
+		set_site_transient(
+			'update_plugins',
+			(object) array(
+				'response' => $has_update ? array(
+					'gravityforms/gravityforms.php' => (object) array(
+						'slug'        => 'gravityforms',
+						'new_version' => '3.1.1',
+					),
+				) : array(),
+			)
+		);
+
+		$requests = 0;
+		$count    = function ( $pre ) use ( &$requests ) {
+			++$requests;
+			return $pre;
+		};
+		add_filter( 'pre_http_request', $count );
+
+		try {
+			$card = wpcom_marketplace_for_core( Marketplace_Catalog::to_card( self::PRODUCT ) );
+
+			$this->assertSame( $core_version, $card['version'] );
+			$this->assertSame( $core_status, install_plugin_install_status( $card )['status'] );
+			$this->assertTrue( wpcom_marketplace_is_installed( $card ) );
+			$this->assertSame( 0, $requests, 'Core reran the update check.' );
+		} finally {
+			remove_filter( 'pre_http_request', $count );
+			wp_delete_file( $dir . '/gravityforms.php' );
+			rmdir( $dir ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir
+			wp_cache_delete( 'plugins', 'plugins' );
+		}
 	}
 
 	/**

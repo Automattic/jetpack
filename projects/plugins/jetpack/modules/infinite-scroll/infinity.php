@@ -93,7 +93,7 @@ class The_Neverending_Home_Page {
 	 *
 	 * The Reading screen stores '' for off, and the Jetpack settings API stores '0'. Unset means on.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.5
 	 *
 	 * @return bool
 	 */
@@ -1073,7 +1073,7 @@ class The_Neverending_Home_Page {
 	/**
 	 * Get the markup for styles printed since the initial page load.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.5
 	 *
 	 * @param WP_Styles $wp_styles      Styles registry.
 	 * @param string[]  $initial_styles Handles already present on the page.
@@ -1139,7 +1139,7 @@ class The_Neverending_Home_Page {
 	 * Core adds these to `global-styles` only for core blocks rendered in the same request.
 	 *
 	 * @see wp_add_global_styles_for_blocks()
-	 * @since $$next-version$$
+	 * @since 16.5
 	 *
 	 * @param string[] $handles Style handles new to the page.
 	 * @return string CSS.
@@ -1170,7 +1170,7 @@ class The_Neverending_Home_Page {
 	/**
 	 * Whether a style's handle stays the same while its inline CSS is rebuilt for each request's blocks.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.5
 	 *
 	 * @param string $handle Style handle.
 	 * @return bool
@@ -1184,7 +1184,7 @@ class The_Neverending_Home_Page {
 	/**
 	 * Point the printed markup of entries whose `src` a filter rewrote at the new URL.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.5
 	 *
 	 * @param array $styles    Filtered style entries.
 	 * @param array $generated Entries as built by get_new_styles().

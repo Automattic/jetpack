@@ -2,9 +2,9 @@ import { __, sprintf } from '@wordpress/i18n';
 import type { AiTool } from './lib.ts';
 
 /**
- * The "Bring your AI tool" experiment's copy: the setup choice and the "Which AI do you use?" view.
+ * The setup choice and "Which AI do you use?" copy, shared by the experiment and the `start=ai-tool` link.
  *
- * @return The experiment's copy.
+ * @return The copy.
  */
 export function bringYourAiToolCopy() {
 	const toolName = ( aiTool: AiTool ) =>
@@ -19,11 +19,6 @@ export function bringYourAiToolCopy() {
 		useAiTitle: __( 'Build with AI', 'jetpack-mu-wpcom' ),
 		useAiDescription: __(
 			'Connect ChatGPT or Claude and build your site by chatting.',
-			'jetpack-mu-wpcom'
-		),
-		freeBadge: __( 'Free 30 days', 'jetpack-mu-wpcom' ),
-		freeTooltip: __(
-			'Using your AI with WordPress.com usually needs a paid plan. It’s free for your site’s first 30 days.',
 			'jetpack-mu-wpcom'
 		),
 		toolName,
@@ -63,16 +58,16 @@ export function bringYourAiToolCopy() {
 		readOnlyTitle: ( aiTool: AiTool ) =>
 			sprintf(
 				/* translators: %s: the AI tool's name, ChatGPT or Claude. */
-				__( '%s can’t build your site yet', 'jetpack-mu-wpcom' ),
+				__( 'Let %s make changes to your site', 'jetpack-mu-wpcom' ),
 				toolName( aiTool )
 			),
 		readOnlySubtitle: __(
-			'It has read-only access, so it can view your site but not change it.',
+			'It can view your site right now. Allow full access so it can build it for you.',
 			'jetpack-mu-wpcom'
 		),
-		bothReadOnlyTitle: __( 'ChatGPT and Claude can’t build your site yet', 'jetpack-mu-wpcom' ),
+		bothReadOnlyTitle: __( 'Let ChatGPT and Claude make changes to your site', 'jetpack-mu-wpcom' ),
 		bothReadOnlySubtitle: __(
-			'They have read-only access, so they can view your site but not change it.',
+			'They can view your site right now. Allow full access so they can build it for you.',
 			'jetpack-mu-wpcom'
 		),
 		readOnlyDescription: __( 'Can view your site, but not change it', 'jetpack-mu-wpcom' ),

@@ -34,13 +34,37 @@ function wpcom_register_native_activity_log_flag() {
 	Feature_Flags::register(
 		WPCOM_NATIVE_ACTIVITY_LOG_FLAG,
 		array(
-			'default'     => false,
+			'default'     => true,
 			'description' => 'Show the native wp-admin Activity Log page on Simple sites instead of linking to Calypso.',
 			'owner'       => 'jetpack-mu-wpcom',
 		)
 	);
 }
 wpcom_register_native_activity_log_flag();
+
+/**
+ * Feature flag showing My Jetpack on Atomic Personal and Premium plans.
+ */
+const WPCOM_MY_JETPACK_ALL_ATOMIC_PLANS_FLAG = 'wpcom-my-jetpack-all-atomic-plans';
+
+/**
+ * Registers the feature flag for My Jetpack on Atomic Personal and Premium plans as this file loads.
+ *
+ * @since $$next-version$$
+ *
+ * @return void
+ */
+function wpcom_register_my_jetpack_all_atomic_plans_flag() {
+	Feature_Flags::register(
+		WPCOM_MY_JETPACK_ALL_ATOMIC_PLANS_FLAG,
+		array(
+			'default'     => false,
+			'description' => 'Show My Jetpack and Jetpack Settings on Atomic Personal and Premium plans and drop the Calypso Traffic menu item, instead of redirecting My Jetpack to Stats.',
+			'owner'       => 'jetpack-mu-wpcom',
+		)
+	);
+}
+wpcom_register_my_jetpack_all_atomic_plans_flag();
 
 /**
  * Checks if the current user has a WordPress.com account connected.
@@ -147,7 +171,7 @@ function wpcom_add_hosting_menu() {
 		__( 'Hosting', 'jetpack-mu-wpcom' ),
 		$menu_title,
 		'manage_options',
-		esc_url( "https://wordpress.com/overview/$domain" ),
+		esc_url( "https://my.wordpress.com/sites/$domain" ),
 		null, // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal
 		'dashicons-cloud',
 		2.98
@@ -342,7 +366,8 @@ function jetpack_mu_wpcom_redirects_my_jetpack_to_stats() {
 		return false;
 	}
 	$plan = \Automattic\Jetpack\Current_Plan::get();
-	return in_array( $plan['class'] ?? '', array( 'personal', 'premium' ), true );
+	// Plan first: whatever answers the flag must only be asked on the plans it can affect.
+	return in_array( $plan['class'] ?? '', array( 'personal', 'premium' ), true ) && ! Feature_Flags::is_enabled( WPCOM_MY_JETPACK_ALL_ATOMIC_PLANS_FLAG );
 }
 add_filter(
 	'jetpack_my_jetpack_modules_management_available',
@@ -526,7 +551,7 @@ function wpcom_add_jetpack_submenu() {
 	// package registers at `admin.php?page=jetpack-activity-log`, whichever admin
 	// interface the site uses, and behave like a self-hosted site when that page is
 	// not available: the Calypso Activity Log screen is being retired. Simple sites
-	// get the native page behind a feature flag, and link to wordpress.com/activity-log otherwise.
+	// get the native page too unless its flag is off, and link to wordpress.com/activity-log otherwise.
 	if ( $is_simple_site && ! wpcom_add_native_activity_log_submenu() ) {
 		wpcom_hide_submenu_page( 'jetpack', 'jetpack-activity-log' );
 		add_submenu_page(
@@ -846,7 +871,6 @@ function wpcom_add_tools_menu() {
 		'tools.php',
 		array(
 			'tools.php',
-			'advertising-moved',
 			'monetize',
 			'import',
 			'export.php',

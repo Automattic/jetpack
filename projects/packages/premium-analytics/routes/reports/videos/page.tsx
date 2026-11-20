@@ -11,6 +11,7 @@ import {
 	ReportErrorState,
 	ReportRecordsTable,
 	ExporterCsvAction,
+	StatsOptionsMenu,
 	videosCsvExporter,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { Page } from '@wordpress/admin-ui';
@@ -91,12 +92,15 @@ function VideosReport(): JSX.Element {
 			visual={ <Icon icon={ jetpack } /> }
 			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
 			actions={
-				<ExporterCsvAction
-					exporter={ videosCsvExporter }
-					items={ records.rows }
-					status={ records }
-					reportParams={ reportParams }
-				/>
+				<>
+					<ExporterCsvAction
+						exporter={ videosCsvExporter }
+						items={ records.rows }
+						status={ records }
+						reportParams={ reportParams }
+					/>
+					<StatsOptionsMenu />
+				</>
 			}
 		>
 			<ReportPageLayout title={ getLabel() } dateFilters={ dateFilters }>

@@ -42,7 +42,7 @@ class Manager {
 	/**
 	 * Per-site user option that carries an unusable owner across a Restore relink, which clears the stored errors.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.18.0
 	 *
 	 * @var string
 	 */
@@ -2584,7 +2584,7 @@ class Manager {
 	 * @param bool $tos_agree Whether the user agreed to TOS.
 	 * @param bool $force     Whether this attempt was explicitly requested by a user.
 	 *
-	 * @return bool|WP_Error
+	 * @return true|WP_Error
 	 */
 	public function try_registration( $tos_agree = true, $force = false ) {
 		if ( ! $force ) {
@@ -2640,7 +2640,7 @@ class Manager {
 		remove_filter( 'jetpack_register_request_body', array( Utils::class, 'filter_register_request_body' ) );
 
 		// If there was an error with registration and the site was not registered, record this so we can show a message.
-		if ( ! $result || is_wp_error( $result ) ) {
+		if ( is_wp_error( $result ) ) {
 			return $result;
 		}
 
@@ -3164,7 +3164,7 @@ class Manager {
 	 * Branches on the current user's tokens, not the owner's: a user with no token goes to authorize().
 	 * If both tokens are healthy but the owner has an error, only the current user is relinked.
 	 *
-	 * @since $$next-version$$ Relink only the current user when the owner's connection is broken and both tokens are healthy.
+	 * @since 9.18.0 Relink only the current user when the owner's connection is broken and both tokens are healthy.
 	 * @since 9.8.1 When token validation is inconclusive, check the blog token on its own instead of assuming both are broken.
 	 *
 	 * @return string|bool|WP_Error True if connection restored or string indicating what's to be done next. A `WP_Error` object or false otherwise.
@@ -3222,7 +3222,7 @@ class Manager {
 	 * True when the owner has a recorded error and relinking would make the current user the owner.
 	 * Anyone else would only be linked, so unlinking them would fix nothing.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.18.0
 	 *
 	 * @return bool
 	 */
@@ -3443,7 +3443,7 @@ class Manager {
 	 * Anyone else is linked as a secondary user.
 	 *
 	 * @since 9.8.1 Only a user with `jetpack_connect` can take a vacant connection owner slot.
-	 * @since $$next-version$$ Claim the owner slot, let WordPress.com's answer decide the owner, and stop replacing a locked owner with an unusable token.
+	 * @since 9.18.0 Claim the owner slot, let WordPress.com's answer decide the owner, and stop replacing a locked owner with an unusable token.
 	 *
 	 * @param array $data The request data.
 	 * @return string|\WP_Error 'authorized' when the user is now the connection owner, 'linked'
@@ -3591,7 +3591,7 @@ class Manager {
 	 *
 	 * WordPress.com can't see a missing owner or a token the site holds but can't use, so the owner claim reports it.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.18.0
 	 *
 	 * @param int|null $user_id The authorizing user's ID, whose remembered state counts. Defaults to the current user.
 	 * @return bool
@@ -3606,7 +3606,7 @@ class Manager {
 	 * The one rule behind the owner-error notice, Restore's relink and the connect prompt, so their promises match authorize().
 	 * Where WordPress.com answers the claim, it can still refuse one for a blog with a protected owner there.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.18.0
 	 *
 	 * @param int|null $user_id The user's ID. Defaults to the current user.
 	 * @return bool
@@ -3642,7 +3642,7 @@ class Manager {
 	 * Unlinking deletes every stored error, so authorize() would otherwise report a usable owner.
 	 * The record is tied to the owner's token, so the owner reconnecting voids every user's record at once.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.18.0
 	 */
 	private function remember_unusable_owner() {
 		$user_id = get_current_user_id();
@@ -3664,7 +3664,7 @@ class Manager {
 	/**
 	 * A hash of the connection owner's stored token, or an empty string when there is none.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.18.0
 	 *
 	 * @return string
 	 */
@@ -3680,7 +3680,7 @@ class Manager {
 	/**
 	 * Whether remember_unusable_owner() recorded the current owner and owner token within the last hour.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.18.0
 	 *
 	 * @param int|null $user_id The user's ID. Defaults to the current user.
 	 * @return bool
@@ -3701,7 +3701,7 @@ class Manager {
 	/**
 	 * Whether WordPress.com has rejected the owner's token on a request this site signed.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.18.0
 	 *
 	 * @return bool
 	 */
@@ -3717,7 +3717,7 @@ class Manager {
 	 * A recorded owner whose token is missing or malformed is not a connected owner, but a lock must
 	 * still protect them. A deleted owner can never reconnect, so their slot counts as vacant.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.18.0
 	 *
 	 * @param int $user_id The authorizing user's ID.
 	 * @return bool
@@ -3736,7 +3736,7 @@ class Manager {
 	 *
 	 * Covers what has_connected_owner() cannot see: a token that is present but rejected by WordPress.com.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.18.0
 	 *
 	 * @return bool
 	 */

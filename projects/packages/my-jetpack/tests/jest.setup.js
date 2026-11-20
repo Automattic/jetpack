@@ -18,3 +18,12 @@ globalScope.myJetpackRest = {};
 if ( typeof window !== 'undefined' ) {
 	afterEach( () => window.localStorage.clear() );
 }
+
+/*
+ * The real hook pulls in the connection store, which breaks under a partial `@wordpress/data` mock.
+ * Assert on `jest.mocked( useAnalytics )().recordEvent`; one spy is shared per test file.
+ */
+jest.mock( '../_inc/hooks/use-analytics', () => {
+	const recordEvent = jest.fn();
+	return { __esModule: true, default: jest.fn( () => ( { recordEvent } ) ) };
+} );

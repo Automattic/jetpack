@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Connect prompt: Only offer to make the viewer the connection owner when connecting would do so.

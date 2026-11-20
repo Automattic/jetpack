@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Charts: Let a percentage axis grow with the data once a value passes 100%, so a video's retention rate above 100% stays inside the chart.

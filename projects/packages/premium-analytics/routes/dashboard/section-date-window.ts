@@ -11,6 +11,7 @@ import { reportingTimeZone } from '@jetpack-premium-analytics/datetime';
 import {
 	REPORT_DATE_PARAM_KEYS,
 	buildRangePatch,
+	clearZoomOutParams,
 	omitReportDateParams,
 } from '@jetpack-premium-analytics/routing';
 /**
@@ -28,7 +29,8 @@ import type { DashboardSection } from './config/sections';
 export type DashboardSearch = Record< string, unknown >;
 
 /** Every date param, an undefined value clearing it when committed. */
-type DateWindow = Record< ( typeof REPORT_DATE_PARAM_KEYS )[ number ], unknown >;
+type DateWindow = Record< ( typeof REPORT_DATE_PARAM_KEYS )[ number ], unknown > &
+	ReturnType< typeof clearZoomOutParams >;
 
 /**
  * The search the dashboard opens on when its URL lacks a complete window.
@@ -85,7 +87,10 @@ export function dateWindowForSectionSwitch(
 
 	// The reader did not ask for that window here, so open as a fresh load would: no redirect, no notice.
 	if ( adjustsStatsDateWindow( search, policy ) ) {
-		return pickDateWindow( seedDashboardDateSearch( omitReportDateParams( search ), policy ) );
+		return {
+			...clearZoomOutParams(),
+			...pickDateWindow( seedDashboardDateSearch( omitReportDateParams( search ), policy ) ),
+		};
 	}
 
 	const patch = section ? surfaceRangePatch( section, search, policy ) : undefined;
@@ -93,7 +98,12 @@ export function dateWindowForSectionSwitch(
 	// The comparison or bucket the plan strips, which the route would otherwise drop in a second navigation.
 	const limited = limitStatsDateSearch( patched, policy );
 
-	return limited || patch ? pickDateWindow( limited ?? patched ) : undefined;
+	if ( ! limited && ! patch ) {
+		return undefined;
+	}
+
+	// A window the switch moved leaves nothing to zoom back out to.
+	return { ...( patch ? clearZoomOutParams() : {} ), ...pickDateWindow( limited ?? patched ) };
 }
 
 /**

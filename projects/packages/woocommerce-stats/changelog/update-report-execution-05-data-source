@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Reports: Add a site setting and an experimental filter listing the providers that serve reports requested with `provider=auto`.

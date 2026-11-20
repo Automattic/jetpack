@@ -155,6 +155,21 @@ class Stats_Product_Test extends TestCase {
 		$this->assertStringContainsString( '#!/stats/purchase/123', $purchase_url );
 	}
 
+	public function test_host_purchase_url_replaces_the_stats_purchase_screen() {
+		$this->set_premium_analytics_enabled( false );
+		set_transient( Wpcom_Products::MY_JETPACK_PURCHASES_TRANSIENT_KEY, array(), HOUR_IN_SECONDS );
+		set_transient( Product::MY_JETPACK_SITE_FEATURES_TRANSIENT_KEY, array( 'active' => array() ), HOUR_IN_SECONDS );
+		$send_to_host = static function ( $upgrade, $slug ) {
+			return 'stats' === $slug ? array_merge( $upgrade, array( 'url' => 'https://example.com/plans' ) ) : $upgrade;
+		};
+		add_filter( 'jetpack_feature_upgrade', $send_to_host, 10, 2 );
+
+		$purchase_url = Stats::get_purchase_url();
+		remove_filter( 'jetpack_feature_upgrade', $send_to_host, 10 );
+
+		$this->assertSame( 'https://example.com/plans', $purchase_url );
+	}
+
 	/**
 	 * The tier purchase screen was a Calypso route inside the Odyssey bundle, so
 	 * it left with the Stats dashboard. Returning null — the base class default —

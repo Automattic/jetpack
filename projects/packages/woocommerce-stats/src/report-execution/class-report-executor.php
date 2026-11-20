@@ -18,14 +18,9 @@ use WP_Error;
 class Report_Executor {
 
 	/**
-	 * Values the `provider` param accepts.
+	 * `provider` value that follows the site's `Provider_Setting`.
 	 */
-	const PROVIDERS = array( 'local', 'wpcom' );
-
-	/**
-	 * Provider of a request that names none.
-	 */
-	private const DEFAULT_PROVIDER = 'wpcom';
+	private const AUTO = 'auto';
 
 	/**
 	 * Response header naming the provider that served the report.
@@ -58,7 +53,7 @@ class Report_Executor {
 	 *
 	 * @param string        $route         Route below `analytics/reports/`.
 	 * @param array         $params        The report's query params, without the proxy's own.
-	 * @param string|null   $provider      The validated `provider` param, or null when the request names none.
+	 * @param string|null   $provider      The validated `provider` param, `AUTO` for the site's setting, or null when the request names none.
 	 * @param bool          $force_refresh Whether to skip caches.
 	 * @param string[]|null $fields        Summary fields the caller reads, or null for the whole report.
 	 * @return array|WP_Error The handler's payload with the report headers, or an error: `unknown_report` (404),
@@ -82,27 +77,26 @@ class Report_Executor {
 			}
 		}
 
-		$name    = $provider ?? self::DEFAULT_PROVIDER;
-		$handler = $this->registry->get_handler( $definition->id, $name );
-		if ( null === $handler ) {
-			return new WP_Error(
-				'unsupported_provider',
-				/* translators: %s: provider name, such as wpcom or local. */
-				sprintf( __( 'This report cannot be served by the %s provider.', 'jetpack-woocommerce-stats-pkg' ), $name ),
-				array( 'status' => 422 )
-			);
-		}
-
 		$request = new Report_Request( $definition, $route, $params, $force_refresh, $fields );
 
 		// A request naming no provider leaves readiness to the handler: the forward serves its cache before checking the connection.
-		if ( null !== $provider ) {
-			$covered = self::check_capability( $handler, $request );
-			if ( is_wp_error( $covered ) ) {
-				return $covered;
+		if ( null === $provider ) {
+			$name    = Provider_Setting::DEFAULT_PROVIDER;
+			$handler = $this->registry->get_handler( $definition->id, $name );
+			if ( null === $handler ) {
+				return self::unsupported_provider( $name );
 			}
+		} else {
+			$chosen = $this->choose( self::AUTO === $provider ? Provider_Setting::get_providers() : array( $provider ), $request );
+			if ( is_wp_error( $chosen ) ) {
+				return $chosen;
+			}
+			list( $name, $handler ) = $chosen;
 
 			$ready = $this->registry->get_provider( $name )->check_ready();
+			if ( true === $ready && $handler instanceof Report_Readiness ) {
+				$ready = $handler->check_ready();
+			}
 			if ( is_wp_error( $ready ) ) {
 				return $ready;
 			}
@@ -124,6 +118,54 @@ class Report_Executor {
 		}
 
 		return self::describe( $payload, $name, $handler, $definition );
+	}
+
+	/**
+	 * The first provider whose handler covers and supports the request. Readiness is checked after
+	 * the choice and never fallen back from, so a request's provider doesn't depend on the site's state.
+	 *
+	 * @param non-empty-array<string> $names   Provider names, in order of preference.
+	 * @param Report_Request          $request The request.
+	 * @return array{0: string, 1: Report_Handler}|WP_Error The provider name and its handler, or the first registered provider's refusal.
+	 */
+	private function choose( array $names, Report_Request $request ) {
+		$refusals = array();
+		foreach ( $names as $name ) {
+			$handler = $this->registry->get_handler( $request->definition->id, $name );
+			if ( null === $handler ) {
+				// Skip a name nothing registered, but keep a registered provider's refusal.
+				if ( null !== $this->registry->get_provider( $name ) ) {
+					$refusals[] = self::unsupported_provider( $name );
+				}
+				continue;
+			}
+
+			$covered = self::check_capability( $handler, $request );
+			if ( ! is_wp_error( $covered ) && $handler instanceof Report_Support ) {
+				$covered = $handler->supports( $request );
+			}
+			if ( ! is_wp_error( $covered ) ) {
+				return array( $name, $handler );
+			}
+			$refusals[] = $covered;
+		}
+
+		return $refusals[0] ?? self::unsupported_provider( $names[0] );
+	}
+
+	/**
+	 * A 422 for a provider without a handler for the report.
+	 *
+	 * @param string $name Provider name.
+	 * @return WP_Error
+	 */
+	private static function unsupported_provider( $name ) {
+		return new WP_Error(
+			'unsupported_provider',
+			/* translators: %s: provider name, such as wpcom or local. */
+			sprintf( __( 'This report cannot be served by the %s provider.', 'jetpack-woocommerce-stats-pkg' ), $name ),
+			array( 'status' => 422 )
+		);
 	}
 
 	/**

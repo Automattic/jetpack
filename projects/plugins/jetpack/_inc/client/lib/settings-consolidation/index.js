@@ -1,7 +1,12 @@
 import { getScriptData, isWoASite } from '@automattic/jetpack-script-data';
 import { _x } from '@wordpress/i18n';
-import { currentThemeIsBlockTheme, userCanManageModules } from 'state/initial-state';
-import { isModuleActivated } from 'state/modules';
+import {
+	currentThemeIsBlockTheme,
+	isOdysseyStatsEnabled,
+	userCanManageModules,
+} from 'state/initial-state';
+import { hasAnyOfTheseModules, isModuleActivated } from 'state/modules';
+import { hasAnalyticsDashboard } from '../../../shared/analytics-url';
 
 // The modules behind the Writing tab's Widgets card, in card order.
 export const WIDGET_MODULES = [ 'widgets', 'widget-visibility' ];
@@ -15,6 +20,14 @@ export const WIDGET_MODULES = [ 'widgets', 'widget-visibility' ];
  */
 export const isSettingsConsolidationEnabled = () =>
 	Boolean( getScriptData()?.myJetpack?.settingsConsolidation );
+
+/**
+ * Whether My Jetpack shows the notices this screen did; an older My Jetpack leaves it out, which keeps them here.
+ *
+ * @return {boolean} True when the moved notices leave this screen.
+ */
+export const areSettingsNoticesInMyJetpack = () =>
+	Boolean( getScriptData()?.myJetpack?.showsSettingsNotices );
 
 /**
  * Where the Ads settings live now, from the Jetpack plugin's `Jetpack_Ads_Settings_Home`.
@@ -71,6 +84,15 @@ export const isInSettingsPanel = state =>
 	isSettingsConsolidationEnabled() && userCanManageModules( state );
 
 /**
+ * Whether Post by Email's card gives way to a pointer to the user's Profile page, which holds the same settings.
+ *
+ * @param {object} state - Global state tree.
+ * @return {boolean} True once settings move out, for users who cannot manage modules.
+ */
+export const isPostByEmailOnProfile = state =>
+	isSettingsConsolidationEnabled() && ! userCanManageModules( state );
+
+/**
  * Whether a module's Settings toggle gives way to its switch in My Jetpack › Features, leaving only a search result that points there.
  *
  * Users who cannot manage modules have no Features, so they keep the toggle.
@@ -111,3 +133,35 @@ export const searchFindsGoogleAnalytics = searchTerm =>
 	`google analytics ${ _x( 'Google Analytics', 'Settings header', 'jetpack' ) }`
 		.toLowerCase()
 		.includes( searchTerm.toLowerCase() );
+
+/**
+ * Whether the Stats settings left this screen for a Stats page: the Stats dashboard's, or Stats v2's.
+ *
+ * Classic Stats keeps them here until `jetpack-stats-classic-page-retired` turns Stats v2 on for every site.
+ *
+ * @param {object} state - Global state tree.
+ * @return {boolean} True when the Stats card leaves the Traffic tab for a search result.
+ */
+export const areStatsSettingsMovedOut = state =>
+	isSettingsConsolidationEnabled() && ( isOdysseyStatsEnabled( state ) || hasAnalyticsDashboard() );
+
+/**
+ * Whether the Traffic tab keeps a card once settings move out: the legacy SEO settings, Google Analytics without its panel, or classic Stats.
+ *
+ * @param {object} state - Global state tree.
+ * @return {boolean} True while a card still waits for a new home.
+ */
+export function hasTrafficCardsLeft( state ) {
+	// Main renders once before setInitialState() copies the page's modules into the modules slice.
+	const pageModules = state.jetpack.initialState?.getModules ?? {};
+	const hasModules = modules =>
+		hasAnyOfTheseModules( state, modules ) || modules.some( module => !! pageModules[ module ] );
+
+	const legacySeo =
+		getScriptData()?.seo?.surface_visible !== true &&
+		hasModules( [ 'seo-tools', 'verification-tools', 'sitemaps' ] );
+	const analyticsCard = isWoASite() && ! getScriptData()?.myJetpack?.googleAnalyticsPanel;
+	const statsCard = hasModules( [ 'stats' ] ) && ! areStatsSettingsMovedOut( state );
+
+	return legacySeo || analyticsCard || statsCard;
+}

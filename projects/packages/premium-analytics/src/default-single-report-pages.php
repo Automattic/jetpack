@@ -52,6 +52,27 @@ function get_post_traffic_single_report_section_default_layout() {
 }
 
 /**
+ * The Page traffic section of the page report: the post traffic layout, its two post cards titled for a page.
+ *
+ * @return array
+ */
+function get_page_traffic_single_report_section_default_layout() {
+	$page_types = array(
+		'jpa/post-detail-highlights' => 'jpa/post-detail-highlights--page',
+		'jpa/post-views'             => 'jpa/post-views--page',
+	);
+
+	return array_map(
+		static function ( $widget ) use ( $page_types ) {
+			$widget['type'] = $page_types[ $widget['type'] ] ?? $widget['type'];
+
+			return $widget;
+		},
+		get_post_traffic_single_report_section_default_layout()
+	);
+}
+
+/**
  * The Email opens section of the post page.
  *
  * @return array
@@ -164,6 +185,26 @@ function register_default_single_report_pages( $registry = null ) {
 		$registry = Single_Report_Page_Registry::get_instance();
 	}
 
+	$post_sections = array(
+		array(
+			'slug'           => 'post-traffic',
+			'label'          => __( 'Post traffic', 'jetpack-premium-analytics-pkg' ),
+			'default_layout' => __NAMESPACE__ . '\\get_post_traffic_single_report_section_default_layout',
+		),
+		array(
+			'slug'           => 'email-opens',
+			'label'          => __( 'Email opens', 'jetpack-premium-analytics-pkg' ),
+			'default_layout' => __NAMESPACE__ . '\\get_email_opens_single_report_section_default_layout',
+			'controls'       => false,
+		),
+		array(
+			'slug'           => 'email-clicks',
+			'label'          => __( 'Email clicks', 'jetpack-premium-analytics-pkg' ),
+			'default_layout' => __NAMESPACE__ . '\\get_email_clicks_single_report_section_default_layout',
+			'controls'       => false,
+		),
+	);
+
 	$pages = array(
 		'analytics/author' => array(
 			'path'              => 'author',
@@ -177,32 +218,30 @@ function register_default_single_report_pages( $registry = null ) {
 			'preferences_scope' => 'jetpack-premium-analytics/author-detail',
 		),
 		'analytics/post'   => array(
-			'path'              => 'post',
-			'label'             => __( 'Post', 'jetpack-premium-analytics-pkg' ),
+			'entity'            => array(
+				'kind' => 'postType',
+				'name' => 'post',
+			),
 			'dashboard_section' => 'traffic',
-			'scope_param'       => 'post_id',
 			'icon'              => 'jpa/post',
-			'reports_page'      => 'posts',
+			'sections'          => $post_sections,
+			// Its adapter reads the entry from Stats, so the type need not be in REST.
+			'is_available'      => array( Capabilities::class, 'current_user_can_view_stats' ),
+		),
+		'analytics/page'   => array(
+			'entity'            => array(
+				'kind' => 'postType',
+				'name' => 'page',
+			),
+			'dashboard_section' => 'traffic',
+			'icon'              => 'jpa/page',
 			'sections'          => array(
 				array(
 					'slug'           => 'post-traffic',
-					'label'          => __( 'Post traffic', 'jetpack-premium-analytics-pkg' ),
-					'default_layout' => __NAMESPACE__ . '\\get_post_traffic_single_report_section_default_layout',
-				),
-				array(
-					'slug'           => 'email-opens',
-					'label'          => __( 'Email opens', 'jetpack-premium-analytics-pkg' ),
-					'default_layout' => __NAMESPACE__ . '\\get_email_opens_single_report_section_default_layout',
-					'controls'       => false,
-				),
-				array(
-					'slug'           => 'email-clicks',
-					'label'          => __( 'Email clicks', 'jetpack-premium-analytics-pkg' ),
-					'default_layout' => __NAMESPACE__ . '\\get_email_clicks_single_report_section_default_layout',
-					'controls'       => false,
+					'label'          => __( 'Page traffic', 'jetpack-premium-analytics-pkg' ),
+					'default_layout' => __NAMESPACE__ . '\\get_page_traffic_single_report_section_default_layout',
 				),
 			),
-			'preferences_scope' => 'jetpack-premium-analytics/post-detail',
 		),
 	);
 

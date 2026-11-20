@@ -984,7 +984,7 @@ class PayPal_Payment_Buttons {
 	 * Takes the discount as saved, the way PayPal's builder preview does, so the
 	 * result can be $0.00 or negative. Matches discountedPrice() in utils/link-price.js.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.15.0
 	 *
 	 * @param string $value      The price before the discount.
 	 * @param array  $attributes The link's block attributes.
@@ -1022,7 +1022,7 @@ class PayPal_Payment_Buttons {
 	 * Multiplies the string's digits as an integer, so 1.005 or 64.6% rounds the same as
 	 * PayPal. Matches roundDecimal() in utils/link-price.js.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.15.0
 	 *
 	 * @param string    $decimal    A decimal string, digits and at most one point.
 	 * @param int|float $multiplier What to multiply by.
@@ -1042,7 +1042,7 @@ class PayPal_Payment_Buttons {
 	 *
 	 * Matches discountLabel() in utils/link-price.js.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.15.0
 	 *
 	 * @param array $attributes The link's block attributes.
 	 * @return string "10% discount" or "$2.00 discount".
@@ -1070,7 +1070,7 @@ class PayPal_Payment_Buttons {
 	 *
 	 * Matches DiscountedPrice in components/paypal-button-preview.jsx.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.15.0
 	 *
 	 * @param string $value      The price before the discount.
 	 * @param array  $attributes The link's block attributes.

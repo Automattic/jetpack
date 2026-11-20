@@ -32,7 +32,7 @@ class Dashboard {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '0.1.0';
+	const PACKAGE_VERSION = '0.2.0';
 
 	/**
 	 * Feature flag that makes the dashboard available while it is built.
@@ -78,6 +78,7 @@ class Dashboard {
 	const SECTIONS = array(
 		Sections\Overview::class,
 		Sections\Payments::class,
+		Sections\Subscribers::class,
 		Sections\Ads::class,
 	);
 
@@ -180,7 +181,7 @@ class Dashboard {
 		if ( isset( self::$sections[ $key ] ) ) {
 			/* translators: %s is a dashboard section key. */
 			$message = sprintf( __( 'A Monetize dashboard section with the key "%s" is already registered.', 'jetpack-monetize' ), $key );
-			_doing_it_wrong( __METHOD__, esc_html( $message ), '$$next-version$$' );
+			_doing_it_wrong( __METHOD__, esc_html( $message ), '0.2.0' );
 			return;
 		}
 		self::$sections[ $key ] = $section;
@@ -241,7 +242,7 @@ class Dashboard {
 	/**
 	 * Where the page's upgrade links go: Jetpack Creator, unless a host sends them to its own plans.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.2.0
 	 *
 	 * @return string
 	 */
@@ -332,7 +333,7 @@ class Dashboard {
 	/**
 	 * The admin URL that opens one of the dashboard's tabs.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.2.0
 	 *
 	 * @param string $tab The tab's `?tab=` value; 'overview' opens the bare page.
 	 * @return string

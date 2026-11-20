@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Remove five dependencies the package does not use.

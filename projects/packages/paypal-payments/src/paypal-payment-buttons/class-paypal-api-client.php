@@ -42,7 +42,7 @@ class PayPal_API_Client {
 	/**
 	 * Product images API endpoint path.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.15.0
 	 *
 	 * @var string
 	 */
@@ -51,7 +51,7 @@ class PayPal_API_Client {
 	/**
 	 * Files one upload call takes.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.15.0
 	 *
 	 * @var int
 	 */
@@ -60,7 +60,7 @@ class PayPal_API_Client {
 	/**
 	 * Largest image file PayPal takes, in bytes (12 MB).
 	 *
-	 * @since $$next-version$$
+	 * @since 0.15.0
 	 *
 	 * @var int
 	 */
@@ -69,7 +69,7 @@ class PayPal_API_Client {
 	/**
 	 * Smallest and largest image side PayPal takes, in pixels.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.15.0
 	 *
 	 * @var int
 	 */
@@ -79,7 +79,7 @@ class PayPal_API_Client {
 	/**
 	 * Image formats PayPal takes. The editor keeps the same list in utils/images.js.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.15.0
 	 *
 	 * @var string[]
 	 */
@@ -420,7 +420,7 @@ class PayPal_API_Client {
 	 * PayPal answers 207 with one row per file: an asset_id and status for a file it
 	 * took, or an error and the file's input_index for one it refused.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.15.0
 	 *
 	 * @param array $files Each with name, type and content (the bytes).
 	 * @return array|\WP_Error The decoded 207 body, or WP_Error when the call failed as a whole.
@@ -440,7 +440,7 @@ class PayPal_API_Client {
 	/**
 	 * Delete an image no payment references.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.15.0
 	 *
 	 * @param string $asset_id The image, as PayPal identifies it.
 	 * @return true|\WP_Error True on 204, WP_Error otherwise (422 while a payment still carries it).
@@ -717,7 +717,7 @@ class PayPal_API_Client {
 	/**
 	 * Encode files as the multipart/form-data body the image upload takes, one part named `files` each.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.15.0
 	 *
 	 * @param array  $files    Each with name, type and content.
 	 * @param string $boundary The part boundary.

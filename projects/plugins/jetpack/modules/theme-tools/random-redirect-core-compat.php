@@ -8,7 +8,7 @@
 /**
  * Turns off core's random content redirects when the Jetpack filter does.
  *
- * @since $$next-version$$
+ * @since 16.5
  *
  * @param bool $enabled Whether core's random content redirects are enabled.
  * @return bool

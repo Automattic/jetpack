@@ -5,8 +5,12 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\SEO\Post_Seo;
+
 /**
  * Provides static utility methods for managing SEO options for Posts and Pages.
+ *
+ * The SEO package owns the logic of the methods that forward to it.
  */
 class Jetpack_SEO_Posts {
 	/**
@@ -26,8 +30,8 @@ class Jetpack_SEO_Posts {
 	/**
 	 * Allowed Schema.org types that can be stored in the per-post schema-type
 	 * meta. Empty string means "no override" — Schema_Builder picks a sensible
-	 * default for the post. Single source of truth for the meta enum, the
-	 * block-editor panel options, and Schema_Builder.
+	 * default for the post. Keep in sync with Post_Seo::ALLOWED_SCHEMA_TYPES in
+	 * the SEO package, which is what Schema_Builder reads.
 	 */
 	const ALLOWED_SCHEMA_TYPES = array( '', 'article', 'faq' );
 
@@ -39,38 +43,7 @@ class Jetpack_SEO_Posts {
 	 * @return string Post description or empty string.
 	 */
 	public static function get_post_description( $post = null ) {
-		$post = get_post( $post );
-		if ( ! ( $post instanceof WP_Post ) ) {
-			return '';
-		}
-
-		// Check the post being described, not the global one.
-		if ( post_password_required( $post ) || ! is_singular() ) {
-			return '';
-		}
-
-		// Business users can overwrite the description.
-		$custom_description = self::get_post_custom_description( $post );
-
-		if ( ! empty( $custom_description ) ) {
-			return $custom_description;
-		}
-
-		if ( ! empty( $post->post_excerpt ) ) {
-			return $post->post_excerpt;
-		}
-
-		// The fall-through reads raw post_content, which never passes the `the_content` paywall.
-		$content = $post->post_content;
-		if ( \Automattic\Jetpack\SEO\Content_Gate::is_gated( $post ) ) {
-			$content = \Automattic\Jetpack\SEO\Content_Gate::public_teaser( $post );
-			if ( '' === $content ) {
-				return '';
-			}
-		}
-
-		// Remove content within wp:query blocks and return.
-		return Jetpack_SEO_Utils::remove_query_blocks( $content );
+		return Post_Seo::get_description( $post );
 	}
 
 	/**
@@ -82,18 +55,7 @@ class Jetpack_SEO_Posts {
 	 * @return string Custom description or empty string
 	 */
 	public static function get_post_custom_description( $post = null ) {
-		$post = get_post( $post );
-		if ( ! ( $post instanceof WP_Post ) ) {
-			return '';
-		}
-
-		$custom_description = get_post_meta( $post->ID, self::DESCRIPTION_META_KEY, true );
-
-		if ( empty( $custom_description ) || ! Jetpack_SEO_Utils::is_enabled_jetpack_seo() ) {
-			return '';
-		}
-
-		return $custom_description;
+		return Post_Seo::get_custom_description( $post );
 	}
 
 	/**
@@ -229,8 +191,7 @@ class Jetpack_SEO_Posts {
 	 * @return string A value from self::ALLOWED_SCHEMA_TYPES.
 	 */
 	public static function sanitize_schema_type( $value ) {
-		$value = is_string( $value ) ? sanitize_key( $value ) : '';
-		return in_array( $value, self::ALLOWED_SCHEMA_TYPES, true ) ? $value : '';
+		return Post_Seo::sanitize_schema_type( $value );
 	}
 
 	/**
@@ -240,11 +201,7 @@ class Jetpack_SEO_Posts {
 	 * @return string A value from self::ALLOWED_SCHEMA_TYPES ('' = no override).
 	 */
 	public static function get_post_schema_type( $post = null ) {
-		$post = get_post( $post );
-		if ( ! ( $post instanceof WP_Post ) ) {
-			return '';
-		}
-		return self::sanitize_schema_type( (string) get_post_meta( $post->ID, self::SCHEMA_TYPE_META_KEY, true ) );
+		return Post_Seo::get_schema_type( $post );
 	}
 
 	/**

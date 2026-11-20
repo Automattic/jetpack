@@ -7,8 +7,13 @@ import { useLocation, useNavigate } from 'react-router';
 import QuerySitePlugins from 'components/data/query-site-plugins';
 import Search from 'components/search';
 import analytics from 'lib/analytics';
-import { getAdsSettingsUrl, isSettingsConsolidationEnabled } from 'lib/settings-consolidation';
 import {
+	getAdsSettingsUrl,
+	hasTrafficCardsLeft,
+	isSettingsConsolidationEnabled,
+} from 'lib/settings-consolidation';
+import {
+	hasProtectPage as _hasProtectPage,
 	userCanManageModules as _userCanManageModules,
 	userIsSubscriber as _userIsSubscriber,
 	userCanPublish,
@@ -17,7 +22,6 @@ import {
 	hasAnyOfTheseModules,
 	hasAnyPerformanceFeature,
 	hasAnySecurityFeature,
-	hasProtectPage as _hasProtectPage,
 	isModuleActivated,
 } from 'state/modules';
 import { filterSearch, getSearchTerm } from 'state/search';
@@ -50,6 +54,7 @@ const SettingsNavTabs = props => {
 		hasSecurityFeature,
 		hasProtectPage,
 		hasPerformanceFeature,
+		hasTrafficCards,
 		hasModules,
 		isModuleActive,
 		searchTerm,
@@ -131,14 +136,16 @@ const SettingsNavTabs = props => {
 			visibleTabs.push( '/discussion' );
 		}
 		if (
-			hasModules( [
-				'seo-tools',
-				'stats',
-				'related-posts',
-				'verification-tools',
-				'sitemaps',
-				'google-analytics',
-			] )
+			isSettingsConsolidationEnabled()
+				? hasTrafficCards
+				: hasModules( [
+						'seo-tools',
+						'stats',
+						'related-posts',
+						'verification-tools',
+						'sitemaps',
+						'google-analytics',
+					] )
 		) {
 			visibleTabs.push( '/traffic' );
 		}
@@ -224,6 +231,7 @@ export default connect(
 		hasSecurityFeature: hasAnySecurityFeature( state ),
 		hasProtectPage: _hasProtectPage( state ),
 		hasPerformanceFeature: hasAnyPerformanceFeature( state ),
+		hasTrafficCards: hasTrafficCardsLeft( state ),
 		hasModules: modules => hasAnyOfTheseModules( state, modules ),
 		isModuleActive: module => isModuleActivated( state, module ),
 		searchTerm: getSearchTerm( state ),

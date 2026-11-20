@@ -400,9 +400,8 @@ class Ai_Crawlers {
 	}
 
 	/**
-	 * Whether a static `robots.txt` file exists in the WordPress installation
-	 * directory. These controls only change WordPress's virtual robots.txt and
-	 * cannot modify that file.
+	 * Whether a static `robots.txt` file exists in the site's public directory.
+	 * These controls cannot modify that file.
 	 *
 	 * @return bool
 	 */

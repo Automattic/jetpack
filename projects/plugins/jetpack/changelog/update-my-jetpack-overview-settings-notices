@@ -1,0 +1,5 @@
+Significance: patch
+Type: enhancement
+Comment: Settings: Send pending connection notices to My Jetpack and drop the notices that moved there, behind the settings consolidation flag.
+
+

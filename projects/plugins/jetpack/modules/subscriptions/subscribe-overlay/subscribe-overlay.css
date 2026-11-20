@@ -22,7 +22,7 @@ body.jetpack-subscribe-overlay-open {
 	visibility: hidden;
 	overflow: hidden;
 	top: 100%;
-	margin: 15% auto;
+	margin: min(15%, 15vh) auto;
 	width: 100%;
 	max-width: 400px;
 	transition: top 0.4s, visibility 0.4s;
@@ -32,7 +32,8 @@ body.jetpack-subscribe-overlay-open {
 .jetpack-subscribe-overlay__close {
 	display: none;
 	cursor: pointer;
-	position: absolute;
+	position: fixed;
+	z-index: 1;
 	top: 32px;
 	right: 32px;
 	width: 24px;
@@ -51,18 +52,28 @@ body.admin-bar.has-marketing-bar .jetpack-subscribe-overlay__close {
 	top: 114px;
 }
 
+/* Keep the content below the admin and marketing bars on short screens. */
+body.admin-bar .jetpack-subscribe-overlay__content {
+	margin-top: max(min(15%, 15vh), 46px);
+}
+
+body.has-marketing-bar .jetpack-subscribe-overlay__content {
+	margin-top: max(min(15%, 15vh), 63px);
+}
+
+body.admin-bar.has-marketing-bar .jetpack-subscribe-overlay__content {
+	margin-top: max(min(15%, 15vh), 96px);
+}
+
 .jetpack-subscribe-overlay__to-content {
 	display: none;
-	position: fixed;
-	bottom: 64px;
-	left: 0;
-	right: 0;
-	margin: 0 auto;
 }
 
 .jetpack-subscribe-overlay.open {
 	background-color: var(--jetpack-subscribe-overlay--background-color);
 	visibility: visible;
+	overflow: auto;
+	animation: jetpack-subscribe-overlay-clip 0.4s;
 
 	.jetpack-subscribe-overlay__content {
 		top: 0;
@@ -75,6 +86,14 @@ body.admin-bar.has-marketing-bar .jetpack-subscribe-overlay__close {
 
 	.jetpack-subscribe-overlay__to-content {
 		display: block;
+	}
+}
+
+@keyframes jetpack-subscribe-overlay-clip {
+
+	from,
+	to {
+		overflow: hidden;
 	}
 }
 

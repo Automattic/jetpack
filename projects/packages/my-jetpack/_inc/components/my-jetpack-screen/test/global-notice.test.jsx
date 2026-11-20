@@ -4,8 +4,6 @@ import userEvent from '@testing-library/user-event';
 import useAnalytics from '../../../hooks/use-analytics';
 import { GlobalNotice } from '../index';
 
-jest.mock( '../../../hooks/use-analytics' );
-
 const mockUseAnalytics = useAnalytics;
 const recordEvent = jest.fn();
 

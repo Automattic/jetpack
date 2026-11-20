@@ -15,6 +15,7 @@ use Automattic\Jetpack\Boost_Speed_Score\Speed_Score;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync;
+use Automattic\Jetpack_Boost\Data_Sync\Getting_Started_Entry;
 use Automattic\Jetpack_Boost\Lib\Analytics;
 use Automattic\Jetpack_Boost\Lib\Debug;
 use Automattic\Jetpack_Boost\Lib\Environment_Change_Detector;
@@ -63,7 +64,7 @@ class Admin {
 	/**
 	 * Register Boost with the admin shell, which switches between Jetpack dashboards without a page load.
 	 *
-	 * @since $$next-version$$
+	 * @since 4.9.0
 	 *
 	 * @param array $members Shell members keyed by admin page slug.
 	 * @return array
@@ -80,8 +81,14 @@ class Admin {
 			'title'        => 'Boost', // "Boost" is a product name, do not translate.
 			'capability'   => 'manage_options',
 			// The webpack bundle renders the dashboard's content into the wp-build page; it carries the Boost and DataSync data.
-			'handles'      => array( 'jetpack-boost-admin', 'wp-jp-i18n-loader' ),
+			// My Jetpack's header controls script fills the account control in Boost's header.
+			'handles'      => array( 'jetpack-boost-admin', 'my-jetpack-header-controls', 'wp-jp-i18n-loader' ),
 			'load'         => array( $this, 'load_as_admin_shell_guest' ),
+		);
+		// The Getting Started screen, which a bare menu link opens until it's done, has no page header.
+		$members[ JETPACK_BOOST_SLUG ]['header'] = ( new Getting_Started_Entry() )->get() ? false : array(
+			'title'    => 'Boost',
+			'subtitle' => __( 'Improve your site speed and performance.', 'jetpack-boost' ),
 		);
 		return $members;
 	}
@@ -91,7 +98,7 @@ class Admin {
 	 *
 	 * Skips admin_init()'s premium feature refresh, since a guest must not write options; Boost's own page load still runs it.
 	 *
-	 * @since $$next-version$$
+	 * @since 4.9.0
 	 *
 	 * @return void
 	 */
@@ -280,11 +287,14 @@ class Admin {
 	 * Enqueue scripts and styles for the admin page.
 	 */
 	public function admin_init() {
-		// Clear premium features cache when the plugin settings page is loaded.
-		Premium_Features::clear_cache();
+		// Refetch the premium features unless the site features this page loads anyway still match them.
+		$cache_confirmed = Premium_Features::is_cache_confirmed();
+		if ( ! $cache_confirmed ) {
+			Premium_Features::clear_cache();
+		}
 		if ( current_user_can( 'manage_options' ) ) {
 			$already_activated = get_option( Premium_Features::CLOUD_CSS_ACTIVATED_OPTION );
-			Premium_Features::enable_cloud_css_after_upgrade();
+			Premium_Features::enable_cloud_css_after_upgrade( $cache_confirmed );
 			if ( $this->modern_dashboard_loaded && ! $already_activated && get_option( Premium_Features::CLOUD_CSS_ACTIVATED_OPTION ) ) {
 				jetpack_boost_ds_set( 'cloud_css_upgrade_notice', true );
 			}

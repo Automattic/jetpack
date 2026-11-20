@@ -38,10 +38,6 @@ jest.mock( '../../../hooks/use-my-jetpack-navigate', () => ( {
 	__esModule: true,
 	default: ( route: string ) => () => mockNavigate( route ),
 } ) );
-jest.mock( '../../../hooks/use-analytics', () => {
-	const result = { recordEvent: () => {} };
-	return { __esModule: true, default: () => result };
-} );
 
 const withStatus = ( status: string ) =>
 	mockUseProduct.mockReturnValue( {

@@ -56,7 +56,7 @@ function jetpack_wpcomreader_feed_id() {
 /**
  * Start tracking the posts set up by the feed's loop.
  *
- * @since $$next-version$$
+ * @since 16.5
  *
  * @return void
  */
@@ -68,7 +68,7 @@ function jetpack_wpcomreader_track_set_up_posts() {
 /**
  * Track the post most recently set up by a loop, and hand its ID out once.
  *
- * @since $$next-version$$
+ * @since 16.5
  *
  * @param WP_Post|null $post Post being set up, or null to read and clear the tracked ID.
  * @return int ID of the post set up before this call, or 0.

@@ -162,7 +162,7 @@ class SSO {
 	 *
 	 * Call it before `after_setup_theme`, when the Jetpack plugin loads its modules; that plugin's own loader starts SSO.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.18.0
 	 *
 	 * @return void
 	 */
@@ -182,7 +182,7 @@ class SSO {
 	 *
 	 * @internal Public only so init_standalone() can hook it; call init_standalone() instead.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.18.0
 	 *
 	 * @return void
 	 */
@@ -206,7 +206,7 @@ class SSO {
 	 *
 	 * @internal Public only so init_standalone() can hook it; call init_standalone() instead.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.18.0
 	 *
 	 * @param string[] $modules Module slugs.
 	 * @return string[]
