@@ -5,7 +5,10 @@ import { wpcomFetch } from '../../../data/wpcom-fetch';
 import Ads from '../index';
 
 jest.mock( '@wordpress/api-fetch', () => ( { __esModule: true, default: jest.fn() } ) );
-jest.mock( '@automattic/jetpack-script-data', () => ( { isSimpleSite: () => mockSimple } ) );
+jest.mock( '@automattic/jetpack-script-data', () => ( {
+	isSimpleSite: () => mockSimple,
+	isWpcomPlatformSite: () => mockSimple,
+} ) );
 jest.mock( '../../../data/state', () => ( {
 	getPageData: () => ( { upgradeUrl: 'https://example.com/upgrade', tracks: false } ),
 	getSectionState: () => ( { hasWordAds: mockHasWordAds, canJoinWordAds: false } ),
