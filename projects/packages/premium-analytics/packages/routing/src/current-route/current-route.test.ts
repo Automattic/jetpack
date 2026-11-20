@@ -51,11 +51,14 @@ describe( 'onLocationChange', () => {
 		expect( listener ).toHaveBeenCalledTimes( 1 );
 	} );
 
-	it( 'runs the listener when the admin shell shows a page', () => {
+	it.each< [ string, string ] >( [
+		[ 'the admin shell shows a page', 'jetpack-admin-shell:page-shown' ],
+		[ 'the user goes back or forward', 'popstate' ],
+	] )( 'runs the listener when %s', ( _case, type ) => {
 		const listener = jest.fn();
 
 		onLocationChange( listener );
-		window.dispatchEvent( new CustomEvent( 'jetpack-admin-shell:page-shown' ) );
+		window.dispatchEvent( new Event( type ) );
 
 		expect( listener ).toHaveBeenCalledTimes( 1 );
 	} );

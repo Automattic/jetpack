@@ -39,8 +39,8 @@ export function getCurrentRoutePath(): string | null {
 /**
  * Listen to the changes of the URL, which is where a change of route shows outside of the router.
  *
- * The listener also runs when only the search params change, so it compares what it reads. A
- * browser without the Navigation API never runs it for a route, and the path read on load stays.
+ * The listener also runs when only the search params change, so it compares what it reads. Without
+ * the Navigation API it runs for Back and Forward only, not for a route opened from a link.
  *
  * @param listener - Called after every change of the URL.
  */
@@ -50,6 +50,9 @@ export function onLocationChange( listener: () => void ): void {
 		'currententrychange',
 		listener
 	);
+
+	// Back and Forward: the changes a browser without the Navigation API still tells of.
+	window.addEventListener( 'popstate', listener );
 
 	// The admin shell tells when a page is on screen with its URL written, in every browser.
 	window.addEventListener( 'jetpack-admin-shell:page-shown', listener );
