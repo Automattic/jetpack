@@ -27,11 +27,6 @@ class Social_Admin_Page {
 	public const REFRESH_PLAN_NONCE_ACTION = 'jetpack_social_refresh_plan_data';
 
 	/**
-	 * Script that carries the connection state when the admin shell shows the dashboard on another page.
-	 */
-	public const GUEST_DATA_HANDLE = 'jetpack-social-dashboard-data';
-
-	/**
 	 * The instance of the class.
 	 *
 	 * @var Social_Admin_Page
@@ -188,7 +183,8 @@ class Social_Admin_Page {
 				'subtitle' => self::landing_subtitle(),
 			),
 			'capability'   => 'publish_posts',
-			'handles'      => array( self::GUEST_DATA_HANDLE, 'jetpack-script-data', 'wp-jp-i18n-loader' ),
+			'handles'      => array( 'jetpack-script-data', 'wp-jp-i18n-loader' ),
+			'data'         => array( Connection_Initial_State::class, 'render' ),
 			'load'         => array( $this, 'load_as_admin_shell_guest' ),
 		);
 		return $members;
@@ -219,21 +215,7 @@ class Social_Admin_Page {
 		if ( function_exists( 'jetpack_social_register_script_modules' ) ) {
 			jetpack_social_register_script_modules(); // @phan-suppress-current-line PhanUndeclaredFunction -- Checked with function_exists(); defined in the generated build/modules.php, which Phan excludes.
 		}
-		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_guest_scripts' ) );
-	}
-
-	/**
-	 * Hydrate the connection store on a script of its own: the prerequisites script only exists on the Social page.
-	 *
-	 * @since 0.89.0
-	 *
-	 * @return void
-	 */
-	public function enqueue_guest_scripts() {
-		wp_register_script( self::GUEST_DATA_HANDLE, false, array(), false, true ); // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.NoExplicitVersion -- No source, so nothing to cache.
-		wp_enqueue_script( self::GUEST_DATA_HANDLE );
-		Connection_Initial_State::render_script( self::GUEST_DATA_HANDLE );
-		$this->enqueue_admin_scripts();
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ) );
 	}
 
 	/**
