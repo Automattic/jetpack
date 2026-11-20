@@ -18,7 +18,7 @@ export type JetpackFooterProps = {
 	menu?: JetpackFooterMenuItem[];
 
 	/**
-	 * Whether to show the default Features link. Defaults to true.
+	 * Whether to link to Features. Defaults to true.
 	 */
 	showFeaturesLink?: boolean;
 };

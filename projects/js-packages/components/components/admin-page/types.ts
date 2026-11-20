@@ -97,7 +97,7 @@ export type AdminPageProps = {
 	optionalMenuItems?: JetpackFooterMenuItem[];
 
 	/**
-	 * Whether the footer shows its default Features link. Defaults to true.
+	 * Whether the footer links to Features. Defaults to true.
 	 */
 	showFooterFeaturesLink?: boolean;
 
