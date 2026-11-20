@@ -1,0 +1,86 @@
+<svg viewBox="0 0 880 440" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="The host imports mountWhatsNew from its own JavaScript and calls it with its channels. The page provides what the surface needs: the import map that resolves the import to the module the PHP package registered, the WordPress scripts the surface reads from their globals, and #wpbody, the box the surface hangs from. The surface, one per page, teases the newest unseen announcement of those channels and, when it is opened or dismissed, marks it seen in the user's WordPress preferences, the same in every host. The call returns the function that unmounts the surface. A later mount takes the surface over, and the function of an earlier one then does nothing.">
+  <defs>
+    <marker id="arrow-host" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 1 L 8 5 L 0 9 z" fill="#94a3b8"/>
+    </marker>
+  </defs>
+
+  <rect x="6" y="6" width="868" height="428" rx="12" fill="#ffffff"/>
+
+  <text x="440" y="36" text-anchor="middle" font-family="-apple-system, system-ui, sans-serif" font-size="13" font-weight="700" fill="#334155">The host decides when; the surface does the rest.</text>
+
+  <!-- Host -->
+  <rect x="30" y="58" width="262" height="262" rx="9" fill="#fff3d0" stroke="#b07020" stroke-width="1.5"/>
+  <text x="46" y="84" font-family="ui-monospace, SFMono-Regular, monospace" font-size="12.5" font-weight="700" fill="#855317">host</text>
+  <text x="88" y="84" font-family="-apple-system, system-ui, sans-serif" font-size="10" font-style="italic" fill="#855317">its own JavaScript</text>
+
+  <rect x="46" y="98" width="230" height="76" rx="5" fill="#ffffff" stroke="#b07020" stroke-width="1.2"/>
+  <text x="56" y="116" font-family="ui-monospace, SFMono-Regular, monospace" font-size="8.5" fill="#855317">const { mountWhatsNew } = await import(</text>
+  <text x="66" y="130" font-family="ui-monospace, SFMono-Regular, monospace" font-size="8.5" fill="#855317">'@automattic/jetpack-announcements' );</text>
+  <text x="56" y="150" font-family="ui-monospace, SFMono-Regular, monospace" font-size="8.5" fill="#855317">const unmount = mountWhatsNew( {</text>
+  <text x="66" y="164" font-family="ui-monospace, SFMono-Regular, monospace" font-size="8.5" fill="#855317">channels: [ 'my-plugin' ] } );</text>
+
+  <text x="46" y="200" font-family="-apple-system, system-ui, sans-serif" font-size="10.5" font-weight="700" fill="#855317">when to mount</text>
+  <text x="46" y="214" font-family="-apple-system, system-ui, sans-serif" font-size="9" font-style="italic" fill="#855317">behind its flag, after its onboarding</text>
+
+  <text x="46" y="240" font-family="-apple-system, system-ui, sans-serif" font-size="10.5" font-weight="700" fill="#855317">when to leave</text>
+  <text x="46" y="254" font-family="-apple-system, system-ui, sans-serif" font-size="9" font-style="italic" fill="#855317">unmount(), when its page goes without a load</text>
+
+  <text x="46" y="280" font-family="-apple-system, system-ui, sans-serif" font-size="10.5" font-weight="700" fill="#855317">what it brings</text>
+  <text x="46" y="294" font-family="-apple-system, system-ui, sans-serif" font-size="9" font-style="italic" fill="#855317">the contract package, the PHP requirement</text>
+
+  <line x1="294" y1="136" x2="318" y2="136" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrow-host)"/>
+
+  <!-- Page -->
+  <rect x="322" y="58" width="236" height="262" rx="9" fill="#fafbfc" stroke="#cbd5e1" stroke-width="1.4"/>
+  <text x="338" y="84" font-family="ui-monospace, SFMono-Regular, monospace" font-size="12.5" font-weight="700" fill="#1d6b5a">page</text>
+  <text x="380" y="84" font-family="-apple-system, system-ui, sans-serif" font-size="10" fill="#94a3b8">what the surface needs</text>
+
+  <rect x="338" y="98" width="204" height="64" rx="5" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.2"/>
+  <text x="350" y="118" font-family="-apple-system, system-ui, sans-serif" font-size="10.5" font-weight="700" fill="#334155">import map</text>
+  <text x="350" y="134" font-family="-apple-system, system-ui, sans-serif" font-size="9" fill="#64748b">resolves the import to the module</text>
+  <text x="350" y="148" font-family="-apple-system, system-ui, sans-serif" font-size="9" fill="#64748b">the PHP package registered</text>
+
+  <rect x="338" y="170" width="204" height="64" rx="5" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.2"/>
+  <text x="350" y="190" font-family="-apple-system, system-ui, sans-serif" font-size="10.5" font-weight="700" fill="#334155">WordPress scripts</text>
+  <text x="350" y="206" font-family="ui-monospace, SFMono-Regular, monospace" font-size="8.5" fill="#64748b">core-data · preferences · i18n</text>
+  <text x="350" y="220" font-family="-apple-system, system-ui, sans-serif" font-size="9" fill="#64748b">read from their globals</text>
+
+  <rect x="338" y="242" width="204" height="64" rx="5" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.2"/>
+  <text x="350" y="262" font-family="ui-monospace, SFMono-Regular, monospace" font-size="10.5" font-weight="700" fill="#334155">#wpbody</text>
+  <text x="350" y="278" font-family="-apple-system, system-ui, sans-serif" font-size="9" fill="#64748b">the box the surface hangs from,</text>
+  <text x="350" y="292" font-family="-apple-system, system-ui, sans-serif" font-size="9" fill="#64748b">next to the page's own app</text>
+
+  <line x1="560" y1="136" x2="584" y2="136" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrow-host)"/>
+
+  <!-- Surface -->
+  <rect x="588" y="58" width="262" height="262" rx="9" fill="#ffffff" stroke="#1d6b5a" stroke-width="1.4"/>
+  <text x="604" y="84" font-family="ui-monospace, SFMono-Regular, monospace" font-size="12.5" font-weight="700" fill="#1d6b5a">surface</text>
+  <text x="668" y="84" font-family="-apple-system, system-ui, sans-serif" font-size="10" fill="#94a3b8">one per page</text>
+
+  <!-- Teaser mock -->
+  <rect x="604" y="98" width="230" height="108" rx="8" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.2"/>
+  <rect x="610" y="104" width="218" height="26" rx="4" fill="#eef2f7"/>
+  <text x="616" y="146" font-family="-apple-system, system-ui, sans-serif" font-size="8.5" fill="#64748b">What's new</text>
+  <path d="M 814 140 L 822 148 M 822 140 L 814 148" stroke="#94a3b8" stroke-width="1.4" fill="none"/>
+  <text x="616" y="163" font-family="-apple-system, system-ui, sans-serif" font-size="11" font-weight="700" fill="#334155">New reports</text>
+  <text x="616" y="177" font-family="-apple-system, system-ui, sans-serif" font-size="8.5" fill="#64748b">Three new reports are available.</text>
+  <rect x="616" y="184" width="62" height="16" rx="3" fill="#ffffff" stroke="#94a3b8" stroke-width="1"/>
+  <text x="647" y="195" text-anchor="middle" font-family="-apple-system, system-ui, sans-serif" font-size="8" fill="#334155">Read more</text>
+
+  <text x="604" y="232" font-family="-apple-system, system-ui, sans-serif" font-size="10.5" font-weight="700" fill="#1d6b5a">teases the newest unseen</text>
+  <text x="604" y="246" font-family="-apple-system, system-ui, sans-serif" font-size="9" font-style="italic" fill="#64748b">of the channels the host named</text>
+
+  <text x="604" y="270" font-family="-apple-system, system-ui, sans-serif" font-size="10.5" font-weight="700" fill="#1d6b5a">marks it seen</text>
+  <text x="604" y="284" font-family="-apple-system, system-ui, sans-serif" font-size="9" font-style="italic" fill="#64748b">in the user's preferences, for every host</text>
+
+  <text x="719" y="308" text-anchor="middle" font-family="-apple-system, system-ui, sans-serif" font-size="9" font-style="italic" fill="#94a3b8">the same in every host</text>
+
+  <!-- The call returns unmount -->
+  <path d="M 719 320 L 719 346 L 161 346 L 161 326" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#arrow-host)"/>
+  <text x="440" y="340" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, monospace" font-size="9" fill="#475569">the call returns unmount()</text>
+
+  <text x="440" y="374" text-anchor="middle" font-family="-apple-system, system-ui, sans-serif" font-size="9.5" font-style="italic" fill="#94a3b8">a later mount takes the surface over · the function of an earlier one then does nothing</text>
+
+  <text x="440" y="408" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, monospace" font-size="12" font-weight="700" fill="#855317">the host decides when · the page provides · the surface behaves the same everywhere</text>
+</svg>
