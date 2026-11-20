@@ -451,16 +451,10 @@ function send_access_denied_error_response() {
 		);
 	}
 
-	/*
-	 * Advertise the REST API root so clients can discover how to authenticate. Emit the single
-	 * `https://api.w.org/` link directly rather than via `rest_output_link_header()`, so no
-	 * `alternate` link naming a private resource can appear if this ever runs after the main query.
-	 */
-	if ( ! headers_sent() ) {
-		$api_root = get_rest_url();
-		if ( ! empty( $api_root ) ) {
-			header( sprintf( 'Link: <%s>; rel="https://api.w.org/"', sanitize_url( $api_root ) ), false );
-		}
+	// Advertise the REST API root so clients can discover how to authenticate.
+	$link_header = rest_api_discovery_link_header();
+	if ( '' !== $link_header && ! headers_sent() ) {
+		header( $link_header, false );
 	}
 
 	require access_denied_template_path();
@@ -468,9 +462,21 @@ function send_access_denied_error_response() {
 }
 
 /**
- * Print the WordPress REST API discovery `<link>` tag for the access-denied templates — the
- * HTML `<head>` counterpart to the `Link:` header in `send_access_denied_error_response()`,
- * which explains why we emit only the `https://api.w.org/` link.
+ * The `Link:` header advertising the REST API root, or '' when there is none.
+ *
+ * Built here rather than by `rest_output_link_header()`, so no `alternate` link naming a private
+ * resource can appear if this ever runs after the main query.
+ *
+ * @return string
+ */
+function rest_api_discovery_link_header() {
+	$api_root = get_rest_url();
+
+	return empty( $api_root ) ? '' : sprintf( 'Link: <%s>; rel="https://api.w.org/"', sanitize_url( $api_root ) );
+}
+
+/**
+ * Print the `<head>` counterpart of `rest_api_discovery_link_header()` for the access-denied templates.
  */
 function print_rest_api_discovery_link() {
 	$api_root = get_rest_url();
@@ -613,15 +619,15 @@ function rest_pre_dispatch( $result, $server, $request ) {
 		return $result;
 	}
 
-	// Shaped like core's index so `rest_index` filters can read and extend it as usual.
+	// Shaped like core's index so `rest_index` filters can read and extend it; only `routes` is costly, so it stays empty.
 	$seed = new WP_REST_Response(
 		array(
-			'name'           => '',
+			'name'           => masked_site_name(),
 			'description'    => '',
-			'url'            => '',
-			'home'           => '',
+			'url'            => get_option( 'siteurl' ),
+			'home'           => home_url(),
 			'gmt_offset'     => 0,
-			'namespaces'     => array(),
+			'namespaces'     => $server->get_namespaces(),
 			'authentication' => array(),
 			'routes'         => array(),
 		)
@@ -641,16 +647,17 @@ function rest_pre_dispatch( $result, $server, $request ) {
  */
 function build_minimal_rest_index( $response ) {
 	$data = $response instanceof WP_REST_Response ? $response->get_data() : array();
+	$data = is_array( $data ) ? $data : array();
 
-	// `authentication` and `routes` are maps: an empty PHP array would serialize as [], so coerce
-	// each to an object so clients that read them as objects (or validate a schema) don't break. A
-	// populated `authentication` stays an array -- non-empty string-keyed arrays already encode as {}.
-	$authentication = empty( $data['authentication'] ) ? (object) array() : $data['authentication'];
+	// `authentication` and `routes` are maps, so empty ones must serialize as {}, not [].
+	$authentication = ! empty( $data['authentication'] ) && is_array( $data['authentication'] )
+		? $data['authentication']
+		: (object) array();
 
 	// Allowlist. Anything not named here is intentionally withheld.
 	$minimal = new WP_REST_Response(
 		array(
-			'name'           => get_bloginfo( 'name', 'display' ), // Masked exactly as the HTML page is: 'Private Site' on private sites, the real name on coming-soon sites.
+			'name'           => masked_site_name(),
 			'description'    => '',
 			'url'            => get_option( 'siteurl' ),
 			'home'           => home_url(),
@@ -665,6 +672,15 @@ function build_minimal_rest_index( $response ) {
 	$minimal->header( 'Cache-Control', 'no-cache, no-store, must-revalidate, max-age=0' );
 
 	return $minimal;
+}
+
+/**
+ * The raw site name core's index serves, masked as the HTML page is ('Private Site' unless coming soon).
+ *
+ * @return string
+ */
+function masked_site_name() {
+	return mask_site_name( get_option( 'blogname' ), 'name' );
 }
 
 /**

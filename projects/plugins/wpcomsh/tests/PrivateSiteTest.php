@@ -209,14 +209,15 @@ class PrivateSiteTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * The `rest_index` chain starts from an empty seed, so core's full index (and `?context=help`
-	 * route schemas) is never built for an anonymous visitor.
+	 * The `rest_index` chain gets a seed with no route table, so core's full index (and `?context=help`
+	 * route schemas) is never built for an anonymous visitor, but the cheap fields filters read are real.
 	 */
 	public function test_minimal_index_does_not_build_the_core_index() {
 		wp_set_current_user( 0 );
 		$seen = array(
-			'namespaces' => null,
+			'namespaces' => array(),
 			'routes'     => null,
+			'url'        => null,
 		);
 		add_filter(
 			'rest_index',
@@ -229,8 +230,9 @@ class PrivateSiteTest extends WP_UnitTestCase {
 
 		$this->dispatch_index( 'GET', array( 'context' => 'help' ) );
 
-		$this->assertSame( array(), $seen['namespaces'] );
 		$this->assertSame( array(), $seen['routes'] );
+		$this->assertContains( 'wp/v2', $seen['namespaces'] );
+		$this->assertSame( get_option( 'siteurl' ), $seen['url'] );
 	}
 
 	/**
@@ -289,6 +291,81 @@ class PrivateSiteTest extends WP_UnitTestCase {
 		$result = \Private_Site\rest_pre_dispatch( $prior, rest_get_server(), new WP_REST_Request( 'GET', '/' ) );
 
 		$this->assertSame( $prior, $result );
+	}
+
+	/**
+	 * `init()` is what wires the short-circuit up on a live private site.
+	 */
+	public function test_init_hooks_the_rest_index_short_circuit() {
+		\Private_Site\init();
+
+		$this->assertSame( 10, has_filter( 'rest_pre_dispatch', '\Private_Site\rest_pre_dispatch' ) );
+	}
+
+	/**
+	 * A filter that replaces the index data with a non-array falls back to the empty allowlist.
+	 */
+	public function test_minimal_index_survives_a_filter_returning_non_array_data() {
+		wp_set_current_user( 0 );
+		add_filter(
+			'rest_index',
+			function ( $response ) {
+				$response->set_data( (object) array( 'routes' => array( '/secret-plugin/v1' => array() ) ) );
+				return $response;
+			}
+		);
+
+		$data = $this->dispatch_index()->get_data();
+
+		$this->assertEquals( new \stdClass(), $data['routes'] );
+		$this->assertEquals( new \stdClass(), $data['authentication'] );
+	}
+
+	/**
+	 * `authentication` is served only as a map of methods, never as an arbitrary value.
+	 */
+	public function test_minimal_index_drops_a_non_array_authentication_block() {
+		wp_set_current_user( 0 );
+		add_filter(
+			'rest_index',
+			function ( $response ) {
+				$response->data['authentication'] = 'leaked-string';
+				return $response;
+			}
+		);
+
+		$data = $this->dispatch_index()->get_data();
+
+		$this->assertEquals( new \stdClass(), $data['authentication'] );
+	}
+
+	/**
+	 * The discovery header points at the REST root under both pretty and plain permalinks.
+	 *
+	 * @dataProvider provide_permalink_structures
+	 *
+	 * @param string $structure Permalink structure.
+	 */
+	#[DataProvider( 'provide_permalink_structures' )]
+	public function test_rest_api_discovery_link_header_points_at_the_rest_root( $structure ) {
+		$this->set_permalink_structure( $structure );
+
+		$this->assertSame(
+			'Link: <' . get_rest_url() . '>; rel="https://api.w.org/"',
+			\Private_Site\rest_api_discovery_link_header()
+		);
+	}
+
+	/**
+	 * Pretty and plain permalink structures; plain puts the REST root in `?rest_route=/`.
+	 *
+	 * @return array
+	 */
+	public static function provide_permalink_structures() {
+		return array(
+			'pretty' => array( '/%postname%/' ),
+			'plain'  => array( '' ),
+		);
 	}
 
 	/**
@@ -406,7 +483,6 @@ class PrivateSiteTest extends WP_UnitTestCase {
 	public function test_build_minimal_rest_index_masks_the_site_name() {
 		wp_set_current_user( 0 );
 		update_option( 'blogname', 'Secret Site Name' );
-		add_filter( 'bloginfo', '\Private_Site\mask_site_name', 3, 2 );
 
 		$data = \Private_Site\build_minimal_rest_index( $this->full_rest_index_response() )->get_data();
 
@@ -418,14 +494,15 @@ class PrivateSiteTest extends WP_UnitTestCase {
 	 */
 	public function test_build_minimal_rest_index_shows_the_real_name_on_coming_soon_sites() {
 		wp_set_current_user( 0 );
-		update_option( 'blogname', 'Launching Soon' );
-		add_filter( 'bloginfo', '\Private_Site\mask_site_name', 3, 2 );
+		update_option( 'blogname', "Tom & Jerry's -- Launching..." );
 		wp_cache_set( 'wpcom_coming_soon', 1, 'wpcomsh' );
 
 		$data = \Private_Site\build_minimal_rest_index( $this->full_rest_index_response() )->get_data();
 		wp_cache_delete( 'wpcom_coming_soon', 'wpcomsh' );
 
-		$this->assertSame( 'Launching Soon', $data['name'] );
+		// As core's index serves it (the stored option), not texturized for display.
+		$this->assertSame( get_option( 'blogname' ), $data['name'] );
+		$this->assertStringContainsString( ' -- Launching...', $data['name'] );
 	}
 
 	/**
@@ -438,6 +515,7 @@ class PrivateSiteTest extends WP_UnitTestCase {
 	#[DataProvider( 'provide_access_denied_templates' )]
 	public function test_access_denied_templates_print_the_rest_api_discovery_link( $template ) {
 		wp_set_current_user( 0 );
+		$server                 = $_SERVER;
 		$_SERVER['SERVER_NAME'] = 'example.org';
 		$_SERVER['REQUEST_URI'] = '/';
 		// Only the <head> matters here; the footer pulls in unrelated deprecated core callbacks.
@@ -450,12 +528,12 @@ class PrivateSiteTest extends WP_UnitTestCase {
 			E_WARNING
 		);
 
-		$html = '';
+		ob_start();
 		try {
-			ob_start();
 			require dirname( __DIR__ ) . '/private-site/' . $template;
-			$html = (string) ob_get_clean();
 		} finally {
+			$html    = (string) ob_get_clean();
+			$_SERVER = $server;
 			restore_error_handler();
 		}
 
@@ -476,15 +554,18 @@ class PrivateSiteTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Dispatches a request for the REST index with the private-site hooks added as `init()` does.
+	 * Dispatches a request for the REST index with the private-site short-circuit hooked as `init()` does.
 	 *
 	 * @param string $method HTTP method.
 	 * @param array  $params Query parameters.
 	 * @return WP_REST_Response
 	 */
 	private function dispatch_index( $method = 'GET', $params = array() ) {
+		if ( 0 === get_current_user_id() ) {
+			// `should_prevent_site_access()` caches its first answer for the whole process.
+			$this->assertTrue( \Private_Site\should_prevent_site_access(), 'An earlier test cached site access as allowed.' );
+		}
 		add_filter( 'rest_pre_dispatch', '\Private_Site\rest_pre_dispatch', 10, 3 );
-		add_filter( 'bloginfo', '\Private_Site\mask_site_name', 3, 2 );
 
 		$request = new WP_REST_Request( $method, '/' );
 		$request->set_query_params( $params );
