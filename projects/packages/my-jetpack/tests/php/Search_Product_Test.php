@@ -275,7 +275,7 @@ class Search_Product_Test extends TestCase {
 	 * The existing tests only cover the WP_Error branch, so the comparison line was never exercised.
 	 * This locks in the success path against the self-owned SEARCH_NEW_PRICING_VERSION constant.
 	 *
-	 * Runs in a separate process so the function-static $pricings cache in get_pricing_from_wpcom()
+	 * Runs in a separate process so the static $pricings memo in get_pricing_from_wpcom()
 	 * starts empty; otherwise a WP_Error cached by an earlier failure-path test (same record-count
 	 * key) would be returned and the success comparison would never run.
 	 *
@@ -297,6 +297,86 @@ class Search_Product_Test extends TestCase {
 		$this->assertTrue( $is_new_pricing );
 		// estimated_record_count is only set on the success branch, proving we did not fall back.
 		$this->assertArrayHasKey( 'estimated_record_count', $pricing );
+		$this->assertSame( '202208', $pricing['pricing_version'] );
+	}
+
+	/**
+	 * Outbound HTTP attempts answered by count_pricing_success().
+	 *
+	 * @var int
+	 */
+	private $pricing_success_calls = 0;
+
+	/**
+	 * Answers outbound HTTP requests with a successful pricing response and tallies them.
+	 *
+	 * @return array
+	 */
+	public function count_pricing_success() {
+		++$this->pricing_success_calls;
+		return $this->force_pricing_success();
+	}
+
+	/**
+	 * Forgets the pricing memoized in this process, as a new page load would.
+	 */
+	private function start_new_request() {
+		$pricings = new \ReflectionProperty( Search::class, 'pricings' );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$pricings->setAccessible( true );
+		}
+		$pricings->setValue( null, array() );
+	}
+
+	/**
+	 * A successful pricing fetch is reused on later page loads instead of asking WPCOM again.
+	 */
+	public function test_pricing_is_reused_on_a_later_request() {
+		$this->start_new_request();
+		add_filter( 'pre_http_request', array( $this, 'count_pricing_success' ) );
+
+		$first = Search::get_pricing_from_wpcom( 120 );
+		$this->start_new_request();
+		$second = Search::get_pricing_from_wpcom( 120 );
+
+		remove_filter( 'pre_http_request', array( $this, 'count_pricing_success' ) );
+
+		$this->assertSame( 1, $this->pricing_success_calls );
+		$this->assertSame( $first, $second );
+	}
+
+	/**
+	 * Pricing stored for one record count is not served for another, which may be a different tier.
+	 */
+	public function test_pricing_for_another_record_count_is_fetched() {
+		$this->start_new_request();
+		add_filter( 'pre_http_request', array( $this, 'count_pricing_success' ) );
+
+		Search::get_pricing_from_wpcom( 120 );
+		$this->start_new_request();
+		Search::get_pricing_from_wpcom( 250000 );
+
+		remove_filter( 'pre_http_request', array( $this, 'count_pricing_success' ) );
+
+		$this->assertSame( 2, $this->pricing_success_calls );
+	}
+
+	/**
+	 * A failed fetch is not stored, so the next page load asks WPCOM again rather than waiting a day.
+	 */
+	public function test_failed_pricing_fetch_is_retried_on_a_later_request() {
+		$this->start_new_request();
+		add_filter( 'pre_http_request', array( $this, 'force_http_error' ) );
+		Search::get_pricing_from_wpcom( 120 );
+		remove_filter( 'pre_http_request', array( $this, 'force_http_error' ) );
+
+		$this->start_new_request();
+		add_filter( 'pre_http_request', array( $this, 'count_pricing_success' ) );
+		$pricing = Search::get_pricing_from_wpcom( 120 );
+		remove_filter( 'pre_http_request', array( $this, 'count_pricing_success' ) );
+
+		$this->assertSame( 1, $this->pricing_success_calls );
 		$this->assertSame( '202208', $pricing['pricing_version'] );
 	}
 
@@ -355,7 +435,7 @@ class Search_Product_Test extends TestCase {
 	 *
 	 * Runs in a separate process for two reasons: (1) the drift-guard test loads Search\Plan into the
 	 * shared process, and an already-loaded class never triggers the autoloader, defeating the tripwire;
-	 * (2) the function-static $pricings cache in get_pricing_from_wpcom() must start empty. The opening
+	 * (2) the static $pricings memo in get_pricing_from_wpcom() must start empty. The opening
 	 * assertion confirms Search\Plan is not already loaded, proving the isolated process is clean.
 	 *
 	 * @runInSeparateProcess
@@ -399,7 +479,7 @@ class Search_Product_Test extends TestCase {
 	 * loaded, so a reintroduced runtime reference fails here instead of in production.
 	 *
 	 * Runs in a separate process so Search\Plan is not already loaded (the drift-guard test loads it in
-	 * the shared process) and so the function-static $pricings cache starts empty. The opening assertion
+	 * the shared process) and so the static $pricings memo starts empty. The opening assertion
 	 * confirms the isolated process is clean.
 	 *
 	 * @runInSeparateProcess
