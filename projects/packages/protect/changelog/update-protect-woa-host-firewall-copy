@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Firewall: Name the host that provides the site's firewall, where the host sets its name.

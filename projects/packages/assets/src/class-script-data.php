@@ -135,6 +135,7 @@ class Script_Data {
 				'icon'              => self::get_site_icon(),
 				'is_multisite'      => is_multisite(),
 				'host'              => ( new Host() )->get_known_host_guess(),
+				'host_name'         => method_exists( Host::class, 'get_name' ) ? ( new Host() )->get_name() : '',
 				'is_wpcom_platform' => ( new Host() )->is_wpcom_platform(),
 				'plan'              => array(
 					// The properties here should be updated by the consumer package/plugin.

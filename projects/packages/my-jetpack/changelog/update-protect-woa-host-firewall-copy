@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Protect: Name the host that provides the site's firewall in the Firewall tooltip, where the host sets its name.
