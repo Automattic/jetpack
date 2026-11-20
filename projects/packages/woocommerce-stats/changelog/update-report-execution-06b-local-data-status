@@ -1,0 +1,5 @@
+Significance: patch
+Type: added
+Comment: Internal readiness check for local report data, used by the next change.
+
+
