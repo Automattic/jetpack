@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+Comment: Add a test that product activation refuses to install a plugin when file changes are disallowed.
+

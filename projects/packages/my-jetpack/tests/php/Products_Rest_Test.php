@@ -434,4 +434,27 @@ class Products_Rest_Test extends TestCase {
 		$this->assertEquals( 'plugin_php_incompatible', $data['code'] );
 		$this->assertFalse( is_plugin_active( $this->boost_mock_filename ) );
 	}
+
+	/**
+	 * DISALLOW_FILE_MODS takes install_plugins away but leaves activate_plugins, which is all the route checks.
+	 */
+	public function test_activate_refuses_to_install_when_file_changes_are_disallowed() {
+		$fail_download = function () {
+			return new \WP_Error( 'download_failed', 'Download failed.' );
+		};
+		add_filter( 'file_mod_allowed', '__return_false' );
+		add_filter( 'upgrader_pre_download', $fail_download );
+
+		$request = new WP_REST_Request( 'POST', '/my-jetpack/v1/site/products/activate' );
+		$request->set_header( 'content-type', 'application/json' );
+		$request->set_body( wp_json_encode( array( 'products' => array( 'crm' ) ), JSON_UNESCAPED_SLASHES ) );
+
+		$response = $this->server->dispatch( $request );
+
+		remove_filter( 'file_mod_allowed', '__return_false' );
+		remove_filter( 'upgrader_pre_download', $fail_download );
+
+		$this->assertEquals( 400, $response->get_status() );
+		$this->assertEquals( 'not_allowed', $response->get_data()['code'] );
+	}
 }

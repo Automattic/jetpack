@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Don't install a plugin when plugin installs are turned off or the user can't install plugins.

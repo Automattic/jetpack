@@ -70,7 +70,8 @@ class Plugins_Installer {
 	 * @return bool|WP_Error True if installation succeeded, error object otherwise.
 	 */
 	public static function install_plugin( $slug ) {
-		if ( is_multisite() && ! current_user_can( 'manage_network' ) ) {
+		// On multisite, core grants install_plugins to super admins only.
+		if ( ! current_user_can( 'install_plugins' ) ) {
 			return new WP_Error( 'not_allowed', __( 'You are not allowed to install plugins on this site.', 'jetpack-plugins-installer' ) );
 		}
 
