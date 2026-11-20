@@ -85,7 +85,7 @@ class Parsely_Prompts_Test extends BaseTestCase {
 		remove_all_filters( OFFERS_PARSELY_PROMPTS_FILTER );
 		remove_all_filters( 'jetpack_fetch_stats_cache_expiration' );
 		remove_filter( 'jetpack_admin_js_script_data', __NAMESPACE__ . '\\inject_parsely_prompts_script_data', 20 );
-		unset( $_GET['page'], $GLOBALS['current_screen'] );
+		unset( $_GET['page'], $GLOBALS['current_screen'], $GLOBALS['parsely'] );
 		delete_transient( PARSELY_PROMPTS_VIEWS_TRANSIENT );
 		delete_option( 'parsely' );
 		wp_set_current_user( 0 );
@@ -299,6 +299,58 @@ class Parsely_Prompts_Test extends BaseTestCase {
 		$this->answer_stats_usage_with( self::usage_with_views( 150000 ) );
 
 		$this->assertTrue( offers_parsely_prompts() );
+	}
+
+	public function test_a_configured_parsely_plugin_is_a_customer() {
+		$GLOBALS['parsely'] = self::parsely_plugin_reporting_site_id( true );
+		$this->answer_stats_usage_with( self::usage_with_views( 150000 ) );
+
+		$this->assertFalse( offers_parsely_prompts() );
+		$this->assertSame( 0, $this->usage_requests, 'A customer is answered before the request.' );
+	}
+
+	public function test_an_unconfigured_parsely_plugin_is_not_a_customer() {
+		$GLOBALS['parsely'] = self::parsely_plugin_reporting_site_id( false );
+		$this->answer_stats_usage_with( self::usage_with_views( 150000 ) );
+
+		$this->assertTrue( offers_parsely_prompts() );
+	}
+
+	public function test_a_parsely_plugin_that_cannot_answer_falls_back_to_the_option() {
+		$GLOBALS['parsely'] = new \stdClass();
+		update_option( 'parsely', array( 'apikey' => 'example.com' ) );
+		$this->answer_stats_usage_with( self::usage_with_views( 150000 ) );
+
+		$this->assertFalse( offers_parsely_prompts() );
+	}
+
+	/**
+	 * A stand-in for wp-parsely's own plugin object.
+	 *
+	 * @param bool $site_id_is_set What the plugin reports about its Site ID.
+	 * @return object
+	 */
+	private static function parsely_plugin_reporting_site_id( $site_id_is_set ) {
+		return new class( $site_id_is_set ) {
+			/**
+			 * @var bool
+			 */
+			private $site_id_is_set;
+
+			/**
+			 * @param bool $site_id_is_set What to report.
+			 */
+			public function __construct( $site_id_is_set ) {
+				$this->site_id_is_set = $site_id_is_set;
+			}
+
+			/**
+			 * @return bool
+			 */
+			public function site_id_is_set() {
+				return $this->site_id_is_set;
+			}
+		};
 	}
 
 	public function test_a_usage_error_does_not_offer_the_prompts() {
