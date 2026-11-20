@@ -142,7 +142,7 @@ class Jetpack_AI_Page {
 	}
 
 	/**
-	 * Whether add_actions() registers the page, which the admin shell's guest endpoint also asks, since admin-ajax never builds the menu.
+	 * Whether add_actions() registers the page, and so whether the admin shell may serve it.
 	 *
 	 * @return bool
 	 */

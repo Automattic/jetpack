@@ -57,7 +57,7 @@ abstract class Jetpack_Admin_Page {
 	public function additional_styles() {}
 
 	/**
-	 * Whether add_actions() registers the page, which the admin shell's guest endpoint also asks, since admin-ajax never builds the menu.
+	 * Whether add_actions() registers the page.
 	 *
 	 * @return bool
 	 */
