@@ -28,6 +28,39 @@ async function fixDeps( pkg ) {
 		}
 	}
 
+	// Gutenberg trunk links its packages with `file:` specs that only resolve in its own checkout, so use published versions.
+	// Remove with the git dependencies on `@wordpress/ui` and `@wordpress/theme` once they ship agent skills: https://github.com/WordPress/gutenberg/pull/86737
+	const gutenbergFileDeps = {
+		'@wordpress/ui': {
+			'@wordpress/a11y': '^5.1.0',
+			'@wordpress/i18n': '^7.1.0',
+			'@wordpress/icons': '^20.0.0',
+			'@wordpress/theme': '^4.0.0',
+			'@wordpress/compose': '^9.1.0',
+			'@wordpress/element': '^10.1.0',
+			'@wordpress/warning': '^4.1.0',
+			'@wordpress/keycodes': '^5.1.0',
+			'@wordpress/primitives': '^5.1.0',
+			'@wordpress/private-apis': '^3.1.0',
+			'@wordpress/style-runtime': '^0.15.0',
+			'@wordpress/react-inert-value': '^2.1.0',
+		},
+		'@wordpress/theme': {
+			'@wordpress/compose': '^9.1.0',
+			'@wordpress/element': '^10.1.0',
+			'@wordpress/deprecated': '^5.1.0',
+			'@wordpress/private-apis': '^3.1.0',
+			'@wordpress/style-runtime': '^0.15.0',
+		},
+	};
+	if ( gutenbergFileDeps[ pkg.name ] ) {
+		for ( const [ dep, ver ] of Object.entries( gutenbergFileDeps[ pkg.name ] ) ) {
+			if ( pkg.dependencies?.[ dep ]?.startsWith( 'file:' ) ) {
+				pkg.dependencies[ dep ] = ver;
+			}
+		}
+	}
+
 	// Let's try just using the monorepo version.
 	if ( pkg.name === '@automattic/launchpad' && pkg.dependencies?.[ 'social-logos' ] ) {
 		pkg.dependencies[ 'social-logos' ] = 'workspace:*';

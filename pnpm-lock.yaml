@@ -8,7 +8,7 @@ settings:
   excludeLinksFromLockfile: false
   linkWorkspacePackages: false
 
-pnpmfileChecksum: sha256-EvRFkwinQ2QR/nGOdSIsBfBRgI5BjKpwRT/vhiS0xYU=
+pnpmfileChecksum: sha256-YFnWaf9ZiTkm5TBi+x0nN3sx/zgvuBER6TmdLXo70ug=
 
 patchedDependencies:
   '@wordpress/build': bbcac5b08698d64339f3d6ad560d14b8214f10b24f4adc5f23de9bd4fdacb72f
@@ -7387,16 +7387,19 @@ importers:
         version: 1.6.28(@typescript-eslint/eslint-plugin@8.72.1(@typescript-eslint/parser@8.72.1(eslint@10.14.0(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2)(typescript@6.0.3))(eslint@10.14.0(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2)(typescript@6.0.3))(eslint@10.14.0(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2)(typescript@6.0.3)(vitest@4.1.12)
       '@wordpress/eslint-plugin':
         specifier: 28.1.0
-        version: 28.1.0(b8b5bf7b03437aef31d1cd2c0c2fdc52)
+        version: 28.1.0(7d9eb48984ace888de6c46b01d54c00d)
       '@wordpress/stylelint-config':
         specifier: 27.1.0
-        version: 27.1.0(@stylistic/stylelint-plugin@5.2.1(stylelint@17.14.1(supports-color@10.2.2)(typescript@6.0.3)))(@wordpress/theme-build-tools@1.0.0(@wordpress/theme@4.0.0(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(esbuild@0.28.2)(lightningcss@1.33.0)(postcss@8.5.23)(stylelint@17.14.1(supports-color@10.2.2)(typescript@6.0.3))(vite@8.1.6(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(sass-embedded@1.97.3)(terser@5.51.2)(yaml@2.8.3)))(@wordpress/theme@4.0.0(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(stylelint-config-recommended-scss@17.0.1(postcss@8.5.23)(stylelint@17.14.1(supports-color@10.2.2)(typescript@6.0.3)))(stylelint-config-recommended@18.0.0(stylelint@17.14.1(supports-color@10.2.2)(typescript@6.0.3)))(stylelint-scss@7.2.0(stylelint@17.14.1(supports-color@10.2.2)(typescript@6.0.3)))(stylelint@17.14.1(supports-color@10.2.2)(typescript@6.0.3))
+        version: 27.1.0(f2b3d8d40429a8f536acb4eeaa6404cd)
       '@wordpress/theme':
-        specifier: 4.0.0
-        version: 4.0.0(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+        specifier: github:WordPress/gutenberg#simison/design-system-agent-files-842d60&path:packages/theme
+        version: https://codeload.github.com/WordPress/gutenberg/tar.gz/954457776847cd112c27fcf150f8b4b50e8cf5bb#path:packages/theme(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@wordpress/theme-build-tools':
         specifier: 1.0.0
-        version: 1.0.0(@wordpress/theme@4.0.0(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(esbuild@0.28.2)(lightningcss@1.33.0)(postcss@8.5.23)(stylelint@17.14.1(supports-color@10.2.2)(typescript@6.0.3))(vite@8.1.6(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(sass-embedded@1.97.3)(terser@5.51.2)(yaml@2.8.3))
+        version: 1.0.0(@wordpress/theme@https://codeload.github.com/WordPress/gutenberg/tar.gz/954457776847cd112c27fcf150f8b4b50e8cf5bb#path:packages/theme(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(esbuild@0.28.2)(lightningcss@1.33.0)(postcss@8.5.23)(stylelint@17.14.1(supports-color@10.2.2)(typescript@6.0.3))(vite@8.1.6(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(sass-embedded@1.97.3)(terser@5.51.2)(yaml@2.8.3))
+      '@wordpress/ui':
+        specifier: github:WordPress/gutenberg#simison/design-system-agent-files-842d60&path:packages/ui
+        version: https://codeload.github.com/WordPress/gutenberg/tar.gz/954457776847cd112c27fcf150f8b4b50e8cf5bb#path:packages/ui(@date-fns/tz@1.5.0)(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       babel-jest:
         specifier: 30.5.2
         version: 30.5.2(@babel/core@7.29.13(supports-color@10.2.2))(supports-color@10.2.2)
@@ -12134,12 +12137,40 @@ packages:
       react-dom:
         optional: true
 
+  '@wordpress/theme@https://codeload.github.com/WordPress/gutenberg/tar.gz/954457776847cd112c27fcf150f8b4b50e8cf5bb#path:packages/theme':
+    resolution: {gitHosted: true, integrity: sha512-UgwfFXfheMtSZ5RuQwDXXKcFsWWD8CBDQF1PZaOxTigkVGAY/JNec9dF1Mt6mkNL+d8/K515E69e+hDt1HQIpw==, path: packages/theme, tarball: https://codeload.github.com/WordPress/gutenberg/tar.gz/954457776847cd112c27fcf150f8b4b50e8cf5bb}
+    version: 4.0.0
+    engines: {node: '>=22.13.0'}
+    peerDependencies:
+      '@types/react': ^18 || ^19
+      react: ^18 || ^19
+      react-dom: ^18 || ^19
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+      react:
+        optional: true
+      react-dom:
+        optional: true
+
   '@wordpress/token-list@4.1.0':
     resolution: {integrity: sha512-r8DCgJDIyGFVufgSedJ9vAhZQWJCNo0Evy/OTcFwVwRxYxi4X753bOZIcmb+VnIc7+rxxWes3K8VCmmUI0wKew==}
     engines: {node: '>=22.13.0'}
 
   '@wordpress/ui@0.26.0':
     resolution: {integrity: sha512-ET2RmxE/nfwRpq1fip1+YATtuLOrOyJJq6hRDDHTyC+8iToM/IbVg8dj/ES6zwlW8/UAEStvSj6IkmQuDvc3mA==}
+    engines: {node: '>=22.13.0'}
+    peerDependencies:
+      '@types/react': ^18 || ^19
+      react: ^18 || ^19
+      react-dom: ^18 || ^19
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+
+  '@wordpress/ui@https://codeload.github.com/WordPress/gutenberg/tar.gz/954457776847cd112c27fcf150f8b4b50e8cf5bb#path:packages/ui':
+    resolution: {gitHosted: true, integrity: sha512-UgwfFXfheMtSZ5RuQwDXXKcFsWWD8CBDQF1PZaOxTigkVGAY/JNec9dF1Mt6mkNL+d8/K515E69e+hDt1HQIpw==, path: packages/ui, tarball: https://codeload.github.com/WordPress/gutenberg/tar.gz/954457776847cd112c27fcf150f8b4b50e8cf5bb}
+    version: 0.26.0
     engines: {node: '>=22.13.0'}
     peerDependencies:
       '@types/react': ^18 || ^19
@@ -23413,12 +23444,12 @@ snapshots:
 
   '@wordpress/escape-html@4.1.0': {}
 
-  '@wordpress/eslint-plugin@28.1.0(b8b5bf7b03437aef31d1cd2c0c2fdc52)':
+  '@wordpress/eslint-plugin@28.1.0(7d9eb48984ace888de6c46b01d54c00d)':
     dependencies:
       '@eslint/compat': 2.1.1(eslint@10.14.0(jiti@2.7.0)(supports-color@10.2.2))
       '@vitest/eslint-plugin': 1.6.28(@typescript-eslint/eslint-plugin@8.72.1(@typescript-eslint/parser@8.72.1(eslint@10.14.0(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2)(typescript@6.0.3))(eslint@10.14.0(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2)(typescript@6.0.3))(eslint@10.14.0(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2)(typescript@6.0.3)(vitest@4.1.12)
       '@wordpress/prettier-config': 5.1.0(wp-prettier@3.9.6)
-      '@wordpress/theme': 4.0.0(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      '@wordpress/theme': https://codeload.github.com/WordPress/gutenberg/tar.gz/954457776847cd112c27fcf150f8b4b50e8cf5bb#path:packages/theme(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       cosmiconfig: 7.1.0
       eslint: 10.14.0(jiti@2.7.0)(supports-color@10.2.2)
       eslint-config-prettier: 10.1.8(eslint@10.14.0(jiti@2.7.0)(supports-color@10.2.2))
@@ -23949,16 +23980,16 @@ snapshots:
 
   '@wordpress/style-runtime@0.15.0': {}
 
-  '@wordpress/stylelint-config@27.1.0(@stylistic/stylelint-plugin@5.2.1(stylelint@17.14.1(supports-color@10.2.2)(typescript@6.0.3)))(@wordpress/theme-build-tools@1.0.0(@wordpress/theme@4.0.0(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(esbuild@0.28.2)(lightningcss@1.33.0)(postcss@8.5.23)(stylelint@17.14.1(supports-color@10.2.2)(typescript@6.0.3))(vite@8.1.6(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(sass-embedded@1.97.3)(terser@5.51.2)(yaml@2.8.3)))(@wordpress/theme@4.0.0(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(stylelint-config-recommended-scss@17.0.1(postcss@8.5.23)(stylelint@17.14.1(supports-color@10.2.2)(typescript@6.0.3)))(stylelint-config-recommended@18.0.0(stylelint@17.14.1(supports-color@10.2.2)(typescript@6.0.3)))(stylelint-scss@7.2.0(stylelint@17.14.1(supports-color@10.2.2)(typescript@6.0.3)))(stylelint@17.14.1(supports-color@10.2.2)(typescript@6.0.3))':
+  '@wordpress/stylelint-config@27.1.0(f2b3d8d40429a8f536acb4eeaa6404cd)':
     dependencies:
       '@stylistic/stylelint-plugin': 5.2.1(stylelint@17.14.1(supports-color@10.2.2)(typescript@6.0.3))
-      '@wordpress/theme-build-tools': 1.0.0(@wordpress/theme@4.0.0(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(esbuild@0.28.2)(lightningcss@1.33.0)(postcss@8.5.23)(stylelint@17.14.1(supports-color@10.2.2)(typescript@6.0.3))(vite@8.1.6(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(sass-embedded@1.97.3)(terser@5.51.2)(yaml@2.8.3))
+      '@wordpress/theme-build-tools': 1.0.0(@wordpress/theme@https://codeload.github.com/WordPress/gutenberg/tar.gz/954457776847cd112c27fcf150f8b4b50e8cf5bb#path:packages/theme(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(esbuild@0.28.2)(lightningcss@1.33.0)(postcss@8.5.23)(stylelint@17.14.1(supports-color@10.2.2)(typescript@6.0.3))(vite@8.1.6(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(sass-embedded@1.97.3)(terser@5.51.2)(yaml@2.8.3))
       stylelint: 17.14.1(supports-color@10.2.2)(typescript@6.0.3)
       stylelint-config-recommended: 18.0.0(stylelint@17.14.1(supports-color@10.2.2)(typescript@6.0.3))
       stylelint-config-recommended-scss: 17.0.1(postcss@8.5.23)(stylelint@17.14.1(supports-color@10.2.2)(typescript@6.0.3))
       stylelint-scss: 7.2.0(stylelint@17.14.1(supports-color@10.2.2)(typescript@6.0.3))
     optionalDependencies:
-      '@wordpress/theme': 4.0.0(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      '@wordpress/theme': https://codeload.github.com/WordPress/gutenberg/tar.gz/954457776847cd112c27fcf150f8b4b50e8cf5bb#path:packages/theme(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
 
   '@wordpress/sync@3.1.0':
     dependencies:
@@ -23985,7 +24016,38 @@ snapshots:
       stylelint: 17.14.1(supports-color@10.2.2)(typescript@6.0.3)
       vite: 8.1.6(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(sass-embedded@1.97.3)(terser@5.51.2)(yaml@2.8.3)
 
+  '@wordpress/theme-build-tools@1.0.0(@wordpress/theme@https://codeload.github.com/WordPress/gutenberg/tar.gz/954457776847cd112c27fcf150f8b4b50e8cf5bb#path:packages/theme(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(esbuild@0.28.2)(lightningcss@1.33.0)(postcss@8.5.23)(stylelint@17.14.1(supports-color@10.2.2)(typescript@6.0.3))(vite@8.1.6(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(sass-embedded@1.97.3)(terser@5.51.2)(yaml@2.8.3))':
+    dependencies:
+      '@babel/parser': 7.29.13
+      '@babel/types': 7.29.11
+      '@jridgewell/remapping': 2.3.5
+      '@jridgewell/trace-mapping': 0.3.31
+      magic-string: 0.30.21
+    optionalDependencies:
+      '@wordpress/theme': https://codeload.github.com/WordPress/gutenberg/tar.gz/954457776847cd112c27fcf150f8b4b50e8cf5bb#path:packages/theme(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      esbuild: 0.28.2
+      lightningcss: 1.33.0
+      postcss: 8.5.23
+      stylelint: 17.14.1(supports-color@10.2.2)(typescript@6.0.3)
+      vite: 8.1.6(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(sass-embedded@1.97.3)(terser@5.51.2)(yaml@2.8.3)
+
   '@wordpress/theme@4.0.0(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)':
+    dependencies:
+      '@wordpress/compose': 9.1.0(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      '@wordpress/deprecated': 5.1.0
+      '@wordpress/element': 10.1.0(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      '@wordpress/private-apis': 3.1.0
+      '@wordpress/style-runtime': 0.15.0
+      colorjs.io: 0.7.1
+      memize: 2.1.1
+    optionalDependencies:
+      '@types/react': 19.3.0
+      react: 19.3.0
+      react-dom: 19.3.0(react@19.3.0)
+    transitivePeerDependencies:
+      - '@types/react-dom'
+
+  '@wordpress/theme@https://codeload.github.com/WordPress/gutenberg/tar.gz/954457776847cd112c27fcf150f8b4b50e8cf5bb#path:packages/theme(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)':
     dependencies:
       '@wordpress/compose': 9.1.0(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@wordpress/deprecated': 5.1.0
@@ -24004,6 +24066,33 @@ snapshots:
   '@wordpress/token-list@4.1.0': {}
 
   '@wordpress/ui@0.26.0(@date-fns/tz@1.5.0)(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)':
+    dependencies:
+      '@base-ui/react': 1.9.0(@date-fns/tz@1.5.0)(@types/react@19.3.0)(date-fns@4.4.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      '@daypicker/react': 10.0.2(@types/react@19.3.0)(react@19.3.0)
+      '@wordpress/a11y': 5.1.0
+      '@wordpress/compose': 9.1.0(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      '@wordpress/element': 10.1.0(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      '@wordpress/i18n': 7.1.0
+      '@wordpress/icons': 20.0.0(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      '@wordpress/keycodes': 5.1.0(@types/react@19.3.0)
+      '@wordpress/primitives': 5.1.0(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      '@wordpress/private-apis': 3.1.0
+      '@wordpress/react-inert-value': 2.1.0(@types/react@19.3.0)(react@19.3.0)
+      '@wordpress/style-runtime': 0.15.0
+      '@wordpress/theme': 4.0.0(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      '@wordpress/warning': 4.1.0
+      clsx: 2.1.1
+      date-fns: 4.4.0
+      react: 19.3.0
+      react-dom: 19.3.0(react@19.3.0)
+      tabbable: 6.5.1
+    optionalDependencies:
+      '@types/react': 19.3.0
+    transitivePeerDependencies:
+      - '@date-fns/tz'
+      - '@types/react-dom'
+
+  '@wordpress/ui@https://codeload.github.com/WordPress/gutenberg/tar.gz/954457776847cd112c27fcf150f8b4b50e8cf5bb#path:packages/ui(@date-fns/tz@1.5.0)(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)':
     dependencies:
       '@base-ui/react': 1.9.0(@date-fns/tz@1.5.0)(@types/react@19.3.0)(date-fns@4.4.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@daypicker/react': 10.0.2(@types/react@19.3.0)(react@19.3.0)
