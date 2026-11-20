@@ -17,6 +17,14 @@ export const isSettingsConsolidationEnabled = () =>
 	Boolean( getScriptData()?.myJetpack?.settingsConsolidation );
 
 /**
+ * Whether My Jetpack shows the notices this screen did; an older My Jetpack leaves it out, which keeps them here.
+ *
+ * @return {boolean} True when the moved notices leave this screen.
+ */
+export const areSettingsNoticesInMyJetpack = () =>
+	Boolean( getScriptData()?.myJetpack?.showsSettingsNotices );
+
+/**
  * Where the Ads settings live now, from the Jetpack plugin's `Jetpack_Ads_Settings_Home`.
  *
  * @return {string|null} The URL, or null while the Ads card stays on this screen.
