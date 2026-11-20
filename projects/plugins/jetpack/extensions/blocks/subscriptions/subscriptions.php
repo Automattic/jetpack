@@ -902,7 +902,7 @@ function render_for_website( $data, $classes, $styles ) {
 							<?php
 							printf(
 								'<input
-									required="required"
+									aria-required="true"
 									type="email"
 									name="email"
 									autocomplete="email"

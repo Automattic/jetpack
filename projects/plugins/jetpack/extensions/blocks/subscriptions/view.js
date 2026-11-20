@@ -4,45 +4,12 @@ import '../../shared/memberships.scss';
 import domReady from '@wordpress/dom-ready';
 import { showModal, spinner } from '../../shared/memberships';
 
-/**
- * Stop the empty email field from being exposed as invalid before the visitor tries to submit.
- *
- * A `required` field that is still empty fails validation, so screen readers announce it
- * as "invalid entry" as soon as it gets focus. The markup keeps `required` for visitors
- * without JavaScript; here it is swapped for `aria-required` until the form is submitted.
- *
- * @param {HTMLFormElement} form - Subscribe form.
- */
-function deferEmailRequired( form ) {
-	const input = form.querySelector( 'input[type="email"][required]:not([disabled])' );
-	if ( ! input ) {
-		return;
-	}
-
-	input.required = false;
-	input.setAttribute( 'aria-required', 'true' );
-}
-
-/**
- * Restore `required` on the email field so the browser validates it on submit.
- *
- * @param {HTMLFormElement} form - Subscribe form.
- */
-function restoreEmailRequired( form ) {
-	const input = form.querySelector( 'input[type="email"][aria-required="true"]' );
-	if ( input ) {
-		input.required = true;
-	}
-}
-
 // @ts-ignore
 function show_iframe_retrieve_subscriptions_from_email() {
 	const form = document.querySelector( '.wp-block-jetpack-subscriptions__container form' );
 	if ( ! form ) {
 		return;
 	}
-
-	restoreEmailRequired( form );
 
 	if ( ! form.checkValidity() ) {
 		form.reportValidity();
@@ -87,11 +54,6 @@ domReady( function () {
 
 			// Injects loading animation in hidden state
 			button.insertAdjacentHTML( 'beforeend', spinner );
-
-			// Browsers validate after the submit button's click event, including when the
-			// visitor presses Enter in the field, so `required` is back in place in time.
-			deferEmailRequired( form );
-			button.addEventListener( 'click', () => restoreEmailRequired( form ) );
 
 			form.addEventListener( 'submit', function ( event ) {
 				if ( form.resubmitted ) {
