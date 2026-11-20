@@ -198,7 +198,7 @@ const StatsSection = () => {
 			label: __( 'Connect Jetpack to use Stats', 'jetpack-my-jetpack' ),
 		},
 		[ PRODUCT_STATUSES.NEEDS_FIRST_SITE_CONNECTION ]: {
-			href: `#/add-${ slug }`,
+			href: detail.hostPurchaseUrl || `#/add-${ slug }`,
 		},
 	};
 

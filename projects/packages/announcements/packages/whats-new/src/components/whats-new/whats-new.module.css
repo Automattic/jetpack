@@ -1,0 +1,21 @@
+/* Placed against `#wpbody`, the box wp-admin pins next to the admin menu. */
+.placement {
+	position: absolute;
+	inset-block-end: var(--wpds-dimension-padding-xl);
+	inset-inline-start: var(--wpds-dimension-padding-xl);
+
+	/* Above the page, below the admin menu. WPDS has no z-index token. */
+	z-index: 10;
+	inline-size: min(320px, calc(100% - 2 * var(--wpds-dimension-padding-xl)));
+
+	/* A snapshot of its own: a host's view transition would cover it. */
+	view-transition-name: jetpack-whats-new;
+}
+
+/* Below this width wp-admin does not pin `#wpbody`: the viewport is the box. */
+@media (max-width: 782px) {
+
+	.placement {
+		position: fixed;
+	}
+}

@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Update tests that broke with deduplication of some packages. 🤷
+
+

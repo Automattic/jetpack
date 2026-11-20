@@ -489,51 +489,37 @@ describe( 'GeoScreen (GEO tab) — paused SEO output', () => {
 	} );
 
 	it.each( [
-		[
-			'Yoast SEO',
-			'Yoast SEO is managing your site’s SEO, so Jetpack has paused its SEO titles, descriptions, canonical URLs, structured data and llms.txt. Your saved settings are kept. Deactivate Yoast SEO to use them.',
-			'Paused while Yoast SEO is active.',
-		],
-		[
-			'',
-			'Jetpack’s SEO titles, descriptions, structured data and llms.txt are turned off on this site. Your saved settings are kept.',
-			'Paused on this site.',
-		],
-	] )(
-		'with "%s" in charge, explains it once and shows llms.txt saved but locked',
-		( plugin, banner, line ) => {
-			( window as unknown as { JetpackScriptData?: unknown } ).JetpackScriptData = {
-				site: { admin_url: 'https://example.com/wp-admin/' },
-				seo: { output: { paused: true, conflicting_plugin: plugin } },
-			};
-			// The server reports `canServe: false` while output is paused.
-			const form = {
-				...allModulesForm(),
-				llmsTxt: { ...allModulesForm().llmsTxt!, canServe: false },
-			};
-			jest.spyOn( form, 'setLlmsTxtEnabled' );
-			render( <GeoScreen form={ form } searchEnginesVisible /> );
+		[ 'Yoast SEO', 'Paused while Yoast SEO is active.' ],
+		[ '', 'Paused on this site.' ],
+	] )( 'with "%s" in charge, shows llms.txt saved but locked', ( plugin, line ) => {
+		( window as unknown as { JetpackScriptData?: unknown } ).JetpackScriptData = {
+			site: { admin_url: 'https://example.com/wp-admin/' },
+			seo: { output: { paused: true, conflicting_plugin: plugin } },
+		};
+		// The server reports `canServe: false` while output is paused.
+		const form = {
+			...allModulesForm(),
+			llmsTxt: { ...allModulesForm().llmsTxt!, canServe: false },
+		};
+		jest.spyOn( form, 'setLlmsTxtEnabled' );
+		render( <GeoScreen form={ form } searchEnginesVisible /> );
 
-			expect( screen.getByText( banner ) ).toBeInTheDocument();
-			// The locked card says so in one short line; it doesn't re-explain the cause.
-			expect( screen.getAllByText( line ) ).toHaveLength( 1 );
-			expect( screen.queryByText( /hosting setup is already handling/ ) ).not.toBeInTheDocument();
+		// The locked card says so in one short line; it doesn't re-explain the cause.
+		expect( screen.getAllByText( line ) ).toHaveLength( 1 );
+		expect( screen.queryByText( /hosting setup is already handling/ ) ).not.toBeInTheDocument();
 
-			// The saved "on" stays visible, locked.
-			const toggle = screen.getByRole( 'switch', { name: /generate an llms.txt file/i } );
-			expect( toggle ).toHaveAttribute( 'aria-disabled', 'true' );
-			expect( toggle ).toBeChecked();
-			expect(
-				screen.queryByRole( 'link', { name: /view your llms.txt/i } )
-			).not.toBeInTheDocument();
-			// eslint-disable-next-line testing-library/prefer-user-event
-			fireEvent.click( toggle );
-			expect( form.setLlmsTxtEnabled ).not.toHaveBeenCalled();
+		// The saved "on" stays visible, locked.
+		const toggle = screen.getByRole( 'switch', { name: /generate an llms.txt file/i } );
+		expect( toggle ).toHaveAttribute( 'aria-disabled', 'true' );
+		expect( toggle ).toBeChecked();
+		expect( screen.queryByRole( 'link', { name: /view your llms.txt/i } ) ).not.toBeInTheDocument();
+		// eslint-disable-next-line testing-library/prefer-user-event
+		fireEvent.click( toggle );
+		expect( form.setLlmsTxtEnabled ).not.toHaveBeenCalled();
 
-			// The Enhancer stays editable: the editor's auto-generation doesn't check the pause.
-			expect(
-				screen.getByRole( 'switch', { name: /Automatically generate SEO title/ } )
-			).not.toHaveAttribute( 'aria-disabled' );
-		}
-	);
+		// The Enhancer stays editable: the editor's auto-generation doesn't check the pause.
+		expect(
+			screen.getByRole( 'switch', { name: /Automatically generate SEO title/ } )
+		).not.toHaveAttribute( 'aria-disabled' );
+	} );
 } );

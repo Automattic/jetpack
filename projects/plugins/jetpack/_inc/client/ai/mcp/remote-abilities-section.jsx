@@ -77,6 +77,56 @@ export function collectNamespaces( abilities, savedGroups, view ) {
 }
 
 /**
+ * Every allowlist key a view's remote cards write: group keys and ability-level keys.
+ *
+ * @param {Array}                   abilities   - Published abilities.
+ * @param {Record<string, boolean>} savedGroups - Saved allowlist.
+ * @param {'read'|'write'}          view        - View to collect for.
+ * @return {string[]} Allowlist keys.
+ */
+export function collectRemoteKeys( abilities, savedGroups, view ) {
+	return [ ...collectNamespaces( abilities, savedGroups, view ).values() ].flatMap( group => [
+		...group.keys,
+		...group.abilityKeys,
+	] );
+}
+
+/**
+ * Whether one namespace card is fully on: its group keys, ability keys and abilities.
+ *
+ * @param {{keys: string[], abilityKeys: string[], abilities: Array}} group          - Namespace entry.
+ * @param {Record<string, boolean>}                                   savedGroups    - Saved allowlist.
+ * @param {boolean}                                                   defaultEnabled - State when nothing is saved.
+ * @return {boolean} True when everything in the card is enabled.
+ */
+export function isNamespaceAllEnabled( group, savedGroups, defaultEnabled ) {
+	return (
+		group.keys.length > 0 &&
+		[ ...group.keys, ...group.abilityKeys ].every(
+			key => ( savedGroups[ key ] ?? defaultEnabled ) === true
+		) &&
+		group.abilities.every( ability =>
+			isRemoteAbilityEnabled( savedGroups, ability.name, ability.meta?.annotations, defaultEnabled )
+		)
+	);
+}
+
+/**
+ * Whether every remote card on a view is on; true when the view has none.
+ *
+ * @param {Array}                   abilities      - Published abilities.
+ * @param {Record<string, boolean>} savedGroups    - Saved allowlist.
+ * @param {'read'|'write'}          view           - View to check.
+ * @param {boolean}                 defaultEnabled - State when nothing is saved.
+ * @return {boolean} True when all remote cards are enabled.
+ */
+export function areRemoteGroupsEnabled( abilities, savedGroups, view, defaultEnabled ) {
+	return [ ...collectNamespaces( abilities, savedGroups, view ).values() ].every( group =>
+		isNamespaceAllEnabled( group, savedGroups, defaultEnabled )
+	);
+}
+
+/**
  * Remote abilities section for the Read or Write view.
  *
  * @param {object}         props                 - Component props.
@@ -209,17 +259,7 @@ export default function RemoteAbilitiesSection( {
 						.map( ability => ability.name )
 				);
 				const intentKeys = [ ...group.keys, ...group.abilityKeys ];
-				const allEnabled =
-					group.keys.length > 0 &&
-					intentKeys.every( key => ( savedGroups[ key ] ?? defaultEnabled ) === true ) &&
-					group.abilities.every( ability =>
-						isRemoteAbilityEnabled(
-							savedGroups,
-							ability.name,
-							ability.meta?.annotations,
-							defaultEnabled
-						)
-					);
+				const allEnabled = isNamespaceAllEnabled( group, savedGroups, defaultEnabled );
 
 				return (
 					<McpGroupCard

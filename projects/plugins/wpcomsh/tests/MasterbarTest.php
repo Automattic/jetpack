@@ -55,6 +55,24 @@ class MasterbarTest extends WP_UnitTestCase {
 		$this->assertSame( $expected, get_option( 'wpcom_admin_interface', $passed_default ) );
 	}
 
+	public function test_admin_menu_api_request_is_admin_without_defining_wp_admin() {
+		$request_uri            = $_SERVER['REQUEST_URI'] ?? null;
+		$display_errors         = ini_get( 'display_errors' );
+		$_SERVER['REQUEST_URI'] = '/?rest_route=%2Fwpcom%2Fv2%2Fadmin-menu%2F';
+		$_GET['rest_route']     = '/wpcom/v2/admin-menu/';
+
+		try {
+			wpcomsh_mimic_admin_page_load();
+
+			$this->assertTrue( is_admin() );
+			$this->assertFalse( defined( 'WP_ADMIN' ) );
+		} finally {
+			unset( $GLOBALS['current_screen'], $_GET['rest_route'] );
+			$_SERVER['REQUEST_URI'] = $request_uri;
+			ini_set( 'display_errors', $display_errors ); // phpcs:ignore WordPress.PHP.IniSet.display_errors_Disallowed
+		}
+	}
+
 	public function test_plugin_install_redirect_runs_on_the_installer_screen() {
 		$this->assertSame( 10, has_action( 'load-plugin-install.php', 'wpcomsh_maybe_redirect_plugin_install_to_calypso' ) );
 	}

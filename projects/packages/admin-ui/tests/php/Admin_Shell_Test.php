@@ -838,6 +838,13 @@ class Admin_Shell_Test extends TestCase {
 				wp_enqueue_script( 'shell-test-other' );
 			}
 		);
+		$this->add_action(
+			'admin_print_scripts',
+			static function () {
+				wp_enqueue_script( 'shell-test-late', 'https://example.com/late.js', array(), '1', false );
+				wp_enqueue_style( 'shell-test-late', 'https://example.com/late.css', array(), '1' );
+			}
+		);
 		$this->start_host_page(
 			function () {
 				$GLOBALS['jetpack_shell_test_guest_page_routes_data'] = array( array( 'path' => '/' ) );
@@ -865,6 +872,8 @@ class Admin_Shell_Test extends TestCase {
 		$this->assertStringContainsString( 'dep.js', $html, 'dependencies of a member handle come along' );
 		$this->assertStringContainsString( 'init.js', $html, 'what its page init action registers comes along' );
 		$this->assertStringNotContainsString( 'other.js', $html );
+		$this->assertStringNotContainsString( 'late.js', $html, 'what another plugin enqueues on a print hook already ran on the host page' );
+		$this->assertStringNotContainsString( 'late.css', $html );
 	}
 
 	/**
@@ -1046,7 +1055,7 @@ class Admin_Shell_Test extends TestCase {
 		$reset();
 		Script_Data::register_assets();
 		$this->add_action( 'admin_print_scripts', array( Script_Data::class, 'render_script_data' ), 1 );
-		$this->start_host_page( '__return_null' );
+		$this->start_host_page( '__return_null', 'manage_options', array( Script_Data::SCRIPT_HANDLE ) );
 
 		$html = Admin_Shell::guest_assets( 'guest-page' );
 		$reset();

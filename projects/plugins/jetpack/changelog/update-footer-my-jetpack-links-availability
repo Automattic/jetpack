@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Admin pages: Show the footer's Features and Help links on WordPress.com sites that have My Jetpack, and stop linking the header to My Jetpack on sites that hide it.

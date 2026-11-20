@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Draw the legend labels and values in breakdown charts such as Devices, and the links in a video's Used on posts & pages card, at the same 14px size as the rest of the widget text.
