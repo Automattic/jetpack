@@ -388,7 +388,9 @@ function wpcom_jetpack_menu_has_my_jetpack() {
 
 /**
  * Whether the Jetpack menu shows a Protect entry: the Protect dashboard, the standalone plugin's
- * page, or the upgrade prompt. An entry hidden because the dashboard was switched off doesn't count.
+ * page, or the upgrade prompt. The entry WPCOM_Scan marks `hide-if-js` while the dashboard is
+ * switched off doesn't count. One admin-ui hides by policy still does, since it only leaves on
+ * admin_head, as wpcom_sort_jetpack_submenu() notes.
  *
  * Only meaningful once whatever serves the page has registered it, as with Backup below.
  *
