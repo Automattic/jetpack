@@ -127,7 +127,7 @@ class PrivateSiteTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * The index has no carve-out at dispatch: anything reaching it unauthenticated is denied.
+	 * The index is served before dispatch, so dispatch denies it like any other route.
 	 */
 	public function test_rest_dispatch_request_denies_the_index_route() {
 		wp_set_current_user( 0 );
@@ -165,7 +165,7 @@ class PrivateSiteTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Unauthenticated GET and HEAD of the index are both answered with the minimal index.
+	 * Logged-out GET and HEAD both get the minimal index.
 	 *
 	 * @dataProvider provide_index_read_methods
 	 *
@@ -197,7 +197,7 @@ class PrivateSiteTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Logged-out responses are edge-cacheable unless marked otherwise, which would outlive a launch.
+	 * The minimal index opts out of the edge cache.
 	 */
 	public function test_minimal_index_is_not_cacheable() {
 		wp_set_current_user( 0 );
@@ -209,8 +209,7 @@ class PrivateSiteTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * The `rest_index` chain gets a seed with no route table, so core's full index (and `?context=help`
-	 * route schemas) is never built for an anonymous visitor, but the cheap fields filters read are real.
+	 * Filters see the cheap index fields but no route table, even with `?context=help`.
 	 */
 	public function test_minimal_index_does_not_build_the_core_index() {
 		wp_set_current_user( 0 );
@@ -236,8 +235,7 @@ class PrivateSiteTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * A filter running after everyone else can't add to the served index, and can write to the
-	 * seed's maps as arrays without fataling.
+	 * A filter at `PHP_INT_MAX` can't add to the response, or fatal by writing to the seed's maps.
 	 */
 	public function test_minimal_index_ignores_additions_from_later_filters() {
 		wp_set_current_user( 0 );
@@ -260,7 +258,7 @@ class PrivateSiteTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Only reads of the index are short-circuited; writes fall through to normal routing.
+	 * Writes to the index fall through to normal routing.
 	 */
 	public function test_rest_pre_dispatch_ignores_writes_to_the_index() {
 		wp_set_current_user( 0 );
@@ -271,7 +269,7 @@ class PrivateSiteTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Only the index is short-circuited; other routes fall through to `rest_dispatch_request()`.
+	 * Other routes fall through to `rest_dispatch_request()`.
 	 */
 	public function test_rest_pre_dispatch_ignores_other_routes() {
 		wp_set_current_user( 0 );
@@ -294,7 +292,7 @@ class PrivateSiteTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * `init()` is what wires the short-circuit up on a live private site.
+	 * The other tests hook the filter themselves, so only this one catches `init()` losing it.
 	 */
 	public function test_init_hooks_the_rest_index_short_circuit() {
 		\Private_Site\init();
@@ -303,7 +301,7 @@ class PrivateSiteTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * A filter that replaces the index data with a non-array falls back to the empty allowlist.
+	 * Non-array index data from a filter falls back to the empty allowlist.
 	 */
 	public function test_minimal_index_survives_a_filter_returning_non_array_data() {
 		wp_set_current_user( 0 );
@@ -322,7 +320,7 @@ class PrivateSiteTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * `authentication` is served only as a map of methods, never as an arbitrary value.
+	 * A non-array `authentication` from a filter is dropped, not served.
 	 */
 	public function test_minimal_index_drops_a_non_array_authentication_block() {
 		wp_set_current_user( 0 );
@@ -340,7 +338,7 @@ class PrivateSiteTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * The discovery header points at the REST root under both pretty and plain permalinks.
+	 * The discovery header points at the REST root under pretty and plain permalinks.
 	 *
 	 * @dataProvider provide_permalink_structures
 	 *
@@ -357,7 +355,7 @@ class PrivateSiteTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Pretty and plain permalink structures; plain puts the REST root in `?rest_route=/`.
+	 * Permalink structures; plain puts the REST root in `?rest_route=/`.
 	 *
 	 * @return array
 	 */
@@ -369,8 +367,8 @@ class PrivateSiteTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Members get core's full, unmodified index. Runs in its own process because
-	 * `should_prevent_site_access()` caches its first answer.
+	 * Members get core's full index.
+	 * Runs in its own process: `should_prevent_site_access()` caches its first answer.
 	 *
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
@@ -389,7 +387,7 @@ class PrivateSiteTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * The trimmed index exposes only the allowlisted keys; everything else is withheld.
+	 * Only allowlisted keys survive the trim.
 	 */
 	public function test_build_minimal_rest_index_returns_only_allowlisted_keys() {
 		wp_set_current_user( 0 );
@@ -410,7 +408,7 @@ class PrivateSiteTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * The authentication block is the payload clients need, so it is copied through verbatim.
+	 * The `authentication` block is copied through verbatim.
 	 */
 	public function test_build_minimal_rest_index_preserves_the_authentication_block() {
 		wp_set_current_user( 0 );
@@ -424,7 +422,7 @@ class PrivateSiteTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * `authentication` is a map, so an empty one (no SSL, no auth plugins) must still serialize as an object.
+	 * An empty `authentication` (no SSL, no auth plugins) still serializes as `{}`.
 	 */
 	public function test_build_minimal_rest_index_serializes_empty_authentication_as_an_object() {
 		wp_set_current_user( 0 );
@@ -436,7 +434,7 @@ class PrivateSiteTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * The Application Passwords authorization URL -- the reason the index is exposed -- survives the trim.
+	 * The Application Passwords authorization URL survives the trim.
 	 */
 	public function test_minimal_index_keeps_the_application_passwords_authorization_url() {
 		wp_set_current_user( 0 );
@@ -454,7 +452,7 @@ class PrivateSiteTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * A third-party auth plugin that adds its method under `authentication` is kept alongside core's.
+	 * A third-party auth method under `authentication` is kept alongside core's.
 	 */
 	public function test_minimal_index_preserves_other_plugins_authentication_methods() {
 		wp_set_current_user( 0 );
@@ -478,7 +476,7 @@ class PrivateSiteTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * The index name is routed through the site-name mask rather than the raw option.
+	 * Private sites get the masked name.
 	 */
 	public function test_build_minimal_rest_index_masks_the_site_name() {
 		wp_set_current_user( 0 );
@@ -490,7 +488,7 @@ class PrivateSiteTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Coming-soon sites show their real name on the HTML page, and the index matches it.
+	 * Coming-soon sites get their real name, as on their HTML page.
 	 */
 	public function test_build_minimal_rest_index_shows_the_real_name_on_coming_soon_sites() {
 		wp_set_current_user( 0 );
@@ -500,13 +498,13 @@ class PrivateSiteTest extends WP_UnitTestCase {
 		$data = \Private_Site\build_minimal_rest_index( $this->full_rest_index_response() )->get_data();
 		wp_cache_delete( 'wpcom_coming_soon', 'wpcomsh' );
 
-		// As core's index serves it (the stored option), not texturized for display.
+		// The stored option, as core's index serves it: not texturized for display.
 		$this->assertSame( get_option( 'blogname' ), $data['name'] );
 		$this->assertStringContainsString( ' -- Launching...', $data['name'] );
 	}
 
 	/**
-	 * Every access-denied page, including the one the apps get, advertises the REST API root.
+	 * Every access-denied page, including the apps' preview page, prints the discovery link.
 	 *
 	 * @dataProvider provide_access_denied_templates
 	 *
@@ -554,7 +552,7 @@ class PrivateSiteTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Dispatches a request for the REST index with the private-site short-circuit hooked as `init()` does.
+	 * Dispatch a request for the REST index with the short-circuit hooked as `init()` does.
 	 *
 	 * @param string $method HTTP method.
 	 * @param array  $params Query parameters.
@@ -562,7 +560,6 @@ class PrivateSiteTest extends WP_UnitTestCase {
 	 */
 	private function dispatch_index( $method = 'GET', $params = array() ) {
 		if ( 0 === get_current_user_id() ) {
-			// `should_prevent_site_access()` caches its first answer for the whole process.
 			$this->assertTrue( \Private_Site\should_prevent_site_access(), 'An earlier test cached site access as allowed.' );
 		}
 		add_filter( 'rest_pre_dispatch', '\Private_Site\rest_pre_dispatch', 10, 3 );
@@ -574,7 +571,7 @@ class PrivateSiteTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Builds a response shaped like core's full REST index, including fields a private site must not leak.
+	 * A response shaped like core's full REST index, including fields a private site must not leak.
 	 *
 	 * @return WP_REST_Response
 	 */

@@ -104,7 +104,7 @@ function init() {
 	// Scrutinize REST API requests.
 	add_filter( 'rest_dispatch_request', '\Private_Site\rest_dispatch_request', 10, 3 );
 
-	// Answer unauthenticated reads of the REST index with only what a client needs to authenticate.
+	// Serve logged-out visitors a minimal REST index, for auth discovery.
 	add_filter( 'rest_pre_dispatch', '\Private_Site\rest_pre_dispatch', 10, 3 );
 
 	// Prevent Pinterest pinning.
@@ -451,7 +451,7 @@ function send_access_denied_error_response() {
 		);
 	}
 
-	// Advertise the REST API root so clients can discover how to authenticate.
+	// Advertise the REST API root, which tells clients how to authenticate.
 	$link_header = rest_api_discovery_link_header();
 	if ( '' !== $link_header && ! headers_sent() ) {
 		header( $link_header, false );
@@ -464,8 +464,8 @@ function send_access_denied_error_response() {
 /**
  * The `Link:` header advertising the REST API root, or '' when there is none.
  *
- * Built here rather than by `rest_output_link_header()`, so no `alternate` link naming a private
- * resource can appear if this ever runs after the main query.
+ * Not `rest_output_link_header()`: after the main query, that also adds an `alternate` link
+ * naming the private resource.
  *
  * @return string
  */
@@ -476,7 +476,7 @@ function rest_api_discovery_link_header() {
 }
 
 /**
- * Print the `<head>` counterpart of `rest_api_discovery_link_header()` for the access-denied templates.
+ * Print the REST API discovery `<link>` tag for the access-denied templates.
  */
 function print_rest_api_discovery_link() {
 	$api_root = get_rest_url();
@@ -598,10 +598,9 @@ function rest_dispatch_request( $dispatch_result, $request, $route ) {
 }
 
 /**
- * Answer an unauthenticated read of the REST index with only what a client needs to authenticate.
+ * Answer a logged-out read of the REST index with only what a client needs to authenticate.
  *
- * Short-circuits before core's `get_index()`, so the route table is never built for anonymous
- * visitors, and trims after the `rest_index` filters, so no filter can add to what is served.
+ * Runs before core's `get_index()`, so the route table is never built for anonymous visitors.
  *
  * @param mixed           $result  Response to replace the requested version with.
  * @param WP_REST_Server  $server  Server instance.
@@ -619,7 +618,7 @@ function rest_pre_dispatch( $result, $server, $request ) {
 		return $result;
 	}
 
-	// Shaped like core's index so `rest_index` filters can read and extend it; only `routes` is costly, so it stays empty.
+	// Shaped like core's index for `rest_index` filters; `routes` is the costly part, so it stays empty.
 	$seed = new WP_REST_Response(
 		array(
 			'name'           => masked_site_name(),
@@ -640,7 +639,7 @@ function rest_pre_dispatch( $result, $server, $request ) {
 }
 
 /**
- * Rebuild a REST index from an allowlist, so anything core or a plugin adds stays hidden until named here.
+ * Rebuild a REST index from an allowlist, so nothing a `rest_index` filter adds is served unless named here.
  *
  * @param WP_REST_Response $response REST index response, after the `rest_index` filters.
  * @return WP_REST_Response
@@ -654,7 +653,6 @@ function build_minimal_rest_index( $response ) {
 		? $data['authentication']
 		: (object) array();
 
-	// Allowlist. Anything not named here is intentionally withheld.
 	$minimal = new WP_REST_Response(
 		array(
 			'name'           => masked_site_name(),
@@ -668,14 +666,14 @@ function build_minimal_rest_index( $response ) {
 		)
 	);
 
-	// Core only sends no-cache headers to logged-in users; the edge must not keep this past launch.
+	// Core sends no-cache headers only to logged-in users, and a cached copy would outlive the site's launch.
 	$minimal->header( 'Cache-Control', 'no-cache, no-store, must-revalidate, max-age=0' );
 
 	return $minimal;
 }
 
 /**
- * The raw site name core's index serves, masked as the HTML page is ('Private Site' unless coming soon).
+ * The site name as core's index serves it, masked like the HTML page ('Private Site' unless coming soon).
  *
  * @return string
  */
