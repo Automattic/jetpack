@@ -1,33 +1,30 @@
 import { render, screen } from '@testing-library/react';
 
 let mockStatus = 'active';
+let mockLatestBackup = { is_backing_up: false, last_backup_time: '2026-09-08T14:05:00+00:00' };
 
 jest.mock( '../../../connected-product-card', () => {
 	const { createElement } = jest.requireActual( 'react' );
 	return {
 		__esModule: true,
-		default: ( { children } ) => createElement( 'div', null, children ),
+		default: ( { Description, children } ) =>
+			createElement( 'div', null, Description && createElement( Description ), children ),
 	};
 } );
 
 jest.mock( '../../../../data/products/use-product', () => ( {
 	__esModule: true,
-	default: () => ( { detail: { status: mockStatus, doesModuleNeedAttention: false } } ),
+	default: () => ( {
+		detail: {
+			status: mockStatus,
+			doesModuleNeedAttention: mockStatus === 'needs_attention_error' && { data: {} },
+		},
+	} ),
 } ) );
 
 jest.mock( '../../../../data/use-simple-query', () => ( {
 	__esModule: true,
-	default: () => ( {
-		data: {
-			last_rewindable_event: {
-				gridicon: 'history',
-				summary: 'Post published',
-				published: '2026-09-08T00:00:00+00:00',
-			},
-			undo_backup_id: 42,
-		},
-		isLoading: false,
-	} ),
+	default: () => ( { data: mockLatestBackup, isLoading: false, isError: false } ),
 } ) );
 
 jest.mock(
@@ -53,8 +50,11 @@ jest.mock( '../../../../data/utils/get-my-jetpack-window-state', () => ( {
  * @return {Function} The BackupCard component compiled against that shape.
  */
 const loadBackupCard = withEsModuleFlag => {
+	const React = require( 'react' );
 	let BackupCard;
 	jest.isolateModules( () => {
+		// The card must share the renderer's React, or its hooks run against a second copy.
+		jest.doMock( 'react', () => React );
 		jest.doMock( 'gridicons', () => {
 			const actual = jest.requireActual( 'gridicons' );
 			return withEsModuleFlag ? actual : { default: actual.default };
@@ -64,11 +64,16 @@ const loadBackupCard = withEsModuleFlag => {
 	return BackupCard;
 };
 
-describe( 'BackupCard activity icon', () => {
+describe( 'BackupCard error icon', () => {
+	afterEach( () => {
+		mockStatus = 'active';
+	} );
+
 	it.each( [
 		[ 'exports __esModule (webpack, jest)', true ],
 		[ 'omits __esModule (esbuild node interop)', false ],
-	] )( 'renders the last activity gridicon when gridicons %s', ( _label, withEsModuleFlag ) => {
+	] )( 'renders the notice gridicon when gridicons %s', ( _label, withEsModuleFlag ) => {
+		mockStatus = 'needs_attention_error';
 		const BackupCard = loadBackupCard( withEsModuleFlag );
 
 		const { container } = render( <BackupCard admin={ true } /> );
@@ -76,9 +81,30 @@ describe( 'BackupCard activity icon', () => {
 		/* eslint-disable testing-library/no-container, testing-library/no-node-access -- gridicons renders a bare <svg> the test cannot give an attribute. */
 		const icon = container.querySelector( 'svg.gridicon' );
 		/* eslint-enable testing-library/no-container, testing-library/no-node-access */
-		expect( icon ).toHaveClass( 'gridicons-history' );
-		expect( icon ).toHaveAttribute( 'height', '24' );
-		expect( icon ).toHaveAttribute( 'width', '24' );
+		expect( icon ).toHaveClass( 'gridicons-notice' );
+		expect( icon ).toHaveAttribute( 'height', '16' );
+	} );
+} );
+
+describe( 'BackupCard with backups running', () => {
+	it.each( [
+		[ { is_backing_up: false, last_backup_time: null }, [ 'Waiting on first backup' ] ],
+		[ { is_backing_up: true, last_backup_time: null }, [ 'Backing up now…' ] ],
+		[
+			{ is_backing_up: true, last_backup_time: '2026-09-08T14:05:00+00:00' },
+			[ 'Backing up now…', 'Last backup: September 8, 2026 2:05 pm' ],
+		],
+		[
+			{ is_backing_up: false, last_backup_time: '2026-09-08T14:05:00+00:00' },
+			[ 'Last backup: September 8, 2026 2:05 pm' ],
+		],
+	] )( 'describes %o', ( latestBackup, texts ) => {
+		mockLatestBackup = latestBackup;
+		const BackupCard = require( '../index' ).default;
+
+		render( <BackupCard admin={ true } /> );
+
+		texts.forEach( text => expect( screen.getByText( text ) ).toBeInTheDocument() );
 	} );
 } );
 

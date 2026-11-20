@@ -111,6 +111,15 @@ class Backup extends Hybrid_Product {
 				'permission_callback' => __CLASS__ . '::permissions_callback',
 			)
 		);
+		register_rest_route(
+			'my-jetpack/v1',
+			'/site/backup/latest',
+			array(
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => __CLASS__ . '::get_site_backup_latest',
+				'permission_callback' => __CLASS__ . '::permissions_callback',
+			)
+		);
 	}
 
 	/**
@@ -277,6 +286,61 @@ class Backup extends Hybrid_Product {
 		}
 
 		return rest_ensure_response( $undo_event );
+	}
+
+	/**
+	 * Report when the site last finished a backup, and whether one is running now.
+	 *
+	 * @return \WP_REST_Response|WP_Error
+	 */
+	public static function get_site_backup_latest() {
+		$backups = self::get_latest_backups();
+
+		if ( is_wp_error( $backups ) || ! is_array( $backups ) ) {
+			return new WP_Error(
+				'backup_latest_fetch_failed',
+				__( 'Could not fetch the latest backups.', 'jetpack-my-jetpack' ),
+				array( 'status' => 502 )
+			);
+		}
+
+		return rest_ensure_response( self::summarize_latest_backups( $backups ) );
+	}
+
+	/**
+	 * Summarize the backup records WordPress.com lists, newest first.
+	 *
+	 * @param array $backups Backup records from `/sites/%d/rewind/backups`.
+	 * @return array{is_backing_up: bool, last_backup_time: ?string} The time is ISO 8601.
+	 */
+	public static function summarize_latest_backups( array $backups ) {
+		$is_backing_up = null;
+		$last_finished = null;
+
+		foreach ( $backups as $backup ) {
+			$backup = (object) $backup;
+			if ( empty( $backup->is_backup ) ) {
+				continue;
+			}
+
+			$status = $backup->status ?? '';
+			if ( null === $is_backing_up ) {
+				$is_backing_up = 'started' === $status;
+			}
+
+			if ( 'finished' === $status ) {
+				$last_finished = $backup;
+				break;
+			}
+		}
+
+		// WordPress.com reports times in UTC without saying so.
+		$finished_at = isset( $last_finished->last_updated ) ? strtotime( $last_finished->last_updated . ' UTC' ) : false;
+
+		return array(
+			'is_backing_up'    => (bool) $is_backing_up,
+			'last_backup_time' => $finished_at ? gmdate( 'c', $finished_at ) : null,
+		);
 	}
 
 	/**
