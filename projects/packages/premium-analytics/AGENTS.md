@@ -51,6 +51,7 @@ follow their own report (`posts`, `videos`, `authors`) rather than declaring a t
 
 ```text
 src/class-analytics.php                 # entry: loads build, registers menu + routes
+src/class-dashboard-support.php         # entry without Stats v2: dashboard API + shared script modules
 src/dashboard-sections.php              # section API: registry helpers, section script data, REST
 src/default-dashboard-sections.php      # the package's own sections, registered through that API
 docs/dashboard-sections.md              # how a section is registered, served and rendered (diagrams)
