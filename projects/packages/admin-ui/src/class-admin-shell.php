@@ -45,14 +45,14 @@ class Admin_Shell {
 	const CLIENT_MODULE = '@automattic/jetpack-admin-shell';
 
 	/**
+	 * The filter Script_Data builds `window.JetpackScriptData` with on admin pages, once per request.
+	 */
+	const SCRIPT_DATA_FILTER = 'jetpack_admin_js_script_data';
+
+	/**
 	 * Hooks where guests add their page data. On a host page, callbacks a guest adds here are removed: the guest endpoint runs them later.
 	 */
 	const DEFERRED_HOOKS = array( 'admin_enqueue_scripts', 'admin_print_scripts', 'admin_print_footer_scripts', self::SCRIPT_DATA_FILTER );
-
-	/**
-	 * The filter Script_Data builds `window.JetpackScriptData` with on admin pages.
-	 */
-	const SCRIPT_DATA_FILTER = 'jetpack_admin_js_script_data';
 
 	/**
 	 * Whether init() has run.
@@ -732,7 +732,7 @@ class Admin_Shell {
 	}
 
 	/**
-	 * A short hash of each top-level `JetpackScriptData` key's value.
+	 * A short hash of each top-level `JetpackScriptData` key's value, leaving out values that can't be encoded.
 	 *
 	 * @param array $data Script data.
 	 * @return array<string, string>
@@ -740,13 +740,16 @@ class Admin_Shell {
 	private static function script_data_hashes( array $data ) {
 		$hashes = array();
 		foreach ( $data as $key => $value ) {
-			$hashes[ $key ] = self::short_hash( (string) wp_json_encode( $value, JSON_UNESCAPED_SLASHES ) );
+			$json = wp_json_encode( $value, JSON_UNESCAPED_SLASHES );
+			if ( is_string( $json ) ) {
+				$hashes[ $key ] = self::short_hash( $json );
+			}
 		}
 		return $hashes;
 	}
 
 	/**
-	 * Hash a string, keeping enough of it that two different texts on one page never match.
+	 * A short hash of a string; at 48 bits, collisions between the texts of one page are negligible.
 	 *
 	 * @param string $text Text.
 	 * @return string
@@ -758,7 +761,8 @@ class Admin_Shell {
 	/**
 	 * The inline data (localized, before and after) of each registered script handle given.
 	 *
-	 * Data printed after a script is hashed with its handle, since it can set up that script.
+	 * Data printed after a script is hashed with its handle, since it can set up that script. Data printed before one
+	 * is not, so the same state on another handle matches: such data must be safe to skip once the host ran it.
 	 *
 	 * @param string[] $handles Script handles.
 	 * @return array<array{0: string, 1: string, 2: string, 3: int|null}> Hash, handle, position, and index into the position's list or null for the localized string.
