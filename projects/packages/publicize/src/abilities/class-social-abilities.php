@@ -38,6 +38,13 @@ class Social_Abilities extends Registrar {
 	const MAX_SKIPPED       = 100;
 
 	/**
+	 * {@inheritDoc}
+	 */
+	protected static function enabled_by_default(): bool {
+		return true;
+	}
+
+	/**
 	 * Return the ability category slug.
 	 *
 	 * @return string

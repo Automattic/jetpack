@@ -52,7 +52,7 @@ class RegistrarTest extends TestCase {
 	}
 
 	/**
-	 * The gate filter defaults to true, and init() registers nothing when it returns false.
+	 * A registrar on by default passes true as the gate filter's default, and init() registers nothing when the filter returns false.
 	 */
 	public function test_init_registers_nothing_when_the_gate_filter_returns_false(): void {
 		Filters\expectApplied( 'jetpack_wp_abilities_enabled' )
@@ -67,6 +67,17 @@ class RegistrarTest extends TestCase {
 		Functions\expect( 'wp_register_ability' )->never();
 
 		TestFixtureRegistrar::init();
+	}
+
+	/**
+	 * A registrar from a release before the per-registrar default stays off when nothing filters the gate.
+	 */
+	public function test_init_registers_nothing_for_a_registrar_without_its_own_default(): void {
+		Functions\expect( 'doing_action' )->never();
+		Actions\expectAdded( Registrar::CATEGORIES_INIT_ACTION )->never();
+		Actions\expectAdded( Registrar::ABILITIES_INIT_ACTION )->never();
+
+		TestExplicitCategoryRegistrar::init();
 	}
 
 	/**
@@ -344,6 +355,10 @@ class RegistrarTest extends TestCase {
 }
 
 class TestFixtureRegistrar extends Registrar {
+	protected static function enabled_by_default(): bool {
+		return true;
+	}
+
 	public static function get_category_slug(): string {
 		return 'fixture/slug';
 	}

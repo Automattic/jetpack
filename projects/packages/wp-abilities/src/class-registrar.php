@@ -63,9 +63,9 @@ abstract class Registrar {
 	/**
 	 * Wire up the Abilities API registrations.
 	 *
-	 * Gated behind the `jetpack_wp_abilities_enabled` filter, which defaults
-	 * to `true`. Return `false` from it to turn registration off for a site
-	 * or a single request.
+	 * Gated behind the `jetpack_wp_abilities_enabled` filter, whose default
+	 * comes from `enabled_by_default()`. Return `false` from it to turn
+	 * registration off for a site or a single request.
 	 *
 	 * When the filter returns `true`, each registration method runs inside its
 	 * lifecycle action: right away if `init()` is called while that action
@@ -79,15 +79,15 @@ abstract class Registrar {
 		/**
 		 * Filters whether Jetpack Abilities API registration should run.
 		 *
-		 * Default `true`. Return `false` to skip registration for this
-		 * request, for example to turn Jetpack's abilities off on a site.
+		 * Return `false` to skip registration for this request, for
+		 * example to turn Jetpack's abilities off on a site.
 		 *
 		 * @since 0.1.0
-		 * @since $$next-version$$ Defaults to `true`.
+		 * @since $$next-version$$ Defaults to the registrar's `enabled_by_default()`.
 		 *
-		 * @param bool $enabled Whether to register abilities. Default true.
+		 * @param bool $enabled Whether to register abilities. Default is the registrar's `enabled_by_default()`.
 		 */
-		if ( ! apply_filters( 'jetpack_wp_abilities_enabled', true ) ) {
+		if ( ! apply_filters( 'jetpack_wp_abilities_enabled', static::enabled_by_default() ) ) {
 			return;
 		}
 
@@ -102,6 +102,19 @@ abstract class Registrar {
 		} else {
 			add_action( self::ABILITIES_INIT_ACTION, array( static::class, 'register_abilities' ) );
 		}
+	}
+
+	/**
+	 * Whether this registrar's abilities register when nothing filters `jetpack_wp_abilities_enabled`.
+	 *
+	 * The newest copy of this class loads for every plugin on a site, so the
+	 * default belongs to each registrar: a registrar from an older plugin
+	 * release doesn't override this and stays off.
+	 *
+	 * @return bool
+	 */
+	protected static function enabled_by_default(): bool {
+		return false;
 	}
 
 	/**
