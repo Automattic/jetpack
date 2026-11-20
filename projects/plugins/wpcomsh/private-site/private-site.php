@@ -666,8 +666,9 @@ function build_minimal_rest_index( $response ) {
 		)
 	);
 
-	// Core sends no-cache headers only to logged-in users, and a cached copy would outlive the site's launch.
-	$minimal->header( 'Cache-Control', 'no-cache, no-store, must-revalidate, max-age=0' );
+	// Short-lived so a cached copy ages out soon after launch. Not `no-store`: the edge never
+	// replaces an entry it already holds with an uncacheable response.
+	$minimal->header( 'Cache-Control', 'max-age=60, must-revalidate' );
 
 	return $minimal;
 }

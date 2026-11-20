@@ -197,15 +197,14 @@ class PrivateSiteTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * The minimal index opts out of the edge cache.
+	 * The minimal index is cacheable, but only briefly.
 	 */
-	public function test_minimal_index_is_not_cacheable() {
+	public function test_minimal_index_is_cached_briefly() {
 		wp_set_current_user( 0 );
 
 		$headers = $this->dispatch_index()->get_headers();
 
-		$this->assertArrayHasKey( 'Cache-Control', $headers );
-		$this->assertStringContainsString( 'no-store', $headers['Cache-Control'] );
+		$this->assertSame( 'max-age=60, must-revalidate', $headers['Cache-Control'] ?? null );
 	}
 
 	/**
