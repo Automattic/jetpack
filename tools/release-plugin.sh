@@ -39,10 +39,10 @@ FROM_RELEASE_BRANCH_STEPS=(
 	'do_changelogs'
 	'do_readme'
 	'do_prerelease_branch_prep'
-	# 'do_push_and_build'
-	# 'do_packagist_check'
-	# 'do_push_release_branch'
-	# 'do_create_backport_PR'
+	'do_push_and_build'
+	'do_packagist_check'
+	'do_push_release_branch'
+	'do_create_backport_PR'
 )
 
 # Instructions
