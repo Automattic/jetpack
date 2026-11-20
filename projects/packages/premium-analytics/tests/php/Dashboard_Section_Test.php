@@ -1328,6 +1328,62 @@ class Dashboard_Section_Test extends BaseTestCase {
 	}
 
 	/**
+	 * The AI tab needs its flag, a site with edge data, and a reader who may see Stats.
+	 *
+	 * @dataProvider provide_ai_section_availability
+	 *
+	 * @param bool $flag     Whether the flag is on.
+	 * @param bool $vip      Whether the site is a VIP site.
+	 * @param bool $is_admin Whether the reader is an administrator.
+	 * @param bool $expected Whether the tab is offered.
+	 */
+	#[DataProvider( 'provide_ai_section_availability' )]
+	public function test_ai_section_availability( $flag, $vip, $is_admin, $expected ) {
+		if ( $flag ) {
+			add_filter( 'jetpack_feature_flag_enabled_' . AI_Traffic::FLAG, '__return_true' );
+		}
+		Constants::set_constant( 'WPCOM_IS_VIP_ENV', $vip );
+		if ( $is_admin ) {
+			$this->set_admin_user();
+		}
+
+		register_default_dashboard_sections();
+
+		try {
+			$this->assertSame( $expected, in_array( 'analytics/ai', $this->available_section_ids(), true ) );
+		} finally {
+			remove_all_filters( 'jetpack_feature_flag_enabled_' . AI_Traffic::FLAG );
+		}
+	}
+
+	/**
+	 * Data provider for test_ai_section_availability.
+	 *
+	 * @return array
+	 */
+	public static function provide_ai_section_availability() {
+		return array(
+			'flag off on a VIP site'           => array( false, true, true, false ),
+			'flag on without edge data'        => array( true, false, true, false ),
+			'flag on, VIP site, administrator' => array( true, true, true, true ),
+			'flag on, VIP site, logged out'    => array( true, true, false, false ),
+		);
+	}
+
+	/**
+	 * The AI availability filter cannot hand the tab to a reader who may not see Stats.
+	 */
+	public function test_ai_availability_filter_does_not_override_the_capability() {
+		add_filter( AI_Traffic::AVAILABLE_FILTER, '__return_true' );
+
+		try {
+			$this->assertFalse( AI_Traffic::is_available() );
+		} finally {
+			remove_all_filters( AI_Traffic::AVAILABLE_FILTER );
+		}
+	}
+
+	/**
 	 * The site's own opt-in no longer limits the dashboard to a fixed list of tabs.
 	 */
 	public function test_site_opt_in_exposes_every_available_section() {

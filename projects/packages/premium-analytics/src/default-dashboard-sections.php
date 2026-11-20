@@ -344,6 +344,12 @@ function register_default_dashboard_sections( $registry = null ) {
 			),
 			'default_layout'      => __NAMESPACE__ . '\\get_subscribers_section_default_layout',
 		),
+		'analytics/ai'          => array(
+			'label'        => __( 'AI', 'jetpack-premium-analytics-pkg' ),
+			'title'        => __( 'AI and bot traffic', 'jetpack-premium-analytics-pkg' ),
+			'order'        => 40,
+			'is_available' => array( AI_Traffic::class, 'is_available' ),
+		),
 	);
 
 	foreach ( $sections as $id => $args ) {
