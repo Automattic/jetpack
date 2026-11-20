@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Shared modules: Split the shared code into chunks by which dashboards use it, so a dashboard downloads only the shared code it imports.
