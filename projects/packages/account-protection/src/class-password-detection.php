@@ -679,24 +679,30 @@ class Password_Detection {
 		// The time it was taken, then digits that tell this request's lock from any other.
 		$value = sprintf( '%d.%09d', $now, wp_rand( 0, 999999999 ) );
 
-		// INSERT IGNORE adds the row only when there is none, as WP_Upgrader::create_lock() does.
+		// A plain INSERT, unlike INSERT IGNORE, reports which key refused the row.
+		$suppress = $wpdb->suppress_errors();
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- The Options API cannot add a row only when it is missing; the table name is not user input.
-		$taken = $wpdb->query( $wpdb->prepare( "INSERT IGNORE INTO {$table} (option_name, option_value, autoload) VALUES (%s, %s, 'off')", $name, $value ) );
+		$taken = $wpdb->query( $wpdb->prepare( "INSERT INTO {$table} (option_name, option_value, autoload) VALUES (%s, %s, 'off')", $name, $value ) );
+		$error = $wpdb->last_error;
+		$wpdb->suppress_errors( $suppress );
 
 		if ( ! $taken ) {
+			// Only a duplicate lock name means the lock is held; any other error means the table refused the row (e.g. wp_options lost AUTO_INCREMENT).
+			$held = '' === $error || false !== strpos( $error, "'{$name}'" ) || false !== strpos( $error, 'option_name' );
+			if ( ! $held ) {
+				return true;
+			}
+
 			// Take over a lock that a request left behind without releasing it.
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- See above.
 			$taken = $wpdb->query( $wpdb->prepare( "UPDATE {$table} SET option_value = %s WHERE option_name = %s AND option_value + 0 < %d", $value, $name, $now - Config::PASSWORD_DETECTION_ATTEMPT_LOCK_EXPIRATION ) );
+			if ( ! $taken ) {
+				return false;
+			}
 		}
 
-		if ( $taken ) {
-			$this->attempt_locks[ $user_id ] = $value;
-			return true;
-		}
-
-		// No row to wait on means the table refused it (e.g. wp_options lost AUTO_INCREMENT), so check unlocked rather than lock the user out.
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- See above.
-		return null === $wpdb->get_var( $wpdb->prepare( "SELECT option_value FROM {$table} WHERE option_name = %s", $name ) );
+		$this->attempt_locks[ $user_id ] = $value;
+		return true;
 	}
 
 	/**
