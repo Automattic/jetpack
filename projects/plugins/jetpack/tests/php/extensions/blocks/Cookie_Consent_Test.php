@@ -25,6 +25,7 @@ class Cookie_Consent_Test extends \WP_UnitTestCase {
 		wp_deregister_style( self::HANDLE );
 		wp_styles()->done = array_diff( wp_styles()->done, array( self::HANDLE ) );
 		unset( $_COOKIE[ CookieConsent\COOKIE_NAME ] );
+		WP_Style_Engine_CSS_Rules_Store::remove_all_stores();
 		if ( WP_Block_Type_Registry::get_instance()->is_registered( 'jetpack/cookie-consent' ) ) {
 			unregister_block_type( 'jetpack/cookie-consent' );
 		}
@@ -89,6 +90,18 @@ class Cookie_Consent_Test extends \WP_UnitTestCase {
 	 * @return string The footer output.
 	 */
 	private function render_footer_with_custom_css() {
+		return $this->render_footer_with_template(
+			'<!-- wp:jetpack/cookie-consent {"style":{"css":"border-radius: 10px;"}} --><div class="wp-block-jetpack-cookie-consent" role="dialog" aria-modal="true"><p>Hi</p><span>30</span></div><!-- /wp:jetpack/cookie-consent -->'
+		);
+	}
+
+	/**
+	 * Render a saved template on a page whose head already printed.
+	 *
+	 * @param string $template Serialized banner block.
+	 * @return string The footer output.
+	 */
+	private function render_footer_with_template( $template ) {
 		register_block_type(
 			'jetpack/cookie-consent',
 			array(
@@ -99,12 +112,10 @@ class Cookie_Consent_Test extends \WP_UnitTestCase {
 						'default' => false,
 					),
 				),
+				'supports'        => array( 'color' => array( 'link' => true ) ),
 			)
 		);
-		update_option(
-			'cookie_consent_template',
-			'<!-- wp:jetpack/cookie-consent {"style":{"css":"border-radius: 10px;"}} --><div class="wp-block-jetpack-cookie-consent" role="dialog" aria-modal="true"><p>Hi</p><span>30</span></div><!-- /wp:jetpack/cookie-consent -->'
-		);
+		update_option( 'cookie_consent_template', $template );
 		wp_styles()->done[] = self::HANDLE;
 
 		ob_start();
@@ -141,5 +152,34 @@ class Cookie_Consent_Test extends \WP_UnitTestCase {
 		$_COOKIE[ CookieConsent\COOKIE_NAME ] = '1';
 
 		$this->assertSame( '', $this->render_footer_with_custom_css() );
+	}
+
+	/**
+	 * The banner's link color reaches the page although core compiled block supports earlier.
+	 */
+	public function test_prints_the_banner_link_color_rule() {
+		$output = $this->render_footer_with_template(
+			'<!-- wp:jetpack/cookie-consent {"style":{"elements":{"link":{"color":{"text":"#ffffff"}}}}} --><div class="wp-block-jetpack-cookie-consent has-link-color" role="dialog" aria-modal="true"><p>Hi <a href="/privacy">Privacy</a></p><span>30</span></div><!-- /wp:jetpack/cookie-consent -->'
+		);
+
+		$this->assertSame( 1, preg_match( '/<style id="jetpack-cookie-consent-block-supports-css">\.(wp-elements-[0-9a-f]+) a:where\(:not\(\.wp-element-button\)\)\{color:#ffffff;\}<\/style>/', $output, $matches ), $output );
+		$tags = new WP_HTML_Tag_Processor( $output );
+		$tags->next_tag( 'style' );
+		$tags->next_tag();
+		$this->assertSame( 'dialog', $tags->get_attribute( 'role' ) );
+		$this->assertTrue( $tags->has_class( $matches[1] ) );
+	}
+
+	/**
+	 * Rules other blocks queued before the banner are left to core.
+	 */
+	public function test_prints_no_block_supports_rules_queued_before_the_banner() {
+		wp_style_engine_get_styles( array( 'color' => array( 'text' => '#000000' ) ), array( 'selector' => '.earlier a', 'context' => 'block-supports' ) );
+
+		$output = $this->render_footer_with_template(
+			'<!-- wp:jetpack/cookie-consent --><div class="wp-block-jetpack-cookie-consent" role="dialog" aria-modal="true"><p>Hi</p><span>30</span></div><!-- /wp:jetpack/cookie-consent -->'
+		);
+
+		$this->assertStringNotContainsString( 'jetpack-cookie-consent-block-supports-css', $output );
 	}
 }
