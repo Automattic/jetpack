@@ -3,18 +3,23 @@
 namespace Automattic\Jetpack\My_Jetpack;
 
 use Automattic\Jetpack\Connection\Tokens;
+use Automattic\Jetpack\My_Jetpack\Products\Pro;
 use Automattic\Jetpack\My_Jetpack\Products\Stats;
+use Automattic\Jetpack\PremiumAnalytics\Analytics;
 use Jetpack_Options;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use WorDBless\Options as WorDBless_Options;
 use WorDBless\Users as WorDBless_Users;
+
+require_once __DIR__ . '/assets/premium-analytics/class-analytics.php';
 
 /**
  * Unit tests for the Stats product's destination URLs.
  *
  * The Premium Analytics dashboard replaces the Stats page, so both URLs this
- * product hands the UI have to follow it. The flag lives on the Jetpack plugin,
- * mocked here through ./assets/jetpack-mock-plugin.txt.
+ * product hands the UI have to follow it. The Jetpack plugin is mocked through
+ * ./assets/jetpack-mock-plugin.txt, the package through ./assets/premium-analytics/class-analytics.php.
  *
  * @package automattic/my-jetpack
  * @see \Automattic\Jetpack\My_Jetpack\Products\Stats
@@ -75,6 +80,7 @@ class Stats_Product_Test extends TestCase {
 	public function tearDown(): void {
 		// @phan-suppress-next-line PhanUndeclaredStaticProperty -- It's declared on the mock from ./assets/jetpack-mock-plugin.txt
 		\Jetpack::$mock_premium_analytics_enabled = false;
+		Analytics::$mock_initialized              = false;
 
 		$this->uninstall_standalone_plugin();
 
@@ -120,6 +126,16 @@ class Stats_Product_Test extends TestCase {
 		$this->assertStringNotContainsString( 'page=stats', (string) $manage_url );
 	}
 
+	/**
+	 * The standalone Stats plugin boots the dashboard without the Jetpack plugin.
+	 */
+	public function test_manage_url_follows_premium_analytics_booted_by_another_plugin() {
+		$this->set_premium_analytics_enabled( false );
+		Analytics::$mock_initialized = true;
+
+		$this->assertSame( admin_url( 'admin.php?page=' . Stats::PREMIUM_ANALYTICS_PAGE_SLUG ), Stats::get_manage_url() );
+	}
+
 	public function test_post_activation_url_reports_the_plan_choice_to_the_stats_dashboard() {
 		$this->set_premium_analytics_enabled( false );
 
@@ -137,6 +153,21 @@ class Stats_Product_Test extends TestCase {
 		$this->assertIsString( $purchase_url );
 		$this->assertStringContainsString( 'page=stats', $purchase_url );
 		$this->assertStringContainsString( '#!/stats/purchase/123', $purchase_url );
+	}
+
+	public function test_host_purchase_url_replaces_the_stats_purchase_screen() {
+		$this->set_premium_analytics_enabled( false );
+		set_transient( Wpcom_Products::MY_JETPACK_PURCHASES_TRANSIENT_KEY, array(), HOUR_IN_SECONDS );
+		set_transient( Product::MY_JETPACK_SITE_FEATURES_TRANSIENT_KEY, array( 'active' => array() ), HOUR_IN_SECONDS );
+		$send_to_host = static function ( $upgrade, $slug ) {
+			return 'stats' === $slug ? array_merge( $upgrade, array( 'url' => 'https://example.com/plans' ) ) : $upgrade;
+		};
+		add_filter( 'jetpack_feature_upgrade', $send_to_host, 10, 2 );
+
+		$purchase_url = Stats::get_purchase_url();
+		remove_filter( 'jetpack_feature_upgrade', $send_to_host, 10 );
+
+		$this->assertSame( 'https://example.com/plans', $purchase_url );
 	}
 
 	/**
@@ -168,6 +199,24 @@ class Stats_Product_Test extends TestCase {
 		activate_plugin( self::STANDALONE_PLUGIN_FILE );
 
 		$this->assertTrue( Stats::is_standalone_plugin_active() );
+	}
+
+	/**
+	 * @dataProvider provide_pro_subscriptions
+	 * @param string $slug Pro subscription slug.
+	 */
+	#[DataProvider( 'provide_pro_subscriptions' )]
+	public function test_pro_owners_do_not_get_standalone_stats_upgrades( $slug ) {
+		Wpcom_Products::reset_purchases_cache();
+		set_transient( Wpcom_Products::MY_JETPACK_PURCHASES_TRANSIENT_KEY, array( (object) array( 'product_slug' => $slug ) ), HOUR_IN_SECONDS );
+		$this->assertFalse( Stats::is_upgradable() );
+	}
+
+	/**
+	 * @return array Pro subscription terms.
+	 */
+	public static function provide_pro_subscriptions() {
+		return array_map( static fn( $slug ) => array( $slug ), Pro::get_paid_plan_product_slugs() );
 	}
 
 	/**

@@ -88,7 +88,7 @@ class Inline_Search_Test extends TestCase {
 	 */
 	public function test_deprecated_jetpack_search_class() {
 		$search = Inline_Search::instance();
-		self::assertTrue( is_a( $search, 'Automattic\Jetpack\Search\Inline_Search' ) );
+		self::assertInstanceOf( \Automattic\Jetpack\Search\Inline_Search::class, $search );
 	}
 
 	/**

@@ -30,8 +30,12 @@ require_once __DIR__ . '/class-jetpack-subscription-site.php';
  * registration if we need to.
  */
 function register_block() {
+	if ( ! Jetpack::is_module_active( 'subscriptions' ) ) {
+		Jetpack_Gutenberg::set_extension_unavailable( 'subscriber-login', 'missing_module', array( 'module' => 'subscriptions' ) );
+		return;
+	}
+
 	if (
-		! Jetpack::is_module_active( 'subscriptions' ) ||
 		! class_exists( 'Jetpack_Memberships' ) ||
 		! class_exists( 'Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Abstract_Token_Subscription_Service' )
 	) {
@@ -52,8 +56,8 @@ function register_block() {
 		}
 	);
 
-	// If called via REST API, we need to register later in the lifecycle
-	if ( ( new Host() )->is_wpcom_platform() && ! Request::is_frontend() ) {
+	// The WordPress.com Simple JSON API loads the theme late and replays `init` as `restapi_theme_init`.
+	if ( ( new Host() )->is_wpcom_simple() && ! Request::is_frontend() ) {
 		add_action(
 			'restapi_theme_init',
 			function () {

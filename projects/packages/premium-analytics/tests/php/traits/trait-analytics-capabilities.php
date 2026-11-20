@@ -78,6 +78,17 @@ trait Analytics_Capabilities_Trait {
 	}
 
 	/**
+	 * Registers the site with WordPress.com, which Stats access waits for.
+	 *
+	 * @return void
+	 */
+	protected function connect_site() {
+		\Jetpack_Options::update_option( 'id', 4242 );
+		\Jetpack_Options::update_option( 'blog_token', 'blog_token.secret' );
+		( new \Automattic\Jetpack\Connection\Manager() )->reset_connection_status();
+	}
+
+	/**
 	 * Drops the package's mapping and this trait's stand-in for the Stats one,
 	 * leaving anything else hooked on `map_meta_cap` in place.
 	 *

@@ -380,7 +380,21 @@ export function getActiveSecurityPurchase( state ) {
  * @return {boolean}      True if the site has an active security or complete plan, false otherwise.
  */
 export function hasActiveSecurityPurchase( state ) {
-	return !! getActiveSecurityPurchase( state ) || hasActiveCompletePurchase( state );
+	return (
+		!! getActiveSecurityPurchase( state ) ||
+		hasActiveCompletePurchase( state ) ||
+		hasActiveProPurchase( state )
+	);
+}
+
+/**
+ * Determine whether the site's current plan is Jetpack Pro.
+ *
+ * @param {object} state - Redux state.
+ * @return {boolean} Whether the site has Pro.
+ */
+export function hasActiveProPurchase( state ) {
+	return 'is-jetpack-pro-plan' === getPlanClass( getSitePlan( state ).product_slug );
 }
 
 /**
@@ -412,7 +426,11 @@ export function getActiveSearchPurchase( state ) {
  * @return {boolean}      True if the site has an active Search product purchase, false otherwise.
  */
 export function hasActiveSearchPurchase( state ) {
-	return !! getActiveSearchPurchase( state ) || hasActiveCompletePurchase( state );
+	return (
+		!! getActiveSearchPurchase( state ) ||
+		hasActiveCompletePurchase( state ) ||
+		hasActiveProPurchase( state )
+	);
 }
 
 /**
@@ -446,7 +464,11 @@ export function getActiveGrowthPurchase( state ) {
  * @return {boolean}      True if the site has an active Creator product purchase, false otherwise.
  */
 export function hasActiveCreatorPurchase( state ) {
-	return !! getActiveCreatorPurchase( state ) || hasActiveCompletePurchase( state );
+	return (
+		!! getActiveCreatorPurchase( state ) ||
+		hasActiveCompletePurchase( state ) ||
+		hasActiveProPurchase( state )
+	);
 }
 
 /**
@@ -456,7 +478,11 @@ export function hasActiveCreatorPurchase( state ) {
  * @return {boolean}      True if the site has an active Growth product purchase, false otherwise.
  */
 export function hasActiveGrowthPurchase( state ) {
-	return !! getActiveGrowthPurchase( state ) || hasActiveCompletePurchase( state );
+	return (
+		!! getActiveGrowthPurchase( state ) ||
+		hasActiveCompletePurchase( state ) ||
+		hasActiveProPurchase( state )
+	);
 }
 
 /**
@@ -500,7 +526,11 @@ export function getActiveBoostPurchase( state ) {
  * @return {boolean}      True if the site has an active Boost product purchase, false otherwise.
  */
 export function hasActiveBoostPurchase( state ) {
-	return !! getActiveBoostPurchase( state ) || hasActiveCompletePurchase( state );
+	return (
+		!! getActiveBoostPurchase( state ) ||
+		hasActiveCompletePurchase( state ) ||
+		hasActiveProPurchase( state )
+	);
 }
 
 /**

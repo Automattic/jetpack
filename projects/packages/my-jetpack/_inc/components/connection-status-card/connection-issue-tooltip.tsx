@@ -1,6 +1,6 @@
 import { __ } from '@wordpress/i18n';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
-import { InfoTooltip } from '../info-tooltip';
+import { InfoPopover } from '../info-popover';
 
 interface AccountError {
 	type: string;
@@ -15,38 +15,39 @@ interface AccountError {
  */
 export function ConnectionIssueTooltip() {
 	const { userConnectionData } = useMyJetpackConnection();
+	const errors = userConnectionData.currentUser?.possibleAccountErrors ?? {};
+	const errorTypes = Object.keys( errors );
+
+	if ( ! errorTypes.length ) {
+		return null;
+	}
+
+	const title = __( 'Possible account issue', 'jetpack-my-jetpack' );
 
 	return (
-		userConnectionData.currentUser?.possibleAccountErrors &&
-		Object.keys( userConnectionData.currentUser.possibleAccountErrors ).length > 0 && (
-			<span style={ { display: 'inline-flex', verticalAlign: 'middle' } }>
-				<InfoTooltip
-					tracksEventName="my_jetpack_account_error_tooltip_open"
-					tracksEventProps={ {
-						location: 'connection_status_card',
-						context: 'non_owner',
-						error_types: Object.keys( userConnectionData.currentUser.possibleAccountErrors ).join(
-							','
-						),
-					} }
-					iconSize={ 16 }
-					className="account-error-tooltip"
-				>
-					<div>
-						{ Object.values( userConnectionData.currentUser.possibleAccountErrors ).map(
-							( error: AccountError, index ) => (
-								<p key={ `error-${ index }` } style={ { marginBottom: '1em' } }>
-									{ error.message ||
-										__(
-											'We noticed a possible issue with your account connection that might lead to connection issues.',
-											'jetpack-my-jetpack'
-										) }
-								</p>
+		<span style={ { display: 'inline-flex', verticalAlign: 'middle' } }>
+			<InfoPopover
+				label={ title }
+				triggerLabel={ title }
+				title={ title }
+				text={ ( Object.values( errors ) as AccountError[] )
+					.map(
+						error =>
+							error.message ||
+							__(
+								'We noticed a possible issue with your account connection that might lead to connection issues.',
+								'jetpack-my-jetpack'
 							)
-						) }
-					</div>
-				</InfoTooltip>
-			</span>
-		)
+					)
+					.join( ' ' ) }
+				tracksEventName="my_jetpack_account_error_tooltip_open"
+				tracksEventProps={ {
+					location: 'connection_status_card',
+					context: 'non_owner',
+					error_types: errorTypes.join( ',' ),
+				} }
+				warning
+			/>
+		</span>
 	);
 }

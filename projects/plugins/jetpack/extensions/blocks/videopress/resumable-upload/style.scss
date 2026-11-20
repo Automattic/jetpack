@@ -1,17 +1,18 @@
-@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+@use "@wordpress/base-styles/colors";
+@use "@wordpress/base-styles/variables";
 
 .resumable-upload {
-	background: gb.$white;
-	color: gb.$gray-900;
-	font-family: gb.$default-font;
+	background: colors.$white;
+	color: colors.$gray-900;
+	font-family: variables.$default-font;
 	box-sizing: border-box;
 	display: flex;
 	flex-direction: column;
 	align-items: flex-start;
 	padding: 20px 0;
-	border: 1px solid gb.$gray-900;
+	border: 1px solid colors.$gray-900;
 	border-radius: 2px;
-	font-size: gb.$default-font-size;
+	font-size: variables.$default-font-size;
 }
 
 .resumable-upload__editor {
@@ -57,10 +58,10 @@
 
 .resumable-upload__status,
 .resumable-upload__error {
-	border-top: 1px solid gb.$gray-200;
+	border-top: 1px solid colors.$gray-200;
 	width: 100%;
 	box-sizing: border-box;
-	margin-top: gb.$grid-unit-30;
+	margin-top: variables.$grid-unit-30;
 }
 
 .resumable-upload__status {
@@ -69,7 +70,7 @@
 	align-items: center;
 	padding: 20px 20px 0;
 	flex-wrap: wrap;
-	gap: gb.$grid-unit-15 gb.$grid-unit-30;
+	gap: variables.$grid-unit-15 variables.$grid-unit-30;
 }
 
 .resumable-upload__error {
@@ -82,8 +83,8 @@
 }
 
 .resumable-upload__file-size {
-	color: gb.$gray-700;
-	margin-left: gb.$grid-unit-15;
+	color: colors.$gray-700;
+	margin-left: variables.$grid-unit-15;
 }
 
 .resumable-upload__progress {
@@ -112,7 +113,7 @@
 }
 
 .resumable-upload__select-file-name {
-	margin-left: gb.$grid-unit-15;
+	margin-left: variables.$grid-unit-15;
 }
 
 .resumable-upload__actions {
@@ -135,12 +136,12 @@
 }
 
 .resumable-upload__error-text {
-	margin-top: gb.$grid-unit-20;
-	font-family: gb.$default-font;
-	color: gb.$alert-red;
+	margin-top: variables.$grid-unit-20;
+	font-family: variables.$default-font;
+	color: colors.$alert-red;
 }
 
 .resumable-upload__error-cancel {
-	margin-top: gb.$grid-unit-20;
-	margin-left: gb.$grid-unit-15;
+	margin-top: variables.$grid-unit-20;
+	margin-left: variables.$grid-unit-15;
 }

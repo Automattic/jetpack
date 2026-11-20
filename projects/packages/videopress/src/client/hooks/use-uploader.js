@@ -139,17 +139,17 @@ export const uploadVideo = ( { file, onProgress, onSuccess, onError, data } ) =>
 	return upload;
 };
 
-export const uploadFromLibrary = attachmentId => {
+export const uploadFromLibrary = ( attachmentId, source ) => {
 	const path = `videopress/v1/upload/${ attachmentId }`;
 	return new Promise( ( resolve, reject ) => {
-		apiFetch( { path, method: 'POST' } )
+		apiFetch( { path, method: 'POST', ...( source ? { data: { source } } : {} ) } )
 			.then( result => {
 				if (
 					'uploading' === result.status ||
 					'new' === result.status ||
 					'resume' === result.status
 				) {
-					uploadFromLibrary( attachmentId ).then( resolve ).catch( reject );
+					uploadFromLibrary( attachmentId, source ).then( resolve ).catch( reject );
 				} else if ( 'complete' === result.status ) {
 					resolve( {
 						guid: result.uploaded_details.guid,

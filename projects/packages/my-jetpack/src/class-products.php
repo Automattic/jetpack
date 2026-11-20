@@ -35,6 +35,28 @@ class Products {
 	public const INTERSTITIALS_OPTION_NAME = 'my_jetpack_products_interstitials_state';
 
 	/**
+	 * Keep an existing offer until retired, then choose an eligible replacement.
+	 *
+	 * @since 6.13.0
+	 * @param string $slug Existing bundle slug.
+	 * @return array|null Purchase destination, or null when no replacement is available.
+	 */
+	public static function get_bundle_offer( $slug ) {
+		foreach ( array_unique( array( $slug, 'pro', 'complete' ) ) as $candidate ) {
+			$class   = self::get_product_class( $candidate );
+			$pricing = $class ? $class::get_pricing_for_ui() : array();
+			if ( true === ( $pricing['available'] ?? false ) ) {
+				return array(
+					'slug'               => $candidate,
+					'title'              => $class::get_title(),
+					'wpcom_product_slug' => $pricing['wpcom_product_slug'] ?? $class::get_wpcom_product_slug(),
+				);
+			}
+		}
+		return null;
+	}
+
+	/**
 	 * List of statuses that display the module as disabled
 	 * This is defined as the statuses in which the user willingly has the module disabled whether it be by
 	 * default, uninstalling the plugin, disabling the module, or not renewing their plan.
@@ -145,6 +167,7 @@ class Products {
 			'stats'            => Products\Stats::class,
 			'growth'           => Products\Growth::class,
 			'complete'         => Products\Complete::class,
+			'pro'              => Products\Pro::class,
 			// Features.
 			'activity-log'     => Products\Activity_Log::class,
 			'newsletter'       => Products\Newsletter::class,

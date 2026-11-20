@@ -29,3 +29,27 @@ body.settings_page_sharing {
 .jetpack-sharing-likes__variant:focus {
 	outline: none;
 }
+
+// Placement card wireframes; the card paints the background.
+.jetpack-sharing-likes__wireframe-line {
+	fill: var(--wpds-color-stroke-surface-neutral);
+}
+
+.jetpack-sharing-likes__wireframe-block {
+	fill: var(--wpds-color-background-interactive-brand-strong);
+}
+
+.jetpack-sharing-likes__wireframe-surface {
+	fill: var(--wpds-color-background-surface-neutral-strong);
+}
+
+.jetpack-sharing-likes__wireframe-button {
+	fill: var(--wpds-color-background-surface-neutral-strong);
+	stroke: var(--wpds-color-background-interactive-brand-strong);
+}
+
+.jetpack-sharing-likes__wireframe-avatar {
+	fill: var(--wpds-color-stroke-surface-neutral-strong);
+	stroke: var(--wpds-color-background-surface-neutral-strong);
+	stroke-width: 1.5;
+}

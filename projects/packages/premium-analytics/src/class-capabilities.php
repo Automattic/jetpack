@@ -10,6 +10,10 @@
 
 namespace Automattic\Jetpack\PremiumAnalytics;
 
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Status\Host;
+
 /**
  * The dashboard's capability rules.
  *
@@ -117,6 +121,44 @@ class Capabilities {
 	 */
 	public static function current_user_can_view_analytics() {
 		return current_user_can( self::VIEW_ANALYTICS );
+	}
+
+	/**
+	 * Capability the dashboard's menu and page need.
+	 *
+	 * @return string
+	 */
+	public static function dashboard_page_capability() {
+		return self::is_site_connected() ? self::VIEW_ANALYTICS : self::pre_connection_capability();
+	}
+
+	/**
+	 * Whether the current user can open the dashboard's Stats views, which links to them are gated on.
+	 *
+	 * @return bool
+	 */
+	public static function current_user_can_open_stats() {
+		return self::current_user_can_view_stats()
+			&& ( self::is_site_connected() || current_user_can( self::pre_connection_capability() ) );
+	}
+
+	/**
+	 * Whether the site is connected to WordPress.com, as WordPress.com Simple always is.
+	 *
+	 * @return bool
+	 */
+	private static function is_site_connected() {
+		return ( new Host() )->is_wpcom_simple() || ( new Connection_Manager() )->is_connected();
+	}
+
+	/**
+	 * Until the site is connected the dashboard only offers to connect it, so like Stats it is for
+	 * whoever can (`jetpack_connect`), or for administrators in offline mode, where nobody can.
+	 *
+	 * @return string
+	 */
+	private static function pre_connection_capability() {
+		return ( new Status() )->is_offline_mode() ? 'manage_options' : 'jetpack_connect';
 	}
 
 	/**

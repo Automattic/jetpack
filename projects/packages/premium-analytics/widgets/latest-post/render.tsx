@@ -17,8 +17,17 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import { useLatestPost } from './use-latest-post';
-import type { LatestPostAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
+
+/**
+ * Widget attributes shape.
+ *
+ * @property authorScoped - Pick one author's latest post instead of the site's.
+ *                        Set by the author detail composition; not a user-facing control.
+ */
+export type LatestPostAttributes = {
+	authorScoped?: boolean;
+};
 
 // Report params are dashboard-driven, but this widget reports lifetime totals
 // and ignores the date range; the host (and Storybook) may still inject them.

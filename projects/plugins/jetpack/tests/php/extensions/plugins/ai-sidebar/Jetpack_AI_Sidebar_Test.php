@@ -10,6 +10,7 @@ use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Extensions\AiAssistantPlugin;
 use Automattic\Jetpack\Extensions\AiAssistantPlugin\Jetpack_AI_Sidebar;
 use Automattic\Jetpack\Status\Cache as Status_Cache;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 require_once JETPACK__PLUGIN_DIR . '/extensions/plugins/ai-assistant-plugin/ai-sidebar/class-jetpack-ai-sidebar.php';
 
@@ -49,6 +50,13 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	private $saved_current_user_id;
 
 	/**
+	 * Atomic purchase fixture override.
+	 *
+	 * @var \Patchwork\CallRerouting\Handle|null
+	 */
+	private $atomic_purchases_override;
+
+	/**
 	 * Set up before each test.
 	 */
 	public function set_up() {
@@ -85,6 +93,11 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	 * Tear down after each test.
 	 */
 	public function tear_down() {
+		if ( $this->atomic_purchases_override ) {
+			\Patchwork\restore( $this->atomic_purchases_override );
+			$this->atomic_purchases_override = null;
+		}
+
 		$this->deactivate_ai_module_for_test();
 		unset( $_SERVER['A8C_PROXIED_REQUEST'] );
 		delete_transient( AiAssistantPlugin\AI_SIDEBAR_ASSET_TRANSIENT );
@@ -95,6 +108,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		remove_all_filters( 'jetpack_active_modules' );
 		remove_all_filters( 'jetpack_disable_seo_tools' );
 		remove_all_filters( 'ai_seo_enhancer_enabled' );
+		remove_all_filters( 'stylesheet' );
 		Status_Cache::clear();
 		unset( $_SERVER['A8C_PROXIED_REQUEST'] );
 		( new \Automattic\Jetpack\Connection\Manager( 'jetpack' ) )->reset_connection_status();
@@ -110,6 +124,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		Constants::clear_single_constant( 'ATOMIC_SITE_ID' );
 		Constants::clear_single_constant( 'ATOMIC_CLIENT_ID' );
 		Constants::clear_single_constant( 'WPCOMSH__PLUGIN_FILE' );
+		Constants::clear_single_constant( 'WPCOM_IS_VIP_ENV' );
 		Status_Cache::clear();
 		wp_set_current_user( $this->saved_current_user_id );
 		$GLOBALS['current_screen'] = $this->saved_screen;
@@ -148,6 +163,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		return array(
 			AiAssistantPlugin\AI_SIDEBAR_TOOLBAR_BUTTON_EXTENSION,
 			AiAssistantPlugin\AI_SIDEBAR_AGENT_NOTICE_EXTENSION,
+			AiAssistantPlugin\AI_SIDEBAR_AGENT_ENABLE_EXTENSION,
 		);
 	}
 
@@ -265,12 +281,15 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Simulate the Big_Sky class existing, as it does when the Big Sky plugin is present.
+	 * Simulate the Big_Sky class existing, as it does when the Big Sky plugin is present,
+	 * on a site whose plan grants Big Sky. A test for a site without the plan calls
+	 * remove_big_sky_plan() afterwards.
 	 */
 	private function simulate_big_sky_class() {
 		if ( ! class_exists( 'Big_Sky' ) ) {
 			eval( 'class Big_Sky {}' ); // @codingStandardsIgnoreLine — minimal stub for unit test isolation.
 		}
+		$this->simulate_big_sky_eligible_plan();
 	}
 
 	/**
@@ -286,6 +305,14 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 				),
 			)
 		);
+	}
+
+	/**
+	 * Take the Big Sky plan away again: drop the stored plan and the cached copy.
+	 */
+	private function remove_big_sky_plan() {
+		delete_option( 'jetpack_active_plan' );
+		$this->reset_plan_cache();
 	}
 
 	/**
@@ -570,6 +597,78 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Only offer the Enable link to people the dashboard lets manage the site.
+	 *
+	 * @dataProvider provide_enable_agent_cases
+	 *
+	 * @param string $scenario Who is editing, and on what kind of site.
+	 * @param bool   $expected Whether they can enable the Agent.
+	 */
+	#[DataProvider( 'provide_enable_agent_cases' )]
+	public function test_can_current_user_enable_agent( $scenario, $expected ) {
+		switch ( $scenario ) {
+			case 'editor':
+				wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
+				break;
+			case 'super admin who is not a member':
+				// Off multisite, is_user_member_of_blog() is true for every logged-in user.
+				if ( ! is_multisite() ) {
+					$this->markTestSkipped( 'Super admins only exist on multisite.' );
+				}
+				$user_id = self::factory()->user->create();
+				remove_user_from_blog( $user_id, get_current_blog_id() );
+				grant_super_admin( $user_id );
+				wp_set_current_user( $user_id );
+				break;
+			case 'P2':
+				$this->simulate_wpcom_simple();
+				add_filter(
+					'stylesheet',
+					static function () {
+						return 'pub/p2020';
+					}
+				);
+				break;
+			case 'VIP':
+				Constants::set_constant( 'WPCOM_IS_VIP_ENV', true );
+				break;
+		}
+
+		$this->assertSame( $expected, Jetpack_AI_Sidebar::can_current_user_enable_agent() );
+	}
+
+	/**
+	 * Cases for test_can_current_user_enable_agent.
+	 *
+	 * @return array
+	 */
+	public static function provide_enable_agent_cases() {
+		return array(
+			'administrator'                   => array( 'administrator', true ),
+			'editor'                          => array( 'editor', false ),
+			'super admin who is not a member' => array( 'super admin who is not a member', false ),
+			'administrator on a P2'           => array( 'P2', false ),
+			'administrator on VIP'            => array( 'VIP', false ),
+		);
+	}
+
+	/**
+	 * The notice learns from its own extension flag whether to offer the Enable link.
+	 */
+	public function test_agent_enable_extension_follows_whether_the_user_can_enable_the_agent() {
+		$this->set_block_editor_screen();
+		$this->enable_sidebar_extension_availability_checks();
+
+		Jetpack_AI_Sidebar::register_agent_notice_extension();
+		$this->assertTrue( \Jetpack_Gutenberg::is_available( AiAssistantPlugin\AI_SIDEBAR_AGENT_ENABLE_EXTENSION ) );
+
+		\Jetpack_Gutenberg::reset();
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
+		Jetpack_AI_Sidebar::register_agent_notice_extension();
+		$this->assertFalse( \Jetpack_Gutenberg::is_available( AiAssistantPlugin\AI_SIDEBAR_AGENT_ENABLE_EXTENSION ) );
+	}
+
+	/**
 	 * Neither eligible nor enabled keeps the legacy panel. Runs before any test
 	 * declares the Big_Sky stub, which would count as enabled.
 	 */
@@ -583,6 +682,22 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		remove_all_filters( 'jetpack_ai_sidebar_enabled' );
 		add_filter( 'jetpack_ai_sidebar_enabled', '__return_false' );
 
+		$this->assertFalse( Jetpack_AI_Sidebar::is_agent_notice_enabled() );
+	}
+
+	/**
+	 * A site downgraded to Free keeps the Big Sky plugin and option but has no plan,
+	 * so the preview gate stays closed and the Agent is no longer offered.
+	 */
+	public function test_preview_disabled_and_no_agent_notice_without_a_big_sky_plan() {
+		$this->skip_when_wpcomsh_is_active();
+		remove_all_filters( 'jetpack_ai_sidebar_enabled' );
+		$this->simulate_wpcom_platform();
+		$this->simulate_big_sky_class();
+		$this->remove_big_sky_plan();
+		update_option( 'big_sky_enable', '1' );
+
+		$this->assertFalse( $this->gate_open() );
 		$this->assertFalse( Jetpack_AI_Sidebar::is_agent_notice_enabled() );
 	}
 
@@ -602,6 +717,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	 * The preview gate is open on WordPress.com Simple with Big Sky present (defaults on).
 	 */
 	public function test_preview_enabled_on_wpcom_simple_with_big_sky() {
+		$this->skip_when_wpcomsh_is_active();
 		remove_all_filters( 'jetpack_ai_sidebar_enabled' );
 		$this->simulate_wpcom_simple();
 		$this->simulate_big_sky_class();
@@ -1280,17 +1396,18 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * An installed plugin proves eligibility, even with the option off and no plan data.
+	 * An installed plugin no longer proves eligibility: without a plan the notice stays off.
 	 */
-	public function test_agent_notice_enabled_when_plugin_present_but_off_and_plan_unknown() {
+	public function test_agent_notice_disabled_when_plugin_present_but_off_and_no_plan() {
 		$this->skip_when_wpcomsh_is_active();
 		$this->set_block_editor_screen();
 		$this->simulate_wpcom_platform();
 		$this->simulate_big_sky_class();
+		$this->remove_big_sky_plan();
 		update_option( 'big_sky_enable', '0' );
 		remove_all_filters( 'jetpack_ai_sidebar_enabled' );
 
-		$this->assertTrue( Jetpack_AI_Sidebar::is_agent_notice_enabled() );
+		$this->assertFalse( Jetpack_AI_Sidebar::is_agent_notice_enabled() );
 	}
 
 	/**
@@ -1529,10 +1646,25 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Activate the seo-tools module for the duration of the test. SEO suggestions
-	 * require it: the module registers the SEO meta fields the suggestions write to.
+	 * Activate SEO Tools with a plan fixture for suggestion tests.
+	 *
+	 * @param bool $entitled Whether metadata generation is entitled.
 	 */
-	private function activate_seo_tools_module(): void {
+	private function activate_seo_tools_module( $entitled = true ): void {
+		Current_Plan::update_from_site_record(
+			array( 'plan' => array( 'product_slug' => $entitled ? 'jetpack_business' : 'jetpack_free' ) )
+		);
+		if ( getenv( 'JETPACK_TEST_WPCOMSH' ) ) {
+			$this->atomic_purchases_override = \Patchwork\redefine(
+				'Atomic_Persistent_Data::__get',
+				function ( $key ) use ( $entitled ) {
+					if ( 'WPCOM_PURCHASES' !== $key ) {
+						return \Patchwork\relay();
+					}
+					return wp_json_encode( array( array( 'product_slug' => $entitled ? 'business-bundle' : 'pro-plan' ) ), JSON_UNESCAPED_SLASHES );
+				}
+			);
+		}
 		add_filter(
 			'jetpack_active_modules',
 			static function ( $modules ) {
@@ -1544,10 +1676,33 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Released suggestions are exposed to eligible users. The test plan supports
-	 * advanced-seo, the seo-tools module is activated, and the SEO feature
-	 * toggle from the AI settings page is switched on so the SEO suggestions
-	 * gate is satisfied.
+	 * @dataProvider provide_seo_entitlements
+	 * @param bool $entitled Whether the site has the enhancer entitlement.
+	 */
+	#[DataProvider( 'provide_seo_entitlements' )]
+	public function test_metadata_ui_requires_the_enhancer_entitlement( $entitled ) {
+		$this->set_block_editor_screen();
+		$this->activate_seo_tools_module( $entitled );
+		$this->assertTrue( Current_Plan::supports( 'advanced-seo' ) );
+
+		$data = Jetpack_AI_Sidebar::add_agents_manager_data( array( 'sectionName' => 'gutenberg' ) );
+
+		$this->assertSame( $entitled, $data['jetpackAiSidebar']['features']['seoSuggestions'] );
+		$this->assertTrue( $data['jetpackAiSidebar']['features']['optimizeTitleSuggestion'] );
+
+		$settings = ( new WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings() )->get_settings()->get_data();
+		$this->assertSame( $entitled, $settings['features']['ai_seo']['available'] );
+	}
+
+	public static function provide_seo_entitlements() {
+		return array(
+			'manual SEO only'   => array( false ),
+			'enhancer entitled' => array( true ),
+		);
+	}
+
+	/**
+	 * Released suggestions are exposed with the enhancer entitlement and SEO tools enabled.
 	 */
 	public function test_add_agents_manager_data_exposes_released_features() {
 		$this->set_block_editor_screen();
@@ -1686,25 +1841,6 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		delete_option( 'jetpack_ai_seo_enabled' );
 
 		$this->assertSame( false, $data['jetpackAiSidebar']['features']['aiEditorialReview'] );
-	}
-
-	/**
-	 * With writing on keeping the sidebar available, the SEO enhancer option at
-	 * its stored off value keeps SEO suggestions out of the emitted payload —
-	 * the option alone, independent of the ai_seo_enhancer_enabled kill switch.
-	 */
-	public function test_add_agents_manager_data_seo_suggestions_follow_option_off() {
-		$this->set_block_editor_screen();
-		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
-		$this->activate_seo_tools_module();
-		update_option( 'jetpack_ai_seo_enabled', 0 );
-
-		$data = Jetpack_AI_Sidebar::add_agents_manager_data( array( 'sectionName' => 'gutenberg' ) );
-
-		delete_option( 'jetpack_ai_seo_enabled' );
-
-		$this->assertSame( false, $data['jetpackAiSidebar']['features']['seoSuggestions'] );
-		$this->assertSame( true, $data['jetpackAiSidebar']['features']['proofreadContent'] );
 	}
 
 	/**

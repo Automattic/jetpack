@@ -13,17 +13,17 @@ import {
 	LeaderboardSkeleton,
 	MetricList,
 	PostTitleLink,
-	ReportLink,
+	ViewLiveLink,
 	WIDGET_ROW_LIMIT,
-	WidgetFooter,
+	toViewLiveUrl,
 	WidgetRoot,
 	WidgetState,
 	useWidgetNavigationSearch,
-	ExporterCsvDownloadButton,
 	emailsCsvExporter,
 	type DataFormat,
 	type MetricListItem,
 	type ReportParamsFieldAttributes,
+	useReportActions,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
@@ -166,6 +166,7 @@ export const EmailsList = ( { rows = [], metric = 'opens' }: EmailsListProps ) =
 
 	const items: MetricListItem[] = rows.map( row => {
 		const { count, rate, formatRestored, description } = metricValues( row, metric );
+		const liveUrl = toViewLiveUrl( 'post', row.postId, row.link );
 
 		return {
 			id: row.id,
@@ -178,6 +179,8 @@ export const EmailsList = ( { rows = [], metric = 'opens' }: EmailsListProps ) =
 					title={ row.label }
 				/>
 			),
+			action:
+				liveUrl === undefined ? undefined : <ViewLiveLink href={ liveUrl } label={ row.label } />,
 			value: [
 				<span key="count" aria-hidden="true">
 					<AbbreviatedValue
@@ -246,6 +249,14 @@ function EmailsReport( { attributes }: EmailsReportProps ) {
 
 	const rows = useMemo( () => toEmailRows( data, WIDGET_ROW_LIMIT ), [ data ] );
 
+	useReportActions( {
+		csv: {
+			exporter: emailsCsvExporter,
+			status: { isLoading, isFetching, isError: rows.length === 0 && isError },
+			rowCount: rows.length,
+		},
+	} );
+
 	return (
 		<div className={ styles.widget }>
 			<div className={ styles.body }>
@@ -273,14 +284,6 @@ function EmailsReport( { attributes }: EmailsReportProps ) {
 					<EmailsList rows={ rows } metric={ metric } />
 				</WidgetState>
 			</div>
-			<WidgetFooter>
-				<ReportLink report="emails" />
-				<ExporterCsvDownloadButton
-					exporter={ emailsCsvExporter }
-					status={ { isLoading, isFetching, isError: rows.length === 0 && isError } }
-					rowCount={ rows.length }
-				/>
-			</WidgetFooter>
 		</div>
 	);
 }

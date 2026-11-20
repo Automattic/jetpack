@@ -5,6 +5,7 @@
  * @package automattic/jetpack-mu-wpcom
  */
 
+use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/wpcom-plugins/wpcom-plugins.php';
@@ -35,6 +36,17 @@ class Wpcom_Plugins_Test extends \WorDBless\BaseTestCase {
 		$pagenow = 'index.php';
 
 		delete_option( 'big_sky_enable' );
+		delete_option( 'jetpack_active_plan' );
+		$reset_plan_cache = Closure::bind(
+			/** @phan-closure-scope \Automattic\Jetpack\Current_Plan */
+			static function () {
+				// An empty array is a cache miss for Current_Plan::get().
+				self::$active_plan_cache = array();
+			},
+			null,
+			Current_Plan::class
+		);
+		$reset_plan_cache();
 		set_current_screen( 'front' );
 
 		parent::tear_down();
@@ -63,6 +75,14 @@ class Wpcom_Plugins_Test extends \WorDBless\BaseTestCase {
 
 		set_current_screen( 'plugins' );
 		update_option( 'big_sky_enable', 1 );
+		Current_Plan::update_from_site_record(
+			array(
+				'plan' => array(
+					'product_slug' => 'jetpack_personal',
+					'features'     => array( 'active' => array( 'big-sky' ) ),
+				),
+			)
+		);
 
 		$this->assertTrue( wpcom_plugins_should_load_agents_manager( false ) );
 	}
@@ -76,6 +96,14 @@ class Wpcom_Plugins_Test extends \WorDBless\BaseTestCase {
 
 		set_current_screen( 'plugin-install' );
 		update_option( 'big_sky_enable', 1 );
+		Current_Plan::update_from_site_record(
+			array(
+				'plan' => array(
+					'product_slug' => 'jetpack_personal',
+					'features'     => array( 'active' => array( 'big-sky' ) ),
+				),
+			)
+		);
 
 		$this->assertTrue( wpcom_plugins_should_load_agents_manager( false ) );
 	}

@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { selectFallback } from './fallback.ts';
+import { TASK_MENU } from './prompts.ts';
 import { AGENT_OUTPUT_SCHEMA, validateAgainstSchema } from './schema-validator.ts';
 import { ENGLISH_SITE_COPY } from './site-copy.fixture.mts';
 import type { GoalSlug, WizardInput } from './types.ts';
@@ -32,14 +33,24 @@ function inputFor( goal: GoalSlug ): WizardInput {
 
 describe( 'selectFallback', () => {
 	for ( const goal of GOALS ) {
-		it( `produces schema-valid output, launch last, echoing goal "${ goal }"`, () => {
-			const output = selectFallback( inputFor( goal ), ENGLISH_SITE_COPY );
+		for ( const aiBuilt of [ false, true ] ) {
+			it( `produces schema-valid menu tasks, launch last, echoing goal "${ goal }"${
+				aiBuilt ? ' on an AI-built site' : ''
+			}`, () => {
+				const output = selectFallback( inputFor( goal ), ENGLISH_SITE_COPY, aiBuilt );
+				const ids = output.tasks.map( task => task.id );
 
-			assert.deepEqual( validateAgainstSchema( output, AGENT_OUTPUT_SCHEMA ), [] );
-			const last = output.tasks[ output.tasks.length - 1 ];
-			assert.ok( LAUNCH_TASKS.has( last.id ), `last task "${ last.id }" is not a launch task` );
-			assert.equal( output.inferred.goal, goal );
-		} );
+				assert.deepEqual( validateAgainstSchema( output, AGENT_OUTPUT_SCHEMA ), [] );
+				const last = ids[ ids.length - 1 ];
+				assert.ok( LAUNCH_TASKS.has( last ), `last task "${ last }" is not a launch task` );
+				assert.equal( output.inferred.goal, goal );
+				assert.deepEqual(
+					ids.filter( id => ! TASK_MENU.includes( id ) ),
+					[]
+				);
+				assert.ok( output.tasks.every( task => task.subtitle !== 'Get this set up.' ) );
+			} );
+		}
 	}
 
 	it( 'leads the sell sequence with store customization then products', () => {

@@ -68,14 +68,6 @@ export function getLocationsSectionLabel( section: LocationsReportSection ): str
 	}
 }
 
-/** The geo modes as select options, in report tab order. */
-export function getLocationsGeoModeOptions(): { label: string; value: LocationsGeoMode }[] {
-	return ( Object.keys( LOCATIONS_GEO_MODES ) as LocationsReportSection[] ).map( section => ( {
-		label: getLocationsSectionLabel( section ),
-		value: LOCATIONS_GEO_MODES[ section ],
-	} ) );
-}
-
 /** Countries is already the full country list, so only the other sections take a country. */
 export function supportsLocationsCountryFilter( section: LocationsReportSection ): boolean {
 	return section !== 'countries';

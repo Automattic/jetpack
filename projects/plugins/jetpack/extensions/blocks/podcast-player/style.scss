@@ -1,7 +1,8 @@
 /**
  * Podcast Player block shared styles (editor & front-end).
  */
-@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+@use "@wordpress/base-styles/colors";
+@use "@wordpress/base-styles/variables";
 
 $gutter-s: 10px;
 $gutter-m: 15px;
@@ -10,10 +11,10 @@ $cover-image-size: 80px;
 $current-track-title-font-size: 24px;
 $current-track-title-icon-size: 27px;
 $track-status-icon-size: 22px;
-$jetpack-podcast-player-primary: gb.$black;
-$jetpack-podcast-player-secondary: gb.$gray-400;
-$jetpack-podcast-player-background: gb.$white;
-$jetpack-podcast-player-error: gb.$alert-red;
+$jetpack-podcast-player-primary: colors.$black;
+$jetpack-podcast-player-secondary: colors.$gray-400;
+$jetpack-podcast-player-background: colors.$white;
+$jetpack-podcast-player-error: colors.$alert-red;
 
 .jetpack-podcast-player--visually-hidden {
 	position: absolute !important;
@@ -159,7 +160,7 @@ $jetpack-podcast-player-error: gb.$alert-red;
 	}
 
 	.jetpack-podcast-player__podcast-title {
-		font-size: gb.$editor-font-size;
+		font-size: variables.$editor-font-size;
 		margin: 0;
 		color: inherit;
 	}
@@ -178,8 +179,8 @@ $jetpack-podcast-player-error: gb.$alert-red;
 
 	.jetpack-podcast-player__track {
 		margin: 0;
-		font-size: gb.$editor-font-size;
-		line-height: gb.$editor-line-height;
+		font-size: variables.$editor-font-size;
+		line-height: variables.$editor-line-height;
 		color: var(--jetpack-podcast-player-secondary);
 
 		&:not(.is-active):not(.has-secondary) {
@@ -225,7 +226,7 @@ $jetpack-podcast-player-error: gb.$alert-red;
 			display: block;
 			width: $track-status-icon-size;
 			height: $track-status-icon-size;
-			margin-top: ( gb.$editor-font-size * gb.$editor-line-height - $track-status-icon-size ) * 0.5; // center vertically
+			margin-top: ( variables.$editor-font-size * variables.$editor-line-height - $track-status-icon-size ) * 0.5; // center vertically
 			fill: inherit;
 		}
 	}
@@ -278,11 +279,11 @@ $jetpack-podcast-player-error: gb.$alert-red;
 		order: 99; // high number to make it always appear after the audio player
 		padding: 0 $gutter-l;
 		margin: 0 0 $gutter-l 0;
-		font-size: gb.$editor-font-size;
-		line-height: gb.$editor-line-height;
+		font-size: variables.$editor-font-size;
+		line-height: variables.$editor-line-height;
 		color: inherit;
 		overflow: hidden;
-		max-height: 4em * gb.$editor-line-height; // IE11 fallback for line-clamp.
+		max-height: 4em * variables.$editor-line-height; // IE11 fallback for line-clamp.
 
 		@supports ( display: -webkit-box ) {
 			// Crop the description if too long.

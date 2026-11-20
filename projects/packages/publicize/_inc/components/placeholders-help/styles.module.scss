@@ -1,4 +1,4 @@
-@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+@use "@wordpress/base-styles/colors";
 
 .placeholders-help {
 
@@ -43,7 +43,7 @@
 		}
 
 		span {
-			color: var(--jp-gray-70, gb.$gray-700);
+			color: var(--jp-gray-70, colors.$gray-700);
 		}
 	}
 }

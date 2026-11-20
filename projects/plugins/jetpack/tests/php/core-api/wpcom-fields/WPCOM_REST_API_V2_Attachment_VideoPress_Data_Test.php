@@ -12,7 +12,6 @@
 require_once dirname( __DIR__, 2 ) . '/lib/Jetpack_REST_TestCase.php';
 
 use Automattic\Jetpack\VideoPress\WPCOM_REST_API_V2_Attachment_VideoPress_Data;
-use Automattic\Jetpack\VideoPress\WPCOM_REST_API_V2_Attachment_VideoPress_Field;
 use PHPUnit\Framework\Attributes\Group;
 
 /**
@@ -24,26 +23,6 @@ use PHPUnit\Framework\Attributes\Group;
 #[Group( 'videopress' )]
 #[Group( 'rest-api' )]
 class WPCOM_REST_API_V2_Attachment_VideoPress_Data_Test extends Jetpack_REST_TestCase {
-	/**
-	 * Checks that the jetpack_videopress field is included in the schema
-	 */
-	public function test_attachment_fields_videopress_get_schema() {
-		$plugin = new WPCOM_REST_API_V2_Attachment_VideoPress_Field();
-		$schema = $plugin->get_schema();
-
-		$this->assertSame(
-			array(
-				'$schema'     => 'http://json-schema.org/draft-04/schema#',
-				'title'       => 'jetpack_videopress_guid',
-				'type'        => 'string',
-				'context'     => array( 'view', 'edit' ),
-				'readonly'    => true,
-				'description' => __( 'Unique VideoPress ID', 'jetpack' ),
-			),
-			$schema
-		);
-	}
-
 	/**
 	 * Checks that the jetpack_videopress field is filled with the VideoPress GUID
 	 */

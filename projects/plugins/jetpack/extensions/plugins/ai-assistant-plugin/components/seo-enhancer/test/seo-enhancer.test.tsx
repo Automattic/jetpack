@@ -23,7 +23,7 @@ jest.mock( '../use-seo-requests', () => ( {
 } ) );
 
 jest.mock( '../seo-enhancer-task-list', () => ( {
-	SeoEnhancerTaskList: () => null,
+	SeoEnhancerTaskList: () => <div data-testid="seo-enhancer-task-list" />,
 } ) );
 
 jest.mock( '@automattic/jetpack-ai-client', () => ( {
@@ -65,26 +65,27 @@ jest.mock( '@wordpress/data', () => {
 } );
 
 describe( 'SeoEnhancer', () => {
-	it( 'hides the auto-generate toggle where automatic generation cannot run', () => {
+	it( 'keeps showing automatic mode where the toggle is hidden', () => {
 		mockIsEnabled = true;
 
-		render( <SeoEnhancer disableAutoEnhance={ true } /> );
+		render( <SeoEnhancer hideAutoEnhanceToggle={ true } /> );
 
 		expect( screen.queryByLabelText( 'Auto-generate metadata' ) ).not.toBeInTheDocument();
+		expect( screen.getByTestId( 'seo-enhancer-task-list' ) ).toBeInTheDocument();
 	} );
 
 	it( 'shows the manual button while automatic generation is switched off', () => {
 		mockIsEnabled = false;
 
-		render( <SeoEnhancer disableAutoEnhance={ false } /> );
+		render( <SeoEnhancer /> );
 
 		expect( screen.getByRole( 'button', { name: 'Generate metadata' } ) ).toBeInTheDocument();
 	} );
 
-	it( 'hides the manual button while automatic mode is available and on', () => {
+	it( 'hides the manual button while automatic mode is on', () => {
 		mockIsEnabled = true;
 
-		render( <SeoEnhancer disableAutoEnhance={ false } /> );
+		render( <SeoEnhancer /> );
 
 		expect( screen.queryByRole( 'button', { name: 'Generate metadata' } ) ).not.toBeInTheDocument();
 	} );

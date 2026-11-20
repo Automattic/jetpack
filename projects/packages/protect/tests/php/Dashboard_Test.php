@@ -8,9 +8,19 @@
 namespace Automattic\Jetpack\Protect;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
+use Automattic\Jetpack\Admin_UI\Admin_Shell;
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Current_Plan;
+use Automattic\Jetpack\Protect\Sections\Scan;
+use Automattic\Jetpack\Protect_Status\Plan;
+use Automattic\Jetpack\Protect_Status\Protect_Status;
+use Automattic\Jetpack\Protect_Status\Scan_Status;
+use Automattic\Jetpack\Status\Cache;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use WorDBless\BaseTestCase;
 
 /**
@@ -36,17 +46,110 @@ class Dashboard_Test extends BaseTestCase {
 	public function tear_down() {
 		Admin_Menu::reset();
 		self::reset_sections();
-		unset( $_GET['page'] );
 		remove_all_actions( 'admin_menu' );
 		remove_all_actions( 'rest_api_init' );
 		remove_all_actions( 'doing_it_wrong_run' );
 		remove_all_filters( 'doing_it_wrong_trigger_error' );
 		remove_all_actions( 'admin_enqueue_scripts' );
+		remove_all_filters( 'jetpack_offline_mode' );
+		remove_all_actions( 'add_option_' . Scan_Status::OPTION_NAME );
+		remove_all_actions( 'update_option_' . Scan_Status::OPTION_NAME );
+		delete_option( Scan_Status::OPTION_NAME );
+		delete_option( Dashboard_Threats::RESOLVED_OPTION );
+		wp_dequeue_script( 'jp-tracks' );
+		wp_deregister_script( 'jp-tracks' );
+		\Jetpack_Options::delete_option( array( 'tos_agreed', 'blog_token', 'user_tokens', 'id' ) );
+		foreach ( array( Protect_Status::OPTION_NAME, Protect_Status::OPTION_TIMESTAMP_NAME, Scan_Status::OPTION_TIMESTAMP_NAME ) as $option ) {
+			remove_all_filters( 'pre_update_option_' . $option );
+			delete_option( $option );
+		}
+		remove_all_filters( 'pre_update_option_' . Scan_Status::OPTION_NAME );
+		remove_all_filters( 'pre_http_request' );
+		Protect_Status::$status = null;
+		Scan_Status::$status    = null;
+		delete_option( Current_Plan::SITE_PRODUCTS_OPTION );
+		Plan::has_required_plan( true );
+		\Automattic\Jetpack\Constants::clear_constants();
+		( new Connection_Manager() )->reset_connection_status();
+		wp_set_current_user( 0 );
+		Cache::clear();
+		foreach ( array_keys( Dashboard::MODULE_SECTIONS ) as $module ) {
+			remove_all_filters( Dashboard::CONFIGURATION_URL_FILTER . $module );
+			remove_all_filters( 'jetpack_module_configurable_' . $module );
+		}
 		foreach ( array( 'jetpack_page_', 'admin_page_' ) as $prefix ) {
 			remove_all_actions( 'load-' . $prefix . Dashboard::MENU_SLUG );
 			remove_all_actions( 'load-' . $prefix . Dashboard::MENU_SLUG . '-network' );
 		}
 		parent::tear_down();
+	}
+
+	/**
+	 * Only the admin shell's hover request fetches the report without caching it.
+	 *
+	 * @dataProvider provide_admin_shell_loads
+	 *
+	 * @param bool $is_hover Whether the shell's hover request readies the page, rather than another dashboard's page.
+	 * @param bool $has_plan Whether the site has Scan, which reads Scan's report instead of Protect's.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[DataProvider( 'provide_admin_shell_loads' )]
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_only_the_admin_shell_hover_fetches_the_report_without_caching_it( $is_hover, $has_plan ) {
+		if ( $is_hover ) {
+			add_filter( 'wp_doing_ajax', '__return_true' );
+			$_GET['action'] = Admin_Shell::GUEST_ACTION;
+		}
+		if ( $has_plan ) {
+			update_option( Current_Plan::SITE_PRODUCTS_OPTION, array( array( 'product_slug' => 'jetpack_scan' ) ) );
+		}
+		Plan::has_required_plan( true );
+		\Automattic\Jetpack\Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
+		\Jetpack_Options::update_option( 'id', 123 );
+		\Jetpack_Options::update_option( 'blog_token', 'blog.secret' );
+		add_filter(
+			'pre_http_request',
+			static function () {
+				return array(
+					'response' => array( 'code' => 200 ),
+					'body'     => wp_json_encode(
+						array(
+							'state'        => 'idle',
+							'status'       => 'idle',
+							'last_checked' => '2026-11-01 00:00:00',
+						),
+						JSON_UNESCAPED_SLASHES
+					),
+				);
+			}
+		);
+
+		Dashboard::load_as_admin_shell_guest();
+		$state = ( new Scan() )->get_state();
+		remove_filter( 'wp_doing_ajax', '__return_true' );
+		unset( $_GET['action'] );
+
+		$this->assertSame( $has_plan, $state['hasPlan'] );
+		$this->assertFalse( $state['error'] );
+		$status = $has_plan ? Scan_Status::class : Protect_Status::class;
+		$this->assertSame( ! $is_hover, false !== get_option( $status::OPTION_NAME ) );
+		$this->assertSame( ! $is_hover, false !== get_option( $status::OPTION_TIMESTAMP_NAME ) );
+	}
+
+	/**
+	 * The shell's hover request, with and without Scan, and another dashboard's page readying Protect for a later switch.
+	 *
+	 * @return array<string, array{bool, bool}>
+	 */
+	public static function provide_admin_shell_loads() {
+		return array(
+			'hover request'           => array( true, false ),
+			'hover request with Scan' => array( true, true ),
+			'another member page'     => array( false, false ),
+		);
 	}
 
 	/**
@@ -136,6 +239,72 @@ class Dashboard_Test extends BaseTestCase {
 		$this->assertFalse( Admin_Menu::remove_menu( Dashboard::MENU_SLUG ) );
 	}
 
+	/**
+	 * Each security module and the card its Configure link should open.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_security_modules() {
+		return array(
+			'Firewall'            => array( 'waf', 'firewall' ),
+			'Brute force'         => array( 'protect', 'loginProtection' ),
+			'Account protection'  => array( 'account-protection', 'loginProtection' ),
+			'WordPress.com login' => array( 'sso', 'loginProtection' ),
+			'Downtime monitoring' => array( 'monitor', 'monitor' ),
+		);
+	}
+
+	/**
+	 * @dataProvider provide_security_modules
+	 *
+	 * @param string $module  Module slug.
+	 * @param string $section The section whose card should open.
+	 */
+	#[DataProvider( 'provide_security_modules' )]
+	public function test_security_module_configure_links_open_their_settings_card( $module, $section ) {
+		$this->assertSame(
+			admin_url( 'admin.php?page=jetpack-protect&p=%2F%3Ftab%3Dsettings%26section%3D' . $section ),
+			apply_filters( 'jetpack_module_configuration_url_' . $module, 'https://example.com/default' )
+		);
+		$this->assertTrue( apply_filters( 'jetpack_module_configurable_' . $module, false ) );
+	}
+
+	/**
+	 * The URL a host sends and the upgrade link that results (null for the default).
+	 *
+	 * @return array[]
+	 */
+	public static function provide_host_upgrade_urls() {
+		return array(
+			'host plans'      => array( 'https://example.com/plans', 'https://example.com/plans' ),
+			'javascript: URL' => array( 'javascript:alert(1)', null ),
+			'not an array'    => array( null, null ),
+		);
+	}
+
+	/**
+	 * @dataProvider provide_host_upgrade_urls
+	 *
+	 * @param string|null $url      The URL the host sends, or null to return a non-array.
+	 * @param string|null $expected The resulting link, or null for the unfiltered one.
+	 */
+	#[DataProvider( 'provide_host_upgrade_urls' )]
+	public function test_host_can_send_scan_upgrade_elsewhere( $url, $expected ) {
+		$default      = Dashboard::get_scan_upgrade_url();
+		$send_to_host = static function ( $upgrade, $slug ) use ( $url ) {
+			if ( null === $url ) {
+				return '';
+			}
+			return 'protect-dashboard' === $slug ? array_merge( $upgrade, array( 'url' => $url ) ) : $upgrade;
+		};
+		add_filter( 'jetpack_feature_upgrade', $send_to_host, 10, 2 );
+
+		$link = Dashboard::get_scan_upgrade_url();
+		remove_filter( 'jetpack_feature_upgrade', $send_to_host, 10 );
+
+		$this->assertSame( $expected ?? $default, $link );
+	}
+
 	public function test_init_announces_the_dashboard() {
 		$this->assertGreaterThan( 0, did_action( 'jetpack_protect_dashboard_initialized' ) );
 	}
@@ -221,31 +390,37 @@ class Dashboard_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Requested `page` values and whether each is the dashboard's.
+	 * Threat report requests and the dashboard URL each should redirect to.
 	 *
 	 * @return array[]
 	 */
-	public static function provide_page_requests() {
+	public static function provide_threat_report_requests() {
+		$report = admin_url( 'admin.php?page=jetpack-protect&p=%2F%3Fthreats%3D' );
 		return array(
-			'the Protect page' => array( Dashboard::MENU_SLUG, true ),
-			'another page'     => array( 'jetpack', false ),
-			'no page'          => array( null, false ),
+			'ids'                   => array( array( 'threats' => '12,34' ), $report . '12%2C34' ),
+			'ids with junk dropped' => array( array( 'threats' => '12, 3<4,x, 56' ), $report . '12%2C56' ),
+			'no ids left'           => array( array( 'threats' => 'abc' ), null ),
+			'no threats param'      => array( array(), null ),
+			'an array'              => array( array( 'threats' => array( '12' ) ), null ),
+			'already routed'        => array(
+				array(
+					'threats' => '12',
+					'p'       => '/',
+				),
+				null,
+			),
 		);
 	}
 
 	/**
-	 * @dataProvider provide_page_requests
+	 * @dataProvider provide_threat_report_requests
 	 *
-	 * @param string|null $page     The requested `page`, or null for none.
-	 * @param bool        $expected Whether the request is for the dashboard.
+	 * @param array       $query    The request's query args.
+	 * @param string|null $expected The redirect, or null for none.
 	 */
-	#[DataProvider( 'provide_page_requests' )]
-	public function test_is_dashboard_request_matches_only_the_protect_page( $page, $expected ) {
-		if ( null !== $page ) {
-			$_GET['page'] = $page;
-		}
-
-		$this->assertSame( $expected, Dashboard::is_dashboard_request() );
+	#[DataProvider( 'provide_threat_report_requests' )]
+	public function test_get_threat_report_redirect_moves_the_ids_into_the_route( $query, $expected ) {
+		$this->assertSame( $expected, Dashboard::get_threat_report_redirect( $query ) );
 	}
 
 	public function test_restore_screen_id_undoes_the_alias() {
@@ -337,5 +512,139 @@ class Dashboard_Test extends BaseTestCase {
 		$output = ob_get_clean();
 
 		$this->assertStringContainsString( $expected, $output );
+	}
+
+	/**
+	 * Whether the site agreed to the terms, whether it is offline, and whether Tracks is allowed.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_tracking_states() {
+		return array(
+			'terms agreed'     => array( true, false, true ),
+			'offline'          => array( true, true, false ),
+			'terms not agreed' => array( false, false, false ),
+		);
+	}
+
+	/**
+	 * @dataProvider provide_tracking_states
+	 *
+	 * @param bool $agreed   Whether the site agreed to the terms of service.
+	 * @param bool $offline  Whether Jetpack is in offline mode.
+	 * @param bool $expected Whether the Tracks script loads and the page may record.
+	 */
+	#[DataProvider( 'provide_tracking_states' )]
+	public function test_tracks_loads_only_when_tracking_is_allowed( $agreed, $offline, $expected ) {
+		\Jetpack_Options::update_option( 'tos_agreed', $agreed );
+		add_filter( 'jetpack_offline_mode', $offline ? '__return_true' : '__return_false' );
+
+		Dashboard::enqueue_tracks_transport();
+		ob_start();
+		Dashboard::print_tracks_state();
+		$printed = ob_get_clean();
+
+		$this->assertSame( $expected, wp_script_is( 'jp-tracks', 'enqueued' ) );
+		$this->assertSame( $expected, false !== strpos( $printed, 'window.jetpackProtectTracks = true;' ) );
+	}
+
+	/**
+	 * Whether the current user is connected, the WordPress.com user already in the script data, and the result.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_tracks_identities() {
+		$set_by_another_package = array(
+			'ID'    => 5,
+			'login' => 'other',
+		);
+		return array(
+			'already set by another package' => array( true, $set_by_another_package, $set_by_another_package ),
+			'no connected user'              => array( false, array( 'avatar' => 'a.png' ), array( 'avatar' => 'a.png' ) ),
+			'connected user'                 => array(
+				true,
+				array( 'avatar' => 'a.png' ),
+				array(
+					'avatar' => 'a.png',
+					'ID'     => 7,
+					'login'  => 'wpcomuser',
+				),
+			),
+		);
+	}
+
+	/**
+	 * @dataProvider provide_tracks_identities
+	 *
+	 * @param bool  $connected Whether the current user is connected to WordPress.com.
+	 * @param array $wpcom     The WordPress.com user already in the script data.
+	 * @param array $expected  The WordPress.com user in the returned script data.
+	 */
+	#[DataProvider( 'provide_tracks_identities' )]
+	public function test_add_tracks_identity_fills_in_only_a_missing_user( $connected, $wpcom, $expected ) {
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'admin',
+				'user_pass'  => 'pass',
+				'role'       => 'administrator',
+			)
+		);
+		wp_set_current_user( $user_id );
+		if ( $connected ) {
+			\Jetpack_Options::update_option( 'blog_token', 'blog.secret' );
+			\Jetpack_Options::update_option( 'user_tokens', array( $user_id => 'token.secret.' . $user_id ) );
+			set_transient(
+				"jetpack_connected_user_data_$user_id",
+				array(
+					'ID'    => 7,
+					'login' => 'wpcomuser',
+				)
+			);
+		}
+
+		$data = Dashboard::add_tracks_identity( array( 'user' => array( 'current_user' => array( 'wpcom' => $wpcom ) ) ) );
+
+		$this->assertSame( $expected, $data['user']['current_user']['wpcom'] );
+	}
+
+	/**
+	 * Whether a scan stored after the fix failed, and which fixes stay recorded.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_stored_scans() {
+		return array(
+			'a first completed scan clears the fix' => array( false, false, array() ),
+			'a first failed scan keeps it'          => array( true, false, array( '1' ) ),
+			'a later completed scan clears the fix' => array( false, true, array() ),
+			'a later failed scan keeps it'          => array( true, true, array( '1' ) ),
+		);
+	}
+
+	/**
+	 * Test that storing a completed scan clears the fixes it answers for, even before anything reads it.
+	 *
+	 * @dataProvider provide_stored_scans
+	 *
+	 * @param bool     $failed   Whether the stored scan failed.
+	 * @param bool     $replaces Whether an earlier scan is already stored, so update_option fires instead of add_option.
+	 * @param string[] $expected Ids still recorded.
+	 */
+	#[DataProvider( 'provide_stored_scans' )]
+	public function test_storing_a_scan_prunes_recorded_fixes( $failed, $replaces, $expected ) {
+		if ( $replaces ) {
+			update_option( Scan_Status::OPTION_NAME, maybe_serialize( (object) array( 'most_recent' => (object) array( 'timestamp' => gmdate( 'c', time() - DAY_IN_SECONDS ) ) ) ) );
+		}
+		Dashboard_Threats::resolve( array( 'id' => '1' ) );
+		$scan = (object) array(
+			'most_recent' => (object) array(
+				'timestamp' => gmdate( 'c', time() + HOUR_IN_SECONDS ),
+				'error'     => $failed,
+			),
+		);
+
+		Scan_Status::update_status_option( $scan );
+
+		$this->assertSame( $expected, array_map( 'strval', array_keys( Dashboard_Threats::get_resolved() ) ) );
 	}
 }

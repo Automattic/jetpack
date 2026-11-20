@@ -37,6 +37,12 @@ class WPCOM_Features {
 	public const STICKER_GATING_BUSINESS_Q1 = 'gating-business-q1';
 
 	/**
+	 * Sticker marking a site in the Woo bundle pricing experiment. Its paid Business or Commerce
+	 * plan then includes the bundled Woo extensions.
+	 */
+	public const STICKER_WOO_BUNDLE_EXPERIMENT = 'woo-bundle-experiment';
+
+	/**
 	 * First blog ID guaranteed to carry `gating-business-q1` from creation, after the universal
 	 * creation hook was deployed. Using blog ID since we can't get
 	 * the blog creation date on WPCloud sites.
@@ -300,6 +306,8 @@ class WPCOM_Features {
 	private const WPCOM_PREMIUM_AND_HIGHER_PLANS  = array( self::WPCOM_PREMIUM_PLANS, self::WPCOM_PRO_PLANS, self::WPCOM_BUSINESS_PLANS, self::WPCOM_ECOMMERCE_PLANS, self::WPCOM_ECOMMERCE_TRIAL_PLANS, self::WPCOM_WOOEXPRESS_PLANS );
 	private const WPCOM_BUSINESS_AND_HIGHER_PLANS = array( self::WPCOM_BUSINESS_PLANS, self::WPCOM_ECOMMERCE_PLANS, self::WPCOM_ECOMMERCE_TRIAL_PLANS, self::WPCOM_WOOEXPRESS_PLANS );
 	private const WPCOM_WOOEXPRESS_PLANS          = array( self::WPCOM_WOOEXPRESS_MEDIUM_PLANS, self::WPCOM_WOOEXPRESS_SMALL_PLANS );
+	// Business terms are listed one by one because WPCOM_BUSINESS_PLANS also nests the trial, Student, A4A and hundred-year plans.
+	private const WPCOM_PAID_BUSINESS_AND_COMMERCE_PLANS = array( self::BUSINESS_BUNDLE, self::BUSINESS_BUNDLE_MONTHLY, self::BUSINESS_BUNDLE_2Y, self::BUSINESS_BUNDLE_3Y, self::WPCOM_ECOMMERCE_PLANS );
 
 	// WPCOM "Level 3" C: Misc product groupings unrelated to free plan trials.
 	private const WPCOM_EMAIL_PRODUCTS = array( self::GOOGLE_WORKSPACE_PRODUCTS, self::GSUITE_PRODUCTS, self::WPCOM_TITAN_MAIL_PRODUCTS );
@@ -574,6 +582,7 @@ class WPCOM_Features {
 	public const VIDEOPRESS_VIDEO                  = 'videopress/video';
 	public const VIDEOPRESS_UNLIMITED_STORAGE      = 'videopress-unlimited-storage';
 	public const WHATSAPP_BUTTON                   = 'whatsapp-button';
+	public const WOO_BUNDLE_EXTENSIONS             = 'woo-bundle-extensions';
 	public const WOOP                              = 'woop';
 	public const WORDADS                           = 'wordads';
 	public const WORDADS_JETPACK                   = 'wordads-jetpack';
@@ -940,6 +949,8 @@ class WPCOM_Features {
 		),
 		self::GITHUB_DEPLOYMENTS                => array(
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
+			self::WPCOM_PERSONAL_AND_PREMIUM_PLANS,
+			self::WPCOM_PRO_PLANS,
 			self::EXCLUDE_PLANS => array(
 				self::WPCOM_ECOMMERCE_TRIAL_PLANS,
 			),
@@ -1397,6 +1408,7 @@ class WPCOM_Features {
 		// Hosting Configuration.
 		self::SFTP                              => array(
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
+			self::WPCOM_PERSONAL_AND_PREMIUM_PLANS,
 			self::WPCOM_PRO_PLANS,
 			self::EXCLUDE_PLANS => array(
 				self::WPCOM_ECOMMERCE_TRIAL_PLANS,
@@ -1406,6 +1418,8 @@ class WPCOM_Features {
 
 		self::SSH                               => array(
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
+			self::WPCOM_PERSONAL_AND_PREMIUM_PLANS,
+			self::WPCOM_PRO_PLANS,
 			self::EXCLUDE_PLANS => array(
 				self::WPCOM_ECOMMERCE_TRIAL_PLANS,
 			),
@@ -1606,6 +1620,13 @@ class WPCOM_Features {
 				self::WPCOM_BUSINESS_PLANS,
 				self::WPCOM_ECOMMERCE_PLANS,
 			),
+			self::EXCLUDE_PLANS => array(
+				self::BUSINESS_BUNDLE_MONTHLY,
+				self::ECOMMERCE_BUNDLE_MONTHLY,
+				self::A4A_WPCOM_BUSINESS_BUNDLE_MONTHLY,
+				self::WPCOM_MIGRATION_TRIAL_PLANS,
+				self::WPCOM_HOSTING_TRIAL_PLANS,
+			),
 		),
 		self::UPGRADED_UPLOAD_FILETYPES         => array(
 			self::SPACE_1GB,
@@ -1740,6 +1761,11 @@ class WPCOM_Features {
 				'before_feature_gating_2026' => true,
 				self::WPCOM_PREMIUM_PLANS,
 			),
+			// Provisioned VideoPress channels keep VideoPress on current Premium plans.
+			array(
+				'required_sticker' => 'videopress-channel',
+				self::WPCOM_PREMIUM_PLANS,
+			),
 			self::WPCOM_PRO_PLANS,
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::WPCOM_VIDEOPRESS,
@@ -1804,6 +1830,13 @@ class WPCOM_Features {
 		self::WHATSAPP_BUTTON                   => array(
 			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
 			self::JETPACK_ALL_SITES,
+		),
+		// Woo bundle pricing experiment: the sticker is required on every plan, Commerce included.
+		self::WOO_BUNDLE_EXTENSIONS             => array(
+			array(
+				'required_sticker' => self::STICKER_WOO_BUNDLE_EXPERIMENT,
+				self::WPCOM_PAID_BUSINESS_AND_COMMERCE_PLANS,
+			),
 		),
 
 		/*

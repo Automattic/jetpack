@@ -144,6 +144,7 @@ class PayPal_Platform_Client_Test extends TestCase {
 		$this->assertSame( '/v1/checkout/payment-resources', $body['path'] );
 		$this->assertSame( array( 'type' => 'BUY_NOW' ), $body['body'] );
 		$this->assertSame( 'request-1', $body['request_id'] );
+		$this->assertSame( PayPal_Payment_Buttons::PAYPAL_PARTNER_ATTRIBUTION_ID, $body['partner_attribution_id'] );
 		// A site onboarded before the tracking ID was kept has none to present.
 		$this->assertArrayNotHasKey( 'tracking_id', $body );
 
@@ -259,6 +260,7 @@ class PayPal_Platform_Client_Test extends TestCase {
 		$this->assertSame( 'GET', $requests[0]['args']['method'] );
 		$this->assertStringContainsString( 'environment=sandbox', $requests[0]['url'] );
 		$this->assertStringContainsString( 'tracking_id=woo-ncps-1234-1', $requests[0]['url'] );
+		$this->assertStringContainsString( 'partner_attribution_id=' . PayPal_Payment_Buttons::PAYPAL_PARTNER_ATTRIBUTION_ID, $requests[0]['url'] );
 		$this->assertStringNotContainsString( 'merchant_id=', $requests[0]['url'] );
 	}
 
@@ -397,5 +399,46 @@ class PayPal_Platform_Client_Test extends TestCase {
 
 		$this->assertCount( 1, $requests );
 		$this->assertStringContainsString( 'sandbox.paypal.com', $requests[0]['url'] );
+	}
+
+	/**
+	 * WordPress.com rebuilds the multipart upload from the files, so they travel as base64 in the JSON body.
+	 */
+	public function test_request_sends_upload_files_as_base64_for_wpcom_to_forward() {
+		$this->set_up_referred_merchant();
+		$requests = array();
+		$this->mock_http_routes(
+			array( PayPal_Platform_Client::WPCOM_REQUEST_ROUTE => $this->platform_response( 207, array( 'images' => array() ) ) ),
+			$requests
+		);
+
+		$response = PayPal_Platform_Client::request(
+			'POST',
+			PayPal_API_Client::IMAGES_ENDPOINT,
+			null,
+			'request-7',
+			array(
+				array(
+					'name'    => 'hero.png',
+					'type'    => 'image/png',
+					'content' => "\x89PNG",
+				),
+			)
+		);
+
+		$body = (array) json_decode( $requests[0]['args']['body'], true );
+		$this->assertSame( PayPal_API_Client::IMAGES_ENDPOINT, $body['path'] );
+		$this->assertNull( $body['body'] );
+		$this->assertSame(
+			array(
+				array(
+					'name'    => 'hero.png',
+					'type'    => 'image/png',
+					'content' => base64_encode( "\x89PNG" ), // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
+				),
+			),
+			$body['files']
+		);
+		$this->assertSame( 207, wp_remote_retrieve_response_code( $response ) );
 	}
 }

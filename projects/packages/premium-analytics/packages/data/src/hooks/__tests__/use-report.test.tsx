@@ -6,6 +6,7 @@ import { act, renderHook, waitFor } from '@testing-library/react';
 /**
  * Internal dependencies
  */
+import { isRefreshNoticeQuery } from '../refresh-failure-scope';
 import { useReport } from '../use-report';
 import type { ReportParams } from '../../utils/search';
 import type { ReactNode } from 'react';
@@ -92,6 +93,33 @@ describe( 'useReport', () => {
 		] );
 		expect( calls[ 0 ].params ).not.toHaveProperty( 'compare_from' );
 		expect( calls[ 1 ].params ).not.toHaveProperty( 'compare_from' );
+	} );
+
+	it( 'names where each period starts while a comparison is on', () => {
+		const { result } = renderHook(
+			() =>
+				useReport(
+					params => ( {
+						queryKey: [ 'period-starts', params.from ],
+						queryFn: async () => ( { summary: {}, data: [] } ),
+						enabled: false,
+					} ),
+					{
+						from: '2026-06-01',
+						to: '2026-06-07',
+						compare_from: '2026-05-01',
+						compare_to: '2026-05-07',
+						comp: '1',
+						interval: 'day',
+					}
+				),
+			{ wrapper }
+		);
+
+		expect( result.current.periodStarts ).toEqual( {
+			current: '2026-06-01',
+			comparison: '2026-05-01',
+		} );
 	} );
 
 	it( 'records the reporting zone the params named', () => {
@@ -254,4 +282,51 @@ describe( 'useReport', () => {
 		} );
 		expect( fetches ).toEqual( [ 'primary', 'comparison', 'primary', 'comparison' ] );
 	} );
+
+	it.each( [
+		[ 'counts', undefined, true ],
+		[ 'leaves out', { refreshNotice: false }, false ],
+	] )(
+		'%s a failed refresh in the stale-data notice when asked',
+		async ( _name, options, expected ) => {
+			const queryClient = new QueryClient( { defaultOptions: { queries: { retry: false } } } );
+			let primaryCalls = 0;
+			const queryFactory = (
+				_p: ReportParams,
+				queryType: string
+			): UseQueryOptions< { summary: Record< string, unknown > } > => ( {
+				queryKey: [ 'refresh-notice', queryType ],
+				queryFn: async () => {
+					if ( queryType === 'primary' && ++primaryCalls > 1 ) {
+						throw new Error( 'refresh failed' );
+					}
+					return { summary: { views: 1 } };
+				},
+			} );
+			const params: ReportParams = {
+				from: '2026-06-01',
+				to: '2026-06-07',
+				compare_from: '2026-05-01',
+				compare_to: '2026-05-07',
+				comp: '1',
+				interval: 'day',
+			};
+
+			const { result } = renderHook( () => useReport( queryFactory, params, options ), {
+				wrapper: ( { children }: { children: ReactNode } ) => (
+					<QueryClientProvider client={ queryClient }>{ children }</QueryClientProvider>
+				),
+			} );
+
+			await waitFor( () => expect( result.current.isLoading ).toBe( false ) );
+			await act( async () => {
+				await result.current.primary.refetch();
+			} );
+
+			const query = queryClient
+				.getQueryCache()
+				.find( { queryKey: [ 'refresh-notice', 'primary' ] } );
+			expect( query && isRefreshNoticeQuery( query ) ).toBe( expected );
+		}
+	);
 } );

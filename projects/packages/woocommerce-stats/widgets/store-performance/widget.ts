@@ -7,13 +7,16 @@ import { __ } from '@wordpress/i18n';
  */
 import { getStorePerformanceMetrics, STORE_PERFORMANCE_METRICS } from './metrics';
 import type { StorePerformanceMetric } from '../../src/store-performance/metric';
+import type { ChartDisplayChartType } from '@automattic/jetpack-premium-analytics-sdk';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
 /**
  * @property hiddenMetrics - The metrics switched off, by id. The rest of the list on offer shows.
+ * @property chartType     - How the selected metric is drawn. Defaults to `line`.
  */
 export type StorePerformanceAttributes = {
 	hiddenMetrics?: string[];
+	chartType?: ChartDisplayChartType;
 };
 
 /**

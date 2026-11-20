@@ -81,6 +81,15 @@ class PayPal_Attribute_Mapper {
 	const MAX_VARIANT_OPTIONS = 10;
 
 	/**
+	 * Line-item images PayPal shows on one payment. Mirrored in `utils/images.js`.
+	 *
+	 * @since 0.15.0
+	 *
+	 * @var int
+	 */
+	const MAX_PRODUCT_IMAGES = 5;
+
+	/**
 	 * Maximum product name length.
 	 *
 	 * @var int
@@ -123,7 +132,7 @@ class PayPal_Attribute_Mapper {
 	 *
 	 * `payment_link` is this package's own copy of the HATEOAS link.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.13.0
 	 *
 	 * @var string[]
 	 */
@@ -143,7 +152,7 @@ class PayPal_Attribute_Mapper {
 	 * With OWNED_LINE_ITEM_KEYS, these are the keys api_response_to_attributes() reads
 	 * into editable attributes; change the three together.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.13.0
 	 *
 	 * @var string[]
 	 */
@@ -159,7 +168,7 @@ class PayPal_Attribute_Mapper {
 	 * `collect_shipping_address` is left off on purpose: PayPal turns address
 	 * collection on for a body without it, so it stays as PayPal had it when not sent.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.13.0
 	 *
 	 * @var string[]
 	 */
@@ -168,6 +177,7 @@ class PayPal_Attribute_Mapper {
 		'unit_amount',
 		'description',
 		'product_id',
+		'images',
 		'variants',
 		'adjustable_quantity',
 		'customer_notes',
@@ -324,6 +334,10 @@ class PayPal_Attribute_Mapper {
 				$attributes['productId'] = sanitize_text_field( $line_item['product_id'] );
 			}
 
+			if ( ! empty( $line_item['images'] ) && is_array( $line_item['images'] ) ) {
+				$attributes['images'] = self::images_to_attributes( $line_item['images'] );
+			}
+
 			if ( ! empty( $line_item['variants']['dimensions'] ) ) {
 				$attributes['variantsEnabled'] = true;
 				$attributes['variants']        = $line_item['variants'];
@@ -442,6 +456,43 @@ class PayPal_Attribute_Mapper {
 	}
 
 	/**
+	 * A payment's line-item images as the block stores them, the primary one first.
+	 *
+	 * An image still in review has no URLs yet; the block keeps the media library's
+	 * own thumbnail for it.
+	 *
+	 * @since 0.15.0
+	 *
+	 * @param array $images Images as PayPal returns them.
+	 * @return array Each with assetId, status, url and thumbnailUrl.
+	 */
+	public static function images_to_attributes( array $images ) {
+		$mapped = array();
+
+		foreach ( $images as $image ) {
+			$asset_id = is_array( $image ) ? trim( (string) ( $image['asset_id'] ?? '' ) ) : '';
+			if ( '' === $asset_id ) {
+				continue;
+			}
+
+			$row = array(
+				'assetId'      => sanitize_text_field( $asset_id ),
+				'status'       => 'IN_REVIEW' === ( $image['status'] ?? '' ) ? 'IN_REVIEW' : 'APPROVED',
+				'url'          => esc_url_raw( (string) ( $image['url'] ?? '' ) ),
+				'thumbnailUrl' => esc_url_raw( (string) ( $image['thumbnail_url'] ?? '' ) ),
+			);
+
+			if ( ! empty( $image['is_primary'] ) ) {
+				array_unshift( $mapped, $row );
+			} else {
+				$mapped[] = $row;
+			}
+		}
+
+		return $mapped;
+	}
+
+	/**
 	 * Lay a block's request body over the payment as PayPal holds it.
 	 *
 	 * A PUT replaces the whole payment, so a key the block does not model is lost
@@ -449,7 +500,7 @@ class PayPal_Attribute_Mapper {
 	 * the body has them, dropped when it does not, since leaving one out is how a PUT
 	 * clears it. Line items merge per index, so a second item PayPal holds survives.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.13.0
 	 *
 	 * @param array $current The payment as a GET returned it.
 	 * @param array $update  The body built from the block.

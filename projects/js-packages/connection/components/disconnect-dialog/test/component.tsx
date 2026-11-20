@@ -63,6 +63,20 @@ describe( 'DisconnectDialog', () => {
 				).getByRole( 'heading' )
 			).toHaveTextContent( 'Are you sure you want to disconnect?' );
 		} );
+
+		it.each( [
+			[ {}, { context: null } ],
+			[
+				{ context: 'my-jetpack', placement: 'header' as const },
+				{ context: 'my-jetpack', placement: 'header' },
+			],
+		] )( 'records the open event with %p as %p', ( props, expected ) => {
+			render( <DisconnectDialog { ...testProps } { ...props } /> );
+			expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_disconnect_dialog_open', {
+				...expected,
+				plugin: expect.any( String ),
+			} );
+		} );
 	} );
 
 	describe( 'when disconnecting fails', () => {

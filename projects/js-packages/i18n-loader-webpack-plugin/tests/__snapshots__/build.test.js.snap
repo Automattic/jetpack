@@ -752,7 +752,7 @@ exports[`Webpack \`no-textdomain\` Build results: Webpack build stats 1`] = `
 {
   "errors": [
     {
-      "message": "Chunk dist/main.js has submodules using @wordpress/i18n, but no textdomain was passed to @automattic/i18n-loader-webpack-plugin. Please fix your Webpack configuration.",
+      "message": "Generating the runtime module webpack/runtime/loading @automattic/i18n-loader-webpack-plugin (I18nLoaderRuntimeModule) for hashing failed: Chunk dist/main.js has submodules using @wordpress/i18n, but no textdomain was passed to @automattic/i18n-loader-webpack-plugin. Please fix your Webpack configuration.",
       "moduleIdentifier": "webpack/runtime/loading @automattic/i18n-loader-webpack-plugin",
       "moduleName": "webpack/runtime/loading @automattic/i18n-loader-webpack-plugin",
     },

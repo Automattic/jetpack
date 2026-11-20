@@ -121,6 +121,6 @@ class Organization_Schema_Node {
 		if ( ! is_string( $value ) ) {
 			return '';
 		}
-		return trim( wp_strip_all_tags( $value ) );
+		return trim( \WP_HTML_Decoder::decode_text_node( wp_strip_all_tags( $value ) ) );
 	}
 }

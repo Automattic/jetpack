@@ -3,10 +3,15 @@ import {
 	isPremiumAnalyticsInitialSyncFinished,
 	isPremiumAnalyticsSiteConnected,
 } from '../site-readiness';
+import { WIDGET_MODULES_QUERY } from '../use-widget-modules';
+import { DASHBOARD_SECTIONS_QUERY } from './hooks/use-dashboard-sections';
 import { route } from './route';
 
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
 	ensureCoreSettingsReady: jest.fn( () => Promise.resolve() ),
+	getPolicyDefaultPreset: jest.fn( () => undefined ),
+	getSectionDatePolicy: () => ( { lockedIntervals: [] } ),
+	isPresetLockedByPolicy: () => true,
 	needsReportDateParamsSeed: jest.fn( () => false ),
 	normalizeReportParams: jest.fn( ( search: Record< string, string | undefined > ) => ( {
 		from: '2026-06-01T00:00:00',
@@ -42,6 +47,25 @@ jest.mock( '../site-readiness', () => ( {
 	isPremiumAnalyticsInitialSyncFinished: jest.fn( () => true ),
 } ) );
 
+jest.mock( '../stats-date-window', () => ( {
+	dashboardSectionOf: ( section?: string ) => section,
+	limitStatsDateSearch: jest.fn( () => undefined ),
+	dateWindowNotice: () => undefined,
+	withoutCarriedYearWindow: ( search: object ) => ( { ...search } ),
+} ) );
+
+const mockGetEntityRecords = jest.fn( () => Promise.resolve( [] ) );
+
+jest.mock( '@wordpress/data', () => ( {
+	resolveSelect: () => ( { getEntityRecords: mockGetEntityRecords } ),
+	useSelect: jest.fn(),
+} ) );
+
+jest.mock( '@wordpress/core-data', () => ( {
+	store: 'core',
+	useEntityRecords: jest.fn(),
+} ) );
+
 jest.mock( '@wordpress/route', () => ( {
 	redirect: jest.fn( ( options: object ) => ( { isRedirect: true, ...options } ) ),
 } ) );
@@ -65,6 +89,12 @@ describe( 'dashboard route.beforeLoad', () => {
 		( isPremiumAnalyticsSiteConnected as jest.Mock ).mockReturnValueOnce( false );
 
 		await expect( beforeLoad( settledSearch ) ).rejects.toMatchObject( { to: '/connect' } );
+	} );
+
+	it( 'sends a link to the former Settings tab to the Settings page, with the rest of its search', async () => {
+		await expect( beforeLoad( { ...settledSearch, section: 'settings' } ) ).rejects.toEqual(
+			expect.objectContaining( { to: '/settings', replace: true, search: settledSearch } )
+		);
 	} );
 
 	// Only the store section's data waits on the analytics sync, so an unfinished
@@ -136,5 +166,22 @@ describe( 'dashboard route.beforeLoad', () => {
 		} );
 
 		expect( search ).toMatchObject( { comp: '1', compare_preset: 'previous-period' } );
+	} );
+} );
+
+describe( 'dashboard route.loader', () => {
+	it( 'requests the dashboard sections and widget modules', () => {
+		route.loader();
+
+		expect( mockGetEntityRecords ).toHaveBeenCalledWith(
+			'root',
+			'dashboardSection',
+			DASHBOARD_SECTIONS_QUERY
+		);
+		expect( mockGetEntityRecords ).toHaveBeenCalledWith(
+			'root',
+			'widgetModule',
+			WIDGET_MODULES_QUERY
+		);
 	} );
 } );

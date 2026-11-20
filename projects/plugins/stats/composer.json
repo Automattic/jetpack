@@ -10,10 +10,12 @@
 		"automattic/jetpack-config": "@dev",
 		"automattic/jetpack-connection": "@dev",
 		"automattic/jetpack-my-jetpack": "@dev",
+		"automattic/jetpack-premium-analytics": "@dev",
 		"automattic/jetpack-stats": "@dev",
 		"automattic/jetpack-stats-admin": "@dev",
 		"automattic/jetpack-status": "@dev",
-		"automattic/jetpack-sync": "@dev"
+		"automattic/jetpack-sync": "@dev",
+		"automattic/jetpack-woocommerce-stats": "@dev"
 	},
 	"require-dev": {
 		"automattic/phpunit-select-config": "@dev",

@@ -39,8 +39,8 @@ jest.mock( '@wordpress/route', () => ( {
 import { act, render, renderHook, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { speak } from '@wordpress/a11y';
-import { StrictMode, useState } from '@wordpress/element';
-import ActivityList from '../src/dashboard/components/activity-list';
+import { StrictMode } from '@wordpress/element';
+import { stage as OverviewStage } from '../routes/dashboard/stage';
 import FileBrowser, { EMPTY_FILE_SELECTION } from '../src/dashboard/components/file-browser';
 import QueryError from '../src/dashboard/components/query-error';
 import { ANNOUNCE_WINDOW_MS } from '../src/dashboard/data/announce';
@@ -48,8 +48,6 @@ import { queryClient } from '../src/dashboard/data/query-client';
 import { useBackups } from '../src/dashboard/hooks/use-backups';
 import { useStickyError } from '../src/dashboard/hooks/use-sticky-error';
 import QueryClientProvider from '../src/dashboard/providers/query-client-provider';
-import { INITIAL_VIEW } from '../src/dashboard/screens/overview';
-import type { View } from '@wordpress/dataviews';
 
 const noop = () => {};
 
@@ -89,17 +87,25 @@ function deferred< T >() {
 }
 
 /**
- * `ActivityList` with the controlled view state it expects.
+ * Answer the activity log with `answer` and let every other route succeed,
+ * so the gates pass and the Overview body renders.
  *
- * @return The rendered harness.
+ * @param answer - Produces the activity log's response.
  */
-function Harness() {
-	const [ view, setView ] = useState< View >( INITIAL_VIEW );
-	return (
-		<QueryClientProvider>
-			<ActivityList selectedId={ null } onSelect={ noop } view={ view } onChangeView={ setView } />
-		</QueryClientProvider>
-	);
+function mockActivityLog( answer: () => Promise< unknown > ) {
+	mockApiFetch.mockImplementation( ( options: { path?: string } ) => {
+		const path = options?.path ?? '';
+		if ( path.includes( '/site/rewindable-activity' ) ) {
+			return answer();
+		}
+		if ( path.includes( '/site/capabilities' ) ) {
+			return Promise.resolve( { hasBackupPlan: true, hasScan: false } );
+		}
+		if ( path === '/jetpack/v4/backups' ) {
+			return Promise.resolve( [] );
+		}
+		return Promise.resolve( {} );
+	} );
 }
 
 beforeEach( () => {
@@ -236,12 +242,11 @@ describe( 'query error', () => {
 
 describe( 'activity list', () => {
 	it( 'keeps the reason and shows the retry as busy while it runs, then hands focus on', async () => {
-		mockApiFetch.mockRejectedValue( {
-			code: 'activity_log_fetch_failed',
-			message: 'Service unavailable',
-		} );
+		mockActivityLog( () =>
+			Promise.reject( { code: 'activity_log_fetch_failed', message: 'Service unavailable' } )
+		);
 
-		render( <Harness /> );
+		render( <OverviewStage /> );
 
 		await expect(
 			screen.findByText( "We couldn't load your site's activity." )
@@ -256,7 +261,7 @@ describe( 'activity list', () => {
 		).resolves.toBeInTheDocument();
 
 		const retry = deferred< unknown >();
-		mockApiFetch.mockImplementation( () => retry.promise );
+		mockActivityLog( () => retry.promise );
 		await userEvent.click( screen.getByRole( 'button', { name: 'Try again' } ) );
 
 		// The regression: this is where "No results" used to take over.
@@ -278,10 +283,12 @@ describe( 'activity list', () => {
 			totalPages: 1,
 		} );
 
-		await expect( screen.findByText( 'Backup complete' ) ).resolves.toBeInTheDocument();
+		await expect(
+			screen.findByRole( 'heading', { name: 'Latest backups' } )
+		).resolves.toBeInTheDocument();
 		expect( screen.queryByText( 'Service unavailable' ) ).not.toBeInTheDocument();
 		// The focused button went with the notice; without a handoff, focus is on `<body>`.
-		expect( screen.getByRole( 'heading', { name: 'Latest backups' } ) ).toHaveFocus();
+		expect( screen.getByRole( 'group', { name: 'Backup activity' } ) ).toHaveFocus();
 	} );
 } );
 

@@ -265,6 +265,52 @@ class Latest_Videos_Playlist_Block_Test extends BaseTestCase {
 	}
 
 	/**
+	 * A transcript match shows its escaped passage, marks the term and links to the cue time.
+	 */
+	public function test_render_search_shows_the_spoken_match() {
+		\Automattic\Jetpack\VideoPress\Channel_Data::reset();
+		foreach ( array( 'videopress_channel_enabled', 'videopress_transcript_index_enabled', 'videopress_transcript_search_enabled' ) as $flag ) {
+			add_filter( $flag, '__return_true' );
+		}
+		$site_url = function ( $url, $guid ) {
+			return add_query_arg( 'v', $guid, home_url( '/videopress/' ) );
+		};
+		add_filter( 'videopress_playlist_entry_url', $site_url, 10, 2 );
+		$spoken = $this->create_video( 'spoken01', '2024-02-01 10:00:00', 120000 );
+		$this->create_video( 'silent02', '2024-01-01 10:00:00', 60000 );
+		update_post_meta(
+			$spoken,
+			\Automattic\Jetpack\VideoPress\Transcript_Index::META_CUES,
+			array(
+				array(
+					'start' => 64000,
+					'end'   => 69000,
+					'text'  => 'Split <b>tables</b> with sharding.',
+				),
+			)
+		);
+		$_GET = array( 'videos-q' => 'sharding' );
+
+		$markup = VideoPress_Initializer::render_videopress_latest_videos_playlist_block(
+			array(
+				'showPlayer'         => false,
+				'showBrowseControls' => true,
+			)
+		);
+		$_GET   = array();
+		foreach ( array( 'videopress_channel_enabled', 'videopress_transcript_index_enabled', 'videopress_transcript_search_enabled' ) as $flag ) {
+			remove_filter( $flag, '__return_true' );
+		}
+		remove_filter( 'videopress_playlist_entry_url', $site_url );
+
+		$this->assertTrue( $this->captured_query->get( 'videopress_transcript_search' ) );
+		$this->assertSame( 1, substr_count( $markup, 'videopress-playlist__entry-snippet"' ), 'Only the video that says it gets a passage.' );
+		$this->assertStringContainsString( '<q>Split &lt;b&gt;tables&lt;/b&gt; with <mark>sharding</mark>.</q>', $markup );
+		$this->assertStringContainsString( '>1:04</span>', $markup );
+		$this->assertMatchesRegularExpression( '/href="[^"]*v=spoken01[^"]*t=64"/', $markup );
+	}
+
+	/**
 	 * The newest VideoPress videos come back first, capped at the count, with
 	 * only the numeric metadata; other attachments are ignored.
 	 */
@@ -525,6 +571,10 @@ class Latest_Videos_Playlist_Block_Test extends BaseTestCase {
 		$this->assertSame(
 			array( VideoPress_Initializer::class, 'render_videopress_latest_videos_playlist_block' ),
 			$block_type->render_callback
+		);
+		$this->assertSame(
+			array( VideoPress\Playlist_Block_Email_Renderer::class, 'render_latest_videos' ),
+			$block_type->render_email_callback
 		);
 		$this->assertTrue( $block_type->skip_inner_blocks );
 

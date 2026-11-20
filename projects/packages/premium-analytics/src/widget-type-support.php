@@ -12,11 +12,7 @@ namespace Automattic\Jetpack\PremiumAnalytics;
 
 use Automattic\Jetpack\Status\Host;
 
-// Guarded on a symbol the file declares, so a second copy of the package can't
-// redeclare it. See the include block in Analytics::load_dashboard_components().
-if ( ! function_exists( __NAMESPACE__ . '\\is_videopress_available' ) ) {
-	require_once __DIR__ . '/videopress-availability.php';
-}
+require_once __DIR__ . '/videopress-availability.php';
 
 /**
  * Widget types that only have data on a site running VideoPress. The Top videos widget is not
@@ -25,16 +21,6 @@ if ( ! function_exists( __NAMESPACE__ . '\\is_videopress_available' ) ) {
 const VIDEOPRESS_WIDGET_TYPES = array(
 	'jpa/video-detail-views-performance',
 	'jpa/video-detail-embeds',
-);
-
-/**
- * Period widgets whose chart reads the section's date range.
- */
-const PERIOD_WIDGET_TYPES = array(
-	'jpa/total-views',
-	'jpa/total-visitors',
-	'jpa/popular-days',
-	'jpa/popular-hours',
 );
 
 /**
@@ -56,9 +42,7 @@ function get_widget_support_context() {
  * @return string[] Unsupported widget type names.
  */
 function get_unsupported_widget_types( $context ) {
-	// Temporary: the period widgets are held back on every site until product decides
-	// whether they return or go (WOOA7S-2020). Their code stays.
-	$unsupported = PERIOD_WIDGET_TYPES;
+	$unsupported = array();
 
 	// File download tracking is served only on WPCOM Simple. Calypso applies
 	// the same boundary, which excludes self-hosted Jetpack and Atomic sites.

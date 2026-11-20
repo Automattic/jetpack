@@ -1,3 +1,4 @@
+import type { EmptyStateMode } from '../../channel/editor-controls';
 import type { VideoGUID } from '../video/types';
 
 /**
@@ -74,6 +75,8 @@ export type PlaylistAttributes = PlaylistDisplayAttributes & {
 	sourcePlaylistId?: string;
 	// "12K views · 3 days ago" under each entry, for sourced playlists.
 	showMeta?: boolean;
+	// What an indexed playlist shows while the channel has no playlists.
+	emptyState?: EmptyStateMode;
 };
 
 export type PlaylistSource = 'own' | 'queried' | 'index';

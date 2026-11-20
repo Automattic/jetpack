@@ -6,6 +6,7 @@
  */
 
 import { getRedirectUrl } from '@automattic/jetpack-components';
+import { speak } from '@wordpress/a11y';
 import {
 	Card,
 	CardBody,
@@ -18,15 +19,16 @@ import { createInterpolateElement, useCallback, useState } from '@wordpress/elem
 import { __ } from '@wordpress/i18n';
 import { check, copy } from '@wordpress/icons';
 import { Button, Link, Stack } from '@wordpress/ui';
-
-const MCP_SERVER_NAME = 'wpcom-mcp';
-const MCP_SERVER_URL = 'https://public-api.wordpress.com/wpcom/v2/mcp/v1';
-// Each resolves to the client's connector or plugin page.
-const CLAUDE_CONNECTOR_REDIRECT_SOURCE = 'jetpack-ai-hub-mcp-setup-claude';
-const CLAUDE_SELF_HOSTED_REDIRECT_SOURCE = 'jetpack-ai-hub-mcp-setup-claude-self-hosted';
-const CHATGPT_CONNECTOR_REDIRECT_SOURCE = 'jetpack-ai-hub-mcp-setup-chatgpt';
-const CHATGPT_SELF_HOSTED_REDIRECT_SOURCE = 'jetpack-ai-hub-mcp-setup-chatgpt-self-hosted';
-const CURSOR_PLUGIN_REDIRECT_SOURCE = 'jetpack-ai-hub-mcp-setup-cursor';
+import {
+	CHATGPT_CONNECTOR_REDIRECT_SOURCE,
+	CHATGPT_SELF_HOSTED_REDIRECT_SOURCE,
+	CLAUDE_CODE_COMMAND,
+	CLAUDE_CONNECTOR_REDIRECT_SOURCE,
+	CLAUDE_SELF_HOSTED_REDIRECT_SOURCE,
+	CURSOR_PLUGIN_REDIRECT_SOURCE,
+	MCP_SERVER_NAME,
+	MCP_SERVER_URL,
+} from './connect-agents';
 
 const CLIENT_OPTIONS = [
 	{ label: 'Claude', value: 'claude' },
@@ -75,8 +77,6 @@ function generateMcpConfig( client ) {
 			return { servers: { [ MCP_SERVER_NAME ]: baseConfig } };
 		case 'cursor':
 			return { mcpServers: { [ MCP_SERVER_NAME ]: baseConfig } };
-		case 'continue':
-			return { mcpServers: [ { name: MCP_SERVER_NAME, ...baseConfig } ] };
 		default:
 			return { mcpServers: { [ MCP_SERVER_NAME ]: baseConfig } };
 	}
@@ -101,6 +101,7 @@ export default function McpSetup() {
 		try {
 			await navigator.clipboard.writeText( configText );
 			setCopyStatus( 'success' );
+			speak( __( 'Copied', 'jetpack' ) );
 			setTimeout( () => setCopyStatus( 'idle' ), 2000 );
 		} catch {
 			// Clipboard may be blocked — silently fail.
@@ -111,7 +112,7 @@ export default function McpSetup() {
 	const showQuickSetup = quickSetupClients.includes( selectedClient );
 
 	return (
-		<Stack direction="column" gap="md">
+		<Stack direction="column" gap="lg">
 			<Card>
 				<CardBody>
 					<SelectControl
@@ -182,7 +183,7 @@ export default function McpSetup() {
 													{
 														code: (
 															<code className="jetpack-ai-mcp-setup__code">
-																{ `claude mcp add --transport http ${ MCP_SERVER_NAME } ${ MCP_SERVER_URL }` }
+																{ CLAUDE_CODE_COMMAND }
 															</code>
 														),
 													}
@@ -238,9 +239,7 @@ export default function McpSetup() {
 															) }
 															openInNewTab
 														>
-															{ isSelfHosted
-																? __( 'Jetpack plugin', 'jetpack' )
-																: __( 'WordPress.com plugin', 'jetpack' ) }
+															{ __( 'WordPress plugin', 'jetpack' ) }
 														</Link>
 													),
 												}
@@ -271,7 +270,7 @@ export default function McpSetup() {
 																href={ getRedirectUrl( CURSOR_PLUGIN_REDIRECT_SOURCE ) }
 																openInNewTab
 															>
-																{ __( 'WordPress.com plugin', 'jetpack' ) }
+																{ __( 'WordPress plugin', 'jetpack' ) }
 															</Link>
 														),
 													}
@@ -328,6 +327,8 @@ export default function McpSetup() {
 							<TextareaControl
 								className="jetpack-ai-mcp-setup__config-textarea"
 								__nextHasNoMarginBottom
+								label={ __( 'MCP configuration', 'jetpack' ) }
+								hideLabelFromVision
 								value={ configText }
 								onChange={ handleConfigChange }
 								readOnly

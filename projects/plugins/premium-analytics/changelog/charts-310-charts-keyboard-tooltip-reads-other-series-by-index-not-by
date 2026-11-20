@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Show the values for the selected date in chart tooltips when you move through a chart with the arrow keys.

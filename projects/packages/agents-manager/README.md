@@ -15,7 +15,6 @@ add_action( 'plugins_loaded', array( Agents_Manager::class, 'init' ) );
 ## Features
 
 - Persisted open state management via REST API
-- Router history cleanup to prevent preference bloat
 
 ## REST API Endpoints
 
@@ -31,12 +30,10 @@ Retrieves the current agents manager state from user preferences.
 **Response:**
 ```json
 {
-  "calypso_preferences": {
-    "agents_manager_open": true,
-    "agents_manager_docked": false,
-    "agents_manager_floating_position": "right",
-    "agents_manager_router_history": { ... }
-  }
+  "agents_manager_open": true,
+  "agents_manager_docked": false,
+  "agents_manager_minimized": false,
+  "agents_manager_floating_position": "right"
 }
 ```
 
@@ -49,8 +46,7 @@ Updates the agents manager state in user preferences.
 {
   "agents_manager_open": true,
   "agents_manager_docked": false,
-  "agents_manager_floating_position": "left",
-  "agents_manager_router_history": { ... }
+  "agents_manager_floating_position": "left"
 }
 ```
 
@@ -76,10 +72,6 @@ If the endpoint is already registered (for example, by the Jetpack plugin), the 
   "blog_id": 12345
 }
 ```
-
-## Router History Cleanup
-
-The Agents Manager automatically limits router history entries to 50 via the `calypso_preferences_update` filter. When the limit is exceeded, it keeps the last 49 entries and prepends a root entry to ensure the back button always works.
 
 ## Using this package in your WordPress plugin
 

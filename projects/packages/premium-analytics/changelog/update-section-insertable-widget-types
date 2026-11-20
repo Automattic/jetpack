@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Dashboard sections: Let a section declare the widget types its inserter offers on top of its default layout, filterable by any plugin.

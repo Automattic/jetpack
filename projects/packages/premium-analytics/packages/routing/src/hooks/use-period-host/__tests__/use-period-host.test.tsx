@@ -14,7 +14,7 @@ jest.mock( '@wordpress/route', () => ( {
  * External dependencies
  */
 import { TZDate } from '@date-fns/tz';
-import { PeriodChangeSignalProvider } from '@jetpack-premium-analytics/data';
+import { PeriodChangeSignalProvider, type DateLimits } from '@jetpack-premium-analytics/data';
 import { act, renderHook } from '@testing-library/react';
 import { getSettings, setSettings } from '@wordpress/date';
 /**
@@ -34,16 +34,26 @@ const WEEK = {
 	to: new TZDate( '2026-09-27T23:59:59.999+00:00', 'UTC' ),
 };
 
+const MONTH = {
+	from: new TZDate( '2026-09-01T00:00:00.000+00:00', 'UTC' ),
+	to: new TZDate( '2026-09-30T23:59:59.999+00:00', 'UTC' ),
+};
+
 const wrapper = ( { children }: { children: ReactNode } ) => (
 	<PeriodChangeSignalProvider>{ children }</PeriodChangeSignalProvider>
 );
 
 // A stage: its date control reads the URL, and its widgets set the period through the host.
-function renderStage() {
+function renderStage(
+	dateLimits?: Pick< DateLimits, 'lockedIntervals' | 'earliestDate' >,
+	withZoomOut = false
+) {
 	return renderHook(
 		() => {
 			const dateFilters = useReportDateFilters( '/' );
-			const host = usePeriodHost( 'traffic', dateFilters.appliedRange, true );
+			const host = usePeriodHost( 'traffic', dateFilters.appliedRange, true, dateLimits, {
+				withZoomOut,
+			} );
 
 			return { dateFilters, host };
 		},
@@ -53,6 +63,8 @@ function renderStage() {
 
 describe( 'usePeriodHost', () => {
 	beforeEach( () => {
+		// The year-to-date window is read as of today, so the clock stays where the URL's dates are.
+		jest.useFakeTimers().setSystemTime( Date.parse( '2026-10-05T12:00:00.000Z' ) );
 		mockSearch = {
 			from: '2026-01-01T00:00:00.000+00:00',
 			to: '2026-10-05T23:59:59.999+00:00',
@@ -71,11 +83,14 @@ describe( 'usePeriodHost', () => {
 		);
 	} );
 
-	it( 'draws the date control to a period a widget set, once it lands', () => {
-		const { result, rerender } = renderStage();
+	afterEach( () => {
+		jest.useRealTimers();
+	} );
+
+	it( 'draws the date control to a period a widget set, with the range it set', () => {
+		const { result } = renderStage();
 
 		act( () => result.current.host.openPeriod( WEEK ) );
-		rerender();
 
 		expect( mockSearch ).toMatchObject( {
 			from: '2026-09-21T00:00:00.000+00:00',
@@ -83,7 +98,53 @@ describe( 'usePeriodHost', () => {
 			preset: 'custom',
 			interval: 'day',
 		} );
-		expect( result.current.host.attentionId ).toEqual( expect.any( Number ) );
+		expect( result.current.host.attention ).toEqual( {
+			id: expect.any( Number ),
+			range: WEEK,
+		} );
+	} );
+
+	it.each( [
+		[ 'carries the interval over', undefined, 'week' ],
+		[ 'skips a locked interval', [ 'week', 'month', 'year' ] as const, 'day' ],
+	] )( '%s to a period a widget set', ( _name, lockedIntervals, interval ) => {
+		const { result } = renderStage( lockedIntervals && { lockedIntervals } );
+
+		act( () => result.current.host.openPeriod( MONTH ) );
+
+		expect( mockSearch ).toMatchObject( { preset: 'custom', interval } );
+	} );
+
+	it.each( [
+		[ 'offers a zoom out to the window left, when asked to', true, 'year-to-date' ],
+		[ 'offers no zoom out unless asked to', false, undefined ],
+	] )( '%s', ( _name, withZoomOut, presetId ) => {
+		const { result, rerender } = renderStage( undefined, withZoomOut );
+
+		act( () => result.current.host.openPeriod( WEEK ) );
+		rerender();
+
+		expect( result.current.dateFilters.zoomOut?.presetId ).toBe( presetId );
+	} );
+
+	it( 'keeps the step a widget opens its period with, for the arrows', () => {
+		const { result } = renderStage();
+
+		act( () => result.current.host.openPeriod( WEEK, { step: 'P7D' } ) );
+
+		expect( mockSearch ).toMatchObject( { preset: 'custom', step: 'P7D' } );
+	} );
+
+	it( 'commits a period the plan will move away from without drawing the control to it', () => {
+		const { result } = renderStage( {
+			lockedIntervals: [],
+			earliestDate: new TZDate( '2026-09-22T00:00:00.000+00:00', 'UTC' ),
+		} );
+
+		act( () => result.current.host.openPeriod( WEEK ) );
+
+		expect( mockSearch ).toMatchObject( { from: '2026-09-21T00:00:00.000+00:00' } );
+		expect( result.current.host.attention ).toBeUndefined();
 	} );
 
 	it( 'leaves the calendar on the new period when the picker closes after it', () => {

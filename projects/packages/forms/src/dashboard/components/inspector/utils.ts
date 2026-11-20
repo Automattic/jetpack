@@ -2,17 +2,20 @@
  * Internal dependencies
  */
 import { decodeEntities } from '@wordpress/html-entities';
+import { __ } from '@wordpress/i18n';
 import type { FormResponse, ResponseField } from '../../../types/index.ts';
 
 /**
  * Returns a display name for a form response author.
  *
  * @param response - The form response.
- * @return The decoded display name, or 'Anonymous' if none available.
+ * @return The decoded display name, or localized 'Anonymous' if none available.
  */
 export const getDisplayName = ( response: FormResponse ): string => {
 	const { author_name, author_email, author_url, ip } = response;
-	return decodeEntities( author_name || author_email || author_url || ip || 'Anonymous' );
+	return decodeEntities(
+		author_name || author_email || author_url || ip || __( 'Anonymous', 'jetpack-forms' )
+	);
 };
 
 /**

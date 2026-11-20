@@ -1,14 +1,16 @@
 import useConnectionErrorNotice from '@automattic/jetpack-connection/use-connection-error-notice';
-import { DropZone, Tooltip } from '@wordpress/components';
+import { DropZone } from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
 import { DataViews } from '@wordpress/dataviews';
 import { useCallback, useMemo, useRef, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
 import { useNavigate } from '@wordpress/route';
-import { Button, Card } from '@wordpress/ui';
+import { Button, Card, Tooltip } from '@wordpress/ui';
 import CaptionManagerModal from '../../src/client/components/caption-manager-modal/lazy';
+import RecordVideoButton from '../../src/client/components/video-recording';
 import DashboardLayout from '../../src/dashboard/components/dashboard-layout';
+import DataViewsContent from '../../src/dashboard/components/dataviews-toolbar';
 import FetchErrorNotice from '../../src/dashboard/components/fetch-error-notice';
 import FreeTierNotice, {
 	FREE_TIER_AT_LIMIT_MESSAGE,
@@ -18,18 +20,29 @@ import { libraryFields } from '../../src/dashboard/components/library/fields';
 import { UploadActionsProvider } from '../../src/dashboard/components/library/upload-actions-context';
 import QueryClientWrapper from '../../src/dashboard/components/query-client-wrapper';
 import UploadDropzone from '../../src/dashboard/components/upload-dropzone';
-import { DeleteVideosError, useDeleteVideo } from '../../src/dashboard/hooks/use-delete-video';
+import {
+	DeleteVideosError,
+	useDeleteVideo,
+	type VideoDeletionItem,
+} from '../../src/dashboard/hooks/use-delete-video';
 import { useFreeTier } from '../../src/dashboard/hooks/use-free-tier';
-import { useLibrary } from '../../src/dashboard/hooks/use-library';
+import { isWholeLibraryView, useLibrary } from '../../src/dashboard/hooks/use-library';
+import { useLibraryInteractions } from '../../src/dashboard/hooks/use-library-interactions';
 import { usePersistedView } from '../../src/dashboard/hooks/use-persisted-view';
 import { useSetPrivacy } from '../../src/dashboard/hooks/use-set-privacy';
 import { useUpload } from '../../src/dashboard/hooks/use-upload';
 import { useUploadFromLibrary } from '../../src/dashboard/hooks/use-upload-from-library';
 import { useUploadIntake } from '../../src/dashboard/hooks/use-upload-intake';
+import { useVideoPressUpgrade } from '../../src/dashboard/hooks/use-videopress-upgrade';
+import {
+	recordUploadRefusal,
+	type UploadRefusal,
+} from '../../src/dashboard/utils/upload-refusal-analytics';
 import { uploadToLibraryItem } from '../../src/dashboard/utils/upload-to-library-item';
 import { createPromoteLocal } from './promote-local';
 import { classifyUploadFailure } from './upload-failure';
 import './style.scss';
+import type { VideoPrivacyItem } from '../../src/dashboard/hooks/use-set-privacy';
 import type { LibraryItem, LibraryItemPrivacy } from '../../src/dashboard/types/library';
 import type { SupportedLayouts, View } from '@wordpress/dataviews';
 import type { ChangeEvent } from 'react';
@@ -70,10 +83,10 @@ const DEFAULT_VIEW: View = {
 	search: '',
 };
 
-// The whole library, unfiltered — `paginationInfo` on the user's own view is
-// scoped to their filters and search, so it cannot answer "is there anything
-// at all". A perPage=1 read keeps it cheap, and the shape is stable so the
-// query caches across screens.
+// The whole library, unfiltered — `paginationInfo` on a filtered or searched
+// view is scoped to it, so it cannot answer "is there anything at all". A
+// perPage=1 read keeps it cheap, and the shape is stable so the query caches
+// across screens.
 const TOTAL_COUNT_VIEW: View = {
 	type: 'table',
 	page: 1,
@@ -87,6 +100,7 @@ const TOTAL_COUNT_VIEW: View = {
 const StageInner = () => {
 	const [ initialView, persistView ] = usePersistedView( DEFAULT_VIEW, defaultLayouts );
 	const [ view, setView ] = useState< View >( initialView );
+	useLibraryInteractions( view );
 	const [ selection, setSelection ] = useState< string[] >( [] );
 	const [ captionVideo, setCaptionVideo ] = useState< LibraryItem | null >( null );
 	// Local IDs currently being promoted from local-storage to VideoPress,
@@ -108,6 +122,7 @@ const StageInner = () => {
 	const {
 		items,
 		isLoading,
+		isPlaceholderData,
 		paginationInfo,
 		isError,
 		error: libraryError,
@@ -117,15 +132,20 @@ const StageInner = () => {
 	// notice this dashboard already renders carries the diagnosis and the
 	// reconnect button, so the row only has to point at it.
 	const { hasConnectionError } = useConnectionErrorNotice();
-	const {
-		paginationInfo: totalPagination,
-		isLoading: isTotalLoading,
-		isError: isTotalError,
-	} = useLibrary( TOTAL_COUNT_VIEW, { poll: false } );
+	// An unfiltered listing already carries the library total, so only a narrowed view needs the count request.
+	const listCountsLibrary = isWholeLibraryView( view );
+	const totalQuery = useLibrary( TOTAL_COUNT_VIEW, { poll: false, enabled: ! listCountsLibrary } );
+	const libraryTotal = listCountsLibrary
+		? paginationInfo.totalItems
+		: totalQuery.paginationInfo.totalItems;
+	// A placeholder still holds the previous view's total.
+	const isTotalLoading = listCountsLibrary ? isLoading || isPlaceholderData : totalQuery.isLoading;
+	const isTotalError = listCountsLibrary ? isError : totalQuery.isError;
 	const { mutateAsync: deleteVideo } = useDeleteVideo();
 	const { mutateAsync: setPrivacyAsync } = useSetPrivacy();
 	const { mutateAsync: uploadFromLibrary } = useUploadFromLibrary();
-	const { isAtLimit, isFree, isUnlimited } = useFreeTier();
+	const { isAtLimit, isFree, isUnlimited, videoCount, videoCountKnown } = useFreeTier();
+	const runUpgrade = useVideoPressUpgrade( 'library_at_limit' );
 
 	const onChangeView = useCallback(
 		( next: View ) => {
@@ -175,7 +195,10 @@ const StageInner = () => {
 		},
 		[ openVideoDetails ]
 	);
-	const handleFilesSelected = useUploadIntake( onUploadsStarted );
+	const handleFilesSelected = useUploadIntake( 'library_intake', onUploadsStarted );
+	const onUploadRefused = useCallback( ( refusal: UploadRefusal ) => {
+		recordUploadRefusal( 'library_dropzone', refusal );
+	}, [] );
 
 	const onFilePicked = useCallback(
 		( event: ChangeEvent< HTMLInputElement > ) => {
@@ -213,7 +236,8 @@ const StageInner = () => {
 				manageCaptions: ( item: LibraryItem ) => {
 					setCaptionVideo( item );
 				},
-				deleteItems: async ( ids: string[] ) => {
+				deleteItems: async ( deletionItems: VideoDeletionItem[] ) => {
+					const ids = deletionItems.map( item => item.id );
 					setDeletingIds( prev => new Set( [ ...prev, ...ids ] ) );
 					// The row overlay/pill is purely visual; this notice is what
 					// announces the in-flight state to screen readers. Per-batch id
@@ -243,7 +267,7 @@ const StageInner = () => {
 					// from the listing.
 					let failedIds = new Set< string >();
 					try {
-						await deleteVideo( ids );
+						await deleteVideo( deletionItems );
 						createSuccessNotice(
 							sprintf(
 								/* translators: %d: number of deleted videos. */
@@ -288,11 +312,11 @@ const StageInner = () => {
 					const requested = new Set( ids );
 					setSelection( prev => prev.filter( id => ! requested.has( id ) || failedIds.has( id ) ) );
 				},
-				setPrivacy: ( ids: string[], privacy: LibraryItemPrivacy ) => {
+				setPrivacy: ( privacyItems: VideoPrivacyItem[], privacy: LibraryItemPrivacy ) => {
 					// Batch through useSetPrivacy: each id is POSTed individually so one
 					// failure doesn't abort the rest, and the result reports which ids
 					// succeeded vs. failed so we can surface an accurate notice.
-					setPrivacyAsync( { ids, privacy } )
+					setPrivacyAsync( { items: privacyItems, privacy } )
 						.then( ( { succeeded, failed } ) => {
 							if ( failed.length === 0 ) {
 								createSuccessNotice(
@@ -411,7 +435,13 @@ const StageInner = () => {
 			paginationInfo={ paginationInfo }
 			isLoading={ isLoading || ( isTotalLoading && renderedItems.length === 0 ) }
 			defaultLayouts={ defaultLayouts }
-		/>
+		>
+			<DataViewsContent
+				view={ view }
+				onChangeView={ onChangeView }
+				defaultLayouts={ defaultLayouts }
+			/>
+		</DataViews>
 	);
 
 	// The hook defaults its count to zero; only settled, successful reads confirm an empty library.
@@ -422,7 +452,7 @@ const StageInner = () => {
 		! isTotalError &&
 		items.length === 0 &&
 		uploadQueue.length === 0 &&
-		totalPagination.totalItems === 0;
+		libraryTotal === 0;
 
 	const renderViewport = () => {
 		// A failed listing request would otherwise render as DataViews'
@@ -465,8 +495,10 @@ const StageInner = () => {
 						<Card.Content>
 							<UploadDropzone
 								onFiles={ handleFilesSelected }
+								onRefused={ onUploadRefused }
 								disabled={ isAtLimit }
 								allowMultiple={ ! isFree || isUnlimited }
+								onUpgrade={ runUpgrade }
 							/>
 						</Card.Content>
 					</Card.Root>
@@ -501,29 +533,41 @@ const StageInner = () => {
 							style={ { display: 'none' } }
 							onChange={ onFilePicked }
 						/>
-						<Tooltip
-							text={
-								isAtLimit
-									? FREE_TIER_AT_LIMIT_MESSAGE
-									: __( 'Upload a new video', 'jetpack-videopress-pkg' )
-							}
-						>
-							<Button
-								className="vp-library__upload-button"
-								size="compact"
-								onClick={ onClickHeaderUpload }
-								aria-disabled={ isAtLimit }
+						<Tooltip.Root>
+							<Tooltip.Trigger
+								render={
+									<Button
+										className="vp-library__upload-button"
+										size="compact"
+										onClick={ onClickHeaderUpload }
+										aria-disabled={ isAtLimit }
+									/>
+								}
 							>
 								{ __( 'Upload video', 'jetpack-videopress-pkg' ) }
-							</Button>
-						</Tooltip>
+							</Tooltip.Trigger>
+							<Tooltip.Popup>
+								{ isAtLimit
+									? FREE_TIER_AT_LIMIT_MESSAGE
+									: __( 'Upload a new video', 'jetpack-videopress-pkg' ) }
+							</Tooltip.Popup>
+						</Tooltip.Root>
+						<RecordVideoButton
+							size="compact"
+							onRecorded={ file => handleFilesSelected( [ file ] ) }
+							disabled={ isAtLimit }
+						/>
 					</>
 				)
 			}
 		>
 			{ isAtLimit && (
 				<div className="vp-library__notice">
-					<FreeTierNotice message={ FREE_TIER_AT_LIMIT_MESSAGE } />
+					<FreeTierNotice
+						location="library_at_limit"
+						message={ FREE_TIER_AT_LIMIT_MESSAGE }
+						videoCount={ videoCountKnown ? videoCount : undefined }
+					/>
 				</div>
 			) }
 			<UploadActionsProvider value={ { promoteLocal, retryUpload, openVideoDetails } }>
@@ -552,7 +596,7 @@ const StageInner = () => {
 };
 
 const Stage = () => (
-	<QueryClientWrapper>
+	<QueryClientWrapper route="library">
 		<StageInner />
 	</QueryClientWrapper>
 );

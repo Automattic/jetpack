@@ -16,6 +16,7 @@ import { getArchivesFields, getPostsFields } from './fields';
 import type { ArchiveRow } from '@jetpack-premium-analytics/widgets-toolkit';
 
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
+	isPostDetailAvailable: () => true,
 	useSiteHomeUrl: jest.fn(),
 } ) );
 
@@ -219,7 +220,7 @@ describe( 'posts title field', () => {
 		const href = link.getAttribute( 'href' ) ?? '';
 		const search = new URL( href, 'https://example.com' ).searchParams;
 
-		expect( href ).toContain( '/post/42' );
+		expect( href ).toContain( '/report/post/42' );
 		// The detail page must open on the range the report is showing, not
 		// reseed its own defaults.
 		expect( search.get( 'from' ) ).toBe( '2026-03-01' );

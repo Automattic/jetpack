@@ -54,6 +54,7 @@ export function normalizeWpcomMcpSettings( data, blogId ) {
 					site_level_enabled: siteLevelEnabled,
 					abilities: userOverrides.abilities ?? {},
 					group_intents: userOverrides.group_intents ?? {},
+					remote_groups: userOverrides.remote_groups ?? {},
 				},
 			],
 			site_level_enabled_default: siteLevelEnabled,
@@ -72,7 +73,7 @@ export function prepareWpcomMcpUpdate( update ) {
 	const site = update?.sites?.[ 0 ] ?? {};
 	const data = {};
 
-	for ( const key of [ 'site_level_enabled', 'abilities', 'group_intents' ] ) {
+	for ( const key of [ 'site_level_enabled', 'abilities', 'group_intents', 'remote_groups' ] ) {
 		if ( Object.hasOwn( site, key ) ) {
 			data[ key ] = site[ key ];
 		}
@@ -151,7 +152,10 @@ export function useMcpSettings( { skip = false } = {} ) {
 		update => {
 			// Collect the toolIds this request touches so only those toggles are disabled.
 			const siteEntry = update.sites?.[ 0 ] ?? {};
-			const toolIds = Object.keys( siteEntry.abilities ?? {} );
+			const toolIds = [
+				...Object.keys( siteEntry.abilities ?? {} ),
+				...Object.keys( siteEntry.remote_groups ?? {} ),
+			];
 			// Use a sentinel for site_level_enabled so the main toggle is also targeted.
 			if ( siteEntry.site_level_enabled !== undefined ) {
 				toolIds.push( '__site_level__' );

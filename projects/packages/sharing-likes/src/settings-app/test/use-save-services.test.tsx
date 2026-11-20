@@ -1,15 +1,13 @@
 import { act, renderHook, waitFor } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
-import { select } from '@wordpress/data';
-import { store as noticesStore } from '@wordpress/notices';
-import { queryKeys, useServices, useSettings, useStatus } from '../data/queries';
+import { store } from '../data/store';
 import { useSaveServices } from '../data/use-save-services';
 import {
 	apiCalls,
 	baseSettings,
 	baseStatus,
-	createTestQueryClient,
-	resetNotices,
+	createTestRegistry,
+	notices,
 	snackbarMessages,
 	wrapperFor,
 } from './helpers';
@@ -29,23 +27,14 @@ const services: Services = {
 };
 
 /**
- * Render the hook beside active status, settings and services queries, as the screen does.
+ * Render the hook in a registry seeded with the services.
  *
- * @return Hook result and query client.
+ * @return Hook result and registry.
  */
 function renderSave() {
-	const queryClient = createTestQueryClient();
-	queryClient.setQueryData( queryKeys.services, services );
-	const { result } = renderHook(
-		() => {
-			useStatus();
-			useSettings();
-			useServices( true );
-			return useSaveServices();
-		},
-		{ wrapper: wrapperFor( queryClient ) }
-	);
-	return { result, queryClient };
+	const registry = createTestRegistry( { services } );
+	const { result } = renderHook( () => useSaveServices(), { wrapper: wrapperFor( registry ) } );
+	return { result, registry };
 }
 
 /**
@@ -65,7 +54,6 @@ function deferred< T >() {
 
 beforeEach( () => {
 	mockApiFetch.mockReset();
-	resetNotices();
 } );
 
 describe( 'useSaveServices', () => {
@@ -74,7 +62,7 @@ describe( 'useSaveServices', () => {
 		mockApiFetch.mockImplementation( ( { method } ) =>
 			Promise.resolve( method === 'PUT' ? saved : services )
 		);
-		const { result, queryClient } = renderSave();
+		const { result, registry } = renderSave();
 
 		await act( () => result.current( { visible: [ 'x', 'facebook' ], hidden: [ 'email' ] } ) );
 
@@ -85,7 +73,7 @@ describe( 'useSaveServices', () => {
 				data: { visible: [ 'x', 'facebook' ], hidden: [ 'email' ] },
 			},
 		] );
-		expect( queryClient.getQueryData( queryKeys.services ) ).toEqual( saved );
+		expect( registry.select( store ).getServices() ).toEqual( saved );
 		expect( snackbarMessages() ).toContain( 'Settings have been saved' );
 	} );
 
@@ -102,14 +90,11 @@ describe( 'useSaveServices', () => {
 			}
 			return Promise.resolve( path?.endsWith( '/status' ) ? baseStatus : baseSettings );
 		} );
-		const { result, queryClient } = renderSave();
+		const { result, registry } = renderSave();
 
 		await act( () => result.current( { visible: [ 'x', 'facebook' ], hidden: [ 'email' ] } ) );
 
-		expect( queryClient.getQueryData< Services >( queryKeys.services )?.visible ).toEqual( [
-			'facebook',
-			'x',
-		] );
+		expect( registry.select( store ).getServices()?.visible ).toEqual( [ 'facebook', 'x' ] );
 		expect( snackbarMessages() ).toContain(
 			'Sharing buttons are not available on this site right now.'
 		);
@@ -129,7 +114,7 @@ describe( 'useSaveServices', () => {
 			puts += 1;
 			return puts === 1 ? first.promise : second.promise;
 		} );
-		const { result, queryClient } = renderSave();
+		const { result, registry } = renderSave();
 
 		let saves: Promise< unknown >[] = [];
 		act( () => {
@@ -140,7 +125,7 @@ describe( 'useSaveServices', () => {
 		} );
 		await act( async () => first.resolve( { ...services, visible: [ 'x', 'facebook' ] } ) );
 
-		expect( queryClient.getQueryData< Services >( queryKeys.services )?.visible ).toEqual( [
+		expect( registry.select( store ).getServices()?.visible ).toEqual( [
 			'x',
 			'email',
 			'facebook',
@@ -150,6 +135,32 @@ describe( 'useSaveServices', () => {
 			second.resolve( { ...services, visible: [ 'x', 'email', 'facebook' ], hidden: [] } );
 			await Promise.all( saves );
 		} );
+	} );
+
+	it( 'sends a queued save once the save before it is refused', async () => {
+		let puts = 0;
+		mockApiFetch.mockImplementation( ( { method, path } ) => {
+			if ( method === 'PUT' ) {
+				puts += 1;
+				return puts === 1 ? Promise.reject( { message: 'Refused.' } ) : Promise.resolve( services );
+			}
+			const reads: Record< string, unknown > = {
+				status: baseStatus,
+				settings: baseSettings,
+				services,
+			};
+			return Promise.resolve( reads[ path?.split( '/' ).pop() ?? '' ] );
+		} );
+		const { result } = renderSave();
+
+		await act( () =>
+			Promise.all( [
+				result.current( { visible: [ 'x', 'facebook' ], hidden: [ 'email' ] } ),
+				result.current( { visible: [ 'x', 'email', 'facebook' ], hidden: [] } ),
+			] )
+		);
+
+		expect( apiCalls( 'PUT' ) ).toHaveLength( 2 );
 	} );
 
 	it( 'rereads status and settings once no service is left', async () => {
@@ -178,9 +189,7 @@ describe( 'useSaveServices', () => {
 				{ message: 'X removed.', undo: { id: 'x', row: 'visible', index: 1 } }
 			)
 		);
-		const notice = select( noticesStore )
-			.getNotices()
-			.find( ( { content } ) => content === 'X removed.' );
+		const notice = notices().find( ( { content } ) => content === 'X removed.' );
 		await act( () => result.current( { visible: [ 'facebook', 'email' ], hidden: [] } ) );
 		await act( async () => notice?.actions?.[ 0 ]?.onClick?.() );
 
@@ -203,10 +212,12 @@ describe( 'useSaveServices', () => {
 				{ message: 'X removed.', undo: { id: 'x', row: 'visible', index: 1 } }
 			)
 		);
+		let next: Promise< unknown > = Promise.resolve();
 		act( () => {
-			result.current( { visible: [ 'facebook', 'email' ], hidden: [] } );
+			next = result.current( { visible: [ 'facebook', 'email' ], hidden: [] } );
 		} );
 
 		expect( snackbarMessages() ).not.toContain( 'X removed.' );
+		await act( () => next );
 	} );
 } );

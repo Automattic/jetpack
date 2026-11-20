@@ -2,12 +2,13 @@
  * External dependencies
  */
 import { useEffect } from 'react';
-import { HashRouter, Navigate, Routes, Route, useLocation } from 'react-router';
+import { Navigate, Routes, Route, useLocation } from 'react-router';
 /**
  * Internal dependencies
  */
 import AddLicenseScreen from './components/add-license-screen';
 import ConnectionScreen from './components/connection-screen';
+import HostPurchaseGate from './components/host-purchase-gate';
 import MyJetpackScreen from './components/my-jetpack-screen';
 import OfflineFeaturesScreen from './components/offline-features-screen';
 import PartnerCouponGate from './components/partner-coupon-gate';
@@ -27,14 +28,20 @@ import {
 	SecurityInterstitial,
 	GrowthInterstitial,
 	CompleteInterstitial,
+	ProInterstitial,
 } from './components/product-interstitial';
 import JetpackAiProductPage from './components/product-interstitial/jetpack-ai/product-page';
 import ProtectProductPage from './components/product-interstitial/protect/product-page';
 import RedeemTokenScreen from './components/redeem-token-screen';
+import { useSettingsPanelTracking } from './components/settings-panel/use-settings-panel-tracking';
 import { MyJetpackRoutes } from './constants';
+import { useRefreshProductsOnSwitch } from './data/products/use-refresh-products-on-switch';
 import { getMyJetpackWindowInitialState } from './data/utils/get-my-jetpack-window-state';
 import { isOfflineFeatures } from './data/utils/offline-features';
+import { usePaidMenuSync } from './hooks/use-paid-menu-sync';
 import Providers from './providers';
+import { RouterBridge, useRouteSearch } from './router-bridge';
+import { isSettingsConsolidationEnabled } from './utils/settings-consolidation';
 import './style.module.scss';
 
 /**
@@ -67,6 +74,45 @@ function OfflineFeaturesRoute() {
 }
 
 /**
+ * Bring the sidebar up to date with a plan bought before this page drew it, on any route.
+ *
+ * @return {null} Renders nothing.
+ */
+function PaidMenuSync() {
+	usePaidMenuSync();
+	return null;
+}
+
+/**
+ * Keep product cards in step with features switched on any route.
+ *
+ * @return {null} Renders nothing.
+ */
+function ProductsSwitchSync() {
+	useRefreshProductsOnSwitch();
+	return null;
+}
+
+/**
+ * Record a settings panel the page loaded open; later opens record at their trigger.
+ *
+ * @return {null} Renders nothing.
+ */
+function SettingsPanelDeepLink() {
+	const configure = String( useRouteSearch().configure ?? '' );
+	const { trackPanelOpen } = useSettingsPanelTracking( configure );
+
+	useEffect( () => {
+		if ( isSettingsConsolidationEnabled() && configure ) {
+			trackPanelOpen( 'deep-link' );
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps -- Once per page load.
+	}, [] );
+
+	return null;
+}
+
+/**
  * The My Jetpack app tree, rendered by the wp-build stage.
  *
  * @return {import('react').ReactElement} The App component.
@@ -75,10 +121,10 @@ export default function App() {
 	if ( isOfflineFeatures() ) {
 		return (
 			<Providers>
-				<HashRouter>
+				<RouterBridge>
 					<ScrollToTop />
 					<OfflineFeaturesRoute />
-				</HashRouter>
+				</RouterBridge>
 			</Providers>
 		);
 	}
@@ -87,43 +133,52 @@ export default function App() {
 
 	return (
 		<Providers>
-			<HashRouter>
+			<RouterBridge>
 				<ScrollToTop />
+				<PaidMenuSync />
+				<ProductsSwitchSync />
+				<SettingsPanelDeepLink />
 				<PartnerCouponGate>
-					<Routes>
-						<Route path={ MyJetpackRoutes.Home } element={ <MyJetpackScreen /> } />
-						<Route path={ MyJetpackRoutes.Connection } element={ <ConnectionScreen /> } />
-						<Route path={ MyJetpackRoutes.AddAkismet } element={ <AntiSpamInterstitial /> } />
-						{ /* Redirect the old route for Anti Spam */ }
-						<Route
-							path={ MyJetpackRoutes.AddAntiSpam }
-							element={ <Navigate replace to={ MyJetpackRoutes.AddAkismet } /> }
-						/>
-						<Route path={ MyJetpackRoutes.AddBackup } element={ <BackupInterstitial /> } />
-						<Route path={ MyJetpackRoutes.AddBoost } element={ <BoostInterstitial /> } />
-						<Route path={ MyJetpackRoutes.AddCRM } element={ <CRMInterstitial /> } />
-						<Route path={ MyJetpackRoutes.AddJetpackAI } element={ <JetpackAiInterstitial /> } />
-						<Route path={ MyJetpackRoutes.AddExtras } element={ <ExtrasInterstitial /> } />
-						<Route path={ MyJetpackRoutes.AddProtect } element={ <ProtectInterstitial /> } />
-						<Route path={ MyJetpackRoutes.AddScan } element={ <ScanInterstitial /> } />
-						<Route path={ MyJetpackRoutes.AddSocial } element={ <SocialInterstitial /> } />
-						<Route path={ MyJetpackRoutes.AddSearch } element={ <SearchInterstitial /> } />
-						<Route path={ MyJetpackRoutes.AddVideoPress } element={ <VideoPressInterstitial /> } />
-						<Route path={ MyJetpackRoutes.AddStats } element={ <StatsInterstitial /> } />
-						{ loadAddLicenseScreen && (
-							<Route path={ MyJetpackRoutes.AddLicense } element={ <AddLicenseScreen /> } />
-						) }
-						<Route path={ MyJetpackRoutes.JetpackAi } element={ <JetpackAiProductPage /> } />
-						<Route path={ MyJetpackRoutes.ProtectDetails } element={ <ProtectProductPage /> } />
-						<Route path={ MyJetpackRoutes.AddSecurity } element={ <SecurityInterstitial /> } />
-						<Route path={ MyJetpackRoutes.AddGrowth } element={ <GrowthInterstitial /> } />
-						<Route path={ MyJetpackRoutes.AddComplete } element={ <CompleteInterstitial /> } />
-						<Route path={ MyJetpackRoutes.RedeemToken } element={ <RedeemTokenScreen /> } />
-						{ /* Fallback route. Required to prevent visiting `?page=my-jetpack#wpbody-content` from raising an exception. */ }
-						<Route path="*" element={ <MyJetpackScreen /> } />
-					</Routes>
+					<HostPurchaseGate>
+						<Routes>
+							<Route path={ MyJetpackRoutes.Home } element={ <MyJetpackScreen /> } />
+							<Route path={ MyJetpackRoutes.Connection } element={ <ConnectionScreen /> } />
+							<Route path={ MyJetpackRoutes.AddAkismet } element={ <AntiSpamInterstitial /> } />
+							{ /* Redirect the old route for Anti Spam */ }
+							<Route
+								path={ MyJetpackRoutes.AddAntiSpam }
+								element={ <Navigate replace to={ MyJetpackRoutes.AddAkismet } /> }
+							/>
+							<Route path={ MyJetpackRoutes.AddBackup } element={ <BackupInterstitial /> } />
+							<Route path={ MyJetpackRoutes.AddBoost } element={ <BoostInterstitial /> } />
+							<Route path={ MyJetpackRoutes.AddCRM } element={ <CRMInterstitial /> } />
+							<Route path={ MyJetpackRoutes.AddJetpackAI } element={ <JetpackAiInterstitial /> } />
+							<Route path={ MyJetpackRoutes.AddExtras } element={ <ExtrasInterstitial /> } />
+							<Route path={ MyJetpackRoutes.AddProtect } element={ <ProtectInterstitial /> } />
+							<Route path={ MyJetpackRoutes.AddScan } element={ <ScanInterstitial /> } />
+							<Route path={ MyJetpackRoutes.AddSocial } element={ <SocialInterstitial /> } />
+							<Route path={ MyJetpackRoutes.AddSearch } element={ <SearchInterstitial /> } />
+							<Route
+								path={ MyJetpackRoutes.AddVideoPress }
+								element={ <VideoPressInterstitial /> }
+							/>
+							<Route path={ MyJetpackRoutes.AddStats } element={ <StatsInterstitial /> } />
+							{ loadAddLicenseScreen && (
+								<Route path={ MyJetpackRoutes.AddLicense } element={ <AddLicenseScreen /> } />
+							) }
+							<Route path={ MyJetpackRoutes.JetpackAi } element={ <JetpackAiProductPage /> } />
+							<Route path={ MyJetpackRoutes.ProtectDetails } element={ <ProtectProductPage /> } />
+							<Route path={ MyJetpackRoutes.AddSecurity } element={ <SecurityInterstitial /> } />
+							<Route path={ MyJetpackRoutes.AddGrowth } element={ <GrowthInterstitial /> } />
+							<Route path={ MyJetpackRoutes.AddComplete } element={ <CompleteInterstitial /> } />
+							<Route path={ MyJetpackRoutes.AddPro } element={ <ProInterstitial /> } />
+							<Route path={ MyJetpackRoutes.RedeemToken } element={ <RedeemTokenScreen /> } />
+							{ /* Fallback route. Required to prevent visiting `?page=my-jetpack#wpbody-content` from raising an exception. */ }
+							<Route path="*" element={ <MyJetpackScreen /> } />
+						</Routes>
+					</HostPurchaseGate>
 				</PartnerCouponGate>
-			</HashRouter>
+			</RouterBridge>
 		</Providers>
 	);
 }

@@ -4,11 +4,10 @@
 import { DataViews, filterSortAndPaginate } from '@jetpack-premium-analytics/externals';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { createContext, useCallback, useContext, useMemo, useState } from 'react';
 /**
  * Internal dependencies
  */
-import { clampPage } from '../use-paginated-view';
 import { collectAncestorIds, filterCollapsedRows, findParentIds } from './collapsible-rows';
 import styles from './dataviews-drilldown-native.module.scss';
 import { DrilldownToggle } from './drilldown-toggle';
@@ -28,7 +27,7 @@ type OnChangeViewBaseProps< Item > = ViewBaseProps< Item >[ 'onChangeView' ];
 type GetItemIdBaseProps< Item > = ViewBaseProps< Item >[ 'getItemId' ];
 type GetItemLevelBaseProps< Item > = ViewBaseProps< Item >[ 'getItemLevel' ];
 
-const DEFAULT_PER_PAGE_SIZES = [ 10, 25, 50, 100 ];
+const NO_PER_PAGE_SIZES: number[] = [];
 const NO_IDS: ReadonlySet< string > = new Set();
 
 type CollapseContextValue = {
@@ -124,7 +123,7 @@ export interface DataViewsDrilldownNativeProps< Item > {
 	getItemId: GetItemIdBaseProps< Item >;
 	/** Returns the parent row id for child rows, undefined for parent rows. */
 	getItemParentId: ( item: Item ) => string | number | null | undefined;
-	/** Initial view overrides (default sort, visible fields, page size, ...). */
+	/** Initial view overrides (default sort, visible fields, ...). */
 	initialView?: Partial< View >;
 	/** Row actions; each one's `isEligible` decides which rows offer it. */
 	actions?: Action< Item >[];
@@ -144,8 +143,6 @@ export interface DataViewsDrilldownNativeProps< Item > {
 	searchLabel?: string;
 	/** Custom empty state. */
 	empty?: ReactNode;
-	/** Page size choices. */
-	perPageSizes?: number[];
 }
 
 /**
@@ -166,7 +163,6 @@ export function DataViewsDrilldownNative< Item >( {
 	isLoading = false,
 	searchLabel,
 	empty,
-	perPageSizes = DEFAULT_PER_PAGE_SIZES,
 }: DataViewsDrilldownNativeProps< Item > ) {
 	const [ view, setView ] = useState< View >( () => {
 		const { fields: viewFieldIds, ...viewRest } = initialView ?? {};
@@ -174,7 +170,6 @@ export function DataViewsDrilldownNative< Item >( {
 
 		return {
 			page: 1,
-			perPage: perPageSizes[ 0 ] ?? 10,
 			search: '',
 			...viewRest,
 			type: 'table',
@@ -191,79 +186,69 @@ export function DataViewsDrilldownNative< Item >( {
 
 	// Keeps the hierarchy legible instead of `filterSortAndPaginate`'s flat
 	// semantics — cheap since it runs over the in-memory rows.
-	const { effectiveView, pageData, levelById, paginationInfo, parentIds, forcedIds, isExpanded } =
-		useMemo( () => {
-			// 1. Match: apply the view's search + filters only (no sort, one page).
-			const matches = filterSortAndPaginate(
-				data,
-				{ ...view, sort: undefined, page: 1, perPage: Math.max( data.length, 1 ) },
-				fields
-			).data;
-			const matchedIds = new Set( matches.map( getItemId ) );
-
-			// 2. Re-attach ancestors (so filtered children stay under their parents)
-			//    and descendants (so a matched parent keeps its aggregate group).
-			const subset = withHierarchyContext( data, matchedIds, getItemId, getItemParentId );
-
-			// 3. Sort within levels: sort the subset flat, then re-emit in hierarchy
-			//    order; `processHierarchyLevels` keeps that order among siblings.
-			const sorted = filterSortAndPaginate(
-				subset,
-				{ ...view, search: '', filters: [], page: 1, perPage: Math.max( subset.length, 1 ) },
-				fields
-			).data;
-			const { data: orderedData, levelById: levels } = processHierarchyLevels(
-				sorted,
-				getItemId,
-				getItemParentId
-			);
-
-			// 4. Fold collapsed branches away. A narrowed table must still answer the
-			//    search that narrowed it, so matched ancestors stay unfolded meanwhile.
-			const isNarrowed = matches.length !== data.length;
-			const forcedRowIds =
-				collapsible && isNarrowed
-					? collectAncestorIds( orderedData, matchedIds, getItemId, getItemParentId )
-					: NO_IDS;
-			const isExpandedForRow = ( id: string ) =>
-				expandedByDefault !== toggledIds.has( id ) || forcedRowIds.has( id );
-			const visibleData = collapsible
-				? filterCollapsedRows( orderedData, getItemId, levels, isExpandedForRow )
-				: orderedData;
-			// Resolve parents before folding so collapsed rows keep their controls.
-			const parentRowIds = collapsible
-				? findParentIds( orderedData, getItemId, getItemParentId )
-				: NO_IDS;
-
-			// 5. Paginate the survivors, so folded children stop consuming pages. A
-			//    fold removes only rows after the control the reader just clicked, so
-			//    it can't strand them; a smaller refetch can, hence the clamp.
-			const perPage = view.perPage ?? 10;
-			const totalPages = Math.max( 1, Math.ceil( visibleData.length / perPage ) );
-			const page = clampPage( view.page ?? 1, totalPages );
-			const start = ( page - 1 ) * perPage;
-
-			return {
-				effectiveView: page === ( view.page ?? 1 ) ? view : { ...view, page },
-				pageData: visibleData.slice( start, start + perPage ),
-				levelById: levels,
-				paginationInfo: { totalItems: visibleData.length, totalPages },
-				parentIds: parentRowIds,
-				// A forced-open row keeps its control but must not write a fold that
-				// takes effect invisibly — it would only surface once the search clears.
-				forcedIds: forcedRowIds,
-				isExpanded: isExpandedForRow,
-			};
-		}, [
+	const { rows, levelById, paginationInfo, parentIds, forcedIds, isExpanded } = useMemo( () => {
+		// 1. Match: apply the view's search + filters only (no sort, one page).
+		const matches = filterSortAndPaginate(
 			data,
-			view,
-			fields,
+			{ ...view, sort: undefined, page: 1, perPage: Math.max( data.length, 1 ) },
+			fields
+		).data;
+		const matchedIds = new Set( matches.map( getItemId ) );
+
+		// 2. Re-attach ancestors (so filtered children stay under their parents)
+		//    and descendants (so a matched parent keeps its aggregate group).
+		const subset = withHierarchyContext( data, matchedIds, getItemId, getItemParentId );
+
+		// 3. Sort within levels: sort the subset flat, then re-emit in hierarchy
+		//    order; `processHierarchyLevels` keeps that order among siblings.
+		const sorted = filterSortAndPaginate(
+			subset,
+			{ ...view, search: '', filters: [], page: 1, perPage: Math.max( subset.length, 1 ) },
+			fields
+		).data;
+		const { data: orderedData, levelById: levels } = processHierarchyLevels(
+			sorted,
 			getItemId,
-			getItemParentId,
-			collapsible,
-			expandedByDefault,
-			toggledIds,
-		] );
+			getItemParentId
+		);
+
+		// 4. Fold collapsed branches away. A narrowed table must still answer the
+		//    search that narrowed it, so matched ancestors stay unfolded meanwhile.
+		const isNarrowed = matches.length !== data.length;
+		const forcedRowIds =
+			collapsible && isNarrowed
+				? collectAncestorIds( orderedData, matchedIds, getItemId, getItemParentId )
+				: NO_IDS;
+		const isExpandedForRow = ( id: string ) =>
+			expandedByDefault !== toggledIds.has( id ) || forcedRowIds.has( id );
+		const visibleData = collapsible
+			? filterCollapsedRows( orderedData, getItemId, levels, isExpandedForRow )
+			: orderedData;
+		// Resolve parents before folding so collapsed rows keep their controls.
+		const parentRowIds = collapsible
+			? findParentIds( orderedData, getItemId, getItemParentId )
+			: NO_IDS;
+
+		return {
+			rows: visibleData,
+			levelById: levels,
+			paginationInfo: { totalItems: visibleData.length, totalPages: 1 },
+			parentIds: parentRowIds,
+			// A forced-open row keeps its control but must not write a fold that
+			// takes effect invisibly — it would only surface once the search clears.
+			forcedIds: forcedRowIds,
+			isExpanded: isExpandedForRow,
+		};
+	}, [
+		data,
+		view,
+		fields,
+		getItemId,
+		getItemParentId,
+		collapsible,
+		expandedByDefault,
+		toggledIds,
+	] );
 
 	const handleToggle = useCallback( ( id: string ) => {
 		setToggledIds( current => {
@@ -320,22 +305,14 @@ export function DataViewsDrilldownNative< Item >( {
 		[]
 	);
 
-	// This table paginates by hand, so it writes the clamp back itself rather
-	// than through `usePaginatedView`. See that hook for why it has to.
-	useEffect( () => {
-		if ( effectiveView !== view ) {
-			setView( effectiveView );
-		}
-	}, [ effectiveView, view ] );
-
 	return (
 		<CollapseContext.Provider value={ collapseContextValue }>
 			<div className={ clsx( styles.root, hideLevelMarkers && styles.hideLevelMarkers ) }>
 				<GenericDataViews< Item >
-					view={ effectiveView }
+					view={ view }
 					onChangeView={ handleChangeView }
 					fields={ displayFields }
-					data={ pageData }
+					data={ rows }
 					getItemId={ getItemId }
 					getItemLevel={ getItemLevel }
 					actions={ actions }
@@ -344,7 +321,7 @@ export function DataViewsDrilldownNative< Item >( {
 					defaultLayouts={ { table: {} } }
 					empty={ empty }
 					searchLabel={ searchLabel }
-					config={ { perPageSizes } }
+					config={ { perPageSizes: NO_PER_PAGE_SIZES } }
 				/>
 			</div>
 		</CollapseContext.Provider>

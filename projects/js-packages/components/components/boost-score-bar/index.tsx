@@ -1,10 +1,18 @@
+import { getScoreTier } from '@automattic/jetpack-boost-score-api';
 import { __ } from '@wordpress/i18n';
 import { Icon, desktop, mobile } from '@wordpress/icons';
 import clsx from 'clsx';
 import type { BoostScoreBarProps } from './types.ts';
+import type { ScoreTier } from '@automattic/jetpack-boost-score-api';
 import type { FunctionComponent } from 'react';
 
 import './style.scss';
+
+const TIER_FILLS: Record< ScoreTier, string > = {
+	good: 'fill-good',
+	medium: 'fill-mediocre',
+	poor: 'fill-bad',
+};
 
 export const BoostScoreBar: FunctionComponent< BoostScoreBarProps > = ( {
 	score,
@@ -38,15 +46,7 @@ export const BoostScoreBar: FunctionComponent< BoostScoreBarProps > = ( {
 			return 'fill-loading';
 		}
 
-		if ( score > 70 ) {
-			return 'fill-good';
-		}
-
-		if ( score > 50 ) {
-			return 'fill-mediocre';
-		}
-
-		return 'fill-bad';
+		return TIER_FILLS[ getScoreTier( score ) ];
 	};
 
 	return (

@@ -1,0 +1,22 @@
+// Story-only chrome: the frame stands in for the admin frame, so the header
+// has a scroll to pin against.
+.frame {
+	display: flex;
+	flex-direction: column;
+	block-size: 520px;
+	border: 1px solid #e0e0e0;
+	border-radius: var(--wpds-border-radius-md);
+	overflow: hidden;
+}
+
+.filler {
+	block-size: 1400px;
+	border-radius: var(--wpds-border-radius-md);
+	background: repeating-linear-gradient(180deg, #f6f7f7 0 48px, #fff 48px 96px);
+}
+
+// The item the controls edit, as the page would write it to the URL.
+.item {
+	margin: 0 0 var(--wpds-dimension-gap-lg);
+	font-size: 12px;
+}

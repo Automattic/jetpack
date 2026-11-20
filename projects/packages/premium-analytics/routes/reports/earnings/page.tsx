@@ -1,27 +1,31 @@
 /**
  * External dependencies
  */
+import { Icon } from '@jetpack-premium-analytics/externals';
+import { jetpack } from '@jetpack-premium-analytics/icons';
 import { useSectionTab } from '@jetpack-premium-analytics/routing';
-import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
+import { StatsBreadcrumbs } from '@jetpack-premium-analytics/ui';
 import {
 	ReportCsvAction,
 	ReportPageLayout,
 	ReportErrorState,
-	ReportPageShell,
 	ReportPageTabs,
 	ReportRecordsTable,
+	StatsOptionsMenu,
 	getEarningsStatus,
 	getWordAdsHistoryFields,
 	useReportCsvExport,
 	type CsvColumn,
 	type EarningsHistoryRow,
 } from '@jetpack-premium-analytics/widgets-toolkit';
+import { Page } from '@wordpress/admin-ui';
 import { useMemo } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
 import { route } from '../package.json';
+import reportPageStyles from '../page.module.scss';
 import { REPORTS } from '../registry';
 import {
 	getEarningsReportTabs,
@@ -127,13 +131,17 @@ function EarningsReport(): JSX.Element {
 	const { getLabel } = REPORTS.earnings;
 
 	return (
-		<ReportPageShell
-			visual={ <StatsPageIcon /> }
+		<Page
+			className={ reportPageStyles.page }
+			visual={ <Icon icon={ jetpack } /> }
 			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
 			actions={
-				canExport ? (
-					<ReportCsvAction columns={ csvColumns } rows={ csvRows } filename={ csvFilename } />
-				) : undefined
+				<>
+					{ canExport && (
+						<ReportCsvAction columns={ csvColumns } rows={ csvRows } filename={ csvFilename } />
+					) }
+					<StatsOptionsMenu />
+				</>
 			}
 		>
 			{ /* No date filters: the `wordads/earnings` endpoint is all-time, and the Ads tab has no global date controls. */ }
@@ -164,7 +172,7 @@ function EarningsReport(): JSX.Element {
 					/>
 				</ReportErrorState>
 			</ReportPageLayout>
-		</ReportPageShell>
+		</Page>
 	);
 }
 

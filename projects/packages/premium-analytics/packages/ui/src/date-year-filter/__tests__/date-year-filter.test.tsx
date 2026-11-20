@@ -1,7 +1,7 @@
 import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { DateYearFilter } from '../date-year-filter';
-import type { ComponentProps } from 'react';
+import type { ComponentProps, ReactNode } from 'react';
 
 // Read in UTC, the zone the filter is rendered with below: the local year would
 // disagree with it for a few hours around New Year.
@@ -241,6 +241,67 @@ describe( 'DateYearFilter', () => {
 
 			expect( screen.queryAllByRole( 'button' ) ).toHaveLength( 0 );
 			expect( screen.getByRole( 'combobox', { name: 'Time period' } ) ).toBeInTheDocument();
+		} );
+
+		describe( 'what shares the row', () => {
+			let mateWidth: number;
+
+			beforeEach( () => {
+				mateWidth = 20;
+				rectSpy.mockImplementation( function ( this: Element ) {
+					return { width: this.id === 'mate' ? mateWidth : PILL_WIDTH } as DOMRect;
+				} );
+			} );
+
+			const renderRow = ( mate: ReactNode ) =>
+				render(
+					<div>
+						<DateYearFilter timeZone="UTC" startYear={ CURRENT_YEAR - 2 } onSelect={ jest.fn() } />
+						{ mate }
+					</div>
+				);
+
+			it( 'follows a mate that grows past the room left, then shrinks back', async () => {
+				const { resizeTo } = mockContainerResize();
+				renderRow( <span id="mate">By weeks</span> );
+				await resizeTo( 4 * PILL_WIDTH + 20 );
+				expect( screen.getAllByRole( 'button' ) ).toHaveLength( 4 );
+
+				mateWidth = 40;
+				await resizeTo( 4 * PILL_WIDTH + 20 );
+				expect( screen.getByRole( 'combobox', { name: 'Time period' } ) ).toBeInTheDocument();
+
+				mateWidth = 20;
+				await resizeTo( 4 * PILL_WIDTH + 20 );
+				expect( screen.getAllByRole( 'button' ) ).toHaveLength( 4 );
+			} );
+
+			it( 'measures a mate swapped for another node', async () => {
+				const { resizeTo } = mockContainerResize();
+				const { rerender } = renderRow( <span id="mate">By weeks</span> );
+				await resizeTo( 4 * PILL_WIDTH + 20 );
+
+				mateWidth = 40;
+				rerender(
+					<div>
+						<DateYearFilter timeZone="UTC" startYear={ CURRENT_YEAR - 2 } onSelect={ jest.fn() } />
+						<b id="mate">By months</b>
+					</div>
+				);
+				// eslint-disable-next-line testing-library/no-unnecessary-act -- flushes the MutationObserver's microtask
+				await act( async () => {} );
+
+				expect( screen.getByRole( 'combobox', { name: 'Time period' } ) ).toBeInTheDocument();
+			} );
+
+			it( 'gives a positioned helper no room in the row', async () => {
+				const { resizeTo } = mockContainerResize();
+				renderRow( <span id="mate" style={ { position: 'absolute' } } /> );
+
+				await resizeTo( 4 * PILL_WIDTH );
+
+				expect( screen.getAllByRole( 'button' ) ).toHaveLength( 4 );
+			} );
 		} );
 
 		it( 'keeps the pills while they fit the container', async () => {

@@ -13,5 +13,35 @@
 		]
 	},
 	"category": "traffic",
-	"presentation": "framed"
+	"presentation": "framed",
+	"attributes": [
+		{
+			"id": "utmDimension",
+			"type": "jpa/select",
+			"label": "UTM parameter",
+			"relevance": "high",
+			"elements": [
+				{
+					"value": "utm_source,utm_medium",
+					"label": "Source / Medium"
+				},
+				{
+					"value": "utm_campaign,utm_source,utm_medium",
+					"label": "Campaign / Source / Medium"
+				},
+				{
+					"value": "utm_source",
+					"label": "Source"
+				},
+				{
+					"value": "utm_medium",
+					"label": "Medium"
+				},
+				{
+					"value": "utm_campaign",
+					"label": "Campaign"
+				}
+			]
+		}
+	]
 }

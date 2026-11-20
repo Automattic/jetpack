@@ -127,9 +127,17 @@ final class Dashboard_Section {
 	public $requires_sync = false;
 
 	/**
+	 * Whether the plan's Stats date limits apply to the section's window.
+	 *
+	 * @since 0.14.0
+	 * @var bool
+	 */
+	public $follows_plan_date_limits = false;
+
+	/**
 	 * Message, or a callback returning one, shown above the section's widgets; null when none.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.13.0
 	 * @var string|callable|null
 	 */
 	private $notice = null;
@@ -151,7 +159,7 @@ final class Dashboard_Section {
 	/**
 	 * Widget type names the inserter offers on top of the default layout's.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.13.0
 	 * @var string[]
 	 */
 	private $insertable_widget_types = array();
@@ -235,7 +243,7 @@ final class Dashboard_Section {
 	/**
 	 * Returns the message to show above the section's widgets, resolved for this request.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.13.0
 	 *
 	 * @return string|null The message, or null when there is none.
 	 */
@@ -249,7 +257,7 @@ final class Dashboard_Section {
 	 * Returns the widget types the section's inserter offers on top of its default layout, run
 	 * through the insertable-types filter.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.13.0
 	 *
 	 * @return string[] Widget type names.
 	 */
@@ -260,7 +268,7 @@ final class Dashboard_Section {
 		 * Runs for every section, so a callback adding a type to one switches on `$section_id`. A
 		 * type the widget type registry does not know is never offered.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.13.0
 		 *
 		 * @param string[]          $types      The section's declared widget type names.
 		 * @param string            $section_id Namespaced section identifier, e.g. `analytics/traffic`.
@@ -338,6 +346,10 @@ final class Dashboard_Section {
 
 		if ( isset( $args['requires_sync'] ) ) {
 			$this->requires_sync = (bool) $args['requires_sync'];
+		}
+
+		if ( isset( $args['follows_plan_date_limits'] ) ) {
+			$this->follows_plan_date_limits = (bool) $args['follows_plan_date_limits'];
 		}
 
 		if ( array_key_exists( 'notice', $args ) ) {

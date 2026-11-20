@@ -60,7 +60,7 @@ describe( 'jetpack_mcp_allowlist_updated', () => {
 
 			// Individual tool toggles sit behind the group's "Show operations" chevron.
 			await userEvent.click( screen.getByRole( 'button', { name: 'Show operations' } ) );
-			await userEvent.click( screen.getByRole( 'checkbox', { name: 'List posts' } ) );
+			await userEvent.click( screen.getByRole( 'switch', { name: 'List posts' } ) );
 
 			// toEqual pins the whole property bag: ability_name present, no tool_id,
 			// plus the AI-product-standard audience properties (AIINT-586). This

@@ -453,9 +453,12 @@ class Wpcom_Feature_Flags {
 			</div>
 
 			<p>
-				Flags are resolved as: the default they were registered with, then this screen, then
-				any <code>jetpack_feature_flag_enabled_{flag}</code> filter. That per-flag filter runs
-				last, so a sandbox patch or mu-plugin using it beats whatever you set here.
+				Flags are resolved as: the default they were registered with, then the generic
+				<code>jetpack_feature_flag_enabled</code> filter, which this screen answers at priority
+				10, then any <code>jetpack_feature_flag_enabled_{flag}</code> filter. A generic callback
+				that runs before this screen, such as a platform default, loses to a value set here. One
+				that runs after it, or a per-flag filter such as a sandbox patch, beats it. The Effective
+				column says so when the value is not the one this screen would give.
 			</p>
 
 			<form method="post" action="<?php echo esc_url( admin_url( 'tools.php?page=' . self::PAGE_SLUG ) ); ?>">
@@ -519,6 +522,9 @@ class Wpcom_Feature_Flags {
 										echo $row['effective'] ? 'On' : 'Off';
 									}
 									?>
+									<?php if ( $row['changed_by_code'] ) : ?>
+										<p class="description">Changed by code, not by this screen.</p>
+									<?php endif; ?>
 								</td>
 								<td>
 									<?php if ( ! $row['overridable'] ) : ?>
@@ -657,6 +663,7 @@ class Wpcom_Feature_Flags {
 	private static function get_rows() {
 		$has_registry = class_exists( Feature_Flags::class );
 		$registered   = $has_registry ? Feature_Flags::all() : array();
+		$overrides    = self::get_overrides();
 		$rows         = array();
 
 		foreach ( $registered as $name => $definition ) {
@@ -668,7 +675,7 @@ class Wpcom_Feature_Flags {
 			);
 		}
 
-		foreach ( array_keys( self::get_overrides() ) as $name ) {
+		foreach ( array_keys( $overrides ) as $name ) {
 			if ( isset( $rows[ $name ] ) ) {
 				continue;
 			}
@@ -693,13 +700,15 @@ class Wpcom_Feature_Flags {
 			$rows[ $name ]['overridable'] = self::is_valid_flag_name( $name );
 
 			/*
-			 * What the flag actually resolves to right now, which is not always
-			 * what this screen set: the per-flag
-			 * `jetpack_feature_flag_enabled_{$name}` filter runs after ours and
-			 * wins. Showing it turns the screen from a settings form into
-			 * something that answers "I forced it on, so why is it still off?".
+			 * What the flag resolves to now, which a per-flag filter or a later generic
+			 * callback can make differ from this screen. Asked as a string, since an
+			 * all-digit name is an int key here. See overrides_from_states().
 			 */
-			$rows[ $name ]['effective'] = $has_registry ? Feature_Flags::is_enabled( $name ) : null;
+			$rows[ $name ]['effective'] = $has_registry ? Feature_Flags::is_enabled( (string) $name ) : null;
+
+			// Code on the generic or per-flag filter, which this screen cannot name.
+			$expected                         = array_key_exists( $name, $overrides ) ? $overrides[ $name ] : $rows[ $name ]['default'];
+			$rows[ $name ]['changed_by_code'] = null !== $rows[ $name ]['effective'] && $expected !== $rows[ $name ]['effective'];
 		}
 
 		ksort( $rows );

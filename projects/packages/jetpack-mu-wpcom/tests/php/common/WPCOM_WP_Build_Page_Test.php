@@ -264,6 +264,17 @@ class WPCOM_WP_Build_Page_Test extends \WorDBless\BaseTestCase {
 		$this->assertSame( array( 'enabled' => true ), $this->printed_initial_state() );
 	}
 
+	public function test_jetpack_config_reaches_the_page_script() {
+		$this->set_up_admin_menu();
+		$this->set_up_page_request();
+		Test_WP_Build_Page::register_page();
+
+		$this->printed_initial_state();
+
+		$before = (array) wp_scripts()->get_data( Test_WP_Build_Page::WP_BUILD_PAGE . '-wp-admin-prerequisites', 'before' );
+		$this->assertContains( 'window.jetpackConfig = {"consumer_slug":"jetpack-mu-wpcom"};', $before );
+	}
+
 	public function test_initial_state_that_will_not_encode_is_left_out() {
 		$this->set_up_admin_menu();
 		$this->set_up_page_request();

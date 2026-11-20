@@ -77,7 +77,7 @@ class Verbum_Admin {
 
 		add_settings_field(
 			'enable_verbum_commenting',
-			__( 'Verbum', 'jetpack-mu-wpcom' ),
+			__( 'Jetpack Comments', 'jetpack-mu-wpcom' ),
 			array( $this, 'verbum_field' ),
 			'discussion'
 		);
@@ -138,7 +138,7 @@ class Verbum_Admin {
 	public function verbum_field() {
 		?>
 			<label><input name="enable_verbum_commenting" type="checkbox" <?php checked( $this->is_verbum_enabled(), true, true ); ?> value="1" />
-				<?php esc_html_e( 'Let visitors use a WordPress.com or Facebook account to comment', 'jetpack-mu-wpcom' ); ?>
+				<?php esc_html_e( 'Replace the default comment form with Jetpack Comments, where visitors can also log in with WordPress.com', 'jetpack-mu-wpcom' ); ?>
 			</label>
 		<?php
 	}

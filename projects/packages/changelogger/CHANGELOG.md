@@ -3,6 +3,17 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [7.0.6] - 2026-11-02
+### Changed
+- Sort and deduplicate entries that have the same text from different PRs. [#54150]
+
+### Fixed
+- When a change entry file was deleted and then re-created locally, don't attribute it to the PR that deleted it. [#54305]
+
+## [7.0.5] - 2026-10-20
+### Changed
+- Internal updates.
+
 ## [7.0.4] - 2026-09-18
 ### Changed
 - Internal updates.
@@ -358,6 +369,8 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ### Added
 - Initial version.
 
+[7.0.6]: https://github.com/Automattic/jetpack-changelogger/compare/7.0.5...7.0.6
+[7.0.5]: https://github.com/Automattic/jetpack-changelogger/compare/7.0.4...7.0.5
 [7.0.4]: https://github.com/Automattic/jetpack-changelogger/compare/7.0.3...7.0.4
 [7.0.3]: https://github.com/Automattic/jetpack-changelogger/compare/7.0.2...7.0.3
 [7.0.2]: https://github.com/Automattic/jetpack-changelogger/compare/7.0.1...7.0.2

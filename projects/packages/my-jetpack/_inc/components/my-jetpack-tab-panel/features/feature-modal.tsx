@@ -3,7 +3,6 @@ import { __, isRTL, sprintf } from '@wordpress/i18n';
 import { check, chevronLeft, chevronRight } from '@wordpress/icons';
 import { Badge, Dialog, IconButton, Stack, Text } from '@wordpress/ui';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { getActivationStatusLabel } from '../utils';
 import { getArrowStep, getStepKey } from './arrow-navigation';
 import { getBandStyle } from './band-palette';
 import { FeatureBand } from './feature-band';
@@ -14,7 +13,7 @@ import { FeatureInstallNotice } from './feature-install-notice';
 import { FeatureLinks } from './feature-links';
 import { FeatureModalActions } from './feature-modal-actions';
 import { FeaturePaid } from './feature-paid';
-import { getFeatureUnavailableReason } from './module-availability';
+import { getFeatureStatusLabel, getFeatureUnavailableReason } from './module-availability';
 import styles from './styles.module.scss';
 import type { FeatureState } from './feature-state';
 
@@ -122,6 +121,7 @@ export function FeatureModal( {
 	const { feature, product } = state;
 	const unavailable = getFeatureUnavailableReason( state );
 	const isActive = ! unavailable && state.status === 'active';
+	const statusLabel = getFeatureStatusLabel( state );
 	const freeHighlights = feature.free_highlights ?? [];
 	const pricingNotes = feature.pricing_notes ?? [];
 
@@ -239,16 +239,18 @@ export function FeatureModal( {
 					<div className={ styles[ 'modal-header__main' ] }>
 						<Stack direction="column" gap="xs" className={ styles[ 'modal-heading' ] }>
 							<Dialog.Title>{ feature.name }</Dialog.Title>
-							<Stack direction="row" align="center" gap="sm" wrap="wrap">
-								<Badge intent={ isActive ? 'stable' : 'draft' }>
-									{ unavailable
-										? __( 'Unavailable', 'jetpack-my-jetpack' )
-										: getActivationStatusLabel( isActive ) }
-								</Badge>
-								{ feature.essential ? (
-									<Badge intent="informational">{ __( 'Essential', 'jetpack-my-jetpack' ) }</Badge>
-								) : null }
-							</Stack>
+							{ statusLabel || feature.essential ? (
+								<Stack direction="row" align="center" gap="sm" wrap="wrap">
+									{ statusLabel ? (
+										<Badge intent={ isActive ? 'stable' : 'draft' }>{ statusLabel }</Badge>
+									) : null }
+									{ feature.essential ? (
+										<Badge intent="informational">
+											{ __( 'Essential', 'jetpack-my-jetpack' ) }
+										</Badge>
+									) : null }
+								</Stack>
+							) : null }
 						</Stack>
 
 						<Stack

@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Backup\V0005;
 
 use Automattic\Jetpack\Connection\Utils as Connection_Utils;
+use Automattic\Jetpack\Status\Cache as Status_Cache;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use WP_Error;
@@ -100,11 +101,16 @@ class Jetpack_Backup_Test extends TestCase {
 		remove_filter( 'pre_http_request', array( $this, 'mock_wpcom_response_recording_timeout' ) );
 		remove_filter( 'jetpack_options', array( $this, 'mock_jetpack_connection_options' ) );
 		remove_filter( 'locale', array( $this, 'mock_locale' ) );
+		remove_filter( 'jetpack_offline_mode', '__return_true' );
+		Status_Cache::clear();
 		wp_set_current_user( 0 );
 
 		foreach ( array( 'en_US', $this->locale ) as $locale ) {
 			delete_transient( Jetpack_Backup::PROMOTED_PRODUCT_TRANSIENT_PREFIX . sanitize_key( $locale ) );
 		}
+		Jetpack_Backup::clear_storage_cache();
+		delete_transient( Jetpack_Backup::STORAGE_CACHE_BYPASS_TRANSIENT );
+		unset( $_GET[ Jetpack_Backup::STORAGE_PURCHASED_ARG ] );
 
 		$this->wpcom_status     = 200;
 		$this->wpcom_body       = '{}';
@@ -146,6 +152,65 @@ class Jetpack_Backup_Test extends TestCase {
 
 		$this->assertTrue( $response->is_error(), $route );
 		$this->assertSame( 503, $response->get_status(), $route );
+	}
+
+	/**
+	 * Offline mode refuses the route before it reaches WordPress.com.
+	 *
+	 * @param string $route       The registered REST route.
+	 * @param string $http_method The route's HTTP method.
+	 * @dataProvider provide_wpcom_backed_route_requests
+	 */
+	#[DataProvider( 'provide_wpcom_backed_route_requests' )]
+	public function test_route_refuses_in_offline_mode( $route, $http_method ) {
+		$this->sign_in_as_connected_admin();
+		add_filter( 'pre_http_request', array( $this, 'mock_wpcom_response' ) );
+		add_filter( 'jetpack_offline_mode', '__return_true' );
+		Status_Cache::clear();
+
+		rest_get_server();
+		Jetpack_Backup::register_rest_routes();
+
+		$response = rest_do_request( new WP_REST_Request( $http_method, $route ) );
+
+		$this->assertSame( 403, $response->get_status(), $route );
+		$this->assertSame( 'offline_mode', $response->get_data()['code'], $route );
+		$this->assertSame( 0, $this->http_requests, $route );
+	}
+
+	/**
+	 * Offline mode is reported only to someone who could otherwise use Backup.
+	 *
+	 * @param callable $check The permission check.
+	 * @dataProvider provide_permission_checks
+	 */
+	#[DataProvider( 'provide_permission_checks' )]
+	public function test_offline_mode_refuses_a_non_admin_without_a_reason( $check ) {
+		wp_set_current_user(
+			wp_insert_user(
+				array(
+					'user_login' => 'backup_offline_subscriber_' . wp_generate_password( 6, false ),
+					'user_pass'  => 'pw',
+					'role'       => 'subscriber',
+				)
+			)
+		);
+		add_filter( 'jetpack_offline_mode', '__return_true' );
+		Status_Cache::clear();
+
+		$this->assertFalse( call_user_func( $check ) );
+	}
+
+	/**
+	 * The legacy routes' check and the dashboard routes' check.
+	 *
+	 * @return array<string, array{callable}>
+	 */
+	public static function provide_permission_checks() {
+		return array(
+			'legacy routes'    => array( array( Jetpack_Backup::class, 'backups_permissions_callback' ) ),
+			'dashboard routes' => array( array( REST\Rest_Controller::class, 'permission_check' ) ),
+		);
 	}
 
 	/**
@@ -695,6 +760,95 @@ class Jetpack_Backup_Test extends TestCase {
 			'a non-200'         => array( 'failed_to_fetch_data', 503, null ),
 			'an unreadable 200' => array( 'promoted_product_unreadable', 200, '{"jetpack_scan":{"cost":10}}' ),
 		);
+	}
+
+	/**
+	 * Every visit to the dashboard within the cache window costs WordPress.com one storage read.
+	 *
+	 * @param string $callback Name of the route callback.
+	 * @dataProvider provide_storage_reads
+	 */
+	#[DataProvider( 'provide_storage_reads' )]
+	public function test_storage_read_serves_a_second_read_from_cache( $callback ) {
+		$this->sign_in_as_connected_admin();
+		$this->wpcom_body = '{"ok":true,"size":1024}';
+		add_filter( 'pre_http_request', array( $this, 'mock_wpcom_response' ) );
+
+		call_user_func( array( Jetpack_Backup::class, $callback ) );
+		$second = call_user_func( array( Jetpack_Backup::class, $callback ) );
+
+		$this->assertSame( 1, $this->http_requests, $callback );
+		$this->assertSame( 1024, $second->get_data()['size'], $callback );
+	}
+
+	/**
+	 * Neither a failure nor WordPress.com's own `ok: false` is kept.
+	 *
+	 * @param string     $callback Name of the route callback.
+	 * @param int|string $status   Status for the first response.
+	 * @param string     $body     Body for the first response.
+	 * @dataProvider provide_uncacheable_storage_reads
+	 */
+	#[DataProvider( 'provide_uncacheable_storage_reads' )]
+	public function test_storage_read_does_not_cache_a_failure( $callback, $status, $body ) {
+		$this->sign_in_as_connected_admin();
+		$this->wpcom_status = $status;
+		$this->wpcom_body   = $body;
+		add_filter( 'pre_http_request', array( $this, 'mock_wpcom_response' ) );
+
+		call_user_func( array( Jetpack_Backup::class, $callback ) );
+		$this->wpcom_status = 200;
+		$this->wpcom_body   = '{"ok":true,"size":1024}';
+		$recovered          = call_user_func( array( Jetpack_Backup::class, $callback ) );
+
+		$this->assertSame( 2, $this->http_requests, $callback );
+		$this->assertSame( 1024, $recovered->get_data()['size'], $callback );
+	}
+
+	/**
+	 * A reader back from buying storage sees the new figures, and a read made before the purchase lands is not kept.
+	 */
+	public function test_returning_from_checkout_reads_storage_fresh() {
+		$this->sign_in_as_connected_admin();
+		add_filter( 'pre_http_request', array( $this, 'mock_wpcom_response' ) );
+		Jetpack_Backup::get_site_backup_size();
+		Jetpack_Backup::get_site_backup_policies();
+
+		$_GET[ Jetpack_Backup::STORAGE_PURCHASED_ARG ] = '1';
+		Jetpack_Backup::admin_init();
+		Jetpack_Backup::get_site_backup_size();
+		Jetpack_Backup::get_site_backup_policies();
+
+		$this->assertSame( 4, $this->http_requests );
+		$this->assertFalse( get_transient( Jetpack_Backup::SITE_SIZE_TRANSIENT ) );
+		$this->assertFalse( get_transient( Jetpack_Backup::SITE_POLICIES_TRANSIENT ) );
+	}
+
+	/**
+	 * The two cached storage reads.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_storage_reads() {
+		return array(
+			'size'     => array( 'get_site_backup_size' ),
+			'policies' => array( 'get_site_backup_policies' ),
+		);
+	}
+
+	/**
+	 * Each storage read with each answer that must not be kept.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_uncacheable_storage_reads() {
+		$sets = array();
+		foreach ( array( 'get_site_backup_size', 'get_site_backup_policies' ) as $callback ) {
+			$sets[ "$callback, a non-200" ]  = array( $callback, 503, '{}' );
+			$sets[ "$callback, ok: false" ]  = array( $callback, 200, '{"ok":false}' );
+			$sets[ "$callback, unreadable" ] = array( $callback, 200, 'not json' );
+		}
+		return $sets;
 	}
 
 	public function test_promoted_product_info_caches_per_locale() {

@@ -19,7 +19,6 @@ use function Automattic\Jetpack\PremiumAnalytics\register_dashboard_section;
 use const Automattic\Jetpack\PremiumAnalytics\DASHBOARD_NAME;
 
 require_once __DIR__ . '/../../vendor/automattic/jetpack-premium-analytics/src/class-capabilities.php';
-require_once __DIR__ . '/../../vendor/automattic/jetpack-premium-analytics/src/dashboard-policy.php';
 require_once __DIR__ . '/../../vendor/automattic/jetpack-premium-analytics/src/dashboard-sections.php';
 require_once __DIR__ . '/../../vendor/automattic/jetpack-premium-analytics/src/default-dashboard-sections.php';
 require_once __DIR__ . '/../../vendor/automattic/jetpack-premium-analytics/src/widget-modules.php';
@@ -38,6 +37,7 @@ class Analytics_Dashboard_Test extends BaseTestCase {
 	public function tear_down() {
 		remove_action( Analytics_Dashboard::REGISTER_SECTIONS_ACTION, array( Analytics_Dashboard::class, 'register_section' ), 20 );
 		remove_action( Analytics_Dashboard::REGISTER_WIDGET_TYPES_ACTION, array( Analytics_Dashboard::class, 'register_widget_types' ), 20 );
+		remove_filter( 'jetpack_premium_analytics_error_reporting_script_origins', array( Analytics_Dashboard::class, 'add_error_reporting_origin' ) );
 		remove_action( 'rest_api_init', array( Api_Proxy_Controller::class, 'init' ) );
 		remove_filter( 'jetpack_stats_transient_cleanup_prefixes', array( Api_Proxy_Controller::class, 'register_transient_cleanup_prefix' ) );
 		remove_action( Sync_Status_Tracker::MILESTONE_ACTION, array( Api_Proxy_Controller::class, 'clear_cache' ) );
@@ -87,6 +87,7 @@ class Analytics_Dashboard_Test extends BaseTestCase {
 		Analytics_Dashboard::init();
 
 		$this->assertSame( 10, has_action( 'rest_api_init', array( Api_Proxy_Controller::class, 'init' ) ) );
+		$this->assertNotNull( Report_Execution\Report_Registry::create()->get_definition_for_route( 'orders/by-date' ) );
 		$this->assertSame( 10, has_action( Sync_Status_Tracker::MILESTONE_ACTION, array( Api_Proxy_Controller::class, 'clear_cache' ) ) );
 		$this->assertSame(
 			array( Api_Proxy_Controller::CACHE_PREFIX ),
@@ -113,6 +114,7 @@ class Analytics_Dashboard_Test extends BaseTestCase {
 			array(
 				Analytics_Dashboard::STORE_PERFORMANCE_TYPE,
 				Analytics_Dashboard::TOP_PERFORMING_PRODUCTS_TYPE,
+				Analytics_Dashboard::ITEMS_SOLD_TYPE,
 				Analytics_Dashboard::AVERAGE_ORDER_VALUE_TYPE,
 				Analytics_Dashboard::AVERAGE_ITEMS_PER_ORDER_TYPE,
 				Analytics_Dashboard::CONVERSION_RATE_TYPE,
@@ -343,6 +345,41 @@ class Analytics_Dashboard_Test extends BaseTestCase {
 		Analytics_Dashboard::register_widget_types( $registry );
 
 		$this->assertSame( array(), $registry->get_all_registered() );
+	}
+
+	/**
+	 * The dashboard reports errors thrown by the package's widgets and modules, and not by the rest
+	 * of its build. The origins are derived from a URL the registration itself publishes, so a build
+	 * served from somewhere else cannot pass.
+	 */
+	public function test_publishes_its_widget_and_module_urls_as_error_reporting_origins() {
+		$this->enable_store();
+		$registry = new Widget_Type_Registry();
+
+		Analytics_Dashboard::register_widget_types( $registry );
+
+		$origins = apply_filters( 'jetpack_premium_analytics_error_reporting_script_origins', array() );
+		$build   = trailingslashit( dirname( $registry->get_registered( Analytics_Dashboard::NET_SALES_OVER_TIME_TYPE )->i18n_manifest ) );
+
+		$this->assertSame( array( $build . 'widgets/', $build . 'modules/' ), $origins );
+	}
+
+	/**
+	 * On WordPress.com Simple the registrant is called directly, so the origin must reach the
+	 * dashboard even on the run where the registrant registers nothing.
+	 */
+	public function test_publishes_the_error_reporting_origins_without_woocommerce() {
+		add_filter( Analytics_Dashboard::WOOCOMMERCE_AVAILABLE_FILTER, '__return_false' );
+		$registry = new Widget_Type_Registry();
+
+		Analytics_Dashboard::register_widget_types( $registry );
+
+		$origins = apply_filters( 'jetpack_premium_analytics_error_reporting_script_origins', array() );
+
+		$this->assertSame( array(), $registry->get_all_registered() );
+		$this->assertCount( 2, $origins );
+		$this->assertStringEndsWith( '/widgets/', $origins[0] );
+		$this->assertStringEndsWith( '/modules/', $origins[1] );
 	}
 
 	/**

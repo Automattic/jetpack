@@ -4,7 +4,7 @@
  * `bin/teamcity-builds/jetpack-stubs/stub-defs.php` and regenerate the stubs
  * by triggering the Jetpack Staging → Update WPCOM Stubs job in TeamCity.
  *
- * Stubs automatically generated from WordPress.com commit af5720012e9df5411df91817a614a864146aeafa.
+ * Stubs automatically generated from WordPress.com commit 16e72d2db93aa2d2c628fcf03c22c916da38563b.
  */
 
 namespace {
@@ -700,9 +700,10 @@ namespace {
     /**
      * @param int $user
      * @param bool $ignore_user_blogs
+     * @param bool $include_feeds
      * @return array
      */
-    function get_user_followed_blogs($user, $ignore_user_blogs)
+    function get_user_followed_blogs($user, $ignore_user_blogs, $include_feeds = \false)
     {
     }
     /**
@@ -984,9 +985,13 @@ namespace {
         }
         /**
          * @param mixed $my_posts
+         * @param Blog_Subscription|null $subscription
+         * @param string $extra_text
+         * @param bool $automattcher
+         * @param array $send_args
          * @return void
          **/
-        public function send_post($my_posts, ?\Blog_Subscription $subscription = \null, $extra_text = '', $automattcher = \false)
+        public function send_post($my_posts, ?\Blog_Subscription $subscription = \null, $extra_text = '', $automattcher = \false, array $send_args = [])
         {
         }
     }
@@ -2049,7 +2054,12 @@ namespace WPCOM\Jetpack_AI\Usage {
         public static function get_costs()
         {
         }
-        public static function get_upgrade_url($blog_id)
+        /**
+         * @param int $blog_id
+         * @param string $source
+         * @return string|null
+         */
+        public static function get_upgrade_url($blog_id, string $source = '')
         {
         }
     }

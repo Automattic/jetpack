@@ -5,6 +5,7 @@ import { safeHttpUrl } from '@jetpack-premium-analytics/ui';
 /**
  * Internal dependencies
  */
+import { toDetailId } from '../../helpers/detail-id';
 import { ExternalLink } from '../external-link';
 import { InternalLink } from '../internal-link';
 import type { JSX, ReactNode } from 'react';
@@ -40,16 +41,16 @@ export function VideoTitleLink( {
 	title,
 	children,
 }: VideoTitleLinkProps ): JSX.Element {
-	const videoId = Number( id );
+	const videoId = toDetailId( id );
 	const content = children ?? <span className={ classNames?.text }>{ label }</span>;
 
-	if ( Number.isInteger( videoId ) && videoId > 0 ) {
+	if ( videoId !== undefined ) {
 		return (
 			<InternalLink
 				className={ classNames?.internal }
 				title={ title }
-				to="/video/$videoId"
-				params={ { videoId: String( videoId ) } }
+				to="/report/$kind/$id"
+				params={ { kind: 'video', id: String( videoId ) } }
 				search={ search }
 			>
 				{ content }

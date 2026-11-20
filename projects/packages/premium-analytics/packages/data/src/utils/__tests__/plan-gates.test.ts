@@ -5,7 +5,12 @@ import { getScriptData } from '@automattic/jetpack-script-data';
 /**
  * Internal dependencies
  */
-import { getLockedFeature, getLockedWidgetFeature, isStatsFeatureLocked } from '../plan-gates';
+import {
+	getLockedFeature,
+	getLockedSection,
+	getLockedWidgetFeature,
+	isStatsFeatureLocked,
+} from '../plan-gates';
 
 jest.mock(
 	'@automattic/jetpack-script-data',
@@ -22,6 +27,17 @@ const gates = {
 		},
 	},
 	locked_widget_types: { 'jpa/utm-insights': 'utm', 'videopress/top-videos': 'videos' },
+	locked_sections: {
+		insights: {
+			title: 'Unlock site insights',
+			description: 'Get detailed insights into your site’s performance with a Personal plan.',
+			features: [ 'Monitor your posting activity' ],
+			upgrade_label: 'Upgrade to Personal',
+			expand_label: 'Show all Personal features',
+			support_url: 'https://wordpress.com/support/stats/',
+			upgrade_url: 'https://wordpress.com/checkout/example.com/personal',
+		},
+	},
 };
 
 describe( 'plan gates', () => {
@@ -37,6 +53,8 @@ describe( 'plan gates', () => {
 		expect( getLockedWidgetFeature( 'jpa/utm-insights' ) ).toBe( 'utm' );
 		expect( getLockedWidgetFeature( 'videopress/top-videos' ) ).toBe( 'videos' );
 		expect( getLockedWidgetFeature( 'jpa/referrers' ) ).toBeUndefined();
+		expect( getLockedSection( 'insights' ) ).toBe( gates.locked_sections.insights );
+		expect( getLockedSection( 'subscribers' ) ).toBeUndefined();
 	} );
 
 	it.each( [
@@ -47,9 +65,19 @@ describe( 'plan gates', () => {
 
 		expect( isStatsFeatureLocked( 'utm' ) ).toBe( false );
 		expect( getLockedWidgetFeature( 'jpa/utm-insights' ) ).toBeUndefined();
+		expect( getLockedSection( 'insights' ) ).toBeUndefined();
+	} );
+
+	it( 'locks no section on a server that predates section gates', () => {
+		( getScriptData as jest.Mock ).mockReturnValue( {
+			premium_analytics: { plan_gates: { ...gates, locked_sections: undefined } },
+		} );
+
+		expect( getLockedSection( 'insights' ) ).toBeUndefined();
 	} );
 
 	it( 'does not read inherited names as locked', () => {
 		expect( getLockedWidgetFeature( 'constructor' ) ).toBeUndefined();
+		expect( getLockedSection( 'constructor' ) ).toBeUndefined();
 	} );
 } );

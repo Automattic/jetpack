@@ -8,7 +8,11 @@
 namespace Automattic\Jetpack\Podcast;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
+use Automattic\Jetpack\Admin_UI\Admin_Shell;
+use Automattic\Jetpack\Admin_UI\Media_Library;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\My_Jetpack\Products as My_Jetpack_Products;
+use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Screen_Id;
@@ -58,6 +62,13 @@ class Admin_Page {
 	private static $jitm_opt_out_screen_id = null;
 
 	/**
+	 * Overrides the generated entry point path. Test seam, null in production.
+	 *
+	 * @var string|null
+	 */
+	private static $wp_build_index = null;
+
+	/**
 	 * Wire admin hooks. Idempotent.
 	 */
 	public static function init() {
@@ -67,6 +78,15 @@ class Admin_Page {
 		self::$initialized = true;
 
 		add_action( 'admin_menu', array( __CLASS__, 'maybe_load_wp_build' ), 1 );
+
+		if ( class_exists( Admin_Shell::class ) ) {
+			add_filter( 'jetpack_admin_shell_members', array( __CLASS__, 'add_admin_shell_member' ) );
+		}
+
+		// The cover image picker loads the media library from this endpoint.
+		if ( method_exists( Media_Library::class, 'init' ) ) {
+			Media_Library::init();
+		}
 
 		// On Simple/Atomic, wpcom-admin-menu.php builds the Jetpack menu at
 		// priority 999999 and calls add_wp_admin_submenu() itself. Self-hosted
@@ -120,11 +140,52 @@ class Admin_Page {
 	}
 
 	/**
+	 * Register Podcast with the admin shell, which switches between Jetpack dashboards without a page load.
+	 *
+	 * @since 2.2.7
+	 *
+	 * @param array $members Shell members keyed by admin page slug.
+	 * @return array
+	 */
+	public static function add_admin_shell_member( $members ) {
+		if ( ! file_exists( self::wp_build_index_path() ) ) {
+			return $members;
+		}
+
+		$members[ self::ADMIN_PAGE_SLUG ] = array(
+			'build_prefix' => 'jetpack_podcast',
+			'build_page'   => self::WP_BUILD_SLUG,
+			'init_modules' => array( '@jetpack-podcast/init' ),
+			/** "Podcast" is a product name, do not translate. */
+			'title'        => 'Podcast',
+			'header'       => array(
+				'title'    => 'Podcast',
+				'subtitle' => __( 'Publish a podcast and reach your fans, anywhere they listen.', 'jetpack-podcast' ),
+			),
+			'capability'   => 'manage_options',
+			'handles'      => array( 'jetpack-script-data', 'jp-tracks', 'wp-jp-i18n-loader' ),
+			'load'         => array( __CLASS__, 'load_as_admin_shell_guest' ),
+		);
+		return $members;
+	}
+
+	/**
+	 * Ready the Podcast routes and page data while another dashboard's page is open, without the screen ID alias.
+	 *
+	 * @since 2.2.7
+	 *
+	 * @return void
+	 */
+	public static function load_as_admin_shell_guest() {
+		self::load_wp_build();
+		add_filter( 'jetpack_admin_js_script_data', array( __CLASS__, 'inject_podcast_script_data' ) );
+		self::admin_init();
+	}
+
+	/**
 	 * Wire admin-init actions once we know the Podcast page is loading.
 	 */
 	public static function admin_init() {
-		// MediaUpload (cover-image-control) reads wp.media.view — only defined after this runs.
-		add_action( 'admin_enqueue_scripts', 'wp_enqueue_media' );
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_tracks_transport' ) );
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_i18n_loader' ) );
 	}
@@ -197,22 +258,36 @@ class Admin_Page {
 			}
 		}
 
-		// Self-hosted upsells the Growth plan; WordPress.com keeps Premium.
-		// `product_slug` is fed straight to the checkout URL; `plan_name` is a
-		// product name shown in the locked-preview copy (not translated).
+		$upgrade = array(
+			'product_slug' => $is_wpcom ? 'premium' : 'jetpack_growth_yearly',
+			'plan_name'    => $is_wpcom ? 'Premium' : 'Growth',
+		);
+		if ( ! $is_wpcom && method_exists( My_Jetpack_Products::class, 'get_bundle_offer' ) ) {
+			$offer = My_Jetpack_Products::get_bundle_offer( 'growth' );
+			if ( 'growth' !== ( $offer['slug'] ?? '' ) ) {
+				$upgrade = array(
+					'product_slug' => $offer['wpcom_product_slug'] ?? '',
+					'plan_name'    => $offer['title'] ?? '',
+				);
+			}
+		}
+		$status         = new Status();
+		$is_site_public = 1 === (int) get_option( 'blog_public', 1 )
+			&& 'unlaunched' !== get_option( 'launch-status' )
+			&& ! $status->is_private_site()
+			&& ! $status->is_coming_soon();
+
 		$data['podcast'] = array(
 			'has_product_access'  => Podcast_Gate::has_product_access(),
 			'is_connected'        => $is_wpcom || ( new Connection_Manager( 'jetpack' ) )->is_connected(),
+			'is_site_public'      => $is_site_public,
 			'show_url_hosts'      => Settings::SHOW_URL_HOSTS,
 			'show_url_max_length' => Settings::SHOW_URL_MAX_LENGTH,
 			'feed_limit_max'      => Settings::feed_limit_max(),
 			'preload'             => rest_preload_api_request( array(), '/wpcom/v2/podcast/settings' ),
 			'selected_category'   => self::get_selected_category(),
 			'tracks_user_data'    => self::get_tracks_user_data(),
-			'upgrade'             => array(
-				'product_slug' => $is_wpcom ? 'premium' : 'jetpack_growth_yearly',
-				'plan_name'    => $is_wpcom ? 'Premium' : 'Growth',
-			),
+			'upgrade'             => $upgrade,
 		);
 
 		return $data;
@@ -269,12 +344,21 @@ class Admin_Page {
 	}
 
 	/**
+	 * Absolute path to the entry point generated by the WP build script.
+	 *
+	 * @return string
+	 */
+	private static function wp_build_index_path() {
+		return self::$wp_build_index ?? dirname( __DIR__ ) . '/build/build.php';
+	}
+
+	/**
 	 * The build artifact may be absent on a fresh checkout before
 	 * `pnpm build` has run; in that case `add_wp_admin_submenu()` falls back
 	 * to `render()` so the page still loads (just without the React app).
 	 */
 	private static function load_wp_build() {
-		$build_index = dirname( __DIR__ ) . '/build/build.php';
+		$build_index = self::wp_build_index_path();
 
 		if ( ! file_exists( $build_index ) ) {
 			return;

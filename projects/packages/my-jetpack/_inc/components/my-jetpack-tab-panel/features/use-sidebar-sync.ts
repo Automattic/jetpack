@@ -9,7 +9,7 @@ import { onSwitchWritten } from '../../../data/switch-written';
 import {
 	fetchAdminMenu,
 	linksTo,
-	menuLinkOf,
+	menuLabelOf,
 	slideIn,
 	syncAdminMenu,
 } from '../../../utils/admin-menu-sync';
@@ -18,6 +18,48 @@ export type MenuPointerTarget = {
 	elements: HTMLElement[];
 	label: string;
 };
+
+/**
+ * Fetch a fresh sidebar and merge it into the one on screen, retrying once.
+ *
+ * @param live    - The `#adminmenu` on screen.
+ * @param signal  - Aborts the refresh when a newer one supersedes it.
+ * @param retries - Retries left.
+ * @return The menu items the refresh added.
+ */
+export function refreshSidebar(
+	live: Element,
+	signal: AbortSignal,
+	retries = 1
+): Promise< HTMLElement[] > {
+	// Rendering any admin page runs `admin_init`, where plugins do deferred activation
+	// work, so no switch may be written while it is out. A retry comes later, when a
+	// switch may already be out, so it queues behind it instead.
+	return ( retries > 0 ? holdActivationQueue : queueActivationRequest )( () =>
+		// Tools is the cheapest admin page to render, and every page carries the same menu.
+		fetchAdminMenu( getAdminUrl( 'tools.php' ), signal )
+	)
+		.then( fresh => {
+			if ( ! fresh ) {
+				throw new Error( 'The admin page had no menu.' );
+			}
+
+			const added = syncAdminMenu( live, fresh );
+
+			slideIn( added );
+
+			return added;
+		} )
+		.catch( error => {
+			// Retried once: a switched-off feature's item would otherwise stay clickable
+			// until the next page load.
+			if ( retries > 0 && ! signal.aborted ) {
+				return refreshSidebar( live, signal, retries - 1 );
+			}
+
+			throw error;
+		} );
+}
 
 /**
  * Keep the wp-admin sidebar in step with the features switched on this tab.
@@ -43,40 +85,17 @@ export function useSidebarSync( features: MainFeature[] ) {
 
 		let controller: AbortController | undefined;
 
-		const refresh = ( signal: AbortSignal, retries: number ) =>
-			// Rendering any admin page runs `admin_init`, where plugins do deferred activation
-			// work, so no switch may be written while it is out. A retry comes later, when a
-			// switch may already be out, so it queues behind it instead.
-			( retries > 0 ? holdActivationQueue : queueActivationRequest )( () =>
-				// Tools is the cheapest admin page to render, and every page carries the same menu.
-				fetchAdminMenu( getAdminUrl( 'tools.php' ), signal )
-			)
-				.then( fresh => {
-					if ( ! fresh ) {
-						throw new Error( 'The admin page had no menu.' );
-					}
-
-					const added = syncAdminMenu( live, fresh );
-
-					slideIn( added );
-
-					// A refresh that only removes retires the pointer, which may mark an item
-					// this one just took away.
-					setPointer( added.length ? pickPointer( added, latest.current ) : null );
-				} )
-				.catch( () => {
-					// Retried once: a switched-off feature's item would otherwise stay clickable
-					// until the next page load.
-					if ( retries > 0 && ! signal.aborted ) {
-						refresh( signal, retries - 1 );
-					}
-				} );
-
 		const unsubscribe = onSwitchWritten( () => {
 			// A newer write supersedes the refresh in flight, which could otherwise land last.
 			controller?.abort();
 			controller = new AbortController();
-			refresh( controller.signal, 1 );
+			refreshSidebar( live, controller.signal )
+				.then( added =>
+					// A refresh that only removes retires the pointer, which may mark an item
+					// this one just took away.
+					setPointer( added.length ? pickPointer( added, latest.current ) : null )
+				)
+				.catch( () => {} );
 		} );
 
 		return () => {
@@ -100,9 +119,7 @@ export function useSidebarSync( features: MainFeature[] ) {
 function pickPointer( added: HTMLElement[], features: MainFeature[] ): MenuPointerTarget {
 	const [ first ] = added;
 	const name =
-		features.find( feature => linksTo( first, feature.manage_url ) )?.name ??
-		menuLinkOf( first )?.textContent?.trim() ??
-		'';
+		features.find( feature => linksTo( first, feature.manage_url ) )?.name ?? menuLabelOf( first );
 
 	return {
 		elements: added,

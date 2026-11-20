@@ -97,7 +97,7 @@ class Connection_Notice_Test extends TestCase {
 		$translation = 'Backslash \\ and "quotes" and a' . "\n" . 'newline.';
 
 		$filter = function ( $translated, $text ) use ( $translation ) {
-			return 'Something went wrong. Please try again.' === $text ? $translation : $translated;
+			return 'An error occurred. Please try again.' === $text ? $translation : $translated;
 		};
 		add_filter( 'gettext', $filter, 10, 2 );
 

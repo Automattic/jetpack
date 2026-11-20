@@ -1,7 +1,12 @@
 import { act, render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
 import { store as blockEditorStore } from '@wordpress/block-editor';
-import { dispatch, select } from '@wordpress/data';
+import { dispatch } from '@wordpress/data';
+import {
+	clientId,
+	getBlockAttributes,
+	makeFiles,
+	uploadFiles,
+} from '../../../shared/test/upload-files';
 import Edit from '../edit';
 
 const defaultAttributes = {
@@ -39,53 +44,30 @@ test( 'renders images if present', () => {
 	expect( screen.getByAltText( 'Gallery Image 2' ) ).toBeInTheDocument();
 } );
 
-const clientId = 'tiled-gallery';
+test.each( [ true, false ] )(
+	'shows the upload button only to users who can upload: %s',
+	canUpload => {
+		dispatch( blockEditorStore ).updateSettings( {
+			mediaUpload: canUpload ? () => {} : undefined,
+		} );
+		render(
+			<Edit { ...defaultProps } attributes={ { ...defaultAttributes, images } } isSelected />
+		);
+		expect( !! screen.queryByRole( 'button', { name: 'Upload an image' } ) ).toBe( canUpload );
+	}
+);
 
-// jsdom implements neither.
-window.URL.createObjectURL = file => `blob:placeholder-${ file.name }`;
-window.URL.revokeObjectURL = () => {};
-
-/**
- * Renders the block backed by the block editor store, uploads `files`, and returns each upload call.
- *
- * @param {Array}  initialImages - The gallery's images before the upload.
- * @param {File[]} files         - The files to upload.
- * @return {Promise<Array>} The options passed to each `mediaUpload` call.
- */
-async function uploadFiles( initialImages, files ) {
-	const uploads = [];
-	const { resetBlocks, updateBlockAttributes, updateSettings } = dispatch( blockEditorStore );
-	updateSettings( { mediaUpload: options => uploads.push( options ) } );
-	resetBlocks( [
-		{
-			clientId,
-			name: 'jetpack/tiled-gallery',
-			attributes: { images: initialImages },
-			innerBlocks: [],
-		},
-	] );
-
-	const { container } = render(
-		<Edit
-			{ ...defaultProps }
-			attributes={ { images: initialImages } }
-			clientId={ clientId }
-			isSelected
-			noticeOperations={ { createErrorNotice: jest.fn() } }
-			setAttributes={ attrs => updateBlockAttributes( clientId, attrs ) }
-		/>
-	);
-	// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
-	await userEvent.setup().upload( container.querySelector( 'input[type="file"]' ), files );
-	return uploads;
-}
-
-const makeFiles = ( names, FileClass = File ) =>
-	names.map( name => new FileClass( [ name ], `${ name }.jpg`, { type: 'image/jpeg' } ) );
+const uploadToGallery = ( initialImages, files ) =>
+	uploadFiles( {
+		Edit,
+		name: 'jetpack/tiled-gallery',
+		attributes: { images: initialImages },
+		files,
+	} );
 
 test( 'keeps every image when uploads report one file at a time', async () => {
-	const [ a, b, c, d ] = await uploadFiles( images, makeFiles( [ 'a', 'b', 'c', 'd' ] ) );
-	const getImages = () => select( blockEditorStore ).getBlockAttributes( clientId ).images;
+	const [ a, b, c, d ] = await uploadToGallery( images, makeFiles( [ 'a', 'b', 'c', 'd' ] ) );
+	const getImages = () => getBlockAttributes().images;
 
 	// Interleaved like the client-side queue. a sends no preview and finishes last; c and d fail
 	// the two ways uploaders report it; b gets pre-rotation dimensions and a link mid-processing.
@@ -107,7 +89,7 @@ test( 'keeps every image when uploads report one file at a time', async () => {
 		a.onFileChange( [ { id: 3, url: 'http://example.com/a.jpg' } ] );
 	} );
 
-	expect( select( blockEditorStore ).getBlockAttributes( clientId ).ids ).toEqual( [ 1, 2, 3, 4 ] );
+	expect( getBlockAttributes().ids ).toEqual( [ 1, 2, 3, 4 ] );
 	expect( getImages()[ 3 ] ).toEqual( {
 		id: 4,
 		url: 'http://example.com/b-scaled.jpg',
@@ -119,10 +101,10 @@ test( 'uploads files picked in the editor iframe into an empty gallery', async (
 	const iframe = document.createElement( 'iframe' );
 	document.body.appendChild( iframe );
 
-	const uploads = await uploadFiles( [], makeFiles( [ 'a', 'b' ], iframe.contentWindow.File ) );
+	const uploads = await uploadToGallery( [], makeFiles( [ 'a', 'b' ], iframe.contentWindow.File ) );
 	expect( uploads ).toHaveLength( 2 );
 
-	const getColumns = () => select( blockEditorStore ).getBlockAttributes( clientId ).columns;
+	const getColumns = () => getBlockAttributes().columns;
 
 	// Columns follow the uploads that succeed, not the files selected.
 	act( () => uploads[ 1 ].onError( 'File too large.' ) );

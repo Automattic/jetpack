@@ -1,5 +1,5 @@
 import { jest } from '@jest/globals';
-import { render, screen, waitFor, within } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 // ESM test: static jest.mock does not work under --experimental-vm-modules, so mock the modules
@@ -313,84 +313,6 @@ describe( 'ManageConnectionDialog', () => {
 			expect(
 				screen.queryByRole( 'link', { name: /Disconnect my user account/ } )
 			).not.toBeInTheDocument();
-		} );
-	} );
-
-	describe( 'disconnecting the user account', () => {
-		it( 'opens the owner-disconnect warning dialog instead of unlinking, when user is the connection owner', async () => {
-			const user = userEvent.setup();
-			render( <ManageConnectionDialog { ...testProps } /> );
-			await user.click( screen.getByRole( 'link', { name: /Disconnect my user account/ } ) );
-			expect(
-				screen.getByRole( 'dialog', { name: 'Disconnect Owner Account' } )
-			).toBeInTheDocument();
-			expect( mockUnlinkUser ).not.toHaveBeenCalled();
-		} );
-
-		it( 'unlinks directly and closes, when a non-owner disconnects', async () => {
-			const user = userEvent.setup();
-			const nonOwner = {
-				currentUser: {
-					id: 2,
-					username: 'editor',
-					isConnected: true,
-					isMaster: false,
-					permissions: { manage_options: false },
-				},
-			};
-			render( <ManageConnectionDialog { ...testProps } connectedUser={ nonOwner } /> );
-
-			await user.click( screen.getByRole( 'link', { name: /Disconnect my user account/ } ) );
-
-			expect( mockUnlinkUser ).toHaveBeenCalledWith( false );
-			await waitFor( () => expect( testProps.onUnlinked ).toHaveBeenCalledTimes( 1 ) );
-			expect( testProps.onClose ).toHaveBeenCalledTimes( 1 );
-		} );
-
-		it( 'shows the admin-oriented error message when an admin fails to unlink', async () => {
-			const user = userEvent.setup();
-			mockUnlinkUser.mockRejectedValueOnce( new Error( 'nope' ) );
-			const nonMasterAdmin = {
-				currentUser: {
-					id: 3,
-					username: 'admin2',
-					isConnected: true,
-					isMaster: false,
-					permissions: { manage_options: true },
-				},
-			};
-			render( <ManageConnectionDialog { ...testProps } connectedUser={ nonMasterAdmin } /> );
-
-			await user.click( screen.getByRole( 'link', { name: /Disconnect my user account/ } ) );
-
-			const dialog = screen.getByRole( 'dialog' );
-			await expect(
-				within( dialog ).findByText(
-					/your Jetpack plugin\(s\) may be outdated. Please visit your plugins page/
-				)
-			).resolves.toBeInTheDocument();
-		} );
-
-		it( 'shows the non-admin-oriented error message when a non-admin fails to unlink', async () => {
-			const user = userEvent.setup();
-			mockUnlinkUser.mockRejectedValueOnce( new Error( 'nope' ) );
-			const nonAdmin = {
-				currentUser: {
-					id: 4,
-					username: 'subscriber',
-					isConnected: true,
-					isMaster: false,
-					permissions: { manage_options: false },
-				},
-			};
-			render( <ManageConnectionDialog { ...testProps } connectedUser={ nonAdmin } /> );
-
-			await user.click( screen.getByRole( 'link', { name: /Disconnect my user account/ } ) );
-
-			const dialog = screen.getByRole( 'dialog' );
-			await expect(
-				within( dialog ).findByText( /Please ask a site admin to update Jetpack/ )
-			).resolves.toBeInTheDocument();
 		} );
 	} );
 

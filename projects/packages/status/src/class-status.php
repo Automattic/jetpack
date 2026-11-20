@@ -413,7 +413,8 @@ class Status {
 
 	/**
 	 * Whether the site is currently unlaunched or not.
-	 * On WordPress.com and WoA, sites can be marked as "coming soon", aka unlaunched
+	 * On WordPress.com and WoA, sites can be marked as "coming soon", aka unlaunched,
+	 * either as a private site with the `wpcom_coming_soon` option, or with `wpcom_public_coming_soon`.
 	 *
 	 * @since 1.16.0
 	 *
@@ -422,8 +423,11 @@ class Status {
 	public function is_coming_soon() {
 		$ret = Cache::get( 'is_coming_soon' );
 		if ( null === $ret ) {
-			$is_coming_soon = ( function_exists( 'site_is_coming_soon' ) && \site_is_coming_soon() )
-				|| get_option( 'wpcom_public_coming_soon' );
+			// Private Coming Soon is wpcom_is_coming_soon() on Simple, and lives in wpcomsh's Private_Site namespace on WoA,
+			// where it may fetch the option from WordPress.com, so it runs last.
+			$is_coming_soon = get_option( 'wpcom_public_coming_soon' )
+				|| ( function_exists( 'wpcom_is_coming_soon' ) && \wpcom_is_coming_soon() )
+				|| ( function_exists( '\Private_Site\site_is_coming_soon' ) && \Private_Site\site_is_coming_soon() );
 
 			/**
 			 * Filters the is_coming_soon check.

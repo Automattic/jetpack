@@ -35,6 +35,9 @@ export type MetricDeltaProps = {
 
 	className?: string;
 
+	/** The element the delta renders as, for a spot that allows phrasing content only, such as a button. */
+	render?: ComponentProps< typeof Stack >[ 'render' ];
+
 	/**
 	 * Text alignment
 	 * @default 'center'
@@ -80,6 +83,7 @@ export function MetricDelta( {
 	hideZero = false,
 	invertColors = false,
 	className,
+	render,
 	justify = 'center',
 	showAbsolute = false,
 	absoluteFormat = 'number',
@@ -90,7 +94,11 @@ export function MetricDelta( {
 
 	if ( percentageChange === null ) {
 		return (
-			<Stack justify={ justify } className={ clsx( styles.delta, styles.invalid, className ) }>
+			<Stack
+				render={ render }
+				justify={ justify }
+				className={ clsx( styles.delta, styles.invalid, className ) }
+			>
 				{ fallback }
 			</Stack>
 		);
@@ -117,6 +125,7 @@ export function MetricDelta( {
 
 	return (
 		<Stack
+			render={ render }
 			justify={ justify }
 			className={ clsx(
 				styles.delta,

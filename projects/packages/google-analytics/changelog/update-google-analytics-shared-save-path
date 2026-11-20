@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add a shared way to save the settings. New Measurement IDs with extra text around them are refused, and surrounding spaces are ignored.

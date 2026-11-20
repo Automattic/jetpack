@@ -1,5 +1,9 @@
 import { JetpackLogo, TermsOfService, Text } from '@automattic/jetpack-components';
-import { useConnection } from '@automattic/jetpack-connection';
+import {
+	getRegistrationErrorCode,
+	getRegistrationErrorDisplay,
+	useConnection,
+} from '@automattic/jetpack-connection';
 import { Button, Spinner, Notice } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { useCallback, useEffect } from 'react';
@@ -20,10 +24,14 @@ const ConnectionForm = () => {
 		handleRegisterSite();
 	}, [ recordEvent, handleRegisterSite ] );
 
+	const errorDisplay = getRegistrationErrorDisplay( registrationError );
+
 	useEffect( () => {
 		if ( registrationError ) {
 			recordEvent( 'jetpack_my_jetpack_onboarding_error', {
 				error: registrationError,
+				// Not `unknown` or `unknown_error`: both are real registration error codes.
+				error_code: getRegistrationErrorCode( registrationError ) ?? 'no_error_code',
 			} );
 		}
 	}, [ registrationError, recordEvent ] );
@@ -63,13 +71,19 @@ const ConnectionForm = () => {
 
 			{ registrationError ? (
 				<Notice status="error" isDismissible={ false }>
-					{ registrationError.message ||
-						__( 'An error occurred. Please try again.', 'jetpack-my-jetpack' ) }
+					<p className={ styles[ 'error-message' ] }>
+						{ errorDisplay.message ||
+							__( 'An error occurred. Please try again.', 'jetpack-my-jetpack' ) }
+					</p>
+					{ errorDisplay.detail && (
+						<p className={ styles[ 'error-detail' ] }>{ errorDisplay.detail }</p>
+					) }
 				</Notice>
 			) : null }
 
 			<TermsOfService
 				className={ styles.tos }
+				variant="body-md"
 				agreeButtonLabel={ __( 'Supercharge my site', 'jetpack-my-jetpack' ) }
 			/>
 		</div>

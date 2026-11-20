@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Stats v2: Leave the plan usage card out of the Settings tab when the plan has no view limit, instead of saying usage isn't available.

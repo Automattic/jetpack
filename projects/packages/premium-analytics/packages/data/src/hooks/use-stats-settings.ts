@@ -16,11 +16,33 @@ type SiteSettings = {
 	wpcom_reader_views_enabled?: boolean;
 };
 
-const toSettings = ( site: SiteSettings | null | undefined ): StatsSettings | undefined =>
-	site?.stats_options && {
-		...site.stats_options,
-		wpcom_reader_views_enabled: Boolean( site.wpcom_reader_views_enabled ),
+const ALL_SETTINGS: readonly ( keyof StatsSettings )[] = [
+	'admin_bar',
+	'roles',
+	'count_roles',
+	'wpcom_reader_views_enabled',
+];
+
+/**
+ * The settings the site returned, once it has returned every one it offers.
+ *
+ * @param site    - The site settings entity.
+ * @param offered - The settings the site offers.
+ * @return The settings, or undefined while one it offers is missing.
+ */
+function toSettings(
+	site: SiteSettings | null | undefined,
+	offered: readonly ( keyof StatsSettings )[]
+): Partial< StatsSettings > | undefined {
+	const settings: Partial< StatsSettings > = {
+		...site?.stats_options,
+		...( site &&
+			'wpcom_reader_views_enabled' in site && {
+				wpcom_reader_views_enabled: Boolean( site.wpcom_reader_views_enabled ),
+			} ),
 	};
+	return offered.every( key => settings[ key ] !== undefined ) ? settings : undefined;
+}
 
 /**
  * Some settings in the shape the site settings entity holds them.
@@ -42,9 +64,10 @@ function toSite( values: Partial< StatsSettings >, site: SiteSettings | undefine
 /**
  * The Stats settings, read from core's site settings entity and saved as each change is made.
  *
+ * @param offered - The settings the site offers, which are the ones the settings must hold.
  * @return The settings, and the action that saves a change.
  */
-export function useStatsSettings() {
+export function useStatsSettings( offered: readonly ( keyof StatsSettings )[] = ALL_SETTINGS ) {
 	// The site settings entity has no ID.
 	const site = useEntityRecord< SiteSettings >( 'root', 'site', undefined as unknown as string );
 	const { editedRecord, edit } = site;
@@ -98,14 +121,14 @@ export function useStatsSettings() {
 				await save;
 			} catch ( error ) {
 				// Editing back to the stored values is how core-data drops an edit.
-				editOwned( toSettings( read().stored ) );
+				editOwned( toSettings( read().stored, offered ) );
 				throw error;
 			}
 		},
-		[ edit, registry, saveEntityRecord ]
+		[ edit, offered, registry, saveEntityRecord ]
 	);
 
-	const settings = useMemo( () => toSettings( editedRecord ), [ editedRecord ] );
+	const settings = useMemo( () => toSettings( editedRecord, offered ), [ editedRecord, offered ] );
 
 	return {
 		settings,

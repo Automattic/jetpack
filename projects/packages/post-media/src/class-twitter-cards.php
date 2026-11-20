@@ -37,7 +37,7 @@ class Twitter_Cards {
 		 */
 		$alt_length = 420;
 
-		if ( post_password_required() ) {
+		if ( is_singular() && post_password_required() ) {
 			return $og_tags;
 		}
 
@@ -79,7 +79,7 @@ class Twitter_Cards {
 			 * @param string $str Default image URL.
 			 */
 			$image = apply_filters( 'jetpack_twitter_cards_image_default', '' );
-			if ( ! empty( $image ) ) {
+			if ( ! empty( $image ) && empty( $og_tags['og:image'] ) && empty( $og_tags['twitter:image'] ) ) {
 				$og_tags['twitter:image'] = $image;
 			}
 
@@ -237,9 +237,30 @@ class Twitter_Cards {
 
 		if ( empty( $img_count ) ) {
 
+			/** This filter is documented in class-twitter-cards.php */
+			if ( empty( $og_tags['twitter:image'] ) ) {
+				$default_image = apply_filters( 'jetpack_twitter_cards_image_default', '' );
+				if ( ! empty( $default_image ) && 'https://s0.wp.com/i/blank.jpg' !== $default_image ) {
+					$og_tags['twitter:image'] = $default_image;
+				}
+			}
+
+			if ( empty( $og_tags['twitter:image'] ) && ! empty( $og_tags['og:image'] ) ) {
+				$image = is_array( $og_tags['og:image'] ) ? reset( $og_tags['og:image'] ) : $og_tags['og:image'];
+				if ( $image && 'https://s0.wp.com/i/blank.jpg' !== $image ) {
+					$og_tags['twitter:image'] = $image;
+					if ( isset( $og_tags['og:image:alt'] ) && is_string( $og_tags['og:image:alt'] ) ) {
+						$og_tags['twitter:image:alt'] = mb_substr( $og_tags['og:image:alt'], 0, 420 );
+					}
+					if ( ( $og_tags['og:image:width'] ?? 0 ) >= 300 && ( $og_tags['og:image:height'] ?? 0 ) >= 157 ) {
+						$card_type = 'summary_large_image';
+					}
+				}
+			}
+
 			// No images, use Blavatar as a thumbnail for the summary type.
 			// @todo blavatar_domain, blavatar_exists, and blavatar_url are WordPress.com functions. They should be abstracted.
-			if ( function_exists( 'blavatar_domain' ) ) {
+			if ( empty( $og_tags['twitter:image'] ) && function_exists( 'blavatar_domain' ) ) {
 				$blavatar_domain = blavatar_domain( site_url() ); // @phan-suppress-current-line PhanUndeclaredFunction -- Guarded by function_exists().
 				if ( blavatar_exists( $blavatar_domain ) ) { // @phan-suppress-current-line PhanUndeclaredFunction -- Guarded by function_exists().
 					$og_tags['twitter:image'] = blavatar_url( $blavatar_domain, 'img', 240 ); // @phan-suppress-current-line PhanUndeclaredFunction -- Guarded by function_exists().
@@ -253,7 +274,7 @@ class Twitter_Cards {
 			}
 
 			// Third fall back, Site Icon.
-			if ( empty( $og_tags['twitter:image'] ) && has_site_icon() ) {
+			if ( empty( $og_tags['twitter:image'] ) && has_site_icon() && 'image/svg+xml' !== get_post_mime_type( get_option( 'site_icon' ) ) ) {
 				$og_tags['twitter:image'] = get_site_icon_url( 240 );
 			}
 

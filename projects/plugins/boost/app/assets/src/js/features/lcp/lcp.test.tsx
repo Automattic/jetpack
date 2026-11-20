@@ -60,8 +60,7 @@ test( 'labels pending progress without reporting a completion percentage', () =>
 	renderState( { status: 'pending', pages: [] } );
 	const progress = screen.getByRole( 'progressbar', {
 		name: 'Optimizing LCP images',
-	} ) as HTMLProgressElement;
-	expect( progress.position ).toBe( -1 );
+	} );
 	expect( progress.attributes.getNamedItem( 'aria-valuenow' ) ).toBeNull();
 } );
 

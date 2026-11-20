@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { getSectionDatePolicy, type OpenPeriodOptions } from '@jetpack-premium-analytics/data';
 import { useCallback } from 'react';
 /**
  * Internal dependencies
@@ -8,7 +9,11 @@ import { useCallback } from 'react';
 import { useCommitExactRange } from '../use-period-host/use-commit-exact-range';
 import type { DateRange } from '@jetpack-premium-analytics/datetime';
 
-export type OpenSectionRange = ( section: string, range: Required< DateRange > ) => void;
+export type OpenSectionRange = (
+	section: string,
+	range: Required< DateRange >,
+	options?: OpenPeriodOptions
+) => void;
 
 /**
  * Open a dashboard section over an exact date range, stored as a custom
@@ -20,7 +25,15 @@ export function useOpenSectionRange(): OpenSectionRange {
 	const commitExactRange = useCommitExactRange();
 
 	return useCallback(
-		( section, range ) => commitExactRange( section, range, { opensSection: true } ),
+		( section, range, options ) => {
+			const { lockedIntervals, earliestDate } = getSectionDatePolicy( section );
+			commitExactRange( section, range, {
+				opensSection: true,
+				lockedIntervals,
+				earliestDate,
+				step: options?.step,
+			} );
+		},
 		[ commitExactRange ]
 	);
 }

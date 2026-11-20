@@ -1,7 +1,6 @@
 import { __ } from '@wordpress/i18n';
-import { ProgressBar } from '@wordpress/components';
 import { Icon, info } from '@wordpress/icons';
-import { Badge, Popover, Stack, Text, VisuallyHidden } from '@wordpress/ui';
+import { Badge, Meter, Popover, Stack, Text, VisuallyHidden } from '@wordpress/ui';
 import { useId, useState } from 'react';
 import {
 	formatScoreDelta,
@@ -81,11 +80,15 @@ export default function ScoreCard( {
 			</Stack>
 			{ score !== undefined && (
 				<div className="jetpack-boost-overview__score-meter">
-					<ProgressBar
-						className={ `jetpack-boost-overview__progress jetpack-boost-overview__progress--${ tier }` }
+					<Meter.Root
+						className="jetpack-boost-overview__progress"
 						value={ score }
 						aria-label={ label }
-					/>
+					>
+						<Meter.Track>
+							<Meter.Indicator className={ `jetpack-boost-overview__progress--${ tier }` } />
+						</Meter.Track>
+					</Meter.Root>
 					{ gain !== null && (
 						<Stack
 							direction="row"

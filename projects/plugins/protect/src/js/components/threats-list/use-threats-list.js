@@ -1,3 +1,4 @@
+import { sortThreatSeverity } from '@automattic/jetpack-scan';
 import {
 	plugins as pluginsIcon,
 	wordpress as coreIcon,
@@ -8,7 +9,7 @@ import {
 import { useEffect, useMemo, useState } from 'react';
 import useProtectData from '../../hooks/use-protect-data';
 
-const sortThreats = ( a, b ) => b.severity - a.severity;
+const sortThreats = ( a, b ) => sortThreatSeverity( a.severity, b.severity, 'desc' );
 
 /**
  * Flatten threats data

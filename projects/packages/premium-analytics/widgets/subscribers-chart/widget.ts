@@ -11,11 +11,7 @@ import {
 	reportParamsAttributeField,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/fields';
-import {
-	CHART_TYPE_ELEMENTS,
-	type ChartDisplayChartType,
-	type CountLabel,
-} from '@jetpack-premium-analytics/widgets-toolkit';
+import type { ChartDisplayChartType, CountLabel } from '@jetpack-premium-analytics/widgets-toolkit';
 
 /**
  * Internal dependencies
@@ -24,8 +20,8 @@ import { defaultReportParams } from './default-report-params';
 import { SUBSCRIBERS_GRAIN } from './grain';
 
 /**
- * How the selected metric is drawn. The shared chart-display list keeps every
- * chart widget's dropdown identical and ties it to the toolkit's own union.
+ * How the selected metric is drawn. The alias ties the attribute to the
+ * toolkit's own union, which the chart reads.
  */
 export type SubscribersChartType = ChartDisplayChartType;
 
@@ -77,13 +73,6 @@ export default {
 			grain: SUBSCRIBERS_GRAIN,
 			offersComparison: false,
 		} ),
-		{
-			id: 'chartType',
-			label: __( 'Chart type', 'jetpack-premium-analytics-pkg' ),
-			type: 'jpa/toggle-group',
-			elements: CHART_TYPE_ELEMENTS,
-			relevance: 'high',
-		},
 	] as WidgetAttributeField< SubscribersChartAttributes >[],
 	example: {
 		// A getter: the host reads it on every render, and the default can change after load.

@@ -11,7 +11,7 @@ import {
 	locationsCsvExporter,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { act, render, screen } from '@testing-library/react';
-import { useState } from 'react';
+import { useState, version as reactVersion } from 'react';
 /**
  * Internal dependencies
  */
@@ -20,6 +20,8 @@ import LocationsReportPage from './page';
 import type { LocationRow, ReportLocationsTabId } from './config';
 import type { View } from '@jetpack-premium-analytics/externals';
 import type { ReactNode } from 'react';
+
+const isReact18 = reactVersion.startsWith( '18.' );
 
 jest.mock( './config', () => {
 	const actual = jest.requireActual( './config' );
@@ -47,7 +49,6 @@ jest.mock( '@jetpack-premium-analytics/routing', () => ( {
 jest.mock( '@jetpack-premium-analytics/ui', () => ( {
 	DateFiltersPanel: () => null,
 	StatsBreadcrumbs: () => null,
-	StatsPageIcon: () => null,
 } ) );
 
 jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
@@ -67,15 +68,10 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 	flagUrl: ( countryCode: string ) => `https://example.com/${ countryCode }.svg`,
 	ReportErrorState: jest.requireActual( '@jetpack-premium-analytics/widgets-toolkit' )
 		.ReportErrorState,
+	StatsOptionsMenu: () => null,
 	ReportPageLayout: ( { tabs, children }: { tabs: ReactNode; children: ReactNode } ) => (
 		<>
 			{ tabs }
-			{ children }
-		</>
-	),
-	ReportPageShell: ( { actions, children }: { actions?: ReactNode; children: ReactNode } ) => (
-		<>
-			{ actions }
 			{ children }
 		</>
 	),
@@ -87,6 +83,12 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 } ) );
 
 jest.mock( '@wordpress/admin-ui', () => ( {
+	Page: ( { actions, children }: { actions?: ReactNode; children: ReactNode } ) => (
+		<>
+			{ actions }
+			{ children }
+		</>
+	),
 	Breadcrumbs: () => null,
 } ) );
 
@@ -244,7 +246,7 @@ describe( 'LocationsReportPage', () => {
 				items: records.table.rows,
 				status: records.table,
 			} ),
-			expect.anything()
+			isReact18 ? expect.anything() : undefined // eslint-disable-line jest/no-conditional-expect
 		);
 	} );
 

@@ -109,8 +109,8 @@ describe( 'rankBy with moduleFields', () => {
 describe( 'compareModulesByName', () => {
 	it( 'sorts modules by name', () => {
 		const result = [
-			makeModule( { module: 'sso', name: 'Secure Sign On' } ),
-			makeModule( { module: 'monitor', name: 'Downtime Monitoring' } ),
+			makeModule( { module: 'sso', name: 'WordPress.com login' } ),
+			makeModule( { module: 'monitor', name: 'Downtime monitoring' } ),
 		].sort( compareModulesByName );
 
 		expect( result.map( m => m.module ) ).toEqual( [ 'monitor', 'sso' ] );
@@ -124,9 +124,9 @@ describe( 'compareModulesByName', () => {
 		} as unknown as MyJetpackModule;
 
 		const result = [
-			makeModule( { module: 'monitor', name: 'Downtime Monitoring' } ),
+			makeModule( { module: 'monitor', name: 'Downtime monitoring' } ),
 			untranslated,
-			makeModule( { module: 'account-protection', name: 'Account Protection' } ),
+			makeModule( { module: 'account-protection', name: 'Account protection' } ),
 		].sort( compareModulesByName );
 
 		expect( result.map( m => m.module ) ).toEqual( [

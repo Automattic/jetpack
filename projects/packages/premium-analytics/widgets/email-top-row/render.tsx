@@ -8,6 +8,7 @@ import {
 	type StatsEmailBreakdown,
 } from '@jetpack-premium-analytics/data';
 import {
+	HEADLINE_COUNT_FORMAT,
 	MetricTileGrid,
 	MetricTileGridSkeleton,
 	WidgetRoot,
@@ -38,11 +39,6 @@ type EmailTopRowWidgetProps = WidgetRenderProps< EmailTopRowRenderAttributes >;
 type EmailRateSummary = StatsEmailBreakdown[ 'summary' ];
 
 type TileIcon = ComponentProps< typeof Icon >[ 'icon' ];
-
-const COUNT_FORMAT: DataFormat = {
-	type: 'number',
-	options: { useMultipliers: true, decimals: 0 },
-};
 
 const RATE_FORMAT: DataFormat = {
 	type: 'percentage',
@@ -219,7 +215,7 @@ export function toEmailTopRowMetrics(
 		icon: spec.icon,
 		label: spec.label(),
 		value: readTile( spec, summary ),
-		dataFormat: spec.kind === 'rate' ? RATE_FORMAT : COUNT_FORMAT,
+		dataFormat: spec.kind === 'rate' ? RATE_FORMAT : HEADLINE_COUNT_FORMAT,
 	} ) );
 }
 

@@ -139,6 +139,7 @@ export default function ChapterMarker( {
 			onPointerMove={ drag.onPointerMove }
 			onPointerUp={ drag.onPointerUp }
 			onPointerCancel={ drag.onPointerCancel }
+			onLostPointerCapture={ drag.onLostPointerCapture }
 		/>
 	);
 }

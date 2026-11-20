@@ -42,7 +42,7 @@ export function getProtectConfig(): ProductConfig {
 				},
 			},
 			{
-				name: __( 'Web Application Firewall', 'jetpack-my-jetpack' ),
+				name: __( 'Firewall', 'jetpack-my-jetpack' ),
 				free: { included: false, label: __( 'Manual rules only', 'jetpack-my-jetpack' ) },
 				paid: {
 					included: true,
@@ -54,7 +54,7 @@ export function getProtectConfig(): ProductConfig {
 				},
 			},
 			{
-				name: __( 'Brute force protection', 'jetpack-my-jetpack' ),
+				name: __( 'Login protection', 'jetpack-my-jetpack' ),
 				free: { included: false, label: NOT_INCLUDED },
 				paid: { included: true, label: INCLUDED },
 				bundle: {

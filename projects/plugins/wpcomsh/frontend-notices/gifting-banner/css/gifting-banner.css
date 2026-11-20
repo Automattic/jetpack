@@ -66,42 +66,48 @@
 	text-align: left;
 }
 
-.wpcom-gifting-banner__button {
+/* Scoped to the ID so theme and page-builder button rules
+ * (e.g. `.elementor-kit-N button`) can't restyle the banner. */
+#wpcom-gifting-banner .wpcom-gifting-banner__button,
+#wpcom-gifting-banner .wpcom-gifting-banner__more-info-button {
+	all: unset;
 	cursor: pointer;
+}
+
+#wpcom-gifting-banner .wpcom-gifting-banner__button {
+	flex-shrink: 0;
+	white-space: nowrap;
 	background: #fff;
 	color: #000;
-	border: none;
 	border-radius: 2px;
 	font-weight: 600;
 	font-size: 16px;
 	line-height: 20px;
-	height: 32px;
-	margin-left: 12px;
-	padding: 6px 24px 6px 24px;
+	margin-inline-start: 12px;
+	padding: 6px 24px;
 }
 
-.wpcom-gifting-banner .wpcom-gifting-banner__button:hover {
-	background: #fff;
-	color: #000;
+#wpcom-gifting-banner .wpcom-gifting-banner__more-info-button {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 24px;
+	height: 22px;
+	margin-inline-start: 4px;
+	vertical-align: top;
 }
 
-.wpcom-gifting-banner__more-info-button,
-.wpcom-gifting-banner__more-info-button:hover {
-	cursor: pointer;
-	position: relative;
-	background: none;
-	border: 0;
-	padding: 6px 12px;
-}
-
-.wpcom-gifting-banner__more-info-button::before {
-	background: url(../images/gridicons-help-outline.svg) no-repeat center;
+#wpcom-gifting-banner .wpcom-gifting-banner__more-info-button::before {
 	content: "";
-	height: 16px;
 	width: 16px;
-	position: absolute;
-	bottom: 4px;
-	left: 5px;
+	height: 16px;
+	background: url(../images/gridicons-help-outline.svg) no-repeat center / 16px 16px;
+}
+
+#wpcom-gifting-banner .wpcom-gifting-banner__button:focus-visible,
+#wpcom-gifting-banner .wpcom-gifting-banner__more-info-button:focus-visible {
+	outline: 2px solid #fff;
+	outline-offset: 2px;
 }
 
 @media (max-width: 480px) {
@@ -116,9 +122,13 @@
 		height: 26px;
 	}
 
+	/* Hidden so it can't wrap onto its own line; the gap replaces its margins. */
 	.wpcom-gifting-banner__img {
-		height: 16px;
-		width: 16px;
+		display: none;
+	}
+
+	.wpcom-gifting-banner__wrapper {
+		column-gap: 4px;
 	}
 
 	.wpcom-gifting-banner__title,
@@ -131,7 +141,12 @@
 		font-weight: 600;
 	}
 
-	.wpcom-gifting-banner__button {
+	#wpcom-gifting-banner .wpcom-gifting-banner__button {
 		font-size: 12px;
+		padding: 6px 16px;
+	}
+
+	#wpcom-gifting-banner .wpcom-gifting-banner__more-info-button {
+		height: 15px;
 	}
 }

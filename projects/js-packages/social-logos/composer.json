@@ -21,7 +21,6 @@
 	"prefer-stable": true,
 	"extra": {
 		"autorelease": true,
-		"autotagger": true,
 		"npmjs-autopublish": true,
 		"mirror-repo": "Automattic/social-logos",
 		"changelogger": {

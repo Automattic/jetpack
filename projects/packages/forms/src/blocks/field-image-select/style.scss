@@ -1,4 +1,4 @@
-@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+@use "@wordpress/base-styles/breakpoints";
 @use "../shared/styles/visually-hidden" as *;
 @use "../shared/styles/empty_image_option" as *;
 
@@ -6,7 +6,7 @@
 	width: calc(( 1 / var(--row-options-count) ) * 100% - var(--jetpack-field-image-options-gap) * ( (var(--row-options-count) - 1) / var(--row-options-count) ));
 
 	// Mobile adjustments for number of options per row
-	@media (max-width: #{ (gb.$break-mobile) }) {
+	@media (max-width: #{ (breakpoints.$break-mobile) }) {
 
 		&.is-supersized {
 			--row-options-count: 1 !important;

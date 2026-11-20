@@ -13,6 +13,18 @@ declare global {
 }
 
 /**
+ * Refetch what Backup shows once the admin shell shows it again after keeping it hidden a while.
+ *
+ * @param event - The shell's `jetpack-admin-shell:page-shown` event.
+ */
+export function refetchWhenStale( event: Event ): void {
+	const { page, stale } = ( event as CustomEvent ).detail ?? {};
+	if ( page === 'jetpack-backup' && stale ) {
+		window[ CLIENT_KEY ]?.invalidateQueries( { queryKey: [ 'backup' ] } );
+	}
+}
+
+/**
  * The one QueryClient every route of the modernized Backup dashboard renders against.
  *
  * Parked on `window` because each wp-build route bundles its own copy of this module: a
@@ -32,6 +44,8 @@ function sharedClient(): QueryClient {
 				},
 			},
 		} );
+		// Here, not at module scope, so the routes' copies of this module listen once between them.
+		window.addEventListener( 'jetpack-admin-shell:page-shown', refetchWhenStale );
 	}
 
 	return window[ CLIENT_KEY ];
@@ -81,6 +95,9 @@ export const keys = {
 	// descending are different rows.
 	activityLogPage: ( page: number, pageSize: number, sortOrder: ActivitySortOrder ) =>
 		[ 'backup', 'activity-log', { page, pageSize, sortOrder } ] as const,
+	// The few seconds of the log around one backup, for a selection no loaded page holds.
+	activityLogAround: ( rewindId: string ) =>
+		[ 'backup', 'activity-log', 'around', rewindId ] as const,
 	// Every loaded page of backup sizes, as one infinite query.
 	backupSizes: () => [ 'backup', 'sizes' ] as const,
 	fileTree: ( rewindId: string, folderPath: string | null ) =>
@@ -94,7 +111,11 @@ export const keys = {
 		[ 'backup', 'path-info', filePeriod, manifestPath ] as const,
 	downloadStatus: ( rewindId: string, downloadId: number ) =>
 		[ 'backup', 'download-status', rewindId, downloadId ] as const,
+	downloads: () => [ 'backup', 'downloads' ] as const,
 	restoreStatus: ( restoreId: number ) => [ 'backup', 'restore-status', restoreId ] as const,
 	// The site's recent restores, not one restore's status; see `useRecentRestores`.
 	recentRestores: () => [ 'backup', 'recent-restores' ] as const,
+	knownThreats: ( rewindId: string ) => [ 'backup', 'known-threats', rewindId ] as const,
+	backupsKnownThreats: ( withCleanRewindId = false ) =>
+		[ 'backup', 'known-threats', 'backups', withCleanRewindId ] as const,
 };

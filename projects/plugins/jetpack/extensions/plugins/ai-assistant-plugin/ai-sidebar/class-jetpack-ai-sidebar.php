@@ -34,6 +34,7 @@ const AI_SIDEBAR_AGENT_ID                 = 'wp-orchestrator';
 const AI_SIDEBAR_TOOLBAR_BUTTON_EXTENSION = 'ai-sidebar-toolbar-button';
 const AI_SIDEBAR_AGENT_NOTICE_EXTENSION   = 'ai-sidebar-agent-notice';
 const AI_SIDEBAR_AGENT_SUPPORT_EXTENSION  = 'ai-sidebar-agent-support';
+const AI_SIDEBAR_AGENT_ENABLE_EXTENSION   = 'ai-sidebar-agent-enable';
 
 /**
  * Initializes the Agents Manager package and registers the Jetpack AI
@@ -315,6 +316,7 @@ class Jetpack_AI_Sidebar {
 	 */
 	private static function is_seo_suggestions_enabled(): bool {
 		return class_exists( Ai_Seo::class )
+			&& Current_Plan::supports( 'ai-seo-enhancer' )
 			&& Ai_Seo::is_available()
 			&& \Jetpack_AI_Settings::is_ai_seo_enabled();
 	}
@@ -330,9 +332,7 @@ class Jetpack_AI_Sidebar {
 	}
 
 	/**
-	 * Whether this host loads the sidebar at all: a WordPress.com platform site
-	 * with Big Sky enabled, past the filter and the master switch. Public and
-	 * feature-free so the AI SEO gate can ask without asking back through it.
+	 * Whether this host enables the sidebar, before checking individual features.
 	 *
 	 * @since 16.2
 	 *
@@ -344,7 +344,8 @@ class Jetpack_AI_Sidebar {
 		$enabled = false;
 		if ( $host->is_wpcom_platform() && class_exists( 'Big_Sky' ) ) {
 			$default = $host->is_wpcom_simple() ? '1' : '0';
-			$enabled = (bool) get_option( 'big_sky_enable', $default );
+			// The plan check is the costly one, so it goes after the option.
+			$enabled = (bool) get_option( 'big_sky_enable', $default ) && self::has_wordpress_agent_plan();
 		}
 
 		/**
@@ -543,26 +544,34 @@ class Jetpack_AI_Sidebar {
 	 * Whether the site is eligible to turn the WordPress Agent on, whether or not
 	 * it has done so yet.
 	 *
-	 * Prefers the wpcom mu-plugin functions: the plan check cannot see the free
-	 * trial. Not gated on the Big_Sky class, which on Simple only loads once the
-	 * Agent is on.
+	 * Eligibility follows the plan, not the Big Sky sticker: a site downgraded to
+	 * Free keeps the sticker but is no longer offered the Agent. Not gated on the
+	 * Big_Sky class, which on Simple only loads once the Agent is on.
 	 *
 	 * @return bool
 	 */
 	private static function is_wordpress_agent_eligible(): bool {
 		$host = new Host();
 
-		if ( ! $host->is_wpcom_platform() ) {
-			return false;
+		return $host->is_wpcom_platform() && self::has_wordpress_agent_plan();
+	}
+
+	/**
+	 * Whether the site has a plan that grants the Big Sky feature.
+	 *
+	 * Prefers the mu-wpcom check, which also counts the Big Sky free trial that the
+	 * plan check cannot see. Atomic can run an older mu-wpcom without it, so fall
+	 * back to Current_Plan, which resolves through the platform plan features.
+	 *
+	 * @return bool
+	 */
+	private static function has_wordpress_agent_plan(): bool {
+		if ( function_exists( 'wpcom_site_has_wordpress_agent_plan' ) ) {
+			// @phan-suppress-next-line PhanUndeclaredFunction -- Provided by jetpack-mu-wpcom on WordPress.com; guarded above.
+			return wpcom_site_has_wordpress_agent_plan();
 		}
 
-		if ( function_exists( 'big_sky_is_available_for_site' ) && function_exists( 'big_sky_is_enabled' ) ) {
-			// @phan-suppress-next-line PhanUndeclaredFunction -- Provided by WPCOM's Big Sky mu-plugin; guarded by function_exists() above.
-			return big_sky_is_available_for_site() || big_sky_is_enabled();
-		}
-
-		// Off Simple the plugin is only installed once the site qualifies.
-		return class_exists( 'Big_Sky' ) || Current_Plan::supports( 'big-sky' );
+		return Current_Plan::supports( 'big-sky' );
 	}
 
 	/**
@@ -582,6 +591,15 @@ class Jetpack_AI_Sidebar {
 
 		\Jetpack_Gutenberg::set_extension_available( AI_SIDEBAR_AGENT_NOTICE_EXTENSION );
 
+		if ( self::can_current_user_enable_agent() ) {
+			\Jetpack_Gutenberg::set_extension_available( AI_SIDEBAR_AGENT_ENABLE_EXTENSION );
+		} else {
+			\Jetpack_Gutenberg::set_extension_unavailable(
+				AI_SIDEBAR_AGENT_ENABLE_EXTENSION,
+				'jetpack_ai_sidebar_agent_enable_not_allowed'
+			);
+		}
+
 		// Tells the notice whether to offer to enable the Agent or to open it.
 		if ( self::is_wordpress_agent_enabled() ) {
 			\Jetpack_Gutenberg::set_extension_available( AI_SIDEBAR_AGENT_SUPPORT_EXTENSION );
@@ -592,6 +610,23 @@ class Jetpack_AI_Sidebar {
 			AI_SIDEBAR_AGENT_SUPPORT_EXTENSION,
 			'jetpack_ai_sidebar_agent_disabled'
 		);
+	}
+
+	/**
+	 * Whether the current user can reach the WordPress.com page that turns the Agent on.
+	 *
+	 * Mirrors the dashboard's canManageSite(), which answers anything else with a 404.
+	 * Membership matters because super admins pass manage_options on sites they do not belong to.
+	 *
+	 * @return bool
+	 */
+	public static function can_current_user_enable_agent(): bool {
+		$host = new Host();
+
+		return is_user_member_of_blog()
+			&& current_user_can( 'manage_options' )
+			&& ! $host->is_p2_site()
+			&& ! $host->is_vip_site();
 	}
 
 	/**

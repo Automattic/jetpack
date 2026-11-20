@@ -7,6 +7,8 @@ import {
 	DISCONNECT_USER_SUCCESS,
 	CLEAR_REGISTRATION_ERROR,
 	SET_REGISTRATION_ERROR,
+	CLEAR_USER_CONNECTION_ERROR,
+	SET_USER_CONNECTION_ERROR,
 	SET_AUTHORIZATION_URL,
 	SET_CONNECTED_PLUGINS,
 	SET_CONNECTION_ERRORS,
@@ -19,7 +21,13 @@ const connectionStatus = ( state = {}, action ) => {
 		case SET_CONNECTION_STATUS:
 			return { ...state, ...action.connectionStatus };
 		case DISCONNECT_USER_SUCCESS:
-			return { ...state, isUserConnected: false };
+			// A non-owner's unlink leaves the owner's token alone. `isActive` is the deprecated
+			// spelling of `hasConnectedOwner` and the endpoint reports the same value for both.
+			return {
+				...state,
+				isUserConnected: false,
+				...( action.wasConnectionOwner ? { hasConnectedOwner: false, isActive: false } : {} ),
+			};
 	}
 
 	return state;
@@ -72,6 +80,17 @@ const registrationError = ( state, action ) => {
 	}
 };
 
+const userConnectionError = ( state, action ) => {
+	switch ( action.type ) {
+		case CLEAR_USER_CONNECTION_ERROR:
+			return false;
+		case SET_USER_CONNECTION_ERROR:
+			return action.userConnectionError;
+		default:
+			return state;
+	}
+};
+
 const authorizationUrl = ( state, action ) => {
 	switch ( action.type ) {
 		case SET_AUTHORIZATION_URL:
@@ -83,6 +102,20 @@ const authorizationUrl = ( state, action ) => {
 
 const userConnectionData = ( state, action ) => {
 	switch ( action.type ) {
+		case DISCONNECT_USER_SUCCESS:
+			// Matches what the endpoint reports once the token is gone: no WordPress.com identity
+			// to show, and no mismatch to report about a user who is no longer connected.
+			return {
+				...state,
+				currentUser: {
+					...state?.currentUser,
+					isConnected: false,
+					wpcomUser: { avatar: false },
+					possibleAccountErrors: {},
+					...( action.wasConnectionOwner ? { isMaster: false } : {} ),
+				},
+				...( action.wasConnectionOwner ? { connectionOwner: null } : {} ),
+			};
 		case SET_CONNECTION_OWNER:
 			// Whoever transferred is no longer the owner: handing it to yourself is refused.
 			return {
@@ -97,6 +130,9 @@ const userConnectionData = ( state, action ) => {
 
 const connectionOwner = ( state = null, action ) => {
 	switch ( action.type ) {
+		case DISCONNECT_USER_SUCCESS:
+			// The owner's unlink deletes the master_user option, so there is no owner of record.
+			return action.wasConnectionOwner ? null : state;
 		case SET_CONNECTION_OWNER:
 			return { id: action.owner.id, displayName: action.owner.displayName };
 		default:
@@ -125,6 +161,10 @@ const requiresProtectedOwner = ( state = null ) => state;
 
 const useDefaultProtectedOwnerUi = ( state = null ) => state;
 
+// Server-decided too, so pass-throughs for the same reason.
+const canTakeOwnerSlot = ( state = null ) => state;
+const identityCrisis = ( state = null ) => state;
+
 const connectionErrors = ( state = {}, action ) => {
 	switch ( action.type ) {
 		case SET_CONNECTION_ERRORS:
@@ -137,7 +177,7 @@ const connectionErrors = ( state = {}, action ) => {
 const isOfflineMode = ( state = false, action ) => {
 	switch ( action.type ) {
 		case SET_IS_OFFLINE_MODE:
-			return action.isConnecting;
+			return action.isOfflineMode;
 	}
 
 	return state;
@@ -149,6 +189,7 @@ const reducers = combineReducers( {
 	siteIsRegistering,
 	userIsConnecting,
 	registrationError,
+	userConnectionError,
 	authorizationUrl,
 	userConnectionData,
 	connectedPlugins,
@@ -156,6 +197,8 @@ const reducers = combineReducers( {
 	hasProtectedOwner,
 	requiresProtectedOwner,
 	useDefaultProtectedOwnerUi,
+	canTakeOwnerSlot,
+	identityCrisis,
 	connectionErrors,
 	isOfflineMode,
 } );

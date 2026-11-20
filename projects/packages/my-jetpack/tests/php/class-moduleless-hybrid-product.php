@@ -10,7 +10,7 @@ namespace Automattic\Jetpack\My_Jetpack;
 /**
  * A Hybrid product with no Jetpack module, which no registered product is any longer.
  */
-class Moduleless_Hybrid_Product extends Products\Backup {
+class Moduleless_Hybrid_Product extends Products\Videopress {
 
 	/**
 	 * The Jetpack module name

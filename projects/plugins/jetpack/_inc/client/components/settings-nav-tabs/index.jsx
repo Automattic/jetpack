@@ -7,7 +7,9 @@ import { useLocation, useNavigate } from 'react-router';
 import QuerySitePlugins from 'components/data/query-site-plugins';
 import Search from 'components/search';
 import analytics from 'lib/analytics';
+import { getAdsSettingsUrl, isSettingsConsolidationEnabled } from 'lib/settings-consolidation';
 import {
+	hasProtectPage as _hasProtectPage,
 	userCanManageModules as _userCanManageModules,
 	userIsSubscriber as _userIsSubscriber,
 	userCanPublish,
@@ -33,11 +35,6 @@ const TAB_LABELS = {
 	'/earn': _x( 'Monetize', 'Navigation item.', 'jetpack' ),
 };
 
-// Routes that should highlight a different tab (e.g. /settings → /security).
-const ROUTE_ALIASES = {
-	'/settings': '/security',
-};
-
 /**
  * Settings page tab navigation using `@wordpress/ui` Tabs.
  *
@@ -51,6 +48,7 @@ const SettingsNavTabs = props => {
 		isWoASite,
 		userCanPublishPosts,
 		hasSecurityFeature,
+		hasProtectPage,
 		hasPerformanceFeature,
 		hasModules,
 		isModuleActive,
@@ -60,9 +58,6 @@ const SettingsNavTabs = props => {
 
 	const location = useLocation();
 	const navigate = useNavigate();
-
-	// Resolve the active tab value from the current route.
-	const activeTab = ROUTE_ALIASES[ location.pathname ] || location.pathname;
 
 	const trackNavClick = target => {
 		analytics.tracks.recordJetpackClick( {
@@ -106,22 +101,33 @@ const SettingsNavTabs = props => {
 	const visibleTabs = [];
 
 	if ( userCanManageModules ) {
-		if ( hasSecurityFeature ) {
+		if ( hasSecurityFeature && ! hasProtectPage ) {
 			visibleTabs.push( '/security' );
 		}
-		if ( hasPerformanceFeature ) {
+		// Empty once settings move out; see Performance.
+		if ( ! isSettingsConsolidationEnabled() && hasPerformanceFeature ) {
 			visibleTabs.push( '/performance' );
 		}
+		// Once settings move out, every Writing card has a new home and leaves only a search pointer here.
 		if (
-			hasModules( [ 'markdown', 'post-by-email', 'infinite-scroll', 'copy-post' ] ) ||
-			window.CUSTOM_CONTENT_TYPE__INITIAL_STATE?.active
+			! isSettingsConsolidationEnabled() &&
+			( hasModules( [ 'markdown', 'post-by-email', 'infinite-scroll', 'copy-post' ] ) ||
+				window.CUSTOM_CONTENT_TYPE__INITIAL_STATE?.active )
 		) {
 			visibleTabs.push( '/writing' );
 		}
-		if ( hasModules( [ 'publicize', 'sharedaddy', 'likes' ] ) ) {
+		// Once settings move out, admins find Social, Sharing and Likes in Features, so nothing fills this tab.
+		if (
+			! isSettingsConsolidationEnabled() &&
+			hasModules( [ 'publicize', 'sharedaddy', 'likes' ] )
+		) {
 			visibleTabs.push( '/sharing' );
 		}
-		if ( hasModules( [ 'comments', 'gravatar-hovercards', 'markdown' ] ) ) {
+		// Once settings move out, admins find every Discussion setting in Features.
+		if (
+			! isSettingsConsolidationEnabled() &&
+			hasModules( [ 'comments', 'gravatar-hovercards', 'markdown' ] )
+		) {
 			visibleTabs.push( '/discussion' );
 		}
 		if (
@@ -136,10 +142,12 @@ const SettingsNavTabs = props => {
 		) {
 			visibleTabs.push( '/traffic' );
 		}
-		if ( hasModules( [ 'wpcom-reader' ] ) && ! isWoASite ) {
+		// The Reader card is the tab's only one, and it leaves once settings move out.
+		if ( hasModules( [ 'wpcom-reader' ] ) && ! isWoASite && ! isSettingsConsolidationEnabled() ) {
 			visibleTabs.push( '/reader' );
 		}
-		if ( hasModules( [ 'wordads' ] ) ) {
+		// Ads is the tab's last card, so the tab goes once the Ads settings have a new home.
+		if ( hasModules( [ 'wordads' ] ) && ! getAdsSettingsUrl() ) {
 			visibleTabs.push( '/earn' );
 		}
 	} else if ( ! isSubscriber ) {
@@ -155,6 +163,18 @@ const SettingsNavTabs = props => {
 		}
 	}
 
+	// /settings shows Security to admins, so with the Protect page it opens the first tab instead.
+	const isSettingsRoot = '/settings' === location.pathname;
+	const firstTab = userCanManageModules && hasProtectPage ? visibleTabs[ 0 ] : undefined;
+	const activeTab = isSettingsRoot ? ( firstTab ?? '/security' ) : location.pathname;
+	const shouldOpenFirstTab = isSettingsRoot && !! firstTab && ! searchFromUrl;
+
+	useEffect( () => {
+		if ( shouldOpenFirstTab ) {
+			navigate( firstTab, { replace: true } );
+		}
+	}, [ shouldOpenFirstTab, firstTab, navigate ] );
+
 	if ( visibleTabs.length === 0 ) {
 		return null;
 	}
@@ -168,6 +188,7 @@ const SettingsNavTabs = props => {
 				className="jp-settings-nav__tabs-root"
 			>
 				<Tabs.List
+					variant="minimal"
 					className="jp-settings-nav__tabs"
 					aria-label={ __( 'Jetpack settings sections', 'jetpack' ) }
 				>
@@ -201,6 +222,7 @@ export default connect(
 		isWoASite: _isWoASite( state ),
 		userCanPublishPosts: userCanPublish( state ),
 		hasSecurityFeature: hasAnySecurityFeature( state ),
+		hasProtectPage: _hasProtectPage( state ),
 		hasPerformanceFeature: hasAnyPerformanceFeature( state ),
 		hasModules: modules => hasAnyOfTheseModules( state, modules ),
 		isModuleActive: module => isModuleActivated( state, module ),

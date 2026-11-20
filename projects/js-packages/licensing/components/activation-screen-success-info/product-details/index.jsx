@@ -138,6 +138,11 @@ const JetpackProductDetails = props => {
 		},
 	};
 
+	productInfoMap.jetpack_pro = {
+		...productInfoMap.jetpack_complete,
+		title: __( 'Jetpack Pro is active!', 'jetpack-licensing' ),
+	};
+
 	return (
 		<div className="jp-license-activation-screen-success-info--product-details">
 			<h1>

@@ -35,6 +35,15 @@ jobs:
           fi
           exit $EXIT
 
+      # The runner image's default Azure Ubuntu mirrors are often much slower than the default ones.
+      # See, for example: https://github.com/actions/runner-images/issues/14823
+      - name: Use upstream Ubuntu mirrors
+        run: |
+          if [[ -f /etc/apt/apt-mirrors.txt ]]; then
+            sudo sed -i '/azure/d' /etc/apt/apt-mirrors.txt
+            cat /etc/apt/apt-mirrors.txt
+          fi
+
       - name: Install svn
         run: command -v svn || sudo apt-get install -y subversion
 

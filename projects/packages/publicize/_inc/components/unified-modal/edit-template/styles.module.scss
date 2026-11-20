@@ -1,4 +1,4 @@
-@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+@use "@wordpress/base-styles/colors";
 
 .sidebar {
 	padding: 1.5rem;
@@ -18,13 +18,13 @@
 	font-weight: 500;
 	text-transform: uppercase;
 	letter-spacing: 0.5px;
-	color: gb.$gray-700;
+	color: colors.$gray-700;
 	margin-bottom: 12px;
 }
 
 .content {
 	flex: 1;
-	background-color: gb.$gray-100;
+	background-color: colors.$gray-100;
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -42,7 +42,7 @@
 	width: 100%;
 	max-width: 800px;
 	aspect-ratio: 1200 / 630; // SIG image aspect-ratio
-	background-color: gb.$white;
+	background-color: colors.$white;
 }
 
 .previewImage {
@@ -62,7 +62,7 @@
 
 .sourceLabel {
 	font-size: 13px;
-	color: gb.$gray-700;
+	color: colors.$gray-700;
 	margin: 0;
 }
 

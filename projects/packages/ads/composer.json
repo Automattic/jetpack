@@ -50,7 +50,6 @@
 	"prefer-stable": true,
 	"extra": {
 		"autorelease": true,
-		"autotagger": true,
 		"mirror-repo": "Automattic/jetpack-ads",
 		"branch-alias": {
 			"dev-trunk": "0.1.x-dev"

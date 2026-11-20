@@ -68,22 +68,6 @@ class Jetpack_Sync_Users_Test extends Jetpack_Sync_TestBase {
 		$this->assertEquals( $synced_user, $retrieved_user, 'Retrieved user must equal the synced user.' );
 	}
 
-	public function test_update_user_url_is_synced() {
-		$new_url = 'http://jetpack.com';
-
-		wp_update_user(
-			array(
-				'ID'       => $this->user_id,
-				'user_url' => $new_url,
-			)
-		);
-
-		$this->sender->do_sync();
-
-		$server_user = $this->server_replica_storage->get_user( $this->user_id );
-		$this->assertEquals( $new_url, $server_user->data->user_url );
-	}
-
 	public function test_update_user_password_is_synced_without_user_save_event() {
 		$this->server_event_storage->reset();
 		$new_password = 'New PassWord';

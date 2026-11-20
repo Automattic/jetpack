@@ -7,10 +7,13 @@ import {
 	useStatsSubscribersCounts,
 } from '@jetpack-premium-analytics/data';
 import {
+	HEADLINE_COUNT_FORMAT,
 	MetricTabsChart,
 	MetricTabsChartSkeleton,
 	WidgetRoot,
 	WidgetState,
+	metricTabsToCsv,
+	useReportActions,
 	useWidgetRootContext,
 	type MetricTab,
 } from '@jetpack-premium-analytics/widgets-toolkit';
@@ -41,11 +44,6 @@ type SubscribersChartWidgetProps = WidgetRenderProps< SubscribersChartAttributes
 	 * Host callback to surface a widget error in the dashboard frame.
 	 */
 	setError?: ComponentProps< typeof WidgetRoot >[ 'setError' ];
-};
-
-const DATA_FORMAT = {
-	type: 'number' as const,
-	options: { useMultipliers: true, decimals: 0 },
 };
 
 /**
@@ -116,6 +114,28 @@ function SubscribersChartInner( { chartType }: SubscribersChartInnerProps ) {
 	// An unread total says nothing about the site, so only a known zero changes the copy.
 	const hasNoSubscribers = counts.data?.total_subscribers === 0;
 	const metricTabs = useMemo( () => buildMetrics( state ), [ state ] );
+	const csv = useMemo(
+		() =>
+			metricTabsToCsv( isChartEmpty ? [] : metricTabs, {
+				zone: state.timezone,
+				withTime: false,
+				dateLabel: __( 'Date', 'jetpack-premium-analytics-pkg' ),
+			} ),
+		[ isChartEmpty, metricTabs, state.timezone ]
+	);
+	useReportActions( {
+		csv: {
+			...csv,
+			filenamePrefix: 'subscriber-summary',
+			hasDateRange: true,
+			status: {
+				isLoading: state.isLoading,
+				isFetching: state.isFetching,
+				isError: state.csvIsError,
+				isPlaceholderData: state.csvIsPlaceholderData,
+			},
+		},
+	} );
 	const groupLabel = __( 'Subscriber metric', 'jetpack-premium-analytics-pkg' );
 
 	return (
@@ -156,11 +176,11 @@ function SubscribersChartInner( { chartType }: SubscribersChartInnerProps ) {
 			>
 				<MetricTabsChart
 					metrics={ metricTabs }
-					dataFormat={ DATA_FORMAT }
+					dataFormat={ HEADLINE_COUNT_FORMAT }
 					chartType={ chartType }
+					tickResolution={ period }
 					groupLabel={ groupLabel }
 					baseline="padded"
-					chartTitle={ __( 'Subscriber summary', 'jetpack-premium-analytics-pkg' ) }
 				/>
 			</WidgetState>
 		</div>

@@ -1,6 +1,7 @@
 import { getScriptData } from '@automattic/jetpack-script-data';
 import { Button, Modal, Notice } from '@wordpress/components';
 import { useCallback, useEffect, useState } from 'react';
+import { CONNECTION_EVENTS, trackConnectionEvent } from '../../helpers/connection-tracking.ts';
 import { getProtectedOwnerReleaseCopy } from './copy.ts';
 import type { ProtectedOwnerReleaseError, ProtectedOwnerReleaseProps } from './types.ts';
 import './style.scss';
@@ -42,6 +43,7 @@ export default function ProtectedOwnerRelease( {
 	subject,
 	apiRoot,
 	apiNonce,
+	trackingContext,
 }: ProtectedOwnerReleaseProps ) {
 	const [ isReleasing, setIsReleasing ] = useState( false );
 	const [ error, setError ] = useState< ProtectedOwnerReleaseError | null >( null );
@@ -60,6 +62,7 @@ export default function ProtectedOwnerRelease( {
 	}, [ isReleasing, onClose ] );
 
 	const release = useCallback( async () => {
+		trackConnectionEvent( CONNECTION_EVENTS.protectedOwnerRelease, trackingContext );
 		setIsReleasing( true );
 		setError( null );
 
@@ -94,7 +97,7 @@ export default function ProtectedOwnerRelease( {
 
 		onReleased?.();
 		onClose();
-	}, [ apiNonce, apiRoot, onClose, onReleased ] );
+	}, [ apiNonce, apiRoot, onClose, onReleased, trackingContext ] );
 
 	if ( ! isOpen ) {
 		return null;

@@ -50,8 +50,8 @@ if ( ! function_exists( 'jetpack_custom_post_types_loaded' ) ) {
 	 * Pass the active status to the front-end in it's initial state.
 	 */
 	function jetpack_custom_post_types_loaded() {
-		// Ensure we're only adding this script on the Jetpack settings page.
-		if ( ! isset( $_GET['page'] ) || 'jetpack' !== $_GET['page'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- We are not processing any data here.
+		// jetpack-settings is the Settings page; jetpack covers older Jetpack releases that still render it there.
+		if ( ! isset( $_GET['page'] ) || ! in_array( $_GET['page'], array( 'jetpack', 'jetpack-settings' ), true ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- We are not processing any data here.
 			return;
 		}
 		$initial_state = 'var CUSTOM_CONTENT_TYPE__INITIAL_STATE; typeof CUSTOM_CONTENT_TYPE__INITIAL_STATE === "object" || (CUSTOM_CONTENT_TYPE__INITIAL_STATE = ' . wp_json_encode(
@@ -177,7 +177,7 @@ if ( ! function_exists( 'jetpack_cpt_section_callback' ) ) {
 	 * Settings Description
 	 */
 	function jetpack_cpt_section_callback() {
-		if ( class_exists( 'Redirect' ) ) {
+		if ( class_exists( Redirect::class ) ) {
 			?>
 			<p>
 				<?php esc_html_e( 'Use these settings to display different types of content on your site.', 'jetpack-classic-theme-helper' ); ?>

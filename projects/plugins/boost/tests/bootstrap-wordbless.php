@@ -10,5 +10,5 @@
  */
 require_once __DIR__ . '/../vendor/autoload.php';
 
-// Initialize WordBless test environment.
-\Automattic\Jetpack\Test_Environment::init();
+// Keep uploads separate from parallel WorDBless suites, whose teardown deletes every upload.
+\Automattic\Jetpack\Test_Environment::init( 'boost' );

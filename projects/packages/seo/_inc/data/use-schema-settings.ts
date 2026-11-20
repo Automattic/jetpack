@@ -3,49 +3,137 @@ import { useDispatch } from '@wordpress/data';
 import { useCallback, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
-import { cleanLocalBusiness, cleanOrganization } from './schema-settings-utils';
+import { recordSeoEvent } from './record-seo-event';
+import { cleanLocalBusiness, cleanOrganization, cleanPerson } from './schema-settings-utils';
 import type {
 	BreadcrumbListSettings,
 	LocalBusinessDefaults,
 	LocalBusinessSettings,
 	OrganizationDefaults,
 	OrganizationSettings,
+	PersonDefaults,
+	PersonSettings,
 	SchemaSettings,
+	SiteEntityType,
 } from './schema-settings-types';
 
 const ENDPOINT = '/jetpack/v4/seo/schema-settings';
 // Single snackbar id reused across a save so "Saving…" is replaced in place by the result.
 const NOTICE_ID = 'jetpack-seo-schema-settings-save';
 
+const hasStoredValue = ( value: unknown ): boolean => {
+	if ( value && typeof value === 'object' ) {
+		return Object.values( value ).some( hasStoredValue );
+	}
+	return typeof value === 'string' ? value.trim().length > 0 : Boolean( value );
+};
+
 type EditableSchemaSections = Pick<
 	SchemaSettings,
-	'breadcrumbList' | 'organization' | 'localBusiness'
+	'siteRepresents' | 'breadcrumbList' | 'organization' | 'localBusiness' | 'person'
 >;
 
+/**
+ * Normalize schema values before comparing their contents.
+ *
+ * @param settings - Schema values to compare.
+ * @return Normalized schema sections.
+ */
+function normalizedSections( settings: EditableSchemaSections ): EditableSchemaSections {
+	return {
+		...settings,
+		organization: cleanOrganization( settings.organization ),
+		localBusiness: cleanLocalBusiness( settings.localBusiness ),
+		person: cleanPerson( settings.person ),
+	};
+}
+
+/**
+ * Record submitted schema values that differ from the saved baseline.
+ *
+ * @param event    - Success or failure event name.
+ * @param baseline - Last-saved schema values.
+ * @param settings - Saved values or the attempted values on failure.
+ * @param sections - Sections submitted by this request.
+ */
+function recordSchemaChanges(
+	event: 'jetpack_seo_setting_updated' | 'jetpack_seo_setting_update_failed',
+	baseline: EditableSchemaSections,
+	settings: EditableSchemaSections,
+	sections: ( keyof EditableSchemaSections )[]
+): void {
+	const previous = normalizedSections( baseline );
+	const next = normalizedSections( settings );
+	const record = ( section: string, value: string | boolean ) =>
+		recordSeoEvent( event, 'settings', {
+			setting: `schema_${ section }`,
+			verification_service: 'none',
+			setting_value: value,
+		} );
+
+	for ( const section of sections ) {
+		if ( section === 'localBusiness' ) {
+			const { enabled: wasEnabled, ...previousFields } = previous.localBusiness;
+			const { enabled, ...nextFields } = next.localBusiness;
+			if ( wasEnabled !== enabled ) {
+				record( 'localBusiness_enabled', enabled );
+			}
+			if ( JSON.stringify( previousFields ) !== JSON.stringify( nextFields ) ) {
+				record( section, hasStoredValue( nextFields ) ? 'set' : 'cleared' );
+			}
+			continue;
+		}
+		if ( JSON.stringify( previous[ section ] ) === JSON.stringify( next[ section ] ) ) {
+			continue;
+		}
+		if ( section === 'siteRepresents' ) {
+			record( section, next.siteRepresents );
+		} else if ( section === 'breadcrumbList' ) {
+			record( section, next.breadcrumbList.enabled );
+		} else {
+			record( section, hasStoredValue( next[ section ] ) ? 'set' : 'cleared' );
+		}
+	}
+}
+
 export interface SchemaSettingsForm {
+	/** Which entity the site represents (its publisher / main entity). */
+	siteRepresents: SiteEntityType;
 	/** The editable BreadcrumbList setting. */
 	breadcrumbList: BreadcrumbListSettings;
 	/** The editable Organization overrides. */
 	organization: OrganizationSettings;
-	/** Site-identity values shown as field placeholders (what an empty override falls back to). */
+	/** Site-identity values shown as Organization field placeholders (what an empty override falls back to). */
 	defaults: OrganizationDefaults;
 	/** The editable LocalBusiness overrides. */
 	localBusiness: LocalBusinessSettings;
 	/** LocalBusiness defaults shown as field placeholders. */
 	localBusinessDefaults: LocalBusinessDefaults;
+	/** The editable Person overrides. */
+	person: PersonSettings;
+	/** Site-identity values shown as Person field placeholders. */
+	personDefaults: PersonDefaults;
 	isSaving: boolean;
 	/** Whether the local Organization values differ from their last-saved baseline. */
 	isOrganizationDirty: boolean;
 	/** Whether the local LocalBusiness values differ from their last-saved baseline. */
 	isLocalBusinessDirty: boolean;
+	/** Whether the local Person values differ from their last-saved baseline. */
+	isPersonDirty: boolean;
 	/** Patch one or more Organization fields locally (persisted by `saveOrganizationEntity()`). */
 	setOrganizationField: ( patch: Partial< OrganizationSettings > ) => void;
 	/** Patch the BreadcrumbList setting and persist it immediately (toggles auto-save). */
 	commitBreadcrumbList: ( patch: Partial< BreadcrumbListSettings > ) => void;
+	/** Set which entity the site represents and persist it immediately. */
+	commitSiteRepresents: ( next: SiteEntityType ) => void;
 	/** Patch one or more LocalBusiness fields locally (persisted by `saveOrganizationEntity()`). */
 	setLocalBusinessField: ( patch: Partial< LocalBusinessSettings > ) => void;
+	/** Patch one or more Person fields locally (persisted by `savePerson()`). */
+	setPersonField: ( patch: Partial< PersonSettings > ) => void;
 	/** Persist the current Organization + LocalBusiness values together (one Save). */
 	saveOrganizationEntity: () => void;
+	/** Persist the current Person values through the schema-settings route. */
+	savePerson: () => void;
 }
 
 /**
@@ -61,9 +149,11 @@ export function useSchemaSettings(
 	onSave?: ( settings: SchemaSettings ) => void
 ): SchemaSettingsForm {
 	const [ sections, setSections ] = useState< EditableSchemaSections >( {
+		siteRepresents: initialSettings.siteRepresents,
 		breadcrumbList: initialSettings.breadcrumbList,
 		organization: initialSettings.organization,
 		localBusiness: initialSettings.localBusiness,
+		person: initialSettings.person,
 	} );
 	const [ isSaving, setIsSaving ] = useState( false );
 	const { createInfoNotice, createSuccessNotice, createErrorNotice } = useDispatch( noticesStore );
@@ -71,9 +161,11 @@ export function useSchemaSettings(
 	// The last-saved baseline, kept in a ref so each section can be saved without
 	// disturbing pending edits in the others.
 	const baselineRef = useRef< EditableSchemaSections >( {
+		siteRepresents: initialSettings.siteRepresents,
 		breadcrumbList: { ...initialSettings.breadcrumbList },
 		organization: cleanOrganization( initialSettings.organization ),
 		localBusiness: cleanLocalBusiness( initialSettings.localBusiness ),
+		person: cleanPerson( initialSettings.person ),
 	} );
 	const isOrganizationDirty =
 		JSON.stringify( cleanOrganization( sections.organization ) ) !==
@@ -81,6 +173,9 @@ export function useSchemaSettings(
 	const isLocalBusinessDirty =
 		JSON.stringify( cleanLocalBusiness( sections.localBusiness ) ) !==
 		JSON.stringify( baselineRef.current.localBusiness );
+	const isPersonDirty =
+		JSON.stringify( cleanPerson( sections.person ) ) !==
+		JSON.stringify( baselineRef.current.person );
 
 	// The one POST path: in-flight guard, the "Saving…" → result snackbar, and error
 	// handling, all in one place. `onSuccess` re-seeds only the sections the caller
@@ -93,6 +188,8 @@ export function useSchemaSettings(
 			onSuccess: ( settings: SchemaSettings ) => void,
 			onError?: () => void
 		) => {
+			const baseline = baselineRef.current;
+			const submittedSections = Object.keys( data ) as ( keyof EditableSchemaSections )[];
 			setIsSaving( true );
 			createInfoNotice( savingNotice, {
 				id: NOTICE_ID,
@@ -100,7 +197,22 @@ export function useSchemaSettings(
 				isDismissible: false,
 			} );
 			apiFetch< SchemaSettings >( { path: ENDPOINT, method: 'POST', data } )
+				.catch( error => {
+					recordSchemaChanges(
+						'jetpack_seo_setting_update_failed',
+						baseline,
+						{ ...baseline, ...data },
+						submittedSections
+					);
+					throw error;
+				} )
 				.then( settings => {
+					recordSchemaChanges(
+						'jetpack_seo_setting_updated',
+						baseline,
+						settings,
+						submittedSections
+					);
 					onSuccess( settings );
 					onSave?.( settings );
 					createSuccessNotice( __( 'Schema settings saved.', 'jetpack-seo' ), {
@@ -156,6 +268,36 @@ export function useSchemaSettings(
 		[ isSaving, sections, persist ]
 	);
 
+	const commitSiteRepresents = useCallback(
+		( next: SiteEntityType ) => {
+			// Guard before the optimistic update, not just before the request, so a
+			// select during an in-flight save doesn't move the choice either.
+			if ( isSaving ) {
+				return;
+			}
+			// Switch the entity immediately while preserving unsaved edits in both forms.
+			setSections( current => ( { ...current, siteRepresents: next } ) );
+			persist(
+				{ siteRepresents: next },
+				__( 'Saving schema settings…', 'jetpack-seo' ),
+				settings => {
+					baselineRef.current = {
+						...baselineRef.current,
+						siteRepresents: settings.siteRepresents,
+					};
+					setSections( current => ( { ...current, siteRepresents: settings.siteRepresents } ) );
+				},
+				// Restore the persisted entity when the optimistic save fails.
+				() =>
+					setSections( current => ( {
+						...current,
+						siteRepresents: baselineRef.current.siteRepresents,
+					} ) )
+			);
+		},
+		[ isSaving, persist ]
+	);
+
 	const setOrganizationField = useCallback( ( patch: Partial< OrganizationSettings > ) => {
 		setSections( current => ( {
 			...current,
@@ -167,6 +309,13 @@ export function useSchemaSettings(
 		setSections( current => ( {
 			...current,
 			localBusiness: { ...current.localBusiness, ...patch },
+		} ) );
+	}, [] );
+
+	const setPersonField = useCallback( ( patch: Partial< PersonSettings > ) => {
+		setSections( current => ( {
+			...current,
+			person: { ...current.person, ...patch },
 		} ) );
 	}, [] );
 
@@ -205,18 +354,42 @@ export function useSchemaSettings(
 		} );
 	}, [ isSaving, isOrganizationDirty, isLocalBusinessDirty, persist, sections ] );
 
+	const savePerson = useCallback( () => {
+		if ( isSaving ) {
+			return;
+		}
+		persist(
+			{ person: cleanPerson( sections.person ) },
+			__( 'Saving schema settings…', 'jetpack-seo' ),
+			settings => {
+				baselineRef.current = {
+					...baselineRef.current,
+					person: cleanPerson( settings.person ),
+				};
+				setSections( current => ( { ...current, person: settings.person } ) );
+			}
+		);
+	}, [ isSaving, persist, sections ] );
+
 	return {
+		siteRepresents: sections.siteRepresents,
 		breadcrumbList: sections.breadcrumbList,
 		organization: sections.organization,
 		defaults: initialSettings.defaults.organization,
 		localBusiness: sections.localBusiness,
 		localBusinessDefaults: initialSettings.defaults.localBusiness,
+		person: sections.person,
+		personDefaults: initialSettings.defaults.person,
 		isSaving,
 		isOrganizationDirty,
 		isLocalBusinessDirty,
+		isPersonDirty,
 		commitBreadcrumbList,
+		commitSiteRepresents,
 		setOrganizationField,
 		setLocalBusinessField,
+		setPersonField,
 		saveOrganizationEntity,
+		savePerson,
 	};
 }

@@ -14,12 +14,15 @@ const makeSettings = ( overrides: Partial< SettingsResponse > = {} ): SettingsRe
 	verification_tools_active: true,
 	verification: { google: '', bing: '', pinterest: '', yandex: '', facebook: '' },
 	site_is_private: false,
+	site_is_coming_soon: false,
+	site_visibility_url: '',
 	search_engines_visible: true,
 	sitemap_active: false,
 	sitemap_switchable: true,
 	sitemap_url: '',
 	canonical_active: false,
 	canonical_switchable: true,
+	canonical_conflicted: false,
 	schema: makeSchemaSettings(),
 	...overrides,
 } );
@@ -28,6 +31,17 @@ describe( 'buildCorePayload', () => {
 	it( 'returns an empty payload when nothing changed', () => {
 		const baseline = makeSettings();
 		expect( buildCorePayload( baseline, makeSettings() ) ).toEqual( {} );
+	} );
+
+	it.each( [ 42, 0 ] )( 'sends only the default-image choice (%i)', id => {
+		const previous = { id: 1, src: 'https://example.com/old.jpg', alt_text: '' };
+		const next = id ? { id, src: 'https://example.com/new.jpg', alt_text: '' } : null;
+		expect(
+			buildCorePayload(
+				makeSettings( { default_share_image: previous } ),
+				makeSettings( { default_share_image: next } )
+			)
+		).toEqual( { jetpack_seo_default_share_image: id } );
 	} );
 
 	it( 'maps allow-indexing to blog_public = 1', () => {
@@ -83,18 +97,12 @@ describe( 'buildCorePayload', () => {
 		expect( buildCorePayload( baseline, local ) ).toEqual( {} );
 	} );
 
-	it( 'sends the whole verification map when any code changed', () => {
-		const baseline = makeSettings();
-		const verification = {
-			google: 'g-code',
-			bing: '',
-			pinterest: '',
-			yandex: 'y-code',
-			facebook: '',
-		};
-		const local = makeSettings( { verification } );
+	it( 'sends only the verification codes that changed, cleared ones included', () => {
+		const codes = { google: 'g-code', bing: 'b-code', pinterest: '', yandex: '', facebook: '' };
+		const baseline = makeSettings( { verification: codes } );
+		const local = makeSettings( { verification: { ...codes, bing: '', yandex: 'y-code' } } );
 		expect( buildCorePayload( baseline, local ) ).toEqual( {
-			verification_services_codes: verification,
+			verification_services_codes: { bing: '', yandex: 'y-code' },
 		} );
 	} );
 
@@ -107,7 +115,7 @@ describe( 'buildCorePayload', () => {
 		} );
 		expect( buildCorePayload( baseline, local ) ).toEqual( {
 			advanced_seo_front_page_description: 'Desc',
-			verification_services_codes: verification,
+			verification_services_codes: { google: 'g' },
 		} );
 	} );
 

@@ -20,18 +20,18 @@ const blockTheme = {
 	isBlockTheme: true,
 	isSharingBlockAvailable: true,
 	isLikeBlockAvailable: true,
-	activeThemeStylesheet: 'twentytwentyfour',
 };
 
 describe( 'getBlockThemeMigration', () => {
-	it.each( [ 'sharedaddy', 'likes' ] )(
-		'points %s at the Single template on a block theme with the block available',
-		module => {
+	it.each( [
+		[ 'sharedaddy', 'https://example.com/wp-admin/options-general.php?page=sharing' ],
+		[ 'likes', 'https://example.com/wp-admin/options-general.php?page=sharing#likes' ],
+	] )(
+		'points %s at Settings › Sharing on a block theme with the block available',
+		( module, url ) => {
 			setState( blockTheme );
 
-			expect( getBlockThemeMigration( makeModule( { module } ) )?.editorUrl ).toBe(
-				'https://example.com/wp-admin/site-editor.php?p=%2Fwp_template%2Ftwentytwentyfour%2F%2Fsingle&canvas=edit'
-			);
+			expect( getBlockThemeMigration( makeModule( { module } ) )?.settingsUrl ).toBe( url );
 		}
 	);
 
@@ -40,7 +40,6 @@ describe( 'getBlockThemeMigration', () => {
 		[ { ...blockTheme, isSharingBlockAvailable: false }, makeModule() ],
 		[ { ...blockTheme, isLikeBlockAvailable: false }, makeModule( { module: 'likes' } ) ],
 		[ blockTheme, makeModule( { module: 'stats' } ) ],
-		[ { ...blockTheme, activeThemeStylesheet: undefined }, makeModule() ],
 		[ blockTheme, makeModule( { activated: true, override: 'active' } ) ],
 		[ blockTheme, makeModule( { module: 'likes', activated: true, override: 'active' } ) ],
 	] )( 'returns null for unsupported context %#', ( siteEditor, module ) => {
@@ -69,9 +68,9 @@ describe( 'migration copy', () => {
 	} );
 
 	it.each( [
-		[ 'sharedaddy', 'Add the Sharing Buttons block to your theme’s template.' ],
-		[ 'likes', 'Add the Like block to your theme’s template.' ],
-	] )( 'explains how to add the block for inactive %s', ( module, notice ) => {
+		[ 'sharedaddy', 'Choose where the Sharing Buttons block goes on your posts and pages.' ],
+		[ 'likes', 'Choose where the Like block goes on your posts and pages.' ],
+	] )( 'says where to place the block for inactive %s', ( module, notice ) => {
 		expect( getBlockThemeMigration( makeModule( { module } ) )?.notice ).toBe( notice );
 	} );
 

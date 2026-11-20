@@ -1,3 +1,0 @@
-Significance: patch
-Type: changed
-Comment: Link the modernized Backup dashboard, which is behind a feature flag, to help guides and support from its storage, failed backup, restore, download and plan check messages.

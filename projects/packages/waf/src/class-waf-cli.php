@@ -83,10 +83,10 @@ class CLI extends WP_CLI_Command {
 	}
 
 	/**
-	 * Setup the WAF to run.
+	 * Turn on the firewall module and set up the WAF to run.
 	 * ## OPTIONS
 	 *
-	 * [<mode>]
+	 * <mode>
 	 * : The new mode to be set.
 	 * ---
 	 * options:
@@ -99,8 +99,19 @@ class CLI extends WP_CLI_Command {
 	 * @throws WP_CLI\ExitException If there is an error switching the mode.
 	 */
 	public function setup( $args ) {
+		// Check the mode before anything below turns the firewall on.
+		if ( empty( $args[0] ) || ! Waf_Runner::is_allowed_mode( $args[0] ) ) {
+			return WP_CLI::error( __( 'Specify a mode for the firewall: "silent" or "normal".', 'jetpack-waf' ) );
+		}
+
 		// Let is_allowed_mode know we are running from the CLI
 		define( 'WAF_CLI_MODE', $args[0] );
+
+		// Turn the module on first: its activation hook resets the mode to "normal".
+		$was_set_up = Waf_Runner::is_enabled() || get_option( Waf_Runner::MODE_OPTION_NAME );
+		Waf_Runner::enable();
+		// Turning the module off runs its teardown, so only undo a first-time setup.
+		$roll_back = ! $was_set_up && Waf_Runner::is_enabled();
 
 		// Set the mode and generate the bootstrap
 		$this->mode( array( $args[0] ) );
@@ -109,6 +120,9 @@ class CLI extends WP_CLI_Command {
 			// Add relevant options and generate the rules.php file
 			Waf_Runner::activate();
 		} catch ( \Exception $e ) {
+			if ( $roll_back ) {
+				Waf_Runner::disable();
+			}
 
 			return WP_CLI::error(
 				sprintf(
@@ -119,20 +133,31 @@ class CLI extends WP_CLI_Command {
 			);
 		}
 
+		if ( ! Waf_Runner::is_enabled() ) {
+			WP_CLI::warning( __( 'The firewall module could not be turned on, so the firewall will not run inside WordPress. Check that the site is connected and its plan includes the firewall.', 'jetpack-waf' ) );
+		}
+
 		return WP_CLI::success( __( 'Jetpack WAF has successfully been set up.', 'jetpack-waf' ) );
 	}
 
 	/**
-	 * Delete the WAF options.
+	 * Turn off the firewall module, delete the WAF options, and empty the rules file.
 	 *
 	 * @return void|null
 	 * @throws WP_CLI\ExitException If deactivating has failures.
 	 */
 	public function teardown() {
+		// Turn the module off too, or the Protect page keeps reporting the firewall as on.
+		Waf_Runner::disable();
+
 		try {
 			Waf_Runner::deactivate();
 		} catch ( \Exception $e ) {
 			WP_CLI::error( __( 'Jetpack WAF failed to fully deactivate.', 'jetpack-waf' ) );
+		}
+
+		if ( Waf_Runner::is_enabled() ) {
+			WP_CLI::warning( __( 'The firewall module is still active, so Jetpack will keep showing the firewall as on. A plugin or filter on this site is keeping it active.', 'jetpack-waf' ) );
 		}
 
 		return WP_CLI::success( __( 'Jetpack WAF has been deactivated.', 'jetpack-waf' ) );

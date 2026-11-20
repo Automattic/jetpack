@@ -52,6 +52,86 @@ export function getSiteMcpAbilities( userSettings, siteId ) {
 }
 
 /**
+ * Get the remote-ability allowlist for a site.
+ *
+ * @param {object}        userSettings - The mcp_abilities object.
+ * @param {string|number} siteId       - The site ID.
+ * @return {Record<string, boolean>} Group and ability keys mapped to enabled.
+ */
+export function getSiteRemoteGroups( userSettings, siteId ) {
+	const mcpSites = userSettings?.sites || [];
+	const siteEntry = mcpSites.find( site => site.blog_id === parseInt( siteId ) );
+	return siteEntry?.remote_groups || {};
+}
+
+/**
+ * The allowlist group key of a remote ability: `{read|write|destructive}:{namespace}`.
+ * Matches the server: destructive wins over readonly, and only a strict readonly is Read.
+ *
+ * @param {string} name          - Ability name, e.g. `jetpack-boost/get-modules`.
+ * @param {object} [annotations] - Published annotations (readonly, destructive).
+ * @return {string} Group key.
+ */
+export function getRemoteAbilityGroupKey( name, annotations = {} ) {
+	const namespace = String( name ).split( '/' )[ 0 ].toLowerCase();
+	if ( annotations?.destructive === true ) {
+		return `destructive:${ namespace }`;
+	}
+	if ( annotations?.readonly === true ) {
+		return `read:${ namespace }`;
+	}
+	return `write:${ namespace }`;
+}
+
+/**
+ * The view an ability belongs on: anything that is not a strict read is Write.
+ *
+ * @param {string} name          - Ability name.
+ * @param {object} [annotations] - Published annotations.
+ * @return {'read'|'write'} View key.
+ */
+export function getRemoteAbilityCategory( name, annotations = {} ) {
+	return getRemoteAbilityGroupKey( name, annotations ).startsWith( 'read:' ) ? 'read' : 'write';
+}
+
+/**
+ * The ability-level allowlist key: `{group}/{ability}`. It wins over the group key.
+ *
+ * @param {string} name          - Ability name.
+ * @param {object} [annotations] - Published annotations.
+ * @return {string} Ability-level key.
+ */
+export function getRemoteAbilityKey( name, annotations = {} ) {
+	const namespace = String( name ).split( '/' )[ 0 ];
+	return `${ getRemoteAbilityGroupKey( name, annotations ) }${ String( name ).slice(
+		namespace.length
+	) }`.toLowerCase();
+}
+
+/**
+ * Whether a remote ability is enabled: the ability-level key when saved, else the group
+ * key, else the default.
+ *
+ * @param {Record<string, boolean>} savedGroups      - Saved allowlist.
+ * @param {string}                  name             - Ability name.
+ * @param {object}                  [annotations]    - Published annotations.
+ * @param {boolean}                 [defaultEnabled] - State when neither key is saved.
+ * @return {boolean} True when enabled.
+ */
+export function isRemoteAbilityEnabled(
+	savedGroups,
+	name,
+	annotations = {},
+	defaultEnabled = false
+) {
+	return (
+		savedGroups[ getRemoteAbilityKey( name, annotations ) ] ??
+		savedGroups[ getRemoteAbilityGroupKey( name, annotations ) ] ??
+		defaultEnabled
+	);
+}
+
+/**
  * Merge account-level abilities with site-level overrides.
  *
  * @param {Record<string, Object>}  accountAbilities - Account-level tool definitions.

@@ -10,6 +10,7 @@
 
 use Automattic\Jetpack\Constants;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * @covers Jetpack
@@ -17,6 +18,13 @@ use PHPUnit\Framework\Attributes\CoversClass;
 #[CoversClass( Jetpack::class )]
 class Jetpack_Eager_Load_Packages_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
+
+	/**
+	 * A stored plan that includes Backup.
+	 *
+	 * @var array
+	 */
+	const BACKUP_PLAN = array( 'features' => array( 'active' => array( 'backups' ) ) );
 
 	/**
 	 * The original REQUEST_METHOD, restored after each test.
@@ -285,7 +293,7 @@ class Jetpack_Eager_Load_Packages_Test extends WP_UnitTestCase {
 	 */
 	public function test_admin_request_does_not_defer_backup_to_rest_api_init() {
 		$this->set_up_backup_test();
-		$this->activate_backup_module();
+		$this->store_backup_plan();
 		$this->connect_owner();
 		$this->force_unfire_action( 'jetpack_backup_initialized' );
 		set_current_screen( 'dashboard' );
@@ -298,6 +306,13 @@ class Jetpack_Eager_Load_Packages_Test extends WP_UnitTestCase {
 			has_action( 'rest_api_init', array( Jetpack::class, 'configure_backup_package' ) )
 		);
 		$this->assertGreaterThanOrEqual( 1, did_action( 'jetpack_backup_initialized' ) );
+	}
+
+	/**
+	 * My Jetpack reads Jetpack::BACKUP_FOLLOWS_PLAN by name, so renaming it would put Backup back on the module.
+	 */
+	public function test_my_jetpack_sees_that_jetpack_lets_the_plan_decide_backup() {
+		$this->assertTrue( \Automattic\Jetpack\My_Jetpack\Products\Backup::is_plan_driven() );
 	}
 
 	/**
@@ -389,7 +404,7 @@ class Jetpack_Eager_Load_Packages_Test extends WP_UnitTestCase {
 	 */
 	public function test_deferred_backup_routes_register_when_rest_api_init_fires() {
 		$this->set_up_backup_test();
-		$this->activate_backup_module();
+		$this->store_backup_plan();
 		$this->connect_owner();
 
 		// Clean slate so registration can only happen via the re-add below.
@@ -413,7 +428,7 @@ class Jetpack_Eager_Load_Packages_Test extends WP_UnitTestCase {
 	 */
 	public function test_backup_needs_a_connected_owner() {
 		$this->set_up_backup_test();
-		$this->activate_backup_module();
+		$this->store_backup_plan();
 		Jetpack_Options::update_option( 'blog_token', 'dummy.blogtoken' );
 		Jetpack_Options::update_option( 'id', 1234 );
 		Jetpack::connection()->reset_connection_status();
@@ -429,7 +444,7 @@ class Jetpack_Eager_Load_Packages_Test extends WP_UnitTestCase {
 	 */
 	public function test_backup_dashboard_can_be_filtered_off() {
 		$this->set_up_backup_test();
-		$this->activate_backup_module();
+		$this->store_backup_plan();
 		$this->connect_owner();
 		$this->force_unfire_action( 'jetpack_backup_initialized' );
 		add_filter( 'jetpack_backup_dashboard_enabled', '__return_false' );
@@ -441,17 +456,36 @@ class Jetpack_Eager_Load_Packages_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Switching the backup module off takes the dashboard and its REST routes away.
+	 * The dashboard and its REST routes follow the plan, whatever the backup module says.
+	 *
+	 * @dataProvider provide_backup_dashboard_gates
+	 *
+	 * @param array $plan     The stored plan.
+	 * @param int   $expected How often the dashboard initializes.
 	 */
-	public function test_backup_dashboard_follows_the_backup_module() {
+	#[DataProvider( 'provide_backup_dashboard_gates' )]
+	public function test_backup_dashboard_follows_the_plan( $plan, $expected ) {
 		$this->set_up_backup_test();
 		$this->connect_owner();
 		$this->force_unfire_action( 'jetpack_backup_initialized' );
-		Jetpack_Options::update_option( 'active_modules', array() );
+		Jetpack_Options::delete_option( 'active_modules' );
+		update_option( 'jetpack_active_plan', $plan );
 
 		Jetpack::configure_backup_package();
 
-		$this->assertSame( 0, did_action( 'jetpack_backup_initialized' ) );
+		$this->assertSame( $expected, did_action( 'jetpack_backup_initialized' ) );
+	}
+
+	/**
+	 * Data provider for test_backup_dashboard_follows_the_plan.
+	 *
+	 * @return array
+	 */
+	public static function provide_backup_dashboard_gates() {
+		return array(
+			'a Backup plan' => array( self::BACKUP_PLAN, 1 ),
+			'no plan'       => array( array( 'features' => array( 'active' => array() ) ), 0 ),
+		);
 	}
 
 	/**
@@ -488,10 +522,10 @@ class Jetpack_Eager_Load_Packages_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Switch on the module the bundled Backup dashboard is gated on.
+	 * Store the plan the bundled Backup dashboard is gated on.
 	 */
-	private function activate_backup_module() {
-		Jetpack_Options::update_option( 'active_modules', array( 'backup' ) );
+	private function store_backup_plan() {
+		update_option( 'jetpack_active_plan', self::BACKUP_PLAN );
 	}
 
 	/**

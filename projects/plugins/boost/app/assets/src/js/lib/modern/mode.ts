@@ -2,7 +2,8 @@
  * Runtime boundary between the legacy dashboard and the modern wp-build chassis.
  *
  * PHP resolves `rsm_jetpack_ui_modernization_boost` (default true) once per request
- * and renders exactly one root. Which root exists is the mode signal.
+ * and renders exactly one root. Which root exists is the mode signal; the admin shell
+ * runs this bundle before it mounts the modern root, so no root yet means modern.
  */
 
 import { SETTINGS_SLOT_ID, SUBPAGE_SLOT_ID } from '../../../../../../_inc/runtime-contract';

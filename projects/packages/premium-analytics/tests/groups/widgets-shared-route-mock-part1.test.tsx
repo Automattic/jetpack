@@ -3,7 +3,6 @@
 import '../../widgets/clicks/__tests__/clicks.test';
 import '../../widgets/email-top-row/__tests__/email-top-row.test';
 import '../../widgets/emails/__tests__/emails.test';
-import '../../widgets/file-downloads/__tests__/file-downloads.test';
 import '../../widgets/most-commented-authors/__tests__/most-commented-authors.test';
 import '../../widgets/most-commented-posts/__tests__/most-commented-posts.test';
 import '../../widgets/post-comments/__tests__/post-comments.test';

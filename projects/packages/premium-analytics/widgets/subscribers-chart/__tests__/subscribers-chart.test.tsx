@@ -12,6 +12,8 @@ import { store as preferencesStore } from '@wordpress/preferences';
  * Internal dependencies
  */
 import { setMockRouteSearch } from '../../../tests/js/route-test-utils';
+import { renderWithActionsHost } from '../../../tests/js/widget-host-test-utils';
+import { captureCsvDownloads } from '../../test-utils';
 import SubscribersChartWidget from '../render';
 import type { ReactNode } from 'react';
 
@@ -32,6 +34,7 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 	MetricTabsChart: ( {
 		metrics,
 		empty,
+		tickResolution,
 	}: {
 		metrics: {
 			key: string;
@@ -40,16 +43,18 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 			countLabel?: ( count: number ) => string;
 		}[];
 		empty?: ReactNode;
+		tickResolution?: string;
 	} ) => (
 		<div
 			data-testid="metric-tabs-chart"
+			data-tick-resolution={ tickResolution }
 			data-metric-keys={ metrics.map( metric => metric.key ).join( ',' ) }
 			data-count-labels={ metrics
 				.map( metric => `${ metric.countLabel?.( 1 ) }|${ metric.countLabel?.( 2 ) }` )
 				.join( ',' ) }
 			data-values={ JSON.stringify( metrics[ 0 ]?.current.map( point => point.value ) ) }
 			data-headline={ metrics[ 0 ]?.value }
-			data-days={ metrics[ 0 ]?.current.map( point => point.date.getDate() ).join( ',' ) }
+			data-dates={ metrics[ 0 ]?.current.map( point => point.date.toISOString() ).join( ',' ) }
 		>
 			{ empty }
 		</div>
@@ -78,24 +83,52 @@ describe( 'SubscribersChartWidget', () => {
 		mockUseStatsSubscribersCounts.mockReturnValue( { data: undefined, isLoading: false } );
 	} );
 
-	// Passes under UTC either way; the `test-tz` pass west of UTC is what can fail it.
 	it( 'builds chart points on the bucket days the site names', async () => {
-		mockUseStatsSubscribersReport.mockReturnValue(
-			reportWith( [
+		mockUseStatsSubscribersReport.mockReturnValue( {
+			...reportWith( [
 				{ date_start: '2026-07-04T00:00:00', subscribers: 5, subscribers_paid: 0 },
 				{ date_start: '2026-07-05T00:00:00', subscribers: 6, subscribers_paid: 0 },
-			] )
-		);
+			] ),
+			timezone: 'America/Los_Angeles',
+		} );
 
 		render(
 			<SubscribersChartWidget attributes={ { reportParams: getDefaultQueryParams( false ) } } />
 		);
 
 		const chart = await screen.findByTestId( 'metric-tabs-chart' );
-		// Reading these buckets in the runner's zone would report the previous
-		// day (3,4).
-		expect( chart ).toHaveAttribute( 'data-days', '4,5' );
+		// Los Angeles midnights: a bucket read in UTC, or in the runner's zone, lands elsewhere.
+		expect( chart ).toHaveAttribute(
+			'data-dates',
+			'2026-07-04T07:00:00.000Z,2026-07-05T07:00:00.000Z'
+		);
 		expect( chart ).toHaveAttribute( 'data-values', '[5,6]' );
+	} );
+
+	it( 'declares its bucket size, which a month the range cuts would otherwise misread', async () => {
+		mockUseStatsSubscribersReport.mockReturnValue(
+			reportWith( [
+				{ date_start: '2025-04-11T00:00:00', subscribers: 5, subscribers_paid: 0 },
+				{ date_start: '2025-05-01T00:00:00', subscribers: 6, subscribers_paid: 0 },
+			] )
+		);
+
+		render(
+			<SubscribersChartWidget
+				attributes={ {
+					reportParams: {
+						from: '2025-04-11T00:00:00',
+						to: '2026-10-23T23:59:59',
+						interval: 'month',
+					},
+				} }
+			/>
+		);
+
+		await expect( screen.findByTestId( 'metric-tabs-chart' ) ).resolves.toHaveAttribute(
+			'data-tick-resolution',
+			'month'
+		);
 	} );
 
 	it( 'charts a missing count as a gap and a real zero as zero', async () => {
@@ -297,6 +330,107 @@ describe( 'SubscribersChartWidget', () => {
 			expect( mockUseStatsSubscribersReport ).not.toHaveBeenCalledWith(
 				expect.objectContaining( { comp: '1' } )
 			);
+		} );
+	} );
+	describe( 'CSV download', () => {
+		const REPORT_PARAMS = {
+			from: '2026-07-01T00:00:00',
+			to: '2026-07-31T23:59:59',
+			interval: 'day',
+		};
+		let downloads: ReturnType< typeof captureCsvDownloads > | undefined;
+
+		beforeEach( () => {
+			jest.useFakeTimers();
+		} );
+
+		afterEach( () => {
+			downloads?.restore();
+			downloads = undefined;
+			jest.useRealTimers();
+		} );
+
+		function renderWidget() {
+			return renderWithActionsHost(
+				<SubscribersChartWidget attributes={ { reportParams: REPORT_PARAMS } } />
+			);
+		}
+
+		it.each( [
+			[
+				'with paid subscribers',
+				2,
+				[
+					'"Date","Subscribers","Paid subscribers"',
+					'"2026-07-04","5","1"',
+					'"2026-07-05","6","2"',
+				],
+			],
+			[
+				'without paid subscribers',
+				0,
+				[ '"Date","Subscribers"', '"2026-07-04","5"', '"2026-07-05","6"' ],
+			],
+		] )( 'saves each bucket in the site zone, %s', async ( _, paid, lines ) => {
+			downloads = captureCsvDownloads();
+			mockUseStatsSubscribersReport.mockReturnValue( {
+				...reportWith( [
+					{ date_start: '2026-07-04T00:00:00', subscribers: 5, subscribers_paid: paid / 2 },
+					{ date_start: '2026-07-05T00:00:00', subscribers: 6, subscribers_paid: paid },
+				] ),
+				// Fourteen hours ahead of UTC: a bucket written in any other zone lands on the day before.
+				timezone: 'Pacific/Kiritimati',
+			} );
+
+			const { findDeclaredAction } = renderWidget();
+			await downloads.runAndSave( await findDeclaredAction( 'download-csv' ) );
+
+			expect( downloads.files[ 0 ].filename ).toBe(
+				'subscriber-summary-2026-07-01_2026-07-31.csv'
+			);
+			await expect( downloads.lines() ).resolves.toEqual( lines );
+		} );
+
+		it.each( [
+			[
+				'no subscriber in the range',
+				reportWith( [
+					{ date_start: '2026-07-04T00:00:00', subscribers: 0, subscribers_paid: 0 },
+				] ),
+			],
+			[
+				'a refetch failed behind the points on screen',
+				{
+					...reportWith( [
+						{ date_start: '2026-07-04T00:00:00', subscribers: 5, subscribers_paid: 0 },
+					] ),
+					primary: {
+						data: {
+							data: [ { date_start: '2026-07-04T00:00:00', subscribers: 5, subscribers_paid: 0 } ],
+						},
+						isError: true,
+					},
+					isError: true,
+				},
+			],
+			[
+				"a previous range's points on screen",
+				{
+					...reportWith( [] ),
+					primary: {
+						data: {
+							data: [ { date_start: '2026-07-04T00:00:00', subscribers: 5, subscribers_paid: 0 } ],
+						},
+						isPlaceholderData: true,
+					},
+				},
+			],
+		] )( 'offers no download with %s', ( _, report ) => {
+			mockUseStatsSubscribersReport.mockReturnValue( report );
+
+			const { declaredAction } = renderWidget();
+
+			expect( declaredAction( 'download-csv' ) ).toBeUndefined();
 		} );
 	} );
 } );

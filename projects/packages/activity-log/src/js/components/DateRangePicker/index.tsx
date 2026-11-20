@@ -9,11 +9,12 @@
  * remounted whenever the committed range changes (via the `resetKey`)
  * so draft edits don't linger across opens.
  */
-import { Dropdown, Tooltip, Button } from '@wordpress/components';
+import { Dropdown, Button } from '@wordpress/components';
 import { useMediaQuery, useInstanceId } from '@wordpress/compose';
 import { __, sprintf } from '@wordpress/i18n';
 import { calendar } from '@wordpress/icons';
-import { useMemo, useState } from 'react';
+import { Tooltip, VisuallyHidden } from '@wordpress/ui';
+import { useId, useMemo, useState } from 'react';
 import { DateRangeContent } from './date-range-content';
 import { parseYmdLocal, formatYmd, formatSiteYmd } from './datetime';
 import { formatLabel } from './utils';
@@ -35,12 +36,6 @@ type DateRangePickerProps = {
 		onStartBlur?: ( e: React.FocusEvent< HTMLInputElement > ) => void;
 		onEndBlur?: ( e: React.FocusEvent< HTMLInputElement > ) => void;
 	};
-	// When `disabled`, the toggle renders as a non-interactive button
-	// wrapped in `disabledTooltipText` (no Dropdown / popover). Lets the
-	// free-tier surface keep the picker visible as an upgrade cue
-	// without rebuilding the trigger markup elsewhere.
-	disabled?: boolean;
-	disabledTooltipText?: string;
 };
 
 /**
@@ -55,8 +50,6 @@ type DateRangePickerProps = {
  * @param root0.disableFuture
  * @param root0.defaultFallbackPreset
  * @param root0.inputsProps
- * @param root0.disabled
- * @param root0.disabledTooltipText
  */
 export function DateRangePicker( {
 	start,
@@ -68,8 +61,6 @@ export function DateRangePicker( {
 	disableFuture = true,
 	defaultFallbackPreset = 'last-7-days',
 	inputsProps,
-	disabled = false,
-	disabledTooltipText,
 }: DateRangePickerProps ) {
 	const isSmall = useMediaQuery( '(max-width: 600px)' );
 	const showTwoMonths = useMediaQuery( '(min-width: 900px)' );
@@ -86,42 +77,12 @@ export function DateRangePicker( {
 		gmtOffset ?? '',
 	].join( '|' );
 
-	if ( disabled ) {
-		return (
-			<Tooltip
-				text={ disabledTooltipText ?? __( 'Select a date range', 'jetpack-activity-log' ) }
-				placement="top"
-			>
-				<div className="daterange-input__toggle">
-					<Button
-						type="button"
-						variant="tertiary"
-						disabled
-						accessibleWhenDisabled
-						aria-label={ sprintf(
-							/* translators: %s: date range label */
-							__( 'Date range: %s.', 'jetpack-activity-log' ),
-							label
-						) }
-						className="daterange-input__field"
-						icon={ calendar }
-						iconPosition="right"
-					>
-						<span aria-hidden="true" className="daterange-input__text">
-							{ label }
-						</span>
-					</Button>
-				</div>
-			</Tooltip>
-		);
-	}
-
 	return (
 		<Dropdown
 			popoverProps={ { className: 'daterange-popover' } }
 			renderToggle={ ( { onToggle, isOpen } ) => (
-				<Tooltip text={ __( 'Select a date range', 'jetpack-activity-log' ) } placement="top">
-					<div className="daterange-input__toggle">
+				<Tooltip.Root>
+					<Tooltip.Trigger render={ <div className="daterange-input__toggle" /> }>
 						<Button
 							type="button"
 							variant="tertiary"
@@ -141,8 +102,9 @@ export function DateRangePicker( {
 								{ label }
 							</span>
 						</Button>
-					</div>
-				</Tooltip>
+					</Tooltip.Trigger>
+					<Tooltip.Popup>{ __( 'Select a date range', 'jetpack-activity-log' ) }</Tooltip.Popup>
+				</Tooltip.Root>
 			) }
 			renderContent={ ( { onClose } ) => (
 				<DateRangePickerInner
@@ -163,6 +125,42 @@ export function DateRangePicker( {
 				/>
 			) }
 		/>
+	);
+}
+
+/**
+ * A disabled stand-in for the picker on plans without date filtering. It has no
+ * range of its own, so the usable picker never needs an empty state.
+ *
+ * @param props             - Component props.
+ * @param props.tooltipText - Explains why the picker is unavailable.
+ */
+export function DateRangePickerPlaceholder( { tooltipText }: { tooltipText: string } ) {
+	const descriptionId = useId();
+
+	return (
+		<Tooltip.Root>
+			<Tooltip.Trigger render={ <div className="daterange-input__toggle" /> }>
+				<Button
+					type="button"
+					variant="tertiary"
+					disabled
+					accessibleWhenDisabled
+					className="daterange-input__field daterange-input__field--placeholder"
+					icon={ calendar }
+					iconPosition="right"
+					aria-describedby={ descriptionId }
+				>
+					<span className="daterange-input__text">
+						{ __( 'Select a date range', 'jetpack-activity-log' ) }
+					</span>
+				</Button>
+				<VisuallyHidden id={ descriptionId } render={ <span /> }>
+					{ tooltipText }
+				</VisuallyHidden>
+			</Tooltip.Trigger>
+			<Tooltip.Popup>{ tooltipText }</Tooltip.Popup>
+		</Tooltip.Root>
 	);
 }
 

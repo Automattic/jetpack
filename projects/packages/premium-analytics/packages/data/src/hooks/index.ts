@@ -7,6 +7,7 @@ export {
 } from './use-post-thumbnail';
 export { useStatsSite } from './use-stats-site';
 export { useSiteIsCommercial } from './use-site-is-commercial';
+export { useStatsYearlyProduct } from './use-stats-yearly-product';
 export { usePrefetchViewerCountry, useViewerCountry } from './use-viewer-country';
 export {
 	useStatsPost,
@@ -59,6 +60,7 @@ export {
 	type StatsAppNoticesParams,
 	type StatsAppNoticeStatus,
 } from './use-stats-app-notices';
+export { useStatsUpgradeTiers, type StatsUpgradeTier } from './use-stats-upgrade-tiers';
 export {
 	useStatsAppPurchases,
 	type StatsAppPurchase,
@@ -68,6 +70,13 @@ export {
 } from './use-stats-app-purchases';
 export { useStatsArchives, type StatsArchivesResponse } from './use-stats-archives';
 export { useStatsSettings, type StatsSettings } from './use-stats-settings';
+export {
+	requestConsentCardFocus,
+	takeConsentCardFocusRequest,
+	updateConsentStatus,
+	useConsentStatus,
+	type ConsentStatus,
+} from './use-consent-status';
 export {
 	useStatsCommentFollowers,
 	useStatsCommentFollowersAllPages,
@@ -108,17 +117,6 @@ export {
 	type StatsVisitsStatField,
 	type StatsVisitsStatFields,
 } from './use-stats-visits';
-export {
-	useStatsHourOfDay,
-	type StatsHourOfDayParams,
-	type StatsHourOfDayBucket,
-	type StatsHourOfDayReport,
-} from './use-stats-hour-of-day';
-export {
-	useStatsSummary,
-	type StatsSummaryParams,
-	type StatsSummaryResponse,
-} from './use-stats-summary';
 export { useStatsInsights } from './use-stats-insights';
 export type {
 	StatsInsightsParams,
@@ -220,3 +218,4 @@ export {
 	type RefreshFailure,
 	type RefreshFailureSnapshot,
 } from './use-refresh-failure';
+export { useSiteDay } from './use-site-day';

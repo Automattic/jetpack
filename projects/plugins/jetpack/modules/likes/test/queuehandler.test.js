@@ -284,4 +284,181 @@ describe( 'Likes queue handler master iframe handshake', () => {
 		expect( widget ).toHaveClass( 'jetpack-likes-widget-unloaded' );
 		expect( placeholder ).toBeVisible();
 	} );
+
+	describe( 'likers popover', () => {
+		const showLikers = ( likerCount, extra = {}, defaultAvatarIndexes = [], sites = {} ) => {
+			const likers = Array.from( { length: likerCount }, ( _, i ) => ( {
+				profile_URL: `https://example.com/liker-${ i }`,
+				avatar_URL: `https://example.com/avatar-${ i }.png`,
+				name: `Liker ${ i }`,
+				css_class: 'wpl-liker',
+				default_avatar: defaultAvatarIndexes.includes( i ),
+				...sites[ i ],
+			} ) );
+
+			window.dispatchEvent(
+				new MessageEvent( 'message', {
+					data: JSON.stringify( {
+						type: 'likesMessage',
+						data: {
+							event: 'showOtherGravatars',
+							likers,
+							parent: 'like-post-frame-12345-678-abc123',
+							width: 300,
+							position: { top: 0, left: 0 },
+							totalLikesLabel: '154 likes',
+							avatarAltTitle: "%s's avatar",
+							...extra,
+						},
+					} ),
+					origin: 'https://widgets.wp.com',
+				} )
+			);
+
+			return [ ...document.querySelectorAll( '#likes-other-gravatars ul li' ) ];
+		};
+
+		beforeEach( () => {
+			document.body.insertAdjacentHTML(
+				'beforeend',
+				`<iframe name="like-post-frame-12345-678-abc123"></iframe>
+				<div id="likes-other-gravatars"><div class="likes-text"><span></span></div><ul class="wpl-avatars"></ul></div>`
+			);
+			require( '../queuehandler' );
+		} );
+
+		it( 'ends the list with the count of likers it leaves out', () => {
+			const items = showLikers( 90, { remainingLikesLabel: '+64 more' } );
+
+			expect( items ).toHaveLength( 91 );
+			expect( items.at( -1 ) ).toHaveClass( 'wpl-likes-remaining' );
+			expect( items.at( -1 ) ).toHaveTextContent( '+64 more' );
+		} );
+
+		it( 'lists only the likers when none are left out', () => {
+			const items = showLikers( 12, { remainingLikesLabel: '' } );
+
+			expect( items ).toHaveLength( 12 );
+			expect( document.querySelector( '.wpl-likes-remaining' ) ).toBeNull();
+		} );
+
+		it( 'renders the count as text, not markup', () => {
+			showLikers( 90, { remainingLikesLabel: '<img src=x onerror=alert(1)>+64 more' } );
+
+			const remaining = document.querySelector( '.wpl-likes-remaining' );
+			expect( remaining.querySelector( 'img' ) ).toBeNull();
+		} );
+
+		it( 'does not link a default-avatar liker who has no site', () => {
+			const items = showLikers( 3, {}, [ 1 ] );
+
+			expect( items[ 0 ].querySelector( 'a' ) ).toHaveAttribute(
+				'href',
+				'https://example.com/liker-0'
+			);
+			expect( items[ 1 ].querySelector( 'a' ) ).not.toHaveAttribute( 'href' );
+			expect( items[ 1 ].querySelector( 'img' ) ).toHaveAttribute(
+				'src',
+				'https://example.com/avatar-1.png'
+			);
+			expect( items[ 1 ].querySelector( 'img' ) ).toHaveAttribute( 'alt', "Liker 1's avatar" );
+			expect( items[ 2 ].querySelector( 'a' ) ).toHaveAttribute(
+				'href',
+				'https://example.com/liker-2'
+			);
+		} );
+
+		it( 'links a default-avatar liker to their site when it is visible', () => {
+			const items = showLikers( 2, {}, [ 1 ], {
+				1: { site_URL: 'https://liker-1.example.org' },
+			} );
+
+			expect( items[ 0 ].querySelector( 'a' ) ).toHaveAttribute(
+				'href',
+				'https://example.com/liker-0'
+			);
+			expect( items[ 1 ].querySelector( 'a' ) ).toHaveAttribute(
+				'href',
+				'https://liker-1.example.org'
+			);
+		} );
+
+		it( 'keeps percent escapes in a site_URL as they are', () => {
+			const items = showLikers( 1, {}, [ 0 ], {
+				0: { site_URL: 'https://example.org/my%20site/' },
+			} );
+
+			expect( items[ 0 ].querySelector( 'a' ) ).toHaveAttribute(
+				'href',
+				'https://example.org/my%20site/'
+			);
+		} );
+
+		it( 'does not link a default-avatar liker without a web site_URL', () => {
+			const items = showLikers( 4, {}, [ 0, 1, 2, 3 ], {
+				0: { URL: 'https://liker-0.example.org', site_visible: true },
+				1: { site_URL: '' },
+				2: { site_URL: 'javascript:alert(1)' },
+				3: { site_URL: null },
+			} );
+
+			items.forEach( item => expect( item.querySelector( 'a' ) ).not.toHaveAttribute( 'href' ) );
+		} );
+
+		it( 'keeps linking a liker without a default avatar to their profile, even with a site', () => {
+			const items = showLikers( 1, {}, [], {
+				0: { site_URL: 'https://liker-0.example.org' },
+			} );
+
+			expect( items[ 0 ].querySelector( 'a' ) ).toHaveAttribute(
+				'href',
+				'https://example.com/liker-0'
+			);
+		} );
+
+		it( 'closes the popover on Tab from the last linked liker', () => {
+			const items = showLikers( 3, {}, [ 2 ] );
+			const container = document.querySelector( '#likes-other-gravatars' );
+			expect( container ).not.toHaveStyle( { display: 'none' } );
+
+			items[ 1 ]
+				.querySelector( 'a' )
+				.dispatchEvent( new KeyboardEvent( 'keydown', { key: 'Tab', bubbles: true } ) );
+
+			expect( container ).toHaveStyle( { display: 'none' } );
+		} );
+
+		it( 'closes the popover on Tab when no liker has a link', () => {
+			showLikers( 2, {}, [ 0, 1 ] );
+			const container = document.querySelector( '#likes-other-gravatars' );
+			expect( container ).not.toHaveStyle( { display: 'none' } );
+
+			container.dispatchEvent( new KeyboardEvent( 'keydown', { key: 'Tab', bubbles: true } ) );
+
+			expect( container ).toHaveStyle( { display: 'none' } );
+		} );
+
+		it( 'drops the popover Tab listener when it reopens with linked likers', () => {
+			showLikers( 2, {}, [ 0, 1 ] );
+			const items = showLikers( 3 );
+			const container = document.querySelector( '#likes-other-gravatars' );
+
+			items[ 0 ]
+				.querySelector( 'a' )
+				.dispatchEvent( new KeyboardEvent( 'keydown', { key: 'Tab', bubbles: true } ) );
+
+			expect( container ).not.toHaveStyle( { display: 'none' } );
+		} );
+
+		it( 'keeps the popover open on Tab from an earlier liker', () => {
+			const items = showLikers( 3 );
+			const container = document.querySelector( '#likes-other-gravatars' );
+
+			items[ 0 ]
+				.querySelector( 'a' )
+				.dispatchEvent( new KeyboardEvent( 'keydown', { key: 'Tab', bubbles: true } ) );
+
+			expect( container ).not.toHaveStyle( { display: 'none' } );
+		} );
+	} );
 } );

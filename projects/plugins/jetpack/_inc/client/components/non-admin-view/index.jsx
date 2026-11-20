@@ -1,6 +1,7 @@
 import PropTypes from 'prop-types';
 import { Component } from 'react';
 import { connect } from 'react-redux';
+import { Navigate } from 'react-router';
 import SearchableSettings from 'settings/index.jsx';
 import { getSiteConnectionStatus } from 'state/connection';
 import { userCanManageModules, userIsSubscriber as _userIsSubscriber } from 'state/initial-state';
@@ -33,7 +34,7 @@ class NonAdminView extends Component {
 				}
 				break;
 			default:
-				this.props.navigate( '/settings', { replace: true } );
+				pageComponent = <Navigate to="/settings" replace />;
 				break;
 		}
 

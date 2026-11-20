@@ -1,4 +1,6 @@
-@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+@use "@wordpress/base-styles/breakpoints";
+@use "@wordpress/base-styles/colors";
+@use "@wordpress/base-styles/mixins";
 
 .components-modal__screen-overlay:has(.jp-navigator-modal) {
 	z-index: 99999; // Slightly lower than snackbar z-index (100001) so snackbars remain visible above the modal
@@ -9,7 +11,7 @@
 	container-name: navigator-modal;
 	width: 100%;
 
-	@include gb.break-medium() {
+	@include mixins.break-medium() {
 		max-height: 90%;
 	}
 
@@ -37,7 +39,7 @@
 		justify-content: space-between;
 		padding: 1.5rem;
 		height: 4.5rem;
-		border-bottom: 1px solid gb.$gray-200;
+		border-bottom: 1px solid colors.$gray-200;
 		flex-shrink: 0;
 
 		h1 {
@@ -45,7 +47,7 @@
 			font-size: 15px;
 			font-weight: 500;
 			line-height: 24px;
-			color: gb.$gray-900;
+			color: colors.$gray-900;
 		}
 	}
 
@@ -60,7 +62,7 @@
 		overflow: auto;
 		flex-direction: column;
 
-		@container navigator-modal (width >= #{gb.$break-small}) {
+		@container navigator-modal (width >= #{breakpoints.$break-small}) {
 			flex-direction: row;
 		}
 	}
@@ -71,11 +73,11 @@
 		flex-direction: column;
 		gap: 1.5rem;
 
-		@container navigator-modal (width >= #{gb.$break-small}) {
+		@container navigator-modal (width >= #{breakpoints.$break-small}) {
 			flex-basis: 30%;
 			height: 100%;
 			flex-shrink: 0;
-			border-inline-end: 1px solid gb.$gray-300;
+			border-inline-end: 1px solid colors.$gray-300;
 			overflow: auto;
 		}
 	}
@@ -85,14 +87,14 @@
 		height: 100%;
 		flex: 1;
 
-		@container navigator-modal (width >= #{gb.$break-small}) {
+		@container navigator-modal (width >= #{breakpoints.$break-small}) {
 			overflow: auto;
 		}
 	}
 
 	&__footer {
 		padding: 1rem 1.5rem;
-		border-top: 1px solid gb.$gray-300;
+		border-top: 1px solid colors.$gray-300;
 		height: 4.5rem;
 		flex-shrink: 0;
 	}

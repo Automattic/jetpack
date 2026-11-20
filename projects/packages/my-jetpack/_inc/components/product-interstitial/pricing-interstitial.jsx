@@ -23,14 +23,20 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { MyJetpackRoutes } from '../../constants';
 import useActivatePlugins from '../../data/products/use-activate-plugins';
 import useActivateSearchFreeProduct from '../../data/products/use-activate-search-free-product';
+import useBundleOffer from '../../data/products/use-bundle-offer';
 import useProduct from '../../data/products/use-product';
+import { tierPricePerMonth } from '../../data/utils/prepare-product-data';
 import useAnalytics from '../../hooks/use-analytics';
 import { useGoBack } from '../../hooks/use-go-back';
 import { useInterstitialsState } from '../../hooks/use-interstitials-state';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
+import { productsFrom } from '../../utils/connect-url';
+import { getMyJetpackRouteUrl } from '../../utils/route-href';
 import GoBackLink from '../go-back-link';
 import { getFeatureCheckoutReturnUrl } from '../my-jetpack-tab-panel/utils';
+import ProductDetailCard from '../product-detail-card';
+import ProductDetailCardSkeleton from '../product-detail-card/skeleton';
 import { getProductConfigs } from './config';
 import ProductInterstitial from './product-interstitial';
 import { reloadIfActivationChangesAdminMenu } from './reload-after-activation';
@@ -46,14 +52,20 @@ import styles from './style.module.scss';
 export default function PricingInterstitial( { slug } ) {
 	const config = getProductConfigs()[ slug ];
 	const { detail, isLoading: isProductLoading } = useProduct( slug );
-	const { detail: bundleDetail, isLoading: isBundleLoading } = useProduct( config?.bundle );
+	const {
+		bundleSlug,
+		isNewBundleOffer,
+		isResolving: isBundleOfferResolving,
+	} = useBundleOffer( config?.bundle );
+	const { detail: bundleDetail, isLoading: isBundleLoading } = useProduct( bundleSlug );
 	const { recordEvent } = useAnalytics();
-	const { onClickGoBack } = useGoBack( { slug, fallback: MyJetpackRoutes.Features } );
+	const { onClickGoBack, backTo } = useGoBack( { slug, fallback: MyJetpackRoutes.Features } );
 	const { activate, isPending: isActivating } = useActivatePlugins( slug );
 	const myJetpackCheckoutUri = getFeatureCheckoutReturnUrl() || getMyJetpackUrl();
 	const { siteIsRegistering, handleRegisterSite } = useMyJetpackConnection( {
 		skipUserConnection: true,
 		redirectUri: detail?.postActivationUrl || null,
+		from: productsFrom( slug ),
 	} );
 	const navigateToMyJetpackOverviewPage = useMyJetpackNavigate( MyJetpackRoutes.Home );
 
@@ -123,8 +135,10 @@ export default function PricingInterstitial( { slug } ) {
 			? {
 					...detail.pricingForUi.tiers.upgraded,
 					// Calculate monthly prices from annual if needed
-					fullPricePerMonth: detail.pricingForUi.tiers.upgraded.fullPrice / 12,
-					discountPricePerMonth: detail.pricingForUi.tiers.upgraded.discountPrice / 12,
+					fullPricePerMonth: tierPricePerMonth( detail.pricingForUi.tiers.upgraded.fullPrice ),
+					discountPricePerMonth: tierPricePerMonth(
+						detail.pricingForUi.tiers.upgraded.discountPrice
+					),
 				}
 			: detail?.pricingForUi;
 	}, [ detail?.pricingForUi ] );
@@ -338,6 +352,19 @@ export default function PricingInterstitial( { slug } ) {
 		bundlePricing,
 	] );
 
+	const handleGetBundleOffer = useCallback(
+		( checkout, product ) => {
+			setLoadingButton( 'bundle' );
+			recordEvent( 'jetpack_myjetpack_product_interstitial_add_link_click', {
+				product: bundleSlug,
+				product_slug: product.pricingForUi.wpcomProductSlug,
+				tier_selected: 'bundle',
+			} );
+			clickHandler( { checkout, product, tier: 'bundle' } );
+		},
+		[ bundleSlug, recordEvent, clickHandler ]
+	);
+
 	const { update: updateInterstitialsState } = useInterstitialsState();
 
 	const handleFreeActivation = useCallback( () => {
@@ -385,14 +412,17 @@ export default function PricingInterstitial( { slug } ) {
 		} );
 	}, [ recordEvent, slug ] );
 
-	const handleGoBack = useCallback( () => {
-		recordEvent( 'jetpack_myjetpack_interstitial_go_back', {
-			product_slug: slug,
-		} );
+	const handleGoBack = useCallback(
+		event => {
+			recordEvent( 'jetpack_myjetpack_interstitial_go_back', {
+				product_slug: slug,
+			} );
 
-		// Call the original go back functionality
-		onClickGoBack();
-	}, [ recordEvent, slug, onClickGoBack ] );
+			// Call the original go back functionality
+			onClickGoBack( event );
+		},
+		[ recordEvent, slug, onClickGoBack ]
+	);
 
 	// If no config exists, fallback to old ProductInterstitial
 	if ( ! config ) {
@@ -408,7 +438,7 @@ export default function PricingInterstitial( { slug } ) {
 			breadcrumbs={
 				<GoBackLink
 					onClick={ handleGoBack }
-					to={ MyJetpackRoutes.Features }
+					to={ backTo }
 					label={ __( 'My Jetpack', 'jetpack-my-jetpack' ) }
 				/>
 			}
@@ -416,7 +446,7 @@ export default function PricingInterstitial( { slug } ) {
 				<ButtonLink
 					size="compact"
 					variant="outline"
-					href={ getMyJetpackUrl( '#/add-license' ) }
+					href={ getMyJetpackRouteUrl( '/add-license' ) }
 					onClick={ handleLicenseActivationClick }
 				>
 					{ __( 'Use license key', 'jetpack-my-jetpack' ) }
@@ -500,40 +530,60 @@ export default function PricingInterstitial( { slug } ) {
 								/>
 							) ) }
 						</PricingTableColumn>
-						<PricingTableColumn className={ styles[ 'pricing-column' ] }>
-							<PricingTableHeader title={ config.tiers.bundle.name }>
-								{ bundlePricing ? (
-									<ProductPrice
-										price={ bundlePricing.fullPricePerMonth }
-										offPrice={ bundlePricing.discountPricePerMonth }
-										legend="/month, billed yearly"
-										currency={ currencyCode }
-										hidePriceFraction
-										variant="simple"
+						{ ! isBundleOfferResolving && ! isNewBundleOffer && (
+							<PricingTableColumn className={ styles[ 'pricing-column' ] }>
+								<PricingTableHeader title={ config.tiers.bundle.name }>
+									{ bundlePricing ? (
+										<ProductPrice
+											price={ bundlePricing.fullPricePerMonth }
+											offPrice={ bundlePricing.discountPricePerMonth }
+											legend="/month, billed yearly"
+											currency={ currencyCode }
+											hidePriceFraction
+											variant="simple"
+										/>
+									) : (
+										<Spinner className={ styles.spinner } />
+									) }
+									<Button
+										className={ styles[ 'tier-cta' ] }
+										variant="outline"
+										onClick={ handleGetBundle }
+										loading={ loadingButton === 'bundle' }
+										disabled={ buttonsDisabled || isBundleLoading }
+									>
+										{ config.tiers.bundle.cta }
+									</Button>
+								</PricingTableHeader>
+								{ config.features.map( ( feature, index ) => (
+									<PricingTableItem
+										key={ index }
+										isIncluded={ feature.bundle.included }
+										label={ feature.bundle.label }
 									/>
-								) : (
-									<Spinner className={ styles.spinner } />
-								) }
-								<Button
-									className={ styles[ 'tier-cta' ] }
-									variant="outline"
-									onClick={ handleGetBundle }
-									loading={ loadingButton === 'bundle' }
-									disabled={ buttonsDisabled || isBundleLoading }
-								>
-									{ config.tiers.bundle.cta }
-								</Button>
-							</PricingTableHeader>
-							{ config.features.map( ( feature, index ) => (
-								<PricingTableItem
-									key={ index }
-									isIncluded={ feature.bundle.included }
-									label={ feature.bundle.label }
-								/>
-							) ) }
-						</PricingTableColumn>
+								) ) }
+							</PricingTableColumn>
+						) }
 					</PricingTable>
 				</Col>
+				{ isBundleOfferResolving && (
+					<Col>
+						<ProductDetailCardSkeleton />
+					</Col>
+				) }
+				{ ! isBundleOfferResolving &&
+					isNewBundleOffer &&
+					( bundleDetail?.pricingForUi?.available === true ||
+						bundleDetail?.hasPaidPlanForProduct ) && (
+						<Col>
+							<ProductDetailCard
+								slug={ bundleSlug }
+								isUpsell
+								onClick={ handleGetBundleOffer }
+								isFetching={ buttonsDisabled }
+							/>
+						</Col>
+					) }
 			</Container>
 		</AdminPage>
 	);

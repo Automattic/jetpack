@@ -3,26 +3,11 @@ import { __, _x } from '@wordpress/i18n';
 import { MyJetpackModule } from '../types';
 
 export type BlockThemeMigration = {
-	editorUrl: string;
+	settingsUrl: string;
 	notice: string;
 	switchLabel: string;
 	switchingAnnouncement: string;
 };
-
-/**
- * Site Editor URL for the active theme's Single template, in edit mode.
- *
- * @param {string} stylesheet - The active theme's stylesheet.
- *
- * @return {string} The Site Editor URL.
- */
-function getSingleTemplateUrl( stylesheet: string ): string {
-	return getAdminUrl(
-		`site-editor.php?p=%2Fwp_template%2F${ encodeURIComponent(
-			stylesheet
-		) }%2F%2Fsingle&canvas=edit`
-	);
-}
 
 /**
  * On block themes the legacy sharing buttons and Like buttons can't be customized in the
@@ -35,21 +20,17 @@ function getSingleTemplateUrl( stylesheet: string ): string {
 export function getBlockThemeMigration( module: MyJetpackModule ): BlockThemeMigration | null {
 	const siteEditor = getScriptData()?.myJetpack?.siteEditor;
 
-	if (
-		module.override === 'active' ||
-		! siteEditor?.isBlockTheme ||
-		! siteEditor.activeThemeStylesheet
-	) {
+	if ( module.override === 'active' || ! siteEditor?.isBlockTheme ) {
 		return null;
 	}
 
 	if ( module.module === 'sharedaddy' && siteEditor.isSharingBlockAvailable ) {
 		return {
-			editorUrl: getSingleTemplateUrl( siteEditor.activeThemeStylesheet ),
+			settingsUrl: getAdminUrl( 'options-general.php?page=sharing' ),
 			notice: module.activated
 				? __( 'Legacy sharing buttons cannot be customized on block themes.', 'jetpack-my-jetpack' )
 				: _x(
-						'Add the Sharing Buttons block to your theme’s template.',
+						'Choose where the Sharing Buttons block goes on your posts and pages.',
 						'Sharing block migration instruction',
 						'jetpack-my-jetpack'
 					),
@@ -60,11 +41,11 @@ export function getBlockThemeMigration( module: MyJetpackModule ): BlockThemeMig
 
 	if ( module.module === 'likes' && siteEditor.isLikeBlockAvailable ) {
 		return {
-			editorUrl: getSingleTemplateUrl( siteEditor.activeThemeStylesheet ),
+			settingsUrl: getAdminUrl( 'options-general.php?page=sharing#likes' ),
 			notice: module.activated
 				? __( 'Legacy Like buttons cannot be customized on block themes.', 'jetpack-my-jetpack' )
 				: _x(
-						'Add the Like block to your theme’s template.',
+						'Choose where the Like block goes on your posts and pages.',
 						'Like block migration instruction',
 						'jetpack-my-jetpack'
 					),

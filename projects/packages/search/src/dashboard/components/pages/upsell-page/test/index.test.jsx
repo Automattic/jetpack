@@ -2,9 +2,13 @@ let mockSelectMethods;
 let mockFetchSearchPlanInfo;
 const mockCheckoutWorkflow = jest.fn();
 const mockActivateFree = jest.fn();
+const mockAdminPage = jest.fn();
 
 jest.mock( '@automattic/jetpack-components', () => ( {
-	AdminPage: ( { children } ) => <div>{ children }</div>,
+	AdminPage: props => {
+		mockAdminPage( props );
+		return <div>{ props.children }</div>;
+	},
 	AdminSectionHero: ( { children } ) => <div>{ children }</div>,
 	Button: ( { children } ) => <button>{ children }</button>,
 	Col: ( { children } ) => <div>{ children }</div>,
@@ -75,10 +79,12 @@ jest.mock( 'hooks/use-activate-search-free', () => () => ( {
 import { render, screen } from '@testing-library/react';
 import UpsellPage from '../index';
 
-const createSelectMethods = ( { isSearchBlocksEnabled = false } = {} ) => ( {
+const createSelectMethods = ( { isSearchBlocksEnabled = false, canAddLicense = true } = {} ) => ( {
 	getAPINonce: jest.fn( () => 'nonce' ),
+	getAPIRootUrl: jest.fn( () => 'https://example.com/wp-json/' ),
 	isNewPricing202208: jest.fn( () => true ),
 	isWpcom: jest.fn( () => false ),
+	canAddLicense: jest.fn( () => canAddLicense ),
 	getSiteAdminUrl: jest.fn( () => 'https://example.com/wp-admin/' ),
 	getSearchPricing: jest.fn( () => ( {} ) ),
 	getCalypsoSlug: jest.fn( () => 'example.com' ),
@@ -99,6 +105,7 @@ const createSelectMethods = ( { isSearchBlocksEnabled = false } = {} ) => ( {
 
 beforeEach( () => {
 	mockCheckoutWorkflow.mockClear();
+	mockAdminPage.mockClear();
 	mockFetchSearchPlanInfo = jest.fn( () => Promise.resolve( {} ) );
 } );
 
@@ -121,6 +128,21 @@ describe( 'UpsellPage pricing grid — Search blocks gating', () => {
 
 		expect( screen.getByText( 'Jetpack Search blocks' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'Embedded search page' ) ).toBeInTheDocument();
+	} );
+} );
+
+describe( 'UpsellPage — REST client', () => {
+	test( 'passes the API root and nonce to AdminPage so it keeps the shared client authenticated', () => {
+		mockSelectMethods = createSelectMethods();
+
+		render( <UpsellPage /> );
+
+		expect( mockAdminPage ).toHaveBeenCalledWith(
+			expect.objectContaining( {
+				apiRoot: 'https://example.com/wp-json/',
+				apiNonce: 'nonce',
+			} )
+		);
 	} );
 } );
 
@@ -153,5 +175,20 @@ describe( 'UpsellPage pricing grid — AI Answers (paid-only)', () => {
 		render( <UpsellPage /> );
 		expect( screen.getByText( 'AI Answers' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'Jetpack Search blocks' ) ).toBeInTheDocument();
+	} );
+} );
+
+describe( 'UpsellPage — license link', () => {
+	test.each( [
+		[ 'on', true ],
+		[ 'off', false ],
+	] )( 'follows the add-license screen being %s', ( _, canAddLicense ) => {
+		mockSelectMethods = createSelectMethods( { canAddLicense } );
+
+		render( <UpsellPage /> );
+
+		const { actions } = mockAdminPage.mock.calls.at( -1 )[ 0 ];
+		render( <>{ actions }</> );
+		expect( screen.queryAllByText( 'Use license key' ) ).toHaveLength( canAddLicense ? 1 : 0 );
 	} );
 } );

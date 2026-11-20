@@ -3,10 +3,13 @@
  */
 import jetpackAnalytics from '@automattic/jetpack-analytics';
 import { getScriptData } from '@automattic/jetpack-script-data';
-import { resolveIntervalForPresetChange } from '@jetpack-premium-analytics/data';
-import { PRESET_CUSTOM } from '@jetpack-premium-analytics/datetime';
 import {
 	deriveComparisonRange,
+	resolveIntervalForPresetChange,
+	type LockableInterval,
+} from '@jetpack-premium-analytics/data';
+import { PRESET_CUSTOM, type IntervalType } from '@jetpack-premium-analytics/datetime';
+import {
 	encodeRangeToSearchParams,
 	type ReportDateFilters,
 } from '@jetpack-premium-analytics/routing';
@@ -69,7 +72,7 @@ export function useTrackEvent() {
 /**
  * The page a tracked event came from.
  */
-export type TrackingSurface = 'dashboard' | 'post_detail' | 'author_detail' | 'video_detail';
+export type TrackingSurface = 'dashboard' | `${ string }_detail`;
 
 /**
  * The widgets in one layout whose instances the other lacks, in layout order.
@@ -168,6 +171,9 @@ type DateRangeApplyContext = {
 
 	/** Whether the surface shows the comparison; detail pages keep it in the URL but never draw it. */
 	offersComparison: boolean;
+
+	/** The buckets the plan locks, as the date filters were given them. */
+	lockedIntervals?: readonly LockableInterval[];
 };
 
 type DateRangeState = Pick<
@@ -175,7 +181,21 @@ type DateRangeState = Pick<
 	'presetId' | 'range' | 'interval' | 'comparisonPresetId' | 'appliedComparisonRange'
 >;
 
-type StagedRange = Parameters< ReportDateFilters[ 'onChange' ] >;
+type OnChangeArgs = Parameters< ReportDateFilters[ 'onChange' ] >;
+
+/** The control that applied the range: the date picker unless the caller says otherwise. */
+export type DateRangeApplyTrigger = 'picker' | 'arrow' | 'widget' | 'zoom_out';
+
+/**
+ * What `onChange` was called with, plus the interval the change committed when
+ * the caller knows it (a step keeps the rendered interval where a preset pick
+ * would reset it) and the control that applied it.
+ */
+type StagedRange = [
+	range?: OnChangeArgs[ 0 ],
+	presetId?: OnChangeArgs[ 1 ],
+	options?: OnChangeArgs[ 2 ] & { interval?: IntervalType; trigger?: DateRangeApplyTrigger },
+];
 
 /**
  * Records `jetpack_premium_analytics_date_range_apply`. Call `trackedOnChange` beside the date filters'
@@ -187,7 +207,7 @@ type StagedRange = Parameters< ReportDateFilters[ 'onChange' ] >;
  */
 export function useTrackedDateRangeApply(
 	{ presetId, range, interval, comparisonPresetId, appliedComparisonRange }: DateRangeState,
-	{ surface, section, offersComparison }: DateRangeApplyContext
+	{ surface, section, offersComparison, lockedIntervals }: DateRangeApplyContext
 ) {
 	const trackEvent = useTrackEvent();
 	const staged = useRef< StagedRange | null >( null );
@@ -230,8 +250,18 @@ export function useTrackedDateRangeApply(
 			...( section ? { section } : {} ),
 			range_type: isCustom ? 'custom' : 'preset',
 			...( isCustom ? {} : { preset: appliedPresetId } ),
-			interval: resolveIntervalForPresetChange( presetId, appliedPresetId, from, to, interval ),
+			interval:
+				options?.interval ??
+				resolveIntervalForPresetChange(
+					presetId,
+					appliedPresetId,
+					from,
+					to,
+					interval,
+					lockedIntervals
+				),
 			comparison: comparison ?? 'none',
+			trigger: options?.trigger ?? 'picker',
 		} );
 	}, [
 		presetId,
@@ -243,6 +273,7 @@ export function useTrackedDateRangeApply(
 		surface,
 		section,
 		offersComparison,
+		lockedIntervals,
 	] );
 
 	return { trackedOnChange, trackedOnApply };

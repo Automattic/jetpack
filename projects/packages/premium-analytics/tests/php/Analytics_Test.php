@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\PremiumAnalytics;
 
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Constants;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\CoversFunction;
@@ -15,6 +16,7 @@ use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
 
+require_once __DIR__ . '/traits/trait-analytics-capabilities.php';
 require_once __DIR__ . '/traits/trait-widget-manifest-fixture.php';
 
 /**
@@ -23,11 +25,14 @@ require_once __DIR__ . '/traits/trait-widget-manifest-fixture.php';
  * discards lines outside declared @covers units — omitting it would mark the manifest require dead.
  *
  * @covers \Automattic\Jetpack\PremiumAnalytics\Analytics
+ * @covers \Automattic\Jetpack\PremiumAnalytics\Classic_Stats
  * @covers ::Automattic\Jetpack\PremiumAnalytics\ensure_widget_registry_ready
  */
 #[CoversClass( Analytics::class )]
+#[CoversClass( Classic_Stats::class )]
 #[CoversFunction( 'Automattic\\Jetpack\\PremiumAnalytics\\ensure_widget_registry_ready' )]
 class Analytics_Test extends TestCase {
+	use Analytics_Capabilities_Trait;
 	use Widget_Manifest_Fixture_Trait;
 
 	const MENU_SLUG     = 'jetpack-premium-analytics-wp-admin';
@@ -84,14 +89,20 @@ class Analytics_Test extends TestCase {
 		remove_all_actions( 'plugins_loaded' );
 		remove_all_actions( 'rest_api_init' );
 		remove_all_actions( 'admin_menu' );
+		remove_all_actions( 'admin_page_access_denied' );
 		remove_all_filters( 'jetpack_admin_js_script_data' );
 		remove_all_filters( 'jetpack_stats_url' );
+		remove_all_filters( 'jetpack_stats_admin_pre_connection_dashboard' );
 		remove_all_filters( 'rest_post_dispatch' );
 		remove_all_filters( 'jetpack_stats_transient_cleanup_prefixes' );
+		remove_all_filters( 'jetpack_feature_flag_enabled_' . Classic_Stats::RETIRED_FLAG );
 		Constants::clear_constants();
 		$this->reset_tracks_identity_state();
 		Capabilities::unregister();
 		$this->reset_analytics_init_state();
+		\Jetpack_Options::delete_option( array( 'id', 'blog_token' ) );
+		( new Connection_Manager() )->reset_connection_status();
+		remove_all_filters( 'wp_redirect' );
 		parent::tearDown();
 	}
 
@@ -115,7 +126,9 @@ class Analytics_Test extends TestCase {
 		$this->set_analytics_property( 'initialized', false );
 		$this->set_analytics_property( 'menu_title', null );
 		$this->set_analytics_property( 'resolved_menu_title', null );
+		$this->set_analytics_property( 'replaces_pre_connection_stats_page', false );
 		$this->set_analytics_property( 'build_entry', null );
+		$this->set_static_property( Dashboard_Support::class, 'modules_entry', null );
 	}
 
 	/**
@@ -125,7 +138,18 @@ class Analytics_Test extends TestCase {
 	 * @param mixed  $value Value to set.
 	 */
 	private function set_analytics_property( $name, $value ) {
-		$property = new \ReflectionProperty( Analytics::class, $name );
+		$this->set_static_property( Analytics::class, $name, $value );
+	}
+
+	/**
+	 * Set a private static of a class.
+	 *
+	 * @param string $class_name Class name.
+	 * @param string $name       Property name.
+	 * @param mixed  $value      Value to set.
+	 */
+	private function set_static_property( $class_name, $name, $value ) {
+		$property = new \ReflectionProperty( $class_name, $name );
 		if ( PHP_VERSION_ID < 80500 ) {
 			$property->setAccessible( true );
 		}
@@ -192,6 +216,49 @@ class Analytics_Test extends TestCase {
 		$this->assertNotFalse(
 			has_filter( 'jetpack_stats_url', array( Stats_Links::class, 'filter_url' ) )
 		);
+	}
+
+	/**
+	 * The stats-admin pre-connection Stats page stays unless the host asks this dashboard to replace it, or classic Stats is retired.
+	 *
+	 * @param array $options Options passed to init().
+	 * @param bool  $retired Whether the classic Stats page is retired.
+	 * @param bool  $kept    Whether stats-admin still registers its page.
+	 * @dataProvider provide_pre_connection_stats_page_cases
+	 */
+	#[DataProvider( 'provide_pre_connection_stats_page_cases' )]
+	public function test_when_init_replaces_the_pre_connection_stats_page( $options, $retired, $kept ) {
+		$this->reset_analytics_init_state();
+		add_filter( 'jetpack_feature_flag_enabled_' . Classic_Stats::RETIRED_FLAG, $retired ? '__return_true' : '__return_false' );
+
+		Analytics::init( $options );
+
+		$this->assertSame( $kept, apply_filters( 'jetpack_stats_admin_pre_connection_dashboard', true ) );
+	}
+
+	/**
+	 * Data for test_when_init_replaces_the_pre_connection_stats_page.
+	 *
+	 * @return array
+	 */
+	public static function provide_pre_connection_stats_page_cases() {
+		return array(
+			'kept by default'                  => array( array(), false, true ),
+			'replaced on request'              => array( array( 'replaces_pre_connection_stats_page' => true ), false, false ),
+			'replaced once classic is retired' => array( array(), true, false ),
+		);
+	}
+
+	/**
+	 * The standalone plugin initializes first with no options, so the Jetpack plugin's later call must still apply its own.
+	 */
+	public function test_a_later_init_call_still_applies_its_options() {
+		$this->reset_analytics_init_state();
+
+		Analytics::init();
+		Analytics::init( array( 'replaces_pre_connection_stats_page' => true ) );
+
+		$this->assertFalse( apply_filters( 'jetpack_stats_admin_pre_connection_dashboard', true ) );
 	}
 
 	/**
@@ -315,6 +382,25 @@ class Analytics_Test extends TestCase {
 	}
 
 	/**
+	 * A wp-admin request registers the SDK alias other plugins' widgets import.
+	 *
+	 * It loads apart from the build entry, so no other test notices it missing.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_admin_request_registers_the_sdk_alias() {
+		$this->use_fixture_build();
+		set_current_screen( self::MENU_HOOKNAME );
+
+		Analytics::init();
+
+		$this->assertSame( 20, has_action( 'wp_default_scripts', __NAMESPACE__ . '\\register_sdk_script_module' ) );
+	}
+
+	/**
 	 * The build's full-page interceptor is unhooked.
 	 *
 	 * @runInSeparateProcess
@@ -362,6 +448,36 @@ class Analytics_Test extends TestCase {
 		do_action( 'init' );
 
 		$this->assertArrayNotHasKey( 'jpa_test_build_loaded', $GLOBALS );
+	}
+
+	/**
+	 * The admin shell's guest endpoint is admin-ajax, where the dashboard surface never loaded.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_admin_shell_guest_endpoint_loads_the_dashboard() {
+		$this->use_fixture_build();
+		$this->connect_site();
+		$this->login_as( 'administrator' );
+		set_current_screen( 'admin-ajax' );
+		define( 'DOING_AJAX', true );
+		$_REQUEST['action'] = \Automattic\Jetpack\Admin_UI\Admin_Shell::GUEST_ACTION;
+		$_GET['member']     = self::MENU_SLUG;
+
+		Analytics::init();
+		do_action( 'init' );
+		$member = apply_filters( 'jetpack_admin_shell_members', array() )[ self::MENU_SLUG ] ?? array();
+
+		$this->assertTrue( current_user_can( $member['capability'] ?? 'do_not_allow' ), 'The endpoint checks the capability before it loads the guest.' );
+		$this->assertSame( 20, has_filter( 'jetpack_admin_js_script_data', array( Stats_Settings::class, 'add_script_data' ) ), 'Hooks scoped to the dashboard at init are on.' );
+		call_user_func( $member['load'] );
+		$this->assertNotFalse( has_action( 'admin_enqueue_scripts', array( Analytics::class, 'enqueue_tracks_transport' ) ), 'The dashboard surface loaded.' );
+		$this->assertFalse( get_option( DASHBOARD_FIRST_VISIT_OPTION ), 'A menu hover preloads the guest, so loading it is not a visit.' );
+		$this->assertTrue( Analytics::renders_dashboard() );
+		$this->assertFalse( Analytics::is_dashboard_request(), 'Code that marks a visit or writes, such as the plan refresh, stays off on a hover.' );
 	}
 
 	/**
@@ -487,6 +603,28 @@ class Analytics_Test extends TestCase {
 	}
 
 	/**
+	 * Calypso's sidebar comes from the admin-menu endpoint, which replays wp-admin/menu.php over REST.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_a_menu_replayed_outside_wp_admin_lists_the_dashboard_without_its_build() {
+		Analytics::init();
+
+		$GLOBALS['menu'] = array();
+		$this->connect_site();
+		add_filter( 'user_has_cap', array( $this, 'grant_manage_options' ) );
+		add_filter( 'jetpack_premium_analytics_widgets_manifest_path', array( $this, 'use_fixture_widget_manifest' ) );
+		$this->capture_doing_it_wrong();
+		do_action( 'admin_menu' );
+
+		$this->assertContains( self::MENU_SLUG, array_column( $GLOBALS['menu'], 2 ) );
+		$this->assertSame( array(), $this->doing_it_wrong );
+	}
+
+	/**
 	 * The menu is gated on the dashboard capability rather than manage_options, so a
 	 * site that granted an editor view_stats keeps that editor's access to stats.
 	 */
@@ -494,6 +632,59 @@ class Analytics_Test extends TestCase {
 		$menu_item = $this->register_admin_menu_without_build();
 
 		$this->assertSame( Capabilities::VIEW_ANALYTICS, $menu_item[1] ?? null );
+	}
+
+	/**
+	 * A reader who refreshes the page after losing access, for example to a disconnection, lands
+	 * on the wp-admin Dashboard rather than the "not allowed" screen. Other pages are left alone.
+	 *
+	 * @dataProvider provide_denied_pages
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 *
+	 * @param string      $page     The requested admin page.
+	 * @param string|null $location Where the denied request should be sent, or null for nowhere.
+	 */
+	#[DataProvider( 'provide_denied_pages' )]
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_denied_request_redirects_only_from_the_dashboard( $page, $location ) {
+		set_current_screen( 'toplevel_page_' . $page );
+		$_GET['page'] = $page;
+		Analytics::init();
+		add_filter(
+			'wp_redirect',
+			/**
+			 * Stops the redirect at its location, before the callback exits.
+			 *
+			 * @param string $location Redirect target.
+			 * @return never
+			 */
+			static function ( $location ) {
+				throw new \RuntimeException( $location );
+			}
+		);
+
+		$redirected_to = null;
+		try {
+			do_action( 'admin_page_access_denied' );
+		} catch ( \RuntimeException $e ) {
+			$redirected_to = $e->getMessage();
+		}
+
+		$this->assertSame( $location, $redirected_to );
+	}
+
+	/**
+	 * The dashboard, and another plugin's page.
+	 *
+	 * @return array<string, array{string, string|null}>
+	 */
+	public static function provide_denied_pages() {
+		return array(
+			'dashboard'          => array( self::MENU_SLUG, 'http://example.org/wp-admin/' ),
+			'another admin page' => array( 'some-other-plugin', null ),
+		);
 	}
 
 	/**
@@ -541,6 +732,7 @@ class Analytics_Test extends TestCase {
 	 */
 	public function test_add_script_data_reports_can_view_for_a_capable_user() {
 		Capabilities::register();
+		$this->connect_site();
 		add_filter( 'user_has_cap', array( $this, 'grant_manage_options' ) );
 
 		$data = Analytics::add_script_data( array() );
@@ -608,11 +800,65 @@ class Analytics_Test extends TestCase {
 	/**
 	 * With no caller override the label comes from the package itself, so nobody has
 	 * to translate it before the textdomain can load.
+	 *
+	 * @dataProvider provide_classic_stats_states
+	 *
+	 * @param bool   $retired  Whether the classic Stats page is retired.
+	 * @param string $expected Expected menu label.
 	 */
-	public function test_register_admin_menu_labels_the_page_from_the_package() {
+	#[DataProvider( 'provide_classic_stats_states' )]
+	public function test_register_admin_menu_labels_the_page_from_the_package( $retired, $expected ) {
+		add_filter( 'jetpack_feature_flag_enabled_' . Classic_Stats::RETIRED_FLAG, $retired ? '__return_true' : '__return_false' );
+
 		$menu_item = $this->register_admin_menu_without_build();
 
-		$this->assertSame( 'Stats v2', $menu_item[0] ?? null );
+		$this->assertSame( $expected, $menu_item[0] ?? null );
+	}
+
+	/**
+	 * Asking for the Dashboard's own position would get a hashed fraction from core, long enough
+	 * for the menu's natural sort to put the entry after Upgrades, whichever label it carries.
+	 *
+	 * @dataProvider provide_classic_stats_states
+	 *
+	 * @param bool   $retired Whether the classic Stats page is retired.
+	 * @param string $label   The label the entry carries, which core hashes into that fraction.
+	 */
+	#[DataProvider( 'provide_classic_stats_states' )]
+	public function test_register_admin_menu_sits_between_my_home_and_hosting( $retired, $label ) {
+		add_filter( 'jetpack_feature_flag_enabled_' . Classic_Stats::RETIRED_FLAG, $retired ? '__return_true' : '__return_false' );
+		// The neighbours WordPress.com gives it, at the positions jetpack-mu-wpcom registers them.
+		add_action(
+			'admin_menu',
+			function () {
+				$GLOBALS['menu'][2] = array( 'Dashboard', 'read', 'index.php' );
+				add_menu_page( 'My Home', 'My Home', 'read', 'my-home', '__return_null', '', 2.01 );
+				add_menu_page( 'Hosting', 'Hosting', 'read', 'hosting', '__return_null', '', 2.98 );
+				add_menu_page( 'Upgrades', 'Upgrades', 'read', 'upgrades', '__return_null', '', 2.99 );
+			}
+		);
+
+		$this->register_admin_menu_without_build();
+		$sorted = $GLOBALS['menu'];
+		// As wp-admin/menu.php orders the menu before drawing it.
+		uksort( $sorted, 'strnatcasecmp' );
+
+		$this->assertSame(
+			array( 'Dashboard', 'My Home', $label, 'Hosting', 'Upgrades' ),
+			array_column( $sorted, 0 )
+		);
+	}
+
+	/**
+	 * Menu labels by classic Stats state.
+	 *
+	 * @return array
+	 */
+	public static function provide_classic_stats_states() {
+		return array(
+			'classic Stats beside it' => array( false, 'Stats v2' ),
+			'classic Stats retired'   => array( true, 'Stats' ),
+		);
 	}
 
 	/**
@@ -807,6 +1053,7 @@ class Analytics_Test extends TestCase {
 
 		$GLOBALS['menu'] = array();
 		Capabilities::register();
+		$this->connect_site();
 		add_filter( 'user_has_cap', array( $this, 'grant_manage_options' ) );
 		add_filter( 'jetpack_premium_analytics_widgets_manifest_path', array( $this, 'use_fixture_widget_manifest' ) );
 		$this->capture_doing_it_wrong();
@@ -838,6 +1085,7 @@ class Analytics_Test extends TestCase {
 
 		$GLOBALS['menu'] = array();
 		Capabilities::register();
+		$this->connect_site();
 		add_filter( 'user_has_cap', array( $this, 'grant_manage_options' ) );
 		add_filter( 'jetpack_premium_analytics_widgets_manifest_path', array( $this, 'use_absent_widget_manifest' ) );
 		$this->capture_doing_it_wrong();
@@ -883,10 +1131,11 @@ class Analytics_Test extends TestCase {
 	}
 
 	/**
-	 * Point the build loader at the fixture build, which records that it ran.
+	 * Point the build loaders at the fixture build, which records that it ran.
 	 */
 	private function use_fixture_build() {
 		$this->set_analytics_property( 'build_entry', __DIR__ . '/fixtures/build-entry/build.php' );
+		$this->set_static_property( Dashboard_Support::class, 'modules_entry', __DIR__ . '/fixtures/build-entry/modules.php' );
 	}
 
 	/**
@@ -940,6 +1189,8 @@ class Analytics_Test extends TestCase {
 
 	private function register_admin_menu_without_build( $manifest_filter = 'use_fixture_widget_manifest' ) {
 		$GLOBALS['menu'] = array();
+
+		$this->connect_site();
 
 		// Hooked by boot_shared_services() in production; add_menu_page() resolves the
 		// dashboard capability, and an unmapped one would skip the page's render hook.
@@ -1145,6 +1396,33 @@ class Analytics_Test extends TestCase {
 			),
 			'The Tracks identity is published after the connection fills current_user in.'
 		);
+	}
+
+	/**
+	 * Without this registration the script data key disappears and the error reporter reads
+	 * `undefined` as its gate.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_dashboard_request_publishes_the_error_reporting_script_data() {
+		$this->use_fixture_build();
+		$_GET['page'] = self::MENU_SLUG;
+		set_current_screen( self::MENU_HOOKNAME );
+
+		Analytics::init();
+		do_action( 'init' );
+
+		$this->assertSame(
+			20,
+			has_filter( 'jetpack_admin_js_script_data', __NAMESPACE__ . '\\add_error_reporting_script_data' )
+		);
+
+		$data = apply_filters( 'jetpack_admin_js_script_data', array() );
+
+		$this->assertArrayHasKey( 'error_reporting', $data['premium_analytics'] );
 	}
 
 	/**

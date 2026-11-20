@@ -87,6 +87,26 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Bar_Test extends Jetpack_REST_TestCase {
 	}
 
 	/**
+	 * A plugin that adds a menu page outside admin_menu leaves $menu set and $submenu null in a REST request.
+	 */
+	public function test_returns_the_command_palette_node_when_the_submenu_global_is_not_set() {
+		global $menu, $submenu;
+		$old_menu    = $menu;
+		$old_submenu = $submenu;
+		$menu        = array( array( 'Tools', 'read', 'tools.php' ) );
+		$submenu     = null;
+		// Earlier tests leave the script enqueued, which would add the node even if this request skipped enqueueing it.
+		wp_dequeue_script( 'wp-core-commands' );
+
+		$response = $this->server->dispatch( new WP_REST_Request( Requests::GET, '/wpcom/v2/admin-bar' ) );
+		$menu     = $old_menu;
+		$submenu  = $old_submenu;
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertContains( 'command-palette', wp_list_pluck( $response->get_data()['nodes'], 'id' ) );
+	}
+
+	/**
 	 * Being logged in is not enough: a user with no role on the site gets no admin bar for it.
 	 */
 	public function test_refuses_a_user_with_no_role_on_the_site() {

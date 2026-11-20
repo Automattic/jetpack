@@ -645,6 +645,11 @@
 						background-color: #f9ecec;
 					}
 				}
+
+				&.is-warning p {
+					border-left: 4px solid #f0b849;
+					background-color: #fef8ee;
+				}
 			}
 		}
 	}

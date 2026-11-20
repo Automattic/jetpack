@@ -16,7 +16,6 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
-		"autotagger": true,
 		"npmjs-autopublish": true,
 		"mirror-repo": "Automattic/jetpack-base-styles",
 		"changelogger": {

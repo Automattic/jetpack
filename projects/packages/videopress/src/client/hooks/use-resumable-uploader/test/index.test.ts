@@ -95,6 +95,15 @@ describe( 'useResumableUploader', () => {
 		expect( mockUploader ).not.toHaveBeenCalled();
 	} );
 
+	it( 'forwards token request rejection instead of leaving it as an unhandled upload promise', async () => {
+		const error = new Error( 'token unavailable' );
+		mockToken.mockRejectedValueOnce( error );
+		const { result } = renderHook( () => useResumableUploader( handlers ) );
+		await act( async () => result.current.uploadHandler( file ) );
+		expect( handlers.onError ).toHaveBeenCalledWith( error );
+		expect( mockUploader ).not.toHaveBeenCalled();
+	} );
+
 	it( 'uploads the selected file and ignores a cancelled file picker', async () => {
 		const { result } = renderHook( () => useResumableUploader( handlers ) );
 		const input = document.createElement( 'input' );

@@ -221,6 +221,28 @@ describe( 'trackPrivacyBannerAccept', () => {
 		).toBe( `total,${ window.location.hostname }` );
 	} );
 
+	it.each( [
+		[ 'banner view', () => trackPrivacyBannerView() ],
+		[ 'banner reject', () => trackPrivacyBannerReject() ],
+		[ 'banner customize', () => trackPrivacyBannerCustomize() ],
+		[ 'accept without analytics', () => trackPrivacyBannerAccept( { required: true }, false ) ],
+		[ 'pre-consent manage open', () => trackPrivacyManageOpen( false, false ) ],
+		[ 'CCPA opt-out', () => trackPrivacyPolicyOptOut() ],
+	] )( 'sends no cookieless stat on %s when the tracks feature flag is off', ( _label, track ) => {
+		window.jetpackCookieConsentConfig = {
+			apiUrl: 'https://example.com/wp-json/jetpack/v4/cookie-consent/consent-log',
+			features: {
+				tracks: false,
+			},
+		};
+
+		track();
+
+		expect( imageSources ).toHaveLength( 0 );
+		expect( window._tkq ).toBeUndefined();
+		expect( document.getElementById( TRACKS_SCRIPT_ID ) ).toBeNull();
+	} );
+
 	it( 'honors the tracks feature flag for cookie-based Tracks events', () => {
 		window.jetpackCookieConsentConfig = {
 			apiUrl: 'https://example.com/wp-json/jetpack/v4/cookie-consent/consent-log',

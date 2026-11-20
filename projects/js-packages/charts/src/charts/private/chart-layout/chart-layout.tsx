@@ -1,6 +1,6 @@
 import { Stack } from '@wordpress/ui';
-import { useEffect } from 'react';
-import { useElementSize } from '../../../hooks';
+import { useEffect, useState } from 'react';
+import { useElementSize, useIsomorphicLayoutEffect } from '../../../hooks';
 import { renderLegendSlot } from '../chart-composition';
 import styles from './chart-layout.module.scss';
 import type { GapSize, LegendPosition } from '../../../types';
@@ -64,6 +64,16 @@ export const ChartLayout = ( {
 	const isRenderProp = typeof children === 'function';
 	const isMeasured = contentHeight > 0;
 
+	// Hold a render-prop chart one commit so it mounts at its measured height: visx keeps the
+	// scales an XYChart mounted with until an effect replaces them, so mounting at the fallback
+	// paints a frame over the legend. One attempt only, so an unmeasurable parent still renders.
+	const [ contentAttached, setContentAttached ] = useState( false );
+	useIsomorphicLayoutEffect( () => {
+		if ( isRenderProp ) {
+			setContentAttached( true );
+		}
+	}, [ isRenderProp ] );
+
 	// When using render-prop children, hide the layout until measurement is available
 	// to prevent layout shift. Plain ReactNode children don't need this since they
 	// don't depend on measured dimensions.
@@ -75,9 +85,14 @@ export const ChartLayout = ( {
 			onContentHeightChange( contentHeight );
 		}
 	}, [ isRenderProp, contentHeight, isMeasured, onContentHeightChange ] );
-	const renderedChildren = isRenderProp
-		? children( { contentWidth, contentHeight, isMeasured } )
-		: children;
+	let renderedChildren: ReactNode;
+	if ( typeof children === 'function' ) {
+		renderedChildren = contentAttached
+			? children( { contentWidth, contentHeight, isMeasured } )
+			: null;
+	} else {
+		renderedChildren = children;
+	}
 
 	return (
 		<Stack

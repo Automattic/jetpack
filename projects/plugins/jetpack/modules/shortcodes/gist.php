@@ -36,9 +36,21 @@ add_shortcode( 'gist', 'github_gist_shortcode' );
  * @param array  $attr    Embed attributes.
  * @param string $url     The original URL that was matched by the regex.
  * @param array  $rawattr The original unmodified attributes.
- * @return string The embed HTML.
+ * @return string The embed HTML, or a shortcode to render after content formatting.
  */
 function github_gist_embed_handler( $matches, $attr, $url, $rawattr ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	$shortcode_priority = has_filter( 'the_content', 'do_shortcode' );
+	if (
+		doing_filter( 'the_content' )
+		&& shortcode_exists( 'gist' )
+		&& false !== $shortcode_priority
+		// current_priority() reports the outermost the_content pass, including recursive calls.
+		&& $shortcode_priority > $GLOBALS['wp_filter']['the_content']->current_priority()
+	) {
+		// Render after wpautop to preserve the gist markup. Self-closing, so a later [gist]ID[/gist] isn't read as this one's content.
+		return sprintf( '[gist %s /]', esc_url_raw( $url ) );
+	}
+
 	// Let the shortcode callback do all the work.
 	return github_gist_shortcode( $matches, $url );
 }

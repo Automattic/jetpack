@@ -1,7 +1,8 @@
-@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+@use "@wordpress/base-styles/colors";
+@use "@wordpress/base-styles/variables";
 
 .jetpack-blogging-prompt {
-	border: 1px solid gb.$gray-300;
+	border: 1px solid colors.$gray-300;
 	border-radius: 2px;
 	box-sizing: border-box;
 	padding: 24px;
@@ -11,7 +12,7 @@
 		background-position: -5px center;
 		background-size: 24px 24px;
 		font-size: 14px;
-		margin-bottom: gb.$grid-unit-20;
+		margin-bottom: variables.$grid-unit-20;
 		padding-inline-start: 22px;
 
 		&.is-bloganuary-icon {
@@ -23,7 +24,7 @@
 
 	&__text {
 		font-size: 24px;
-		margin-bottom: gb.$grid-unit-20;
+		margin-bottom: variables.$grid-unit-20;
 	}
 
 	&__answers-link {
@@ -37,7 +38,7 @@
 	}
 
 	&__answers-gravatar {
-		border: 2px solid gb.$white;
+		border: 2px solid colors.$white;
 		border-radius: 50%;
 		height: 24px;
 		vertical-align: middle;
@@ -58,8 +59,8 @@
 
 	&.is-style-quote {
 		border: none;
-		border-inline-start: 4px solid gb.$gray-800;
-		margin-bottom: gb.$grid-unit-20;
+		border-inline-start: 4px solid colors.$gray-800;
+		margin-bottom: variables.$grid-unit-20;
 		padding: 0 24px;
 	}
 

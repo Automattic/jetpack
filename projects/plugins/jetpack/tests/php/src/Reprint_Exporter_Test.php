@@ -12,8 +12,13 @@ use Automattic\Jetpack\Reprint_Export\REST_Controller;
 use Automattic\Jetpack\Status\Cache as Status_Cache;
 use Automattic\RedefineExit\ExitException;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
+use WordPress\Reprint\Server\HTTPServer;
+use WordPress\Reprint\Server\PublicKeyClient;
+use WordPress\Reprint\Server\RequestAuthenticator;
+use WordPress\Reprint\Server\Utils;
 
 require_once __DIR__ . '/class-reprint-exporter-test-stub.php';
 
@@ -43,6 +48,23 @@ class Reprint_Exporter_Test extends WP_UnitTestCase {
 	private $recorded_events = array();
 
 	/**
+	 * REQUEST_URI before the test; WordPress core reads it, so it is restored rather than unset.
+	 *
+	 * @var string|null
+	 */
+	private $original_request_uri;
+
+	/**
+	 * Test set up.
+	 */
+	public function set_up() {
+		parent::set_up();
+		$this->original_request_uri = $_SERVER['REQUEST_URI'] ?? null; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- Restored verbatim in tear_down().
+		// The test PHP has OpenSSL; tests that exercise keys force true themselves.
+		Utils::override_key_auth_required_for_tests( false );
+	}
+
+	/**
 	 * Test tear down.
 	 */
 	public function tear_down() {
@@ -55,7 +77,15 @@ class Reprint_Exporter_Test extends WP_UnitTestCase {
 		remove_all_filters( 'jetpack_reprint_export_available' );
 		delete_option( Reprint_Exporter::SECRET_OPTION );
 		delete_option( Reprint_Exporter::ENABLED_OPTION );
+		delete_option( Reprint_Exporter::PUBLIC_KEY_OPTION );
 		unset( $_GET['reprint-api-jetpack'], $_GET['endpoint'], $_SERVER['REQUEST_METHOD'] );
+		unset( $_SERVER['HTTP_X_AUTH_KEY_ID'], $_SERVER['HTTP_X_AUTH_SIGNATURE'], $_SERVER['HTTP_X_AUTH_NONCE'], $_SERVER['HTTP_X_AUTH_TIMESTAMP'] );
+		if ( null === $this->original_request_uri ) {
+			unset( $_SERVER['REQUEST_URI'] );
+		} else {
+			$_SERVER['REQUEST_URI'] = $this->original_request_uri;
+		}
+		Utils::override_key_auth_required_for_tests( null );
 		parent::tear_down();
 	}
 
@@ -335,7 +365,7 @@ class Reprint_Exporter_Test extends WP_UnitTestCase {
 
 		update_option( Reprint_Exporter::ENABLED_OPTION, time() );
 
-		$this->assertFalse( Reprint_Exporter::is_export_window_open() );
+		$this->assertFalse( get_option( Reprint_Exporter::ENABLED_OPTION ) );
 	}
 
 	/**
@@ -417,6 +447,74 @@ class Reprint_Exporter_Test extends WP_UnitTestCase {
 		update_option( Reprint_Exporter::SECRET_OPTION, 'attacker-chosen' );
 
 		$this->assertSame( 'a-secret', get_option( Reprint_Exporter::SECRET_OPTION ) );
+	}
+
+	/**
+	 * A foreign write to the public key is refused, as for the secret.
+	 */
+	public function test_foreign_update_of_the_public_key_is_refused() {
+		Reprint_Exporter::store_public_key( 'MIIBkey' );
+		Reprint_Exporter::protect_options();
+
+		update_option( Reprint_Exporter::PUBLIC_KEY_OPTION, 'attacker-chosen' );
+
+		$this->assertSame( 'MIIBkey', get_option( Reprint_Exporter::PUBLIC_KEY_OPTION ) );
+	}
+
+	/**
+	 * A direct add_option() of the public key stops the request.
+	 */
+	public function test_foreign_add_option_of_the_public_key_aborts() {
+		Reprint_Exporter::protect_options();
+
+		$this->expectException( WPDieException::class );
+		add_option( Reprint_Exporter::PUBLIC_KEY_OPTION, 'attacker-chosen' );
+	}
+
+	/**
+	 * Discarding clears the public key.
+	 */
+	public function test_discard_credentials_clears_the_public_key() {
+		Reprint_Exporter::store_public_key( 'MIIBkey' );
+
+		Reprint_Exporter::discard_credentials();
+
+		$this->assertFalse( get_option( Reprint_Exporter::PUBLIC_KEY_OPTION ) );
+	}
+
+	/**
+	 * Only a credential of the scheme the host accepts counts as configured.
+	 *
+	 * @dataProvider provide_credential_states
+	 *
+	 * @param bool   $key_auth   Whether the host requires key auth.
+	 * @param string $credential 'secret' or 'key'.
+	 * @param bool   $counts     Expected has_credential.
+	 */
+	#[DataProvider( 'provide_credential_states' )]
+	public function test_get_state_counts_only_the_accepted_scheme( $key_auth, $credential, $counts ) {
+		Utils::override_key_auth_required_for_tests( $key_auth );
+		if ( 'secret' === $credential ) {
+			Reprint_Exporter::store_secret( 'a-secret' );
+		} else {
+			Reprint_Exporter::store_public_key( 'MIIBkey' );
+		}
+
+		$this->assertSame( $counts, Reprint_Exporter::get_state()['has_credential'] );
+	}
+
+	/**
+	 * Host mode, stored credential, whether it counts.
+	 *
+	 * @return array<string, array{bool, string, bool}>
+	 */
+	public static function provide_credential_states() {
+		return array(
+			'key host, key'      => array( true, 'key', true ),
+			'key host, secret'   => array( true, 'secret', false ),
+			'token host, secret' => array( false, 'secret', true ),
+			'token host, key'    => array( false, 'key', false ),
+		);
 	}
 
 	/**
@@ -543,14 +641,18 @@ class Reprint_Exporter_Test extends WP_UnitTestCase {
 	public function test_refusal_reports_an_event() {
 		$this->capture_events();
 
-		$stub             = $this->make_ready_stub();
-		$stub->hmac_error = 'Invalid signature.';
+		$stub                  = $this->make_ready_stub();
+		$stub->signature_error = array(
+			'message' => 'Invalid signature.',
+			'reason'  => 'signature_mismatch',
+		);
 		Reprint_Exporter::store_secret( 'a-secret' );
 		$this->run_handler( $stub, $this->make_wp( '' ) );
 
 		$refusals = array_values( array_filter( $this->recorded_events, fn( $e ) => 'export_refused' === $e[0] ) );
 		$this->assertCount( 1, $refusals );
 		$this->assertSame( 403, $refusals[0][1]['code'] );
+		$this->assertSame( 'signature_mismatch', $refusals[0][1]['reason'] );
 	}
 
 	/**
@@ -578,8 +680,8 @@ class Reprint_Exporter_Test extends WP_UnitTestCase {
 		$user_id = $this->factory()->user->create( array( 'role' => 'administrator' ) );
 		wp_set_current_user( $user_id );
 
-		( new REST_Controller() )->enable_export();
 		( new REST_Controller() )->rotate_secret();
+		( new REST_Controller() )->enable_export();
 
 		$names = array_column( $this->recorded_events, 0 );
 		$this->assertContains( 'window_opened', $names );
@@ -607,17 +709,25 @@ class Reprint_Exporter_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * No event ever carries the secret.
+	 * No event, served or refused, ever carries the secret.
 	 */
 	public function test_events_never_carry_the_secret() {
 		$this->capture_events();
+		wp_set_current_user( $this->factory()->user->create( array( 'role' => 'administrator' ) ) );
+		$secret = ( new REST_Controller() )->rotate_secret()->get_data()['secret'];
+		( new REST_Controller() )->enable_export();
 
-		$user_id = $this->factory()->user->create( array( 'role' => 'administrator' ) );
-		wp_set_current_user( $user_id );
-		$response = ( new REST_Controller() )->rotate_secret();
-		$secret   = $response->get_data()['secret'];
+		$served = $this->make_ready_stub();
+		$this->run_handler( $served, $this->make_wp( '' ) );
+		$refused                  = $this->make_ready_stub();
+		$refused->signature_error = array(
+			'message' => 'Invalid signature.',
+			'reason'  => 'signature_mismatch',
+		);
+		$this->run_handler( $refused, $this->make_wp( '' ) );
 
-		$this->assertNotEmpty( $this->recorded_events );
+		$this->assertTrue( $served->served, 'Fixture must serve once.' );
+		$this->assertSame( 403, $refused->error_code, 'Fixture must refuse once.' );
 		$this->assertStringNotContainsString( $secret, wp_json_encode( $this->recorded_events, JSON_UNESCAPED_SLASHES ) );
 	}
 
@@ -632,13 +742,22 @@ class Reprint_Exporter_Test extends WP_UnitTestCase {
 
 		$routes = $wp_rest_server->get_routes();
 		$this->assertArrayHasKey( '/jetpack/v4/reprint/rotate-export-secret', $routes );
+		$this->assertArrayHasKey( '/jetpack/v4/reprint/install-public-key', $routes );
 		$this->assertArrayHasKey( '/jetpack/v4/reprint/enable-export', $routes );
 
 		remove_action( 'rest_api_init', array( Reprint_Exporter::class, 'register_rest_routes' ) );
 		$wp_rest_server = null;
 	}
 
-	// -- Secret rotation ------------------------------------------------------
+	// -- Provisioning ------------------------------------------------------
+
+	/**
+	 * Re-saving an unchanged secret still reports success.
+	 */
+	public function test_store_secret_reports_success_for_an_unchanged_secret() {
+		Reprint_Exporter::store_secret( 'a-secret' );
+		$this->assertTrue( Reprint_Exporter::store_secret( 'a-secret' ) );
+	}
 
 	/**
 	 * An unsigned request fails the permission check.
@@ -783,21 +902,319 @@ class Reprint_Exporter_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Enabling the export opens the window without minting a secret.
+	 * Rotate, open, export: the normal path end to end.
 	 */
-	public function test_enable_export_opens_window_without_secret() {
-		$before   = time();
-		$response = ( new REST_Controller() )->enable_export();
-		$data     = $response->get_data();
+	public function test_rotate_open_and_export_round_trip() {
+		Constants::set_constant( 'IS_PRESSABLE', true );
+		$secret = ( new REST_Controller() )->rotate_secret()->get_data()['secret'];
+		( new REST_Controller() )->enable_export();
+		$_GET['reprint-api-jetpack'] = '1';
+		$_SERVER['REQUEST_METHOD']   = 'GET';
+
+		$stub = new Reprint_Exporter_Test_Stub();
+		$this->run_handler( $stub, $this->make_wp( '' ) );
+
+		$this->assertTrue( $stub->served );
+		$this->assertNull( $stub->error_code );
+		$this->assertSame( $secret, $stub->verified_secret );
+	}
+
+	/**
+	 * Builds an install-public-key request.
+	 *
+	 * @param mixed $public_key The public_key param.
+	 * @return WP_REST_Request
+	 */
+	private function install_request( $public_key ) {
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/reprint/install-public-key' );
+		$request->set_param( 'public_key', $public_key );
+		return $request;
+	}
+
+	/**
+	 * Installing returns the key id the client derives, stores the canonical form, and replaces an earlier key.
+	 */
+	public function test_install_public_key_stores_and_replaces() {
+		Utils::override_key_auth_required_for_tests( true );
+		list( $private_key, $public_key ) = self::keypair();
+		Reprint_Exporter::store_public_key( 'MIIBearlier' );
+		$pem = "-----BEGIN PUBLIC KEY-----\r\n" . chunk_split( $public_key, 64, "\r\n" ) . "-----END PUBLIC KEY-----\r\n  ";
+
+		$response = ( new REST_Controller() )->install_public_key( $this->install_request( $pem ) );
 
 		$this->assertSame( 200, $response->get_status() );
-		$this->assertArrayHasKey( 'enabled_at', $data );
-		$this->assertGreaterThanOrEqual( $before, (int) $data['enabled_at'] );
-		$this->assertSame( (int) $data['enabled_at'], (int) get_option( Reprint_Exporter::ENABLED_OPTION ) );
-		$this->assertTrue( Reprint_Exporter::is_export_window_open() );
+		$this->assertSame( ( new PublicKeyClient( $private_key ) )->get_key_id(), $response->get_data()['key_id'] );
+		$this->assertSame( home_url( '/?reprint-api-jetpack' ), $response->get_data()['export_url'] );
+		$this->assertSame( $public_key, get_option( Reprint_Exporter::PUBLIC_KEY_OPTION ) );
+		$this->assertTrue( Reprint_Exporter::get_state()['has_credential'] );
+	}
 
-		// No secret is minted by the enable route.
+	/**
+	 * Re-installing the stored key succeeds, though update_option() reports no change.
+	 */
+	public function test_install_public_key_retry_with_the_same_key_succeeds() {
+		Utils::override_key_auth_required_for_tests( true );
+		$public_key = self::keypair()[1];
+		$first      = ( new REST_Controller() )->install_public_key( $this->install_request( $public_key ) );
+
+		$retry = ( new REST_Controller() )->install_public_key( $this->install_request( $public_key ) );
+
+		$this->assertSame( 200, $retry->get_status() );
+		$this->assertSame( $first->get_data()['key_id'], $retry->get_data()['key_id'] );
+	}
+
+	/**
+	 * Provisioning one scheme deletes the other, so it cannot revive if OpenSSL availability changes.
+	 *
+	 * @dataProvider provide_provisioning_routes
+	 *
+	 * @param bool   $key_auth Whether the host requires key auth.
+	 * @param string $route    'install' or 'rotate'.
+	 * @param string $cleared  The option the route must delete.
+	 */
+	#[DataProvider( 'provide_provisioning_routes' )]
+	public function test_provisioning_clears_the_other_scheme( $key_auth, $route, $cleared ) {
+		Reprint_Exporter::store_secret( 'a-secret' );
+		Reprint_Exporter::store_public_key( 'MIIBkey' );
+		Utils::override_key_auth_required_for_tests( $key_auth );
+
+		$response = 'install' === $route
+			? ( new REST_Controller() )->install_public_key( $this->install_request( self::keypair()[1] ) )
+			: ( new REST_Controller() )->rotate_secret();
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertFalse( get_option( $cleared ) );
+	}
+
+	/**
+	 * Host mode, route, the option it must clear.
+	 *
+	 * @return array<string, array{bool, string, string}>
+	 */
+	public static function provide_provisioning_routes() {
+		return array(
+			'install clears the secret' => array( true, 'install', Reprint_Exporter::SECRET_OPTION ),
+			'rotate clears the key'     => array( false, 'rotate', Reprint_Exporter::PUBLIC_KEY_OPTION ),
+		);
+	}
+
+	/**
+	 * Installing reports the key id and never the key itself.
+	 */
+	public function test_install_public_key_reports_an_event_without_the_key() {
+		Utils::override_key_auth_required_for_tests( true );
+		$this->capture_events();
+		$public_key = self::keypair()[1];
+
+		( new REST_Controller() )->install_public_key( $this->install_request( $public_key ) );
+
+		$this->assertSame( array( 'public_key_installed' ), array_column( $this->recorded_events, 0 ) );
+		$this->assertArrayHasKey( 'key_id', $this->recorded_events[0][1] );
+		$this->assertStringNotContainsString( $public_key, wp_json_encode( $this->recorded_events, JSON_UNESCAPED_SLASHES ) );
+	}
+
+	/**
+	 * Keys that are not RSA public keys of at least 3072 bits are refused.
+	 *
+	 * @dataProvider provide_invalid_public_keys
+	 *
+	 * @param string $kind Which bad key to build.
+	 */
+	#[DataProvider( 'provide_invalid_public_keys' )]
+	public function test_install_public_key_rejects_invalid_keys( $kind ) {
+		Utils::override_key_auth_required_for_tests( true );
+		switch ( $kind ) {
+			case 'private':
+				$value = self::keypair()[0];
+				break;
+			case 'pkcs1':
+				$value = "-----BEGIN RSA PUBLIC KEY-----\nMIIBCgKCAQEA\n-----END RSA PUBLIC KEY-----";
+				break;
+			case 'rsa-2048':
+				$value = openssl_pkey_get_details(
+					openssl_pkey_new(
+						array(
+							'private_key_bits' => 2048,
+							'private_key_type' => OPENSSL_KEYTYPE_RSA,
+						)
+					)
+				)['key'];
+				break;
+			case 'ec':
+				$value = openssl_pkey_get_details(
+					openssl_pkey_new(
+						array(
+							'curve_name'       => 'prime256v1',
+							'private_key_type' => OPENSSL_KEYTYPE_EC,
+						)
+					)
+				)['key'];
+				break;
+			default:
+				$value = 'not a key';
+		}
+
+		$response = ( new REST_Controller() )->install_public_key( $this->install_request( $value ) );
+
+		$this->assertWPError( $response );
+		$this->assertSame( 'jetpack_reprint_invalid_public_key', $response->get_error_code() );
+		$this->assertSame( 400, $response->get_error_data()['status'] );
+		$this->assertFalse( get_option( Reprint_Exporter::PUBLIC_KEY_OPTION ) );
+	}
+
+	/**
+	 * Bad key kinds.
+	 *
+	 * @return array<string, array{string}>
+	 */
+	public static function provide_invalid_public_keys() {
+		return array(
+			'private key'  => array( 'private' ),
+			'PKCS#1'       => array( 'pkcs1' ),
+			'2048-bit RSA' => array( 'rsa-2048' ),
+			'EC'           => array( 'ec' ),
+			'garbage'      => array( 'garbage' ),
+		);
+	}
+
+	/**
+	 * Each provisioning route refuses the scheme the host does not accept.
+	 *
+	 * @dataProvider provide_unsupported_schemes
+	 *
+	 * @param bool   $key_auth Whether the host requires key auth.
+	 * @param string $method   Controller method.
+	 * @param string $code     Expected error code.
+	 */
+	#[DataProvider( 'provide_unsupported_schemes' )]
+	public function test_provisioning_refuses_the_unaccepted_scheme( $key_auth, $method, $code ) {
+		Utils::override_key_auth_required_for_tests( $key_auth );
+
+		$response = ( new REST_Controller() )->$method( $this->install_request( self::keypair()[1] ) );
+
+		$this->assertWPError( $response );
+		$this->assertSame( $code, $response->get_error_code() );
+		$this->assertSame( 501, $response->get_error_data()['status'] );
 		$this->assertFalse( get_option( Reprint_Exporter::SECRET_OPTION ) );
+		$this->assertFalse( get_option( Reprint_Exporter::PUBLIC_KEY_OPTION ) );
+	}
+
+	/**
+	 * Host mode, route method, error code.
+	 *
+	 * @return array<string, array{bool, string, string}>
+	 */
+	public static function provide_unsupported_schemes() {
+		return array(
+			'secret on a key host' => array( true, 'rotate_secret', 'jetpack_reprint_secret_auth_unsupported' ),
+			'key on a token host'  => array( false, 'install_public_key', 'jetpack_reprint_key_auth_unsupported' ),
+		);
+	}
+
+	/**
+	 * The enable-export route opens a window only for a credential the host accepts.
+	 *
+	 * @dataProvider provide_enable_export_cases
+	 *
+	 * @param bool   $key_auth   Whether the host requires key auth.
+	 * @param string $credential 'secret' or 'key'.
+	 * @param int    $status     Expected status.
+	 */
+	#[DataProvider( 'provide_enable_export_cases' )]
+	public function test_enable_export_requires_an_accepted_credential( $key_auth, $credential, $status ) {
+		Utils::override_key_auth_required_for_tests( $key_auth );
+		if ( 'secret' === $credential ) {
+			Reprint_Exporter::store_secret( 'a-secret' );
+		} else {
+			Reprint_Exporter::store_public_key( 'MIIBkey' );
+		}
+		$secret_before = get_option( Reprint_Exporter::SECRET_OPTION );
+		$key_before    = get_option( Reprint_Exporter::PUBLIC_KEY_OPTION );
+
+		$response = rest_ensure_response( ( new REST_Controller() )->enable_export() );
+
+		$this->assertSame( $status, is_wp_error( $response ) ? $response->get_error_data()['status'] : $response->get_status() );
+		$this->assertSame( 200 === $status, Reprint_Exporter::is_export_window_open() );
+		if ( 200 === $status ) {
+			$this->assertSame( (int) get_option( Reprint_Exporter::ENABLED_OPTION ), $response->get_data()['enabled_at'] );
+			$this->assertSame( $secret_before, get_option( Reprint_Exporter::SECRET_OPTION ) );
+			$this->assertSame( $key_before, get_option( Reprint_Exporter::PUBLIC_KEY_OPTION ) );
+		}
+	}
+
+	/**
+	 * Host mode, stored credential, expected status.
+	 *
+	 * @return array<string, array{bool, string, int}>
+	 */
+	public static function provide_enable_export_cases() {
+		return array(
+			'key host, key'      => array( true, 'key', 200 ),
+			'key host, secret'   => array( true, 'secret', 409 ),
+			'token host, secret' => array( false, 'secret', 200 ),
+			'token host, key'    => array( false, 'key', 409 ),
+		);
+	}
+
+	/**
+	 * Dispatches a request through a fresh REST server with the Reprint routes registered.
+	 *
+	 * @param WP_REST_Request $request The request.
+	 * @return WP_REST_Response
+	 */
+	private function dispatch_rest( WP_REST_Request $request ) {
+		global $wp_rest_server;
+		$wp_rest_server = new WP_REST_Server();
+		add_action( 'rest_api_init', array( Reprint_Exporter::class, 'register_rest_routes' ) );
+		do_action( 'rest_api_init' );
+
+		$response = $wp_rest_server->dispatch( $request );
+
+		remove_action( 'rest_api_init', array( Reprint_Exporter::class, 'register_rest_routes' ) );
+		$wp_rest_server = null;
+		return $response;
+	}
+
+	/**
+	 * The route refuses unauthenticated callers, so it cannot be registered with a weaker check.
+	 */
+	public function test_install_public_key_route_refuses_unauthenticated_requests() {
+		Utils::override_key_auth_required_for_tests( true );
+
+		$response = $this->dispatch_rest( $this->install_request( self::keypair()[1] ) );
+
+		$this->assertSame( 401, $response->get_status() );
+		$this->assertFalse( get_option( Reprint_Exporter::PUBLIC_KEY_OPTION ) );
+	}
+
+	/**
+	 * Malformed public_key params are refused by the schema before OpenSSL sees them.
+	 *
+	 * @dataProvider provide_malformed_public_key_params
+	 *
+	 * @param mixed $public_key The param.
+	 */
+	#[DataProvider( 'provide_malformed_public_key_params' )]
+	public function test_install_public_key_route_rejects_malformed_params( $public_key ) {
+		Utils::override_key_auth_required_for_tests( true );
+
+		$response = $this->dispatch_rest( $this->install_request( $public_key ) );
+
+		$this->assertSame( 400, $response->get_status() );
+		$this->assertSame( 'rest_invalid_param', $response->get_data()['code'] );
+	}
+
+	/**
+	 * Oversized and non-string params.
+	 *
+	 * @return array<string, array{mixed}>
+	 */
+	public static function provide_malformed_public_key_params() {
+		return array(
+			'over 4096 bytes' => array( str_repeat( 'A', 4097 ) ),
+			'array'           => array( array( 'MIIB' ) ),
+			'number'          => array( 12345 ),
+		);
 	}
 
 	// -- Export window helper -------------------------------------------------
@@ -809,7 +1226,7 @@ class Reprint_Exporter_Test extends WP_UnitTestCase {
 		// One fixed time for both the stored value and the check, so the
 		// boundaries below are exact.
 		$now  = time();
-		$skew = Reprint_Exporter::HMAC_CLOCK_SKEW;
+		$skew = Reprint_Exporter::CLOCK_SKEW;
 
 		$this->assertFalse( Reprint_Exporter::is_export_window_open( $now ) );
 
@@ -830,6 +1247,161 @@ class Reprint_Exporter_Test extends WP_UnitTestCase {
 	}
 
 	// -- Export request handler -----------------------------------------------
+
+	/**
+	 * Test key pair, generated once: 3072-bit RSA generation is slow.
+	 *
+	 * @var array{0:string,1:string}|null
+	 */
+	private static $keypair = null;
+
+	/**
+	 * The shared test key pair: private PEM, one-line public key.
+	 *
+	 * @return array{0:string,1:string}
+	 */
+	private static function keypair() {
+		if ( null === self::$keypair ) {
+			self::$keypair = PublicKeyClient::generate_keypair();
+		}
+		return self::$keypair;
+	}
+
+	/**
+	 * Signs the current export request with a Reprint client, as it would in production.
+	 *
+	 * @param PublicKeyClient|\Site_Export_HMAC_Client $client Signing client.
+	 */
+	private function sign_request( $client ) {
+		$_SERVER['REQUEST_URI'] = '/?reprint-api-jetpack&endpoint=preflight';
+		$headers                = $client->get_auth_headers( 'GET', home_url( $_SERVER['REQUEST_URI'] ) );
+		foreach ( $headers as $name => $value ) {
+			$_SERVER[ 'HTTP_' . strtoupper( str_replace( '-', '_', $name ) ) ] = $value;
+		}
+	}
+
+	/**
+	 * A request signed with the enrolled key is served, with a leftover secret ignored.
+	 */
+	public function test_key_signed_request_serves_export() {
+		Utils::override_key_auth_required_for_tests( true );
+		list( $private_key, $public_key ) = self::keypair();
+		Reprint_Exporter::store_secret( 'leftover-secret' );
+		Reprint_Exporter::store_public_key( $public_key );
+		$stub                    = $this->make_ready_stub();
+		$stub->real_verification = true;
+		$this->sign_request( new PublicKeyClient( $private_key ) );
+
+		$this->run_handler( $stub, $this->make_wp( '' ) );
+
+		$this->assertNull( $stub->error_code );
+		$this->assertTrue( $stub->served );
+	}
+
+	/**
+	 * A request signed with the stored secret by the real HMAC client is served on a token host.
+	 */
+	public function test_hmac_signed_request_serves_export() {
+		Reprint_Exporter::store_secret( 'a-secret' );
+		$stub                    = $this->make_ready_stub();
+		$stub->real_verification = true;
+		$this->sign_request( new \Site_Export_HMAC_Client( 'a-secret' ) );
+
+		$this->run_handler( $stub, $this->make_wp( '' ) );
+
+		$this->assertNull( $stub->error_code );
+		$this->assertTrue( $stub->served );
+	}
+
+	/**
+	 * A request signed with a key that is not enrolled is refused with its reason.
+	 */
+	public function test_request_signed_with_another_key_is_refused() {
+		Utils::override_key_auth_required_for_tests( true );
+		Reprint_Exporter::store_public_key( self::keypair()[1] );
+		$this->capture_events();
+		$stub                      = $this->make_ready_stub();
+		$stub->real_verification   = true;
+		list( $other_private_key ) = PublicKeyClient::generate_keypair();
+		$this->sign_request( new PublicKeyClient( $other_private_key ) );
+
+		$body = $this->run_handler( $stub, $this->make_wp( '' ) );
+
+		$this->assertSame( 403, $stub->error_code );
+		$this->assertSame( RequestAuthenticator::REASON_UNKNOWN_KEY, $stub->error_reason );
+		$this->assertStringContainsString( '"reason":"unknown_key"', $body );
+		$this->assertStringContainsString( '"auth_version":' . Utils::AUTH_VERSION, $body );
+		$this->assertFalse( $stub->served );
+
+		// Event consumers must not receive the attacker-controlled key id.
+		$refused = array_values( array_filter( $this->recorded_events, fn( $e ) => 'export_refused' === $e[0] ) );
+		$this->assertCount( 1, $refused );
+		$this->assertSame( RequestAuthenticator::REASON_UNKNOWN_KEY, $refused[0][1]['reason_code'] );
+		$this->assertStringNotContainsString( $_SERVER['HTTP_X_AUTH_KEY_ID'], wp_json_encode( $refused[0][1], JSON_UNESCAPED_SLASHES ) );
+	}
+
+	/**
+	 * Authentication reasons map to status codes the Reprint client reads.
+	 *
+	 * @dataProvider provide_auth_failure_statuses
+	 *
+	 * @param string $reason Reprint reason code.
+	 * @param int    $status Expected HTTP status.
+	 */
+	#[DataProvider( 'provide_auth_failure_statuses' )]
+	public function test_auth_failure_reason_sets_the_status( $reason, $status ) {
+		$stub                  = $this->make_ready_stub();
+		$stub->signature_error = array(
+			'message' => 'Refused.',
+			'reason'  => $reason,
+		);
+		Reprint_Exporter::store_secret( 'a-secret' );
+
+		$this->run_handler( $stub, $this->make_wp( '' ) );
+
+		$this->assertSame( $status, $stub->error_code );
+		$this->assertSame( $reason, $stub->error_reason );
+	}
+
+	/**
+	 * Reason, status.
+	 *
+	 * @return array<string, array{string, int}>
+	 */
+	public static function provide_auth_failure_statuses() {
+		return array(
+			'not configured'   => array( RequestAuthenticator::REASON_NOT_CONFIGURED, 503 ),
+			'no keys enrolled' => array( RequestAuthenticator::REASON_NO_KEYS_ENROLLED, 503 ),
+			'bad signature'    => array( 'signature_mismatch', 403 ),
+		);
+	}
+
+	/**
+	 * Push endpoints write to the site, so the exporter must never register them.
+	 *
+	 * @dataProvider provide_push_endpoints
+	 *
+	 * @param string $endpoint A push endpoint name.
+	 */
+	#[DataProvider( 'provide_push_endpoints' )]
+	public function test_push_endpoints_are_not_served( $endpoint ) {
+		$this->expectException( InvalidArgumentException::class );
+		$this->expectExceptionMessage( "Invalid endpoint: '{$endpoint}'" );
+
+		( new HTTPServer( Reprint_Exporter::http_server_options() ) )->dispatch( array( 'endpoint' => $endpoint ) );
+	}
+
+	/**
+	 * Push endpoint names from both push families.
+	 *
+	 * @return array<string, array{string}>
+	 */
+	public static function provide_push_endpoints() {
+		return array(
+			'file push'     => array( 'push_create' ),
+			'database push' => array( 'push_db_create' ),
+		);
+	}
 
 	/**
 	 * Builds a stub with the feature available and the window open.
@@ -909,9 +1481,12 @@ class Reprint_Exporter_Test extends WP_UnitTestCase {
 		$_GET['reprint-api-jetpack'] = '1';
 		$_SERVER['REQUEST_METHOD']   = 'GET';
 
-		$stub             = new Reprint_Exporter_Test_Stub();
-		$stub->hmac_error = 'Invalid signature.';
-		$body             = $this->run_handler( $stub, $this->make_wp( '' ) );
+		$stub                  = new Reprint_Exporter_Test_Stub();
+		$stub->signature_error = array(
+			'message' => 'Invalid signature.',
+			'reason'  => 'signature_mismatch',
+		);
+		$body                  = $this->run_handler( $stub, $this->make_wp( '' ) );
 
 		$this->assertNull( $stub->error_code );
 		$this->assertSame( '', $body );
@@ -990,9 +1565,12 @@ class Reprint_Exporter_Test extends WP_UnitTestCase {
 	/**
 	 * Invalid HMAC returns 403.
 	 */
-	public function test_invalid_hmac_returns_403() {
-		$stub             = $this->make_ready_stub();
-		$stub->hmac_error = 'Invalid signature.';
+	public function test_invalid_signature_returns_403() {
+		$stub                  = $this->make_ready_stub();
+		$stub->signature_error = array(
+			'message' => 'Invalid signature.',
+			'reason'  => 'signature_mismatch',
+		);
 		Reprint_Exporter::store_secret( 'a-secret' );
 		$body = $this->run_handler( $stub, $this->make_wp( '' ) );
 		$this->assertSame( 403, $stub->error_code );
@@ -1004,7 +1582,7 @@ class Reprint_Exporter_Test extends WP_UnitTestCase {
 	/**
 	 * Valid HMAC serves the export and refreshes the window.
 	 */
-	public function test_valid_hmac_serves_export() {
+	public function test_valid_signature_serves_export() {
 		$stub = $this->make_ready_stub();
 		Reprint_Exporter::store_secret( 'a-secret' );
 		$this->plant_option( Reprint_Exporter::ENABLED_OPTION, time() - 30 );
@@ -1022,6 +1600,7 @@ class Reprint_Exporter_Test extends WP_UnitTestCase {
 	 * Invalid export parameters return JSON instead of a WordPress fatal error.
 	 */
 	public function test_invalid_export_request_returns_400() {
+		$this->capture_events();
 		$stub              = $this->make_ready_stub();
 		$stub->serve_error = new \InvalidArgumentException( 'endpoint parameter is required.' );
 		Reprint_Exporter::store_secret( 'a-secret' );
@@ -1031,6 +1610,9 @@ class Reprint_Exporter_Test extends WP_UnitTestCase {
 		$this->assertSame( 400, $stub->error_code );
 		$this->assertStringContainsString( '"code":400', $body );
 		$this->assertStringContainsString( 'endpoint parameter is required.', $body );
+		$refused = array_values( array_filter( $this->recorded_events, fn( $e ) => 'export_refused' === $e[0] ) );
+		$this->assertSame( 'invalid_request', $refused[0][1]['reason'] );
+		$this->assertStringNotContainsString( 'endpoint parameter', wp_json_encode( $refused[0][1], JSON_UNESCAPED_SLASHES ) );
 		$this->assertTrue( $stub->served );
 		$this->assertTrue( $stub->terminated );
 	}

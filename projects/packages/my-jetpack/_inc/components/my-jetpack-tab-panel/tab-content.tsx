@@ -1,4 +1,6 @@
 import clsx from 'clsx';
+import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
+import { isHeaderControlsEnabled } from '../header-controls/slot';
 import { FeaturesContent } from './features/content';
 import { FullWidthSeparator } from './full-width-separator';
 import { HelpContent } from './help/content';
@@ -7,13 +9,14 @@ import { OverviewContent } from './overview/content';
 import { OverviewFooter } from './overview/footer';
 import styles from './styles.module.scss';
 import { MyJetpackSection } from './types';
-import type { ComponentType } from 'react';
+import type { ComponentType, ReactNode } from 'react';
 
 export type TabContentProps = {
 	name: MyJetpackSection;
+	beforeContent?: ReactNode;
 };
 
-const componentMap: Record< MyJetpackSection, ComponentType > = {
+const componentMap: Record< MyJetpackSection, ComponentType< { beforeContent?: ReactNode } > > = {
 	overview: OverviewContent,
 	features: FeaturesContent,
 	help: HelpContent,
@@ -31,13 +34,19 @@ const footerMap: Partial< Record< MyJetpackSection, ComponentType > > = {
 /**
  * The tab content component.
  *
- * @param {TabContentProps} props - The component props.
+ * @param {TabContentProps} props               - The component props.
+ * @param {string}          props.name          - The section to render.
+ * @param {ReactNode}       props.beforeContent - Notices shown above the section, inside its padded area so they line up with it.
  *
  * @return The rendered component or null if the tab name is not recognized.
  */
-export function TabContent( { name }: TabContentProps ) {
+export function TabContent( { name, beforeContent }: TabContentProps ) {
 	const ContentComponent = componentMap[ name ];
-	const FooterComponent = footerMap[ name ];
+	// The header's connection control shows the plan and the connection, so the Overview's band would repeat them.
+	const dropsOverviewFooter = name === 'overview' && isHeaderControlsEnabled();
+	const FooterComponent = dropsOverviewFooter ? undefined : footerMap[ name ];
+	const { overviewV1 = false } = getMyJetpackWindowInitialState( 'myJetpackFlags' );
+	const noticesBelowWelcome = name === 'overview' && overviewV1;
 
 	if ( ! ContentComponent ) {
 		return null;
@@ -47,7 +56,8 @@ export function TabContent( { name }: TabContentProps ) {
 		<>
 			<div className={ styles[ 'my-jetpack-tab-panel-inner' ] }>
 				<div className={ clsx( styles[ 'tab-content-wrapper' ] ) }>
-					<ContentComponent />
+					{ ! noticesBelowWelcome && beforeContent }
+					<ContentComponent beforeContent={ noticesBelowWelcome ? beforeContent : undefined } />
 				</div>
 			</div>
 			{ FooterComponent && (

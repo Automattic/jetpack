@@ -1928,7 +1928,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 * @return void
 	 */
 	public static function add_submit_button_interactivity_attributes( $processor ) {
-		if ( ! $processor || ! is_a( $processor, \WP_HTML_Tag_Processor::class ) ) {
+		if ( ! $processor || ! $processor instanceof \WP_HTML_Tag_Processor ) {
 			return;
 		}
 		$processor->set_attribute( 'data-wp-class--is-submitting', 'state.isSubmitting' );

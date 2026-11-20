@@ -4,12 +4,16 @@
 import {
 	buildMetricTab,
 	ChartEmptyState,
+	type ChartDisplayChartType,
+	describeError,
 	MetricTabsChart,
 	MetricTabsChartSkeleton,
+	useOpenChartBucket,
 	useWidgetRootContext,
 	WidgetRoot,
 	WidgetState,
 	type ReportParamsFieldAttributes,
+	type ReportResult,
 } from '@automattic/jetpack-premium-analytics-sdk';
 import { __ } from '@wordpress/i18n';
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -37,10 +41,12 @@ type MetricReportState = {
 	primary: unknown;
 	comparison: unknown;
 	hasComparison: boolean;
+	periodStarts?: ReportResult< unknown >[ 'periodStarts' ];
 	timezone: string;
 	isLoading: boolean;
 	isFetching: boolean;
 	isError: boolean;
+	error: unknown;
 	hasData: boolean;
 	refetch: () => Promise< unknown >;
 };
@@ -62,7 +68,17 @@ type MetricReportProps = {
 function MetricReport( { metric, params, onChange }: MetricReportProps ) {
 	const { useReport } = metric;
 	const report = useReport( params );
-	const { hasComparison, timezone, isLoading, isFetching, isError, hasData, refetch } = report;
+	const {
+		hasComparison,
+		periodStarts,
+		timezone,
+		isLoading,
+		isFetching,
+		isError,
+		error,
+		hasData,
+		refetch,
+	} = report;
 	const primary = report.primary.data;
 	const comparison = report.comparison.data;
 
@@ -71,10 +87,12 @@ function MetricReport( { metric, params, onChange }: MetricReportProps ) {
 			primary,
 			comparison,
 			hasComparison,
+			periodStarts,
 			timezone,
 			isLoading,
 			isFetching,
 			isError,
+			error,
 			hasData,
 			refetch,
 		} ),
@@ -82,10 +100,12 @@ function MetricReport( { metric, params, onChange }: MetricReportProps ) {
 			primary,
 			comparison,
 			hasComparison,
+			periodStarts,
 			timezone,
 			isLoading,
 			isFetching,
 			isError,
+			error,
 			hasData,
 			refetch,
 		]
@@ -103,18 +123,21 @@ function MetricReport( { metric, params, onChange }: MetricReportProps ) {
 type StorePerformanceProps = {
 	/** The metrics switched off, by id. */
 	hiddenMetricIds?: string[];
+	/** How the selected metric is drawn. */
+	chartType?: ChartDisplayChartType;
 };
 
 /**
- * The selected store metrics as tabs over a comparison line chart, read under the widget root
- * for its report params. Only the reports of the shown metrics are requested.
+ * The selected store metrics as tabs over a comparison chart, read under the widget root for its
+ * report params. Only the reports of the shown metrics are requested.
  *
  * @param {StorePerformanceProps} props - The component props.
  * @return {JSX.Element} The chart, or the loading or error state of its reports.
  */
-function StorePerformance( { hiddenMetricIds }: StorePerformanceProps ) {
+function StorePerformance( { hiddenMetricIds, chartType }: StorePerformanceProps ) {
 	const { reportParams } = useWidgetRootContext();
 	const offered = useStorePerformanceMetrics();
+	const openBucket = useOpenChartBucket( reportParams.interval );
 
 	// Resolved against the list on offer, so a metric registered later shows unless hidden.
 	const metrics = useMemo( () => {
@@ -165,6 +188,7 @@ function StorePerformance( { hiddenMetricIds }: StorePerformanceProps ) {
 							countLabel: metric.countLabel,
 							noDataLabel: metric.noDataLabel,
 							zone: report.timezone,
+							periodStarts: report.periodStarts,
 						} ),
 						key: metric.id,
 						description: metric.description,
@@ -175,12 +199,23 @@ function StorePerformance( { hiddenMetricIds }: StorePerformanceProps ) {
 	);
 
 	// A failed report shows its error beside the others' charts only once it has nothing to show.
-	const isError = reportList.some( report => report.isError && ! report.hasData );
+	const failedReports = reportList.filter( report => report.isError && ! report.hasData );
 	// Retry re-runs every report, not only the failed one.
 	const refetch = useCallback(
 		() => Promise.all( reportList.map( report => report.refetch() ) ),
 		[ reportList ]
 	);
+	const errorStates = failedReports.map( report =>
+		describeError( report.error, {
+			retryDescription: __(
+				"We couldn't load store performance data. Please try again in a moment.",
+				'jetpack-woocommerce-stats-pkg'
+			),
+			onRetry: refetch,
+		} )
+	);
+	// A failure that cannot recover, such as an outdated schema, must not hide Retry from one that can.
+	const errorState = errorStates.find( state => state.actions?.length ) ?? errorStates[ 0 ];
 
 	// Not a data state: every metric was switched off in the widget settings.
 	if ( metrics.length === 0 ) {
@@ -208,21 +243,16 @@ function StorePerformance( { hiddenMetricIds }: StorePerformanceProps ) {
 					reportList.length < metrics.length || reportList.some( report => report.isLoading )
 				}
 				isFetching={ reportList.some( report => report.isFetching ) }
-				isError={ isError }
-				error={ {
-					description: __(
-						"We couldn't load store performance data. Please try again in a moment.",
-						'jetpack-woocommerce-stats-pkg'
-					),
-					actions: [ { label: __( 'Retry', 'jetpack-woocommerce-stats-pkg' ), onClick: refetch } ],
-				} }
+				isError={ failedReports.length > 0 }
+				error={ errorState }
 				renderLoading={ <MetricTabsChartSkeleton /> }
 			>
 				<MetricTabsChart
 					metrics={ tabs }
+					chartType={ chartType }
 					dataFormat={ DEFAULT_DATA_FORMAT }
 					groupLabel={ __( 'Store metric', 'jetpack-woocommerce-stats-pkg' ) }
-					chartTitle={ __( 'Store performance', 'jetpack-woocommerce-stats-pkg' ) }
+					onDatumClick={ openBucket }
 					empty={ <ChartEmptyState /> }
 				/>
 			</WidgetState>
@@ -241,7 +271,10 @@ export default function StorePerformanceRender( {
 }: WidgetRenderProps< StorePerformanceRenderAttributes > ) {
 	return (
 		<WidgetRoot attributes={ attributes }>
-			<StorePerformance hiddenMetricIds={ attributes.hiddenMetrics } />
+			<StorePerformance
+				hiddenMetricIds={ attributes.hiddenMetrics }
+				chartType={ attributes.chartType }
+			/>
 		</WidgetRoot>
 	);
 }

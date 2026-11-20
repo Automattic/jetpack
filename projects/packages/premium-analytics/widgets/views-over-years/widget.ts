@@ -1,10 +1,7 @@
 /**
  * External dependencies
  */
-import {
-	monthlyHeatmapMetricAttributeField,
-	type MonthlyHeatmapMetric,
-} from '@jetpack-premium-analytics/widgets-toolkit';
+import type { MonthlyHeatmapMetric } from '@jetpack-premium-analytics/widgets-toolkit';
 
 export type ViewsOverYearsAttributes = {
 	/** Which number each cell reports; total views when unset. */
@@ -17,7 +14,6 @@ export type ViewsOverYearsAttributes = {
 };
 
 export default {
-	attributes: [ monthlyHeatmapMetricAttributeField< ViewsOverYearsAttributes >() ],
 	example: {
 		attributes: { metric: 'total' },
 	},

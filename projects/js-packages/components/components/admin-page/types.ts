@@ -52,6 +52,11 @@ export type AdminPageProps = {
 	breadcrumbs?: ReactNode;
 
 	/**
+	 * Accessible name of the page region. Defaults to `title`, so pass it when the header shows `breadcrumbs` instead.
+	 */
+	ariaLabel?: string;
+
+	/**
 	 * Tab navigation displayed below the title/tagline in the unified header.
 	 */
 	tabs?: ReactNode;

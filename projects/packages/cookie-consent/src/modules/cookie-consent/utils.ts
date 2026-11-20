@@ -8,6 +8,15 @@ import type { ConsentType, ConsentEventType, ConsentEventChoices, ConsentCategor
 
 export const UNKNOWN_COUNTRY_CODE = 'UNKNOWN';
 
+// Set when the visitor chose while sending GPC, so GPC does not override that choice on later loads.
+export const GPC_CHOICE_COOKIE = 'jetpack_cookie_consent_gpc';
+const GPC_CHOICE_COOKIE_DURATION = 365 * 24 * 60 * 60;
+const ACTIVE_CHOICE_EVENT_TYPES: ConsentEventType[] = [
+	'accept_all',
+	'accept_selected',
+	'reject_all',
+];
+
 export const DEFAULT_CONSENT_CATEGORIES: ConsentCategory[] = [
 	{
 		key: 'functional',
@@ -190,6 +199,8 @@ export function saveConsentChoices(
 		} );
 	} );
 
+	rememberGpcAtSave( eventType );
+
 	// Trigger a custom event to notify other parts of the code that the consent has been set
 	window.dispatchEvent(
 		new CustomEvent( 'wp_consent_saved', {
@@ -244,6 +255,51 @@ export function hasOptedOutViaGlobalPrivacyControl(): boolean {
 	return window.navigator?.globalPrivacyControl === true;
 }
 
+function rememberGpcAtSave( eventType: ConsentEventType ): void {
+	if ( ACTIVE_CHOICE_EVENT_TYPES.includes( eventType ) && hasOptedOutViaGlobalPrivacyControl() ) {
+		setCookie( GPC_CHOICE_COOKIE, '1', GPC_CHOICE_COOKIE_DURATION );
+	} else if ( getCookie( GPC_CHOICE_COOKIE ) !== null ) {
+		setCookie( GPC_CHOICE_COOKIE, '', -1 );
+	}
+}
+
+export function hasGpcConflictWithStoredConsent(): boolean {
+	if ( ! hasOptedOutViaGlobalPrivacyControl() || getCookie( GPC_CHOICE_COOKIE ) !== null ) {
+		return false;
+	}
+
+	return getConsentCategories().some(
+		category =>
+			! category.required &&
+			category.wpConsentMap.some(
+				wpCategory => getCookie( `wp_consent_${ wpCategory }` ) === 'allow'
+			)
+	);
+}
+
+export function regionHonorsGpc( countryCode: string, region: string, config: Config ): boolean {
+	if ( isGdprCountry( countryCode, config ) ) {
+		return config.gdprHonorsGpc !== false;
+	}
+
+	return pertainsToCCPA( countryCode, region, config );
+}
+
+// handleConsentByRegion covers GPC before a first choice; this opts out a stored one. It runs
+// once: afterwards no optional category is allowed, so no conflict is left.
+export function applyGpcToStoredConsent(
+	countryCode: string,
+	region: string,
+	config: Config
+): boolean {
+	if ( ! hasGpcConflictWithStoredConsent() || ! regionHonorsGpc( countryCode, region, config ) ) {
+		return false;
+	}
+
+	saveConsentChoices( getConsentChoices( false ), 'opt-out' );
+	return true;
+}
+
 export function handleConsentByRegion(
 	countryCode: string,
 	region: string,
@@ -251,6 +307,9 @@ export function handleConsentByRegion(
 	context: Context,
 	bannerEnabled: boolean = true
 ): void {
+	const gpcOptOut =
+		hasOptedOutViaGlobalPrivacyControl() && regionHonorsGpc( countryCode, region, config );
+
 	if ( isGdprCountry( countryCode, config ) ) {
 		// GDPR: Opt-in model - show banner for explicit consent
 		setConsentType( 'optin' );
@@ -260,7 +319,7 @@ export function handleConsentByRegion(
 		// can still grant consent later via the "Manage Privacy Preferences" footer link.
 		// Gated by a config flag so the legal decision is a value, not a code change;
 		// the conservative default (honor GPC) applies when the flag is omitted.
-		if ( config.gdprHonorsGpc !== false && hasOptedOutViaGlobalPrivacyControl() ) {
+		if ( gpcOptOut ) {
 			context.showBanner = false;
 			saveConsentChoices( getConsentChoices( false ), 'opt-out' );
 			return;
@@ -282,7 +341,7 @@ export function handleConsentByRegion(
 		context.showBanner = false;
 		setConsentType( 'optout' );
 
-		if ( hasOptedOutViaGlobalPrivacyControl() ) {
+		if ( gpcOptOut ) {
 			saveConsentChoices( getConsentChoices( false ), 'opt-out' );
 			return;
 		}

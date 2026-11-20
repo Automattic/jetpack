@@ -1,5 +1,6 @@
-import { Button, FormToggle } from '@wordpress/components';
+import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import { Switch } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useCallback } from 'react';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
@@ -13,8 +14,6 @@ export type ConnectionsToggleListProps = {
 	onClickItem: ( connection: Connection ) => void;
 	getItemClassName?: ( connection: Connection ) => string;
 };
-
-const noop = () => {};
 
 /**
  * The component to render a list of social media connections as a toggle list.
@@ -69,12 +68,13 @@ export function ConnectionsToggleList( {
 						className={ clsx( styles.item, getItemClassName?.( connection ) ) }
 					>
 						<div className={ styles[ 'connection-info' ] }>
-							<FormToggle
-								tabIndex={ -1 }
+							{ /* Visual only: the row's button is the control, so this stays out of the tab order and the accessibility tree. */ }
+							<Switch
+								className={ styles.switch }
 								checked={ isSelected }
-								onChange={ noop }
 								disabled={ isDisabled }
-								aria-label={ ariaLabel }
+								tabIndex={ -1 }
+								aria-hidden
 							/>
 							<div className={ styles[ 'display-name' ] } title={ connection.display_name }>
 								{ connection.display_name }

@@ -7,7 +7,8 @@ import './style.scss';
 
 const SharingButtonEdit = ( { attributes, context } ) => {
 	const { service, label } = attributes;
-	const { styleType, iconColorValue, iconBackgroundColorValue } = context;
+	// Inserter previews render the button without its parent, so there is no context.
+	const { styleType = 'icon-text', iconColorValue, iconBackgroundColorValue } = context;
 
 	const socialLinkName = getNameBySite( service );
 	const socialLinkLabel = label ?? socialLinkName;

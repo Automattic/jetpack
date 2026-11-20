@@ -20,8 +20,15 @@ import { __, sprintf } from '@wordpress/i18n';
  * Internal dependencies
  */
 import styles from './style.module.css';
-import type { MostPopularTimeAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
+
+/**
+ * Configurable attributes for the Most popular time widget. The widget has no
+ * user-configurable settings — the highlights come straight from the insights
+ * endpoint, which reports over a fixed server-side window and takes no date
+ * range or comparison period.
+ */
+export type MostPopularTimeAttributes = Record< never, never >;
 
 // Report params are dashboard-driven and injected via `attributes`; the insights
 // endpoint ignores them (the peak day and hour come from a fixed server-side

@@ -519,6 +519,44 @@ class WriteCommandTest extends CommandTestCase {
 				"# Changelog\n\n## 1.0.2 - $date\n### Added\n- Stuff. And more stuff.\n\n## 1.0.1 - 2021-02-23\n\nPrologue for v1.0.1\n\n### Added\n- Stuff.\n\n### Removed\n- Other stuff.\n\nEpilogue for v1.0.1\n\n## 1.0.0 - 2021-02-23\n\n- Initial release.\n",
 			),
 
+			'Deduplication merges and sorts PR numbers'    => array(
+				array( '--deduplicate' => '1' ),
+				array(
+					'changes' => array(
+						'added-stuff'  => "Significance: patch\nType: added\n\nStuff. [#5]\n",
+						'thing-a'      => "Significance: patch\nType: fixed\n\nFixed a neat thing. [#3]\n",
+						'thing-b'      => "Significance: patch\nType: fixed\n\nFixed a neat thing. [#2] [#1]\n",
+						'thing-c'      => "Significance: patch\nType: fixed\n\nFixed a neat thing. [#1]\n",
+						'other-thing'  => "Significance: patch\nType: fixed\n\nFixed another thing.\n",
+						'other-thing2' => "Significance: patch\nType: fixed\n\nFixed another thing. [#4]\n",
+						'third-thing'  => "Significance: patch\nType: fixed\n\nFixed a third thing. [#9] [#8] [#9]\n",
+						'no-pr-thing'  => "Significance: patch\nType: fixed\n\nFixed a thing, no PR.\n",
+						'no-pr-thing2' => "Significance: patch\nType: fixed\n\nFixed a thing, no PR.\n",
+					),
+				),
+				array(),
+				0,
+				array( '{^$}m' ),
+				true,
+				"# Changelog\n\n## 1.0.2 - $date\n### Added\n- Stuff. [#5]\n\n### Fixed\n- Fixed a neat thing. [#1] [#2] [#3]\n- Fixed another thing. [#4]\n- Fixed a thing, no PR.\n- Fixed a third thing. [#8] [#9]\n\n## 1.0.1 - 2021-02-23\n\nPrologue for v1.0.1\n\n### Added\n- Stuff.\n\n### Removed\n- Other stuff.\n\nEpilogue for v1.0.1\n\n## 1.0.0 - 2021-02-23\n\n- Initial release.\n",
+			),
+			'Deduplication same message but different PR numbers' => array(
+				array( '--deduplicate' => '1' ),
+				array(
+					'changelog' => "# Changelog\n\n## 1.0.1 - 2021-02-23\n\nPrologue for v1.0.1\n\n### Added\n- Stuff. [#2] [#3] [#4]\n\n### Removed\n- Other stuff.\n\nEpilogue for v1.0.1\n\n## 1.0.0 - 2021-02-23\n\n- Initial release.\n",
+					'changes'   => array(
+						'added-stuff'  => "Significance: patch\nType: added\n\nStuff.\n",
+						'added-stuff3' => "Significance: patch\nType: added\n\nStuff. [#3]\n",
+						'added-stuff5' => "Significance: patch\nType: added\n\nStuff. [#5]\n",
+						'added-stuff6' => "Significance: patch\nType: added\n\nStuff. [#3] [#6]\n",
+					),
+				),
+				array(),
+				0,
+				array( '{^$}m' ),
+				true,
+				"# Changelog\n\n## 1.0.2 - $date\n### Added\n- Stuff. [#5] [#6]\n\n## 1.0.1 - 2021-02-23\n\nPrologue for v1.0.1\n\n### Added\n- Stuff. [#2] [#3] [#4]\n\n### Removed\n- Other stuff.\n\nEpilogue for v1.0.1\n\n## 1.0.0 - 2021-02-23\n\n- Initial release.\n",
+			),
 			'Deduplication removes all changes'            => array(
 				array( '--deduplicate' => '1' ),
 				array(

@@ -2,14 +2,12 @@ import { isSimpleSite } from '@automattic/jetpack-script-data';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import apiFetch from '@wordpress/api-fetch';
 import { useCallback, useRef } from '@wordpress/element';
-import {
-	LIBRARY_ITEM_QUERY_SEGMENT,
-	LIBRARY_QUERY_KEY,
-	nextProcessingPoll,
-	toLibraryItem,
-} from './use-library';
-import type { ApiMediaItem, ProcessingPollAnchor } from './use-library';
+import { toLibraryItem } from '../utils/library-item';
+import { nextProcessingPoll } from '../utils/processing-poll';
+import { LIBRARY_ITEM_QUERY_SEGMENT, LIBRARY_QUERY_KEY } from './use-library';
 import type { LibraryItem } from '../types/library';
+import type { ApiMediaItem } from '../utils/library-item';
+import type { ProcessingPollAnchor } from '../utils/processing-poll';
 
 /**
  * Fetch and cache a single VideoPress media item from /wp/v2/media/{id}.

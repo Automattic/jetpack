@@ -1,4 +1,4 @@
-import { render } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 
 // jest.isolateModules() would otherwise hand the re-required module its own copy of
 // React, which breaks hooks. Pin every registry to one instance.
@@ -8,7 +8,11 @@ jest.mock( 'react', () => {
 } );
 
 let mockEnhancerAvailable = false;
+let mockEnhancerRequiresPlan = false;
+let mockSeoRequiresPlan = false;
+let mockIsWpcomPlatform = false;
 let mockCanAutoEnhance = true;
+const mockEnhancer = jest.fn( () => null );
 let mockIsModuleActive = true;
 let mockPublishSidebarOpen = false;
 const mockUpdateSeoData = jest.fn();
@@ -22,7 +26,7 @@ jest.mock( '../../ai-assistant-plugin/components/seo-enhancer/use-seo-requests',
 } ) );
 
 jest.mock( '../../ai-assistant-plugin/components/seo-enhancer', () => ( {
-	SeoEnhancer: () => null,
+	SeoEnhancer: props => mockEnhancer( props ),
 } ) );
 jest.mock( '../../ai-assistant-plugin/components/seo-enhancer/seo-summary', () => ( {
 	SeoSummary: () => null,
@@ -46,7 +50,8 @@ jest.mock( '@automattic/jetpack-shared-extension-utils', () => ( {
 	} ),
 	getJetpackExtensionAvailability: feature =>
 		feature === 'ai-seo-enhancer' ? { available: mockEnhancerAvailable } : { available: true },
-	getRequiredPlan: () => false,
+	getRequiredPlan: feature =>
+		feature === 'ai-seo-enhancer' ? mockEnhancerRequiresPlan : mockSeoRequiresPlan,
 } ) );
 jest.mock( '@automattic/jetpack-shared-extension-utils/components', () => ( {
 	JetpackEditorPanelLogo: () => null,
@@ -54,7 +59,9 @@ jest.mock( '@automattic/jetpack-shared-extension-utils/components', () => ( {
 jest.mock( '@automattic/jetpack-publicize/link-preview', () => ( {
 	LinkPreviewModalWithTrigger: () => null,
 } ) );
-jest.mock( '@automattic/jetpack-script-data', () => ( { isWpcomPlatformSite: () => false } ) );
+jest.mock( '@automattic/jetpack-script-data', () => ( {
+	isWpcomPlatformSite: () => mockIsWpcomPlatform,
+} ) );
 
 jest.mock( '@wordpress/editor', () => ( {
 	PluginDocumentSettingPanel: ( { children } ) => children,
@@ -93,13 +100,12 @@ jest.mock(
 		( { children } ) =>
 			children
 );
-jest.mock( '../title-panel', () => () => null );
+jest.mock( '../title-panel', () => () => <span>Manual title settings</span> );
 jest.mock( '../description-panel', () => () => null );
 jest.mock( '../noindex-panel', () => () => null );
 jest.mock( '../schema-panel', () => () => null );
 jest.mock( '../components/placeholder', () => ( { SeoPlaceholder: () => null } ) );
 jest.mock( '../components/skeleton-loader', () => ( { SeoSkeletonLoader: () => null } ) );
-jest.mock( '../components/upsell', () => () => null );
 jest.mock( '../show-seo-section', () => ( { showSeoSection: jest.fn() } ) );
 
 // The AI gates are module-scope constants, so the module is re-evaluated per case.
@@ -115,10 +121,27 @@ describe( 'Seo panel', () => {
 	beforeEach( () => {
 		mockUseSeoRequests.mockClear();
 		mockUpdateSeoData.mockClear();
+		mockEnhancer.mockClear();
 		mockEnhancerAvailable = false;
+		mockEnhancerRequiresPlan = false;
+		mockSeoRequiresPlan = false;
+		mockIsWpcomPlatform = false;
 		mockCanAutoEnhance = true;
 		mockIsModuleActive = true;
 		mockPublishSidebarOpen = false;
+	} );
+
+	it( 'offers manual SEO on hosted free sites without unlocking the AI enhancer', () => {
+		mockIsWpcomPlatform = true;
+		mockSeoRequiresPlan = 'value_bundle';
+		mockEnhancerRequiresPlan = 'value_bundle';
+		mockEnhancerAvailable = true;
+		mockCanAutoEnhance = false;
+
+		renderSeo();
+
+		expect( screen.getAllByText( 'Manual title settings' ) ).toHaveLength( 3 );
+		expect( mockEnhancer ).not.toHaveBeenCalled();
 	} );
 
 	it( 'does not reach the AI feature when the SEO enhancer is unavailable', () => {
@@ -155,6 +178,21 @@ describe( 'Seo panel', () => {
 		renderSeo();
 
 		expect( mockUseSeoRequests ).toHaveBeenCalled();
+	} );
+
+	it.each( [
+		[ 'hides the auto-generate toggle where auto mode cannot run', false ],
+		[ 'shows the auto-generate toggle where auto mode can run', true ],
+	] )( '%s', ( _label, canAutoEnhance ) => {
+		mockEnhancerAvailable = true;
+		mockCanAutoEnhance = canAutoEnhance;
+
+		renderSeo();
+
+		expect( mockEnhancer ).toHaveBeenCalled();
+		for ( const [ props ] of mockEnhancer.mock.calls ) {
+			expect( props.hideAutoEnhanceToggle ).toBe( ! canAutoEnhance );
+		}
 	} );
 
 	it( 'generates metadata once when the pre-publish sidebar opens', () => {

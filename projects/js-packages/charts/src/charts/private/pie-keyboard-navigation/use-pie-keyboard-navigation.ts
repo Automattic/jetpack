@@ -1,7 +1,10 @@
 import { useTooltip } from '@visx/tooltip';
+import { __, sprintf } from '@wordpress/i18n';
 import { useCallback, useLayoutEffect, useRef, useState } from 'react';
 import { useKeyboardNavigation } from '../../../components/tooltip';
+import { formatDataPointValue } from '../../../utils';
 import type { DataPointPercentageCalculated } from '../../../types';
+import type { LegendValueDisplay } from '../../../utils';
 import type { MouseEvent } from 'react';
 
 interface UsePieKeyboardNavigationProps< Arc > {
@@ -10,6 +13,8 @@ interface UsePieKeyboardNavigationProps< Arc > {
 	withTooltips: boolean;
 	tooltipOffsetX: number;
 	tooltipOffsetY: number;
+	/** Which figure a segment's accessible name states, as the legend states it. */
+	legendValueDisplay: LegendValueDisplay;
 }
 
 export const usePieKeyboardNavigation = < Arc extends { data: DataPointPercentageCalculated } >( {
@@ -17,6 +22,7 @@ export const usePieKeyboardNavigation = < Arc extends { data: DataPointPercentag
 	withTooltips,
 	tooltipOffsetX,
 	tooltipOffsetY,
+	legendValueDisplay,
 }: UsePieKeyboardNavigationProps< Arc > ) => {
 	const chartRef = useRef< HTMLDivElement >( null );
 	const svgRef = useRef< SVGSVGElement >( null );
@@ -73,7 +79,24 @@ export const usePieKeyboardNavigation = < Arc extends { data: DataPointPercentag
 		}
 	} );
 
-	const getSegmentHandlers = ( data: DataPointPercentageCalculated, navigationIndex: number ) => ( {
+	// Without a name of its own an arc reaches no accessibility tree, leaving the application
+	// container empty and screen readers with nothing to read or move into.
+	const getSegmentName = ( data: DataPointPercentageCalculated ) => {
+		const value = formatDataPointValue( data, legendValueDisplay );
+
+		return value
+			? sprintf(
+					/* translators: 1: segment name, e.g. "Desktop". 2: its share or value, e.g. "23%". */
+					__( '%1$s: %2$s', 'jetpack-charts' ),
+					data.label,
+					value
+				)
+			: data.label;
+	};
+
+	const getSegmentProps = ( data: DataPointPercentageCalculated, navigationIndex: number ) => ( {
+		role: 'img',
+		'aria-label': getSegmentName( data ),
 		onMouseMove: ( event: MouseEvent< SVGElement > ) => {
 			onChartPointerMove( navigationIndex );
 			if ( ! withTooltips ) {
@@ -115,7 +138,7 @@ export const usePieKeyboardNavigation = < Arc extends { data: DataPointPercentag
 		chartRef,
 		svgRef,
 		selectedArc,
-		getSegmentHandlers,
+		getSegmentProps,
 		getKeyboardTooltipAnchor,
 		selectionOutputProps: {
 			withTooltips,

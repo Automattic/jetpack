@@ -2,7 +2,7 @@
  * WordPress dependencies
  */
 import { SelectControl, TextControl } from '@wordpress/components';
-import { __, sprintf } from '@wordpress/i18n';
+import { __, _x, sprintf } from '@wordpress/i18n';
 /**
  * Types
  */
@@ -13,6 +13,8 @@ export type ChannelPlaylist = {
 	title: string;
 	videos?: PlaylistEntry[];
 };
+
+export type EmptyStateMode = 'none' | 'author' | 'all';
 
 type ChannelEditorData = {
 	// The site's published playlists, most recently updated first.
@@ -38,6 +40,49 @@ export function editorSourcePlaylist( key = '' ): ChannelPlaylist | null | undef
 		return undefined;
 	}
 	return ( key ? playlists.find( playlist => playlist.key === key ) : playlists[ 0 ] ) ?? null;
+}
+
+type EmptyStateControlProps = {
+	value?: EmptyStateMode;
+	onChange: ( value: EmptyStateMode ) => void;
+	// What the empty state asks for: uploading videos or creating playlists.
+	kind: 'videos' | 'playlists';
+};
+
+/**
+ * Choose what the block shows while the channel has no videos or no playlists.
+ *
+ * @param props          - Component props.
+ * @param props.value    - Current mode.
+ * @param props.onChange - Mode setter.
+ * @param props.kind     - What is missing.
+ * @return The control.
+ */
+export function EmptyStateControl( { value, onChange, kind }: EmptyStateControlProps ) {
+	return (
+		<SelectControl
+			__next40pxDefaultSize
+			__nextHasNoMarginBottom
+			label={
+				'videos' === kind
+					? __( 'When there are no videos', 'jetpack-videopress-pkg' )
+					: _x( 'When there are no playlists', '', 'jetpack-videopress-pkg' )
+			}
+			value={ value ?? 'none' }
+			options={ [
+				{ value: 'none', label: __( 'Show nothing', 'jetpack-videopress-pkg' ) },
+				{
+					value: 'author',
+					label: __( 'Prompt the site’s authors', 'jetpack-videopress-pkg' ),
+				},
+				{
+					value: 'all',
+					label: __( 'Prompt authors, tell visitors', 'jetpack-videopress-pkg' ),
+				},
+			] }
+			onChange={ mode => onChange( mode as EmptyStateMode ) }
+		/>
+	);
 }
 
 type PlaylistPickerProps = {

@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Backup\V0005\REST;
 
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Status\Host;
 use WP_Error;
 use WP_REST_Request;
 use WP_REST_Server;
@@ -20,6 +21,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Restore endpoints powering the Restore screen:
  *   - POST /jetpack/v4/rewind/to/{rewindId}                     → initiate restore
  *   - GET  /jetpack/v4/rewind/restore/{restoreId}/status        → poll status
+ *   - GET  /jetpack/v4/rewind/backups/{rewindId}/threats        → known threats in a backup
  */
 class Restore_Bridge {
 
@@ -37,16 +39,52 @@ class Restore_Bridge {
 				'callback'            => array( __CLASS__, 'initiate_restore' ),
 				'permission_callback' => array( Rest_Controller::class, 'permission_check' ),
 				'args'                => array(
-					'rewind_id' => array(
+					'rewind_id'           => array(
 						'type'     => 'string',
 						'required' => true,
 					),
-					'types'     => array(
+					'types'               => array(
 						'type'                 => 'object',
 						// See the download bridge: `object` alone accepts a
 						// JSON list, because WordPress validates it with
 						// `is_array()`.
 						'additionalProperties' => array( 'type' => 'boolean' ),
+					),
+					'acknowledge_threats' => array(
+						'type'    => 'boolean',
+						'default' => false,
+					),
+				),
+			)
+		);
+
+		register_rest_route(
+			'jetpack/v4',
+			'/rewind/backups/known-threats',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( __CLASS__, 'get_backups_known_threats' ),
+				'permission_callback' => array( Rest_Controller::class, 'permission_check' ),
+				'args'                => array(
+					'with_clean_rewind_id' => array(
+						'type'    => 'boolean',
+						'default' => false,
+					),
+				),
+			)
+		);
+
+		register_rest_route(
+			'jetpack/v4',
+			'/rewind/backups/(?P<rewind_id>[0-9.]+)/threats',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( __CLASS__, 'get_known_threats' ),
+				'permission_callback' => array( Rest_Controller::class, 'permission_check' ),
+				'args'                => array(
+					'rewind_id' => array(
+						'type'     => 'string',
+						'required' => true,
 					),
 				),
 			)
@@ -136,6 +174,12 @@ class Restore_Bridge {
 			$request_body['types'] = $named_types;
 		}
 
+		// WordPress.com skips the known-threats check for signed restores that omit the flag,
+		// so only sites that can show the warning send it.
+		if ( self::known_threats_available() ) {
+			$request_body['acknowledge_threats'] = true === rest_sanitize_boolean( $request->get_param( 'acknowledge_threats' ) );
+		}
+
 		$response = Client::wpcom_json_api_request_as_user(
 			sprintf( '/sites/%d/rewind/restores', $blog_id ),
 			'v2',
@@ -155,6 +199,12 @@ class Restore_Bridge {
 		// as a failure, and the reader would start a second one. The long
 		// version is on `Rest_Controller::upstream_error()`.
 		$status_code = (int) wp_remote_retrieve_response_code( $response );
+		if ( 409 === $status_code ) {
+			$refusal = self::threats_refusal( $response );
+			if ( null !== $refusal ) {
+				return $refusal;
+			}
+		}
 		if ( 200 !== $status_code ) {
 			return Rest_Controller::upstream_error(
 				$response,
@@ -216,6 +266,241 @@ class Restore_Bridge {
 				'rewind_id' => isset( $decoded['rewind_id'] ) ? (string) $decoded['rewind_id'] : $rewind_id,
 			)
 		);
+	}
+
+	/**
+	 * The refusal WordPress.com sends for a backup with unacknowledged known threats, or null for any other 409.
+	 *
+	 * @param array $response The wp_remote_* response.
+	 * @return WP_Error|null
+	 */
+	private static function threats_refusal( $response ) {
+		$body = json_decode( wp_remote_retrieve_body( $response ), true );
+		if ( ! is_array( $body ) || 'threats_not_acknowledged' !== ( $body['code'] ?? null ) ) {
+			return null;
+		}
+
+		$data = array( 'status' => 409 );
+		if ( isset( $body['data']['known_threats'] ) ) {
+			$data['known_threats'] = $body['data']['known_threats'];
+		}
+
+		return new WP_Error(
+			'threats_not_acknowledged',
+			__( 'This backup is known to contain security threats. Acknowledge them to restore it.', 'jetpack-backup-pkg' ),
+			$data
+		);
+	}
+
+	/**
+	 * Whether this site checks backups for known threats. Only WoA sites do, for now.
+	 *
+	 * @return bool
+	 */
+	public static function known_threats_available() {
+		return ( new Host() )->is_woa_site();
+	}
+
+	/**
+	 * The answer for a site whose known threats can't be read, so the screen restores as before.
+	 *
+	 * @return WP_Error
+	 */
+	private static function threats_unavailable() {
+		return new WP_Error(
+			'threats_unavailable',
+			__( 'Known threats are not available for this site.', 'jetpack-backup-pkg' ),
+			array( 'status' => 404 )
+		);
+	}
+
+	/**
+	 * Known Scan threat counts for the newest 100 backups, by backup period, and the newest
+	 * backup without known threats. Proxies GET wpcom/v3 /sites/{blog_id}/rewind/backups.
+	 *
+	 * Without Scan, or off WoA, the answer is `threats_unavailable` and the dashboard shows no badges.
+	 *
+	 * @param WP_REST_Request $request The REST request; `with_clean_rewind_id` also finds when the clean backup finished.
+	 * @return \WP_REST_Response|WP_Error
+	 */
+	public static function get_backups_known_threats( WP_REST_Request $request ) {
+		if ( ! self::known_threats_available() ) {
+			return self::threats_unavailable();
+		}
+
+		$blog_id = Rest_Controller::get_blog_id_or_error();
+		if ( is_wp_error( $blog_id ) ) {
+			return $blog_id;
+		}
+
+		$response = Client::wpcom_json_api_request_as_user(
+			sprintf( '/sites/%d/rewind/backups?number=100&page=1&known_threats_only=true', $blog_id ),
+			'3',
+			array(),
+			null,
+			'wpcom'
+		);
+
+		if ( is_wp_error( $response ) ) {
+			return Rest_Controller::transport_error( $response, 'known_threats_fetch_failed' );
+		}
+
+		$status_code = (int) wp_remote_retrieve_response_code( $response );
+		if ( 403 === $status_code ) {
+			return self::threats_unavailable();
+		}
+		$body = json_decode( wp_remote_retrieve_body( $response ), true );
+		if ( 200 !== $status_code || ! is_array( $body ) ) {
+			return Rest_Controller::upstream_error(
+				$response,
+				'known_threats_fetch_failed',
+				__( 'Could not fetch the known threats for this backup.', 'jetpack-backup-pkg' )
+			);
+		}
+
+		$backups = array();
+		foreach ( (array) ( $body['backups'] ?? array() ) as $backup ) {
+			if ( ! isset( $backup['object']['backup_period'] ) || ! is_numeric( $backup['object']['backup_period'] ) ) {
+				continue;
+			}
+			$known_threats = $backup['object']['known_threats'] ?? null;
+			$backups[]     = array(
+				'period'        => (int) $backup['object']['backup_period'],
+				'known_threats' => is_array( $known_threats ) ? $known_threats : null,
+			);
+		}
+
+		$latest_clean = $body['latest_without_known_threats'] ?? null;
+		$latest_clean = is_numeric( $latest_clean ) ? (int) $latest_clean : null;
+
+		$latest_clean_rewind_id = null;
+		if ( null !== $latest_clean && true === rest_sanitize_boolean( $request->get_param( 'with_clean_rewind_id' ) ) ) {
+			$latest_clean_rewind_id = self::backup_complete_rewind_id( $blog_id, $latest_clean, array_column( $backups, 'period' ) );
+		}
+
+		return rest_ensure_response(
+			array(
+				'backups'                                => $backups,
+				'latest_without_known_threats'           => $latest_clean,
+				'latest_without_known_threats_rewind_id' => $latest_clean_rewind_id,
+			)
+		);
+	}
+
+	/**
+	 * The rewind id of a backup's "Backup complete" Activity Log entry: when it finished, the time
+	 * the backup lists show. A backup's period is when it started.
+	 *
+	 * @param int   $blog_id The site's WordPress.com blog id.
+	 * @param int   $period  The backup period.
+	 * @param int[] $periods The other known backup periods; the next one bounds the search.
+	 * @return string|null The rewind id, or null when it can't be found.
+	 */
+	private static function backup_complete_rewind_id( $blog_id, $period, array $periods ) {
+		// A finished backup's entry never changes; "not found yet" is kept only briefly.
+		$cache_key = sprintf( 'jetpack_backup_complete_rewind_id_%d_%d', $blog_id, $period );
+		$cached    = get_transient( $cache_key );
+		if ( is_string( $cached ) ) {
+			return '' === $cached ? null : $cached;
+		}
+
+		$next = DAY_IN_SECONDS + $period;
+		foreach ( $periods as $candidate ) {
+			if ( $candidate > $period && $candidate < $next ) {
+				$next = $candidate;
+			}
+		}
+
+		$query = http_build_query(
+			array(
+				'name'       => array(
+					'rewind__backup_complete_full',
+					'rewind__backup_complete_initial',
+					'rewind__backup_only_complete_full',
+					'rewind__backup_only_complete_initial',
+				),
+				'after'      => gmdate( 'c', $period ),
+				'before'     => gmdate( 'c', $next ),
+				'sort_order' => 'asc',
+				'number'     => 10,
+			)
+		);
+
+		$response = Client::wpcom_json_api_request_as_user(
+			sprintf( '/sites/%d/activity/rewindable?%s', $blog_id, $query ),
+			'v2',
+			array(),
+			null,
+			'wpcom'
+		);
+		if ( is_wp_error( $response ) || 200 !== (int) wp_remote_retrieve_response_code( $response ) ) {
+			return null;
+		}
+
+		$body = json_decode( wp_remote_retrieve_body( $response ), true );
+		foreach ( (array) ( $body['current']['orderedItems'] ?? array() ) as $item ) {
+			$rewind_id = $item['rewind_id'] ?? null;
+			if ( is_numeric( $rewind_id ) && (int) floor( (float) $rewind_id ) >= $period ) {
+				set_transient( $cache_key, (string) $rewind_id, MONTH_IN_SECONDS );
+				return (string) $rewind_id;
+			}
+		}
+		set_transient( $cache_key, '', 5 * MINUTE_IN_SECONDS );
+		return null;
+	}
+
+	/**
+	 * Known Scan threats in a backup. Proxies GET wpcom/v2 /sites/{blog_id}/rewind/backups/{rewind_id}/threats.
+	 *
+	 * Without Scan (a 403 upstream), or off WoA, the answer is a 404 `threats_unavailable`.
+	 *
+	 * @param WP_REST_Request $request The REST request.
+	 * @return \WP_REST_Response|WP_Error
+	 */
+	public static function get_known_threats( WP_REST_Request $request ) {
+		if ( ! self::known_threats_available() ) {
+			return self::threats_unavailable();
+		}
+
+		$blog_id = Rest_Controller::get_blog_id_or_error();
+		if ( is_wp_error( $blog_id ) ) {
+			return $blog_id;
+		}
+
+		$response = Client::wpcom_json_api_request_as_user(
+			sprintf( '/sites/%d/rewind/backups/%s/threats', $blog_id, rawurlencode( (string) $request->get_param( 'rewind_id' ) ) ),
+			'v2',
+			array(),
+			null,
+			'wpcom'
+		);
+
+		if ( is_wp_error( $response ) ) {
+			return Rest_Controller::transport_error( $response, 'known_threats_fetch_failed' );
+		}
+
+		$status_code = (int) wp_remote_retrieve_response_code( $response );
+		if ( 403 === $status_code ) {
+			return self::threats_unavailable();
+		}
+		if ( 200 !== $status_code ) {
+			return Rest_Controller::upstream_error(
+				$response,
+				'known_threats_fetch_failed',
+				__( 'Could not fetch the known threats for this backup.', 'jetpack-backup-pkg' )
+			);
+		}
+
+		$body = json_decode( wp_remote_retrieve_body( $response ), true );
+		if ( ! is_array( $body ) ) {
+			return new WP_Error(
+				'known_threats_fetch_failed',
+				__( 'Could not fetch the known threats for this backup.', 'jetpack-backup-pkg' ),
+				array( 'status' => 502 )
+			);
+		}
+
+		return rest_ensure_response( $body );
 	}
 
 	/**

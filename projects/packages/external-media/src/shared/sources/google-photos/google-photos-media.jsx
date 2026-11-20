@@ -1,21 +1,11 @@
-import { Button, SelectControl } from '@wordpress/components';
 import { useRef, useState, useCallback, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Button, Stack } from '@wordpress/ui';
 import clsx from 'clsx';
-import {
-	SOURCE_GOOGLE_PHOTOS,
-	PATH_RECENT,
-	PATH_ROOT,
-	PATH_OPTIONS,
-	DATE_RANGE_ANY,
-} from '../../constants';
+import { SOURCE_GOOGLE_PHOTOS } from '../../constants';
 import MediaBrowser from '../../media-browser';
 import { MediaSource } from '../../media-service/types';
 import { getExternalMediaApiUrl } from '../api';
-import Breadcrumbs from './breadcrumbs';
-import GoogleFilterOption from './filter-option';
-import getFilterRequest from './filter-request';
-import GoogleFilterView from './filter-view';
 import GooglePhotosAccount from './google-photos-account';
 
 const isImageOnly = allowed => allowed && allowed.length === 1 && allowed[ 0 ] === 'image';
@@ -42,33 +32,21 @@ function GooglePhotosMedia( props ) {
 		pageHandle,
 		path,
 		setAuthenticated,
-		showAdditionalFilters = false,
 		pickerSession,
-		pickerFeatureEnabled,
 		deletePickerSession,
 		createPickerSession,
 	} = props;
 
 	const imageOnly = isImageOnly( allowedTypes );
-	const [ filters, setFilters ] = useState(
-		imageOnly
-			? { mediaType: 'photo', date: { range: DATE_RANGE_ANY } }
-			: { date: { range: DATE_RANGE_ANY } }
-	);
 	const [ selectionChanged, setSelectionChanged ] = useState( false );
 
 	const lastQuery = useRef( '' );
 	const lastPath = useRef( '' );
-	const filterQuery = path.ID === PATH_RECENT ? getFilterRequest( filters ) : null;
 	const params = {
 		number: 20,
 		path: path.ID,
 	};
-	if ( ! pickerFeatureEnabled && filterQuery ) {
-		params.filter = filterQuery;
-	}
-
-	if ( pickerFeatureEnabled && pickerSession ) {
+	if ( pickerSession ) {
 		params.session_id = pickerSession.id;
 	}
 
@@ -96,10 +74,10 @@ function GooglePhotosMedia( props ) {
 				items,
 				getExternalMediaApiUrl( 'copy', SOURCE_GOOGLE_PHOTOS ),
 				SOURCE_GOOGLE_PHOTOS,
-				pickerFeatureEnabled
+				true
 			);
 		},
-		[ copyMedia, pickerFeatureEnabled ]
+		[ copyMedia ]
 	);
 
 	const onChangeSelection = useCallback( () => {
@@ -121,64 +99,24 @@ function GooglePhotosMedia( props ) {
 
 	return (
 		<div className={ clsx( className, 'jetpack-external-media-wrapper__google' ) }>
-			<div className="jetpack-external-media-header__view">
-				{ ! pickerFeatureEnabled && (
-					<>
-						{
-							<SelectControl
-								className="jetpack-external-media-header__select"
-								label={ __( 'View', 'jetpack-external-media' ) }
-								value={ path.ID !== PATH_RECENT ? PATH_ROOT : PATH_RECENT }
-								disabled={ isLoading || isCopying }
-								options={ PATH_OPTIONS }
-								onChange={ setPath }
-								__nextHasNoMarginBottom={ true }
-								__next40pxDefaultSize={ true }
-							/>
-						}
-
-						{ showAdditionalFilters && path.ID === PATH_RECENT && (
-							<GoogleFilterView
-								filters={ filters }
-								isLoading={ isLoading }
-								setFilters={ setFilters }
-								canChangeMedia={ ! imageOnly }
-							/>
-						) }
-
-						<div className="jetpack-external-media-header__filter">
-							{ path.ID === PATH_RECENT && (
-								<GoogleFilterOption
-									filters={ filters }
-									isLoading={ isLoading }
-									setFilters={ setFilters }
-									canChangeMedia={ ! imageOnly }
-								/>
-							) }
-							{ path.ID !== PATH_RECENT && path.ID !== PATH_ROOT && (
-								<Breadcrumbs path={ path } setPath={ setPath } />
-							) }
-						</div>
-					</>
-				) }
-
-				{ pickerFeatureEnabled && ! isLoading && (
-					<div className="jetpack-external-media-header__change-selection">
-						<Button
-							variant="primary"
-							isBusy={ selectionChanged }
-							disabled={ selectionChanged }
-							onClick={ onChangeSelection }
-						>
-							{ __( 'Change selection', 'jetpack-external-media' ) }
-						</Button>
-					</div>
+			<Stack
+				direction="row"
+				align="center"
+				justify="space-between"
+				gap="lg"
+				wrap="wrap"
+				className="jetpack-external-media-header__view"
+			>
+				{ ! isLoading && (
+					<Button loading={ selectionChanged } onClick={ onChangeSelection }>
+						{ __( 'Change selection', 'jetpack-external-media' ) }
+					</Button>
 				) }
 
 				{ ( ! isLoading || media.length > 0 ) && (
 					<GooglePhotosAccount account={ account } setAuthenticated={ setAuthenticated } />
 				) }
-			</div>
+			</Stack>
 
 			<MediaBrowser
 				className="jetpack-external-media-browser__google"
@@ -194,7 +132,7 @@ function GooglePhotosMedia( props ) {
 				multiple={ multiple }
 				selectButtonText={ selectButtonText }
 				setPath={ setPath }
-				shouldProxyImg={ pickerFeatureEnabled }
+				shouldProxyImg={ true }
 			/>
 		</div>
 	);

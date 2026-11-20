@@ -93,7 +93,7 @@ class Security extends Module_Product {
 		$product_slug = static::get_wpcom_product_slug();
 		return array_merge(
 			array(
-				'available'          => true,
+				'available'          => false !== ( Wpcom_Products::get_product( $product_slug )->available ?? null ),
 				'wpcom_product_slug' => $product_slug,
 			),
 			Wpcom_Products::get_product_pricing( $product_slug )
@@ -195,7 +195,8 @@ class Security extends Module_Product {
 			foreach ( $purchases_data as $purchase ) {
 				if (
 					str_starts_with( $purchase->product_slug, 'jetpack_security' ) ||
-					str_starts_with( $purchase->product_slug, 'jetpack_complete' )
+					str_starts_with( $purchase->product_slug, 'jetpack_complete' ) ||
+					str_starts_with( $purchase->product_slug, 'jetpack_pro_' )
 				) {
 					return true;
 				}

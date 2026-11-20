@@ -1,7 +1,6 @@
 ## FOLDERS
 /.sass-cache/
 /.vscode/
-/allure-results/
 /_inc/blocks
 /_inc/build
 /packages/**/build-module

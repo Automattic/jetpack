@@ -141,7 +141,11 @@ if ( explode( '.', \PHPUnit\Runner\Version::id() )[0] >= 10 ) {
 	class_alias( Bogus::class, \PHPUnit\Framework\Error\Notice::class );
 	class_alias( Bogus::class, \PHPUnit\Framework\Error\Warning::class );
 	class_alias( Bogus::class, \PHPUnit\Framework\Warning::class );
-	class_alias( Bogus::class, \PHPUnit\Framework\TestListener::class );
+
+	// This one is now used to declare a class in the bootstrap. We don't use that class anyway.
+	/** Dummy interface. */
+	interface IBogus {}
+	class_alias( IBogus::class, \PHPUnit\Framework\TestListener::class );
 
 } else {
 	trait WP_UnitTestCase_Fix {

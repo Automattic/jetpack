@@ -49,23 +49,30 @@ class LCP_Analyzer {
 	}
 
 	/**
-	 * Start a partial analysis for the given pages.
-	 * Sets status to pending and updates only the pages that are in the $pages array.
-	 * Pages that are not in the $pages array will not be updated.
+	 * Start a partial analysis when the saved state has pages, marking only the given pages pending.
+	 * Otherwise return the state unchanged.
 	 *
 	 * @param array $pages The pages to analyze.
 	 * @return array The current state data
 	 */
 	public function start_partial_analysis( $pages ) {
-		$current_pages = $this->state->get_pages();
+		$current_state = $this->state->get();
+		if ( empty( $current_state['pages'] ) ) {
+			return $current_state;
+		}
 
 		$this->state
 			->prepare_request()
-			->set_pages( $current_pages )
+			->set_pages( $current_state['pages'] )
 			->set_pending_pages( $pages )
 			->save();
 
-		$this->analyze_pages( $pages );
+		$response = $this->analyze_pages( $pages );
+
+		// No callback follows a refused request, so the pages would otherwise stay pending.
+		if ( is_wp_error( $response ) ) {
+			$this->state->set_error( $response->get_error_message() )->save();
+		}
 
 		// @todo - Clear previous LCP analysis data from storage for pages in the $pages array.
 		// We currently don't have a way to do this.

@@ -8,6 +8,13 @@
 body.jetpack_page_jetpack-ai {
 
 	@include jetpack-admin-page-layout;
+
+	// The layout lets the Col wrapping the tab strip shrink to the viewport, so
+	// the sticky strip lifts once you scroll past it. Keep it content-height.
+	.jp-admin-page__page.jp-admin-page__page > :not(:first-child):not(.jetpack-footer) > :has(> .jp-admin-page-tabs) {
+		flex: 0 0 auto;
+		min-height: auto;
+	}
 }
 
 .jetpack-ai-admin {

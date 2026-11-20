@@ -2,14 +2,8 @@ import { act, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
 import { TextSetting } from '../components/text-setting';
-import {
-	apiCalls,
-	baseSettings,
-	baseStatus,
-	renderWithData,
-	resetNotices,
-	snackbarMessages,
-} from './helpers';
+import { store } from '../data/store';
+import { apiCalls, baseSettings, baseStatus, renderWithData, snackbarMessages } from './helpers';
 
 jest.mock( '@wordpress/api-fetch' );
 const mockApiFetch = apiFetch as jest.MockedFunction< typeof apiFetch >;
@@ -27,7 +21,6 @@ function leavingPrompts(): boolean {
 
 beforeEach( () => {
 	mockApiFetch.mockReset();
-	resetNotices();
 } );
 
 describe( 'TextSetting', () => {
@@ -91,7 +84,7 @@ describe( 'TextSetting', () => {
 			}
 			return Promise.resolve( path?.endsWith( '/status' ) ? baseStatus : baseSettings );
 		} );
-		const { queryClient } = renderWithData(
+		const { registry } = renderWithData(
 			<TextSetting settingKey="twitter_site_tag" label="Twitter Site Tag" />
 		);
 		const input = screen.getByLabelText( 'Twitter Site Tag' );
@@ -103,7 +96,7 @@ describe( 'TextSetting', () => {
 		await waitFor( () => expect( save ).toHaveAttribute( 'aria-disabled', 'true' ) );
 		await act( async () => refuse( { message: 'Nope.' } ) );
 		await waitFor( () => expect( snackbarMessages() ).toContain( 'Nope.' ) );
-		await waitFor( () => expect( queryClient.isFetching() ).toBe( 0 ) );
+		await waitFor( () => expect( registry.select( store ).hasResolvingSelectors() ).toBe( false ) );
 
 		expect( input ).toHaveValue( '@jetpack' );
 		expect( save ).not.toHaveAttribute( 'aria-disabled', 'true' );

@@ -36,17 +36,7 @@ jest.mock(
 
 // Stub heavy sub-components that aren't relevant to the branching test.
 jest.mock( 'components/mocked-search', () => () => <div data-testid="mocked-search" /> );
-jest.mock(
-	'components/module-control',
-	() =>
-		( { aiAgentAccessGuidelinesUrl, isAIAgentAccessAvailable } ) => (
-			<div
-				data-ai-agent-access-guidelines-url={ aiAgentAccessGuidelinesUrl }
-				data-is-ai-agent-access-available={ isAIAgentAccessAvailable }
-				data-testid="module-control"
-			/>
-		)
-);
+jest.mock( 'components/module-control', () => () => <div data-testid="module-control" /> );
 jest.mock( 'components/experience-selector', () => () => (
 	<div data-testid="experience-selector" />
 ) );
@@ -54,19 +44,6 @@ jest.mock( 'components/record-meter', () => () => <div data-testid="record-meter
 jest.mock( 'components/global-notices', () => () => null );
 jest.mock( 'components/loading', () => () => <div data-testid="loading" /> );
 jest.mock( 'components/ai-answers-tab', () => () => <div data-testid="ai-answers-tab" /> );
-jest.mock(
-	'components/ai-agent-access-control',
-	() =>
-		( { className, guidelinesUrl, isAvailable, showGuidelinesLink } ) => (
-			<div
-				className={ className }
-				data-guidelines-url={ guidelinesUrl }
-				data-is-available={ isAvailable }
-				data-show-guidelines-link={ showGuidelinesLink }
-				data-testid="ai-agent-access-control"
-			/>
-		)
-);
 
 import { fireEvent, render, screen } from '@testing-library/react';
 import { createRegistry, createReduxStore, RegistryProvider } from '@wordpress/data';
@@ -94,12 +71,7 @@ const connectionStoreConfig = {
 	},
 };
 
-const renderWith = ( {
-	aiAgentAccessAvailable = true,
-	aiAgentAccessGuidelinesUrl = '',
-	searchBlocksEnabled,
-	jetpackSettings,
-} ) => {
+const renderWith = ( { searchBlocksEnabled, jetpackSettings } ) => {
 	const registry = createRegistry();
 	const store = createReduxStore( STORE_ID, {
 		...storeConfig,
@@ -107,8 +79,6 @@ const renderWith = ( {
 			...( storeConfig.initialState || {} ),
 			siteData: {
 				...( storeConfig.initialState?.siteData || {} ),
-				aiAgentAccessAvailable,
-				aiAgentAccessGuidelinesUrl,
 				searchBlocksEnabled,
 			},
 			jetpackSettings,
@@ -152,9 +122,6 @@ describe( '<DashboardPage> branch', () => {
 		// The selector lives in the Settings tab, which isn't visible until selected.
 		fireEvent.click( screen.getByRole( 'tab', { name: /settings/i } ) );
 		expect( screen.getByTestId( 'experience-selector' ) ).toBeInTheDocument();
-		expect( screen.getByTestId( 'ai-agent-access-control' ) ).toHaveClass(
-			'jp-search-ai-agent-access-card'
-		);
 		expect( screen.queryByTestId( 'module-control' ) ).not.toBeInTheDocument();
 	} );
 
@@ -163,34 +130,5 @@ describe( '<DashboardPage> branch', () => {
 		fireEvent.click( screen.getByRole( 'tab', { name: /settings/i } ) );
 		expect( screen.queryByTestId( 'experience-selector' ) ).not.toBeInTheDocument();
 		expect( screen.getByTestId( 'module-control' ) ).toBeInTheDocument();
-	} );
-
-	test( 'passes the AI Agent Access guidelines URL to the Search settings control', () => {
-		const aiAgentAccessGuidelinesUrl =
-			'https://example.com/wp-admin/options-general.php?page=guidelines-wp-admin';
-
-		renderWith( {
-			aiAgentAccessGuidelinesUrl,
-			searchBlocksEnabled: false,
-			jetpackSettings: settings,
-		} );
-
-		expect( screen.getByTestId( 'module-control' ) ).toHaveAttribute(
-			'data-ai-agent-access-guidelines-url',
-			aiAgentAccessGuidelinesUrl
-		);
-	} );
-
-	test( 'passes the AI Agent Access availability to the Search settings control', () => {
-		renderWith( {
-			aiAgentAccessAvailable: false,
-			searchBlocksEnabled: false,
-			jetpackSettings: settings,
-		} );
-
-		expect( screen.getByTestId( 'module-control' ) ).toHaveAttribute(
-			'data-is-ai-agent-access-available',
-			'false'
-		);
 	} );
 } );

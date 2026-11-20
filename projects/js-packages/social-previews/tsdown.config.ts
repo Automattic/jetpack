@@ -1,4 +1,4 @@
-import lightningcssDsTokenFallbacks from '@wordpress/theme/lightningcss-plugins/lightningcss-ds-token-fallbacks';
+import lightningcssDsTokenFallbacks from '@wordpress/theme-build-tools/lightningcss-plugins/lightningcss-ds-token-fallbacks';
 import { defineConfig } from 'tsdown';
 
 export default defineConfig( {

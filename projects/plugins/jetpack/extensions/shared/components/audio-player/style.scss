@@ -1,12 +1,12 @@
 @use "sass:color";
 @use "sass:meta";
 @use "sass:string";
-@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+@use "@wordpress/base-styles/colors";
 
 //Set the default values
-$jetpack-audio-player-primary: gb.$black;
-$jetpack-audio-player-secondary: gb.$gray-400;
-$jetpack-audio-player-background: gb.$white;
+$jetpack-audio-player-primary: colors.$black;
+$jetpack-audio-player-secondary: colors.$gray-400;
+$jetpack-audio-player-background: colors.$white;
 
 //Bit of a hack to check for the existence of the podcast player values
 $jetpack-podcast-player-primary: false !default;

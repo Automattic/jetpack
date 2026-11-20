@@ -46,6 +46,8 @@ class Registration_Failure {
 	const TERMINAL_ERROR_CODES = array(
 		'siteurl_private_ip',
 		'home_private_ip',
+		// PHP's XML extension is missing, so WordPress.com can't parse the site's XML-RPC reply.
+		'xml_extension_missing',
 		// Request parameters the server validates; the `verify_*` codes are a separate, transient family.
 		'siteurl_missing',
 		'siteurl_malformed',

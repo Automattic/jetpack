@@ -1,3 +1,0 @@
-Significance: patch
-Type: fixed
-Comment: The modernized dashboard, behind a feature flag, now announces page errors that arrive together as one message instead of letting the second cut off the first.

@@ -1,0 +1,4 @@
+Significance: patch
+Type: removed
+
+Remove the retired my.woo.ai origins from the allowed Calypso origins.

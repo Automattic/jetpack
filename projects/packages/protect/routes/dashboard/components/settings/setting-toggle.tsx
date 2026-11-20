@@ -1,13 +1,12 @@
-import { ToggleControl } from '@wordpress/components';
 import { useCallback } from '@wordpress/element';
+import { SwitchControl } from '@wordpress/ui';
 import type { ProtectSettingsData } from '../../data/use-protect-settings';
-import type { ReactNode } from 'react';
 
 type Props = {
 	data: ProtectSettingsData;
 	name: string;
 	label: string;
-	help?: ReactNode;
+	help?: string;
 	disabled?: boolean;
 };
 
@@ -27,13 +26,12 @@ export default function SettingToggle( { data, name, label, help, disabled = fal
 	const onChange = useCallback( ( value: boolean ) => save( { [ name ]: value } ), [ save, name ] );
 
 	return (
-		<ToggleControl
-			__nextHasNoMarginBottom
+		<SwitchControl
 			label={ label }
-			help={ help }
+			description={ help }
 			checked={ Boolean( data.settings?.[ name ] ) }
 			disabled={ disabled || data.isSaving( name ) }
-			onChange={ onChange }
+			onCheckedChange={ onChange }
 		/>
 	);
 }

@@ -1,0 +1,283 @@
+@use "sass:meta";
+@include meta.load-css("@wordpress/dataviews/build-style/style.css");
+// The Video Playlist block's front-end styles, for the live preview.
+@include meta.load-css("../../src/client/block-editor/blocks/playlist/view");
+
+.vp-playlist-editor {
+	box-sizing: border-box;
+	inline-size: 100%;
+	max-inline-size: 1344px;
+	margin-inline: auto;
+	padding: 24px;
+
+	&__notice {
+		margin-block-end: 24px;
+	}
+
+	// Preview and videos beside the settings; stacked on narrow screens.
+	&__layout {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr) minmax(0, 360px);
+		gap: 24px;
+		align-items: start;
+
+		@media (max-width: 1080px) {
+			grid-template-columns: minmax(0, 1fr);
+		}
+	}
+
+	&__main,
+	&__sidebar {
+		display: flex;
+		flex-direction: column;
+		gap: 24px;
+		min-inline-size: 0;
+	}
+
+	&__preview {
+		margin: 0;
+	}
+
+	&__delete {
+		padding-block-start: 8px;
+		border-block-start: 1px solid #f0f0f0;
+	}
+
+	&__delete-button {
+		color: #cc1818;
+	}
+
+	// The block's three-way layout picker.
+	&__layouts {
+		display: flex;
+		gap: 6px;
+		margin-block-end: 14px;
+	}
+
+	&__layout-option {
+		flex: 1 1 0;
+		display: flex;
+		flex-direction: column;
+		gap: 5px;
+		align-items: stretch;
+		padding: 7px 5px 6px;
+		border: 1px solid #e0e0e0;
+		border-radius: 2px;
+		background: #fff;
+		font-size: 0.65625rem;
+		text-align: center;
+		cursor: pointer;
+
+		&.is-selected {
+			border-color: #1e1e1e;
+			background: #f7f7f7;
+			font-weight: 500;
+		}
+	}
+
+	/* Tiny wireframe sketches for the three layouts. */
+
+	&__layout-sketch {
+		display: block;
+
+		/* Fixed desktop proportions (66.664 × 39 px) at every screen size. */
+		aspect-ratio: 66.664 / 39;
+		position: relative;
+
+		i {
+			position: absolute;
+			border-radius: 1px;
+			background: #e2e2e2;
+		}
+
+		&.is-side-rail i {
+
+			&:nth-child(1) {
+				inset: 0 35% 0 0;
+				background: #c4c4c4;
+			}
+
+			&:nth-child(2) {
+				inset: 0 0 66% 68%;
+			}
+
+			&:nth-child(3) {
+				inset: 38% 0 33% 68%;
+			}
+
+			&:nth-child(4) {
+				inset: 76% 0 0 68%;
+			}
+		}
+
+		&.is-grid i {
+
+			&:nth-child(1) {
+				inset: 0 0 40% 0;
+				background: #c4c4c4;
+			}
+
+			&:nth-child(2) {
+				inset: 68% 68% 0 0;
+			}
+
+			&:nth-child(3) {
+				inset: 68% 34% 0 34%;
+			}
+
+			&:nth-child(4) {
+				inset: 68% 0 0 68%;
+			}
+		}
+
+		&.is-strip i {
+
+			&:nth-child(1) {
+				inset: 0 0 30% 0;
+				background: #c4c4c4;
+			}
+
+			&:nth-child(2) {
+				inset: 78% 60% 0 0;
+			}
+
+			&:nth-child(3) {
+				inset: 78% 22% 0 44%;
+			}
+
+			&:nth-child(4) {
+				inset: 78% 0 0 82%;
+			}
+		}
+	}
+
+	&__summary,
+	&__help,
+	&__empty,
+	&__source {
+		color: #757575;
+	}
+
+	&__add-url {
+		display: flex;
+		gap: 8px;
+		align-items: flex-end;
+
+		> :first-child {
+			flex: 1;
+		}
+	}
+}
+
+.vp-playlist-videos {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+	border: 1px solid #e0e0e0;
+	border-radius: 2px;
+
+	&__row {
+		position: relative;
+		display: flex;
+		gap: 12px;
+		align-items: center;
+		padding: 8px 12px;
+		background: #fff;
+		cursor: grab;
+
+		& + & {
+			border-block-start: 1px solid #f0f0f0;
+		}
+
+		&.is-dragging {
+			opacity: 0.5;
+		}
+
+		&.is-drop-before,
+		&.is-drop-after {
+
+			&::after {
+				content: "";
+				position: absolute;
+				inset-inline: 0;
+				block-size: 2px;
+				background: var(--wp-admin-theme-color, #3858e9);
+			}
+		}
+
+		&.is-drop-before::after {
+			inset-block-start: -1px;
+		}
+
+		&.is-drop-after::after {
+			inset-block-end: -1px;
+		}
+	}
+
+	&__handle {
+		display: flex;
+		color: #757575;
+	}
+
+	&__position {
+		min-inline-size: 2ch;
+		color: #757575;
+		font-variant-numeric: tabular-nums;
+		text-align: end;
+	}
+
+	&__thumb {
+		flex: none;
+		inline-size: 96px;
+		aspect-ratio: 16 / 9;
+		overflow: hidden;
+		border-radius: 2px;
+		background: #1e1e1e;
+
+		img {
+			display: block;
+			inline-size: 100%;
+			block-size: 100%;
+			object-fit: cover;
+		}
+	}
+
+	&__body {
+		display: flex;
+		flex: 1;
+		flex-direction: column;
+		min-inline-size: 0;
+	}
+
+	&__title {
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	&__meta {
+		color: #757575;
+		font-variant-numeric: tabular-nums;
+	}
+
+	&__actions {
+		display: flex;
+		flex: none;
+	}
+}
+
+.vp-playlist-picker {
+
+	&__thumbnail {
+		inline-size: 100%;
+		block-size: 100%;
+		background: #1e1e1e;
+
+		img {
+			display: block;
+			inline-size: 100%;
+			block-size: 100%;
+			object-fit: cover;
+		}
+	}
+}

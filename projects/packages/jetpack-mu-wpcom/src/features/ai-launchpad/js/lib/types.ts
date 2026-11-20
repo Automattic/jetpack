@@ -24,6 +24,9 @@ export type ThemeCategorySlug =
 	| 'podcast'
 	| 'entertainment';
 
+/** The wizard answers the server inferred from an AI-built site. */
+export type InferredInput = Pick< WizardInput, 'goal' | 'site_name' | 'description' >;
+
 export interface WizardInput {
 	goal: GoalSlug;
 	site_name: string;

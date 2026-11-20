@@ -10,9 +10,11 @@ namespace Automattic\Jetpack\Podcast\Tests;
 use Automattic\Jetpack\Connection\Tokens;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Current_Plan;
+use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
 use Automattic\Jetpack\Podcast\Podcast_Gate;
 use Jetpack_Options;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
 use WorDBless\Options as WorDBless_Options;
 
@@ -34,6 +36,8 @@ class Podcast_Gate_Test extends BaseTestCase {
 	protected function tearDown(): void {
 		unset( $GLOBALS['jetpack_podcast_test_blog_details'] );
 		remove_all_filters( 'pre_http_request' );
+		Wpcom_Products::reset_purchases_cache();
+		Wpcom_Products::reset_request_failures();
 		Constants::clear_constants();
 		WorDBless_Options::init()->clear_options();
 		self::reset_active_plan_cache();
@@ -160,11 +164,28 @@ class Podcast_Gate_Test extends BaseTestCase {
 		$this->assertFalse( Podcast_Gate::has_product_access() );
 	}
 
-	public function test_self_hosted_growth_purchase_grants_access(): void {
+	/**
+	 * @dataProvider qualifying_self_hosted_purchases
+	 * @param string $slug Purchased plan.
+	 */
+	#[DataProvider( 'qualifying_self_hosted_purchases' )]
+	public function test_self_hosted_qualifying_purchase_grants_access( $slug ): void {
 		self::as_self_hosted();
-		self::seed_purchases( array( 'jetpack_growth_yearly' ) );
+		self::seed_purchases( array( $slug ) );
 
 		$this->assertTrue( Podcast_Gate::has_product_access() );
+	}
+
+	/**
+	 * @return array
+	 */
+	public static function qualifying_self_hosted_purchases(): array {
+		return array(
+			'Growth'       => array( 'jetpack_growth_yearly' ),
+			'Pro yearly'   => array( 'jetpack_pro_yearly' ),
+			'Pro two-year' => array( 'jetpack_pro_bi_yearly' ),
+			'Pro monthly'  => array( 'jetpack_pro_monthly' ),
+		);
 	}
 
 	public function test_self_hosted_complete_purchase_grants_access(): void {
@@ -206,6 +227,24 @@ class Podcast_Gate_Test extends BaseTestCase {
 			array( array( 'product_slug' => 'jetpack_growth_yearly' ) ),
 			get_transient( Podcast_Gate::PURCHASES_TRANSIENT )
 		);
+	}
+
+	public function test_self_hosted_reuses_my_jetpack_purchases_lookup(): void {
+		self::as_connected_self_hosted();
+		$requests = 0;
+		$respond  = self::upgrades_response( array( 'jetpack_complete' ) );
+		add_filter(
+			'pre_http_request',
+			static function () use ( &$requests, $respond ) {
+				++$requests;
+				return $respond();
+			}
+		);
+
+		Wpcom_Products::get_site_current_purchases();
+
+		$this->assertTrue( Podcast_Gate::has_product_access() );
+		$this->assertSame( 1, $requests );
 	}
 
 	public function test_self_hosted_fetch_http_error_denies_access(): void {

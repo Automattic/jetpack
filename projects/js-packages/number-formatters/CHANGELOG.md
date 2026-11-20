@@ -4,6 +4,29 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [1.3.2] - 2026-11-17
+### Fixed
+- Currency formatting: Add the current ISO 4217 codes BYN, MRU, SLE, SSP, STN, VES, XCG and ZWG so they no longer fall back to USD. [#54978]
+
+## [1.3.1] - 2026-11-16
+### Changed
+- Update package dependencies. [#54703] [#54704]
+
+## [1.3.0] - 2026-11-02
+### Added
+- Add a `decimals` option to `formatCurrency()` and `getCurrencyObject()` to show a fixed number of decimals. [#54140]
+
+### Changed
+- Update package dependencies. [#53869]
+
+## [1.2.12] - 2026-10-20
+### Changed
+- Internal updates.
+
+## [1.2.11] - 2026-10-19
+### Changed
+- Update package dependencies. [#53678] [#53806]
+
 ## [1.2.10] - 2026-09-28
 ### Changed
 - Internal updates.
@@ -196,6 +219,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Initial release
 - Basic number formatting functionality
 
+[1.3.2]: https://github.com/Automattic/number-formatters/compare/1.3.1...1.3.2
+[1.3.1]: https://github.com/Automattic/number-formatters/compare/1.3.0...1.3.1
+[1.3.0]: https://github.com/Automattic/number-formatters/compare/1.2.12...1.3.0
+[1.2.12]: https://github.com/Automattic/number-formatters/compare/1.2.11...1.2.12
+[1.2.11]: https://github.com/Automattic/number-formatters/compare/1.2.10...1.2.11
 [1.2.10]: https://github.com/Automattic/number-formatters/compare/1.2.9...1.2.10
 [1.2.9]: https://github.com/Automattic/number-formatters/compare/1.2.8...1.2.9
 [1.2.8]: https://github.com/Automattic/number-formatters/compare/1.2.7...1.2.8

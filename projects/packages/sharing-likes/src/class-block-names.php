@@ -12,7 +12,7 @@ namespace Automattic\Jetpack\Sharing_Likes;
 /**
  * Block type names for the Sharing Buttons and Like blocks, which the Jetpack plugin registers.
  *
- * @since $$next-version$$
+ * @since 0.4.0
  */
 final class Block_Names {
 

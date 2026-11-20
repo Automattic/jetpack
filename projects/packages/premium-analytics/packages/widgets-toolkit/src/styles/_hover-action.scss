@@ -1,0 +1,25 @@
+// Include inside a row rule. The action it names stays out of sight until the
+// row is hovered or holds focus, as classic Stats showed its "View" action.
+// A layered chart row keeps pointer events off its cells, so the hover is read
+// from the chart's list item around the row as well.
+// Touch viewports have no hover, so there it has to stay visible to exist.
+@mixin reveal-action-on-hover($action) {
+
+	#{$action} {
+		opacity: 0;
+	}
+
+	&:hover #{$action},
+	&:focus-within #{$action},
+	:global([role="listitem"]):hover & #{$action},
+	:global([role="listitem"]):focus-within & #{$action} {
+		opacity: 1;
+	}
+
+	@media (hover: none) {
+
+		#{$action} {
+			opacity: 1;
+		}
+	}
+}

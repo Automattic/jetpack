@@ -13,6 +13,7 @@ import jetpackAnalytics from '@automattic/jetpack-analytics';
 // disconnect-dialog's `.jpg` imports, which esbuild has no loader for.
 import useConnection from '@automattic/jetpack-connection/use-connection';
 import { useEffect } from 'react';
+import { config } from '../config';
 
 // Module-level guard so multiple consumers of `useAnalytics` don't
 // re-call `initialize()` with the same identity on every mount.
@@ -31,11 +32,13 @@ let identifiedFor: string | null = null;
 export function useAnalytics() {
 	const { isUserConnected, userConnectionData } = useConnection( {} );
 	const wpcomUser = userConnectionData?.currentUser?.wpcomUser;
-	const wpcomId = wpcomUser?.ID;
-	const wpcomLogin = wpcomUser?.login;
+	const seededUser = config.tracksUserData;
+	const wpcomId = seededUser?.userid ?? wpcomUser?.ID;
+	const wpcomLogin = seededUser?.username ?? wpcomUser?.login;
+	const isIdentifiable = !! seededUser || isUserConnected;
 
 	useEffect( () => {
-		if ( ! isUserConnected || ! wpcomId || ! wpcomLogin ) {
+		if ( ! isIdentifiable || ! wpcomId || ! wpcomLogin ) {
 			return;
 		}
 		const key = `${ wpcomId }:${ wpcomLogin }`;
@@ -44,7 +47,7 @@ export function useAnalytics() {
 		}
 		jetpackAnalytics.initialize( wpcomId, wpcomLogin );
 		identifiedFor = key;
-	}, [ isUserConnected, wpcomId, wpcomLogin ] );
+	}, [ isIdentifiable, wpcomId, wpcomLogin ] );
 
 	return jetpackAnalytics;
 }

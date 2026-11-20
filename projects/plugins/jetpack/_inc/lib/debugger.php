@@ -18,7 +18,7 @@ require_once __DIR__ . '/debugger/class-jetpack-debug-data.php';
 /* The "In-Plugin Debugger" admin page. */
 require_once __DIR__ . '/debugger/class-jetpack-debugger.php';
 
-add_filter( 'debug_information', array( 'Jetpack_Debug_Data', 'core_debug_data' ) );
+add_filter( 'jetpack_connection_debug_data', array( 'Jetpack_Debug_Data', 'add_plugin_fields' ) );
 
 /*
  * Use the beta support group URL for development versions of Jetpack.

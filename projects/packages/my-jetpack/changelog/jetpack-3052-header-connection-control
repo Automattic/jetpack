@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-Add the shared header's connection control, behind a feature flag.

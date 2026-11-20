@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+My Jetpack: Stop showing $0.00 for paid plans on recommendation cards when prices cannot be loaded.

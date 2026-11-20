@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Add Status::get_cached_status() and Status::is_cached_status_expired(), to read the stored status without contacting WordPress.com.

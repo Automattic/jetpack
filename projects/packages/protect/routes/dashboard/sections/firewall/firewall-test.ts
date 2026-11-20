@@ -1,14 +1,10 @@
 import apiFetch from '@wordpress/api-fetch';
-import { __, sprintf } from '@wordpress/i18n';
-import type { BlockedRequest, FirewallTestResponse } from './types';
+import type { FirewallTestResponse } from './types';
 
 export const FIREWALL_PATH = '/jetpack/v4/protect-dashboard/firewall';
 
 /** Matches `Automattic\\Jetpack\\Waf\\Waf_Self_Check::RULE_ID`. */
 export const SELF_CHECK_RULE_ID = -2;
-
-/** The rule ID the firewall logs for its IP block list. */
-export const IP_BLOCK_LIST_RULE_ID = -1;
 
 /** Thrown by `runFirewallTest()` when the site's address is on another origin than the dashboard. */
 export class CrossOriginError extends Error {}
@@ -66,26 +62,6 @@ export function getTestOutcome(
 		return 'blocked-while-off';
 	}
 	return status === 403 ? 'blocked' : 'silent';
-}
-
-/**
- * A blocked request's description, for the recent blocks list.
- *
- * @param block - The blocked request.
- * @return The label.
- */
-export function getBlockLabel( block: Pick< BlockedRequest, 'ruleId' | 'reason' > ): string {
-	if ( block.ruleId === SELF_CHECK_RULE_ID ) {
-		return __( 'Firewall test', 'jetpack-protect-pkg' );
-	}
-	if ( block.ruleId === IP_BLOCK_LIST_RULE_ID ) {
-		return __( 'Blocked IP address', 'jetpack-protect-pkg' );
-	}
-	return (
-		block.reason ||
-		/* translators: %d is a firewall rule's ID. */
-		sprintf( __( 'Rule %d', 'jetpack-protect-pkg' ), block.ruleId )
-	);
 }
 
 /**

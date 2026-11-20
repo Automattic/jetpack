@@ -14,8 +14,10 @@ require_once __DIR__ . '/trait.http-request-cache.php';
 /**
  * Gist shortcode tests.
  *
+ * @covers ::github_gist_embed_handler
  * @covers ::github_gist_shortcode
  */
+#[CoversFunction( 'github_gist_embed_handler' )]
 #[CoversFunction( 'github_gist_shortcode' )]
 class Jetpack_Shortcodes_Gist_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
@@ -52,6 +54,126 @@ class Jetpack_Shortcodes_Gist_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Preserve multiline gist markup when embedding a URL through content filters.
+	 */
+	public function test_gist_url_preserves_shortcode_markup_through_content_filters() {
+		global $post, $wp_embed;
+
+		$url      = 'https://gist.github.com/6cad326836d38bd3a7ae';
+		$template = <<<'HTML'
+<template class="gist-warning-template">
+  <div class="gist-warning">Warning: hidden characters.</div>
+</template>
+HTML;
+		$footer   = <<<'HTML'
+<div class="gist-meta">
+  <a href="https://gist.github.com/octocat/6cad326836d38bd3a7ae/raw/example.php">view raw</a>
+  example.php
+  hosted with GitHub
+</div>
+HTML;
+		$code     = '    echo &quot;Hello, gist!&quot;;';
+		$html     = <<<HTML
+<div id="gist123" class="gist">
+  <div class="gist-file">
+    <div class="gist-data">
+$template
+      <table><tbody>
+        <tr><td class="blob-code">&lt;?php</td></tr>
+        <tr><td class="blob-code">$code</td></tr>
+      </tbody></table>
+    </div>
+$footer
+  </div>
+</div>
+HTML;
+
+		$http_response = function ( $preempt, $args, $request_url ) use ( $url, $html ) {
+			if ( $url . '.json' !== $request_url ) {
+				return $preempt;
+			}
+
+			return array(
+				'response' => array( 'code' => 200 ),
+				'body'     => wp_json_encode(
+					array(
+						'div'        => $html,
+						'stylesheet' => 'https://github.githubassets.com/assets/gist-embed.css',
+					),
+					JSON_UNESCAPED_SLASHES
+				),
+			);
+		};
+		add_filter( 'pre_http_request', $http_response, 10, 3 );
+		add_shortcode(
+			'jetpack_gist_test_autoembed',
+			function ( $atts, $content ) use ( $wp_embed ) {
+				return $wp_embed->autoembed( $content );
+			}
+		);
+
+		$embeds  = array(
+			$url,
+			sprintf( '[gist %s]', $url ),
+			sprintf( '[jetpack_gist_test_autoembed]%s[/jetpack_gist_test_autoembed]', $url ),
+		);
+		$outputs = array();
+		try {
+			foreach ( $embeds as $embed ) {
+				$content = "Before.\n\n$embed\n\nAfter.";
+				$post    = self::factory()->post->create_and_get( array( 'post_content' => $content ) );
+				setup_postdata( $post );
+				$outputs[] = apply_filters( 'the_content', $post->post_content );
+			}
+		} finally {
+			remove_filter( 'pre_http_request', $http_response, 10 );
+			remove_shortcode( 'jetpack_gist_test_autoembed' );
+		}
+
+		foreach ( $outputs as $output ) {
+			$this->assertStringContainsString( $code, $output );
+		}
+		$this->assertSame( trim( $outputs[1] ), trim( $outputs[0] ) );
+		$this->assertSame( trim( $outputs[1] ), trim( $outputs[2] ) );
+		foreach ( $outputs as $output ) {
+			$this->assertStringContainsString( $template, $output );
+			$this->assertStringContainsString( $footer, $output );
+			$this->assertStringContainsString( '<p>Before.</p>', $output );
+			$this->assertStringContainsString( '<p>After.</p>', $output );
+		}
+	}
+
+	/**
+	 * A gist URL and an enclosing [gist]ID[/gist] in the same post both render.
+	 */
+	public function test_gist_url_with_enclosing_shortcode_later_in_post() {
+		global $post;
+
+		$id      = '57cc50246aab776e110060926a2face2';
+		$content = "https://gist.github.com/$id\n\nBetween the gists.\n\n[gist]{$id}[/gist]";
+		$post    = self::factory()->post->create_and_get( array( 'post_content' => $content ) );
+		setup_postdata( $post );
+
+		$output = apply_filters( 'the_content', $post->post_content );
+
+		$this->assertStringNotContainsString( 'Invalid Gist ID', $output );
+		$this->assertStringContainsString( '<p>Between the gists.</p>', $output );
+		$this->assertSame( 2, substr_count( $output, '<div style="tab-size: 8" id="gist' ) );
+	}
+
+	/**
+	 * Outside the_content, the handler returns the gist markup rather than a shortcode.
+	 */
+	public function test_gist_url_renders_outside_the_content() {
+		global $wp_embed;
+
+		$output = $wp_embed->autoembed( 'https://gist.github.com/57cc50246aab776e110060926a2face2' );
+
+		$this->assertStringContainsString( '<div style="tab-size: 8" id="gist', $output );
+		$this->assertStringNotContainsString( '[gist', $output );
+	}
+
+	/**
 	 * Test gist embeds (links in content transformed into embeds).
 	 *
 	 * @dataProvider gist_embed_data
@@ -81,8 +203,8 @@ class Jetpack_Shortcodes_Gist_Test extends WP_UnitTestCase {
 		the_content();
 		$actual = ob_get_clean();
 		$this->assertEquals(
-			wpautop( $expected_amp ),
-			$actual
+			trim( $expected_amp ),
+			trim( $actual )
 		);
 	}
 

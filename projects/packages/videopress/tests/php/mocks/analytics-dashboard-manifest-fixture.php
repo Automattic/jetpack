@@ -7,7 +7,7 @@
  */
 
 /**
- * The package's widget, as its build manifest lists it.
+ * The package's widgets, as its build manifest lists them.
  *
  * @return array[]
  */
@@ -21,6 +21,16 @@ function jetpack_videopress_test_widget_manifest() {
 			'presentation'  => 'framed',
 			'render_module' => 'jetpack-videopress/widgets/top-videos/render',
 			'widget_module' => 'jetpack-videopress/widgets/top-videos/widget',
+			'textdomain'    => null,
+		),
+		array(
+			'name'          => 'videopress/video-player',
+			'dir_name'      => 'video-player',
+			'title'         => 'Video',
+			'category'      => 'stats',
+			'presentation'  => 'full-bleed',
+			'render_module' => 'jetpack-videopress/widgets/video-player/render',
+			'widget_module' => 'jetpack-videopress/widgets/video-player/widget',
 			'textdomain'    => null,
 		),
 	);

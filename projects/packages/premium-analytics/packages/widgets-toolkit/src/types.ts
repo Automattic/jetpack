@@ -14,6 +14,11 @@ type FormatMetricValueOptions = NonNullable< Parameters< typeof formatMetricValu
 export type DataFormat = {
 	type: MetricFormat;
 	options?: FormatMetricValueOptions;
+	/**
+	 * Show the exact figure, and the compact one from `options.useMultipliers`
+	 * only where the exact figure would be clipped (STATS-549).
+	 */
+	preferExact?: boolean;
 };
 
 /**

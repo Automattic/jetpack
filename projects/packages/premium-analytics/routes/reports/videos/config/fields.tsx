@@ -89,8 +89,8 @@ export function renderVideoRowLink(
 ) {
 	return (
 		<InternalLink
-			to="/video/$videoId"
-			params={ { videoId: String( props.item.id ) } }
+			to="/report/$kind/$id"
+			params={ { kind: 'video', id: String( props.item.id ) } }
 			search={ getVideoDetailSearch }
 			className={ props.className }
 			ariaLabel={ props[ 'aria-label' ] }

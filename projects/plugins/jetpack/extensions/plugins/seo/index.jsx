@@ -2,7 +2,6 @@
  * External dependencies
  */
 import { LinkPreviewModalWithTrigger } from '@automattic/jetpack-publicize/link-preview';
-import { isWpcomPlatformSite } from '@automattic/jetpack-script-data';
 import {
 	useModuleStatus,
 	getJetpackExtensionAvailability,
@@ -33,7 +32,6 @@ import { useSeoModuleSettings } from '../ai-assistant-plugin/components/seo-enha
 import { useSeoRequests } from '../ai-assistant-plugin/components/seo-enhancer/use-seo-requests';
 import { SeoPlaceholder } from './components/placeholder';
 import { SeoSkeletonLoader } from './components/skeleton-loader';
-import UpsellNotice from './components/upsell';
 import SeoDescriptionPanel from './description-panel';
 import SeoNoindexPanel from './noindex-panel';
 import SeoSchemaPanel from './schema-panel';
@@ -51,9 +49,9 @@ const isSeoEnhancerAvailable =
 	getJetpackExtensionAvailability( 'ai-seo-enhancer' )?.available === true &&
 	supportsPublishSidebar;
 
-// Automatic generation never runs on Simple sites and follows the AI SEO
-// feature everywhere else.
 const canHaveAutoEnhance = canAutoEnhanceMetadata();
+
+const hideAutoEnhanceToggle = ! canHaveAutoEnhance;
 
 // The AI SEO feature covers manual and automatic generation alike (host and
 // master gates folded in server-side); with it off the enhancer is not
@@ -110,33 +108,7 @@ const Seo = () => {
 		return null;
 	}
 
-	const requiredPlan = getRequiredPlan( 'advanced-seo' );
-	const canShowUpsell = isWpcomPlatformSite();
 	const hasRequiredPlanForEnhancer = ! getRequiredPlan( 'ai-seo-enhancer' );
-
-	if ( canShowUpsell && requiredPlan !== false ) {
-		return (
-			<>
-				<JetpackPluginSidebar>
-					<PanelBody
-						title={ __( 'Optimize SEO', 'jetpack' ) }
-						initialOpen={ false }
-						className="jetpack-seo-panel"
-					>
-						<UpsellNotice requiredPlan={ requiredPlan } />
-					</PanelBody>
-				</JetpackPluginSidebar>
-				<PluginDocumentSettingPanel
-					className="jetpack-seo-panel"
-					title={ __( 'Optimize SEO', 'jetpack' ) }
-					name="jetpack-seo"
-					icon={ <JetpackEditorPanelLogo /> }
-				>
-					<UpsellNotice requiredPlan={ requiredPlan } />
-				</PluginDocumentSettingPanel>
-			</>
-		);
-	}
 
 	if ( ! isModuleActive ) {
 		const moduleInactiveContent = isLoadingModules ? (
@@ -184,7 +156,10 @@ const Seo = () => {
 			<JetpackPluginSidebar>
 				<PanelBody title={ __( 'Optimize SEO', 'jetpack' ) } className="jetpack-seo-panel">
 					{ isSeoEnhancerAvailable && hasRequiredPlanForEnhancer && isAiSeoFeatureEnabled && (
-						<SeoEnhancer placement="jetpack-sidebar" disableAutoEnhance={ ! canHaveAutoEnhance } />
+						<SeoEnhancer
+							placement="jetpack-sidebar"
+							hideAutoEnhanceToggle={ hideAutoEnhanceToggle }
+						/>
 					) }
 					<PanelRow
 						className={ clsx( {
@@ -236,7 +211,10 @@ const Seo = () => {
 				icon={ <JetpackEditorPanelLogo /> }
 			>
 				{ isSeoEnhancerAvailable && hasRequiredPlanForEnhancer && isAiSeoFeatureEnabled && (
-					<SeoEnhancer placement="document-settings" disableAutoEnhance={ ! canHaveAutoEnhance } />
+					<SeoEnhancer
+						placement="document-settings"
+						hideAutoEnhanceToggle={ hideAutoEnhanceToggle }
+					/>
 				) }
 				<PanelRow>
 					<SeoTitlePanel />
@@ -260,7 +238,7 @@ const Seo = () => {
 					{ isSeoEnhancerAvailable && hasRequiredPlanForEnhancer && isAiSeoFeatureEnabled && (
 						<SeoEnhancer
 							placement="jetpack-prepublish-sidebar"
-							disableAutoEnhance={ ! canHaveAutoEnhance }
+							hideAutoEnhanceToggle={ hideAutoEnhanceToggle }
 						/>
 					) }
 					<PanelRow>

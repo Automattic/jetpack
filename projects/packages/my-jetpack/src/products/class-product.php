@@ -108,6 +108,13 @@ abstract class Product {
 	private static $site_features_failure_expires = 0;
 
 	/**
+	 * The host's answer for each product get_wpcom_info() is describing, wrapped so a null answer counts.
+	 *
+	 * @var array<string, array{0: ?string}>
+	 */
+	private static $host_purchase_urls = array();
+
+	/**
 	 * A successful site features lookup, kept so one WPCOM request serves a whole render
 	 * even when the transient write does not retain (e.g. an object cache evicting under load)
 	 *
@@ -218,7 +225,7 @@ abstract class Product {
 	}
 
 	/**
-	 * Get the installed plugin filename, considering all possible filenames a plugin might have
+	 * Get the active installed copy, falling back to the first installed filename.
 	 *
 	 * @param string $plugin Which plugin to check. jetpack for the jetpack plugin or product for the product specific plugin.
 	 *
@@ -226,17 +233,24 @@ abstract class Product {
 	 */
 	public static function get_installed_plugin_filename( $plugin = 'product' ) {
 		$all_plugins = Plugins_Installer::get_plugins();
-		$filename    = 'jetpack' === $plugin ? self::JETPACK_PLUGIN_FILENAME : static::get_plugin_filename();
+		$filename    = self::JETPACK_PLUGIN_SLUG === $plugin ? self::JETPACK_PLUGIN_FILENAME : static::get_plugin_filename();
 		if ( ! is_array( $filename ) ) {
 			$filename = array( $filename );
 		}
+		$first_installed = null;
 		// Products without a standalone plugin don't declare a filename, so drop the empty values.
 		foreach ( array_filter( $filename ) as $name ) {
-			$installed = array_key_exists( $name, $all_plugins );
-			if ( $installed ) {
+			if ( ! isset( $all_plugins[ $name ] ) ) {
+				continue;
+			}
+			if ( $all_plugins[ $name ]['active'] ) {
 				return $name;
 			}
+			if ( null === $first_installed ) {
+				$first_installed = $name;
+			}
 		}
+		return $first_installed;
 	}
 
 	/**
@@ -272,6 +286,8 @@ abstract class Product {
 			'feature_identifying_paid_plan'   => static::$feature_identifying_paid_plan,
 			'has_free_offering'               => static::$has_free_offering,
 			'manage_url'                      => static::get_manage_url(),
+			// Whether to wait for `host_purchase_url`, which costs lookups and so comes with get_wpcom_info().
+			'host_may_sell'                   => Main_Features::may_host_sell_product( static::$slug ),
 			'post_activation_url'             => static::get_post_activation_url(),
 			'post_activation_urls_by_feature' => static::get_manage_urls_by_feature(),
 			'standalone_plugin_info'          => static::get_standalone_info(),
@@ -313,6 +329,16 @@ abstract class Product {
 			throw new \Exception( 'Product classes must declare the $slug attribute.' );
 		}
 
+		// Held for this call only: get_purchase_url() wants the same answer, and each ask costs ownership lookups.
+		$host_purchase_url                         = static::get_host_purchase_url();
+		$purchase_url                              = null;
+		self::$host_purchase_urls[ static::$slug ] = array( $host_purchase_url );
+		try {
+			$purchase_url = static::get_purchase_url();
+		} finally {
+			unset( self::$host_purchase_urls[ static::$slug ] );
+		}
+
 		$product_data = array(
 			'status'                        => static::get_status(),
 			'pricing_for_ui'                => static::get_pricing_for_ui(),
@@ -324,7 +350,8 @@ abstract class Product {
 			'has_any_plan_for_product'      => static::has_any_plan_for_product(),
 			'has_free_plan_for_product'     => static::has_free_plan_for_product(),
 			'has_paid_plan_for_product'     => static::has_paid_plan_for_product(),
-			'purchase_url'                  => static::get_purchase_url(),
+			'purchase_url'                  => $purchase_url,
+			'host_purchase_url'             => $host_purchase_url,
 			'manage_paid_plan_purchase_url' => static::get_manage_paid_plan_purchase_url(),
 			'renew_paid_plan_purchase_url'  => static::get_renew_paid_plan_purchase_url(),
 			'does_module_need_attention'    => static::does_module_need_attention(),
@@ -332,6 +359,9 @@ abstract class Product {
 
 		if ( static::$slug === 'jetpack-ai' ) {
 			$product_data['ai-assistant-feature'] = static::get_ai_assistant_feature();
+		}
+		if ( in_array( static::$slug, array( 'security', 'growth' ), true ) ) {
+			$product_data['purchase_replacement'] = Products::get_bundle_offer( static::$slug );
 		}
 
 		return $product_data;
@@ -486,13 +516,58 @@ abstract class Product {
 	abstract public static function get_pricing_for_ui();
 
 	/**
+	 * Prepare supported billing terms, requiring confirmed availability for Pro.
+	 *
+	 * @since 6.12.0
+	 * @param string[] $product_slugs Store product slugs, preferred term first.
+	 * @return array Pricing details and term choices.
+	 */
+	protected static function get_bundle_pricing( $product_slugs ) {
+		$terms = array();
+		foreach ( $product_slugs as $slug ) {
+			$product           = Wpcom_Products::get_product( $slug );
+			$valid_product     = is_object( $product ) && isset( $product->cost ) && isset( $product->currency_code ) && isset( $product->product_term ) && is_numeric( $product->cost ) && $product->cost >= 0;
+			$term              = array_merge(
+				array(
+					'available'          => false,
+					'wpcom_product_slug' => $slug,
+				),
+				$valid_product ? Wpcom_Products::get_product_pricing( $slug ) : array()
+			);
+			$expected_term     = str_ends_with( $slug, '_monthly' ) ? 'month' : ( str_ends_with( $slug, '_bi_yearly' ) ? 'two years' : 'year' );
+			$on_sale           = str_starts_with( $slug, 'jetpack_pro_' ) ? true === ( $product->available ?? false ) : false !== ( $product->available ?? null );
+			$term['available'] = $valid_product && $on_sale && ( $term['product_term'] ?? '' ) === $expected_term;
+			$terms[]           = $term;
+		}
+		$available = array_values( array_filter( $terms, fn( $term ) => true === $term['available'] ) );
+		return array_merge( $available[0] ?? $terms[0], array( 'terms' => $terms ) );
+	}
+
+	/**
 	 * Get the URL where the user can purchase the product iff it doesn't have an interstitial page in My Jetpack.
+	 *
+	 * @since $$next-version$$ Returns the host's own address when it sells the product's feature.
 	 *
 	 * @return ?string
 	 */
 	public static function get_purchase_url() {
-		// Declare as concrete method as most Jetpack products use an interstitial page within My Jetpack.
-		return null;
+		// Most Jetpack products sell through an interstitial page within My Jetpack, so only a host names an address.
+		return static::get_host_purchase_url();
+	}
+
+	/**
+	 * Get the URL where the site's host sells the product, in place of My Jetpack's interstitial page.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return ?string Null when no host sells it or the site already has it.
+	 */
+	public static function get_host_purchase_url() {
+		if ( isset( self::$host_purchase_urls[ static::$slug ] ) ) {
+			return self::$host_purchase_urls[ static::$slug ][0];
+		}
+
+		return Main_Features::get_host_purchase_url( static::$slug );
 	}
 
 	/**
@@ -906,7 +981,7 @@ abstract class Product {
 			}
 			// Check specifically for inactive modules, which will prevent a product from being active
 			// Bundles have no module of their own, so they fall through to the plan checks below.
-		} elseif ( static::$module_name && ! static::is_bundle_product() && ! static::is_module_active() ) {
+		} elseif ( static::get_module_name() && ! static::is_bundle_product() && ! static::is_module_active() ) {
 			$status = Products::STATUS_MODULE_DISABLED;
 			// If there is not a plan associated with the disabled module, encourage a plan first
 			// Getting a plan set up should help resolve any connection issues
@@ -939,6 +1014,19 @@ abstract class Product {
 	 */
 	public static function is_active() {
 		return static::is_plugin_active() && ( static::has_any_plan_for_product() || ( ! static::$requires_plan && static::$has_free_offering ) );
+	}
+
+	/**
+	 * Whether something other than its switch keeps the product off, such as a host or a filter.
+	 *
+	 * Turning its module or plugin on can't bring it back, so nothing should offer to.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	public static function is_held_off() {
+		return false;
 	}
 
 	/**
@@ -995,10 +1083,22 @@ abstract class Product {
 	 * @return bool
 	 */
 	public static function is_module_active() {
-		if ( static::$module_name ) {
-			return ( new Modules() )->is_active( static::$module_name );
+		$module_name = static::get_module_name();
+		if ( $module_name ) {
+			return ( new Modules() )->is_active( $module_name );
 		}
 		return true;
+	}
+
+	/**
+	 * Get the Jetpack module that switches the product on, if any.
+	 *
+	 * @since 6.12.0
+	 *
+	 * @return ?string
+	 */
+	public static function get_module_name() {
+		return static::$module_name;
 	}
 
 	/**
@@ -1021,7 +1121,7 @@ abstract class Product {
 		}
 
 		// Default to installing the standalone plugin for the product
-		if ( ! self::is_plugin_installed() ) {
+		if ( ! self::is_plugin_installed() && static::should_use_standalone_plugin() ) {
 			$installed = Plugins_Installer::install_plugin( static::get_plugin_slug() );
 			if ( is_wp_error( $installed ) ) {
 				return $installed;
@@ -1037,6 +1137,17 @@ abstract class Product {
 			return $result;
 		}
 
+		return true;
+	}
+
+	/**
+	 * Whether activating the product installs and activates its standalone plugin, rather than relying on the Jetpack plugin.
+	 *
+	 * @since 6.12.0
+	 *
+	 * @return bool
+	 */
+	public static function should_use_standalone_plugin() {
 		return true;
 	}
 

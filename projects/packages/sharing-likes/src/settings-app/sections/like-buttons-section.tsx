@@ -79,7 +79,7 @@ export function LikeButtonsSection(): JSX.Element | null {
 				<SettingGroup>
 					<Text render={ <p /> }>
 						{ __(
-							'Like buttons need a connection to WordPress.com, which is unavailable while your site is in offline mode.',
+							'Like buttons need a connection to WordPress.com, which is unavailable while your site is in Offline Mode.',
 							'jetpack-sharing-likes'
 						) }
 					</Text>

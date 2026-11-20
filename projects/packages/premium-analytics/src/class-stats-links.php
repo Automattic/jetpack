@@ -9,11 +9,66 @@ namespace Automattic\Jetpack\PremiumAnalytics;
 
 /**
  * Sends links to Stats pages (the admin bar, the post list Views column, the newsletter action bar) to the matching
- * dashboard page instead.
+ * dashboard page instead, and opens the dashboard for `admin.php?page=stats` once no plugin registers that page.
  *
  * @since 0.12.0
  */
 class Stats_Links {
+
+	/**
+	 * Query arg that carries the old `#!/stats/…` route back to the server.
+	 */
+	const ROUTE_QUERY_ARG = 'stats_route';
+
+	/**
+	 * Views of the old `#!/stats/<view>` routes, and the dashboard section each one opens.
+	 */
+	private const LEGACY_SECTIONS = array(
+		'day'         => 'traffic',
+		'week'        => 'traffic',
+		'month'       => 'traffic',
+		'year'        => 'traffic',
+		'insights'    => 'insights',
+		'subscribers' => 'subscribers',
+		'store'       => 'woocommerce',
+		'ads'         => 'ads',
+	);
+
+	/**
+	 * Periods of the old `#!/stats/<period>/<module>` summary routes.
+	 */
+	private const LEGACY_PERIODS = array( 'hour', 'day', 'week', 'month', 'year' );
+
+	/**
+	 * Modules of the old summary routes, and the report each one opens.
+	 */
+	private const LEGACY_REPORTS = array(
+		'posts'         => 'posts',
+		'referrers'     => 'referrers',
+		'clicks'        => 'clicks',
+		'countryviews'  => 'locations',
+		'locations'     => 'locations',
+		'authors'       => 'authors',
+		'videoplays'    => 'videos',
+		'filedownloads' => 'downloads',
+		'searchterms'   => 'search-terms',
+		'annualstats'   => 'annual-insights',
+		'utm'           => 'utm',
+		'emails'        => 'emails',
+	);
+
+	/**
+	 * The old links' date params, as pairs of the first and the last day; the first pair that names a range wins.
+	 */
+	private const LEGACY_RANGE_PARAMS = array(
+		array( 'chartStart', 'chartEnd' ),
+		array( 'startDate', 'endDate' ),
+	);
+
+	/**
+	 * The Locations report's sections, which the old `geoMode` param names the same way.
+	 */
+	private const LEGACY_GEO_MODES = array( 'countries', 'regions', 'cities' );
 
 	/**
 	 * Claim the links. Idempotent, like the other register() calls.
@@ -24,20 +79,226 @@ class Stats_Links {
 	 */
 	public static function register() {
 		add_filter( 'jetpack_stats_url', array( __CLASS__, 'filter_url' ), 10, 2 );
+		// WordPress 7.2 answers an unregistered page on wp_admin_page_not_found and never reaches admin_page_access_denied.
+		add_action( 'wp_admin_page_not_found', array( __CLASS__, 'open_retired_stats_page' ) );
+		add_action( 'admin_page_access_denied', array( __CLASS__, 'open_retired_stats_page' ) );
+	}
+
+	/**
+	 * Open the dashboard in place of `admin.php?page=stats` once no plugin registers that page.
+	 *
+	 * Before 7.2 core fires admin_page_access_denied for every denied admin page, a registered one the
+	 * user may not open included; the capability check is what keeps that user on core's 403.
+	 *
+	 * @return void
+	 */
+	public static function open_retired_stats_page() {
+		if ( ! self::is_retired_stats_page_request() ) {
+			return;
+		}
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Only picks where to send the reader.
+		if ( isset( $_GET[ self::ROUTE_QUERY_ARG ] ) ) {
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Only picks where to send the reader.
+			$route = sanitize_text_field( wp_unslash( $_GET[ self::ROUTE_QUERY_ARG ] ) );
+			wp_safe_redirect( Analytics::dashboard_url( self::legacy_route_path( $route ) ) );
+			exit( 0 );
+		}
+
+		nocache_headers();
+		self::render_retired_stats_page();
+		exit( 0 );
+	}
+
+	/**
+	 * Whether this request is for `page=stats` with no classic Stats page to open, by a user who can read Stats here.
+	 *
+	 * @return bool
+	 */
+	private static function is_retired_stats_page_request() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Only picks where to send the reader.
+		$page = isset( $_GET['page'] ) ? sanitize_key( wp_unslash( $_GET['page'] ) ) : '';
+
+		return 'stats' === $page
+			&& null === Classic_Stats::page_url()
+			&& Capabilities::current_user_can_open_stats();
+	}
+
+	/**
+	 * Print a page that hands the old `#!/stats/…` route back to the server, since the fragment never reaches it.
+	 *
+	 * @return void
+	 */
+	private static function render_retired_stats_page() {
+		$script = sprintf(
+			'window.location.replace( window.location.pathname + window.location.search + "&%s=" + encodeURIComponent( window.location.hash ) );',
+			self::ROUTE_QUERY_ARG
+		);
+
+		?>
+<!DOCTYPE html>
+<html <?php language_attributes(); ?>>
+<head>
+<meta charset="<?php echo esc_attr( get_bloginfo( 'charset' ) ); ?>">
+<title><?php echo esc_html__( 'Stats', 'jetpack-premium-analytics-pkg' ); ?></title>
+<noscript><meta http-equiv="refresh" content="0;url=<?php echo esc_url( Analytics::dashboard_url( '/' ) ); ?>"></noscript>
+		<?php wp_print_inline_script_tag( $script ); ?>
+</head>
+<body></body>
+</html>
+		<?php
+	}
+
+	/**
+	 * The dashboard route for an old `#!/stats/…` route, or its root when it has no counterpart.
+	 *
+	 * @param string $route The old route, e.g. `#!/stats/post/123/9`.
+	 * @return string
+	 */
+	private static function legacy_route_path( $route ) {
+		if ( ! preg_match( '~^#!/stats/([^?]*)(?:\?(.*))?$~s', $route, $match ) ) {
+			return '/';
+		}
+
+		$segments = explode( '/', $match[1] );
+		$view     = $segments[0];
+		$query    = array();
+		wp_parse_str( $match[2] ?? '', $query );
+
+		if ( 'post' === $view ) {
+			return self::post_path( $segments[1] ?? 0 );
+		}
+
+		// The email routes put the post ID after the metric and the period.
+		if ( 'email' === $view && in_array( $segments[1] ?? '', array( 'opens', 'clicks' ), true ) ) {
+			return self::post_path( $segments[3] ?? 0, 'email-' . $segments[1] );
+		}
+
+		if ( 'settings' === $view ) {
+			return '/settings';
+		}
+
+		if ( 'follows' === $view && 'comment' === ( $segments[1] ?? '' ) ) {
+			return '/reports/comment-followers';
+		}
+
+		// A summary route names its module after the period, or alone when it leaves the period out.
+		$module = in_array( $view, self::LEGACY_PERIODS, true ) ? ( $segments[1] ?? '' ) : $view;
+		$window = self::date_window_params( self::legacy_range( $query ) );
+
+		// The video page names its video in the query, and has no report without one.
+		if ( 'videodetails' === $module ) {
+			$video_id = is_scalar( $query['post'] ?? null ) ? (int) $query['post'] : 0;
+
+			return $video_id > 0 ? '/report/video/' . $video_id : '/reports/videos';
+		}
+
+		if ( array_key_exists( $module, self::LEGACY_REPORTS ) ) {
+			$report = self::LEGACY_REPORTS[ $module ];
+			$params = array();
+
+			if ( 'locations' === $report && in_array( $query['geoMode'] ?? null, self::LEGACY_GEO_MODES, true ) ) {
+				$params['section'] = $query['geoMode'];
+			}
+
+			return self::path_with_query( '/reports/' . $report, $params + $window );
+		}
+
+		// The dashboard draws a window of one day by the hour, and an hourly link without days meant today.
+		if ( 'hour' === $view ) {
+			return self::path_with_query( '/', array( 'section' => 'traffic' ) + ( $window ? $window : array( 'preset' => 'today' ) ) );
+		}
+
+		if ( ! array_key_exists( $view, self::LEGACY_SECTIONS ) ) {
+			return '/';
+		}
+
+		$section = self::LEGACY_SECTIONS[ $view ];
+
+		// Only the Traffic page took the days from its link.
+		return self::path_with_query( '/', array( 'section' => $section ) + ( 'traffic' === $section ? $window : array() ) );
+	}
+
+	/**
+	 * The days an old link names, or null when it names none.
+	 *
+	 * A lone `startDate` is left out: the old pages read it as the start of a period on some
+	 * links and its end on others.
+	 *
+	 * @param array $query The old link's query.
+	 * @return array|null `from` and `to` days as `Y-m-d`.
+	 */
+	private static function legacy_range( array $query ) {
+		foreach ( self::LEGACY_RANGE_PARAMS as list( $from_param, $to_param ) ) {
+			$from = self::legacy_day( $query[ $from_param ] ?? null );
+			$to   = self::legacy_day( $query[ $to_param ] ?? null );
+
+			if ( null !== $from && null !== $to && $from <= $to ) {
+				return array(
+					'from' => $from,
+					'to'   => $to,
+				);
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * A day from an old link as `Y-m-d`, which the old pages also took without leading zeros.
+	 *
+	 * @param mixed $value The param's value.
+	 * @return string|null
+	 */
+	private static function legacy_day( $value ) {
+		if ( ! is_string( $value ) || ! preg_match( '/^(\d{4})-(\d{1,2})-(\d{1,2})$/', $value, $match ) || ! checkdate( (int) $match[2], (int) $match[3], (int) $match[1] ) ) {
+			return null;
+		}
+
+		return sprintf( '%04d-%02d-%02d', $match[1], $match[2], $match[3] );
+	}
+
+	/**
+	 * A dashboard route with its query.
+	 *
+	 * @param string $path  The route.
+	 * @param array  $query Its params.
+	 * @return string
+	 */
+	private static function path_with_query( $path, array $query ) {
+		return $path . ( $query ? '?' . http_build_query( $query, '', '&', PHP_QUERY_RFC3986 ) : '' );
+	}
+
+	/**
+	 * A post detail route, or the dashboard root when there is no real post.
+	 *
+	 * @param mixed  $post_id The post.
+	 * @param string $section The post detail tab, or '' for its default.
+	 * @return string
+	 */
+	private static function post_path( $post_id, $section = '' ) {
+		$post_id = (int) $post_id;
+
+		if ( $post_id <= 0 ) {
+			return '/';
+		}
+
+		return '/post/' . $post_id . ( '' === $section ? '' : '?section=' . $section );
 	}
 
 	/**
 	 * Point a Stats link at the dashboard page for the view it opens.
 	 *
 	 * @param string $url  Stats URL.
-	 * @param array  $args The page the link opens: `view`, plus `id` for the `post` view.
+	 * @param array  $args The page the link opens: `view`, plus `id` for the `post` view, or `section` and a
+	 *                     `range` of `from`/`to` days as `Y-m-d` for the `dashboard` view.
 	 * @return string
 	 */
 	public static function filter_url( $url, $args ) {
 		$view = is_array( $args ) ? ( $args['view'] ?? null ) : null;
 
 		if ( 'dashboard' === $view ) {
-			return self::route_url( $url, '/' );
+			return self::route_url( $url, self::dashboard_path( $args ) );
 		}
 
 		if ( 'post' === $view ) {
@@ -45,6 +306,58 @@ class Stats_Links {
 		}
 
 		return $url;
+	}
+
+	/**
+	 * The dashboard root, opened on the section and the days the link names.
+	 *
+	 * @param array $args The link's `section` and `range`, both optional.
+	 * @return string
+	 */
+	private static function dashboard_path( array $args ) {
+		$query   = array();
+		$section = sanitize_key( $args['section'] ?? '' );
+
+		if ( '' !== $section ) {
+			$query['section'] = $section;
+		}
+
+		return self::path_with_query( '/', $query + self::date_window_params( $args['range'] ?? null ) );
+	}
+
+	/**
+	 * The dashboard's date params for a range of whole days, on the site's calendar.
+	 *
+	 * A "Last N days" window ending today is sent as its preset, so the date picker reads
+	 * "Last 7 days" rather than two dates; the day counts mirror the dashboard's presets.
+	 *
+	 * @param mixed $range `from` and `to` days as `Y-m-d`.
+	 * @return array `preset`, or `from` and `to`, or nothing for a range the dashboard cannot open.
+	 */
+	private static function date_window_params( $range ) {
+		if ( ! is_array( $range ) || ! is_string( $range['from'] ?? null ) || ! is_string( $range['to'] ?? null ) ) {
+			return array();
+		}
+
+		$zone = wp_timezone();
+		$from = \DateTimeImmutable::createFromFormat( '!Y-m-d', $range['from'], $zone );
+		$to   = \DateTimeImmutable::createFromFormat( '!Y-m-d', $range['to'], $zone );
+
+		if ( ! $from || ! $to || $to < $from ) {
+			return array();
+		}
+
+		$today = ( new \DateTimeImmutable( 'now', $zone ) )->setTime( 0, 0 );
+		$days  = $from->diff( $to )->days + 1;
+
+		if ( $to->getTimestamp() === $today->getTimestamp() && in_array( $days, array( 7, 30, 90, 365 ), true ) ) {
+			return array( 'preset' => 'last-' . $days . '-days' );
+		}
+
+		return array(
+			'from' => $from->format( 'Y-m-d\TH:i:s.vP' ),
+			'to'   => $to->setTime( 23, 59, 59, 999999 )->format( 'Y-m-d\TH:i:s.vP' ),
+		);
 	}
 
 	/**
@@ -76,7 +389,7 @@ class Stats_Links {
 	 * @return string
 	 */
 	private static function route_url( $url, $path ) {
-		if ( ! Capabilities::current_user_can_view_stats() ) {
+		if ( ! Capabilities::current_user_can_open_stats() ) {
 			return $url;
 		}
 

@@ -74,6 +74,29 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding extends WP_REST_Controller {
 	const PAYPAL_PAYMENT_RESOURCES_ENDPOINT = '/v1/checkout/payment-resources';
 
 	/**
+	 * The one path that takes files: product images, sent as multipart/form-data.
+	 *
+	 * @var string
+	 */
+	const PAYPAL_IMAGES_ENDPOINT = '/v1/checkout/payment-resources/images';
+
+	/**
+	 * Files PayPal takes in one image upload.
+	 *
+	 * @var int
+	 */
+	const MAX_FILES_PER_UPLOAD = 15;
+
+	/**
+	 * The partner attribution (BN) code the calling site resolved, sent on every PayPal call it caused.
+	 *
+	 * The site resolves it, since only it knows whether a sandbox override applies.
+	 *
+	 * @var string
+	 */
+	private $partner_attribution_id = '';
+
+	/**
 	 * Products to request during onboarding.
 	 *
 	 * @var array
@@ -202,6 +225,12 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding extends WP_REST_Controller {
 			'description'       => 'The seller\'s PayPal merchant ID.',
 		);
 
+		$partner_attribution_arg = array(
+			'type'              => 'string',
+			'sanitize_callback' => array( $this, 'sanitize_partner_attribution_id' ),
+			'description'       => 'The partner attribution (BN) code the site resolved for its environment.',
+		);
+
 		register_rest_route(
 			$this->namespace,
 			$this->rest_base . '/signup-link',
@@ -219,11 +248,7 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding extends WP_REST_Controller {
 							'sanitize_callback' => 'esc_url_raw',
 							'description'       => 'The site page PayPal sends the seller back to.',
 						),
-						'partner_attribution_id' => array(
-							'type'              => 'string',
-							'sanitize_callback' => array( $this, 'sanitize_partner_attribution_id' ),
-							'description'       => 'The partner attribution (BN) code the site resolved for its environment.',
-						),
+						'partner_attribution_id' => $partner_attribution_arg,
 					),
 				),
 			)
@@ -238,13 +263,14 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding extends WP_REST_Controller {
 					'callback'            => array( $this, 'get_merchant_integration_status' ),
 					'permission_callback' => array( $this, 'permission_check' ),
 					'args'                => array(
-						'environment' => $environment_arg,
-						'merchant_id' => $merchant_id_arg,
-						'tracking_id' => array(
+						'environment'            => $environment_arg,
+						'merchant_id'            => $merchant_id_arg,
+						'tracking_id'            => array(
 							'type'              => 'string',
 							'sanitize_callback' => 'sanitize_text_field',
 							'description'       => 'The tracking ID the referral was created with: to find a seller who just finished onboarding, or with a merchant ID, as proof the blog referred them.',
 						),
+						'partner_attribution_id' => $partner_attribution_arg,
 					),
 				),
 			)
@@ -259,37 +285,52 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding extends WP_REST_Controller {
 					'callback'            => array( $this, 'forward_request' ),
 					'permission_callback' => array( $this, 'permission_check' ),
 					'args'                => array(
-						'environment' => $environment_arg,
-						'merchant_id' => array_merge( $merchant_id_arg, array( 'required' => true ) ),
-						'tracking_id' => array(
+						'environment'            => $environment_arg,
+						'merchant_id'            => array_merge( $merchant_id_arg, array( 'required' => true ) ),
+						'tracking_id'            => array(
 							'type'              => 'string',
 							'default'           => '',
 							'sanitize_callback' => 'sanitize_text_field',
 							'description'       => 'The tracking ID the blog onboarded the seller with, as proof it referred them.',
 						),
-						'method'      => array(
+						'method'                 => array(
 							'required'    => true,
 							'type'        => 'string',
 							'enum'        => array( 'GET', 'POST', 'PUT', 'DELETE' ),
 							'description' => 'HTTP method of the PayPal call.',
 						),
-						'path'        => array(
+						'path'                   => array(
 							'required'          => true,
 							'type'              => 'string',
 							'validate_callback' => array( $this, 'validate_path' ),
 							'description'       => 'PayPal API path, with any query string. Payment Links & Buttons only.',
 						),
-						'body'        => array(
+						'body'                   => array(
 							'type'        => array( 'object', 'null' ),
 							'default'     => null,
 							'description' => 'JSON body for POST and PUT.',
 						),
-						'request_id'  => array(
+						'files'                  => array(
+							'type'        => 'array',
+							'default'     => array(),
+							'maxItems'    => self::MAX_FILES_PER_UPLOAD,
+							'items'       => array(
+								'type'       => 'object',
+								'properties' => array(
+									'name'    => array( 'type' => 'string' ),
+									'type'    => array( 'type' => 'string' ),
+									'content' => array( 'type' => 'string' ),
+								),
+							),
+							'description' => 'Images for a POST to the images path, each with name, type and base64 content. Sent as multipart/form-data in place of the body.',
+						),
+						'request_id'             => array(
 							'type'              => 'string',
 							'default'           => '',
 							'sanitize_callback' => 'sanitize_text_field',
 							'description'       => 'PayPal-Request-Id idempotency key.',
 						),
+						'partner_attribution_id' => $partner_attribution_arg,
 					),
 				),
 			)
@@ -390,7 +431,7 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding extends WP_REST_Controller {
 	 */
 	public function validate_path( $value ) {
 		return is_string( $value )
-			&& 1 === preg_match( '#^' . preg_quote( self::PAYPAL_PAYMENT_RESOURCES_ENDPOINT, '#' ) . '(/[A-Za-z0-9-]+)?(\?[^\s]*)?\z#', $value );
+			&& 1 === preg_match( '#^' . preg_quote( self::PAYPAL_PAYMENT_RESOURCES_ENDPOINT, '#' ) . '(/[A-Za-z0-9-]+|/images/(?!\.{1,2}(\?|\z))[A-Za-z0-9%._~-]+)?(\?[^\s]*)?\z#', $value );
 	}
 
 	/**
@@ -414,20 +455,14 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding extends WP_REST_Controller {
 		// The tracking ID is what later ties the seller back to this blog.
 		$tracking_id = self::TRACKING_ID_PREFIX . $this->site_id() . '-' . time();
 
-		// The site resolves the BN code, since only it knows whether a sandbox override applies.
-		$headers                = array();
-		$partner_attribution_id = (string) $request->get_param( 'partner_attribution_id' );
-		if ( '' !== $partner_attribution_id ) {
-			$headers['PayPal-Partner-Attribution-Id'] = $partner_attribution_id;
-		}
+		$this->partner_attribution_id = (string) $request->get_param( 'partner_attribution_id' );
 
 		$response = $this->paypal_request(
 			$environment,
 			$credentials,
 			'POST',
 			self::PAYPAL_REFERRALS_ENDPOINT,
-			self::build_referral( $tracking_id, (string) $request->get_param( 'return_url' ) ),
-			$headers
+			self::build_referral( $tracking_id, (string) $request->get_param( 'return_url' ) )
 		);
 
 		if ( is_wp_error( $response ) ) {
@@ -543,6 +578,8 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding extends WP_REST_Controller {
 		$tracking_id = (string) $request->get_param( 'tracking_id' );
 		$site_id     = $this->site_id();
 
+		$this->partner_attribution_id = (string) $request->get_param( 'partner_attribution_id' );
+
 		$credentials = $this->get_platform_credentials( $environment );
 		if ( is_wp_error( $credentials ) ) {
 			return $credentials;
@@ -603,6 +640,13 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding extends WP_REST_Controller {
 		$merchant_id = (string) $request->get_param( 'merchant_id' );
 		$site_id     = $this->site_id();
 
+		$this->partner_attribution_id = (string) $request->get_param( 'partner_attribution_id' );
+
+		$files = $this->decode_files( $request );
+		if ( is_wp_error( $files ) ) {
+			return $files;
+		}
+
 		$credentials = $this->get_platform_credentials( $environment );
 		if ( is_wp_error( $credentials ) ) {
 			return $credentials;
@@ -634,7 +678,9 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding extends WP_REST_Controller {
 			$request->get_param( 'method' ),
 			$request->get_param( 'path' ),
 			$request->get_param( 'body' ),
-			$headers
+			$headers,
+			array(),
+			$files
 		);
 
 		if ( is_wp_error( $response ) ) {
@@ -647,6 +693,48 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding extends WP_REST_Controller {
 				'body'   => (string) wp_remote_retrieve_body( $response ),
 			)
 		);
+	}
+
+	/**
+	 * The files of an image upload, decoded from the base64 the site sent them as.
+	 *
+	 * @param WP_REST_Request $request The REST request.
+	 * @return array|WP_Error Files with name, type and content, or WP_Error (400) for ones that cannot be sent.
+	 */
+	private function decode_files( WP_REST_Request $request ) {
+		$raw = $request->get_param( 'files' );
+		if ( empty( $raw ) || ! is_array( $raw ) ) {
+			return array();
+		}
+
+		$invalid = new WP_Error(
+			'paypal_invalid_files',
+			'Files can only be images, base64-encoded, in a POST to the images path.',
+			array( 'status' => 400 )
+		);
+
+		if ( 'POST' !== $request->get_param( 'method' ) || self::PAYPAL_IMAGES_ENDPOINT !== $request->get_param( 'path' ) || count( $raw ) > self::MAX_FILES_PER_UPLOAD ) {
+			return $invalid;
+		}
+
+		$files = array();
+		foreach ( $raw as $file ) {
+			$type = is_array( $file ) ? (string) ( $file['type'] ?? '' ) : '';
+			// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode -- Binary file bytes from a JSON body.
+			$content = is_array( $file ) ? base64_decode( (string) ( $file['content'] ?? '' ), true ) : false;
+			if ( false === $content || '' === $content || 1 !== preg_match( '#^image/[a-z0-9.+-]+\z#', $type ) ) {
+				return $invalid;
+			}
+
+			$name    = str_replace( array( '"', "\r", "\n" ), '', (string) ( $file['name'] ?? '' ) );
+			$files[] = array(
+				'name'    => '' === $name ? 'image' : $name,
+				'type'    => $type,
+				'content' => $content,
+			);
+		}
+
+		return $files;
 	}
 
 	/**
@@ -923,9 +1011,10 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding extends WP_REST_Controller {
 	 * @param array|null $body              JSON body for POST and PUT.
 	 * @param array      $extra_headers     Headers added to the standard set.
 	 * @param int[]      $unlogged_statuses Expected error statuses to skip logging.
+	 * @param array      $files             Decoded files, sent as multipart/form-data in place of the body.
 	 * @return array|WP_Error The wp_remote_request() response, or WP_Error (502) when PayPal was unreachable.
 	 */
-	private function paypal_request( $environment, $credentials, $method, $path, $body = null, $extra_headers = array(), $unlogged_statuses = array() ) {
+	private function paypal_request( $environment, $credentials, $method, $path, $body = null, $extra_headers = array(), $unlogged_statuses = array(), $files = array() ) {
 		$base_url = $this->base_url( $environment );
 
 		$token = $this->get_paypal_access_token( $environment, $base_url, $credentials['client_id'], $credentials['client_secret'] );
@@ -933,20 +1022,34 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding extends WP_REST_Controller {
 			return $token;
 		}
 
+		$headers = array(
+			'Authorization' => 'Bearer ' . $token,
+			'Content-Type'  => 'application/json',
+			'Accept'        => 'application/json',
+		);
+		if ( '' !== $this->partner_attribution_id ) {
+			$headers['PayPal-Partner-Attribution-Id'] = $this->partner_attribution_id;
+		}
+
 		$args = array(
 			'method'  => $method,
 			'timeout' => 30,
-			'headers' => array_merge(
-				array(
-					'Authorization' => 'Bearer ' . $token,
-					'Content-Type'  => 'application/json',
-					'Accept'        => 'application/json',
-				),
-				$extra_headers
-			),
+			'headers' => array_merge( $headers, $extra_headers ),
 		);
 
-		if ( null !== $body && in_array( $method, array( 'POST', 'PUT' ), true ) ) {
+		if ( ! empty( $files ) ) {
+			// One part named `files` per image, as PayPal_API_Client::multipart_body() sends a direct upload.
+			$boundary     = wp_generate_password( 24, false );
+			$args['body'] = '';
+			foreach ( $files as $file ) {
+				$args['body'] .= '--' . $boundary . "\r\n";
+				$args['body'] .= 'Content-Disposition: form-data; name="files"; filename="' . $file['name'] . "\"\r\n";
+				$args['body'] .= 'Content-Type: ' . $file['type'] . "\r\n\r\n";
+				$args['body'] .= $file['content'] . "\r\n";
+			}
+			$args['body']                   .= '--' . $boundary . "--\r\n";
+			$args['headers']['Content-Type'] = 'multipart/form-data; boundary=' . $boundary;
+		} elseif ( null !== $body && in_array( $method, array( 'POST', 'PUT' ), true ) ) {
 			$args['body'] = wp_json_encode( $body, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE );
 		}
 

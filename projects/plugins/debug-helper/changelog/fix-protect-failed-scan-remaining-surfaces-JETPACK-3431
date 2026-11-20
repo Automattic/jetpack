@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Protect: Restore status overrides, add a status that simulates a scan that didn't complete, and add an option to fail the Scan History fetch.

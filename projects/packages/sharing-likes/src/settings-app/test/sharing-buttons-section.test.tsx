@@ -2,14 +2,7 @@ import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
 import { SharingButtonsSection } from '../sections/sharing-buttons-section';
-import {
-	apiCalls,
-	baseSettings,
-	baseStatus,
-	renderWithData,
-	resetNotices,
-	setScriptData,
-} from './helpers';
+import { apiCalls, baseSettings, baseStatus, renderWithData, setScriptData } from './helpers';
 import type { Services, Settings } from '../types';
 
 jest.mock( '@wordpress/api-fetch' );
@@ -45,7 +38,6 @@ function servicesRespond( list: Services ) {
 
 beforeEach( () => {
 	mockApiFetch.mockReset();
-	resetNotices();
 	setScriptData();
 } );
 
@@ -137,7 +129,7 @@ describe( 'SharingButtonsSection', () => {
 
 	it( 'does not ask for services unless the section configures', () => {
 		renderWithData( <SharingButtonsSection />, {
-			status: { ...baseStatus, sharing: { state: 'off' } },
+			status: { ...baseStatus, sharing: { ...baseStatus.sharing, state: 'off' } },
 		} );
 
 		expect( apiCalls() ).toEqual( [] );

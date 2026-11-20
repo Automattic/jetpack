@@ -1,11 +1,23 @@
-import { act, renderHook } from '@testing-library/react';
+import { act, renderHook, waitFor } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
 import { dispatch, select } from '@wordpress/data';
 import { store as noticesStore } from '@wordpress/notices';
-import { setScan, useScan } from '../store';
-import { deleteSoftware, fixThreat, ignoreThreat } from '../threat-actions';
+import { recordEvent } from '../../../data/tracks';
+import { resetScan, setScan, useScan } from '../store';
+import {
+	deleteSoftware,
+	deleteThreatRow,
+	fixThreat,
+	fixThreats,
+	ignoreThreat,
+	ignoreThreats,
+	loadIgnored,
+	resetThreatActions,
+	unignoreThreat,
+} from '../threat-actions';
 
 jest.mock( '@wordpress/api-fetch', () => ( { __esModule: true, default: jest.fn() } ) );
+jest.mock( '../../../data/tracks', () => ( { recordEvent: jest.fn() } ) );
 
 const mockApiFetch = apiFetch as unknown as jest.Mock;
 const threat = { id: 7, title: 'Malicious code found in file: a.php' };
@@ -13,6 +25,14 @@ const threat = { id: 7, title: 'Malicious code found in file: a.php' };
 window.jetpackProtectDashboard = {
 	scan: { hasPlan: true, url: '#', error: false, threats: [ threat ], ignored: [] },
 };
+
+afterEach( () => {
+	resetThreatActions();
+	resetScan();
+	dispatch( noticesStore ).removeAllNotices( 'snackbar' );
+	mockApiFetch.mockReset();
+	jest.useRealTimers();
+} );
 
 describe( 'ignoreThreat', () => {
 	it( 'moves the threat to the ignored list, and the notice’s Undo unignores it', async () => {
@@ -38,6 +58,95 @@ describe( 'ignoreThreat', () => {
 			method: 'POST',
 		} );
 		expect( result.current?.ignored ).toEqual( [] );
+	} );
+} );
+
+describe( 'a failed ignore or unignore', () => {
+	const other = { id: 71, title: 'Malicious code found in file: c.php' };
+	const ignored = ( item: typeof threat ) => ( { ...item, status: 'ignored' as const } );
+
+	it.each( [
+		[ 'an ignore', () => ignoreThreat( threat ), [ threat ], [], [], [ ignored( threat ) ] ],
+		[ 'an unignore', () => unignoreThreat( threat ), [], [ ignored( threat ) ], [ threat ], [] ],
+		[
+			'a bulk ignore',
+			() => ignoreThreats( [ threat, other ] ),
+			[ threat, other ],
+			[],
+			[],
+			[ ignored( threat ), ignored( other ) ],
+		],
+	] )(
+		'after %s, shows what WordPress.com has',
+		async ( _name, run, threats, before, serverThreats, serverIgnored ) => {
+			setScan( current => ( { ...current, threats, ignored: before } ) );
+			mockApiFetch.mockReset().mockImplementation( ( { path, method } ) => {
+				if ( method === 'POST' ) {
+					return Promise.reject( { message: 'Request timed out.' } );
+				}
+				if ( path.endsWith( '/scan' ) ) {
+					return Promise.resolve( {
+						hasPlan: true,
+						url: '#',
+						error: false,
+						threats: serverThreats,
+					} );
+				}
+				return Promise.resolve( serverIgnored );
+			} );
+			const { result } = renderHook( () => useScan() );
+
+			await act( async () => {
+				await run();
+			} );
+
+			await waitFor( () => expect( result.current?.threats ).toEqual( serverThreats ) );
+			expect( result.current?.ignored ).toEqual( serverIgnored );
+			expect( result.current?.error ).toBe( false );
+		}
+	);
+
+	it( 'keeps the newer ignored list when an older read lands last', async () => {
+		let answerOlder: ( value: unknown ) => void = () => {};
+		mockApiFetch
+			.mockReset()
+			.mockImplementationOnce( () => new Promise( resolve => ( answerOlder = resolve ) ) )
+			.mockImplementationOnce( () => Promise.resolve( [ ignored( other ) ] ) );
+		const { result } = renderHook( () => useScan() );
+
+		const older = loadIgnored();
+		await act( () => loadIgnored() );
+		await act( async () => {
+			answerOlder( [ ignored( threat ) ] );
+			await older;
+		} );
+
+		expect( result.current?.ignored ).toEqual( [ ignored( other ) ] );
+	} );
+
+	it.each( [
+		[ 'fails', () => Promise.reject( { message: 'Request timed out.' } ) ],
+		[ 'reports an error', () => Promise.resolve( { error: true, scanning: false } ) ],
+	] )( 'keeps the lists it has when the refetch %s', async ( _name, scanAnswer ) => {
+		setScan( current => ( { ...current, threats: [ threat ], ignored: [], error: false } ) );
+		mockApiFetch
+			.mockReset()
+			.mockImplementation( ( { path, method } ) =>
+				method !== 'POST' && path.endsWith( '/scan' )
+					? scanAnswer()
+					: Promise.reject( { message: 'Request timed out.' } )
+			);
+		const { result } = renderHook( () => useScan() );
+
+		await act( async () => {
+			await ignoreThreat( threat );
+		} );
+
+		await waitFor( () =>
+			expect( mockApiFetch ).toHaveBeenCalledWith( { path: '/jetpack/v4/protect-dashboard/scan' } )
+		);
+		expect( result.current?.threats ).toEqual( [ threat ] );
+		expect( result.current?.error ).toBe( false );
 	} );
 } );
 
@@ -84,6 +193,242 @@ describe( 'threat notices', () => {
 		).toEqual(
 			expect.arrayContaining( [ 'Ignored the threat in a.php.', 'Ignored the threat in b.php.' ] )
 		);
+	} );
+} );
+
+describe( 'bulk actions', () => {
+	const fileThreat = ( id: number ) => ( {
+		id,
+		title: `Malicious code found in file: ${ id }.php`,
+	} );
+	const bulkNotices = () =>
+		select( noticesStore )
+			.getNotices()
+			.filter( notice => notice.id.includes( 'bulk' ) );
+
+	it( 'reports a batch in one snackbar, and Undo unignores only the threats that were ignored', async () => {
+		const [ a, b, c ] = [ fileThreat( 31 ), fileThreat( 32 ), fileThreat( 33 ) ];
+		setScan( current => ( { ...current, threats: [ a, b, c ], ignored: [] } ) );
+		mockApiFetch.mockReset().mockImplementation( ( { path, method } ) => {
+			if ( method !== 'POST' ) {
+				return Promise.resolve( [] );
+			}
+			return path.includes( '/32/' ) ? Promise.reject( {} ) : Promise.resolve( {} );
+		} );
+		const { result } = renderHook( () => useScan() );
+
+		await act( () => ignoreThreats( [ a, b, c ] ) );
+
+		expect( result.current?.threats?.map( item => item.id ) ).toEqual( [ 32 ] );
+		const [ notice ] = bulkNotices();
+		expect( bulkNotices() ).toHaveLength( 1 );
+		expect( notice ).toMatchObject( {
+			status: 'error',
+			content: 'Ignored 2 of 3 threats. Try the others again.',
+		} );
+		expect(
+			select( noticesStore )
+				.getNotices()
+				.filter( item => ! item.id.includes( 'bulk' ) )
+		).toEqual( [] );
+
+		mockApiFetch.mockClear();
+		await act( async () => notice.actions[ 0 ].onClick() );
+		// The failed threat isn't left busy, so it can be tried again.
+		await act( () => ignoreThreat( b ) );
+
+		expect(
+			mockApiFetch.mock.calls
+				.filter( ( [ { method } ] ) => method === 'POST' )
+				.map( ( [ { path } ] ) => path )
+		).toEqual( [
+			'/jetpack/v4/protect-dashboard/scan/threats/31/unignore',
+			'/jetpack/v4/protect-dashboard/scan/threats/33/unignore',
+			'/jetpack/v4/protect-dashboard/scan/threats/32/ignore',
+		] );
+	} );
+
+	// Each threat's fix answers with these statuses in turn, repeating the last; `reject`, `missing` and `limited` fail it.
+	it.each( [
+		[ 'success', 'Fixed 2 threats.', [ 'fixed' ], [ 'fixed' ] ],
+		[ 'success', 'Fixed 2 threats.', [ 'in_progress', 'reject', 'fixed' ], [ 'fixed' ] ],
+		[
+			'info',
+			'Fixed 1 of 2 threats. 1 fix is taking longer than expected. Check back in a few minutes.',
+			[ 'in_progress', 'reject' ],
+			[ 'fixed' ],
+		],
+		[
+			'error',
+			'Fixed 1 of 2 threats. 1 threat couldn’t be fixed. Fix it on its own to see why.',
+			[ 'in_progress', 'missing' ],
+			[ 'fixed' ],
+		],
+		[
+			'info',
+			'Fixed 1 of 2 threats. 1 fix is taking longer than expected. Check back in a few minutes.',
+			[ 'in_progress', 'limited' ],
+			[ 'fixed' ],
+		],
+		[
+			'error',
+			'Fixed 1 of 2 threats. 1 threat couldn’t be fixed. Fix it on its own to see why.',
+			[ 'fixed' ],
+			[ 'not_fixed' ],
+		],
+		[
+			'error',
+			'2 threats couldn’t be fixed. Fix them one at a time to see why.',
+			[ 'not_fixed' ],
+			[ 'not_fixed' ],
+		],
+		[
+			'info',
+			'Fixed 1 of 2 threats. 1 fix is taking longer than expected. Check back in a few minutes.',
+			[ 'fixed' ],
+			[ 'in_progress' ],
+		],
+	] )( 'reports a batch of fixes as %s: %s', async ( status, content, ...answers: string[][] ) => {
+		jest.useFakeTimers();
+		const ids = [ 41, 42 ];
+		mockApiFetch.mockReset().mockImplementation( ( { path } ) => {
+			const queue = answers[ ids.findIndex( id => path.includes( `/${ id }/` ) ) ];
+			const answer = queue.length > 1 ? queue.shift() : queue[ 0 ];
+			const errors: Record< string, object > = {
+				reject: {},
+				missing: { data: { status: 404 } },
+				limited: { data: { status: 429 } },
+			};
+			if ( answer in errors ) {
+				return Promise.reject( errors[ answer ] );
+			}
+			return Promise.resolve( { status: answer } );
+		} );
+
+		const done = fixThreats( ids.map( fileThreat ) );
+		await jest.runAllTimersAsync();
+		await done;
+
+		expect( bulkNotices() ).toEqual( [ expect.objectContaining( { status, content } ) ] );
+	} );
+
+	it.each( [
+		[ 'a fix that deletes software', { fixer: 'delete' as const } ],
+		[
+			'a fix Scan leaves out of bulk fixes',
+			{ fixer: 'update' as const, extras: { isBulkFixable: false } },
+		],
+	] )( 'leaves %s out of a batch', async ( _name, fixable ) => {
+		mockApiFetch.mockReset().mockResolvedValue( { status: 'fixed' } );
+		const excluded = { ...fileThreat( 61 ), signature: 'Vulnerable.WP.Extension', fixable };
+
+		await act( () => fixThreats( [ excluded, fileThreat( 62 ) ] ) );
+
+		expect( mockApiFetch.mock.calls.map( ( [ { path } ] ) => path ) ).toEqual( [
+			'/jetpack/v4/protect-dashboard/scan/threats/62/fix',
+		] );
+	} );
+
+	it( 'still fixes a threat left out of bulk fixes on its own', async () => {
+		mockApiFetch.mockReset().mockResolvedValue( { status: 'fixed' } );
+		const alone = {
+			...fileThreat( 63 ),
+			fixable: { fixer: 'update' as const, extras: { isBulkFixable: false } },
+		};
+
+		await act( () => fixThreats( [ alone ] ) );
+
+		expect( mockApiFetch ).toHaveBeenCalledWith(
+			expect.objectContaining( { path: '/jetpack/v4/protect-dashboard/scan/threats/63/fix' } )
+		);
+	} );
+
+	// A fix's start answers `in_progress`, so its polls must wait outside the five slots.
+	it.each( [
+		[ 'ignoreThreats', ignoreThreats, {} ],
+		[ 'fixThreats', fixThreats, { status: 'in_progress' } ],
+	] )(
+		'%s keeps five requests in flight, and every queued threat busy until its turn',
+		async ( _name, run, answer ) => {
+			jest.useFakeTimers();
+			const threats = [ 51, 52, 53, 54, 55, 56, 57 ].map( fileThreat );
+			setScan( current => ( { ...current, threats, ignored: [] } ) );
+			const pending: Array< () => void > = [];
+			mockApiFetch
+				.mockReset()
+				.mockImplementation( ( { method } ) =>
+					method === 'POST'
+						? new Promise( resolve => pending.push( () => resolve( answer ) ) )
+						: Promise.resolve( { status: 'fixed' } )
+				);
+
+			const done = run( threats );
+			await act( () => ignoreThreat( threats[ 6 ] ) );
+
+			expect( mockApiFetch ).toHaveBeenCalledTimes( 5 );
+			while ( pending.length ) {
+				await act( async () => pending.shift()?.() );
+			}
+			expect( mockApiFetch ).toHaveBeenCalledTimes( 7 );
+			await act( async () => {
+				await jest.runAllTimersAsync();
+				await done;
+			} );
+		}
+	);
+} );
+
+describe( 'threat action Tracks events', () => {
+	const scan = { hasPlan: true, url: '#', error: false, threats: [] };
+
+	// Runs the fix's polling out on fake timers, past the point where the dashboard gives up.
+	const fixTimingOut = async ( item: Parameters< typeof fixThreat >[ 0 ] ) => {
+		jest.useFakeTimers();
+		mockApiFetch.mockClear();
+		try {
+			const fixing = fixThreat( item );
+			await jest.runAllTimersAsync();
+			await fixing;
+		} finally {
+			jest.useRealTimers();
+		}
+		// One start and 100 polls: the polling cap ended the fix, not an error.
+		expect( mockApiFetch ).toHaveBeenCalledTimes( 101 );
+	};
+
+	it.each( [
+		[ 'a fix', fixThreat, Promise.resolve( { status: 'fixed', scan } ), 'fix_threat', 'success' ],
+		[
+			'a fix Scan gave up on',
+			fixThreat,
+			Promise.resolve( { status: 'not_fixed', scan } ),
+			'fix_threat',
+			'failed',
+		],
+		[ 'a fix that didn’t start', fixThreat, Promise.reject( {} ), 'fix_threat', 'failed' ],
+		[
+			'a fix that never finishes',
+			fixTimingOut,
+			Promise.resolve( { status: 'in_progress' } ),
+			'fix_threat',
+			'failed',
+		],
+		[ 'an ignore', ignoreThreat, Promise.resolve( {} ), 'ignore_threat', 'success' ],
+		[ 'a failed ignore', ignoreThreat, Promise.reject( {} ), 'ignore_threat', 'failed' ],
+		[ 'an unignore', unignoreThreat, Promise.resolve( {} ), 'unignore_threat', 'success' ],
+		[ 'a failed unignore', unignoreThreat, Promise.reject( {} ), 'unignore_threat', 'failed' ],
+	] )( 'record the Scan page’s events for %s', async ( _name, action, response, event, result ) => {
+		( recordEvent as jest.Mock ).mockClear();
+		mockApiFetch.mockReturnValue( response );
+
+		await act( async () => {
+			await action( { ...threat, id: `tracks-${ _name }` } );
+		} );
+
+		expect( ( recordEvent as jest.Mock ).mock.calls ).toEqual( [
+			[ `jetpack_scan_${ event }_click` ],
+			[ `jetpack_scan_${ event }_${ result }` ],
+		] );
 	} );
 } );
 
@@ -148,5 +493,52 @@ describe( 'deleteSoftware', () => {
 
 		expect( error ).toMatch( /^Busy can’t be deleted while/ );
 		expect( mockApiFetch ).toHaveBeenCalledTimes( 1 );
+	} );
+} );
+
+describe( 'deleteThreatRow', () => {
+	const inOption = ( id: number ) => ( {
+		id,
+		title: 'Database threat',
+		database: { table: 'wp_options', pkColumn: 'option_id', pkValue: String( id ) },
+	} );
+
+	it( 'drops only the deleted option’s threat', async () => {
+		// The delete refreshes History, which answers with a list.
+		mockApiFetch
+			.mockReset()
+			.mockImplementation( ( { path }: { path: string } ) =>
+				Promise.resolve(
+					path.endsWith( '/history' ) ? [] : { threat: { ...inOption( 30 ), status: 'fixed' } }
+				)
+			);
+		setScan( current => ( { ...current, threats: [ inOption( 30 ), inOption( 31 ) ] } ) );
+		const { result } = renderHook( () => useScan() );
+
+		let error: string | null = 'not run';
+		await act( async () => {
+			error = await deleteThreatRow( inOption( 30 ) );
+		} );
+
+		expect( error ).toBeNull();
+
+		expect( mockApiFetch ).toHaveBeenCalledWith( {
+			path: '/jetpack/v4/protect-dashboard/scan/threats/30/row',
+			method: 'DELETE',
+		} );
+		expect( result.current?.threats?.map( item => item.id ) ).toEqual( [ 31 ] );
+	} );
+
+	it.each( [
+		[ 'the server’s reason', { message: 'Nope' }, 'Nope' ],
+		[ 'a fallback', {}, 'The option couldn’t be deleted.' ],
+	] )( 'resolves to %s when the delete fails, and keeps the threat', async ( _name, e, reason ) => {
+		mockApiFetch.mockReset().mockRejectedValue( e );
+		setScan( current => ( { ...current, threats: [ inOption( 32 ) ] } ) );
+		const { result } = renderHook( () => useScan() );
+
+		await expect( deleteThreatRow( inOption( 32 ) ) ).resolves.toBe( reason );
+
+		expect( result.current?.threats?.map( item => item.id ) ).toEqual( [ 32 ] );
 	} );
 } );

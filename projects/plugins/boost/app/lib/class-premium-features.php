@@ -4,6 +4,7 @@ namespace Automattic\Jetpack_Boost\Lib;
 
 use Automattic\Jetpack\Boost_Core\Lib\Boost_API;
 use Automattic\Jetpack\Boost_Core\Lib\Transient;
+use Automattic\Jetpack\My_Jetpack\Product;
 use Automattic\Jetpack_Boost\Data_Sync\Modules_State_Entry;
 use Automattic\Jetpack_Boost\Modules\Module;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Cloud_CSS\Cloud_CSS;
@@ -18,6 +19,15 @@ class Premium_Features {
 	const PAGE_CACHE            = 'page-cache';
 	const CORNERSTONE_TEN_PAGES = 'cornerstone-10-pages';
 
+	private const ALL_FEATURES = array(
+		self::CLOUD_CSS,
+		self::IMAGE_CDN_LIAR,
+		self::IMAGE_CDN_QUALITY,
+		self::PERFORMANCE_HISTORY,
+		self::PRIORITY_SUPPORT,
+		self::CORNERSTONE_TEN_PAGES,
+	);
+
 	const TRANSIENT_KEY              = 'premium_features';
 	const CLOUD_CSS_BASELINE_OPTION  = 'jetpack_boost_cloud_css_plan_baseline';
 	const CLOUD_CSS_ACTIVATED_OPTION = 'jetpack_boost_cloud_css_plan_activated';
@@ -25,7 +35,7 @@ class Premium_Features {
 	/**
 	 * Record a verified plan baseline when the site connects, without activating Cloud CSS.
 	 *
-	 * @since $$next-version$$
+	 * @since 4.8.2
 	 */
 	public static function record_cloud_css_baseline() {
 		if ( false !== get_option( self::CLOUD_CSS_BASELINE_OPTION ) ) {
@@ -49,12 +59,14 @@ class Premium_Features {
 	/**
 	 * Enable Cloud CSS once when an observed free site gains the feature.
 	 *
-	 * @since $$next-version$$
+	 * @since 4.8.2
+	 *
+	 * @param bool $cache_confirmed Whether is_cache_confirmed() vouched for the cached features, so they count as fetched.
 	 */
-	public static function enable_cloud_css_after_upgrade() {
+	public static function enable_cloud_css_after_upgrade( $cache_confirmed = false ) {
 		$verified = null;
 		$features = self::get_features( $verified );
-		if ( ! $verified ) {
+		if ( ! $verified && ! $cache_confirmed ) {
 			return;
 		}
 		$has_cloud_css = in_array( self::CLOUD_CSS, $features, true );
@@ -94,14 +106,6 @@ class Premium_Features {
 	public static function get_features( &$verified = null ) {
 		$available_features = Transient::get( self::TRANSIENT_KEY, false );
 		$verified           = false;
-		$all_features       = array(
-			self::CLOUD_CSS,
-			self::IMAGE_CDN_LIAR,
-			self::IMAGE_CDN_QUALITY,
-			self::PERFORMANCE_HISTORY,
-			self::PRIORITY_SUPPORT,
-			self::CORNERSTONE_TEN_PAGES,
-		);
 
 		if ( ! is_array( $available_features ) ) {
 			$available_features = Boost_API::get( 'features' );
@@ -114,7 +118,7 @@ class Premium_Features {
 
 		$features = array();
 		// Prepare a list of features after applying jetpack_boost_has_feature_* filter for each feature.
-		foreach ( $all_features as $feature ) {
+		foreach ( self::ALL_FEATURES as $feature ) {
 			/**
 			 * Filter the availability of a feature
 			 *
@@ -128,6 +132,36 @@ class Premium_Features {
 		}
 
 		return $features;
+	}
+
+	/**
+	 * Whether the cached features match the site features My Jetpack fetches for the same page.
+	 *
+	 * A mismatch, or no answer from My Jetpack, means the cache needs a fresh fetch. My Jetpack keeps
+	 * its answer for 15 seconds, so a plan change can take that long to show.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	public static function is_cache_confirmed() {
+		$cached = Transient::get( self::TRANSIENT_KEY, false );
+		if ( ! is_array( $cached ) || ! is_callable( array( Product::class, 'get_site_features_from_wpcom' ) ) || ! ( new Connection() )->is_connected() ) {
+			return false;
+		}
+
+		$site_features = Product::get_site_features_from_wpcom();
+		if ( ! is_array( $site_features ) || ! isset( $site_features['active'] ) || ! is_array( $site_features['active'] ) ) {
+			return false;
+		}
+
+		foreach ( array_unique( array_merge( self::ALL_FEATURES, $cached ) ) as $feature ) {
+			if ( in_array( $feature, $cached, true ) !== in_array( $feature, $site_features['active'], true ) ) {
+				return false;
+			}
+		}
+
+		return true;
 	}
 
 	public static function has_any() {

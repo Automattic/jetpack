@@ -115,6 +115,15 @@ function assertReducerWorksWithoutWpDataKeyedReducer( source ) {
 		window: {
 			wp: {
 				components: { SnackbarList: () => null, NoticeList: () => null },
+				element: { forwardRef: () => ( {} ) },
+				i18n: { __: text => text },
+				primitives: { SVG: () => null },
+				privateApis: {
+					__dangerousOptInToUnstableAPIsOnlyForCoreModules: () => ( {
+						lock: () => {},
+					} ),
+				},
+				theme: { ThemeProvider: () => null },
 				data: {
 					// Intentionally omit `keyedReducer` — the polyfill must not need it.
 					createReduxStore: ( name, options ) => {
@@ -128,8 +137,9 @@ function assertReducerWorksWithoutWpDataKeyedReducer( source ) {
 				},
 			},
 			polyfill: true,
+			React: { version: '', createContext: () => ( {} ), forwardRef: () => ( {} ) },
+			ReactJSXRuntime: { jsx: () => null, jsxs: () => null },
 		},
-		ReactJSXRuntime: { jsx: () => null, jsxs: () => null, Fragment: Symbol( 'Fragment' ) },
 	};
 	sandbox.window.window = sandbox.window;
 	sandbox.globalThis = sandbox.window;
@@ -198,10 +208,9 @@ describe( 'wp-notices polyfill bundle (production minified build)', () => {
 			`Production webpack build did not emit ${ PROD_BUILD_PATH }`
 		);
 		const stats = readFileSync( PROD_BUILD_PATH, 'utf8' );
-		// Sanity-check minification actually happened — non-minified bundles
-		// are tens of KB; minified should be a fraction of that.
+		// Sanity-check minification actually happened — the dev build is about 1MB and should minify to about 200KB.
 		assert.ok(
-			stats.length < 10000,
+			stats.length < 300000,
 			`Expected minified bundle, got ${ stats.length } bytes — webpack may not have minified.`
 		);
 	} );

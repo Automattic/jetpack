@@ -105,21 +105,12 @@ class Hybrid_Product_Test extends TestCase {
 	}
 
 	/**
-	 * Tests that the Jetpack plugin with the product's module activates a hybrid product, covering the other branch.
+	 * Tests that the Jetpack plugin alone activates Backup, which its plan decides rather than its module.
 	 */
 	public function test_is_activated_with_only_the_jetpack_plugin() {
 		deactivate_plugins( Backup::get_installed_plugin_filename() );
 		activate_plugins( 'jetpack/jetpack.php' );
-		$this->assertFalse( Backup::is_activated() );
-
-		$active = static function () {
-			return array( 'backup' );
-		};
-		add_filter( 'jetpack_active_modules', $active );
-		$activated = Backup::is_activated();
-		remove_filter( 'jetpack_active_modules', $active );
-
-		$this->assertTrue( $activated );
+		$this->assertTrue( Backup::is_activated() );
 	}
 
 	/**

@@ -5,6 +5,8 @@
  * @package wpcomsh
  */
 
+use PHPUnit\Framework\Attributes\DataProvider;
+
 // @phan-file-suppress PhanUndeclaredStaticMethod -- Atomic_Persistent_Data::set()/delete() only exist in the test mock in tests/lib/mocks, which Phan does not parse.
 // @phan-file-suppress PhanPluginMixedKeyNoKey -- The synthetic product definitions mirror FEATURES_MAP, which pairs a rule key with unkeyed slugs; class-wpcom-features.php is baselined for the same issue.
 
@@ -169,6 +171,81 @@ class WpcomFeaturesMapTest extends WP_UnitTestCase {
 		$this->add_sticker( 'flex-cache-site' );
 
 		$this->assertTrue( WPCOM_Features::purchase_in_products_map( $this->purchase( 'business-bundle' ), $map ) );
+	}
+
+	/**
+	 * Check that the channel exception uses Atomic stickers and remains limited to Premium.
+	 *
+	 * @dataProvider videopress_channel_plan_provider
+	 * @param string $slug     Product slug.
+	 * @param bool   $expected Whether the sticker grants VideoPress.
+	 */
+	#[DataProvider( 'videopress_channel_plan_provider' )]
+	public function test_videopress_channel_requires_a_premium_plan( $slug, $expected ) {
+		$purchases = array( $this->purchase( $slug ) );
+		$this->add_sticker( WPCOM_Features::STICKER_FEATURE_GATING_2026 );
+
+		$this->assertFalse( WPCOM_Features::has_feature( WPCOM_Features::VIDEOPRESS, $purchases, 'wpcom' ) );
+
+		$this->add_sticker( 'videopress-channel' );
+		$this->assertSame( $expected, WPCOM_Features::has_feature( WPCOM_Features::VIDEOPRESS, $purchases, 'wpcom' ) );
+
+		$this->remove_sticker( 'videopress-channel' );
+		$this->assertFalse( WPCOM_Features::has_feature( WPCOM_Features::VIDEOPRESS, $purchases, 'wpcom' ) );
+
+		$this->remove_sticker( WPCOM_Features::STICKER_FEATURE_GATING_2026 );
+		$this->assertSame( $expected, WPCOM_Features::has_feature( WPCOM_Features::VIDEOPRESS, $purchases, 'wpcom' ) );
+	}
+
+	/**
+	 * Plans that can be attached to a provisioned channel.
+	 *
+	 * @return array
+	 */
+	public static function videopress_channel_plan_provider() {
+		return array(
+			'legacy premium' => array( 'bundle_pro', true ),
+			'yearly'         => array( 'value_bundle', true ),
+			'monthly'        => array( 'value_bundle_monthly', true ),
+			'biennial'       => array( 'value_bundle-2y', true ),
+			'triennial'      => array( 'value_bundle-3y', true ),
+			'personal'       => array( 'personal-bundle', false ),
+			'free'           => array( 'wpcom-all-sites', false ),
+		);
+	}
+
+	/**
+	 * Catches a map entry that drops the sticker requirement for any plan (Commerce included),
+	 * or that widens the plan group below Business or to the plans nested in WPCOM_BUSINESS_PLANS
+	 * that are not a paid Business term (trials, Student).
+	 *
+	 * @dataProvider woo_bundle_extensions_plan_provider
+	 * @param string $slug     Product slug.
+	 * @param bool   $expected Whether the sticker grants the feature.
+	 */
+	#[DataProvider( 'woo_bundle_extensions_plan_provider' )]
+	public function test_woo_bundle_extensions_needs_paid_business_or_commerce_and_the_sticker( $slug, $expected ) {
+		$purchases = array( $this->purchase( $slug ) );
+
+		$this->assertFalse( WPCOM_Features::has_feature( WPCOM_Features::WOO_BUNDLE_EXTENSIONS, $purchases, 'wpcom' ) );
+
+		$this->add_sticker( WPCOM_Features::STICKER_WOO_BUNDLE_EXPERIMENT );
+		$this->assertSame( $expected, WPCOM_Features::has_feature( WPCOM_Features::WOO_BUNDLE_EXTENSIONS, $purchases, 'wpcom' ) );
+	}
+
+	/**
+	 * Plans checked against the Woo bundle experiment sticker.
+	 *
+	 * @return array
+	 */
+	public static function woo_bundle_extensions_plan_provider() {
+		return array(
+			'business'      => array( 'business-bundle', true ),
+			'commerce'      => array( 'ecommerce-bundle', true ),
+			'premium'       => array( 'value_bundle', false ),
+			'hosting trial' => array( 'wp_bundle_hosting_trial_monthly', false ),
+			'student'       => array( 'wp_bundle_student_yearly', false ),
+		);
 	}
 
 	public function test_sticker_not_present_withdraws_the_definition_once_the_sticker_lands() {

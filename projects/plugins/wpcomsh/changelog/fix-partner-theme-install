@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Themes: Install partner themes the site has bought from the Marketplace tab, and show an error instead of reporting success when a theme can’t be installed.

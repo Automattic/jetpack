@@ -3,7 +3,7 @@ import { getUserConnectionUrl } from '@automattic/jetpack-connection/get-user-co
 import useConnection from '@automattic/jetpack-connection/use-connection';
 import { getSiteData, getSiteType, isSimpleSite } from '@automattic/jetpack-script-data';
 import { QueryClientProvider } from '@tanstack/react-query';
-import { useCallback, useEffect, useMemo, useRef } from '@wordpress/element';
+import { useCallback, useEffect, useMemo, useRef, useState } from '@wordpress/element';
 import { useSearch } from '@wordpress/route';
 import { Tabs } from '@wordpress/ui';
 import NewsletterPage, { type NewsletterTab } from '../../_inc/components/newsletter-page';
@@ -33,6 +33,37 @@ function getRedirectUri(): string | undefined {
 }
 
 /**
+ * The tab a `?tab=` value shows.
+ *
+ * @param tab - The `tab` search value.
+ * @return The tab.
+ */
+function resolveTab( tab: unknown ): NewsletterTab {
+	// When `jetpack_wp_admin_subscriber_management_enabled` is filtered to
+	// false on the server, the page is Settings-only — pin the tab
+	// there so we never try to render the Subscribers body.
+	const newsletterData = getNewsletterScriptData();
+	if ( newsletterData?.subscriberManagementEnabled === false || tab === 'settings' ) {
+		return 'settings';
+	}
+	if ( tab === 'subscribers' ) {
+		return 'subscribers';
+	}
+	return newsletterData?.overviewEnabled === true ? 'overview' : 'subscribers';
+}
+
+/**
+ * The tab a page URL shows; the router keeps its route in the `p` query arg.
+ *
+ * @param url - The page URL.
+ * @return The tab.
+ */
+function tabOf( url: string ): NewsletterTab {
+	const route = new URL( url ).searchParams.get( 'p' ) ?? '/';
+	return resolveTab( new URL( route, 'https://route.invalid' ).searchParams.get( 'tab' ) );
+}
+
+/**
  * Single stage that owns the unified Newsletter page chrome — Page header,
  * tab nav, and one `Tabs.Root` that persists across tab changes so the
  * active-tab indicator slides between tabs instead of remounting on each
@@ -50,19 +81,12 @@ const Stage = () => {
 		from: '/' as unknown as never,
 		strict: false,
 	} ) as StageSearch;
+	const [ hasUnsavedChanges, setHasUnsavedChanges ] = useState( false );
 
-	// When `jetpack_wp_admin_subscriber_management_enabled` is filtered to
-	// false on the server, the page is Settings-only — pin `activeTab`
-	// there so we never try to render the Subscribers body.
 	const newsletterData = getNewsletterScriptData();
 	const subscribersEnabled = newsletterData?.subscriberManagementEnabled !== false;
 	const overviewEnabled = newsletterData?.overviewEnabled === true;
-	let activeTab: NewsletterTab = overviewEnabled ? 'overview' : 'subscribers';
-	if ( ! subscribersEnabled || search.tab === 'settings' ) {
-		activeTab = 'settings';
-	} else if ( search.tab === 'subscribers' ) {
-		activeTab = 'subscribers';
-	}
+	const activeTab = resolveTab( search.tab );
 
 	const {
 		isRegistered,
@@ -131,6 +155,35 @@ const Stage = () => {
 		} );
 	}, [ activeTab ] );
 
+	// The admin shell keeps this page mounted, so a return to it is a new visit: see the admin-ui README.
+	const hiddenTab = useRef( activeTab );
+	useEffect( () => {
+		const onHidden = ( event: Event ) => {
+			if ( ( event as CustomEvent ).detail?.page === 'jetpack-newsletter' ) {
+				hiddenTab.current = activeTab;
+			}
+		};
+		const onShown = ( event: Event ) => {
+			const { page, firstShow, routeChanged, url } = ( event as CustomEvent ).detail ?? {};
+			if ( page !== 'jetpack-newsletter' || firstShow ) {
+				return;
+			}
+			// The effect above records a return to another tab, but not to another URL of the same tab.
+			if ( ! routeChanged || tabOf( url ) === hiddenTab.current ) {
+				analytics.tracks.recordEvent( 'jetpack_newsletter_tab_view', {
+					site_type: getSiteType(),
+					tab: activeTab,
+				} );
+			}
+		};
+		window.addEventListener( 'jetpack-admin-shell:page-hidden', onHidden );
+		window.addEventListener( 'jetpack-admin-shell:page-shown', onShown );
+		return () => {
+			window.removeEventListener( 'jetpack-admin-shell:page-hidden', onHidden );
+			window.removeEventListener( 'jetpack-admin-shell:page-shown', onShown );
+		};
+	}, [ activeTab ] );
+
 	return (
 		<QueryClientProvider client={ queryClient }>
 			<SubscribersBody
@@ -153,6 +206,7 @@ const Stage = () => {
 					return (
 						<NewsletterPage
 							activeTab={ activeTab }
+							hasUnsavedChanges={ hasUnsavedChanges }
 							actions={ activeTab === 'subscribers' && canManageSubscribers ? actions : undefined }
 							contentHasPadding={ activeTab !== 'subscribers' }
 							hideFooter={ activeTab === 'subscribers' }
@@ -173,6 +227,7 @@ const Stage = () => {
 												isModernized
 												hasConnectedOwner={ settingsHasConnectedOwner }
 												connectUrl={ connectUrl }
+												onDirtyChange={ setHasUnsavedChanges }
 											/>
 										) : null }
 									</Tabs.Panel>
@@ -182,6 +237,7 @@ const Stage = () => {
 									isModernized
 									hasConnectedOwner={ settingsHasConnectedOwner }
 									connectUrl={ connectUrl }
+									onDirtyChange={ setHasUnsavedChanges }
 								/>
 							) }
 						</NewsletterPage>

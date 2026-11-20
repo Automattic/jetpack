@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+CoBlocks: Fix blocks with a theme or Font Library font showing the browser's default font.

@@ -35,7 +35,7 @@ if ( ! function_exists( 'add_logotool_button' ) ) {
 				// Control is not a `site_logo` or `custom_logo` (those are handled above).
 				! in_array( $control->id, array( 'custom_logo', 'site_logo' ), true ) &&
 				// Control is an instance of `WP_Customize_Image_Control` so we know how the UI is rendered to add the button.
-				is_a( $control, 'WP_Customize_Image_Control' )
+				$control instanceof \WP_Customize_Image_Control
 				) {
 					$logo_control = $control;
 					break;
@@ -44,12 +44,12 @@ if ( ! function_exists( 'add_logotool_button' ) ) {
 		}
 
 		// Make sure we have a valid Customize Control.
-		if ( $logo_control === null || ! is_a( $logo_control, 'WP_Customize_Control' ) ) {
+		if ( $logo_control === null || ! $logo_control instanceof \WP_Customize_Control ) {
 			return;
 		}
 
 		// And we have a valid setting attached to the control.
-		if ( ! is_a( $logo_control->setting, 'WP_Customize_Setting' ) ) {
+		if ( ! $logo_control->setting instanceof \WP_Customize_Setting ) {
 			return;
 		}
 

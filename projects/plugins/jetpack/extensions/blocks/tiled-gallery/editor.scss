@@ -1,4 +1,6 @@
-@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+@use "@wordpress/base-styles/colors";
+@use "@wordpress/base-styles/mixins";
+@use "@wordpress/base-styles/variables";
 @use "./variables" as vars;
 @use "./view";
 
@@ -88,28 +90,28 @@
 
 		&.is-selected .tiled-gallery__item__move-menu,
 		&.is-selected .tiled-gallery__item__inline-menu {
-			background: gb.$white;
-			border: 1px solid gb.$dark-gray-placeholder;
-			border-radius: gb.$radius-block-ui;
+			background: colors.$white;
+			border: 1px solid colors.$dark-gray-placeholder;
+			border-radius: variables.$radius-block-ui;
 			transition: box-shadow 0.2s ease-out;
 
-			@include gb.reduce-motion("transition");
+			@include mixins.reduce-motion("transition");
 
 			&:hover {
-				box-shadow: gb.$shadow-popover;
+				box-shadow: variables.$shadow-popover;
 			}
 
 			.components-button {
-				color: gb.$dark-gray-placeholder;
+				color: colors.$dark-gray-placeholder;
 				padding: 2px;
-				height: gb.$button-size-small;
+				height: variables.$button-size-small;
 
 				// Remove hover box shadows, since they clash with the container.
 				&:not(:disabled):not([aria-disabled="true"]):not(.is-secondary):hover {
 					box-shadow: none;
 				}
 
-				@include gb.break-small() {
+				@include mixins.break-small() {
 					// Use smaller buttons to fit when there are many columns.
 					.columns-7 &,
 					.columns-8 & {
@@ -150,14 +152,14 @@
 
 			&:hover,
 			&:focus {
-				border: 1px solid gb.$gray-600;
+				border: 1px solid colors.$gray-600;
 			}
 		}
 	}
 
 	.tiled-gallery__item__move-menu,
 	.tiled-gallery__item__inline-menu {
-		margin: gb.$grid-unit-10;
+		margin: variables.$grid-unit-10;
 		display: inline-flex;
 		z-index: 20;
 
@@ -165,11 +167,11 @@
 			color: transparent;
 		}
 
-		@include gb.break-small() {
+		@include mixins.break-small() {
 			// Use smaller buttons to fit when there are many columns.
 			.columns-7 &,
 			.columns-8 & {
-				padding: gb.$grid-unit-05 * 0.5;
+				padding: variables.$grid-unit-05 * 0.5;
 			}
 		}
 	}
@@ -219,8 +221,8 @@
 	}
 
 	.components-menu-item__button.is-active {
-		color: gb.$gray-900;
-		box-shadow: 0 0 0 $active-item-outline-width gb.$gray-600 !important;
+		color: colors.$gray-900;
+		box-shadow: 0 0 0 $active-item-outline-width colors.$gray-600 !important;
 	}
 }
 

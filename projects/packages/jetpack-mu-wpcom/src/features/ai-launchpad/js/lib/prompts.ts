@@ -452,9 +452,8 @@ function renderMenuEntry( task: TaskAnnotation ): string {
 /**
  * The rules whose violation the server actually rejects, stated to the model as a courtesy.
  *
- * Each one has a matching server-side check: ids the server cannot build are dropped and a list that
- * loses too many 422s, the schema pins `tasks` to exactly six, the launch task is checked explicitly,
- * and sanitize_subtitle() rejects markup.
+ * Each one has a matching server-side check: ids the server cannot build are dropped, the schema pins
+ * `tasks` to exactly six, the launch task is checked explicitly, and sanitize_subtitle() rejects markup.
  *
  * Note the first rule points the model at the menu but only promises what update_tailored() actually
  * checks, which is that the id resolves to something buildable — a task in the shared catalog or one
@@ -476,10 +475,56 @@ function renderMenuEntry( task: TaskAnnotation ): string {
  * a template literal would render into the prompt.
  */
 const HARD_RULES = `HARD RULES (do not break - the server rejects output that violates these):
-- Every "id" MUST be copied verbatim from the menu below. Never invent IDs: the server drops any id it cannot recognize, and rejects the whole list if too few tasks survive.
+- Every "id" MUST be copied verbatim from the menu below. Never invent IDs, and never pick an id that is not on the menu: the server drops any id it cannot use.
 - Return exactly 6 tasks.
 - The 6th and final task MUST be a launch task: "site_launched" (canonical) or "blog_launched".
 - Subtitles must be plain text: no URLs, no HTML, and no template syntax such as {{ }} or [[ ]].`;
+
+// The prompt parts below name a task, so each is shown only when that task is on the menu: a task named outside the
+// menu still pulls the model towards it, and the server drops it when the site cannot use it.
+
+/** Tasks that create something to publish, named in STEP 2's preference for one. */
+const PUBLISHING_TASK_IDS = [ 'first_post_published', 'woo_products', 'add_about_page' ];
+
+/** GOOD vs BAD subtitle illustrations for STEP 2. */
+const SUBTITLE_EXAMPLES: readonly { id: string; line: string }[] = [
+	{
+		id: 'add_about_page',
+		line: `- For a handmade-ceramics studio, "add_about_page" -> GOOD: "Share the story behind your studio and what makes each handmade piece one of a kind." BAD: "Tell visitors who you are."`,
+	},
+	{
+		id: 'site_theme_selected',
+		line: `- For a handmade-ceramics studio, "site_theme_selected" -> GOOD: "Pick a clean, gallery-style theme that lets your ceramics photos take center stage." BAD: "Choose a theme."`,
+	},
+	{
+		id: 'first_post_published',
+		line: `- For a weekly cycling newsletter, "first_post_published" -> GOOD: "Send your first issue with this week's route, ride notes, and gear picks." BAD: "Send your first newsletter."`,
+	},
+	{
+		id: 'site_launched',
+		line: `- For a handmade-ceramics studio, "site_launched" -> GOOD: "Open your studio to collectors and let them find your newest pieces." BAD: "Launch your site."`,
+	},
+];
+
+/** STEP 5's rule for each page task whose opening line the model writes. */
+const PAGE_INTRO_RULES: readonly { id: string; rule: string }[] = [
+	{
+		id: 'add_contact_page',
+		rule: `one sentence, max 200 characters, inviting the visitor to get in touch, grounded in what someone would really contact THIS site about - a commission, a booking, a quote, a wholesale order, a question about the work. The page already carries a working contact form, so do not put an email address, a phone number, opening hours, or a street address in this sentence, and never invent one.`,
+	},
+	{
+		id: 'add_events_page',
+		rule: `one sentence, max 200 characters, saying what kind of thing THIS site runs and why someone would come - a class, a gig, a market stall, a screening, an open studio. The page leaves each event blank for the user to fill in, and only they know their own schedule, so do not put a date, a day, a time, a venue, an address, or a price in this sentence, and never invent one.`,
+	},
+	{
+		id: 'add_video_page',
+		rule: `one sentence, max 200 characters, saying what THIS site's videos show and why someone would watch - a technique, a lesson, a performance, a walkthrough, an episode. The page holds one empty video block for the user to fill, so do not describe a specific video as if it were already there, do not promise how many there are, do not name a video platform or channel, and never invent one.`,
+	},
+	{
+		id: 'add_gallery_page',
+		rule: `one sentence, max 200 characters, saying what THIS site's pictures show and why someone would look - the work, the place, the plates, the finished pieces, the process. The page holds one empty gallery block the user fills with their OWN photographs, so do not describe a particular image as if it were already there, do not promise how many there are, do not name a photo-sharing platform or account, and never invent one.`,
+	},
+];
 
 /**
  * Whether a WordPress locale is any flavour of English (`en`, `en_US`, `en-gb`, …).
@@ -576,6 +621,19 @@ export function buildTailorPrompt(
 		availableTaskIds && availableTaskIds.length
 			? TASK_ANNOTATIONS.filter( task => availableTaskIds.includes( task.id ) )
 			: TASK_ANNOTATIONS;
+	const onMenu = ( id: string ) => menu.some( task => task.id === id );
+
+	const publishingTaskIds = PUBLISHING_TASK_IDS.filter( onMenu );
+	const publishingPreference = publishingTaskIds.length
+		? ` Prefer a list that includes at least one task which creates something to publish (e.g. ${ publishingTaskIds
+				.map( id => `"${ id }"` )
+				.join( ', ' ) }).`
+		: '';
+	const subtitleExamples = SUBTITLE_EXAMPLES.filter( example => onMenu( example.id ) );
+	const pageIntros = PAGE_INTRO_RULES.filter( rule => onMenu( rule.id ) );
+	const socialException = onMenu( 'connect_social_media' )
+		? `One task is an exception to that push for specificity. For the social task "connect_social_media", keep the subtitle general - about growing the site's audience and engaging visitors (e.g. "Build the audience of your blog and engage with your visitors."). Do NOT name specific social networks (Instagram, Pinterest, X, Facebook, TikTok, etc.); the user has not said which platforms they use.\n\n`
+		: '';
 
 	// English sites get the block too: without it, a description in another language pulls the output
 	// into that language. Two different Englishes are not worth splitting the subtitles over.
@@ -612,7 +670,9 @@ ${ languageInstruction(
 
 	return `You are helping a new WordPress.com user onboard. They have described their site in their own words. Your job is to make their onboarding checklist feel hand-picked for THIS site, not generic.
 
-Produce a single JSON object with FOUR parts, in this order: an inferred-context blob, a tailored task list, a starter blog post draft, and a starter About-page draft. Add a FIFTH part, "page_intros", only when STEP 5 applies.
+Produce a single JSON object with FOUR parts, in this order: an inferred-context blob, a tailored task list, a starter blog post draft, and a starter About-page draft.${
+		pageIntros.length ? ' Add a FIFTH part, "page_intros", only when STEP 5 applies.' : ''
+	}
 
 Site name: ${ site_name }
 Goal: ${ goal }
@@ -631,18 +691,18 @@ First, read the description closely and infer the site's context. You will use t
 - "audience": who the site is for, if implied (e.g. "home cooks", "small-business owners").
 
 ============ STEP 2 - tasks ============
-Now choose the 6 tasks from the menu below that are MOST RELEVANT to this site, judged against the site name, goal, description, and the niche/audience you just inferred. Each menu entry says what the task does, when it is a good fit, sometimes when to avoid it, and sometimes which goals it tends to suit - use that, not the id, to judge relevance. Treat the "goals" line as a soft affinity, never a filter: a task that does not list this site's goal is still fair game when it fits the site, and one that does list it still has to earn its place. Rank the whole menu and keep the top 6. Prefer a list that includes at least one task which creates something to publish (e.g. "first_post_published", "woo_products", or "add_about_page"), unless the menu offers none. Do not follow a fixed template - two different sites should get noticeably different lists.
+Now choose the 6 tasks from the menu below that are MOST RELEVANT to this site, judged against the site name, goal, description, and the niche/audience you just inferred. Each menu entry says what the task does, when it is a good fit, sometimes when to avoid it, and sometimes which goals it tends to suit - use that, not the id, to judge relevance. Treat the "goals" line as a soft affinity, never a filter: a task that does not list this site's goal is still fair game when it fits the site, and one that does list it still has to earn its place. Rank the whole menu and keep the top 6.${ publishingPreference } Do not follow a fixed template - two different sites should get noticeably different lists.
 
 For each chosen task write a "subtitle" (max 200 characters) that is specific and engaging: reference the user's niche, audience, or what they will actually publish or sell, so the checklist reads as written for them. Avoid generic, interchangeable phrasing.${ subtitleLanguage }
-
+${
+	subtitleExamples.length
+		? `
 GOOD vs BAD subtitles (illustrations - adapt to the user's own niche, do not copy):
-- For a handmade-ceramics studio, "add_about_page" -> GOOD: "Share the story behind your studio and what makes each handmade piece one of a kind." BAD: "Tell visitors who you are."
-- For a handmade-ceramics studio, "site_theme_selected" -> GOOD: "Pick a clean, gallery-style theme that lets your ceramics photos take center stage." BAD: "Choose a theme."
-- For a weekly cycling newsletter, "first_post_published" -> GOOD: "Send your first issue with this week's route, ride notes, and gear picks." BAD: "Send your first newsletter."
-
-One task is an exception to that push for specificity. For the social task "connect_social_media", keep the subtitle general - about growing the site's audience and engaging visitors (e.g. "Build the audience of your blog and engage with your visitors."). Do NOT name specific social networks (Instagram, Pinterest, X, Facebook, TikTok, etc.); the user has not said which platforms they use.
-
-${ HARD_RULES }
+${ subtitleExamples.map( example => example.line ).join( '\n' ) }
+`
+		: ''
+}
+${ socialException }${ HARD_RULES }
 
 ============ STEP 3 - first_post_draft ============
 Write a friendly starter blog post the user can edit and publish.${ contentLanguage }
@@ -654,14 +714,15 @@ Write a friendly starter blog post the user can edit and publish.${ contentLangu
 Write starter content for the site's About page, grounded in the user's own description - never generic filler.${ contentLanguage }
 - "title": the page title, max 4 words. Usually just "About" or "About" plus the brand name.
 - "paragraphs": 2 or 3 short paragraphs in the same warm voice: who is behind the site, what visitors will find here (reference the niche and what the user actually does), and a closing invitation to look around or get in touch. Use first person where it reads naturally. Never use placeholders like "[your name]" - if a detail is unknown, write around it.
-
+${
+	pageIntros.length
+		? `
 ============ STEP 5 - page_intros (only when it applies) ============
 Some tasks create a page whose content is already written except for the one line it opens with. Write that line here, keyed by the task id it belongs to. Include a key ONLY for a task you actually chose in STEP 2, omit "page_intros" entirely when you chose none of them, and never add a key that is not listed below.${ contentLanguage }
-- "add_contact_page": one sentence, max 200 characters, inviting the visitor to get in touch, grounded in what someone would really contact THIS site about - a commission, a booking, a quote, a wholesale order, a question about the work. The page already carries a working contact form, so do not put an email address, a phone number, opening hours, or a street address in this sentence, and never invent one.
-- "add_events_page": one sentence, max 200 characters, saying what kind of thing THIS site runs and why someone would come - a class, a gig, a market stall, a screening, an open studio. The page leaves each event blank for the user to fill in, and only they know their own schedule, so do not put a date, a day, a time, a venue, an address, or a price in this sentence, and never invent one.
-- "add_video_page": one sentence, max 200 characters, saying what THIS site's videos show and why someone would watch - a technique, a lesson, a performance, a walkthrough, an episode. The page holds one empty video block for the user to fill, so do not describe a specific video as if it were already there, do not promise how many there are, do not name a video platform or channel, and never invent one.
-- "add_gallery_page": one sentence, max 200 characters, saying what THIS site's pictures show and why someone would look - the work, the place, the plates, the finished pieces, the process. The page holds one empty gallery block the user fills with their OWN photographs, so do not describe a particular image as if it were already there, do not promise how many there are, do not name a photo-sharing platform or account, and never invent one.
-
+${ pageIntros.map( intro => `- "${ intro.id }": ${ intro.rule }` ).join( '\n' ) }
+`
+		: ''
+}
 ============ name resolution ============
 Treat the "Site name:" value above as THE ONLY brand/name to use anywhere - in the title, subtitle, paragraphs, and inferred.brand_name. It overrides any name mentioned inside the user description. If the description names a different brand, ignore it and use the "Site name:" value.
 
@@ -675,10 +736,15 @@ Return only a JSON object matching this schema. Do not include prose, code fence
   "inferred": { "goal": "...", "inferred_goal": "...", "brand_name": "...", "niche": "...", "theme_category": "...", "vibe": "...", "audience": "..." },
   "tasks": [ { "id": "...", "subtitle": "..." }, ... 6 total ],
   "first_post_draft": { "title": "...", "subtitle": "...", "paragraphs": [ "...", "..." ] },
-  "about_page_draft": { "title": "...", "paragraphs": [ "...", "..." ] },
-  "page_intros": { "add_contact_page": "..." }
+  "about_page_draft": { "title": "...", "paragraphs": [ "...", "..." ] }${
+		pageIntros.length ? `,\n  "page_intros": { "${ pageIntros[ 0 ].id }": "..." }` : ''
+	}
 }
-
-Leave "page_intros" out altogether unless STEP 5 applies, and when it does, include only the keys for the page tasks you chose.
+${
+	pageIntros.length
+		? `
+Leave "page_intros" out altogether unless STEP 5 applies, and when it does, include only the keys for the page tasks you chose.`
+		: ''
+}
 Never write null or an empty string for any field. When an optional field does not apply, leave its key out instead.`;
 }

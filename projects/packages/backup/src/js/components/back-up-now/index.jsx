@@ -1,9 +1,10 @@
 import apiFetch from '@wordpress/api-fetch';
-import { Button, Tooltip } from '@wordpress/components';
+import { Button } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
+import { Tooltip, VisuallyHidden } from '@wordpress/ui';
 import PropTypes from 'prop-types';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useId, useState } from 'react';
 import { BACKUP_STATE } from '../../constants';
 import useAnalytics from '../../hooks/useAnalytics';
 import useBackupsState from '../../hooks/useBackupsState.js';
@@ -97,22 +98,31 @@ export const BackupNowButton = ( { children, tooltipText, tracksEventName, onCli
 		enqueueFailed,
 	] );
 
-	const button = (
-		<div>
-			<Button
-				size="compact"
-				accessibleWhenDisabled
-				disabled={ disabled }
-				isBusy={ isEnqueuing || backupCurrentlyInProgress }
-				onClick={ onClickHandler }
-				variant="primary"
-			>
-				{ buttonContent }
-			</Button>
-		</div>
-	);
+	const descriptionId = useId();
 
-	return <>{ currentTooltip ? <Tooltip text={ currentTooltip }>{ button }</Tooltip> : button }</>;
+	return (
+		<Tooltip.Root disabled={ ! currentTooltip }>
+			<Tooltip.Trigger render={ <div /> }>
+				<Button
+					size="compact"
+					accessibleWhenDisabled
+					disabled={ disabled }
+					isBusy={ isEnqueuing || backupCurrentlyInProgress }
+					onClick={ onClickHandler }
+					variant="primary"
+					aria-describedby={ currentTooltip ? descriptionId : undefined }
+				>
+					{ buttonContent }
+				</Button>
+				{ currentTooltip && (
+					<VisuallyHidden id={ descriptionId } render={ <span /> }>
+						{ currentTooltip }
+					</VisuallyHidden>
+				) }
+			</Tooltip.Trigger>
+			<Tooltip.Popup>{ currentTooltip }</Tooltip.Popup>
+		</Tooltip.Root>
+	);
 };
 
 BackupNowButton.propTypes = {

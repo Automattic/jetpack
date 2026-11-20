@@ -41,9 +41,12 @@
 	display: block;
 	min-block-size: 36px;
 	padding-block: var(--wpds-dimension-padding-sm);
-	padding-inline: var(--wpds-dimension-padding-md);
+	padding-inline:
+		var(--a8c-charts-dimension-leaderboard-label-inset)
+		var(--wpds-dimension-padding-md);
 	overflow: hidden;
 	color: var(--wpds-color-foreground-interactive-brand);
+	font-size: var(--wpds-typography-font-size-md);
 	text-overflow: ellipsis;
 	white-space: nowrap;
 }

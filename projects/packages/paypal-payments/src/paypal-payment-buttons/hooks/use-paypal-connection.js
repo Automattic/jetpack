@@ -35,7 +35,7 @@ import {
 	watchForBlockedPopup,
 } from '../utils/paypal-partner-sdk';
 import { isSandboxAllowed } from '../utils/sandbox-flag';
-import { getUserFriendlyError } from '../utils/validation';
+import { getUserFriendlyError, isForbidden } from '../utils/validation';
 
 /**
  * The PayPal connection is stored per-site, not per-block, so connecting or
@@ -89,6 +89,9 @@ export function broadcastConnectionChange( connected ) {
 export function usePayPalConnection() {
 	// Connection state.
 	const [ isConnected, setIsConnected ] = useState( false );
+	// Every PayPal route needs manage_options. A user without it is refused
+	// the connection read, which says nothing about whether the site is connected.
+	const [ canManageConnection, setCanManageConnection ] = useState( true );
 	const [ environment, setEnvironment ] = useState( 'production' );
 	const [ connectionLoading, setConnectionLoading ] = useState( true );
 	// PayPal partner attribution (BN) code, appended to links we hand out.
@@ -211,7 +214,11 @@ export function usePayPalConnection() {
 					setWizardStep( 'dashboard' );
 				}
 			} )
-			.catch( () => {
+			.catch( err => {
+				if ( isForbidden( err ) ) {
+					setCanManageConnection( false );
+					return;
+				}
 				setIsConnected( false );
 			} )
 			.finally( () => {
@@ -737,6 +744,7 @@ export function usePayPalConnection() {
 	return {
 		isConnected,
 		setIsConnected,
+		canManageConnection,
 		environment,
 		setEnvironment,
 		connectionLoading,

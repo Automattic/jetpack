@@ -19,9 +19,8 @@ test( 'shows the shared grade, device scores and baseline-relative compact badge
 	const bar = within( screen.getByTestId( 'score-bar' ) );
 	expect( bar.getByText( 'C' ) ).toBeVisible();
 	expect( bar.getByText( 'Good' ) ).toBeVisible();
-	const [ desktop, mobile ] = bar.getAllByRole( 'progressbar', { hidden: true } );
-	expect( desktop ).toHaveValue( 80 );
-	expect( mobile ).toHaveValue( 68 );
+	expect( bar.getByRole( 'meter', { name: 'Desktop', hidden: true } ) ).toHaveValue( 80 );
+	expect( bar.getByRole( 'meter', { name: 'Mobile', hidden: true } ) ).toHaveValue( 68 );
 	expect( bar.getByText( '+10' ) ).toBeVisible();
 	expect( bar.getByText( '0' ) ).toBeVisible();
 } );
@@ -43,7 +42,7 @@ test.each( [ { status: 'loading' as const, isRunning: true }, { hasScores: false
 	'shows generating instead of scores without another announcement: %j',
 	pending => {
 		render( <ScoreBar state={ { ...state, ...pending } } /> );
-		expect( screen.getByText( 'Calculating score…' ) ).toBeVisible();
+		expect( screen.getByText( 'Checking site speed…' ) ).toBeVisible();
 		expect( screen.queryByText( '80' ) ).not.toBeInTheDocument();
 		expect( screen.queryByRole( 'status', { hidden: true } ) ).not.toBeInTheDocument();
 		const progress = within( screen.getByTestId( 'score-bar' ) ).getByRole( 'progressbar', {
@@ -67,7 +66,7 @@ test( 'shows an error instead of generating when no scores have loaded', () => {
 		/>
 	);
 	expect( screen.getByText( 'Failed to load speed scores' ) ).toBeVisible();
-	expect( screen.queryByText( 'Calculating score…' ) ).not.toBeInTheDocument();
+	expect( screen.queryByText( 'Checking site speed…' ) ).not.toBeInTheDocument();
 	expect( screen.queryByRole( 'alert', { hidden: true } ) ).not.toBeInTheDocument();
 } );
 
@@ -101,7 +100,7 @@ test( 'retains scores during a plain refetch, matching the card', () => {
 	expect(
 		within( screen.getByRole( 'region', { name: 'Desktop' } ) ).getByText( '80' )
 	).toBeVisible();
-	expect( screen.queryByText( 'Calculating score…' ) ).not.toBeInTheDocument();
+	expect( screen.queryByText( 'Checking site speed…' ) ).not.toBeInTheDocument();
 } );
 
 test( 'reveals completed scores in both surfaces with a motion-safe CSS entry', () => {

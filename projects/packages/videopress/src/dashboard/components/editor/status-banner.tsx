@@ -1,7 +1,6 @@
 import { speak } from '@wordpress/a11y';
-import { ProgressBar } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { Notice } from '@wordpress/ui';
+import { Notice, Progress } from '@wordpress/ui';
 import { useEffect } from 'react';
 import type { EditsJob } from '../../types/edits';
 import type { ReactElement } from 'react';
@@ -69,11 +68,15 @@ export default function StudioEditorStatusBanner( {
 			<Notice.Description>
 				{ message }
 				{ processing && ! conflict && (
-					<ProgressBar
+					<Progress.Root
 						className="vp-video-editor__progress"
 						aria-label={ message }
-						value={ job.progress == null ? undefined : job.progress * 100 }
-					/>
+						value={ job.progress == null ? null : job.progress * 100 }
+					>
+						<Progress.Track>
+							<Progress.Indicator />
+						</Progress.Track>
+					</Progress.Root>
 				) }
 			</Notice.Description>
 			{ action && (

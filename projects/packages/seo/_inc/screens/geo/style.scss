@@ -1,17 +1,19 @@
-// GEO tab layout. A single, centered fixed-width column matching the Settings
-// tab's treatment — 660px is the established Jetpack settings-page width (see
-// settings/style.scss). The cards stack with a consistent gap.
+// GEO tab layout: the cards stack with a consistent gap.
 .jetpack-seo-geo {
 	display: flex;
 	flex-direction: column;
 	gap: var(--wpds-dimension-gap-lg);
-	max-inline-size: 660px;
-	margin-inline: auto;
+}
+
+// The line at the top of the tab that spells out "GEO". Muted, like the page
+// header's subtitle and the crawler groups' intros, so it reads as context
+// rather than as a module.
+.jetpack-seo-geo__intro {
+	color: var(--wpds-color-foreground-content-neutral-weak);
 }
 
 // Align llms.txt action links with the toggle's label/help text rather than the
-// switch. 40px matches @wordpress/components ToggleControl's help
-// margin-inline-start (≈ 36px switch + gap).
+// switch. 40px matches SwitchControl's 32px switch plus its 8px gap.
 .jetpack-seo-geo__llms-link {
 	align-self: flex-start;
 	margin-inline-start: 40px;
@@ -29,7 +31,7 @@
 	color: var(--wpds-color-foreground-content-neutral-weak);
 }
 
-// The group-level "Allow all" master toggle, divided from the per-crawler
+// The group-level "Block all" master toggle, divided from the per-crawler
 // rows below so it reads as a control over the whole group.
 .jetpack-seo-geo__crawler-bulk {
 	padding-block-end: var(--wpds-dimension-gap-md);

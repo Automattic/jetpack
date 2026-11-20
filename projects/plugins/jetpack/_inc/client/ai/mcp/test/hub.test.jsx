@@ -1,4 +1,4 @@
-import { render, screen, within } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import analytics from 'lib/analytics';
 import McpHub from '../index';
@@ -23,47 +23,53 @@ const renderHub = ( { siteLevelEnabled = true, activityLogFiltered = false } = {
 		/>
 	);
 
-const COLUMNS = [
-	[ 'Enable MCP', 'Give your AI agent access to the site and control what it can read and write.' ],
-	[ 'Connect agent', 'Connect your agent of choice: Claude, ChatGPT, and others.' ],
-	[ 'Manage via chat', 'Create content, get reports, and manage your site from the conversation.' ],
-];
-
-describe( 'McpHub how-it-works card', () => {
-	test( 'renders a region named by its heading with three titled columns', () => {
+describe( 'McpHub connect card', () => {
+	test( 'sits above the access card, and replaces the setup row', () => {
 		renderHub();
 
-		const region = screen.getByRole( 'region', { name: 'How it works' } );
+		const connect = screen.getByRole( 'heading', { name: 'Connect an external AI agent' } );
+		const accessHeading = screen.getByRole( 'heading', { name: 'External AI agent access' } );
+		expect( connect.compareDocumentPosition( accessHeading ) ).toBe(
+			Node.DOCUMENT_POSITION_FOLLOWING
+		);
 		expect(
-			within( region ).getByRole( 'heading', { name: 'How it works', level: 2 } )
-		).toBeInTheDocument();
-		for ( const [ title, sentence ] of COLUMNS ) {
-			expect(
-				within( region ).getByRole( 'heading', { name: title, level: 3 } )
-			).toBeInTheDocument();
-			expect( within( region ).getByText( sentence ) ).toBeInTheDocument();
-		}
-		expect( within( region ).getAllByRole( 'heading', { level: 3 } ) ).toHaveLength( 3 );
-		// eslint-disable-next-line testing-library/no-node-access -- decorative icons are hidden from the a11y tree by design.
-		const icons = region.querySelectorAll( 'svg' );
-		expect( icons ).toHaveLength( 3 );
-		icons.forEach( icon => expect( icon ).toHaveAttribute( 'aria-hidden', 'true' ) );
+			screen.queryByRole( 'button', { name: 'Connect external AI agent' } )
+		).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'region', { name: 'How it works' } ) ).not.toBeInTheDocument();
 	} );
 
-	test( 'is shown when MCP is off', () => {
+	test( 'Turn on MCP access saves the same update as the toggle', async () => {
+		const onUpdate = jest.fn();
+		render(
+			<McpHub
+				mcpAbilities={ mcpAbilities( false ) }
+				blogId={ 1 }
+				savingToolIds={ new Set() }
+				onNavigate={ jest.fn() }
+				onUpdate={ onUpdate }
+			/>
+		);
+
+		await userEvent.click( screen.getByRole( 'button', { name: 'Turn on MCP access' } ) );
+
+		expect( onUpdate ).toHaveBeenCalledWith( {
+			sites: [ expect.objectContaining( { blog_id: 1, site_level_enabled: true } ) ],
+		} );
+		expect( analytics.tracks.recordEvent ).toHaveBeenCalledWith(
+			'jetpack_mcp_enabled_toggled',
+			expect.objectContaining( { enabled: true, source: 'connect_notice' } )
+		);
+	} );
+
+	test( 'the toggle records its own source', async () => {
+		analytics.tracks.recordEvent.mockClear();
 		renderHub( { siteLevelEnabled: false } );
 
-		expect( screen.getByRole( 'region', { name: 'How it works' } ) ).toBeInTheDocument();
-		expect( screen.getByRole( 'checkbox', { name: 'Enable MCP access' } ) ).not.toBeChecked();
-	} );
+		await userEvent.click( screen.getByRole( 'checkbox', { name: 'Enable MCP access' } ) );
 
-	test( 'sits before the access card in DOM order', () => {
-		renderHub();
-
-		const region = screen.getByRole( 'region', { name: 'How it works' } );
-		const accessHeading = screen.getByRole( 'heading', { name: 'External AI agent access' } );
-		expect( region.compareDocumentPosition( accessHeading ) ).toBe(
-			Node.DOCUMENT_POSITION_FOLLOWING
+		expect( analytics.tracks.recordEvent ).toHaveBeenCalledWith(
+			'jetpack_mcp_enabled_toggled',
+			expect.objectContaining( { enabled: true, source: 'toggle' } )
 		);
 	} );
 } );

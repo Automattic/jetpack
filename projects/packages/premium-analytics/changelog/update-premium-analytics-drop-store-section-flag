@@ -1,4 +1,0 @@
-Significance: minor
-Type: removed
-
-Dashboard: Remove the store section feature flag; the WooCommerce tab no longer waits for it on a site that opted in.

@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-VideoPress: Prevent new uploads from reusing video attachment IDs after a site restore.

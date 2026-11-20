@@ -40,7 +40,6 @@
 		}
 	},
 	"extra": {
-		"autotagger": true,
 		"autorelease": {
 			"titlefmt": "Jetpack Beta %s"
 		},

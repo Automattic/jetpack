@@ -22,8 +22,9 @@ test.describe( 'Getting started page', () => {
 
 		await page.getByRole( 'button', { name: 'Get Boost' } ).click();
 
+		// My Jetpack rewrites its `#/` links into the boot router's `?p=`.
 		await expect( page, 'User should be redirected to My Jetpack pricing page' ).toHaveURL(
-			/admin\.php\?page=my-jetpack#\/add-boost$/
+			/admin\.php\?page=my-jetpack(?:#\/add-boost|&p=%2Fadd-boost)$/
 		);
 		await page
 			.locator( '#my-jetpack-dashboard-wp-admin-app' )

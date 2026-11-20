@@ -2,6 +2,7 @@ import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
 import { useEffect, useRef, useState } from 'react';
 import getMediaToken from '../../../client/lib/get-media-token';
+import './preview-player.scss';
 import type { LibraryItem } from '../../types/library';
 import type { ReactElement } from 'react';
 
@@ -92,12 +93,14 @@ export default function PreviewPlayer( { video }: Props ): ReactElement | null {
 
 	if ( conversionFailed ) {
 		return (
-			<p className="vp-video-details__conversion-failed" role="status">
-				{ __(
-					'Conversion failed. Delete this video and upload it again.',
-					'jetpack-videopress-pkg'
-				) }
-			</p>
+			<div className="vp-preview-player">
+				<p className="vp-preview-player__status" role="status">
+					{ __(
+						'Conversion failed. Delete this video and upload it again.',
+						'jetpack-videopress-pkg'
+					) }
+				</p>
+			</div>
 		);
 	}
 
@@ -106,7 +109,7 @@ export default function PreviewPlayer( { video }: Props ): ReactElement | null {
 			return null;
 		}
 		return (
-			<div className="vp-video-details__player">
+			<div className="vp-preview-player">
 				<video
 					aria-label={ __( 'Video preview', 'jetpack-videopress-pkg' ) }
 					src={ video.sourceUrl }
@@ -119,11 +122,11 @@ export default function PreviewPlayer( { video }: Props ): ReactElement | null {
 
 	// Hold the embed back until the playback-token fetch for a private video settles.
 	if ( isPrivate && playbackToken === null ) {
-		return <div className="vp-video-details__player" aria-busy="true" />;
+		return <div className="vp-preview-player" aria-busy="true" />;
 	}
 
 	return (
-		<div className="vp-video-details__player">
+		<div className="vp-preview-player">
 			<iframe
 				key={ embedRevision }
 				title={ __( 'Video preview', 'jetpack-videopress-pkg' ) }

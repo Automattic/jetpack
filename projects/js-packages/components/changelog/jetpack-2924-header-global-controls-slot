@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-AdminPage: Add a `globalControls` slot for Jetpack-wide controls, shown after the page actions in the header.

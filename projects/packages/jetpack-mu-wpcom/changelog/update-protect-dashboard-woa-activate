@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Protect: Turn the Jetpack plugin's Protect page on once for existing WoA sites whose plan includes Scan.

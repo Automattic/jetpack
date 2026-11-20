@@ -3,19 +3,20 @@
 // by inheriting from the surrounding context. Per-state colors (active tab,
 // selected amount) are rendered via a per-instance scoped <style> element
 // because the postcss build inlines var() fallbacks at compile time.
-@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+@use "@wordpress/base-styles/colors";
+@use "@wordpress/base-styles/mixins";
 
 .wp-block-jetpack-donations {
 	// Default border. User-set border (via the Border style support) renders as
 	// an inline style on this element, which wins on specificity.
-	border: 1px solid gb.$gray-400;
+	border: 1px solid colors.$gray-400;
 	// Clip children to any user-set border-radius; without this, tab corners
 	// extend past the rounded outer corners.
 	overflow: hidden;
 
 	.donations__nav {
 		display: flex;
-		border-bottom: 1px solid gb.$gray-400;
+		border-bottom: 1px solid colors.$gray-400;
 	}
 
 	.donations__nav-item {
@@ -24,12 +25,12 @@
 		flex: 1;
 		text-align: center;
 		padding: 12px;
-		border-inline-start: 1px solid gb.$gray-400;
+		border-inline-start: 1px solid colors.$gray-400;
 		background: transparent;
 		color: inherit;
 		cursor: pointer;
 
-		@include gb.break-small() {
+		@include mixins.break-small() {
 			padding: 16px 24px;
 		}
 
@@ -38,8 +39,8 @@
 		}
 
 		&.is-active {
-			background: gb.$gray-900;
-			color: gb.$white;
+			background: colors.$gray-900;
+			color: colors.$white;
 			cursor: default;
 		}
 	}
@@ -47,7 +48,7 @@
 	.donations__content {
 		padding: 16px;
 
-		@include gb.break-small() {
+		@include mixins.break-small() {
 			padding: 32px;
 		}
 
@@ -55,7 +56,7 @@
 		p {
 			margin: 0 0 16px;
 
-			@include gb.break-small() {
+			@include mixins.break-small() {
 				margin: 0 0 24px;
 			}
 		}
@@ -66,7 +67,7 @@
 		display: flex;
 		flex-wrap: wrap;
 
-		@include gb.break-small() {
+		@include mixins.break-small() {
 			margin: 0 0 24px;
 		}
 	}
@@ -76,14 +77,14 @@
 		padding: 16px 24px;
 		background-color: transparent;
 		color: inherit;
-		border: 1px solid gb.$gray-400;
+		border: 1px solid colors.$gray-400;
 		margin-inline-end: 8px;
 		margin-bottom: 8px;
 		font-weight: 600;
 		white-space: nowrap;
 
 		&.has-error {
-			box-shadow: 0 0 0 1px gb.$white, 0 0 0 3px gb.$alert-red;
+			box-shadow: 0 0 0 1px colors.$white, 0 0 0 3px colors.$alert-red;
 			outline: 2px solid transparent;
 			outline-offset: -2px;
 		}
@@ -99,7 +100,7 @@
 		margin-bottom: 16px;
 		margin-top: 16px;
 
-		@include gb.break-small() {
+		@include mixins.break-small() {
 			margin-bottom: 32px;
 			margin-top: 32px;
 		}
@@ -133,21 +134,21 @@
 			gap: 8px;
 			padding: 16px 16px 0;
 
-			@include gb.break-small() {
+			@include mixins.break-small() {
 				gap: 12px;
 				padding: 24px 24px 0;
 			}
 		}
 
 		.donations__nav-item {
-			border: 1px solid gb.$gray-400;
+			border: 1px solid colors.$gray-400;
 			border-radius: 9999px;
 		}
 
 		// Restore the inline-start border that the default style strips off
 		// the first item — every pill needs a full border.
 		.donations__nav-item:first-child {
-			border-inline-start: 1px solid gb.$gray-400;
+			border-inline-start: 1px solid colors.$gray-400;
 		}
 
 	}

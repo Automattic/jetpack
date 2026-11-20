@@ -100,16 +100,16 @@ class Block_Editor_Extensions_Chapters_Editor_Test extends BaseTestCase {
 		$this->assertSame( '', $state['chaptersEditorEnabled'] );
 	}
 
-	/** Tests that trim and cut is unavailable in the block editor by default. */
-	public function test_trim_cut_is_disabled_by_default() {
-		$state = $this->get_localized_state();
-		$this->assertSame( '', $state['trimCutEnabled'] );
-	}
-
-	/** Tests that the trim and cut filter enables its block toolbar control. */
-	public function test_trim_cut_can_be_enabled() {
-		add_filter( 'jetpack_videopress_trim_cut', '__return_true' );
+	/** Tests that trim and cut is available in the block editor by default. */
+	public function test_trim_cut_is_enabled_by_default() {
 		$state = $this->get_localized_state();
 		$this->assertSame( '1', $state['trimCutEnabled'] );
+	}
+
+	/** Tests that the trim and cut opt-out hides its block toolbar control. */
+	public function test_trim_cut_can_be_disabled() {
+		add_filter( 'jetpack_videopress_trim_cut', '__return_false' );
+		$state = $this->get_localized_state();
+		$this->assertSame( '', $state['trimCutEnabled'] );
 	}
 }

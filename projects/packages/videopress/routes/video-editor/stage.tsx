@@ -30,6 +30,10 @@ import TrimCutEditor from '../../src/dashboard/components/editor/editor-screen';
 import QueryClientWrapper from '../../src/dashboard/components/query-client-wrapper';
 import VideoLayout from '../../src/dashboard/components/video-layout';
 import { videoTabPath } from '../../src/dashboard/components/video-nav';
+import {
+	isHiddenByShell,
+	useAdminShellLeaveGuard,
+} from '../../src/dashboard/hooks/use-admin-shell-leave-guard';
 import { useUpdateChapters } from '../../src/dashboard/hooks/use-update-chapters';
 import { useUpdateVideoMeta } from '../../src/dashboard/hooks/use-update-video-meta';
 import { useUploadUnloadGuard } from '../../src/dashboard/hooks/use-upload-unload-guard';
@@ -278,7 +282,7 @@ function EditorReady( { video, onSelectTool }: ReadyProps ): ReactElement {
 	// The two halves of Save: the description meta POST, then the
 	// fire-and-notice VTT sync (same pair the Details tab saves through).
 	const { mutateAsync: saveVideoMeta, isPending: metaSavePending } = useUpdateVideoMeta();
-	const { syncChapters } = useUpdateChapters();
+	const { syncChapters } = useUpdateChapters( 'dashboard_editor' );
 
 	// The preview player ↔ timeline wiring (playhead, play state, scrub
 	// pause/resume), shared with the block editor's chapter manager modal.
@@ -384,6 +388,7 @@ function EditorReady( { video, onSelectTool }: ReadyProps ): ReactElement {
 			)
 		);
 	}, [] );
+	const askedByShell = useAdminShellLeaveGuard( () => effectiveDirtyRef.current );
 
 	// Dirty guard, half three: in-app links (the "VideoPress" breadcrumb and
 	// anything else rendered inside this screen's chrome). Router links can't
@@ -428,13 +433,13 @@ function EditorReady( { video, onSelectTool }: ReadyProps ): ReactElement {
 			return;
 		}
 		const onPopState = () => {
-			if ( ! confirmNavigation() ) {
+			if ( ! isHiddenByShell() && ! askedByShell() && ! confirmNavigation() ) {
 				navigate( { href: videoTabPath( video.id, 'editor' ) } );
 			}
 		};
 		window.addEventListener( 'popstate', onPopState );
 		return () => window.removeEventListener( 'popstate', onPopState );
-	}, [ effectiveDirty, confirmNavigation, navigate, video.id ] );
+	}, [ effectiveDirty, askedByShell, confirmNavigation, navigate, video.id ] );
 
 	// Save: rewrite the description's chapter lines (byte-preserving the
 	// prose) and POST the meta update. Only after that succeeds does the VTT
@@ -691,7 +696,7 @@ const StageInner = () => {
 };
 
 const Stage = () => (
-	<QueryClientWrapper>
+	<QueryClientWrapper route="video_editor">
 		<StageInner />
 	</QueryClientWrapper>
 );

@@ -206,13 +206,15 @@ async function fetchAvailableTaskIds( goal: string ): Promise< readonly string[]
  * @param copy          - The site-language copy the fallback drafts are written from.
  * @param aiSessionId   - The id for this tailoring run; minted here when the caller has none.
  * @param pageIsLeaving - Whether the page is on its way out; never, when the caller doesn't watch.
+ * @param aiBuilt       - Whether the site was built with AI, for the fallback.
  * @return The prepared tailoring awaiting a commit, or null when the page left before the AI answered.
  */
 export async function prepareTailoring(
 	input: WizardInput,
 	copy: SiteCopy,
 	aiSessionId: string = mintAiSessionId(),
-	pageIsLeaving: PageIsLeaving = notLeaving
+	pageIsLeaving: PageIsLeaving = notLeaving,
+	aiBuilt = false
 ): Promise< PreparedTailoring | null > {
 	// eslint-disable-next-line @wordpress/no-unused-vars-before-return -- the clock must start before the awaited calls it times.
 	const start = performance.now();
@@ -229,7 +231,7 @@ export async function prepareTailoring(
 
 	return {
 		source: output ? 'ai' : 'fallback',
-		output: output ?? selectFallback( input, copy ),
+		output: output ?? selectFallback( input, copy, aiBuilt ),
 		durationMs: Math.round( performance.now() - start ),
 		attempts,
 		aiSessionId,
@@ -246,11 +248,16 @@ export async function prepareTailoring(
  * a fallback list the user never waited for. The returned promise then never
  * settles, since the page it would update is going away.
  *
- * @param input - The collected wizard input.
- * @param copy  - The site-language copy the fallback drafts are written from.
+ * @param input   - The collected wizard input.
+ * @param copy    - The site-language copy the fallback drafts are written from.
+ * @param aiBuilt - Whether the site was built with AI, for the fallback.
  * @return The tailored result, tagged with whether it came from AI or fallback.
  */
-export async function tailor( input: WizardInput, copy: SiteCopy ): Promise< TailorResult > {
+export async function tailor(
+	input: WizardInput,
+	copy: SiteCopy,
+	aiBuilt = false
+): Promise< TailorResult > {
 	// One id per tailoring run, not per attempt: a retry re-rolls the same checklist. Minted
 	// here rather than server-side so it survives a failed PUT, where the client still renders
 	// a list and still fires events against it, and so a run abandoned mid-call can name it.
@@ -258,11 +265,18 @@ export async function tailor( input: WizardInput, copy: SiteCopy ): Promise< Tai
 	const watch = watchTailoring( aiSessionId );
 	let abandoned = false;
 	try {
-		const prepared = await prepareTailoring( input, copy, aiSessionId, watch.pageIsLeaving );
+		const prepared = await prepareTailoring(
+			input,
+			copy,
+			aiSessionId,
+			watch.pageIsLeaving,
+			aiBuilt
+		);
 		if ( prepared ) {
 			watch.setStage( 'saving' );
 			const result = await commitTailoring( prepared, input, copy, {
 				pageIsLeaving: watch.pageIsLeaving,
+				aiBuilt,
 			} );
 			if ( result ) {
 				return result;

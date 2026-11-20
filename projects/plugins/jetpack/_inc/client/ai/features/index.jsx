@@ -287,7 +287,7 @@ export default function AiFeatures( {
 	);
 
 	return (
-		<Stack direction="column" gap="md">
+		<Stack direction="column" gap="lg">
 			{ sections.length > 0 && (
 				<Card.Root className="jetpack-ai-features__card">
 					{ /* Single Card.Content, no Card.Header: the FullBleed dividers must

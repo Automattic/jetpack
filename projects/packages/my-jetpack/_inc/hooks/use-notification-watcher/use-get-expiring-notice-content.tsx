@@ -90,6 +90,7 @@ export const useGetExpiringNoticeContent = ( {
 					'https://jetpack.com/support/jetpack-videopress/#canceled-or-expired-videopress-plan',
 			};
 		case 'jetpack_complete':
+		case 'jetpack_pro':
 		case 'jetpack_security':
 		case 'jetpack_growth':
 			return {

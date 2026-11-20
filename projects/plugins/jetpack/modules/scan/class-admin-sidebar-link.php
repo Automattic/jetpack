@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\Scan;
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\My_Jetpack\Products\Protect;
 use Automattic\Jetpack\Redirect;
+use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 use Jetpack_Core_Json_Api_Endpoints;
 
@@ -105,6 +106,10 @@ class Admin_Sidebar_Link {
 	 * Jetpack_Core_Json_Api_Endpoints::rewind_data() serves it from that cache.
 	 */
 	public function refresh_state_cache() {
+		if ( ( new Status() )->is_offline_mode() ) {
+			return;
+		}
+
 		Jetpack_Core_Json_Api_Endpoints::get_scan_state();
 		Jetpack_Core_Json_Api_Endpoints::get_rewind_data();
 	}
@@ -143,12 +148,12 @@ class Admin_Sidebar_Link {
 	/**
 	 * Check if we should display the Scan menu item history.
 	 *
-	 * It will only be displayed if site has Scan enabled, is an Atomic site.
+	 * It will only be displayed if site has Scan enabled, is an Atomic site, and no Protect page is registered.
 	 *
 	 * @return boolean
 	 */
 	private function should_show_scan_history_only() {
-		return $this->has_scan() && ( new Host() )->is_woa_site() && get_option( 'wpcom_admin_interface' ) === 'wp-admin';
+		return $this->has_scan() && ! $this->has_protect_page() && ( new Host() )->is_woa_site() && get_option( 'wpcom_admin_interface' ) === 'wp-admin';
 	}
 
 	/**
@@ -182,7 +187,7 @@ class Admin_Sidebar_Link {
 	 * Triggers a cron job to refresh the Scan and Rewind state cache.
 	 */
 	private function maybe_refresh_transient_cache() {
-		if ( $this->schedule_refresh_checked ) {
+		if ( ( new Status() )->is_offline_mode() || $this->schedule_refresh_checked ) {
 			return;
 		}
 

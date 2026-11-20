@@ -14,6 +14,27 @@ if ( getenv( 'DOCKER_PHPUNIT_BASE_DIR' ) ) {
 }
 \Automattic\RedefineExit::setup();
 
+$jetpack_patchwork_cache = getenv( 'JETPACK_PLUGIN_PATCHWORK_CACHE' );
+if ( ! $jetpack_patchwork_cache ) {
+	$jetpack_patchwork_cache = sys_get_temp_dir() . '/jetpack-plugin-patchwork-' . uniqid( '', true );
+	if ( ! mkdir( $jetpack_patchwork_cache, 0700 ) ) {
+		throw new RuntimeException( "Could not create the Patchwork cache directory $jetpack_patchwork_cache." );
+	}
+	$jetpack_patchwork_cache = realpath( $jetpack_patchwork_cache );
+	putenv( "JETPACK_PLUGIN_PATCHWORK_CACHE=$jetpack_patchwork_cache" );
+	register_shutdown_function(
+		static function () use ( $jetpack_patchwork_cache ) {
+			foreach ( glob( $jetpack_patchwork_cache . '/*' ) as $file ) {
+				unlink( $file );
+			}
+			rmdir( $jetpack_patchwork_cache );
+		}
+	);
+} elseif ( ! is_dir( $jetpack_patchwork_cache ) || ! is_writable( $jetpack_patchwork_cache ) ) {
+	throw new RuntimeException( "The Patchwork cache directory $jetpack_patchwork_cache is missing or not writable." );
+}
+\Patchwork\Config\setCachePath( $jetpack_patchwork_cache, __DIR__ );
+
 /*
  * For tests that should be skipped in Jetpack but run in WPCOM (or vice versa), test against this constant.
  *
@@ -126,6 +147,19 @@ require __DIR__ . '/lib/CallableMock.php';
 require __DIR__ . '/_inc/lib/mocks/simplepie.php';
 require $test_root . '/includes/functions.php';
 
+// Suppress PHP 8.6 deprecation warnings from WordPress core.
+// @todo: Remove this when resolved in WP core.
+if ( PHP_VERSION_ID >= 80600 ) {
+	set_error_handler(
+		function ( $errno, $errstr, $errfile = '' ) {
+			return E_DEPRECATED === $errno
+				&& $errstr === 'Function spl_object_hash() is deprecated since 8.6, consider using spl_object_id() instead'
+				&& str_ends_with( $errfile, 'tests/phpunit/includes/functions.php' );
+		},
+		E_ALL
+	);
+}
+
 // Speed things up by turning down the password hashing cost.
 tests_add_filter(
 	'wp_hash_password_options',
@@ -186,6 +220,9 @@ function _manually_load_muplugin() {
 	}
 }
 
+// Ability tests turn abilities on themselves, so keep them off while the plugin loads.
+tests_add_filter( 'jetpack_wp_abilities_enabled', '__return_false' );
+
 // If we are running the uninstall tests don't load jetpack.
 if ( ! ( in_running_uninstall_group() ) ) {
 	tests_add_filter( 'plugins_loaded', '_manually_load_plugin', 1 );
@@ -230,20 +267,6 @@ if ( false !== getenv( 'WP_TESTS_CONFIG_FILE_PATH' ) ) {
 
 // Load trait for WP_UnitTestCase PHPUnit 10 compat.
 require_once __DIR__ . '/WP_UnitTestCase_Fix.php';
-
-// Suppress PHP 8.5 deprecation warnings from WordPress core.
-// See here: https://core.trac.wordpress.org/ticket/63061
-// @todo: Remove this when resolved in WP core.
-if ( PHP_VERSION_ID >= 80500 ) {
-	set_error_handler(
-		function ( $errno, $errstr, $errfile = '' ) {
-			return E_DEPRECATED === $errno
-				&& $errstr === 'Using null as an array offset is deprecated, use an empty string instead'
-				&& str_ends_with( $errfile, 'wp-includes/theme.php' );
-		},
-		E_ALL
-	);
-}
 
 require $test_root . '/includes/bootstrap.php';
 

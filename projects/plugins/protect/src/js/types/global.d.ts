@@ -27,11 +27,13 @@ declare global {
 			adminUrl: string;
 			siteSuffix: string;
 			blogID: number;
+			addLicense: boolean;
 			jetpackScan: ProductData;
 			hasPlan: boolean;
 			onboardingProgress: string[];
 			accountProtection: AccountProtectionStatus;
 			waf: WafStatus;
 		};
+		jetpackMenuBadges?: { setCount: ( menuSlug: string, count: number ) => void };
 	}
 }

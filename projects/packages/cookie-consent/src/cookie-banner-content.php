@@ -22,6 +22,7 @@ $banner_context      = array(
 	'showModal'    => false,
 	'categories'   => $category_context,
 	'textExpanded' => false,
+	'gpcNotice'    => false,
 );
 $banner_context_json = wp_json_encode( $banner_context, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT );
 $links               = isset( $config['links'] ) && is_array( $config['links'] ) ? $config['links'] : array();
@@ -53,6 +54,9 @@ $privacy_policy_url  = (string) get_privacy_policy_url();
 				</h2>
 				<p id="cookie-consent-description" class="jetpack-cookie-consent__banner-description">
 					<?php echo esc_html( $copy['banner_description'] ); ?>
+				</p>
+				<p class="jetpack-cookie-consent__gpc-notice" role="status" data-wp-bind--hidden="!context.gpcNotice" hidden>
+					<?php echo esc_html( $copy['gpc_notice'] ); ?>
 				</p>
 			</div>
 			<div class="jetpack-cookie-consent__banner-actions">
@@ -95,6 +99,7 @@ $privacy_policy_url  = (string) get_privacy_policy_url();
 		data-wp-on--keydown="actions.onModalKeyDown"
 		role="dialog"
 		aria-labelledby="cookie-consent-modal-title"
+		data-wp-bind--aria-describedby="state.modalGpcNoticeId"
 		aria-modal="true"
 	>
 		<div class="jetpack-cookie-consent__modal-header">
@@ -144,6 +149,10 @@ $privacy_policy_url  = (string) get_privacy_policy_url();
 							. '.';
 					}
 					?>
+				</p>
+
+				<p id="cookie-consent-modal-gpc-notice" class="jetpack-cookie-consent__gpc-notice" role="status" data-wp-bind--hidden="!context.gpcNotice" hidden>
+					<?php echo esc_html( $copy['gpc_notice'] ); ?>
 				</p>
 
 				<div class="jetpack-cookie-consent__category-controls">

@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Lighten heatmap colors in cards such as Posting activity and Views over years, while keeping low values distinct from empty cells.

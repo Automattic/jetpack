@@ -1,6 +1,11 @@
 /* eslint-disable testing-library/prefer-user-event -- Exercise keyboard and pointer-coordinate handlers directly. */
 import { fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { useReducer } from 'react';
+import {
+	createHistory,
+	withHistory,
+} from '../../../../../client/components/chapters-editor/state/history';
 import { createEditSession, editSessionReducer } from '../../state/edit-session';
 import Timeline from '../timeline';
 
@@ -135,3 +140,50 @@ it.each( [
 		disabled ? [] : [ [ { type: 'ADD_CUT', atMs: currentMs } ] ]
 	);
 } );
+
+/**
+ * Render trim gestures with the real session reducer.
+ *
+ * @param props        - Timeline callbacks.
+ * @param props.onSeek - Observe preview seeks.
+ * @return A timeline with editable trim bounds.
+ */
+function TrimTimeline( { onSeek }: { onSeek: ( ms: number ) => void } ) {
+	const [ history, dispatch ] = useReducer(
+		withHistory( editSessionReducer ),
+		createHistory( createEditSession( 10000 ) )
+	);
+	return (
+		<Timeline
+			session={ history.present }
+			dispatch={ dispatch }
+			currentMs={ 5000 }
+			onSeek={ onSeek }
+			onTogglePlay={ jest.fn() }
+			playing={ false }
+		/>
+	);
+}
+
+it.each( [
+	{ name: 'Trim start', grabX: 0, moveX: 600, draggedMs: 6000, key: 'ArrowRight', nudgedMs: 6100 },
+	{ name: 'Trim end', grabX: 1000, moveX: 400, draggedMs: 4000, key: 'ArrowLeft', nudgedMs: 3900 },
+] )(
+	'keeps the playhead still when grabbing, dragging, and nudging $name past it',
+	( { name, grabX, moveX, draggedMs, key, nudgedMs } ) => {
+		const onSeek = jest.fn();
+		render( <TrimTimeline onSeek={ onSeek } /> );
+		const handle = screen.getByRole( 'slider', { name } );
+
+		fireEvent.pointerDown( handle, { button: 0, pointerId: 1, clientX: grabX } );
+		expect( onSeek ).not.toHaveBeenCalled();
+		fireEvent.pointerMove( handle, { pointerId: 1, clientX: moveX } );
+		fireEvent.pointerUp( handle, { pointerId: 1 } );
+		expect( handle ).toHaveValue( draggedMs );
+		expect( onSeek ).not.toHaveBeenCalled();
+
+		fireEvent.keyDown( handle, { key } );
+		expect( handle ).toHaveValue( nudgedMs );
+		expect( onSeek ).not.toHaveBeenCalled();
+	}
+);

@@ -14,6 +14,7 @@ import {
 	resetToDefaults,
 	turnGateOff,
 	withCurrency,
+	withPrimaryDimension,
 } from '../../src/paypal-payment-buttons/utils/resource-sync';
 
 const blockAttributes = {
@@ -269,7 +270,8 @@ describe( 'getResourceAttributeUpdates', () => {
 		expect( getResourceAttributeUpdates( current, fromResource ) ).toEqual( {} );
 	} );
 
-	it( 'treats editor keys and empty per-option amounts as no difference', () => {
+	// The save flags the first group for PayPal, so the flag comes back on an unpriced group.
+	it( 'treats editor keys, empty amounts and an unpriced primary flag as no difference', () => {
 		const current = {
 			...blockAttributes,
 			variantsEnabled: true,
@@ -278,7 +280,7 @@ describe( 'getResourceAttributeUpdates', () => {
 					{
 						_key: 'vb-1',
 						name: 'Size',
-						primary: true,
+						primary: false,
 						options: [
 							{ _key: 'vb-2', label: 'Small', unit_amount: { currency_code: 'USD', value: '' } },
 							{ _key: 'vb-3', label: 'Large', unit_amount: { currency_code: 'USD', value: '' } },
@@ -409,11 +411,57 @@ describe( 'normalizeResourceVariants', () => {
 		const normalized = normalizeResourceVariants( {
 			dimensions: [
 				{ name: 'Color', primary: false, options: [ { label: 'Red' } ] },
-				{ name: 'Size', primary: true, options: [ { label: 'Small' } ] },
+				{
+					name: 'Size',
+					primary: true,
+					options: [ { label: 'Small', unit_amount: { currency_code: 'USD', value: '12.50' } } ],
+				},
 			],
 		} );
 
 		expect( normalized.dimensions.map( dim => dim.primary ) ).toEqual( [ false, true ] );
+	} );
+
+	// PayPal flags a group on every payment, priced or not, and the save flags the first
+	// one itself, so an unpriced flag must not reopen the form with pricing on.
+	it( 'drops the flag from a group that carries no price', () => {
+		const normalized = normalizeResourceVariants( {
+			dimensions: [
+				{ name: 'Color', primary: true, options: [ { label: 'Red' } ] },
+				{ name: 'Size', primary: false, options: [ { label: 'Small' } ] },
+			],
+		} );
+
+		expect( normalized.dimensions.map( dim => dim.primary ) ).toEqual( [ false, false ] );
+	} );
+} );
+
+describe( 'withPrimaryDimension', () => {
+	it( 'flags the first group when none is', () => {
+		const variants = withPrimaryDimension( {
+			dimensions: [
+				{ name: 'Color', primary: false, options: [ { label: 'Red' } ] },
+				{ name: 'Size', options: [ { label: 'Small' } ] },
+			],
+		} );
+
+		expect( variants.dimensions.map( dim => dim.primary ) ).toEqual( [ true, false ] );
+	} );
+
+	it( 'leaves a flagged group where it is', () => {
+		const variants = {
+			dimensions: [
+				{ name: 'Color', primary: false, options: [ { label: 'Red' } ] },
+				{ name: 'Size', primary: true, options: [ { label: 'Small' } ] },
+			],
+		};
+
+		expect( withPrimaryDimension( variants ) ).toBe( variants );
+	} );
+
+	it( 'passes empty variants through', () => {
+		expect( withPrimaryDimension( null ) ).toBeNull();
+		expect( withPrimaryDimension( { dimensions: [] } ) ).toEqual( { dimensions: [] } );
 	} );
 } );
 
@@ -470,6 +518,7 @@ describe( 'GATED_ATTRIBUTES', () => {
 		'currencyCode',
 		'productDescription',
 		'productId',
+		'images',
 		'customerNotes',
 		'returnUrl',
 		// The address toggle is separate from shipping fees, so no gate clears it.
@@ -573,5 +622,149 @@ describe( 'isBookkeeping', () => {
 
 	it( 'leaves a price change for the merchant', () => {
 		expect( isBookkeeping( 'price', metadata.attributes.price.default ) ).toBe( false );
+	} );
+} );
+
+describe( 'images', () => {
+	const fromPayPal = [
+		{
+			assetId: 'asset-1',
+			status: 'APPROVED',
+			url: 'https://pics.paypal.test/1.jpg',
+			thumbnailUrl: 'https://pics.paypal.test/1-80.jpg',
+		},
+		{ assetId: 'asset-2', status: 'IN_REVIEW', url: '', thumbnailUrl: '' },
+	];
+	const onBlock = [
+		{
+			assetId: 'asset-1',
+			status: 'APPROVED',
+			attachmentId: 1,
+			name: 'one.jpg',
+			thumbnailUrl: 'https://example.test/1-150.jpg',
+		},
+		{
+			assetId: 'asset-2',
+			status: 'IN_REVIEW',
+			attachmentId: 2,
+			name: 'two.jpg',
+			thumbnailUrl: 'https://example.test/2-150.jpg',
+		},
+	];
+
+	it( 'needs no update when the same images are in the same order', () => {
+		expect(
+			getResourceAttributeUpdates(
+				{ ...blockAttributes, images: onBlock },
+				{ ...blockAttributes, images: fromPayPal }
+			)
+		).toEqual( {} );
+	} );
+
+	// The first image is the primary one, so a reorder is a change.
+	it( 'picks up a new primary image', () => {
+		const updates = getResourceAttributeUpdates(
+			{ ...blockAttributes, images: onBlock },
+			{ ...blockAttributes, images: [ fromPayPal[ 1 ], fromPayPal[ 0 ] ] }
+		);
+
+		expect( updates.images.map( image => image.assetId ) ).toEqual( [ 'asset-2', 'asset-1' ] );
+	} );
+
+	// PayPal has no name and no thumbnail for an image in review; the block does, and
+	// keeps them once the image is approved.
+	it( 'picks up an approval and keeps the name and thumbnail the block has', () => {
+		const approved = {
+			...fromPayPal[ 1 ],
+			status: 'APPROVED',
+			url: 'https://pics.paypal.test/2.jpg',
+		};
+
+		const updates = getResourceAttributeUpdates(
+			{ ...blockAttributes, images: onBlock },
+			{ ...blockAttributes, images: [ fromPayPal[ 0 ], approved ] }
+		);
+
+		expect( updates.images[ 1 ] ).toEqual( {
+			...approved,
+			attachmentId: 2,
+			name: 'two.jpg',
+			thumbnailUrl: 'https://example.test/2-150.jpg',
+		} );
+	} );
+
+	it( 'clears the images a payment no longer carries', () => {
+		expect(
+			getResourceAttributeUpdates( { ...blockAttributes, images: onBlock }, blockAttributes )
+		).toEqual( { images: [] } );
+	} );
+
+	it( 'puts an option image into the block shape and keeps its name', () => {
+		const current = {
+			...blockAttributes,
+			variantsEnabled: true,
+			variants: {
+				dimensions: [
+					{
+						_key: 'd1',
+						name: 'Color',
+						primary: false,
+						options: [
+							{
+								_key: 'o1',
+								label: 'Red',
+								images: [
+									{
+										assetId: 'asset-9',
+										attachmentId: 9,
+										name: 'red.jpg',
+										thumbnailUrl: 'https://example.test/9.jpg',
+										status: 'IN_REVIEW',
+									},
+								],
+							},
+						],
+					},
+				],
+			},
+		};
+		const fromResource = {
+			...blockAttributes,
+			variantsEnabled: true,
+			variants: {
+				dimensions: [
+					{
+						name: 'Color',
+						primary: true,
+						options: [
+							{
+								label: 'Red',
+								images: [
+									{
+										asset_id: 'asset-9',
+										status: 'APPROVED',
+										url: 'https://pics.paypal.test/9.jpg',
+										thumbnail_url: 'https://pics.paypal.test/9-80.jpg',
+									},
+								],
+							},
+						],
+					},
+				],
+			},
+		};
+
+		const updates = getResourceAttributeUpdates( current, fromResource );
+
+		expect( updates.variants.dimensions[ 0 ].options[ 0 ].images ).toEqual( [
+			{
+				assetId: 'asset-9',
+				status: 'APPROVED',
+				url: 'https://pics.paypal.test/9.jpg',
+				thumbnailUrl: 'https://example.test/9.jpg',
+				attachmentId: 9,
+				name: 'red.jpg',
+			},
+		] );
 	} );
 } );

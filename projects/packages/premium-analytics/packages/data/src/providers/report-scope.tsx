@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { type DateRange } from '@jetpack-premium-analytics/datetime';
+import { type DateRange, type DateStepId } from '@jetpack-premium-analytics/datetime';
 import { createContext, useContext, useMemo, type ReactNode } from 'react';
 /**
  * Internal dependencies
@@ -9,15 +9,30 @@ import { createContext, useContext, useMemo, type ReactNode } from 'react';
 import { NO_LOCKED_INTERVALS, type LockableInterval } from '../utils/interval';
 import type { StatsDatePolicy } from '../utils/stats-date-policy';
 
+/** The copy and links of the upsell beside a control's locked options. */
+export type DateLimitUpsellCopy = {
+	description: string;
+	supportUrl: string;
+	upgradeUrl: string;
+	/** Called when the reader follows the upgrade link. */
+	onUpgradeClick?: () => void;
+};
+
 /** Date options the site's plan withholds, for the controls to show as locked. */
 export type DateLimits = Pick<
 	StatsDatePolicy,
 	'lockedPresetIds' | 'earliestDate' | 'lockedIntervals'
 > & {
-	/** The copy and links of the upsell beside the locked options. */
-	upsell?: { description: string; supportUrl: string; upgradeUrl: string };
-	/** Called when the reader follows the upsell's upgrade link. */
-	onUpgradeClick?: () => void;
+	/** Explains the locked periods. */
+	upsell?: DateLimitUpsellCopy;
+	/** Explains the locked chart intervals. */
+	intervalUpsell?: DateLimitUpsellCopy;
+};
+
+/** What a widget says about the period it opens. */
+export type OpenPeriodOptions = {
+	/** How the date arrows step it: the bucket's own unit, so a bar opened today steps whole. */
+	step?: DateStepId;
 };
 
 /**
@@ -30,7 +45,12 @@ export type ReportScope = {
 	 * Applies a range a widget computed as the surface's period, drawing the date
 	 * control's attention to it. Absent where the host offers none.
 	 */
-	openPeriod?: ( range: Required< DateRange > ) => void;
+	openPeriod?: ( range: Required< DateRange >, options?: OpenPeriodOptions ) => void;
+	/**
+	 * The id the host's date control draws attention with while a period a widget set is
+	 * highlighted; undefined otherwise. Travels with `openPeriod`.
+	 */
+	attentionId?: number;
 	/** The date options the site's plan locks; absent where the host applies no limits. */
 	dateLimits?: DateLimits;
 };
@@ -46,6 +66,7 @@ const ReportScopeContext = createContext< ReportScope >( DEFAULT_REPORT_SCOPE );
  * @param props                  - Provider props.
  * @param props.offersComparison - Whether this surface offers the date comparison.
  * @param props.openPeriod       - How a widget sets this surface's period.
+ * @param props.attentionId      - The id the host's date control draws attention with; undefined while nothing is highlighted.
  * @param props.dateLimits       - Date options the plan withholds.
  * @param props.children         - The surface's tree.
  * @return The provider.
@@ -53,6 +74,7 @@ const ReportScopeContext = createContext< ReportScope >( DEFAULT_REPORT_SCOPE );
 export function ReportScopeProvider( {
 	offersComparison,
 	openPeriod,
+	attentionId,
 	dateLimits,
 	children,
 }: Partial< ReportScope > & {
@@ -64,9 +86,10 @@ export function ReportScopeProvider( {
 			...inherited,
 			...( offersComparison !== undefined && { offersComparison } ),
 			...( openPeriod && { openPeriod } ),
+			...( attentionId !== undefined && { attentionId } ),
 			...( dateLimits && { dateLimits } ),
 		} ),
-		[ inherited, offersComparison, openPeriod, dateLimits ]
+		[ inherited, offersComparison, openPeriod, attentionId, dateLimits ]
 	);
 
 	return <ReportScopeContext.Provider value={ value }>{ children }</ReportScopeContext.Provider>;

@@ -8,10 +8,12 @@
 namespace Automattic\Jetpack\Backup\V0005\Abilities;
 
 use Automattic\Jetpack\Connection\Utils as Connection_Utils;
+use Automattic\Jetpack\Status\Cache as Status_Cache;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use ReflectionClass;
 use WorDBless\BaseTestCase;
+use WP_Error;
 
 /**
  * @covers \Automattic\Jetpack\Backup\V0005\Abilities\Backup_Abilities
@@ -58,6 +60,8 @@ class Backup_Abilities_Test extends BaseTestCase {
 		wp_set_current_user( 0 );
 		remove_filter( 'jetpack_wp_abilities_enabled', '__return_true' );
 		remove_filter( 'jetpack_wp_abilities_enabled', '__return_false' );
+		remove_filter( 'jetpack_offline_mode', '__return_true' );
+		Status_Cache::clear();
 		remove_all_filters( 'jetpack_wp_abilities_should_register' );
 		remove_all_filters( 'jetpack_backup_abilities_should_load' );
 		remove_all_filters( 'pre_http_request' );
@@ -257,6 +261,8 @@ class Backup_Abilities_Test extends BaseTestCase {
 			$this->assertArrayHasKey( 'output_schema', $spec, "Ability {$slug} missing output_schema." );
 			$this->assertNotEmpty( $spec['output_schema'], "Ability {$slug} must declare a non-empty output_schema." );
 			$this->assertArrayHasKey( 'meta', $spec, "Ability {$slug} missing meta." );
+			$this->assertArrayHasKey( 'public', $spec['meta'], "Ability {$slug} must declare meta.public." );
+			$this->assertTrue( $spec['meta']['public'], "{$slug} must be marked public." );
 			$this->assertArrayHasKey( 'mcp', $spec['meta'], "Ability {$slug} must publish meta.mcp." );
 			$this->assertSame(
 				array(
@@ -302,6 +308,7 @@ class Backup_Abilities_Test extends BaseTestCase {
 					'destructive' => false,
 					'idempotent'  => false,
 				),
+				'public'       => true,
 				'mcp'          => array(
 					'public' => true,
 					'type'   => 'tool',
@@ -493,12 +500,16 @@ class Backup_Abilities_Test extends BaseTestCase {
 
 			$meta = $registered[ $slug ]->get_meta();
 			$this->assertSame( $spec['meta']['annotations'], $meta['annotations'], "{$slug} registered annotations drifted." );
+			$this->assertSame( $spec['meta']['public'], $meta['public'], "{$slug} registered public metadata drifted." );
 			$this->assertSame( $spec['meta']['mcp'], $meta['mcp'], "{$slug} registered MCP metadata drifted." );
 			$this->assertSame( $spec['meta']['show_in_rest'], $meta['show_in_rest'], "{$slug} registered show_in_rest metadata drifted." );
 		}
 	}
 
 	public function test_init_registers_nothing_when_gate_filter_is_false(): void {
+		// The package's own plugins_loaded wiring already hooked these while the test environment loaded.
+		remove_action( 'wp_abilities_api_categories_init', array( Backup_Abilities::class, 'register_category' ) );
+		remove_action( 'wp_abilities_api_init', array( Backup_Abilities::class, 'register_abilities' ) );
 		remove_filter( 'jetpack_wp_abilities_enabled', '__return_true' );
 		add_filter( 'jetpack_wp_abilities_enabled', '__return_false' );
 
@@ -670,7 +681,7 @@ class Backup_Abilities_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The backup module only switches the wp-admin dashboard, so a plan holder who turned it off still gets the abilities.
+	 * The plan, not the backup module, decides Backup, so a plan holder who turned the module off still gets the abilities.
 	 */
 	public function test_register_ignores_the_backup_module(): void {
 		if ( ! function_exists( 'wp_register_ability' ) || ! function_exists( 'wp_has_ability' ) ) {
@@ -692,7 +703,6 @@ class Backup_Abilities_Test extends BaseTestCase {
 			),
 			HOUR_IN_SECONDS
 		);
-		$this->assertFalse( \Automattic\Jetpack\My_Jetpack\Products\Backup::is_active(), 'Precondition: the module being off makes the product inactive.' );
 
 		$this->ensure_site_category();
 		$this->simulate_doing_abilities_init();
@@ -726,6 +736,32 @@ class Backup_Abilities_Test extends BaseTestCase {
 	public function test_can_manage_backups_allows_admin(): void {
 		wp_set_current_user( $this->admin_id );
 		$this->assertTrue( Backup_Abilities::can_manage_backups() );
+	}
+
+	/**
+	 * @param string $callback Permission callback name.
+	 * @dataProvider provider_permission_callbacks
+	 */
+	#[DataProvider( 'provider_permission_callbacks' )]
+	public function test_offline_mode_denies_an_admin_with_its_reason( string $callback ): void {
+		wp_set_current_user( $this->admin_id );
+		add_filter( 'jetpack_offline_mode', '__return_true' );
+		Status_Cache::clear();
+
+		$result = Backup_Abilities::$callback();
+
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertSame( 'offline_mode', $result->get_error_code() );
+	}
+
+	/**
+	 * @return array<string, array{string}>
+	 */
+	public static function provider_permission_callbacks(): array {
+		return array(
+			'view'   => array( 'can_view_backups' ),
+			'manage' => array( 'can_manage_backups' ),
+		);
 	}
 
 	/**

@@ -133,6 +133,19 @@ class Jetpack_Stats_Upgrade_Nudges {
 	}
 
 	/**
+	 * Determines whether the Site is on the Pro Plan, which also includes every product nudged here.
+	 *
+	 * @return boolean
+	 */
+	private static function has_pro_plan() {
+		$plan_data = Jetpack_Plan::get();
+		if ( is_array( $plan_data ) && isset( $plan_data['product_slug'] ) ) {
+			return wp_startswith( $plan_data['product_slug'], 'jetpack_pro_' );
+		}
+		return false;
+	}
+
+	/**
 	 * Determines whether the Site has a specific product.
 	 *
 	 * @param string $target_product_slug The product slug we are looking for.
@@ -547,7 +560,7 @@ class Jetpack_Stats_Upgrade_Nudges {
 			return;
 		}
 
-		if ( self::has_complete_plan() ) {
+		if ( self::has_complete_plan() || self::has_pro_plan() ) {
 			return;
 		}
 

@@ -39,6 +39,8 @@ class REST_Controller_Test extends TestCase {
 	}
 
 	protected function tearDown(): void {
+		Constants::clear_single_constant( 'IS_WPCOM' );
+		unset( $GLOBALS['activity_log_test_wpcom_features'] );
 		REST_Controller::clear_access_cache();
 		$this->captured_url = '';
 		parent::tearDown();
@@ -85,6 +87,24 @@ class REST_Controller_Test extends TestCase {
 		remove_filter( 'pre_http_request', array( $this, 'mock_request_as_server_error' ) );
 
 		$this->assertFalse( $result );
+	}
+
+	/**
+	 * Simple has no blog token, so a request to WordPress.com would fail closed and upsell paying sites.
+	 */
+	public function test_has_access_reads_the_local_feature_on_wpcom_simple() {
+		require_once __DIR__ . '/mocks/wpcom-features-mock.php';
+		Constants::set_constant( 'IS_WPCOM', true );
+		add_filter( 'pre_http_request', array( $this, 'mock_request_as_wp_error' ) );
+
+		$without_feature                             = REST_Controller::has_activity_logs_access();
+		$GLOBALS['activity_log_test_wpcom_features'] = array( 'full-activity-log' );
+		$with_feature                                = REST_Controller::has_activity_logs_access();
+
+		remove_filter( 'pre_http_request', array( $this, 'mock_request_as_wp_error' ) );
+
+		$this->assertFalse( $without_feature );
+		$this->assertTrue( $with_feature );
 	}
 
 	/**

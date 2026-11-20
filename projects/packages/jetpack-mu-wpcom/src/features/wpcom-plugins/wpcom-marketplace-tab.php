@@ -109,7 +109,7 @@ function wpcom_marketplace_serve_plugins_api( $result, $action, $args ) {
 				'pages'   => 1,
 				'results' => count( $products ),
 			),
-			'plugins' => array_values( $products ),
+			'plugins' => array_map( 'wpcom_marketplace_for_core', array_values( $products ) ),
 		);
 	}
 
@@ -177,7 +177,76 @@ function wpcom_marketplace_on_plugin_install_screen() {
  * @return bool
  */
 function wpcom_marketplace_is_installed( array $plugin ) {
-	return function_exists( 'install_plugin_install_status' ) && 'install' !== install_plugin_install_status( $plugin )['status'];
+	if ( ! function_exists( 'install_plugin_install_status' ) ) {
+		return false;
+	}
+
+	$slug = (string) ( $plugin['slug'] ?? '' );
+
+	return wpcom_marketplace_has_update( $slug ) || '' !== wpcom_marketplace_installed_version( $slug );
+}
+
+/**
+ * The version of the plugin installed in a slug's directory, as core finds it.
+ *
+ * @param string $slug Plugin slug.
+ * @return string Installed version, or an empty string when nothing is installed there.
+ */
+function wpcom_marketplace_installed_version( $slug ) {
+	if ( '' === $slug || ! function_exists( 'get_plugins' ) || ! is_dir( WP_PLUGIN_DIR . '/' . $slug ) ) {
+		return '';
+	}
+
+	$installed = get_plugins( '/' . $slug );
+
+	return $installed ? (string) ( reset( $installed )['Version'] ?? '' ) : '';
+}
+
+/**
+ * Whether the update_plugins transient has an update waiting for a slug.
+ *
+ * @param string $slug Plugin slug.
+ * @return bool
+ */
+function wpcom_marketplace_has_update( $slug ) {
+	$updates = get_site_transient( 'update_plugins' );
+
+	foreach ( (array) ( $updates->response ?? array() ) as $update ) {
+		if ( is_object( $update ) && isset( $update->slug ) && $update->slug === $slug ) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
+/**
+ * A card as core's install status should see it: no newer than what this site can update to.
+ *
+ * Core takes an older installed copy with no update entry as stale update data and reruns
+ * wp_update_plugins() on every call, once per card; products updated from elsewhere never get one.
+ *
+ * @param array $card Normalized product data.
+ * @return array
+ */
+function wpcom_marketplace_for_core( array $card ) {
+	$slug      = (string) ( $card['slug'] ?? '' );
+	$installed = wpcom_marketplace_installed_version( $slug );
+
+	if ( '' !== $installed && version_compare( (string) ( $card['version'] ?? '' ), $installed, '>' ) && ! wpcom_marketplace_has_update( $slug ) ) {
+		$card['version'] = $installed;
+	}
+
+	return $card;
+}
+
+/**
+ * Whether buying a product here also means buying a plan, as on a free Simple site.
+ *
+ * @return bool
+ */
+function wpcom_marketplace_needs_plan() {
+	return function_exists( 'wpcom_site_has_feature' ) && ! wpcom_site_has_feature( 'install-purchased-plugins' );
 }
 
 /**
@@ -266,7 +335,18 @@ function wpcom_marketplace_price_rows( array $card ) {
 	}
 
 	$note = '';
-	if ( $has_yearly && '' !== $monthly ) {
+	if ( wpcom_marketplace_needs_plan() ) {
+		/**
+		 * Filters the line under a card's price on a site that buys a plan along with the product.
+		 *
+		 * It replaces the monthly price, since the plan is the other thing the buyer pays for.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param string $note Plain text.
+		 */
+		$note = '<span class="wpcom-marketplace-card__note">' . esc_html( (string) apply_filters( 'wpcom_marketplace_plan_note', __( 'Needs a paid plan', 'jetpack-mu-wpcom' ) ) ) . '</span>';
+	} elseif ( $has_yearly && '' !== $monthly ) {
 		// Worded as a condition, not "or": the button buys the year, so this is only what it is measured against.
 		/* translators: %s: Price per month, for example $9.90. */
 		$note = '<span class="wpcom-marketplace-card__note">' . esc_html( sprintf( __( '%s/month if billed monthly', 'jetpack-mu-wpcom' ), $monthly ) ) . '</span>';
@@ -353,7 +433,7 @@ function wpcom_marketplace_card_button( array $card, $back_url = '' ) {
 	}
 
 	// A site whose plan does not include it buys one in the same checkout, through the filter above.
-	if ( function_exists( 'wpcom_site_has_feature' ) && ! wpcom_site_has_feature( 'install-purchased-plugins' ) ) {
+	if ( wpcom_marketplace_needs_plan() ) {
 		return sprintf(
 			'<a class="button button-compact wpcom-marketplace-card__upgrade" href="%s" data-wpcom-marketplace-track="purchase" aria-label="%s">%s</a>',
 			esc_url( $checkout ),

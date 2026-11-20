@@ -59,7 +59,7 @@ export type DonutProps = {
 	 * Defaults to on.
 	 */
 	withTotal?: boolean;
-	/** What the chart shows, such as the widget title; the chart is named "Chart: <title>". */
+	/** What the chart shows, when that is not the widget title; the chart is named "Chart: <title>". */
 	chartTitle?: string;
 	/** The total the report states, for segments that need not add up to it. Omit to sum them. */
 	total?: number;

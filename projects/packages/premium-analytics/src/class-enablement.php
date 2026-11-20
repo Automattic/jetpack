@@ -1,0 +1,50 @@
+<?php
+/**
+ * The rule that decides whether Stats v2 boots on a Jetpack site.
+ *
+ * @package automattic/jetpack-premium-analytics
+ */
+
+namespace Automattic\Jetpack\PremiumAnalytics;
+
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Modules;
+
+/**
+ * Whether Stats v2 should boot on a Jetpack site, where {@see Enablement_Setting} is only the stored opt-in.
+ *
+ * WordPress.com Simple decides on its own and only answers the filter below.
+ *
+ * @since 0.16.0
+ */
+final class Enablement {
+
+	/**
+	 * Whether Stats v2 should boot. It waits for the Stats module, whose data it reads, except on a site with no connection: the module turns on only with the connection that Stats v2 offers.
+	 *
+	 * @return bool
+	 */
+	public static function is_enabled() {
+		$replaces_pre_connection_page = Classic_Stats::is_retired() && ! ( new Connection_Manager() )->is_connected();
+		if ( ! $replaces_pre_connection_page && ! ( new Modules() )->is_active( 'stats' ) ) {
+			return false;
+		}
+
+		/**
+		 * Filters whether the bundled Premium Analytics dashboard is enabled.
+		 *
+		 * Read on `plugins_loaded`, while the Stats module is active or a site with no connection has
+		 * retired classic Stats. Register this from a mu-plugin or a plugin's main file: a callback
+		 * added on `plugins_loaded` or later runs too late.
+		 *
+		 * @since jetpack-16.1
+		 *
+		 * @param bool $enabled Defaults to the `jetpack_premium_analytics_enabled` option (false), or true once the classic Stats page is retired.
+		 */
+		return (bool) apply_filters(
+			'jetpack_premium_analytics_enabled',
+			// A site that once switched Stats v2 off would otherwise be left with no Stats page.
+			Classic_Stats::is_retired() || (bool) get_option( Enablement_Setting::ENABLED_OPTION )
+		);
+	}
+}

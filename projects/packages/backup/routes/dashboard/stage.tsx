@@ -19,7 +19,7 @@ import './style.scss';
  * @return The Overview screen wrapped in the dashboard's query client.
  */
 const Stage = () => (
-	<ErrorBoundary>
+	<ErrorBoundary screen="overview">
 		<QueryClientProvider>
 			<OverviewScreen />
 		</QueryClientProvider>

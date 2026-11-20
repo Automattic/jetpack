@@ -149,6 +149,9 @@ Create a payment resource via the PayPal API. Returns both a button-ready resour
 | `line_items[].taxes[].type` | string | No | `PERCENTAGE` | `PERCENTAGE`, `FLAT` or `PREFERENCE` |
 | `line_items[].taxes[].value` | string | No | `0` | Rate for `PERCENTAGE`, amount for `FLAT`. `PREFERENCE` always sends `PROFILE` |
 | `line_items[].taxes[].name` | string | No | — | Tax label. Sent only when set |
+| `line_items[].images[].asset_id` | string | No | — | An image uploaded through the images route. Up to 5; the sanitizer caps the list |
+| `line_items[].images[].is_primary` | boolean | No | first | Exactly one image leads at checkout: the one flagged, or else the first |
+| `line_items[].variants.dimensions[].options[].images[].asset_id` | string | No | — | One image per option, kept on the primary dimension only |
 | `return_url` | string | No | — | Post-payment redirect URL |
 | `name` | string | No | — | Display name for the resource |
 
@@ -254,6 +257,50 @@ Deletion is permanent: PayPal has no pause, deactivate, or restore operation, an
 
 ---
 
+## Product Images
+
+Images are uploaded to PayPal first and then referenced by `asset_id` from the create and update
+bodies. Only `BUY_NOW` payments carry them. PayPal returns each image with a `status`:
+`APPROVED` images carry `url` and `thumbnail_url`, `IN_REVIEW` images carry neither until PayPal's
+review completes, and an attached `IN_REVIEW` image cannot be removed by an update until then.
+
+### POST `/wpcom/v2/paypal/images`
+
+Send media library images to PayPal. Each attachment is checked against PayPal's limits first
+(JPEG, PNG, BMP or TIFF; 12 MB; 10 to 9000 px a side), then every file that passes goes in one
+multipart request.
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `attachment_ids` | integer[] | Yes | Media library attachments, 1 to 15 |
+
+**Response (200):** one row per attachment, in the order asked. A row carries either PayPal's
+`asset_id`, `status`, `url` and `thumbnail_url`, or an `error` with PayPal's `name` and a message
+for the merchant. A failure of the whole call is an error response instead.
+
+```json
+{
+  "images": [
+    { "attachment_id": 12, "asset_id": "LzAw…", "status": "APPROVED", "url": "https://…", "thumbnail_url": "https://…" },
+    { "attachment_id": 13, "error": { "name": "UNSUPPORTED_FORMAT", "message": "PayPal does not accept the format of logo.gif. Use a JPEG, PNG, BMP or TIFF image." } }
+  ]
+}
+```
+
+### DELETE `/wpcom/v2/paypal/images`
+
+Delete an image no payment carries. The update route deletes the images a PUT took off a payment
+itself; the editor calls this for an image it uploaded and then removed before any save.
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `asset_id` | string | Yes | The image, as PayPal identifies it |
+
+**Response (200):** `{ "deleted": true, "asset_id": "…" }`. An image PayPal no longer has (404)
+counts as deleted; one still on a payment is a 422.
+
+---
+
 ## Block Attributes
 
 | Attribute | Type | Default | Description |
@@ -267,6 +314,7 @@ Deletion is permanent: PayPal has no pause, deactivate, or restore operation, an
 | `currencyCode` | string | `USD` | ISO currency code |
 | `productDescription` | string | — | Product description |
 | `imageUrl` | string | — | Product image URL. No longer set from the editor; kept for blocks that already have one |
+| `images` | array | `[]` | Product images PayPal shows at checkout, the primary one first: `assetId`, `status`, `url`, `thumbnailUrl`, plus the media library's `attachmentId`, `name` and local `thumbnailUrl` for the editor list. Variant options carry one image each in the same shape, under `variants` |
 | `returnUrl` | string | — | Post-payment redirect URL |
 | `scriptSrc` | string | — | Legacy: PayPal script URL |
 | `hostedButtonId` | string | — | Legacy: hosted button ID |
@@ -300,4 +348,4 @@ Deletion is permanent: PayPal has no pause, deactivate, or restore operation, an
 6. On 401/403, token is refreshed and request retried once
 7. On 500/502/503, request retried up to 3 times with exponential backoff
 
-**BN Code:** The PayPal-Partner-Attribution-Id header is **not** supported on the Pay Links & Buttons API. Partner attribution is applied via the `?at_code=WooNCPS_Ecom_Wordpress` query parameter appended to the `payment_link` URL at render time. This parameter is not visible in WordPress REST API responses. Sandbox accounts are issued a different BN code: while the site is connected to the sandbox, the `jetpack_paypal_sandbox_partner_attribution_id` filter overrides it (the production code is not filterable).
+**BN Code:** Every PayPal API call (Pay Links & Buttons, merchant integrations, partner referrals) carries the `PayPal-Partner-Attribution-Id: WooNCPS_Ecom_Wordpress` header, whether the site calls PayPal directly or WordPress.com calls on its behalf. The payment links themselves are attributed separately, via the `?at_code=WooNCPS_Ecom_Wordpress` query parameter appended to the `payment_link` URL at render time; that parameter is not visible in WordPress REST API responses. Sandbox accounts are issued a different BN code: while the site is connected to the sandbox, the `jetpack_paypal_sandbox_partner_attribution_id` filter overrides it (the production code is not filterable).

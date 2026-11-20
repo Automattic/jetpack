@@ -12,6 +12,10 @@ namespace Automattic\Jetpack\Plugin\Abilities;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\WP_Abilities\Registrar;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Registers Jetpack WP.me Shortlinks abilities with the WordPress Abilities API.
  *
@@ -25,6 +29,13 @@ class Shortlinks_Abilities extends Registrar {
 	 * Maximum number of post IDs accepted per call.
 	 */
 	const MAX_POST_IDS = 100;
+
+	/**
+	 * {@inheritDoc}
+	 */
+	protected static function enabled_by_default(): bool {
+		return true;
+	}
 
 	/**
 	 * Returns the category slug this registrar owns.
@@ -114,6 +125,7 @@ class Shortlinks_Abilities extends Registrar {
 						'destructive' => false,
 						'idempotent'  => true,
 					),
+					'public'       => true,
 					'show_in_rest' => true,
 					'mcp'          => array(
 						'public' => true,

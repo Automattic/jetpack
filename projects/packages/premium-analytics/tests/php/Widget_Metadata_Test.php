@@ -482,6 +482,11 @@ class Widget_Metadata_Test extends BaseTestCase {
 					'href'  => 'export.php?type=csv',
 				),
 				array(
+					'id'    => 'dashboard-route',
+					'label' => 'Dashboard route',
+					'href'  => 'admin.php?page=jetpack-premium-analytics-wp-admin&p=%2Freports%2Fcomments%3Fsection%3Dposts',
+				),
+				array(
 					'id'    => 'script',
 					'label' => 'Script',
 					'href'  => 'javascript:alert(1)',
@@ -528,6 +533,11 @@ class Widget_Metadata_Test extends BaseTestCase {
 					'id'    => 'admin',
 					'label' => 'Admin entry point',
 					'href'  => 'export.php?type=csv',
+				),
+				array(
+					'id'    => 'dashboard-route',
+					'label' => 'Dashboard route',
+					'href'  => 'admin.php?page=jetpack-premium-analytics-wp-admin&p=%2Freports%2Fcomments%3Fsection%3Dposts',
 				),
 			),
 			$actions,

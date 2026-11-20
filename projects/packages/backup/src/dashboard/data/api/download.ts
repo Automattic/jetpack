@@ -1,5 +1,6 @@
 import { __ } from '@wordpress/i18n';
 import { ApiError, apiCall, apiPath, requireTypes } from './_helpers';
+import { sameRewindId } from './restore';
 import type { RestoreItems } from '../../types/restore';
 
 export type InitiateDownloadResponse = {
@@ -15,11 +16,14 @@ export type InitiateDownloadResponse = {
  * failed, and `progress` only while it is still being built. The bridge
  * reads which of those arrived and reports it as one of these instead,
  * so the client never has to infer lifecycle from field presence.
+ * `expired` is a built archive whose link has lapsed.
  */
-export type DownloadStatus = 'running' | 'finished' | 'failed';
+export type DownloadStatus = 'running' | 'finished' | 'failed' | 'expired';
 
 export type DownloadStatusResponse = {
 	id: number;
+	/** The backup this download is of, or empty when WPCOM did not say. */
+	rewind_id: string;
 	status: DownloadStatus;
 	/** 0–100. Absent upstream once the download finishes or fails; the bridge sends 0. */
 	progress: number;
@@ -115,4 +119,32 @@ export async function fetchDownloadStatus(
 			download_id: downloadId,
 		} ),
 	} );
+}
+
+/**
+ * The site's latest downloads, as WPCOM lists them.
+ *
+ * @return The downloads, each projected as a status read is.
+ */
+export async function fetchDownloads(): Promise< DownloadStatusResponse[] > {
+	return apiCall< DownloadStatusResponse[] >( { path: apiPath( '/backups/downloads' ) } );
+}
+
+/**
+ * The newest download of this backup still worth showing: one being built, or one ready to fetch.
+ *
+ * @param downloads - The downloads list, if it has answered.
+ * @param rewindId  - The backup on screen.
+ * @return The download, or null when there is none to resume.
+ */
+export function pickResumableDownload(
+	downloads: DownloadStatusResponse[] | undefined,
+	rewindId: string
+): DownloadStatusResponse | null {
+	// Anything but a list means nothing to resume, not a broken screen.
+	const newest = ( Array.isArray( downloads ) ? downloads : [] )
+		.filter( download => sameRewindId( download.rewind_id, rewindId ) )
+		.sort( ( a, b ) => b.id - a.id )[ 0 ];
+
+	return newest?.status === 'running' || newest?.status === 'finished' ? newest : null;
 }

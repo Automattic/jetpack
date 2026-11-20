@@ -7,6 +7,8 @@ export type MonitorState = {
 	uptimeDays: number;
 	/** Whether the current user has a WordPress.com connection. */
 	userConnected: boolean;
+	/** The email address of the user's WordPress.com account, where their alerts go; null when unknown. */
+	alertEmail: string | null;
 };
 
 export type UptimeDay = {

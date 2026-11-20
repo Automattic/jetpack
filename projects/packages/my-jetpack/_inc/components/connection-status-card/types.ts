@@ -56,8 +56,6 @@ interface ConnectionStatusCardProps {
 		slug: string;
 	}[];
 	connectedSiteId?: number;
-	context?: string;
-	onConnectUser?: ( props: unknown ) => void;
 }
 
 export type ConnectionStatusCardType = FC< ConnectionStatusCardProps >;

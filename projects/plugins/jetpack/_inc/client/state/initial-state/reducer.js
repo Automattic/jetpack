@@ -494,16 +494,6 @@ export function arePromotionsActive( state ) {
 }
 
 /**
- * Get the current theme's stylesheet (slug).
- *
- * @param {object} state - Global state tree.
- * @return {string} theme stylesheet, e.g. twentytwentythree.
- */
-export function currentThemeStylesheet( state ) {
-	return state.jetpack.initialState.themeData?.stylesheet;
-}
-
-/**
  * Check that theme supports a certain feature
  *
  * @param {object} state   - Global state tree.
@@ -577,6 +567,41 @@ export function showLicensingUi( state ) {
  */
 export function isMultisite( state ) {
 	return state.jetpack.initialState.siteData?.isMultisite ?? false;
+}
+
+/**
+ * Whether the wp-admin Backup page exists, which the site's plan and host decide rather than the module.
+ *
+ * @param {object} state - Global state tree
+ *
+ * @return {boolean} True if the Backup page was registered.
+ */
+export function hasBackupPage( state ) {
+	return state.jetpack.initialState.siteData?.hasBackupPage ?? false;
+}
+
+/**
+ * Whether the Protect page exists, which replaces the Security tab.
+ *
+ * Read from the server, since Jetpack hides the `protect-dashboard` module while the connected Jetpack Protect plugin shows the page.
+ *
+ * @param {object} state - Global state tree
+ *
+ * @return {boolean} True if the Protect page was registered.
+ */
+export function hasProtectPage( state ) {
+	return state.jetpack.initialState.siteData?.hasProtectPage ?? false;
+}
+
+/**
+ * Whether the Jetpack Social page exists for this user, which Publicize's host, connection and filters decide.
+ *
+ * @param {object} state - Global state tree
+ *
+ * @return {boolean} True if the Social page was registered.
+ */
+export function hasSocialPage( state ) {
+	return state.jetpack.initialState.siteData?.hasSocialPage ?? false;
 }
 
 /**

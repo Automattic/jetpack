@@ -320,6 +320,7 @@ class All_Playlists_Block {
 	public static function render( $block_attributes, $content = '' ) {
 		$settings  = self::settings( $block_attributes );
 		$playlists = self::ordered_playlists( $settings['order_by'] );
+		$has_any   = (bool) $playlists;
 		if ( $settings['exclude_current'] ) {
 			$current   = Channel::queried_playlist();
 			$playlists = $current
@@ -335,7 +336,8 @@ class All_Playlists_Block {
 		}
 		$total = count( $playlists );
 		if ( ! $total ) {
-			return '';
+			// Only a site without any playlist is empty; "More playlists" next to the only one stays hidden.
+			return $has_any ? '' : Channel_Blocks::render_empty_state( 'playlists', $block_attributes, 'videopress-all-playlists' );
 		}
 
 		$per_page     = $settings['per_page'];

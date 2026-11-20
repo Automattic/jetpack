@@ -26,13 +26,13 @@ class Store_Currency {
 	}
 
 	/**
-	 * Add the store currency code and symbol as `premium_analytics.store_currency`.
+	 * Add the store currency code, symbol and price decimals as `premium_analytics.store_currency`.
 	 *
 	 * @param array $data The script data passed by the assets package.
 	 * @return array The script data, unchanged without WooCommerce.
 	 */
 	public static function add_script_data( $data ) {
-		if ( ! is_array( $data ) || ! function_exists( 'get_woocommerce_currency' ) || ! function_exists( 'get_woocommerce_currency_symbol' ) ) {
+		if ( ! is_array( $data ) || ! function_exists( 'get_woocommerce_currency' ) || ! function_exists( 'get_woocommerce_currency_symbol' ) || ! function_exists( 'wc_get_price_decimals' ) ) {
 			return $data;
 		}
 
@@ -44,8 +44,9 @@ class Store_Currency {
 
 		// Decoded the way WooCommerce's own `wc_currency_settings` does, since symbols are stored as entities.
 		$data['premium_analytics']['store_currency'] = array(
-			'code'   => $code,
-			'symbol' => html_entity_decode( get_woocommerce_currency_symbol( $code ), ENT_QUOTES, 'UTF-8' ),
+			'code'      => $code,
+			'symbol'    => html_entity_decode( get_woocommerce_currency_symbol( $code ), ENT_QUOTES, 'UTF-8' ),
+			'precision' => wc_get_price_decimals(),
 		);
 
 		return $data;

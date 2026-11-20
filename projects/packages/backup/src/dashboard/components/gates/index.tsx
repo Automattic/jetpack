@@ -4,6 +4,7 @@ import { useGateState } from '../../hooks/use-gate-state';
 import CapabilitiesErrorScreen from './capabilities-error';
 import NoBackupPlanScreen from './no-backup-plan';
 import NotConnectedScreen from './not-connected';
+import OfflineModeScreen from './offline-mode';
 import SecondaryAdminScreen from './secondary-admin';
 import './style.scss';
 import type { ReactNode } from 'react';
@@ -23,6 +24,10 @@ type Props = {
  */
 export default function Gates( { children }: Props ) {
 	const gate = useGateState();
+
+	if ( gate.status === 'offline' ) {
+		return <OfflineModeScreen />;
+	}
 
 	if ( gate.status === 'not-connected' ) {
 		return <NotConnectedScreen />;

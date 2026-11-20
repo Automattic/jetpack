@@ -194,6 +194,23 @@ class Initializer {
 	}
 
 	/**
+	 * Read a preview-on-hover time ( milliseconds ) from the poster data, falling back for missing or invalid values.
+	 *
+	 * @param mixed  $poster_data   The block's posterData attribute.
+	 * @param string $key           Attribute key.
+	 * @param int    $default_value Value used when the attribute is missing or not a non-negative number.
+	 * @return int
+	 */
+	private static function get_preview_on_hover_time( $poster_data, $key, $default_value ) {
+		$value = is_array( $poster_data ) && isset( $poster_data[ $key ] ) ? $poster_data[ $key ] : null;
+		if ( ! is_numeric( $value ) || ! is_finite( (float) $value ) || (float) $value < 0 ) {
+			return $default_value;
+		}
+
+		return (int) $value;
+	}
+
+	/**
 	 * Initialize VideoPress features that should be initialized only when the module is active
 	 *
 	 * @return void
@@ -206,6 +223,7 @@ class Initializer {
 		XMLRPC::init();
 		Block_Editor_Content::init();
 		Channel::init();
+		Transcript_Index::init();
 		Playlist_Index::init();
 		Analytics_Dashboard::init();
 
@@ -411,10 +429,10 @@ class Initializer {
 
 		if ( $is_poh_enabled ) {
 			$preview_on_hover = array(
-				'previewAtTime'       => $block_attributes['posterData']['previewAtTime'],
-				'previewLoopDuration' => $block_attributes['posterData']['previewLoopDuration'],
-				'autoplay'            => $autoplay,
-				'showControls'        => $controls,
+				'previewAtTime'       => self::get_preview_on_hover_time( $block_attributes['posterData'], 'previewAtTime', 0 ),
+				'previewLoopDuration' => self::get_preview_on_hover_time( $block_attributes['posterData'], 'previewLoopDuration', 5000 ),
+				'autoplay'            => (bool) $autoplay,
+				'showControls'        => (bool) $controls,
 			);
 
 			// Create inline style in case video has a custom poster.
@@ -664,7 +682,8 @@ class Initializer {
 		register_block_type(
 			$metadata_file,
 			array(
-				'render_callback' => array( __CLASS__, 'render_videopress_playlist_block' ),
+				'render_callback'       => array( __CLASS__, 'render_videopress_playlist_block' ),
+				'render_email_callback' => array( Playlist_Block_Email_Renderer::class, 'render' ),
 			)
 		);
 	}
@@ -708,9 +727,34 @@ class Initializer {
 		register_block_type(
 			$metadata_file,
 			array(
-				'render_callback'   => array( __CLASS__, 'render_videopress_latest_videos_playlist_block' ),
-				'skip_inner_blocks' => true,
+				'render_callback'       => array( __CLASS__, 'render_videopress_latest_videos_playlist_block' ),
+				'render_email_callback' => array( Playlist_Block_Email_Renderer::class, 'render_latest_videos' ),
+				'skip_inner_blocks'     => true,
 			)
+		);
+	}
+
+	/**
+	 * The sort order, page size and pagination a Latest Videos Playlist block asks for, clamped to what it allows.
+	 *
+	 * @since 0.61.0
+	 *
+	 * @param array $block_attributes Block attributes.
+	 *
+	 * @return array{order: string, count: int, paginated: bool} Order is one of Channel_Data::BROWSE_SORTS.
+	 */
+	public static function latest_videos_playlist_query( $block_attributes ) {
+		$order     = isset( $block_attributes['orderBy'] ) && in_array( $block_attributes['orderBy'], Channel_Data::BROWSE_SORTS, true ) ? $block_attributes['orderBy'] : 'newest';
+		$paginated = isset( $block_attributes['pagination'] ) && 'numbered' === $block_attributes['pagination'];
+		$max_count = $paginated ? self::LATEST_VIDEOS_PLAYLIST_MAX_PAGED : self::LATEST_VIDEOS_PLAYLIST_MAX_COUNT;
+		$count     = isset( $block_attributes['count'] ) && is_numeric( $block_attributes['count'] )
+			? (int) $block_attributes['count']
+			: self::LATEST_VIDEOS_PLAYLIST_DEFAULT_COUNT;
+
+		return array(
+			'order'     => $order,
+			'count'     => max( self::LATEST_VIDEOS_PLAYLIST_MIN_COUNT, min( $max_count, $count ) ),
+			'paginated' => $paginated,
 		);
 	}
 
@@ -725,16 +769,13 @@ class Initializer {
 	 * @return string Block markup, or an empty string when the site has no VideoPress videos.
 	 */
 	public static function render_videopress_latest_videos_playlist_block( $block_attributes, $content = '', $block = null ) {
-		$order      = isset( $block_attributes['orderBy'] ) && in_array( $block_attributes['orderBy'], Channel_Data::BROWSE_SORTS, true ) ? $block_attributes['orderBy'] : 'newest';
+		$query      = self::latest_videos_playlist_query( $block_attributes );
+		$order      = $query['order'];
+		$count      = $query['count'];
+		$paginated  = $query['paginated'];
 		$controls   = ! empty( $block_attributes['showBrowseControls'] );
-		$paginated  = isset( $block_attributes['pagination'] ) && 'numbered' === $block_attributes['pagination'];
 		$exclude    = ! empty( $block_attributes['excludeCurrent'] ) ? array_filter( array( Channel::queried_guid() ) ) : array();
 		$show_meta  = ! empty( $block_attributes['showMeta'] );
-		$max_count  = $paginated ? self::LATEST_VIDEOS_PLAYLIST_MAX_PAGED : self::LATEST_VIDEOS_PLAYLIST_MAX_COUNT;
-		$count      = isset( $block_attributes['count'] ) && is_numeric( $block_attributes['count'] )
-			? (int) $block_attributes['count']
-			: self::LATEST_VIDEOS_PLAYLIST_DEFAULT_COUNT;
-		$count      = max( self::LATEST_VIDEOS_PLAYLIST_MIN_COUNT, min( $max_count, $count ) );
 		$is_browsed = 'newest' !== $order || $controls || $paginated || $exclude || $show_meta;
 
 		// Dynamic playlists have no title of their own, so no heading either.
@@ -742,7 +783,15 @@ class Initializer {
 
 		if ( ! $is_browsed ) {
 			$block_attributes['videos'] = Data::get_latest_videopress_playlist_entries( $count );
+			if ( ! $block_attributes['videos'] ) {
+				return Channel_Blocks::render_empty_state( 'videos', $block_attributes );
+			}
 			return self::render_videopress_playlist_block( $block_attributes, '', $block );
+		}
+
+		// A site without videos gets the empty state, not filters with nothing to filter.
+		if ( ! Channel_Data::videos() ) {
+			return Channel_Blocks::render_empty_state( 'videos', $block_attributes );
 		}
 
 		$state   = Channel_Data::browse_request( $controls, $paginated, $order );
@@ -840,7 +889,7 @@ class Initializer {
 			'<form class="videopress-video-browser" method="get" action="%1$s" role="search">%2$s' .
 				'<input type="hidden" name="%3$s" value="%4$s" />' .
 				'<input type="search" class="videopress-video-browser__search" name="%5$s" value="%6$s" placeholder="%7$s" aria-label="%7$s" />' .
-				'<button type="submit" class="videopress-video-browser__submit">%8$s</button>' .
+				'<button type="submit" class="videopress-video-browser__submit wp-element-button">%8$s</button>' .
 				'<div class="videopress-video-browser__sorts" role="group" aria-label="%9$s">%10$s</div>' .
 				'<select class="videopress-video-browser__length" name="%11$s" aria-label="%12$s">%13$s</select>' .
 			'</form>' .
@@ -928,10 +977,15 @@ class Initializer {
 				'durationMs' => isset( $video['durationMs'] ) && is_numeric( $video['durationMs'] ) ? max( 0, (int) $video['durationMs'] ) : 0,
 				'height'     => isset( $video['height'] ) && is_numeric( $video['height'] ) ? max( 0, (int) $video['height'] ) : 0,
 			);
-			// Render-time extras for the meta line; never saved with the block.
-			foreach ( array( 'views', 'publishedAt' ) as $extra ) {
+			// Render-time extras for the meta line and search matches; never saved with the block.
+			foreach ( array( 'views', 'publishedAt', 'startMs' ) as $extra ) {
 				if ( isset( $video[ $extra ] ) && is_numeric( $video[ $extra ] ) ) {
 					$entry[ $extra ] = max( 0, (int) $video[ $extra ] );
+				}
+			}
+			foreach ( array( 'snippet', 'snippetMatch' ) as $extra ) {
+				if ( isset( $video[ $extra ] ) && is_string( $video[ $extra ] ) && '' !== $video[ $extra ] ) {
+					$entry[ $extra ] = $video[ $extra ];
 				}
 			}
 			$entries[] = $entry;
@@ -1049,7 +1103,10 @@ class Initializer {
 		$entries = self::sanitize_playlist_entries( $block_attributes['videos'] ?? null );
 
 		if ( ! $entries ) {
-			return '';
+			// A playlist picked from the index shows the empty state while the site has none.
+			return isset( $block_attributes['source'] ) && 'index' === $block_attributes['source'] && ! Channel::playlists()
+				? Channel_Blocks::render_empty_state( 'playlists', $block_attributes )
+				: '';
 		}
 
 		// Record the rendered GUIDs in the post's cached GUID list so private playlist
@@ -1172,6 +1229,17 @@ class Initializer {
 			$stats_markup = '' !== $stats_label
 				? sprintf( '<span class="videopress-playlist__entry-stats">%s</span>', esc_html( $stats_label ) )
 				: '';
+			if ( isset( $entry['snippet'] ) ) {
+				$snippet = esc_html( $entry['snippet'] );
+				if ( isset( $entry['snippetMatch'] ) ) {
+					$snippet = preg_replace( '/' . preg_quote( esc_html( $entry['snippetMatch'] ), '/' ) . '/iu', '<mark>$0</mark>', $snippet, 1 );
+				}
+				$stats_markup .= sprintf(
+					'<span class="videopress-playlist__entry-snippet"><span class="videopress-playlist__entry-snippet-time">%1$s</span> <q>%2$s</q></span>',
+					esc_html( self::playlist_timecode( max( 1, (int) ( $entry['startMs'] ?? 0 ) ) ) ),
+					$snippet
+				);
+			}
 
 			if ( $has_player ) {
 				$is_current  = $show_player && 0 === $index;
@@ -1201,6 +1269,9 @@ class Initializer {
 				$on_site   = Channel::is_site_url( $entry_url );
 				if ( $on_site && '' !== $list_key ) {
 					$entry_url = add_query_arg( Channel::LIST_VAR, $list_key, $entry_url );
+				}
+				if ( $on_site && isset( $entry['startMs'] ) ) {
+					$entry_url = add_query_arg( Channel::START_VAR, (int) floor( $entry['startMs'] / 1000 ), $entry_url );
 				}
 				$is_current = '' !== $current_guid && $entry['guid'] === $current_guid;
 				$entry_open = sprintf(

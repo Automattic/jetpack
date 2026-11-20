@@ -107,7 +107,7 @@ class Jetpack_Recipes {
 			return;
 		}
 
-		wp_enqueue_style( 'jetpack-recipes-style', plugins_url( '/css/recipes.css', __FILE__ ), array(), '20130919' );
+		wp_enqueue_style( 'jetpack-recipes-style', plugins_url( '/css/recipes.css', __FILE__ ), array(), JETPACK__VERSION );
 		wp_style_add_data( 'jetpack-recipes-style', 'rtl', 'replace' );
 
 		// add $themecolors-defined styles.

@@ -1,8 +1,7 @@
 import { getScoreLetter } from '@automattic/jetpack-boost-score-api';
-import { ProgressBar } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Icon, dashboard, desktop, error, mobile } from '@wordpress/icons';
-import { Badge, Text } from '@wordpress/ui';
+import { Badge, Meter, Text } from '@wordpress/ui';
 import clsx from 'clsx';
 import IndeterminateProgress from '../../app/assets/src/js/features/ui/indeterminate-progress/indeterminate-progress';
 import {
@@ -12,6 +11,8 @@ import {
 	getScoreTier,
 	getScoreTierLabel,
 } from './lib/score-utils';
+import { getProgressMessage } from './lib/progress-message';
+import { useEstimatedPercent } from './lib/use-estimated-percent';
 import type { SpeedScoreState } from './lib/use-speed-scores';
 import './score-bar.scss';
 import './score-ready.scss';
@@ -27,6 +28,7 @@ export default function ScoreBar( {
 	const displayState = getScoreDisplayState( state );
 	const overallTier = getOverallScoreTier( scores );
 	const failed = displayState === 'error';
+	const percent = useEstimatedPercent( displayState === 'generating' ? state.progress : undefined );
 	return (
 		<div className="jetpack-boost-score-bar" data-testid="score-bar" aria-hidden="true">
 			{ failed && ! state.hasScores ? (
@@ -35,8 +37,11 @@ export default function ScoreBar( {
 				</Text>
 			) : displayState === 'generating' ? (
 				<div className="jetpack-boost-score-bar__message">
-					<IndeterminateProgress label={ __( 'Testing site speed', 'jetpack-boost' ) }>
-						{ __( 'Calculating score…', 'jetpack-boost' ) }
+					<IndeterminateProgress
+						label={ __( 'Testing site speed', 'jetpack-boost' ) }
+						value={ percent }
+					>
+						{ getProgressMessage( state.progress, percent, <span /> ) }
 					</IndeterminateProgress>
 				</div>
 			) : (
@@ -80,10 +85,19 @@ export default function ScoreBar( {
 									className="jetpack-boost-overview__score-icon"
 								/>
 								<Text variant="heading-md">{ score }</Text>
-								<ProgressBar
-									className={ `jetpack-boost-score-bar__meter jetpack-boost-overview__progress--${ tier }` }
+								<Meter.Root
+									className="jetpack-boost-score-bar__meter"
 									value={ score }
-								/>
+									aria-label={
+										device === 'desktop'
+											? __( 'Desktop', 'jetpack-boost' )
+											: __( 'Mobile', 'jetpack-boost' )
+									}
+								>
+									<Meter.Track>
+										<Meter.Indicator className={ `jetpack-boost-overview__progress--${ tier }` } />
+									</Meter.Track>
+								</Meter.Root>
 								<span
 									className={ `jetpack-boost-score-bar__dot jetpack-boost-score-bar__dot--${ tier }` }
 								/>

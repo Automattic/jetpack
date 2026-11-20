@@ -447,6 +447,91 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 		);
 	}
 
+	public function test_products_are_priced_for_each_visitor_and_not_cached_across_visitors() {
+		$forwarded = $this->forwarded_ips_for_reads( 'products', array( '203.0.113.5', '203.0.113.5', '198.51.100.7' ) );
+
+		$this->assertSame( array( '203.0.113.5', '198.51.100.7' ), $forwarded );
+	}
+
+	public function test_products_in_a_passed_currency_are_shared_across_visitors_without_their_ip() {
+		$forwarded = $this->forwarded_ips_for_reads( 'products', array( '203.0.113.5', '198.51.100.7' ), array( 'currency' => 'EUR' ) );
+
+		$this->assertSame( array( null ), $forwarded );
+	}
+
+	public function test_products_with_a_currency_only_in_the_body_do_not_take_another_visitors_cache_entry() {
+		$forwarded = $this->forwarded_ips_for_reads(
+			'products',
+			array( '203.0.113.5', '198.51.100.7' ),
+			array( 'visitor_ip' => '198.51.100.7' ),
+			array( 0 => '{"currency":"EUR"}' )
+		);
+
+		$this->assertSame( array( '203.0.113.5', '198.51.100.7' ), $forwarded );
+	}
+
+	public function test_other_reads_do_not_send_the_visitor_ip() {
+		$this->assertSame( array( null ), $this->forwarded_ips_for_reads( 'stats/top-posts', array( '203.0.113.5' ) ) );
+	}
+
+	/**
+	 * Read an endpoint once per visitor IP, and record the `X-Forwarded-For` of each request that reached WordPress.com.
+	 *
+	 * @param string             $endpoint The proxied endpoint.
+	 * @param string[]           $ips      The visitor IP of each read, in order.
+	 * @param array              $params   Query params of each read.
+	 * @param array<int, string> $bodies   JSON body of a read, by its index in `$ips`.
+	 * @return array<int, string|null> One entry per request sent; a cached read sends none.
+	 */
+	private function forwarded_ips_for_reads( string $endpoint, array $ips, array $params = array(), array $bodies = array() ): array {
+		Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
+		\Jetpack_Options::update_option( 'id', 4242 );
+		\Jetpack_Options::update_option( 'blog_token', 'blog_token.secret' );
+		( new Connection_Manager() )->reset_connection_status();
+		$remote_addr = $_SERVER['REMOTE_ADDR'] ?? null;
+
+		$forwarded = array();
+		add_filter(
+			'pre_http_request',
+			function ( $pre, $args ) use ( &$forwarded ) {
+				$forwarded[] = $args['headers']['X-Forwarded-For'] ?? null;
+
+				return array(
+					'response' => array( 'code' => 200 ),
+					'body'     => '{}',
+					'headers'  => array(),
+				);
+			},
+			10,
+			2
+		);
+
+		try {
+			foreach ( $ips as $index => $ip ) {
+				$_SERVER['REMOTE_ADDR'] = $ip;
+				$request                = $this->build_data_request( 'GET', $endpoint, $params, '1.1' );
+				if ( isset( $bodies[ $index ] ) ) {
+					$request->set_header( 'Content-Type', 'application/json' );
+					$request->set_body( $bodies[ $index ] );
+				}
+				$this->controller->handle_data_request( $request );
+			}
+		} finally {
+			remove_all_filters( 'pre_http_request' );
+			if ( null === $remote_addr ) {
+				unset( $_SERVER['REMOTE_ADDR'] );
+			} else {
+				$_SERVER['REMOTE_ADDR'] = $remote_addr;
+			}
+			\Jetpack_Options::delete_option( 'blog_token' );
+			\Jetpack_Options::delete_option( 'id' );
+			( new Connection_Manager() )->reset_connection_status();
+			Constants::clear_single_constant( 'JETPACK__WPCOM_JSON_API_BASE' );
+		}
+
+		return $forwarded;
+	}
+
 	/**
 	 * @return array<string, array{0: array<string, mixed>, 1: string, 2: string}>
 	 */
@@ -539,29 +624,42 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 		$this->assertSame( 'no_connection', $response->get_error_code() );
 	}
 
-	public function test_forwarded_params_drop_control_and_site_params() {
-		// `site` (path-scoping) and the `endpoint`/`version` control captures must never be
-		// forwarded to WPCOM or folded into the cache key, even if passed as query params.
+	/**
+	 * @dataProvider fixed_path_args_provider
+	 *
+	 * @param string $endpoint   The proxied prefix.
+	 * @param string $wpcom_path The WPCOM path its fixed `path` resolves to.
+	 * @param string $fixed_arg  The query arg that path sets.
+	 */
+	#[DataProvider( 'fixed_path_args_provider' )]
+	public function test_forwarded_params_drop_control_params_and_args_the_fixed_path_sets( string $endpoint, string $wpcom_path, string $fixed_arg ) {
 		$request  = $this->build_data_request(
 			'GET',
-			'upgrades',
+			$endpoint,
 			array(
-				'site'     => '999',
+				$fixed_arg => 'all',
 				'endpoint' => 'me/settings',
 				'version'  => '9',
 				'period'   => 'year',
 			)
 		);
-		$accessor = function ( WP_REST_Request $req ) {
+		$accessor = function ( WP_REST_Request $req, string $path ) {
 			// @phan-suppress-next-line PhanUndeclaredMethod -- rebound to the controller via Closure::call() below.
-			return $this->get_forwarded_params( $req );
+			return $this->get_forwarded_params( $req, $path );
 		};
 
-		$forwarded = $accessor->call( $this->controller, $request );
-		$this->assertArrayNotHasKey( 'site', $forwarded );
-		$this->assertArrayNotHasKey( 'endpoint', $forwarded );
-		$this->assertArrayNotHasKey( 'version', $forwarded );
-		$this->assertArrayHasKey( 'period', $forwarded );
+		$forwarded = $accessor->call( $this->controller, $request, $wpcom_path );
+		$this->assertSame( array( 'period' => 'year' ), $forwarded );
+	}
+
+	/**
+	 * @return array<string, array{0: string, 1: string, 2: string}>
+	 */
+	public static function fixed_path_args_provider(): array {
+		return array(
+			'upgrades site' => array( 'upgrades', '/upgrades?site=4242', 'site' ),
+			'products type' => array( 'products', '/sites/4242/products?type=jetpack', 'type' ),
+		);
 	}
 
 	public function test_validate_data_endpoint_accepts_commas_and_rejects_traversal() {
@@ -915,6 +1013,7 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 
 			// Purchases — site-less path (view_stats).
 			'purchases'            => array( 'upgrades', $stats, false, '/upgrades?site=%d' ),
+			'jetpack products'     => array( 'products', $stats, false, '/sites/%d/products?type=jetpack' ),
 
 			// Public post interactions — the only `posts` sub-paths the pattern exposes (view_stats).
 			'post likes'           => array( 'posts/123/likes', $stats, false, '/sites/%d/posts/123/likes' ),
@@ -1348,7 +1447,7 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 			// @phan-suppress-next-line PhanUndeclaredMethod -- rebound to the controller via Closure::call() below.
 			$path = $this->build_data_path( (string) $req->get_param( 'endpoint' ) );
 			// @phan-suppress-next-line PhanUndeclaredMethod -- rebound to the controller via Closure::call() below.
-			return $this->cache_key_for( $path, '2', 'wpcom', $this->get_forwarded_params( $req ) );
+			return $this->cache_key_for( $path, '2', 'wpcom', $this->get_forwarded_params( $req, $path ) );
 		};
 
 		return $accessor->call( $this->controller, $request );

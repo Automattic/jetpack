@@ -8,17 +8,17 @@ This page covers the registration path. Sections, which place widget instances i
 
 ## Vocabulary
 
-| Term                         | Meaning                                                                                                                                                                                                           | Example                                              |
-| ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------- |
-| Widget type name             | Namespaced identifier, `<namespace>/<name>`, lowercase. The namespace names the owner.                                                                                                                            | `jpa/clicks`, `wordads/highlights`                   |
-| Field type name              | Namespaced identifier a widget attribute names by `type`; the dashboard registers the definition and renders the control.                                                                                         | `jpa/toggle-group`                                   |
-| Render module, widget module | The script-module ids of the widget's render entry and metadata entry, which the client `import()`s through the page import map.                                                                                  | `jetpack-premium-analytics/widgets/clicks/render`    |
-| Manifest                     | The widgets wp-build discovered under `widgets/`, generated into `build/widgets.php` and read through `jpa_get_registered_widget_modules()`.                                                                      | see `Analytics::widget_manifest_path()`              |
-| Candidate                    | A manifest entry before the registry-time filter. A dropped candidate never registers.                                                                                                                            | `jetpack_premium_analytics_registrable_widget_types` |
-| Metadata                     | `presentation`, `category`, `title`, `description`, `help`, `icon`, `actions`, `attributes`, `keywords`: what the picker shows and the settings it offers, translated and sanitized on the way into the registry. | see `Widget_Type`                                    |
-| Attribute                    | One setting of a widget instance: a DataViews field in its JSON form, plus the keys the dashboard reads on top of a field (`relevance`, so far). An element names its `icon` by reference.                        | `attributes` in `widget.json`                        |
-| Catalog location             | `textdomain` and `i18n_manifest`: the text domain the widget's bundles are stamped with, and the i18n manifest of the build that serves them.                                                                     | see `Widget_Type`                                    |
-| SDK                          | `@automattic/jetpack-premium-analytics-sdk`: the one name a plugin's widgets import the dashboard through.                                                                                                        | `projects/js-packages/premium-analytics-sdk`         |
+| Term                         | Meaning                                                                                                                                                                                                                                                                                      | Example                                              |
+| ---------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------- |
+| Widget type name             | Namespaced identifier, `<namespace>/<name>`, lowercase. The namespace names the owner.                                                                                                                                                                                                       | `jpa/clicks`, `wordads/highlights`                   |
+| Field type name              | Namespaced identifier a widget attribute names by `type`; the dashboard registers the definition and renders the control.                                                                                                                                                                    | `jpa/toggle-group`                                   |
+| Render module, widget module | The script-module ids of the widget's render entry and metadata entry, which the client `import()`s through the page import map.                                                                                                                                                             | `jetpack-premium-analytics/widgets/clicks/render`    |
+| Manifest                     | The widgets wp-build discovered under `widgets/`, generated into `build/widgets.php` and read through `jpa_get_registered_widget_modules()`.                                                                                                                                                 | see `Analytics::widget_manifest_path()`              |
+| Candidate                    | A manifest entry before the registry-time filter. A dropped candidate never registers.                                                                                                                                                                                                       | `jetpack_premium_analytics_registrable_widget_types` |
+| Metadata                     | `presentation`, `category`, `title`, `description`, `help`, `icon`, `actions`, `attributes`, `keywords`: what the picker shows and the settings it offers, translated and sanitized on the way into the registry.                                                                            | see `Widget_Type`                                    |
+| Attribute                    | One setting of a widget instance: a DataViews field in its JSON form, plus the keys the dashboard reads on top of a field (`relevance`, so far). An element names its `icon` by reference. The manifest orders the settings: one whose control lives in the module is still listed, by `id`. | `attributes` in `widget.json`                        |
+| Catalog location             | `textdomain` and `i18n_manifest`: the text domain the widget's bundles are stamped with, and the i18n manifest of the build that serves them.                                                                                                                                                | see `Widget_Type`                                    |
+| SDK                          | `@automattic/jetpack-premium-analytics-sdk`: the one name a plugin's widgets import the dashboard through.                                                                                                                                                                                   | `projects/js-packages/premium-analytics-sdk`         |
 
 ## Files
 
@@ -31,6 +31,7 @@ This page covers the registration path. Sections, which place widget instances i
 | `src/widget-type-support.php`        | The package's policy on default layouts: which types a site cannot serve.                                                                                                                                                                          |
 | `src/widget-modules.php`             | The two readers: `ensure_widget_registry_ready()`, the `/wpcom/v2/widget-modules` route, and the import-map entries on the page boot dependencies.                                                                                                 |
 | `src/sdk-module.php`                 | Registers the facade module built from `packages/sdk` a second time, as `@automattic/jetpack-premium-analytics-sdk`.                                                                                                                               |
+| `src/class-dashboard-support.php`    | Loads `widget-modules.php` and registers the shared script modules and the SDK alias on wp-admin requests (`load()`), for the package and for a plugin that hosts a dashboard of its own.                                                          |
 | `packages/sdk/`                      | The SDK facade: re-exports of the toolkit, data, fields, dates and shared primitives a widget imports, built as the `@jetpack-premium-analytics/sdk` module.                                                                                       |
 | `build/widgets.php`                  | Generated by wp-build: the manifest, and `jpa_register_widget_modules()`, which registers the package's script modules.                                                                                                                            |
 | `routes/use-widget-modules.ts`       | The client's read of the records, as a core-data entity.                                                                                                                                                                                           |
@@ -72,7 +73,7 @@ add_action(
 			return;
 		}
 		$version = \Automattic\Jetpack\PremiumAnalytics\WIDGET_API_VERSION;
-		if ( version_compare( $version, '1.3.0', '<' ) || version_compare( $version, '2', '>=' ) ) {
+		if ( version_compare( $version, '2.0.0', '<' ) || version_compare( $version, '3', '>=' ) ) {
 			return;
 		}
 
@@ -161,9 +162,11 @@ A rename keeps the attributes as they are. One that changes them needs a migrati
 
 A widget that shows nothing but a paid Stats feature declares that feature in `plan_feature`: in the `$args['plan_features']` map of `register_widget_types_from_manifest()`, or in the arguments of `register_widget_type()`. wp-build drops unknown `widget.json` keys, so the manifest cannot carry it. `register()` refuses one that is not a string. The package declares its own in `WIDGET_TYPE_PLAN_FEATURES`; a widget every plan includes declares none.
 
-`stats-plan-gates.php` owns the features and which plan locks each. On the dashboard it publishes `premium_analytics.plan_gates`: `locked_features` maps each feature the site's plan lacks to its copy (`description`, with `<link>` around the words `support_url` explains) and `upgrade_url`, empty when there is nowhere to buy it, and `locked_widget_types` maps each available type whose feature is locked to that feature. The `jetpack_premium_analytics_stats_plan_tier` filter overrides the tier both come from. Declaring a plan feature needs `WIDGET_API_VERSION` 1.12.0; an older registry ignores it, and the widget stays open.
+`stats-plan-gates.php` owns the features and which plan locks each. On the dashboard it publishes `premium_analytics.plan_gates`: `locked_features` maps each feature the site's plan lacks to its copy (`description`, with `<link>` around the words `support_url` explains) and `upgrade_url`, empty when there is nowhere to buy it, and `locked_widget_types` maps each available type whose feature is locked to that feature. `free_site_upgrade` is the paid plan offer the dashboard banner shows: its `upgrade_url`, and `has_stats_product`, which picks the banner title for a site on the free Stats product. It is `null` unless the tier gets the banner, the site has no Stats PWYW, the site is not on WordPress.com Simple, and the site first opened the dashboard at least 30 days ago. The `jetpack_premium_analytics_stats_plan_tier` filter overrides the tier all three come from. Declaring a plan feature needs `WIDGET_API_VERSION` 1.12.0; an older registry ignores it, and the widget stays open.
 
 The dashboard points a locked type at `LockedWidget` instead of its render module, which it never imports, so the widget requests nothing. A feature locked inside a widget that stays open, like the Regions and Cities of **Top locations**, is the widget's to check: it reads `isStatsFeatureLocked()`, renders `LockedWidget` for that part and skips its request.
+
+A plan can also lock a whole section. `locked_sections` maps each one (on the free WordPress.com tier, `traffic` and `insights`) to the copy of the prompt that replaces it (`description`, or `description_with_price` when there is a price), its `upgrade_url`, its `open_widget_types` (the only widget types the section still shows) and its `plan_price` (the Personal plan's yearly price, which the prompt quotes per month; null when WordPress.com has none, so the prompt drops the price). The stage hands `WidgetDashboard` just those widgets and saves an edit back into the stored layout with the hidden widgets kept, so they return after an upgrade (`useLockedSectionLayout()`). `useDashboardPolicy()` offers Customize there only while the section shows an open widget, and denies adding or removing one, so Customize only arranges the open widgets. Reset to default there resets only the open widgets, keeping the hidden ones as stored; when those match the default's, it deletes the entry as any reset does.
 
 ### Script modules
 
@@ -188,6 +191,8 @@ The names live under `jpa/`, the dashboard's namespace, whichever plugin's widge
 Every record says where its bundles' catalogs live. `routes/widget-module-i18n.ts` derives the bundle path from the module id, `{handle-prefix}/widgets/{dir}/{render,widget}` to `build/widgets/{dir}/{render,widget}.js`, whatever the prefix.
 
 `createWidgetModuleResolver()` caches the record's manifest by URL once (`loadI18nManifest()` in wp-build-polyfills) and loads the bundle's catalog under the record's `textdomain` before importing. The metadata bundles are preloaded the same way. A record without a text domain is treated as the package's own.
+
+The `widget.json` strings take the PHP lane instead: the registry translates them at hydration with the contexts in `src/widget-i18n.json`, and the `emit-widget-strings` build step of wp-build-polyfills (see its README) hands extraction one `_x()` per value. A package whose widgets register through this registry runs it against this package's schema.
 
 What the catalog load hashes is the bundle path relative to the plugin, the way WordPress names JS translation files. A package vendored inside a plugin therefore needs its text domain aliased in the plugin's `i18n-map.php`, as this package's is.
 
@@ -241,7 +246,7 @@ It reads the package's fixed list and, once the registry can answer, the registr
 
 `WIDGET_API_VERSION` names the contract a widget is built against: the `@automattic/jetpack-premium-analytics-sdk` module and the exports it declares, the dashboard modules the facade re-exports from (`@jetpack-premium-analytics/widgets-toolkit`, `data`, `fields`, `datetime`, `externals`), and the `Widget_Type` fields the client reads.
 
-The major changes when a widget built against the previous contract stops working; the minor when a consumer can rely on something new. The field types the dashboard registers are part of the contract: `jpa/select`, `jpa/toggle-group` and `jpa/array-checkbox` since 1.0.0, so a new name is a minor. A widget declares its chart type attribute itself; the SDK exports no helper for it.
+The major changes when a widget built against the previous contract stops working; the minor when a consumer can rely on something new. The field types the dashboard registers are part of the contract: `jpa/select`, `jpa/toggle-group` and `jpa/array-checkbox` since 1.0.0, `jpa/report-params` since 2.2.0, so a new name is a minor. A widget declares its chart type attribute itself; the SDK exports no helper for it.
 
 | Minor  | Added                                                                                                                                                                        |
 | ------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -259,6 +264,17 @@ The major changes when a widget built against the previous contract stops workin
 | 1.12.0 | `plan_feature`, the paid Stats feature a widget shows, which the plan gates lock.                                                                                            |
 | 1.13.0 | `chartTitle` on `Columns`, `Donut`, `Funnel`, `Leaderboard`, `Locations` and `MetricTabsChart`: "Chart: <title>" for screen readers, "Map: <title>" for the `Locations` map. |
 | 1.14.0 | `attributes` on the record, which lead the module's by `id`.                                                                                                                 |
+| 1.15.0 | A `jpa/toggle-group` option names its `icon` by reference, the form a `widget.json` can carry.                                                                               |
+| 1.16.0 | `useReportActions`: a widget declares its View all link and CSV download, and the dashboard renders them in the card footer.                                                 |
+
+2.0.0 removes `WidgetFooter`, `ReportLink` and `ExporterCsvDownloadButton` from the SDK, and the `footer` prop from `Leaderboard`: a widget declares its footer with `useReportActions`.
+
+| Minor | Added                                                                                                                                                      |
+| ----- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 2.1.0 | `Button`, `ButtonLink`, `Progress`, `Text` and `VisuallyHidden`, the `@wordpress/ui` primitives a widget renders, shared so it bundles no copy of its own. |
+| 2.2.0 | `jpa/report-params`, a date range over the presets in `elements`, All time anchored on the item's `allTimeStart`                                           |
+| 2.3.0 | A chart without `chartTitle` is named after its widget's title, so `chartTitle` is needed only when the chart shows something else.                         |
+| 2.4.0 | `useOpenChartBucket`: a `MetricTabsChart` click opens the clicked bucket as the dashboard period.                                                         |
 
 Inside `plugins/jetpack` the package and a consumer module ship together, so the check is a formality. With the standalone `plugins/premium-analytics` next to another plugin, each brings its own copy, and the check is what keeps a widget built against 1.x from registering on a 2.x package.
 
@@ -294,7 +310,7 @@ VideoPress: `register_widget_types()` registers `videopress/top-videos` the same
 
 ### Who calls it
 
-Ads is the section's story, in [Dashboard sections](dashboard-sections.md#a-real-consumer-the-ads-section): the WordAds module outside the WordPress.com platform, `jetpack-mu-wpcom` on Simple and Atomic where the plan includes WordAds and the site has it on.
+Ads is the section's story, in [Dashboard sections](dashboard-sections.md#a-real-consumer-the-ads-section): the WordAds module outside the WordPress.com platform, `jetpack-mu-wpcom` on Simple and Atomic where the site has WordAds on.
 
 VideoPress follows `Status::is_active()`: `Initializer::active_initialization()` calls `init()` where the VideoPress module of the Jetpack plugin or the standalone plugin is active, and `init()` returns early on the WordPress.com platform. `jetpack-mu-wpcom` calls the two registrants from `src/features/premium-analytics/videopress-widgets.php` on Simple and Atomic where `wpcom_site_has_feature( 'videopress' )` holds. Both run against the copy the Jetpack plugin bundles, so Simple, which runs no Jetpack module, serves the bundles from it too.
 
@@ -306,7 +322,7 @@ Top videos moved with `jpa/videopress` declared as a former name. A stored layou
 
 ### What leaves this package
 
-The widget folder, its default instance in Traffic, its entry in `VIDEOPRESS_WIDGET_TYPES`, and the row helpers only it used. `src/videopress-availability.php` stays: the Videos report and the video detail route still gate on it, and whether the widget appears is the VideoPress package's call now.
+The widget folder, its default instance in Traffic, its entry in `VIDEOPRESS_WIDGET_TYPES`, and the row helpers only it used. `src/videopress-availability.php` stays: the Videos report and the video detail widgets still gate on it, and whether the widget appears is the VideoPress package's call now.
 
 ## Where the tests are
 
@@ -328,4 +344,3 @@ The widget folder, its default instance in Traffic, its entry in `VIDEOPRESS_WID
 - Stories for a plugin's widgets, and a jest harness that renders the real SDK: the Ads and VideoPress widgets left this package's Storybook with their move. The SDK module has no implementation outside the dashboard, so a consumer's suite stands in for it and asserts on what the widget hands over, as the Top videos suite does.
 - Precise types for the SDK: `projects/js-packages/premium-analytics-sdk` declares its exports loosely until a build step emits them from the facade.
 - A migration for a rename that also changes attributes, the `deprecated` equivalent of blocks, and the upstream ask: `@wordpress/widget-primitives` knows neither former names nor deprecations.
-- The metadata strings of `widget.json`, which reach no catalog in any package until the strings stub ships.

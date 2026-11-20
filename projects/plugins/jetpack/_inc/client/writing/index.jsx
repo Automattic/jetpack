@@ -4,6 +4,13 @@ import { connect } from 'react-redux';
 import Card from 'components/card';
 import QuerySite from 'components/data/query-site';
 import {
+	isInSettingsPanel,
+	isMovedOut,
+	isPostByEmailOnProfile,
+	isSettingsConsolidationEnabled,
+	isSwitchedInFeatures,
+} from 'lib/settings-consolidation';
+import {
 	isOfflineMode,
 	isUnavailableInOfflineMode,
 	isCurrentUserLinked,
@@ -12,11 +19,15 @@ import {
 import { getActiveFeatureDetails } from 'state/feature-check';
 import { userCanManageModules, userCanEditPosts } from 'state/initial-state';
 import { isModuleActivated, getModuleOverride, getModule } from 'state/modules';
-import { isModuleFound } from 'state/search';
+import { getSearchTerm, isModuleFound } from 'state/search';
 import { getSettings } from 'state/settings';
+import { CarouselMoved } from './carousel-moved';
 import Composing from './composing';
 import CustomContentTypes from './custom-content-types';
+import { CustomContentTypesMoved } from './custom-content-types-moved';
+import { InfiniteScrollMoved } from './infinite-scroll-moved';
 import PostByEmail from './post-by-email';
+import { PostByEmailMoved, PostByEmailOnProfile } from './post-by-email-moved';
 import ThemeEnhancements from './theme-enhancements';
 import Widgets from './widgets';
 import WritingMedia from './writing-media';
@@ -41,8 +52,9 @@ export class Writing extends Component {
 			customContentTypeIsOverridden: customContentTypeOverrideStatusInitialState,
 			customContentKeywords: [],
 		};
+	}
 
-		// Call async initialization directly
+	componentDidMount() {
 		this.initializeCustomContentTypes();
 	}
 
@@ -105,47 +117,77 @@ export class Writing extends Component {
 			'widget-visibility',
 			'blocks',
 		].some( this.props.isModuleFound );
-		if ( ! found && ! this.state.customContentTypeIsActive ) {
+		// A search must match one of the REST lookup's keywords exactly.
+		const foundCustomContentTypes =
+			this.state.customContentTypeIsActive &&
+			!! this.props.searchTerm &&
+			this.state.customContentKeywords.includes( this.props.searchTerm.toLowerCase() );
+		// The pointer also matches the module's fields, which add its title and slug to the keywords.
+		const foundCustomContentTypesPointer =
+			foundCustomContentTypes ||
+			( this.state.customContentTypeIsActive &&
+				!! this.props.searchTerm &&
+				this.props.isModuleFound( 'custom-content-types' ) );
+		// Once settings move out, custom content types keep the tab only for their search pointer.
+		const customContentTypesKeepTab = isSettingsConsolidationEnabled()
+			? foundCustomContentTypesPointer
+			: this.state.customContentTypeIsActive;
+		if ( ! found && ! customContentTypesKeepTab ) {
 			return null;
 		}
 
 		const shouldRenderCustomContent =
 			( this.state.customContentTypeIsActive && this.props.searchTerm === '' ) ||
-			( this.state.customContentTypeIsActive &&
-				this.state.customContentKeywords.includes( this.props.searchTerm?.toLowerCase() ) );
+			foundCustomContentTypes;
 
 		const showComposing = this.props.userCanManageModules || this.props.userCanEditPosts,
 			showPostByEmail =
 				this.props.userCanManageModules ||
 				( this.props.userCanEditPosts && this.props.isModuleActivated( 'post-by-email' ) );
 
+		let postByEmail = (
+			<PostByEmail
+				{ ...commonProps }
+				connectUrl={ this.props.connectUrl }
+				isLinked={ this.props.isLinked }
+				userCanManageModules={ this.props.userCanManageModules }
+			/>
+		);
+		if ( this.props.isPostByEmailMoved ) {
+			postByEmail = this.props.searchTerm && <PostByEmailMoved getModule={ this.props.module } />;
+		} else if ( this.props.isPostByEmailOnProfile ) {
+			postByEmail = <PostByEmailOnProfile />;
+		}
+
 		return (
 			<div>
 				<QuerySite />
 				<h1 className="screen-reader-text">{ __( 'Jetpack Writing Settings', 'jetpack' ) }</h1>
-				<h2 className="jp-settings__section-title">
-					{ this.props.searchTerm
-						? __( 'Writing', 'jetpack' )
-						: __(
-								'Compose content the way you want to and streamline your publishing experience.',
-								'jetpack'
-							) }
-				</h2>
-				{ this.props.isModuleFound( 'carousel' ) && <WritingMedia { ...commonProps } /> }
+				{ this.props.searchTerm && (
+					<h2 className="jp-settings__section-title">{ __( 'Writing', 'jetpack' ) }</h2>
+				) }
+				{ this.props.isModuleFound( 'carousel' ) &&
+					( isSettingsConsolidationEnabled() ? (
+						this.props.searchTerm && <CarouselMoved getModule={ this.props.module } />
+					) : (
+						<WritingMedia { ...commonProps } />
+					) ) }
 				{ showComposing && (
 					<Composing { ...commonProps } userCanManageModules={ this.props.userCanManageModules } />
 				) }
-				{ shouldRenderCustomContent && <CustomContentTypes { ...commonProps } /> }
-				<ThemeEnhancements { ...commonProps } />
-				<Widgets { ...commonProps } />
-				{ this.props.isModuleFound( 'post-by-email' ) && showPostByEmail && (
-					<PostByEmail
-						{ ...commonProps }
-						connectUrl={ this.props.connectUrl }
-						isLinked={ this.props.isLinked }
-						userCanManageModules={ this.props.userCanManageModules }
-					/>
+				{ isSettingsConsolidationEnabled()
+					? foundCustomContentTypesPointer && <CustomContentTypesMoved />
+					: shouldRenderCustomContent && <CustomContentTypes { ...commonProps } /> }
+				{ isSettingsConsolidationEnabled() ? (
+					this.props.searchTerm &&
+					this.props.isModuleFound( 'infinite-scroll' ) && (
+						<InfiniteScrollMoved getModule={ this.props.module } />
+					)
+				) : (
+					<ThemeEnhancements { ...commonProps } />
 				) }
+				<Widgets { ...commonProps } />
+				{ this.props.isModuleFound( 'post-by-email' ) && showPostByEmail && postByEmail }
 				{ ! showComposing && ! showPostByEmail && (
 					<Card>
 						{ __(
@@ -170,7 +212,12 @@ export default connect(
 			isModuleActivated: module_name => isModuleActivated( state, module_name ),
 			isLinked: isCurrentUserLinked( state ),
 			userCanManageModules: userCanManageModules( state ),
-			isModuleFound: module_name => isModuleFound( state, module_name ),
+			isPostByEmailMoved: isInSettingsPanel( state ),
+			isPostByEmailOnProfile: isPostByEmailOnProfile( state ),
+			isModuleFound: module_name =>
+				isModuleFound( state, module_name ) &&
+				! isMovedOut( module_name, state ) &&
+				( ! isSwitchedInFeatures( state, module_name ) || !! getSearchTerm( state ) ),
 			connectUrl: getConnectUrl( state ),
 			getModuleOverride: module_name => getModuleOverride( state, module_name ),
 		};

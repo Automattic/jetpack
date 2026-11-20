@@ -8,6 +8,8 @@
 namespace Automattic\Jetpack\VideoPress;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
+use Automattic\Jetpack\Admin_UI\Admin_Shell;
+use Automattic\Jetpack\Admin_UI\Media_Library;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack\Status\Host;
@@ -66,6 +68,11 @@ class Admin_UI {
 	const CHAPTERS_EDITOR_ROUTE_PATHS = array( '/video/$id/editor' );
 
 	/**
+	 * Carries the initial state when the dashboard loads as an admin shell guest.
+	 */
+	const GUEST_DATA_HANDLE = 'jetpack-videopress-dashboard-data';
+
+	/**
 	 * The screen ID alias_screen_id_for_wp_build() replaced, until it is restored.
 	 *
 	 * @var string|null
@@ -89,6 +96,15 @@ class Admin_UI {
 		// (wpcom-admin-menu.php, admin_menu:999999). maybe_load_wp_build() self-gates
 		// to the VideoPress admin request, so it's inert on every other page.
 		add_action( 'admin_menu', array( __CLASS__, 'maybe_load_wp_build' ), 1 );
+
+		if ( class_exists( Admin_Shell::class ) ) {
+			add_filter( 'jetpack_admin_shell_members', array( __CLASS__, 'add_admin_shell_member' ) );
+		}
+
+		// The thumbnail picker loads the media library from this endpoint.
+		if ( method_exists( Media_Library::class, 'init' ) ) {
+			Media_Library::init();
+		}
 
 		// On WordPress.com Simple the standalone menu system (Admin_Menu) is not used:
 		// the Jetpack parent menu is created late (admin_menu priority 999999) by
@@ -129,13 +145,6 @@ class Admin_UI {
 		}
 
 		self::load_wp_build_with_screen_alias();
-
-		// wp-build registers standalone modules (e.g. the init module) on
-		// wp_default_scripts, which has already fired by admin_menu. Register them
-		// directly so the init module makes it into the import map.
-		if ( function_exists( 'jetpack_videopress_register_script_modules' ) ) {
-			jetpack_videopress_register_script_modules(); // @phan-suppress-current-line PhanUndeclaredFunction -- Checked with function_exists(); defined in the generated build/modules.php, which Phan excludes.
-		}
 	}
 
 	/**
@@ -344,6 +353,78 @@ class Admin_UI {
 	}
 
 	/**
+	 * Register VideoPress with the admin shell, which switches between Jetpack dashboards without a page load.
+	 *
+	 * @since 0.63.0
+	 *
+	 * @param array $members Shell members keyed by admin page slug.
+	 * @return array
+	 */
+	public static function add_admin_shell_member( $members ) {
+		// The same gates enable_dashboard_menu() applies, since admin-ajax never builds the menu.
+		if (
+			( new Host() )->is_wpcom_simple()
+			|| ! self::is_modernized()
+			|| ! VideoPress_Status::is_active()
+			|| ! file_exists( dirname( __DIR__ ) . '/build/build.php' )
+		) {
+			return $members;
+		}
+
+		$members[ self::ADMIN_PAGE_SLUG ] = array(
+			'build_prefix' => 'jetpack_videopress',
+			'build_page'   => 'jetpack-videopress-dashboard',
+			'init_modules' => array( '@jetpack-videopress/init' ),
+			// "VideoPress" is a product name, do not translate.
+			'title'        => 'Jetpack VideoPress',
+			'header'       => array(
+				'title'    => 'VideoPress',
+				'subtitle' => self::shell_header_subtitle(),
+			),
+			'capability'   => 'manage_options',
+			'handles'      => array( self::GUEST_DATA_HANDLE, 'jetpack-videopress-dashboard-shell', Admin_Menu::DESIGN_TOKENS_HANDLE, 'jetpack-script-data', 'wp-jp-i18n-loader' ),
+			'load'         => array( __CLASS__, 'load_as_admin_shell_guest' ),
+		);
+		return $members;
+	}
+
+	/**
+	 * The dashboard's subtitle without its "Learn more" link, and the full stop after it in any script.
+	 *
+	 * @return string
+	 */
+	private static function shell_header_subtitle() {
+		$subtitle = __( 'Host, manage, customize, and track your videos — all in one place. <link>Learn more</link>.', 'jetpack-videopress-pkg' );
+		return trim( wp_strip_all_tags( (string) preg_replace( '#\s*<link>.*?</link>[.。．]?\s*#u', '', $subtitle ) ) );
+	}
+
+	/**
+	 * Ready the VideoPress routes and page data while another dashboard's page is open, without the screen ID alias.
+	 *
+	 * @since 0.63.0
+	 *
+	 * @return void
+	 */
+	public static function load_as_admin_shell_guest() {
+		self::load_wp_build();
+		self::admin_init();
+		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_guest_initial_state' ) );
+	}
+
+	/**
+	 * Attach the initial state to a script of its own: the prerequisites script only exists on the VideoPress page.
+	 *
+	 * @since 0.63.0
+	 *
+	 * @return void
+	 */
+	public static function enqueue_guest_initial_state() {
+		wp_register_script( self::GUEST_DATA_HANDLE, false, array(), false, true ); // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.NoExplicitVersion -- No source, so nothing to cache.
+		wp_enqueue_script( self::GUEST_DATA_HANDLE );
+		Initial_State::attach_to( self::GUEST_DATA_HANDLE );
+	}
+
+	/**
 	 * Remove extra fields from Attachment details modal
 	 *
 	 * @return void
@@ -390,18 +471,13 @@ class Admin_UI {
 			wp_enqueue_style( 'jetpack-videopress-dashboard-shell' );
 		}
 
-		// The Video details screen's thumbnail editor opens the WordPress
-		// media library (via window.wp.media) for the "Upload image"
-		// action, so the media scripts must be present here too.
-		wp_enqueue_media();
-
 		// The i18n loader is registered on every admin page by jetpack-assets but
 		// only enqueued when depended on; the esbuild bundles don't pull it in.
 		if ( wp_script_is( 'wp-jp-i18n-loader', 'registered' ) ) {
 			wp_enqueue_script( 'wp-jp-i18n-loader' );
 		}
 
-		// Beyond the shell stylesheet and the media library, wp-build
+		// Beyond the shell stylesheet, wp-build
 		// manages its own enqueue pipeline.
 	}
 
@@ -652,6 +728,13 @@ class Admin_UI {
 
 		require_once $build_index;
 
+		// wp-build registers standalone modules (e.g. the init module) on
+		// wp_default_scripts, which has already fired by admin_menu. Register them
+		// directly so the init module makes it into the import map.
+		if ( function_exists( 'jetpack_videopress_register_script_modules' ) ) {
+			jetpack_videopress_register_script_modules(); // @phan-suppress-current-line PhanUndeclaredFunction -- Checked with function_exists(); defined in the generated build/modules.php, which Phan excludes.
+		}
+
 		// Defer the chapters-editor route stripping to the page init actions, at a
 		// priority ahead of the `build/routes.php` readers (default 10). Those
 		// actions fire from the page's `admin_enqueue_scripts` callback, one
@@ -811,12 +894,12 @@ class Admin_UI {
 	 */
 	public static function is_trim_cut_enabled() {
 		/**
-		 * Enable trim and cut after the video editing service is available for this site.
+		 * Whether the trim and cut editor is available for this site.
 		 *
 		 * @since 0.53.0
-		 * @param bool $enabled Whether trim and cut is enabled. Default false.
+		 * @param bool $enabled Whether trim and cut is enabled. Default true.
 		 */
-		return (bool) apply_filters( 'jetpack_videopress_trim_cut', false );
+		return (bool) apply_filters( 'jetpack_videopress_trim_cut', true );
 	}
 
 	/**

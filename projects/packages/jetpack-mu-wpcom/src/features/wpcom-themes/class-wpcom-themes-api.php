@@ -27,6 +27,16 @@ class WPCom_Themes_Api {
 	const WP_COM_PARTNER_THEMES_API_URL = 'https://public-api.wordpress.com/rest/v1.2/themes?http_envelope=1&tier=partner&number=500';
 
 	/**
+	 * WordPress.org's themes API, which can look several themes up in one request.
+	 */
+	const WP_ORG_THEMES_API_URL = 'https://api.wordpress.org/themes/info/1.2/';
+
+	/**
+	 * The most themes WordPress.org looks up in one request.
+	 */
+	const WP_ORG_BATCH_SIZE = 100;
+
+	/**
 	 * Cache handler.
 	 *
 	 * @var WPCom_Themes_Cache $cache
@@ -144,6 +154,108 @@ class WPCom_Themes_Api {
 				return $products;
 			}
 		) ?? array();
+	}
+
+	/**
+	 * Returns which of these WordPress.com themes WordPress.org also lists.
+	 *
+	 * Themes in the catalog share one daily lookup. Search also returns themes outside it, such as
+	 * older default themes, which are looked up together and cached as a set.
+	 *
+	 * @param string[] $slugs Theme slugs.
+	 * @return string[]|null The ones WordPress.org lists, or null when it could not be asked.
+	 */
+	public function fetch_wporg_slugs( array $slugs ): ?array {
+		$catalog = array();
+		foreach ( $this->fetch_all_non_delisted_themes() as $theme ) {
+			if ( isset( $theme->id ) && is_string( $theme->id ) ) {
+				$catalog[] = $theme->id;
+			}
+		}
+
+		if ( array() === $catalog ) {
+			return null;
+		}
+
+		$listed = $this->cache->run_cached(
+			'wpcom-themes-wporg-slugs',
+			fn() => $this->fetch_wporg_listed( $catalog )
+		);
+
+		$outside = array_values( array_diff( array_filter( $slugs, 'is_string' ), $catalog ) );
+		if ( null !== $listed && array() !== $outside ) {
+			sort( $outside );
+			$also   = $this->cache->run_cached(
+				'wpcom-themes-wporg-slugs-' . md5( implode( ',', $outside ) ),
+				fn() => $this->fetch_wporg_listed( $outside )
+			);
+			$listed = null === $also ? null : array_merge( $listed, $also );
+		}
+
+		return null === $listed ? null : array_values( array_intersect( $slugs, $listed ) );
+	}
+
+	/**
+	 * Asks WordPress.org which of these themes it lists, in batches it accepts.
+	 *
+	 * @param string[] $slugs Theme slugs.
+	 * @return string[]|null The slugs it lists, or null when a batch could not be asked.
+	 */
+	protected function fetch_wporg_listed( array $slugs ): ?array {
+		$listed = array();
+		foreach ( array_chunk( $slugs, self::WP_ORG_BATCH_SIZE ) as $batch ) {
+			$found = $this->fetch_wporg_batch( $batch );
+
+			// A partial answer would read as "not on WordPress.org" for the rest.
+			if ( null === $found ) {
+				return null;
+			}
+
+			$listed = array_merge( $listed, $found );
+		}
+
+		return $listed;
+	}
+
+	/**
+	 * Asks WordPress.org which of these themes it lists.
+	 *
+	 * @param string[] $slugs At most WP_ORG_BATCH_SIZE theme slugs.
+	 * @return string[]|null The slugs it lists, or null when it could not be asked.
+	 */
+	protected function fetch_wporg_batch( array $slugs ): ?array {
+		$url = add_query_arg(
+			array(
+				'action'  => 'theme_information',
+				'request' => array(
+					'slugs'  => implode( ',', $slugs ),
+					'fields' => array(
+						'sections'    => 0,
+						'description' => 0,
+						'tags'        => 0,
+						'ratings'     => 0,
+					),
+				),
+			),
+			self::WP_ORG_THEMES_API_URL
+		);
+
+		$response = wp_remote_get( $url );
+		$body     = json_decode( (string) wp_remote_retrieve_body( $response ), true );
+
+		if ( 200 !== wp_remote_retrieve_response_code( $response ) || ! is_array( $body ) || isset( $body['error'] ) ) {
+			return null;
+		}
+
+		$listed = array();
+		foreach ( $body as $slug => $theme ) {
+			// A theme it does not list comes back as `{ "error": "Theme not found" }`.
+			if ( is_array( $theme ) && ! isset( $theme['error'] ) ) {
+				$listed[] = (string) $slug;
+			}
+		}
+
+		return $listed;
 	}
 
 	/**

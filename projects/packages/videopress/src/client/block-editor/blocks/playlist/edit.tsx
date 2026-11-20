@@ -25,10 +25,10 @@ import { closeSmall, dragHandle, Icon } from '@wordpress/icons';
  * Internal dependencies
  */
 import { fetchVideoItem } from '../../../lib/fetch-video-item';
-import { isVideoPressGuid, pickGUIDFromUrl } from '../../../lib/url';
 import { LATEST_VIDEOS_PLAYLIST_CONTEXT } from '../latest-videos-playlist/context';
 import { VideoPressIcon } from '../video/components/icons';
 import { VIDEOPRESS_VIDEO_ALLOWED_MEDIA_TYPES } from '../video/constants';
+import { entryFromApiResponse, guidFromInput } from './entries';
 import { PlaylistSettingsPanels, PlaylistStylesControls } from './inspector-controls';
 import LatestVideosInnerPlaylist from './latest-videos-inner';
 import PlaylistPreview from './preview';
@@ -58,49 +58,6 @@ import type { BlockEditProps } from '@wordpress/blocks';
  * numbers in the sidebar manager, matching the long-playlist design.
  */
 const LONG_PLAYLIST_THRESHOLD = 8;
-
-/**
- * Resolve raw user input (a VideoPress URL or a bare GUID) to a GUID.
- *
- * @param input - Raw user input.
- * @return The GUID, or null when the input isn't a VideoPress video reference.
- */
-export function guidFromInput( input: string ): string | null {
-	const value = input.trim();
-	if ( ! value ) {
-		return null;
-	}
-
-	if ( isVideoPressGuid( value ) ) {
-		return value;
-	}
-
-	return pickGUIDFromUrl( value );
-}
-
-/**
- * Build a stored playlist entry from a videos API response item. Only the
- * numeric metadata is stored; title and poster stay live-only.
- *
- * @param guid - The video GUID.
- * @param item - The videos API response.
- * @return Playlist entry with the metadata the API reported.
- */
-function entryFromApiResponse( guid: string, item: Record< string, unknown > ): PlaylistEntry {
-	const entry: PlaylistEntry = { guid };
-
-	// The API isn't strict about numeric types, so coerce rather than type-check.
-	const duration = Number( item?.duration );
-	if ( Number.isFinite( duration ) && duration > 0 ) {
-		entry.durationMs = duration;
-	}
-	const height = Number( item?.height );
-	if ( Number.isFinite( height ) && height > 0 ) {
-		entry.height = height;
-	}
-
-	return entry;
-}
 
 /**
  * Format the "1080p · 12:04" meta line of an entry.

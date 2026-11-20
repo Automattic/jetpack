@@ -61,7 +61,7 @@ type LocationsProps = {
 	 * Rows the list shows, and the skeleton's height. Defaults to the widget row limit.
 	 */
 	maxRows?: number;
-	/** What the widget shows, such as its title; the list is named "Chart: <title>" and the map "Map: <title>". */
+	/** What the widget shows, when that is not its title; the list is named "Chart: <title>" and the map "Map: <title>". */
 	chartTitle?: string;
 };
 
@@ -97,7 +97,7 @@ export function Locations( {
 		[ rows, country, hasComparison, maxRows ]
 	);
 	const listData = useMemo(
-		() => buildLeaderboardChartData( data.rows, { hasComparison: data.comparing, maxRows } ),
+		() => buildLeaderboardChartData( data.rows, { maxRows } ),
 		[ data, maxRows ]
 	);
 	const errorState = useMemo( () => resolveWidgetStateError( error, refetch ), [ error, refetch ] );

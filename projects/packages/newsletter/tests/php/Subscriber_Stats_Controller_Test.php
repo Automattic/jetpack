@@ -373,12 +373,12 @@ class Subscriber_Stats_Controller_Test extends BaseTestCase {
 		);
 	}
 
-	public function test_returns_ten_newest_published_posts_and_drafts() {
+	public function test_returns_ten_newest_published_posts() {
 		$ids = array();
 		for ( $day = 1; $day <= 12; $day++ ) {
 			$ids[] = $this->insert_post(
 				'Post ' . $day,
-				0 === $day % 2 ? 'publish' : 'draft',
+				'publish',
 				gmdate( 'Y-m-d H:i:s', time() - ( ( 13 - $day ) * DAY_IN_SECONDS ) )
 			);
 		}
@@ -391,10 +391,7 @@ class Subscriber_Stats_Controller_Test extends BaseTestCase {
 		$this->assertCount( 10, $response['posts'] );
 		$this->assertSame( $expected_ids, array_column( $response['posts'], 'id' ) );
 		$this->assertSame( 'post', $this->query_vars['post_type'] );
-		$this->assertEqualsCanonicalizing(
-			array( 'publish', 'draft' ),
-			$this->query_vars['post_status']
-		);
+		$this->assertSame( 'publish', $this->query_vars['post_status'] );
 		$this->assertSame( 10, $this->query_vars['posts_per_page'] );
 		$this->assertSame( 'date', $this->query_vars['orderby'] );
 		$this->assertSame( 'DESC', $this->query_vars['order'] );
@@ -404,7 +401,7 @@ class Subscriber_Stats_Controller_Test extends BaseTestCase {
 
 	public function test_enriches_only_posts_present_in_email_summary() {
 		$matched_id   = $this->insert_post( 'Sent post', 'publish', gmdate( 'Y-m-d H:i:s', time() - DAY_IN_SECONDS ) );
-		$unmatched_id = $this->insert_post( '', 'draft', gmdate( 'Y-m-d H:i:s', time() - ( 2 * DAY_IN_SECONDS ) ) );
+		$unmatched_id = $this->insert_post( '', 'publish', gmdate( 'Y-m-d H:i:s', time() - ( 2 * DAY_IN_SECONDS ) ) );
 		$this->set_query_posts( array( $matched_id, $unmatched_id ) );
 		$this->set_email_summary_response(
 			array(
@@ -431,7 +428,7 @@ class Subscriber_Stats_Controller_Test extends BaseTestCase {
 		$this->assertNull( $by_id[ $unmatched_id ]['openRatePercent'] );
 		$this->assertNull( $by_id[ $unmatched_id ]['clickRatePercent'] );
 		$this->assertSame( get_permalink( $matched_id ), $by_id[ $matched_id ]['url'] );
-		$this->assertSame( get_preview_post_link( $unmatched_id ), $by_id[ $unmatched_id ]['url'] );
+		$this->assertSame( get_permalink( $unmatched_id ), $by_id[ $unmatched_id ]['url'] );
 		$this->assertSame( '(no title)', $by_id[ $unmatched_id ]['title'] );
 		$this->assertNull( $by_id[ $unmatched_id ]['image'] );
 		$this->assertSame(
@@ -442,6 +439,73 @@ class Subscriber_Stats_Controller_Test extends BaseTestCase {
 			),
 			$response['emailTotals']
 		);
+	}
+
+	public function test_nulls_rates_for_a_post_with_no_recorded_sends() {
+		$unsent_id = $this->insert_post( 'Unsent post', 'publish', gmdate( 'Y-m-d H:i:s', time() - DAY_IN_SECONDS ) );
+		$this->set_query_posts( array( $unsent_id ) );
+		$this->set_email_summary_response(
+			array(
+				'posts' => array(
+					array(
+						'id'          => $unsent_id,
+						'total_sends' => 0,
+						'opens_rate'  => 0,
+						'clicks_rate' => 0,
+					),
+				),
+			)
+		);
+
+		$response = $this->controller->get_recent_posts();
+
+		$this->assertNull( $response['posts'][0]['recipients'] );
+		$this->assertNull( $response['posts'][0]['openRatePercent'] );
+		$this->assertNull( $response['posts'][0]['clickRatePercent'] );
+	}
+
+	public function test_keeps_a_real_zero_rate_for_a_sent_post() {
+		$sent_id = $this->insert_post( 'Sent post with no opens', 'publish', gmdate( 'Y-m-d H:i:s', time() - DAY_IN_SECONDS ) );
+		$this->set_query_posts( array( $sent_id ) );
+		$this->set_email_summary_response(
+			array(
+				'posts' => array(
+					array(
+						'id'          => $sent_id,
+						'total_sends' => 5,
+						'opens_rate'  => 0,
+						'clicks_rate' => 0,
+					),
+				),
+			)
+		);
+
+		$response = $this->controller->get_recent_posts();
+
+		$this->assertSame( 5, $response['posts'][0]['recipients'] );
+		$this->assertSame( 0.0, $response['posts'][0]['openRatePercent'] );
+		$this->assertSame( 0.0, $response['posts'][0]['clickRatePercent'] );
+	}
+
+	public function test_nulls_rates_for_a_sent_post_with_missing_rate_data() {
+		$sent_id = $this->insert_post( 'Sent post with incomplete analytics', 'publish', gmdate( 'Y-m-d H:i:s', time() - DAY_IN_SECONDS ) );
+		$this->set_query_posts( array( $sent_id ) );
+		$this->set_email_summary_response(
+			array(
+				'posts' => array(
+					array(
+						'id'          => $sent_id,
+						'total_sends' => 5,
+					),
+				),
+			)
+		);
+
+		$response = $this->controller->get_recent_posts();
+
+		$this->assertSame( 5, $response['posts'][0]['recipients'] );
+		$this->assertNull( $response['posts'][0]['openRatePercent'] );
+		$this->assertNull( $response['posts'][0]['clickRatePercent'] );
 	}
 
 	public function test_returns_local_posts_when_email_summary_fails() {

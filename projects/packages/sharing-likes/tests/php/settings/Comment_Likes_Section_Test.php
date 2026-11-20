@@ -155,7 +155,7 @@ class Comment_Likes_Section_Test extends BaseTestCase {
 		$markup = $this->render_with( array( 'comment-likes' ) );
 
 		$this->assertStringContainsString( '<h2>Comment Likes</h2>', $markup );
-		$this->assertStringContainsString( 'unavailable while your site is in offline mode', $markup );
+		$this->assertStringContainsString( 'unavailable while your site is in Offline Mode', $markup );
 		$this->assertStringNotContainsString( 'name="jetpack_comment_likes_enabled"', $markup );
 		$this->assertStringNotContainsString( 'value="' . Settings_Form::SECTION_COMMENT_LIKES . '"', $markup );
 	}

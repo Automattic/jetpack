@@ -356,6 +356,9 @@ abstract class WPCOM_WP_Build_Page {
 			return;
 		}
 
+		// wp-build has no `jetpackConfig` external, so @automattic/jetpack-config reads this global.
+		wp_add_inline_script( $handle, 'window.jetpackConfig = ' . wp_json_encode( array( 'consumer_slug' => 'jetpack-mu-wpcom' ), JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_SLASHES ) . ';', 'before' );
+
 		if ( '' !== static::INITIAL_STATE_VAR ) {
 			// Inline JSON rather than wp_localize_script(), which stringifies top-level scalars.
 			$state = wp_json_encode( static::get_initial_state(), JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_SLASHES );

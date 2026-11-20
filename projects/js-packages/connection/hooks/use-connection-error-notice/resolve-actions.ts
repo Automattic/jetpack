@@ -44,6 +44,7 @@ export function resolveConnectionErrorActions(
 		actionHandlers = {},
 		trackingCallback = null,
 		trackingContext,
+		trackingPlacement,
 		customActions = null,
 		restoreConnection,
 		isRestoringConnection,
@@ -71,7 +72,7 @@ export function resolveConnectionErrorActions(
 		}
 		trackConnectionErrorNoticeEvent(
 			event,
-			{ trackingCallback, trackingContext, error: connectionError },
+			{ trackingCallback, trackingContext, trackingPlacement, error: connectionError },
 			{}
 		);
 	};

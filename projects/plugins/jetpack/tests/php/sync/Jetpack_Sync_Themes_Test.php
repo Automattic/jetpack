@@ -100,8 +100,10 @@ class Jetpack_Sync_Themes_Test extends Jetpack_Sync_TestBase {
 		parent::set_up();
 
 		$current_theme = wp_get_theme();
-		$this->theme   = $current_theme->slug;
+		$this->theme   = $current_theme->get_stylesheet();
 
+		// Switch themes so the 'stylesheet' option gets synced.
+		switch_theme( self::$themes[0] );
 		switch_theme( $this->theme );
 
 		$this->sender->do_sync();
@@ -147,12 +149,12 @@ class Jetpack_Sync_Themes_Test extends Jetpack_Sync_TestBase {
 	 * Test that we support syncing all the different theme features still.
 	 */
 	public function test_theme_callable_syncs_theme_supports_data() {
-		// @todo: Figure out why it's necessary for the sync to happen twice for the test to pass when run standalone or with WordPress 5.9.
+		// Test framework doesn't sync callables by default.
+		$this->resetCallableAndConstantTimeouts();
+
 		set_theme_mod( 'foo', 'bar' );
 		$this->sender->do_sync();
 
-		// @phan-suppress-next-line PhanPluginDuplicateAdjacentStatement -- See above todo.
-		$this->sender->do_sync();
 		$theme_supports = $this->server_replica_storage->get_callable( 'theme_support' );
 
 		foreach ( Defaults::$default_theme_support_whitelist as $theme_feature ) {

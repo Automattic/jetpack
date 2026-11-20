@@ -2,6 +2,7 @@
  * Internal dependencies
  */
 import { getReportDefinition, REPORTS } from './registry';
+import { REPORT_PAGES } from './report-pages';
 
 /**
  * Publish the script data of a Simple site running VideoPress, with any overrides applied.
@@ -21,6 +22,10 @@ function setSite( {
 		value: { site: { host }, premium_analytics: { has_videopress: videos, sections } },
 	} );
 }
+
+it( 'has a page for every report, and none for an unregistered one', () => {
+	expect( Object.keys( REPORT_PAGES ).sort() ).toEqual( Object.keys( REPORTS ).sort() );
+} );
 
 describe( 'getReportDefinition', () => {
 	beforeEach( () => {
@@ -103,6 +108,11 @@ describe( 'REPORTS', () => {
 
 		return grouped;
 	}
+
+	// `isPostDetailAvailable()` checks only the tab, so a gate here would send post links to a redirect.
+	it( 'gates the posts report by its tab alone', () => {
+		expect( REPORTS.posts.isAvailable ).toBeUndefined();
+	} );
 
 	it( 'keys every report by its own id', () => {
 		const misKeyed = Object.entries( REPORTS )

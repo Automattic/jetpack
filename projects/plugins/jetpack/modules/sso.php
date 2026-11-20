@@ -1,6 +1,6 @@
 <?php
 /**
- * Module Name: Secure Sign On
+ * Module Name: WordPress.com login
  * Module Description: Let users log in with their WordPress.com account for quick, secure access.
  * Sort Order: 30
  * Recommendation Order: 5
@@ -10,7 +10,7 @@
  * Auto Activate: No
  * Module Tags: Developers
  * Feature: Security
- * Additional Search Queries: sso, single sign on, login, log in, 2fa, two-factor
+ * Additional Search Queries: secure sign on, secure sign-on, sso, single sign on, login, log in, 2fa, two-factor
  *
  * @package automattic/jetpack
  */

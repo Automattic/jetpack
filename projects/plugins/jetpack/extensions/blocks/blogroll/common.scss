@@ -1,10 +1,10 @@
-@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+@use "@wordpress/base-styles/breakpoints";
 
 $jetpack-blogroll-item-container: bitem;
 
 @mixin break-bloroll-container-mobile() {
 
-	@container #{ ($jetpack-blogroll-item-container)} (min-width: #{ (gb.$break-mobile) }) {
+	@container #{ ($jetpack-blogroll-item-container)} (min-width: #{ (breakpoints.$break-mobile) }) {
 		@content;
 	}
 }

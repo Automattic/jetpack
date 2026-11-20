@@ -13,15 +13,16 @@ const mockFetchModules = jest.fn();
 
 jest.mock( '@wordpress/api-fetch' );
 
-jest.mock( '@automattic/jetpack-components', () => ( {
-	useGlobalNotices: () => ( { createSuccessNotice: mockSuccess, createErrorNotice: mockError } ),
-} ) );
-
 jest.mock( '@automattic/jetpack-shared-stores', () => ( { store: 'modules-store' } ) );
 jest.mock( '@wordpress/notices', () => ( { store: 'core/notices' } ) );
 
 jest.mock( '@wordpress/data', () => ( {
-	useDispatch: () => ( { fetchModules: mockFetchModules } ),
+	select: () => ( { hasFinishedResolution: () => false } ),
+	useDispatch: () => ( {
+		fetchModules: mockFetchModules,
+		createSuccessNotice: mockSuccess,
+		createErrorNotice: mockError,
+	} ),
 } ) );
 
 const mockApiFetch = apiFetch as unknown as jest.Mock;
@@ -66,8 +67,19 @@ beforeEach( () => {
 } );
 
 describe( 'isBulkSwitchable', () => {
+	beforeAll( () => {
+		window.myJetpackInitialState = {
+			protectPageModuleUrls: { waf: 'admin.php?page=jetpack-protect' },
+		} as unknown as Window[ 'myJetpackInitialState' ];
+	} );
+
+	afterAll( () => {
+		delete window.myJetpackInitialState;
+	} );
+
 	it.each( [
 		[ 'a module with a plain switch', moduleState( 'stats', 'inactive' ), true ],
+		[ 'a module whose settings are on the Protect page', moduleState( 'waf', 'inactive' ), false ],
 		[ 'a plugin switch', pluginState( 'akismet', 'active' ), true ],
 		[ 'an unavailable module', moduleState( 'stats', 'inactive', { available: false } ), false ],
 		[ 'a forced module', moduleState( 'stats', 'active', { override: 'active' } ), false ],
@@ -87,6 +99,11 @@ describe( 'isBulkSwitchable', () => {
 		[
 			'a feature already switching',
 			{ ...pluginState( 'akismet', 'active' ), isSwitching: true } as FeatureState,
+			false,
+		],
+		[
+			'a plugin waiting for an account',
+			{ ...pluginState( 'jetpack-social', 'active' ), accountNeeded: true } as FeatureState,
 			false,
 		],
 		[
@@ -125,7 +142,7 @@ describe( 'useBulkFeatureSwitch', () => {
 			method: 'POST',
 			data: { active: true, modules: [ 'stats' ], plugins: [ 'akismet' ] },
 		} );
-		expect( mockSuccess ).toHaveBeenCalledWith( '2 features activated.' );
+		expect( mockSuccess ).toHaveBeenCalledWith( '2 features activated.', { type: 'snackbar' } );
 		expect( mockError ).not.toHaveBeenCalled();
 	} );
 
@@ -202,8 +219,10 @@ describe( 'useBulkFeatureSwitch', () => {
 			)
 		);
 
-		expect( mockSuccess ).toHaveBeenCalledWith( '1 feature deactivated.' );
-		expect( mockError ).toHaveBeenCalledWith( 'akismet feature: This plugin runs the page.' );
+		expect( mockSuccess ).toHaveBeenCalledWith( '1 feature deactivated.', { type: 'snackbar' } );
+		expect( mockError ).toHaveBeenCalledWith( 'akismet feature: This plugin runs the page.', {
+			type: 'snackbar',
+		} );
 	} );
 
 	it( 'resolves to the features that failed, so they can be kept for a retry', async () => {
@@ -249,7 +268,9 @@ describe( 'useBulkFeatureSwitch', () => {
 		);
 
 		expect( mockError ).toHaveBeenCalledTimes( 1 );
-		expect( mockError ).toHaveBeenCalledWith( `akismet feature, boost feature: ${ reason }` );
+		expect( mockError ).toHaveBeenCalledWith( `akismet feature, boost feature: ${ reason }`, {
+			type: 'snackbar',
+		} );
 		expect( mockSuccess ).not.toHaveBeenCalled();
 	} );
 
@@ -260,9 +281,24 @@ describe( 'useBulkFeatureSwitch', () => {
 
 		await act( () => result.current.bulk.run( [ moduleState( 'stats', 'inactive' ) ], true ) );
 
-		expect( mockError ).toHaveBeenCalledWith( 'Server error.' );
+		expect( mockError ).toHaveBeenCalledWith( 'Server error.', { type: 'snackbar' } );
 		expect( mockSuccess ).not.toHaveBeenCalled();
 		expect( result.current.requested ).toEqual( {} );
+	} );
+
+	it.each( [
+		[ 'succeeds', () => settled() ],
+		[ 'fails', () => Promise.reject( new Error( 'Server error.' ) ) ],
+	] )( 'marks product ownership stale when the run %s', async ( _, post ) => {
+		mockApiFetch.mockImplementation( post );
+		const invalidate = jest.spyOn( QueryClient.prototype, 'invalidateQueries' );
+
+		const { result } = renderBulk();
+
+		await act( () => result.current.bulk.run( [ pluginState( 'akismet', 'inactive' ) ], true ) );
+
+		expect( invalidate ).toHaveBeenCalledWith( { queryKey: [ 'product ownership' ] } );
+		invalidate.mockRestore();
 	} );
 
 	it( 'does nothing when every feature is already in the asked-for state', async () => {

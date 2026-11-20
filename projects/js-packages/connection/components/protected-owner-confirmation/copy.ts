@@ -31,6 +31,14 @@ export function getProtectedOwnerConfirmationCopy( {
 		cancel: __( 'Cancel', 'jetpack-connection-js' ),
 		contactSupport: __( 'Contact support', 'jetpack-connection-js' ),
 		confirmError: __( 'Could not confirm the protected owner.', 'jetpack-connection-js' ),
+		lockedNotice: __(
+			'The connection stays locked to the confirmed owner.',
+			'jetpack-connection-js'
+		),
+		pendingLockNotice: __(
+			'The connection will be locked once an owner is confirmed.',
+			'jetpack-connection-js'
+		),
 		supportUrl: getRedirectUrl( 'jetpack-support' ),
 	};
 }

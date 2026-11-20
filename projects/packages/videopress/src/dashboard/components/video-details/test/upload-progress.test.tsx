@@ -3,13 +3,13 @@ import userEvent from '@testing-library/user-event';
 import UploadProgress from '../upload-progress';
 import type { UploadProgressStatus } from '../upload-progress';
 
-it.each< { status: UploadProgressStatus; progress?: number; message: string; position: number } >( [
-	{ status: 'pending', message: 'Waiting to upload…', position: -1 },
-	{ status: 'uploading', progress: 0.42, message: 'Uploading 42%', position: 0.42 },
-	{ status: 'uploading', progress: 1, message: 'Finishing upload…', position: -1 },
-	{ status: 'saving', message: 'Saving video details…', position: -1 },
-	{ status: 'loading', message: 'Preparing video…', position: -1 },
-] )( 'shows "$message" in the player placeholder', ( { status, progress, message, position } ) => {
+it.each< { status: UploadProgressStatus; progress?: number; message: string } >( [
+	{ status: 'pending', message: 'Waiting to upload…' },
+	{ status: 'uploading', progress: 0.42, message: 'Uploading 42%' },
+	{ status: 'uploading', progress: 1, message: 'Finishing upload…' },
+	{ status: 'saving', message: 'Saving video details…' },
+	{ status: 'loading', message: 'Preparing video…' },
+] )( 'shows "$message" in the player placeholder', ( { status, progress, message } ) => {
 	render( <UploadProgress fileName="draft.mp4" status={ status } progress={ progress } /> );
 	expect( screen.getByText( 'draft.mp4' ) ).toBeInTheDocument();
 	expect( screen.getAllByText( message ).length ).toBeGreaterThan( 0 );
@@ -17,8 +17,17 @@ it.each< { status: UploadProgressStatus; progress?: number; message: string; pos
 		screen.queryByLabelText( 'Video preview', { selector: 'video' } )
 	).not.toBeInTheDocument();
 	expect( screen.queryByTitle( 'Video preview' ) ).not.toBeInTheDocument();
+	expect( screen.getByRole( 'progressbar', { name: 'Upload progress' } ) ).toBeInTheDocument();
+} );
+
+it( 'reports a percentage only while bytes are moving', () => {
+	const { rerender } = render( <UploadProgress fileName="draft.mp4" status="pending" /> );
 	const bar = screen.getByRole( 'progressbar', { name: 'Upload progress' } );
-	expect( bar ).toHaveProperty( 'position', position );
+	expect( bar ).not.toHaveAttribute( 'aria-valuenow' );
+	rerender( <UploadProgress fileName="draft.mp4" status="uploading" progress={ 0.42 } /> );
+	expect( bar ).toHaveValue( 42 );
+	rerender( <UploadProgress fileName="draft.mp4" status="uploading" progress={ 1 } /> );
+	expect( bar ).not.toHaveAttribute( 'aria-valuenow' );
 } );
 
 it( 'announces the upload phase without announcing every percentage change', () => {

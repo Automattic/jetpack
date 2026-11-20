@@ -4,16 +4,17 @@
 import { __ } from '@wordpress/i18n';
 import { Tabs } from '@wordpress/ui';
 
-export type DashboardTab = 'library' | 'stats' | 'settings';
+export type DashboardTab = 'library' | 'playlists' | 'stats' | 'settings';
 
 export const TAB_PATHS: Record< DashboardTab, string > = {
 	library: '/',
+	playlists: '/playlists',
 	stats: '/stats',
 	settings: '/settings',
 };
 
 /**
- * The Library / Stats / Settings tab strip. Must be rendered inside a
+ * The Library / Playlists / Stats / Settings tab strip. Must be rendered inside a
  * `<Tabs.Root>` whose `value` and `onValueChange` are managed by the parent
  * (DashboardLayout) so the strip and its sibling `<Tabs.Panel>`s share
  * Tabs context.
@@ -25,6 +26,7 @@ export default function DashboardTabs() {
 		<div className="jp-admin-page-tabs jp-admin-page-tabs--minimal">
 			<Tabs.List variant="minimal">
 				<Tabs.Tab value="library">{ __( 'Library', 'jetpack-videopress-pkg' ) }</Tabs.Tab>
+				<Tabs.Tab value="playlists">{ __( 'Playlists', 'jetpack-videopress-pkg' ) }</Tabs.Tab>
 				<Tabs.Tab value="stats">{ __( 'Stats', 'jetpack-videopress-pkg' ) }</Tabs.Tab>
 				<Tabs.Tab value="settings">{ __( 'Settings', 'jetpack-videopress-pkg' ) }</Tabs.Tab>
 			</Tabs.List>

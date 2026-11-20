@@ -1,9 +1,9 @@
 /**
  * External dependencies
  */
-import { addDays, endOfMonth, format, isValid, parse } from 'date-fns';
+import { addDays, endOfMonth, endOfQuarter, format, isValid, parse } from 'date-fns';
 
-export type DateIntervalPeriod = 'hour' | 'day' | 'week' | 'month' | 'year' | string;
+export type DateIntervalPeriod = 'hour' | 'day' | 'week' | 'month' | 'quarter' | 'year' | string;
 
 export type DateIntervalDateParts = {
 	startDate: string;
@@ -123,6 +123,12 @@ export function getDateIntervalDateParts(
 			return {
 				startDate,
 				endDate: format( endOfMonth( parsedStartDate ), DATE_PART_FORMAT ),
+			};
+
+		case 'quarter':
+			return {
+				startDate,
+				endDate: format( endOfQuarter( parsedStartDate ), DATE_PART_FORMAT ),
 			};
 
 		case 'year':

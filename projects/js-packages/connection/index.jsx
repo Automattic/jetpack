@@ -27,10 +27,12 @@ export { default as ConnectionErrorDetails } from './components/connection-error
 export * from './components/connection-error-details/types.ts';
 export { default as ConnectionErrorNotice } from './components/connection-error-notice';
 export { default as ConnectionErrorSupportLink } from './components/connection-error-support-link';
-export { ConnectionError } from './hooks/use-connection-error-notice';
+export { ConnectionError, ConnectionErrorView } from './hooks/use-connection-error-notice';
 export { default as DisconnectDialog } from './components/disconnect-dialog';
 export { default as DisconnectCard } from './components/disconnect-card';
+export { default as DisconnectUserDialog } from './components/disconnect-user-dialog';
 export { default as useConnection } from './components/use-connection';
+export * from './components/identity-crisis';
 export { default as ManageConnectionDialog } from './components/manage-connection-dialog';
 export { default as TransferConnectionOwnership } from './components/transfer-connection-ownership';
 export * from './components/transfer-connection-ownership/types.ts';
@@ -48,12 +50,39 @@ export { getProtectedOwnerReleaseCopy } from './components/protected-owner-relea
 export * from './components/protected-owner-release/types.ts';
 
 /**
+ * Re-exported so consumers restricted to this package's global — the Connectors card — can
+ * render the same consent notice as every other connection surface.
+ */
+export { TermsOfService } from '@automattic/jetpack-components';
+
+/**
  * Helpers.
  */
 export { default as thirdPartyCookiesFallbackHelper } from './helpers/third-party-cookies-fallback';
 export { default as getCalypsoOrigin } from './helpers/get-calypso-origin';
 export * from './helpers/get-user-connection-url.ts';
+export {
+	CONNECTION_FROM,
+	isStandardEntryPoint,
+	isUnifiedConnectionFlow,
+} from './helpers/connection-from.ts';
+export * from './helpers/get-user-connect-kind.ts';
 export { getReconnectErrorMessage } from './helpers/get-reconnect-error-message.ts';
+export { formatSiteAddress } from './helpers/format-site-address.ts';
+export * from './helpers/site-words.ts';
+export { getTracksIdentity, initializeTracksIdentity } from './helpers/tracks-identity.ts';
+export {
+	CONNECTION_EVENTS,
+	bumpConnectionStat,
+	trackConnectionEvent,
+} from './helpers/connection-tracking.ts';
+export {
+	getConnectScreenErrorMessage,
+	getRegistrationErrorCode,
+	getRegistrationErrorDescription,
+	getRegistrationErrorDisplay,
+	getRegistrationErrorSummary,
+} from './helpers/get-connect-screen-error-message';
 
 /**
  * Store
@@ -66,6 +95,8 @@ export { STORE_ID as CONNECTION_STORE_ID } from './state/store';
 export { default as useProductCheckoutWorkflow } from './hooks/use-product-checkout-workflow';
 export { default as useRestoreConnection } from './hooks/use-restore-connection';
 export { default as useConnectionErrorNotice } from './hooks/use-connection-error-notice';
+export { default as useIdentityCrisisActions } from './hooks/use-identity-crisis-actions';
+export * from './hooks/use-identity-crisis-actions/types.ts';
 export {
 	isOtherUsersConnectionError,
 	getConnectionErrorUserScope,

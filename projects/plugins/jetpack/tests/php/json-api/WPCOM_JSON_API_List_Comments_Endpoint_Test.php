@@ -61,8 +61,9 @@ class WPCOM_JSON_API_List_Comments_Endpoint_Test extends WP_UnitTestCase {
 	/**
 	 * Create fixtures once, before any tests in the class have run.
 	 *
-	 * Approved on the post: 3 top-level comments, 1 reply, 2 pingbacks, 1 trackback.
-	 * Also 1 comment in moderation, and 1 approved comment on another post.
+	 * Approved on the post: 3 top-level comments, 1 reply, 2 pingbacks, 1 trackback,
+	 * and 4 Fediverse reactions (2 likes, 1 repost, 1 quote).
+	 * Also 1 comment in moderation, and 1 approved comment plus 1 like on another post.
 	 *
 	 * @param WP_UnitTest_Factory $factory A factory object.
 	 */
@@ -87,16 +88,27 @@ class WPCOM_JSON_API_List_Comments_Endpoint_Test extends WP_UnitTestCase {
 		);
 		$factory->comment->create_many( 2, $approved + array( 'comment_type' => 'pingback' ) );
 		$factory->comment->create( $approved + array( 'comment_type' => 'trackback' ) );
+		$factory->comment->create_many( 2, $approved + array( 'comment_type' => 'like' ) );
+		$factory->comment->create( $approved + array( 'comment_type' => 'repost' ) );
+		$factory->comment->create( $approved + array( 'comment_type' => 'quote' ) );
 		$factory->comment->create(
 			array(
 				'comment_post_ID'  => self::$post_id,
 				'comment_approved' => 0,
 			)
 		);
+		$other_post_id = $factory->post->create();
 		$factory->comment->create(
 			array(
-				'comment_post_ID'  => $factory->post->create(),
+				'comment_post_ID'  => $other_post_id,
 				'comment_approved' => 1,
+			)
+		);
+		$factory->comment->create(
+			array(
+				'comment_post_ID'  => $other_post_id,
+				'comment_approved' => 1,
+				'comment_type'     => 'like',
 			)
 		);
 	}
@@ -118,6 +130,13 @@ class WPCOM_JSON_API_List_Comments_Endpoint_Test extends WP_UnitTestCase {
 
 		WPCOM_JSON_API::init()->token_details = array( 'blog_id' => self::$blog_id );
 		wp_set_current_user( self::$admin_user_id );
+
+		// The ActivityPub plugin registers its reaction types with the API the same way.
+		$add_reaction_types = static function ( $types ) {
+			return array_merge( $types, array( 'like', 'repost', 'quote' ) );
+		};
+		add_filter( 'jetpack_json_api_comment_types', $add_reaction_types );
+		add_filter( 'jetpack_api_include_comment_types_count', $add_reaction_types );
 	}
 
 	/**
@@ -167,6 +186,32 @@ class WPCOM_JSON_API_List_Comments_Endpoint_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Request the site's comments.
+	 *
+	 * @param array $query Request params.
+	 * @return array|WP_Error
+	 */
+	private function get_site_comments( array $query ) {
+		WPCOM_JSON_API::init()->query = $query;
+		return $this->get_endpoint( '/sites/%s/comments/' )->callback(
+			sprintf( '/sites/%d/comments/', self::$blog_id ),
+			self::$blog_id
+		);
+	}
+
+	/**
+	 * The distinct comment types in a response.
+	 *
+	 * @param array $response Endpoint response.
+	 * @return string[]
+	 */
+	private static function response_types( array $response ) {
+		$types = array_unique( array_column( $response['comments'], 'type' ) );
+		sort( $types );
+		return $types;
+	}
+
+	/**
 	 * Typed requests on a post count only that type, replies included, ignoring pagination.
 	 *
 	 * @dataProvider provide_typed_totals
@@ -201,6 +246,7 @@ class WPCOM_JSON_API_List_Comments_Endpoint_Test extends WP_UnitTestCase {
 				4,
 			),
 			'pingbacks'                       => array( array( 'type' => 'pingback' ), 2 ),
+			'likes'                           => array( array( 'type' => 'like' ), 2 ),
 			'unapproved comments'             => array(
 				array(
 					'type'   => 'comment',
@@ -226,12 +272,12 @@ class WPCOM_JSON_API_List_Comments_Endpoint_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * An untyped post request keeps the wp_count_comments() total without a count query.
+	 * A type=any post request keeps the wp_count_comments() total without a count query.
 	 *
 	 * @group json-api
 	 */
 	#[Group( 'json-api' )]
-	public function test_untyped_post_request_counts_every_type() {
+	public function test_any_type_post_request_counts_every_type() {
 		$count_queries = 0;
 		add_action(
 			'pre_get_comments',
@@ -243,10 +289,54 @@ class WPCOM_JSON_API_List_Comments_Endpoint_Test extends WP_UnitTestCase {
 			}
 		);
 
+		$response = $this->get_post_replies( array( 'type' => 'any' ) );
+
+		$this->assertSame( 11, $response['found'] );
+		$this->assertCount( 11, $response['comments'] );
+		$this->assertSame( array( 'comment', 'like', 'pingback', 'quote', 'repost', 'trackback' ), self::response_types( $response ) );
+		$this->assertSame( 0, $count_queries );
+	}
+
+	/**
+	 * An untyped post request leaves out Fediverse reactions and counts without them.
+	 *
+	 * @group json-api
+	 */
+	#[Group( 'json-api' )]
+	public function test_untyped_post_request_hides_reactions() {
 		$response = $this->get_post_replies( array() );
 
 		$this->assertSame( 7, $response['found'] );
-		$this->assertSame( 0, $count_queries );
+		$this->assertCount( 7, $response['comments'] );
+		$this->assertSame( array( 'comment', 'pingback', 'trackback' ), self::response_types( $response ) );
+	}
+
+	/**
+	 * An untyped site request leaves out Fediverse reactions and counts without them.
+	 *
+	 * @group json-api
+	 */
+	#[Group( 'json-api' )]
+	public function test_untyped_site_request_hides_reactions() {
+		$response = $this->get_site_comments( array() );
+
+		$this->assertSame( 8, $response['found'] );
+		$this->assertCount( 8, $response['comments'] );
+		$this->assertSame( array( 'comment', 'pingback', 'trackback' ), self::response_types( $response ) );
+	}
+
+	/**
+	 * A type=any site request returns Fediverse reactions and counts them.
+	 *
+	 * @group json-api
+	 */
+	#[Group( 'json-api' )]
+	public function test_any_type_site_request_returns_reactions() {
+		$response = $this->get_site_comments( array( 'type' => 'any' ) );
+
+		$this->assertSame( 13, $response['found'] );
+		$this->assertCount( 13, $response['comments'] );
+		$this->assertSame( array( 'comment', 'like', 'pingback', 'quote', 'repost', 'trackback' ), self::response_types( $response ) );
 	}
 
 	/**
@@ -256,11 +346,7 @@ class WPCOM_JSON_API_List_Comments_Endpoint_Test extends WP_UnitTestCase {
 	 */
 	#[Group( 'json-api' )]
 	public function test_typed_site_request_keeps_unknown_total() {
-		WPCOM_JSON_API::init()->query = array( 'type' => 'comment' );
-		$response                     = $this->get_endpoint( '/sites/%s/comments/' )->callback(
-			sprintf( '/sites/%d/comments/', self::$blog_id ),
-			self::$blog_id
-		);
+		$response = $this->get_site_comments( array( 'type' => 'comment' ) );
 
 		$this->assertIsArray( $response );
 		$this->assertSame( -1, $response['found'] );

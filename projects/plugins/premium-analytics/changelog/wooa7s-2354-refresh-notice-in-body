@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Dashboard: Show the notice about a failed refresh at the top of the section, instead of inside the sticky header.

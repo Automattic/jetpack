@@ -120,7 +120,7 @@ export function watchTailoring(
 		answer( false );
 		if ( abandoned && ( event as PageTransitionEvent ).persisted ) {
 			// The abandoned run left this page waiting on a list that will never come. Reloading
-			// shows the wizard again, since nothing was saved.
+			// starts over, since nothing was saved: the wizard, or an AI-built site's automatic run.
 			onRestoredAfterAbandon();
 		}
 	};

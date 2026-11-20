@@ -5,6 +5,7 @@ import { NOTICE_SITE_CONNECTION_ERROR } from '../../context/notices/noticeTempla
 import useProductsByOwnership from '../../data/products/use-products-by-ownership';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
+import { leavePageFor } from '../../utils/reload-page';
 import useAnalytics from '../use-analytics';
 import type { TracksEvent, TracksProperties } from '../use-analytics';
 import type { MouseEvent } from 'react';
@@ -14,10 +15,10 @@ interface useConnectSiteProps {
 		event: TracksEvent;
 		properties: TracksProperties;
 	};
-	skipPricing?: boolean;
+	from?: string;
 }
 
-const useConnectSite = ( { tracksInfo }: useConnectSiteProps ) => {
+const useConnectSite = ( { tracksInfo, from }: useConnectSiteProps ) => {
 	const { event, properties: tracksEventData } = tracksInfo;
 
 	const { setNotice, resetNotice } = useContext( NoticeContext );
@@ -26,16 +27,17 @@ const useConnectSite = ( { tracksInfo }: useConnectSiteProps ) => {
 	const { refetch: refetchOwnershipData } = useProductsByOwnership();
 
 	const { siteSuffix, adminUrl, myJetpackCheckoutUri } = getMyJetpackWindowInitialState();
-	const redirectUri = `&redirect_to=${ myJetpackCheckoutUri }`;
+	const redirectToQuery = `&redirect_to=${ myJetpackCheckoutUri }`;
 
 	const connectAfterCheckoutUrl = `?connect_after_checkout=true&admin_url=${ encodeURIComponent(
 		adminUrl
 	) }&from_site_slug=${ siteSuffix }&source=my-jetpack`;
-	const query = `${ connectAfterCheckoutUrl }${ redirectUri }&unlinked=1`;
+	const query = `${ connectAfterCheckoutUrl }${ redirectToQuery }&unlinked=1`;
 	const jetpackPlansPath = getRedirectUrl( 'jetpack-my-jetpack-site-only-plans', { query } );
+	// No redirectUri: registering must not navigate, so checkout below is the only navigation.
 	const { handleRegisterSite } = useMyJetpackConnection( {
 		skipUserConnection: true,
-		redirectUri,
+		from,
 	} );
 
 	const connectSite = useCallback(
@@ -57,7 +59,7 @@ const useConnectSite = ( { tracksInfo }: useConnectSiteProps ) => {
 
 				recordEvent( `${ event }_success`, tracksEventData );
 
-				window.location.href = jetpackPlansPath;
+				leavePageFor( jetpackPlansPath );
 			} catch {
 				setNotice( NOTICE_SITE_CONNECTION_ERROR, resetNotice );
 			} finally {

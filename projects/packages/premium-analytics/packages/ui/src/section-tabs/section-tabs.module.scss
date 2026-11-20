@@ -20,10 +20,10 @@
 	max-inline-size: 100%;
 }
 
-.tabList :global([role="tab"][aria-selected="true"]) {
-	color: var(--wp-admin-theme-color, #3858e9);
-}
-
-.tabList :global([role="tablist"] > [data-orientation="horizontal"]:not([role="tab"])) {
-	background-color: var(--wp-admin-theme-color, #3858e9);
+.pendingLabel {
+	display: inline-block;
+	block-size: 1em;
+	inline-size: 5em;
+	vertical-align: middle;
+	border-radius: var(--wpds-border-radius-md);
 }

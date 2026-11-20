@@ -16,6 +16,8 @@ const mockSearch = jest.fn< { tab?: string }, [] >();
 const mockIsSimpleSite = jest.fn< boolean, [] >();
 const mockConnection = jest.fn< Record< string, unknown >, [] >();
 const mockGetNewsletterScriptData = jest.fn();
+let mockOnDirtyChange: ( ( dirty: boolean ) => void ) | undefined;
+let mockHasUnsavedChanges: boolean | undefined;
 
 jest.mock( '@automattic/jetpack-analytics', () => ( {
 	__esModule: true,
@@ -90,13 +92,17 @@ jest.mock( '../../../src/settings/newsletter-settings', () => ( {
 	NewsletterSettingsBody: ( {
 		hasConnectedOwner,
 		connectUrl,
+		onDirtyChange,
 	}: {
 		hasConnectedOwner?: boolean;
 		connectUrl?: string;
-	} ) =>
-		hasConnectedOwner === false ? (
+		onDirtyChange?: ( dirty: boolean ) => void;
+	} ) => {
+		mockOnDirtyChange = onDirtyChange;
+		return hasConnectedOwner === false ? (
 			<div data-testid="settings-owner-warning" data-connect-url={ connectUrl } />
-		) : null,
+		) : null;
+	},
 } ) );
 
 jest.mock( '../components/overview-body', () => ( {
@@ -113,7 +119,16 @@ jest.mock( '../../../src/settings/script-data', () => ( {
 // shell's tab nav, AdminPage wiring, or SCSS imports.
 jest.mock( '../../../_inc/components/newsletter-page', () => ( {
 	__esModule: true,
-	default: ( { children }: { children: React.ReactNode } ) => <>{ children }</>,
+	default: ( {
+		children,
+		hasUnsavedChanges,
+	}: {
+		children: React.ReactNode;
+		hasUnsavedChanges?: boolean;
+	} ) => {
+		mockHasUnsavedChanges = hasUnsavedChanges;
+		return <>{ children }</>;
+	},
 } ) );
 
 // SCSS side-effect imports — no-op in jest.
@@ -121,7 +136,7 @@ jest.mock( '../../../src/settings/style.scss', () => ( {} ), { virtual: true } )
 jest.mock( '../route.scss', () => ( {} ), { virtual: true } );
 
 // Imports must come after the jest.mock factories above.
-import { render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import { StrictMode } from 'react';
 import { stage as Stage } from '../stage';
 
@@ -148,6 +163,8 @@ beforeEach( () => {
 		handleRegisterSite: jest.fn(),
 	} );
 	mockImportRefreshEnabled = undefined;
+	mockOnDirtyChange = undefined;
+	mockHasUnsavedChanges = undefined;
 } );
 
 const connected = {
@@ -212,6 +229,55 @@ describe( 'Newsletter dashboard Stage analytics', () => {
 			tab: 'settings',
 			previous_tab: 'overview',
 		} );
+	} );
+
+	it( 'records the tab again when the admin shell shows the page again, not on its first show', () => {
+		mockSearch.mockReturnValue( { tab: 'settings' } );
+		render( <Stage /> );
+		const shown = ( page: string, firstShow: boolean ) =>
+			window.dispatchEvent(
+				new CustomEvent( 'jetpack-admin-shell:page-shown', { detail: { page, firstShow } } )
+			);
+
+		shown( 'jetpack-newsletter', true );
+		shown( 'my-jetpack', false );
+		shown( 'jetpack-newsletter', false );
+
+		expect( mockRecordEvent ).toHaveBeenCalledTimes( 2 );
+		expect( mockRecordEvent ).toHaveBeenLastCalledWith( 'jetpack_newsletter_tab_view', {
+			site_type: 'jetpack',
+			tab: 'settings',
+		} );
+	} );
+
+	it.each( [
+		[ 'another tab', 'settings', { tab: 'settings', previous_tab: 'overview' } ],
+		[ 'the same tab at another URL', 'stats', { tab: 'overview' } ],
+	] )( 'records one view when the admin shell shows the page again at %s', ( _, tab, view ) => {
+		const { rerender } = render( <Stage /> );
+		mockRecordEvent.mockClear();
+
+		window.dispatchEvent(
+			new CustomEvent( 'jetpack-admin-shell:page-hidden', {
+				detail: { page: 'jetpack-newsletter', next: 'my-jetpack' },
+			} )
+		);
+		mockSearch.mockReturnValue( { tab } );
+		rerender( <Stage /> );
+		window.dispatchEvent(
+			new CustomEvent( 'jetpack-admin-shell:page-shown', {
+				detail: {
+					page: 'jetpack-newsletter',
+					firstShow: false,
+					routeChanged: true,
+					url: `https://example.com/wp-admin/admin.php?page=jetpack-newsletter&p=%2F%3Ftab%3D${ tab }`,
+				},
+			} )
+		);
+
+		expect( mockRecordEvent.mock.calls ).toEqual( [
+			[ 'jetpack_newsletter_tab_view', { site_type: 'jetpack', ...view } ],
+		] );
 	} );
 
 	it( 'records an old ?tab=stats link as the Overview tab', () => {
@@ -303,14 +369,25 @@ describe( 'Newsletter dashboard Stage Settings owner warning', () => {
 		);
 	} );
 
-	it( 'does not warn when the owner is connected', () => {
-		mockConnection.mockReturnValue( connected );
-		mockSearch.mockReturnValue( { tab: 'settings' } );
+	it.each( [ true, false ] )(
+		'forwards dirty state from connected Settings when subscriber management is %s',
+		subscriberManagementEnabled => {
+			mockConnection.mockReturnValue( connected );
+			mockSearch.mockReturnValue( { tab: 'settings' } );
+			mockGetNewsletterScriptData.mockReturnValue( { subscriberManagementEnabled } );
 
-		render( <Stage /> );
+			render( <Stage /> );
 
-		expect( screen.queryByTestId( 'settings-owner-warning' ) ).not.toBeInTheDocument();
-	} );
+			expect( screen.queryByTestId( 'settings-owner-warning' ) ).not.toBeInTheDocument();
+			expect( mockHasUnsavedChanges ).toBe( false );
+
+			act( () => mockOnDirtyChange?.( true ) );
+			expect( mockHasUnsavedChanges ).toBe( true );
+
+			act( () => mockOnDirtyChange?.( false ) );
+			expect( mockHasUnsavedChanges ).toBe( false );
+		}
+	);
 
 	it( 'does not warn on a Simple site even without a Jetpack connection', () => {
 		mockIsSimpleSite.mockReturnValue( true );

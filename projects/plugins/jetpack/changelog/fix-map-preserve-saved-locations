@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Map block: Preserve saved locations when opening or resizing the editor and prevent stale address lookups from overwriting newer edits. Center maps after marker changes, keep deleted markers removed, and show address lookup failures.

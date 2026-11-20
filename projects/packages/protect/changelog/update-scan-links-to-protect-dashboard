@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-Dashboard: Show the number of threats next to the Protect menu item without delaying page loads, and a red alert icon on the Scan card when there are threats.

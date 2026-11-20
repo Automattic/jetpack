@@ -18,7 +18,7 @@ use Jetpack_Tracks_Client;
  */
 class Admin_Menu {
 
-	const PACKAGE_VERSION = '0.14.6';
+	const PACKAGE_VERSION = '0.14.16';
 
 	/**
 	 * Slug used for the upgrade menu item and redirect URL.
@@ -182,6 +182,20 @@ class Admin_Menu {
 	private static $visibility_resolver = null;
 
 	/**
+	 * Callback that switches a menu item's gated feature on, set by My Jetpack beside the resolver.
+	 *
+	 * @var callable|null
+	 */
+	private static $feature_activator = null;
+
+	/**
+	 * Callback that says whether the activator can switch a gate's feature on, set with it.
+	 *
+	 * @var callable|null
+	 */
+	private static $feature_offer_check = null;
+
+	/**
 	 * Menu slugs registered this request but kept out of the rendered sidebar.
 	 *
 	 * @var string[]
@@ -212,6 +226,9 @@ class Admin_Menu {
 	public static function init() {
 		if ( ! self::$initialized ) {
 			self::$initialized = true;
+			// Every plugin's admin menu comes through here, so the flag is listed wherever the shell could run.
+			Admin_Shell::register_feature_flag();
+			Admin_Shell::init();
 			self::handle_akismet_menu();
 			add_action( 'admin_menu', array( __CLASS__, 'admin_menu_hook_callback' ), 1000 ); // Jetpack uses 998.
 			add_action( 'network_admin_menu', array( __CLASS__, 'admin_menu_hook_callback' ), 1000 ); // Jetpack uses 998.
@@ -237,6 +254,7 @@ class Admin_Menu {
 		self::$initialized            = false;
 		self::$top_level_initialized  = false;
 
+		remove_action( 'admin_menu', array( __CLASS__, 'take_over_akismet_menu' ), 4 );
 		remove_action( 'admin_menu', array( __CLASS__, 'admin_menu_hook_callback' ), 1000 );
 		remove_action( 'network_admin_menu', array( __CLASS__, 'admin_menu_hook_callback' ), 1000 );
 		remove_action( 'admin_menu', array( __CLASS__, 'top_level_menu_hook_callback' ), 1000 );
@@ -246,26 +264,35 @@ class Admin_Menu {
 	}
 
 	/**
-	 * Handles the Akismet menu item when used alongside other stand-alone plugins
+	 * Registers the Akismet menu item through this class, so it sorts with the rest of the Jetpack menu.
 	 *
-	 * When Jetpack plugin is present, Akismet menu item is moved under the Jetpack top level menu, but if Akismet is active alongside other stand-alone plugins,
-	 * we use this method to move the menu item.
+	 * Akismet hooks admin_menu at priority 5 and, when the Jetpack plugin is active, defers its entry to
+	 * jetpack_admin_menu, which fires before this class registers its sorted items.
 	 */
 	private static function handle_akismet_menu() {
-		if ( class_exists( 'Akismet_Admin' ) ) {
-			add_action(
-				'admin_menu',
-				function () {
-					// Prevent Akismet from adding a menu item.
-					remove_action( 'admin_menu', array( 'Akismet_Admin', 'admin_menu' ), 5 );
-
-					// Add an Anti-spam menu item for Jetpack.
-					self::add_menu( __( 'Akismet Anti-spam', 'jetpack-admin-ui' ), __( 'Akismet Anti-spam', 'jetpack-admin-ui' ), 'manage_options', 'akismet-key-config', array( 'Akismet_Admin', 'display_page' ) );
-				},
-				4
-			);
-
+		if ( ! class_exists( 'Akismet_Admin' ) ) {
+			return;
 		}
+
+		// Initialized after priority 5, as when My Jetpack is the first caller: Akismet has already deferred.
+		if ( has_action( 'jetpack_admin_menu', array( 'Akismet_Admin', 'load_menu' ) ) ) {
+			self::take_over_akismet_menu();
+		} else {
+			add_action( 'admin_menu', array( __CLASS__, 'take_over_akismet_menu' ), 4 );
+		}
+	}
+
+	/**
+	 * Stops Akismet from adding its own menu item and queues ours in its place.
+	 *
+	 * @return void
+	 */
+	public static function take_over_akismet_menu() {
+		// Older Jetpack plugins unhook Akismet's admin_menu callback themselves and rely on this item.
+		remove_action( 'admin_menu', array( 'Akismet_Admin', 'admin_menu' ), 5 );
+		remove_action( 'jetpack_admin_menu', array( 'Akismet_Admin', 'load_menu' ) );
+
+		self::add_menu( __( 'Akismet Anti-spam', 'jetpack-admin-ui' ), __( 'Akismet Anti-spam', 'jetpack-admin-ui' ), 'manage_options', 'akismet-key-config', array( 'Akismet_Admin', 'display_page' ) );
 	}
 
 	/**
@@ -413,15 +440,16 @@ class Admin_Menu {
 	 *
 	 * @since 0.13.0
 	 *
-	 * @param string        $page_title The text to be displayed in the title tags of the page when the menu
-	 *                                  is selected.
-	 * @param string        $menu_title The text to be used for the menu.
-	 * @param string        $capability The capability required for this menu to be displayed to the user.
-	 * @param string        $menu_slug  The slug name to refer to this menu by. Should be unique for this menu.
-	 * @param callable|null $function   The function to be called to output the content for this page.
-	 * @param string        $icon_url   The URL to the icon to be used for this menu, or a dashicons class.
-	 * @param int|null      $position   The position in the menu order this item should appear.
-	 * @param array         $args       Optional. Visibility declaration for this item; see add_menu().
+	 * @param string         $page_title The text to be displayed in the title tags of the page when the menu
+	 *                                   is selected.
+	 * @param string         $menu_title The text to be used for the menu.
+	 * @param string         $capability The capability required for this menu to be displayed to the user.
+	 * @param string         $menu_slug  The slug name to refer to this menu by. Should be unique for this menu.
+	 * @param callable|null  $function   The function to be called to output the content for this page.
+	 * @param string         $icon_url   The URL to the icon to be used for this menu, or a dashicons class.
+	 * @param int|float|null $position   The position in the menu order this item should appear, as
+	 *                                   add_menu_page() takes it.
+	 * @param array          $args       Optional. Visibility declaration for this item; see add_menu().
 	 *
 	 * @return string The resulting page's hook_suffix
 	 */
@@ -568,6 +596,89 @@ class Admin_Menu {
 	}
 
 	/**
+	 * Sets the callback that switches a declared gate's feature on, and the one that says whether it can.
+	 *
+	 * The activator receives a gate as returned by get_feature_gate() and returns true or a WP_Error.
+	 * The check receives the same gate and returns false where turning it on can't work, as when a host holds it off.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param callable|null $activator   Activator callback, or null to clear it.
+	 * @param callable|null $offer_check Check callback, or null to offer every gate the activator is given.
+	 * @return void
+	 */
+	public static function set_feature_activator( $activator, $offer_check = null ) {
+		self::$feature_activator   = $activator;
+		self::$feature_offer_check = $offer_check;
+	}
+
+	/**
+	 * Whether a gate's feature can be turned on here: an activator is set and its check allows it.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array $gate A gate, as returned by get_feature_gate().
+	 * @return bool
+	 */
+	public static function can_turn_feature_on( array $gate ) {
+		if ( ! is_callable( self::$feature_activator ) ) {
+			return false;
+		}
+
+		return ! is_callable( self::$feature_offer_check ) || (bool) call_user_func( self::$feature_offer_check, $gate );
+	}
+
+	/**
+	 * The gate a registered menu item declared, for pages that check their feature is still on.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $menu_slug The item's menu slug.
+	 * @return array{product?: string, module?: string}|null Null when no item has that slug or it declares no gate.
+	 */
+	public static function get_feature_gate( $menu_slug ) {
+		foreach ( array_merge( self::$menu_items, self::$top_level_items ) as $menu_item ) {
+			if ( $menu_item['menu_slug'] !== $menu_slug ) {
+				continue;
+			}
+			$gate = array_intersect_key( (array) ( $menu_item['args'] ?? array() ), array_flip( array( 'product', 'module' ) ) );
+			$gate = array_filter( $gate, 'is_string' );
+			return $gate ? $gate : null;
+		}
+		return null;
+	}
+
+	/**
+	 * Whether a gate's feature is on. Fails open like the sidebar does.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array $gate A gate, as returned by get_feature_gate().
+	 * @return bool
+	 */
+	public static function is_feature_on( array $gate ) {
+		return self::is_gate_satisfied( $gate );
+	}
+
+	/**
+	 * Switch a gate's feature on.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array $gate A gate, as returned by get_feature_gate().
+	 * @return true|\WP_Error
+	 */
+	public static function turn_feature_on( array $gate ) {
+		if ( ! is_callable( self::$feature_activator ) ) {
+			return new \WP_Error( 'no_activator', __( 'This feature can only be turned on from My Jetpack.', 'jetpack-admin-ui' ) );
+		}
+
+		$result = call_user_func( self::$feature_activator, $gate );
+
+		return is_wp_error( $result ) ? $result : true;
+	}
+
+	/**
 	 * Takes hidden items out of the sidebar before it renders.
 	 *
 	 * Runs on admin_head, after core's access check has already resolved the current page,
@@ -627,11 +738,13 @@ class Admin_Menu {
 		 *
 		 * Governs the sidebar entry only — a hidden item's page stays reachable by URL, so this
 		 * is not an access control. States: 'default' follows the item's feature, 'visible' shows it, 'hidden' removes it.
+		 * `jetpack_feature_policy` runs after this. Item keys and examples:
+		 * https://github.com/Automattic/jetpack/blob/trunk/projects/packages/admin-ui/README.md#host-control
 		 *
 		 * @since 0.12.0
 		 *
 		 * @param array $states     Map of item key (menu slug unless the item declared one) to state.
-		 * @param array $menu_items The registered menu items, for context.
+		 * @param array $menu_items The registered menu items, each with its menu_slug, capability, and args.
 		 */
 		$states = apply_filters( 'jetpack_admin_menu_visibility', $states, $items );
 

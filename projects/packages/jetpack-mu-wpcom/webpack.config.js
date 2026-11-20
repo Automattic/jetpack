@@ -77,6 +77,7 @@ module.exports = async () => {
 				'wpcom-plugins-banner': './src/features/wpcom-plugins/js/banner.js',
 				'wpcom-plugins-banner-style': './src/features/wpcom-plugins/css/banner.css',
 				'wpcom-marketplace-tab': './src/features/wpcom-plugins/js/marketplace-tab.ts',
+				'wpcom-themes-tab-tracks': './src/features/wpcom-themes/js/themes-tab-tracks-entry.ts',
 				'wpcom-profile-settings-link-to-wpcom':
 					'./src/features/wpcom-profile-settings/profile-settings-link-to-wpcom.ts',
 				'wpcom-replace-site-visibility':

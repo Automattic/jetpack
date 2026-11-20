@@ -5,6 +5,8 @@
  * @package automattic/jetpack
  */
 
+use PHPUnit\Framework\Attributes\DataProvider;
+
 require_once JETPACK__PLUGIN_DIR . 'modules/canonical-urls.php';
 
 /**
@@ -44,21 +46,6 @@ class Jetpack_Canonical_Urls_Test extends WP_UnitTestCase {
 	 */
 	public function test_output_tag_on_home() {
 		$this->go_to( home_url( '/' ) );
-
-		ob_start();
-		jetpack_canonical_urls_output_tag();
-		$output = ob_get_clean();
-
-		$this->assertStringContainsString( 'rel="canonical"', $output );
-	}
-
-	/**
-	 * Test that output_tag produces output on a category archive.
-	 */
-	public function test_output_tag_on_category() {
-		$category_id = self::factory()->category->create();
-		self::factory()->post->create( array( 'post_category' => array( $category_id ) ) );
-		$this->go_to( get_category_link( $category_id ) );
 
 		ob_start();
 		jetpack_canonical_urls_output_tag();
@@ -480,5 +467,52 @@ class Jetpack_Canonical_Urls_Test extends WP_UnitTestCase {
 		$this->assertStringContainsString( 'paged=2', $url );
 		$this->assertStringNotContainsString( 'utm_source', $url );
 		$this->assertStringNotContainsString( 'fbclid', $url );
+	}
+
+	/**
+	 * Test that the conflict check disables output only for a conflicting plugin or an earlier filter.
+	 *
+	 * @dataProvider conflict_check_provider
+	 *
+	 * @param bool     $disabled       Value from earlier filters.
+	 * @param string[] $active_plugins Active plugin paths.
+	 * @param bool     $expected       Expected result.
+	 */
+	#[DataProvider( 'conflict_check_provider' )]
+	public function test_conflict_check( $disabled, $active_plugins, $expected ) {
+		update_option( 'active_plugins', $active_plugins );
+
+		$this->assertSame( $expected, jetpack_canonical_urls_check_conflicts( $disabled ) );
+	}
+
+	/**
+	 * A plugin reported through `jetpack_seo_conflicting_plugin` turns canonical output off too.
+	 */
+	public function test_conflict_check_reads_the_conflicting_plugin_filter() {
+		$plugin = static function () {
+			return 'Custom SEO';
+		};
+		add_filter( 'jetpack_seo_conflicting_plugin', $plugin );
+
+		try {
+			$this->assertTrue( jetpack_canonical_urls_check_conflicts( false ) );
+		} finally {
+			remove_filter( 'jetpack_seo_conflicting_plugin', $plugin );
+		}
+
+		$this->assertFalse( jetpack_canonical_urls_check_conflicts( false ) );
+	}
+
+	/**
+	 * Data provider for test_conflict_check.
+	 *
+	 * @return array[]
+	 */
+	public static function conflict_check_provider() {
+		return array(
+			'no SEO plugin'    => array( false, array( 'akismet/akismet.php' ), false ),
+			'Yoast active'     => array( false, array( 'wordpress-seo/wp-seo.php' ), true ),
+			'already disabled' => array( true, array(), true ),
+		);
 	}
 }

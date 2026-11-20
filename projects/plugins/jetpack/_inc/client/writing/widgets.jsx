@@ -4,18 +4,49 @@ import { Component } from 'react';
 import { connect } from 'react-redux';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import { ModuleToggle } from 'components/module-toggle';
+import { FeaturesPointer } from 'components/pointer-card';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
-import { getModule } from 'state/modules';
-import { isModuleFound } from 'state/search';
+import {
+	WIDGET_MODULES,
+	isDeprecatedInFeatures as _isDeprecatedInFeatures,
+	isMovedOut,
+	isSwitchedInFeatures as _isSwitchedInFeatures,
+} from 'lib/settings-consolidation';
+import { getModule, isModuleActivated as _isModuleActivated } from 'state/modules';
+import { getSearchTerm, isModuleFound as _isModuleFound } from 'state/search';
 
 class Widgets extends Component {
 	render() {
-		const foundWidgets = this.props.isModuleFound( 'widgets' );
-		const foundWidgetVisibility = this.props.isModuleFound( 'widget-visibility' );
+		const { isModuleFound, isSwitchedInFeatures } = this.props,
+			isFound = module => ! isSwitchedInFeatures( module ) && isModuleFound( module ),
+			foundWidgets = isFound( 'widgets' ),
+			foundWidgetVisibility = isFound( 'widget-visibility' ),
+			pointedModules = this.props.searchTerm
+				? WIDGET_MODULES.filter(
+						module => isSwitchedInFeatures( module ) && isModuleFound( module )
+					)
+				: [];
 
+		// Features switches both or neither.
 		if ( ! foundWidgets && ! foundWidgetVisibility ) {
-			return null;
+			return pointedModules.map( module => {
+				const { name } = this.props.module( module );
+				// Features links Extra Sidebar Widgets to the Customizer only while it is on, off a block theme.
+				return (
+					<FeaturesPointer
+						key={ module }
+						header={ name }
+						name={ name }
+						search={ name }
+						linksToSettings={
+							module === 'widgets' &&
+							this.props.isModuleActivated( module ) &&
+							! this.props.isDeprecatedInFeatures( module )
+						}
+					/>
+				);
+			} );
 		}
 
 		return (
@@ -87,7 +118,13 @@ export default withModuleSettingsFormHelpers(
 			widgetVisibilityActive: ownProps.getOptionValue( 'widget-visibility' ),
 			widgetsActive: ownProps.getOptionValue( 'widgets' ),
 			widgetsModule: getModule( state, 'widgets' ),
-			isModuleFound: module_name => isModuleFound( state, module_name ),
+			module: module_name => getModule( state, module_name ),
+			isModuleFound: module_name =>
+				! isMovedOut( module_name, state ) && _isModuleFound( state, module_name ),
+			isModuleActivated: module_name => _isModuleActivated( state, module_name ),
+			isSwitchedInFeatures: module_name => _isSwitchedInFeatures( state, module_name ),
+			isDeprecatedInFeatures: module_name => _isDeprecatedInFeatures( state, module_name ),
+			searchTerm: getSearchTerm( state ),
 		};
 	} )( Widgets )
 );

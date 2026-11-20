@@ -8,15 +8,16 @@
 namespace Automattic\Jetpack\SEO;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 use ReflectionMethod;
 use WP_Post;
+use WP_REST_Request;
 
 /**
  * @covers \Automattic\Jetpack\SEO\Llms_Txt
  */
 #[CoversClass( Llms_Txt::class )]
-class LlmsTxtTest extends TestCase {
+class LlmsTxtTest extends SeoTestCase {
 
 	/**
 	 * Posts created by this test.
@@ -26,6 +27,13 @@ class LlmsTxtTest extends TestCase {
 	private $post_ids = array();
 
 	/**
+	 * Site title before the test.
+	 *
+	 * @var string
+	 */
+	private $blogname = '';
+
+	/**
 	 * Reset the enable option before each test.
 	 *
 	 * @return void
@@ -33,6 +41,8 @@ class LlmsTxtTest extends TestCase {
 	protected function setUp(): void {
 		parent::setUp();
 		delete_option( Llms_Txt::OPTION );
+		Llms_Txt::clear_cache();
+		$this->blogname = get_option( 'blogname' );
 	}
 
 	/**
@@ -49,6 +59,16 @@ class LlmsTxtTest extends TestCase {
 		if ( post_type_exists( 'seo_book' ) ) {
 			unregister_post_type( 'seo_book' );
 		}
+
+		foreach ( wp_get_nav_menus() as $menu ) {
+			wp_delete_nav_menu( $menu->term_id );
+		}
+		$category = get_term_by( 'name', 'Listed Category', 'category' );
+		if ( $category ) {
+			wp_delete_term( $category->term_id, 'category' );
+		}
+		update_option( 'blogname', $this->blogname );
+		Llms_Txt::clear_cache();
 
 		parent::tearDown();
 	}
@@ -86,6 +106,66 @@ class LlmsTxtTest extends TestCase {
 	}
 
 	/**
+	 * WordPress stores the site name and tagline escaped; plain text needs the characters.
+	 *
+	 * @return void
+	 */
+	public function test_generate_decodes_site_identity() {
+		update_option( 'blogname', "Tom's & Jerry's" );
+		update_option( 'blogdescription', 'Cats & dogs' );
+
+		$this->assertStringStartsWith( "# Tom's & Jerry's\n\n> Cats & dogs\n", Llms_Txt::generate() );
+	}
+
+	/**
+	 * A theme or plugin can add to the served text; a callback that returns nothing leaves it as is.
+	 *
+	 * @dataProvider provide_text_filters
+	 *
+	 * @param callable $filter Callback for `jetpack_seo_llms_txt`.
+	 * @param string   $added  What the served text gains.
+	 * @return void
+	 */
+	#[DataProvider( 'provide_text_filters' )]
+	public function test_text_filter( $filter, $added ) {
+		$unfiltered = Llms_Txt::generate();
+		add_filter( 'jetpack_seo_llms_txt', $filter );
+		try {
+			$this->assertSame( $unfiltered . $added, Llms_Txt::get_stored() );
+		} finally {
+			remove_filter( 'jetpack_seo_llms_txt', $filter );
+		}
+	}
+
+	/**
+	 * Filter callbacks and what each adds to the served text.
+	 *
+	 * @return array
+	 */
+	public static function provide_text_filters() {
+		$section = "\n## AI agents\n\n- [MCP server](https://example.com/mcp)\n";
+
+		return array(
+			'adds a section'          => array(
+				static function ( $text ) use ( $section ) {
+					return $text . $section;
+				},
+				$section,
+			),
+			'returns nothing'         => array(
+				static function () {},
+				'',
+			),
+			'returns an empty string' => array(
+				static function () {
+					return '';
+				},
+				'',
+			),
+		);
+	}
+
+	/**
 	 * With no published content, the Pages/Posts sections are omitted (only the
 	 * site-identity heading remains). The populated-list path is exercised by the
 	 * live front-end test — the package test environment can't query inserted
@@ -111,6 +191,193 @@ class LlmsTxtTest extends TestCase {
 	 */
 	public function test_can_serve_true_by_default() {
 		$this->assertTrue( Llms_Txt::can_serve() );
+	}
+
+	public function test_competing_plugin_prevents_llms_txt_serving() {
+		$original_uri           = $_SERVER['REQUEST_URI'] ?? null;
+		$original_public        = get_option( 'blog_public' );
+		$_SERVER['REQUEST_URI'] = '/llms.txt';
+		update_option( Llms_Txt::OPTION, true );
+		update_option( 'blog_public', 1 );
+		add_filter( 'jetpack_disable_seo_tools', '__return_true' );
+		try {
+			$this->assertFalse( Llms_Txt::can_serve() );
+			$this->expectOutputString( '' );
+			Llms_Txt::maybe_serve();
+		} finally {
+			remove_filter( 'jetpack_disable_seo_tools', '__return_true' );
+			update_option( 'blog_public', $original_public );
+			if ( null === $original_uri ) {
+				unset( $_SERVER['REQUEST_URI'] );
+			} else {
+				$_SERVER['REQUEST_URI'] = $original_uri;
+			}
+		}
+	}
+
+	/**
+	 * Core's redirects leave the virtual document for the unchanged serving hook.
+	 *
+	 * @dataProvider provide_post_redirects
+	 * @param string $redirect Core redirect to exercise.
+	 */
+	#[DataProvider( 'provide_post_redirects' )]
+	public function test_post_redirects_leave_llms_txt_for_its_handler( $redirect ) {
+		global $wp_filter, $wp_query, $wp_rewrite;
+
+		$original_query     = $wp_query;
+		$original_uri       = $_SERVER['REQUEST_URI'] ?? null;
+		$original_method    = $_SERVER['REQUEST_METHOD'] ?? null;
+		$original_public    = get_option( 'blog_public' );
+		$original_permalink = get_option( 'permalink_structure' );
+		$original_hooks     = array();
+		foreach ( array( 'template_redirect', 'redirect_canonical', 'old_slug_redirect_url', 'wp_redirect' ) as $hook ) {
+			$original_hooks[ $hook ] = isset( $wp_filter[ $hook ] ) ? clone $wp_filter[ $hook ] : null;
+		}
+
+		try {
+			update_option( Llms_Txt::OPTION, true );
+			update_option( 'blog_public', 1 );
+			$wp_rewrite->set_permalink_structure( '/%postname%/' );
+			$post_id          = wp_insert_post(
+				array(
+					'post_title'  => 'llms.txt explained',
+					'post_name'   => 'llms-txt',
+					'post_status' => 'publish',
+				)
+			);
+			$this->post_ids[] = $post_id;
+			wp_update_post(
+				array(
+					'ID'        => $post_id,
+					'post_name' => 'canonical' === $redirect ? 'llms-txt-explained' : 'renamed-guide',
+				)
+			);
+			$this->assertSame( array( 'llms-txt' ), get_post_meta( $post_id, '_wp_old_slug', false ) );
+
+			$_SERVER['REQUEST_URI']    = '/llms.txt';
+			$_SERVER['REQUEST_METHOD'] = 'GET';
+			$wp_query                  = new \WP_Query();
+			$wp_query->is_404          = true;
+			$wp_query->query_vars      = array( 'name' => 'llms-txt' );
+			Llms_Txt::init();
+			Llms_Txt::register_redirect_filters();
+
+			if ( 'canonical' === $redirect ) {
+				$this->assertSame( get_permalink( $post_id ), redirect_guess_404_permalink() );
+				$this->assertNull( redirect_canonical( home_url( '/llms.txt' ), false ) );
+			} else {
+				$proposed = array();
+				add_filter(
+					'old_slug_redirect_url',
+					static function ( $url ) use ( &$proposed ) {
+						$proposed[] = $url;
+						return $url;
+					},
+					9
+				);
+				add_filter(
+					'wp_redirect',
+					static function ( $url ) {
+						throw new \UnexpectedValueException( 'Unexpected post redirect: ' . $url );
+					}
+				);
+				wp_old_slug_redirect();
+				$this->assertSame( array( get_permalink( $post_id ) ), $proposed );
+			}
+		} finally {
+			$wp_query = $original_query;
+			$wp_rewrite->set_permalink_structure( $original_permalink );
+			update_option( 'blog_public', $original_public );
+			foreach ( array(
+				'REQUEST_URI'    => $original_uri,
+				'REQUEST_METHOD' => $original_method,
+			) as $key => $value ) {
+				if ( null === $value ) {
+					unset( $_SERVER[ $key ] );
+				} else {
+					$_SERVER[ $key ] = $value;
+				}
+			}
+			foreach ( $original_hooks as $hook => $value ) {
+				if ( null === $value ) {
+					unset( $wp_filter[ $hook ] );
+				} else {
+					$wp_filter[ $hook ] = $value;
+				}
+			}
+		}
+	}
+
+	/**
+	 * @return array Core post redirect paths.
+	 */
+	public static function provide_post_redirects() {
+		return array(
+			'canonical guess' => array( 'canonical' ),
+			'old slug'        => array( 'old-slug' ),
+		);
+	}
+
+	/**
+	 * Only the normalized document path suppresses post redirects, without reading settings.
+	 *
+	 * @dataProvider provide_redirect_requests
+	 * @param string       $state Request condition.
+	 * @param string       $uri Request URI.
+	 * @param string|false $expected Expected redirect destination.
+	 */
+	#[DataProvider( 'provide_redirect_requests' )]
+	public function test_post_redirect_depends_only_on_path( $state, $uri, $expected ) {
+		$original_uri    = $_SERVER['REQUEST_URI'] ?? null;
+		$original_public = get_option( 'blog_public' );
+		$conflict        = static function ( $paused ) use ( $state ) {
+			return 'conflict' === $state || $paused;
+		};
+		$host            = static function ( $allowed ) use ( $state ) {
+			return 'host restriction' !== $state && $allowed;
+		};
+		$unexpected      = static function () {
+			throw new \UnexpectedValueException( 'Redirect protection read llms.txt settings.' );
+		};
+
+		$_SERVER['REQUEST_URI'] = $uri;
+		update_option( Llms_Txt::OPTION, 'disabled' !== $state );
+		update_option( 'blog_public', 'discouraged' === $state ? 0 : 1 );
+		add_filter( 'jetpack_disable_seo_tools', $conflict );
+		add_filter( 'jetpack_seo_llms_txt_can_serve', $host );
+		add_filter( 'pre_option_' . Llms_Txt::OPTION, $unexpected );
+
+		try {
+			$this->assertSame( $expected, Llms_Txt::preserve_llms_txt_request( 'https://example.org/guide/' ) );
+		} finally {
+			remove_filter( 'jetpack_disable_seo_tools', $conflict );
+			remove_filter( 'jetpack_seo_llms_txt_can_serve', $host );
+			remove_filter( 'pre_option_' . Llms_Txt::OPTION, $unexpected );
+			update_option( 'blog_public', $original_public );
+			if ( null === $original_uri ) {
+				unset( $_SERVER['REQUEST_URI'] );
+			} else {
+				$_SERVER['REQUEST_URI'] = $original_uri;
+			}
+		}
+	}
+
+	/**
+	 * @return array Request conditions and their expected redirect destinations.
+	 */
+	public static function provide_redirect_requests() {
+		return array(
+			'disabled'         => array( 'disabled', '/llms.txt', false ),
+			'conflict'         => array( 'conflict', '/llms.txt', false ),
+			'host restriction' => array( 'host restriction', '/llms.txt', false ),
+			'discouraged'      => array( 'discouraged', '/llms.txt', false ),
+			'query string'     => array( 'enabled', '/llms.txt?check=1', false ),
+			'trailing slash'   => array( 'enabled', '/llms.txt/', false ),
+			'unrelated path'   => array( 'enabled', '/guide/', 'https://example.org/guide/' ),
+			'nested path'      => array( 'enabled', '/nested/llms.txt', 'https://example.org/guide/' ),
+			'similar slug'     => array( 'enabled', '/llms-txt', 'https://example.org/guide/' ),
+		);
 	}
 
 	/**
@@ -252,7 +519,7 @@ class LlmsTxtTest extends TestCase {
 		register_post_type(
 			'seo_book',
 			array(
-				'label'        => 'Books',
+				'label'        => 'Books &amp; Zines',
 				'public'       => true,
 				'show_ui'      => true,
 				'show_in_rest' => true,
@@ -268,9 +535,43 @@ class LlmsTxtTest extends TestCase {
 
 		$output = Llms_Txt::generate();
 
-		$this->assertStringContainsString( "## Books\n\n", $output );
+		$this->assertStringContainsString( "## Books & Zines\n\n", $output );
 		$this->assertStringContainsString( 'Practical Schema', $output );
 		$this->assertStringContainsString( 'A concise guide to schema markup.', $output );
+	}
+
+	/**
+	 * Link lines hold characters rather than HTML entities, and still parse as one link.
+	 *
+	 * @dataProvider provide_entity_link_lines
+	 *
+	 * @param array  $fields   Post fields.
+	 * @param string $expected Text the link line must contain.
+	 * @return void
+	 */
+	#[DataProvider( 'provide_entity_link_lines' )]
+	public function test_link_list_decodes_entities( array $fields, string $expected ) {
+		$output = $this->link_list( array( $this->insert_post( $fields ) ) );
+
+		$this->assertStringContainsString( $expected, $output );
+		$this->assertStringNotContainsString( "\n", $output );
+	}
+
+	/**
+	 * Post fields and the text each must render as.
+	 *
+	 * @return array
+	 */
+	public static function provide_entity_link_lines() {
+		return array(
+			'texturized apostrophe' => array( array( 'post_title' => "What's New" ), "- [What\u{2019}s New](" ),
+			'ampersand in title'    => array( array( 'post_title' => 'Tips & Tricks' ), '- [Tips & Tricks](' ),
+			'named apostrophe'      => array( array( 'post_excerpt' => 'It&apos;s here' ), ": It's here" ),
+			'encoded brackets'      => array( array( 'post_title' => 'Notes &#91;draft&#93;' ), '- [Notes \[draft\]](' ),
+			'encoded newline'       => array( array( 'post_title' => 'One&#10;Two' ), '- [One Two](' ),
+			'encoded return'        => array( array( 'post_title' => 'One&#13;Two' ), '- [One Two](' ),
+			'ampersand in summary'  => array( array( 'post_excerpt' => 'Salt &amp; pepper' ), ': Salt & pepper' ),
+		);
 	}
 
 	/**
@@ -389,5 +690,676 @@ class LlmsTxtTest extends TestCase {
 		update_post_meta( $post->ID, '_jetpack_memberships_contains_paid_content', '1' );
 
 		$this->assertSame( 'Public summary.', $this->summary( $post ) );
+	}
+
+	/**
+	 * A custom SEO description is the summary whenever one is set.
+	 *
+	 * @dataProvider provide_seo_description_summaries
+	 *
+	 * @param string $description Stored SEO description.
+	 * @param array  $fields      Post fields.
+	 * @param string $expected    Expected summary.
+	 * @return void
+	 */
+	#[DataProvider( 'provide_seo_description_summaries' )]
+	public function test_summary_prefers_seo_description( string $description, array $fields, string $expected ) {
+		$post = $this->insert_post( $fields );
+		update_post_meta( $post->ID, Content_Coverage::META_DESCRIPTION, wp_slash( $description ) );
+
+		$this->assertSame( $expected, $this->summary( $post ) );
+	}
+
+	/**
+	 * @return array<string, array{string, array<string, string>, string}>
+	 */
+	public static function provide_seo_description_summaries(): array {
+		return array(
+			'ahead of a manual excerpt' => array(
+				'SEO summary.',
+				array(
+					'post_content' => 'Body text.',
+					'post_excerpt' => 'Manual excerpt.',
+				),
+				'SEO summary.',
+			),
+			'kept on a gated post'      => array(
+				'SEO summary.',
+				array( 'post_content' => '<!-- wp:jetpack/paywall -->Paid body text.<!-- /wp:jetpack/paywall -->' ),
+				'SEO summary.',
+			),
+			'cleaned to a single line'  => array(
+				"<b>First line</b>\n\n[gallery]second line.",
+				array( 'post_content' => 'Body text.' ),
+				'First line second line.',
+			),
+			'capped like the meta tag'  => array(
+				str_repeat( 'word ', 60 ),
+				array( 'post_content' => 'Body text.' ),
+				trim( str_repeat( 'word ', 55 ) ),
+			),
+			'skipped when blank'        => array(
+				'   ',
+				array( 'post_excerpt' => 'Manual excerpt.' ),
+				'Manual excerpt.',
+			),
+		);
+	}
+
+	/**
+	 * Pages list the main menu first, then other displayed menus, then pages with an Order
+	 * set ahead of untouched ones, up to the per-type limit.
+	 *
+	 * @return void
+	 */
+	public function test_pages_rank_main_menu_then_other_menus_then_title() {
+		for ( $i = 1; $i <= 50; $i++ ) {
+			$this->insert_page( sprintf( 'Page %02d', $i ), 51 - $i );
+		}
+		$this->insert_page( 'Aa Untouched' );
+		$scan    = $this->insert_page( 'Zz Scan' );
+		$privacy = $this->insert_page( 'Zy Privacy' );
+		$this->add_nav_menu( array( $scan->ID ), 'primary' );
+		$this->add_nav_menu( array( $privacy->ID ), 'footer' );
+
+		$expected = array( 'Zz Scan', 'Zy Privacy' );
+		for ( $i = 50; $i >= 3; $i-- ) {
+			$expected[] = sprintf( 'Page %02d', $i );
+		}
+		$this->assertSame( $expected, $this->page_titles() );
+	}
+
+	/**
+	 * Pages the owner always includes come first, once, ahead of the main menu; hiding a
+	 * page from search engines still leaves it out.
+	 *
+	 * @return void
+	 */
+	public function test_included_pages_come_first_unless_hidden_from_search() {
+		for ( $i = 1; $i <= 50; $i++ ) {
+			$this->insert_page( sprintf( 'Page %02d', $i ) );
+		}
+		$scan            = $this->insert_page( 'Zz Scan' );
+		$in_menu         = $this->insert_page( 'Zx Included' );
+		$always_included = $this->insert_page( 'Zw Included' );
+		$hidden          = $this->insert_page( 'Zv Hidden' );
+		foreach ( array( $in_menu, $always_included, $hidden ) as $page ) {
+			update_post_meta( $page->ID, Llms_Txt::META_ALWAYS_INCLUDE, '1' );
+		}
+		update_post_meta( $hidden->ID, Content_Coverage::META_NOINDEX, '1' );
+		$this->add_nav_menu( array( $scan->ID, $in_menu->ID ), 'primary' );
+
+		$expected = array( 'Zw Included', 'Zx Included', 'Zz Scan' );
+		for ( $i = 1; $i <= 47; $i++ ) {
+			$expected[] = sprintf( 'Page %02d', $i );
+		}
+		$this->assertSame( $expected, $this->page_titles() );
+	}
+
+	/**
+	 * @dataProvider provide_non_page_types
+	 * @param string $post_type Post type slug.
+	 * @param int    $included_count Number of pinned items.
+	 */
+	#[DataProvider( 'provide_non_page_types' )]
+	public function test_included_posts_precede_recent_content_and_bypass_the_limit( $post_type, $included_count ) {
+		$this->register_book_type();
+		$included = array();
+		for ( $i = 0; $i < $included_count; $i++ ) {
+			$post       = $this->insert_post(
+				array(
+					'post_type' => $post_type,
+					'post_date' => '2001-01-01 00:00:00',
+				)
+			);
+			$included[] = $post->ID;
+			update_post_meta( $post->ID, Llms_Txt::META_ALWAYS_INCLUDE, '1' );
+		}
+		for ( $i = 0; $i <= Llms_Txt::MAX_POSTS_PER_TYPE; $i++ ) {
+			$this->insert_post(
+				array(
+					'post_type' => $post_type,
+					'post_date' => '2026-01-01 00:00:00',
+				)
+			);
+		}
+		foreach ( array( array( 'post_status' => 'draft' ), array( 'post_password' => 'secret' ), array() ) as $fields ) {
+			$hidden = $this->insert_post( array_merge( array( 'post_type' => $post_type ), $fields ) );
+			update_post_meta( $hidden->ID, Llms_Txt::META_ALWAYS_INCLUDE, '1' );
+			if ( empty( $fields ) ) {
+				update_post_meta( $hidden->ID, Content_Coverage::META_NOINDEX, '1' );
+			}
+		}
+
+		$posts = $this->invoke_private( Llms_Txt::class, 'get_posts_for_type', $post_type );
+		$ids   = wp_list_pluck( $posts, 'ID' );
+		$this->assertCount( max( Llms_Txt::MAX_POSTS_PER_TYPE, $included_count ), $ids );
+		$this->assertCount( $included_count, array_intersect( $included, array_slice( $ids, 0, $included_count ) ) );
+		$this->assertSameSize( $ids, array_unique( $ids ) );
+	}
+
+	/**
+	 * @return array
+	 */
+	public static function provide_non_page_types(): array {
+		return array(
+			'posts'             => array( 'post', 2 ),
+			'custom posts'      => array( 'seo_book', 2 ),
+			'posts past limit'  => array( 'post', 51 ),
+			'custom past limit' => array( 'seo_book', 51 ),
+		);
+	}
+
+	/**
+	 * @return void
+	 */
+	private function register_book_type() {
+		register_post_type(
+			'seo_book',
+			array(
+				'public'       => true,
+				'show_in_rest' => true,
+				'rest_base'    => 'seo-books',
+				'supports'     => array( 'title', 'editor', 'custom-fields' ),
+			)
+		);
+	}
+
+	/**
+	 * Hiding supported content from search engines switches "Always include" off.
+	 *
+	 * @dataProvider provide_supported_types
+	 * @param string $post_type Post type slug.
+	 * @return void
+	 */
+	#[DataProvider( 'provide_supported_types' )]
+	public function test_hiding_content_switches_always_include_off( $post_type ) {
+		$this->register_book_type();
+		$page = $this->insert_post( array( 'post_type' => $post_type ) );
+		update_post_meta( $page->ID, Llms_Txt::META_ALWAYS_INCLUDE, '1' );
+
+		$this->with_write_hooks(
+			static function () use ( $page ) {
+				update_post_meta( $page->ID, Content_Coverage::META_NOINDEX, '1' );
+			}
+		);
+
+		$this->assertFalse( metadata_exists( 'post', $page->ID, Llms_Txt::META_ALWAYS_INCLUDE ) );
+	}
+
+	/**
+	 * REST save results must not depend on metadata registration order.
+	 *
+	 * @param array[] $saves    Meta for each REST save, in order.
+	 * @param bool    $expected Whether "Always include" is on after the last save.
+	 * @param string  $post_type Post type slug.
+	 * @param bool    $include_first Whether inclusion is registered before noindex.
+	 * @return void
+	 * @dataProvider provide_rest_saves
+	 */
+	#[DataProvider( 'provide_rest_saves' )]
+	public function test_rest_saves_only_turn_always_include_on_for_visible_content( array $saves, bool $expected, $post_type, bool $include_first ) {
+		$this->register_book_type();
+		$page    = $this->insert_post( array( 'post_type' => $post_type ) );
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'llms_txt_admin',
+				'user_pass'  => 'pass',
+				'role'       => 'administrator',
+			)
+		);
+		$this->assertIsInt( $user_id );
+		wp_set_current_user( $user_id );
+		unregister_meta_key( 'post', Content_Coverage::META_NOINDEX );
+		unregister_meta_key( 'post', Llms_Txt::META_ALWAYS_INCLUDE );
+
+		$responses = array();
+		try {
+			$this->with_write_hooks(
+				static function () use ( $page, $saves, &$responses, $post_type, $include_first ) {
+					if ( ! $include_first ) {
+						unregister_meta_key( 'post', Llms_Txt::META_ALWAYS_INCLUDE );
+					}
+					register_meta(
+						'post',
+						Content_Coverage::META_NOINDEX,
+						array(
+							'type'         => 'boolean',
+							'single'       => true,
+							'show_in_rest' => true,
+						)
+					);
+					if ( ! $include_first ) {
+						Llms_Txt::register_always_include();
+					}
+					foreach ( $saves as $meta ) {
+						$request = new WP_REST_Request( 'POST', '/wp/v2/' . get_post_type_object( $post_type )->rest_base . '/' . $page->ID );
+						$request->set_body_params( array( 'meta' => $meta ) );
+						$responses[] = rest_do_request( $request );
+					}
+				}
+			);
+		} finally {
+			unregister_meta_key( 'post', Content_Coverage::META_NOINDEX );
+			unregister_meta_key( 'post', Llms_Txt::META_ALWAYS_INCLUDE );
+			$GLOBALS['wp_rest_server'] = null;
+			wp_set_current_user( 0 );
+			wp_delete_user( $user_id );
+		}
+
+		foreach ( $responses as $response ) {
+			$this->assertSame( 200, $response->get_status() );
+		}
+		$this->assertSame( $expected, end( $responses )->get_data()['meta'][ Llms_Txt::META_ALWAYS_INCLUDE ] );
+	}
+
+	/**
+	 * REST saves, and whether "Always include" ends up on.
+	 *
+	 * @return array<string, array{array[], bool, string, bool}>
+	 */
+	public static function provide_rest_saves(): array {
+		$saves               = array(
+			'hide and include together, then un-hide' => array(
+				array(
+					array(
+						Llms_Txt::META_ALWAYS_INCLUDE  => true,
+						Content_Coverage::META_NOINDEX => true,
+					),
+					array( Content_Coverage::META_NOINDEX => false ),
+				),
+				false,
+			),
+			'un-hide and include together'            => array(
+				array(
+					array( Content_Coverage::META_NOINDEX => true ),
+					array(
+						Content_Coverage::META_NOINDEX => false,
+						Llms_Txt::META_ALWAYS_INCLUDE  => true,
+					),
+				),
+				true,
+			),
+		);
+		$registration_orders = array(
+			'noindex first'   => false,
+			'inclusion first' => true,
+		);
+		$cases               = array();
+		foreach ( array( 'page', 'post', 'seo_book' ) as $post_type ) {
+			foreach ( $saves as $name => $case ) {
+				foreach ( $registration_orders as $order => $include_first ) {
+					$cases[ $post_type . ': ' . $name . ', ' . $order ] = array_merge( $case, array( $post_type, $include_first ) );
+				}
+			}
+		}
+		return $cases;
+	}
+
+	/**
+	 * @return array
+	 */
+	public static function provide_supported_types(): array {
+		return array(
+			'page'   => array( 'page' ),
+			'post'   => array( 'post' ),
+			'custom' => array( 'seo_book' ),
+		);
+	}
+
+	/**
+	 * Main-menu pages fill only what's left of the per-type limit after always-included pages.
+	 *
+	 * @return void
+	 */
+	public function test_main_menu_pages_fill_the_limit_after_included_pages() {
+		$included = $this->insert_page( 'Zz Included' );
+		update_post_meta( $included->ID, Llms_Txt::META_ALWAYS_INCLUDE, '1' );
+		$this->insert_page( 'Aa Extra' );
+		$ids      = array();
+		$expected = array( 'Zz Included' );
+		for ( $i = 1; $i <= Llms_Txt::MAX_POSTS_PER_TYPE; $i++ ) {
+			$expected[] = sprintf( 'Menu %02d', $i );
+			$ids[]      = $this->insert_page( end( $expected ) )->ID;
+		}
+		$this->add_nav_menu( $ids, 'primary' );
+		array_pop( $expected );
+
+		$this->assertSame( $expected, $this->page_titles() );
+	}
+
+	/**
+	 * @dataProvider provide_filtered_limits
+	 * @param string     $post_type Post type the filter changes.
+	 * @param int|string $limit     Limit the filter returns for it.
+	 */
+	#[DataProvider( 'provide_filtered_limits' )]
+	public function test_limit_filter_changes_only_its_post_type( $post_type, $limit ) {
+		$this->register_book_type();
+		$types = array( 'page', 'post', 'seo_book' );
+		foreach ( $types as $type ) {
+			for ( $i = 0; $i < 5; $i++ ) {
+				$this->insert_post( array( 'post_type' => $type ) );
+			}
+		}
+		$filter = static function ( $max, $type ) use ( $post_type, $limit ) {
+			return $type === $post_type ? $limit : $max;
+		};
+		add_filter( 'jetpack_seo_llms_txt_items_per_type', $filter, 10, 2 );
+
+		$counts = array();
+		try {
+			foreach ( $types as $type ) {
+				$counts[ $type ] = count( $this->invoke_private( Llms_Txt::class, 'get_posts_for_type', $type ) );
+			}
+		} finally {
+			remove_filter( 'jetpack_seo_llms_txt_items_per_type', $filter, 10 );
+		}
+
+		$expected               = array_fill_keys( $types, 5 );
+		$expected[ $post_type ] = (int) $limit;
+		$this->assertSame( $expected, $counts );
+	}
+
+	/**
+	 * @return array
+	 */
+	public static function provide_filtered_limits(): array {
+		return array(
+			'pages'                 => array( 'page', 3 ),
+			'posts'                 => array( 'post', 3 ),
+			'custom posts'          => array( 'seo_book', 3 ),
+			'pages at zero'         => array( 'page', 0 ),
+			'posts as numeric text' => array( 'post', '3' ),
+		);
+	}
+
+	/**
+	 * @dataProvider provide_invalid_limits
+	 * @param mixed $limit Value the filter returns.
+	 */
+	#[DataProvider( 'provide_invalid_limits' )]
+	public function test_invalid_filtered_limit_keeps_the_default( $limit ) {
+		for ( $i = 0; $i <= Llms_Txt::MAX_POSTS_PER_TYPE; $i++ ) {
+			$this->insert_post( array() );
+		}
+		$filter = static function () use ( $limit ) {
+			return $limit;
+		};
+		add_filter( 'jetpack_seo_llms_txt_items_per_type', $filter );
+		try {
+			$posts = $this->invoke_private( Llms_Txt::class, 'get_posts_for_type', 'post' );
+		} finally {
+			remove_filter( 'jetpack_seo_llms_txt_items_per_type', $filter );
+		}
+
+		$this->assertCount( Llms_Txt::MAX_POSTS_PER_TYPE, $posts );
+	}
+
+	/**
+	 * @return array
+	 */
+	public static function provide_invalid_limits(): array {
+		return array(
+			'negative' => array( -1 ),
+			'text'     => array( 'many' ),
+			'null'     => array( null ),
+		);
+	}
+
+	/**
+	 * Menu pages that aren't published, are password protected or are hidden from search
+	 * engines stay out, like any other page.
+	 *
+	 * @return void
+	 */
+	public function test_hidden_menu_pages_stay_out() {
+		$draft   = $this->insert_post(
+			array(
+				'post_type'   => 'page',
+				'post_title'  => 'Draft',
+				'post_status' => 'draft',
+			)
+		);
+		$locked  = $this->insert_post(
+			array(
+				'post_type'     => 'page',
+				'post_title'    => 'Locked',
+				'post_password' => 'hunter2',
+			)
+		);
+		$noindex = $this->insert_page( 'Noindex' );
+		update_post_meta( $noindex->ID, Content_Coverage::META_NOINDEX, '1' );
+		$shown = $this->insert_page( 'Shown' );
+		$this->add_nav_menu( array( $draft->ID, $locked->ID, $noindex->ID, $shown->ID ), 'primary' );
+
+		$this->assertSame( array( 'Shown' ), $this->page_titles() );
+	}
+
+	/**
+	 * Run a callback with the write hooks attached, keeping them out of the rest of the suite.
+	 *
+	 * @param callable $callback Code to run.
+	 * @return void
+	 */
+	private function with_write_hooks( callable $callback ) {
+		$hooks = array_map(
+			static function ( $hook ) {
+				return clone $hook;
+			},
+			$GLOBALS['wp_filter']
+		);
+		try {
+			Llms_Txt::register_always_include();
+			Llms_Txt::register_invalidation();
+			$callback();
+		} finally {
+			$GLOBALS['wp_filter'] = $hooks; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		}
+	}
+
+	/**
+	 * Insert and track a published page.
+	 *
+	 * @param string $title      Page title.
+	 * @param int    $menu_order Page order.
+	 * @return WP_Post
+	 */
+	private function insert_page( $title, $menu_order = 0 ): WP_Post {
+		return $this->insert_post(
+			array(
+				'post_type'  => 'page',
+				'post_title' => $title,
+				'menu_order' => $menu_order,
+			)
+		);
+	}
+
+	/**
+	 * Titles listed in the generated Pages section, in order.
+	 *
+	 * @return string[]
+	 */
+	private function page_titles(): array {
+		preg_match( '/^## Pages\n\n(.*?)(?:\n\n## |\n\z)/ms', Llms_Txt::generate(), $section );
+		preg_match_all( '/^- \[(.+?)\]/m', $section[1] ?? '', $titles );
+		return $titles[1];
+	}
+
+	/**
+	 * A stored llms.txt is served as is; without one, the file is built and stored.
+	 *
+	 * @return void
+	 */
+	public function test_stored_copy_is_served_without_rebuilding() {
+		set_transient( Llms_Txt::CACHE_KEY, 'stored body', HOUR_IN_SECONDS );
+		$this->assertSame( 'stored body', Llms_Txt::get_stored() );
+
+		Llms_Txt::clear_cache();
+		update_option( 'blogname', 'Built Title' );
+		$built = Llms_Txt::get_stored();
+		$this->assertStringStartsWith( '# Built Title', $built );
+		$this->assertSame( $built, get_transient( Llms_Txt::CACHE_KEY ) );
+	}
+
+	/**
+	 * Changes to what llms.txt lists clear the stored copy; the editor's own bookkeeping doesn't.
+	 *
+	 * @dataProvider provide_changes
+	 *
+	 * @param callable $change Makes the change, given a published page's ID.
+	 * @param bool     $clears Whether the stored copy should be cleared.
+	 * @return void
+	 */
+	#[DataProvider( 'provide_changes' )]
+	public function test_changes_clear_the_stored_copy( $change, $clears ) {
+		update_option( Llms_Txt::OPTION, true );
+		$page = $this->insert_post(
+			array(
+				'post_type'  => 'page',
+				'post_title' => 'Existing Page',
+			)
+		);
+		set_transient( Llms_Txt::CACHE_KEY, 'stored', HOUR_IN_SECONDS );
+
+		$this->with_write_hooks(
+			static function () use ( $change, $page ) {
+				$change( $page->ID );
+			}
+		);
+
+		$this->assertSame( $clears ? false : 'stored', get_transient( Llms_Txt::CACHE_KEY ) );
+	}
+
+	/**
+	 * Changes and whether each clears the stored llms.txt.
+	 *
+	 * @return array
+	 */
+	public static function provide_changes() {
+		return array(
+			'page edited'              => array(
+				static function ( $page_id ) {
+					wp_update_post(
+						array(
+							'ID'         => $page_id,
+							'post_title' => 'Renamed Page',
+						)
+					);
+				},
+				true,
+			),
+			'page deleted permanently' => array(
+				static function ( $page_id ) {
+					wp_delete_post( $page_id, true );
+				},
+				true,
+			),
+			'page hidden from search'  => array(
+				static function ( $page_id ) {
+					update_post_meta( $page_id, Content_Coverage::META_NOINDEX, '1' );
+				},
+				true,
+			),
+			'site title changed'       => array(
+				static function () {
+					update_option( 'blogname', 'Renamed Site' );
+				},
+				true,
+			),
+			'llms.txt turned off'      => array(
+				static function () {
+					update_option( Llms_Txt::OPTION, false );
+				},
+				true,
+			),
+			'classic menu saved'       => array(
+				static function () {
+					wp_create_nav_menu( 'Main' );
+				},
+				true,
+			),
+			'oEmbed cache saved'       => array(
+				static function () {
+					wp_insert_post(
+						array(
+							'post_type'   => 'oembed_cache',
+							'post_status' => 'publish',
+							'post_title'  => 'Embed',
+						)
+					);
+				},
+				false,
+			),
+			'category renamed'         => array(
+				static function () {
+					$term = wp_insert_term( 'Listed Category', 'category' );
+					wp_update_term( $term['term_id'], 'category', array( 'slug' => 'renamed-category' ) );
+				},
+				true,
+			),
+			'editor lock refreshed'    => array(
+				static function ( $page_id ) {
+					update_post_meta( $page_id, '_edit_lock', time() . ':1' );
+				},
+				false,
+			),
+		);
+	}
+
+	/**
+	 * Clearing tells hosts to purge cached copies only when a stored copy existed.
+	 *
+	 * @return void
+	 */
+	public function test_clearing_announces_only_when_a_copy_was_stored() {
+		$before = did_action( 'jetpack_seo_llms_txt_cleared' );
+		Llms_Txt::clear_cache();
+		$this->assertSame( $before, did_action( 'jetpack_seo_llms_txt_cleared' ) );
+
+		set_transient( Llms_Txt::CACHE_KEY, 'stored', HOUR_IN_SECONDS );
+		Llms_Txt::clear_cache();
+		$this->assertSame( $before + 1, did_action( 'jetpack_seo_llms_txt_cleared' ) );
+	}
+
+	/**
+	 * Theme changes clear the stored copy for the theme active when they're saved, not when the
+	 * hooks were registered: WordPress.com API requests register them before switching sites.
+	 *
+	 * @return void
+	 */
+	public function test_theme_mods_clear_the_stored_copy_for_the_theme_active_when_saved() {
+		set_transient( Llms_Txt::CACHE_KEY, 'stored', HOUR_IN_SECONDS );
+		$api_host_theme = static function () {
+			return 'api-host-theme';
+		};
+		add_filter( 'stylesheet', $api_host_theme );
+		try {
+			$this->with_write_hooks(
+				static function () use ( $api_host_theme ) {
+					remove_filter( 'stylesheet', $api_host_theme );
+					set_theme_mod( 'llms_txt_test', 'changed' );
+				}
+			);
+		} finally {
+			remove_filter( 'stylesheet', $api_host_theme );
+			remove_theme_mod( 'llms_txt_test' );
+		}
+		$this->assertFalse( get_transient( Llms_Txt::CACHE_KEY ) );
+	}
+
+	/**
+	 * Turning llms.txt on tells hosts to purge cached copies even when nothing is stored here.
+	 *
+	 * @return void
+	 */
+	public function test_turning_llms_txt_on_announces_with_nothing_stored() {
+		$before = did_action( 'jetpack_seo_llms_txt_cleared' );
+		$this->with_write_hooks(
+			static function () {
+				update_option( Llms_Txt::OPTION, true );
+			}
+		);
+		$this->assertSame( $before + 1, did_action( 'jetpack_seo_llms_txt_cleared' ) );
 	}
 }

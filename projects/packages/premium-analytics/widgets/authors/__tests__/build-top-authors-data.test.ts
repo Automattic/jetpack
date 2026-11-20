@@ -105,11 +105,8 @@ describe( 'buildTopAuthorsData', () => {
 			id: 'label:Alice|',
 			label: 'Alice',
 			currentValue: 10,
-			currentShare: 100,
 		} );
 		expect( result[ 0 ].previousValue ).toBeUndefined();
-		expect( result[ 0 ].previousShare ).toBeUndefined();
-		expect( result[ 0 ].delta ).toBeUndefined();
 	} );
 
 	it( 'preserves the order the API returns authors in', () => {
@@ -134,7 +131,6 @@ describe( 'buildTopAuthorsData', () => {
 		expect( result[ 0 ] ).toMatchObject( {
 			currentValue: 150,
 			previousValue: 100,
-			delta: 50,
 		} );
 	} );
 
@@ -147,7 +143,6 @@ describe( 'buildTopAuthorsData', () => {
 		expect( result[ 0 ] ).toMatchObject( {
 			currentValue: 150,
 			previousValue: 100,
-			delta: 50,
 		} );
 	} );
 
@@ -195,9 +190,6 @@ describe( 'buildTopAuthorsData', () => {
 				link: 'https://example.com/hello',
 				currentValue: 20,
 				previousValue: undefined,
-				currentShare: 100,
-				previousShare: undefined,
-				delta: undefined,
 			},
 			{
 				id: 'post-1',
@@ -206,9 +198,6 @@ describe( 'buildTopAuthorsData', () => {
 				link: null,
 				currentValue: 10,
 				previousValue: undefined,
-				currentShare: 50,
-				previousShare: undefined,
-				delta: undefined,
 			},
 		] );
 	} );
@@ -295,9 +284,6 @@ describe( 'buildTopAuthorsData', () => {
 				link: null,
 				currentValue: 20,
 				previousValue: 30,
-				currentShare: 66.66666666666666,
-				previousShare: 100,
-				delta: -33.33333333333333,
 			},
 			{
 				id: '2',
@@ -306,9 +292,6 @@ describe( 'buildTopAuthorsData', () => {
 				link: null,
 				currentValue: 10,
 				previousValue: undefined,
-				currentShare: 33.33333333333333,
-				previousShare: undefined,
-				delta: undefined,
 			},
 		] );
 	} );
@@ -323,7 +306,7 @@ describe( 'buildTopAuthorsData', () => {
 			] )
 		);
 
-		expect( author ).toMatchObject( { previousValue: 0, previousShare: 0 } );
-		expect( author.posts[ 0 ] ).toMatchObject( { previousValue: 0, previousShare: 0 } );
+		expect( author ).toMatchObject( { previousValue: 0 } );
+		expect( author.posts[ 0 ] ).toMatchObject( { previousValue: 0 } );
 	} );
 } );

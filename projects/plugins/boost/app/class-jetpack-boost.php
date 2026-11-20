@@ -21,8 +21,10 @@ use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack\Plugin_Deactivation\Deactivation_Handler;
 use Automattic\Jetpack_Boost\Admin\Admin;
 use Automattic\Jetpack_Boost\Admin\Regenerate_Admin_Notice;
+use Automattic\Jetpack_Boost\Contracts\Sub_Feature;
 use Automattic\Jetpack_Boost\Data_Sync\Getting_Started_Entry;
 use Automattic\Jetpack_Boost\Lib\Analytics;
+use Automattic\Jetpack_Boost\Lib\Cleanup_Transients;
 use Automattic\Jetpack_Boost\Lib\CLI;
 use Automattic\Jetpack_Boost\Lib\Connection;
 use Automattic\Jetpack_Boost\Lib\Cornerstone\Cornerstone_Pages;
@@ -134,7 +136,8 @@ class Jetpack_Boost {
 
 		add_action( 'jetpack_boost_handle_version_change_cron', array( $this, 'handle_version_change' ) );
 
-		add_action( 'jetpack_boost_general_cleanup', array( Transient::class, 'delete_expired' ) );
+		add_action( 'jetpack_boost_general_cleanup', array( Cleanup_Transients::class, 'run_cleanup' ) );
+		add_action( Cleanup_Transients::FOLLOWUP_HOOK, array( Cleanup_Transients::class, 'run_cleanup' ) );
 
 		// Fired when plugin ready.
 		do_action( 'jetpack_boost_loaded', $this );
@@ -184,6 +187,8 @@ class Jetpack_Boost {
 	public function handle_version_change() {
 		// Remove this option to prevent the notice from showing up.
 		delete_site_option( 'jetpack_boost_static_minification' );
+
+		jetpack_boost_minify_empty_caches_for_rules();
 
 		// Add upgrade check for Cornerstone Pages.
 		$pages = jetpack_boost_ds_get( 'cornerstone_pages_list' );
@@ -297,7 +302,17 @@ class Jetpack_Boost {
 			! empty( $active_modules )
 			&& ( new Connection() )->is_connected()
 		) {
+			$available_modules = $modules_setup->get_available_modules_and_submodules();
 			foreach ( $active_modules as $module => $status ) {
+				if ( ! $status ) {
+					continue;
+				}
+
+				$module_instance = $available_modules[ $module ];
+				if ( $module_instance->feature instanceof Sub_Feature && empty( $module_instance->get_active_parent_modules() ) ) {
+					continue;
+				}
+
 				$modules_setup->on_module_status_update( $module, true );
 			}
 		}
@@ -310,6 +325,7 @@ class Jetpack_Boost {
 		do_action( 'jetpack_boost_deactivate' );
 
 		wp_clear_scheduled_hook( 'jetpack_boost_general_cleanup' );
+		wp_clear_scheduled_hook( Cleanup_Transients::FOLLOWUP_HOOK );
 
 		// Tell Minify JS/CSS to clean up.
 		jetpack_boost_page_optimize_deactivate();
@@ -405,7 +421,36 @@ class Jetpack_Boost {
 			)
 		);
 
+		add_action( 'added_option', array( $this, 'maybe_sync_module_status' ) );
+		add_action( 'updated_option', array( $this, 'maybe_sync_module_status' ) );
+		add_action( 'deleted_option', array( $this, 'maybe_sync_module_status' ) );
+
 		$jetpack_config->ensure( 'identity_crisis' );
+	}
+
+	/**
+	 * Queue a fresh `boost_modules` snapshot when a module status option changes.
+	 *
+	 * Sync sends callables only when something else triggers a send, so a toggle alone can leave WP.com stale.
+	 *
+	 * @param string $option Option name.
+	 */
+	public function maybe_sync_module_status( $option ) {
+		if ( ! str_starts_with( $option, Status::OPTION_PREFIX ) ) {
+			return;
+		}
+
+		// Deferred: some writes land before Sync's listener loads, and mapped modules change after the toggle.
+		add_action( 'shutdown', array( $this, 'sync_module_status' ) );
+	}
+
+	/**
+	 * Send the current module status map to WP.com.
+	 *
+	 * This skips Sync's callable checksum, so its next routine callables check may send the same map again.
+	 */
+	public function sync_module_status() {
+		do_action( 'jetpack_sync_callable', 'boost_modules', ( new Modules_Setup() )->get_status() );
 	}
 
 	/**
@@ -480,6 +525,7 @@ class Jetpack_Boost {
 		// Delete the last run options for the network-wide cron jobs.
 		delete_site_option( 'jetpack_boost_404_tester_last_run' );
 		delete_site_option( 'jetpack_boost_minify_cron_cache_cleanup_last_run' );
+		delete_site_option( 'jetpack_boost_minify_cache_rules_applied' );
 
 		// Delete stored Critical CSS and LCP data.
 		( new Critical_CSS_Storage() )->clear();

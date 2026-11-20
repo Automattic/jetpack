@@ -8,10 +8,12 @@ import { Stack, SwitchControl } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
+import { EmptyStateControl } from '../../channel/editor-controls';
 import ServerPreview from '../../channel/server-preview';
 /**
  * Types
  */
+import type { EmptyStateMode } from '../../channel/editor-controls';
 import type { BlockEditProps } from '@wordpress/blocks';
 
 export type VideoDetailsAttributes = {
@@ -22,6 +24,8 @@ export type VideoDetailsAttributes = {
 	showMeta: boolean;
 	showDescription: boolean;
 	showPlaylists: boolean;
+	// What the newest-upload source shows while the channel has no videos.
+	emptyState?: EmptyStateMode;
 };
 
 export const HEADING_LEVEL_OPTIONS = [
@@ -71,6 +75,13 @@ export default function VideoDetailsEdit( {
 								setAttributes( { source: value as VideoDetailsAttributes[ 'source' ] } )
 							}
 						/>
+						{ 'latest' === source && (
+							<EmptyStateControl
+								kind="videos"
+								value={ attributes.emptyState }
+								onChange={ emptyState => setAttributes( { emptyState } ) }
+							/>
+						) }
 						<SelectControl
 							__next40pxDefaultSize
 							__nextHasNoMarginBottom

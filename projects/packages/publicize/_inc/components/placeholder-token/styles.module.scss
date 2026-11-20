@@ -1,10 +1,10 @@
-@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+@use "@wordpress/base-styles/colors";
 
 // Set the colors and box so a global `code` rule can't restyle the token.
 .placeholder-token {
 	padding: 0 4px;
 	border: 0;
 	border-radius: 2px;
-	background-color: gb.$gray-100;
-	color: gb.$gray-900;
+	background-color: colors.$gray-100;
+	color: colors.$gray-900;
 }

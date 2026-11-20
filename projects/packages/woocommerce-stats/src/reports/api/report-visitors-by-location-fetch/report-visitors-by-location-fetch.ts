@@ -6,6 +6,8 @@ import type { BaseReportParams } from '../../utils/types';
 
 type VisitorsByLocationReportDataItem = {
 	country_code: string;
+	// The country's name for country rows, `null` when it has none (the label is the code).
+	country_name?: string | null;
 	label: string;
 	region?: string;
 	visitors: string;

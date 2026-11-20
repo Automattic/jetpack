@@ -31,13 +31,6 @@ export type SectionHeaderProps = {
 	pinned?: boolean;
 
 	/**
-	 * Rendered under the header row. Pinned, it stays inside the band, so its
-	 * actions remain reachable however far the reader has scrolled. May
-	 * render nothing.
-	 */
-	notice?: ReactNode;
-
-	/**
 	 * Date controls anchored to the end of the header row. Left out, the cell is
 	 * not rendered: an empty one costs a band of space in the stacked layout.
 	 */
@@ -72,7 +65,6 @@ function UnforwardedSectionHeader(
 		subTitle,
 		busy = false,
 		pinned = false,
-		notice,
 		children,
 		controlsRef,
 		titleRef,
@@ -119,8 +111,6 @@ function UnforwardedSectionHeader(
 					</Stack>
 				) : null }
 			</div>
-
-			{ notice ? <div className={ styles.notice }>{ notice }</div> : null }
 		</div>
 	);
 

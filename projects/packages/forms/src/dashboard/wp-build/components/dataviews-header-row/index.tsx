@@ -13,10 +13,11 @@ import { __ } from '@wordpress/i18n';
 import { useNavigate } from '@wordpress/route';
 import { Badge, Stack, Tabs } from '@wordpress/ui';
 import useConfigValue from '../../../../hooks/use-config-value.ts';
-import { type TopTab } from '../../../constants.ts';
 import useFormStatusCounts from '../../../hooks/use-form-status-counts.ts';
 import { saveLastTab } from '../../../last-tab-cookie.ts';
 import { store as dashboardStore } from '../../../store/index.js';
+import { TOP_TAB_PATHS, type TopTab } from '../../../top-tabs.ts';
+import usePreloadTopTab from '../../hooks/use-preload-top-tab.ts';
 import InboxStatusToggle from '../inbox-status-toggle';
 import type { JSX } from 'react';
 import './style.scss';
@@ -59,6 +60,7 @@ export default function DataViewsHeaderRow( {
 	const navigate = useNavigate();
 	const isCFMEnabled = useConfigValue( 'isCentralFormManagementEnabled' );
 	const { all: formsCount } = useFormStatusCounts();
+	const preloadProps = usePreloadTopTab( activeTab, isSingleFormView || ! isCFMEnabled );
 
 	const responsesInboxCount = useSelect( select => {
 		// Pass an explicit empty object so @wordpress/data resolver deduplication
@@ -73,14 +75,7 @@ export default function DataViewsHeaderRow( {
 			// Only a deliberate tab click is remembered, so arriving on a response through
 			// an email link cannot quietly change which tab the dashboard reopens on.
 			saveLastTab( nextValue );
-
-			if ( nextValue === 'forms' ) {
-				navigate( { href: '/forms' } );
-				return;
-			}
-
-			// In the wp-build environment we always treat Responses as `/responses/inbox`.
-			navigate( { href: '/responses/inbox' } );
+			navigate( { href: TOP_TAB_PATHS[ nextValue ] } );
 		},
 		[ navigate ]
 	);
@@ -102,7 +97,7 @@ export default function DataViewsHeaderRow( {
 						isCFMEnabled && (
 							<Tabs.Root value={ activeTab } onValueChange={ onTabChange }>
 								<Tabs.List variant="minimal">
-									<Tabs.Tab value="forms">
+									<Tabs.Tab value="forms" { ...( activeTab === 'forms' ? {} : preloadProps ) }>
 										<span>
 											{ __( 'Forms', 'jetpack-forms' ) }
 											<Badge intent="draft" className="jp-forms-tabs-count">
@@ -110,7 +105,10 @@ export default function DataViewsHeaderRow( {
 											</Badge>
 										</span>
 									</Tabs.Tab>
-									<Tabs.Tab value="responses">
+									<Tabs.Tab
+										value="responses"
+										{ ...( activeTab === 'responses' ? {} : preloadProps ) }
+									>
 										<span>
 											{ __( 'Responses', 'jetpack-forms' ) }
 											<Badge intent="draft" className="jp-forms-tabs-count">

@@ -19,6 +19,131 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Dashboard_Threats {
 
 	/**
+	 * Threats the site resolved itself, as fixed snapshots keyed by id, which count until Scan scans again.
+	 *
+	 * @var string
+	 */
+	const RESOLVED_OPTION = 'jetpack_protect_dashboard_resolved_threats';
+
+	/**
+	 * Record a threat as fixed on this site, since Scan has no way to be told.
+	 *
+	 * @param array $threat The threat, from format().
+	 * @return array The fixed snapshot.
+	 */
+	public static function resolve( $threat ) {
+		$fixed = array_merge(
+			$threat,
+			array(
+				'status'  => 'fixed',
+				'fixedOn' => gmdate( 'Y-m-d\TH:i:s.000\Z' ),
+			)
+		);
+		// Re-read, since another request may have recorded a fix while this one waited on WordPress.com.
+		wp_cache_delete( self::RESOLVED_OPTION, 'options' );
+		$resolved                           = self::get_resolved();
+		$resolved[ (string) $threat['id'] ] = $fixed;
+		update_option( self::RESOLVED_OPTION, $resolved, false );
+		return $fixed;
+	}
+
+	/**
+	 * The threats the site resolved since Scan last scanned.
+	 *
+	 * A later scan has Scan's own answer: fixed in its history, or still there because the threat came back.
+	 *
+	 * @param string|null $last_checked When Scan last finished a scan, or null when it hasn't.
+	 * @return array Fixed snapshots, keyed by threat id.
+	 */
+	public static function get_resolved( $last_checked = null ) {
+		$resolved = get_option( self::RESOLVED_OPTION, array() );
+		if ( ! is_array( $resolved ) ) {
+			return array();
+		}
+		$scanned_at = $last_checked ? strtotime( $last_checked ) : false;
+		if ( false === $scanned_at ) {
+			return $resolved;
+		}
+		return array_filter(
+			$resolved,
+			function ( $threat ) use ( $scanned_at ) {
+				return strtotime( $threat['fixedOn'] ?? '' ) > $scanned_at;
+			}
+		);
+	}
+
+	/**
+	 * When Scan last finished a scan, for get_resolved(); null when the most recent one failed, so it can't clear fixes.
+	 *
+	 * @since 0.6.0
+	 *
+	 * @param object|null $status The cached scan status.
+	 * @return string|null
+	 */
+	public static function get_scanned_at( $status ) {
+		return empty( $status->last_scan_failed ) ? ( $status->last_checked ?? null ) : null;
+	}
+
+	/**
+	 * Scan's current threats without the ones the site resolved since Scan last scanned.
+	 *
+	 * @param iterable    $threats      Scan's current threats.
+	 * @param string|null $last_checked When Scan last finished a scan.
+	 * @return array The threats still open.
+	 */
+	public static function without_resolved( $threats, $last_checked = null ) {
+		// Threat_Count runs on every admin page; with nothing reported there is nothing to hide.
+		if ( ! is_iterable( $threats ) || ( is_array( $threats ) && ! $threats ) ) {
+			return array();
+		}
+
+		$pending = self::prune_resolved( $last_checked );
+
+		$open = array();
+		foreach ( $threats as $threat ) {
+			if ( ! isset( $pending[ (string) ( $threat->id ?? '' ) ] ) ) {
+				$open[] = $threat;
+			}
+		}
+		return $open;
+	}
+
+	/**
+	 * Drop the fixes a scan at the given time answers for.
+	 *
+	 * @param string|null $last_checked When Scan last finished a scan.
+	 * @return array The fixes still pending, keyed by threat id.
+	 */
+	private static function prune_resolved( $last_checked ) {
+		$all     = self::get_resolved();
+		$pending = self::get_resolved( $last_checked );
+		if ( count( $pending ) !== count( $all ) ) {
+			if ( $pending ) {
+				update_option( self::RESOLVED_OPTION, $pending, false );
+			} else {
+				delete_option( self::RESOLVED_OPTION );
+			}
+		}
+		return $pending;
+	}
+
+	/**
+	 * Prune as soon as a completed scan is stored, so a failed one fetched before any page reads it can't strand fixes.
+	 *
+	 * @since 0.6.0
+	 *
+	 * @param mixed $old_value The previous value, or the option name when the option is added.
+	 * @param mixed $value     Scan's response, as Scan_Status stores it.
+	 * @return void
+	 */
+	public static function prune_on_stored_scan( $old_value, $value ) {
+		$scan = maybe_unserialize( $value );
+		if ( is_object( $scan ) && ! empty( $scan->most_recent->timestamp ) && empty( $scan->most_recent->error ) ) {
+			self::prune_resolved( $scan->most_recent->timestamp );
+		}
+	}
+
+	/**
 	 * Shape one threat.
 	 *
 	 * @param object     $threat A Threat_Model, or a raw threat with the same properties.
@@ -45,11 +170,12 @@ class Dashboard_Threats {
 			'firstDetected'   => $threat->first_detected ?? null,
 			'fixedIn'         => $threat->fixed_in ?? null,
 			'fixedOn'         => $threat->fixed_on ?? null,
-			'fixable'         => empty( $threat->fixable ) ? false : $threat->fixable,
+			'fixable'         => self::format_fixable( $threat->fixable ?? null ),
 			'filename'        => $threat->filename ?? null,
 			'source'          => $threat->source ?? null,
 			'context'         => self::format_context( $threat->context ?? null ),
 			'vulnerabilities' => self::format_vulnerabilities( $threat->vulnerabilities ?? null ),
+			'database'        => self::format_database( $threat ),
 			'extension'       => $extension ? array(
 				'slug'    => $slug,
 				// Scan reports may name a plugin by its slug; the installed copy has its real name.
@@ -97,6 +223,28 @@ class Dashboard_Threats {
 	}
 
 	/**
+	 * Scan's fixer, with the keys of its `extras` in camelCase.
+	 *
+	 * @param mixed $fixable Scan's fixer, or a falsy value when the threat can't be fixed.
+	 * @return object|array|false
+	 */
+	private static function format_fixable( $fixable ) {
+		if ( empty( $fixable ) ) {
+			return false;
+		}
+		$extras = ( (array) $fixable )['extras'] ?? null;
+		if ( ! is_array( $extras ) && ! is_object( $extras ) ) {
+			return $fixable;
+		}
+		$camel = array();
+		foreach ( (array) $extras as $key => $value ) {
+			$camel[ lcfirst( str_replace( '_', '', ucwords( $key, '_' ) ) ) ] = $value;
+		}
+		// An object, so empty extras encode as `{}` rather than `[]`.
+		return array_merge( (array) $fixable, array( 'extras' => (object) $camel ) );
+	}
+
+	/**
 	 * The lines of code around a file threat, as line number and code pairs.
 	 *
 	 * @param mixed $context Scan's context: code keyed by line number, plus a `marks` entry.
@@ -117,6 +265,28 @@ class Dashboard_Threats {
 			}
 		}
 		return $lines;
+	}
+
+	/**
+	 * The table and row a database threat was found in.
+	 *
+	 * @param object $threat A Threat_Model, or a raw threat from Scan history.
+	 * @return array|null Null when the threat isn't in the database.
+	 */
+	private static function format_database( $threat ) {
+		$table = $threat->table ?? null;
+		if ( ! is_string( $table ) || '' === $table ) {
+			return null;
+		}
+
+		// Threat_Model nests the row under `details`; Scan history sends it flat, with the key as `value`.
+		$row = isset( $threat->details->table ) ? $threat->details : $threat;
+		return array(
+			'table'    => $table,
+			'pkColumn' => $row->pk_column ?? null,
+			'pkValue'  => $row->pk_value ?? $row->value ?? null,
+			'details'  => is_array( $row->details ?? null ) || is_object( $row->details ?? null ) ? (object) $row->details : new \stdClass(),
+		);
 	}
 
 	/**

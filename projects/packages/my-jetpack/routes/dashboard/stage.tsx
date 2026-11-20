@@ -4,8 +4,7 @@ import './route.scss';
 /**
  * Boot stage for the My Jetpack dashboard.
  *
- * Keeps the app's `HashRouter` — boot reads its path from `?p=`, never the
- * hash, so `#/…` deep links still resolve.
+ * The boot router owns the URL; `route.tsx` redirects `#/…` links from before it.
  *
  * @return The My Jetpack app.
  */

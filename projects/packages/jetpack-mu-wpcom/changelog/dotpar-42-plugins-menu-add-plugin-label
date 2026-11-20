@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Plugins: Rename the Simple-site Plugins submenu item from "Add New Plugin" to "Add Plugin" to match core and every other WordPress.com site.

@@ -1,4 +1,4 @@
-@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+@use "@wordpress/base-styles/mixins";
 
 /*
  * `@wordpress/interface` hides pinned items on narrow viewports so the list
@@ -10,7 +10,7 @@
 .jetpack-form-header-actions__view-responses {
 	display: none;
 
-	@include gb.break-small() {
+	@include mixins.break-small() {
 		display: inline-flex;
 	}
 }

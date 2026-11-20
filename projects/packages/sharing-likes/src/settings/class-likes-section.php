@@ -85,7 +85,7 @@ final class Likes_Section {
 		printf(
 			'<p>%s</p>',
 			Environment::is_offline_mode()
-				? esc_html__( 'Like buttons need a connection to WordPress.com, which is unavailable while your site is in offline mode.', 'jetpack-sharing-likes' )
+				? esc_html__( 'Like buttons need a connection to WordPress.com, which is unavailable while your site is in Offline Mode.', 'jetpack-sharing-likes' )
 				: esc_html__( 'Like buttons need a connection to WordPress.com. Connect your site to turn them on and choose where they appear.', 'jetpack-sharing-likes' )
 		);
 	}

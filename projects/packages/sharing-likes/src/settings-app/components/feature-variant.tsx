@@ -4,6 +4,7 @@ import { Button, ButtonLink, Notice, Stack, Text } from '@wordpress/ui';
 import { useStatus } from '../data/queries';
 import { useFeatureAction } from '../data/use-feature-action';
 import { SECTION_GAP, SettingGroup } from './section-card';
+import { TemplatePlacements } from './template-placements';
 import type { Feature, SectionState } from '../types';
 import type { JSX, ReactNode } from 'react';
 
@@ -91,14 +92,19 @@ export function FeatureVariant( {
 	switch ( state ) {
 		case 'block_call_to_action':
 			content = (
-				<SettingGroup>
-					<Text render={ <p /> }>{ copy.addBlock }</Text>
-					<div>
-						<ButtonLink variant="outline" href={ status?.site_editor_url ?? '' }>
-							{ __( 'Open Site Editor', 'jetpack-sharing-likes' ) }
-						</ButtonLink>
-					</div>
-				</SettingGroup>
+				<TemplatePlacements
+					feature={ feature }
+					fallback={
+						<SettingGroup>
+							<Text render={ <p /> }>{ copy.addBlock }</Text>
+							<div>
+								<ButtonLink variant="outline" href={ status?.site_editor_url ?? '' }>
+									{ __( 'Open Site Editor', 'jetpack-sharing-likes' ) }
+								</ButtonLink>
+							</div>
+						</SettingGroup>
+					}
+				/>
 			);
 			break;
 		case 'off':

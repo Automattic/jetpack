@@ -1,4 +1,3 @@
-const mockAIAgentAccessControl = jest.fn();
 const mockReaderChatControl = jest.fn();
 const mockSearchSuggestionsControl = jest.fn();
 
@@ -57,11 +56,6 @@ jest.mock( 'components/card', () => ( {
 	default: ( { children } ) => <div data-testid="search-settings-card">{ children }</div>,
 } ) );
 
-jest.mock( 'components/ai-agent-access-control', () => props => {
-	mockAIAgentAccessControl( props );
-	return <div data-testid="ai-agent-access-control" />;
-} );
-
 jest.mock( 'components/reader-chat-control', () => props => {
 	mockReaderChatControl( props );
 	return <div data-testid="reader-chat-control" />;
@@ -94,7 +88,6 @@ const defaultProps = {
 	isModuleEnabled: true,
 	isInstantSearchEnabled: true,
 	isInstantSearchPromotionActive: false,
-	isAIAgentAccessAvailable: true,
 	isReaderChatAvailable: true,
 	isReaderChatEnabled: true,
 	supportsOnlyClassicSearch: false,
@@ -103,15 +96,12 @@ const defaultProps = {
 	isTogglingModule: false,
 	isTogglingInstantSearch: false,
 	isSearchSuggestionsEnabled: false,
-	aiAgentAccessGuidelinesUrl:
-		'https://example.com/wp-admin/options-general.php?page=guidelines-wp-admin',
 	readerChatGuidelinesUrl:
 		'https://example.com/wp-admin/options-general.php?page=guidelines-wp-admin',
 };
 
 describe( 'ModuleControl', () => {
 	beforeEach( () => {
-		mockAIAgentAccessControl.mockClear();
 		mockReaderChatControl.mockClear();
 		mockSearchSuggestionsControl.mockClear();
 	} );
@@ -132,17 +122,16 @@ describe( 'ModuleControl', () => {
 		}
 	);
 
-	test( 'renders Reader Chat, AI Agent Access, and Search Suggestions after the Instant Search setting', () => {
+	test( 'renders Reader Chat and Search Suggestions after the Instant Search setting', () => {
 		render( <ModuleControl { ...defaultProps } /> );
 
 		expect(
 			screen.getAllByTestId(
-				/^(instant-search-toggle|reader-chat-control|ai-agent-access-control|search-suggestions-control)$/
+				/^(instant-search-toggle|reader-chat-control|search-suggestions-control)$/
 			)
 		).toEqual( [
 			screen.getByTestId( 'instant-search-toggle' ),
 			screen.getByTestId( 'reader-chat-control' ),
-			screen.getByTestId( 'ai-agent-access-control' ),
 			screen.getByTestId( 'search-suggestions-control' ),
 		] );
 		expect( mockReaderChatControl ).toHaveBeenCalledWith(
@@ -152,13 +141,6 @@ describe( 'ModuleControl', () => {
 				isSaving: false,
 				guidelinesUrl: 'https://example.com/wp-admin/options-general.php?page=guidelines-wp-admin',
 				updateOptions: defaultProps.updateOptions,
-			} )
-		);
-		expect( mockAIAgentAccessControl ).toHaveBeenCalledWith(
-			expect.objectContaining( {
-				isAvailable: true,
-				guidelinesUrl: 'https://example.com/wp-admin/options-general.php?page=guidelines-wp-admin',
-				showGuidelinesLink: false,
 			} )
 		);
 		expect( mockSearchSuggestionsControl ).toHaveBeenCalledWith(
@@ -173,27 +155,12 @@ describe( 'ModuleControl', () => {
 		);
 	} );
 
-	test( 'shows the AI Agent Access guidelines link when Reader Chat is disabled', () => {
-		render( <ModuleControl { ...defaultProps } isReaderChatEnabled={ false } /> );
-
-		expect( mockAIAgentAccessControl ).toHaveBeenCalledWith(
-			expect.objectContaining( {
-				showGuidelinesLink: true,
-			} )
-		);
-	} );
-
 	test( 'does not expose Reader Chat controls when Search is not supported', () => {
 		render( <ModuleControl { ...defaultProps } supportsSearch={ false } /> );
 
 		expect( mockReaderChatControl ).toHaveBeenCalledWith(
 			expect.objectContaining( {
 				isAvailable: false,
-			} )
-		);
-		expect( mockAIAgentAccessControl ).toHaveBeenCalledWith(
-			expect.objectContaining( {
-				showGuidelinesLink: true,
 			} )
 		);
 	} );

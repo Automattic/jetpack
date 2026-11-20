@@ -13,8 +13,8 @@ import type { SectionState, Status } from '../types';
 function statusWith( sharing: SectionState, likes: SectionState, comments: boolean ): Status {
 	return {
 		...baseStatus,
-		sharing: { state: sharing },
-		likes: { state: likes, supported: true },
+		sharing: { ...baseStatus.sharing, state: sharing },
+		likes: { ...baseStatus.likes, state: likes, supported: true },
 		comment_likes: { supported: true, follows_likes_settings: comments },
 	};
 }

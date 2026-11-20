@@ -9,6 +9,10 @@ use Automattic\Jetpack_Boost\Modules\Module;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Minify_CSS;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Minify_JS;
 
+// Version of the rules deciding what the minify caches may hold. Bump it in any release that changes
+// those rules, or bundles built under the old rules stay in place until cleanup removes them.
+const JETPACK_BOOST_MINIFY_CACHE_RULES_VERSION = 1;
+
 /**
  * Get an extra cache key for requests. We can manually bump this when we want
  * to ensure a new version of Jetpack Boost never reuses old cached URLs.
@@ -79,6 +83,24 @@ function jetpack_boost_minify_cron_cache_cleanup() {
 
 	jetpack_boost_legacy_minify_cache_cleanup();
 	jetpack_boost_minify_cache_cleanup();
+}
+
+/**
+ * Empty both minify caches once for each cache rules version, across a multisite network.
+ *
+ * Bundles built under older rules may not meet the current ones, and the web server serves static
+ * files without checking them. Legacy files may sit under keys the current code no longer reads.
+ */
+function jetpack_boost_minify_empty_caches_for_rules() {
+	// Options read back as strings once stored.
+	if ( (int) get_site_option( 'jetpack_boost_minify_cache_rules_applied' ) === JETPACK_BOOST_MINIFY_CACHE_RULES_VERSION ) {
+		return;
+	}
+
+	update_site_option( 'jetpack_boost_minify_cache_rules_applied', JETPACK_BOOST_MINIFY_CACHE_RULES_VERSION );
+
+	jetpack_boost_legacy_minify_cache_cleanup( 0 );
+	jetpack_boost_minify_cache_cleanup( 0 );
 }
 
 /**

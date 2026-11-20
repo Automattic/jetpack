@@ -3,7 +3,8 @@
  */
 import { queryClient } from '@jetpack-premium-analytics/data';
 import { QueryClientProvider } from '@tanstack/react-query';
-import { fireEvent, waitFor } from '@testing-library/react';
+import { act, fireEvent, waitFor } from '@testing-library/react';
+import type { WidgetRuntimeAction } from '@wordpress/widget-primitives';
 import type { ReactNode } from 'react';
 
 export { mockWordPressRoute } from '../tests/js/route-test-utils';
@@ -49,6 +50,16 @@ export function captureCsvDownloads() {
 				expect( files ).toHaveLength( 1 );
 				expect( button ).not.toHaveAttribute( 'aria-disabled', 'true' );
 			} );
+		},
+		// A download the widget declares as an action: the host runs its callback.
+		runAndSave: async ( action: WidgetRuntimeAction ) => {
+			if ( ! ( 'callback' in action ) ) {
+				throw new Error( `Action "${ action.id }" is a link, not a download.` );
+			}
+			await act( async () => {
+				await action.callback();
+			} );
+			await waitFor( () => expect( files ).toHaveLength( 1 ) );
 		},
 		lines: async () => ( await files[ 0 ].blob.text() ).replace( '\ufeff', '' ).split( '\n' ),
 		restore: () => {

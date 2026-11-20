@@ -5,6 +5,7 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Constants;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 
@@ -40,6 +41,7 @@ class Jetpack_Modules_Overrides_Test extends WP_UnitTestCase {
 		remove_all_filters( 'jetpack_active_modules' );
 		remove_all_filters( 'jetpack_feature_policy' );
 		\Automattic\Jetpack\Feature_Policy::reset();
+		Constants::clear_single_constant( 'JETPACK_VIDEOPRESS_ROOT_FILE' );
 		$this->instance->clear_cache();
 		parent::tear_down();
 	}
@@ -179,8 +181,68 @@ class Jetpack_Modules_Overrides_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Helpers
+	 * An offline refresh clears an inactive plugin's cached module override.
 	 */
+	public function test_offline_module_refresh_drops_inactive_videopress_override() {
+		$force_active = array( \Automattic\Jetpack\VideoPress\Module_Control::class, 'add_videopress_to_array' );
+		add_filter( 'jetpack_active_modules', $force_active );
+		add_filter( 'jetpack_active_modules', array( $this, 'force_active_modules' ) );
+		$this->instance->clear_cache();
+		$this->assertFalse( \Automattic\Jetpack\My_Jetpack\Products\Videopress::is_standalone_plugin_active() );
+		$this->assertSame( 'active', $this->instance->get_module_override( 'videopress' ) );
+		$request = new WP_REST_Request( 'GET', '/jetpack/v4/module/all' );
+
+		try {
+			\Automattic\Jetpack\My_Jetpack\Initializer::use_local_module_options( null, array(), $request );
+			$this->assertFalse( $this->instance->get_module_override( 'videopress' ) );
+			$this->assertSame( 'active', $this->instance->get_module_override( 'photon' ) );
+		} finally {
+			\Automattic\Jetpack\My_Jetpack\Initializer::restore_module_options( null, array(), $request );
+		}
+	}
+
+	/**
+	 * @dataProvider active_videopress_plugins
+	 * @param array       $active_plugins Active plugin filenames.
+	 * @param string|null $root_file      Running plugin's main file, if defined.
+	 * @param bool        $found_by_name  Whether folder lookup recognizes the plugin.
+	 */
+	#[DataProvider( 'active_videopress_plugins' )]
+	public function test_offline_module_refresh_keeps_active_videopress_override( $active_plugins, $root_file, $found_by_name ) {
+		add_filter(
+			'all_plugins',
+			static function () {
+				return array( 'jetpack-videopress/jetpack-videopress.php' => array( 'Name' => 'VideoPress' ) );
+			}
+		);
+		update_option( 'active_plugins', $active_plugins );
+		if ( null !== $root_file ) {
+			Constants::set_constant( 'JETPACK_VIDEOPRESS_ROOT_FILE', $root_file );
+		}
+		$force_active = array( \Automattic\Jetpack\VideoPress\Module_Control::class, 'add_videopress_to_array' );
+		add_filter( 'jetpack_active_modules', $force_active );
+		$this->instance->clear_cache();
+		$this->assertSame( $found_by_name, \Automattic\Jetpack\My_Jetpack\Products\Videopress::is_standalone_plugin_active() );
+		$this->assertSame( 'active', $this->instance->get_module_override( 'videopress' ) );
+		$request = new WP_REST_Request( 'GET', '/jetpack/v4/module/all' );
+		try {
+			\Automattic\Jetpack\My_Jetpack\Initializer::use_local_module_options( null, array(), $request );
+			$this->assertSame( 10, has_filter( 'jetpack_active_modules', $force_active ) );
+			$this->assertSame( 'active', $this->instance->get_module_override( 'videopress' ) );
+		} finally {
+			\Automattic\Jetpack\My_Jetpack\Initializer::restore_module_options( null, array(), $request );
+		}
+	}
+
+	/**
+	 * @return array Active standalone plugins recognized by filename or runtime constant.
+	 */
+	public static function active_videopress_plugins() {
+		return array(
+			'active plugin' => array( array( 'jetpack-videopress/jetpack-videopress.php' ), null, true ),
+			'constant only' => array( array(), '/renamed-videopress/jetpack-videopress.php', false ),
+		);
+	}
 
 	/**
 	 * Helper to force active Photon and the Asset CDN.

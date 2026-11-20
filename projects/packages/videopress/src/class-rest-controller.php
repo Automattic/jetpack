@@ -3,10 +3,10 @@
  * The VideoPress REST Controller.
  *
  * Registers the `/jetpack/v4/videopress/*` routes backing the
- * modernized wp-build dashboard. Currently exposes one route — a
- * user-signed proxy to the WPCOM `sites/{id}/stats/video-plays`
- * endpoint — needed by the Overview screen's KPI / trends / top-N
- * cards.
+ * modernized wp-build dashboard: a proxy to the WPCOM
+ * `sites/{id}/stats/video-plays` endpoint for the Overview screen's
+ * KPI / trends / top-N cards. Also registers the Playlists tab's
+ * `/wpcom/v3/videopress/playlists` routes ( see Playlist_Manager ).
  *
  * @package automattic/jetpack-videopress
  */
@@ -56,6 +56,13 @@ class Rest_Controller {
 				'args'                => self::stats_video_plays_args(),
 			)
 		);
+
+		// WordPress.com registers the playlist routes through its REST plugin
+		// loader instead ( see WPCOM_REST_API_V3_Endpoint_VideoPress_Playlists ).
+		if ( ! ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ) {
+			Playlist_Manager::register_rest_routes();
+		}
+		Transcript_Index::register_rest_routes();
 	}
 
 	/**

@@ -30,6 +30,7 @@ class Channel {
 	const TEMPLATE           = 'videopress-video';
 	const PLAYLIST_QUERY_VAR = 'videopress_playlist';
 	const LIST_VAR           = 'list';
+	const START_VAR          = 't';
 	const PLAYLIST_TEMPLATE  = 'videopress-playlist';
 	const PLAYLIST_SOURCES   = array( 'own', 'queried', 'index' );
 
@@ -387,10 +388,24 @@ class Channel {
 		$parsed_block['attrs']['id']    = $post->ID;
 		$parsed_block['attrs']['src']   = 'https://videopress.com/v/' . $guid;
 		$parsed_block['attrs']['title'] = $details && ! empty( $details->title ) ? (string) $details->title : get_the_title( $post );
+		$start                          = ! empty( $parsed_block['attrs']['useQueriedVideo'] ) ? self::queried_start() : 0;
+		if ( $start > 0 ) {
+			$parsed_block['attrs']['at'] = $start;
+		}
 		if ( $details && ! empty( $details->poster ) ) {
 			$parsed_block['attrs']['poster'] = (string) $details->poster;
 		}
 		return $parsed_block;
+	}
+
+	/**
+	 * The second a video page asks playback to start at ( `&t=72` ), or 0.
+	 *
+	 * @return int
+	 */
+	public static function queried_start() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only playback position, like a share link.
+		return self::is_video_page() && isset( $_GET[ self::START_VAR ] ) && is_string( $_GET[ self::START_VAR ] ) ? absint( $_GET[ self::START_VAR ] ) : 0;
 	}
 
 	/**

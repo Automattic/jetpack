@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.0.1] - 2026-10-20
+### Changed
+- Internal updates.
+
 ## [5.0.0] - 2026-08-26
 ### Removed
 - Minimum supported PHP version is now 7.4. [#51515]
@@ -158,6 +162,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Added the Jetpack Installer package.
 
+[5.0.1]: https://github.com/Automattic/jetpack-composer-plugin/compare/v5.0.0...v5.0.1
 [5.0.0]: https://github.com/Automattic/jetpack-composer-plugin/compare/v4.0.9...v5.0.0
 [4.0.9]: https://github.com/Automattic/jetpack-composer-plugin/compare/v4.0.8...v4.0.9
 [4.0.8]: https://github.com/Automattic/jetpack-composer-plugin/compare/v4.0.7...v4.0.8

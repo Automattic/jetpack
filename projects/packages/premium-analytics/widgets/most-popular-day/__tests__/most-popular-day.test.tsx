@@ -48,13 +48,12 @@ describe( 'MostPopularDayWidget', () => {
 		// widget title the host renders.
 		expect( screen.getByRole( 'heading', { level: 4, name: 'Day' } ) ).toBeInTheDocument();
 		expect( screen.getByRole( 'heading', { level: 4, name: 'Views' } ) ).toBeInTheDocument();
-		// The count appears twice by design: the abbreviated headline is hidden
-		// from assistive tech, and the exact count beside it is hidden visually.
-		expect( container ).toHaveTextContent( 'Views103K102,6310.16% of views' );
-		expect( screen.getByText( '103K' ) ).toHaveAttribute( 'aria-hidden', 'true' );
+		// A single-figure widget: the exact count, with no compact one beside it.
+		expect( container ).toHaveTextContent( 'Views102,6310.16% of views' );
+		expect( screen.queryByText( '103K' ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'requests the site summary without the date params the host injects', async () => {
+	it( 'requests the shared summary fields, without the date params the host injects', async () => {
 		// The best day is all-time, so host report params must reach WidgetRoot (the
 		// contract) and still leave both the request and the figures untouched.
 		render(
@@ -66,10 +65,10 @@ describe( 'MostPopularDayWidget', () => {
 		const [ [ request ] ] = mockApiFetch.mock.calls;
 		const path = String( request.path );
 
-		expect( path ).toContain( 'proxy/v1.1/stats' );
-		// Params are serialized into the query string, so no query string at all
-		// pins this more tightly than naming the params one at a time.
-		expect( path ).not.toContain( '?' );
+		// The whole query string, so a leaked date param cannot pass.
+		expect( path ).toMatch(
+			/proxy\/v1\.1\/stats\?stat_fields=views%2Cvisitors%2Cposts%2Ccomments%2Cviews_best_day%2Cviews_best_day_total$/
+		);
 	} );
 
 	it( 'drops the share caption rather than captioning the best day with 0%', async () => {
@@ -83,7 +82,7 @@ describe( 'MostPopularDayWidget', () => {
 
 		await expect( screen.findByText( 'October 17' ) ).resolves.toBeInTheDocument();
 
-		expect( container ).toHaveTextContent( 'Views103K' );
+		expect( container ).toHaveTextContent( 'Views102,631' );
 		expect( screen.queryByText( /of views/ ) ).not.toBeInTheDocument();
 	} );
 

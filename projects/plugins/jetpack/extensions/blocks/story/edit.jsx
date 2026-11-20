@@ -1,10 +1,17 @@
 import { getBlockIconComponent } from '@automattic/jetpack-shared-extension-utils';
-import { isBlobURL } from '@wordpress/blob';
-import { MediaPlaceholder, useBlockProps } from '@wordpress/block-editor';
+import {
+	MediaPlaceholder,
+	store as blockEditorStore,
+	useBlockProps,
+} from '@wordpress/block-editor';
 import { withNotices } from '@wordpress/components';
-import { useDispatch } from '@wordpress/data';
+import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
+import uploadFilesIndividually, {
+	isFileSelection,
+	usePlaceholderSaveLock,
+} from '../../shared/upload-files-individually';
 import metadata from './block.json';
 import Controls from './controls';
 import StoryPlayer from './player';
@@ -45,37 +52,57 @@ export const pickRelevantMediaFiles = media => {
 
 export default withNotices( function StoryEdit( {
 	attributes,
+	clientId,
 	isSelected,
 	noticeOperations,
 	noticeUI,
 	setAttributes,
 } ) {
 	const { mediaFiles } = attributes;
-	const { lockPostSaving, unlockPostSaving } = useDispatch( 'core/editor' );
+	const { getBlockAttributes } = useSelect( blockEditorStore );
+	const mediaUpload = useSelect(
+		select => select( blockEditorStore ).getSettings().mediaUpload,
+		[]
+	);
 	const blockProps = useBlockProps();
-	const lockName = 'storyBlockLock';
+	usePlaceholderSaveLock( mediaFiles, `storyBlockLock-${ clientId }` );
+
+	const setMediaFiles = allMedia => setAttributes( { mediaFiles: allMedia } );
 
 	const onSelectMedia = newMediaFiles => {
-		const allMedia = newMediaFiles
-			.map( newMedia => {
-				// MediaPlaceholder passes only the media ids as value to MediaUpload, so we're only getting those back
-				if ( ! isNaN( newMedia ) ) {
-					const existingMedia = mediaFiles.find( mediaFile => mediaFile.id === newMedia );
-					return existingMedia || { id: newMedia };
-				}
-				return newMedia;
-			} )
-			.map( pickRelevantMediaFiles );
-		const uploadedMedias = allMedia.filter( media => ! isBlobURL( media.url ) );
-		// prevent saving blob urls in mediaFiles block attribute
-		if ( allMedia.length !== uploadedMedias.length ) {
-			lockPostSaving( lockName );
-		} else {
-			unlockPostSaving( lockName );
+		if ( isFileSelection( newMediaFiles ) ) {
+			uploadFilesIndividually( {
+				files: newMediaFiles,
+				mediaUpload,
+				allowedTypes: ALLOWED_MEDIA_TYPES,
+				getItems: () => getBlockAttributes( clientId )?.mediaFiles || [],
+				setItems: setMediaFiles,
+				// Core's upload previews carry only a URL: keep the file's type so a video renders as one.
+				toPlaceholder: ( file, url ) => ( {
+					url,
+					type: file.type.split( '/' )[ 0 ],
+					mime: file.type,
+				} ),
+				toItem: ( media, { type, mime } ) => {
+					const item = pickRelevantMediaFiles( media );
+					return { ...item, type: item.type || type, mime: item.mime || mime };
+				},
+				onError: noticeOperations.createErrorNotice,
+			} );
+			return;
 		}
-		setAttributes( {
-			mediaFiles: allMedia,
-		} );
+		setMediaFiles(
+			newMediaFiles
+				.map( newMedia => {
+					// MediaPlaceholder passes only the media ids as value to MediaUpload, so we're only getting those back
+					if ( ! isNaN( newMedia ) ) {
+						const existingMedia = mediaFiles.find( mediaFile => mediaFile.id === newMedia );
+						return existingMedia || { id: newMedia };
+					}
+					return newMedia;
+				} )
+				.map( pickRelevantMediaFiles )
+		);
 	};
 
 	const controls = (
@@ -105,6 +132,7 @@ export default withNotices( function StoryEdit( {
 					),
 			} }
 			onSelect={ onSelectMedia }
+			handleUpload={ false }
 			accept={ ALLOWED_MEDIA_TYPES.map( type => type + '/*' ).join( ',' ) }
 			allowedTypes={ ALLOWED_MEDIA_TYPES }
 			multiple="add"

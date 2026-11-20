@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Connection;
 
+use Automattic\Jetpack\Identity_Crisis;
 use Automattic\Jetpack\Status;
 
 /**
@@ -87,12 +88,77 @@ class Initial_State {
 			'connectionErrors'           => Error_Handler::get_instance()->get_displayable_errors(),
 			'isOfflineMode'              => $status->is_offline_mode(),
 			'calypsoEnv'                 => ( new Status\Host() )->get_calypso_env(),
+			// @deprecated 9.18.0 Nothing reads it any more; kept for third-party readers. Remove in a later release.
 			'isOwnershipTransferable'    => $manager->is_ownership_transferable(),
+			// Null on a partial update with a Manager that predates the method; JS then falls back to the trunk rule.
+			'canTakeOwnerSlot'           => method_exists( $manager, 'can_take_owner_slot' ) ? $manager->can_take_owner_slot() : null,
 			'connectionOwner'            => $connection_owner,
 			'hasProtectedOwner'          => $has_protected_owner,
 			'requiresProtectedOwner'     => $requires_protected_owner,
 			'useDefaultProtectedOwnerUi' => $use_default_protected_owner_ui,
+			'identityCrisis'             => self::get_identity_crisis_data( $status ),
 		);
+	}
+
+	/**
+	 * Get the Safe Mode state the shared Safe Mode screen reads.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param Status $status Status instance.
+	 * @return array|null Null outside Safe Mode.
+	 */
+	private static function get_identity_crisis_data( Status $status ) {
+		// Guarded: another plugin can still load the older Identity_Crisis from the abandoned jetpack-identity-crisis package.
+		if ( ! $status->in_safe_mode() || ! method_exists( Identity_Crisis::class, 'is_new_screen_enabled' ) ) {
+			return null;
+		}
+
+		$can_resolve = current_user_can( 'jetpack_disconnect' );
+		$data        = array(
+			'useNewScreen'        => Identity_Crisis::is_new_screen_enabled(),
+			'canResolve'          => $can_resolve,
+			'isSafeModeConfirmed' => (bool) Identity_Crisis::safe_mode_is_confirmed(),
+		);
+
+		// This state is printed for any logged-in user who loads connection scripts.
+		if ( ! $can_resolve ) {
+			return $data;
+		}
+
+		$idc_urls = self::get_mismatched_urls();
+
+		return $data + array(
+			'wpcomHomeUrl'                   => $idc_urls ? $idc_urls['wpcom_url'] : '',
+			'currentUrl'                     => $idc_urls ? $idc_urls['current_url'] : ( Identity_Crisis::get_sync_error_idc_option()['home'] ?? '' ),
+			'isDevelopmentSite'              => (bool) Status::is_development_site(),
+			'possibleDynamicSiteUrlDetected' => (bool) Identity_Crisis::detect_possible_dynamic_site_url(),
+			'logoUrl'                        => Jetpack_Connector::get_connector_logo_url(),
+		);
+	}
+
+	/**
+	 * Get the mismatched URLs, including once Safe Mode is confirmed.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return array{wpcom_url: string, current_url: string}|false
+	 */
+	private static function get_mismatched_urls() {
+		$idc_urls = Identity_Crisis::get_stored_mismatched_urls();
+		if ( ! $idc_urls ) {
+			return false;
+		}
+
+		// The WordPress.com URLs are stored reversed, and only the filter Identity_Crisis::init() adds turns them back.
+		if ( false === has_filter( 'jetpack_options', array( Identity_Crisis::class, 'reverse_wpcom_urls_for_idc' ) ) ) {
+			$error = \Jetpack_Options::get_option( 'sync_error_idc' );
+			if ( is_array( $error ) && ! empty( $error['reversed_url'] ) ) {
+				$idc_urls['wpcom_url'] = strrev( $idc_urls['wpcom_url'] );
+			}
+		}
+
+		return $idc_urls;
 	}
 
 	/**
@@ -125,6 +191,7 @@ class Initial_State {
 		 * coupling the analytics package to that schema would widen its surface unnecessarily.
 		 * When both are present, `JetpackScriptData.site.wpcom.blog_id` is populated via
 		 * `set_connection_script_data()` above for other consumers.
+		 * Jetpack_Connector::enqueue_script_module() prints the same line on the Connectors screen.
 		 */
 		return 'var JP_CONNECTION_INITIAL_STATE; typeof JP_CONNECTION_INITIAL_STATE === "object" || (JP_CONNECTION_INITIAL_STATE = ' . wp_json_encode( self::get_data(), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ');'
 			. sprintf( 'window.jpTracksContext = window.jpTracksContext || {}; window.jpTracksContext.blog_id = %s;', absint( \Jetpack_Options::get_option( 'id', 0 ) ) );

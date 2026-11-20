@@ -1,3 +1,5 @@
+import type { EmptyStateMode } from '../../channel/editor-controls';
+
 export type AllPlaylistsLayout = 'gallery' | 'list';
 export type AllPlaylistsOrder = 'newest' | 'oldest' | 'title' | 'updated';
 export type AllPlaylistsPagination = 'numbered' | 'load-more';
@@ -28,6 +30,8 @@ export type AllPlaylistsAttributes = BlockStyleAttributes & {
 	excludeCurrent?: boolean;
 	// "Updated 2 weeks ago · 1 hr 12 min" under each card.
 	showUpdated?: boolean;
+	// What the block shows while the site has no playlists.
+	emptyState?: EmptyStateMode;
 };
 
 /**

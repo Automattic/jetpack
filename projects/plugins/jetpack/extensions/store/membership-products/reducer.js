@@ -11,6 +11,8 @@ export const DEFAULT_STATE = {
 		socialFollowers: null,
 		emailSubscribers: null,
 		paidSubscribers: null,
+		paidNewsletterSubscribers: null,
+		paidSubscribersByTier: null,
 	},
 	newsletterCategories: {
 		enabled: false,

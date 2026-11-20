@@ -7,7 +7,9 @@ import {
 	WIDGET_ROW_LIMIT,
 	describeError,
 	WidgetRoot,
+	useReportActions,
 	useWidgetRootContext,
+	type CsvColumn,
 	type DonutSegmentInput,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
@@ -16,12 +18,14 @@ import { useMemo } from 'react';
  * Internal dependencies
  */
 import { useNoViewsEmptyState } from '../use-no-views-empty-state';
-import useDeviceViews from './use-device-views';
-import { type DevicesAttributes } from './widget';
+import useDeviceViews, { type DeviceView } from './use-device-views';
 /**
  * Types
  */
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
+
+/** No configurable attributes; the empty record allows host-provided fields. */
+export type DevicesAttributes = Record< never, never >;
 
 type DevicesRenderAttributes = DevicesAttributes & Partial< ReportParamsFieldAttributes >;
 type DevicesWidgetProps = WidgetRenderProps< DevicesRenderAttributes >;
@@ -31,13 +35,31 @@ const PERCENTAGE_DATA_FORMAT = {
 	options: { decimals: 1, signDisplay: 'auto' as const },
 };
 
+const DEVICE_COLUMNS: CsvColumn< DeviceView >[] = [
+	{
+		label: __( 'Screen size', 'jetpack-premium-analytics-pkg' ),
+		getValue: row => row.displayLabel,
+	},
+	{ label: __( 'Share (%)', 'jetpack-premium-analytics-pkg' ), getValue: row => row.percentage },
+];
+
 function toRatio( percentage: number ) {
 	return percentage / 100;
 }
 
 function DevicesInner() {
 	const { reportParams } = useWidgetRootContext();
-	const { data, hasComparison, isLoading, isFetching, isError, error, refetch } = useDeviceViews( {
+	const {
+		data,
+		hasComparison,
+		isLoading,
+		isFetching,
+		isError,
+		csvIsError,
+		csvIsPlaceholderData,
+		error,
+		refetch,
+	} = useDeviceViews( {
 		reportParams,
 		max: WIDGET_ROW_LIMIT,
 		deviceProperty: 'screensize',
@@ -53,10 +75,26 @@ function DevicesInner() {
 			} ) ),
 		[ data ]
 	);
+	const isEmpty = segments.every( segment => ! segment.value );
 	const emptyState = useNoViewsEmptyState(
-		{ isLoading, isError, isEmpty: segments.every( segment => ! segment.value ) },
+		{ isLoading, isError, isEmpty },
 		__( 'You don’t have devices recorded yet.', 'jetpack-premium-analytics-pkg' )
 	);
+
+	useReportActions( {
+		csv: {
+			rows: isEmpty ? [] : data,
+			columns: DEVICE_COLUMNS,
+			filenamePrefix: 'devices',
+			hasDateRange: true,
+			status: {
+				isLoading,
+				isFetching,
+				isError: csvIsError,
+				isPlaceholderData: csvIsPlaceholderData,
+			},
+		},
+	} );
 
 	return (
 		<Donut
@@ -79,7 +117,6 @@ function DevicesInner() {
 			format={ PERCENTAGE_DATA_FORMAT }
 			variant="half-ring"
 			withTotal={ false }
-			chartTitle={ __( 'Devices', 'jetpack-premium-analytics-pkg' ) }
 		/>
 	);
 }
