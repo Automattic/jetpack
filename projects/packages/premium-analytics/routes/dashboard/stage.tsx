@@ -32,13 +32,13 @@ import {
 	DashboardSectionProvider,
 	StatsOptionsMenu,
 	ResetLayoutAction,
-	useCrowdedPageHeader,
 	useHostLinkSearch,
 	useTrackCustomize,
 	useTrackedDateRangeApply,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { Page } from '@wordpress/admin-ui';
 import { Spinner } from '@wordpress/components';
+import { useViewportMatch } from '@wordpress/compose';
 import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import { WidgetDashboard } from '@wordpress/widget-dashboard';
 import clsx from 'clsx';
@@ -96,8 +96,11 @@ import type { JSX } from 'react';
 function Dashboard(): JSX.Element {
 	const { sections, hasResolved: hasResolvedSections } = useDashboardSections();
 	const [ editMode, setEditMode ] = useState( false );
-	const isCrowdedHeader = useCrowdedPageHeader();
-	// Only while customizing: at rest the actions leave the lockup room.
+	// At 480px and under there is no room for the title lockup beside a full row of
+	// actions: the actions hold their width and the page icon cannot shrink, so the
+	// lockup stands down rather than being painted over (STATS-630). Only while
+	// customizing, since at rest the actions leave it room.
+	const isCrowdedHeader = useViewportMatch( 'mobile', '<' );
 	const hasTightHeader = isCrowdedHeader && editMode;
 	const switchSearch = useCallback(
 		( id: string, search: Record< string, unknown > ) =>
