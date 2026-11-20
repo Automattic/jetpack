@@ -63,12 +63,16 @@ class InitializerTest extends TestCase {
 			$this->assertFalse( Initializer::is_optin_available() );
 
 			update_option( Initializer::VISIBILITY_OPTION, '1' );
-			unset( $GLOBALS['wp_filter']['rest_api_init'], $GLOBALS['wp_filter']['admin_menu'], $GLOBALS['wp_filter']['jetpack_deactivate_module_sitemaps'] );
+			foreach ( array( 'rest_api_init', 'admin_menu', 'jetpack_deactivate_module_sitemaps', 'redirect_canonical', 'old_slug_redirect_url' ) as $hook ) {
+				unset( $GLOBALS['wp_filter'][ $hook ] );
+			}
 			Initializer::init();
 
 			$this->assertFalse( has_action( 'rest_api_init', array( Surface_Visibility::class, 'register_optin_route' ) ) );
 			$this->assertFalse( has_action( 'admin_menu', array( Admin_Page::class, 'add_menu_item' ) ) );
 			$this->assertFalse( has_action( 'jetpack_deactivate_module_sitemaps', array( Initializer::class, 'flag_sitemap_user_disabled' ) ) );
+			$this->assertFalse( has_filter( 'redirect_canonical', array( Llms_Txt::class, 'preserve_llms_txt_request' ) ) );
+			$this->assertFalse( has_filter( 'old_slug_redirect_url', array( Llms_Txt::class, 'preserve_llms_txt_request' ) ) );
 		} finally {
 			Constants::clear_single_constant( 'WPCOM_IS_VIP_ENV' );
 			$GLOBALS['wp_filter'] = $hooks; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
@@ -79,6 +83,60 @@ class InitializerTest extends TestCase {
 			}
 			$initialized->setValue( null, $was_initialized );
 		}
+	}
+
+	/**
+	 * @dataProvider provide_hidden_output_states
+	 * @param bool $visible Whether the dashboard is visible.
+	 * @param bool $active Whether SEO Tools is active.
+	 */
+	#[DataProvider( 'provide_hidden_output_states' )]
+	public function test_redirect_protection_precedes_output_gates( $visible, $active ) {
+		$hooks       = array_map(
+			static function ( $hook ) {
+				return clone $hook;
+			},
+			$GLOBALS['wp_filter']
+		);
+		$visibility  = get_option( Initializer::VISIBILITY_OPTION, null );
+		$initialized = new \ReflectionProperty( Initializer::class, 'initialized' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$initialized->setAccessible( true );
+		}
+		$was_initialized = $initialized->getValue();
+		$initialized->setValue( null, false );
+		$modules = static function () use ( $active ) {
+			return $active ? array( 'seo-tools' ) : array();
+		};
+		add_filter( 'jetpack_active_modules', $modules );
+		update_option( Initializer::VISIBILITY_OPTION, $visible );
+		foreach ( array( 'template_redirect', 'redirect_canonical', 'old_slug_redirect_url' ) as $hook ) {
+			unset( $GLOBALS['wp_filter'][ $hook ] );
+		}
+		try {
+			Initializer::init();
+			$this->assertSame( 10, has_filter( 'redirect_canonical', array( Llms_Txt::class, 'preserve_llms_txt_request' ) ) );
+			$this->assertSame( 10, has_filter( 'old_slug_redirect_url', array( Llms_Txt::class, 'preserve_llms_txt_request' ) ) );
+			$this->assertFalse( has_action( 'template_redirect', array( Llms_Txt::class, 'maybe_serve' ) ) );
+		} finally {
+			$GLOBALS['wp_filter'] = $hooks; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+			if ( null === $visibility ) {
+				delete_option( Initializer::VISIBILITY_OPTION );
+			} else {
+				update_option( Initializer::VISIBILITY_OPTION, $visibility );
+			}
+			$initialized->setValue( null, $was_initialized );
+		}
+	}
+
+	/**
+	 * @return array Dashboard visibility and module activation states that suppress output.
+	 */
+	public static function provide_hidden_output_states() {
+		return array(
+			'module off'       => array( true, false ),
+			'hidden dashboard' => array( false, true ),
+		);
 	}
 
 	/**

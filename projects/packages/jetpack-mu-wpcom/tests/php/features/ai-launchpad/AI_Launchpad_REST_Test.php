@@ -1296,6 +1296,64 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * `start=ai-tool` skips the goals experiment on a Free site, and links Back to Calypso's setup chooser.
+	 *
+	 * @param array|null  $query     The read's query params.
+	 * @param string|null $variation The expected goals_variation.
+	 * @param string|null $back_url  The expected ai_tool_back_url.
+	 * @param string|null $home      The site's home URL, when not the default.
+	 * @dataProvider provide_ai_tool_start_reads
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[DataProvider( 'provide_ai_tool_start_reads' )]
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_get_reads_the_ai_tool_start( $query, $variation, $back_url, $home = null ) {
+		define( 'IS_WPCOM', true );
+		if ( null !== $home ) {
+			update_option( 'home', $home );
+			update_option( 'siteurl', $home );
+		}
+		add_filter( 'wpcom_ai_launchpad_bring_your_ai_tool_override_is_treatment', '__return_true' );
+
+		$data = $this->call_api( Requests::GET, '', null, $query )->get_data();
+
+		$this->assertSame( $variation, $data['goals_variation'] );
+		$this->assertSame( $back_url, $data['ai_tool_back_url'] );
+	}
+
+	/**
+	 * Data provider for test_get_reads_the_ai_tool_start.
+	 *
+	 * @return array
+	 */
+	public static function provide_ai_tool_start_reads() {
+		return array(
+			'plain read'                        => array( null, 'bring_your_ai_tool', null ),
+			'start=ai-tool'                     => array(
+				array( 'start' => 'ai-tool' ),
+				null,
+				'https://wordpress.com/setup/onboarding/setup-your-site-ai?siteSlug=example.org',
+			),
+			'start=ai-tool on the full catalog' => array(
+				array(
+					'start'     => 'ai-tool',
+					'all_tasks' => '1',
+				),
+				null,
+				null,
+			),
+			'subdirectory site'                 => array(
+				array( 'start' => 'ai-tool' ),
+				null,
+				'https://wordpress.com/setup/onboarding/setup-your-site-ai?siteSlug=example.org%3A%3Asub',
+				'https://example.org/sub',
+			),
+		);
+	}
+
+	/**
 	 * On a Simple site, which has no wp-admin plugin screens, plugin CTAs (the WooCommerce install task's and a
 	 * catalog task's) route to Calypso. Runs in a separate process so IS_WPCOM does not leak.
 	 *

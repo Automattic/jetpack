@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Search: Hide the "Use license key" link where it can't be used, such as in Offline Mode.

@@ -44,6 +44,7 @@ require_once __DIR__ . '/wpcom-features/functions-wpcom-features.php';
 require_once __DIR__ . '/wpcom-marketplace/software/class-marketplace-software-manager.php';
 require_once __DIR__ . '/functions.php';
 require_once __DIR__ . '/user-login.php';
+require_once __DIR__ . '/author-slug-redirect.php';
 require_once __DIR__ . '/i18n.php';
 require_once __DIR__ . '/lib/require-lib.php';
 
@@ -460,7 +461,7 @@ add_filter( 'allowed_redirect_hosts', 'wpcomsh_allowed_redirect_hosts', 11 );
 function wpcomsh_make_content_clickable( $content ) {
 	// Fast path: no URL-shaped substring, no work to do. Avoids loading the
 	// linkifier and walking the tokenizer for the common case.
-	if ( false === stripos( $content, 'http' ) && false === stripos( $content, 'www.' ) ) {
+	if ( ! $content || ( false === stripos( $content, 'http' ) && false === stripos( $content, 'www.' ) ) ) {
 		return $content;
 	}
 

@@ -30,6 +30,10 @@ jest.unstable_mockModule( '../verification-card', () => ( {
 	default: () => <div>verification</div>,
 } ) );
 
+jest.unstable_mockModule( '../indexnow-settings', () => ( {
+	default: () => <div>notification settings</div>,
+} ) );
+
 const { default: SettingsScreen } = await import( '../index' );
 
 const FRONT_PAGE_LABEL = 'Home page description';
@@ -103,32 +107,20 @@ describe( 'SettingsScreen availability', () => {
 			delete ( window as unknown as { JetpackScriptData?: unknown } ).JetpackScriptData;
 		} );
 
-		// Neither the banner nor the lock is a paid surface.
+		// The lock isn't a paid surface.
 		it.each( [
-			[
-				'Yoast SEO',
-				'Yoast SEO is managing your site’s SEO, so Jetpack has paused its SEO titles, descriptions, canonical URLs, structured data and llms.txt. Your saved settings are kept. Deactivate Yoast SEO to use them.',
-				'Paused while Yoast SEO is active.',
-			],
-			[
-				'',
-				'Jetpack’s SEO titles, descriptions, structured data and llms.txt are turned off on this site. Your saved settings are kept.',
-				'Paused on this site.',
-			],
-		] )(
-			'shows the banner and locks the legacy description, with "%s" in charge',
-			( plugin, banner, line ) => {
-				( window as unknown as { JetpackScriptData?: unknown } ).JetpackScriptData = {
-					site: { admin_url: 'https://example.com/wp-admin/' },
-					seo: { output: { paused: true, conflicting_plugin: plugin } },
-				};
+			[ 'Yoast SEO', 'Paused while Yoast SEO is active.' ],
+			[ '', 'Paused on this site.' ],
+		] )( 'locks the legacy description, with "%s" in charge', ( plugin, line ) => {
+			( window as unknown as { JetpackScriptData?: unknown } ).JetpackScriptData = {
+				site: { admin_url: 'https://example.com/wp-admin/' },
+				seo: { output: { paused: true, conflicting_plugin: plugin } },
+			};
 
-				render( <SettingsScreen form={ buildForm( true ) } /> );
+			render( <SettingsScreen form={ buildForm( true ) } /> );
 
-				expect( screen.getByText( banner ) ).toBeInTheDocument();
-				expect( screen.getByLabelText( FRONT_PAGE_LABEL ) ).toBeDisabled();
-				expect( screen.getByText( line ) ).toBeInTheDocument();
-			}
-		);
+			expect( screen.getByLabelText( FRONT_PAGE_LABEL ) ).toBeDisabled();
+			expect( screen.getByText( line ) ).toBeInTheDocument();
+		} );
 	} );
 } );

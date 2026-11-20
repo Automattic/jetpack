@@ -78,7 +78,7 @@ class Announcement_Registry_Test extends BaseTestCase {
 					'alt'  => 'The <i>tabs</i> menu',
 				),
 				'link'       => 'https://example.com/whats-new/tabs',
-				'channels'   => array( 'Premium-Analytics', 'premium-analytics', 'my jetpack' ),
+				'channels'   => array( 'Premium-Analytics', 'premium-analytics', 'my jetpack', '/Premium-Analytics//Main/' ),
 				'capability' => 'manage_options',
 			)
 		);
@@ -96,7 +96,7 @@ class Announcement_Registry_Test extends BaseTestCase {
 					'alt'  => 'The tabs menu',
 				),
 				'link'       => 'https://example.com/whats-new/tabs',
-				'channels'   => array( 'premium-analytics', 'myjetpack' ),
+				'channels'   => array( 'premium-analytics', 'myjetpack', 'premium-analytics/main' ),
 				'capability' => 'manage_options',
 			),
 			$announcement
@@ -124,12 +124,66 @@ class Announcement_Registry_Test extends BaseTestCase {
 			'id without a namespace' => array( 'arrange-tabs', self::VALID_ARGS ),
 			'id with uppercase'      => array( 'Premium-Analytics/arrange-tabs', self::VALID_ARGS ),
 			'id that is no string'   => array( 12, self::VALID_ARGS ),
+			'id ending a line'       => array( "a/b\n", self::VALID_ARGS ),
 			'no date'                => array( 'a/b', array_diff_key( self::VALID_ARGS, array( 'date' => 1 ) ) ),
 			'date that is no date'   => array( 'a/b', array_merge( self::VALID_ARGS, array( 'date' => 'tomorrow' ) ) ),
 			'date that never comes'  => array( 'a/b', array_merge( self::VALID_ARGS, array( 'date' => '2026-02-30' ) ) ),
 			'no title'               => array( 'a/b', array_merge( self::VALID_ARGS, array( 'title' => ' ' ) ) ),
 			'no channels'            => array( 'a/b', array_merge( self::VALID_ARGS, array( 'channels' => array() ) ) ),
 			'args that are no array' => array( 'a/b', 'Arrange your tabs' ),
+		);
+	}
+
+	public function test_strips_from_the_body_what_would_restyle_wp_admin() {
+		$registry = new Announcement_Registry();
+
+		$announcement = $registry->register(
+			'a/b',
+			array_merge(
+				self::VALID_ARGS,
+				array(
+					'content' => '<div style="position:fixed;inset:0" class="notice" id="cover" data-a="1"><p>Text <a href="https://example.com/" class="button">link</a></p></div>',
+				)
+			)
+		);
+
+		$this->assertSame( '<div><p>Text <a href="https://example.com/">link</a></p></div>', $announcement['content'] );
+	}
+
+	/**
+	 * @dataProvider provide_urls_of_other_protocols
+	 *
+	 * @param string $url A URL that is neither http nor https.
+	 */
+	#[DataProvider( 'provide_urls_of_other_protocols' )]
+	public function test_drops_a_url_that_is_neither_http_nor_https( $url ) {
+		$registry = new Announcement_Registry();
+
+		$announcement = $registry->register(
+			'a/b',
+			array_merge(
+				self::VALID_ARGS,
+				array(
+					'content' => '<a href="' . $url . '">Open</a>',
+					'media'   => array(
+						'type' => 'image',
+						'url'  => $url,
+					),
+					'link'    => $url,
+				)
+			)
+		);
+
+		$this->assertSame( '', $announcement['link'] );
+		$this->assertNull( $announcement['media'] );
+		$this->assertStringNotContainsString( strtok( $url, ':' ) . ':', $announcement['content'] );
+	}
+
+	public static function provide_urls_of_other_protocols() {
+		return array(
+			'mailto' => array( 'mailto:someone@example.com' ),
+			'tel'    => array( 'tel:123456' ),
+			'ftp'    => array( 'ftp://example.com/file' ),
 		);
 	}
 

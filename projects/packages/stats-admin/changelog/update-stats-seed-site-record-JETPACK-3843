@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Load the Stats page faster by including the WordPress.com site details in the page instead of fetching them first.

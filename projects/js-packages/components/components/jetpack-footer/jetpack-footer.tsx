@@ -31,11 +31,11 @@ declare global {
 const UnstyledJetpackFooter: FC< JetpackFooterProps > = ( { className, menu, ...otherProps } ) => {
 	let items: JetpackFooterMenuItem[] = [];
 
-	if (
-		getScriptData()?.myJetpack?.isAvailable === true &&
-		! isWpcomPlatformSite() &&
-		! window?.JetpackNetworkAdminData
-	) {
+	const myJetpack = getScriptData()?.myJetpack;
+	// An older My Jetpack package does not say whether the host shows it, so keep the links off WordPress.com.
+	const isShownByHost = myJetpack?.isShownByHost ?? ! isWpcomPlatformSite();
+
+	if ( myJetpack?.isAvailable === true && isShownByHost && ! window?.JetpackNetworkAdminData ) {
 		// My Jetpack shows the Features tab to admins only.
 		if ( currentUserCan( 'manage_options' ) ) {
 			items.push( {

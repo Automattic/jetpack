@@ -6,12 +6,16 @@ The `Registrar` base class owns the boilerplate every consumer would otherwise h
 
 ## Usage
 
-Extend `Registrar`, override the three static getters, and call `init()` from the consumer's bootstrap.
+Extend `Registrar`, override the three static getters and `enabled_by_default()`, and call `init()` from the consumer's bootstrap.
 
 ```php
 use Automattic\Jetpack\WP_Abilities\Registrar;
 
 class My_Plugin_Abilities extends Registrar {
+
+	protected static function enabled_by_default(): bool {
+		return true;
+	}
 
 	public static function get_category_slug(): string {
 		return 'my-plugin';
@@ -43,7 +47,12 @@ class My_Plugin_Abilities extends Registrar {
 						'destructive' => false,
 						'idempotent'  => true,
 					),
+					'public'       => true,
 					'show_in_rest' => true,
+					'mcp'          => array(
+						'public' => true,
+						'type'   => 'tool',
+					),
 				),
 			),
 		);
@@ -63,21 +72,20 @@ My_Plugin_Abilities::init();
 
 If an ability spec omits `category`, the registrar auto-injects `get_category_slug()`. If the spec sets `category` explicitly (for cross-registrar shared abilities), the explicit value is preserved.
 
-## Gating registration for gradual rollout
+## Turning registration off
 
-Registration is **opt-in**. `init()` checks the `jetpack_wp_abilities_enabled` filter, which defaults to `false`. Return `true` to turn registration on for this request, typically gated on a site option, user capability, or feature flag.
+Registration is on by default for Jetpack's own registrars. `init()` checks the `jetpack_wp_abilities_enabled` filter, whose default comes from the registrar's `enabled_by_default()`. Return `false` to turn registration off for a site or a single request.
+
+`enabled_by_default()` returns `false` unless a registrar overrides it. The newest copy of `Registrar` on a site loads for every plugin, so a registrar from an older plugin release, which doesn't override it, stays off. Override it to return `true` in a new registrar once its abilities are ready to be on by default.
 
 ```php
-// Enable Jetpack abilities registration on sites that have opted in.
-add_filter(
-	'jetpack_wp_abilities_enabled',
-	static function ( bool $enabled ): bool {
-		return (bool) get_option( 'my_abilities_rollout_enabled', false );
-	}
-);
+// Turn Jetpack abilities off on this site.
+add_filter( 'jetpack_wp_abilities_enabled', '__return_false' );
 ```
 
-Because the default is `false`, a plugin that extends `Registrar` and calls `MyRegistrar::init()` registers nothing until a site explicitly flips the flag.
+Add the filter in an mu-plugin. Registration starts before a theme loads, so a theme's `functions.php` is too late.
+
+The filter does not cover Forms: its abilities shipped before the filter existed and register whatever it returns.
 
 ### Per-registration gate
 
