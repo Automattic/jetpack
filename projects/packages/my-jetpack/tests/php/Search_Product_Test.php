@@ -3,6 +3,7 @@
 namespace Automattic\Jetpack\My_Jetpack;
 
 use Automattic\Jetpack\Connection\Tokens;
+use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\My_Jetpack\Products\Search;
 use Jetpack_Options;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
@@ -358,6 +359,28 @@ class Search_Product_Test extends TestCase {
 		Search::get_pricing_from_wpcom( 250000 );
 
 		remove_filter( 'pre_http_request', array( $this, 'count_pricing_success' ) );
+
+		$this->assertSame( 2, $this->pricing_success_calls );
+	}
+
+	/**
+	 * On a connected site, pricing stored for one locale is not served to a user in another.
+	 */
+	public function test_connected_pricing_is_not_shared_across_locales() {
+		( new Tokens() )->update_blog_token( 'blogtoken.secret' );
+		Jetpack_Options::update_option( 'id', 123 );
+		Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
+		Constants::set_constant( 'JETPACK__API_VERSION', 1 );
+		$this->start_new_request();
+		add_filter( 'pre_http_request', array( $this, 'count_pricing_success' ) );
+
+		Search::get_pricing_from_wpcom( 120 );
+		$this->start_new_request();
+		update_user_meta( self::$user_id, 'locale', 'fr_FR' );
+		Search::get_pricing_from_wpcom( 120 );
+
+		remove_filter( 'pre_http_request', array( $this, 'count_pricing_success' ) );
+		Constants::clear_constants();
 
 		$this->assertSame( 2, $this->pricing_success_calls );
 	}

@@ -247,6 +247,8 @@ class Backup_Product_Test extends TestCase {
 
 		remove_filter( 'jetpack_get_available_modules', array( $this, 'add_backup_module' ) );
 		remove_filter( 'jetpack_get_available_standalone_modules', array( $this, 'add_standalone_backup_module' ) );
+		remove_filter( 'pre_http_request', array( $this, 'mock_undo_event_response' ) );
+		Constants::clear_constants();
 		WorDBless_Options::init()->clear_options();
 		WorDBless_Users::init()->clear_all_users();
 	}
@@ -670,8 +672,6 @@ class Backup_Product_Test extends TestCase {
 		$first  = $this->undo_event();
 		$second = $this->undo_event();
 
-		remove_filter( 'pre_http_request', array( $this, 'mock_undo_event_response' ), 10 );
-
 		$this->assertSame( 1, $this->undo_event_calls );
 		$this->assertSame( '1', $first['undo_backup_id'] ?? null );
 		$this->assertSame( $first, $second );
@@ -694,8 +694,6 @@ class Backup_Product_Test extends TestCase {
 		wp_set_current_user( $other_admin );
 		$result = $this->undo_event();
 
-		remove_filter( 'pre_http_request', array( $this, 'mock_undo_event_response' ), 10 );
-
 		$this->assertNull( $result );
 	}
 
@@ -709,8 +707,6 @@ class Backup_Product_Test extends TestCase {
 
 		$this->undo_event_status = 200;
 		$retried                 = $this->undo_event();
-
-		remove_filter( 'pre_http_request', array( $this, 'mock_undo_event_response' ), 10 );
 
 		$this->assertNull( $failed );
 		$this->assertSame( 2, $this->undo_event_calls );

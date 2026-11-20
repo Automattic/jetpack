@@ -45,7 +45,7 @@ class Search extends Hybrid_Product {
 	const SEARCH_NEW_PRICING_VERSION = '202208';
 
 	/**
-	 * Prefix of the transient that keeps a successful WPCOM pricing response, one per locale and currency
+	 * Prefix of the transient that keeps a successful WPCOM pricing response, one per site, locale and currency
 	 *
 	 * @var string
 	 */
@@ -295,12 +295,11 @@ class Search extends Hybrid_Product {
 	 * @return array|WP_Error
 	 */
 	public static function get_pricing_from_wpcom( $record_count ) {
-		$pricings   = &self::$pricings;
 		$connection = new Connection_Manager();
 		$blog_id    = \Jetpack_Options::get_option( 'id' );
 
-		if ( isset( $pricings[ $record_count ] ) ) {
-			return $pricings[ $record_count ];
+		if ( isset( self::$pricings[ $record_count ] ) ) {
+			return self::$pricings[ $record_count ];
 		}
 
 		$locale   = get_user_locale();
@@ -320,12 +319,12 @@ class Search extends Hybrid_Product {
 			$endpoint = sprintf( Constants::get_constant( 'JETPACK__WPCOM_JSON_API_BASE' ) . '/wpcom/v2/jetpack-search/pricing?record_count=%1$d&locale=%2$s', $record_count, $locale );
 		}
 
-		// One row per locale and currency; a row stored for another record count is a miss.
-		$transient_key = self::PRICING_TRANSIENT_PREFIX . md5( $locale . '|' . $currency . '|' . ( $blog_id ? 'blog' : 'public' ) );
+		// One row per site, locale and currency; a row stored for another record count is a miss.
+		$transient_key = self::PRICING_TRANSIENT_PREFIX . md5( $locale . '|' . $currency . '|' . (int) $blog_id );
 		$cached        = get_transient( $transient_key );
 		if ( is_array( $cached ) && ( $cached['endpoint'] ?? null ) === $endpoint && is_array( $cached['pricing'] ?? null ) ) {
-			$pricings[ $record_count ] = $cached['pricing'];
-			return $pricings[ $record_count ];
+			self::$pricings[ $record_count ] = $cached['pricing'];
+			return self::$pricings[ $record_count ];
 		}
 
 		// If the site is connected, request pricing with the blog token
@@ -344,23 +343,23 @@ class Search extends Hybrid_Product {
 		if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
 			// Cache the failure too: get_pricing_for_ui() reaches this twice per request
 			// (once via has_trial_support(), once directly), and each miss is a 5s timeout.
-			$pricings[ $record_count ] = new WP_Error( 'search_pricing_fetch_failed' );
-			return $pricings[ $record_count ];
+			self::$pricings[ $record_count ] = new WP_Error( 'search_pricing_fetch_failed' );
+			return self::$pricings[ $record_count ];
 		}
 
-		$body                      = wp_remote_retrieve_body( $response );
-		$pricings[ $record_count ] = json_decode( $body, true );
-		if ( is_array( $pricings[ $record_count ] ) ) {
+		$body                            = wp_remote_retrieve_body( $response );
+		self::$pricings[ $record_count ] = json_decode( $body, true );
+		if ( is_array( self::$pricings[ $record_count ] ) ) {
 			set_transient(
 				$transient_key,
 				array(
 					'endpoint' => $endpoint,
-					'pricing'  => $pricings[ $record_count ],
+					'pricing'  => self::$pricings[ $record_count ],
 				),
 				self::PRICING_CACHE_DURATION
 			);
 		}
-		return $pricings[ $record_count ];
+		return self::$pricings[ $record_count ];
 	}
 
 	/**
