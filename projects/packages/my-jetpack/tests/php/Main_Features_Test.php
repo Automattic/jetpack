@@ -38,7 +38,8 @@ class Main_Features_Test extends TestCase {
 		try {
 			$state    = Main_Features::get_state( true );
 			$features = array_column( $state['features'], null, 'slug' );
-			$this->assertSame( array_keys( Main_Features::get_feature_definitions() ), array_keys( array_intersect_key( Main_Features::get_feature_definitions(), $features ) ) );
+			$offered  = array_filter( Main_Features::get_feature_definitions(), fn( $definition ) => $definition['delivery']['jetpack'] || '' !== $definition['delivery']['plugin'] );
+			$this->assertSame( array_keys( $offered ), array_keys( array_intersect_key( $offered, $features ) ) );
 			$this->assertSame( Main_Features::PLUGIN_INACTIVE, $features['boost']['plugin_status'] );
 			$this->assertSame( 'jetpack-boost-dev/jetpack-boost.php', Main_Features::get_plugin_file( 'jetpack-boost', Products\Boost::class ) );
 			$this->assertSame( admin_url( 'admin.php?page=jetpack-boost' ), $features['boost']['manage_url'] );
@@ -523,13 +524,13 @@ class Main_Features_Test extends TestCase {
 	}
 
 	/**
-	 * A feature Jetpack does not switch must have a plugin to install instead.
+	 * A listed feature Jetpack does not switch must have a plugin to install instead.
 	 */
-	public function test_every_feature_can_be_switched_somewhere() {
-		foreach ( Main_Features::get_feature_definitions() as $slug => $definition ) {
+	public function test_every_listed_feature_can_be_switched_somewhere() {
+		foreach ( Main_Features::get_features() as $feature ) {
 			$this->assertTrue(
-				$definition['delivery']['jetpack'] || '' !== $definition['delivery']['plugin'],
-				"Feature {$slug} can be switched neither in Jetpack nor by a plugin"
+				$feature['in_jetpack'] || '' !== $feature['plugin'],
+				"Feature {$feature['slug']} can be switched neither in Jetpack nor by a plugin"
 			);
 		}
 	}
@@ -1023,27 +1024,30 @@ class Main_Features_Test extends TestCase {
 	}
 
 	/**
-	 * The modules on offer, whether the site is WordPress.com Simple, and whether Protect should then ship in Jetpack.
+	 * The feature, the modules on offer, whether the site is WordPress.com Simple, and whether the feature should then ship in Jetpack.
 	 *
 	 * @return array[]
 	 */
-	public static function provide_protect_dashboard_offers() {
+	public static function provide_flagged_module_offers() {
 		return array(
-			'module on offer'                 => array( array( 'protect-dashboard' ), false, true ),
-			'nothing on offer'                => array( array(), false, false ),
-			'module on offer on WPCOM Simple' => array( array( 'protect-dashboard' ), true, false ),
+			'Protect module on offer'                 => array( 'protect-dashboard', array( 'protect-dashboard' ), false, true ),
+			'Protect, nothing on offer'               => array( 'protect-dashboard', array(), false, false ),
+			'Protect module on offer on WPCOM Simple' => array( 'protect-dashboard', array( 'protect-dashboard' ), true, false ),
+			'Monetize module on offer'                => array( 'monetize', array( 'monetize' ), false, true ),
+			'Monetize, nothing on offer'              => array( 'monetize', array(), false, false ),
 		);
 	}
 
 	/**
-	 * @dataProvider provide_protect_dashboard_offers
+	 * @dataProvider provide_flagged_module_offers
 	 *
+	 * @param string   $slug      Feature slug.
 	 * @param string[] $modules   Modules on offer.
 	 * @param bool     $is_simple Whether the site is WordPress.com Simple.
-	 * @param bool     $expected  Whether Protect ships in Jetpack.
+	 * @param bool     $expected  Whether the feature ships in Jetpack.
 	 */
-	#[DataProvider( 'provide_protect_dashboard_offers' )]
-	public function test_protect_ships_in_jetpack_only_while_its_module_is_on_offer( $modules, $is_simple, $expected ) {
+	#[DataProvider( 'provide_flagged_module_offers' )]
+	public function test_flagged_features_ship_in_jetpack_only_while_their_module_is_on_offer( $slug, $modules, $is_simple, $expected ) {
 		if ( $is_simple ) {
 			Constants::set_constant( 'IS_WPCOM', true );
 		}
@@ -1055,14 +1059,14 @@ class Main_Features_Test extends TestCase {
 			return array_fill_keys( $modules, '1.0' );
 		};
 		// Definitions are memoized per locale, so a locale nothing else uses gets a fresh build.
-		$locale = static function () use ( $modules, $is_simple ) {
-			return 'protect_dashboard_' . count( $modules ) . ( $is_simple ? '_simple' : '' );
+		$locale = static function () use ( $slug, $modules, $is_simple ) {
+			return str_replace( '-', '_', $slug ) . '_' . count( $modules ) . ( $is_simple ? '_simple' : '' );
 		};
 		add_filter( 'jetpack_get_available_standalone_modules', $offer );
 		add_filter( 'jetpack_get_available_modules', $jetpack_offer, PHP_INT_MAX );
 		add_filter( 'locale', $locale );
 
-		$delivery = Main_Features::get_feature_definitions()['protect-dashboard']['delivery']['jetpack'];
+		$delivery = Main_Features::get_feature_definitions()[ $slug ]['delivery']['jetpack'];
 
 		remove_filter( 'jetpack_get_available_standalone_modules', $offer );
 		remove_filter( 'jetpack_get_available_modules', $jetpack_offer, PHP_INT_MAX );
