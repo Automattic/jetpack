@@ -21,6 +21,7 @@ class PostSchemaNodeTest extends TestCase {
 
 	protected function tearDown(): void {
 		remove_all_filters( 'get_post_metadata' );
+		remove_all_filters( 'jetpack_seo_default_schema_type' );
 		parent::tearDown();
 	}
 
@@ -90,6 +91,25 @@ class PostSchemaNodeTest extends TestCase {
 		$this->assertSame( '', $this->invoke( 'default_schema_for_post', $this->make_post( array( 'post_type' => 'page' ) ) ) );
 		$this->assertSame( '', $this->invoke( 'default_schema_for_post', $this->make_post( array( 'post_type' => 'attachment' ) ) ) );
 		$this->assertSame( '', $this->invoke( 'default_schema_for_post', $this->make_post( array( 'post_type' => 'product' ) ) ) );
+	}
+
+	/**
+	 * The default-type filter lets a custom post type default to Article, and
+	 * any other value falls back to none.
+	 */
+	public function test_default_schema_type_filter() {
+		$filter = static function ( $type, $post ) {
+			if ( 'book' === $post->post_type ) {
+				return 'article';
+			}
+			return 'page' === $post->post_type ? 'faq' : $type;
+		};
+		add_filter( 'jetpack_seo_default_schema_type', $filter, 10, 2 );
+
+		$this->assertSame( 'article', $this->invoke( 'default_schema_for_post', $this->make_post( array( 'post_type' => 'book' ) ) ) );
+		$this->assertSame( 'Article', Post_Schema_Node::build( $this->make_post( array( 'post_type' => 'book' ) ) )['@type'] );
+		$this->assertSame( '', $this->invoke( 'default_schema_for_post', $this->make_post( array( 'post_type' => 'page' ) ) ) );
+		$this->assertSame( 'article', $this->invoke( 'default_schema_for_post', $this->make_post() ) );
 	}
 
 	/**
