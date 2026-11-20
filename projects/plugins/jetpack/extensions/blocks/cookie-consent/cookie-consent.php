@@ -206,7 +206,7 @@ function print_late_custom_css_rules( $rules_before ) {
  *
  * @since $$next-version$$
  *
- * @return WP_Style_Engine_CSS_Rule[]
+ * @return \WP_Style_Engine_CSS_Rule[]
  */
 function get_block_supports_rules() {
 	return \WP_Style_Engine_CSS_Rules_Store::get_store( 'block-supports' )->get_all_rules();
@@ -219,7 +219,7 @@ function get_block_supports_rules() {
  *
  * @since $$next-version$$
  *
- * @param WP_Style_Engine_CSS_Rule[] $rules_before Rules from get_block_supports_rules() before the render.
+ * @param \WP_Style_Engine_CSS_Rule[] $rules_before Rules from get_block_supports_rules() before the render.
  */
 function print_late_block_supports_rules( $rules_before ) {
 	$new_rules = array_diff_key( get_block_supports_rules(), $rules_before );

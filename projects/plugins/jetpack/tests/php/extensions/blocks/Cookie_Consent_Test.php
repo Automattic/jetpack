@@ -174,7 +174,13 @@ class Cookie_Consent_Test extends \WP_UnitTestCase {
 	 * Rules other blocks queued before the banner are left to core.
 	 */
 	public function test_prints_no_block_supports_rules_queued_before_the_banner() {
-		wp_style_engine_get_styles( array( 'color' => array( 'text' => '#000000' ) ), array( 'selector' => '.earlier a', 'context' => 'block-supports' ) );
+		wp_style_engine_get_styles(
+			array( 'color' => array( 'text' => '#000000' ) ),
+			array(
+				'selector' => '.earlier a',
+				'context'  => 'block-supports',
+			)
+		);
 
 		$output = $this->render_footer_with_template(
 			'<!-- wp:jetpack/cookie-consent --><div class="wp-block-jetpack-cookie-consent" role="dialog" aria-modal="true"><p>Hi</p><span>30</span></div><!-- /wp:jetpack/cookie-consent -->'
