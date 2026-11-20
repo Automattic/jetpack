@@ -201,10 +201,14 @@ class PlaygroundDBImporterTest extends WP_UnitTestCase {
 		$columns = array(
 			array( 'id', 1, 'NO', 'bigint', 'bigint(20) unsigned', 'PRI', 'auto_increment' ),
 			array( 'slug', 2, 'NO', 'varchar', 'varchar(20000)', 'MUL', '' ),
+			array( 'payload', 3, 'YES', 'varbinary', 'varbinary(3000)', '', '' ),
+			array( 'code', 4, 'YES', 'char', 'char(255)', '', '' ),
+			array( 'hash', 5, 'YES', 'binary', 'binary(16)', '', '' ),
 		);
+		array_push( $fields, '`payload` BLOB DEFAULT NULL', '`code` TEXT DEFAULT NULL', '`hash` BLOB DEFAULT NULL' );
 		for ( $i = 1; $i <= 50; $i++ ) {
 			$fields[]  = "`field_{$i}` TEXT NOT NULL DEFAULT ''";
-			$columns[] = array( "field_{$i}", $i + 2, 'NO', 'varchar', 0 === $i % 10 ? 'varchar(2000)' : 'varchar(1000)', '', '' );
+			$columns[] = array( "field_{$i}", $i + 5, 'NO', 'varchar', 0 === $i % 10 ? 'varchar(2000)' : 'varchar(1000)', '', '' );
 		}
 		$db->exec( 'CREATE TABLE `wp_wide_form_entries` (' . implode( ', ', $fields ) . ');' );
 		foreach ( $columns as $column ) {
@@ -222,8 +226,11 @@ class PlaygroundDBImporterTest extends WP_UnitTestCase {
 		unlink( $db_path );
 
 		$this->assertNotWPError( $result );
-		// 20,002 + 5 × 2,002 + 45 × 1,002 bytes is 75,102. The 5 widest unindexed columns are enough.
+		// 20,002 + 3,002 + 255 + 16 + 5 × 2,002 + 45 × 1,002 bytes is 78,375. The 6 widest unindexed columns are enough.
 		$this->assertStringContainsString( '  `slug` varchar(20000) NOT NULL,', $result );
+		$this->assertStringContainsString( '  `payload` blob DEFAULT NULL,', $result );
+		$this->assertStringContainsString( '  `code` char(255) DEFAULT NULL,', $result );
+		$this->assertStringContainsString( '  `hash` binary(16) DEFAULT NULL,', $result );
 		$this->assertStringContainsString( "  `field_10` text NOT NULL DEFAULT (''),", $result );
 		$this->assertStringContainsString( "  `field_50` text NOT NULL DEFAULT (''),", $result );
 		$this->assertStringContainsString( "  `field_1` varchar(1000) NOT NULL DEFAULT '',", $result );

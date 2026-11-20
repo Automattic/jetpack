@@ -809,7 +809,7 @@ class Playground_DB_Importer {
 			$map[ $i ]['type'] = $size['long_type'];
 
 			// MySQL takes a TEXT or BLOB default only as an expression.
-			if ( isset( $map[ $i ]['default'] ) && null !== $map[ $i ]['default'] ) {
+			if ( isset( $map[ $i ]['default'] ) && 'NULL' !== strtoupper( (string) $map[ $i ]['default'] ) ) {
 				$map[ $i ]['default'] = '(' . $map[ $i ]['default'] . ')';
 			}
 
