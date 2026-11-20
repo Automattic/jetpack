@@ -1,6 +1,6 @@
 <?php
 /**
- * Tests for the sample that tells a store whether its local report data is complete.
+ * Tests for the sample that tells a store whether WooCommerce Analytics has imported its orders.
  *
  * @package automattic/jetpack-woocommerce-stats
  */
@@ -26,22 +26,18 @@ class Local_Data_Status_Test extends BaseTestCase {
 	 * @preserveGlobalState disabled
 	 * @dataProvider provide_stores
 	 *
-	 * @param array    $zone     The store's `timezone_string` and `gmt_offset`.
-	 * @param array[]  $stats    `wc_order_stats` rows by sampled order id; null for an order without one.
-	 * @param array[]  $gmt      Paid and completed dates in GMT, by order id.
-	 * @param int[]    $excluded Orders core leaves out of its import on purpose.
-	 * @param string[] $issues   The issues expected.
-	 * @param int[]    $recent   Orders changed within the last hour.
+	 * @param array<int,bool> $orders   Sampled orders, by id: whether each has a `wc_order_stats` row.
+	 * @param int[]           $excluded Orders core leaves out of its import on purpose.
+	 * @param int[]           $recent   Orders changed within the last hour.
+	 * @param string[]        $issues   The issues expected.
 	 */
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
 	#[DataProvider( 'provide_stores' )]
-	public function test_reports_what_the_sample_finds( $zone, $stats, $gmt, $excluded, $issues, $recent = array() ) {
+	public function test_reports_what_the_sample_finds( $orders, $excluded, $recent, $issues ) {
 		require_once __DIR__ . '/mocks/woocommerce-analytics-mock.php';
-		update_option( 'timezone_string', $zone[0] );
-		update_option( 'gmt_offset', $zone[1] );
 
-		$this->assertSame( $issues, self::fixture_status( $stats, $gmt, $excluded, $recent )->get_issues() );
+		$this->assertSame( $issues, self::fixture_status( $orders, $excluded, $recent )->get_issues() );
 	}
 
 	/**
@@ -52,10 +48,9 @@ class Local_Data_Status_Test extends BaseTestCase {
 	#[PreserveGlobalState( false )]
 	public function test_reuses_the_sample_until_it_expires() {
 		require_once __DIR__ . '/mocks/woocommerce-analytics-mock.php';
-		$stats = array( 1 => null );
 
-		self::fixture_status( $stats, array(), array() )->get_issues();
-		$issues = self::fixture_status( $stats, array(), array() )->get_issues();
+		self::fixture_status( array( 1 => false ) )->get_issues();
+		$issues = self::fixture_status( array( 1 => false ) )->get_issues();
 
 		$this->assertSame( array( Local_Data_Status::IMPORT_INCOMPLETE ), $issues );
 		$this->assertSame( 1, $GLOBALS['woocommerce_stats_samples_taken'] );
@@ -71,7 +66,7 @@ class Local_Data_Status_Test extends BaseTestCase {
 		require_once __DIR__ . '/mocks/woocommerce-analytics-mock.php';
 		$GLOBALS['woocommerce_stats_mock_analytics_off'] = true;
 
-		$this->assertSame( array( Local_Data_Status::ANALYTICS_OFF ), self::fixture_status( array( 1 => null ), array(), array() )->get_issues() );
+		$this->assertSame( array( Local_Data_Status::ANALYTICS_OFF ), self::fixture_status( array( 1 => false ) )->get_issues() );
 	}
 
 	/**
@@ -117,105 +112,58 @@ class Local_Data_Status_Test extends BaseTestCase {
 	 * @return array[]
 	 */
 	public static function provide_stores() {
-		$new_york = array( 'America/New_York', '' );
-		// August is summer time and January winter time: one offset for both would misplace one.
-		$in_zone = array(
-			1 => self::row( '2026-08-12 00:30:00', '2026-08-12 04:30:00', '2026-08-12 00:31:00', null ),
-			2 => self::row( '2026-01-12 23:30:00', '2026-01-13 04:30:00', null, '2026-01-14 10:00:00' ),
-		);
-		$gmt     = array(
-			1 => array( 'date_paid' => '2026-08-12 04:31:00' ),
-			2 => array( 'date_completed' => '2026-01-14 15:00:00' ),
-		);
-
 		return array(
-			'no orders'                                  => array( $new_york, array(), array(), array(), array() ),
-			'imported in the zone, on both sides of DST' => array( $new_york, $in_zone, $gmt, array(), array() ),
-			'created imported while the store was UTC'   => array(
-				$new_york,
-				array( 1 => self::row( '2026-08-12 04:30:00', '2026-08-12 04:30:00', null, null ) ) + $in_zone,
-				$gmt,
-				array(),
-				array( Local_Data_Status::REIMPORT_NEEDED ),
-			),
-			// Created in winter, paid in summer: only the paid date shows the old zone.
-			'only the paid date in the old zone'         => array(
-				array( 'UTC', '' ),
-				array( 1 => self::row( '2026-01-12 10:00:00', '2026-01-12 10:00:00', '2026-06-01 11:00:00', null ) ),
-				array( 1 => array( 'date_paid' => '2026-06-01 10:00:00' ) ),
-				array(),
-				array( Local_Data_Status::REIMPORT_NEEDED ),
-			),
-			'only the completed date in the old zone'    => array(
-				array( 'UTC', '' ),
-				array( 1 => self::row( '2026-01-12 10:00:00', '2026-01-12 10:00:00', null, '2026-06-02 11:00:00' ) ),
-				array( 1 => array( 'date_completed' => '2026-06-02 10:00:00' ) ),
-				array(),
-				array( Local_Data_Status::REIMPORT_NEEDED ),
-			),
-			// Its paid date was edited, and core hasn't saved the row again yet.
-			'changed within the hour'                    => array(
-				array( 'UTC', '' ),
+			'no orders'                           => array( array(), array(), array(), array() ),
+			'every order imported'                => array(
 				array(
-					1 => self::row( '2026-01-12 10:00:00', '2026-01-12 10:00:00', '2026-01-12 10:00:00', null ),
-					3 => null,
-				),
-				array( 1 => array( 'date_paid' => '2026-01-12 10:30:00' ) ),
-				array(),
-				array(),
-				array( 1, 3 ),
-			),
-			'a manual UTC offset, imported under it'     => array(
-				array( '', '2' ),
-				array( 1 => self::row( '2026-08-12 06:30:00', '2026-08-12 04:30:00', null, null ) ),
-				array(),
-				array(),
-				array(),
-			),
-			'an order not imported'                      => array( $new_york, array( 3 => null ) + $in_zone, $gmt, array(), array( Local_Data_Status::IMPORT_INCOMPLETE ) ),
-			'an order core leaves out on purpose'        => array( $new_york, array( 3 => null ) + $in_zone, $gmt, array( 3 ), array() ),
-			'both'                                       => array(
-				$new_york,
-				array(
-					3 => null,
-					1 => self::row( '2026-08-12 04:30:00', '2026-08-12 04:30:00', null, null ),
+					1 => true,
+					2 => true,
 				),
 				array(),
 				array(),
-				array( Local_Data_Status::IMPORT_INCOMPLETE, Local_Data_Status::REIMPORT_NEEDED ),
+				array(),
 			),
-		);
-	}
-
-	/**
-	 * A `wc_order_stats` row.
-	 *
-	 * @param string      $created     Local creation date.
-	 * @param string      $created_gmt GMT creation date.
-	 * @param string|null $paid        Local paid date.
-	 * @param string|null $completed   Local completed date.
-	 * @return array
-	 */
-	private static function row( $created, $created_gmt, $paid, $completed ) {
-		return array(
-			'date_created'     => $created,
-			'date_created_gmt' => $created_gmt,
-			'date_paid'        => $paid,
-			'date_completed'   => $completed,
+			'an order not imported'               => array(
+				array(
+					1 => true,
+					3 => false,
+				),
+				array(),
+				array(),
+				array( Local_Data_Status::IMPORT_INCOMPLETE ),
+			),
+			'an order core leaves out on purpose' => array(
+				array(
+					1 => true,
+					3 => false,
+				),
+				array( 3 ),
+				array(),
+				array(),
+			),
+			// Core may not have imported it yet.
+			'an order changed within the hour'    => array(
+				array(
+					1 => true,
+					3 => false,
+				),
+				array(),
+				array( 3 ),
+				array(),
+			),
 		);
 	}
 
 	/**
 	 * A status reading the fixtures instead of the database.
 	 *
-	 * @param array<int,?array> $stats    Rows by order id; null for an order without one.
-	 * @param array[]           $gmt      GMT dates by order id.
-	 * @param int[]             $excluded Orders left out on purpose.
-	 * @param int[]             $recent   Orders changed within the last hour.
+	 * @param array<int,bool> $orders   Sampled orders, by id: whether each has a row.
+	 * @param int[]           $excluded Orders left out on purpose.
+	 * @param int[]           $recent   Orders changed within the last hour.
 	 * @return Local_Data_Status
 	 */
-	private static function fixture_status( $stats, $gmt, $excluded, $recent = array() ) {
-		return new class( $stats, $gmt, $excluded, $recent ) extends Local_Data_Status {
+	private static function fixture_status( $orders, $excluded = array(), $recent = array() ) {
+		return new class( $orders, $excluded, $recent ) extends Local_Data_Status {
 			/**
 			 * Fixtures.
 			 *
@@ -224,13 +172,12 @@ class Local_Data_Status_Test extends BaseTestCase {
 			private $fixtures;
 
 			/**
-			 * @param array<int,?array> $stats    Rows.
-			 * @param array[]           $gmt      GMT dates.
-			 * @param int[]             $excluded Excluded ids.
-			 * @param int[]             $recent   Recently changed ids.
+			 * @param array<int,bool> $orders   Orders.
+			 * @param int[]           $excluded Excluded ids.
+			 * @param int[]           $recent   Recently changed ids.
 			 */
-			public function __construct( $stats, $gmt, $excluded, $recent ) {
-				$this->fixtures = array( $stats, $gmt, $excluded, $recent );
+			public function __construct( $orders, $excluded, $recent ) {
+				$this->fixtures = array( $orders, $excluded, $recent );
 			}
 
 			/** @inheritDoc */
@@ -238,24 +185,19 @@ class Local_Data_Status_Test extends BaseTestCase {
 				$GLOBALS['woocommerce_stats_samples_taken'] = ( $GLOBALS['woocommerce_stats_samples_taken'] ?? 0 ) + 1;
 				$modified                                   = array();
 				foreach ( array_keys( $this->fixtures[0] ) as $id ) {
-					$modified[ $id ] = in_array( $id, $this->fixtures[3], true ) ? gmdate( 'Y-m-d H:i:s' ) : '2026-01-01 00:00:00';
+					$modified[ $id ] = in_array( $id, $this->fixtures[2], true ) ? gmdate( 'Y-m-d H:i:s' ) : '2026-01-01 00:00:00';
 				}
 				return $modified;
 			}
 
 			/** @inheritDoc */
-			protected function get_stats_rows( array $ids ) {
-				return array_filter( array_intersect_key( $this->fixtures[0], array_flip( $ids ) ) );
-			}
-
-			/** @inheritDoc */
-			protected function get_gmt_dates( array $ids ) {
-				return array_intersect_key( $this->fixtures[1], array_flip( $ids ) );
+			protected function get_imported_ids( array $ids ) {
+				return array_keys( array_filter( array_intersect_key( $this->fixtures[0], array_flip( $ids ) ) ) );
 			}
 
 			/** @inheritDoc */
 			protected function is_left_out_of_import( $id ) {
-				return in_array( $id, $this->fixtures[2], true );
+				return in_array( $id, $this->fixtures[1], true );
 			}
 		};
 	}
