@@ -19,6 +19,8 @@ export interface AdminSiteData {
 	admin_url: string;
 	date_format: string;
 	host?: 'woa' | 'atomic' | 'newspack' | 'vip' | 'wpcom' | 'unknown';
+	/** The host's name, for copy that credits it; empty where the host hasn't set one. */
+	host_name?: string;
 	is_multisite: boolean;
 	is_wpcom_platform: boolean;
 	plan: SitePlan;

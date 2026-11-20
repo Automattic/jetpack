@@ -199,6 +199,24 @@ class Host {
 	}
 
 	/**
+	 * The host's name, for copy that credits the host with something it provides.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return string The name, or an empty string when the host hasn't set one.
+	 */
+	public function get_name() {
+		/**
+		 * Filters the name Jetpack gives the site's host, as in "WordPress.com provides a firewall for your site."
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param string $name The host's name. Default empty, which reads as "your host".
+		 */
+		return (string) apply_filters( 'jetpack_host_name', '' );
+	}
+
+	/**
 	 * Add public-api.wordpress.com to the safe redirect allowed list - only added when someone allows API access.
 	 *
 	 * @since 3.0.2 Ported from Jetpack to the Status package.

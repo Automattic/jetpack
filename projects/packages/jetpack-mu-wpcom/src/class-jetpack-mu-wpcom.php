@@ -134,6 +134,12 @@ class Jetpack_Mu_Wpcom {
 		if ( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) || Constants::is_true( 'IS_ATOMIC' ) ) {
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_backup' ) );
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_scan' ) );
+			add_filter(
+				'jetpack_host_name',
+				function () {
+					return 'WordPress.com';
+				}
+			);
 		}
 
 		// A lightweight My Jetpack page for Simple, which steps aside wherever the real My Jetpack registers.

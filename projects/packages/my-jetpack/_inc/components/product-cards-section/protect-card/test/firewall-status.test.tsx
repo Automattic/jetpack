@@ -73,7 +73,7 @@ describe( 'FirewallStatus', () => {
 			'a host that provides its own firewall',
 			false,
 			{ waf_supported: false, waf_enabled: false, waf_provided_by_host: true },
-			'runs a firewall for your site',
+			'Your hosting provider runs a firewall for your site',
 			'host',
 		],
 	] )(
@@ -122,4 +122,26 @@ describe( 'FirewallStatus', () => {
 			).not.toBeInTheDocument();
 		}
 	);
+
+	it( 'names the host that provides the firewall', async () => {
+		( window as { JetpackScriptData?: object } ).JetpackScriptData = {
+			site: { host_name: 'WordPress.com' },
+		};
+		mockUseProduct.mockReturnValue( { detail: { isPluginActive: true } } );
+		render(
+			<FirewallStatus
+				data={ wafConfig( {
+					waf_supported: false,
+					waf_enabled: false,
+					waf_provided_by_host: true,
+				} ) }
+			/>
+		);
+
+		await userEvent.click( screen.getByRole( 'button', { name: 'More about Firewall' } ) );
+		await expect( screen.findByRole( 'dialog' ) ).resolves.toHaveTextContent(
+			'WordPress.com runs a firewall for your site'
+		);
+		delete ( window as { JetpackScriptData?: object } ).JetpackScriptData;
+	} );
 } );
