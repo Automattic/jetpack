@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Payment Buttons: Fix the editor showing PayPal as disconnected on WordPress.com Simple sites with the API-managed payment buttons turned on. An editor left open after they are turned off now shows an error instead of marking payment links as deleted, clearing the block on disconnect, or saving without syncing to PayPal.

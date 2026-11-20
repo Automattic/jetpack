@@ -1951,19 +1951,15 @@ class PayPal_Payment_Buttons {
 	}
 
 	/**
-	 * Register the PayPal REST routes when the API-managed buttons are enabled.
+	 * Register the PayPal REST routes.
 	 *
-	 * The flag is read here rather than in init_rest_api() so a filter added
-	 * after the bootstrap ran still decides.
+	 * Registered with the flag off too: on WordPress.com the API switches to the
+	 * target site after rest_api_init, so the permission check reads the flag.
 	 *
 	 * @since 0.9.0
 	 * @return void
 	 */
 	public static function register_rest_routes() {
-		if ( ! self::is_api_managed_enabled() ) {
-			return;
-		}
-
 		PayPal_REST_Controller::register_routes();
 	}
 
