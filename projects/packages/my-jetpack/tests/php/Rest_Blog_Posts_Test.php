@@ -3,6 +3,7 @@
 namespace Automattic\Jetpack\My_Jetpack;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use WorDBless\Options as WorDBless_Options;
 
@@ -56,11 +57,16 @@ class Rest_Blog_Posts_Test extends TestCase {
 		);
 	}
 
-	public function test_returns_posts_with_resized_thumbnails_and_null_when_missing_or_unsafe() {
+	/**
+	 * Answer feed requests with the given RSS body.
+	 *
+	 * @param string $body The feed XML.
+	 */
+	private function serve_feed_body( $body ) {
 		$this->serve_feed(
 			array(
 				'headers'  => array( 'content-type' => 'application/rss+xml' ),
-				'body'     => file_get_contents( __DIR__ . '/fixtures/blog-feed.xml' ),
+				'body'     => $body,
 				'response' => array(
 					'code'    => 200,
 					'message' => 'OK',
@@ -68,34 +74,80 @@ class Rest_Blog_Posts_Test extends TestCase {
 				'cookies'  => array(),
 			)
 		);
+	}
+
+	public function test_returns_posts_with_resized_thumbnails_and_null_when_missing_or_unsafe() {
+		$this->serve_feed_body( file_get_contents( __DIR__ . '/fixtures/blog-feed.xml' ) );
 
 		$posts = REST_Blog_Posts::get_blog_posts()->get_data();
 
 		$this->assertSame(
 			array(
 				array(
-					'title'     => 'Jetpack’s new release',
-					'link'      => 'https://jetpack.com/resources/new-release/',
-					'date'      => '2026-10-15T21:24:22+00:00',
-					'excerpt'   => 'What’s new this month.',
-					'thumbnail' => 'https://jetpack.com/wp-content/uploads/2026/10/new-release.png?resize=112,112',
+					'title'                => 'Jetpack’s new release',
+					'link'                 => 'https://jetpack.com/resources/new-release/',
+					'date'                 => '2026-10-15T21:24:22+00:00',
+					'excerpt'              => 'What’s new this month.',
+					'excerpt_is_automatic' => false,
+					'thumbnail'            => 'https://jetpack.com/wp-content/uploads/2026/10/new-release.png?w=240',
 				),
 				array(
-					'title'     => 'A post without an image',
-					'link'      => 'https://jetpack.com/resources/no-image/',
-					'date'      => '2026-10-07T19:48:41+00:00',
-					'excerpt'   => 'No thumbnail here.',
-					'thumbnail' => null,
+					'title'                => 'A post without an image',
+					'link'                 => 'https://jetpack.com/resources/no-image/',
+					'date'                 => '2026-10-07T19:48:41+00:00',
+					'excerpt'              => 'No thumbnail here.',
+					'excerpt_is_automatic' => false,
+					'thumbnail'            => null,
 				),
 				array(
-					'title'     => 'A post with an unsafe image',
-					'link'      => 'https://jetpack.com/resources/unsafe-image/',
-					'date'      => '2026-10-02T17:59:46+00:00',
-					'excerpt'   => 'Unsafe thumbnail.',
-					'thumbnail' => null,
+					'title'                => 'A post with an unsafe image',
+					'link'                 => 'https://jetpack.com/resources/unsafe-image/',
+					'date'                 => '2026-10-02T17:59:46+00:00',
+					'excerpt'              => 'Unsafe thumbnail.',
+					'excerpt_is_automatic' => false,
+					'thumbnail'            => null,
 				),
 			),
 			$posts
+		);
+	}
+
+	/**
+	 * Feed descriptions and the excerpt each should produce.
+	 *
+	 * @return array
+	 */
+	public static function provide_excerpts() {
+		return array(
+			'hand-written, with brackets mid-text' => array( '<p>Use [&#8230;] to cut.</p>', 'Use […] to cut.', false ),
+			'automatic, numeric entity'            => array( 'Some text that runs on [&#8230;]', 'Some text that runs on', true ),
+			'automatic, named entity'              => array( 'Some text that runs on [&hellip;]', 'Some text that runs on', true ),
+			'automatic, after a no-break space'    => array( 'Some text.&#160; [&#8230;]', 'Some text.', true ),
+			'automatic, three dots'                => array( 'Some text [...]', 'Some text', true ),
+		);
+	}
+
+	/**
+	 * @dataProvider provide_excerpts
+	 *
+	 * @param string $description          The feed item's description.
+	 * @param string $excerpt              The expected excerpt.
+	 * @param bool   $excerpt_is_automatic Whether the excerpt counts as automatic.
+	 */
+	#[DataProvider( 'provide_excerpts' )]
+	public function test_strips_automatic_excerpt_marker( $description, $excerpt, $excerpt_is_automatic ) {
+		$this->serve_feed_body(
+			'<?xml version="1.0" encoding="UTF-8"?><rss version="2.0"><channel><title>Jetpack</title><item>'
+			. '<title>Post</title><link>https://jetpack.com/p/</link>'
+			. '<description><![CDATA[' . $description . ']]></description>'
+			. '</item></channel></rss>'
+		);
+
+		$post = REST_Blog_Posts::get_blog_posts()->get_data()[0];
+
+		$this->assertSame(
+			array( $excerpt, $excerpt_is_automatic ),
+			array( $post['excerpt'], $post['excerpt_is_automatic'] )
 		);
 	}
 
