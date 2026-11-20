@@ -161,7 +161,8 @@ EOF
 			$file = Config::changelogFile();
 			if ( $ref !== null ) {
 				$debugHelper = $this->getHelper( 'debug_formatter' );
-				$process     = Utils::runCommand( array( 'git', 'show', "$ref:./" . basename( $file ) ), $output, $debugHelper, array( 'cwd' => dirname( $file ) ) );
+				'@phan-var \Symfony\Component\Console\Helper\DebugFormatterHelper $debugHelper';
+				$process = Utils::runCommand( array( 'git', 'show', "$ref:./" . basename( $file ) ), $output, $debugHelper, array( 'cwd' => dirname( $file ) ) );
 				if ( ! $process->isSuccessful() ) {
 					$output->writeln( "<error>Failed to read $file at $ref: " . trim( $process->getErrorOutput() ) . '</>' );
 					return 1;
