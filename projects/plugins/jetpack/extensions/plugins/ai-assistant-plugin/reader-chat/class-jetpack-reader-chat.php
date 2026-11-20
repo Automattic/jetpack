@@ -394,10 +394,9 @@ JS;
 			'siteName'  => get_bloginfo( 'name' ),
 			'isDevMode' => self::is_dev_mode(),
 			'agentId'   => 'reader-chat',
+			// The site locale, not the viewer's: the chat speaks the site's language.
+			'locale'    => get_locale(),
 		);
-
-		// The site locale, not the user's: the chat is for logged-out visitors.
-		$config['locale'] = get_locale();
 
 		$current_post = self::get_current_post_context();
 		if ( null !== $current_post ) {
