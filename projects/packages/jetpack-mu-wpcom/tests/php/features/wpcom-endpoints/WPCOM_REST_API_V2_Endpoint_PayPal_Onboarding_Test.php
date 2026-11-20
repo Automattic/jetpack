@@ -994,6 +994,105 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding_Test extends \WorDBless\BaseT
 	}
 
 	/**
+	 * Test that an image upload reaches PayPal as multipart/form-data, one `files` part per image.
+	 */
+	public function test_forwarded_files_are_sent_as_multipart() {
+		$this->connect_site();
+		$this->store_platform_credentials();
+		$requests = array();
+		$this->mock_http_routes(
+			array(
+				'/v1/oauth2/token'                 => $this->token_response(),
+				'/merchant-integrations/MERCHANT1' => $this->merchant_integration_response(),
+				'/payment-resources/images'        => $this->http_response( 207, array( 'images' => array() ) ),
+			),
+			$requests
+		);
+
+		$result = $this->endpoint->forward_request(
+			$this->forward_request(
+				array(
+					'path'  => '/v1/checkout/payment-resources/images',
+					'body'  => null,
+					'files' => array(
+						array(
+							'name'    => 'mug.png',
+							'type'    => 'image/png',
+							// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
+							'content' => base64_encode( "\x89PNG\x00bytes" ),
+						),
+					),
+				)
+			)
+		);
+
+		$this->assertSame( 207, $result->get_data()['status'] );
+
+		$paypal_call = end( $requests );
+		$this->assertSame( 1, preg_match( '#^multipart/form-data; boundary=(\S+)$#', $paypal_call['args']['headers']['Content-Type'], $matches ) );
+		$this->assertSame(
+			'--' . $matches[1] . "\r\nContent-Disposition: form-data; name=\"files\"; filename=\"mug.png\"\r\nContent-Type: image/png\r\n\r\n\x89PNG\x00bytes\r\n--" . $matches[1] . "--\r\n",
+			$paypal_call['args']['body']
+		);
+	}
+
+	/**
+	 * Test that files are refused anywhere but a POST to the images path, and when they are not images.
+	 *
+	 * @param array $overrides Request parameters to change.
+	 * @dataProvider provide_refused_files
+	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provide_refused_files' )]
+	public function test_forwarded_files_are_refused( array $overrides ) {
+		$this->connect_site();
+		$this->store_platform_credentials();
+		$requests = array();
+		$this->mock_http_routes( array(), $requests );
+
+		$result = $this->endpoint->forward_request(
+			$this->forward_request(
+				array_merge(
+					array(
+						'path'  => '/v1/checkout/payment-resources/images',
+						'files' => array(
+							array(
+								'name'    => 'mug.png',
+								'type'    => 'image/png',
+								'content' => 'Ynl0ZXM=',
+							),
+						),
+					),
+					$overrides
+				)
+			)
+		);
+
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertSame( 'paypal_invalid_files', $result->get_error_code() );
+		$this->assertSame( array(), $requests );
+	}
+
+	/**
+	 * Requests whose files must not reach PayPal.
+	 *
+	 * @return array<string, array{0:array}>
+	 */
+	public static function provide_refused_files() {
+		$file = array(
+			'name'    => 'mug.png',
+			'type'    => 'image/png',
+			'content' => 'Ynl0ZXM=',
+		);
+
+		return array(
+			'another path'   => array( array( 'path' => '/v1/checkout/payment-resources' ) ),
+			'another method' => array( array( 'method' => 'PUT' ) ),
+			'not an image'   => array( array( 'files' => array( array_merge( $file, array( 'type' => "text/html\r\nX-Injected: 1" ) ) ) ) ),
+			'not base64'     => array( array( 'files' => array( array_merge( $file, array( 'content' => '***' ) ) ) ) ),
+		);
+	}
+
+	/**
 	 * Test that the auth assertion is the unsigned JWT PayPal's third-party contract describes.
 	 */
 	public function test_auth_assertion_names_the_platform_and_the_seller() {
@@ -1395,6 +1494,9 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding_Test extends \WorDBless\BaseT
 			'collection'            => array( '/v1/checkout/payment-resources', true ),
 			'collection with query' => array( '/v1/checkout/payment-resources?page_size=100&total_required=true', true ),
 			'one resource'          => array( '/v1/checkout/payment-resources/PLB-ABC123', true ),
+			'image upload'          => array( '/v1/checkout/payment-resources/images', true ),
+			'one image'             => array( '/v1/checkout/payment-resources/images/LzAw%2FaW1%3D', true ),
+			'image traversal'       => array( '/v1/checkout/payment-resources/images/..', false ),
 			'orders'                => array( '/v2/checkout/orders', false ),
 			'merchant integrations' => array( '/v1/customer/partners/X/merchant-integrations/Y', false ),
 			'traversal'             => array( '/v1/checkout/payment-resources/../../v2/checkout/orders', false ),

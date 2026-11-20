@@ -59,21 +59,23 @@ export function TextOption( {
 	};
 
 	return (
-		<Stack direction="column" gap="sm" align="start">
+		<Stack direction="column" gap="sm">
 			{ multiline ? (
 				<TextareaControl { ...field } rows={ 6 } />
 			) : (
 				<InputControl { ...field } type="url" />
 			) }
-			<Button
-				variant="outline"
-				size="compact"
-				disabled={ disabled || draft === value }
-				loading={ isSaving }
-				onClick={ save }
-			>
-				{ __( 'Save', 'jetpack-monetize' ) }
-			</Button>
+			<div>
+				<Button
+					variant="outline"
+					size="compact"
+					disabled={ disabled || draft === value }
+					loading={ isSaving }
+					onClick={ save }
+				>
+					{ __( 'Save', 'jetpack-monetize' ) }
+				</Button>
+			</div>
 		</Stack>
 	);
 }

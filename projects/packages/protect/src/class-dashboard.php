@@ -35,7 +35,7 @@ class Dashboard {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '0.6.0';
+	const PACKAGE_VERSION = '0.7.0';
 
 	/**
 	 * Sidebar menu slug, shared with the Jetpack Protect plugin so the page address never changes.
@@ -369,7 +369,7 @@ class Dashboard {
 	/**
 	 * Register Protect with the admin shell, which switches between Jetpack dashboards without a page load.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.7.0
 	 *
 	 * @param array $members Shell members keyed by admin page slug.
 	 * @return array
@@ -385,6 +385,10 @@ class Dashboard {
 			'init_modules' => array( '@jetpack-protect/init' ),
 			// "Protect" is a product name and is not translated.
 			'title'        => 'Protect',
+			'header'       => array(
+				'title'    => 'Protect',
+				'subtitle' => '',
+			),
 			'capability'   => 'manage_options',
 			'handles'      => array( self::GUEST_DATA_HANDLE, 'jetpack-script-data', 'jp-tracks', 'wp-jp-i18n-loader' ),
 			'load'         => array( __CLASS__, 'load_as_admin_shell_guest' ),
@@ -395,11 +399,22 @@ class Dashboard {
 	/**
 	 * Ready the Protect routes and page data while another dashboard's page is open, without the screen ID alias.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.7.0
 	 *
 	 * @return void
 	 */
 	public static function load_as_admin_shell_guest() {
+		// A menu hover readies the page and may fetch the report; the page's own load caches it.
+		if ( self::is_admin_shell_guest_request() ) {
+			$keep_stored = static function ( $value, $old_value ) {
+				return $old_value;
+			};
+			foreach ( array( Scan_Status::class, \Automattic\Jetpack\Protect_Status\Protect_Status::class ) as $status ) {
+				add_filter( 'pre_update_option_' . $status::OPTION_NAME, $keep_stored, 10, 2 );
+				add_filter( 'pre_update_option_' . $status::OPTION_TIMESTAMP_NAME, $keep_stored, 10, 2 );
+			}
+		}
+
 		if ( ! self::load_wp_build( dirname( __DIR__ ) . '/build/build.php', false ) ) {
 			return;
 		}
@@ -409,9 +424,19 @@ class Dashboard {
 	}
 
 	/**
+	 * Whether this is the admin shell's hover request, not another dashboard's page readying Protect for a switch.
+	 *
+	 * @return bool
+	 */
+	private static function is_admin_shell_guest_request() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Compared only; the shell checks the nonce.
+		return wp_doing_ajax() && isset( $_GET['action'] ) && Admin_Shell::GUEST_ACTION === wp_unslash( $_GET['action'] );
+	}
+
+	/**
 	 * Attach what render() prints in the page body to a script, since the guest endpoint prints no body.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.7.0
 	 *
 	 * @return void
 	 */
@@ -519,7 +544,7 @@ class Dashboard {
 	/**
 	 * Load a wp-build index and, if it can render the page, its scripts and polyfills.
 	 *
-	 * @since $$next-version$$ Added the `$alias` parameter.
+	 * @since 0.7.0 Added the `$alias` parameter.
 	 *
 	 * @param string $build_index Path to the generated build.php.
 	 * @param bool   $alias       Whether to alias the screen ID. Pass false to ready the routes on another page, which must not boot it.

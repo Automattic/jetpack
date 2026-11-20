@@ -1,7 +1,9 @@
 import {
 	isolateRouters,
-	trackViewTransitions,
-	transitionSettled,
+	preloadModules,
+	renameBootStore,
+	routeAt,
+	routesLoadedBy,
 } from '../../../src/admin-shell/adapter';
 
 let visible = 'my-jetpack';
@@ -70,30 +72,137 @@ describe( 'isolateRouters', () => {
 		expect( window.history.state ).toMatchObject( { __TSR_index: 5 } );
 		expect( window.history.state.key ).toBe( window.history.state.__TSR_key );
 	} );
+
+	it( 'replaces the current entry in place, keeping its state', () => {
+		window.history.replaceState( { __TSR_index: 4, key: 'k' }, '' );
+		const length = window.history.length;
+
+		gate.replaceUrl( '/wp-admin/admin.php?page=jetpack-forms&p=%2Fforms' );
+
+		expect( location.search ).toBe( '?page=jetpack-forms&p=%2Fforms' );
+		expect( window.history.state ).toEqual( { __TSR_index: 4, key: 'k' } );
+		expect( window.history ).toHaveLength( length );
+	} );
 } );
 
-describe( 'trackViewTransitions', () => {
-	it( 'handles a skipped transition and waits for the running one', async () => {
-		let finish;
-		const skipped = Promise.reject( new Error( 'Transition was skipped' ) );
-		document.startViewTransition = () => ( {
-			ready: skipped,
-			finished: new Promise( resolve => ( finish = resolve ) ),
-		} );
-		trackViewTransitions();
-		const unhandled = jest.fn();
-		process.on( 'unhandledRejection', unhandled );
+describe( 'renameBootStore', () => {
+	const unlock = 'warn(`…will break in the next version of WordPress.`,`@wordpress/boot`)';
 
-		document.startViewTransition( () => {} );
+	it.each( [
+		[ 'esbuild', `const n="wordpress/boot",s=createReduxStore(n);${ unlock }` ],
+		[
+			'rolldown (Gutenberg plugin)',
+			`const Hl=\`wordpress/boot\`,Ul=createReduxStore(Hl);${ unlock }`,
+		],
+		[ 'unminified (single-quoted)', `const n='wordpress/boot';${ unlock }` ],
+	] )( 'renames the store in a %s build and leaves the module id alone', ( _, source ) => {
+		const renamed = renameBootStore( source, 'jetpack-forms' );
+		expect( renamed ).toContain( '"wordpress/boot--jetpack-forms"' );
+		expect( renamed ).not.toMatch( /["'`]wordpress\/boot["'`]/ );
+		expect( renamed ).toContain( '`@wordpress/boot`' );
+	} );
+
+	it.each( [
+		[ 'missing', `const n="wordpress/booted";${ unlock }` ],
+		[ 'named twice', `const a="wordpress/boot",b=\`wordpress/boot\`;${ unlock }` ],
+	] )( 'refuses a build whose store name is %s', ( _, source ) => {
+		expect( () => renameBootStore( source, 'jetpack-forms' ) ).toThrow( 'exactly once' );
+	} );
+} );
+
+describe( 'routeAt', () => {
+	const routes = [
+		'/',
+		'/$',
+		'/forms',
+		'/responses/$view',
+		'/video/$id',
+		'/video/new',
+		'/video/$id/editor',
+		'/video/$',
+	].map( path => ( { path } ) );
+
+	it.each( [
+		[ '/', '/' ],
+		[ '/forms', '/forms' ],
+		[ '/Forms/', '/forms' ],
+		[ '/responses/inbox', '/responses/$view' ],
+		[ '/video/7/editor', '/video/$id/editor' ],
+		[ '/video/new', '/video/new' ],
+		[ '/responses', '/$' ],
+		[ '/anything/else', '/$' ],
+		[ '/video/7/8', '/video/$' ],
+	] )( 'matches %s to %s', ( path, expected ) => {
+		expect( routeAt( routes, path )?.path ).toBe( expected );
+	} );
+
+	it( 'finds nothing when no route matches', () => {
+		expect( routeAt( routes.slice( 2 ), '/responses' ) ).toBeNull();
+	} );
+} );
+
+describe( 'routesLoadedBy', () => {
+	afterEach( () => delete URL.createObjectURL );
+
+	it( "hands each stand-in's import to the loader, and leaves a route's missing modules out", async () => {
+		const sources = new Map();
+		// jsdom has no createObjectURL.
+		URL.createObjectURL = blob => {
+			const url = `blob:${ sources.size }`;
+			sources.set( url, blob.text() );
+			return url;
+		};
+		const load = jest.fn( async id => ( { route: id, stage: 'stage' } ) );
+		const [ both, routeOnly ] = routesLoadedBy(
+			[
+				{ path: '/', route_module: 'a/route', content_module: 'a/content' },
+				{ path: '/b', route_module: 'b/route' },
+			],
+			load
+		);
+		// jsdom can't import a blob module, so its body runs as a function that returns what it exports.
+		const run = async url =>
+			new Function(
+				`return ( async () => { ${ ( await sources.get( url ) ).replace(
+					/export const \{ (.*) \} = m;/,
+					'const { $1 } = m; return { $1 };'
+				) } } )();`
+			)();
+
+		expect( routeOnly ).toEqual( { path: '/b', route_module: expect.stringMatching( /^blob:/ ) } );
+		await expect( run( both.content_module ) ).resolves.toEqual( {
+			route: 'a/content',
+			stage: 'stage',
+			inspector: undefined,
+			canvas: undefined,
+		} );
+		expect( load ).toHaveBeenCalledWith( 'a/content' );
+	} );
+} );
+
+describe( 'preloadModules', () => {
+	afterEach( () => jest.restoreAllMocks() );
+
+	it( 'downloads the modules the import map knows, and settles once each loads or fails', async () => {
+		jest.spyOn( DOMTokenList.prototype, 'supports' ).mockReturnValue( true );
+		document.head.innerHTML = `<script type="importmap">${ JSON.stringify( {
+			imports: { 'a/route': '/a/route.js?ver=1', 'b/route': '/b/route.js' },
+		} ) }</script>`;
 		let settled = false;
-		transitionSettled( 1000 ).then( () => ( settled = true ) );
+		const preloading = preloadModules( [ 'a/route', 'b/route', 'unknown' ] ).then(
+			() => ( settled = true )
+		);
+		const links = [ ...document.head.querySelectorAll( 'link[rel="modulepreload"]' ) ];
+
+		expect( links.map( link => link.getAttribute( 'href' ) ) ).toEqual( [
+			`${ location.origin }/a/route.js?ver=1`,
+			`${ location.origin }/b/route.js`,
+		] );
+		links[ 0 ].dispatchEvent( new Event( 'load' ) );
 		await Promise.resolve();
 		expect( settled ).toBe( false );
-		finish();
-		await new Promise( resolve => setTimeout( resolve, 0 ) );
-
-		expect( settled ).toBe( true );
-		expect( unhandled ).not.toHaveBeenCalled();
-		process.off( 'unhandledRejection', unhandled );
+		links[ 1 ].dispatchEvent( new Event( 'error' ) );
+		await preloading;
+		expect( document.head.querySelector( 'link' ) ).toBeNull();
 	} );
 } );

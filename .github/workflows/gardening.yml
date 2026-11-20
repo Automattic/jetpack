@@ -17,7 +17,7 @@ permissions:
   # actions/checkout
   contents: read
   # ./projects/github-actions/repo-gardening
-  #   read: octokit.rest.issues.listComments, octokit.rest.issues.get, octokit.rest.issues.listLabelsForRepo, octokit.rest.issues.listLabelsOnIssue, octokit.rest.issues.listMilestones
+  #   read: octokit.rest.issues.listComments, octokit.rest.issues.get, octokit.rest.issues.listEvents, octokit.rest.issues.listLabelsForRepo, octokit.rest.issues.listLabelsOnIssue, octokit.rest.issues.listMilestones
   #   write: octokit.rest.issues.addAssignees, octokit.rest.issues.addLabels, octokit.rest.issues.createComment, octokit.rest.issues.removeLabel, octokit.rest.issues.update, octokit.rest.issues.updateComment
   issues: write
   # ./projects/github-actions/repo-gardening

@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+Comment: Import the view transition wrapper from wp-build-polyfills, where a page outside the admin shell can use it too.
+

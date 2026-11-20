@@ -6,12 +6,33 @@ import { log } from './debug';
 
 export const pageOf = url => new URL( url, location.href ).searchParams.get( 'page' );
 
-const highlightMenu = slug => {
-	// Submenu links first: a top-level item can point at the same page as its first submenu item.
-	const link = [
+// Submenu links first: a top-level item can point at the same page as its first submenu item.
+const menuLink = slug =>
+	[
 		...document.querySelectorAll( '#adminmenu .wp-submenu a[href]' ),
 		...document.querySelectorAll( '#adminmenu a[href]' ),
 	].find( a => pageOf( a.href ) === slug && ! new URL( a.href, location.href ).hash );
+
+/**
+ * The sidebar label of a page, which on most pages is also its heading.
+ *
+ * @param {string} slug - Page slug.
+ * @return {string|null} The label, without count badges.
+ */
+export function menuLabel( slug ) {
+	const link = menuLink( slug );
+	// Only the label's own text: badges like Forms' unread count are child elements.
+	const label = link?.querySelector( '.wp-menu-name' ) ?? link;
+	const text = [ ...( label?.childNodes ?? [] ) ]
+		.filter( node => node.nodeType === Node.TEXT_NODE )
+		.map( node => node.textContent )
+		.join( '' )
+		.trim();
+	return text || null;
+}
+
+const highlightMenu = slug => {
+	const link = menuLink( slug );
 	if ( ! link ) {
 		return;
 	}
@@ -36,6 +57,16 @@ const highlightMenu = slug => {
 	} );
 };
 
+// A page load closes core's mobile sidebar (common.js's `wp-responsive-open`), so a switch must too.
+const closeMobileMenu = () => {
+	const wrap = document.getElementById( 'wpwrap' );
+	if ( ! wrap?.classList.contains( 'wp-responsive-open' ) ) {
+		return;
+	}
+	wrap.classList.remove( 'wp-responsive-open' );
+	document.querySelector( '#wp-admin-bar-menu-toggle a' )?.setAttribute( 'aria-expanded', 'false' );
+};
+
 /**
  * Make the chrome match the page on screen.
  *
@@ -48,6 +79,7 @@ export function updateChrome( slug, members ) {
 		document.body.classList.toggle( bodyClass, member === slug );
 	}
 	highlightMenu( slug );
+	closeMobileMenu();
 	document.title = members[ slug ].adminTitle;
 
 	// After Back/Forward, focus would keep the previous page's menu link lit.

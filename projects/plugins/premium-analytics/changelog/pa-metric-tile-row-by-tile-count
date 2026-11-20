@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Show metric cards as a list when the card is too narrow for every metric to fit side by side, instead of cutting off the figures.

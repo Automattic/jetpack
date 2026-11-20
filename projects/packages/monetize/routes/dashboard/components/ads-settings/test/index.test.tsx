@@ -1,31 +1,45 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
 import { getAdsSettingsData } from '../../../data/ads-settings-data';
 import { useAdsSettings } from '../../../data/use-ads-settings';
+import { usePayout, useSavePayout } from '../../../data/use-wpcom-ads-settings';
 import { AdsSettings } from '../index';
 import type { AdsSettingsData } from '../../../data/ads-settings-data';
 import type { AdsValues } from '../../../data/use-ads-settings';
 
 jest.mock( '@wordpress/api-fetch', () => ( { __esModule: true, default: jest.fn() } ) );
 jest.mock( '../../../data/ads-settings-data' );
+jest.mock( '../../../data/state', () => ( {
+	getPageData: () => ( { upgradeUrl: MOCK_UPGRADE_URL, tracks: true } ),
+} ) );
 jest.mock( '../../../data/tracking' );
 jest.mock( '../../../data/use-ads-settings', () => ( {
 	...jest.requireActual( '../../../data/use-ads-settings' ),
 	useAdsSettings: jest.fn(),
 } ) );
+jest.mock( '../../../data/use-wpcom-connection', () => ( {
+	__esModule: true,
+	default: () => ( { canUseWpcom: true } ),
+} ) );
+jest.mock( '../../../data/use-wpcom-ads-settings', () => ( {
+	useWpcomAdsSync: () => jest.fn(),
+	usePayout: jest.fn(),
+	useSavePayout: jest.fn(),
+} ) );
+jest.mock( '../payout-card', () => ( { PayoutCard: () => null } ) );
 jest.mock( '@automattic/jetpack-connection/get-user-connection-url', () => ( {
 	getUserConnectionUrl: () => '#connect',
 } ) );
 
+const MOCK_UPGRADE_URL = 'https://jetpack.com/redirect/?source=jetpack-creator-cta&site=1';
+
 const DATA: AdsSettingsData = {
 	hasWordAds: true,
 	hasConnectedOwner: true,
-	upgradeUrl: 'https://jetpack.com/redirect/?source=jetpack-creator-cta&site=1',
-	earningsUrl: 'https://jetpack.com/redirect/?source=calypso-stats-ads-day&site=1',
 	isSubdirectorySite: false,
 	moduleOverride: false,
-	tracks: true,
 };
 
 const VALUES = {
@@ -74,15 +88,46 @@ function renderTab(
 	} );
 	render(
 		<QueryClientProvider client={ new QueryClient() }>
-			<AdsSettings />
+			<AdsSettings openTab={ openTab } />
 		</QueryClientProvider>
 	);
 }
 
 const SWITCH = 'Enable ads and display an ad below each post';
+const acceptTerms = jest.fn();
+const openTab = jest.fn();
 
 describe( 'AdsSettings', () => {
-	beforeEach( () => mockedApiFetch.mockReset() );
+	beforeEach( () => {
+		mockedApiFetch.mockReset();
+		openTab.mockReset();
+		acceptTerms.mockReset().mockResolvedValue( {} );
+		( usePayout as jest.Mock ).mockReturnValue( { data: { paypal: '', tosSigned: false } } );
+		( useSavePayout as jest.Mock ).mockReturnValue( {
+			mutateAsync: acceptTerms,
+			isPending: false,
+			isError: false,
+		} );
+	} );
+
+	it.each( [
+		[ 'accepts the terms before turning ads on', false, true, true ],
+		[ 'leaves ads off when the terms cannot be accepted', false, false, false ],
+		[ 'turns ads on straight away once the terms are signed', true, true, true ],
+	] )( '%s', async ( _name, tosSigned, accepted, activated ) => {
+		( usePayout as jest.Mock ).mockReturnValue( { data: { paypal: '', tosSigned } } );
+		if ( ! accepted ) {
+			acceptTerms.mockRejectedValue( new Error() );
+		}
+		renderTab( {}, { wordads: false } );
+		const { setModuleActive } = ( useAdsSettings as jest.Mock ).mock.results.at( -1 ).value;
+
+		await userEvent.click( screen.getByRole( 'switch', { name: SWITCH } ) );
+		await act( () => Promise.resolve() );
+
+		expect( acceptTerms ).toHaveBeenCalledTimes( tosSigned ? 0 : 1 );
+		expect( setModuleActive ).toHaveBeenCalledTimes( activated ? 1 : 0 );
+	} );
 
 	it.each( [
 		[ 'the upgrade prompt without a plan', { hasWordAds: false }, [], 'link', 'Upgrade' ],
@@ -127,7 +172,7 @@ describe( 'AdsSettings', () => {
 
 		await expect( screen.findByRole( 'link', { name: 'Upgrade' } ) ).resolves.toHaveAttribute(
 			'href',
-			DATA.upgradeUrl
+			MOCK_UPGRADE_URL
 		);
 	} );
 
@@ -159,5 +204,14 @@ describe( 'AdsSettings', () => {
 		expect(
 			screen.getByRole( 'switch', { name: 'Enable GDPR Consent Banner' } )
 		).toBeInTheDocument();
+	} );
+
+	it( 'opens the Ads tab in place for earnings', async () => {
+		renderTab();
+		const link = screen.getByRole( 'link', { name: 'View your earnings' } );
+
+		expect( link ).toHaveAttribute( 'href', 'admin.php?page=jetpack-monetize&p=%2F%3Ftab%3Dads' );
+		await userEvent.click( link );
+		expect( openTab ).toHaveBeenCalledWith( 'ads' );
 	} );
 } );

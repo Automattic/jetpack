@@ -3,6 +3,7 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 import { ConnectScreen, CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
 // The extension is required: esbuild does not complete package `exports` subpaths.
 import ConnectScreenBody from '@automattic/jetpack-my-jetpack/components/connection-screen/body.tsx';
+import { getAdminUrl } from '@automattic/jetpack-script-data';
 import { withDispatch } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
 import jQuery from 'jquery';
@@ -18,7 +19,7 @@ import SettingsAdminPage from 'components/settings-admin-page';
 import SettingsNavTabs from 'components/settings-nav-tabs';
 import Tracker from 'components/tracker';
 import analytics from 'lib/analytics';
-import { getAdsSettingsUrl } from 'lib/settings-consolidation';
+import { getAdsSettingsUrl, isSettingsConsolidationEnabled } from 'lib/settings-consolidation';
 import { openProtectSettings } from 'security/protect-page';
 import SearchableSettings from 'settings/index.jsx';
 import {
@@ -45,9 +46,10 @@ import {
 	getCurrentVersion,
 	getTracksUserData,
 	getPluginBaseUrl,
+	hasProtectPage,
+	hasSocialPage,
 	userIsSubscriber,
 } from 'state/initial-state';
-import { hasProtectPage } from 'state/modules';
 import { getRewindStatus } from 'state/rewind';
 import { getSearchTerm } from 'state/search';
 import { areThereUnsavedSettings, clearUnsavedSettingsFlag } from 'state/settings';
@@ -77,12 +79,47 @@ export class Main extends Component {
 		window.addEventListener( 'beforeunload', this.props.clearUnsavedSettingsFlag );
 
 		// Track initial page view
+		this.recordPageView();
+	}
+
+	componentDidMount() {
+		window.addEventListener( 'jetpack-admin-shell:page-hidden', this.onShellPageHidden );
+		window.addEventListener( 'jetpack-admin-shell:page-shown', this.onShellPageShown );
+	}
+
+	componentWillUnmount() {
+		window.removeEventListener( 'jetpack-admin-shell:page-hidden', this.onShellPageHidden );
+		window.removeEventListener( 'jetpack-admin-shell:page-shown', this.onShellPageShown );
+	}
+
+	recordPageView() {
 		this.props.isSiteConnected &&
 			analytics.tracks.recordEvent( 'jetpack_wpa_page_view', {
 				path: this.props.location.pathname,
 				current_version: this.props.currentVersion,
 			} );
 	}
+
+	// The admin shell keeps this page mounted, so a return to it is a new visit: see the admin-ui README.
+	hiddenPathname = this.props.location.pathname;
+
+	onShellPageHidden = event => {
+		if ( event.detail?.page === 'jetpack-settings' ) {
+			this.hiddenPathname = this.props.location.pathname;
+		}
+	};
+
+	onShellPageShown = event => {
+		const { page, firstShow, routeChanged, url } = event.detail ?? {};
+		if ( page !== 'jetpack-settings' || firstShow ) {
+			return;
+		}
+		// componentDidUpdate records a new path, but not a new `?term=` in the same path.
+		const pathname = new URL( url ?? '', location.href ).hash.slice( 1 ).split( '?' )[ 0 ] || '/';
+		if ( ! routeChanged || pathname === this.hiddenPathname ) {
+			this.recordPageView();
+		}
+	};
 
 	/*
 	 * Shows a confirmation dialog if there are unsaved module settings.
@@ -136,12 +173,7 @@ export class Main extends Component {
 
 	componentDidUpdate( prevProps ) {
 		// Track page view on change only
-		prevProps.location.pathname !== this.props.location.pathname &&
-			this.props.isSiteConnected &&
-			analytics.tracks.recordEvent( 'jetpack_wpa_page_view', {
-				path: this.props.location.pathname,
-				current_version: this.props.currentVersion,
-			} );
+		prevProps.location.pathname !== this.props.location.pathname && this.recordPageView();
 
 		// Not taking into account offline mode here because changing the connection
 		// status without reloading is possible only by disconnecting a live site not
@@ -252,12 +284,52 @@ export class Main extends Component {
 					break;
 				}
 			// Falls through.
-			case '/settings':
 			case '/performance':
-			case '/writing':
+				// The Performance tab is gone once settings move out.
+				if ( '/performance' === route && isSettingsConsolidationEnabled() ) {
+					window.location.replace(
+						getAdminUrl( 'admin.php?page=my-jetpack#/features?search=cdn' )
+					);
+					break;
+				}
+			// Falls through.
 			case '/sharing':
-			case '/discussion':
+				if ( '/sharing' === route && isSettingsConsolidationEnabled() ) {
+					window.location.replace(
+						getAdminUrl(
+							this.props.hasSocialPage
+								? 'admin.php?page=jetpack-social'
+								: 'admin.php?page=my-jetpack#/features?search=sharing'
+						)
+					);
+					break;
+				}
+			// Falls through.
 			case '/reader':
+				// Once settings move out, the Reader's only setting is its switch in Features.
+				if ( '/reader' === route && isSettingsConsolidationEnabled() ) {
+					window.location.replace(
+						getAdminUrl( 'admin.php?page=my-jetpack#/features?search=reader' )
+					);
+					break;
+				}
+			// Falls through.
+			case '/writing':
+				// Only admins get here, and they find every Writing setting in Features once settings move out.
+				if ( '/writing' === route && isSettingsConsolidationEnabled() ) {
+					window.location.replace( getAdminUrl( 'admin.php?page=my-jetpack#/features' ) );
+					break;
+				}
+			// Falls through.
+			case '/discussion':
+				if ( '/discussion' === route && isSettingsConsolidationEnabled() ) {
+					window.location.replace(
+						getAdminUrl( 'admin.php?page=my-jetpack&p=%2Ffeatures%3Fconfigure%3Dcomments' )
+					);
+					break;
+				}
+			// Falls through.
+			case '/settings':
 			case '/traffic':
 			case '/privacy':
 				pageComponent = (
@@ -421,6 +493,7 @@ export default connect(
 			connectingUserFrom: getConnectingUserFrom( state ),
 			isSubscriber: userIsSubscriber( state ),
 			hasProtectPage: hasProtectPage( state ),
+			hasSocialPage: hasSocialPage( state ),
 		};
 	},
 	dispatch => ( {

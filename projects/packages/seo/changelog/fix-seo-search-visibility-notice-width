@@ -1,0 +1,3 @@
+Significance: patch
+Type: changed
+Comment: Show the dashboard's site-wide notices from one place, at the top of each tab's content column. The search visibility notice has not shipped yet.

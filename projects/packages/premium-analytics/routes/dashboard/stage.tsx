@@ -1,10 +1,14 @@
 import { currentUserCan } from '@automattic/jetpack-script-data';
 import {
+	DASHBOARD_PREFERENCES_SCOPE,
 	isPlanDateLimitedSection,
+	orderSections,
 	PeriodChangeSignalProvider,
 	queryClient,
 	ReportScopeProvider,
 } from '@jetpack-premium-analytics/data';
+import { PRESET_CUSTOM } from '@jetpack-premium-analytics/datetime';
+import { StatsErrorBoundary } from '@jetpack-premium-analytics/error-reporting';
 import { Icon, JetpackFooter, Stack } from '@jetpack-premium-analytics/externals';
 import { jetpack } from '@jetpack-premium-analytics/icons';
 import {
@@ -26,7 +30,7 @@ import {
 import {
 	canSendFeedback,
 	DashboardSectionProvider,
-	PageOptionsMenu,
+	StatsOptionsMenu,
 	ResetLayoutAction,
 	useHostLinkSearch,
 	useTrackCustomize,
@@ -114,6 +118,20 @@ function Dashboard(): JSX.Element {
 		widgetTypeRenames
 	);
 	const activeSectionRecord = sections.find( section => section.slug === activeSection );
+	// The order the reader is trying in the Arrange tabs dialog: the tab bar alone follows it.
+	const [ previewOrder, setPreviewOrder ] = useState< string[] >();
+	const tabBarSections = useMemo(
+		() => orderSections( sections, previewOrder ?? [] ),
+		[ sections, previewOrder ]
+	);
+	const arrangeableTabs = useMemo(
+		() => ( {
+			scope: DASHBOARD_PREFERENCES_SCOPE,
+			items: sections.map( ( { slug, label } ) => ( { slug, label } ) ),
+			onPreview: setPreviewOrder,
+		} ),
+		[ sections ]
+	);
 
 	// The inserter offers the active section's default layout types plus those it declares insertable.
 	const insertableWidgetTypes = useMemo(
@@ -290,11 +308,12 @@ function Dashboard(): JSX.Element {
 	// the section shows the period control, it draws attention to the new period.
 	const showsPeriodControl =
 		showHeaderDateControl && ! editMode && dateFilterSurface !== DATE_FILTER_YEAR;
-	const { openPeriod, attentionId } = usePeriodHost(
+	const { openPeriod, attention } = usePeriodHost(
 		activeSection,
 		dateFilters.appliedRange,
 		showsPeriodControl,
-		lockedIntervals
+		dateLimits,
+		{ withZoomOut: true }
 	);
 
 	const {
@@ -302,6 +321,7 @@ function Dashboard(): JSX.Element {
 		onComparisonChange: changeComparison,
 		onApply: applyDateRange,
 		stepping,
+		zoomOut,
 	} = dateFilters;
 
 	const { trackedOnChange, trackedOnApply } = useTrackedDateRangeApply(
@@ -356,6 +376,7 @@ function Dashboard(): JSX.Element {
 				trackedOnChange( stepped.range, stepped.presetId, {
 					exactRange: true,
 					interval: stepped.interval,
+					trigger: 'arrow',
 				} );
 				trackedOnApply();
 			}
@@ -367,6 +388,33 @@ function Dashboard(): JSX.Element {
 	const dateStepping = useMemo(
 		() => ( { ...stepping, onStep: onDateStep } ),
 		[ stepping, onDateStep ]
+	);
+	// Zooming back out applies at once too, and is tracked the same way.
+	const zoomOutOfPeriod = zoomOut?.onZoomOut;
+	const onDateZoomOut = useCallback( () => {
+		const zoomed = zoomOutOfPeriod?.();
+
+		if ( zoomed ) {
+			trackedOnChange( zoomed.range, zoomed.presetId, {
+				exactRange: true,
+				interval: zoomed.interval,
+				trigger: 'zoom_out',
+			} );
+			trackedOnApply();
+		}
+	}, [ zoomOutOfPeriod, trackedOnChange, trackedOnApply ] );
+	const dateZoomOut = useMemo(
+		() => zoomOut && { ...zoomOut, onZoomOut: onDateZoomOut },
+		[ zoomOut, onDateZoomOut ]
+	);
+	// A period a widget opens applies at once as well, as the custom range it commits.
+	const onOpenPeriod = useCallback< typeof openPeriod >(
+		( range, options ) => {
+			openPeriod( range, options );
+			trackedOnChange( range, PRESET_CUSTOM, { exactRange: true, trigger: 'widget' } );
+			trackedOnApply();
+		},
+		[ openPeriod, trackedOnChange, trackedOnApply ]
 	);
 
 	/*
@@ -450,26 +498,23 @@ function Dashboard(): JSX.Element {
 					onComparisonChange={ onComparisonChange }
 					onApply={ onDateApply }
 					stepping={ dateStepping }
+					zoomOut={ dateZoomOut }
 					withIntervalControl={ showHeaderIntervalControl }
-					attentionId={ attentionId }
+					attentionId={ attention?.id }
 				/>
 			);
 	}
 
 	return (
 		<>
-			<PeriodChangeStatus
-				attentionId={ attentionId }
-				appliedPresetId={ dateFilters.appliedPresetId }
-				appliedRange={ dateFilters.appliedRange }
-			/>
+			<PeriodChangeStatus periodChange={ attention } />
 			{ /*
 			 * Declared once for widgets below: hiding the control doesn't strip the params,
 			 * so a widget reading them off the URL could show a comparison the reader can't see.
 			 */ }
 			<ReportScopeProvider
 				offersComparison={ offersComparison }
-				openPeriod={ openPeriod }
+				openPeriod={ onOpenPeriod }
 				dateLimits={ dateLimits }
 			>
 				{ /* Outside the dashboard: the inserter mounts beyond `children`. */ }
@@ -501,10 +546,11 @@ function Dashboard(): JSX.Element {
 										<Stack ref={ setOptionsMenuFrame } direction="row">
 											{ /* Outside the section panels, so the menu's links name the tab to return to. */ }
 											<DashboardSectionProvider section={ activeSection }>
-												<PageOptionsMenu
+												<StatsOptionsMenu
 													onCustomize={
 														editMode || ! canCustomizeSection ? undefined : startCustomizing
 													}
+													tabs={ arrangeableTabs }
 												/>
 											</DashboardSectionProvider>
 										</Stack>
@@ -513,7 +559,7 @@ function Dashboard(): JSX.Element {
 								className={ styles.dashboard }
 							>
 								<DashboardSections
-									sections={ sections }
+									sections={ tabBarSections }
 									value={ activeSection }
 									onChange={ setActiveSection }
 									tabListRef={ setTabListFrame }
@@ -611,8 +657,10 @@ function Dashboard(): JSX.Element {
  */
 export function stage(): JSX.Element {
 	return (
-		<PeriodChangeSignalProvider>
-			<Dashboard />
-		</PeriodChangeSignalProvider>
+		<StatsErrorBoundary>
+			<PeriodChangeSignalProvider>
+				<Dashboard />
+			</PeriodChangeSignalProvider>
+		</StatsErrorBoundary>
 	);
 }

@@ -161,6 +161,10 @@ const requiresProtectedOwner = ( state = null ) => state;
 
 const useDefaultProtectedOwnerUi = ( state = null ) => state;
 
+// Server-decided too, so pass-throughs for the same reason.
+const canTakeOwnerSlot = ( state = null ) => state;
+const identityCrisis = ( state = null ) => state;
+
 const connectionErrors = ( state = {}, action ) => {
 	switch ( action.type ) {
 		case SET_CONNECTION_ERRORS:
@@ -193,6 +197,8 @@ const reducers = combineReducers( {
 	hasProtectedOwner,
 	requiresProtectedOwner,
 	useDefaultProtectedOwnerUi,
+	canTakeOwnerSlot,
+	identityCrisis,
 	connectionErrors,
 	isOfflineMode,
 } );

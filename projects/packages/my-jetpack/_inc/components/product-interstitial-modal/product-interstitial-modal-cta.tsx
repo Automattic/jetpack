@@ -32,7 +32,7 @@ const ProductInterstitialModalCta: FC< ProductInterstitialModalCtaProps > = ( {
 
 	const { detail, isLoading: isProductLoading } = useProduct( slug );
 
-	const { pricingForUi, postCheckoutUrl } = detail;
+	const { pricingForUi, postCheckoutUrl, hostPurchaseUrl } = detail;
 
 	const { wpcomProductSlug, tiers } = pricingForUi || {};
 	// Boost pricing information is stored in the `tiers` object
@@ -76,6 +76,15 @@ const ProductInterstitialModalCta: FC< ProductInterstitialModalCtaProps > = ( {
 	const isDisabled = disabled || isProductLoading;
 	const isLoading = isProductLoading || hasMainCheckoutStarted;
 	const label = buttonLabel || __( 'Upgrade', 'jetpack-my-jetpack' );
+
+	// A host that sells the product takes the place of Jetpack's checkout.
+	if ( hostPurchaseUrl && ! isDisabled && ! isLoading ) {
+		return (
+			<ButtonLink variant="solid" href={ hostPurchaseUrl }>
+				{ label }
+			</ButtonLink>
+		);
+	}
 
 	if ( href && ! isDisabled && ! isLoading ) {
 		return (

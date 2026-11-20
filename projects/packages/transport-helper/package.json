@@ -1,6 +1,5 @@
 {
 	"name": "@automattic/jetpack-transport-helper",
-	"version": "0.4.0",
 	"private": true,
 	"description": "Package to help transport server communication",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/transport-helper/#readme",

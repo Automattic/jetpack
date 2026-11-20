@@ -1,3 +1,4 @@
+import { getProductCheckoutUrl } from '@automattic/jetpack-components';
 import { CONNECTION_FROM } from '@automattic/jetpack-connection';
 import { getMyJetpackUrl } from '@automattic/jetpack-script-data';
 import { dateI18n, getDate } from '@wordpress/date';
@@ -30,6 +31,8 @@ interface PlanSectionHeaderAndFooterProps {
 
 interface PlanSectionFooterProps extends PlanSectionHeaderAndFooterProps {
 	hasComplete: boolean;
+	/** The Complete plan a Pro site upgrades to, from `getCompleteUpgradeSlug()`. */
+	completeUpgradeSlug?: string;
 	/** The name "Activate a license" connects under; undefined from an older shared connection script, which then sends `my-jetpack`. */
 	from: string | undefined;
 	/** Added to each link's Tracks event, e.g. where the links are shown. */
@@ -85,9 +88,30 @@ export function getPurchaseExpiry( purchase: Purchase ): PurchaseExpiry {
 	};
 }
 
+/**
+ * The click handler for a plan's Renew or Resume link, recording which plan it was.
+ *
+ * @param purchase         - The purchase the link is for.
+ * @param tracksProperties - Added to the event, e.g. where the link is shown.
+ * @return The click handler.
+ */
+export function useRenewClickHandler( purchase: Purchase, tracksProperties?: TracksProperties ) {
+	const { recordEvent } = useAnalytics();
+	const { expiry_status, product_slug } = purchase;
+
+	return useCallback( () => {
+		recordEvent( 'jetpack_myjetpack_plans_renew_click', {
+			...tracksProperties,
+			action: PRODUCT_STATUSES.EXPIRED === expiry_status ? 'resume' : 'renew',
+			product_slug,
+		} );
+	}, [ expiry_status, product_slug, recordEvent, tracksProperties ] );
+}
+
 const PlanExpiry: FC< PlanSectionProps > = ( { purchase } ) => {
 	const { product_name, subscribed_date } = purchase;
 	const { state, date, partnerName, actionUrl } = getPurchaseExpiry( purchase );
+	const onActionClick = useRenewClickHandler( purchase );
 
 	const isExpired = state === 'expired';
 	const isExpiringSoon = state === 'expiring-soon';
@@ -144,18 +168,18 @@ const PlanExpiry: FC< PlanSectionProps > = ( { purchase } ) => {
 
 		if ( isExpiringSoon ) {
 			return (
-				<Link href={ actionUrl } openInNewTab>
+				<Link href={ actionUrl } onClick={ onActionClick } openInNewTab>
 					{ __( 'Renew subscription', 'jetpack-my-jetpack' ) }
 				</Link>
 			);
 		}
 
 		return (
-			<Link href={ actionUrl } openInNewTab>
+			<Link href={ actionUrl } onClick={ onActionClick } openInNewTab>
 				{ __( 'Resume subscription', 'jetpack-my-jetpack' ) }
 			</Link>
 		);
-	}, [ actionUrl, isExpiringPurchase, isExpiringSoon ] );
+	}, [ actionUrl, isExpiringPurchase, isExpiringSoon, onActionClick ] );
 
 	if ( isLifetimePurchase( purchase ) ) {
 		return (
@@ -221,9 +245,31 @@ function hasIncludedFeatures(): boolean {
 	return Array.isArray( features ) ? features.some( feature => feature.included ) : false;
 }
 
+// Complete in the same billing term as the site's Pro.
+const COMPLETE_FOR_PRO: Record< string, string > = {
+	jetpack_pro_yearly: 'jetpack_complete',
+	jetpack_pro_bi_yearly: 'jetpack_complete_bi_yearly',
+	jetpack_pro_monthly: 'jetpack_complete_monthly',
+};
+
+/**
+ * The Complete plan a site with Pro upgrades to.
+ *
+ * @param purchases - The site's purchases.
+ * @return The Complete product slug, or undefined when the site has no unexpired Pro.
+ */
+export function getCompleteUpgradeSlug( purchases?: Purchase[] | null ): string | undefined {
+	// An expired Pro leaves nothing to credit, so its owner gets the pricing page instead.
+	return purchases
+		?.filter( ( { expiry_status } ) => PRODUCT_STATUSES.EXPIRED !== expiry_status )
+		.map( ( { product_slug } ) => COMPLETE_FOR_PRO[ product_slug ] )
+		.find( Boolean );
+}
+
 export const PlanSectionFooter: FC< PlanSectionFooterProps > = ( {
 	numberOfPurchases,
 	hasComplete,
+	completeUpgradeSlug,
 	from,
 	tracksProperties,
 } ) => {
@@ -238,7 +284,38 @@ export const PlanSectionFooter: FC< PlanSectionFooterProps > = ( {
 		'jetpack-my-jetpack'
 	);
 
-	const planPurchaseDescription = __( 'Purchase a plan', 'jetpack-my-jetpack' );
+	const {
+		loadAddLicenseScreen = '',
+		blogID,
+		siteSuffix = '',
+		myJetpackCheckoutUri = '',
+		planUrls,
+	} = getMyJetpackWindowInitialState();
+
+	// The host's URL, false when it has no plan to sell this site, or '' for Jetpack's own plans.
+	const hostPurchase = planUrls?.purchase ?? '';
+	// A host that sells its own plans has no Complete to upgrade to.
+	const completeSlug = hostPurchase === '' ? completeUpgradeSlug : undefined;
+
+	// Not a ternary, for the same minification reason as "Activate a license" below.
+	let planPurchaseDescription: string = __( 'Purchase a plan', 'jetpack-my-jetpack' );
+	let planPurchaseUrl = hostPurchase || getPurchasePlanUrl();
+	if ( hostPurchase ) {
+		planPurchaseDescription = __( 'Upgrade your plan', 'jetpack-my-jetpack' );
+	}
+	if ( completeSlug ) {
+		planPurchaseDescription = sprintf(
+			/* translators: %s is a product name, such as "Jetpack Akismet Anti-spam". */
+			__( 'Upgrade to %s', 'jetpack-my-jetpack' ),
+			'Complete'
+		);
+		planPurchaseUrl = getProductCheckoutUrl(
+			completeSlug,
+			blogID || siteSuffix,
+			myJetpackCheckoutUri,
+			isUserConnected
+		);
+	}
 
 	const planManageClickHandler = useCallback( () => {
 		recordEvent( 'jetpack_myjetpack_plans_manage_click', tracksProperties );
@@ -249,8 +326,11 @@ export const PlanSectionFooter: FC< PlanSectionFooterProps > = ( {
 	}, [ recordEvent, tracksProperties ] );
 
 	const planPurchaseClickHandler = useCallback( () => {
-		recordEvent( 'jetpack_myjetpack_plans_purchase_click', tracksProperties );
-	}, [ recordEvent, tracksProperties ] );
+		recordEvent( 'jetpack_myjetpack_plans_purchase_click', {
+			...tracksProperties,
+			...( completeSlug && { product_slug: completeSlug } ),
+		} );
+	}, [ completeSlug, recordEvent, tracksProperties ] );
 
 	const activateLicenseClickHandler = useCallback( () => {
 		// `from` only when the click connects the user first, so it never reports a connection that didn't start.
@@ -279,8 +359,6 @@ export const PlanSectionFooter: FC< PlanSectionFooterProps > = ( {
 		);
 	}
 
-	const { loadAddLicenseScreen = '' } = getMyJetpackWindowInitialState();
-
 	// Not getMyJetpackRouteUrl() for the return: on My Jetpack itself it's a bare hash, which Calypso ignores.
 	const activateLicenseUrl = isUserConnected
 		? getMyJetpackRouteUrl( MyJetpackRoutes.AddLicense )
@@ -292,9 +370,13 @@ export const PlanSectionFooter: FC< PlanSectionFooterProps > = ( {
 
 	return (
 		<ul className={ styles[ 'actions-list' ] }>
-			{ numberOfPurchases > 0 && (
+			{ numberOfPurchases > 0 && planUrls?.manage !== false && (
 				<li className={ styles[ 'actions-list-item' ] }>
-					<Link openInNewTab onClick={ planManageClickHandler } href={ getManageYourPlanUrl() }>
+					<Link
+						openInNewTab
+						onClick={ planManageClickHandler }
+						href={ planUrls?.manage || getManageYourPlanUrl() }
+					>
 						{ planManageDescription }
 					</Link>
 				</li>
@@ -309,9 +391,9 @@ export const PlanSectionFooter: FC< PlanSectionFooterProps > = ( {
 					</Link>
 				</li>
 			) }
-			{ ! hasComplete && (
+			{ ! hasComplete && hostPurchase !== false && (
 				<li className={ styles[ 'actions-list-item' ] }>
-					<Link onClick={ planPurchaseClickHandler } href={ getPurchasePlanUrl() } openInNewTab>
+					<Link onClick={ planPurchaseClickHandler } href={ planPurchaseUrl } openInNewTab>
 						{ planPurchaseDescription }
 					</Link>
 				</li>
@@ -376,6 +458,7 @@ const PlansSection: FC = () => {
 				<PlanSectionFooter
 					numberOfPurchases={ numberOfPurchases }
 					hasComplete={ complete.hasPaidPlanForProduct }
+					completeUpgradeSlug={ getCompleteUpgradeSlug( purchases ) }
 					from={ CONNECTION_FROM?.myJetpackPlans }
 				/>
 			) }

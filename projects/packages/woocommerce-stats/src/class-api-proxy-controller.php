@@ -19,8 +19,8 @@ use WP_REST_Server;
 
 /**
  * Serves `/jetpack/v4/woocommerce-stats/proxy/v2/analytics/reports/<report>` through the report
- * executor, whose only provider is a read of the same path under the connected site on WordPress.com,
- * signed with the blog token and cached briefly.
+ * executor. Its WordPress.com provider reads the same path under the connected site, signed with
+ * the blog token and cached briefly.
  * Reports follow the store's WooCommerce Analytics date type unless the request names one.
  *
  * For now it carries its own forward. The route has the shape of the proxy controller the
@@ -124,9 +124,9 @@ class Api_Proxy_Controller {
 						'validate_callback' => array( $this, 'validate_endpoint' ),
 					),
 					'provider'         => array(
-						'description'       => __( 'Provider to serve the report from. Defaults to WordPress.com.', 'jetpack-woocommerce-stats-pkg' ),
+						'description'       => __( 'A registered provider to serve the report from, such as wpcom or local, or auto to follow the site setting. Defaults to WordPress.com.', 'jetpack-woocommerce-stats-pkg' ),
 						'type'              => 'string',
-						'enum'              => Report_Executor::PROVIDERS,
+						'pattern'           => '^[a-z0-9_-]+\\z',
 						'validate_callback' => 'rest_validate_request_arg',
 					),
 					self::FIELDS_PARAM => array(

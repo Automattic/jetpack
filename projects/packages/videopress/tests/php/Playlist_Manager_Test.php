@@ -169,7 +169,7 @@ class Playlist_Manager_Test extends BaseTestCase {
 	 * @return \WP_REST_Response
 	 */
 	private function request( $method, $path = '', array $params = array() ) {
-		$request = new WP_REST_Request( $method, '/' . Rest_Controller::REST_NAMESPACE . Playlist_Manager::ROUTE . $path );
+		$request = new WP_REST_Request( $method, '/' . Playlist_Manager::REST_NAMESPACE . Playlist_Manager::ROUTE . $path );
 		foreach ( $params as $name => $value ) {
 			$request->set_param( $name, $value );
 		}

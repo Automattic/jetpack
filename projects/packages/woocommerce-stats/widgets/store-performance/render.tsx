@@ -8,6 +8,7 @@ import {
 	describeError,
 	MetricTabsChart,
 	MetricTabsChartSkeleton,
+	useOpenChartBucket,
 	useWidgetRootContext,
 	WidgetRoot,
 	WidgetState,
@@ -136,6 +137,7 @@ type StorePerformanceProps = {
 function StorePerformance( { hiddenMetricIds, chartType }: StorePerformanceProps ) {
 	const { reportParams } = useWidgetRootContext();
 	const offered = useStorePerformanceMetrics();
+	const openBucket = useOpenChartBucket( reportParams.interval );
 
 	// Resolved against the list on offer, so a metric registered later shows unless hidden.
 	const metrics = useMemo( () => {
@@ -250,6 +252,7 @@ function StorePerformance( { hiddenMetricIds, chartType }: StorePerformanceProps
 					chartType={ chartType }
 					dataFormat={ DEFAULT_DATA_FORMAT }
 					groupLabel={ __( 'Store metric', 'jetpack-woocommerce-stats-pkg' ) }
+					onDatumClick={ openBucket }
 					empty={ <ChartEmptyState /> }
 				/>
 			</WidgetState>

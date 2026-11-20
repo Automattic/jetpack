@@ -52,14 +52,18 @@ let mockIsSyncFinished: boolean;
 let mockSyncOptions: { enabled?: boolean; autoStart?: boolean } | undefined;
 let mockIsAdmin: boolean;
 let mockCanSendFeedback: boolean;
+let mockMenuTabs: { onPreview?: ( order?: string[] ) => void } | undefined;
 const mockResetLayout = jest.fn();
 const mockChangeComparison = jest.fn();
 const mockStepDateRange = jest.fn();
+const mockZoomOutOfPeriod = jest.fn();
+let mockZoomOut: { presetId: string; range: unknown; onZoomOut: () => unknown } | undefined;
 let mockDateFiltersPanelProps: {
 	onChange: ( ...args: unknown[] ) => void;
 	onComparisonChange: ( ...args: unknown[] ) => void;
 	onApply: () => void;
 	stepping: { onStep: ( direction: 'previous' | 'next' ) => unknown };
+	zoomOut?: { onZoomOut: () => void };
 };
 const mockTriggerSync = jest.fn( () => Promise.resolve() );
 const mockUseTrackedDateRangeApply = jest.fn<
@@ -116,6 +120,7 @@ jest.mock( '@jetpack-premium-analytics/routing', () => ( {
 		onApply: jest.fn(),
 		onIntervalChange: jest.fn(),
 		stepping: { canStepBackward: true, canStepForward: true, onStep: mockStepDateRange },
+		zoomOut: mockZoomOut,
 	} ),
 } ) );
 
@@ -176,15 +181,25 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 	...jest.requireActual( '../../packages/widgets-toolkit/src/hooks/use-dashboard-origin-search' ),
 	useTrackCustomize: () => mockTrackCustomize,
 	canSendFeedback: () => mockCanSendFeedback,
-	PageOptionsMenu: ( { onCustomize }: { onCustomize?: () => void } ) => (
-		<div data-testid="page-options-menu">
-			{ onCustomize && (
-				<button type="button" onClick={ onCustomize }>
-					Customize
-				</button>
-			) }
-		</div>
-	),
+	StatsOptionsMenu: ( {
+		onCustomize,
+		tabs,
+	}: {
+		onCustomize?: () => void;
+		tabs?: typeof mockMenuTabs;
+	} ) => {
+		mockMenuTabs = tabs;
+
+		return (
+			<div data-testid="stats-options-menu">
+				{ onCustomize && (
+					<button type="button" onClick={ onCustomize }>
+						Customize
+					</button>
+				) }
+			</div>
+		);
+	},
 	ResetLayoutAction: ( { onReset }: { onReset: () => void } ) => (
 		<button type="button" onClick={ onReset }>
 			Reset to default
@@ -316,7 +331,7 @@ jest.mock( '@wordpress/widget-dashboard', () => {
 	/**
 	 * The real dashboard hands `editMode` and `onEditChange` to `Actions` through its
 	 * context; the stand-in does the same so Done and Cancel round-trip. Customize is
-	 * the page options menu's, and the stage mounts this while customizing only.
+	 * the Stats options menu's, and the stage mounts this while customizing only.
 	 *
 	 * @return The stand-in edit toolbar.
 	 */
@@ -372,8 +387,19 @@ jest.mock( '@wordpress/widget-dashboard', () => {
 } );
 
 jest.mock( './components', () => ( {
-	DashboardSections: ( { children }: { children: ReactNode } ) => (
-		<div data-testid="dashboard-sections">{ children }</div>
+	DashboardSections: ( {
+		children,
+		sections,
+	}: {
+		children: ReactNode;
+		sections: { slug: string }[];
+	} ) => (
+		<div
+			data-testid="dashboard-sections"
+			data-order={ sections.map( section => section.slug ).join( ' ' ) }
+		>
+			{ children }
+		</div>
 	),
 	// A marker, not the real banner, which owns its own preference. Covered
 	// here: which section the stage offers it on, and when.
@@ -908,7 +934,7 @@ describe( 'Dashboard options menu', () => {
 		mockSection( { slug: 'traffic', date_filter: DATE_FILTER_RANGE } );
 
 		render( <Dashboard /> );
-		const menu = screen.getByTestId( 'page-options-menu' );
+		const menu = screen.getByTestId( 'stats-options-menu' );
 
 		expect( screen.queryByTestId( 'widget-dashboard-actions' ) ).not.toBeInTheDocument();
 
@@ -928,7 +954,7 @@ describe( 'Dashboard options menu', () => {
 		mockSection( { slug: 'traffic', date_filter: DATE_FILTER_RANGE } );
 
 		render( <Dashboard /> );
-		const menu = screen.getByTestId( 'page-options-menu' );
+		const menu = screen.getByTestId( 'stats-options-menu' );
 
 		await userEvent.click( within( menu ).getByRole( 'button', { name: 'Customize' } ) );
 		await userEvent.click( screen.getByRole( 'button', { name: 'Cancel' } ) );
@@ -947,7 +973,7 @@ describe( 'Dashboard options menu', () => {
 		mockSection( { slug: 'traffic', date_filter: DATE_FILTER_RANGE } );
 
 		render( <Dashboard /> );
-		const menu = screen.getByTestId( 'page-options-menu' );
+		const menu = screen.getByTestId( 'stats-options-menu' );
 
 		await userEvent.click( within( menu ).getByRole( 'button', { name: 'Customize' } ) );
 		await userEvent.click( screen.getByRole( 'button', { name: 'Done' } ) );
@@ -955,6 +981,33 @@ describe( 'Dashboard options menu', () => {
 		expect( mockTrackCustomize.layoutChange ).toHaveBeenCalledWith( [], mockCommittedLayout );
 		expect( mockTrackCustomize.layoutChange.mock.invocationCallOrder[ 0 ] ).toBeLessThan(
 			mockTrackCustomize.exit.mock.invocationCallOrder[ 0 ]
+		);
+	} );
+
+	it( 'shows the tab bar, and nothing else, an order the reader is trying', () => {
+		const sections = [
+			{ slug: 'traffic', label: 'Traffic', date_filter: DATE_FILTER_RANGE },
+			{ slug: 'insights', label: 'Insights', date_filter: DATE_FILTER_YEAR },
+		];
+		useDashboardSectionsMock.mockReturnValue( {
+			sections,
+			hasResolved: true,
+		} as unknown as ReturnType< typeof useDashboardSections > );
+
+		render( <Dashboard /> );
+		act( () => mockMenuTabs?.onPreview?.( [ 'insights', 'traffic' ] ) );
+
+		expect( screen.getByTestId( 'dashboard-sections' ) ).toHaveAttribute(
+			'data-order',
+			'insights traffic'
+		);
+		expect( useActiveSectionMock ).toHaveBeenLastCalledWith( sections, expect.any( Function ) );
+
+		act( () => mockMenuTabs?.onPreview?.() );
+
+		expect( screen.getByTestId( 'dashboard-sections' ) ).toHaveAttribute(
+			'data-order',
+			'traffic insights'
 		);
 	} );
 } );
@@ -1191,6 +1244,7 @@ describe( 'Dashboard header date control', () => {
 		expect( trackedOnChange ).toHaveBeenCalledWith( JULY_2026, 'last-month', {
 			exactRange: true,
 			interval: 'week',
+			trigger: 'arrow',
 		} );
 		expect( trackedOnApply ).toHaveBeenCalledTimes( 1 );
 		// Last 12 months → Previous → Next lands on the year to date in December;
@@ -1198,6 +1252,52 @@ describe( 'Dashboard header date control', () => {
 		expect(
 			select( preferencesStore ).get( DASHBOARD_PREFERENCES_SCOPE, 'datePreset' )
 		).toBeUndefined();
+	} );
+
+	it( 'tracks a zoom out from the header as an applied range', () => {
+		const trackedOnChange = jest.fn();
+		const trackedOnApply = jest.fn();
+		mockUseTrackedDateRangeApply.mockReturnValue( { trackedOnChange, trackedOnApply } );
+		mockZoomOutOfPeriod.mockReturnValue( {
+			range: JULY_2026,
+			presetId: 'last-month',
+			interval: 'week',
+		} );
+		mockZoomOut = { presetId: 'last-month', range: JULY_2026, onZoomOut: mockZoomOutOfPeriod };
+		mockSection( { date_filter: DATE_FILTER_RANGE } );
+
+		render( <Dashboard /> );
+		act( () => {
+			mockDateFiltersPanelProps.zoomOut?.onZoomOut();
+		} );
+		mockZoomOut = undefined;
+
+		expect( mockZoomOutOfPeriod ).toHaveBeenCalledTimes( 1 );
+		expect( trackedOnChange ).toHaveBeenCalledWith( JULY_2026, 'last-month', {
+			exactRange: true,
+			interval: 'week',
+			trigger: 'zoom_out',
+		} );
+		expect( trackedOnApply ).toHaveBeenCalledTimes( 1 );
+	} );
+
+	it( 'tracks a period a widget opens as an applied custom range', async () => {
+		const trackedOnChange = jest.fn();
+		const trackedOnApply = jest.fn();
+		mockUseTrackedDateRangeApply.mockReturnValue( { trackedOnChange, trackedOnApply } );
+		mockSection( { date_filter: DATE_FILTER_RANGE } );
+		const user = userEvent.setup();
+
+		render( <Dashboard /> );
+		await user.click(
+			screen.getByRole( 'button', { name: 'Set July from a chart on this section' } )
+		);
+
+		expect( trackedOnChange ).toHaveBeenCalledWith( JULY_2026, 'custom', {
+			exactRange: true,
+			trigger: 'widget',
+		} );
+		expect( trackedOnApply ).toHaveBeenCalledTimes( 1 );
 	} );
 
 	it( 'neither tracks nor remembers a step the filters refused', () => {
@@ -1410,9 +1510,9 @@ describe( 'Dashboard customizing', () => {
 		expect( screen.queryByText( 'interval control' ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'offers Customize from the page options menu, and withdraws it while customizing', async () => {
+	it( 'offers Customize from the Stats options menu, and withdraws it while customizing', async () => {
 		render( <Dashboard /> );
-		const menu = screen.getByTestId( 'page-options-menu' );
+		const menu = screen.getByTestId( 'stats-options-menu' );
 
 		await userEvent.click( within( menu ).getByRole( 'button', { name: 'Customize' } ) );
 
@@ -1426,7 +1526,7 @@ describe( 'Dashboard customizing', () => {
 
 	it( "offers Reset to default beside the dashboard's own actions while customizing", async () => {
 		render( <Dashboard /> );
-		const menu = screen.getByTestId( 'page-options-menu' );
+		const menu = screen.getByTestId( 'stats-options-menu' );
 		expect( screen.queryByRole( 'button', { name: 'Reset to default' } ) ).not.toBeInTheDocument();
 
 		await userEvent.click( within( menu ).getByRole( 'button', { name: 'Customize' } ) );
@@ -1555,7 +1655,7 @@ describe( 'Dashboard locked section', () => {
 		render( <Dashboard /> );
 
 		expect(
-			within( screen.getByTestId( 'page-options-menu' ) ).queryByRole( 'button', {
+			within( screen.getByTestId( 'stats-options-menu' ) ).queryByRole( 'button', {
 				name: 'Customize',
 			} )
 		).not.toBeInTheDocument();

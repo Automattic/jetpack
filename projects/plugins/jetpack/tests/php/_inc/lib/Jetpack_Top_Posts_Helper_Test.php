@@ -30,6 +30,13 @@ class Jetpack_Top_Posts_Helper_Test extends WP_UnitTestCase {
 	const BLOG_ID = 1234;
 
 	/**
+	 * Published posts shared by every test; the tests only read them.
+	 *
+	 * @var int[]
+	 */
+	private static $post_pool = array();
+
+	/**
 	 * Post IDs listed in the faked Stats response.
 	 *
 	 * @var int[]
@@ -51,7 +58,16 @@ class Jetpack_Top_Posts_Helper_Test extends WP_UnitTestCase {
 	private $attached_media_calls = 0;
 
 	/**
-	 * Publishes posts and primes the Stats cache with a response listing them.
+	 * Publishes enough posts for the largest response any test fakes.
+	 *
+	 * @param WP_UnitTest_Factory $factory Test factory.
+	 */
+	public static function wpSetUpBeforeClass( $factory ) {
+		self::$post_pool = $factory->post->create_many( 100 );
+	}
+
+	/**
+	 * Primes the Stats cache with a response listing posts from the shared pool.
 	 *
 	 * IDs must be real and published; get_top_posts() drops anything else. Priming the
 	 * transient keeps the test offline and matches the block's front-end path.
@@ -67,7 +83,7 @@ class Jetpack_Top_Posts_Helper_Test extends WP_UnitTestCase {
 		$postviews = array();
 
 		foreach ( $spec as $type => $count ) {
-			foreach ( self::factory()->post->create_many( $count ) as $post_id ) {
+			foreach ( array_slice( self::$post_pool, count( $this->post_ids ), $count ) as $post_id ) {
 				$this->post_ids[] = $post_id;
 				$postviews[]      = array(
 					'id'     => $post_id,

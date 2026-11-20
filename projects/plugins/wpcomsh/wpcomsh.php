@@ -25,10 +25,26 @@ if ( ! class_exists( 'Atomic_Persistent_Data' ) ) {
 	require_once __DIR__ . '/class-atomic-persistent-data.php';
 }
 
+/**
+ * Returns a shared Atomic_Persistent_Data instance, as each new instance re-reads and decodes the data file.
+ * Replace this and its calls once Atomic_Persistent_Data has a singleton operation method.
+ *
+ * @return Atomic_Persistent_Data
+ */
+function wpcomsh_get_atomic_persistent_data() {
+	static $persistent_data = null;
+	if ( $persistent_data === null ) {
+		$persistent_data = new Atomic_Persistent_Data();
+	}
+	return $persistent_data;
+}
+
 require_once __DIR__ . '/constants.php';
 require_once __DIR__ . '/wpcom-features/functions-wpcom-features.php';
 require_once __DIR__ . '/wpcom-marketplace/software/class-marketplace-software-manager.php';
 require_once __DIR__ . '/functions.php';
+require_once __DIR__ . '/user-login.php';
+require_once __DIR__ . '/author-slug-redirect.php';
 require_once __DIR__ . '/i18n.php';
 require_once __DIR__ . '/lib/require-lib.php';
 
@@ -161,6 +177,10 @@ require_once __DIR__ . '/feature-plugins/wordpress-mods.php';
 require_once __DIR__ . '/feature-plugins/wpcom-reader-link.php';
 require_once __DIR__ . '/feature-plugins/featured-image-in-email.php';
 
+// Jetpack Connection Handlers (external storage and protected owner).
+// Load this file before jetpack-mu-wpcom, so that the storage provider is in place before its init() reads the blog ID.
+require_once __DIR__ . '/connection/connection-handlers.php';
+
 /**
  * Conditionally load the jetpack-mu-wpcom package.
  *
@@ -209,9 +229,6 @@ require_once __DIR__ . '/support-session.php';
 
 // Adds fallback behavior for non-Gutenframed sites to be able to use the 'Share Post' functionality from WPCOM Reader.
 require_once __DIR__ . '/share-post/share-post.php';
-
-// Jetpack Connection Handlers (external storage and protected owner).
-require_once __DIR__ . '/connection/connection-handlers.php';
 
 // Require a Jetpack Connection Owner.
 require_once __DIR__ . '/jetpack-require-connection-owner/class-wpcomsh-require-connection-owner.php';
@@ -362,6 +379,7 @@ function wpcomsh_allow_custom_wp_options( $options ) {
 	$options[] = 'site_logo';
 	$options[] = 'footercredit';
 	$options[] = 'wpcomsh_at_managed_plugins';
+	$options[] = 'wpcomsh_at_managed_themes';
 
 	return $options;
 }
@@ -443,7 +461,7 @@ add_filter( 'allowed_redirect_hosts', 'wpcomsh_allowed_redirect_hosts', 11 );
 function wpcomsh_make_content_clickable( $content ) {
 	// Fast path: no URL-shaped substring, no work to do. Avoids loading the
 	// linkifier and walking the tokenizer for the common case.
-	if ( false === stripos( $content, 'http' ) && false === stripos( $content, 'www.' ) ) {
+	if ( ! $content || ( false === stripos( $content, 'http' ) && false === stripos( $content, 'www.' ) ) ) {
 		return $content;
 	}
 
@@ -584,9 +602,59 @@ function wpcomsh_footer_rum_js() {
 		$data_site_tz, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		$data_site_v // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	);
+
+	$script_url = 'https://s0.wp.com/wp-content/js/bilmur.min.js?m=' . gmdate( 'YW' );
+
+	// The banner that collects consent only runs on the front end.
+	if ( 'atomic' === $service && function_exists( 'wp_has_consent' ) ) {
+		wp_print_inline_script_tag( wpcomsh_rum_consent_gate_js( $script_url ) );
+		return;
+	}
+
+	// Print the script tag straight away if no consent service is present
+	// (e.g. in admin).
 	printf(
 		'<script defer src="%s"></script>' . "\n", //phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript
-		esc_url( 'https://s0.wp.com/wp-content/js/bilmur.min.js?m=' . gmdate( 'YW' ) )
+		esc_url( $script_url )
+	);
+}
+
+/**
+ * Build an inline script that loads bilmur once the visitor allows statistics.
+ *
+ * The check runs in the browser because cached HTML is shared across visitors.
+ *
+ * @param string $script_url The bilmur script URL.
+ * @return string
+ */
+function wpcomsh_rum_consent_gate_js( $script_url ) {
+	return sprintf(
+		'( function () {
+	var loadDone = false;
+	function load() {
+		if ( loadDone ) { return; }
+		loadDone = true;
+		var script = document.createElement( "script" );
+		script.src = %s;
+		document.head.appendChild( script );
+	}
+	function check() {
+		if ( typeof window.wp_has_consent === "function" && window.wp_has_consent( "statistics" ) ) { load(); }
+	}
+	document.addEventListener( "wp_listen_for_consent_change", function ( event ) {
+		var value = event.detail && event.detail[ "statistics" ];
+		if ( value === "allow" ) { load(); }
+		// Withdrawing consent must also drop a beacon bilmur might have already queued.
+		if ( value === "deny" && loadDone ) { document.dispatchEvent( new Event( "bilmur:cancel" ) ); }
+	} );
+	document.addEventListener( "wp_consent_type_defined", check );
+	if ( document.readyState === "loading" ) {
+		document.addEventListener( "DOMContentLoaded", check );
+	} else {
+		check();
+	}
+} )();',
+		wp_json_encode( esc_url_raw( $script_url ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP )
 	);
 }
 

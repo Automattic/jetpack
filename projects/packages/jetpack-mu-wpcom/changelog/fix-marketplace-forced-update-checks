@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Plugins: Stop the Marketplace tab from rechecking plugin updates once per installed product, which could time out the Add Plugins screen.

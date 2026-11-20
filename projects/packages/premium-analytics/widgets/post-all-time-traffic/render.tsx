@@ -11,7 +11,9 @@ import {
 	describeError,
 	monthRange,
 	monthlyHeatmapLabels,
+	monthlyHeatmapToCsv,
 	resolveMonthlyHeatmapMetric,
+	useReportActions,
 	useWidgetRootContext,
 	yearRange,
 	type MonthlyHeatmapMetric,
@@ -36,8 +38,17 @@ function PostAllTimeTrafficInner( { metric }: { metric: MonthlyHeatmapMetric } )
 	const { reportParams } = useWidgetRootContext();
 	const postId = toPostId( reportParams.post_id );
 
-	const { rows, lifeStartsAt, isLoading, isFetching, isError, error, refetch } =
-		usePostAllTimeTraffic( postId, metric );
+	const {
+		rows,
+		partialMonths,
+		lifeStartsAt,
+		isLoading,
+		isFetching,
+		isError,
+		isPlaceholderData,
+		error,
+		refetch,
+	} = usePostAllTimeTraffic( postId, metric );
 
 	// A month picked here becomes the page's period, read over by the other
 	// cards while this one stays all-time.
@@ -55,6 +66,25 @@ function PostAllTimeTrafficInner( { metric }: { metric: MonthlyHeatmapMetric } )
 		[ rows ]
 	);
 
+	const csv = useMemo(
+		() =>
+			monthlyHeatmapToCsv(
+				heatmapRows.some( row => row.months.some( value => ( value ?? 0 ) > 0 ) ) ? heatmapRows : []
+			),
+		[ heatmapRows ]
+	);
+	useReportActions( {
+		csv: {
+			...csv,
+			filenamePrefix:
+				metric === 'average'
+					? `post-${ postId }-daily-average-all-time-traffic`
+					: `post-${ postId }-all-time-traffic`,
+			hasDateRange: false,
+			status: { isLoading, isFetching, isError, isPlaceholderData },
+		},
+	} );
+
 	const openMonth = useMemo( () => {
 		if ( ! openPeriod ) {
 			return undefined;
@@ -63,11 +93,11 @@ function PostAllTimeTrafficInner( { metric }: { metric: MonthlyHeatmapMetric } )
 		return ( { year, month }: MonthlyHeatmapTarget ) => {
 			const bounds = { lifeStartsAt, timeZone };
 			// The year's roll-up opens the whole year.
-			const range =
+			const opened =
 				month === undefined ? yearRange( year, bounds ) : monthRange( { year, month }, bounds );
 
-			if ( range ) {
-				openPeriod( range );
+			if ( opened ) {
+				openPeriod( opened.range, { step: opened.step } );
 			}
 		};
 	}, [ lifeStartsAt, timeZone, openPeriod ] );
@@ -106,7 +136,12 @@ function PostAllTimeTrafficInner( { metric }: { metric: MonthlyHeatmapMetric } )
 		>
 			<MonthlyHeatmap
 				rows={ heatmapRows }
+				partialMonths={ partialMonths }
 				{ ...monthlyHeatmapLabels( metric ) }
+				// A post can run from single digits to five figures over its life, which
+				// distance flattens into one pale tone. In log space a tenfold jump is
+				// one step wherever it falls.
+				scale="log"
 				onSelect={ openMonth }
 			/>
 		</WidgetState>

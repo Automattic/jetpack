@@ -44,11 +44,13 @@ class Odyssey_Assets {
 	 */
 	public function load_admin_scripts( $asset_handle, $asset_name, $options = array() ) {
 		$default_options = array(
-			'config_data'          => ( new Odyssey_Config_Data() )->get_data(),
+			'config_data'          => null,
 			'config_variable_name' => 'configData',
 			'enqueue_css'          => true,
 		);
 		$options         = wp_parse_args( $options, $default_options );
+		// Built only when the caller passes none, as it can cost a WordPress.com request.
+		$options['config_data'] ??= ( new Odyssey_Config_Data() )->get_data();
 		if ( file_exists( __DIR__ . "/../dist/{$asset_name}.js" ) ) {
 			// Load local assets for the convinience of development.
 			Assets::register_script(

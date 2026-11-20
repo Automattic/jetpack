@@ -31,7 +31,7 @@ export const NO_COMPARISON = 'none';
 export type RememberedComparison = ComparisonPresetId | typeof NO_COMPARISON;
 
 // By name: importing `@wordpress/preferences` would pull its UI into every consumer of this package.
-const PREFERENCES_STORE = 'core/preferences';
+export const PREFERENCES_STORE = 'core/preferences';
 
 // wp-calypso's date-range shortcut IDs.
 const STATS_V1_SHORTCUTS = new Map< string, PresetType >( [
@@ -44,8 +44,8 @@ const STATS_V1_SHORTCUTS = new Map< string, PresetType >( [
 	[ 'last_3_years', PRESET_LAST_3_YEARS ],
 ] );
 
-type PreferencesSelectors = { get: ( scope: string, name: string ) => unknown };
-type PreferencesActions = { set: ( scope: string, name: string, value: unknown ) => void };
+export type PreferencesSelectors = { get: ( scope: string, name: string ) => unknown };
+export type PreferencesActions = { set: ( scope: string, name: string, value: unknown ) => void };
 
 /**
  * The preset the reader last applied in the dashboard header.

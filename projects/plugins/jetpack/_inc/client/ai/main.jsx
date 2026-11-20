@@ -77,9 +77,9 @@ const getTabViews = () => {
 
 // The first tab is the default: Overview when visible (matching the design),
 // otherwise the MCP hub. A hash pointing at a hidden view falls back too.
-const getRouteFromHash = () => {
+const getRouteFromHash = ( hash = window.location.hash ) => {
 	const tabViews = getTabViews();
-	const raw = window.location.hash.replace( /^#\//, '' );
+	const raw = hash.replace( /^#\//, '' );
 	const { view, anchor } = splitViewAnchor(
 		LEGACY_VIEW_ALIASES[ raw ] ?? raw,
 		[ ...tabViews, ...MCP_SUB_VIEWS ],
@@ -210,7 +210,7 @@ export default function App() {
 		isOfflineMode = false,
 		showFeaturesView = false,
 		showA12sBadge = false,
-		isSelfHosted = false,
+		showSiteAbilities = false,
 	} = window?.jetpackAiSettings ?? {};
 	const [ route, setRoute ] = useState( getRouteFromHash );
 	const { view, anchor } = route;
@@ -229,7 +229,7 @@ export default function App() {
 	const showConnectNotice = !! blogId && userUnlinked;
 	const { isLoading, savingToolIds, mcpAbilities, hasMcpAccess, error, updateMcpAbilities } =
 		useMcpSettings( { skip: showConnectNotice || ! blogId } );
-	const showRemoteAbilities = isSelfHosted && ! showConnectNotice && !! blogId;
+	const showRemoteAbilities = showSiteAbilities && ! showConnectNotice && !! blogId;
 	const publishedAbilities = useSiteAbilities( { enabled: showRemoteAbilities } );
 	const remoteAbilities = showRemoteAbilities ? publishedAbilities : null;
 	const {
@@ -277,10 +277,36 @@ export default function App() {
 	// parent tab (MCP and Connectors) selected.
 	const activeTab = view.split( '/' )[ 0 ];
 
+	const hiddenTab = useRef( activeTab );
 	useEffect( () => {
-		if ( showFeaturesView ) {
-			recordAiHubEvent( EVENTS.VIEWED, { tab: activeTab } );
+		if ( ! showFeaturesView ) {
+			return;
 		}
+		recordAiHubEvent( EVENTS.VIEWED, { tab: activeTab } );
+		// The admin shell keeps this page mounted, so a return to it is a new visit: see the admin-ui README.
+		const onHidden = event => {
+			if ( event.detail?.page === 'jetpack-ai' ) {
+				hiddenTab.current = activeTab;
+			}
+		};
+		const onShown = event => {
+			const { page, firstShow, routeChanged, url } = event.detail ?? {};
+			if ( page !== 'jetpack-ai' || firstShow ) {
+				return;
+			}
+			// This effect records a return to another tab, but not to another view of the same tab.
+			const shownTab =
+				routeChanged && getRouteFromHash( new URL( url ).hash ).view.split( '/' )[ 0 ];
+			if ( ! routeChanged || shownTab === hiddenTab.current ) {
+				recordAiHubEvent( EVENTS.VIEWED, { tab: activeTab } );
+			}
+		};
+		window.addEventListener( 'jetpack-admin-shell:page-hidden', onHidden );
+		window.addEventListener( 'jetpack-admin-shell:page-shown', onShown );
+		return () => {
+			window.removeEventListener( 'jetpack-admin-shell:page-hidden', onHidden );
+			window.removeEventListener( 'jetpack-admin-shell:page-shown', onShown );
+		};
 	}, [ activeTab, showFeaturesView ] );
 
 	useEffect( () => {

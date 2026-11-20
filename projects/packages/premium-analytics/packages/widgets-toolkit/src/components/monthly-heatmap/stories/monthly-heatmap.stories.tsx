@@ -71,10 +71,12 @@ interface MonthlyHeatmapStoryControls {
 	tileHeight: number;
 	/** Pass `onSelect`, so the cells take a pointer cursor and picking one logs an action. */
 	selectable: boolean;
+	/** Hatch the launch month and the current month, which the data does not fill. */
+	partial: boolean;
 }
 
 type MonthlyHeatmapStoryArgs = MonthlyHeatmapStoryControls &
-	Pick< MonthlyHeatmapProps, 'onSelect' >;
+	Pick< MonthlyHeatmapProps, 'onSelect' | 'scale' >;
 
 function renderMonthlyHeatmap( {
 	metric,
@@ -82,13 +84,21 @@ function renderMonthlyHeatmap( {
 	tileWidth,
 	tileHeight,
 	selectable,
+	partial,
+	scale,
 	onSelect,
 }: MonthlyHeatmapStoryArgs ) {
+	const partialMonths = partial
+		? [ LAST_MONTH, { year: LAST_MONTH.year - years + 1, month: FIRST_MONTH_OF_SPAN } ]
+		: undefined;
+
 	return (
 		<WidgetCard width={ `${ tileWidth }px` } height={ `${ tileHeight }px` }>
 			<MonthlyHeatmap
 				rows={ buildRows( years, metric ) }
+				partialMonths={ partialMonths }
 				{ ...monthlyHeatmapLabels( metric ) }
+				scale={ scale }
 				onSelect={ selectable ? onSelect : undefined }
 			/>
 		</WidgetCard>
@@ -117,6 +127,13 @@ const meta = {
 		tileWidth: { control: { type: 'range', min: 360, max: 1600, step: 20 } },
 		tileHeight: { control: { type: 'range', min: 140, max: 900, step: 8 } },
 		selectable: { control: 'boolean' },
+		partial: { control: 'boolean' },
+		scale: {
+			control: 'inline-radio',
+			options: [ 'linear', 'log', 'buckets' ],
+			description:
+				'How a month picks its shade: by distance, by distance in log space, or by its rank. Views over years asks for `buckets`, a post’s All-time traffic for `log`.',
+		},
 		// Logged to the Actions panel; `selectable` decides whether it is passed at all.
 		onSelect: { action: 'select', control: false },
 	},
@@ -135,6 +152,8 @@ const DEFAULT_ARGS: MonthlyHeatmapStoryArgs = {
 	tileWidth: 900,
 	tileHeight: 320,
 	selectable: true,
+	partial: false,
+	scale: 'buckets',
 };
 
 /**
@@ -163,6 +182,15 @@ export const DailyAverage: Story = {
 export const ManyYears: Story = {
 	render: renderMonthlyHeatmap,
 	args: { ...DEFAULT_ARGS, years: 12 },
+};
+
+/**
+ * Fifteen years with the launch month and the current month hatched: they are
+ * left out of the scale and read as incomplete rather than quiet.
+ */
+export const LongHistory: Story = {
+	render: renderMonthlyHeatmap,
+	args: { ...DEFAULT_ARGS, years: 15, tileHeight: 560, partial: true },
 };
 
 /**

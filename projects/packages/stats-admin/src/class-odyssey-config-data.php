@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Stats_Admin;
 
 use Automattic\Jetpack\Blaze;
+use Automattic\Jetpack\Connection\REST_Connector;
 use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Status\Host;
@@ -35,8 +36,11 @@ class Odyssey_Config_Data {
 
 	/**
 	 * Return the config for the app.
+	 *
+	 * @param bool $with_wpcom_site_record Fold in the WordPress.com site record, which the Stats page
+	 *                                     app otherwise fetches before it renders anything.
 	 */
-	public function get_data() {
+	public function get_data( $with_wpcom_site_record = false ) {
 		$blog_id = $this->get_connected_blog_id();
 		$data    = $this->get_site_agnostic_data( $blog_id );
 
@@ -46,10 +50,82 @@ class Odyssey_Config_Data {
 		 * let the app fall back to the screens it shows without a site.
 		 */
 		if ( $blog_id ) {
-			$data['intial_state'] = $this->get_initial_state( $blog_id );
+			$data['intial_state'] = $this->get_initial_state( $blog_id, $with_wpcom_site_record );
 		}
 
 		return $data;
+	}
+
+	/**
+	 * Merge the WordPress.com site record into the seeded one, as the app's `ODYSSEY_SITE_RECEIVE`
+	 * reducer would: seeded top-level fields win, while WordPress.com wins inside `options` and
+	 * `capabilities`. The app skips its blocking `jetpack/v4/site` request once `options.is_commercial` is set.
+	 *
+	 * @param array  $site   The seeded site record.
+	 * @param object $record The WordPress.com site record.
+	 * @return array
+	 */
+	protected function merge_wpcom_site_record( array $site, $record ) {
+		$merged                 = array_merge( get_object_vars( $record ), $site );
+		$merged['options']      = array_merge( $site['options'], $this->get_object_field( $record, 'options' ) );
+		$merged['capabilities'] = array_merge( $site['capabilities'], $this->get_object_field( $record, 'capabilities' ) );
+
+		return $merged;
+	}
+
+	/**
+	 * The site record `jetpack/v4/site` would serve, read through the connection package's cache.
+	 *
+	 * Decoded to objects so that an empty object stays `{}` when it is printed again.
+	 *
+	 * @return object|null Null when WordPress.com could not supply one, or the route would refuse this user.
+	 */
+	protected function get_wpcom_site_record() {
+		// method_exists guard: an older connection package may win the autoloader on another plugin.
+		if ( ! method_exists( REST_Connector::class, 'site_data_response' ) ) {
+			return null;
+		}
+
+		// `view_stats` can be granted to roles the route refuses; those users keep fetching it themselves.
+		if ( true !== REST_Connector::site_data_permission_check() ) {
+			return null;
+		}
+
+		// On a cache miss this runs before any HTML is sent, so give it the render budget `Dashboard::maybe_refresh_plan()` uses.
+		$cap_timeout = static function ( $args, $url ) {
+			if ( false !== strpos( $url, '/sites/' . Jetpack_Options::get_option( 'id' ) . '?force=wpcom' ) ) {
+				$args['timeout'] = min( (int) $args['timeout'], 5 );
+			}
+			return $args;
+		};
+
+		$response = null;
+		add_filter( 'http_request_args', $cap_timeout, 10, 2 );
+		try {
+			$response = REST_Connector::site_data_response();
+		} finally {
+			remove_filter( 'http_request_args', $cap_timeout, 10 );
+		}
+
+		if ( is_wp_error( $response ) ) {
+			return null;
+		}
+
+		$body   = $response->get_data();
+		$record = isset( $body['data'] ) && is_string( $body['data'] ) ? json_decode( $body['data'] ) : null;
+
+		return is_object( $record ) ? $record : null;
+	}
+
+	/**
+	 * Read an object-valued field of a decoded record as an array.
+	 *
+	 * @param object $record The decoded record.
+	 * @param string $field  The field name.
+	 * @return array Empty when the field is missing or not an object.
+	 */
+	private function get_object_field( $record, $field ) {
+		return isset( $record->$field ) && is_object( $record->$field ) ? get_object_vars( $record->$field ) : array();
 	}
 
 	/**
@@ -118,15 +194,51 @@ class Odyssey_Config_Data {
 	/**
 	 * The Redux state the app boots with.
 	 *
-	 * @param int $blog_id The WordPress.com blog ID.
+	 * @param int  $blog_id                The WordPress.com blog ID.
+	 * @param bool $with_wpcom_site_record Fold in the WordPress.com site record.
 	 * @return array
 	 */
-	protected function get_initial_state( $blog_id ) {
+	protected function get_initial_state( $blog_id, $with_wpcom_site_record = false ) {
 		global $wp_version;
 
 		$host         = new Host();
 		$capabilities = $this->get_current_user_capabilities();
 		$can_blaze    = class_exists( 'Automattic\Jetpack\Blaze' ) && Blaze::should_initialize()['can_init'];
+
+		/*
+		 * Fetched first, as its `jetpack_site_data_fetched` listeners refresh the plan read below.
+		 * Simple sites do not serve `jetpack/v4/site`; the app fetches their record from WordPress.com.
+		 */
+		$record = $with_wpcom_site_record && ! $host->is_wpcom_simple() ? $this->get_wpcom_site_record() : null;
+
+		$site = array(
+			'ID'           => $blog_id,
+			'URL'          => site_url(),
+			// Atomic and jetpack sites should return true.
+			'jetpack'      => ! $host->is_wpcom_simple(),
+			'visible'      => true,
+			'capabilities' => $capabilities,
+			'products'     => Jetpack_Plan::get_products(),
+			'plan'         => $this->get_plan(),
+			'options'      => array(
+				'wordads'               => ( new Modules() )->is_active( 'wordads' ),
+				'admin_url'             => admin_url(),
+				'gmt_offset'            => $this->get_gmt_offset(),
+				'is_automated_transfer' => $this->is_automated_transfer( $blog_id ),
+				'is_wpcom_atomic'       => $host->is_woa_site(),
+				'is_wpcom_simple'       => $host->is_wpcom_simple(),
+				'is_vip'                => $host->is_vip_site(),
+				'jetpack_version'       => defined( 'JETPACK__VERSION' ) ? JETPACK__VERSION : '',
+				'stats_admin_version'   => Main::VERSION,
+				'software_version'      => $wp_version,
+				'can_blaze'             => $can_blaze,
+				'has_stats_settings'    => ! $host->is_wpcom_simple(),
+			),
+		);
+
+		if ( null !== $record ) {
+			$site = $this->merge_wpcom_site_record( $site, $record );
+		}
 
 		return array(
 			'currentUser' => array(
@@ -141,30 +253,7 @@ class Odyssey_Config_Data {
 			),
 			'sites'       => array(
 				'items'    => array(
-					"$blog_id" => array(
-						'ID'           => $blog_id,
-						'URL'          => site_url(),
-						// Atomic and jetpack sites should return true.
-						'jetpack'      => ! $host->is_wpcom_simple(),
-						'visible'      => true,
-						'capabilities' => $capabilities,
-						'products'     => Jetpack_Plan::get_products(),
-						'plan'         => $this->get_plan(),
-						'options'      => array(
-							'wordads'               => ( new Modules() )->is_active( 'wordads' ),
-							'admin_url'             => admin_url(),
-							'gmt_offset'            => $this->get_gmt_offset(),
-							'is_automated_transfer' => $this->is_automated_transfer( $blog_id ),
-							'is_wpcom_atomic'       => $host->is_woa_site(),
-							'is_wpcom_simple'       => $host->is_wpcom_simple(),
-							'is_vip'                => $host->is_vip_site(),
-							'jetpack_version'       => defined( 'JETPACK__VERSION' ) ? JETPACK__VERSION : '',
-							'stats_admin_version'   => Main::VERSION,
-							'software_version'      => $wp_version,
-							'can_blaze'             => $can_blaze,
-							'has_stats_settings'    => ! $host->is_wpcom_simple(),
-						),
-					),
+					"$blog_id" => $site,
 				),
 				'features' => array( "$blog_id" => array( 'data' => $this->get_plan_features() ) ),
 			),
