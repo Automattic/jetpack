@@ -248,6 +248,9 @@ class Analytics {
 
 		// Stats links elsewhere (post list table, admin bar, action bar) open this dashboard.
 		Stats_Links::register();
+
+		// What the dashboard announces on the What's new surface it hosts.
+		Dashboard_Announcements::configure();
 	}
 
 	/**

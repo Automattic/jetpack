@@ -37,6 +37,13 @@ class Backup_Abilities extends Registrar {
 	const PER_PAGE_MAX     = 100;
 
 	/**
+	 * {@inheritDoc}
+	 */
+	protected static function enabled_by_default(): bool {
+		return true;
+	}
+
+	/**
 	 * Return the ability category slug.
 	 *
 	 * @return string

@@ -452,6 +452,18 @@ class WPCOM_Stats {
 	}
 
 	/**
+	 * Get the people who liked a post, most recent first, with `found` counting them all.
+	 *
+	 * @param int $post_id The post ID.
+	 * @return array|WP_Error
+	 */
+	public function get_post_likes( $post_id ) {
+		$this->resource = sprintf( '/posts/%d/likes', $post_id );
+
+		return $this->fetch_stats();
+	}
+
+	/**
 	 * Get the site's views by device property.
 	 *
 	 * @param string $property One of `browser`, `platform` or `screensize`.
