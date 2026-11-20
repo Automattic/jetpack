@@ -272,8 +272,11 @@ export function rememberHeader( slug, el ) {
 	const html = frame.outerHTML;
 	if ( ! savedHtml.has( slug ) ) {
 		const { pieces, pages } = readStore();
+		const page = pages[ slug ];
 		// Compared as saved, so markup the HTML parser would rearrange still matches.
-		const same = pages[ slug ]?.html === withPieceIds( frame, namer( { ...pieces } ) ).html;
+		const same =
+			page?.html === withPieceIds( frame, namer( { ...pieces } ) ).html &&
+			[ ...page.css, ...page.styles ].every( id => Object.hasOwn( pieces, id ) );
 		savedHtml.set( slug, same ? html : undefined );
 	}
 	if ( savedHtml.get( slug ) === html ) {

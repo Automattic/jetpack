@@ -285,6 +285,76 @@ describe( 'header stand-in', () => {
 		jest.useRealTimers();
 	} );
 
+	// The module as a new document loads it, with nothing remembered from earlier saves.
+	const freshHeader = () => {
+		let header;
+		jest.isolateModules( () => {
+			header = require( '../../../src/admin-shell/header' );
+		} );
+		header.configureHeaders( PREFIX, MEMBERS );
+		return header;
+	};
+
+	it( 'does not save an unchanged header again in a new document', () => {
+		jest.useFakeTimers();
+		const app = document.getElementById( 'app' );
+		const region = document.createElement( 'div' );
+		region.className = 'admin-ui-navigable-region';
+		region.style.color = 'red';
+		// A div inside a p: the HTML parser would move it out, so the saved copy reads back different.
+		region.innerHTML = '<header><h1>Forms</h1><p class="x__header-subtitle"></p></header>';
+		region.querySelector( 'p' ).append( document.createElement( 'div' ) );
+		app.append( region );
+		freshHeader().rememberHeader( 'forms', app );
+		jest.runAllTimers();
+		const setItem = jest.spyOn( Storage.prototype, 'setItem' );
+
+		freshHeader().rememberHeader( 'forms', app );
+		jest.runAllTimers();
+
+		expect( setItem ).not.toHaveBeenCalled();
+		setItem.mockRestore();
+		jest.useRealTimers();
+	} );
+
+	it( 'saves a header again when its saved pieces are missing', () => {
+		jest.useFakeTimers();
+		const html = style =>
+			`<div class="admin-ui-navigable-region" style="${ style }"><header><h1>Forms</h1></header></div>`;
+		localStorage.setItem(
+			PREFIX,
+			JSON.stringify( {
+				pieces: {},
+				pages: { forms: { html: html( '0' ), css: [], styles: [ '0' ] } },
+			} )
+		);
+		const app = document.getElementById( 'app' );
+		app.innerHTML = html( 'color: red;' );
+
+		freshHeader().rememberHeader( 'forms', app );
+		jest.runAllTimers();
+
+		expect( Object.values( stored().pieces ) ).toEqual( [ 'color: red;' ] );
+		jest.useRealTimers();
+	} );
+
+	it( 'keeps a page another tab saves while this one walks the stylesheets', () => {
+		jest.useFakeTimers();
+		const app = document.getElementById( 'app' );
+		app.innerHTML =
+			'<div class="admin-ui-navigable-region"><header><h1 class="x__title">Stats</h1></header></div>';
+		const escape = jest
+			.spyOn( CSS, 'escape' )
+			.mockImplementationOnce( name => ( save( 'other', '<div><h1>Other</h1></div>' ), name ) );
+
+		rememberHeader( 'stats', app );
+		jest.runAllTimers();
+
+		expect( Object.keys( stored().pages ).sort() ).toEqual( [ 'other', 'stats' ] );
+		escape.mockRestore();
+		jest.useRealTimers();
+	} );
+
 	it.each( [
 		[ 'no pages', { pages: null } ],
 		[ 'a page without CSS', { pages: { forms: { html: '<div><h1>Forms</h1></div>' } } } ],
