@@ -1,14 +1,17 @@
 import getRedirectUrl from '@automattic/jetpack-components/tools/jp-redirect';
 import { isSimpleSite } from '@automattic/jetpack-script-data';
 import { __ } from '@wordpress/i18n';
-import { Button, ButtonLink, Card, Notice, Stack, Text } from '@wordpress/ui';
+import { ButtonLink, Card, Link, Notice, Stack, Text } from '@wordpress/ui';
 import { useCallback } from 'react';
 import { getPageData, getSectionState } from '../../data/state';
+import { getTabHref, isPlainClick } from '../../data/tabs';
 import { trackAdsEvent } from '../../data/tracking';
-import { useAdsAccount, useJoinWordAds } from '../../data/wordads';
+import { useAdsAccount } from '../../data/wordads';
+import type { TabValue } from '../../data/tabs';
 import type { UnsafeReason } from '../../data/wordads';
+import type { MouseEvent } from 'react';
 
-type OpenTab = ( next: string ) => void;
+type OpenTab = ( next: TabValue ) => void;
 
 const UNSAFE_MESSAGES: Record< UnsafeReason, () => string > = {
 	mature: () =>
@@ -92,7 +95,7 @@ export function UpsellCard() {
 }
 
 /**
- * The way to start showing ads with a plan that includes them: joining on Simple (owner only), the Settings switch once joined or elsewhere.
+ * The way to start showing ads with a plan that includes them, which Settings holds: joining on Simple (owner only), then the switch.
  *
  * @param props         - Component props.
  * @param props.openTab - Opens another of the page's tabs.
@@ -103,23 +106,19 @@ export function StartCard( { openTab }: { openTab: OpenTab } ) {
 		getSectionState< { canJoinWordAds?: boolean } >( 'ads' )?.canJoinWordAds
 	);
 	const { data: account } = useAdsAccount();
-	const join = useJoinWordAds();
-	// A Simple site that joined and then switched ads off turns them back on in Settings.
+	// A Simple site that joined and then switched ads off only needs the switch.
 	const mustJoin = isSimpleSite() && ! account?.approved;
 
-	const onSetUp = useCallback( () => {
-		trackAdsEvent( 'setup_click' );
-		openTab( 'settings' );
-	}, [ openTab ] );
-	// Joining approves the site; Settings is where it then turns ads on.
-	const onJoin = useCallback( () => {
-		join.mutate( undefined, {
-			onSuccess: () => {
-				trackAdsEvent( 'join' );
+	const onSetUp = useCallback(
+		( event: MouseEvent ) => {
+			trackAdsEvent( 'setup_click' );
+			if ( isPlainClick( event ) ) {
+				event.preventDefault();
 				openTab( 'settings' );
-			},
-		} );
-	}, [ join, openTab ] );
+			}
+		},
+		[ openTab ]
+	);
 
 	return (
 		<Card.Root>
@@ -138,31 +137,14 @@ export function StartCard( { openTab }: { openTab: OpenTab } ) {
 							'jetpack-monetize'
 						) }
 					</Text>
-					{ join.isError && (
-						<Notice.Root intent="error">
-							<Notice.Description>
-								{ join.error.message ||
-									__( 'Your site could not join. Please try again.', 'jetpack-monetize' ) }
-							</Notice.Description>
-						</Notice.Root>
-					) }
-					{ mustJoin && ! canJoin && (
+					{ mustJoin && ! canJoin ? (
 						<Text>{ __( 'Only the site owner can join WordAds.', 'jetpack-monetize' ) }</Text>
-					) }
-					{ mustJoin && canJoin && (
-						<Button
-							variant="solid"
-							onClick={ onJoin }
-							loading={ join.isPending }
-							disabled={ join.isPending || ! account || Boolean( account.unsafe ) }
-						>
-							{ __( 'Join WordAds', 'jetpack-monetize' ) }
-						</Button>
-					) }
-					{ ! mustJoin && (
-						<Button variant="solid" onClick={ onSetUp }>
-							{ __( 'Turn on ads', 'jetpack-monetize' ) }
-						</Button>
+					) : (
+						<Link href={ getTabHref( 'settings' ) } onClick={ onSetUp }>
+							{ mustJoin
+								? __( 'Join WordAds in Settings', 'jetpack-monetize' )
+								: __( 'Turn on ads in Settings', 'jetpack-monetize' ) }
+						</Link>
 					) }
 				</Stack>
 			</Card.Content>

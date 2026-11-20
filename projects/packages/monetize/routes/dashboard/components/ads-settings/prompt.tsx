@@ -3,10 +3,11 @@ import { getUserConnectionUrl } from '@automattic/jetpack-connection/get-user-co
 import { __, _x } from '@wordpress/i18n';
 import { Notice } from '@wordpress/ui';
 import { useCallback } from 'react';
+import { showSuccessSnackbar } from '../../data/notices';
 import { getPageData, getSectionState } from '../../data/state';
-import { trackBannerClick } from '../../data/tracking';
+import { trackAdsEvent, trackBannerClick } from '../../data/tracking';
+import { useAdsAccount, useJoinWordAds } from '../../data/wordads';
 import type { AdsSettingsData } from '../../data/ads-settings-data';
-import type { TabValue } from '../../data/tabs';
 
 const trackConnectClick = () => trackBannerClick( 'connect' );
 const trackUpgradeClick = () => trackBannerClick( 'upgrade' );
@@ -70,14 +71,26 @@ export function AdsPrompt( { data }: { data: AdsSettingsData } ) {
 }
 
 /**
- * What Simple's Settings show before the site joins WordAds, which happens on the Ads tab.
+ * Simple's way to join WordAds, which the site must do before it can switch ads on.
  *
- * @param props         - Component props.
- * @param props.openTab - Opens another of the page's tabs.
  * @return The prompt.
  */
-export function JoinPrompt( { openTab }: { openTab: ( tab: TabValue ) => void } ) {
-	const openAds = useCallback( () => openTab( 'ads' ), [ openTab ] );
+export function JoinPrompt() {
+	const { data: account } = useAdsAccount();
+	const join = useJoinWordAds();
+	const { mutate } = join;
+	const onJoin = useCallback(
+		() =>
+			mutate( undefined, {
+				onSuccess: () => {
+					trackAdsEvent( 'join' );
+					showSuccessSnackbar(
+						__( 'Your site joined WordAds. Turn on ads to start earning.', 'jetpack-monetize' )
+					);
+				},
+			} ),
+		[ mutate ]
+	);
 
 	if ( ! getSectionState< { canJoinWordAds?: boolean } >( 'ads' )?.canJoinWordAds ) {
 		return (
@@ -93,12 +106,19 @@ export function JoinPrompt( { openTab }: { openTab: ( tab: TabValue ) => void } 
 	}
 
 	return (
-		<Notice.Root intent="info">
+		<Notice.Root intent={ join.isError ? 'error' : 'info' }>
 			<Notice.Description>
-				{ __( 'Join WordAds to turn on ads and change where they appear.', 'jetpack-monetize' ) }
+				{ join.isError
+					? join.error.message ||
+						__( 'Your site could not join. Please try again.', 'jetpack-monetize' )
+					: __( 'Join WordAds to turn on ads and change where they appear.', 'jetpack-monetize' ) }
 			</Notice.Description>
 			<Notice.Actions>
-				<Notice.ActionButton onClick={ openAds }>
+				<Notice.ActionButton
+					onClick={ onJoin }
+					loading={ join.isPending }
+					disabled={ join.isPending || Boolean( account?.unsafe ) }
+				>
 					{ __( 'Join WordAds', 'jetpack-monetize' ) }
 				</Notice.ActionButton>
 			</Notice.Actions>
