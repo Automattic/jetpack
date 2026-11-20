@@ -1407,6 +1407,37 @@ class Dashboard_Section_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Only an available section that drops the connection opens on a disconnected site.
+	 */
+	public function test_connectionless_section_slugs_list_available_opted_out_tabs() {
+		$this->enable_every_section();
+
+		register_default_dashboard_sections();
+		register_dashboard_section(
+			DASHBOARD_NAME,
+			'other/local',
+			array(
+				'label'               => 'Local',
+				'requires_connection' => false,
+			)
+		);
+		register_dashboard_section(
+			DASHBOARD_NAME,
+			'other/closed',
+			array(
+				'label'               => 'Closed',
+				'is_available'        => false,
+				'requires_connection' => false,
+			)
+		);
+
+		$this->assertSame(
+			array( 'local' ),
+			inject_dashboard_sections_script_data( array() )['premium_analytics']['connectionless_sections']
+		);
+	}
+
+	/**
 	 * A registry whose every section is unavailable publishes an empty list, not an absent one.
 	 */
 	public function test_available_section_slugs_are_empty_when_every_tab_is_unavailable() {

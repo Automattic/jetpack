@@ -12,6 +12,10 @@ import { useMemo } from 'react';
 /**
  * Internal dependencies
  */
+import {
+	getConnectionlessSectionSlugs,
+	isPremiumAnalyticsSiteConnected,
+} from '../../../site-readiness';
 import type { DashboardSection } from '../../config';
 
 export const DASHBOARD_SECTIONS_QUERY = { per_page: -1 };
@@ -38,10 +42,17 @@ export function useDashboardSections(): {
 		DASHBOARD_SECTIONS_QUERY
 	);
 	const order = useSelect( select => getSectionOrder( DASHBOARD_PREFERENCES_SCOPE, select ), [] );
-	const sections = useMemo(
-		() => orderSections( records ?? NO_SECTIONS, order ),
-		[ records, order ]
-	);
+	const sections = useMemo( () => {
+		const all = records ?? NO_SECTIONS;
+		if ( isPremiumAnalyticsSiteConnected() ) {
+			return orderSections( all, order );
+		}
+		const connectionless = getConnectionlessSectionSlugs();
+		return orderSections(
+			all.filter( section => connectionless.includes( section.slug ) ),
+			order
+		);
+	}, [ records, order ] );
 
 	return { sections, hasResolved };
 }
