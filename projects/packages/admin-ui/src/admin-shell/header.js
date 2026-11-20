@@ -2,8 +2,7 @@
  * A stand-in for a page, drawn the moment the page is opened and removed once its app renders:
  * its saved header and tabs, or another page's header with its title and subtitle. Each page's
  * header, and the CSS it uses, is saved whenever it is on screen: the dashboards add most of their
- * CSS from JavaScript, which hasn't run yet. All pages are saved under one key, with each CSS rule and
- * style attribute saved once for every page that uses it: the dashboards share most of them.
+ * CSS from JavaScript, which hasn't run yet.
  */
 import { log } from './debug';
 
@@ -26,6 +25,7 @@ let bodyClassOf = () => null;
 export function configureHeaders( prefix, members = {} ) {
 	storageKey = prefix;
 	bodyClassOf = slug => members[ slug ]?.bodyClass;
+	window.addEventListener( 'storage', forgetSaved );
 	const scope = prefix.split( ':' ).slice( 0, 3 ).join( ':' ) + ':';
 	try {
 		for ( const key of Object.keys( localStorage ) ) {
@@ -70,20 +70,39 @@ export function removeHeader( slug ) {
 	}
 }
 
-// `pages` holds each page's markup, with piece ids for its style attributes' values, and rule ids.
+const isObject = value => value && typeof value === 'object' && ! Array.isArray( value );
+const isPage = page =>
+	isObject( page ) &&
+	typeof page.html === 'string' &&
+	Array.isArray( page.css ) &&
+	Array.isArray( page.styles );
+
+/*
+ * All pages are saved under one key, with each CSS rule and style attribute value saved once as a
+ * piece: the dashboards share most of them. Anything not in this shape is dropped as unsaved.
+ */
 const readStore = () => {
+	let stored;
 	try {
-		const { pieces = {}, pages = {} } = JSON.parse( localStorage.getItem( storageKey ) ) ?? {};
-		return { pieces, pages };
+		stored = JSON.parse( localStorage.getItem( storageKey ) );
 	} catch {
-		return { pieces: {}, pages: {} };
+		// Blocked storage, or not JSON: nothing is saved.
 	}
+	const pick = ( value, keep ) =>
+		Object.fromEntries( Object.entries( isObject( value ) ? value : {} ).filter( keep ) );
+	return {
+		pieces: pick( stored?.pieces, ( [ , text ] ) => typeof text === 'string' ),
+		pages: pick( stored?.pages, ( [ , page ] ) => isPage( page ) ),
+	};
 };
 
 // Name each piece by the id the same text already has, or a new one.
 const namer = pieces => {
 	const ids = new Map( Object.entries( pieces ).map( ( [ id, text ] ) => [ text, id ] ) );
-	let next = Math.max( -1, ...Object.keys( pieces ).map( id => parseInt( id, 36 ) ) ) + 1;
+	const taken = Object.keys( pieces )
+		.map( id => parseInt( id, 36 ) )
+		.filter( Number.isFinite );
+	let next = Math.max( -1, ...taken ) + 1;
 	return text => {
 		let id = ids.get( text );
 		if ( id === undefined ) {
@@ -152,24 +171,33 @@ const inertCopy = html => {
 const rulesFor = classNames => {
 	const selectors = [ ...classNames ].map( name => `.${ CSS.escape( name ) }` );
 	const found = [];
-	const pick = ( rules, wrap, fromStyleTag ) => {
+	const pick = ( rules, wrap, fromStyleTag, into ) => {
 		for ( const rule of rules ) {
 			if ( rule instanceof CSSStyleRule ) {
 				const styled = selectors.some( selector => rule.selectorText.includes( selector ) );
 				const definesTokens =
 					fromStyleTag && [ ...rule.style ].some( name => name.startsWith( '--wpds-' ) );
 				if ( styled || definesTokens ) {
-					found.push( wrap( rule.cssText ) );
+					into.push( wrap( rule.cssText ) );
 				}
 			} else if ( rule.cssRules ) {
 				const head = rule.cssText.slice( 0, rule.cssText.indexOf( '{' ) );
-				pick( rule.cssRules, css => wrap( `${ head }{${ css }}` ), fromStyleTag );
+				// Each anonymous `@layer` block is a layer of its own, so its rules stay in one.
+				if ( head.trim() === '@layer' ) {
+					const inner = [];
+					pick( rule.cssRules, css => css, fromStyleTag, inner );
+					if ( inner.length ) {
+						into.push( wrap( `${ head }{${ inner.join( '' ) }}` ) );
+					}
+				} else {
+					pick( rule.cssRules, css => wrap( `${ head }{${ css }}` ), fromStyleTag, into );
+				}
 			}
 		}
 	};
 	for ( const sheet of document.styleSheets ) {
 		try {
-			pick( sheet.cssRules, css => css, sheet.ownerNode?.tagName === 'STYLE' );
+			pick( sheet.cssRules, css => css, sheet.ownerNode?.tagName === 'STYLE', found );
 		} catch {
 			// A cross-origin stylesheet can't be read; it is a <link> that loads with the page anyway.
 		}
@@ -180,6 +208,13 @@ const rulesFor = classNames => {
 // The header HTML last saved for each page in this document, so a check doesn't parse storage.
 const savedHtml = new Map();
 
+// Another tab's save can drop or replace this tab's, so check storage again on the next save.
+const forgetSaved = event => {
+	if ( event.key === storageKey || event.key === null ) {
+		savedHtml.clear();
+	}
+};
+
 // A page's saved header with its pieces filled in.
 const readSaved = ( slug, { pieces, pages } = readStore() ) => {
 	const page = pages[ slug ];
@@ -189,9 +224,22 @@ const readSaved = ( slug, { pieces, pages } = readStore() ) => {
 	const template = document.createElement( 'template' );
 	template.innerHTML = page.html;
 	for ( const node of template.content.querySelectorAll( '[style]' ) ) {
-		node.setAttribute( 'style', pieces[ node.getAttribute( 'style' ) ] );
+		node.setAttribute( 'style', pieces[ node.getAttribute( 'style' ) ] ?? '' );
 	}
-	return { html: template.innerHTML, css: page.css.map( id => pieces[ id ] ).join( '' ) };
+	return { html: template.innerHTML, css: page.css.map( id => pieces[ id ] ?? '' ).join( '' ) };
+};
+
+// A header frame as it is saved: each style attribute's value replaced by its piece id.
+const withPieceIds = ( frame, add ) => {
+	const copy = frame.cloneNode( true );
+	const styles = [ copy, ...copy.querySelectorAll( '[style]' ) ]
+		.filter( node => node.hasAttribute( 'style' ) )
+		.map( node => {
+			const id = add( node.getAttribute( 'style' ) );
+			node.setAttribute( 'style', id );
+			return id;
+		} );
+	return { html: copy.outerHTML, styles };
 };
 
 // Save a page's header, keeping only the pieces some page uses.
@@ -223,7 +271,10 @@ export function rememberHeader( slug, el ) {
 	}
 	const html = frame.outerHTML;
 	if ( ! savedHtml.has( slug ) ) {
-		savedHtml.set( slug, readSaved( slug )?.html );
+		const { pieces, pages } = readStore();
+		// Compared as saved, so markup the HTML parser would rearrange still matches.
+		const same = pages[ slug ]?.html === withPieceIds( frame, namer( { ...pieces } ) ).html;
+		savedHtml.set( slug, same ? html : undefined );
 	}
 	if ( savedHtml.get( slug ) === html ) {
 		return;
@@ -234,23 +285,19 @@ export function rememberHeader( slug, el ) {
 		const classNames = new Set(
 			[ frame, ...frame.querySelectorAll( '[class]' ) ].flatMap( node => [ ...node.classList ] )
 		);
-		const store = readStore();
-		const add = namer( store.pieces );
-		const styles = [ frame, ...frame.querySelectorAll( '[style]' ) ]
-			.filter( node => node.hasAttribute( 'style' ) )
-			.map( node => {
-				const id = add( node.getAttribute( 'style' ) );
-				node.setAttribute( 'style', id );
-				return id;
-			} );
 		const bodyClass = bodyClassOf( slug );
 		// Dashboards scope their page layout to WordPress's per-page body class.
 		const pageScoped = bodyClass && new RegExp( `\\b${ bodyClass }(?![\\w-])`, 'g' );
-		const css = rulesFor( classNames ).map( rule =>
-			add( pageScoped ? rule.replace( pageScoped, PAGE_CLASS ) : rule )
+		const rules = rulesFor( classNames ).map( rule =>
+			pageScoped ? rule.replace( pageScoped, PAGE_CLASS ) : rule
 		);
+		// Read after the walk, right before writing, so what another tab saved meanwhile is kept.
+		const store = readStore();
+		const add = namer( store.pieces );
+		const { html: savedAs, styles } = withPieceIds( frame, add );
+		const css = rules.map( add );
 		log( 'header', `saved ${ slug }'s header with ${ css.length } CSS rules` );
-		write( slug, { html: frame.outerHTML, css, styles }, store );
+		write( slug, { html: savedAs, css, styles }, store );
 	} );
 }
 
