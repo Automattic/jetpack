@@ -117,6 +117,8 @@ class Jetpack_Privacy_Settings_Home_Test extends WP_UnitTestCase {
 		if ( $flag ) {
 			add_filter( 'jetpack_feature_flag_enabled_' . Initializer::SETTINGS_CONSOLIDATION_FLAG, '__return_true' );
 		}
+		// An earlier test can leave My Jetpack's page registered.
+		unset( $_registered_pages[ get_plugin_page_hookname( 'my-jetpack', 'jetpack' ) ] );
 		if ( $has_page ) {
 			unset( $wp_actions['my_jetpack_init'] );
 			do_action( 'my_jetpack_init' );
