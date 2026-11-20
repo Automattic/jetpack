@@ -473,7 +473,7 @@ class Stats_Abilities extends Registrar {
 		return array(
 			'label'               => __( 'Get one post\'s stats', 'jetpack-stats-pkg' ),
 			'description'         => __(
-				'Report everything Stats knows about one post or page, as on the Stats dashboard\'s page for it: all-time `views`, `likes` and `comments` with the most recent ones, the UTM values that brought views to it, and how it did as a newsletter email. `post` names it: title, type (post, page or another type), permalink and publication date. `likes.recent` lists the most recent likers by display name and `comments.recent` the most recent approved comments, each at most `max` long. `utm` ranks the UTM values (grouped by `utm_param`) of the links that opened the post, over all time, top `max` first; it needs a Stats plan that includes UTM, so on other sites it is null, `partial` is true and `errors` lists `utm`. `email.emailed` is false when the post was never sent to subscribers (pages never are), and then every other `email` figure is null rather than 0. When it was sent, `email.sent` is how many subscribers it went to and `opens` and `clicks` hold all-time totals, unique people and rates. Composes several WPCOM endpoints — if one fails, `partial` is true, `errors` lists it (`views`, `likes`, `utm` or `email`) and the fields it feeds are null. Returns `jetpack_stats_post_not_found` when no post or page has that ID. `site` is the WordPress.com blog ID and home URL of the site whose Stats were read. `definitions` explains, in plain words, each metric in the response — read it before reporting a number. Precondition: site must be connected to WordPress.com.',
+				'Report everything Stats knows about one post or page, as on the Stats dashboard\'s page for it: all-time `views`, `likes` and `comments` with the most recent ones, the UTM values that brought views to it, and how it did as a newsletter email. `post` names it: title, type (post, page or another type), permalink and publication date. `likes.recent` lists the most recent likers by display name and `comments.recent` the most recent approved comments, each at most `max` long. `utm` ranks the UTM values (grouped by `utm_param`) of the links that opened the post, over all time, top `max` first; it needs a Stats plan that includes UTM, so on other sites it is null, `partial` is true and `errors` lists `utm`. `email.emailed` is false when the post was never sent to subscribers (pages never are), and then every other `email` figure is null rather than 0. When it was sent, `email.sent` is how many subscribers it went to and `opens` and `clicks` hold all-time totals, unique people and rates. Composes several WPCOM endpoints — if one fails, `partial` is true, `errors` lists it (`views`, `likes`, `utm` or `email`) and the fields it feeds are null. Returns `jetpack_stats_post_not_found` when no post or page has that ID, or when it is unpublished or private and the user cannot open it on the site. `site` is the WordPress.com blog ID and home URL of the site whose Stats were read. `definitions` explains, in plain words, each metric in the response — read it before reporting a number. Precondition: site must be connected to WordPress.com.',
 				'jetpack-stats-pkg'
 			),
 			'input_schema'        => array(
@@ -1817,8 +1817,9 @@ class Stats_Abilities extends Registrar {
 		$max       = self::clamp_int( $input['max'] ?? 10, 1, 100, 10 );
 		$utm_param = isset( $input['utm_param'] ) && in_array( $input['utm_param'], self::UTM_PARAMS, true ) ? $input['utm_param'] : self::UTM_PARAMS[0];
 		$post      = get_post( $post_id );
-		// WPCOM answers an unknown post with zeros, which would read as a post nobody saw.
-		if ( ! $post ) {
+		// WPCOM answers an unknown post with zeros, which would read as a post nobody saw. Stats access can go to any
+		// role, so a post the caller cannot open on the site is unknown to them too: its title and comments stay private.
+		if ( ! $post || ( ! is_post_publicly_viewable( $post ) && ! current_user_can( 'read_post', $post->ID ) ) ) {
 			return new WP_Error(
 				self::ERROR_PREFIX . 'post_not_found',
 				__( 'No post exists with that post_id.', 'jetpack-stats-pkg' ),
@@ -1878,7 +1879,6 @@ class Stats_Abilities extends Registrar {
 			array(
 				'post_id' => $post_id,
 				'status'  => 'approve',
-				'type'    => 'comment',
 				'number'  => $max,
 				'orderby' => 'comment_date_gmt',
 				'order'   => 'DESC',
@@ -1887,7 +1887,7 @@ class Stats_Abilities extends Registrar {
 			$comments[] = array(
 				'author'  => (string) $comment->comment_author,
 				'date'    => (string) mysql2date( 'c', $comment->comment_date ),
-				'excerpt' => wp_trim_words( wp_strip_all_tags( $comment->comment_content ), 30 ),
+				'excerpt' => wp_trim_words( $comment->comment_content, 30, '…' ),
 				'url'     => (string) get_comment_link( $comment ),
 			);
 		}
@@ -3907,7 +3907,7 @@ class Stats_Abilities extends Registrar {
 			'email_window'          => __( '`opens` and `clicks` count only the days from `start_date` to `end_date`; unique counts and rates are all-time.', 'jetpack-stats-pkg' ),
 			'email_all_time'        => __( 'Every figure covers all time since the post was sent.', 'jetpack-stats-pkg' ),
 			'video_plays'           => __( '`plays` counts each time the video was started, wherever it was played: on the site or embedded elsewhere. `total_plays` adds up the `series` rows.', 'jetpack-stats-pkg' ),
-			'post_detail'           => __( '`views`, `likes` and `comments` cover all time since the post was published; `comments` counts approved comments only. `utm` counts views of the post opened from links tagged with those UTM values, over all time. `email` covers all time since the post was sent: `total` counts every open or click, repeat ones by one person included, `unique` counts people, and `rate` is `unique` as a percent of `sent`; mail apps that load images automatically or block them make opens approximate.', 'jetpack-stats-pkg' ),
+			'post_detail'           => __( '`views`, `likes` and `comments` cover all time since the post was published; `comments` counts approved comments, pingbacks and trackbacks included. `utm` counts views of the post opened from links tagged with those UTM values, over all time. `email` covers all time since the post was sent: `total` counts every open or click, repeat ones by one person included, `unique` counts people, and `rate` is `unique` as a percent of `sent`; mail apps that load images automatically or block them make opens approximate.', 'jetpack-stats-pkg' ),
 			'email_detail'          => __( 'Every figure covers all time since the post was sent. `total` counts every open or click, repeat ones by one person included, and `unique` counts people; `rate` is `unique` as a percent of `sent`. Mail apps that load images automatically or block them make opens approximate. `by_client` is the mail app, `by_device` the operating system and `by_country` where the email was opened or clicked; each row counts opens or clicks, not people.', 'jetpack-stats-pkg' ),
 			'paid'                  => __( 'People with a paid subscription to the site, now. They are also counted in `email` or `wpcom`.', 'jetpack-stats-pkg' ),
 			'subscriber_series'     => __( 'One row per period, oldest first: `subscribers` is the count at the end of the period and `change` the net gain or loss during it.', 'jetpack-stats-pkg' ),
