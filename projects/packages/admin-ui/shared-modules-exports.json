@@ -130,6 +130,7 @@
 	],
 	"ui": [
 		"AlertDialog",
+		"Avatar",
 		"Badge",
 		"Breadcrumb",
 		"Button",
