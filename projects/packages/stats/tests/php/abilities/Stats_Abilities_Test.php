@@ -2563,6 +2563,166 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 		$this->assertSame( array( 'opens/device' ), $result['errors'] );
 	}
 
+	public function test_get_post_detail_reports_one_post_and_says_when_it_was_never_emailed(): void {
+		$post_id = wp_insert_post(
+			array(
+				'post_title'  => 'Launch &amp; more',
+				'post_status' => 'publish',
+			)
+		);
+		$page_id = wp_insert_post(
+			array(
+				'post_title'  => 'About',
+				'post_type'   => 'page',
+				'post_status' => 'publish',
+			)
+		);
+		// WorDBless stores no comments, so serve the newest approved ones the way the query would.
+		$asked = null;
+		add_filter(
+			'comments_pre_query',
+			static function ( $comments, $query ) use ( &$asked ) {
+				$asked = $query->query_vars;
+				return array_map(
+					static function ( $text ) {
+						return new \WP_Comment(
+							(object) array(
+								'comment_ID'      => 1,
+								'comment_author'  => 'Reader',
+								'comment_content' => "<p>$text</p>",
+								'comment_date'    => '2026-11-03 10:00:00',
+							)
+						);
+					},
+					array( 'Third', 'Second' )
+				);
+			},
+			10,
+			2
+		);
+		add_filter(
+			'get_comments_number',
+			static function () {
+				return '3';
+			}
+		);
+		$sends = 200;
+		$calls = array();
+		$stub  = $this->createStub( WPCOM_Stats::class );
+		$stub->method( 'get_post_views' )->willReturn( array( 'views' => 4029 ) );
+		$stub->method( 'get_post_likes' )->willReturn(
+			array(
+				'found' => 3,
+				'likes' => array( array( 'name' => 'Ana &amp; Bo' ), array( 'name' => 'Cy' ), array( 'name' => 'Di' ) ),
+			)
+		);
+		$stub->method( 'get_utm_views' )->willReturnCallback(
+			static function ( $param, $args ) use ( $post_id, &$calls ) {
+				$calls[] = 'utm';
+				return $args['post_id'] === $post_id && -1 === $args['days'] ? array( 'top_utm_values' => array( '["guides","email"]' => 109 ) ) : new \WP_Error( 'stats_error', 'No UTM on this plan' );
+			}
+		);
+		$stub->method( 'get_email_breakdown' )->willReturnCallback(
+			static function ( $post, $stat ) use ( &$sends, &$calls ) {
+				$calls[] = "email/$stat";
+				return 'opens' === $stat
+					? array(
+						'total_sends'  => $sends,
+						'total_opens'  => $sends ? 90 : 0,
+						'unique_opens' => $sends ? 80 : 0,
+						'opens_rate'   => $sends ? 0.4 : 0,
+					)
+					: array(
+						'total_clicks'  => $sends ? 12 : 0,
+						'unique_clicks' => $sends ? 10 : 0,
+						'clicks_rate'   => $sends ? 0.05 : 0,
+					);
+			}
+		);
+		add_filter(
+			'jetpack_stats_abilities_wpcom_stats',
+			static function () use ( $stub ) {
+				return $stub;
+			}
+		);
+
+		$result = Stats_Abilities::get_post_detail(
+			array(
+				'post_id' => (string) $post_id,
+				'max'     => 2,
+			)
+		);
+
+		$this->assert_matches_output_schema( 'jetpack-stats/get-post-detail', $result );
+		$this->assertSame( 'Launch & more', $result['post']['title'] );
+		$this->assertSame( 4029, $result['views'] );
+		$this->assertSame( 3, $result['likes']['total'] );
+		$this->assertSame( array( 'Ana & Bo', 'Cy' ), array_column( $result['likes']['recent'], 'name' ) );
+		$this->assertSame( 3, $result['comments']['total'] );
+		$this->assertSame( array( 'Third', 'Second' ), array_column( $result['comments']['recent'], 'excerpt' ) );
+		$this->assertSame( array( $post_id, 'approve', 2 ), array( $asked['post_id'], $asked['status'], $asked['number'] ) );
+		$this->assertSame(
+			array(
+				array(
+					'label' => 'guides / email',
+					'value' => 109,
+				),
+			),
+			$result['utm']
+		);
+		$this->assertSame(
+			array(
+				'emailed' => true,
+				'sent'    => 200,
+				'opens'   => array(
+					'total'  => 90,
+					'unique' => 80,
+					'rate'   => 40.0,
+				),
+				'clicks'  => array(
+					'total'  => 12,
+					'unique' => 10,
+					'rate'   => 5.0,
+				),
+			),
+			$result['email']
+		);
+		$this->assertFalse( $result['partial'] );
+
+		// A post nobody was sent reads as never emailed, not as an email with no opens.
+		$sends    = 0;
+		$unsent   = Stats_Abilities::get_post_detail( array( 'post_id' => $post_id ) );
+		$no_email = array(
+			'emailed' => false,
+			'sent'    => null,
+			'opens'   => array(
+				'total'  => null,
+				'unique' => null,
+				'rate'   => null,
+			),
+			'clicks'  => array(
+				'total'  => null,
+				'unique' => null,
+				'rate'   => null,
+			),
+		);
+		$this->assertSame( $no_email, $unsent['email'] );
+
+		// A page is never emailed, so its email figures cost no request; a refused UTM read leaves the rest.
+		$calls = array();
+		$page  = Stats_Abilities::get_post_detail(
+			array(
+				'post_id'   => $page_id,
+				'utm_param' => 'utm_campaign',
+			)
+		);
+		$this->assertSame( array( 'utm' ), $calls );
+		$this->assertSame( $no_email, $page['email'] );
+		$this->assertNull( $page['utm'] );
+		$this->assertSame( array( 'utm' ), $page['errors'] );
+		$this->assertSame( 4029, $page['views'] );
+	}
+
 	public function test_get_insights_reads_a_year_of_posts_for_the_streak_and_calendar(): void {
 		update_option( 'timezone_string', 'America/New_York' );
 		$today    = current_time( 'Y-m-d' );
