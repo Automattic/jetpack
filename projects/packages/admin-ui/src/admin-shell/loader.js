@@ -97,7 +97,7 @@ const place = ( track, slug, el ) => {
 	} );
 };
 
-// Removers of the loaders on screen, by page.
+// Loaders on screen, by page.
 const loaders = new Map();
 
 /**
@@ -106,7 +106,7 @@ const loaders = new Map();
  * @param {string} slug - Page slug.
  */
 export function removeLoader( slug ) {
-	loaders.get( slug )?.();
+	loaders.get( slug )?.remove();
 }
 
 /**
@@ -165,11 +165,11 @@ export function showLoader( slug, el, label ) {
 		}
 		node.remove();
 		el.removeAttribute( 'aria-busy' );
-		if ( loaders.get( slug ) === remove ) {
+		if ( loaders.get( slug )?.remove === remove ) {
 			loaders.delete( slug );
 		}
 	};
-	loaders.set( slug, remove );
+	loaders.set( slug, { remove } );
 	log( 'loader', `showing the loader for ${ slug }` );
 	return remove;
 }
