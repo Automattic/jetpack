@@ -45,6 +45,23 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 	private static $subscriber_id;
 
 	/**
+	 * The `email` figures of get-post-detail, other than `emailed`, for a post that was not sent or whose email stats are unknown.
+	 */
+	private const NO_EMAIL = array(
+		'sent'   => null,
+		'opens'  => array(
+			'total'  => null,
+			'unique' => null,
+			'rate'   => null,
+		),
+		'clicks' => array(
+			'total'  => null,
+			'unique' => null,
+			'rate'   => null,
+		),
+	);
+
+	/**
 	 * {@inheritDoc}
 	 */
 	protected function set_up() {
@@ -544,6 +561,7 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 			'insights'    => array( 'get_insights', array(), array( 'get_stats', 'get_insights', 'get_highlights', 'get_streak', 'get_stats_usage' ) ),
 			'emails'      => array( 'get_email_stats', array(), array( 'get_email_summary' ) ),
 			'email'       => array( 'get_email_detail', array( 'post_id' => 'new' ), array( 'get_email_breakdown' ) ),
+			'post detail' => array( 'get_post_detail', array( 'post_id' => 'new' ), array( 'get_post_views', 'get_post_likes', 'get_utm_views', 'get_email_breakdown' ) ),
 			'video'       => array( 'get_video_stats', array( 'video_id' => 'new' ), array( 'get_video_details' ) ),
 			'subscribers' => array( 'get_subscribers', array(), array( 'get_subscribers' ) ),
 			'ads'         => array( 'get_ad_stats', array(), array( 'get_wordads_stats', 'get_wordads_earnings' ) ),
@@ -562,7 +580,12 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 	#[DataProvider( 'provide_reader_calls' )]
 	public function test_reader_reports_an_error_when_wordpress_com_answers_nothing( string $reader, array $input, array $calls ): void {
 		if ( 'new' === ( $input['post_id'] ?? null ) ) {
-			$input['post_id'] = wp_insert_post( array( 'post_title' => 'Hello' ) );
+			$input['post_id'] = wp_insert_post(
+				array(
+					'post_title'  => 'Hello',
+					'post_status' => 'publish',
+				)
+			);
 		}
 		if ( 'new' === ( $input['video_id'] ?? null ) ) {
 			$input['video_id'] = wp_insert_post( array( 'post_type' => 'attachment' ) );
@@ -611,6 +634,8 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 			'email no post'    => array( 'get_email_detail', array( 'post_id' => 999999 ), 'jetpack_stats_post_not_found' ),
 			'detail missing'   => array( 'get_post_detail', array( 'post_id' => '0' ), 'jetpack_stats_missing_post_id' ),
 			'detail no post'   => array( 'get_post_detail', array( 'post_id' => 999999 ), 'jetpack_stats_post_not_found' ),
+			'detail private'   => array( 'get_post_detail', array( 'post_id' => 'private' ), 'jetpack_stats_post_not_found' ),
+			'detail draft'     => array( 'get_post_detail', array( 'post_id' => 'draft' ), 'jetpack_stats_post_not_found' ),
 			'video missing'    => array( 'get_video_stats', array( 'video_id' => 0 ), 'jetpack_stats_missing_video_id' ),
 			'video date'       => array(
 				'get_video_stats',
@@ -636,6 +661,16 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 	 */
 	#[DataProvider( 'provide_invalid_reader_input' )]
 	public function test_reader_refuses_invalid_input( string $reader, array $input, string $code ): void {
+		// A post the subscriber cannot open on the site, named by its status.
+		if ( in_array( $input['post_id'] ?? null, array( 'private', 'draft' ), true ) ) {
+			$input['post_id'] = wp_insert_post(
+				array(
+					'post_title'  => 'Unannounced',
+					'post_status' => $input['post_id'],
+				)
+			);
+			wp_set_current_user( self::$subscriber_id );
+		}
 		$this->filter_wpcom_stats( array() );
 
 		$result = Stats_Abilities::$reader( $input );
@@ -2565,17 +2600,10 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 		$this->assertSame( array( 'opens/device' ), $result['errors'] );
 	}
 
-	public function test_get_post_detail_reports_one_post_and_says_when_it_was_never_emailed(): void {
+	public function test_get_post_detail_reports_one_post(): void {
 		$post_id = wp_insert_post(
 			array(
 				'post_title'  => 'Launch &amp; more',
-				'post_status' => 'publish',
-			)
-		);
-		$page_id = wp_insert_post(
-			array(
-				'post_title'  => 'About',
-				'post_type'   => 'page',
 				'post_status' => 'publish',
 			)
 		);
@@ -2596,7 +2624,7 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 							)
 						);
 					},
-					array( 'Third', 'Second' )
+					array( 'Third', 'Second <b>reply</b> ' . str_repeat( 'word ', 30 ) )
 				);
 			},
 			10,
@@ -2608,48 +2636,7 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 				return '3';
 			}
 		);
-		$sends = 200;
-		$calls = array();
-		$stub  = $this->createStub( WPCOM_Stats::class );
-		$stub->method( 'get_post_views' )->willReturn( array( 'views' => 4029 ) );
-		$stub->method( 'get_post_likes' )->willReturn(
-			array(
-				'found' => 3,
-				'likes' => array( array( 'name' => 'Ana &amp; Bo' ), array( 'name' => 'Cy' ), array( 'name' => 'Di' ) ),
-			)
-		);
-		$stub->method( 'get_utm_views' )->willReturnCallback(
-			static function ( $param, $args ) use ( $post_id, &$calls ) {
-				$calls[] = 'utm';
-				return $args['post_id'] === $post_id && -1 === $args['days'] ? array( 'top_utm_values' => array( '["guides","email"]' => 109 ) ) : new \WP_Error( 'stats_error', 'No UTM on this plan' );
-			}
-		);
-		$stub->method( 'get_email_breakdown' )->willReturnCallback(
-			static function ( $post, $stat ) use ( &$sends, &$calls ) {
-				$calls[] = "email/$stat";
-				if ( null === $sends ) {
-					return new \WP_Error( 'stats_error', 'Unavailable' );
-				}
-				return 'opens' === $stat
-					? array(
-						'total_sends'  => $sends,
-						'total_opens'  => $sends ? 90 : 0,
-						'unique_opens' => $sends ? 80 : 0,
-						'opens_rate'   => $sends ? 0.4 : 0,
-					)
-					: array(
-						'total_clicks'  => $sends ? 12 : 0,
-						'unique_clicks' => $sends ? 10 : 0,
-						'clicks_rate'   => $sends ? 0.05 : 0,
-					);
-			}
-		);
-		add_filter(
-			'jetpack_stats_abilities_wpcom_stats',
-			static function () use ( $stub ) {
-				return $stub;
-			}
-		);
+		$this->stub_post_detail_stats( 200 );
 
 		$result = Stats_Abilities::get_post_detail(
 			array(
@@ -2663,9 +2650,10 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 		$this->assertSame( 4029, $result['views'] );
 		$this->assertSame( 3, $result['likes']['total'] );
 		$this->assertSame( array( 'Ana & Bo', 'Cy' ), array_column( $result['likes']['recent'], 'name' ) );
+		// The total and the list count the same things: approved comments of every type.
 		$this->assertSame( 3, $result['comments']['total'] );
-		$this->assertSame( array( 'Third', 'Second' ), array_column( $result['comments']['recent'], 'excerpt' ) );
-		$this->assertSame( array( $post_id, 'approve', 2 ), array( $asked['post_id'], $asked['status'], $asked['number'] ) );
+		$this->assertSame( array( $post_id, 'approve', 2, '' ), array( $asked['post_id'], $asked['status'], $asked['number'], $asked['type'] ) );
+		$this->assertSame( array( 'Third', 'Second reply ' . trim( str_repeat( 'word ', 28 ) ) . '…' ), array_column( $result['comments']['recent'], 'excerpt' ) );
 		$this->assertSame(
 			array(
 				array(
@@ -2693,49 +2681,123 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 			$result['email']
 		);
 		$this->assertFalse( $result['partial'] );
+	}
 
-		// A post nobody was sent reads as never emailed, not as an email with no opens.
-		$sends    = 0;
-		$unsent   = Stats_Abilities::get_post_detail( array( 'post_id' => $post_id ) );
-		$no_email = array(
-			'emailed' => false,
-			'sent'    => null,
-			'opens'   => array(
-				'total'  => null,
-				'unique' => null,
-				'rate'   => null,
-			),
-			'clicks'  => array(
-				'total'  => null,
-				'unique' => null,
-				'rate'   => null,
-			),
+	/**
+	 * Email figures for a post nobody was sent, or whose email stats could not be read.
+	 */
+	public static function provide_unknown_email(): array {
+		return array(
+			'never sent' => array( 0, false, array() ),
+			'unreadable' => array( null, null, array( 'email' ) ),
 		);
-		$this->assertSame( $no_email, $unsent['email'] );
+	}
 
-		// Email stats that could not be read are unknown, not proof the post was never sent.
-		$sends   = null;
-		$unknown = Stats_Abilities::get_post_detail( array( 'post_id' => $post_id ) );
-		$this->assertSame( array( 'emailed' => null ) + $no_email, $unknown['email'] );
-		$this->assertSame( array( 'email' ), $unknown['errors'] );
+	/**
+	 * A post nobody was sent reads as never emailed, and unreadable email stats as unknown, never as an email with no opens.
+	 *
+	 * @dataProvider provide_unknown_email
+	 *
+	 * @param int|null  $sends   Subscribers WPCOM says the post went to, or null when it refuses.
+	 * @param bool|null $emailed The `email.emailed` this gives.
+	 * @param string[]  $errors  The errors reported.
+	 */
+	#[DataProvider( 'provide_unknown_email' )]
+	public function test_get_post_detail_leaves_email_figures_null_unless_it_was_sent( ?int $sends, ?bool $emailed, array $errors ): void {
+		$this->stub_post_detail_stats( $sends );
 
-		// A page is never emailed, so its email figures cost no request; a refused UTM read leaves the rest.
-		$calls = array();
-		$page  = Stats_Abilities::get_post_detail(
+		$post_id = wp_insert_post(
+			array(
+				'post_title'  => 'Hello',
+				'post_status' => 'publish',
+			)
+		);
+
+		$result = Stats_Abilities::get_post_detail( array( 'post_id' => $post_id ) );
+
+		$this->assertSame( array( 'emailed' => $emailed ) + self::NO_EMAIL, $result['email'] );
+		$this->assertSame( $errors, $result['errors'] ?? array() );
+	}
+
+	public function test_get_post_detail_asks_nothing_about_email_for_a_page(): void {
+		// Someone who can open a private page on the site can read its report.
+		wp_set_current_user( self::$admin_id );
+		$page_id = wp_insert_post(
+			array(
+				'post_title'  => 'Members',
+				'post_type'   => 'page',
+				'post_status' => 'private',
+			)
+		);
+		$calls   = $this->stub_post_detail_stats( 200 );
+
+		$page = Stats_Abilities::get_post_detail(
 			array(
 				'post_id'   => $page_id,
 				'utm_param' => 'utm_campaign',
 			)
 		);
-		$this->assertSame( array( 'utm' ), $calls );
-		$this->assertSame( $no_email, $page['email'] );
+
+		// A refused UTM read leaves the rest of the report.
+		$this->assertSame( array( 'utm' ), $calls->getArrayCopy() );
+		$this->assertSame( array( 'emailed' => false ) + self::NO_EMAIL, $page['email'] );
 		$this->assertNull( $page['utm'] );
 		$this->assertSame( array( 'utm' ), $page['errors'] );
 		$this->assertSame( 4029, $page['views'] );
+	}
 
-		// With nothing read from WordPress.com, there is no report to give.
-		$this->filter_wpcom_stats( array() );
-		$this->assertSame( 'jetpack_stats_data_unavailable', Stats_Abilities::get_post_detail( array( 'post_id' => $post_id ) )->get_error_code() );
+	/**
+	 * Serve get-post-detail's WPCOM reads: the post's views, likes and UTM values, and an email sent to `$sends` people.
+	 *
+	 * UTM answers only for an all-time read grouped by source and medium, as a plan without UTM refuses the rest.
+	 *
+	 * @param int|null $sends Subscribers the post went to, or null to refuse the email reads.
+	 * @return \ArrayObject The UTM and email reads made, in order.
+	 */
+	private function stub_post_detail_stats( ?int $sends ): \ArrayObject {
+		$calls = new \ArrayObject();
+		$stub  = $this->createStub( WPCOM_Stats::class );
+		$stub->method( 'get_post_views' )->willReturn( array( 'views' => 4029 ) );
+		$stub->method( 'get_post_likes' )->willReturn(
+			array(
+				'found' => 3,
+				'likes' => array( array( 'name' => 'Ana &amp; Bo' ), array( 'name' => 'Cy' ), array( 'name' => 'Di' ) ),
+			)
+		);
+		$stub->method( 'get_utm_views' )->willReturnCallback(
+			static function ( $param, $args ) use ( $calls ) {
+				$calls[] = 'utm';
+				return 'utm_source,utm_medium' === $param && -1 === $args['days'] ? array( 'top_utm_values' => array( '["guides","email"]' => 109 ) ) : new \WP_Error( 'stats_error', 'No UTM on this plan' );
+			}
+		);
+		$stub->method( 'get_email_breakdown' )->willReturnCallback(
+			static function ( $post, $stat ) use ( $sends, $calls ) {
+				$calls[] = "email/$stat";
+				if ( null === $sends ) {
+					return new \WP_Error( 'stats_error', 'Unavailable' );
+				}
+				return 'opens' === $stat
+					? array(
+						'total_sends'  => $sends,
+						'total_opens'  => $sends ? 90 : 0,
+						'unique_opens' => $sends ? 80 : 0,
+						'opens_rate'   => $sends ? 0.4 : 0,
+					)
+					: array(
+						'total_clicks'  => $sends ? 12 : 0,
+						'unique_clicks' => $sends ? 10 : 0,
+						'clicks_rate'   => $sends ? 0.05 : 0,
+					);
+			}
+		);
+		add_filter(
+			'jetpack_stats_abilities_wpcom_stats',
+			static function () use ( $stub ) {
+				return $stub;
+			}
+		);
+
+		return $calls;
 	}
 
 	public function test_get_insights_reads_a_year_of_posts_for_the_streak_and_calendar(): void {
