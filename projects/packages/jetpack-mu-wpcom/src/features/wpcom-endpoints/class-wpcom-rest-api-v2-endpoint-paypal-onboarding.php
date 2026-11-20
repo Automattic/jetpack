@@ -17,7 +17,7 @@
  */
 
 use Automattic\Jetpack\Constants;
-use Automattic\Jetpack\Feature_Flags\Feature_Flags;
+use Automattic\Jetpack\Jetpack_Mu_Wpcom\Wpcom_PayPal_Buttons_Rollout;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
@@ -135,16 +135,6 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding extends WP_REST_Controller {
 	 * @var int
 	 */
 	const TOKEN_EXPIRY_BUFFER = 300;
-
-	/**
-	 * Feature flag that opens the production environment; the sandbox is always open.
-	 *
-	 * Hard-coded: mu-wpcom cannot reach PayPal_Payment_Buttons::API_MANAGED_BUTTONS_FLAG.
-	 * Unregistered on WordPress.com, so only a `jetpack_feature_flag_enabled_*` filter flips it.
-	 *
-	 * @var string
-	 */
-	const PRODUCTION_FLAG = 'paypal-payments-api-managed-buttons';
 
 	/**
 	 * Names of the constants holding Automattic's PayPal platform credentials, by environment.
@@ -1132,10 +1122,11 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding extends WP_REST_Controller {
 	 * @return array|WP_Error Array with 'client_id', 'client_secret' and 'partner_merchant_id', or WP_Error.
 	 */
 	private function get_platform_credentials( $environment ) {
-		if ( 'production' === $environment && ! Feature_Flags::is_enabled( self::PRODUCTION_FLAG ) ) {
+		// The rollout kill switch closes production for every caller. The sandbox stays open.
+		if ( 'production' === $environment && Wpcom_PayPal_Buttons_Rollout::is_killed() ) {
 			return new WP_Error(
 				'platform_production_not_enabled',
-				'PayPal production is not enabled on WordPress.com yet. Connect to the sandbox instead.',
+				'PayPal is temporarily unavailable. Please try again later.',
 				array( 'status' => 403 )
 			);
 		}
