@@ -57,14 +57,16 @@ abstract class Jetpack_Admin_Page {
 	public function additional_styles() {}
 
 	/**
-	 * Add common page actions and attach page-specific actions.
+	 * Whether add_actions() registers the page, which the admin shell's guest endpoint also asks, since admin-ajax never builds the menu.
+	 *
+	 * @return bool
 	 */
-	public function add_actions() {
+	protected function should_add_page() {
 		$is_offline_mode = ( new Status() )->is_offline_mode();
 
 		// If user is not an admin and site is in Offline Mode or not connected yet then don't do anything.
 		if ( ! current_user_can( 'manage_options' ) && ( $is_offline_mode || ! Jetpack::is_connection_ready() ) ) {
-			return;
+			return false;
 		}
 
 		// Is Jetpack not connected and not offline?
@@ -73,7 +75,14 @@ abstract class Jetpack_Admin_Page {
 		$connectable = ! Jetpack::is_connection_ready() && ! $is_offline_mode;
 
 		// Don't add in the modules page unless modules are available!
-		if ( $this->dont_show_if_not_active && $connectable ) {
+		return ! ( $this->dont_show_if_not_active && $connectable );
+	}
+
+	/**
+	 * Add common page actions and attach page-specific actions.
+	 */
+	public function add_actions() {
+		if ( ! $this->should_add_page() ) {
 			return;
 		}
 
