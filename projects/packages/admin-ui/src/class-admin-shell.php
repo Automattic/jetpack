@@ -115,7 +115,7 @@ class Admin_Shell {
 	/**
 	 * Member dashboards, keyed by admin page slug. Entries that don't match the contract are dropped.
 	 *
-	 * @return array<string, array{build_prefix: string, build_page: string, init_modules: string[], title: string, header: array{title: string, subtitle: string|null}|false|null, default_path: string|null, load: callable, capability: string, handles: string[]}>
+	 * @return array<string, array{build_prefix: string, build_page: string, init_modules: string[], title: string, header: array{title: string, subtitle: string|null}|false|null, default_path: string|null, load: callable, capability: string, handles: string[], admin_menu: bool}>
 	 */
 	public static function get_members() {
 		/**
@@ -124,13 +124,14 @@ class Admin_Shell {
 		 * Each entry is keyed by its admin page slug and holds:
 		 * - build_prefix (string)   The wp-build prefix of the generated page functions.
 		 * - build_page (string)     The wp-build page name.
-		 * - init_modules (string[]) Script modules to import before the app boots.
+		 * - init_modules (string[]) Script modules to import before the app boots, along with any its page init action enqueues.
 		 * - title (string)          Document title while the page is shown.
 		 * - header (array|false)    Optional. `title` and `subtitle` of the view a bare menu link opens, as the dashboard renders them, shown while it opens. `subtitle` is '' for none, or null when the dashboard picks it as it renders. False shows no stand-in on any of its views, for a page whose landing view has no standard page header. A malformed one is dropped, not the member.
 		 * - default_path (string)   Optional. The `p` a bare menu link opens.
 		 * - load (callable)         Loads the build that defines `<build_prefix>_get_<build_page>_wp_admin_routes()`, leaving its page init action to the shell, registers the page's scripts and prints its initial data. Must be safe to run twice, and must not redirect, print or write options. Add print hook callbacks here, not from admin_enqueue_scripts: the guest endpoint drops what those print.
 		 * - capability (string)     Optional, default `manage_options`. Required to load the page into the shell.
 		 * - handles (string[])      Optional. Script and style handles the guest endpoint prints, with their dependencies; nothing else is enqueued.
+		 * - admin_menu (bool)       Optional, default false. Build the admin menu on the guest endpoint, after `load`, for page data read through menu_page_url(). What its callbacks print or hook is dropped.
 		 *
 		 * @since 0.14.15
 		 *
@@ -157,6 +158,25 @@ class Admin_Shell {
 	}
 
 	/**
+	 * The member the guest endpoint is loading in this request, readable from `init` on so members can scope their hooks to it.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return string|null Member slug, or null on any other request.
+	 */
+	public static function requested_guest() {
+		// phpcs:disable WordPress.Security.NonceVerification -- Only scopes hooks; the endpoint verifies the nonce before it prints anything.
+		// Not `page`: products treat a `page` naming them as a visit to their own screen.
+		$action = isset( $_REQUEST['action'] ) && is_string( $_REQUEST['action'] ) ? sanitize_key( wp_unslash( $_REQUEST['action'] ) ) : '';
+		$member = isset( $_GET['member'] ) && is_string( $_GET['member'] ) ? sanitize_key( wp_unslash( $_GET['member'] ) ) : '';
+		if ( ! wp_doing_ajax() || self::GUEST_ACTION !== $action || '' === $member ) {
+			return null;
+		}
+		return $member;
+		// phpcs:enable WordPress.Security.NonceVerification
+	}
+
+	/**
 	 * The member page this request is for, when the shell runs on it.
 	 *
 	 * @return string|null
@@ -173,7 +193,7 @@ class Admin_Shell {
 	private static function resolve_host() {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Only picks which page this is.
 		$page = isset( $_GET['page'] ) && is_string( $_GET['page'] ) ? sanitize_key( wp_unslash( $_GET['page'] ) ) : '';
-		// Members are Jetpack submenu pages; checking the screen first keeps the members filter off other admin pages.
+		// Members are Jetpack admin pages; checking the screen first keeps the members filter off other admin pages.
 		$on_jetpack_screen = isset( $GLOBALS['hook_suffix'] ) && self::screen_id( $page ) === $GLOBALS['hook_suffix'];
 		if ( '' === $page || ! $on_jetpack_screen || ! self::is_enabled() ) {
 			return array( null, array() );
@@ -193,7 +213,9 @@ class Admin_Shell {
 	 * @return string
 	 */
 	public static function screen_id( $slug ) {
-		return 'jetpack_page_' . $slug;
+		global $admin_page_hooks;
+		// Top-level pages, like Stats under the Dashboard, get core's prefix rather than the Jetpack menu's.
+		return isset( $admin_page_hooks[ $slug ] ) ? 'toplevel_page_' . $slug : 'jetpack_page_' . $slug;
 	}
 
 	/**
@@ -212,9 +234,10 @@ class Admin_Shell {
 			if ( $slug === $host || ! current_user_can( $member['capability'] ) ) {
 				continue;
 			}
-			$routes = self::load_guest( $member );
+			list( $routes, $modules ) = self::load_guest( $member );
 			if ( null !== $routes ) {
-				$guests[ $slug ] = $routes;
+				$guests[ $slug ]                  = $routes;
+				$members[ $slug ]['init_modules'] = array_values( array_unique( array_merge( $member['init_modules'], $modules ) ) );
 			}
 		}
 		if ( ! $guests ) {
@@ -264,18 +287,25 @@ class Admin_Shell {
 	}
 
 	/**
-	 * Run a guest's loader and page init action on the host page, then drop the page hooks they added.
+	 * Run a guest's loader and page init action on the host page, then drop the page hooks and script modules they added.
 	 *
 	 * @param array $member Normalized member.
-	 * @return array[]|null Routes, or null when the guest's build or its routes aren't there.
+	 * @return array{0: array[]|null, 1: string[]} Routes, or null when the guest's build or its routes aren't there; the script modules they enqueued.
 	 */
 	private static function load_guest( $member ) {
 		$snapshot = self::hook_snapshot();
+		$queued   = wp_script_modules()->get_queue();
 		call_user_func( $member['load'] );
 		$routes = self::run_page_init( $member );
 		self::remove_added_callbacks( $snapshot );
 
-		return $routes;
+		// The shell imports them with the guest's init modules, so a host visit alone never runs them.
+		$modules = array_values( array_diff( wp_script_modules()->get_queue(), $queued ) );
+		foreach ( $modules as $id ) {
+			wp_dequeue_script_module( $id );
+		}
+
+		return array( $routes, $modules );
 	}
 
 	/**
@@ -310,7 +340,10 @@ class Admin_Shell {
 				$ids[] = $route['route_module'] ?? null;
 				$ids[] = $route['content_module'] ?? null;
 			}
-			foreach ( array_filter( $ids ) as $id ) {
+			// Modules a guest adds to its own page's import map, such as Stats' widgets, which it imports on demand.
+			$own_deps = apply_filters( $members[ $slug ]['build_page'] . '-wp-admin_boot_dependencies', array() ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound, WordPress.NamingConventions.ValidHookName.UseUnderscores -- The guest's generated wp-build hook.
+			$ids      = array_merge( $ids, array_column( (array) $own_deps, 'id' ) );
+			foreach ( array_unique( array_filter( $ids ) ) as $id ) {
 				$deps[] = array(
 					'import' => 'dynamic',
 					'id'     => $id,
@@ -580,8 +613,7 @@ class Admin_Shell {
 	 */
 	public static function ajax_guest_assets() {
 		check_ajax_referer( self::GUEST_ACTION, 'nonce' );
-		// Not `page`: products treat a `page` naming them as a visit to their own screen.
-		$slug = isset( $_GET['member'] ) && is_string( $_GET['member'] ) ? sanitize_key( wp_unslash( $_GET['member'] ) ) : '';
+		$slug = self::requested_guest() ?? '';
 
 		$html = self::guest_assets( $slug );
 		if ( is_int( $html ) ) {
@@ -607,6 +639,9 @@ class Admin_Shell {
 
 		$snapshot = self::hook_snapshot();
 		call_user_func( $members[ $slug ]['load'] );
+		if ( $members[ $slug ]['admin_menu'] ) {
+			self::register_admin_menu_pages();
+		}
 		self::run_page_init( $members[ $slug ] );
 		$own         = self::added_keys( $snapshot );
 		$hook_suffix = self::screen_id( $slug );
@@ -631,6 +666,43 @@ class Admin_Shell {
 	}
 
 	/**
+	 * Register the admin menu's pages, which admin-ajax never does, keeping only the pages: what its callbacks print or hook is dropped.
+	 *
+	 * Runs `admin_menu` alone: core's wp-admin/menu.php would also run its page access check, which dies on admin-ajax.
+	 *
+	 * @return void
+	 */
+	private static function register_admin_menu_pages() {
+		global $menu, $submenu, $wp_filter;
+		if ( did_action( 'admin_menu' ) ) {
+			return;
+		}
+		// phpcs:disable WordPress.WP.GlobalVariablesOverride.Prohibited -- Menu callbacks expect the arrays core's menu.php would have set up.
+		$menu    = is_array( $menu ) ? $menu : array();
+		$submenu = is_array( $submenu ) ? $submenu : array();
+		// phpcs:enable WordPress.WP.GlobalVariablesOverride.Prohibited
+		$before = array();
+		foreach ( $wp_filter as $hook => $callbacks ) {
+			$before[ $hook ] = $callbacks->callbacks;
+		}
+
+		ob_start();
+		do_action( 'admin_menu', '' ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Core hook.
+		ob_end_clean();
+
+		// A hover must not run them: Jetpack's plan check on current_screen, for one, turns off modules.
+		foreach ( $wp_filter as $hook => $callbacks ) {
+			foreach ( $callbacks->callbacks as $priority => $by_id ) {
+				foreach ( $by_id as $id => $callback ) {
+					if ( ! isset( $before[ $hook ][ $priority ][ $id ] ) ) {
+						remove_filter( $hook, $callback['function'], $priority );
+					}
+				}
+			}
+		}
+	}
+
+	/**
 	 * Skip core's api-fetch setup when the host page already ran it.
 	 *
 	 * A second nonce middleware would keep sending the stale nonce after a refresh, so requests loop.
@@ -651,9 +723,9 @@ class Admin_Shell {
 	}
 
 	/**
-	 * Fire a print hook, discarding what callbacks echo unless the member added them or core defines them.
+	 * Fire a print hook, discarding what callbacks echo or enqueue unless the member added them or core defines them.
 	 *
-	 * Every callback still runs, so data attached to the member's handles prints. Their echoes already ran on the host page.
+	 * Every callback still runs, so data attached to the member's handles prints. Their output already ran on the host page.
 	 *
 	 * @param string             $hook Hook name.
 	 * @param array<string,true> $own  Callbacks the member's loader added, keyed as hook_snapshot() keys them.
@@ -671,10 +743,14 @@ class Admin_Shell {
 				$wrapped[ $priority ][ $id ] = $function;
 				$wp_filter[ $hook ]->callbacks[ $priority ][ $id ]['function'] = static function ( ...$args ) use ( $function ) {
 					$level = ob_get_level();
+					// WordPress.com enqueues jQuery here; printed again, it drops the host's plugins, like wpcom_proxy_request.
+					$queues = array( wp_scripts()->queue, wp_styles()->queue );
 					ob_start();
 					try {
 						call_user_func_array( $function, $args );
 					} finally {
+						wp_scripts()->queue = $queues[0];
+						wp_styles()->queue  = $queues[1];
 						// Also closes buffers the callback left open, stopping at one that can't be removed.
 						while ( ob_get_level() > $level && ob_end_clean() ) {
 							continue;
@@ -841,12 +917,14 @@ class Admin_Shell {
 			'default_path' => null,
 			'capability'   => 'manage_options',
 			'handles'      => array(),
+			'admin_menu'   => false,
 		);
 
 		if (
 			! self::is_string_list( $member['init_modules'] )
 			|| ! self::is_string_list( $member['handles'] )
 			|| ! is_string( $member['capability'] ) || '' === $member['capability']
+			|| ! is_bool( $member['admin_menu'] )
 			|| ( null !== $member['default_path'] && ! is_string( $member['default_path'] ) )
 		) {
 			return null;

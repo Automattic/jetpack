@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Plans: Add the jetpack_my_jetpack_plan_urls filter, so a host can send the "Purchase a plan" and "Manage your plan" links to its own plans, or hide either link.

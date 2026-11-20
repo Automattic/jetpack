@@ -398,6 +398,9 @@ class Jetpack_AI_Page {
 				),
 				// Self-hosted sites get the Hub's `-self-hosted` ChatGPT and Claude connect links.
 				'isSelfHosted'      => ! $host->is_wpcom_platform(),
+				// WordPress.com MCP runs a site's own abilities on every Jetpack site,
+				// Atomic included, as Calypso's MCP page shows them.
+				'showSiteAbilities' => ! $host->is_wpcom_simple(),
 			)
 		);
 
@@ -483,6 +486,7 @@ class Jetpack_AI_Page {
 			'tracksUserData'      => $can_send_tracks ? self::get_tracks_user_data() : null,
 			'mcpSettingsApi'      => $config['mcpSettingsApi'] ?? array(),
 			'isSelfHosted'        => true === ( $config['isSelfHosted'] ?? false ),
+			'showSiteAbilities'   => true === ( $config['showSiteAbilities'] ?? false ),
 		);
 
 		wp_add_inline_script(

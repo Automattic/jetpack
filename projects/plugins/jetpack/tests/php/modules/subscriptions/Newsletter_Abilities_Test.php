@@ -407,6 +407,9 @@ class Newsletter_Abilities_Test extends WP_UnitTestCase {
 
 	public function test_every_ability_opts_into_mcp_as_public_tool() {
 		foreach ( Newsletter_Abilities::get_abilities() as $slug => $spec ) {
+			$this->assertArrayHasKey( 'public', $spec['meta'], "{$slug} must declare meta.public." );
+			$this->assertTrue( $spec['meta']['public'], "{$slug} must be marked public." );
+			$this->assertTrue( $spec['meta']['show_in_rest'], "{$slug} must be exposed through the Abilities REST API." );
 			$this->assertArrayHasKey( 'mcp', $spec['meta'], "{$slug} must publish meta.mcp." );
 			$this->assertTrue( $spec['meta']['mcp']['public'], "{$slug} must opt into MCP." );
 			$this->assertSame( 'tool', $spec['meta']['mcp']['type'], "{$slug} must be exposed as an MCP tool." );

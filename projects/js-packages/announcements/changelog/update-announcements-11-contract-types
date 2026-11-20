@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Stop exporting the type of the mount options: a host imports the functions only.

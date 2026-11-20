@@ -2,6 +2,7 @@ import { getAdminUrl } from '@automattic/jetpack-script-data';
 import { __, sprintf } from '@wordpress/i18n';
 import { Notice } from '@wordpress/ui';
 import getOutput from '../data/get-output';
+import isSeoToolsActive from '../data/is-seo-tools-active';
 import type { FC } from 'react';
 
 // Module scope, so the production minifier can't fold the two messages into one
@@ -18,21 +19,20 @@ const turnedOffLabel = __(
  * the cause is explained: the locked cards below it show the short `PausedNote`.
  *
  * It names only what stops. Sitemaps, site verification and the AI crawler rules in
- * robots.txt keep running in both cases.
+ * robots.txt keep running in both cases. With SEO tools off, the pause isn't what
+ * stops the output, so it stays hidden.
  *
- * @param props           - Component props.
- * @param props.className - Optional class for the tab's spacing.
- * @return The banner, or null while the output is live.
+ * @return The banner, or null while the output is live or SEO tools are off.
  */
-const SeoPausedBanner: FC< { className?: string } > = ( { className } ) => {
+const SeoPausedBanner: FC = () => {
 	const { paused, conflicting_plugin: plugin } = getOutput();
 
-	if ( ! paused ) {
+	if ( ! paused || ! isSeoToolsActive() ) {
 		return null;
 	}
 
 	return (
-		<Notice.Root intent="warning" className={ className }>
+		<Notice.Root intent="warning">
 			<Notice.Description>
 				{ plugin
 					? sprintf(

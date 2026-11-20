@@ -52,8 +52,9 @@ class Jetpack_Monetize_Feature_Flags_Test extends WP_UnitTestCase {
 					'ATOMIC_CLIENT_ID'     => 2,
 					'WPCOMSH__PLUGIN_FILE' => 'wpcomsh.php',
 				),
-				false,
+				true,
 			),
+			'flag turned on, Simple'   => array( true, array( 'IS_WPCOM' => true ), false ),
 		);
 	}
 
@@ -65,7 +66,7 @@ class Jetpack_Monetize_Feature_Flags_Test extends WP_UnitTestCase {
 	 * @param bool  $available Whether the module should be available.
 	 */
 	#[DataProvider( 'provide_flag_states' )]
-	public function test_module_is_available_only_with_the_flag_on_off_the_wpcom_platform( $flag_on, $constants, $available ) {
+	public function test_module_is_available_only_with_the_flag_on_off_simple( $flag_on, $constants, $available ) {
 		if ( $flag_on ) {
 			add_filter( 'jetpack_feature_flag_enabled_' . Dashboard::FEATURE_FLAG, '__return_true' );
 		}

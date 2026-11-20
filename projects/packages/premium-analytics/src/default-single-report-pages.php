@@ -52,6 +52,27 @@ function get_post_traffic_single_report_section_default_layout() {
 }
 
 /**
+ * The Page traffic section of the page report: the post traffic layout, its two post cards titled for a page.
+ *
+ * @return array
+ */
+function get_page_traffic_single_report_section_default_layout() {
+	$page_types = array(
+		'jpa/post-detail-highlights' => 'jpa/post-detail-highlights--page',
+		'jpa/post-views'             => 'jpa/post-views--page',
+	);
+
+	return array_map(
+		static function ( $widget ) use ( $page_types ) {
+			$widget['type'] = $page_types[ $widget['type'] ] ?? $widget['type'];
+
+			return $widget;
+		},
+		get_post_traffic_single_report_section_default_layout()
+	);
+}
+
+/**
  * The Email opens section of the post page.
  *
  * @return array
@@ -204,6 +225,8 @@ function register_default_single_report_pages( $registry = null ) {
 			'dashboard_section' => 'traffic',
 			'icon'              => 'jpa/post',
 			'sections'          => $post_sections,
+			// Its adapter reads the entry from Stats, so the type need not be in REST.
+			'is_available'      => array( Capabilities::class, 'current_user_can_view_stats' ),
 		),
 		'analytics/page'   => array(
 			'entity'            => array(
@@ -212,7 +235,13 @@ function register_default_single_report_pages( $registry = null ) {
 			),
 			'dashboard_section' => 'traffic',
 			'icon'              => 'jpa/page',
-			'sections'          => $post_sections,
+			'sections'          => array(
+				array(
+					'slug'           => 'post-traffic',
+					'label'          => __( 'Page traffic', 'jetpack-premium-analytics-pkg' ),
+					'default_layout' => __NAMESPACE__ . '\\get_page_traffic_single_report_section_default_layout',
+				),
+			),
 		),
 	);
 
