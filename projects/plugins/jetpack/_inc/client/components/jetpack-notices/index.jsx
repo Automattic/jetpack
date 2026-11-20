@@ -13,6 +13,10 @@ import SimpleNotice from 'components/notice';
 import NoticeAction from 'components/notice/notice-action.jsx';
 import { JETPACK_CONTACT_BETA_SUPPORT } from 'constants/urls';
 import {
+	areSettingsNoticesInMyJetpack,
+	isSettingsConsolidationEnabled,
+} from 'lib/settings-consolidation';
+import {
 	getSiteConnectionStatus,
 	getSiteOfflineMode,
 	isConnectionOwner,
@@ -28,6 +32,7 @@ import {
 	userCanConnectSite,
 	userIsSubscriber,
 	getConnectionErrors,
+	userCanManageModules,
 } from 'state/initial-state';
 import { getLicensingError, clearLicensingError } from 'state/licensing';
 import { getSiteDataErrors } from 'state/site';
@@ -41,7 +46,12 @@ export class DevVersionNotice extends Component {
 	static displayName = 'DevVersionNotice';
 
 	render() {
-		if ( this.props.isDevVersion && ! this.props.userIsSubscriber ) {
+		// Dropped, not moved, once settings move to My Jetpack.
+		if (
+			this.props.isDevVersion &&
+			! this.props.userIsSubscriber &&
+			! isSettingsConsolidationEnabled()
+		) {
 			return (
 				<SimpleNotice
 					showDismiss={ false }
@@ -244,6 +254,7 @@ class JetpackNotices extends Component {
 				) }
 
 				{ window.noticeInfo &&
+					! this.props.deprecationsInMyJetpack &&
 					Object.entries( window.noticeInfo ).map( ( [ noticeKey, { title, message, link } ] ) => (
 						<DeprecationNotice
 							key={ noticeKey }
@@ -279,6 +290,8 @@ export default connect(
 			isReconnectingSite: isReconnectingSite( state ),
 			licensingError: getLicensingError( state ),
 			hasConnectedOwner: hasConnectedOwner( state ),
+			// My Jetpack's red bubble alerts carry them, for admins only.
+			deprecationsInMyJetpack: areSettingsNoticesInMyJetpack() && userCanManageModules( state ),
 		};
 	},
 	dispatch => {

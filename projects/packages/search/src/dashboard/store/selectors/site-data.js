@@ -23,6 +23,7 @@ const siteDataSelectors = {
 	getPostTypes: state => state.siteData?.postTypes,
 	getSiteTitle: state => state.siteData?.title || '',
 	isWpcom: state => state.siteData?.isWpcom ?? false,
+	canAddLicense: state => state.siteData?.addLicense !== false,
 	isPlanJustUpgraded: state => state.siteData?.isPlanJustUpgraded ?? false,
 	isSearchBlocksEnabled: state => state.siteData?.searchBlocksEnabled ?? false,
 	isBlockOverlayEnabled: state => state.siteData?.blockOverlayEnabled ?? false,

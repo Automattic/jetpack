@@ -34,6 +34,13 @@ use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Boos
 class Boost_Abilities extends Registrar {
 
 	/**
+	 * {@inheritDoc}
+	 */
+	protected static function enabled_by_default(): bool {
+		return true;
+	}
+
+	/**
 	 * @inheritDoc
 	 */
 	public static function get_category_slug(): string {
