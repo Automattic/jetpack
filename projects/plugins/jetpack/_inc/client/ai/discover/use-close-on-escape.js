@@ -5,9 +5,10 @@
 
 import { useEffect } from '@wordpress/element';
 
+// Popups that take Escape for themselves, wherever they're open.
 const POPUP_SELECTOR = '[role="menu"], [role="listbox"], [role="dialog"], [role="alertdialog"]';
-// Open anywhere on the page, these take Escape for themselves.
-const OPEN_SELECTOR = '[role="menu"], [role="listbox"], [role="alertdialog"], [role="dialog"]';
+// The panel is a dialog itself where it covers the hub; it never takes its own Escape.
+const PANEL_SELECTOR = '.jetpack-ai-skill-panel';
 // The admin bar keeps its menus in the page all the time, so they never count as open.
 const ALWAYS_THERE_SELECTOR = '#wpadminbar, [hidden], [aria-hidden="true"]';
 // A trigger whose popup is open. A plain disclosure (aria-expanded alone) isn't one.
@@ -25,10 +26,10 @@ function escapeTakenElsewhere( target ) {
 	return (
 		// A search box with words in it clears them on Escape; the next Escape closes the panel.
 		( target instanceof HTMLInputElement && target.type === 'search' && target.value !== '' ) ||
-		!! target?.closest?.( POPUP_SELECTOR ) ||
+		!! target?.closest?.( POPUP_SELECTOR )?.matches( `:not(${ PANEL_SELECTOR })` ) ||
 		!! target?.closest?.( OPEN_TRIGGER_SELECTOR ) ||
-		Array.from( document.querySelectorAll( OPEN_SELECTOR ) ).some(
-			open => ! open.closest( ALWAYS_THERE_SELECTOR )
+		Array.from( document.querySelectorAll( POPUP_SELECTOR ) ).some(
+			open => ! open.matches( PANEL_SELECTOR ) && ! open.closest( ALWAYS_THERE_SELECTOR )
 		)
 	);
 }

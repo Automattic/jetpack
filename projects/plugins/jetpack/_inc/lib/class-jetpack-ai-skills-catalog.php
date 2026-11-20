@@ -159,7 +159,8 @@ class Jetpack_AI_Skills_Catalog {
 				'_fields'    => 'id,slug,name',
 			)
 		);
-		if ( null === $posts || null === $terms ) {
+		// No skills means the host term no longer matches, not an empty catalog: retry soon.
+		if ( empty( $posts ) || null === $terms ) {
 			return null;
 		}
 

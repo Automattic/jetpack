@@ -179,7 +179,7 @@ describe( 'Skill panel', () => {
 		expect( within( panel() ).getByRole( 'heading', { level: 2 } ) ).not.toHaveFocus();
 	} );
 
-	test( 'covering the hub on a phone, it is a modal dialog and takes focus however it opened', () => {
+	test( 'covering the hub on a phone, it is a modal dialog, takes focus however it opened, and Escape closes it', async () => {
 		useViewportMatch.mockImplementation(
 			( breakpoint, operator ) => breakpoint === 'medium' && operator === '<'
 		);
@@ -191,6 +191,10 @@ describe( 'Skill panel', () => {
 			const dialog = screen.getByRole( 'dialog', { name: 'SEO audit' } );
 			expect( dialog ).toHaveAttribute( 'aria-modal', 'true' );
 			expect( within( dialog ).getByRole( 'heading', { level: 2 } ) ).toHaveFocus();
+
+			await user.keyboard( '{Escape}' );
+
+			expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument();
 		} finally {
 			useViewportMatch.mockImplementation( () => false );
 		}

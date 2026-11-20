@@ -5,11 +5,14 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Feature_Flags\Feature_Flags;
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
 }
 
 // On WordPress.com the endpoint files load from outside the plugin tree.
+require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-ai-feature-flags.php';
 require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-ai-skills-catalog.php';
 
 /**
@@ -66,6 +69,10 @@ class WPCOM_REST_API_V2_Endpoint_AI_Skills extends WP_REST_Controller {
 	 * @return bool|WP_Error
 	 */
 	public function permissions_check() {
+		// With the Skills tab off the route acts as if it isn't there, so nothing fetches the catalog.
+		if ( ! Feature_Flags::is_enabled( Jetpack_AI_Feature_Flags::DISCOVER ) ) {
+			return new WP_Error( 'rest_no_route', __( 'No route was found matching the URL and request method.', 'jetpack' ), array( 'status' => 404 ) );
+		}
 		if ( ! current_user_can( 'manage_options' ) ) {
 			return new WP_Error(
 				'rest_forbidden',

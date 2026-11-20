@@ -180,9 +180,14 @@ class Jetpack_AI_Skills_Catalog_Test extends \WP_UnitTestCase {
 
 	/**
 	 * A failed fetch is cached briefly, so a down catalog isn't hit on every page load.
+	 *
+	 * @dataProvider provide_failed_posts
+	 *
+	 * @param array|WP_Error $posts What the catalog answers for posts.
 	 */
-	public function test_failure_is_cached_briefly() {
-		$this->responses['/posts'] = new WP_Error( 'http_request_failed', 'Down' );
+	#[DataProvider( 'provide_failed_posts' )]
+	public function test_failure_is_cached_briefly( $posts ) {
+		$this->responses['/posts'] = $posts;
 
 		$this->assertSame(
 			array(
@@ -196,6 +201,18 @@ class Jetpack_AI_Skills_Catalog_Test extends \WP_UnitTestCase {
 		$this->assertCount( 2, $this->requests, 'One page load fetches posts and categories once.' );
 		$expires = (int) get_option( '_transient_timeout_' . Jetpack_AI_Skills_Catalog::INDEX_TRANSIENT );
 		$this->assertLessThanOrEqual( time() + Jetpack_AI_Skills_Catalog::FAILURE_CACHE_TTL, $expires );
+	}
+
+	/**
+	 * Catalog answers that count as a failed fetch.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_failed_posts() {
+		return array(
+			'the catalog is down'         => array( new WP_Error( 'http_request_failed', 'Down' ) ),
+			'no skills for the host term' => array( array() ),
+		);
 	}
 
 	/**
