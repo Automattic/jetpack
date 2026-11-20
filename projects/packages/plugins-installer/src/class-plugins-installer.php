@@ -72,7 +72,7 @@ class Plugins_Installer {
 	public static function install_plugin( $slug ) {
 		if (
 			( is_multisite() && ! current_user_can( 'manage_network' ) )
-			// Site-token requests from WordPress.com run with no user, and their endpoint has already authorized them.
+			// WordPress.com site-token installs run with no user and are authorized by their endpoint, so only users are checked here.
 			|| ( get_current_user_id() && ! current_user_can( 'install_plugins' ) )
 		) {
 			return new WP_Error( 'not_allowed', __( 'You are not allowed to install plugins on this site.', 'jetpack-plugins-installer' ) );

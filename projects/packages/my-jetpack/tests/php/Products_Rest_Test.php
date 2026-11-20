@@ -459,7 +459,7 @@ class Products_Rest_Test extends TestCase {
 	/**
 	 * WordPress.com installs plugins with a site token and no user, so the installer must not ask for a user capability.
 	 */
-	public function test_installer_still_serves_site_token_requests() {
+	public function test_installer_lets_a_userless_install_through() {
 		add_filter( 'upgrader_pre_download', array( $this, 'fail_download' ) );
 		wp_set_current_user( 0 );
 
