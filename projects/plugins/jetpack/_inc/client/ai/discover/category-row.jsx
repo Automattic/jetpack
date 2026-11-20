@@ -58,7 +58,7 @@ export default function CategoryRow( { title, count, children } ) {
 		const update = () =>
 			setRoom( current => {
 				const next = measure( track );
-				const same = Object.keys( next ).every( key => next[ key ] === current[ key ] );
+				const same = next.canBack === current.canBack && next.canOn === current.canOn;
 				return same ? current : next;
 			} );
 		update();

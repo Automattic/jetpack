@@ -24,13 +24,6 @@ class Jetpack_AI_Skills_Catalog {
 	const API_BASE = 'https://public-api.wordpress.com/wp/v2/sites/agentskills.wordpress.com';
 
 	/**
-	 * The host a skill's link must point at.
-	 *
-	 * @var string
-	 */
-	const CATALOG_HOST = 'agentskills.wordpress.com';
-
-	/**
 	 * The catalog's "Applies to" terms, by host: WordPress.com sites (Simple
 	 * and Atomic) get `wpcom` skills, self-hosted sites `jetpack` ones.
 	 *
@@ -82,7 +75,7 @@ class Jetpack_AI_Skills_Catalog {
 	 * @return array {
 	 *     @type array[] $categories Each with `slug` and `name`, in catalog order.
 	 *     @type array[] $skills     Each with `slug`, `title`, `description`, `summary`, `prerequisites`,
-	 *                               `tryPrompt`, `categories` (slugs) and `url`.
+	 *                               `tryPrompt` and `categories` (slugs).
 	 * }
 	 */
 	public static function get_index() {
@@ -91,15 +84,13 @@ class Jetpack_AI_Skills_Catalog {
 			return $cached;
 		}
 
-		$host  = ( new Host() )->is_wpcom_platform() ? 'wpcom' : 'jetpack';
-		$index = self::fetch_index( self::HOST_TERMS[ $host ] );
-		set_transient(
-			self::INDEX_TRANSIENT,
-			$index ?? self::empty_index(),
-			null === $index ? self::FAILURE_CACHE_TTL : self::CACHE_TTL
-		);
+		$host   = ( new Host() )->is_wpcom_platform() ? 'wpcom' : 'jetpack';
+		$index  = self::fetch_index( self::HOST_TERMS[ $host ] );
+		$failed = null === $index;
+		$index  = $index ?? self::empty_index();
+		set_transient( self::INDEX_TRANSIENT, $index, $failed ? self::FAILURE_CACHE_TTL : self::CACHE_TTL );
 
-		return $index ?? self::empty_index();
+		return $index;
 	}
 
 	/**
@@ -157,7 +148,7 @@ class Jetpack_AI_Skills_Catalog {
 				'per_page'               => 100,
 				'agent_skill_applies_to' => $host_term,
 				// Without this the API returns every skill's full body.
-				'_fields'                => 'slug,title.rendered,excerpt.rendered,categories,link,meta.agent_skill_prerequisites,meta.agent_skill_try_prompt',
+				'_fields'                => 'slug,title.rendered,excerpt.rendered,categories,meta.agent_skill_prerequisites,meta.agent_skill_try_prompt',
 			)
 		);
 		$terms = self::request(
@@ -212,7 +203,6 @@ class Jetpack_AI_Skills_Catalog {
 				'prerequisites' => self::to_text( $meta['agent_skill_prerequisites'] ?? '' ),
 				'tryPrompt'     => self::to_text( $meta['agent_skill_try_prompt'] ?? '' ),
 				'categories'    => $categories,
-				'url'           => self::catalog_url( $post['link'] ?? '' ),
 			);
 		}
 
@@ -241,8 +231,7 @@ class Jetpack_AI_Skills_Catalog {
 		}
 
 		// The body is markdown inside a <pre>, with <br> for each line break.
-		$html = preg_replace( '#<br\s*/?>|</p>#i', "\n", $posts[0]['content']['rendered'] );
-		return trim( html_entity_decode( wp_strip_all_tags( $html ), ENT_QUOTES, 'UTF-8' ) );
+		return self::to_text( preg_replace( '#<br\s*/?>|</p>#i', "\n", $posts[0]['content']['rendered'] ) );
 	}
 
 	/**
@@ -280,16 +269,5 @@ class Jetpack_AI_Skills_Catalog {
 	 */
 	private static function first_sentence( $text ) {
 		return preg_match( '/^.+?[.!?](?=\s+[\p{Lu}“"]|$)/su', $text, $matches ) ? $matches[0] : $text;
-	}
-
-	/**
-	 * A skill's link, only when it points at the catalog site.
-	 *
-	 * @param mixed $url The link.
-	 * @return string The link, or '' for anything else.
-	 */
-	private static function catalog_url( $url ) {
-		$url = is_string( $url ) ? esc_url_raw( $url, array( 'https' ) ) : '';
-		return self::CATALOG_HOST === wp_parse_url( $url, PHP_URL_HOST ) ? $url : '';
 	}
 }

@@ -3,8 +3,6 @@
  * with enough categories to fill the pills and the More menu.
  */
 
-const CATALOG = 'https://agentskills.wordpress.com/';
-
 const skill = ( slug, title, category, description, tryPrompt, also = [] ) => ( {
 	slug,
 	title,
@@ -12,7 +10,6 @@ const skill = ( slug, title, category, description, tryPrompt, also = [] ) => ( 
 	prerequisites: 'Editor or administrator role on the site.',
 	tryPrompt,
 	categories: [ ...also, category ],
-	url: CATALOG + slug + '/',
 } );
 
 export const SKILLS_INDEX = {

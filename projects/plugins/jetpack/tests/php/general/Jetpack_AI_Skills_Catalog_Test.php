@@ -47,7 +47,6 @@ class Jetpack_AI_Skills_Catalog_Test extends \WP_UnitTestCase {
 					'title'      => array( 'rendered' => 'Site SEO and AIO&nbsp;audit' ),
 					'excerpt'    => array( 'rendered' => "<p>Use when someone asks about SEO, e.g. rankings. Audits the site&#8217;s titles.</p>\n" ),
 					'categories' => array( 1958, 54 ),
-					'link'       => 'https://agentskills.wordpress.com/2026/11/site-seo-audit/',
 					'meta'       => array(
 						'agent_skill_prerequisites' => 'Editor role.',
 						'agent_skill_try_prompt'    => 'Run the audit on example.com',
@@ -57,7 +56,6 @@ class Jetpack_AI_Skills_Catalog_Test extends \WP_UnitTestCase {
 					'slug'       => 'elsewhere',
 					'title'      => array( 'rendered' => 'Linked elsewhere' ),
 					'categories' => array( 54 ),
-					'link'       => 'https://evil.example/elsewhere/',
 				),
 				array(
 					'slug'  => '',
@@ -123,7 +121,7 @@ class Jetpack_AI_Skills_Catalog_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * The index drops bodies, decodes text, and keeps only used categories and catalog links.
+	 * The index drops bodies, decodes text, and keeps only used categories.
 	 */
 	public function test_index_is_normalized() {
 		$index = Jetpack_AI_Skills_Catalog::get_index();
@@ -138,11 +136,9 @@ class Jetpack_AI_Skills_Catalog_Test extends \WP_UnitTestCase {
 				'prerequisites' => 'Editor role.',
 				'tryPrompt'     => 'Run the audit on example.com',
 				'categories'    => array( 'seo', 'general' ),
-				'url'           => 'https://agentskills.wordpress.com/2026/11/site-seo-audit/',
 			),
 			$index['skills'][0]
 		);
-		$this->assertSame( '', $index['skills'][1]['url'] );
 		$this->assertSame( array( 'general', 'seo' ), wp_list_pluck( $index['categories'], 'slug' ) );
 		$this->assertStringContainsString( '_fields=', $this->requests[0] );
 		$this->assertStringNotContainsString( 'content', $this->requests[0] );

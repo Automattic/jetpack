@@ -5,6 +5,7 @@
  * opens it in the side panel beside the catalog (skill-panel.jsx).
  */
 
+import { getScrollContainer } from '@wordpress/dom';
 import { useCallback, useEffect, useMemo, useRef, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { closeSmall, search } from '@wordpress/icons';
@@ -42,22 +43,14 @@ export const SUGGEST_SKILL_URL = 'https://jetpack.com/contact-support/';
 export const CATALOG_URL = 'https://agentskills.wordpress.com/';
 
 /**
- * Scroll the page back to its top: AdminPage scrolls its middle, so that
- * scroller rather than the window, wherever it has room to scroll.
+ * Scroll the page back to its top: AdminPage's scrolling middle, or the window.
  *
  * @param {HTMLElement} node - An element inside the page.
  */
 function scrollToTop( node ) {
 	const reduce = window.matchMedia?.( '(prefers-reduced-motion: reduce)' ).matches;
 	const options = { top: 0, behavior: reduce ? 'auto' : 'smooth' };
-	for ( let parent = node?.parentElement; parent; parent = parent.parentElement ) {
-		const { overflowY } = window.getComputedStyle( parent );
-		if ( /(auto|scroll)/.test( overflowY ) && parent.scrollHeight > parent.clientHeight ) {
-			parent.scrollTo( options );
-			return;
-		}
-	}
-	window.scrollTo( options );
+	( ( node && getScrollContainer( node.parentElement ) ) || window ).scrollTo( options );
 }
 
 /**
@@ -199,15 +192,11 @@ export default function Discover() {
 			skill={ item }
 			headingLevel={ headingLevel }
 			onView={ openSkill }
-			// The cards mark the open skill with data-open.
 			isOpen={ item.slug === openSlug }
 			onSend={ send }
 			showWordPressAgent={ showWordPressAgent }
 		/>
 	);
-
-	// Unfiltered, a row per category; a filter or a search shows one grid.
-	const byCategory = ! isNarrowed;
 
 	const recordLink = link => () =>
 		recordAiHubEvent( EVENTS.LINK_CLICK, { link_type: 'discover', link } );
@@ -266,7 +255,8 @@ export default function Discover() {
 				/>
 			</div>
 
-			{ matching.length > 0 && byCategory && (
+			{ /* Unfiltered, a row per category; a filter or a search shows one grid. */ }
+			{ matching.length > 0 && ! isNarrowed && (
 				<div className="jetpack-ai-discover__rows">
 					{ getOrderedCategoryKeys( counts ).map( key => (
 						<CategoryRow key={ key } title={ getCategoryName( key ) } count={ counts[ key ] }>
@@ -275,7 +265,7 @@ export default function Discover() {
 					) ) }
 				</div>
 			) }
-			{ matching.length > 0 && ! byCategory ? (
+			{ matching.length > 0 && isNarrowed && (
 				<div className="jetpack-ai-discover__row">
 					{ /* A filtered category keeps its heading, as its row has. */ }
 					{ category !== ALL && (
@@ -287,7 +277,7 @@ export default function Discover() {
 						{ matching.map( item => renderCard( item, category !== ALL ? 4 : 3 ) ) }
 					</div>
 				</div>
-			) : null }
+			) }
 			{ matching.length === 0 && (
 				<EmptyState.Root className="jetpack-ai-discover__empty">
 					<EmptyState.Icon icon={ search } />

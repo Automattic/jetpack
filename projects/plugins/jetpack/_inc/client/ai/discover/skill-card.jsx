@@ -80,15 +80,11 @@ export default function SkillCard( {
 					<Text
 						variant="body-lg"
 						render={ <Heading id={ titleId } /> }
-						className="jetpack-ai-discover__card-heading jetpack-ai-discover__card-title"
+						className="jetpack-ai-discover__card-title"
 					>
 						{ skill.title }
 					</Text>
-					<Text
-						render={ <p /> }
-						variant="body-sm"
-						className="jetpack-ai-discover__muted jetpack-ai-discover__card-category"
-					>
+					<Text render={ <p /> } variant="body-sm" className="jetpack-ai-discover__muted">
 						{ getCategoryName( skill.category ) }
 					</Text>
 					<Text

@@ -1,3 +1,7 @@
+// Boot's inspector sits outside the page, so it can't inherit
+// --jetpack-ai-page-surface; this is that surface.
+$page-surface: #fcfcfc;
+
 // The skill's side panel, built like Send's email panel (and Newsletter ›
 // Subscribers' before it): a bar with the title and Close over a padded
 // body. Boot draws the surface, its width and its motion.
@@ -18,7 +22,7 @@
 		position: sticky;
 		inset-block-start: 0;
 		z-index: 1;
-		background: #fcfcfc;
+		background: $page-surface;
 		padding-block: var(--wpds-dimension-padding-md);
 		padding-inline: var(--wpds-dimension-padding-2xl) var(--wpds-dimension-padding-lg);
 		border-block-end: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral-weak);
@@ -35,12 +39,11 @@
 		}
 	}
 
-	// The skill's name and its one action, on the hub's page surface and with
-	// its tab strip's divider (see ../style.scss). The inspector sits outside
-	// the page, so it can't inherit --jetpack-ai-page-surface.
+	// The skill's name and its one action, on the page surface and with the tab
+	// strip's divider (see ../style.scss).
 	&__intro {
 		padding: var(--wpds-dimension-padding-2xl);
-		background: #fcfcfc;
+		background: $page-surface;
 		border-block-end: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral-weak);
 	}
 

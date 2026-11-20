@@ -38,7 +38,7 @@ const openMenu = async title =>
 	);
 
 describe( 'Discover', () => {
-	let writeText, openSpy, scrollSpy;
+	let writeText, openSpy, scrollSpy, pageScroll;
 
 	beforeEach( () => {
 		// Set up before the clipboard stub below: user-event installs its own
@@ -56,6 +56,13 @@ describe( 'Discover', () => {
 		openSpy = jest.spyOn( window, 'open' ).mockImplementation( () => null );
 		// Base UI's scroll lock restores the scroll position, which jsdom lacks.
 		scrollSpy = jest.spyOn( window, 'scrollTo' ).mockImplementation( () => {} );
+		// jsdom has no Element#scrollTo; a filter scrolls the page's scroller with it.
+		pageScroll = jest.fn();
+		Object.defineProperty( Element.prototype, 'scrollTo', {
+			value: pageScroll,
+			configurable: true,
+			writable: true,
+		} );
 		analytics.tracks.recordEvent.mockClear();
 	} );
 
@@ -64,6 +71,7 @@ describe( 'Discover', () => {
 		delete window.__agentsManagerActions;
 		openSpy.mockRestore();
 		scrollSpy.mockRestore();
+		delete Element.prototype.scrollTo;
 	} );
 
 	test( 'lists every skill in the index', () => {
@@ -144,7 +152,7 @@ describe( 'Discover', () => {
 		await user.click( seo );
 
 		expect( seo ).toHaveAttribute( 'aria-pressed', 'true' );
-		expect( scrollSpy ).toHaveBeenCalledWith( expect.objectContaining( { top: 0 } ) );
+		expect( pageScroll ).toHaveBeenCalledWith( expect.objectContaining( { top: 0 } ) );
 		expect(
 			screen.getAllByRole( 'heading', { level: 3 } ).map( node => node.textContent )
 		).toEqual( [ 'SEO2' ] );

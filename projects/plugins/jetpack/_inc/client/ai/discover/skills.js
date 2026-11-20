@@ -10,10 +10,10 @@ import { __, sprintf } from '@wordpress/i18n';
 export const PINNED_CATEGORY_COUNT = 3;
 
 /** The catalog's category that cuts across the others; a skill's own category is any other. */
-export const GOOD_FIRST = 'good-first-skills';
+const GOOD_FIRST = 'good-first-skills';
 
 /** Category slugs in display order. The rest follow, biggest first. */
-export const CATEGORY_ORDER = [
+const CATEGORY_ORDER = [
 	GOOD_FIRST,
 	'setup-launch',
 	'writing',
@@ -86,7 +86,7 @@ export function getCatalog() {
  *
  * @return {{slug: string, name: string}[]} The categories.
  */
-export function getCategories() {
+function getCategories() {
 	return getIndex().categories;
 }
 

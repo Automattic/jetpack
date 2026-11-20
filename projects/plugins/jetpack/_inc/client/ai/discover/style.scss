@@ -1,10 +1,12 @@
 // Discover tab. Values are design tokens, except the filter pills, which copy
 // My Jetpack's Features pills value for value. The pills and tiles are the only
 // custom pieces, since the design system has no chip or icon tile yet. The
-// outlines (cards, list, toolbar) are @wordpress/ui Card.Root's: the regular
+// outlines (cards, toolbar) are @wordpress/ui Card.Root's: the regular
 // surface stroke at the xs width and the lg radius, as on the Overview tab.
 
 .jetpack-ai-discover {
+	// jetpack.com/prompts' hover green, which has no design-system token.
+	--jetpack-ai-discover-hover-green: #007117;
 	display: flex;
 	flex-direction: column;
 	gap: var(--wpds-dimension-gap-xl);
@@ -286,7 +288,7 @@
 			border-color: #87c688;
 
 			.jetpack-ai-discover__card-chevron {
-				color: #007117;
+				color: var(--jetpack-ai-discover-hover-green);
 				transform: translate(2px, -2px);
 
 				&:dir(rtl) {
@@ -323,8 +325,6 @@
 
 		> .jetpack-ai-discover__tile {
 			grid-area: tile;
-			width: 40px;
-			height: 40px;
 		}
 	}
 
@@ -365,7 +365,6 @@
 	&__card-text {
 		grid-area: text;
 		display: flex;
-		flex: 1;
 		flex-direction: column;
 		gap: var(--wpds-dimension-gap-xs);
 		min-inline-size: 0;
@@ -385,12 +384,9 @@
 		line-clamp: 2;
 	}
 
-	&__card-heading {
-		margin: 0;
-	}
-
 	// My Jetpack's card titles render at body size and weight, so this matches.
 	&__card-title {
+		margin: 0;
 		color: var(--wpds-color-foreground-content-neutral);
 	}
 
@@ -399,7 +395,7 @@
 	&__agent-trigger {
 		--wp-ui-button-padding-inline: 0;
 		--wp-ui-button-background-color-active: transparent;
-		--wp-ui-button-foreground-color-active: #007117;
+		--wp-ui-button-foreground-color-active: var(--jetpack-ai-discover-hover-green);
 		min-inline-size: 0;
 		white-space: nowrap;
 	}
@@ -414,8 +410,8 @@
 		background: #003010;
 		color: #0ced57;
 
-		width: 36px;
-		height: 36px;
+		width: 40px;
+		height: 40px;
 		border-radius: var(--wpds-border-radius-md);
 
 		svg {
@@ -525,10 +521,9 @@
 	}
 }
 
-// The list also narrows beside an open skill panel, at any window width: 400
-// wide at 1024, where two cards would break Send to agent's label. Below
-// 40rem a card would fall under about 312, the least that fits Send to agent
-// and a readable blurb, so the grid drops to one column.
+// Beside an open skill panel or in a narrow window, a card under about 312px
+// can't fit Send to agent and a readable blurb, so the grid drops to one
+// column.
 @container discover (max-width: 40rem) {
 
 	.jetpack-ai-discover__grid {
