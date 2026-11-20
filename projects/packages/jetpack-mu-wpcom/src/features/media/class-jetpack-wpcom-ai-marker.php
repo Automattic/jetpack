@@ -60,11 +60,15 @@ class Jetpack_WPCOM_AI_Marker {
 	 * Reads the AI DigitalSourceType from a path or a URL.
 	 *
 	 * @param string $file Path or URL of the source image.
-	 * @return string The type, or '' when the file has no AI type.
+	 * @return string The type, or '' when the file has no AI type or the host has no exiftool.
 	 */
 	public function read( $file ) {
 		// The marker is optional, so no error may stop the save.
 		try {
+			if ( ! jetpack_wpcom_ai_marker_tool_path( 'exiftool' ) ) {
+				return '';
+			}
+
 			return preg_match( '|^https?://|', $file )
 				? $this->read_from_url( $file )
 				: $this->read_local( $file );

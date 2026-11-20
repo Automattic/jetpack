@@ -96,11 +96,12 @@ If you're unsure which case applies: does the ability call code that only exists
 
 ### 5) Write the class extending `Registrar`
 
-Follow `references/class-skeleton.md`. Three abstract methods must be implemented:
+Follow `references/class-skeleton.md`. Implement the three abstract methods and override `enabled_by_default()`:
 
 - `get_category_slug(): string` — returns the kebab-case slug from step 4.
 - `get_category_definition(): array` — returns `[ 'label' => ..., 'description' => ... ]`.
 - `get_abilities(): array` — returns a `[ slug => spec ]` map.
+- `enabled_by_default(): bool` — override it to return `true`. The base class returns `false`, so a registrar without the override registers nothing unless a site returns `true` from `jetpack_wp_abilities_enabled`.
 
 Do NOT write an `init()` method. `Registrar::init()` handles the hook lifecycle and the `jetpack_wp_abilities_enabled` gate. Call `<Name>_Abilities::init()` from the bootstrap before WordPress fires `wp_abilities_api_categories_init`, for example on `plugins_loaded`. WordPress rejects registrations after that action, so a later call registers nothing, and no notice says so.
 
@@ -213,7 +214,7 @@ The test file lives at:
 Required coverage:
 
 - **Registrar wiring** (the differentiating value-add):
-  - `jetpack_wp_abilities_enabled` defaulting false → `init()` registers nothing.
+  - `jetpack_wp_abilities_enabled` returning false → `init()` registers nothing.
   - Filter enabled, neither action fired → both lifecycle hooks added.
   - Per-ability `jetpack_wp_abilities_should_register` filter — returning false skips that ability.
   - Category auto-injection — abilities whose spec omits `category` get the subclass's slug.
@@ -322,9 +323,9 @@ Mark the PR ready-for-review only after the review loop converges (no open block
 
 ## Failure modes / debugging
 
-- **Nothing registers at runtime.** `jetpack_wp_abilities_enabled` defaults to `false`. Tests must filter it true (`Filters\expectApplied('jetpack_wp_abilities_enabled')->andReturn(true)`), and live sites need to opt in via a feature flag, option, or site-specific filter.
+- **Nothing registers at runtime.** Check that the registrar overrides `enabled_by_default()` to return `true`, then whether something returns `false` from `jetpack_wp_abilities_enabled`, or from `jetpack_wp_abilities_should_register` for your slug.
 - **The class loads but no abilities appear.** `init()` ran after WordPress fired `wp_abilities_api_init`, which happens the first time anything reads the abilities registry. WordPress rejects later registrations, so `Registrar::init()` registers nothing, and no notice says so. Call `init()` earlier, for example on `plugins_loaded`, and never from code that runs on `rest_api_init`.
-- **You see the legacy manual-hook pattern elsewhere** (e.g. `projects/plugins/jetpack/src/abilities/class-modules-abilities.php`, `projects/packages/forms/src/abilities/class-forms-abilities.php`). These predate the `Registrar` package. Don't copy them. Extend `Registrar` and implement the three abstract methods.
+- **You see the legacy manual-hook pattern elsewhere** (e.g. `projects/plugins/jetpack/src/abilities/class-modules-abilities.php`, `projects/packages/forms/src/abilities/class-forms-abilities.php`). These predate the `Registrar` package. Don't copy them. Extend `Registrar`, implement the three abstract methods and override `enabled_by_default()`.
 - **Module-backed ability landed in `projects/plugins/jetpack/src/abilities/` and is wired from `class.jetpack.php`** (the PR #48284 pattern). Colocation lint will catch this. The ability loads on every request regardless of module state, pollutes the API surface when the module is off, and pays autoload cost for nothing. Move the file into `modules/<slug>/abilities/` and wire from `modules/<slug>.php`.
 - **Adding `if ( Jetpack::is_module_active( '<slug>' ) )` around the `::init()` call in `class.jetpack.php`.** Better than not guarding, but still wrong — you're re-implementing what `load_modules()` does for free. Move the wiring into the module file instead.
 - **Duplicate `category` in a spec.** Silent smell — `Registrar` injects the slug when missing. Setting `'category' => self::CATEGORY_SLUG` in each spec is redundant and drifts.
