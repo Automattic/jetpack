@@ -1,6 +1,7 @@
 <?php
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 
 require_once JETPACK__PLUGIN_DIR . 'modules/sitemaps/sitemap-buffer-factory.php';
@@ -147,5 +148,26 @@ class Jetpack_Sitemap_Buffer_Factory_Test extends WP_UnitTestCase {
 		// Restore class_exists
 		runkit_function_remove( 'class_exists' );
 		runkit_function_rename( 'class_exists_backup', 'class_exists' );
+	}
+
+	/** @dataProvider styled_buffers */
+	#[DataProvider( 'styled_buffers' )]
+	public function test_every_buffer_references_css( $class ) {
+		$buffer = new $class( 10, 4096, '2026-11-20 12:00:00' );
+		$xml    = $buffer->contents();
+		$this->assertStringContainsString( 'type="text/css"', $xml );
+		$this->assertStringContainsString( 'sitemap.css', $xml );
+		$this->assertStringNotContainsString( 'text/xsl', $xml );
+	}
+
+	public static function styled_buffers() {
+		$cases = array();
+		foreach ( array( 'Page', 'Master', 'Image', 'Video', 'News' ) as $type ) {
+			foreach ( array( '', '_XMLWriter' ) as $suffix ) {
+				$class                    = 'Jetpack_Sitemap_Buffer_' . $type . $suffix;
+				$cases[ $type . $suffix ] = array( $class );
+			}
+		}
+		return $cases;
 	}
 }
