@@ -128,9 +128,11 @@ export async function handler( argv ) {
 	// Fingerprint before `filterDeps` narrows the graph; see `computeFingerprints`.
 	// No persistent cache between CI runs, and mirror builds do extra work a skip would break.
 	let cacheFingerprints = null;
+	let cacheGraph = null;
 	if ( ! argv.forMirrors && ! process.env.CI ) {
 		try {
 			cacheFingerprints = await computeFingerprints( dependencies, argv );
+			cacheGraph = new Map( [ ...dependencies ].map( ( [ k, v ] ) => [ k, new Set( v ) ] ) );
 		} catch ( e ) {
 			console.warn(
 				chalk.yellow( `Building without the cache, fingerprinting failed: ${ e.message }` )
@@ -263,7 +265,9 @@ export async function handler( argv ) {
 		promises: {},
 		mirrorMutex: pLimit( 1 ),
 		versions: {},
-		cache: cacheFingerprints ? { fingerprints: cacheFingerprints, cached: 0, built: 0 } : null,
+		cache: cacheFingerprints
+			? { fingerprints: cacheFingerprints, graph: cacheGraph, cached: 0, built: 0 }
+			: null,
 		// When `--timing-summary` is set, collect a flat list of phase timings to summarize at the end.
 		timings: argv.timingSummary ? { overallStart: Date.now(), entries: [], buildOrder } : null,
 	};
@@ -945,9 +949,15 @@ async function buildProject( t ) {
 	if ( ! t.argv.forMirrors ) {
 		if ( t.ctx.cache ) {
 			t.ctx.cache.built++;
-			const fp = t.ctx.cache.fingerprints.get( t.project );
+			const { fingerprints, graph } = t.ctx.cache;
+			const fp = fingerprints.get( t.project );
 			if ( fp ) {
-				await writeManifest( t.project, fp ).catch( e =>
+				const depFps = new Map(
+					[ ...( graph.get( t.project ) ?? [] ) ]
+						.filter( d => fingerprints.has( d ) )
+						.map( d => [ d, fingerprints.get( d ) ] )
+				);
+				await writeManifest( t.project, fp, depFps ).catch( e =>
 					t.output( `\nCould not write the build-cache manifest: ${ e.message }\n` )
 				);
 			}

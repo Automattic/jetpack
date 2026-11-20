@@ -192,6 +192,7 @@ describe( 'canSkip / writeManifest', () => {
 			projectPath( '.gitignore' ),
 			'/build/\n/app/assets/dist/\nnode_modules/\n.DS_Store\n/wordpress/\n/tests/e2e/output/\n'
 		);
+		await writeFile( projectPath( 'vendor/autoload.php' ) );
 	} );
 	afterEach( async () => {
 		process.chdir( cwd );
@@ -288,5 +289,46 @@ describe( 'canSkip / writeManifest', () => {
 		await writeManifest( SLUG, 'fp1' );
 		await addOutput( file );
 		await expect( canSkip( SLUG, 'fp1' ) ).resolves.toBe( true );
+	} );
+
+	test( 'does not skip when vendor/ is gone, even if it is not output', async () => {
+		await writeFile( projectPath( '.gitattributes' ), '/build/** production-include\n' );
+		await addOutput( 'build/out.js' );
+		await writeManifest( SLUG, 'fp1' );
+		await fs.rm( projectPath( 'vendor' ), { recursive: true } );
+		await expect( canSkip( SLUG, 'fp1' ) ).resolves.toBe( false );
+	} );
+
+	describe( 'with a dependency', () => {
+		const DEP = 'packages/dep';
+		const depOutput = () => writeFile( npath.join( dir, 'projects', DEP, 'build/dep.js' ) );
+
+		beforeEach( async () => {
+			await writeFile( npath.join( dir, 'projects', DEP, '.gitignore' ), '/build/\n' );
+			await depOutput();
+			await addOutput( 'build/out.js' );
+		} );
+
+		test.each( [
+			[ 'was never built', async () => {} ],
+			[ 'was last built from older inputs', () => writeManifest( DEP, 'dep-old' ) ],
+		] )( 'is not recorded when the dependency %s', async ( _, buildDep ) => {
+			await buildDep();
+			await expect( writeManifest( SLUG, 'fp1', new Map( [ [ DEP, 'dep-fp1' ] ] ) ) ).resolves.toBe(
+				false
+			);
+			await expect( canSkip( SLUG, 'fp1' ) ).resolves.toBe( false );
+		} );
+
+		test( 'does not skip once the dependency is rebuilt', async () => {
+			await writeManifest( DEP, 'dep-fp1' );
+			await writeManifest( SLUG, 'fp1', new Map( [ [ DEP, 'dep-fp1' ] ] ) );
+			await expect( canSkip( SLUG, 'fp1' ) ).resolves.toBe( true );
+
+			const later = new Date( Date.now() + 5000 );
+			await fs.utimes( npath.join( dir, 'projects', DEP, 'build/dep.js' ), later, later );
+			await writeManifest( DEP, 'dep-fp1' );
+			await expect( canSkip( SLUG, 'fp1' ) ).resolves.toBe( false );
+		} );
 	} );
 } );

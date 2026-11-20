@@ -293,10 +293,11 @@ async function projectOutputs( project ) {
 }
 
 /**
- * Whether a project can be skipped: manifest matches the current fingerprint and its outputs are
- * unchanged since that build.
+ * Whether a project can be skipped: manifest matches the current fingerprint, its outputs and
+ * `vendor/` are still there, and no dependency has been rebuilt since.
  *
  * A project that recorded no outputs is never skipped: an empty set would match vacuously.
+ * `vendor/` is checked separately because a skip also skips `composer install`, and it usually isn't output.
  * Any error means "rebuild" — the cache must never be the reason a build fails.
  *
  * @param {string} project - Slug.
@@ -308,6 +309,14 @@ export async function canSkip( project, fp ) {
 		const m = await readManifest( project );
 		if ( ! m || m.inputHash !== fp || ! m.outputs?.count ) {
 			return false;
+		}
+		if ( ! ( await isFile( projectDir( project, 'vendor/autoload.php' ) ) ) ) {
+			return false;
+		}
+		for ( const [ dep, outputsHash ] of Object.entries( m.deps ?? {} ) ) {
+			if ( ( await readManifest( dep ) )?.outputs?.hash !== outputsHash ) {
+				return false;
+			}
 		}
 		const now = await projectOutputs( project );
 		return now.count === m.outputs.count && now.hash === m.outputs.hash;
@@ -328,13 +337,27 @@ export async function invalidateManifest( project ) {
 /**
  * Record a successful build so the next run can skip it.
  *
- * @param {string} project - Slug.
- * @param {string} fp      - Fingerprint that was just built.
+ * Records nothing if a dependency wasn't built at its current fingerprint: this build then used
+ * that dependency's stale output, so caching it would keep the stale result after the dependency is rebuilt.
+ *
+ * @param {string}             project  - Slug.
+ * @param {string}             fp       - Fingerprint that was just built.
+ * @param {Map<string,string>} [depFps] - Direct dependency slug -> its current fingerprint.
+ * @return {Promise<boolean>} Whether a manifest was written.
  */
-export async function writeManifest( project, fp ) {
+export async function writeManifest( project, fp, depFps = new Map() ) {
+	const deps = {};
+	for ( const [ dep, depFp ] of depFps ) {
+		const m = await readManifest( dep );
+		if ( m?.inputHash !== depFp ) {
+			return false;
+		}
+		deps[ dep ] = m.outputs.hash;
+	}
 	const manifest = {
 		inputHash: fp,
 		outputs: await projectOutputs( project ),
+		deps,
 		builtAt: new Date().toISOString(),
 	};
 	await fs.mkdir( projectDir( project, CACHE_DIR ), { recursive: true } );
@@ -343,4 +366,5 @@ export async function writeManifest( project, fp ) {
 		JSON.stringify( manifest, null, '\t' ) + '\n',
 		'utf8'
 	);
+	return true;
 }
