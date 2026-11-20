@@ -184,7 +184,6 @@ class Social_Admin_Page {
 			),
 			'capability'   => 'publish_posts',
 			'handles'      => array( 'jetpack-script-data', 'wp-jp-i18n-loader' ),
-			// The prerequisites script that carries it on the Social page is not printed here.
 			'data'         => array( Connection_Initial_State::class, 'render' ),
 			'load'         => array( $this, 'load_as_admin_shell_guest' ),
 		);
