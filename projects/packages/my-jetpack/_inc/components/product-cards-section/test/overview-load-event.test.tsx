@@ -92,6 +92,9 @@ describe( "Protect's Scan upsell", () => {
 		mockHostPurchaseUrl = hostPurchaseUrl;
 		render( <ProtectOverviewItem admin /> );
 
-		expect( screen.getByRole( 'link', { name: 'Scan threats' } ) ).toHaveAttribute( 'href', href );
+		expect( screen.getByRole( 'link', { name: 'Add malware scanning' } ) ).toHaveAttribute(
+			'href',
+			href
+		);
 	} );
 } );
