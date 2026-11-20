@@ -29,7 +29,7 @@ final class Parsely_Prompts {
 			self::FLAG,
 			array(
 				'default'     => false,
-				'description' => 'Show the Upgrade to Parsely prompts to sites that qualify: a paid Stats plan, 100,000 monthly views, and no Parsely of their own.',
+				'description' => 'Show the Upgrade to Parsely prompts to the sites and users that qualify, as offers_parsely_prompts() decides.',
 				'owner'       => 'jetpack-stats',
 			)
 		);
