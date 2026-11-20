@@ -80,10 +80,10 @@ git commit -m "$TITLE"
 
 if $HAS_BRANCH; then
 	echo "::notice::Updating existing branch '$BRANCH'."
-	git push --force-with-lease origin "$BRANCH"
+	git push --force-with-lease origin "$BRANCH" || die "Failed to update branch '$BRANCH'"
 else
 	echo "::notice::Creating branch '$BRANCH'."
-	git push origin "$BRANCH"
+	git push origin "$BRANCH" || die "Failed to create branch '$BRANCH'"
 fi
 
 if [[ -z "$PR_ID" ]]; then
@@ -91,8 +91,8 @@ if [[ -z "$PR_ID" ]]; then
 	if ! gh pr create --base trunk --head "$BRANCH" --title "$TITLE" --body "$BODY" "${LABELS[@]}" --reviewer Automattic/jetpack-monorepo; then
 		# Only clean up the branch if this run created it.
 		if ! $HAS_BRANCH; then
-			git push --delete origin "$BRANCH"
+			git push --delete origin "$BRANCH" || echo "::warning::Failed to delete branch '$BRANCH'."
 		fi
-		exit 1
+		die 'Failed to create PR'
 	fi
 fi
