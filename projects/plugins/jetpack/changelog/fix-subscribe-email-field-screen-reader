@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Subscribe block: Stop screen readers announcing the empty email field as invalid before the visitor submits.
