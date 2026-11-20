@@ -179,7 +179,6 @@ jest.mock( '@wordpress/route', () => ( {
 
 jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 	...jest.requireActual( '../../packages/widgets-toolkit/src/hooks/use-dashboard-origin-search' ),
-	...jest.requireActual( '../../packages/widgets-toolkit/src/hooks/use-crowded-page-header' ),
 	useTrackCustomize: () => mockTrackCustomize,
 	canSendFeedback: () => mockCanSendFeedback,
 	StatsOptionsMenu: ( {
