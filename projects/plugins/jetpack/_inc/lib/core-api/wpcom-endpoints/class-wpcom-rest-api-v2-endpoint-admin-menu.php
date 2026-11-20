@@ -941,8 +941,8 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 				return wp_specialchars_decode( esc_url_raw( $url ) );
 			}
 
-			// Allow URLs pointing to Jetpack.com.
-			if ( str_starts_with( $url, 'https://jetpack.com/' ) ) {
+			// Allow URLs pointing to Jetpack.com and the WordPress.com dashboard, kept absolute because they aren't Calypso routes.
+			if ( str_starts_with( $url, 'https://jetpack.com/' ) || str_starts_with( $url, 'https://my.wordpress.com/' ) ) {
 				// Replace special characters with their correct entities e.g. &amp; to &.
 				return wp_specialchars_decode( esc_url_raw( $url ) );
 			}

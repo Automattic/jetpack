@@ -314,6 +314,8 @@ class Analytics_Dashboard {
 	 * @return void
 	 */
 	public static function register_widget_types( $registry ) {
+		add_filter( 'jetpack_premium_analytics_error_reporting_script_origins', array( __CLASS__, 'add_error_reporting_origin' ) );
+
 		if ( ! self::supports_widget_contract() || ! self::is_woocommerce_available() || ! self::current_user_can_view_store_reports() ) {
 			return;
 		}
@@ -331,6 +333,26 @@ class Analytics_Dashboard {
 			),
 			$registry
 		);
+	}
+
+	/**
+	 * Append this package's dashboard build directories to the error reporting origins.
+	 *
+	 * The widget and module directories rather than the whole build, which also carries script that
+	 * never runs on the dashboard. Every widget and module builds into one of these two, so a new
+	 * one needs no change here.
+	 *
+	 * @param string[] $origins Absolute URL prefixes, each ending in a slash.
+	 * @return string[]
+	 */
+	public static function add_error_reporting_origin( $origins ) {
+		$origins = is_array( $origins ) ? $origins : array();
+		$build   = trailingslashit( plugins_url( '', self::build_dir() . '/build.php' ) );
+
+		$origins[] = $build . 'widgets/';
+		$origins[] = $build . 'modules/';
+
+		return $origins;
 	}
 
 	/**

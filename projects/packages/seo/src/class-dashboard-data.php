@@ -989,6 +989,7 @@ class Dashboard_Data {
 			'site_is_private'            => self::is_site_private(),
 			'site_is_coming_soon'        => self::is_site_coming_soon(),
 			'site_visibility_url'        => Ai_Crawlers::privacy_settings_url(),
+			'data_sharing_available'     => ( new Host() )->is_wpcom_platform(),
 			'sitemap_active'             => $sitemap_active,
 			'sitemap_switchable'         => self::has_module( 'sitemaps' ),
 			// The reachable sitemap URL (Jetpack serves a valid sitemap here as soon as

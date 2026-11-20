@@ -80,6 +80,7 @@ class Main_Features {
 	 * Keyed by feature slug. `delivery` says what switches the feature: Protect ships inside
 	 * Jetpack too, but its switch is its own plugin, so it sets `jetpack` false and names
 	 * only that. `needs_account` repeats the feature module's "Requires User Connection" header.
+	 * `offline_long_description` replaces `long_description` in offline Features.
 	 *
 	 * @return array<string, array<string, mixed>> Feature definitions keyed by feature slug.
 	 */
@@ -294,30 +295,31 @@ class Main_Features {
 				'paid_product'     => __( 'Jetpack AI Assistant', 'jetpack-my-jetpack' ),
 			),
 			'jetpack-forms'     => array(
-				'info_url'         => 'https://jetpack.com/forms/',
-				'docs_url'         => 'https://jetpack.com/support/jetpack-blocks/contact-form/',
-				'name'             => __( 'Forms', 'jetpack-my-jetpack' ),
-				'description'      => __( 'From quick contact forms to multistep surveys, everything you need is included.', 'jetpack-my-jetpack' ),
-				'long_description' => __( 'Break long forms into steps with a progress bar, and get every response by email and in your dashboard, with no limit on responses. Upgrade to add secure file uploads that keep harmful files off your server.', 'jetpack-my-jetpack' ),
-				'icon'             => 'list-bullets',
-				'product'          => 'jetpack-forms',
-				'off_pages'        => array( 'jetpack-forms-responses-wp-admin', 'jetpack-forms-admin' ),
-				'essential'        => true,
-				'free_highlights'  => array(
+				'info_url'                 => 'https://jetpack.com/forms/',
+				'docs_url'                 => 'https://jetpack.com/support/jetpack-blocks/contact-form/',
+				'name'                     => __( 'Forms', 'jetpack-my-jetpack' ),
+				'description'              => __( 'From quick contact forms to multistep surveys, everything you need is included.', 'jetpack-my-jetpack' ),
+				'long_description'         => __( 'Break long forms into steps with a progress bar, and get every response by email and in your dashboard, with no limit on responses. Upgrade to add secure file uploads that keep harmful files off your server.', 'jetpack-my-jetpack' ),
+				'offline_long_description' => __( 'Break long forms into steps with a progress bar, and get every response by email and in your dashboard, with no limit on responses. File uploads, AI, Google Sheets and push notifications need a WordPress.com connection.', 'jetpack-my-jetpack' ),
+				'icon'                     => 'list-bullets',
+				'product'                  => 'jetpack-forms',
+				'off_pages'                => array( 'jetpack-forms-responses-wp-admin', 'jetpack-forms-admin' ),
+				'essential'                => true,
+				'free_highlights'          => array(
 					__( 'Unlimited responses, by email and in your dashboard', 'jetpack-my-jetpack' ),
 					__( 'Multi-step forms with a progress bar', 'jetpack-my-jetpack' ),
 				),
-				'paid_highlights'  => array(
+				'paid_highlights'          => array(
 					__( 'Secure file uploads that keep harmful files off your server', 'jetpack-my-jetpack' ),
 					__( 'Visitors’ files stay private, visible only to you and your editors', 'jetpack-my-jetpack' ),
 					__( 'Up to 10 files per field, 20 MB each', 'jetpack-my-jetpack' ),
 				),
-				'delivery'         => array(
+				'delivery'                 => array(
 					'jetpack' => true,
 					'plugin'  => '',
 					'free'    => true,
 				),
-				'plans'            => array( 'pro', 'complete' ),
+				'plans'                    => array( 'pro', 'complete' ),
 			),
 			'newsletter'        => array(
 				'info_url'         => 'https://jetpack.com/newsletter/',
@@ -575,9 +577,10 @@ class Main_Features {
 	 * @param array  $upgrade          The Jetpack route, from get_upgrade().
 	 * @param string $slug             The feature slug.
 	 * @param bool   $site_has_feature Whether the site already has the feature.
+	 * @param string $back_route       The My Jetpack route the link is on, empty for the Overview.
 	 * @return array{path: string, name: string, url?: string}
 	 */
-	private static function filter_upgrade( array $upgrade, $slug, $site_has_feature ) {
+	private static function filter_upgrade( array $upgrade, $slug, $site_has_feature, $back_route = '#/features' ) {
 		/**
 		 * Filters where a feature's upgrade link goes, so a host can send it to its own plans.
 		 *
@@ -586,13 +589,14 @@ class Main_Features {
 		 *
 		 * @since 6.14.0
 		 * @since 6.16.0 No longer reads `manage_url`; a feature's manage link is always My Jetpack's own.
+		 * @since $$next-version$$ Also asked for the purchase links of the feature's product, with the Overview as `back_url`.
 		 *
 		 * @param array  $upgrade          `path` (a My Jetpack route) and `name` (the product sold), both empty when nothing is,
 		 *                                 and `back_url`, the admin page the link is on, for a host flow to return to.
 		 * @param string $slug             The My Jetpack feature slug.
 		 * @param bool   $site_has_feature Whether the site already has the feature.
 		 */
-		$filtered = apply_filters( 'jetpack_feature_upgrade', $upgrade + array( 'back_url' => admin_url( 'admin.php?page=my-jetpack#/features' ) ), $slug, $site_has_feature );
+		$filtered = apply_filters( 'jetpack_feature_upgrade', $upgrade + array( 'back_url' => admin_url( 'admin.php?page=my-jetpack' . $back_route ) ), $slug, $site_has_feature );
 
 		if ( ! is_array( $filtered ) ) {
 			return $upgrade;
@@ -609,6 +613,61 @@ class Main_Features {
 		}
 
 		return $result;
+	}
+
+	/**
+	 * Where a host sells the feature a product delivers, for the purchase links outside the Features tab.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $product_slug A My Jetpack product slug, matched to the catalog's `product` key.
+	 * @return ?string Null when the host names no address, the site has the feature, or no feature is the product's.
+	 */
+	public static function get_host_purchase_url( $product_slug ) {
+		// No host listening settles the answer, and spares the ownership lookups below.
+		if ( ! has_filter( 'jetpack_feature_upgrade' ) ) {
+			return null;
+		}
+
+		$slug = self::get_product_feature_slug( $product_slug );
+		if ( null === $slug ) {
+			return null;
+		}
+
+		$definition    = self::get_feature_definitions()[ $slug ];
+		$product_class = Products::get_product_class( $product_slug );
+		$included      = self::is_included_in_plan( $definition, $product_class );
+		$upgrade       = self::filter_upgrade( self::get_upgrade( $definition, $product_class, $included ), $slug, $included, '' );
+
+		return empty( $upgrade['url'] ) ? null : $upgrade['url'];
+	}
+
+	/**
+	 * Whether a host could be selling the feature a product delivers, told without asking it or looking up ownership.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $product_slug A My Jetpack product slug.
+	 * @return bool True when a host listens and the product has a feature; get_host_purchase_url() has the answer.
+	 */
+	public static function may_host_sell_product( $product_slug ) {
+		return has_filter( 'jetpack_feature_upgrade' ) && null !== self::get_product_feature_slug( $product_slug );
+	}
+
+	/**
+	 * The catalog feature a product delivers, which is the slug a host is asked about.
+	 *
+	 * @param string $product_slug A My Jetpack product slug.
+	 * @return ?string The feature slug, null for a product with no feature, such as a bundle.
+	 */
+	private static function get_product_feature_slug( $product_slug ) {
+		foreach ( self::get_feature_definitions() as $slug => $definition ) {
+			if ( ( $definition['product'] ?? '' ) === $product_slug ) {
+				return $slug;
+			}
+		}
+
+		return null;
 	}
 
 	/**
@@ -1068,8 +1127,9 @@ class Main_Features {
 	/**
 	 * The feature catalog merged with each feature's live state, sorted by name.
 	 *
-	 * @param bool $local Keep only local management URLs, set upgrade to null, and omit
-	 *                    included, setup_note, and plan owned fields without resolving ownership.
+	 * @param bool $local Keep only local management URLs, set upgrade to null, use any offline
+	 *                    long description, and omit included, setup_note, and plan owned fields
+	 *                    without resolving ownership.
 	 * @return array List of features, each with slug, name, description, icon, manage_url,
 	 *               the plugin it ships as and the product/module join keys.
 	 */
@@ -1094,7 +1154,7 @@ class Main_Features {
 				'slug'             => $slug,
 				'name'             => $definition['name'],
 				'description'      => $definition['description'],
-				'long_description' => $definition['long_description'] ?? '',
+				'long_description' => $local && isset( $definition['offline_long_description'] ) ? $definition['offline_long_description'] : ( $definition['long_description'] ?? '' ),
 				'icon'             => $definition['icon'],
 				'manage_url'       => self::get_feature_manage_url( $definition, $product_class, $local ),
 				'essential'        => ! empty( $definition['essential'] ),

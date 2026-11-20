@@ -128,6 +128,7 @@ class Analytics_Test extends TestCase {
 		$this->set_analytics_property( 'resolved_menu_title', null );
 		$this->set_analytics_property( 'replaces_pre_connection_stats_page', false );
 		$this->set_analytics_property( 'build_entry', null );
+		$this->set_static_property( Dashboard_Support::class, 'modules_entry', null );
 	}
 
 	/**
@@ -137,7 +138,18 @@ class Analytics_Test extends TestCase {
 	 * @param mixed  $value Value to set.
 	 */
 	private function set_analytics_property( $name, $value ) {
-		$property = new \ReflectionProperty( Analytics::class, $name );
+		$this->set_static_property( Analytics::class, $name, $value );
+	}
+
+	/**
+	 * Set a private static of a class.
+	 *
+	 * @param string $class_name Class name.
+	 * @param string $name       Property name.
+	 * @param mixed  $value      Value to set.
+	 */
+	private function set_static_property( $class_name, $name, $value ) {
+		$property = new \ReflectionProperty( $class_name, $name );
 		if ( PHP_VERSION_ID < 80500 ) {
 			$property->setAccessible( true );
 		}
@@ -367,6 +379,25 @@ class Analytics_Test extends TestCase {
 		do_action( 'init' );
 
 		$this->assertArrayHasKey( 'jpa_test_build_loaded', $GLOBALS );
+	}
+
+	/**
+	 * A wp-admin request registers the SDK alias other plugins' widgets import.
+	 *
+	 * It loads apart from the build entry, so no other test notices it missing.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_admin_request_registers_the_sdk_alias() {
+		$this->use_fixture_build();
+		set_current_screen( self::MENU_HOOKNAME );
+
+		Analytics::init();
+
+		$this->assertSame( 20, has_action( 'wp_default_scripts', __NAMESPACE__ . '\\register_sdk_script_module' ) );
 	}
 
 	/**
@@ -1100,10 +1131,11 @@ class Analytics_Test extends TestCase {
 	}
 
 	/**
-	 * Point the build loader at the fixture build, which records that it ran.
+	 * Point the build loaders at the fixture build, which records that it ran.
 	 */
 	private function use_fixture_build() {
 		$this->set_analytics_property( 'build_entry', __DIR__ . '/fixtures/build-entry/build.php' );
+		$this->set_static_property( Dashboard_Support::class, 'modules_entry', __DIR__ . '/fixtures/build-entry/modules.php' );
 	}
 
 	/**
@@ -1364,6 +1396,33 @@ class Analytics_Test extends TestCase {
 			),
 			'The Tracks identity is published after the connection fills current_user in.'
 		);
+	}
+
+	/**
+	 * Without this registration the script data key disappears and the error reporter reads
+	 * `undefined` as its gate.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_dashboard_request_publishes_the_error_reporting_script_data() {
+		$this->use_fixture_build();
+		$_GET['page'] = self::MENU_SLUG;
+		set_current_screen( self::MENU_HOOKNAME );
+
+		Analytics::init();
+		do_action( 'init' );
+
+		$this->assertSame(
+			20,
+			has_filter( 'jetpack_admin_js_script_data', __NAMESPACE__ . '\\add_error_reporting_script_data' )
+		);
+
+		$data = apply_filters( 'jetpack_admin_js_script_data', array() );
+
+		$this->assertArrayHasKey( 'error_reporting', $data['premium_analytics'] );
 	}
 
 	/**

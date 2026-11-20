@@ -11,6 +11,7 @@ import {
 	trackTaskSkipped,
 	trackViewed,
 	trackWizardBackClicked,
+	trackWizardBackToSetupChooser,
 	trackWizardBypassed,
 	trackWizardCompleted,
 	trackWizardGoalClicked,
@@ -181,6 +182,15 @@ describe( 'ai-launchpad tracks', () => {
 			] );
 		} );
 	}
+
+	it( 'records Back to the setup chooser with use_beacon, since the page is leaving', () => {
+		trackWizardBackToSetupChooser();
+		assert.deepEqual( lastEvent(), [
+			'recordEvent',
+			'jetpack_ai_launchpad_wizard_back_clicked',
+			{ ...BOOTSTRAP.props, step: 'ai_tool', use_beacon: true },
+		] );
+	} );
 
 	it( 'lets a fresh tailor override the tailoring-scoped props', () => {
 		setTracksContext(

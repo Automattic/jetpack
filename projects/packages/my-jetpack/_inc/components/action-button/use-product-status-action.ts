@@ -45,6 +45,7 @@ const useProductStatusAction = (
 	const {
 		manageUrl,
 		purchaseUrl,
+		hostPurchaseUrl,
 		managePaidPlanPurchaseUrl,
 		renewPaidPlanPurchaseUrl,
 		status,
@@ -137,7 +138,7 @@ const useProductStatusAction = (
 			case PRODUCT_STATUSES.ABSENT: {
 				const buttonText = __( 'Learn more', 'jetpack-my-jetpack' );
 				return {
-					href: `#/add-${ slug }`,
+					href: hostPurchaseUrl || `#/add-${ slug }`,
 					variant: 'primary',
 					label: buttonText,
 					onClick: learnMoreHandler,
@@ -287,6 +288,7 @@ const useProductStatusAction = (
 		slug,
 		connectFrom,
 		purchaseUrl,
+		hostPurchaseUrl,
 		isManageDisabled,
 		manageUrl,
 		primaryActionOverride,

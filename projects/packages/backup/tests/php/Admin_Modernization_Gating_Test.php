@@ -287,7 +287,17 @@ class Admin_Modernization_Gating_Test extends TestCase {
 		Jetpack_Backup::render_connection_initial_state();
 		$output = ob_get_clean();
 
-		$this->assertStringContainsString( 'window.JPBACKUP_DASHBOARD_STATE={"activityLogUrl":null,"knownThreatsAvailable":false};', $output );
+		$this->assertStringContainsString( 'window.JPBACKUP_DASHBOARD_STATE={"activityLogUrl":null,', $output );
+	}
+
+	public function test_render_connection_initial_state_follows_the_add_license_setting() {
+		add_filter( 'jetpack_my_jetpack_should_enable_add_license_screen', '__return_false' );
+		ob_start();
+		Jetpack_Backup::render_connection_initial_state();
+		$output = ob_get_clean();
+		remove_filter( 'jetpack_my_jetpack_should_enable_add_license_screen', '__return_false' );
+
+		$this->assertStringContainsString( '"addLicense":false', $output );
 	}
 
 	public function test_render_connection_initial_state_marks_known_threats_available_on_woa() {
