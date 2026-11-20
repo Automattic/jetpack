@@ -504,27 +504,34 @@ class Red_Bubble_Notifications_Test extends TestCase {
 	 */
 	public static function provide_cache_lifetimes() {
 		return array(
-			'purchases fetched'       => array( 'test_alert', true, HOUR_IN_SECONDS ),
-			'purchases fetch failed'  => array( 'test_alert', false, 5 * MINUTE_IN_SECONDS ),
-			'a backup failure showed' => array( 'backup_failure', true, 5 * MINUTE_IN_SECONDS ),
+			'requests succeeded'      => array( 'test_alert', null, HOUR_IN_SECONDS ),
+			'a request failed'        => array( 'test_alert', new \WP_Error( 'http_request_failed', 'Timed out' ), 5 * MINUTE_IN_SECONDS ),
+			'a request was refused'   => array( 'test_alert', array( 'response' => array( 'code' => 500 ) ), 5 * MINUTE_IN_SECONDS ),
+			'a backup failure showed' => array( 'backup_failure', null, 5 * MINUTE_IN_SECONDS ),
 		);
 	}
 
 	/**
-	 * Alerts computed without the purchases, or showing a backup failure, are recomputed after minutes rather than an hour.
+	 * Alerts computed after a failed request, or showing a backup failure, are recomputed after minutes rather than an hour.
 	 *
-	 * @param string $slug              The alert to add.
-	 * @param bool   $purchases_fetched Whether the purchases were fetched.
-	 * @param int    $lifetime          The expected cache lifetime, in seconds.
+	 * @param string               $slug     The alert to add.
+	 * @param array|\WP_Error|null $response A response to a request made while collecting the alerts.
+	 * @param int                  $lifetime The expected cache lifetime, in seconds.
 	 *
 	 * @dataProvider provide_cache_lifetimes
 	 */
 	#[DataProvider( 'provide_cache_lifetimes' )]
-	public function test_alerts_that_may_be_incomplete_or_stale_are_cached_briefly( $slug, $purchases_fetched, $lifetime ) {
+	public function test_alerts_that_may_be_incomplete_or_stale_are_cached_briefly( $slug, $response, $lifetime ) {
 		$this->log_in_as( 'administrator' );
 		$this->add_alert_and_count_computations( $slug );
-		if ( ! $purchases_fetched ) {
-			delete_transient( Wpcom_Products::MY_JETPACK_PURCHASES_TRANSIENT_KEY );
+		if ( null !== $response ) {
+			add_filter(
+				'my_jetpack_red_bubble_notification_slugs',
+				function ( $alerts ) use ( $response ) {
+					do_action( 'http_api_debug', $response, 'response', 'WpOrg\Requests\Requests', array(), 'https://public-api.wordpress.com/rest/v1.2/upgrades' );
+					return $alerts;
+				}
+			);
 		}
 
 		$this->fetch_alerts_over_rest();
