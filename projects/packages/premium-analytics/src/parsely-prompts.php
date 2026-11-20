@@ -28,6 +28,8 @@ const PARSELY_PROMPTS_VIEWS_THRESHOLD = 100000;
 
 /**
  * The Stats plan tiers that qualify. VIP needs no rule of its own: it resolves to `commercial`.
+ * `paid` only ever comes from WordPress.com, so a self-hosted site's PWYW purchase reads
+ * `jetpack-free` and does not qualify however much it pays.
  *
  * @var string[]
  */
@@ -105,7 +107,8 @@ function offers_parsely_prompts() {
 		&& get_monthly_stats_views() >= PARSELY_PROMPTS_VIEWS_THRESHOLD;
 
 	/**
-	 * Filters whether the site and user see the Upgrade to Parsely prompts.
+	 * Filters whether the site and user see the Upgrade to Parsely prompts. It runs after every
+	 * condition, the feature flag included, so returning true shows the prompts with the flag off.
 	 *
 	 * @since $$next-version$$
 	 *
@@ -115,16 +118,19 @@ function offers_parsely_prompts() {
 }
 
 /**
- * Whether the site already runs Parsely. Either signal alone is enough: suppressing the
- * prompt for a site that is not a customer costs less than showing it to one that is.
+ * Whether the site already runs Parsely, which it does once a Site ID is set. The plugin answers
+ * for itself wherever it can; the option is where it keeps that Site ID, and what it leaves
+ * behind once deactivated.
  *
  * @since $$next-version$$
  *
  * @return bool
  */
 function has_parsely_integration() {
-	if ( class_exists( 'Parsely\Parsely' ) ) {
-		return true;
+	$parsely = $GLOBALS['parsely'] ?? null;
+
+	if ( is_object( $parsely ) && method_exists( $parsely, 'site_id_is_set' ) ) {
+		return (bool) $parsely->site_id_is_set();
 	}
 
 	$settings = get_option( 'parsely' );
