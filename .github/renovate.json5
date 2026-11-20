@@ -156,6 +156,13 @@
 			additionalReviewers: [ 'team:jetpack-search' ],
 			addLabels: [ '[Feature] Search', 'Instant Search' ],
 		},
+
+		// Review updates that could shift performance measurements without delaying other projects.
+		{
+			matchFileNames: [ 'tools/performance/**' ],
+			groupName: 'Performance tool dependencies',
+			dependencyDashboardApproval: true,
+		},
 	],
 
 	'github-actions': {

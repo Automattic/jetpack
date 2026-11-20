@@ -14,6 +14,12 @@ The test suite is designed to run in TeamCity.
 4. Calibrate CPU throttling (`pnpm calibrate`)
 5. Run tests (`pnpm test`)
 
+The results file records the Chromium version and CPU calibration. To record the TeamCity agent name, expose the `teamcity.agent.name` parameter as `TEAMCITY_AGENT_NAME` in the build environment. The agent name is empty when the variable is unset.
+
+The Playwright version and fixture image digests are pinned to keep performance runs comparable.
+Renovate holds updates on the Dependency Dashboard under "Performance tool dependencies".
+When approving an update, run the tool on the same Jetpack commit before and after changing the pins.
+
 ### Environment Variables
 
 | Variable               | Description                                                                                                                                                                                                                                                                           |
@@ -24,6 +30,7 @@ The test suite is designed to run in TeamCity.
 | `GIT_COMMIT`           | Git commit SHA for tracking (auto-detected from plugin)                                                                                                                                                                                                                               |
 | `GIT_BRANCH`           | Git branch for tracking (default: trunk)                                                                                                                                                                                                                                              |
 | `ITERATIONS`           | Number of measurement iterations (default: 5)                                                                                                                                                                                                                                         |
+| `TEAMCITY_AGENT_NAME`  | Build agent name recorded in results (empty if unset)                                                                                                                                                                                                                                 |
 | `WP_ADMIN_USER`        | WordPress admin username (default: admin)                                                                                                                                                                                                                                             |
 | `WP_ADMIN_PASS`        | WordPress admin password (default: password)                                                                                                                                                                                                                                          |
 
