@@ -3,7 +3,7 @@ import { BlockControls } from '@wordpress/block-editor';
 import { MenuGroup, MenuItem, ToolbarDropdownMenu } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
-import { check, update, cautionFilled as warning } from '@wordpress/icons';
+import { check, update, caution as warning } from '@wordpress/icons';
 import { Link } from '@wordpress/ui';
 import { store as membershipProductsStore } from '../../../store/membership-products';
 import { CUSTOMIZER_EDITOR, getEditorType } from '../../get-editor-type';

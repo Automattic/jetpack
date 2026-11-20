@@ -5,14 +5,7 @@ import { currentUserCan, getScriptData } from '@automattic/jetpack-script-data';
 import { getSectionOrder } from '@jetpack-premium-analytics/data';
 import { Icon, IconButton, Menu } from '@jetpack-premium-analytics/externals';
 import { __ } from '@wordpress/i18n';
-import {
-	cancelCircleFilled,
-	chevronUpDown,
-	cog,
-	comment,
-	moreVertical,
-	pencil,
-} from '@wordpress/icons';
+import { close, chevronUpDown, cog, comment, moreVertical, pencil } from '@wordpress/icons';
 import { Link as RouteLink, useLinkProps } from '@wordpress/route';
 import { useCallback, useState } from 'react';
 /**
@@ -185,7 +178,7 @@ export function StatsOptionsMenu( {
 						</Menu.Item>
 					) }
 					{ canSwitchOff && (
-						<Menu.Item prefix={ <Icon icon={ cancelCircleFilled } /> } onClick={ openSwitchOff }>
+						<Menu.Item prefix={ <Icon icon={ close } /> } onClick={ openSwitchOff }>
 							<Menu.ItemLabel>
 								{ __( 'Switch off the preview', 'jetpack-premium-analytics-pkg' ) }
 							</Menu.ItemLabel>

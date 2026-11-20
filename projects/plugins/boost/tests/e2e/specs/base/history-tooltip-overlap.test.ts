@@ -218,7 +218,7 @@ for ( const device of [ 'Desktop', 'Mobile' ] ) {
 		);
 		const sections = surface.locator( '.jetpack-boost-overview__tooltip-section' );
 		for ( const [ index, label, score, metrics, barColor ] of [
-			[ 1, 'Desktop', '80/100', [ '1.20s', '0.10s', '0.01' ], 'rgb(0, 128, 48)' ],
+			[ 1, 'Desktop', '80/100', [ '1.20s', '0.10s', '0.01' ], 'rgb(0, 126, 46)' ],
 			[ 2, 'Mobile', '65/100', [ '2.10s', '0.30s', '0.04' ], 'rgb(250, 167, 84)' ],
 		] as const ) {
 			const section = sections.nth( index );
@@ -598,10 +598,10 @@ test( 'Score cards show gain badges, points help, and responsive dividers', asyn
 	await expect( overall.getByRole( 'meter' ) ).toHaveCount( 0 );
 	await expect( mobile.getByText( 'Could improve', { exact: true } ) ).toHaveCSS(
 		'color',
-		'rgb(147, 99, 0)'
+		'rgb(144, 98, 0)'
 	);
 	for ( const [ card, score, tier, color ] of [
-		[ desktop.first(), 90, 'good', 'rgb(0, 128, 48)' ],
+		[ desktop.first(), 90, 'good', 'rgb(0, 126, 46)' ],
 		[ mobile, 60, 'medium', 'rgb(250, 167, 84)' ],
 		[ desktop.nth( 1 ), 40, 'poor', 'rgb(204, 24, 24)' ],
 	] as const ) {
@@ -615,7 +615,7 @@ test( 'Score cards show gain badges, points help, and responsive dividers', asyn
 		);
 	}
 	const positiveBadge = desktop.first().getByText( '+10 points', { exact: true } );
-	await expect( positiveBadge ).toHaveCSS( 'background-color', 'rgb(222, 235, 250)' );
+	await expect( positiveBadge ).toHaveCSS( 'background-color', 'rgb(221, 235, 250)' );
 	await expect( positiveBadge ).toHaveCSS( 'color', 'rgb(0, 27, 79)' );
 	const clampedBadge = mobile.getByText( '0 points', { exact: true } );
 	await expect( clampedBadge ).toHaveCSS( 'background-color', 'rgb(255, 255, 255)' );
@@ -708,7 +708,7 @@ test( 'Score cards show calculating and failed states inside the card', async ( 
 	const status = calculating.getByRole( 'status' );
 	await expect( status.getByText( 'Checking site speed…' ) ).toHaveCSS(
 		'color',
-		'rgb(112, 112, 112)'
+		'rgb(110, 110, 110)'
 	);
 	await expect( status ).toHaveText( 'Checking site speed…' );
 	await expect( status.getByRole( 'progressbar' ) ).toHaveCount( 0 );

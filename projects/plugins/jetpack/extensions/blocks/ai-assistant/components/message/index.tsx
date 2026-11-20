@@ -1,13 +1,7 @@
 /**
  * External dependencies
  */
-import {
-	Icon,
-	cautionFilled as warning,
-	info,
-	cancelCircleFilled as error,
-	check as success,
-} from '@wordpress/icons';
+import { Icon, caution as warning, info, close as error, check as success } from '@wordpress/icons';
 /**
  * Types
  */

@@ -6,7 +6,7 @@ import { Button, Popover } from '@wordpress/components';
 import { useInstanceId } from '@wordpress/compose';
 import { useRef, useCallback } from '@wordpress/element';
 import { __, isRTL, sprintf } from '@wordpress/i18n';
-import { copySmall, check } from '@wordpress/icons';
+import { copy, check } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
@@ -94,7 +94,7 @@ export const CopyCodeRow = ( { text, label, help }: CopyCodeRowProps ) => {
 				) : (
 					<Button
 						ref={ ref }
-						icon={ copySmall }
+						icon={ copy }
 						size="compact"
 						label={ sprintf(
 							/* translators: %s: label for the code row (e.g. "Embed code", "Shortcode") */

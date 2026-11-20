@@ -1,8 +1,9 @@
 /**
  * External dependencies
  */
+// eslint-disable-next-line @wordpress/use-recommended-components -- Only the icon import changed here; moving the spinner is out of scope.
 import { Spinner } from '@wordpress/components';
-import { Icon, cautionFilled as warning } from '@wordpress/icons';
+import { Icon, caution as warning } from '@wordpress/icons';
 import { isValidElement } from 'react';
 /**
  * Types

@@ -2,15 +2,12 @@ import { CheckboxControl } from '@wordpress/components';
 import { useMergeRefs } from '@wordpress/compose';
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from '@wordpress/element';
 import { __, _n, isRTL, sprintf } from '@wordpress/i18n';
-// The upstream names don't describe what they draw: `file` is a folder
-// glyph, `page` is a document one, and there is no `folder` export.
-// `tests/file-browser-icons.test.tsx` holds these aliases in place.
 import {
 	Icon,
 	chevronLeft,
 	chevronRight,
 	chevronDown,
-	file as folderIcon,
+	folder as folderIcon,
 	page as fileIcon,
 } from '@wordpress/icons';
 import { Spinner, Stack, Text } from '@wordpress/ui';

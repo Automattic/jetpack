@@ -4,7 +4,7 @@
 import { getDefaultQueryParams, queryClient } from '@jetpack-premium-analytics/data';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
-import { file as categoryGlyph, tag } from '@wordpress/icons';
+import { folder as categoryGlyph, tag } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
