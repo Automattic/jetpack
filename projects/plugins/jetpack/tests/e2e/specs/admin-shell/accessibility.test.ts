@@ -19,7 +19,7 @@ import {
 	member,
 	openMember,
 	readShell,
-	settle,
+	waitForQuiet,
 	switchTo,
 	waitForShown,
 	withinDocument,
@@ -29,7 +29,7 @@ import {
 const MJ = 'my-jetpack';
 const FORMS = 'jetpack-forms-responses-wp-admin';
 
-// Widgets such as My Jetpack's stats cards render well after the heading.
+// Widgets such as My Jetpack's stats cards render well after the heading; wait at most this long.
 const AXE_SETTLE_MS = 8000;
 
 const back = ( page: Page, slug: string ) =>
@@ -89,22 +89,6 @@ const ROUND_TRIP: [ string, string, Go ][] = [
 const STEP_NAMES = [ 'switching to Forms', 'switching back to My Jetpack', 'going Back to Forms' ];
 
 /**
- * Walk the round trip up to step `i` and run `check` only after that step.
- *
- * @param page  - Page under test.
- * @param i     - Index into `ROUND_TRIP`.
- * @param check - Assertion for the last step.
- * @param reset - Runs before the last step.
- */
-async function walkTo( page: Page, i: number, check: Go, reset?: Go ): Promise< void > {
-	let step = 0;
-	await walk( page, ROUND_TRIP.slice( 0, i + 1 ), {
-		before: ( p, slug ) => ( step === i && reset ? reset( p, slug ) : Promise.resolve() ),
-		after: ( p, slug ) => ( step++ === i ? check( p, slug ) : Promise.resolve() ),
-	} );
-}
-
-/**
  * Open My Jetpack, then take `steps`, checking each landed in the shell before `after` runs.
  *
  * @param page         - Page under test.
@@ -159,10 +143,13 @@ test.describe( 'Admin shell: accessibility of in-shell navigation', () => {
 		await installA11yProbe( page );
 	} );
 
-	// One test per step, so a failure names the step that lost focus.
-	STEP_NAMES.forEach( ( name, i ) => {
-		test( `focus moves to the shown page’s heading after ${ name }`, async ( { page } ) => {
-			await walkTo( page, i, ( p, slug ) => expect( mainHeading( p, slug ) ).toBeFocused() );
+	test( 'focus moves to the shown page’s heading after each step of a round trip', async ( {
+		page,
+	} ) => {
+		let step = 0;
+		await walk( page, ROUND_TRIP, {
+			after: ( p, slug ) =>
+				expect( mainHeading( p, slug ), `focus after ${ STEP_NAMES[ step++ ] }` ).toBeFocused(),
 		} );
 	} );
 
@@ -180,22 +167,18 @@ test.describe( 'Admin shell: accessibility of in-shell navigation', () => {
 			.toContainEqual( { politeness: 'polite', text: 'Probe check' } );
 	} );
 
-	STEP_NAMES.slice( 0, 2 ).forEach( ( name, i ) => {
-		test( `the new page title is announced politely after ${ name }`, async ( { page } ) => {
-			await walkTo(
-				page,
-				i,
-				( p, slug ) =>
-					expect
-						.poll( () => announcements( p ), `announcement for ${ slug }` )
-						.toContainEqual(
-							expect.objectContaining( {
-								politeness: 'polite',
-								text: expect.stringContaining( member( slug ).title ),
-							} )
-						),
-				resetA11yProbe
-			);
+	test( 'the new page title is announced politely after each switch', async ( { page } ) => {
+		await walk( page, ROUND_TRIP.slice( 0, 2 ), {
+			before: resetA11yProbe,
+			after: ( p, slug ) =>
+				expect
+					.poll( () => announcements( p ), `announcement for ${ slug }` )
+					.toContainEqual(
+						expect.objectContaining( {
+							politeness: 'polite',
+							text: expect.stringContaining( member( slug ).title ),
+						} )
+					),
 		} );
 	} );
 
@@ -232,7 +215,7 @@ test.describe( 'Admin shell: accessibility of in-shell navigation', () => {
 		const baseline: Record< string, Record< string, string[] > > = {};
 		for ( const slug of [ FORMS, MJ ] ) {
 			await openMember( page, slug );
-			await settle( page, AXE_SETTLE_MS );
+			await waitForQuiet( page, AXE_SETTLE_MS );
 			baseline[ slug ] = await axeViolations( page );
 			test.info().annotations.push( {
 				type: 'axe on full load',
@@ -240,13 +223,13 @@ test.describe( 'Admin shell: accessibility of in-shell navigation', () => {
 			} );
 		}
 		await switchTo( page, FORMS );
-		await settle( page, AXE_SETTLE_MS );
+		await waitForQuiet( page, AXE_SETTLE_MS );
 		expect(
 			await newViolations( page, baseline[ FORMS ] ),
 			'new after switching to Forms'
 		).toEqual( {} );
 		await switchTo( page, MJ );
-		await settle( page, AXE_SETTLE_MS );
+		await waitForQuiet( page, AXE_SETTLE_MS );
 		expect( await newViolations( page, baseline[ MJ ] ), 'new after switching back' ).toEqual( {} );
 	} );
 

@@ -99,6 +99,22 @@ describe( 'overlays', () => {
 		expect( otherModal ).toBeInTheDocument();
 	} );
 
+	it( 'waits for a closed modal to give the document back', async () => {
+		const wrap = await addToBody( '' );
+		wrap.id = 'wpwrap';
+		wrap.setAttribute( 'aria-hidden', 'true' );
+		const modal = await addToBody( '<div role="dialog"></div>' );
+		modal.addEventListener( 'keydown', () => {
+			setTimeout( () => modal.remove(), 50 );
+			// unmodalize() runs in an effect cleanup, after React has removed the modal.
+			setTimeout( () => wrap.removeAttribute( 'aria-hidden' ), 120 );
+		} );
+
+		await closeDialogsOf( 'my-jetpack' );
+
+		expect( wrap ).not.toHaveAttribute( 'aria-hidden' );
+	} );
+
 	const animatingOut = dialog => dialog.parentElement.classList.add( 'is-animating-out' );
 	const endingStyle = dialog => dialog.setAttribute( 'data-ending-style', '' );
 

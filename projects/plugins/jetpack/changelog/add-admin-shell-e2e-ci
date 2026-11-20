@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: Run the admin shell e2e suite in CI: a smoke set on most pull requests, the full suite when the shell or a dashboard changes.
+
+

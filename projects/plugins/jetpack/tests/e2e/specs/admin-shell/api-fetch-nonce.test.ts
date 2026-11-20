@@ -64,32 +64,39 @@ test.describe( 'Admin shell: a stale REST nonce', () => {
 		await installShellProbe( page );
 	} );
 
-	for ( const [ first, ...switches ] of TOURS ) {
-		test( `refreshes once after ${ [ first, ...switches ].join( ' → ' ) }`, async ( { page } ) => {
-			await openMember( page, first );
-			for ( const slug of switches ) {
-				await switchTo( page, slug );
+	TOURS.forEach( ( [ first, ...switches ], i ) => {
+		// The first switch is where a guest could add a second nonce middleware.
+		const details = i === 1 ? { tag: '@smoke' } : {};
+
+		test(
+			`refreshes once after ${ [ first, ...switches ].join( ' → ' ) }`,
+			details,
+			async ( { page } ) => {
+				await openMember( page, first );
+				for ( const slug of switches ) {
+					await switchTo( page, slug );
+				}
+				const refreshes = await routeStaleNonce( page );
+
+				const outcome = await page.evaluate(
+					( { probe } ) =>
+						Promise.race( [
+							( window as unknown as ApiFetchWindow ).wp
+								.apiFetch( { path: `/wp/v2/users/me?${ probe }=1` } )
+								.then(
+									() => 'ok',
+									( error: { code?: string } ) => `error: ${ error.code }`
+								),
+							// Long enough for a looping page to refresh many times.
+							new Promise( resolve => setTimeout( () => resolve( 'timed out' ), 10000 ) ),
+						] ),
+					{ probe: PROBE }
+				);
+				await page.unrouteAll( { behavior: 'ignoreErrors' } );
+
+				expect( outcome, 'the retry succeeds' ).toBe( 'ok' );
+				expect( refreshes(), 'nonce refreshes' ).toBe( 1 );
 			}
-			const refreshes = await routeStaleNonce( page );
-
-			const outcome = await page.evaluate(
-				( { probe } ) =>
-					Promise.race( [
-						( window as unknown as ApiFetchWindow ).wp
-							.apiFetch( { path: `/wp/v2/users/me?${ probe }=1` } )
-							.then(
-								() => 'ok',
-								( error: { code?: string } ) => `error: ${ error.code }`
-							),
-						// Long enough for a looping page to refresh many times.
-						new Promise( resolve => setTimeout( () => resolve( 'timed out' ), 10000 ) ),
-					] ),
-				{ probe: PROBE }
-			);
-			await page.unrouteAll( { behavior: 'ignoreErrors' } );
-
-			expect( outcome, 'the retry succeeds' ).toBe( 'ok' );
-			expect( refreshes(), 'nonce refreshes' ).toBe( 1 );
-		} );
-	}
+		);
+	} );
 } );

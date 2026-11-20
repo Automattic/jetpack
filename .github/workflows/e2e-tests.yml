@@ -165,6 +165,8 @@ jobs:
       # Used in tests for enhanced reporting of global projects. The WordPress version is part of the
       # name so the two runs of a project are distinguishable in the report.
       PROJECT_NAME: '${{ matrix.project }} WP ${{ matrix.wpVersion }}'
+      # Admin shell suite: Chromium on pull requests, every browser after merge and on manual runs.
+      ADMIN_SHELL_BROWSERS: ${{ case( github.event_name == 'repository_dispatch' || github.event_name == 'workflow_dispatch', 'chromium,firefox,webkit', 'chromium' ) }}
     strategy:
       fail-fast: false
       matrix:
@@ -267,9 +269,12 @@ jobs:
         working-directory: ${{ matrix.path }}
         env:
           JSON_ARGS: ${{ toJSON(matrix.testArgs) }}
+          TEST_SCRIPT: ${{ matrix.testScript || 'test:run' }}
+          # Set by e2e-matrix.js on pull requests that don't change the admin shell or a dashboard it switches to.
+          ADMIN_SHELL_SMOKE: ${{ case( matrix.smoke == true, '1', '' ) }}
         run: |
           mapfile -t TEST_ARGS < <(jq -r '.[]' <<<"$JSON_ARGS")
-          pnpm run test:run "${TEST_ARGS[@]}"
+          pnpm run "$TEST_SCRIPT" "${TEST_ARGS[@]}"
 
       - name: Test environment tear-down
         if: ${{ always() }}

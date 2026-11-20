@@ -1,4 +1,4 @@
-import { defineConfig, devices } from '@playwright/test';
+import { defineConfig, devices, type ReporterDescription } from '@playwright/test';
 import { STATE_OFF, STATE_ON, STATE_STANDALONE } from './helpers/admin-shell-helper';
 
 /*
@@ -9,22 +9,59 @@ const onUrl = process.env.ADMIN_SHELL_URL ?? 'http://localhost:8889';
 const offUrl = process.env.ADMIN_SHELL_OFF_URL;
 const standaloneUrl = process.env.ADMIN_SHELL_STANDALONE_URL;
 const stateDir = 'output/admin-shell';
+// Separate runs against one site (shell on, then off) each need their own results.
+const runDir = process.env.ADMIN_SHELL_RUN
+	? `${ stateDir }/${ process.env.ADMIN_SHELL_RUN }`
+	: stateDir;
 
+const reporter: ReporterDescription[] = [
+	[ 'list' ],
+	[ 'json', { outputFile: `${ runDir }/summary.json` } ],
+];
+// Same CI reporters as tools/e2e-commons/playwright.config.default.ts: the shared CTRF report and PR annotations.
+if ( process.env.CI ) {
+	reporter.push(
+		[
+			'playwright-ctrf-json-reporter',
+			{
+				outputDir: runDir,
+				outputFile: `ctrf-report-${ Date.now() }.json`,
+				branchName: process.env.GITHUB_REF_NAME || '',
+				commit: process.env.GITHUB_SHA || '',
+				appName: 'jetpack',
+				repositoryName: process.env.GITHUB_REPOSITORY || '',
+			},
+		],
+		[ 'github' ]
+	);
+}
+
+// ADMIN_SHELL_BROWSERS (comma-separated) picks the browsers; bin/admin-shell-ci.sh installs the same list.
+const browserNames = ( process.env.ADMIN_SHELL_BROWSERS || 'chromium,firefox,webkit' ).split( ',' );
 const browsers = [
 	{ name: 'chromium', use: devices[ 'Desktop Chrome' ] },
 	{ name: 'firefox', use: devices[ 'Desktop Firefox' ] },
 	{ name: 'webkit', use: devices[ 'Desktop Safari' ] },
-];
+].filter( browser => browserNames.includes( browser.name ) );
+
+// ADMIN_SHELL_SMOKE=1 runs only the tests tagged @smoke; the login setup always runs.
+const smoke = process.env.ADMIN_SHELL_SMOKE === '1' ? { grep: /@smoke/ } : {};
+
+/* Specs that change or watch site-wide state, so they need the site to themselves. They run only with
+ * ADMIN_SHELL_ALONE=1, which bin/admin-shell-ci.sh sets for a one-worker run of their own. */
+const ALONE = [ 'feature-off.test.ts', 'hover-side-effects.test.ts' ];
+const alone = process.env.ADMIN_SHELL_ALONE === '1';
 
 export default defineConfig( {
 	testDir: './specs/admin-shell',
-	outputDir: `${ stateDir }/results`,
+	outputDir: `${ runDir }/results`,
 	timeout: 180000,
 	expect: { timeout: 20000 },
 	// Only login and tests wrapped in intermittentSpikeBug() retry; any other flake fails the run.
 	retries: 0,
+	fullyParallel: true,
 	workers: Number( process.env.PLAYWRIGHT_WORKERS ) || 2,
-	reporter: [ [ 'list' ], [ 'json', { outputFile: `${ stateDir }/summary.json` } ] ],
+	reporter,
 	use: {
 		viewport: { width: 1280, height: 1600 },
 		ignoreHTTPSErrors: true,
@@ -51,8 +88,13 @@ export default defineConfig( {
 		},
 		...browsers.map( browser => ( {
 			name: `shell on: ${ browser.name }`,
-			testIgnore: [ 'auth.setup.ts', 'shell-off.test.ts', 'standalone.test.ts' ],
+			...( alone
+				? { testMatch: 'feature-off.test.ts' }
+				: {
+						testIgnore: [ 'auth.setup.ts', 'shell-off.test.ts', 'standalone.test.ts', ...ALONE ],
+					} ),
 			dependencies: [ 'admin shell login' ],
+			...smoke,
 			use: {
 				...browser.use,
 				viewport: { width: 1280, height: 1600 },
@@ -60,10 +102,27 @@ export default defineConfig( {
 				storageState: STATE_ON,
 			},
 		} ) ),
+		// Chromium only: it checks the server, not the browser.
+		...( alone && browserNames.includes( 'chromium' )
+			? [
+					{
+						name: 'hover side effects',
+						testMatch: 'hover-side-effects.test.ts',
+						dependencies: [ 'admin shell login' ],
+						use: {
+							...devices[ 'Desktop Chrome' ],
+							viewport: { width: 1280, height: 1600 },
+							baseURL: onUrl,
+							storageState: STATE_ON,
+						},
+					},
+				]
+			: [] ),
 		...browsers.map( browser => ( {
 			name: `shell off: ${ browser.name }`,
 			testMatch: 'shell-off.test.ts',
 			dependencies: [ 'admin shell login' ],
+			...smoke,
 			use: {
 				...browser.use,
 				viewport: { width: 1280, height: 1600 },
