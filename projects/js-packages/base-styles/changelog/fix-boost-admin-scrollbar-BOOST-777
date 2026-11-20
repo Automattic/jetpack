@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Admin page layout: Keep the page's scrollbar clear of the window's overlay scrollbar when the admin menu is taller than the window.
