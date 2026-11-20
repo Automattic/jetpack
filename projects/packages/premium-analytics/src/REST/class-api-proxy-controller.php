@@ -10,7 +10,6 @@ namespace Automattic\Jetpack\PremiumAnalytics\REST;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Constants;
-use Automattic\Jetpack\Status\Visitor;
 use Jetpack_Options;
 use WP_Error;
 use WP_REST_Controller;
@@ -124,9 +123,6 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 	 *                  attributes a submission to a person cannot resolve one on its own (it falls
 	 *                  back to the site's first administrator). The only body rewrite this proxy
 	 *                  does; see `inject_user_email()`.
-	 *  - `forward_visitor_ip` (bool, optional) Send the visitor's IP as `X-Forwarded-For`, and cache
-	 *                  per IP, when the request has no `currency` query param. For endpoints that answer by the
-	 *                  requester's location, such as prices, which the site's server would otherwise stand in for.
 	 *  - `unauthenticated` (bool, optional) Forward reads WITHOUT signing (plain HTTP, like
 	 *                  stats-admin's Odyssey proxy does for post likes). For WPCOM endpoints
 	 *                  that reject blog-token auth but serve public data without credentials.
@@ -176,12 +172,6 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 		'upgrades'                      => array(
 			'capability' => 'view_stats',
 			'path'       => '/upgrades?site=%d',
-		),
-		// Stats tier prices: in the `currency` the caller passes, else for the visitor's location.
-		'products'                      => array(
-			'capability'         => 'view_stats',
-			'path'               => '/sites/%d/products?type=jetpack',
-			'forward_visitor_ip' => true,
 		),
 		'posts'                         => array(
 			'capability'      => 'view_stats',
@@ -414,14 +404,13 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 			$request,
 			$this->build_data_path( $endpoint ),
 			array(
-				'version'            => $version,
-				'base'               => $this->base_for_version( $version ),
-				'bust_on_write'      => $this->busts_cache( $endpoint ),
-				'invalidates'        => $config['invalidates'] ?? array(),
-				'cache_scope'        => $this->cache_scope_for( $endpoint ),
-				'unauthenticated'    => ! empty( $config['unauthenticated'] ),
-				'inject_user_email'  => ! empty( $config['inject_user_email'] ),
-				'forward_visitor_ip' => ! empty( $config['forward_visitor_ip'] ),
+				'version'           => $version,
+				'base'              => $this->base_for_version( $version ),
+				'bust_on_write'     => $this->busts_cache( $endpoint ),
+				'invalidates'       => $config['invalidates'] ?? array(),
+				'cache_scope'       => $this->cache_scope_for( $endpoint ),
+				'unauthenticated'   => ! empty( $config['unauthenticated'] ),
+				'inject_user_email' => ! empty( $config['inject_user_email'] ),
 			)
 		);
 	}
@@ -619,7 +608,7 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 	 *
 	 * @param WP_REST_Request      $request    Request object.
 	 * @param string               $wpcom_path WPCOM path without the forwarded query string.
-	 * @param array<string, mixed> $opts       version | base | bust_on_write | invalidates | cache_scope | forward_visitor_ip | cache overrides.
+	 * @param array<string, mixed> $opts       version | base | bust_on_write | invalidates | cache_scope | cache overrides.
 	 *
 	 * @return WP_REST_Response|WP_Error
 	 */
@@ -632,17 +621,8 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 			&& ( $opts['cache'] ?? true )
 			&& null === $request->get_param( 'force_refresh' );
 
-		// A passed currency sets the prices on its own, so requests in it share one cache entry.
-		$forwarded  = $this->get_forwarded_params( $request, $wpcom_path );
-		$visitor_ip = '';
-		if ( ! empty( $opts['forward_visitor_ip'] ) && ! isset( $forwarded['currency'] ) ) {
-			$visitor_ip = ( new Visitor() )->get_ip( true );
-		}
-		// No query param or configured `path` can put a `#` in the path, so a caller cannot forge this key.
-		$key_path = '' !== $visitor_ip ? $wpcom_path . '#ip=' . $visitor_ip : $wpcom_path;
-
 		$cache_key = $cacheable
-			? $this->cache_key_for( $key_path, $version, $base, $forwarded, $opts['cache_scope'] ?? null )
+			? $this->cache_key_for( $wpcom_path, $version, $base, $this->get_forwarded_params( $request, $wpcom_path ), $opts['cache_scope'] ?? null )
 			: null;
 		if ( null !== $cache_key ) {
 			$cached = get_transient( $cache_key );
@@ -678,9 +658,6 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 		if ( ! $is_read ) {
 			$body            = $this->inject_user_email( (string) $request->get_body(), $opts );
 			$args['headers'] = array( 'Content-Type' => 'application/json' );
-		}
-		if ( '' !== $visitor_ip ) {
-			$args['headers']['X-Forwarded-For'] = $visitor_ip;
 		}
 
 		// The signer hashes '' like any body, then refuses to sign a hash on an empty one.

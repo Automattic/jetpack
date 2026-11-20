@@ -7,6 +7,8 @@ import type { ReactNode } from 'react';
 jest.mock( '@wordpress/api-fetch', () => jest.fn() );
 
 const mockApiFetch = apiFetch as unknown as jest.Mock;
+const mockFetch = jest.fn();
+const realFetch = globalThis.fetch;
 
 const PRODUCTS = {
 	jetpack_stats_yearly: {
@@ -38,9 +40,17 @@ const PURCHASED_100K = {
  * @param usage - The plan usage reply.
  */
 function mockEndpoints( usage: () => Promise< unknown > ) {
-	mockApiFetch.mockImplementation( ( { path }: { path: string } ) =>
-		path.includes( 'jetpack-stats/usage' ) ? usage() : Promise.resolve( PRODUCTS )
-	);
+	mockFetch.mockResolvedValue( { ok: true, json: () => Promise.resolve( PRODUCTS ) } );
+	mockApiFetch.mockImplementation( usage );
+}
+
+/**
+ * The URL the price list was requested from.
+ *
+ * @return The URL of the first `fetch()` call.
+ */
+function productsRequestUrl() {
+	return new URL( mockFetch.mock.calls[ 0 ][ 0 ] );
 }
 
 const wrapper = ( { children }: { children: ReactNode } ) => (
@@ -63,10 +73,13 @@ describe( 'useStatsUpgradeTiers', () => {
 		jest.useFakeTimers();
 		queryClient.clear();
 		mockApiFetch.mockReset();
+		mockFetch.mockReset();
+		globalThis.fetch = mockFetch;
 	} );
 
 	afterEach( () => {
 		jest.useRealTimers();
+		globalThis.fetch = realFetch;
 		delete window.JetpackScriptData;
 	} );
 
@@ -87,6 +100,16 @@ describe( 'useStatsUpgradeTiers', () => {
 		expect( result.current.isLoading ).toBe( true );
 	} );
 
+	it( 'retries a failed price list request, so one network error does not block the purchase', async () => {
+		mockEndpoints( () => Promise.resolve( PURCHASED_100K ) );
+		mockFetch.mockRejectedValueOnce( new TypeError( 'Failed to fetch' ) );
+
+		const { result } = await renderTiers();
+
+		expect( result.current.isError ).toBe( false );
+		expect( result.current.tiers.map( tier => tier.views ) ).toEqual( [ 250000 ] );
+	} );
+
 	it( 'reports a plan usage failure as an error, not as a full list of tiers', async () => {
 		mockEndpoints( () => Promise.reject( { code: 'api_error', data: { status: 502 } } ) );
 
@@ -105,9 +128,16 @@ describe( 'useStatsUpgradeTiers', () => {
 
 		await renderTiers();
 
-		const productsRequest = mockApiFetch.mock.calls.find( ( [ { path } ] ) =>
-			path.includes( '/products' )
-		);
-		expect( productsRequest?.[ 0 ].path ).toContain( 'currency=EUR' );
+		expect( productsRequestUrl().searchParams.get( 'currency' ) ).toBe( 'EUR' );
+	} );
+
+	it( 'asks WordPress.com from the browser without a connected user, so the prices follow the visitor and not the site server', async () => {
+		mockEndpoints( () => Promise.resolve( PURCHASED_100K ) );
+
+		await renderTiers();
+
+		const url = productsRequestUrl();
+		expect( url.origin ).toBe( 'https://public-api.wordpress.com' );
+		expect( url.searchParams.has( 'currency' ) ).toBe( false );
 	} );
 } );

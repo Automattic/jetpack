@@ -155,7 +155,6 @@ under `wpcom/v2` (see "Choosing a REST namespace" below).
 | `jetpack-stats-dashboard`                                | `view_stats`                                | whole prefix (busts read cache) |
 | `commercial-classification`                              | `view_stats`                                | exact path                      |
 | `upgrades` (not under `/sites/`)                         | `view_stats`                                | —                               |
-| `products` (fixed: `products?type=jetpack`)              | `view_stats`                                | —                               |
 | `posts` (only `<id>/likes` and `<id>/replies`, unsigned) | `view_stats`                                | —                               |
 
 `manage_options` is always accepted too. `POST` is rejected (`405 rest_read_only`) outside the
