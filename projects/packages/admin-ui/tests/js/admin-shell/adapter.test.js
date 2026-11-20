@@ -4,8 +4,6 @@ import {
 	renameBootStore,
 	routeAt,
 	routesLoadedBy,
-	trackViewTransitions,
-	transitionSettled,
 } from '../../../src/admin-shell/adapter';
 
 let visible = 'my-jetpack';
@@ -84,32 +82,6 @@ describe( 'isolateRouters', () => {
 		expect( location.search ).toBe( '?page=jetpack-forms&p=%2Fforms' );
 		expect( window.history.state ).toEqual( { __TSR_index: 4, key: 'k' } );
 		expect( window.history ).toHaveLength( length );
-	} );
-} );
-
-describe( 'trackViewTransitions', () => {
-	it( 'handles a skipped transition and waits for the running one', async () => {
-		let finish;
-		const skipped = Promise.reject( new Error( 'Transition was skipped' ) );
-		document.startViewTransition = () => ( {
-			ready: skipped,
-			finished: new Promise( resolve => ( finish = resolve ) ),
-		} );
-		trackViewTransitions();
-		const unhandled = jest.fn();
-		process.on( 'unhandledRejection', unhandled );
-
-		document.startViewTransition( () => {} );
-		let settled = false;
-		transitionSettled( 1000 ).then( () => ( settled = true ) );
-		await Promise.resolve();
-		expect( settled ).toBe( false );
-		finish();
-		await new Promise( resolve => setTimeout( resolve, 0 ) );
-
-		expect( settled ).toBe( true );
-		expect( unhandled ).not.toHaveBeenCalled();
-		process.off( 'unhandledRejection', unhandled );
 	} );
 } );
 

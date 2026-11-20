@@ -28,6 +28,7 @@
 	"devDependencies": {
 		"@automattic/jetpack-base-styles": "workspace:*",
 		"@automattic/jetpack-webpack-config": "workspace:*",
+		"@automattic/jetpack-wp-build-polyfills": "workspace:*",
 		"@wordpress/browserslist-config": "7.2.0",
 		"@wordpress/theme": "5.0.0",
 		"jest": "30.5.2",

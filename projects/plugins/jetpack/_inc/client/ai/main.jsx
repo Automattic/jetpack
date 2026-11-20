@@ -210,7 +210,7 @@ export default function App() {
 		isOfflineMode = false,
 		showFeaturesView = false,
 		showA12sBadge = false,
-		isSelfHosted = false,
+		showSiteAbilities = false,
 	} = window?.jetpackAiSettings ?? {};
 	const [ route, setRoute ] = useState( getRouteFromHash );
 	const { view, anchor } = route;
@@ -229,7 +229,7 @@ export default function App() {
 	const showConnectNotice = !! blogId && userUnlinked;
 	const { isLoading, savingToolIds, mcpAbilities, hasMcpAccess, error, updateMcpAbilities } =
 		useMcpSettings( { skip: showConnectNotice || ! blogId } );
-	const showRemoteAbilities = isSelfHosted && ! showConnectNotice && !! blogId;
+	const showRemoteAbilities = showSiteAbilities && ! showConnectNotice && !! blogId;
 	const publishedAbilities = useSiteAbilities( { enabled: showRemoteAbilities } );
 	const remoteAbilities = showRemoteAbilities ? publishedAbilities : null;
 	const {

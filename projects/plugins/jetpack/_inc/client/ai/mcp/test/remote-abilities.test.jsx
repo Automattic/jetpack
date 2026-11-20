@@ -1,8 +1,10 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import McpHub from '../index';
+import McpRead from '../read';
 import RemoteAbilitiesSection from '../remote-abilities-section';
 import { prepareWpcomMcpUpdate, normalizeWpcomMcpSettings } from '../use-mcp-settings';
+import McpWrite from '../write';
 
 jest.mock( 'lib/analytics', () => ( { tracks: { recordEvent: jest.fn() } } ), { virtual: true } );
 
@@ -139,5 +141,62 @@ describe( 'remote_groups settings payload', () => {
 		expect(
 			prepareWpcomMcpUpdate( { sites: [ { remote_groups: { 'read:akismet': false } } ] } )
 		).toEqual( { remote_groups: { 'read:akismet': false } } );
+	} );
+} );
+
+describe( 'page-level Enable all', () => {
+	test.each( [
+		[ 'read', McpRead, true, { 'read:akismet': false } ],
+		[ 'write', McpWrite, false, { 'write:akismet': false, 'destructive:akismet': false } ],
+	] )(
+		'turning it off also writes the %s remote keys',
+		async ( view, Component, readonly, expectedGroups ) => {
+			render(
+				<Component
+					mcpAbilities={ {
+						account: { 'wpcom-mcp/tool': { title: 'Tool', enabled: true, readonly } },
+						sites: [
+							{
+								blog_id: 1,
+								site_level_enabled: true,
+								remote_groups: { [ `${ view }:akismet` ]: true },
+							},
+						],
+					} }
+					blogId={ 1 }
+					savingToolIds={ new Set() }
+					onUpdate={ onUpdate }
+					remoteAbilities={ { abilities: CATALOG, isLoading: false, isError: false } }
+				/>
+			);
+			await userEvent.click( screen.getAllByRole( 'switch', { name: 'Enable all' } )[ 0 ] );
+			expect( onUpdate ).toHaveBeenCalledWith( {
+				sites: [
+					{
+						blog_id: 1,
+						abilities: { 'wpcom-mcp/tool': false },
+						remote_groups: expectedGroups,
+					},
+				],
+			} );
+		}
+	);
+
+	test( 'is off while a remote group is off, even with every tool on', () => {
+		render(
+			<McpRead
+				mcpAbilities={ {
+					account: { 'wpcom-mcp/tool': { title: 'Tool', enabled: true, readonly: true } },
+					sites: [
+						{ blog_id: 1, site_level_enabled: true, remote_groups: { 'read:akismet': false } },
+					],
+				} }
+				blogId={ 1 }
+				savingToolIds={ new Set() }
+				onUpdate={ onUpdate }
+				remoteAbilities={ { abilities: CATALOG, isLoading: false, isError: false } }
+			/>
+		);
+		expect( screen.getAllByRole( 'switch', { name: 'Enable all' } )[ 0 ] ).not.toBeChecked();
 	} );
 } );
