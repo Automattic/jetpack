@@ -10,7 +10,6 @@
  */
 
 use Automattic\Jetpack\Modules;
-use Automattic\Jetpack\PremiumAnalytics\Classic_Stats;
 use Automattic\Jetpack\PremiumAnalytics\Enablement_Setting;
 
 const E2E_PA_SITE_ID = 1234567;
@@ -37,7 +36,8 @@ add_filter( 'jetpack_offline_mode', '__return_false', 99 );
 add_filter( 'pre_http_request', 'e2e_pa_intercept_wpcom', 10, 3 );
 add_filter( 'nonce_life', 'e2e_pa_nonce_life' );
 add_filter( 'jetpack_premium_analytics_stats_plan_tier', 'e2e_pa_stats_tier' );
-add_filter( 'jetpack_feature_flag_enabled_' . Classic_Stats::RETIRED_FLAG, 'e2e_pa_classic_stats_retired' );
+// Classic_Stats::RETIRED_FLAG is not loadable yet: this file runs before the plugin's autoloader.
+add_filter( 'jetpack_feature_flag_enabled_jetpack-stats-classic-page-retired', 'e2e_pa_classic_stats_retired' );
 add_action( 'rest_api_init', 'e2e_pa_register_site_state_route' );
 
 /**
