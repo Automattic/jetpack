@@ -1,19 +1,21 @@
 import { __ } from '@wordpress/i18n';
 import { Button, Stack, Text } from '@wordpress/ui';
 import clsx from 'clsx';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useId, useMemo, useState } from 'react';
 import formatNumber from '../../../utils/format-number';
 import LoadingBlock from '../../loading-block';
 import { transformStatsDataForChart } from '../../stats-section/cards';
 import StatsChart from '../../stats-section/stats-chart';
+import ChangeBadge from './change-badge';
 import styles from './overview-stats.module.scss';
+import type { Metric } from './change-badge';
 import type { FC } from 'react';
-
-type Metric = 'views' | 'visitors' | 'likes' | 'comments';
 
 type OverviewStatsProps = {
 	isLoading?: boolean;
 	counts: Partial< Record< Metric, number > >;
+	previousCounts?: Partial< Record< Metric, number > >;
+	days: number;
 	chartData: object | null;
 	detailedStatsHref?: string;
 	onDetailedStatsClick: () => void;
@@ -34,10 +36,19 @@ type TabProps = {
 	count?: number;
 	isLoading: boolean;
 	isSelected: boolean;
+	describedBy?: string;
 	onSelect: ( metric: Metric ) => void;
 };
 
-const Tab: FC< TabProps > = ( { metric, label, count, isLoading, isSelected, onSelect } ) => {
+const Tab: FC< TabProps > = ( {
+	metric,
+	label,
+	count,
+	isLoading,
+	isSelected,
+	describedBy,
+	onSelect,
+} ) => {
 	const handleClick = useCallback( () => onSelect( metric ), [ metric, onSelect ] );
 
 	return (
@@ -45,6 +56,7 @@ const Tab: FC< TabProps > = ( { metric, label, count, isLoading, isSelected, onS
 			variant="unstyled"
 			className={ clsx( styles.tab, { [ styles[ 'is-selected' ] ]: isSelected } ) }
 			aria-pressed={ isSelected }
+			aria-describedby={ describedBy }
 			disabled={ isLoading }
 			onClick={ handleClick }
 		>
@@ -72,11 +84,14 @@ const Tab: FC< TabProps > = ( { metric, label, count, isLoading, isSelected, onS
 const OverviewStats: FC< OverviewStatsProps > = ( {
 	isLoading = false,
 	counts,
+	previousCounts,
+	days,
 	chartData,
 	detailedStatsHref,
 	onDetailedStatsClick,
 } ) => {
 	const [ selectedMetric, setSelectedMetric ] = useState< Metric >( 'views' );
+	const badgeId = useId();
 	const series = useMemo(
 		() => transformStatsDataForChart( chartData, selectedMetric, CHART_COLOR ),
 		[ chartData, selectedMetric ]
@@ -93,10 +108,22 @@ const OverviewStats: FC< OverviewStatsProps > = ( {
 						count={ counts?.[ metric ] }
 						isLoading={ isLoading }
 						isSelected={ ! isLoading && selectedMetric === metric }
+						describedBy={ ! isLoading && selectedMetric === metric ? badgeId : undefined }
 						onSelect={ setSelectedMetric }
 					/>
 				) ) }
 			</div>
+			{ /* A row keeps the badge at its own width, and every state at one height. */ }
+			<Stack direction="row">
+				<ChangeBadge
+					id={ badgeId }
+					metric={ selectedMetric }
+					count={ counts?.[ selectedMetric ] }
+					previous={ previousCounts?.[ selectedMetric ] }
+					days={ days }
+					isLoading={ isLoading }
+				/>
+			</Stack>
 			<StatsChart
 				data={ series }
 				isLoading={ isLoading }

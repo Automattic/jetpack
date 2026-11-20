@@ -40,7 +40,10 @@ const StatsOverviewItem: FC< StatsOverviewItemProps > = ( { admin, period } ) =>
 		isSiteConnected && isActive,
 		visitsOptions
 	);
-	const { counts, chartData } = useMemo( () => processStatsData( data, days ), [ data, days ] );
+	const { counts, previousCounts, chartData } = useMemo(
+		() => processStatsData( data, days ),
+		[ data, days ]
+	);
 	const isRetrying = isError && isFetching;
 	const isStatsLoading = isLoading || isRetrying;
 	useOverviewLoadEvent( PRODUCT_SLUGS.STATS, isActive && isStatsLoading );
@@ -65,6 +68,8 @@ const StatsOverviewItem: FC< StatsOverviewItemProps > = ( { admin, period } ) =>
 				<OverviewStats
 					isLoading={ isProductLoading || isStatsLoading }
 					counts={ counts }
+					previousCounts={ previousCounts }
+					days={ days }
 					chartData={ chartData }
 					detailedStatsHref={ detailedStatsHref }
 					onDetailedStatsClick={ onDetailedStatsClick }
