@@ -2198,7 +2198,7 @@ class Initializer {
 
 		// Connection errors are owned by the Error Handler (the single source of truth):
 		// surface any it reports for this viewer as their own attention entry. Read live
-		// rather than from the red-bubble transient, since that cache is not viewer-keyed.
+		// rather than from the red-bubble transient, which can be an hour old.
 		$has_connection_error = self::has_connection_error();
 		if ( $has_connection_error ) {
 			Notification_Counts::register(

@@ -399,6 +399,9 @@ class Red_Bubble_Notifications {
 		add_action( 'set_transient_' . Wpcom_Products::MY_JETPACK_PURCHASES_TRANSIENT_KEY, array( __CLASS__, 'record_purchases_fingerprint' ) );
 		add_action( 'upgrader_process_complete', array( __CLASS__, 'invalidate_cache' ) );
 		add_action( 'deleted_plugin', array( __CLASS__, 'invalidate_cache' ) );
+		// WordPress fires these only when the stored scan status actually changes.
+		add_action( 'add_option_jetpack_scan_status', array( __CLASS__, 'invalidate_cache' ) );
+		add_action( 'update_option_jetpack_scan_status', array( __CLASS__, 'invalidate_cache' ) );
 	}
 
 	/**
@@ -471,22 +474,25 @@ class Red_Bubble_Notifications {
 	 *
 	 * The cached alerts include the dismissed ones; see remove_dismissed_alerts().
 	 *
-	 * @param bool $bypass_cache - whether to bypass the red bubble cache.
 	 * @return array
 	 */
-	public static function get_red_bubble_alerts( bool $bypass_cache = false ) {
+	public static function get_red_bubble_alerts() {
 		// check for stored alerts
 		$stored_alerts = self::get_cached_alerts();
 
-		if ( $stored_alerts !== false && ! ( $bypass_cache ) ) {
+		if ( $stored_alerts !== false ) {
 			return $stored_alerts;
 		}
 
 		// go find the alerts
 		$red_bubble_alerts = apply_filters( 'my_jetpack_red_bubble_notification_slugs', array() );
 
-		// Keyed again, since fetching the purchases while collecting the alerts can change the key.
-		set_transient( self::get_cache_key(), $red_bubble_alerts, HOUR_IN_SECONDS );
+		/*
+		 * Recheck sooner when the purchases couldn't be fetched (their cache is missing) or a backup failed, which
+		 * Backup::does_module_need_attention() rechecks after 5 minutes. Keyed again, since refreshes can change the key.
+		 */
+		$is_short_lived = isset( $red_bubble_alerts['backup_failure'] ) || false === get_transient( Wpcom_Products::MY_JETPACK_PURCHASES_TRANSIENT_KEY );
+		set_transient( self::get_cache_key(), $red_bubble_alerts, $is_short_lived ? 5 * MINUTE_IN_SECONDS : HOUR_IN_SECONDS );
 
 		return $red_bubble_alerts;
 	}
@@ -524,7 +530,7 @@ class Red_Bubble_Notifications {
 		if ( 'protect_has_threats' === $slug ) {
 			return 'protect_threats_detected_dismissed';
 		}
-		if ( preg_match( '/^(.+)--(plan_expired|plan_expiring_soon)$/', $slug ) ) {
+		if ( preg_match( '/--(plan_expired|plan_expiring_soon)$/', $slug ) ) {
 			return $slug . '_dismissed';
 		}
 		if ( preg_match( '/^(.+)--plugins_needing_installed_activated$/', $slug, $matches ) ) {

@@ -58,6 +58,8 @@ class Red_Bubble_Notifications_Test extends TestCase {
 		remove_all_actions( 'set_transient_' . Wpcom_Products::MY_JETPACK_PURCHASES_TRANSIENT_KEY );
 		remove_all_actions( 'upgrader_process_complete' );
 		remove_all_actions( 'deleted_plugin' );
+		remove_all_actions( 'add_option_jetpack_scan_status' );
+		remove_all_actions( 'update_option_jetpack_scan_status' );
 		Protect_Status::$status = null;
 		// Storing a different plan clears Current_Plan's cached copy, which outlives the option.
 		Current_Plan::update_from_site_record(
@@ -437,6 +439,8 @@ class Red_Bubble_Notifications_Test extends TestCase {
 		return array(
 			'purchases change'  => array( 'purchases' ),
 			'plugin installed'  => array( 'upgrader' ),
+			'plugin deleted'    => array( 'deleted_plugin' ),
+			'scan status'       => array( 'scan_status' ),
 			'plugin activated'  => array( 'active_plugins' ),
 			'site disconnected' => array( 'disconnect' ),
 			'another user'      => array( 'user' ),
@@ -471,6 +475,12 @@ class Red_Bubble_Notifications_Test extends TestCase {
 			case 'upgrader':
 				do_action( 'upgrader_process_complete', null, array( 'type' => 'plugin' ) );
 				break;
+			case 'scan_status':
+				update_option( 'jetpack_scan_status', maybe_serialize( (object) array( 'threats' => array() ) ) );
+				break;
+			case 'deleted_plugin':
+				do_action( 'deleted_plugin', 'jetpack-boost/jetpack-boost.php', true );
+				break;
 			case 'active_plugins':
 				update_option( 'active_plugins', array( 'jetpack-boost/jetpack-boost.php' ) );
 				break;
@@ -485,5 +495,41 @@ class Red_Bubble_Notifications_Test extends TestCase {
 
 		$this->fetch_alerts_over_rest();
 		$this->assertSame( 2, $computations['count'] );
+	}
+
+	/**
+	 * Data provider for test_alerts_that_may_be_incomplete_or_stale_are_cached_briefly.
+	 *
+	 * @return array
+	 */
+	public static function provide_cache_lifetimes() {
+		return array(
+			'purchases fetched'       => array( 'test_alert', true, HOUR_IN_SECONDS ),
+			'purchases fetch failed'  => array( 'test_alert', false, 5 * MINUTE_IN_SECONDS ),
+			'a backup failure showed' => array( 'backup_failure', true, 5 * MINUTE_IN_SECONDS ),
+		);
+	}
+
+	/**
+	 * Alerts computed without the purchases, or showing a backup failure, are recomputed after minutes rather than an hour.
+	 *
+	 * @param string $slug              The alert to add.
+	 * @param bool   $purchases_fetched Whether the purchases were fetched.
+	 * @param int    $lifetime          The expected cache lifetime, in seconds.
+	 *
+	 * @dataProvider provide_cache_lifetimes
+	 */
+	#[DataProvider( 'provide_cache_lifetimes' )]
+	public function test_alerts_that_may_be_incomplete_or_stale_are_cached_briefly( $slug, $purchases_fetched, $lifetime ) {
+		$this->log_in_as( 'administrator' );
+		$this->add_alert_and_count_computations( $slug );
+		if ( ! $purchases_fetched ) {
+			delete_transient( Wpcom_Products::MY_JETPACK_PURCHASES_TRANSIENT_KEY );
+		}
+
+		$this->fetch_alerts_over_rest();
+
+		$expires = (int) get_option( '_transient_timeout_' . Red_Bubble_Notifications::get_cache_key() );
+		$this->assertEqualsWithDelta( time() + $lifetime, $expires, 5 );
 	}
 }
