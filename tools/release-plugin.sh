@@ -157,9 +157,16 @@ function current_version {
 }
 
 # Generates a command that can be used to resume the release script from the current step.
-# Currently unused.
 function generate_resume_command() {
-	echo "$0 -s $CUR_STEP ${PLUGIN#plugins/} $VERSION"
+	echo "$0 $($FROM_RELEASE_BRANCH && echo '-R ')-s $CUR_STEP ${PLUGIN#plugins/} $VERSION"
+}
+
+# Report the failed step and how to resume from it.
+function report_failed_step {
+	error "Failed on step $CUR_STEP: ${STEPS[$CUR_STEP]}"
+	warn "You may restart at the failed step if desired."
+	echo "Resume at your own risk with the following:"
+	generate_resume_command
 }
 
 # Create the prerelease branch from the local release branch with -R, else from origin/trunk.
@@ -581,8 +588,10 @@ echo "$PLUGIN: $CUR_VERSION -> $VERSION"
 proceed_p "" "Proceed releasing $PLUGIN?" Y
 
 # Run each release step.
+trap report_failed_step EXIT
 for ((i = CUR_STEP; i < ${#STEPS[@]}; i++)); do
 	green "Step $i: ${STEPS[$i]}"
 	"${STEPS[$i]}"
 	((CUR_STEP+=1))
 done
+trap - EXIT
