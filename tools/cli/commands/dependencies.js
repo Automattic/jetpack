@@ -38,7 +38,10 @@ infrastructureFileSets.test = new Set( [
 infrastructureFileSets.build = new Set( [
 	...infrastructureFileSets.base,
 	'tools/cli/commands/build.js',
+	'tools/cli/helpers/composer-content-hash.php',
 	'tools/cli/helpers/install.js',
+	'tools/cli/helpers/json.js',
+	'tools/cli/helpers/path-repo-versions.js',
 	'tools/cli/helpers/projectHelpers.js',
 	'.github/workflows/build.yml',
 ] );
