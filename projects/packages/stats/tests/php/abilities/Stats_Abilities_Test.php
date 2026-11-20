@@ -258,7 +258,7 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 		foreach ( Stats_Abilities::get_abilities() as $slug => $spec ) {
 			$result = rest_validate_value_from_schema( array( 'unexpected' => 1 ), $spec['input_schema'], 'input' );
 			$this->assertInstanceOf( \WP_Error::class, $result, "{$slug} must reject an unexpected key." );
-			$this->assertStringNotContainsString( '"properties":[]', wp_json_encode( $spec['input_schema'] ), "{$slug} must not list properties as a JSON array." );
+			$this->assertStringNotContainsString( '"properties":[]', wp_json_encode( $spec['input_schema'], JSON_UNESCAPED_SLASHES ), "{$slug} must not list properties as a JSON array." );
 		}
 	}
 
