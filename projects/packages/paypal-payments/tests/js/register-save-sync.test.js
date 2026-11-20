@@ -222,6 +222,17 @@ describe( 'registerSaveSync', () => {
 		expect( apiFetch ).not.toHaveBeenCalled();
 	} );
 
+	it( 'shows the save error when the connection check fails', async () => {
+		blocks.set( 'a', payPalBlock( 'a', 'PLB-A1' ) );
+		apiFetch.mockRejectedValue( { code: 'paypal_error', message: 'Nope.' } );
+
+		await runSaveFilter( { content: blockComment( 'PLB-A1' ) } );
+
+		expect( mockToast.mock.calls ).toEqual( [
+			[ 'error', 'PayPal did not save "Widget": Nope.', 'jetpack-paypal-sync-a' ],
+		] );
+	} );
+
 	// The only path that rewrites what the editor is about to save, so a filter that
 	// returned the wrong thing here would empty the post.
 	it( 'saves the content carrying a new payment id', async () => {
