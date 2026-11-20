@@ -37,7 +37,7 @@ The announcements of the dashboard are registered in `src/class-dashboard-announ
 
 `packages/init/src/whats-new/whats-new.ts` mounts the surface when the app boots and computes the channels from the path of the route on screen. It subscribes again when the page changes.
 
-It learns both from `packages/routing/src/current-route/current-route.ts`, which reads the URL for now and says what that cannot see.
+It learns both from `packages/routing/src/current-route/current-route.ts`, which reads the URL for now and returns `null` while the URL on screen belongs to another page.
 
 Under the admin shell the dashboard stays loaded while another Jetpack page is on screen. The surface leaves with the dashboard and comes back with it.
 

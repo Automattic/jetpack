@@ -5,7 +5,7 @@ import { DASHBOARD_PAGE_SLUG } from '../dashboard-href';
 
 /*
  * For now, the route on screen is read from the URL. `@wordpress/route` keeps the location of its
- * router private, so code outside of the routes has no other source. This is expected to change.
+ * router private, so code outside of the routes has no other source.
  */
 
 type NavigationEvents = {
