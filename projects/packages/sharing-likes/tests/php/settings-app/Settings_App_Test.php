@@ -19,7 +19,6 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use WorDBless\BaseTestCase;
-use WP_REST_Request;
 
 require_once __DIR__ . '/../lib/class-sharing-service.php';
 require_once __DIR__ . '/../lib/trait-section-environment.php';
@@ -85,6 +84,7 @@ class Settings_App_Test extends BaseTestCase {
 		remove_all_actions( 'settings_page_sharing' );
 		remove_all_actions( 'rest_api_init' );
 		$GLOBALS['wp_rest_server'] = null;
+		unset( $GLOBALS['wp_scripts'] );
 
 		$this->set_static( Settings_App::class, 'loaded', false );
 		$this->set_static( Settings_App::class, 'original_screen_id', null );
@@ -204,13 +204,14 @@ class Settings_App_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Loading registers the polyfills, the i18n loader and the script data.
+	 * Loading registers the polyfills, the i18n loader, the route preload and the script data.
 	 */
-	public function test_load_registers_polyfills_i18n_and_script_data(): void {
+	public function test_load_registers_polyfills_i18n_preload_and_script_data(): void {
 		Settings_App::load( self::FIXTURE_BUILD );
 
 		$this->assertContains( 'jetpack-sharing-likes', array_merge( ...array_values( WP_Build_Polyfills::get_consumers() ) ) );
 		$this->assertNotFalse( has_action( 'admin_enqueue_scripts', array( Settings_App::class, 'enqueue_i18n_loader' ) ) );
+		$this->assertNotFalse( has_action( 'admin_enqueue_scripts', array( Settings_App::class, 'preload_routes' ) ) );
 		$this->assertNotFalse( has_filter( 'jetpack_admin_js_script_data', array( Settings_App::class, 'add_script_data' ) ) );
 	}
 
@@ -259,33 +260,54 @@ class Settings_App_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The first paint must match what the routes would answer, or the first save acts on stale data.
+	 * A preload keyed by a path the client never requests leaves the first paint waiting on the network.
 	 */
-	public function test_script_data_matches_the_routes(): void {
-		$GLOBALS['wp_rest_server'] = new \WP_REST_Server();
-		\Automattic\Jetpack\Sharing_Likes\REST\Endpoints::init();
-		do_action( 'rest_api_init', $GLOBALS['wp_rest_server'] );
+	public function test_preload_answers_the_paths_the_client_requests(): void {
+		$preload = $this->preloaded_bodies();
 
-		$data = Settings_App::add_script_data( array() )['sharing_likes'];
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- local source file.
+		$api = (string) file_get_contents( dirname( __DIR__, 3 ) . '/src/settings-app/data/api.ts' );
+		$this->assertSame( 1, preg_match( "/const BASE = '([^']+)';/", $api, $base ) );
+		$this->assertSame( 1, preg_match( '/fetchStatus = \(\) => apiFetch< Status >\( \{ path: `\$\{ BASE \}([^`]+)` \}/', $api, $status ) );
+		$this->assertSame( 1, preg_match( '/fetchSettings = \(\) => apiFetch< Settings >\( \{ path: `\$\{ BASE \}([^`]+)` \}/', $api, $settings ) );
 
-		$status   = rest_do_request( new WP_REST_Request( 'GET', '/wpcom/v2/sharing-likes/status' ) );
-		$settings = rest_do_request( new WP_REST_Request( 'GET', '/wpcom/v2/sharing-likes/settings' ) );
-
-		$this->assertSame( $status->get_data(), $data['status'] );
-		$this->assertSame( $settings->get_data(), (array) $data['settings'] );
+		$this->assertSame( array( $base[1] . $status[1], $base[1] . $settings[1] ), array_keys( $preload ) );
 	}
 
 	/**
 	 * `[]` would reach the client as an array, and `'key' in settings` would stop meaning what it says.
 	 */
-	public function test_script_data_encodes_empty_settings_as_an_object(): void {
+	public function test_preload_encodes_empty_settings_as_an_object(): void {
 		$this->given_connection( false );
 		add_filter( 'jetpack_offline_mode', '__return_true' );
 		add_filter( 'jetpack_disable_twitter_cards', '__return_true' );
 
-		$json = wp_json_encode( Settings_App::add_script_data( array() )['sharing_likes']['settings'], JSON_UNESCAPED_SLASHES );
+		$preload = $this->preloaded_bodies();
 
-		$this->assertSame( '{}', $json );
+		$this->assertSame( '{}', $preload[ Settings_App::SETTINGS_ROUTE ] );
+	}
+
+	/**
+	 * Run `preload_routes()` and decode the middleware it adds, keyed by path, with each body as JSON.
+	 *
+	 * @return array<string, string>
+	 */
+	private function preloaded_bodies(): array {
+		$GLOBALS['wp_rest_server'] = new \WP_REST_Server();
+		\Automattic\Jetpack\Sharing_Likes\REST\Endpoints::init();
+		do_action( 'rest_api_init', $GLOBALS['wp_rest_server'] );
+		wp_register_script( 'wp-api-fetch', 'api-fetch.js', array(), '1', true );
+
+		Settings_App::preload_routes();
+
+		$inline = implode( '', wp_scripts()->get_data( 'wp-api-fetch', 'after' ) );
+		$this->assertSame( 1, preg_match( '/createPreloadingMiddleware\( (.*) \) \);$/s', $inline, $json ) );
+
+		$bodies = array();
+		foreach ( json_decode( $json[1] ) as $path => $entry ) {
+			$bodies[ $path ] = (string) wp_json_encode( $entry->body, JSON_UNESCAPED_SLASHES );
+		}
+		return $bodies;
 	}
 
 	/**

@@ -84,7 +84,10 @@ final class Settings_Controller extends Controller {
 	public function get_item( $request ) {
 		unset( $request );
 
-		return rest_ensure_response( self::read( self::available_settings() ) );
+		$values = self::read( self::available_settings() );
+
+		// An empty list would encode as `[]`.
+		return rest_ensure_response( $values ? $values : new \stdClass() );
 	}
 
 	/**

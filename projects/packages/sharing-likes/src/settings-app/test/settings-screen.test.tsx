@@ -1,10 +1,13 @@
-import { act, screen, waitFor } from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
+import { createRegistry } from '@wordpress/data';
+import { store as noticesStore } from '@wordpress/notices';
 import { LIKES_ANCHOR } from '../anchors';
+import { store } from '../data/store';
 import { useFeatureAction } from '../data/use-feature-action';
 import { useSaveSetting } from '../data/use-save-setting';
 import { SettingsScreen } from '../settings-screen';
-import { baseSettings, baseStatus, renderWithData, setScriptData } from './helpers';
+import { baseSettings, baseStatus, renderWithData, setScriptData, wrapperFor } from './helpers';
 import type { ReactNode } from 'react';
 
 jest.mock( '@wordpress/api-fetch' );
@@ -56,6 +59,31 @@ describe( 'SettingsScreen', () => {
 				ignore: '.a11y-speak-region',
 			} )
 		).toBeInTheDocument();
+	} );
+
+	it.each( [
+		[ 'shows the sections once', [ baseStatus, baseSettings ], 'Other settings' ],
+		[
+			'shows an error when either read fails',
+			[ baseStatus, new Error( 'failed' ) ],
+			'Sharing settings could not be loaded. Reload the page to try again.',
+		],
+	] )( 'reads status and settings from the routes and %s', async ( _, answers, text ) => {
+		mockApiFetch.mockImplementation( ( { path } ) => {
+			if ( path?.endsWith( '/services' ) ) {
+				return Promise.resolve( { visible: [], hidden: [], services: [] } );
+			}
+			const answer = answers[ path?.endsWith( '/status' ) ? 0 : 1 ];
+			return answer instanceof Error ? Promise.reject( answer ) : Promise.resolve( answer );
+		} );
+		const registry = createRegistry();
+		registry.register( noticesStore );
+		registry.register( store );
+		render( <SettingsScreen />, { wrapper: wrapperFor( registry ) } );
+
+		await expect(
+			screen.findByText( text, { ignore: '.a11y-speak-region' } )
+		).resolves.toBeInTheDocument();
 	} );
 
 	it( 'warns when PHP has no multibyte support', () => {

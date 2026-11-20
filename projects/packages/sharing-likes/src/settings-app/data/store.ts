@@ -1,7 +1,7 @@
 import { createReduxStore, register } from '@wordpress/data';
 import { fetchServices, fetchSettings, fetchStatus } from './api';
 import * as writes from './writes';
-import type { Services, Settings, SharingLikesScriptData, Status } from '../types';
+import type { Services, Settings, Status } from '../types';
 
 const STORE_NAME = 'jetpack-sharing-likes/settings';
 
@@ -153,21 +153,6 @@ const actions = {
 		return { type: 'WRITE_SETTLED', kind };
 	},
 
-	/**
-	 * Start from the script data, so the first render waits on no request.
-	 *
-	 * @param scriptData - The page's script data.
-	 * @return Thunk.
-	 */
-	seed:
-		( scriptData: Pick< SharingLikesScriptData, 'status' | 'settings' > ) =>
-		( { dispatch }: { dispatch: ThunkDispatch } ) => {
-			dispatch.receive( 'status', scriptData.status );
-			dispatch.receive( 'settings', scriptData.settings );
-			dispatch.finishResolution( 'getStatus', [] );
-			dispatch.finishResolution( 'getSettings', [] );
-		},
-
 	...writes,
 };
 
@@ -282,7 +267,6 @@ export type ThunkDispatch = {
 	reread: ( slice: Slice ) => Promise< void >;
 	writeStarted: ( kind: WriteKind ) => void;
 	writeSettled: ( kind: WriteKind ) => void;
-	finishResolution: ( selector: string, args: unknown[] ) => void;
 	saveServices: ( ...args: Parameters< typeof writes.saveServices > ) => Promise< unknown >;
 };
 

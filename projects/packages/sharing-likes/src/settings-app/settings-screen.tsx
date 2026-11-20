@@ -2,8 +2,8 @@ import AdminPage from '@automattic/jetpack-components/admin-page';
 import { getSiteData } from '@automattic/jetpack-script-data';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Link, Notice, Stack } from '@wordpress/ui';
-import { useIsSaving, useSettings, useStatus } from './data/queries';
+import { Link, Notice, Spinner, Stack } from '@wordpress/ui';
+import { useHasScreenReadFailed, useIsSaving, useSettings, useStatus } from './data/queries';
 import { useScrollToHash } from './hooks/use-scroll-to-hash';
 import { useUnsavedChangesWarning } from './hooks/use-unsaved-changes-warning';
 import { getSharingLikesScriptData } from './script-data';
@@ -47,17 +47,36 @@ function MultibyteWarning(): JSX.Element {
 }
 
 /**
+ * Tells the user to reload when the screen has nothing to show.
+ *
+ * @return Notice.
+ */
+function LoadError(): JSX.Element {
+	return (
+		<Notice.Root intent="error">
+			<Notice.Description>
+				{ __(
+					'Sharing settings could not be loaded. Reload the page to try again.',
+					'jetpack-sharing-likes'
+				) }
+			</Notice.Description>
+		</Notice.Root>
+	);
+}
+
+/**
  * The sections, once status and settings are known.
  *
  * @return Sections.
  */
-function Sections(): JSX.Element | null {
+function Sections(): JSX.Element {
 	const status = useStatus();
 	const settings = useSettings();
+	const failed = useHasScreenReadFailed();
 	useScrollToHash( !! status && !! settings );
 
 	if ( ! status || ! settings ) {
-		return null;
+		return failed ? <LoadError /> : <Spinner />;
 	}
 
 	return (
@@ -91,14 +110,7 @@ export function SettingsScreen(): JSX.Element {
 		>
 			<Stack direction="column" gap="xl" className="jetpack-sharing-likes">
 				{ ! scriptData ? (
-					<Notice.Root intent="error">
-						<Notice.Description>
-							{ __(
-								'Sharing settings could not be loaded. Reload the page to try again.',
-								'jetpack-sharing-likes'
-							) }
-						</Notice.Description>
-					</Notice.Root>
+					<LoadError />
 				) : (
 					<>
 						{ ! scriptData.multibyte_supported && <MultibyteWarning /> }
