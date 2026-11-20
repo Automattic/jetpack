@@ -119,6 +119,7 @@ const OverviewStats: FC< OverviewStatsProps > = ( {
 				) ) }
 			</div>
 			{ hasBadge && (
+				// The div stops the column Stack stretching the badge to the card's width.
 				<div>
 					<ChangeBadge id={ badgeId } percent={ percentChange } days={ days } />
 				</div>
