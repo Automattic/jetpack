@@ -1,31 +1,11 @@
 {
 	"activity-log": {
-		"analytics": [
-			"default"
-		],
-		"api": [
-			"default"
-		],
-		"components": [
-			"AdminPage",
-			"JetpackLogo",
-			"ThemeProvider",
-			"getRedirectUrl"
-		],
-		"dataviews": [
-			"DataViews"
-		],
-		"react-query": [
-			"QueryClient",
-			"QueryClientProvider",
-			"queryOptions",
-			"useQuery"
-		],
-		"script-data": [
-			"getJetpackAdminPageUrl",
-			"getMyJetpackUrl",
-			"getScriptData"
-		],
+		"analytics": [ "default" ],
+		"api": [ "default" ],
+		"components": [ "AdminPage", "JetpackLogo", "ThemeProvider", "getRedirectUrl" ],
+		"dataviews": [ "DataViews" ],
+		"react-query": [ "QueryClient", "QueryClientProvider", "queryOptions", "useQuery" ],
+		"script-data": [ "getJetpackAdminPageUrl", "getMyJetpackUrl", "getScriptData" ],
 		"ui": [
 			"Badge",
 			"Link",
@@ -38,26 +18,12 @@
 		]
 	},
 	"backup": {
-		"admin-ui": [
-			"Page"
-		],
-		"analytics": [
-			"default"
-		],
-		"api": [
-			"default"
-		],
-		"components": [
-			"getProductCheckoutUrl",
-			"getRedirectUrl"
-		],
-		"dataviews": [
-			"DataViews"
-		],
-		"number-formatters": [
-			"formatCurrency",
-			"formatNumber"
-		],
+		"admin-ui": [ "Page" ],
+		"analytics": [ "default" ],
+		"api": [ "default" ],
+		"components": [ "getProductCheckoutUrl", "getRedirectUrl" ],
+		"dataviews": [ "DataViews" ],
+		"number-formatters": [ "formatCurrency", "formatNumber" ],
 		"react-query": [
 			"QueryClient",
 			"QueryClientProvider",
@@ -100,23 +66,11 @@
 		]
 	},
 	"forms": {
-		"admin-ui": [
-			"Breadcrumbs",
-			"Page"
-		],
-		"analytics": [
-			"default"
-		],
-		"api": [
-			"default"
-		],
-		"dataviews": [
-			"DataViews"
-		],
-		"number-formatters": [
-			"formatNumber",
-			"formatNumberCompact"
-		],
+		"admin-ui": [ "Breadcrumbs", "Page" ],
+		"analytics": [ "default" ],
+		"api": [ "default" ],
+		"dataviews": [ "DataViews" ],
+		"number-formatters": [ "formatNumber", "formatNumberCompact" ],
 		"script-data": [
 			"currentUserCan",
 			"getAdminUrl",
@@ -143,22 +97,15 @@
 		]
 	},
 	"monetize": {
-		"admin-ui": [
-			"Page"
-		],
-		"analytics": [
-			"default"
-		],
-		"api": [
-			"default"
-		],
-		"number-formatters": [
-			"formatCurrency",
-			"formatNumber"
-		],
+		"admin-ui": [ "Page" ],
+		"analytics": [ "default" ],
+		"api": [ "default" ],
+		"dataviews": [ "DataViews", "filterSortAndPaginate" ],
+		"number-formatters": [ "formatCurrency", "formatNumber" ],
 		"react-query": [
 			"QueryClient",
 			"QueryClientProvider",
+			"keepPreviousData",
 			"useMutation",
 			"useQuery",
 			"useQueryClient"
@@ -176,6 +123,7 @@
 		],
 		"ui": [
 			"AlertDialog",
+			"Avatar",
 			"Badge",
 			"Button",
 			"ButtonLink",
@@ -202,16 +150,9 @@
 		]
 	},
 	"my-jetpack": {
-		"analytics": [
-			"default"
-		],
-		"api": [
-			"default"
-		],
-		"charts": [
-			"BarChart",
-			"LineChart"
-		],
+		"analytics": [ "default" ],
+		"api": [ "default" ],
+		"charts": [ "BarChart", "LineChart" ],
 		"components": [
 			"ActionButton",
 			"AdminPage",
@@ -277,8 +218,10 @@
 			"getJetpackAdminPageUrl",
 			"getMyJetpackUrl",
 			"getScriptData",
+			"isJetpackSelfHostedSite",
 			"isSimpleSite",
-			"isWoASite"
+			"isWoASite",
+			"isWpcomPlatformSite"
 		],
 		"ui": [
 			"Badge",
@@ -307,30 +250,13 @@
 		]
 	},
 	"newsletter": {
-		"admin-ui": [
-			"Page"
-		],
-		"analytics": [
-			"default"
-		],
-		"api": [
-			"default"
-		],
-		"charts": [
-			"LineChart"
-		],
-		"components": [
-			"JetpackIcon"
-		],
-		"dataviews": [
-			"DataForm",
-			"DataViews",
-			"useFormValidity"
-		],
-		"number-formatters": [
-			"formatCurrency",
-			"formatNumber"
-		],
+		"admin-ui": [ "Page" ],
+		"analytics": [ "default" ],
+		"api": [ "default" ],
+		"charts": [ "LineChart" ],
+		"components": [ "JetpackIcon" ],
+		"dataviews": [ "DataForm", "DataViews", "useFormValidity" ],
+		"number-formatters": [ "formatCurrency", "formatNumber" ],
 		"react-query": [
 			"QueryClient",
 			"QueryClientProvider",
@@ -377,12 +303,8 @@
 		]
 	},
 	"plugin-jetpack": {
-		"analytics": [
-			"default"
-		],
-		"api": [
-			"default"
-		],
+		"analytics": [ "default" ],
+		"api": [ "default" ],
 		"components": [
 			"AdminPage",
 			"AiIcon",
@@ -403,13 +325,8 @@
 			"useConnectionErrorNotice",
 			"useRestoreConnection"
 		],
-		"dataviews": [
-			"DataViews",
-			"filterSortAndPaginate"
-		],
-		"number-formatters": [
-			"formatNumber"
-		],
+		"dataviews": [ "DataViews", "filterSortAndPaginate" ],
+		"number-formatters": [ "formatNumber" ],
 		"script-data": [
 			"currentUserCan",
 			"getAdminUrl",
@@ -443,30 +360,13 @@
 		]
 	},
 	"podcast": {
-		"admin-ui": [
-			"Page"
-		],
-		"analytics": [
-			"default"
-		],
-		"api": [
-			"default"
-		],
-		"charts": [
-			"BarChart",
-			"GeoChart",
-			"formatPercentage",
-			"parseAsLocalDate"
-		],
-		"components": [
-			"getProductCheckoutUrl"
-		],
-		"dataviews": [
-			"DataViews"
-		],
-		"number-formatters": [
-			"formatNumber"
-		],
+		"admin-ui": [ "Page" ],
+		"analytics": [ "default" ],
+		"api": [ "default" ],
+		"charts": [ "BarChart", "GeoChart", "formatPercentage", "parseAsLocalDate" ],
+		"components": [ "getProductCheckoutUrl" ],
+		"dataviews": [ "DataViews" ],
+		"number-formatters": [ "formatNumber" ],
 		"script-data": [
 			"currentUserCan",
 			"getAdminUrl",
@@ -490,16 +390,9 @@
 		]
 	},
 	"premium-analytics": {
-		"admin-ui": [
-			"Breadcrumbs",
-			"Page"
-		],
-		"analytics": [
-			"default"
-		],
-		"api": [
-			"default"
-		],
+		"admin-ui": [ "Breadcrumbs", "Page" ],
+		"analytics": [ "default" ],
+		"api": [ "default" ],
 		"charts": [
 			"BarChart",
 			"ConversionFunnelChart",
@@ -523,18 +416,9 @@
 			"useGlobalChartsContext",
 			"useMonthCalendarHeatmapData"
 		],
-		"components": [
-			"ThemeProvider"
-		],
-		"connection": [
-			"useConnection"
-		],
-		"dataviews": [
-			"DataForm",
-			"DataViews",
-			"DataViewsPicker",
-			"filterSortAndPaginate"
-		],
+		"components": [ "ThemeProvider" ],
+		"connection": [ "useConnection" ],
+		"dataviews": [ "DataForm", "DataViews", "DataViewsPicker", "filterSortAndPaginate" ],
 		"number-formatters": [
 			"createNumberFormatters",
 			"formatCurrency",
@@ -597,25 +481,11 @@
 		]
 	},
 	"protect": {
-		"admin-ui": [
-			"Page"
-		],
-		"analytics": [
-			"default"
-		],
-		"api": [
-			"default"
-		],
-		"dataviews": [
-			"DataViews",
-			"filterSortAndPaginate"
-		],
-		"script-data": [
-			"currentUserCan",
-			"getAdminUrl",
-			"getScriptData",
-			"isWpcomPlatformSite"
-		],
+		"admin-ui": [ "Page" ],
+		"analytics": [ "default" ],
+		"api": [ "default" ],
+		"dataviews": [ "DataViews", "filterSortAndPaginate" ],
+		"script-data": [ "currentUserCan", "getAdminUrl", "getScriptData", "isWpcomPlatformSite" ],
 		"ui": [
 			"AlertDialog",
 			"Badge",
@@ -643,31 +513,13 @@
 		]
 	},
 	"publicize": {
-		"admin-ui": [
-			"Page"
-		],
-		"analytics": [
-			"default"
-		],
-		"api": [
-			"default"
-		],
-		"charts": [
-			"LineChart"
-		],
-		"components": [
-			"PeriodSelector",
-			"SocialServiceIcon",
-			"ThemeProvider",
-			"getRedirectUrl"
-		],
-		"number-formatters": [
-			"formatCurrency"
-		],
-		"react-query": [
-			"QueryClient",
-			"QueryClientProvider"
-		],
+		"admin-ui": [ "Page" ],
+		"analytics": [ "default" ],
+		"api": [ "default" ],
+		"charts": [ "LineChart" ],
+		"components": [ "PeriodSelector", "SocialServiceIcon", "ThemeProvider", "getRedirectUrl" ],
+		"number-formatters": [ "formatCurrency" ],
+		"react-query": [ "QueryClient", "QueryClientProvider" ],
 		"script-data": [
 			"currentUserCan",
 			"getAdminUrl",
@@ -702,26 +554,11 @@
 		]
 	},
 	"seo": {
-		"admin-ui": [
-			"Page"
-		],
-		"analytics": [
-			"default"
-		],
-		"components": [
-			"AdminPage",
-			"DonutMeter",
-			"ThemeProvider"
-		],
-		"dataviews": [
-			"DataViews",
-			"filterSortAndPaginate"
-		],
-		"script-data": [
-			"getAdminUrl",
-			"getScriptData",
-			"isSimpleSite"
-		],
+		"admin-ui": [ "Page" ],
+		"analytics": [ "default" ],
+		"components": [ "AdminPage", "DonutMeter", "ThemeProvider" ],
+		"dataviews": [ "DataViews", "filterSortAndPaginate" ],
+		"script-data": [ "getAdminUrl", "getScriptData", "isSimpleSite" ],
 		"ui": [
 			"Badge",
 			"Button",
@@ -743,30 +580,13 @@
 		]
 	},
 	"videopress": {
-		"admin-ui": [
-			"Breadcrumbs",
-			"Page"
-		],
-		"analytics": [
-			"default"
-		],
-		"api": [
-			"default"
-		],
-		"charts": [
-			"LineChart"
-		],
-		"components": [
-			"PeriodSelector",
-			"getRedirectUrl"
-		],
-		"dataviews": [
-			"DataViews",
-			"DataViewsPicker"
-		],
-		"number-formatters": [
-			"getCurrencyObject"
-		],
+		"admin-ui": [ "Breadcrumbs", "Page" ],
+		"analytics": [ "default" ],
+		"api": [ "default" ],
+		"charts": [ "LineChart" ],
+		"components": [ "PeriodSelector", "getRedirectUrl" ],
+		"dataviews": [ "DataViews", "DataViewsPicker" ],
+		"number-formatters": [ "getCurrencyObject" ],
 		"react-query": [
 			"QueryClient",
 			"QueryClientProvider",
