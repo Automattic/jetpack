@@ -6,4 +6,6 @@ module.exports = {
 	...baseConfig,
 	...coverageConfig,
 	rootDir: path.join( __dirname, '..' ),
+	// The shared-modules parser ships as ESM inside the patched @wordpress/build.
+	transformIgnorePatterns: [ '/node_modules/(?!(\\.pnpm/[^/]+/node_modules/)?@wordpress/build/)' ],
 };

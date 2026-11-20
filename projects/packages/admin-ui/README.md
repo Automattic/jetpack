@@ -278,6 +278,12 @@ const onClick = async () => {
 
 The endpoint must be hooked on admin-ajax requests, which never build the admin menu, so call `Media_Library::init()` from the package's own init. `Admin_Shell::init()` calls it too.
 
+## Shared script modules
+
+Libraries that several wp-build dashboards use (`@wordpress/ui`, DataViews, Jetpack components, and the rest of `wpSharedModules` in `package.json`) are built once into `build/shared-modules/` and loaded once per page. A dashboard opts in with `"sharedModules": "<path to this package.json>"` in its `wpPlugin` config. No dashboard does yet, so `.gitattributes` leaves `build/shared-modules/` out of the production build.
+
+Each module exports only the names listed in `shared-modules-exports.json`, so the build does not depend on which dashboards were built first. A dashboard build fails when it imports a name the list lacks. To regenerate the list, build every dashboard with `WP_BUILD_SHARED_EXPORTS_UNCHECKED=1`, then run `pnpm run build:shared-exports` here and commit the result. The update only adds names, since a plugin bundling an older admin-ui may still import one; remove a name by editing the list.
+
 ## Security
 
 Need to report a security vulnerability? Go to [https://automattic.com/security/](https://automattic.com/security/) or directly to our security bug bounty site [https://hackerone.com/automattic](https://hackerone.com/automattic).
