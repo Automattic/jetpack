@@ -65,9 +65,7 @@ class Social_Admin_Page_Test extends BaseTestCase {
 
 		remove_action( 'admin_enqueue_scripts', array( Social_Admin_Page::class, 'alias_screen_id_for_wp_build' ) );
 		remove_action( 'admin_enqueue_scripts', array( Social_Admin_Page::class, 'restore_screen_id_after_wp_build' ) );
-		remove_action( 'admin_enqueue_scripts', array( Social_Admin_Page::init(), 'enqueue_guest_scripts' ) );
-		wp_dequeue_script( Social_Admin_Page::GUEST_DATA_HANDLE );
-		wp_deregister_script( Social_Admin_Page::GUEST_DATA_HANDLE );
+		remove_action( 'admin_enqueue_scripts', array( Social_Admin_Page::init(), 'enqueue_admin_scripts' ) );
 		$this->set_wp_build_index( null );
 		unset( $_GET['refresh_plan_data'], $_GET['_wpnonce'], $_GET['page'], $GLOBALS['current_screen'] );
 		$this->refresh_called = false;
@@ -314,17 +312,32 @@ class Social_Admin_Page_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Hosted by another dashboard, Social hydrates its connection store on a script of its own when assets print.
+	 * Hosted by another dashboard, Social hydrates its connection store from the shell member's data.
 	 */
 	public function test_admin_shell_guest_hydrates_the_connection_store() {
 		$this->set_wp_build_index( __DIR__ . '/files/build-entry/build.php' );
-		Social_Admin_Page::init()->load_as_admin_shell_guest();
+		( new Tokens() )->update_blog_token( 'blog.token' );
+		wp_set_current_user(
+			wp_insert_user(
+				array(
+					'user_login' => 'shell_data_admin',
+					'user_pass'  => 'password',
+					'role'       => 'administrator',
+				)
+			)
+		);
+		( new Connection_Manager() )->reset_connection_status();
 
-		set_current_screen( 'toplevel_page_jetpack' );
-		do_action( 'admin_enqueue_scripts', 'toplevel_page_jetpack' );
+		$script = '';
+		try {
+			$members = Social_Admin_Page::init()->add_admin_shell_member( array() );
+			$script  = call_user_func( $members['jetpack-social']['data'] );
+		} finally {
+			Jetpack_Options::delete_option( 'blog_token' );
+			( new Connection_Manager() )->reset_connection_status();
+		}
 
-		$this->assertTrue( wp_script_is( Social_Admin_Page::GUEST_DATA_HANDLE, 'enqueued' ) );
-		$this->assertNotEmpty( wp_scripts()->get_data( Social_Admin_Page::GUEST_DATA_HANDLE, 'before' ) );
+		$this->assertStringContainsString( 'JP_CONNECTION_INITIAL_STATE', $script );
 	}
 
 	/**

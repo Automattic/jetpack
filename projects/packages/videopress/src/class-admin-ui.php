@@ -68,11 +68,6 @@ class Admin_UI {
 	const CHAPTERS_EDITOR_ROUTE_PATHS = array( '/video/$id/editor' );
 
 	/**
-	 * Carries the initial state when the dashboard loads as an admin shell guest.
-	 */
-	const GUEST_DATA_HANDLE = 'jetpack-videopress-dashboard-data';
-
-	/**
 	 * The screen ID alias_screen_id_for_wp_build() replaced, until it is restored.
 	 *
 	 * @var string|null
@@ -415,7 +410,9 @@ class Admin_UI {
 				'subtitle' => self::shell_header_subtitle(),
 			),
 			'capability'   => 'manage_options',
-			'handles'      => array( self::GUEST_DATA_HANDLE, 'jetpack-videopress-dashboard-shell', Admin_Menu::DESIGN_TOKENS_HANDLE, 'jetpack-script-data', 'wp-jp-i18n-loader' ),
+			'handles'      => array( 'jetpack-videopress-dashboard-shell', Admin_Menu::DESIGN_TOKENS_HANDLE, 'jetpack-script-data', 'wp-jp-i18n-loader' ),
+			// The prerequisites script that carries it on the VideoPress page is not printed here.
+			'data'         => array( Initial_State::class, 'get_script' ),
 			'load'         => array( __CLASS__, 'load_as_admin_shell_guest' ),
 		);
 		return $members;
@@ -441,20 +438,6 @@ class Admin_UI {
 	public static function load_as_admin_shell_guest() {
 		self::load_wp_build();
 		self::admin_init();
-		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_guest_initial_state' ) );
-	}
-
-	/**
-	 * Attach the initial state to a script of its own: the prerequisites script only exists on the VideoPress page.
-	 *
-	 * @since 0.63.0
-	 *
-	 * @return void
-	 */
-	public static function enqueue_guest_initial_state() {
-		wp_register_script( self::GUEST_DATA_HANDLE, false, array(), false, true ); // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.NoExplicitVersion -- No source, so nothing to cache.
-		wp_enqueue_script( self::GUEST_DATA_HANDLE );
-		Initial_State::attach_to( self::GUEST_DATA_HANDLE );
 	}
 
 	/**

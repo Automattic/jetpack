@@ -60,11 +60,6 @@ class Dashboard {
 	const RENDER_FUNCTION = 'jetpack_protect_jetpack_protect_dashboard_wp_admin_render_page';
 
 	/**
-	 * Carries what render() prints in the page body when the dashboard loads as an admin shell guest.
-	 */
-	const GUEST_DATA_HANDLE = 'jetpack-protect-dashboard-data';
-
-	/**
 	 * Sets the flag the page's Tracks client records under.
 	 */
 	const TRACKS_STATE_SCRIPT = 'window.jetpackProtectTracks = true;';
@@ -390,7 +385,8 @@ class Dashboard {
 				'subtitle' => '',
 			),
 			'capability'   => 'manage_options',
-			'handles'      => array( self::GUEST_DATA_HANDLE, 'jetpack-script-data', 'jp-tracks', 'wp-jp-i18n-loader' ),
+			'handles'      => array( 'jetpack-script-data', 'jp-tracks', 'wp-jp-i18n-loader' ),
+			'data'         => array( __CLASS__, 'get_guest_data_script' ),
 			'load'         => array( __CLASS__, 'load_as_admin_shell_guest' ),
 		);
 		return $members;
@@ -420,7 +416,6 @@ class Dashboard {
 		}
 		add_filter( 'jetpack_admin_js_script_data', array( __CLASS__, 'add_tracks_identity' ), 20 );
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_tracks_transport' ) );
-		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_guest_initial_state' ) );
 	}
 
 	/**
@@ -434,19 +429,18 @@ class Dashboard {
 	}
 
 	/**
-	 * Attach what render() prints in the page body to a script, since the guest endpoint prints no body.
+	 * What render() prints in the page body, for the admin shell's guest endpoint, which prints no body.
 	 *
-	 * @since 0.7.0
+	 * @since $$next-version$$
 	 *
-	 * @return void
+	 * @return string
 	 */
-	public static function enqueue_guest_initial_state() {
-		wp_register_script( self::GUEST_DATA_HANDLE, false, array(), self::PACKAGE_VERSION, true );
-		wp_enqueue_script( self::GUEST_DATA_HANDLE );
-		wp_add_inline_script( self::GUEST_DATA_HANDLE, self::get_initial_state_script(), 'before' );
+	public static function get_guest_data_script() {
+		$script = self::get_initial_state_script();
 		if ( self::can_use_analytics() ) {
-			wp_add_inline_script( self::GUEST_DATA_HANDLE, self::TRACKS_STATE_SCRIPT, 'before' );
+			$script .= "\n" . self::TRACKS_STATE_SCRIPT;
 		}
+		return $script;
 	}
 
 	/**
