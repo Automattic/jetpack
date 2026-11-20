@@ -411,7 +411,6 @@ class Admin_UI {
 			),
 			'capability'   => 'manage_options',
 			'handles'      => array( 'jetpack-videopress-dashboard-shell', Admin_Menu::DESIGN_TOKENS_HANDLE, 'jetpack-script-data', 'wp-jp-i18n-loader' ),
-			// The prerequisites script that carries it on the VideoPress page is not printed here.
 			'data'         => array( Initial_State::class, 'get_script' ),
 			'load'         => array( __CLASS__, 'load_as_admin_shell_guest' ),
 		);

@@ -436,6 +436,11 @@ class Dashboard {
 	 * @return string
 	 */
 	public static function get_guest_data_script() {
+		// The build failed to load, so the page can't boot and its state needn't be built.
+		if ( ! function_exists( self::RENDER_FUNCTION ) ) {
+			return '';
+		}
+
 		$script = self::get_initial_state_script();
 		if ( self::can_use_analytics() ) {
 			$script .= "\n" . self::TRACKS_STATE_SCRIPT;

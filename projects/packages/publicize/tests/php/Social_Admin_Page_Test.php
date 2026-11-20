@@ -317,15 +317,6 @@ class Social_Admin_Page_Test extends BaseTestCase {
 	public function test_admin_shell_guest_hydrates_the_connection_store() {
 		$this->set_wp_build_index( __DIR__ . '/files/build-entry/build.php' );
 		( new Tokens() )->update_blog_token( 'blog.token' );
-		wp_set_current_user(
-			wp_insert_user(
-				array(
-					'user_login' => 'shell_data_admin',
-					'user_pass'  => 'password',
-					'role'       => 'administrator',
-				)
-			)
-		);
 		( new Connection_Manager() )->reset_connection_status();
 
 		$script = '';

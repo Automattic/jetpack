@@ -131,7 +131,7 @@ class Admin_Shell {
 		 * - load (callable)         Loads the build that defines `<build_prefix>_get_<build_page>_wp_admin_routes()`, leaving its page init action to the shell, registers the page's scripts and prints its initial data. Must be safe to run twice, and must not redirect, print or write options. Add print hook callbacks here, not from admin_enqueue_scripts: the guest endpoint drops what those print.
 		 * - capability (string)     Optional, default `manage_options`. Required to load the page into the shell.
 		 * - handles (string[])      Optional. Script and style handles the guest endpoint prints, with their dependencies; nothing else is enqueued.
-		 * - data (callable)         Optional. Returns the inline script that sets the page data its own page prints in the body, which the guest endpoint does not print. Called after `load` and admin_enqueue_scripts, on the guest endpoint only.
+		 * - data (callable)         Optional. Returns the inline script that sets the page data its own page prints in the body, which the guest endpoint does not print. Called after `load` and admin_enqueue_scripts, on the guest endpoint only, and printed before the member's scripts.
 		 * - admin_menu (bool)       Optional, default false. Build the admin menu on the guest endpoint, after `load`, for page data read through menu_page_url(). What its callbacks print or hook is dropped.
 		 *
 		 * @since 0.14.15
