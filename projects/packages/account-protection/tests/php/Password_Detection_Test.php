@@ -762,10 +762,51 @@ class Password_Detection_Test extends BaseTestCase {
 		$this->store_code( '123456' );
 
 		$this->assertSame( 0, $this->submit_code( '123456', false ), 'The correct code should not log the user in without the lock.' );
-		$this->assertSame( 'auth_code_error', get_transient( Config::PREFIX . '_error_123' )['code'] );
+		$this->assertSame( 'auth_code_check_in_progress', get_transient( Config::PREFIX . '_error_123' )['code'] );
 
 		$this->submit_code( '837467', false );
 		$this->assertFalse( get_site_transient( Config::PREFIX . '_failed_attempts_user_123' ), 'A code that was not checked should not be counted.' );
+	}
+
+	/**
+	 * @dataProvider provide_attempt_lock_states
+	 */
+	#[DataProvider( 'provide_attempt_lock_states' )]
+	public function test_acquire_attempt_lock_waits_only_on_a_lock_row_that_exists( int $inserted, int $taken_over, ?string $lock_row, bool $can_check, bool $releases ): void {
+		global $wpdb;
+		$original_wpdb = $wpdb;
+
+		$wpdb          = $this->getMockBuilder( \wpdb::class )->disableOriginalConstructor()->onlyMethods( array( 'prepare', 'query', 'get_var', 'delete' ) )->getMock();
+		$wpdb->options = 'wp_options';
+		$wpdb->method( 'prepare' )->willReturnArgument( 0 );
+		$wpdb->method( 'query' )->willReturnOnConsecutiveCalls( $inserted, $taken_over );
+		$wpdb->method( 'get_var' )->willReturn( $lock_row );
+		$wpdb->expects( $this->exactly( $releases ? 1 : 0 ) )->method( 'delete' );
+
+		try {
+			$sut = new class( $this->createStub( Email_Service::class ), $this->createStub( Validation_Service::class ) ) extends Password_Detection {
+				public function acquire( int $user_id ): bool {
+					return $this->acquire_attempt_lock( $user_id );
+				}
+
+				public function release( int $user_id ): void {
+					$this->release_attempt_lock( $user_id );
+				}
+			};
+			$this->assertSame( $can_check, $sut->acquire( 123 ) );
+			$sut->release( 123 );
+		} finally {
+			$wpdb = $original_wpdb;
+		}
+	}
+
+	public static function provide_attempt_lock_states(): array {
+		return array(
+			'lock row added'                 => array( 1, 0, null, true, true ),
+			'abandoned lock row taken over'  => array( 0, 1, null, true, true ),
+			'lock row held by another check' => array( 0, 0, '1795210420.000000001', false, false ),
+			'table refuses the lock row'     => array( 0, 0, null, true, false ),
+		);
 	}
 
 	public function test_login_form_password_detection_does_not_send_email_past_the_user_limit(): void {

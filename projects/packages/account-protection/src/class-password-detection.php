@@ -573,8 +573,8 @@ class Password_Detection {
 			$this->set_transient_error(
 				$user->ID,
 				array(
-					'code'    => 'auth_code_error',
-					'message' => __( 'Authentication code verification failed. Please try again.', 'jetpack-account-protection' ),
+					'code'    => 'auth_code_check_in_progress',
+					'message' => __( 'Another verification code is being checked. Please wait a moment and try again.', 'jetpack-account-protection' ),
 				)
 			);
 			return;
@@ -668,7 +668,7 @@ class Password_Detection {
 	 *
 	 * @param int $user_id The user ID.
 	 *
-	 * @return bool Whether the lock was taken.
+	 * @return bool Whether the code can be checked: the lock was taken, or the table cannot hold it.
 	 */
 	protected function acquire_attempt_lock( int $user_id ): bool {
 		global $wpdb;
@@ -691,9 +691,12 @@ class Password_Detection {
 
 		if ( $taken ) {
 			$this->attempt_locks[ $user_id ] = $value;
+			return true;
 		}
 
-		return (bool) $taken;
+		// No row to wait on means the table refused it (e.g. wp_options lost AUTO_INCREMENT), so check unlocked rather than lock the user out.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- See above.
+		return null === $wpdb->get_var( $wpdb->prepare( "SELECT option_value FROM {$table} WHERE option_name = %s", $name ) );
 	}
 
 	/**
