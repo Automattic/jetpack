@@ -1,7 +1,7 @@
 import { Badge, Stack } from '@jetpack-premium-analytics/externals';
+import { useViewportMatch } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { useCrowdedPageHeader } from '../../hooks/use-crowded-page-header';
 import { useTrackCustomize, type TrackingSurface } from '../../hooks/use-track-event';
 import { ResetLayoutAction } from '../reset-layout';
 import { StatsOptionsMenu } from '../stats-options-menu';
@@ -143,9 +143,9 @@ export function useDetailPageCustomize(
  * @return The badge, or nothing on a phone.
  */
 export function CustomizingBadge() {
-	const isCrowded = useCrowdedPageHeader();
+	const isNarrow = useViewportMatch( 'small', '<' );
 
-	if ( isCrowded ) {
+	if ( isNarrow ) {
 		return null;
 	}
 
@@ -194,7 +194,6 @@ export function DetailPageActions( {
 }: DetailPageActionsProps ) {
 	const frame = useRef< HTMLDivElement >( null );
 	const wasCustomizing = useRef( isCustomizing );
-	const isCrowded = useCrowdedPageHeader();
 
 	useEffect( () => {
 		if ( wasCustomizing.current === isCustomizing ) {
@@ -208,7 +207,7 @@ export function DetailPageActions( {
 	}, [ isCustomizing ] );
 
 	return (
-		<Stack ref={ frame } direction="row" align="center" gap={ isCrowded ? 'xs' : 'sm' }>
+		<Stack ref={ frame } direction="row" align="center" gap="sm">
 			{ isCustomizing ? editingActions : children }
 			{ isCustomizing && onReset && <ResetLayoutAction onReset={ onReset } /> }
 			<StatsOptionsMenu onCustomize={ isCustomizing ? undefined : onCustomize } />
