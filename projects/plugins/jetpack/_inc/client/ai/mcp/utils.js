@@ -132,6 +132,16 @@ export function isRemoteAbilityEnabled(
 }
 
 /**
+ * Default remote access follows any enabled tool in the same category.
+ *
+ * @param {Array<[string, object]>} scopedTools - Tools in the Read or Write category.
+ * @return {boolean} Whether unsaved remote abilities are enabled.
+ */
+export function getRemoteAbilitiesDefaultEnabled( scopedTools ) {
+	return scopedTools.some( ( [ , tool ] ) => tool.enabled );
+}
+
+/**
  * Merge account-level abilities with site-level overrides.
  *
  * @param {Record<string, Object>}  accountAbilities - Account-level tool definitions.
@@ -141,14 +151,17 @@ export function isRemoteAbilityEnabled(
  */
 export function mergeSiteMcpAbilities( accountAbilities, siteAbilities, defaultEnabled = null ) {
 	return Object.fromEntries(
-		Object.entries( accountAbilities ).map( ( [ toolId, tool ] ) => [
-			toolId,
-			{
-				...tool,
-				enabled:
-					toolId in siteAbilities ? siteAbilities[ toolId ] : ( defaultEnabled ?? tool.enabled ),
-			},
-		] )
+		Object.entries( accountAbilities ).map( ( [ toolId, tool ] ) => {
+			const fallbackEnabled =
+				tool.requires_opt_in === true ? tool.enabled : ( defaultEnabled ?? tool.enabled );
+			return [
+				toolId,
+				{
+					...tool,
+					enabled: toolId in siteAbilities ? siteAbilities[ toolId ] : fallbackEnabled,
+				},
+			];
+		} )
 	);
 }
 

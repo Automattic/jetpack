@@ -26,6 +26,7 @@ const abilitiesWithTool = ( { readonly, enabled = false } ) => ( {
 			description: 'List your posts.',
 			enabled,
 			readonly,
+			requires_opt_in: true,
 			category: 'posts',
 		},
 	},
@@ -82,4 +83,48 @@ describe( 'jetpack_mcp_allowlist_updated', () => {
 			} );
 		}
 	);
+} );
+
+describe.each( [
+	{ view: 'read', Component: McpRead, readonly: true },
+	{ view: 'write', Component: McpWrite, readonly: false },
+] )( '$view bulk tool updates', ( { Component, readonly } ) => {
+	test.each( [
+		{ scope: 'page', toggleIndex: 0 },
+		{ scope: 'group', toggleIndex: 1 },
+	] )( '$scope enables skip opt-in tools and disables include them', async ( { toggleIndex } ) => {
+		const onUpdate = jest.fn();
+		const settings = ( enabled, optInEnabled = enabled ) => ( {
+			account: {
+				ordinary: { title: 'Ordinary tool', readonly, enabled },
+				opt_in: {
+					title: 'Opt-in tool',
+					readonly,
+					enabled: optInEnabled,
+					requires_opt_in: true,
+				},
+			},
+			sites: [ { blog_id: BLOG_ID, site_level_enabled: enabled } ],
+		} );
+		const props = { blogId: BLOG_ID, savingToolIds: new Set(), onUpdate };
+		const { rerender } = render( <Component { ...props } mcpAbilities={ settings( false ) } /> );
+
+		await userEvent.click( screen.getAllByRole( 'switch', { name: 'Enable all' } )[ toggleIndex ] );
+		expect( onUpdate ).toHaveBeenLastCalledWith( {
+			sites: [ { blog_id: BLOG_ID, abilities: { ordinary: true } } ],
+		} );
+
+		rerender( <Component { ...props } mcpAbilities={ settings( true, false ) } /> );
+		expect( screen.getAllByRole( 'switch', { name: 'Enable all' } )[ toggleIndex ] ).toBeChecked();
+		await userEvent.click( screen.getAllByRole( 'switch', { name: 'Enable all' } )[ toggleIndex ] );
+		expect( onUpdate ).toHaveBeenLastCalledWith( {
+			sites: [ { blog_id: BLOG_ID, abilities: { ordinary: false } } ],
+		} );
+
+		rerender( <Component { ...props } mcpAbilities={ settings( true ) } /> );
+		await userEvent.click( screen.getAllByRole( 'switch', { name: 'Enable all' } )[ toggleIndex ] );
+		expect( onUpdate ).toHaveBeenLastCalledWith( {
+			sites: [ { blog_id: BLOG_ID, abilities: { ordinary: false, opt_in: false } } ],
+		} );
+	} );
 } );

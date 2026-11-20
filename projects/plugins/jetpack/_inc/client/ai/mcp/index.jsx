@@ -15,9 +15,11 @@ import { Badge, Button, Card, Stack } from '@wordpress/ui';
 import { getActivityLogDescription, onActivityLogClick } from '../activity-log';
 import { isWriteTool } from './categories';
 import McpConnectCard from './connect-card';
+import { getOverridesToMatch } from './group-intents';
 import { recordMcpTracksEvent } from './tracks';
 import {
 	getAccountMcpAbilities,
+	getRemoteAbilitiesDefaultEnabled,
 	getRemoteAbilityCategory,
 	getSiteContextToolIds,
 	getSiteLevelEnabled,
@@ -174,8 +176,10 @@ export default function McpHub( {
 	// "All enabled" while a site group is off.
 	const savedRemoteGroups = getSiteRemoteGroups( mcpAbilities ?? {}, blogId );
 	const remoteTools = { read: [], write: [] };
-	const allEnabledIn = tools => tools.length > 0 && tools.every( ( [ , t ] ) => t.enabled );
-	const remoteDefaults = { read: allEnabledIn( readTools ), write: allEnabledIn( writeTools ) };
+	const remoteDefaults = {
+		read: getRemoteAbilitiesDefaultEnabled( readTools ),
+		write: getRemoteAbilitiesDefaultEnabled( writeTools ),
+	};
 	for ( const ability of remoteAbilities?.abilities ?? [] ) {
 		const annotations = ability.meta?.annotations;
 		const category = getRemoteAbilityCategory( ability.name, annotations );
@@ -192,25 +196,22 @@ export default function McpHub( {
 		] );
 	}
 	const readBadge =
-		hasSiteAbilityOverrides || remoteTools.read.length
+		hasSiteAbilityOverrides ||
+		remoteTools.read.length ||
+		readTools.some( ( [ , tool ] ) => tool.requires_opt_in === true )
 			? computeBadge( [ ...readTools, ...remoteTools.read ], defaultToolEnabled )
 			: defaultBadge;
 	const writeBadge =
-		hasSiteAbilityOverrides || remoteTools.write.length
+		hasSiteAbilityOverrides ||
+		remoteTools.write.length ||
+		writeTools.some( ( [ , tool ] ) => tool.requires_opt_in === true )
 			? computeBadge( [ ...writeTools, ...remoteTools.write ], defaultToolEnabled )
 			: defaultBadge;
 
 	const handleMcpToggle = useCallback(
 		( enabled, source = 'toggle' ) => {
 			recordMcpTracksEvent( 'jetpack_mcp_enabled_toggled', { enabled, source } );
-			const abilities = {};
-			if ( enabled ) {
-				// Enable all tools (read + write) by default, matching the backend's
-				// new default-on behavior.
-				availableTools.forEach( ( [ toolId ] ) => {
-					abilities[ toolId ] = true;
-				} );
-			}
+			const abilities = enabled ? ( getOverridesToMatch( availableTools, true ) ?? {} ) : {};
 			onUpdate( {
 				sites: [
 					{

@@ -19,6 +19,7 @@ export function groupIntentKey( category, groupName ) {
  * toggle always wins. So an "Enable all" action must also force-write an
  * explicit override for any tool in scope whose current state disagrees with
  * the new value, or a previously-toggled tool would silently stay stuck.
+ * Tools requiring opt-in can only be enabled individually.
  *
  * @param {Array<[string, object]>} scopedTools - Tools to evaluate, each as [toolId, ability].
  * @param {boolean}                 enabled     - Target enabled state.
@@ -27,9 +28,22 @@ export function groupIntentKey( category, groupName ) {
 export function getOverridesToMatch( scopedTools, enabled ) {
 	const overrides = {};
 	scopedTools.forEach( ( [ toolId, tool ] ) => {
-		if ( tool.enabled !== enabled ) {
+		if ( tool.enabled !== enabled && ( ! enabled || tool.requires_opt_in !== true ) ) {
 			overrides[ toolId ] = enabled;
 		}
 	} );
 	return Object.keys( overrides ).length > 0 ? overrides : undefined;
+}
+
+/**
+ * Whether a bulk toggle can disable the tools it controls.
+ *
+ * @param {Array<[string, object]>} scopedTools - Tools in the bulk toggle's scope.
+ * @return {boolean} True when all tools eligible for bulk enabling are on.
+ */
+export function isBulkEnabled( scopedTools ) {
+	return (
+		scopedTools.some( ( [ , tool ] ) => tool.enabled ) &&
+		scopedTools.every( ( [ , tool ] ) => tool.enabled || tool.requires_opt_in === true )
+	);
 }
