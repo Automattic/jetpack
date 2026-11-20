@@ -23,14 +23,6 @@ use WorDBless\Users as WorDBless_Users;
 class Red_Bubble_Menu_Badge_Test extends TestCase {
 
 	/**
-	 * The red bubble transient key, mirrored from Red_Bubble_Notifications
-	 * (private there) so tests can seed the cached-alerts code path directly.
-	 *
-	 * @var string
-	 */
-	const RED_BUBBLE_TRANSIENT_KEY = 'my-jetpack-red-bubble-transient';
-
-	/**
 	 * The admin user id.
 	 *
 	 * @var int
@@ -90,7 +82,7 @@ class Red_Bubble_Menu_Badge_Test extends TestCase {
 	 * @param array $alerts Alerts keyed by slug.
 	 */
 	private function seed_cached_alerts( array $alerts ) {
-		set_transient( self::RED_BUBBLE_TRANSIENT_KEY, $alerts, 3600 );
+		set_transient( Red_Bubble_Notifications::get_cache_key(), $alerts, 3600 );
 	}
 
 	/**
@@ -134,6 +126,26 @@ class Red_Bubble_Menu_Badge_Test extends TestCase {
 
 		$this->assertSame( 'my-jetpack', $entries['my-jetpack-backup_failure']['menu_slug'] );
 		$this->assertSame( 'attention', $entries['my-jetpack-backup_failure']['type'] );
+	}
+
+	/**
+	 * The cached alerts include dismissed ones, so the badge leaves out the ones this viewer dismissed.
+	 */
+	public function test_skips_alerts_the_viewer_dismissed() {
+		$this->seed_cached_alerts(
+			array(
+				'backup_failure'           => array( 'message' => 'Backup failed' ),
+				'plan--plan_expiring_soon' => array( 'product_name' => 'Plan' ),
+			)
+		);
+		$_COOKIE['backup_failure_dismissed'] = '1';
+
+		Initializer::maybe_show_red_bubble();
+		unset( $_COOKIE['backup_failure_dismissed'] );
+
+		$entries = Notification_Counts::all();
+		$this->assertArrayNotHasKey( 'my-jetpack-backup_failure', $entries );
+		$this->assertArrayHasKey( 'my-jetpack-plan--plan_expiring_soon', $entries );
 	}
 
 	/**

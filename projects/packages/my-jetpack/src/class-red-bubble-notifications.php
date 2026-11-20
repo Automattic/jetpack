@@ -21,6 +21,8 @@ use WP_REST_Response;
 class Red_Bubble_Notifications {
 	private const MISSING_CONNECTION_NOTIFICATION_KEY = 'missing-connection';
 	private const MY_JETPACK_RED_BUBBLE_TRANSIENT_KEY = 'my-jetpack-red-bubble-transient';
+	private const CACHE_GENERATION_OPTION             = 'my_jetpack_red_bubble_cache_generation';
+	private const PURCHASES_FINGERPRINT_OPTION        = 'my_jetpack_red_bubble_purchases_fingerprint';
 
 	/**
 	 * Summary of register_rest_routes
@@ -207,10 +209,6 @@ class Red_Bubble_Notifications {
 		if ( is_multisite() ) {
 			return $red_bubble_slugs;
 		}
-		// Make sure the Notice wasn't previously dismissed.
-		if ( ! empty( $_COOKIE['backup_failure_dismissed'] ) ) {
-			return $red_bubble_slugs;
-		}
 		// Make sure there's a Backup paid plan
 		if ( ! Products\Backup::is_plugin_active() || ! Products\Backup::has_paid_plan_for_product() ) {
 			return $red_bubble_slugs;
@@ -245,10 +243,6 @@ class Red_Bubble_Notifications {
 			return $red_bubble_slugs;
 		}
 		if ( method_exists( Protect_Status::class, 'should_notify_threats' ) && ! Protect_Status::should_notify_threats() ) {
-			return $red_bubble_slugs;
-		}
-		// Make sure the Notice hasn't been dismissed.
-		if ( ! empty( $_COOKIE['protect_threats_detected_dismissed'] ) ) {
 			return $red_bubble_slugs;
 		}
 		// Make sure we're dealing with the Protect product only
@@ -315,13 +309,13 @@ class Red_Bubble_Notifications {
 							'manage_url'     => $product::get_manage_paid_plan_purchase_url(),
 						);
 
-						if ( $product::is_paid_plan_expired() && empty( $_COOKIE[ "$purchase->product_slug--plan_expired_dismissed" ] ) ) {
+						if ( $product::is_paid_plan_expired() ) {
 							$red_bubble_slugs[ "$purchase->product_slug--plan_expired" ] = $redbubble_notice_data;
 							if ( ! $product::is_bundle_product() ) {
 								$products_included_in_expiring_plan[ "$purchase->product_slug--plan_expired" ][] = $product::get_name();
 							}
 						}
-						if ( $product::is_paid_plan_expiring() && empty( $_COOKIE[ "$purchase->product_slug--plan_expiring_soon_dismissed" ] ) ) {
+						if ( $product::is_paid_plan_expiring() ) {
 							$red_bubble_slugs[ "$purchase->product_slug--plan_expiring_soon" ]               = $redbubble_notice_data;
 							$red_bubble_slugs[ "$purchase->product_slug--plan_expiring_soon" ]['manage_url'] = $product::get_renew_paid_plan_purchase_url();
 							if ( ! $product::is_bundle_product() ) {
@@ -360,9 +354,7 @@ class Red_Bubble_Notifications {
 		}
 
 		foreach ( $plugins_needing_installed_activated as $plan_slug => $plugins_requirements ) {
-			if ( empty( $_COOKIE[ "$plan_slug--plugins_needing_installed_dismissed" ] ) ) {
-				$red_bubble_slugs[ "$plan_slug--plugins_needing_installed_activated" ] = $plugins_requirements;
-			}
+			$red_bubble_slugs[ "$plan_slug--plugins_needing_installed_activated" ] = $plugins_requirements;
 		}
 
 		return $red_bubble_slugs;
@@ -397,43 +389,170 @@ class Red_Bubble_Notifications {
 	}
 
 	/**
+	 * Hook the events that change the alerts without changing anything the cache key reads.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return void
+	 */
+	public static function register_cache_invalidation() {
+		add_action( 'set_transient_' . Wpcom_Products::MY_JETPACK_PURCHASES_TRANSIENT_KEY, array( __CLASS__, 'record_purchases_fingerprint' ) );
+		add_action( 'upgrader_process_complete', array( __CLASS__, 'invalidate_cache' ) );
+		add_action( 'deleted_plugin', array( __CLASS__, 'invalidate_cache' ) );
+		// WordPress fires these only when the stored scan status actually changes.
+		add_action( 'add_option_jetpack_scan_status', array( __CLASS__, 'invalidate_cache' ) );
+		add_action( 'update_option_jetpack_scan_status', array( __CLASS__, 'invalidate_cache' ) );
+	}
+
+	/**
+	 * Record a fingerprint of freshly fetched purchases, so a purchase, renewal or expiry gets new alerts.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param mixed $purchases The purchases WPCOM returned.
+	 * @return void
+	 */
+	public static function record_purchases_fingerprint( $purchases ) {
+		$fingerprint = md5( (string) wp_json_encode( $purchases, JSON_UNESCAPED_SLASHES ) );
+		if ( get_option( self::PURCHASES_FINGERPRINT_OPTION ) !== $fingerprint ) {
+			update_option( self::PURCHASES_FINGERPRINT_OPTION, $fingerprint, true );
+		}
+	}
+
+	/**
+	 * Make every user's cached alerts stale.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return void
+	 */
+	public static function invalidate_cache() {
+		update_option( self::CACHE_GENERATION_OPTION, (int) get_option( self::CACHE_GENERATION_OPTION, 0 ) + 1, true );
+	}
+
+	/**
+	 * The transient key for the current user's alerts.
+	 *
+	 * The alerts depend on the user's capabilities and connection, so each user gets their own entry, and
+	 * the key covers the local state the alerts read, so changing that state is enough to recompute them.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return string
+	 */
+	public static function get_cache_key() {
+		$connection = new Connection_Manager();
+		$state      = array(
+			get_current_user_id(),
+			get_option( self::CACHE_GENERATION_OPTION, 0 ),
+			get_option( self::PURCHASES_FINGERPRINT_OPTION, '' ),
+			$connection->is_connected(),
+			$connection->is_user_connected(),
+			Jetpack_Options::get_option( 'master_user' ),
+			Jetpack_Options::get_option( 'dismissed_welcome_banner' ),
+			Jetpack_Options::get_option( 'historically_active_modules' ),
+			get_option( 'jetpack_active_modules' ),
+			get_option( 'active_plugins' ),
+			is_multisite() ? get_site_option( 'active_sitewide_plugins' ) : null,
+		);
+
+		return self::MY_JETPACK_RED_BUBBLE_TRANSIENT_KEY . '-' . md5( (string) wp_json_encode( $state, JSON_UNESCAPED_SLASHES ) );
+	}
+
+	/**
 	 * Get cached red bubble alerts without triggering expensive computation.
 	 * Returns the cached transient value or false if not cached.
 	 *
 	 * @return array|false Cached alerts or false if cache is empty.
 	 */
 	public static function get_cached_alerts() {
-		return get_transient( self::MY_JETPACK_RED_BUBBLE_TRANSIENT_KEY );
+		return get_transient( self::get_cache_key() );
 	}
 
 	/**
-	 * Collect all possible alerts that we might use a red bubble notification for
+	 * Collect all possible alerts that we might use a red bubble notification for.
 	 *
-	 * @param bool $bypass_cache - whether to bypass the red bubble cache.
+	 * The cached alerts include the dismissed ones; see remove_dismissed_alerts().
+	 *
 	 * @return array
 	 */
-	public static function get_red_bubble_alerts( bool $bypass_cache = false ) {
-		static $red_bubble_alerts = array();
-
+	public static function get_red_bubble_alerts() {
 		// check for stored alerts
-		$stored_alerts = get_transient( self::MY_JETPACK_RED_BUBBLE_TRANSIENT_KEY );
+		$stored_alerts = self::get_cached_alerts();
 
-		// Cache bypass for red bubbles should only happen on the My Jetpack page
-		if ( $stored_alerts !== false && ! ( $bypass_cache ) ) {
+		if ( $stored_alerts !== false ) {
 			return $stored_alerts;
 		}
 
-		// go find the alerts
-		$red_bubble_alerts = apply_filters( 'my_jetpack_red_bubble_notification_slugs', $red_bubble_alerts );
+		// A failed request (purchases, scan status) leaves alerts out, so those results are rechecked sooner.
+		$has_failed_request = false;
+		$watch_requests     = function ( $response ) use ( &$has_failed_request ) {
+			if ( is_wp_error( $response ) || wp_remote_retrieve_response_code( $response ) >= 400 ) {
+				$has_failed_request = true;
+			}
+		};
+		add_action( 'http_api_debug', $watch_requests );
 
-		// cache the alerts for one hour
-		set_transient( self::MY_JETPACK_RED_BUBBLE_TRANSIENT_KEY, $red_bubble_alerts, 3600 );
+		// go find the alerts
+		$red_bubble_alerts = apply_filters( 'my_jetpack_red_bubble_notification_slugs', array() );
+
+		remove_action( 'http_api_debug', $watch_requests );
+
+		/*
+		 * A failed backup is rechecked after 5 minutes too, see Backup::does_module_need_attention().
+		 * Keyed again, since refreshes while collecting the alerts can change the key.
+		 */
+		$is_short_lived = $has_failed_request || isset( $red_bubble_alerts['backup_failure'] );
+		set_transient( self::get_cache_key(), $red_bubble_alerts, $is_short_lived ? 5 * MINUTE_IN_SECONDS : HOUR_IN_SECONDS );
 
 		return $red_bubble_alerts;
 	}
 
 	/**
-	 * Get the red bubble alerts, bypassing cache when called via the REST API
+	 * Drop the alerts the viewer dismissed.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array $alerts  Alerts keyed by slug.
+	 * @param array $cookies The viewer's cookies, keyed by name.
+	 * @return array
+	 */
+	public static function remove_dismissed_alerts( array $alerts, array $cookies ) {
+		foreach ( array_keys( $alerts ) as $slug ) {
+			$cookie_name = self::get_dismissal_cookie_name( (string) $slug );
+			if ( null !== $cookie_name && ! empty( $cookies[ $cookie_name ] ) ) {
+				unset( $alerts[ $slug ] );
+			}
+		}
+
+		return $alerts;
+	}
+
+	/**
+	 * The cookie the My Jetpack notice for an alert sets when it is dismissed.
+	 *
+	 * @param string $slug The alert's slug.
+	 * @return string|null Null when the alert can't be dismissed.
+	 */
+	private static function get_dismissal_cookie_name( $slug ) {
+		if ( 'backup_failure' === $slug ) {
+			return 'backup_failure_dismissed';
+		}
+		if ( 'protect_has_threats' === $slug ) {
+			return 'protect_threats_detected_dismissed';
+		}
+		if ( preg_match( '/--(plan_expired|plan_expiring_soon)$/', $slug ) ) {
+			return $slug . '_dismissed';
+		}
+		if ( preg_match( '/^(.+)--plugins_needing_installed_activated$/', $slug, $matches ) ) {
+			return $matches[1] . '--plugins_needing_installed_dismissed';
+		}
+
+		return null;
+	}
+
+	/**
+	 * Get the red bubble alerts for the current viewer, leaving out the ones they dismissed.
 	 *
 	 * @param WP_REST_Request $request The REST API request object.
 	 *
@@ -442,22 +561,16 @@ class Red_Bubble_Notifications {
 	public static function rest_api_get_red_bubble_alerts( $request ) {
 		add_filter( 'my_jetpack_red_bubble_notification_slugs', array( __CLASS__, 'add_red_bubble_alerts' ) );
 
-		$cookies = $request->get_param( 'dismissal_cookies' );
-
-		// Update $_COOKIE superglobal with the provided cookies
-		if ( ! empty( $cookies ) && is_array( $cookies ) ) {
-			foreach ( $cookies as $cookie_string ) {
-				// Parse cookie string in format "name=value"
-				$parts = explode( '=', $cookie_string, 2 );
-				if ( count( $parts ) === 2 ) {
-					$name             = trim( $parts[0] );
-					$value            = trim( $parts[1] );
-					$_COOKIE[ $name ] = $value;
-				}
+		// The browser doesn't send My Jetpack's dismissal cookies with REST requests, so the page passes them in.
+		$cookies = $_COOKIE; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Only checked for emptiness.
+		foreach ( (array) $request->get_param( 'dismissal_cookies' ) as $cookie_string ) {
+			// Parse cookie string in format "name=value"
+			$parts = explode( '=', (string) $cookie_string, 2 );
+			if ( count( $parts ) === 2 ) {
+				$cookies[ trim( $parts[0] ) ] = trim( $parts[1] );
 			}
 		}
 
-		$red_bubble_alerts = self::get_red_bubble_alerts( true );
-		return rest_ensure_response( $red_bubble_alerts );
+		return rest_ensure_response( self::remove_dismissed_alerts( self::get_red_bubble_alerts(), $cookies ) );
 	}
 }
