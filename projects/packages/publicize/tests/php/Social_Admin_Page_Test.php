@@ -312,7 +312,7 @@ class Social_Admin_Page_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Hosted by another dashboard, Social hydrates its connection store from the shell member's data.
+	 * Hosted by another dashboard, Social loads its scripts and hydrates its connection store from the shell member's data.
 	 */
 	public function test_admin_shell_guest_hydrates_the_connection_store() {
 		$this->set_wp_build_index( __DIR__ . '/files/build-entry/build.php' );
@@ -322,12 +322,14 @@ class Social_Admin_Page_Test extends BaseTestCase {
 		$script = '';
 		try {
 			$members = Social_Admin_Page::init()->add_admin_shell_member( array() );
-			$script  = call_user_func( $members['jetpack-social']['data'] );
+			call_user_func( $members['jetpack-social']['load'] );
+			$script = call_user_func( $members['jetpack-social']['data'] );
 		} finally {
 			Jetpack_Options::delete_option( 'blog_token' );
 			( new Connection_Manager() )->reset_connection_status();
 		}
 
+		$this->assertNotFalse( has_action( 'admin_enqueue_scripts', array( Social_Admin_Page::init(), 'enqueue_admin_scripts' ) ) );
 		$this->assertStringContainsString( 'JP_CONNECTION_INITIAL_STATE', $script );
 	}
 
