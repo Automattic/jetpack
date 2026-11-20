@@ -321,6 +321,35 @@ class Main_Features {
 				),
 				'plans'                    => array( 'pro', 'complete' ),
 			),
+			'monetize'          => array(
+				'info_url'         => 'https://jetpack.com/growth/',
+				'docs_url'         => 'https://jetpack.com/support/features-earn/',
+				'name'             => __( 'Monetize', 'jetpack-my-jetpack' ),
+				'description'      => __( 'Earn from your site with paid subscriptions, donations, and ads.', 'jetpack-my-jetpack' ),
+				'long_description' => __( 'Sell paid subscriptions, take donations and one-time payments through Stripe, and manage your plans and paying subscribers in one place. Turn on ads to earn from your traffic too.', 'jetpack-my-jetpack' ),
+				'icon'             => 'currency-dollar',
+				'admin_page'       => 'jetpack-monetize',
+				'module'           => 'monetize',
+				'free_highlights'  => array(
+					__( 'Payment plans for paid content and newsletters', 'jetpack-my-jetpack' ),
+					__( 'Donations and one-time payments', 'jetpack-my-jetpack' ),
+					__( 'A list of your paying subscribers', 'jetpack-my-jetpack' ),
+					/* translators: %d is the percentage fee, such as 10. */
+					sprintf( __( 'A %d%% fee on payments', 'jetpack-my-jetpack' ), 10 ),
+				),
+				'paid_highlights'  => array(
+					/* translators: %d is the percentage fee, such as 10. */
+					sprintf( __( 'A %d%% fee on payments', 'jetpack-my-jetpack' ), 2 ),
+					__( 'Earn from ads shown on your site', 'jetpack-my-jetpack' ),
+				),
+				'delivery'         => array(
+					// The module is on offer only while the Monetize dashboard's flag is on.
+					'jetpack' => in_array( 'monetize', (array) ( new \Automattic\Jetpack\Modules() )->get_available(), true ),
+					'plugin'  => '',
+					'free'    => true,
+				),
+				'plans'            => array( 'growth', 'pro', 'complete' ),
+			),
 			'newsletter'        => array(
 				'info_url'         => 'https://jetpack.com/newsletter/',
 				'docs_url'         => 'https://jetpack.com/support/newsletter/',
@@ -1046,7 +1075,7 @@ class Main_Features {
 			),
 			array(
 				'label'   => __( 'Earn', 'jetpack-my-jetpack' ),
-				'modules' => array( 'monetize', 'wordads' ),
+				'modules' => array( 'wordads' ),
 			),
 			array(
 				'label'    => __( 'Analytics', 'jetpack-my-jetpack' ),
@@ -1144,8 +1173,13 @@ class Main_Features {
 				continue;
 			}
 
-			$delivery      = $definition['delivery'] ?? array();
-			$plugin        = $delivery['plugin'] ?? '';
+			$delivery = $definition['delivery'] ?? array();
+			$plugin   = $delivery['plugin'] ?? '';
+			// A feature neither Jetpack nor a plugin delivers here, such as one behind a flag, has no card.
+			if ( empty( $delivery['jetpack'] ) && '' === $plugin ) {
+				continue;
+			}
+
 			$product_class = isset( $definition['product'] ) ? Products::get_product_class( $definition['product'] ) : null;
 			$included      = ! $local && self::is_included_in_plan( $definition, $product_class );
 			$upgrade       = $local ? null : self::filter_upgrade( self::get_upgrade( $definition, $product_class, $included ), $slug, $included );
