@@ -12,7 +12,7 @@ import type { StorePerformanceMetric } from '../../../src/store-performance/metr
 jest.mock( '@automattic/jetpack-premium-analytics-sdk', () => ( { useReport: jest.fn() } ) );
 
 const NAMESPACE = 'test/store-performance';
-const OWN_IDS = [ 'net-sales', 'orders', 'visitors', 'conversion-rate', 'customers' ];
+const OWN_IDS = [ 'net-sales', 'orders', 'visitors', 'conversion-rate', 'customers', 'items-sold' ];
 const EXTRA: StorePerformanceMetric = {
 	id: 'extra',
 	label: 'Extra',
@@ -55,6 +55,7 @@ describe( 'getStorePerformanceMetrics', () => {
 			'visitors',
 			'conversion-rate',
 			'customers',
+			'items-sold',
 			'later',
 		] );
 	} );
