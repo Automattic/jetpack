@@ -21,6 +21,7 @@ import { debugEnabled, log, stopwatch } from './debug';
 import { checkFeature, showFeatureOff } from './feature';
 import { applyGuestAssets } from './guest-assets';
 import { configureHeaders, rememberHeader, removeHeader, showHeader } from './header';
+import { removeLoader, showLoader } from './loader';
 import { closeDialogsOf, closeOverlayAround, showOverlaysOf, trackOverlays } from './overlays';
 
 const CONFIG_ID = 'wp-script-module-data-@automattic/jetpack-admin-shell';
@@ -300,6 +301,7 @@ const start = ( {
 		}
 		apps.get( slug )?.place( false );
 		removeHeader( slug );
+		removeLoader( slug );
 		offPanels.set(
 			slug,
 			showFeatureOff( {
@@ -342,6 +344,8 @@ const start = ( {
 			el.remove();
 		};
 		const removeStandIn = showHeaderAt( slug, el, url );
+		// eslint-disable-next-line @wordpress/no-unused-vars-before-return -- `finally` takes it down on every return.
+		const loader = showLoader( slug, el, menuLabel( slug ) ?? members[ slug ].title );
 
 		try {
 			// After the check, so a page whose feature is off downloads nothing.
@@ -351,9 +355,11 @@ const start = ( {
 				discard();
 				return;
 			}
+			loader.set( 0.2 );
 			const waited = stopwatch();
 			const boot = await prewarm( slug, 'switch', url );
 			log( 'switch', `${ slug }: waited ${ waited() } for prewarm` );
+			loader.set( 0.6 );
 			if ( visible !== slug ) {
 				// Left before it could boot; it boots on the next visit, at that visit's URL.
 				log( 'switch', `${ slug }: left before it booted` );
@@ -368,12 +374,14 @@ const start = ( {
 				mountId: el.id,
 				routes: routesLoadedBy( members[ slug ].routes, routeModuleLoader( slug ) ),
 			} );
+			loader.set( 0.75 );
 			await whenRendered( el, RENDER_TIMEOUT );
 			log( 'switch', `${ slug }: first route rendered ${ render() } after boot` );
 		} catch ( error ) {
 			discard();
 			throw error;
 		} finally {
+			loader.remove();
 			removeStandIn();
 			gate.mounted( slug );
 		}
@@ -425,6 +433,7 @@ const start = ( {
 		}
 		if ( apps.get( previous )?.state === 'loading' ) {
 			removeHeader( previous );
+			removeLoader( previous );
 		}
 		apps.get( previous )?.place( false );
 		// The panel never showed the page, so taking it down doesn't hide the page either.
@@ -634,6 +643,7 @@ const start = ( {
 	const hostApp = createApp( host, hostEl );
 	apps.set( host, hostApp );
 	const removeHostHeader = showHeaderAt( host, hostEl, location.href );
+	const hostLoader = showLoader( host, hostEl, menuLabel( host ) ?? members[ host ].title );
 	// The page load already said its feature is off, and sent the card with the config.
 	if ( members[ host ].featureOn === false ) {
 		hiddenAt[ host ] = Date.now();
@@ -645,6 +655,7 @@ const start = ( {
 		.then( () => {
 			log( 'host', `${ host } rendered its first route` );
 			removeHostHeader();
+			hostLoader.remove();
 			markReady( hostApp );
 			if ( onScreen( host ) ) {
 				emit( 'page-shown', {
@@ -660,6 +671,7 @@ const start = ( {
 		} )
 		.catch( error => {
 			removeHostHeader();
+			hostLoader.remove();
 			log( 'host', `${ host } did not render`, error );
 		} )
 		.finally( () => gate.mounted( host ) );
