@@ -252,7 +252,7 @@ class Admin_UI {
 	}
 
 	/**
-	 * Whether enable_menu() registers the dashboard page, which the admin shell's guest endpoint also asks, since admin-ajax never builds the menu.
+	 * Whether enable_menu() registers the dashboard page, and so whether the admin shell may serve it.
 	 *
 	 * @return bool
 	 */
