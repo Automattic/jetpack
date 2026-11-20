@@ -1164,9 +1164,10 @@ class The_Neverending_Home_Page {
 			$swapped[] = array( $callback, $capture, $priority );
 		}
 
+		$level = ob_get_level();
 		ob_start();
 		wp_footer();
-		while ( ob_get_length() ) {
+		while ( ob_get_level() > $level ) {
 			ob_end_clean();
 		}
 
