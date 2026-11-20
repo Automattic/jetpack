@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Newsletter: Show subscriber-only posts to readers already logged in to WordPress.com on sites with a custom domain, without a click.
