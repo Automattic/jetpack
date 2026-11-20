@@ -1065,6 +1065,70 @@ class Admin_Shell_Test extends TestCase {
 	}
 
 	/**
+	 * What the host page printed, as its client config reports it, is left out of the guest's response.
+	 *
+	 * @return void
+	 */
+	public function test_guest_assets_leaves_out_what_the_host_printed() {
+		$this->unhook_emoji_styles = remove_action( 'wp_print_styles', 'print_emoji_styles' );
+		$register                  = static function () {
+			wp_register_script( 'shell-test-shared', 'https://example.com/shared.js', array(), '1', true );
+			wp_add_inline_script( 'shell-test-shared', 'var sharedState = 1;', 'before' );
+			wp_add_inline_script( 'shell-test-shared', 'sharedSetup();' );
+			wp_register_script( 'shell-test-guest', 'https://example.com/guest.js', array( 'shell-test-shared' ), '1', true );
+			wp_add_inline_script( 'shell-test-guest', 'var sharedState = 1;', 'before' );
+			wp_add_inline_script( 'shell-test-guest', 'var guestOnly = 1;', 'before' );
+			wp_add_inline_script( 'shell-test-guest', 'sharedSetup();' );
+		};
+		$this->start_host_page(
+			static function () {
+				$GLOBALS['jetpack_shell_test_guest_page_routes_data'] = array( array( 'path' => '/' ) );
+			},
+			'manage_options',
+			array( 'shell-test-guest' )
+		);
+		Admin_Shell::setup();
+		$register();
+		wp_scripts()->done = array( 'shell-test-shared' );
+		apply_filters(
+			Admin_Shell::SCRIPT_DATA_FILTER,
+			array(
+				'site'       => array( 'id' => 1 ),
+				'newsletter' => array( 'on' => false ),
+			)
+		); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Script_Data's filter.
+		$config  = apply_filters( 'script_module_data_' . Admin_Shell::CLIENT_MODULE, array() ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound -- Core's filter.
+		$printed = json_decode( (string) wp_json_encode( $config['printed'], JSON_UNESCAPED_SLASHES ), true );
+
+		// The guest endpoint is a request of its own.
+		$GLOBALS['wp_scripts'] = null;
+		unset( $_GET['page'] );
+		$register();
+		$this->add_action(
+			'admin_print_scripts',
+			static function () {
+				$data = apply_filters(
+					Admin_Shell::SCRIPT_DATA_FILTER,
+					array(
+						'site'       => array( 'id' => 1 ),
+						'newsletter' => array( 'on' => true ),
+					)
+				); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Script_Data's filter.
+				wp_add_inline_script( 'shell-test-guest', 'window.JetpackScriptData = ' . wp_json_encode( $data, JSON_UNESCAPED_SLASHES ) . ';', 'before' );
+			},
+			1
+		);
+		$html = Admin_Shell::guest_assets( 'guest-page', $printed );
+
+		$this->assertIsString( $html );
+		$this->assertStringContainsString( 'window.JetpackScriptData = {"newsletter":{"on":true}};', $html, 'only the script data keys that differ from the host' );
+		$this->assertStringNotContainsString( 'sharedState', $html, 'data the host printed before a script, on any handle' );
+		$this->assertStringContainsString( 'var guestOnly = 1;', $html );
+		$this->assertSame( 1, substr_count( $html, 'sharedSetup();' ), 'data printed after a script is skipped only on the handle the host printed it on' );
+		$this->assertMatchesRegularExpression( '/id="shell-test-guest-js-after">\s*sharedSetup\(\);/', $html );
+	}
+
+	/**
 	 * A guest that prints wp-api-fetch must not set up a second nonce middleware on a host that has one.
 	 *
 	 * @return void

@@ -71,6 +71,7 @@ const start = ( {
 	maxLiveApps,
 	featureUrl,
 	featureOff,
+	printed,
 } ) => {
 	const hostEl = document.getElementById( members[ host ].mountId );
 	if ( ! hostEl ) {
@@ -198,7 +199,7 @@ const start = ( {
 		const preloaded = preloadModules( [ ...members[ slug ].initModules, ...modules ] );
 		warm[ slug ] = ( async () => {
 			let step = stopwatch();
-			const added = await applyGuestAssets( guestAssetsUrl, slug );
+			const added = await applyGuestAssets( guestAssetsUrl, slug, printed );
 			await preloaded;
 			log( 'prewarm', `${ slug }: page data fetched and applied in ${ step() }`, added );
 			return oneAtATime( async () => {
