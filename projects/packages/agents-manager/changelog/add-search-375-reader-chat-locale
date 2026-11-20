@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Add a public normalize_locale() method that maps a WordPress locale to the code the translation files use.

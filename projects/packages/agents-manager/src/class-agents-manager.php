@@ -421,26 +421,16 @@ class Agents_Manager {
 	/**
 	 * Returns the ISO 639 conforming locale string for the current user.
 	 *
+	 * Normalizes the WordPress user locale to match the widgets.wp.com translation
+	 * file naming at languages/{code}-v1.js. Preserves the region for the few locales
+	 * where it is meaningful (pt-br, zh-tw, zh-cn); strips the region for all others;
+	 * falls back to 'en' when the locale is empty.
+	 *
 	 * @return string The ISO 639 locale string, e.g. "en".
 	 */
 	private static function determine_iso_639_locale() {
-		return self::normalize_locale( get_user_locale() );
-	}
-
-	/**
-	 * Normalizes a WordPress locale to the ISO 639 code the widgets.wp.com translations use.
-	 *
-	 * Matches the file naming at languages/{code}-v1.js. Preserves the region for the few
-	 * locales where it is meaningful (pt-br, zh-tw, zh-cn); strips the region for all others;
-	 * falls back to 'en' when the locale is empty.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @param string $locale A WordPress locale, e.g. "nl_NL".
-	 * @return string The ISO 639 locale string, e.g. "nl".
-	 */
-	public static function normalize_locale( $locale ) {
-		$language = strtolower( (string) $locale );
+		$language = get_user_locale();
+		$language = strtolower( $language );
 
 		if ( in_array( $language, array( 'pt_br', 'pt-br', 'zh_tw', 'zh-tw', 'zh_cn', 'zh-cn' ), true ) ) {
 			$language = str_replace( '_', '-', $language );

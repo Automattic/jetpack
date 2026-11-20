@@ -862,39 +862,20 @@ class Jetpack_Reader_Chat_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test that the config carries the site locale, normalized, whatever the viewer's own locale is.
-	 *
-	 * @dataProvider provide_site_locales
-	 *
-	 * @param string $site_locale The site's WordPress locale.
-	 * @param string $expected    The locale the config should carry.
+	 * Test that the config carries the site locale, whatever the viewer's own locale is.
 	 */
-	#[DataProvider( 'provide_site_locales' )]
-	public function test_config_locale_is_the_normalized_site_locale( $site_locale, $expected ) {
+	public function test_config_locale_is_the_site_locale() {
 		$user_id = self::factory()->user->create( array( 'locale' => 'fr_FR' ) );
 		wp_set_current_user( $user_id );
-		$set_site_locale = function () use ( $site_locale ) {
-			return $site_locale;
+		$set_site_locale = function () {
+			return 'nl_NL';
 		};
 		add_filter( 'locale', $set_site_locale );
 
 		$config = $this->get_enqueued_config();
 
 		remove_filter( 'locale', $set_site_locale );
-		$this->assertSame( $expected, $config['locale'] );
-	}
-
-	/**
-	 * Data provider for test_config_locale_is_the_normalized_site_locale.
-	 *
-	 * @return array[]
-	 */
-	public static function provide_site_locales() {
-		return array(
-			'region stripped' => array( 'nl_NL', 'nl' ),
-			'region kept'     => array( 'pt_BR', 'pt-br' ),
-			'English'         => array( 'en_US', 'en' ),
-		);
+		$this->assertSame( 'nl_NL', $config['locale'] );
 	}
 
 	/**

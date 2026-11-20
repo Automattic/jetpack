@@ -20,7 +20,6 @@
 
 namespace Automattic\Jetpack\Extensions\AiAssistantPlugin;
 
-use Automattic\Jetpack\Agents_Manager\Agents_Manager;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Search\Helper as Search_Helper;
 use Automattic\Jetpack\Search\Plan;
@@ -398,10 +397,7 @@ JS;
 		);
 
 		// The site locale, not the user's: the chat is for logged-out visitors.
-		// An older Agents_Manager, loaded first by another plugin, has no normalize_locale().
-		if ( method_exists( Agents_Manager::class, 'normalize_locale' ) ) {
-			$config['locale'] = Agents_Manager::normalize_locale( get_locale() );
-		}
+		$config['locale'] = get_locale();
 
 		$current_post = self::get_current_post_context();
 		if ( null !== $current_post ) {
