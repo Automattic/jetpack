@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+REST API: Add a cached proxy route for the video stats endpoints of WordPress.com.
