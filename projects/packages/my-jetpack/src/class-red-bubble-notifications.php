@@ -484,14 +484,25 @@ class Red_Bubble_Notifications {
 			return $stored_alerts;
 		}
 
+		// A failed request (purchases, scan status, backups) leaves alerts out, so those results are rechecked sooner.
+		$has_failed_request = false;
+		$watch_requests     = function ( $response ) use ( &$has_failed_request ) {
+			if ( is_wp_error( $response ) || wp_remote_retrieve_response_code( $response ) >= 400 ) {
+				$has_failed_request = true;
+			}
+		};
+		add_action( 'http_api_debug', $watch_requests );
+
 		// go find the alerts
 		$red_bubble_alerts = apply_filters( 'my_jetpack_red_bubble_notification_slugs', array() );
 
+		remove_action( 'http_api_debug', $watch_requests );
+
 		/*
-		 * Recheck sooner when the purchases couldn't be fetched (their cache is missing) or a backup failed, which
-		 * Backup::does_module_need_attention() rechecks after 5 minutes. Keyed again, since refreshes can change the key.
+		 * A failed backup is rechecked after 5 minutes too, see Backup::does_module_need_attention().
+		 * Keyed again, since refreshes while collecting the alerts can change the key.
 		 */
-		$is_short_lived = isset( $red_bubble_alerts['backup_failure'] ) || false === get_transient( Wpcom_Products::MY_JETPACK_PURCHASES_TRANSIENT_KEY );
+		$is_short_lived = $has_failed_request || isset( $red_bubble_alerts['backup_failure'] );
 		set_transient( self::get_cache_key(), $red_bubble_alerts, $is_short_lived ? 5 * MINUTE_IN_SECONDS : HOUR_IN_SECONDS );
 
 		return $red_bubble_alerts;
