@@ -56,6 +56,7 @@ src/default-dashboard-sections.php      # the package's own sections, registered
 docs/dashboard-sections.md              # how a section is registered, served and rendered (diagrams)
 src/widget-types.php                    # widget type API: registry helpers, metadata, availability filters
 docs/dashboard-widgets.md               # how a widget type is registered, served and imported (diagram)
+docs/whats-new-channels.md              # which page shows a What's new announcement: channels by route
 src/REST/class-api-proxy-controller.php # the WPCOM data proxy (PREFIX_CONFIG)
 src/REST/class-notices-controller.php   # /notices route
 src/Reports/Export/                     # /reports/csv-export route
