@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Markdown: Keep a URL inside inline code from swallowing the closing backtick.

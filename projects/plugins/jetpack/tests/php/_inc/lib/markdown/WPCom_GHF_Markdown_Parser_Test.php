@@ -97,6 +97,10 @@ class WPCom_GHF_Markdown_Parser_Test extends WP_UnitTestCase {
 				'https://example.com/_form?type=*&q=a+(b+or+c)&arr[]=1&arr[]=2&value=_foo_bar',
 				'https://example.com/_form?type=*&q=a+(b+or+c)&arr[]=1&arr[]=2&value=_foo_bar',
 			),
+			'URL in inline code'                => array(
+				'Use `https://example.com/wp-json/v1/examples`. Then call `WP_REST_Request`.',
+				'Use <code>https://example.com/wp-json/v1/examples</code>. Then call <code>WP_REST_Request</code>.',
+			),
 			// Let's ensure we are not breaking regular HTML. These should not change.
 			'href attribute with single quotes' => array(
 				"<a href='https://example.com'>example</a>",
