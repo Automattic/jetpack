@@ -1,4 +1,4 @@
 Significance: patch
 Type: bugfix
 
-Don't install a plugin when plugin installs are turned off or the user can't install plugins.
+Don't install a plugin for a user who can't install plugins, such as when plugin installs are turned off.

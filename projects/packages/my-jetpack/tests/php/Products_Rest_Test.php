@@ -4,6 +4,7 @@ namespace Automattic\Jetpack\My_Jetpack;
 
 use Automattic\Jetpack\Connection\Tokens;
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Plugins_Installer;
 use Jetpack_Options;
 use PHPUnit\Framework\TestCase;
 use WorDBless\Options as WorDBless_Options;
@@ -439,11 +440,8 @@ class Products_Rest_Test extends TestCase {
 	 * DISALLOW_FILE_MODS takes install_plugins away but leaves activate_plugins, which is all the route checks.
 	 */
 	public function test_activate_refuses_to_install_when_file_changes_are_disallowed() {
-		$fail_download = function () {
-			return new \WP_Error( 'download_failed', 'Download failed.' );
-		};
 		add_filter( 'file_mod_allowed', '__return_false' );
-		add_filter( 'upgrader_pre_download', $fail_download );
+		add_filter( 'upgrader_pre_download', array( $this, 'fail_download' ) );
 
 		$request = new WP_REST_Request( 'POST', '/my-jetpack/v1/site/products/activate' );
 		$request->set_header( 'content-type', 'application/json' );
@@ -452,9 +450,33 @@ class Products_Rest_Test extends TestCase {
 		$response = $this->server->dispatch( $request );
 
 		remove_filter( 'file_mod_allowed', '__return_false' );
-		remove_filter( 'upgrader_pre_download', $fail_download );
+		remove_filter( 'upgrader_pre_download', array( $this, 'fail_download' ) );
 
 		$this->assertEquals( 400, $response->get_status() );
 		$this->assertEquals( 'not_allowed', $response->get_data()['code'] );
+	}
+
+	/**
+	 * WordPress.com installs plugins with a site token and no user, so the installer must not ask for a user capability.
+	 */
+	public function test_installer_still_serves_site_token_requests() {
+		add_filter( 'upgrader_pre_download', array( $this, 'fail_download' ) );
+		wp_set_current_user( 0 );
+
+		$result = Plugins_Installer::install_plugin( 'zero-bs-crm' );
+
+		remove_filter( 'upgrader_pre_download', array( $this, 'fail_download' ) );
+
+		// The stubbed download failing proves the install got past the capability check.
+		$this->assertSame( 'no_package', $result->get_error_code() );
+	}
+
+	/**
+	 * Stub for upgrader_pre_download, so no test reaches WordPress.org.
+	 *
+	 * @return \WP_Error
+	 */
+	public function fail_download() {
+		return new \WP_Error( 'download_failed', 'Download failed.' );
 	}
 }
