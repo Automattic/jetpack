@@ -19,7 +19,6 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use WorDBless\BaseTestCase;
-use WP_REST_Request;
 
 require_once __DIR__ . '/../lib/class-sharing-service.php';
 require_once __DIR__ . '/../lib/trait-section-environment.php';
@@ -261,9 +260,39 @@ class Settings_App_Test extends BaseTestCase {
 	}
 
 	/**
-	 * A preload the client never asks for, by path, leaves the first paint waiting on the network.
+	 * A preload keyed by a path the client never requests leaves the first paint waiting on the network.
 	 */
-	public function test_preload_answers_the_routes_the_screen_reads_first(): void {
+	public function test_preload_answers_the_paths_the_client_requests(): void {
+		$preload = $this->preloaded_bodies();
+
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- local source file.
+		$api = (string) file_get_contents( dirname( __DIR__, 3 ) . '/src/settings-app/data/api.ts' );
+		$this->assertSame( 1, preg_match( "/const BASE = '([^']+)';/", $api, $base ) );
+		$this->assertSame( 1, preg_match( '/fetchStatus = \(\) => apiFetch< Status >\( \{ path: `\$\{ BASE \}([^`]+)` \}/', $api, $status ) );
+		$this->assertSame( 1, preg_match( '/fetchSettings = \(\) => apiFetch< Settings >\( \{ path: `\$\{ BASE \}([^`]+)` \}/', $api, $settings ) );
+
+		$this->assertSame( array( $base[1] . $status[1], $base[1] . $settings[1] ), array_keys( $preload ) );
+	}
+
+	/**
+	 * `[]` would reach the client as an array, and `'key' in settings` would stop meaning what it says.
+	 */
+	public function test_preload_encodes_empty_settings_as_an_object(): void {
+		$this->given_connection( false );
+		add_filter( 'jetpack_offline_mode', '__return_true' );
+		add_filter( 'jetpack_disable_twitter_cards', '__return_true' );
+
+		$preload = $this->preloaded_bodies();
+
+		$this->assertSame( '{}', $preload[ Settings_App::SETTINGS_ROUTE ] );
+	}
+
+	/**
+	 * Run `preload_routes()` and decode the middleware it adds, keyed by path, with each body as JSON.
+	 *
+	 * @return array<string, string>
+	 */
+	private function preloaded_bodies(): array {
 		$GLOBALS['wp_rest_server'] = new \WP_REST_Server();
 		\Automattic\Jetpack\Sharing_Likes\REST\Endpoints::init();
 		do_action( 'rest_api_init', $GLOBALS['wp_rest_server'] );
@@ -272,24 +301,13 @@ class Settings_App_Test extends BaseTestCase {
 		Settings_App::preload_routes();
 
 		$inline = implode( '', wp_scripts()->get_data( 'wp-api-fetch', 'after' ) );
-		$this->assertStringContainsString( '"/wpcom/v2/sharing-likes/status":{"body":', $inline );
-		$this->assertStringContainsString( '"/wpcom/v2/sharing-likes/settings":{"body":', $inline );
-	}
+		$this->assertSame( 1, preg_match( '/createPreloadingMiddleware\( (.*) \) \);$/s', $inline, $json ) );
 
-	/**
-	 * `[]` would reach the client as an array, and `'key' in settings` would stop meaning what it says.
-	 */
-	public function test_settings_route_encodes_empty_settings_as_an_object(): void {
-		$this->given_connection( false );
-		add_filter( 'jetpack_offline_mode', '__return_true' );
-		add_filter( 'jetpack_disable_twitter_cards', '__return_true' );
-		$GLOBALS['wp_rest_server'] = new \WP_REST_Server();
-		\Automattic\Jetpack\Sharing_Likes\REST\Endpoints::init();
-		do_action( 'rest_api_init', $GLOBALS['wp_rest_server'] );
-
-		$response = rest_do_request( new WP_REST_Request( 'GET', '/wpcom/v2/sharing-likes/settings' ) );
-
-		$this->assertSame( '{}', wp_json_encode( $response->get_data(), JSON_UNESCAPED_SLASHES ) );
+		$bodies = array();
+		foreach ( json_decode( $json[1] ) as $path => $entry ) {
+			$bodies[ $path ] = (string) wp_json_encode( $entry->body, JSON_UNESCAPED_SLASHES );
+		}
+		return $bodies;
 	}
 
 	/**

@@ -32,6 +32,16 @@ final class Settings_App {
 	 */
 	public const WP_BUILD_PAGE = 'jetpack-sharing-settings';
 
+	/**
+	 * Preloaded status route. Must match the path `data/api.ts` requests, or the preload goes unused.
+	 */
+	public const STATUS_ROUTE = '/wpcom/v2/sharing-likes/status';
+
+	/**
+	 * Preloaded settings route. Must match the path `data/api.ts` requests, or the preload goes unused.
+	 */
+	public const SETTINGS_ROUTE = '/wpcom/v2/sharing-likes/settings';
+
 	private const RENDER_FUNCTION    = 'jetpack_sharing_likes_jetpack_sharing_settings_wp_admin_render_page';
 	private const MODULES_FUNCTION   = 'jetpack_sharing_likes_register_script_modules';
 	private const INTERCEPT_FUNCTION = 'jetpack_sharing_likes_jetpack_sharing_settings_intercept_render';
@@ -188,10 +198,15 @@ final class Settings_App {
 		}
 
 		$preload = array_reduce(
-			array( '/wpcom/v2/sharing-likes/status', '/wpcom/v2/sharing-likes/settings' ),
+			array( self::STATUS_ROUTE, self::SETTINGS_ROUTE ),
 			'rest_preload_api_request',
 			array()
 		);
+
+		// Core casts each preloaded body to an array, which turns the route's empty `{}` back into `[]`.
+		if ( isset( $preload[ self::SETTINGS_ROUTE ] ) && array() === $preload[ self::SETTINGS_ROUTE ]['body'] ) {
+			$preload[ self::SETTINGS_ROUTE ]['body'] = new \stdClass();
+		}
 
 		wp_add_inline_script(
 			'wp-api-fetch',
