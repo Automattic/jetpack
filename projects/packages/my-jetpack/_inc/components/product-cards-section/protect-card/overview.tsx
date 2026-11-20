@@ -72,7 +72,7 @@ const ProtectOverviewItem: ProductCardComponent = ( { admin } ) => {
 			data?.wafConfig?.brute_force_protection;
 		count = canBlockLogins ? ( data?.wafConfig?.blocked_logins ?? 0 ) : undefined;
 		upgrade = {
-			label: __( 'Scan threats', 'jetpack-my-jetpack' ),
+			label: __( 'Add malware scanning', 'jetpack-my-jetpack' ),
 			href: detail?.hostPurchaseUrl || `#${ generatePath( MyJetpackRoutes.AddProtect ) }`,
 			onClick: () =>
 				recordEvent( 'jetpack_myjetpack_product_card_add_click', {
