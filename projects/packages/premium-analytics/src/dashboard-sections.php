@@ -15,6 +15,7 @@ require_once __DIR__ . '/dashboard-grammar.php';
 require_once __DIR__ . '/rest-namespace.php';
 require_once __DIR__ . '/class-dashboard-section.php';
 require_once __DIR__ . '/class-dashboard-section-registry.php';
+require_once __DIR__ . '/dashboard-first-visit.php';
 
 /**
  * Registers a dashboard section.
@@ -283,6 +284,11 @@ function get_dashboard_section_schema() {
  * @return \WP_REST_Response
  */
 function get_dashboard_sections_response( $request ) {
+	// Only a rendering dashboard asks for its sections, so this also counts a visit through the admin shell.
+	if ( DASHBOARD_NAME === $request['name'] ) {
+		store_dashboard_first_visit();
+	}
+
 	$sections = array_map(
 		static function ( Dashboard_Section $section ) {
 			return $section->to_array();

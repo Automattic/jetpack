@@ -157,6 +157,37 @@ class Rest_Capabilities_Bridge_Test extends TestCase {
 	}
 
 	/**
+	 * A plan is kept, and served again without asking; "no plan" is asked again, so a purchase shows at once.
+	 *
+	 * @param array $capabilities What WordPress.com lists for the site.
+	 * @param int   $requests     How many reads two visits should cost.
+	 * @dataProvider provide_cacheable_capabilities
+	 */
+	#[DataProvider( 'provide_cacheable_capabilities' )]
+	public function test_caches_only_a_backup_plan( array $capabilities, $requests ) {
+		$body = wp_json_encode( array( 'capabilities' => $capabilities ), JSON_UNESCAPED_SLASHES );
+		$this->arrange_wpcom_answers( array( array( 'body' => $body ), array( 'body' => $body ) ) );
+
+		Capabilities_Bridge::get_capabilities();
+		$second = Capabilities_Bridge::get_capabilities();
+
+		$this->assertCount( $requests, $this->captured_urls );
+		$this->assertSame( in_array( 'backup', $capabilities, true ), $second->get_data()['hasBackupPlan'] );
+	}
+
+	/**
+	 * Capability lists and how many reads two visits cost.
+	 *
+	 * @return array
+	 */
+	public static function provide_cacheable_capabilities() {
+		return array(
+			'a backup plan' => array( array( 'backup', 'scan' ), 1 ),
+			'no plan'       => array( array( 'scan' ), 2 ),
+		);
+	}
+
+	/**
 	 * The route asks the capabilities endpoint, not site state.
 	 *
 	 * Pinned because the difference is invisible in the projection until

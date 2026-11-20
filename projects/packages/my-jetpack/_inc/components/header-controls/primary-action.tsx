@@ -13,17 +13,19 @@ import type { FC } from 'react';
  * @param props               - Component props.
  * @param props.action        - The action from the connection state.
  * @param props.repairActions - The connection package's own fixes for a live error.
+ * @param props.onConnect     - Called when a connect link is clicked, for Tracks.
  * @return The action, or null when the state has none the header can run.
  */
 const PrimaryAction: FC< {
 	action: ConnectionState[ 'action' ];
 	repairActions: ReturnType< typeof useConnectionErrorNotice >[ 'actions' ];
-} > = ( { action, repairActions } ) => {
+	onConnect: () => void;
+} > = ( { action, repairActions, onConnect } ) => {
 	const connectFrom = CONNECTION_FROM?.myJetpackHeader;
 
 	if ( action === 'CONNECT_USER' ) {
 		return (
-			<Link href={ getConnectUrl( connectFrom ?? 'my-jetpack' ) }>
+			<Link href={ getConnectUrl( connectFrom ?? 'my-jetpack' ) } onClick={ onConnect }>
 				{ __( 'Connect my account', 'jetpack-my-jetpack' ) }
 			</Link>
 		);
@@ -35,6 +37,7 @@ const PrimaryAction: FC< {
 				href={ getMyJetpackRouteUrl(
 					connectFrom ? connectionScreenRoute( connectFrom ) : MyJetpackRoutes.Connection
 				) }
+				onClick={ onConnect }
 			>
 				{ __( 'Connect site', 'jetpack-my-jetpack' ) }
 			</Link>

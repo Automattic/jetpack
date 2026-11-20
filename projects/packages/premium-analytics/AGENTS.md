@@ -19,7 +19,9 @@ Jetpack Premium Analytics is the unified analytics dashboard for Jetpack-connect
 
 `Analytics::init()` loads the generated `build/build.php` on requests that render an admin screen
 (not on front-end page views, REST, cron, `admin-ajax.php`, or `admin-post.php` — see
-`renders_admin_chrome()`). The dashboard is served from one URL,
+`renders_admin_chrome()`). The one exception is the admin shell's guest endpoint, an `admin-ajax.php`
+request that loads it through `load_as_admin_shell_guest()` after `admin_init`, to show Stats inside
+another Jetpack page. The dashboard is served from one URL,
 `?page=jetpack-premium-analytics-wp-admin` (`Analytics::MENU_PAGE_SLUG`), registered with
 `Admin_Menu::add_top_level_menu()` so hosts can hide it via `jetpack_admin_menu_visibility`, and
 gated on `Capabilities::VIEW_ANALYTICS`. REST requests reach the dashboard's data
@@ -49,11 +51,13 @@ follow their own report (`posts`, `videos`, `authors`) rather than declaring a t
 
 ```text
 src/class-analytics.php                 # entry: loads build, registers menu + routes
+src/class-dashboard-support.php         # entry without Stats v2: dashboard API + shared script modules
 src/dashboard-sections.php              # section API: registry helpers, section script data, REST
 src/default-dashboard-sections.php      # the package's own sections, registered through that API
 docs/dashboard-sections.md              # how a section is registered, served and rendered (diagrams)
 src/widget-types.php                    # widget type API: registry helpers, metadata, availability filters
 docs/dashboard-widgets.md               # how a widget type is registered, served and imported (diagram)
+docs/whats-new-channels.md              # which page shows a What's new announcement: channels by route
 src/REST/class-api-proxy-controller.php # the WPCOM data proxy (PREFIX_CONFIG)
 src/REST/class-notices-controller.php   # /notices route
 src/Reports/Export/                     # /reports/csv-export route
@@ -83,8 +87,8 @@ English until the next `pnpm run build`.
 
 Storybook's Vite config maps bare `@jetpack-premium-analytics/*` imports to `src/`, but that only
 takes effect for packages whose `package.json` declares no `module` field (`datetime`,
-`formatters`, `icons`, `routing`). The rest — `data`, `externals`, `fields`, `init`, `sdk`,
-`site-sync`, `ui`, `widgets-toolkit` — point `module` at `build-module/index.mjs`, and Storybook
+`formatters`, `icons`, `routing`). The rest — `data`, `error-reporting`, `externals`, `fields`,
+`init`, `sdk`, `site-sync`, `ui`, `widgets-toolkit` — point `module` at `build-module/index.mjs`, and Storybook
 loads that artifact instead, so an edit to their source is invisible there until it is rebuilt. A
 newly added export surfaces as `The requested module '…/build-module/index.mjs' does not provide an
 export named 'X'`, and a changed one silently renders the old behaviour. Run `pnpm run build` (or

@@ -18,10 +18,10 @@ if ( function_exists( 'add_action' ) ) {
 	);
 }
 
-// Register Jetpack Social abilities. The `jetpack_wp_abilities_enabled` filter
-// (default false) keeps this a no-op until a site opts in.
+// Register Jetpack Social abilities. The `jetpack_wp_abilities_enabled` filter (default true) gates registration.
 $jetpack_publicize_register_abilities = static function () {
-	if ( ! apply_filters( 'jetpack_wp_abilities_enabled', false ) ) {
+	/** This filter is documented in projects/packages/wp-abilities/src/class-registrar.php */
+	if ( ! apply_filters( 'jetpack_wp_abilities_enabled', true ) ) {
 		return;
 	}
 	if ( ! class_exists( Automattic\Jetpack\Publicize\Abilities\Social_Abilities::class ) ) {

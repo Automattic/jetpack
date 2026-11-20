@@ -1,0 +1,4 @@
+Significance: patch
+Type: removed
+
+Migrations: Remove the migrate-guru-key and wpcom-migration-key endpoints. WordPress.com's migration flow no longer uses them.
