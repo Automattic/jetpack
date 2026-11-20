@@ -11,8 +11,6 @@ import { filterMoreFeatures, getModuleFeatureState } from '../use-more-features'
 import type { MyJetpackModule } from '../../../../types';
 import type { FeatureSelection } from '../use-feature-selection';
 
-jest.mock( '../../../../hooks/use-analytics' );
-
 // The real switch reports through this; here it is held onto and called directly.
 const mockModuleSwitch: { onSwitch?: ( active: boolean ) => void } = {};
 
@@ -295,6 +293,49 @@ describe( 'MoreFeatures', () => {
 
 	const panel = '/features?view=list&configure=sharedaddy';
 	const admin = 'https://example.com/wp-admin/';
+
+	it.each( [
+		[ 'records the panel open', '/features?view=list', false, 1 ],
+		[
+			'records nothing for the panel already open',
+			'/features?view=list&configure=sharedaddy',
+			false,
+			0,
+		],
+		[ 'records nothing with Meta held', '/features?view=list', true, 0 ],
+	] )( '%s when its Configure link is clicked', async ( _name, entry, meta, opens ) => {
+		setSiteEditor( { isBlockTheme: false } );
+		window.JetpackScriptData = {
+			...window.JetpackScriptData,
+			myJetpack: { settingsConsolidation: true },
+		} as Window[ 'JetpackScriptData' ];
+		render(
+			<MemoryRouter initialEntries={ [ entry ] }>
+				{ section( {
+					...sharing,
+					activated: true,
+					options: { show_headline: true },
+					configure_url: `${ admin }admin.php?page=jetpack-settings#/settings?term=sharedaddy`,
+				} ) }
+			</MemoryRouter>
+		);
+
+		const link = screen.getByRole( 'link', { name: 'Configure Sharing Buttons' } );
+		// The browser would open a new tab; jsdom cannot navigate.
+		link.addEventListener( 'click', event => meta && event.preventDefault() );
+		const user = userEvent.setup();
+		if ( meta ) {
+			await user.keyboard( '{Meta>}' );
+		}
+		await user.click( link );
+
+		expect( recordEvent.mock.calls ).toEqual(
+			Array( opens ).fill( [
+				'jetpack_myjetpack_settings_panel_open',
+				{ feature_slug: 'sharedaddy', trigger: 'configure-link', event_version: 1 },
+			] )
+		);
+	} );
 
 	it.each( [
 		[

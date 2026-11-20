@@ -246,8 +246,7 @@ class Dashboard_Data {
 	public static function force_setting_args( $args, $defaults, $group, $option ) {
 		// Cheap membership test first. This filter fires for every `register_setting()`
 		// call in the request — core alone registers ~20 — and building the definitions
-		// rebuilds the title-format schemas and re-decides which option the front page
-		// description lives in, which on WordPress.com Simple is a plan lookup.
+		// rebuilds the title-format schemas and re-decides which description option is live.
 		if ( ! in_array( $option, self::option_names(), true ) ) {
 			return $args;
 		}
@@ -466,11 +465,7 @@ class Dashboard_Data {
 	}
 
 	/**
-	 * The option the front page meta description is stored in for this site.
-	 *
-	 * A WordPress.com site that set a description while SEO tools were free for every
-	 * Simple site keeps editing that legacy option while it's plan-gated, because the
-	 * front end still reads the description from there.
+	 * Select the description option that the site currently reads for output.
 	 *
 	 * @return string
 	 */
@@ -487,7 +482,7 @@ class Dashboard_Data {
 	 * empty, so leaving it in place would let a cleared description resurrect text the
 	 * site set years ago. Matches what the Jetpack settings endpoint did on the same
 	 * write, including its condition: only where Jetpack's SEO output is actually live,
-	 * so a gated site's legacy description is never touched.
+	 * so a site with disabled output keeps its legacy description.
 	 *
 	 * Hooked to the option-scoped `add_option_*` / `update_option_*` actions rather
 	 * than the site-wide ones, so it fires on a real change to this one option instead
@@ -972,10 +967,7 @@ class Dashboard_Data {
 			$front_page_desc = $modern ? $modern : get_option( self::LEGACY_FRONT_PAGE_META_OPTION, '' );
 		}
 
-		// A site that set a front-page description back when it was free for all
-		// WordPress.com Simple sites keeps editing it, even when otherwise plan-gated:
-		// the value stays live in the legacy option. The gated Settings uses this to keep
-		// that one field editable, and it's the same rule the save writes by.
+		// Keep the description source consistent with the option selected for saves.
 		$has_legacy_front_page_meta = Seo_Tools::has_legacy_front_page_meta();
 
 		$codes = get_option( 'verification_services_codes', array() );
@@ -997,6 +989,7 @@ class Dashboard_Data {
 			'site_is_private'            => self::is_site_private(),
 			'site_is_coming_soon'        => self::is_site_coming_soon(),
 			'site_visibility_url'        => Ai_Crawlers::privacy_settings_url(),
+			'data_sharing_available'     => ( new Host() )->is_wpcom_platform(),
 			'sitemap_active'             => $sitemap_active,
 			'sitemap_switchable'         => self::has_module( 'sitemaps' ),
 			// The reachable sitemap URL (Jetpack serves a valid sitemap here as soon as

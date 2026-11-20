@@ -13,6 +13,8 @@ use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Status\Cache;
 use Jetpack_Options;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use WorDBless\BaseTestCase;
 
 /**
@@ -148,6 +150,34 @@ class Social_Admin_Page_Test extends BaseTestCase {
 		Social_Admin_Page::init()->admin_init();
 
 		$this->assertTrue( $this->refresh_called );
+	}
+
+	/**
+	 * The page leaves the media library to the image picker, which loads it when clicked.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_admin_init_does_not_load_the_media_library() {
+		Social_Admin_Page::init()->admin_init();
+
+		$this->assertSame( 0, did_action( 'wp_enqueue_media' ) );
+	}
+
+	/**
+	 * The picker's endpoint is hooked without the admin menu, which admin-ajax never builds.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_init_hooks_the_media_library_endpoint() {
+		Social_Admin_Page::init();
+
+		$this->assertNotFalse( has_action( 'wp_ajax_jetpack_media_library' ) );
 	}
 
 	/**

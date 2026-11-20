@@ -78,7 +78,7 @@ class Announcement_Registry_Test extends BaseTestCase {
 					'alt'  => 'The <i>tabs</i> menu',
 				),
 				'link'       => 'https://example.com/whats-new/tabs',
-				'channels'   => array( 'Premium-Analytics', 'premium-analytics', 'my jetpack' ),
+				'channels'   => array( 'Premium-Analytics', 'premium-analytics', 'my jetpack', '/Premium-Analytics//Main/' ),
 				'capability' => 'manage_options',
 			)
 		);
@@ -96,7 +96,7 @@ class Announcement_Registry_Test extends BaseTestCase {
 					'alt'  => 'The tabs menu',
 				),
 				'link'       => 'https://example.com/whats-new/tabs',
-				'channels'   => array( 'premium-analytics', 'myjetpack' ),
+				'channels'   => array( 'premium-analytics', 'myjetpack', 'premium-analytics/main' ),
 				'capability' => 'manage_options',
 			),
 			$announcement
@@ -124,11 +124,66 @@ class Announcement_Registry_Test extends BaseTestCase {
 			'id without a namespace' => array( 'arrange-tabs', self::VALID_ARGS ),
 			'id with uppercase'      => array( 'Premium-Analytics/arrange-tabs', self::VALID_ARGS ),
 			'id that is no string'   => array( 12, self::VALID_ARGS ),
+			'id ending a line'       => array( "a/b\n", self::VALID_ARGS ),
 			'no date'                => array( 'a/b', array_diff_key( self::VALID_ARGS, array( 'date' => 1 ) ) ),
 			'date that is no date'   => array( 'a/b', array_merge( self::VALID_ARGS, array( 'date' => 'tomorrow' ) ) ),
+			'date that never comes'  => array( 'a/b', array_merge( self::VALID_ARGS, array( 'date' => '2026-02-30' ) ) ),
 			'no title'               => array( 'a/b', array_merge( self::VALID_ARGS, array( 'title' => ' ' ) ) ),
 			'no channels'            => array( 'a/b', array_merge( self::VALID_ARGS, array( 'channels' => array() ) ) ),
 			'args that are no array' => array( 'a/b', 'Arrange your tabs' ),
+		);
+	}
+
+	public function test_strips_from_the_body_what_would_restyle_wp_admin() {
+		$registry = new Announcement_Registry();
+
+		$announcement = $registry->register(
+			'a/b',
+			array_merge(
+				self::VALID_ARGS,
+				array(
+					'content' => '<div style="position:fixed;inset:0" class="notice" id="cover" data-a="1"><p>Text <a href="https://example.com/" class="button">link</a></p></div>',
+				)
+			)
+		);
+
+		$this->assertSame( '<div><p>Text <a href="https://example.com/">link</a></p></div>', $announcement['content'] );
+	}
+
+	/**
+	 * @dataProvider provide_urls_of_other_protocols
+	 *
+	 * @param string $url A URL that is neither http nor https.
+	 */
+	#[DataProvider( 'provide_urls_of_other_protocols' )]
+	public function test_drops_a_url_that_is_neither_http_nor_https( $url ) {
+		$registry = new Announcement_Registry();
+
+		$announcement = $registry->register(
+			'a/b',
+			array_merge(
+				self::VALID_ARGS,
+				array(
+					'content' => '<a href="' . $url . '">Open</a>',
+					'media'   => array(
+						'type' => 'image',
+						'url'  => $url,
+					),
+					'link'    => $url,
+				)
+			)
+		);
+
+		$this->assertSame( '', $announcement['link'] );
+		$this->assertNull( $announcement['media'] );
+		$this->assertStringNotContainsString( strtok( $url, ':' ) . ':', $announcement['content'] );
+	}
+
+	public static function provide_urls_of_other_protocols() {
+		return array(
+			'mailto' => array( 'mailto:someone@example.com' ),
+			'tel'    => array( 'tel:123456' ),
+			'ftp'    => array( 'ftp://example.com/file' ),
 		);
 	}
 
@@ -161,10 +216,22 @@ class Announcement_Registry_Test extends BaseTestCase {
 		$this->assertSame( array(), $this->doing_it_wrong );
 	}
 
-	public function test_a_read_before_init_reports_it_and_leaves_the_registry_to_hydrate_later() {
-		global $wp_actions;
+	/**
+	 * @dataProvider provide_early_reads
+	 *
+	 * @param bool $during_init Whether the read happens while `init` runs, instead of before it.
+	 */
+	#[DataProvider( 'provide_early_reads' )]
+	public function test_a_read_before_init_ends_reports_it_and_leaves_the_registry_to_hydrate_later( $during_init ) {
+		global $wp_actions, $wp_current_filter;
 		$init_runs = $wp_actions['init'] ?? null;
-		unset( $wp_actions['init'] );
+		if ( $during_init ) {
+			// Core counts an action before it runs the callbacks.
+			$wp_actions['init']  = 1;
+			$wp_current_filter[] = 'init';
+		} else {
+			unset( $wp_actions['init'] );
+		}
 		add_action(
 			Announcement_Registry::REGISTER_ACTION,
 			static function ( $registry ) {
@@ -177,10 +244,20 @@ class Announcement_Registry_Test extends BaseTestCase {
 			$early = $registry->get_all_registered();
 		} finally {
 			$wp_actions['init'] = $init_runs;
+			if ( $during_init ) {
+				array_pop( $wp_current_filter );
+			}
 		}
 
 		$this->assertSame( array(), $early );
 		$this->assertSame( array( Announcement_Registry::class ), $this->doing_it_wrong );
 		$this->assertSame( array( 'a/b' ), array_keys( $registry->get_all_registered() ) );
+	}
+
+	public static function provide_early_reads() {
+		return array(
+			'before init'     => array( false ),
+			'while init runs' => array( true ),
+		);
 	}
 }

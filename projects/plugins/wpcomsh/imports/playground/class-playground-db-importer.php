@@ -27,6 +27,21 @@ class Playground_DB_Importer {
 	public const SQLITE_SEQUENCE_TABLE = 'sqlite_sequence';
 
 	/**
+	 * Name of the table where SQLite stores the MySQL index definitions.
+	 */
+	public const SQLITE_INDEXES_TABLE = '_wp_sqlite_mysql_information_schema_statistics';
+
+	/**
+	 * The most bytes MySQL allows in a row, not counting TEXT and BLOB columns.
+	 */
+	private const MAX_ROW_SIZE = 65535;
+
+	/**
+	 * MySQL's spatial column types.
+	 */
+	private const GEOMETRY_TYPES = array( 'geometry', 'point', 'linestring', 'polygon', 'multipoint', 'multilinestring', 'multipolygon', 'geometrycollection', 'geomcollection' );
+
+	/**
 	 * The database connection.
 	 *
 	 * @var ?SQLite3
@@ -54,7 +69,8 @@ class Playground_DB_Importer {
 	 *     @type string $output_file    The output file path. If not set, a temporary file will be used.
 	 *     @type int    $output_mode    Output mode. Defaults to SQL_Generator::OUTPUT_TYPE_STRING.
 	 *     @type string $output_prefix  The generated tables prefix.
-	 *     @type string $prefix         The input tables prefix. (Always `wp_` for Playground databases)
+	 *     @type string $prefix         The input tables prefix, usually the backup's `$table_prefix`. Used when the
+	 *                                  database has that prefix's options table; otherwise it's detected. Defaults to `wp_`.
 	 *     @type string $tmp_prefix     The temporary tables prefix.
 	 *     @type bool   $tmp_tables     Whether to generate temporary tables instead of TRANSACTION. Defaults to false.
 	 * }
@@ -102,6 +118,8 @@ class Playground_DB_Importer {
 		try {
 			// Try to open the database file.
 			$this->db = new SQLite3( $database_file_path, SQLITE3_OPEN_READONLY );
+
+			$this->options['prefix'] = $this->get_input_prefix( (string) $this->options['prefix'] );
 
 			$ret = $this->parse_database();
 
@@ -199,7 +217,7 @@ class Playground_DB_Importer {
 			$output_table = $this->get_output_table_name( $table_name );
 
 			$generator->start_table( $output_table, $types_map['map'], $types_map['auto_increment'] );
-			$this->generate_inserts( $generator, $table['name'], $types_map['format'], $types_map['field_names'] );
+			$this->generate_inserts( $generator, $table['name'], $types_map );
 			$generator->end_table_inserts();
 
 			if ( ! $this->options['all_tables'] ) {
@@ -249,23 +267,176 @@ class Playground_DB_Importer {
 	/**
 	 * Generate the table inserts.
 	 *
-	 * @param SQL_Generator $generator   The SQL generator.
-	 * @param string        $table_name  The table name.
-	 * @param string        $format      The format string.
-	 * @param string        $field_names The field names.
+	 * @param SQL_Generator $generator  The SQL generator.
+	 * @param string        $table_name The table name.
+	 * @param array         $types_map  The table types map.
 	 *
 	 * @return void|WP_Error
 	 */
-	private function generate_inserts( SQL_Generator $generator, string $table_name, string $format, string $field_names ) {
-		$entries = $this->db->query( "SELECT * FROM {$table_name}" );
+	private function generate_inserts( SQL_Generator $generator, string $table_name, array $types_map ) {
+		$select = '*';
+
+		// Read spatial values as BLOBs. As text, SQLite stops at the first NUL byte, and MySQL's binary geometry starts with one.
+		if ( ! empty( $types_map['geometry'] ) ) {
+			$fields = array();
+
+			foreach ( $types_map['columns'] as $i => $name ) {
+				$quoted   = '"' . str_replace( '"', '""', $name ) . '"';
+				$fields[] = isset( $types_map['geometry'][ $i ] ) ? "CAST({$quoted} AS BLOB) AS {$quoted}" : $quoted;
+			}
+
+			$select = implode( ', ', $fields );
+		}
+
+		$entries = $this->db->query( "SELECT {$select} FROM {$table_name}" );
 
 		if ( ! $entries ) {
 			return new WP_Error( 'missing-table', 'Query error: can\'t read source entry.' );
 		}
 
 		while ( $entry = $entries->fetchArray( SQLITE3_ASSOC ) ) { // phpcs:ignore Generic.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition
-			$generator->table_insert( $field_names, $this->prepare( $format, $entry ) );
+			$generator->table_insert( $types_map['field_names'], $this->prepare_row( $types_map['formats'], array_values( $entry ), $types_map['geometry'] ) );
 		}
+	}
+
+	/**
+	 * Format a row's values for an INSERT, keeping NULL as NULL.
+	 *
+	 * `wpdb::prepare()` writes NULL as `''`, which MySQL stores as `0` in a number column or as `''`. Two
+	 * of those in a UNIQUE index, like Borlabs Cookie's or MailPoet's nullable unique columns, collide
+	 * and fail the restore with a duplicate entry error.
+	 *
+	 * @param string[] $formats  The format of each column.
+	 * @param array    $values   The row's values, in column order.
+	 * @param array    $geometry The spatial columns' types and nullability, by column position.
+	 *
+	 * @return string
+	 */
+	private function prepare_row( array $formats, array $values, array $geometry = array() ): string {
+		$placeholders = array();
+		$args         = array();
+
+		foreach ( $values as $i => $value ) {
+			if ( isset( $geometry[ $i ] ) ) {
+				$placeholders[] = $this->get_geometry_value( $value, $geometry[ $i ]['type'], $geometry[ $i ]['not_null'] );
+				continue;
+			}
+
+			if ( null === $value ) {
+				$placeholders[] = 'NULL';
+				continue;
+			}
+
+			$placeholders[] = $formats[ $i ] ?? '%s';
+			$args[]         = $value;
+		}
+
+		$row = '(' . implode( ',', $placeholders ) . ')';
+
+		return empty( $args ) ? $row : (string) $this->prepare( $row, $args );
+	}
+
+	/**
+	 * Write a spatial value as MySQL geometry.
+	 *
+	 * SQLite has no spatial types, so a `POINT` or `GEOMETRY` column holds whatever text the site wrote: WKT like
+	 * `POINT(1 2)`, MySQL's own binary geometry (an SRID, then WKB) from a site pulled from MySQL, plain WKB, or
+	 * an empty string. MySQL only takes its binary form, and fails the restore on anything else with ERROR 1416.
+	 * WKT and WKB are converted, and a value that isn't geometry becomes NULL, or an empty-as-possible geometry
+	 * of the column's type if the column is NOT NULL.
+	 *
+	 * @param mixed  $value    The SQLite value.
+	 * @param string $type     The column's MySQL type, like `point`.
+	 * @param bool   $not_null Whether the column is NOT NULL.
+	 *
+	 * @return string The SQL expression.
+	 */
+	private function get_geometry_value( $value, string $type, bool $not_null ): string {
+		if ( null !== $value && '' !== $value ) {
+			$value = (string) $value;
+
+			if ( preg_match( '/^\s*(SRID=(\d+);)?\s*((MULTI)?(POINT|LINESTRING|POLYGON)|GEOM(ETRY)?COLLECTION)\s*(\(|EMPTY)/i', $value, $matches ) ) {
+				$wkt = $matches[1] ? substr( ltrim( $value ), strlen( $matches[1] ) ) : $value;
+
+				return (string) $this->prepare( 'ST_GeomFromText(%s, %d)', trim( $wkt ), (int) ( $matches[2] ?? 0 ) );
+			}
+
+			// MySQL's binary geometry: a 4-byte SRID, then WKB.
+			if ( self::is_wkb( substr( $value, 4 ) ) ) {
+				return '0x' . bin2hex( $value );
+			}
+
+			if ( self::is_wkb( $value ) ) {
+				return 'ST_GeomFromWKB(0x' . bin2hex( $value ) . ')';
+			}
+		}
+
+		if ( ! $not_null ) {
+			return 'NULL';
+		}
+
+		$empty = array(
+			'linestring'      => 'LINESTRING(0 0,0 0)',
+			'polygon'         => 'POLYGON((0 0,0 0,0 0,0 0))',
+			'multipoint'      => 'MULTIPOINT(0 0)',
+			'multilinestring' => 'MULTILINESTRING((0 0,0 0))',
+			'multipolygon'    => 'MULTIPOLYGON(((0 0,0 0,0 0,0 0)))',
+		);
+
+		return "ST_GeomFromText('" . ( $empty[ $type ] ?? 'POINT(0 0)' ) . "')";
+	}
+
+	/**
+	 * Whether a value starts like WKB: a byte order of 0 or 1, then a geometry type from 1 to 7.
+	 *
+	 * @param string $value The value.
+	 *
+	 * @return bool
+	 */
+	private static function is_wkb( string $value ): bool {
+		if ( strlen( $value ) < 9 || ! in_array( $value[0], array( "\x00", "\x01" ), true ) ) {
+			return false;
+		}
+
+		$type = unpack( "\x01" === $value[0] ? 'V' : 'N', substr( $value, 1, 4 ) )[1];
+
+		return $type >= 1 && $type <= 7;
+	}
+
+	/**
+	 * Get the prefix of the database's WordPress tables.
+	 *
+	 * Studio sites pulled from a site that uses another table prefix, like `wpx_`, keep it. The
+	 * requested prefix is used when its options table holds a site URL. Otherwise, the prefix of the
+	 * options table that does is used, preferring `wp_`.
+	 *
+	 * @param string $requested_prefix The prefix to use when its options table exists.
+	 *
+	 * @return string
+	 */
+	private function get_input_prefix( string $requested_prefix ): string {
+		$prefixes = array();
+		$results  = $this->db->query( "SELECT name FROM sqlite_master WHERE type='table' AND name LIKE '%options'" );
+
+		while ( $results && $table = $results->fetchArray( SQLITE3_ASSOC ) ) { // phpcs:ignore Generic.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition
+			$table_name = $table['name'];
+			$prefix     = substr( $table_name, 0, -strlen( 'options' ) );
+
+			// Only a WordPress options table holds a site URL. Other tables return false here.
+			$query = $this->prepare( 'SELECT COUNT(*) FROM "' . str_replace( '"', '""', $table_name ) . '" WHERE option_name = %s', 'siteurl' );
+
+			if ( @$this->db->querySingle( $query ) > 0 ) { // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+				$prefixes[] = $prefix;
+			}
+		}
+
+		foreach ( array( $requested_prefix, 'wp_' ) as $prefix ) {
+			if ( in_array( $prefix, $prefixes, true ) ) {
+				return $prefix;
+			}
+		}
+
+		return count( $prefixes ) === 1 ? $prefixes[0] : $requested_prefix;
 	}
 
 	/**
@@ -401,7 +572,15 @@ class Playground_DB_Importer {
 			}
 		}
 
-		// Load table indices.
+		// Load the table's indices as MySQL defined them, with their real names and prefix lengths.
+		$schema_indexes = $this->get_schema_indexes( $table_name );
+		if ( $schema_indexes !== null ) {
+			$map = array_merge( $map, $schema_indexes );
+
+			return $this->finish_table_types_map( $table_name, $map, $has_autoinc, $field_names, $formats );
+		}
+
+		// Fall back to the SQLite indices, for databases without the MySQL index definitions.
 		$query   = $this->prepare( 'SELECT name, sql FROM sqlite_master WHERE type=\'index\' AND tbl_name=%s', $table_name );
 		$results = $this->db->query( $query );
 
@@ -439,8 +618,83 @@ class Playground_DB_Importer {
 			$map[] = $new_index;
 		}
 
-		// Hot fix: add the missing index sizes.
-		$map = $this->hot_fix_missing_indexes( $table_name, $map );
+		return $this->finish_table_types_map( $table_name, $map, $has_autoinc, $field_names, $formats );
+	}
+
+	/**
+	 * The table's indices from the MySQL index definitions the SQLite driver keeps.
+	 *
+	 * SQLite's own indices lose MySQL's prefix lengths, like TranslatePress's `original`(100) on a text column,
+	 * and their names are rebuilt from `<table>__<index>`, which breaks on index names containing `__`.
+	 *
+	 * @param string $table_name The table name.
+	 *
+	 * @return array|null The index map entries, or null if the definitions aren't available.
+	 */
+	private function get_schema_indexes( string $table_name ): ?array {
+		$query = $this->prepare( 'SELECT name FROM sqlite_master WHERE type=\'table\' AND name=%s', self::SQLITE_INDEXES_TABLE );
+		if ( ! $this->db->querySingle( $query ) ) {
+			return null;
+		}
+
+		$query   = $this->prepare( 'SELECT INDEX_NAME, NON_UNIQUE, SEQ_IN_INDEX, COLUMN_NAME, SUB_PART, INDEX_TYPE FROM ' . self::SQLITE_INDEXES_TABLE . ' WHERE TABLE_NAME=%s ORDER BY rowid', $table_name );
+		$results = $this->db->query( $query );
+		if ( ! $results ) {
+			return null;
+		}
+
+		$indexes = array();
+		while ( $row = $results->fetchArray( SQLITE3_ASSOC ) ) { // phpcs:ignore Generic.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition
+			// The primary key is output from the columns.
+			if ( $row['INDEX_NAME'] === 'PRIMARY' ) {
+				continue;
+			}
+
+			$name = $row['INDEX_NAME'];
+			if ( ! isset( $indexes[ $name ] ) ) {
+				if ( in_array( strtoupper( (string) $row['INDEX_TYPE'] ), array( 'FULLTEXT', 'SPATIAL' ), true ) ) {
+					$type = strtoupper( (string) $row['INDEX_TYPE'] );
+				} else {
+					$type = ( (int) $row['NON_UNIQUE'] === 0 ) ? 'UNIQUE' : 'KEY';
+				}
+
+				$indexes[ $name ] = array(
+					'name'    => $name,
+					'type'    => $type,
+					'columns' => array(),
+				);
+			}
+
+			// A spatial index has no prefix length. The SQLite driver reports one of 32.
+			$sub_part = 'SPATIAL' === $indexes[ $name ]['type'] ? null : $row['SUB_PART'];
+
+			$indexes[ $name ]['columns'][ (int) $row['SEQ_IN_INDEX'] ] = '`' . $row['COLUMN_NAME'] . '`' . ( $sub_part ? '(' . (int) $sub_part . ')' : '' );
+		}
+
+		// Keep the indices in creation order, and their columns in index order.
+		foreach ( $indexes as $name => $index ) {
+			ksort( $index['columns'] );
+			$indexes[ $name ]['columns'] = '(' . implode( ', ', $index['columns'] ) . ')';
+		}
+
+		return array_values( $indexes );
+	}
+
+	/**
+	 * Apply the index hot fixes and build the table types map.
+	 *
+	 * @param string $table_name  The table name.
+	 * @param array  $map         The columns and indices map.
+	 * @param bool   $has_autoinc Whether the table has an AUTO_INCREMENT column.
+	 * @param array  $field_names The field names.
+	 * @param array  $formats     The field formats.
+	 *
+	 * @return array
+	 */
+	private function finish_table_types_map( string $table_name, array $map, bool $has_autoinc, array $field_names, array $formats ): array {
+		// Hot fix: add the missing index sizes. The fixes are listed under the `wp_` prefix.
+		$map = $this->hot_fix_missing_indexes( 'wp_' . $this->get_input_table_name( $table_name ), $map );
+		$map = $this->fit_row_size( $map );
 
 		$auto_increment = 0;
 
@@ -453,6 +707,183 @@ class Playground_DB_Importer {
 			'auto_increment' => $auto_increment,
 			'field_names'    => '(`' . implode( '`,`', $field_names ) . '`)',
 			'format'         => '(' . implode( ',', $formats ) . ')',
+			'formats'        => $formats,
+			'columns'        => $field_names,
+			'geometry'       => $this->get_geometry_columns( $map ),
+		);
+	}
+
+	/**
+	 * The table's spatial columns, by column position.
+	 *
+	 * @param array $map The columns and indices map.
+	 *
+	 * @return array
+	 */
+	private function get_geometry_columns( array $map ): array {
+		$geometry = array();
+		$position = 0;
+
+		foreach ( $map as $column ) {
+			if ( ! array_key_exists( 'sqlite_type', $column ) ) {
+				continue;
+			}
+
+			$type = strtolower( (string) strtok( $column['type'], ' (' ) );
+
+			if ( in_array( $type, self::GEOMETRY_TYPES, true ) ) {
+				$geometry[ $position ] = array(
+					'type'     => $type,
+					'not_null' => ! empty( $column['not_null'] ),
+				);
+			}
+
+			++$position;
+		}
+
+		return $geometry;
+	}
+
+	/**
+	 * Turn the widest VARCHAR and VARBINARY columns into TEXT and BLOB until the row fits in MySQL.
+	 *
+	 * MySQL limits a row's columns, not counting TEXT and BLOB, to 65,535 bytes, and fails the restore with
+	 * ERROR 1118 past that. SQLite has no such limit, so a table with many wide VARCHAR columns works there.
+	 * Indexed columns are kept, since a TEXT column needs a prefix length to be indexed.
+	 *
+	 * @param array $map The columns and indices map.
+	 *
+	 * @return array
+	 */
+	private function fit_row_size( array $map ): array {
+		$bytes_per_char = array(
+			'latin1'  => 1,
+			'utf8'    => 3,
+			'utf8mb3' => 3,
+		);
+		$charset        = strtolower( (string) ( $this->options['charset'] ?? 'latin1' ) );
+		$mb             = $bytes_per_char[ $charset ] ?? 4;
+		$indexed        = array();
+		$sizes          = array();
+		$nullable       = 0;
+
+		foreach ( $map as $column ) {
+			if ( ! array_key_exists( 'sqlite_type', $column ) ) {
+				preg_match_all( '/`([^`]+)`/', (string) ( $column['columns'] ?? '' ), $matches );
+				$indexed = array_merge( $indexed, $matches[1] );
+			}
+		}
+
+		foreach ( $map as $i => $column ) {
+			if ( ! array_key_exists( 'sqlite_type', $column ) ) {
+				continue;
+			}
+
+			$sizes[ $i ] = self::get_column_size( (string) $column['type'], $mb );
+			$nullable   += empty( $column['not_null'] ) ? 1 : 0;
+		}
+
+		$total = array_sum( array_column( $sizes, 'bytes' ) ) + (int) ceil( $nullable / 8 );
+
+		if ( $total <= self::MAX_ROW_SIZE ) {
+			return $map;
+		}
+
+		// Widest first.
+		uasort(
+			$sizes,
+			function ( $a, $b ) {
+				return $b['bytes'] <=> $a['bytes'];
+			}
+		);
+
+		foreach ( $sizes as $i => $size ) {
+			if ( $total <= self::MAX_ROW_SIZE ) {
+				break;
+			}
+
+			if ( null === $size['long_type'] || ! empty( $map[ $i ]['primary'] ) || in_array( $map[ $i ]['name'], $indexed, true ) ) {
+				continue;
+			}
+
+			$map[ $i ]['type'] = $size['long_type'];
+
+			// MySQL takes a TEXT or BLOB default only as an expression.
+			if ( isset( $map[ $i ]['default'] ) && 'NULL' !== strtoupper( (string) $map[ $i ]['default'] ) ) {
+				$map[ $i ]['default'] = '(' . $map[ $i ]['default'] . ')';
+			}
+
+			// A TEXT or BLOB column counts as 12 bytes, at most.
+			$total -= $size['bytes'] - 12;
+		}
+
+		return $map;
+	}
+
+	/**
+	 * A column's size in a MySQL row, and the TEXT or BLOB type it can become.
+	 *
+	 * @param string $type The MySQL column type, like `varchar(255)`.
+	 * @param int    $mb   The bytes per character.
+	 *
+	 * @return array {
+	 *     @type int         $bytes     The column's size, in bytes.
+	 *     @type string|null $long_type The TEXT or BLOB type it can become, or null.
+	 * }
+	 */
+	private static function get_column_size( string $type, int $mb ): array {
+		$type   = strtolower( $type );
+		$length = preg_match( '/\((\d+)/', $type, $matches ) ? (int) $matches[1] : 1;
+		$name   = (string) strtok( $type, ' (' );
+		$fixed  = array(
+			'tinyint'   => 1,
+			'smallint'  => 2,
+			'mediumint' => 3,
+			'int'       => 4,
+			'integer'   => 4,
+			'bigint'    => 8,
+			'float'     => 4,
+			'double'    => 8,
+			'real'      => 8,
+			'date'      => 3,
+			'time'      => 6,
+			'year'      => 1,
+			'datetime'  => 8,
+			'timestamp' => 7,
+			'enum'      => 2,
+			'set'       => 8,
+			'bit'       => 8,
+			'decimal'   => 30,
+			'numeric'   => 30,
+		);
+
+		switch ( $name ) {
+			case 'varchar':
+				$bytes = $length * $mb;
+				return array(
+					'bytes'     => $bytes + ( $bytes > 255 ? 2 : 1 ),
+					'long_type' => $bytes > 65535 ? 'mediumtext' : 'text',
+				);
+			case 'varbinary':
+				return array(
+					'bytes'     => $length + ( $length > 255 ? 2 : 1 ),
+					'long_type' => 'blob',
+				);
+			case 'char':
+				return array(
+					'bytes'     => $length * $mb,
+					'long_type' => null,
+				);
+			case 'binary':
+				return array(
+					'bytes'     => $length,
+					'long_type' => null,
+				);
+		}
+
+		return array(
+			'bytes'     => $fixed[ $name ] ?? 12,
+			'long_type' => null,
 		);
 	}
 

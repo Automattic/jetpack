@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Playground importer: write spatial values as MySQL geometry, and turn the widest VARCHAR columns into TEXT when a row is too large for MySQL.

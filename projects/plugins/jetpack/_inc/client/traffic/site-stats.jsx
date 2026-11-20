@@ -217,7 +217,7 @@ class SiteStatsComponent extends Component {
 			wpcomLink: 'https://wordpress.com/support/stats/',
 		};
 
-		if ( this.props.isOdysseyStatsEnabled ) {
+		if ( this.props.isOdysseyStatsEnabled || this.props.settingsOnStatsPage ) {
 			return (
 				<SettingsCard
 					{ ...this.props }

@@ -116,7 +116,7 @@ class Block_Editor {
 		 * @param bool $enabled Whether to offer the block editor. Default true, unless WordPress.com's
 		 *                      "blocks in comments" Discussion setting is off.
 		 */
-		return (bool) apply_filters( 'jetpack_comments_block_editor', (bool) get_option( 'enable_blocks_comments', true ) );
+		return Comments::is_enabled() && (bool) apply_filters( 'jetpack_comments_block_editor', (bool) get_option( 'enable_blocks_comments', true ) );
 	}
 
 	/**
@@ -223,7 +223,7 @@ class Block_Editor {
 	 * @return string|mixed
 	 */
 	public static function render( $content, $comment = null ) {
-		if ( ! is_string( $content ) || ! has_blocks( $content ) ) {
+		if ( ! is_string( $content ) || ! has_blocks( $content ) || ! Comments::is_enabled() ) {
 			return $content;
 		}
 
@@ -242,7 +242,7 @@ class Block_Editor {
 	 * @return string|mixed
 	 */
 	public static function render_in_email( $message, $comment_id ) {
-		if ( ! is_string( $message ) ) {
+		if ( ! is_string( $message ) || ! Comments::is_enabled() ) {
 			return $message;
 		}
 

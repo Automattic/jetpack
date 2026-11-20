@@ -1,6 +1,6 @@
 // eslint-disable-next-line import/no-unresolved -- Core's script module, mocked below.
 import { speak } from '@wordpress/a11y';
-import { announcePage, menuLabel } from '../../../src/admin-shell/chrome';
+import { announcePage, menuLabel, updateChrome } from '../../../src/admin-shell/chrome';
 
 jest.mock( '@wordpress/a11y', () => ( { speak: jest.fn() } ), { virtual: true } );
 
@@ -30,5 +30,20 @@ describe( 'menuLabel', () => {
 			'<ul id="adminmenu"><li><a href="admin.php?page=activity-log"><div class="wp-menu-image"></div><div class="wp-menu-name">Activity Log</div></a></li></ul>';
 
 		expect( menuLabel( 'activity-log' ) ).toBe( 'Activity Log' );
+	} );
+} );
+
+describe( 'updateChrome', () => {
+	it( 'closes the mobile sidebar like a page load does', () => {
+		document.body.innerHTML =
+			'<div id="wpwrap" class="wp-responsive-open"><div id="wp-admin-bar-menu-toggle"><a aria-expanded="true"></a></div><ul id="adminmenu"></ul></div>';
+
+		updateChrome( 'forms', { forms: { bodyClass: 'jetpack_page_forms', adminTitle: 'Forms' } } );
+
+		expect( document.getElementById( 'wpwrap' ) ).not.toHaveClass( 'wp-responsive-open' );
+		expect( document.querySelector( '#wp-admin-bar-menu-toggle a' ) ).toHaveAttribute(
+			'aria-expanded',
+			'false'
+		);
 	} );
 } );

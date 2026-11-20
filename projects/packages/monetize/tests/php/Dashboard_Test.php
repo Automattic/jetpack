@@ -252,7 +252,7 @@ class Dashboard_Test extends BaseTestCase {
 		// @phan-suppress-next-line PhanPluginDuplicateAdjacentStatement -- Running twice is the behavior under test.
 		Dashboard::init();
 
-		$this->assertSame( array( 'overview', 'payments', 'ads' ), array_keys( Dashboard::get_initial_state() ) );
+		$this->assertSame( array( 'overview', 'payments', 'subscribers', 'ads' ), array_keys( Dashboard::get_initial_state() ) );
 		$this->assertCount( 0, $doing_it_wrong );
 	}
 
@@ -360,17 +360,35 @@ class Dashboard_Test extends BaseTestCase {
 		}
 	}
 
-	public function test_upgrade_url_follows_a_host_that_sells_its_own_plans() {
+	/**
+	 * @dataProvider provide_host_upgrade_urls
+	 *
+	 * @param string $host_url The `url` the host's filter returns.
+	 */
+	#[DataProvider( 'provide_host_upgrade_urls' )]
+	public function test_upgrade_url_follows_the_host( $host_url ) {
 		add_filter(
 			'jetpack_feature_upgrade',
-			function ( $upgrade, $slug ) {
-				return Dashboard::UPGRADE_SLUG === $slug ? array( 'url' => 'https://example.com/plans' ) : $upgrade;
+			function ( $upgrade, $slug ) use ( $host_url ) {
+				return Dashboard::UPGRADE_SLUG === $slug ? array( 'url' => $host_url ) : $upgrade;
 			},
 			10,
 			2
 		);
 
-		$this->assertSame( 'https://example.com/plans', Dashboard::get_upgrade_url() );
+		$this->assertSame( $host_url, Dashboard::get_upgrade_url() );
+	}
+
+	/**
+	 * A host's own plans, and a host that offers the site no upgrade.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_host_upgrade_urls() {
+		return array(
+			'own plans'  => array( 'https://example.com/plans' ),
+			'no upgrade' => array( '' ),
+		);
 	}
 
 	/**
