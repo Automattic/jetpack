@@ -12,10 +12,15 @@ BASE=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 . "$BASE/tools/includes/normalize-version.sh"
 . "$BASE/tools/includes/changelogger.sh"
 
+export GH_REPO="${GH_REPO:-Automattic/jetpack}"
+
 VERSION_REGEX='^[0-9]+(\.[0-9]+)+(-.*)?$'
 CUR_STEP=0
 FROM_RELEASE_BRANCH=false
 LIST_STEPS=false
+
+# We use the message in a stable release to easily split the patch and the changelog commits.
+CHANGELOG_COMMIT_MSG='Aggregate raw changelogs and bump versions'
 
 RELEASE_STEPS=(
 	'do_prerelease_branch_prep'
@@ -34,10 +39,11 @@ FROM_RELEASE_BRANCH_STEPS=(
 	'do_changelogs'
 	'do_readme'
 	'do_prerelease_branch_prep'
-	# 'do_push_and_build'
-	# 'do_packagist_check'
-	# 'do_push_release_branch'
-	# 'do_create_backport_PR'
+	'do_push_and_build'
+	'do_packagist_check'
+	'do_push_release_branch'
+	'do_create_backport_PR'
+	'do_final_instructions'
 )
 
 # Instructions
@@ -151,9 +157,16 @@ function current_version {
 }
 
 # Generates a command that can be used to resume the release script from the current step.
-# Currently unused.
 function generate_resume_command() {
-	echo "$0 -s $CUR_STEP ${PLUGIN#plugins/} $VERSION"
+	echo "$0 $($FROM_RELEASE_BRANCH && echo '-R ')-s $CUR_STEP ${PLUGIN#plugins/} $VERSION"
+}
+
+# Report the failed step and how to resume from it.
+function report_failed_step {
+	error "Failed on step $CUR_STEP: ${STEPS[$CUR_STEP]}"
+	warn "You may restart at the failed step if desired."
+	echo "Resume at your own risk with the following:"
+	generate_resume_command
 }
 
 # Create the prerelease branch from the local release branch with -R, else from origin/trunk.
@@ -204,7 +217,7 @@ function do_prerelease_branch_prep() {
 	# @todo: Push once we're ready to test more lively.
 	$FROM_RELEASE_BRANCH && return
 	if ! git push -u origin HEAD; then
-		die "Branch push failed. Check #jetpack-releases and make sure no one is doing a release already, then delete the branch at https://github.com/Automattic/jetpack/branches"
+		die "Branch push failed. Check #jetpack-releases and make sure no one is doing a release already, then delete the branch at https://github.com/$GH_REPO/branches"
 	fi
 }
 
@@ -274,7 +287,7 @@ function do_changelogs {
 	tools/changelogger-release.sh "${ARGS[@]}"
 
 	git add --all
-	git commit -m "Aggregate raw changelogs and bump versions"
+	git commit -m "$CHANGELOG_COMMIT_MSG"
 
 	# When it completes, wait for user to edit anything they want, then push key to continue.
 	read -r -s -p $'Edit and save all the changelog entries you want in a separate terminal or in your text editor of choice.\nCheck for consistency between the different entries, and keep in mind that your plugin changelog will be used in the plugin readme file.\n\nOnce you are happy with your work, press enter to continue the release process.'
@@ -401,25 +414,65 @@ function do_create_prerelease_PR {
 	fi
 	git push
 
-	sed "s/%RELEASED_PLUGIN%/$RELEASED_PLUGIN/g" .github/files/BACKPORT_RELEASE_CHANGES.md | gh pr create --title "Backport $RELEASED_PLUGIN changes" --body-file - --label "[Status] Needs Review" --label "[Type] Janitorial" --repo "Automattic/jetpack" --head "$(git rev-parse --abbrev-ref HEAD)"
+	sed "s/%RELEASED_PLUGIN%/$RELEASED_PLUGIN/g" .github/files/BACKPORT_RELEASE_CHANGES.md | gh pr create --title "Backport $RELEASED_PLUGIN changes" --body-file - --label "[Status] Needs Review" --label "[Type] Janitorial" --head "$(git rev-parse --abbrev-ref HEAD)"
 }
 
-# @todo: Implement. Prints what's needed until then.
+# Rebuild prerelease from trunk with the release branch's patches and changelogs, then open a PR.
 function do_create_backport_PR {
-	cat <<-EOF
-		The changes on $RELEASE_BRANCH still needs backporting to trunk:
-		  1. Verify prerelease matches $RELEASE_BRANCH, then delete it remotely and locally. Otherwise stop.
-		  2. Create a new prerelease branch from origin/trunk.
-		  3. Cherry-pick the patch commits from $RELEASE_BRANCH onto it, skipping the changelog and readme
-		     commits. Patches already in trunk drop out as empty.
-		  4. Bring over the changelog changes, without changing any versions:
-		     - For the plugin and packages released normally, copy the new CHANGELOG.md files from
-		       $RELEASE_BRANCH and delete the change files they came from.
-		     - For packages released with a four-point version, add no entry and leave their change files.
-		     - Maybe update the readme.txt stable tag.
-		  5. Run tools/fixup-project-versions.sh and commit any changes.
-		  6. Push, and open a PR to merge prerelease into trunk.
-	EOF
+	changelog_commit=$(git log -n1 --format=%H --grep="^$CHANGELOG_COMMIT_MSG\$" "origin/$BASE_BRANCH..$RELEASE_BRANCH")
+	[[ -n $changelog_commit ]] || die "No changelog commit found on $RELEASE_BRANCH."
+	patch_range="origin/$BASE_BRANCH..$changelog_commit^"
+
+	yellow "Recreating prerelease branch from trunk."
+	git fetch origin trunk
+
+	# Rather than deleting the old branch, just reset it to `trunk`, which keeps other people from releasing until we're done.
+	git checkout --no-track -B prerelease origin/trunk
+	pnpm jetpack install --root
+
+	if [[ $(git rev-list --count "$patch_range") -gt 0 ]]; then
+		yellow "Cherry-picking patches from $RELEASE_BRANCH."
+		git cherry-pick --empty=drop "$patch_range" || die 'Merge conflict during cherry-pick! Please resolve manually.'
+	fi
+
+	yellow "Bringing over changelogs."
+
+	# Backport each released project's changelogs, skipping four-point package releases.
+	while read -r file; do
+		dir=${file%/CHANGELOG.md}
+		ver=$(cd "$BASE/$dir" && changelogger version current --ref "$RELEASE_BRANCH")
+		if [[ $dir == projects/packages/* && $ver =~ ^[0-9]+(\.[0-9]+){3}$ ]]; then
+			echo "Skipping $dir; released as four-point version $ver."
+			continue
+		fi
+		# Delete change files.
+		git diff --name-only --diff-filter=D "$changelog_commit^" "$RELEASE_BRANCH" -- "$dir" | git rm --ignore-unmatch --pathspec-from-file=-
+		git diff "$changelog_commit^" "$RELEASE_BRANCH" -- "$file" | git apply
+	done < <(git diff --name-only "$changelog_commit^" "$RELEASE_BRANCH" -- '*/CHANGELOG.md')
+
+	readme="$BASE/projects/$PLUGIN/readme.txt"
+	if [[ $VERSION != *-* && -f $readme ]]; then
+		stable=$(sed -n 's/^Stable tag: \(.*\)/\1/p' "$readme")
+		if version_compare "$VERSION" "$stable"; then
+			sed -i.bak -e "s/^Stable tag: .*/Stable tag: $VERSION/" "$readme"
+			rm -f "$readme.bak"
+		fi
+	fi
+
+	git add --all
+	if [[ -n "$(git status --porcelain)" ]]; then
+		git commit -m "Backport $PLUGIN $VERSION changelogs"
+	fi
+
+	tools/fixup-project-versions.sh
+	if [[ -n "$(git status --porcelain)" ]]; then
+		git commit -am 'Version bumps'
+	fi
+
+	# Replaces the prerelease branch pushed from the release branch.
+	git push -u --force origin prerelease
+	RELEASED_PLUGIN="$(basename "$PLUGIN") $VERSION"
+	sed "s/%RELEASED_PLUGIN%/$RELEASED_PLUGIN/g" .github/files/BACKPORT_RELEASE_CHANGES.md | gh pr create --title "Backport $RELEASED_PLUGIN changes" --body-file - --label "[Status] Needs Review" --label "[Type] Janitorial" --head prerelease
 }
 
 function do_final_instructions {
@@ -445,12 +498,14 @@ function do_final_instructions {
 
 	cat <<-EOM
 
-	For $PLUGIN:
+	The release script has completed. The final steps are as follows:
 	  1. Wait for the release to be automatically tagged in GitHub.
 	  2. $DEPLOY_STEP
 	  3. Smoke test.
-	  4. Update the stable tag (if stable release): \`./tools/stable-tag.sh ${PLUGIN#plugins/}\`
 	EOM
+	if [[ $VERSION != *-* ]]; then
+		echo "  4. Update the stable tag: \`./tools/stable-tag.sh ${PLUGIN#plugins/}\`"
+	fi
 }
 
 preflight_checks
@@ -533,8 +588,10 @@ echo "$PLUGIN: $CUR_VERSION -> $VERSION"
 proceed_p "" "Proceed releasing $PLUGIN?" Y
 
 # Run each release step.
+trap report_failed_step EXIT
 for ((i = CUR_STEP; i < ${#STEPS[@]}; i++)); do
 	green "Step $i: ${STEPS[$i]}"
 	"${STEPS[$i]}"
 	((CUR_STEP+=1))
 done
+trap - EXIT
