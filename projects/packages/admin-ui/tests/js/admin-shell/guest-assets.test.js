@@ -32,6 +32,18 @@ describe( 'applyGuestAssets', () => {
 		expect( added.keptGlobals ).toEqual( [ 'jetpackShellTestConfig' ] );
 	} );
 
+	it( 'sends what the host page printed, so the endpoint can leave it out', async () => {
+		respondWith( '' );
+		const printed = { scriptData: { site: 'a1b2c3d4e5f6' }, inline: [ '0123456789ab' ] };
+
+		await applyGuestAssets( '/wp-admin/admin-ajax.php?nonce=n', 'jetpack-forms', printed );
+
+		const [ url, options ] = global.fetch.mock.lastCall;
+		expect( url.searchParams.get( 'member' ) ).toBe( 'jetpack-forms' );
+		expect( options.method ).toBe( 'POST' );
+		expect( JSON.parse( options.body.get( 'printed' ) ) ).toEqual( printed );
+	} );
+
 	it( 'skips an inline script the page already ran, even without an id', async () => {
 		const text = 'window.jetpackShellTestRuns = ( window.jetpackShellTestRuns || 0 ) + 1;';
 		const script = document.createElement( 'script' );
