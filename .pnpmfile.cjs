@@ -254,12 +254,6 @@ function fixPeerDeps( pkg ) {
 	// Bump problematic ranges for now; should be safe:
 	// p1792520152276519-slack-C05Q5HSS013
 	if (
-		pkg.name === '@wordpress/build' &&
-		pkg.peerDependencies?.[ '@wordpress/theme' ] === '>=0.8.0 <3.0.0'
-	) {
-		pkg.peerDependencies[ '@wordpress/theme' ] = '>=0.8.0 <=3.0.0';
-	}
-	if (
 		pkg.name === '@automattic/launchpad' &&
 		pkg.peerDependencies?.[ '@wordpress/i18n' ] === '^6.21.0'
 	) {

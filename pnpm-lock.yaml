@@ -8,7 +8,7 @@ settings:
   excludeLinksFromLockfile: false
   linkWorkspacePackages: false
 
-pnpmfileChecksum: sha256-EvRFkwinQ2QR/nGOdSIsBfBRgI5BjKpwRT/vhiS0xYU=
+pnpmfileChecksum: sha256-NsujZenrLgBTBw2LO1lQs6hTMUEojpq+JvMqSQj2Zdo=
 
 patchedDependencies:
   '@wordpress/build': 050a180dbade2acd6deb28e39bc273ce50a482cc3a01f59103982e2e70eaa66d
