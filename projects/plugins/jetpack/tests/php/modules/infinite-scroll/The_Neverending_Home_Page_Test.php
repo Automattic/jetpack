@@ -292,8 +292,10 @@ class The_Neverending_Home_Page_Test extends WP_UnitTestCase {
 		remove_all_actions( 'wp_footer' );
 		add_action( 'wp_footer', array( 'WP_Duotone', 'output_footer_assets' ) );
 
-		$svgs = The_Neverending_Home_Page::do_footer_and_get_duotone_svgs();
+		$level = ob_get_level();
+		$svgs  = The_Neverending_Home_Page::do_footer_and_get_duotone_svgs();
 
+		$this->assertSame( $level, ob_get_level() );
 		$this->assertStringStartsWith( '<svg', $svgs );
 		$this->assertStringContainsString( '<filter id="' . $class[0] . '">', $svgs );
 		$this->assertSame( 10, has_action( 'wp_footer', array( 'WP_Duotone', 'output_footer_assets' ) ) );
