@@ -6,7 +6,7 @@ export const STATS_PERIOD_DAYS = [ 7, 30 ] as const;
 
 export type StatsPeriodDays = ( typeof STATS_PERIOD_DAYS )[ number ];
 
-const DEFAULT_DAYS: StatsPeriodDays = STATS_PERIOD_DAYS[ 0 ];
+const DEFAULT_DAYS: StatsPeriodDays = 30;
 
 export type StatsPeriod = {
 	days: StatsPeriodDays;
