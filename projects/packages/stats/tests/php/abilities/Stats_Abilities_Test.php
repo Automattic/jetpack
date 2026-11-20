@@ -2578,11 +2578,11 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 			)
 		);
 		// WorDBless stores no comments, so serve the newest approved ones the way the query would.
-		$asked = array();
+		$asked = new \ArrayObject();
 		add_filter(
 			'comments_pre_query',
-			static function ( $comments, $query ) use ( &$asked ) {
-				$asked = $query->query_vars;
+			static function ( $comments, $query ) use ( $asked ) {
+				$asked->exchangeArray( $query->query_vars );
 				return array_map(
 					static function ( $text ) {
 						return new \WP_Comment(
