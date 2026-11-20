@@ -14,7 +14,6 @@ use PHPUnit\Framework\TestCase;
  * The nonce handler tests.
  */
 class Connection_Notice_Test extends TestCase {
-	use \Yoast\PHPUnitPolyfills\Polyfills\AssertionRenames;
 
 	/**
 	 * Handle of the script that drives the "choose new owner" form.
@@ -98,7 +97,7 @@ class Connection_Notice_Test extends TestCase {
 		$translation = 'Backslash \\ and "quotes" and a' . "\n" . 'newline.';
 
 		$filter = function ( $translated, $text ) use ( $translation ) {
-			return 'Something went wrong. Please try again.' === $text ? $translation : $translated;
+			return 'An error occurred. Please try again.' === $text ? $translation : $translated;
 		};
 		add_filter( 'gettext', $filter, 10, 2 );
 

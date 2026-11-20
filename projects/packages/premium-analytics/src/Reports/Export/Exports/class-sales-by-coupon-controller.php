@@ -120,8 +120,7 @@ class Sales_By_Coupon_Controller extends Abstract_Csv_Report_Controller {
 	 */
 	public function get_additional_params(): array {
 		return array(
-			'date_type' => self::DEFAULT_DATE_TYPE,
-			'orderby'   => 'orders_count',
+			'orderby' => 'orders_count',
 		);
 	}
 

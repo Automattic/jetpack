@@ -6,6 +6,12 @@
 .vp-video-layout__breadcrumbs {
 	display: contents;
 
+	// See routes/video/style.scss: lets the nav shrink so the title ellipsis
+	// engages instead of the crumb overlapping the header actions.
+	> nav {
+		min-width: 0;
+	}
+
 	li:last-child h1 {
 		overflow: hidden;
 		text-overflow: ellipsis;

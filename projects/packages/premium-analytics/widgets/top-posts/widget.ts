@@ -1,18 +1,6 @@
 /**
- * WordPress dependencies
- */
-import { __ } from '@wordpress/i18n';
-import { page } from '@wordpress/icons';
-import type { WidgetAttributeField } from '@wordpress/widget-primitives';
-
-/**
- * Internal dependencies
- */
-import { SelectField } from '@jetpack-premium-analytics/fields';
-
-/**
- * Mirrors the widget definition's `attributes` below. The date range is
- * owned by the dashboard picker, not by these attributes.
+ * Mirrors the `attributes` in `widget.json`. The date range is owned by the
+ * dashboard picker, not by these attributes.
  */
 export type TopPostsAttributes = {
 	/**
@@ -29,20 +17,6 @@ export type TopPostsAttributes = {
  * its control in the frame header.
  */
 export default {
-	icon: page,
-	attributes: [
-		{
-			id: 'contentView',
-			label: __( 'View', 'jetpack-premium-analytics-pkg' ),
-			type: 'text',
-			Edit: SelectField,
-			elements: [
-				{ label: __( 'Posts & pages', 'jetpack-premium-analytics-pkg' ), value: 'posts' },
-				{ label: __( 'Archives', 'jetpack-premium-analytics-pkg' ), value: 'archives' },
-			],
-			relevance: 'high',
-		},
-	] as WidgetAttributeField< TopPostsAttributes >[],
 	example: {
 		attributes: {
 			contentView: 'posts',

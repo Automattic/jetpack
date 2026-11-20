@@ -1,12 +1,15 @@
+import jetpackAnalytics from '@automattic/jetpack-analytics';
 import { Button, Card } from '@wordpress/components';
 import { Component } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Stack, Text } from '@wordpress/ui';
+import { identifyReader } from '../../hooks/use-analytics';
 import './style.scss';
 import type { ErrorInfo, ReactNode } from 'react';
 
 type Props = {
 	children: ReactNode;
+	screen?: 'overview' | 'download' | 'restore';
 };
 
 type State = {
@@ -63,12 +66,26 @@ export default class ErrorBoundary extends Component< Props, State > {
 	 * show — it is the only part of the report that identifies where the
 	 * throw came from, and support needs it more than the reader does.
 	 *
+	 * It also records a Tracks event with the screen and the error name
+	 * only — never the message or stack, which can carry site data.
+	 *
 	 * @param error     - The thrown error.
 	 * @param errorInfo - React's component stack.
 	 */
 	componentDidCatch( error: Error, errorInfo: ErrorInfo ) {
 		// eslint-disable-next-line no-console
 		console.error( '[Jetpack Backup] Unhandled error:', error, errorInfo.componentStack );
+
+		try {
+			const { screen } = this.props;
+			identifyReader();
+			jetpackAnalytics.tracks.recordEvent( 'jetpack_backup_dashboard_crash', {
+				...( screen && { screen } ),
+				error_type: error?.name || error?.constructor?.name,
+			} );
+		} catch {
+			// Tracking must never stop the fallback from rendering.
+		}
 	}
 
 	/**

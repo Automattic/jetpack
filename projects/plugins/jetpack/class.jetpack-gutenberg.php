@@ -7,6 +7,7 @@
  */
 
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Assets\Shared_Stores_Assets;
 use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
@@ -14,6 +15,7 @@ use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
+use Automattic\Jetpack\Plugin\Unavailable_Blocks;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 
@@ -139,7 +141,6 @@ class Jetpack_Gutenberg {
 		'google-docs-embed',
 		'image-compare',
 		'like',
-		'markdown',
 		'nextdoor',
 		'payments-intro',
 		'pinterest',
@@ -442,7 +443,7 @@ class Jetpack_Gutenberg {
 	 * @return array A list of blocks: eg array( 'publicize', 'markdown' )
 	 */
 	public static function get_available_extensions( $allowed_extensions = null ) {
-		$exclusions         = get_option( 'jetpack_excluded_extensions', array() );
+		$exclusions         = self::get_excluded_extensions();
 		$allowed_extensions = $allowed_extensions === null ? self::get_jetpack_gutenberg_extensions_allowed_list() : $allowed_extensions;
 
 		// Avoid errors if option data is not as expected.
@@ -451,6 +452,20 @@ class Jetpack_Gutenberg {
 		}
 
 		return array_diff( $allowed_extensions, $exclusions );
+	}
+
+	/**
+	 * Returns the extensions a site has excluded via the `jetpack_excluded_extensions` option.
+	 *
+	 * @return mixed The stored option value, or an empty array when none is set.
+	 */
+	private static function get_excluded_extensions() {
+		// Without a persistent object cache, a missing option costs a query on every request, so store the empty default.
+		if ( ! wp_using_ext_object_cache() ) {
+			return Jetpack_Options::get_option_and_ensure_autoload( 'jetpack_excluded_extensions', array() );
+		}
+
+		return get_option( 'jetpack_excluded_extensions', array() );
 	}
 
 	/**
@@ -898,9 +913,15 @@ class Jetpack_Gutenberg {
 			wp_enqueue_style( 'recoleta-font', '//s1.wp.com/i/fonts/recoleta/css/400.min.css', array(), Constants::get_constant( 'JETPACK__VERSION' ) );
 		}
 		// AI Assistant
-		$ai_assistant_state = array(
-			'is-enabled'     => Jetpack_AI_Settings::is_ai_enabled(),
-			'is-seo-enabled' => Jetpack_AI_Settings::is_ai_seo_enabled(),
+		// The SEO package registers the setting for saving once it starts; see the seo-enhancer store.
+		// Not `Initializer::is_available()`: WordPress.com may not start it on every site the plan allows.
+		$is_seo_auto_enhance_switchable = apply_filters( 'ai_seo_enhancer_enabled', true )
+			&& did_action( 'jetpack_seo_init' ) > 0;
+		$ai_assistant_state             = array(
+			'is-enabled'                     => Jetpack_AI_Settings::is_ai_enabled(),
+			'is-seo-enabled'                 => Jetpack_AI_Settings::is_ai_seo_enabled(),
+			'is-seo-auto-enhance-switchable' => $is_seo_auto_enhance_switchable,
+			'is-seo-auto-enhance-enabled'    => $is_seo_auto_enhance_switchable && (bool) get_option( 'ai_seo_enhancer_enabled', false ),
 		);
 
 		$screen_base = null;
@@ -915,9 +936,14 @@ class Jetpack_Gutenberg {
 			$modules              = $module_list_endpoint->get_modules();
 		}
 
+		// WordPress.com Simple can load this class without the plugin's autoloaded classes.
+		$available_blocks = class_exists( Unavailable_Blocks::class )
+			? Unavailable_Blocks::describe_inactive_modules( self::get_availability() )
+			: self::get_availability();
+
 		$jetpack_plan  = Jetpack_Plan::get();
 		$initial_state = array(
-			'available_blocks' => self::get_availability(),
+			'available_blocks' => $available_blocks,
 			'blocks_variation' => $blocks_variation,
 			'modules'          => $modules,
 			'jetpack'          => array(
@@ -936,6 +962,13 @@ class Jetpack_Gutenberg {
 				// manage_options so editors, who can only test-send to themselves,
 				// aren't shown an editable field that would always be rejected.
 				'can_send_test_email_to_others' => current_user_can( 'manage_options' ),
+				// Which settings-driven subscribe placements are on, for the Site Editor's admin-only notice.
+				'subscribe_placements'          => current_user_can( 'manage_options' ) ? array(
+					'sm_enabled'                        => (bool) get_option( 'sm_enabled', false ),
+					'jetpack_subscribe_overlay_enabled' => (bool) get_option( 'jetpack_subscribe_overlay_enabled', false ),
+					'jetpack_subscribe_floating_button_enabled' => (bool) get_option( 'jetpack_subscribe_floating_button_enabled', false ),
+					'wpcom_action_bar'                  => ( new Host() )->is_wpcom_simple() && ! get_option( 'wpcom_hide_action_bar' ),
+				) : null,
 				// this is the equivalent of JP initial state siteData.showMyJetpack (class-jetpack-redux-state-helper)
 				// used to determine if we can link to My Jetpack from the block editor
 				'is_my_jetpack_available'       => My_Jetpack_Initializer::should_initialize(),
@@ -976,7 +1009,7 @@ class Jetpack_Gutenberg {
 		);
 
 		wp_localize_script(
-			'jetpack-blocks-editor',
+			Shared_Stores_Assets::SCRIPT_HANDLE,
 			'Jetpack_Editor_Initial_State',
 			$initial_state
 		);
@@ -991,7 +1024,7 @@ class Jetpack_Gutenberg {
 	 * block editors such as P2. These must never be deferred (see self::$lazy_blocks and
 	 * self::load_independent_blocks()).
 	 *
-	 * @since $$next-version$$
+	 * @since 16.2
 	 *
 	 * @return string[] Feature names, or an empty array when the preset is unavailable.
 	 */
@@ -1010,7 +1043,7 @@ class Jetpack_Gutenberg {
 	 *
 	 * @since 7.1.0
 	 * @since 16.0 Pure display blocks are deferred on front-end requests and registered on first render.
-	 * @since $$next-version$$ Blocks in the `no-post-editor` preset are never deferred, so front-end editors (e.g. P2) keep them.
+	 * @since 16.2 Blocks in the `no-post-editor` preset are never deferred, so front-end editors (e.g. P2) keep them.
 	 * @see wp_common_block_scripts_and_styles()
 	 */
 	public static function load_independent_blocks() {
@@ -1574,6 +1607,14 @@ class Jetpack_Gutenberg {
 
 		// Bail early if we cannot find a host.
 		if ( empty( $url_components['host'] ) ) {
+			return false;
+		}
+
+		// Only http and https URLs are valid.
+		if (
+			isset( $url_components['scheme'] )
+			&& ! in_array( strtolower( $url_components['scheme'] ), array( 'http', 'https' ), true )
+		) {
 			return false;
 		}
 

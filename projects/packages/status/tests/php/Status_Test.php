@@ -526,6 +526,37 @@ class Status_Test extends TestCase {
 				'https://127.0.0.1:8443/wordpress',
 				true,
 			),
+			// The whole 127.0.0.0/8 range is loopback, not just 127.0.0.1.
+			'loopback_ip_127_0_0_2'          => array(
+				'http://127.0.0.2',
+				true,
+			),
+			'loopback_ip_127_1_2_3'          => array(
+				'http://127.1.2.3:8080',
+				true,
+			),
+			'loopback_ip_broadcast'          => array(
+				'http://127.255.255.255',
+				true,
+			),
+			// 0.0.0.0 is a common container/all-interfaces bind address.
+			'all_interfaces_ipv4'            => array(
+				'http://0.0.0.0',
+				true,
+			),
+			'all_interfaces_ipv4_with_port'  => array(
+				'http://0.0.0.0:8080',
+				true,
+			),
+			// Looks close to loopback but isn't: 128.0.0.0/8 is routable, and an octet over 255 is not an IP.
+			'near_loopback_ip'               => array(
+				'http://128.0.0.1',
+				false,
+			),
+			'invalid_loopback_octet'         => array(
+				'http://127.256.0.1',
+				false,
+			),
 			// A host with no dot at all can't be a public domain, so it is treated as local.
 			'dotless_host'                   => array(
 				'http://intranet',
@@ -534,6 +565,25 @@ class Status_Test extends TestCase {
 			'dotless_host_with_port'         => array(
 				'http://intranet:8080',
 				true,
+			),
+
+			/*
+			 * A dotless IPv6 literal is caught by the rule above, routable addresses included.
+			 * Pinned because that is the answer we want, not an accident: WordPress.com won't
+			 * accept an IPv6 site URL at registration. The IPv4-mapped form keeps its dots and
+			 * reads as remote instead, which is a known inconsistency rather than a choice.
+			 */
+			'ipv6_loopback'                  => array(
+				'http://[::1]:8080',
+				true,
+			),
+			'ipv6_routable'                  => array(
+				'http://[2606:4700:4700::1111]',
+				true,
+			),
+			'ipv6_mapped_ipv4_loopback'      => array(
+				'http://[::ffff:127.0.0.1]',
+				false,
 			),
 			'playground'                     => array(
 				'https://playground.wordpress.net/scope:0.8362470763364798',
@@ -761,13 +811,15 @@ class Status_Test extends TestCase {
 	 *
 	 * @dataProvider get_coming_soon_status
 	 *
-	 * @param bool $site_is_coming_soon      Site is coming soon value.
-	 * @param int  $wpcom_public_coming_soon wpcom_public_coming_soon option value.
-	 * @param bool $expected                 Expected result.
+	 * @param bool $simple_private_coming_soon wpcom_is_coming_soon() return value, on Simple.
+	 * @param bool $woa_private_coming_soon    Private_Site\site_is_coming_soon() return value, on WoA.
+	 * @param int  $wpcom_public_coming_soon   wpcom_public_coming_soon option value.
+	 * @param bool $expected                   Expected result.
 	 */
 	#[DataProvider( 'get_coming_soon_status' )]
-	public function test_is_coming_soon( $site_is_coming_soon, $wpcom_public_coming_soon, $expected ) {
-		Functions\when( 'site_is_coming_soon' )->justReturn( $site_is_coming_soon );
+	public function test_is_coming_soon( $simple_private_coming_soon, $woa_private_coming_soon, $wpcom_public_coming_soon, $expected ) {
+		Functions\when( 'wpcom_is_coming_soon' )->justReturn( $simple_private_coming_soon );
+		Functions\when( 'Private_Site\site_is_coming_soon' )->justReturn( $woa_private_coming_soon );
 		Functions\when( 'get_option' )->justReturn( $wpcom_public_coming_soon );
 		$this->assertSame( $expected, $this->status_obj->is_coming_soon() );
 	}
@@ -779,10 +831,10 @@ class Status_Test extends TestCase {
 	 */
 	public static function get_coming_soon_status() {
 		return array(
-			'Jetpack public site'       => array( null, false, false ),
-			'WoA public site'           => array( false, false, false ),
-			'WoA private site'          => array( true, false, true ),
-			'wpcom simple private site' => array( null, true, true ),
+			'Public site'                => array( false, false, 0, false ),
+			'Simple private Coming Soon' => array( true, false, 0, true ),
+			'WoA private Coming Soon'    => array( false, true, 0, true ),
+			'Public Coming Soon'         => array( false, false, 1, true ),
 		);
 	}
 }

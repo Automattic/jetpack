@@ -18,7 +18,6 @@ export default class DomEventHandler extends Component {
 			previousStyle: null,
 			previousBodyStyleAttribute: '',
 		};
-		this.props.initializeQueryValues();
 	}
 
 	componentDidMount() {

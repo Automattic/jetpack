@@ -12,8 +12,13 @@ import { LikesSkeletonLoader } from './components/skeleton-loader';
  * a function, and withSelect() returns a React.memo object, which it silently rejects.
  */
 const LikesCheckbox = () => {
-	const { isLoadingModules, isChangingStatus, isModuleActive, changeStatus } =
-		useModuleStatus( 'likes' );
+	const {
+		isLoadingModules,
+		isChangingStatus,
+		isModuleActive: isLikesModuleActive,
+		changeStatus,
+	} = useModuleStatus( 'likes' );
+	const { isModuleActive: isCommentLikesModuleActive } = useModuleStatus( 'comment-likes' );
 
 	const areLikesEnabled = useSelect(
 		select => select( editorStore ).getEditedPostAttribute( 'jetpack_likes_enabled' ),
@@ -21,7 +26,7 @@ const LikesCheckbox = () => {
 	);
 	const { editPost } = useDispatch( editorStore );
 
-	if ( ! isModuleActive ) {
+	if ( ! isLikesModuleActive && ! isCommentLikesModuleActive ) {
 		return (
 			<PostTypeSupportCheck supportKeys="jetpack-post-likes">
 				<JetpackLikesAndSharingPanel>
@@ -30,7 +35,7 @@ const LikesCheckbox = () => {
 					) : (
 						<LikesPlaceholder
 							changeStatus={ changeStatus }
-							isModuleActive={ isModuleActive }
+							isModuleActive={ isLikesModuleActive }
 							isLoading={ isChangingStatus }
 						/>
 					) }
@@ -43,7 +48,11 @@ const LikesCheckbox = () => {
 		<PostTypeSupportCheck supportKeys="jetpack-post-likes">
 			<JetpackLikesAndSharingPanel>
 				<ToggleControl
-					label={ __( 'Show likes', 'jetpack' ) }
+					label={
+						isLikesModuleActive
+							? __( 'Show likes', 'jetpack' )
+							: __( 'Show comment likes', 'jetpack', /* dummy arg to avoid bad minification */ 0 )
+					}
 					checked={ areLikesEnabled }
 					onChange={ value => {
 						editPost( { jetpack_likes_enabled: value } );

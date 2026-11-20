@@ -5,6 +5,92 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 10.0.0 - 2026-10-14
+### Added
+- Connection: Add a Connected view to the Users page listing users with a linked WordPress.com account. [#53150]
+- Connection: Surface SSL certificate verification failures reported by WordPress.com as a connection error notice. [#52035]
+- Connection: Transfer connection ownership to another administrator without leaving your site. [#53359]
+- My Jetpack: Allow the Automattic for Agencies banner to be dismissed. [#51441]
+
+### Changed
+- AI: Use WordPress Design System colors in the image generator. [#53022]
+- Boost: Wait up to four minutes for slow speed tests in My Jetpack instead of timing out after two. [#51605]
+- Charts: follow the WordPress admin color scheme for chart series colors. [#51535]
+- Charts: update chart grid, axis and label colors immediately when the theme changes. [#51687]
+- Connection: Show every connection error in one notice, each with the account it affects, and link to Site Health when a firewall is blocking WordPress.com. [#51504]
+- Dashboard: Enable or disable Social directly from the dashboard, so it can be turned back on where Jetpack Settings is unreachable (e.g. WordPress.com Atomic sites). [#50376]
+- General: Update minimum WordPress version to 7.0. [#51370]
+- Hide the Social sidebar item when Social is not active. [#52156]
+- My Jetpack: answer module switch clicks immediately, and explain what happened when a change fails. [#52494]
+- My Jetpack: Restyle dashboard notices to match the WordPress design system. [#52290]
+- My Jetpack: Show a connection error on the Overview connection card while your account is still to be connected, instead of only asking you to connect it. [#53409]
+- My Jetpack: Show a Features tab in place of the Products tab. [#52785]
+- My Jetpack: Show product cards flat, without a drop shadow. [#52988]
+- My Jetpack: Show the dashboard in the new rounded admin page frame. [#52446]
+- My Jetpack: Show the Jetpack menu notification badge when a connection error is detected. [#52332]
+- My Jetpack: Show what Paid Stats actually adds — UTM tracking, device stats, and region & city locations — instead of commercial use. [#51410]
+- Overview: Show the traffic chart tooltip on the dark WordPress design system tooltip surface. [#52850]
+- Sharing: Keep focus on information icons when their tooltips open, announce the content to screen readers, and show a focus ring after clicking them. [#52736]
+- Sidebar: sort Jetpack menu items alphabetically, pinning My Jetpack to the top and external links and Settings to the bottom. [#52003]
+- Social: the block editor sidebar now uses the same connection management UI as the Social admin page. [#50731]
+- Surface a visible error when fetching the keyring result fails during a connection, instead of failing silently. [#50822]
+- Tested up to WordPress 7.1. [#51370]
+- Update package dependencies. [#50436] [#50510] [#51399] [#52028]
+- Use core snackbar notice placement. [#52193]
+
+### Removed
+- Updated PHP version requirements to PHP 7.4 or newer. [#51515]
+
+### Fixed
+- Admin dashboards: Keep the page header and content in view when the wp-admin menu is taller than the window. [#51696]
+- Admin page: Fix the dashboard overlapping the admin menu in right-to-left languages. [#51963]
+- Charts: draw labels at the design system's font weight and size. [#51452]
+- Charts: Fix unreadable axis labels in forced-colors mode. [#52268]
+- Charts: keep chart tooltips under sticky and fixed page elements. [#51640]
+- Charts: Place line and area chart date ticks on the site's time zone boundaries, name the hour in tooltips on hourly data, and read hour labels in the site's own locale rather than a forced 12-hour clock. [#51813]
+- Charts: Restore keyboard focus after dismissing line chart tooltips. [#52284]
+- Charts: Stop the first and last dates on a chart's horizontal axis from being cut off. [#52112]
+- Connection: Fix a stale connection error notice that could persist on healthy sites. [#52264]
+- Connection: Fix reconnecting your WordPress.com account so it no longer disconnects other users and clears the broken-connection notice on the first attempt. [#52851]
+- Connection: Hide connection error notices from users who cannot fix the connection. [#52049]
+- Connection: Let users without admin access reconnect their own broken account from the connection error notice. [#52718]
+- Connection: Report a broken connection on My Jetpack's connection card instead of claiming everything looks good, and show a break only the connection owner can repair as a warning, not an error, to everyone else. [#52130]
+- Connection: Stop showing a duplicate account notice when your WordPress.com email differs from your site email only in letter case. [#51285]
+- Connection: Stop Site Health from showing spurious connection failures — remove the redundant outbound HTTP/HTTPS checks, and no longer prompt a reconnect when the WordPress.com connection test is inconclusive. [#52916]
+- Connection: Stop users who cannot set up the site connection from becoming the connection owner when the owner's connection is missing. [#52880]
+- Connection: Translate the Connectors card's text on sites that don't use English. [#53179]
+- Connection: Update wording for some connection error notices. [#51360]
+- Connections: Let a Facebook or Instagram connection with no Page or account saved pick one when reconnecting. [#52963]
+- Dashboard: Continue the wp-admin menu color behind the page frame on WordPress.com and third-party admin color schemes. [#51619]
+- Dashboard: Show contextual messages on the Social screen again. [#52471]
+- Fix low-contrast placeholder chips in the share message help text and the available placeholders list. [#53615]
+- Fix publishing failing with a share message database error, which also prevented social shares from being sent. [#52910]
+- Fix the Social admin screen and editor sidebar failing to load on WordPress.com-hosted sites. [#52362]
+- Footer: Hide Products and Help links when My Jetpack is unavailable. [#52557]
+- JITM: Fix missing messages and a console error on sites without the Jetpack plugin active. [#51733]
+- Keep admin icons colored after the @wordpress/icons 16 update, which draws them as strokes. [#52187]
+- Keep keyboard focus on the first or last data point when an arrow key reaches the end of the traffic chart, return focus to the chart when Escape closes a tooltip, stop a focused chart from swallowing keys it does not use such as Page Down, and close the tooltip when the series it describes is hidden. [#50140]
+- Line up the Jetpack in-dashboard message with the rest of the page. [#52641]
+- My Jetpack: always label the license activation link 'Activate a license'. It previously read 'Activate a new license' on sites with a plan, even when no licenses had been activated. [#51283]
+- My Jetpack: Fix the layout of the connection screen for right-to-left languages. [#52749]
+- My Jetpack: Keep the Automattic for Agencies banner hidden after dismissing it and switching tabs. [#51441]
+- My Jetpack: Point users who cannot connect the site at an administrator, instead of an onboarding screen they cannot complete. [#52614]
+- My Jetpack: Show each notice once instead of twice. [#52494]
+- My Jetpack: Show the highest-priority notice first when several are set at once. [#53400]
+- My Jetpack: Show the right product status as soon as fresher plan data is available, instead of reusing an earlier lookup. [#52009]
+- My Jetpack: Stop repeating the partner lookup request on every page load. [#51441]
+- My Jetpack: Stop reporting an error when switching VideoPress off while the Jetpack plugin is inactive. [#53371]
+- My Jetpack: Stop the Stats dashboard from asking which plan you want again after Start for Free was already chosen. [#51413]
+- My Jetpack: stretch the tab content background to the full height of the page. [#52633]
+- Point WordPress.com Simple sites at the Business plan when upgrading, instead of a checkout they can't complete. [#51372]
+- Pre-fill the Bluesky handle field when reconnecting an account. [#52187]
+- Sharing: Open information tooltips with the keyboard and dismiss them with Escape. [#52661]
+- Show each number on the traffic chart's value axis once when visit counts are small. [#52588]
+- Social Notes: Avoid repeated database queries when Social Notes are disabled. [#52761]
+- Status: Detect a site served on any 127.0.0.0/8 loopback address, or on 0.0.0.0, as a local site. [#51311]
+- Stop the dashboard frame from flashing while loading and when switching admin pages. [#52235]
+- Traffic chart: Announce the chart correctly to screen readers. [#53202]
+
 ## 9.0.3 - 2026-06-26
 ### Fixed
 - Fix fatal error on My Jetpack when the current stable Jetpack plugin is active. [#49994]
@@ -16,7 +102,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## 9.0.1 - 2026-06-23
 ### Changed
 - Reconnect accounts in place instead of disconnecting and recreating them, retaining connection settings. [#49695]
-- Updated package dependencies. [#49793] [#49448] [#49492]
+- Updated package dependencies. [#49448] [#49492] [#49793]
 
 ### Fixed
 - Fix PHP warnings on the front end of posts shared with the no link sharing option. [#49372]
@@ -191,8 +277,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Connection: Allow pre-selected login providers [#42662]
 - General: indicate compatibility with the upcoming version of WordPress - 6.8. [#42701]
 - Improved the logic for share status [#42978]
-- Update package dependencies. [#42815]
-- Update package dependencies. [#43071]
+- Update package dependencies. [#42815] [#43071]
 
 ### Fixed
 - Do not load in the editor if sharing is disabled [#43006]
@@ -230,12 +315,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Social | Migrate review prompt initial state to script data [#42389]
 - Social | Move settings endpoint to publicize package [#41456]
 - Updated composer.lock [#40863]
-- Updated package dependencies. [#41286]
-- Updated package dependencies. [#41491]
-- Updated package dependencies. [#41577]
-- Updated package dependencies. [#41659]
-- Update package dependencies. [#42163]
-- Update package dependencies. [#42180]
+- Updated package dependencies. [#41286] [#41491] [#41577] [#41659]
+- Update package dependencies. [#42163] [#42180]
 - Update the settings endppoint to use existing endpoints [#41461]
 - Update the unowned section from a product grid to a product list [#41312]
 
@@ -361,7 +442,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Social: Updated intial state logic to use the new consolidated initial state [#38606]
 - Social: Updated the share status modal to render it globally [#39116]
 - Update composer lock file [#38942]
-- Updated package dependencies. [#38662] [#38665] [#38822] [#38822] [#39111]
+- Updated package dependencies. [#38662] [#38665] [#38822] [#39111]
 
 ### Removed
 - Remove the unused Advanced plan nudge [#38926]
@@ -518,7 +599,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Code Modernization: Replace usage of strpos() with str_contains() [#34137]
 - General: updated PHP requirement to PHP 7.0+ [#34126]
-- General: update WordPress version requirements to WordPress 6.3 and compatible with 6.4. [#34127] [#33776]
+- General: update WordPress version requirements to WordPress 6.3 and compatible with 6.4. [#33776] [#34127]
 - Updated package dependencies.
 - Updated screenshot to show the new connection toggles. [#33381]
 - Updated Social admin pricing page [#33176]

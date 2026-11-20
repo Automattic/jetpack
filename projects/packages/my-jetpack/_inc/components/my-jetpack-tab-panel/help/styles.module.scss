@@ -1,4 +1,4 @@
-@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+@use "@wordpress/base-styles/breakpoints";
 @use "../styles.module.scss" as parent;
 
 .description {
@@ -26,7 +26,7 @@
 	grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
 	gap: 1.5rem;
 
-	@media (max-width: gb.$break-medium ) {
+	@media (max-width: breakpoints.$break-medium ) {
 		grid-template-columns: 1fr;
 	}
 }
@@ -62,7 +62,7 @@
 	// with the cards above. (The previous `padding-inline: 0` relied on the
 	// wrapper's padding, which no longer applies now the footer renders outside
 	// `.my-jetpack-tab-panel-inner`.)
-	@media ( max-width: gb.$break-medium ) {
+	@media ( max-width: breakpoints.$break-medium ) {
 		padding-inline: 1.5rem;
 	}
 }

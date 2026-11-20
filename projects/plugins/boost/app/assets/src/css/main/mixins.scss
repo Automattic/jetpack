@@ -36,3 +36,16 @@
 @mixin box-shadow() {
 	box-shadow: 0 0 20px 0 rgb(170 170 170 / 28%);
 }
+
+@mixin content-column() {
+	inline-size: 100%;
+	max-inline-size: var(--wpds-dimension-surface-width-xl);
+	margin-inline: auto;
+}
+
+@mixin settings-well($padding: var(--wpds-dimension-padding-lg)) {
+	padding: $padding;
+	background: var(--wpds-color-background-surface-neutral);
+	border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral-weak);
+	border-radius: var(--wpds-border-radius-lg);
+}

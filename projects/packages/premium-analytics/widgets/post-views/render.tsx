@@ -2,19 +2,24 @@
  * External dependencies
  */
 import { STATS_CHART_BUCKET_PERIODS, toPostId } from '@jetpack-premium-analytics/data';
-import { reports } from '@jetpack-premium-analytics/icons';
+import { reportingTimeZone } from '@jetpack-premium-analytics/datetime';
 import {
+	HEADLINE_COUNT_FORMAT,
+	ChartEmptyState,
 	MetricTabsChart,
 	MetricTabsChartSkeleton,
 	WidgetRoot,
 	WidgetState,
 	defaultPeriodForInterval,
+	getPostTypeCopy,
+	metricTabsToCsv,
+	useReportActions,
 	useWidgetRootContext,
 	type MetricTab,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, _n } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
@@ -26,11 +31,6 @@ import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
 type PostViewsRenderAttributes = PostViewsAttributes & Partial< ReportParamsFieldAttributes >;
 type PostViewsWidgetProps = WidgetRenderProps< PostViewsRenderAttributes >;
-
-const DATA_FORMAT = {
-	type: 'number' as const,
-	options: { useMultipliers: true, decimals: 0 },
-};
 
 type PostViewsInnerProps = {
 	/** How the views series is drawn. `MetricTabsChart` owns the default. */
@@ -46,11 +46,8 @@ function PostViewsInner( { chartType }: PostViewsInnerProps ) {
 	const postId = toPostId( reportParams.post_id );
 	const period = defaultPeriodForInterval( reportParams.interval, STATS_CHART_BUCKET_PERIODS );
 
-	const { current, isLoading, isFetching, isError, refetch } = usePostViews(
-		postId,
-		reportParams,
-		period
-	);
+	const { current, postType, isLoading, isFetching, isError, isPlaceholderData, refetch } =
+		usePostViews( postId, reportParams, period );
 
 	// The post detail page has no comparison control, so there is no previous
 	// series, and the headline is just the sum of the window's buckets.
@@ -59,12 +56,33 @@ function PostViewsInner( { chartType }: PostViewsInnerProps ) {
 			{
 				key: 'views',
 				label: __( 'Views', 'jetpack-premium-analytics-pkg' ),
+				countLabel: count =>
+					/* translators: %s: number of views. */
+					_n( '%s View', '%s Views', count, 'jetpack-premium-analytics-pkg' ),
 				value: current.reduce( ( sum, point ) => sum + point.value, 0 ),
 				current,
 			},
 		],
 		[ current ]
 	);
+	const csv = useMemo(
+		() =>
+			metricTabsToCsv( current.some( point => point.value > 0 ) ? metricTabs : [], {
+				zone: reportingTimeZone(),
+				withTime: false,
+				dateLabel: __( 'Date', 'jetpack-premium-analytics-pkg' ),
+			} ),
+		[ current, metricTabs ]
+	);
+	useReportActions( {
+		csv: {
+			...csv,
+			filenamePrefix: `post-${ postId }-views`,
+			range: { from: reportParams.from, to: reportParams.to },
+			status: { isLoading, isFetching, isError, isPlaceholderData },
+		},
+	} );
+
 	return (
 		<div className={ styles.root }>
 			<WidgetState
@@ -80,7 +98,6 @@ function PostViewsInner( { chartType }: PostViewsInnerProps ) {
 					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
 				} }
 				empty={ {
-					icon: reports,
 					description: __(
 						'Open a post or page report to see its views here.',
 						'jetpack-premium-analytics-pkg'
@@ -92,8 +109,11 @@ function PostViewsInner( { chartType }: PostViewsInnerProps ) {
 			>
 				<MetricTabsChart
 					metrics={ metricTabs }
-					dataFormat={ DATA_FORMAT }
+					dataFormat={ HEADLINE_COUNT_FORMAT }
 					chartType={ chartType }
+					chartTitle={ getPostTypeCopy( postType ).views }
+					empty={ <ChartEmptyState /> }
+					hideSingleMetricLabel
 				/>
 			</WidgetState>
 		</div>
@@ -102,7 +122,7 @@ function PostViewsInner( { chartType }: PostViewsInnerProps ) {
 
 export default function PostViews( { attributes = {} }: PostViewsWidgetProps ) {
 	// Coerce unknown persisted values to the default.
-	const chartType = attributes?.chartType === 'bar' ? 'bar' : 'line';
+	const chartType = attributes?.chartType === 'line' ? 'line' : 'bar';
 
 	return (
 		<WidgetRoot attributes={ attributes }>

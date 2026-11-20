@@ -10,6 +10,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
 
 require_once JETPACK__PLUGIN_DIR . 'modules/sitemaps/sitemap-builder.php';
+require_once __DIR__ . '/class-jetpack-sitemap-builder-test-stub.php';
 
 /**
  * Test class for Jetpack_Sitemap_Builder.
@@ -67,136 +68,32 @@ class Jetpack_Sitemap_Builder_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test sitemap index generation with multiple sitemaps
+	 * Posts that overflow one page sitemap continue in the next, each listed exactly once.
 	 */
-	public function test_sitemap_index_generation() {
-		// Create enough posts to generate multiple sitemaps
-		self::factory()->post->create_many(
-			2000,
-			array(
-				'post_type'   => 'post',
-				'post_status' => 'publish',
-			)
-		);
+	public function test_page_sitemaps_split_posts_by_id() {
+		global $wpdb;
 
-		// Run updates until we reach the index generation
-		for ( $i = 0; $i < 3; $i++ ) {
-			$this->builder->update_sitemap();
+		// One multi-row INSERT: the post factory takes ~20 s for this many posts.
+		$rows = array();
+		for ( $i = 0; $i <= JP_SITEMAP_MAX_ITEMS; $i++ ) {
+			$rows[] = $wpdb->prepare( "(1, '2024-01-01 00:00:00', '2024-01-01 00:00:00', '', %s, '', 'publish', 'post', %s, '', '', '', '2024-01-01 00:00:00', '2024-01-01 00:00:00')", "Post $i", "post-$i" );
 		}
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared -- Each row is prepared above.
+		$wpdb->query( "INSERT INTO $wpdb->posts (post_author, post_date, post_date_gmt, post_content, post_title, post_excerpt, post_status, post_type, post_name, to_ping, pinged, post_content_filtered, post_modified, post_modified_gmt) VALUES " . implode( ',', $rows ) );
+		$expected = array_map( 'get_permalink', $wpdb->get_col( "SELECT ID FROM $wpdb->posts WHERE post_status = 'publish' AND post_type = 'post' ORDER BY ID" ) );
 
-		// Check that index files were created
+		$this->builder->update_sitemap();
+
 		$librarian = new Jetpack_Sitemap_Librarian();
-		$index     = $librarian->get_sitemap_text( 'sitemap-index-1.xml', JP_PAGE_SITEMAP_INDEX_TYPE );
-
-		$this->assertNotEmpty( $index );
-		$this->assertStringContainsString( '<sitemapindex', $index );
-		$this->assertStringContainsString( '<sitemap>', $index );
-	}
-
-	/**
-	 * Test master sitemap generation
-	 */
-	public function test_master_sitemap_generation() {
-		$this->markTestSkipped( 'Skipping master sitemap generation test since it assumed XMLWriter usage.' );
-		// Create content of different types
-		// @phan-suppress-next-line PhanPluginUnreachableCode -- Disabling until OOM issues are better understood/corrected.
-		self::factory()->post->create_many(
-			5,
-			array(
-				'post_type'   => 'post',
-				'post_status' => 'publish',
-			)
-		);
-
-		// Use jetpack-icon.jpg from tests/php folder
-		$filename = dirname( __DIR__, 3 ) . '/jetpack-icon.jpg';
-
-		// Create an attachment with proper image metadata
-		$attachment_id = self::factory()->attachment->create_object(
-			array(
-				'file'           => $filename,
-				'post_parent'    => 0,
-				'post_mime_type' => 'image/jpeg',
-				'post_title'     => 'Test Image',
-				'post_content'   => 'Test Image Description',
-				'post_excerpt'   => 'Test Image Caption',
-				'post_status'    => 'publish',
-			)
-		);
-
-		// Add image metadata
-		$attachment_metadata = array(
-			'width'      => 100,
-			'height'     => 100,
-			'file'       => 'test-image.jpg',
-			'sizes'      => array(
-				'thumbnail' => array(
-					'file'      => 'test-image-150x150.jpg',
-					'width'     => 150,
-					'height'    => 150,
-					'mime-type' => 'image/jpeg',
-				),
-			),
-			'image_meta' => array(
-				'title'   => 'Test Image',
-				'caption' => 'Test Image Caption',
-			),
-		);
-		wp_update_attachment_metadata( $attachment_id, $attachment_metadata );
-
-		// Add a filter to transform image:image to images format
-		add_filter(
-			'jetpack_sitemap_image_sitemap_item',
-			function ( $item_array ) use ( $attachment_id ) {
-				if ( isset( $item_array['url']['image:image'] ) ) {
-					$item_array['url']['images'] = array(
-						array(
-							'loc'     => $item_array['url']['image:image']['image:loc'],
-							'title'   => get_the_title( $attachment_id ),
-							'caption' => get_the_excerpt( $attachment_id ),
-						),
-					);
-					unset( $item_array['url']['image:image'] );
-				}
-				return $item_array;
-			}
-		);
-
-		// Run updates until we reach master sitemap generation
-		for ( $i = 0; $i < 10; $i++ ) {
-			$this->builder->update_sitemap();
+		$listed    = array();
+		foreach ( array( 'sitemap-1.xml', 'sitemap-2.xml' ) as $name ) {
+			preg_match_all( '#<loc>([^<]+)</loc>#', (string) $librarian->get_sitemap_text( $name, JP_PAGE_SITEMAP_TYPE ), $matches );
+			$listed = array_merge( $listed, $matches[1] );
 		}
+		$listed = array_values( array_diff( $listed, array( home_url( '/' ) ) ) );
 
-		// Check master sitemap
-		$librarian = new Jetpack_Sitemap_Librarian();
-		$master    = $librarian->get_sitemap_text( 'sitemap.xml', JP_MASTER_SITEMAP_TYPE );
-
-		$this->assertNotEmpty( $master );
-		$this->assertStringContainsString( '<sitemapindex', $master );
-		$this->assertStringContainsString( 'sitemap-1.xml', $master );
-		$this->assertStringContainsString( 'image-sitemap-1.xml', $master );
-
-		// Clean up
-		wp_delete_attachment( $attachment_id, true );
-		if ( file_exists( $filename ) && strpos( $filename, 'test-image-' ) !== false ) {
-			unlink( $filename );
-		}
-		remove_filter(
-			'jetpack_sitemap_image_sitemap_item',
-			function ( $item_array ) use ( $attachment_id ) {
-				if ( isset( $item_array['url']['image:image'] ) ) {
-					$item_array['url']['images'] = array(
-						array(
-							'loc'     => $item_array['url']['image:image']['image:loc'],
-							'title'   => get_the_title( $attachment_id ),
-							'caption' => get_the_excerpt( $attachment_id ),
-						),
-					);
-					unset( $item_array['url']['image:image'] );
-				}
-				return $item_array;
-			}
-		);
+		$this->assertCount( JP_SITEMAP_MAX_ITEMS + 1, $expected );
+		$this->assertSame( $expected, $listed );
 	}
 
 	/**
@@ -300,8 +197,221 @@ class Jetpack_Sitemap_Builder_Test extends WP_UnitTestCase {
 		$result  = $builder->build_one_page_sitemap( 1, 1 );
 
 		remove_filter( 'jetpack_page_sitemap_other_urls', $callback );
+		remove_filter( 'jetpack_sitemap_flat_master_index', '__return_true' );
 
 		$this->assertSame( '2024-03-08T01:02:03Z', $result['last_modified'], 'Last modified date is not the one from the other_urls filter.' );
+	}
+
+	/**
+	 * Every URL from the other URLs filter is listed, across batches and sitemap files.
+	 *
+	 * @group jetpack-sitemap
+	 * @since 16.4
+	 */
+	#[Group( 'jetpack-sitemap' )]
+	public function test_other_urls_are_not_skipped_between_batches() {
+		$callback = $this->add_split_page_sitemap_fixture();
+
+		$this->builder->update_sitemap();
+
+		remove_filter( 'jetpack_page_sitemap_other_urls', $callback );
+
+		$librarian = new Jetpack_Sitemap_Librarian();
+		$listed    = array();
+		foreach ( array( 'sitemap-1.xml', 'sitemap-2.xml', 'sitemap-3.xml' ) as $name ) {
+			preg_match_all( '#<loc>([^<]+)</loc>#', (string) $librarian->get_sitemap_text( $name, JP_PAGE_SITEMAP_TYPE ), $matches );
+			$listed = array_merge( $listed, $matches[1] );
+		}
+
+		$this->assertSame( array(), array_values( array_diff( call_user_func( $callback ), $listed ) ), 'URLs missing from the page sitemaps.' );
+	}
+
+	/**
+	 * Enough URLs to spill over JP_SITEMAP_MAX_ITEMS into a second page sitemap.
+	 *
+	 * @return callable The filter callback, so the caller can remove it again.
+	 */
+	private function add_split_page_sitemap_fixture() {
+		$callback = function () {
+			$urls = array();
+			for ( $i = 0; $i < JP_SITEMAP_MAX_ITEMS * 2; $i++ ) {
+				$urls[] = 'https://example.com/' . $i;
+			}
+			return $urls;
+		};
+
+		add_filter( 'jetpack_page_sitemap_other_urls', $callback );
+
+		return $callback;
+	}
+
+	/**
+	 * Turn on the flat master sitemap layout, which ships off by default.
+	 */
+	private function enable_flat_master_index() {
+		add_filter( 'jetpack_sitemap_flat_master_index', '__return_true' );
+	}
+
+	/**
+	 * The master sitemap links leaf sitemaps directly when they fit in its buffer.
+	 *
+	 * A sitemap index file may not list other sitemap index files. When the leaf
+	 * files do not fit, the master deliberately keeps the nested layout instead
+	 * of dropping URLs — see the overflow test below.
+	 *
+	 * @link https://www.sitemaps.org/protocol.html#index
+	 *
+	 * @group jetpack-sitemap
+	 * @since 16.2
+	 */
+	#[Group( 'jetpack-sitemap' )]
+	public function test_master_sitemap_lists_leaf_sitemaps_when_they_fit() {
+		$callback = $this->add_split_page_sitemap_fixture();
+		$this->enable_flat_master_index();
+
+		/*
+		 * One pass covers this fixture: update_sitemap() builds up to
+		 * JP_SITEMAP_UPDATE_SIZE files per call and this needs four. Calling it
+		 * again would start a fresh cycle rather than continue this one.
+		 */
+		$this->builder->update_sitemap();
+
+		remove_filter( 'jetpack_page_sitemap_other_urls', $callback );
+		remove_filter( 'jetpack_sitemap_flat_master_index', '__return_true' );
+
+		$librarian = new Jetpack_Sitemap_Librarian();
+
+		// Sanity check: the content really did split across two sitemaps.
+		$this->assertNotEmpty(
+			$librarian->get_sitemap_text( 'sitemap-2.xml', JP_PAGE_SITEMAP_TYPE ),
+			'Expected the URLs to split across more than one page sitemap.'
+		);
+
+		$master = $librarian->get_sitemap_text( 'sitemap.xml', JP_MASTER_SITEMAP_TYPE );
+
+		$this->assertStringContainsString( 'sitemap-1.xml', $master );
+		$this->assertStringContainsString( 'sitemap-2.xml', $master );
+		$this->assertStringNotContainsString( 'sitemap-index-', $master );
+	}
+
+	/**
+	 * Too many leaf sitemaps to list falls back to the nested index, intact.
+	 *
+	 * Filling the real buffer would take a million-plus URLs, so this shrinks it
+	 * to one entry through the builder's buffer seam. The master must then link
+	 * the per-type index rather than list some leaves and drop the rest, and the
+	 * index it links must still reach every leaf.
+	 *
+	 * @group jetpack-sitemap
+	 * @since 16.2
+	 */
+	#[Group( 'jetpack-sitemap' )]
+	public function test_master_sitemap_falls_back_to_nested_index_when_leaves_do_not_fit() {
+		$callback = $this->add_split_page_sitemap_fixture();
+		$this->enable_flat_master_index();
+
+		Jetpack_Sitemap_Builder_Test_Stub::$master_item_limit = 1;
+		$builder = new Jetpack_Sitemap_Builder_Test_Stub();
+		$builder->update_sitemap();
+
+		remove_filter( 'jetpack_page_sitemap_other_urls', $callback );
+		remove_filter( 'jetpack_sitemap_flat_master_index', '__return_true' );
+		Jetpack_Sitemap_Builder_Test_Stub::reset();
+
+		$librarian = new Jetpack_Sitemap_Librarian();
+		$master    = $librarian->get_sitemap_text( 'sitemap.xml', JP_MASTER_SITEMAP_TYPE );
+
+		$this->assertStringContainsString( 'sitemap-index-1.xml', $master );
+		$this->assertStringNotContainsString( 'sitemap-1.xml', $master );
+
+		// The fallback is only acceptable because the index still reaches everything.
+		$index = $librarian->get_sitemap_text( 'sitemap-index-1.xml', JP_PAGE_SITEMAP_INDEX_TYPE );
+
+		$this->assertStringContainsString( 'sitemap-1.xml', $index );
+		$this->assertStringContainsString( 'sitemap-2.xml', $index );
+	}
+
+	/**
+	 * A master sitemap is not replaced by one that cannot reach every file.
+	 *
+	 * This guard is not behind the flat-layout filter, so it applies to every
+	 * site. Losing a sitemap file the state still expects has to leave the
+	 * previously stored master alone rather than publish one that no longer
+	 * reaches those URLs.
+	 *
+	 * @group jetpack-sitemap
+	 * @since 16.2
+	 */
+	#[Group( 'jetpack-sitemap' )]
+	public function test_master_sitemap_is_kept_when_a_sitemap_file_is_missing() {
+		$callback = $this->add_split_page_sitemap_fixture();
+		$this->enable_flat_master_index();
+
+		$this->builder->update_sitemap();
+
+		$librarian = new Jetpack_Sitemap_Librarian();
+		$before    = $librarian->get_sitemap_text( 'sitemap.xml', JP_MASTER_SITEMAP_TYPE );
+
+		$this->assertStringContainsString( 'sitemap-2.xml', $before );
+
+		// Lose a file the state still expects, then run the master step again.
+		$librarian->delete_sitemap_data( 'sitemap-2.xml', JP_PAGE_SITEMAP_TYPE );
+		update_option(
+			'jetpack-sitemap-state',
+			array(
+				'sitemap-type'  => JP_MASTER_SITEMAP_TYPE,
+				'last-added'    => 0,
+				'number'        => 0,
+				'last-modified' => '1970-01-01 00:00:00',
+				'max'           => array(
+					JP_PAGE_SITEMAP_TYPE => array(
+						'number'  => 2,
+						'lastmod' => '1970-01-01 00:00:00',
+					),
+				),
+			)
+		);
+
+		$this->builder->update_sitemap();
+
+		remove_filter( 'jetpack_page_sitemap_other_urls', $callback );
+		remove_filter( 'jetpack_sitemap_flat_master_index', '__return_true' );
+
+		$this->assertSame(
+			$before,
+			$librarian->get_sitemap_text( 'sitemap.xml', JP_MASTER_SITEMAP_TYPE ),
+			'The master sitemap should be left alone when a file it lists is gone.'
+		);
+	}
+
+	/**
+	 * The flat layout is opt-in: without the filter the master still nests.
+	 *
+	 * The default is expected to flip once the flat layout has been verified in
+	 * production, at which point this test goes with it.
+	 *
+	 * @group jetpack-sitemap
+	 * @since 16.2
+	 */
+	#[Group( 'jetpack-sitemap' )]
+	public function test_master_sitemap_nests_by_default() {
+		$callback = $this->add_split_page_sitemap_fixture();
+
+		$this->builder->update_sitemap();
+
+		remove_filter( 'jetpack_page_sitemap_other_urls', $callback );
+
+		$librarian = new Jetpack_Sitemap_Librarian();
+		$master    = $librarian->get_sitemap_text( 'sitemap.xml', JP_MASTER_SITEMAP_TYPE );
+
+		$this->assertStringContainsString( 'sitemap-index-1.xml', $master );
+		$this->assertStringNotContainsString( 'sitemap-1.xml', $master );
+
+		$index = $librarian->get_sitemap_text( 'sitemap-index-1.xml', JP_PAGE_SITEMAP_INDEX_TYPE );
+
+		$this->assertStringContainsString( '<sitemapindex', $index );
+		$this->assertStringContainsString( 'sitemap-1.xml', $index );
+		$this->assertStringContainsString( 'sitemap-2.xml', $index );
 	}
 
 	/**

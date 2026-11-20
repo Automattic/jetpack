@@ -1,4 +1,4 @@
-@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+@use "@wordpress/base-styles/mixins";
 
 // Wider than the core block editor welcome guide's 312px, to give the
 // artwork more room. Core caps the frame at `calc(100vw - 32px)` below
@@ -18,7 +18,7 @@
 	// against an auto-height parent, so it resolves to nothing. Scoped to
 	// break-small and up, matching where core applies the guide's own
 	// min-height, so narrow screens can still shrink to fit.
-	@include gb.break-small() {
+	@include mixins.break-small() {
 
 		.components-guide__container {
 			min-block-size: 496px;

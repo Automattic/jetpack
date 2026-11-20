@@ -1,9 +1,9 @@
 import { UpsellBanner, getRedirectUrl } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import { useCallback, useEffect, useState } from 'react';
+import { a4aBannerIcon as icon } from '../../assets/inline-svgs';
 import useDismissA4ABanner from '../../data/use-dismiss-a4a-banner';
 import useAnalytics from '../../hooks/use-analytics';
-import icon from './icon.svg';
 
 /**
  * Automattic for Agencies Banner component that renders a banner with CTAs.

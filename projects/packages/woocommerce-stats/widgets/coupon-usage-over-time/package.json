@@ -1,0 +1,5 @@
+{
+	"name": "@automattic/jetpack-woocommerce-stats-widget-coupon-usage-over-time",
+	"private": true,
+	"type": "module"
+}

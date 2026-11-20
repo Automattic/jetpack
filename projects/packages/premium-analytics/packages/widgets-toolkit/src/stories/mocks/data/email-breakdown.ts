@@ -1,8 +1,7 @@
 /**
  * Raw WPCOM email breakdown responses for the "Email breakdown" widget stories.
  *
- * These mirror the fieldless all-time shapes the
- * `sanitizeStatsEmailBreakdownResponse` parser reads for
+ * These mirror the all-time shapes WPCOM returns for
  * `stats/opens/emails/{id}/{breakdown}` and `stats/clicks/emails/{id}/{breakdown}`:
  * `countries` + `countries-info`, `devices`, `clients`, `links`, and
  * `user-content-links`. Each per-breakdown endpoint returns only its own payload
@@ -23,6 +22,7 @@ export const mockEmailCountryBreakdown = {
 			[ 'BR', 210 ],
 			[ 'AU', 165 ],
 		],
+		fields: [ 'country', 'opens_count' ],
 	},
 	'countries-info': {
 		US: { country_full: 'United States', map_region: '021' },
@@ -44,6 +44,7 @@ export const mockEmailDeviceBreakdown = {
 			[ 'Tablet', 610 ],
 			[ 'Other', 95 ],
 		],
+		fields: [ 'device', 'opens_count' ],
 	},
 };
 
@@ -57,6 +58,7 @@ export const mockEmailClientBreakdown = {
 			[ 'Thunderbird', 180 ],
 			[ 'Other', 265 ],
 		],
+		fields: [ 'client', 'opens_count' ],
 	},
 };
 
@@ -69,6 +71,7 @@ export const mockEmailInternalLinkBreakdown = {
 			[ 'remove-subscription', 48 ],
 			[ 'some-other-internal', 22 ],
 		],
+		fields: [ 'link_desc', 'clicks_count' ],
 	},
 };
 
@@ -81,5 +84,6 @@ export const mockEmailUserContentLinkBreakdown = {
 			[ 'https://example.com/docs/getting-started', 154 ],
 			[ 'https://example.com/contact', 76 ],
 		],
+		fields: [ 'url', 'clicks_count' ],
 	},
 };

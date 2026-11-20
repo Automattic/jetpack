@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Reports: Serve the orders by date report from the store's own WooCommerce Analytics data when a request asks for the local provider.

@@ -5,11 +5,14 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Sharing_Likes\Settings\Sharing_Options;
 use Automattic\Jetpack\Waf\Brute_Force_Protection\Brute_Force_Protection_Shared_Functions;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
 }
+
+require_once dirname( __DIR__ ) . '/modules/verification-tools/verification-tools-utils.php';
 
 new WPCOM_JSON_API_Site_Settings_Endpoint(
 	array(
@@ -50,7 +53,6 @@ new WPCOM_JSON_API_Site_Settings_Endpoint(
 
 		'request_format'      => array(
 			'migration_source_site_domain'              => '(string) The source site URL, from the migration flow',
-			'in_site_migration_flow'                    => '(string) The migration flow the site is in',
 			'blogname'                                  => '(string) Blog name',
 			'blogdescription'                           => '(string) Blog description',
 			'default_pingback_flag'                     => '(bool) Notify blogs linked from article?',
@@ -124,6 +126,7 @@ new WPCOM_JSON_API_Site_Settings_Endpoint(
 			'posts_per_rss'                             => '(int) Number of posts to show in the RSS feed',
 			'rss_use_excerpt'                           => '(bool) Whether the RSS feed will use post excerpts',
 			'launchpad_screen'                          => '(string) Whether or not launchpad is presented and what size it will be',
+			'wpcom_ai_launchpad_enabled'                => '(bool) Turn on the AI Launchpad (Site Setup). It can\'t be turned off here',
 			'sm_enabled'                                => '(bool) Whether the newsletter subscribe modal is enabled',
 			'jetpack_subscribe_overlay_enabled'         => '(bool) Whether the newsletter subscribe overlay is enabled',
 			'jetpack_subscribe_floating_button_enabled' => '(bool) Whether the newsletter floating subscribe button is enabled',
@@ -467,6 +470,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						'site_icon'                        => $this->get_cast_option_value_or_null( 'site_icon', 'intval' ),
 						Jetpack_SEO_Utils::FRONT_PAGE_META_OPTION => get_option( Jetpack_SEO_Utils::FRONT_PAGE_META_OPTION, '' ),
 						Jetpack_SEO_Titles::TITLE_FORMATS_OPTION => get_option( Jetpack_SEO_Titles::TITLE_FORMATS_OPTION, array() ),
+						'verification_services_codes'      => get_option( 'verification_services_codes', null ),
 						'api_cache'                        => $api_cache,
 						'posts_per_page'                   => (int) get_option( 'posts_per_page' ),
 						'posts_per_rss'                    => (int) get_option( 'posts_per_rss' ),
@@ -510,7 +514,6 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						'enable_blocks_comments'           => (bool) get_option( 'enable_blocks_comments', true ),
 						'highlander_comment_form_prompt'   => $this->get_highlander_comment_form_prompt_option(),
 						'jetpack_comment_form_color_scheme' => (string) get_option( 'jetpack_comment_form_color_scheme' ),
-						'in_site_migration_flow'           => (string) get_option( 'in_site_migration_flow', '' ),
 						'migration_source_site_domain'     => (string) get_option( 'migration_source_site_domain' ),
 						'jetpack_waf_automatic_rules'      => (bool) get_option( 'jetpack_waf_automatic_rules' ),
 						'jetpack_waf_ip_allow_list'        => (string) get_option( 'jetpack_waf_ip_allow_list' ),
@@ -645,7 +648,6 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 		if ( function_exists( 'wpcom_switch_to_user_locale' ) ) {
 			// Compare the locales before/after switch to decide if we should switch back
 			$locale_before = determine_locale();
-			// @phan-suppress-next-line PhanUndeclaredFunction -- Checked above. See also https://github.com/phan/phan/issues/1204.
 			wpcom_switch_to_user_locale();
 			$switched_locale = determine_locale() !== $locale_before;
 		}
@@ -863,14 +865,26 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						}
 					}
 					break;
-				case 'jetpack_protect_whitelist':
-					if ( class_exists( 'Brute_Force_Protection_Shared_Functions' ) ) {
-						$result = Brute_Force_Protection_Shared_Functions::save_allow_list( $value );
-						if ( is_wp_error( $result ) ) {
-							return $result;
-						}
-						$updated[ $key ] = Brute_Force_Protection_Shared_Functions::format_allow_list();
+				case 'wpcom_ai_launchpad_enabled':
+					// Only turns it on. A site leaves Site Setup through `wpcom_ai_launchpad_dismissed`, never by unsetting this option.
+					if ( $value ) {
+						update_option( $key, 1 );
+						$updated[ $key ] = true;
 					}
+					break;
+				case 'jetpack_protect_whitelist':
+					// The GET response nests the site's list under `local`, so accept that shape back.
+					if ( isset( $value['local'] ) && is_array( $value['local'] ) ) {
+						$value = $value['local'];
+					}
+					if ( is_array( $value ) && array_filter( $value, 'is_array' ) ) {
+						return new WP_Error( 'invalid_input', __( 'Each allowed IP address must be a string.', 'jetpack' ), 400 );
+					}
+					$result = Brute_Force_Protection_Shared_Functions::save_allow_list( $value );
+					if ( is_wp_error( $result ) ) {
+						return $result;
+					}
+					$updated[ $key ] = Brute_Force_Protection_Shared_Functions::format_allow_list();
 					break;
 				case 'jetpack_sync_non_public_post_stati':
 					Jetpack_Options::update_option( 'sync_non_public_post_stati', $value );
@@ -952,7 +966,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					$sharing_options[ preg_replace( '/^sharing_/', '', $key ) ] = $value;
 					break;
 				case 'sharing_label':
-					$sharing_options[ $key ] = $value;
+					$sharing_options[ $key ] = $raw_value;
 					break;
 
 				// Keyring token option.
@@ -1233,7 +1247,21 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					break;
 
 				case 'verification_services_codes':
-					$verification_codes = jetpack_verification_validate( $value );
+					foreach ( $value as $raw_code ) {
+						if ( '' === $raw_code || null === $raw_code || false === $raw_code ) {
+							continue;
+						}
+
+						if ( false === jetpack_verification_validate_code( $raw_code ) ) {
+							return new WP_Error(
+								'invalid_input',
+								__( 'Invalid site verification code. Enter a verification code or verification tag.', 'jetpack' ),
+								400
+							);
+						}
+					}
+
+					$verification_codes = jetpack_verification_validate_codes( $value );
 
 					if ( update_option( 'verification_services_codes', $verification_codes ) ) {
 						$updated[ $key ] = $verification_codes;
@@ -1398,25 +1426,6 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 					break;
 
-				case 'in_site_migration_flow':
-					if ( empty( $value ) ) {
-						delete_option( 'in_site_migration_flow' );
-						break;
-					}
-
-					$migration_flow_whitelist = array(
-						'site-migration',
-						'migration-signup',
-					);
-
-					if ( ! in_array( $value, $migration_flow_whitelist, true ) ) {
-						break;
-					}
-
-					update_option( 'in_site_migration_flow', $value );
-					$updated[ $key ] = $value;
-					break;
-
 				case 'migration_source_site_domain':
 					// If we get an empty value, delete the option
 					if ( empty( $value ) ) {
@@ -1507,20 +1516,29 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 		}
 
 		if ( ! empty( $sharing_options ) && class_exists( 'Sharing_Service' ) ) {
-			$ss = new Sharing_Service();
-
-			/*
-			 * Merge current values with updated, since Sharing_Service expects
-			 * all values to be included when updating
-			 */
-			$current_sharing_options = $ss->get_global_options();
-			foreach ( $current_sharing_options as $key => $val ) {
-				if ( ! isset( $sharing_options[ $key ] ) ) {
-					$sharing_options[ $key ] = $val;
+			if ( method_exists( Sharing_Options::class, 'update' ) ) {
+				$changes = $sharing_options;
+				if ( isset( $changes['sharing_label'] ) ) {
+					$changes['sharing_label'] = wp_slash( $changes['sharing_label'] );
 				}
-			}
 
-			$updated_social_options = $ss->set_global_options( $sharing_options );
+				$updated_social_options = Sharing_Options::update( $changes );
+			} else {
+				$ss = new Sharing_Service();
+
+				/*
+				 * Merge current values with updated, since Sharing_Service expects
+				 * all values to be included when updating
+				 */
+				$current_sharing_options = $ss->get_global_options();
+				foreach ( $current_sharing_options as $key => $val ) {
+					if ( ! isset( $sharing_options[ $key ] ) ) {
+						$sharing_options[ $key ] = $val;
+					}
+				}
+
+				$updated_social_options = $ss->set_global_options( $sharing_options );
+			}
 
 			if ( isset( $input['sharing_button_style'] ) ) {
 				$updated['sharing_button_style'] = (string) $updated_social_options['button_style'];
@@ -1530,7 +1548,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 				$updated['sharing_label'] = (string) $sharing_options['sharing_label'];
 			}
 			if ( isset( $input['sharing_show'] ) ) {
-				$updated['sharing_show'] = (array) $updated_social_options['show'];
+				$updated['sharing_show'] = (array) ( $updated_social_options['show'] ?? array() );
 			}
 			if ( isset( $input['sharing_open_links'] ) ) {
 				$updated['sharing_open_links'] = (string) $updated_social_options['open_links'];

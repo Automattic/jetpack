@@ -5,6 +5,7 @@
 # Files to exclude from the mirror repo, but included in the monorepo.
 # (see also entries in the monorepo root .gitattributes)
 # Remember to end all directories with `/**` to properly tag every file.
+/build/**/*.map   production-exclude
 global.d.ts       production-exclude
 _inc/**/*.scss    production-exclude
 _inc/**/*.tsx     production-exclude

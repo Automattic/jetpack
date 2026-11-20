@@ -1,0 +1,3 @@
+Significance: patch
+Type: changed
+Comment: Record schema settings changes through the existing consent-gated SEO analytics helper.

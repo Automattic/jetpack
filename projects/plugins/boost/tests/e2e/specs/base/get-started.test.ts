@@ -22,6 +22,15 @@ test.describe( 'Getting started page', () => {
 
 		await page.getByRole( 'button', { name: 'Get Boost' } ).click();
 
+		// My Jetpack rewrites its `#/` links into the boot router's `?p=`.
+		await expect( page, 'User should be redirected to My Jetpack pricing page' ).toHaveURL(
+			/admin\.php\?page=my-jetpack(?:#\/add-boost|&p=%2Fadd-boost)$/
+		);
+		await page
+			.locator( '#my-jetpack-dashboard-wp-admin-app' )
+			.getByRole( 'button', { name: 'Get Boost', exact: true } )
+			.click();
+
 		await expect( page, 'User should be redirected to checkout page' ).toHaveURL(
 			expectedUrlPattern,
 			{
@@ -37,10 +46,13 @@ test.describe( 'Getting started page', () => {
 	} ) => {
 		await boostUtils.mockSpeedScore();
 
-		await page.getByRole( 'button', { name: 'Start for free' } ).click();
-		await expect( page ).toHaveURL( /page=jetpack-boost(?:#\/)?$/, { timeout: 180000 } );
-
+		await jetpackBoostPage.chooseFreePlan();
+		await page.reload();
 		await jetpackBoostPage.expectScoreToBeVisible();
+		await expect(
+			page.getByRole( 'button', { name: 'Start for free', exact: true } ),
+			'Getting started should not return after connecting'
+		).toBeHidden();
 
 		await boostUtils.unMockSpeedScore();
 	} );

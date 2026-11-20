@@ -1,0 +1,13 @@
+[
+	{
+		"blockName": "jetpack/zoom-scheduler",
+		"attrs": {
+			"url": "https://scheduler.zoom.us/test-user/discovery-call"
+		},
+		"innerBlocks": [],
+		"innerHTML": "\n<a href=\"https://scheduler.zoom.us/test-user/discovery-call\" class=\"wp-block-jetpack-zoom-scheduler\">https://scheduler.zoom.us/test-user/discovery-call</a>\n",
+		"innerContent": [
+			"\n<a href=\"https://scheduler.zoom.us/test-user/discovery-call\" class=\"wp-block-jetpack-zoom-scheduler\">https://scheduler.zoom.us/test-user/discovery-call</a>\n"
+		]
+	}
+]

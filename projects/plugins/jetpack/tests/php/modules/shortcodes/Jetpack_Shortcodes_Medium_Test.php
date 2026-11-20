@@ -16,14 +16,14 @@ class Jetpack_Shortcodes_Medium_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Verify that calling do_shortcode with the shortcode doesn't return the same content.
+	 * Verify that calling apply_shortcodes with the shortcode doesn't return the same content.
 	 *
 	 * @since 7.4.0
 	 */
 	public function test_shortcodes_medium_empty() {
 		$content = '[medium]';
 
-		$shortcode_content = do_shortcode( $content );
+		$shortcode_content = apply_shortcodes( $content );
 
 		$this->assertNotEquals( $content, $shortcode_content );
 		$this->assertEquals( '<!-- Missing Medium URL -->', $shortcode_content );

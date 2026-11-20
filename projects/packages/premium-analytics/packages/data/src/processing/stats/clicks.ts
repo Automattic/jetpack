@@ -163,8 +163,8 @@ export function mergeStatsClicksComparisonRows(
 		// when one side changed shape. An unlinked row has only its label, which
 		// is the key the group index uses.
 		const comparisonItem = item.children?.length
-			? matchingGroup ?? childMatch?.topLevelItem
-			: directMatch?.item ?? ( item.link ? undefined : matchingGroup );
+			? ( matchingGroup ?? childMatch?.topLevelItem )
+			: ( directMatch?.item ?? ( item.link ? undefined : matchingGroup ) );
 		const children = mapChildren( item.children ?? [], item, comparisonItem );
 
 		return {

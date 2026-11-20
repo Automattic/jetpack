@@ -1,6 +1,6 @@
 import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
 import { __ } from '@wordpress/i18n';
-import { Button, LinkButton } from '@wordpress/ui';
+import { Button, ButtonLink } from '@wordpress/ui';
 import { useCallback, type FC } from 'react';
 import useProduct from '../../data/products/use-product';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
@@ -32,7 +32,7 @@ const ProductInterstitialModalCta: FC< ProductInterstitialModalCtaProps > = ( {
 
 	const { detail, isLoading: isProductLoading } = useProduct( slug );
 
-	const { pricingForUi, postCheckoutUrl } = detail;
+	const { pricingForUi, postCheckoutUrl, hostPurchaseUrl } = detail;
 
 	const { wpcomProductSlug, tiers } = pricingForUi || {};
 	// Boost pricing information is stored in the `tiers` object
@@ -77,16 +77,25 @@ const ProductInterstitialModalCta: FC< ProductInterstitialModalCtaProps > = ( {
 	const isLoading = isProductLoading || hasMainCheckoutStarted;
 	const label = buttonLabel || __( 'Upgrade', 'jetpack-my-jetpack' );
 
+	// A host that sells the product takes the place of Jetpack's checkout.
+	if ( hostPurchaseUrl && ! isDisabled && ! isLoading ) {
+		return (
+			<ButtonLink variant="solid" href={ hostPurchaseUrl }>
+				{ label }
+			</ButtonLink>
+		);
+	}
+
 	if ( href && ! isDisabled && ! isLoading ) {
 		return (
-			<LinkButton
+			<ButtonLink
 				variant="solid"
 				href={ href }
 				openInNewTab={ isExternalLink }
 				onClick={ mainCheckoutRedirect }
 			>
 				{ label }
-			</LinkButton>
+			</ButtonLink>
 		);
 	}
 

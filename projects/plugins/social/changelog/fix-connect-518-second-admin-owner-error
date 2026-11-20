@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Connection: Let a second administrator fix a broken connection owner by connecting their own account, which makes them the new owner.

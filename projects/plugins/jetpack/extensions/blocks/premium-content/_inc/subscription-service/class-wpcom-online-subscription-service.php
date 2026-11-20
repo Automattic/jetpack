@@ -31,15 +31,16 @@ class WPCOM_Online_Subscription_Service extends Jetpack_Token_Subscription_Servi
 	/**
 	 * Lookup users subscriptions for a site and determine if the user has a valid subscription to match the plan ID
 	 *
-	 * @param array  $valid_plan_ids .
-	 * @param string $access_level .
+	 * @param array    $valid_plan_ids .
+	 * @param string   $access_level .
+	 * @param int|null $post_id Post to gate against. Defaults to the loop post, which is only right while rendering it.
 	 *
 	 * @return bool
 	 */
-	public function visitor_can_view_content( $valid_plan_ids, $access_level ) {
+	public function visitor_can_view_content( $valid_plan_ids, $access_level, $post_id = null ) {
 		$is_blog_subscriber = $this->is_current_user_subscribed();
 
-		return $this->user_can_view_content( $valid_plan_ids, $access_level, $is_blog_subscriber, get_the_ID() );
+		return $this->user_can_view_content( $valid_plan_ids, $access_level, $is_blog_subscriber, null === $post_id ? get_the_ID() : $post_id );
 	}
 
 	/**

@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Write: Fix slash commands inside headings and blockquotes leaving behind command text instead of converting the block

@@ -48,7 +48,7 @@ class Jetpack_Shortcodes_GoogleApps_Test extends WP_UnitTestCase {
 
 		$shortcode = googleapps_embed_to_shortcode( $embed );
 		add_shortcode( 'googleapps', 'googleapps_shortcode' );
-		$to_embed = do_shortcode( $shortcode );
+		$to_embed = apply_shortcodes( $shortcode );
 
 		$this->assertStringContainsString( $expected_output, $to_embed );
 	}
@@ -86,7 +86,7 @@ class Jetpack_Shortcodes_GoogleApps_Test extends WP_UnitTestCase {
 
 		$shortcode = googleapps_embed_to_shortcode( $embed );
 		add_shortcode( 'googleapps', 'googleapps_shortcode' );
-		$to_embed = do_shortcode( $shortcode );
+		$to_embed = apply_shortcodes( $shortcode );
 
 		$this->assertStringContainsString( $expected_output, $to_embed );
 	}
@@ -214,7 +214,7 @@ class Jetpack_Shortcodes_GoogleApps_Test extends WP_UnitTestCase {
 
 		$shortcode = googleapps_embed_to_shortcode( $embed );
 		add_shortcode( 'googleapps', 'googleapps_shortcode' );
-		$to_embed = do_shortcode( $shortcode );
+		$to_embed = apply_shortcodes( $shortcode );
 
 		$this->assertStringContainsString( $expected_output, $to_embed );
 	}

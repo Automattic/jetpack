@@ -1,8 +1,9 @@
 <?php
 /**
  * Widget type support shared by the registry and default layouts — hard availability only
- * (a feature the site has or doesn't); soft/request-dependent state belongs in the runtime
- * types filter. Persisted layouts keep missing types as removable ghost widgets.
+ * (a feature the site has or doesn't, or a type held back from release); soft/request-dependent
+ * state belongs in the runtime types filter. Persisted layouts keep missing types as removable
+ * ghost widgets.
  *
  * @package automattic/jetpack-premium-analytics
  */
@@ -11,17 +12,13 @@ namespace Automattic\Jetpack\PremiumAnalytics;
 
 use Automattic\Jetpack\Status\Host;
 
-// Guarded on a symbol the file declares, so a second copy of the package can't
-// redeclare it. See the include block in Analytics::load_dashboard_components().
-if ( ! function_exists( __NAMESPACE__ . '\\is_videopress_available' ) ) {
-	require_once __DIR__ . '/videopress-availability.php';
-}
+require_once __DIR__ . '/videopress-availability.php';
 
 /**
- * Widget types that only have data on a site running VideoPress.
+ * Widget types that only have data on a site running VideoPress. The Top videos widget is not
+ * listed: the VideoPress package registers it, and decides where.
  */
 const VIDEOPRESS_WIDGET_TYPES = array(
-	'jpa/videopress',
 	'jpa/video-detail-views-performance',
 	'jpa/video-detail-embeds',
 );

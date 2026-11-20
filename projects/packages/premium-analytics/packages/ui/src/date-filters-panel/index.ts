@@ -1,1 +1,5 @@
-export { DateFiltersPanel } from './date-filters-panel';
+export {
+	DateFiltersPanel,
+	type DateFiltersPanelProps,
+	type DateStepping,
+} from './date-filters-panel';

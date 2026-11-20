@@ -25,6 +25,8 @@ export function removeNotice( noticeId ) {
 export function createNotice( status, text, options = {} ) {
 	const notice = {
 		noticeId: options.id || uniqueId(),
+		// React key. Callers reuse noticeId for a replacement notice, which must still remount so its dismiss timer starts.
+		instanceId: uniqueId( 'notice-instance-' ),
 		duration: options.duration,
 		showDismiss: typeof options.showDismiss === 'boolean' ? options.showDismiss : true,
 		isPersistent: options.isPersistent || false,

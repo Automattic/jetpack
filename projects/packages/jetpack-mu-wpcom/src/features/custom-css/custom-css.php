@@ -77,9 +77,15 @@ if ( ! class_exists( 'Jetpack_Custom_CSS_Enhancements' ) ) {
 		 * @return never
 		 */
 		public static function print_linked_custom_css() {
+			$css = wp_get_custom_css();
+
+			// Ensure that route is cacheable by overriding potential decisions of other plugins
+			header_remove( 'Set-Cookie' );
+			header_remove( 'Pragma' );
+			header( 'Cache-Control: public, max-age=' . YEAR_IN_SECONDS );
 			header( 'Content-type: text/css' );
 			header( 'Expires: ' . gmdate( 'D, d M Y H:i:s', time() + YEAR_IN_SECONDS ) . ' GMT' );
-			echo wp_get_custom_css(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			echo $css; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			exit( 0 );
 		}
 

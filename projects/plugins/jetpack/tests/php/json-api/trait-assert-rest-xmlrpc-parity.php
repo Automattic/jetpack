@@ -99,6 +99,7 @@ trait Assert_Rest_Xmlrpc_Parity {
 	 */
 	protected function assert_rest_parity( WPCOM_JSON_API_Endpoint $endpoint, array $query = array(), array $url_params = array(), $api_path = null ) {
 		$this->prepare_rest_parity_env();
+		$this->prime_plugin_update_transient();
 
 		if ( null === $api_path ) {
 			// The site is always the first placeholder; remaining placeholders (post id, slug) are
@@ -165,6 +166,31 @@ trait Assert_Rest_Xmlrpc_Parity {
 				Jetpack_Options::update_option( 'id', $this->rest_parity_prior_blog_option );
 			}
 		}
+	}
+
+	/**
+	 * Seeds the plugin-update transient so wp_update_plugins() returns before its request.
+	 *
+	 * Trunk warns when WordPress.org is unreachable, and that warning fails the suite.
+	 */
+	private function prime_plugin_update_transient() {
+		if ( ! function_exists( 'get_plugins' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		}
+
+		$checked = array();
+		foreach ( get_plugins() as $file => $plugin ) {
+			$checked[ $file ] = $plugin['Version'];
+		}
+
+		set_site_transient(
+			'update_plugins',
+			(object) array(
+				'last_checked' => time(),
+				'checked'      => $checked,
+				'response'     => array(),
+			)
+		);
 	}
 
 	/**

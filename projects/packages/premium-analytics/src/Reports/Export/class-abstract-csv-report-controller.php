@@ -29,11 +29,6 @@ abstract class Abstract_Csv_Report_Controller implements Csv_Report_Controller_I
 	protected const DEFAULT_BATCH_LIMIT = 1000;
 
 	/**
-	 * Default date type for order-based reports.
-	 */
-	protected const DEFAULT_DATE_TYPE = 'created';
-
-	/**
 	 * Report registry instance.
 	 *
 	 * @var Report_Registry
@@ -295,16 +290,17 @@ abstract class Abstract_Csv_Report_Controller implements Csv_Report_Controller_I
 	/**
 	 * Get the label for a time interval.
 	 *
-	 * @param string|null $interval The time interval (hour, day, week, month, year).
+	 * @param string|null $interval The time interval (hour, day, week, month, quarter, year).
 	 * @return string The translated interval label.
 	 */
 	protected function get_interval_label( ?string $interval = null ): string {
 		$labels = array(
-			'hour'  => __( 'Hour', 'jetpack-premium-analytics-pkg' ),
-			'day'   => __( 'Day', 'jetpack-premium-analytics-pkg' ),
-			'week'  => __( 'Week', 'jetpack-premium-analytics-pkg' ),
-			'month' => __( 'Month', 'jetpack-premium-analytics-pkg' ),
-			'year'  => __( 'Year', 'jetpack-premium-analytics-pkg' ),
+			'hour'    => __( 'Hour', 'jetpack-premium-analytics-pkg' ),
+			'day'     => __( 'Day', 'jetpack-premium-analytics-pkg' ),
+			'week'    => __( 'Week', 'jetpack-premium-analytics-pkg' ),
+			'month'   => __( 'Month', 'jetpack-premium-analytics-pkg' ),
+			'quarter' => __( 'Quarter', 'jetpack-premium-analytics-pkg' ),
+			'year'    => __( 'Year', 'jetpack-premium-analytics-pkg' ),
 		);
 
 		return $labels[ $interval ?? '' ] ?? __( 'Date', 'jetpack-premium-analytics-pkg' );

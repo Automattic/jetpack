@@ -224,21 +224,50 @@ class Rest_Download_Bridge_Test extends TestCase {
 	}
 
 	/**
-	 * The status poll wraps a transport failure too. Worth its own case:
-	 * this is the call that runs on a timer, so it is the one most likely
-	 * to meet a flaky network.
+	 * The read routes wrap a transport failure too: they run on a timer and on every load.
+	 *
+	 * @param string $route Which read route to run.
+	 * @param string $code  The error code it reports.
+	 * @dataProvider provide_read_routes
 	 */
-	public function test_status_wraps_a_transport_failure() {
+	#[DataProvider( 'provide_read_routes' )]
+	public function test_reads_wrap_a_transport_failure( $route, $code ) {
 		$this->arrange_wpcom_unreachable();
+
+		$response = $this->read( $route );
+
+		$this->assertInstanceOf( WP_Error::class, $response );
+		$this->assertSame( $code, $response->get_error_code() );
+		$this->assertSame( 502, $response->get_error_data()['status'] );
+	}
+
+	/**
+	 * The two read routes, with the error code each reports.
+	 *
+	 * @return array<string, array{0: string, 1: string}>
+	 */
+	public static function provide_read_routes() {
+		return array(
+			'status' => array( 'status', 'download_status_fetch_failed' ),
+			'list'   => array( 'list', 'download_list_fetch_failed' ),
+		);
+	}
+
+	/**
+	 * Run one of the read routes.
+	 *
+	 * @param string $route `status` or `list`.
+	 * @return \WP_REST_Response|WP_Error
+	 */
+	private function read( $route ) {
+		if ( 'list' === $route ) {
+			return Download_Bridge::get_downloads();
+		}
 
 		$request = new WP_REST_Request( 'GET', '/jetpack/v4/backups/download/123/status' );
 		$request->set_param( 'rewind_id', '123' );
 		$request->set_param( 'download_id', 4321 );
-		$response = Download_Bridge::get_download_status( $request );
-
-		$this->assertInstanceOf( WP_Error::class, $response );
-		$this->assertSame( 'download_status_fetch_failed', $response->get_error_code() );
-		$this->assertSame( 502, $response->get_error_data()['status'] );
+		return Download_Bridge::get_download_status( $request );
 	}
 
 	/**
@@ -267,6 +296,8 @@ class Rest_Download_Bridge_Test extends TestCase {
 			),
 			$sent['types']
 		);
+		// A category download names no paths — the other half of the pairing.
+		$this->assertArrayNotHasKey( 'include_path_list', $sent );
 	}
 
 	/**
@@ -376,18 +407,20 @@ class Rest_Download_Bridge_Test extends TestCase {
 	}
 
 	/**
-	 * A non-200 on the status route is reported too.
+	 * A non-200 on the read routes is reported too.
+	 *
+	 * @param string $route Which read route to run.
+	 * @param string $code  The error code it reports.
+	 * @dataProvider provide_read_routes
 	 */
-	public function test_status_reports_a_non_200_from_wpcom() {
+	#[DataProvider( 'provide_read_routes' )]
+	public function test_reads_report_a_non_200_from_wpcom( $route, $code ) {
 		$this->arrange_wpcom( array(), 502 );
 
-		$request = new WP_REST_Request( 'GET', '/jetpack/v4/backups/download/123/status' );
-		$request->set_param( 'rewind_id', '123' );
-		$request->set_param( 'download_id', 55 );
-		$result = Download_Bridge::get_download_status( $request );
+		$result = $this->read( $route );
 
 		$this->assertInstanceOf( WP_Error::class, $result );
-		$this->assertSame( 'download_status_fetch_failed', $result->get_error_code() );
+		$this->assertSame( $code, $result->get_error_code() );
 		$this->assertSame( 502, $result->get_error_data()['status'] );
 		// This body names no reason, so none is invented. An always-present
 		// key would make "WordPress.com said nothing" and "we did not look"
@@ -544,5 +577,354 @@ class Rest_Download_Bridge_Test extends TestCase {
 
 		$this->assertSame( 'failed', $failed['status'] );
 		$this->assertSame( 'Archive expired', $failed['error'] );
+	}
+
+	/**
+	 * A built archive whose link has lapsed keeps `validUntil` but loses `url`.
+	 */
+	public function test_a_lapsed_archive_reports_expired() {
+		$expired = $this->project_status(
+			array(
+				'downloadId' => 55,
+				'validUntil' => '2026-08-20T00:00:00+00:00',
+			)
+		);
+
+		$this->assertSame( 'expired', $expired['status'] );
+	}
+
+	/**
+	 * While one download builds, WordPress.com answers every request with it, whichever backup it is of.
+	 */
+	public function test_initiate_refuses_another_backups_download() {
+		$this->arrange_wpcom(
+			array(
+				'downloadId' => 4321,
+				'rewindId'   => '1786000000.1',
+			)
+		);
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/backups/download/1786663613.9425' );
+		$request->set_param( 'rewind_id', '1786663613.9425' );
+		$result = Download_Bridge::initiate_download( $request );
+
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertSame( 'download_in_progress', $result->get_error_code() );
+		$this->assertSame( 409, $result->get_error_data()['status'] );
+	}
+
+	/**
+	 * This backup's own download is followed however WordPress.com spells its rewind id.
+	 *
+	 * @param mixed $echoed The rewind id WordPress.com answers with.
+	 * @dataProvider provide_spellings_of_the_requested_backup
+	 */
+	#[DataProvider( 'provide_spellings_of_the_requested_backup' )]
+	public function test_initiate_follows_its_own_backups_download( $echoed ) {
+		$this->arrange_wpcom(
+			array(
+				'downloadId' => 4321,
+				'rewindId'   => $echoed,
+			)
+		);
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/backups/download/1786663613.9425' );
+		$request->set_param( 'rewind_id', '1786663613.9425' );
+		$response = Download_Bridge::initiate_download( $request );
+
+		$this->assertNotInstanceOf( WP_Error::class, $response );
+		$this->assertSame( array( 'id' => 4321 ), $response->get_data() );
+	}
+
+	/**
+	 * The requested backup's rewind id, as WordPress.com might echo it.
+	 *
+	 * @return array<string, array{0: mixed}>
+	 */
+	public static function provide_spellings_of_the_requested_backup() {
+		return array(
+			'as sent'       => array( '1786663613.9425' ),
+			'as a number'   => array( 1786663613.9425 ),
+			'trailing zero' => array( '1786663613.94250' ),
+		);
+	}
+
+	/**
+	 * The downloads list is read from the collection and projected download by download.
+	 */
+	public function test_downloads_projects_each_download() {
+		$this->arrange_wpcom(
+			array(
+				array(
+					'downloadId' => 55,
+					'rewindId'   => '1786663613.9425',
+					'progress'   => 30,
+				),
+			)
+		);
+
+		$data = Download_Bridge::get_downloads()->get_data();
+
+		$this->assertMatchesRegularExpression( '#/sites/999/rewind/downloads(\?|$)#', $this->captured_url );
+		$this->assertSame(
+			array(
+				array(
+					'id'          => 55,
+					'rewind_id'   => '1786663613.9425',
+					'status'      => 'running',
+					'progress'    => 30,
+					'url'         => '',
+					'valid_until' => '',
+					'error'       => '',
+				),
+			),
+			$data
+		);
+	}
+
+	/**
+	 * A list body that is not a list is refused rather than read as no downloads.
+	 */
+	public function test_downloads_refuses_a_body_that_is_not_a_list() {
+		$this->arrange_wpcom( array( 'downloadId' => 55 ) );
+
+		$result = Download_Bridge::get_downloads();
+
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertSame( 'download_list_fetch_failed', $result->get_error_code() );
+	}
+
+	/**
+	 * A granular download reaches WordPress.com as `types: { paths: true }`
+	 * plus the entry ids, and nothing else.
+	 *
+	 * Dispatched from a JSON body rather than a hand-built request, so the
+	 * route's own schema is part of what passes.
+	 */
+	public function test_initiate_forwards_a_path_list_with_the_paths_type() {
+		$this->arrange_wpcom( array( 'downloadId' => 7 ) );
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/backups/download/1786663613.9425' );
+		$request->set_header( 'content-type', 'application/json' );
+		$request->set_body(
+			wp_json_encode(
+				array(
+					'types'             => array( 'paths' => true ),
+					'include_path_list' => array( 'cjI6', 'ZjI6Lw==' ),
+				),
+				JSON_UNESCAPED_SLASHES
+			)
+		);
+
+		$response = $this->server->dispatch( $request );
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertSame(
+			array(
+				'rewindId'          => '1786663613.9425',
+				'types'             => array( 'paths' => true ),
+				'include_path_list' => array( 'cjI6', 'ZjI6Lw==' ),
+			),
+			(array) $this->captured_body
+		);
+		// A JSON array on the wire rather than an object, which is what
+		// `path_list()` rebuilding the entries as a PHP list buys.
+		$this->assertStringContainsString(
+			'"include_path_list":["cjI6","ZjI6Lw=="]',
+			$this->captured_request_args[0]['body']
+		);
+	}
+
+	/**
+	 * A path list sent beside anything but `types: { paths: true }` is
+	 * refused before it reaches the network.
+	 *
+	 * @param string $label Case description.
+	 * @param mixed  $types The `types` parameter to send, or null to omit it.
+	 * @dataProvider provide_types_that_cannot_carry_a_path_list
+	 */
+	#[DataProvider( 'provide_types_that_cannot_carry_a_path_list' )]
+	public function test_initiate_refuses_a_path_list_without_the_paths_type( $label, $types ) {
+		$this->arrange_wpcom( array( 'downloadId' => 1 ) );
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/backups/download/123' );
+		$request->set_param( 'rewind_id', '123' );
+		if ( null !== $types ) {
+			$request->set_param( 'types', $types );
+		}
+		$request->set_param( 'include_path_list', array( 'cjI6' ) );
+		$response = Download_Bridge::initiate_download( $request );
+
+		$this->assertInstanceOf( WP_Error::class, $response, $label );
+		$this->assertSame( 'path_list_needs_paths_type', $response->get_error_code(), $label );
+		$this->assertSame( 400, $response->get_error_data()['status'], $label );
+		$this->assertNull( $this->captured_body, $label );
+	}
+
+	/**
+	 * Every `types` a path list must not travel with.
+	 *
+	 * `omitted` is the dangerous one: an absent `types` is upstream's
+	 * shorthand for all six categories, not for none.
+	 *
+	 * @return array<string, array{0: string, 1: mixed}>
+	 */
+	public static function provide_types_that_cannot_carry_a_path_list() {
+		return array(
+			'omitted'            => array( 'omitted', null ),
+			'another category'   => array( 'another category', array( 'sqls' => true ) ),
+			'paths plus another' => array(
+				'paths plus another',
+				array(
+					'paths' => true,
+					'sqls'  => true,
+				),
+			),
+			'paths turned off'   => array( 'paths turned off', array( 'paths' => false ) ),
+		);
+	}
+
+	/**
+	 * `exclude_path_list` is under the same rule, and is registered so a
+	 * request carrying it fails loudly rather than losing it silently.
+	 */
+	public function test_initiate_refuses_an_exclude_list_without_the_paths_type() {
+		$this->arrange_wpcom( array( 'downloadId' => 1 ) );
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/backups/download/123' );
+		$request->set_param( 'rewind_id', '123' );
+		$request->set_param( 'types', array( 'uploads' => true ) );
+		$request->set_param( 'exclude_path_list', array( 'cjI6' ) );
+		$response = Download_Bridge::initiate_download( $request );
+
+		$this->assertInstanceOf( WP_Error::class, $response );
+		$this->assertSame( 'path_list_needs_paths_type', $response->get_error_code() );
+		$this->assertNull( $this->captured_body );
+	}
+
+	/**
+	 * A path list that trims away to nothing is still a path list.
+	 *
+	 * `path_list()` drops blank entries before the guard sees them, so
+	 * gating on its result alone would let this through as a full download.
+	 *
+	 * @param string $label Case description.
+	 * @param string $key   The path-list parameter to send.
+	 * @param mixed  $list  The list sent under it.
+	 * @dataProvider provide_path_lists_that_survive_into_nothing
+	 */
+	#[DataProvider( 'provide_path_lists_that_survive_into_nothing' )]
+	public function test_initiate_refuses_a_blank_path_list_without_the_paths_type( $label, $key, $list ) {
+		$this->arrange_wpcom( array( 'downloadId' => 1 ) );
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/backups/download/1786663613.9425' );
+		$request->set_header( 'content-type', 'application/json' );
+		$request->set_body( wp_json_encode( array( $key => $list ), JSON_UNESCAPED_SLASHES ) );
+
+		$response = $this->server->dispatch( $request );
+
+		$this->assertSame( 400, $response->get_status(), $label );
+		$this->assertSame( 'path_list_needs_paths_type', $response->get_data()['code'], $label );
+		$this->assertNull( $this->captured_body, $label );
+	}
+
+	/**
+	 * Every path list that reaches the guard empty, under both keys.
+	 *
+	 * @return array<string, array{0: string, 1: string, 2: mixed}>
+	 */
+	public static function provide_path_lists_that_survive_into_nothing() {
+		return array(
+			'include, blank entries' => array( 'include, blank entries', 'include_path_list', array( '  ', '' ) ),
+			'include, empty list'    => array( 'include, empty list', 'include_path_list', array() ),
+			'exclude, blank entries' => array( 'exclude, blank entries', 'exclude_path_list', array( '  ', '' ) ),
+			'exclude, empty list'    => array( 'exclude, empty list', 'exclude_path_list', array() ),
+		);
+	}
+
+	/**
+	 * The mirror image: `paths` with nothing to scope it by is refused,
+	 * because upstream reads that as the whole site too.
+	 *
+	 * @param string $label   Case description.
+	 * @param mixed  $include The `include_path_list` to send, or null to omit it.
+	 * @dataProvider provide_path_lists_that_name_nothing
+	 */
+	#[DataProvider( 'provide_path_lists_that_name_nothing' )]
+	public function test_initiate_refuses_the_paths_type_without_a_path_list( $label, $include ) {
+		$this->arrange_wpcom( array( 'downloadId' => 1 ) );
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/backups/download/123' );
+		$request->set_param( 'rewind_id', '123' );
+		$request->set_param( 'types', array( 'paths' => true ) );
+		if ( null !== $include ) {
+			$request->set_param( 'include_path_list', $include );
+		}
+		$response = Download_Bridge::initiate_download( $request );
+
+		$this->assertInstanceOf( WP_Error::class, $response, $label );
+		$this->assertSame( 'paths_type_needs_path_list', $response->get_error_code(), $label );
+		$this->assertSame( 400, $response->get_error_data()['status'], $label );
+		$this->assertNull( $this->captured_body, $label );
+	}
+
+	/**
+	 * Every path list that names no entry.
+	 *
+	 * @return array<string, array{0: string, 1: mixed}>
+	 */
+	public static function provide_path_lists_that_name_nothing() {
+		return array(
+			'omitted'       => array( 'omitted', null ),
+			'empty list'    => array( 'empty list', array() ),
+			'blank entries' => array( 'blank entries', array( '', '   ' ) ),
+		);
+	}
+
+	/**
+	 * A path list keyed by name never reaches the callback.
+	 *
+	 * Without the schema this would reach WPCOM flattened to its values:
+	 * WordPress skips *validating* unregistered params, it does not strip them.
+	 */
+	public function test_a_keyed_path_list_is_rejected_by_the_schema() {
+		$this->arrange_wpcom( array( 'downloadId' => 1 ) );
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/backups/download/123' );
+		$request->set_header( 'content-type', 'application/json' );
+		$request->set_body(
+			wp_json_encode(
+				array(
+					'types'             => array( 'paths' => true ),
+					'include_path_list' => array( 'first' => 'cjI6' ),
+				),
+				JSON_UNESCAPED_SLASHES
+			)
+		);
+
+		$response = $this->server->dispatch( $request );
+
+		$data = $response->get_data();
+		$this->assertSame( 400, $response->get_status() );
+		$this->assertSame( 'rest_invalid_param', $data['code'] );
+		$this->assertArrayHasKey( 'include_path_list', $data['data']['params'] );
+		$this->assertNull( $this->captured_body );
+	}
+
+	/**
+	 * Entries are trimmed and blanks dropped, so a stray space cannot
+	 * become part of an id.
+	 */
+	public function test_initiate_trims_the_path_list() {
+		$this->arrange_wpcom( array( 'downloadId' => 9 ) );
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/backups/download/123' );
+		$request->set_param( 'rewind_id', '123' );
+		$request->set_param( 'types', array( 'paths' => true ) );
+		$request->set_param( 'include_path_list', array( ' cjI6 ', '', 'ZjI6Lw==' ) );
+		Download_Bridge::initiate_download( $request );
+
+		$sent = (array) $this->captured_body;
+		$this->assertSame( array( 'cjI6', 'ZjI6Lw==' ), $sent['include_path_list'] );
 	}
 }

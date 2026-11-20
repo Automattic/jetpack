@@ -4,8 +4,8 @@
 import {
 	buildCsv,
 	buildCsvDateRangeFilename,
+	formatCsvDate,
 	saveCsv,
-	withComparisonColumns,
 	type CsvColumn,
 } from '../build-csv';
 
@@ -80,59 +80,6 @@ describe( 'buildCsv', () => {
 	} );
 } );
 
-describe( 'withComparisonColumns', () => {
-	type MetricRow = {
-		label: string;
-		views: number;
-		previousViews?: number;
-		plays: number;
-		previousPlays?: number;
-	};
-
-	const metricColumns: CsvColumn< MetricRow >[] = [
-		{ label: 'Title', getValue: row => row.label },
-		{ label: 'Views', getValue: row => row.views, getPreviousValue: row => row.previousViews },
-		{ label: 'Plays', getValue: row => row.plays, getPreviousValue: row => row.previousPlays },
-	];
-
-	it( 'returns the same columns when there is no comparison', () => {
-		expect( withComparisonColumns( metricColumns, false ) ).toBe( metricColumns );
-	} );
-
-	it( 'appends every comparison column after the primary columns', () => {
-		const exported = withComparisonColumns( metricColumns, true );
-		expect( exported.map( column => column.label ) ).toEqual( [
-			'Title',
-			'Views',
-			'Plays',
-			'Views (Previous Period)',
-			'Plays (Previous Period)',
-		] );
-	} );
-
-	it( 'reads previous values through getPreviousValue', () => {
-		const csv = buildCsv( withComparisonColumns( metricColumns, true ), [
-			{ label: 'Hello', views: 4, previousViews: 2, plays: 9, previousPlays: 7 },
-		] );
-		expect( csv.split( '\n' )[ 1 ] ).toBe( '"Hello","4","9","2","7"' );
-	} );
-
-	// A row outside the comparison period's top rows is unmeasured, not a zero.
-	it( 'leaves the cell blank for rows missing from the comparison period', () => {
-		const csv = buildCsv( withComparisonColumns( metricColumns, true ), [
-			{ label: 'Only now', views: 4, plays: 9 },
-		] );
-		expect( csv.split( '\n' )[ 1 ] ).toBe( '"Only now","4","9","",""' );
-	} );
-
-	it( 'leaves columns without a previous value out of the comparison block', () => {
-		const titleOnly = [
-			{ label: 'Title', getValue: row => row.label },
-		] as CsvColumn< MetricRow >[];
-		expect( withComparisonColumns( titleOnly, true ) ).toBe( titleOnly );
-	} );
-} );
-
 describe( 'buildCsvDateRangeFilename', () => {
 	it( 'uses only the date portion of ISO timestamps', () => {
 		expect(
@@ -147,6 +94,18 @@ describe( 'buildCsvDateRangeFilename', () => {
 		expect( buildCsvDateRangeFilename( 'top-posts', { from: 123, to: 456 } ) ).toBe(
 			'top-posts-123_456'
 		);
+	} );
+} );
+
+describe( 'formatCsvDate', () => {
+	const INSTANT = new Date( '2026-03-01T16:30:00Z' );
+
+	it.each( [
+		[ 'Asia/Taipei', false, '2026-03-02' ],
+		[ 'Asia/Taipei', true, '2026-03-02 00:30' ],
+		[ 'America/New_York', false, '2026-03-01' ],
+	] )( 'writes the instant in %s (with time: %s) as %s', ( zone, withTime, expected ) => {
+		expect( formatCsvDate( INSTANT, zone, withTime ) ).toBe( expected );
 	} );
 } );
 

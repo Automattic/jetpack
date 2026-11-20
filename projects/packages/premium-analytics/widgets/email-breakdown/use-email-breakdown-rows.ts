@@ -111,6 +111,8 @@ type EmailBreakdownRowsState = {
 	isLoading: boolean;
 	isFetching: boolean;
 	isError: boolean;
+	csvIsError: boolean;
+	csvIsPlaceholderData: boolean;
 	refetch: () => void;
 };
 
@@ -161,13 +163,13 @@ export default function useEmailBreakdownRows( {
 	const allRows = useMemo( () => {
 		const merged = isLinksView
 			? // Keep internal-type rows (no URL) from `link` and URL rows from
-			  // `user-content-link`, so a row can never be double-counted if an
-			  // endpoint ever answers with both payloads. Re-sorting with the data
-			  // layer's comparator restores the single-report order across the merge.
-			  [
+				// `user-content-link`, so a row can never be double-counted if an
+				// endpoint ever answers with both payloads. Re-sorting with the data
+				// layer's comparator restores the single-report order across the merge.
+				[
 					...toRows( internalLinksReport ).filter( row => ! row.link ),
 					...toRows( userContentLinksReport ).filter( row => Boolean( row.link ) ),
-			  ].sort( compareEmailBreakdownItems )
+				].sort( compareEmailBreakdownItems )
 			: toRows( dimensionReport );
 
 		return merged.map( ( row, index ) => ( { ...row, id: index } ) );
@@ -190,6 +192,8 @@ export default function useEmailBreakdownRows( {
 		// has data, a transient refetch failure keeps showing the populated rows
 		// instead of replacing them with the error state.
 		isError: activeQueries.some( query => query.isError && query.data === undefined ),
+		csvIsError: activeQueries.some( query => query.isError ),
+		csvIsPlaceholderData: activeQueries.some( query => query.isPlaceholderData ),
 		refetch: () => activeQueries.forEach( query => query.refetch() ),
 	};
 }

@@ -226,6 +226,40 @@ function httpErrorSuggestion( code: number, count: number ): Suggestion {
 }
 
 /**
+ * Whether the site answered these pages with its login gate rather than the page itself.
+ *
+ * @param {ErrorSet} set Set to check.
+ */
+function requiresLogin( set: ErrorSet ): boolean {
+	// The login copy is only right when it covers every page in the set.
+	const errors = Object.values( set.byUrl );
+
+	return errors.length > 0 && errors.every( error => error.meta?.login_required === true );
+}
+
+/**
+ * Explain that Critical CSS is generated from what a logged-out visitor sees.
+ */
+function loginRequiredSuggestion(): Suggestion {
+	return {
+		paragraph: __(
+			'Boost generates Critical CSS from the page as a logged-out visitor sees it. Your site sends those visitors to the login page instead, so there is nothing for Boost to read.',
+			'jetpack-boost'
+		),
+		list: [
+			__(
+				'If these pages are meant to be private, you can safely ignore this message. Critical CSS is still generated for the rest of your site.',
+				'jetpack-boost'
+			),
+			__(
+				'If they should be public, check the plugin or setting that requires a login for them, then <retry>try again</retry>.',
+				'jetpack-boost'
+			),
+		],
+	};
+}
+
+/**
  * Helper function to return a count of affected URLs for an error set.
  *
  * @param {ErrorSet} set Set to count the relevant URLs from.
@@ -249,17 +283,27 @@ type ErrorTypeSpec = {
 const errorTypeSpecs: { [ type: string ]: ErrorTypeSpec } = {
 	HttpError: {
 		describeSet: set =>
-			sprintf(
-				/* translators: %d is the HTTP error code. */
-				_n(
-					'Boost received HTTP error <b>%d</b> on the following page:',
-					'Boost received HTTP error <b>%d</b> on the following pages:',
-					urlCount( set ),
-					'jetpack-boost'
-				),
-				set.firstMeta.code
-			),
-		suggestion: set => httpErrorSuggestion( castToNumber( set.firstMeta.code ), urlCount( set ) ),
+			requiresLogin( set )
+				? _n(
+						'This page is only shown to logged-in visitors, so Boost cannot read it:',
+						'These pages are only shown to logged-in visitors, so Boost cannot read them:',
+						urlCount( set ),
+						'jetpack-boost'
+					)
+				: sprintf(
+						/* translators: %d is the HTTP error code. */
+						_n(
+							'Boost received HTTP error <b>%d</b> on the following page:',
+							'Boost received HTTP error <b>%d</b> on the following pages:',
+							urlCount( set ),
+							'jetpack-boost'
+						),
+						set.firstMeta.code
+					),
+		suggestion: set =>
+			requiresLogin( set )
+				? loginRequiredSuggestion()
+				: httpErrorSuggestion( castToNumber( set.firstMeta.code ), urlCount( set ) ),
 	},
 
 	RedirectError: {
@@ -539,26 +583,23 @@ const errorTypeSpecs: { [ type: string ]: ErrorTypeSpec } = {
 	PayloadTooLargeError: {
 		describeSet: set =>
 			_n(
-				'The Critical CSS generated for the following page is too large to be useful:',
-				'The Critical CSS generated for the following pages is too large to be useful:',
+				'The Critical CSS generated for the following page exceeds the inline size limit:',
+				'The Critical CSS generated for the following pages exceeds the inline size limit:',
 				urlCount( set ),
 				'jetpack-boost'
 			),
 		rawError: set => Object.values( set.byUrl )[ 0 ].message,
 		suggestion: _set => ( {
 			paragraph: __(
-				'The Critical CSS generated for these pages is too large (over 1MB) to be optimized effectively. Using Critical CSS in this case would defeat its purpose, which is to deliver only the most essential styles quickly.',
+				'Boost does not inline Critical CSS larger than 512 KiB, leaving room for page metadata such as social previews.',
 				'jetpack-boost'
 			),
 			list: [
 				__(
-					'<strong>These pages will continue working normally</strong>, using the standard CSS delivery method. This is the best approach for pages with very large CSS requirements.',
+					'The generated Critical CSS for these pages was too large and was not saved.',
 					'jetpack-boost'
 				),
-				__(
-					'<strong>This is normal for some pages</strong>, particularly those using complex themes or page builders that generate large amounts of CSS. No action is needed - Boost will continue optimizing your other pages.',
-					'jetpack-boost'
-				),
+				__( 'Boost will continue optimizing your other pages.', 'jetpack-boost' ),
 			],
 		} ),
 	},

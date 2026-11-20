@@ -187,18 +187,100 @@ class Jetpack_Sitemap_Librarian_Test extends WP_UnitTestCase {
 	public function test_sitemap_librarian_delete_contiguously_named_rows() {
 		$librarian = new Jetpack_Sitemap_Librarian();
 
-		// Store some contiguous data.
-		$librarian->store_sitemap_data( 'name-1', JP_PAGE_SITEMAP_TYPE, 'foo', '1970-01-01 00:00:00' );
-		$librarian->store_sitemap_data( 'name-2', JP_PAGE_SITEMAP_TYPE, 'foo', '1970-01-01 00:00:00' );
-		$librarian->store_sitemap_data( 'name-3', JP_PAGE_SITEMAP_TYPE, 'foo', '1970-01-01 00:00:00' );
+		foreach ( array( 1, 2, 3 ) as $n ) {
+			$librarian->store_sitemap_data( $n, JP_PAGE_SITEMAP_TYPE, 'foo', '1970-01-01 00:00:00' );
+			$this->assertNotNull( $librarian->read_sitemap_data( jp_sitemap_filename( JP_PAGE_SITEMAP_TYPE, $n ), JP_PAGE_SITEMAP_TYPE ) );
+		}
 
-		// Delete it.
-		$librarian->delete_numbered_sitemap_rows_after( 0, 'type' );
+		$librarian->delete_numbered_sitemap_rows_after( 0, JP_PAGE_SITEMAP_TYPE );
 
-		// It's gone!
-		$this->assertTrue( $librarian->read_sitemap_data( 'name-1', 'type' ) === null );
-		$this->assertTrue( $librarian->read_sitemap_data( 'name-2', 'type' ) === null );
-		$this->assertTrue( $librarian->read_sitemap_data( 'name-3', 'type' ) === null );
+		foreach ( array( 1, 2, 3 ) as $n ) {
+			$this->assertNull( $librarian->read_sitemap_data( jp_sitemap_filename( JP_PAGE_SITEMAP_TYPE, $n ), JP_PAGE_SITEMAP_TYPE ) );
+		}
+	}
+
+	/**
+	 * Timestamps come back keyed by filename, for the names that were asked for.
+	 *
+	 * @group jetpack-sitemap
+	 * @since 16.2
+	 */
+	#[Group( 'jetpack-sitemap' )]
+	public function test_query_sitemap_timestamps_is_keyed_by_filename() {
+		$librarian = new Jetpack_Sitemap_Librarian();
+		$librarian->store_sitemap_data( 1, JP_PAGE_SITEMAP_TYPE, '<urlset></urlset>', '1998-07-17 00:00:00' );
+		$librarian->store_sitemap_data( 2, JP_PAGE_SITEMAP_TYPE, '<urlset></urlset>', '2005-03-01 00:00:00' );
+
+		$timestamps = $librarian->query_sitemap_timestamps(
+			JP_PAGE_SITEMAP_TYPE,
+			array( 'sitemap-1.xml', 'sitemap-2.xml' )
+		);
+
+		$this->assertSame(
+			array(
+				'sitemap-1.xml' => '1998-07-17 00:00:00',
+				'sitemap-2.xml' => '2005-03-01 00:00:00',
+			),
+			$timestamps
+		);
+	}
+
+	/**
+	 * A name with no stored row is absent, which is how the builder spots a gap.
+	 *
+	 * @group jetpack-sitemap
+	 * @since 16.2
+	 */
+	#[Group( 'jetpack-sitemap' )]
+	public function test_query_sitemap_timestamps_omits_missing_names() {
+		$librarian = new Jetpack_Sitemap_Librarian();
+		$librarian->store_sitemap_data( 1, JP_PAGE_SITEMAP_TYPE, '<urlset></urlset>', '1970-01-01 00:00:00' );
+
+		$timestamps = $librarian->query_sitemap_timestamps(
+			JP_PAGE_SITEMAP_TYPE,
+			array( 'sitemap-1.xml', 'sitemap-2.xml' )
+		);
+
+		$this->assertArrayHasKey( 'sitemap-1.xml', $timestamps );
+		$this->assertArrayNotHasKey( 'sitemap-2.xml', $timestamps );
+	}
+
+	/**
+	 * A name list longer than one batch is queried in chunks, not truncated.
+	 *
+	 * @group jetpack-sitemap
+	 * @since 16.2
+	 */
+	#[Group( 'jetpack-sitemap' )]
+	public function test_query_sitemap_timestamps_asks_in_batches() {
+		$librarian = new Jetpack_Sitemap_Librarian();
+		$librarian->store_sitemap_data( 1, JP_PAGE_SITEMAP_TYPE, '<urlset></urlset>', '1970-01-01 00:00:00' );
+
+		// Only the first and last names exist, and they land in different chunks.
+		$names = array();
+		for ( $number = 1; $number <= JP_SITEMAP_BATCH_SIZE + 1; $number++ ) {
+			$names[] = jp_sitemap_filename( JP_PAGE_SITEMAP_TYPE, $number );
+		}
+		$librarian->store_sitemap_data( JP_SITEMAP_BATCH_SIZE + 1, JP_PAGE_SITEMAP_TYPE, '<urlset></urlset>', '1970-01-01 00:00:00' );
+
+		$timestamps = $librarian->query_sitemap_timestamps( JP_PAGE_SITEMAP_TYPE, $names );
+
+		$this->assertArrayHasKey( 'sitemap-1.xml', $timestamps );
+		$this->assertArrayHasKey( jp_sitemap_filename( JP_PAGE_SITEMAP_TYPE, JP_SITEMAP_BATCH_SIZE + 1 ), $timestamps );
+		$this->assertCount( 2, $timestamps );
+	}
+
+	/**
+	 * An empty name list makes no query and returns nothing.
+	 *
+	 * @group jetpack-sitemap
+	 * @since 16.2
+	 */
+	#[Group( 'jetpack-sitemap' )]
+	public function test_query_sitemap_timestamps_with_no_names() {
+		$librarian = new Jetpack_Sitemap_Librarian();
+
+		$this->assertSame( array(), $librarian->query_sitemap_timestamps( JP_PAGE_SITEMAP_TYPE, array() ) );
 	}
 
 	/**

@@ -1,7 +1,7 @@
-import { Tooltip } from '@wordpress/components';
 import { Icon, globe } from '@wordpress/icons';
+import { Tooltip } from '@wordpress/ui';
 import { getTranslatedCountryName } from '../../../util/country-names-translated.js';
-import type { ReactNode } from 'react';
+import type { JSX, ReactNode } from 'react';
 import './style.scss';
 
 type TextWithFlagProps = {
@@ -60,11 +60,20 @@ export default function TextWithFlag( {
 		<span>
 			{ flag && (
 				<>
-					<Tooltip text={ countryName }>
-						<span aria-label={ countryName } role="img" className="jp-forms__text-with-flag-emoji">
+					<Tooltip.Root>
+						<Tooltip.Trigger
+							render={
+								<span
+									aria-label={ countryName }
+									role="img"
+									className="jp-forms__text-with-flag-emoji"
+								/>
+							}
+						>
 							{ flag }
-						</span>
-					</Tooltip>{ ' ' }
+						</Tooltip.Trigger>
+						<Tooltip.Popup>{ countryName }</Tooltip.Popup>
+					</Tooltip.Root>{ ' ' }
 				</>
 			) }
 			{ ! flag && fallbackIcon && (

@@ -6,7 +6,7 @@ import { Spinner } from '@wordpress/components';
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useNavigate, useSearch } from '@wordpress/route';
-import { LinkButton, Tabs } from '@wordpress/ui';
+import { ButtonLink, Tabs } from '@wordpress/ui';
 import { initializeAnalytics, recordDashboardView } from './analytics';
 import { isSiteConnected } from './connection';
 import ErrorBoundary from './error-boundary';
@@ -112,7 +112,7 @@ const App = () => {
 		if ( isLoading || ! settings ) {
 			return;
 		}
-		recordDashboardView( {
+		return recordDashboardView( {
 			view: showWelcome ? 'welcome' : activeTab,
 			is_set_up: isSetUp,
 			settings_missing: getValidationIssues( settings ).length,
@@ -230,13 +230,13 @@ const App = () => {
 
 	// Same destination + label for every plan; `New_Episode_Prefill` keys off `?podcast_episode=1`.
 	const headerActions = isSetUp ? (
-		<LinkButton
+		<ButtonLink
 			size="compact"
 			variant="solid"
 			href={ getAdminUrl( 'post-new.php?podcast_episode=1' ) }
 		>
 			{ __( 'Create episode', 'jetpack-podcast' ) }
-		</LinkButton>
+		</ButtonLink>
 	) : undefined;
 
 	return (

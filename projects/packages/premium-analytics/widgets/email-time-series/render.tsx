@@ -2,27 +2,33 @@
  * External dependencies
  */
 import {
-	bucketStatsTimeSeries,
+	emailSendWindowParams,
+	readEmailSendWindow,
+	type EmailSendWindow,
 	toPostId,
 	useStatsEmailClicksTimeSeries,
+	useSiteDay,
 	useStatsEmailOpensTimeSeries,
-	STATS_CHART_BUCKET_PERIODS,
 	type StatsEmailTimeSeriesReport,
 } from '@jetpack-premium-analytics/data';
-import { reports } from '@jetpack-premium-analytics/icons';
+import { reportingTimeZone, resolveBucketStamp } from '@jetpack-premium-analytics/datetime';
 import {
+	HEADLINE_COUNT_FORMAT,
+	ChartEmptyState,
 	MetricTabsChart,
 	MetricTabsChartSkeleton,
 	WidgetRoot,
 	WidgetState,
-	defaultPeriodForInterval,
-	toChartDate,
+	describeError,
+	metricTabsToCsv,
+	useReportActions,
 	useWidgetRootContext,
+	type CountLabel,
 	type MetricTab,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useCallback, useMemo } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, _n } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
@@ -34,14 +40,11 @@ import type {
 } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
-type EmailTimeSeriesRenderAttributes = EmailTimeSeriesAttributes &
-	Partial< ReportParamsFieldAttributes >;
-type EmailTimeSeriesWidgetProps = WidgetRenderProps< EmailTimeSeriesRenderAttributes >;
-
-const DATA_FORMAT = {
-	type: 'number' as const,
-	options: { useMultipliers: true, decimals: 0 },
+// The post page states the send instant beside the report params it pins.
+type EmailTimeSeriesRenderAttributes = EmailTimeSeriesAttributes & {
+	reportParams?: ReportParamsFieldAttributes[ 'reportParams' ] & { sent_at?: string };
 };
+type EmailTimeSeriesWidgetProps = WidgetRenderProps< EmailTimeSeriesRenderAttributes >;
 
 /** The timeline field each metric charts. */
 const METRIC_FIELDS: Record< EmailTimeSeriesMetric, 'opens_count' | 'clicks_count' > = {
@@ -55,29 +58,66 @@ function metricLabel( metric: EmailTimeSeriesMetric ): string {
 		: __( 'Opens', 'jetpack-premium-analytics-pkg' );
 }
 
+function metricCountLabel( metric: EmailTimeSeriesMetric ): CountLabel {
+	return metric === 'clicks'
+		? count =>
+				/* translators: %s: number of clicks. */
+				_n( '%s Click', '%s Clicks', count, 'jetpack-premium-analytics-pkg' )
+		: count =>
+				/* translators: %s: number of opens. */
+				_n( '%s Open', '%s Opens', count, 'jetpack-premium-analytics-pkg' );
+}
+
 type EmailTimeSeriesReportProps = {
 	metric: EmailTimeSeriesMetric;
 	/** How the timeline is drawn. `MetricTabsChart` owns the default. */
 	chartType?: EmailTimeSeriesChartType;
+	/** The window the chart reads, counted from the host's `from`. */
+	sendWindow: EmailSendWindow;
+	/** The send instant, where the host states it: the first 24 hours start there. */
+	sentAt?: unknown;
 };
 
 /**
  * Draws the selected email's opens or clicks timeline. Comparison report
- * params are ignored (no period-over-period here) but left in the URL so
- * dashboard state survives the round trip.
+ * params are ignored: there is no period-over-period view here.
  */
-function EmailTimeSeriesReport( { metric, chartType }: EmailTimeSeriesReportProps ) {
+function EmailTimeSeriesReport( {
+	metric,
+	chartType,
+	sendWindow: chosenWindow,
+	sentAt,
+}: EmailTimeSeriesReportProps ) {
 	const { reportParams } = useWidgetRootContext();
 	const postId = toPostId( reportParams.post_id );
 	const hasSelection = postId > 0;
-	const period = defaultPeriodForInterval( reportParams.interval, STATS_CHART_BUCKET_PERIODS );
+	const siteDay = useSiteDay();
+	const sendWindow = useMemo( () => {
+		// Read again when the site's day turns: a young send's window ends today.
+		void siteDay;
+
+		return emailSendWindowParams(
+			chosenWindow,
+			{ day: reportParams.from, sentAt },
+			reportingTimeZone()
+		);
+	}, [ chosenWindow, reportParams.from, sentAt, siteDay ] );
+	// Without a readable send day there is no window to count, so the host's range stands.
+	const period = sendWindow?.interval ?? 'day';
+	const queryParams = useMemo(
+		() =>
+			sendWindow
+				? { ...reportParams, preset: undefined, ...sendWindow }
+				: { ...reportParams, interval: period },
+		[ reportParams, sendWindow, period ]
+	);
 
 	// Both hooks are called every render (hooks rule); only the active
 	// metric's query is enabled.
-	const opens = useStatsEmailOpensTimeSeries( postId, reportParams, {
+	const opens = useStatsEmailOpensTimeSeries( postId, queryParams, {
 		enabled: hasSelection && metric === 'opens',
 	} );
-	const clicks = useStatsEmailClicksTimeSeries( postId, reportParams, {
+	const clicks = useStatsEmailClicksTimeSeries( postId, queryParams, {
 		enabled: hasSelection && metric === 'clicks',
 	} );
 	const active = metric === 'clicks' ? clicks : opens;
@@ -89,41 +129,57 @@ function EmailTimeSeriesReport( { metric, chartType }: EmailTimeSeriesReportProp
 	const report = active.data as StatsEmailTimeSeriesReport | undefined;
 	const field = METRIC_FIELDS[ metric ];
 
-	const chartReport = useMemo( () => {
-		if ( ! report ) {
-			return undefined;
-		}
-
-		if ( period === 'day' ) {
-			return report;
-		}
-
-		// The endpoint only buckets by hour/day; weeks/months aggregate client-side.
-		return bucketStatsTimeSeries( report, period, point => {
+	// The headline is the window total: buckets are per-period sums, so their sum
+	// is the range's opens/clicks.
+	const metricTabs = useMemo< MetricTab[] >( () => {
+		const points = ( report?.data ?? [] ).flatMap( point => {
+			const date = resolveBucketStamp( point.date_start, active.timezone );
+			// The tooltip names a month the window cuts by the days it covers.
+			const endDate = resolveBucketStamp( point.date_end, active.timezone );
 			const value = Number( point[ field ] ?? 0 );
 
-			return { value, [ field ]: value };
+			return date ? [ endDate ? { date, endDate, value } : { date, value } ] : [];
 		} );
-	}, [ report, period, field ] );
-
-	// The headline is the window total: buckets are per-period sums, so their sum
-	// is the range's opens/clicks. Point dates are wall clocks — see `chart-date.ts`.
-	const metricTabs = useMemo< MetricTab[] >( () => {
-		const points = ( chartReport?.data ?? [] ).map( point => ( {
-			date: toChartDate( point.date_start ),
-			value: Number( point[ field ] ?? 0 ),
-		} ) );
 
 		return [
 			{
 				key: field,
 				label: metricLabel( metric ),
+				countLabel: metricCountLabel( metric ),
 				value: points.reduce( ( sum, point ) => sum + point.value, 0 ),
 				current: points,
 			},
 		];
-	}, [ chartReport, field, metric ] );
-	const hasPoints = ( chartReport?.data?.length ?? 0 ) > 0;
+	}, [ report, field, metric, active.timezone ] );
+
+	const csv = useMemo(
+		() =>
+			metricTabsToCsv(
+				metricTabs[ 0 ].current.some( point => ( point.value ?? 0 ) > 0 ) ? metricTabs : [],
+				{
+					zone: active.timezone,
+					withTime: period === 'hour',
+					dateLabel: __( 'Date', 'jetpack-premium-analytics-pkg' ),
+				}
+			),
+		[ metricTabs, active.timezone, period ]
+	);
+	useReportActions( {
+		csv: {
+			...csv,
+			filenamePrefix: `email-${ postId }-${ metric }`,
+			// The file is dated by the window the chart reads, not the host's range.
+			...( sendWindow
+				? { range: { from: sendWindow.from, to: sendWindow.to } }
+				: { hasDateRange: true } ),
+			status: {
+				isLoading: active.isLoading,
+				isFetching: active.isFetching,
+				isError: active.isError,
+				isPlaceholderData: active.isPlaceholderData,
+			},
+		},
+	} );
 
 	return (
 		<div className={ styles.root }>
@@ -131,22 +187,20 @@ function EmailTimeSeriesReport( { metric, chartType }: EmailTimeSeriesReportProp
 				isLoading={ active.isLoading }
 				isFetching={ active.isFetching }
 				isError={ active.isError }
-				isEmpty={ ! hasSelection || ! hasPoints }
-				error={ {
-					description: __(
+				// The timeline zero-fills every bucket of a window without opens or clicks, so that emptiness is judged inside the chart; only a missing email empties the widget.
+				isEmpty={ ! hasSelection }
+				error={ describeError( active.error, {
+					retryDescription: __(
 						"We couldn't load this email's timeline. Please try again in a moment.",
 						'jetpack-premium-analytics-pkg'
 					),
-					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: retry } ],
-				} }
+					onRetry: retry,
+				} ) }
 				empty={ {
-					icon: reports,
-					description: hasSelection
-						? __( 'No activity for this email in this period.', 'jetpack-premium-analytics-pkg' )
-						: __(
-								'Open an email report to see its timeline here.',
-								'jetpack-premium-analytics-pkg'
-						  ),
+					description: __(
+						'Open an email report to see its timeline here.',
+						'jetpack-premium-analytics-pkg'
+					),
 				} }
 				// The chart is the whole content here, so its block replaces the
 				// generic stacked lines.
@@ -154,9 +208,11 @@ function EmailTimeSeriesReport( { metric, chartType }: EmailTimeSeriesReportProp
 			>
 				<MetricTabsChart
 					metrics={ metricTabs }
-					dataFormat={ DATA_FORMAT }
+					dataFormat={ HEADLINE_COUNT_FORMAT }
 					chartType={ chartType }
-					pointsAreWallClocks
+					tickResolution={ period }
+					empty={ <ChartEmptyState /> }
+					hideSingleMetricLabel
 				/>
 			</WidgetState>
 		</div>
@@ -175,7 +231,13 @@ export default function EmailTimeSeries( { attributes = {} }: EmailTimeSeriesWid
 
 	return (
 		<WidgetRoot attributes={ attributes }>
-			<EmailTimeSeriesReport metric={ metric } chartType={ chartType } />
+			<EmailTimeSeriesReport
+				metric={ metric }
+				chartType={ chartType }
+				sendWindow={ readEmailSendWindow( attributes.sendWindow ) }
+				// Read as the host wrote it: `WidgetRoot` keeps only the params every report shares.
+				sentAt={ attributes.reportParams?.sent_at }
+			/>
 		</WidgetRoot>
 	);
 }

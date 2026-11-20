@@ -59,6 +59,7 @@ const AllowList = class extends Component {
 				this.props.removeNotice( 'module-setting-update' );
 				this.props.createNotice( 'is-success', __( 'Updated Settings.', 'jetpack' ), {
 					id: 'module-setting-update-success',
+					duration: 2000,
 				} );
 			} )
 			.catch( error => {
@@ -137,7 +138,7 @@ const AllowList = class extends Component {
 				<SettingsGroup
 					disableInOfflineMode
 					support={ {
-						text: "Adding an IP address to the allow list will prevent it from being blocked by Jetpack's firewall and brute force protection features.",
+						text: 'Adding an IP address to the allow list will prevent it from being blocked by the firewall and login protection.',
 						link: this.props.getModule( 'waf' ).learn_more_button,
 					} }
 				>

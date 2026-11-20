@@ -1,19 +1,9 @@
 /**
- * The series palette's slot manifest.
- *
- * Which slots exist is a fact about the catalog `chart-scope.scss` emits, not a theme value, so it
- * is declared here rather than in `themes.ts`, which now derives `defaultTheme.colors` from it.
- *
- * That is as far as the separation goes, and the limit is worth knowing before the field is
- * deleted. `GlobalChartsProvider` still resolves `providerTheme.colors`, not this manifest,
- * because `withCatalogPointers` parks the consumer's own color in each pointer's terminal position
- * and that literal is the palette's only carrier where `getComputedStyle` resolves nothing — SSR
- * and jsdom. Swapping the provider onto this manifest passes in a browser and collapses every
- * consumer palette to the catalog seed under jsdom; 24 tests say so. Removing `colors` therefore
- * needs a different home for that literal first, not just a change of source here.
+ * The series palette's slot manifest. Which slots exist is a fact about the catalog
+ * `chart-scope.scss` emits, not a theme value, so it is declared here rather than in `themes.ts`.
  */
 
-/** How many series-palette slots the catalog emits. `theme.colors` entries past this are ignored. */
+/** How many series-palette slots the catalog emits. */
 export const SERIES_SLOT_COUNT = 5;
 
 /**
@@ -33,7 +23,7 @@ export const seriesRole = ( slot: number ): string => `--a8c-charts-color-series
  * the bare hex rather than that slot's full `var()` chain: this string is resolved against the DOM,
  * where the chain has already been walked, and is only read at all when no DOM answered.
  */
-const SERIES_SLOT_1_FALLBACK = '#3858e9';
+export const SERIES_SLOT_1_FALLBACK = '#3858e9';
 
 /** The catalog pointer for every slot, in slot order. */
 export const SERIES_PALETTE_POINTERS: readonly string[] = Array.from(

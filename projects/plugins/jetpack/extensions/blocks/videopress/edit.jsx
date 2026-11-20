@@ -41,6 +41,7 @@ import { __, _x, sprintf } from '@wordpress/i18n';
 import { Icon } from '@wordpress/icons';
 import { Link } from '@wordpress/ui';
 import clsx from 'clsx';
+import { isEqual } from 'lodash';
 import { VideoPressBlockProvider } from './components';
 import { VIDEO_PRIVACY } from './constants';
 import Loading from './loading';
@@ -296,7 +297,10 @@ const VideoPressEdit = CoreVideoEdit =>
 						} );
 					}
 				} );
-				setAttributes( { videoPressTracks: tracks } );
+				// A new but equal array would still mark the post or template as edited.
+				if ( ! isEqual( tracks, this.props.attributes.videoPressTracks ?? [] ) ) {
+					setAttributes( { videoPressTracks: tracks } );
+				}
 			} );
 		};
 
@@ -341,7 +345,7 @@ const VideoPressEdit = CoreVideoEdit =>
 				? __(
 						'Note: Automatically downloading videos may cause issues if there are many videos displayed on the same page.',
 						'jetpack'
-				  )
+					)
 				: null;
 		}
 
@@ -598,7 +602,7 @@ const VideoPressEdit = CoreVideoEdit =>
 															'Replace image',
 															'jetpack',
 															/* dummy arg to avoid bad minification */ 0
-													  ) }
+														) }
 											</Button>
 										) }
 									/>
@@ -608,7 +612,7 @@ const VideoPressEdit = CoreVideoEdit =>
 													/* translators: %s: an image URL. */
 													__( 'The current poster image url is %s', 'jetpack' ),
 													poster ?? videoPosterImageData
-											  )
+												)
 											: __( 'There is no poster image currently selected', 'jetpack' ) }
 									</p>
 									{ hasPoster && (
@@ -925,7 +929,7 @@ const VideoPressEdit = CoreVideoEdit =>
 											'Generating preview…',
 											'jetpack',
 											/* dummy arg to avoid bad minification */ 0
-									  )
+										)
 							}
 						/>
 					</div>

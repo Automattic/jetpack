@@ -63,9 +63,6 @@ module.exports = {
 		library: { type: 'module' },
 		filename: '[name].js',
 	},
-	experiments: {
-		outputModule: true,
-	},
 	optimization: {
 		...jetpackWebpackConfig.optimization,
 	},

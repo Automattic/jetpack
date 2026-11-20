@@ -42,7 +42,7 @@ trait WooCommerceTestTrait {
 		require_once $woo_tests_dir . '/legacy/framework/class-wc-mock-payment-gateway.php';
 		require_once $woo_tests_dir . '/legacy/framework/class-wc-mock-enhanced-payment-gateway.php';
 		require_once $woo_tests_dir . '/legacy/framework/class-wc-payment-token-stub.php';
-		// commenting this out for now. require_once( $woo_tests_dir . '/framework/vendor/class-wp-test-spy-rest-server.php' );
+		require_once $woo_tests_dir . '/legacy/framework/vendor/class-wp-test-spy-rest-server.php';
 
 		// test cases
 		require_once $woo_tests_dir . '/legacy/includes/wp-http-testcase.php';

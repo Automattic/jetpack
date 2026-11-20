@@ -9,6 +9,7 @@ import { useCallback, useMemo, useId } from 'react';
  */
 import { RESIZE_DEBOUNCE_MS } from '../../constants';
 import { isEmptyChartData, getEmptyChartDomain } from '../../helpers';
+import { useChartName } from '../../hooks/use-chart-name';
 import { ChartEmptyState } from '../chart-empty-state';
 import { ChartTooltip } from '../chart-tooltip';
 import styles from './bar-chart.module.scss';
@@ -48,19 +49,12 @@ export type BarChartProps = {
 
 	className?: string;
 
+	/** What the chart shows, when that is not the widget title; the chart is named "Chart: <title>". */
+	chartTitle?: string;
+
 	emptyStateIcon?: React.ComponentProps< typeof Icon >[ 'icon' ];
 
 	emptyStateText?: string;
-
-	/**
-	 * Whether to show a thin bar for zero values when the chart is rendered.
-	 * When true and the data is not considered empty, zero-value bars render
-	 * with a small visible height so users have something to hover over for
-	 * tooltips. When all values are 0 or null and the chart is treated as
-	 * empty, an empty state is shown instead and this option has no effect.
-	 * @default true
-	 */
-	showZeroValues?: boolean;
 };
 
 /**
@@ -116,10 +110,11 @@ export function BarChart( {
 	dataFormat,
 	styles: stylesProp,
 	className,
+	chartTitle,
 	emptyStateIcon,
 	emptyStateText,
-	showZeroValues = true,
 }: BarChartProps ) {
+	const chartName = useChartName( chartTitle );
 	const chartId = useId();
 
 	// Also used for tooltip styling, not only to decorate the chart data.
@@ -192,6 +187,7 @@ export function BarChart( {
 	return (
 		<BarChartBase
 			chartId={ chartId }
+			ariaLabel={ chartName }
 			data={ styledChartData }
 			className={ clsx( styles.chart, className ) }
 			resizeDebounceTime={ RESIZE_DEBOUNCE_MS }
@@ -199,7 +195,6 @@ export function BarChart( {
 			withTooltips={ ! isEmptyData }
 			renderTooltip={ renderTooltip }
 			options={ chartOptions }
-			showZeroValues={ showZeroValues }
 		>
 			<BarChartBase.Legend
 				shape="circle"

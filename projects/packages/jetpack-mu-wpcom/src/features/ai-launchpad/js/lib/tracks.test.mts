@@ -11,8 +11,19 @@ import {
 	trackTaskSkipped,
 	trackViewed,
 	trackWizardBackClicked,
+	trackWizardBackToSetupChooser,
+	trackWizardBypassed,
 	trackWizardCompleted,
 	trackWizardGoalClicked,
+	trackWizardMcpAllowFullAccessClicked,
+	trackWizardMcpConnectedViewed,
+	trackWizardMcpGoToDashboardClicked,
+	trackWizardMcpLinkClicked,
+	trackWizardMcpPromptCopied,
+	trackWizardMcpReadOnlyViewed,
+	trackWizardMcpWaitingViewed,
+	trackWizardSetupChoiceSelected,
+	trackWizardMcpScreenViewed,
 	trackWizardSiteDetailsChanged,
 	trackWizardStepCompleted,
 	trackWizardStepSkipped,
@@ -30,14 +41,11 @@ const BOOTSTRAP = {
 		channel: 'web',
 		surface: 'dashboard',
 		screen: 'admin.php',
-		ref: 'experiment_wpcom_launchpad_personalization_202607_v1',
+		ref: 'ai_launchpad',
 		site_type: 'simple',
 		agent_name: 'ai_launchpad',
 		agent_version: '6.10.1',
-		// Strings, not booleans: the two recorders' encoders disagree on how a bool
-		// serializes (http_build_query() → "1"/"0", encodeURIComponent() → "true"/"false"), so
-		// the server sends the literal strings both pass through unchanged. See
-		// wpcom_ai_launchpad_standard_props().
+		// Strings, not booleans: see wpcom_ai_launchpad_standard_props().
 		is_test: 'false',
 		is_a11n: 'false',
 		blog_id: 12345,
@@ -72,16 +80,92 @@ describe( 'ai-launchpad tracks', () => {
 		resetTracksContext();
 	} );
 
-	// Each recorder must land on the queue as [ 'recordEvent', name, props ] carrying its own
-	// props plus the standard ones. No shared context is set for these cases, so they also pin
-	// the null-key omission: a leaked context key would show up as a literal "null" string.
+	// The context is all null here, so these also pin that null keys never override the bootstrap.
 	const RECORDERS: Array< [ event: string, fired: () => TrackEventProps ] > = [
 		[ 'viewed', fire( trackViewed, { step: 'goal' } ) ],
+		[ 'viewed', fire( trackViewed, { step: 'setup_choice' } ) ],
+		[
+			'wizard_setup_choice_selected',
+			fire( trackWizardSetupChoiceSelected, {
+				choice: 'guide',
+				goals_variation: 'bring_your_ai_tool',
+			} ),
+		],
+		[
+			'wizard_mcp_waiting_viewed',
+			fire( trackWizardMcpWaitingViewed, {
+				goals_variation: 'bring_your_ai_tool',
+				integration: 'chatgpt',
+			} ),
+		],
+		[
+			'wizard_mcp_read_only_viewed',
+			fire( trackWizardMcpReadOnlyViewed, {
+				goals_variation: 'bring_your_ai_tool',
+				integration: 'claude',
+			} ),
+		],
+		[
+			'wizard_mcp_prompt_copied',
+			fire( trackWizardMcpPromptCopied, { goals_variation: 'bring_your_ai_tool' } ),
+		],
 		[ 'wizard_goal_clicked', fire( trackWizardGoalClicked, { goal_clicked: 'sell' } ) ],
+		[
+			'wizard_goal_clicked',
+			fire( trackWizardGoalClicked, { goal_clicked: 'sell', goals_variation: 'control' } ),
+		],
+		[
+			'wizard_mcp_screen_viewed',
+			fire( trackWizardMcpScreenViewed, { goals_variation: 'bring_your_ai_tool' } ),
+		],
+		[
+			'wizard_mcp_chatgpt_clicked',
+			fire( props => trackWizardMcpLinkClicked( 'chatgpt', props ), {
+				goals_variation: 'bring_your_ai_tool',
+			} ),
+		],
+		[
+			'wizard_mcp_claude_clicked',
+			fire( props => trackWizardMcpLinkClicked( 'claude', props ), {
+				goals_variation: 'bring_your_ai_tool',
+			} ),
+		],
+		[
+			'wizard_mcp_connected_viewed',
+			fire( trackWizardMcpConnectedViewed, {
+				goals_variation: 'bring_your_ai_tool',
+				integration: 'claude',
+				already_connected: true,
+			} ),
+		],
+		[
+			'wizard_mcp_allow_full_access_clicked',
+			fire( trackWizardMcpAllowFullAccessClicked, {
+				goals_variation: 'bring_your_ai_tool',
+				integration: 'claude',
+				result: 'success',
+			} ),
+		],
+		[
+			'wizard_mcp_allow_full_access_clicked',
+			fire( trackWizardMcpAllowFullAccessClicked, {
+				goals_variation: 'bring_your_ai_tool',
+				integration: 'chatgpt',
+				result: 'settings_link',
+			} ),
+		],
+		[
+			'wizard_mcp_go_to_dashboard_clicked',
+			fire( trackWizardMcpGoToDashboardClicked, {
+				goals_variation: 'bring_your_ai_tool',
+				integration: 'chatgpt',
+			} ),
+		],
 		[ 'wizard_step_completed', fire( trackWizardStepCompleted, { step: 'goal' } ) ],
 		[ 'wizard_step_skipped', fire( trackWizardStepSkipped, { step: 'site_details' } ) ],
 		[ 'wizard_back_clicked', fire( trackWizardBackClicked, { step: 'site_details' } ) ],
 		[ 'wizard_site_details_changed', fire( trackWizardSiteDetailsChanged, { field: 'title' } ) ],
+		[ 'wizard_bypassed', fire( trackWizardBypassed, { reason: 'ai_builder' } ) ],
 		[ 'wizard_completed', fire( trackWizardCompleted, {} ) ],
 		[ 'task_clicked', fire( trackTaskClicked, { task_id: 'setup_ssh', task_status: 'skipped' } ) ],
 		[ 'task_cta_clicked', fire( trackTaskCtaClicked, { task_id: 'site_theme_selected' } ) ],
@@ -99,17 +183,13 @@ describe( 'ai-launchpad tracks', () => {
 		} );
 	}
 
-	it( "keeps is_test 'false' rather than dropping it", () => {
-		trackWizardCompleted();
-		assert.equal( lastProps().is_test, 'false' );
-		assert.equal( lastProps().blog_id, 12345 );
-	} );
-
-	it( 'reports the tailoring-scoped props as none before a tailor runs', () => {
-		trackViewed( { step: 'goal' } );
-		assert.equal( lastProps().source, 'none' );
-		assert.equal( lastProps().outcome, 'none' );
-		assert.equal( lastProps().ai_session_id, 'none' );
+	it( 'records Back to the setup chooser with use_beacon, since the page is leaving', () => {
+		trackWizardBackToSetupChooser();
+		assert.deepEqual( lastEvent(), [
+			'recordEvent',
+			'jetpack_ai_launchpad_wizard_back_clicked',
+			{ ...BOOTSTRAP.props, step: 'ai_tool', use_beacon: true },
+		] );
 	} );
 
 	it( 'lets a fresh tailor override the tailoring-scoped props', () => {
@@ -122,30 +202,24 @@ describe( 'ai-launchpad tracks', () => {
 		assert.equal( lastProps().ai_session_id, 'a755f9e8-8e0a-45be-81bc-524aaf8e2703' );
 	} );
 
-	it( 'contextFromTailorResult maps an AI result to a success outcome', () => {
-		assert.deepEqual( contextFromTailorResult( 'ai', 'abc' ), {
-			source: 'ai',
-			outcome: 'success',
-			ai_session_id: 'abc',
-		} );
-	} );
-
-	// An unmintable id must not be recorded as an empty string: the server never persisted it
-	// either, so leaving it null keeps both recorders reporting the bootstrap's 'none'.
-	it( 'contextFromTailorResult nulls an unminted session id', () => {
-		assert.deepEqual( contextFromTailorResult( 'fallback', '' ), {
-			source: 'fallback',
-			outcome: 'error',
-			ai_session_id: null,
-		} );
-	} );
-
-	it( 'records none, not an empty id, when the session id could not be minted', () => {
-		setTracksContext( contextFromTailorResult( 'fallback', '' ) );
-		trackTaskCtaClicked( { task_id: 'site_theme_selected' } );
-		assert.equal( lastProps().ai_session_id, 'none' );
-		assert.equal( lastProps().source, 'fallback' );
-	} );
+	const TAILOR_RESULTS: Array< [ string, Parameters< typeof contextFromTailorResult >, object ] > =
+		[
+			[
+				'maps an AI result to a success outcome',
+				[ 'ai', 'abc' ],
+				{ source: 'ai', outcome: 'success', ai_session_id: 'abc' },
+			],
+			// Null, not '', so the bootstrap's 'none' shows through for an id that was never minted.
+			[
+				'nulls an unminted session id',
+				[ 'fallback', '' ],
+				{ source: 'fallback', outcome: 'error', ai_session_id: null },
+			],
+		];
+	for ( const [ name, args, expected ] of TAILOR_RESULTS ) {
+		it( `contextFromTailorResult ${ name }`, () =>
+			assert.deepEqual( contextFromTailorResult( ...args ), expected ) );
+	}
 
 	it( 'merges the shared context into every event', () => {
 		setTracksContext( { goal: 'write', niche: 'hiking' } );
@@ -193,33 +267,41 @@ describe( 'ai-launchpad tracks', () => {
 		assert.equal( lastProps().vibe, 'warm' );
 	} );
 
-	it( 'contextFromInferred maps fields and coalesces missing ones to null', () => {
-		const inferred = {
-			goal: 'write',
-			niche: 'hiking',
-			theme_category: 'travel-lifestyle',
-			inferred_goal: 'portfolio',
-		} as TailoredInferred;
-		assert.deepEqual( contextFromInferred( inferred ), {
-			goal: 'write',
-			niche: 'hiking',
-			theme_category: 'travel-lifestyle',
-			vibe: null,
-			audience: null,
-			inferred_goal: 'portfolio',
-		} );
-	} );
-
-	it( 'contextFromInferred handles a missing blob (all null)', () => {
-		assert.deepEqual( contextFromInferred( undefined ), {
-			goal: null,
-			niche: null,
-			theme_category: null,
-			vibe: null,
-			audience: null,
-			inferred_goal: null,
-		} );
-	} );
+	const INFERRED: Array< [ string, TailoredInferred | undefined, object ] > = [
+		[
+			'maps fields and coalesces missing ones to null',
+			{
+				goal: 'write',
+				niche: 'hiking',
+				theme_category: 'travel-lifestyle',
+				inferred_goal: 'portfolio',
+			} as TailoredInferred,
+			{
+				goal: 'write',
+				niche: 'hiking',
+				theme_category: 'travel-lifestyle',
+				vibe: null,
+				audience: null,
+				inferred_goal: 'portfolio',
+			},
+		],
+		[
+			'handles a missing blob (all null)',
+			undefined,
+			{
+				goal: null,
+				niche: null,
+				theme_category: null,
+				vibe: null,
+				audience: null,
+				inferred_goal: null,
+			},
+		],
+	];
+	for ( const [ name, inferred, expected ] of INFERRED ) {
+		it( `contextFromInferred ${ name }`, () =>
+			assert.deepEqual( contextFromInferred( inferred ), expected ) );
+	}
 
 	it( 'contextFromTaskIds stringifies the rendered list', () => {
 		assert.deepEqual( contextFromTaskIds( [ 'a', 'b' ] ), { rendered_list: '["a","b"]' } );

@@ -102,8 +102,7 @@ export const Error: Story = {
 };
 
 /**
- * Resolved with no years: the widget shows its empty state (the neutral calendar
- * glyph and "No highlights for this year.").
+ * Resolved with no years: every tile shows zero.
  */
 export const Empty: Story = {
 	render: renderAnnualHighlights,
@@ -129,12 +128,13 @@ function AnnualHighlightsDashboardStory( dashboardArgs: WidgetDashboardWithWidge
 }
 
 export const WidgetDashboardWithWidget: StoryObj< WidgetDashboardWithWidgetControls > = {
+	tags: [ 'widget-dashboard' ],
 	render: args => <AnnualHighlightsDashboardStory { ...args } />,
 	args: {
 		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
 		// The placement the dashboard seeds this widget at, where the tiles sit in
 		// one row above the report link.
-		widgetWidth: 4,
+		widgetWidth: 3,
 		widgetHeight: 1,
 	},
 	argTypes: {

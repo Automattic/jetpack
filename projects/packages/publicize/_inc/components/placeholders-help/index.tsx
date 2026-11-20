@@ -2,6 +2,7 @@ import { Button, Dropdown } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { useCallback } from 'react';
 import { getSocialScriptData } from '../../utils/script-data';
+import PlaceholderToken from '../placeholder-token';
 import styles from './styles.module.scss';
 
 type DropdownProps = React.ComponentProps< typeof Dropdown >;
@@ -40,7 +41,7 @@ export default function PlaceholdersHelp() {
 				<ul>
 					{ placeholders?.map( ( { id, label } ) => (
 						<li key={ id }>
-							<code>{ id }</code>
+							<PlaceholderToken>{ id }</PlaceholderToken>
 							<span>{ label }</span>
 						</li>
 					) ) }

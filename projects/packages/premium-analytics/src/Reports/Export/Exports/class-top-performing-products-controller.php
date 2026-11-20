@@ -154,10 +154,9 @@ class Top_Performing_Products_Controller extends Abstract_Csv_Report_Controller 
 	 */
 	public function get_additional_params(): array {
 		return array(
-			'date_type' => self::DEFAULT_DATE_TYPE,
-			'orderby'   => 'product_gross_revenue',
-			'order'     => 'desc',
-			'limit'     => 100,
+			'orderby' => 'product_gross_revenue',
+			'order'   => 'desc',
+			'limit'   => 100,
 		);
 	}
 

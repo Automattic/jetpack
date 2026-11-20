@@ -6,8 +6,17 @@ import JetpackFooter from '../index.tsx';
 describe( 'JetpackFooter', () => {
 	const className = 'sample-classname';
 
+	beforeEach( () => {
+		window.JetpackScriptData = {
+			site: {},
+			myJetpack: { isAvailable: true, isShownByHost: true },
+			user: { current_user: { capabilities: { manage_options: true } } },
+		} as unknown as typeof window.JetpackScriptData;
+	} );
+
 	afterEach( () => {
 		delete window.JetpackNetworkAdminData;
+		delete window.JetpackScriptData;
 	} );
 
 	describe( 'Render the component', () => {
@@ -84,8 +93,68 @@ describe( 'JetpackFooter', () => {
 
 			render( <JetpackFooter /> );
 
-			expect( screen.queryByRole( 'link', { name: 'Products' } ) ).not.toBeInTheDocument();
+			expect( screen.queryByRole( 'link', { name: 'Features' } ) ).not.toBeInTheDocument();
 			expect( screen.queryByRole( 'link', { name: 'Help' } ) ).not.toBeInTheDocument();
+		} );
+
+		it.each( [ undefined, false ] )( 'hides unavailable My Jetpack links (%s)', isAvailable => {
+			window.JetpackScriptData.myJetpack = { isAvailable };
+
+			render( <JetpackFooter menu={ menu } /> );
+
+			expect( screen.queryByRole( 'link', { name: 'Features' } ) ).not.toBeInTheDocument();
+			expect( screen.queryByRole( 'link', { name: 'Help' } ) ).not.toBeInTheDocument();
+			expect( screen.getByRole( 'link', { name: 'Link' } ) ).toBeInTheDocument();
+		} );
+
+		it( 'hides My Jetpack links without script data', () => {
+			delete window.JetpackScriptData;
+
+			render( <JetpackFooter /> );
+
+			expect( screen.queryByRole( 'link', { name: 'Features' } ) ).not.toBeInTheDocument();
+			expect( screen.queryByRole( 'link', { name: 'Help' } ) ).not.toBeInTheDocument();
+		} );
+
+		it( 'links to available My Jetpack routes', () => {
+			window.JetpackScriptData.site.admin_url = '/wp-admin/';
+
+			render( <JetpackFooter /> );
+
+			expect( screen.getByRole( 'link', { name: 'Features' } ) ).toHaveAttribute(
+				'href',
+				'/wp-admin/admin.php?page=my-jetpack#/features'
+			);
+			expect( screen.getByRole( 'link', { name: 'Help' } ) ).toHaveAttribute(
+				'href',
+				'/wp-admin/admin.php?page=my-jetpack#/help'
+			);
+		} );
+
+		it( 'links users who cannot see Features to Help only', () => {
+			window.JetpackScriptData.user.current_user.capabilities.manage_options = false;
+
+			render( <JetpackFooter /> );
+
+			expect( screen.queryByRole( 'link', { name: 'Features' } ) ).not.toBeInTheDocument();
+			expect( screen.getByRole( 'link', { name: 'Help' } ) ).toBeInTheDocument();
+		} );
+
+		it.each( [
+			[ 'shows', 'a WordPress.com site that shows My Jetpack', true, true ],
+			[ 'hides', 'a WordPress.com site whose host hides My Jetpack', true, false ],
+			[ 'hides', 'a self-hosted site whose host hides My Jetpack', false, false ],
+			[ 'hides', 'a WordPress.com site with an older My Jetpack package', true, undefined ],
+			[ 'shows', 'a self-hosted site with an older My Jetpack package', false, undefined ],
+		] )( '%s My Jetpack links on %s', ( expected, _site, isWpcomPlatform, isShownByHost ) => {
+			window.JetpackScriptData.site.is_wpcom_platform = isWpcomPlatform;
+			window.JetpackScriptData.myJetpack = { isAvailable: true, isShownByHost };
+
+			render( <JetpackFooter /> );
+
+			expect( screen.queryAllByRole( 'link', { name: /^(Features|Help)$/ } ) ).toHaveLength(
+				expected === 'shows' ? 2 : 0
+			);
 		} );
 
 		it( 'should match the snapshot', () => {

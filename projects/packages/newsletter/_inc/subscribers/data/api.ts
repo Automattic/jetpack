@@ -2,16 +2,40 @@ import apiFetch from '@wordpress/api-fetch';
 import { addQueryArgs } from '@wordpress/url';
 import type {
 	AddSubscribersResponse,
+	BulkRemoveResponse,
+	BulkRemoveStatusResponse,
 	ImportJob,
 	NewsletterCategoriesData,
 	RemoveSubscriberPayload,
 	RemoveSubscriberResponse,
+	SendBounceConfirmationResponse,
+	RawSubscriber,
+	RawSubscribersResponse,
 	SubscribedNewsletterCategories,
+	Subscriber,
 	SubscriberDetails,
 	SubscriberStats,
+	SubscribersFilter,
 	SubscribersQueryParams,
 	SubscribersResponse,
 } from './types';
+
+/**
+ * Restore the display name WP.com's formatter turned into an integer.
+ *
+ * An all-digits display name arrives as a number, and DataViews calls string methods on whatever
+ * the row title resolves to — one such subscriber replaces the entire list with an error boundary.
+ *
+ * @param subscriber - Raw subscriber row from WP.com.
+ * @return Row whose display name is a string.
+ */
+function normalizeSubscriber< T extends Subscriber >( subscriber: RawSubscriber< T > ): T {
+	// Annotated rather than built inline: the `as T` below would otherwise swallow the type error
+	// that stops someone deleting this coercion as redundant against `Subscriber`'s own types.
+	const display_name: string = String( subscriber.display_name ?? '' );
+
+	return { ...subscriber, display_name } as T;
+}
 
 /**
  * Fetch the paginated subscribers list from the Jetpack REST proxy
@@ -40,10 +64,13 @@ export function fetchSubscribers( params: SubscribersQueryParams ): Promise< Sub
 		.map( filter => `filters[]=${ encodeURIComponent( filter ) }` )
 		.join( '&' );
 
-	return apiFetch< SubscribersResponse >( {
+	return apiFetch< RawSubscribersResponse >( {
 		path: `${ baseUrl }&${ filterQuery }`,
 		method: 'GET',
-	} );
+	} ).then( response => ( {
+		...response,
+		subscribers: ( response?.subscribers ?? [] ).map( normalizeSubscriber ),
+	} ) );
 }
 
 /**
@@ -65,6 +92,75 @@ export function removeSubscriber(
 			email_subscription_id: payload.email_subscription_id ?? 0,
 			paid_subscription_ids: payload.paid_subscription_ids ?? [],
 		},
+	} );
+}
+
+/**
+ * Start removing every subscriber that matches `filters` and `search` (everyone with the `all`
+ * filter and no search), as a background job on WP.com. WP.com saves a backup first and cancels
+ * paid subscriptions, the same as the single remove.
+ *
+ * WP.com refuses when the list no longer holds `expectedCount` matching subscribers (409
+ * `bulk_remove_count_changed`, new count in `data.count`) or when a removal is already running
+ * (409 `bulk_remove_in_progress`, the job in `data.job`).
+ *
+ * @param params               - What to remove.
+ * @param params.filters       - List filters, combined with AND, as the list endpoint takes them.
+ * @param params.search        - Search term, or an empty string.
+ * @param params.expectedCount - The number of subscribers the user confirmed.
+ * @return The queued job.
+ */
+export function startBulkRemove( {
+	filters,
+	search,
+	expectedCount,
+}: {
+	filters: SubscribersFilter[];
+	search: string;
+	expectedCount: number;
+} ): Promise< BulkRemoveResponse > {
+	return apiFetch< BulkRemoveResponse >( {
+		path: '/wpcom/v2/subscribers/bulk-remove',
+		method: 'POST',
+		data: {
+			filters: filters.length ? filters : [ 'all' ],
+			search,
+			expected_count: expectedCount,
+			cancel_paid: true,
+		},
+	} );
+}
+
+/**
+ * Fetch a bulk removal's progress. Without a job id, WP.com returns the running removal, or else
+ * the latest one from the last 30 days, or `{ job: null }`. `enabled` says whether the site can
+ * start a removal.
+ *
+ * @param jobId - Job to read, or undefined for the current one.
+ * @return The job, or null, and whether removal is turned on for the site.
+ */
+export function fetchBulkRemoveStatus( jobId?: number ): Promise< BulkRemoveStatusResponse > {
+	return apiFetch< BulkRemoveStatusResponse >( {
+		path: jobId
+			? addQueryArgs( '/wpcom/v2/subscribers/bulk-remove/status', { job_id: jobId } )
+			: '/wpcom/v2/subscribers/bulk-remove/status',
+		method: 'GET',
+	} );
+}
+
+/**
+ * Send one confirmation email to a bounced subscriber asking them to restart their subscription.
+ *
+ * @param emailAddress - Email address of the bounced subscriber.
+ * @return Success flag plus the updated bounce retry state.
+ */
+export function sendBounceConfirmation(
+	emailAddress: string
+): Promise< SendBounceConfirmationResponse > {
+	return apiFetch< SendBounceConfirmationResponse >( {
+		path: '/wpcom/v2/subscribers/send-bounce-confirmation',
+		method: 'POST',
+		data: { email_address: emailAddress },
 	} );
 }
 
@@ -150,13 +246,13 @@ type IndividualParams = {
  * @return Subscriber profile.
  */
 export function fetchSubscriberDetails( params: IndividualParams ): Promise< SubscriberDetails > {
-	return apiFetch< SubscriberDetails >( {
+	return apiFetch< RawSubscriber< SubscriberDetails > >( {
 		path: addQueryArgs( '/wpcom/v2/subscribers/individual', {
 			subscription_id: params.subscription_id ?? 0,
 			user_id: params.user_id ?? 0,
 		} ),
 		method: 'GET',
-	} );
+	} ).then( raw => normalizeSubscriber< SubscriberDetails >( raw ) );
 }
 
 /**
@@ -228,16 +324,21 @@ export function fetchMembershipsProducts(): Promise< MembershipsProduct[] > {
 /**
  * Issue a complimentary subscription for a single subscriber on a chosen paid plan, mirroring
  * Calypso's `requestAddComp`. Server-side proxies to
- * `/sites/{id}/memberships/comps/{user_id}/{plan_id}`.
+ * `/sites/{id}/memberships/comps/{identifier}/{plan_id}`.
+ *
+ * Exactly one of `user_id` / `email` identifies the subscriber. Email-only readers have no wpcom
+ * account, so WP.com resolves (or creates) one from the address and links the subscriber row.
  *
  * @param payload               - Comp parameters.
  * @param payload.user_id       - WPCOM user id of the subscriber.
+ * @param payload.email         - Email address, for subscribers with no wpcom account.
  * @param payload.plan_id       - Membership product id to comp.
  * @param payload.no_expiration - Whether the comp should never expire.
  * @return Raw WP.com response.
  */
 export function addComp( payload: {
-	user_id: number;
+	user_id?: number;
+	email?: string;
 	plan_id: number;
 	no_expiration?: boolean;
 } ): Promise< { id?: number; message?: string } > {

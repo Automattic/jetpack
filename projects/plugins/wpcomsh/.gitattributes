@@ -18,25 +18,13 @@
 /vendor/symfony/polyfill-mbstring/**          production-include
 /vendor/tubalmartin/**                        production-include
 /vendor/wordpress/classic-editor-plugin/**    production-include
-/vendor/wp-php-toolkit/bytestream/**             production-include
-/vendor/wp-php-toolkit/data-liberation/**         production-include
-/vendor/wp-php-toolkit/encoding/**                production-include
-/vendor/wp-php-toolkit/filesystem/**              production-include
-/vendor/wp-php-toolkit/html/**                    production-include
-/vendor/wp-php-toolkit/http-client/**             production-include
-/vendor/wp-php-toolkit/reprint-exporter/**        production-include
-/vendor/wp-php-toolkit/reprint-importer/**        production-include
-/vendor/wp-php-toolkit/xml/**                     production-include
 /jetpack_vendor/**                            production-include
 
 # Files to exclude from the mirror repo, but included in the monorepo.
 # (see also entries in the monorepo root .gitattributes)
 # Remember to end all directories with `/**` to properly tag every file.
-.dockerignore                                 production-exclude
 /README.md                                    production-exclude
 /bin/**                                       production-exclude
-/build/**                                     production-exclude
-/Makefile                                     production-exclude
 /*/README.md                                  production-exclude
 
 # Cruft from git repos imported as packages
@@ -69,10 +57,4 @@
 
 # Cruft from poorly-cleaned vendor packages.
 # @todo File bugs for these upstream.
-/vendor/wp-php-toolkit/*/Tests/**                        production-exclude
-/vendor/wp-php-toolkit/*/*.sh                            production-exclude
-/vendor/wp-php-toolkit/*/bin/**                          production-exclude
-/vendor/wp-php-toolkit/*/**/phpstan.neon                 production-exclude
-/vendor/wp-php-toolkit/*/**/phpunit.xml                  production-exclude
-/vendor/wp-php-toolkit/*/**/tests/**                     production-exclude
 /vendor/tubalmartin/cssmin/tests/**                      production-exclude

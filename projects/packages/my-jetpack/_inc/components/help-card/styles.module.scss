@@ -1,6 +1,5 @@
 .wrapper {
 	width: 100%;
-	min-width: 20rem;
 	display: flex;
 	padding: 1.5rem;
 	flex-direction: column;
@@ -23,6 +22,7 @@
 	font-weight: 500;
 	margin-top: 1.5rem;
 	margin-bottom: 0.5rem;
+	overflow-wrap: anywhere;
 
 	:global(.components-external-link__contents) {
 		color: var(--jp-black);
@@ -48,4 +48,5 @@
 	color: var(--jp-gray-80);
 	font-weight: 400;
 	margin-block: 0;
+	overflow-wrap: anywhere;
 }

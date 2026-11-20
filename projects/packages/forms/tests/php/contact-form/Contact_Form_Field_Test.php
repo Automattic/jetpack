@@ -378,6 +378,58 @@ class Contact_Form_Field_Test extends BaseTestCase {
 	}
 
 	/**
+	 * A quote in an attribute rendered into a wrapper class stays inside the class attribute.
+	 *
+	 * @dataProvider wrapper_class_attribute_provider
+	 *
+	 * @param string $attribute Field attribute that feeds a wrapper class.
+	 * @param string $style     Form style.
+	 */
+	#[DataProvider( 'wrapper_class_attribute_provider' )]
+	public function test_field_wrapper_classes_are_escaped_in_class_attribute( $attribute, $style ) {
+		$classes = "x' data-extra='1";
+		$field   = $this->get_new_field_instance(
+			array(
+				'type'     => 'text',
+				'id'       => 'wrapper-classes',
+				$attribute => $classes,
+			),
+			$style
+		);
+
+		$html = $field->render();
+
+		// No element gains a data-extra attribute.
+		$processor = new \WP_HTML_Tag_Processor( $html );
+		while ( $processor->next_tag() ) {
+			$this->assertNull( $processor->get_attribute( 'data-extra' ) );
+		}
+
+		// The value is kept, escaped, inside a single class attribute.
+		$processor = new \WP_HTML_Tag_Processor( $html );
+		$found     = false;
+		while ( $processor->next_tag( array( 'tag_name' => 'DIV' ) ) ) {
+			if ( str_contains( (string) $processor->get_attribute( 'class' ), $classes ) ) {
+				$found = true;
+				break;
+			}
+		}
+		$this->assertTrue( $found, 'The wrapper class attribute should contain the escaped value.' );
+	}
+
+	/**
+	 * Field attributes rendered into a wrapper div's class, with the form style that renders it.
+	 *
+	 * @return array
+	 */
+	public static function wrapper_class_attribute_provider() {
+		return array(
+			'wrapper classes'          => array( 'fieldwrapperclasses', '' ),
+			'width, inset label style' => array( 'width', 'outlined' ),
+		);
+	}
+
+	/**
 	 * Hidden fields can drive conditional logic, so the browser store must register them.
 	 */
 	public function test_render_hidden_field_registers_its_value_with_interactivity() {
@@ -1452,7 +1504,7 @@ class Contact_Form_Field_Test extends BaseTestCase {
 			null
 		);
 
-		$html = do_shortcode( '[contact-form]' . $field_shortcode . '[/contact-form]' );
+		$html = apply_shortcodes( '[contact-form]' . $field_shortcode . '[/contact-form]' );
 
 		$this->assertStringContainsString(
 			'class="contact-form__field-help">' . esc_html( $help_text ) . '</span>',
@@ -1681,5 +1733,78 @@ class Contact_Form_Field_Test extends BaseTestCase {
 				'g1-x-telephone-error',
 			),
 		);
+	}
+
+	/**
+	 * A rating scale above the cap only reaches this renderer through a shortcode or
+	 * hand-edited markup, since the editor control has always capped it.
+	 */
+	public function test_rating_field_render_caps_the_scale() {
+		$field = $this->get_new_field_instance(
+			array(
+				'type' => 'rating',
+				'id'   => 'rating-id',
+				'max'  => '5000',
+			)
+		);
+
+		$this->assertSame(
+			Feedback_Field::MAX_RATING_ICONS,
+			substr_count( $field->render(), 'class="jetpack-field-rating__input' )
+		);
+	}
+
+	/**
+	 * A group's fieldset points at its error message, and that id is emitted exactly once.
+	 *
+	 * @param string $type       Field type.
+	 * @param array  $attributes Extra field attributes.
+	 * @param string $style      Form style, empty for the default.
+	 * @dataProvider group_fieldset_style_provider
+	 */
+	#[DataProvider( 'group_fieldset_style_provider' )]
+	public function test_group_fieldset_references_its_error_message( $type, $attributes, $style ) {
+		$field = $this->get_new_field_instance(
+			array_merge(
+				array(
+					'type'     => $type,
+					'id'       => 'g1-x',
+					'label'    => 'Thing',
+					'required' => '1',
+				),
+				$attributes
+			),
+			$style
+		);
+
+		$html = $field->render();
+
+		$this->assertSame( 1, preg_match( '/<fieldset[^>]*aria-describedby=[\'"]([^\'"]+)[\'"]/', $html, $matches ) );
+		$this->assertStringStartsWith( 'g1-x-', $matches[1] );
+		$this->assertStringEndsWith( '-error-message', $matches[1] );
+		$this->assertSame( 1, substr_count( $html, 'id="' . $matches[1] . '"' ) );
+	}
+
+	/**
+	 * Grouped field types in the default style and both inset-label styles.
+	 *
+	 * @return array
+	 */
+	public static function group_fieldset_style_provider() {
+		$types                 = self::data_grouped_field_types();
+		$image_option          = array(
+			'letter' => 'A',
+			'label'  => 'A',
+		);
+		$types['image-select'] = array( 'image-select', array( 'optionsdata' => wp_json_encode( array( $image_option ), JSON_UNESCAPED_SLASHES ) ) );
+
+		$cases = array();
+		foreach ( $types as $name => $args ) {
+			foreach ( array( '', 'outlined', 'animated' ) as $style ) {
+				$cases[ $name . ', ' . ( $style ? $style : 'default' ) ] = array_merge( $args, array( $style ) );
+			}
+		}
+
+		return $cases;
 	}
 } // end class

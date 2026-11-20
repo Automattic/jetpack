@@ -37,7 +37,7 @@ class Twitter_Cards {
 		 */
 		$alt_length = 420;
 
-		if ( post_password_required() ) {
+		if ( is_singular() && post_password_required() ) {
 			return $og_tags;
 		}
 
@@ -79,7 +79,7 @@ class Twitter_Cards {
 			 * @param string $str Default image URL.
 			 */
 			$image = apply_filters( 'jetpack_twitter_cards_image_default', '' );
-			if ( ! empty( $image ) ) {
+			if ( ! empty( $image ) && empty( $og_tags['og:image'] ) && empty( $og_tags['twitter:image'] ) ) {
 				$og_tags['twitter:image'] = $image;
 			}
 
@@ -237,9 +237,30 @@ class Twitter_Cards {
 
 		if ( empty( $img_count ) ) {
 
+			/** This filter is documented in class-twitter-cards.php */
+			if ( empty( $og_tags['twitter:image'] ) ) {
+				$default_image = apply_filters( 'jetpack_twitter_cards_image_default', '' );
+				if ( ! empty( $default_image ) && 'https://s0.wp.com/i/blank.jpg' !== $default_image ) {
+					$og_tags['twitter:image'] = $default_image;
+				}
+			}
+
+			if ( empty( $og_tags['twitter:image'] ) && ! empty( $og_tags['og:image'] ) ) {
+				$image = is_array( $og_tags['og:image'] ) ? reset( $og_tags['og:image'] ) : $og_tags['og:image'];
+				if ( $image && 'https://s0.wp.com/i/blank.jpg' !== $image ) {
+					$og_tags['twitter:image'] = $image;
+					if ( isset( $og_tags['og:image:alt'] ) && is_string( $og_tags['og:image:alt'] ) ) {
+						$og_tags['twitter:image:alt'] = mb_substr( $og_tags['og:image:alt'], 0, 420 );
+					}
+					if ( ( $og_tags['og:image:width'] ?? 0 ) >= 300 && ( $og_tags['og:image:height'] ?? 0 ) >= 157 ) {
+						$card_type = 'summary_large_image';
+					}
+				}
+			}
+
 			// No images, use Blavatar as a thumbnail for the summary type.
 			// @todo blavatar_domain, blavatar_exists, and blavatar_url are WordPress.com functions. They should be abstracted.
-			if ( function_exists( 'blavatar_domain' ) ) {
+			if ( empty( $og_tags['twitter:image'] ) && function_exists( 'blavatar_domain' ) ) {
 				$blavatar_domain = blavatar_domain( site_url() ); // @phan-suppress-current-line PhanUndeclaredFunction -- Guarded by function_exists().
 				if ( blavatar_exists( $blavatar_domain ) ) { // @phan-suppress-current-line PhanUndeclaredFunction -- Guarded by function_exists().
 					$og_tags['twitter:image'] = blavatar_url( $blavatar_domain, 'img', 240 ); // @phan-suppress-current-line PhanUndeclaredFunction -- Guarded by function_exists().
@@ -253,7 +274,7 @@ class Twitter_Cards {
 			}
 
 			// Third fall back, Site Icon.
-			if ( empty( $og_tags['twitter:image'] ) && has_site_icon() ) {
+			if ( empty( $og_tags['twitter:image'] ) && has_site_icon() && 'image/svg+xml' !== get_post_mime_type( get_option( 'site_icon' ) ) ) {
 				$og_tags['twitter:image'] = get_site_icon_url( 240 );
 			}
 
@@ -281,26 +302,20 @@ class Twitter_Cards {
 
 	/**
 	 * Adds settings section and field.
+	 *
+	 * @deprecated 0.3.0 Settings > Sharing renders the field itself.
 	 */
 	public static function settings_init() {
-		add_settings_section( 'jetpack-twitter-cards-settings', 'Twitter Cards', '__return_false', 'sharing' );
-		add_settings_field(
-			'jetpack-twitter-cards-site-tag',
-			__( 'Twitter Site Tag', 'jetpack-post-media' ),
-			array( __CLASS__, 'settings_field' ),
-			'sharing',
-			'jetpack-twitter-cards-settings',
-			array(
-				'label_for' => 'jetpack-twitter-cards-site-tag',
-			)
-		);
+		_deprecated_function( __METHOD__, 'post-media-0.3.0', 'Automattic\Jetpack\Sharing_Likes\Settings\Twitter_Site_Tag::render' );
 	}
 
 	/**
 	 * Add global sharing options.
+	 *
+	 * @deprecated 0.3.0 Settings > Sharing renders the field itself.
 	 */
 	public static function sharing_global_options() {
-		do_settings_fields( 'sharing', 'jetpack-twitter-cards-settings' );
+		_deprecated_function( __METHOD__, 'post-media-0.3.0', 'Automattic\Jetpack\Sharing_Likes\Settings\Twitter_Site_Tag::render' );
 	}
 
 	/**
@@ -321,22 +336,20 @@ class Twitter_Cards {
 
 	/**
 	 * Output the settings field.
+	 *
+	 * @deprecated 0.3.0 Settings > Sharing renders the field itself.
 	 */
 	public static function settings_field() {
-		wp_nonce_field( 'jetpack-twitter-cards-settings', 'jetpack_twitter_cards_nonce', false );
-		?>
-		<input type="text" id="jetpack-twitter-cards-site-tag" class="regular-text" name="jetpack-twitter-cards-site-tag" value="<?php echo esc_attr( get_option( 'jetpack-twitter-cards-site-tag' ) ); ?>" />
-		<p class="description" style="width: auto;"><?php esc_html_e( 'The Twitter username of the owner of this site\'s domain.', 'jetpack-post-media' ); ?></p>
-		<?php
+		_deprecated_function( __METHOD__, 'post-media-0.3.0', 'Automattic\Jetpack\Sharing_Likes\Settings\Twitter_Site_Tag::render' );
 	}
 
 	/**
 	 * Validate the settings submission.
+	 *
+	 * @deprecated 0.3.0 Settings > Sharing saves the field itself.
 	 */
 	public static function settings_validate() {
-		if ( isset( $_POST['jetpack_twitter_cards_nonce'] ) && wp_verify_nonce( $_POST['jetpack_twitter_cards_nonce'], 'jetpack-twitter-cards-settings' ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-			update_option( 'jetpack-twitter-cards-site-tag', isset( $_POST['jetpack-twitter-cards-site-tag'] ) ? trim( ltrim( wp_strip_all_tags( filter_var( wp_unslash( $_POST['jetpack-twitter-cards-site-tag'] ) ) ), '@' ) ) : '' );
-		}
+		_deprecated_function( __METHOD__, 'post-media-0.3.0', 'Automattic\Jetpack\Sharing_Likes\Settings\Twitter_Site_Tag::save' );
 	}
 
 	/**
@@ -347,8 +360,5 @@ class Twitter_Cards {
 		add_filter( 'jetpack_open_graph_output', array( __CLASS__, 'twitter_cards_output' ) );
 		add_filter( 'jetpack_twitter_cards_site_tag', array( __CLASS__, 'site_tag' ), -99 );
 		add_filter( 'jetpack_twitter_cards_site_tag', array( __CLASS__, 'prioritize_creator_over_default_site' ), 99, 2 );
-		add_action( 'admin_init', array( __CLASS__, 'settings_init' ) );
-		add_action( 'sharing_global_options', array( __CLASS__, 'sharing_global_options' ) );
-		add_action( 'sharing_admin_update', array( __CLASS__, 'settings_validate' ) );
 	}
 }

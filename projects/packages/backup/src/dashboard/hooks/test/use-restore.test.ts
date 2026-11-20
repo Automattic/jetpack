@@ -1,19 +1,13 @@
 // The restore state machine — the only place in this dashboard where a
 // bug costs someone their site rather than their patience.
-//
-// It had no test at all, and was dead on arrival: the client tested for
-// `in-progress`, `queued`, `finished` and `failed`, and WordPress.com has
-// never returned any of those. Nothing noticed because the v1 route it
-// called answered 401 before a status could come back, so the whole
-// machine was unreachable rather than merely wrong.
 
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClient, QueryClientProvider, focusManager } from '@tanstack/react-query';
 import { act, renderHook, waitFor } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
 import { createElement, type ReactNode } from 'react';
 import { pickLiveRestore } from '../../data/api/restore';
 import { DEFAULT_RESTORE_ITEMS } from '../../types/restore';
-import { useRestore } from '../use-restore';
+import { useRestore, POLL_INTERVAL_MS } from '../use-restore';
 
 jest.mock( '@wordpress/api-fetch', () => ( { __esModule: true, default: jest.fn() } ) );
 const mockedApiFetch = apiFetch as unknown as jest.Mock;
@@ -103,9 +97,13 @@ function submitAll( result: RenderedRestore ) {
  * @param ms - How far to advance.
  */
 async function advance( ms: number ) {
-	await act( async () => {
-		await jest.advanceTimersByTimeAsync( ms );
-	} );
+	// Advance in small steps (POLL_INTERVAL_MS). Longer steps never give React 19 a gap between updates, so it throws "Maximum update depth exceeded".
+	while ( ms > 0 ) {
+		await act( async () => {
+			await jest.advanceTimersByTimeAsync( Math.min( ms, POLL_INTERVAL_MS ) );
+		} );
+		ms -= POLL_INTERVAL_MS;
+	}
 }
 
 /**
@@ -221,7 +219,7 @@ describe( 'useRestore — terminal states', () => {
 		expect( result.current.state ).toMatchObject( { message: 'Restore aborted.' } );
 	} );
 
-	it( 'never shows the machine error code to the reader', async () => {
+	it( 'quotes the machine error code in the reference, never as the message', async () => {
 		respondWith( {
 			status: statusPayload( { status: 'failed', message: '', error_code: 'checksum_mismatch' } ),
 		} );
@@ -231,7 +229,11 @@ describe( 'useRestore — terminal states', () => {
 		submitAll( result );
 
 		await waitFor( () => expect( result.current.state.phase ).toBe( 'error' ) );
-		expect( JSON.stringify( result.current.state ) ).not.toContain( 'checksum_mismatch' );
+		expect( result.current.state ).toEqual( {
+			phase: 'error',
+			message: 'Restore failed.',
+			reference: { code: 'checksum_mismatch', id: { kind: 'restore', value: 912682 } },
+		} );
 	} );
 
 	it( 'reports progress while running', async () => {
@@ -316,28 +318,6 @@ describe( 'useRestore — failing safe', () => {
 		expect( result.current.state.phase ).not.toBe( 'success' );
 	} );
 
-	// Losing the connection is not the same as the restore failing: it
-	// was accepted and is very likely still running. Reporting it as an
-	// error would offer a retry, and the retry starts a second concurrent
-	// restore — so it reports what is true, that we can no longer watch.
-	it( 'surfaces a mid-poll network failure rather than sitting at the last percent', async () => {
-		mockedApiFetch.mockImplementation( ( options: { method?: string } ) => {
-			if ( options?.method === 'POST' ) {
-				return Promise.resolve( { id: 912682, rewind_id: REWIND_ID } );
-			}
-			return Promise.reject( new Error( 'Could not reach WordPress.com.' ) );
-		} );
-		const { wrapper } = makeWrapper();
-
-		const { result } = renderHook( () => useRestore( REWIND_ID ), { wrapper } );
-		submitAll( result );
-
-		await waitFor( () => expect( result.current.state.phase ).toBe( 'lost-track' ) );
-		// The transport's own text is kept, beneath the message rather
-		// than replacing it.
-		expect( result.current.state ).toMatchObject( { detail: 'Could not reach WordPress.com.' } );
-	} );
-
 	// The property the phase exists for, asserted on the state machine as
 	// well as on the screen: `error` is reserved for "nothing is running".
 	it( 'reserves the error phase for restores that definitely are not running', async () => {
@@ -359,7 +339,7 @@ describe( 'useRestore — failing safe', () => {
 		mockedApiFetch.mockRejectedValue( {
 			code: 'restore_initiate_failed',
 			message: 'Could not start the backup restore.',
-			data: { status: 500 },
+			data: { status: 500, wpcom: { code: 'authorization_required' } },
 		} );
 		const { wrapper } = makeWrapper();
 
@@ -367,6 +347,10 @@ describe( 'useRestore — failing safe', () => {
 		submitAll( result );
 
 		await waitFor( () => expect( result.current.state.phase ).toBe( 'error' ) );
+		// No restore exists to name, so the reference names the backup.
+		expect( result.current.state ).toMatchObject( {
+			reference: { code: 'authorization_required', id: { kind: 'backup', value: REWIND_ID } },
+		} );
 
 		act( () => result.current.reset() );
 		expect( result.current.state.phase ).toBe( 'idle' );
@@ -384,6 +368,10 @@ describe( 'useRestore — the silence deadline', () => {
 
 	afterEach( () => {
 		jest.useRealTimers();
+		// Focus is global to the query client. A test that fails between
+		// hiding and restoring it would silently stop every later suite
+		// from polling.
+		focusManager.setFocused( true );
 	} );
 
 	// The case with no safety net before: the status query is disabled
@@ -415,8 +403,8 @@ describe( 'useRestore — the silence deadline', () => {
 		expect( result.current.state ).toMatchObject( { detail: null } );
 	} );
 
-	it( 'gives up on a restore whose status never leaves queued', async () => {
-		respondWith( { status: statusPayload( { status: 'queued' } ) } );
+	it( 'gives up on a restore WordPress.com never finds', async () => {
+		respondWith( { status: statusPayload( { status: 'not-found' } ) } );
 		const { wrapper } = makeWrapper();
 
 		const { result } = renderHook( () => useRestore( REWIND_ID ), { wrapper } );
@@ -427,6 +415,112 @@ describe( 'useRestore — the silence deadline', () => {
 		await advance( 5 * 60_000 + 1000 );
 		expect( result.current.state.phase ).toBe( 'lost-track' );
 		expect( result.current.state ).toMatchObject( { detail: null } );
+	} );
+
+	// The other half of the same distinction. `not-found` is upstream
+	// having no record; `queued` is upstream tracking a real restore that
+	// has not started. Declaring the second one lost is the bug this
+	// deadline was written to avoid, pointed the other way.
+	it( 'keeps waiting while WordPress.com reports the restore as queued', async () => {
+		respondWith( { status: statusPayload( { status: 'queued' } ) } );
+		const { wrapper } = makeWrapper();
+
+		const { result } = renderHook( () => useRestore( REWIND_ID ), { wrapper } );
+		submitAll( result );
+
+		await settleAt( result, 'queued' );
+
+		await advance( 5 * 60_000 + 1000 );
+		expect( result.current.state.phase ).toBe( 'queued' );
+
+		// Saying "queued" while no longer asking would be the same lie in
+		// a quieter voice.
+		const before = callsFor( '/status' );
+		await advance( 60_000 );
+		expect( callsFor( '/status' ) ).toBeGreaterThan( before );
+	} );
+
+	// The three pieces below each need `lostTrack` to be *true* while a
+	// sign of life is arriving, which a steady poll never produces — every
+	// reading pushes the deadline back. Hiding the tab is what creates it:
+	// query-core ticks the interval but gates the fetch on
+	// `focusManager.isFocused()`, and this dashboard sets
+	// `refetchOnWindowFocus: false`, so a hidden tab is polled neither on
+	// its interval nor on return.
+	/**
+	 * Let the deadline expire with no polls arriving, then restore focus.
+	 *
+	 * @param result - The rendered hook result.
+	 */
+	async function hideTabPastTheDeadline( result: PhaseResult ) {
+		focusManager.setFocused( false );
+		await advance( 5 * 60_000 + 1000 );
+		expect( result.current.state.phase ).toBe( 'queued' );
+		focusManager.setFocused( true );
+	}
+
+	it( 'resumes polling after the deadline passes under a hidden tab', async () => {
+		respondWith( { status: statusPayload( { status: 'queued' } ) } );
+		const { wrapper } = makeWrapper();
+
+		const { result } = renderHook( () => useRestore( REWIND_ID ), { wrapper } );
+		submitAll( result );
+		await settleAt( result, 'queued' );
+
+		await hideTabPastTheDeadline( result );
+
+		const before = callsFor( '/status' );
+		await advance( 60_000 );
+		expect( callsFor( '/status' ) ).toBeGreaterThan( before );
+	} );
+
+	// `lostTrack` has to mean "nothing heard lately", not "there was once
+	// a gap". Latched, the next silent reading is judged against a
+	// deadline that expired while the tab was hidden.
+	it( 'gives a restore a fresh deadline once it is heard from again', async () => {
+		let status: unknown = statusPayload( { status: 'queued' } );
+		mockedApiFetch.mockImplementation( ( options: { path?: string; method?: string } ) => {
+			if ( options?.method === 'POST' ) {
+				return Promise.resolve( { id: 912682, rewind_id: REWIND_ID } );
+			}
+			if ( ( options?.path ?? '' ).includes( '/restores' ) ) {
+				return Promise.resolve( [] );
+			}
+			return Promise.resolve( status );
+		} );
+		const { wrapper } = makeWrapper();
+
+		const { result } = renderHook( () => useRestore( REWIND_ID ), { wrapper } );
+		submitAll( result );
+		await settleAt( result, 'queued' );
+
+		await hideTabPastTheDeadline( result );
+		await advance( 30_000 );
+
+		// Upstream loses sight of it *after* the latch should have been
+		// cleared, so this reading starts its own five minutes.
+		status = statusPayload( { status: 'not-found' } );
+		await advance( 60_000 );
+		expect( result.current.state.phase ).toBe( 'queued' );
+	} );
+
+	// `unknown` is minted only for a status string upstream *did* send.
+	// Timing it out puts a live restore under a spelling WPCOM adds on a
+	// five-minute fuse — the bug this flow exists to prevent.
+	it( 'keeps watching a restore reported under a spelling it does not know', async () => {
+		respondWith( { status: statusPayload( { status: 'unknown', progress: 50 } ) } );
+		const { wrapper } = makeWrapper();
+
+		const { result } = renderHook( () => useRestore( REWIND_ID ), { wrapper } );
+		submitAll( result );
+		await settleAt( result, 'queued' );
+
+		await advance( 5 * 60_000 + 1000 );
+		expect( result.current.state.phase ).toBe( 'queued' );
+
+		const before = callsFor( '/status' );
+		await advance( 60_000 );
+		expect( callsFor( '/status' ) ).toBeGreaterThan( before );
 	} );
 
 	// The half that matters as much as firing: a long restore that keeps
@@ -552,14 +646,36 @@ describe( 'useRestore — a restore already running when the screen opens', () =
 	} );
 
 	it( 'refuses to adopt on a status that only means "not visible"', async () => {
-		// `queued` is what the bridge mints for a **404** — "that restore
-		// is not visible to this route" — so reading it as a sign of life
-		// turns absence of evidence into evidence of life. Paired with a
-		// collection spelling we do not recognise as settled (`started` is
-		// the one WordPress.com's own docblock claims), a restore from
-		// January locks the screen out of restoring permanently: the form
-		// never returns, and the stale adoption is what withholds the
-		// button that would have replaced it.
+		// `not-found` is what the bridge mints for a **404** — "that
+		// restore is not visible to this route" — so reading it as a sign
+		// of life turns absence of evidence into evidence of life. Paired
+		// with a collection spelling we do not recognise as settled
+		// (`started` is the one WordPress.com's own docblock claims), a
+		// restore from January locks the screen out of restoring
+		// permanently: the form never returns, and the stale adoption is
+		// what withholds the button that would have replaced it.
+		respondWith( {
+			restores: [
+				{
+					restore_id: 111,
+					rewind_id: '1700000000.1',
+					when: '2026-01-01T00:00:00+00:00',
+					status: 'started',
+				},
+			],
+			status: statusPayload( { id: 111, status: 'not-found', rewind_id: '1700000000.1' } ),
+		} );
+		const { wrapper } = makeWrapper();
+
+		const { result } = renderHook( () => useRestore( REWIND_ID ), { wrapper } );
+
+		await waitFor( () => expect( result.current.state.phase ).toBe( 'idle' ) );
+		expect( result.current.adopted ).toBeNull();
+	} );
+
+	// Withholding the form is the point: a restore upstream is holding in
+	// its queue is one the reader must not be able to start again.
+	it( 'adopts a restore WordPress.com reports as queued', async () => {
 		respondWith( {
 			restores: [
 				{
@@ -575,8 +691,7 @@ describe( 'useRestore — a restore already running when the screen opens', () =
 
 		const { result } = renderHook( () => useRestore( REWIND_ID ), { wrapper } );
 
-		await waitFor( () => expect( result.current.state.phase ).toBe( 'idle' ) );
-		expect( result.current.adopted ).toBeNull();
+		await waitFor( () => expect( result.current.adopted ).toEqual( { rewindId: '1700000000.1' } ) );
 	} );
 
 	it( 'withholds the form until it knows whether anything is running', async () => {
@@ -636,11 +751,9 @@ describe( 'useRestore — a restore already running when the screen opens', () =
 
 		status = { ...status, status: 'finished', progress: 100 };
 
-		await waitFor( () => expect( result.current.state.phase ).toBe( 'success' ), {
-			timeout: 8000,
-		} );
+		await waitFor( () => expect( result.current.state.phase ).toBe( 'success' ) );
 		expect( result.current.state ).toEqual( { phase: 'success' } );
-	}, 15000 );
+	} );
 
 	it( 'reports an adopted restore failing, rather than silently re-arming', async () => {
 		let status: Record< string, unknown > = {
@@ -671,9 +784,9 @@ describe( 'useRestore — a restore already running when the screen opens', () =
 
 		status = { ...status, status: 'failed', message: 'Restore aborted.' };
 
-		await waitFor( () => expect( result.current.state.phase ).toBe( 'error' ), { timeout: 8000 } );
+		await waitFor( () => expect( result.current.state.phase ).toBe( 'error' ) );
 		expect( result.current.state ).toMatchObject( { message: 'Restore aborted.' } );
-	}, 15000 );
+	} );
 
 	it( 'drops the adoption when the candidate turns out to have finished', async () => {
 		// The collection's status vocabulary is not the status route's, so
@@ -899,6 +1012,41 @@ describe( 'useRestore — a submission we never got an answer to', () => {
 		expect( result.current.state ).not.toMatchObject( { phase: 'error' } );
 	} );
 
+	// "Nothing on your site has changed" is the one claim here that must
+	// never be guessed at. The recovery poll only looks for a *live*
+	// restore, so a submission whose reply was lost and whose restore then
+	// finished leaves no live row — and reporting that as "didn't start"
+	// asserts the site is untouched next to a Try again button.
+	it.each( [
+		[ 'finished', 'success', {} ],
+		[ 'fail', 'error', { reference: { code: null, id: { kind: 'restore', value: 912682 } } } ],
+	] )(
+		'reports a %s restore it recovers rather than denying it ran',
+		async ( row, phase, extra ) => {
+			respondWith( {
+				initiateError: TIMEOUT,
+				restores: [
+					{
+						restore_id: 912682,
+						rewind_id: REWIND_ID,
+						when: '2026-08-20T10:00:00+00:00',
+						status: row,
+					},
+				],
+			} );
+			const { wrapper } = makeWrapper();
+
+			const { result } = renderHook( () => useRestore( REWIND_ID ), { wrapper } );
+			submitAll( result );
+
+			await settleAt( result, phase );
+			expect( result.current.state ).not.toMatchObject( {
+				message: "Your restore didn't start, so nothing on your site has changed.",
+			} );
+			expect( result.current.state ).toMatchObject( extra );
+		}
+	);
+
 	it( 'adopts the restore when it turns out to have started', async () => {
 		respondWith( {
 			initiateError: TIMEOUT,
@@ -934,6 +1082,60 @@ describe( 'useRestore — a submission we never got an answer to', () => {
 		// Now — and only now — a retry is safe, because five minutes of
 		// looking found no restore of this backup.
 		expect( result.current.state.phase ).toBe( 'error' );
+	} );
+
+	// A read that fails, or that WordPress.com answers with a bare `null`,
+	// has not shown that nothing started. Saying so would deny a restore
+	// that may be running.
+	it.each( [
+		[ 'answers with null', () => Promise.resolve( null ) ],
+		[ 'rejects', () => Promise.reject( new Error( 'Could not reach WordPress.com.' ) ) ],
+	] )( 'does not say nothing started when the restores list %s', async ( _label, readRestores ) => {
+		mockedApiFetch.mockImplementation( ( options: { path?: string; method?: string } ) => {
+			if ( options?.method === 'POST' ) {
+				return Promise.reject( TIMEOUT );
+			}
+			return ( options?.path ?? '' ).includes( '/restores' )
+				? readRestores()
+				: Promise.resolve( statusPayload() );
+		} );
+		const { wrapper } = makeWrapper();
+
+		const { result } = renderHook( () => useRestore( REWIND_ID ), { wrapper } );
+		submitAll( result );
+
+		await settleAt( result, 'unconfirmed' );
+		await advance( 5 * 60_000 + 1000 );
+
+		expect( result.current.state.phase ).toBe( 'lost-track' );
+	} );
+
+	it( 'forgets an earlier good read after a reset', async () => {
+		let restoresReadable = true;
+		mockedApiFetch.mockImplementation( ( options: { path?: string; method?: string } ) => {
+			if ( options?.method === 'POST' ) {
+				return Promise.reject( TIMEOUT );
+			}
+			if ( ( options?.path ?? '' ).includes( '/restores' ) ) {
+				return Promise.resolve( restoresReadable ? [] : null );
+			}
+			return Promise.resolve( statusPayload() );
+		} );
+		const { wrapper } = makeWrapper();
+		const { result } = renderHook( () => useRestore( REWIND_ID ), { wrapper } );
+		submitAll( result );
+		await settleAt( result, 'unconfirmed' );
+		await advance( POLL_INTERVAL_MS );
+
+		act( () => result.current.reset() );
+		restoresReadable = false;
+		// Move the clock on, so the cached read predates the next submission.
+		await advance( 1000 );
+		submitAll( result );
+		await settleAt( result, 'unconfirmed' );
+		await advance( 5 * 60_000 + 1000 );
+
+		expect( result.current.state.phase ).toBe( 'lost-track' );
 	} );
 
 	/**
@@ -1058,7 +1260,43 @@ describe( 'useRestore — a restore that starts after the screen loaded', () => 
 		expect( result.current.adopted ).toEqual( { rewindId: OTHER_ID } );
 		// The whole point: no restore was started.
 		expect( initiateCall() ).toBeUndefined();
-	}, 15000 );
+	} );
+
+	// The same guard, on the status the queue reports before it starts.
+	// A restore WordPress.com is holding is one the reader must not be
+	// able to duplicate.
+	it( 'adopts instead of starting a second restore when the other one is queued', async () => {
+		let rows: unknown[] = [];
+		mockedApiFetch.mockImplementation( ( options: { path?: string; method?: string } ) => {
+			if ( options?.method === 'POST' ) {
+				return Promise.resolve( { id: 5, rewind_id: REWIND_ID } );
+			}
+			if ( ( options?.path ?? '' ).includes( '/restores' ) ) {
+				return Promise.resolve( rows );
+			}
+			return Promise.resolve(
+				statusPayload( { id: 912682, status: 'queued', progress: 0, rewind_id: OTHER_ID } )
+			);
+		} );
+		const { wrapper } = makeWrapper();
+
+		const { result } = renderHook( () => useRestore( REWIND_ID ), { wrapper } );
+		await waitFor( () => expect( result.current.state.phase ).toBe( 'idle' ) );
+
+		rows = [
+			{
+				restore_id: 912682,
+				rewind_id: OTHER_ID,
+				when: '2026-08-20T10:00:00+00:00',
+				status: 'started',
+			},
+		];
+
+		submitAll( result );
+
+		await waitFor( () => expect( result.current.adopted ).toEqual( { rewindId: OTHER_ID } ) );
+		expect( initiateCall() ).toBeUndefined();
+	} );
 
 	it( 'still starts the restore when the check cannot be read', async () => {
 		// Fail open on the read, closed on the evidence. Someone
@@ -1083,5 +1321,149 @@ describe( 'useRestore — a restore that starts after the screen loaded', () => 
 
 		await waitFor( () => expect( result.current.state.phase ).toBe( 'progress' ) );
 		expect( initiateCall() ).toBeDefined();
-	}, 15000 );
+	} );
+} );
+
+describe( 'useRestore — a status poll that fails mid-restore', () => {
+	let pollFails = false;
+	let failedCalls = 0;
+
+	beforeEach( () => {
+		jest.useFakeTimers();
+		pollFails = false;
+		failedCalls = 0;
+		mockedApiFetch.mockImplementation( ( options: { path?: string; method?: string } ) => {
+			if ( options?.method === 'POST' ) {
+				return Promise.resolve( { id: 912682, rewind_id: REWIND_ID } );
+			}
+			if ( ( options?.path ?? '' ).includes( '/restores' ) ) {
+				return Promise.resolve( [] );
+			}
+			if ( pollFails ) {
+				failedCalls++;
+				return Promise.reject( new Error( 'Could not reach WordPress.com.' ) );
+			}
+			return Promise.resolve( statusPayload( { progress: 40 } ) );
+		} );
+	} );
+
+	afterEach( () => {
+		jest.useRealTimers();
+		focusManager.setFocused( true );
+	} );
+
+	/**
+	 * Submit and wait for the first good reading.
+	 *
+	 * @return The rendered hook result.
+	 */
+	async function startAndReadOnce() {
+		const { wrapper } = makeWrapper();
+		const { result } = renderHook( () => useRestore( REWIND_ID ), { wrapper } );
+		submitAll( result );
+		await settleAt( result, 'progress' );
+		return result;
+	}
+
+	it( 'keeps showing progress through one failed poll', async () => {
+		const result = await startAndReadOnce();
+
+		pollFails = true;
+		for ( let i = 0; i < 10 && failedCalls < 1; i++ ) {
+			await advance( POLL_INTERVAL_MS );
+		}
+
+		expect( result.current.state ).toMatchObject( { phase: 'progress', percent: 40 } );
+		expect( result.current.state ).not.toHaveProperty( 'reconnecting' );
+	} );
+
+	it( 'says it is reconnecting after repeated failures, and clears on success', async () => {
+		const result = await startAndReadOnce();
+
+		pollFails = true;
+		for ( let i = 0; i < 10 && ! ( 'reconnecting' in result.current.state ); i++ ) {
+			await advance( POLL_INTERVAL_MS );
+		}
+		// The note arrives on the third consecutive failure, not before.
+		expect( failedCalls ).toBe( 3 );
+		expect( result.current.state ).toMatchObject( { phase: 'progress', reconnecting: true } );
+
+		pollFails = false;
+		await advance( 2 * POLL_INTERVAL_MS );
+		expect( result.current.state ).toMatchObject( { phase: 'progress', percent: 40 } );
+		expect( result.current.state ).not.toHaveProperty( 'reconnecting' );
+	} );
+
+	it( 'gives up as lost-track once the silence deadline passes', async () => {
+		const result = await startAndReadOnce();
+
+		pollFails = true;
+		await advance( 5 * 60_000 - 1000 );
+		expect( result.current.state.phase ).toBe( 'progress' );
+
+		await advance( 2000 + POLL_INTERVAL_MS );
+		expect( result.current.state.phase ).toBe( 'lost-track' );
+	} );
+} );
+
+describe( 'useRestore — a restore whose status polls fail from the start', () => {
+	let failures: number;
+	let secondPollRuns: boolean;
+
+	beforeEach( () => {
+		jest.useFakeTimers();
+		failures = 0;
+		mockedApiFetch.mockImplementation( ( options: { path?: string; method?: string } ) => {
+			if ( options?.method === 'POST' ) {
+				return Promise.resolve( { id: 912682, rewind_id: REWIND_ID } );
+			}
+			if ( ( options?.path ?? '' ).includes( '/restores' ) ) {
+				return Promise.resolve( [] );
+			}
+			failures++;
+			if ( secondPollRuns && failures > 1 ) {
+				return Promise.resolve( statusPayload( { progress: 40 } ) );
+			}
+			return Promise.reject( new Error( 'Could not reach WordPress.com.' ) );
+		} );
+	} );
+
+	afterEach( () => {
+		jest.useRealTimers();
+	} );
+
+	it( 'does not give up on one failed first poll', async () => {
+		secondPollRuns = true;
+		const { wrapper } = makeWrapper();
+		const { result } = renderHook( () => useRestore( REWIND_ID ), { wrapper } );
+		submitAll( result );
+
+		const phases = new Set< string >();
+		// Small steps, so the screen is sampled between the failed poll and the next one.
+		for ( let i = 0; i < 40 && result.current.state.phase !== 'progress'; i++ ) {
+			await act( async () => {
+				await jest.advanceTimersByTimeAsync( 250 );
+			} );
+			phases.add( result.current.state.phase );
+		}
+
+		expect( result.current.state.phase ).toBe( 'progress' );
+		expect( phases ).not.toContain( 'lost-track' );
+	} );
+
+	it( 'waits for the silence deadline when no poll ever succeeds', async () => {
+		secondPollRuns = false;
+		const { wrapper } = makeWrapper();
+		const { result } = renderHook( () => useRestore( REWIND_ID ), { wrapper } );
+		submitAll( result );
+
+		await advance( 5 * 60_000 - 2000 );
+		expect( result.current.state.phase ).toBe( 'queued' );
+
+		await advance( 4000 + POLL_INTERVAL_MS );
+		expect( result.current.state ).toMatchObject( {
+			phase: 'lost-track',
+			detail: 'Could not reach WordPress.com.',
+		} );
+	} );
 } );

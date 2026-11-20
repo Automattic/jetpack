@@ -2,7 +2,7 @@
  * Webpack plugin to avoid emitting certain assets.
  */
 const debug = require( 'debug' )( '@automattic/remove-asset-webpack-plugin' );
-const webpack = require( 'webpack' );
+const { validateSchema } = require( 'webpack' );
 
 const PLUGIN_NAME = 'RemoveAsset';
 
@@ -49,7 +49,7 @@ const schema = {
 
 module.exports = class RemoveAssetPlugin {
 	constructor( options = {} ) {
-		webpack.validateSchema( schema, options, {
+		validateSchema( schema, options, {
 			name: 'RemoveAsset plugin',
 			baseDataPath: 'options',
 		} );
@@ -77,11 +77,13 @@ module.exports = class RemoveAssetPlugin {
 	}
 
 	apply( compiler ) {
+		const { Compilation } = compiler.webpack;
+
 		compiler.hooks.thisCompilation.tap( PLUGIN_NAME, compilation => {
 			compilation.hooks.processAssets.tap(
 				{
 					name: PLUGIN_NAME,
-					stage: webpack.Compilation.PROCESS_ASSETS_STAGE_OPTIMIZE_INLINE,
+					stage: Compilation.PROCESS_ASSETS_STAGE_OPTIMIZE_INLINE,
 					additionalAssets: true,
 				},
 				assets => {

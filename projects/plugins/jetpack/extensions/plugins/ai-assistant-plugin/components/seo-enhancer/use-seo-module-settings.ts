@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { isSimpleSite } from '@automattic/jetpack-script-data';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import apiFetch from '@wordpress/api-fetch';
 import { useSelect, useDispatch } from '@wordpress/data';
@@ -30,11 +31,17 @@ export const useSeoModuleSettings = () => {
 		} ) => {
 			setIsToggling( true );
 			try {
-				await apiFetch( {
-					path: 'jetpack/v4/module/seo-tools',
+				const isSimple = isSimpleSite();
+				const response = await apiFetch< { ai_seo_enhancer_enabled?: boolean } >( {
+					// See the seo-enhancer store for why Simple differs.
+					path: isSimple ? '/wp/v2/settings' : 'jetpack/v4/module/seo-tools',
 					method: 'post',
 					data: { ai_seo_enhancer_enabled: ! isEnabled },
 				} );
+				// `/wp/v2/settings` succeeds without saving a setting nothing has registered.
+				if ( isSimple && response?.ai_seo_enhancer_enabled !== ! isEnabled ) {
+					throw new Error( 'The auto-generate setting was not saved.' );
+				}
 				tracks.recordEvent( 'jetpack_seo_enhancer_toggle', {
 					toggled: ! isEnabled ? 'on' : 'off',
 					placement,

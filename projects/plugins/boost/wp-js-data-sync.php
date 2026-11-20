@@ -124,4 +124,6 @@ jetpack_boost_register_readonly_option( 'pricing', array( Premium_Pricing::class
 jetpack_boost_register_readonly_option( 'product', array( My_Jetpack::class, 'get_product' ) );
 jetpack_boost_register_readonly_option( 'premium_features', array( Premium_Features::class, 'get_features' ) );
 
+jetpack_boost_register_option( 'cloud_css_upgrade_notice', Schema::as_boolean()->fallback( false ) );
+
 jetpack_boost_register_option( 'getting_started', Schema::as_boolean()->fallback( false ), new Getting_Started_Entry() );

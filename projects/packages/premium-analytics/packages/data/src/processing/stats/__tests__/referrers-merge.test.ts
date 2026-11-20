@@ -110,6 +110,23 @@ describe( 'mergeStatsReferrersComparisonRows', () => {
 		);
 	} );
 
+	it( 'matches rows across periods by URL rather than by label', () => {
+		const primary = makeReport( [
+			makeItem( { label: 'example.com', views: 5, link: 'https://a.example.com/' } ),
+			makeItem( { label: 'example.com', views: 3, link: 'https://b.example.com/' } ),
+		] );
+		const comparison = makeReport( [
+			makeItem( { label: 'example.com', views: 4, link: 'https://b.example.com/' } ),
+		] );
+
+		const { rows } = mergeStatsReferrersComparisonRows( primary, comparison );
+
+		expect( rows ).toEqual( [
+			expect.objectContaining( { link: 'https://a.example.com/', previousValue: undefined } ),
+			expect.objectContaining( { link: 'https://b.example.com/', previousValue: 4 } ),
+		] );
+	} );
+
 	it( 'inherits the group favicon down to sources and domains', () => {
 		const primary = makeReport( [
 			makeItem( {

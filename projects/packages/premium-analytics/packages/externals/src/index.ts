@@ -9,7 +9,7 @@
  * External dependencies
  */
 import '@automattic/charts/style.css';
-import '@automattic/ui/style.css';
+import '@automattic/jetpack-components/jetpack-footer/style.scss';
 
 /**
  * Charts
@@ -21,43 +21,43 @@ export {
 	GlobalChartsProvider,
 	GoogleDataTableColumnRoleType,
 	HeatmapChart,
-	HeatmapChartUnresponsive,
 	LeaderboardChartUnresponsive,
 	Legend,
 	LineChart,
 	PieChartUnresponsive,
 	PieSemiCircleChart,
-	Sparkline,
+	TooltipBox,
 	buildCalendarHeatmapData,
+	getBucketInfo,
 	lightenHexColor,
+	mixHexColors,
 	normalizeColorToHex,
-	parseAsLocalDate,
+	useBarColors,
+	useBarLegendItems,
 	useGlobalChartsContext,
+	useMonthCalendarHeatmapData,
+	type BarChartLayout,
 	type BaseLegendItem,
+	type BucketInfo,
 	type ChartTheme,
 	type DataPointDate,
 	type DataPointPercentage,
 	type GeoChartError,
 	type GeoData,
+	type GeoDisplayMode,
 	type GoogleDataTableColumn,
 	type GoogleDataTableRow,
 	type HeatmapColumn,
+	type HeatmapColumnGroup,
 	type HeatmapTooltipData,
 	type LineStyles,
+	type MonthCalendarHeatmapRange,
 	type SeriesData,
 	type TickResolution,
 } from '@automattic/charts';
 
 export { LineShape, RectShape } from '@automattic/charts/visx/legend';
-
-/**
- * Calendar
- *
- * `DateRangeCalendar` is the package's only `@automattic/ui` consumer, but
- * pulls in `react-day-picker` + `date-fns` behind it — ~55 KB that would
- * otherwise re-emit on every edit to the importing module.
- */
-export { DateRangeCalendar } from '@automattic/ui';
+export { scaleLinear } from '@visx/scale';
 
 /**
  * WordPress design system
@@ -67,36 +67,67 @@ export { DateRangeCalendar } from '@automattic/ui';
  * is what consumers already import. Still a plain re-export, not a wrap.
  */
 export {
+	AlertDialog,
+	Badge,
 	Button,
+	Card,
+	Dialog,
 	EmptyState,
-	LinkButton,
+	ButtonLink,
 	Field as FormField,
 	Fieldset,
 	Icon,
 	IconButton,
 	Input,
+	InputControl,
 	Link,
+	Menu,
+	Meter,
 	Notice,
+	Popover,
+	Progress,
+	RangeCalendar,
+	SearchableChipSelectControl,
 	SelectControl,
 	Skeleton,
+	Spinner,
 	Stack,
 	Tabs,
 	Text,
+	TextareaControl,
+	Tooltip,
+	ValidatedInputControl,
 	VisuallyHidden,
 } from '@wordpress/ui';
+
+/**
+ * Base UI
+ *
+ * The unstyled parts `@wordpress/ui` is built on, so they are already compiled
+ * in here. Prefixed because `Tabs` above is the design system's styled one.
+ */
+export { DirectionProvider as BaseDirectionProvider } from '@base-ui/react/direction-provider';
+export { Tabs as BaseTabs } from '@base-ui/react/tabs';
 
 /**
  * DataViews
  */
 export {
+	DataForm,
 	DataViews,
 	filterSortAndPaginate,
 	type Action,
 	type DataFormControlProps,
 	type DataViewRenderFieldProps,
 	type Field,
+	type Form,
 	type Option,
 	type SupportedLayouts,
 	type View,
 	type ViewBaseProps,
 } from '@wordpress/dataviews';
+
+/**
+ * Jetpack components
+ */
+export { default as JetpackFooter } from '@automattic/jetpack-components/jetpack-footer/unstyled';

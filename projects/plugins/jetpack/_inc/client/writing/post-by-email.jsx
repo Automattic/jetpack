@@ -51,7 +51,8 @@ class PostByEmail extends Component {
 				feature={ FEATURE_POST_BY_EMAIL }
 			>
 				<SettingsGroup
-					hasChild
+					// The child offset sits under the toggle, which only admins get.
+					hasChild={ this.props.userCanManageModules }
 					disableInOfflineMode
 					disableInSiteConnectionMode
 					module={ postByEmail }
@@ -61,6 +62,7 @@ class PostByEmail extends Component {
 							'jetpack'
 						),
 						link: getRedirectUrl( 'jetpack-support-post-by-email' ),
+						wpcomLink: 'https://wordpress.com/support/post-by-email/',
 					} }
 				>
 					<p>
@@ -82,27 +84,29 @@ class PostByEmail extends Component {
 							</span>
 						</ModuleToggle>
 					) : (
-						<span className="jp-form-toggle-explanation">
+						<p className="jp-form-toggle-explanation">
 							{ this.props.module( 'post-by-email' ).description }
-						</span>
+						</p>
 					) }
 					<FormFieldset>
-						<FormLabel>
-							<FormLegend>
-								{ __( 'Send your new posts to this email address:', 'jetpack' ) }
-							</FormLegend>
-							<ClipboardButtonInput
-								value={ emailAddress }
-								disabled={ ! isPbeActive || disabledControls }
-								copy={ _x( 'Copy', 'verb', 'jetpack' ) }
-								copied={ __( 'Copied!', 'jetpack' ) }
-								prompt={ __(
-									'Highlight and copy the following text to your clipboard:',
-									'jetpack'
-								) }
-								rna
-							/>
-						</FormLabel>
+						{ ( this.props.userCanManageModules || emailAddress ) && (
+							<FormLabel>
+								<FormLegend>
+									{ __( 'Send your new posts to this email address:', 'jetpack' ) }
+								</FormLegend>
+								<ClipboardButtonInput
+									value={ emailAddress }
+									disabled={ ! isPbeActive || disabledControls }
+									copy={ _x( 'Copy', 'verb', 'jetpack' ) }
+									copied={ __( 'Copied!', 'jetpack' ) }
+									prompt={ __(
+										'Highlight and copy the following text to your clipboard:',
+										'jetpack'
+									) }
+									rna
+								/>
+							</FormLabel>
+						) }
 						<Button
 							rna
 							compact

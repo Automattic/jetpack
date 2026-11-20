@@ -1,4 +1,4 @@
-import { standardizeError } from '$lib/utils/standardize-error';
+import { standardizeError } from '@automattic/jetpack-boost-score-api';
 import {
 	DataSyncError,
 	useDataSync,

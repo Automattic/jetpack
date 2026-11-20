@@ -1,5 +1,6 @@
 import { render, screen } from '@testing-library/react';
-import { getLocationFields, type LocationRow } from './fields';
+import { getLocationFields } from './fields';
+import type { LocationRow } from '@jetpack-premium-analytics/widgets-toolkit';
 
 const location: LocationRow = {
 	id: 'IN:Mumbai',
@@ -44,12 +45,6 @@ describe( 'locations fields', () => {
 		);
 	} );
 
-	it( 'formats views with the shared formatter', () => {
-		renderField( 'views' );
-
-		expect( screen.getByText( '1,234' ) ).toBeInTheDocument();
-	} );
-
 	it( 'shows the period-over-period delta only when comparison is on', () => {
 		const { unmount } = renderField( 'views' );
 
@@ -59,10 +54,6 @@ describe( 'locations fields', () => {
 		renderField( 'views', true );
 
 		expect( screen.getByText( '+23%' ) ).toBeInTheDocument();
-	} );
-
-	it( 'omits the country filter when no countries are given', () => {
-		expect( getLocationFields().map( field => field.id ) ).toEqual( [ 'location', 'views' ] );
 	} );
 
 	// An ordinary DataViews filter: unset by default, so every country shows

@@ -1,4 +1,5 @@
 import { __ } from '@wordpress/i18n';
+import { Stack, Text } from '@wordpress/ui';
 import clsx from 'clsx';
 import { SitePreview } from './site-preview.tsx';
 import type { GoalSlug } from '../lib/types.ts';
@@ -28,6 +29,8 @@ function headingForGoal( goal: GoalSlug | null ): string {
 }
 
 interface Props {
+	// Replaces the goal heading, e.g. once every task is done.
+	heading?: string;
 	// The status line under the heading.
 	progressLabel: string;
 	// The wizard goal, used to pick the heading; null when unknown.
@@ -46,6 +49,7 @@ interface Props {
  * status line, the supplied content on the left, and the site preview on the right.
  *
  * @param props               - Component props.
+ * @param props.heading       - Replaces the goal heading.
  * @param props.progressLabel - The status line under the heading.
  * @param props.goal          - The wizard goal, used to pick the heading.
  * @param props.siteUrl       - The site's front-end URL (for the preview).
@@ -55,6 +59,7 @@ interface Props {
  * @return The layout element.
  */
 export function Layout( {
+	heading,
 	progressLabel,
 	goal,
 	siteUrl,
@@ -68,10 +73,19 @@ export function Layout( {
 
 	return (
 		<div className="ai-launchpad-tailored-list__layout">
-			<header className="ai-launchpad-tailored-list__heading">
-				<h1 className="ai-launchpad-tailored-list__title-heading">{ headingForGoal( goal ) }</h1>
-				<p className="ai-launchpad-tailored-list__progress">{ progressLabel }</p>
-			</header>
+			<Stack
+				direction="column"
+				gap="sm"
+				render={ <header /> }
+				className="ai-launchpad-tailored-list__heading"
+			>
+				<Text variant="heading-2xl" render={ <h1 /> }>
+					{ heading ?? headingForGoal( goal ) }
+				</Text>
+				<Text render={ <p role="status" /> } className="ai-launchpad-tailored-list__progress">
+					{ progressLabel }
+				</Text>
+			</Stack>
 			<div
 				className={ clsx( 'ai-launchpad-tailored-list__columns', {
 					'has-preview': hasPreview,

@@ -8,3 +8,4 @@
 src/**/*.scss    production-exclude
 src/**/*.tsx     production-exclude
 src/**/*.ts      production-exclude
+/tools/**        production-exclude

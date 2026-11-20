@@ -14,12 +14,13 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
  * @return bool
  */
 function wpcomsh_is_admin_menu_api_request() {
-	// phpcs:ignore WordPress.Security
-	return 0 === strpos( $_SERVER['REQUEST_URI'], '/?rest_route=%2Fwpcom%2Fv2%2Fadmin-menu' );
+	$route = wp_unslash( $_GET['rest_route'] ?? '' ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+	return str_starts_with( wp_unslash( $_SERVER['REQUEST_URI'] ), '/?rest_route=%2Fwpcom%2Fv2%2Fadmin-menu' ) // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		&& is_string( $route ) && str_starts_with( $route, '/wpcom/v2/admin-menu' );
 }
 
 /**
- * Sets WP_ADMIN constant on API requests for admin menus.
+ * Makes `is_admin()` return true on API requests for admin menus.
  *
  * Attempt to increase our chances that third-party plugins will
  * register their menu items based on `is_admin()` returning true.
@@ -29,16 +30,34 @@ function wpcomsh_is_admin_menu_api_request() {
 function wpcomsh_mimic_admin_page_load() {
 	if ( wpcomsh_is_admin_menu_api_request() ) {
 		// Display errors can cause the API request to fail due to the PHP notice
-		// triggered by `$pagenow` not being correctly determined when `WP_ADMIN`
+		// triggered by `$pagenow` not being correctly determined when `is_admin()`
 		// is forced on a non-WP Admin page.
 		@ini_set( 'display_errors', false ); // phpcs:ignore
 
-		define( 'WP_ADMIN', true );
+		// Not WP_ADMIN: rest_api_loaded() refuses to serve any request that defines it.
+		require_once ABSPATH . 'wp-admin/includes/class-wp-screen.php';
+		$GLOBALS['current_screen'] = WP_Screen::get( 'dashboard' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+
 		add_action(
 			'wp_loaded',
 			function () {
 				require_once ABSPATH . 'wp-admin/includes/admin.php';
 			}
+		);
+
+		// Valid requests will exit before here, but ensure custom code doesn't handle things poorly.
+		add_action(
+			'wp',
+			/**
+			 * Rejects the request.
+			 *
+			 * @return never
+			 */
+			function () {
+				status_header( 400 );
+				exit;
+			},
+			PHP_INT_MIN
 		);
 	}
 }
@@ -65,7 +84,7 @@ function wpcomsh_admin_color_scheme_picker_disabled() {
  * @param mixed  $value      Transient value.
  */
 function wpcomsh_set_connected_user_data_as_user_options( $transient, $value ) {
-	if ( 0 !== strpos( $transient, 'jetpack_connected_user_data_' . get_current_user_id() ) ) {
+	if ( 0 !== strpos( (string) $transient, 'jetpack_connected_user_data_' . get_current_user_id() ) ) {
 		return;
 	}
 
@@ -143,63 +162,51 @@ function wpcomsh_is_site_sticker_active( $sticker_name ) {
 		return false;
 	}
 
-	$persistent_data = new \Atomic_Persistent_Data();
-
-	if ( $persistent_data->{"site_sticker_{$sticker_name}"} ) {
-		return true;
-	}
-
-	return false;
+	return (bool) wpcomsh_get_atomic_persistent_data()->{"site_sticker_{$sticker_name}"};
 }
 
 /**
- * Forces the Add New (plugin install) link to be Calypso.
+ * Gets the Calypso Plugins marketplace URL to send a plugin-install.php request to.
  *
- * @param string $url  The complete URL including scheme and path.
- * @param string $path Path relative to the URL. Blank string if no path is specified.
+ * Only the bare page moves: themes open plugin-install.php?tab=plugin-information in a popup, which Calypso cannot load.
  *
- * @return string
+ * @param bool $has_query Whether the request has a query string.
+ *
+ * @return string|null The Calypso URL, or null to stay in wp-admin.
  */
-function wpcomsh_update_plugin_link_destination( $url, $path ) {
-	// Run only for plugin-install.php links.
-	if ( ! strpos( $url, '/plugin-install.php' ) ) {
-		return $url;
+function wpcomsh_get_plugin_install_calypso_url( $has_query ) {
+	if ( $has_query ) {
+		return null;
 	}
 
-	// If Jetpack doesn't exist, stay in wp-admin
-	if ( ! class_exists( 'Jetpack' ) ) {
-		return $url;
+	if ( ! class_exists( 'Automattic\Jetpack\Status' ) || get_option( 'wpcom_admin_interface' ) === 'wp-admin' ) {
+		return null;
 	}
 
-	// Run only if SSO is active
-	if ( ! Jetpack::is_module_active( 'sso' ) ) {
-		return $url;
-	}
-
-	// Return WP Admin url for example: plugin-install.php?tab=plugin-information&plugin=classic-editor&TB_iframe=true&width=600&height=550
-	if ( strpos( $path, '?' ) ) {
-		return $url;
+	if ( ! class_exists( 'Jetpack' ) || ! Jetpack::is_module_active( 'sso' ) ) {
+		return null;
 	}
 
 	return 'https://wordpress.com/plugins/' . ( new Automattic\Jetpack\Status() )->get_site_suffix();
 }
 
 /**
- * Adds filters so that Add New menu & button
- * redirect to Calypso.
+ * Redirects the Add New plugin screen to the Calypso Plugins marketplace.
  *
  * @return void
  */
-function wpcomsh_update_plugin_add_filter() {
-	// If site is not connected or nav redesign is enabled, return early.
-	if ( ! class_exists( 'Automattic\Jetpack\Status' ) || get_option( 'wpcom_admin_interface' ) === 'wp-admin' ) {
+function wpcomsh_maybe_redirect_plugin_install_to_calypso() {
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Only checks whether the request has a query.
+	$calypso_url = wpcomsh_get_plugin_install_calypso_url( ! empty( $_GET ) );
+
+	if ( null === $calypso_url ) {
 		return;
 	}
 
-	// Update any plugin-install.php links appearing in /wp-admin/plugins.php or elsewhere.
-	add_filter( 'self_admin_url', 'wpcomsh_update_plugin_link_destination', 10, 2 );
+	wp_safe_redirect( $calypso_url );
+	exit( 0 );
 }
-add_action( 'admin_menu', 'wpcomsh_update_plugin_add_filter' );
+add_action( 'load-plugin-install.php', 'wpcomsh_maybe_redirect_plugin_install_to_calypso' );
 
 /**
  * Enable the mailbox in WPCOMSH sites.
@@ -215,7 +222,7 @@ add_filter( 'jetpack_show_wpcom_inbox_menu', '__return_true' );
 function wpcomsh_get_wpcom_admin_interface_option() {
 
 	if ( class_exists( '\Atomic_Persistent_Data' ) ) {
-		$persistent_data = new \Atomic_Persistent_Data();
+		$persistent_data = wpcomsh_get_atomic_persistent_data();
 
 		// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 		if ( isset( $persistent_data->WPCOM_ADMIN_INTERFACE ) ) {
@@ -229,6 +236,18 @@ function wpcomsh_get_wpcom_admin_interface_option() {
 }
 // This pre_option_{$option} hook runs before the option is retrieved from the database with get_option().
 add_filter( 'pre_option_wpcom_admin_interface', 'wpcomsh_get_wpcom_admin_interface_option' );
+
+/**
+ * Use the Classic style (WP Admin) on a site that never chose an admin interface style, as WordPress.com does.
+ *
+ * It replaces a default the caller passes too, such as the one Settings > General passes to check a radio.
+ *
+ * @return string
+ */
+function wpcomsh_get_wpcom_admin_interface_default() {
+	return 'wp-admin';
+}
+add_filter( 'default_option_wpcom_admin_interface', 'wpcomsh_get_wpcom_admin_interface_default' );
 
 /**
  * Color scheme from Calypso (/me/account) is stored as user option,

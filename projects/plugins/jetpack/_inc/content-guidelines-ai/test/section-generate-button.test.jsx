@@ -15,30 +15,29 @@ jest.mock( '@wordpress/data', () => ( {
 	register: jest.fn(),
 } ) );
 jest.mock( '@wordpress/components', () => ( {
-	Button: ( {
-		children,
-		onClick,
-		disabled,
-		href,
-		className,
-		style,
-		label,
-		'aria-hidden': ariaHidden,
-	} ) => (
-		<button
-			type="button"
-			onClick={ onClick }
-			disabled={ disabled }
-			href={ href }
-			className={ className }
-			style={ style }
-			aria-hidden={ ariaHidden }
-			aria-label={ label }
-		>
-			{ children }
-		</button>
-	),
-	Tooltip: ( { children } ) => children,
+	// forwardRef: the ui Tooltip trigger hands the button a ref, which React 18 refuses on plain functions.
+	Button: jest
+		.requireActual( 'react' )
+		.forwardRef(
+			(
+				{ children, onClick, disabled, href, className, style, label, 'aria-hidden': ariaHidden },
+				ref
+			) => (
+				<button
+					ref={ ref }
+					type="button"
+					onClick={ onClick }
+					disabled={ disabled }
+					href={ href }
+					className={ className }
+					style={ style }
+					aria-hidden={ ariaHidden }
+					aria-label={ label }
+				>
+					{ children }
+				</button>
+			)
+		),
 	Notice: ( { children, onRemove, isDismissible } ) => (
 		<div>
 			{ children }
@@ -96,6 +95,15 @@ describe( 'SectionGenerateButton', () => {
 		setup( { hasDraft: true } );
 		render( <SectionGenerateButton slug="copy" /> );
 		expect( screen.getByRole( 'button', { name: 'Improve guidelines' } ) ).toBeInTheDocument();
+	} );
+
+	it.each( [
+		[ false, 'Generate' ],
+		[ true, 'Improve' ],
+	] )( 'uses the short label when asked (hasDraft: %s)', ( hasDraft, name ) => {
+		setup( { hasDraft } );
+		render( <SectionGenerateButton slug="copy" isShortLabel /> );
+		expect( screen.getByRole( 'button', { name } ) ).toBeInTheDocument();
 	} );
 
 	it( 'opens the upgrade notice instead of generating without an AI plan', async () => {

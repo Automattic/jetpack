@@ -13,7 +13,11 @@ const debug = msg => {
 const error = ( file, line, msg ) => {
 	process.exitCode = 1;
 	if ( isCI ) {
-		console.log( `::error file=${ file },line=${ line }::${ msg.replace( /\n/g, '%0A' ) }` );
+		let params = ` file=${ file }`;
+		if ( line ) {
+			params += `,line=${ line }`;
+		}
+		console.log( `::error${ params }::${ msg.replace( /\n/g, '%0A' ) }` );
 	} else {
 		console.error(
 			styleText( [ 'white', 'bgRed' ], `${ file }:${ line }: ${ msg }`, { stream: process.stderr } )
@@ -54,6 +58,7 @@ if ( ! ( pnpmWorkspace.contents instanceof YAML.YAMLMap ) ) {
 checkTrustPolicyExclude();
 checkDependencyHacks();
 checkUnwantedSettings();
+checkBadProjects();
 
 /**
  * Check for obsolete trustPolicyExclude entries.
@@ -155,6 +160,44 @@ function checkUnwantedSettings() {
 				`Please don't set \`${ key }\` in \`pnpm-workspace.yaml\`. ${ msg }`
 			);
 			process.exitCode = 1;
+		}
+	}
+}
+
+/**
+ * Check for addition of bad projects entries.
+ */
+function checkBadProjects() {
+	const wsPackages = pnpmWorkspace.contents.get( 'packages' );
+	if ( ! wsPackages ) {
+		error( file, 0, 'No `packages` found. That seems broken.' );
+		process.exitCode = 1;
+		return;
+	}
+	if ( ! ( wsPackages instanceof YAML.YAMLSeq ) ) {
+		error( file, yamlLine( wsPackages, fileContents ), `packages is not a YAML sequence` );
+		process.exitCode = 1;
+		return;
+	}
+
+	for ( const item of wsPackages.items ) {
+		if ( ! ( item instanceof YAML.Scalar ) ) {
+			error( file, yamlLine( item, fileContents ), `Item in packages is supposed to be a scalar` );
+			process.exitCode = 1;
+			continue;
+		}
+
+		const pkg = item.toJSON();
+		if ( pkg.startsWith( 'projects/' ) ) {
+			if ( pkg !== 'projects/*/*' && pkg !== 'projects/plugins/*/tests/e2e' ) {
+				error(
+					file,
+					yamlLine( item, fileContents ),
+					`Adding "${ pkg }" in \`packages\` is probably the Wrong Thing to do. Dependencies (other than plugin E2E testing) should be declared at the project root, and cross-project "workspace:" dependencies should be to js-packages that can be published to npm, not to sub-packages of projects that are only accessible within the monorepo.`
+				);
+				process.exitCode = 1;
+			}
+			continue;
 		}
 	}
 }

@@ -16,9 +16,8 @@ await jest.unstable_mockModule( '@wordpress/api-fetch', () => ( {
 
 const { createRegistry, RegistryProvider } = await import( '@wordpress/data' );
 const { store: configStore, CONFIG_STORE } = await import( '../../../../../src/store/config' );
-const { default: EditFormButton } = await import(
-	'../../../../../src/dashboard/components/edit-form-button'
-);
+const { default: EditFormButton } =
+	await import( '../../../../../src/dashboard/components/edit-form-button' );
 
 const ADMIN_URL = 'https://example.com/wp-admin/';
 

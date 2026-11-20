@@ -8,6 +8,8 @@ import QuerySitePlugins from 'components/data/query-site-plugins';
 import Search from 'components/search';
 import analytics from 'lib/analytics';
 import {
+	getRemainingSettingsTabs,
+	hasProtectPage as _hasProtectPage,
 	userCanManageModules as _userCanManageModules,
 	userIsSubscriber as _userIsSubscriber,
 	userCanPublish,
@@ -33,11 +35,6 @@ const TAB_LABELS = {
 	'/earn': _x( 'Monetize', 'Navigation item.', 'jetpack' ),
 };
 
-// Routes that should highlight a different tab (e.g. /settings → /security).
-const ROUTE_ALIASES = {
-	'/settings': '/security',
-};
-
 /**
  * Settings page tab navigation using `@wordpress/ui` Tabs.
  *
@@ -51,7 +48,9 @@ const SettingsNavTabs = props => {
 		isWoASite,
 		userCanPublishPosts,
 		hasSecurityFeature,
+		hasProtectPage,
 		hasPerformanceFeature,
+		remainingTabs,
 		hasModules,
 		isModuleActive,
 		searchTerm,
@@ -60,9 +59,6 @@ const SettingsNavTabs = props => {
 
 	const location = useLocation();
 	const navigate = useNavigate();
-
-	// Resolve the active tab value from the current route.
-	const activeTab = ROUTE_ALIASES[ location.pathname ] || location.pathname;
 
 	const trackNavClick = target => {
 		analytics.tracks.recordJetpackClick( {
@@ -105,8 +101,11 @@ const SettingsNavTabs = props => {
 	// Build the list of visible tabs based on permissions and modules.
 	const visibleTabs = [];
 
-	if ( userCanManageModules ) {
-		if ( hasSecurityFeature ) {
+	if ( userCanManageModules && remainingTabs ) {
+		// Once settings move out, the server lists what's left, so the Settings menu entry agrees.
+		visibleTabs.push( ...remainingTabs.map( tab => `/${ tab }` ) );
+	} else if ( userCanManageModules ) {
+		if ( hasSecurityFeature && ! hasProtectPage ) {
 			visibleTabs.push( '/security' );
 		}
 		if ( hasPerformanceFeature ) {
@@ -155,6 +154,18 @@ const SettingsNavTabs = props => {
 		}
 	}
 
+	// /settings shows Security to admins, so with the Protect page it opens the first tab instead.
+	const isSettingsRoot = '/settings' === location.pathname;
+	const firstTab = userCanManageModules && hasProtectPage ? visibleTabs[ 0 ] : undefined;
+	const activeTab = isSettingsRoot ? ( firstTab ?? '/security' ) : location.pathname;
+	const shouldOpenFirstTab = isSettingsRoot && !! firstTab && ! searchFromUrl;
+
+	useEffect( () => {
+		if ( shouldOpenFirstTab ) {
+			navigate( firstTab, { replace: true } );
+		}
+	}, [ shouldOpenFirstTab, firstTab, navigate ] );
+
 	if ( visibleTabs.length === 0 ) {
 		return null;
 	}
@@ -168,6 +179,7 @@ const SettingsNavTabs = props => {
 				className="jp-settings-nav__tabs-root"
 			>
 				<Tabs.List
+					variant="minimal"
 					className="jp-settings-nav__tabs"
 					aria-label={ __( 'Jetpack settings sections', 'jetpack' ) }
 				>
@@ -201,7 +213,9 @@ export default connect(
 		isWoASite: _isWoASite( state ),
 		userCanPublishPosts: userCanPublish( state ),
 		hasSecurityFeature: hasAnySecurityFeature( state ),
+		hasProtectPage: _hasProtectPage( state ),
 		hasPerformanceFeature: hasAnyPerformanceFeature( state ),
+		remainingTabs: getRemainingSettingsTabs( state ),
 		hasModules: modules => hasAnyOfTheseModules( state, modules ),
 		isModuleActive: module => isModuleActivated( state, module ),
 		searchTerm: getSearchTerm( state ),

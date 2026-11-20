@@ -1,0 +1,5 @@
+{
+	"name": "@automattic/jetpack-woocommerce-stats-widget-bookings-by-status",
+	"private": true,
+	"type": "module"
+}

@@ -1,6 +1,7 @@
+import { isSimpleSite } from '@automattic/jetpack-script-data';
 import { __ } from '@wordpress/i18n';
 import { seen } from '@wordpress/icons';
-import { Button, Card, Stack } from '@wordpress/ui';
+import { Button, Card, Stack, Text } from '@wordpress/ui';
 import CardHeaderIcon from './card-header-icon';
 import StatusDot from './status-dot';
 import styles from './style.module.scss';
@@ -35,11 +36,15 @@ const SiteVisibilityCard: FC< Props > = ( { data, onManage } ) => {
 						status={ data.search_engines_visible ? 'ok' : 'err' }
 						label={ data.search_engines_visible ? searchAllowedLabel : searchBlockedLabel }
 					/>
-					<StatusDot
-						status={ sitemapActive ? 'ok' : 'warn' }
-						label={ sitemapActive ? sitemapActiveLabel : sitemapDisabledLabel }
-					/>
-					{ /* No "SEO tools active" row: the Overview renders `EnableSeoCard`
+					{ isSimpleSite() ? (
+						<Text>{ __( 'Sitemaps managed by WordPress.com', 'jetpack-seo' ) }</Text>
+					) : (
+						<StatusDot
+							status={ sitemapActive ? 'ok' : 'warn' }
+							label={ sitemapActive ? sitemapActiveLabel : sitemapDisabledLabel }
+						/>
+					) }
+					{ /* No "SEO tools active" row: the page shows the enable prompt
 					     instead of these cards whenever SEO tools are off, so the row could
 					     only ever read "active" — a line that never varies. */ }
 				</Stack>

@@ -1,0 +1,5 @@
+{
+	"name": "@automattic/jetpack-woocommerce-stats-widget-orders-fulfillment",
+	"private": true,
+	"type": "module"
+}

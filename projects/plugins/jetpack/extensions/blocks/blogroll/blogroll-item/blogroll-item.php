@@ -57,7 +57,7 @@ function load_assets( $attr, $content, $block ) {
 	$url                       = esc_url( $attr['url'] ?? '' );
 	$description               = wp_kses( $attr['description'] ?? '', $kses_defaults );
 	$icon                      = esc_attr( $attr['icon'] ?? null );
-	$target                    = esc_attr( $block->context['openLinksNewWindow'] ? '_blank' : '_self' );
+	$target                    = esc_attr( ! empty( $block->context['openLinksNewWindow'] ) ? '_blank' : '_self' );
 	$email                     = esc_attr( get_current_user_id() ? get_userdata( get_current_user_id() )->user_email : '' );
 	$wp_nonce                  = esc_attr( wp_create_nonce( 'blogsub_subscribe_' . $id ) );
 	$subscribe_text            = esc_html__( 'Subscribe', 'jetpack' );

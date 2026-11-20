@@ -10,9 +10,43 @@
 	border-color: var(--wpds-color-stroke-interactive-neutral);
 }
 
-/* Icon segments carry a fixed height instead of filling the control. */
+/*
+ * Icon segments carry a fixed height instead of filling the control, and text
+ * labels stay on one line.
+ */
 .control[role="radiogroup"] button {
 	block-size: 100%;
+	white-space: nowrap;
+}
+
+/*
+ * A text segment keeps its own label's width. Core shares out the sum of the
+ * labels' widths equally instead, which leaves the longest one no padding.
+ */
+.text[role="radiogroup"] > * {
+	flex: 1 0 auto;
+}
+
+/*
+ * Segments of different widths: the indicator resizes as it slides, or it
+ * would take the new width at once and overshoot the control's edge.
+ * TODO: remove once ToggleGroupControl transitions the indicator's width
+ * (https://github.com/WordPress/gutenberg/pull/86830).
+ */
+@media not (prefers-reduced-motion) {
+
+	.text[role="radiogroup"][data-indicator-animated]::before {
+		transition-property: transform, width, border-radius;
+	}
+}
+
+/*
+ * Keep the widget title unclipped beside the toggle, so the header folds the
+ * toggle into its popover at the same width whichever way it is resized.
+ * TODO: remove once @wordpress/widget-dashboard reserves the full title width.
+ */
+:global([class*="__widget-header"]):has(.control[role="radiogroup"]) > :global([class*="__identity"]) {
+	flex-shrink: 0;
 }
 
 /*

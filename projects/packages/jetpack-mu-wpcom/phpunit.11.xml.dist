@@ -33,6 +33,9 @@
 			<!-- Add additional lines for any files or directories outside of src/ that need coverage. -->
 			<directory suffix=".php">src</directory>
 		</include>
+		<exclude>
+			<directory>src/features/newspack-blocks/synced-newspack-blocks</directory>
+		</exclude>
 	</source>
 	<coverage ignoreDeprecatedCodeUnits="true">
 	</coverage>

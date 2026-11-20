@@ -1,0 +1,6 @@
+{
+	"name": "@automattic/jetpack-woocommerce-stats-store-performance-bookings",
+	"private": true,
+	"type": "module",
+	"wpScriptModuleExports": "./src/index.ts"
+}

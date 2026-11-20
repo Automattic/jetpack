@@ -39,3 +39,24 @@ function wpcomsh_enable_premium_analytics( $enabled ) {
 	return $enabled || wpcomsh_is_site_sticker_active( 'jetpack-premium-analytics' );
 }
 add_filter( 'jetpack_premium_analytics_enabled', 'wpcomsh_enable_premium_analytics' );
+
+/**
+ * Turns on the classic Stats page retirement, so Atomic sites open only Stats v2.
+ *
+ * At file scope for the same reason as above. Priority 5 leaves the last word to the a8c Feature Flags
+ * screen's per-site override at 10, which a `jetpack_feature_flag_enabled_{flag}` filter would beat.
+ *
+ * @param bool   $enabled Whether the flag is enabled.
+ * @param string $name    Feature flag name.
+ * @return bool
+ */
+function wpcomsh_retire_classic_stats( $enabled, $name ) {
+	if ( 'jetpack-stats-classic-page-retired' !== $name ) {
+		return $enabled;
+	}
+
+	// Jetpack updates apart from wpcomsh; before it lists Stats v2 in Calypso's menu, retiring would drop Stats from there.
+	// @phan-suppress-next-line PhanUndeclaredClassReference -- Premium Analytics ships with the Jetpack plugin, not wpcomsh.
+	return method_exists( 'Automattic\Jetpack\PremiumAnalytics\Analytics', 'register_replayed_admin_menu' ) ? true : $enabled;
+}
+add_filter( 'jetpack_feature_flag_enabled', 'wpcomsh_retire_classic_stats', 5, 2 );

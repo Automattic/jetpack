@@ -1,3 +1,4 @@
+import { useModuleSurface } from '$features/module/surface';
 import MinifyLegacyNotice from '$features/minify-legacy-notice/minify-legacy-notice';
 import MinifyMeta from '$features/minify-meta/minify-meta';
 import { useSingleModuleState } from '$features/module/lib/stores';
@@ -6,6 +7,15 @@ import { useShowMinifyLegacy } from '$lib/stores/minify';
 import { __ } from '@wordpress/i18n';
 
 const MinifyCss = () => {
+	const legacyDescription = __(
+		'Styles are grouped by their original placement, concatenated and minified to reduce site loading time and reduce the number of requests.',
+		'jetpack-boost'
+	);
+	const modernDescription = __(
+		'Combines and minifies stylesheet files to reduce the number of styles your site needs to load.',
+		'jetpack-boost'
+	);
+	const isModern = useModuleSurface() === 'row';
 	const showMinifyLegacy = useShowMinifyLegacy();
 	const [ jsModule ] = useSingleModuleState( 'minify_js' );
 
@@ -13,14 +23,7 @@ const MinifyCss = () => {
 		<Module
 			slug="minify_css"
 			title={ __( 'Concatenate CSS', 'jetpack-boost' ) }
-			description={
-				<p>
-					{ __(
-						'Styles are grouped by their original placement, concatenated and minified to reduce site loading time and reduce the number of requests.',
-						'jetpack-boost'
-					) }
-				</p>
-			}
+			description={ <p>{ isModern ? modernDescription : legacyDescription }</p> }
 			onEnable={ showMinifyLegacy.refetch }
 		>
 			<MinifyMeta

@@ -49,6 +49,27 @@ describe( 'getSubmissionDisplayValue', () => {
 		expect( getSubmissionDisplayValue( '', 'text', 'No' ) ).toBe( '' );
 		expect( getSubmissionDisplayValue( '', 'consent', 'No' ) ).toBe( '' );
 	} );
+
+	it( 'shows a stored less-than sign as typed', () => {
+		expect( getSubmissionDisplayValue( '&lt;\f!-- note --> one', 'textarea', 'No' ) ).toBe(
+			'<\f!-- note --> one'
+		);
+		expect( getSubmissionDisplayValue( [ 'x &lt; 5', 'y' ], 'checkbox-multiple', 'No' ) ).toEqual( [
+			'x < 5',
+			'y',
+		] );
+	} );
+
+	// Decoding `&amp;` last is what keeps a literally-typed `&lt;` (stored `&amp;lt;`) from
+	// being double-decoded back to `<`.
+	it( 'does not double-decode a literally-typed entity', () => {
+		expect( getSubmissionDisplayValue( 'He wrote &amp;lt;div&amp;gt;', 'textarea', 'No' ) ).toBe(
+			'He wrote &lt;div&gt;'
+		);
+		expect( getSubmissionDisplayValue( 'Tom &amp; Jerry &amp; co', 'textarea', 'No' ) ).toBe(
+			'Tom & Jerry & co'
+		);
+	} );
 } );
 
 /**

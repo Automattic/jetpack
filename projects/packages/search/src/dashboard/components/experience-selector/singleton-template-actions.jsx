@@ -1,22 +1,21 @@
-// eslint-disable-next-line @wordpress/no-unsafe-wp-apis -- ConfirmDialog is the canonical WP confirm pattern; still under the experimental flag in @wordpress/components 33.
-import { __experimentalConfirmDialog as ConfirmDialog } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Stack } from '@wordpress/ui';
+import { AlertDialog, Stack } from '@wordpress/ui';
 import { STORE_ID } from 'store';
 import CardLink from './card-link';
 
 /**
  * Edit + Restore-default link pair for a `Singleton_Template_Cpt`-backed
- * editor flow on the PHP side. The two consumers — the experimental
- * blocks-powered Overlay (SEARCH-216) and the classic-theme Search
- * template route — share an identical shape: one config blob describing
+ * editor flow on the PHP side. The consumers — the experimental
+ * blocks-powered Overlay (SEARCH-216), the classic-theme Search template
+ * route, and the WooCommerce product search toggle — share an identical
+ * shape: one config blob describing
  * the editor URL / postType / isCustomized state, one "Edit …" link,
  * one "Restore default" link that opens a destructive confirm dialog,
  * and an AJAX DELETE that posts a notice on success / failure.
  *
- * Local state (`justReset`, `isResetting`, `isResetConfirmOpen`) is
+ * Local state (`justReset`, `isResetConfirmOpen`) is
  * scoped here so two of these components can coexist on a single page
  * (e.g. Embedded card + Overlay card both customized) without their
  * reset flags cross-contaminating.
@@ -44,7 +43,6 @@ export default function SingletonTemplateActions( {
 	// once the AJAX DELETE returns. Cleared if the admin opens the
 	// editor again (which would lazy-create a fresh singleton).
 	const [ justReset, setJustReset ] = useState( false );
-	const [ isResetting, setIsResetting ] = useState( false );
 	const [ isResetConfirmOpen, setResetConfirmOpen ] = useState( false );
 	const { successNotice, errorNotice } = useDispatch( STORE_ID );
 	// Read the wpcom-origin-prefixed API root + nonce from the dashboard
@@ -98,7 +96,7 @@ export default function SingletonTemplateActions( {
 					<CardLink
 						label={ restoreLabel }
 						href="#"
-						disabled={ linksDisabled || isResetting }
+						disabled={ linksDisabled }
 						onClick={ event => {
 							// Destructive — open the confirm dialog instead of
 							// running the DELETE directly. The dialog's
@@ -109,10 +107,10 @@ export default function SingletonTemplateActions( {
 					/>
 				) }
 			</Stack>
-			<ConfirmDialog
-				isOpen={ isResetConfirmOpen }
+			<AlertDialog.Root
+				open={ isResetConfirmOpen }
+				onOpenChange={ setResetConfirmOpen }
 				onConfirm={ async () => {
-					setResetConfirmOpen( false );
 					// Defensive guard: the dialog can only open via the
 					// `isCustomized && postType` CardLink above, so `postType`
 					// is non-null in practice — avoid firing a DELETE against
@@ -120,7 +118,6 @@ export default function SingletonTemplateActions( {
 					if ( ! config.postType || ! wpcomOriginApiUrl ) {
 						return;
 					}
-					setIsResetting( true );
 					try {
 						// Build the URL against `wpcomOriginApiUrl` (not
 						// apiFetch's default /wp-json/ root) so the request
@@ -145,15 +142,16 @@ export default function SingletonTemplateActions( {
 						successNotice( successMessage );
 					} catch ( error ) {
 						errorNotice( error?.message || errorMessage );
-					} finally {
-						setIsResetting( false );
 					}
 				} }
-				onCancel={ () => setResetConfirmOpen( false ) }
-				confirmButtonText={ restoreLabel }
 			>
-				{ restoreConfirmMessage }
-			</ConfirmDialog>
+				<AlertDialog.Popup
+					intent="irreversible"
+					title={ restoreLabel }
+					description={ restoreConfirmMessage }
+					confirmButtonText={ restoreLabel }
+				/>
+			</AlertDialog.Root>
 		</>
 	);
 }

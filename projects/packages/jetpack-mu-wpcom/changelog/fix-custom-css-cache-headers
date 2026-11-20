@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Custom CSS: Allow linked stylesheets to be cached when plugins set cookies or no-cache headers.

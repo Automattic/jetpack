@@ -3,7 +3,7 @@ import { store as blockEditorStore, useBlockProps } from '@wordpress/block-edito
 import { Icon, Spinner } from '@wordpress/components';
 import { useInstanceId } from '@wordpress/compose';
 import { useDispatch, useSelect } from '@wordpress/data';
-import { useCallback, useState, useEffect } from '@wordpress/element';
+import { useState, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import ConnectBanner from '../../shared/components/connect-banner';
 import { StripeNudge } from '../../shared/components/stripe-nudge';
@@ -16,9 +16,7 @@ import buildCustomStyles from './build-custom-styles';
 import Controls from './controls';
 import fetchDefaultProducts from './fetch-default-products';
 import fetchStatus from './fetch-status';
-import FirstTimeModal from './first-time-modal';
 import { TRIGGER_ICONS } from './icons';
-import './first-time-modal.scss';
 import LoadingError from './loading-error';
 import StyleControls from './style-controls';
 import Tabs from './tabs';
@@ -70,24 +68,22 @@ const Edit = props => {
 		.join( ' ' );
 	const blockProps = useBlockProps( { className: wrapperClassName } );
 	const [ loadingError, setLoadingError ] = useState( '' );
-	const [ products, setProducts ] = useState( [] );
-	const [ showFirstTimeModal, setShowFirstTimeModal ] = useState( false );
 	const isUserConnected = useIsUserConnected();
+	const { getBlockAttributes } = useSelect( blockEditorStore );
+	const { updateBlockAttributes } = useDispatch( blockEditorStore );
 
 	// When the inserter renders this block as an example/preview (it declares
 	// `"example": {}` in block.json), Gutenberg mounts this Edit component inside
 	// a BlockPreview with `isPreviewMode` set. We use this flag to skip all editor
-	// side effects (Stripe status fetch, post-saving lock, first-time modal,
-	// analytics) so hovering the block in the inserter doesn't flicker the screen,
-	// lock post saving, or fire tracking events. Mirrors the `map` block.
+	// side effects (Stripe status fetch, post-saving lock, analytics) so hovering
+	// the block in the inserter doesn't lock post saving or fire tracking events.
+	// Mirrors the `map` block.
 	const isPreviewMode = useSelect(
 		select => select( blockEditorStore ).getSettings().isPreviewMode,
 		[]
 	);
 
 	const { lockPostSaving, unlockPostSaving } = useDispatch( 'core/editor' );
-	const { getEntityRecord, getCurrentUser } = useSelect( 'core' );
-	const { editEntityRecord, saveEditedEntityRecord } = useDispatch( 'core' );
 	const post = useSelect( select => select( 'core/editor' ).getCurrentPost(), [] );
 	const isPostSavingLocked = useSelect(
 		select => select( 'core/editor' ).isPostSavingLocked(),
@@ -163,38 +159,26 @@ const Edit = props => {
 		);
 	};
 
-	//
-	// Check if this is the first time using the donations block
-	//
-
-	// Add this to preload the user entity
-	const currentUser = getCurrentUser();
-	useEffect( () => {
-		if ( currentUser?.id ) {
-			// Ensure the user entity is loaded
-			getEntityRecord( 'root', 'user', currentUser.id );
-		}
-	}, [ currentUser?.id, getEntityRecord ] );
-
-	const hasDismissedDonationWarning =
-		currentUser?.meta?.jetpack_donation_warning_dismissed || false;
-
-	// Show the modal if the user has not dismissed the warning
-	useEffect( () => {
-		if ( isPreviewMode ) {
-			return;
-		}
-		if ( currentUser?.id && hasDismissedDonationWarning === false ) {
-			setShowFirstTimeModal( true );
-		}
-	}, [ currentUser, hasDismissedDonationWarning, isPreviewMode ] );
-
 	useEffect( () => {
 		if ( isPreviewMode ) {
 			return;
 		}
 
-		lockPostSaving( 'donations' );
+		// One lock per block, so one block's response can't unlock saving for another.
+		const lockName = `donations-${ clientId }`;
+		lockPostSaving( lockName );
+
+		// Set when the effect re-runs or the block goes away: an outdated response must not
+		// unlock saving or write plans while a newer fetch is still in flight.
+		let isStale = false;
+
+		const onError = message => {
+			if ( isStale ) {
+				return;
+			}
+			unlockPostSaving( lockName );
+			apiError( message );
+		};
 
 		const filterProducts = productList =>
 			productList.reduce(
@@ -207,9 +191,36 @@ const Edit = props => {
 				{}
 			);
 
+		// Called before saving is unlocked, so a save can't go out without the plan IDs.
+		// Reads and writes through the store: the user may edit the block during the fetch,
+		// and setAttributes() writes to the multi-selection, if any, instead of this block.
+		const savePlanIds = productIdsPerInterval => {
+			const current = getBlockAttributes( clientId );
+			if ( ! current ) {
+				return;
+			}
+			const updates = {};
+			for ( const [ key, interval ] of [
+				[ 'oneTimeDonation', 'one-time' ],
+				[ 'monthlyDonation', '1 month' ],
+				[ 'annualDonation', '1 year' ],
+			] ) {
+				const planId = productIdsPerInterval[ interval ];
+				if ( planId && current[ key ]?.planId !== planId ) {
+					updates[ key ] = { ...current[ key ], planId };
+				}
+			}
+			if ( Object.keys( updates ).length ) {
+				updateBlockAttributes( clientId, updates );
+			}
+		};
+
 		fetchStatus( 'donation' ).then( result => {
+			if ( isStale ) {
+				return;
+			}
 			if ( ( ! result && typeof result !== 'object' ) || result.errors ) {
-				unlockPostSaving( 'donations' );
+				unlockPostSaving( lockName );
 				setLoadingError( __( 'Could not load data from WordPress.com.', 'jetpack' ) );
 				return;
 			}
@@ -221,32 +232,36 @@ const Edit = props => {
 			const filteredProducts = filterProducts( result.products );
 
 			if ( hasRequiredProducts( filteredProducts ) ) {
-				setProducts( filteredProducts );
-				unlockPostSaving( 'donations' );
+				savePlanIds( filteredProducts );
+				unlockPostSaving( lockName );
 				return;
 			}
 
-			// Set fake products when there is no connection to Stripe so users can still try the block in the editor.
+			// No Stripe connection yet: the block shows the connect nudge instead of the form.
 			if ( result.connect_url ) {
-				setProducts( {
-					'one-time': -1,
-					'1 month': -1,
-					'1 year': -1,
-				} );
-				unlockPostSaving( 'donations' );
+				unlockPostSaving( lockName );
 				return;
 			}
 
 			if ( currency ) {
 				// Only create products if we have the correct plan and stripe connection.
 				fetchDefaultProducts( currency ).then( defaultProducts => {
-					setProducts( filterProducts( defaultProducts ) );
-					unlockPostSaving( 'donations' );
-				}, apiError );
+					if ( isStale ) {
+						return;
+					}
+					savePlanIds( filterProducts( defaultProducts ) );
+					unlockPostSaving( lockName );
+				}, onError );
+				return;
 			}
 
-			unlockPostSaving( 'donations' );
-		}, apiError );
+			unlockPostSaving( lockName );
+		}, onError );
+
+		return () => {
+			isStale = true;
+			unlockPostSaving( lockName );
+		};
 	}, [
 		lockPostSaving,
 		currency,
@@ -255,13 +270,13 @@ const Edit = props => {
 		setConnectedAccountDefaultCurrency,
 		unlockPostSaving,
 		isPreviewMode,
+		clientId,
+		getBlockAttributes,
+		updateBlockAttributes,
 	] );
 
 	// In preview/example mode the Stripe status fetch is skipped, so fall back to
-	// placeholder products and a valid currency to render a representative form
-	// rather than a perpetual spinner or a "connect Stripe" nudge.
-	const previewProducts = { 'one-time': -1, '1 month': -1, '1 year': -1 };
-	const effectiveProducts = isPreviewMode ? previewProducts : products;
+	// a valid currency to render a representative form.
 	const effectiveProps =
 		isPreviewMode && ! currency
 			? { ...props, attributes: { ...attributes, currency: 'USD' } }
@@ -303,38 +318,14 @@ const Edit = props => {
 			</>
 		);
 	} else {
-		content = <Tabs { ...effectiveProps } products={ effectiveProducts } />;
+		content = <Tabs { ...effectiveProps } />;
 	}
-
-	// When the first time modal is closed, update the user meta to mark the donation warning as dismissed
-	const handleModalClose = useCallback( async () => {
-		setShowFirstTimeModal( false );
-
-		if ( ! currentUser?.id ) {
-			// eslint-disable-next-line no-console
-			console.error( 'Cannot update user meta: User not loaded' );
-			return;
-		}
-
-		try {
-			await editEntityRecord( 'root', 'user', currentUser.id, {
-				meta: {
-					jetpack_donation_warning_dismissed: true,
-				},
-			} );
-			await saveEditedEntityRecord( 'root', 'user', currentUser.id );
-		} catch ( error ) {
-			// eslint-disable-next-line no-console
-			console.error( 'Failed to update user meta:', error );
-		}
-	}, [ currentUser, editEntityRecord, saveEditedEntityRecord ] );
 
 	return (
 		<div { ...blockProps }>
 			<StyleControls attributes={ attributes } setAttributes={ setAttributes } />
 			{ customStyles && <style>{ customStyles }</style> }
 			{ content }
-			{ showFirstTimeModal && <FirstTimeModal onClose={ handleModalClose } /> }
 		</div>
 	);
 };

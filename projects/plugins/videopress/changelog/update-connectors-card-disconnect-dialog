@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Connection: When disconnecting the site from the Connectors card, list the plugins that will stop working and link to help.

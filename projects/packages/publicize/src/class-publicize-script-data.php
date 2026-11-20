@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Publicize;
 
 use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Current_Plan;
+use Automattic\Jetpack\Plans;
 use Automattic\Jetpack\Publicize\Jetpack_Social_Settings\Settings;
 use Automattic\Jetpack\Publicize\Publicize_Utils as Utils;
 use Automattic\Jetpack\Publicize\Services as Publicize_Services;
@@ -18,6 +19,11 @@ use Automattic\Jetpack\Status\Host;
  * Publicize_Script_Data class.
  */
 class Publicize_Script_Data {
+
+	/**
+	 * The WordPress.com plan that unlocks Social's paid features on Simple sites.
+	 */
+	private const UPGRADE_PLAN_SLUG = 'business-bundle';
 
 	/**
 	 * Get the publicize instance - properly typed
@@ -54,6 +60,12 @@ class Publicize_Script_Data {
 	 */
 	public static function set_admin_script_data( $data ) {
 
+		/**
+		 * Filters the data the Social UI reads as `JetpackScriptData.social`.
+		 *
+		 * @param array $social_data The social script data.
+		 * @param array $script_data The rest of the Jetpack script data, empty when the Social dashboard fetches it.
+		 */
 		$data['social'] = apply_filters( 'jetpack_social_admin_script_data', self::get_admin_script_data(), $data );
 
 		if ( empty( $data['site']['plan']['product_slug'] ) ) {
@@ -94,21 +106,36 @@ class Publicize_Script_Data {
 	}
 
 	/**
-	 * Get the script data for admin UI.
+	 * Get the social script data for the Social dashboard when it opens on another admin page, via `wpcom/v2/publicize/script-data`.
+	 *
+	 * @since 0.89.0
+	 *
+	 * @return array
+	 */
+	public static function get_social_script_data() {
+		/** This filter is documented in set_admin_script_data(). */
+		return apply_filters( 'jetpack_social_admin_script_data', self::build_admin_script_data(), array() );
+	}
+
+	/**
+	 * Get the script data for admin UI, on the pages that print it inline: Social, Jetpack Settings and the block editor.
 	 *
 	 * @return array
 	 */
 	public static function get_admin_script_data() {
-
-		// Only set script data on the social settings page,
-		// the Jetpack settings page, or the block editor.
-		$should_set_script_data = Utils::is_jetpack_settings_page()
-			|| Utils::is_social_settings_page()
-			|| Utils::should_block_editor_have_social();
-
-		if ( ! $should_set_script_data ) {
+		if ( ! Utils::is_social_settings_page() && ! Utils::is_jetpack_settings_page() && ! Utils::should_block_editor_have_social() ) {
 			return array();
 		}
+
+		return self::build_admin_script_data();
+	}
+
+	/**
+	 * Build the script data for admin UI, whatever the current page.
+	 *
+	 * @return array
+	 */
+	private static function build_admin_script_data() {
 
 		$basic_data = array(
 			'api_paths'            => self::get_api_paths(),
@@ -116,6 +143,7 @@ class Publicize_Script_Data {
 			'is_publicize_enabled' => Utils::is_publicize_active(),
 			'message_templates'    => array(),
 			'supported_services'   => array(),
+			'upgrade'              => self::get_upgrade_data(),
 			'urls'                 => array(),
 			'settings'             => self::get_social_settings(),
 			'plugin_info'          => self::get_plugin_info(),
@@ -143,6 +171,30 @@ class Publicize_Script_Data {
 					'placeholders' => Message_Templates_Placeholders::get_all(),
 				),
 			)
+		);
+	}
+
+	/**
+	 * Get the plan a site needs to unlock Social's paid features.
+	 *
+	 * Null off Simple, which keeps the uncached `Plans::get_plan_short_name()` lookup
+	 * away from a path the block editor runs on every post edit.
+	 *
+	 * @return array|null The plan slug and short name, or null when there's nothing to upsell.
+	 */
+	public static function get_upgrade_data() {
+
+		if ( ! ( new Host() )->is_wpcom_simple() ) {
+			return null;
+		}
+
+		if ( Current_Plan::supports( 'social-enhanced-publishing' ) ) {
+			return null;
+		}
+
+		return array(
+			'plan_slug' => self::UPGRADE_PLAN_SLUG,
+			'plan_name' => Plans::get_plan_short_name( self::UPGRADE_PLAN_SLUG ),
 		);
 	}
 
@@ -178,6 +230,10 @@ class Publicize_Script_Data {
 		$jetpack_version = null;
 
 		if ( defined( 'JETPACK_SOCIAL_PLUGIN_ROOT_FILE' ) ) {
+			// REST requests don't load the admin includes.
+			if ( ! function_exists( 'get_plugin_data' ) ) {
+				require_once ABSPATH . 'wp-admin/includes/plugin.php';
+			}
 
 			$plugin_data = get_plugin_data( (string) constant( 'JETPACK_SOCIAL_PLUGIN_ROOT_FILE' ), false, false );
 

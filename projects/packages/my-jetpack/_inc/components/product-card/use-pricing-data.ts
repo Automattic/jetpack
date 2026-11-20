@@ -1,14 +1,18 @@
-import { getUserConnectionUrl, useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
+import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
 import { __ } from '@wordpress/i18n';
 import { useCallback } from 'react';
 import { PRODUCT_STATUSES } from '../../constants';
+import { PRODUCT_SLUGS } from '../../data/constants';
 import useActivatePlugins from '../../data/products/use-activate-plugins';
+import useActivateSearchFreeProduct from '../../data/products/use-activate-search-free-product';
 import useInstallPlugins from '../../data/products/use-install-plugins';
 import useProduct from '../../data/products/use-product';
 import { ProductCamelCase } from '../../data/types';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
+import { tierPricePerMonth } from '../../data/utils/prepare-product-data';
 import useAnalytics from '../../hooks/use-analytics';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
+import { getConnectUrl, recommendationsFrom } from '../../utils/connect-url';
 
 const parsePricingData = ( pricingForUi: ProductCamelCase[ 'pricingForUi' ] ) => {
 	const { tiers, wpcomFreeProductSlug, introductoryOffer } = pricingForUi || {};
@@ -26,8 +30,9 @@ const parsePricingData = ( pricingForUi: ProductCamelCase[ 'pricingForUi' ] ) =>
 		return {
 			wpcomFreeProductSlug,
 			wpcomProductSlug: ! quantity ? wpcomProductSlug : `${ wpcomProductSlug }:-q-${ quantity }`,
-			discountPrice: hasDiscount && eligibleForIntroDiscount ? discountPrice / 12 : null,
-			fullPrice: fullPrice ? fullPrice / 12 : 0,
+			discountPrice:
+				hasDiscount && eligibleForIntroDiscount ? tierPricePerMonth( discountPrice ) : null,
+			fullPrice: tierPricePerMonth( fullPrice ),
 			currencyCode: currencyCode ?? 'USD',
 		};
 	}
@@ -48,7 +53,7 @@ const parsePricingData = ( pricingForUi: ProductCamelCase[ 'pricingForUi' ] ) =>
 		discountPrice:
 			// Only display discount if site is elgible
 			hasDiscount && eligibleForIntroDiscount ? discountPricePerMonth : null,
-		fullPrice: fullPricePerMonth ?? 0,
+		fullPrice: fullPricePerMonth,
 		currencyCode: currencyCode ?? 'USD',
 	};
 };
@@ -56,6 +61,7 @@ const parsePricingData = ( pricingForUi: ProductCamelCase[ 'pricingForUi' ] ) =>
 // type for onCheckout and onActivate
 type Actions = {
 	onCheckout: () => void;
+	onHostPurchase: () => void;
 	onActivate: () => void;
 	onInstall: () => void;
 	onManage: () => void;
@@ -63,7 +69,7 @@ type Actions = {
 
 const getFeaturePrimaryAction = (
 	detail: ProductCamelCase,
-	{ onActivate, onInstall, onManage }: Omit< Actions, 'onCheckout' >
+	{ onActivate, onInstall, onManage }: Pick< Actions, 'onActivate' | 'onInstall' | 'onManage' >
 ) => {
 	switch ( detail.status ) {
 		case PRODUCT_STATUSES.MODULE_DISABLED:
@@ -71,7 +77,10 @@ const getFeaturePrimaryAction = (
 		case PRODUCT_STATUSES.ABSENT:
 			return { label: __( 'Install', 'jetpack-my-jetpack' ), onClick: onInstall };
 		case PRODUCT_STATUSES.USER_CONNECTION_ERROR:
-			return { label: __( 'Connect', 'jetpack-my-jetpack' ), href: getUserConnectionUrl() };
+			return {
+				label: __( 'Connect', 'jetpack-my-jetpack' ),
+				href: getConnectUrl( recommendationsFrom( detail.slug ) ),
+			};
 		default:
 			return {
 				label: __( 'Manage', 'jetpack-my-jetpack' ),
@@ -83,17 +92,21 @@ const getFeaturePrimaryAction = (
 
 const getPrimaryAction = (
 	detail: ProductCamelCase,
-	{ onCheckout, onActivate, onInstall, onManage }: Actions
+	{ onCheckout, onHostPurchase, onActivate, onInstall, onManage }: Actions
 ) => {
 	const isUpgradable =
 		detail.status === PRODUCT_STATUSES.ACTIVE &&
 		( detail.isUpgradableByBundle.length || detail.isUpgradable );
 	const upgradeHasPrice =
 		detail?.pricingForUi?.fullPrice || detail?.pricingForUi?.tiers?.upgraded?.fullPrice;
+	// A host that sells the product takes the place of Jetpack's checkout, as a link to its plans.
+	const purchase = detail.hostPurchaseUrl
+		? { href: detail.hostPurchaseUrl, onClick: onHostPurchase }
+		: { onClick: onCheckout };
 
 	if ( detail.status === PRODUCT_STATUSES.CAN_UPGRADE || isUpgradable ) {
 		if ( upgradeHasPrice ) {
-			return { label: __( 'Upgrade', 'jetpack-my-jetpack' ), onClick: onCheckout };
+			return { label: __( 'Upgrade', 'jetpack-my-jetpack' ), ...purchase };
 		}
 		return null;
 	}
@@ -102,7 +115,7 @@ const getPrimaryAction = (
 		return getFeaturePrimaryAction( detail, { onActivate, onInstall, onManage } );
 	}
 
-	return { label: __( 'Purchase', 'jetpack-my-jetpack' ), onClick: onCheckout };
+	return { label: __( 'Purchase', 'jetpack-my-jetpack' ), ...purchase };
 };
 
 const getSecondaryAction = ( detail: ProductCamelCase, onActivate: () => void ) => {
@@ -129,7 +142,10 @@ const getSecondaryAction = ( detail: ProductCamelCase, onActivate: () => void ) 
 		};
 	}
 
-	return { label: __( 'Learn more', 'jetpack-my-jetpack' ), href: `#/add-${ detail.slug }` };
+	return {
+		label: __( 'Learn more', 'jetpack-my-jetpack' ),
+		href: detail.hostPurchaseUrl || `#/add-${ detail.slug }`,
+	};
 };
 
 const usePricingData = ( slug: string ) => {
@@ -157,14 +173,23 @@ const usePricingData = ( slug: string ) => {
 		connectAfterCheckout: ! isUserConnected,
 		siteSuffix,
 	} );
+	const { run: runSearchFreeActivation, isPending: isActivatingSearchFree } =
+		useActivateSearchFreeProduct( { sendToCheckout: runFreeCheckout } );
 
 	const handleActivate = useCallback( () => {
-		if ( wpcomFreeProductSlug ) {
-			runFreeCheckout();
-		} else {
+		if ( ! wpcomFreeProductSlug ) {
 			activate();
+			return;
 		}
-	}, [ activate, runFreeCheckout, wpcomFreeProductSlug ] );
+
+		// Search grants its free product in place; everything else still buys it at $0.
+		if ( slug === PRODUCT_SLUGS.SEARCH ) {
+			runSearchFreeActivation( { onSuccess: () => activate() } );
+			return;
+		}
+
+		runFreeCheckout();
+	}, [ activate, runFreeCheckout, runSearchFreeActivation, slug, wpcomFreeProductSlug ] );
 
 	const handleCheckout = useCallback( () => {
 		recordEvent( 'jetpack_myjetpack_evaluation_recommendations_checkout_click', { slug } );
@@ -175,6 +200,10 @@ const usePricingData = ( slug: string ) => {
 		}
 		runCheckout();
 	}, [ activate, recordEvent, runCheckout, slug ] );
+
+	const handleHostPurchase = useCallback( () => {
+		recordEvent( 'jetpack_myjetpack_evaluation_recommendations_checkout_click', { slug } );
+	}, [ recordEvent, slug ] );
 
 	const handleInstall = useCallback( () => {
 		recordEvent( 'jetpack_myjetpack_evaluation_recommendations_install_plugin_click', {
@@ -193,13 +222,14 @@ const usePricingData = ( slug: string ) => {
 		secondaryAction: getSecondaryAction( detail, handleActivate ),
 		primaryAction: getPrimaryAction( detail, {
 			onCheckout: handleCheckout,
+			onHostPurchase: handleHostPurchase,
 			onActivate: handleActivate,
 			onInstall: handleInstall,
 			onManage: handleManage,
 		} ),
 		isFeature: detail.isFeature,
 		hasFreeOffering: detail.hasFreeOffering,
-		isActivating,
+		isActivating: isActivating || isActivatingSearchFree,
 		isInstalling,
 		...data,
 	};

@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Test Stats errors on a card the free plan does not lock, and that reads a 403 as no access.
+
+

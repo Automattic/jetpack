@@ -16,8 +16,8 @@ export interface MetricTileGridSkeletonProps {
 }
 
 /**
- * Loading shape for `MetricTileGrid`: a label and value placeholder per metric, which
- * switches from stacked rows to a centred row of columns where the loaded grid does.
+ * Loading shape for `MetricTileGrid`: a label and value placeholder per metric, laid
+ * out by the same layout rules as the loaded grid so the two land in the same place.
  */
 export function MetricTileGridSkeleton( {
 	tiles = DEFAULT_TILE_COUNT,

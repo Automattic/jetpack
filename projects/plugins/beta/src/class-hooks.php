@@ -351,6 +351,10 @@ class Hooks {
 
 		// Delete dev plugin dirs.
 		foreach ( $plugins as $plugin ) {
+			// Skip self-deletion of Jetpack Beta when the dev version was the one running and the non-dev copy is missing.
+			if ( $plugin->dev_plugin_slug() === JPBETA__PLUGIN_FOLDER && ! file_exists( $plugin->plugin_path() ) ) {
+				continue;
+			}
 			$working_dir = dirname( $plugin->dev_plugin_path() );
 			if ( $wp_filesystem->is_dir( $working_dir ) ) {
 				$wp_filesystem->delete( $working_dir, true );

@@ -16,30 +16,28 @@ jest.mock( '@wordpress/api-fetch' );
 const mockApiFetch = apiFetch as jest.MockedFunction< typeof apiFetch >;
 
 describe( 'report export downloads', () => {
-	const createObjectURL = jest.fn( () => 'blob:report' );
-	const revokeObjectURL = jest.fn();
-	const click = jest.spyOn( HTMLAnchorElement.prototype, 'click' ).mockImplementation( () => {} );
+	let createObjectURL: jest.Mock;
+	let click: jest.SpyInstance;
+	let originalCreateObjectURL: typeof window.URL.createObjectURL;
+	let originalRevokeObjectURL: typeof window.URL.revokeObjectURL;
 
 	beforeEach( () => {
 		jest.useFakeTimers();
-		Object.defineProperty( window.URL, 'createObjectURL', {
-			configurable: true,
-			value: createObjectURL,
-		} );
-		Object.defineProperty( window.URL, 'revokeObjectURL', {
-			configurable: true,
-			value: revokeObjectURL,
-		} );
-		jest.clearAllMocks();
+		mockApiFetch.mockReset();
+		originalCreateObjectURL = window.URL.createObjectURL;
+		originalRevokeObjectURL = window.URL.revokeObjectURL;
+		createObjectURL = jest.fn( () => 'blob:report' );
+		window.URL.createObjectURL = createObjectURL;
+		window.URL.revokeObjectURL = () => {};
+		click = jest.spyOn( HTMLAnchorElement.prototype, 'click' ).mockImplementation( () => {} );
 	} );
 
 	afterEach( () => {
 		jest.runOnlyPendingTimers();
 		jest.useRealTimers();
-	} );
-
-	afterAll( () => {
 		click.mockRestore();
+		window.URL.createObjectURL = originalCreateObjectURL;
+		window.URL.revokeObjectURL = originalRevokeObjectURL;
 	} );
 
 	it( 'builds a download request for the selected period and comparison', () => {

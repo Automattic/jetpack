@@ -57,7 +57,7 @@ Default.args = {
 Default.parameters = {
 	docs: {
 		description: {
-			story: 'Default pie chart with tooltips enabled using the built-in BaseTooltip component.',
+			story: 'Default pie chart with tooltips enabled using the default `label: value` tooltip.',
 		},
 	},
 };
@@ -80,22 +80,13 @@ Custom.args = {
 	...tooltipStoryArgs,
 	renderTooltip: ( { tooltipData }: PieChartRenderTooltipParams ) => {
 		return (
-			<div
-				style={ {
-					backgroundColor: '#1a1a2e',
-					color: '#eaeaea',
-					padding: '12px 16px',
-					borderRadius: '8px',
-					boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
-					minWidth: '150px',
-				} }
-			>
+			<div style={ { minWidth: '150px' } }>
 				<div
 					style={ {
 						fontSize: '16px',
 						fontWeight: 'bold',
 						marginBottom: '8px',
-						borderBottom: '1px solid #333',
+						borderBottom: '1px solid color-mix(in srgb, currentColor 25%, transparent)',
 						paddingBottom: '8px',
 					} }
 				>
@@ -103,19 +94,12 @@ Custom.args = {
 				</div>
 				<div style={ { display: 'flex', flexDirection: 'column', gap: '4px' } }>
 					<div style={ { display: 'flex', justifyContent: 'space-between' } }>
-						<span style={ { color: '#888' } }>Value:</span>
+						<span style={ { opacity: 0.75 } }>Value:</span>
 						<span style={ { fontWeight: 'bold' } }>{ formatNumber( tooltipData.value ) }</span>
 					</div>
 					<div style={ { display: 'flex', justifyContent: 'space-between' } }>
-						<span style={ { color: '#888' } }>Percentage:</span>
-						<span
-							style={ {
-								fontWeight: 'bold',
-								color: '#4ade80',
-							} }
-						>
-							{ tooltipData.percentage }%
-						</span>
+						<span style={ { opacity: 0.75 } }>Percentage:</span>
+						<span style={ { fontWeight: 'bold' } }>{ tooltipData.percentage }%</span>
 					</div>
 				</div>
 			</div>
@@ -125,7 +109,7 @@ Custom.args = {
 Custom.parameters = {
 	docs: {
 		description: {
-			story: `Custom tooltip rendering using the \`renderTooltip\` prop. This example demonstrates a dark-themed tooltip with styled layout.
+			story: `Custom tooltip rendering using the \`renderTooltip\` prop. The content sets layout only and inherits the tooltip box's colors.
 
 **Usage:**
 \`\`\`tsx
@@ -160,20 +144,12 @@ CustomWithEmoji.args = {
 		};
 
 		return (
-			<div
-				style={ {
-					backgroundColor: 'white',
-					padding: '12px',
-					borderRadius: '12px',
-					boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
-					textAlign: 'center',
-				} }
-			>
+			<div style={ { textAlign: 'center' } }>
 				<div style={ { fontSize: '32px', marginBottom: '4px' } }>
 					{ getEmoji( tooltipData.label ) }
 				</div>
 				<div style={ { fontWeight: 'bold', fontSize: '14px' } }>{ tooltipData.label }</div>
-				<div style={ { color: '#666', fontSize: '12px' } }>{ tooltipData.percentage }% share</div>
+				<div style={ { opacity: 0.75, fontSize: '12px' } }>{ tooltipData.percentage }% share</div>
 			</div>
 		);
 	},
@@ -192,20 +168,16 @@ CustomTableTooltip.args = {
 	...tooltipStoryArgs,
 	renderTooltip: ( { tooltipData }: PieChartRenderTooltipParams ) => {
 		return (
-			<table
-				style={ {
-					borderCollapse: 'collapse',
-					backgroundColor: 'white',
-					boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
-					borderRadius: '4px',
-					overflow: 'hidden',
-				} }
-			>
+			<table style={ { borderCollapse: 'collapse' } }>
 				<thead>
-					<tr style={ { backgroundColor: '#f5f5f5' } }>
+					<tr>
 						<th
 							colSpan={ 2 }
-							style={ { padding: '8px 12px', borderBottom: '1px solid #ddd', fontWeight: 'bold' } }
+							style={ {
+								padding: '8px 12px',
+								borderBottom: '1px solid color-mix(in srgb, currentColor 25%, transparent)',
+								fontWeight: 'bold',
+							} }
 						>
 							{ tooltipData.label }
 						</th>
@@ -213,13 +185,19 @@ CustomTableTooltip.args = {
 				</thead>
 				<tbody>
 					<tr>
-						<td style={ { padding: '6px 12px', borderBottom: '1px solid #eee', color: '#666' } }>
+						<td
+							style={ {
+								padding: '6px 12px',
+								borderBottom: '1px solid color-mix(in srgb, currentColor 25%, transparent)',
+								opacity: 0.75,
+							} }
+						>
 							Value
 						</td>
 						<td
 							style={ {
 								padding: '6px 12px',
-								borderBottom: '1px solid #eee',
+								borderBottom: '1px solid color-mix(in srgb, currentColor 25%, transparent)',
 								textAlign: 'right',
 								fontWeight: 'bold',
 							} }
@@ -228,7 +206,7 @@ CustomTableTooltip.args = {
 						</td>
 					</tr>
 					<tr>
-						<td style={ { padding: '6px 12px', color: '#666' } }>Share</td>
+						<td style={ { padding: '6px 12px', opacity: 0.75 } }>Share</td>
 						<td style={ { padding: '6px 12px', textAlign: 'right', fontWeight: 'bold' } }>
 							{ tooltipData.percentage }%
 						</td>

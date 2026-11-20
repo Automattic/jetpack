@@ -19,8 +19,12 @@ jest.mock( 'lib/analytics', () => ( {
 } ) );
 
 jest.mock( 'components/settings-card', () => ( { children } ) => <section>{ children }</section> );
-jest.mock( 'components/settings-group', () => ( { children } ) => <div>{ children }</div> );
-jest.mock( 'components/block-theme-notice', () => () => <div>Block theme notice</div> );
+jest.mock( 'components/settings-group', () => ( { children, support } ) => (
+	<div>
+		{ children }
+		<a href={ support?.link }>Learn more</a>
+	</div>
+) );
 jest.mock( 'components/module-settings/with-module-settings-form-helpers', () => ( {
 	withModuleSettingsFormHelpers: Component => Component,
 } ) );
@@ -76,7 +80,6 @@ describe( 'Sharing buttons settings', () => {
 		isBlockTheme: true,
 		isSavingAnyOption: isNotSaving,
 		siteAdminUrl: 'https://example.com/wp-admin/',
-		themeStylesheet: 'twentytwentyfour',
 		updateOptions,
 	};
 
@@ -92,7 +95,9 @@ describe( 'Sharing buttons settings', () => {
 			screen.getByText( 'Legacy sharing buttons cannot be customized on block themes.' )
 		).toBeInTheDocument();
 		expect( screen.queryByRole( 'checkbox' ) ).not.toBeInTheDocument();
-		expect( screen.queryByRole( 'link', { name: 'Open Site Editor' } ) ).not.toBeInTheDocument();
+		expect(
+			screen.queryByRole( 'link', { name: 'Configure your sharing buttons' } )
+		).not.toBeInTheDocument();
 
 		await user.click( screen.getByRole( 'button', { name: 'Switch to Sharing Buttons block' } ) );
 
@@ -109,19 +114,23 @@ describe( 'Sharing buttons settings', () => {
 		);
 	} );
 
-	it( 'links inactive legacy sharing to the active theme Single template', async () => {
+	it( 'links inactive legacy sharing to Settings › Sharing', async () => {
 		const user = userEvent.setup();
 		render( <ShareButtons { ...defaultProps } /> );
 
 		expect(
-			screen.getByText( 'Add the Sharing Buttons block to your theme’s template.' )
+			screen.getByText( 'Choose where the Sharing Buttons block goes on your posts and pages.' )
 		).toBeInTheDocument();
-		const configureLink = screen.getByRole( 'link', { name: 'Open Site Editor' } );
+		const configureLink = screen.getByRole( 'link', { name: 'Configure your sharing buttons' } );
 		expect( configureLink ).toHaveAttribute(
 			'href',
-			'https://example.com/wp-admin/site-editor.php?p=%2Fwp_template%2Ftwentytwentyfour%2F%2Fsingle&canvas=edit'
+			'https://example.com/wp-admin/options-general.php?page=sharing'
 		);
 		expect( screen.queryByRole( 'checkbox' ) ).not.toBeInTheDocument();
+		expect( screen.getByRole( 'link', { name: 'Learn more' } ) ).toHaveAttribute(
+			'href',
+			'https://jetpack.com/redirect/?source=jetpack-support-sharing-block'
+		);
 		configureLink.addEventListener( 'click', event => event.preventDefault() );
 
 		await user.click( configureLink );
@@ -160,6 +169,37 @@ describe( 'Sharing buttons settings', () => {
 		).toHaveAttribute( 'href', 'https://example.com/wp-admin/options-general.php?page=sharing' );
 	} );
 
+	it( 'keeps the legacy toggle and configuration link when the block is unavailable', () => {
+		render(
+			<ShareButtons
+				{ ...defaultProps }
+				getOptionValue={ getActiveOptionValue }
+				hasSharingBlock={ false }
+			/>
+		);
+
+		expect( screen.getByRole( 'checkbox' ) ).toBeChecked();
+		expect(
+			screen.getByRole( 'link', { name: 'Configure your sharing buttons' } )
+		).toHaveAttribute( 'href', 'https://example.com/wp-admin/options-general.php?page=sharing' );
+		expect(
+			screen.queryByRole( 'button', { name: 'Switch to Sharing Buttons block' } )
+		).not.toBeInTheDocument();
+		expect( screen.getByRole( 'link', { name: 'Learn more' } ) ).toHaveAttribute(
+			'href',
+			'https://jetpack.com/redirect/?source=jetpack-support-sharing'
+		);
+	} );
+
+	it( 'hides the configuration link while legacy sharing is off', () => {
+		render( <ShareButtons { ...defaultProps } isBlockTheme={ false } /> );
+
+		expect( screen.getByRole( 'checkbox' ) ).not.toBeChecked();
+		expect(
+			screen.queryByRole( 'link', { name: 'Configure your sharing buttons' } )
+		).not.toBeInTheDocument();
+	} );
+
 	it( 'keeps a forced-active module non-actionable', () => {
 		render(
 			<ShareButtons
@@ -173,16 +213,8 @@ describe( 'Sharing buttons settings', () => {
 		expect(
 			screen.queryByRole( 'button', { name: 'Switch to Sharing Buttons block' } )
 		).not.toBeInTheDocument();
-		expect( screen.queryByRole( 'link', { name: 'Open Site Editor' } ) ).not.toBeInTheDocument();
-	} );
-
-	it( 'keeps the existing block-theme fallback when the exact template URL is unavailable', () => {
-		render( <ShareButtons { ...defaultProps } themeStylesheet="" /> );
-
-		expect( screen.getByRole( 'checkbox' ) ).not.toBeChecked();
-		expect( screen.getByText( 'Block theme notice' ) ).toBeInTheDocument();
 		expect(
-			screen.getByRole( 'link', { name: 'Configure your sharing buttons' } )
-		).toHaveAttribute( 'href', 'https://example.com/wp-admin/site-editor.php?path=%2Fwp_template' );
+			screen.queryByRole( 'link', { name: 'Configure your sharing buttons' } )
+		).not.toBeInTheDocument();
 	} );
 } );

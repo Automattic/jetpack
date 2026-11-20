@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Let the pointer take over from the arrow keys in bar charts, instead of flickering between the hovered and selected bars.

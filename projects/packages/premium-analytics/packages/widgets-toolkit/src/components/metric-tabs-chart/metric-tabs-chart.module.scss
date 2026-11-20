@@ -25,16 +25,12 @@
 	gap: var(--wpds-dimension-gap-md);
 }
 
-/* Equal-width cards fill the room left by the controls. The minimum keeps a
- * 2xl value + delta readable; when every card cannot fit, grid restores the
- * wrapping protection that flex-basis: 0 would otherwise remove. */
+/* The cards fill the room left by the controls. Until the component measures,
+ * or beside controls, as many cards as fit share a row; measured, it sets the
+ * column count that balances the rows. */
 .tabs {
-	display: grid;
 	flex: 1 1 auto;
-	grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr));
-	gap: var(--wpds-dimension-gap-sm);
 	min-width: 0;
-	overflow: visible;
 }
 
 /* Dropdown mode (narrow tiles): the selected-metric card is the trigger. */
@@ -57,9 +53,8 @@
 	padding-block: var(--wpds-dimension-padding-md);
 }
 
-/* Draw the focus ring inside the card; the default outset ring gets clipped
+/* Draw the focus ring inside the trigger; the default outset ring gets clipped
  * by the widget chrome's `overflow: auto`. */
-.tab,
 .metricSelect [class*="trigger-wrapper"] {
 	outline-offset: calc(-1 * var(--wpds-border-width-focus));
 }
@@ -69,45 +64,19 @@
 	text-align: start;
 }
 
+/* The card is the container the value's `cqi` clamp below measures against. */
 .tab {
-	height: auto;
-	min-width: 0;
-	overflow: hidden;
-	padding: var(--wpds-dimension-padding-md);
-	border-radius: var(--wpds-border-radius-lg);
-}
-
-/* Hide the selection underline; the card fill shows selection instead. Older
- * `@wordpress/ui` rendered the indicator as a per-tab `<svg>`; newer versions
- * render it as a tablist-level presentation span. Hide whichever is present. */
-.tab > svg {
-	display: none;
-}
-
-.root [role="tablist"] [role="presentation"] {
-	display: none;
-}
-
-.tab:hover,
-.tab[aria-selected="true"] {
-	background-color: var(--wpds-color-background-surface-brand);
+	container-type: inline-size;
 }
 
 /* A lone metric has nothing to switch to: it reads as the widget's headline
- * figure rather than a control, so it drops the card fill and the pointer. */
+ * figure rather than a control, so it keeps the card's inset and no fill. */
 .singleMetric .tab {
-	cursor: default;
+	padding: var(--wpds-dimension-padding-md);
 }
 
-/* A static headline has no selected or hover state. */
-.singleMetric .tab:hover {
-	background-color: transparent;
-}
-
-/* Each tab's content: label stacked over the value + delta, start-aligned.
- * Growing to fill is what keeps it against the card's leading edge — the
- * tablist centres a tab's children, which shows as soon as a card is wider
- * than its text. */
+/* Each card's content: label stacked over the value + delta, start-aligned
+ * and growing to fill the card. */
 .tabContent {
 	display: flex;
 	flex: 1 1 auto;
@@ -123,6 +92,7 @@
 	max-width: 100%;
 	overflow: hidden;
 	text-overflow: ellipsis;
+	white-space: nowrap;
 }
 
 /* Prefer moving the delta below the value over painting into the next card. */
@@ -130,6 +100,12 @@
 	flex-wrap: wrap;
 	max-width: 100%;
 	min-width: 0;
+}
+
+/* The value shrinks with its card, so a long figure fits rather than clips:
+ * 16cqi leaves room for about 11 characters, such as German "277.103 CHF". */
+.metricComparison > :first-child {
+	font-size: min(var(--wp-ui-metric-font-size), 16cqi);
 }
 
 /* Stands in for the headline of a metric with nothing to report at the current
@@ -164,6 +140,6 @@
 
 /* The plot answers a click, so the cursor says so; the legend beneath it does
    not. */
-.drillable [role="grid"] {
+.drillable [role="application"] {
 	cursor: pointer;
 }

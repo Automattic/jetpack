@@ -7,6 +7,7 @@ import type { PlanStateProps } from '../types.ts';
 jest.mock( '@wordpress/data', () => ( {
 	createReduxStore: jest.fn(),
 	register: jest.fn(),
+	select: jest.fn(),
 } ) );
 
 const buildState = (): PlanStateProps => ( {

@@ -2,6 +2,7 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
+import { useMemo } from 'react';
 /**
  * Internal dependencies
  */
@@ -41,6 +42,8 @@ interface DeviceViewsState {
 	isLoading: boolean;
 	isFetching: boolean;
 	isError: boolean;
+	csvIsError: boolean;
+	csvIsPlaceholderData: boolean;
 	error: unknown;
 	refetch: () => void;
 }
@@ -83,10 +86,13 @@ export default function useDeviceViews( {
 		deviceProperty,
 	};
 
-	const { comparisonRows, hasComparison, isLoading, isFetching, isError, error, refetch } =
+	const { primary, comparisonRows, hasComparison, isLoading, isFetching, isError, error, refetch } =
 		useStatsDevices( statsParams, { maxRows: max } );
 
-	const items = ( comparisonRows?.rows ?? [] ).map( toDeviceView );
+	const items = useMemo(
+		() => ( comparisonRows?.rows ?? [] ).map( toDeviceView ),
+		[ comparisonRows ]
+	);
 
 	// The Stats queries carry `placeholderData: previousData => previousData`, so a
 	// failed range change keeps the prior period's rows in `data` while `isError`
@@ -101,6 +107,8 @@ export default function useDeviceViews( {
 		isLoading,
 		isFetching,
 		isError: showError,
+		csvIsError: primary.isError,
+		csvIsPlaceholderData: primary.isPlaceholderData,
 		error: showError ? error : null,
 		refetch,
 	};

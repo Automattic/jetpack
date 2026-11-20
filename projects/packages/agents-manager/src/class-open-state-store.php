@@ -42,8 +42,6 @@ class Open_State_Store {
 		'agents_manager_docked'            => false,
 		'agents_manager_minimized'         => false,
 		'agents_manager_floating_position' => 'right',
-		'agents_manager_router_history'    => null,
-		'agents_manager_last_activity'     => null,
 	);
 
 	/**
@@ -113,7 +111,7 @@ class Open_State_Store {
 	 * transient (see the class docblock). Returns null when nothing is known yet,
 	 * so callers can skip pre-rendering until the frontend sets the real state.
 	 *
-	 * @return array|null `{ agents_manager_open, agents_manager_docked }` or null.
+	 * @return array|null `{ agents_manager_open, agents_manager_docked, agents_manager_minimized }` or null.
 	 */
 	public static function get_cached() {
 		$user_id = get_current_user_id();
@@ -130,8 +128,9 @@ class Open_State_Store {
 			}
 
 			return array(
-				'agents_manager_open'   => (bool) ( $calypso_prefs['agents_manager_open'] ?? false ),
-				'agents_manager_docked' => (bool) ( $calypso_prefs['agents_manager_docked'] ?? false ),
+				'agents_manager_open'      => (bool) ( $calypso_prefs['agents_manager_open'] ?? false ),
+				'agents_manager_docked'    => (bool) ( $calypso_prefs['agents_manager_docked'] ?? false ),
+				'agents_manager_minimized' => (bool) ( $calypso_prefs['agents_manager_minimized'] ?? false ),
 			);
 		}
 
@@ -160,13 +159,11 @@ class Open_State_Store {
 			'agents_manager_docked'            => (bool) ( $response['agents_manager_docked'] ?? self::DEFAULTS['agents_manager_docked'] ),
 			'agents_manager_minimized'         => (bool) ( $response['agents_manager_minimized'] ?? self::DEFAULTS['agents_manager_minimized'] ),
 			'agents_manager_floating_position' => $response['agents_manager_floating_position'] ?? self::DEFAULTS['agents_manager_floating_position'],
-			'agents_manager_router_history'    => $response['agents_manager_router_history'] ?? self::DEFAULTS['agents_manager_router_history'],
-			'agents_manager_last_activity'     => $response['agents_manager_last_activity'] ?? self::DEFAULTS['agents_manager_last_activity'],
 		);
 	}
 
 	/**
-	 * Cache the open/docked bits in a per-user transient.
+	 * Cache the open, docked and minimized bits in a per-user transient.
 	 *
 	 * Only used on the remote (WoA / self-hosted) path — it's what get_cached()
 	 * reads there. Simple sites read `calypso_preferences` directly and skip this.
@@ -194,8 +191,9 @@ class Open_State_Store {
 		set_transient(
 			self::cache_key( $user_id ),
 			array(
-				'agents_manager_open'   => (bool) ( $state['agents_manager_open'] ?? false ),
-				'agents_manager_docked' => (bool) ( $state['agents_manager_docked'] ?? false ),
+				'agents_manager_open'      => (bool) ( $state['agents_manager_open'] ?? false ),
+				'agents_manager_docked'    => (bool) ( $state['agents_manager_docked'] ?? false ),
+				'agents_manager_minimized' => (bool) ( $state['agents_manager_minimized'] ?? false ),
 			),
 			$ttl
 		);

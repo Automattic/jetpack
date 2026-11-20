@@ -11,6 +11,10 @@ use DateTimeZone;
 use WC_DateTime;
 use WP_Error;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Class to handle sync for WooCommerce Products table.
  *
@@ -542,7 +546,7 @@ class WooCommerce_Products extends Module {
 			$wc_datetime = new WC_DateTime( $wc_datetime, new DateTimeZone( wc_timezone_string() ) );
 		}
 
-		if ( is_a( $wc_datetime, 'WC_DateTime' ) ) {
+		if ( $wc_datetime instanceof \WC_DateTime ) {
 			if ( $utc ) {
 				$wc_datetime->setTimezone( new DateTimeZone( 'UTC' ) );
 			} else {

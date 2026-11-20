@@ -1,5 +1,5 @@
-@use "scss/variables";
-@use "scss/rna-styles";
+@use "../../scss/variables";
+@use "../../scss/rna-styles";
 
 #jp-search-dashboard {
 	color: variables.$black;
@@ -57,6 +57,13 @@
 	}
 }
 
+// Matches the horizontal gutter `JitmSlot`'s `inset` variant gives its card,
+// so the connection error notice lines up with it and the tab strip above.
+.jp-search-dashboard-connection-error {
+	margin-inline: var(--wpds-dimension-padding-2xl);
+	margin-block: var(--wpds-dimension-gap-xl);
+}
+
 .usage-meter-group {
 	display: flex;
 	align-items: center;
@@ -85,22 +92,13 @@
 	}
 }
 
-.jetpack-search-jitm-card {
-
-	.jitm-card {
-		margin-right: 0;
-		margin-bottom: 0;
-	}
-}
-
 .jp-search-additional-settings__heading {
 	margin: var(--wpds-dimension-padding-3xl) 0 0;
 	font-size: var(--wpds-typography-font-size-xl);
 	line-height: var(--wpds-typography-line-height-md);
 }
 
-.jp-search-settings-card,
-.jp-search-ai-agent-access-card {
+.jp-search-settings-card {
 	box-sizing: border-box;
 	width: 100%;
 	margin-block-start: var(--wpds-dimension-padding-3xl);
@@ -114,10 +112,6 @@
 	// that legacy spacing inside cards so the cards own the layout gap.
 	.jp-form-search-settings-group__toggle.is-reader-chat {
 		margin-top: 0;
-	}
-
-	&.jp-form-search-settings-group__toggle.is-ai-agent-access {
-		margin-block-start: var(--wpds-dimension-padding-3xl);
 	}
 
 	// `.jp-search-dashboard-row` carries responsive horizontal margins

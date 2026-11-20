@@ -2,7 +2,7 @@
  * Internal dependencies
  */
 import { computePrimaryRange, getQuickSurfacePresets } from '../presets';
-import { DETAIL_SURFACE_PRESETS, PRESET_ALL_TIME, QUICK_SURFACE_PRESETS } from '../presets/types';
+import { PRESET_ALL_TIME, QUICK_SURFACE_PRESETS } from '../presets/types';
 import { dateToISOStringWithTZ } from '../tz';
 
 // A zone ahead of UTC, so a naive (UTC) day boundary would land on the wrong
@@ -27,26 +27,18 @@ describe( 'quick surface presets', () => {
 		] );
 	} );
 
-	it( 'leads the detail surface with all time, in the designed order', () => {
-		expect( DETAIL_SURFACE_PRESETS ).toEqual( [ PRESET_ALL_TIME, ...QUICK_SURFACE_PRESETS ] );
-
-		expect(
-			getQuickSurfacePresets( TIME_ZONE, { presetIds: DETAIL_SURFACE_PRESETS } ).map(
-				preset => preset.label
-			)
-		).toEqual( [ 'All time', 'Last 24 hours', '7 days', '30 days', '12 months' ] );
-	} );
-
-	it( 'gives the all-time pill a short label like the rolling windows', () => {
-		const [ allTime ] = getQuickSurfacePresets( TIME_ZONE, { presetIds: DETAIL_SURFACE_PRESETS } );
-
-		expect( allTime.shortLabel ).toBe( 'All' );
-		expect( allTime.shortLabel!.length ).toBeLessThan( allTime.label.length );
+	it( 'names every period in full', () => {
+		expect( getQuickSurfacePresets( TIME_ZONE ).map( preset => preset.label ) ).toEqual( [
+			'Last 24 hours',
+			'Last 7 days',
+			'Last 30 days',
+			'Last 12 months',
+		] );
 	} );
 
 	it( 'anchors all time on the site-local start of the given day, through the end of today', () => {
 		const [ allTime ] = getQuickSurfacePresets( TIME_ZONE, {
-			presetIds: DETAIL_SURFACE_PRESETS,
+			presetIds: [ PRESET_ALL_TIME ],
 			startDate: PUBLISHED,
 		} );
 
@@ -67,10 +59,42 @@ describe( 'quick surface presets', () => {
 	} );
 
 	it( 'falls back to the year surface span without an anchor', () => {
-		const [ allTime ] = getQuickSurfacePresets( TIME_ZONE, { presetIds: DETAIL_SURFACE_PRESETS } );
+		const [ allTime ] = getQuickSurfacePresets( TIME_ZONE, { presetIds: [ PRESET_ALL_TIME ] } );
 
 		expect( allTime.range ).toEqual( computePrimaryRange( PRESET_ALL_TIME, TIME_ZONE ) );
 		// Years back, not the day the test pinned.
 		expect( allTime.range.from.getTime() ).toBeLessThan( PUBLISHED.getTime() );
+	} );
+} );
+
+describe( 'the three-year window', () => {
+	it( 'starts on 1 January two years back, on the site clock', () => {
+		const range = computePrimaryRange( 'last-3-years', TIME_ZONE )!;
+
+		expect( dateToISOStringWithTZ( range.from, TIME_ZONE ) ).toBe(
+			'2024-01-01T00:00:00.000+08:00'
+		);
+		expect( dateToISOStringWithTZ( range.to, TIME_ZONE ) ).toBe( '2026-08-25T23:59:59.999+08:00' );
+	} );
+} );
+
+// Havana moves its clocks forward at midnight, so the day the rolling window
+// ends starts at 01:00; the days before it start at 00:00 all the same.
+describe( 'rolling windows where the clocks moved at midnight', () => {
+	const HAVANA = 'America/Havana';
+
+	it.each( [
+		[ 'yesterday', '2024-03-09T00:00:00.000-05:00', '2024-03-09T23:59:59.999-05:00' ],
+		[ 'last-7-days', '2024-03-04T00:00:00.000-05:00', '2024-03-10T23:59:59.999-04:00' ],
+	] as const )( 'starts %s at the first instant of its first day', ( presetId, from, to ) => {
+		jest.setSystemTime( new Date( '2024-03-10T16:00:00.000Z' ) );
+		try {
+			const range = computePrimaryRange( presetId, HAVANA )!;
+
+			expect( dateToISOStringWithTZ( range.from, HAVANA ) ).toBe( from );
+			expect( dateToISOStringWithTZ( range.to, HAVANA ) ).toBe( to );
+		} finally {
+			jest.setSystemTime( NOW );
+		}
 	} );
 } );

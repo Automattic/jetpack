@@ -1,0 +1,8 @@
+{
+	"private": true,
+	"name": "@automattic/jetpack-premium-analytics-author-detail-route",
+	"route": {
+		"path": "/author/$authorId",
+		"page": "jetpack-premium-analytics"
+	}
+}

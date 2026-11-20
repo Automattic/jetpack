@@ -115,6 +115,15 @@ if ( explode( '.', \PHPUnit\Runner\Version::id() )[0] >= 10 ) {
 		}
 
 		/**
+		 * For `WP_UnitTestCase_Base::set_up()`, which calls it whenever `WP_RUN_CORE_TESTS` is defined.
+		 *
+		 * @return string[]
+		 */
+		public function getGroups() {
+			return $this->groups();
+		}
+
+		/**
 		 * Obsolete method where PHPUnit is mis-processing the doc comment to see a `@group` that doesn't exist.
 		 * This redefinition hides the "bad" doc comment from PHPUnit.
 		 */
@@ -132,7 +141,11 @@ if ( explode( '.', \PHPUnit\Runner\Version::id() )[0] >= 10 ) {
 	class_alias( Bogus::class, \PHPUnit\Framework\Error\Notice::class );
 	class_alias( Bogus::class, \PHPUnit\Framework\Error\Warning::class );
 	class_alias( Bogus::class, \PHPUnit\Framework\Warning::class );
-	class_alias( Bogus::class, \PHPUnit\Framework\TestListener::class );
+
+	// This one is now used to declare a class in the bootstrap. We don't use that class anyway.
+	/** Dummy interface. */
+	interface IBogus {}
+	class_alias( IBogus::class, \PHPUnit\Framework\TestListener::class );
 
 } else {
 	trait WP_UnitTestCase_Fix {

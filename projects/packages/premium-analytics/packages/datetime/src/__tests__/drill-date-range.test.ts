@@ -5,7 +5,8 @@ import { TZDate } from '@date-fns/tz';
 /**
  * Internal dependencies
  */
-import { drillDateRange } from '../drill-date-range';
+import { drillDateRange, isDrillableInterval } from '../drill-date-range';
+import type { IntervalType } from '../interval';
 
 /**
  * A UTC instant, so bucket boundaries are the same on every machine.
@@ -43,6 +44,13 @@ describe( 'drillDateRange', () => {
 		expect( range?.to?.getTime() ).toBe( Date.parse( '2026-02-28T23:59:59.999Z' ) );
 	} );
 
+	it( 'opens the calendar quarter', () => {
+		const range = drillDateRange( utc( '2026-05-09T00:00:00.000Z' ), 'quarter', NOW );
+
+		expect( range?.from?.getTime() ).toBe( Date.parse( '2026-04-01T00:00:00.000Z' ) );
+		expect( range?.to?.getTime() ).toBe( Date.parse( '2026-06-30T23:59:59.999Z' ) );
+	} );
+
 	it( 'opens the calendar year', () => {
 		const range = drillDateRange( utc( '2026-05-09T00:00:00.000Z' ), 'year', NOW );
 
@@ -50,16 +58,20 @@ describe( 'drillDateRange', () => {
 		expect( range?.to?.getTime() ).toBe( Date.parse( '2026-12-31T23:59:59.999Z' ) );
 	} );
 
-	it( 'refuses to open an hour, the finest bucket the report draws', () => {
-		expect( drillDateRange( utc( '2026-07-21T13:00:00.000Z' ), 'hour', NOW ) ).toBeNull();
+	it( 'stops the window at now when a week, month or year is still in progress', () => {
+		const now = utc( '2026-07-21T10:30:00.000Z' );
+		const range = drillDateRange( utc( '2026-07-21T09:00:00.000Z' ), 'week', now );
+
+		expect( range?.from?.getTime() ).toBe( Date.parse( '2026-07-20T00:00:00.000Z' ) );
+		expect( range?.to?.getTime() ).toBe( now.getTime() );
 	} );
 
-	it( 'stops the window at now when the bucket is still in progress', () => {
+	it( 'opens the day in progress whole, as the Today preset does', () => {
 		const now = utc( '2026-07-21T10:30:00.000Z' );
 		const range = drillDateRange( utc( '2026-07-21T09:00:00.000Z' ), 'day', now );
 
 		expect( range?.from?.getTime() ).toBe( Date.parse( '2026-07-21T00:00:00.000Z' ) );
-		expect( range?.to?.getTime() ).toBe( now.getTime() );
+		expect( range?.to?.getTime() ).toBe( Date.parse( '2026-07-21T23:59:59.999Z' ) );
 	} );
 
 	it( 'refuses a bucket that has not started', () => {
@@ -79,5 +91,14 @@ describe( 'drillDateRange', () => {
 
 		expect( range?.from?.getTime() ).toBe( Date.parse( '2026-07-20T04:00:00.000Z' ) );
 		expect( range?.to?.getTime() ).toBe( Date.parse( '2026-07-21T03:59:59.999Z' ) );
+	} );
+} );
+
+describe( 'isDrillableInterval', () => {
+	it.each( [
+		[ 'an hour, the finest bucket the report draws', 'hour' ],
+		[ 'a name inherited from the object prototype', 'toString' ],
+	] )( 'refuses %s', ( _label, interval ) => {
+		expect( isDrillableInterval( interval as IntervalType ) ).toBe( false );
 	} );
 } );

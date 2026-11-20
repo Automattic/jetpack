@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 /**
  * Internal dependencies
@@ -97,20 +97,28 @@ describe( 'SelectField', () => {
 		expect( control ).toHaveTextContent( 'Ten' );
 	} );
 
-	// The select control trades in strings; the write path must restore the
-	// element's original value, or a numeric attribute comes back as "20".
-	it( 'writes the selected value with its original type', async () => {
-		const onChange = jest.fn();
-		const control = sizeControl( { data: { size: 10 }, onChange } );
+	describe( 'writing', () => {
+		beforeEach( () => jest.useFakeTimers() );
+		afterEach( () => jest.useRealTimers() );
 
-		// `hidden: true` because in jsdom, with no layout to position the popup
-		// against, the mounted options stay hidden even once opened. They also mount
-		// a tick after the click, so a synchronous read passes alone but fails under
-		// load — wait for them.
-		await userEvent.click( control );
-		await userEvent.click( await screen.findByRole( 'option', { name: 'Twenty', hidden: true } ) );
+		// The select control trades in strings; the write path must restore the
+		// element's original value, or a numeric attribute comes back as "20".
+		it( 'writes the selected value with its original type', async () => {
+			const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
+			const onChange = jest.fn();
+			const control = sizeControl( { data: { size: 10 }, onChange } );
 
-		expect( onChange ).toHaveBeenCalledWith( { size: 20 } );
+			// Base UI mounts the options on focus but opens the popup a frame later,
+			// and until then they ignore pointer events.
+			await user.click( control );
+			await waitFor( () => expect( control ).toHaveAttribute( 'aria-expanded', 'true' ) );
+
+			// `hidden: true` because in jsdom, with no layout to position the popup
+			// against, the options stay hidden even once opened.
+			await user.click( screen.getByRole( 'option', { name: 'Twenty', hidden: true } ) );
+
+			expect( onChange ).toHaveBeenCalledWith( { size: 20 } );
+		} );
 	} );
 
 	it( 'disables the control when the field says so', () => {

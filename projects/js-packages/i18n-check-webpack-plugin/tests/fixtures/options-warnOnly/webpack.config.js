@@ -6,7 +6,10 @@ module.exports = {
 	entry: './src/index.js',
 	mode: jetpackWebpackConfig.mode,
 	devtool: jetpackWebpackConfig.devtool,
-	output: jetpackWebpackConfig.output,
+	output: {
+		...jetpackWebpackConfig.output,
+		library: 'Test',
+	},
 	optimization: {
 		...jetpackWebpackConfig.optimization,
 	},

@@ -4,6 +4,7 @@ import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Card } from '@wordpress/ui';
 import { store as socialStore } from '../../social-store';
+import type { JSX } from 'react';
 
 /**
  * Customize links card — UTM parameter appending toggle.

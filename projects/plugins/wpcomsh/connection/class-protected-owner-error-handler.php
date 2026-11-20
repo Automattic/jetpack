@@ -102,7 +102,7 @@ class Protected_Owner_Error_Handler {
 
 		// Validate that the error email matches the owner email in Atomic Persistent Data (source of truth)
 		if ( class_exists( \Atomic_Persistent_Data::class ) ) {
-			$atomic_persistent_data = new \Atomic_Persistent_Data(); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+			$atomic_persistent_data = wpcomsh_get_atomic_persistent_data();
 			$owner_email            = $atomic_persistent_data->JETPACK_CONNECTION_OWNER_EMAIL; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 			if ( $owner_email ) {
 				// APD has owner email - connection was established, error is not valid
@@ -263,7 +263,7 @@ class Protected_Owner_Error_Handler {
 		?>
 		<input type="hidden" id="jetpack_prepopulate_email" value="<?php echo esc_attr( $email ); ?>" />
 		<input type="hidden" name="jetpack_create_missing_account" value="1" />
-		
+
 		<script type="text/javascript">
 		(function() {
 			document.addEventListener('DOMContentLoaded', function() {
@@ -272,7 +272,7 @@ class Protected_Owner_Error_Handler {
 				if (emailInput && emailInput.value) {
 					var emailField = document.getElementById('email');
 					var roleField = document.getElementById('role');
-					
+
 					if (emailField) {
 						emailField.value = emailInput.value;
 					}
@@ -348,7 +348,7 @@ class Protected_Owner_Error_Handler {
 			return $default_status;
 		}
 
-		$apd          = new \Atomic_Persistent_Data(); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+		$apd          = wpcomsh_get_atomic_persistent_data();
 		$owner_email  = $apd->JETPACK_CONNECTION_OWNER_EMAIL; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 		$owner_secret = $apd->JETPACK_CONNECTION_OWNER_TOKEN_SECRET; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 
@@ -437,7 +437,7 @@ class Protected_Owner_Error_Handler {
 			),
 		);
 
-		$wpcom_account_link = '<a href="https://wordpress.com/me/account" target="_blank">WordPress.com account</a>';
+		$wpcom_account_link = '<a href="https://my.wordpress.com/me/account" target="_blank">WordPress.com account</a>';
 
 		if ( 'email_match' === $status['match_type'] ) {
 			// Emails are in sync - show preventive warning

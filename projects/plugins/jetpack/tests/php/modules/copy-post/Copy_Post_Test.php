@@ -58,8 +58,8 @@ class Copy_Post_Test extends WP_UnitTestCase {
 		// Assert old ID is not in content.
 		$this->assertStringNotContainsString( $old_id, $result['post_content'] );
 
-		// Assert footnotes meta was saved to target.
-		$target_footnotes = get_post_meta( $target_post_id, 'footnotes', true );
+		// Assert footnotes meta is queued for the target.
+		$target_footnotes = $result['meta_input']['footnotes'];
 		$this->assertNotEmpty( $target_footnotes );
 
 		// Assert new ID is a valid UUID and different from old.
@@ -201,7 +201,7 @@ class Copy_Post_Test extends WP_UnitTestCase {
 		$result = $copy_post->copy_footnotes( $data, $source_post, $target_post_id );
 
 		// Get the new IDs from meta.
-		$target_footnotes = json_decode( get_post_meta( $target_post_id, 'footnotes', true ), true );
+		$target_footnotes = json_decode( $result['meta_input']['footnotes'], true );
 		$this->assertIsArray( $target_footnotes );
 		$new_id_1 = $target_footnotes[0]['id'];
 		$new_id_2 = $target_footnotes[1]['id'];
@@ -250,12 +250,44 @@ class Copy_Post_Test extends WP_UnitTestCase {
 			'post_content' => '<p>Text<sup data-fn="' . $old_id . '"></sup></p>',
 		);
 
-		$copy_post->copy_footnotes( $data, $source_post, $target_post_id );
+		$result = $copy_post->copy_footnotes( $data, $source_post, $target_post_id );
 
 		// Assert footnote content is preserved.
-		$target_footnotes = json_decode( get_post_meta( $target_post_id, 'footnotes', true ), true );
+		$target_footnotes = json_decode( $result['meta_input']['footnotes'], true );
 		$this->assertIsArray( $target_footnotes );
 		$this->assertEquals( $footnote_content, $target_footnotes[0]['content'] );
+	}
+
+	/**
+	 * Test that update_content saves footnotes whose content has quotes and backslashes.
+	 */
+	public function test_update_content_preserves_footnotes_with_link() {
+		$copy_post = new Jetpack_Copy_Post();
+
+		$footnote_content = 'See <a href="https://example.com">this link</a> and C:\\path.';
+
+		$source_post_id = self::factory()->post->create();
+		$footnotes_meta = wp_json_encode(
+			array(
+				array(
+					'id'      => 'abc12345-1234-1234-1234-123456789abc',
+					'content' => $footnote_content,
+				),
+			),
+			JSON_UNESCAPED_SLASHES
+		);
+		update_post_meta( $source_post_id, 'footnotes', wp_slash( $footnotes_meta ) );
+		$target_post_id = self::factory()->post->create();
+
+		$method = new ReflectionMethod( Jetpack_Copy_Post::class, 'update_content' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+		$method->invoke( $copy_post, get_post( $source_post_id ), $target_post_id );
+
+		$target_footnotes = json_decode( get_post_meta( $target_post_id, 'footnotes', true ), true );
+		$this->assertIsArray( $target_footnotes );
+		$this->assertSame( $footnote_content, $target_footnotes[0]['content'] );
 	}
 
 	/**

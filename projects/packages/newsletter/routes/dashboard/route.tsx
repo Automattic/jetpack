@@ -1,3 +1,5 @@
+import { getNewsletterScriptData } from '../../src/settings/script-data';
+
 type SubscribersSearch = {
 	tab?: string;
 	subscriber?: string | number;
@@ -17,9 +19,10 @@ export const route = {
 	 * @return Whether to render the inspector slot.
 	 */
 	inspector: ( { search }: { search: SubscribersSearch } ) => {
-		if ( search?.tab === 'settings' ) {
-			return false;
-		}
-		return Boolean( search?.subscriber || search?.u );
+		const overviewEnabled = getNewsletterScriptData()?.overviewEnabled === true;
+		const isSubscribersTab =
+			search?.tab === 'subscribers' || ( ! overviewEnabled && ! search?.tab );
+
+		return isSubscribersTab && Boolean( search?.subscriber || search?.u );
 	},
 };

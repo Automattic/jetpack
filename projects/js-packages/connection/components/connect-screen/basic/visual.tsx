@@ -2,6 +2,7 @@ import { TermsOfService } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import ConnectScreenAction from '../action';
 import ConnectScreenLayout from '../layout';
+import type { RegistrationErrorDisplay } from '../../../helpers/get-connect-screen-error-message';
 import type { Props as ConnectScreenProps } from '../basic';
 import type { WithRequired } from '../types';
 import type { MouseEventHandler } from 'react';
@@ -27,6 +28,8 @@ type OwnProps = {
 	displayButtonError?: boolean;
 	// The connection error code
 	errorCode?: string;
+	// What to show for the registration error, from getRegistrationErrorDisplay()
+	errorDisplay?: RegistrationErrorDisplay;
 	// Whether the button is loading or not
 	buttonIsLoading?: boolean;
 	// Whether the site is in offline mode
@@ -51,6 +54,7 @@ function ConnectScreenVisual( {
 	handleButtonClick,
 	displayButtonError,
 	errorCode,
+	errorDisplay,
 	buttonIsLoading,
 	loadingLabel,
 	footer,
@@ -80,6 +84,7 @@ function ConnectScreenVisual( {
 					buttonIsLoading={ buttonIsLoading }
 					displayButtonError={ displayButtonError }
 					errorCode={ errorCode }
+					errorDisplay={ errorDisplay }
 					isOfflineMode={ isOfflineMode }
 				/>
 				<span className="jp-connection__connect-screen__loading-message" role="status">

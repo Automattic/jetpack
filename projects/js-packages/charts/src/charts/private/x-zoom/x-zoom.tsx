@@ -79,8 +79,7 @@ export function useXZoom< T extends Date | number = Date >( {
 			const hi = Math.max( finalDrag.a, finalDrag.b );
 			if ( hi - lo < MIN_DRAG_PIXELS ) return;
 			const xScale = chartRef.current?.getScales()?.xScale as
-				| ( AxisScale & { invert?: ( v: number ) => T } )
-				| undefined;
+				( AxisScale & { invert?: ( v: number ) => T } ) | undefined;
 			if ( ! xScale || typeof xScale.invert !== 'function' ) return;
 			setDomain( [ xScale.invert( lo ), xScale.invert( hi ) ] );
 		},

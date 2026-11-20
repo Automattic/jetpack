@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Guidelines CPT meta now syncs via jetpack_sync_post_meta_whitelist filter with explicit meta keys instead of prefix matching.

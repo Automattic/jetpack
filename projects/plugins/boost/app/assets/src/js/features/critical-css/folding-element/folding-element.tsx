@@ -1,10 +1,9 @@
 import ChevronDown from '$svg/chevron-down';
 import ChevronUp from '$svg/chevron-up';
 import { Button } from '@automattic/jetpack-components';
-import { animated, useSpring } from '@react-spring/web';
 import clsx from 'clsx';
 import { useState } from 'react';
-import useMeasure from 'react-use-measure';
+import Collapse from '$features/ui/collapse/collapse';
 import styles from './folding-element.module.scss';
 import type { FC, ReactNode } from 'react';
 
@@ -25,11 +24,6 @@ const FoldingElement: FC< PropTypes > = ( {
 } ) => {
 	const [ expanded, setExpanded ] = useState( isExpanded );
 	const label = expanded ? labelCollapsedText : labelExpandedText;
-
-	const [ ref, { height } ] = useMeasure();
-	const animationStyles = useSpring( {
-		height: expanded ? height : 0,
-	} );
 
 	const handleOnExpand = () => {
 		const newValue = ! expanded;
@@ -52,17 +46,14 @@ const FoldingElement: FC< PropTypes > = ( {
 				{ expanded ? <ChevronUp /> : <ChevronDown /> }
 			</Button>
 
-			<animated.div
+			<Collapse
+				open={ expanded }
 				className={ expanded ? styles.expanded : '' }
-				style={ {
-					overflow: 'hidden',
-					...animationStyles,
-				} }
+				style={ { overflow: 'hidden' } }
+				contentClassName={ styles[ 'fade-in' ] }
 			>
-				<div ref={ ref } className={ styles[ 'fade-in' ] }>
-					{ children }
-				</div>
-			</animated.div>
+				{ children }
+			</Collapse>
 		</>
 	);
 };

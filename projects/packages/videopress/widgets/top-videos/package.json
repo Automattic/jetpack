@@ -1,0 +1,5 @@
+{
+	"name": "@automattic/jetpack-videopress-widget-top-videos",
+	"private": true,
+	"type": "module"
+}

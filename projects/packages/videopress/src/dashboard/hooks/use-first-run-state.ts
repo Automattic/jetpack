@@ -41,7 +41,7 @@ const LIBRARY_SEEN_KEY_PREFIX = 'jetpack-videopress-library-seen';
 export function getScopedStorageKey( prefix: string ): string {
 	const data = getScriptData();
 	const blogId = data?.site?.wpcom?.blog_id;
-	const scope = typeof blogId === 'number' && blogId > 0 ? blogId : data?.site?.host ?? 'site';
+	const scope = typeof blogId === 'number' && blogId > 0 ? blogId : ( data?.site?.host ?? 'site' );
 	const userId = data?.user?.current_user?.id ?? 'user';
 
 	return `${ prefix }-${ scope }-${ userId }`;
@@ -187,10 +187,14 @@ const FIRST_RUN_COUNT_VIEW: View = {
 /**
  * How many videos the library holds, and whether that number is known yet.
  *
+ * @param enabled - Send the count request.
  * @return The total library count, and whether its request has settled.
  */
-function useLibraryVideoCount(): { videoCount: number; isSettled: boolean } {
-	const { paginationInfo, isLoading } = useLibrary( FIRST_RUN_COUNT_VIEW );
+function useLibraryVideoCount( enabled = true ): { videoCount: number; isSettled: boolean } {
+	const { paginationInfo, isLoading } = useLibrary( FIRST_RUN_COUNT_VIEW, {
+		poll: false,
+		enabled,
+	} );
 
 	return { videoCount: paginationInfo?.totalItems ?? 0, isSettled: ! isLoading };
 }
@@ -223,12 +227,15 @@ function useLibraryVideoCount(): { videoCount: number; isSettled: boolean } {
  * The queries are the same ones the dashboard already runs (identical views, so
  * identical react-query keys), which means the tab strip and the welcome modal
  * read a warm cache rather than paying for a second request. On `/video/:id`
- * and the video editor, which asked for none of them, this is genuinely three
+ * and the video editor, which asked for none of them, this is at most two
  * extra `perPage: 1` count requests — the price of observing everywhere.
  */
 export function useObserveFirstRunSignals(): void {
-	const { videoCount, isSettled } = useLibraryVideoCount();
-	const { videoPressCount, isSettled: areTypeCountsSettled } = useOnboardingCounts();
+	// Once the library flag is written, the count has nothing left to teach this browser.
+	const { videoCount, isSettled } = useLibraryVideoCount( ! hasEstablishedLibrary() );
+	const { videoPressCount, isSettled: areTypeCountsSettled } = useOnboardingCounts( {
+		includeLocal: false,
+	} );
 
 	useEffect( () => {
 		if ( isSettled && videoCount > 0 ) {

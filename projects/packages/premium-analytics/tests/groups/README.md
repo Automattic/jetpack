@@ -50,6 +50,11 @@ member's variable alone, and the other members' copies are never read. Group onl
 suites whose mocks are self-contained; the guard test compares the mock text and
 cannot see this difference.
 
+To give a mock state that tests control, keep the mock and its setters in a module
+under `tests/js/` and return it from the factory with `jest.requireActual`, as
+`route-test-utils.tsx` does. Every member then reads the same instance, and the
+guard resolves the relative path, so their mock text still matches.
+
 Do not list a suite in multiple groups. Leave suites with relative module mocks
 ungrouped because those mocks resolve from the suite's directory.
 
@@ -57,6 +62,11 @@ Leave suites that pin their own environment ungrouped too. Jest reads the
 `@jest-environment` docblock of the file it collects, which for a member is the
 group file, so a member asking for `node` silently gets the group's jsdom and
 fails on whatever it wanted `node` for. The guard test reports this.
+
+Wrap a member's top-level `beforeEach` / `afterEach` in a `describe` first. At
+the top level they become hooks of the whole group file, so a member pinning the
+clock with `jest.useFakeTimers().setSystemTime()` resets every other member's
+clock. The guard test does not see this.
 
 A suite that declares no `jest.mock()` at all is compatible with every other
 such suite, whatever it covers — `mixed-no-mocks` collects the ones from areas

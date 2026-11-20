@@ -32,8 +32,7 @@ interface TopPlatformsStoryControls {
 }
 
 interface TopPlatformsDashboardStoryProps
-	extends WidgetDashboardWithWidgetControls,
-		TopPlatformsStoryControls {}
+	extends WidgetDashboardWithWidgetControls, TopPlatformsStoryControls {}
 
 function getTopPlatformsAttributes( {
 	withComparison,
@@ -177,8 +176,7 @@ export const ErrorRetryable: StoryObj< TopPlatformsStoryControls > = {
 };
 
 /**
- * Resolved with no rows: the widget shows its empty state (the neutral device
- * glyph and "No platform data in this period.").
+ * Resolved with no rows: the widget shows the generic empty state.
  */
 export const Empty: StoryObj< TopPlatformsStoryControls > = {
 	render: () => renderTopPlatformsOnPreset( 'last-year' ),
@@ -191,6 +189,7 @@ export const Empty: StoryObj< TopPlatformsStoryControls > = {
 };
 
 export const WidgetDashboardWithWidget: DashboardStory = {
+	tags: [ 'widget-dashboard' ],
 	render: args => <TopPlatformsDashboardStory { ...args } />,
 	args: {
 		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,

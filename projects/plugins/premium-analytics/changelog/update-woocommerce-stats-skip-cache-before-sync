@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+WooCommerce Stats: Stop showing zeros in the WooCommerce tab for a few minutes after a store's first sync finishes.

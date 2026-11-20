@@ -36,6 +36,13 @@ $status-size: 8px;
 	display: flex;
 	justify-content: flex-start;
 	gap: var(--spacing-base);
+
+	// Keeps the host's reason beside the status instead of under it.
+	&.is-forced-off {
+		flex: 1 1 0;
+		min-width: 0;
+		margin-inline-end: calc(var(--spacing-base) * 2);
+	}
 }
 
 .title {

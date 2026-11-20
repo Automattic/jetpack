@@ -1,17 +1,18 @@
-@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+@use "@wordpress/base-styles/colors";
+@use "@wordpress/base-styles/variables";
 
 .wp-block-premium-content-container .premium-content-tabs {
 	align-items: center;
-	background: gb.$white;
-	color: gb.$gray-700;
+	background: colors.$white;
+	color: colors.$gray-700;
 	display: flex;
 	flex-wrap: wrap;
-	font-family: gb.$default-font;
-	font-size: gb.$default-font-size;
+	font-family: variables.$default-font;
+	font-size: variables.$default-font-size;
 	position: relative;
 	margin: 0 0 0 -1px;
 	padding: 8px 14px;
-	border: 1px solid gb.$gray-900;
+	border: 1px solid colors.$gray-900;
 	border-radius: 2px;
 }
 
@@ -53,7 +54,7 @@
 
 %button-outline-style {
 	background-color: unset;
-	color: gb.$gray-800;
+	color: colors.$gray-800;
 }
 
 .wp-block-premium-content-login-button,

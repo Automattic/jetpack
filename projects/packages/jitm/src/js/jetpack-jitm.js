@@ -11,13 +11,16 @@ domReady( function() {
     /*
      * The wpcom/v3 route above is served by WordPress.com on Simple sites and by the
      * Jetpack plugin on connected self-hosted sites. Standalone Jetpack plugins ship
-     * this script but not that route, so fall back to the one this package registers
+     * this script but not that route, so they use the one this package registers
      * for itself in Rest_Api_Endpoints.
      */
     const JITM_FALLBACK_ENDPOINT_URL = `/jetpack/v4/jitm`;
 
-    // The route that answered last, reused for dismissals and later fetches.
-    let jitmEndpointUrl = JITM_ENDPOINT_URL;
+    // Only an explicit "no" skips the wpcom route; a config without the flag keeps the old default.
+    const hasWpcomEndpoint = window.jitm_config?.has_wpcom_endpoint ?? true;
+
+    // The route in use, reused for dismissals and later fetches. A 404 still demotes it to the fallback.
+    let jitmEndpointUrl = hasWpcomEndpoint ? JITM_ENDPOINT_URL : JITM_FALLBACK_ENDPOINT_URL;
 
     const isMissingRoute = function(error) {
         return !!error && ('rest_no_route' === error.code || 404 === error?.data?.status);
@@ -187,7 +190,26 @@ domReady( function() {
         },
     };
 
-    const setJITMContent = function(el, response, redirect) {
+    // Calls back with #jp-admin-notices once it mounts, or with null after the timeout.
+    const waitForAdminNotices = function(findAdminNotices, callback) {
+        const observer = new MutationObserver(function() {
+            const adminNotices = findAdminNotices();
+            if (adminNotices) {
+                observer.disconnect();
+                clearTimeout(timeout);
+                callback(adminNotices);
+            }
+        });
+        const timeout = setTimeout(function() {
+            observer.disconnect();
+            callback(null);
+        }, 30000);
+
+        observer.observe(document.body, { childList: true, subtree: true });
+    };
+
+    // `app` is the admin shell app the card is for, when the shell switched to it.
+    const setJITMContent = function(el, response, redirect, app) {
         let template = response.template;
 
         // if we don't have a template for this version, just use the default template
@@ -220,21 +242,41 @@ domReady( function() {
             });
         }
 
-        const adminNotices = document.getElementById('jp-admin-notices');
-        if (adminNotices) {
-            // Add to Jetpack notices within the Jetpack settings app
-
-            // If we already have a message, replace it
-            const existingCard = adminNotices.querySelector('.jitm-card');
-            if (existingCard) {
-                existingCard.replaceWith(templateEl);
-            } else {
-                // No existing JITM? Add ours to the top of the Jetpack admin notices
-                adminNotices.prepend(templateEl);
+        const placeCard = function(adminNotices) {
+            if (!adminNotices && app) {
+                // The placeholder belongs to the page the shell loaded, not to the app on screen.
+                return;
             }
+            if (adminNotices) {
+                // Add to Jetpack notices within the Jetpack settings app
+
+                // If we already have a message, replace it
+                const existingCard = adminNotices.querySelector('.jitm-card');
+                if (existingCard) {
+                    existingCard.replaceWith(templateEl);
+                } else {
+                    // No existing JITM? Add ours to the top of the Jetpack admin notices
+                    adminNotices.prepend(templateEl);
+                }
+            } else {
+                // Replace placeholder div on other pages
+                el.replaceWith(templateEl);
+            }
+        };
+
+        // Each shell app can render its own container, so look only in the one on screen.
+        const findAdminNotices = function() {
+            return app
+                ? app.querySelector('#jp-admin-notices')
+                : document.getElementById('jp-admin-notices');
+        };
+        const adminNotices = findAdminNotices();
+        if (adminNotices || (!app && el.getClientRects().length)) {
+            placeCard(adminNotices);
         } else {
-            // Replace placeholder div on other pages
-            el.replaceWith(templateEl);
+            // A hidden placeholder means the page's app renders the notices container later, as
+            // wp-build dashboards do; the placeholder's own spot would keep the card hidden.
+            waitForAdminNotices(findAdminNotices, placeCard);
         }
 
         // Handle Module activation button if it exists
@@ -347,20 +389,57 @@ domReady( function() {
         });
     };
 
+    // My Jetpack keeps its route in the boot router's `?p=`; copies from before keep it in the hash.
+    const getMyJetpackRoute = function() {
+        const route = new URLSearchParams(location.search).get('p');
+        return route ? '#' + route : location.hash;
+    };
+    let myJetpackRoute = getMyJetpackRoute();
+
+    // Only the latest fetch places a card: an earlier one may be for a page no longer shown.
+    let fetches = 0;
+
+    // Kept from the page load: a card placed in a placeholder's spot replaces it.
+    const placeholders = Array.from(document.querySelectorAll('.jetpack-jitm-message'));
+
+    // The page the admin shell switched to, which JITMs are for in place of the page that was loaded.
+    let shown = null;
+
     const reFetch = function() {
-        document.querySelectorAll('.jetpack-jitm-message').forEach(function(el) {
+        const thisFetch = ++fetches;
+        myJetpackRoute = getMyJetpackRoute();
+
+        placeholders.forEach(function(el) {
             let message_path = el.dataset.messagePath;
-            const query = el.dataset.query;
-            const redirect = el.dataset.redirect;
+            let query = el.dataset.query;
+            let redirect = el.dataset.redirect;
             let hash = location.hash;
+
+            if (shown) {
+                // As the page's own load would print them: wp:<screen>:<hook>, its query and its URI.
+                const url = new URL(location.href);
+                message_path = message_path.replace(/^wp:[^:]*:/, 'wp:jetpack_page_' + shown.page + ':');
+                query = encodeURIComponent(
+                    Array.from(url.searchParams, function(param) {
+                        return encodeURIComponent(param[0]) + '=' + encodeURIComponent(param[1]);
+                    }).join(',')
+                );
+                redirect = encodeURIComponent(url.pathname + url.search);
+            }
 
             hash = hash.replace(/#\//, '_');
 
-            // We always include the hash if this is My Jetpack page
+            // We always include the route if this is My Jetpack page
             if (message_path.includes('jetpack_page_my-jetpack')) {
                 message_path = message_path.replace(
                     'jetpack_page_my-jetpack',
-                    'jetpack_page_my-jetpack' + hash
+                    'jetpack_page_my-jetpack' + myJetpackRoute.replace(/#\//, '_')
+                );
+            } else if (message_path.includes('jetpack_page_jetpack-settings:')) {
+                // wpcom's Settings rules still name the old page=jetpack screen.
+                message_path = message_path.replace(
+                    'jetpack_page_jetpack-settings:',
+                    'toplevel_page_jetpack' + (hash || '_settings') + ':'
                 );
             } else if ('_dashboard' !== hash) {
                 message_path = message_path.replace(
@@ -378,8 +457,8 @@ domReady( function() {
             })
                 .then(function(messages) {
                     const message = messages?.[0];
-                    if (message?.content) {
-                        setJITMContent(el, message, redirect);
+                    if (thisFetch === fetches && message?.content) {
+                        setJITMContent(el, message, redirect, shown?.app);
                     }
                 })
                 .catch(function() {
@@ -391,8 +470,55 @@ domReady( function() {
 
     reFetch();
 
+    const refreshCard = function() {
+        const jitm_card = document.querySelector('.jitm-card');
+        if (jitm_card) {
+            jitm_card.remove();
+        }
+        reFetch();
+    };
+
+    // The admin shell shows another dashboard without a page load, so the card on screen is for the last one.
+    window.addEventListener('jetpack-admin-shell:page-shown', function(e) {
+        const { page, previous } = e.detail ?? {};
+        if (!previous) {
+            return;
+        }
+        const app = document.querySelector('[data-shell-page="' + CSS.escape(page) + '"]');
+        shown = app ? { page, app } : null;
+        document.querySelectorAll('.jitm-card').forEach(function(card) {
+            card.remove();
+        });
+        // Pages that keep JITMs off have nowhere to show one.
+        if (app && app.querySelector('#jp-admin-notices, .jp-jitm-slot')) {
+            reFetch();
+        } else {
+            ++fetches;
+        }
+    });
+
+    // Back and forward on the boot router fire no hashchange; like the hash router's pushes, its pushes refresh nothing.
+    window.navigation?.addEventListener('currententrychange', function(e) {
+        const params = new URLSearchParams(location.search);
+        if (
+            e.navigationType === 'traverse' &&
+            params.get('page') === 'my-jetpack' &&
+            params.has('p') &&
+            getMyJetpackRoute() !== myJetpackRoute
+        ) {
+            refreshCard();
+        }
+    });
+
     window.addEventListener('hashchange', function(e) {
         const newURL = e.newURL;
+        const params = new URL(newURL).searchParams;
+
+        // On the boot router My Jetpack's hash holds no route.
+        if (params.get('page') === 'my-jetpack' && params.has('p')) {
+            return;
+        }
+
         const isJetpackPage = [
             'jetpack',
             'my-jetpack',
@@ -405,11 +531,7 @@ domReady( function() {
         ].some(str => newURL.includes(`admin.php?page=${str}`));
 
         if (isJetpackPage) {
-            const jitm_card = document.querySelector('.jitm-card');
-            if (jitm_card) {
-                jitm_card.remove();
-            }
-            reFetch();
+            refreshCard();
         }
     });
 });

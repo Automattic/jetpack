@@ -31,7 +31,7 @@ class WPCOM_JSON_API_Metadata {
 
 		// whitelist of metadata that can be accessed.
 		/** This filter is documented in json-endpoints/class.wpcom-json-api-post-endpoint.php */
-		if ( in_array( $key, apply_filters( 'rest_api_allowed_public_metadata', $whitelisted_meta ), true ) ) {
+		if ( in_array( $key, (array) apply_filters( 'rest_api_allowed_public_metadata', $whitelisted_meta ), true ) ) {
 			return true;
 		}
 

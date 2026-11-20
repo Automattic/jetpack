@@ -168,6 +168,7 @@ class Writing_Prompt_Widget {
 		}
 
 		$data['newsletter']['tracksUserData'] = Jetpack_Tracks_Client::get_connected_user_tracks_identity();
+		$data['newsletter']['freshlyPressed'] = Freshly_Pressed::get_posts();
 
 		return $data;
 	}

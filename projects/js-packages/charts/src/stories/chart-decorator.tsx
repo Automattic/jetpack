@@ -4,6 +4,7 @@ import { useEffect, useRef, useCallback } from 'react';
 import { GlobalChartsProvider } from '../providers';
 import {
 	CHART_THEME_MAP,
+	CHART_THEME_ROLES,
 	DEFAULT_ACCENT_COLOR,
 	NO_ADMIN_COLOR_SCHEME,
 	WP_ADMIN_COLOR_SCHEMES,
@@ -127,9 +128,8 @@ const isValidHexColor = ( color: string ): boolean => {
  *
  * One declaration, and it is the same one WordPress makes: `admin-schemes.css` sets
  * `--wp-admin-theme-color` on `body.admin-color-<scheme>`. The palette's slot 1 names that
- * variable first, so this is enough to exercise the whole path Storybook otherwise cannot —
- * every story renders a `ThemeProvider`, and without a scheme set the admin color it publishes
- * is whatever the provider's accent is.
+ * variable first, so this is enough to exercise the whole path. Without a scheme, the value is
+ * the custom theme's accent (which `ThemeProvider` publishes) or else Storybook's `:root` default.
  *
  * @param scheme - A key of `WP_ADMIN_COLOR_SCHEMES`, or `NO_ADMIN_COLOR_SCHEME`.
  * @return The wrapper's inline custom property, or undefined to leave the page as it is.
@@ -177,6 +177,7 @@ const StoryChartProvider = ( {
 	}, [] );
 
 	const theme = CHART_THEME_MAP[ themeName ];
+	const roles = CHART_THEME_ROLES[ themeName ];
 
 	// Only seed a custom primary color when the custom theme is active.
 	// Other themes use ThemeProvider's built-in default.
@@ -206,6 +207,11 @@ const StoryChartProvider = ( {
 					...adminColorSchemeStyle( adminColorScheme ),
 				} }
 			>
+				{ roles && (
+					<style>{ `.a8c-charts-scope { ${ Object.entries( roles )
+						.map( ( [ role, value ] ) => `${ role }: ${ value };` )
+						.join( ' ' ) } }` }</style>
+				) }
 				<GlobalChartsProvider key={ providerKey } theme={ theme }>
 					{ children }
 				</GlobalChartsProvider>

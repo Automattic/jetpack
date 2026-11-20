@@ -1,4 +1,6 @@
 import {
+	getInsertableWidgetTypeNames,
+	hasStoreSection,
 	isSectionAwaitingSync,
 	resolveSectionHeading,
 	resolveSectionId,
@@ -19,7 +21,7 @@ const SECTIONS: DashboardSection[] = [
 		id: 'analytics/insights',
 		slug: 'insights',
 		label: 'Insights',
-		title: 'Activity insights',
+		title: 'Site insights',
 		order: 20,
 		date_filter: 'year',
 		default_layout: [],
@@ -36,11 +38,11 @@ const SECTIONS: DashboardSection[] = [
 	},
 ];
 
-// Registers no heading of its own, the way Store does.
+// Registers no heading of its own, the way WooCommerce does.
 const STORE: DashboardSection = {
-	id: 'woocommerce/store',
-	slug: 'store',
-	label: 'Store',
+	id: 'woocommerce-analytics/woocommerce',
+	slug: 'woocommerce',
+	label: 'WooCommerce',
 	title: null,
 	order: 40,
 	date_filter: 'range',
@@ -81,7 +83,7 @@ describe( 'resolveSectionHeading', () => {
 	} );
 
 	it( 'falls back to the label when the heading is null', () => {
-		expect( resolveSectionHeading( STORE ) ).toBe( 'Store' );
+		expect( resolveSectionHeading( STORE ) ).toBe( 'WooCommerce' );
 	} );
 
 	it( 'falls back to the label when the field is absent', () => {
@@ -91,7 +93,7 @@ describe( 'resolveSectionHeading', () => {
 	it( 'falls back to the label when the heading is an empty string', () => {
 		// The registry normalises `''` to null before this; this pins the client's
 		// own guard against an accessible-name-less `<h2>`.
-		expect( resolveSectionHeading( { ...STORE, title: '' } ) ).toBe( 'Store' );
+		expect( resolveSectionHeading( { ...STORE, title: '' } ) ).toBe( 'WooCommerce' );
 	} );
 } );
 
@@ -113,5 +115,68 @@ describe( 'isSectionAwaitingSync', () => {
 	// A payload served by a build predating the field must render, not wait forever.
 	it( 'does not wait when the field is absent', () => {
 		expect( isSectionAwaitingSync( LEGACY, false ) ).toBe( false );
+	} );
+} );
+
+describe( 'getInsertableWidgetTypeNames', () => {
+	const TRAFFIC: DashboardSection = {
+		...SECTIONS[ 0 ],
+		default_layout: [
+			{ uuid: 'default-traffic-chart', type: 'jpa/traffic-chart' },
+			{ uuid: 'default-utm-source', type: 'jpa/utm-insights' },
+			{ uuid: 'default-utm-campaign', type: 'jpa/utm-insights' },
+		],
+	};
+	const INSIGHTS: DashboardSection = {
+		...SECTIONS[ 1 ],
+		default_layout: [
+			{ uuid: 'default-latest-post', type: 'jpa/latest-post' },
+			{ uuid: 'default-insights-utm', type: 'jpa/utm-insights' },
+		],
+	};
+
+	it( 'collects the types every section places by default, each one once', () => {
+		expect( [ ...getInsertableWidgetTypeNames( [ TRAFFIC, INSIGHTS ] ) ] ).toEqual( [
+			'jpa/traffic-chart',
+			'jpa/utm-insights',
+			'jpa/latest-post',
+		] );
+	} );
+
+	it( 'leaves out the types of a section that is not available', () => {
+		expect( getInsertableWidgetTypeNames( [ TRAFFIC ] ).has( 'jpa/latest-post' ) ).toBe( false );
+	} );
+
+	it( 'adds the types a section declares insertable after its default ones, each one once', () => {
+		const STORE_WITH_EXTRAS: DashboardSection = {
+			...STORE,
+			default_layout: [
+				{ uuid: 'default-store-performance', type: 'woocommerce-analytics/store-performance' },
+			],
+			insertable_widget_types: [
+				'woocommerce-analytics/net-sales-over-time',
+				'woocommerce-analytics/store-performance',
+			],
+		};
+
+		expect( [ ...getInsertableWidgetTypeNames( [ STORE_WITH_EXTRAS ] ) ] ).toEqual( [
+			'woocommerce-analytics/store-performance',
+			'woocommerce-analytics/net-sales-over-time',
+		] );
+	} );
+
+	it( 'is empty when no section places a widget', () => {
+		expect( getInsertableWidgetTypeNames( SECTIONS ).size ).toBe( 0 );
+		expect( getInsertableWidgetTypeNames( [] ).size ).toBe( 0 );
+	} );
+} );
+
+describe( 'hasStoreSection', () => {
+	it.each( [
+		[ 'woocommerce', true ],
+		[ 'store', true ],
+		[ 'traffic', false ],
+	] )( 'treats a %s section as the WooCommerce tab: %s', ( slug, expected ) => {
+		expect( hasStoreSection( [ { ...SECTIONS[ 0 ], slug } ] ) ).toBe( expected );
 	} );
 } );

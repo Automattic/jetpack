@@ -126,7 +126,7 @@ export default function useDeleteForm( {
 									'jetpack-forms'
 								),
 								restoredCount
-						  );
+							);
 
 				createSuccessNotice( successMessage, {
 					type: 'snackbar',
@@ -279,7 +279,7 @@ export default function useDeleteForm( {
 										'jetpack-forms'
 									),
 									trashedCount
-							  );
+								);
 
 					createSuccessNotice( successMessage, {
 						type: 'snackbar',
@@ -396,7 +396,7 @@ export default function useDeleteForm( {
 									'jetpack-forms'
 								),
 								deletedCount
-						  );
+							);
 
 				createSuccessNotice( successMessage, {
 					type: 'snackbar',

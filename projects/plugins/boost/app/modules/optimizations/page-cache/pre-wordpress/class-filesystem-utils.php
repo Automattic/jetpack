@@ -239,9 +239,15 @@ class Filesystem_Utils {
 	/**
 	 * Given a request_uri and its parameters, return the filename to use for this cached data. Does not include the file path.
 	 *
-	 * @param array $parameters  - An associative array of all the things that make this request special/different. Includes GET parameters and COOKIEs normally.
+	 * @param string $request_uri - The URI of this request.
+	 * @param array  $parameters  - An associative array of all the things that make this request special/different. Includes GET parameters and COOKIEs normally.
+	 * @return string|false The cache filename, or false if the URI cannot be parsed or the key cannot be encoded.
 	 */
-	public static function get_request_filename( $parameters ) {
+	public static function get_request_filename( $request_uri, $parameters ) {
+		$request_uri = Boost_Cache_Utils::normalize_request_uri( $request_uri );
+		if ( false === $request_uri ) {
+			return false;
+		}
 
 		/**
 		 * Filters the components used to generate the cache key.
@@ -252,13 +258,20 @@ class Filesystem_Utils {
 		 * @deprecated 3.8.0
 		 */
 		$key_components = apply_filters_deprecated( 'boost_cache_key_components', array( $parameters ), '3.8.0', 'jetpack_boost_cache_parameters' );
+		if ( ! is_array( $key_components ) ) {
+			return false;
+		}
+		$key_components['uri'] = $request_uri;
 
-		return md5(
-			json_encode( // phpcs:ignore WordPress.WP.AlternativeFunctions.json_encode_json_encode
-				$key_components,
-				0 // phpcs:ignore Jetpack.Functions.JsonEncodeFlags.ZeroFound -- No `json_encode()` flags because this needs to match whatever is calculating the hash on the other end.
-			)
-		) . '.html';
+		$encoded_key = json_encode( // phpcs:ignore WordPress.WP.AlternativeFunctions.json_encode_json_encode
+			$key_components,
+			0 // phpcs:ignore Jetpack.Functions.JsonEncodeFlags.ZeroFound -- Do not replace invalid UTF-8; unencodable keys must bypass caching.
+		);
+		if ( false === $encoded_key ) {
+			return false;
+		}
+
+		return md5( $encoded_key ) . '.html';
 	}
 
 	/**

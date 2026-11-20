@@ -1,5 +1,7 @@
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { useFreeTier } from '../../../src/dashboard/hooks/use-free-tier';
+import { useVideoPressUpgrade } from '../../../src/dashboard/hooks/use-videopress-upgrade';
 import { stage as Stage } from '../stage';
 import type { FreeTierState } from '../../../src/dashboard/hooks/use-free-tier';
 import type { QueryClient } from '@tanstack/react-query';
@@ -34,9 +36,29 @@ jest.mock( '@automattic/jetpack-components/admin-page', () => ( {
 	),
 } ) );
 
+jest.mock( '../../../src/dashboard/components/dashboard-layout', () => ( {
+	__esModule: true,
+	default: ( { actions, children }: { actions?: ReactNode; children?: ReactNode } ) => (
+		<div>
+			<div>{ actions }</div>
+			{ children }
+		</div>
+	),
+} ) );
+
 const mockErrorNotice = jest.fn();
-jest.mock( '@automattic/jetpack-components/global-notices', () => ( {
-	useGlobalNotices: () => ( {
+jest.mock( '@wordpress/notices', () => ( { store: 'core/notices' } ) );
+jest.mock( '@wordpress/data', () => ( {
+	combineReducers: jest.fn( reducers => reducers ),
+	createReduxStore: jest.fn( () => ( { name: 'mock-store' } ) ),
+	createSelector: jest.fn( selector => selector ),
+	keyedReducer: jest.fn( ( _key, reducer ) => reducer ),
+	register: jest.fn(),
+	select: jest.fn( () => ( {} ) ),
+	dispatch: jest.fn( () => ( {} ) ),
+	useSelect: jest.fn( () => ( {} ) ),
+	useRegistry: jest.fn( () => ( { select: jest.fn(), dispatch: jest.fn() } ) ),
+	useDispatch: () => ( {
 		createErrorNotice: mockErrorNotice,
 	} ),
 } ) );
@@ -57,13 +79,20 @@ jest.mock( '../../../src/dashboard/components/query-client-wrapper', () => {
 
 // The settings form's data layer is covered by use-settings.test.ts; here it
 // only needs to render, so pin it to a settled, server-uncontrolled state.
+const mockMutate = jest.fn();
 jest.mock( '../../../src/dashboard/hooks/use-settings', () => ( {
 	isPrivateForSiteServerControlled: () => false,
 	useSettings: () => ( {
-		data: { videoPressVideosPrivateForSite: false, videoPressAutoSubtitlesDisabled: false },
+		data: {
+			videoPressVideosPrivateForSite: false,
+			videoPressAutoSubtitlesDisabled: false,
+			videoPressPlayerPreloadDisabled: false,
+			videoPressInlinePlayerEnabled: false,
+			videoPressShareMenuDisabled: false,
+		},
 		isLoading: false,
 	} ),
-	useUpdateSettings: () => ( { mutate: jest.fn(), isPending: false } ),
+	useUpdateSettings: () => ( { mutate: mockMutate, isPending: false } ),
 } ) );
 
 // Free-tier state is what the tests steer; the notice's checkout wiring is
@@ -72,7 +101,7 @@ jest.mock( '../../../src/dashboard/hooks/use-free-tier', () => ( {
 	useFreeTier: jest.fn(),
 } ) );
 jest.mock( '../../../src/dashboard/hooks/use-videopress-upgrade', () => ( {
-	useVideoPressUpgrade: () => jest.fn(),
+	useVideoPressUpgrade: jest.fn( () => jest.fn() ),
 } ) );
 
 const mockedUseFreeTier = useFreeTier as jest.Mock;
@@ -82,6 +111,7 @@ const freeTierState = ( overrides: Partial< FreeTierState > = {} ): FreeTierStat
 	isAtomic: false,
 	isUnlimited: false,
 	videoCount: 0,
+	videoCountKnown: true,
 	limit: 1,
 	isAtLimit: false,
 	...overrides,
@@ -105,6 +135,7 @@ describe( 'Settings stage', () => {
 			screen.getByText( 'You’ve reached the free plan’s 1-video limit. Upgrade to upload more.' )
 		).toBeInTheDocument();
 		expect( screen.getByRole( 'link', { name: 'Upgrade' } ) ).toBeInTheDocument();
+		expect( useVideoPressUpgrade ).toHaveBeenCalledWith( 'settings_at_limit' );
 	} );
 
 	it( 'shows no upgrade notice while the free upload is still available', () => {
@@ -116,5 +147,55 @@ describe( 'Settings stage', () => {
 			screen.queryByText( 'You’ve reached the free plan’s 1-video limit. Upgrade to upload more.' )
 		).not.toBeInTheDocument();
 		expect( screen.queryByRole( 'link', { name: 'Upgrade' } ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'saves the preload opt-out when the preload toggle is switched off', async () => {
+		mockedUseFreeTier.mockReturnValue( freeTierState() );
+
+		render( <Stage /> );
+
+		const toggle = screen.getByLabelText( 'Preload video data when pages load' );
+		expect( toggle ).toBeChecked();
+
+		await userEvent.click( toggle );
+
+		expect( mockMutate ).toHaveBeenCalledWith(
+			{ videoPressPlayerPreloadDisabled: true },
+			expect.objectContaining( { onError: expect.any( Function ) } )
+		);
+	} );
+
+	it( 'enables the inline player when its toggle is switched on', async () => {
+		mockedUseFreeTier.mockReturnValue( freeTierState() );
+
+		render( <Stage /> );
+
+		const toggle = screen.getByLabelText(
+			'Load the player once per page instead of once per video'
+		);
+		expect( toggle ).not.toBeChecked();
+
+		await userEvent.click( toggle );
+
+		expect( mockMutate ).toHaveBeenCalledWith(
+			{ videoPressInlinePlayerEnabled: true },
+			expect.objectContaining( { onError: expect.any( Function ) } )
+		);
+	} );
+
+	it( 'turns sharing off for every video when its toggle is switched off', async () => {
+		mockedUseFreeTier.mockReturnValue( freeTierState() );
+
+		render( <Stage /> );
+
+		const toggle = screen.getByLabelText( 'Allow sharing' );
+		expect( toggle ).toBeChecked();
+
+		await userEvent.click( toggle );
+
+		expect( mockMutate ).toHaveBeenCalledWith(
+			{ videoPressShareMenuDisabled: true },
+			expect.objectContaining( { onError: expect.any( Function ) } )
+		);
 	} );
 } );

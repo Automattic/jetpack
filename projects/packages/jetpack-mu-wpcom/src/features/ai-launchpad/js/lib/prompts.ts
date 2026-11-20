@@ -170,12 +170,6 @@ export const TASK_ANNOTATIONS: readonly TaskAnnotation[] = [
 		avoidWhen: 'domain_claim is available — a free domain beats a paid one.',
 	},
 	{
-		id: 'domain_customize',
-		what: 'Manages DNS and settings for a domain already connected to the site.',
-		pickWhen: 'the site already has a custom domain that needs configuring.',
-		avoidWhen: 'the site is still on a wordpress.com subdomain.',
-	},
-	{
 		id: 'verify_email',
 		what: "Confirms the account's email address.",
 		pickWhen: 'rarely — it is account housekeeping, not site building.',
@@ -252,13 +246,6 @@ export const TASK_ANNOTATIONS: readonly TaskAnnotation[] = [
 		id: 'woo_marketing',
 		what: 'Opens WooCommerce marketing tools for promoting the store.',
 		pickWhen: 'the store already has products and needs customers.',
-		goals: [ 'sell' ],
-	},
-	{
-		id: 'woo_add_domain',
-		what: 'Adds a custom domain to the store.',
-		pickWhen: 'the store needs its own address and no other domain task is on the list.',
-		avoidWhen: 'domain_claim or domain_upsell is already offered.',
 		goals: [ 'sell' ],
 	},
 	{
@@ -465,9 +452,8 @@ function renderMenuEntry( task: TaskAnnotation ): string {
 /**
  * The rules whose violation the server actually rejects, stated to the model as a courtesy.
  *
- * Each one has a matching server-side check: ids the server cannot build are dropped and a list that
- * loses too many 422s, the schema pins `tasks` to exactly six, the launch task is checked explicitly,
- * and sanitize_subtitle() rejects markup.
+ * Each one has a matching server-side check: ids the server cannot build are dropped, the schema pins
+ * `tasks` to exactly six, the launch task is checked explicitly, and sanitize_subtitle() rejects markup.
  *
  * Note the first rule points the model at the menu but only promises what update_tailored() actually
  * checks, which is that the id resolves to something buildable — a task in the shared catalog or one
@@ -489,10 +475,127 @@ function renderMenuEntry( task: TaskAnnotation ): string {
  * a template literal would render into the prompt.
  */
 const HARD_RULES = `HARD RULES (do not break - the server rejects output that violates these):
-- Every "id" MUST be copied verbatim from the menu below. Never invent IDs: the server drops any id it cannot recognize, and rejects the whole list if too few tasks survive.
+- Every "id" MUST be copied verbatim from the menu below. Never invent IDs, and never pick an id that is not on the menu: the server drops any id it cannot use.
 - Return exactly 6 tasks.
 - The 6th and final task MUST be a launch task: "site_launched" (canonical) or "blog_launched".
 - Subtitles must be plain text: no URLs, no HTML, and no template syntax such as {{ }} or [[ ]].`;
+
+// The prompt parts below name a task, so each is shown only when that task is on the menu: a task named outside the
+// menu still pulls the model towards it, and the server drops it when the site cannot use it.
+
+/** Tasks that create something to publish, named in STEP 2's preference for one. */
+const PUBLISHING_TASK_IDS = [ 'first_post_published', 'woo_products', 'add_about_page' ];
+
+/** GOOD vs BAD subtitle illustrations for STEP 2. */
+const SUBTITLE_EXAMPLES: readonly { id: string; line: string }[] = [
+	{
+		id: 'add_about_page',
+		line: `- For a handmade-ceramics studio, "add_about_page" -> GOOD: "Share the story behind your studio and what makes each handmade piece one of a kind." BAD: "Tell visitors who you are."`,
+	},
+	{
+		id: 'site_theme_selected',
+		line: `- For a handmade-ceramics studio, "site_theme_selected" -> GOOD: "Pick a clean, gallery-style theme that lets your ceramics photos take center stage." BAD: "Choose a theme."`,
+	},
+	{
+		id: 'first_post_published',
+		line: `- For a weekly cycling newsletter, "first_post_published" -> GOOD: "Send your first issue with this week's route, ride notes, and gear picks." BAD: "Send your first newsletter."`,
+	},
+	{
+		id: 'site_launched',
+		line: `- For a handmade-ceramics studio, "site_launched" -> GOOD: "Open your studio to collectors and let them find your newest pieces." BAD: "Launch your site."`,
+	},
+];
+
+/** STEP 5's rule for each page task whose opening line the model writes. */
+const PAGE_INTRO_RULES: readonly { id: string; rule: string }[] = [
+	{
+		id: 'add_contact_page',
+		rule: `one sentence, max 200 characters, inviting the visitor to get in touch, grounded in what someone would really contact THIS site about - a commission, a booking, a quote, a wholesale order, a question about the work. The page already carries a working contact form, so do not put an email address, a phone number, opening hours, or a street address in this sentence, and never invent one.`,
+	},
+	{
+		id: 'add_events_page',
+		rule: `one sentence, max 200 characters, saying what kind of thing THIS site runs and why someone would come - a class, a gig, a market stall, a screening, an open studio. The page leaves each event blank for the user to fill in, and only they know their own schedule, so do not put a date, a day, a time, a venue, an address, or a price in this sentence, and never invent one.`,
+	},
+	{
+		id: 'add_video_page',
+		rule: `one sentence, max 200 characters, saying what THIS site's videos show and why someone would watch - a technique, a lesson, a performance, a walkthrough, an episode. The page holds one empty video block for the user to fill, so do not describe a specific video as if it were already there, do not promise how many there are, do not name a video platform or channel, and never invent one.`,
+	},
+	{
+		id: 'add_gallery_page',
+		rule: `one sentence, max 200 characters, saying what THIS site's pictures show and why someone would look - the work, the place, the plates, the finished pieces, the process. The page holds one empty gallery block the user fills with their OWN photographs, so do not describe a particular image as if it were already there, do not promise how many there are, do not name a photo-sharing platform or account, and never invent one.`,
+	},
+];
+
+/**
+ * Whether a WordPress locale is any flavour of English (`en`, `en_US`, `en-gb`, …).
+ *
+ * @param locale - The WordPress locale code.
+ * @return True for English locales.
+ */
+export function isEnglishLocale( locale: string ): boolean {
+	return /^en([-_]|$)/i.test( locale );
+}
+
+/**
+ * The English name of a locale's language for the prompt (`it_IT` → "Italian (Italy)"), falling
+ * back to the raw code where the runtime cannot resolve it.
+ *
+ * @param locale - The WordPress locale code.
+ * @return The language name.
+ */
+export function languageDisplayName( locale: string ): string {
+	try {
+		return (
+			new Intl.DisplayNames( [ 'en' ], { type: 'language' } ).of( locale.replace( /_/g, '-' ) ) ??
+			locale
+		);
+	} catch {
+		return locale;
+	}
+}
+
+/**
+ * Whether two locales name the same language. A regional code counts as its base language, because
+ * WordPress.com hands out both forms for one language (`it` and `it_IT`), but two regions of one
+ * language do not (`pt_BR` is not `pt_PT`).
+ *
+ * @param a - A WordPress locale code.
+ * @param b - Another WordPress locale code.
+ * @return True when both name the same language.
+ */
+function sameLanguage( a: string, b: string ): boolean {
+	const normalize = ( locale: string ) => locale.toLowerCase().replace( /_/g, '-' );
+	const [ first, second ] = [ normalize( a ), normalize( b ) ];
+	return first === second || first.startsWith( second + '-' ) || second.startsWith( first + '-' );
+}
+
+/**
+ * The output-language instruction for a site language and an account language.
+ *
+ * Three groups, by who reads the field rather than by importance. The task subtitles are read in
+ * wp-admin by whoever is setting the site up, so they follow the account language. The drafts and
+ * page intros become the site's own published content, so they follow the site's. Everything else
+ * stays English: the slugs because the server validates them against English enums, and
+ * `niche`/`vibe`/`audience` because they are Tracks dimensions that are compared across sites —
+ * translating them would split one cohort into forty. When the two languages match, or are two
+ * Englishes, `splitLanguages` is false and the first two groups collapse into one instruction.
+ *
+ * @param locale         - The site language.
+ * @param uiLocale       - The account language of whoever runs the wizard.
+ * @param splitLanguages - Whether the subtitles and the published content get different languages.
+ * @return The instruction sentence(s).
+ */
+function languageInstruction( locale: string, uiLocale: string, splitLanguages: boolean ): string {
+	const site = `${ languageDisplayName( locale ) } (locale "${ locale }")`;
+
+	if ( ! splitLanguages ) {
+		return `The site's language is ${ site }. Write these in that language: the task subtitles, the whole first_post_draft and about_page_draft, and every page_intros line - even when the site name or description is written in another language. The About page title is that language's equivalent of "About".`;
+	}
+
+	return `Two languages are in play, and mixing them up is the failure to avoid. Write the task "subtitle" values in ${ languageDisplayName(
+		uiLocale
+	) } (locale "${ uiLocale }"), because they are read in the site owner's admin screens and never published. Write the whole first_post_draft, the whole about_page_draft and every page_intros line in ${ site }, because that text becomes the site's own published content. The About page title is the site language's equivalent of "About".`;
+}
 
 /**
  * Build the single combined prompt sent to jetpack-ai-query, producing the
@@ -508,6 +611,9 @@ export function buildTailorPrompt(
 	availableTaskIds?: readonly string[]
 ): string {
 	const { goal, site_name, description } = input;
+	const locale = input.locale || 'en';
+	// Older persisted inputs carry no account language; they fall back to writing everything in one.
+	const uiLocale = input.ui_locale || locale;
 
 	// Offer only tasks that will actually render on this site+goal, so the model never spends a pick on a task the
 	// server would drop. Falls back to the full menu when availability is unknown (e.g. the lookup failed).
@@ -515,19 +621,67 @@ export function buildTailorPrompt(
 		availableTaskIds && availableTaskIds.length
 			? TASK_ANNOTATIONS.filter( task => availableTaskIds.includes( task.id ) )
 			: TASK_ANNOTATIONS;
+	const onMenu = ( id: string ) => menu.some( task => task.id === id );
+
+	const publishingTaskIds = PUBLISHING_TASK_IDS.filter( onMenu );
+	const publishingPreference = publishingTaskIds.length
+		? ` Prefer a list that includes at least one task which creates something to publish (e.g. ${ publishingTaskIds
+				.map( id => `"${ id }"` )
+				.join( ', ' ) }).`
+		: '';
+	const subtitleExamples = SUBTITLE_EXAMPLES.filter( example => onMenu( example.id ) );
+	const pageIntros = PAGE_INTRO_RULES.filter( rule => onMenu( rule.id ) );
+	const socialException = onMenu( 'connect_social_media' )
+		? `One task is an exception to that push for specificity. For the social task "connect_social_media", keep the subtitle general - about growing the site's audience and engaging visitors (e.g. "Build the audience of your blog and engage with your visitors."). Do NOT name specific social networks (Instagram, Pinterest, X, Facebook, TikTok, etc.); the user has not said which platforms they use.\n\n`
+		: '';
+
+	// English sites get the block too: without it, a description in another language pulls the output
+	// into that language. Two different Englishes are not worth splitting the subtitles over.
+	const bothEnglish = isEnglishLocale( locale ) && isEnglishLocale( uiLocale );
+	const splitLanguages = ! sameLanguage( locale, uiLocale ) && ! bothEnglish;
+
+	// Naming each language once at the top is not enough: the model follows the nearest instruction,
+	// so a split is repeated in every step that writes text.
+	const subtitleLanguage = splitLanguages
+		? ` Write every subtitle in ${ languageDisplayName(
+				uiLocale
+			) }, NOT in the language of the rest of this response - see the output-language section above.`
+		: '';
+	const contentLanguage = splitLanguages
+		? ` Write it in ${ languageDisplayName( locale ) }, NOT in ${ languageDisplayName(
+				uiLocale
+			) } like the task subtitles.`
+		: '';
+
+	// Only when no field is meant to be in English, or the warning contradicts the instruction above it.
+	const noEnglishFallback =
+		isEnglishLocale( locale ) || isEnglishLocale( uiLocale )
+			? ''
+			: ', and do not fall back to English for the fields named above';
+
+	const languageSection = `
+============ output language ============
+${ languageInstruction(
+	locale,
+	uiLocale,
+	splitLanguages
+) } Leave everything else in English. That means the slug values, exactly as listed: "goal", "inferred_goal", "theme_category", and every task "id". It also means "niche", "vibe" and "audience", which are never shown to anyone and are read back across sites - translating those would make them useless. The GOOD/BAD subtitle examples below illustrate the style, not the language - do not copy them${ noEnglishFallback }.
+`;
 
 	return `You are helping a new WordPress.com user onboard. They have described their site in their own words. Your job is to make their onboarding checklist feel hand-picked for THIS site, not generic.
 
-Produce a single JSON object with FOUR parts, in this order: an inferred-context blob, a tailored task list, a starter blog post draft, and a starter About-page draft. Add a FIFTH part, "page_intros", only when STEP 5 applies.
+Produce a single JSON object with FOUR parts, in this order: an inferred-context blob, a tailored task list, a starter blog post draft, and a starter About-page draft.${
+		pageIntros.length ? ' Add a FIFTH part, "page_intros", only when STEP 5 applies.' : ''
+	}
 
 Site name: ${ site_name }
 Goal: ${ goal }
 User description: ${ description }
-
+${ languageSection }
 ============ STEP 1 - inferred ============
 First, read the description closely and infer the site's context. You will use this to choose and describe the tasks, so do it before anything else.
 - "goal": echo the goal value above verbatim. One of: write, build, sell, newsletter, educate, portfolio. Required.
-- "inferred_goal": the goal you would infer from ONLY the site name and user description, ignoring the "Goal:" line above. Same six values. Diagnostic only - it must NOT influence your task choices or anything else you produce.
+- "inferred_goal": the goal you would infer from ONLY the site name and user description, ignoring the "Goal:" line above. MUST be exactly one of: write, build, sell, newsletter, educate, portfolio - never a slug that only appears in the theme_category list below, such as "business" or "art-design". Diagnostic only - it must NOT influence your task choices or anything else you produce.
 - "brand_name": the site name. Per the name-resolution rule below.
 - "niche": the specific subject area in a few words (e.g. "long-distance hiking", "handmade ceramics", "indie game reviews").
 - "theme_category": the theme-showcase category that best matches what the site is about, used to suggest matching site designs. MUST be exactly one of these slugs (format: slug = human name):
@@ -535,40 +689,40 @@ First, read the description closely and infer the site's context. You will use t
   Prefer the specific subject over the generic goal bucket when one fits: a bakery blog is "restaurant" (not "blog"), a hiking diary is "travel-lifestyle", a novelist's site is "authors-writers". Fall back to the goal bucket ("blog", "business", "store", "portfolio", "newsletter") only when no subject category matches. Always include this field.
 - "vibe": aesthetic hint if implied (e.g. "minimal and editorial", "warm and personal"). Omit if neutral.
 - "audience": who the site is for, if implied (e.g. "home cooks", "small-business owners").
-- "tagline": a polished site tagline drafted from the description. Max 200 characters. Noun phrase or third person, not first-person.
 
 ============ STEP 2 - tasks ============
-Now choose the 6 tasks from the menu below that are MOST RELEVANT to this site, judged against the site name, goal, description, and the niche/audience you just inferred. Each menu entry says what the task does, when it is a good fit, sometimes when to avoid it, and sometimes which goals it tends to suit - use that, not the id, to judge relevance. Treat the "goals" line as a soft affinity, never a filter: a task that does not list this site's goal is still fair game when it fits the site, and one that does list it still has to earn its place. Rank the whole menu and keep the top 6. Prefer a list that includes at least one task which creates something to publish (e.g. "first_post_published", "woo_products", or "add_about_page"), unless the menu offers none. Do not follow a fixed template - two different sites should get noticeably different lists.
+Now choose the 6 tasks from the menu below that are MOST RELEVANT to this site, judged against the site name, goal, description, and the niche/audience you just inferred. Each menu entry says what the task does, when it is a good fit, sometimes when to avoid it, and sometimes which goals it tends to suit - use that, not the id, to judge relevance. Treat the "goals" line as a soft affinity, never a filter: a task that does not list this site's goal is still fair game when it fits the site, and one that does list it still has to earn its place. Rank the whole menu and keep the top 6.${ publishingPreference } Do not follow a fixed template - two different sites should get noticeably different lists.
 
-For each chosen task write a "subtitle" (max 200 characters) that is specific and engaging: reference the user's niche, audience, or what they will actually publish or sell, so the checklist reads as written for them. Avoid generic, interchangeable phrasing.
-
+For each chosen task write a "subtitle" (max 200 characters) that is specific and engaging: reference the user's niche, audience, or what they will actually publish or sell, so the checklist reads as written for them. Avoid generic, interchangeable phrasing.${ subtitleLanguage }
+${
+	subtitleExamples.length
+		? `
 GOOD vs BAD subtitles (illustrations - adapt to the user's own niche, do not copy):
-- For a handmade-ceramics studio, "add_about_page" -> GOOD: "Share the story behind your studio and what makes each handmade piece one of a kind." BAD: "Tell visitors who you are."
-- For a handmade-ceramics studio, "site_theme_selected" -> GOOD: "Pick a clean, gallery-style theme that lets your ceramics photos take center stage." BAD: "Choose a theme."
-- For a weekly cycling newsletter, "first_post_published" -> GOOD: "Send your first issue with this week's route, ride notes, and gear picks." BAD: "Send your first newsletter."
-
-One task is an exception to that push for specificity. For the social task "connect_social_media", keep the subtitle general - about growing the site's audience and engaging visitors (e.g. "Build the audience of your blog and engage with your visitors."). Do NOT name specific social networks (Instagram, Pinterest, X, Facebook, TikTok, etc.); the user has not said which platforms they use.
-
-${ HARD_RULES }
+${ subtitleExamples.map( example => example.line ).join( '\n' ) }
+`
+		: ''
+}
+${ socialException }${ HARD_RULES }
 
 ============ STEP 3 - first_post_draft ============
-Write a friendly starter blog post the user can edit and publish.
+Write a friendly starter blog post the user can edit and publish.${ contentLanguage }
 - "title": clear and evocative, max 8 words.
 - "subtitle": ONE line, verb-led, max 10 words, describing what publishing this post does for them. Optional.
-- "paragraphs": exactly 2 short paragraphs of opening body text. First introduces the topic in a warm, personal voice grounded in the user's niche; second invites the reader in. Plain English, no jargon. Avoid "Welcome to my blog" and "Hello world" cliches.
+- "paragraphs": exactly 2 short paragraphs of opening body text. First introduces the topic in a warm, personal voice grounded in the user's niche; second invites the reader in. Plain language, no jargon. Avoid "Welcome to my blog" and "Hello world" cliches.
 
 ============ STEP 4 - about_page_draft ============
-Write starter content for the site's About page, grounded in the user's own description - never generic filler.
+Write starter content for the site's About page, grounded in the user's own description - never generic filler.${ contentLanguage }
 - "title": the page title, max 4 words. Usually just "About" or "About" plus the brand name.
 - "paragraphs": 2 or 3 short paragraphs in the same warm voice: who is behind the site, what visitors will find here (reference the niche and what the user actually does), and a closing invitation to look around or get in touch. Use first person where it reads naturally. Never use placeholders like "[your name]" - if a detail is unknown, write around it.
-
+${
+	pageIntros.length
+		? `
 ============ STEP 5 - page_intros (only when it applies) ============
-Some tasks create a page whose content is already written except for the one line it opens with. Write that line here, keyed by the task id it belongs to. Include a key ONLY for a task you actually chose in STEP 2, omit "page_intros" entirely when you chose none of them, and never add a key that is not listed below.
-- "add_contact_page": one sentence, max 200 characters, inviting the visitor to get in touch, grounded in what someone would really contact THIS site about - a commission, a booking, a quote, a wholesale order, a question about the work. The page already carries a working contact form, so do not put an email address, a phone number, opening hours, or a street address in this sentence, and never invent one.
-- "add_events_page": one sentence, max 200 characters, saying what kind of thing THIS site runs and why someone would come - a class, a gig, a market stall, a screening, an open studio. The page leaves each event blank for the user to fill in, and only they know their own schedule, so do not put a date, a day, a time, a venue, an address, or a price in this sentence, and never invent one.
-- "add_video_page": one sentence, max 200 characters, saying what THIS site's videos show and why someone would watch - a technique, a lesson, a performance, a walkthrough, an episode. The page holds one empty video block for the user to fill, so do not describe a specific video as if it were already there, do not promise how many there are, do not name a video platform or channel, and never invent one.
-- "add_gallery_page": one sentence, max 200 characters, saying what THIS site's pictures show and why someone would look - the work, the place, the plates, the finished pieces, the process. The page holds one empty gallery block the user fills with their OWN photographs, so do not describe a particular image as if it were already there, do not promise how many there are, do not name a photo-sharing platform or account, and never invent one.
-
+Some tasks create a page whose content is already written except for the one line it opens with. Write that line here, keyed by the task id it belongs to. Include a key ONLY for a task you actually chose in STEP 2, omit "page_intros" entirely when you chose none of them, and never add a key that is not listed below.${ contentLanguage }
+${ pageIntros.map( intro => `- "${ intro.id }": ${ intro.rule }` ).join( '\n' ) }
+`
+		: ''
+}
 ============ name resolution ============
 Treat the "Site name:" value above as THE ONLY brand/name to use anywhere - in the title, subtitle, paragraphs, and inferred.brand_name. It overrides any name mentioned inside the user description. If the description names a different brand, ignore it and use the "Site name:" value.
 
@@ -579,12 +733,18 @@ ${ menu.map( renderMenuEntry ).join( '\n\n' ) }
 Return only a JSON object matching this schema. Do not include prose, code fences, or commentary. The first character MUST be "{".
 
 {
-  "inferred": { "goal": "...", "inferred_goal": "...", "brand_name": "...", "niche": "...", "theme_category": "...", "vibe": "...", "audience": "...", "tagline": "..." },
+  "inferred": { "goal": "...", "inferred_goal": "...", "brand_name": "...", "niche": "...", "theme_category": "...", "vibe": "...", "audience": "..." },
   "tasks": [ { "id": "...", "subtitle": "..." }, ... 6 total ],
   "first_post_draft": { "title": "...", "subtitle": "...", "paragraphs": [ "...", "..." ] },
-  "about_page_draft": { "title": "...", "paragraphs": [ "...", "..." ] },
-  "page_intros": { "add_contact_page": "...", "add_events_page": "...", "add_video_page": "...", "add_gallery_page": "..." }
+  "about_page_draft": { "title": "...", "paragraphs": [ "...", "..." ] }${
+		pageIntros.length ? `,\n  "page_intros": { "${ pageIntros[ 0 ].id }": "..." }` : ''
+	}
 }
-
-Leave "page_intros" out altogether unless STEP 5 applies.`;
+${
+	pageIntros.length
+		? `
+Leave "page_intros" out altogether unless STEP 5 applies, and when it does, include only the keys for the page tasks you chose.`
+		: ''
+}
+Never write null or an empty string for any field. When an optional field does not apply, leave its key out instead.`;
 }

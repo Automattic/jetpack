@@ -1,13 +1,14 @@
 /**
  * External dependencies
  */
-import { siteTimeZone, toLocalTZ } from '@jetpack-premium-analytics/datetime';
+import { parseSiteDateTime } from '@jetpack-premium-analytics/datetime';
 import { Text, VisuallyHidden } from '@jetpack-premium-analytics/externals';
+import { formatDate } from '@jetpack-premium-analytics/formatters';
 import { __, sprintf } from '@wordpress/i18n';
-import { format } from 'date-fns';
 /**
  * Internal dependencies
  */
+import { MetricNoteTooltip } from '../metric-note-tooltip';
 import { MetricValue } from '../metric-value';
 import { PostTitleLink } from '../post-title-link';
 import styles from './post-highlight-card.module.scss';
@@ -40,8 +41,7 @@ export type PostHighlightCardMetric = {
 
 	/**
 	 * Caveat about how the value is aggregated (e.g. an all-time total among
-	 * date-scoped neighbours). Shown as a hover tooltip and mirrored as
-	 * visually hidden text for assistive technology.
+	 * date-scoped neighbours), shown in a tooltip on the label.
 	 */
 	note?: string;
 };
@@ -104,10 +104,8 @@ function formatPublishDate( date: string ): string {
 		return '';
 	}
 
-	// Read the instant in the site's zone: a plain `Date` would format in the
-	// visitor's, showing a late-evening post on the next day east of the site.
-	const parsed = toLocalTZ( date, siteTimeZone() );
-	const formatted = Number.isNaN( parsed.getTime() ) ? date : format( parsed, 'PP' );
+	const parsed = parseSiteDateTime( date );
+	const formatted = parsed ? formatDate( parsed, 'compact' ) : date;
 
 	return sprintf(
 		/* translators: %s: the post's publish date, e.g. "Jun 5, 2026". */
@@ -129,13 +127,12 @@ function PostHighlightMetric( {
 	dataFormat: DataFormat;
 } ) {
 	return (
-		<div className={ styles.metric } title={ metric.note }>
-			<Text className={ styles.metricLabel } variant="body-md">
-				{ metric.label }
-			</Text>
-			{ /* The `title` tooltip is invisible to keyboard and screen-reader users,
-			     so the caveat is repeated as visually hidden text. */ }
-			{ metric.note && <VisuallyHidden>{ metric.note }</VisuallyHidden> }
+		<div className={ styles.metric }>
+			<MetricNoteTooltip note={ metric.note } className={ styles.metricHeader }>
+				<Text className={ styles.metricLabel } variant="body-md">
+					{ metric.label }
+				</Text>
+			</MetricNoteTooltip>
 			{ metric.value === undefined ? (
 				<Text className={ styles.metricValue } variant="body-md">
 					{ /* Spelled out below, since a screen reader may skip the dash. */ }

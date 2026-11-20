@@ -1,5 +1,7 @@
+import targets from '@automattic/jetpack-webpack-config/targets';
+
 const config = {
-	targets: require( '@automattic/jetpack-webpack-config/targets' ),
+	targets,
 	presets: [
 		[
 			'@automattic/jetpack-webpack-config/babel/preset',
@@ -8,4 +10,4 @@ const config = {
 	],
 };
 
-module.exports = config;
+export default config;

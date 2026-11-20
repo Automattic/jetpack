@@ -1,0 +1,5 @@
+{
+	"name": "@automattic/jetpack-woocommerce-stats-widget-gross-sales-over-time",
+	"private": true,
+	"type": "module"
+}

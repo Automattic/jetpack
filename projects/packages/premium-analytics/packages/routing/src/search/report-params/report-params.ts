@@ -1,4 +1,25 @@
 /**
+ * External dependencies
+ */
+import {
+	deriveComparisonRange,
+	hasComparisonEnabled,
+	normalizeReportParams,
+} from '@jetpack-premium-analytics/data';
+import {
+	PRESET_ALL_TIME,
+	isComparisonPresetId,
+	isSelectablePreset,
+	isYearPresetId,
+} from '@jetpack-premium-analytics/datetime';
+/**
+ * Internal dependencies
+ */
+import { DASHBOARD_ORIGIN_PARAM, pickDashboardOriginParams } from '../dashboard-origin';
+
+type NormalizeInput = NonNullable< Parameters< typeof normalizeReportParams >[ 0 ] >;
+
+/**
  * The URL search params that describe the shared report window (date range,
  * interval, and comparison) — the state every analytics surface has in common.
  *
@@ -11,7 +32,7 @@ export const REPORT_DATE_PARAM_KEYS = [
 	'to',
 	'interval',
 	'preset',
-	'date_type',
+	'step',
 	'compare_from',
 	'compare_to',
 	'compare_preset',
@@ -21,9 +42,9 @@ export const REPORT_DATE_PARAM_KEYS = [
 /**
  * Pick only the shared report-window params from a URL search object.
  *
- * Used when navigating between analytics routes (e.g. a detail page back to the
- * dashboard) to carry the date range and comparison through without also
- * carrying page-scoped params like `post_id` or `section`.
+ * Reads the page's own window, never page-scoped params like `post_id` or `section`.
+ * A link out of a page that may be a detail page uses `pickReportNavigationParams()`
+ * instead, which returns a detail page to the window it was opened from.
  *
  * @param search - The current route search params.
  * @return A new object with only the shared report-window params that are set.
@@ -42,6 +63,244 @@ export function pickReportDateParams(
 		}
 	}
 	return picked;
+}
+
+/**
+ * Prefix of the params a detail page keeps the linking page's window under, so
+ * the page can open on its own range while its way back restores the original.
+ */
+const ORIGIN_WINDOW_PREFIX = 'ref_';
+
+/**
+ * The origin preset of a page opened without a window: its links out carry none,
+ * so the destination seeds its own default.
+ */
+const NO_ORIGIN_WINDOW = 'none';
+
+/**
+ * Prefix of the params a surface keeps the window a widget zoomed in from under, so the
+ * date control can zoom back out to it. Cleared by any other range change.
+ */
+const ZOOM_OUT_PREFIX = 'up_';
+
+/** The params `toZoomOutParams()` writes, every one optional so a patch can clear them. */
+export type ZoomOutParams = {
+	[
+		Key in ( typeof REPORT_DATE_PARAM_KEYS )[ number ] as `${ typeof ZOOM_OUT_PREFIX }${ Key }`
+	]?: string;
+};
+
+/**
+ * Store a window under prefixed params, keeping only what `expandOriginWindow()`
+ * cannot rebuild: a named range is its preset alone. All time keeps its bounds
+ * too, since its start is the surface's own.
+ *
+ * @param search - The search params naming the window.
+ * @param prefix - The prefix to store it under.
+ * @return The prefixed params.
+ */
+function storeOriginWindow(
+	search: Record< string, unknown > | undefined,
+	prefix: string
+): Record< string, unknown > {
+	const linked = pickReportDateParams( search ) as NormalizeInput;
+	const origin: Record< string, unknown > =
+		isSelectablePreset( linked.preset ) || isYearPresetId( linked.preset )
+			? { preset: linked.preset }
+			: {
+					from: linked.from,
+					to: linked.to,
+					...( linked.preset === PRESET_ALL_TIME ? { preset: PRESET_ALL_TIME } : {} ),
+					...( linked.step !== undefined ? { step: linked.step } : {} ),
+				};
+
+	const rebuilt = normalizeReportParams( origin as NormalizeInput );
+	if ( linked.interval !== undefined && linked.interval !== rebuilt.interval ) {
+		origin.interval = linked.interval;
+	}
+
+	if ( hasComparisonEnabled( linked ) ) {
+		Object.assign(
+			origin,
+			isComparisonPresetId( linked.compare_preset )
+				? { compare_preset: linked.compare_preset }
+				: { compare_from: linked.compare_from, compare_to: linked.compare_to }
+		);
+	}
+
+	const stored: Record< string, unknown > = {};
+	for ( const [ key, value ] of Object.entries( origin ) ) {
+		if ( value !== undefined ) {
+			stored[ prefix + key ] = value;
+		}
+	}
+	return stored;
+}
+
+/**
+ * Read a window stored under prefixed params back, unprefixed and with its
+ * comparison rebuilt.
+ *
+ * @param search - The current route search params.
+ * @param prefix - The prefix it was stored under.
+ * @return The report-window params, or undefined when none are stored.
+ */
+function readOriginWindow(
+	search: Record< string, unknown > | undefined,
+	prefix: string
+): Record< string, unknown > | undefined {
+	const origin: Record< string, unknown > = {};
+	for ( const key of REPORT_DATE_PARAM_KEYS ) {
+		const value = search?.[ prefix + key ];
+		if ( value !== undefined ) {
+			origin[ key ] = value;
+		}
+	}
+	if ( ! Object.keys( origin ).length ) {
+		return undefined;
+	}
+	if ( origin.preset === NO_ORIGIN_WINDOW ) {
+		delete origin.preset;
+	}
+	return expandOriginWindow( origin );
+}
+
+/**
+ * Store the linking page's window under the origin-window params, for a detail page's way back.
+ * A linking page without a window stores `NO_ORIGIN_WINDOW`, so the way back can tell an origin from none.
+ *
+ * @param search - The search params the detail page was linked with.
+ * @return The origin-window params.
+ */
+export function toReportOriginWindowParams(
+	search: Record< string, unknown > | undefined
+): Record< string, unknown > {
+	const stored = storeOriginWindow( search, ORIGIN_WINDOW_PREFIX );
+	const { preset, from, to } = pickReportDateParams( search ) as NormalizeInput;
+	if ( preset === undefined && from === undefined && to === undefined ) {
+		stored[ ORIGIN_WINDOW_PREFIX + 'preset' ] = NO_ORIGIN_WINDOW;
+	}
+	return stored;
+}
+
+/**
+ * Store a surface's window under the zoom-out params, for a period a widget opens inside it.
+ *
+ * @param search - The search params naming the window the widget zoomed in from.
+ * @return The zoom-out params.
+ */
+export function toZoomOutParams( search: Record< string, unknown > | undefined ): ZoomOutParams {
+	return storeOriginWindow( search, ZOOM_OUT_PREFIX ) as ZoomOutParams;
+}
+
+/**
+ * The zoom-out params, each cleared, for a patch that moves the window anywhere else.
+ *
+ * @return Every zoom-out param set to undefined.
+ */
+export function clearZoomOutParams(): ZoomOutParams {
+	return Object.fromEntries(
+		REPORT_DATE_PARAM_KEYS.map( key => [ ZOOM_OUT_PREFIX + key, undefined ] )
+	) as ZoomOutParams;
+}
+
+/**
+ * Read the window a surface can zoom back out to.
+ *
+ * @param search - The current route search params.
+ * @return The report-window params, or undefined when nothing was zoomed in from.
+ */
+export function readZoomOutWindow(
+	search: Record< string, unknown > | undefined
+): Record< string, unknown > | undefined {
+	return readOriginWindow( search, ZOOM_OUT_PREFIX );
+}
+
+/**
+ * Rebuild a stored origin window so its destination can load without a
+ * canonicalizing redirect.
+ *
+ * @param origin - The unprefixed origin-window params.
+ * @return The report-window params to carry.
+ */
+function expandOriginWindow( origin: Record< string, unknown > ): Record< string, unknown > {
+	const hasNamedPreset = isSelectablePreset( origin.preset ) || isYearPresetId( origin.preset );
+	const hasCustomRange = !! origin.from && !! origin.to;
+
+	if ( ! hasNamedPreset && ! hasCustomRange ) {
+		return origin;
+	}
+
+	const expanded = {
+		...pickReportDateParams( normalizeReportParams( origin as NormalizeInput ) ),
+		...( origin.interval !== undefined ? { interval: origin.interval } : {} ),
+	};
+
+	if ( origin.compare_from !== undefined ) {
+		return {
+			...expanded,
+			compare_from: origin.compare_from,
+			compare_to: origin.compare_to,
+			comp: '1',
+		};
+	}
+	if ( origin.compare_preset === undefined ) {
+		return expanded;
+	}
+
+	const comparison = deriveComparisonRange( {
+		...expanded,
+		comp: '1',
+		compare_preset: origin.compare_preset,
+	} as NormalizeInput );
+	return comparison ? { ...expanded, ...comparison, comp: '1' } : expanded;
+}
+
+/**
+ * Pick the origin-window params out of a search object, still prefixed, so a
+ * detail route that allowlists its params can keep them across a seed.
+ *
+ * @param search - The current route search params.
+ * @return Only the origin-window params that are set.
+ */
+export function pickReportOriginWindowParams(
+	search: Record< string, unknown > | undefined
+): Record< string, unknown > {
+	const picked: Record< string, unknown > = {};
+	for ( const key of REPORT_DATE_PARAM_KEYS ) {
+		const value = search?.[ ORIGIN_WINDOW_PREFIX + key ];
+		if ( value !== undefined ) {
+			picked[ ORIGIN_WINDOW_PREFIX + key ] = value;
+		}
+	}
+	return picked;
+}
+
+/**
+ * Pick the window a link out of the current page returns to: on a page whose seed
+ * stored an origin window under the `ref_*` params, that window, whichever param
+ * scopes the page; elsewhere, the page's own.
+ *
+ * @param search - The current route search params.
+ * @return The unprefixed report-window params to carry.
+ */
+function pickReturnDateParams(
+	search: Record< string, unknown > | undefined
+): Record< string, unknown > {
+	return readOriginWindow( search, ORIGIN_WINDOW_PREFIX ) ?? pickReportDateParams( search );
+}
+
+/**
+ * Pick the params a link to another analytics route carries forward: the
+ * report window to return to plus the dashboard tab.
+ *
+ * @param search - The current route search params.
+ * @return A new object with the carried params that are set.
+ */
+export function pickReportNavigationParams(
+	search: Record< string, unknown > | undefined
+): Record< string, unknown > {
+	return { ...pickReturnDateParams( search ), ...pickDashboardOriginParams( search ) };
 }
 
 /**
@@ -77,12 +336,10 @@ const COMPARISON_PARAM_KEYS = [ 'comp', 'compare_from', 'compare_to', 'compare_p
 /**
  * Drop the comparison params from a search object, keeping everything else.
  *
- * Detail pages have no period-over-period comparison by design. The params
- * stay in the URL so the breadcrumb round trip preserves the dashboard's
- * comparison state, but the page strips them from the `reportParams` it
- * injects into its widgets, so no widget can render comparison data — the
- * page-wide invariant holds by construction instead of relying on every
- * widget to ignore them.
+ * Detail pages have no period-over-period comparison by design, so the page
+ * strips these from the `reportParams` it injects into its widgets: the
+ * invariant holds by construction instead of relying on every widget to
+ * ignore them.
  *
  * @param search - The current route search params.
  * @return A new object without the comparison params.
@@ -102,6 +359,22 @@ export function omitComparisonReportParams(
 }
 
 /**
+ * Drop the shared report-window params from a search object, keeping everything else.
+ *
+ * @param search - The current route search params.
+ * @return A new object without the report-window params.
+ */
+export function omitReportDateParams< T extends Record< string, unknown > >(
+	search: T
+): Partial< T > {
+	const stripped: Partial< T > = { ...search };
+	for ( const key of REPORT_DATE_PARAM_KEYS ) {
+		delete stripped[ key ];
+	}
+	return stripped;
+}
+
+/**
  * Serialize one search value the way the router does.
  *
  * The router JSON-parses every search value on read, so a string that itself
@@ -113,7 +386,7 @@ export function omitComparisonReportParams(
  * @param value - The search value to serialize.
  * @return The querystring-ready value.
  */
-function stringifySearchValue( value: unknown ): string {
+export function stringifySearchValue( value: unknown ): string {
 	if ( typeof value === 'string' ) {
 		try {
 			JSON.parse( value );
@@ -138,7 +411,7 @@ function buildReportWindowLink(
 	search: Record< string, unknown > | undefined,
 	extraParams: Record< string, string > = {}
 ): string {
-	const params = { ...pickReportDateParams( search ), ...extraParams };
+	const params = { ...pickReportNavigationParams( search ), ...extraParams };
 	const query = new URLSearchParams(
 		Object.entries( params ).map( ( [ key, value ] ) => [ key, stringifySearchValue( value ) ] )
 	).toString();
@@ -148,15 +421,16 @@ function buildReportWindowLink(
 /**
  * Build the `to` link back to the dashboard, preserving the shared report window.
  *
- * Serializes the date range and comparison (via `pickReportDateParams`) into a
- * querystring so returning to the dashboard restores the same view. Page-scoped
- * params are dropped.
+ * Serializes the date range and comparison into a querystring, and reopens the
+ * dashboard tab the page was reached from, so returning restores the same view.
+ * Page-scoped params are dropped.
  *
  * @param search - The current route search params.
  * @return A dashboard `to` path (e.g. `/?from=…&to=…`), or `/` when none are set.
  */
 export function buildDashboardLink( search: Record< string, unknown > | undefined ): string {
-	return buildReportWindowLink( '/', search );
+	const { [ DASHBOARD_ORIGIN_PARAM ]: section } = pickDashboardOriginParams( search );
+	return buildReportWindowLink( '/', pickReturnDateParams( search ), section ? { section } : {} );
 }
 
 /**

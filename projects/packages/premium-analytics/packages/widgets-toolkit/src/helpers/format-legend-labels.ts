@@ -26,7 +26,7 @@ export function formatLegendLabels( reportParams: ReportParams ): LegendLabels {
 			? formatDateRange( {
 					from: parseSiteDateTime( reportParams.compare_from ),
 					to: parseSiteDateTime( reportParams.compare_to ),
-			  } ) || __( 'Previous period', 'jetpack-premium-analytics-pkg' )
+				} ) || __( 'Previous period', 'jetpack-premium-analytics-pkg' )
 			: __( 'Previous period', 'jetpack-premium-analytics-pkg' );
 
 	return {

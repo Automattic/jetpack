@@ -7,7 +7,7 @@ use WorDBless\BaseTestCase;
 /**
  * Tests for the Threat_Model class.
  *
- * @package automattic/jetpack-protect
+ * @package automattic/jetpack-protect-models
  */
 class Threat_Model_Test extends BaseTestCase {
 

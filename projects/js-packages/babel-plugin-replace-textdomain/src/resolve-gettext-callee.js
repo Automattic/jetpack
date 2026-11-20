@@ -213,6 +213,17 @@ function isForeignSource( t, path, node, i18nModule ) {
 	if ( isI18nPropertyAccess( t, node ) ) {
 		return false;
 	}
+	// A value written out inline is never the i18n module: rolldown inlines a
+	// single-use `const cache = { __: … }` into `{ __: … }.__( key )`.
+	if (
+		t.isObjectExpression( node ) ||
+		t.isArrayExpression( node ) ||
+		t.isFunction( node ) ||
+		t.isClass( node ) ||
+		t.isLiteral( node )
+	) {
+		return true;
+	}
 	if ( ! t.isIdentifier( node ) ) {
 		// An unrecognised callee shape: unknown, not foreign.
 		return false;

@@ -1,11 +1,46 @@
 export { AnalyticsQueryClientProvider, queryClient } from './providers/query-client-provider';
-export { GlobalErrorProvider, useGlobalError } from './providers/global-error-context';
-export { globalErrorManager, type GlobalErrorType } from './providers/global-error-manager';
-export { ReportScopeProvider, useReportScope, type ReportScope } from './providers/report-scope';
+export {
+	ReportScopeProvider,
+	useReportScope,
+	useScopeLockedIntervals,
+	type DateLimits,
+	type DateLimitUpsellCopy,
+	type OpenPeriodOptions,
+	type ReportScope,
+} from './providers/report-scope';
+export {
+	PERIOD_CHANGE_ATTENTION_MS,
+	PeriodChangeSignalProvider,
+	postSurface,
+	useRaisePeriodChange,
+	useSettlePeriodChange,
+	type PeriodChange,
+} from './providers/period-change-signal';
 export * from './hooks';
-export { latestPostQuery, postContentQuery } from './queries/latest-post-query';
+export { STATS_SITE_SUMMARY_FIELDS } from './queries/stats-site-query';
+export { ensureDashboardEntities } from './entities/dashboard-entities';
+export { latestPostQuery, postContentQuery, postsContentQuery } from './queries/latest-post-query';
 export type { LatestPost, LatestPostResponse } from './processing/latest-post';
+export { authorPostsQuery } from './queries/author-posts-query';
+export type { AuthorPostsRecord } from './processing/author';
 export { statsInsightsQuery } from './queries/stats-insights-query';
+export {
+	fetchStatsArchivesRows,
+	fetchStatsClicksRows,
+	fetchStatsComments,
+	fetchStatsEmailSummaryRows,
+	fetchStatsFileDownloadsRows,
+	fetchStatsInsightsYears,
+	fetchStatsLocationsRows,
+	fetchStatsReferrersRows,
+	fetchStatsSearchTermsReport,
+	fetchStatsTagsRows,
+	fetchStatsTopAuthorsRows,
+	fetchStatsTopPostsRows,
+	fetchStatsUtmRows,
+	fetchStatsVideoPlaysRows,
+} from './queries/fetch-stats-report-rows';
+export { type StatsLocationsParams } from './queries/stats-locations-query';
 export { type StatsVideoPlaysSummaryParams } from './queries/stats-video-plays-summary-query';
 export {
 	aggregateStatsDrilldownRows,
@@ -26,7 +61,6 @@ export type {
 } from './processing/stats';
 export type { StatsEmailSummaryItem } from './processing/stats';
 export type { StatsDeviceProperty } from './queries/stats-devices-query';
-export { prefetchReport } from './prefetch';
 export {
 	normalizeReportParams,
 	needsReportDateParamsSeed,
@@ -36,49 +70,92 @@ export {
 	type ReportPresetId,
 } from './utils/search';
 export {
-	dateToISOStringWithLocalTZ,
 	ensureCoreSettingsReady,
-	localTZDate,
-	hasProductFilters,
 	isSelectablePreset,
 	computeDateRangeFromPreset,
 	getApiErrorCode,
 	getApiErrorStatus,
+	emailSendWindowParams,
+	emailSendWindowRange,
+	readEmailSendWindow,
+	type EmailSendWindow,
+	findAuthorRow,
 	isAccessDenied,
+	isAnalyticsSchemaOutdated,
+	isAnalyticsTablesNotReady,
 	isUserRetryableError,
 	saveBlob,
 	shouldRetryApiError,
 	StatsResponseShapeError,
+	toAuthorId,
 	toPostId,
 	useSiteHomeUrl,
 	withoutComparison,
 } from './utils';
-export type { ReportDataMap } from './types';
-export type { ReportQueryParams } from './api';
-export type { FilterCondition } from './types/filter-condition';
-export type { ProductType } from './types/product-type';
-export { ORDER_ATTRIBUTION_VIEWS } from './api/report-order-attribution-summary-fetch';
 export {
 	getAllowedIntervalsForPreset,
-	getDateFormatFromInterval,
+	getDaysBetweenInclusive,
 	getDefaultIntervalForPeriod,
+	resolveIntervalForPresetChange,
 	resolveIntervalForRange,
 } from './utils/interval';
-export type { IntervalType } from './utils/interval';
-export { chartInterval, defaultPeriodForInterval, drawableIntervals } from './utils/periods';
+export type { IntervalType, LockableInterval } from './utils/interval';
 export {
+	chartInterval,
+	defaultPeriodForInterval,
+	drawableIntervals,
+	intervalMenuOptions,
+	type IntervalExtension,
+	type IntervalRange,
+} from './utils/periods';
+export {
+	isDashboardSectionAvailable,
+	isPostDetailAvailable,
+	POST_DETAIL_SECTION,
+	type DashboardSectionSlug,
+} from './utils/dashboard-sections';
+export { DASHBOARD_ONBOARDING_KEY, DASHBOARD_STORE_ONBOARDING_KEY } from './utils/onboarding-keys';
+export {
+	getLockedFeature,
+	getLockedSection,
+	getLockedWidgetFeature,
+	isStatsFeatureLocked,
+	type LockedSectionGate,
+	type StatsFeatureKey,
+} from './utils/plan-gates';
+export { getStatsCheckoutUrl } from './utils/stats-checkout-url';
+export {
+	applyStatsDatePolicy,
+	getPolicyDefaultPreset,
+	getSectionDatePolicy,
+	getStatsDatePolicy,
+	isDateLimitedPolicy,
+	isPlanDateLimitedSection,
+	isPresetLockedByPolicy,
+	OPEN_DATE_POLICY,
+	startsBeforePolicy,
+	type DateLimitFeature,
+	type StatsDatePolicy,
+} from './utils/stats-date-policy';
+export {
+	DASHBOARD_PREFERENCES_SCOPE,
+	deriveComparisonRange,
 	getDefaultPreset,
 	getDefaultQueryParams,
 	getDefaultReportParams,
-	getStoreInfo,
-	type StoreInfo,
+	getSectionOrder,
+	orderSections,
+	rememberComparison,
+	rememberPreset,
+	setSectionOrder,
+	withDefaultComparison,
 } from './defaults';
-export { downloadReport, exportReport, fetchStatsProxy, getStatsProxyPath } from './api';
+export { downloadReport, fetchStatsProxy } from './api';
+export { disableDashboard } from './api';
+export { submitStatsUserFeedback, type StatsFeedbackRating, type StatsUserFeedback } from './api';
 export type {
 	DownloadReportParams,
 	DownloadReportResponse,
-	ExportReportParams,
-	ExportReportResponse,
 	StatsProxyFetchParams,
 	StatsProxyMethod,
 	StatsProxyParams,
@@ -112,6 +189,7 @@ export type {
 	StatsFollowersRawItem,
 	StatsFollowersRawResponse,
 	StatsItemAction,
+	StatsLocationCoordinates,
 	StatsLocationsComparisonItem,
 	StatsLocationsItem,
 	StatsNormalizedDataPoint,

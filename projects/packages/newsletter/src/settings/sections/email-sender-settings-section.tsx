@@ -11,7 +11,7 @@ import { Button, Card, Fieldset, Text } from '@wordpress/ui';
  * Internal dependencies
  */
 import type { NewsletterSettings } from '../types';
-import type { FormEvent } from 'react';
+import type { JSX, FormEvent } from 'react';
 
 interface EmailSenderSettingsSectionProps {
 	data: NewsletterSettings;

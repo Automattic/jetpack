@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Podcast: initialize the package for anonymous requests too so feed-customization hooks register for podcatcher crawlers (Apple Podcasts, Spotify, etc.) once the untangle filter is flipped on.

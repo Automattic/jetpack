@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Stop the tour from offering period comparison on a free plan, which covers only the last 7 days.

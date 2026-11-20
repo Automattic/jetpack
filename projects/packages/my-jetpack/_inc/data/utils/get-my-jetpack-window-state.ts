@@ -17,6 +17,17 @@ export const getMyJetpackWindowInitialState = <
 	return ( window?.myJetpackInitialState?.[ key ] ?? {} ) as StateReturnType< InitialState, A >;
 };
 
+/**
+ * Slugs a host hid from the page through `jetpack_my_jetpack_feature_visibility`.
+ *
+ * @return Product card and module slugs.
+ */
+export const getHiddenFeatures = (): Array< string > => {
+	const hidden = window?.myJetpackInitialState?.hiddenFeatures;
+
+	return Array.isArray( hidden ) ? hidden : [];
+};
+
 export const getMyJetpackWindowRestState = () => {
 	return ( window?.myJetpackRest ?? {} ) as RestState;
 };
@@ -27,7 +38,7 @@ export const getMyJetpackWindowConnectionState = <
 	key?: A
 ): StateReturnType< ConnectionState, A > => {
 	if ( ! key ) {
-		return window?.JP_CONNECTION_INITIAL_STATE as StateReturnType< ConnectionState, A >;
+		return ( window?.JP_CONNECTION_INITIAL_STATE ?? {} ) as StateReturnType< ConnectionState, A >;
 	}
 
 	return ( window?.JP_CONNECTION_INITIAL_STATE?.[ key ] ?? {} ) as StateReturnType<

@@ -198,6 +198,10 @@ describe( 'test groups', () => {
 		expect( strayGroupDirEntries() ).toEqual( [] );
 	} );
 
+	it( 'keeps every group at ten members or fewer', () => {
+		expect( groups.filter( groupFile => membersOf( groupFile ).length > 10 ) ).toEqual( [] );
+	} );
+
 	it.each( groups )( '%s only lists suites that exist', groupFile => {
 		const missing = membersOf( groupFile ).filter( member => resolveSuite( member ) === null );
 		expect( missing ).toEqual( [] );

@@ -1,3 +1,7 @@
+@use "@wordpress/base-styles/mixins" as wp;
+
+$notice-z-index: 900;
+
 .wrapper {
 	display: grid;
 	justify-items: end;
@@ -7,10 +11,27 @@
 	position: fixed;
 	bottom: 100px;
 	right: 100px;
-	z-index: 900;
+	z-index: $notice-z-index;
 
 	// Space between notices
 	:global(.components-snackbar + .components-snackbar) {
 		margin-top: 16px;
+	}
+}
+
+.modern {
+
+	@include wp.snackbar-container();
+
+	// Follow the Settings container's inline bounds while staying viewport-fixed.
+	inset-inline: auto;
+	inline-size: 100cqi;
+	padding-inline: 0;
+	gap: var(--wpds-dimension-gap-lg);
+	z-index: $notice-z-index;
+
+	// CSS Modules hashes the mixin's Snackbar selector.
+	:global(.components-snackbar) {
+		margin-inline: auto;
 	}
 }

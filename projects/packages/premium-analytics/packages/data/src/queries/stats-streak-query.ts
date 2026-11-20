@@ -7,7 +7,6 @@ import type { StatsStreakResponse } from '../processing/stats';
 export type StatsStreakParams = StatsReportParams & {
 	startDate?: string;
 	endDate?: string;
-	gmtOffset?: number;
 };
 
 export type { StatsStreakResponse };
@@ -15,10 +14,10 @@ export type { StatsStreakResponse };
 export const statsStreakQuery = (
 	params: StatsStreakParams
 ): StatsReportQueryOptions< 'streak' > => {
+	const endDate = params.endDate ?? getDatePart( params.to ) ?? params.end_date ?? params.date;
 	const streakParams: StatsProxyParams = {
 		startDate: params.startDate ?? getDatePart( params.from ) ?? params.start_date,
-		endDate: params.endDate ?? getDatePart( params.to ) ?? params.end_date ?? params.date,
-		...( params.gmtOffset !== undefined ? { gmtOffset: params.gmtOffset } : {} ),
+		endDate,
 		...( params.max !== undefined ? { max: params.max } : {} ),
 	};
 
@@ -28,6 +27,7 @@ export const statsStreakQuery = (
 		endpoint: 'stats/streak',
 		params: streakParams,
 		sanitizer: 'streak',
+		windowEnd: endDate ?? null,
 		enabled: !! ( streakParams.startDate && streakParams.endDate ),
 	} );
 };

@@ -50,10 +50,6 @@ export default defineConfig(
 			'jsdoc/require-returns': 'off',
 			'jsdoc/check-indentation': 'off',
 			'@typescript-eslint/no-explicit-any': 'off',
-			// TODO: this masks any genuinely-undeclared dep, not just the `react`
-			// false-positive. Re-enable (or scope to the offending files) once the
-			// leaf manifest becomes load-bearing in the first-consumer PR.
-			'import/no-extraneous-dependencies': 'off',
 		},
 	},
 	{
@@ -93,7 +89,6 @@ export default defineConfig(
 			'jsdoc/require-param': 'off',
 			'jsdoc/require-returns': 'off',
 			'jsdoc/check-indentation': 'off',
-			'import/no-extraneous-dependencies': 'off',
 		},
 	},
 	{
@@ -137,7 +132,6 @@ export default defineConfig(
 			'jsdoc/require-returns': 'off',
 			'jsdoc/check-indentation': 'off',
 			'jsdoc/escape-inline-tags': 'off',
-			'import/no-extraneous-dependencies': 'off',
 		},
 	},
 	{
@@ -171,10 +165,17 @@ export default defineConfig(
 							// stylesheet side-effect imports: those are plain
 							// CSS, not the library, so they carry none of the
 							// bundling cost.
-							regex:
-								'^(@automattic/charts|@automattic/ui|@wordpress/ui|@wordpress/dataviews)(/(?!.*\\.css$).*)?$',
+							regex: '^(@automattic/charts|@wordpress/ui|@wordpress/dataviews)(/(?!.*\\.css$).*)?$',
 							message:
 								'Import these from @jetpack-premium-analytics/externals instead: it compiles them once into a shared script module rather than into every module that imports them. Missing an export? Add it to packages/externals/src/index.ts.',
+						},
+						{
+							// Base UI is what `@wordpress/ui` builds on, so `externals`
+							// already compiles it in: importing it anywhere else
+							// compiles a second copy.
+							regex: '^@base-ui/react(/.*)?$',
+							message:
+								'Build on @wordpress/ui from @jetpack-premium-analytics/externals, or on CardTabs from @jetpack-premium-analytics/ui. A primitive that needs Base UI itself takes it from externals, which already compiles it in behind @wordpress/ui.',
 						},
 					],
 				},
@@ -212,9 +213,15 @@ export default defineConfig(
 								'Import chart components from @jetpack-premium-analytics/widgets-toolkit instead: it is a shared script module, so charts is bundled once for the whole dashboard. Missing a component? Re-export it from the toolkit "Charts passthrough" section.',
 						},
 						{
-							regex: '^(@automattic/ui|@wordpress/ui|@wordpress/dataviews)(/(?!.*\\.css$).*)?$',
+							regex: '^(@wordpress/ui|@wordpress/dataviews)(/(?!.*\\.css$).*)?$',
 							message:
 								'Import these from @jetpack-premium-analytics/externals instead: it compiles them once into a shared script module rather than into every bundle that imports them. Missing an export? Add it to packages/externals/src/index.ts.',
+						},
+						{
+							// Same as the packages rule above.
+							regex: '^@base-ui/react(/.*)?$',
+							message:
+								'Build on @wordpress/ui from @jetpack-premium-analytics/externals, or on CardTabs from @jetpack-premium-analytics/ui. A primitive that needs Base UI itself takes it from externals, which already compiles it in behind @wordpress/ui.',
 						},
 					],
 				},

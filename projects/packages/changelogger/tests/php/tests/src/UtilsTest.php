@@ -29,7 +29,6 @@ use Symfony\Component\Process\Process;
 #[CoversClass( Utils::class )]
 class UtilsTest extends TestCase {
 	use \Yoast\PHPUnitPolyfills\Polyfills\AssertObjectProperty;
-	use \Yoast\PHPUnitPolyfills\Polyfills\AssertionRenames;
 
 	/**
 	 * Test runCommand.
@@ -381,8 +380,17 @@ class UtilsTest extends TestCase {
 			),
 		);
 		Utils::runCommand( array( 'git', 'init', '-b', 'main', '.' ), ...$args );
+		Utils::runCommand( array( 'git', 'config', '--local', 'gc.auto', '0' ), ...$args );
+		Utils::runCommand( array( 'git', 'config', '--local', 'maintenance.auto', 'false' ), ...$args );
 		Utils::runCommand( array( 'git', 'add', 'in-git.txt' ), ...$args );
 		Utils::runCommand( array( 'git', 'commit', '-m', 'Commit (#123)' ), ...$args );
+
+		// Create and then remove a file.
+		file_put_contents( 'was-in-git.txt', '' );
+		Utils::runCommand( array( 'git', 'add', 'was-in-git.txt' ), ...$args );
+		Utils::runCommand( array( 'git', 'commit', '-m', 'Commit (#124)' ), ...$args );
+		Utils::runCommand( array( 'git', 'rm', 'was-in-git.txt' ), ...$args );
+		Utils::runCommand( array( 'git', 'commit', '-m', 'Commit (#125)' ), ...$args );
 
 		// Let's create another branch, add a commit and merge to trunk.
 		Utils::runCommand( array( 'git', 'checkout', '-b', 'temp' ), ...$args );
@@ -390,7 +398,7 @@ class UtilsTest extends TestCase {
 		Utils::runCommand( array( 'git', 'add', 'in-git2.txt' ), ...$args );
 		Utils::runCommand( array( 'git', 'commit', '-m', 'Dummy commit message.' ), ...$args );
 		Utils::runCommand( array( 'git', 'checkout', 'main' ), ...$args );
-		Utils::runCommand( array( 'git', 'merge', 'temp', '--no-ff', '-m', 'Merge pull request #124 from temp.' ), ...$args );
+		Utils::runCommand( array( 'git', 'merge', 'temp', '--no-ff', '-m', 'Merge pull request #126 from temp.' ), ...$args );
 
 		$this->assertSame(
 			array(
@@ -404,7 +412,7 @@ class UtilsTest extends TestCase {
 		$this->assertSame(
 			array(
 				'timestamp' => '2021-02-02T22:22:22Z',
-				'pr-num'    => '124',
+				'pr-num'    => '126',
 			),
 			Utils::getRepoData( 'in-git2.txt', $output, $helper )
 		);
@@ -425,6 +433,25 @@ class UtilsTest extends TestCase {
 				'pr-num'    => null,
 			),
 			Utils::getRepoData( 'missing.txt', $output, $helper )
+		);
+
+		// Deleted file.
+		$this->assertSame(
+			array(
+				'timestamp' => null,
+				'pr-num'    => null,
+			),
+			Utils::getRepoData( 'was-in-git.txt', $output, $helper )
+		);
+
+		// Deleted file re-created locally.
+		touch( 'was-in-git.txt', 1793232000 );
+		$this->assertSame(
+			array(
+				'timestamp' => '2026-10-29T00:00:00Z',
+				'pr-num'    => null,
+			),
+			Utils::getRepoData( 'was-in-git.txt', $output, $helper )
 		);
 	}
 

@@ -200,7 +200,7 @@ function JetpackLikesMessageListener( event ) {
 				.querySelectorAll( '.likes-text span' )
 				.forEach( item => ( item.textContent = data.totalLikesLabel ) );
 
-			( data.likers || [] ).forEach( async ( liker, index ) => {
+			( data.likers || [] ).forEach( async liker => {
 				if ( liker.profile_URL.substr( 0, 4 ) !== 'http' ) {
 					// We only display gravatars with http or https schema
 					return;
@@ -209,9 +209,21 @@ function JetpackLikesMessageListener( event ) {
 				const element = document.createElement( 'li' );
 				list.append( element );
 
-				const profileLink = encodeURI( liker.profile_URL );
+				// A liker with a default avatar usually has no Gravatar profile, so their profile URL leads to a 404.
+				// Link to the public site WordPress.com returns as site_URL instead, and otherwise render the avatar without a link.
+				let likerUrl = liker.profile_URL;
+				if ( liker.default_avatar ) {
+					likerUrl = 0 === ( liker.site_URL || '' ).indexOf( 'http' ) ? liker.site_URL : '';
+				}
+				// encodeURI escapes the quotes and angle brackets that could break out of the attribute.
+				// The replace undoes the double encoding of an escape the URL already had, so %20 doesn't become %2520.
+				const likerLink = likerUrl
+					? encodeURI( likerUrl ).replace( /%25([0-9a-f]{2})/gi, '%$1' )
+					: '';
 				const avatarLink = encodeURI( liker.avatar_URL );
-				element.innerHTML = `<a href="${ profileLink }" rel="nofollow" target="_parent" class="wpl-liker">
+				element.innerHTML = `<a ${
+					likerLink ? `href="${ likerLink }" ` : ''
+				}rel="nofollow" target="_parent" class="wpl-liker">
 						<img src="${ avatarLink }"
 							alt=""
 							style="width: 28px; height: 28px;" />
@@ -222,21 +234,44 @@ function JetpackLikesMessageListener( event ) {
 				element.classList.add( liker.css_class );
 				element.querySelector( 'img' ).alt = data.avatarAltTitle.replace( '%s', liker.name );
 				element.querySelector( 'span' ).innerText = liker.name;
-
-				if ( index === data.likers.length - 1 ) {
-					element.addEventListener( 'keydown', e => {
-						if ( e.key === 'Tab' && ! e.shiftKey ) {
-							e.preventDefault();
-							hideLikersPopover();
-
-							JetpackLikesPostMessage(
-								{ event: 'focusLikesCount', parent: data.parent },
-								window.frames[ 'likes-master' ]
-							);
-						}
-					} );
-				}
 			} );
+
+			// Tabbing past the last linked liker closes the popover and returns focus to the likes count.
+			// Likers without a link can't take focus, so the listener goes on the last one that can.
+			// When no liker has a link, focus stays on the popover itself, so the listener goes there.
+			const closeOnTab = e => {
+				if ( e.key === 'Tab' && ! e.shiftKey ) {
+					e.preventDefault();
+					hideLikersPopover();
+
+					JetpackLikesPostMessage(
+						{ event: 'focusLikesCount', parent: data.parent },
+						window.frames[ 'likes-master' ]
+					);
+				}
+			};
+
+			// The popover element outlives each opening, so drop the listener a previous opening left on it.
+			if ( container.__tabHandler ) {
+				container.removeEventListener( 'keydown', container.__tabHandler );
+				delete container.__tabHandler;
+			}
+
+			const focusableLikers = list.querySelectorAll( 'a[href]' );
+			const lastFocusableLiker = focusableLikers[ focusableLikers.length - 1 ];
+			if ( lastFocusableLiker ) {
+				lastFocusableLiker.addEventListener( 'keydown', closeOnTab );
+			} else {
+				container.addEventListener( 'keydown', closeOnTab );
+				container.__tabHandler = closeOnTab;
+			}
+
+			if ( data.remainingLikesLabel ) {
+				const remaining = document.createElement( 'li' );
+				remaining.classList.add( 'wpl-likes-remaining' );
+				remaining.textContent = data.remainingLikesLabel;
+				list.append( remaining );
+			}
 
 			const positionPopup = function () {
 				const containerStyle = getComputedStyle( container );
@@ -347,6 +382,8 @@ function JetpackLikesWidgetQueueHandler() {
 	// Restore widgets to initial unloaded state when they are scrolled out of view.
 	jetpackUnloadScrolledOutWidgets();
 
+	jetpackObserveUnloadedWidgets();
+
 	var unloadedWidgetsInView = jetpackGetUnloadedWidgetsInView();
 
 	if ( unloadedWidgetsInView.length > 0 ) {
@@ -412,10 +449,23 @@ function jetpackLoadLikeWidgetIframe( wrapperID ) {
 	wrapper.classList.add( 'jetpack-likes-widget-loading' );
 
 	wrapper.querySelector( 'iframe' ).addEventListener( 'load', e => {
+		// A widget scrolled out of view mid-load has its iframe dropped, and a reloaded one
+		// replaces it, either of which leaves this closure holding a detached iframe. Acting on
+		// it would hide a placeholder that is now the only thing the widget has left to show.
+		if ( ! wrapper.contains( e.target ) ) {
+			return;
+		}
+
 		JetpackLikesPostMessage(
 			{ event: 'loadLikeWidget', name: e.target.name, width: e.target.width },
 			window.frames[ 'likes-master' ]
 		);
+
+		// The stylesheet is otherwise the only thing that hides the placeholder, so one that never
+		// applies leaves "Loading…" sitting over a widget that loaded fine.
+		if ( placeholder ) {
+			placeholder.style.display = 'none';
+		}
 
 		wrapper.classList.remove( 'jetpack-likes-widget-loading' );
 		wrapper.classList.add( 'jetpack-likes-widget-loaded' );
@@ -452,6 +502,14 @@ function jetpackUnloadScrolledOutWidgets() {
 			widgetWrapper.classList.remove( 'jetpack-likes-widget-loading' );
 			widgetWrapper.classList.add( 'jetpack-likes-widget-unloaded' );
 
+			// An empty string removes the inline declaration rather than setting one, handing the
+			// placeholder back to the stylesheet. The `display: none` set on load would otherwise
+			// outrank it, leaving an unloaded widget with neither an iframe nor a placeholder.
+			const placeholder = widgetWrapper.querySelector( '.likes-widget-placeholder' );
+			if ( placeholder ) {
+				placeholder.style.display = '';
+			}
+
 			// Remove it from the list of loaded widgets.
 			jetpackCommentLikesLoadedWidgets.splice( i, 1 );
 
@@ -470,6 +528,31 @@ var jetpackWidgetsDelayedExec = function ( after, fn ) {
 };
 
 var jetpackOnScrollStopped = jetpackWidgetsDelayedExec( 250, JetpackLikesWidgetQueueHandler );
+
+// Scrolling is not the only thing that brings a widget into range. A stylesheet that lands late
+// reflows the page without firing a scroll event, and the queue would never look at that widget
+// again, leaving it on "Loading…" until the reader happens to scroll.
+var jetpackLikesWidgetObserver =
+	typeof IntersectionObserver === 'function'
+		? new IntersectionObserver( jetpackOnScrollStopped, {
+				rootMargin: `${ jetpackLikesLookAhead }px`,
+				// jetpackIsScrolledIntoView() wants the widget fully inside the band, so ask to be
+				// told when it gets there - crossing into partial overlap alone would not load it.
+				threshold: [ 0, 1 ],
+			} )
+		: null;
+
+// Observing an element twice is a no-op, so every queue pass can call this to pick up widgets
+// added after load.
+function jetpackObserveUnloadedWidgets() {
+	if ( ! jetpackLikesWidgetObserver ) {
+		return;
+	}
+
+	document
+		.querySelectorAll( 'div.jetpack-likes-widget-unloaded' )
+		.forEach( widget => jetpackLikesWidgetObserver.observe( widget ) );
+}
 
 // Load initial batch of widgets, prior to any scrolling events.
 JetpackLikesWidgetQueueHandler();

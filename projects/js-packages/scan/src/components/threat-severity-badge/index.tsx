@@ -1,7 +1,12 @@
 import { _x } from '@wordpress/i18n';
 import { Badge } from '@wordpress/ui';
 
-const ThreatSeverityBadge = ( { severity } ) => {
+const ThreatSeverityBadge = ( { severity }: { severity?: number | null } ) => {
+	// The free vulnerability check reports no severity; showing "Low" would understate it.
+	if ( typeof severity !== 'number' ) {
+		return null;
+	}
+
 	if ( severity >= 5 ) {
 		return (
 			<Badge intent="high">

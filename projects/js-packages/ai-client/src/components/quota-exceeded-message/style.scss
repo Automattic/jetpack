@@ -9,8 +9,8 @@
 	.jetpack-upgrade-plan-banner__wrapper {
 
 		.components-button.is-primary.is-busy {
-			background: var(--jp-white);
-			color: var(--jp-black);
+			background: var(--wpds-color-background-interactive-neutral);
+			color: var(--wpds-color-foreground-interactive-neutral);
 		}
 	}
 }
@@ -21,17 +21,17 @@
 	text-wrap: pretty;
 	font-size: calc(13px);
 	font-weight: 400;
-	color: #757575;
+	color: var(--wpds-color-foreground-content-neutral-weak);
 
 	a {
-		color: #757575;
+		color: var(--wpds-color-foreground-interactive-neutral-weak);
 	}
 }
 
 .jetpack-ai-fair-usage-notice {
-	color: #1e1e1e;
+	color: var(--wpds-color-foreground-content-neutral);
 
 	a {
-		color: #1e1e1e;
+		color: var(--wpds-color-foreground-interactive-neutral);
 	}
 }

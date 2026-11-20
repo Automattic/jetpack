@@ -3,37 +3,56 @@ import userEvent from '@testing-library/user-event';
 import { DatePeriodNavigation } from '../date-period-navigation';
 
 describe( 'DatePeriodNavigation', () => {
-	it( 'steps backward', async () => {
+	it.each( [
+		[ 'Previous period', 'previous' ],
+		[ 'Next period', 'next' ],
+	] as const )( 'steps on "%s"', async ( name, direction ) => {
 		const onStep = jest.fn();
 		const user = userEvent.setup();
 
 		render( <DatePeriodNavigation canStepForward onStep={ onStep } /> );
 
-		await user.click( screen.getByRole( 'button', { name: 'Previous period' } ) );
+		await user.click( screen.getByRole( 'button', { name } ) );
 
-		expect( onStep ).toHaveBeenCalledWith( 'previous' );
+		expect( onStep ).toHaveBeenCalledWith( direction );
 	} );
 
-	it( 'steps forward', async () => {
+	// Disabled rather than absent: the pair keeps its place in the row, and the
+	// reader can see which edge they have reached.
+	it.each( [
+		[ 'Next period', { canStepForward: false } ],
+		[ 'Previous period', { canStepForward: true, canStepBackward: false } ],
+	] as const )( 'disables "%s" at the edge of the data', async ( name, props ) => {
 		const onStep = jest.fn();
 		const user = userEvent.setup();
 
-		render( <DatePeriodNavigation canStepForward onStep={ onStep } /> );
+		render( <DatePeriodNavigation { ...props } onStep={ onStep } /> );
 
-		await user.click( screen.getByRole( 'button', { name: 'Next period' } ) );
+		const arrow = screen.getByRole( 'button', { name } );
+		expect( arrow ).toHaveAttribute( 'aria-disabled', 'true' );
+		expect( screen.getAllByRole( 'button' ) ).toHaveLength( 2 );
 
-		expect( onStep ).toHaveBeenCalledWith( 'next' );
+		await user.click( arrow );
+		expect( onStep ).not.toHaveBeenCalled();
 	} );
 
-	/*
-	 * Absent rather than disabled. A disabled arrow states a rule the reader has
-	 * to work out, and on a live preset that rule holds for as long as they stay
-	 * on it.
-	 */
-	it( 'omits the forward control while the window reaches the present', () => {
-		render( <DatePeriodNavigation canStepForward={ false } onStep={ jest.fn() } /> );
+	it( 'greys both arrows out while disabled, focusable still', async () => {
+		const onStep = jest.fn();
+		const user = userEvent.setup();
 
-		expect( screen.getByRole( 'button', { name: 'Previous period' } ) ).toBeInTheDocument();
-		expect( screen.queryByRole( 'button', { name: 'Next period' } ) ).not.toBeInTheDocument();
+		render( <DatePeriodNavigation canStepForward disabled onStep={ onStep } /> );
+
+		const previous = screen.getByRole( 'button', { name: 'Previous period' } );
+		expect( previous ).toHaveAttribute( 'aria-disabled', 'true' );
+		expect( screen.getByRole( 'button', { name: 'Next period' } ) ).toHaveAttribute(
+			'aria-disabled',
+			'true'
+		);
+
+		previous.focus();
+		expect( previous ).toHaveFocus();
+
+		await user.click( previous );
+		expect( onStep ).not.toHaveBeenCalled();
 	} );
 } );

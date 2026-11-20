@@ -62,6 +62,39 @@ class Data {
 	}
 
 	/**
+	 * Gets whether player preloading is turned off for every embed on the site.
+	 *
+	 * Preloading is on by default, so this opt-out option defaults to false.
+	 *
+	 * @return boolean If embeds should wait for playback before fetching video data and player assets.
+	 */
+	public static function get_videopress_player_preload_disabled() {
+		return boolval( get_option( 'videopress_player_preload_disabled', false ) );
+	}
+
+	/**
+	 * Gets whether embeds render an inline player instead of one iframe per video.
+	 *
+	 * Iframes are the default, so this opt-in option defaults to false.
+	 *
+	 * @return boolean If embeds should mount players in the page from one shared player script.
+	 */
+	public static function get_videopress_inline_player_enabled() {
+		return boolval( get_option( 'videopress_inline_player_enabled', false ) );
+	}
+
+	/**
+	 * Gets whether the share menu is turned off for every video on the site.
+	 *
+	 * Sharing follows each video's own setting by default, so this opt-out option defaults to false.
+	 *
+	 * @return boolean If no video may display the share menu, whatever its own setting.
+	 */
+	public static function get_videopress_share_menu_disabled() {
+		return boolval( get_option( 'videopress_share_menu_disabled', false ) );
+	}
+
+	/**
 	 * Gets the VideoPress Settings.
 	 *
 	 * @return array The settings as an associative array.
@@ -81,6 +114,9 @@ class Data {
 		return array(
 			'videopress_videos_private_for_site' => self::get_videopress_videos_private_for_site(),
 			'videopress_auto_subtitles_disabled' => self::get_videopress_auto_subtitles_disabled(),
+			'videopress_player_preload_disabled' => self::get_videopress_player_preload_disabled(),
+			'videopress_inline_player_enabled'   => self::get_videopress_inline_player_enabled(),
+			'videopress_share_menu_disabled'     => self::get_videopress_share_menu_disabled(),
 			'site_is_private'                    => $site_is_private,
 			'site_type'                          => $site_type,
 		);
@@ -142,6 +178,126 @@ class Data {
 		}
 
 		return $video_data;
+	}
+
+	/**
+	 * Gets the site's newest VideoPress videos as playlist entries, newest first.
+	 *
+	 * Goes through the media REST endpoint rather than a direct WP_Query so the
+	 * package's rest_attachment_query filter resolves VideoPress membership on
+	 * every host: by mime off WordPress.com Simple, from wpcom's videos table on it.
+	 * The editor's block preview sends the same request.
+	 *
+	 * @param int $count How many videos to fetch.
+	 *
+	 * @return array Entries with guid, durationMs and height keys.
+	 */
+	public static function get_latest_videopress_playlist_entries( $count ) {
+		$count = max( 1, (int) $count );
+		$args  = array(
+			'per_page'            => $count,
+			'orderby'             => 'date',
+			'order'               => 'desc',
+			'videopress_has_guid' => 1,
+		);
+
+		// Attachments keep their original mime there, so narrow to videos before the ID-set constraint.
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			$args['videopress_only_videos'] = 1;
+		}
+
+		$request = new WP_REST_Request( 'GET', '/wp/v2/media' );
+		$request->set_query_params( $args );
+		$response = rest_do_request( $request );
+
+		// WordPress.com Simple registers the wp/v2 routes only for REST requests, so on a
+		// page render the media endpoint does not exist: query the attachments directly.
+		if ( $response->is_error() ) {
+			return self::query_latest_videopress_playlist_entries( $count );
+		}
+
+		$entries = array();
+		foreach ( (array) $response->get_data() as $item ) {
+			$item = (array) $item;
+			$guid = $item['jetpack_videopress_guid'] ?? '';
+
+			// The REST field is empty on a site without a connection; the attachment meta still knows.
+			if ( ( ! is_string( $guid ) || '' === $guid ) && ! empty( $item['id'] ) ) {
+				$guid = get_post_meta( (int) $item['id'], 'videopress_guid', true );
+			}
+
+			$details    = isset( $item['media_details'] ) ? (array) $item['media_details'] : array();
+			$videopress = isset( $details['videopress'] ) ? (array) $details['videopress'] : array();
+			$entry      = self::playlist_entry( $guid, $videopress['duration'] ?? 0, $details['height'] ?? $videopress['height'] ?? 0 );
+			if ( $entry ) {
+				$entries[] = $entry;
+			}
+		}
+
+		return $entries;
+	}
+
+	/**
+	 * The newest VideoPress videos straight from the posts table, for hosts where the
+	 * media endpoint is unavailable. Mirrors what the endpoint does with the package's
+	 * query filter: by mime off WordPress.com Simple, from wpcom's videos table on it.
+	 *
+	 * @param int $count How many videos to fetch.
+	 *
+	 * @return array Entries with guid, durationMs and height keys.
+	 */
+	private static function query_latest_videopress_playlist_entries( $count ) {
+		$is_wpcom = defined( 'IS_WPCOM' ) && IS_WPCOM;
+		$posts    = get_posts(
+			array(
+				'post_type'      => 'attachment',
+				'post_status'    => 'inherit',
+				'post_mime_type' => $is_wpcom ? 'video' : 'video/videopress',
+				'orderby'        => 'date',
+				'order'          => 'DESC',
+				'posts_per_page' => $count,
+			)
+		);
+
+		$entries = array();
+		foreach ( $posts as $post ) {
+			$guid = get_post_meta( $post->ID, 'videopress_guid', true );
+			if ( ( ! is_string( $guid ) || '' === $guid ) && $is_wpcom && function_exists( 'video_get_info_by_blogpostid' ) ) {
+				$info = video_get_info_by_blogpostid( get_current_blog_id(), $post->ID );
+				$guid = is_object( $info ) && ! empty( $info->guid ) ? (string) $info->guid : '';
+			}
+
+			$meta       = wp_get_attachment_metadata( $post->ID );
+			$meta       = is_array( $meta ) ? $meta : array();
+			$videopress = isset( $meta['videopress'] ) ? (array) $meta['videopress'] : array();
+			$duration   = $videopress['duration'] ?? ( isset( $meta['length'] ) && is_numeric( $meta['length'] ) ? (int) $meta['length'] * 1000 : 0 );
+			$entry      = self::playlist_entry( $guid, $duration, $meta['height'] ?? $videopress['height'] ?? 0 );
+			if ( $entry ) {
+				$entries[] = $entry;
+			}
+		}
+
+		return $entries;
+	}
+
+	/**
+	 * One playlist entry, or null when the GUID is unusable.
+	 *
+	 * @param mixed $guid     VideoPress GUID.
+	 * @param mixed $duration Duration in ms.
+	 * @param mixed $height   Height in px.
+	 *
+	 * @return array|null
+	 */
+	private static function playlist_entry( $guid, $duration, $height ) {
+		if ( ! is_string( $guid ) || ! preg_match( '/^[a-zA-Z0-9]{8}$/', $guid ) ) {
+			return null;
+		}
+		return array(
+			'guid'       => $guid,
+			'durationMs' => is_numeric( $duration ) ? max( 0, (int) $duration ) : 0,
+			'height'     => is_numeric( $height ) ? max( 0, (int) $height ) : 0,
+		);
 	}
 
 	/**

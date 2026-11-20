@@ -61,6 +61,20 @@ describe( 'PrivacySharingCard', () => {
 		expect( onChange ).toHaveBeenCalledWith( { allowDownloads: true } );
 	} );
 
+	it( 'shows sharing off and locked while the site turns the share menu off', async () => {
+		const user = userEvent.setup();
+		renderCard( { shareMenuDisabledForSite: true } );
+
+		await expandCard( user );
+
+		const toggle = screen.getByRole( 'checkbox', { name: 'Share' } );
+		expect( toggle ).not.toBeChecked();
+		expect( toggle ).toBeDisabled();
+		expect(
+			screen.getByText( 'Sharing is turned off for all videos in VideoPress Settings.' )
+		).toBeInTheDocument();
+	} );
+
 	/*
 	 * `hiddenUntilFound` is CollapsibleCard.Content's default, and it is what
 	 * makes collapsing safe rather than lossy: the content stays in the DOM

@@ -2,6 +2,8 @@ import { __ } from '@wordpress/i18n';
 import { Component } from 'react';
 import { connect } from 'react-redux';
 import QuerySite from 'components/data/query-site';
+import { FeaturesPointer } from 'components/pointer-card';
+import { isSettingsConsolidationEnabled } from 'lib/settings-consolidation';
 import { isUnavailableInOfflineMode, hasConnectedOwner } from 'state/connection';
 import { getModule, getModuleOverride } from 'state/modules';
 import { isModuleFound } from 'state/search';
@@ -9,7 +11,7 @@ import Media from './media';
 import Search from './search';
 import SpeedUpSite from './speed-up-site';
 
-class Performance extends Component {
+export class Performance extends Component {
 	render() {
 		const commonProps = {
 			getModule: this.props.module,
@@ -23,9 +25,14 @@ class Performance extends Component {
 			return null;
 		}
 
-		const found = [ 'photon', 'videopress', 'photon-cdn', 'search' ].some(
-			this.props.isModuleFound
-		);
+		// Once settings move out, every card here shows only in search results, as a link to its new home.
+		const consolidated = isSettingsConsolidationEnabled(),
+			isFound = module =>
+				this.props.isModuleFound( module ) && ( ! consolidated || !! this.props.searchTerm ),
+			foundSearch = isFound( 'search' ),
+			foundVideoPress = isFound( 'videopress' ),
+			foundSiteAccelerator = isFound( 'photon' ) || isFound( 'photon-cdn' ),
+			found = foundSearch || foundVideoPress || foundSiteAccelerator;
 
 		if ( ! found ) {
 			return null;
@@ -35,17 +42,33 @@ class Performance extends Component {
 			<div>
 				<QuerySite />
 				<h1 className="screen-reader-text">{ __( 'Jetpack Performance Settings', 'jetpack' ) }</h1>
-				<h2 className="jp-settings__section-title">
-					{ this.props.searchTerm
-						? __( 'Performance', 'jetpack' )
-						: __(
-								'Load pages faster, optimize images, and speed up your visitors’ experience.',
-								'jetpack'
-						  ) }
-				</h2>
-				<Search { ...commonProps } />
-				<SpeedUpSite { ...commonProps } />
-				<Media { ...commonProps } />
+				{ this.props.searchTerm && (
+					<h2 className="jp-settings__section-title">{ __( 'Performance', 'jetpack' ) }</h2>
+				) }
+				{ ( ! consolidated || foundSearch ) && <Search { ...commonProps } /> }
+				{ consolidated ? (
+					foundSiteAccelerator && (
+						<FeaturesPointer
+							header={ __( 'Site Accelerator', 'jetpack' ) }
+							name={ __( 'Image CDN and Asset CDN', 'jetpack' ) }
+							search="cdn"
+							linksToSettings={ false }
+						/>
+					)
+				) : (
+					<SpeedUpSite { ...commonProps } />
+				) }
+				{ consolidated ? (
+					foundVideoPress && (
+						<FeaturesPointer
+							header={ __( 'VideoPress', 'jetpack' ) }
+							name="VideoPress"
+							search="videopress"
+						/>
+					)
+				) : (
+					<Media { ...commonProps } />
+				) }
 			</div>
 		);
 	}

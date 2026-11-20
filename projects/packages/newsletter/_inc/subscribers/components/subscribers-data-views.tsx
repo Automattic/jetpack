@@ -1,11 +1,14 @@
 import { DataViews } from '@wordpress/dataviews';
 import { useCallback, useEffect, useMemo, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Notice } from '@wordpress/ui';
+import { Notice, Stack } from '@wordpress/ui';
 import { useMembershipsProducts } from '../data/use-memberships-products';
+import { useSendBounceConfirmationMutation } from '../data/use-send-bounce-confirmation-mutation';
 import { useSubscriberRemoveMutation } from '../data/use-subscriber-remove-mutation';
 import { useSubscribers } from '../data/use-subscribers';
-import { getSubscribedAt, getSubscriberRowId } from '../lib/subscriber-helpers';
+import { isNarrowed, isPageSelected } from '../lib/bulk-remove-scope';
+import { canCompSubscriber } from '../lib/comp-eligibility';
+import { getSubscribedAt, getSubscriberLabel, getSubscriberRowId } from '../lib/subscriber-helpers';
 import { getSubscriptionType } from '../lib/subscription-plans';
 import { getSubscriptionStatusLabel } from '../lib/subscription-status';
 import { recordTracksEvent } from '../lib/tracks';
@@ -17,8 +20,16 @@ import EmptyState from './empty-state';
 import CompModal from './modals/comp-modal';
 import RemoveCompModal from './modals/remove-comp-modal';
 import UnsubscribeModal from './modals/unsubscribe-modal';
-import type { Subscriber, SubscribersFilter, SubscribersSortField } from '../data/types';
+import SelectionBanner from './selection-banner';
+import type {
+	Subscriber,
+	SubscribersExportQuery,
+	SubscribersFilter,
+	SubscribersSortField,
+} from '../data/types';
+import type { BulkRemoveScope } from '../data/use-bulk-remove';
 import type { Action, Field, View } from '@wordpress/dataviews';
+import type { JSX } from 'react';
 
 const DEFAULT_PER_PAGE = 20;
 
@@ -42,6 +53,11 @@ type Props = {
 	onViewSubscriber: ( subscriber: Subscriber ) => void;
 	onSubscribersRemoved: ( removed: Subscriber[] ) => void;
 	onSelfOnlyChange: ( isSelfOnly: boolean ) => void;
+	onQueryChange: ( query: SubscribersExportQuery ) => void;
+	onListChange: ( list: { total: number; examples: string[] } ) => void;
+	onRequestBulkRemove: ( scope: BulkRemoveScope ) => void;
+	isBulkRemoveRunning: boolean;
+	isBulkRemoveEnabled?: boolean;
 };
 
 /**
@@ -53,6 +69,12 @@ type Props = {
  * @param props.onViewSubscriber     - Callback fired when the View row action is invoked.
  * @param props.onSubscribersRemoved - Callback fired with the rows that were actually removed.
  * @param props.onSelfOnlyChange     - Reports whether the viewer is the only subscriber, for the header's nudge.
+ * @param props.onQueryChange        - Reports the active filters, search and sort, for the header's CSV download.
+ * @param props.onListChange         - Reports the matching total and the first emails on the page, for the bulk remove menu item and dialog.
+ * @param props.onRequestBulkRemove  - Open the bulk remove dialog, once every matching subscriber is selected.
+ * @param props.isBulkRemoveRunning  - True while a bulk removal runs; removal actions are disabled.
+ * @param props.isBulkRemoveEnabled  - Whether WP.com has removal turned on for the site. Until it
+ *                                   does, the banner offers no "Select all N" and removal stays per page.
  * @return The DataViews component bound to the subscribers query.
  */
 export default function SubscribersDataViews( {
@@ -60,8 +82,16 @@ export default function SubscribersDataViews( {
 	onViewSubscriber,
 	onSubscribersRemoved,
 	onSelfOnlyChange,
+	onQueryChange,
+	onListChange,
+	onRequestBulkRemove,
+	isBulkRemoveRunning,
+	isBulkRemoveEnabled = false,
 }: Props ): JSX.Element {
 	const [ view, setView ] = useViewState( defaultView );
+	const [ selection, setSelection ] = useState< string[] >( [] );
+	// "Select all N matching subscribers": the selection then means every match, not only this page.
+	const [ isAllSelected, setAllSelected ] = useState( false );
 	const [ pendingRemoval, setPendingRemoval ] = useState< Subscriber[] >( [] );
 	const [ compTarget, setCompTarget ] = useState< Subscriber | null >( null );
 	const [ removeCompTarget, setRemoveCompTarget ] = useState< {
@@ -77,6 +107,15 @@ export default function SubscribersDataViews( {
 		return values.length ? values : [ 'all' ];
 	}, [ view.filters ] );
 
+	useEffect( () => {
+		onQueryChange( {
+			filters: apiFilters.filter( filter => filter !== 'all' ),
+			search: view.search ?? '',
+			sort: ( view.sort?.field as SubscribersSortField ) ?? 'date_subscribed',
+			sortOrder: ( view.sort?.direction ?? 'desc' ) as 'asc' | 'desc',
+		} );
+	}, [ apiFilters, view.search, view.sort?.field, view.sort?.direction, onQueryChange ] );
+
 	const queryParams = useMemo(
 		() => ( {
 			page: view.page ?? 1,
@@ -89,8 +128,13 @@ export default function SubscribersDataViews( {
 		[ view.page, view.perPage, view.sort?.field, view.sort?.direction, view.search, apiFilters ]
 	);
 
+	const narrowed = isNarrowed( apiFilters, queryParams.search );
+
 	const { data, isLoading, isPlaceholderData, error } = useSubscribers( queryParams );
+	const subscribers = useMemo( () => data?.subscribers ?? [], [ data?.subscribers ] );
+	const pageIds = useMemo( () => subscribers.map( getSubscriberRowId ), [ subscribers ] );
 	const removeMutation = useSubscriberRemoveMutation();
+	const { mutate: sendBounceConfirmation } = useSendBounceConfirmationMutation();
 
 	// Fetch the site's paid products once for the whole table (not per row) so the "Comp a
 	// subscription" action can be hidden when there's nothing to comp onto — otherwise it opens a
@@ -152,7 +196,7 @@ export default function SubscribersDataViews( {
 			{
 				id: 'name',
 				label: __( 'Name', 'jetpack-newsletter' ),
-				getValue: ( { item }: { item: Subscriber } ) => item.display_name || item.email_address,
+				getValue: ( { item }: { item: Subscriber } ) => getSubscriberLabel( item ),
 				render: ( { item }: { item: Subscriber } ) => <SubscriberIdentity subscriber={ item } />,
 				enableSorting: true,
 				enableHiding: false,
@@ -177,7 +221,10 @@ export default function SubscribersDataViews( {
 				getValue: ( { item }: { item: Subscriber } ) =>
 					getSubscriptionStatusLabel( item.subscription_status ),
 				render: ( { item }: { item: Subscriber } ) => (
-					<SubscriptionStatusCell status={ item.subscription_status } />
+					<SubscriptionStatusCell
+						status={ item.subscription_status }
+						reason={ item.subscription_status_reason }
+					/>
 				),
 				elements: [
 					{
@@ -193,7 +240,7 @@ export default function SubscribersDataViews( {
 						value: 'unconfirmed_subscriber',
 					},
 					{
-						label: __( 'Not sending', 'jetpack-newsletter' ),
+						label: __( 'Not sending (any reason)', 'jetpack-newsletter' ),
 						value: 'blocked_subscriber',
 					},
 				],
@@ -231,13 +278,13 @@ export default function SubscribersDataViews( {
 			{
 				id: 'comp',
 				label: __( 'Comp a subscription', 'jetpack-newsletter' ),
-				// Needs a wpcom user id to attach the comp to, plus a paid product to comp onto —
-				// otherwise the modal is a dead-end that only reports "no paid plans".
-				// `canShowCompAction` comes from a single table-level fetch (see above: true when
-				// products exist or the fetch errored, false while loading or on a genuinely empty
-				// site), so this stays cheap per row. The modal still handles the per-subscriber
-				// "already comped on every plan" edge case.
-				isEligible: ( subscriber: Subscriber ) => !! subscriber.user_id && canShowCompAction,
+				// Needs a paid product to comp onto, otherwise the modal is a dead-end that only
+				// reports "no paid plans". `canShowCompAction` comes from a single table-level fetch
+				// (see above: true when products exist or the fetch errored, false while loading or
+				// on a genuinely empty site), so this stays cheap per row. The modal still handles
+				// the per-subscriber "already comped on every plan" edge case.
+				isEligible: ( subscriber: Subscriber ) =>
+					canCompSubscriber( subscriber ) && canShowCompAction,
 				callback: ( items: Subscriber[] ) => {
 					const target = items[ 0 ];
 					if ( ! target ) {
@@ -270,20 +317,60 @@ export default function SubscribersDataViews( {
 				},
 			},
 			{
+				id: 'send-bounce-confirmation',
+				label: __( 'Send confirmation email', 'jetpack-newsletter' ),
+				isEligible: ( subscriber: Subscriber ) =>
+					subscriber.subscription_status_reason === 'bounced' &&
+					!! subscriber.bounce_retry?.can_retry &&
+					!! subscriber.email_address,
+				callback: ( items: Subscriber[] ) => {
+					const target = items[ 0 ];
+					if ( ! target?.email_address ) {
+						return;
+					}
+					sendBounceConfirmation( target.email_address );
+				},
+			},
+			{
 				id: 'remove',
 				label: __( 'Remove subscriber', 'jetpack-newsletter' ),
-				supportsBulk: true,
+				// A one-item toolbar action is indistinguishable from a row action; the banner
+				// provides the explicit whole-list action on a one-row final page.
+				supportsBulk: ! ( isAllSelected && pageIds.length === 1 ),
+				disabled: isBulkRemoveRunning,
 				callback: ( items: Subscriber[] ) => {
+					if ( isBulkRemoveRunning ) {
+						return;
+					}
+					if (
+						isBulkRemoveEnabled &&
+						isAllSelected &&
+						items.length > 1 &&
+						items.length === pageIds.length
+					) {
+						onRequestBulkRemove( narrowed ? 'matching' : 'all' );
+						return;
+					}
 					setPendingRemoval( items );
 				},
 			},
 		],
-		[ onViewSubscriber, canShowCompAction ]
+		[
+			onViewSubscriber,
+			canShowCompAction,
+			sendBounceConfirmation,
+			isBulkRemoveEnabled,
+			isBulkRemoveRunning,
+			isAllSelected,
+			pageIds,
+			narrowed,
+			onRequestBulkRemove,
+		]
 	);
 
 	const handleConfirmRemoval = useCallback( async () => {
 		const targets = pendingRemoval;
-		if ( targets.length === 0 ) {
+		if ( isBulkRemoveRunning || targets.length === 0 ) {
 			return;
 		}
 		try {
@@ -294,7 +381,7 @@ export default function SubscribersDataViews( {
 		} finally {
 			setPendingRemoval( [] );
 		}
-	}, [ pendingRemoval, removeMutation, onSubscribersRemoved ] );
+	}, [ isBulkRemoveRunning, pendingRemoval, removeMutation, onSubscribersRemoved ] );
 
 	const handleCancelRemoval = useCallback( () => {
 		setPendingRemoval( [] );
@@ -314,7 +401,6 @@ export default function SubscribersDataViews( {
 	const handleCloseComp = useCallback( () => setCompTarget( null ), [] );
 	const handleCloseRemoveComp = useCallback( () => setRemoveCompTarget( null ), [] );
 
-	const subscribers = data?.subscribers ?? [];
 	const totalItems = data?.total ?? 0;
 	const totalPages = data?.pages ?? 0;
 
@@ -337,6 +423,77 @@ export default function SubscribersDataViews( {
 	useEffect( () => {
 		onSelfOnlyChange( isSelfOnly );
 	}, [ isSelfOnly, onSelfOnlyChange ] );
+
+	// A new search or filter changes what "all" means, so start the selection over.
+	useEffect( () => {
+		setSelection( [] );
+		setAllSelected( false );
+	}, [ filterKey ] );
+
+	// "All N selected" only holds while this page stays on screen.
+	useEffect( () => {
+		setAllSelected( false );
+	}, [ view.page, view.perPage, view.sort?.field, view.sort?.direction ] );
+
+	// Once a bulk removal starts, the rows it covers are on their way out.
+	useEffect( () => {
+		if ( isBulkRemoveRunning ) {
+			setSelection( [] );
+			setAllSelected( false );
+			setPendingRemoval( [] );
+		}
+	}, [ isBulkRemoveRunning ] );
+
+	const selectedOnPage = useMemo(
+		() => subscribers.filter( item => selection.includes( getSubscriberRowId( item ) ) ),
+		[ subscribers, selection ]
+	);
+
+	// Rows can change under the selection (a refetch, a single removal), so drop "everyone" as soon
+	// as the page is no longer fully selected.
+	useEffect( () => {
+		if ( ! isPageSelected( pageIds, selection ) ) {
+			setAllSelected( false );
+		}
+	}, [ pageIds, selection ] );
+
+	const clearSelection = useCallback( () => {
+		setSelection( [] );
+		setAllSelected( false );
+	}, [] );
+
+	// Selecting across pages leads to the background job, so it needs removal turned on for the site.
+	const selectAll = useCallback( () => {
+		if ( isBulkRemoveEnabled && ! isBulkRemoveRunning ) {
+			setAllSelected( true );
+		}
+	}, [ isBulkRemoveEnabled, isBulkRemoveRunning ] );
+	const removeSelectedOnPage = useCallback( () => {
+		if ( ! isBulkRemoveRunning ) {
+			setPendingRemoval( selectedOnPage );
+		}
+	}, [ isBulkRemoveRunning, selectedOnPage ] );
+	const requestBulkRemoveOfSelection = useCallback( () => {
+		if ( ! isBulkRemoveRunning ) {
+			onRequestBulkRemove( narrowed ? 'matching' : 'all' );
+		}
+	}, [ isBulkRemoveRunning, onRequestBulkRemove, narrowed ] );
+
+	const settledTotal = settledFilterKey.current === filterKey ? totalItems : null;
+	const examplesKey = subscribers
+		.slice( 0, 3 )
+		.map( item => item.email_address )
+		.join( ',' );
+	useEffect( () => {
+		if ( settledTotal === null ) {
+			onListChange( { total: 0, examples: [] } );
+			return;
+		}
+		onListChange( {
+			total: settledTotal,
+			examples: examplesKey ? examplesKey.split( ',' ) : [],
+		} );
+	}, [ settledTotal, examplesKey, onListChange ] );
 
 	const paginationInfo = useMemo(
 		() => ( { totalItems, totalPages } ),
@@ -366,6 +523,8 @@ export default function SubscribersDataViews( {
 				search
 				searchLabel={ __( 'Search subscribers…', 'jetpack-newsletter' ) }
 				actions={ actions }
+				selection={ selection }
+				onChangeSelection={ setSelection }
 				onClickItem={ handleClickItem }
 				empty={
 					<EmptyState
@@ -373,9 +532,47 @@ export default function SubscribersDataViews( {
 						onAddSubscribers={ onAddSubscribers }
 					/>
 				}
-			/>
+			>
+				{ /* The default DataViews layout, with the selection banner between the filters and the table. */ }
+				<Stack
+					direction="row"
+					align="top"
+					justify="space-between"
+					gap="xs"
+					className="dataviews__view-actions"
+				>
+					<Stack direction="row" justify="start" gap="sm" className="dataviews__search">
+						<DataViews.Search label={ __( 'Search subscribers…', 'jetpack-newsletter' ) } />
+						<DataViews.FiltersToggle />
+					</Stack>
+					<Stack direction="row" gap="xs" style={ { flexShrink: 0 } }>
+						<DataViews.LayoutSwitcher />
+						<DataViews.ViewConfig />
+					</Stack>
+				</Stack>
+				<DataViews.FiltersToggled className="dataviews-filters__container" />
+				{ /* The list stays mounted, so screen readers hear the banner appear and change. */ }
+				<Notice.List>
+					<SelectionBanner
+						pageCount={ subscribers.length }
+						selectedCount={ selectedOnPage.length }
+						matchingCount={ totalItems }
+						totalPages={ totalPages }
+						narrowed={ narrowed }
+						isAllSelected={ isAllSelected }
+						disabled={ isBulkRemoveRunning }
+						canSelectAll={ isBulkRemoveEnabled }
+						onSelectAll={ selectAll }
+						onRemovePage={ removeSelectedOnPage }
+						onRemoveAll={ requestBulkRemoveOfSelection }
+						onClear={ clearSelection }
+					/>
+				</Notice.List>
+				<DataViews.Layout />
+				<DataViews.Footer />
+			</DataViews>
 			<UnsubscribeModal
-				subscribers={ pendingRemoval }
+				subscribers={ isBulkRemoveRunning ? [] : pendingRemoval }
 				onConfirm={ handleConfirmRemoval }
 				onCancel={ handleCancelRemoval }
 			/>

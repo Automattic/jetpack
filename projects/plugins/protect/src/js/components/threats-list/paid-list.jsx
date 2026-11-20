@@ -109,7 +109,7 @@ const ThreatAccordionItem = ( {
 									'What was the problem?',
 									'jetpack-protect',
 									/** dummy arg to avoid bad minification */ 0
-							  ) }
+								) }
 					</Text>
 					<Text mb={ 2 }>{ description }</Text>
 					{ learnMoreButton }

@@ -52,7 +52,7 @@ See [Automated Testing](docs/automated-testing.md) for full details and setup re
 ## Linting and static analysis
 ```sh
 pnpm lint                    # JS/TS (ESLint)
-pnpm lint-style              # CSS/SCSS (Stylelint)
+pnpm lint-style              # CSS/SCSS (Stylelint) — needs an explicit path
 composer phpcs:lint <path>   # PHP (PHPCS)
 jetpack phan <project>       # Static analysis (Phan)
 ```

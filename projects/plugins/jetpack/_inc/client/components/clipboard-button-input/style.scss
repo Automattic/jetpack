@@ -7,7 +7,7 @@
 	.dops-clipboard-button {
 		position: absolute;
 		top: 50%;
-		right: 4px;
+		inset-inline-end: 4px;
 		transform: translateY(-50%);
 		overflow: visible;
 
@@ -22,3 +22,20 @@
 		}
 	}
 }
+
+// URLs read left to right in every locale: keep their start
+// visible and truncate the end.
+
+/*rtl:begin:ignore*/
+[dir="rtl"] .dops-clipboard-button-input input[type="text"] {
+	direction: ltr;
+	text-align: right;
+	text-overflow: ellipsis;
+	padding-left: 80px;
+}
+
+[dir="rtl"] .dops-clipboard-button-input .dops-clipboard-button::before {
+	content: none;
+}
+
+/*rtl:end:ignore*/

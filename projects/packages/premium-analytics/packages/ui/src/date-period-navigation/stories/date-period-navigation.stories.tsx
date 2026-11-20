@@ -1,4 +1,6 @@
-import { canStepForward, stepDateRange } from '@jetpack-premium-analytics/datetime';
+import { TZDate } from '@date-fns/tz';
+import { planDateStep } from '@jetpack-premium-analytics/datetime';
+import { subDays } from 'date-fns';
 import { useState } from 'react';
 import { DatePeriodNavigation } from '../date-period-navigation';
 import type { DateRange, StepDirection } from '@jetpack-premium-analytics/datetime';
@@ -13,10 +15,9 @@ const meta: Meta< typeof DatePeriodNavigation > = {
 			description: {
 				component:
 					'Steps the active window backward and forward by its own length.\n\n' +
-					'The forward control is absent rather than disabled while the window is the ' +
-					'latest one available. `canStepForward` is a prop, derived upstream from the ' +
-					'range, so availability follows where the window sits in time rather than a ' +
-					'layout rule.',
+					'An arrow with nowhere to go is disabled rather than hidden. `canStepForward` ' +
+					'and `canStepBackward` are props, derived upstream from the range and the ' +
+					"plan's earliest date, so availability follows the data rather than a layout rule.",
 			},
 		},
 	},
@@ -36,20 +37,18 @@ type Story = StoryObj< typeof DatePeriodNavigation >;
  * @return The window.
  */
 function weekEnding( endingDaysAgo: number ): DateRange {
-	const to = new Date();
-	to.setDate( to.getDate() - endingDaysAgo );
-	to.setHours( 23, 59, 59, 999 );
+	const end = subDays( new TZDate( Date.now(), 'UTC' ), endingDaysAgo );
+	const start = subDays( end, 6 );
 
-	const from = new Date( to );
-	from.setDate( from.getDate() - 6 );
-	from.setHours( 0, 0, 0, 0 );
-
-	return { from, to };
+	return {
+		from: new TZDate( start.getFullYear(), start.getMonth(), start.getDate(), 0, 0, 0, 0, 'UTC' ),
+		to: new TZDate( end.getFullYear(), end.getMonth(), end.getDate(), 23, 59, 59, 999, 'UTC' ),
+	};
 }
 
 /**
  * The control wired to a real window, so stepping moves it and the forward
- * arrow appears and disappears the way it does in the panel.
+ * arrow enables and disables the way it does in the panel.
  *
  * @param props                - Story props.
  * @param props.initialEndsAgo - How many days back the starting window ends.
@@ -58,30 +57,42 @@ function weekEnding( endingDaysAgo: number ): DateRange {
 function DatePeriodNavigationWithState( { initialEndsAgo }: { initialEndsAgo: number } ) {
 	const [ range, setRange ] = useState( () => weekEnding( initialEndsAgo ) );
 
+	const context = { timeZone: 'UTC', now: new Date() };
 	const step = ( direction: StepDirection ) => {
-		const next = stepDateRange( range, direction );
+		const next = planDateStep( range, direction, context );
 
 		if ( next ) {
-			setRange( next );
+			setRange( next.range );
 		}
 	};
 
 	return (
-		<DatePeriodNavigation canStepForward={ canStepForward( range, new Date() ) } onStep={ step } />
+		<DatePeriodNavigation
+			canStepBackward={ planDateStep( range, 'previous', context ) !== undefined }
+			canStepForward={ planDateStep( range, 'next', context ) !== undefined }
+			onStep={ step }
+		/>
 	);
 }
 
 /**
- * The latest window: only the back arrow, since there is nothing after it.
+ * The latest window: the forward arrow is disabled, since there is nothing after it.
  */
 export const Default: Story = {
 	render: () => <DatePeriodNavigationWithState initialEndsAgo={ 1 } />,
 };
 
 /**
- * A window already stepped back. Both arrows show; stepping forward to the
- * latest window drops the forward one again.
+ * A window already stepped back. Both arrows are live; stepping forward to the
+ * latest window disables the forward one again.
  */
 export const SteppedBack: Story = {
 	render: () => <DatePeriodNavigationWithState initialEndsAgo={ 15 } />,
+};
+
+/**
+ * The plan's earliest date reached: the back arrow is disabled.
+ */
+export const AtEarliestDate: Story = {
+	args: { canStepBackward: false, canStepForward: true, onStep: () => {} },
 };

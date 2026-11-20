@@ -1,18 +1,31 @@
 .value-section {
 	display: flex;
-	justify-content: space-between;
-	margin-top: calc(var(--spacing-base) / 2);
+	flex-direction: column;
+	margin-top: calc(var(--spacing-base) * 1.5);
 
+	// One row per stat: label on the start side, value on the end side.
 	> div {
 		display: flex;
-		flex-direction: column;
-		align-items: flex-start;
+		align-items: center;
+		justify-content: space-between;
+		gap: var(--spacing-base);
+		min-height: calc(var(--spacing-base) * 4);
+
+		+ div {
+			border-block-start: 1px solid var(--jp-gray-5);
+		}
 	}
 
-	&__heading {
+	// The row's label; scoped to beat the Backup card's global heading rule.
+	& &__heading {
 		display: flex;
 		align-items: center;
+		gap: calc(var(--spacing-base) / 2);
 		text-wrap: nowrap;
+		font-size: var(--font-body-small);
+		line-height: var(--font-title-small);
+		font-weight: 400;
+		color: var(--jp-gray-100);
 	}
 
 	&__last-scan {
@@ -42,62 +55,27 @@
 
 	&__data {
 		display: flex;
+		// The icon trails the value, at the row's end.
+		flex-direction: row-reverse;
 		align-items: center;
-		font-size: var(--font-body-extra-small);
+		gap: calc(var(--spacing-base) * 0.75);
+		font-size: var(--font-body-small);
 		line-height: var(--font-title-small);
-		color: var(--jp-gray-50);
+		color: var(--jp-gray-100);
 		font-weight: 500;
-		flex: 1;
-		justify-content: center;
 	}
 
 	&__status-icon {
 		display: block;
-		margin-right: calc(var(--spacing-base) - 2px);
-	}
-
-	&__status-text {
-		margin-right: 1px;
-		// Reduce the letter spacing slightly.
-		// The specific letter spacing is per the design mockup.
-		letter-spacing: -0.24px; // https://wp.me/p1HpG7-rFA
+		flex-shrink: 0;
+		width: 14px;
+		height: 14px;
+		object-fit: contain;
 	}
 }
 
-.scan-threats {
-
-	&__threat-count {
-		font-size: calc(var(--font-title-large) - 4px);
-		line-height: var(--font-title-large);
-		font-weight: 400;
-		color: var(--jp-black);
-	}
-
-	&__critical-threats {
-		display: flex;
-		align-items: center;
-	}
-
-	&__critical-threat-container {
-		margin-left: 1px;
-
-		> button > svg {
-			fill: var(--jp-red-50);
-		}
-	}
-
-	&__critical-threat-count {
-		color: var(--jp-red-50);
-		margin-left: calc(var(--spacing-base) / 4);
-	}
-}
-
-.logins_blocked {
-
-	&__count {
-		font-size: calc(var(--font-headline-small) - 4px);
-		line-height: var(--font-title-large);
-		font-weight: 400;
-		color: var(--jp-black);
-	}
+.scan-threats__threat-count,
+.logins_blocked__count {
+	font-weight: 600;
+	color: var(--jp-black);
 }

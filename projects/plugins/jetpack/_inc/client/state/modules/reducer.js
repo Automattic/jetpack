@@ -302,6 +302,7 @@ export function hasAnySecurityFeature( state ) {
 		isPluginActive( state, 'akismet/akismet.php' )
 	);
 }
+
 /**
  * Returns true if the module is activated
  * @param {object} state - Global state tree

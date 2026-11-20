@@ -1,6 +1,7 @@
-import { Tip } from '@wordpress/components';
 import { compose } from '@wordpress/compose';
 import { withSelect } from '@wordpress/data';
+import { tip } from '@wordpress/icons';
+import { Notice } from '@wordpress/ui';
 import { deburr, lowerCase } from 'lodash';
 import tipsList from './list';
 
@@ -38,7 +39,9 @@ function ContextualTip( { searchTerm, random = false, canUserCreate } ) {
 
 	return (
 		<div className="contextual-tip">
-			<Tip>{ foundTips[ index ]?.description }</Tip>
+			<Notice.Root intent="info" icon={ tip }>
+				<Notice.Description>{ foundTips[ index ]?.description }</Notice.Description>
+			</Notice.Root>
 		</div>
 	);
 }

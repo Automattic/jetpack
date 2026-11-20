@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-Lifecycle: Add consumer-callable cleanup APIs for deactivation and uninstall.

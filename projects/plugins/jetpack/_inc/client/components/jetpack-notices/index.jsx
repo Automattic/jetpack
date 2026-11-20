@@ -1,6 +1,7 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import { Stack } from '@wordpress/ui';
 import PropTypes from 'prop-types';
 import { Component } from 'react';
 import { connect } from 'react-redux';
@@ -11,6 +12,10 @@ import NoticesList from 'components/global-notices';
 import SimpleNotice from 'components/notice';
 import NoticeAction from 'components/notice/notice-action.jsx';
 import { JETPACK_CONTACT_BETA_SUPPORT } from 'constants/urls';
+import {
+	areSettingsNoticesInMyJetpack,
+	isSettingsConsolidationEnabled,
+} from 'lib/settings-consolidation';
 import {
 	getSiteConnectionStatus,
 	getSiteOfflineMode,
@@ -27,6 +32,7 @@ import {
 	userCanConnectSite,
 	userIsSubscriber,
 	getConnectionErrors,
+	userCanManageModules,
 } from 'state/initial-state';
 import { getLicensingError, clearLicensingError } from 'state/licensing';
 import { getSiteDataErrors } from 'state/site';
@@ -40,7 +46,12 @@ export class DevVersionNotice extends Component {
 	static displayName = 'DevVersionNotice';
 
 	render() {
-		if ( this.props.isDevVersion && ! this.props.userIsSubscriber ) {
+		// Dropped, not moved, once settings move to My Jetpack.
+		if (
+			this.props.isDevVersion &&
+			! this.props.userIsSubscriber &&
+			! isSettingsConsolidationEnabled()
+		) {
 			return (
 				<SimpleNotice
 					showDismiss={ false }
@@ -190,7 +201,7 @@ class JetpackNotices extends Component {
 		const isUserConnectScreen = this.props.location.pathname.startsWith( '/connect-user' );
 
 		return (
-			<div aria-live="polite">
+			<Stack direction="column" gap="xl" aria-live="polite">
 				<NoticesList />
 				{ this.props.siteConnectionStatus &&
 					this.props.userCanConnectSite &&
@@ -243,6 +254,7 @@ class JetpackNotices extends Component {
 				) }
 
 				{ window.noticeInfo &&
+					! this.props.deprecationsInMyJetpack &&
 					Object.entries( window.noticeInfo ).map( ( [ noticeKey, { title, message, link } ] ) => (
 						<DeprecationNotice
 							key={ noticeKey }
@@ -255,7 +267,7 @@ class JetpackNotices extends Component {
 							linkText={ link.label }
 						/>
 					) ) }
-			</div>
+			</Stack>
 		);
 	}
 }
@@ -278,6 +290,8 @@ export default connect(
 			isReconnectingSite: isReconnectingSite( state ),
 			licensingError: getLicensingError( state ),
 			hasConnectedOwner: hasConnectedOwner( state ),
+			// My Jetpack's red bubble alerts carry them, for admins only.
+			deprecationsInMyJetpack: areSettingsNoticesInMyJetpack() && userCanManageModules( state ),
 		};
 	},
 	dispatch => {

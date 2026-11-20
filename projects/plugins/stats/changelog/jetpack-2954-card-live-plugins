@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+My Jetpack: Ask for a user connection on the Overview connection card as soon as a plugin that needs one is switched on, without a reload.

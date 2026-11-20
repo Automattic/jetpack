@@ -1,6 +1,6 @@
 <?php
 /**
- * Stubs automatically generated from PHPUnit 12.5.34
+ * Stubs automatically generated from PHPUnit 12.5.45
  * using the definition file `tools/stubs/phpunit-stub-defs.php` in the Jetpack monorepo.
  *
  * Do not edit this directly! Run tools/stubs/update-stubs.sh to regenerate it.
@@ -1002,6 +1002,7 @@ interface Event
 /**
  * @template-implements \IteratorAggregate<non-negative-int, Event>
  * @no-named-arguments
+ * @internal
  */
 final class EventCollection implements \Countable, \IteratorAggregate
 {
@@ -1030,6 +1031,7 @@ final class EventCollection implements \Countable, \IteratorAggregate
 /**
  * @template-implements \Iterator<non-negative-int, Event>
  * @no-named-arguments
+ * @internal
  */
 final class EventCollectionIterator implements \Iterator
 {
@@ -1060,6 +1062,7 @@ final class EventCollectionIterator implements \Iterator
 }
 /**
  * @no-named-arguments
+ * @internal
  */
 final class EventAlreadyAssignedException extends \RuntimeException implements \PHPUnit\Event\Exception
 {
@@ -1084,18 +1087,21 @@ final class InvalidArgumentException extends \InvalidArgumentException implement
 }
 /**
  * @no-named-arguments
+ * @internal
  */
 final class InvalidEventException extends \RuntimeException implements \PHPUnit\Event\Exception
 {
 }
 /**
  * @no-named-arguments
+ * @internal
  */
 final class InvalidSubscriberException extends \RuntimeException implements \PHPUnit\Event\Exception
 {
 }
 /**
  * @no-named-arguments
+ * @internal
  */
 final class MapError extends \RuntimeException implements \PHPUnit\Event\Exception
 {
@@ -1108,30 +1114,35 @@ final class NoPreviousThrowableException extends \RuntimeException implements \P
 }
 /**
  * @no-named-arguments
+ * @internal
  */
 final class RuntimeException extends \RuntimeException implements \PHPUnit\Event\Exception
 {
 }
 /**
  * @no-named-arguments
+ * @internal
  */
 final class SubscriberTypeAlreadyRegisteredException extends \RuntimeException implements \PHPUnit\Event\Exception
 {
 }
 /**
  * @no-named-arguments
+ * @internal
  */
 final class UnknownEventException extends \RuntimeException implements \PHPUnit\Event\Exception
 {
 }
 /**
  * @no-named-arguments
+ * @internal
  */
 final class UnknownEventTypeException extends \RuntimeException implements \PHPUnit\Event\Exception
 {
 }
 /**
  * @no-named-arguments
+ * @internal
  */
 final class UnknownSubscriberException extends \RuntimeException implements \PHPUnit\Event\Exception
 {
@@ -1438,6 +1449,7 @@ final readonly class TestCollection implements \Countable, \IteratorAggregate
 {
     /**
      * @param list<Test> $tests
+     * @internal
      */
     public static function fromArray(array $tests): self
     {
@@ -1666,6 +1678,9 @@ final readonly class ThrowableBuilder
 }
 namespace PHPUnit\Event\Code\IssueTrigger;
 
+/**
+ * @no-named-arguments
+ */
 enum Code : string
 {
     public function isFirstPartyOrTest(): bool
@@ -1686,6 +1701,9 @@ enum Code : string
  */
 final readonly class IssueTrigger
 {
+    /**
+     * @internal
+     */
     public static function from(?\PHPUnit\Event\Code\IssueTrigger\Code $callee, ?\PHPUnit\Event\Code\IssueTrigger\Code $caller): self
     {
     }
@@ -1820,6 +1838,7 @@ final readonly class Duration
 {
     /**
      * @throws \PHPUnit\Event\InvalidArgumentException
+     * @internal
      */
     public static function fromSecondsAndNanoseconds(int $seconds, int $nanoseconds): self
     {
@@ -1911,6 +1930,7 @@ final readonly class HRTime
 {
     /**
      * @throws \PHPUnit\Event\InvalidArgumentException
+     * @internal
      */
     public static function fromSecondsAndNanoseconds(int $seconds, int $nanoseconds): self
     {
@@ -1980,6 +2000,9 @@ interface MemoryMeter
  */
 final readonly class MemoryUsage
 {
+    /**
+     * @internal
+     */
     public static function fromBytes(int $bytes): self
     {
     }
@@ -1993,6 +2016,7 @@ final readonly class MemoryUsage
 /**
  * @immutable
  * @no-named-arguments
+ * @internal
  */
 final readonly class Snapshot
 {
@@ -4516,6 +4540,9 @@ final class NoDataSetFromDataProviderException extends \RuntimeException impleme
  */
 final readonly class DataFromDataProvider extends \PHPUnit\Event\TestData\TestData
 {
+    /**
+     * @internal
+     */
     public static function from(int|string $dataSetName, string $data, string $dataAsStringForResultOutput): self
     {
     }
@@ -4538,6 +4565,9 @@ final readonly class DataFromDataProvider extends \PHPUnit\Event\TestData\TestDa
  */
 final readonly class DataFromTestDependency extends \PHPUnit\Event\TestData\TestData
 {
+    /**
+     * @internal
+     */
     public static function from(string $data): self
     {
     }
@@ -4578,6 +4608,7 @@ final readonly class TestDataCollection implements \Countable, \IteratorAggregat
 {
     /**
      * @param list<TestData> $data
+     * @internal
      */
     public static function fromArray(array $data): self
     {
@@ -9693,6 +9724,7 @@ abstract class TestCase extends \PHPUnit\Framework\Assert implements \PHPUnit\Fr
 }
 /**
  * @no-named-arguments
+ * @internal
  */
 final readonly class ChildProcessResultProcessor
 {
@@ -10657,14 +10689,14 @@ final readonly class RequiresFunction
 final readonly class RequiresMethod
 {
     /**
-     * @param class-string     $className
+     * @param non-empty-string $className
      * @param non-empty-string $methodName
      */
     public function __construct(string $className, string $methodName)
     {
     }
     /**
-     * @return class-string
+     * @return non-empty-string
      */
     public function className(): string
     {
@@ -12292,6 +12324,9 @@ final class TestDoubleState
     {
     }
 }
+/**
+ * @no-named-arguments
+ */
 interface InvocationStubber
 {
     /**
@@ -12482,6 +12517,14 @@ final class InvocationHandler
     {
     }
     public function expects(\PHPUnit\Framework\MockObject\Rule\InvocationOrder $rule): \PHPUnit\Framework\MockObject\InvocationStubber
+    {
+    }
+    /**
+     * @param \PHPUnit\Framework\Constraint\Constraint|non-empty-string|Runtime\PropertyHook $constraint
+     * @throws \PHPUnit\Framework\InvalidArgumentException
+     * @throws MethodCannotBeConfiguredException
+     */
+    public function method(\PHPUnit\Framework\Constraint\Constraint|\PHPUnit\Framework\MockObject\Runtime\PropertyHook|string $constraint): \PHPUnit\Framework\MockObject\InvocationStubber
     {
     }
     /**
@@ -12966,6 +13009,7 @@ final class InvalidMethodNameException extends \PHPUnit\Framework\Exception impl
     }
 }
 /**
+ * @no-named-arguments
  * @internal
  */
 final class MethodNamedMethodException extends \PHPUnit\Framework\Exception implements \PHPUnit\Framework\MockObject\Generator\Exception
@@ -13309,7 +13353,7 @@ final readonly class MethodName
 final class Parameters implements \PHPUnit\Framework\MockObject\Rule\ParametersRule
 {
     /**
-     * @param array<mixed> $parameters
+     * @param array<int|string, mixed> $parameters
      * @throws \PHPUnit\Framework\Exception
      */
     public function __construct(array $parameters)
@@ -14225,9 +14269,17 @@ final readonly class TestSuiteStartedSubscriber extends \PHPUnit\Logging\JUnit\S
 }
 namespace PHPUnit\Logging\OpenTestReporting;
 
+/**
+ * @no-named-arguments
+ * @internal
+ */
 final class CannotOpenUriForWritingException extends \RuntimeException implements \PHPUnit\Logging\OpenTestReporting\Exception
 {
 }
+/**
+ * @no-named-arguments
+ * @internal
+ */
 interface Exception extends \PHPUnit\Exception
 {
 }
@@ -15007,6 +15059,16 @@ final readonly class TestSkippedSubscriber extends \PHPUnit\Logging\TestDox\Subs
  * @no-named-arguments
  * @internal
  */
+final readonly class TestSuiteSkippedSubscriber extends \PHPUnit\Logging\TestDox\Subscriber implements \PHPUnit\Event\TestSuite\SkippedSubscriber
+{
+    public function notify(\PHPUnit\Event\TestSuite\Skipped $event): void
+    {
+    }
+}
+/**
+ * @no-named-arguments
+ * @internal
+ */
 final readonly class TestTriggeredDeprecationSubscriber extends \PHPUnit\Logging\TestDox\Subscriber implements \PHPUnit\Event\Test\DeprecationTriggeredSubscriber
 {
     public function notify(\PHPUnit\Event\Test\DeprecationTriggered $event): void
@@ -15239,6 +15301,9 @@ final class TestResultCollector
      * @throws \PHPUnit\Event\InvalidArgumentException
      */
     public function testFinished(\PHPUnit\Event\Test\Finished $event): void
+    {
+    }
+    public function testSuiteSkipped(\PHPUnit\Event\TestSuite\Skipped $event): void
     {
     }
 }
@@ -15693,62 +15758,97 @@ final readonly class IgnorePhpunitWarnings extends \PHPUnit\Metadata\Metadata
  */
 abstract readonly class Metadata
 {
+    /**
+     * @internal
+     */
     public static function after(int $priority): \PHPUnit\Metadata\After
     {
     }
+    /**
+     * @internal
+     */
     public static function afterClass(int $priority): \PHPUnit\Metadata\AfterClass
     {
     }
+    /**
+     * @internal
+     */
     public static function allowMockObjectsWithoutExpectationsOnClass(): \PHPUnit\Metadata\AllowMockObjectsWithoutExpectations
     {
     }
+    /**
+     * @internal
+     */
     public static function allowMockObjectsWithoutExpectationsOnMethod(): \PHPUnit\Metadata\AllowMockObjectsWithoutExpectations
     {
     }
+    /**
+     * @internal
+     */
     public static function backupGlobalsOnClass(bool $enabled): \PHPUnit\Metadata\BackupGlobals
     {
     }
+    /**
+     * @internal
+     */
     public static function backupGlobalsOnMethod(bool $enabled): \PHPUnit\Metadata\BackupGlobals
     {
     }
+    /**
+     * @internal
+     */
     public static function backupStaticPropertiesOnClass(bool $enabled): \PHPUnit\Metadata\BackupStaticProperties
     {
     }
+    /**
+     * @internal
+     */
     public static function backupStaticPropertiesOnMethod(bool $enabled): \PHPUnit\Metadata\BackupStaticProperties
     {
     }
+    /**
+     * @internal
+     */
     public static function before(int $priority): \PHPUnit\Metadata\Before
     {
     }
+    /**
+     * @internal
+     */
     public static function beforeClass(int $priority): \PHPUnit\Metadata\BeforeClass
     {
     }
     /**
      * @param non-empty-string $namespace
+     * @internal
      */
     public static function coversNamespace(string $namespace): \PHPUnit\Metadata\CoversNamespace
     {
     }
     /**
      * @param class-string $className
+     * @internal
      */
     public static function coversClass(string $className): \PHPUnit\Metadata\CoversClass
     {
     }
     /**
      * @param class-string $className
+     * @internal
      */
     public static function coversClassesThatExtendClass(string $className): \PHPUnit\Metadata\CoversClassesThatExtendClass
     {
     }
     /**
      * @param class-string $interfaceName
+     * @internal
      */
     public static function coversClassesThatImplementInterface(string $interfaceName): \PHPUnit\Metadata\CoversClassesThatImplementInterface
     {
     }
     /**
      * @param trait-string $traitName
+     * @internal
      */
     public static function coversTrait(string $traitName): \PHPUnit\Metadata\CoversTrait
     {
@@ -15756,31 +15856,41 @@ abstract readonly class Metadata
     /**
      * @param class-string     $className
      * @param non-empty-string $methodName
+     * @internal
      */
     public static function coversMethod(string $className, string $methodName): \PHPUnit\Metadata\CoversMethod
     {
     }
     /**
      * @param non-empty-string $functionName
+     * @internal
      */
     public static function coversFunction(string $functionName): \PHPUnit\Metadata\CoversFunction
     {
     }
+    /**
+     * @internal
+     */
     public static function coversNothingOnClass(): \PHPUnit\Metadata\CoversNothing
     {
     }
+    /**
+     * @internal
+     */
     public static function coversNothingOnMethod(): \PHPUnit\Metadata\CoversNothing
     {
     }
     /**
      * @param class-string     $className
      * @param non-empty-string $methodName
+     * @internal
      */
     public static function dataProvider(string $className, string $methodName, bool $validateArgumentCount): \PHPUnit\Metadata\DataProvider
     {
     }
     /**
      * @param class-string $className
+     * @internal
      */
     public static function dependsOnClass(string $className, bool $deepClone, bool $shallowClone): \PHPUnit\Metadata\DependsOnClass
     {
@@ -15788,27 +15898,39 @@ abstract readonly class Metadata
     /**
      * @param class-string     $className
      * @param non-empty-string $methodName
+     * @internal
      */
     public static function dependsOnMethod(string $className, string $methodName, bool $deepClone, bool $shallowClone): \PHPUnit\Metadata\DependsOnMethod
     {
     }
+    /**
+     * @internal
+     */
     public static function disableReturnValueGenerationForTestDoubles(): \PHPUnit\Metadata\DisableReturnValueGenerationForTestDoubles
     {
     }
+    /**
+     * @internal
+     */
     public static function doesNotPerformAssertionsOnClass(): \PHPUnit\Metadata\DoesNotPerformAssertions
     {
     }
+    /**
+     * @internal
+     */
     public static function doesNotPerformAssertionsOnMethod(): \PHPUnit\Metadata\DoesNotPerformAssertions
     {
     }
     /**
      * @param non-empty-string $globalVariableName
+     * @internal
      */
     public static function excludeGlobalVariableFromBackupOnClass(string $globalVariableName): \PHPUnit\Metadata\ExcludeGlobalVariableFromBackup
     {
     }
     /**
      * @param non-empty-string $globalVariableName
+     * @internal
      */
     public static function excludeGlobalVariableFromBackupOnMethod(string $globalVariableName): \PHPUnit\Metadata\ExcludeGlobalVariableFromBackup
     {
@@ -15816,6 +15938,7 @@ abstract readonly class Metadata
     /**
      * @param class-string     $className
      * @param non-empty-string $propertyName
+     * @internal
      */
     public static function excludeStaticPropertyFromBackupOnClass(string $className, string $propertyName): \PHPUnit\Metadata\ExcludeStaticPropertyFromBackup
     {
@@ -15823,30 +15946,35 @@ abstract readonly class Metadata
     /**
      * @param class-string     $className
      * @param non-empty-string $propertyName
+     * @internal
      */
     public static function excludeStaticPropertyFromBackupOnMethod(string $className, string $propertyName): \PHPUnit\Metadata\ExcludeStaticPropertyFromBackup
     {
     }
     /**
      * @param non-empty-string $groupName
+     * @internal
      */
     public static function groupOnClass(string $groupName): \PHPUnit\Metadata\Group
     {
     }
     /**
      * @param non-empty-string $groupName
+     * @internal
      */
     public static function groupOnMethod(string $groupName): \PHPUnit\Metadata\Group
     {
     }
     /**
      * @param null|non-empty-string $messagePattern
+     * @internal
      */
     public static function ignoreDeprecationsOnClass(?string $messagePattern = null): \PHPUnit\Metadata\IgnoreDeprecations
     {
     }
     /**
      * @param null|non-empty-string $messagePattern
+     * @internal
      */
     public static function ignoreDeprecationsOnMethod(?string $messagePattern = null): \PHPUnit\Metadata\IgnoreDeprecations
     {
@@ -15863,119 +15991,168 @@ abstract readonly class Metadata
     public static function ignorePhpunitDeprecationsOnMethod(): \PHPUnit\Metadata\IgnorePhpunitDeprecations
     {
     }
+    /**
+     * @internal
+     */
     public static function postCondition(int $priority): \PHPUnit\Metadata\PostCondition
     {
     }
+    /**
+     * @internal
+     */
     public static function preCondition(int $priority): \PHPUnit\Metadata\PreCondition
     {
     }
+    /**
+     * @internal
+     */
     public static function preserveGlobalStateOnClass(bool $enabled): \PHPUnit\Metadata\PreserveGlobalState
     {
     }
+    /**
+     * @internal
+     */
     public static function preserveGlobalStateOnMethod(bool $enabled): \PHPUnit\Metadata\PreserveGlobalState
     {
     }
     /**
      * @param non-empty-string $functionName
+     * @internal
      */
     public static function requiresFunctionOnClass(string $functionName): \PHPUnit\Metadata\RequiresFunction
     {
     }
     /**
      * @param non-empty-string $functionName
+     * @internal
      */
     public static function requiresFunctionOnMethod(string $functionName): \PHPUnit\Metadata\RequiresFunction
     {
     }
     /**
-     * @param class-string     $className
+     * @param non-empty-string $className
      * @param non-empty-string $methodName
+     * @internal
      */
     public static function requiresMethodOnClass(string $className, string $methodName): \PHPUnit\Metadata\RequiresMethod
     {
     }
     /**
-     * @param class-string     $className
+     * @param non-empty-string $className
      * @param non-empty-string $methodName
+     * @internal
      */
     public static function requiresMethodOnMethod(string $className, string $methodName): \PHPUnit\Metadata\RequiresMethod
     {
     }
     /**
      * @param non-empty-string $operatingSystem
+     * @internal
      */
     public static function requiresOperatingSystemOnClass(string $operatingSystem): \PHPUnit\Metadata\RequiresOperatingSystem
     {
     }
     /**
      * @param non-empty-string $operatingSystem
+     * @internal
      */
     public static function requiresOperatingSystemOnMethod(string $operatingSystem): \PHPUnit\Metadata\RequiresOperatingSystem
     {
     }
     /**
      * @param non-empty-string $operatingSystemFamily
+     * @internal
      */
     public static function requiresOperatingSystemFamilyOnClass(string $operatingSystemFamily): \PHPUnit\Metadata\RequiresOperatingSystemFamily
     {
     }
     /**
      * @param non-empty-string $operatingSystemFamily
+     * @internal
      */
     public static function requiresOperatingSystemFamilyOnMethod(string $operatingSystemFamily): \PHPUnit\Metadata\RequiresOperatingSystemFamily
     {
     }
+    /**
+     * @internal
+     */
     public static function requiresPhpOnClass(\PHPUnit\Metadata\Version\Requirement $versionRequirement): \PHPUnit\Metadata\RequiresPhp
     {
     }
+    /**
+     * @internal
+     */
     public static function requiresPhpOnMethod(\PHPUnit\Metadata\Version\Requirement $versionRequirement): \PHPUnit\Metadata\RequiresPhp
     {
     }
     /**
      * @param non-empty-string $extension
+     * @internal
      */
     public static function requiresPhpExtensionOnClass(string $extension, ?\PHPUnit\Metadata\Version\Requirement $versionRequirement): \PHPUnit\Metadata\RequiresPhpExtension
     {
     }
     /**
      * @param non-empty-string $extension
+     * @internal
      */
     public static function requiresPhpExtensionOnMethod(string $extension, ?\PHPUnit\Metadata\Version\Requirement $versionRequirement): \PHPUnit\Metadata\RequiresPhpExtension
     {
     }
+    /**
+     * @internal
+     */
     public static function requiresPhpunitOnClass(\PHPUnit\Metadata\Version\Requirement $versionRequirement): \PHPUnit\Metadata\RequiresPhpunit
     {
     }
+    /**
+     * @internal
+     */
     public static function requiresPhpunitOnMethod(\PHPUnit\Metadata\Version\Requirement $versionRequirement): \PHPUnit\Metadata\RequiresPhpunit
     {
     }
     /**
      * @param class-string<\PHPUnit\Runner\Extension\Extension> $extensionClass
+     * @internal
      */
     public static function requiresPhpunitExtensionOnClass(string $extensionClass): \PHPUnit\Metadata\RequiresPhpunitExtension
     {
     }
     /**
      * @param class-string<\PHPUnit\Runner\Extension\Extension> $extensionClass
+     * @internal
      */
     public static function requiresPhpunitExtensionOnMethod(string $extensionClass): \PHPUnit\Metadata\RequiresPhpunitExtension
     {
     }
+    /**
+     * @internal
+     */
     public static function requiresEnvironmentVariableOnClass(string $environmentVariableName, null|string $value): \PHPUnit\Metadata\RequiresEnvironmentVariable
     {
     }
+    /**
+     * @internal
+     */
     public static function requiresEnvironmentVariableOnMethod(string $environmentVariableName, null|string $value): \PHPUnit\Metadata\RequiresEnvironmentVariable
     {
     }
+    /**
+     * @internal
+     */
     public static function withEnvironmentVariableOnClass(string $environmentVariableName, null|string $value): \PHPUnit\Metadata\WithEnvironmentVariable
     {
     }
+    /**
+     * @internal
+     */
     public static function withEnvironmentVariableOnMethod(string $environmentVariableName, null|string $value): \PHPUnit\Metadata\WithEnvironmentVariable
     {
     }
     /**
      * @param non-empty-string $setting
      * @param non-empty-string $value
+     * @internal
      */
     public static function requiresSettingOnClass(string $setting, string $value): \PHPUnit\Metadata\RequiresSetting
     {
@@ -15983,30 +16160,45 @@ abstract readonly class Metadata
     /**
      * @param non-empty-string $setting
      * @param non-empty-string $value
+     * @internal
      */
     public static function requiresSettingOnMethod(string $setting, string $value): \PHPUnit\Metadata\RequiresSetting
     {
     }
+    /**
+     * @internal
+     */
     public static function runClassInSeparateProcess(): \PHPUnit\Metadata\RunClassInSeparateProcess
     {
     }
+    /**
+     * @internal
+     */
     public static function runTestsInSeparateProcesses(): \PHPUnit\Metadata\RunTestsInSeparateProcesses
     {
     }
+    /**
+     * @internal
+     */
     public static function runInSeparateProcess(): \PHPUnit\Metadata\RunInSeparateProcess
     {
     }
+    /**
+     * @internal
+     */
     public static function test(): \PHPUnit\Metadata\Test
     {
     }
     /**
      * @param non-empty-string $text
+     * @internal
      */
     public static function testDoxOnClass(string $text): \PHPUnit\Metadata\TestDox
     {
     }
     /**
      * @param non-empty-string $text
+     * @internal
      */
     public static function testDoxOnMethod(string $text): \PHPUnit\Metadata\TestDox
     {
@@ -16014,48 +16206,56 @@ abstract readonly class Metadata
     /**
      * @param class-string     $className
      * @param non-empty-string $methodName
+     * @internal
      */
     public static function testDoxFormatter(string $className, string $methodName): \PHPUnit\Metadata\TestDoxFormatter
     {
     }
     /**
      * @param ?non-empty-string $name
+     * @internal
      */
     public static function testWith(mixed $data, ?string $name = null): \PHPUnit\Metadata\TestWith
     {
     }
     /**
      * @param non-empty-string $namespace
+     * @internal
      */
     public static function usesNamespace(string $namespace): \PHPUnit\Metadata\UsesNamespace
     {
     }
     /**
      * @param class-string $className
+     * @internal
      */
     public static function usesClass(string $className): \PHPUnit\Metadata\UsesClass
     {
     }
     /**
      * @param class-string $className
+     * @internal
      */
     public static function usesClassesThatExtendClass(string $className): \PHPUnit\Metadata\UsesClassesThatExtendClass
     {
     }
     /**
      * @param class-string $interfaceName
+     * @internal
      */
     public static function usesClassesThatImplementInterface(string $interfaceName): \PHPUnit\Metadata\UsesClassesThatImplementInterface
     {
     }
     /**
      * @param trait-string $traitName
+     * @internal
      */
     public static function usesTrait(string $traitName): \PHPUnit\Metadata\UsesTrait
     {
     }
     /**
      * @param non-empty-string $functionName
+     * @internal
      */
     public static function usesFunction(string $functionName): \PHPUnit\Metadata\UsesFunction
     {
@@ -16063,15 +16263,20 @@ abstract readonly class Metadata
     /**
      * @param class-string     $className
      * @param non-empty-string $methodName
+     * @internal
      */
     public static function usesMethod(string $className, string $methodName): \PHPUnit\Metadata\UsesMethod
     {
     }
+    /**
+     * @internal
+     */
     public static function withoutErrorHandler(): \PHPUnit\Metadata\WithoutErrorHandler
     {
     }
     /**
      * @param null|non-empty-string $messagePattern
+     * @internal
      */
     public static function ignorePhpunitWarnings(?string $messagePattern): \PHPUnit\Metadata\IgnorePhpunitWarnings
     {
@@ -16429,6 +16634,7 @@ final readonly class MetadataCollection implements \Countable, \IteratorAggregat
 {
     /**
      * @param list<Metadata> $metadata
+     * @internal
      */
     public static function fromArray(array $metadata): self
     {
@@ -16646,6 +16852,9 @@ final readonly class MetadataCollection implements \Countable, \IteratorAggregat
  */
 final class MetadataCollectionIterator implements \Iterator
 {
+    /**
+     * @internal
+     */
     public function __construct(\PHPUnit\Metadata\MetadataCollection $metadata)
     {
     }
@@ -16749,7 +16958,7 @@ final readonly class RequiresMethod extends \PHPUnit\Metadata\Metadata
     {
     }
     /**
-     * @return class-string
+     * @return non-empty-string
      */
     public function className(): string
     {
@@ -17369,6 +17578,9 @@ namespace PHPUnit\Metadata\Version;
  */
 final readonly class ComparisonRequirement extends \PHPUnit\Metadata\Version\Requirement
 {
+    /**
+     * @internal
+     */
     public function __construct(string $version, \PHPUnit\Util\VersionComparisonOperator $operator)
     {
     }
@@ -17388,6 +17600,9 @@ final readonly class ComparisonRequirement extends \PHPUnit\Metadata\Version\Req
  */
 final readonly class ConstraintRequirement extends \PHPUnit\Metadata\Version\Requirement
 {
+    /**
+     * @internal
+     */
     public function __construct(\PharIo\Version\VersionConstraint $constraint)
     {
     }
@@ -17407,6 +17622,7 @@ abstract readonly class Requirement
     /**
      * @throws \PHPUnit\Util\InvalidVersionOperatorException
      * @throws \PHPUnit\Metadata\InvalidVersionRequirementException
+     * @internal
      */
     public static function from(string $versionRequirement): self
     {
@@ -18557,7 +18773,7 @@ final readonly class Renderer
  * @internal
  * @see https://qa.php.net/phpt_details.php
  */
-final readonly class TestCase implements \PHPUnit\Framework\Reorderable, \PHPUnit\Framework\SelfDescribing, \PHPUnit\Framework\Test
+final class TestCase implements \PHPUnit\Framework\Reorderable, \PHPUnit\Framework\SelfDescribing, \PHPUnit\Framework\Test
 {
     /**
      * @param non-empty-string $filename
@@ -18588,6 +18804,20 @@ final readonly class TestCase implements \PHPUnit\Framework\Reorderable, \PHPUni
     {
     }
     public function sortId(): string
+    {
+    }
+    /**
+     * @return list<string>
+     * @internal
+     */
+    public function groups(): array
+    {
+    }
+    /**
+     * @param list<string> $groups
+     * @internal
+     */
+    public function setGroups(array $groups): void
     {
     }
     /**
@@ -21598,6 +21828,7 @@ final readonly class Configuration
      * @param non-empty-list<non-empty-string>                                            $testSuffixes
      * @param null|non-empty-string                                                       $generateBaseline
      * @param non-negative-int                                                            $shortenArraysForExportThreshold
+     * @internal
      */
     public function __construct(array $cliArguments, ?string $configurationFile, ?string $bootstrap, array $bootstrapForTestSuite, bool $cacheResult, ?string $cacheDirectory, ?string $coverageCacheDirectory, \PHPUnit\TextUI\Configuration\Source $source, string $testResultCacheFile, ?string $coverageClover, ?string $coverageCobertura, ?string $coverageCrap4j, int $coverageCrap4jThreshold, ?string $coverageHtml, int $coverageHtmlLowUpperBound, int $coverageHtmlHighLowerBound, string $coverageHtmlColorSuccessLow, string $coverageHtmlColorSuccessMedium, string $coverageHtmlColorSuccessHigh, string $coverageHtmlColorWarning, string $coverageHtmlColorDanger, ?string $coverageHtmlCustomCssFile, ?string $coverageOpenClover, ?string $coveragePhp, ?string $coverageText, bool $coverageTextShowUncoveredFiles, bool $coverageTextShowOnlySummary, ?string $coverageXml, bool $coverageXmlIncludeSource, bool $pathCoverage, bool $ignoreDeprecatedCodeUnitsFromCodeCoverage, bool $disableCodeCoverageIgnore, bool $failOnAllIssues, bool $failOnDeprecation, bool $failOnPhpunitDeprecation, bool $failOnPhpunitNotice, bool $failOnPhpunitWarning, bool $failOnEmptyTestSuite, bool $failOnIncomplete, bool $failOnNotice, bool $failOnRisky, bool $failOnSkipped, bool $failOnWarning, bool $doNotFailOnDeprecation, bool $doNotFailOnPhpunitDeprecation, bool $doNotFailOnPhpunitNotice, bool $doNotFailOnPhpunitWarning, bool $doNotFailOnEmptyTestSuite, bool $doNotFailOnIncomplete, bool $doNotFailOnNotice, bool $doNotFailOnRisky, bool $doNotFailOnSkipped, bool $doNotFailOnWarning, bool $stopOnDefect, bool $stopOnDeprecation, ?string $specificDeprecationToStopOn, bool $stopOnError, bool $stopOnFailure, bool $stopOnIncomplete, bool $stopOnNotice, bool $stopOnRisky, bool $stopOnSkipped, bool $stopOnWarning, bool $outputToStandardErrorStream, int $columns, bool $noExtensions, ?string $pharExtensionDirectory, array $extensionBootstrappers, bool $backupGlobals, bool $backupStaticProperties, bool $beStrictAboutChangesToGlobalState, bool $colors, bool $processIsolation, bool $enforceTimeLimit, int $defaultTimeLimit, int $timeoutForSmallTests, int $timeoutForMediumTests, int $timeoutForLargeTests, bool $reportUselessTests, bool $strictCoverage, bool $disallowTestOutput, bool $displayDetailsOnAllIssues, bool $displayDetailsOnIncompleteTests, bool $displayDetailsOnSkippedTests, bool $displayDetailsOnTestsThatTriggerDeprecations, bool $displayDetailsOnPhpunitDeprecations, bool $displayDetailsOnPhpunitNotices, bool $displayDetailsOnTestsThatTriggerErrors, bool $displayDetailsOnTestsThatTriggerNotices, bool $displayDetailsOnTestsThatTriggerWarnings, bool $reverseDefectList, bool $requireCoverageMetadata, bool $noProgress, bool $noResults, bool $noOutput, int $executionOrder, int $executionOrderDefects, bool $resolveDependencies, ?string $logfileTeamcity, ?string $logfileJunit, ?string $logfileOtr, bool $includeGitInformationInOtrLogfile, ?string $logfileTestdoxHtml, ?string $logfileTestdoxText, ?string $logEventsText, ?string $logEventsVerboseText, bool $teamCityOutput, bool $testDoxOutput, bool $testDoxOutputSummary, ?array $testsCovering, ?array $testsUsing, ?array $testsRequiringPhpExtension, ?string $filter, ?string $excludeFilter, array $groups, array $excludeGroups, int $randomOrderSeed, bool $includeUncoveredFiles, \PHPUnit\TextUI\Configuration\TestSuiteCollection $testSuite, string $includeTestSuite, string $excludeTestSuite, ?string $defaultTestSuite, bool $ignoreTestSelectionInXmlConfiguration, array $testSuffixes, \PHPUnit\TextUI\Configuration\Php $php, bool $controlGarbageCollector, int $numberOfTestsBeforeGarbageCollection, ?string $generateBaseline, bool $debug, bool $withTelemetry, int $shortenArraysForExportThreshold)
     {
@@ -22555,6 +22786,9 @@ final readonly class TestSuiteBuilder
  */
 final readonly class Constant
 {
+    /**
+     * @internal
+     */
     public function __construct(string $name, bool|string $value)
     {
     }
@@ -22574,6 +22808,7 @@ final readonly class ConstantCollection implements \Countable, \IteratorAggregat
 {
     /**
      * @param list<Constant> $constants
+     * @internal
      */
     public static function fromArray(array $constants): self
     {
@@ -22597,6 +22832,9 @@ final readonly class ConstantCollection implements \Countable, \IteratorAggregat
  */
 final class ConstantCollectionIterator implements \Iterator
 {
+    /**
+     * @internal
+     */
     public function __construct(\PHPUnit\TextUI\Configuration\ConstantCollection $constants)
     {
     }
@@ -22625,6 +22863,9 @@ final class ConstantCollectionIterator implements \Iterator
  */
 final readonly class Directory
 {
+    /**
+     * @internal
+     */
     public function __construct(string $path)
     {
     }
@@ -22641,6 +22882,7 @@ final readonly class DirectoryCollection implements \Countable, \IteratorAggrega
 {
     /**
      * @param list<Directory> $directories
+     * @internal
      */
     public static function fromArray(array $directories): self
     {
@@ -22667,6 +22909,9 @@ final readonly class DirectoryCollection implements \Countable, \IteratorAggrega
  */
 final class DirectoryCollectionIterator implements \Iterator
 {
+    /**
+     * @internal
+     */
     public function __construct(\PHPUnit\TextUI\Configuration\DirectoryCollection $directories)
     {
     }
@@ -22692,6 +22937,7 @@ final class DirectoryCollectionIterator implements \Iterator
 /**
  * @no-named-arguments
  * @immutable
+ * @internal
  */
 final readonly class ExtensionBootstrap
 {
@@ -22719,6 +22965,7 @@ final readonly class ExtensionBootstrap
  * @template-implements \IteratorAggregate<non-negative-int, ExtensionBootstrap>
  * @no-named-arguments
  * @immutable
+ * @internal
  */
 final readonly class ExtensionBootstrapCollection implements \IteratorAggregate
 {
@@ -22741,6 +22988,7 @@ final readonly class ExtensionBootstrapCollection implements \IteratorAggregate
 /**
  * @no-named-arguments
  * @template-implements \Iterator<non-negative-int, ExtensionBootstrap>
+ * @internal
  */
 final class ExtensionBootstrapCollectionIterator implements \Iterator
 {
@@ -22774,6 +23022,7 @@ final readonly class File
 {
     /**
      * @param non-empty-string $path
+     * @internal
      */
     public function __construct(string $path)
     {
@@ -22794,6 +23043,7 @@ final readonly class FileCollection implements \Countable, \IteratorAggregate
 {
     /**
      * @param list<File> $files
+     * @internal
      */
     public static function fromArray(array $files): self
     {
@@ -22820,6 +23070,9 @@ final readonly class FileCollection implements \Countable, \IteratorAggregate
  */
 final class FileCollectionIterator implements \Iterator
 {
+    /**
+     * @internal
+     */
     public function __construct(\PHPUnit\TextUI\Configuration\FileCollection $files)
     {
     }
@@ -22850,6 +23103,7 @@ final readonly class FilterDirectory
 {
     /**
      * @param non-empty-string $path
+     * @internal
      */
     public function __construct(string $path, string $prefix, string $suffix)
     {
@@ -22876,6 +23130,7 @@ final readonly class FilterDirectoryCollection implements \Countable, \IteratorA
 {
     /**
      * @param list<FilterDirectory> $directories
+     * @internal
      */
     public static function fromArray(array $directories): self
     {
@@ -22902,6 +23157,9 @@ final readonly class FilterDirectoryCollection implements \Countable, \IteratorA
  */
 final class FilterDirectoryCollectionIterator implements \Iterator
 {
+    /**
+     * @internal
+     */
     public function __construct(\PHPUnit\TextUI\Configuration\FilterDirectoryCollection $directories)
     {
     }
@@ -22927,6 +23185,7 @@ final class FilterDirectoryCollectionIterator implements \Iterator
 /**
  * @no-named-arguments
  * @immutable
+ * @internal
  */
 final readonly class Group
 {
@@ -22941,6 +23200,7 @@ final readonly class Group
  * @no-named-arguments
  * @immutable
  * @template-implements \IteratorAggregate<non-negative-int, Group>
+ * @internal
  */
 final readonly class GroupCollection implements \IteratorAggregate
 {
@@ -22972,6 +23232,7 @@ final readonly class GroupCollection implements \IteratorAggregate
 /**
  * @no-named-arguments
  * @template-implements \Iterator<non-negative-int, Group>
+ * @internal
  */
 final class GroupCollectionIterator implements \Iterator
 {
@@ -23003,6 +23264,9 @@ final class GroupCollectionIterator implements \Iterator
  */
 final readonly class IniSetting
 {
+    /**
+     * @internal
+     */
     public function __construct(string $name, string $value)
     {
     }
@@ -23022,6 +23286,7 @@ final readonly class IniSettingCollection implements \Countable, \IteratorAggreg
 {
     /**
      * @param list<IniSetting> $iniSettings
+     * @internal
      */
     public static function fromArray(array $iniSettings): self
     {
@@ -23045,6 +23310,9 @@ final readonly class IniSettingCollection implements \Countable, \IteratorAggreg
  */
 final class IniSettingCollectionIterator implements \Iterator
 {
+    /**
+     * @internal
+     */
     public function __construct(\PHPUnit\TextUI\Configuration\IniSettingCollection $iniSettings)
     {
     }
@@ -23073,6 +23341,9 @@ final class IniSettingCollectionIterator implements \Iterator
  */
 final readonly class Php
 {
+    /**
+     * @internal
+     */
     public function __construct(\PHPUnit\TextUI\Configuration\DirectoryCollection $includePaths, \PHPUnit\TextUI\Configuration\IniSettingCollection $iniSettings, \PHPUnit\TextUI\Configuration\ConstantCollection $constants, \PHPUnit\TextUI\Configuration\VariableCollection $globalVariables, \PHPUnit\TextUI\Configuration\VariableCollection $envVariables, \PHPUnit\TextUI\Configuration\VariableCollection $postVariables, \PHPUnit\TextUI\Configuration\VariableCollection $getVariables, \PHPUnit\TextUI\Configuration\VariableCollection $cookieVariables, \PHPUnit\TextUI\Configuration\VariableCollection $serverVariables, \PHPUnit\TextUI\Configuration\VariableCollection $filesVariables, \PHPUnit\TextUI\Configuration\VariableCollection $requestVariables)
     {
     }
@@ -23119,6 +23390,7 @@ final readonly class Source
     /**
      * @param ?non-empty-string                                                         $baseline
      * @param array{functions: list<non-empty-string>, methods: list<non-empty-string>} $deprecationTriggers
+     * @internal
      */
     public function __construct(?string $baseline, bool $ignoreBaseline, \PHPUnit\TextUI\Configuration\FilterDirectoryCollection $includeDirectories, \PHPUnit\TextUI\Configuration\FileCollection $includeFiles, \PHPUnit\TextUI\Configuration\FilterDirectoryCollection $excludeDirectories, \PHPUnit\TextUI\Configuration\FileCollection $excludeFiles, bool $restrictNotices, bool $restrictWarnings, bool $ignoreSuppressionOfDeprecations, bool $ignoreSuppressionOfPhpDeprecations, bool $ignoreSuppressionOfErrors, bool $ignoreSuppressionOfNotices, bool $ignoreSuppressionOfPhpNotices, bool $ignoreSuppressionOfWarnings, bool $ignoreSuppressionOfPhpWarnings, array $deprecationTriggers, bool $ignoreSelfDeprecations, bool $ignoreDirectDeprecations, bool $ignoreIndirectDeprecations, bool $identifyIssueTrigger)
     {
@@ -23212,6 +23484,7 @@ final readonly class TestDirectory
     /**
      * @param non-empty-string       $path
      * @param list<non-empty-string> $groups
+     * @internal
      */
     public function __construct(string $path, string $prefix, string $suffix, string $phpVersion, \PHPUnit\Util\VersionComparisonOperator $phpVersionOperator, array $groups)
     {
@@ -23250,6 +23523,7 @@ final readonly class TestDirectoryCollection implements \Countable, \IteratorAgg
 {
     /**
      * @param list<TestDirectory> $directories
+     * @internal
      */
     public static function fromArray(array $directories): self
     {
@@ -23276,6 +23550,9 @@ final readonly class TestDirectoryCollection implements \Countable, \IteratorAgg
  */
 final class TestDirectoryCollectionIterator implements \Iterator
 {
+    /**
+     * @internal
+     */
     public function __construct(\PHPUnit\TextUI\Configuration\TestDirectoryCollection $directories)
     {
     }
@@ -23307,6 +23584,7 @@ final readonly class TestFile
     /**
      * @param non-empty-string       $path
      * @param list<non-empty-string> $groups
+     * @internal
      */
     public function __construct(string $path, string $phpVersion, \PHPUnit\Util\VersionComparisonOperator $phpVersionOperator, array $groups)
     {
@@ -23339,6 +23617,7 @@ final readonly class TestFileCollection implements \Countable, \IteratorAggregat
 {
     /**
      * @param list<TestFile> $files
+     * @internal
      */
     public static function fromArray(array $files): self
     {
@@ -23365,6 +23644,9 @@ final readonly class TestFileCollection implements \Countable, \IteratorAggregat
  */
 final class TestFileCollectionIterator implements \Iterator
 {
+    /**
+     * @internal
+     */
     public function __construct(\PHPUnit\TextUI\Configuration\TestFileCollection $files)
     {
     }
@@ -23395,6 +23677,7 @@ final readonly class TestSuite
 {
     /**
      * @param non-empty-string $name
+     * @internal
      */
     public function __construct(string $name, \PHPUnit\TextUI\Configuration\TestDirectoryCollection $directories, \PHPUnit\TextUI\Configuration\TestFileCollection $files, \PHPUnit\TextUI\Configuration\FileCollection $exclude)
     {
@@ -23424,6 +23707,7 @@ final readonly class TestSuiteCollection implements \Countable, \IteratorAggrega
 {
     /**
      * @param list<TestSuite> $testSuites
+     * @internal
      */
     public static function fromArray(array $testSuites): self
     {
@@ -23450,6 +23734,9 @@ final readonly class TestSuiteCollection implements \Countable, \IteratorAggrega
  */
 final class TestSuiteCollectionIterator implements \Iterator
 {
+    /**
+     * @internal
+     */
     public function __construct(\PHPUnit\TextUI\Configuration\TestSuiteCollection $testSuites)
     {
     }
@@ -23478,6 +23765,9 @@ final class TestSuiteCollectionIterator implements \Iterator
  */
 final readonly class Variable
 {
+    /**
+     * @internal
+     */
     public function __construct(string $name, mixed $value, bool $force)
     {
     }
@@ -23500,6 +23790,7 @@ final readonly class VariableCollection implements \Countable, \IteratorAggregat
 {
     /**
      * @param list<Variable> $variables
+     * @internal
      */
     public static function fromArray(array $variables): self
     {
@@ -23523,6 +23814,9 @@ final readonly class VariableCollection implements \Countable, \IteratorAggregat
  */
 final class VariableCollectionIterator implements \Iterator
 {
+    /**
+     * @internal
+     */
     public function __construct(\PHPUnit\TextUI\Configuration\VariableCollection $variables)
     {
     }
@@ -23660,6 +23954,7 @@ final class ResultPrinter
 }
 /**
  * @no-named-arguments
+ * @internal
  */
 final readonly class UnexpectedOutputPrinter implements \PHPUnit\Event\Test\PrintedUnexpectedOutputSubscriber
 {
@@ -23684,7 +23979,13 @@ final class ProgressPrinter
     public function testRunnerExecutionStarted(\PHPUnit\Event\TestRunner\ExecutionStarted $event): void
     {
     }
+    public function testSuiteStarted(\PHPUnit\Event\TestSuite\Started $event): void
+    {
+    }
     public function beforeTestClassMethodErrored(): void
+    {
+    }
+    public function beforeTestClassMethodFailed(): void
     {
     }
     public function testPrepared(): void
@@ -23752,6 +24053,16 @@ final class ProgressPrinter
 final readonly class BeforeTestClassMethodErroredSubscriber extends \PHPUnit\TextUI\Output\Default\ProgressPrinter\Subscriber implements \PHPUnit\Event\Test\BeforeFirstTestMethodErroredSubscriber
 {
     public function notify(\PHPUnit\Event\Test\BeforeFirstTestMethodErrored $event): void
+    {
+    }
+}
+/**
+ * @no-named-arguments
+ * @internal
+ */
+final readonly class BeforeTestClassMethodFailedSubscriber extends \PHPUnit\TextUI\Output\Default\ProgressPrinter\Subscriber implements \PHPUnit\Event\Test\BeforeFirstTestMethodFailedSubscriber
+{
+    public function notify(\PHPUnit\Event\Test\BeforeFirstTestMethodFailed $event): void
     {
     }
 }
@@ -23865,6 +24176,16 @@ final readonly class TestSkippedSubscriber extends \PHPUnit\TextUI\Output\Defaul
 final readonly class TestSuiteSkippedSubscriber extends \PHPUnit\TextUI\Output\Default\ProgressPrinter\Subscriber implements \PHPUnit\Event\TestSuite\SkippedSubscriber
 {
     public function notify(\PHPUnit\Event\TestSuite\Skipped $event): void
+    {
+    }
+}
+/**
+ * @no-named-arguments
+ * @internal
+ */
+final readonly class TestSuiteStartedSubscriber extends \PHPUnit\TextUI\Output\Default\ProgressPrinter\Subscriber implements \PHPUnit\Event\TestSuite\StartedSubscriber
+{
+    public function notify(\PHPUnit\Event\TestSuite\Started $event): void
     {
     }
 }
@@ -25485,6 +25806,12 @@ final readonly class Filesystem
     public static function createDirectory(string $directory): bool
     {
     }
+    public static function createPrivateDirectory(string $directory, int $userId): bool
+    {
+    }
+    public static function currentUserId(): false|int
+    {
+    }
     /**
      * @param non-empty-string $path
      * @return false|non-empty-string
@@ -25618,7 +25945,7 @@ final readonly class Sanitizer
     /**
      * @see https://github.com/sebastianbergmann/phpunit/issues/6605
      */
-    public static function sanitizeBidirectionalControlCharacters(string $value): string
+    public static function sanitizeControlCharacters(string $value): string
     {
     }
 }
@@ -25716,6 +26043,20 @@ namespace PHPUnit\Util\PHP;
  */
 final class PhpProcessException extends \RuntimeException implements \PHPUnit\Util\Exception
 {
+}
+/**
+ * @no-named-arguments
+ * @internal
+ */
+final class ExtensionSettings
+{
+    /**
+     * @param \Closure(): list<string> $parameters
+     * @return list<non-empty-string>
+     */
+    public static function forChildProcess(\Closure $parameters): array
+    {
+    }
 }
 /**
  * @immutable
@@ -26896,7 +27237,7 @@ final class Directory extends \SebastianBergmann\CodeCoverage\Node\AbstractNode 
     {
     }
     /**
-     * @return \RecursiveIteratorIterator<Iterator<AbstractNode>>
+     * @return \RecursiveIteratorIterator<Iterator>&\Traversable<int, AbstractNode>
      */
     public function getIterator(): \RecursiveIteratorIterator
     {

@@ -1,0 +1,40 @@
+/**
+ * The allowlist shipped in WordPress 7.0.1's `wp-includes/js/dist/private-apis.js`
+ * (`CORE_MODULES_USING_PRIVATE_APIS`). Verbatim fixture: the newest Core allowlist the
+ * polyfills have to coexist with, and the newest Core whose `wp-private-apis` they replace.
+ */
+module.exports = [
+	'@wordpress/block-directory',
+	'@wordpress/block-editor',
+	'@wordpress/block-library',
+	'@wordpress/blocks',
+	'@wordpress/boot',
+	'@wordpress/commands',
+	'@wordpress/components',
+	'@wordpress/connectors',
+	'@wordpress/core-commands',
+	'@wordpress/core-data',
+	'@wordpress/customize-widgets',
+	'@wordpress/data',
+	'@wordpress/dataviews',
+	'@wordpress/editor',
+	'@wordpress/edit-post',
+	'@wordpress/edit-site',
+	'@wordpress/edit-widgets',
+	'@wordpress/fields',
+	'@wordpress/font-list-route',
+	'@wordpress/format-library',
+	'@wordpress/global-styles-ui',
+	'@wordpress/lazy-editor',
+	'@wordpress/media-utils',
+	'@wordpress/patterns',
+	'@wordpress/preferences',
+	'@wordpress/reusable-blocks',
+	'@wordpress/rich-text',
+	'@wordpress/route',
+	'@wordpress/router',
+	'@wordpress/routes',
+	'@wordpress/sync',
+	'@wordpress/upload-media',
+	'@wordpress/workflows',
+];

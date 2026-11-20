@@ -23,11 +23,13 @@ type MyJetpackConnection = {
 type MyJetpackConnectionOptions = {
 	skipUserConnection?: boolean;
 	redirectUri?: string;
+	from?: string;
 };
 
 const useMyJetpackConnection = ( {
 	skipUserConnection = false,
 	redirectUri = '',
+	from = 'my-jetpack',
 }: MyJetpackConnectionOptions = {} ): MyJetpackConnection => {
 	const { apiRoot, apiNonce } = getMyJetpackWindowRestState();
 	const { topJetpackMenuItemUrl, blogID } = getMyJetpackWindowInitialState();
@@ -37,7 +39,7 @@ const useMyJetpackConnection = ( {
 		apiNonce,
 		registrationNonce,
 		skipUserConnection,
-		from: 'my-jetpack',
+		from,
 		redirectUri: redirectUri,
 		autoTrigger: false,
 	} );

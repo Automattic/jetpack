@@ -13,16 +13,25 @@ require __DIR__ . '/../../../../.phan/config.base.php';
 $config = make_phan_config(
 	dirname( __DIR__ ),
 	array(
-		'+stubs'                          => array( 'akismet', 'amp', 'full-site-editing', 'woocommerce', 'woocommerce-internal', 'woocommerce-packages', 'wpcom', 'zero-bs-crm' ),
+		'+stubs'                          => array( 'akismet', 'amp', 'full-site-editing', 'gutenberg', 'woocommerce', 'woocommerce-internal', 'woocommerce-packages', 'wpcom', 'zero-bs-crm' ),
+		// CI analyses an unbuilt checkout, so the generated wp-build PHP is absent there.
+		// Exclude it locally too, or the `function_exists()` guards that reference it read as
+		// unused suppressions on a built checkout only.
+		'exclude_file_regex'              => array(
+			'build/',
+		),
 		'exclude_file_list'               => array(
 			// Mocks of core classes.
 			'tests/php/_inc/lib/mocks/simplepie.php',
 			// Standalone compatibility fixture that intentionally redefines a WordPress function.
 			'tests/php/fixtures/random-redirect-existing-function.php',
+			// Standalone compatibility fixture that intentionally redefines Jetpack symbols.
+			'tests/php/json-api/fixtures/site-settings-partial-wpcom-bootstrap.php',
 			// Mocks of wpcom classes and functions.
 			'tests/php/lib/class-wpcom-features.php',
 			'tests/php/lib/class-email-verification.php',
 			'tests/php/lib/mock-functions.php',
+			'tests/php/files/mock-wpcomsh-site-sticker.php',
 			'tests/php/extensions/blocks/premium-content/mocks/class-blog-subscriber.php',
 			'tests/php/extensions/blocks/premium-content/mocks/class-blog-subscription.php',
 			'tests/php/extensions/blocks/premium-content/mocks/wpcom-subs-is-subscribed.php',
@@ -43,6 +52,7 @@ $config = make_phan_config(
 			// Make an exception to the above for packages/jetpack-mu-wpcom. Pulling in that whole package here seems more risky than beneficial.
 			__DIR__ . '/../../../packages/jetpack-mu-wpcom/src/class-jetpack-mu-wpcom.php', // class Jetpack_Mu_Wpcom
 			__DIR__ . '/../../../packages/jetpack-mu-wpcom/src/features/launchpad/launchpad.php', // function wpcom_launchpad_is_fse_next_steps_modal_hidden
+			__DIR__ . '/../../../packages/jetpack-mu-wpcom/src/common/class-wpcom-wp-build-page.php', // class WPCOM_WP_Build_Page
 		),
 	)
 );

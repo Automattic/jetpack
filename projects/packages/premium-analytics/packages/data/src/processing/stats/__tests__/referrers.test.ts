@@ -210,6 +210,39 @@ describe( 'Stats referrers normalizer', () => {
 		] );
 	} );
 
+	it( 'marks only the host as spam when the referrer name carries a path', () => {
+		const result = sanitizeStatsReferrersResponse(
+			{
+				date: '2026-06-22',
+				period: 'day',
+				summary: {
+					groups: [
+						{
+							group: 'github.com',
+							name: 'github.com/Automattic/jetpack',
+							url: 'https://github.com/Automattic/jetpack',
+							total: 3,
+							results: { views: 3 },
+						},
+					],
+				},
+			},
+			{
+				period: 'day',
+				start_date: '2026-06-16',
+				end_date: '2026-06-22',
+				summarize: true,
+			}
+		);
+
+		expect( result.data[ 0 ].items ).toEqual( [
+			expect.objectContaining( {
+				label: 'github.com/Automattic/jetpack',
+				actions: [ { type: 'spam', data: { domain: 'github.com' } } ],
+			} ),
+		] );
+	} );
+
 	it( 'does not add spam actions when referrer URLs exclude the group name', () => {
 		const result = sanitizeStatsReferrersResponse(
 			{

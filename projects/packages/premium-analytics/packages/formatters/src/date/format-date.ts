@@ -1,12 +1,21 @@
 /**
  * External dependencies
  */
+import { getScriptData } from '@automattic/jetpack-script-data';
+import { reportingTimeZone } from '@jetpack-premium-analytics/datetime';
 import { dateI18n, getSettings } from '@wordpress/date';
 /**
  * Internal dependencies
  */
 import { intlLocale } from './elide-range';
-import { hasToken, withShortMonth, withWeekday, withoutDay, withoutYear } from './php-format';
+import {
+	hasToken,
+	isCompleteDate,
+	withShortMonth,
+	withWeekday,
+	withoutDay,
+	withoutYear,
+} from './php-format';
 
 /** Fixed because this format backs form values and query parameters. */
 const ISO_FORMAT = 'Y-m-d';
@@ -35,6 +44,26 @@ export type DateFormatName =
 type DateInput = Date | number;
 
 /**
+ * The date format the named formats derive from.
+ *
+ * The site's own when it names a day of the month, a month and a year, else the
+ * locale's default, which the server sends since only PHP has core's translation of it.
+ *
+ * @return PHP `date()` format string.
+ */
+export function siteDateFormat(): string {
+	const siteFormat = getSettings().formats.date;
+
+	if ( isCompleteDate( siteFormat ) || typeof window === 'undefined' ) {
+		return siteFormat;
+	}
+
+	const fallback = getScriptData()?.premium_analytics?.default_date_format;
+
+	return typeof fallback === 'string' && fallback !== '' ? fallback : siteFormat;
+}
+
+/**
  * Resolve a named format to the PHP format string for the current site.
  *
  * @param name - The named format.
@@ -49,7 +78,7 @@ function formatFor( name: DateFormatName ): string {
 		return YEAR_FORMAT;
 	}
 
-	const siteFormat = getSettings().formats.date;
+	const siteFormat = siteDateFormat();
 	const withoutYearFormat = withoutYear( siteFormat ) || siteFormat;
 
 	if ( name === 'dateTime' ) {
@@ -84,7 +113,7 @@ function formatFor( name: DateFormatName ): string {
 }
 
 /**
- * Format a date in the site's locale and timezone.
+ * Format a date in the site's locale and the reporting timezone.
  *
  * Month and weekday names come from WordPress's translation tables and the
  * ordering from `date_format`, so dates match wp-admin rather than the browser.
@@ -94,7 +123,7 @@ function formatFor( name: DateFormatName ): string {
  * @return The formatted date.
  */
 export const formatDate = ( date: DateInput, name: DateFormatName = 'medium' ): string =>
-	dateI18n( formatFor( name ), date );
+	dateI18n( formatFor( name ), date, reportingTimeZone() );
 
 /**
  * Return a full weekday name in the site's locale.
@@ -120,6 +149,24 @@ export const formatWeekday = ( weekday: number ): string => {
  */
 export const formatMondayFirstWeekday = ( weekday: number ): string =>
 	formatWeekday( ( weekday + 1 ) % 7 );
+
+/**
+ * Return a month name in the site's locale.
+ *
+ * Read from WordPress's own translation tables, like `formatWeekday`, so the
+ * months match the rest of wp-admin rather than the browser's locale.
+ *
+ * @param month         - Zero-based month index (`0` = January).
+ * @param options       - Naming options.
+ * @param options.short - Pick the abbreviated name.
+ * @return The localized month name.
+ */
+export const formatMonth = ( month: number, options: { short?: boolean } = {} ): string => {
+	const { l10n } = getSettings();
+	const months = ( options.short ? l10n.monthsShort : l10n.months ) as string[];
+
+	return months?.[ month ] ?? '';
+};
 
 /** 12-hour clock tokens, zero-padded and not. */
 const TWELVE_HOUR_TOKENS = new Set( [ 'g', 'h' ] );

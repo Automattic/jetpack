@@ -64,10 +64,11 @@ beforeEach( () => {
 } );
 
 describe( 'describeImportOutcome', () => {
-	it( 'reports a failed job as an error pointing at the confirmation email', () => {
+	it( 'offers guidance for failed imports with or without a confirmation email', () => {
 		const outcome = describeImportOutcome( job( 'failed' ) );
 		expect( outcome?.status ).toBe( 'error' );
-		expect( outcome?.message ).toContain( 'confirmation email' );
+		expect( outcome?.message ).toContain( 'Check your confirmation email if you received one' );
+		expect( outcome?.message ).toContain( 'or contact support for help' );
 	} );
 
 	it( 'reports the imported count on a clean success', () => {

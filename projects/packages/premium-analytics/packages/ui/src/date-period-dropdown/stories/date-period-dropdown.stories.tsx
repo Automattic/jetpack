@@ -1,0 +1,169 @@
+import {
+	MENU_SURFACE_PRESETS_WITH_ALL_TIME,
+	computePrimaryRange,
+} from '@jetpack-premium-analytics/datetime';
+import { useState, type ReactNode } from 'react';
+import { DateLimitUpsell } from '../../date-limit-upsell';
+import { DatePeriodDropdown } from '../date-period-dropdown';
+import type {
+	DateRange,
+	PrimaryPresetId,
+	QuickSurfacePresetId,
+} from '@jetpack-premium-analytics/datetime';
+import type { Meta, StoryObj } from '@storybook/react';
+
+const meta: Meta< typeof DatePeriodDropdown > = {
+	title: 'Packages/Premium Analytics/UI/DatePeriodDropdown',
+	component: DatePeriodDropdown,
+	tags: [ 'autodocs' ],
+	parameters: {
+		docs: {
+			description: {
+				component:
+					'The dashboard period picker: one trigger naming the applied period, a menu of the common ones grouped by scale, and the calendar beside the list once Custom range is chosen.',
+			},
+		},
+	},
+	decorators: [
+		Story => (
+			<div style={ { width: 'max-content' } }>
+				<Story />
+			</div>
+		),
+	],
+};
+
+export default meta;
+
+type Story = StoryObj< typeof DatePeriodDropdown >;
+
+const TIME_ZONE = 'America/New_York';
+
+// Built in the control's own timezone: the browser's would not be a whole
+// calendar month there, which is the point of the story.
+const CUSTOM_RANGE: DateRange = computePrimaryRange( 'last-month', TIME_ZONE )!;
+
+const LAST_7_DAYS: DateRange = computePrimaryRange( 'last-7-days', TIME_ZONE )!;
+
+function DatePeriodDropdownWithState( {
+	initialPresetId = 'last-30-days',
+	initialRange,
+	presetIds,
+	allTimeStart,
+	lockedPresetIds,
+	earliestDate,
+	lockNotice,
+}: {
+	initialPresetId?: PrimaryPresetId;
+	initialRange?: DateRange;
+	presetIds?: readonly QuickSurfacePresetId[];
+	allTimeStart?: Date;
+	lockedPresetIds?: readonly QuickSurfacePresetId[];
+	earliestDate?: Date;
+	lockNotice?: ReactNode;
+} ) {
+	const [ appliedPresetId, setAppliedPresetId ] = useState< PrimaryPresetId | undefined >(
+		initialPresetId
+	);
+	const [ appliedRange, setAppliedRange ] = useState< DateRange >(
+		initialRange ?? computePrimaryRange( 'last-30-days', TIME_ZONE )!
+	);
+	const [ range, setRange ] = useState< DateRange >( appliedRange );
+	// The draft's own preset, held apart the way the dashboard holds it: the
+	// calendar stages `custom` on the first click, and nothing is applied yet.
+	const [ draftPresetId, setDraftPresetId ] = useState< PrimaryPresetId | undefined >(
+		initialPresetId
+	);
+
+	return (
+		<DatePeriodDropdown
+			appliedPresetId={ appliedPresetId }
+			appliedRange={ appliedRange }
+			range={ range }
+			presetIds={ presetIds }
+			allTimeStart={ allTimeStart }
+			lockedPresetIds={ lockedPresetIds }
+			earliestDate={ earliestDate }
+			lockNotice={ lockNotice }
+			timeZone={ TIME_ZONE }
+			canApply={ range !== appliedRange }
+			onSelect={ ( nextRange, nextPresetId ) => {
+				setAppliedPresetId( nextPresetId );
+				setDraftPresetId( nextPresetId );
+				setAppliedRange( nextRange );
+				setRange( nextRange );
+			} }
+			onChange={ ( nextRange, nextPresetId ) => {
+				if ( nextRange ) {
+					setRange( nextRange );
+				}
+				setDraftPresetId( nextPresetId );
+			} }
+			onApply={ () => {
+				setAppliedPresetId( draftPresetId );
+				setAppliedRange( range );
+			} }
+			onCancel={ () => {
+				setDraftPresetId( appliedPresetId );
+				setRange( appliedRange );
+			} }
+		/>
+	);
+}
+
+export const Default: Story = {
+	render: () => <DatePeriodDropdownWithState />,
+};
+
+/**
+ * A hand-picked range covering a whole month: the trigger names the month, and
+ * opening the menu lands on the calendar, which is the only thing that names it.
+ */
+export const CustomRange: Story = {
+	render: () => (
+		<DatePeriodDropdownWithState initialPresetId="custom" initialRange={ CUSTOM_RANGE } />
+	),
+};
+
+/**
+ * A resource detail page, which offers all time on top of the menu's periods.
+ */
+export const DetailSurface: Story = {
+	render: () => (
+		<DatePeriodDropdownWithState
+			presetIds={ MENU_SURFACE_PRESETS_WITH_ALL_TIME }
+			allTimeStart={ new Date( '2024-03-01T00:00:00.000Z' ) }
+		/>
+	),
+};
+
+/**
+ * A plan that leaves out everything past the last 7 days: those periods show a
+ * lock and cannot be picked, and the lock notice says why.
+ */
+export const PlanLimited: Story = {
+	render: () => (
+		<DatePeriodDropdownWithState
+			initialPresetId="last-7-days"
+			initialRange={ LAST_7_DAYS }
+			earliestDate={ LAST_7_DAYS.from }
+			lockedPresetIds={ [
+				'last-30-days',
+				'month-to-date',
+				'last-month',
+				'year-to-date',
+				'last-12-months',
+				'all-time',
+			] }
+			lockNotice={
+				<DateLimitUpsell
+					upsell={ {
+						description: 'See more than the last 7 days of your stats.',
+						supportUrl: '',
+						upgradeUrl: 'https://example.com/plans',
+					} }
+				/>
+			}
+		/>
+	),
+};

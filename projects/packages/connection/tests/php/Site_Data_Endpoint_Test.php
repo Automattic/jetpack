@@ -735,4 +735,82 @@ class Site_Data_Endpoint_Test extends BaseTestCase {
 		$this->assertArrayHasKey( 'api_error_code', $data );
 		$this->assertArrayHasKey( 'api_http_code', $data );
 	}
+
+	/**
+	 * The response leaves out the excluded options and keeps the rest of the record.
+	 */
+	public function test_response_leaves_out_excluded_options() {
+		$this->fake_http_response(
+			200,
+			'{"ID":1234,"name":"Test site","options":{"frame_nonce":"aaaa","jetpack_frame_nonce":"bbbb","software_version":"6.9"}}'
+		);
+
+		$response = $this->rest_connector->get_site_data();
+		$options  = json_decode( $response->get_data()['data'] )->options;
+
+		$this->assertObjectNotHasProperty( 'frame_nonce', $options );
+		$this->assertObjectNotHasProperty( 'jetpack_frame_nonce', $options );
+		$this->assertSame( '6.9', $options->software_version, 'Everything else about the site is still reported.' );
+	}
+
+	/**
+	 * The plan cache and anything else listening for the record still receives it whole.
+	 */
+	public function test_internal_consumers_receive_the_whole_record() {
+		$this->fake_http_response(
+			200,
+			'{"ID":1234,"options":{"frame_nonce":"aaaa"}}'
+		);
+
+		$payloads = array();
+		add_action(
+			'jetpack_site_data_fetched',
+			function ( $record ) use ( &$payloads ) {
+				$payloads[] = $record;
+			}
+		);
+
+		$returned = $this->manager->get_connected_site_data();
+
+		$this->assertSame(
+			array(
+				array(
+					'ID'      => 1234,
+					'options' => array( 'frame_nonce' => 'aaaa' ),
+				),
+			),
+			$payloads,
+			'The listener receives the record whole.'
+		);
+		$this->assertSame( 'aaaa', $returned->options->frame_nonce );
+	}
+
+	/**
+	 * The cache holds the whole record, so a cached read leaves the options out on the way out too.
+	 */
+	public function test_a_cached_read_leaves_out_excluded_options_too() {
+		$this->fake_http_response(
+			200,
+			'{"ID":1234,"options":{"frame_nonce":"aaaa","software_version":"6.9"}}'
+		);
+
+		$this->rest_connector->get_site_data();
+		$options = json_decode( $this->rest_connector->get_site_data()->get_data()['data'] )->options;
+
+		$this->assertObjectNotHasProperty( 'frame_nonce', $options );
+		$this->assertSame( '6.9', $options->software_version, 'The cached read still reports the rest of the record.' );
+	}
+
+	/**
+	 * A record with no options at all, or a malformed one, must pass through rather than
+	 * turn a usable response into a failure.
+	 */
+	public function test_record_without_options_is_served_unchanged() {
+		$this->fake_http_response( 200, '{"ID":1234,"name":"Test site"}' );
+
+		$record = json_decode( $this->rest_connector->get_site_data()->get_data()['data'] );
+
+		$this->assertSame( 1234, $record->ID );
+		$this->assertSame( 'Test site', $record->name );
+	}
 }

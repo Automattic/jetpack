@@ -1,20 +1,26 @@
 /**
  * External dependencies
  */
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 /**
  * Internal dependencies
  */
 import { MetricList, type MetricListItem } from '../metric-list';
 
 const ROW_HEIGHT = 36;
+const HEADER_HEIGHT = 24;
 
-/** Stub list and row heights because jsdom does not perform layout. */
+/** Stub list, header and row heights because jsdom does not perform layout. */
 function mockLayout( rootHeight: number ) {
 	jest.spyOn( HTMLElement.prototype, 'getBoundingClientRect' ).mockImplementation( function (
 		this: HTMLElement
 	) {
-		const height = this.tagName === 'LI' ? ROW_HEIGHT : rootHeight;
+		let height = rootHeight;
+		if ( this.tagName === 'LI' ) {
+			height = ROW_HEIGHT;
+		} else if ( this.dataset.testid === 'metric-list-header' ) {
+			height = HEADER_HEIGHT;
+		}
 		return { width: 400, height } as DOMRect;
 	} );
 }
@@ -39,6 +45,19 @@ describe( 'MetricList', () => {
 		expect( screen.getByText( '1%' ) ).toBeInTheDocument();
 	} );
 
+	it( 'keeps a row action in the label cell, beside the label', () => {
+		render(
+			<MetricList
+				items={ [ { id: 1, label: 'Email', value: '5%', action: <a href="/view">View</a> } ] }
+			/>
+		);
+
+		const row = within( screen.getByRole( 'listitem' ) );
+		expect( row.getByRole( 'link', { name: 'View' } ) ).toBeInTheDocument();
+		expect( row.getByText( 'Email' ) ).toBeInTheDocument();
+		expect( row.getByText( '5%' ) ).toBeInTheDocument();
+	} );
+
 	it( 'renders the empty state when there are no rows', () => {
 		render( <MetricList items={ [] } emptyStateText="Nothing yet." /> );
 
@@ -56,6 +75,18 @@ describe( 'MetricList', () => {
 		// `hidden` is what takes the dropped rows out of the accessibility tree
 		// and the focus order; a display class alone would leave them both.
 		expect( screen.getAllByRole( 'listitem' ) ).toHaveLength( 3 );
+	} );
+
+	it( 'fits rows in the height left under the header', () => {
+		// Five rows fit the whole list, but only four fit under the header.
+		mockLayout( ROW_HEIGHT * 5 );
+
+		render(
+			<MetricList items={ buildItems( 6 ) } columns={ { label: 'Emails', values: [ 'Opens' ] } } />
+		);
+
+		expect( screen.getByText( 'Opens' ) ).toBeInTheDocument();
+		expect( screen.getAllByRole( 'listitem' ) ).toHaveLength( 4 );
 	} );
 
 	it( 'keeps every row when fitting is off', () => {

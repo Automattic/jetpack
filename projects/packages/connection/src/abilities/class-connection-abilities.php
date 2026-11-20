@@ -33,6 +33,13 @@ class Connection_Abilities extends Registrar {
 	/**
 	 * {@inheritDoc}
 	 */
+	protected static function enabled_by_default(): bool {
+		return true;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public static function get_category_slug(): string {
 		return self::CATEGORY_SLUG;
 	}
@@ -76,12 +83,11 @@ class Connection_Abilities extends Registrar {
 		return array(
 			'label'               => __( 'Get Jetpack connection status', 'jetpack-connection' ),
 			'description'         => __(
-				'Return the site-level Jetpack connection state in one zero-argument call. Shape: { site_registered, user_connected, master_user, blog_id, registration_url, connection_version }. `site_registered` is true when the site has a blog id and a blog token. `user_connected` is true when at least one user has linked their WordPress.com account. `master_user` is the local user id of the connection owner (the user who registered the site), or null if there is no owner. `blog_id` is the WordPress.com site id, or null when the site has not been registered. `registration_url` is the wp-admin URL the site owner should visit to register the site when `site_registered` is false; null once the site is registered. `connection_version` is the running Jetpack Connection package version. Read-only and idempotent — safe to poll.',
+				'Return the site-level Jetpack connection state in one call. Shape: { site_registered, user_connected, master_user, blog_id, registration_url, connection_version }. `site_registered` is true when the site has a blog id and a blog token. `user_connected` is true when at least one user has linked their WordPress.com account. `master_user` is the local user id of the connection owner (the user who registered the site), or null if there is no owner. `blog_id` is the WordPress.com site id, or null when the site has not been registered. `registration_url` is the wp-admin URL the site owner should visit to register the site when `site_registered` is false; null once the site is registered. `connection_version` is the running Jetpack Connection package version. Read-only and idempotent — safe to poll.',
 				'jetpack-connection'
 			),
 			'input_schema'        => array(
 				'type'                 => 'object',
-				'properties'           => new \stdClass(),
 				'additionalProperties' => false,
 			),
 			'output_schema'       => array(
@@ -103,6 +109,7 @@ class Connection_Abilities extends Registrar {
 					'destructive' => false,
 					'idempotent'  => true,
 				),
+				'public'       => true,
 				'show_in_rest' => true,
 				'mcp'          => array(
 					'public' => true,

@@ -1,4 +1,4 @@
-@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+@use "@wordpress/base-styles/mixins";
 @use "@automattic/jetpack-base-styles/root-variables";
 
 .jetpack-onboarding-testimonial {
@@ -70,7 +70,7 @@
 			"Helvetica Neue",
 			sans-serif;
 
-		@include gb.break-xlarge {
+		@include mixins.break-xlarge {
 			padding-inline: 3rem;
 		}
 	}

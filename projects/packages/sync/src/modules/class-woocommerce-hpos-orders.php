@@ -398,7 +398,7 @@ class WooCommerce_HPOS_Orders extends Module {
 			 * @see Automattic\Jetpack\Sync\Functions::json_wrap as the return value of get_object_vars can vary depending on PHP version.
 			 */
 			if ( in_array( $key, array( 'date_created', 'date_modified', 'date_paid', 'date_completed' ), true ) && isset( $order_data[ $key ] ) ) {
-				if ( is_a( $order_data[ $key ], 'WC_DateTime' ) ) {
+				if ( $order_data[ $key ] instanceof \WC_DateTime ) {
 					$filtered_order_data[ $key ] = (object) (array) $order_data[ $key ];
 					continue;
 				}
@@ -467,7 +467,7 @@ class WooCommerce_HPOS_Orders extends Module {
 	 *
 	 * @return string The WC order status with the 'wc-' prefix if it's a valid order status, initial $status otherwise.
 	 */
-	protected static function get_wc_order_status_with_prefix( string $status ) {
+	public static function get_wc_order_status_with_prefix( string $status ) {
 		return in_array( 'wc-' . $status, self::wc_get_order_status_keys(), true ) ? 'wc-' . $status : $status;
 	}
 

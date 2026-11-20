@@ -1,23 +1,32 @@
 /**
  * External dependencies
  */
+import { getScriptData } from '@automattic/jetpack-script-data';
 import { renderHook } from '@testing-library/react';
 /**
  * Internal dependencies
  */
-import { isCsvExportEnabled } from '../is-csv-export-enabled';
 import { useReportCsvExport } from '../use-report-csv-export';
 
-jest.mock( '../is-csv-export-enabled', () => ( {
-	isCsvExportEnabled: jest.fn(),
+jest.mock(
+	'@automattic/jetpack-script-data',
+	() =>
+		jest.requireActual( '../../../../../../tests/js/script-data-test-utils' ).mockJetpackScriptData
+);
+jest.mock( '@jetpack-premium-analytics/data', () => ( {
+	...jest.requireActual( '@jetpack-premium-analytics/data' ),
+	downloadReport: jest.fn(),
 } ) );
 
-const mockIsCsvExportEnabled = jest.mocked( isCsvExportEnabled );
+const mockGetScriptData = jest.mocked( getScriptData );
+const DISABLED_SCRIPT_DATA = {
+	premium_analytics: { csv_exports_enabled: false },
+} as ReturnType< typeof getScriptData >;
 const readyStatus = { isLoading: false, isFetching: false, isError: false };
 
 describe( 'useReportCsvExport', () => {
 	beforeEach( () => {
-		mockIsCsvExportEnabled.mockReturnValue( true );
+		mockGetScriptData.mockReturnValue( undefined );
 	} );
 
 	it( 'builds export values and sorts a copy of the rows', () => {
@@ -80,7 +89,7 @@ describe( 'useReportCsvExport', () => {
 			[ { title: 'Post', views: 1 } ],
 		],
 	] )( 'disables export when %s', ( _label, enabled, status, rows ) => {
-		mockIsCsvExportEnabled.mockReturnValue( enabled );
+		mockGetScriptData.mockReturnValue( enabled ? undefined : DISABLED_SCRIPT_DATA );
 
 		const { result } = renderHook( () =>
 			useReportCsvExport( {
@@ -88,6 +97,31 @@ describe( 'useReportCsvExport', () => {
 				filenamePrefix: 'top-posts',
 				range: { from: '2026-06-01', to: '2026-06-30' },
 				status,
+			} )
+		);
+
+		expect( result.current.canExport ).toBe( false );
+	} );
+
+	it( 'disables export when the plan locks Stats CSV exports', () => {
+		mockGetScriptData.mockReturnValue( {
+			premium_analytics: {
+				plan_gates: {
+					tier: 'free',
+					locked_features: {
+						csv: { description: '', support_url: '', upgrade_url: '' },
+					},
+					locked_widget_types: {},
+				},
+			},
+		} as unknown as ReturnType< typeof getScriptData > );
+
+		const { result } = renderHook( () =>
+			useReportCsvExport( {
+				rows: [ { title: 'Post', views: 1 } ],
+				filenamePrefix: 'top-posts',
+				range: { from: '2026-06-01T00:00:00Z', to: '2026-06-30T23:59:59Z' },
+				status: readyStatus,
 			} )
 		);
 

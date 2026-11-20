@@ -1,4 +1,9 @@
-import { acceptBlockSuggestion, acceptSectionSuggestion, setTextareaValue } from '../lib/dom';
+import {
+	acceptBlockSuggestion,
+	acceptSectionSuggestion,
+	getTextareaBox,
+	setTextareaValue,
+} from '../lib/dom';
 import { getBlockModalTextarea, getSectionTextarea } from '../lib/drafts';
 import { renderBlockModal, renderSections } from './fixtures';
 
@@ -110,6 +115,23 @@ describe( 'dom', () => {
 				acceptBlockSuggestion( null, 'core/image', 'Add alt text.', clearSuggestion )
 			).not.toThrow();
 			expect( clearSuggestion ).toHaveBeenCalledWith( 'core/image' );
+		} );
+	} );
+	describe( 'getTextareaBox', () => {
+		it( 'returns the textarea for the older TextareaControl, which draws its own border', () => {
+			document.body.innerHTML =
+				'<div><textarea class="components-textarea-control__input"></textarea></div>';
+			const textarea = document.querySelector( 'textarea' );
+
+			expect( getTextareaBox( textarea ) ).toBe( textarea );
+		} );
+
+		it( 'returns the wrapper for the @wordpress/ui textarea', () => {
+			document.body.innerHTML = '<div id="box"><textarea></textarea></div>';
+
+			expect( getTextareaBox( document.querySelector( 'textarea' ) ) ).toBe(
+				document.getElementById( 'box' )
+			);
 		} );
 	} );
 } );

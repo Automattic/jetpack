@@ -36,7 +36,7 @@ const FirewallSubheading = () => {
 		const textSegments = [];
 
 		if ( wafSupported && isBruteForceModuleEnabled ) {
-			textSegments.push( __( 'Brute force protection is active.', 'jetpack-protect' ) );
+			textSegments.push( __( 'Login protection is active.', 'jetpack-protect' ) );
 		}
 
 		if ( wafRules.noRules ) {
@@ -63,12 +63,12 @@ const FirewallSubheading = () => {
 			? __(
 					'The free version of the firewall only allows for use of manual rules.',
 					'jetpack-protect'
-			  )
+				)
 			: __(
 					'The free version of the firewall does not receive updates to automatic security rules.',
 					'jetpack-protect',
 					/* dummy arg to avoid bad minification */ 0
-			  );
+				);
 	}, [ automaticRulesAvailable ] );
 
 	const renderTooltip = () => {

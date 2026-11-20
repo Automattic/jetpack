@@ -28,6 +28,7 @@ import { PANEL_STATE_STORE } from '../store/panel-state.ts';
 import IntegrationIcons from './integration-icons.tsx';
 import type { Integration } from '../../types/index.ts';
 import type { Block } from '@wordpress/blocks';
+import type { JSX } from 'react';
 import './form-pre-publish-panel.scss';
 
 export const JETPACK_FORM_PRE_PUBLISH_PANEL = 'jetpack-form-pre-publish';

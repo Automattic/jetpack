@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\VideoPress;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
 
 /**
@@ -113,6 +114,86 @@ class Attachment_Handler_Test extends BaseTestCase {
 		Attachment_Handler::enqueue_media_library_poll();
 
 		$this->assertTrue( wp_script_is( 'videopress-media-library-poll', 'enqueued' ) );
+	}
+
+	/**
+	 * Test that a VideoPress delete WordPress.com did not confirm is blocked with a falsy value and explained over REST.
+	 */
+	public function test_unconfirmed_wpcom_delete_is_reported_as_failure() {
+		$id = wp_insert_attachment(
+			array(
+				'post_title'     => 'Video',
+				'post_mime_type' => 'video/videopress',
+			)
+		);
+		update_post_meta( $id, 'videopress_guid', 'abcd1234' );
+		add_filter( 'pre_http_request', array( $this, 'fail_http_request' ) );
+
+		$result = Attachment_Handler::delete_video_wpcom( null, get_post( $id ) );
+		remove_filter( 'pre_http_request', array( $this, 'fail_http_request' ) );
+
+		$this->assertFalse( $result );
+		$error = Attachment_Handler::explain_rest_delete_failure( new \WP_Error( 'rest_cannot_delete', 'The post cannot be deleted.' ) );
+		$this->assertSame( 'videopress_delete_failed', $error->get_error_code() );
+		$this->assertSame( 'rest_cannot_delete', Attachment_Handler::explain_rest_delete_failure( new \WP_Error( 'rest_cannot_delete' ) )->get_error_code() );
+	}
+
+	/**
+	 * Fails every HTTP request, as a timeout would.
+	 *
+	 * @return \WP_Error
+	 */
+	public function fail_http_request() {
+		return new \WP_Error( 'http_request_failed', 'cURL error 28: Operation timed out' );
+	}
+
+	/**
+	 * Test that the list view bulk-delete script loads only when the page lists VideoPress videos.
+	 *
+	 * @dataProvider provide_bulk_delete_mime_types
+	 *
+	 * @param string $mime_type      Mime type of the listed attachment.
+	 * @param bool   $should_enqueue Whether the script should be enqueued.
+	 */
+	#[DataProvider( 'provide_bulk_delete_mime_types' )]
+	public function test_enqueue_media_library_bulk_delete( $mime_type, $should_enqueue ) {
+		global $wp_list_table, $wp_query;
+		require_once ABSPATH . 'wp-admin/includes/class-wp-list-table.php';
+		require_once ABSPATH . 'wp-admin/includes/class-wp-media-list-table.php';
+
+		$post            = new \WP_Post(
+			(object) array(
+				'ID'             => 42,
+				'post_type'      => 'attachment',
+				'post_mime_type' => $mime_type,
+			)
+		);
+		$wp_query        = new \WP_Query();
+		$wp_query->posts = array( $post );
+		$wp_list_table   = ( new \ReflectionClass( \WP_Media_List_Table::class ) )->newInstanceWithoutConstructor();
+
+		Attachment_Handler::enqueue_media_library_bulk_delete();
+
+		$this->assertSame( $should_enqueue, wp_script_is( 'videopress-media-library-bulk-delete', 'enqueued' ) );
+		if ( $should_enqueue ) {
+			$this->assertStringContainsString( '"videoPressIds":[42]', wp_scripts()->get_data( 'videopress-media-library-bulk-delete', 'data' ) );
+		}
+
+		wp_dequeue_script( 'videopress-media-library-bulk-delete' );
+		wp_deregister_script( 'videopress-media-library-bulk-delete' );
+		$wp_list_table = null;
+	}
+
+	/**
+	 * Data provider for test_enqueue_media_library_bulk_delete.
+	 *
+	 * @return array
+	 */
+	public static function provide_bulk_delete_mime_types() {
+		return array(
+			'VideoPress video' => array( 'video/videopress', true ),
+			'Other media'      => array( 'image/jpeg', false ),
+		);
 	}
 
 	/**
@@ -342,5 +423,20 @@ class Attachment_Handler_Test extends BaseTestCase {
 		$result = Attachment_Handler::disable_delete_if_disconnected( $allcaps, array( 'delete_post' ), array( 'delete_post' ) );
 
 		$this->assertSame( $allcaps, $result );
+	}
+	/**
+	 * Failed conversions show recovery guidance rather than the processing icon.
+	 */
+	public function test_failed_conversion_media_library_details() {
+		$id = wp_insert_post(
+			array(
+				'post_type'      => 'attachment',
+				'post_mime_type' => 'video/videopress',
+			)
+		);
+		update_post_meta( $id, 'videopress_status', 'failed' );
+		$this->assertSame( 'video.png', Attachment_Handler::wp_mime_type_icon( 'video.png', 'video/videopress', $id ) );
+		$fields = Attachment_Handler::conversion_failure_field( array(), get_post( $id ) );
+		$this->assertStringContainsString( 'Delete this video and upload it again.', $fields['videopress_conversion_error']['html'] );
 	}
 }

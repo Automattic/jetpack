@@ -14,7 +14,7 @@ import {
 	getSiteBenefits,
 } from 'state/site';
 import JetpackBenefits from '../components/jetpack-benefits';
-import { getApiRootUrl, getApiNonce } from '../state/initial-state';
+import { getApiRootUrl, getApiNonce, getPluginDeactivationData } from '../state/initial-state';
 import PortalSidecar from './utilities/portal-sidecar';
 
 /**
@@ -24,6 +24,7 @@ import PortalSidecar from './utilities/portal-sidecar';
  * @param {string} props.apiRoot      - Root URL for the API, which is required by the <DisconnectDialog/> component.
  * @param {string} props.apiNonce     - Nonce value for the API, which is required by the <DisconnectDialog/> component.
  * @param {Array}  props.siteBenefits - An array of benefits provided by Jetpack.
+ * @param {object} props.siteData     - Blog ID and user connection state, for the survey.
  * @param {string} props.pluginUrl    - The URL of the plugin directory.
  * @return {import('react').Component} - The PluginDeactivation component.
  */
@@ -32,6 +33,7 @@ const PluginDeactivation = props => {
 		apiRoot,
 		apiNonce,
 		siteBenefits,
+		siteData,
 		connectionUserData,
 		fetchSiteBenefits,
 		fetchUserConnectionData,
@@ -101,6 +103,9 @@ const PluginDeactivation = props => {
 					ID: connectionUserData?.ID,
 					login: connectionUserData?.login,
 				} }
+				connectedSiteId={ siteData?.siteId }
+				hasConnectedUser={ siteData?.hasConnectedUser ?? true }
+				isCurrentUserConnected={ siteData?.isCurrentUserConnected ?? false }
 				context={ 'plugins' }
 				isOpen={ modalOpen }
 				onClose={ toggleVisibility }
@@ -118,6 +123,7 @@ export default connect(
 			apiNonce: getApiNonce( state ),
 			connectedPlugins: getConnectedPluginsMap( state ),
 			siteBenefits: getSiteBenefits( state ),
+			siteData: getPluginDeactivationData( state ),
 			connectionUserData: getConnectedWpComUser( state ),
 		};
 	},

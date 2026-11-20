@@ -6,6 +6,7 @@
  */
 
 import { getRedirectUrl } from '@automattic/jetpack-components';
+import { speak } from '@wordpress/a11y';
 import {
 	Card,
 	CardBody,
@@ -18,14 +19,21 @@ import { createInterpolateElement, useCallback, useState } from '@wordpress/elem
 import { __ } from '@wordpress/i18n';
 import { check, copy } from '@wordpress/icons';
 import { Button, Link, Stack } from '@wordpress/ui';
-
-const MCP_SERVER_NAME = 'wpcom-mcp';
-const MCP_SERVER_URL = 'https://public-api.wordpress.com/wpcom/v2/mcp/v1';
-const CLAUDE_SETTINGS_CONNECTOR_REDIRECT_SOURCE = 'jetpack-ai-claude-settings-connector';
+import {
+	CHATGPT_CONNECTOR_REDIRECT_SOURCE,
+	CHATGPT_SELF_HOSTED_REDIRECT_SOURCE,
+	CLAUDE_CODE_COMMAND,
+	CLAUDE_CONNECTOR_REDIRECT_SOURCE,
+	CLAUDE_SELF_HOSTED_REDIRECT_SOURCE,
+	CURSOR_PLUGIN_REDIRECT_SOURCE,
+	MCP_SERVER_NAME,
+	MCP_SERVER_URL,
+} from './connect-agents';
 
 const CLIENT_OPTIONS = [
 	{ label: 'Claude', value: 'claude' },
 	{ label: 'Claude Code', value: 'claude-code' },
+	{ label: 'ChatGPT/Codex', value: 'chatgpt' },
 	{ label: 'Cursor', value: 'cursor' },
 	{ label: 'VS Code', value: 'vscode' },
 	{ label: 'Continue', value: 'continue' },
@@ -69,8 +77,6 @@ function generateMcpConfig( client ) {
 			return { servers: { [ MCP_SERVER_NAME ]: baseConfig } };
 		case 'cursor':
 			return { mcpServers: { [ MCP_SERVER_NAME ]: baseConfig } };
-		case 'continue':
-			return { mcpServers: [ { name: MCP_SERVER_NAME, ...baseConfig } ] };
 		default:
 			return { mcpServers: { [ MCP_SERVER_NAME ]: baseConfig } };
 	}
@@ -86,6 +92,7 @@ export default function McpSetup() {
 	const [ copyStatus, setCopyStatus ] = useState( 'idle' );
 
 	const configText = JSON.stringify( generateMcpConfig( selectedClient ), null, 2 );
+	const isSelfHosted = window?.jetpackAiSettings?.isSelfHosted === true;
 
 	// Read-only textarea requires a no-op onChange to satisfy the controlled input contract.
 	const handleConfigChange = useCallback( () => {}, [] );
@@ -94,17 +101,18 @@ export default function McpSetup() {
 		try {
 			await navigator.clipboard.writeText( configText );
 			setCopyStatus( 'success' );
+			speak( __( 'Copied', 'jetpack' ) );
 			setTimeout( () => setCopyStatus( 'idle' ), 2000 );
 		} catch {
 			// Clipboard may be blocked — silently fail.
 		}
 	}, [ configText ] );
 
-	const quickSetupClients = [ 'claude', 'claude-code', 'cursor' ];
+	const quickSetupClients = [ 'claude', 'claude-code', 'chatgpt', 'cursor' ];
 	const showQuickSetup = quickSetupClients.includes( selectedClient );
 
 	return (
-		<Stack direction="column" gap="md">
+		<Stack direction="column" gap="lg">
 			<Card>
 				<CardBody>
 					<SelectControl
@@ -130,26 +138,30 @@ export default function McpSetup() {
 								<ol className="jetpack-ai-mcp-setup__steps">
 									<li>
 										<Text as="p" variant="muted">
-											{ createInterpolateElement( __( 'Open <ClaudeSettings/>.', 'jetpack' ), {
-												ClaudeSettings: (
-													<Link
-														href={ getRedirectUrl( CLAUDE_SETTINGS_CONNECTOR_REDIRECT_SOURCE ) }
-														openInNewTab
-													>
-														{ __( 'Claude settings', 'jetpack' ) }
-													</Link>
-												),
-											} ) }
+											{ createInterpolateElement(
+												__( 'Open the <ClaudeConnector/> page in Claude.', 'jetpack' ),
+												{
+													ClaudeConnector: (
+														<Link
+															href={ getRedirectUrl(
+																isSelfHosted
+																	? CLAUDE_SELF_HOSTED_REDIRECT_SOURCE
+																	: CLAUDE_CONNECTOR_REDIRECT_SOURCE
+															) }
+															openInNewTab
+														>
+															{ isSelfHosted
+																? __( 'Claude connector', 'jetpack' )
+																: __( 'WordPress.com connector', 'jetpack' ) }
+														</Link>
+													),
+												}
+											) }
 										</Text>
 									</li>
 									<li>
 										<Text as="p" variant="muted">
-											{ __( 'Click "Browse connectors" and search for WordPress.com.', 'jetpack' ) }
-										</Text>
-									</li>
-									<li>
-										<Text as="p" variant="muted">
-											{ __( 'Select WordPress.com and follow the prompts.', 'jetpack' ) }
+											{ __( 'Click "Connect" and follow the prompts.', 'jetpack' ) }
 										</Text>
 									</li>
 								</ol>
@@ -171,7 +183,7 @@ export default function McpSetup() {
 													{
 														code: (
 															<code className="jetpack-ai-mcp-setup__code">
-																{ `claude mcp add --transport http ${ MCP_SERVER_NAME } ${ MCP_SERVER_URL }` }
+																{ CLAUDE_CODE_COMMAND }
 															</code>
 														),
 													}
@@ -211,27 +223,78 @@ export default function McpSetup() {
 								</Stack>
 							) }
 
+							{ selectedClient === 'chatgpt' && (
+								<ol className="jetpack-ai-mcp-setup__steps">
+									<li>
+										<Text as="p" variant="muted">
+											{ createInterpolateElement(
+												__( 'Open the <ChatGptConnector/> page in ChatGPT.', 'jetpack' ),
+												{
+													ChatGptConnector: (
+														<Link
+															href={ getRedirectUrl(
+																isSelfHosted
+																	? CHATGPT_SELF_HOSTED_REDIRECT_SOURCE
+																	: CHATGPT_CONNECTOR_REDIRECT_SOURCE
+															) }
+															openInNewTab
+														>
+															{ __( 'WordPress plugin', 'jetpack' ) }
+														</Link>
+													),
+												}
+											) }
+										</Text>
+									</li>
+									<li>
+										<Text as="p" variant="muted">
+											{ __( 'Click "Install" and follow the prompts.', 'jetpack' ) }
+										</Text>
+									</li>
+								</ol>
+							) }
+
 							{ selectedClient === 'cursor' && (
 								<Stack direction="column" gap="md">
+									<ol className="jetpack-ai-mcp-setup__steps">
+										<li>
+											<Text as="p" variant="muted">
+												{ createInterpolateElement(
+													__(
+														'Open the <CursorPlugin/> page on the Cursor Marketplace.',
+														'jetpack'
+													),
+													{
+														CursorPlugin: (
+															<Link
+																href={ getRedirectUrl( CURSOR_PLUGIN_REDIRECT_SOURCE ) }
+																openInNewTab
+															>
+																{ __( 'WordPress plugin', 'jetpack' ) }
+															</Link>
+														),
+													}
+												) }
+											</Text>
+										</li>
+										<li>
+											<Text as="p" variant="muted">
+												{ __( 'Click "Add to Cursor" and follow the prompts.', 'jetpack' ) }
+											</Text>
+										</li>
+									</ol>
 									<Text as="p" variant="muted">
-										{ __(
-											'For Cursor users, use the one-click install to add the WordPress.com MCP app.',
-											'jetpack'
+										{ createInterpolateElement(
+											__( 'Or run <code/> in the Cursor chat.', 'jetpack' ),
+											{
+												code: (
+													<code className="jetpack-ai-mcp-setup__code">
+														/add-plugin wordpress-com
+													</code>
+												),
+											}
 										) }
 									</Text>
-									<Button
-										variant="solid"
-										className="jetpack-ai-mcp-setup__action-button"
-										render={
-											<a
-												href="cursor://anysphere.cursor-deeplink/mcp/install?name=WordPress.com&config=eyJjb21tYW5kIjoibnB4IC15IG1jcC1yZW1vdGUgaHR0cHM6Ly9wdWJsaWMtYXBpLndvcmRwcmVzcy5jb20vd3Bjb20vdjIvbWNwL3YxIn0%3D"
-												target="_blank"
-												rel="noreferrer"
-											/>
-										}
-									>
-										{ __( 'Install in Cursor', 'jetpack' ) }
-									</Button>
 								</Stack>
 							) }
 						</Stack>
@@ -239,41 +302,46 @@ export default function McpSetup() {
 				</Card>
 			) }
 
-			<Card>
-				<CardBody>
-					<Stack direction="column" gap="sm">
-						<Stack direction="row" justify="space-between" align="center">
-							<Text as="h3" weight={ 600 }>
-								{ __( 'Manual setup', 'jetpack' ) }
+			{ /* ChatGPT connects through its own plugins UI, so there is no config to copy. */ }
+			{ selectedClient !== 'chatgpt' && (
+				<Card>
+					<CardBody>
+						<Stack direction="column" gap="sm">
+							<Stack direction="row" justify="space-between" align="center">
+								<Text as="h3" weight={ 600 }>
+									{ __( 'Manual setup', 'jetpack' ) }
+								</Text>
+								<Button
+									variant="minimal"
+									tone="neutral"
+									size="compact"
+									onClick={ copyToClipboard }
+									aria-label={ __( 'Copy configuration to clipboard', 'jetpack' ) }
+								>
+									<Icon icon={ copyStatus === 'success' ? check : copy } size={ 18 } />
+								</Button>
+							</Stack>
+							<Text as="p" variant="muted">
+								{ __( 'Copy this configuration into your client\u2019s MCP settings.', 'jetpack' ) }
 							</Text>
-							<Button
-								variant="minimal"
-								tone="neutral"
-								size="compact"
-								onClick={ copyToClipboard }
-								aria-label={ __( 'Copy configuration to clipboard', 'jetpack' ) }
-							>
-								<Icon icon={ copyStatus === 'success' ? check : copy } size={ 18 } />
-							</Button>
+							<TextareaControl
+								className="jetpack-ai-mcp-setup__config-textarea"
+								__nextHasNoMarginBottom
+								label={ __( 'MCP configuration', 'jetpack' ) }
+								hideLabelFromVision
+								value={ configText }
+								onChange={ handleConfigChange }
+								readOnly
+							/>
+							{ CLIENT_DOCS_SOURCES[ selectedClient ] && (
+								<Link href={ getRedirectUrl( CLIENT_DOCS_SOURCES[ selectedClient ] ) } openInNewTab>
+									{ CLIENT_DOCS_LABELS[ selectedClient ] }
+								</Link>
+							) }
 						</Stack>
-						<Text as="p" variant="muted">
-							{ __( 'Copy this configuration into your client\u2019s MCP settings.', 'jetpack' ) }
-						</Text>
-						<TextareaControl
-							className="jetpack-ai-mcp-setup__config-textarea"
-							__nextHasNoMarginBottom
-							value={ configText }
-							onChange={ handleConfigChange }
-							readOnly
-						/>
-						{ CLIENT_DOCS_SOURCES[ selectedClient ] && (
-							<Link href={ getRedirectUrl( CLIENT_DOCS_SOURCES[ selectedClient ] ) } openInNewTab>
-								{ CLIENT_DOCS_LABELS[ selectedClient ] }
-							</Link>
-						) }
-					</Stack>
-				</CardBody>
-			</Card>
+					</CardBody>
+				</Card>
+			) }
 		</Stack>
 	);
 }

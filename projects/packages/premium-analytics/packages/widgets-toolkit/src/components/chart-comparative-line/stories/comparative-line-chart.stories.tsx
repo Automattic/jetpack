@@ -596,3 +596,23 @@ export const Resizable: Story = {
 		layout: 'padded',
 	},
 };
+
+/**
+ * Sparkline: how the chart degrades on a tile too short for its axes.
+ * The whole area stays hoverable, and the tooltip carries the date.
+ */
+export const Sparkline: Story = {
+	decorators: [
+		Story => (
+			<div style={ { width: '100%', height: '120px' } }>
+				<Story />
+			</div>
+		),
+	],
+	args: {
+		series: singleSeries,
+		styles: SERIES_STYLES,
+		dataFormat: { type: 'currency' },
+		compactWhenShort: true,
+	},
+};

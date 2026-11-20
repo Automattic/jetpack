@@ -13,8 +13,12 @@ use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Podcast\Admin_Page;
 use Automattic\Jetpack\Podcast\Podcast_Gate;
 use Automattic\Jetpack\Podcast\Settings;
+use Automattic\Jetpack\Status\Cache as Status_Cache;
 use Jetpack_Options;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use WorDBless\BaseTestCase;
 use WorDBless\Options as WorDBless_Options;
 
@@ -37,6 +41,15 @@ class Admin_Page_Test extends BaseTestCase {
 	protected function tearDown(): void {
 		Constants::clear_constants();
 		remove_all_actions( 'load-jetpack_page_' . Admin_Page::ADMIN_PAGE_SLUG );
+		remove_action( 'admin_enqueue_scripts', array( Admin_Page::class, 'enqueue_tracks_transport' ) );
+		remove_action( 'admin_enqueue_scripts', array( Admin_Page::class, 'enqueue_i18n_loader' ) );
+		wp_dequeue_script( 'wp-jp-i18n-loader' );
+		wp_deregister_script( 'wp-jp-i18n-loader' );
+		remove_action( 'admin_enqueue_scripts', array( Admin_Page::class, 'alias_screen_id_for_wp_build' ) );
+		remove_action( 'admin_enqueue_scripts', array( Admin_Page::class, 'restore_screen_id_after_wp_build' ) );
+		remove_filter( 'jetpack_admin_js_script_data', array( Admin_Page::class, 'inject_podcast_script_data' ) );
+		remove_filter( 'jetpack_display_jitms_on_screen', array( Admin_Page::class, 'hide_jitms_on_wp_build_dashboard' ) );
+		unset( $_GET['page'], $GLOBALS['current_screen'] );
 		unset( $GLOBALS['menu'], $GLOBALS['submenu'] );
 		( new Connection_Manager() )->reset_connection_status();
 		WorDBless_Options::init()->clear_options();
@@ -82,42 +95,6 @@ class Admin_Page_Test extends BaseTestCase {
 				array( Admin_Page::class, 'admin_init' )
 			),
 			'Self-hosted should register the page through Admin_Menu'
-		);
-	}
-
-	/**
-	 * The Podcast submenu should remain above Jetpack Settings.
-	 */
-	public function test_registers_before_settings_on_self_hosted() {
-		$user_id = wp_insert_user(
-			array(
-				'user_login' => 'podcast_menu_admin',
-				'user_pass'  => 'password',
-				'role'       => 'administrator',
-			)
-		);
-		wp_set_current_user( $user_id );
-
-		Admin_Menu::add_menu(
-			__( 'Settings', 'jetpack-podcast' ),
-			__( 'Settings', 'jetpack-podcast' ),
-			'manage_options',
-			'jetpack#/settings',
-			null,
-			13
-		);
-		Admin_Page::add_wp_admin_submenu();
-
-		Admin_Menu::admin_menu_hook_callback();
-
-		$slugs = wp_list_pluck( (array) ( $GLOBALS['submenu']['jetpack'] ?? array() ), 2 );
-
-		$this->assertContains( Admin_Page::ADMIN_PAGE_SLUG, $slugs );
-		$this->assertContains( 'jetpack#/settings', $slugs );
-		$this->assertLessThan(
-			array_search( 'jetpack#/settings', $slugs, true ),
-			array_search( Admin_Page::ADMIN_PAGE_SLUG, $slugs, true ),
-			'The Podcast submenu should appear before Jetpack Settings.'
 		);
 	}
 
@@ -169,6 +146,68 @@ class Admin_Page_Test extends BaseTestCase {
 
 		$this->assertArrayHasKey( 'preload', $data['podcast'] );
 		$this->assertIsArray( $data['podcast']['preload'] );
+	}
+
+	/**
+	 * @param array       $options Site visibility options.
+	 * @param string|null $filter Status filter to force true.
+	 * @param bool        $expected Expected public visibility.
+	 * @dataProvider provide_site_visibility_states
+	 */
+	#[DataProvider( 'provide_site_visibility_states' )]
+	public function test_inject_script_data_reports_site_visibility( $options, $filter, $expected ) {
+		Status_Cache::clear();
+		foreach ( $options as $name => $value ) {
+			update_option( $name, $value );
+		}
+		if ( null !== $filter ) {
+			add_filter( $filter, '__return_true' );
+		}
+
+		try {
+			$data = Admin_Page::inject_podcast_script_data( array() );
+			$this->assertSame( $expected, $data['podcast']['is_site_public'] ?? null );
+		} finally {
+			if ( null !== $filter ) {
+				remove_filter( $filter, '__return_true' );
+			}
+			Status_Cache::clear();
+		}
+	}
+
+	public static function provide_site_visibility_states(): array {
+		return array(
+			'public without launch status' => array( array( 'blog_public' => '1' ), null, true ),
+			'public and launched'          => array(
+				array(
+					'blog_public'   => '1',
+					'launch-status' => 'launched',
+				),
+				null,
+				true,
+			),
+			'discouraged string'           => array( array( 'blog_public' => '0' ), null, false ),
+			'discouraged integer'          => array( array( 'blog_public' => 0 ), null, false ),
+			'private'                      => array( array( 'blog_public' => '-1' ), null, false ),
+			'unlaunched'                   => array(
+				array(
+					'blog_public'   => '1',
+					'launch-status' => 'unlaunched',
+				),
+				null,
+				false,
+			),
+			'coming soon option'           => array(
+				array(
+					'blog_public'              => '1',
+					'wpcom_public_coming_soon' => 1,
+				),
+				null,
+				false,
+			),
+			'private status filter'        => array( array( 'blog_public' => '1' ), 'jetpack_is_private_site', false ),
+			'coming soon status filter'    => array( array( 'blog_public' => '1' ), 'jetpack_is_coming_soon', false ),
+		);
 	}
 
 	/**
@@ -260,5 +299,176 @@ class Admin_Page_Test extends BaseTestCase {
 		);
 
 		$this->assertSame( 789, $data['site']['wpcom']['blog_id'] );
+	}
+
+	public function test_maybe_load_wp_build_hooks_the_screen_alias_around_the_generated_check() {
+		$this->enter_podcast_admin_request();
+
+		Admin_Page::maybe_load_wp_build();
+
+		$this->assertSame( 10, has_action( 'admin_enqueue_scripts', array( Admin_Page::class, 'alias_screen_id_for_wp_build' ) ) );
+		$this->assertSame( 10, has_action( 'admin_enqueue_scripts', array( Admin_Page::class, 'restore_screen_id_after_wp_build' ) ) );
+		$this->assertFalse( has_action( 'current_screen', array( Admin_Page::class, 'alias_screen_id_for_wp_build' ) ) );
+	}
+
+	public function test_screen_id_is_restored_after_admin_enqueue_scripts() {
+		$this->enter_podcast_admin_request();
+
+		Admin_Page::maybe_load_wp_build();
+		do_action( 'current_screen', get_current_screen() );
+		do_action( 'admin_enqueue_scripts', 'jetpack_page_jetpack-podcast' );
+
+		$this->assertSame( 'jetpack_page_jetpack-podcast', get_current_screen()->id );
+	}
+
+	public function test_alias_screen_id_round_trip() {
+		unset( $GLOBALS['current_screen'] );
+		Admin_Page::alias_screen_id_for_wp_build();
+		Admin_Page::restore_screen_id_after_wp_build();
+
+		set_current_screen( 'jetpack_page_jetpack-podcast' );
+		Admin_Page::restore_screen_id_after_wp_build();
+		$this->assertSame( 'jetpack_page_jetpack-podcast', get_current_screen()->id );
+
+		Admin_Page::alias_screen_id_for_wp_build();
+		$this->assertSame( Admin_Page::WP_BUILD_SLUG, get_current_screen()->id );
+
+		Admin_Page::restore_screen_id_after_wp_build();
+		$this->assertSame( 'jetpack_page_jetpack-podcast', get_current_screen()->id );
+	}
+
+	/**
+	 * Self-hosted, the dashboard opts the screen Admin_Menu registers out of JITMs, and no other.
+	 */
+	public function test_dashboard_opts_its_screen_out_of_jitms_on_self_hosted() {
+		Admin_Page::add_wp_admin_submenu();
+
+		$this->assertFalse( apply_filters( 'jetpack_display_jitms_on_screen', true, 'jetpack_page_jetpack-podcast' ) );
+		$this->assertTrue( apply_filters( 'jetpack_display_jitms_on_screen', true, 'jetpack_page_jetpack-social' ) );
+		$this->assertFalse( apply_filters( 'jetpack_display_jitms_on_screen', false, 'jetpack_page_jetpack-social' ) );
+	}
+
+	/**
+	 * WPCOM, the dashboard opts the screen add_submenu_page() returns out of JITMs.
+	 */
+	public function test_dashboard_opts_its_screen_out_of_jitms_on_wpcom() {
+		Constants::set_constant( 'IS_WPCOM', true );
+		wp_set_current_user(
+			wp_insert_user(
+				array(
+					'user_login' => 'podcast_admin_' . wp_rand( 1, PHP_INT_MAX ),
+					'user_pass'  => 'password',
+					'role'       => 'administrator',
+				)
+			)
+		);
+		add_menu_page( 'Jetpack', 'Jetpack', 'manage_options', 'jetpack', '__return_null' );
+
+		Admin_Page::add_wp_admin_submenu();
+
+		$this->assertNotFalse( has_action( 'load-jetpack_page_jetpack-podcast', array( Admin_Page::class, 'admin_init' ) ) );
+		$this->assertFalse( apply_filters( 'jetpack_display_jitms_on_screen', true, 'jetpack_page_jetpack-podcast' ) );
+		$this->assertTrue( apply_filters( 'jetpack_display_jitms_on_screen', true, 'jetpack_page_jetpack-social' ) );
+	}
+
+	/**
+	 * Put the request on the Podcast admin page.
+	 */
+	private function enter_podcast_admin_request(): void {
+		set_current_screen( 'jetpack_page_jetpack-podcast' );
+		$_GET['page'] = Admin_Page::ADMIN_PAGE_SLUG;
+	}
+
+	public function test_admin_init_queues_the_i18n_loader_enqueue() {
+		Admin_Page::admin_init();
+
+		$this->assertSame( 10, has_action( 'admin_enqueue_scripts', array( Admin_Page::class, 'enqueue_i18n_loader' ) ) );
+	}
+
+	/**
+	 * The picker's endpoint is hooked without the admin menu, which admin-ajax never builds.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_init_hooks_the_media_library_endpoint() {
+		Admin_Page::init();
+
+		$this->assertNotFalse( has_action( 'wp_ajax_jetpack_media_library' ) );
+	}
+
+	public function test_admin_init_leaves_the_media_library_to_the_cover_picker() {
+		Admin_Page::admin_init();
+
+		$this->assertFalse( has_action( 'admin_enqueue_scripts', 'wp_enqueue_media' ) );
+	}
+
+	public function test_enqueue_i18n_loader_enqueues_the_loader_when_it_is_registered() {
+		wp_register_script( 'wp-jp-i18n-loader', false, array(), '1.0', true );
+
+		Admin_Page::enqueue_i18n_loader();
+
+		$this->assertTrue( wp_script_is( 'wp-jp-i18n-loader', 'enqueued' ) );
+	}
+
+	public function test_enqueue_i18n_loader_does_nothing_when_the_loader_is_not_registered() {
+		wp_deregister_script( 'wp-jp-i18n-loader' );
+
+		Admin_Page::enqueue_i18n_loader();
+
+		$this->assertFalse( wp_script_is( 'wp-jp-i18n-loader', 'enqueued' ) );
+	}
+
+	/**
+	 * The shell offers Podcast wherever its build exists, Simple included.
+	 *
+	 * @dataProvider provide_admin_shell_member_cases
+	 *
+	 * @param bool $built    Whether build/build.php exists.
+	 * @param bool $simple   Whether the site is WordPress.com Simple.
+	 * @param bool $expected Whether Podcast joins the shell.
+	 */
+	#[DataProvider( 'provide_admin_shell_member_cases' )]
+	public function test_admin_shell_member( $built, $simple, $expected ) {
+		$this->set_wp_build_index( $built ? __FILE__ : __DIR__ . '/absent.php' );
+		if ( $simple ) {
+			Constants::set_constant( 'IS_WPCOM', true );
+		}
+
+		try {
+			$members = Admin_Page::add_admin_shell_member( array() );
+		} finally {
+			$this->set_wp_build_index( null );
+		}
+
+		$this->assertSame( $expected, isset( $members[ Admin_Page::ADMIN_PAGE_SLUG ] ) );
+	}
+
+	/**
+	 * Admin shell member cases.
+	 *
+	 * @return array<string, array{bool, bool, bool}>
+	 */
+	public static function provide_admin_shell_member_cases() {
+		return array(
+			'built, self-hosted' => array( true, false, true ),
+			'built, Simple'      => array( true, true, true ),
+			'unbuilt'            => array( false, false, false ),
+		);
+	}
+
+	/**
+	 * Point the class at a build entry point, or back at the real one with null.
+	 *
+	 * @param string|null $path Entry point path.
+	 */
+	private function set_wp_build_index( $path ): void {
+		$property = new \ReflectionProperty( Admin_Page::class, 'wp_build_index' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$property->setAccessible( true );
+		}
+		$property->setValue( null, $path );
 	}
 }

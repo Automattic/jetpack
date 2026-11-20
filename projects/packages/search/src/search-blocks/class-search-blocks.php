@@ -133,6 +133,7 @@ class Search_Blocks {
 	 */
 	public static function init() {
 		add_action( 'init', array( static::class, 'register_blocks' ) );
+		add_action( 'wp_enqueue_scripts', array( static::class, 'load_block_styles_only_where_rendered' ), 9 );
 		add_filter( 'block_categories_all', array( static::class, 'register_block_category' ) );
 		add_action( 'enqueue_block_editor_assets', array( static::class, 'enqueue_editor_assets' ) );
 		add_action( 'wp_body_open', array( static::class, 'print_theme_token_sampler' ) );
@@ -684,7 +685,7 @@ class Search_Blocks {
 					'isWooCommerceBlocksEnabled' => self::woocommerce_blocks_enabled(),
 					'woocommerceOnlyBlocks'      => self::woocommerce_only_block_names(),
 					'supportsPaidSearch'         => self::supports_paid_search(),
-					'aiMasterEnabled'            => AI_Answers::should_enforce_master(),
+					'aiMasterEnabled'            => AI_Answers::host_allows_ai() && AI_Answers::is_master_enabled(),
 					'supportedCustomTaxonomies'  => self::supported_custom_taxonomies(),
 					'customTaxonomyMap'          => (object) self::custom_taxonomy_map(),
 					// Resolved the same way `search-results/render.php` resolves the
@@ -692,11 +693,32 @@ class Search_Blocks {
 					// visitors won't actually get.
 					'defaultResultsPerPage'      => Helper::resolve_results_per_page(),
 					'maxResultsPerPage'          => Helper::get_max_posts_per_page(),
+					'hideFromWidgetArea'         => self::widget_area_hiding_blocks(),
 				),
 				JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
 			) . ';',
 			'before'
 		);
+	}
+
+	/**
+	 * The widget area whose inserter must not offer the Search blocks, if the current screen edits widgets.
+	 *
+	 * The legacy Overlay's sidebar renders on `wp_footer`, after a block theme has printed the importmap, so a block's view module can't resolve `jetpack-search/store` and never hydrates.
+	 *
+	 * @since 8.2.0
+	 *
+	 * @return string|null Sidebar ID, or null when no area needs hiding.
+	 */
+	public static function widget_area_hiding_blocks(): ?string {
+		if ( ! is_registered_sidebar( Instant_Search::INSTANT_SEARCH_SIDEBAR ) || ! function_exists( 'get_current_screen' ) ) {
+			return null;
+		}
+		$screen = get_current_screen();
+		if ( ! $screen || ! in_array( $screen->id, array( 'widgets', 'customize' ), true ) ) {
+			return null;
+		}
+		return Instant_Search::INSTANT_SEARCH_SIDEBAR;
 	}
 
 	/**
@@ -739,6 +761,28 @@ class Search_Blocks {
 
 		add_filter( 'get_block_type_variations', array( static::class, 'inject_filter_checkbox_variations' ), 10, 2 );
 		static::register_patterns();
+	}
+
+	/**
+	 * On a site that turned off on-demand block assets, load the Search blocks' styles only where they render.
+	 *
+	 * Mirrors Automattic\Jetpack\Blocks::load_styles_only_where_blocks_render(), which says why. The search page renders
+	 * these blocks anyway, and a classic theme there can't hoist a late style, so it keeps them in the head.
+	 *
+	 * @since $$next-version$$
+	 */
+	public static function load_block_styles_only_where_rendered() {
+		if ( wp_should_load_block_assets_on_demand() || is_search() ) {
+			return;
+		}
+
+		foreach ( \WP_Block_Type_Registry::get_instance()->get_all_registered() as $block_type ) {
+			if ( ! str_starts_with( $block_type->name, 'jetpack-search/' ) || empty( $block_type->style_handles ) ) {
+				continue;
+			}
+			$block_type->view_style_handles = array_values( array_unique( array_merge( $block_type->style_handles, $block_type->view_style_handles ) ) );
+			$block_type->style_handles      = array();
+		}
 	}
 
 	/**

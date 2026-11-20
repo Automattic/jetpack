@@ -37,40 +37,41 @@ export type GoogleVerifyState = 'loading' | 'verified' | 'unverified' | 'unavail
 
 export interface GoogleVerify {
 	state: GoogleVerifyState;
-	isConnected: boolean;
+	canAutoVerify: boolean;
 	isOwner: boolean;
 	searchConsoleUrl: string;
 	isVerifying: boolean;
+	/** The popup returned a keyring, and the token is being saved and checked. */
+	isConfirming: boolean;
 	/** Open the WordPress.com keyring popup and verify with the returned keyring id. */
 	autoVerify: () => void;
 }
 
 /**
- * Owns the Google auto-verify flow. On a connected site it fetches the live verified
- * status on mount, and `autoVerify()` opens the keyring OAuth popup and POSTs the
- * returned keyring id to verify the site — both via the existing
- * `/jetpack/v4/verify-site/google` endpoint. On a disconnected site there's no keyring,
- * so it reports `unavailable` and the UI falls back to manual code entry.
+ * Verify through the host's transport, retaining manual entry when unavailable.
  *
- * @param options             - Hook options.
- * @param options.onCodeSaved - Called with the verification code once auto-verify
- *                            persists it, so the consumer can mirror it into form
- *                            state (e.g. to keep the completion status in sync).
+ * @param options          - Hook options.
+ * @param options.saveCode - Persist the token before asking Google to verify.
  * @return The Google-verification controller.
  */
 export function useGoogleVerify( {
-	onCodeSaved,
-}: { onCodeSaved?: ( code: string ) => void } = {} ): GoogleVerify {
+	saveCode,
+}: {
+	saveCode: ( code: string ) => Promise< void >;
+} ): GoogleVerify {
 	const bootstrap = useMemo( () => getGoogleVerifyBootstrap(), [] );
-	const isConnected = bootstrap?.is_connected ?? false;
 	const connectUrl = bootstrap?.connect_url ?? '';
+	const endpoint = bootstrap?.api_path ?? ENDPOINT;
+	const canAutoVerify =
+		( bootstrap?.can_auto_verify ?? bootstrap?.is_connected ?? false ) && !! connectUrl;
 
 	const [ state, setState ] = useState< GoogleVerifyState >(
-		isConnected ? 'loading' : 'unavailable'
+		canAutoVerify ? 'loading' : 'unavailable'
 	);
 	const [ isOwner, setIsOwner ] = useState( false );
 	const [ searchConsoleUrl, setSearchConsoleUrl ] = useState( '' );
 	const [ isVerifying, setIsVerifying ] = useState( false );
+	const [ isConfirming, setIsConfirming ] = useState( false );
 	const { createInfoNotice, createSuccessNotice, createErrorNotice } = useDispatch( noticesStore );
 
 	const applyStatus = useCallback( ( status: GoogleVerifyStatus ) => {
@@ -79,13 +80,13 @@ export function useGoogleVerify( {
 		setSearchConsoleUrl( status.google_search_console_url ?? '' );
 	}, [] );
 
-	// Fetch the live verified status once, on a connected site.
+	// Read status only when the host supplies a usable verification flow.
 	useEffect( () => {
-		if ( ! isConnected ) {
+		if ( ! canAutoVerify ) {
 			return undefined;
 		}
 		let cancelled = false;
-		apiFetch< GoogleVerifyStatus >( { path: ENDPOINT } )
+		apiFetch< GoogleVerifyStatus >( { path: endpoint } )
 			.then( status => {
 				if ( ! cancelled ) {
 					applyStatus( status );
@@ -95,19 +96,21 @@ export function useGoogleVerify( {
 				if ( cancelled ) {
 					return;
 				}
-				// A `forbidden` status (e.g. the site is under construction) means
-				// auto-verify is blocked, so fall back to manual entry only. Any other
-				// failure leaves the verify button and manual fallback available.
+				// A missing route during deployment or forbidden access keeps manual entry available.
 				const code = ( error as { code?: string } )?.code;
-				setState( code === 'forbidden' ? 'unavailable' : 'unverified' );
+				setState(
+					[ 'forbidden', 'rest_forbidden', 'rest_no_route' ].includes( code ?? '' )
+						? 'unavailable'
+						: 'unverified'
+				);
 			} );
 		return () => {
 			cancelled = true;
 		};
-	}, [ isConnected, applyStatus ] );
+	}, [ canAutoVerify, endpoint, applyStatus ] );
 
 	const autoVerify = useCallback( () => {
-		if ( ! connectUrl || isVerifying ) {
+		if ( ! canAutoVerify || state === 'unavailable' || isVerifying ) {
 			return;
 		}
 		// Mark the flow in progress *before* opening the popup. The Verify button is
@@ -126,18 +129,18 @@ export function useGoogleVerify( {
 				setIsVerifying( false );
 				return;
 			}
+			setIsConfirming( true );
 			createInfoNotice( __( 'Verifying with Google…', 'jetpack-seo' ), {
 				id: NOTICE_ID,
 				type: 'snackbar',
 				isDismissible: false,
 			} );
-			let savedToken = '';
 			// The auto-verify flow is: (1) fetch the verification token for this keyring,
 			// (2) save it to `verification_services_codes.google` so the site serves the
 			// `google-site-verification` meta tag, (3) ask Google to verify (it fetches the
 			// tag), (4) re-read the authoritative status. Skipping step 2 fails with
 			// "the necessary verification token could not be found on your site".
-			apiFetch< GoogleVerifyStatus >( { path: `${ ENDPOINT }/${ keyringId }` } )
+			apiFetch< GoogleVerifyStatus >( { path: `${ endpoint }/${ keyringId }` } )
 				.then( status => {
 					if ( status.verified ) {
 						// Already verified: report it and skip the save/verify round-trips.
@@ -158,25 +161,16 @@ export function useGoogleVerify( {
 							)
 						);
 					}
-					savedToken = status.token;
-					return apiFetch( {
-						path: '/jetpack/v4/settings',
-						method: 'POST',
-						data: { google: status.token },
-					} );
+					return saveCode( status.token );
 				} )
-				.then( () => {
-					// The code is now persisted to `verification_services_codes.google`;
-					// mirror it into the consumer's form state so the verification card's
-					// completion status updates without a reload.
-					onCodeSaved?.( savedToken );
-					return apiFetch( {
-						path: ENDPOINT,
+				.then( () =>
+					apiFetch( {
+						path: endpoint,
 						method: 'POST',
 						data: { keyring_id: keyringId },
-					} );
-				} )
-				.then( () => apiFetch< GoogleVerifyStatus >( { path: `${ ENDPOINT }/${ keyringId }` } ) )
+					} )
+				)
+				.then( () => apiFetch< GoogleVerifyStatus >( { path: `${ endpoint }/${ keyringId }` } ) )
 				.then( status => {
 					applyStatus( status );
 					if ( status.verified ) {
@@ -207,17 +201,31 @@ export function useGoogleVerify( {
 						{ id: NOTICE_ID, type: 'snackbar' }
 					);
 				} )
-				.finally( () => setIsVerifying( false ) );
+				.finally( () => {
+					setIsConfirming( false );
+					setIsVerifying( false );
+				} );
 		} );
 	}, [
 		connectUrl,
+		endpoint,
+		canAutoVerify,
+		state,
 		isVerifying,
 		applyStatus,
-		onCodeSaved,
+		saveCode,
 		createInfoNotice,
 		createSuccessNotice,
 		createErrorNotice,
 	] );
 
-	return { state, isConnected, isOwner, searchConsoleUrl, isVerifying, autoVerify };
+	return {
+		state,
+		canAutoVerify,
+		isOwner,
+		searchConsoleUrl,
+		isVerifying,
+		isConfirming,
+		autoVerify,
+	};
 }

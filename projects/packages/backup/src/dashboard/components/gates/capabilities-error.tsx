@@ -1,6 +1,12 @@
-import { Button, Card, Notice } from '@wordpress/components';
+import getRedirectUrl from '@automattic/jetpack-components/tools/jp-redirect';
+import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Stack, Text } from '@wordpress/ui';
+import { Icon, error as errorIcon } from '@wordpress/icons';
+import { Button, Card, Link, Text } from '@wordpress/ui';
+import { errorCode } from '../../data/api/_helpers';
+import { useSiteSuffix } from '../../hooks/use-connection';
+import { useFocusHandoff } from '../../hooks/use-focus-handoff';
+import ErrorReference from '../error-reference';
 
 type Props = {
 	error: Error;
@@ -8,6 +14,15 @@ type Props = {
 	/** A retry is already in flight. */
 	isRetrying?: boolean;
 };
+
+/**
+ * `<Page>`'s region, where focus goes once a retry succeeds: this card is the whole body,
+ * so nothing nearer outlives it.
+ *
+ * @param stage - The card's stage, about to unmount.
+ * @return The region, or null outside one.
+ */
+const pageRegion = ( stage: HTMLElement ) => stage.closest< HTMLElement >( '[role="region"]' );
 
 /**
  * Fallback shown when the capabilities request fails.
@@ -25,50 +40,51 @@ type Props = {
  * @return The rendered fallback.
  */
 export default function CapabilitiesErrorScreen( { error, onRetry, isRetrying = false }: Props ) {
+	const siteSuffix = useSiteSuffix();
+	const stageRef = useFocusHandoff< HTMLDivElement >( pageRegion );
+
 	return (
-		<Card className="jpb-gates__card">
-			<Stack direction="column" gap="md" align="center">
-				<Text variant="heading-md" render={ <h2 /> }>
+		<div className="jpb-gates__stage" ref={ stageRef }>
+			<Card.Root className="jpb-gates__card">
+				<span className="jpb-gates__badge jpb-gates__badge--warning" aria-hidden="true">
+					<Icon icon={ errorIcon } />
+				</span>
+				<Text variant="body-xl" className="jpb-gates__title" render={ <h2 /> }>
 					{ __( "We couldn't load your backup details", 'jetpack-backup-pkg' ) }
 				</Text>
-				<Notice status="error" isDismissible={ false }>
-					{ error.message }
-				</Notice>
-				{ /*
-				 * Not "this is usually temporary". This screen also covers
-				 * `capabilities_unreadable`, which is upstream shape drift —
-				 * no amount of retrying clears it, so the copy has to leave
-				 * the reader somewhere to go when the button doesn't help.
-				 */ }
+				{ /* Not "this is usually temporary": retrying does not clear every cause. */ }
 				<Text>
-					{ __(
-						'Your backups are unaffected. Try again, and contact support if this keeps happening.',
-						'jetpack-backup-pkg'
+					{ createInterpolateElement(
+						__(
+							"We couldn't check this site's Backup plan. Your backups are unaffected. Reload the page or try again. If it keeps happening, <a>contact support</a>.",
+							'jetpack-backup-pkg'
+						),
+						{
+							a: (
+								<Link
+									openInNewTab
+									// Omitted rather than passed as undefined — see `useSiteSuffix`.
+									href={ getRedirectUrl(
+										'jetpack-contact-support',
+										siteSuffix ? { site: siteSuffix } : {}
+									) }
+								/>
+							),
+						}
 					) }
 				</Text>
-				{ /*
-				 * Busy rather than merely clickable: the screen holds its
-				 * error across a retry, so without this the DOM is
-				 * byte-identical before and after the click and a retry
-				 * that fails again reads as a dead button.
-				 *
-				 * `accessibleWhenDisabled` keeps that from costing keyboard
-				 * users the page. `Button` sets the *native* `disabled`
-				 * attribute unless it is passed, and a browser blurs the
-				 * element it has just disabled — focus would land on
-				 * `<body>`, and this card is the entire dashboard body, so
-				 * there is nothing adjacent to land on.
-				 */ }
-				<Button
-					variant="primary"
-					onClick={ onRetry }
-					isBusy={ isRetrying }
-					disabled={ isRetrying }
-					accessibleWhenDisabled
-				>
-					{ __( 'Try again', 'jetpack-backup-pkg' ) }
-				</Button>
-			</Stack>
-		</Card>
+				<ErrorReference code={ errorCode( error ) } id={ null } />
+				<div className="jpb-gates__actions">
+					{ /*
+					 * `loading` keeps the button focusable: a natively disabled
+					 * button would drop focus to `<body>`, and this card is the
+					 * whole dashboard body.
+					 */ }
+					<Button variant="solid" tone="brand" onClick={ onRetry } loading={ isRetrying }>
+						{ __( 'Try again', 'jetpack-backup-pkg' ) }
+					</Button>
+				</div>
+			</Card.Root>
+		</div>
 	);
 }

@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\My_Jetpack\Products;
 
+use Automattic\Jetpack\My_Jetpack\Initializer;
 use Automattic\Jetpack\My_Jetpack\Product;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
 
@@ -124,9 +125,13 @@ class Creator extends Product {
 	/**
 	 * Get the internationalized comparison of free vs upgraded features
 	 *
-	 * @return array[] Protect features comparison
+	 * @deprecated 6.10.0
+	 *
+	 * @return array[] Creator features comparison
 	 */
 	public static function get_features_by_tier() {
+		_deprecated_function( __METHOD__, 'jetpack-my-jetpack-6.10.0' );
+
 		return array(
 			array(
 				'name'  => __( 'Import subscribers', 'jetpack-my-jetpack' ),
@@ -292,6 +297,10 @@ class Creator extends Product {
 	 * @return ?string
 	 */
 	public static function get_manage_url() {
+		if ( Initializer::is_settings_consolidation_on_for_site() ) {
+			return admin_url( 'admin.php?page=jetpack-newsletter' );
+		}
+
 		return admin_url( 'admin.php?page=jetpack#/settings?term=creator' );
 	}
 

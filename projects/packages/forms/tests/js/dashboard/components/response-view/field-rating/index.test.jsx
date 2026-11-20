@@ -7,9 +7,8 @@ import { render, screen } from '@testing-library/react';
 /**
  * Internal dependencies
  */
-const { default: FieldRating } = await import(
-	'../../../../../../src/dashboard/components/inspector/response-fields/field-rating/index.tsx'
-);
+const { default: FieldRating } =
+	await import( '../../../../../../src/dashboard/components/inspector/response-fields/field-rating/index.tsx' );
 
 describe( 'FieldRating', () => {
 	describe( 'Valid rating values', () => {

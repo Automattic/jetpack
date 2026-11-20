@@ -1,4 +1,0 @@
-Significance: patch
-Type: enhancement
-
-Stats: Drop the Traffic summary chart's own Group by; the page-level chart interval sets the bucket.

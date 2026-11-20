@@ -2,9 +2,16 @@
 // Then removed Webpack 4 support and a bunch of features we didn't use.
 
 const evaluate = require( 'eval' );
-const webpack = require( 'webpack' );
 
-const RawSource = webpack.sources.RawSource;
+// React 19's `react-dom/server` (in a browser-like context like we have here) uses `MessageChannel` in a way that causes Node to hang because the event loop never empties.
+// Supply a fake partial MessageChannel implementation (just enough for what React uses) that hacks around this problem.
+// If we wind up needing something more complex, https://github.com/react/react/issues/26608#issuecomment-1734172596 may help.
+class FakeMessageChannel {
+	constructor() {
+		this.port1 = { onmessage: null };
+		this.port2 = { postMessage: data => setImmediate( () => this.port1.onmessage?.( { data } ) ) };
+	}
+}
 
 class StaticSiteGeneratorWebpackPlugin {
 	constructor( options = {} ) {
@@ -13,6 +20,8 @@ class StaticSiteGeneratorWebpackPlugin {
 	}
 
 	apply( compiler ) {
+		const RawSource = compiler.webpack.sources.RawSource;
+
 		compiler.hooks.thisCompilation.tap( 'static-site-generator-webpack-plugin', compilation => {
 			compilation.hooks.optimizeAssets.tapPromise(
 				'static-site-generator-webpack-plugin',
@@ -30,7 +39,7 @@ class StaticSiteGeneratorWebpackPlugin {
 						let render = evaluate(
 							asset.source.source(),
 							/* filename: */ this.entry,
-							/* scope: */ this.globals,
+							/* scope: */ { MessageChannel: FakeMessageChannel, ...this.globals },
 							/* includeGlobals: */ true
 						);
 

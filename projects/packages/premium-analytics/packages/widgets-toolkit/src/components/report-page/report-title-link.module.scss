@@ -1,0 +1,17 @@
+/* Outranks DataViews' `.dataviews-title-field a { display: block }`, whose
+ * overflow would clip the outbound marker along with the title. */
+:global(.dataviews-title-field) .link {
+	display: inline-flex;
+	align-items: center;
+	min-inline-size: 0;
+	max-inline-size: 100%;
+	overflow: hidden;
+	white-space: nowrap;
+}
+
+.text {
+	min-inline-size: 0;
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+}

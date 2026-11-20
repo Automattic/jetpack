@@ -1,8 +1,9 @@
 import { Meta, StoryObj } from '@storybook/react';
-import { expect, waitFor } from 'storybook/test';
+import { expect, waitFor, within } from 'storybook/test';
 import {
 	LineChart,
 	BarChart,
+	GlobalChartsProvider,
 	PieSemiCircleChart,
 	PieChart,
 	BarListChart,
@@ -18,7 +19,7 @@ import {
 	osUsageData,
 	trafficSourcesData,
 } from '../../../stories/sample-data';
-import { themeArgTypes } from '../../../stories/theme-config';
+import { themeArgTypes, WP_ADMIN_COLOR_SCHEMES } from '../../../stories/theme-config';
 
 type StoryArgs = ChartStoryArgs< {
 	showUnitedStates?: boolean;
@@ -342,5 +343,191 @@ export const AdminColorSchemeLeadsThePalette: Story = {
 
 		await expect( bar.getAttribute( 'fill' ) ).toBe( ADMIN_SCHEME_COLOR );
 		await expect( bar.getAttribute( 'fill' ) ).not.toBe( ACCENT_COLOR_NOT_EXPECTED );
+	},
+};
+
+// 15:30 UTC falls on Aug 2 in Los Angeles and Aug 3 in Tokyo, so one set of
+// instants carries a different calendar day in each column below.
+const HOST_DATE_DATA: SeriesData[] = [
+	{
+		label: 'Views',
+		data: Array.from( { length: 5 }, ( _, day ) => ( {
+			date: new Date( Date.parse( '2026-08-02T15:30:00Z' ) + day * 24 * 60 * 60 * 1000 ),
+			value: 40 + day * 6,
+		} ) ),
+		options: {},
+	},
+];
+
+const HOSTS = [
+	{ testId: 'tokyo', title: 'de-DE · Asia/Tokyo', locale: 'de-DE', timeZone: 'Asia/Tokyo' },
+	{
+		testId: 'los-angeles',
+		title: 'en-US · America/Los_Angeles',
+		locale: 'en-US',
+		timeZone: 'America/Los_Angeles',
+	},
+];
+
+/**
+ * Each provider dates and words the same instants for its own host, so the two columns disagree.
+ *
+ * Without `locale` and `timeZone` both would read the viewer's browser instead: they would agree
+ * with each other, and with at most one of the two sites.
+ */
+export const HostLocaleAndTimeZoneFormatDates: Story = {
+	render: () => (
+		<div style={ { display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '4rem' } }>
+			{ HOSTS.map( ( { testId, title, locale, timeZone } ) => (
+				<div key={ testId } data-testid={ testId }>
+					<h3>{ title }</h3>
+					<GlobalChartsProvider locale={ locale } timeZone={ timeZone }>
+						<div data-testid={ `${ testId }-bars` }>
+							<BarChart data={ HOST_DATE_DATA } width={ 350 } height={ 200 } withTooltips />
+						</div>
+						<div data-testid={ `${ testId }-lines` }>
+							<LineChart
+								data={ HOST_DATE_DATA }
+								width={ 350 }
+								height={ 200 }
+								withGradientFill={ false }
+								withTooltips
+								margin={ { bottom: 40 } }
+							/>
+						</div>
+					</GlobalChartsProvider>
+				</div>
+			) ) }
+		</div>
+	),
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'The same five instants, dated and worded for two hosts. Hover a bar or a point to see the tooltip follow its axis.',
+			},
+		},
+	},
+	play: async ( { canvasElement } ) => {
+		const canvas = within( canvasElement );
+
+		for ( const chart of [ 'bars', 'lines' ] ) {
+			const tokyo = within( canvas.getByTestId( `tokyo-${ chart }` ) );
+			const losAngeles = within( canvas.getByTestId( `los-angeles-${ chart }` ) );
+
+			await expect( await tokyo.findByText( '3. Aug.' ) ).toBeInTheDocument();
+			await expect( await losAngeles.findByText( 'Aug 2' ) ).toBeInTheDocument();
+		}
+	},
+};
+
+// Naive day strings, the shape a Stats payload gives for day buckets.
+const HOST_DAY_DATA: SeriesData[] = [
+	{
+		label: 'Views',
+		data: Array.from( { length: 5 }, ( _, day ) => ( {
+			dateString: `2026-08-0${ day + 2 }`,
+			value: 40 + day * 6,
+		} ) ),
+		options: {},
+	},
+];
+
+/**
+ * The same day strings under two hosts, both landing on the day they name.
+ *
+ * A `dateString` names no instant, so it is read as midnight in the provider's `timeZone` rather
+ * than the viewer's: switch your browser's own zone and nothing here moves.
+ */
+export const HostTimeZoneDatesDayStrings: Story = {
+	render: () => (
+		<div style={ { display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '4rem' } }>
+			{ HOSTS.map( ( { testId, title, locale, timeZone } ) => (
+				<div key={ testId } data-testid={ `days-${ testId }` }>
+					<h3>{ title }</h3>
+					<GlobalChartsProvider locale={ locale } timeZone={ timeZone }>
+						<LineChart
+							data={ HOST_DAY_DATA }
+							width={ 350 }
+							height={ 200 }
+							withGradientFill={ false }
+							withTooltips
+							margin={ { bottom: 40 } }
+						/>
+					</GlobalChartsProvider>
+				</div>
+			) ) }
+		</div>
+	),
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'Both columns start on Aug 2, the day the string names, whatever zone the browser is in.',
+			},
+		},
+	},
+	play: async ( { canvasElement } ) => {
+		const canvas = within( canvasElement );
+		const tokyo = within( canvas.getByTestId( 'days-tokyo' ) );
+		const losAngeles = within( canvas.getByTestId( 'days-los-angeles' ) );
+
+		await expect( await tokyo.findByText( '2. Aug.' ) ).toBeInTheDocument();
+		await expect( await losAngeles.findByText( 'Aug 2' ) ).toBeInTheDocument();
+	},
+};
+
+const generatedPaletteData: DataPointPercentage[] = [
+	{ label: 'Organic search', value: 32 },
+	{ label: 'Direct', value: 24 },
+	{ label: 'Social', value: 18 },
+	{ label: 'Referral', value: 12 },
+	{ label: 'Email', value: 9 },
+	{ label: 'Other', value: 5 },
+];
+
+// Sets slot 1 per scheme; the selector targets `.a8c-charts-scope` itself, see TOKENS.md Precedence.
+export const GeneratedPalette: Story = {
+	render: () => (
+		<div
+			style={ {
+				display: 'grid',
+				gridTemplateColumns: 'repeat(4, 260px)',
+				gap: '3rem',
+			} }
+		>
+			{ Object.entries( WP_ADMIN_COLOR_SCHEMES ).map( ( [ scheme, seed ] ) => {
+				const className = `generated-palette-${ scheme }`;
+				return (
+					<div key={ scheme } className={ className }>
+						<style>
+							{ `.${ className } .a8c-charts-scope { --a8c-charts-color-series-1: ${ seed }; }` }
+						</style>
+						<p style={ { margin: '0 0 8px', textAlign: 'center' } }>
+							{ scheme } <code>{ seed }</code>
+						</p>
+						<GlobalChartsProvider>
+							<PieChart width={ 260 } height={ 260 } data={ generatedPaletteData } showLabels />
+						</GlobalChartsProvider>
+					</div>
+				);
+			} ) }
+		</div>
+	),
+	argTypes: {
+		themeName: { table: { disable: true } },
+		accentColor: { table: { disable: true } },
+		adminColorScheme: { table: { disable: true } },
+		showUnitedStates: { table: { disable: true } },
+		showGreatBritain: { table: { disable: true } },
+		showJapan: { table: { disable: true } },
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					"One chart per wp-admin color scheme, seeded with that scheme's `--wp-admin-theme-color` in the first palette slot only. The remaining five slice colors are generated to stay perceptually separable from the seed and from each other, including under simulated color vision deficiency, and pie labels pick dark or light text per slice contrast.",
+			},
+		},
 	},
 };

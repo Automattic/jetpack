@@ -11,10 +11,11 @@ const API = {
 			method: 'GET',
 		} ),
 
-	toggleAccountProtection: () =>
+	toggleAccountProtection: ( enabled: boolean ) =>
 		apiFetch( {
 			method: 'POST',
 			path: 'jetpack-protect/v1/toggle-account-protection',
+			data: { enabled },
 		} ),
 
 	getWaf: () =>
@@ -23,10 +24,11 @@ const API = {
 			method: 'GET',
 		} ).then( camelize ),
 
-	toggleWaf: () =>
+	toggleWaf: ( enabled: boolean ) =>
 		apiFetch( {
 			method: 'POST',
 			path: 'jetpack-protect/v1/toggle-waf',
+			data: { enabled },
 		} ),
 
 	updateWaf: data =>

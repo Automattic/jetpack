@@ -1,27 +1,18 @@
 /**
- * WordPress dependencies
- */
-import { seen } from '@wordpress/icons';
-import type { WidgetAttributeField } from '@wordpress/widget-primitives';
-
-/**
  * Internal dependencies
  */
-import {
-	chartTypeAttributeField,
-	type ChartDisplayChartType,
-} from '@jetpack-premium-analytics/widgets-toolkit';
+import type { ChartDisplayChartType } from '@jetpack-premium-analytics/widgets-toolkit';
 
 /**
- * How the selected metric is drawn. The shared chart-display list keeps every
- * chart widget's dropdown identical and ties it to the toolkit's own union.
+ * How the selected metric is drawn. The alias ties the attribute to the
+ * toolkit's own union, which the chart reads.
  */
 export type VideoDetailViewsPerformanceChartType = ChartDisplayChartType;
 
 /**
  * `post_id` (video scope) and report params reach the widget via WidgetRoot.
  *
- * @property chartType - How to draw the selected metric. Defaults to `line`.
+ * @property chartType - How to draw the selected metric. Defaults to `bar`.
  */
 export type VideoDetailViewsPerformanceAttributes = {
 	chartType?: VideoDetailViewsPerformanceChartType;
@@ -32,13 +23,9 @@ export type VideoDetailViewsPerformanceAttributes = {
  * bucketed client-side at the page's chart interval.
  */
 export default {
-	icon: seen,
-	attributes: [
-		chartTypeAttributeField(),
-	] as WidgetAttributeField< VideoDetailViewsPerformanceAttributes >[],
 	example: {
 		attributes: {
-			chartType: 'line',
+			chartType: 'bar',
 		},
 	},
 };

@@ -7,7 +7,7 @@ import postPublishedImage from '../../../../assets/images/post-published.svg';
 import { useSiteIntent, useShouldShowFirstPostPublishedModal } from '../../../../common/tour-kit';
 import { wpcomTrackEvent } from '../../../../common/tracks';
 import NuxModal from '../nux-modal';
-import type { FC, MouseEvent } from 'react';
+import type { JSX, FC, MouseEvent } from 'react';
 
 import './style.scss';
 

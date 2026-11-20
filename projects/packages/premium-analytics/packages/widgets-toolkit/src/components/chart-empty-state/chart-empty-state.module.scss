@@ -1,5 +1,15 @@
 @use "../../styles/widget-container" as *;
 
+// Size container so the state can shed its icon and padding on short tiles
+// (see the query below). Safe here: the empty state always sits in a
+// definite-height body (grid tile, chart area, or story canvas), so size
+// containment cannot collapse it.
+.root {
+	height: 100%;
+	width: 100%;
+	container-type: size;
+}
+
 .container {
 	display: flex;
 	align-items: center;
@@ -11,15 +21,9 @@
 	width: 100%;
 	margin-inline: auto;
 
-	// Size container so the icon can hide on short tiles (see the query below).
-	// Safe here: the empty state always sits in a definite-height body (grid
-	// tile, chart area, or story canvas), so size containment cannot collapse it.
-	container-type: size;
-
 	// Match the error state's container padding so adjacent widgets showing
 	// different states keep the same vertical rhythm.
 	padding: var(--wpds-dimension-padding-md);
-	gap: var(--wpds-dimension-gap-lg);
 }
 
 // Mirror the error state's short-tile degradation (see widget-state): below
@@ -29,6 +33,12 @@
 
 	.icon {
 		display: none;
+	}
+
+	// A one-line message fits a sparkline-high chart area only without the
+	// block padding.
+	.container {
+		padding-block: 0;
 	}
 
 	// The hidden icon generates no flex box, so the start auto margin on
@@ -60,4 +70,8 @@
 
 .icon {
 	color: var(--wpds-color-stroke-surface-neutral-weak);
+
+	// Added to the root's own gap, the text sits 16px under the icon, as in
+	// the error state.
+	margin-block-end: var(--wpds-dimension-gap-md);
 }

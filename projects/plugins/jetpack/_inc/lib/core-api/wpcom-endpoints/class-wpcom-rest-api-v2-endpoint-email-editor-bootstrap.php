@@ -65,12 +65,17 @@ class WPCOM_REST_API_V2_Endpoint_Email_Editor_Bootstrap extends WP_REST_Controll
 					'methods'             => WP_REST_Server::READABLE,
 					'callback'            => $is_simple
 						? array( $this, 'get_bootstrap_data' )
-						: array( $this, 'proxy_request_to_wpcom_as_user' ),
+						: array( $this, 'proxy_to_wpcom' ),
 					'permission_callback' => array( $this, 'permissions_check' ),
 					'args'                => array(
 						'template_slug' => array(
 							'description' => __( 'Slug of the email template to open in the editor.', 'jetpack' ),
 							'type'        => 'string',
+						),
+						'post_id'       => array(
+							'description' => __( 'Post to preview in the editor canvas. Defaults to the most recent published post.', 'jetpack' ),
+							'type'        => 'integer',
+							'minimum'     => 1,
 						),
 					),
 				),
@@ -81,7 +86,7 @@ class WPCOM_REST_API_V2_Endpoint_Email_Editor_Bootstrap extends WP_REST_Controll
 					'methods'             => WP_REST_Server::EDITABLE,
 					'callback'            => $is_simple
 						? array( $this, 'save_design' )
-						: array( $this, 'proxy_request_to_wpcom_as_user' ),
+						: array( $this, 'proxy_to_wpcom' ),
 					'permission_callback' => array( $this, 'permissions_check' ),
 					'args'                => array(
 						'design' => array(
@@ -149,7 +154,7 @@ class WPCOM_REST_API_V2_Endpoint_Email_Editor_Bootstrap extends WP_REST_Controll
 			 * Internal, and not settled: the editor this serves is still being built, so the shape of
 			 * what comes back is expected to change. Do not depend on it from outside the plugin.
 			 *
-			 * @since $$next-version$$
+			 * @since 16.2
 			 * @access private
 			 *
 			 * @param array|WP_Error|null $data    The editor's bootstrap data. Null until something provides one.
@@ -161,6 +166,66 @@ class WPCOM_REST_API_V2_Endpoint_Email_Editor_Bootstrap extends WP_REST_Controll
 		}
 
 		return $this->respond( $data );
+	}
+
+	/**
+	 * Proxies the request, minus a `post_id` the current user may not edit here.
+	 *
+	 * Off Simple only: WordPress.com checks `edit_post` against the shadow blog rather than against
+	 * this site, so the same check has to happen locally too. On Simple its check is this check on
+	 * the same blog, which is why those paths have none. The two agree on ids because Jetpack Sync
+	 * preserves them, as the email preview endpoint next door already relies on.
+	 *
+	 * Both methods, though only the read means anything by `post_id` today: the proxy forwards
+	 * every query arg whether this route declares it or not, so gating one method would leave the
+	 * check somewhere a later reader has to notice.
+	 *
+	 * @param WP_REST_Request $request Full data about the request.
+	 *
+	 * @return mixed|WP_Error Response from WordPress.com, or an error.
+	 */
+	public function proxy_to_wpcom( $request ) {
+		return $this->proxy_request_to_wpcom_as_user( $this->drop_unauthorized_post_id( $request ) );
+	}
+
+	/**
+	 * Drops a `post_id` the current user may not edit from what the proxy will forward.
+	 *
+	 * Dropped rather than refused, so the screen still opens on the default post the way entering
+	 * from Appearance does. WordPress.com falls back the same way for an id it will not use.
+	 *
+	 * @param WP_REST_Request $request Full data about the request.
+	 *
+	 * @return WP_REST_Request The request to forward.
+	 */
+	private function drop_unauthorized_post_id( $request ) {
+		$post_id = (int) $request->get_param( 'post_id' );
+
+		if ( $post_id <= 0 || current_user_can( 'edit_post', $post_id ) ) {
+			return $request;
+		}
+
+		$query_params = $request->get_query_params();
+
+		unset( $query_params['post_id'] );
+
+		$request->set_query_params( $query_params );
+
+		// Both have to go: the proxy forwards the body verbatim beside the query args, and on a
+		// GET a JSON body outranks the query string in `get_param()` -- so an id moved there would
+		// be read by the check above and then sent anyway.
+		//
+		// Decoded as objects, not arrays: a design document's empty objects come back from an
+		// associative decode as empty arrays, and re-encoding would send `[]` where it had `{}`.
+		$body = json_decode( (string) $request->get_body() );
+
+		if ( $body instanceof stdClass && property_exists( $body, 'post_id' ) ) {
+			unset( $body->post_id );
+
+			$request->set_body( wp_json_encode( $body, JSON_UNESCAPED_SLASHES ) );
+		}
+
+		return $request;
 	}
 
 	/**
@@ -184,7 +249,7 @@ class WPCOM_REST_API_V2_Endpoint_Email_Editor_Bootstrap extends WP_REST_Controll
 			 * Internal, and not settled, for the same reason as the read above: expect the shape of the
 			 * design document and of what is returned to change while the editor is being built.
 			 *
-			 * @since $$next-version$$
+			 * @since 16.2
 			 * @access private
 			 *
 			 * @param array|WP_Error|null $result  The stored design. Null until something provides one.
@@ -246,7 +311,7 @@ class WPCOM_REST_API_V2_Endpoint_Email_Editor_Bootstrap extends WP_REST_Controll
 		 * This plugin does not record the exception itself — the message can carry internals, so where
 		 * it is safe to write it is the host's call rather than ours. Hook this to log it.
 		 *
-		 * @since $$next-version$$
+		 * @since 16.2
 		 *
 		 * @param Throwable $e The exception raised while filtering.
 		 */

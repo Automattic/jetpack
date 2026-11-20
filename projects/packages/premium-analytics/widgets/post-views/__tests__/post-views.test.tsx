@@ -2,12 +2,16 @@
  * External dependencies
  */
 import { getDefaultQueryParams, queryClient } from '@jetpack-premium-analytics/data';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
 import { getSettings, setSettings } from '@wordpress/date';
+import type { ReactNode } from 'react';
 /**
  * Internal dependencies
  */
+import { renderWithActionsHost } from '../../../tests/js/widget-host-test-utils';
+import { captureCsvDownloads } from '../../test-utils';
 import PostViewsWidget from '../render';
 
 jest.mock( '@wordpress/api-fetch', () => jest.fn() );
@@ -19,26 +23,33 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 	MetricTabsChart: ( {
 		metrics,
 		chartType,
-		pointsAreWallClocks,
+		chartTitle,
+		empty,
+		hideSingleMetricLabel,
 	}: {
 		metrics: {
 			key: string;
 			label: string;
 			value: number;
 			current: { date: Date; value: number }[];
+			countLabel?: ( count: number ) => string;
 			dataFormat?: { type: string };
 		}[];
 		chartType?: string;
-		pointsAreWallClocks?: boolean;
+		chartTitle?: string;
+		empty?: ReactNode;
+		hideSingleMetricLabel?: boolean;
 	} ) => (
 		<div
 			data-testid="metric-tabs-chart"
 			data-chart-type={ String( chartType ) }
-			data-wall-clocks={ String( pointsAreWallClocks ) }
+			data-chart-title={ chartTitle }
+			data-hide-single-metric-label={ String( hideSingleMetricLabel ) }
 			data-metrics={ JSON.stringify(
 				metrics.map( metric => ( {
 					key: metric.key,
 					label: metric.label,
+					countLabels: [ metric.countLabel?.( 1 ), metric.countLabel?.( 2 ) ],
 					value: metric.value,
 					format: metric.dataFormat?.type,
 					values: metric.current.map( point => point.value ),
@@ -46,7 +57,9 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 					days: metric.current.map( point => point.date.getDate() ),
 				} ) )
 			) }
-		/>
+		>
+			{ empty }
+		</div>
 	),
 } ) );
 
@@ -59,6 +72,7 @@ const mockApiFetch = apiFetch as unknown as jest.Mock;
 type ChartedMetric = {
 	key: string;
 	label: string;
+	countLabels: ( string | null )[];
 	value: number;
 	format?: string;
 	values: number[];
@@ -110,7 +124,11 @@ describe( 'PostViewsWidget', () => {
 		mockApiFetch.mockReset();
 	} );
 
-	it( 'charts the window as a single zero-filled Views series', async () => {
+	afterEach( () => {
+		jest.useRealTimers();
+	} );
+
+	it( 'charts the window as a single zero-filled Views series, handing the chart its no-results state', async () => {
 		mockApiFetch.mockResolvedValue( STATS_POST_RESPONSE );
 
 		render( <PostViewsWidget attributes={ { reportParams: WINDOW_PARAMS } } /> );
@@ -119,13 +137,18 @@ describe( 'PostViewsWidget', () => {
 		const metrics = chartedMetrics( chart );
 		expect( metrics ).toHaveLength( 1 );
 		expect( metrics[ 0 ].label ).toBe( 'Views' );
+		expect( metrics[ 0 ].countLabels ).toEqual( [ '%s View', '%s Views' ] );
 		// One point per calendar day of the 7-day window, zero-filled around the
 		// two in-window days; the 6/25 day falls outside the window.
 		expect( metrics[ 0 ].values ).toEqual( [ 0, 5, 0, 7, 0, 0, 0 ] );
 		// The metric headline is the window total, and the chart type
-		// defaults to line.
+		// defaults to bars.
 		expect( metrics[ 0 ].value ).toBe( 12 );
-		expect( chart ).toHaveAttribute( 'data-chart-type', 'line' );
+		expect( chart ).toHaveAttribute( 'data-chart-type', 'bar' );
+		expect( chart ).toHaveAttribute( 'data-hide-single-metric-label', 'true' );
+		expect(
+			within( chart ).getByText( 'We couldn’t find results for this time period.' )
+		).toBeInTheDocument();
 
 		const requestedPath = mockApiFetch.mock.calls[ 0 ][ 0 ].path as string;
 		expect( requestedPath ).toContain( 'stats/post/779' );
@@ -164,13 +187,30 @@ describe( 'PostViewsWidget', () => {
 		expect( chartedMetrics( chart )[ 0 ].values ).toEqual( [ 9, 12, 0, 0 ] );
 	} );
 
-	it( 'draws bars when the chartType attribute says so', async () => {
-		mockApiFetch.mockResolvedValue( STATS_POST_RESPONSE );
+	it.each( [
+		[ 'page', 'Page views' ],
+		[ 'product', 'Product views' ],
+		[ 'post', 'Post views' ],
+	] )( 'names the chart for a %s post type', async ( postType, title ) => {
+		jest.useFakeTimers();
+		mockApiFetch.mockResolvedValue( {
+			...STATS_POST_RESPONSE,
+			post: { ID: 779, post_type: postType },
+		} );
 
-		render( <PostViewsWidget attributes={ { reportParams: WINDOW_PARAMS, chartType: 'bar' } } /> );
+		render( <PostViewsWidget attributes={ { reportParams: WINDOW_PARAMS } } /> );
 
 		const chart = await screen.findByTestId( 'metric-tabs-chart' );
-		expect( chart ).toHaveAttribute( 'data-chart-type', 'bar' );
+		expect( chart ).toHaveAttribute( 'data-chart-title', title );
+	} );
+
+	it( 'draws a line when the chartType attribute says so', async () => {
+		mockApiFetch.mockResolvedValue( STATS_POST_RESPONSE );
+
+		render( <PostViewsWidget attributes={ { reportParams: WINDOW_PARAMS, chartType: 'line' } } /> );
+
+		const chart = await screen.findByTestId( 'metric-tabs-chart' );
+		expect( chart ).toHaveAttribute( 'data-chart-type', 'line' );
 	} );
 
 	it( 'ignores comparison report params: one request, single series', async () => {
@@ -212,16 +252,97 @@ describe( 'PostViewsWidget', () => {
 		).toHaveLength( 0 );
 	} );
 
-	it( 'shows the error state with a Retry action when the fetch fails', async () => {
+	it( 'refetches the post views when Retry is clicked after a failed fetch', async () => {
+		jest.useFakeTimers();
+		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
 		// A non-retryable 403 so React Query surfaces the error immediately
 		// instead of after the retry backoff.
 		mockApiFetch.mockRejectedValue( { status: 403, message: 'Forbidden' } );
+		const statsPostCalls = () =>
+			mockApiFetch.mock.calls.filter( call =>
+				( call[ 0 ].path as string ).includes( 'stats/post' )
+			);
 
 		render( <PostViewsWidget attributes={ { reportParams: WINDOW_PARAMS } } /> );
 
 		await expect(
 			screen.findByText( /couldn't load this post's views/ )
 		).resolves.toBeInTheDocument();
-		expect( screen.getByRole( 'button', { name: 'Retry' } ) ).toBeInTheDocument();
+		expect( statsPostCalls() ).toHaveLength( 1 );
+
+		await user.click( screen.getByRole( 'button', { name: 'Retry' } ) );
+
+		await waitFor( () => expect( statsPostCalls() ).toHaveLength( 2 ) );
+	} );
+	describe( 'CSV download', () => {
+		let downloads: ReturnType< typeof captureCsvDownloads > | undefined;
+		let defaultSettings: ReturnType< typeof getSettings >;
+
+		beforeEach( () => {
+			defaultSettings = getSettings();
+			setSettings( {
+				...defaultSettings,
+				timezone: { string: 'Pacific/Kiritimati', offset: 14, offsetFormatted: '14', abbr: '' },
+			} );
+		} );
+
+		afterEach( () => {
+			downloads?.restore();
+			downloads = undefined;
+			setSettings( defaultSettings );
+		} );
+
+		it( 'saves each bucket the chart draws, dated in the site zone', async () => {
+			downloads = captureCsvDownloads();
+			mockApiFetch.mockResolvedValue( STATS_POST_RESPONSE );
+
+			const { findDeclaredAction } = renderWithActionsHost(
+				<PostViewsWidget attributes={ { reportParams: WINDOW_PARAMS } } />
+			);
+			await downloads.runAndSave( await findDeclaredAction( 'download-csv' ) );
+
+			expect( downloads.files[ 0 ].filename ).toBe( 'post-779-views-2026-07-01_2026-07-07.csv' );
+			await expect( downloads.lines() ).resolves.toEqual( [
+				'"Date","Views"',
+				'"2026-07-01","0"',
+				'"2026-07-02","5"',
+				'"2026-07-03","0"',
+				'"2026-07-04","7"',
+				'"2026-07-05","0"',
+				'"2026-07-06","0"',
+				'"2026-07-07","0"',
+			] );
+		} );
+
+		it( 'names an All time file from its start to today, not all-time', async () => {
+			jest.useFakeTimers( { advanceTimers: true } );
+			jest.setSystemTime( new Date( '2026-07-20T05:00:00Z' ) );
+			downloads = captureCsvDownloads();
+			mockApiFetch.mockResolvedValue( STATS_POST_RESPONSE );
+
+			try {
+				const { findDeclaredAction } = renderWithActionsHost(
+					<PostViewsWidget
+						attributes={ { reportParams: { ...WINDOW_PARAMS, preset: 'all-time' } } }
+					/>
+				);
+				await downloads.runAndSave( await findDeclaredAction( 'download-csv' ) );
+
+				expect( downloads.files[ 0 ].filename ).toBe( 'post-779-views-2026-07-01_2026-07-20.csv' );
+			} finally {
+				jest.useRealTimers();
+			}
+		} );
+
+		it( 'offers no download for a window without views', async () => {
+			mockApiFetch.mockResolvedValue( { data: [ [ '2026-06-25', 9 ] ] } );
+
+			const { declaredAction } = renderWithActionsHost(
+				<PostViewsWidget attributes={ { reportParams: WINDOW_PARAMS } } />
+			);
+			await expect( screen.findByTestId( 'metric-tabs-chart' ) ).resolves.toBeInTheDocument();
+
+			expect( declaredAction( 'download-csv' ) ).toBeUndefined();
+		} );
 	} );
 } );

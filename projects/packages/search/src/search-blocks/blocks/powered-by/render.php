@@ -13,6 +13,10 @@
 
 namespace Automattic\Jetpack\Search;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 $wrapper_attributes = get_block_wrapper_attributes( array( 'class' => 'jetpack-search-powered-by' ) );
 
 // WP locales use underscores (en_US, de_DE, pt_BR), not hyphens — split on `_`.

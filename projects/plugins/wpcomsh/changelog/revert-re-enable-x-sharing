@@ -1,4 +1,0 @@
-Significance: patch
-Type: removed
-
-Revert the Jetpack-side changes that re-enabled X (Twitter) sharing in Jetpack Social.

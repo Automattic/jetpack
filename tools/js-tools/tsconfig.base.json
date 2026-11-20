@@ -18,5 +18,5 @@
 		"moduleResolution": "bundler",
 		"noEmit": true
 	},
-	"files": [ "./types/global.d.ts", "./types/jest-dom.d.ts" ]
+	"files": [ "./types/global.d.ts", "./types/jest-dom.d.ts", "./jest/setup-console.d.ts" ]
 }

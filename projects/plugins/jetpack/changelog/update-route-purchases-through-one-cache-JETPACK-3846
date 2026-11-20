@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Settings: Reuse the site's purchases already loaded for other Jetpack pages instead of asking WordPress.com for them again.

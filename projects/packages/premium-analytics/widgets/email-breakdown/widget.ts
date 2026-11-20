@@ -1,7 +1,6 @@
 /**
  * WordPress dependencies
  */
-import { envelope } from '@wordpress/icons';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
 /**
@@ -35,7 +34,6 @@ export type EmailBreakdownAttributes = {
  * "Location opens" card show links or clicks. Endpoints are all-time (no date range).
  */
 export default {
-	icon: envelope,
 	attributes: [] as WidgetAttributeField< EmailBreakdownAttributes >[],
 	example: {
 		attributes: {

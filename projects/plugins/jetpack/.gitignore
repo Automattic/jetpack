@@ -1,9 +1,10 @@
 ## FOLDERS
 /.sass-cache/
 /.vscode/
-/allure-results/
 /_inc/blocks
 /_inc/build
+/packages/**/build-module
+/build
 /css
 /logs
 /node_modules
@@ -19,3 +20,4 @@
 /modules/module-headings.php
 /modules/photon-cdn/jetpack-manifest.php
 /tests/php/files/jetpack-*.jpg
+/routes/**/.content-entry.js

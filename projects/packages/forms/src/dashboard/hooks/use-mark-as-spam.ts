@@ -70,6 +70,9 @@ export const useMarkAsSpam = ( response: FormResponse | null, options: UseMarkAs
 			switchToSpam( response.id );
 		} catch {
 			setIsSaving( false );
+			return {
+				error: __( 'Could not mark the response as spam. Please try again.', 'jetpack-forms' ),
+			};
 		}
 	}, [ response, saveEntityRecord, invalidateCounts, switchToSpam ] );
 

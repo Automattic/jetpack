@@ -1,0 +1,32 @@
+{
+	"name": "woocommerce-analytics/average-items-per-order",
+	"icon": "jpa/chart-bar",
+	"title": "Average items per order",
+	"description": "Show the average number of products per order over a set period of time.",
+	"help": {
+		"content": "Show the average number of products per order over a set period of time."
+	},
+	"category": "orders",
+	"presentation": "framed",
+	"attributes": [
+		{
+			"id": "chartType",
+			"type": "jpa/toggle-group",
+			"label": "Chart type",
+			"relevance": "high",
+			"elements": [
+				{
+					"value": "line",
+					"label": "Line chart",
+					"icon": "jpa/chart-line"
+				},
+				{
+					"value": "bar",
+					"label": "Bar chart",
+					"icon": "jpa/chart-bar"
+				}
+			]
+		}
+	],
+	"textdomain": "jetpack-woocommerce-stats-pkg"
+}

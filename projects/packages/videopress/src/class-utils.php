@@ -41,6 +41,11 @@ class Utils {
 			)
 		);
 
+		// The site-wide opt-out wins over the block's own preload attribute.
+		if ( Data::get_videopress_player_preload_disabled() ) {
+			$video_press_url_options['preload'] = 'none';
+		}
+
 		$query_args = array(
 			'resizeToParent'  => 1,
 			'cover'           => 1,
@@ -59,6 +64,10 @@ class Utils {
 
 		if ( ! empty( $video_press_url_options['poster'] ) ) {
 			$query_args['posterUrl'] = rawurlencode( $video_press_url_options['poster'] );
+		}
+
+		if ( isset( $video_press_url_options['at'] ) && (int) $video_press_url_options['at'] > 0 ) {
+			$query_args['at'] = (int) $video_press_url_options['at'];
 		}
 
 		$url = 'https://videopress.com/v/' . $guid;

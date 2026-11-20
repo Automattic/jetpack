@@ -33,8 +33,7 @@ export function useSite() {
 
 /**
  * Extract storage usage in bytes from the site payload. WPCOM reports
- * `options.videopress_storage_used` in decimal megabytes (matches legacy
- * conversion at `src/client/state/resolvers.js:273`).
+ * `options.videopress_storage_used` in decimal megabytes.
  *
  * @param site - The site info payload, or undefined when still loading.
  * @return Storage used in bytes (0 when the field is missing).

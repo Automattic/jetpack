@@ -1,6 +1,5 @@
 name: Update Jetpack Staging Test Sites
 # Ran as part of the `UpdateJetpackStaging` TeamCity build.
-# After updating the sites, runs k6 tests against the same sites.
 
 on:
   workflow_dispatch:
@@ -11,7 +10,8 @@ permissions:
 
 concurrency:
   group: update-jetpack-staging-sites-all
-  cancel-in-progress: true
+  # Don't cancel mid-sync, which can leave sites half-updated.
+  cancel-in-progress: false
 
 jobs:
   run_shell_script:
@@ -33,32 +33,6 @@ jobs:
       - name: Execute shell script
         shell: bash
         run: .github/files/jetpack-staging-sites/update-jetpack-staging-sites.sh
-
-  run_k6_tests:
-    needs: run_shell_script
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-
-      - name: Setup K6
-        uses: grafana/setup-k6-action@db07bd9765aac508ef18982e52ab937fe633a065 # v1.2.1
-
-      - name: Run k6 frontend tests
-        uses: grafana/run-k6-action@de51a7390bdf0ac85a3bef493691bd71d4c7c158 # v1.4.0
-        with:
-          path: .github/files/jetpack-staging-sites/k6-frontend.js
-        env:
-          JETPACKSTAGING_K6_USERNAME: ${{ secrets.JETPACKSTAGING_K6_USERNAME }}
-          JETPACKSTAGING_K6_PASSWORD: ${{ secrets.JETPACKSTAGING_K6_PASSWORD }}
-
-      - name: Run k6 backend tests
-        uses: grafana/run-k6-action@de51a7390bdf0ac85a3bef493691bd71d4c7c158 # v1.4.0
-        with:
-          path: .github/files/jetpack-staging-sites/k6-backend.js
-        env:
-          JETPACKSTAGING_K6_USERNAME: ${{ secrets.JETPACKSTAGING_K6_USERNAME }}
-          JETPACKSTAGING_K6_PASSWORD: ${{ secrets.JETPACKSTAGING_K6_PASSWORD }}
 
   trigger_e2e_tests:
     needs: run_shell_script

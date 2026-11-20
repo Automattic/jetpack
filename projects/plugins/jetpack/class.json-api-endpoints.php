@@ -1024,6 +1024,9 @@ abstract class WPCOM_JSON_API_Endpoint {
 			case 'dropdown_page':
 				$return[ $key ] = (array) $this->cast_and_filter( $value, $this->dropdown_page_object_format, false, $for_output );
 				break;
+			case 'none':
+				// A field documented without a (type) prefix has nothing to cast to, so leave it out.
+				break;
 			default:
 				$method_name = $type['type'] . '_docs';
 				if ( method_exists( 'WPCOM_JSON_API_Jetpack_Overrides', $method_name ) ) {
@@ -1053,7 +1056,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 	 */
 	public function parse_types( $text ) {
 		if ( ! preg_match( '#^\(([^)]+)\)#', ltrim( $text ), $matches ) ) {
-			return 'none';
+			return array( array( 'type' => 'none' ) );
 		}
 
 		$types  = explode( '|', strtolower( $matches[1] ) );
@@ -1309,11 +1312,6 @@ abstract class WPCOM_JSON_API_Endpoint {
 					$types   = $this->parse_types( $description );
 					$type    = array();
 					$default = '';
-
-					if ( 'none' === $types ) {
-						$types           = array();
-						$types[]['type'] = 'none';
-					}
 
 					foreach ( $types as $type_array ) {
 						$type[] = $type_array['type'];
@@ -1611,6 +1609,30 @@ abstract class WPCOM_JSON_API_Endpoint {
 		}
 
 		return (object) $author;
+	}
+
+	/**
+	 * Whether the current user may read the given media item through a media GET endpoint.
+	 *
+	 * Requires `edit_posts`, which Contributors hold, and returns only attachments. Any
+	 * other post type is reported as unknown media.
+	 *
+	 * @param int $media_id Media post ID.
+	 * @return true|WP_Error True if the item may be returned, WP_Error otherwise.
+	 */
+	public function check_media_item_read_permission( $media_id ) {
+		// upload_files can probably be used for other endpoints but we want contributors to be able to use media too.
+		if ( ! current_user_can( 'edit_posts' ) ) {
+			return new WP_Error( 'unauthorized', 'User cannot view media', 403 );
+		}
+
+		$media_item = get_post( $media_id );
+
+		if ( $media_item && 'attachment' !== $media_item->post_type ) {
+			return new WP_Error( 'unknown_media', 'Unknown Media', 404 );
+		}
+
+		return true;
 	}
 
 	/**

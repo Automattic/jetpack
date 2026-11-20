@@ -4,6 +4,13 @@
 		overflow: visible;
 	}
 
+	// The CSS property, not the attribute: an SVG geometry attribute does
+	// not substitute var().
+	:global(.visx-bar),
+	:global(.bar-chart__comparison-bar) {
+		rx: var(--a8c-charts-border-radius-bar-chart);
+	}
+
 	// Keep the collapsed state in `from` and never on the element: a dropped
 	// animation then fails visible. `both`, not `forwards`, for backwards fill.
 	&--animated rect {
@@ -42,5 +49,43 @@
 		to {
 			transform: scaleX(1);
 		}
+	}
+
+	// A stack rises as one bar and rounds only its outer end, keeping seams flush.
+	&--stacked :global(.visx-bar-group) rect {
+		rx: 0;
+		animation: none;
+	}
+
+	&--stacked :global(.visx-bar-group) rect[data-stack-end="top"] {
+		clip-path: inset(0 round var(--a8c-charts-border-radius-bar-chart) var(--a8c-charts-border-radius-bar-chart) 0 0);
+	}
+
+	&--stacked :global(.visx-bar-group) rect[data-stack-end="right"] {
+		clip-path: inset(0 round 0 var(--a8c-charts-border-radius-bar-chart) var(--a8c-charts-border-radius-bar-chart) 0);
+	}
+
+	&--stacked :global(.visx-bar-group) rect[data-stack-end="bottom"] {
+		clip-path: inset(0 round 0 0 var(--a8c-charts-border-radius-bar-chart) var(--a8c-charts-border-radius-bar-chart));
+	}
+
+	&--stacked :global(.visx-bar-group) rect[data-stack-end="left"] {
+		clip-path: inset(0 round var(--a8c-charts-border-radius-bar-chart) 0 0 var(--a8c-charts-border-radius-bar-chart));
+	}
+
+	// A stack grows from the zero line, set inline as `transform-origin`;
+	// with negatives, the group box's own edge is not that line.
+	&--stacked#{&}--animated :global(.visx-bar-group) {
+		transform-box: view-box;
+		animation:
+			rise var(--a8c-charts-motion-duration-entrance)
+			var(--a8c-charts-motion-easing-entrance) both;
+	}
+
+	&--stacked#{&}--animated-horizontal :global(.visx-bar-group) {
+		transform-box: view-box;
+		animation:
+			stretch var(--a8c-charts-motion-duration-entrance)
+			var(--a8c-charts-motion-easing-entrance) both;
 	}
 }

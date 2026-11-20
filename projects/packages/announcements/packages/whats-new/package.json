@@ -1,0 +1,9 @@
+{
+	"name": "@automattic/jetpack-announcements-whats-new",
+	"version": "0.1.0",
+	"private": true,
+	"type": "module",
+	"module": "build-module/index.mjs",
+	"wpScriptModuleExports": "./build-module/index.mjs",
+	"types": "src/index.ts"
+}

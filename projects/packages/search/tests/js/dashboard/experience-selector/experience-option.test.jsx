@@ -1,5 +1,5 @@
-/* eslint-disable testing-library/prefer-user-event */
-import { fireEvent, render, screen } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { createReduxStore, createRegistry, RegistryProvider } from '@wordpress/data';
 import ExperienceOption from '../../../../src/dashboard/components/experience-selector/experience-option';
 import { storeConfig, STORE_ID } from '../../../../src/dashboard/store';
@@ -89,7 +89,7 @@ describe( '<ExperienceOption>', () => {
 		);
 	} );
 
-	test( 'commit → confirm dispatches saveExperience for the card experience', () => {
+	const setupWithSaveMock = () => {
 		// Override the store's `saveExperience` action so we can observe the
 		// dispatch and short-circuit the real generator (which would otherwise
 		// fetch /wp/v2/settings). The mock has to return a plain action object —
@@ -107,12 +107,27 @@ describe( '<ExperienceOption>', () => {
 				<ExperienceOption experience="inline" />
 			</RegistryProvider>
 		);
-		fireEvent.click( screen.getByRole( 'button', { name: /use theme search/i } ) );
-		// Dialog renders a second "Use Theme search" button (the confirm) —
-		// the card overlay is first, confirm is last in DOM order.
-		const buttons = screen.getAllByRole( 'button', { name: /use theme search/i } );
-		fireEvent.click( buttons[ buttons.length - 1 ] );
+		return saveExperienceMock;
+	};
+
+	test( 'commit → confirm dispatches saveExperience for the card experience', async () => {
+		const saveExperienceMock = setupWithSaveMock();
+		await userEvent.click( screen.getByRole( 'button', { name: /use theme search/i } ) );
+		const dialog = await screen.findByRole( 'alertdialog', { name: 'Use Theme search' } );
+		await userEvent.click( within( dialog ).getByRole( 'button', { name: 'Use Theme search' } ) );
+
 		expect( saveExperienceMock ).toHaveBeenCalledWith( 'inline' );
+		await waitFor( () => expect( screen.queryByRole( 'alertdialog' ) ).not.toBeInTheDocument() );
+	} );
+
+	test( 'commit → Enter on open cancels without saving', async () => {
+		const saveExperienceMock = setupWithSaveMock();
+		await userEvent.click( screen.getByRole( 'button', { name: /use theme search/i } ) );
+		await waitFor( () => expect( screen.getByRole( 'button', { name: 'Cancel' } ) ).toHaveFocus() );
+		await userEvent.keyboard( '{Enter}' );
+
+		await waitFor( () => expect( screen.queryByRole( 'alertdialog' ) ).not.toBeInTheDocument() );
+		expect( saveExperienceMock ).not.toHaveBeenCalled();
 	} );
 } );
 

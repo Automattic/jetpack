@@ -61,27 +61,42 @@ describe( 'Stats file downloads processing', () => {
 	} );
 
 	it( 'normalizes summarized file downloads into range data', () => {
-		const result = sanitizeStatsFileDownloadsResponse( fileDownloadsSummaryFixture, {
-			period: 'day',
-			start_date: '2026-06-16',
-			end_date: '2026-06-22',
-			summarize: true,
-		} );
+		const { summary } = fileDownloadsSummaryFixture;
+		const result = sanitizeStatsFileDownloadsResponse(
+			{
+				...fileDownloadsSummaryFixture,
+				summary: {
+					...summary,
+					files: [
+						...summary.files,
+						{ relative_url: '/notes.txt', filename: 'notes.txt', downloads: '2' },
+					],
+					total_downloads: '10',
+				},
+			},
+			{
+				period: 'day',
+				start_date: '2026-06-16',
+				end_date: '2026-06-22',
+				summarize: true,
+			}
+		);
 
 		expect( result.summary ).toEqual(
 			expect.objectContaining( {
-				total_downloads: 8,
+				total_downloads: 10,
 				other_downloads: 0,
 			} )
 		);
-		expect( result.data[ 0 ].items[ 0 ] ).toEqual(
+		expect( result.data[ 0 ].items ).toEqual( [
 			expect.objectContaining( {
 				label: '/guide.pdf',
 				downloads: 8,
 				shortLabel: 'guide.pdf',
 				link: 'https://example.com/guide.pdf',
-			} )
-		);
+			} ),
+			expect.objectContaining( { label: '/notes.txt', link: '/notes.txt' } ),
+		] );
 	} );
 
 	it( 'matches comparison downloads by URL instead of row order', () => {

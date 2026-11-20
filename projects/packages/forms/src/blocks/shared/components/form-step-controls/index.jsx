@@ -78,10 +78,10 @@ export default function StepControls( { formClientId } ) {
 					label={
 						isSingleStep
 							? /* translators: %d: step number */
-							  __( 'Currently editing step %d', 'jetpack-forms' ).replace(
+								__( 'Currently editing step %d', 'jetpack-forms' ).replace(
 									'%d',
 									currentStepIndex + 1
-							  )
+								)
 							: __( 'Currently editing all steps', 'jetpack-forms' )
 					}
 					showTooltip

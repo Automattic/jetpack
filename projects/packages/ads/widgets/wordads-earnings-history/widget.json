@@ -1,0 +1,20 @@
+{
+	"name": "wordads/earnings-history",
+	"icon": "jpa/receipt",
+	"title": "WordAds earnings",
+	"description": "Your WordAds earnings by period, with amounts and payment status.",
+	"help": {
+		"content": "What each billing month earned from programmatic ads, and whether it has been paid. Whole months only, so the month in progress isn’t listed."
+	},
+	"category": "stats",
+	"presentation": "framed",
+	"actions": [
+		{
+			"id": "view-all",
+			"label": "View all",
+			"relevance": "high",
+			"href": "admin.php?page=jetpack-premium-analytics-wp-admin&p=%2Freports%2Fearnings"
+		}
+	],
+	"textdomain": "jetpack-ads-pkg"
+}

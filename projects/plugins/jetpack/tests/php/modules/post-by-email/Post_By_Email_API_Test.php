@@ -6,6 +6,7 @@
  */
 
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 if ( defined( 'JETPACK__PLUGIN_DIR' ) && JETPACK__PLUGIN_DIR ) {
 	require_once JETPACK__PLUGIN_DIR . 'modules/post-by-email.php';
@@ -136,6 +137,7 @@ class Post_By_Email_API_Test extends Jetpack_REST_TestCase {
 		$this->assertEquals( self::SAMPLE_EMAIL, $response->data['post_by_email_address'] );
 		$this->assertEquals( 200, $response->status );
 		$this->assertTrue( $this->request_validated, "Method 'mock_jetpack_api_response_create' was skipped, failed to validate the request" );
+		$this->assertSame( self::SAMPLE_EMAIL, get_option( 'post_by_email_address' . self::$admin_id ) );
 
 		remove_filter( 'pre_http_request', array( $this, 'mock_jetpack_api_response_create' ), 10 );
 	}
@@ -161,14 +163,45 @@ class Post_By_Email_API_Test extends Jetpack_REST_TestCase {
 	 */
 	public function test_delete() {
 		add_filter( 'pre_http_request', array( $this, 'mock_jetpack_api_response_delete' ), 10, 3 );
+		update_option( 'post_by_email_address' . self::$admin_id, self::SAMPLE_EMAIL );
 
 		$response = $this->rest_dispatch( 'delete' );
 
 		$this->assertEquals( 'success', $response->data['code'] );
 		$this->assertEquals( 200, $response->status );
 		$this->assertTrue( $this->request_validated, "Method 'mock_jetpack_api_response_delete' was skipped, failed to validate the request" );
+		$this->assertFalse( get_option( 'post_by_email_address' . self::$admin_id ) );
 
 		remove_filter( 'pre_http_request', array( $this, 'mock_jetpack_api_response_delete' ), 10 );
+	}
+
+	/**
+	 * The local copy of the address goes when its user unlinks or is deleted.
+	 *
+	 * @dataProvider provide_hooks_deleting_the_address_copy
+	 *
+	 * @param string $hook Action that passes the user ID.
+	 */
+	#[DataProvider( 'provide_hooks_deleting_the_address_copy' )]
+	public function test_address_copy_deleted_with_user( $hook ) {
+		$user_id = self::factory()->user->create();
+		update_option( 'post_by_email_address' . $user_id, self::SAMPLE_EMAIL );
+
+		do_action( $hook, $user_id );
+
+		$this->assertFalse( get_option( 'post_by_email_address' . $user_id ) );
+	}
+
+	/**
+	 * Data provider for test_address_copy_deleted_with_user.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_hooks_deleting_the_address_copy() {
+		return array(
+			'unlinked from WordPress.com' => array( 'jetpack_unlinked_user' ),
+			'user deleted'                => array( 'deleted_user' ),
+		);
 	}
 
 	/**

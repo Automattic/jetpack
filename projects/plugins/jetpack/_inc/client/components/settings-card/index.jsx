@@ -1,11 +1,8 @@
 import { getUserConnectionUrl } from '@automattic/jetpack-connection';
-import { getSiteFragment } from '@automattic/jetpack-shared-extension-utils';
-import { Card, CardHeader, CardBody } from '@wordpress/components';
 import { __, _x } from '@wordpress/i18n';
-import { addQueryArgs } from '@wordpress/url';
+import { Button, Card } from '@wordpress/ui';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import Button from 'components/button';
 import JetpackBanner from 'components/jetpack-banner';
 import ModuleOverridenBanner from 'components/module-overridden-banner';
 import analytics from 'lib/analytics';
@@ -26,8 +23,6 @@ import {
 	getJetpackProductUpsellByFeature,
 	FEATURE_JETPACK_BLAZE,
 	FEATURE_JETPACK_EARN,
-	FEATURE_ADVANCED_SEO,
-	PLAN_BUSINESS,
 } from 'lib/plans/constants';
 import ProStatus from 'pro-status';
 import {
@@ -262,7 +257,10 @@ export const SettingsCard = inprops => {
 
 				return (
 					<JetpackBanner
-						title={ __( 'Connect your WordPress.com account to enable Secure Sign-On', 'jetpack' ) }
+						title={ __(
+							'Connect your WordPress.com account to enable WordPress.com login',
+							'jetpack'
+						) }
 						callToAction={ connectLabel() }
 						plan={ getJetpackProductUpsellByFeature( FEATURE_SSO ) }
 						feature={ feature }
@@ -462,26 +460,6 @@ export const SettingsCard = inprops => {
 					/>
 				);
 
-			case FEATURE_ADVANCED_SEO:
-				if ( props.hasAdvancedSeo || props.inOfflineMode || ! props.hasConnectedOwner ) {
-					return '';
-				}
-
-				return (
-					<JetpackBanner
-						title={ __(
-							'Optimize your site for search engines with advanced SEO tools and preview how your content will look on Google, Facebook, and Twitter.',
-							'jetpack'
-						) }
-						callToAction={ upgradeLabel() }
-						plan={ getJetpackProductUpsellByFeature( FEATURE_ADVANCED_SEO ) }
-						feature={ feature }
-						onClick={ handleClickForTracking( feature ) }
-						href={ props.seoUpgradeUrl }
-						rna
-					/>
-				);
-
 			default:
 				return '';
 		}
@@ -516,13 +494,6 @@ export const SettingsCard = inprops => {
 
 			case FEATURE_SPAM_AKISMET_PLUS:
 				if ( ! props.hasAntispam && ! props.isAkismetKeyValid && ! props.isCheckingAkismetKey ) {
-					return false;
-				}
-
-				break;
-
-			case FEATURE_ADVANCED_SEO:
-				if ( ! props.hasAdvancedSeo ) {
 					return false;
 				}
 
@@ -578,20 +549,20 @@ export const SettingsCard = inprops => {
 
 	return (
 		getGoogleAnalyticsOverridenBanner() || (
-			<Card className="jp-form-settings-card">
+			<Card.Root className="jp-form-settings-card">
 				<form
 					{ ...( moduleId ? { id: moduleId } : null ) }
 					onSubmit={ ! isDisabled && ! isSaving ? props.onSubmit : undefined }
 				>
-					<CardHeader className="jp-form-settings-card__header">
-						<span className="jp-form-settings-card__header-label">{ header }</span>
+					<Card.Header className="jp-form-settings-card__header">
+						<Card.Title render={ <h2 /> } className="jp-form-settings-card__header-label">
+							{ header }
+						</Card.Title>
 						<div className="jp-form-settings-card__header-actions">
 							{ ! props.hideButton && (
 								<Button
-									primary
-									rna
-									compact
 									type="submit"
+									size="compact"
 									disabled={ isDisabled || isSaving || ! props.isDirty() }
 								>
 									{ isSaving
@@ -601,7 +572,7 @@ export const SettingsCard = inprops => {
 												'Button caption',
 												'jetpack',
 												/* dummy arg to avoid bad minification */ 0
-										  ) }
+											) }
 								</Button>
 							) }
 							{ props.action && (
@@ -612,13 +583,11 @@ export const SettingsCard = inprops => {
 								/>
 							) }
 						</div>
-					</CardHeader>
-					<CardBody size="none">
-						{ children }
-						{ banner }
-					</CardBody>
+					</Card.Header>
+					{ children }
+					{ banner }
 				</form>
-			</Card>
+			</Card.Root>
 		)
 	);
 };
@@ -627,24 +596,6 @@ SettingsCard.propTypes = {
 	action: PropTypes.string,
 	saveDisabled: PropTypes.bool,
 	isDisabled: PropTypes.bool,
-};
-
-/**
- * Get the SEO upgrade URL, pointing to WordPress.com Business plan.
- * Since ADVANCED_SEO is available on JETPACK_ALL_SITES, if the feature is unavailable,
- * the user is on WordPress.com/Atomic and needs Business plan.
- *
- * @param {object} state - Redux state
- * @return {string} Upgrade URL
- */
-const getSeoUpgradeUrl = state => {
-	const siteFragment = getSiteFragment();
-	const redirectTo = addQueryArgs( getSiteAdminUrl( state ) + 'admin.php?page=jetpack#/traffic', {
-		feature: 'seo',
-	} );
-	return addQueryArgs( `https://wordpress.com/checkout/${ siteFragment }/${ PLAN_BUSINESS }`, {
-		redirect_to: redirectTo,
-	} );
 };
 
 export default connect( state => {
@@ -664,11 +615,9 @@ export default connect( state => {
 		searchUpgradeUrl: getProductDescriptionUrl( state, 'search' ),
 		simplePaymentsUpgradeUrl: getUpgradeUrl( state, 'jetpack-creator-cta' ),
 		spamUpgradeUrl: getProductDescriptionUrl( state, 'akismet' ),
-		seoUpgradeUrl: getSeoUpgradeUrl( state ),
 		multisite: isMultisite( state ),
 		inOfflineMode: isOfflineMode( state ),
 		hasConnectedOwner: hasConnectedOwnerSelector( state ),
-		hasAdvancedSeo: siteHasFeature( state, 'advanced-seo' ),
 		hasAntispam: siteHasFeature( state, 'antispam' ),
 		hasBackups: siteHasFeature( state, 'backups' ),
 		hasGoogleAnalytics: siteHasFeature( state, 'google-analytics' ),

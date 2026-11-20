@@ -19,19 +19,26 @@ export function usePartnerCouponRedemption(
 	tracksUserData,
 	analytics
 ) {
+	const {
+		coupon_code: couponCode,
+		preset,
+		partner: { prefix: partnerPrefix },
+	} = partnerCoupon;
+	const connected = connectionStatus.isRegistered ? 'yes' : 'no';
+
 	useEffect( () => {
 		if ( tracksUserData && 'object' === typeof analytics ) {
 			analytics.tracks.recordEvent( 'jetpack_partner_coupon_redeem_view', {
-				coupon: partnerCoupon.coupon_code,
-				partner: partnerCoupon.partner.prefix,
-				preset: partnerCoupon.preset,
+				coupon: couponCode,
+				partner: partnerPrefix,
+				preset,
 				// This is expected to always be "yes" since we do not track users
 				// before they have connected and agreed to our ToS, but we'll leave
 				// it in for historical reasons if this change some day.
-				connected: connectionStatus.isRegistered ? 'yes' : 'no',
+				connected,
 			} );
 		}
-	}, [ analytics, tracksUserData, connectionStatus, partnerCoupon ] );
+	}, [ analytics, tracksUserData, couponCode, partnerPrefix, preset, connected ] );
 
 	const onClick = useCallback( () => {
 		if ( tracksUserData && 'object' === typeof analytics ) {

@@ -153,6 +153,10 @@ class Concatenate_JS extends WP_Scripts {
 				}
 			}
 
+			if ( $do_concat && in_array( $this->get_data( $handle, 'strategy' ), array( 'defer', 'async' ), true ) ) {
+				$do_concat = false;
+			}
+
 			if ( $do_concat && $this->has_inline_content( $handle ) ) {
 				if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 					printf( "\n<!-- No Concat JS %s => Has Inline Content -->\n", esc_html( $handle ) );

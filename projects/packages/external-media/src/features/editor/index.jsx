@@ -36,6 +36,7 @@ if ( isUserConnected() && 'function' === typeof useBlockEditContext ) {
 	addGooglePhotosToMediaInserter();
 
 	const isFeaturedImage = props =>
+		props.featuredImageFlow ||
 		props.unstableFeaturedImageFlow ||
 		( props.modalClass && props.modalClass.indexOf( 'featured-image' ) > -1 );
 

@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+AI Launchpad: On sites built with AI, open Site Setup on the first Dashboard visit and offer the free domain that comes with the plan. Keep the tailored task descriptions even when the AI suggests tasks the site cannot use.

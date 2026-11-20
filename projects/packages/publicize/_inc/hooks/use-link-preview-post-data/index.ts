@@ -78,7 +78,7 @@ export function useLinkPreviewPostData(): LinkPreviewData {
 	// The live drag point wins over the saved point, but only while the
 	// featured image is the one being previewed.
 	const overlayPoint = useFocalPointOverlay( featuredImageId );
-	const imageFocalPoint = isFeaturedImage ? overlayPoint ?? persistedFocalPoint : undefined;
+	const imageFocalPoint = isFeaturedImage ? ( overlayPoint ?? persistedFocalPoint ) : undefined;
 
 	const { siteTitle, siteIcon } = useSelect( select => {
 		const { getUnstableBase } = select( coreStore );

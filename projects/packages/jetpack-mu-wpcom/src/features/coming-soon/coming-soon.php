@@ -24,7 +24,19 @@ function should_show_coming_soon_page() {
 	$share_code = get_share_code();
 	if ( is_accessed_by_valid_share_link( $share_code ) ) {
 		track_preview_link_event();
-		setcookie( 'wp_share_code', $share_code, time() + 3600, '/', '', is_ssl(), true );
+		$secure = is_ssl();
+		// SameSite=None lets the share link keep working when the site is previewed in a cross-site iframe.
+		setcookie(
+			'wp_share_code',
+			$share_code,
+			array(
+				'expires'  => time() + 3600,
+				'path'     => '/',
+				'secure'   => $secure,
+				'httponly' => true,
+				'samesite' => $secure ? 'None' : 'Lax',
+			)
+		);
 		return false;
 	}
 
@@ -129,6 +141,7 @@ function render_fallback_coming_soon_page() {
 
 	// Disable WP scripts, likes, social og meta, cookie banner.
 	remove_action( 'wp_enqueue_scripts', 'wpcom_actionbar_enqueue_scripts', 101 );
+	add_filter( 'jetpack_action_bar_enabled', '__return_false' );
 	remove_action( 'wp_head', 'print_emoji_detection_script', 7 );
 	remove_action( 'wp_print_styles', 'print_emoji_styles' );
 	remove_action( 'wp_head', 'header_js', 5 );

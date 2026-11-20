@@ -53,7 +53,7 @@ export async function fetchVideoItem( {
 					birth_day: '1',
 					birth_month: '1',
 					birth_year: '2000',
-			  };
+				};
 
 		let tokenData: MediaTokenProps;
 		if ( isPrivate && ! token ) {

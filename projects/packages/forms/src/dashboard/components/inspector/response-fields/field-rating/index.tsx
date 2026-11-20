@@ -1,11 +1,9 @@
 /**
  * External dependencies
  */
-import {
-	__experimentalHStack as HStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
-	VisuallyHidden,
-} from '@wordpress/components';
+import { VisuallyHidden } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
+import { Stack } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
@@ -62,7 +60,7 @@ const FieldRating = ( { value }: FieldRatingProps ) => {
 	return (
 		<>
 			<VisuallyHidden as="span">{ ratingLabel }</VisuallyHidden>
-			<HStack spacing="1" alignment="topLeft">
+			<Stack align="flex-start" direction="row" gap="xs" justify="flex-start">
 				{ Array.from( { length: clampedMax }, ( _, index ) => (
 					<span style={ { flex: '0 0 24px' } } key={ index }>
 						<RatingIcon
@@ -73,7 +71,7 @@ const FieldRating = ( { value }: FieldRatingProps ) => {
 						/>
 					</span>
 				) ) }
-			</HStack>
+			</Stack>
 		</>
 	);
 };

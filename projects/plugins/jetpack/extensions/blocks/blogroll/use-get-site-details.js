@@ -15,8 +15,9 @@ export default function useGetSiteDetails( { siteURL, subscriptions, enabled = f
 						URL: wpcomSite?.URL,
 						site_icon: getSiteIcon( wpcomSite?.logo?.url ),
 						name: wpcomSite?.name,
+						jetpack: wpcomSite?.jetpack,
 					},
-			  ]
+				]
 			: [] ),
 		...subscriptions,
 	].filter( item => `${ item.name }${ item.URL }`.match( new RegExp( siteURL, 'i' ) ) );

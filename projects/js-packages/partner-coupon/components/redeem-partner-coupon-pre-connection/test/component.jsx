@@ -4,7 +4,7 @@ import { CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
 import { jest } from '@jest/globals';
 import { render, renderHook, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { useSelect } from '@wordpress/data';
+import { useDispatch, useSelect } from '@wordpress/data';
 
 jest.unstable_mockModule( '../../../utils/assignLocation', () => {
 	return {
@@ -247,5 +247,32 @@ describe( 'RedeemPartnerCouponPreConnection', () => {
 			preset: 'TST',
 			connected: 'yes',
 		} );
+	} );
+
+	it( 'connects back to My Jetpack with the coupon in the redirect', async () => {
+		setupSpies();
+		stubGetConnectionStatus.mockReturnValue( { isRegistered: false, isUserConnected: false } );
+		const { result: dispatch } = renderHook( () => useDispatch( CONNECTION_STORE_ID ) );
+		const registerSite = jest
+			.spyOn( dispatch.current, 'registerSite' )
+			.mockReset()
+			.mockResolvedValue();
+		jest.spyOn( dispatch.current, 'connectUser' ).mockReset().mockReturnValue();
+		const user = userEvent.setup();
+
+		render(
+			<RedeemPartnerCouponPreConnection
+				{ ...requiredProps }
+				connectionStatus={ { hasConnectedOwner: false } }
+			/>
+		);
+		await user.click( screen.getByRole( 'button', { name: 'Set up & redeem Awesome Product' } ) );
+
+		expect( registerSite ).toHaveBeenCalledWith(
+			expect.objectContaining( {
+				from: 'jetpack-partner-coupon',
+				redirectUri: 'admin.php?page=my-jetpack&partnerCoupon=TEST_TST_1234',
+			} )
+		);
 	} );
 } );

@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Dashboard: Show a notice when the site nears or passes its plan's monthly views limit.

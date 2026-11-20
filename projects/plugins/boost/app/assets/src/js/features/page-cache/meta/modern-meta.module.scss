@@ -1,0 +1,28 @@
+@use "$css/main/mixins";
+
+.clear-cache {
+	margin-block-end: var(--wpds-dimension-gap-md);
+}
+
+.well {
+
+	@include mixins.settings-well();
+
+	font-size: var(--wpds-typography-font-size-md);
+	line-height: var(--wpds-typography-line-height-sm);
+
+	> :first-child {
+		min-inline-size: 0;
+	}
+
+	// Match the toggle label's line box so the link shares its baseline.
+	.see-logs {
+		line-height: var(--wpds-typography-line-height-xs);
+	}
+
+	:global(.components-base-control__help) {
+		font-size: inherit;
+		line-height: inherit;
+		color: var(--wpds-color-foreground-content-neutral-weak);
+	}
+}

@@ -217,6 +217,7 @@ class Error_Handler {
 		// Connection state problems (Manager::get_connection_owner, Connection_Health_Tests).
 		'invalid_connection_owner',  // The connection owner cannot be resolved: token missing or WP user deleted.
 		'xmlrpc_request_blocked',    // WP.com reached the site but the request was rejected (firewall, WAF, or server rule).
+		'wpcom_ssl_verification_failed',   // WP.com could not verify the site's SSL certificate when connecting to it (expired, self-signed, or incomplete chain).
 	);
 
 	/**
@@ -267,11 +268,19 @@ class Error_Handler {
 	 * predefined error messages and actions, with optional filtering for specific sites.
 	 * Only processes a limited set of error codes that are meant to be displayed to users.
 	 *
+	 * The result is specific to the current viewer: an error is omitted entirely when
+	 * they lack the capability to resolve it, so viewer-facing surfaces need not gate
+	 * it again. Two exceptions: a context with no current user gets the unfiltered set,
+	 * and consumer-injected errors are appended after the gate. See docs/error-handling.md.
+	 *
 	 * error_data.action is only set when it deviates from the default behavior
-	 * (e.g. 'none' to suppress the reconnect CTA); when absent, readers fall back
-	 * to offering the reconnect CTA.
+	 * (e.g. 'none' to suppress the reconnect CTA, or 'connect_user' with `action_url`
+	 * and `action_label` to link to the viewer's own account connection); when absent,
+	 * readers fall back to offering the reconnect CTA.
 	 *
 	 * @since 6.13.10
+	 * @since 9.8.0 Withholds a non-admin's reconnect CTA while a site connection error is on record.
+	 * @since 9.18.0 Offers `connect_user` to an admin without their own connection viewing an owner error.
 	 *
 	 * @return array Array of displayable errors with hierarchical structure.
 	 *               Example:
@@ -313,7 +322,16 @@ class Error_Handler {
 
 			$owner_id        = (int) \Jetpack_Options::get_option( 'master_user' );
 			$viewer_is_owner = $owner_id > 0 && $viewer_id === $owner_id;
-			$is_transferable = ( new Manager() )->is_ownership_transferable();
+			$manager         = new Manager();
+			$is_transferable = $manager->is_ownership_transferable();
+
+			// Viewer-wide, so resolved once rather than per error.
+			$viewer_can_connect      = current_user_can( 'jetpack_connect' );
+			$viewer_can_connect_user = current_user_can( 'jetpack_connect_user' );
+			$site_error_on_record    = $this->has_site_connection_error( $verified_errors, $owner_id );
+			$site_connection_broken  = ! $viewer_can_connect && $site_error_on_record;
+			// Connecting runs over the blog token, so a site error needs the reconnect CTA first.
+			$viewer_can_connect_directly = $viewer_id > 0 && $viewer_can_connect && ! $site_error_on_record && ! $manager->is_user_connected( $viewer_id );
 
 			foreach ( $verified_errors as $error_code => $users ) {
 				// Only process error codes that are meant to be displayed to users.
@@ -353,6 +371,17 @@ class Error_Handler {
 						continue;
 					}
 
+					// An error a viewer cannot act on is withheld entirely.
+					$viewer_owns_error = 'user' === $audience && ! $this->is_owner_scoped_error( $error_code, $audience );
+
+					if ( $viewer_id > 0 ) {
+						$can_view_error = $viewer_owns_error ? $viewer_can_connect_user : $viewer_can_connect;
+
+						if ( ! $can_view_error ) {
+							continue;
+						}
+					}
+
 					$message = $generic_message;
 					$action  = null;
 
@@ -371,42 +400,52 @@ class Error_Handler {
 						&& ! ( $error['error_data']['has_user_token'] ?? true ) ) {
 						$message = __( 'You need to reconnect your WordPress.com account to restore the connection.', 'jetpack-connection' );
 					} elseif ( 'owner' === $audience && ! $viewer_is_owner ) {
-						// A secondary admin looking at the connection owner's token error. What
-						// they can usefully be told depends on whether ownership is transferable.
-						// Only name the owner, or describe what reconnecting would do, for
-						// viewers who can act on connection issues.
-						$viewer_can_connect = current_user_can( 'jetpack_connect' );
-						$owner_name         = '';
+						// A secondary admin reading the owner's token error: what they're told depends on whether
+						// they're connected and whether ownership is transferable. Name the owner only to viewers who can act.
+						$owner_name = '';
 						if ( $viewer_can_connect ) {
 							$owner      = get_userdata( $owner_id );
 							$owner_name = $owner instanceof \WP_User ? $owner->display_name : '';
 						}
 
-						if ( ! $is_transferable ) {
-							// Ownership is locked (a consumer declared it non-transferable).
-							// This admin cannot resolve the error themselves, so surface an
-							// informational notice naming the owner and offer no reconnect CTA.
-							$message = $owner_name
-								? sprintf(
-									/* translators: %s is the display name of the Jetpack connection owner. */
-									__( 'The connection owner (%s) needs to reconnect their WordPress.com account to restore the connection.', 'jetpack-connection' ),
-									$owner_name
-								)
-								: __( 'The connection owner needs to reconnect their WordPress.com account to restore the connection.', 'jetpack-connection' );
-							$action = 'none';
-						} elseif ( $viewer_can_connect ) {
-							// Ownership is transferable, so the reconnect CTA stays available
-							// to this admin — but it is destructive in a way the generic copy
-							// doesn't convey. Manager::restore() branches on the *clicking*
-							// user's tokens, not on whose token the error describes.
-							$message = $owner_name
-								? sprintf(
-									/* translators: %s is the display name of the Jetpack connection owner. */
-									__( 'The connection owner (%s) needs to reconnect their WordPress.com account to restore the connection. If you reconnect instead, you will become the new connection owner and every other user will be disconnected from WordPress.com.', 'jetpack-connection' ),
-									$owner_name
-								)
-								: __( 'The connection owner needs to reconnect their WordPress.com account to restore the connection. If you reconnect instead, you will become the new connection owner and every other user will be disconnected from WordPress.com.', 'jetpack-connection' );
+						// WordPress.com can still refuse a claim the site can't predict, so takeovers say "can", not "will".
+						$viewer_can_take_slot = $viewer_can_connect && $this->can_take_owner_slot( $manager, $viewer_id, $is_transferable );
+						// A deleted owner can never reconnect, so the copy offers no "instead".
+						$owner_deleted = $owner_id > 0 && ! get_userdata( $owner_id );
+						$lead          = $owner_deleted
+							? __( "The connection owner's user account no longer exists on this site.", 'jetpack-connection' )
+							: self::get_owner_reconnect_message( $owner_name );
+
+						if ( $viewer_can_connect_directly ) {
+							if ( ! $viewer_can_take_slot ) {
+								$next = __( 'You can still connect your own WordPress.com account.', 'jetpack-connection' );
+							} elseif ( $owner_deleted ) {
+								$next = __( 'If you connect your account, you can become the new connection owner.', 'jetpack-connection' );
+							} else {
+								$next = __( 'If you connect your account instead, you can become the new connection owner.', 'jetpack-connection' );
+							}
+							$message = self::join_owner_error_sentences( $lead, $next );
+							$action  = 'connect_user';
+						} elseif ( $viewer_can_take_slot ) {
+							// Restore relinks this admin. The copy promises only the ownership change, never the disconnects a full reconnect adds.
+							$message = self::join_owner_error_sentences(
+								$lead,
+								$owner_deleted
+									? __( 'If you reconnect, you can become the new connection owner.', 'jetpack-connection' )
+									: __( 'If you reconnect instead, you can become the new connection owner.', 'jetpack-connection' )
+							);
+						} else {
+							// Reconnecting would only link this admin, so only the owner can fix it.
+							$message = $lead;
+							$action  = 'none';
 						}
+					}
+
+					// A non-admin relinks over the site connection, so while it is broken the
+					// reconnect CTA cannot work for them. A reporter-declared action is left alone.
+					if ( $viewer_owns_error && $site_connection_broken && empty( $error['error_data']['action'] ) ) {
+						$message = __( 'Your WordPress.com account connection is broken, and the site connection needs attention too. Ask an administrator to restore the site connection, then reconnect your account.', 'jetpack-connection' );
+						$action  = 'none';
 					}
 
 					$error['audience']      = $audience;
@@ -416,11 +455,21 @@ class Error_Handler {
 					// already fall back to the reconnect CTA when no action is set, and
 					// injecting an explicit 'reconnect' could trip consumer code paths
 					// reserved for custom actions.
-					if ( null !== $action || ! empty( $display_config['support_link'] ) ) {
+					$notice_link = $display_config['notice_link'] ?? array();
+					$has_link    = ! empty( $notice_link['url'] ) && ! empty( $notice_link['label'] );
+
+					if ( null !== $action || ! empty( $display_config['support_link'] ) || $has_link ) {
 						$error_data = ( isset( $error['error_data'] ) && is_array( $error['error_data'] ) ) ? $error['error_data'] : array();
 
 						if ( null !== $action ) {
 							$error_data['action'] = $action;
+						}
+
+						// No consumer handles `connect_user`, so readers render this as a plain link.
+						if ( 'connect_user' === $action ) {
+							$error_data['action_url']     = $this->get_connect_user_url();
+							$error_data['action_label']   = __( 'Connect your account', 'jetpack-connection' );
+							$error_data['tracking_event'] = 'jetpack_connection_error_notice_reconnect_cta_click';
 						}
 
 						// Flags a reconnect-may-not-fix-it error so the notice offers a
@@ -428,6 +477,19 @@ class Error_Handler {
 						// get_error_display_configs().
 						if ( ! empty( $display_config['support_link'] ) ) {
 							$error_data['support_link'] = true;
+						}
+
+						// Where the resolution lives somewhere else (Site Health for a
+						// blocked request), carry the link on the error so every notice can
+						// offer it — not just the wp-admin one. Errors like this suppress
+						// the reconnect CTA, so without it the notice names a problem and
+						// offers nothing to do about it. See `notice_link` in
+						// get_error_display_configs().
+						if ( $has_link ) {
+							$error_data['notice_link'] = array(
+								'label' => $notice_link['label'],
+								'url'   => $notice_link['url'],
+							);
 						}
 
 						$error['error_data'] = $error_data;
@@ -508,9 +570,20 @@ class Error_Handler {
 	 *   This is the only key that reaches beyond My Jetpack's own display: it opts
 	 *   the code into a site-wide wp-admin notice. Leave it unset unless the error
 	 *   genuinely needs that broader reach (see `xmlrpc_request_blocked` below for why).
-	 * - `notice_link` (array): presentational `label` and `url` for a link appended to
-	 *   the default admin notice only. Only used when the notice shows this error's
-	 *   default message (a filtered message keeps full control of the copy).
+	 * - `notice_link` (array): presentational `label` and `url` for a link the notice
+	 *   offers alongside (or instead of) the CTA. It reaches two surfaces, gated
+	 *   differently on purpose:
+	 *   - The default wp-admin notice appends it only when showing this error's own
+	 *     default message. There, `jetpack_connection_error_notice_message` hands the
+	 *     consumer a bare string with no way to drop the link, so a filtered message
+	 *     that kept it could end up pointing somewhere its copy never mentions.
+	 *   - The displayable error carries it as `error_data['notice_link']`
+	 *     unconditionally, for the connection JS package to render in its own notices.
+	 *     No equivalent gate is possible or needed: `error_message` on this path is
+	 *     not filtered through anything, and the one filter that can rewrite it —
+	 *     `jetpack_connection_displayable_errors` below — receives the whole error
+	 *     array, link included, so a consumer changing the copy can unset the link in
+	 *     the same pass.
 	 * - `survives_owner_promotion` (bool): when true, this code is not dropped by
 	 *   promote_owner_errors() while the connection owner's own connection is broken.
 	 *   Set it only for a code that is not a token problem, and so is not waiting on
@@ -563,59 +636,54 @@ class Error_Handler {
 		$configs = array(
 			// Attacker-controllable garbage in an incoming request. Nothing about this
 			// site's own connection is wrong.
-			'malformed_user_id'        => false,
+			'malformed_user_id'             => false,
 			// Expected after a user is deleted, and the owner flavor is covered by
 			// invalid_connection_owner. Incoming reports also drive WP.com-side
 			// self-healing, so a notice would surface a problem already resolving itself.
-			'unknown_user'             => false,
-			'malformed_token'          => array(),
+			'unknown_user'                  => false,
+			'malformed_token'               => array(),
 			// Never connecting a WordPress.com account is expected, not broken. The owner
 			// flavor is covered by invalid_connection_owner.
-			'no_user_tokens'           => false,
+			'no_user_tokens'                => false,
 			// Same, for a site that has never had an owner. invalid_connection_owner
 			// covers the case where there was one and it broke.
-			'empty_master_user_option' => false,
+			'empty_master_user_option'      => false,
 			// As no_user_tokens, for a single requested user.
-			'no_token_for_user'        => false,
-			'token_malformed'          => array(),
+			'no_token_for_user'             => false,
+			'token_malformed'               => array(),
 			// Corrupt local token data, but for one user only, and the
 			// no_valid_user_token/token_malformed pair surfaces it when it actually
 			// blocks a request.
-			'user_id_mismatch'         => false,
-			'no_possible_tokens'       => array(),
-			'no_valid_user_token'      => array(),
-			'no_valid_blog_token'      => array(),
-			'unknown_token'            => array(),
-			'could_not_sign'           => array(),
+			'user_id_mismatch'              => false,
+			'no_possible_tokens'            => array(),
+			'no_valid_user_token'           => array(),
+			'no_valid_blog_token'           => array(),
+			'unknown_token'                 => array(),
+			'could_not_sign'                => array(),
 			// Both are about the URL being signed, not the connection: a code bug or an
 			// exotic site URL, which reconnecting does not change.
-			'invalid_scheme'           => false,
-			'unknown_scheme_port'      => false,
+			'invalid_scheme'                => false,
+			'unknown_scheme_port'           => false,
 			// Corrupt local token data like token_malformed above, caught at signing time
 			// rather than lookup time. Reconnect fixes it the same way.
-			'invalid_secret'           => array(),
-			'invalid_token'            => array(),
-			'token_mismatch'           => array(),
+			'invalid_secret'                => array(),
+			'invalid_token'                 => array(),
+			'token_mismatch'                => array(),
 			// Per-request and transport-level, so unaffected by the state of the connection.
-			'invalid_body'             => false,
+			'invalid_body'                  => false,
 			// Environmental in both directions — a malformed parameter or clock skew,
 			// neither of which a reconnect fixes.
-			'invalid_signature'        => false,
-			// Something altered the request in transit. Not a token problem, and
-			// signature_mismatch carries the same diagnosis with usable copy.
-			'invalid_body_hash'        => false,
+			'invalid_signature'             => false,
+			// Something altered the request in transit. Not a token problem.
+			'invalid_body_hash'             => false,
 			// A replay, or object-cache trouble. Self-resolving per request.
-			'invalid_nonce'            => false,
-			// Ambiguous cause: could be a genuine secret desync (reconnect fixes it) or a
-			// proxy/CDN/WAF/security plugin altering the request in transit (reconnect
-			// doesn't help). Uses the generic message — support_link offers an
-			// alternative either way.
-			'signature_mismatch'       => array(
-				'support_link' => true,
-			),
+			'invalid_nonce'                 => false,
+			// The token key matched, so this is usually a proxy, CDN or firewall altering the request,
+			// which a reconnect doesn't fix. Hidden until it has an action of its own.
+			'signature_mismatch'            => false,
 			// Two flavors with different remedies — see
 			// get_invalid_connection_owner_message().
-			'invalid_connection_owner' => array(
+			'invalid_connection_owner'      => array(
 				'message_callback' => array( $this, 'get_invalid_connection_owner_message' ),
 			),
 			// The token can be perfectly valid here: the site is rejecting WordPress.com's
@@ -624,8 +692,22 @@ class Error_Handler {
 			// Site Health holds the full diagnosis. Ships a default admin notice because
 			// no other detection path can see this — WP.com's requests never arrive. And
 			// it outlives a broken owner, whose reconnect the same rule would block.
-			'xmlrpc_request_blocked'   => array(
+			'xmlrpc_request_blocked'        => array(
 				'message_callback'         => array( $this, 'get_blocked_request_message' ),
+				'default_admin_notice'     => true,
+				'survives_owner_promotion' => true,
+				'notice_link'              => array(
+					'label' => __( 'Visit Site Health', 'jetpack-connection' ),
+					'url'   => admin_url( 'site-health.php' ),
+				),
+			),
+			// The tokens can be perfectly valid: WP.com cannot verify the site's SSL
+			// certificate, and a reconnect would be rejected the same way — so no
+			// reconnect CTA, and it outlives a broken owner. Ships a default admin notice
+			// for the same reason as the blocked error above: WP.com's requests never
+			// arrive, so no other detection path can see this.
+			'wpcom_ssl_verification_failed' => array(
+				'message_callback'         => array( $this, 'get_wpcom_ssl_verification_failed_message' ),
 				'default_admin_notice'     => true,
 				'survives_owner_promotion' => true,
 				'notice_link'              => array(
@@ -680,6 +762,21 @@ class Error_Handler {
 	}
 
 	/**
+	 * Builds the displayable message for the SSL-verification-failed error.
+	 *
+	 * Deliberately brief: Site Health holds the transport detail and the resolution
+	 * steps, so the message only names the condition and points there.
+	 *
+	 * @since 9.3.0
+	 *
+	 * @param array $error The stored error array (unused; part of the message_callback contract).
+	 * @return string The message.
+	 */
+	private function get_wpcom_ssl_verification_failed_message( $error ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		return __( 'WordPress.com cannot securely connect to your site because its SSL certificate could not be verified. See Site Health for details and next steps.', 'jetpack-connection' );
+	}
+
+	/**
 	 * Classifies the audience of a stored connection error based on its user ID.
 	 *
 	 * The audience determines who a connection error is relevant to and, in turn,
@@ -712,6 +809,220 @@ class Error_Handler {
 	}
 
 	/**
+	 * Whether a displayable site-audience error is on record that would stop a user relinking.
+	 *
+	 * Codes that survive owner promotion are inbound failures (WordPress.com cannot reach or
+	 * verify the site), which leave the outbound, blog-token-signed relink working.
+	 *
+	 * @since 9.8.0
+	 *
+	 * @param array $verified_errors The verified errors, keyed by error code then user ID.
+	 * @param int   $owner_id        The local user ID of the connection owner, or 0 if there is none.
+	 * @return bool
+	 */
+	private function has_site_connection_error( $verified_errors, $owner_id ) {
+		foreach ( $verified_errors as $error_code => $users ) {
+			$display_config = $this->get_error_display_config( $error_code );
+
+			if ( null === $display_config || ! empty( $display_config['survives_owner_promotion'] ) || ! is_array( $users ) ) {
+				continue;
+			}
+
+			foreach ( array_keys( $users ) as $user_id ) {
+				// Must precede classification, which would cast 'invalid' to 0 and read it as 'site'.
+				if ( 'invalid' === $user_id ) {
+					continue;
+				}
+
+				if ( 'site' === $this->classify_error_audience( $user_id, $owner_id ) ) {
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Whether an error describes the connection owner's own connection.
+	 *
+	 * @since 9.2.0
+	 *
+	 * @param string $error_code The error code.
+	 * @param string $audience   The classified audience.
+	 * @return bool
+	 */
+	private function is_owner_scoped_error( $error_code, $audience ) {
+		return 'owner' === $audience || 'invalid_connection_owner' === $error_code;
+	}
+
+	/**
+	 * The URL that starts the viewer's own account connection and returns them to the current admin page.
+	 *
+	 * Uses the webhook handler, so it works without the Jetpack plugin's page.
+	 * Sends `connection_notice_owner_error` (see CONNECTION_FROM in js-packages/connection) everywhere except Connectors.
+	 *
+	 * @since 9.18.0
+	 *
+	 * @return string
+	 */
+	private function get_connect_user_url() {
+		$return_url = admin_url( 'admin.php?page=my-jetpack' );
+		$from       = 'connection_notice_owner_error';
+
+		// Errors reach a page in its own render; any other request has no page to return to.
+		if ( is_admin() && ! wp_doing_ajax() && isset( $_SERVER['REQUEST_URI'] ) ) {
+			$request = wp_parse_url( esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ) ) );
+
+			if ( ! empty( $request['path'] ) ) {
+				$file = basename( $request['path'] );
+
+				wp_parse_str( $request['query'] ?? '', $query_args );
+
+				$page = $query_args['page'] ?? '';
+				$page = is_string( $page ) ? $page : '';
+
+				// Only `page` is kept: other params (a nonce, an `action`) must not replay as a GET after auth.
+				// Re-encoded, because wp_parse_str() decoded it and add_query_arg() doesn't encode.
+				if ( '' !== $page ) {
+					$return_url = self_admin_url( add_query_arg( 'page', rawurlencode( $page ), $file ) );
+				} elseif ( '.php' === substr( $file, -4 ) ) {
+					$return_url = self_admin_url( $file );
+				}
+
+				// WordPress.com brands the Connectors screen on its exact legacy `from`.
+				if ( in_array( '' !== $page ? $page : $file, array( 'options-connectors.php', 'options-connectors-wp-admin' ), true ) ) {
+					$from = 'jetpack-connector';
+				}
+			}
+		}
+
+		return add_query_arg(
+			array(
+				'handler'              => 'jetpack-connection-webhooks',
+				'connect_url_redirect' => 1,
+				'redirect_after_auth'  => rawurlencode( $return_url ),
+				'from'                 => $from,
+				'skip_pricing'         => 1,
+			),
+			admin_url( 'admin.php' )
+		);
+	}
+
+	/**
+	 * The sentence telling a non-owner viewer that the connection owner has to reconnect.
+	 *
+	 * @since 9.18.0
+	 *
+	 * @param string $owner_name The owner's display name, or '' when the viewer may not see it.
+	 * @return string
+	 */
+	private static function get_owner_reconnect_message( $owner_name ) {
+		return $owner_name
+			? sprintf(
+				/* translators: %s is the display name of the Jetpack connection owner. */
+				__( 'The connection owner (%s) needs to reconnect their WordPress.com account to restore the connection.', 'jetpack-connection' ),
+				$owner_name
+			)
+			: __( 'The connection owner needs to reconnect their WordPress.com account to restore the connection.', 'jetpack-connection' );
+	}
+
+	/**
+	 * Joins the owner-error lead with the sentence saying what the viewer can do.
+	 *
+	 * Translatable, since not every language separates sentences with a space.
+	 *
+	 * @since 9.18.0
+	 *
+	 * @param string $lead What is wrong with the owner's connection.
+	 * @param string $next What the viewer can do about it.
+	 * @return string
+	 */
+	private static function join_owner_error_sentences( $lead, $next ) {
+		return sprintf(
+			/* translators: Joins two sentences of a connection error notice. 1: What is wrong with the connection owner's connection. 2: What the viewer can do about it. */
+			__( '%1$s %2$s', 'jetpack-connection' ),
+			$lead,
+			$next
+		);
+	}
+
+	/**
+	 * Whether a displayable error is on record for the current connection owner's own connection.
+	 *
+	 * Drives the notice and Restore; the owner claim uses the stricter has_owner_token_rejection().
+	 *
+	 * @since 9.18.0
+	 *
+	 * @return bool
+	 */
+	public function has_owner_connection_error() {
+		$owner_id = (int) \Jetpack_Options::get_option( 'master_user' );
+
+		if ( $owner_id <= 0 ) {
+			return false;
+		}
+
+		foreach ( $this->get_verified_errors() as $error_code => $users ) {
+			$display_config = $this->get_error_display_config( $error_code );
+
+			// Keyed on the owner's ID so a previous owner's `invalid_connection_owner` error does not count.
+			if ( null !== $display_config
+				&& is_array( $users )
+				&& isset( $users[ $owner_id ] ) ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Whether WordPress.com has rejected the connection owner's token on a request this site signed.
+	 *
+	 * Incoming errors don't count: an outsider who knows the owner's token key can get one verified.
+	 *
+	 * @since 9.18.0
+	 *
+	 * @return bool
+	 */
+	public function has_owner_token_rejection() {
+		$owner_id = (int) \Jetpack_Options::get_option( 'master_user' );
+
+		if ( $owner_id <= 0 ) {
+			return false;
+		}
+
+		$rejection_codes = array( 'invalid_token', 'unknown_token', 'token_mismatch' );
+
+		foreach ( $this->get_verified_errors() as $error_code => $users ) {
+			if ( in_array( $error_code, $rejection_codes, true )
+				&& is_array( $users )
+				&& isset( $users[ $owner_id ]['error_direction'] )
+				&& self::DIRECTION_OUTGOING === $users[ $owner_id ]['error_direction'] ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Whether connecting or relinking would make the viewer the connection owner.
+	 *
+	 * @since 9.18.0
+	 *
+	 * @param Manager $manager         The connection manager.
+	 * @param int     $viewer_id       The viewer's user ID.
+	 * @param bool    $is_transferable Whether ownership is transferable, the answer before Manager::can_take_owner_slot().
+	 * @return bool
+	 */
+	private function can_take_owner_slot( Manager $manager, $viewer_id, $is_transferable ) {
+		// A partial update can load this class alongside a Manager that predates the method.
+		return method_exists( $manager, 'can_take_owner_slot' ) ? $manager->can_take_owner_slot( $viewer_id ) : $is_transferable;
+	}
+
+	/**
 	 * Reduces a set of displayable errors to the connection-owner ones when the
 	 * owner's own connection is broken.
 	 *
@@ -719,12 +1030,7 @@ class Error_Handler {
 	 * off. While it is broken, no other error in the set is independently
 	 * actionable.
 	 *
-	 * Two shapes count as a broken owner:
-	 * - any error classified with the `owner` audience, i.e. attributed to the
-	 *   current owner's user ID; and
-	 * - `invalid_connection_owner` at any audience — when there is no current owner
-	 *   to compare a user ID against, classify_error_audience() falls back to
-	 *   `user`, but the code itself already says the owner cannot be resolved.
+	 * See is_owner_scoped_error() for which errors count as a broken owner.
 	 *
 	 * A code whose display config sets `survives_owner_promotion` is kept regardless.
 	 * The premise above holds for token errors, whose one remedy is a reconnect the
@@ -748,8 +1054,7 @@ class Error_Handler {
 			$survives       = null !== $display_config && ! empty( $display_config['survives_owner_promotion'] );
 
 			foreach ( $users as $user_id => $error ) {
-				$is_owner_error = 'owner' === ( $error['audience'] ?? '' )
-					|| 'invalid_connection_owner' === $error_code;
+				$is_owner_error = $this->is_owner_scoped_error( $error_code, $error['audience'] ?? '' );
 
 				if ( ! $is_owner_error && ! $survives ) {
 					continue;
@@ -1026,7 +1331,9 @@ class Error_Handler {
 			unset( $stored_errors[ $error_code ][ $keys[0] ] );
 		}
 
-		if ( update_option( self::STORED_ERRORS_OPTION, $stored_errors ) ) {
+		// Deliberately not autoloaded: keeps these ephemeral options out of the shared
+		// alloptions cache blob, whose write races can resurrect deleted values (CONNECT-457).
+		if ( update_option( self::STORED_ERRORS_OPTION, $stored_errors, false ) ) {
 			return $error_array;
 		}
 
@@ -1479,7 +1786,7 @@ class Error_Handler {
 		if ( is_array( $stored_errors ) && count( $stored_errors ) ) {
 			$stored_errors = array_filter( array_map( $type_filter, $stored_errors ) );
 			if ( count( $stored_errors ) ) {
-				update_option( static::STORED_ERRORS_OPTION, $stored_errors );
+				update_option( static::STORED_ERRORS_OPTION, $stored_errors, false );
 			} else {
 				delete_option( static::STORED_ERRORS_OPTION );
 			}
@@ -1489,11 +1796,16 @@ class Error_Handler {
 		if ( is_array( $verified_errors ) && count( $verified_errors ) ) {
 			$verified_errors = array_filter( array_map( $type_filter, $verified_errors ) );
 			if ( count( $verified_errors ) ) {
-				update_option( static::STORED_VERIFIED_ERRORS_OPTION, $verified_errors );
+				update_option( static::STORED_VERIFIED_ERRORS_OPTION, $verified_errors, false );
 			} else {
 				delete_option( static::STORED_VERIFIED_ERRORS_OPTION );
 			}
 		}
+
+		// Per-key purge only (this warm path — a successful site-data fetch — must not
+		// drop the alloptions blob); a legacy blob orphan clears on the next reconnect.
+		wp_cache_delete( self::STORED_ERRORS_OPTION, 'options' );
+		wp_cache_delete( self::STORED_VERIFIED_ERRORS_OPTION, 'options' );
 
 		// Invalidate cache since we may have deleted verified errors
 		$this->invalidate_displayable_errors_cache();
@@ -1522,7 +1834,9 @@ class Error_Handler {
 	 * @return boolean True, if option is successfully deleted. False on failure.
 	 */
 	public function delete_stored_errors() {
-		return delete_option( self::STORED_ERRORS_OPTION );
+		$deleted = delete_option( self::STORED_ERRORS_OPTION );
+		$this->purge_error_option_cache( self::STORED_ERRORS_OPTION, $deleted );
+		return $deleted;
 	}
 
 	/**
@@ -1533,7 +1847,33 @@ class Error_Handler {
 	 * @return boolean True, if option is successfully deleted. False on failure.
 	 */
 	public function delete_verified_errors() {
-		return delete_option( self::STORED_VERIFIED_ERRORS_OPTION );
+		$deleted = delete_option( self::STORED_VERIFIED_ERRORS_OPTION );
+		$this->purge_error_option_cache( self::STORED_VERIFIED_ERRORS_OPTION, $deleted );
+		return $deleted;
+	}
+
+	/**
+	 * Purges an error option's object caches after a delete.
+	 *
+	 * Core's delete_option()/update_option() return before touching caches when the
+	 * DB row is missing, so a value resurrected in cache by an alloptions write race
+	 * would otherwise outlive the delete — including a reconnect (CONNECT-457). The
+	 * per-key delete covers a post-migration (non-autoloaded) orphan; when the delete
+	 * found no row yet the value is still in the autoloaded blob (a legacy row written
+	 * before these options stopped autoloading), drop that blob too. The blob check
+	 * reads the raw autoloaded set, so it is unaffected by option_* filters and adds
+	 * no query.
+	 *
+	 * @since 9.3.0
+	 *
+	 * @param string $option  The error option name.
+	 * @param bool   $deleted Whether delete_option() found and removed a DB row.
+	 */
+	private function purge_error_option_cache( $option, $deleted ) {
+		wp_cache_delete( $option, 'options' );
+		if ( ! $deleted && isset( wp_load_alloptions()[ $option ] ) ) {
+			wp_cache_delete( 'alloptions', 'options' );
+		}
 	}
 
 	/**
@@ -1564,7 +1904,7 @@ class Error_Handler {
 			unset( $stored_errors[ $error_code ] );
 			$deleted = true;
 			if ( count( $stored_errors ) ) {
-				update_option( self::STORED_ERRORS_OPTION, $stored_errors );
+				update_option( self::STORED_ERRORS_OPTION, $stored_errors, false );
 			} else {
 				delete_option( self::STORED_ERRORS_OPTION );
 			}
@@ -1575,13 +1915,17 @@ class Error_Handler {
 			unset( $verified_errors[ $error_code ] );
 			$deleted = true;
 			if ( count( $verified_errors ) ) {
-				update_option( self::STORED_VERIFIED_ERRORS_OPTION, $verified_errors );
+				update_option( self::STORED_VERIFIED_ERRORS_OPTION, $verified_errors, false );
 			} else {
 				delete_option( self::STORED_VERIFIED_ERRORS_OPTION );
 			}
 		}
 
 		if ( $deleted ) {
+			// Per-key purge only: a legacy blob orphan for these codes is cleared on the
+			// next reconnect via delete_all_errors(), and GC bounds its display meanwhile.
+			wp_cache_delete( self::STORED_ERRORS_OPTION, 'options' );
+			wp_cache_delete( self::STORED_VERIFIED_ERRORS_OPTION, 'options' );
 			$this->invalidate_displayable_errors_cache();
 		}
 
@@ -1630,7 +1974,7 @@ class Error_Handler {
 
 		$verified_errors[ $error_code ][ $user_id ] = $error;
 
-		update_option( self::STORED_VERIFIED_ERRORS_OPTION, $verified_errors );
+		update_option( self::STORED_VERIFIED_ERRORS_OPTION, $verified_errors, false );
 
 		// Invalidate cache since we added a new verified error
 		$this->invalidate_displayable_errors_cache();
@@ -1876,6 +2220,13 @@ class Error_Handler {
 	 */
 	public function check_signed_request_for_errors( $signing_result, $url, $method, $error_type ) {
 		if ( ! is_wp_error( $signing_result ) ) {
+			return;
+		}
+
+		// A site with no registration has no tokens to sign with: failed token lookups
+		// are expected state there, not connection errors — and a stale cache view that
+		// hides a connected site's options must not plant a "verified" error either (CONNECT-457).
+		if ( ! \Jetpack_Options::get_option( 'id' ) ) {
 			return;
 		}
 

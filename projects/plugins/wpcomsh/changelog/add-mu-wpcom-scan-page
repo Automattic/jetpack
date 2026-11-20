@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Protect: Add a Protect page to wp-admin, offering an upgrade for sites whose plan does not include it.

@@ -1,0 +1,181 @@
+import { JetpackLogo, TermsOfService } from '@automattic/jetpack-components';
+import {
+	CONNECTION_FROM,
+	useConnection,
+	getConnectScreenErrorMessage,
+	getRegistrationErrorCode,
+	getRegistrationErrorSummary,
+} from '@automattic/jetpack-connection';
+import { __, _x } from '@wordpress/i18n';
+import { ThemeProvider } from '@wordpress/theme';
+import { Button, Icon, Notice, Text } from '@wordpress/ui';
+import clsx from 'clsx';
+import { useCallback, useRef } from 'react';
+import useAnalytics from '../../../../hooks/use-analytics';
+import {
+	CONNECTION_RETURN_URL,
+	connectionErrorCode,
+	connectionErrorDetail,
+	startBenefits,
+} from '../lib';
+import styles from '../styles.module.scss';
+import { useRestoredConnection } from '../use-restored-connection';
+
+type StartStepProps = {
+	// Owned by the wizard so the panel region can be labelled by the heading.
+	titleId: string;
+	title: string;
+	description: string;
+};
+
+/**
+ * The start screen: what Jetpack does for the site, and the way in.
+ *
+ * "Get started" registers the site and then hands the browser to WordPress.com to
+ * create or sign in to an account, because the features this wizard turns on need
+ * an owner: Newsletter keeps its subscribers behind a user token, and Activity
+ * Log's permission callback requires one outright. `redirectUri` brings them back
+ * to the wizard, which resumes past this step from the connection itself.
+ *
+ * `skipPricingPage` is what makes that return actually happen. Without it
+ * WordPress.com shows its plans page after the authorization, and that page does
+ * not carry `redirect_after_auth`, so the user lands on My Jetpack and the wizard
+ * is over. Every one of the six features this wizard offers is free, so there is
+ * nothing to choose there anyway.
+ *
+ * @param props             - The component props.
+ * @param props.titleId     - The id the panel region is labelled by.
+ * @param props.title       - The screen's heading.
+ * @param props.description - The line under the heading.
+ * @return The rendered step.
+ */
+export function StartStep( { titleId, title, description }: StartStepProps ) {
+	const { handleRegisterSite, siteIsRegistering, userIsConnecting, connectError, isOfflineMode } =
+		useConnection( {
+			from: CONNECTION_FROM.myJetpackOnboarding,
+			redirectUri: CONNECTION_RETURN_URL,
+			skipPricingPage: true,
+		} );
+	const { recordEvent } = useAnalytics();
+
+	const isConnecting = siteIsRegistering || userIsConnecting;
+
+	// The summary falls back to the server's raw text, so only a mapped message says what to do.
+	const errorSummary = connectError
+		? getRegistrationErrorSummary( connectError, isOfflineMode )
+		: null;
+	const hasMappedMessage = Boolean(
+		connectError &&
+		getConnectScreenErrorMessage( getRegistrationErrorCode( connectError ), isOfflineMode )
+	);
+
+	// Named once: the terms sentence has to say the same words as the button it is about.
+	const primaryLabel = __( 'Get started', 'jetpack-my-jetpack' );
+
+	// The button is disabled while the request is in flight, which already swallows
+	// a second click. This closes the gap before that state has rendered, so a
+	// double click cannot register the site twice.
+	const inFlight = useRef( false );
+
+	// Back from WordPress.com can return this page with the click still in flight.
+	useRestoredConnection(
+		useCallback( () => {
+			inFlight.current = false;
+		}, [] )
+	);
+
+	const handleConnect = useCallback( () => {
+		if ( inFlight.current ) {
+			return;
+		}
+		inFlight.current = true;
+
+		// The name the single-screen flow already reports, so the two are one funnel.
+		recordEvent( 'jetpack_my_jetpack_onboarding_click', { flow: 'wizard' } );
+
+		// No success event: this resolves as the browser leaves for WordPress.com,
+		// which is not the same thing as anyone having connected.
+		handleRegisterSite().catch( ( caught: unknown ) => {
+			inFlight.current = false;
+			// The code only: the message interpolates the server's prose, which
+			// can carry the site's own URL.
+			recordEvent( 'jetpack_my_jetpack_onboarding_connect_error', {
+				error_code: connectionErrorCode( caught ),
+			} );
+		} );
+	}, [ handleRegisterSite, recordEvent ] );
+
+	return (
+		<div className={ styles.start }>
+			<div className={ clsx( styles.wave, styles[ 'start-logo' ] ) }>
+				<JetpackLogo />
+			</div>
+
+			<div className={ clsx( styles.wave, styles[ 'start-intro' ] ) }>
+				<Text
+					variant="heading-2xl"
+					id={ titleId }
+					render={ <h1 /> }
+					className={ styles[ 'start-title' ] }
+				>
+					{ title }
+				</Text>
+				<Text variant="body-lg" render={ <p /> } className={ styles[ 'start-body' ] }>
+					{ description }
+				</Text>
+			</div>
+
+			<ul className={ clsx( styles.wave, styles[ 'start-benefits' ] ) }>
+				{ startBenefits().map( benefit => (
+					<li key={ benefit.id } className={ styles[ 'start-benefit' ] }>
+						<span className={ styles[ 'start-benefit__glyph' ] } aria-hidden="true">
+							<Icon icon={ benefit.icon } />
+						</span>
+						<Text variant="body-lg" className={ styles[ 'start-benefit__text' ] }>
+							{ benefit.text }
+						</Text>
+					</li>
+				) ) }
+			</ul>
+
+			<div className={ clsx( styles.wave, styles[ 'start-actions' ] ) }>
+				{ /* Above the control it is about, so it is read before the retry. */ }
+				{ connectError && (
+					<Notice.Root intent="error" className={ styles[ 'start-error' ] }>
+						<Notice.Title>
+							{ hasMappedMessage
+								? __( 'We could not connect this site.', 'jetpack-my-jetpack' )
+								: _x(
+										'We could not connect this site. Please try again.',
+										'',
+										'jetpack-my-jetpack'
+									) }
+						</Notice.Title>
+						<Notice.Description className={ styles[ 'start-error__detail' ] }>
+							{ errorSummary || connectionErrorDetail( connectError ) }
+						</Notice.Description>
+					</Notice.Root>
+				) }
+
+				{ /* Square corners from the theme's own radius scale, not a hardcoded zero. */ }
+				<ThemeProvider cornerRadius="none">
+					<Button
+						variant="solid"
+						className={ clsx( styles[ 'primary-green' ], styles[ 'start-primary' ] ) }
+						onClick={ handleConnect }
+						loading={ isConnecting }
+						loadingAnnouncement={ __( 'Connecting your site…', 'jetpack-my-jetpack' ) }
+					>
+						{ primaryLabel }
+					</Button>
+				</ThemeProvider>
+
+				<TermsOfService
+					className={ styles[ 'start-terms' ] }
+					variant="body-md"
+					agreeButtonLabel={ primaryLabel }
+				/>
+			</div>
+		</div>
+	);
+}

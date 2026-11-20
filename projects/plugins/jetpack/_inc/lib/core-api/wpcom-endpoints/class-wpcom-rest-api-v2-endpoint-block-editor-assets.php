@@ -107,6 +107,7 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 		'jetpack/timeline-item',
 		'jetpack/top-posts',
 		'jetpack/whatsapp-button',
+		'jetpack/zoom-scheduler',
 		'premium-content/buttons',
 		'premium-content/container',
 		'premium-content/logged-out-view',

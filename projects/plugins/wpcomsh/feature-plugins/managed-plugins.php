@@ -50,7 +50,7 @@ function wpcomsh_is_marketplace_plugin( $plugin_file ) {
 		return false;
 	}
 
-	$persistent_data     = new Atomic_Persistent_Data();
+	$persistent_data     = wpcomsh_get_atomic_persistent_data();
 	$marketplace_plugins = array();
 
 	if ( ! empty( $persistent_data->WPCOM_MARKETPLACE ) ) { // phpcs:ignore WordPress.NamingConventions
@@ -290,7 +290,7 @@ function wpcomsh_show_plugin_auto_managed_notice( $file, $plugin_data ) {
 		$message = __( 'This plugin was installed by WordPress.com and provides features offered in your plan subscription.', 'wpcomsh' );
 	}
 
-	echo '<tr class="plugin-update-tr' . esc_attr( $active ) . '">' .
+	echo '<tr class="plugin-update-tr wpcomsh-managed-plugin-notice' . esc_attr( $active ) . '">' .
 			'<td colspan="4" class="plugin-update colspanchange">' .
 				'<div class="notice inline notice-success notice-alt">' .
 					'<p>' . esc_html( $message ) . '</p>' .

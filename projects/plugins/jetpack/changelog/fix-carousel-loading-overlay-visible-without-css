@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Carousel: Keep the loading overlay hidden when the module stylesheet is missing.

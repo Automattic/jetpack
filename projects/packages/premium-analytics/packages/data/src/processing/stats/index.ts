@@ -1,5 +1,4 @@
 export {
-	combineStatsNormalizedReports,
 	flattenStatsLeaves,
 	getStatsReportItems,
 	mergeStatsComparisonRows,
@@ -44,13 +43,11 @@ export { sanitizeStatsHighlightsResponse } from './highlights';
 export { mergeStatsLocationsComparisonRows, sanitizeStatsLocationsResponse } from './locations';
 export { mergeStatsVideoPlaysComparisonRows, sanitizeStatsVideoPlaysResponse } from './video-plays';
 export {
-	isStatsTimeSeriesPayload,
 	sanitizeStatsTimeSeriesResponse,
 	sanitizeStatsEmailTimeSeriesResponse,
 } from './time-series';
 export { toStatsBucketWindowParams, windowEndHour, type StatsBucketFilter } from './bucket-window';
 export { sanitizeStatsVisitsResponse } from './visits';
-export { sanitizeStatsHourOfDayResponse } from './hour-of-day';
 export { sanitizeStatsInsightsResponse } from './insights';
 export { mergeStatsUtmComparisonRows, sanitizeStatsUtmResponse } from './utm';
 export { sanitizeStatsEmailSummaryResponse } from './email-summary';
@@ -68,9 +65,8 @@ export { sanitizeStatsTagsResponse } from './tags';
 export { mergeStatsDevicesComparisonRows, sanitizeStatsDevicesResponse } from './devices';
 export { sanitizeStatsWordAdsStatsResponse, sanitizeStatsWordAdsEarningsResponse } from './wordads';
 export { sanitizeStatsSingleVideoResponse } from './single-video';
-export { sanitizeStatsSummaryResponse } from './summary';
+export { sanitizeStatsAuthorResponse } from './author';
 export type { StatsTopPostsComparisonItem, StatsTopPostsItem } from './top-posts';
-export type { StatsSummaryResponse } from './summary';
 export type {
 	StatsPostDay,
 	StatsPostMeta,
@@ -100,7 +96,11 @@ export type {
 	StatsHighlightsRawResponse,
 	StatsHighlightsResponse,
 } from './highlights';
-export type { StatsLocationsComparisonItem, StatsLocationsItem } from './locations';
+export type {
+	StatsLocationCoordinates,
+	StatsLocationsComparisonItem,
+	StatsLocationsItem,
+} from './locations';
 export type { StatsVideoPlaysComparisonItem, StatsVideoPlaysItem } from './video-plays';
 export type {
 	StatsInsightsHourlyViews,
@@ -193,4 +193,3 @@ export type {
 	StatsNormalizedReport,
 	StatsNormalizedSummary,
 } from './types';
-export type { StatsHourOfDayBucket, StatsHourOfDayReport } from './hour-of-day';

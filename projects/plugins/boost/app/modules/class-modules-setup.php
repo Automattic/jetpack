@@ -13,6 +13,7 @@ use Automattic\Jetpack_Boost\Contracts\Needs_Website_To_Be_Public;
 use Automattic\Jetpack_Boost\Data_Sync\Modules_State_Entry;
 use Automattic\Jetpack_Boost\Lib\Setup;
 use Automattic\Jetpack_Boost\Lib\Status;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Cloud_CSS\Cloud_CSS;
 use Automattic\Jetpack_Boost\REST_API\Contracts\Has_Always_Available_Endpoints;
 use Automattic\Jetpack_Boost\REST_API\Contracts\Has_Endpoints;
 use Automattic\Jetpack_Boost\REST_API\REST_API;
@@ -256,6 +257,11 @@ class Modules_Setup implements Has_Setup, Has_Data_Sync {
 	 */
 	public function on_module_status_update( $module_slug, $is_activated ) {
 		$modules = $this->get_available_modules_and_submodules();
+		if ( Cloud_CSS::get_slug() === $module_slug && ! isset( $modules[ $module_slug ] ) ) {
+			// A plan refresh can make Cloud CSS available after this list was built.
+			$this->available_modules = $this->get_available_modules();
+			$modules                 = $this->get_available_modules_and_submodules();
+		}
 
 		if ( ! isset( $modules[ $module_slug ] ) ) {
 			return;

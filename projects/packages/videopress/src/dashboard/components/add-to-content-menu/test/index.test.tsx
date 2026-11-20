@@ -1,6 +1,12 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { useViewportMatch } from '@wordpress/compose';
 import AddToContentMenu from '..';
+
+jest.mock( '@wordpress/compose', () => ( {
+	...jest.requireActual( '@wordpress/compose' ),
+	useViewportMatch: jest.fn( () => false ),
+} ) );
 
 const GUID = 'abc123';
 
@@ -73,5 +79,26 @@ describe( 'AddToContentMenu', () => {
 		const [ url ] = openSpy.mock.calls[ 0 ];
 		expect( url ).toContain( 'post_type=page' );
 		expect( url ).toContain( `videopress_guid=${ GUID }` );
+	} );
+
+	// On phones the labelled trigger is too wide for the page header, so only
+	// the icon shows; the label must survive as the accessible name.
+	it( 'collapses to an icon on small viewports but keeps its accessible name', () => {
+		jest.mocked( useViewportMatch ).mockReturnValue( true );
+
+		render( <AddToContentMenu guid={ GUID } /> );
+
+		const trigger = screen.getByRole( 'button', { name: 'Add to a post or page' } );
+		expect( trigger ).not.toHaveTextContent( 'Add to a post or page' );
+	} );
+
+	it( 'shows the label on wider viewports', () => {
+		jest.mocked( useViewportMatch ).mockReturnValue( false );
+
+		render( <AddToContentMenu guid={ GUID } /> );
+
+		expect( screen.getByRole( 'button', { name: 'Add to a post or page' } ) ).toHaveTextContent(
+			'Add to a post or page'
+		);
 	} );
 } );

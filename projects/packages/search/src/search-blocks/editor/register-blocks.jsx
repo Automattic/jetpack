@@ -20,6 +20,7 @@ import { getCategories, registerBlockType, setCategories } from '@wordpress/bloc
 import { addFilter } from '@wordpress/hooks';
 import { __ } from '@wordpress/i18n';
 import ActiveFiltersEdit from '../blocks/active-filters/edit';
+import aiAnswerMetadata from '../blocks/ai-answer/block.json';
 import AiAnswerEdit from '../blocks/ai-answer/edit';
 import ClearFiltersEdit from '../blocks/clear-filters/edit';
 import FilterCheckboxEdit from '../blocks/filter-checkbox/edit';
@@ -32,7 +33,10 @@ import FiltersEdit, { save as filtersSave } from '../blocks/filters/edit';
 import FiltersPopoverEdit, { save as filtersPopoverSave } from '../blocks/filters-popover/edit';
 import FiltersProductEdit, { save as filtersProductSave } from '../blocks/filters-product/edit';
 import NoResultsEdit, { save as noResultsSave } from '../blocks/no-results/edit';
-import NoResultsSlotEdit, { save as noResultsSlotSave } from '../blocks/no-results/slot/edit';
+import NoResultsSlotEdit, {
+	conditionLabel,
+	save as noResultsSlotSave,
+} from '../blocks/no-results/slot/edit';
 import PoweredByEdit from '../blocks/powered-by/edit';
 import ResultsCountEdit from '../blocks/results-count/edit';
 import ResultsListEdit from '../blocks/results-list/edit';
@@ -41,6 +45,7 @@ import ResultsSortEdit from '../blocks/results-sort/edit';
 import SearchInputEdit from '../blocks/search-input/edit';
 import SearchResultsEdit, { save as searchResultsSave } from '../blocks/search-results/edit';
 import BLOCK_ICONS, { FILTER_CHECKBOX_VARIATION_ICONS } from './icons';
+import { registerOverlayWidgetAreaGuards } from './overlay-widget-area';
 
 // Default save for blocks that own no editor-side state — render.php is the
 // source of truth on the front end, so save returns null. Container blocks
@@ -54,7 +59,12 @@ const BLOCKS = [
 	[ 'jetpack-search/search-input', SearchInputEdit ],
 	[ 'jetpack-search/results-list', ResultsListEdit ],
 	[ 'jetpack-search/no-results', NoResultsEdit, noResultsSave ],
-	[ 'jetpack-search/no-results-slot', NoResultsSlotEdit, noResultsSlotSave ],
+	[
+		'jetpack-search/no-results-slot',
+		NoResultsSlotEdit,
+		noResultsSlotSave,
+		{ __experimentalLabel: conditionLabel },
+	],
 	[ 'jetpack-search/filter-checkbox', FilterCheckboxEdit ],
 	[ 'jetpack-search/filter-date', FilterDateEdit ],
 	[ 'jetpack-search/active-filters', ActiveFiltersEdit ],
@@ -88,7 +98,7 @@ setCategories(
 					...category,
 					title: __( 'Search', 'jetpack-search-pkg' ),
 					icon: <JetpackLogo showText={ false } height={ 24 } width={ 24 } />,
-			  }
+				}
 			: category
 	)
 );
@@ -141,7 +151,11 @@ addFilter(
 	}
 );
 
-BLOCKS.forEach( ( [ name, edit, blockSave ] ) => {
+if ( typeof config.hideFromWidgetArea === 'string' ) {
+	registerOverlayWidgetAreaGuards( config.hideFromWidgetArea );
+}
+
+BLOCKS.forEach( ( [ name, edit, blockSave, extraSettings ] ) => {
 	if ( ! isWooCommerceBlocksEnabled && wcOnlyBlocks.has( name ) ) {
 		return;
 	}
@@ -161,5 +175,15 @@ BLOCKS.forEach( ( [ name, edit, blockSave ] ) => {
 	// `icon` here overrides whatever server-side metadata block.json carries
 	// — the centralized per-block glyph (`BLOCK_ICONS[ name ]`) renders in
 	// the inserter, breadcrumb, and toolbar instead of the dashicon fallback.
-	registerBlockType( name, { edit, save: blockSave ?? save, icon: BLOCK_ICONS[ name ] } );
+	// Spread first so a per-block entry can never clobber `edit`, `save`, or `icon`.
+	const settings = {
+		...extraSettings,
+		edit,
+		save: blockSave ?? save,
+		icon: BLOCK_ICONS[ name ],
+	};
+	if ( name === aiAnswerMetadata.name && config.aiMasterEnabled === false ) {
+		settings.supports = { ...aiAnswerMetadata.supports, inserter: false };
+	}
+	registerBlockType( name, settings );
 } );

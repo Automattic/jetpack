@@ -76,7 +76,7 @@ export function player( state = defaultPlayerState, action ) {
 					? {
 							...defaultCurrentSlideState,
 							index: 0,
-					  }
+						}
 					: state.currentSlide,
 				previousSlide: resetStory ? null : state.previousSlide,
 			};

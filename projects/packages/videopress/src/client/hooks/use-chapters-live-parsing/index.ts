@@ -7,21 +7,20 @@ import { useCallback, useEffect, useState } from 'react';
  * Internal dependencies
  */
 import extractVideoChapters from '../../utils/video-chapters/extract-video-chapters';
-import validateChapters from '../../utils/video-chapters/validate-chapters';
+import { getChapterValidationIssues } from '../../utils/video-chapters/validate-chapters';
+import type { ChapterValidationIssue } from '../../utils/video-chapters/description';
 
 const CHAPTERS_CHECK_INTERVAL = 3000;
 
 const useChaptersLiveParsing = ( description: string ) => {
-	const [ hasIncompleteChapters, setHasIncompleteChapters ] = useState( false );
+	const [ chapterValidationIssues, setChapterValidationIssues ] = useState<
+		ChapterValidationIssue[]
+	>( [] );
 
 	const checkChapters = useCallback( () => {
 		const chapters = extractVideoChapters( description );
 
-		if ( chapters.length === 0 ) {
-			setHasIncompleteChapters( false );
-		} else {
-			setHasIncompleteChapters( ! validateChapters( chapters ) );
-		}
+		setChapterValidationIssues( chapters.length ? getChapterValidationIssues( chapters ) : [] );
 	}, [ description ] );
 
 	const debouncedChapterParsing = useDebounce( checkChapters, CHAPTERS_CHECK_INTERVAL );
@@ -34,7 +33,8 @@ const useChaptersLiveParsing = ( description: string ) => {
 	useEffect( checkChapters, [] );
 
 	return {
-		hasIncompleteChapters,
+		hasIncompleteChapters: chapterValidationIssues.length > 0,
+		chapterValidationIssues,
 	};
 };
 

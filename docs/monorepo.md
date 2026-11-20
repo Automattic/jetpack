@@ -41,7 +41,7 @@ All GitHub Actions configuration for the monorepo, including CI, lives in `.gith
 
 ## Compatibility
 
-All projects should be compatible with PHP versions WordPress supports. That's currently PHP 7.4 to 8.5.
+All projects should be compatible with PHP versions WordPress supports. That's currently PHP 7.4 to 8.6.
 
 ## First Time
 
@@ -50,6 +50,7 @@ First time working with the monorepo? We got you covered.
 For the first time only:
 
 * From the root of the repo, run `pnpm install && pnpm jetpack cli link` (if you want the `jetpack` CLI tool installed globally) or `pnpm install` (if you don't).
+* Optionally, set up tab completion for the `jetpack` command: see [Shell completion](../tools/cli/README.md#shell-completion).
 * That’s it. You won’t need to do that again unless you nuke your node_modules directory.
 
 Once you’ve done that, it’s easy: run `jetpack` (or `pnpm jetpack`) while anywhere in the Jetpack repo. To explore on your own, run `jetpack --help` to see the available commands.
@@ -127,7 +128,7 @@ We use `composer.json` to hold metadata about projects. Much of our generic tool
 * `.scripts.test-php`: If the package contains any PHPUnit tests, this must run the necessary commands. See [PHP tests](#php-tests) for details.
   * `.scripts.skip-test-php`: Run before `.scripts.test-php` in CI. If it exits with code 3, the test run will be skipped.
 * `.extra.autorelease`: Set truthy to enable automatic creation of a GitHub release for tagged versions. See [Mirror repositories > Auto-release](#auto-release) for details.
-* `.extra.autotagger`: Set truthy to enable automatic release-version tagging in the mirror repo. See [Mirror repositories > Autotagger](#autotagger) for details.
+* `.extra.autotagger`: Configure the automatic release-version tagging in the mirror repo. See [Mirror repositories > Autotagger](#autotagger) for details.
 * `.extra.changelogger`: Configuration object for [Changelogger](#jetpack-changelogger). See [its documentation](https://github.com/Automattic/jetpack-changelogger#configuration) for details.
 * `.extra.changelogger-default-type`: Certain of our tools automatically create Changelogger change entries. This is the value to use for `--type` when doing so. Default type is `changed`.
 * `.extra.dependencies.build`: This optional array specifies the "slugs" of any within-monorepo build dependencies that can't otherwise be inferred. The "slug" consists of the two levels of directory under `projects/`, e.g. `plugins/jetpack` or `packages/changelogger`.
@@ -137,7 +138,6 @@ We use `composer.json` to hold metadata about projects. Much of our generic tool
 * `.extra.mirror-repo`: This specifies the name of the GitHub mirror repo, i.e. the "Automattic/jetpack-_something_" in "<span>https://</span>github.com/Automattic/jetpack-_something_".
 * `.extra.npmjs-autopublish`: Set truthy to enable automatic publishing of tagged versions to npmjs.com. See [Mirror repositories > Npmjs Auto-publisher](#npmjs-auto-publisher) for details.
 * `.extra.release-branch-prefix`: Our mirroring and release tooling considers any branch named like "_prefix_/branch-_version_" to be a release branch, and this specifies which _prefix_ belongs to the project.
-  * This may also be an array of multiple prefixes. In that case the first element in the array should be a prefix used only by this plugin, with any additional prefixes shared by multiple plugins coming after.
 * `.extra.version-constants`: When `tools/project-version.sh` is checking or updating versions, this specifies PHP constants to check or update. The value is an object matching constants to the file (relative to the package root) in which the constant is defined.
   * Note that constant definitions must be on a single line and use single quotes to be detected by the script. Like this:
     ```php
@@ -164,6 +164,7 @@ A project must define `.scripts.build-development` and/or `.scripts.build-produc
 The build commands should assume that `pnpm install` and `composer install` have already been run, and _must not_ run them again.
 
 * If you're building JavaScript bundles with Webpack and [@automattic/jetpack-webpack-config](../projects/js-packages/webpack-config/README.md) (more information on setup [in the README.md](../projects/js-packages/webpack-config/README.md)), note that your build-production command should set `NODE_ENV=production` and `BABEL_ENV=production`.
+* If you're moving an admin dashboard from Webpack onto the wp-build (esbuild) pipeline, follow the [wp-build porting checklist](wp-build-porting-checklist.md).
 * If you run into problems with Composer not recognizing the local git branch as being the right version, try setting `COMPOSER_ROOT_VERSION=dev-trunk` in the environment.
 * When building for the mirror repos, note that `COMPOSER_MIRROR_PATH_REPOS=1` will be set in the environment and the list of repositories in `composer.json` may be altered.
   This is not normally done in development environments, even with `jetpack build --production`.
@@ -270,7 +271,7 @@ If a project contains PHP tests (typically PHPUnit), it must define `.scripts.te
 
 A MySQL database is available if needed; credentials may be found in `~/.my.cnf`. Note that the host must be specified as `127.0.0.1`, as when passed `localhost` PHP will try to connect via a Unix domain socket which is not available in the Actions environment.
 
-Tests are run with a variety of supported PHP versions from 7.4 to 8.5. If you have tests that only need to be run once, run them when `PHP_VERSION` matches that in `.github/versions.sh`.
+Tests are run with a variety of supported PHP versions from 7.4 to 8.6. If you have tests that only need to be run once, run them when `PHP_VERSION` matches that in `.github/versions.sh`.
 
 #### PHP tests for non-plugins
 
@@ -278,7 +279,7 @@ For all project types other than WordPress plugins, the necessary version of PHP
 
 We currently make use of the following packages in testing; it's encouraged to use these rather than introducing other tools that serve the same purpose.
 
-* [yoast/phpunit-polyfills](https://packagist.org/packages/yoast/phpunit-polyfills) supplies polyfills for compatibility with PHPUnit 9.6 to 12.4, to support PHP 7.4 to 8.5.
+* [yoast/phpunit-polyfills](https://packagist.org/packages/yoast/phpunit-polyfills) supplies polyfills for compatibility with PHPUnit 9.6 to 12.4, to support PHP 7.4 to 8.6.
 * [automattic/phpunit-select-config](https://packagist.org/packages/automattic/phpunit-select-config) allows for selecting a configuration file based on the version of PHPUnit in use, since configs are often not compatible across major versions since PHPUnit 9.
 * PHPUnit's built-in mocking is used for class mocks.
 * [brain/monkey](https://packagist.org/packages/brain/monkey) is used for mocking functions, and can also provide some functions for minimal WordPress compatibility.
@@ -416,15 +417,15 @@ Most projects in the monorepo should have a mirror repository holding a built ve
 4. If there are any files included in the monorepo that should not be included in the mirror, use `.gitattributes` to tag them with "production-exclude".
 5. If there are any built files in `.gitignore` that should be included in the mirror, use `.gitattributes` to tag them with "production-include".
 6. Set `.extra.mirror-repo` in your project's `composer.json` to the name of the repo.
-   * When you push the PR making this change to `composer.json`, pay attention to the Build workflow. Download the "jetpack-build" artifact and make sure it contains your project, and that there are no extra or missing files.
+   * When you push the PR making this change to `composer.json`, pay attention to the Build workflow. Download the "jetpack-build.tar.xz" artifact and make sure it contains your project, and that there are no extra or missing files.
 
 ### Autotagger
 
-If `.extra.autotagger` is set to a truthy value in the project's `composer.json`, a GitHub Action will be included in the mirror repo that will read the most recent version from the mirrored `CHANGELOG.md` in each push to trunk, and create the tag if that version has no prerelease or build suffix.
+All mirror repos will include a GitHub Action that will read the most recent version from the mirrored `CHANGELOG.md` in each push to trunk, and create the tag if that version has no prerelease or build suffix.
 
-If `.extra.autotagger` is set to an object with a truthy value for `major` (i.e. if `.extra.autotagger.major` is truthy), the GitHub Action will additionally create or update a major-version tag as is common for GitHub Action repositories.
+If `.extra.autotagger.major` is set to a truthy value, the GitHub Action will additionally create or update a major-version tag as is common for GitHub Action repositories.
 
-If `.extra.autotagger` is set to an object with falsey value for `v` (i.e. if `.extra.autotagger.v` is set and falsey), the tag will not be prefixed with "v".
+If `.extra.autotagger.v` is set to a falsey value, the tag will not be prefixed with "v".
 
 Note that, for this to work, you'll need to create a secret `API_TOKEN_GITHUB` in the mirror repo. The value of the secret must be a GitHub access token. See PCYsg-xsv-p2#mirror-repo-secrets for details.
 
@@ -440,6 +441,8 @@ If `.extra.autorelease` is set to an object, the following are recognized:
 
 * `.extra.autorelease.slug`: Base name for the zip file, and the name of the base directory inside. If this is omitted, `.extra.wp-plugin-slug` or `.extra.beta-plugin-slug` will be used. If that is also not set, the portion of `.name` after the `/` will be used.
 * `.extra.autorelease.titlefmt`: Format for the release title. Must contain a single `%s`, which will be replaced with the version tagged. If omitted, the release title will simply be the version number.
+
+Versions with a prerelease suffix (e.g. `1.2-beta` or `1.2-a.3`) are marked as prereleases on GitHub, except for rolling releases, which are always marked "Latest".
 
 Note the following will also be done by the build process:
 

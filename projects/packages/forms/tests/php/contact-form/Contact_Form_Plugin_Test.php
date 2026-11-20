@@ -1025,6 +1025,48 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 		Utility::destroy_post_context( $current_post );
 	}
 
+	public function test_write_export_csv_escapes_formulas_in_responses() {
+		$current_post = Utility::create_post_context();
+		$post_ids     = array( Utility::create_legacy_feedback( array( '1_Name' => '=HYPERLINK("http://example.com")' ) ) );
+
+		$plugin = Contact_Form_Plugin::init();
+		$output = fopen( 'php://memory', 'w+' );
+		$count  = $plugin->write_export_csv( $output, $plugin->get_export_rows( $post_ids ) );
+		rewind( $output );
+		$header = fgetcsv( $output, 0, ',', '"', '' );
+		$row    = fgetcsv( $output, 0, ',', '"', '' );
+		fclose( $output );
+
+		$this->assertSame( 1, $count );
+		$this->assertSame( '\'=HYPERLINK("http://example.com")', $row[ array_search( 'Name', $header, true ) ] );
+
+		Utility::destroy_post_context( $current_post );
+	}
+
+	public function test_get_export_feedback_data_includes_fields_first_seen_in_a_later_batch() {
+		$current_post = Utility::create_post_context();
+
+		$post_ids = array();
+		for ( $i = 0; $i < Contact_Form_Plugin::EXPORT_BATCH_SIZE; $i++ ) {
+			$post_ids[] = Utility::create_legacy_feedback( array( '1_Name' => "User $i" ) );
+		}
+		$post_ids[] = Utility::create_legacy_feedback(
+			array(
+				'1_Name'  => 'Late user',
+				'3_Phone' => '123-456-7890',
+			)
+		);
+
+		$result = Contact_Form_Plugin::init()->get_export_feedback_data( $post_ids );
+
+		$this->assertSameSize( $post_ids, $result['Name'] );
+		$this->assertSame( 'Late user', end( $result['Name'] ) );
+		$this->assertSame( '', $result['Phone'][0] );
+		$this->assertSame( '123-456-7890', end( $result['Phone'] ) );
+
+		Utility::destroy_post_context( $current_post );
+	}
+
 	/**
 	 * Test get_export_feedback_data with duplicate field labels (legacy format).
 	 * Ensures that when the same label appears multiple times in a form response,
@@ -1352,6 +1394,72 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 		$this->assertStringContainsString( '\\"value\\":\\"' . $test_email, $result, 'Should include JSON value pattern' );
 	}
 
+	/**
+	 * Data provider for test_personal_data_search_filter_matches_whole_email.
+	 *
+	 * @return array
+	 */
+	public static function provide_personal_data_search_emails() {
+		return array(
+			'same address'               => array( 'foo@example.com', true ),
+			'requested address + suffix' => array( 'foo@example.com.au', false ),
+		);
+	}
+
+	/**
+	 * Runs the generated LIKE clauses against a V3 feedback post_content as it is stored.
+	 *
+	 * @param string $stored_email   Email address saved in the feedback.
+	 * @param bool   $expected_match Whether a request for foo@example.com should find it.
+	 * @dataProvider provide_personal_data_search_emails
+	 */
+	#[DataProvider( 'provide_personal_data_search_emails' )]
+	public function test_personal_data_search_filter_matches_whole_email( $stored_email, $expected_match ) {
+		global $wpdb;
+
+		$plugin = Contact_Form_Plugin::init();
+		$plugin->set_pde_email_address( 'foo@example.com' );
+		$sql = $wpdb->remove_placeholder_escape( $plugin->personal_data_search_filter( '..PDE..AUTHOR EMAIL:..PDE..' ) );
+
+		$post_content = wp_json_encode(
+			array(
+				'fields' => array(
+					array(
+						'key'   => '1_Email',
+						'label' => 'Email',
+						'value' => $stored_email,
+						'type'  => 'email',
+					),
+				),
+			),
+			JSON_UNESCAPED_SLASHES | JSON_HEX_TAG
+		);
+
+		preg_match_all( "/LIKE '(.*?)'(?= OR | \))/s", $sql, $matches );
+		$this->assertNotEmpty( $matches[1] );
+
+		$matched = false;
+		foreach ( $matches[1] as $like ) {
+			// Translate the LIKE pattern: `\x` is a literal x, `%` any run, `_` any one character.
+			$regex   = preg_replace_callback(
+				'/\\\\(.)|%|_|[^\\\\%_]+/s',
+				function ( $token ) {
+					if ( isset( $token[1] ) && '' !== $token[1] ) {
+						return preg_quote( $token[1], '/' );
+					}
+					if ( '%' === $token[0] ) {
+						return '.*';
+					}
+					return '_' === $token[0] ? '.' : preg_quote( $token[0], '/' );
+				},
+				$like
+			);
+			$matched = $matched || (bool) preg_match( '/^' . $regex . '$/is', $post_content );
+		}
+
+		$this->assertSame( $expected_match, $matched );
+	}
+
 	public function test_get_unread_count_zero() {
 		delete_option( 'jetpack_feedback_unread_count' );
 		$this->assertIsInt( Contact_Form_Plugin::get_unread_count() );
@@ -1423,7 +1531,6 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 		$post  = $this->post_global_backup;
 		$_POST = $this->post_superglobal_backup;
 		Notification_Counts::reset();
-		remove_filter( 'jetpack_forms_alpha', '__return_false' );
 		delete_option( 'jetpack_feedback_unread_count' );
 		wp_set_current_user( 0 );
 		parent::tearDown();
@@ -1448,8 +1555,7 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 
 	/**
 	 * Unread_count() should register the unread count with the central
-	 * menu-badges registry, under the Forms wp-build dashboard slug (the
-	 * default, since jetpack_forms_alpha defaults to true).
+	 * menu-badges registry, under the Forms dashboard slug.
 	 */
 	public function test_unread_count_registers_with_menu_badges() {
 		$this->create_admin_user();
@@ -1458,21 +1564,6 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 		Contact_Form_Plugin::init()->unread_count();
 
 		$this->assertSame( 3, Notification_Counts::get_for_menu( Dashboard::FORMS_WPBUILD_ADMIN_SLUG ) );
-	}
-
-	/**
-	 * Unread_count() should register against the legacy ADMIN_SLUG instead when
-	 * the jetpack_forms_alpha filter is disabled.
-	 */
-	public function test_unread_count_registers_legacy_slug_when_alpha_disabled() {
-		$this->create_admin_user();
-		add_filter( 'jetpack_forms_alpha', '__return_false' );
-		update_option( 'jetpack_feedback_unread_count', 4 );
-
-		Contact_Form_Plugin::init()->unread_count();
-
-		$this->assertSame( 4, Notification_Counts::get_for_menu( Dashboard::ADMIN_SLUG ) );
-		$this->assertSame( 0, Notification_Counts::get_for_menu( Dashboard::FORMS_WPBUILD_ADMIN_SLUG ) );
 	}
 
 	/**

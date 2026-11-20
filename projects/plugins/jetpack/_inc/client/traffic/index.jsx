@@ -1,11 +1,15 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { getScriptData, isWoASite } from '@automattic/jetpack-script-data';
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import { Component } from 'react';
 import { connect } from 'react-redux';
-import Button from 'components/button';
 import QuerySite from 'components/data/query-site';
-import SimpleNotice from 'components/notice';
+import { FeaturesPointer } from 'components/pointer-card';
+import {
+	areStatsSettingsMovedOut,
+	isSettingsConsolidationEnabled,
+	searchFindsGoogleAnalytics,
+} from 'lib/settings-consolidation';
 import {
 	isSiteConnected,
 	isOfflineMode,
@@ -19,8 +23,11 @@ import { getSettings } from 'state/settings';
 import { siteUsesWpAdminInterface } from 'state/site';
 import Blaze from './blaze';
 import { GoogleAnalytics } from './google-analytics';
+import { GoogleAnalyticsMoved } from './google-analytics-moved';
 import { RelatedPosts } from './related-posts';
+import { RelatedPostsMoved } from './related-posts-moved';
 import SEO from './seo';
+import SeoOptInBanner from './seo-optin-banner';
 import Shortlinks from './shortlinks';
 import { SiteStats } from './site-stats';
 import Sitemaps from './sitemaps';
@@ -56,29 +63,32 @@ export class Traffic extends Component {
 			foundRelated = this.props.isModuleFound( 'related-posts' ),
 			foundVerification = this.props.isModuleFound( 'verification-tools' ),
 			foundSitemaps = this.props.isModuleFound( 'sitemaps' ),
-			foundAnalytics = isWoASite(),
+			// Once the panel holds GA, the pointer shows only in a search that names it.
+			gaPanelUrl =
+				isSettingsConsolidationEnabled() && getScriptData()?.myJetpack?.googleAnalyticsPanel,
+			gaInPanel = !! gaPanelUrl,
+			foundAnalytics =
+				isWoASite() && ( ! gaInPanel || searchFindsGoogleAnalytics( this.props.searchTerm ) ),
 			foundBlaze = this.props.isModuleFound( 'blaze' );
 
 		// Once the site is on the new SEO experience (fresh install / opted-in /
 		// WordPress.com), the SEO, Sitemaps, and Verification sections live in the
-		// dedicated SEO dashboard, so hide those legacy sections here and point to the
-		// new page. Existing self-hosted installs that haven't opted in keep them
-		// (JETPACK-1682).
+		// dedicated SEO dashboard, so hide those legacy sections here. Existing
+		// self-hosted installs that haven't opted in keep them (JETPACK-1682).
 		const seoMovedToDashboard = getScriptData()?.seo?.surface_visible === true;
-		// The pointer notice stands in for every section we hide, so show it whenever
-		// any of them would have rendered — including a settings search for "sitemap"
-		// or "verification" that matches even when the SEO section itself does not.
+		// The opt-in notice covers every section that moves, so show it for any of those,
+		// including a "sitemap" or "verification" search that misses the SEO section.
 		const foundMovedToDashboard =
 			foundSeo || foundCanonicalUrls || foundSitemaps || foundVerification;
 
+		// Once moved, those sections render nothing here, so they no longer count as a match.
+		const foundLegacySeoSections = ! seoMovedToDashboard && foundMovedToDashboard;
+
 		if (
-			! foundSeo &&
-			! foundCanonicalUrls &&
+			! foundLegacySeoSections &&
 			! foundStats &&
 			! foundShortlinks &&
 			! foundRelated &&
-			! foundVerification &&
-			! foundSitemaps &&
 			! foundAnalytics &&
 			! foundBlaze
 		) {
@@ -89,15 +99,16 @@ export class Traffic extends Component {
 			<div>
 				<QuerySite />
 				<h1 className="screen-reader-text">{ __( 'Jetpack Traffic Settings', 'jetpack' ) }</h1>
-				<h2 className="jp-settings__section-title">
-					{ this.props.searchTerm
-						? __( 'Traffic', 'jetpack' )
-						: __(
-								'Maximize your site’s visibility in search engines and view traffic patterns in real time.',
-								'jetpack'
-						  ) }
-				</h2>
-				{ foundRelated && <RelatedPosts { ...commonProps } /> }
+				{ this.props.searchTerm && (
+					<h2 className="jp-settings__section-title">{ __( 'Traffic', 'jetpack' ) }</h2>
+				) }
+				{ foundRelated &&
+					( isSettingsConsolidationEnabled() ? (
+						this.props.searchTerm && <RelatedPostsMoved getModule={ this.props.module } />
+					) : (
+						<RelatedPosts { ...commonProps } />
+					) ) }
+				{ foundMovedToDashboard && <SeoOptInBanner /> }
 				{ ! seoMovedToDashboard && ( foundSeo || foundCanonicalUrls ) && (
 					<SEO
 						{ ...commonProps }
@@ -107,33 +118,49 @@ export class Traffic extends Component {
 						} ) }
 					/>
 				) }
-				{ seoMovedToDashboard && foundMovedToDashboard && (
-					<SimpleNotice status="is-info" showDismiss={ false } className="jp-seo-moved-banner">
-						<div className="jp-seo-moved-banner__content">
-							<strong>{ __( 'Jetpack SEO has its own dashboard', 'jetpack' ) }</strong>
-							<p>
-								{ __(
-									'Manage your search engine optimization settings from the redesigned SEO dashboard.',
-									'jetpack'
-								) }
-							</p>
-							<Button
-								primary
-								rna
-								compact
-								href={ `${ this.props.siteAdminUrl }admin.php?page=jetpack-seo` }
-							>
-								{ __( 'Open the SEO dashboard', 'jetpack' ) }
-							</Button>
-						</div>
-					</SimpleNotice>
-				) }
-				{ foundStats && <SiteStats { ...commonProps } /> }
-				{ foundAnalytics && (
-					<GoogleAnalytics { ...commonProps } site={ this.props.blogID ?? this.props.siteRawUrl } />
-				) }
-				{ foundBlaze && <Blaze { ...commonProps } /> }
-				{ foundShortlinks && <Shortlinks { ...commonProps } /> }
+				{ foundStats &&
+					( this.props.statsSettingsMovedOut ? (
+						this.props.searchTerm && <SiteStats { ...commonProps } settingsOnStatsPage />
+					) : (
+						<SiteStats { ...commonProps } />
+					) ) }
+				{ foundAnalytics &&
+					( gaInPanel ? (
+						<GoogleAnalyticsMoved href={ gaPanelUrl } />
+					) : (
+						<GoogleAnalytics
+							{ ...commonProps }
+							site={ this.props.blogID ?? this.props.siteRawUrl }
+						/>
+					) ) }
+				{ foundBlaze &&
+					( isSettingsConsolidationEnabled() ? (
+						// The Blaze card renders nothing on WoA, so its pointer stays out there too.
+						this.props.searchTerm &&
+						! isWoASite() && (
+							<FeaturesPointer
+								header={ __( 'Blaze', 'jetpack' ) }
+								name="Blaze"
+								search="blaze"
+								linksToSettings={ false }
+							/>
+						)
+					) : (
+						<Blaze { ...commonProps } />
+					) ) }
+				{ foundShortlinks &&
+					( isSettingsConsolidationEnabled() ? (
+						this.props.searchTerm && (
+							<FeaturesPointer
+								header={ _x( 'WP.me Shortlinks', 'Settings header', 'jetpack' ) }
+								name={ _x( 'WP.me Shortlinks', 'Settings header', 'jetpack' ) }
+								search="shortlinks"
+								linksToSettings={ false }
+							/>
+						)
+					) : (
+						<Shortlinks { ...commonProps } />
+					) ) }
 				{ ! seoMovedToDashboard && foundSitemaps && <Sitemaps { ...commonProps } /> }
 				{ ! seoMovedToDashboard && foundVerification && (
 					<VerificationServices { ...commonProps } />
@@ -157,5 +184,6 @@ export default connect( state => {
 		hasConnectedOwner: hasConnectedOwner( state ),
 		blogID: getSiteId( state ),
 		siteUsesWpAdminInterface: siteUsesWpAdminInterface( state ),
+		statsSettingsMovedOut: areStatsSettingsMovedOut( state ),
 	};
 } )( Traffic );

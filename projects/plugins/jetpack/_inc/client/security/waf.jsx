@@ -27,7 +27,6 @@ import { ModuleToggle } from '../components/module-toggle';
 import PlanIcon from '../components/plans/plan-icon';
 import Textarea from '../components/textarea';
 import { getSiteAdminUrl } from '../state/initial-state';
-import { isPluginActive } from '../state/site/plugins';
 import { updateWafSettings } from '../state/waf/actions';
 import {
 	getAutomaticRulesAvailable,
@@ -35,12 +34,7 @@ import {
 	isFetchingWafSettings,
 	isUpdatingWafSettings,
 } from '../state/waf/reducer';
-
-const PROTECT_PLUGIN_FILES = [
-	'protect/jetpack-protect.php',
-	'jetpack-protect/jetpack-protect.php',
-	'jetpack-protect-dev/jetpack-protect.php',
-];
+import { getProtectPluginUrl, isProtectPluginActive } from './protect-page';
 
 export const Waf = class extends Component {
 	/**
@@ -111,6 +105,7 @@ export const Waf = class extends Component {
 				this.props.removeNotice( 'module-setting-update' );
 				this.props.createNotice( 'is-success', __( 'Updated Settings.', 'jetpack' ), {
 					id: 'module-setting-update-success',
+					duration: 2000,
 				} );
 			} )
 			.catch( error => {
@@ -369,7 +364,7 @@ export const Waf = class extends Component {
 									'Upgrade to keep your site secure with up-to-date firewall rules',
 									'jetpack',
 									/* dummy arg to avoid bad minification */ 0
-							  ) }
+								) }
 						<InfoPopover
 							position="right"
 							screenReaderText={ __( 'Learn more', 'jetpack' ) }
@@ -379,12 +374,12 @@ export const Waf = class extends Component {
 								? __(
 										'The free version of the firewall only allows for use of manual rules.',
 										'jetpack'
-								  )
+									)
 								: __(
 										'The free version of the firewall does not receive updates to automatic firewall rules.',
 										'jetpack',
 										/* dummy arg to avoid bad minification */ 0
-								  ) }
+									) }
 						</InfoPopover>
 					</>
 				}
@@ -530,10 +525,8 @@ export default connect(
 		return {
 			automaticRulesAvailable: getAutomaticRulesAvailable( state ),
 			hasScan: siteHasFeature( state, 'scan' ),
-			protectAdminUrl: `${ getSiteAdminUrl( state ) }admin.php?page=jetpack-protect#/firewall`,
-			isProtectActive: PROTECT_PLUGIN_FILES.some( pluginFile =>
-				isPluginActive( state, pluginFile )
-			),
+			protectAdminUrl: `${ getProtectPluginUrl( getSiteAdminUrl( state ) ) }#/firewall`,
+			isProtectActive: isProtectPluginActive( state ),
 			getProtectUrl: `${ getSiteAdminUrl( state ) }admin.php?page=my-jetpack#/add-protect`,
 			isFetchingSettings: isFetchingWafSettings( state ),
 			isUpdatingWafSettings: isUpdatingWafSettings( state ),

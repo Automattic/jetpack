@@ -3,11 +3,14 @@
  */
 import { getDefaultQueryParams, queryClient } from '@jetpack-premium-analytics/data';
 import { WIDGET_ROW_LIMIT } from '@jetpack-premium-analytics/widgets-toolkit';
-import { act, render, screen } from '@testing-library/react';
+import { onlineManager } from '@tanstack/react-query';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
  */
+import { renderWithActionsHost } from '../../../tests/js/widget-host-test-utils';
+import { captureCsvDownloads } from '../../test-utils';
 import EmailBreakdownWidget from '../render';
 import emailBreakdownWidgetType from '../widget';
 
@@ -42,14 +45,15 @@ jest.mock( '@wordpress/route', () => jest.requireActual( '../../test-utils' ).mo
 
 const mockApiFetch = apiFetch as unknown as jest.Mock;
 
-// Raw WPCOM fieldless all-time shapes the sanitizer reads. Each endpoint
-// returns only its own payload key, as in Calypso.
+// Raw all-time shapes as WPCOM returns them: each endpoint returns only its own
+// payload key, with `fields` naming the `[ label, count ]` columns.
 const COUNTRY_RESPONSE = {
 	countries: {
 		data: [
 			[ 'US', 1840 ],
 			[ 'GB', 720 ],
 		],
+		fields: [ 'country', 'opens_count' ],
 	},
 	'countries-info': {
 		US: { country_full: 'United States' },
@@ -59,17 +63,23 @@ const COUNTRY_RESPONSE = {
 
 // `some-other-internal` aggregates into the catch-all row and outranks every
 // other row, so the fixture proves that row is pinned last, not merely sorted last.
+// `user_link` counts the same clicks the user-content endpoint lists by URL.
 const INTERNAL_LINKS_RESPONSE = {
 	links: {
 		data: [
+			[ 'user_link', 512 ],
 			[ 'post-url', 640 ],
 			[ 'some-other-internal', 900 ],
 		],
+		fields: [ 'link_desc', 'clicks_count' ],
 	},
 };
 
 const USER_CONTENT_LINKS_RESPONSE = {
-	'user-content-links': { data: [ [ 'https://example.com/spring-sale', 512 ] ] },
+	'user-content-links': {
+		data: [ [ 'https://example.com/spring-sale', 512 ] ],
+		fields: [ 'url', 'clicks_count' ],
+	},
 };
 
 /**
@@ -95,7 +105,20 @@ describe( 'EmailBreakdownWidget', () => {
 		mockResizeObserverWidth = 1200;
 	} );
 
-	it( 'renders the opens-by-country breakdown for the selected email', async () => {
+	it.each( [
+		[
+			'renders the opens-by-country breakdown for the selected email',
+			{},
+			'stats/opens/emails/1234/country',
+			'Opens',
+		],
+		[
+			'reads the clicks endpoint for dimension views when metric is clicks',
+			{ metric: 'clicks' as const },
+			'stats/clicks/emails/1234/country',
+			'Clicks',
+		],
+	] )( '%s', async ( _title, metricAttributes, endpoint, metricHeading ) => {
 		mockApiFetch.mockResolvedValue( COUNTRY_RESPONSE );
 
 		render(
@@ -103,34 +126,18 @@ describe( 'EmailBreakdownWidget', () => {
 				attributes={ {
 					reportParams: { ...getDefaultQueryParams( false ), post_id: 1234 },
 					view: 'countries',
+					...metricAttributes,
 				} }
 			/>
 		);
 
 		await expect( screen.findByText( 'United States' ) ).resolves.toBeInTheDocument();
 		expect( screen.getByText( 'United Kingdom' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Countries' ) ).toBeInTheDocument();
+		expect( screen.getByText( metricHeading ) ).toBeInTheDocument();
 
 		const requestedPath = mockApiFetch.mock.calls[ 0 ][ 0 ].path as string;
-		expect( requestedPath ).toContain( 'stats/opens/emails/1234/country' );
-	} );
-
-	it( 'reads the clicks endpoint for dimension views when metric is clicks', async () => {
-		mockApiFetch.mockResolvedValue( COUNTRY_RESPONSE );
-
-		render(
-			<EmailBreakdownWidget
-				attributes={ {
-					reportParams: { ...getDefaultQueryParams( false ), post_id: 1234 },
-					view: 'countries',
-					metric: 'clicks',
-				} }
-			/>
-		);
-
-		await expect( screen.findByText( 'United States' ) ).resolves.toBeInTheDocument();
-
-		const requestedPath = mockApiFetch.mock.calls[ 0 ][ 0 ].path as string;
-		expect( requestedPath ).toContain( 'stats/clicks/emails/1234/country' );
+		expect( requestedPath ).toContain( endpoint );
 	} );
 
 	it( 'renders the country map from all rows while capping the adjacent leaderboard', async () => {
@@ -141,6 +148,7 @@ describe( 'EmailBreakdownWidget', () => {
 					`C${ index }`,
 					rowCount - index,
 				] ),
+				fields: [ 'country', 'clicks_count' ],
 			},
 			'countries-info': Object.fromEntries(
 				Array.from( { length: rowCount }, ( _, index ) => [
@@ -210,8 +218,13 @@ describe( 'EmailBreakdownWidget', () => {
 		// Known internal link types are mapped to display labels; unknown ones are
 		// aggregated into "Other".
 		expect( screen.getByText( 'Post URL' ) ).toBeInTheDocument();
+		expect( screen.queryByText( 'post-url' ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( 'user_link' ) ).not.toBeInTheDocument();
 		const otherRow = screen.getByText( 'Other' );
 		expect( otherRow ).toBeInTheDocument();
+		expect( screen.getByText( '900' ) ).toBeInTheDocument();
+		// The links view always counts clicks, whatever the metric attribute says.
+		expect( screen.getByText( 'Clicks' ) ).toBeInTheDocument();
 
 		// The catch-all row stays pinned last despite holding the highest value.
 		// Separate rows, so the position mask is exactly PRECEDING or FOLLOWING.
@@ -292,7 +305,9 @@ describe( 'EmailBreakdownWidget', () => {
 		// Built by concatenation so the literal does not trip the no-script-url lint rule.
 		const unsafeUrl = 'javascript' + ':alert(1)';
 		mockApiFetch.mockImplementation(
-			linksViewFetchMock( { 'user-content-links': { data: [ [ unsafeUrl, 99 ] ] } } )
+			linksViewFetchMock( {
+				'user-content-links': { data: [ [ unsafeUrl, 99 ] ], fields: [ 'url', 'clicks_count' ] },
+			} )
 		);
 
 		render(
@@ -317,5 +332,119 @@ describe( 'EmailBreakdown widget type', () => {
 		expect(
 			emailBreakdownWidgetType.attributes.every( attribute => attribute.relevance === 'high' )
 		).toBe( true );
+	} );
+	describe( 'CSV download', () => {
+		let downloads: ReturnType< typeof captureCsvDownloads > | undefined;
+
+		beforeEach( () => {
+			queryClient.clear();
+			mockApiFetch.mockReset();
+		} );
+
+		afterEach( () => {
+			downloads?.restore();
+			downloads = undefined;
+		} );
+
+		function renderWithHost( attributes: Record< string, unknown > ) {
+			return renderWithActionsHost(
+				<EmailBreakdownWidget
+					attributes={ {
+						reportParams: { ...getDefaultQueryParams( false ), post_id: 1234 },
+						...attributes,
+					} }
+				/>
+			);
+		}
+
+		it.each( [
+			[ 'opens', 'Opens' ],
+			[ 'clicks', 'Clicks' ],
+		] )( 'saves every row of %s, past the ones the card lists', async ( metric, heading ) => {
+			const rowCount = WIDGET_ROW_LIMIT + 3;
+			downloads = captureCsvDownloads();
+			mockApiFetch.mockResolvedValue( {
+				countries: {
+					data: Array.from( { length: rowCount }, ( _, index ) => [
+						`C${ index }`,
+						rowCount - index,
+					] ),
+					fields: [ 'country', `${ metric }_count` ],
+				},
+				'countries-info': Object.fromEntries(
+					Array.from( { length: rowCount }, ( _, index ) => [
+						`C${ index }`,
+						{ country_full: `Country ${ index }` },
+					] )
+				),
+			} );
+
+			const { findDeclaredAction } = renderWithHost( { view: 'countries', metric } );
+			await downloads.runAndSave( await findDeclaredAction( 'download-csv' ) );
+			const lines = await downloads.lines();
+
+			expect( downloads.files[ 0 ].filename ).toBe( `email-1234-countries-${ metric }.csv` );
+			expect( lines ).toHaveLength( rowCount + 1 );
+			expect( lines.slice( 0, 2 ) ).toEqual( [
+				`"Country","${ heading }"`,
+				`"Country 0","${ rowCount }"`,
+			] );
+		} );
+
+		it( 'labels link clicks as clicks and adds each URL', async () => {
+			downloads = captureCsvDownloads();
+			mockApiFetch.mockImplementation( linksViewFetchMock() );
+
+			const { findDeclaredAction } = renderWithHost( { view: 'links', metric: 'opens' } );
+			await downloads.runAndSave( await findDeclaredAction( 'download-csv' ) );
+			const lines = await downloads.lines();
+
+			expect( downloads.files[ 0 ].filename ).toBe( 'email-1234-links-clicks.csv' );
+			expect( lines[ 0 ] ).toBe( '"Link","Clicks","URL"' );
+			expect( lines ).toContain(
+				'"https://example.com/spring-sale","512","https://example.com/spring-sale"'
+			);
+			expect( lines ).toContain( '"Post URL","640",""' );
+		} );
+
+		it( 'withdraws the download when a refetch fails behind the rows on screen', async () => {
+			mockApiFetch.mockResolvedValue( COUNTRY_RESPONSE );
+
+			const { findDeclaredAction, declaredAction } = renderWithHost( { view: 'countries' } );
+			await findDeclaredAction( 'download-csv' );
+
+			mockApiFetch.mockRejectedValue( { status: 403, message: 'Forbidden' } );
+			await act( async () => {
+				await queryClient.refetchQueries();
+			} );
+
+			await waitFor( () => expect( declaredAction( 'download-csv' ) ).toBeUndefined() );
+			expect( screen.getByText( 'United States' ) ).toBeInTheDocument();
+		} );
+
+		it( 'offers no download while the rows are the previous view kept offline', async () => {
+			mockApiFetch.mockResolvedValue( COUNTRY_RESPONSE );
+
+			const { findDeclaredAction, declaredAction, rerender } = renderWithHost( {
+				view: 'countries',
+			} );
+			await findDeclaredAction( 'download-csv' );
+
+			try {
+				act( () => onlineManager.setOnline( false ) );
+				rerender(
+					<EmailBreakdownWidget
+						attributes={ {
+							reportParams: { ...getDefaultQueryParams( false ), post_id: 1234 },
+							view: 'devices',
+						} }
+					/>
+				);
+
+				await waitFor( () => expect( declaredAction( 'download-csv' ) ).toBeUndefined() );
+			} finally {
+				onlineManager.setOnline( true );
+			}
+		} );
 	} );
 } );

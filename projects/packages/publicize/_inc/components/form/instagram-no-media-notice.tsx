@@ -24,12 +24,12 @@ export function InstagramNoMediaNotice() {
 				? __(
 						'To share to Instagram, add an image/video, or enable Social Image Generator.',
 						'jetpack-publicize-pkg'
-				  )
+					)
 				: _x(
 						'You need a featured image to share to Instagram.',
 						'Notice shown when there is no featured image set for the post.',
 						'jetpack-publicize-pkg'
-				  ) }
+					) }
 		</Notice>
 	);
 }

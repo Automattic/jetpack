@@ -18,7 +18,12 @@ use WP_Error;
  */
 class GA_Manager {
 
-	const PACKAGE_VERSION = '0.3.4';
+	const PACKAGE_VERSION = '0.4.0';
+
+	/**
+	 * Empty, or a Universal Analytics or GA4 Measurement ID.
+	 */
+	const CODE_PATTERN = '/^(|UA-\d+-\d+|G-[A-Z0-9]+)$/i';
 
 	/**
 	 * Jetpack_Google_Analytics singleton instance.
@@ -140,14 +145,44 @@ class GA_Manager {
 			return $value;
 		}
 
-		if ( ! isset( $value['code'] ) || ! preg_match( '/^$|^(UA-\d+-\d+)|(G-[A-Z0-9]+)$/i', $value['code'] ) ) {
-			return new WP_Error( 'invalid_code', 'Invalid UA ID' );
+		if ( ! isset( $value['code'] ) ) {
+			return self::get_invalid_code_error();
 		}
 
-		$option_name = $this->get_google_analytics_option_name();
+		$boolean_keys = array();
+		if ( array_key_exists( $api_handler->min_version, $this->api_defaults ) ) {
+			$boolean_keys = array_keys( $this->api_defaults[ $api_handler->min_version ] );
+		}
 
-		$wga         = get_option( $option_name, array() );
-		$wga['code'] = $value['code'];
+		return $this->update_google_analytics_settings( $value, $boolean_keys );
+	}
+
+	/**
+	 * Validates and saves GA settings, keeping the stored keys that `$value` leaves out.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array    $value        Any of `code` and `$boolean_keys`.
+	 * @param string[] $boolean_keys The other keys `$value` may set, each saved as a boolean.
+	 *
+	 * @return array|WP_Error The settings as stored.
+	 */
+	public function update_google_analytics_settings( $value, $boolean_keys = array() ) {
+		$value       = is_array( $value ) ? $value : array();
+		$option_name = $this->get_google_analytics_option_name();
+		$stored      = get_option( $option_name, array() );
+		$stored      = is_array( $stored ) ? $stored : array();
+		$wga         = $stored;
+
+		if ( isset( $value['code'] ) ) {
+			$code = is_scalar( $value['code'] ) ? trim( (string) $value['code'] ) : null;
+			// Calypso resends the stored ID with every save, so one an older, looser check accepted must not block the rest.
+			$is_stored_code = ( $stored['code'] ?? null ) === $code;
+			if ( null === $code || ( ! $is_stored_code && ! preg_match( self::CODE_PATTERN, $code ) ) ) {
+				return self::get_invalid_code_error();
+			}
+			$wga['code'] = $code;
+		}
 
 		if ( ! array_key_exists( 'is_active', $wga ) ) {
 			// The `is_active` flag is missing from the settings, add a default value based on the module status.
@@ -165,25 +200,24 @@ class GA_Manager {
 		 */
 		$wga = apply_filters( 'site_settings_update_wga', $wga, $value );
 
-		if ( array_key_exists( $api_handler->min_version, $this->api_defaults ) ) {
-			$wga_keys = array_keys( $this->api_defaults[ $api_handler->min_version ] );
-			foreach ( $wga_keys as $wga_key ) {
-				// Skip code since it's already handled.
-				if ( 'code' === $wga_key ) {
-					continue;
-				}
-
-				// All our new keys are booleans, so let's coerce each key's value
-				// before updating the value in settings
-				if ( array_key_exists( $wga_key, $value ) ) {
-					$wga[ $wga_key ] = Utils::is_truthy( $value[ $wga_key ] );
-				}
+		foreach ( $boolean_keys as $key ) {
+			if ( 'code' !== $key && array_key_exists( $key, $value ) ) {
+				$wga[ $key ] = Utils::is_truthy( $value[ $key ] );
 			}
 		}
 
-		$is_updated = update_option( $option_name, $wga );
+		if ( $wga === $stored ) {
+			return $wga;
+		}
 
-		$enabled_or_disabled = $wga['code'] ? 'enabled' : 'disabled';
+		if ( ! update_option( $option_name, $wga ) ) {
+			return new WP_Error(
+				'google_analytics_not_saved',
+				__( 'Google Analytics settings could not be saved.', 'jetpack-google-analytics' )
+			);
+		}
+
+		$enabled_or_disabled = empty( $wga['code'] ) ? 'disabled' : 'enabled';
 
 		/**
 		 * Fires for each settings update.
@@ -196,7 +230,20 @@ class GA_Manager {
 		 */
 		do_action( 'jetpack_bump_stats_extras', 'google-analytics', $enabled_or_disabled );
 
-		return $is_updated ? $wga : null;
+		return $wga;
+	}
+
+	/**
+	 * The error for a code that is neither empty nor a Measurement ID.
+	 *
+	 * @return WP_Error
+	 */
+	private static function get_invalid_code_error() {
+		return new WP_Error(
+			'invalid_code',
+			__( 'Enter a Measurement ID, such as G-XXXXXXX.', 'jetpack-google-analytics' ),
+			array( 'status' => 400 )
+		);
 	}
 
 	/**

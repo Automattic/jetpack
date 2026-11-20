@@ -30,7 +30,7 @@ function load_assets_implementation( $attr ) {
 
 	$url = Jetpack_Gutenberg::validate_block_embed_url(
 		$attr['url'],
-		array( '/^http[s]?:\/\/((?:www\.)?nextdoor(?:.*)?\/(?:embed)\/\S*)/i' ),
+		array( '/^http[s]?:\/\/(?:[a-z0-9-]+\.)?nextdoor\.[a-z]{2,3}(?:\.[a-z]{2})?\/embed\/\S+/i' ),
 		true
 	);
 

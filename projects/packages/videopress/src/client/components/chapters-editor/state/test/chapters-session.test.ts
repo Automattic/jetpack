@@ -717,7 +717,7 @@ describe( 'description round-trip', () => {
 				rand() < 0.15
 					? ''
 					: WORDS[ Math.floor( rand() * WORDS.length ) ] +
-					  ( rand() < 0.3 ? ` ${ WORDS[ Math.floor( rand() * WORDS.length ) ] }` : '' );
+						( rand() < 0.3 ? ` ${ WORDS[ Math.floor( rand() * WORDS.length ) ] }` : '' );
 			rows.push( { startAtSeconds: start, title } );
 			start += 10 + Math.floor( rand() * 300 );
 		}

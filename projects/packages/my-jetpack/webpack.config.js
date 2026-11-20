@@ -1,11 +1,14 @@
-const path = require( 'path' );
-const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
+import path from 'path';
+import jetpackWebpackConfig from '@automattic/jetpack-webpack-config/webpack';
 
-module.exports = [
+const __dirname = import.meta.dirname;
+
+export default [
 	{
 		entry: {
-			index: './_inc/admin.jsx',
+			onboarding: './_inc/onboarding.jsx',
 			'async-notification-bubble': './_inc/utils/async-notification-bubble.ts',
+			'header-controls': './_inc/header-controls-script.tsx',
 		},
 		mode: jetpackWebpackConfig.mode,
 		devtool: jetpackWebpackConfig.devtool,

@@ -2,7 +2,6 @@
  * External dependencies
  */
 import { LinkPreviewModalWithTrigger } from '@automattic/jetpack-publicize/link-preview';
-import { isWpcomPlatformSite } from '@automattic/jetpack-script-data';
 import {
 	useModuleStatus,
 	getJetpackExtensionAvailability,
@@ -33,7 +32,6 @@ import { useSeoModuleSettings } from '../ai-assistant-plugin/components/seo-enha
 import { useSeoRequests } from '../ai-assistant-plugin/components/seo-enhancer/use-seo-requests';
 import { SeoPlaceholder } from './components/placeholder';
 import { SeoSkeletonLoader } from './components/skeleton-loader';
-import UpsellNotice from './components/upsell';
 import SeoDescriptionPanel from './description-panel';
 import SeoNoindexPanel from './noindex-panel';
 import SeoSchemaPanel from './schema-panel';
@@ -51,50 +49,54 @@ const isSeoEnhancerAvailable =
 	getJetpackExtensionAvailability( 'ai-seo-enhancer' )?.available === true &&
 	supportsPublishSidebar;
 
-// Automatic generation never runs on Simple sites and follows the AI SEO
-// feature everywhere else.
 const canHaveAutoEnhance = canAutoEnhanceMetadata();
+
+const hideAutoEnhanceToggle = ! canHaveAutoEnhance;
 
 // The AI SEO feature covers manual and automatic generation alike (host and
 // master gates folded in server-side); with it off the enhancer is not
 // rendered at all.
 const isAiSeoFeatureEnabled = isAiSeoEnabled();
 
-const Seo = () => {
-	const { isLoadingModules, isChangingStatus, isModuleActive, changeStatus } =
-		useModuleStatus( 'seo-tools' );
+// Separate component because `useSeoRequests` reaches the AI feature endpoint and a
+// hook cannot be called conditionally — rendering it only where it can act keeps that
+// request off every other editor load.
+const SeoAutoEnhance = () => {
 	const isPrePublishPanelOpen = useSelect(
 		select => select( editorStore ).isPublishSidebarOpened?.(),
 		[]
 	);
-
 	const { updateSeoData, isBusy } = useSeoRequests();
-	const isViewable = useSelect( select => {
-		const postTypeName = select( editorStore ).getCurrentPostType();
-		const postTypeObject = select( coreStore ).getPostType( postTypeName );
-
-		return postTypeObject?.viewable;
-	}, [] );
 	const previousIsOpenRef = useRef( false );
 	const { isEnabled: isAutoEnhanceEnabled, isToggling } = useSeoModuleSettings();
-	const { closePublishSidebar } = useDispatch( editorStore );
 
 	useEffect( () => {
 		if (
-			isSeoEnhancerAvailable &&
 			isPrePublishPanelOpen &&
 			! previousIsOpenRef.current &&
 			! isBusy &&
 			isAutoEnhanceEnabled &&
-			! isToggling &&
-			canHaveAutoEnhance &&
-			supportsPublishSidebar
+			! isToggling
 		) {
 			updateSeoData( { trigger: 'auto' } );
 		}
 
 		previousIsOpenRef.current = isPrePublishPanelOpen;
 	}, [ isPrePublishPanelOpen, updateSeoData, isBusy, isAutoEnhanceEnabled, isToggling ] );
+
+	return null;
+};
+
+const Seo = () => {
+	const { isLoadingModules, isChangingStatus, isModuleActive, changeStatus } =
+		useModuleStatus( 'seo-tools' );
+	const isViewable = useSelect( select => {
+		const postTypeName = select( editorStore ).getCurrentPostType();
+		const postTypeObject = select( coreStore ).getPostType( postTypeName );
+
+		return postTypeObject?.viewable;
+	}, [] );
+	const { closePublishSidebar } = useDispatch( editorStore );
 
 	const handleSummaryEdit = async () => {
 		await closePublishSidebar();
@@ -106,33 +108,7 @@ const Seo = () => {
 		return null;
 	}
 
-	const requiredPlan = getRequiredPlan( 'advanced-seo' );
-	const canShowUpsell = isWpcomPlatformSite();
 	const hasRequiredPlanForEnhancer = ! getRequiredPlan( 'ai-seo-enhancer' );
-
-	if ( canShowUpsell && requiredPlan !== false ) {
-		return (
-			<>
-				<JetpackPluginSidebar>
-					<PanelBody
-						title={ __( 'Optimize SEO', 'jetpack' ) }
-						initialOpen={ false }
-						className="jetpack-seo-panel"
-					>
-						<UpsellNotice requiredPlan={ requiredPlan } />
-					</PanelBody>
-				</JetpackPluginSidebar>
-				<PluginDocumentSettingPanel
-					className="jetpack-seo-panel"
-					title={ __( 'Optimize SEO', 'jetpack' ) }
-					name="jetpack-seo"
-					icon={ <JetpackEditorPanelLogo /> }
-				>
-					<UpsellNotice requiredPlan={ requiredPlan } />
-				</PluginDocumentSettingPanel>
-			</>
-		);
-	}
 
 	if ( ! isModuleActive ) {
 		const moduleInactiveContent = isLoadingModules ? (
@@ -180,7 +156,10 @@ const Seo = () => {
 			<JetpackPluginSidebar>
 				<PanelBody title={ __( 'Optimize SEO', 'jetpack' ) } className="jetpack-seo-panel">
 					{ isSeoEnhancerAvailable && hasRequiredPlanForEnhancer && isAiSeoFeatureEnabled && (
-						<SeoEnhancer placement="jetpack-sidebar" disableAutoEnhance={ ! canHaveAutoEnhance } />
+						<SeoEnhancer
+							placement="jetpack-sidebar"
+							hideAutoEnhanceToggle={ hideAutoEnhanceToggle }
+						/>
 					) }
 					<PanelRow
 						className={ clsx( {
@@ -232,7 +211,10 @@ const Seo = () => {
 				icon={ <JetpackEditorPanelLogo /> }
 			>
 				{ isSeoEnhancerAvailable && hasRequiredPlanForEnhancer && isAiSeoFeatureEnabled && (
-					<SeoEnhancer placement="document-settings" disableAutoEnhance={ ! canHaveAutoEnhance } />
+					<SeoEnhancer
+						placement="document-settings"
+						hideAutoEnhanceToggle={ hideAutoEnhanceToggle }
+					/>
 				) }
 				<PanelRow>
 					<SeoTitlePanel />
@@ -256,7 +238,7 @@ const Seo = () => {
 					{ isSeoEnhancerAvailable && hasRequiredPlanForEnhancer && isAiSeoFeatureEnabled && (
 						<SeoEnhancer
 							placement="jetpack-prepublish-sidebar"
-							disableAutoEnhance={ ! canHaveAutoEnhance }
+							hideAutoEnhanceToggle={ hideAutoEnhanceToggle }
 						/>
 					) }
 					<PanelRow>
@@ -289,5 +271,12 @@ const Seo = () => {
 };
 
 export const settings = {
-	render: () => <Seo />,
+	// Outside Seo, which returns early for non-viewable post types and an inactive
+	// module — auto-enhance still has to run on those paths.
+	render: () => (
+		<>
+			{ isSeoEnhancerAvailable && canHaveAutoEnhance && <SeoAutoEnhance /> }
+			<Seo />
+		</>
+	),
 };

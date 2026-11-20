@@ -5,6 +5,112 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.2.7] - 2026-11-16
+### Added
+- Join the admin shell, so switching to and from other Jetpack dashboards skips the page load when the admin shell flag is on. [#54768]
+
+### Changed
+- Admin shell: Declare the page title and subtitle shown while the dashboard opens, when the admin shell flag is on. [#54945]
+- Send usage stats without waiting for a response. [#54644]
+- Update package dependencies. [#54703]
+
+### Fixed
+- Distribution: Warn about unlaunched sites and sites hidden from search engines. [#54663]
+- Post-publish podcast promo: Keep the close button visible against the modal's header. [#54812]
+
+## [2.2.6] - 2026-11-09
+### Changed
+- Update package dependencies. [#54391] [#54512]
+
+## [2.2.5] - 2026-11-02
+### Changed
+- Update package dependencies. [#53869]
+
+## [2.2.4] - 2026-10-28
+### Changed
+- Update package dependencies. [#54118]
+
+## [2.2.3] - 2026-10-26
+### Changed
+- Settings: Use the same cards, column width, and spacing as the other Jetpack settings screens. [#53608]
+
+### Fixed
+- Recognize Pro subscriptions and offer an available plan when Growth is retired. [#53854]
+- Settings: Keep the newly picked category, explicit setting or cover image on screen while it saves, and go back to the saved one only if the save fails. [#53911]
+
+## [2.2.2] - 2026-10-19
+### Changed
+- Update package dependencies. [#53004]
+
+## [2.2.1] - 2026-10-14
+### Fixed
+- Load the dashboard's JavaScript translation catalogs so its strings are translated. [#53042]
+- Stats: Give the downloads by location map an accessible name for screen readers. [#53516]
+
+## [2.2.0] - 2026-10-12
+### Added
+- Podcast Episode block: Add a toggle to hide the episode author. [#53210]
+
+## [2.1.7] - 2026-10-12
+### Changed
+- Update dependencies.
+
+## [2.1.6] - 2026-10-05
+### Changed
+- Stats: Show the daily downloads chart tooltip on the shared chart tooltip surface. [#52850]
+- Update package dependencies. [#52999]
+
+## [2.1.5] - 2026-09-29
+### Changed
+- Internal updates.
+
+## [2.1.4] - 2026-09-28
+### Changed
+- Use the shared wp-build-polyfills helper to order the screen-ID alias around wp-build's generated enqueue check. [#52583]
+
+### Fixed
+- Footer: Hide the "Products" and "Help" links when My Jetpack is unavailable. [#52557]
+- Stats: Draw the daily downloads chart's gridlines at the same days as its labels. [#52588]
+
+## [2.1.3] - 2026-09-21
+### Changed
+- Exclude source map files from the distributed package. [#52304]
+- Update package dependencies. [#52187]
+
+### Fixed
+- Dashboard: Restore the admin screen ID after the wp-build enqueue check. [#52471]
+
+## [2.1.2] - 2026-09-15
+### Changed
+- Hide the Podcast sidebar item when the Podcast module is not active. [#52156]
+- Update dependencies. [#52269]
+
+## [2.1.1] - 2026-09-09
+### Changed
+- Sidebar: Sort Jetpack menu items alphabetically, pinning My Jetpack to the top and external links and Settings to the bottom. [#52003]
+
+### Deprecated
+- Deprecate `Admin_Page::MENU_POSITION`; the Jetpack submenu now orders its internal pages alphabetically. [#52003]
+
+## [2.1.0] - 2026-09-08
+### Added
+- Bump Mission Control stats for episode publishes, show launches, directory URL additions, and podcasting status changes on every host. [#51897]
+
+### Changed
+- Stats: Replace the date range picker with one built on the WordPress design system calendar. [#51902]
+- Update package dependencies. [#51701]
+
+### Fixed
+- Stats: Open the date range calendar on the selected range. [#51951]
+
+## [2.0.0] - 2026-09-01
+### Changed
+- Posts to Podcast: Scope the generated episodes list to the posts the current user can edit, matching the Posts screen. [#51816]
+- Update package dependencies. [#51303] [#51802]
+
+### Removed
+- Minimum supported PHP version is now 7.4. [#51515]
+
 ## [1.5.1] - 2026-08-25
 ### Changed
 - Update dependencies. [#51456]
@@ -230,6 +336,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Dashboard: Replace the wp-build placeholder with page chrome and tab navigation. [#48559]
 - Dashboard: Slim down wp-build wiring to the Backup pattern. [#48600]
 
+[2.2.7]: https://github.com/Automattic/jetpack-podcast/compare/v2.2.6...v2.2.7
+[2.2.6]: https://github.com/Automattic/jetpack-podcast/compare/v2.2.5...v2.2.6
+[2.2.5]: https://github.com/Automattic/jetpack-podcast/compare/v2.2.4...v2.2.5
+[2.2.4]: https://github.com/Automattic/jetpack-podcast/compare/v2.2.3...v2.2.4
+[2.2.3]: https://github.com/Automattic/jetpack-podcast/compare/v2.2.2...v2.2.3
+[2.2.2]: https://github.com/Automattic/jetpack-podcast/compare/v2.2.1...v2.2.2
+[2.2.1]: https://github.com/Automattic/jetpack-podcast/compare/v2.2.0...v2.2.1
+[2.2.0]: https://github.com/Automattic/jetpack-podcast/compare/v2.1.7...v2.2.0
+[2.1.7]: https://github.com/Automattic/jetpack-podcast/compare/v2.1.6...v2.1.7
+[2.1.6]: https://github.com/Automattic/jetpack-podcast/compare/v2.1.5...v2.1.6
+[2.1.5]: https://github.com/Automattic/jetpack-podcast/compare/v2.1.4...v2.1.5
+[2.1.4]: https://github.com/Automattic/jetpack-podcast/compare/v2.1.3...v2.1.4
+[2.1.3]: https://github.com/Automattic/jetpack-podcast/compare/v2.1.2...v2.1.3
+[2.1.2]: https://github.com/Automattic/jetpack-podcast/compare/v2.1.1...v2.1.2
+[2.1.1]: https://github.com/Automattic/jetpack-podcast/compare/v2.1.0...v2.1.1
+[2.1.0]: https://github.com/Automattic/jetpack-podcast/compare/v2.0.0...v2.1.0
+[2.0.0]: https://github.com/Automattic/jetpack-podcast/compare/v1.5.1...v2.0.0
 [1.5.1]: https://github.com/Automattic/jetpack-podcast/compare/v1.5.0...v1.5.1
 [1.5.0]: https://github.com/Automattic/jetpack-podcast/compare/v1.4.4...v1.5.0
 [1.4.4]: https://github.com/Automattic/jetpack-podcast/compare/v1.4.3...v1.4.4

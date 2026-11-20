@@ -12,6 +12,7 @@ import { store as noticesStore } from '@wordpress/notices';
  */
 import CommentItem from './comment-item';
 import type { FeedbackComment } from '../../../types';
+import type { JSX } from 'react';
 import './style.scss';
 
 export type FeedbackCommentsProps = {
@@ -135,10 +136,10 @@ const FeedbackComments = ( { postId }: FeedbackCommentsProps ): JSX.Element => {
 		setError( null );
 
 		try {
-			const saved = await saveEntityRecord( 'root', 'comment', {
+			const saved = ( await saveEntityRecord( 'root', 'comment', {
 				post: postId,
 				content: newComment,
-			} );
+			} ) ) as unknown as FeedbackComment | undefined;
 
 			if ( saved === undefined ) {
 				setError( __( 'Failed to save the note. Please try again.', 'jetpack-forms' ) );
@@ -152,16 +153,15 @@ const FeedbackComments = ( { postId }: FeedbackCommentsProps ): JSX.Element => {
 			// Append the newly saved comment to the client-only list so it appears
 			// after the "Load more comments" button.
 			setClientAddedComments( prev => {
-				if ( ! saved || ! ( saved as FeedbackComment ).id ) {
+				if ( ! saved || ! saved.id ) {
 					return prev;
 				}
 
-				const savedComment = saved as FeedbackComment;
 				const existing = new Set( prev.map( c => c.id ) );
-				if ( existing.has( savedComment.id ) ) {
+				if ( existing.has( saved.id ) ) {
 					return prev;
 				}
-				return prev.concat( savedComment );
+				return prev.concat( saved );
 			} );
 			scrollToBottom();
 			// eslint-disable-next-line @typescript-eslint/no-unused-vars

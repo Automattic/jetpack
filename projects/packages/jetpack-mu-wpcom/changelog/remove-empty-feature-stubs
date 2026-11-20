@@ -1,4 +1,0 @@
-Significance: patch
-Type: removed
-
-Remove the empty agency-managed and wpcom-site-menu feature stubs, which contained only a docblock and were never loaded.

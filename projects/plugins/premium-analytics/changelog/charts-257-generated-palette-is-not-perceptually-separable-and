@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Charts: Keep series colors distinguishable from each other, including for color-blind viewers, in charts with more series than the admin color scheme supplies.

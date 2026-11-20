@@ -88,6 +88,103 @@ class Jetpack_SEO_Posts_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Create a published post gated by the post-level Newsletter access setting.
+	 *
+	 * @param array $fields Post field overrides.
+	 * @return int Post ID.
+	 */
+	private function create_gated_post( $fields = array() ) {
+		// The factory supplies a default excerpt, which would publish ahead of the gate.
+		$post_id = self::factory()->post->create(
+			array_merge(
+				array(
+					'post_content' => 'Subscriber-only body text.',
+					'post_excerpt' => '',
+				),
+				$fields
+			)
+		);
+		update_post_meta( $post_id, '_jetpack_newsletter_access', 'paid_subscribers' );
+
+		return $post_id;
+	}
+
+	/**
+	 * The raw-content fall-through never describes a gated post, since it reads
+	 * post_content directly and so never passes the `the_content` paywall.
+	 */
+	public function test_get_post_description_omits_gated_body() {
+		$post_id = $this->create_gated_post();
+		$this->go_to( get_permalink( $post_id ) );
+
+		$this->assertSame( '', Jetpack_SEO_Posts::get_post_description( get_post( $post_id ) ) );
+	}
+
+	/**
+	 * An ungated post still describes itself (control for the test above).
+	 */
+	public function test_get_post_description_keeps_ungated_body() {
+		$post_id = self::factory()->post->create(
+			array(
+				'post_content' => 'Public body text.',
+				'post_excerpt' => '',
+			)
+		);
+		$this->go_to( get_permalink( $post_id ) );
+
+		$this->assertStringContainsString(
+			'Public body text.',
+			Jetpack_SEO_Posts::get_post_description( get_post( $post_id ) )
+		);
+	}
+
+	/**
+	 * A custom SEO description is a deliberate public summary, so the gate must
+	 * not withhold it.
+	 */
+	public function test_get_post_description_keeps_custom_description_on_gated_post() {
+		$post_id = $this->create_gated_post();
+		update_post_meta( $post_id, Jetpack_SEO_Posts::DESCRIPTION_META_KEY, 'A custom SEO description.' );
+		$this->go_to( get_permalink( $post_id ) );
+
+		$this->assertSame(
+			'A custom SEO description.',
+			Jetpack_SEO_Posts::get_post_description( get_post( $post_id ) )
+		);
+	}
+
+	/**
+	 * An author-written excerpt likewise survives the gate.
+	 */
+	public function test_get_post_description_keeps_excerpt_on_gated_post() {
+		$post_id = $this->create_gated_post( array( 'post_excerpt' => 'Public summary.' ) );
+		$this->go_to( get_permalink( $post_id ) );
+
+		$this->assertSame(
+			'Public summary.',
+			Jetpack_SEO_Posts::get_post_description( get_post( $post_id ) )
+		);
+	}
+
+	/**
+	 * A paywalled post is described by the teaser the front end already publishes.
+	 */
+	public function test_get_post_description_uses_the_paywall_teaser() {
+		$post_id = self::factory()->post->create(
+			array(
+				'post_content' => 'Free intro text.<!-- wp:jetpack/paywall /-->Paid body text.',
+				'post_excerpt' => '',
+			)
+		);
+		$this->go_to( get_permalink( $post_id ) );
+
+		$description = Jetpack_SEO_Posts::get_post_description( get_post( $post_id ) );
+
+		$this->assertStringContainsString( 'Free intro text.', $description );
+		$this->assertStringNotContainsString( 'Paid body text.', $description );
+	}
+
+	/**
 	 * Registers the SEO post meta keys (including the schema-type enum) for the
 	 * REST API.
 	 */

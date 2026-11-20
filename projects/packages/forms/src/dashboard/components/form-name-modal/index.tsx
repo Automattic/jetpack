@@ -5,8 +5,9 @@
  * Used for both creating new forms and renaming existing ones.
  */
 
+import { speak } from '@wordpress/a11y';
 import { Button, Modal, TextControl } from '@wordpress/components';
-import { useState, useCallback, useLayoutEffect, useRef } from '@wordpress/element';
+import { useState, useCallback, useEffect, useLayoutEffect, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Notice } from '@wordpress/ui';
 import type { FormEvent } from 'react';
@@ -193,6 +194,12 @@ export function FormNameModal( {
 		},
 		[ handleConfirm ]
 	);
+
+	useEffect( () => {
+		if ( status === 'failed' && errorMessage ) {
+			speak( errorMessage, 'assertive' );
+		}
+	}, [ status, errorMessage ] );
 
 	if ( ! isOpen ) {
 		return null;

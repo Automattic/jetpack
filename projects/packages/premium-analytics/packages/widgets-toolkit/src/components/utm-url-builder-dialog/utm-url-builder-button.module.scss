@@ -1,0 +1,6 @@
+@use "../../styles/row-icon-action" as *;
+
+.button {
+
+	@include row-icon-action;
+}

@@ -52,7 +52,8 @@ class Breadcrumb_Schema_Node {
 		$list_items = array();
 		$last       = count( $items ) - 1;
 		foreach ( $items as $index => $item ) {
-			$name = self::text( $item['name'] ?? '' );
+			// Decode only here: names pass through text() twice, and a second strip would remove decoded text such as "<div>".
+			$name = trim( \WP_HTML_Decoder::decode_text_node( self::text( $item['name'] ?? '' ) ) );
 			if ( '' === $name ) {
 				return null;
 			}
@@ -252,7 +253,13 @@ class Breadcrumb_Schema_Node {
 			return null;
 		}
 
-		$page = get_post( (int) get_option( 'page_for_posts' ) );
+		$page_id = (int) get_option( 'page_for_posts' );
+		if ( $page_id < 1 ) {
+			// get_post( 0 ) would return the global post, i.e. the current request's own post.
+			return null;
+		}
+
+		$page = get_post( $page_id );
 		return $page instanceof \WP_Post && 'publish' === $page->post_status && '' !== self::text( $page->post_title ) ? $page : null;
 	}
 

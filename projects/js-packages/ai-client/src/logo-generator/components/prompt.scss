@@ -9,14 +9,14 @@
 	.components-button {
 
 		&:focus:not(:disabled):not(.is-primary) {
-			box-shadow: 0 0 0 2px var(--color-link, #3858e9);
+			box-shadow: 0 0 0 2px var(--wpds-color-stroke-focus);
 		}
 
 		&.is-link {
 			text-decoration: none;
 
 			&:not(:disabled) {
-				color: var(--color-link, #3858e9);
+				color: var(--wpds-color-foreground-interactive-brand);
 			}
 		}
 	}
@@ -52,8 +52,8 @@
 	align-items: flex-end;
 	align-self: stretch;
 	border-radius: calc(4px * 2);
-	border: 1px solid var(--studio-gray-10, #ccc);
-	background: var(--studio-white, #fff);
+	border: 1px solid var(--wpds-color-stroke-surface-neutral);
+	background: var(--wpds-color-background-interactive-neutral);
 	gap: 8px;
 
 	@media (min-width: 700px) {
@@ -66,7 +66,7 @@
 		flex-grow: 1;
 		padding: 6px 0;
 		vertical-align: baseline;
-		color: var(--studio-gray-100);
+		color: var(--wpds-color-foreground-interactive-neutral);
 		line-height: 1.6;
 		overflow-wrap: break-word;
 
@@ -76,7 +76,7 @@
 		}
 
 		&[contentEditable="false"] {
-			color: var(--studio-gray-50, #646970);
+			color: var(--wpds-color-foreground-interactive-neutral-disabled);
 		}
 
 		&:not([contentEditable="false"]) {
@@ -85,7 +85,7 @@
 
 		&[data-placeholder]:empty::before {
 			content: attr(data-placeholder);
-			color: var(--studio-gray-50, #646970);
+			color: var(--wpds-color-foreground-interactive-neutral-weak);
 		}
 
 		&[data-placeholder]:empty:focus:not([contentEditable="false"])::before {
@@ -101,7 +101,7 @@
 }
 
 .jetpack-ai-logo-generator__prompt-requests {
-	color: var(--studio-gray-50, #646970);
+	color: var(--wpds-color-foreground-content-neutral-weak);
 	font-size: var(--font-body-extra-small);
 	line-height: 21px;
 	display: flex;
@@ -109,15 +109,12 @@
 	.prompt-footer__icon {
 		height: 20px;
 		width: 20px;
-
-		path {
-			fill: var(--studio-gray-20, #a7aaad);
-		}
+		color: var(--wpds-color-foreground-content-neutral-weak);
 	}
 }
 
 .jetpack-ai-logo-generator__prompt-error {
-	color: var(--studio-red-50, #d63638);
+	color: var(--wpds-color-foreground-content-error-weak);
 	font-size: var(--font-body-extra-small);
 	line-height: 21px;
 }

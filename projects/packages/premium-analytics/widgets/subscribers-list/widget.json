@@ -1,5 +1,6 @@
 {
 	"name": "jpa/subscribers-list",
+	"icon": "jpa/people",
 	"title": "Latest subscribers",
 	"description": "Your most recent subscribers.",
 	"help": {

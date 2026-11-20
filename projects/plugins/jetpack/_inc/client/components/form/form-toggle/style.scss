@@ -32,7 +32,7 @@
 	}
 
 	&::after {
-		left: 0;
+		inset-inline-start: 0;
 		border-radius: 50%;
 		background: calypso-colors.$white;
 		transition: all 0.2s ease;
@@ -57,7 +57,7 @@
 
 	.form-toggle__label-content {
 		flex: 0 1 100%;
-		margin-left: 12px;
+		margin-inline-start: 12px;
 	}
 }
 
@@ -91,7 +91,7 @@
 			background: calypso-colors.$blue-medium;
 
 			&::after {
-				left: 16px;
+				inset-inline-start: 16px;
 			}
 		}
 	}
@@ -147,7 +147,7 @@
 		+ .form-toggle__label .form-toggle__switch {
 
 			&::after {
-				left: 8px;
+				inset-inline-start: 8px;
 			}
 		}
 	}

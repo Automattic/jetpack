@@ -11,7 +11,7 @@ const meta: Meta< typeof ChartEmptyState > = {
 		docs: {
 			description: {
 				component:
-					'A reusable empty state component for charts. Uses cautionFilled from @wordpress/icons as the default icon, with support for custom illustrated icons from @jetpack-premium-analytics/icons.',
+					'A reusable empty state component for charts. With no props it renders the generic "no results for this time period" state (the search magnifier from @jetpack-premium-analytics/icons), with support for other illustrated icons from the same package.',
 			},
 		},
 	},
@@ -19,7 +19,7 @@ const meta: Meta< typeof ChartEmptyState > = {
 		icon: {
 			control: false,
 			description:
-				'Icon to display in the empty state. Defaults to cautionFilled from @wordpress/icons. Can be overridden with custom icons.',
+				'Icon to display in the empty state. Defaults to the search magnifier from @jetpack-premium-analytics/icons. Can be overridden with custom icons.',
 		},
 		text: {
 			control: 'text',
@@ -76,7 +76,7 @@ const WidgetCard = ( {
 );
 
 /**
- * Default empty state with cautionFilled icon from @wordpress/icons
+ * Default: the generic "no results for this time period" state
  */
 export const Default: Story = {
 	args: {},
@@ -131,6 +131,18 @@ export const ContainerSizes: Story = {
 			<WidgetCard title="Large (450px)" width="450px" height="350px">
 				<ChartEmptyState icon={ location } />
 			</WidgetCard>
+		</div>
+	),
+};
+
+/**
+ * A sparkline-high chart area, as a one-row metric chart leaves: the message
+ * sheds its icon and block padding so it fits on one line without scrolling.
+ */
+export const ShortChartArea: Story = {
+	render: () => (
+		<div style={ { width: '600px', height: '26px', outline: '1px dashed currentColor' } }>
+			<ChartEmptyState />
 		</div>
 	),
 };

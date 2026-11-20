@@ -22,7 +22,9 @@ if ./tools/clean &&
 ./tools/svg-to-sprite.js &&
 ./tools/svg-to-font.mjs &&
 ./tools/svg-to-react-data.js &&
-./tools/build-react; then
+./tools/build-react &&
+mkdir -p build/css &&
+cp src/css/example.css src/social-logo-colors.css build/css/; then
 	echo 'Build complete.'
 else
 	echo 'Build failure!'

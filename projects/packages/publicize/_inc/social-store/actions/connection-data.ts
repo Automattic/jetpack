@@ -1,8 +1,8 @@
-import { globalNoticesStore } from '@automattic/jetpack-components';
 import apiFetch from '@wordpress/api-fetch';
 import { dispatch as coreDispatch } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { __, sprintf } from '@wordpress/i18n';
+import { store as noticesStore } from '@wordpress/notices';
 import { addQueryArgs } from '@wordpress/url';
 import { CUSTOMIZE_PER_NETWORK_KEY } from '../constants';
 import { Connection, EditorConnection, KeyringResponse, KeyringResult } from '../types';
@@ -103,7 +103,7 @@ export function fetchKeyringResult( requestId: string ) {
 				message = `${ message } ${ error.message }`;
 			}
 
-			const { createErrorNotice } = coreDispatch( globalNoticesStore );
+			const { createErrorNotice } = coreDispatch( noticesStore );
 
 			createErrorNotice( message, { type: 'snackbar', isDismissible: true } );
 		} finally {
@@ -380,7 +380,7 @@ export function deleteConnectionById( {
 	showSuccessNotice?: boolean;
 } ) {
 	return async function ( { registry, dispatch } ) {
-		const { createErrorNotice, createSuccessNotice } = coreDispatch( globalNoticesStore );
+		const { createErrorNotice, createSuccessNotice } = coreDispatch( noticesStore );
 
 		try {
 			const path = `/wpcom/v2/publicize/connections/${ connectionId }`;
@@ -438,7 +438,7 @@ export function createConnection(
 	optimisticData: Partial< Connection > = {}
 ) {
 	return async function ( { registry, dispatch } ) {
-		const { createErrorNotice, createSuccessNotice } = coreDispatch( globalNoticesStore );
+		const { createErrorNotice, createSuccessNotice } = coreDispatch( noticesStore );
 
 		const tempId = `new-${ ++uniqueId }`;
 
@@ -574,18 +574,76 @@ export function completeReconnect( keyringResult?: KeyringResult ) {
 			return false;
 		}
 
+		// Leave it to the confirmation view, which asks the owner to pick the Page or account.
+		if ( select.reconnectNeedsAccountSelection( keyringResult ) ) {
+			return false;
+		}
+
+		await dispatch( finishReconnect( reconnectingAccount.connection_id ) );
+
+		return true;
+	};
+}
+
+/**
+ * Completes a reconnect by saving the Page or account the connection shares to.
+ *
+ * @param connectionId   - ID of the connection being reconnected.
+ * @param externalUserId - External ID of the selected Page or account.
+ *
+ * @return A thunk.
+ */
+export function reconnectWithAccount( connectionId: string, externalUserId: string ) {
+	return async function ( { dispatch } ) {
+		const { createErrorNotice } = coreDispatch( noticesStore );
+
+		dispatch( abortRefreshConnectionsRequest() );
+		dispatch( updatingConnection( connectionId ) );
+
+		try {
+			await apiFetch( {
+				method: 'POST',
+				path: `/wpcom/v2/publicize/connections/${ connectionId }`,
+				data: { external_user_ID: externalUserId },
+			} );
+		} catch ( error ) {
+			let message: string = __( 'Error updating account.', 'jetpack-publicize-pkg' );
+
+			if ( typeof error === 'object' && 'message' in error && error.message ) {
+				message = `${ message } ${ error.message }`;
+			}
+
+			dispatch( setReconnectingAccount( undefined ) );
+			createErrorNotice( message, { type: 'snackbar', isDismissible: true } );
+
+			return;
+		} finally {
+			dispatch( updatingConnection( connectionId, false ) );
+		}
+
+		await dispatch( finishReconnect( connectionId ) );
+	};
+}
+
+/**
+ * Refreshes the connection test results and reports whether the reconnected connection recovered.
+ *
+ * @param connectionId - ID of the connection being reconnected.
+ *
+ * @return A thunk.
+ */
+function finishReconnect( connectionId: string ) {
+	return async function ( { dispatch, select } ) {
 		await dispatch( refreshConnectionTestResults() );
 
-		// The account matched, but confirm the refreshed connection actually recovered before
-		// reporting success — re-authing doesn't guarantee the token now passes the test.
-		const recovered =
-			select.getConnectionById( reconnectingAccount.connection_id )?.status === 'ok';
+		// Re-authing doesn't guarantee the token now passes the test, so check before reporting.
+		const recovered = select.getConnectionById( connectionId )?.status === 'ok';
 
 		// Clear the reconnecting account only after the refresh, so the busy state stays until
 		// the connection list reflects the reconnection.
 		dispatch( setReconnectingAccount( undefined ) );
 
-		const { createSuccessNotice, createErrorNotice } = coreDispatch( globalNoticesStore );
+		const { createSuccessNotice, createErrorNotice } = coreDispatch( noticesStore );
 
 		if ( recovered ) {
 			createSuccessNotice( __( 'Account reconnected successfully.', 'jetpack-publicize-pkg' ), {
@@ -598,8 +656,6 @@ export function completeReconnect( keyringResult?: KeyringResult ) {
 				{ type: 'snackbar', isDismissible: true }
 			);
 		}
-
-		return true;
 	};
 }
 
@@ -618,7 +674,7 @@ export function updateConnectionById(
 	options: UpdateConnectionOptions = {}
 ) {
 	return async function ( { dispatch, select } ) {
-		const { createErrorNotice, createSuccessNotice } = coreDispatch( globalNoticesStore );
+		const { createErrorNotice, createSuccessNotice } = coreDispatch( noticesStore );
 		const { silent = false } = options;
 
 		const prevConnection = select.getConnectionById( connectionId );

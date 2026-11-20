@@ -13,7 +13,6 @@ import { addFilter } from '@wordpress/hooks';
  * Internal dependencies
  */
 import { canAutoEnhanceMetadata } from './can-auto-enhance-metadata';
-import { store } from './store';
 import { useSeoModuleSettings } from './use-seo-module-settings';
 import { useSeoRequests } from './use-seo-requests';
 /*
@@ -33,23 +32,19 @@ const blockEditWithSeoAutoGeneration = createHigherOrderComponent( BlockEdit => 
 	function ExtendedBlock( props ) {
 		const { updateAltText } = useSeoRequests();
 		const { isEnabled: isAutoEnhanceEnabled } = useSeoModuleSettings();
-		const { getBlock, isImageAltTextFeatureEnabled } = useSelect( select => {
-			const { getBlock: getBlockFromEditor } = select( 'core/block-editor' ) as {
-				getBlock: ( clientId: string ) => Block;
-			};
-			const { isImageAltTextFeatureEnabled: isFeatureEnabled } = select( store );
-
-			return { getBlock: getBlockFromEditor, isImageAltTextFeatureEnabled: isFeatureEnabled };
-		}, [] );
+		const getBlock = useSelect(
+			select =>
+				( select( 'core/block-editor' ) as { getBlock: ( clientId: string ) => Block } ).getBlock,
+			[]
+		);
 		const previousUrl = useRef( props.attributes.url );
 
 		// Automatically update the alt text when an image is added without alt text.
 		useEffect( () => {
 			const hasUrlChanged = previousUrl.current !== props.attributes.url;
 			const hasNoAltText = ! props.attributes.alt;
-			const shouldAutoUpdateAltText = isAutoEnhanceEnabled && isImageAltTextFeatureEnabled();
-
-			if ( props.attributes.url && hasUrlChanged && hasNoAltText && shouldAutoUpdateAltText ) {
+			// Auto mode always covers alt text, like the pre-publish run, whatever the manual-mode checkboxes say.
+			if ( props.attributes.url && hasUrlChanged && hasNoAltText && isAutoEnhanceEnabled ) {
 				const block = getBlock( props.clientId );
 
 				if ( block ) {
@@ -65,7 +60,6 @@ const blockEditWithSeoAutoGeneration = createHigherOrderComponent( BlockEdit => 
 			getBlock,
 			updateAltText,
 			isAutoEnhanceEnabled,
-			isImageAltTextFeatureEnabled,
 		] );
 
 		return <BlockEdit { ...props } />;

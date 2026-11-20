@@ -29,6 +29,15 @@ class WPCOM_REST_API_V2_Endpoint_Resolve_Redirect extends WP_REST_Controller {
 	const MAX_REDIRECTS = 5;
 
 	/**
+	 * Response body bytes to keep from each hop.
+	 *
+	 * Only the status and headers are read, so one byte is enough; WordPress treats 0 as no limit.
+	 *
+	 * @var int
+	 */
+	const MAX_RESPONSE_BYTES = 1;
+
+	/**
 	 * Constructor.
 	 */
 	public function __construct() {
@@ -82,9 +91,10 @@ class WPCOM_REST_API_V2_Endpoint_Resolve_Redirect extends WP_REST_Controller {
 		$url  = $request['url'];
 		$args = array(
 			// Do not let WordPress follow redirects for us; we validate each hop first.
-			'redirection' => 0,
+			'redirection'         => 0,
+			'limit_response_size' => self::MAX_RESPONSE_BYTES,
 			// Add a User-Agent header since the request is sometimes blocked without it.
-			'headers'     => array(
+			'headers'             => array(
 				'User-Agent' => 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:71.0) Gecko/20100101 Firefox/71.0',
 			),
 		);
@@ -196,6 +206,11 @@ class WPCOM_REST_API_V2_Endpoint_Resolve_Redirect extends WP_REST_Controller {
 	 * @return bool True when the URL is safe to request, false otherwise.
 	 */
 	public function validate_url( $url ) {
+		// An older jetpack-ip without url_is_public() may win the autoloader; keep the local check for that case.
+		if ( method_exists( Utils::class, 'url_is_public' ) ) {
+			return Utils::url_is_public( $url );
+		}
+
 		if ( ! wp_http_validate_url( $url ) ) {
 			return false;
 		}

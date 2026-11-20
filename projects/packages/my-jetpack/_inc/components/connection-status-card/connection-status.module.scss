@@ -1,0 +1,44 @@
+$myjetpack-connection-avatar-width: 28px;
+$myjetpack-connection-avatar-overlap: 8px;
+
+.status {
+	display: flex;
+	align-items: center;
+	gap: var(--spacing-base);
+	margin-bottom: 1rem;
+
+	.avatar-wrapper {
+		position: relative;
+		width: 2 * $myjetpack-connection-avatar-width - $myjetpack-connection-avatar-overlap; // width an icon and an avatar
+	}
+
+	.cloud {
+		width: 28px;
+	}
+
+	.jetpack {
+		width: $myjetpack-connection-avatar-width;
+	}
+
+	.avatar {
+		width: $myjetpack-connection-avatar-width;
+		position: absolute;
+		margin-inline-start: -($myjetpack-connection-avatar-overlap);
+		border-radius: 50%;
+	}
+
+	.line {
+		width: 1.875rem; // 30px
+		height: 2px;
+		background-color: var(--jp-black);
+		border-radius: 1px;
+	}
+
+	.error {
+		background-color: var(--jp-red);
+	}
+
+	.warning {
+		background-color: var(--jp-yellow-50);
+	}
+}

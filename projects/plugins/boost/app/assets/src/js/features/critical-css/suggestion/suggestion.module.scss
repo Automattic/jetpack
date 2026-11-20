@@ -5,7 +5,11 @@
 
 .suggestion,
 .suggestion-closing {
-	color: var(--primary-black);
 	margin-top: 8px;
 	margin-bottom: 24px;
+
+	// TODO(BOOST-702): remove with the legacy dashboard.
+	:global(.jb-dashboard) & {
+		color: var(--primary-black);
+	}
 }

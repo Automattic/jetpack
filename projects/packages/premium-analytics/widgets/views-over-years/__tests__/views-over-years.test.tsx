@@ -1,0 +1,439 @@
+/**
+ * External dependencies
+ */
+import {
+	ReportScopeProvider,
+	useStatsAuthorAllTime,
+	useStatsVisits,
+} from '@jetpack-premium-analytics/data';
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { getSettings, setSettings } from '@wordpress/date';
+/**
+ * Internal dependencies
+ */
+import { renderWithActionsHost } from '../../../tests/js/widget-host-test-utils';
+import { captureCsvDownloads } from '../../test-utils';
+import ViewsOverYearsRender from '../render';
+
+jest.mock( '@wordpress/route', () => jest.requireActual( '../../test-utils' ).mockWordPressRoute );
+
+// A picked month lands in the section navigation, so a recorder stands in for it.
+const mockOpenSectionRange = jest.fn();
+jest.mock( '@jetpack-premium-analytics/routing', () => ( {
+	...jest.requireActual( '@jetpack-premium-analytics/routing' ),
+	useOpenSectionRange: () => mockOpenSectionRange,
+} ) );
+
+jest.mock( '@jetpack-premium-analytics/data', () => ( {
+	...jest.requireActual( '@jetpack-premium-analytics/data' ),
+	useStatsVisits: jest.fn(),
+	useStatsAuthorAllTime: jest.fn(),
+} ) );
+
+// The site zone decides where a month starts and ends; pin it so the ranges are literal.
+setSettings( {
+	...getSettings(),
+	timezone: { string: 'UTC', offset: 0, offsetFormatted: '0', abbr: 'UTC' },
+} );
+
+// The chart's responsive wrapper asks for a ResizeObserver jsdom does not have.
+class ResizeObserverStub {
+	observe() {}
+	unobserve() {}
+	disconnect() {}
+}
+
+const mockUseStatsVisits = jest.mocked( useStatsVisits );
+const mockUseStatsAuthorAllTime = jest.mocked( useStatsAuthorAllTime );
+
+function visitsResult(
+	rows: [ string, number ][] | undefined,
+	overrides: Record< string, unknown > = {}
+) {
+	return {
+		primary: {
+			data: rows && {
+				data: rows.map( ( [ time_interval, views ] ) => ( {
+					time_interval,
+					views,
+					label: '',
+					value: views,
+				} ) ),
+			},
+		},
+		isLoading: false,
+		isFetching: false,
+		isError: false,
+		error: null,
+		refetch: jest.fn(),
+		...overrides,
+	} as unknown as ReturnType< typeof useStatsVisits >;
+}
+
+const ROWS: [ string, number ][] = [
+	[ '2025-11-01', 300 ],
+	[ '2025-12-01', 620 ],
+	[ '2026-01-01', 155 ],
+	[ '2026-02-01', 0 ],
+	[ '2026-03-01', 450 ],
+];
+
+// The month request and the first month's day request share one mock, told apart by period.
+function mockVisits(
+	months: ReturnType< typeof useStatsVisits >,
+	days: ReturnType< typeof useStatsVisits > = visitsResult( undefined )
+) {
+	mockUseStatsVisits.mockImplementation( params => ( params.period === 'day' ? days : months ) );
+}
+
+const NOW = new Date( '2026-03-15T12:00:00.000Z' );
+
+function renderWidget(
+	attributes: Record< string, unknown > = {},
+	scope: Record< string, unknown > = {}
+) {
+	return renderWithActionsHost(
+		<ViewsOverYearsRender
+			attributes={ {
+				...attributes,
+				reportParams: {
+					from: '2026-01-01T00:00:00.000+00:00',
+					to: '2026-12-31T23:59:59.999+00:00',
+					preset: 'year-2026',
+					...scope,
+				},
+			} }
+		/>
+	);
+}
+
+describe( 'ViewsOverYears widget', () => {
+	let downloads: ReturnType< typeof captureCsvDownloads > | undefined;
+
+	beforeAll( () => {
+		( globalThis as { ResizeObserver?: unknown } ).ResizeObserver = ResizeObserverStub;
+	} );
+
+	beforeEach( () => {
+		mockOpenSectionRange.mockReset();
+		mockUseStatsVisits.mockReset();
+		mockVisits( visitsResult( ROWS ) );
+		mockUseStatsAuthorAllTime.mockReturnValue( {
+			data: undefined,
+			isLoading: false,
+			isFetching: false,
+			isError: false,
+			error: null,
+			refetch: jest.fn(),
+		} as unknown as ReturnType< typeof useStatsAuthorAllTime > );
+		jest.useFakeTimers();
+		jest.setSystemTime( NOW );
+	} );
+
+	afterEach( () => {
+		downloads?.restore();
+		downloads = undefined;
+		jest.useRealTimers();
+	} );
+
+	it( 'draws every year with views, newest first, whatever year the section shows', () => {
+		renderWidget();
+
+		expect( screen.getByRole( 'gridcell', { name: 'Jan 2026: 155' } ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'gridcell', { name: 'Feb 2026: 0' } ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'gridcell', { name: 'Nov 2025: 300' } ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'gridcell', { name: 'Totals 2025: 920' } ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'gridcell', { name: /Oct 2025/ } ) ).not.toBeInTheDocument();
+		expect( screen.getByText( 'Fewer views' ) ).toBeInTheDocument();
+	} );
+
+	it( 'draws views per day under the average metric, from the first day with views', () => {
+		mockVisits(
+			visitsResult( ROWS ),
+			visitsResult( [
+				[ '2025-11-23', 0 ],
+				[ '2025-11-24', 5 ],
+			] )
+		);
+		renderWidget( { metric: 'average' } );
+
+		// Nov 24 through Nov 30: 300 / 7, the year over 7 + 31 days, and March 15 days in: 450 / 15.
+		expect( screen.getByRole( 'gridcell', { name: 'Nov 2025: 43' } ) ).toHaveTextContent( '43' );
+		expect( screen.getByRole( 'gridcell', { name: 'Totals 2025: 24' } ) ).toHaveTextContent( '24' );
+		expect( screen.getByRole( 'gridcell', { name: 'Mar 2026: 30' } ) ).toBeInTheDocument();
+		expect( screen.queryByTestId( 'heatmap-cell-partial' ) ).not.toBeInTheDocument();
+		expect( screen.getByText( 'Fewer views per day' ) ).toBeInTheDocument();
+	} );
+
+	it( 'hatches the launch month and the current month under the total metric', () => {
+		mockVisits(
+			visitsResult( ROWS ),
+			visitsResult( [
+				[ '2025-11-23', 0 ],
+				[ '2025-11-24', 5 ],
+			] )
+		);
+		renderWidget();
+
+		const partials = screen.getAllByTestId( 'heatmap-cell-partial' );
+		expect( partials ).toHaveLength( 2 );
+		expect( partials.map( cell => cell.getAttribute( 'aria-label' ) ) ).toEqual(
+			expect.arrayContaining( [ 'Nov 2025: 300 (incomplete)', 'Mar 2026: 450 (incomplete)' ] )
+		);
+	} );
+
+	it( 'shades the months by rank, so a band of similar months separates', () => {
+		mockVisits(
+			visitsResult( [
+				[ '2025-10-01', 10 ],
+				[ '2025-11-01', 20 ],
+				[ '2025-12-01', 1000 ],
+				[ '2026-01-01', 30 ],
+				[ '2026-02-01', 40 ],
+			] )
+		);
+		renderWidget();
+
+		// 30 is the third of the five ranks. Distance would put it a fiftieth of the
+		// way up to 1000, and distance in log space a quarter.
+		expect(
+			screen
+				.getByRole( 'gridcell', { name: 'Jan 2026: 30' } )
+				.style.getPropertyValue( '--a8c-charts-heatmap-cell-intensity' )
+		).toBe( '0.5' );
+	} );
+
+	it( 'opens the Traffic tab over the first month from its first day with views', async () => {
+		mockVisits(
+			visitsResult( ROWS ),
+			visitsResult( [
+				[ '2025-11-23', 0 ],
+				[ '2025-11-24', 5 ],
+			] )
+		);
+		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
+		renderWidget();
+
+		await user.click( screen.getByRole( 'gridcell', { name: /^Nov 2025: 300/ } ) );
+		await user.click( screen.getByRole( 'gridcell', { name: 'Totals 2025: 920' } ) );
+		await user.click( screen.getByRole( 'gridcell', { name: 'Dec 2025: 620' } ) );
+
+		// A month or year cut to the first day with views leaves its step to the arrows.
+		expect( mockOpenSectionRange ).toHaveBeenNthCalledWith(
+			1,
+			'traffic',
+			{
+				from: new Date( '2025-11-24T00:00:00.000Z' ),
+				to: new Date( '2025-11-30T23:59:59.999Z' ),
+			},
+			{ step: undefined }
+		);
+		expect( mockOpenSectionRange ).toHaveBeenNthCalledWith(
+			2,
+			'traffic',
+			{
+				from: new Date( '2025-11-24T00:00:00.000Z' ),
+				to: new Date( '2025-12-31T23:59:59.999Z' ),
+			},
+			{ step: undefined }
+		);
+		expect( mockOpenSectionRange ).toHaveBeenNthCalledWith(
+			3,
+			'traffic',
+			{
+				from: new Date( '2025-12-01T00:00:00.000Z' ),
+				to: new Date( '2025-12-31T23:59:59.999Z' ),
+			},
+			{ step: 'P1M' }
+		);
+	} );
+
+	it( 'reads one author’s history, opens its first month on the first content day, and opens a month as the page’s period', async () => {
+		mockUseStatsAuthorAllTime.mockReturnValue( {
+			data: {
+				startDate: '2025-11-24',
+				data: ROWS.map( ( [ period, views ] ) => ( { period, views } ) ),
+			},
+			isLoading: false,
+			isFetching: false,
+			isError: false,
+			error: null,
+			refetch: jest.fn(),
+		} as unknown as ReturnType< typeof useStatsAuthorAllTime > );
+		const openPeriod = jest.fn();
+		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
+		render(
+			<ReportScopeProvider openPeriod={ openPeriod }>
+				<ViewsOverYearsRender
+					attributes={ {
+						metric: 'average',
+						authorScoped: true,
+						reportParams: {
+							from: '2026-01-01T00:00:00.000+00:00',
+							to: '2026-03-15T23:59:59.999+00:00',
+							author_id: '7',
+						} as never,
+					} }
+				/>
+			</ReportScopeProvider>
+		);
+
+		expect( mockUseStatsAuthorAllTime ).toHaveBeenLastCalledWith( 7, { enabled: true } );
+		expect( mockUseStatsVisits ).toHaveBeenCalledWith( expect.anything(), { enabled: false } );
+		expect( screen.getByRole( 'gridcell', { name: 'Nov 2025: 43' } ) ).toBeInTheDocument();
+
+		await user.click( screen.getByRole( 'gridcell', { name: 'Nov 2025: 43' } ) );
+		expect( openPeriod ).toHaveBeenCalledWith(
+			{
+				from: new Date( '2025-11-24T00:00:00.000Z' ),
+				to: new Date( '2025-11-30T23:59:59.999Z' ),
+			},
+			{ step: undefined }
+		);
+		expect( mockOpenSectionRange ).not.toHaveBeenCalled();
+	} );
+
+	it( 'prompts for an author and reads nothing when the author-scoped table has none', () => {
+		renderWidget( { authorScoped: true } );
+
+		expect(
+			screen.getByText( 'Open an author to see their all-time traffic here.' )
+		).toBeInTheDocument();
+		expect( mockUseStatsAuthorAllTime ).toHaveBeenLastCalledWith( 0, { enabled: false } );
+		for ( const [ , options ] of mockUseStatsVisits.mock.calls ) {
+			expect( options?.enabled ).toBe( false );
+		}
+	} );
+
+	it( 'shows the skeleton until the first day with views is known', () => {
+		mockVisits( visitsResult( ROWS ), visitsResult( undefined, { isLoading: true } ) );
+		renderWidget( { metric: 'average' } );
+
+		expect( screen.getAllByTestId( 'skeleton-cell' )[ 0 ] ).toBeInTheDocument();
+		expect( screen.queryByRole( 'gridcell', { name: /Nov 2025/ } ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'opens the Traffic tab over a clicked year, cut at the clock', async () => {
+		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
+		renderWidget();
+
+		await user.click( screen.getByRole( 'gridcell', { name: 'Totals 2026: 605' } ) );
+
+		expect( mockOpenSectionRange ).toHaveBeenCalledWith(
+			'traffic',
+			{ from: new Date( '2026-01-01T00:00:00.000Z' ), to: NOW },
+			{ step: 'P1Y' }
+		);
+	} );
+
+	it( 'draws a site with no views as its current month at zero', () => {
+		mockVisits( visitsResult( [ [ '2026-03-01', 0 ] ] ) );
+		renderWidget();
+
+		expect( screen.getByRole( 'gridcell', { name: /^Mar 2026: 0/ } ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'gridcell', { name: 'Totals 2026: 0' } ) ).toBeInTheDocument();
+	} );
+
+	it( 'keeps the drawn rows when a background refetch fails', () => {
+		mockVisits( visitsResult( ROWS, { isError: true, error: new Error( 'boom' ) } ) );
+		renderWidget();
+
+		expect( screen.getByRole( 'gridcell', { name: 'Nov 2025: 300' } ) ).toBeInTheDocument();
+		expect(
+			screen.queryByText( "We couldn't load your views. Please try again in a moment." )
+		).not.toBeInTheDocument();
+	} );
+
+	it( 'offers a retry when the request fails with nothing on screen', async () => {
+		const refetch = jest.fn();
+		mockVisits( visitsResult( undefined, { isError: true, error: new Error( 'boom' ), refetch } ) );
+		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
+		renderWidget();
+
+		expect(
+			screen.getByText( "We couldn't load your views. Please try again in a moment." )
+		).toBeInTheDocument();
+		await user.click( screen.getByRole( 'button', { name: 'Retry' } ) );
+		expect( refetch ).toHaveBeenCalledTimes( 1 );
+	} );
+	it( 'saves every year with views as the table draws it, newest first', async () => {
+		downloads = captureCsvDownloads();
+		const { findDeclaredAction } = renderWidget();
+
+		await downloads.runAndSave( await findDeclaredAction( 'download-csv' ) );
+
+		expect( downloads.files[ 0 ].filename ).toBe( 'views-over-years.csv' );
+		await expect( downloads.lines() ).resolves.toEqual( [
+			'"Year","Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec","Totals"',
+			'"2026","155","0","450","","","","","","","","","","605"',
+			'"2025","","","","","","","","","","","300","620","920"',
+		] );
+	} );
+
+	it.each( [
+		[
+			'daily averages, unrounded',
+			{ metric: 'average' },
+			{},
+			'daily-average-views-over-years.csv',
+			`"2025","","","","","","","","","","","10","20","${ 920 / 61 }"`,
+		],
+		[
+			'one author',
+			{ authorScoped: true },
+			{ author_id: '7' },
+			'author-7-views-over-years.csv',
+			'"2025","","","","","","","","","","","300","620","920"',
+		],
+	] )( 'saves %s', async ( _, attributes, scope, filename, oldestYear ) => {
+		mockUseStatsAuthorAllTime.mockReturnValue( {
+			data: {
+				startDate: '2025-11-01',
+				data: ROWS.map( ( [ period, views ] ) => ( { period, views } ) ),
+			},
+			isLoading: false,
+			isFetching: false,
+			isError: false,
+			error: null,
+			refetch: jest.fn(),
+		} as unknown as ReturnType< typeof useStatsAuthorAllTime > );
+		downloads = captureCsvDownloads();
+		const { findDeclaredAction } = renderWidget( attributes, scope );
+
+		await downloads.runAndSave( await findDeclaredAction( 'download-csv' ) );
+
+		expect( downloads.files[ 0 ].filename ).toBe( filename );
+		expect( ( await downloads.lines() ).at( -1 ) ).toBe( oldestYear );
+	} );
+
+	it.each( [
+		[ 'the site has no views', {}, visitsResult( [ [ '2026-03-01', 0 ] ] ), undefined ],
+		[
+			'a refetch failed behind the rows on screen',
+			{},
+			visitsResult( ROWS, { isError: true, error: new Error( 'boom' ) } ),
+			undefined,
+		],
+		[
+			"the rows are a previous request's",
+			{},
+			visitsResult( ROWS, {
+				primary: { data: visitsResult( ROWS ).primary.data, isPlaceholderData: true },
+			} ),
+			undefined,
+		],
+		[
+			'the averages could not read the first day with views',
+			{ metric: 'average' },
+			visitsResult( ROWS ),
+			visitsResult( undefined, { isError: true, error: new Error( 'boom' ) } ),
+		],
+	] )( 'offers no download when %s', ( _, attributes, months, days ) => {
+		mockVisits( months, days );
+
+		const { declaredAction } = renderWidget( attributes );
+
+		expect( declaredAction( 'download-csv' ) ).toBeUndefined();
+	} );
+} );

@@ -1,48 +1,72 @@
 /**
  * Root component for the Jetpack AI admin page.
  *
- * Four top-level tabs (Overview | WordPress Agent | Scheduled tasks | MCP Settings) with hash-based
- * routing. The MCP tab owns the read | write | setup sub-views, which render
- * with breadcrumbs in place of the tab bar.
+ * Four top-level tabs (Overview | AI Features | Scheduled tasks | MCP and Connectors)
+ * with hash-based routing. The MCP tab owns the mcp/read | mcp/write | mcp/setup sub-views,
+ * which render with breadcrumbs in place of the page title while keeping the
+ * tab bar — with MCP and Connectors selected, since the first path segment names
+ * the owning tab — so top-level navigation is always available.
  *
- * Overview and WordPress Agent share an internal-testing gate. Scheduled tasks
+ * Overview and AI Features share a host-controlled gate. Scheduled tasks
  * is controlled independently by the ai-hub-scheduled-tasks server-side feature
  * flag. Without either flag the page keeps its original MCP-only shape, with the
  * MCP hub as the landing view and no tab bar.
  */
 
-import { AdminPage, GlobalNotices, useGlobalNotices } from '@automattic/jetpack-components';
-import { Spinner } from '@wordpress/components';
-import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
-import { Badge, Link, Notice, Stack, Tabs } from '@wordpress/ui';
+import { AdminPage, JitmSlot } from '@automattic/jetpack-components';
+import { useConnectionErrorNotice } from '@automattic/jetpack-connection';
+import { useDispatch } from '@wordpress/data';
+import { Suspense, lazy, useCallback, useEffect, useRef, useState } from '@wordpress/element';
+import { __, isRTL, sprintf } from '@wordpress/i18n';
+import { chevronLeft, chevronRight, Icon } from '@wordpress/icons';
+import { store as noticesStore } from '@wordpress/notices';
+import { Badge, Notice, Stack, Tabs } from '@wordpress/ui';
+import ChunkErrorBoundary from './components/chunk-error-boundary/index';
+import LoadingSpinner from './components/loading-spinner/index';
+import PageNotice, { getPageNoticeState } from './components/page-notice';
+import { GATED_VIEWS } from './constants';
 import AiFeatures from './features/index';
 import { useFeatureSettings } from './features/use-feature-settings';
+import { splitViewAnchor } from './mcp/anchors';
+import McpConnectCallout from './mcp/connect-callout';
 import McpHub from './mcp/index';
 import McpRead from './mcp/read';
 import McpSetup from './mcp/setup';
 import { recordMcpTracksEvent } from './mcp/tracks';
 import McpUpsell from './mcp/upsell';
 import { useMcpSettings } from './mcp/use-mcp-settings';
+import useSiteAbilities from './mcp/use-site-abilities';
 import { getSiteLevelEnabled } from './mcp/utils';
 import McpWrite from './mcp/write';
 import AiOverview from './overview';
-import ScheduledTasks from './scheduled-tasks/index';
+import { EVENTS, recordAiHubEvent } from './tracks';
+
+// Split into its own chunk: only this tab uses DataViews and the AI client.
+const ScheduledTasks = lazy(
+	() => import( /* webpackChunkName: "jetpack-ai-scheduled-tasks" */ './scheduled-tasks/index' )
+);
 
 // Matches the `ref` value convention used by the MCP upsell events.
 const SETTINGS_REF = 'jetpack-ai-mcp-settings';
 
-const MCP_SUB_VIEWS = [ 'read', 'write', 'setup' ];
+// Sub-views are nested under their owning tab's path segment, so the active
+// tab is always the first segment of the view key.
+const MCP_SUB_VIEWS = [ 'mcp/read', 'mcp/write', 'mcp/setup' ];
+const ANCHOR_VIEWS = [ 'mcp/read', 'mcp/write' ];
 
-// Views that only exist in internal testing environments. MCP Settings ships
-// publicly, so it is not in here.
-const GATED_VIEWS = [ 'overview', 'features' ];
+// The sub-views shipped as flat top-level hashes (#/setup) before they were
+// nested; keep old bookmarks and external links working.
+const LEGACY_VIEW_ALIASES = {
+	read: 'mcp/read',
+	write: 'mcp/write',
+	setup: 'mcp/setup',
+};
 
 // Read at call time, not module scope, so the flag reflects the injected page data.
 const getTabViews = () => {
 	const views = [];
 	if ( window?.jetpackAiSettings?.showFeaturesView ) {
-		views.push( 'overview', 'features' );
+		views.push( ...GATED_VIEWS );
 	}
 	if ( window?.jetpackAiSettings?.featureFlags?.[ 'ai-hub-scheduled-tasks' ] ) {
 		views.push( 'scheduled-tasks' );
@@ -53,27 +77,31 @@ const getTabViews = () => {
 
 // The first tab is the default: Overview when visible (matching the design),
 // otherwise the MCP hub. A hash pointing at a hidden view falls back too.
-const getViewFromHash = () => {
+const getRouteFromHash = ( hash = window.location.hash ) => {
 	const tabViews = getTabViews();
-	const hash = window.location.hash.replace( /^#\//, '' );
-	return [ ...tabViews, ...MCP_SUB_VIEWS ].includes( hash ) ? hash : tabViews[ 0 ];
+	const raw = hash.replace( /^#\//, '' );
+	const { view, anchor } = splitViewAnchor(
+		LEGACY_VIEW_ALIASES[ raw ] ?? raw,
+		[ ...tabViews, ...MCP_SUB_VIEWS ],
+		ANCHOR_VIEWS
+	);
+	return { view: view ?? tabViews[ 0 ], anchor };
 };
 
 const VIEW_TITLES = {
 	overview: __( 'Overview', 'jetpack' ),
-	// "WordPress Agent" is a product name and should not be translated.
-	features: 'WordPress Agent',
+	features: __( 'AI Features', 'jetpack' ),
 	'scheduled-tasks': __( 'Scheduled tasks', 'jetpack' ),
-	mcp: __( 'MCP Settings', 'jetpack' ),
-	read: __( 'Read', 'jetpack' ),
-	write: __( 'Write', 'jetpack' ),
-	setup: __( 'Connect external AI agent', 'jetpack' ),
+	mcp: __( 'MCP and Connectors', 'jetpack' ),
+	'mcp/read': __( 'Read', 'jetpack' ),
+	'mcp/write': __( 'Write', 'jetpack' ),
+	'mcp/setup': __( 'Connect external AI agent', 'jetpack' ),
 };
 
 const SUB_VIEW_DESCRIPTIONS = {
-	read: __( 'View your site’s content.', 'jetpack' ),
-	write: __( 'Create, update, and manage content on your site.', 'jetpack' ),
-	setup: __( 'Get instructions for connecting your external AI assistant.', 'jetpack' ),
+	'mcp/read': __( 'View your site’s content.', 'jetpack' ),
+	'mcp/write': __( 'Create, update, and manage content on your site.', 'jetpack' ),
+	'mcp/setup': __( 'Get instructions for connecting your external AI agent.', 'jetpack' ),
 };
 
 /**
@@ -115,10 +143,41 @@ function Breadcrumbs( { view, onNavigate } ) {
 					</button>
 				</li>
 				<li>
-					<span className="jetpack-ai-admin__breadcrumb-current">{ VIEW_TITLES[ view ] }</span>
+					<span className="jetpack-ai-admin__breadcrumb-current" aria-current="page">
+						{ VIEW_TITLES[ view ] }
+					</span>
 				</li>
 			</ul>
 		</nav>
+	);
+}
+
+/**
+ * Back-link eyebrow shown above sub-view content: "‹ MCP and Connectors".
+ * Labelled with the parent view's title, so it works for any tab's sub-views.
+ * Deliberately quiet — small muted text with a chevron, styled in style.scss
+ * rather than as a design-system button.
+ *
+ * @param {object}   props            - Component props.
+ * @param {string}   props.label      - The parent view's title.
+ * @param {Function} props.onNavigate - Called with no args to go to the parent view.
+ * @return {object} Component markup.
+ */
+function BackEyebrow( { label, onNavigate } ) {
+	return (
+		<button
+			type="button"
+			className="jetpack-ai-admin__back-eyebrow"
+			onClick={ onNavigate }
+			aria-label={ sprintf(
+				/* translators: %s: the name of the parent screen, e.g. "MCP and Connectors". */
+				__( 'Back to %s', 'jetpack' ),
+				label
+			) }
+		>
+			<Icon icon={ isRTL() ? chevronRight : chevronLeft } size={ 18 } />
+			{ label }
+		</button>
 	);
 }
 
@@ -134,29 +193,45 @@ export default function App() {
 	const {
 		blogId,
 		activityLogUrl,
+		activityLogFiltered = false,
 		apiRoot,
 		apiNonce,
 		upgradeUrl,
 		planName,
-		planRenewsOn,
-		planAutoRenew,
-		isUserConnected,
+		isUserConnected: pageUserConnected,
+		isConnected = true,
+		hostAllowsAi = true,
+		masterEnabled = true,
+		masterForcedOff = '',
+		userConnectionUrl = 'admin.php?page=my-jetpack#/connection',
+		manageUrl = 'admin.php?page=my-jetpack#/features',
+		hasMyJetpack = true,
+		canConnectSite = true,
+		isOfflineMode = false,
 		showFeaturesView = false,
+		showA12sBadge = false,
+		showSiteAbilities = false,
 	} = window?.jetpackAiSettings ?? {};
-	const [ view, setView ] = useState( getViewFromHash );
-	// Save feedback goes through the shared GlobalNotices snackbars (the
-	// design-system SnackbarList behind @wordpress/notices): transient,
-	// auto-dismissing, no page-level styling needed.
-	const { createSuccessNotice, createErrorNotice } = useGlobalNotices();
+	const [ route, setRoute ] = useState( getRouteFromHash );
+	const { view, anchor } = route;
+	// Save feedback goes through the snackbars boot's layout renders.
+	const { createSuccessNotice, createErrorNotice } = useDispatch( noticesStore );
+	const { hasConnectionError } = useConnectionErrorNotice();
 	const mcpViewedRecorded = useRef( false );
 	// Strict false: older page data (undefined) must not read as unlinked.
-	const userUnlinked = isUserConnected === false;
+	const userUnlinked = pageUserConnected === false;
+	// The three gated surfaces share page data's answer, which is right on every
+	// host and there on first paint. MCP keeps userUnlinked, unchanged.
+	const isUserConnected = ! userUnlinked;
 	// MCP settings ride the site's and the user's own WordPress.com connections,
 	// so with either one missing the MCP body gives way to a connection notice —
 	// and the settings fetch is skipped, since it could only fail.
 	const showConnectNotice = !! blogId && userUnlinked;
 	const { isLoading, savingToolIds, mcpAbilities, hasMcpAccess, error, updateMcpAbilities } =
 		useMcpSettings( { skip: showConnectNotice || ! blogId } );
+	const showRemoteAbilities = showSiteAbilities && ! showConnectNotice && !! blogId;
+	const publishedAbilities = useSiteAbilities( { enabled: showRemoteAbilities } );
+	const remoteAbilities = showRemoteAbilities ? publishedAbilities : null;
 	const {
 		isLoading: isAiSettingsLoading,
 		savingKeys: aiSavingKeys,
@@ -165,10 +240,28 @@ export default function App() {
 		updateSettings: updateAiSettings,
 	} = useFeatureSettings( showFeaturesView );
 
+	// One answer for the page, from page data alone, so it is right on the first
+	// paint. Overview asks for usage only when there is nothing to say.
+	const noticeState = getPageNoticeState( {
+		view,
+		blogId,
+		isUserConnected,
+		isConnected,
+		isOfflineMode,
+		hostAllowsAi,
+		masterEnabled,
+		masterForcedOff,
+		hasConnectionError,
+	} );
+
+	// The three things the usage endpoint needs: a registered site, a host that
+	// allows AI, and this user's own account linked. Nothing else stops it.
+	const canLoadUsage = !! blogId && hostAllowsAi !== false && isUserConnected !== false;
+
 	// The hash is the single source of truth for the current view: popstate
 	// covers back/forward, hashchange covers direct hash edits and links.
 	useEffect( () => {
-		const syncViewFromHash = () => setView( getViewFromHash() );
+		const syncViewFromHash = () => setRoute( getRouteFromHash() );
 		window.addEventListener( 'popstate', syncViewFromHash );
 		window.addEventListener( 'hashchange', syncViewFromHash );
 		return () => {
@@ -180,6 +273,41 @@ export default function App() {
 	const tabViews = getTabViews();
 	const isSubView = MCP_SUB_VIEWS.includes( view );
 	const isMcpContext = view === 'mcp' || isSubView;
+	// The first path segment names the owning tab, so sub-views keep their
+	// parent tab (MCP and Connectors) selected.
+	const activeTab = view.split( '/' )[ 0 ];
+
+	const hiddenTab = useRef( activeTab );
+	useEffect( () => {
+		if ( ! showFeaturesView ) {
+			return;
+		}
+		recordAiHubEvent( EVENTS.VIEWED, { tab: activeTab } );
+		// The admin shell keeps this page mounted, so a return to it is a new visit: see the admin-ui README.
+		const onHidden = event => {
+			if ( event.detail?.page === 'jetpack-ai' ) {
+				hiddenTab.current = activeTab;
+			}
+		};
+		const onShown = event => {
+			const { page, firstShow, routeChanged, url } = event.detail ?? {};
+			if ( page !== 'jetpack-ai' || firstShow ) {
+				return;
+			}
+			// This effect records a return to another tab, but not to another view of the same tab.
+			const shownTab =
+				routeChanged && getRouteFromHash( new URL( url ).hash ).view.split( '/' )[ 0 ];
+			if ( ! routeChanged || shownTab === hiddenTab.current ) {
+				recordAiHubEvent( EVENTS.VIEWED, { tab: activeTab } );
+			}
+		};
+		window.addEventListener( 'jetpack-admin-shell:page-hidden', onHidden );
+		window.addEventListener( 'jetpack-admin-shell:page-shown', onShown );
+		return () => {
+			window.removeEventListener( 'jetpack-admin-shell:page-hidden', onHidden );
+			window.removeEventListener( 'jetpack-admin-shell:page-shown', onShown );
+		};
+	}, [ activeTab, showFeaturesView ] );
 
 	useEffect( () => {
 		if ( ! isLoading && hasMcpAccess && isMcpContext && ! mcpViewedRecorded.current ) {
@@ -199,6 +327,7 @@ export default function App() {
 				// makes the store replace the previous outcome for this surface,
 				// so retries never show stale results alongside fresh ones.
 				createErrorNotice( __( 'Failed to save MCP settings. Please try again.', 'jetpack' ), {
+					type: 'snackbar',
 					id: 'jetpack-mcp-save-status',
 					explicitDismiss: true,
 				} );
@@ -216,6 +345,7 @@ export default function App() {
 					// The shared id keeps this surface last-outcome-wins: a
 					// success replaces a sticky error from an earlier attempt.
 					createSuccessNotice( __( 'Your AI settings have been saved.', 'jetpack' ), {
+						type: 'snackbar',
 						id: 'jetpack-ai-save-status',
 					} );
 					return true;
@@ -223,6 +353,7 @@ export default function App() {
 				() => {
 					// Errors must not auto-vanish before they're read.
 					createErrorNotice( __( 'Failed to save AI settings. Please try again.', 'jetpack' ), {
+						type: 'snackbar',
 						id: 'jetpack-ai-save-status',
 						explicitDismiss: true,
 					} );
@@ -235,15 +366,70 @@ export default function App() {
 
 	const navigateToView = useCallback( newView => {
 		window.history.pushState( null, '', '#/' + newView );
-		setView( newView );
+		setRoute( { view: newView, anchor: null } );
 	}, [] );
+
+	// Set when navigation came from a control that unmounts with its view (the
+	// back eyebrow, the breadcrumb link): focus would silently drop to <body>,
+	// stranding keyboard and screen-reader users. The effect below restores it.
+	// Flag-based so browser Back/Forward never has its focus hijacked.
+	const restoreFocusRef = useRef( false );
+	const tabsRef = useRef( null );
+
+	useEffect( () => {
+		if ( ! restoreFocusRef.current ) {
+			return;
+		}
+		restoreFocusRef.current = false;
+		// Only act if the focused control really unmounted; land on the
+		// selected tab, the view's stable landmark. In the ungated MCP-only
+		// shape there is no tab bar, so there is nothing to do — no worse
+		// than the unmanaged focus it replaces.
+		const tabsElement = tabsRef.current;
+		if ( ! tabsElement ) {
+			return;
+		}
+		const { ownerDocument } = tabsElement;
+		if ( ownerDocument.activeElement === ownerDocument.body ) {
+			tabsElement.querySelector( '[role="tab"][aria-selected="true"]' )?.focus();
+		}
+	}, [ view ] );
 
 	// The breadcrumb back link mirrors the browser Back button so the history
 	// entry for the sub-view is popped rather than a new entry being pushed.
-	const navigateBack = useCallback( () => window.history.back(), [] );
+	// The view change lands asynchronously via popstate; the flag survives.
+	const navigateBack = useCallback( () => {
+		restoreFocusRef.current = true;
+		window.history.back();
+	}, [] );
 
-	// MCP navigation targets are sub-views; McpHub calls this with their keys.
-	const handleMcpNavigate = useCallback( subView => navigateToView( subView ), [ navigateToView ] );
+	// MCP navigation targets are sub-views; McpHub calls this with their bare
+	// keys ('read' | 'write' | 'setup'), which live under the mcp path segment.
+	const handleMcpNavigate = useCallback(
+		subView => navigateToView( 'mcp/' + subView ),
+		[ navigateToView ]
+	);
+
+	// Shared by the back eyebrow and the active-tab click below: a sub-view's
+	// parent is always its tab's root view. The focus flag is harmless for the
+	// tab click — the tab persists and keeps focus, so the effect no-ops.
+	const navigateToParent = useCallback( () => {
+		restoreFocusRef.current = true;
+		navigateToView( activeTab );
+	}, [ activeTab, navigateToView ] );
+
+	// Tabs never re-emit the already-selected value, so on sub-views — where
+	// the parent tab is selected but the view is deeper — a click on that tab
+	// reaches only this handler. Route it back to the tab's root view. Clicks
+	// on unselected tabs fall through to onValueChange as usual.
+	const handleTabClick = useCallback(
+		event => {
+			if ( isSubView && event.currentTarget.getAttribute( 'aria-selected' ) === 'true' ) {
+				navigateToParent();
+			}
+		},
+		[ isSubView, navigateToParent ]
+	);
 
 	return (
 		<AdminPage
@@ -256,21 +442,21 @@ export default function App() {
 			breadcrumbs={
 				isSubView ? <Breadcrumbs view={ view } onNavigate={ navigateBack } /> : undefined
 			}
-			showBottomBorder={ isSubView }
+			// The tab bar visually separates the header from the content; the
+			// border is only needed in the MCP-only shape where no tabs render.
+			showBottomBorder={ isSubView && tabViews.length === 1 }
 			apiRoot={ apiRoot }
 			apiNonce={ apiNonce }
 		>
-			{ ! isSubView && tabViews.length > 1 && (
-				<div className="jp-admin-page-tabs jp-admin-page-tabs--minimal">
-					<Tabs.Root value={ view } onValueChange={ navigateToView }>
+			{ tabViews.length > 1 && (
+				<div className="jp-admin-page-tabs jp-admin-page-tabs--minimal" ref={ tabsRef }>
+					<Tabs.Root value={ activeTab } onValueChange={ navigateToView }>
 						<Tabs.List variant="minimal" aria-label={ __( 'AI sections', 'jetpack' ) }>
 							{ tabViews.map( tab => (
-								<Tabs.Tab key={ tab } value={ tab }>
+								<Tabs.Tab key={ tab } value={ tab } onClick={ handleTabClick }>
 									{ VIEW_TITLES[ tab ] }
-									{ /* Overview and Features ship behind the internal-testing gate;
-									     label them so Automatticians don't mistake them for public UI.
-									     Remove with the gate. */ }
-									{ GATED_VIEWS.includes( tab ) && (
+									{ /* Keep the badge when a host exposes these views to internal testers. */ }
+									{ showA12sBadge && GATED_VIEWS.includes( tab ) && (
 										<Badge intent="medium" className="jetpack-ai-admin__tab-badge">
 											{ __( 'A12s only', 'jetpack' ) }
 										</Badge>
@@ -287,20 +473,29 @@ export default function App() {
 					</Tabs.Root>
 				</div>
 			) }
+			{ /* Outside the padded content div, so it takes the page gutter via `inset`. */ }
+			<JitmSlot inset />
 			<div
 				className={ `jetpack-ai-admin__content${
 					view === 'scheduled-tasks' ? ' jetpack-ai-admin__content--scheduled-tasks' : ''
 				}` }
 			>
-				<GlobalNotices />
+				{ isSubView && (
+					<BackEyebrow label={ VIEW_TITLES[ activeTab ] } onNavigate={ navigateToParent } />
+				) }
+
+				<PageNotice
+					state={ noticeState }
+					masterForcedOff={ masterForcedOff }
+					userConnectionUrl={ userConnectionUrl }
+					manageUrl={ manageUrl }
+					hasMyJetpack={ hasMyJetpack }
+					canConnectSite={ canConnectSite }
+				/>
 
 				{ isMcpContext && (
 					<>
-						{ isLoading && (
-							<div className="jetpack-ai-admin__loading">
-								<Spinner />
-							</div>
-						) }
+						{ isLoading && <LoadingSpinner /> }
 
 						{ ! isLoading && error && ! showConnectNotice && <LoadErrorNotice message={ error } /> }
 
@@ -315,31 +510,21 @@ export default function App() {
 							</Notice.Root>
 						) }
 
-						{ showConnectNotice && (
-							<Notice.Root intent="warning">
-								<Notice.Title>
-									{ __( 'Your WordPress.com account isn’t connected.', 'jetpack' ) }
-								</Notice.Title>
-								<Notice.Description>
-									{ __( 'Connect your account to manage MCP settings.', 'jetpack' ) }{ ' ' }
-									<Link href="admin.php?page=my-jetpack#/connection">
-										{ __( 'Connect account', 'jetpack' ) }
-									</Link>
-								</Notice.Description>
-							</Notice.Root>
-						) }
+						{ showConnectNotice && <McpConnectCallout userConnectionUrl={ userConnectionUrl } /> }
 
 						{ ! isLoading && ! error && !! blogId && ! userUnlinked && ! hasMcpAccess && (
 							<McpUpsell />
 						) }
 
 						{ ! isLoading && ! error && !! blogId && ! userUnlinked && hasMcpAccess && (
-							<Stack direction="column" gap="md">
+							<Stack direction="column" gap="lg">
 								{ view === 'mcp' && (
 									<McpHub
+										remoteAbilities={ remoteAbilities }
 										mcpAbilities={ mcpAbilities }
 										blogId={ blogId }
 										activityLogUrl={ activityLogUrl }
+										activityLogFiltered={ activityLogFiltered }
 										savingToolIds={ savingToolIds }
 										onNavigate={ handleMcpNavigate }
 										onUpdate={ handleUpdate }
@@ -349,23 +534,27 @@ export default function App() {
 										showActivityLog={ ! tabViews.includes( 'overview' ) }
 									/>
 								) }
-								{ view === 'read' && (
+								{ view === 'mcp/read' && (
 									<McpRead
+										remoteAbilities={ remoteAbilities }
+										anchor={ anchor }
 										mcpAbilities={ mcpAbilities }
 										blogId={ blogId }
 										savingToolIds={ savingToolIds }
 										onUpdate={ handleUpdate }
 									/>
 								) }
-								{ view === 'write' && (
+								{ view === 'mcp/write' && (
 									<McpWrite
+										remoteAbilities={ remoteAbilities }
+										anchor={ anchor }
 										mcpAbilities={ mcpAbilities }
 										blogId={ blogId }
 										savingToolIds={ savingToolIds }
 										onUpdate={ handleUpdate }
 									/>
 								) }
-								{ view === 'setup' && <McpSetup /> }
+								{ view === 'mcp/setup' && <McpSetup /> }
 							</Stack>
 						) }
 					</>
@@ -373,16 +562,12 @@ export default function App() {
 
 				{ view === 'overview' && (
 					<AiOverview
-						blogId={ blogId }
 						activityLogUrl={ activityLogUrl }
+						activityLogFiltered={ activityLogFiltered }
 						upgradeUrl={ upgradeUrl }
 						planName={ planName }
-						planRenewsOn={ planRenewsOn }
-						planAutoRenew={ planAutoRenew }
-						isUserConnected={ isUserConnected }
-						hostAllowsAi={ aiSettings?.host_allows_ai }
-						// Same preconditions the MCP hub applies to its copy of the
-						// row: the copy promises AI-agent actions, which need MCP.
+						canLoadUsage={ canLoadUsage }
+						// Same preconditions the MCP hub applies to its copy of the row.
 						showActivityLog={
 							!! blogId && hasMcpAccess && getSiteLevelEnabled( mcpAbilities ?? {}, blogId )
 						}
@@ -391,41 +576,38 @@ export default function App() {
 
 				{ view === 'features' && (
 					<>
-						{ isAiSettingsLoading && (
-							<div className="jetpack-ai-admin__loading">
-								<Spinner />
-							</div>
-						) }
+						{ isAiSettingsLoading && <LoadingSpinner /> }
 
 						{ ! isAiSettingsLoading && aiSettingsError && (
 							<LoadErrorNotice message={ aiSettingsError } />
 						) }
 
-						{ ! isAiSettingsLoading &&
-							! aiSettingsError &&
-							( aiSettings?.host_allows_ai === false ? (
-								<Notice.Root intent="warning">
-									<Notice.Description>
-										{ __( 'AI has been turned off for this site.', 'jetpack' ) }
-									</Notice.Description>
-								</Notice.Root>
-							) : (
-								<AiFeatures
-									settings={ aiSettings }
-									savingKeys={ aiSavingKeys }
-									onUpdate={ handleAiSettingsUpdate }
-								/>
-							) ) }
+						{ /* The host gate comes from page data, the same answer the notice uses:
+						    two sources, computed in two requests, could disagree into a tab
+						    with no card and no notice. */ }
+						{ ! isAiSettingsLoading && ! aiSettingsError && hostAllowsAi !== false && (
+							<AiFeatures
+								settings={ aiSettings }
+								isUserConnected={ isUserConnected }
+								masterForcedOff={ masterForcedOff }
+								savingKeys={ aiSavingKeys }
+								onUpdate={ handleAiSettingsUpdate }
+							/>
+						) }
 					</>
 				) }
 
 				{ view === 'scheduled-tasks' && (
-					<ScheduledTasks
-						blogId={ blogId }
-						apiNonce={ apiNonce }
-						createSuccessNotice={ createSuccessNotice }
-						createErrorNotice={ createErrorNotice }
-					/>
+					<ChunkErrorBoundary>
+						<Suspense fallback={ <LoadingSpinner /> }>
+							<ScheduledTasks
+								blogId={ blogId }
+								apiNonce={ apiNonce }
+								createSuccessNotice={ createSuccessNotice }
+								createErrorNotice={ createErrorNotice }
+							/>
+						</Suspense>
+					</ChunkErrorBoundary>
 				) }
 			</div>
 		</AdminPage>

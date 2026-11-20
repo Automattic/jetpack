@@ -90,4 +90,72 @@ class UtilsTest extends TestCase {
 				),
 		);
 	}
+
+	/**
+	 * A user WordPress refuses to insert is reported as a failure rather than cached.
+	 *
+	 * The returned WP_Error coerces to user ID 1, so an uncaught failure caches the WordPress.com
+	 * ID against whoever that is.
+	 */
+	public function test_generate_user_returns_false_when_the_user_cannot_be_inserted() {
+		$user_data = (object) array(
+			'ID'           => 4242,
+			'email'        => 'sso_insert_failure@example.com',
+			'user_login'   => 'sso_insert_failure',
+			'login'        => 'sso_insert_failure',
+			'display_name' => 'sso_insert_failure',
+			'first_name'   => 'sso',
+			'last_name'    => 'user',
+			'url'          => 'https://example.com',
+			'description'  => 'A user WordPress will refuse to create',
+		);
+
+		$reject = static function () {
+			return array( 'sso_insert_failure' );
+		};
+		add_filter( 'illegal_user_logins', $reject );
+
+		$before = Utils::get_wpcom_user_id( 1 );
+		$user   = Utils::generate_user( $user_data );
+
+		remove_filter( 'illegal_user_logins', $reject );
+
+		$this->assertFalse( $user );
+		$this->assertSame( $before, Utils::get_wpcom_user_id( 1 ) );
+	}
+
+	/**
+	 * Tests the Utils::get_registration_error_description() method.
+	 *
+	 * @dataProvider registration_error_description_data_provider
+	 *
+	 * @param string     $error_code The error code.
+	 * @param string|int $message    The error message.
+	 * @param string     $expected   The expected description.
+	 */
+	#[DataProvider( 'registration_error_description_data_provider' )]
+	public function test_get_registration_error_description( $error_code, $message, $expected ) {
+		$this->assertSame( $expected, Utils::get_registration_error_description( $error_code, $message ) );
+	}
+
+	/**
+	 * Data provider for test_get_registration_error_description.
+	 *
+	 * @return array
+	 */
+	public static function registration_error_description_data_provider() {
+		$site_inaccessible = 'The Jetpack server was unable to communicate with your site https://shop.example.com [IXR Error: transport error - HTTP status code was not 200 (403)].  Ask your web host if they allow connections from WordPress.com. If you need further assistance, contact Jetpack Support: http://jetpack.com/support/';
+		$words             = str_repeat( 'word ', 78 );
+
+		return array(
+			'a status code is not copy'                  => array( 'wpcom_5??', '503', '' ),
+			'a status code as an int'                    => array( 'wpcom_408', 408, '' ),
+			'the jetpack_id response body'               => array( 'jetpack_id', 'Error Details: Jetpack ID is empty. Do not publicly post this error message! {"body":"..."}', '' ),
+			'an empty message stays empty'               => array( 'missing_secrets', '', '' ),
+			'the site_inaccessible text is kept whole'   => array( 'site_inaccessible_403', $site_inaccessible, $site_inaccessible ),
+			'a cut drops a link instead of breaking it'  => array( 'some_code', $words . 'https://example.com/a-link-that-would-be-cut', rtrim( $words ) ),
+			'a message without spaces is cut at the cap' => array( 'some_code', str_repeat( 'a', 500 ), str_repeat( 'a', 400 ) ),
+			'a multibyte message is cut by character'    => array( 'some_code', str_repeat( 'é', 500 ), str_repeat( 'é', 400 ) ),
+		);
+	}
 }

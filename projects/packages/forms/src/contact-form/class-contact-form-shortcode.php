@@ -89,7 +89,7 @@ class Contact_Form_Shortcode {
 		if ( $content === null ) {
 			$this->body = null;
 		} else {
-			$this->body = do_shortcode( $content );
+			$this->body = apply_shortcodes( $content );
 		}
 	}
 

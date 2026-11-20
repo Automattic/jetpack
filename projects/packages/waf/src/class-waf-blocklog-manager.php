@@ -14,6 +14,7 @@ class Waf_Blocklog_Manager {
 
 	const BLOCKLOG_OPTION_NAME_DAILY_SUMMARY        = 'jetpack_waf_blocklog_daily_summary';
 	const BLOCKLOG_OPTION_NAME_ALL_TIME_BLOCK_COUNT = 'jetpack_waf_all_time_block_count';
+	const BLOCKLOG_OPTION_NAME_HAS_BLOCKED          = 'jetpack_waf_has_blocked';
 
 	/**
 	 * Database connection.
@@ -273,6 +274,27 @@ class Waf_Blocklog_Manager {
 	}
 
 	/**
+	 * Record that the firewall has blocked a request other than its own test. Set once and never cleared.
+	 *
+	 * @return void
+	 */
+	private static function write_has_blocked_row() {
+		global $table_prefix;
+		$option_name = self::BLOCKLOG_OPTION_NAME_HAS_BLOCKED;
+
+		$db_connection = self::connect_to_wordpress_db();
+		if ( ! $db_connection ) {
+			return;
+		}
+
+		$statement = $db_connection->prepare( "INSERT IGNORE INTO {$table_prefix}options (option_name, option_value, autoload) VALUES (?, '1', 'off')" );
+		if ( false !== $statement ) {
+			$statement->bind_param( 's', $option_name );
+			$statement->execute();
+		}
+	}
+
+	/**
 	 * Increment the all-time stats.
 	 *
 	 * @return void
@@ -307,15 +329,50 @@ class Waf_Blocklog_Manager {
 	}
 
 	/**
+	 * Read an option the firewall writes with its own connection, which leaves the object cache stale.
+	 *
+	 * That connection uses the network's base prefix, so on a multisite subsite these aren't the site's own options.
+	 *
+	 * @param string $name    The option name.
+	 * @param mixed  $default The value when the option doesn't exist.
+	 * @return mixed
+	 */
+	private static function get_stored_option( $name, $default ) {
+		global $wpdb;
+
+		if ( ! isset( $wpdb ) ) {
+			return get_option( $name, $default );
+		}
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- The cache is what's stale.
+		$value = $wpdb->get_var( $wpdb->prepare( "SELECT option_value FROM {$wpdb->base_prefix}options WHERE option_name = %s", $name ) );
+
+		return null === $value ? $default : maybe_unserialize( $value );
+	}
+
+	/**
 	 * Get the total number of blocked requests for today.
 	 *
 	 * @return int
 	 */
 	public static function get_current_day_block_count() {
-		$stats = get_option( self::BLOCKLOG_OPTION_NAME_DAILY_SUMMARY, array() );
+		$stats = self::get_stored_option( self::BLOCKLOG_OPTION_NAME_DAILY_SUMMARY, array() );
 		$today = gmdate( 'Y-m-d' );
 
 		return $stats[ $today ] ?? 0;
+	}
+
+	/**
+	 * Blocked requests on each UTC day, keyed by `Y-m-d`. Days past 30 are only pruned when a block is written.
+	 *
+	 * @since 0.32.0
+	 *
+	 * @return array<string, int>
+	 */
+	public static function get_daily_block_counts() {
+		$stats = self::get_stored_option( self::BLOCKLOG_OPTION_NAME_DAILY_SUMMARY, array() );
+
+		return is_array( $stats ) ? array_map( 'intval', $stats ) : array();
 	}
 
 	/**
@@ -324,7 +381,8 @@ class Waf_Blocklog_Manager {
 	 * @return int
 	 */
 	public static function get_thirty_days_block_counts() {
-		$stats        = get_option( self::BLOCKLOG_OPTION_NAME_DAILY_SUMMARY, array() );
+		// Old days are only pruned when a block is written, so a quiet site still has them.
+		$stats        = self::filter_last_30_days( (array) self::get_stored_option( self::BLOCKLOG_OPTION_NAME_DAILY_SUMMARY, array() ) );
 		$total_blocks = 0;
 
 		foreach ( $stats as $count ) {
@@ -340,7 +398,7 @@ class Waf_Blocklog_Manager {
 	 * @return int
 	 */
 	public static function get_all_time_block_count() {
-		$all_time_block_count = get_option( self::BLOCKLOG_OPTION_NAME_ALL_TIME_BLOCK_COUNT, false );
+		$all_time_block_count = self::get_stored_option( self::BLOCKLOG_OPTION_NAME_ALL_TIME_BLOCK_COUNT, false );
 
 		if ( false !== $all_time_block_count ) {
 			return intval( $all_time_block_count );
@@ -350,11 +408,74 @@ class Waf_Blocklog_Manager {
 	}
 
 	/**
+	 * Whether the firewall has blocked a request other than its own test since it started recording that.
+	 *
+	 * @since 0.32.0
+	 *
+	 * @return bool
+	 */
+	public static function has_blocked_requests() {
+		return (bool) self::get_stored_option( self::BLOCKLOG_OPTION_NAME_HAS_BLOCKED, false );
+	}
+
+	/**
+	 * Get the most recent blocked requests, newest first. The table keeps only the last 100.
+	 *
+	 * @since 0.30.0
+	 *
+	 * @param int $limit How many to return.
+	 * @return array<int, array{id: int, timestamp: string, ruleId: int, reason: string}> Timestamps are ISO 8601 UTC.
+	 */
+	public static function get_recent_blocks( $limit = 10 ) {
+		global $wpdb;
+
+		$suppress = $wpdb->suppress_errors();
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- A custom table, read on demand.
+		$rows = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT log_id, timestamp, rule_id, reason FROM {$wpdb->base_prefix}jetpack_waf_blocklog ORDER BY log_id DESC LIMIT %d",
+				$limit
+			),
+			ARRAY_A
+		);
+		$wpdb->suppress_errors( $suppress );
+
+		if ( ! is_array( $rows ) ) {
+			return array();
+		}
+
+		return array_map(
+			function ( $row ) {
+				return array(
+					'id'        => (int) $row['log_id'],
+					'timestamp' => str_replace( ' ', 'T', $row['timestamp'] ) . 'Z',
+					'ruleId'    => (int) $row['rule_id'],
+					'reason'    => (string) $row['reason'],
+				);
+			},
+			$rows
+		);
+	}
+
+	/**
 	 * Compute the initial all-time stats value.
 	 *
 	 * @return int The initial all-time stats value.
 	 */
 	private static function get_default_all_time_stat_value() {
+		global $wpdb;
+
+		// Inside WordPress, so connecting would load wp-config.php a second time.
+		if ( isset( $wpdb ) ) {
+			// The table doesn't exist until the firewall is first turned on.
+			$suppress = $wpdb->suppress_errors();
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- A custom table.
+			$last_id = $wpdb->get_var( "SELECT log_id FROM {$wpdb->base_prefix}jetpack_waf_blocklog ORDER BY log_id DESC LIMIT 1" );
+			$wpdb->suppress_errors( $suppress );
+
+			return intval( $last_id );
+		}
+
 		$conn = self::connect_to_wordpress_db();
 		if ( ! $conn ) {
 			return 0;
@@ -435,6 +556,10 @@ class Waf_Blocklog_Manager {
 
 		self::write_daily_summary();
 		self::write_all_time_block_count();
+		// Silent mode only logs, so it hasn't blocked anything.
+		if ( defined( 'JETPACK_WAF_MODE' ) && 'normal' === JETPACK_WAF_MODE && (string) Waf_Self_Check::RULE_ID !== (string) $rule_id ) {
+			self::write_has_blocked_row();
+		}
 		self::write_blocklog_row( $log_data );
 		self::close_db_connection();
 	}

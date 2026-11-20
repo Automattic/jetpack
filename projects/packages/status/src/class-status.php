@@ -163,7 +163,12 @@ class Status {
 			$host = '';
 		}
 
-		// Check for localhost and sites using an IP only first.
+		/*
+		 * Check for localhost and sites using an IP only first. No dot means it can't be a
+		 * public domain. Dotless IPv6 literals land here too, routable ones included:
+		 * WordPress.com won't register an IPv6 site URL, so offline mode is where they belong.
+		 * An IPv4-mapped literal like [::ffff:127.0.0.1] keeps its dots and reads as remote.
+		 */
 		$is_local = '' !== $host && false === strpos( $host, '.' );
 
 		// Use Core's environment check, if available.
@@ -181,7 +186,9 @@ class Status {
 			'#\.dev\.cc$#i',       // ServerPress.
 			'#\.lndo\.site$#i',    // Lando.
 			'#\.ddev\.site$#i',    // DDEV.
-			'#^127\.0\.0\.1$#',
+			// The whole 127.0.0.0/8 range is loopback; each octet is capped at 255.
+			'#^127\.(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(?:\.(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){2}$#',
+			'#^0\.0\.0\.0$#', // All-interfaces bind, common under Docker and `wp server`.
 			'#^playground\.wordpress\.net$#i', // WordPress Playground, which runs entirely in the browser.
 		);
 
@@ -406,7 +413,8 @@ class Status {
 
 	/**
 	 * Whether the site is currently unlaunched or not.
-	 * On WordPress.com and WoA, sites can be marked as "coming soon", aka unlaunched
+	 * On WordPress.com and WoA, sites can be marked as "coming soon", aka unlaunched,
+	 * either as a private site with the `wpcom_coming_soon` option, or with `wpcom_public_coming_soon`.
 	 *
 	 * @since 1.16.0
 	 *
@@ -415,8 +423,11 @@ class Status {
 	public function is_coming_soon() {
 		$ret = Cache::get( 'is_coming_soon' );
 		if ( null === $ret ) {
-			$is_coming_soon = ( function_exists( 'site_is_coming_soon' ) && \site_is_coming_soon() )
-				|| get_option( 'wpcom_public_coming_soon' );
+			// Private Coming Soon is wpcom_is_coming_soon() on Simple, and lives in wpcomsh's Private_Site namespace on WoA,
+			// where it may fetch the option from WordPress.com, so it runs last.
+			$is_coming_soon = get_option( 'wpcom_public_coming_soon' )
+				|| ( function_exists( 'wpcom_is_coming_soon' ) && \wpcom_is_coming_soon() )
+				|| ( function_exists( '\Private_Site\site_is_coming_soon' ) && \Private_Site\site_is_coming_soon() );
 
 			/**
 			 * Filters the is_coming_soon check.

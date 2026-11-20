@@ -9,9 +9,11 @@
 
 use Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 
 require_once JETPACK__PLUGIN_DIR . 'class.json-api-endpoints.php';
+require_once JETPACK__PLUGIN_DIR . 'json-endpoints/class.wpcom-json-api-get-post-endpoint.php';
 require_once JETPACK__PLUGIN_DIR . 'json-endpoints/class.wpcom-json-api-get-post-v1-1-endpoint.php';
 
 /**
@@ -97,21 +99,32 @@ class WPCOM_JSON_API_Get_Post_v1_1_Endpoint_Test extends WP_UnitTestCase { // ph
 	 * Retrieve the registered v1.1 get-post endpoint instance.
 	 *
 	 * @return WPCOM_JSON_API_Get_Post_v1_1_Endpoint
+	 */
+	private function get_endpoint() {
+		return $this->find_endpoint( 'WPCOM_JSON_API_Get_Post_v1_1_Endpoint', '1.1' );
+	}
+
+	/**
+	 * Retrieve a registered GET endpoint instance by class and max_version.
+	 *
+	 * @param string $class_name  Endpoint class.
+	 * @param string $max_version Endpoint max_version.
+	 * @return WPCOM_JSON_API_Get_Post_Endpoint|WPCOM_JSON_API_Get_Post_v1_1_Endpoint
 	 *
 	 * @phan-suppress PhanTypeArraySuspicious
 	 */
-	private function get_endpoint() {
+	private function find_endpoint( $class_name, $max_version ) {
 		$api = WPCOM_JSON_API::init();
 		foreach ( $api->endpoints as $endpoints_by_method ) {
 			if (
 				isset( $endpoints_by_method['GET'] )
-				&& get_class( $endpoints_by_method['GET'] ) === 'WPCOM_JSON_API_Get_Post_v1_1_Endpoint'
-				&& '1.1' === $endpoints_by_method['GET']->max_version
+				&& get_class( $endpoints_by_method['GET'] ) === $class_name
+				&& $max_version === $endpoints_by_method['GET']->max_version
 			) {
 				return $endpoints_by_method['GET'];
 			}
 		}
-		$this->fail( 'WPCOM_JSON_API_Get_Post_v1_1_Endpoint (v1.1) not found in registered endpoints.' );
+		$this->fail( "$class_name (v$max_version) not found in registered endpoints." );
 	}
 
 	/**
@@ -133,6 +146,41 @@ class WPCOM_JSON_API_Get_Post_v1_1_Endpoint_Test extends WP_UnitTestCase { // ph
 				$args
 			)
 		);
+	}
+
+	/**
+	 * @group json-api
+	 */
+	#[Group( 'json-api' )]
+	public function test_display_content_renders_footnotes() {
+		$post_id = $this->create_post(
+			array(
+				'post_content' => '<!-- wp:paragraph --><p>A reference<sup data-fn="read-847-note" class="fn"><a href="#read-847-note" id="read-847-note-link">1</a></sup>.</p><!-- /wp:paragraph --><!-- wp:footnotes /-->',
+			)
+		);
+		update_post_meta(
+			$post_id,
+			'footnotes',
+			wp_json_encode(
+				array(
+					array(
+						'id'      => 'read-847-note',
+						'content' => 'Reader footnote regression.',
+					),
+				),
+				JSON_UNESCAPED_SLASHES
+			)
+		);
+
+		$response = $this->get_endpoint()->callback(
+			'/sites/' . self::$blog_id . '/posts/' . $post_id,
+			self::$blog_id,
+			$post_id
+		);
+
+		$this->assertStringContainsString( 'href="#read-847-note-link"', $response['content'] );
+		$this->assertStringContainsString( 'Reader footnote regression.', $response['content'] );
+		$this->assertStringContainsString( '<li id="read-847-note">', $response['content'] );
 	}
 
 	/**
@@ -237,5 +285,43 @@ class WPCOM_JSON_API_Get_Post_v1_1_Endpoint_Test extends WP_UnitTestCase { // ph
 
 		$this->assertInstanceOf( WP_Error::class, $response );
 		$this->assertSame( 'unknown_post', $response->get_error_code() );
+	}
+
+	/**
+	 * Get-post endpoints whose `fields` pre-filter is guarded separately.
+	 *
+	 * @return array
+	 */
+	public static function provide_get_post_endpoints() {
+		return array(
+			'v1'   => array( 'WPCOM_JSON_API_Get_Post_Endpoint', '1' ),
+			'v1.1' => array( 'WPCOM_JSON_API_Get_Post_v1_1_Endpoint', '1.1' ),
+		);
+	}
+
+	/**
+	 * An array `fields` (from `fields[]=ID`) is ignored instead of causing a fatal error.
+	 *
+	 * @dataProvider provide_get_post_endpoints
+	 * @group json-api
+	 *
+	 * @param string $class_name  Endpoint class.
+	 * @param string $max_version Endpoint max_version.
+	 */
+	#[DataProvider( 'provide_get_post_endpoints' )]
+	#[Group( 'json-api' )]
+	public function test_array_fields_is_ignored( $class_name, $max_version ) {
+		$post_id                      = $this->create_post();
+		WPCOM_JSON_API::init()->query = array( 'fields' => array( 'ID', 'URL' ) );
+
+		$response = $this->find_endpoint( $class_name, $max_version )->callback(
+			'/sites/' . self::$blog_id . '/posts/' . $post_id,
+			self::$blog_id,
+			$post_id
+		);
+
+		$this->assertIsArray( $response );
+		$this->assertSame( $post_id, $response['ID'] );
+		$this->assertArrayHasKey( 'title', $response );
 	}
 }

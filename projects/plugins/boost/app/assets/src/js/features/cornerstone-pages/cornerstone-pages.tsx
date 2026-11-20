@@ -10,6 +10,7 @@ import { useSingleModuleState } from '$features/module/lib/stores';
 const CornerstonePages = () => {
 	const [ moduleState ] = useSingleModuleState( 'speculation_rules' );
 	const isSpeculationRulesAvailable = moduleState?.available ?? false;
+	const summary = useCornerstoneSummary();
 
 	return (
 		<div className={ styles.wrapper }>
@@ -18,13 +19,20 @@ const CornerstonePages = () => {
 					title={
 						<div>
 							<h3>{ __( 'Cornerstone Pages', 'jetpack-boost' ) }</h3>
-							<CornerstoneTitleSummary />
+							<p className={ styles.description }>
+								{ __(
+									'Choose the pages that matter most on your site so Boost can give them its most targeted optimizations.',
+									'jetpack-boost'
+								) }
+							</p>
+							{ summary }
 						</div>
 					}
 					initialOpen={ false }
 					onToggle={ ( value: boolean ) => {
 						recordBoostEvent( 'cornerstone_pages_panel_toggle', {
 							status: value ? 'open' : 'close',
+							panel_scope: 'section',
 						} );
 					} }
 					className={ styles.body }
@@ -44,7 +52,7 @@ const CornerstonePages = () => {
 	);
 };
 
-const CornerstoneTitleSummary = () => {
+export const useCornerstoneSummary = ( includeLabel = true ) => {
 	const [ cornerstonePages ] = useCustomCornerstonePages();
 	if ( ! Array.isArray( cornerstonePages ) ) {
 		return null;
@@ -62,7 +70,11 @@ const CornerstoneTitleSummary = () => {
 						'jetpack-boost'
 					),
 					cornerstonePages.length
-			  );
+				);
+
+	if ( ! includeLabel ) {
+		return pages;
+	}
 
 	return sprintf(
 		/* translators: %s is the number of pages in the custom cornerstone pages list. */

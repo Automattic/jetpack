@@ -2,19 +2,31 @@ import { Spinner } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Notice } from '@wordpress/ui';
 import { getReconnectErrorMessage } from '../../helpers/get-reconnect-error-message';
+import ConnectionErrorDetails from '../connection-error-details';
 import styles from './styles.module.scss';
 import type { ConnectionErrorNoticeProps } from './types';
 import type { ReactNode } from 'react';
 
-const ConnectionErrorNotice = ( {
+/**
+ * The presentational connection error notice.
+ *
+ * @param {ConnectionErrorNoticeProps} props - The errors to describe and the actions to offer.
+ * @return {ReactNode} The notice, or null when there is nothing to describe.
+ */
+function ConnectionErrorNotice( {
 	message,
 	context,
 	isRestoringConnection,
 	restoreConnectionCallback,
 	restoreConnectionError,
 	actions = [],
-}: ConnectionErrorNoticeProps ) => {
-	if ( ! message ) {
+	errorGroups = [],
+	showSupportLink = false,
+	onNoticeLinkClick,
+	onSupportLinkClick,
+	severity = 'error',
+}: ConnectionErrorNoticeProps ): ReactNode {
+	if ( ! message && ! errorGroups.length ) {
 		return null;
 	}
 
@@ -68,13 +80,21 @@ const ConnectionErrorNotice = ( {
 	return (
 		<>
 			{ errorRender }
-			<Notice.Root key="error" intent="error">
+			<Notice.Root key="error" intent={ severity }>
 				{ context && <Notice.Title>{ context }</Notice.Title> }
-				<Notice.Description>{ message }</Notice.Description>
+				<Notice.Description>
+					<ConnectionErrorDetails
+						message={ message }
+						errorGroups={ errorGroups }
+						showSupportLink={ showSupportLink }
+						onNoticeLinkClick={ onNoticeLinkClick }
+						onSupportLinkClick={ onSupportLinkClick }
+					/>
+				</Notice.Description>
 				{ actionButtons.length > 0 && <Notice.Actions>{ actionButtons }</Notice.Actions> }
 			</Notice.Root>
 		</>
 	);
-};
+}
 
 export default ConnectionErrorNotice;

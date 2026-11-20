@@ -51,18 +51,86 @@ class Playground_Importer extends \Imports\Backup_Importer {
 	}
 
 	/**
+	 * Get the path to the SQLite database file.
+	 *
+	 * @return string|null The path to the SQLite database file, or null if none is found.
+	 */
+	public function get_sqlite_db_path(): ?string {
+		return self::find_sqlite_db_path( $this->destination_path );
+	}
+
+	/**
+	 * Find the SQLite database file inside an extracted backup.
+	 *
+	 * The SQLite database file is located at `wp-content/database/.ht.sqlite` or in a folder of the
+	 * type `wp-content/database/.ht.<random>/.ht.sqlite`.
+	 *
+	 * @param string $destination_path The path where the backup was extracted.
+	 *
+	 * @return string|null The path to the SQLite database file, or null if none is found.
+	 */
+	private static function find_sqlite_db_path( string $destination_path ): ?string {
+		$destination_path = trailingslashit( $destination_path );
+		$default_path     = $destination_path . self::SQLITE_DB_PATH;
+		if ( file_exists( $default_path ) ) {
+			return $default_path;
+		}
+
+		$matches = glob( $destination_path . 'wp-content/database/.ht.*/.ht.sqlite' );
+		foreach ( (array) $matches as $path ) {
+			if ( file_exists( $path ) ) {
+				return $path;
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * Read the table prefix from an extracted backup's `wp-config.php`.
+	 *
+	 * @param string $destination_path The path where the backup was extracted.
+	 *
+	 * @return string|null The `$table_prefix`, or null if it can't be read.
+	 */
+	public static function get_table_prefix( string $destination_path ): ?string {
+		$wp_config_path = trailingslashit( $destination_path ) . 'wp-config.php';
+
+		if ( ! is_file( $wp_config_path ) || ! is_readable( $wp_config_path ) ) {
+			return null;
+		}
+
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- A local file.
+		$wp_config = file_get_contents( $wp_config_path );
+
+		if ( false === $wp_config || ! preg_match( '/^\s*\$table_prefix\s*=\s*([\'"])(\w+)\1\s*;/m', $wp_config, $matches ) ) {
+			return null;
+		}
+
+		return $matches[2];
+	}
+
+	/**
 	 * Preprocess the backup before importing.
 	 *
 	 * @return bool|\WP_Error True on success, or a WP_Error on failure.
 	 */
 	public function preprocess() {
-		$options  = array(
+		$options      = array(
 			'output_mode' => SQL_Generator::OUTPUT_TYPE_FILE,
 			'output_file' => $this->tmp_database,
 			'tmp_tables'  => true,
 			'tmp_prefix'  => $this->tmp_prefix,
 		);
-		$db_path  = $this->destination_path . self::SQLITE_DB_PATH;
+		$table_prefix = self::get_table_prefix( $this->destination_path );
+		if ( null !== $table_prefix ) {
+			$options['prefix'] = $table_prefix;
+		}
+		$db_path = $this->get_sqlite_db_path();
+		if ( null === $db_path ) {
+			return new \WP_Error( 'database-file-not-exists', 'Database file not exists' );
+		}
+
 		$importer = new Playground_DB_Importer();
 		$results  = $importer->generate_sql( $db_path, $options );
 
@@ -139,6 +207,6 @@ class Playground_Importer extends \Imports\Backup_Importer {
 	 * @return bool True if the specified folder is a valid backup, false otherwise.
 	 */
 	public static function is_valid( $destination_path ): bool {
-		return file_exists( trailingslashit( $destination_path ) . self::SQLITE_DB_PATH );
+		return self::find_sqlite_db_path( $destination_path ) !== null;
 	}
 }

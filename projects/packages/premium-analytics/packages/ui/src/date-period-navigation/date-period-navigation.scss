@@ -1,8 +1,8 @@
 @use "../styles/preset-surface";
 
-// Its own bordered group, to the left of the presets rather than inside them:
-// the pills are a set to choose from and these move the choice, so sharing one
-// frame would read as a fifth and sixth preset.
+// Its own bordered group, beside the period trigger rather than inside the
+// presets: the pills are a set to choose from and these move the choice, so
+// sharing one frame would read as two more presets.
 .date-period-navigation {
 
 	@include preset-surface.group;
@@ -17,5 +17,5 @@
 	// wherever else it is mounted.
 	--wp-ui-button-height: calc(var(--wpds-dimension-size-lg) - 2px);
 
-	min-width: var(--wpds-dimension-size-lg);
+	min-inline-size: var(--wpds-dimension-size-lg);
 }

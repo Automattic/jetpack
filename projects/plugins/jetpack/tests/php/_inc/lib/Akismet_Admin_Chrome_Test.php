@@ -7,28 +7,50 @@
  */
 
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Plugin\Footer_Links;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status\Cache as Status_Cache;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\CoversMethod;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 require_once JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class-akismet-admin-chrome.php';
+require_once JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class.jetpack-admin-page.php';
 
 /**
  * Class for testing the unified Jetpack chrome rendered on Akismet's admin pages.
  *
  * @covers Akismet_Admin_Chrome
+ * @covers Jetpack_Admin_Page::wrap_ui
+ * @covers Automattic\Jetpack\Plugin\Footer_Links::is_my_jetpack_available
+ * @covers Automattic\Jetpack\Plugin\Footer_Links::shows_my_jetpack_links
  */
 #[CoversClass( Akismet_Admin_Chrome::class )]
+#[CoversMethod( Jetpack_Admin_Page::class, 'wrap_ui' )]
+#[CoversMethod( Footer_Links::class, 'is_my_jetpack_available' )]
+#[CoversMethod( Footer_Links::class, 'shows_my_jetpack_links' )]
 class Akismet_Admin_Chrome_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
+	private $registered_pages;
+	private $actions;
+	private $user_id;
+
 	/**
 	 * Reset the status cache, which memoizes both the offline-mode and the
-	 * WordPress.com platform lookups the footer branches on.
+	 * WordPress.com platform lookups the chrome branches on.
 	 */
 	public function set_up() {
 		parent::set_up();
 		Status_Cache::clear();
+
+		global $_registered_pages, $wp_actions;
+		$this->registered_pages = $_registered_pages;
+		$this->actions          = $wp_actions;
+		$this->user_id          = get_current_user_id();
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
+		do_action( 'my_jetpack_init' );
+		$_registered_pages[ get_plugin_page_hookname( 'my-jetpack', 'jetpack' ) ] = true;
 	}
 
 	/**
@@ -37,6 +59,10 @@ class Akismet_Admin_Chrome_Test extends WP_UnitTestCase {
 	public function tear_down() {
 		Constants::clear_single_constant( 'IS_WPCOM' );
 		Status_Cache::clear();
+		global $_registered_pages, $wp_actions;
+		$_registered_pages = $this->registered_pages;
+		$wp_actions        = $this->actions;
+		wp_set_current_user( $this->user_id );
 		parent::tear_down();
 	}
 
@@ -126,25 +152,189 @@ class Akismet_Admin_Chrome_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * My Jetpack does not exist on WordPress.com, so the Products and Help links have to be
-	 * dropped there rather than pointing at a page the site has no menu entry for.
+	 * Links to My Jetpack follow the host's answer rather than the platform, so a WordPress.com
+	 * site that shows My Jetpack keeps them.
+	 *
+	 * @dataProvider provide_my_jetpack_link_renderers
+	 *
+	 * @param string $render_method Name of the helper that renders the markup under test.
+	 * @param string $witness       Markup that renders with or without the links.
 	 */
-	public function test_render_footer_hides_the_products_and_help_links_on_wpcom() {
-		$chrome = new Akismet_Admin_Chrome();
-
-		$self_hosted = $this->render( array( $chrome, 'render_footer' ) );
-
-		$this->assertStringContainsString( 'class="jp-akismet-footer__menu"', $self_hosted );
-		$this->assertStringContainsString( 'page=my-jetpack#/products', $self_hosted );
-
+	#[DataProvider( 'provide_my_jetpack_link_renderers' )]
+	public function test_my_jetpack_links_follow_the_host_on_wpcom( $render_method, $witness ) {
 		Constants::set_constant( 'IS_WPCOM', true );
 		Status_Cache::clear();
 
-		$wpcom = $this->render( array( $chrome, 'render_footer' ) );
+		$this->assertStringContainsString( 'page=my-jetpack#/', $this->$render_method() );
 
-		$this->assertStringNotContainsString( 'class="jp-akismet-footer__menu"', $wpcom );
-		$this->assertStringNotContainsString( 'page=my-jetpack', $wpcom );
-		// The byline itself still renders on WordPress.com.
-		$this->assertStringContainsString( 'class="jp-akismet-footer__a8c"', $wpcom );
+		add_filter( 'jetpack_my_jetpack_modules_management_available', '__return_false' );
+		$markup = $this->$render_method();
+
+		$this->assertStringNotContainsString( 'page=my-jetpack', $markup );
+		$this->assertStringContainsString( $witness, $markup );
+	}
+
+	/**
+	 * The PHP chrome that links to My Jetpack.
+	 *
+	 * @return array
+	 */
+	public static function provide_my_jetpack_link_renderers() {
+		return array(
+			'Akismet footer'         => array( 'render_akismet_footer', 'An Automattic Airline' ),
+			'Jetpack admin footer'   => array( 'render_wrap_ui_footer', 'An Automattic Airline' ),
+			'Jetpack admin masthead' => array( 'render_wrap_ui_masthead', '<span class="jp-masthead__logo-link">' ),
+		);
+	}
+
+	/**
+	 * Render the Akismet chrome footer.
+	 *
+	 * @return string
+	 */
+	private function render_akismet_footer() {
+		return $this->render( array( new Akismet_Admin_Chrome(), 'render_footer' ) );
+	}
+
+	/**
+	 * Render the shared Jetpack admin wrapper.
+	 *
+	 * @return string
+	 */
+	private function render_wrap_ui() {
+		return $this->render(
+			static function () {
+				Jetpack_Admin_Page::wrap_ui( '__return_empty_string' );
+			}
+		);
+	}
+
+	/**
+	 * Render the footer of the shared Jetpack admin wrapper.
+	 *
+	 * @return string
+	 */
+	private function render_wrap_ui_footer() {
+		$markup = $this->render_wrap_ui();
+		return substr( $markup, strpos( $markup, '<div class="jp-footer jp-footer--static">' ) );
+	}
+
+	/**
+	 * Render the masthead of the shared Jetpack admin wrapper, on a page that links its title.
+	 *
+	 * @return string
+	 */
+	private function render_wrap_ui_masthead() {
+		$_GET['page'] = 'jetpack_modules';
+		$markup       = $this->render_wrap_ui();
+		return substr( $markup, 0, strpos( $markup, '</header>' ) );
+	}
+
+	/**
+	 * The shared wrapper gates the PHP footer on My Jetpack's registered page.
+	 */
+	public function test_unavailable_my_jetpack_hides_footer_links() {
+		global $_registered_pages;
+
+		$this->assertTrue( Footer_Links::is_my_jetpack_available() );
+		unset( $_registered_pages[ get_plugin_page_hookname( 'my-jetpack', 'jetpack' ) ] );
+		$this->assertFalse( Footer_Links::is_my_jetpack_available() );
+
+		$footer = $this->render( array( new Akismet_Admin_Chrome(), 'render_footer' ) );
+
+		$this->assertStringNotContainsString( 'page=my-jetpack', $footer );
+		$this->assertStringContainsString( 'class="jp-akismet-footer__a8c"', $footer );
+	}
+
+	/**
+	 * The Jetpack admin footer hides My Jetpack links when its page is unavailable.
+	 */
+	public function test_wrap_ui_footer_requires_available_my_jetpack() {
+		global $_registered_pages;
+
+		$render_footer = function () {
+			$markup = $this->render(
+				static function () {
+					Jetpack_Admin_Page::wrap_ui( '__return_empty_string' );
+				}
+			);
+			return substr( $markup, strpos( $markup, '<div class="jp-footer jp-footer--static">' ) );
+		};
+
+		$this->assertStringContainsString( 'page=my-jetpack#/', $render_footer() );
+		unset( $_registered_pages[ get_plugin_page_hookname( 'my-jetpack', 'jetpack' ) ] );
+		$footer = $render_footer();
+		$this->assertStringNotContainsString( 'page=my-jetpack', $footer );
+		$this->assertStringContainsString( 'class="jp-footer__a8c-logo"', $footer );
+	}
+
+	/**
+	 * The Jetpack admin footer links to Features only for users who can open it.
+	 *
+	 * @dataProvider provide_wrap_ui_footer_roles
+	 *
+	 * @param string $role         Role of the current user.
+	 * @param bool   $has_features Whether the Features link should render.
+	 */
+	#[DataProvider( 'provide_wrap_ui_footer_roles' )]
+	public function test_wrap_ui_footer_links_features_by_role( $role, $has_features ) {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => $role ) ) );
+
+		$markup = $this->render(
+			static function () {
+				Jetpack_Admin_Page::wrap_ui( '__return_empty_string' );
+			}
+		);
+		$footer = substr( $markup, strpos( $markup, '<div class="jp-footer jp-footer--static">' ) );
+
+		$this->assertSame( $has_features, false !== strpos( $footer, 'page=my-jetpack#/features' ) );
+		$this->assertStringContainsString( 'page=my-jetpack#/help', $footer );
+	}
+
+	/**
+	 * Roles and whether the footer should link them to Features.
+	 *
+	 * @return array
+	 */
+	public static function provide_wrap_ui_footer_roles() {
+		return array(
+			'administrator' => array( 'administrator', true ),
+			'editor'        => array( 'editor', false ),
+		);
+	}
+
+	public function test_wrap_ui_masthead_requires_available_my_jetpack() {
+		global $_registered_pages;
+
+		$_GET['page']    = 'jetpack_modules';
+		$render_masthead = function () {
+			$markup = $this->render(
+				static function () {
+					Jetpack_Admin_Page::wrap_ui( '__return_empty_string' );
+				}
+			);
+			return substr( $markup, 0, strpos( $markup, '</header>' ) );
+		};
+
+		$masthead = $render_masthead();
+		$this->assertSame( 2, substr_count( $masthead, 'page=my-jetpack#/overview' ), 'Both the logo and the title should link to My Jetpack.' );
+		$this->assertStringContainsString( '<a class="jp-masthead__logo-link"', $masthead );
+		unset( $_registered_pages[ get_plugin_page_hookname( 'my-jetpack', 'jetpack' ) ] );
+		$masthead = $render_masthead();
+		$this->assertStringNotContainsString( 'page=my-jetpack', $masthead );
+		$this->assertStringContainsString( '<span class="jp-masthead__logo-link">', $masthead );
+		$this->assertStringContainsString( '<svg', $masthead );
+		$this->assertMatchesRegularExpression( '/<h2 class="jp-masthead__title">\s*Jetpack\s*<span/', $masthead );
+	}
+
+	/**
+	 * The footer links to My Jetpack's Features tab, not the retired Products tab.
+	 */
+	public function test_render_footer_links_to_the_features_tab() {
+		$footer = $this->render( array( new Akismet_Admin_Chrome(), 'render_footer' ) );
+
+		$this->assertStringContainsString( 'page=my-jetpack#/features', $footer );
+		$this->assertStringContainsString( '>Features</a>', $footer );
+		$this->assertStringNotContainsString( 'page=my-jetpack#/products', $footer );
 	}
 }

@@ -1,0 +1,5 @@
+Significance: patch
+Type: added
+Comment: Backup page on WordPress.com: offer a reverted site its last backup to download, and flag a failed transfer.
+
+

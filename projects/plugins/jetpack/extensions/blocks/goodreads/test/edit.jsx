@@ -94,6 +94,8 @@ describe( 'GoodreadsEdit', () => {
 		const attributes = {
 			...defaultAttributes,
 			goodreadsId: 1176283,
+			widgetId: 42,
+			link: 'https://www.goodreads.com/review/custom_widget/1176283.My%20Bookshelf?num_books=2&widget_id=42',
 			userInput: 'https://www.goodreads.com/user/show/1176283-matt-mullenweg',
 		};
 		render( <GoodreadsEdit { ...{ ...defaultProps, attributes } } /> );
@@ -102,5 +104,32 @@ describe( 'GoodreadsEdit', () => {
 		await waitFor( () => ( iframe = screen.getByTitle( 'Goodreads' ) ) );
 
 		expect( iframe ).toBeInTheDocument();
+	} );
+
+	describe( 'does not load stored widget links that are not allowed', () => {
+		test.each( [
+			[ 'javascript scheme', 'javascript:void(0)' ],
+			[ 'data scheme', 'data:text/javascript,void(0)' ],
+			[ 'non-Goodreads https host', 'https://other.example.com/review/custom_widget/1.x' ],
+			[
+				'longer host with the same prefix',
+				'https://goodreads.com.other.example.com/review/custom_widget/1.x',
+			],
+			[ 'not HTTPS', 'http://www.goodreads.com/review/custom_widget/1.x' ],
+		] )( 'does not render the widget for %s', async ( _label, link ) => {
+			useFetchGoodreadsData.mockImplementation( () => ( {
+				isFetchingData: false,
+				goodreadsUserId: '100',
+				isError: false,
+			} ) );
+
+			const attributes = { ...defaultAttributes, goodreadsId: 1176283, widgetId: 42, link };
+			render( <GoodreadsEdit { ...{ ...defaultProps, attributes } } /> );
+
+			await expect(
+				screen.findByPlaceholderText( 'Enter a Goodreads profile URL to embed here…' )
+			).resolves.toBeInTheDocument();
+			expect( screen.queryByTitle( 'Goodreads' ) ).not.toBeInTheDocument();
+		} );
 	} );
 } );

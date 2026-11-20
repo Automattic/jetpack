@@ -1,22 +1,37 @@
 import { CriticalCssErrorDetailsSchema, CriticalCssStateSchema } from './critical-css-state-types';
 import type { CriticalCssState, Provider } from './critical-css-state-types';
-import { useDataSync, useDataSyncAction } from '@automattic/jetpack-react-data-sync-client';
+import {
+	queryClient,
+	useDataSync,
+	useDataSyncAction,
+} from '@automattic/jetpack-react-data-sync-client';
+import { replaceEqualDeep, useMutationState } from '@tanstack/react-query';
 import { z } from 'zod';
 import { __ } from '@wordpress/i18n';
 import { useRegenerationReason } from './suggest-regenerate';
 import { useSingleModuleState } from '$features/module/lib/stores';
 
+const STATE_QUERY_KEY = [ 'critical_css_state' ];
+
+// Timestamps are server microtime, so this is the smallest step that still orders two of them.
+const JUST_AFTER = 0.000001;
+
 /**
- * Hook for accessing and writing to the overall Critical CSS state. Returns both the current state
- * and a setter function. The setter function overwrites the *entire* CSS state, providers and all -
- * so is generally only useful when resetting the state for an error or to ungenerated state.
+ * Hook for accessing and writing to the overall Critical CSS state. Returns the current state, a setter
+ * function, and whether the state is being re-read from the site. The setter function overwrites the whole
+ * CSS state, providers and all - so is generally only useful when resetting the state for an error or to
+ * ungenerated state.
  */
-export function useCriticalCssState(): [ CriticalCssState, ( state: CriticalCssState ) => void ] {
+export function useCriticalCssState(): [
+	CriticalCssState,
+	( state: CriticalCssState ) => void,
+	{ isFetching: boolean },
+] {
 	const [ cloudCss ] = useSingleModuleState( 'cloud_css' );
 	const [ criticalCss ] = useSingleModuleState( 'critical_css' );
 	const enabled = cloudCss?.active || criticalCss?.active;
 
-	const [ { data }, { mutate } ] = useDataSync(
+	const [ { data, isFetching }, { mutate } ] = useDataSync(
 		'jetpack_boost_ds',
 		'critical_css_state',
 		CriticalCssStateSchema,
@@ -29,6 +44,7 @@ export function useCriticalCssState(): [ CriticalCssState, ( state: CriticalCssS
 
 					return query.state.data?.status === 'pending' ? 2000 : 30000;
 				},
+				structuralSharing: keepNewerCriticalCssState,
 			},
 		}
 	);
@@ -37,7 +53,106 @@ export function useCriticalCssState(): [ CriticalCssState, ( state: CriticalCssS
 		throw new Error( 'Critical CSS state not available' );
 	}
 
-	return [ data, mutate ];
+	return [ data, mutate, { isFetching } ];
+}
+
+/**
+ * Check whether the fetched copy was written before the held state, by write time.
+ *
+ * @param {CriticalCssState} fetched - The state that was just fetched or set.
+ * @param {CriticalCssState} held    - The state in the query cache.
+ */
+function isWrittenBefore( fetched: CriticalCssState, held: CriticalCssState ): boolean {
+	const written = fetched.updated ?? fetched.created;
+	const heldWritten = held.updated ?? held.created;
+	if ( ! written || ! heldWritten ) {
+		return false;
+	}
+
+	return written < heldWritten;
+}
+
+// Set while a failed action restores the state it replaced, which is older by definition.
+let restoringReplacedState = false;
+
+/**
+ * Keep the state the dashboard holds when a fetched copy was written before it. Without this, a reply
+ * that arrives late or out of order would show an earlier result as the current one and stop or
+ * restart the run in progress.
+ *
+ * @param {unknown} current  - The state in the query cache.
+ * @param {unknown} incoming - The state that was just fetched or set.
+ */
+export function keepNewerCriticalCssState( current: unknown, incoming: unknown ): unknown {
+	const held = current as CriticalCssState | undefined;
+	const fetched = incoming as CriticalCssState;
+
+	if ( held && ! restoringReplacedState && isWrittenBefore( fetched, held ) ) {
+		return held;
+	}
+
+	return replaceEqualDeep( held, fetched );
+}
+
+/**
+ * A state the browser makes while it waits on the site, placed just after the state it replaces so
+ * that copies written up to that point are not taken for a newer one.
+ *
+ * @param {CriticalCssState} state    - The state to stamp.
+ * @param {CriticalCssState} replaced - The state it replaces.
+ */
+function placedAfter( state: CriticalCssState, replaced?: CriticalCssState ): CriticalCssState {
+	const reference = replaced?.updated ?? replaced?.created;
+	if ( ! reference ) {
+		return state;
+	}
+
+	return { ...state, created: reference + JUST_AFTER, updated: reference + JUST_AFTER };
+}
+
+/**
+ * Whether a Regenerate reply carries a new pending request. A poll can deliver that request, or a later
+ * write of it, before the reply lands, so a pending reply for the request the dashboard already holds is
+ * accepted; any other reply is rejected when it was written before the held state.
+ *
+ * @param {CriticalCssState} reply - The state the action returned.
+ * @param {CriticalCssState} held  - The state in the query cache when the reply arrived.
+ */
+function startsNewRequest( reply: CriticalCssState, held: CriticalCssState | undefined ): boolean {
+	return (
+		reply.status === 'pending' &&
+		( ! held || reply.created === held.created || ! isWrittenBefore( reply, held ) )
+	);
+}
+
+/**
+ * The latest Regenerate attempt that the site refused, from any button, with the request it replaced.
+ */
+export function useRegenerateRefusal(): { error: unknown; replacedCreated?: number } | null {
+	const attempts = useMutationState( {
+		filters: {
+			mutationKey: STATE_QUERY_KEY,
+			predicate: mutation => mutation.options.meta?.action === 'request-regenerate',
+		},
+		select: mutation => ( {
+			status: mutation.state.status,
+			error: mutation.state.error,
+			submittedAt: mutation.state.submittedAt,
+			replacedCreated: (
+				mutation.state.context as { previousValue?: CriticalCssState } | undefined
+			 )?.previousValue?.created,
+		} ),
+	} );
+
+	const latest = attempts.reduce< ( typeof attempts )[ number ] | undefined >(
+		( newest, attempt ) =>
+			! newest || attempt.submittedAt > newest.submittedAt ? attempt : newest,
+		undefined
+	);
+
+	return latest?.status === 'error'
+		? { error: latest.error, replacedCreated: latest.replacedCreated }
+		: null;
 }
 
 /**
@@ -57,18 +172,15 @@ export function criticalCssErrorState( message: string ): CriticalCssState {
  * All Critical CSS State actions return a success flag and the new state. This hook wraps the
  * common logic for handling the result of these actions.
  *
- * @param {string}           action          - The name of the action.
- * @param {z.ZodSchema}      schema          - The schema for the action request.
- * @param {CriticalCssState} optimisticState - The state to use for optimistic updates.
- * @param {Function}         onSuccess       - Optional callback for handling the new state.
+ * @param {string}    action     - The name of the action.
+ * @param {z.ZodType} schema     - The schema for the action request.
+ * @param {Function}  optimistic - Optional state to show while the action runs, from the state it replaces.
+ * @param {Function}  onSuccess  - Optional callback for handling the new state.
  */
-function useCriticalCssAction<
-	ActionSchema extends z.ZodSchema,
-	ActionRequestData extends z.infer< ActionSchema >,
->(
+function useCriticalCssAction< ActionSchema extends z.ZodType >(
 	action: string,
-	schema: ActionRequestData,
-	optimisticState?: CriticalCssState,
+	schema: ActionSchema,
+	optimistic?: ( replaced: CriticalCssState ) => CriticalCssState,
 	onSuccess?: ( state: CriticalCssState ) => void
 ) {
 	const responseSchema = z.object( {
@@ -95,20 +207,51 @@ function useCriticalCssAction<
 			action_request: schema,
 			action_response: responseSchema,
 		},
+		mutationOptions: {
+			meta: { action },
+			// Put back the state the action replaced; see restoringReplacedState.
+			onError: ( _error, _request, context ) => {
+				if ( ! context?.previousValue ) {
+					return;
+				}
+				restoringReplacedState = true;
+				try {
+					queryClient.setQueryData( STATE_QUERY_KEY, context.previousValue );
+				} finally {
+					restoringReplacedState = false;
+				}
+			},
+		},
 		callbacks: {
 			optimisticUpdate: ( _requestData, state: CriticalCssState ) => {
-				if ( optimisticState ) {
-					return optimisticState;
-				}
-
-				return state;
+				return optimistic ? optimistic( state ) : state;
 			},
-			onResult: ( result, _state ): CriticalCssState => {
+			onResult: ( result, held ): CriticalCssState => {
 				if ( result.success ) {
+					if ( action === 'request-regenerate' && ! startsNewRequest( result.state, held ) ) {
+						return placedAfter(
+							criticalCssErrorState(
+								__(
+									'Critical CSS generation did not start. Reload the page and try again.',
+									'jetpack-boost'
+								)
+							),
+							held
+						);
+					}
+
 					if ( onSuccess ) {
 						onSuccess( result.state );
 					}
 
+					return result.state;
+				}
+
+				if (
+					action === 'set-provider-css' &&
+					( result.state.status === 'error' ||
+						result.state.providers.some( provider => provider.status === 'error' ) )
+				) {
 					return result.state;
 				}
 
@@ -178,9 +321,10 @@ export function useRegenerateCriticalCssAction( callback?: () => void ) {
 		resetReason();
 	};
 
-	// Optimistically update the state to hide any errors and immediately show the pending state.
-	const optimisticState: CriticalCssState = { status: 'pending', providers: [] };
-	return useCriticalCssAction( 'request-regenerate', z.void(), optimisticState, onSuccess );
+	// Show the pending state at once, placed after the state it replaces so older copies stay out.
+	const optimistic = ( replaced: CriticalCssState ) =>
+		placedAfter( { status: 'pending', providers: [] }, replaced );
+	return useCriticalCssAction( 'request-regenerate', z.void(), optimistic, onSuccess );
 }
 
 /**

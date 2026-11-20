@@ -16,14 +16,14 @@ class Jetpack_Shortcodes_Brightcove_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Verify that calling do_shortcode with the shortcode doesn't return the same content.
+	 * Verify that calling apply_shortcodes with the shortcode doesn't return the same content.
 	 *
 	 * @since 4.5.0
 	 */
 	public function test_shortcodes_brightcove() {
 		$content = '[brightcove]';
 
-		$shortcode_content = do_shortcode( $content );
+		$shortcode_content = apply_shortcodes( $content );
 
 		$this->assertNotEquals( $content, $shortcode_content );
 		$this->assertEquals( '<!-- Missing Brightcove parameters -->', $shortcode_content );
@@ -39,7 +39,7 @@ class Jetpack_Shortcodes_Brightcove_Test extends WP_UnitTestCase {
 		$account_id = '57838016001';
 		$content    = "[brightcove video_id='$video_id' account_id='$account_id']";
 
-		$shortcode_content = do_shortcode( $content );
+		$shortcode_content = apply_shortcodes( $content );
 
 		$this->assertStringContainsString( '<iframe src="//players.brightcove.net/' . $account_id . '/default_default/index.html?videoId=' . $video_id . '"', $shortcode_content );
 	}

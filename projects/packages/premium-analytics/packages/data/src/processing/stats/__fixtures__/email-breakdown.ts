@@ -1,22 +1,14 @@
+// All-time breakdown payloads as WPCOM returns them: one payload key per endpoint, rows as
+// `[ label, count ]`, and `fields` naming those columns.
+
 export const emailCountriesFixture = {
 	countries: {
-		fields: [ 'country_code', 'opens_count' ],
-		data: [ [ 'NZ', '12' ] ],
-	},
-	'countries-info': {
-		NZ: {
-			country_full: 'New Zealand',
-		},
-	},
-};
-
-export const emailFieldlessCountriesFixture = {
-	countries: {
 		data: [
-			[ 'US', '18' ],
-			[ 'NZ', '12' ],
-			[ 'XX', '2' ],
+			[ 'US', 18 ],
+			[ 'NZ', 12 ],
+			[ 'XX', 2 ],
 		],
+		fields: [ 'country', 'opens_count' ],
 	},
 	'countries-info': {
 		NZ: {
@@ -30,45 +22,37 @@ export const emailFieldlessCountriesFixture = {
 	},
 };
 
-// `Other` outranks `Gmail` by value so the fixture proves the catch-all bucket is
-// pinned last rather than merely landing last by value.
-export const emailFieldlessClientsFixture = {
+// `Other` outranks every named client by value, so the fixture proves the catch-all
+// bucket is pinned last rather than merely landing last by value.
+export const emailClientsFixture = {
 	clients: {
 		data: [
-			[ 'Other', '9' ],
-			[ 'Apple Mail', '10' ],
-			[ 'Gmail', '8' ],
+			[ 'Other', 265 ],
+			[ 'Apple Mail', 200 ],
+			[ 'Thunderbird', 180 ],
 		],
-	},
-};
-
-// Matrix (fields-based) counterpart of the clients breakdown. `Other` outranks
-// every named client by value, so the fixture proves the matrix path pins the
-// catch-all bucket last rather than returning rows in raw API order.
-export const emailMatrixClientsFixture = {
-	clients: {
 		fields: [ 'client', 'opens_count' ],
-		data: [
-			[ 'Other', '265' ],
-			[ 'Apple Mail', '200' ],
-			[ 'Thunderbird', '180' ],
-		],
 	},
 };
 
-export const emailFieldlessLinksFixture = {
+export const emailLinksFixture = {
 	links: {
 		data: [
-			[ 'post-url', '7' ],
-			[ 'custom-action', '3' ],
-			[ 'user_link', '2' ],
-			[ 'like-post', '1' ],
+			[ 'post-url', 7 ],
+			[ 'custom-action', 3 ],
+			[ 'user_link', 2 ],
+			[ 'like-post', 1 ],
 		],
+		fields: [ 'link_desc', 'clicks_count' ],
 	},
+};
+
+export const emailUserContentLinksFixture = {
 	'user-content-links': {
 		data: [
-			[ 'https://example.com/a', '4' ],
-			[ 'https://example.com/b', '2' ],
+			[ 'https://example.com/a', 4 ],
+			[ 'https://example.com/b', 2 ],
 		],
+		fields: [ 'url', 'clicks_count' ],
 	},
 };

@@ -11,6 +11,7 @@ import {
 	ToolbarButton,
 	ToolbarGroup,
 } from '@wordpress/components';
+import { useDispatch } from '@wordpress/data';
 import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { globe } from '@wordpress/icons';
@@ -44,6 +45,7 @@ export default function PhoneFieldEdit( props ) {
 		requiredIndicator,
 	} = attributes;
 	const [ countryList, setCountryList ] = useState( EMPTY_ARRAY );
+	const { __unstableMarkNextChangeAsNotPersistent } = useDispatch( 'core/block-editor' );
 
 	const { isInnerBlockSelected, hasPlaceholder } = useFieldSelected( clientId );
 	const { blockStyle } = useJetpackFieldStyles( attributes );
@@ -78,10 +80,17 @@ export default function PhoneFieldEdit( props ) {
 
 	useEffect( () => {
 		if ( showCountrySelector === undefined || showCountrySelector === true ) {
+			__unstableMarkNextChangeAsNotPersistent();
 			setAttributes( { showCountrySelector: true, default: defaultCountry || 'US' } );
 			setCountryList( countryPairs );
 		}
-	}, [ showCountrySelector, setAttributes, countryPairs, defaultCountry ] );
+	}, [
+		showCountrySelector,
+		setAttributes,
+		countryPairs,
+		defaultCountry,
+		__unstableMarkNextChangeAsNotPersistent,
+	] );
 
 	const innerBlocksProps = useInnerBlocksProps(
 		{ className: 'jetpack-field__control' },

@@ -11,6 +11,7 @@ import getCriticalCssErrorSetInterpolateVars from '$lib/utils/get-critical-css-e
 import formatErrorSetUrls from '$lib/utils/format-error-set-urls';
 import actionLinkInterpolateVar from '$lib/utils/action-link-interpolate-var';
 import { recordBoostEvent } from '$lib/utils/analytics';
+import { useModuleSurface } from '$features/module/surface';
 import { useRetryRegenerate } from '../lib/use-retry-regenerate';
 import RawError from '../raw-error/raw-error';
 import type { FC } from 'react';
@@ -25,11 +26,12 @@ const ShowStopperError: FC< ShowStopperErrorTypes > = ( {
 	supportLink = 'https://wordpress.org/support/plugin/jetpack-boost/',
 	cssState,
 } ) => {
+	const isModern = useModuleSurface() === 'row';
 	const primaryErrorSet = getPrimaryErrorSet( cssState );
 	const showLearnSection = primaryErrorSet && cssState.status === 'generated';
 
 	return (
-		<Notice.Root intent="error">
+		<Notice.Root intent="error" className={ isModern ? styles[ 'is-modern' ] : undefined }>
 			<Notice.Title>{ __( 'Failed to generate Critical CSS', 'jetpack-boost' ) }</Notice.Title>
 			<Notice.Description>
 				{ showLearnSection ? (

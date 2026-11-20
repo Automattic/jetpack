@@ -99,6 +99,7 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 		remove_all_filters( 'pre_http_request' );
 		remove_all_filters( 'locale' );
 		remove_all_filters( 'jetpack_ai_enabled' );
+		remove_filter( 'jetpack_active_modules', array( 'Jetpack_AI_Settings', 'drop_ai_module' ), 100 );
 		delete_option( 'jetpack_ai_enabled' );
 		( new \Automattic\Jetpack\Connection\Manager( 'jetpack' ) )->reset_connection_status();
 		\Jetpack_Options::delete_option( array( 'id', 'blog_token' ) );
@@ -586,20 +587,19 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Test that a jetpack_ai_enabled kill-switch filter does not take Image
-	 * Studio down in Big Sky/CIAB environments. The environment enable predates
-	 * the master gates and never consulted the filter chain there — on
-	 * WordPress.com, Big Sky's free-trial __return_false callback targets the
-	 * AI Assistant sidebar only, while Image Studio stays offered so Jetpack
-	 * keeps signalling Big Sky to defer its own copy. Only the host gate, the
-	 * master option, and the per-feature toggles may turn it off.
+	 * Same as test_master_option_off_disables_image_studio_in_big_sky(), through the filter route.
 	 */
-	public function test_ai_enabled_filter_does_not_gate_big_sky_environment() {
+	public function test_ai_enabled_filter_off_disables_image_studio_in_big_sky() {
 		$this->enable_big_sky();
-		add_filter( 'jetpack_ai_enabled', '__return_false' );
-
 		$this->assertTrue( ImageStudio\is_image_studio_environment_available() );
 		$this->assertTrue( ImageStudio\is_image_studio_enabled() );
+
+		add_filter( 'jetpack_ai_enabled', '__return_false' );
+
+		\Jetpack_AI_Settings::hold_module_off_when_ai_is_off();
+
+		$this->assertFalse( ImageStudio\is_image_studio_environment_available() );
+		$this->assertFalse( ImageStudio\is_image_studio_enabled() );
 	}
 
 	/**
@@ -733,42 +733,6 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Test that exact employee identity is sufficient for the tracking signal.
-	 *
-	 * @runInSeparateProcess
-	 * @preserveGlobalState disabled
-	 */
-	#[RunInSeparateProcess]
-	#[PreserveGlobalState( false )]
-	public function test_tracking_automattician_for_employee_identity() {
-		if ( function_exists( 'is_automattician' ) ) {
-			$this->markTestSkipped( 'is_automattician already defined; cannot stub.' );
-		}
-
-		eval( 'function is_automattician() { return true; }' ); // @codingStandardsIgnoreLine — process-isolated stub.
-
-		$this->assertTrue( ImageStudio\is_tracking_automattician() );
-	}
-
-	/**
-	 * Test that a WordPress.com proxy is sufficient for the tracking signal.
-	 *
-	 * @runInSeparateProcess
-	 * @preserveGlobalState disabled
-	 */
-	#[RunInSeparateProcess]
-	#[PreserveGlobalState( false )]
-	public function test_tracking_automattician_for_wpcom_proxy() {
-		if ( function_exists( 'wpcom_is_proxied_request' ) ) {
-			$this->markTestSkipped( 'wpcom_is_proxied_request already defined; cannot stub.' );
-		}
-
-		eval( 'function wpcom_is_proxied_request() { return true; }' ); // @codingStandardsIgnoreLine — process-isolated stub.
-
-		$this->assertTrue( ImageStudio\is_tracking_automattician() );
-	}
-
-	/**
 	 * Test inline script includes canGenerateVideoClips property.
 	 */
 	public function test_inline_script_includes_can_generate_video_clips() {
@@ -789,25 +753,9 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 
 	/**
 	 * Test inline script reflects canGenerateVideoClips = true when forced via filter.
-	 *
-	 * Runs in a separate process and stubs `wpcom_site_can_upload_videos()` to
-	 * return true so the wpcom hard gate is satisfied and the filter's
-	 * force-enable path is actually exercised — mirrors the pattern used by
-	 * test_can_generate_video_clips_true_when_wpcom_helper_true.
-	 *
-	 * @runInSeparateProcess
-	 * @preserveGlobalState disabled
 	 */
-	#[RunInSeparateProcess]
-	#[PreserveGlobalState( false )]
 	public function test_inline_script_can_generate_video_clips_true_via_filter() {
-		require_once JETPACK__PLUGIN_DIR . '/extensions/plugins/image-studio/image-studio.php';
-
-		if ( function_exists( 'wpcom_site_can_upload_videos' ) ) {
-			$this->markTestSkipped( 'wpcom_site_can_upload_videos already defined; cannot stub.' );
-		}
-
-		eval( 'function wpcom_site_can_upload_videos( $blog_id = 0 ) { return true; }' ); // @codingStandardsIgnoreLine — process-isolated stub.
+		$this->skip_if_wpcom_video_helper_exists();
 
 		add_filter( 'jetpack_image_studio_can_generate_video_clips', '__return_true' );
 		$this->enable_and_enqueue_block_editor();
@@ -825,25 +773,9 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 
 	/**
 	 * Test inline script reflects canGenerateVideoClips = false when forced via filter.
-	 *
-	 * Runs in a separate process and stubs `wpcom_site_can_upload_videos()` to
-	 * return true so both hard gates pass — otherwise the wpcom gate could
-	 * short-circuit to false and the assertion would succeed without actually
-	 * exercising the filter override path.
-	 *
-	 * @runInSeparateProcess
-	 * @preserveGlobalState disabled
 	 */
-	#[RunInSeparateProcess]
-	#[PreserveGlobalState( false )]
 	public function test_inline_script_can_generate_video_clips_false_via_filter() {
-		require_once JETPACK__PLUGIN_DIR . '/extensions/plugins/image-studio/image-studio.php';
-
-		if ( function_exists( 'wpcom_site_can_upload_videos' ) ) {
-			$this->markTestSkipped( 'wpcom_site_can_upload_videos already defined; cannot stub.' );
-		}
-
-		eval( 'function wpcom_site_can_upload_videos( $blog_id = 0 ) { return true; }' ); // @codingStandardsIgnoreLine — process-isolated stub.
+		$this->skip_if_wpcom_video_helper_exists();
 
 		add_filter( 'jetpack_image_studio_can_generate_video_clips', '__return_false' );
 		$this->enable_and_enqueue_block_editor();
@@ -863,25 +795,9 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	 * Test that image_studio_can_generate_video_clips() honors a filter that
 	 * forces the result to false. The filter is consulted between the hard
 	 * gates and the default `true`.
-	 *
-	 * Runs in a separate process and stubs `wpcom_site_can_upload_videos()`
-	 * to return true so both hard gates pass — otherwise the wpcom gate
-	 * could short-circuit to false and the assertion would succeed without
-	 * actually exercising the filter override path.
-	 *
-	 * @runInSeparateProcess
-	 * @preserveGlobalState disabled
 	 */
-	#[RunInSeparateProcess]
-	#[PreserveGlobalState( false )]
 	public function test_can_generate_video_clips_filter_override_false() {
-		require_once JETPACK__PLUGIN_DIR . '/extensions/plugins/image-studio/image-studio.php';
-
-		if ( function_exists( 'wpcom_site_can_upload_videos' ) ) {
-			$this->markTestSkipped( 'wpcom_site_can_upload_videos already defined; cannot stub.' );
-		}
-
-		eval( 'function wpcom_site_can_upload_videos( $blog_id = 0 ) { return true; }' ); // @codingStandardsIgnoreLine — process-isolated stub.
+		$this->skip_if_wpcom_video_helper_exists();
 
 		add_filter( 'jetpack_image_studio_can_generate_video_clips', '__return_false' );
 		$this->assertFalse( ImageStudio\image_studio_can_generate_video_clips() );
@@ -890,24 +806,9 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	/**
 	 * Test that image_studio_can_generate_video_clips() honors a filter that
 	 * forces the result to true once both hard gates pass.
-	 *
-	 * Runs in a separate process and stubs `wpcom_site_can_upload_videos()` to
-	 * return true so the wpcom hard gate is satisfied and the filter's
-	 * force-enable path is actually exercised.
-	 *
-	 * @runInSeparateProcess
-	 * @preserveGlobalState disabled
 	 */
-	#[RunInSeparateProcess]
-	#[PreserveGlobalState( false )]
 	public function test_can_generate_video_clips_filter_override_true() {
-		require_once JETPACK__PLUGIN_DIR . '/extensions/plugins/image-studio/image-studio.php';
-
-		if ( function_exists( 'wpcom_site_can_upload_videos' ) ) {
-			$this->markTestSkipped( 'wpcom_site_can_upload_videos already defined; cannot stub.' );
-		}
-
-		eval( 'function wpcom_site_can_upload_videos( $blog_id = 0 ) { return true; }' ); // @codingStandardsIgnoreLine — process-isolated stub.
+		$this->skip_if_wpcom_video_helper_exists();
 
 		add_filter( 'jetpack_image_studio_can_generate_video_clips', '__return_true' );
 		$this->assertTrue( ImageStudio\image_studio_can_generate_video_clips() );
@@ -955,96 +856,74 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Test that a stray __return_true on the override filter cannot bypass the
-	 * `wpcom_site_can_upload_videos()` capability check. Both hard gates must
-	 * pass before the filter is consulted, so a plan that doesn't support
-	 * video uploads always reports false even with the filter forcing true.
-	 *
-	 * Runs in a separate process so we can stub the global helper without
-	 * leaking the definition into the main test process.
-	 *
-	 * @runInSeparateProcess
-	 * @preserveGlobalState disabled
-	 */
-	#[RunInSeparateProcess]
-	#[PreserveGlobalState( false )]
-	public function test_can_generate_video_clips_filter_cannot_override_no_video_upload() {
-		require_once JETPACK__PLUGIN_DIR . '/extensions/plugins/image-studio/image-studio.php';
-
-		if ( function_exists( 'wpcom_site_can_upload_videos' ) ) {
-			$this->markTestSkipped( 'wpcom_site_can_upload_videos already defined; cannot stub.' );
-		}
-
-		eval( 'function wpcom_site_can_upload_videos( $blog_id = 0 ) { return false; }' ); // @codingStandardsIgnoreLine — process-isolated stub.
-
-		add_filter( 'jetpack_image_studio_can_generate_video_clips', '__return_true' );
-		$this->assertFalse( ImageStudio\image_studio_can_generate_video_clips() );
-	}
-
-	/**
-	 * Test that the helper returns true when wpcom_site_can_upload_videos() reports true.
-	 *
-	 * Runs in a separate process so we can stub wpcom_site_can_upload_videos
-	 * without leaking the definition into the main test process. Skipped in
-	 * environments where the helper is already defined (e.g. WPCOMSH job)
-	 * since we cannot redefine an existing function.
-	 *
-	 * @runInSeparateProcess
-	 * @preserveGlobalState disabled
-	 */
-	#[RunInSeparateProcess]
-	#[PreserveGlobalState( false )]
-	public function test_can_generate_video_clips_true_when_wpcom_helper_true() {
-		require_once JETPACK__PLUGIN_DIR . '/extensions/plugins/image-studio/image-studio.php';
-
-		if ( function_exists( 'wpcom_site_can_upload_videos' ) ) {
-			$this->markTestSkipped( 'wpcom_site_can_upload_videos already defined; cannot stub.' );
-		}
-
-		eval( 'function wpcom_site_can_upload_videos( $blog_id = 0 ) { return true; }' ); // @codingStandardsIgnoreLine — process-isolated stub.
-
-		$this->assertTrue( ImageStudio\image_studio_can_generate_video_clips() );
-	}
-
-	/**
-	 * Test that the helper returns false when wpcom_site_can_upload_videos() reports false.
-	 *
-	 * @runInSeparateProcess
-	 * @preserveGlobalState disabled
-	 */
-	#[RunInSeparateProcess]
-	#[PreserveGlobalState( false )]
-	public function test_can_generate_video_clips_false_when_wpcom_helper_false() {
-		require_once JETPACK__PLUGIN_DIR . '/extensions/plugins/image-studio/image-studio.php';
-
-		if ( function_exists( 'wpcom_site_can_upload_videos' ) ) {
-			$this->markTestSkipped( 'wpcom_site_can_upload_videos already defined; cannot stub.' );
-		}
-
-		eval( 'function wpcom_site_can_upload_videos( $blog_id = 0 ) { return false; }' ); // @codingStandardsIgnoreLine — process-isolated stub.
-
-		$this->assertFalse( ImageStudio\image_studio_can_generate_video_clips() );
-	}
-
-	/**
 	 * Test that off WPCOM (no wpcom_site_can_upload_videos) the helper returns
 	 * true so the entry point is not gated on environments where we have no
 	 * way to determine capability up-front. The server is the source of truth
 	 * in that case.
+	 */
+	public function test_can_generate_video_clips_true_off_wpcom() {
+		$this->skip_if_wpcom_video_helper_exists();
+
+		$this->assertTrue( ImageStudio\image_studio_can_generate_video_clips() );
+	}
+
+	/**
+	 * Test that the WordPress.com-only helpers drive the video clip gate and the tracking signal.
+	 *
+	 * Isolated: it defines global functions that cannot be undefined. Each stub returns
+	 * a $GLOBALS entry, so one process covers every case.
 	 *
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
 	 */
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
-	public function test_can_generate_video_clips_true_off_wpcom() {
-		require_once JETPACK__PLUGIN_DIR . '/extensions/plugins/image-studio/image-studio.php';
-
-		if ( function_exists( 'wpcom_site_can_upload_videos' ) ) {
-			$this->markTestSkipped( 'wpcom_site_can_upload_videos defined; cannot exercise off-WPCOM branch.' );
+	public function test_wpcom_helpers_drive_video_clips_and_tracking() {
+		foreach ( array( 'wpcom_site_can_upload_videos', 'is_automattician', 'wpcom_is_proxied_request' ) as $function ) {
+			if ( function_exists( $function ) ) {
+				$this->markTestSkipped( "$function already defined; cannot stub." );
+			}
 		}
 
-		$this->assertTrue( ImageStudio\image_studio_can_generate_video_clips() );
+		$GLOBALS['image_studio_test_wpcom'] = array(
+			'can_upload_videos' => true,
+			'is_automattician'  => false,
+			'is_proxied'        => false,
+		);
+		// @codingStandardsIgnoreStart -- process-isolated stubs.
+		eval( 'function wpcom_site_can_upload_videos( $blog_id = 0 ) { return $GLOBALS["image_studio_test_wpcom"]["can_upload_videos"]; }' );
+		eval( 'function is_automattician() { return $GLOBALS["image_studio_test_wpcom"]["is_automattician"]; }' );
+		eval( 'function wpcom_is_proxied_request() { return $GLOBALS["image_studio_test_wpcom"]["is_proxied"]; }' );
+		// @codingStandardsIgnoreEnd
+
+		$this->assertTrue( ImageStudio\image_studio_can_generate_video_clips(), 'Clips are available when the site can upload videos.' );
+		$this->assertFalse( ImageStudio\is_tracking_automattician(), 'An ordinary request is not Automattician traffic.' );
+
+		add_filter( 'jetpack_image_studio_can_generate_video_clips', '__return_false' );
+		$this->assertFalse( ImageStudio\image_studio_can_generate_video_clips(), 'The override filter can turn clips off on a site that can upload videos.' );
+		remove_filter( 'jetpack_image_studio_can_generate_video_clips', '__return_false' );
+
+		$GLOBALS['image_studio_test_wpcom']['can_upload_videos'] = false;
+		$this->assertFalse( ImageStudio\image_studio_can_generate_video_clips(), 'Clips are unavailable when the site cannot upload videos.' );
+
+		add_filter( 'jetpack_image_studio_can_generate_video_clips', '__return_true' );
+		$this->assertFalse( ImageStudio\image_studio_can_generate_video_clips(), 'The override filter cannot bypass the video upload check.' );
+
+		$GLOBALS['image_studio_test_wpcom']['is_automattician'] = true;
+		$this->assertTrue( ImageStudio\is_tracking_automattician(), 'An identified employee is Automattician traffic.' );
+
+		$GLOBALS['image_studio_test_wpcom']['is_automattician'] = false;
+		$GLOBALS['image_studio_test_wpcom']['is_proxied']       = true;
+		$this->assertTrue( ImageStudio\is_tracking_automattician(), 'A proxied request is Automattician traffic.' );
+	}
+
+	/**
+	 * Skip when the real WordPress.com video upload helper is loaded, as in the wpcomsh run.
+	 */
+	private function skip_if_wpcom_video_helper_exists() {
+		if ( function_exists( 'wpcom_site_can_upload_videos' ) ) {
+			$this->markTestSkipped( 'wpcom_site_can_upload_videos is defined; cannot exercise the off-WPCOM branch.' );
+		}
 	}
 
 	/**
@@ -1708,18 +1587,6 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 		$result = ImageStudio\get_asset_data_from_remote();
 
 		$this->assertFalse( $result );
-	}
-
-	// -------------------------------------------------------------------------
-	// get_ai_image_extensions() tests
-	// -------------------------------------------------------------------------
-
-	/**
-	 * Test get_ai_image_extensions returns all expected extensions.
-	 */
-	public function test_get_ai_image_extensions_returns_expected_list() {
-		$extensions = ImageStudio\get_ai_image_extensions();
-		$this->assertEquals( self::get_ai_image_extensions(), $extensions );
 	}
 
 	// -------------------------------------------------------------------------

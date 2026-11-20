@@ -2,7 +2,7 @@
 
 ## Confidentiality
 
-CRITICAL: This is a **public repository**. Never include private WordPress.com URLs (e.g., `*.wordpress.com` internal sites) in PR descriptions, commit messages, code comments, or any public-facing text. Use the p2 shorthand syntax instead (e.g., `peKye1-1Z1-p2`).
+CRITICAL: This is a **public repository**. Never put an internal link or hostname in a PR description, review comment, commit message, code comment, or any other public-facing text: no private WordPress.com URLs (e.g., `*.wordpress.com` internal sites and P2s), no Slack, Linear, HackerOne, private GitHub repository, or GitHub Enterprise URLs, and no other internal tool URLs. Use the shortlinks the PR template asks for instead: `peKye1-1Z1-p2` for a P2 post, `p<message>-slack-<channel>` for a Slack message (`p<message>/<thread>-slack-<channel>` for a reply in a thread), and the bare issue key (`JETPACK-123`) for Linear.
 
 ## Project Structure
 
@@ -119,7 +119,10 @@ Five shapes exceed the budget however well they explain themselves:
 - **Provenance that rots** — upstream file-and-line citations, "before this PR…", benchmark
   numbers, mutation-testing counts. A stable link survives; a line number does not.
 - **The same explanation in more than one place.** Put it in the file that owns the thing,
-  nowhere else. N copies drift independently, so a reader cannot tell which is current.
+  nowhere else. N copies drift independently, so a reader cannot tell which is current. This is
+  the one rule here you cannot check from the file you are typing in: before writing a rationale,
+  grep a distinctive phrase from it. If one already exists, don't add the second — improve the
+  first where it lives.
 
 Keep every functional annotation regardless: `@param`, `@return`, `@covers`, `translators:`,
 `phpcs:ignore`, `eslint-disable`, `@ts-expect-error`. Those are required tooling or load-bearing
@@ -154,10 +157,12 @@ jp test js <project>            # JS tests (skipped if not defined)
 jp phan <project>               # Static analysis
 ```
 
+Before adding a test, name the realistic bug it catches that no existing test does; no answer, no test. One test per behavior: add an `it.each` or data provider row instead of copying a test. A failing coverage check alone is not a reason to add one; say why in the PR and use the `Covered by non-unit tests` label. See `docs/automated-testing.md` § "What a test must earn", and the `test-value-audit` skill for auditing existing tests.
+
 ### PHP Testing
 
 - `jp test php` works for most projects. A few plugins that require a full WordPress copy (`plugins/jetpack` and `plugins/wpcomsh`) use `jp docker phpunit` instead.
-- **PHP version matrix**: CI runs PHP tests against every supported version from 7.4 to 8.5 (see `.github/versions.sh` for current values). When fixing an issue on one PHP version, ensure the fix is compatible with all supported versions — don't use syntax or functions unavailable in PHP 7.4 unless the project's `composer.json` requires a higher minimum.
+- **PHP version matrix**: CI runs PHP tests against every supported version (see `MIN_PHP_VERSION` and `MAX_PHP_VERSION` in `.github/versions.sh` for current values). When fixing an issue on one PHP version, ensure the fix is compatible with all supported versions — don't use syntax or functions unavailable in `MIN_PHP_VERSION` unless the project's `composer.json` requires a higher minimum.
 - `jp test php` does not support passthrough options like `--filter`. To filter tests in Docker-based projects, use: `jp docker phpunit jetpack -- --filter=Jetpack_Sync_Post_Test` or `jp docker phpunit jetpack -- --group jetpack-sync`
 - PHP testing approaches vary by project:
   - Some packages use basic PHPUnit with `yoast/phpunit-polyfills` (no WordPress-specific testing)
@@ -185,7 +190,7 @@ Run from the monorepo root:
 ```bash
 pnpm run lint-changed             # ESLint, changed files only (fastest)
 pnpm run lint                     # ESLint, everything
-pnpm run lint-style               # Stylelint (CSS/SCSS)
+pnpm run lint-style               # Stylelint (CSS/SCSS) — needs an explicit path
 pnpm run typecheck                # TypeScript, every project that defines it
 composer phpcs:changed            # PHPCS on changed files
 composer phpcs:lint               # PHPCS, everything
@@ -225,7 +230,7 @@ jp dependencies list js-packages/components --add-dependents --extra build --no-
 
 Then narrow that list. A widely-shared js-package can list well over a dozen plugins; add an entry for one only when a user of *that plugin* could notice the change. Skip it when:
 
-- **The change belongs to another product and this plugin only contains it via a My Jetpack product card.** A change to a My Jetpack product card belongs in the changelogs of the plugins that ship that product. Every other plugin renders the card only for someone who already has that product, and they read about it in that product's changelog. Check that the card really is the only route, though: `js-packages/boost-score-api` sits behind the Boost card, but `plugins/jetpack` also calls it straight from At a Glance, so a change there reaches Jetpack plugin users too.
+- **The change belongs to another product and this plugin only contains it via a My Jetpack product card.** A change to a My Jetpack product card belongs in the changelogs of the plugins that ship that product. Every other plugin renders the card only for someone who already has that product, and they read about it in that product's changelog. Check that the card really is the only route, though: `packages/waf` sits behind the Protect card, but `plugins/jetpack` also runs the firewall itself and configures it from Settings › Security, so a change there reaches Jetpack plugin users too.
 - **The plugin never reaches the changed code.** `js-packages/components` is a build dependency of nearly every plugin in the monorepo, but `DiffViewer` reaches only `plugins/protect`.
 - **It is reachable only under conditions the plugin never creates** — a module it does not register, a plan or product it does not sell, or a host it does not run on. Check the gate rather than the dependency, because the same code can qualify for one plugin and not another: the WordPress.com-only paths in `packages/masterbar` never run on a self-hosted site, but they are the whole reason `plugins/wpcomsh` bundles the package.
 - **The plugin's changelog is not a product record.** `starter-plugin` is a scaffolding template, and `mu-wpcom-plugin` is the wrapper that exists so `packages/jetpack-mu-wpcom` can be deployed to WordPress.com Simple at all (it doubles as a test plugin for the package). Nobody installs either one, so nobody reads either changelog to find out what changed on their site — what a Simple site owner would notice belongs in the package's own entry. Keep this one narrow: it is about those two, not about any plugin you have not heard of.
@@ -240,7 +245,7 @@ jp dependencies list plugins/protect --add-dependents --extra build --no-dev | g
 
 Use `git grep`, not `grep -r`. A checkout you have built or run `composer install` in carries the symbol in webpack caches and in `vendor/composer/*classmap.php`, and those classmaps name every class in a plugin's whole dependency closure — so `grep -r` on a PHP symbol hands back every dependent plugin, which is the answer this section exists to talk you out of. Exclude `CHANGELOG.md` while you are there: a changelog naming the symbol is a record that a project once touched it, not a lead that it still does.
 
-What that gives you is a shortlist, not an answer. Bundling a project is not the same as rendering its code, which is the distinction the whole section turns on, so finish the job by hand, one lead at a time. `DiffViewer` is the cautionary case. The `js-packages/scan` lead offers `plugins/protect` and `plugins/jetpack` and settles neither: that package touches `DiffViewer` only inside `ThreatModal`, which is barrel-exported and then rendered by nothing outside its own story — `packages/scan`, the Jetpack plugin's only route to the package, imports `ThreatsDataViews` and `ThreatSeverityBadge` and never `ThreatModal`. `plugins/protect` survives on the other lead entirely, where it imports `DiffViewer` from `@automattic/jetpack-components` itself. So a `DiffViewer` change is noticeable in `plugins/protect` alone — but not by the route the dependency graph suggested, which is why the leads are worth keeping apart.
+What that gives you is a shortlist, not an answer. Bundling a project is not the same as rendering its code, which is the distinction the whole section turns on, so finish the job by hand, one lead at a time. `DiffViewer` is the cautionary case. The `js-packages/scan` lead offers `plugins/protect` and `plugins/jetpack` and settles neither: that package touches `DiffViewer` only inside `ThreatModal`, which is barrel-exported and then rendered by nothing outside its own story — `packages/protect`, the Jetpack plugin's only route to the package, imports `ThreatSeverityBadge` and threat helpers and never `ThreatModal`. `plugins/protect` survives on the other lead entirely, where it imports `DiffViewer` from `@automattic/jetpack-components` itself. So a `DiffViewer` change is noticeable in `plugins/protect` alone — but not by the route the dependency graph suggested, which is why the leads are worth keeping apart.
 
 Then add one entry per plugin that survives. Each project defines its own types — `plugins/jetpack` uses `major` | `enhancement` | `compat` | `bugfix` | `other`:
 
@@ -343,12 +348,17 @@ Before introducing new dependencies:
 - Check for reusable components, utilities, or hooks in shared packages
 - Review existing WordPress core and Jetpack APIs
 - Prioritize internal packages and APIs over external dependencies
+- When plugin PHP code calls a newly added shared-package method, guard it with `method_exists()` and preserve a backward-compatible fallback.
+- Another plugin may load an older class before all Jetpack autoloaders register, or through a different or higher-priority autoloader.
 
 ## Common Pitfalls
 
 - **Do NOT edit WordPress core files** — all changes must be in plugins/packages
+- **WordPress.com uses a partial Jetpack bootstrap** — it can load selected Jetpack files, including defusioned JSON API endpoints, without running `load-jetpack.php`. Code used by those endpoints must explicitly load non-autoloaded dependencies and tolerate host-defined global functions. Test the WordPress.com bootstrap path separately when changing those dependencies.
 - **Git merge conflicts**: after resolving, use `git commit --no-edit --no-verify` — pre-commit hooks can make unintended changes to merge commit files
 - **Do NOT hand-edit generated Phan stubs** — `.phan/stubs/wpcom-stubs.php` (and other generated stub files) are regenerated from the wpcom repo; any manual edit is overwritten. See *Referencing wpcom-only symbols from Jetpack* below.
+- **Connect links take their `from` from `CONNECTION_FROM`** in `@automattic/jetpack-connection` — read *Adding a connect button* in `projects/js-packages/connection/README.md` before adding or changing one.
+- **Do NOT add or extend a dependency patch** (`.pnpm-patches/`, `patchedDependencies` in `pnpm-workspace.yaml`) — search the dependency's issues and PRs, then open a PR upstream for its maintainers to review, and don't consume the fix until they release it (no fork or git URL dependency); meanwhile, work around it in our own code. Keep existing patches applying across version bumps without growing them.
 
 ## Referencing wpcom-only symbols from Jetpack (Phan stubs)
 

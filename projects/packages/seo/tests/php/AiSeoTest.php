@@ -1,7 +1,6 @@
 <?php
 /**
- * Tests for the AI SEO availability gate: each term falsified on its own. The Simple behavior is pinned plugin-side in Jetpack_AI_Sidebar_Test
- * (IS_WPCOM needs process isolation, broken here under PHP 8.5).
+ * Tests for AI SEO availability and entitlement checks.
  *
  * @package automattic/jetpack-seo
  */
@@ -9,6 +8,7 @@
 namespace Automattic\Jetpack\SEO;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * @covers \Automattic\Jetpack\SEO\Ai_Seo
@@ -61,21 +61,12 @@ class AiSeoTest extends SeoTestCase {
 		$this->assertFalse( Ai_Seo::is_available() );
 	}
 
-	/**
-	 * `advanced-seo` sits in the free plan's supports list, so every self-hosted
-	 * plan is entitled — AI SEO is offered on a free site with SEO tools on.
-	 * Automatic generation is the part that needs a higher tier, and it checks
-	 * `ai-seo-enhancer` where it runs, not here.
-	 *
-	 * The entitlement can only be falsified on WordPress.com, where
-	 * Current_Plan::supports() hijacks to wpcom_site_has_feature(); pinning a
-	 * purchase there would couple this test to wpcomsh's schema.
-	 */
-	public function test_is_available_on_a_free_plan() {
+	public function test_manual_seo_on_a_free_plan_does_not_unlock_ai() {
 		self::set_plan( 'jetpack_free' );
 		self::set_seo_tools_active( true );
 
-		$this->assertTrue( Ai_Seo::is_available() );
+		$this->assertTrue( \Automattic\Jetpack\Current_Plan::supports( 'advanced-seo' ) );
+		$this->assertFalse( Ai_Seo::is_available() );
 	}
 
 	/**
@@ -87,5 +78,34 @@ class AiSeoTest extends SeoTestCase {
 		add_filter( 'jetpack_disable_seo_tools', '__return_true' );
 
 		$this->assertFalse( Ai_Seo::is_available() );
+	}
+
+	/**
+	 * @dataProvider provide_feature_entitlements
+	 * @param string[] $features Granted WordPress.com features.
+	 * @param bool     $expected Whether AI metadata is available.
+	 */
+	#[DataProvider( 'provide_feature_entitlements' )]
+	public function test_hosted_entitlement_matches_metadata_abilities( $features, $expected ) {
+		self::set_plan( 'jetpack_business' );
+		self::set_seo_tools_active( true );
+		\Wpcom_Test_Features::$known    = array( 'advanced-seo', 'ai-seo-enhancer' );
+		\Wpcom_Test_Features::$entitled = $features;
+
+		try {
+			$this->assertSame( $expected, Ai_Seo::is_available() );
+			$this->assertSame( $expected, Ai_Seo::has_reachable_surface() );
+		} finally {
+			\Wpcom_Test_Features::reset();
+		}
+	}
+
+	public static function provide_feature_entitlements() {
+		return array(
+			'neither entitlement' => array( array(), false ),
+			'manual SEO only'     => array( array( 'advanced-seo' ), false ),
+			'enhancer only'       => array( array( 'ai-seo-enhancer' ), true ),
+			'both entitlements'   => array( array( 'advanced-seo', 'ai-seo-enhancer' ), true ),
+		);
 	}
 }

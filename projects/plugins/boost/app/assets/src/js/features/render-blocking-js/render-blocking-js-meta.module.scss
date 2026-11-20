@@ -31,6 +31,12 @@
 		font-weight: 400;
 	}
 
+	[data-except-content] .description {
+		font-size: var(--wpds-typography-font-size-md);
+		line-height: var(--wpds-typography-line-height-sm);
+		color: var(--wpds-color-foreground-content-neutral-weak);
+	}
+
 	.button {
 		margin-top: 16px;
 	}

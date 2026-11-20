@@ -14,6 +14,8 @@ use Automattic\Jetpack\Connection\SSO\Notices;
 use Automattic\Jetpack\Connection\SSO\User_Admin;
 use Automattic\Jetpack\Connection\Webhooks\Authorize_Redirect;
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Modules;
+use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Roles;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
@@ -35,9 +37,16 @@ class SSO {
 	private $user_data;
 
 	/**
+	 * Whether the SSO attempt failed because the site requires two-step authentication and the WordPress.com account lacks it.
+	 *
+	 * @var bool
+	 */
+	private $two_step_required = false;
+
+	/**
 	 * Automattic\Jetpack\Connection\SSO instance.
 	 *
-	 * @var \Automattic\Jetpack\Connection\SSO
+	 * @var \Automattic\Jetpack\Connection\SSO|null
 	 */
 	public static $instance = null;
 
@@ -149,6 +158,64 @@ class SSO {
 	}
 
 	/**
+	 * Let a plugin other than Jetpack offer SSO: make the `sso` module available, and start SSO while it is on.
+	 *
+	 * Call it before `after_setup_theme`, when the Jetpack plugin loads its modules; that plugin's own loader starts SSO.
+	 *
+	 * @since 9.18.0
+	 *
+	 * @return void
+	 */
+	public static function init_standalone() {
+		add_filter( 'jetpack_get_available_standalone_modules', array( __CLASS__, 'add_standalone_module' ) );
+
+		// Not sooner: the constructor resolves the current user, before other plugins have added their auth filters.
+		if ( did_action( 'after_setup_theme' ) ) {
+			self::maybe_start_standalone();
+		} else {
+			add_action( 'after_setup_theme', array( __CLASS__, 'maybe_start_standalone' ), -2 );
+		}
+	}
+
+	/**
+	 * Start SSO for a standalone plugin, under the conditions the Jetpack plugin's module loader would.
+	 *
+	 * @internal Public only so init_standalone() can hook it; call init_standalone() instead.
+	 *
+	 * @since 9.18.0
+	 *
+	 * @return void
+	 */
+	public static function maybe_start_standalone() {
+		if ( class_exists( 'Jetpack', false ) || ( new Status() )->is_offline_mode() ) {
+			return;
+		}
+
+		$connection = new Manager();
+		if ( ! $connection->is_connected() || ! $connection->has_connected_owner() ) {
+			return;
+		}
+
+		if ( ( new Modules() )->is_active( 'sso' ) ) {
+			self::get_instance();
+		}
+	}
+
+	/**
+	 * Add `sso` to the modules a standalone plugin can switch on.
+	 *
+	 * @internal Public only so init_standalone() can hook it; call init_standalone() instead.
+	 *
+	 * @since 9.18.0
+	 *
+	 * @param string[] $modules Module slugs.
+	 * @return string[]
+	 */
+	public static function add_standalone_module( $modules ) {
+		return array_unique( array_merge( (array) $modules, array( 'sso' ) ) );
+	}
+
+	/**
 	 * Add SSO callables to the sync whitelist.
 	 *
 	 * @since 2.8.1
@@ -232,14 +299,7 @@ class SSO {
 	 * @param int $user_id User to disconnect from the site.
 	 **/
 	public function xmlrpc_user_disconnect( $user_id ) {
-		$user_query = new WP_User_Query(
-			array(
-				'meta_key'   => 'wpcom_user_id',
-				'meta_value' => $user_id,
-			)
-		);
-		$user       = $user_query->get_results();
-		$user       = $user[0];
+		$user = self::get_user_by_wpcom_id( $user_id );
 
 		if ( $user instanceof WP_User ) {
 			$user = wp_set_current_user( $user->ID );
@@ -291,7 +351,7 @@ class SSO {
 			/**
 			 * Should we show the SSO login form?
 			 *
-			 * $_GET['jetpack-sso-default-form'] is used to provide a fallback in case JavaScript is not enabled.
+			 * $_GET['jetpack-sso-show-default-form'] is used to provide a fallback in case JavaScript is not enabled.
 			 *
 			 * The default_to_sso_login() method allows us to dynamically decide whether we show the SSO login form or not.
 			 * The SSO module uses the method to display the default login form if we cannot find a user to log in via SSO.
@@ -308,6 +368,11 @@ class SSO {
 					// Recovery is the break-glass fallback, so default to the wp-admin password form. Skip when that form is hidden, otherwise no login path would work.
 					$show_sso_form = false;
 				}
+			}
+
+			if ( $this->two_step_required && '1' !== $default_form_preference ) {
+				// The two-step screen only follows an SSO attempt, so show the SSO form regardless of the site default.
+				$show_sso_form = true;
 			}
 
 			if ( $show_sso_form ) {
@@ -356,7 +421,7 @@ CSS;
 	}
 
 	/**
-	 * Adds settings fields to Settings > General > Secure Sign On that allows users to
+	 * Adds settings fields to Settings > General > WordPress.com login that allows users to
 	 * turn off the login form on wp-login.php
 	 *
 	 * @since jetpack-2.7
@@ -365,13 +430,13 @@ CSS;
 
 		add_settings_section(
 			'jetpack_sso_settings',
-			__( 'Secure Sign On', 'jetpack-connection' ),
+			__( 'WordPress.com login', 'jetpack-connection' ),
 			'__return_false',
 			'jetpack-sso'
 		);
 
 		/*
-		 * Settings > General > Secure Sign On
+		 * Settings > General > WordPress.com login
 		 * Require two step authentication
 		 */
 		register_setting(
@@ -389,7 +454,7 @@ CSS;
 		);
 
 		/*
-		 * Settings > General > Secure Sign On
+		 * Settings > General > WordPress.com login
 		 */
 		register_setting(
 			'jetpack-sso',
@@ -626,7 +691,7 @@ CSS;
 			unset( $_COOKIE['jetpack_sso_wpcom_referrer'] );
 		}
 
-		if ( ! empty( $_GET['redirect_to'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( ! empty( $_GET['redirect_to'] ) && is_string( $_GET['redirect_to'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			// If we have something to redirect to.
 			$url = esc_url_raw( wp_unslash( $_GET['redirect_to'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			setcookie( 'jetpack_sso_redirect_to', $url, time() + HOUR_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN, is_ssl(), true );
@@ -665,7 +730,7 @@ CSS;
 		 */
 		do_action( 'jetpack_sso_login_form_above_wpcom' );
 
-		if ( $display_name && $gravatar ) :
+		if ( $display_name && $gravatar && ! $this->two_step_required ) :
 			?>
 				<div id="jetpack-sso-wrap__user">
 					<img width="72" height="72" src="<?php echo esc_html( $gravatar ); ?>" />
@@ -685,6 +750,16 @@ CSS;
 
 
 			<div id="jetpack-sso-wrap__action">
+				<?php if ( $this->two_step_required ) : ?>
+					<?php // Opens in a new tab so this tab keeps the button to log in again after setup. ?>
+					<a rel="noopener noreferrer" target="_blank" class="button button-primary" href="<?php echo esc_url( Redirect::get_url( 'calypso-me-security-two-step' ) ); ?>">
+						<?php esc_html_e( 'Set up two-step authentication', 'jetpack-connection' ); ?>
+					</a>
+					<div class="jetpack-sso-then">
+						<span><?php esc_html_e( 'Then', 'jetpack-connection' ); ?></span>
+					</div>
+					<?php echo $this->build_sso_button(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaping done in build_sso_button() ?>
+				<?php else : ?>
 					<?php echo $this->build_sso_button( array(), true ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaping done in build_sso_button() ?>
 
 					<?php if ( $display_name && $gravatar ) : ?>
@@ -714,6 +789,7 @@ CSS;
 							echo esc_html( $sso_explanation );
 						?>
 					</p>
+					<?php endif; ?>
 				<?php endif; ?>
 			</div>
 
@@ -1060,7 +1136,8 @@ CSS;
 		$tracking = new Tracking();
 
 		if ( Helpers::is_two_step_required() && 0 === (int) $user_data->two_step_enabled ) {
-			$this->user_data = $user_data;
+			$this->user_data         = $user_data;
+			$this->two_step_required = true;
 
 			$tracking->record_user_event(
 				'sso_login_failed',
@@ -1073,7 +1150,12 @@ CSS;
 
 			/** This filter is documented in core/src/wp-includes/pluggable.php */
 			do_action( 'wp_login_failed', $user_data->login, $error );
-			add_filter( 'login_message', array( Notices::class, 'error_msg_enable_two_step' ) );
+			add_filter(
+				'login_message',
+				function ( $message ) use ( $user_data ) {
+					return Notices::error_msg_enable_two_step( $message, $user_data );
+				}
+			);
 			return;
 		}
 
@@ -1082,8 +1164,8 @@ CSS;
 			$user_found_with = 'external_user_id';
 			$user            = get_user_by( 'id', (int) $user_data->external_user_id );
 			if ( $user ) {
-				$expected_id = get_user_meta( $user->ID, 'wpcom_user_id', true );
-				if ( $expected_id && $expected_id != $user_data->ID ) { // phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison, Universal.Operators.StrictComparisons.LooseNotEqual
+				$expected_id = Utils::get_wpcom_user_id( $user->ID );
+				if ( $expected_id && $expected_id !== (int) $user_data->ID ) {
 					$error = new WP_Error( 'expected_wpcom_user', __( 'Something got a little mixed up and an unexpected WordPress.com user logged in.', 'jetpack-connection' ) );
 
 					$tracking->record_user_event(
@@ -1139,10 +1221,6 @@ CSS;
 					add_filter( 'login_message', array( Notices::class, 'error_unable_to_create_user' ) );
 					return;
 				}
-
-				// generate_user() sets wpcom_user_id meta on the new user,
-				// but another user may still have stale meta for this WP.com ID.
-				self::set_wpcom_user_id_meta( $user->ID, $user_data->ID );
 
 				$user_found_with = $new_user_override_role
 				? 'user_created_new_user_override'
@@ -1369,7 +1447,7 @@ CSS;
 
 		$args = wp_parse_args( $args, $defaults );
 
-		if ( ! empty( $_GET['redirect_to'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( ! empty( $_GET['redirect_to'] ) && is_string( $_GET['redirect_to'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			$args['redirect_to'] = rawurlencode( esc_url_raw( wp_unslash( $_GET['redirect_to'] ) ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		}
 
@@ -1497,11 +1575,7 @@ CSS;
 	}
 
 	/**
-	 * Sets the wpcom_user_id meta on a local user, removing it from any other user first.
-	 *
-	 * Multiple local users should never share the same wpcom_user_id. This can happen
-	 * when user resolution changes (e.g., external_user_id points to a different local
-	 * user than the one that previously had the meta).
+	 * Sets the wpcom_user_id meta on a local user.
 	 *
 	 * @since 8.6.0
 	 *
@@ -1509,22 +1583,7 @@ CSS;
 	 * @param int $wpcom_user_id The WordPress.com user ID.
 	 */
 	private static function set_wpcom_user_id_meta( $user_id, $wpcom_user_id ) {
-		$existing = new WP_User_Query(
-			array(
-				'meta_key'   => 'wpcom_user_id',
-				'meta_value' => (int) $wpcom_user_id,
-				'exclude'    => array( $user_id ),
-				'fields'     => 'ID',
-			)
-		);
-
-		foreach ( $existing->get_results() as $stale_user_id ) {
-			delete_user_meta( $stale_user_id, 'wpcom_user_id' );
-			clean_user_cache( $stale_user_id );
-		}
-
-		update_user_meta( $user_id, 'wpcom_user_id', $wpcom_user_id );
-		clean_user_cache( $user_id );
+		Utils::set_wpcom_user_id( $user_id, $wpcom_user_id );
 	}
 
 	/**
@@ -1647,8 +1706,8 @@ CSS;
 			return;
 		}
 
-		$redirect_to         = ! empty( $_GET['redirect_to'] ) ? esc_url_raw( wp_unslash( $_GET['redirect_to'] ) ) : admin_url(); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$request_redirect_to = ! empty( $_GET['request_redirect_to'] ) ? esc_url_raw( wp_unslash( $_GET['request_redirect_to'] ) ) : $redirect_to; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$redirect_to         = ! empty( $_GET['redirect_to'] ) && is_string( $_GET['redirect_to'] ) ? esc_url_raw( wp_unslash( $_GET['redirect_to'] ) ) : admin_url(); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$request_redirect_to = ! empty( $_GET['request_redirect_to'] ) && is_string( $_GET['request_redirect_to'] ) ? esc_url_raw( wp_unslash( $_GET['request_redirect_to'] ) ) : $redirect_to; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
 		/** This filter is documented in core/src/wp-login.php */
 		$redirect_after_auth = apply_filters( 'login_redirect', $redirect_to, $request_redirect_to, wp_get_current_user() );

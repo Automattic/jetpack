@@ -121,7 +121,7 @@ const ThemeProvider: FC< ThemeProviderProps > = ( {
 	id,
 	withGlobalStyles = true,
 } ) => {
-	const themeWrapperRef = useRef< HTMLDivElement >();
+	const themeWrapperRef = useRef< HTMLDivElement >( undefined );
 
 	// Check whether the theme provider instance is already registered.
 	const isAlreadyProvided = globalThemeInstances?.[ id ]?.provided;

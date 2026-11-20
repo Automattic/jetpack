@@ -11,9 +11,10 @@ Dashboard widgets are ES Modules loaded asynchronously via lazy-load. This means
 ## What WidgetRoot Provides
 
 - **AnalyticsQueryClientProvider** - React Query client for data fetching
-- **GlobalChartsProvider** - Chart theming via `useChartTheme()`
+- **ChartsProvider** - Chart theme, site formatting and light tooltips
 - **Report params resolution** - From widget attributes or URL fallback
 - **Context provider** - Child widgets access resolved params via `useWidgetRootContext()`
+- **Text size** - Overrides `--wpds-typography-font-size-md` to 14px, so everything inside a widget that uses the medium size grows from 13px
 
 ## Usage
 
@@ -92,7 +93,7 @@ This allows widgets to work both:
 ```
 WidgetRoot
 ├── AnalyticsQueryClientProvider (shared React Query client)
-│   └── GlobalChartsProvider (chart theme)
+│   └── ChartsProvider (chart theme, site formatting)
 │       └── WidgetRootContext.Provider (reportParams, navigationParams)
 │           └── children (widget components)
 ```

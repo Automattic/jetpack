@@ -42,13 +42,13 @@ const ProductInterstitialFeatureList: FC< ProductInterstitialFeatureListProps > 
 			{ isLoading
 				? mockFeaturesArray.map( ( _, index ) => (
 						<LoadingBlock key={ index } height="25px" width="100%" spaceBelow />
-				  ) )
+					) )
 				: features.map( ( feature, id ) => (
 						<Text component="li" key={ `feature-${ id }` } variant="body">
 							<Icon icon={ check } size={ 24 } />
 							{ feature }
 						</Text>
-				  ) ) }
+					) ) }
 		</ul>
 	);
 };

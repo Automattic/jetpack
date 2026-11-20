@@ -1,5 +1,6 @@
 {
 	"name": "jpa/search-terms",
+	"icon": "jpa/search",
 	"title": "Top searched terms",
 	"description": "The search terms visitors use to find your site.",
 	"help": {
@@ -12,5 +13,13 @@
 		]
 	},
 	"category": "stats",
-	"presentation": "framed"
+	"presentation": "framed",
+	"actions": [
+		{
+			"id": "view-all",
+			"label": "View all",
+			"relevance": "high",
+			"href": "admin.php?page=jetpack-premium-analytics-wp-admin&p=%2Freports%2Fsearch-terms"
+		}
+	]
 }

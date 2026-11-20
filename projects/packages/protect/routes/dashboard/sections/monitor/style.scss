@@ -1,0 +1,82 @@
+$uptime-up: var(--wpds-color-stroke-surface-success-strong);
+$uptime-down: var(--wpds-color-stroke-surface-error-strong);
+$uptime-down-bg: var(--wpds-color-background-surface-error);
+$uptime-none: var(--wpds-color-background-track-neutral);
+
+// Compounded to outrank the shared row padding regardless of load order.
+.jp-protect-card__row.jp-protect-uptime-row {
+	padding-block: 24px;
+}
+
+// One color per day status, shared by its bar and its tooltip dot.
+.jp-protect-uptime__bar,
+.jp-protect-uptime__tip-status {
+	--jp-protect-uptime-color: #{$uptime-none};
+
+	&.is-up {
+		--jp-protect-uptime-color: #{$uptime-up};
+	}
+
+	&.is-down {
+		--jp-protect-uptime-color: #{$uptime-down};
+	}
+}
+
+.jp-protect-uptime {
+	display: flex;
+	align-items: flex-end;
+	gap: 4px;
+	block-size: 40px;
+
+	&__bar {
+		flex: 1;
+		min-inline-size: 2px;
+		block-size: 40%;
+		border-radius: 2px;
+		background: var(--jp-protect-uptime-color);
+
+		&.is-up {
+			block-size: 100%;
+		}
+
+		// Stripes, so down days don't rely on color alone.
+		&.is-down {
+			block-size: 100%;
+			background: repeating-linear-gradient(45deg, $uptime-down 0 3px, $uptime-down-bg 3px 5px);
+		}
+
+		// Forced colors drop solid backgrounds, leaving only down days visible.
+		@media (forced-colors: active) {
+			border: 1px solid CanvasText;
+
+			&.is-up {
+				background: CanvasText;
+				forced-color-adjust: none;
+			}
+		}
+	}
+
+	&__tip-date {
+		display: block;
+		opacity: 0.7;
+	}
+
+	&__tip-status {
+		display: flex;
+		align-items: center;
+		gap: 6px;
+		font-weight: 500;
+
+		&::before {
+			content: "";
+			inline-size: 8px;
+			block-size: 8px;
+			border-radius: 50%;
+			background: var(--jp-protect-uptime-color);
+		}
+	}
+
+	&__skeleton {
+		block-size: 40px;
+	}
+}

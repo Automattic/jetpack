@@ -23,7 +23,6 @@ require_once __DIR__ . '/data/admin-menu.php';
  */
 #[CoversClass( Admin_Menu::class )]
 class Admin_Menu_Test extends TestCase {
-	use \Yoast\PHPUnitPolyfills\Polyfills\AssertionRenames;
 
 	/**
 	 * Menu data fixture.

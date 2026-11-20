@@ -1,17 +1,15 @@
-import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { Link } from '@wordpress/ui';
 import { DashboardLink } from '../src/components/dashboard-link';
 import { TRACKS_EVENT_NAME_PREFIX } from '../src/constants';
 
-// Mock WordPress element hooks
-jest.mock( '@wordpress/element', () => ( {
-	...jest.requireActual( '@wordpress/element' ),
-	useEffect: jest.fn( cb => cb() ), // Execute the callback immediately
-} ) );
-
-// Mock the useAnalytics hook
-jest.mock( '@automattic/jetpack-shared-extension-utils', () => ( {
-	useAnalytics: jest.fn(),
+jest.mock( '@wordpress/ui', () => ( {
+	Link: jest.fn( ( { href, children, onClick } ) => (
+		<a href={ href } onClick={ onClick }>
+			{ children }
+		</a>
+	) ),
 } ) );
 
 describe( 'DashboardLink', () => {
@@ -19,53 +17,76 @@ describe( 'DashboardLink', () => {
 	const testText = 'Click me';
 	const testEventName = 'test_click';
 	const mockRecordEvent = jest.fn();
+	const tracks = { recordEvent: mockRecordEvent };
 
 	beforeEach( () => {
-		( useAnalytics as jest.Mock ).mockReturnValue( {
-			tracks: { recordEvent: mockRecordEvent },
-		} );
 		mockRecordEvent.mockClear();
+		jest.mocked( Link ).mockClear();
 	} );
 
 	it( 'renders as a regular anchor tag for links that stay within the platform', () => {
-		const link = DashboardLink( true, testHref, testEventName, testText );
-		expect( link.type ).toBe( 'a' );
-		expect( link.props.href ).toBe( testHref );
-		expect( link.props.children ).toBe( testText );
+		render(
+			<DashboardLink internal href={ testHref } eventName={ testEventName } tracks={ tracks }>
+				{ testText }
+			</DashboardLink>
+		);
+
+		const link = screen.getByRole( 'link', { name: testText } );
+		expect( link.tagName ).toBe( 'A' );
+		expect( link ).toHaveAttribute( 'href', testHref );
+		expect( link ).not.toHaveAttribute( 'target' );
+		expect( Link ).not.toHaveBeenCalled();
 	} );
 
-	it( 'renders as Link for links that point to external resources', () => {
-		const link = DashboardLink( false, testHref, testEventName, testText );
-		expect( link.type ).toBe( Link );
-		expect( link.props.href ).toBe( testHref );
-		expect( link.props.openInNewTab ).toBe( true );
-		expect( link.props.children ).toBe( testText );
+	it( 'passes openInNewTab for external links', () => {
+		render(
+			<DashboardLink
+				internal={ false }
+				href={ testHref }
+				eventName={ testEventName }
+				tracks={ tracks }
+			>
+				{ testText }
+			</DashboardLink>
+		);
+
+		expect( jest.mocked( Link ).mock.calls[ 0 ][ 0 ] ).toEqual(
+			expect.objectContaining( {
+				href: testHref,
+				openInNewTab: true,
+				children: testText,
+			} )
+		);
 	} );
 
-	it( 'handles not being passed a text prop', () => {
-		const link = DashboardLink( true, testHref, testEventName );
-		expect( link.props.children ).toBeUndefined();
+	it( 'renders without text content', () => {
+		render(
+			<DashboardLink internal href={ testHref } eventName={ testEventName } tracks={ tracks } />
+		);
+
+		expect( screen.getByRole( 'link' ) ).toHaveAttribute( 'href', testHref );
+		expect( screen.getByRole( 'link' ) ).not.toHaveTextContent( /\S/ );
 	} );
 
-	it( 'sets up click tracking with the provided event name', () => {
-		const link = DashboardLink( true, testHref, testEventName, testText );
-		expect( link.props.onClick ).toBeDefined();
+	it( 'records the click event and not a view', async () => {
+		const user = userEvent.setup();
+		render(
+			<DashboardLink internal href={ testHref } eventName={ testEventName } tracks={ tracks }>
+				{ testText }
+			</DashboardLink>
+		);
 
-		// Clear any previous calls (like the view event)
-		mockRecordEvent.mockClear();
+		expect( mockRecordEvent ).not.toHaveBeenCalled();
 
-		// Simulate clicking the link
-		link.props.onClick();
+		const link = screen.getByRole( 'link', { name: testText } );
+		// jsdom reports an error if the click follows the href.
+		link.addEventListener( 'click', event => event.preventDefault() );
+		await user.click( link );
 
-		// Verify that the tracking event was recorded with empty object as second parameter
+		expect( mockRecordEvent ).toHaveBeenCalledTimes( 1 );
 		expect( mockRecordEvent ).toHaveBeenCalledWith(
 			`${ TRACKS_EVENT_NAME_PREFIX }${ testEventName }`,
 			{}
 		);
-	} );
-
-	it( 'records view event on mount', () => {
-		DashboardLink( true, testHref, testEventName, testText );
-		expect( mockRecordEvent ).toHaveBeenCalledWith( `${ TRACKS_EVENT_NAME_PREFIX }_view` );
 	} );
 } );

@@ -2,7 +2,7 @@
 
 import fs from 'fs';
 import path from 'path';
-import { SCENARIOS, SANITY_RANGES } from './scenarios.js';
+import { DASHBOARD_DELTA_METRICS, SCENARIOS, SANITY_RANGES } from './scenarios.js';
 
 /**
  * Exit code for a LOCAL data-integrity failure: a metric failed a sanity check, a
@@ -48,10 +48,9 @@ function exitCodeForError( error ) {
  * drives the sanity-range check; untyped legacy entries are posted unchecked.
  *
  * Three shapes, in precedence order. A `metrics` array yields one typed entry per element,
- * each reading its value from summary.<field>.median and posting to its own key (the
- * FORMS-707 multi-metric-per-scenario path). A single `metricKey` yields one typed entry
- * reading the flat summary.median (legacy). A `metricPrefix` yields five untyped
- * prefix-suffixed entries, posted unchecked (legacy).
+ * each reading its value from summary.<field>.median and posting to its own key.
+ * A single `metricKey` yields one typed entry from the flat summary.median (legacy).
+ * A `metricPrefix` yields five untyped entries with key suffixes (legacy).
  */
 function extractScenarioMetrics( scenario, summary ) {
 	const scenarioLabel = scenario.key ?? 'unknown';
@@ -362,9 +361,9 @@ function resolvePostTimestamp( results, config ) {
  *
  * IMPORTANT: the read and write backends must match before dedup can be trusted. This
  * reads gitaudit (metric `config.dedupMetricId`) while the POST targets
- * `config.codeVitalsUrl` (codevitals.run today). Until the two are reconciled (the
- * FORMS-705 host/metric work), a hash written to codevitals.run may not appear here, so
- * dedup is effectively a no-op. The "can only fail to skip, never wrongly skip" guarantee
+ * `config.codeVitalsUrl` (codevitals.run by default). While the backends differ, a hash
+ * written to codevitals.run may not appear here, so dedup is effectively a no-op.
+ * The "can only fail to skip, never wrongly skip" guarantee
  * holds ONLY while dedup is off (the default): with no read, no skip can happen. If an
  * operator enables dedup before the backends match, metric 58 is a different, *populated*
  * trunk series (not the codevitals.run write target), so a coincidental hash match there
@@ -437,6 +436,40 @@ async function hashAlreadyPosted( hash, branch, config ) {
 	}
 }
 
+/** Compute signed Dashboard overhead from the same results file as the absolutes. */
+function dashboardDeltas( measurements ) {
+	const pair = [ measurements.jetpackConnected, measurements[ 'jetpackConnected-noJetpack' ] ];
+	const metrics = {};
+	let validationFailed = false;
+	for ( const { field, codevitalsKey, type } of DASHBOARD_DELTA_METRICS ) {
+		// A field below buildSummary's sample floor skips only that field's delta.
+		if ( pair.some( m => ! m || m.error || ! Number.isFinite( m.summary?.[ field ]?.median ) ) ) {
+			console.warn(
+				`Warning: skipping Dashboard delta "${ codevitalsKey }": missing or failed side, or "${ field }" below its sample floor.`
+			);
+			continue;
+		}
+		const values = pair.map( m => m.summary[ field ].median );
+		const check = values
+			.map( ( value, side ) =>
+				checkSanityRange(
+					type === 'decodedBytesKB' && side === 1 ? 'dashboardDecodedBytesKB' : type,
+					value
+				)
+			)
+			.find( result => ! result.ok );
+		if ( check ) {
+			console.error(
+				`✗ Sanity check failed for an input to "${ codevitalsKey }": ${ check.reason }. Skipping this delta.`
+			);
+			validationFailed = true;
+			continue;
+		}
+		metrics[ codevitalsKey ] = values[ 0 ] - values[ 1 ];
+	}
+	return { metrics, validationFailed };
+}
+
 /** Post metrics to CodeVitals. */
 async function postToCodeVitals( resultsPath, config ) {
 	// Everything from here until the live POST is local data-integrity work: a missing
@@ -458,8 +491,9 @@ async function postToCodeVitals( resultsPath, config ) {
 	}
 
 	// Extract and sanity-check metrics from results
-	const metrics = {};
-	let validationFailed = false;
+	const deltas = dashboardDeltas( results.measurements );
+	const metrics = deltas.metrics;
+	let validationFailed = deltas.validationFailed;
 
 	// Process only scenarios marked for CodeVitals posting
 	for ( const scenario of SCENARIOS ) {
@@ -495,7 +529,7 @@ async function postToCodeVitals( resultsPath, config ) {
 				measurement
 					? `Warning: ${ scenario.name } measurement failed (${
 							measurement.error ? `error: ${ measurement.error }` : 'no summary'
-					  }; optional scenario — its keys skip this build)`
+						}; optional scenario — its keys skip this build)`
 					: `Warning: ${ scenario.name } not in this results file (not part of the run set; its keys skip this build)`
 			);
 			continue;
@@ -654,6 +688,11 @@ async function postToCodeVitals( resultsPath, config ) {
 			throw new Error( `CodeVitals returned invalid JSON: ${ jsonError.message }`, {
 				cause: jsonError,
 			} );
+		}
+		const rowsStored = data?.count;
+		if ( Number.isInteger( rowsStored ) ) {
+			const keysSent = Object.keys( metrics ).length;
+			console.log( `Sent ${ keysSent } keys. CodeVitals stored ${ rowsStored }.` );
 		}
 		console.log( '✓ Metrics posted successfully to CodeVitals' );
 		return { posted: true, data, validationFailed };
@@ -834,6 +873,7 @@ if ( isDirectInvocation( import.meta.filename, process.argv[ 1 ] ) ) {
 
 export {
 	postToCodeVitals,
+	dashboardDeltas,
 	checkSanityRange,
 	extractScenarioMetrics,
 	exitCodeForError,

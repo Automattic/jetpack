@@ -11,10 +11,10 @@ import {
 	sanitizeStatsHighlightsResponse,
 	sanitizeStatsLocationsResponse,
 	sanitizeStatsArchivesResponse,
+	sanitizeStatsAuthorResponse,
 	sanitizeStatsCommentFollowersResponse,
 	sanitizeStatsFollowersResponse,
 	sanitizeStatsCommentsResponse,
-	sanitizeStatsHourOfDayResponse,
 	sanitizeStatsInsightsResponse,
 	sanitizeStatsStreakResponse,
 	sanitizeStatsVisitsResponse,
@@ -33,7 +33,6 @@ import {
 	sanitizeStatsSiteResponse,
 	sanitizeStatsSubscribersCountsResponse,
 	sanitizeStatsSubscribersResponse,
-	sanitizeStatsSummaryResponse,
 	sanitizeStatsTopAuthorsResponse,
 	sanitizeStatsTopPostsResponse,
 	sanitizeStatsUtmResponse,
@@ -41,11 +40,15 @@ import {
 	sanitizeStatsWordAdsEarningsResponse,
 	sanitizeStatsWordAdsStatsResponse,
 } from '../processing/stats';
+import { getStatsRefetchInterval } from '../utils/refetch-interval';
+import { resolveReportTimeZone } from '../utils/report-timezone';
 import {
+	isAllTimeNum,
 	reportParamsToStatsQueryParams,
 	statsQueryParamsToApiParams,
 	type StatsQueryParams,
 	type StatsQueryParamFields,
+	type StatsSanitizerParams,
 } from '../utils/stats-params';
 import type { ReportParams } from '../utils/search';
 import type { UseQueryOptions } from '@tanstack/react-query';
@@ -53,7 +56,10 @@ import type { UseQueryOptions } from '@tanstack/react-query';
 // `StatsProxyParams` is deliberately left out: its string index signature conflicts
 // with `ReportParams.filters`. Extras reach the proxy through `extraParams` instead.
 export type StatsReportParams = ReportParams & StatsQueryParamFields;
-type StatsSanitizer< TData = unknown > = ( response: unknown, params?: StatsQueryParams ) => TData;
+type StatsSanitizer< TData = unknown > = (
+	response: unknown,
+	params: StatsSanitizerParams
+) => TData;
 
 type StatsReportQuerySettings = {
 	/**
@@ -66,6 +72,7 @@ type StatsReportQuerySettings = {
 
 const statsSanitizers = {
 	passthrough: sanitizeStatsPassthroughResponse,
+	author: sanitizeStatsAuthorResponse,
 	post: sanitizeStatsPostResponse,
 	postComments: sanitizeStatsPostCommentsResponse,
 	postLikes: sanitizeStatsPostLikesResponse,
@@ -89,7 +96,6 @@ const statsSanitizers = {
 	tags: sanitizeStatsTagsResponse,
 	utm: sanitizeStatsUtmResponse,
 	visits: sanitizeStatsVisitsResponse,
-	hourOfDay: sanitizeStatsHourOfDayResponse,
 	timeSeries: sanitizeStatsTimeSeriesResponse,
 	emailTimeSeries: sanitizeStatsEmailTimeSeriesResponse,
 	subscribers: sanitizeStatsSubscribersResponse,
@@ -99,7 +105,6 @@ const statsSanitizers = {
 	emailBreakdown: sanitizeStatsEmailBreakdownResponse,
 	emailSummary: sanitizeStatsEmailSummaryResponse,
 	singleVideo: sanitizeStatsSingleVideoResponse,
-	summary: sanitizeStatsSummaryResponse,
 } satisfies Record< string, StatsSanitizer >;
 
 export type StatsSanitizerKey = keyof typeof statsSanitizers;
@@ -119,6 +124,12 @@ export type StatsQueryConfig< TSanitizer extends StatsSanitizerKey = StatsSaniti
 	sanitizer?: TSanitizer;
 	sanitizerParams?: StatsQueryParams;
 	enabled?: boolean;
+
+	/**
+	 * The window's end, for an endpoint whose `date` is not the end. `null` when
+	 * the request has none, which keeps the query polling.
+	 */
+	windowEnd?: string | null;
 };
 
 export function statsProxyQuery< TSanitizer extends StatsSanitizerKey >(
@@ -140,6 +151,7 @@ export function statsProxyQuery( config: StatsQueryConfig ): StatsReportQueryOpt
 	} = config;
 	const sanitizer = config.sanitizer ?? 'passthrough';
 	const apiParams = statsQueryParamsToApiParams( params );
+	const timezone = resolveReportTimeZone( params?.timezone );
 
 	return {
 		queryKey: [
@@ -152,6 +164,7 @@ export function statsProxyQuery( config: StatsQueryConfig ): StatsReportQueryOpt
 			body,
 			sanitizer,
 			...( sanitizerParams ? [ sanitizerParams ] : [] ),
+			timezone,
 		],
 		queryFn: async () => {
 			const response = await fetchStatsProxy( {
@@ -164,9 +177,15 @@ export function statsProxyQuery( config: StatsQueryConfig ): StatsReportQueryOpt
 			return statsSanitizers[ sanitizer ]( response, {
 				...apiParams,
 				...sanitizerParams,
+				timezone,
 			} );
 		},
 		enabled,
+		refetchInterval: () =>
+			getStatsRefetchInterval(
+				config.windowEnd === undefined ? apiParams.date : config.windowEnd,
+				timezone
+			),
 		placeholderData: previousData => previousData,
 	};
 }
@@ -190,8 +209,8 @@ export function statsReportQuery< TSanitizer extends StatsSanitizerKey >(
 		...( params.period === undefined ? { period: 'day' as const } : {} ),
 		...extraParams,
 		...( statsParams.summarize === undefined &&
-		typeof statsParams.days === 'number' &&
-		statsParams.days > 1
+		( ( typeof statsParams.days === 'number' && statsParams.days > 1 ) ||
+			isAllTimeNum( statsParams.num ) )
 			? { summarize: 1 }
 			: {} ),
 	};

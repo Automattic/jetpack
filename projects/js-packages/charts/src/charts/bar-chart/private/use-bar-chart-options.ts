@@ -2,10 +2,21 @@ import { formatNumberCompact } from '@automattic/number-formatters';
 import { __, sprintf } from '@wordpress/i18n';
 import { useMemo } from 'react';
 import { useDeepMemo } from '../../../hooks';
-import { getBandTickValues, getBucketResolution, getFormatter } from '../../private/time-axis';
+import { useChartFormatting } from '../../../providers';
+import { getBucketResolution } from '../../../utils/bucket-info';
+import { createDateFormatter } from '../../../utils/date-formatting';
+import { getBandTickValues, getFormatter } from '../../private/time-axis';
+import { getStackedValueDomain } from './stack-layout';
 import { TruncatedXTickComponent, TruncatedYTickComponent } from './truncated-tick-component';
-import type { EnhancedDataPoint } from '../../../hooks/use-zero-value-display';
-import type { DataPointDate, BaseChartProps, SeriesData, TickResolution } from '../../../types';
+import { getBarValue, getValueScaleDomain } from './value-domain';
+import type { StackLayout } from './stack-layout';
+import type {
+	DataPointDate,
+	BaseChartProps,
+	ChartFormatting,
+	SeriesData,
+	TickResolution,
+} from '../../../types';
 import type { TickFormatter } from '@visx/axis';
 
 /** Outer padding of the category band scale (space at the chart edges). */
@@ -24,7 +35,7 @@ const TOOLTIP_FORMAT_BY_RESOLUTION: Record<
 	Exclude< TickResolution, 'week' >,
 	Intl.DateTimeFormatOptions
 > = {
-	hour: { year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', hour12: true },
+	hour: { year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric' },
 	day: { year: 'numeric', month: 'long', day: 'numeric' },
 	month: { year: 'numeric', month: 'long' },
 	year: { year: 'numeric' },
@@ -36,31 +47,33 @@ const TOOLTIP_FORMAT_BY_RESOLUTION: Record<
  *
  * @param data           - Date-based series, already parsed and sorted by `useChartDataTransform`.
  * @param tickResolution - Caller-declared bucket resolution, when known.
+ * @param formatting     - Host locale and time zone.
  * @return Tooltip label formatter.
  */
-const getTooltipFormatter = ( data: SeriesData[], tickResolution?: TickResolution ) => {
+const getTooltipFormatter = (
+	data: SeriesData[],
+	tickResolution: TickResolution | undefined,
+	formatting: ChartFormatting
+) => {
 	// Only a declared 'week' reaches this branch: seven-day spacing is
 	// indistinguishable from sparse daily data, so inference reports 'day'.
 	if ( tickResolution === 'week' ) {
+		const formatDay = createDateFormatter( TOOLTIP_FORMAT_BY_RESOLUTION.day, formatting );
 		return ( timestamp: number ) =>
 			sprintf(
 				/* translators: %s is the first day of the week the bar covers. */
 				__( 'Week of %s', 'jetpack-charts' ),
-				new Date( timestamp ).toLocaleDateString( undefined, {
-					year: 'numeric',
-					month: 'long',
-					day: 'numeric',
-				} )
+				formatDay( timestamp )
 			);
 	}
 
-	// Fall back to the day format rather than `undefined` options, which would
-	// print a full locale date-time for an unrecognised `tickResolution`.
+	// Fall back to the day format rather than empty options, which would print a
+	// bare numeric date for an unrecognized `tickResolution`.
 	const format =
 		TOOLTIP_FORMAT_BY_RESOLUTION[ getBucketResolution( data, tickResolution ) ] ??
 		TOOLTIP_FORMAT_BY_RESOLUTION.day;
 
-	return ( timestamp: number ) => new Date( timestamp ).toLocaleString( undefined, format );
+	return createDateFormatter( format, formatting );
 };
 
 const identity = ( label: string ) => label;
@@ -141,20 +154,24 @@ const getGroupPadding = ( scale: Record< string, unknown > ): number => {
  * @param horizontal       - Whether the chart is horizontal or vertical.
  * @param options          - The options for the chart.
  * @param isSeriesRendered - Whether visx mounts a series, i.e. the legend shows it.
+ * @param stack            - The precomputed stack, when series share one bar.
  * @return The merged options for the chart.
  */
 export function useBarChartOptions(
 	data: SeriesData[],
 	horizontal: boolean,
 	options: BaseChartProps[ 'options' ] = {},
-	isSeriesRendered: ( series: SeriesData ) => boolean = ALL_RENDERED
+	isSeriesRendered: ( series: SeriesData ) => boolean = ALL_RENDERED,
+	stack?: StackLayout
 ) {
 	// Callers reasonably pass an object literal, which is a fresh reference every
 	// render and would defeat every memo below.
 	const stableOptions = useDeepMemo( options );
+	const formatting = useChartFormatting();
+	const isStacked = !! stack;
 
-	// `labelOverflow` and `tickResolution` are consumed by this hook rather than
-	// forwarded — visx has an axis prop for neither — and `tickFormat` is merged
+	// `labelOverflow`, `tickResolution` and `tickDecimals` are consumed by this hook rather than
+	// forwarded — visx has an axis prop for none of them — and `tickFormat` is merged
 	// with the derived default explicitly, so an `undefined` passed by a caller
 	// cannot clobber it through the spread. They are split off the caller's axis
 	// options once, here, and only the rest reaches visx below.
@@ -163,14 +180,22 @@ export function useBarChartOptions(
 			labelOverflow: xLabelOverflow,
 			tickResolution: xTickResolution,
 			tickFormat: xTickFormat,
+			tickDecimals: xTickDecimals,
 			...xAxisOptions
 		} = stableOptions.axis?.x || {};
 		const {
 			labelOverflow: yLabelOverflow,
 			tickResolution: yTickResolution,
 			tickFormat: yTickFormat,
+			tickDecimals: yTickDecimals,
 			...yAxisOptions
 		} = stableOptions.axis?.y || {};
+		const [ valueAxisOptions, valueTickDecimals ] = horizontal
+			? [ xAxisOptions, xTickDecimals ]
+			: [ yAxisOptions, yTickDecimals ];
+		const valueScaleType = isStacked
+			? 'linear'
+			: ( horizontal ? stableOptions.xScale : stableOptions.yScale )?.type;
 
 		return {
 			xLabelOverflow,
@@ -182,8 +207,11 @@ export function useBarChartOptions(
 			// The dates sit on the x axis normally, and on the y axis when the
 			// chart is horizontal, so the hint follows them.
 			tickResolution: horizontal ? yTickResolution : xTickResolution,
+			// A caller's own `tickValues` or a log scale turn `tickDecimals` off, domain widening included.
+			valueTickDecimals:
+				valueAxisOptions.tickValues || valueScaleType === 'log' ? undefined : valueTickDecimals,
 		};
-	}, [ stableOptions, horizontal ] );
+	}, [ stableOptions, horizontal, isStacked ] );
 	const { tickResolution } = axisConfig;
 
 	const defaultOptions = useMemo( () => {
@@ -195,6 +223,7 @@ export function useBarChartOptions(
 		const linearScale = {
 			type: 'linear' as const,
 			nice: true,
+			// XYChart defaults `zero` to true, which would stretch a caller's domain to 0.
 			zero: false,
 		};
 
@@ -202,20 +231,14 @@ export function useBarChartOptions(
 		// formatter, which narrows with the overall span as well as the bucket
 		// size; the tooltip stays at the bucket's own granularity.
 		const hasLabels = Boolean( data?.[ 0 ]?.data?.[ 0 ]?.label );
-		const timeTickFormatter = hasLabels ? null : getFormatter( data, tickResolution );
+		const timeTickFormatter = hasLabels ? null : getFormatter( data, tickResolution, formatting );
 		const labelFormatter = timeTickFormatter ? byBucket( timeTickFormatter ) : identity;
 		const tooltipDatumFormatter = hasLabels
 			? labelFormatter
-			: byBucket( getTooltipFormatter( data, tickResolution ) );
+			: byBucket( getTooltipFormatter( data, tickResolution, formatting ) );
 		const valueFormatter = formatNumberCompact as TickFormatter< unknown >;
 
 		const bandDomain = timeTickFormatter ? getBandDomain( data, isSeriesRendered ) : null;
-
-		const valueAccessor = ( d: DataPointDate | EnhancedDataPoint ) => {
-			// Use visualValue for bar rendering if available (for zero values), otherwise use value
-			const enhancedPoint = d as EnhancedDataPoint;
-			return enhancedPoint?.visualValue !== undefined ? enhancedPoint.visualValue : d?.value;
-		};
 
 		return {
 			timeAxis: bandDomain &&
@@ -228,7 +251,7 @@ export function useBarChartOptions(
 				yTickFormat: valueFormatter,
 				tooltipLabelFormatter: tooltipDatumFormatter,
 				xAccessor: bucketAccessor,
-				yAccessor: valueAccessor,
+				yAccessor: getBarValue,
 				gridVisibility: 'x',
 				xScale: bandScale,
 				yScale: linearScale,
@@ -237,14 +260,14 @@ export function useBarChartOptions(
 				xTickFormat: valueFormatter,
 				yTickFormat: labelFormatter,
 				tooltipLabelFormatter: tooltipDatumFormatter,
-				xAccessor: valueAccessor,
+				xAccessor: getBarValue,
 				yAccessor: bucketAccessor,
 				gridVisibility: 'y',
 				xScale: linearScale,
 				yScale: bandScale,
 			},
 		};
-	}, [ data, tickResolution, isSeriesRendered ] );
+	}, [ data, tickResolution, isSeriesRendered, formatting ] );
 
 	return useMemo( () => {
 		const orientationKey = horizontal ? 'horizontal' : 'vertical';
@@ -259,46 +282,31 @@ export function useBarChartOptions(
 			yScale: baseYScale,
 		} = defaultOptions[ orientationKey ];
 
-		// When comparison series are present, visx only sees primary BarSeries and computes
-		// a too-narrow domain. Compute an explicit domain spanning all series so comparison
-		// shadows aren't clipped. Skip when the user has already provided an explicit domain.
-		let valueScaleDomainOverride: { domain?: [ number, number ] } = {};
+		const valueScaleOptions = horizontal ? stableOptions.xScale : stableOptions.yScale;
 		const hasComparisonSeries = data.some( s => s.options?.type === 'comparison' );
-		if ( hasComparisonSeries ) {
-			const valueAxisIsY = ! horizontal;
-			const userDomain = valueAxisIsY ? stableOptions.yScale?.domain : stableOptions.xScale?.domain;
-			if ( ! userDomain ) {
-				const allValues: number[] = [];
-				data.forEach( series => {
-					series.data.forEach( d => {
-						const enhanced = d as { visualValue?: number };
-						const v =
-							enhanced.visualValue !== undefined ? enhanced.visualValue : ( d.value as number );
-						if ( typeof v === 'number' && Number.isFinite( v ) ) {
-							allValues.push( v );
-						}
-					} );
-				} );
-				if ( allValues.length > 0 ) {
-					// Keep zero in the domain so bar length stays proportional to value — a
-					// non-zero baseline would exaggerate differences between periods. Math.max
-					// keeps zero on the far side too, so charts with negative values still span 0.
-					valueScaleDomainOverride = {
-						domain: [ Math.min( 0, ...allValues ), Math.max( 0, ...allValues ) ],
-					};
-				}
-			}
+		// Comparison shadows share the primary bars' scale, so they force zero even when the caller opted out.
+		const includeZero = hasComparisonSeries || valueScaleOptions?.zero !== false;
+		let domain: [ number, number ] | null = null;
+		if ( ! valueScaleOptions?.domain ) {
+			domain = stack
+				? getStackedValueDomain( stack, axisConfig.valueTickDecimals )
+				: getValueScaleDomain( data, includeZero, isSeriesRendered, axisConfig.valueTickDecimals );
 		}
+		// Every stack starts at zero, which a log scale cannot place.
+		const valueScaleOverride: { domain?: [ number, number ]; type?: 'linear' } = {
+			...( domain && { domain } ),
+			...( stack && { type: 'linear' as const } ),
+		};
 
 		const xScale = {
 			...baseXScale,
 			...( stableOptions.xScale || {} ),
-			...( horizontal ? valueScaleDomainOverride : {} ),
+			...( horizontal ? valueScaleOverride : {} ),
 		};
 		const yScale = {
 			...baseYScale,
 			...( stableOptions.yScale || {} ),
-			...( ! horizontal ? valueScaleDomainOverride : {} ),
+			...( ! horizontal ? valueScaleOverride : {} ),
 		};
 		const { xLabelOverflow, yLabelOverflow, xTickFormat, yTickFormat, xAxisOptions, yAxisOptions } =
 			axisConfig;
@@ -318,7 +326,7 @@ export function useBarChartOptions(
 						timeAxis.domain,
 						timeAxis.tickFormatter,
 						dateAxisOptions.numTicks ?? DEFAULT_NUM_TICKS
-				  )
+					)
 				: null;
 		const dateAxisTickValues = bandTickValues ? { tickValues: bandTickValues } : {};
 
@@ -354,6 +362,7 @@ export function useBarChartOptions(
 			tooltip: {
 				labelFormatter: dateAxisTickFormat || defaultTooltipLabelFormatter,
 			},
+			valueTickDecimals: axisConfig.valueTickDecimals,
 		};
-	}, [ defaultOptions, axisConfig, stableOptions, horizontal, data ] );
+	}, [ defaultOptions, axisConfig, stableOptions, horizontal, data, isSeriesRendered, stack ] );
 }

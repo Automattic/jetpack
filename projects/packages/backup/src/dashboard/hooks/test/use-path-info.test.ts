@@ -23,7 +23,7 @@ function makeWrapper() {
 }
 
 const payload = ( overrides: Partial< PathInfoResponse > = {} ): PathInfoResponse => ( {
-	size: 3247,
+	size: '3247',
 	hash: '2b468ca8798605890addf85864109793',
 	mtime: 1748888135,
 	...overrides,
@@ -91,10 +91,28 @@ describe( 'toFileDetails', () => {
 		} );
 	} );
 
-	// A zero-byte file is a real file, and `0` is falsy — the reason this
-	// is asserted rather than left to a truthiness check.
-	test( 'reports a zero-byte file as 0, not as unknown', () => {
-		expect( toFileDetails( payload( { size: 0 } ) ) ).toMatchObject( { size: 0 } );
+	// A zero-byte file is a real measurement the card must show as `0 B`
+	// rather than suppress.
+	test.each( [
+		[ 'a decimal string', '7407', 7407 ],
+		[ 'a number', 7407, 7407 ],
+		[ 'a zero string', '0', 0 ],
+		[ 'zero', 0, 0 ],
+	] )( 'reads a size sent as %s', ( _label, size, expected ) => {
+		expect( toFileDetails( payload( { size } ) ) ).toMatchObject( { size: expected } );
+	} );
+
+	// `0 B` for a file the endpoint never sized would be a lie, not a reading.
+	test.each( [
+		[ 'missing', undefined ],
+		[ 'null', null ],
+		[ 'an empty string', '' ],
+		[ 'whitespace', '   ' ],
+		[ 'a non-numeric string', 'unknown' ],
+	] )( 'reports no size when it is %s, never 0', ( _label, size ) => {
+		expect(
+			toFileDetails( payload( { size: size as PathInfoResponse[ 'size' ] } ) )
+		).toMatchObject( { size: null } );
 	} );
 } );
 
@@ -102,12 +120,25 @@ describe( 'formatFileSize', () => {
 	test.each( [
 		[ 0, '0 B' ],
 		[ 512, '512 B' ],
+		[ 1000, '1000 B' ],
 		[ 1024, '1 KB' ],
 		[ 3247, '3.2 KB' ],
 		[ 1048576, '1 MB' ],
 		[ 5368709120, '5 GB' ],
 	] )( 'formats %i bytes as %s', ( bytes, expected ) => {
 		expect( formatFileSize( bytes ) ).toBe( expected );
+	} );
+
+	test( 'uses the locale decimal separator', () => {
+		( window as { wp?: unknown } ).wp = {
+			date: { getSettings: () => ( { l10n: { locale: 'de_DE' } } ) },
+		};
+
+		try {
+			expect( formatFileSize( 3247 ) ).toBe( '3,2 KB' );
+		} finally {
+			delete ( window as { wp?: unknown } ).wp;
+		}
 	} );
 } );
 

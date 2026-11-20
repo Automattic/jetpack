@@ -1,0 +1,9 @@
+.root {
+	block-size: 100%;
+	min-block-size: 0;
+}
+
+.locations {
+	flex: 1;
+	min-block-size: 0;
+}

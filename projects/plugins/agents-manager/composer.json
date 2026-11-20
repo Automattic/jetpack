@@ -21,7 +21,6 @@
 	"prefer-stable": true,
 	"extra": {
 		"autorelease": true,
-		"autotagger": true,
 		"beta-plugin-slug": "agents-manager",
 		"changelogger": {
 			"link-template": "https://github.com/Automattic/agents-manager/compare/v${old}...v${new}"
@@ -34,6 +33,6 @@
 			"automattic/jetpack-autoloader": true,
 			"automattic/jetpack-composer-plugin": true
 		},
-		"autoloader-suffix": "a0c8b4b8a21285954dcfaae4c85e8ab2_agents_managerⓥ0_1_2"
+		"autoloader-suffix": "a0c8b4b8a21285954dcfaae4c85e8ab2_agents_managerⓥ0_2_0"
 	}
 }

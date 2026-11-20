@@ -1,0 +1,5 @@
+{
+	"name": "@automattic/jetpack-ads-widget-earnings-history",
+	"private": true,
+	"type": "module"
+}

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Count visitors who allowed statistics when a performance plugin delays the WP Consent API script.

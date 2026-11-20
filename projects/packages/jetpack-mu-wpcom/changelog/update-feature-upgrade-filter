@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Protect, Backup: On WoA, send Scan upgrades from My Jetpack and the Protect page to WordPress.com's plan upgrade flow, showing only plans that include Scan, and My Jetpack's Scan manage link to WordPress.com. The Protect and Backup pages' own upgrade prompts use the same flow, and My Jetpack's Backup manage link opens the Backup page in wp-admin.

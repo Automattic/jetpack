@@ -1,9 +1,11 @@
-import { Button, Notice } from '@automattic/jetpack-components';
+import { Button } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
+import { Notice } from '@wordpress/ui';
 import { useCallback, useEffect } from 'react';
 import useSeoOptIn from '../../data/use-seo-opt-in';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import useAnalytics from '../../hooks/use-analytics';
+import type { SeoOptInSurface } from '../../data/use-seo-opt-in';
 
 // Pre-resolved so the production minifier can't fold the adjacent `cond ? __(A) : __(B)`
 // into `__(cond ? A : B)`, which breaks i18n static extraction (i18n-check-webpack-plugin).
@@ -17,23 +19,25 @@ const tryItLabel = __( 'Try the new SEO experience', 'jetpack-my-jetpack' );
  * navigates to the SEO dashboard URL the endpoint returns. Whether the notice renders is decided
  * server-side and bootstrapped onto `seoOptIn.showCard`.
  *
+ * @param props         - Component props.
+ * @param props.surface - Where the card shows, recorded with its events.
  * @return The rendered notice, or `null` when the site isn't eligible.
  */
-export default function SeoOptInCard() {
+export default function SeoOptInCard( { surface = 'overview' }: { surface?: SeoOptInSurface } ) {
 	const { showCard } = getMyJetpackWindowInitialState( 'seoOptIn' );
 	const { recordEvent } = useAnalytics();
-	const { optIn, isPending } = useSeoOptIn();
+	const { optIn, isPending } = useSeoOptIn( surface );
 
 	useEffect( () => {
 		if ( showCard ) {
-			recordEvent( 'jetpack_myjetpack_seo_opt_in_card_view', {} );
+			recordEvent( 'jetpack_myjetpack_seo_opt_in_card_view', { surface } );
 		}
-	}, [ showCard, recordEvent ] );
+	}, [ showCard, recordEvent, surface ] );
 
 	const handleClick = useCallback( () => {
-		recordEvent( 'jetpack_myjetpack_seo_opt_in_card_click', {} );
+		recordEvent( 'jetpack_myjetpack_seo_opt_in_card_click', { surface } );
 		optIn();
-	}, [ optIn, recordEvent ] );
+	}, [ optIn, recordEvent, surface ] );
 
 	if ( ! showCard ) {
 		return null;
@@ -54,16 +58,15 @@ export default function SeoOptInCard() {
 	];
 
 	return (
-		<Notice
-			level="info"
-			hideCloseButton={ true }
-			title={ __( 'A fresh way to manage your SEO', 'jetpack-my-jetpack' ) }
-			actions={ actions }
-		>
-			{ __(
-				'Jetpack SEO now has a dedicated dashboard to manage sitemaps, search-engine visibility, social previews, and site verification — all in one place. Switch over whenever you like; your existing settings come with you.',
-				'jetpack-my-jetpack'
-			) }
-		</Notice>
+		<Notice.Root intent="info">
+			<Notice.Title>{ __( 'A fresh way to manage your SEO', 'jetpack-my-jetpack' ) }</Notice.Title>
+			<Notice.Description>
+				{ __(
+					'Jetpack SEO now has a dedicated dashboard to manage sitemaps, search-engine visibility, social previews, and site verification — all in one place. Switching also enables Jetpack SEO tools if they are off. Your existing settings are kept.',
+					'jetpack-my-jetpack'
+				) }
+			</Notice.Description>
+			<Notice.Actions>{ actions }</Notice.Actions>
+		</Notice.Root>
 	);
 }

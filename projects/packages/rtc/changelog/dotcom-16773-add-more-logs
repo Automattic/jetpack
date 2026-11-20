@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Add richer connection logging: channel path, JWT age at disconnect, wasClean flag, and reconnect attempt events.

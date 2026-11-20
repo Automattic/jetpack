@@ -29,7 +29,6 @@ import { withStoryRouter } from '../../stories/with-story-router';
 import { createStoryWidgetType } from '../../stories/create-story-widget-type';
 import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import LatestPostRender from '../render';
-import widgetDefinition from '../widget';
 import widgetManifest from '../widget.json';
 import type { APIFetchMiddleware, APIFetchOptions } from '@wordpress/api-fetch';
 import type { Meta, StoryObj } from '@storybook/react';
@@ -197,8 +196,7 @@ export const Error: Story = {
 };
 
 /**
- * Resolved with no published posts: the widget shows its empty state (the
- * neutral post-list glyph and "Publish a post to see its stats here.").
+ * Resolved with no published posts: the widget shows its empty state.
  */
 export const Empty: Story = {
 	render: () => renderLatestPostOnPreset( 'last-365-days' ),
@@ -219,7 +217,7 @@ function LatestPostDashboardStory( dashboardArgs: WidgetDashboardWithWidgetContr
 	return (
 		<WidgetDashboardWithWidgetStory
 			{ ...dashboardArgs }
-			widgetType={ createStoryWidgetType( widgetManifest, widgetDefinition ) }
+			widgetType={ createStoryWidgetType( widgetManifest ) }
 			renderModule={ LATEST_POST_RENDER_MODULE }
 			renderComponent={ LatestPostRender as ComponentType< WidgetRenderProps< unknown > > }
 			attributes={ { reportParams: getDefaultQueryParams( true ) } }
@@ -228,50 +226,13 @@ function LatestPostDashboardStory( dashboardArgs: WidgetDashboardWithWidgetContr
 }
 
 export const WidgetDashboardWithWidget: StoryObj< WidgetDashboardWithWidgetControls > = {
+	tags: [ 'widget-dashboard' ],
 	render: args => <LatestPostDashboardStory { ...args } />,
 	args: {
 		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
 		// Latest post is a landscape widget: content left, featured image right.
 		widgetWidth: 2,
 		widgetHeight: 2,
-	},
-	argTypes: {
-		...widgetDashboardWithWidgetArgTypes,
-	},
-};
-
-/**
- * A short cell at the default width. Height, not just width, drives the card:
- * below 300px of body the type scale steps down and the featured image becomes a
- * centred square instead of a full-height panel.
- *
- * This geometry regressed once — the metric row was pushed past the card's bottom
- * edge and silently clipped, leaving labels with no values — so it is covered
- * here to keep a height regression visible in review.
- */
-export const ShortCell: StoryObj< WidgetDashboardWithWidgetControls > = {
-	render: args => <LatestPostDashboardStory { ...args } />,
-	args: {
-		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
-		widgetWidth: 2,
-		widgetHeight: 1,
-	},
-	argTypes: {
-		...widgetDashboardWithWidgetArgTypes,
-	},
-};
-
-/**
- * The smallest cell the dashboard grid produces: narrow *and* short. The featured
- * image drops out entirely and the headline clamps to one line, but the whole
- * metric row — every label with its value — stays inside the card.
- */
-export const ShortNarrowCell: StoryObj< WidgetDashboardWithWidgetControls > = {
-	render: args => <LatestPostDashboardStory { ...args } />,
-	args: {
-		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
-		widgetWidth: 1,
-		widgetHeight: 1,
 	},
 	argTypes: {
 		...widgetDashboardWithWidgetArgTypes,

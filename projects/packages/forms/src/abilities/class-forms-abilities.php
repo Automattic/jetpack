@@ -12,6 +12,10 @@ namespace Automattic\Jetpack\Forms\Abilities;
 
 use Automattic\Jetpack\WP_Abilities\Registrar;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Class Forms_Abilities
  *
@@ -160,6 +164,7 @@ class Forms_Abilities extends Registrar {
 					'destructive' => false,
 					'idempotent'  => true,
 				),
+				'public'       => true,
 				'show_in_rest' => true,
 				'mcp'          => array(
 					'public' => true,
@@ -195,6 +200,7 @@ class Forms_Abilities extends Registrar {
 					'destructive' => false,
 					'idempotent'  => true,
 				),
+				'public'       => true,
 				'show_in_rest' => true,
 				'mcp'          => array(
 					'public' => true,
@@ -240,6 +246,7 @@ class Forms_Abilities extends Registrar {
 					'destructive' => false,
 					'idempotent'  => false,
 				),
+				'public'       => true,
 				'show_in_rest' => true,
 				'mcp'          => array(
 					'public' => true,
@@ -275,6 +282,7 @@ class Forms_Abilities extends Registrar {
 					'destructive' => true,
 					'idempotent'  => true,
 				),
+				'public'       => true,
 				'show_in_rest' => true,
 				'mcp'          => array(
 					'public' => true,
@@ -352,6 +360,7 @@ class Forms_Abilities extends Registrar {
 					'destructive' => false,
 					'idempotent'  => true,
 				),
+				'public'       => true,
 				'show_in_rest' => true,
 				'mcp'          => array(
 					'public' => true,
@@ -396,6 +405,7 @@ class Forms_Abilities extends Registrar {
 					'destructive' => false,
 					'idempotent'  => true,
 				),
+				'public'       => true,
 				'show_in_rest' => true,
 				'mcp'          => array(
 					'public' => true,
@@ -438,6 +448,7 @@ class Forms_Abilities extends Registrar {
 					'destructive' => false,
 					'idempotent'  => true,
 				),
+				'public'       => true,
 				'show_in_rest' => true,
 				'mcp'          => array(
 					'public' => true,
@@ -491,6 +502,7 @@ class Forms_Abilities extends Registrar {
 					'destructive' => false,
 					'idempotent'  => true,
 				),
+				'public'       => true,
 				'show_in_rest' => true,
 				'mcp'          => array(
 					'public' => true,

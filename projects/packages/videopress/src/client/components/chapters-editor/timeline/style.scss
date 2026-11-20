@@ -172,13 +172,13 @@ input[type="text"].vp-chapters-timeline__timecode {
 	position: absolute;
 	top: 0;
 	bottom: 0;
-	left: 0;
+	inset-inline-start: 0;
 }
 
 .vp-chapters-timeline__ruler-label {
 	position: absolute;
 	top: 4px;
-	left: 5px;
+	inset-inline-start: 5px;
 	font-family: var(--vp-font-mono, Menlo, Consolas, monaco, monospace);
 	font-size: 11px;
 	line-height: 1;
@@ -200,7 +200,7 @@ input[type="text"].vp-chapters-timeline__timecode {
 	position: absolute;
 	top: 0;
 	bottom: 0;
-	left: 0;
+	inset-inline-start: 0;
 	width: 1px;
 	background: rgba(0, 0, 0, 0.07);
 }
@@ -217,9 +217,9 @@ input[type="text"].vp-chapters-timeline__timecode {
 	position: absolute;
 	top: 0;
 	bottom: 0;
-	left: 0;
+	inset-inline-start: 0;
 	width: 2px;
-	margin-left: -1px;
+	margin-inline-start: -1px;
 	background: var(--vp-gray-900, #1e1e1e);
 	// Never block scrubbing; keyboard focus still works via Tab.
 	pointer-events: none;
@@ -229,9 +229,11 @@ input[type="text"].vp-chapters-timeline__timecode {
 		content: "";
 		position: absolute;
 		top: 0;
-		left: 50%;
+		inset-inline-start: 50%;
 		width: 10px;
 		height: 12px;
+
+		/* rtl:ignore */
 		transform: translateX(-50%);
 		border-radius: 2px 2px 5px 5px;
 		background: var(--vp-gray-900, #1e1e1e);

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # This script is ran as part of the `UpdateJetpackStaging` TeamCity build.
-# It updates pre-defined Atomic test sites with the latest plugin versions.
+# It updates pre-defined Atomic test sites with the latest plugin versions, then tests their Jetpack connection.
 
 ####################################################
 ## Script variables.
@@ -63,13 +63,13 @@ SITES='{
 # Fetch the latest data from the Jetpack Beta Builder for each plugin.
 for PLUGIN in "${PLUGINS[@]}"; do
   echo "Fetching latest $PLUGIN data from the Jetpack Beta Builder..."
-  if ! RESPONSE=$(curl -s https://betadownload.jetpack.me/$PLUGIN-branches.json); then
+  if ! RESPONSE=$(curl -s "https://betadownload.jetpack.me/$PLUGIN-branches.json"); then
     echo "Error: unable to fetch data from Jetpack Beta Builder for $PLUGIN."
     exit 1
   fi
 
-  DOWNLOAD_URL=$(jq -r ".master.download_url" <<<"$RESPONSE")
-  PLUGIN_VERSION=$(jq -r ".master.version" <<<"$RESPONSE")
+  DOWNLOAD_URL=$(jq -r '.master.download_url // empty' <<<"$RESPONSE")
+  PLUGIN_VERSION=$(jq -r '.master.version // empty' <<<"$RESPONSE")
 
   if [[ -z "$DOWNLOAD_URL" || -z "$PLUGIN_VERSION" ]]; then
     echo "Error: unable to extract data from Jetpack Beta Builder response for $PLUGIN."
@@ -114,15 +114,28 @@ for key in $(jq -r 'keys[]' <<<"$SITES"); do
   blog_id=$(jq -r --arg key "$key" '.[$key].blog_id' <<<"$SITES")
 
   # Attempt to rsync each plugin directory files over SSH.
+  SYNC_FAILED=0
   for PLUGIN in "${PLUGINS[@]}"; do
     echo "Attempting to sync $PLUGIN files to $key | blog_id: $blog_id"
     if ! rsync -az --quiet --delete "$TMP_DIR/$PLUGIN-dev/" "$ssh_string:$REMOTE_DIR/$PLUGIN/"; then
       echo "Failed to sync $PLUGIN files to $key | blog_id: $blog_id"
       EXIT_CODE=1
+      SYNC_FAILED=1
     else
       echo "Successfully synced $PLUGIN files to $key | blog_id: $blog_id"
     fi
   done
+
+  if [[ $SYNC_FAILED -eq 1 ]]; then
+    echo "Skipping Jetpack connection test on $key due to sync failure"
+    continue
+  fi
+
+  echo "Testing Jetpack connection on $key"
+  if ! ssh "$ssh_string" 'wp jetpack test-connection'; then
+    echo "Jetpack connection test failed on $key"
+    EXIT_CODE=1
+  fi
 done
 
 ####################################################
@@ -131,5 +144,5 @@ done
 
 echo 'Cleaning up...'
 rm -rf "$TMP_DIR"
-echo "$(basename $0) script finished."
+echo "$(basename "$0") script finished."
 exit $EXIT_CODE

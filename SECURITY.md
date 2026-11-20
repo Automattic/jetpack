@@ -16,6 +16,7 @@ Our HackerOne program covers the below plugin software, as well as a variety of 
 * Jetpack Protect
 * Jetpack Search
 * Jetpack Social
+* Jetpack Stats
 * Jetpack VideoPress
 
 **For responsible disclosure of security issues and to be eligible for our bug bounty program, please submit your report via the [HackerOne](https://hackerone.com/automattic) portal.**

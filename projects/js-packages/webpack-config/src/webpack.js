@@ -7,7 +7,6 @@ const WebpackRTLWebpackPlugin = require( '@automattic/webpack-rtl-plugin' );
 const DuplicatePackageCheckerWebpackPlugin = require( '@cerner/duplicate-package-checker-webpack-plugin' );
 const ReactRefreshWebpackPlugin = require( '@pmmmwh/react-refresh-webpack-plugin' );
 const DependencyExtractionWebpackPlugin = require( '@wordpress/dependency-extraction-webpack-plugin' );
-const CssMinimizerWebpackPlugin = require( 'css-minimizer-webpack-plugin' );
 const MiniCssExtractWebpackPlugin = require( 'mini-css-extract-plugin' );
 const webpack = require( 'webpack' );
 const BundledWpPkgsTranspileRules = require( './webpack/bundled-wp-pkgs-transpile-rules' );
@@ -16,17 +15,15 @@ const DevServer = require( './webpack/dev-server' );
 const FileRule = require( './webpack/file-rule' );
 const loadTextDomainFromComposerJson = require( './webpack/load-textdomain-from-composer-json.js' );
 const MiniCSSWithRTLWebpackPlugin = require( './webpack/mini-css-with-rtl' );
+const MinimizerPlugin = require( './webpack/minimizer' );
 const PnpmDeterministicChunkIdsWebpackPlugin = require( './webpack/pnpm-deterministic-chunk-ids.js' );
 const PnpmDeterministicModuleIdsWebpackPlugin = require( './webpack/pnpm-deterministic-module-ids.js' );
-const TerserPlugin = require( './webpack/terser' );
 const TranspileRule = require( './webpack/transpile-rule' );
-
-const CssMinimizerPlugin = options => new CssMinimizerWebpackPlugin( options );
 
 /****** Functions ******/
 
 const i18nFilterFunction = file => {
-	if ( ! /\.(?:jsx?|tsx?|cjs|mjs|svelte)$/.test( file ) ) {
+	if ( ! /\.(?:jsx?|tsx?|cjs|mjs)$/.test( file ) ) {
 		return false;
 	}
 	const i = file.lastIndexOf( '/node_modules/' ) + 14;
@@ -77,7 +74,7 @@ const output = {
 };
 const optimization = {
 	minimize: isProduction,
-	minimizer: [ TerserPlugin(), CssMinimizerPlugin() ],
+	minimizer: [ MinimizerPlugin() ],
 	mangleExports: false,
 	concatenateModules: false,
 	chunkIds: isProduction ? false : 'named',
@@ -146,8 +143,30 @@ const defaultRequestMap = {
 	},
 };
 
-const DependencyExtractionPlugin = ( { requestMap, ...options } = {} ) => {
-	const finalRequestMap = { ...defaultRequestMap, ...requestMap };
+// A bundled @wordpress/private-apis unlocks only what its own bundle locked. So never bundle it
+// without @wordpress/theme, or in an entry that unlocks private APIs of an external wp-* script.
+const wpUiRequestMap = {
+	'@wordpress/theme': { external: false },
+	'@wordpress/private-apis': { external: false },
+};
+
+/**
+ * Build the DependencyExtractionWebpackPlugin.
+ *
+ * @param {object}  options                - Plugin options, passed through except for the two below.
+ * @param {object}  options.requestMap     - Per-request `{ external, handle }` overrides. Wins over every default.
+ * @param {boolean} options.bundleWpUiDeps - Bundle `@wordpress/theme` and `@wordpress/private-apis` instead of
+ *                                         externalizing them. Off by default. For an entry that bundles
+ *                                         `@wordpress/ui`, which is built against a newer `@wordpress/theme`
+ *                                         than core's `wp-theme`.
+ * @return {object[]} The plugin.
+ */
+const DependencyExtractionPlugin = ( { requestMap, bundleWpUiDeps = false, ...options } = {} ) => {
+	const finalRequestMap = {
+		...defaultRequestMap,
+		...( bundleWpUiDeps ? wpUiRequestMap : {} ),
+		...requestMap,
+	};
 
 	const requestToExternal = request => {
 		return finalRequestMap[ request ]?.external;
@@ -300,8 +319,7 @@ module.exports = {
 	devtool,
 	output,
 	optimization,
-	TerserPlugin,
-	CssMinimizerPlugin,
+	MinimizerPlugin,
 	resolve,
 	watchOptions,
 	cache,

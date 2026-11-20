@@ -42,13 +42,12 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
-		"autotagger": true,
 		"mirror-repo": "Automattic/jetpack-status",
 		"changelogger": {
 			"link-template": "https://github.com/Automattic/jetpack-status/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-trunk": "7.0.x-dev"
+			"dev-trunk": "7.1.x-dev"
 		},
 		"dependencies": {
 			"test-only": [

@@ -1,0 +1,79 @@
+.settings-panel {
+	padding: var(--wpds-dimension-padding-xl);
+}
+
+.settings-panel__toggle {
+	padding-block: var(--wpds-dimension-padding-md);
+}
+
+// The field's `width: 100%` squeezes the slot, wrapping the button's label and
+// shrinking its icon. Remove once WordPress/gutenberg#86446 ships in
+// @wordpress/ui.
+.post-by-email__copy-slot {
+	flex-shrink: 0;
+}
+
+.related-posts-preview {
+	container-type: inline-size;
+	padding: var(--wpds-dimension-padding-lg);
+	background: var(--wpds-color-background-surface-neutral-strong);
+	border-radius: var(--wpds-border-radius-md);
+}
+
+.related-posts-preview__headline {
+	display: block;
+	margin-block-end: var(--wpds-dimension-gap-md);
+	font-weight: var(--wpds-typography-font-weight-emphasis);
+}
+
+// Three posts in a row, as under a post, however narrow the panel.
+.related-posts-preview__list {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: var(--wpds-dimension-gap-sm);
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.related-posts-preview__item {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-xs);
+	min-inline-size: 0;
+	margin: 0;
+}
+
+.related-posts-preview__image {
+	inline-size: 100%;
+	aspect-ratio: 3 / 2;
+	object-fit: cover;
+}
+
+.related-posts-preview__title,
+.related-posts-preview__context {
+	display: -webkit-box;
+	overflow: hidden;
+	-webkit-box-orient: vertical;
+}
+
+.related-posts-preview__title {
+	-webkit-line-clamp: 2;
+}
+
+.related-posts-preview__context {
+	-webkit-line-clamp: 1;
+	color: var(--wpds-color-foreground-content-neutral-weak);
+}
+
+@container (min-width: 480px) {
+
+	.related-posts-preview__list {
+		gap: var(--wpds-dimension-gap-lg);
+	}
+
+	.related-posts-preview__title {
+		font-size: var(--wpds-typography-font-size-md);
+		-webkit-line-clamp: 3;
+	}
+}

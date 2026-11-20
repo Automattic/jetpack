@@ -8,9 +8,9 @@
 	border: 2px solid transparent;
 	width: 800px;
 	max-width: 100%;
-	margin-left: auto;
-	margin-right: auto;
-	text-align: left;
+	margin-inline-start: auto;
+	margin-inline-end: auto;
+	text-align: start;
 	position: relative;
 	box-shadow: 0 0 15px var(--jp-gray-off);
 

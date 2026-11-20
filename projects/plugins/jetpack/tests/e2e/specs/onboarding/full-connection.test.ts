@@ -62,15 +62,16 @@ test( 'Full connection - Site and User', async ( { page, requestUtils, admin } )
 	} );
 
 	await test.step( 'Verify site and user connection', async () => {
-		// Find a block which has h2 with text "Connection"
-		const h3 = page.getByRole( 'heading', { level: 3, name: 'Connection' } );
-		const connectionBlock = h3.locator( 'xpath=..' ); // immediate parent
+		await page
+			.getByRole( 'button', { name: 'Connection: Site and account connected', exact: true } )
+			.click();
+		const connectionPopover = page.getByRole( 'dialog', { name: 'Connection', exact: true } );
 
-		await expect( connectionBlock, {
-			message: 'Should have the text saying the site is connected.',
-		} ).toContainText( 'Site and account connected' );
+		await expect( connectionPopover.getByText( 'Connected', { exact: true } ), {
+			message: 'Should show the connected badge.',
+		} ).toBeVisible();
 
-		await expect( connectionBlock, {
+		await expect( connectionPopover, {
 			message: 'Should have the text showing user connection.',
 		} ).toContainText( 'Connected as owner' );
 	} );

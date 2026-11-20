@@ -1,5 +1,0 @@
-Significance: patch
-Type: changed
-Comment: Backup: drop the modernized dashboard's link to backup management on Jetpack.com, which pointed at the Calypso screen this dashboard replaces, and bring legacy's schedule "Modify" link and its Tracks event to the next-backup line — cloud.jetpack.com/settings is the only place a backup's time can be changed. No-op when the modernization filter is off.
-
-

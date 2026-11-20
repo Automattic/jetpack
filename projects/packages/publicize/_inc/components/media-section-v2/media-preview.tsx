@@ -7,6 +7,7 @@ import { Spinner } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import styles from './styles.module.scss';
 import { MediaPreviewProps } from './types';
+import type { JSX } from 'react';
 
 /**
  * MediaPreview component

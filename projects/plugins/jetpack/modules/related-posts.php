@@ -38,7 +38,7 @@ class Jetpack_RelatedPosts_Module {
 	 * @return object
 	 */
 	public static function instance() {
-		if ( ! is_a( self::$instance, 'Jetpack_RelatedPosts_Module' ) ) {
+		if ( ! self::$instance instanceof \Jetpack_RelatedPosts_Module ) {
 			self::$instance = new Jetpack_RelatedPosts_Module();
 		}
 

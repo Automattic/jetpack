@@ -9,6 +9,7 @@ import { wpcomTrackEvent } from '../../../../common/tracks';
 import FormInputCheckbox from './form-checkbox';
 import FormLabel from './form-label';
 import useAddTagsToPost from './use-add-tags-to-post';
+import type { JSX } from 'react';
 
 type PostMeta = {
 	reader_suggested_tags: string;

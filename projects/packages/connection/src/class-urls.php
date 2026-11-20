@@ -191,26 +191,16 @@ class Urls {
 	}
 
 	/**
-	 * Maybe add the origin_site_id query parameter to a URL.
-	 *
-	 * The parameter is only added for users who are members of the current blog.
+	 * Formerly added the origin_site_id query parameter to a URL. WordPress.com no longer reads it.
 	 *
 	 * @since 7.1.0
+	 * @deprecated 9.14.0
 	 *
-	 * @param string $url The URL to add the query param to.
-	 * @return string The URL with the origin_site_id query parameter maybe added.
+	 * @param string $url The URL.
+	 * @return string The URL, unchanged.
 	 */
 	public static function maybe_add_origin_site_id( $url ) {
-		$site_id = Manager::get_site_id();
-		if ( is_wp_error( $site_id ) ) {
-			return $url;
-		}
-
-		// Add query param to URL only for users who can access wp-admin.
-		if ( ! is_user_member_of_blog() ) {
-			return $url;
-		}
-
-		return add_query_arg( 'origin_site_id', $site_id, $url );
+		_deprecated_function( __METHOD__, 'package-9.14.0' );
+		return $url;
 	}
 }

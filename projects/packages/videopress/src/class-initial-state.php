@@ -79,14 +79,26 @@ class Initial_State {
 			return;
 		}
 
-		wp_add_inline_script( self::SCRIPT_HANDLE, ( new self() )->render(), 'before' );
+		self::attach_to( self::SCRIPT_HANDLE );
+	}
+
+	/**
+	 * Inline the initial-state payload, and the connection state, before a script.
+	 *
+	 * @since 0.63.0
+	 *
+	 * @param string $handle A registered script handle.
+	 * @return void
+	 */
+	public static function attach_to( $handle ) {
+		wp_add_inline_script( $handle, ( new self() )->render(), 'before' );
 
 		// Hydrate the JP connection store (`window.JP_CONNECTION_INITIAL_STATE`)
 		// so shared connection-aware hooks — notably
 		// `useProductCheckoutWorkflow`, which powers the upgrade CTA — work on
 		// the modernized dashboard exactly as they do on the legacy one. This
 		// also sets `window.jpTracksContext.blog_id` for `@automattic/jetpack-analytics`.
-		Connection_Initial_State::render_script( self::SCRIPT_HANDLE );
+		Connection_Initial_State::render_script( $handle );
 	}
 
 	/**
@@ -137,6 +149,7 @@ class Initial_State {
 			// hide gated UI without a round trip.
 			'features'               => array(
 				'chaptersEditor' => Admin_UI::is_chapters_editor_enabled(),
+				'trimCut'        => Admin_UI::is_trim_cut_enabled(),
 			),
 			// Authoritative map of accepted upload types (extension => mimetype),
 			// so the dashboard's drag-and-drop filter accepts exactly what the
@@ -189,26 +202,29 @@ class Initial_State {
 	 * counts as paid access. On WPCOM the legacy `videopress` slug also
 	 * grants access.
 	 *
-	 * @return bool
+	 * @return bool|null Null when site features could not be retrieved.
 	 */
 	public static function has_videopress_access() {
-		// Any paid storage tier grants access; on the WPCOM platform (Simple or
-		// Atomic) the legacy `videopress` slug does too. No Simple special-case is
-		// needed here: each has_videopress_feature() call already routes through the
-		// Simple-local wpcom_site_has_feature() check under IS_WPCOM, and
-		// is_wpcom_platform() is true on Simple, so the third term reduces to
-		// wpcom_site_has_feature( 'videopress' ) there — the check the old early
-		// return performed, minus the redundancy.
-		return self::has_videopress_feature( 'videopress-1tb-storage' )
-			|| self::has_videopress_feature( 'videopress-unlimited-storage' )
-			|| ( ( new Host() )->is_wpcom_platform() && self::has_videopress_feature( 'videopress' ) );
+		$feature_slugs = array( 'videopress-1tb-storage', 'videopress-unlimited-storage' );
+		if ( ( new Host() )->is_wpcom_platform() ) {
+			$feature_slugs[] = 'videopress';
+		}
+
+		foreach ( $feature_slugs as $feature_slug ) {
+			$has_feature = self::has_videopress_feature( $feature_slug );
+			if ( null === $has_feature || $has_feature ) {
+				return $has_feature;
+			}
+		}
+
+		return false;
 	}
 
 	/**
 	 * Whether the named feature appears in the WPCOM active-features list.
 	 *
 	 * @param string $feature_slug Feature slug as returned by WPCOM (e.g. `videopress-1tb-storage`).
-	 * @return bool
+	 * @return bool|null Null when site features could not be retrieved.
 	 */
 	private static function has_videopress_feature( $feature_slug ) {
 		if ( ( new Host() )->is_wpcom_simple() ) {
@@ -218,7 +234,7 @@ class Initial_State {
 		$features = Product::get_site_features_from_wpcom();
 
 		if ( is_wp_error( $features ) ) {
-			return false;
+			return null;
 		}
 
 		$active = $features['active'] ?? array();

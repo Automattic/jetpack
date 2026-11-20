@@ -14,7 +14,7 @@ const ProtectComponent = class extends Component {
 			<SettingsCard
 				{ ...this.props }
 				module="protect"
-				header={ _x( 'Brute force protection', 'Settings header', 'jetpack' ) }
+				header={ _x( 'Login protection', 'Settings header', 'jetpack' ) }
 				hideButton={ true }
 			>
 				<SettingsGroup
@@ -28,6 +28,7 @@ const ProtectComponent = class extends Component {
 							'jetpack'
 						),
 						link: getRedirectUrl( 'jetpack-support-protect' ),
+						wpcomLink: 'https://wordpress.com/support/brute-force-attack-protection/',
 					} }
 				>
 					<ModuleToggle

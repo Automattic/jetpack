@@ -1,0 +1,5 @@
+{
+	"name": "@automattic/jetpack-woocommerce-stats-widget-sessions-by-device",
+	"private": true,
+	"type": "module"
+}

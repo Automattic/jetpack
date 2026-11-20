@@ -48,13 +48,13 @@ function render_callback_implementation( $attributes ) {
 	switch ( str_replace( 'jetpack/', '', $attributes['variation'] ?? 'google-docs' ) ) {
 		case 'google-docs':
 		default:
-			$pattern = '/^http[s]?:\/\/((?:www\.)?docs\.google\.com(?:.*)?(?:document)\/[a-z0-9\/\?=_\-\.\,&%$#\@\!\+]*)\/preview/i';
+			$pattern = '/^http[s]?:\/\/((?:www\.)?docs\.google\.com\/(?:.*\/)?(?:document)\/[a-z0-9\/\?=_\-\.\,&%$#\@\!\+]*)\/preview/i';
 			break;
 		case 'google-sheets':
-			$pattern = '/^http[s]?:\/\/((?:www\.)?docs\.google\.com(?:.*)?(?:spreadsheets)\/[a-z0-9\/\?=_\-\.\,&%$#\@\!\+]*)\/preview/i';
+			$pattern = '/^http[s]?:\/\/((?:www\.)?docs\.google\.com\/(?:.*\/)?(?:spreadsheets)\/[a-z0-9\/\?=_\-\.\,&%$#\@\!\+]*)\/preview/i';
 			break;
 		case 'google-slides':
-			$pattern = '/^http[s]?:\/\/((?:www\.)?docs\.google\.com(?:.*)?(?:presentation)\/[a-z0-9\/\?=_\-\.\,&%$#\@\!\+]*)\/preview/i';
+			$pattern = '/^http[s]?:\/\/((?:www\.)?docs\.google\.com\/(?:.*\/)?(?:presentation)\/[a-z0-9\/\?=_\-\.\,&%$#\@\!\+]*)\/preview/i';
 			break;
 	}
 

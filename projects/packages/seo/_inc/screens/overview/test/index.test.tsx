@@ -17,15 +17,7 @@ jest.unstable_mockModule( '@wordpress/route', () => ( {
 	Link: ( { children }: { children?: ReactNode } ) => <a href="#">{ children }</a>,
 } ) );
 
-// Still stubbed: the Overview renders `EnableSeoCard` when the module is off, and
-// that card uses the toggle. Keeps the Overview off the module-toggle REST plumbing.
-jest.unstable_mockModule( '../../../data/use-seo-tools-toggle', () => ( {
-	default: () => ( { isToggling: false, setActive: jest.fn() } ),
-} ) );
-
 const { default: OverviewScreen } = await import( '../index' );
-
-const OFF_RAMP_TEXT = 'Using a different SEO solution?';
 
 /**
  * Build an Overview payload with SEO tools active.
@@ -53,30 +45,13 @@ const buildOverview = (): OverviewResponse => ( {
 		with_description: 5,
 		with_search_visible: 5,
 	},
-	plan: {
-		seo_enabled_for_site: true,
-	},
+	verification_switchable: true,
 } );
 
 describe( 'OverviewScreen', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
 		getOverview.mockReturnValue( buildOverview() );
-	} );
-
-	it( 'no longer carries the disable-SEO off-ramp', () => {
-		// It moved to the Advanced module at the foot of Settings, where it can carry
-		// the context explaining what turning SEO tools off actually stops.
-		render( <OverviewScreen /> );
-
-		expect( screen.queryByText( OFF_RAMP_TEXT ) ).not.toBeInTheDocument();
-		// Queried against the strings the Advanced module actually uses, so putting the
-		// control back on this screen fails here. The old wording no longer exists
-		// anywhere, which would have made this assertion unfalsifiable.
-		expect(
-			screen.queryByRole( 'button', { name: 'Disable Jetpack SEO' } )
-		).not.toBeInTheDocument();
-		expect( screen.queryByText( 'Disable Jetpack’s SEO tools' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'renders its cards', () => {

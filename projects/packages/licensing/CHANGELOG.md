@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.1.1] - 2026-10-20
+### Changed
+- Internal updates.
+
+## [4.1.0] - 2026-09-15
+### Added
+- Serve the license activation illustrations from the package and add their base URL to the admin script data. [#52204]
+
 ## [4.0.0] - 2026-08-26
 ### Removed
 - Minimum supported PHP version is now 7.4. [#51515]
@@ -384,6 +392,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Licensing: Add support for Jetpack licenses
 
+[4.1.1]: https://github.com/Automattic/jetpack-licensing/compare/v4.1.0...v4.1.1
+[4.1.0]: https://github.com/Automattic/jetpack-licensing/compare/v4.0.0...v4.1.0
 [4.0.0]: https://github.com/Automattic/jetpack-licensing/compare/v3.1.9...v4.0.0
 [3.1.9]: https://github.com/Automattic/jetpack-licensing/compare/v3.1.8...v3.1.9
 [3.1.8]: https://github.com/Automattic/jetpack-licensing/compare/v3.1.7...v3.1.8

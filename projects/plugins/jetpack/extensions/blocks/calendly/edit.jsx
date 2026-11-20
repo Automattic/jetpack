@@ -9,11 +9,12 @@ import { Link } from '@wordpress/ui';
 import clsx from 'clsx';
 import { isEqual } from 'lodash';
 import { getValidatedAttributes } from '../../shared/get-validated-attributes';
+import isAllowedEmbedUrl from '../../shared/is-allowed-embed-url';
 import testEmbedUrl from '../../shared/test-embed-url';
 import metadata from './block.json';
-import { CALENDLY_EXAMPLE_URL } from './constants';
+import { CALENDLY_EXAMPLE_URL, CALENDLY_URL_ALLOWED_HOSTS } from './constants';
 import CalendlyControls from './controls';
-import { getAttributesFromEmbedCode } from './utils';
+import { getAttributesFromEmbedCode, normalizeCalendlyUrl } from './utils';
 
 import './editor.scss';
 import './view.scss';
@@ -30,7 +31,8 @@ const innerButtonBlock = {
 const icon = getBlockIconComponent( metadata );
 
 export function CalendlyEdit( props ) {
-	const { attributes, clientId, name, noticeOperations, noticeUI, setAttributes } = props;
+	const { attributes, clientId, isSelected, name, noticeOperations, noticeUI, setAttributes } =
+		props;
 	const defaultClassName = getBlockDefaultClassName( name );
 	const validatedAttributes = getValidatedAttributes( metadata.attributes, attributes );
 
@@ -40,11 +42,21 @@ export function CalendlyEdit( props ) {
 
 	const { backgroundColor, hideEventTypeDetails, primaryColor, textColor, style, url } =
 		validatedAttributes;
+	const isValidUrl = isAllowedEmbedUrl( url, CALENDLY_URL_ALLOWED_HOSTS );
+	// Saved attributes never pass through the paste parser, so check the URL again here.
+	const previewUrl = normalizeCalendlyUrl( url );
 	const [ embedCode, setEmbedCode ] = useState( url );
 	const [ isEditingUrl, setIsEditingUrl ] = useState( false );
 	const [ isResolvingUrl, setIsResolvingUrl ] = useState( false );
 	const [ embedButtonAttributes, setEmbedButtonAttributes ] = useState( {} );
+	const [ interactive, setInteractive ] = useState( false );
 	const blockProps = useBlockProps();
+
+	useEffect( () => {
+		if ( ! isSelected && interactive ) {
+			setInteractive( false );
+		}
+	}, [ interactive, isSelected ] );
 
 	const setErrorNotice = () => {
 		noticeOperations.removeAllNotices();
@@ -55,6 +67,12 @@ export function CalendlyEdit( props ) {
 
 	useEffect( () => {
 		if ( ! url || CALENDLY_EXAMPLE_URL === url || 'link' === style ) {
+			return;
+		}
+		// Clear a stored URL that isn't an allowed Calendly HTTPS address.
+		if ( ! isValidUrl ) {
+			setAttributes( { url: undefined } );
+			setErrorNotice();
 			return;
 		}
 		testEmbedUrl( url, setIsResolvingUrl ).catch( () => {
@@ -73,7 +91,7 @@ export function CalendlyEdit( props ) {
 		event.preventDefault();
 
 		const newAttributes = getAttributesFromEmbedCode( embedCode );
-		if ( ! newAttributes ) {
+		if ( ! newAttributes || ! isAllowedEmbedUrl( newAttributes.url, CALENDLY_URL_ALLOWED_HOSTS ) ) {
 			setErrorNotice();
 			return;
 		}
@@ -154,12 +172,14 @@ export function CalendlyEdit( props ) {
 			primary_color: primaryColor,
 			text_color: textColor,
 		} );
-		return `${ url }?${ query }`;
+		return `${ previewUrl }?${ query }`;
 	};
 
 	const inlinePreview = (
+		// Disabled because the overlay only catches the first click, so the block can be selected
+		// before the preview becomes interactive.
+		/* eslint-disable jsx-a11y/no-static-element-interactions */
 		<>
-			<div className={ `${ defaultClassName }-overlay` }></div>
 			<iframe
 				src={ iframeSrc() }
 				width="100%"
@@ -169,7 +189,14 @@ export function CalendlyEdit( props ) {
 				data-origheight="100%"
 				title="Calendly"
 			></iframe>
+			{ ! interactive && (
+				<div
+					className="block-library-embed__interactive-overlay"
+					onMouseUp={ () => setInteractive( true ) }
+				/>
+			) }
 		</>
+		/* eslint-enable jsx-a11y/no-static-element-interactions */
 	);
 
 	const buttonPreview = (
@@ -204,7 +231,7 @@ export function CalendlyEdit( props ) {
 		<div
 			{ ...blockProps }
 			className={ clsx( blockProps.className, {
-				[ `calendly-style-${ style }` ]: url && ! isEditingUrl,
+				[ `calendly-style-${ style }` ]: previewUrl && isValidUrl && ! isEditingUrl,
 			} ) }
 		>
 			<CalendlyControls
@@ -218,7 +245,7 @@ export function CalendlyEdit( props ) {
 					setIsEditingUrl,
 				} }
 			/>
-			{ url && ! isEditingUrl ? blockPreview( style ) : blockPlaceholder }
+			{ previewUrl && isValidUrl && ! isEditingUrl ? blockPreview( style ) : blockPlaceholder }
 		</div>
 	);
 }

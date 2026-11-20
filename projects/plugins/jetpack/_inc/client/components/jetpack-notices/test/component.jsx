@@ -143,11 +143,24 @@ describe( 'DevVersionNotice', () => {
 		expect( container ).toBeEmptyDOMElement();
 	} );
 
+	it( 'should not render once settings move to My Jetpack', () => {
+		window.JetpackScriptData = { myJetpack: { settingsConsolidation: true } };
+		try {
+			const { container } = render(
+				<DevVersionNotice isDevVersion={ true } userIsSubscriber={ false } />
+			);
+			expect( container ).toBeEmptyDOMElement();
+		} finally {
+			delete window.JetpackScriptData;
+		}
+	} );
+
 	it( 'should show notice when Jetpack is a dev version and user is not a subscriber', () => {
 		render( <DevVersionNotice isDevVersion={ true } userIsSubscriber={ false } /> );
 		expect(
 			screen.getByText( 'You are currently running a development version of Jetpack.' )
 		).toBeInTheDocument();
-		expect( screen.getByRole( 'link', { name: 'Submit Beta feedback' } ) ).toBeInTheDocument();
+		// The accessible name carries the design system's "(opens in a new tab)" suffix.
+		expect( screen.getByRole( 'link', { name: /Submit Beta feedback/ } ) ).toBeInTheDocument();
 	} );
 } );

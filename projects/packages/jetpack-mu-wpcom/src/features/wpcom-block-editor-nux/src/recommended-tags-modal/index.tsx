@@ -3,6 +3,7 @@ import { useSelect } from '@wordpress/data';
 import { useEffect, useRef, useState } from '@wordpress/element';
 import {
 	DESIGN_FIRST_FLOW,
+	useIsFourForFourEligible,
 	useSiteIntent,
 	useShouldShowSellerCelebrationModal,
 	useShouldShowVideoCelebrationModal,
@@ -42,6 +43,7 @@ const RecommendedTagsModalInner: FC = () => {
 
 	const previousIsCurrentPostPublished = useRef( isCurrentPostPublished );
 	const shouldShowFirstPostPublishedModal = useShouldShowFirstPostPublishedModal();
+	const isFourForFourEligible = useIsFourForFourEligible();
 	const shouldShowSellerCelebrationModal = useShouldShowSellerCelebrationModal();
 	const shouldShowVideoCelebrationModal =
 		useShouldShowVideoCelebrationModal( isCurrentPostPublished );
@@ -54,6 +56,7 @@ const RecommendedTagsModalInner: FC = () => {
 		// The first post will show a different modal.
 		if (
 			! shouldShowFirstPostPublishedModal &&
+			! isFourForFourEligible &&
 			! shouldShowSellerCelebrationModal &&
 			! shouldShowVideoCelebrationModal &&
 			launchpadScreenOption !== 'full' &&
@@ -81,6 +84,7 @@ const RecommendedTagsModalInner: FC = () => {
 		shouldShowVideoCelebrationModal,
 		isCurrentPostPublished,
 		launchpadScreenOption,
+		isFourForFourEligible,
 	] );
 
 	if ( ! isOpen || ! shouldShowSuggestedTags || isDismissedDefault || isP2 ) {

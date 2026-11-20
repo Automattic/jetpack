@@ -9,9 +9,9 @@ import './style.scss';
 /**
  * The Activation Screen Illustration component.
  *
- * @param {object}  props                 -- The properties.
- * @param {string}  props.imageUrl        -- The assets base URL.
- * @param {boolean} props.showSupportLink -- The assets base URL.
+ * @param {object}  props                   -- The properties.
+ * @param {string}  [props.imageUrl]        -- URL of the illustration; omit to render none.
+ * @param {boolean} [props.showSupportLink] -- Whether to render the support link.
  * @return {import('react').Component} The `ActivationScreenIllustration` component.
  */
 const ActivationScreenIllustration = props => {
@@ -19,7 +19,9 @@ const ActivationScreenIllustration = props => {
 	return (
 		<div className="jp-license-activation-screen-illustration">
 			<div className="jp-license-activation-screen-illustration--wrapper">
-				<img className="jp-license-activation-screen-illustration--img" src={ imageUrl } alt="" />
+				{ imageUrl && (
+					<img className="jp-license-activation-screen-illustration--img" src={ imageUrl } alt="" />
+				) }
 			</div>
 			{ showSupportLink && (
 				<Text
@@ -39,7 +41,7 @@ const ActivationScreenIllustration = props => {
 };
 
 ActivationScreenIllustration.propTypes = {
-	imageUrl: PropTypes.string.isRequired,
+	imageUrl: PropTypes.string,
 	showSupportLink: PropTypes.bool,
 };
 

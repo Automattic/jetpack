@@ -250,7 +250,7 @@ class Twitter_Cards_Test extends BaseTestCase {
 		// imagedestroy() is deprecated in PHP 8.5, but GD resources are only auto-freed since PHP 8.0.
 		// We still need to call it on PHP < 8.0 to avoid memory leaks.
 		if ( PHP_VERSION_ID < 80000 ) {
-			imagedestroy( $img ); // phpcs:ignore PHPCompatibility.FunctionUse.RemovedFunctions.imagedestroyDeprecated,MediaWiki.Usage.ForbiddenFunctions.imagedestroy
+			imagedestroy( $img ); // phpcs:ignore PHPCompatibility.FunctionUse.RemovedFunctions.imagedestroyDeprecated,MediaWiki.Usage.ForbiddenFunctions.imagedestroy,Generic.PHP.DeprecatedFunctions.Deprecated
 		}
 
 		$attachment_id = wp_insert_attachment(
@@ -275,6 +275,56 @@ class Twitter_Cards_Test extends BaseTestCase {
 		$this->assertSame( 'summary', $card_type );
 		$this->assertArrayHasKey( 'twitter:image', $result_tags );
 		$this->assertStringContainsString( 'test-icon.png', $result_tags['twitter:image'] );
+	}
+
+	/** OG's usable fallback must win over a site icon, retaining its own alt text. */
+	public function test_og_fallback_is_used_without_content_images() {
+		$tags           = array(
+			'og:image'     => 'https://example.com/default.jpg',
+			'og:image:alt' => 'Default image',
+		);
+		list( $result ) = Twitter_Cards::twitter_cards_define_type_based_on_image_count(
+			$tags,
+			array(
+				'type'  => 'standard',
+				'count' => array( 'image' => 0 ),
+			)
+		);
+		$this->assertSame( $tags['og:image'], $result['twitter:image'] );
+		$this->assertSame( $tags['og:image:alt'], $result['twitter:image:alt'] );
+	}
+
+	/** The built-in blank placeholder must never become an X fallback. */
+	public function test_blank_og_placeholder_is_not_an_x_fallback() {
+		$tags           = array( 'og:image' => 'https://s0.wp.com/i/blank.jpg' );
+		list( $result ) = Twitter_Cards::twitter_cards_define_type_based_on_image_count(
+			$tags,
+			array(
+				'type'  => 'standard',
+				'count' => array( 'image' => 0 ),
+			)
+		);
+		$this->assertArrayNotHasKey( 'twitter:image', $result );
+	}
+
+	/** SVG site icons cannot be used in X cards. */
+	public function test_svg_site_icon_is_not_a_fallback() {
+		$id = wp_insert_attachment(
+			array(
+				'post_mime_type' => 'image/svg+xml',
+				'post_title'     => 'SVG icon',
+			),
+			'icon.svg'
+		);
+		update_option( 'site_icon', $id );
+		list( $result ) = Twitter_Cards::twitter_cards_define_type_based_on_image_count(
+			array(),
+			array(
+				'type'  => 'standard',
+				'count' => array( 'image' => 0 ),
+			)
+		);
+		$this->assertEmpty( $result['twitter:image'] ?? '' );
 	}
 
 	/**
@@ -331,6 +381,9 @@ class Twitter_Cards_Test extends BaseTestCase {
 		global $post;
 		$post = get_post( $post_id );
 		$this->assertInstanceOf( 'WP_Post', $post );
+
+		$GLOBALS['wp_query']              = new WP_Query();
+		$GLOBALS['wp_query']->is_singular = true;
 
 		$og_tags = array( 'og:title' => 'Test' );
 		$result  = Twitter_Cards::twitter_cards_tags( $og_tags );
@@ -453,16 +506,13 @@ class Twitter_Cards_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test that init() registers all expected filters and actions.
+	 * Test that init() registers all expected filters.
 	 */
-	public function test_init_registers_all_filters_and_actions() {
+	public function test_init_registers_all_filters() {
 		// Remove any existing hooks.
 		remove_all_filters( 'jetpack_open_graph_tags' );
 		remove_all_filters( 'jetpack_open_graph_output' );
 		remove_all_filters( 'jetpack_twitter_cards_site_tag' );
-		remove_all_actions( 'admin_init' );
-		remove_all_actions( 'sharing_global_options' );
-		remove_all_actions( 'sharing_admin_update' );
 
 		Twitter_Cards::init();
 
@@ -470,8 +520,16 @@ class Twitter_Cards_Test extends BaseTestCase {
 		$this->assertSame( 10, has_filter( 'jetpack_open_graph_output', array( Twitter_Cards::class, 'twitter_cards_output' ) ) );
 		$this->assertSame( -99, has_filter( 'jetpack_twitter_cards_site_tag', array( Twitter_Cards::class, 'site_tag' ) ) );
 		$this->assertSame( 99, has_filter( 'jetpack_twitter_cards_site_tag', array( Twitter_Cards::class, 'prioritize_creator_over_default_site' ) ) );
-		$this->assertSame( 10, has_action( 'admin_init', array( Twitter_Cards::class, 'settings_init' ) ) );
-		$this->assertSame( 10, has_action( 'sharing_global_options', array( Twitter_Cards::class, 'sharing_global_options' ) ) );
-		$this->assertSame( 10, has_action( 'sharing_admin_update', array( Twitter_Cards::class, 'settings_validate' ) ) );
+	}
+
+	/**
+	 * Settings > Sharing renders and saves the Site Tag itself, on every screen that shows it.
+	 */
+	public function test_init_leaves_the_site_tag_setting_to_the_sharing_screen() {
+		Twitter_Cards::init();
+
+		$this->assertFalse( has_action( 'admin_init', array( Twitter_Cards::class, 'settings_init' ) ) );
+		$this->assertFalse( has_action( 'sharing_global_options', array( Twitter_Cards::class, 'sharing_global_options' ) ) );
+		$this->assertFalse( has_action( 'sharing_admin_update', array( Twitter_Cards::class, 'settings_validate' ) ) );
 	}
 }

@@ -21,7 +21,6 @@ await jest.unstable_mockModule( '@wordpress/admin-ui', () => ( {
 await jest.unstable_mockModule( '@wordpress/components', () => ( {
 	DropdownMenu: () => null,
 	Button: ( { children } ) => children,
-	__experimentalConfirmDialog: ( { children } ) => children,
 } ) );
 
 await jest.unstable_mockModule( '@wordpress/core-data', () => ( {
@@ -73,8 +72,13 @@ await jest.unstable_mockModule( '../../../../src/dashboard/components/create-for
 await jest.unstable_mockModule( '../../../../src/dashboard/components/edit-form-button', () => ( {
 	default: () => null,
 } ) );
+await jest.unstable_mockModule(
+	'../../../../src/dashboard/components/delete-form-confirmation-modal',
+	() => ( { default: () => null } )
+);
 await jest.unstable_mockModule( '../../../../src/dashboard/components/empty-spam-button', () => ( {
 	default: () => null,
+	labelForScope: () => 'Delete spam',
 } ) );
 await jest.unstable_mockModule(
 	'../../../../src/dashboard/components/empty-spam-button/confirmation-modal',
@@ -121,6 +125,7 @@ await jest.unstable_mockModule( '../../../../src/dashboard/hooks/use-empty-spam'
 		isConfirmDialogOpen: false,
 		totalItemsSpam: 0,
 		selectedResponsesCount: 0,
+		scope: { mode: 'all', count: 0, params: {} },
 	} ),
 } ) );
 
@@ -176,6 +181,7 @@ let mockFormRecord = { title: { rendered: 'My Form' }, status: 'publish' };
 await jest.unstable_mockModule( '@wordpress/data', () => ( {
 	createReduxStore: jest.fn( () => 'mock-store' ),
 	register: jest.fn(),
+	select: jest.fn(),
 	useSelect: jest.fn( callback => {
 		const fakeSelect = () => ( {
 			getEntityRecord: () => mockFormRecord,
@@ -223,9 +229,8 @@ await jest.unstable_mockModule(
 
 // ── Import hook under test (after all mocks) ────────────────────────────────
 
-const usePageHeaderDetailsModule = await import(
-	'../../../../src/dashboard/wp-build/hooks/use-page-header-details'
-);
+const usePageHeaderDetailsModule =
+	await import( '../../../../src/dashboard/wp-build/hooks/use-page-header-details' );
 const usePageHeaderDetails = usePageHeaderDetailsModule.default;
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
@@ -406,7 +411,7 @@ describe( 'usePageHeaderDetails', () => {
 				controls[ 1 ].onClick();
 			} );
 
-			// ConfirmDialog should now be rendered in actions
+			// The confirmation dialog should now be rendered in actions
 			const confirmDialog = result.current.actions.find(
 				a => a?.key === 'permanent-delete-confirm'
 			);

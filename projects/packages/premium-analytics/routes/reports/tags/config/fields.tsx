@@ -1,19 +1,17 @@
 /**
  * External dependencies
  */
-import { Icon, Link } from '@jetpack-premium-analytics/externals';
+import { Icon } from '@jetpack-premium-analytics/externals';
 import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
-import { safeHttpUrl } from '@jetpack-premium-analytics/ui';
+import { safeHttpUrl, tagRowGlyph } from '@jetpack-premium-analytics/ui';
+import { ExternalLink } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
-import { category, tag as tagGlyph } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
 import styles from './fields.module.css';
 import type { StatsTagsItem } from '@jetpack-premium-analytics/data';
 import type { Field } from '@jetpack-premium-analytics/externals';
-
-const rowGlyph = ( labelIcon: string ) => ( labelIcon === 'folder' ? category : tagGlyph );
 
 /**
  * Render the label cell for a Tags report row.
@@ -28,17 +26,11 @@ function TagLabel( { item }: { item: StatsTagsItem } ) {
 
 	return (
 		<span className={ styles.tagLabel }>
-			<Icon icon={ rowGlyph( labelIcon ) } size={ 20 } className={ styles.tagIcon } />
+			<Icon icon={ tagRowGlyph( labelIcon ) } size={ 20 } className={ styles.tagIcon } />
 			{ href ? (
-				<Link
-					href={ href }
-					variant="unstyled"
-					openInNewTab
-					title={ item.labelText }
-					className={ styles.tagText }
-				>
+				<ExternalLink href={ href } title={ item.labelText } className={ styles.tagText }>
 					{ item.labelText }
-				</Link>
+				</ExternalLink>
 			) : (
 				<span title={ item.labelText } className={ styles.tagText }>
 					{ item.labelText }

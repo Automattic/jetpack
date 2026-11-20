@@ -1,11 +1,9 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { getScriptData } from '@automattic/jetpack-script-data';
 import {
 	FacebookLinkPreview,
 	TwitterLinkPreview,
 	GoogleSearchPreview,
 } from '@automattic/social-previews';
-import apiFetch from '@wordpress/api-fetch';
 import { ToggleControl } from '@wordpress/components';
 import { __, _x, _n, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
@@ -21,7 +19,6 @@ import SimpleNotice from 'components/notice';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import analytics from 'lib/analytics';
-import { FEATURE_ADVANCED_SEO } from 'lib/plans/constants';
 import {
 	getSiteIcon,
 	isSeoEnhancerAvailable,
@@ -93,39 +90,6 @@ export const SEO = withModuleSettingsFormHelpers(
 			siteIconPreviewSize: 512,
 		};
 
-		state = {
-			optInInProgress: false,
-			optInError: false,
-		};
-
-		// Opt an existing self-hosted install into the new Jetpack SEO dashboard.
-		// Hits the seo package's opt-in route (registered in
-		// projects/packages/seo/src/class-initializer.php), which marks the surface
-		// visible, activates the seo-tools module, and returns the dashboard URL to
-		// redirect to.
-		handleSeoOptIn = () => {
-			analytics.tracks.recordEvent( 'jetpack_wpa_seo_optin_banner_click', {
-				surface: 'traffic_settings',
-			} );
-
-			this.setState( { optInInProgress: true, optInError: false } );
-
-			apiFetch( {
-				path: '/jetpack/v4/seo/opt-in',
-				method: 'POST',
-			} )
-				.then( response => {
-					if ( response?.redirect ) {
-						window.location.href = response.redirect;
-						return;
-					}
-					this.setState( { optInInProgress: false, optInError: true } );
-				} )
-				.catch( () => {
-					this.setState( { optInInProgress: false, optInError: true } );
-				} );
-		};
-
 		toggleSeoEnhancer = () => {
 			const isEnabled = this.props.getOptionValue( 'ai_seo_enhancer_enabled' );
 
@@ -174,55 +138,6 @@ export const SEO = withModuleSettingsFormHelpers(
 			this.props.updateFormStateOptionValue( 'advanced_seo_title_formats', newCustomSeoTitles );
 		};
 
-		// Shown only when the SEO package reports the opt-in is available for this install
-		// (feature flag on, self-hosted, not yet opted in), surfaced on
-		// `window.JetpackScriptData.seo.optin_available` by Surface_Visibility::inject_optin_availability().
-		seoOptInBanner = () => {
-			if ( ! getScriptData()?.seo?.optin_available ) {
-				return null;
-			}
-
-			const ctaCaption = this.state.optInInProgress
-				? _x( 'Switching…', 'Button caption', 'jetpack' )
-				: _x(
-						'Use the new experience',
-						'Button caption',
-						'jetpack',
-						/* dummy arg to avoid bad minification */ 0
-				  );
-
-			return (
-				<SimpleNotice status="is-info" showDismiss={ false } className="jp-seo-optin-banner">
-					<div className="jp-seo-optin-banner__content">
-						<strong>{ __( 'SEO has a new home', 'jetpack' ) }</strong>
-						<p>
-							{ __(
-								'Manage all of your search engine optimization from the redesigned Jetpack SEO dashboard.',
-								'jetpack'
-							) }
-						</p>
-						{ this.state.optInError && (
-							<p className="jp-seo-optin-banner__error">
-								{ __(
-									'Something went wrong while switching to the new experience. Please try again.',
-									'jetpack'
-								) }
-							</p>
-						) }
-						<Button
-							primary
-							rna
-							compact
-							onClick={ this.handleSeoOptIn }
-							disabled={ this.state.optInInProgress }
-						>
-							{ ctaCaption }
-						</Button>
-					</div>
-				</SimpleNotice>
-			);
-		};
-
 		saveButton = props => {
 			const isSaving = this.props.isSavingAnyOption( this.constants.moduleOptionsArray );
 			return (
@@ -234,7 +149,7 @@ export const SEO = withModuleSettingsFormHelpers(
 								'Button caption',
 								'jetpack',
 								/* dummy arg to avoid bad minification */ 0
-						  ) }
+							) }
 				</Button>
 			);
 		};
@@ -275,18 +190,25 @@ export const SEO = withModuleSettingsFormHelpers(
 					frontPageMetaDescription.length < this.constants.frontPageMetaMaxLength,
 			} );
 
-			// Destructure feature out to ensure our explicit prop takes precedence
-			const { feature: _ignoredFeature, ...restProps } = this.props;
 			return (
 				<SettingsCard
-					{ ...restProps }
+					{ ...this.props }
 					header={ _x( 'Search engine optimization', 'Settings header', 'jetpack' ) }
-					feature={ FEATURE_ADVANCED_SEO }
 					module={ seo.module }
 					saveDisabled={ this.props.isSavingAnyOption( this.constants.moduleOptionsArray ) }
 					hideButton={ hasConflictingSeoPlugin || ! hasSeoTools }
 				>
-					{ this.seoOptInBanner() }
+					{ hasSeoTools && hasConflictingSeoPlugin && (
+						<div className="jp-settings-card__notice">
+							<SimpleNotice showDismiss={ false }>
+								{ sprintf(
+									/* translators: %s is the name of conflicting SEO plugin */
+									__( 'Your SEO settings are managed by the following plugin: %s', 'jetpack' ),
+									conflictingSeoPlugins[ 0 ].name
+								) }
+							</SimpleNotice>
+						</div>
+					) }
 					{ hasSeoTools && (
 						<SettingsGroup
 							hasChild
@@ -298,17 +220,9 @@ export const SEO = withModuleSettingsFormHelpers(
 									'jetpack'
 								),
 								link: getRedirectUrl( 'jetpack-support-seo-tools' ),
+								wpcomLink: 'https://wordpress.com/support/seo/seo-tools/',
 							} }
 						>
-							{ hasConflictingSeoPlugin && (
-								<SimpleNotice showDismiss={ false }>
-									{ sprintf(
-										/* translators: %s is the name of conflicting SEO plugin */
-										__( 'Your SEO settings are managed by the following plugin: %s', 'jetpack' ),
-										conflictingSeoPlugins[ 0 ].name
-									) }
-								</SimpleNotice>
-							) }
 							<p>
 								{ __(
 									'Take control of the way search engines represent your site. With Jetpack’s SEO tools you can preview how your content will look on popular search engines and change items like your site name and tagline in seconds.',
@@ -360,11 +274,11 @@ export const SEO = withModuleSettingsFormHelpers(
 												? __(
 														'AI SEO is turned off for this site, so nothing is generated. Your choice is saved and applies again when AI SEO is turned back on.',
 														'jetpack'
-												  )
+													)
 												: __(
 														'Jetpack AI is turned off for this site, so nothing is generated. Your choice is saved and applies again when Jetpack AI is turned back on.',
 														'jetpack'
-												  ) }
+													) }
 										</span>
 									) }
 								</FormFieldset>
@@ -379,6 +293,8 @@ export const SEO = withModuleSettingsFormHelpers(
 								'jetpack'
 							),
 							link: getRedirectUrl( 'jetpack-support-canonical-urls' ),
+							wpcomLink:
+								'https://wordpress.com/support/seo/seo-tools/#add-canonical-urls-to-archive-pages',
 						} }
 					>
 						<ModuleToggle

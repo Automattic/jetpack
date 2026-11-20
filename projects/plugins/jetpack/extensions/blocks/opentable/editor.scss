@@ -1,4 +1,4 @@
-@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+@use "@wordpress/base-styles/variables";
 
 /**
  * Editor styles for OpenTable
@@ -136,7 +136,7 @@
 	}
 
 	.editor-styles-wrapper & .components-form-token-field__suggestions-list {
-		font-family: gb.$default-font;
+		font-family: variables.$default-font;
 		text-align: left;
 		padding: 0;
 		margin: 0;

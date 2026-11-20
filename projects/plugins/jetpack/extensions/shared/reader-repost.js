@@ -1,8 +1,10 @@
 import { createBlock } from '@wordpress/blocks';
-import { dispatch } from '@wordpress/data';
+import { dispatch, resolveSelect, select } from '@wordpress/data';
 import { escapeAttribute, escapeHTML } from '@wordpress/escape-html';
+import { __ } from '@wordpress/i18n';
 import { getQueryArgs } from '@wordpress/url';
 import { waitForEditor } from './wait-for-editor';
+import '@wordpress/notices';
 
 const queryArgs = getQueryArgs( window.location.href );
 
@@ -168,7 +170,7 @@ function sanitizeCommentContent( html ) {
 	} );
 
 	// `querySelectorAll` matches elements only, so comment nodes reach `innerHTML` untouched. In
-	// this destination that is not inert punctuation: a quote's value is serialized into post
+	// this destination that is not inert punctuation: a reposted quote is serialized into post
 	// content, where `<!-- wp:html -->` is a block delimiter. Left in place, an injected delimiter
 	// ends the quote early and opens a block of the attacker's choosing when the victim saves.
 	const walker = doc.createTreeWalker( doc.body, NodeFilter.SHOW_COMMENT );
@@ -179,6 +181,60 @@ function sanitizeCommentContent( html ) {
 	comments.forEach( comment => comment.remove() );
 
 	return doc.body.innerHTML;
+}
+
+/**
+ * Builds the paragraph blocks that make up a quote's body.
+ *
+ * `core/quote` stopped rendering its `value` attribute in WordPress 6.1: the block now keeps its
+ * body in inner blocks, and all that survives of `value` is a load-time migration that reads it
+ * with a `p` selector. Anything not inside a top-level `<p>` is therefore dropped on sight, which
+ * is why a reposted comment used to come out as an empty quote with the author still attached.
+ * Building the inner blocks here skips that migration, and the deprecated attribute, entirely.
+ *
+ * Runs of content that are not already paragraphs are wrapped rather than discarded, so a body
+ * that mixes the two keeps all of itself.
+ *
+ * @param {string} html - Quote body, as HTML. Already sanitized when it came from a comment.
+ * @return {Array} `core/paragraph` blocks, empty when there is nothing to show.
+ */
+function createQuoteBody( html ) {
+	// An inert document: assigning innerHTML here never executes scripts or loads subresources.
+	const doc = document.implementation.createHTMLDocument( '' );
+	doc.body.innerHTML = html;
+
+	/*
+	 * `blockquote` is the one thing the comment allowlist keeps that cannot live inside a
+	 * paragraph: wrapping it in one below would serialize to `<p><blockquote>`, which the parser
+	 * closes early on the way back in, stranding the text outside the block it belongs to. Unwrap
+	 * it instead, so a quote inside a comment keeps its words and loses only its indentation.
+	 * The list is static and in document order, so a nested blockquote is still visited.
+	 */
+	doc.body.querySelectorAll( 'blockquote' ).forEach( quote => {
+		quote.replaceWith( ...quote.childNodes );
+	} );
+
+	let wrapper = null;
+	Array.from( doc.body.childNodes ).forEach( node => {
+		if ( node.nodeName === 'P' ) {
+			wrapper = null;
+			return;
+		}
+
+		if ( wrapper ) {
+			wrapper.append( node );
+			return;
+		}
+
+		wrapper = doc.createElement( 'p' );
+		node.replaceWith( wrapper );
+		wrapper.append( node );
+	} );
+
+	return Array.from( doc.body.children )
+		.map( paragraph => paragraph.innerHTML )
+		.filter( content => content.trim() !== '' )
+		.map( content => createBlock( 'core/paragraph', { content } ) );
 }
 
 const safeUrl = getSafeUrl( url );
@@ -195,23 +251,96 @@ if ( safeUrl ) {
 		if ( text && text !== title ) {
 			const link = `<a href="${ escapeAttribute( safeUrl ) }">${ escapeHTML( title ) }</a>`;
 			blocks.push(
-				createBlock( 'core/quote', {
-					value: `<p>${ escapeHTML( text ) }</p>`,
-					citation: link,
-				} )
+				createBlock( 'core/quote', { citation: link }, [
+					createBlock( 'core/paragraph', { content: escapeHTML( text ) } ),
+				] )
 			);
 		}
 
 		if ( commentContent ) {
-			blocks.push(
-				createBlock( 'core/quote', {
-					value: sanitizeCommentContent( commentContent ),
-					citation: escapeHTML( commentAuthor ),
-				} )
-			);
+			const commentBody = createQuoteBody( sanitizeCommentContent( commentContent ) );
+
+			// A quote of nothing, credited to someone, is worse than no quote at all.
+			if ( commentBody.length ) {
+				blocks.push(
+					createBlock( 'core/quote', { citation: escapeHTML( commentAuthor ) }, commentBody )
+				);
+			}
 		}
-		blocks.push( createBlock( 'core/embed', { url: safeUrl, type: 'wp-embed' } ) );
+		const embed = createBlock( 'core/embed', { url: safeUrl, type: 'wp-embed' } );
+		blocks.push( embed );
 
 		dispatch( 'core/editor' ).resetEditorBlocks( blocks );
+
+		// Core retries failed embeds without a trailing slash.
+		const previewUrls = safeUrl.endsWith( '/' ) ? [ safeUrl, safeUrl.slice( 0, -1 ) ] : [ safeUrl ];
+		for ( const previewUrl of previewUrls ) {
+			const preview = await resolveSelect( 'core' ).getEmbedPreview( previewUrl );
+			if ( preview?.html && ! select( 'core' ).isPreviewEmbedFallback( previewUrl ) ) {
+				return;
+			}
+		}
+
+		const blockEditor = select( 'core/block-editor' );
+		let currentBlock = blockEditor.getBlock( embed.clientId );
+		if ( ! currentBlock ) {
+			const entityBlock = select( 'core/editor' )
+				.getEditorBlocks()
+				.find( block => block.clientId === embed.clientId );
+			if (
+				! entityBlock ||
+				entityBlock.name !== 'core/embed' ||
+				! previewUrls.includes( entityBlock.attributes.url )
+			) {
+				return;
+			}
+
+			// Controlled Post Content clones the entity blocks with different client IDs.
+			const candidates = blockEditor.getBlocksByName( 'core/embed' ).filter( clientId => {
+				return (
+					previewUrls.includes( blockEditor.getBlock( clientId ).attributes.url ) &&
+					blockEditor.getBlockName( blockEditor.getBlockRootClientId( clientId ) ) ===
+						'core/post-content' &&
+					blockEditor.getBlockParentsByBlockName( clientId, 'core/query' ).length === 0
+				);
+			} );
+			if ( candidates.length > 1 ) {
+				return;
+			}
+			currentBlock = candidates.length === 1 ? blockEditor.getBlock( candidates[ 0 ] ) : null;
+		}
+
+		if (
+			currentBlock &&
+			( currentBlock.name !== 'core/embed' ||
+				! previewUrls.includes( currentBlock.attributes.url ) )
+		) {
+			return;
+		}
+
+		let linkAdded = false;
+		if ( currentBlock && blockEditor.canRemoveBlock( currentBlock.clientId ) ) {
+			const paragraph = createBlock( 'core/paragraph', {
+				content: `<a href="${ escapeAttribute( safeUrl ) }">${ escapeHTML( safeUrl ) }</a>`,
+			} );
+			dispatch( 'core/block-editor' ).replaceBlocks( currentBlock.clientId, paragraph );
+			linkAdded =
+				! blockEditor.getBlock( currentBlock.clientId ) &&
+				blockEditor.getBlock( paragraph.clientId )?.name === 'core/paragraph';
+		}
+		dispatch( 'core/notices' ).createNotice(
+			'warning',
+			linkAdded
+				? __(
+						'The original post could not be embedded. This can happen when its site is private or discourages search engines. A link to the original post has been added instead.',
+						'jetpack'
+					)
+				: __(
+						'The original post could not be embedded. This can happen when its site is private or discourages search engines.',
+						'jetpack',
+						/* dummy arg to avoid bad minification */ 0
+					),
+			{ isDismissible: true }
+		);
 	} )();
 }

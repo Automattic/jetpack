@@ -71,6 +71,58 @@ the following modules will be enabled no matter the configuration:
 
 **Attention**: Sync currently only supports configuring the list of [default Sync modules](https://github.com/Automattic/jetpack/blob/trunk/projects/packages/sync/src/class-modules.php#L25). Any modules that Sync already loads conditionally, such as `WooCommerce` or `Search` are **NOT** configurable.
 
+#### Configuring WooCommerce Analytics Sync
+
+The high-volume `woocommerce_analytics` module is not enabled by default. Consumers
+own its registration and full-sync policy. When active, the module adds the minimum
+option and post meta requirements. Consumers may contribute additional data
+requirements through `Config`:
+
+Generic WooCommerce Sync owns the `woocommerce_custom_orders_table_enabled` and
+`woocommerce_date_type` options. The Analytics module owns the excluded report
+statuses option and the `_stock`, `_stock_quantity`, `_cogs_total_value`, and
+`_global_unique_id` post meta requirements.
+
+```php
+use Automattic\Jetpack\Config;
+use Automattic\Jetpack\Sync\Modules\Meta;
+use Automattic\Jetpack\Sync\Modules\Posts;
+use Automattic\Jetpack\Sync\Modules\Term_Relationships;
+use Automattic\Jetpack\Sync\Modules\Terms;
+use Automattic\Jetpack\Sync\Modules\WooCommerce_Analytics;
+
+add_action(
+	'plugins_loaded',
+	static function () {
+		if ( ! class_exists( 'WooCommerce' ) && ! function_exists( 'WC' ) ) {
+			return;
+		}
+
+		( new Config() )->ensure(
+			'sync',
+			array(
+				'jetpack_sync_modules' => array(
+					WooCommerce_Analytics::class,
+					Meta::class,
+					Posts::class,
+					Terms::class,
+					Term_Relationships::class,
+				),
+			)
+		);
+	},
+	1
+);
+```
+
+The priority-1 `plugins_loaded` callback above guards the WooCommerce runtime
+dependency and gives `Config` time to initialize Sync at its priority-2 callback.
+Consumers must also register their `jetpack_full_sync_config` policy.
+
+Analytics checksum schemas are registered centrally by `Table_Checksum` and become
+usable when the `woocommerce_analytics` module is active. Consumers do not need to
+register the schemas themselves.
+
 ##### `jetpack_sync_options_whitelist` / `jetpack_sync_options_contentless`
 
 **Controlled by the Sync Options Module, which is required.**

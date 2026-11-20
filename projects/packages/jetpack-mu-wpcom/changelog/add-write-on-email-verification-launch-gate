@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Write: require email verification before launch in the post-publish overlay, with inline resend and re-check.

@@ -1,4 +1,4 @@
-import { sanitizeLatestPostResponse } from '..';
+import { sanitizeLatestPostResponse, sanitizePostsContentResponse } from '..';
 import { latestPostEmptyFixture, latestPostFixture } from '../__fixtures__/latest-post';
 
 describe( 'Latest post normalizer', () => {
@@ -66,5 +66,13 @@ describe( 'Latest post normalizer', () => {
 		expect( sanitizeLatestPostResponse( [ { id: 0 } ] ) ).toBeNull();
 		expect( sanitizeLatestPostResponse( null ) ).toBeNull();
 		expect( sanitizeLatestPostResponse( {} ) ).toBeNull();
+	} );
+} );
+
+describe( 'sanitizePostsContentResponse', () => {
+	it( 'drops the items that are not posts', () => {
+		expect( sanitizePostsContentResponse( [ { id: 5 }, { id: 0 }, null ] ) ).toEqual( [
+			expect.objectContaining( { id: 5 } ),
+		] );
 	} );
 } );

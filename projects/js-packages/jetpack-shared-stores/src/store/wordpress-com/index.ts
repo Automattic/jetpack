@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { createReduxStore, register } from '@wordpress/data';
+import { createReduxStore, register, select } from '@wordpress/data';
 /**
  * Internal dependencies
  */
@@ -103,7 +103,10 @@ export const wordpressPlansStore = createReduxStore( store, {
 	},
 } );
 
-register( wordpressPlansStore );
+// Another bundled copy of this package may have registered the store already.
+if ( ! select( store ) ) {
+	register( wordpressPlansStore );
+}
 
 // Types
 

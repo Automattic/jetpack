@@ -1,4 +1,4 @@
-import { createReduxStore, register } from '@wordpress/data';
+import { createReduxStore, register, select } from '@wordpress/data';
 import getOverview from './get-overview';
 import type { CoverageDelta } from './content-types';
 import type { ContentCoverage } from './overview-types';
@@ -73,6 +73,8 @@ const store = createReduxStore( STORE_NAME, {
 	selectors,
 } );
 
-register( store );
+if ( ! select( STORE_NAME ) ) {
+	register( store );
+}
 
-export { store as coverageStore, STORE_NAME as COVERAGE_STORE_NAME };
+export { store as coverageStore };

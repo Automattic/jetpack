@@ -1,5 +1,7 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, renderHook, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { useDispatch, useSelect } from '@wordpress/data';
+import { store as socialStore } from '../../../social-store';
 import { setup } from '../../../utils/test-factory';
 import { ConfirmationForm } from '../confirmation-form';
 
@@ -243,6 +245,48 @@ describe( 'ConfirmationForm', () => {
 			);
 
 			expect( screen.getByText( 'No more accounts/pages found.' ) ).toBeInTheDocument();
+		} );
+	} );
+
+	describe( 'reconnecting a connection with no Page saved', () => {
+		const setupSelectingAccount = () => {
+			let storeSelect;
+			renderHook( () => useSelect( select => ( storeSelect = select( socialStore ) ) ) );
+			jest.spyOn( storeSelect, 'reconnectNeedsAccountSelection' ).mockReturnValue( true );
+			jest.spyOn( storeSelect, 'getReconnectingAccount' ).mockReturnValue( {
+				connection_id: '42',
+				service_name: 'facebook',
+				external_id: 'test-account-1',
+			} );
+
+			const { result } = renderHook( () => useDispatch( socialStore ) );
+			return jest.spyOn( result.current, 'reconnectWithAccount' ).mockImplementation( () => {} );
+		};
+
+		test( 'saves the selected Page on the existing connection', async () => {
+			const stubReconnectWithAccount = setupSelectingAccount();
+			const onComplete = jest.fn();
+			renderComponent( { canMarkAsShared: true, onComplete } );
+
+			expect( screen.getByText( /This connection has no Page or account/ ) ).toBeInTheDocument();
+			expect( screen.queryByLabelText( 'Mark the connection as shared' ) ).not.toBeInTheDocument();
+
+			await userEvent.click( screen.getByText( 'Confirm' ) );
+
+			expect( stubReconnectWithAccount ).toHaveBeenCalledWith( '42', 'additional-2' );
+			expect( stubCreateConnection ).not.toHaveBeenCalled();
+			expect( onComplete ).toHaveBeenCalled();
+		} );
+
+		test( 'explains what to do when no Page is available', () => {
+			setupSelectingAccount();
+			renderComponent( {
+				keyringResult: { ...keyringResult, additional_external_users: [] },
+			} );
+
+			expect(
+				screen.getByText( /Disconnect it, then connect again and choose the Page/ )
+			).toBeInTheDocument();
 		} );
 	} );
 } );

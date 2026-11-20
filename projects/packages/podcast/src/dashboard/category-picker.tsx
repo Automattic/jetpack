@@ -147,7 +147,7 @@ const CategoryPicker = ( {
 					: parseErrorMessage(
 							err,
 							__( 'Could not create the category. Please try again.', 'jetpack-podcast' )
-					  );
+						);
 			setCreateError( message );
 			setSaving( false );
 		}

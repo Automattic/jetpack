@@ -1,5 +1,5 @@
 import { getRedirectUrl, JetpackFooter, ThemeProvider } from '@automattic/jetpack-components';
-import { isJetpackSelfHostedSite } from '@automattic/jetpack-script-data';
+import { getScriptData, isJetpackSelfHostedSite } from '@automattic/jetpack-script-data';
 import { __, _x, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { Component } from 'react';
@@ -59,7 +59,8 @@ export class Footer extends Component {
 					__( 'Version %s', 'jetpack' ),
 					version
 				),
-				href: getRedirectUrl( 'jetpack' ),
+				title: __( 'View the Jetpack changelog on WordPress.org.', 'jetpack' ),
+				href: getRedirectUrl( 'jetpack-developers-wordpress-org' ),
 				target: '_blank',
 				onClick: this.trackVersionClick,
 			} );
@@ -73,7 +74,9 @@ export class Footer extends Component {
 					'jetpack'
 				),
 				title: __( 'Access the full list of Jetpack modules available on your site.', 'jetpack' ),
-				href: this.props.siteAdminUrl + 'admin.php?page=jetpack_modules',
+				href:
+					getScriptData()?.myJetpack?.modulesManagementUrl ||
+					this.props.siteAdminUrl + 'admin.php?page=jetpack_modules',
 				onClick: this.trackModulesClick,
 			} );
 		}

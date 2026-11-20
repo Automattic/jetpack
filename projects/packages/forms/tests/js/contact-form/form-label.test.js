@@ -16,9 +16,8 @@ await jest.unstable_mockModule( '@wordpress/i18n', () => ( {
 	},
 } ) );
 
-const { extractTitleText, formatFormLabel, STATUS_LABELS, DEFAULT_FORM_LABEL } = await import(
-	'../../../src/blocks/contact-form/util/form-label'
-);
+const { extractTitleText, formatFormLabel, STATUS_LABELS, DEFAULT_FORM_LABEL } =
+	await import( '../../../src/blocks/contact-form/util/form-label' );
 
 describe( 'extractTitleText', () => {
 	it( 'returns the string when title is a string', () => {

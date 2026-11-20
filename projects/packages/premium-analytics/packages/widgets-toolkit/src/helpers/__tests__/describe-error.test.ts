@@ -66,6 +66,30 @@ describe( 'describeError', () => {
 		expect( descriptor.actions ).toEqual( [ { label: 'Retry', onClick: onRetry } ] );
 	} );
 
+	it( 'tells a store waiting for its analytics tables that its data is being prepared, with a retry', () => {
+		const onRetry = jest.fn();
+		const descriptor = describeError(
+			{ code: 'woocommerce_analytics_tables_not_ready', data: { status: 503 }, status: 503 },
+			{ retryDescription: RETRY_DESCRIPTION, onRetry }
+		);
+
+		expect( descriptor.description ).toBe(
+			'Your store data is still being prepared. Please try again in a minute.'
+		);
+		expect( descriptor.actions ).toEqual( [ { label: 'Retry', onClick: onRetry } ] );
+	} );
+
+	it( 'explains an outdated analytics schema without a retry, which cannot help', () => {
+		const descriptor = describeError(
+			{ code: 'woocommerce_analytics_schema_outdated', data: { status: 400 }, status: 400 },
+			{ retryDescription: RETRY_DESCRIPTION, onRetry: jest.fn() }
+		);
+
+		expect( descriptor ).toEqual( {
+			description: "This report will be available after your store's next order or product update.",
+		} );
+	} );
+
 	it( 'returns the retryable descriptor when there is no error — widgets call it on every render', () => {
 		const onRetry = jest.fn();
 

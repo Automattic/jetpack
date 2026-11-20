@@ -23,6 +23,85 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 add_action( 'wp_head', 'jetpack_og_tags' );
+
+/**
+ * Keep Twitter Cards from analyzing the body of a gated post.
+ *
+ * Twitter_Cards::twitter_cards_tags() runs at priority 11 and, when a card type
+ * is already set, emits only the site default image instead of images and
+ * videos parsed out of the body.
+ *
+ * @since 16.2
+ *
+ * @param array $tags Open Graph tags.
+ * @return array
+ */
+function jetpack_og_gate_twitter_cards( $tags ) {
+	/** This filter is documented in class.jetpack.php */
+	if ( apply_filters( 'jetpack_disable_twitter_cards', false ) ) {
+		return $tags;
+	}
+
+	if ( ! is_singular() ) {
+		return $tags;
+	}
+
+	$post = get_post();
+	if ( ! $post instanceof WP_Post || ! \Automattic\Jetpack\SEO\Content_Gate::is_gated( $post ) ) {
+		return $tags;
+	}
+
+	if ( empty( $tags['twitter:text:title'] ) ) {
+		$tags['twitter:text:title'] = get_the_title( $post );
+	}
+
+	// Twitter_Cards stops once a card type is set, so carry the featured image
+	// across here; it is chosen separately and never parsed out of the body.
+	$card_type = 'summary';
+	if ( empty( $tags['twitter:image'] ) ) {
+		$image = Images::get_image(
+			$post->ID,
+			array(
+				'width'           => 144,
+				'height'          => 144,
+				'from_slideshow'  => false,
+				'from_gallery'    => false,
+				'from_attachment' => false,
+				'from_blocks'     => false,
+				'from_html'       => false,
+			)
+		);
+
+		// Twitter's limits: 4096px maximum, and 300x157 minimum for a large card.
+		if (
+			! empty( $image['src'] )
+			&& isset( $image['src_width'] ) && isset( $image['src_height'] )
+			&& (int) $image['src_width'] <= 4096
+			&& (int) $image['src_height'] <= 4096
+		) {
+			if ( (int) $image['src_width'] >= 300 && (int) $image['src_height'] >= 157 ) {
+				$card_type             = 'summary_large_image';
+				$tags['twitter:image'] = esc_url( add_query_arg( 'w', 640, $image['src'] ) );
+			} else {
+				$tags['twitter:image'] = esc_url( add_query_arg( 'w', 144, $image['src'] ) );
+			}
+
+			if ( ! empty( $image['alt_text'] ) ) {
+				$alt_length                = 420;
+				$tags['twitter:image:alt'] = strlen( $image['alt_text'] ) > $alt_length
+					? esc_attr( mb_substr( $image['alt_text'], 0, $alt_length ) . '…' )
+					: esc_attr( $image['alt_text'] );
+			}
+		}
+	}
+
+	if ( empty( $tags['twitter:card'] ) ) {
+		$tags['twitter:card'] = $card_type;
+	}
+
+	return $tags;
+}
+add_filter( 'jetpack_open_graph_tags', 'jetpack_og_gate_twitter_cards', 10 );
 add_action( 'web_stories_story_head', 'jetpack_og_tags' );
 
 // Add a Fediverse Open Graph Tag when an author has connected their Mastodon account.
@@ -92,16 +171,14 @@ function jetpack_og_tags() {
 
 		$author = get_queried_object();
 
-		if ( is_a( $author, 'WP_User' ) ) {
+		if ( $author instanceof \WP_User ) {
 			$tags['og:title'] = $author->display_name;
 			if ( ! empty( $author->user_url ) ) {
 				$tags['og:url'] = $author->user_url;
 			} else {
 				$tags['og:url'] = get_author_posts_url( $author->ID );
 			}
-			$tags['og:description']     = $author->description;
-			$tags['profile:first_name'] = get_the_author_meta( 'first_name', $author->ID );
-			$tags['profile:last_name']  = get_the_author_meta( 'last_name', $author->ID );
+			$tags['og:description'] = $author->description;
 		}
 	} elseif ( is_archive() ) {
 		$tags['og:type']  = 'website';
@@ -115,7 +192,7 @@ function jetpack_og_tags() {
 				$tags['og:url']         = get_post_type_archive_link( $archive->name );
 				$tags['og:description'] = $archive->description;
 		}
-	} elseif ( is_singular() && is_a( $data, 'WP_Post' ) ) {
+	} elseif ( is_singular() && $data instanceof \WP_Post ) {
 		$tags['og:type'] = 'article';
 		if ( empty( $data->post_title ) ) {
 			$tags['og:title'] = ' ';
@@ -125,7 +202,7 @@ function jetpack_og_tags() {
 		}
 
 		$tags['og:url'] = get_permalink( $data->ID );
-		if ( ! post_password_required() ) {
+		if ( ! post_password_required( $data ) ) {
 			/*
 			 * If the post author set an excerpt, use that.
 			 * Otherwise, pick the post content that comes before the More tag if there is one.
@@ -133,9 +210,15 @@ function jetpack_og_tags() {
 			 */
 			if ( ! empty( $data->post_excerpt ) ) {
 				$tags['og:description'] = jetpack_og_get_description( $data->post_excerpt );
-			} elseif ( ! has_block( 'premium-content/container', $data->post_content ) ) {
-				$excerpt                = explode( '<!--more-->', $data->post_content )[0];
-				$tags['og:description'] = jetpack_og_get_description( $excerpt );
+			} else {
+				$content = \Automattic\Jetpack\SEO\Content_Gate::is_gated( $data )
+					? \Automattic\Jetpack\SEO\Content_Gate::public_teaser( $data )
+					: $data->post_content;
+
+				if ( '' !== $content ) {
+					$excerpt                = explode( '<!--more-->', $content )[0];
+					$tags['og:description'] = jetpack_og_get_description( $excerpt );
+				}
 			}
 		}
 
@@ -185,19 +268,22 @@ function jetpack_og_tags() {
 	$tags['og:site_name'] = get_bloginfo( 'name' );
 
 	// Get image info and build tags.
-	if ( ! post_password_required() ) {
-		$image_info       = jetpack_og_get_image( $image_width, $image_height );
-		$tags['og:image'] = $image_info['src'];
+	$image_info = array();
+	if ( ! is_singular() || ! post_password_required() ) {
+		$image_info = jetpack_og_get_image( $image_width, $image_height );
+		if ( ! empty( $image_info['src'] ) && 'https://s0.wp.com/i/blank.jpg' !== $image_info['src'] ) {
+			$tags['og:image'] = $image_info['src'];
 
-		if ( ! empty( $image_info['width'] ) ) {
-			$tags['og:image:width'] = (int) $image_info['width'];
-		}
-		if ( ! empty( $image_info['height'] ) ) {
-			$tags['og:image:height'] = (int) $image_info['height'];
-		}
-		// If we have an image, add the alt text even if it's empty.
-		if ( ! empty( $image_info['src'] ) && isset( $image_info['alt_text'] ) ) {
-			$tags['og:image:alt'] = esc_attr( $image_info['alt_text'] );
+			if ( ! empty( $image_info['width'] ) ) {
+				$tags['og:image:width'] = (int) $image_info['width'];
+			}
+			if ( ! empty( $image_info['height'] ) ) {
+				$tags['og:image:height'] = (int) $image_info['height'];
+			}
+			// If we have an image, add the alt text even if it's empty.
+			if ( ! empty( $image_info['src'] ) && isset( $image_info['alt_text'] ) ) {
+				$tags['og:image:alt'] = $image_info['alt_text'];
+			}
 		}
 	}
 
@@ -239,6 +325,19 @@ function jetpack_og_tags() {
 	 * @param array $args Array of image size parameters.
 	 */
 	$tags = apply_filters( 'jetpack_open_graph_tags', $tags, compact( 'image_width', 'image_height' ) );
+
+	// A Social image override must not inherit the default image's alt text.
+	if ( 'seo_default' === ( $image_info['type'] ?? '' ) ) {
+		$image_alt = (string) ( $image_info['alt_text'] ?? '' );
+		$image_src = $image_info['src'] ?? '';
+		foreach ( array( 'og:image', 'twitter:image' ) as $tag ) {
+			$alt_tag     = $tag . ':alt';
+			$default_alt = 'twitter:image' === $tag ? mb_substr( $image_alt, 0, 420 ) : $image_alt;
+			if ( isset( $tags[ $tag ] ) && isset( $tags[ $alt_tag ] ) && $tags[ $tag ] !== $image_src && $tags[ $alt_tag ] === $default_alt ) {
+				unset( $tags[ $alt_tag ] );
+			}
+		}
+	}
 
 	// secure_urls need to go right after each og:image to work properly so we will abstract them here.
 	$tags['og:image:secure_url'] = ( empty( $tags['og:image:secure_url'] ) ) ? '' : $tags['og:image:secure_url'];
@@ -339,13 +438,21 @@ function jetpack_og_get_image( $width = 200, $height = 200, $deprecated = null )
 
 		// Attempt to find something good for this post using our generalized PostImages code.
 		if ( empty( $image ) ) {
-			$post_image = Images::get_image(
-				get_the_ID(),
-				array(
-					'width'  => $width,
-					'height' => $height,
-				)
+			$image_args = array(
+				'width'  => $width,
+				'height' => $height,
 			);
+			// Every source but the featured image is parsed out of the body.
+			if ( \Automattic\Jetpack\SEO\Content_Gate::is_gated( get_post( get_the_ID() ) ) ) {
+				$image_args += array(
+					'from_slideshow'  => false,
+					'from_gallery'    => false,
+					'from_attachment' => false,
+					'from_blocks'     => false,
+					'from_html'       => false,
+				);
+			}
+			$post_image = Images::get_image( get_the_ID(), $image_args );
 			if ( ! empty( $post_image ) && is_array( $post_image ) ) {
 				$image['src'] = $post_image['src'];
 				if ( isset( $post_image['src_width'] ) && isset( $post_image['src_height'] ) ) {
@@ -359,7 +466,7 @@ function jetpack_og_get_image( $width = 200, $height = 200, $deprecated = null )
 		}
 	} elseif ( is_author() ) {
 		$author = get_queried_object();
-		if ( is_a( $author, 'WP_User' ) ) {
+		if ( $author instanceof \WP_User ) {
 			$image['src']          = get_avatar_url(
 				$author->user_email,
 				array(
@@ -379,9 +486,11 @@ function jetpack_og_get_image( $width = 200, $height = 200, $deprecated = null )
 	if ( empty( $image ) ) {
 		$site_image = jetpack_og_get_fallback_social_image( $width, $height );
 		if ( ! empty( $site_image ) ) {
-			$image['src']    = $site_image['src'];
-			$image['width']  = $site_image['width'];
-			$image['height'] = $site_image['height'];
+			$image['src']      = $site_image['src'];
+			$image['width']    = $site_image['width'];
+			$image['height']   = $site_image['height'];
+			$image['alt_text'] = $site_image['alt_text'] ?? '';
+			$image['type']     = $site_image['type'] ?? '';
 		}
 	}
 
@@ -541,7 +650,7 @@ function jetpack_og_get_site_image( $width, $height ) {
 	}
 
 	// Fourth fall back, Core Site Icon, if valid in size.
-	if ( has_site_icon() ) {
+	if ( has_site_icon() && 'image/svg+xml' !== get_post_mime_type( get_option( 'site_icon' ) ) ) {
 		$image_id = get_option( 'site_icon' );
 		$icon     = wp_get_attachment_image_src( $image_id, 'full' );
 		if (
@@ -828,6 +937,11 @@ function jetpack_og_remove_query_blocks( $description ) {
 	// Handle non-string input
 	if ( ! is_string( $description ) ) {
 		return '';
+	}
+
+	// An older block-delimiter copy can load first and lack remove_blocks(); the loop below covers it.
+	if ( method_exists( Block_Scanner::class, 'remove_blocks' ) ) {
+		return Block_Scanner::remove_blocks( $description, 'query' );
 	}
 
 	$output         = '';

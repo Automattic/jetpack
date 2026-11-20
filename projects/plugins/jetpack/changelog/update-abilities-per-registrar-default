@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+Comment: Keep these abilities on by default now that each registrar sets its own default.
+

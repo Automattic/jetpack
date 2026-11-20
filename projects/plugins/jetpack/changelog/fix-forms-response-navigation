@@ -1,4 +1,0 @@
-Significance: minor
-Type: bugfix
-
-Forms: keep prev/next working on a single response after marking it as spam or trash, open responses instantly from the list, and add keyboard shortcuts for triaging responses.

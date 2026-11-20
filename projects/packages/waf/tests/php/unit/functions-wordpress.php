@@ -73,3 +73,18 @@ if ( ! function_exists( 'wp_unslash' ) ) {
 		return $value;
 	}
 }
+
+if ( ! function_exists( 'maybe_unserialize' ) ) {
+	/**
+	 * A drop-in for a WordPress core function.
+	 *
+	 * @param mixed $data Data that might be serialized.
+	 * @return mixed
+	 */
+	function maybe_unserialize( $data ) {
+		if ( ! is_string( $data ) || ! preg_match( '/^(?:[aOs]:\d|[bid]:|N;)/', $data ) ) {
+			return $data;
+		}
+		return unserialize( $data ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_unserialize
+	}
+}

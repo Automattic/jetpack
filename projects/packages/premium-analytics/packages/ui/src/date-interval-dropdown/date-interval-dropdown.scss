@@ -1,14 +1,28 @@
-@use "../styles/menu-trigger";
-
-// A glyph and nothing else, so it takes the shared trigger box squared off
-// against the row's height. The only control on the row sized that way: the
-// comparison beside it carries text in both of its states.
 .date-interval-dropdown {
 
-	@include menu-trigger.container;
+	&__label {
+		white-space: nowrap;
+	}
 
-	.date-interval-dropdown__toggle {
+	&__caret {
+		flex: 0 0 auto;
+	}
 
-		@include menu-trigger.icon-toggle;
+	// The popup is as wide as its content; short labels would squeeze the copy.
+	&__lock-notice,
+	&__hint,
+	&__unavailable-hint {
+		inline-size: max-content;
+		max-inline-size: 280px;
+	}
+
+	// Set off like the lock notice, in the weaker tone of a remark.
+	&__hint,
+	&__unavailable-hint {
+		margin: 0;
+		padding-block: var(--wpds-dimension-padding-md);
+		padding-inline: var(--wpds-dimension-padding-lg);
+		border-block-start: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral-weak);
+		color: var(--wpds-color-foreground-content-neutral-weak);
 	}
 }

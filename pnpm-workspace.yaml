@@ -7,18 +7,18 @@ packages:
   - tools/e2e-commons/no-lighthouse
   - tools/js-tools
   - tools/performance
+  - tools/port-verification
   - .github/files/coverage-munger
 
+autoDedupe: true
 engineStrict: true
+lockfile:
+  includeResolutionSettings: true
 pmOnFail: ignore
 preferWorkspacePackages: true
 
-# Feature is buggy in pnpm 11.5, e.g. https://github.com/pnpm/pnpm/issues/12100.
-optimisticRepeatInstall: false
-
 # Be strict about peer deps
 autoInstallPeers: false
-dedupePeerDependents: false
 dedupePeers: false
 strictPeerDependencies: true
 
@@ -33,57 +33,71 @@ minimumReleaseAge: 1440
 minimumReleaseAgeExclude:
   # Packages we often want to immediately update after releasing them.
   - '@automattic/*'
+  - '@gravatar-com/*'
   - '@woocommerce/*'
   - '@wordpress/*'
   - 'gridicons'
-  - 'i18n-calypso'
+  - 'wpcom-proxy-request'
+
 trustPolicy: no-downgrade
 trustPolicyExclude:
   # https://github.com/paulmillr/chokidar/issues/1440
   - chokidar@4.0.3
 
   # Packages where newer majors have provenance but we're still on an older one.
-  - rollup@3.30.0
   - rxjs@7.8.2
-  - semver@6.3.1
 
 # Package compromise avoidance: require dep build script approval.
 strictDepBuilds: true
 verifyDepsBeforeRun: install
-allowBuilds:
+permissions:
   # Tries to download/install stuff if optional deps weren't installed.
-  '@swc/core': false
-  esbuild: false
-  unrs-resolver: false
-  # Tries to rebuild its bundled libs if a newer version of libvips-dev is installed, which probably isn't.
-  sharp: false
-  # Attempt to show "remember to install other stuff" spam.
-  svelte-preprocess: false
+  esbuild:
+    build: false
+  unrs-resolver:
+    build: false
+  # Tries to rebuild itself if an environment variable is set.
+  '@parcel/watcher':
+    build: false
   # Attempt to show "support me" spam.
-  core-js: false
-  core-js-pure: false
-  print-this: false
+  core-js:
+    build: false
+  core-js-pure:
+    build: false
+  print-this:
+    build: false
+  # Unaudited.
+  tsdown:
+    skills: false
 
 # Package compromise avoidance: Block odd protocols in subdeps
 blockExoticSubdeps: true
 
 # Some optional dependencies we don't actually need.
 ignoredOptionalDependencies:
-  - '@oxc-parser/binding-wasm32-wasi' # https://github.com/oxc-project/oxc/issues/21038
-  - '@rolldown/binding-wasm32-wasi' # https://github.com/rolldown/rolldown/issues/8974
   - sass-embedded-all-unknown # Brings in `sass`; platforms we support should have a binary package instead of this.
   - sass-embedded-unknown-all # Brings in `sass`; platforms we support should have a binary package instead of this.
 
+audit:
+  ignore:
+    # Maintainer of various eslint plugins seems unwilling to upgrade from minimatch v3, and this one isn't going to be backported. Sigh.
+    # https://github.com/import-js/eslint-plugin-import/issues/3249
+    # https://github.com/jsx-eslint/eslint-plugin-jsx-a11y/issues/1054
+    # https://github.com/jsx-eslint/eslint-plugin-react/issues/4066
+    - GHSA-g3hv-75wg-m249
+
 # Dependencies needing patching.
 patchedDependencies:
-
-  # Vite/esbuild doesn't like the `__esModule` + `exports["default"]` pattern, it winds up double-wrapping the default.
-  # See also https://github.com/WordPress/gutenberg/issues/39619
-  react-autosize-textarea: .pnpm-patches/react-autosize-textarea.patch
 
   # The wp-admin page template delegates boot init modules to initSinglePage(),
   # but WordPress cores bundling an older @wordpress/boot (e.g. WP 7.0) ignore
   # the option, so init modules never run there. The patch runs them in the
   # inline bootstrap instead. Remove once the template runs init modules itself
   # upstream (or Jetpack's WP floor ships a boot with initModules support).
+  # It also restores the `boot-layout-container` class on the mount element,
+  # which those older cores' Boot uses to size the page to the viewport; 0.22.0
+  # dropped it and WordPress/gutenberg#82112 (unreleased) brings it back.
+  # The patch also preloads WordPress 7.1's site-data field list. Keep that preload
+  # until Jetpack's minimum WordPress version requests the @wordpress/build 0.26 list,
+  # even if upstream fixes init-module handling first.
   "@wordpress/build": .pnpm-patches/@wordpress__build.patch

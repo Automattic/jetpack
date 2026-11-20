@@ -2,7 +2,7 @@
  * External dependencies
  */
 import analytics from '@automattic/jetpack-analytics';
-import { getSiteType } from '@automattic/jetpack-script-data';
+import { getSiteType, isSimpleSite } from '@automattic/jetpack-script-data';
 import { Button } from '@wordpress/components';
 import { DataForm, type Field } from '@wordpress/dataviews';
 import { useCallback } from '@wordpress/element';
@@ -11,9 +11,13 @@ import { Card, Text } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
+import { SUBSCRIPTIONS_SECTION_ID } from '../anchors';
 import { Toggle, ToggleWithEditorLink } from '../components/toggle';
 import { getNewsletterScriptData } from '../script-data';
 import type { NewsletterSettings } from '../types';
+import type { JSX } from 'react';
+
+const ACTION_BAR_SUPPORT_URL = 'https://wordpress.com/support/action-bar/';
 
 interface LegacySubscriptionsSectionProps {
 	data: NewsletterSettings;
@@ -79,7 +83,7 @@ export function LegacySubscriptionsSection( {
 							templateId="single"
 							siteType={ siteType }
 						/>
-				  )
+					)
 				: Toggle,
 		},
 		{
@@ -97,7 +101,7 @@ export function LegacySubscriptionsSection( {
 							templateId="jetpack-subscribe-modal"
 							siteType={ siteType }
 						/>
-				  )
+					)
 				: Toggle,
 		},
 		{
@@ -115,7 +119,7 @@ export function LegacySubscriptionsSection( {
 							templateId="jetpack-subscribe-overlay"
 							siteType={ siteType }
 						/>
-				  )
+					)
 				: Toggle,
 		},
 		{
@@ -133,7 +137,7 @@ export function LegacySubscriptionsSection( {
 							templateId="jetpack-subscribe-floating-button"
 							siteType={ siteType }
 						/>
-				  )
+					)
 				: Toggle,
 		},
 		{
@@ -151,7 +155,7 @@ export function LegacySubscriptionsSection( {
 							templateId="index"
 							siteType={ siteType }
 						/>
-				  )
+					)
 				: Toggle,
 		},
 		{
@@ -169,7 +173,7 @@ export function LegacySubscriptionsSection( {
 							templateId="index"
 							siteType={ siteType }
 						/>
-				  )
+					)
 				: Toggle,
 		},
 		{
@@ -190,10 +194,25 @@ export function LegacySubscriptionsSection( {
 			type: 'boolean' as const,
 			Edit: Toggle,
 		},
+		{
+			id: 'wpcom_hide_action_bar',
+			label: __( 'Show the Action Bar on the front end of the site', 'jetpack-newsletter' ),
+			type: 'boolean' as const,
+			Edit: ( { data: formData, field, onChange: fieldOnChange } ) => (
+				<Toggle
+					data={ formData }
+					field={ field }
+					onChange={ fieldOnChange }
+					invert
+					url={ ACTION_BAR_SUPPORT_URL }
+					linkText={ __( 'Learn more', 'jetpack-newsletter' ) }
+				/>
+			),
+		},
 	];
 
 	return (
-		<Card.Root>
+		<Card.Root id={ SUBSCRIPTIONS_SECTION_ID }>
 			<Card.Header>
 				<Card.Title>{ __( 'Subscriptions', 'jetpack-newsletter' ) }</Card.Title>
 			</Card.Header>
@@ -239,6 +258,17 @@ export function LegacySubscriptionsSection( {
 									label: __( 'Comments', 'jetpack-newsletter' ),
 									children: [ 'stb_enabled', 'stc_enabled' ],
 								},
+								// Simple-only: the Action Bar is a WordPress.com feature. Gating
+								// the layout is enough — DataForm renders only what it lists.
+								...( isSimpleSite()
+									? [
+											{
+												id: 'action_bar',
+												label: __( 'Action Bar', 'jetpack-newsletter' ),
+												children: [ 'wpcom_hide_action_bar' ],
+											},
+										]
+									: [] ),
 							],
 						} }
 						onChange={ onChange }

@@ -40,6 +40,17 @@ class Tokens {
 		);
 
 		$this->remove_lock();
+
+		/**
+		 * Fires after all connection tokens have been deleted from the local site.
+		 *
+		 * `Jetpack_Options::delete_option()` fires no action of its own, so this is the only
+		 * signal that the tokens backing the connection are gone. Anything holding derived
+		 * state — a memoized connection status, a cached credential — must recompute from here.
+		 *
+		 * @since 9.1.1
+		 */
+		do_action( 'jetpack_connection_tokens_deleted' );
 	}
 
 	/**
@@ -89,6 +100,8 @@ class Tokens {
 	/**
 	 * Perform the API request to validate only the blog.
 	 *
+	 * @since 9.8.0 Returns a WP_Error, not false, when the request fails.
+	 *
 	 * @return bool|WP_Error Boolean with the test result. WP_Error if test cannot be performed.
 	 */
 	public function validate_blog_token() {
@@ -96,6 +109,12 @@ class Tokens {
 		if ( ! $blog_id ) {
 			return new WP_Error( 'site_not_registered', 'Site not registered.' );
 		}
+
+		// A missing blog token is broken, not unverifiable: the signed request would fail before it is sent.
+		if ( ! $this->get_access_token() ) {
+			return false;
+		}
+
 		$url = sprintf(
 			'%s/%s/v%s/%s',
 			Constants::get_constant( 'JETPACK__WPCOM_JSON_API_BASE' ),
@@ -107,8 +126,12 @@ class Tokens {
 		$method   = 'GET';
 		$response = Client::remote_request( compact( 'url', 'method' ) );
 
-		if ( is_wp_error( $response ) || ! wp_remote_retrieve_body( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
-			return false;
+		if ( is_wp_error( $response ) ) {
+			return $response;
+		}
+
+		if ( ! wp_remote_retrieve_body( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
+			return new WP_Error( 'blog_token_check_failed', 'The blog token health check could not be performed.' );
 		}
 
 		$body = json_decode( wp_remote_retrieve_body( $response ), true );
@@ -119,12 +142,17 @@ class Tokens {
 	/**
 	 * Obtains the auth token.
 	 *
-	 * @param array  $data The request data.
-	 * @param string $token_api_url The URL of the Jetpack "token" API.
+	 * @since 9.18.0 Added the `$extra_body` and `$token_details` parameters.
+	 *
+	 * @param array      $data          The request data.
+	 * @param string     $token_api_url The URL of the Jetpack "token" API.
+	 * @param array      $extra_body    Fields to send with the token request, next to `client_id` and `code`.
+	 * @param array|null $token_details Set to what WordPress.com reported beyond the token: `connection_owner`
+	 *                                  (bool), only when the response includes it. Left untouched on failure.
 	 * @return object|WP_Error Returns the auth token on success.
 	 *                          Returns a WP_Error on failure.
 	 */
-	public function get( $data, $token_api_url ) {
+	public function get( $data, $token_api_url, $extra_body = array(), &$token_details = null ) {
 		$roles = new Roles();
 		$role  = $roles->translate_current_user_to_role();
 
@@ -183,12 +211,15 @@ class Tokens {
 		 */
 		$body = apply_filters(
 			'jetpack_token_request_body',
-			array(
-				'client_id'     => Jetpack_Options::get_option( 'id' ),
-				'client_secret' => $client_secret->secret,
-				'grant_type'    => 'authorization_code',
-				'code'          => $data['code'],
-				'redirect_uri'  => $redirect_uri,
+			array_merge(
+				$extra_body,
+				array(
+					'client_id'     => Jetpack_Options::get_option( 'id' ),
+					'client_secret' => $client_secret->secret,
+					'grant_type'    => 'authorization_code',
+					'code'          => $data['code'],
+					'redirect_uri'  => $redirect_uri,
+				)
 			)
 		);
 
@@ -259,6 +290,12 @@ class Tokens {
 			return new WP_Error( 'scope', 'current_user_cannot', $code );
 		}
 
+		// A missing field means WordPress.com didn't decide, which is not the same as `false`.
+		$token_details = array();
+		if ( isset( $json->connection_owner ) ) {
+			$token_details['connection_owner'] = (bool) $json->connection_owner;
+		}
+
 		return (string) $json->access_token;
 	}
 
@@ -283,7 +320,20 @@ class Tokens {
 		} else {
 			$options = compact( 'user_tokens' );
 		}
-		return Jetpack_Options::update_options( $options );
+		$updated = Jetpack_Options::update_options( $options );
+
+		/**
+		 * Fires when the user token gets replaced.
+		 *
+		 * @since 1.29.0
+		 * @since 9.8.1 Fired from Tokens::update_user_token() so every write path (authorize, provisioning, CLI) clears stale connection errors, not just the REST endpoint.
+		 *
+		 * @param int    $user_id User ID.
+		 * @param string $token   New user token.
+		 */
+		do_action( 'jetpack_updated_user_token', $user_id, $token );
+
+		return $updated;
 	}
 
 	/**

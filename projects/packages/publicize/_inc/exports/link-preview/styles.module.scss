@@ -1,4 +1,5 @@
-@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+@use "@wordpress/base-styles/breakpoints";
+@use "@wordpress/base-styles/mixins";
 
 .link-preview-modal {
 
@@ -8,8 +9,8 @@
 			padding-inline: 0;
 		}
 
-		@include gb.break-medium() {
-			max-width: gb.$break-wide; // 1280px
+		@include mixins.break-medium() {
+			max-width: breakpoints.$break-wide; // 1280px
 			max-height: 64rem;
 		}
 	}
@@ -39,7 +40,7 @@
 		justify-content: center;
 
 		> div {
-			max-width: clamp(gb.$break-mobile, 100%, gb.$break-small);
+			max-width: clamp(breakpoints.$break-mobile, 100%, breakpoints.$break-small);
 		}
 	}
 }

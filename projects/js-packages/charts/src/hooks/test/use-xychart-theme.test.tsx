@@ -1,4 +1,6 @@
 import { renderHook } from '@testing-library/react';
+import { GlobalChartsProvider } from '../../providers';
+import { CATALOG_POINTERS } from '../../providers/chart-context/private/catalog-pointers';
 import { ChartScopeContext } from '../../providers/chart-scope';
 import { useXYChartTheme } from '../use-xychart-theme';
 import type { ReactNode } from 'react';
@@ -23,7 +25,7 @@ describe( 'useXYChartTheme', () => {
 		document.body.removeChild( scope );
 	} );
 
-	// Resolving a paint-only color here would freeze it: visx writes whatever it is handed onto the element, so a literal stops following the cascade and an override set below the provider wrapper never reaches it. Handing visx the pointer instead lets it resolve at the element it paints. jsdom does not compute `var()`, so what the pointer resolves *to* is covered in Storybook; this pins that the chain survives the theme build intact.
+	// jsdom does not compute `var()`, so what a pointer resolves *to* is covered in Storybook.
 	it( 'hands visx the catalog pointer for paint-only colors rather than a resolved value', () => {
 		const scope = document.createElement( 'div' );
 		document.body.appendChild( scope );
@@ -36,10 +38,10 @@ describe( 'useXYChartTheme', () => {
 
 		expect( result.current.gridStyles.stroke ).toBe( 'var(--a8c-charts-color-grid, #dbdbdb)' );
 		expect( result.current.axisStyles.x.bottom.axisLine.stroke ).toBe(
-			'var(--a8c-charts-color-axis, #dbdbdb)'
+			'var(--a8c-charts-color-axis-x, #dbdbdb)'
 		);
 		expect( result.current.axisStyles.x.bottom.tickLine.stroke ).toBe(
-			'var(--a8c-charts-color-tick, #dbdbdb)'
+			'var(--a8c-charts-color-tick-x, #dbdbdb)'
 		);
 		expect( result.current.axisStyles.x.bottom.tickLabel.fill ).toBe(
 			'var(--a8c-charts-color-label-axis, #1e1e1e)'
@@ -48,8 +50,7 @@ describe( 'useXYChartTheme', () => {
 		document.body.removeChild( scope );
 	} );
 
-	// The one label color that has to arrive resolved: visx paints it on a portal container appended to `document.body`, where the catalog is not declared, and concatenates it into `box-shadow: 0 1px 2px ${color}55`, which a `var()` chain would invalidate.
-	it( 'resolves the tooltip label color while the tick labels keep the pointer', () => {
+	it( 'hands visx the label pointer for the HTML label, even with an override in scope', () => {
 		const scope = document.createElement( 'div' );
 		scope.style.setProperty( '--a8c-charts-color-label-axis', '#0000ff' );
 		document.body.appendChild( scope );
@@ -60,11 +61,45 @@ describe( 'useXYChartTheme', () => {
 
 		const { result } = renderHook( () => useXYChartTheme( [] ), { wrapper } );
 
-		expect( result.current.htmlLabel.color ).toBe( '#0000ff' );
+		expect( result.current.htmlLabel.color ).toBe( CATALOG_POINTERS.labelAxis );
 		expect( result.current.svgLabelSmall.fill ).toBe(
 			'var(--a8c-charts-color-label-axis, #1e1e1e)'
 		);
 
 		document.body.removeChild( scope );
+	} );
+
+	it.each( [
+		[ -12, 11 ],
+		[ Infinity, 11 ],
+		[ 14, 14 ],
+		[ '-12px', 11 ],
+		[ '12.px', 11 ],
+		[ '9'.repeat( 400 ) + 'px', 11 ],
+		[ '0.875rem', '0.875rem' ],
+		[ 'var(--size)', 'var(--size)' ],
+	] )( 'renders a theme fontSize of %p as %p', ( fontSize, expected ) => {
+		const wrapper = ( { children }: { children: ReactNode } ) => (
+			<GlobalChartsProvider theme={ { svgLabelSmall: { fontSize } } }>
+				{ children }
+			</GlobalChartsProvider>
+		);
+
+		const { result } = renderHook( () => useXYChartTheme( [] ), { wrapper } );
+
+		expect( result.current.axisStyles.x.bottom.tickLabel.fontSize ).toBe( expected );
+	} );
+
+	it( 'gives the y axis its own roles, resolving to none', () => {
+		const { result } = renderHook( () => useXYChartTheme( [] ) );
+
+		for ( const side of [ 'left', 'right' ] as const ) {
+			expect( result.current.axisStyles.y[ side ].axisLine.stroke ).toBe(
+				'var(--a8c-charts-color-axis-y, none)'
+			);
+			expect( result.current.axisStyles.y[ side ].tickLine.stroke ).toBe(
+				'var(--a8c-charts-color-tick-y, none)'
+			);
+		}
 	} );
 } );

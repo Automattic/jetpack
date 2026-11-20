@@ -24,6 +24,19 @@ describe( 'readSiteTimestamp', () => {
 		expect( readSiteTimestamp( '2026-06-29T00:00:00Z' )?.offset ).toBe( 'Z' );
 	} );
 
+	// A querystring parser hands back `2026-06-29T00:00:00.000 02:00` for an unencoded `+02:00`.
+	it( 'reads a space in the offset as the plus a querystring decoded away', () => {
+		expect( readSiteTimestamp( '2026-06-29T00:00:00.000 02:00' ) ).toEqual(
+			readSiteTimestamp( '2026-06-29T00:00:00.000+02:00' )
+		);
+		expect( readSiteTimestamp( '2026-06-29T00:00:00.000 02:00' )?.value ).toBe(
+			'2026-06-29T00:00:00.000+02:00'
+		);
+		expect( toLocalTZ( '2026-06-29T00:00:00.000 02:00', '+00:00' ).toISOString() ).toBe(
+			'2026-06-28T22:00:00.000Z'
+		);
+	} );
+
 	it( 'pads a truncated millisecond field and truncates a longer one', () => {
 		expect( readSiteTimestamp( '2026-06-29T00:00:00.5' )?.parts[ 6 ] ).toBe( 500 );
 		expect( readSiteTimestamp( '2026-06-29T00:00:00.123456' )?.parts[ 6 ] ).toBe( 123 );

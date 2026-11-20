@@ -1,18 +1,21 @@
 import AdminPage from '@automattic/jetpack-components/admin-page';
+import JitmSlot from '@automattic/jetpack-components/jitm-slot';
 import { getSiteData } from '@automattic/jetpack-script-data';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useNavigate } from '@wordpress/route';
 import { Tabs } from '@wordpress/ui';
 import { getNewsletterScriptData } from '../../src/settings/script-data';
+import { useAdminShellLeaveGuard } from '../hooks/use-admin-shell-leave-guard';
 import './newsletter-page.scss';
-import type { ReactNode } from 'react';
+import type { JSX, ReactNode } from 'react';
 
-export type NewsletterTab = 'subscribers' | 'settings';
+export type NewsletterTab = 'overview' | 'subscribers' | 'settings';
 
 type Props = {
 	activeTab: NewsletterTab;
 	actions?: ReactNode;
+	hasUnsavedChanges?: boolean;
 	/**
 	 * Whether the active tab's CONTENT should sit inside a horizontally-padded
 	 * container. The tab nav itself is always padded the same way regardless
@@ -37,6 +40,7 @@ type Props = {
 const PRODUCT_NAME = 'Newsletter'; /** "Newsletter" is a product name, do not translate. */
 
 const SUBTITLES: Record< NewsletterTab, () => string > = {
+	overview: () => __( 'View a summary of your newsletter.', 'jetpack-newsletter' ),
 	subscribers: () => __( 'Manage everyone subscribed to your site.', 'jetpack-newsletter' ),
 	settings: () =>
 		__(
@@ -61,6 +65,7 @@ const SUBTITLES: Record< NewsletterTab, () => string > = {
  * @param props                   - Component props.
  * @param props.activeTab         - Which tab the current route represents.
  * @param props.actions           - Optional actions slot (top-right of the Page header).
+ * @param props.hasUnsavedChanges - Whether Settings has unsaved changes or pending autosaves.
  * @param props.contentHasPadding - Whether the active tab's content gets the page's horizontal padding (defaults to true).
  * @param props.hideFooter        - When true, suppresses the `JetpackFooter` rendered beneath the body slot.
  * @param props.children          - Tab content.
@@ -69,12 +74,30 @@ const SUBTITLES: Record< NewsletterTab, () => string > = {
 export default function NewsletterPage( {
 	activeTab,
 	actions,
+	hasUnsavedChanges = false,
 	contentHasPadding = true,
 	hideFooter = false,
 	children,
 }: Props ): JSX.Element {
 	const navigate = useNavigate();
-	const subscribersEnabled = getNewsletterScriptData()?.subscriberManagementEnabled !== false;
+	const newsletterData = getNewsletterScriptData();
+	const subscribersEnabled = newsletterData?.subscriberManagementEnabled !== false;
+	const overviewEnabled = newsletterData?.overviewEnabled === true;
+
+	const confirmLeave = useCallback(
+		() =>
+			activeTab !== 'settings' ||
+			! hasUnsavedChanges ||
+			// eslint-disable-next-line no-alert
+			window.confirm(
+				__(
+					'You have unsaved changes. Are you sure you want to leave this tab?',
+					'jetpack-newsletter'
+				)
+			),
+		[ activeTab, hasUnsavedChanges ]
+	);
+	useAdminShellLeaveGuard( () => activeTab === 'settings' && hasUnsavedChanges );
 
 	// Keep the route at `/` and toggle tabs via a `?tab=` search param so the
 	// `Tabs.Root` mounts once and the active-tab indicator can animate.
@@ -84,23 +107,37 @@ export default function NewsletterPage( {
 	// this reset the inspector hitchhikes across to Settings.
 	const onTabChange = useCallback(
 		( next: string | null ) => {
-			if ( next !== 'subscribers' && next !== 'settings' ) {
+			if (
+				( next === 'overview' && ! overviewEnabled ) ||
+				( next !== 'overview' && next !== 'subscribers' && next !== 'settings' )
+			) {
 				return;
 			}
+			if ( next !== activeTab && ! confirmLeave() ) {
+				return;
+			}
+			// SAFETY: This is the dashboard's complete search state, but generated route types are unavailable.
 			navigate( {
 				search: {
-					tab: next === 'settings' ? 'settings' : undefined,
+					tab: next === 'overview' ? undefined : next,
 					subscriber: undefined,
 					u: undefined,
 				},
 			} as unknown as Parameters< typeof navigate >[ 0 ] );
 		},
-		[ navigate ]
+		[ activeTab, confirmLeave, navigate, overviewEnabled ]
 	);
 
 	const contentClass = contentHasPadding
 		? 'jetpack-newsletter-page__content jetpack-newsletter-page__content--padded'
 		: 'jetpack-newsletter-page__content';
+
+	const content = (
+		<>
+			<JitmSlot inset />
+			<div className={ contentClass }>{ children }</div>
+		</>
+	);
 
 	return (
 		<AdminPage
@@ -119,14 +156,17 @@ export default function NewsletterPage( {
 				>
 					<div className="jp-admin-page-tabs jp-admin-page-tabs--minimal">
 						<Tabs.List variant="minimal">
+							{ overviewEnabled ? (
+								<Tabs.Tab value="overview">{ __( 'Overview', 'jetpack-newsletter' ) }</Tabs.Tab>
+							) : null }
 							<Tabs.Tab value="subscribers">{ __( 'Subscribers', 'jetpack-newsletter' ) }</Tabs.Tab>
 							<Tabs.Tab value="settings">{ __( 'Settings', 'jetpack-newsletter' ) }</Tabs.Tab>
 						</Tabs.List>
 					</div>
-					<div className={ contentClass }>{ children }</div>
+					{ content }
 				</Tabs.Root>
 			) : (
-				<div className={ contentClass }>{ children }</div>
+				content
 			) }
 		</AdminPage>
 	);

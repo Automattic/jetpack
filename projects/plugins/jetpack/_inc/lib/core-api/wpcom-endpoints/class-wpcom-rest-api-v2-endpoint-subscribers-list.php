@@ -108,6 +108,72 @@ class WPCOM_REST_API_V2_Endpoint_Subscribers_List extends WP_REST_Controller {
 
 		register_rest_route(
 			$this->namespace,
+			'/subscribers/bulk-remove',
+			array(
+				array(
+					'methods'             => WP_REST_Server::CREATABLE,
+					'callback'            => array( $this, 'start_bulk_remove' ),
+					'permission_callback' => array( $this, 'permission_check' ),
+					'args'                => array(
+						'filters'        => array(
+							'type'    => 'array',
+							'items'   => array( 'type' => 'string' ),
+							'default' => array( 'all' ),
+						),
+						'search'         => array(
+							'type'    => 'string',
+							'default' => '',
+						),
+						'expected_count' => array(
+							'type'     => 'integer',
+							'required' => true,
+							'minimum'  => 1,
+						),
+					),
+				),
+			)
+		);
+
+		register_rest_route(
+			$this->namespace,
+			'/subscribers/bulk-remove/status',
+			array(
+				array(
+					'methods'             => WP_REST_Server::READABLE,
+					'callback'            => array( $this, 'get_bulk_remove_status' ),
+					'permission_callback' => array( $this, 'permission_check' ),
+					'args'                => array(
+						'job_id' => array(
+							'type'    => 'integer',
+							'default' => 0,
+							'minimum' => 0,
+						),
+					),
+				),
+			)
+		);
+
+		register_rest_route(
+			$this->namespace,
+			'/subscribers/send-bounce-confirmation',
+			array(
+				array(
+					'methods'             => WP_REST_Server::CREATABLE,
+					'callback'            => array( $this, 'send_bounce_confirmation' ),
+					'permission_callback' => array( $this, 'permission_check' ),
+					'args'                => array(
+						'email_address' => array(
+							'type'     => 'string',
+							'format'   => 'email',
+							'required' => true,
+						),
+					),
+				),
+			)
+		);
+
+		register_rest_route(
+			$this->namespace,
 			'/subscribers/individual',
 			array(
 				array(
@@ -259,10 +325,16 @@ class WPCOM_REST_API_V2_Endpoint_Subscribers_List extends WP_REST_Controller {
 					'callback'            => array( $this, 'add_comp' ),
 					'permission_callback' => array( $this, 'permission_check' ),
 					'args'                => array(
+						// Exactly one of user_id / email identifies the subscriber; add_comp()
+						// enforces that, since the schema can't express "one or the other".
 						'user_id'       => array(
-							'type'     => 'integer',
-							'required' => true,
-							'minimum'  => 1,
+							'type'    => 'integer',
+							'default' => 0,
+							'minimum' => 0,
+						),
+						'email'         => array(
+							'type'   => 'string',
+							'format' => 'email',
 						),
 						'plan_id'       => array(
 							'type'     => 'integer',
@@ -479,6 +551,162 @@ class WPCOM_REST_API_V2_Endpoint_Subscribers_List extends WP_REST_Controller {
 				'subscribers_remove_failed',
 				is_array( $body ) && isset( $body['message'] ) ? $body['message'] : __( 'Could not remove the subscriber.', 'jetpack' ),
 				array( 'status' => $status )
+			);
+		}
+
+		return rest_ensure_response( $body );
+	}
+
+	/**
+	 * Proxy POST /wpcom/v2/sites/{blog_id}/subscribers/bulk-remove, which starts a background job
+	 * on WP.com that saves a backup and then removes every subscriber matching `filters` and
+	 * `search` (everyone with the default filter). Paid subscriptions are always cancelled, as
+	 * with the single remove route.
+	 *
+	 * The job refuses to start when the list no longer holds `expected_count` subscribers, or
+	 * when another removal is running. Those errors come back with their WP.com code and data
+	 * (the new `count`, or the running `job`), so the screen can say what happened.
+	 *
+	 * @param WP_REST_Request $request Request.
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public function start_bulk_remove( $request ) {
+		$blog_id = Connection_Manager::get_site_id();
+
+		if ( is_wp_error( $blog_id ) ) {
+			return $blog_id;
+		}
+
+		$response = Client::wpcom_json_api_request_as_user(
+			sprintf( '/sites/%d/subscribers/bulk-remove', (int) $blog_id ),
+			'2',
+			array(
+				'method'  => 'POST',
+				'headers' => array( 'Content-Type' => 'application/json' ),
+			),
+			wp_json_encode(
+				array(
+					'filters'        => array_values( array_map( 'strval', (array) $request->get_param( 'filters' ) ) ),
+					'search'         => (string) $request->get_param( 'search' ),
+					'expected_count' => (int) $request->get_param( 'expected_count' ),
+					'cancel_paid'    => true,
+				),
+				JSON_UNESCAPED_SLASHES
+			),
+			'wpcom'
+		);
+
+		return $this->bulk_remove_response( $response, __( 'Could not start removing subscribers.', 'jetpack' ) );
+	}
+
+	/**
+	 * Proxy GET /wpcom/v2/sites/{blog_id}/subscribers/bulk-remove/status: progress and final
+	 * counts of a removal. Without `job_id`, the running removal, or else the latest one; `job`
+	 * is null when the site has none. The body passes through unchanged, including `enabled`,
+	 * which says whether WP.com lets the site start a removal.
+	 *
+	 * @param WP_REST_Request $request Request.
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public function get_bulk_remove_status( $request ) {
+		$blog_id = Connection_Manager::get_site_id();
+
+		if ( is_wp_error( $blog_id ) ) {
+			return $blog_id;
+		}
+
+		$path   = sprintf( '/sites/%d/subscribers/bulk-remove/status', (int) $blog_id );
+		$job_id = (int) $request->get_param( 'job_id' );
+		if ( $job_id ) {
+			$path .= '?job_id=' . $job_id;
+		}
+
+		$response = Client::wpcom_json_api_request_as_user(
+			$path,
+			'2',
+			array( 'method' => 'GET' ),
+			null,
+			'wpcom'
+		);
+
+		return $this->bulk_remove_response( $response, __( 'Could not check the removal.', 'jetpack' ) );
+	}
+
+	/**
+	 * Turn a WP.com bulk remove response into a REST response, keeping the WP.com error code and
+	 * data on failure.
+	 *
+	 * @param array|WP_Error $response        Response from Client::wpcom_json_api_request_as_user().
+	 * @param string         $default_message Message used when WP.com sends none.
+	 * @return WP_REST_Response|WP_Error
+	 */
+	private function bulk_remove_response( $response, $default_message ) {
+		if ( is_wp_error( $response ) ) {
+			return $response;
+		}
+
+		$status = (int) wp_remote_retrieve_response_code( $response );
+		$body   = json_decode( wp_remote_retrieve_body( $response ), true );
+
+		if ( $status >= 400 ) {
+			$code = is_array( $body ) && isset( $body['code'] ) && is_string( $body['code'] ) ? $body['code'] : 'subscribers_bulk_remove_failed';
+			$data = is_array( $body ) && isset( $body['data'] ) && is_array( $body['data'] ) ? $body['data'] : array();
+
+			$data['status'] = $status;
+
+			return new WP_Error( $code, $this->get_wpcom_error_message( $body, $default_message ), $data );
+		}
+
+		return rest_ensure_response( $body );
+	}
+
+	/**
+	 * Proxy POST /wpcom/v2/sites/{blog_id}/subscribers/send-bounce-confirmation.
+	 *
+	 * @since 16.4
+	 *
+	 * @param WP_REST_Request $request Request.
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public function send_bounce_confirmation( $request ) {
+		$blog_id = Connection_Manager::get_site_id();
+
+		if ( is_wp_error( $blog_id ) ) {
+			return $blog_id;
+		}
+
+		$response = Client::wpcom_json_api_request_as_user(
+			sprintf( '/sites/%d/subscribers/send-bounce-confirmation', (int) $blog_id ),
+			'2',
+			array(
+				'method'  => 'POST',
+				'headers' => array( 'Content-Type' => 'application/json' ),
+			),
+			wp_json_encode(
+				array(
+					'email_address' => (string) $request->get_param( 'email_address' ),
+				),
+				JSON_UNESCAPED_SLASHES
+			),
+			'wpcom'
+		);
+
+		if ( is_wp_error( $response ) ) {
+			return $response;
+		}
+
+		$status = (int) wp_remote_retrieve_response_code( $response );
+		$body   = json_decode( wp_remote_retrieve_body( $response ), true );
+
+		if ( $status >= 400 ) {
+			// Pass through wpcom's error code and data.
+			$data           = is_array( $body ) && isset( $body['data'] ) && is_array( $body['data'] ) ? $body['data'] : array();
+			$data['status'] = $status;
+
+			return new WP_Error(
+				is_array( $body ) && ! empty( $body['code'] ) ? (string) $body['code'] : 'subscribers_bounce_retry_failed',
+				is_array( $body ) && isset( $body['message'] ) ? $body['message'] : __( 'Could not send the confirmation email.', 'jetpack' ),
+				$data
 			);
 		}
 
@@ -725,7 +953,11 @@ class WPCOM_REST_API_V2_Endpoint_Subscribers_List extends WP_REST_Controller {
 	/**
 	 * POST /wpcom/v2/subscribers/comp — issue a complimentary subscription on a paid membership
 	 * product for a single subscriber. Mirrors Calypso's `requestAddComp` thunk, which POSTs to
-	 * `/sites/{id}/memberships/comps/{user_id}/{plan_id}`.
+	 * `/sites/{id}/memberships/comps/{identifier}/{plan_id}`.
+	 *
+	 * The identifier is a wpcom user id, or an email address for a subscriber with no wpcom
+	 * account — WP.com resolves (or creates) an account from the address and links the
+	 * subscriber row. See NL-1033.
 	 *
 	 * @param WP_REST_Request $request Request.
 	 * @return WP_REST_Response|WP_Error
@@ -738,18 +970,31 @@ class WPCOM_REST_API_V2_Endpoint_Subscribers_List extends WP_REST_Controller {
 		}
 
 		$user_id       = (int) $request->get_param( 'user_id' );
+		$email         = (string) $request->get_param( 'email' );
 		$plan_id       = (int) $request->get_param( 'plan_id' );
 		$no_expiration = (bool) $request->get_param( 'no_expiration' );
+
+		if ( ( $user_id && '' !== $email ) || ( ! $user_id && '' === $email ) ) {
+			return new WP_Error(
+				'subscribers_comp_invalid_subscriber',
+				__( 'Provide either a user ID or an email address for the subscriber.', 'jetpack' ),
+				array( 'status' => 400 )
+			);
+		}
 
 		$body = $no_expiration
 			? wp_json_encode( array( 'no_expiration' => true ), JSON_UNESCAPED_SLASHES )
 			: null;
 
+		// WP.com rawurldecode()s this segment, so an email has to arrive encoded — `%d` would
+		// flatten it to 0.
+		$identifier = $user_id ? (string) $user_id : rawurlencode( $email );
+
 		$response = Client::wpcom_json_api_request_as_user(
 			sprintf(
-				'/sites/%d/memberships/comps/%d/%d',
+				'/sites/%d/memberships/comps/%s/%d',
 				(int) $blog_id,
-				$user_id,
+				$identifier,
 				$plan_id
 			),
 			'2',

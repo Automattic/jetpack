@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Sync;
 
+use Automattic\Jetpack\Search\Plan;
 use PHPUnit\Framework\Attributes\CoversClass;
 use WorDBless\BaseTestCase;
 
@@ -27,10 +28,25 @@ class Search_Module_Test extends BaseTestCase {
 
 	/**
 	 * Runs before every test in this class.
+	 *
+	 * Seeds a paid Search plan so the SEARCH-342 plan gate doesn't block.
+	 * `Search_Blocks::supports_paid_search()` memoizes for the process
+	 * lifetime with no reset reachable from this package, so this only
+	 * pins the answer on whichever test first triggers it — every test
+	 * here wants "paid", so that's fine, but don't add a "no plan" test
+	 * to this file expecting it to see a fresh answer; that case is
+	 * covered in packages/search's own suite.
 	 */
 	protected function setUp(): void {
 		parent::setUp();
 		$this->search_module = new Modules\Search();
+		update_option(
+			Plan::JETPACK_SEARCH_PLAN_INFO_OPTION_KEY,
+			array(
+				'supports_instant_search' => true,
+				'effective_subscription'  => array( 'product_slug' => 'jetpack_search' ),
+			)
+		);
 	}
 
 	/**

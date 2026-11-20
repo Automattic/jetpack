@@ -6,6 +6,7 @@ import ThreatFixDetails from './threat-fix-details.tsx';
 import ThreatNotice from './threat-notice.tsx';
 import ThreatSummary from './threat-summary.tsx';
 import ThreatTechnicalDetails from './threat-technical-details.tsx';
+import type { JSX } from 'react';
 
 /**
  * ThreatFixConfirmation component

@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { beforeEach, describe, expect, it, jest } from '@jest/globals';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 // Mock React Router
@@ -21,17 +21,11 @@ await jest.unstable_mockModule( '@wordpress/components', () => ( {
 			</button>
 		);
 	},
-	__experimentalConfirmDialog: ( { children, onCancel, onConfirm, isOpen, confirmButtonText } ) =>
-		isOpen ? (
-			<div data-testid="confirm-dialog">
-				{ children }
-				<button onClick={ onCancel }>Cancel</button>
-				<button onClick={ onConfirm }>{ confirmButtonText }</button>
-			</div>
-		) : null,
 } ) );
 
+const actualIcons = await import( '@wordpress/icons' );
 await jest.unstable_mockModule( '@wordpress/icons', () => ( {
+	...actualIcons,
 	trash: 'trash-icon-mock',
 } ) );
 
@@ -76,6 +70,8 @@ await jest.unstable_mockModule( 'lodash', () => ( {
 await jest.unstable_mockModule( '@wordpress/data', () => {
 	const mockDispatch = {
 		createSuccessNotice: jest.fn(),
+		createInfoNotice: jest.fn(),
+		removeNotice: jest.fn(),
 		createErrorNotice: jest.fn(),
 		setCounts: jest.fn(),
 		setCurrentQuery: jest.fn(),
@@ -85,6 +81,7 @@ await jest.unstable_mockModule( '@wordpress/data', () => {
 
 	const mockSelect = {
 		getSelectedResponsesCount: jest.fn().mockReturnValue( 0 ),
+		getSelectedResponsesFromCurrentDataset: jest.fn().mockReturnValue( [] ),
 		getCurrentStatus: jest.fn().mockReturnValue( 'trash' ),
 		getCurrentQuery: jest.fn().mockReturnValue( {} ),
 		getFilters: jest.fn().mockReturnValue( {} ),
@@ -146,14 +143,13 @@ afterAll( () => {
 /* eslint-enable no-console */
 
 // Dynamically import the component after mocks are set up
-const EmptySpamButtonModule = await import(
-	'../../../../../src/dashboard/components/empty-spam-button'
-);
+const EmptySpamButtonModule =
+	await import( '../../../../../src/dashboard/components/empty-spam-button' );
 const EmptySpamButton = EmptySpamButtonModule.default;
+const { labelForScope } = EmptySpamButtonModule;
 
-const DashboardSearchParamsModule = await import(
-	'../../../../../src/dashboard/router/dashboard-search-params-context'
-);
+const DashboardSearchParamsModule =
+	await import( '../../../../../src/dashboard/router/dashboard-search-params-context' );
 const { DashboardSearchParamsProvider } = DashboardSearchParamsModule;
 
 describe( 'EmptySpamButton', () => {
@@ -202,9 +198,21 @@ describe( 'EmptySpamButton', () => {
 		const button = screen.getByText( 'Delete spam' );
 		await userEvent.click( button );
 
-		const dialog = screen.getByTestId( 'confirm-dialog' );
+		const dialog = await screen.findByRole( 'alertdialog', { name: 'Delete 1 spam response?' } );
 		expect( dialog ).toBeInTheDocument();
-		expect( screen.getByText( 'Delete forever' ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'button', { name: 'Cancel' } ) ).toHaveFocus();
+	} );
+
+	it( 'does not empty spam when Enter is pressed on open', async () => {
+		const { default: apiFetch } = await import( '@wordpress/api-fetch' );
+
+		renderWithProvider( <EmptySpamButton totalItemsSpam={ 1 } /> );
+
+		await userEvent.click( screen.getByText( 'Delete spam' ) );
+		await expect( screen.findByRole( 'alertdialog' ) ).resolves.toBeInTheDocument();
+		await userEvent.keyboard( '{Enter}' );
+
+		expect( apiFetch ).not.toHaveBeenCalledWith( expect.objectContaining( { method: 'DELETE' } ) );
 	} );
 
 	it( 'empties spam when confirmed', async () => {
@@ -219,19 +227,39 @@ describe( 'EmptySpamButton', () => {
 		await userEvent.click( button );
 
 		// Click confirm button
-		const confirmButton = screen.getByText( 'Delete' );
+		const confirmButton = await screen.findByRole( 'button', { name: 'Delete forever' } );
 		await userEvent.click( confirmButton );
 
-		// Verify API call
-		expect( apiFetch ).toHaveBeenCalledWith( {
-			method: 'DELETE',
-			path: '/wp/v2/feedback/trash?status=spam',
-		} );
+		// Verify API call — scope is `all` (no selection, no filter), so payload is just status.
+		await waitFor( () =>
+			expect( apiFetch ).toHaveBeenCalledWith( {
+				method: 'DELETE',
+				path: '/wp/v2/feedback/trash',
+				data: { status: 'spam', limit: 500 },
+			} )
+		);
 
-		// Verify success notice
-		expect( mockDispatch.createSuccessNotice ).toHaveBeenCalledWith(
-			'Response deleted permanently.',
-			{ type: 'snackbar', id: 'empty-spam' }
+		// Verify success notice (pluralized with formatNumber).
+		await waitFor( () =>
+			expect( mockDispatch.createSuccessNotice ).toHaveBeenCalledWith(
+				expect.stringContaining( 'deleted permanently' ),
+				{ type: 'snackbar', id: 'empty-spam' }
+			)
+		);
+	} );
+} );
+
+describe( 'labelForScope', () => {
+	it( 'omits the count when deleting all spam', () => {
+		expect( labelForScope( { mode: 'all', count: 140, params: {} } ) ).toBe( 'Delete spam' );
+	} );
+
+	it( 'shows the count for a filter or a selection', () => {
+		expect( labelForScope( { mode: 'filtered', count: 26, params: {} } ) ).toBe(
+			'Delete spam (26)'
+		);
+		expect( labelForScope( { mode: 'selection', count: 3, params: {} } ) ).toBe(
+			'Delete spam (3)'
 		);
 	} );
 } );

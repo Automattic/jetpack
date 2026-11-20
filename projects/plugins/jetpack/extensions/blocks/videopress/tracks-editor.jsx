@@ -277,7 +277,7 @@ function SingleTrackEditor( { track, guid, onChange, onClose, onCancel, trackExi
 														'Change track',
 														'jetpack',
 														/* dummy arg to avoid bad minification */ 0
-												  ) }
+													) }
 										</Button>
 									);
 								} }

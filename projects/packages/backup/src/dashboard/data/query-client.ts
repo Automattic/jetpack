@@ -4,26 +4,56 @@ import type { ActivitySortOrder } from './api/activity-log';
 const STALE_TIME_DEFAULT_MS = 30_000;
 const GC_TIME_DEFAULT_MS = 5 * 60_000;
 
+const CLIENT_KEY = '__jetpackBackupQueryClient' as const;
+
+declare global {
+	interface Window {
+		[ CLIENT_KEY ]?: QueryClient;
+	}
+}
+
 /**
- * Module-scope QueryClient for the modernized Backup dashboard.
+ * Refetch what Backup shows once the admin shell shows it again after keeping it hidden a while.
  *
- * Each wp-build route is its own JS bundle and ends up with its own
- * copy of this module, so the cache is per-route — it does NOT survive
- * Overview ↔ Restore ↔ Download navigation. The screens don't depend on
- * cross-route cache reuse today (each derives its rewindId from the
- * URL), so this is fine; revisit if a future screen needs to read cache
- * a sibling route populated.
+ * @param event - The shell's `jetpack-admin-shell:page-shown` event.
  */
-export const queryClient = new QueryClient( {
-	defaultOptions: {
-		queries: {
-			staleTime: STALE_TIME_DEFAULT_MS,
-			gcTime: GC_TIME_DEFAULT_MS,
-			retry: 1,
-			refetchOnWindowFocus: false,
-		},
-	},
-} );
+export function refetchWhenStale( event: Event ): void {
+	const { page, stale } = ( event as CustomEvent ).detail ?? {};
+	if ( page === 'jetpack-backup' && stale ) {
+		window[ CLIENT_KEY ]?.invalidateQueries( { queryKey: [ 'backup' ] } );
+	}
+}
+
+/**
+ * The one QueryClient every route of the modernized Backup dashboard renders against.
+ *
+ * Parked on `window` because each wp-build route bundles its own copy of this module: a
+ * module-scope client left every route with its own cache, cold on first arrival.
+ *
+ * @return The shared client, created on first use.
+ */
+function sharedClient(): QueryClient {
+	if ( ! window[ CLIENT_KEY ] ) {
+		window[ CLIENT_KEY ] = new QueryClient( {
+			defaultOptions: {
+				queries: {
+					staleTime: STALE_TIME_DEFAULT_MS,
+					gcTime: GC_TIME_DEFAULT_MS,
+					retry: 1,
+					refetchOnWindowFocus: false,
+				},
+			},
+		} );
+		// Here, not at module scope, so the routes' copies of this module listen once between them.
+		window.addEventListener( 'jetpack-admin-shell:page-shown', refetchWhenStale );
+	}
+
+	return window[ CLIENT_KEY ];
+}
+
+// Each route also bundles its own react-query, so sentinels compared by identity —
+// `skipToken`, `isCancelledError` — never match against a client another route created.
+export const queryClient = sharedClient();
 
 /**
  * Stable cache keys for each query the dashboard issues.
@@ -37,6 +67,8 @@ export const keys = {
 	// registered `/jetpack/v4/backups`. Polled while a backup runs, so it
 	// deliberately does not share the activity-log family's key.
 	backups: () => [ 'backup', 'backups' ] as const,
+	// Client-only: the pending "Back up now" request. Never fetched.
+	enqueueRequested: () => [ 'backup', 'enqueue-requested' ] as const,
 	siteSize: () => [ 'backup', 'site-size' ] as const,
 	// The site's retention and storage policies. Separate from
 	// `siteSize` because it is a separate route with a much flatter
@@ -63,6 +95,11 @@ export const keys = {
 	// descending are different rows.
 	activityLogPage: ( page: number, pageSize: number, sortOrder: ActivitySortOrder ) =>
 		[ 'backup', 'activity-log', { page, pageSize, sortOrder } ] as const,
+	// The few seconds of the log around one backup, for a selection no loaded page holds.
+	activityLogAround: ( rewindId: string ) =>
+		[ 'backup', 'activity-log', 'around', rewindId ] as const,
+	// Every loaded page of backup sizes, as one infinite query.
+	backupSizes: () => [ 'backup', 'sizes' ] as const,
 	fileTree: ( rewindId: string, folderPath: string | null ) =>
 		[ 'backup', 'file-tree', rewindId, folderPath ] as const,
 	fileContents: ( rewindId: string, path: string ) =>
@@ -74,13 +111,11 @@ export const keys = {
 		[ 'backup', 'path-info', filePeriod, manifestPath ] as const,
 	downloadStatus: ( rewindId: string, downloadId: number ) =>
 		[ 'backup', 'download-status', rewindId, downloadId ] as const,
+	downloads: () => [ 'backup', 'downloads' ] as const,
 	restoreStatus: ( restoreId: number ) => [ 'backup', 'restore-status', restoreId ] as const,
-	// The site's recent restores, not one restore's status: read to
-	// recover an id WordPress.com accepted but did not return.
+	// The site's recent restores, not one restore's status; see `useRecentRestores`.
 	recentRestores: () => [ 'backup', 'recent-restores' ] as const,
-	// Whether one review prompt has been dismissed. Keyed on the reason
-	// because the two prompts are dismissed independently — declining to
-	// review after a restore must not also spend the backups prompt — and
-	// the server stores them under separate options for the same reason.
-	reviewDismissal: ( reason: string ) => [ 'backup', 'review-dismissal', reason ] as const,
+	knownThreats: ( rewindId: string ) => [ 'backup', 'known-threats', rewindId ] as const,
+	backupsKnownThreats: ( withCleanRewindId = false ) =>
+		[ 'backup', 'known-threats', 'backups', withCleanRewindId ] as const,
 };

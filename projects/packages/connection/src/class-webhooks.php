@@ -177,10 +177,15 @@ class Webhooks {
 	/**
 	 * Handle the `connect_url_redirect` action,
 	 * which is usually called to repeat an attempt for user to authorize the connection.
+	 * Requires a logged-in user, and one who can connect the site when it isn't registered yet.
 	 *
 	 * @return void
 	 */
 	public function handle_connect_url_redirect() {
+		if ( ! is_user_logged_in() ) {
+			return;
+		}
+
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- no site changes.
 		$from = ! empty( $_GET['from'] ) ? sanitize_text_field( wp_unslash( $_GET['from'] ) ) : 'iframe';
 
@@ -193,6 +198,9 @@ class Webhooks {
 
 		if ( ! $this->connection->is_user_connected() ) {
 			if ( ! $this->connection->is_connected() ) {
+				if ( ! current_user_can( 'jetpack_connect' ) ) {
+					return;
+				}
 				$this->connection->register();
 			}
 

@@ -12,30 +12,29 @@ jest.mock( '@wordpress/data', () => ( {
 	register: jest.fn(),
 } ) );
 jest.mock( '@wordpress/components', () => ( {
-	Button: ( {
-		children,
-		onClick,
-		disabled,
-		href,
-		className,
-		style,
-		label,
-		'aria-hidden': ariaHidden,
-	} ) => (
-		<button
-			type="button"
-			onClick={ onClick }
-			disabled={ disabled }
-			href={ href }
-			className={ className }
-			style={ style }
-			aria-hidden={ ariaHidden }
-			aria-label={ label }
-		>
-			{ children }
-		</button>
-	),
-	Tooltip: ( { children } ) => children,
+	// forwardRef: the ui Tooltip trigger hands the button a ref, which React 18 refuses on plain functions.
+	Button: jest
+		.requireActual( 'react' )
+		.forwardRef(
+			(
+				{ children, onClick, disabled, href, className, style, label, 'aria-hidden': ariaHidden },
+				ref
+			) => (
+				<button
+					ref={ ref }
+					type="button"
+					onClick={ onClick }
+					disabled={ disabled }
+					href={ href }
+					className={ className }
+					style={ style }
+					aria-hidden={ ariaHidden }
+					aria-label={ label }
+				>
+					{ children }
+				</button>
+			)
+		),
 	Notice: ( { children, onRemove, isDismissible } ) => (
 		<div>
 			{ children }
@@ -84,7 +83,7 @@ describe( 'SuggestAllButton', () => {
 		expect( screen.getByRole( 'button', { name: 'Improve guidelines' } ) ).toBeInTheDocument();
 	} );
 
-	it( 'hides itself while the empty-state banner is still on screen', async () => {
+	it( 'hides itself while the welcome banner is still on screen', async () => {
 		// Banner present (not dismissed) and the site has the feature: the banner
 		// owns the CTA, so this button is hidden rather than duplicated.
 		setup( { bannerDismissed: false, hasFeature: true } );

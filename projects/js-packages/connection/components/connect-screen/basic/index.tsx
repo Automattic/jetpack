@@ -1,4 +1,8 @@
 import { __ } from '@wordpress/i18n';
+import {
+	getRegistrationErrorCode,
+	getRegistrationErrorDisplay,
+} from '../../../helpers/get-connect-screen-error-message';
 import useConnection from '../../use-connection';
 import ConnectScreenVisual from './visual';
 import type { ReactNode } from 'react';
@@ -62,26 +66,22 @@ function ConnectScreen( {
 	skipPricingPage,
 	logo,
 }: Props ) {
-	const {
-		handleRegisterSite,
-		siteIsRegistering,
-		userIsConnecting,
-		registrationError,
-		isOfflineMode,
-	} = useConnection( {
-		registrationNonce,
-		redirectUri,
-		apiRoot,
-		apiNonce,
-		autoTrigger,
-		from,
-		skipUserConnection,
-		skipPricingPage,
-	} );
+	const { handleRegisterSite, siteIsRegistering, userIsConnecting, connectError, isOfflineMode } =
+		useConnection( {
+			registrationNonce,
+			redirectUri,
+			apiRoot,
+			apiNonce,
+			autoTrigger,
+			from,
+			skipUserConnection,
+			skipPricingPage,
+		} );
 
-	const displayButtonError = Boolean( registrationError );
+	const displayButtonError = Boolean( connectError );
 	const buttonIsLoading = siteIsRegistering || userIsConnecting;
-	const errorCode = registrationError ? registrationError.response?.code : undefined;
+	const errorCode = getRegistrationErrorCode( connectError );
+	const errorDisplay = getRegistrationErrorDisplay( connectError, isOfflineMode );
 
 	return (
 		<ConnectScreenVisual
@@ -96,6 +96,7 @@ function ConnectScreen( {
 			handleButtonClick={ handleRegisterSite }
 			displayButtonError={ displayButtonError }
 			errorCode={ errorCode }
+			errorDisplay={ errorDisplay }
 			buttonIsLoading={ buttonIsLoading }
 			footer={ footer }
 			isOfflineMode={ isOfflineMode }

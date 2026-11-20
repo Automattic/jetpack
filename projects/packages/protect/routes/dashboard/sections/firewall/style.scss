@@ -1,0 +1,90 @@
+.jp-protect-firewall-test {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	margin: 0;
+	padding-inline-start: 20px;
+
+	&__code {
+		margin: 0;
+		padding: 8px;
+		border-radius: 2px;
+		background: var(--wpds-color-background-surface-neutral-weak);
+		font-size: 12px;
+		white-space: pre-wrap;
+		overflow-wrap: anywhere;
+	}
+}
+
+.jp-protect-ip-rule__field {
+	inline-size: 100%;
+
+	textarea {
+		font-family: monospace;
+	}
+}
+
+.jp-protect-firewall-standalone {
+	margin: 0;
+
+	// The bootstrap path is one long word.
+	&__code {
+		overflow-wrap: anywhere;
+	}
+}
+
+.jp-protect-upgrade-gap {
+
+	&__icon {
+		flex: none;
+		color: var(--wpds-color-foreground-content-error-weak);
+	}
+
+	&__title {
+		font-weight: 500;
+	}
+
+	// Balanced like .jp-protect-feature-upsell in route.scss, to avoid widows.
+	&__title,
+	.jp-protect-card__muted {
+		text-wrap: balance;
+	}
+
+	&__link {
+		flex: none;
+		white-space: nowrap;
+	}
+}
+
+.jp-protect-firewall-empty {
+	display: flex;
+	justify-content: center;
+	padding-block: var(--wpds-dimension-padding-3xl);
+}
+
+.jp-protect-firewall-footer {
+
+	> * > :not(:last-child) {
+		padding-inline-end: var(--wpds-dimension-padding-lg);
+		border-inline-end:
+			var(--wpds-border-width-xs) solid
+			var(--wpds-color-stroke-surface-neutral);
+	}
+
+	a,
+	.jp-protect-card__link-button {
+		font-size: inherit;
+		text-decoration: none;
+	}
+}
+
+.jp-protect-firewall-summary {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: var(--wpds-dimension-gap-2xl);
+	padding-block: var(--wpds-dimension-padding-xl);
+
+	@media (max-width: 600px) {
+		grid-template-columns: minmax(0, 1fr);
+	}
+}

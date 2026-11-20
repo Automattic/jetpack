@@ -8,11 +8,14 @@
 namespace Automattic\Jetpack\PremiumAnalytics;
 
 use Automattic\Jetpack\PremiumAnalytics\REST\Api_Proxy_Controller;
+use Automattic\Jetpack\Status\Cache as Status_Cache;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
 use WP_REST_Request;
 
 require_once __DIR__ . '/traits/trait-analytics-capabilities.php';
+require_once __DIR__ . '/../../src/default-dashboard-sections.php';
 
 /**
  * @covers \Automattic\Jetpack\PremiumAnalytics\Capabilities
@@ -34,9 +37,94 @@ class Capabilities_Test extends BaseTestCase {
 	 */
 	public function tear_down() {
 		$this->reset_analytics_capabilities();
+
+		// Each test hydrates the section registry under its own users and sections.
+		$instance = new \ReflectionProperty( Dashboard_Section_Registry::class, 'instance' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$instance->setAccessible( true );
+		}
+		$instance->setValue( null, null );
+		if ( false === has_action( Dashboard_Section_Registry::REGISTER_ACTION, __NAMESPACE__ . '\\register_default_dashboard_sections' ) ) {
+			add_action( Dashboard_Section_Registry::REGISTER_ACTION, __NAMESPACE__ . '\\register_default_dashboard_sections' );
+		}
 		wp_set_current_user( 0 );
+		\Jetpack_Options::delete_option( array( 'id', 'blog_token' ) );
+		( new \Automattic\Jetpack\Connection\Manager() )->reset_connection_status();
+		remove_all_filters( 'jetpack_offline_mode' );
+		Status_Cache::clear();
 
 		parent::tear_down();
+	}
+
+	/**
+	 * Before the site is connected the page only offers to connect it, so like Stats it is for
+	 * whoever can connect, or for administrators in offline mode, where nobody can.
+	 *
+	 * @dataProvider provide_dashboard_page_capabilities
+	 *
+	 * @param bool   $is_connected Whether the site is connected.
+	 * @param bool   $is_offline   Whether the site is in offline mode.
+	 * @param string $capability   The capability the page should require.
+	 */
+	#[DataProvider( 'provide_dashboard_page_capabilities' )]
+	public function test_dashboard_page_capability_follows_the_connection( $is_connected, $is_offline, $capability ) {
+		if ( $is_connected ) {
+			$this->connect_site();
+		}
+		add_filter( 'jetpack_offline_mode', $is_offline ? '__return_true' : '__return_false' );
+		Status_Cache::clear();
+
+		$this->assertSame( $capability, Capabilities::dashboard_page_capability() );
+	}
+
+	/**
+	 * Connected, disconnected, and disconnected in offline mode.
+	 *
+	 * @return array<string, array{bool, bool, string}>
+	 */
+	public static function provide_dashboard_page_capabilities() {
+		return array(
+			'connected'            => array( true, false, Capabilities::VIEW_ANALYTICS ),
+			'disconnected'         => array( false, false, 'jetpack_connect' ),
+			'disconnected offline' => array( false, true, 'manage_options' ),
+		);
+	}
+
+	/**
+	 * Links to the Stats views follow the page, so before the site is connected a Stats reader
+	 * who cannot connect it gets none.
+	 *
+	 * @dataProvider provide_stats_readers
+	 *
+	 * @param bool $is_connected Whether the site is connected.
+	 * @param bool $can_connect  Whether the reader can connect the site.
+	 * @param bool $can_open     Whether the reader should be able to open the Stats views.
+	 */
+	#[DataProvider( 'provide_stats_readers' )]
+	public function test_stats_reader_can_open_stats_only_where_the_page_lets_them( $is_connected, $can_connect, $can_open ) {
+		if ( $is_connected ) {
+			$this->connect_site();
+		}
+		$user_id = $this->login_as( 'editor' );
+		$this->grant_view_stats_to( $user_id );
+		if ( $can_connect ) {
+			$this->grant_capability_to( $user_id, 'jetpack_connect' );
+		}
+
+		$this->assertSame( $can_open, Capabilities::current_user_can_open_stats() );
+	}
+
+	/**
+	 * A Stats reader on a connected site, and on a disconnected one with and without `jetpack_connect`.
+	 *
+	 * @return array<string, array{bool, bool, bool}>
+	 */
+	public static function provide_stats_readers() {
+		return array(
+			'connected site'                  => array( true, false, true ),
+			'disconnected, cannot connect it' => array( false, false, false ),
+			'disconnected, can connect it'    => array( false, true, true ),
+		);
 	}
 
 	/**
@@ -204,14 +292,107 @@ class Capabilities_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Store access is not dashboard access: the capability that opens the store
-	 * reports says nothing about who may read stats.
+	 * A reader with no Stats access reaches the dashboard through a section available to them,
+	 * the way a shop manager does through the WooCommerce tab, and not without one.
 	 */
-	public function test_woocommerce_report_viewer_is_not_a_dashboard_reader() {
+	public function test_a_section_available_to_the_reader_opens_the_dashboard() {
+		register_dashboard_section(
+			DASHBOARD_NAME,
+			'test/store',
+			array(
+				'label'        => 'Store',
+				'is_available' => array( Capabilities::class, 'current_user_can_view_store_reports' ),
+			)
+		);
+
+		$this->login_as( 'subscriber' );
+		$this->assertFalse( Capabilities::current_user_can_view_analytics(), 'No section is theirs.' );
+
+		$shop_manager = $this->login_as( 'author' );
+		$this->grant_capability_to( $shop_manager, 'view_woocommerce_reports' );
+		$this->assertTrue( Capabilities::current_user_can_view_analytics() );
+	}
+
+	/**
+	 * The menu checks the capability more than once per screen; the sections answer once.
+	 */
+	public function test_sections_are_asked_once_per_request() {
+		$checks = 0;
+		register_dashboard_section(
+			DASHBOARD_NAME,
+			'test/counted',
+			array(
+				'label'        => 'Counted',
+				'is_available' => static function () use ( &$checks ) {
+					++$checks;
+					return true;
+				},
+			)
+		);
+		$user_id = $this->login_as( 'subscriber' );
+
+		$this->assertTrue( Capabilities::current_user_can_view_analytics() );
+		$this->assertTrue( user_can( $user_id, Capabilities::VIEW_ANALYTICS ) );
+		$this->assertSame( 1, $checks );
+	}
+
+	/**
+	 * A section gated on the dashboard capability itself does not count towards it, rather than
+	 * recursing.
+	 */
+	public function test_a_section_gated_on_the_dashboard_capability_does_not_recurse() {
+		remove_action( Dashboard_Section_Registry::REGISTER_ACTION, __NAMESPACE__ . '\\register_default_dashboard_sections' );
+		register_dashboard_section(
+			DASHBOARD_NAME,
+			'test/circular',
+			array(
+				'label'        => 'Circular',
+				'is_available' => array( Capabilities::class, 'current_user_can_view_analytics' ),
+			)
+		);
+		$this->login_as( 'administrator' );
+
+		$this->assertFalse( Capabilities::current_user_can_view_analytics() );
+	}
+
+	/**
+	 * Sections answer for the current user, so the mapping refuses to answer for anyone else.
+	 */
+	public function test_mapping_refuses_users_other_than_the_current_one() {
+		$other_admin = wp_insert_user(
+			array(
+				'user_login' => 'pa-other-administrator',
+				'user_pass'  => 'password',
+				'role'       => 'administrator',
+			)
+		);
+		$this->login_as( 'administrator' );
+
+		$this->assertTrue( Capabilities::current_user_can_view_analytics() );
+		$this->assertFalse( user_can( $other_admin, Capabilities::VIEW_ANALYTICS ) );
+	}
+
+	/**
+	 * Pins the Stats helper to what the proxy enforces for a Stats prefix, for the same reason
+	 * as the store helper above.
+	 */
+	public function test_stats_helper_matches_the_proxy_capability() {
+		$controller = new Api_Proxy_Controller();
+		$request    = new WP_REST_Request( 'GET', '/jetpack-premium-analytics/v1/proxy/v1.1/stats/top-posts' );
+		$request->set_param( 'endpoint', 'stats/top-posts' );
+
+		$reader = $this->login_as( 'editor' );
+		$this->grant_view_stats_to( $reader );
+		$this->assertTrue( Capabilities::current_user_can_view_stats() );
+		$this->assertSame( $controller->check_data_permission( $request ), Capabilities::current_user_can_view_stats() );
+
 		$shop_manager = $this->login_as( 'subscriber' );
 		$this->grant_capability_to( $shop_manager, 'view_woocommerce_reports' );
+		$this->assertFalse( Capabilities::current_user_can_view_stats() );
+		$this->assertSame( $controller->check_data_permission( $request ), Capabilities::current_user_can_view_stats() );
 
-		$this->assertTrue( Capabilities::current_user_can_view_store_reports() );
-		$this->assertFalse( Capabilities::current_user_can_view_analytics() );
+		$this->login_as( 'administrator' );
+		$this->assertTrue( Capabilities::current_user_can_view_stats() );
+		$this->assertSame( $controller->check_data_permission( $request ), Capabilities::current_user_can_view_stats() );
 	}
 }

@@ -49,7 +49,7 @@ function filesWithExt( ext: string, dir: string = DASHBOARD ): string[] {
 						.slice( DASHBOARD.length + 1 )
 						.split( '\\' )
 						.join( '/' ),
-			  ]
+				]
 			: [];
 	} );
 }

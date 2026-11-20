@@ -11,6 +11,7 @@ import {
 	type SegmentStyle,
 } from '../../helpers';
 import { useElementSize } from '../../hooks';
+import { useChartName } from '../../hooks/use-chart-name';
 import { ChartEmptyState } from '../chart-empty-state';
 import { PieChartTooltip } from '../chart-tooltip';
 /**
@@ -77,6 +78,9 @@ export type SemiCircleChartProps = {
 	 */
 	showMetric?: boolean;
 
+	/** What the chart shows, when that is not the widget title; the chart is named "Chart: <title>". */
+	chartTitle?: string;
+
 	/**
 	 * Thickness of the arc (0-1).
 	 * @default 0.3
@@ -136,6 +140,7 @@ export function SemiCircleChart( {
 	legendData,
 	showLegend = true,
 	showMetric = true,
+	chartTitle,
 	thickness = DEFAULT_THICKNESS,
 	aspectRatio = DEFAULT_ASPECT_RATIO,
 	maxWidth = Infinity,
@@ -146,6 +151,7 @@ export function SemiCircleChart( {
 	tooltipOffsetY,
 	tooltipDataFormat,
 }: SemiCircleChartProps ) {
+	const chartName = useChartName( chartTitle );
 	const hasComparison = comparisonValue !== null && comparisonValue !== undefined;
 
 	const [ containerRef, containerSize ] = useElementSize< HTMLDivElement >();
@@ -217,6 +223,7 @@ export function SemiCircleChart( {
 				<PieSemiCircleChart
 					data={ styledChartData }
 					className={ styles.chart }
+					ariaLabel={ chartName }
 					thickness={ thickness }
 					clockwise={ false }
 					aspectRatio={ aspectRatio }

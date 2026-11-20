@@ -180,33 +180,14 @@ class Admin_Post_List_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test that the cell links wherever the URL filter points it.
+	 * Render the views cell for a post and return its markup.
 	 *
-	 * @return void
+	 * @param int $post_id The post.
+	 * @return string
 	 */
-	public function test_add_stats_post_table_cell_url_is_filterable() {
-		$post_id = wp_insert_post(
-			array(
-				'post_title'  => 'Filtered Test Post',
-				'post_status' => 'publish',
-				'post_author' => 1,
-			)
-		);
-
+	private function render_cell( $post_id ) {
 		global $wp_query;
 		$wp_query = $this->get_wp_query_mock( $post_id );
-
-		// Shaped like the real replacement: esc_url() encodes the `&` on output, so
-		// a URL without one would not exercise the cell's escaping at all.
-		$filtered_url = 'https://example.com/wp-admin/admin.php?page=analytics&p=%2Fpost%2F' . $post_id;
-		$received_url = '';
-		$received_id  = 0;
-		$filter       = function ( $url, $url_post_id ) use ( &$received_url, &$received_id, $filtered_url ) {
-			$received_url = $url;
-			$received_id  = $url_post_id;
-			return $filtered_url;
-		};
-		add_filter( 'jetpack_stats_post_list_column_url', $filter, 10, 2 );
 
 		$column_mock = $this->getMockBuilder( Admin_Post_List_Column::class )
 							->onlyMethods( array( 'get_stats' ) )
@@ -219,18 +200,84 @@ class Admin_Post_List_Test extends BaseTestCase {
 		$column_mock->add_stats_post_table_cell( 'stats', $post_id );
 		$output = ob_get_clean();
 
-		remove_filter( 'jetpack_stats_post_list_column_url', $filter, 10 );
+		$wp_query = null;
+		return html_entity_decode( $output, ENT_QUOTES, 'UTF-8' );
+	}
+
+	/**
+	 * Test that the cell links wherever jetpack_stats_url points it.
+	 *
+	 * @return void
+	 */
+	public function test_add_stats_post_table_cell_url_is_filterable() {
+		$post_id = wp_insert_post(
+			array(
+				'post_title'  => 'Filtered Test Post',
+				'post_status' => 'publish',
+				'post_author' => 1,
+			)
+		);
+
+		// Shaped like the real replacement: esc_url() encodes the `&` on output, so
+		// a URL without one would not exercise the cell's escaping at all.
+		$filtered_url  = 'https://example.com/wp-admin/admin.php?page=analytics&p=%2Fpost%2F' . $post_id;
+		$received_url  = '';
+		$received_args = array();
+		$filter        = function ( $url, $args ) use ( &$received_url, &$received_args, $filtered_url ) {
+			$received_url  = $url;
+			$received_args = $args;
+			return $filtered_url;
+		};
+		add_filter( 'jetpack_stats_url', $filter, 10, 2 );
+
+		$output = $this->render_cell( $post_id );
+
+		remove_filter( 'jetpack_stats_url', $filter, 10 );
+		wp_delete_post( $post_id, true );
 
 		$this->assertStringContainsString(
 			'href="' . $filtered_url . '"',
-			html_entity_decode( $output, ENT_QUOTES, 'UTF-8' ),
+			$output,
 			'The filtered URL has to be the anchor target, not just present somewhere in the cell.'
 		);
 		$this->assertStringContainsString( 'admin.php?page=stats', $received_url, 'The filter receives the unfiltered stats URL.' );
-		$this->assertSame( $post_id, $received_id );
+		$this->assertSame(
+			array(
+				'view' => 'post',
+				'id'   => $post_id,
+			),
+			$received_args
+		);
+	}
 
+	/**
+	 * Test that a callback on the deprecated column filter still moves the link.
+	 *
+	 * @return void
+	 */
+	public function test_add_stats_post_table_cell_honours_the_deprecated_url_filter() {
+		$post_id = wp_insert_post(
+			array(
+				'post_title'  => 'Legacy Filtered Test Post',
+				'post_status' => 'publish',
+				'post_author' => 1,
+			)
+		);
+
+		$filtered_url = 'https://example.com/legacy-stats/' . $post_id;
+		$filter       = function () use ( $filtered_url ) {
+			return $filtered_url;
+		};
+		add_filter( 'jetpack_stats_post_list_column_url', $filter );
+		add_filter( 'deprecated_hook_trigger_error', '__return_false' );
+
+		$output = $this->render_cell( $post_id );
+
+		remove_filter( 'jetpack_stats_post_list_column_url', $filter );
+		remove_filter( 'deprecated_hook_trigger_error', '__return_false' );
 		wp_delete_post( $post_id, true );
-		$wp_query = null;
+
+		$this->assertStringContainsString( 'href="' . $filtered_url . '"', $output );
 	}
 
 	/**
@@ -343,6 +390,156 @@ class Admin_Post_List_Test extends BaseTestCase {
 		$this->assertIsArray( $views );
 		$this->assertArrayHasKey( 123, $views );
 		$this->assertEquals( 100, $views[123] ); // Ensure it has the correct view count
+	}
+
+	/**
+	 * Get a column whose stats client answers each views request through $callback.
+	 *
+	 * @param callable $callback Receives the request args, returns the API response.
+	 *
+	 * @return Admin_Post_List_Column
+	 */
+	private function get_column_with_views_callback( callable $callback ) {
+		$mock_stats = $this->createStub( Automattic\Jetpack\Stats\WPCOM_Stats::class );
+		$mock_stats->method( 'get_total_post_views' )->willReturnCallback( $callback );
+
+		$column = $this->getMockBuilder( Admin_Post_List_Column::class )
+						->onlyMethods( array( 'get_stats' ) )
+						->getMock();
+		$column->method( 'get_stats' )->willReturn( $mock_stats );
+
+		return $column;
+	}
+
+	/**
+	 * Lists with more than 100 posts are fetched in batches the endpoint accepts.
+	 *
+	 * @return void
+	 */
+	public function test_get_post_page_views_for_current_list_batches_post_ids() {
+		global $wp_query;
+
+		$post_ids = range( 1, 250 );
+		$wp_query = (object) array(
+			'posts' => array_map(
+				function ( $id ) {
+					return (object) array( 'ID' => $id );
+				},
+				$post_ids
+			),
+		);
+
+		$batch_sizes = array();
+		$column      = $this->get_column_with_views_callback(
+			function ( $args ) use ( &$batch_sizes ) {
+				$ids           = explode( ',', $args['post_ids'] );
+				$batch_sizes[] = count( $ids );
+
+				return array(
+					'posts' => array_map(
+						function ( $id ) {
+							return array(
+								'ID'    => (int) $id,
+								'views' => (int) $id * 2,
+							);
+						},
+						$ids
+					),
+				);
+			}
+		);
+
+		$views = $column->get_post_page_views_for_current_list();
+
+		$this->assertSame( array( 100, 100, 50 ), $batch_sizes );
+		$this->assertCount( 250, $views );
+		$this->assertSame( 2, $views[1] );
+		$this->assertSame( 500, $views[250] );
+
+		$wp_query = null;
+	}
+
+	/**
+	 * A failed batch leaves only its own rows without views.
+	 *
+	 * @return void
+	 */
+	public function test_get_post_page_views_for_current_list_skips_failed_batch() {
+		global $wp_query;
+
+		$wp_query = (object) array(
+			'posts' => array_map(
+				function ( $id ) {
+					return (object) array( 'ID' => $id );
+				},
+				range( 1, 150 )
+			),
+		);
+
+		$column = $this->get_column_with_views_callback(
+			function ( $args ) {
+				$ids = explode( ',', $args['post_ids'] );
+
+				if ( in_array( '1', $ids, true ) ) {
+					return new WP_Error( 'invalid_input', 'Too many post_ids' );
+				}
+
+				return array(
+					'posts' => array_map(
+						function ( $id ) {
+							return array(
+								'ID'    => (int) $id,
+								'views' => 7,
+							);
+						},
+						$ids
+					),
+				);
+			}
+		);
+
+		$views = $column->get_post_page_views_for_current_list();
+
+		$this->assertArrayNotHasKey( 1, $views );
+		$this->assertArrayNotHasKey( 100, $views );
+		$this->assertCount( 50, $views );
+		$this->assertSame( 7, $views[101] );
+
+		$wp_query = null;
+	}
+
+	/**
+	 * A connection-level error stops the remaining batches, which would fail the same way.
+	 *
+	 * @return void
+	 */
+	public function test_get_post_page_views_for_current_list_stops_on_connection_error() {
+		global $wp_query;
+
+		$wp_query = (object) array(
+			'posts' => array_map(
+				function ( $id ) {
+					return (object) array( 'ID' => $id );
+				},
+				range( 1, 250 )
+			),
+		);
+
+		$requests = 0;
+		$column   = $this->get_column_with_views_callback(
+			function () use ( &$requests ) {
+				++$requests;
+
+				return new WP_Error( 'site_not_connected', 'This site is not connected to WordPress.com.' );
+			}
+		);
+
+		$views = $column->get_post_page_views_for_current_list();
+
+		$this->assertSame( 1, $requests );
+		$this->assertSame( array(), $views );
+
+		$wp_query = null;
 	}
 
 	/**

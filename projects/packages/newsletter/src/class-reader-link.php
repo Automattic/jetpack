@@ -7,7 +7,6 @@
 
 namespace Automattic\Jetpack\Newsletter;
 
-use Automattic\Jetpack\Connection\Urls;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Status\Host;
 use WP_Admin_Bar;
@@ -39,7 +38,7 @@ class Reader_Link {
 			return;
 		}
 
-		if ( ! is_user_logged_in() || ! is_admin_bar_showing() ) {
+		if ( ! is_user_logged_in() ) {
 			return;
 		}
 
@@ -59,6 +58,10 @@ class Reader_Link {
 	 * @return void
 	 */
 	public function enqueue_stylesheet() {
+		if ( ! is_admin_bar_showing() ) {
+			return;
+		}
+
 		$build_path = dirname( __DIR__ ) . '/build/reader-link.css';
 		if ( ! file_exists( $build_path ) ) {
 			return;
@@ -91,9 +94,7 @@ class Reader_Link {
 			'id'     => 'reader',
 			'title'  => '<span class="ab-icon" title="' . __( 'Read the blogs and topics you follow', 'jetpack-newsletter' ) . '" aria-hidden="true"></span>' .
 						'<span class="ab-label">' . __( 'Reader', 'jetpack-newsletter' ) . '</span>',
-			'href'   => method_exists( Urls::class, 'maybe_add_origin_site_id' )
-						? Urls::maybe_add_origin_site_id( 'https://wordpress.com/reader' )
-						: 'https://wordpress.com/reader',
+			'href'   => 'https://wordpress.com/reader',
 			'meta'   => array(
 				'class' => 'wp-admin-bar-reader',
 			),

@@ -1,6 +1,6 @@
 import apiFetch from '@wordpress/api-fetch';
 import { paragraphsToBlocks } from './paragraph-blocks.ts';
-import type { AboutPageDraft } from './types.ts';
+import type { AboutPageDraft, SiteCopy } from './types.ts';
 
 interface CreatedPage {
 	id: number;
@@ -12,15 +12,17 @@ interface CreatedPage {
  *
  * @param draft   - The AI-drafted About page, or undefined for outputs persisted before the
  *                field existed — those get an empty shell the user fills in the editor.
+ * @param copy    - The site-language copy, for the placeholder title.
  * @param fetcher - Injectable request handler, so the node:test suite can stub the REST call.
  * @return The created page id and its editor URL.
  */
 export async function createAboutPage(
 	draft: AboutPageDraft | undefined,
+	copy: Pick< SiteCopy, 'about_page_title' >,
 	fetcher: ( options: Parameters< typeof apiFetch >[ 0 ] ) => Promise< unknown > = apiFetch
 ): Promise< { page_id: number; edit_url: string } > {
-	// Untranslated placeholder title (like core's "Auto Draft"); the AI draft normally supplies it.
-	const title = draft?.title ?? 'About';
+	// Placeholder title (like core's "Auto Draft"); the AI draft normally supplies it.
+	const title = draft?.title ?? copy.about_page_title;
 	const content = draft ? paragraphsToBlocks( draft.paragraphs ) : '';
 
 	const page = ( await fetcher( {

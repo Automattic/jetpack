@@ -5,6 +5,121 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.14.16] - 2026-11-17
+### Fixed
+- Admin shell: Wait for a closing dialog to finish its exit before announcing the page and moving focus, so the announcement isn't hidden from screen readers. [#54944]
+
+## [0.14.15] - 2026-11-16
+### Added
+- Add an off-by-default feature flag and member registration for the admin shell, which will switch between Jetpack dashboards without a page load. [#54696]
+- Add the admin shell client and its guest endpoint, so Jetpack dashboards can switch without a page load when the admin shell flag is on. [#54708]
+- Admin shell: Let members ask for the media library, so it works when their page opens inside another dashboard. [#54768]
+- Admin shell: Show the page header and its tabs straight away while a dashboard opens, including one opened for the first time. [#54881]
+
+### Changed
+- Admin shell: Show each page's own title and subtitle while it opens, on a first visit too. [#54945]
+
+### Fixed
+- Admin shell: Ask a page with unsaved changes before opening it at another route, so a link can no longer silently drop an edit. [#54951]
+- Admin shell: Give a dashboard opened inside another the same routes it has on its own page, including any added on its page init action. [#54946]
+- Admin shell: Move focus to the page heading, announce the page, and close a hidden page's dialogs on in-shell switches. [#54760]
+- Admin shell: Retry a dashboard's setup after it fails, and set up one dashboard at a time so each loads with its own configuration. [#54821]
+- Admin shell: Stop REST requests from retrying without end after the nonce expires on a page that loaded another dashboard. [#54768]
+
+## [0.14.14] - 2026-11-09
+### Changed
+- Internal updates.
+
+## [0.14.13] - 2026-11-04
+### Changed
+- Update package dependencies. [#54512]
+
+## [0.14.12] - 2026-11-03
+### Changed
+- Update dependencies.
+
+## [0.14.11] - 2026-11-02
+### Changed
+- Update package dependencies. [#53869]
+
+## [0.14.10] - 2026-10-28
+### Changed
+- Update package dependencies. [#54118]
+
+## [0.14.9] - 2026-10-26
+### Fixed
+- Keep the Akismet Anti-spam item in sorted order when the menu is set up after Akismet registers it. [#53943]
+
+## [0.14.8] - 2026-10-20
+### Changed
+- Internal updates.
+
+## [0.14.7] - 2026-10-19
+### Changed
+- Update dependencies.
+
+## [0.14.6] - 2026-10-15
+### Changed
+- Update package dependencies. [#53004]
+
+## [0.14.5] - 2026-10-14
+### Changed
+- Update dependencies.
+
+## [0.14.4] - 2026-10-12
+### Changed
+- Update dependencies.
+
+## [0.14.3] - 2026-10-05
+### Changed
+- Update package dependencies. [#52999]
+
+### Fixed
+- Hide default WordPress notices and apply design tokens on pages registered under the `admin_page_` prefix.
+
+## [0.14.2] - 2026-09-29
+### Changed
+- Prefer default WordPress `wp-theme` stylesheet for WPDS design tokens when it is registered. [#52183]
+
+## [0.14.1] - 2026-09-28
+### Changed
+- Update dependencies.
+
+## [0.14.0] - 2026-09-23
+### Added
+- Honor `jetpack_feature_policy` when deciding which Jetpack items appear in the sidebar. [#52587]
+
+## [0.13.0] - 2026-09-21
+### Added
+- Sidebar: Add `Admin_Menu::add_top_level_menu()` so a Jetpack page outside the Jetpack menu can declare a visibility gate and appear in the `jetpack_admin_menu_visibility` filter. [#52351]
+
+### Fixed
+- Sidebar: Keep Jetpack menu items in alphabetical order, with My Jetpack first, even when a plugin passes an unsupported position. [#52337]
+
+## [0.12.1] - 2026-09-18
+### Changed
+- Update package dependencies. [#52187]
+
+## [0.12.0] - 2026-09-15
+### Added
+- Sidebar: Let menu items declare their gate and a stable key, and add the `jetpack_admin_menu_visibility` filter so hosts can show or hide an item. [#52102]
+
+## [0.11.4] - 2026-09-14
+### Fixed
+- Admin menu: Match the Jetpack logo's first paint to the active admin color scheme. [#52086]
+
+## [0.11.3] - 2026-09-09
+### Changed
+- Sidebar: Sort Jetpack menu items alphabetically, pinning My Jetpack to the top and external links and Settings to the bottom. [#52003]
+
+## [0.11.2] - 2026-09-08
+### Changed
+- Update package dependencies. [#51701]
+
+## [0.11.1] - 2026-09-01
+### Changed
+- Update package dependencies. [#51303]
+
 ## [0.11.0] - 2026-08-26
 ### Removed
 - Minimum supported PHP version is now 7.4. [#51515]
@@ -30,7 +145,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.9.12] - 2026-07-22
 ### Changed
-- Update dependencies. [#48834]
+- Update dependencies.
 
 ## [0.9.11] - 2026-07-20
 ### Changed
@@ -38,11 +153,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.9.10] - 2026-07-15
 ### Changed
-- Update dependencies. [#48834]
+- Update dependencies.
 
 ## [0.9.9] - 2026-07-13
 ### Changed
-- Update dependencies. [#48834]
+- Update dependencies.
 
 ## [0.9.8] - 2026-07-09
 ### Changed
@@ -54,7 +169,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.9.6] - 2026-06-26
 ### Changed
-- Update dependencies. [#48834]
+- Update dependencies.
 
 ## [0.9.5] - 2026-06-23
 ### Changed
@@ -66,7 +181,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.9.3] - 2026-06-15
 ### Changed
-- Update dependencies. [#48834]
+- Update dependencies.
 
 ## [0.9.2] - 2026-06-09
 ### Changed
@@ -86,7 +201,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.8.8] - 2026-06-02
 ### Changed
-- Update dependencies. [#48834]
+- Update dependencies.
 
 ## [0.8.7] - 2026-06-01
 ### Added
@@ -350,6 +465,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Fixing menu visibility issues.
 
+[0.14.16]: https://github.com/Automattic/jetpack-admin-ui/compare/0.14.15...0.14.16
+[0.14.15]: https://github.com/Automattic/jetpack-admin-ui/compare/0.14.14...0.14.15
+[0.14.14]: https://github.com/Automattic/jetpack-admin-ui/compare/0.14.13...0.14.14
+[0.14.13]: https://github.com/Automattic/jetpack-admin-ui/compare/0.14.12...0.14.13
+[0.14.12]: https://github.com/Automattic/jetpack-admin-ui/compare/0.14.11...0.14.12
+[0.14.11]: https://github.com/Automattic/jetpack-admin-ui/compare/0.14.10...0.14.11
+[0.14.10]: https://github.com/Automattic/jetpack-admin-ui/compare/0.14.9...0.14.10
+[0.14.9]: https://github.com/Automattic/jetpack-admin-ui/compare/0.14.8...0.14.9
+[0.14.8]: https://github.com/Automattic/jetpack-admin-ui/compare/0.14.7...0.14.8
+[0.14.7]: https://github.com/Automattic/jetpack-admin-ui/compare/0.14.6...0.14.7
+[0.14.6]: https://github.com/Automattic/jetpack-admin-ui/compare/0.14.5...0.14.6
+[0.14.5]: https://github.com/Automattic/jetpack-admin-ui/compare/0.14.4...0.14.5
+[0.14.4]: https://github.com/Automattic/jetpack-admin-ui/compare/0.14.3...0.14.4
+[0.14.3]: https://github.com/Automattic/jetpack-admin-ui/compare/0.14.2...0.14.3
+[0.14.2]: https://github.com/Automattic/jetpack-admin-ui/compare/0.14.1...0.14.2
+[0.14.1]: https://github.com/Automattic/jetpack-admin-ui/compare/0.14.0...0.14.1
+[0.14.0]: https://github.com/Automattic/jetpack-admin-ui/compare/0.13.0...0.14.0
+[0.13.0]: https://github.com/Automattic/jetpack-admin-ui/compare/0.12.1...0.13.0
+[0.12.1]: https://github.com/Automattic/jetpack-admin-ui/compare/0.12.0...0.12.1
+[0.12.0]: https://github.com/Automattic/jetpack-admin-ui/compare/0.11.4...0.12.0
+[0.11.4]: https://github.com/Automattic/jetpack-admin-ui/compare/0.11.3...0.11.4
+[0.11.3]: https://github.com/Automattic/jetpack-admin-ui/compare/0.11.2...0.11.3
+[0.11.2]: https://github.com/Automattic/jetpack-admin-ui/compare/0.11.1...0.11.2
+[0.11.1]: https://github.com/Automattic/jetpack-admin-ui/compare/0.11.0...0.11.1
 [0.11.0]: https://github.com/Automattic/jetpack-admin-ui/compare/0.10.0...0.11.0
 [0.10.0]: https://github.com/Automattic/jetpack-admin-ui/compare/0.9.15...0.10.0
 [0.9.15]: https://github.com/Automattic/jetpack-admin-ui/compare/0.9.14...0.9.15

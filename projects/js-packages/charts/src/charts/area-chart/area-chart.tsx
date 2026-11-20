@@ -12,7 +12,8 @@ import {
 	useCallback,
 } from 'react';
 import { Legend, useChartLegendItems } from '../../components/legend';
-import { AccessibleTooltip, useKeyboardNavigation } from '../../components/tooltip';
+import { XYChartTooltip, useKeyboardNavigation } from '../../components/tooltip';
+import { getKeyboardStops } from '../../components/tooltip/private/keyboard-stops';
 import {
 	useXYChartTheme,
 	useChartDataTransform,
@@ -22,21 +23,26 @@ import {
 import {
 	GlobalChartsProvider,
 	GlobalChartsContext,
+	useChartFormatting,
 	useChartId,
 	useChartRegistration,
 	useGlobalChartsContext,
-	useGlobalChartsTheme,
 } from '../../providers';
 import { useDefaultHiddenSeries } from '../../providers/chart-context/hooks/use-default-hidden-series';
 import { attachSubComponents } from '../../utils';
+import { getBucketInfo } from '../../utils/bucket-info';
 import { renderDefaultTooltip } from '../line-chart';
 import { useChartChildren } from '../private/chart-composition';
 import { ChartInstanceContext, type ChartInstanceRef } from '../private/chart-instance-context';
 import { ChartLayout } from '../private/chart-layout';
 import { getAllHiddenMessage, SvgEmptyState } from '../private/svg-empty-state';
-import { getCurveType, getFormatter, guessOptimalNumTicks } from '../private/time-axis';
+import { hasOnlyWholeNumbers, TickDecimals } from '../private/tick-decimals';
+import { getCurveType } from '../private/time-axis';
+import { buildTimeAxisOptions } from '../private/time-axis-options';
+import { useCompactWhenShort } from '../private/use-compact-when-short';
 import { withResponsive } from '../private/with-responsive';
 import { useXZoom, ZoomResetButton, ZoomSelectionRect, ZoomClip } from '../private/x-zoom';
+import plotStyles from '../private/xy-plot/xy-plot.module.scss';
 import styles from './area-chart.module.scss';
 import { AreaChartScalesRef, HoverGlyphs, validateData } from './private';
 import type { AreaChartProps } from './types';
@@ -48,6 +54,7 @@ const AreaChartInternal = forwardRef< ChartInstanceRef, AreaChartProps >(
 	(
 		{
 			data,
+			ariaLabel,
 			chartId: providedChartId,
 			width,
 			height,
@@ -71,12 +78,12 @@ const AreaChartInternal = forwardRef< ChartInstanceRef, AreaChartProps >(
 			onPointerMove,
 			onPointerOut,
 			zoomable = false,
-			rescaleYOnVisibilityChange,
-			rescaleYOnLegendToggle,
+			rescaleYOnVisibilityChange = true,
 			defaultHiddenSeries,
 			children,
 			gridVisibility,
 			gap = 'md',
+			compactWhenShort = false,
 		},
 		ref
 	) => {
@@ -84,10 +91,7 @@ const AreaChartInternal = forwardRef< ChartInstanceRef, AreaChartProps >(
 		const legendShape = legend.shape ?? 'rect';
 		const legendPosition = legend.position ?? 'bottom';
 
-		// New prop wins; fall back to the deprecated `rescaleYOnLegendToggle`; default to rescaling.
-		const rescaleYOnVisibility = rescaleYOnVisibilityChange ?? rescaleYOnLegendToggle ?? true;
-
-		const providerTheme = useGlobalChartsTheme();
+		const formatting = useChartFormatting();
 		const theme = useXYChartTheme( data );
 		const chartId = useChartId( providedChartId );
 		const hiddenSeries = useDefaultHiddenSeries( chartId, defaultHiddenSeries );
@@ -107,6 +111,7 @@ const AreaChartInternal = forwardRef< ChartInstanceRef, AreaChartProps >(
 		} );
 
 		const { legendChildren, nonLegendChildren } = useChartChildren( children, 'AreaChart' );
+		const { isCompact, compactMargin } = useCompactWhenShort( compactWhenShort, height );
 		const [ measuredChartHeight, setMeasuredChartHeight ] = useState< number | undefined >();
 
 		const handleContentHeightChange = useCallback(
@@ -143,13 +148,31 @@ const AreaChartInternal = forwardRef< ChartInstanceRef, AreaChartProps >(
 			[ seriesWithVisibility ]
 		);
 
+		const visibleDataSeries = useMemo(
+			() => dataSorted.filter( series => isSeriesVisible( series.label ) ),
+			[ dataSorted, isSeriesVisible ]
+		);
+
+		// A normalized stack (expand/wiggle/silhouette) turns whole-number data into
+		// fractions, so the filter is skipped for every offset but 'none'.
+		const hasWholeNumberValues = useMemo(
+			() => ( ! stacked || stackOffset === 'none' ) && hasOnlyWholeNumbers( visibleDataSeries ),
+			[ visibleDataSeries, stacked, stackOffset ]
+		);
+		const visibleSeriesKey = useMemo(
+			() => JSON.stringify( visibleDataSeries.map( series => series.label ) ),
+			[ visibleDataSeries ]
+		);
+		const stops = useMemo( () => getKeyboardStops( visibleDataSeries ), [ visibleDataSeries ] );
+
 		const { tooltipRef, onChartFocus, onChartBlur, onChartKeyDown } = useKeyboardNavigation( {
 			selectedIndex,
 			setSelectedIndex,
 			isNavigating,
 			setIsNavigating,
 			chartRef,
-			totalPoints: dataSorted[ 0 ]?.data.length || 0,
+			totalPoints: stops.count,
+			visibleSeriesKey,
 		} );
 
 		// Computed from the full data set (ignoring legend visibility) so the y-axis stays
@@ -160,7 +183,7 @@ const AreaChartInternal = forwardRef< ChartInstanceRef, AreaChartProps >(
 		// around zero); letting visx derive the domain is correct there.
 		const fixedYDomain = useMemo< [ number, number ] | undefined >( () => {
 			if (
-				rescaleYOnVisibility ||
+				rescaleYOnVisibilityChange ||
 				! dataSorted.length ||
 				! dataSorted[ 0 ].data.length ||
 				( stacked && stackOffset !== 'none' )
@@ -202,20 +225,23 @@ const AreaChartInternal = forwardRef< ChartInstanceRef, AreaChartProps >(
 			}
 			if ( max === -Infinity ) return undefined;
 			return [ Math.min( 0, min ), max ];
-		}, [ dataSorted, stacked, stackOffset, rescaleYOnVisibility ] );
+		}, [ dataSorted, stacked, stackOffset, rescaleYOnVisibilityChange ] );
 
 		const chartOptions = useMemo( () => {
-			const { tickResolution, tickFormat, ...xAxisOptions } = options?.axis?.x ?? {};
-			const formatter = tickFormat || getFormatter( dataSorted, tickResolution );
-
 			return {
 				axis: {
 					x: {
-						orientation: 'bottom' as const,
-						numTicks: guessOptimalNumTicks( dataSorted, width, formatter ),
-						tickFormat: formatter,
-						display: true,
-						...xAxisOptions,
+						...buildTimeAxisOptions( {
+							dataSorted,
+							width,
+							axisOptions: options?.axis?.x,
+							scaleDomain: options?.xScale?.domain,
+							zoomDomain: zoom.domain,
+							formatting,
+							// No `isSeriesRendered`: a hidden area stays mounted with a zeroed
+							// yAccessor, so it still contributes to the x domain.
+						} ),
+						...( isCompact && { display: false } ),
 					},
 					y: {
 						orientation: 'left' as const,
@@ -223,6 +249,7 @@ const AreaChartInternal = forwardRef< ChartInstanceRef, AreaChartProps >(
 						tickFormat: formatNumberCompact as TickFormatter< number >,
 						display: true,
 						...options?.axis?.y,
+						...( isCompact && { display: false } ),
 					},
 				},
 				xScale: {
@@ -239,7 +266,7 @@ const AreaChartInternal = forwardRef< ChartInstanceRef, AreaChartProps >(
 					...options?.yScale,
 				},
 			};
-		}, [ options, dataSorted, width, stacked, fixedYDomain, zoom.domain ] );
+		}, [ options, dataSorted, width, stacked, fixedYDomain, zoom.domain, formatting, isCompact ] );
 
 		const defaultMargin = useChartMargin( height, chartOptions, dataSorted, theme );
 
@@ -251,8 +278,10 @@ const AreaChartInternal = forwardRef< ChartInstanceRef, AreaChartProps >(
 				withGlyph: false,
 				glyphSize: 0,
 				collapseGroups: legend.collapseGroups ?? false,
+				comparisonItem: legend.comparisonItem ?? false,
+				comparisonSeriesItems: legend.comparisonSeriesItems,
 			} ),
-			[ legend.collapseGroups ]
+			[ legend.collapseGroups, legend.comparisonItem, legend.comparisonSeriesItems ]
 		);
 		const legendItems = useChartLegendItems( dataSorted, legendOptions, legendShape );
 
@@ -284,10 +313,24 @@ const AreaChartInternal = forwardRef< ChartInstanceRef, AreaChartProps >(
 			() => new Set( seriesWithVisibility.filter( s => s.isVisible ).map( s => s.series.label ) ),
 			[ seriesWithVisibility ]
 		);
+
+		// Classified from the visible series, not the axis's: a hidden area stays in
+		// the x domain for its animation, but the tooltip below drops its data, so a
+		// heading naming that series' bucket would name one no visible datum has.
+		const bucketInfo = useMemo(
+			() =>
+				getBucketInfo(
+					dataSorted.filter( series => visibleLabels.has( series.label ) ),
+					options?.axis?.x?.tickResolution
+				),
+			[ dataSorted, visibleLabels, options?.axis?.x?.tickResolution ]
+		);
 		const filteredRenderTooltip = useCallback(
 			( params: Parameters< typeof renderTooltip >[ 0 ] ) => {
 				const datumByKey = params?.tooltipData?.datumByKey;
-				if ( ! datumByKey ) return renderTooltip( params );
+				if ( ! datumByKey ) {
+					return renderTooltip( { ...params, bucketInfo } );
+				}
 				const filtered = Object.fromEntries(
 					Object.entries( datumByKey ).filter( ( [ key ] ) => visibleLabels.has( key ) )
 				);
@@ -302,6 +345,7 @@ const AreaChartInternal = forwardRef< ChartInstanceRef, AreaChartProps >(
 						: { ...Object.values( filtered )[ 0 ], distance: nearestDatum?.distance ?? 0 };
 				return renderTooltip( {
 					...params,
+					bucketInfo,
 					tooltipData: {
 						...params.tooltipData,
 						datumByKey: filtered,
@@ -309,7 +353,7 @@ const AreaChartInternal = forwardRef< ChartInstanceRef, AreaChartProps >(
 					} as typeof params.tooltipData,
 				} );
 			},
-			[ renderTooltip, visibleLabels ]
+			[ renderTooltip, visibleLabels, bucketInfo ]
 		);
 
 		// Defaults that depend on stacked vs overlapping mode.
@@ -320,7 +364,7 @@ const AreaChartInternal = forwardRef< ChartInstanceRef, AreaChartProps >(
 			return <div className={ clsx( 'area-chart', styles[ 'area-chart' ] ) }>{ error }</div>;
 		}
 
-		const legendElement = showLegend && (
+		const legendElement = showLegend && ! isCompact && (
 			<Legend
 				orientation={ legend.orientation ?? 'horizontal' }
 				alignment={ legend.alignment ?? 'center' }
@@ -374,12 +418,14 @@ const AreaChartInternal = forwardRef< ChartInstanceRef, AreaChartProps >(
 					isSeriesVisible,
 					chartWidth: width,
 					chartHeight: measuredChartHeight || 0,
+					legendItems,
+					chartType: 'area',
 				} }
 			>
 				<ChartLayout
 					legendPosition={ legendPosition }
 					legendElement={ legendElement }
-					legendChildren={ legendChildren }
+					legendChildren={ isCompact ? [] : legendChildren }
 					gap={ gap }
 					className={ clsx(
 						'area-chart',
@@ -396,22 +442,25 @@ const AreaChartInternal = forwardRef< ChartInstanceRef, AreaChartProps >(
 						const chartHeight = contentHeight > 0 ? contentHeight : height;
 
 						return (
+							// eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions -- the application role hands arrow keys to the chart's point navigation.
 							<div
-								role="grid"
-								aria-label={ __( 'Area chart', 'jetpack-charts' ) }
+								ref={ chartRef }
+								role="application"
+								aria-label={ ariaLabel ?? __( 'Area chart', 'jetpack-charts' ) }
 								tabIndex={ 0 }
 								onKeyDown={ onChartKeyDown }
 								onFocus={ onChartFocus }
 								onBlur={ onChartBlur }
 							>
 								{ chartHeight > 0 && (
-									<div ref={ chartRef } style={ { position: 'relative' } }>
+									<div className={ plotStyles[ 'xy-plot' ] }>
 										{ zoomable && zoom.domain && <ZoomResetButton onClick={ zoom.reset } /> }
 										<XYChart
+											accessibilityLabel=""
 											theme={ theme }
 											width={ width }
 											height={ chartHeight }
-											margin={ { ...defaultMargin, ...margin } }
+											margin={ { ...defaultMargin, ...compactMargin, ...margin } }
 											xScale={ chartOptions.xScale }
 											yScale={ chartOptions.yScale }
 											onPointerDown={ zoom.handlers.onPointerDown }
@@ -423,15 +472,38 @@ const AreaChartInternal = forwardRef< ChartInstanceRef, AreaChartProps >(
 											{ /* With every series hidden the value scale collapses, so the grid and axes
 											     are dropped while the empty state stands in — otherwise they render
 											     squished at the top. */ }
-											{ ! allSeriesHidden && gridVisibility !== 'none' && (
-												<Grid columns={ false } numTicks={ 4 } />
-											) }
-											{ ! allSeriesHidden && chartOptions.axis.x.display && (
-												<Axis { ...chartOptions.axis.x } />
-											) }
-											{ ! allSeriesHidden && chartOptions.axis.y.display && (
-												<Axis { ...chartOptions.axis.y } />
-											) }
+											<TickDecimals
+												axis="y"
+												numTicks={ chartOptions.axis.y.numTicks }
+												decimals={
+													hasWholeNumberValues &&
+													! chartOptions.axis.y.tickValues &&
+													! options?.yScale?.domain
+														? 0
+														: undefined
+												}
+											>
+												{ tickValues => (
+													<>
+														{ ! allSeriesHidden && gridVisibility !== 'none' && ! isCompact && (
+															<Grid
+																columns={ false }
+																numTicks={ chartOptions.axis.y.numTicks }
+																{ ...{ tickValues: tickValues ?? chartOptions.axis.y.tickValues } }
+															/>
+														) }
+														{ ! allSeriesHidden && chartOptions.axis.x.display && (
+															<Axis { ...chartOptions.axis.x } />
+														) }
+														{ ! allSeriesHidden && chartOptions.axis.y.display && (
+															<Axis
+																{ ...chartOptions.axis.y }
+																{ ...( tickValues ? { tickValues } : {} ) }
+															/>
+														) }
+													</>
+												) }
+											</TickDecimals>
 
 											{ allSeriesHidden ? (
 												<SvgEmptyState
@@ -440,7 +512,7 @@ const AreaChartInternal = forwardRef< ChartInstanceRef, AreaChartProps >(
 													width={ width }
 													height={ chartHeight }
 												>
-													{ getAllHiddenMessage( legendInteractive, 'series' ) }
+													{ getAllHiddenMessage( legendInteractive && ! isCompact, 'series' ) }
 												</SvgEmptyState>
 											) : null }
 
@@ -462,7 +534,7 @@ const AreaChartInternal = forwardRef< ChartInstanceRef, AreaChartProps >(
 
 											{ withTooltips && (
 												<>
-													<AccessibleTooltip
+													<XYChartTooltip
 														detectBounds
 														snapTooltipToDatumX
 														// Stacked mode: yAccessor returns raw value, not stacked y — snapping mispositions.
@@ -475,7 +547,7 @@ const AreaChartInternal = forwardRef< ChartInstanceRef, AreaChartProps >(
 														keyboardFocusedClassName={
 															styles[ 'area-chart__tooltip--keyboard-focused' ]
 														}
-														series={ dataSorted }
+														series={ visibleDataSeries }
 													/>
 													<HoverGlyphs
 														visibleSeries={ visibleSeries }
@@ -483,7 +555,7 @@ const AreaChartInternal = forwardRef< ChartInstanceRef, AreaChartProps >(
 														stackOffset={ stackOffset }
 														getElementStyles={ getElementStyles }
 														// useXYChartTheme resolved this role inside its memo, against the chart's scope element; reading it back avoids a getComputedStyle on every render.
-														strokeColor={ theme.backgroundColor ?? providerTheme.backgroundColor }
+														strokeColor={ theme.backgroundColor }
 													/>
 												</>
 											) }

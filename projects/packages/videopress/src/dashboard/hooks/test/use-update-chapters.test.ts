@@ -15,8 +15,18 @@ const mockedSyncChaptersCore = syncChaptersCore as jest.Mock;
 // Variables referenced inside jest.mock() factories must be prefixed with
 // "mock" (case-insensitive) to satisfy Jest's babel-jest hoisting restrictions.
 const mockWarningNotice = jest.fn();
-jest.mock( '@automattic/jetpack-components/global-notices', () => ( {
-	useGlobalNotices: () => ( {
+jest.mock( '@wordpress/notices', () => ( { store: 'core/notices' } ) );
+jest.mock( '@wordpress/data', () => ( {
+	combineReducers: jest.fn( reducers => reducers ),
+	createReduxStore: jest.fn( () => ( { name: 'mock-store' } ) ),
+	createSelector: jest.fn( selector => selector ),
+	keyedReducer: jest.fn( ( _key, reducer ) => reducer ),
+	register: jest.fn(),
+	select: jest.fn( () => ( {} ) ),
+	dispatch: jest.fn( () => ( {} ) ),
+	useSelect: jest.fn( () => ( {} ) ),
+	useRegistry: jest.fn( () => ( { select: jest.fn(), dispatch: jest.fn() } ) ),
+	useDispatch: () => ( {
 		createWarningNotice: mockWarningNotice,
 	} ),
 } ) );
@@ -30,15 +40,19 @@ describe( 'useUpdateChapters', () => {
 		mockedSyncChaptersCore.mockResolvedValue( 'uploaded' );
 	} );
 
-	it( 'delegates to the shared sync core and resolves with its status', async () => {
-		const { result } = renderHook( () => useUpdateChapters() );
+	it.each( [ 'dashboard_details', 'dashboard_editor' ] as const )(
+		'delegates %s to the shared sync core',
+		async source => {
+			const { result } = renderHook( () => useUpdateChapters( source ) );
 
-		await expect( result.current.syncChapters( VIDEO, DESCRIPTION ) ).resolves.toBe( 'uploaded' );
+			await expect( result.current.syncChapters( VIDEO, DESCRIPTION ) ).resolves.toBe( 'uploaded' );
 
-		expect( mockedSyncChaptersCore ).toHaveBeenCalledWith( VIDEO, DESCRIPTION, {
-			onWarning: expect.any( Function ),
-		} );
-	} );
+			expect( mockedSyncChaptersCore ).toHaveBeenCalledWith( VIDEO, DESCRIPTION, {
+				source,
+				onWarning: expect.any( Function ),
+			} );
+		}
+	);
 
 	it( 'surfaces the core’s warnings as dashboard warning notices', async () => {
 		mockedSyncChaptersCore.mockImplementation(
@@ -47,15 +61,17 @@ describe( 'useUpdateChapters', () => {
 				return Promise.resolve( 'error' );
 			}
 		);
-		const { result } = renderHook( () => useUpdateChapters() );
+		const { result } = renderHook( () => useUpdateChapters( 'dashboard_editor' ) );
 
 		await expect( result.current.syncChapters( VIDEO, DESCRIPTION ) ).resolves.toBe( 'error' );
 
-		expect( mockWarningNotice ).toHaveBeenCalledWith( 'Video chapters could not be updated.' );
+		expect( mockWarningNotice ).toHaveBeenCalledWith( 'Video chapters could not be updated.', {
+			type: 'snackbar',
+		} );
 	} );
 
 	it( 'passes every non-error status through untouched', async () => {
-		const { result } = renderHook( () => useUpdateChapters() );
+		const { result } = renderHook( () => useUpdateChapters( 'dashboard_details' ) );
 
 		for ( const status of [ 'deleted', 'skipped-manual', 'unchanged' ] as const ) {
 			mockedSyncChaptersCore.mockResolvedValue( status );

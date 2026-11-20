@@ -13,6 +13,7 @@ import { ConnectionFlowModal } from '../connection-flow';
 import ConnectionManagement from '../connection-management';
 import { ThemedConnectionsModal } from '../manage-connections-modal';
 import TrafficChartCard from './traffic-chart-card';
+import type { JSX } from 'react';
 import './style.scss';
 
 /**
@@ -60,7 +61,7 @@ const NoConnectionsEmptyState = () => {
 /**
  * Overview tab — sits inside the Social dashboard (`SocialPage`
  * → `Tabs.Panel value="overview"`). Renders the connection-error notice
- * + JITM mount-point above a single `Card.Root` that wraps the existing
+ * above a single `Card.Root` that wraps the existing
  * `ConnectionManagement` list. The "Connect an account" CTA is lifted
  * out of `ConnectionManagement` and rendered as a page-header action by
  * the route's `Stage`, so the card itself stays purely informational.
@@ -88,10 +89,9 @@ export default function OverviewTab(): JSX.Element {
 		<div className="jetpack-social-overview">
 			{ hasConnectionError && (
 				<div className="jetpack-social-overview__notice">
-					<ConnectionError />
+					<ConnectionError trackingContext="social" />
 				</div>
 			) }
-			<div id="jp-admin-notices" className="jetpack-social-jitm-card" />
 			{ /*
 			 * Mount the connections modal at the tab level when the
 			 * empty state replaces the connections list, so the

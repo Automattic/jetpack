@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Activity Log: Show an empty date picker on the free plan, instead of a date range it does not apply.

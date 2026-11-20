@@ -5,10 +5,13 @@ import { useUpload } from './use-upload';
 import type { View } from '@wordpress/dataviews';
 
 export type FreeTierState = {
-	isFree: boolean;
+	// Null means the site features are unavailable, not a free or paid plan.
+	isFree: boolean | null;
 	isAtomic: boolean;
 	isUnlimited: boolean;
 	videoCount: number;
+	knownVideoCount?: number;
+	videoCountKnown: boolean;
 	limit: number;
 	isAtLimit: boolean;
 };
@@ -39,14 +42,15 @@ const COUNT_VIEW: View = {
  * @return Free-tier state.
  */
 export function useFreeTier(): FreeTierState {
-	const { paginationInfo } = useLibrary( COUNT_VIEW );
+	const { paginationInfo, isSuccess } = useLibrary( COUNT_VIEW, { poll: false } );
 	const { uploadQueue } = useUpload();
 	const siteData =
 		typeof JPVIDEOPRESS_INITIAL_STATE !== 'undefined'
 			? JPVIDEOPRESS_INITIAL_STATE?.siteData
 			: undefined;
 
-	const isFree = ! siteData?.hasVideoPressAccess;
+	const access = siteData?.hasVideoPressAccess;
+	const isFree = typeof access === 'boolean' ? ! access : null;
 
 	const completed = paginationInfo?.totalItems ?? 0;
 	const inFlight = uploadQueue.filter(
@@ -61,13 +65,19 @@ export function useFreeTier(): FreeTierState {
 	// 2TB plans) and paid access come from signals independent of `isFree`, so
 	// guard against an "unlimited yet free-flagged" combination wrongly gating
 	// uploads.
-	const isAtLimit = isFree && ! isUnlimited && videoCount >= FREE_TIER_UPLOAD_LIMIT;
+	const isAtLimit = isFree === true && ! isUnlimited && videoCount >= FREE_TIER_UPLOAD_LIMIT;
 
 	return {
 		isFree,
 		isAtomic,
 		isUnlimited,
 		videoCount,
+		...( isSuccess &&
+		Number.isSafeInteger( paginationInfo?.totalItems ) &&
+		paginationInfo.totalItems >= 0
+			? { knownVideoCount: videoCount }
+			: {} ),
+		videoCountKnown: isSuccess && Number.isSafeInteger( videoCount ) && videoCount >= 0,
 		limit: FREE_TIER_UPLOAD_LIMIT,
 		isAtLimit,
 	};

@@ -1,5 +1,0 @@
-Significance: patch
-Type: added
-Comment: Backup: show the usage readings beside the modernized dashboard's storage meter — "Using 12.4GB of 20GB", and a link to how many days of backups that has bought. Reuses the legacy dashboard's own strings so they arrive already translated. No-op while the modernization filter is off.
-
-

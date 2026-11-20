@@ -88,15 +88,15 @@
 .tumblr-preview__window-top {
 	position: relative;
 
-	border-top-left-radius: vars.$tumblr-preview-window-border-radius;
-	border-top-right-radius: vars.$tumblr-preview-window-border-radius;
+	border-start-start-radius: vars.$tumblr-preview-window-border-radius;
+	border-start-end-radius: vars.$tumblr-preview-window-border-radius;
 
 	.tumblr-preview__image {
 		margin: 0;
 		width: 100%;
 		aspect-ratio: 16/9;
-		border-top-left-radius: inherit;
-		border-top-right-radius: inherit;
+		border-start-start-radius: inherit;
+		border-start-end-radius: inherit;
 		object-fit: cover;
 	}
 }
@@ -109,12 +109,12 @@
 	padding: 1rem 0.75rem;
 
 	border: 1px solid rgba(0, 0, 0, 0.25);
-	border-bottom-left-radius: vars.$tumblr-preview-window-border-radius;
-	border-bottom-right-radius: vars.$tumblr-preview-window-border-radius;
+	border-end-start-radius: vars.$tumblr-preview-window-border-radius;
+	border-end-end-radius: vars.$tumblr-preview-window-border-radius;
 
 	&.is-full {
-		border-top-left-radius: vars.$tumblr-preview-window-border-radius;
-		border-top-right-radius: vars.$tumblr-preview-window-border-radius;
+		border-start-start-radius: vars.$tumblr-preview-window-border-radius;
+		border-start-end-radius: vars.$tumblr-preview-window-border-radius;
 	}
 
 	> * {
@@ -126,9 +126,9 @@
 .tumblr-preview__overlay {
 	position: absolute;
 	top: 0;
-	left: 0;
+	inset-inline-start: 0;
 	bottom: 0;
-	right: 0;
+	inset-inline-end: 0;
 
 	display: flex;
 	align-items: center;
@@ -137,8 +137,8 @@
 	padding: 1rem 0.75rem;
 
 	background-color: rgba(0, 0, 0, 0.4);
-	border-top-left-radius: inherit;
-	border-top-right-radius: inherit;
+	border-start-start-radius: inherit;
+	border-start-end-radius: inherit;
 	color: #fff;
 
 	> * {

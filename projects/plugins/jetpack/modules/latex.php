@@ -33,6 +33,10 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @param string $content Post or comment contents to markup.
  */
 function latex_markup( $content ) {
+	if ( stripos( $content, '$latex' ) === false ) {
+		return $content;
+	}
+
 	$textarr = wp_html_split( $content );
 
 	$regex = '%

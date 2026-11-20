@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Blogging Prompts: scope the endpoint's query filters to the prompts query so they no longer modify unrelated queries (e.g. Gutenberg global styles lookups) run while prompts are being rendered.

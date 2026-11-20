@@ -66,12 +66,12 @@ const FixThreatModal = ( { id, signature, extension, fixable, label, icon, sever
 									? __(
 											'This plugin seems to be currently active on your site. Deleting it may break your site. Please disable it first and check if your site is still working as expected, then proceed with the fix.',
 											'jetpack-protect'
-									  )
+										)
 									: __(
 											'This theme seems to be currently active on your site. Deleting it may break your site. Please disable it first and check if your site is still working as expected, then proceed with the fix.',
 											'jetpack-protect',
 											0 // dummy arg to avoid bad minification, See https://github.com/Automattic/i18n-check-webpack-plugin?tab=readme-ov-file#conditional-function-call-compaction
-									  )
+										)
 							}
 						/>
 					) : (
@@ -82,12 +82,12 @@ const FixThreatModal = ( { id, signature, extension, fixable, label, icon, sever
 									? __(
 											'This plugin seems to not currently be active on your site. Please note that deleting it may still have adverse effects and this action cannot be undone.',
 											'jetpack-protect'
-									  )
+										)
 									: __(
 											'This theme seems to not currently be active on your site. Please note that deleting it may still have adverse effects and this action cannot be undone.',
 											'jetpack-protect',
 											0 // dummy arg to avoid bad minification
-									  )
+										)
 							}
 						/>
 					) }
@@ -97,12 +97,12 @@ const FixThreatModal = ( { id, signature, extension, fixable, label, icon, sever
 								? __(
 										'We did not find this plugin on WordPress.org. We encourage you to create a backup of your site before fixing this threat, to keep a copy of it.',
 										'jetpack-protect'
-								  )
+									)
 								: __(
 										'We did not find this theme on WordPress.org. We encourage you to create a backup of your site before fixing this threat, to keep a copy of it.',
 										'jetpack-protect',
 										0 // dummy arg to avoid bad minification
-								  ) }
+									) }
 						</Text>
 					) }
 
@@ -120,7 +120,7 @@ const FixThreatModal = ( { id, signature, extension, fixable, label, icon, sever
 									{
 										code: <code />,
 									}
-							  )
+								)
 							: createInterpolateElement(
 									sprintf(
 										/* translators: %s is the theme slug itself, e.g. twentytwentyfive. */
@@ -133,7 +133,7 @@ const FixThreatModal = ( { id, signature, extension, fixable, label, icon, sever
 									{
 										code: <code />,
 									}
-							  ) }
+								) }
 					</Text>
 					<TextControl
 						__nextHasNoMarginBottom

@@ -8,6 +8,7 @@ import {
 	getSubscriberStatsUrl,
 	formatNumber,
 	calcLeftAxisMargin,
+	getYDomain,
 } from '../src/helpers';
 import type { SubscriberTotalsByDate, ChartSubscriptionDataPoint } from '../src/types';
 
@@ -185,6 +186,27 @@ describe( 'helpers', () => {
 		} );
 	} );
 
+	describe( 'getYDomain', () => {
+		it( 'runs from zero to the largest value across all and paid', () => {
+			const data: ChartSubscriptionDataPoint[] = [
+				{ date: new Date(), all: 100, paid: 200 },
+				{ date: new Date(), all: 300, paid: 50 },
+			];
+			expect( getYDomain( data ) ).toEqual( [ 0, 300 ] );
+		} );
+
+		it( 'treats missing values as zero', () => {
+			const data: ChartSubscriptionDataPoint[] = [
+				{ date: new Date(), all: undefined, paid: null },
+			];
+			expect( getYDomain( data ) ).toEqual( [ 0, 0 ] );
+		} );
+
+		it( 'returns a zero domain for no data', () => {
+			expect( getYDomain( [] ) ).toEqual( [ 0, 0 ] );
+		} );
+	} );
+
 	describe( 'calcLeftAxisMargin', () => {
 		it( 'returns default margin for empty data', () => {
 			expect( calcLeftAxisMargin( [] ) ).toBe( 30 ); // DEFAULT_MARGIN
@@ -197,6 +219,15 @@ describe( 'helpers', () => {
 			];
 			// For 10000 (5 digits): 5 * 8 + 10 = 50
 			expect( calcLeftAxisMargin( data ) ).toBe( 50 );
+		} );
+
+		it( 'makes room for a top label rounded up past the largest number', () => {
+			const data: ChartSubscriptionDataPoint[] = [
+				{ date: new Date(), all: 0, paid: 0 },
+				{ date: new Date(), all: 870, paid: 40 },
+			];
+			// The axis tops out at 1000 (4 digits): 4 * 8 + 10 = 42
+			expect( calcLeftAxisMargin( data ) ).toBe( 42 );
 		} );
 
 		it( 'handles null or undefined values', () => {

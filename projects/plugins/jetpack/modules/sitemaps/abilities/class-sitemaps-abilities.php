@@ -12,6 +12,10 @@ namespace Automattic\Jetpack\Plugin\Abilities;
 use Automattic\Jetpack\WP_Abilities\Registrar;
 use Jetpack;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Registers Jetpack Sitemaps abilities with the WordPress Abilities API.
  *
@@ -45,6 +49,13 @@ class Sitemaps_Abilities extends Registrar {
 	 * self-clears if a build crashes without unlocking.
 	 */
 	private const STATE_LOCK_TRANSIENT = 'jetpack-sitemap-state-lock';
+
+	/**
+	 * {@inheritDoc}
+	 */
+	protected static function enabled_by_default(): bool {
+		return true;
+	}
 
 	/**
 	 * {@inheritDoc}
@@ -118,6 +129,7 @@ class Sitemaps_Abilities extends Registrar {
 						'destructive' => false,
 						'idempotent'  => true,
 					),
+					'public'       => true,
 					'show_in_rest' => true,
 					'mcp'          => array(
 						'public' => true,
@@ -152,6 +164,7 @@ class Sitemaps_Abilities extends Registrar {
 						'destructive' => false,
 						'idempotent'  => true,
 					),
+					'public'       => true,
 					'show_in_rest' => true,
 					'mcp'          => array(
 						'public' => true,

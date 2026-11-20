@@ -1,8 +1,7 @@
 import {
 	computePrimaryRange,
-	stepDateRange,
-	DETAIL_SURFACE_PRESETS,
-	PRESET_CUSTOM,
+	planDateStep,
+	MENU_SURFACE_PRESETS_WITH_ALL_TIME,
 	type ComparisonPresetId,
 	type IntervalType,
 	type PrimaryPresetId,
@@ -11,11 +10,9 @@ import {
 import { setLocaleData, resetLocaleData } from '@wordpress/i18n';
 import { endOfDay, subDays, startOfDay } from 'date-fns';
 import { useCallback, useRef, useState } from 'react';
-import {
-	getStoryIntervalOptions,
-	resolveStoryInterval,
-} from '../../date-interval-dropdown/stories/story-interval-options';
+import { getStoryIntervalState } from '../../date-interval-dropdown/stories/story-interval-options';
 import { DateFiltersPanel } from '../date-filters-panel';
+import type { DateControlTriggerProps } from '../../utils/date-control-trigger';
 import type { DateRange } from '../date-filters-panel';
 import type { Meta, StoryObj } from '@storybook/react';
 
@@ -84,6 +81,8 @@ type DateFiltersPanelStoryProps = {
 	containerWidth?: string | number;
 	/** The detail-page surface: all time first, no custom range. */
 	detailSurface?: boolean;
+	disabled?: boolean;
+	triggerProps?: DateControlTriggerProps;
 };
 
 // The day the detail story's resource was published: where its all time starts.
@@ -99,6 +98,8 @@ function DateFiltersPanelStory( {
 	initialComparisonPreset = 'previous-period',
 	containerWidth = '100%',
 	detailSurface = false,
+	disabled = false,
+	triggerProps,
 }: DateFiltersPanelStoryProps ) {
 	const initialPrimary = buildPrimaryState( initialPreset );
 
@@ -153,29 +154,36 @@ function DateFiltersPanelStory( {
 		[ committedPrimary ]
 	);
 
+	// Stepping applies on click, as planDateStep decides it.
+	const stepContext = { presetId: committedPrimary.presetId, timeZone: STORYBOOK_TIMEZONE };
+	const handleStep = useCallback(
+		( direction: StepDirection ) => {
+			const step = planDateStep( committedPrimary.range, direction, {
+				...stepContext,
+				now: new Date(),
+			} );
+
+			if ( ! step ) {
+				return;
+			}
+
+			stagedPrimaryRef.current = step;
+			setStagedPrimary( step );
+			setCommittedPrimary( step );
+		},
+		// eslint-disable-next-line react-hooks/exhaustive-deps -- `stepContext` is rebuilt from `committedPrimary` each render.
+		[ committedPrimary ]
+	);
+	const now = new Date();
+	const canStepBackward =
+		planDateStep( committedPrimary.range, 'previous', { ...stepContext, now } ) !== undefined;
+	const canStepForward =
+		planDateStep( committedPrimary.range, 'next', { ...stepContext, now } ) !== undefined;
+
 	const canApplyPrimary =
 		stagedPrimary.range.from !== committedPrimary.range.from ||
 		stagedPrimary.range.to !== committedPrimary.range.to ||
 		stagedPrimary.presetId !== committedPrimary.presetId;
-
-	// Stepping applies on click and takes the range off its preset, the way it
-	// commits through the report params in product.
-	const handleStep = useCallback( ( direction: StepDirection ) => {
-		const stepped = stepDateRange( stagedPrimaryRef.current.range, direction );
-
-		if ( ! stepped?.from || ! stepped.to ) {
-			return;
-		}
-
-		const nextPrimary: PrimaryFilterState = {
-			range: { from: stepped.from, to: stepped.to },
-			presetId: PRESET_CUSTOM,
-		};
-
-		stagedPrimaryRef.current = nextPrimary;
-		setStagedPrimary( nextPrimary );
-		setCommittedPrimary( nextPrimary );
-	}, [] );
 
 	/*
 	 * The interval follows the range being edited, so switching preset re-derives
@@ -183,8 +191,12 @@ function DateFiltersPanelStory( {
 	 * back to the finest allowed, the same coercion the report params apply.
 	 */
 	const [ pickedInterval, setPickedInterval ] = useState< IntervalType | undefined >( undefined );
-	const intervalOptions = getStoryIntervalOptions( stagedPrimary.presetId );
-	const interval = resolveStoryInterval( pickedInterval, intervalOptions );
+	const { options: intervalOptions, interval } = getStoryIntervalState(
+		stagedPrimary.presetId,
+		stagedPrimary.range,
+		STORYBOOK_TIMEZONE,
+		pickedInterval
+	);
 
 	return (
 		<div
@@ -195,17 +207,15 @@ function DateFiltersPanelStory( {
 			} }
 		>
 			<DateFiltersPanel
-				presetId={ stagedPrimary.presetId }
 				range={ stagedPrimary.range }
 				appliedPresetId={ committedPrimary.presetId }
 				appliedRange={ committedPrimary.range }
 				comparisonPresetId={ comparisonPresetId }
 				{ ...( detailSurface
 					? {
-							presetIds: DETAIL_SURFACE_PRESETS,
+							presetIds: MENU_SURFACE_PRESETS_WITH_ALL_TIME,
 							allTimeStart: STORY_PUBLISHED_DATE,
-							withCustomRange: false,
-					  }
+						}
 					: {} ) }
 				withIntervalControl
 				interval={ interval }
@@ -213,11 +223,13 @@ function DateFiltersPanelStory( {
 				onChange={ handlePrimaryChange }
 				onComparisonChange={ handleComparisonChange }
 				onIntervalChange={ setPickedInterval }
-				onStep={ handleStep }
+				stepping={ { onStep: handleStep, canStepBackward, canStepForward } }
 				onApply={ handlePrimaryApply }
 				onCancel={ handlePrimaryCancel }
 				canApply={ canApplyPrimary }
 				timeZone={ STORYBOOK_TIMEZONE }
+				disabled={ disabled }
+				triggerProps={ triggerProps }
 			/>
 		</div>
 	);
@@ -256,6 +268,22 @@ export const CustomRangeWithComparison: Story = {
 	render: () => (
 		<DateFiltersPanelStory initialPreset="custom" initialComparisonPreset="previous-period" />
 	),
+};
+
+/**
+ * Every control greyed out but still focusable: the dashboard while its layout
+ * is being customized.
+ */
+export const Disabled: Story = {
+	render: () => <DateFiltersPanelStory disabled />,
+};
+
+/**
+ * Every trigger at the compact size, as a widget header draws its own date
+ * control beside the other header fields.
+ */
+export const CompactTriggers: Story = {
+	render: () => <DateFiltersPanelStory triggerProps={ { size: 'compact' } } />,
 };
 
 /**
@@ -383,7 +411,7 @@ const LADDER_WIDTHS = [ 960, 782, 600, 360, 280 ];
 /**
  * One locale's bar at each reference width, so where it stops fitting is
  * visible rather than asserted. Annotated against the four preset pills
- * alone — a floor, since the trigger/comparison/interval/navigation share the line.
+ * alone — a floor, since the navigation/trigger/comparison/interval share the line.
  */
 function WidthLadder( { fixture }: { fixture: LocaleFixture } ) {
 	return (

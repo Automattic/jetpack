@@ -15,6 +15,46 @@ use PHPUnit\Framework\Attributes\DataProvider;
 class Jetpack_VideoPress_Utility_Functions_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
+	/** The existing callback must allocate above IDs retained by VideoPress after a restore. */
+	public function test_create_media_callback_respects_minimum_attachment_id() {
+		global $wpdb;
+		$minimum = (int) $wpdb->get_var( "SELECT MAX(ID) FROM $wpdb->posts" ) + 100;
+		$result  = \Automattic\Jetpack\VideoPress\XMLRPC::init()->create_media_item(
+			array(
+				array(
+					'url'                   => 'https://example.org/restored-site.mp4',
+					'title'                 => 'New upload',
+					'caption'               => 'New caption',
+					'minimum_attachment_id' => $minimum,
+				),
+			)
+		);
+
+		$this->assertSame( $minimum, $result['media'][0]['post']->ID );
+		$this->assertSame( 'New caption', $result['media'][0]['post']->post_excerpt );
+		$this->assertSame( 'initiated', get_post_meta( $minimum, 'videopress_status', true ) );
+	}
+
+	/** A minimum is a floor, not a replacement for the site's higher allocation sequence. */
+	public function test_minimum_allocator_preserves_existing_posts_and_higher_ids() {
+		global $wpdb;
+		$minimum  = (int) $wpdb->get_var( "SELECT MAX(ID) FROM $wpdb->posts" ) + 100;
+		$existing = wp_insert_post(
+			array(
+				'post_title' => 'Existing content',
+				'import_id'  => $minimum + 100,
+			)
+		);
+		$first    = videopress_create_new_media_item( 'First video', null, $minimum );
+		$second   = videopress_create_new_media_item( 'Second video', null, $minimum );
+
+		$this->assertIsInt( $first );
+		$this->assertIsInt( $second );
+		$this->assertGreaterThan( $existing, $first );
+		$this->assertGreaterThan( $first, $second );
+		$this->assertSame( 'Existing content', get_post( $existing )->post_title );
+	}
+
 	/**
 	 * Tests a helper function to get the post by guid, when there is no post found.
 	 *

@@ -1,5 +1,6 @@
 import apiFetch from '@wordpress/api-fetch';
-import { paragraphsToBlocks } from './paragraph-blocks.ts';
+import { headingBlock, paragraphsToBlocks } from './paragraph-blocks.ts';
+import type { SiteCopy } from './types.ts';
 
 interface CreatedPage {
 	id: number;
@@ -29,13 +30,6 @@ interface CreatedPage {
  * loses nothing, since VideoPress registers its own block and transforms alongside core/video rather
  * than replacing it.
  */
-
-// Untranslated placeholder heading, in the same class as the "About", "Gallery", "Contact" and
-// "Upcoming events" page titles: jetpack-mu-wpcom's JS strings are not extracted for translation, and the
-// AI intro beside it is English-only for now. The user lands in the editor on it, which is where it gets
-// changed.
-const HEADING_BLOCK =
-	'<!-- wp:heading --><h2 class="wp-block-heading">Watch</h2><!-- /wp:heading -->';
 
 /**
  * One empty video block, and nothing in it.
@@ -71,15 +65,17 @@ const VIDEO_BLOCK = '<!-- wp:video --><figure class="wp-block-video"></figure><!
  * @param intro   - The AI-written opening line, or undefined for an output persisted before
  *                `page_intros` existed and for a run where the model omitted the key. The page is
  *                then created without an intro paragraph — the video block is what the task is for.
+ * @param copy    - The site-language copy for the title and heading.
  * @param fetcher - Injectable request handler, so the node:test suite can stub the REST call.
  * @return The created page id and its editor URL.
  */
 export async function createVideoPage(
 	intro: string | undefined,
+	copy: Pick< SiteCopy, 'video_page_title' | 'video_page_heading' >,
 	fetcher: ( options: Parameters< typeof apiFetch >[ 0 ] ) => Promise< unknown > = apiFetch
 ): Promise< { page_id: number; edit_url: string } > {
 	const line = intro?.trim();
-	const blocks = [ HEADING_BLOCK ];
+	const blocks = [ headingBlock( copy.video_page_heading ) ];
 	if ( line ) {
 		// Through the shared helper, so the AI text is escaped exactly as the About and first-post
 		// drafts escape theirs.
@@ -91,8 +87,8 @@ export async function createVideoPage(
 		path: '/wp/v2/pages',
 		method: 'POST',
 		data: {
-			// Untranslated placeholder title, like core's "Auto Draft" and the About/Gallery/Contact/Events pages.
-			title: 'Videos',
+			// Placeholder title, like core's "Auto Draft" and the About/Gallery/Contact/Events pages.
+			title: copy.video_page_title,
 			content: blocks.join( '\n\n' ),
 			status: 'draft',
 			// Tag as the AI Launchpad page so the server-side listener can complete the task on publish.

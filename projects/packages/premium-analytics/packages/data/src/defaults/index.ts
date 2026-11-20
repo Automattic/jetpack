@@ -1,2 +1,14 @@
-export { getDefaultPreset, getDefaultQueryParams, getDefaultReportParams } from './reports';
-export { getStoreInfo, type StoreInfo } from './store-info';
+export { deriveComparisonRange } from './derive-comparison-range';
+export {
+	getDefaultPreset,
+	getDefaultQueryParams,
+	getDefaultReportParams,
+	withComparisonPreset,
+	withDefaultComparison,
+} from './reports';
+export {
+	DASHBOARD_PREFERENCES_SCOPE,
+	rememberComparison,
+	rememberPreset,
+} from './remembered-preset';
+export { getSectionOrder, orderSections, setSectionOrder } from './section-order';

@@ -8,6 +8,7 @@ import { useCallback, useState, useMemo } from 'react';
 /*
  * Internal dependencies
  */
+import { MyJetpackRoutes } from '../../constants';
 import { QUERY_LICENSES_KEY } from '../../data/constants';
 import useJetpackApiQuery from '../../data/use-jetpack-api-query';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
@@ -59,7 +60,7 @@ export default function AddLicenseScreen() {
 			breadcrumbs={
 				<GoBackLink
 					onClick={ onClickGoBack }
-					to={ hasActivatedLicense ? '/products?reload=true' : '/products' }
+					to={ `${ MyJetpackRoutes.Features }${ hasActivatedLicense ? '?reload=true' : '' }` }
 					label={ __( 'My Jetpack', 'jetpack-my-jetpack' ) }
 				/>
 			}
@@ -67,7 +68,6 @@ export default function AddLicenseScreen() {
 			<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
 				<Col>
 					<ActivationScreen
-						currentRecommendationsStep={ null }
 						availableLicenses={ availableLicenses }
 						fetchingAvailableLicenses={ fetchingAvailableLicenses }
 						onActivationSuccess={ handleActivationSuccess }

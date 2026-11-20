@@ -1,12 +1,6 @@
-// The Overview's "Next full backup: …" line (JETPACK-2328 / K2).
-//
-// Four things are pinned here and nothing else asserts any of them: silence when there
-// is no schedule, silence when WordPress.com has stopped backing the site up, the date
-// and window read in the *site's* timezone, and the msgid's positional placeholders
-// surviving a translation that reorders them.
-//
-// Every date assertion runs against a frozen clock, with the expectation written out
-// rather than computed the way the implementation computes it.
+// The Overview's "Next full backup: …" line (JETPACK-2328) and its schedule dialog
+// (JETPACK-2636): read in the site's timezone, written back as UTC hours. Dated
+// assertions run on a frozen clock, with expectations written out by hand.
 
 const mockApiFetch = jest.fn();
 const mockSearch = jest.fn< Record< string, unknown >, [] >();
@@ -26,28 +20,18 @@ jest.mock( '@wordpress/route', () => ( {
 
 // Imports must come after the jest.mock factories above.
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { getSettings, setSettings } from '@wordpress/date';
 import { resetLocaleData, setLocaleData } from '@wordpress/i18n';
 import { stage as OverviewStage } from '../routes/dashboard/stage';
 import NextScheduledBackup from '../src/dashboard/components/next-scheduled-backup';
 import { keys, queryClient } from '../src/dashboard/data/query-client';
-import { useNextBackupSchedule } from '../src/dashboard/hooks/use-backup-schedule';
+import { scheduleOptions, useNextBackupSchedule } from '../src/dashboard/hooks/use-backup-schedule';
 import type { ReactNode } from 'react';
 
 const CONNECTED = { isRegistered: true, hasConnectedOwner: true, isUserConnected: true };
 const SITE = 'example.wordpress.com';
-
-// The route stages render behind several sequential requests and have
-// taken well over Testing Library's 1s default on a loaded runner.
-const SETTLE = { timeout: 10000 };
-
-// jsdom implements no scrolling, and DataViews calls `scrollIntoView`. Defined rather
-// than spied on: `jest.spyOn` needs the property to already exist.
-Object.defineProperty( window.HTMLElement.prototype, 'scrollIntoView', {
-	value: () => {},
-	writable: true,
-} );
 
 // Everything Jest's fake timers can replace *except* `Date`. Faking the timer functions
 // too would take Testing Library's polling with it — `waitFor` switches implementation
@@ -160,7 +144,7 @@ function renderStageWithProbe() {
  * @return The probe element, once it has something to show.
  */
 function scheduleIsAvailable(): Promise< HTMLElement > {
-	return screen.findByTestId( 'schedule-probe', undefined, SETTLE );
+	return screen.findByTestId( 'schedule-probe' );
 }
 
 /**
@@ -278,7 +262,7 @@ function mockEndpoints( {
 						current: { orderedItems: activity },
 						totalItems: activity.length,
 						totalPages: 1,
-				  } );
+					} );
 		}
 		if ( path === '/jetpack/v4/backups' ) {
 			return Promise.resolve( backups );
@@ -297,14 +281,47 @@ function scheduleLine(): Promise< HTMLElement > {
 }
 
 /**
- * The "Modify" link that follows the sentence, once it has arrived.
+ * The "Modify" button that follows the sentence, once it has arrived.
  *
- * Matched on a name fragment: `Link` appends "(opens in a new tab)".
- *
- * @return The anchor.
+ * @return The button.
  */
-function modifyLink(): Promise< HTMLElement > {
-	return screen.findByRole( 'link', { name: /Modify/ } );
+function modifyButton(): Promise< HTMLElement > {
+	return screen.findByRole( 'button', { name: 'Modify daily backup time' } );
+}
+
+/**
+ * Open the schedule dialog from the line.
+ *
+ * @return The dialog.
+ */
+async function openScheduleDialog(): Promise< HTMLElement > {
+	await userEvent.click( await modifyButton() );
+	return screen.findByRole( 'dialog', { name: 'Daily backup time' } );
+}
+
+/**
+ * Pick a window in the open dialog's picker.
+ *
+ * @param label - The option's label, in the site's timezone.
+ */
+async function pickWindow( label: string ) {
+	await userEvent.click( screen.getByRole( 'combobox', { name: 'Backup window' } ) );
+	await userEvent.click( await screen.findByRole( 'option', { name: label } ) );
+}
+
+/**
+ * Answer the save with `respond`, and every read as `mockEndpoints()` set it up.
+ *
+ * @param respond - Called with the hour sent; what it returns is the route's answer.
+ */
+function mockScheduleSave( respond: ( hour: number ) => Promise< unknown > ) {
+	const reads = mockApiFetch.getMockImplementation();
+	mockApiFetch.mockImplementation(
+		( options: { path?: string; method?: string; data?: { schedule_hour: number } } ) =>
+			options?.method === 'POST' && options.path?.includes( '/site/backup/schedule' )
+				? respond( options.data?.schedule_hour ?? -1 )
+				: reads?.( options )
+	);
 }
 
 /**
@@ -349,8 +366,8 @@ function placementRelativeToGrid( row: HTMLElement ) {
 		isSibling: gridParent !== null && row.parentElement === gridParent,
 		comesFirst: Boolean(
 			grid &&
-				// eslint-disable-next-line no-bitwise -- compareDocumentPosition returns a bitmask.
-				row.compareDocumentPosition( grid ) & Node.DOCUMENT_POSITION_FOLLOWING
+			// eslint-disable-next-line no-bitwise -- compareDocumentPosition returns a bitmask.
+			row.compareDocumentPosition( grid ) & Node.DOCUMENT_POSITION_FOLLOWING
 		),
 	};
 	/* eslint-enable testing-library/no-node-access */
@@ -397,7 +414,7 @@ describe( 'the next-backup line', () => {
 		renderWithClient( <NextScheduledBackup /> );
 
 		await expect( scheduleLine() ).resolves.toHaveTextContent(
-			/^Next full backup: Oct 22, 10:00-10:59 AM\.$/
+			/^Next full backup: Oct 22, 10:00-10:59 am\.$/
 		);
 	} );
 
@@ -410,7 +427,7 @@ describe( 'the next-backup line', () => {
 		renderWithClient( <NextScheduledBackup /> );
 
 		await expect( scheduleLine() ).resolves.toHaveTextContent(
-			/^Next full backup: Oct 23, 10:00-10:59 AM\.$/
+			/^Next full backup: Oct 23, 10:00-10:59 am\.$/
 		);
 	} );
 
@@ -423,7 +440,7 @@ describe( 'the next-backup line', () => {
 		renderWithClient( <NextScheduledBackup /> );
 
 		await expect( scheduleLine() ).resolves.toHaveTextContent(
-			/^Next full backup: Oct 22, 10:00-10:59 AM\.$/
+			/^Next full backup: Oct 22, 10:00-10:59 am\.$/
 		);
 	} );
 
@@ -436,7 +453,7 @@ describe( 'the next-backup line', () => {
 		renderWithClient( <NextScheduledBackup /> );
 
 		await expect( scheduleLine() ).resolves.toHaveTextContent(
-			/^Next full backup: Oct 22, 12:00-12:59 AM\.$/
+			/^Next full backup: Oct 22, 12:00-12:59 am\.$/
 		);
 	} );
 } );
@@ -456,14 +473,14 @@ describe( 'the site timezone', () => {
 			timezone: { offset: -5, offsetFormatted: '-5', string: '', abbr: 'EST' },
 		} );
 		// The site is told about a backup running on its *previous* calendar day. Read
-		// as UTC this would say "Oct 22, 2:00-2:59 AM" instead.
+		// as UTC this would say "Oct 22, 2:00-2:59 am" instead.
 		freezeClock( '2026-10-22T01:00:00Z' );
 		mockEndpoints( { schedule: { ok: true, scheduled_hour: 2 } } );
 
 		renderWithClient( <NextScheduledBackup /> );
 
 		await expect( scheduleLine() ).resolves.toHaveTextContent(
-			/^Next full backup: Oct 21, 9:00-9:59 PM\.$/
+			/^Next full backup: Oct 21, 9:00-9:59 pm\.$/
 		);
 	} );
 } );
@@ -528,7 +545,7 @@ describe( 'when there is nothing to report', () => {
 
 	it( 'says nothing when the hour is not a whole number', async () => {
 		// `Date.UTC` truncates rather than rejecting, so without `Number.isInteger`
-		// this renders a confident "10:00-10:59 AM" for an unreadable payload.
+		// this renders a confident "10:00-10:59 am" for an unreadable payload.
 		freezeClock( '2026-10-22T05:00:00Z' );
 		mockEndpoints( { schedule: { ok: true, scheduled_hour: 10.5 } } );
 
@@ -643,7 +660,7 @@ describe( 'while the reads are in flight', () => {
 
 		releaseSize( { ok: true, backups_stopped: false } );
 		await expect( scheduleLine() ).resolves.toHaveTextContent(
-			/^Next full backup: Oct 22, 10:00-10:59 AM\.$/
+			/^Next full backup: Oct 22, 10:00-10:59 am\.$/
 		);
 	} );
 } );
@@ -674,54 +691,158 @@ describe( 'the line, translated', () => {
 
 		// Sequential placeholders would read this as "At Oct 22 on 10:00-10:59 AM".
 		await expect( screen.findByText( /^At/ ) ).resolves.toHaveTextContent(
-			/^At 10:00-10:59 AM on Oct 22, the next full backup runs\.$/
+			/^At 10:00-10:59 am on Oct 22, the next full backup runs\.$/
 		);
 	} );
 } );
 
-describe( 'the Modify link', () => {
-	// JETPACK-2329. The one Calypso destination this dashboard is allowed to send
-	// anyone to, because `cloud.jetpack.com/settings` is the only place a backup's
-	// time can be changed and there is no schedule-editing UI here. Dropping it
-	// would take a capability legacy readers have away from them.
-	it( 'points at the schedule settings, scoped to this site and opened away from here', async () => {
-		freezeClock( '2026-10-22T05:00:00Z' );
-		mockEndpoints( { schedule: { ok: true, scheduled_hour: 10 } } );
+describe( 'the Modify dialog', () => {
+	const original = getSettings();
 
-		renderWithClient( <NextScheduledBackup /> );
-
-		const link = await modifyLink();
-		expect( link ).toHaveAttribute(
-			'href',
-			`https://jetpack.com/redirect/?source=backup-plugin-schedule-time-setting&site=${ SITE }`
-		);
-		expect( link ).toHaveAttribute( 'target', '_blank' );
+	beforeEach( () => {
+		freezeClock( '2026-10-22T12:00:00Z' );
+		// Five hours behind UTC, so a window read or written in UTC is visibly wrong.
+		setSettings( {
+			...original,
+			timezone: { offset: -5, offsetFormatted: '-5', string: '', abbr: 'EST' },
+		} );
 	} );
 
-	it( 'omits the site entirely when the connection global carries no slug', async () => {
-		// Not cosmetic: `getRedirectUrl` walks its args with `for…in`, so passing
-		// the key as undefined encodes the literal string `undefined` *and*
-		// suppresses the helper's own site fallback.
-		freezeClock( '2026-10-22T05:00:00Z' );
-		mockEndpoints( { schedule: { ok: true, scheduled_hour: 10 } } );
-		window.JP_CONNECTION_INITIAL_STATE = {
-			...window.JP_CONNECTION_INITIAL_STATE,
-			siteSuffix: undefined,
-		} as typeof window.JP_CONNECTION_INITIAL_STATE;
+	afterEach( () => {
+		setSettings( original );
+	} );
+
+	it( 'opens on the current window, read in the site timezone', async () => {
+		mockEndpoints( { schedule: { ok: true, scheduled_hour: 2 } } );
 
 		renderWithClient( <NextScheduledBackup /> );
+		const dialog = await openScheduleDialog();
 
-		await expect( modifyLink() ).resolves.toHaveAttribute(
-			'href',
-			'https://jetpack.com/redirect/?source=backup-plugin-schedule-time-setting'
+		expect( within( dialog ).getByRole( 'combobox', { name: 'Backup window' } ) ).toHaveTextContent(
+			'9:00-9:59 pm'
 		);
+	} );
+
+	it( 'saves the picked window as its UTC hour and shows it on the line', async () => {
+		let hour = 2;
+		mockEndpoints( { schedule: { ok: true, scheduled_hour: 2 } } );
+		const reads = mockApiFetch.getMockImplementation();
+		mockApiFetch.mockImplementation( ( options: { path?: string } ) =>
+			options?.path?.includes( '/site/backup/schedule' )
+				? Promise.resolve( { ok: true, scheduled_hour: hour } )
+				: reads?.( options )
+		);
+		const sent: number[] = [];
+		mockScheduleSave( value => {
+			sent.push( value );
+			hour = value;
+			return Promise.resolve( { ok: true, scheduled_hour: value } );
+		} );
+
+		renderWithClient( <NextScheduledBackup /> );
+		await openScheduleDialog();
+		await pickWindow( '3:00-3:59 am' );
+		await userEvent.click( screen.getByRole( 'button', { name: 'Save' } ) );
+
+		await waitFor( () => expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument() );
+		expect( sent ).toEqual( [ 8 ] );
+		await expect( scheduleLine() ).resolves.toHaveTextContent( /, 3:00-3:59 am\.$/ );
+		expect( screen.getByRole( 'status' ) ).toHaveTextContent( 'Daily backup time changed.' );
+	} );
+
+	it( 'stays open and says why when the save is refused', async () => {
+		mockEndpoints( { schedule: { ok: true, scheduled_hour: 2 } } );
+		mockScheduleSave( () =>
+			Promise.reject( {
+				code: 'schedule_update_failed',
+				message: 'Could not change the backup time.',
+				data: { status: 500 },
+			} )
+		);
+
+		renderWithClient( <NextScheduledBackup /> );
+		const dialog = await openScheduleDialog();
+		await pickWindow( '3:00-3:59 am' );
+		await userEvent.click( screen.getByRole( 'button', { name: 'Save' } ) );
+
+		await expect(
+			within( dialog ).findByText( 'Could not change the backup time.' )
+		).resolves.toBeInTheDocument();
+		expect( dialog ).toBeInTheDocument();
+	} );
+
+	it( 're-reads the schedule after a failed save, which may have landed anyway', async () => {
+		let hour = 2;
+		mockEndpoints( { schedule: { ok: true, scheduled_hour: 2 } } );
+		const reads = mockApiFetch.getMockImplementation();
+		mockApiFetch.mockImplementation( ( options: { path?: string } ) =>
+			options?.path?.includes( '/site/backup/schedule' )
+				? Promise.resolve( { ok: true, scheduled_hour: hour } )
+				: reads?.( options )
+		);
+		mockScheduleSave( value => {
+			hour = value;
+			return Promise.reject( {
+				code: 'schedule_update_failed',
+				message: 'Could not reach WordPress.com.',
+				data: { status: 504 },
+			} );
+		} );
+
+		renderWithClient( <NextScheduledBackup /> );
+		await openScheduleDialog();
+		await pickWindow( '3:00-3:59 am' );
+		await userEvent.click( screen.getByRole( 'button', { name: 'Save' } ) );
+
+		await waitFor( () =>
+			expect( screen.getByText( /^Next full backup/ ) ).toHaveTextContent( /, 3:00-3:59 am\.$/ )
+		);
+	} );
+
+	it( 'cannot be dismissed while a save is in flight, so its failure is still shown', async () => {
+		mockEndpoints( { schedule: { ok: true, scheduled_hour: 2 } } );
+		let refuse: ( reason: unknown ) => void = () => {};
+		mockScheduleSave(
+			() =>
+				new Promise( ( _resolve, reject ) => {
+					refuse = reject;
+				} )
+		);
+
+		renderWithClient( <NextScheduledBackup /> );
+		const dialog = await openScheduleDialog();
+		await pickWindow( '3:00-3:59 am' );
+		await userEvent.click( screen.getByRole( 'button', { name: 'Save' } ) );
+		await userEvent.keyboard( '{Escape}' );
+		refuse( {
+			code: 'schedule_update_failed',
+			message: 'Could not change the backup time.',
+			data: { status: 500 },
+		} );
+
+		await expect(
+			within( dialog ).findByText( 'Could not change the backup time.' )
+		).resolves.toBeInTheDocument();
+	} );
+
+	it( 'lists the windows in the order the site day runs, half-hour offsets included', () => {
+		setSettings( {
+			...original,
+			timezone: { offset: 5.5, offsetFormatted: '5:30', string: '', abbr: 'IST' },
+		} );
+
+		const options = scheduleOptions( new Date( '2026-10-22T12:00:00Z' ) );
+
+		expect( options ).toHaveLength( 24 );
+		expect( options[ 0 ] ).toEqual( { label: '12:30-1:29 am', value: '19' } );
+		expect( options[ 23 ] ).toEqual( { label: '11:30 pm-12:29 am', value: '18' } );
+		expect( options[ 11 ] ).toEqual( { label: '11:30 am-12:29 pm', value: '6' } );
 	} );
 
 	it( 'goes with the line when there is no schedule to modify', async () => {
-		// The link lives inside the same return as the sentence, so it can only
+		// The button lives inside the same return as the sentence, so it can only
 		// survive a change that pulls it out of there. The sentence arriving under
 		// a probe elsewhere in this file is the witness that the data was readable.
-		freezeClock( '2026-10-22T05:00:00Z' );
 		mockEndpoints( { schedule: { ok: true, scheduled_hour: null } } );
 
 		const client = newQueryClient();
@@ -729,7 +850,9 @@ describe( 'the Modify link', () => {
 
 		await readsSettled( client );
 		expect( placeholder() ).toBeNull();
-		expect( screen.queryByRole( 'link' ) ).not.toBeInTheDocument();
+		expect(
+			screen.queryByRole( 'button', { name: 'Modify daily backup time' } )
+		).not.toBeInTheDocument();
 	} );
 } );
 
@@ -740,8 +863,8 @@ describe( 'on the Overview', () => {
 
 		render( <OverviewStage /> );
 
-		const line = await screen.findByText( /^Next full backup/, undefined, SETTLE );
-		expect( line ).toHaveTextContent( /^Next full backup: Oct 22, 10:00-10:59 AM\.$/ );
+		const line = await screen.findByText( /^Next full backup/ );
+		expect( line ).toHaveTextContent( /^Next full backup: Oct 22, 10:00-10:59 am\.$/ );
 
 		// Placement, not just presence: `.jpb-overview` is a two-column grid above
 		// 960px, so a child would be auto-placed into a cell and a following sibling
@@ -749,11 +872,10 @@ describe( 'on the Overview', () => {
 		const row = scheduleRow();
 		expect( overviewGrid() ).not.toBeNull();
 		expect( row ).not.toBeNull();
-		// A block box, or the 16px separating this from the storage section below
-		// computes and then does nothing — vertical margins do not apply to the
-		// inline box `Text` renders by default.
 		expect( row?.tagName ).toBe( 'DIV' );
-		expect( placementRelativeToGrid( row as HTMLElement ) ).toEqual( {
+		// Inside the storage row's wrapper, which is the grid's sibling.
+		// eslint-disable-next-line testing-library/no-node-access -- Placement is the thing under test.
+		expect( placementRelativeToGrid( row?.parentElement as HTMLElement ) ).toEqual( {
 			isSibling: true,
 			comesFirst: true,
 		} );
@@ -772,12 +894,12 @@ describe( 'on the Overview', () => {
 
 		// The running backup is reported…
 		await expect(
-			screen.findByText( 'Your backup will be ready soon', undefined, SETTLE )
+			screen.findByText( 'Generating backup… (42% progress)' )
 		).resolves.toBeInTheDocument();
 		// …and so is the next one.
-		await expect(
-			screen.findByText( /^Next full backup/, undefined, SETTLE )
-		).resolves.toHaveTextContent( /^Next full backup: Oct 22, 10:00-10:59 AM\.$/ );
+		await expect( screen.findByText( /^Next full backup/ ) ).resolves.toHaveTextContent(
+			/^Next full backup: Oct 22, 10:00-10:59 am\.$/
+		);
 	} );
 
 	it( 'says nothing when the backup state could not be read', async () => {
@@ -793,7 +915,9 @@ describe( 'on the Overview', () => {
 		// Synchronized on the failure being reported *and* the schedule being
 		// available, neither of which the mutation under test removes.
 		await expect(
-			screen.findByText( "We couldn't check your site's backup status.", undefined, SETTLE )
+			screen.findByText( "We couldn't check your site's backup status.", {
+				ignore: '.a11y-speak-region, script, style',
+			} )
 		).resolves.toBeInTheDocument();
 		await expect( scheduleIsAvailable() ).resolves.toHaveTextContent( 'Oct 22' );
 		expect( screen.queryByText( /^Next full backup/ ) ).not.toBeInTheDocument();
@@ -815,11 +939,7 @@ describe( 'on the Overview', () => {
 		renderStageWithProbe();
 
 		await expect(
-			screen.findByText(
-				"Your latest backup didn't complete. We'll try again shortly.",
-				undefined,
-				SETTLE
-			)
+			screen.findByText( "Your latest backup didn't complete. We'll try again shortly." )
 		).resolves.toBeInTheDocument();
 		await expect( scheduleIsAvailable() ).resolves.toHaveTextContent( 'Oct 22' );
 		expect( screen.queryByText( /^Next full backup/ ) ).not.toBeInTheDocument();
@@ -834,9 +954,7 @@ describe( 'on the Overview', () => {
 
 		renderStageWithProbe();
 
-		await expect(
-			screen.findByText( 'Your first cloud backup will be ready soon', undefined, SETTLE )
-		).resolves.toBeInTheDocument();
+		await expect( screen.findByText( 'Generating backup…' ) ).resolves.toBeInTheDocument();
 		await expect( scheduleIsAvailable() ).resolves.toHaveTextContent( 'Oct 22' );
 		expect( screen.queryByText( /^Next full backup/ ) ).not.toBeInTheDocument();
 	} );

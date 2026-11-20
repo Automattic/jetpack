@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+REST API: Switching the site language to English through the settings endpoint now returns the normal settings response and saves the other settings sent with it.

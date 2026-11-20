@@ -17,7 +17,7 @@ permissions:
   # actions/checkout
   contents: read
   # ./projects/github-actions/repo-gardening
-  #   read: octokit.rest.issues.listComments, octokit.rest.issues.get, octokit.rest.issues.listLabelsForRepo, octokit.rest.issues.listLabelsOnIssue, octokit.rest.issues.listMilestones
+  #   read: octokit.rest.issues.listComments, octokit.rest.issues.get, octokit.rest.issues.listEvents, octokit.rest.issues.listLabelsForRepo, octokit.rest.issues.listLabelsOnIssue, octokit.rest.issues.listMilestones
   #   write: octokit.rest.issues.addAssignees, octokit.rest.issues.addLabels, octokit.rest.issues.createComment, octokit.rest.issues.removeLabel, octokit.rest.issues.update, octokit.rest.issues.updateComment
   issues: write
   # ./projects/github-actions/repo-gardening
@@ -42,7 +42,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: Setup tools
-        uses: ./.github/actions/tool-setup
+        uses: $/.github/actions/tool-setup
 
       - name: Building Action
         env:

@@ -141,7 +141,7 @@ class WPCOM_Widget_Reservations extends WP_Widget {
 
 		echo $args['before_widget']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		echo $args['before_title'] . esc_html( $instance['title'] ) . $args['after_title']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-		echo do_shortcode( apply_filters( 'widget_text', $contact_form_shortcode ) );
+		echo apply_shortcodes( apply_filters( 'widget_text', $contact_form_shortcode ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- https://github.com/WordPress/WordPress-Coding-Standards/pull/2782
 		echo $args['after_widget']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
 		do_action( 'jetpack_stats_extra', 'widget_view', 'reservations' );

@@ -3,6 +3,7 @@ export type {
 	LeaderboardChartProps,
 	LeaderboardChartData,
 	LegendLabels,
+	LeaderboardColumns,
 } from './leaderboard-chart';
 
 export { LeaderboardSkeleton, type LeaderboardSkeletonProps } from './leaderboard-skeleton';

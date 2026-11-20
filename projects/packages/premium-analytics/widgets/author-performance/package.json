@@ -1,0 +1,5 @@
+{
+	"name": "@automattic/jetpack-premium-analytics-widget-author-performance",
+	"private": true,
+	"type": "module"
+}

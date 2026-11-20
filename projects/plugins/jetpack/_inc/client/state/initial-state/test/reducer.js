@@ -1,4 +1,4 @@
-import { isAiEnabled } from '../reducer';
+import { getPluginDeactivationData, isAiEnabled } from '../reducer';
 
 describe( 'isAiEnabled', () => {
 	const stateWith = initialState => ( { jetpack: { initialState } } );
@@ -13,5 +13,19 @@ describe( 'isAiEnabled', () => {
 
 	it( 'defaults to true when the server did not report the value', () => {
 		expect( isAiEnabled( stateWith( {} ) ) ).toBe( true );
+	} );
+} );
+
+describe( 'getPluginDeactivationData', () => {
+	it( 'returns what the plugins page needs for the deactivation survey', () => {
+		const pluginDeactivation = { siteId: 1234, hasConnectedUser: false };
+
+		expect(
+			getPluginDeactivationData( { jetpack: { initialState: { pluginDeactivation } } } )
+		).toEqual( pluginDeactivation );
+	} );
+
+	it( 'is undefined outside the plugins page', () => {
+		expect( getPluginDeactivationData( { jetpack: { initialState: {} } } ) ).toBeUndefined();
 	} );
 } );

@@ -11,6 +11,7 @@
 	min-height: 28px;
 
 	> svg {
+		color: var(--jp-gray-40);
 		fill: var(--jp-gray-40);
 		flex-shrink: 0;
 	}
@@ -66,6 +67,7 @@
 	color: var(--jp-gray-100);
 
 	> svg {
+		color: var(--jp-red-40, #e65054);
 		fill: var(--jp-red-40, #e65054);
 	}
 }
@@ -75,6 +77,7 @@
 	color: var(--jp-gray-100);
 
 	> svg {
+		color: var(--jp-green-30);
 		fill: var(--jp-green-30);
 	}
 }
@@ -85,6 +88,7 @@
 	height: unset;
 
 	> svg {
+		color: var(--jp-gray-50);
 		fill: var(--jp-gray-50);
 	}
 }

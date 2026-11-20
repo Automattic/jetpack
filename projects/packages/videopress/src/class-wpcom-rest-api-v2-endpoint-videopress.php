@@ -164,9 +164,20 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 						// (post_status 'inherit') core maps edit_post to edit_posts for
 						// the post author, which a Contributor has and which does not
 						// imply the media rights this route needs.
-						return Data::can_perform_action()
-							&& current_user_can( 'upload_files' )
-							&& current_user_can( 'edit_post', self::get_video_attachment_id( $request->get_param( 'video_guid' ) ) );
+						if ( ! Data::can_perform_action() || ! current_user_can( 'upload_files' ) ) {
+							return false;
+						}
+
+						$attachment_id = self::get_video_attachment_id( $request->get_param( 'video_guid' ) );
+						if ( ! $attachment_id ) {
+							return new WP_Error(
+								'videopress_attachment_not_found',
+								__( 'This video could not be found in the Media Library. Restore it from the trash, if available, and try again.', 'jetpack-videopress-pkg' ),
+								array( 'status' => 403 )
+							);
+						}
+
+						return current_user_can( 'edit_post', $attachment_id );
 					},
 				),
 			)
@@ -272,6 +283,18 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 							'description' => __( 'If auto-generated subtitles should be skipped for new videos', 'jetpack-videopress-pkg' ),
 							'type'        => 'boolean',
 						),
+						'videopress_player_preload_disabled' => array(
+							'description' => __( 'If embedded players should wait for playback before preloading video data', 'jetpack-videopress-pkg' ),
+							'type'        => 'boolean',
+						),
+						'videopress_inline_player_enabled' => array(
+							'description' => __( 'If videos should render an inline player from one shared script instead of one frame per video', 'jetpack-videopress-pkg' ),
+							'type'        => 'boolean',
+						),
+						'videopress_share_menu_disabled'   => array(
+							'description' => __( 'If the share menu should be hidden on every video, overriding each video’s own setting', 'jetpack-videopress-pkg' ),
+							'type'        => 'boolean',
+						),
 					),
 				),
 			)
@@ -294,6 +317,11 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 						'description' => __( 'The attachment id of the video to promote.', 'jetpack-videopress-pkg' ),
 						'type'        => 'integer',
 						'required'    => true,
+					),
+					'source'        => array(
+						'description' => __( 'The entry surface that initiated this promotion.', 'jetpack-videopress-pkg' ),
+						'type'        => 'string',
+						'enum'        => array( 'dashboard_promote', 'block_editor' ),
 					),
 				),
 				'methods'             => WP_REST_Server::EDITABLE,
@@ -330,7 +358,7 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 	 * Updates the VideoPress site settings.
 	 *
 	 * Mirrors `VideoPress_Rest_Api_V1_Settings::update_settings()`, except
-	 * on WPCOM only `videopress_auto_subtitles_disabled` is honored:
+	 * on WPCOM `videopress_videos_private_for_site` is not honored:
 	 * `videopress_private_enabled_for_site` is a dead option on Simple,
 	 * where the site-default privacy derives from the site's own privacy
 	 * setting. When a caller supplies that param on WPCOM it is not
@@ -343,6 +371,9 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 	public function videopress_update_settings( $request ) {
 		$private_for_site        = $request->get_param( 'videopress_videos_private_for_site' );
 		$auto_subtitles_disabled = $request->get_param( 'videopress_auto_subtitles_disabled' );
+		$player_preload_disabled = $request->get_param( 'videopress_player_preload_disabled' );
+		$inline_player_enabled   = $request->get_param( 'videopress_inline_player_enabled' );
+		$share_menu_disabled     = $request->get_param( 'videopress_share_menu_disabled' );
 
 		$ignored = array();
 
@@ -363,6 +394,18 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 
 		if ( null !== $auto_subtitles_disabled ) {
 			update_option( 'videopress_auto_subtitles_disabled', $auto_subtitles_disabled );
+		}
+
+		if ( null !== $player_preload_disabled ) {
+			update_option( 'videopress_player_preload_disabled', $player_preload_disabled );
+		}
+
+		if ( null !== $inline_player_enabled ) {
+			update_option( 'videopress_inline_player_enabled', $inline_player_enabled );
+		}
+
+		if ( null !== $share_menu_disabled ) {
+			update_option( 'videopress_share_menu_disabled', $share_menu_disabled );
 		}
 
 		$response = array(
@@ -512,6 +555,19 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 			);
 		}
 
+		// A competing promotion may have finished between the first lookup and acquiring the lock.
+		$info = $this->promote_video_info( $blog_id, $attachment_id );
+		if ( $info && ! empty( $info->guid ) ) {
+			wp_cache_delete( $promote_lock, 'video-info' );
+			return rest_ensure_response(
+				array(
+					'guid'               => $info->guid,
+					'media_id'           => $attachment_id,
+					'already_videopress' => true,
+				)
+			);
+		}
+
 		/*
 		 * Creates the videos-table row (video_create_info()) and enqueues
 		 * the async transcode job. The fresh-upload path sleep(3)s before
@@ -535,6 +591,17 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 				array( 'status' => 500 )
 			);
 		}
+
+		/**
+		 * Fires after a new in-process VideoPress registration is verified, before processing completes.
+		 *
+		 * @since 0.62.0
+		 *
+		 * @param object      $info    Canonical video registration.
+		 * @param int         $blog_id Site where the attachment was promoted.
+		 * @param string|null $source  Client-reported entry surface, or null when omitted.
+		 */
+		do_action( 'jetpack_videopress_attachment_promoted', $info, $blog_id, $request->get_param( 'source' ) );
 
 		return rest_ensure_response(
 			array(
@@ -723,14 +790,14 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 	/**
 	 * Resolve a VideoPress guid to its local attachment id on the current site.
 	 *
-	 * Used to authorize poster reads/writes against the specific video. Returns
-	 * 0 when the guid cannot be resolved to an attachment on this site, so the
-	 * capability check that consumes it fails closed.
+	 * Returns 0 when the GUID does not belong to the current site.
+	 *
+	 * @internal
 	 *
 	 * @param string $video_guid The VideoPress GUID.
 	 * @return int The attachment/post id, or 0 if it cannot be resolved.
 	 */
-	private static function get_video_attachment_id( $video_guid ) {
+	public static function get_video_attachment_id( $video_guid ) {
 		if ( empty( $video_guid ) ) {
 			return 0;
 		}
@@ -936,6 +1003,11 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 		$json_params = $request->get_json_params();
 		$post_id     = $json_params['id'];
 
+		// The site setting overrides every video, so drop attempts to turn sharing on and keep the stored value.
+		if ( ! empty( $json_params['display_embed'] ) && Data::get_videopress_share_menu_disabled() ) {
+			unset( $json_params['display_embed'] );
+		}
+
 		if ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) {
 			$guid = get_post_meta( $post_id, 'videopress_guid', true );
 		} else {
@@ -1093,12 +1165,25 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 					'data'    => 200,
 				)
 			);
-		} else {
+		} elseif ( is_object( $response_body ) && ! empty( $response_body->code ) && is_string( $response_body->code ) ) {
+			// WP_REST_Server reads the status only from an array; wpcom sends `{ status }` or a bare status code.
+			$error_data = $response_body->data ?? null;
+			if ( is_object( $error_data ) ) {
+				$error_data = (array) $error_data;
+			} elseif ( is_int( $error_data ) ) {
+				$error_data = array( 'status' => $error_data );
+			}
 			return rest_ensure_response(
-				new WP_Error(
-					$response_body->code,
-					$response_body->message,
-					$response_body->data
+				new WP_Error( $response_body->code, $response_body->message ?? '', $error_data )
+			);
+		} else {
+			// An HTML or empty body would otherwise build a WP_Error with no code.
+			return new WP_Error(
+				'videopress_meta_update_failed',
+				__( 'WordPress.com did not confirm the video update.', 'jetpack-videopress-pkg' ),
+				array(
+					'status'          => 502,
+					'upstream_status' => wp_remote_retrieve_response_code( $result ),
 				)
 			);
 		}

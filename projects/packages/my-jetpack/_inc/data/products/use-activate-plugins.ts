@@ -1,9 +1,16 @@
-import { useGlobalNotices } from '@automattic/jetpack-components';
+import { useQueryClient } from '@tanstack/react-query';
+import { useDispatch } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
+import { store as noticesStore } from '@wordpress/notices';
 import useAnalytics from '../../hooks/use-analytics';
-import { REST_API_SITE_PRODUCTS_ENDPOINT, QUERY_ACTIVATE_PRODUCT_KEY } from '../constants';
+import {
+	REST_API_SITE_PRODUCTS_ENDPOINT,
+	QUERY_ACTIVATE_PRODUCT_KEY,
+	QUERY_PRODUCT_BY_OWNERSHIP_KEY,
+} from '../constants';
 import useSimpleMutation from '../use-simple-mutation';
 import { getMyJetpackWindowInitialState } from '../utils/get-my-jetpack-window-state';
+import { setPluginsActiveInPageState } from '../utils/page-state-products';
 import useProducts from './use-products';
 import type { ProductCamelCase, ProductSnakeCase } from '../types';
 
@@ -37,7 +44,8 @@ const useActivatePlugins = ( productSlugs: string | string[] ) => {
 
 	const { products, refetch } = useProducts( productIds );
 	const { recordEvent } = useAnalytics();
-	const { createSuccessNotice } = useGlobalNotices();
+	const { createSuccessNotice } = useDispatch( noticesStore );
+	const queryClient = useQueryClient();
 
 	const {
 		mutate: activate,
@@ -52,6 +60,9 @@ const useActivatePlugins = ( productSlugs: string | string[] ) => {
 		},
 		options: {
 			onSuccess: () => {
+				setPluginsActiveInPageState( productIds );
+				// Activation can move a product into the owned group.
+				queryClient.invalidateQueries( { queryKey: [ QUERY_PRODUCT_BY_OWNERSHIP_KEY ] } );
 				products?.forEach( product => {
 					if ( ! getIsPluginAlreadyActive( product ) ) {
 						recordEvent( 'jetpack_myjetpack_product_activated', {
@@ -70,7 +81,8 @@ const useActivatePlugins = ( productSlugs: string | string[] ) => {
 							/* translators: %s is either the product name, i.e.- "Jetpack Backup" or the word "Plugins". */
 							__( '%s activated successfully!', 'jetpack-my-jetpack' ),
 							products?.length === 1 ? products[ 0 ].title : __( 'Plugins', 'jetpack-my-jetpack' )
-						)
+						),
+						{ type: 'snackbar' }
 					);
 				} );
 			},

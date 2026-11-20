@@ -17,6 +17,13 @@ describe( 'shouldShowPreLaunchModal', () => {
 		assert.equal( shouldShowPreLaunchModal( { sitePlan: null, hasCustomDomain: true } ), false );
 	} );
 
+	it( 'is false for a trial despite plan and custom-domain entitlements', () => {
+		assert.equal(
+			shouldShowPreLaunchModal( { sitePlan: plan, hasCustomDomain: true, isTrial: true } ),
+			false
+		);
+	} );
+
 	it( 'is false when both are missing', () => {
 		assert.equal( shouldShowPreLaunchModal( {} ), false );
 	} );

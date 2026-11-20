@@ -2,18 +2,35 @@
  * Internal dependencies
  */
 import { decodeEntities } from '@wordpress/html-entities';
+import { __ } from '@wordpress/i18n';
 import type { FormResponse, ResponseField } from '../../../types/index.ts';
 
 /**
  * Returns a display name for a form response author.
  *
  * @param response - The form response.
- * @return The decoded display name, or 'Anonymous' if none available.
+ * @return The decoded display name, or localized 'Anonymous' if none available.
  */
 export const getDisplayName = ( response: FormResponse ): string => {
 	const { author_name, author_email, author_url, ip } = response;
-	return decodeEntities( author_name || author_email || author_url || ip || 'Anonymous' );
+	return decodeEntities(
+		author_name || author_email || author_url || ip || __( 'Anonymous', 'jetpack-forms' )
+	);
 };
+
+/**
+ * Decode the `htmlspecialchars( …, ENT_NOQUOTES )` encoding stored values carry, for a value
+ * rendered as text. Mirrors `Feedback::decode_special_chars()`.
+ *
+ * @param input - The stored value.
+ * @return The decoded value.
+ */
+export const htmlspecialcharsDecode = ( input: string ): string =>
+	String( input )
+		.replace( /&lt;/g, '<' )
+		.replace( /&gt;/g, '>' )
+		// Ampersand must be last.
+		.replace( /&amp;/g, '&' );
 
 /**
  * Checks if a value represents a file upload field (object with 'files' property).

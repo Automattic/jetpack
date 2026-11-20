@@ -77,20 +77,15 @@ function wpcom_add_launch_button_to_admin_bar( WP_Admin_Bar $admin_bar ) {
 		<path d="M0.498047 13.3962C0.498047 12.2341 1.44011 11.2921 2.60221 11.2921C3.76431 11.2921 4.70638 12.2341 4.70638 13.3962C4.70638 14.5583 3.76431 15.5004 2.60221 15.5004H1.06055C0.749887 15.5004 0.498047 15.2486 0.498047 14.9379V13.3962Z" />
 	</svg>';
 
-	$blog_domain = wp_parse_url( home_url(), PHP_URL_HOST );
 	$admin_bar->add_menu(
 		array(
-			'id'     => 'menu-id',
+			'id'     => 'launch-site',
 			'parent' => null,
 			'group'  => null,
 			'title'  => '<span class="ab-icon">' . $icon . '</span><span class="ab-label">' . __( 'Launch site', 'jetpack-mu-wpcom' ) . '</span>',
-			'href'   => add_query_arg(
-				array(
-					'siteSlug' => $blog_domain,
-					'ref'      => 'wp-admin',
-				),
-				'https://wordpress.com/start/launch-site'
-			),
+			// The JS button reuses this href, refreshing only its `back_to`.
+			// The Omnibar fetches this node over REST, where the request URL is no page to go back to.
+			'href'   => Common\wpcom_get_launch_site_url( defined( 'REST_REQUEST' ) && REST_REQUEST ? array() : array( 'back_to' => Common\wpcom_get_launch_site_back_to() ) ),
 			'meta'   => array(
 				// Use `admin-color-modern` to keep the button always in blueberry (modern scheme).
 				'class' => 'launch-site admin-color-modern',
@@ -102,7 +97,7 @@ function wpcom_add_launch_button_to_admin_bar( WP_Admin_Bar $admin_bar ) {
 /**
  * Enqueue wp-components styles and the celebration modal bundle CSS.
  *
- * The celebration modal uses @wordpress/components (Modal, Button, Tooltip).
+ * The celebration modal uses @wordpress/components (Modal, Button, etc.).
  * On the frontend, wp-components CSS is not loaded automatically, so we enqueue
  * it here together with the compiled bundle CSS that contains the modal's own styles.
  */
@@ -115,7 +110,7 @@ function wpcom_enqueue_components_styles() {
 	// In admin contexts it may already be queued; wp_enqueue_style() is idempotent.
 	wp_enqueue_style( 'wp-components' );
 
-	// Enqueue the compiled bundle CSS (contains celebrate-launch-modal SCSS).
+	// Enqueue the compiled bundle CSS (contains the celebration modal styles).
 	$css_file = is_rtl() ? 'adminbar-launch-button.rtl.css' : 'adminbar-launch-button.css';
 	$css_path = Jetpack_Mu_Wpcom::BASE_DIR . 'build/adminbar-launch-button/' . $css_file;
 
@@ -172,6 +167,7 @@ function wpcom_enqueue_launch_button_assets() {
 			'siteDomain'      => wp_parse_url( home_url(), PHP_URL_HOST ),
 			'sitePlan'        => $current_plan,
 			'hasCustomDomain' => function_exists( 'wpcom_site_has_feature' ) && wpcom_site_has_feature( 'custom-domain' ),
+			'isTrial'         => function_exists( 'wpcom_site_has_feature' ) && wpcom_site_has_feature( 'trial' ),
 		),
 		JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
 	);

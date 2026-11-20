@@ -1,6 +1,6 @@
 // Layout for the "Traffic from social media" card on the Overview tab.
 // `Card.Root` from `@wordpress/ui` already paints the surface; these
-// rules only own header layout (title stack + range select on the
+// rules only own header layout (title stack + range picker on the
 // right), the chart canvas sizing, loading / empty states, and the
 // free-tier "locked dummy + upgrade Notice" overlay treatment.
 
@@ -12,20 +12,8 @@
 	justify-content: space-between;
 }
 
-// Hold the SelectControl at its native compact width so the picker
-// doesn't stretch across the header on narrow viewports — the WP
-// `SelectControl` defaults to `width: 100%` when laid out in a flex row.
 .jetpack-social-overview__chart-range {
 	flex: 0 0 auto;
-
-	.components-select-control,
-	.components-base-control__field,
-	.components-input-control,
-	.components-input-control__container,
-	select {
-		margin: 0;
-		min-inline-size: 160px;
-	}
 }
 
 .jetpack-social-overview__chart-content {

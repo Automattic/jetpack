@@ -1,5 +1,51 @@
+@use "../../styles/widget-container" as *;
+
 .container {
 	height: 100%;
+}
+
+// For the short-tile query; see widget-state.module.scss.
+.hasColumns {
+	container-type: size;
+
+	.chart {
+		flex: 1 1 0;
+		min-block-size: 0;
+	}
+}
+
+.columns {
+	display: flex;
+	flex-shrink: 0;
+	justify-content: space-between;
+	gap: var(--wpds-dimension-gap-lg);
+
+	/* Match the overlay row text: focus-ring reserve plus label inset. */
+	padding-inline:
+		calc(var(--wpds-border-width-focus) + var(--a8c-charts-dimension-leaderboard-label-inset))
+		var(--wpds-border-width-focus);
+	color: var(--wpds-color-foreground-content-neutral-weak);
+	font-size: var(--wpds-typography-font-size-xs);
+	line-height: var(--wpds-typography-line-height-xs);
+	text-transform: uppercase;
+}
+
+.columnsLabel {
+	min-inline-size: 0;
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+}
+
+.columnsMetric {
+	flex-shrink: 0;
+}
+
+@container (max-block-size: #{$widget-short-max-block-size}) {
+
+	.columns {
+		display: none;
+	}
 }
 
 .chart {
@@ -24,10 +70,6 @@
 			var(--wpds-border-width-focus) solid
 			var(--wpds-color-stroke-focus);
 		outline-offset: calc(-1 * var(--wpds-border-width-focus));
-	}
-
-	.legend {
-		flex-wrap: nowrap;
 	}
 
 	.legendItem {

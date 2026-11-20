@@ -8,27 +8,43 @@ import {
 } from '@jetpack-premium-analytics/data';
 import {
 	ChartEmptyState,
+	ExternalLink,
 	WidgetRoot,
 	WidgetState,
 	safeHttpUrl,
+	useReportActions,
 	useWidgetRootContext,
+	type CsvColumn,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
-import { video } from '@wordpress/icons';
-import { Link, Stack } from '@jetpack-premium-analytics/externals';
+import { Stack } from '@jetpack-premium-analytics/externals';
 /**
  * Internal dependencies
  */
 import styles from './style.module.css';
-import { type VideoDetailEmbedsAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
+
+/**
+ * Configurable attributes for the "Used on posts & pages" widget.
+ *
+ * The widget is scoped to a single video and has no own settings: the video is
+ * chosen by the host, which composes the report params with a `post_id` (the
+ * VideoPress post ID), the same single-resource scope other detail widgets use.
+ * A zero-attribute widget must be typed as `Record< never, never >` so the
+ * render-only type can still compose host fields like `reportParams`.
+ */
+export type VideoDetailEmbedsAttributes = Record< never, never >;
 
 // The widget has no own settings; the host injects the date range and the
 // single-video scope (`post_id`) through `reportParams`.
 type VideoDetailEmbedsRenderAttributes = VideoDetailEmbedsAttributes &
 	Partial< ReportParamsFieldAttributes >;
 type VideoDetailEmbedsWidgetProps = WidgetRenderProps< VideoDetailEmbedsRenderAttributes >;
+
+const CSV_COLUMNS: CsvColumn< StatsSingleVideoPage >[] = [
+	{ label: __( 'URL', 'jetpack-premium-analytics-pkg' ), getValue: page => page.link },
+];
 
 type VideoEmbedsListProps = {
 	/**
@@ -54,15 +70,9 @@ function VideoEmbedsList( { pages }: VideoEmbedsListProps ) {
 				return (
 					<li key={ `${ index }-${ page.link }` } className={ styles.item }>
 						{ href ? (
-							<Link
-								className={ styles.link }
-								href={ href }
-								variant="unstyled"
-								openInNewTab
-								title={ page.label }
-							>
+							<ExternalLink className={ styles.link } href={ href } title={ page.label }>
 								{ page.label }
-							</Link>
+							</ExternalLink>
 						) : (
 							<span className={ styles.link } title={ page.label }>
 								{ page.label }
@@ -85,14 +95,24 @@ function VideoDetailEmbedsReport() {
 	const { reportParams } = useWidgetRootContext();
 	const videoId = toPostId( reportParams.post_id );
 
-	const { data, isLoading, isFetching, isError, refetch } = useStatsSingleVideo( videoId );
+	const { data, isLoading, isFetching, isError, isPlaceholderData, refetch } =
+		useStatsSingleVideo( videoId );
+
+	useReportActions( {
+		csv: {
+			rows: data?.pages ?? [],
+			columns: CSV_COLUMNS,
+			filenamePrefix: `video-${ videoId }-embeds`,
+			hasDateRange: false,
+			status: { isLoading, isFetching, isError, isPlaceholderData },
+		},
+	} );
 
 	let body;
 
 	if ( videoId <= 0 ) {
 		body = (
 			<ChartEmptyState
-				icon={ video }
 				text={ __(
 					'Select a video to see where it is embedded across your site.',
 					'jetpack-premium-analytics-pkg'
@@ -124,7 +144,6 @@ function VideoDetailEmbedsReport() {
 					],
 				} }
 				empty={ {
-					icon: video,
 					description: __(
 						'This video has not been embedded on any pages yet.',
 						'jetpack-premium-analytics-pkg'

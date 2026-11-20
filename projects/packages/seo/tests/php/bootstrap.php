@@ -14,6 +14,22 @@ define( 'WP_DEBUG', true );
 // to run against — every count would be zero no matter what the query said.
 \Automattic\Jetpack\Test_Environment::init( null, 'sqlite' );
 
+// Older SQLite libraries do not provide MySQL's byte-length function.
+if ( isset( $GLOBALS['@pdo'] ) ) {
+	$seo_test_pdo = $GLOBALS['@pdo'];
+	// phpcs:ignore WordPress.DB.RestrictedClasses.mysql__PDO -- Inspect the existing SQLite test connection.
+	if ( version_compare( $seo_test_pdo->getAttribute( PDO::ATTR_SERVER_VERSION ), '3.43.0', '<' ) ) {
+		$seo_test_register = method_exists( $seo_test_pdo, 'createFunction' ) ? 'createFunction' : 'sqliteCreateFunction';
+		$seo_test_pdo->$seo_test_register(
+			'OCTET_LENGTH',
+			static function ( $value ) {
+				return null === $value ? null : strlen( (string) $value );
+			},
+			1
+		);
+	}
+}
+
 // A real database starts without the default roles, so every capability check fails.
 // Seed them, so tests that act as an administrator have the capabilities of one.
 if ( ! function_exists( 'populate_roles' ) ) {
@@ -26,17 +42,16 @@ populate_roles();
 // suite's *Test.php suffix.
 require_once __DIR__ . '/SeoTestCase.php';
 
-// Controllable stand-ins for the host-plugin classes the SEO package guards on
-// with class_exists(). The real implementations live in projects/plugins/jetpack
-// and are not autoloaded in the package test context, so these let the tests
-// drive Schema_Builder's behavior. Tests set their public static properties.
-require_once __DIR__ . '/stubs/class-jetpack-seo-utils.php';
+// Controllable stand-ins for the host-plugin and platform code the SEO package
+// guards on. Tests set their public static properties.
 require_once __DIR__ . '/stubs/class-jetpack-redux-state-helper.php';
 require_once __DIR__ . '/stubs/class-jetpack-ai-settings.php';
-require_once __DIR__ . '/stubs/class-jetpack-seo-posts.php';
 require_once __DIR__ . '/stubs/class-jetpack-options.php';
 require_once __DIR__ . '/stubs/class-wc-structured-data.php';
 require_once __DIR__ . '/stubs/class-woocommerce.php';
 require_once __DIR__ . '/stubs/woocommerce-functions.php';
 require_once __DIR__ . '/stubs/class-wpcom-test-features.php';
+require_once __DIR__ . '/stubs/class-wpcom-store-api.php';
 require_once __DIR__ . '/stubs/wpcom-feature-functions.php';
+require_once __DIR__ . '/stubs/class-wpcom-test-user.php';
+require_once __DIR__ . '/stubs/wpcom-user-functions.php';

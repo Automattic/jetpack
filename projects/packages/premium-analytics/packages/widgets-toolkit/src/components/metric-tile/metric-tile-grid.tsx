@@ -1,11 +1,12 @@
 /**
  * External dependencies
  */
-import { Icon, Text, VisuallyHidden } from '@jetpack-premium-analytics/externals';
+import { Icon, Text } from '@jetpack-premium-analytics/externals';
 import clsx from 'clsx';
 /**
  * Internal dependencies
  */
+import { MetricNoteTooltip } from '../metric-note-tooltip';
 import { MetricValue } from '../metric-value';
 import { MetricWithComparison } from '../metric-with-comparison';
 import styles from './metric-tile-grid.module.scss';
@@ -42,16 +43,9 @@ type MetricTileGridItem = {
 	previousValue?: number | null;
 
 	/**
-	 * Caveat about how the value is aggregated. Shown as a hover tooltip on the
-	 * tile header and mirrored as visually hidden text for assistive technology.
+	 * Caveat about how the value is aggregated, shown in a tooltip on the tile header.
 	 */
 	note?: string;
-
-	/**
-	 * `title` tooltip on the value, e.g. the exact count behind a shortened
-	 * display value (`18K` → `18,432`).
-	 */
-	valueTitle?: string;
 
 	/**
 	 * Format configuration for this tile's value. Falls back to the grid's
@@ -110,13 +104,21 @@ function MetricTileValue( {
 		return <Text className={ styles.placeholder }>{ tile.placeholder ?? '—' }</Text>;
 	}
 
+	const format = tile.dataFormat ?? dataFormat;
+	const tileCurrencyCode = tile.currencyCode ?? currencyCode;
+
 	if ( tile.previousValue !== undefined ) {
 		return (
-			<span className={ styles.comparison } title={ tile.valueTitle }>
+			<span className={ styles.comparison }>
 				<MetricWithComparison
 					value={ tile.value as number }
 					previousValue={ tile.previousValue }
-					dataFormat={ tile.dataFormat ?? dataFormat }
+					wrap="wrap"
+					dataFormat={
+						tileCurrencyCode === undefined
+							? format
+							: { ...format, options: { ...format.options, currencyCode: tileCurrencyCode } }
+					}
 				/>
 			</span>
 		);
@@ -125,22 +127,16 @@ function MetricTileValue( {
 	return (
 		<MetricValue
 			value={ tile.value as number }
-			dataFormat={ tile.dataFormat ?? dataFormat }
-			currencyCode={ tile.currencyCode ?? currencyCode }
+			dataFormat={ format }
+			currencyCode={ tileCurrencyCode }
 			className={ styles.value }
-			title={ tile.valueTitle }
 		/>
 	);
 }
 
 /**
- * Responsive container for metric tiles. The layout tracks the widget cell size
- * and picks one of three shapes on its own, no column count needed:
- *
- * - narrow: a single column of compact rows (icon and label left, value right);
- * - wide but short: a single row of centered tiles (columns follow tile count);
- * - wide and tall: a balanced two-column grid of large centered tiles, the last
- *   one taking the whole row when the tile count is odd.
+ * Lays metric tiles out by the size of its own box and the number of tiles it
+ * holds; the four layouts and their thresholds live in `_metric-tile-layouts.scss`.
  *
  * The grid is a size container, so it takes no height of its own: render it
  * inside a definite-height flex column (or a `height: 100%` chain) or it
@@ -160,13 +156,10 @@ export function MetricTileGrid( {
 			<div className={ styles.grid } role="list">
 				{ tiles.map( tile => (
 					<div key={ tile.key } className={ clsx( styles.tile, tile.className ) } role="listitem">
-						<div className={ styles.header } title={ tile.note }>
-							{ tile.icon && <Icon icon={ tile.icon } size={ 24 } className={ styles.icon } /> }
+						<MetricNoteTooltip note={ tile.note } className={ styles.header }>
+							{ tile.icon && <Icon icon={ tile.icon } size={ 20 } className={ styles.icon } /> }
 							<Text className={ styles.label }>{ tile.label }</Text>
-							{ /* The `title` tooltip is invisible to keyboard and screen-reader
-							     users, so the caveat is repeated as visually hidden text. */ }
-							{ tile.note && <VisuallyHidden>{ tile.note }</VisuallyHidden> }
-						</div>
+						</MetricNoteTooltip>
 						<MetricTileValue
 							tile={ tile }
 							dataFormat={ dataFormat }

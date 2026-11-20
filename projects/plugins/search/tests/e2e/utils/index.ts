@@ -4,6 +4,7 @@ import {
 	disableInstantSearch,
 	enableInstantSearch,
 	searchAutoConfig,
+	seedSearchPlanInfo,
 	setDefaultSort,
 	setHighlightColor,
 	setResultFormat,
@@ -19,6 +20,7 @@ class SearchUtils extends TestUtils {
 	setDefaultSort: typeof setDefaultSort = setDefaultSort;
 	searchAutoConfig: typeof searchAutoConfig = searchAutoConfig;
 	clearSearchPlanInfo: typeof clearSearchPlanInfo = clearSearchPlanInfo;
+	seedSearchPlanInfo: typeof seedSearchPlanInfo = seedSearchPlanInfo;
 }
 
 export { SearchUtils };

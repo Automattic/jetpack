@@ -56,7 +56,6 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
-		"autotagger": true,
 		"branch-alias": {
 			"dev-trunk": "7.0.x-dev"
 		},

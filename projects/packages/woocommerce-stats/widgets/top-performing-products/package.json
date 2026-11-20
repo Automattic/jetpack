@@ -1,0 +1,5 @@
+{
+	"name": "@automattic/jetpack-woocommerce-stats-widget-top-performing-products",
+	"private": true,
+	"type": "module"
+}

@@ -1,8 +1,12 @@
+import { loadMediaLibrary } from '@automattic/jetpack-components/tools/load-media-library';
+import { useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { media, upload } from '@wordpress/icons';
+import { store as noticesStore } from '@wordpress/notices';
 import { Card, Field, Skeleton, Stack, Text } from '@wordpress/ui';
+import { addQueryArgs } from '@wordpress/url';
 import { useState } from 'react';
-import { usePosterUrl } from '../../hooks/use-poster-url';
+import { usePlaybackTokenQuery, usePosterUrl } from '../../hooks/use-poster-url';
 import { useUpdateVideoPoster } from '../../hooks/use-update-video-poster';
 import { selectImageFromMediaLibrary } from '../../utils/select-image-from-media-library';
 import SelectFrameDialog from './select-frame-dialog';
@@ -18,7 +22,10 @@ type Props = {
 // attachments have no poster endpoint, and one still being processed has no
 // stable frame to cut from.
 const canEditThumbnail = ( video: LibraryItem ): boolean =>
-	video.type === 'videopress' && ! video.isProcessing && Boolean( video.sourceUrl || video.guid );
+	video.type === 'videopress' &&
+	! video.isProcessing &&
+	! video.conversionFailed &&
+	Boolean( video.sourceUrl || video.guid );
 
 /**
  * The card proper. Split from the guard below so the poster query, the
@@ -34,6 +41,19 @@ function EditableThumbnailCard( { video }: Props ): ReactElement {
 	const updatePoster = useUpdateVideoPoster();
 	const posterUrl = usePosterUrl( video );
 	const [ dialogOpen, setDialogOpen ] = useState( false );
+	const [ isLoadingLibrary, setIsLoadingLibrary ] = useState( false );
+	const { createErrorNotice } = useDispatch( noticesStore );
+	const playbackToken = usePlaybackTokenQuery( video.guid, video.isPrivate && dialogOpen );
+	const sourceUrl = video.playbackUrl ?? video.sourceUrl;
+	const isSourceLoading = video.isPrivate && ! playbackToken.data && playbackToken.isFetching;
+	const hasSourceError = video.isPrivate && ! playbackToken.data && ! isSourceLoading;
+	let frameSourceUrl = sourceUrl;
+	if ( video.isPrivate ) {
+		frameSourceUrl =
+			sourceUrl && playbackToken.data
+				? addQueryArgs( sourceUrl, { metadata_token: playbackToken.data } )
+				: undefined;
+	}
 
 	/*
 	 * `usePosterUrl` returns null both when there is no poster at all and
@@ -49,7 +69,20 @@ function EditableThumbnailCard( { video }: Props ): ReactElement {
 	};
 
 	const handleUploadImage = async () => {
-		const attachment = await selectImageFromMediaLibrary().catch( () => null );
+		let attachment;
+		try {
+			setIsLoadingLibrary( true );
+			await loadMediaLibrary();
+			setIsLoadingLibrary( false );
+			attachment = await selectImageFromMediaLibrary();
+		} catch {
+			setIsLoadingLibrary( false );
+			createErrorNotice(
+				__( 'The media library could not be opened. Try again.', 'jetpack-videopress-pkg' ),
+				{ type: 'snackbar' }
+			);
+			return;
+		}
 		if ( ! attachment ) {
 			return;
 		}
@@ -62,6 +95,12 @@ function EditableThumbnailCard( { video }: Props ): ReactElement {
 	};
 
 	const isBusy = updatePoster.isPending;
+	let uploadLabel: string = __( 'Upload image', 'jetpack-videopress-pkg' );
+	if ( isBusy ) {
+		uploadLabel = __( 'Updating…', 'jetpack-videopress-pkg' );
+	} else if ( isLoadingLibrary ) {
+		uploadLabel = __( 'Opening…', 'jetpack-videopress-pkg' );
+	}
 
 	return (
 		<Card.Root>
@@ -101,18 +140,14 @@ function EditableThumbnailCard( { video }: Props ): ReactElement {
 						</div>
 						<ThumbnailTile
 							icon={ upload }
-							label={
-								isBusy
-									? __( 'Updating…', 'jetpack-videopress-pkg' )
-									: __( 'Upload image', 'jetpack-videopress-pkg' )
-							}
-							disabled={ isBusy || ! ( window.wp as WpGlobal | undefined )?.media }
+							label={ uploadLabel }
+							disabled={ isBusy || isLoadingLibrary }
 							onClick={ handleUploadImage }
 						/>
 						<ThumbnailTile
 							icon={ media }
 							label={ __( 'Select from video', 'jetpack-videopress-pkg' ) }
-							disabled={ isBusy || ! video.sourceUrl }
+							disabled={ isBusy || ! sourceUrl }
 							onClick={ () => setDialogOpen( true ) }
 						/>
 					</Stack>
@@ -125,8 +160,11 @@ function EditableThumbnailCard( { video }: Props ): ReactElement {
 				</Field.Root>
 			</Card.Content>
 			<SelectFrameDialog
-				src={ video.sourceUrl ?? '' }
+				src={ frameSourceUrl }
 				isOpen={ dialogOpen }
+				isLoading={ isSourceLoading }
+				hasError={ hasSourceError }
+				onRetry={ () => playbackToken.refetch() }
 				onClose={ () => setDialogOpen( false ) }
 				onConfirm={ handleConfirmFrame }
 			/>

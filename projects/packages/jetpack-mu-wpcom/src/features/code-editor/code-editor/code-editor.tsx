@@ -6,7 +6,7 @@
 import type { EditorView } from '@codemirror/view';
 
 // @ts-expect-error Script globals should be exported
-const { __ }: typeof import('@wordpress/i18n') = window.wp.i18n;
+const { __ }: typeof import( '@wordpress/i18n' ) = window.wp.i18n;
 
 const codeEditorTextareaSelector = 'textarea.editor-post-text-editor';
 

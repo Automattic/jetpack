@@ -177,7 +177,7 @@ describe( 'useDefaultHiddenSeries', () => {
 
 	it( 'keeps the same set across renders until visibility changes', () => {
 		// Charts memoize their rendered series off this set. A fresh identity per
-		// render invalidates those memos, which re-runs the accessible tooltip's
+		// render invalidates those memos, which re-runs `XYChartTooltip`'s
 		// effect and closes a tooltip the user is still navigating with.
 		const Harness = () => (
 			<GlobalChartsProvider>

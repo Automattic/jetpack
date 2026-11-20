@@ -162,7 +162,8 @@ const ConditionalLogicPanel = ( { clientId, attributes, setAttributes } ) => {
 			<InspectorControls>
 				<PanelBody
 					title={ __( 'Conditional logic', 'jetpack-forms' ) }
-					initialOpen={ false }
+					// Open for a field that already has conditions, so its summary is visible on selection.
+					initialOpen={ hasConditions }
 					className="jetpack-contact-form__panel jetpack-contact-form__conditional-logic"
 				>
 					<Stack direction="column" gap="md">

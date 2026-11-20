@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-File upload field: Rebuild the field on the same foundation as the other form fields, so it behaves consistently with them. Markup cached from an earlier release keeps working for one release.

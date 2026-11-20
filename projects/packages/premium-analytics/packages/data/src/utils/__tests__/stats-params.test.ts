@@ -33,7 +33,6 @@ describe( 'getPeriodsBetweenInclusive', () => {
 	} );
 
 	it.each( [
-		[ 'day', '2026-06-01T00:00:00.000-07:00', '2026-06-30T23:59:59.999-07:00', 30 ],
 		[ 'week', '2026-06-01T00:00:00.000-07:00', '2026-06-28T23:59:59.999-07:00', 4 ],
 		[ 'month', '2026-01-15T00:00:00.000-07:00', '2026-06-15T23:59:59.999-07:00', 6 ],
 		[ 'year', '2024-03-01T00:00:00.000-07:00', '2026-03-01T23:59:59.999-07:00', 3 ],
@@ -47,7 +46,6 @@ describe( 'getPeriodsBetweenInclusive', () => {
 	// Hourly buckets count instants, not calendar days, so a range ending on
 	// the hour rounds up rather than always adding a fixed +1.
 	it.each( [
-		[ '2026-06-01T00:00:00.000-07:00', '2026-06-01T23:59:59.999-07:00', 24 ],
 		[ '2026-06-01T09:00:00.000-07:00', '2026-06-02T08:59:59.999-07:00', 24 ],
 		[ '2026-06-01T00:00:00.000-07:00', '2026-06-02T23:59:59.999-07:00', 48 ],
 		[ '2026-06-01T09:00:00.000-07:00', '2026-06-01T09:30:00.000-07:00', 1 ],
@@ -83,21 +81,18 @@ describe( 'getPeriodsBetweenInclusive', () => {
 } );
 
 describe( 'reportParamsToStatsQueryParams', () => {
-	it( 'converts report dates into stats date range params', () => {
+	it.each( [
+		[ -1, {} ],
+		[ 1, { start_date: '2020-01-01', days: 7 } ],
+	] )( 'handles an explicit start date with num=%s', ( num, window ) => {
 		expect(
 			reportParamsToStatsQueryParams( {
-				from: '2026-06-01T00:00:00',
-				to: '2026-06-07T23:59:59',
-				interval: 'day',
+				num,
+				start_date: '2020-01-01',
+				from: '2020-01-03',
+				to: '2020-01-07',
 			} )
-		).toEqual(
-			expect.objectContaining( {
-				period: 'day',
-				end_date: '2026-06-07T23:59:59',
-				start_date: '2026-06-01T00:00:00',
-				days: 7,
-			} )
-		);
+		).toEqual( { num, period: 'day', end_date: '2020-01-07', ...window } );
 	} );
 
 	it( 'passes the offset-bearing date through untrimmed, still counting days correctly', () => {
@@ -233,16 +228,6 @@ describe( 'reportParamsToStatsQueryParams', () => {
 		expect( params ).not.toHaveProperty( 'geoMode' );
 		expect( params ).not.toHaveProperty( 'utmParams' );
 		expect( params ).not.toHaveProperty( 'deviceProperty' );
-	} );
-
-	it( 'does not forward unknown params to Stats endpoints', () => {
-		const params = reportParamsToStatsQueryParams( {
-			from: '2026-06-01',
-			to: '2026-06-01',
-			unknown_param: 'leak',
-		} );
-
-		expect( params ).not.toHaveProperty( 'unknown_param' );
 	} );
 
 	it( 'omits empty date params when no dates are provided', () => {

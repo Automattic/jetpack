@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Conditional logic: Explain when fields share a Name/ID rather than offering them as conditions that cannot be told apart.

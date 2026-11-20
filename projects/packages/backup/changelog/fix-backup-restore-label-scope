@@ -1,5 +1,0 @@
-Significance: patch
-Type: fixed
-Comment: Backup: stop the modernized dashboard's Restore action counting the file-browser selection, which it can never honour — a restore point is restored whole. No-op when the modernization filter is off.
-
-

@@ -18,6 +18,18 @@ use WP_Post;
 class Attachment_Handler {
 
 	/**
+	 * Seconds to wait for WordPress.com to delete a video; it often takes close to 10, the Connection client's default.
+	 */
+	const DELETE_TIMEOUT = 60;
+
+	/**
+	 * Why the last VideoPress delete in this request was blocked, if it was.
+	 *
+	 * @var string|null
+	 */
+	private static $delete_error = null;
+
+	/**
 	 * Initializer
 	 *
 	 * This method should be called only once by the Initializer class. Do not call this method again.
@@ -36,9 +48,11 @@ class Attachment_Handler {
 		}
 
 		add_filter( 'pre_delete_attachment', array( __CLASS__, 'delete_video_wpcom' ), 10, 2 );
+		add_filter( 'rest_request_after_callbacks', array( __CLASS__, 'explain_rest_delete_failure' ) );
 		add_filter( 'wp_mime_type_icon', array( __CLASS__, 'wp_mime_type_icon' ), 10, 3 );
 		add_filter( 'wp_video_extensions', array( __CLASS__, 'add_videopress_extenstion' ) );
 
+		add_filter( 'attachment_fields_to_edit', array( __CLASS__, 'conversion_failure_field' ), 10, 2 );
 		add_filter( 'wp_prepare_attachment_for_js', array( __CLASS__, 'prepare_attachment_for_js' ) );
 		add_filter( 'ajax_query_attachments_args', array( __CLASS__, 'ajax_query_attachments_args' ) );
 		add_action( 'pre_get_posts', array( __CLASS__, 'media_list_table_query' ) );
@@ -46,6 +60,7 @@ class Attachment_Handler {
 		add_filter( 'user_has_cap', array( __CLASS__, 'disable_delete_if_disconnected' ), 10, 3 );
 
 		add_action( 'admin_print_scripts-upload.php', array( __CLASS__, 'enqueue_media_library_poll' ) );
+		add_action( 'admin_print_scripts-upload.php', array( __CLASS__, 'enqueue_media_library_bulk_delete' ) );
 		add_action( 'admin_print_styles-upload.php', array( __CLASS__, 'enqueue_media_library_styles' ) );
 		add_filter( 'heartbeat_received', array( __CLASS__, 'heartbeat_received' ), 10, 2 );
 	}
@@ -102,15 +117,16 @@ class Attachment_Handler {
 	 * Attempts to delete a VideoPress video from wp.com.
 	 * Will block the deletion from continuing if certain errors return from the wp.com API.
 	 *
-	 * @param Boolean $delete if the deletion should occur or not (unused).
-	 * @param WP_Post $post the post object.
+	 * @param bool|null $delete Short-circuit value from earlier filters; null by default (unused).
+	 * @param WP_Post   $post   The post object.
 	 *
-	 * @return null|WP_Error|Boolean null if deletion should continue.
+	 * @return null|false null if deletion should continue, false to block it.
 	 */
 	public static function delete_video_wpcom( $delete, $post ) {
 		if ( ! is_videopress_attachment( $post->ID ) ) {
 			return null;
 		}
+		self::$delete_error = null;
 
 		$guid = get_post_meta( $post->ID, 'videopress_guid', true );
 		if ( empty( $guid ) ) {
@@ -122,12 +138,17 @@ class Attachment_Handler {
 		$wpcom_response = Client::wpcom_json_api_request_as_blog(
 			sprintf( '/videos/%s/delete', $guid ),
 			'1.1',
-			array( 'method' => 'POST' ),
+			array(
+				'method'  => 'POST',
+				'timeout' => self::DELETE_TIMEOUT,
+			),
 			array( 'user_id' => get_current_user_id() )
 		);
 
+		// Return false, not the WP_Error: core treats any truthy value as a successful delete.
 		if ( is_wp_error( $wpcom_response ) ) {
-			return $wpcom_response;
+			self::$delete_error = __( 'WordPress.com did not confirm that the video was deleted, so it was kept. Try again.', 'jetpack-videopress-pkg' );
+			return false;
 		}
 
 		// Upon success or a 404 (video already deleted on wp.com), return null to allow the deletion to continue.
@@ -137,7 +158,29 @@ class Attachment_Handler {
 		}
 
 		// Otherwise we stop the deletion from proceeding.
+		self::$delete_error = sprintf(
+			/* translators: %d: HTTP status code. */
+			__( 'WordPress.com could not delete this video (error %d).', 'jetpack-videopress-pkg' ),
+			(int) $wpcom_response['response']['code']
+		);
 		return false;
+	}
+
+	/**
+	 * Replaces the REST API's generic "cannot be deleted" error with the reason a VideoPress delete was blocked.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param mixed $response Result of the endpoint callback.
+	 * @return mixed
+	 */
+	public static function explain_rest_delete_failure( $response ) {
+		if ( null === self::$delete_error || ! is_wp_error( $response ) || 'rest_cannot_delete' !== $response->get_error_code() ) {
+			return $response;
+		}
+		$message            = self::$delete_error;
+		self::$delete_error = null;
+		return new WP_Error( 'videopress_delete_failed', $message, array( 'status' => 502 ) );
 	}
 
 	/**
@@ -173,7 +216,7 @@ class Attachment_Handler {
 
 		$status = get_post_meta( $post_id, 'videopress_status', true );
 
-		if ( $status === 'complete' ) {
+		if ( $status === 'complete' || $status === 'failed' ) {
 			return $icon;
 		}
 
@@ -210,6 +253,26 @@ class Attachment_Handler {
 			}
 		}
 		return $post;
+	}
+
+	/**
+	 * Explain a terminal conversion failure in the Media Library details.
+	 *
+	 * @since 0.58.0
+	 *
+	 * @param array   $fields Attachment fields.
+	 * @param WP_Post $post Attachment.
+	 * @return array
+	 */
+	public static function conversion_failure_field( $fields, $post ) {
+		if ( 'failed' === get_post_meta( $post->ID, 'videopress_status', true ) ) {
+			$fields['videopress_conversion_error'] = array(
+				'label' => __( 'VideoPress', 'jetpack-videopress-pkg' ),
+				'input' => 'html',
+				'html'  => esc_html__( 'Conversion failed. Delete this video and upload it again.', 'jetpack-videopress-pkg' ),
+			);
+		}
+		return $fields;
 	}
 
 	/**
@@ -320,6 +383,58 @@ class Attachment_Handler {
 		);
 
 		add_filter( 'heartbeat_settings', array( __CLASS__, 'heartbeat_settings' ) );
+	}
+
+	/**
+	 * Replaces the Media Library list view's single-request bulk delete with per-item requests
+	 * when VideoPress videos are selected, since each one waits on WordPress.com.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return void
+	 */
+	public static function enqueue_media_library_bulk_delete() {
+		global $wp_list_table, $wp_query;
+
+		if ( ! $wp_list_table instanceof \WP_Media_List_Table || ! $wp_query instanceof \WP_Query ) {
+			return;
+		}
+
+		$videopress_ids = array();
+		foreach ( $wp_query->posts as $post ) {
+			if ( $post instanceof WP_Post && 'video/videopress' === $post->post_mime_type ) {
+				$videopress_ids[] = $post->ID;
+			}
+		}
+		if ( empty( $videopress_ids ) ) {
+			return;
+		}
+
+		wp_enqueue_script(
+			'videopress-media-library-bulk-delete',
+			plugins_url( 'js/media-library-bulk-delete.js', __FILE__ ),
+			array( 'jquery', 'wp-api-fetch' ),
+			Package_Version::PACKAGE_VERSION,
+			true
+		);
+		wp_localize_script(
+			'videopress-media-library-bulk-delete',
+			'videopressMediaBulkDelete',
+			array(
+				'videoPressIds' => $videopress_ids,
+				'strings'       => array(
+					/* translators: %1$s: number of items processed so far, %2$s: number of items selected. */
+					'progress'     => __( 'Deleting media: %1$s of %2$s done. Keep this page open until it finishes.', 'jetpack-videopress-pkg' ),
+					/* translators: %1$s: number of items deleted, %2$s: number of items selected. */
+					'done'         => __( 'Deleted %1$s of %2$s selected items.', 'jetpack-videopress-pkg' ),
+					/* translators: %1$s: number of items deleted, %2$s: number of items selected, %3$s: number of items that failed. */
+					'partial'      => __( 'Deleted %1$s of %2$s selected items. %3$s could not be deleted and are still selected, so you can try again:', 'jetpack-videopress-pkg' ),
+					/* translators: %1$s: media title, %2$s: error message. */
+					'failure'      => __( '%1$s: %2$s', 'jetpack-videopress-pkg' ),
+					'unknownError' => __( 'The item could not be deleted.', 'jetpack-videopress-pkg' ),
+				),
+			)
+		);
 	}
 
 	/**

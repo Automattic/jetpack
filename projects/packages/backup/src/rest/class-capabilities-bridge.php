@@ -1,13 +1,13 @@
 <?php
 /**
- * Capabilities REST bridge — WPCOM's site rewind state, plus the local
- * facts the dashboard needs in the same breath.
+ * Capabilities REST bridge — WPCOM's site rewind state.
  *
  * @package automattic/jetpack-backup-plugin
  */
 
 namespace Automattic\Jetpack\Backup\V0005\REST;
 
+use Automattic\Jetpack\Backup\V0005\Jetpack_Backup;
 use Automattic\Jetpack\Connection\Client;
 use WP_Error;
 use WP_REST_Server;
@@ -18,12 +18,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 /**
  * Returns what the modernized dashboard is allowed to show.
- *
- * Two halves kept apart by the response shape: the top level projects
- * WordPress.com's answer into the flags `<Gates>` reads, while everything under
- * `local` was decided on the site. They ride together because this is the one
- * request every screen makes before rendering a body. Add locally-derived
- * values under `local`, never beside the projections.
  */
 class Capabilities_Bridge {
 
@@ -55,16 +49,17 @@ class Capabilities_Bridge {
 	 * the `capabilities` key is missing entirely, which produced a false
 	 * "no plan" gate for plans that do include Backup.
 	 *
-	 * The `local` branch rides along on the same response and is decided
-	 * here rather than upstream; the class docblock says why it lives on
-	 * this route and why it is nested.
-	 *
 	 * @return \WP_REST_Response|WP_Error The decoded capabilities, or WP_Error on failure.
 	 */
 	public static function get_capabilities() {
 		$blog_id = Rest_Controller::get_blog_id_or_error();
 		if ( is_wp_error( $blog_id ) ) {
 			return $blog_id;
+		}
+
+		$cached = get_transient( Jetpack_Backup::CAPABILITIES_TRANSIENT );
+		if ( is_array( $cached ) ) {
+			return rest_ensure_response( $cached );
 		}
 
 		$response = Client::wpcom_json_api_request_as_user(
@@ -136,32 +131,16 @@ class Capabilities_Bridge {
 		}
 
 		$capabilities = $body['capabilities'];
-
-		return rest_ensure_response(
-			array(
-				'hasBackupPlan' => in_array( 'backup', $capabilities, true ),
-				'hasScan'       => in_array( 'scan', $capabilities, true ),
-				// Decided here, not upstream. See the class docblock for why
-				// these live in their own branch.
-				'local'         => array(
-					'isStandalonePluginActive' => self::is_standalone_plugin_active(),
-				),
-			)
+		$projected    = array(
+			'hasBackupPlan' => in_array( 'backup', $capabilities, true ),
+			'hasScan'       => in_array( 'scan', $capabilities, true ),
 		);
-	}
 
-	/**
-	 * Whether the standalone Jetpack VaultPress Backup plugin is active.
-	 *
-	 * Answered on the server: the modernized page emits no backup-specific global
-	 * to read, and a gate the client never decides cannot be bypassed from it.
-	 * `JETPACK_BACKUP_PLUGIN_DIR` tracks *plugin* activation, unlike the
-	 * `jetpack-backup` slug in `connectedPlugins`, which the package registers
-	 * and so would report the plugin present on the one site that lacks it.
-	 *
-	 * @return bool True when the standalone Backup plugin is active.
-	 */
-	private static function is_standalone_plugin_active() {
-		return defined( 'JETPACK_BACKUP_PLUGIN_DIR' );
+		// A "no plan" answer is not kept: a reader back from buying one must not meet the upsell again.
+		if ( $projected['hasBackupPlan'] ) {
+			set_transient( Jetpack_Backup::CAPABILITIES_TRANSIENT, $projected, Jetpack_Backup::REWIND_READ_CACHE_TTL );
+		}
+
+		return rest_ensure_response( $projected );
 	}
 }

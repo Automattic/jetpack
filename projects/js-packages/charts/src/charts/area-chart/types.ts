@@ -1,15 +1,18 @@
 import type {
 	BaseChartProps,
+	BucketInfo,
 	DataPointDate,
 	SeriesData,
 	SeriesChartLegendConfig,
 	SeriesVisibilityProps,
+	CompactWhenShortProps,
 } from '../../types';
 import type { RenderTooltipParams } from '../../visx/types';
 import type { CurveType } from '../line-chart/types';
 import type { ReactNode } from 'react';
 
-export interface AreaChartProps extends BaseChartProps< SeriesData[] >, SeriesVisibilityProps {
+export interface AreaChartProps
+	extends BaseChartProps< SeriesData[] >, SeriesVisibilityProps, CompactWhenShortProps {
 	/**
 	 * Legend configuration. Supports `collapseGroups` on top of the shared options.
 	 */
@@ -39,7 +42,9 @@ export interface AreaChartProps extends BaseChartProps< SeriesData[] >, SeriesVi
 	/**
 	 * Custom tooltip renderer.
 	 */
-	renderTooltip?: ( params: RenderTooltipParams< DataPointDate > ) => ReactNode;
+	renderTooltip?: (
+		params: RenderTooltipParams< DataPointDate > & { bucketInfo?: BucketInfo }
+	) => ReactNode;
 	/**
 	 * Whether to show crosshair lines in the tooltip.
 	 */
@@ -71,11 +76,5 @@ export interface AreaChartProps extends BaseChartProps< SeriesData[] >, SeriesVi
 	 * @default true
 	 */
 	rescaleYOnVisibilityChange?: boolean;
-	/**
-	 * @deprecated Use `rescaleYOnVisibilityChange`. The behaviour keys off series
-	 * visibility changing, not specifically a legend toggle. Still honoured when
-	 * `rescaleYOnVisibilityChange` is not set.
-	 */
-	rescaleYOnLegendToggle?: boolean;
 	children?: ReactNode;
 }

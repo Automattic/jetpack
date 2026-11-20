@@ -64,7 +64,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: Setup tools
-        uses: ./.github/actions/tool-setup
+        uses: $/.github/actions/tool-setup
         with:
           node: false
 

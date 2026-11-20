@@ -1,0 +1,78 @@
+import '@testing-library/jest-dom';
+import { jest } from '@jest/globals';
+import { render, screen } from '@testing-library/react';
+import type { ReactNode } from 'react';
+
+// True-ESM Jest (`--experimental-vm-modules`): register mocks with
+// `jest.unstable_mockModule`, then import the component under test dynamically.
+// The page frame and the tab bar are stubbed so this covers DashboardPage's own
+// wiring: whether the tabs render and which classes the content wrapper gets.
+jest.unstable_mockModule( '@automattic/jetpack-components', () => ( {
+	AdminPage: ( { title, children }: { title: string; children: ReactNode } ) => (
+		<div>
+			<h1>{ title }</h1>
+			{ children }
+		</div>
+	),
+	ThemeProvider: ( { children }: { children: ReactNode } ) => children,
+} ) );
+jest.unstable_mockModule( '../dashboard-nav', () => ( {
+	default: ( { children }: { children: ReactNode } ) => (
+		<div>
+			<div role="tablist" />
+			{ children }
+		</div>
+	),
+} ) );
+jest.unstable_mockModule( '../../data/record-seo-event', () => ( {
+	recordScreenViewOnce: jest.fn(),
+	recordSeoEvent: jest.fn(),
+} ) );
+jest.unstable_mockModule( '../dashboard-notices', () => ( {
+	default: () => <div>notice</div>,
+} ) );
+
+const { default: DashboardPage } = await import( '../dashboard-page' );
+const { recordSeoEvent } = await import( '../../data/record-seo-event' );
+
+describe( 'DashboardPage', () => {
+	it( 'renders the tab bar around the content by default', () => {
+		render( <DashboardPage active="overview">content</DashboardPage> );
+
+		expect( screen.getByRole( 'tablist' ) ).toBeInTheDocument();
+		const column = screen.getByText( 'content' );
+		expect( column ).toHaveClass( 'jetpack-seo-page-column', 'jetpack-seo-page-column--wide' );
+		expect( column ).toContainElement( screen.getByText( 'notice' ) );
+	} );
+
+	it( 'drops the tab bar but keeps the header when tabs are hidden', () => {
+		render(
+			<DashboardPage active="settings" showTabs={ false } centered>
+				content
+			</DashboardPage>
+		);
+
+		expect( screen.getByRole( 'heading', { level: 1, name: 'SEO' } ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'tablist' ) ).not.toBeInTheDocument();
+		expect( screen.getByText( 'content' ) ).toHaveClass(
+			'jetpack-seo-page-content',
+			'jetpack-seo-page-content--centered'
+		);
+	} );
+
+	it( 'records the screen view again when the admin shell shows the page again, not on its first show', () => {
+		render( <DashboardPage active="settings">content</DashboardPage> );
+		const shown = ( page: string, firstShow: boolean ) =>
+			window.dispatchEvent(
+				new CustomEvent( 'jetpack-admin-shell:page-shown', { detail: { page, firstShow } } )
+			);
+
+		shown( 'jetpack-seo', true );
+		shown( 'my-jetpack', false );
+		shown( 'jetpack-seo', false );
+
+		expect( ( recordSeoEvent as jest.Mock ).mock.calls ).toEqual( [
+			[ 'jetpack_seo_screen_viewed', 'settings' ],
+		] );
+	} );
+} );

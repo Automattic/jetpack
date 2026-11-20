@@ -1,36 +1,31 @@
 /**
- * External dependencies
- */
-import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
-import { device } from '@jetpack-premium-analytics/icons';
-/**
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
 import {
-	DonutChartSkeleton,
-	Legend,
+	Donut,
 	WIDGET_ROW_LIMIT,
 	describeError,
-	SemiCircleChart,
 	WidgetRoot,
-	WidgetState,
-	useSegmentStyles,
+	useReportActions,
 	useWidgetRootContext,
-	type LegendItem,
+	type CsvColumn,
+	type DonutSegmentInput,
 	type ReportParamsFieldAttributes,
-	type SemiCircleChartData,
 } from '@jetpack-premium-analytics/widgets-toolkit';
+import { useMemo } from 'react';
 /**
  * Internal dependencies
  */
-import styles from './style.module.css';
-import useDeviceViews from './use-device-views';
-import { type DevicesAttributes } from './widget';
+import { useNoViewsEmptyState } from '../use-no-views-empty-state';
+import useDeviceViews, { type DeviceView } from './use-device-views';
 /**
  * Types
  */
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
+
+/** No configurable attributes; the empty record allows host-provided fields. */
+export type DevicesAttributes = Record< never, never >;
 
 type DevicesRenderAttributes = DevicesAttributes & Partial< ReportParamsFieldAttributes >;
 type DevicesWidgetProps = WidgetRenderProps< DevicesRenderAttributes >;
@@ -40,78 +35,89 @@ const PERCENTAGE_DATA_FORMAT = {
 	options: { decimals: 1, signDisplay: 'auto' as const },
 };
 
+const DEVICE_COLUMNS: CsvColumn< DeviceView >[] = [
+	{
+		label: __( 'Screen size', 'jetpack-premium-analytics-pkg' ),
+		getValue: row => row.displayLabel,
+	},
+	{ label: __( 'Share (%)', 'jetpack-premium-analytics-pkg' ), getValue: row => row.percentage },
+];
+
 function toRatio( percentage: number ) {
 	return percentage / 100;
 }
 
 function DevicesInner() {
 	const { reportParams } = useWidgetRootContext();
-	const { data, hasComparison, isLoading, isFetching, isError, error, refetch } = useDeviceViews( {
+	const {
+		data,
+		hasComparison,
+		isLoading,
+		isFetching,
+		isError,
+		csvIsError,
+		csvIsPlaceholderData,
+		error,
+		refetch,
+	} = useDeviceViews( {
 		reportParams,
 		max: WIDGET_ROW_LIMIT,
 		deviceProperty: 'screensize',
 	} );
 
-	const chartData: SemiCircleChartData = data.map( item => ( {
-		label: item.displayLabel,
-		value: toRatio( item.percentage ),
-	} ) );
+	const segments = useMemo< DonutSegmentInput[] >(
+		() =>
+			data.map( item => ( {
+				label: item.displayLabel,
+				value: toRatio( item.percentage ),
+				previousValue:
+					item.previousPercentage === undefined ? undefined : toRatio( item.previousPercentage ),
+			} ) ),
+		[ data ]
+	);
+	const isEmpty = segments.every( segment => ! segment.value );
+	const emptyState = useNoViewsEmptyState(
+		{ isLoading, isError, isEmpty },
+		__( 'You don’t have devices recorded yet.', 'jetpack-premium-analytics-pkg' )
+	);
 
-	const segmentStyles = useSegmentStyles( chartData );
-
-	const legendData: LegendItem[] = data.map( item => ( {
-		label: item.displayLabel,
-		value: toRatio( item.percentage ),
-		displayValue: formatMetricValue(
-			toRatio( item.percentage ),
-			PERCENTAGE_DATA_FORMAT.type,
-			PERCENTAGE_DATA_FORMAT.options
-		),
-		comparison:
-			hasComparison && item.previousPercentage !== undefined
-				? toRatio( item.previousPercentage )
-				: undefined,
-	} ) );
-	const styledLegendData = legendData.map( ( item, index ) => ( {
-		...item,
-		color: segmentStyles[ index ]?.color,
-	} ) );
+	useReportActions( {
+		csv: {
+			rows: isEmpty ? [] : data,
+			columns: DEVICE_COLUMNS,
+			filenamePrefix: 'devices',
+			hasDateRange: true,
+			status: {
+				isLoading,
+				isFetching,
+				isError: csvIsError,
+				isPlaceholderData: csvIsPlaceholderData,
+			},
+		},
+	} );
 
 	return (
-		<div className={ styles.content }>
-			<WidgetState
-				isLoading={ isLoading }
-				isFetching={ isFetching }
-				isError={ isError }
-				isEmpty={ data.length === 0 }
-				error={ describeError( error, {
-					retryDescription: __(
-						"We couldn't load device data. Please try again in a moment.",
-						'jetpack-premium-analytics-pkg'
-					),
-					onRetry: refetch,
-				} ) }
-				empty={ {
-					icon: device,
-					description: __( 'No device data in this period.', 'jetpack-premium-analytics-pkg' ),
-				} }
-				renderLoading={ <DonutChartSkeleton /> }
-			>
-				<div className={ styles.chartWrap }>
-					<div className={ styles.chartShell }>
-						<SemiCircleChart
-							chartData={ chartData }
-							styles={ segmentStyles }
-							showLegend={ false }
-							showMetric={ false }
-							withTooltips
-							dataFormat={ PERCENTAGE_DATA_FORMAT }
-						/>
-						<Legend items={ styledLegendData } withComparison={ hasComparison } />
-					</div>
-				</div>
-			</WidgetState>
-		</div>
+		<Donut
+			segments={ segments }
+			status={ {
+				isLoading: emptyState.isLoading,
+				isFetching,
+				isError,
+				hasComparison,
+				refetch,
+			} }
+			error={ describeError( error, {
+				retryDescription: __(
+					"We couldn't load device data. Please try again in a moment.",
+					'jetpack-premium-analytics-pkg'
+				),
+				onRetry: refetch,
+			} ) }
+			empty={ emptyState.empty }
+			format={ PERCENTAGE_DATA_FORMAT }
+			variant="half-ring"
+			withTotal={ false }
+		/>
 	);
 }
 
@@ -121,9 +127,7 @@ function DevicesInner() {
 export default function DevicesWidget( { attributes = {} }: DevicesWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes }>
-			<div className={ styles.root }>
-				<DevicesInner />
-			</div>
+			<DevicesInner />
 		</WidgetRoot>
 	);
 }

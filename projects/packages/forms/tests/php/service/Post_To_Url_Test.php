@@ -69,6 +69,43 @@ class Post_To_Url_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Submitted values leave as plain text.
+	 */
+	public function test_get_form_data_holds_plain_text() {
+		$form = $this->create_mock_form( array() );
+
+		$text         = new Contact_Form_Field(
+			array(
+				'id'   => 'text',
+				'type' => 'textarea',
+			),
+			'',
+			$form
+		);
+		$text->value  = "<\f!-- note --> one";
+		$multi        = new Contact_Form_Field(
+			array(
+				'id'   => 'multi',
+				'type' => 'checkbox-multiple',
+			),
+			'',
+			$form
+		);
+		$multi->value = array( '< a href="#">two', 'three' );
+		$form->fields = array( $text, $multi );
+
+		$data = $this->invoke_get_form_data( $form );
+
+		$this->assertSame(
+			array(
+				'text'  => "&lt;\f!-- note --&gt; one",
+				'multi' => array( '&lt; a href="#"&gt;two', 'three' ),
+			),
+			$data
+		);
+	}
+
+	/**
 	 * The hiddenFields attribute as an array of `{ name, value }` objects (the original design shape).
 	 */
 	public function test_get_form_data_hidden_fields_object_shape() {

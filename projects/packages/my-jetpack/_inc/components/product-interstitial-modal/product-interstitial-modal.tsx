@@ -20,7 +20,7 @@ interface BaseProductInterstitialModalProps {
 	/**
 	 * Custom trigger component to replace default button. It also handles the onOpen callback like the regular button.
 	 */
-	customModalTrigger?: ReactElement;
+	customModalTrigger?: ReactElement< { onClick?: () => void } >;
 	/**
 	 * Trigger button of the modal
 	 */
@@ -87,7 +87,13 @@ type WithMainCTAButton = BaseProductInterstitialModalProps & {
 	/**
 	 * Main button of the modal
 	 */
-	modalMainButton: ReactElement;
+	modalMainButton: ReactElement< {
+		onClick?: () => void;
+		buttonLabel?: string;
+		disabled?: boolean;
+		isExternalLink?: boolean;
+		href?: string;
+	} >;
 	/**
 	 * Href of the CTA button in the modal
 	 */

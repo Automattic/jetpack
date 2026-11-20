@@ -1,5 +1,6 @@
 {
 	"name": "jpa/email-breakdown",
+	"icon": "jpa/envelope",
 	"title": "Email breakdown",
 	"description": "Breaks a sent email down by countries, devices, email clients, or clicked links.",
 	"help": {

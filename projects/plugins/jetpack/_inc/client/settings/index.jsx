@@ -1,24 +1,30 @@
-import { GlobalNotices, ThemeProvider } from '@automattic/jetpack-components';
+import { ThemeProvider } from '@automattic/jetpack-components';
+import { isWoASite } from '@automattic/jetpack-script-data';
 import { __, sprintf } from '@wordpress/i18n';
 import { search } from '@wordpress/icons';
+import { SnackbarNotices } from '@wordpress/notices';
 import { EmptyState, Stack } from '@wordpress/ui';
 import { Component } from 'react';
 import { connect } from 'react-redux';
 import { useLocation } from 'react-router';
 import Discussion from 'discussion';
 import Earn from 'earn';
+import { getMovedOutModules, searchFindsGoogleAnalytics } from 'lib/settings-consolidation';
 import Subscriptions from 'newsletter';
 import Performance from 'performance';
 import Privacy from 'privacy';
 import Reader from 'reader';
 import SearchableModules from 'searchable-modules';
 import Security from 'security';
+import { HIDDEN_WITH_PROTECT_PAGE } from 'security/protect-page';
 import Sharing from 'sharing';
+import { hasProtectPage, isSiteVisibleToSearchEngines } from 'state/initial-state';
 import { isModuleActivated as isModuleActivatedSelector } from 'state/modules';
 import { hasAnyMatchingModule as hasAnyMatchingModuleSelector } from 'state/search';
 import Traffic from 'traffic';
 import Writing from 'writing';
 import { FEATURE_JETPACK_EARN } from '../lib/plans/constants';
+import SearchVisibilityNotice from './search-visibility-notice';
 
 class Settings extends Component {
 	static displayName = 'SearchableSettings';
@@ -30,7 +36,6 @@ class Settings extends Component {
 			searchTerm,
 			siteAdminUrl,
 			siteRawUrl,
-			blogID,
 			userCanManageModules,
 			hasAnyMatchingModule,
 		} = this.props;
@@ -40,11 +45,17 @@ class Settings extends Component {
 			rewindStatus,
 			userCanManageModules,
 		};
-		const showEmptySearchState = !! searchTerm && ! hasAnyMatchingModule;
+		const showEmptySearchState =
+			!! searchTerm &&
+			! hasAnyMatchingModule &&
+			! ( isWoASite() && searchFindsGoogleAnalytics( searchTerm ) );
 
 		return (
 			<ThemeProvider>
 				<div className="jp-settings-container">
+					{ userCanManageModules && (
+						<SearchVisibilityNotice visible={ this.props.searchEnginesVisible } />
+					) }
 					{ showEmptySearchState && (
 						<Stack justify="center" className="jp-settings__empty-search-results">
 							<EmptyState.Root>
@@ -75,7 +86,7 @@ class Settings extends Component {
 						active={ '/discussion' === pathname }
 						{ ...commonProps }
 					/>
-					<Reader active={ '/reader' === pathname } blogID={ blogID } { ...commonProps } />
+					<Reader active={ '/reader' === pathname } { ...commonProps } />
 					<Earn
 						siteRawUrl={ siteRawUrl }
 						active={ '/earn' === pathname }
@@ -113,7 +124,7 @@ class Settings extends Component {
 					<Subscriptions siteAdminUrl={ siteAdminUrl } searchTerm={ searchTerm } />
 					<SearchableModules searchTerm={ searchTerm } />
 				</div>
-				<GlobalNotices />
+				<SnackbarNotices className="jp-settings-snackbar-notices" />
 			</ThemeProvider>
 		);
 	}
@@ -122,6 +133,10 @@ class Settings extends Component {
 export default connect( state => {
 	return {
 		isModuleActivated: module => isModuleActivatedSelector( state, module ),
-		hasAnyMatchingModule: hasAnyMatchingModuleSelector( state ),
+		searchEnginesVisible: isSiteVisibleToSearchEngines( state ),
+		hasAnyMatchingModule: hasAnyMatchingModuleSelector( state, [
+			...( hasProtectPage( state ) ? HIDDEN_WITH_PROTECT_PAGE : [] ),
+			...getMovedOutModules( state ),
+		] ),
 	};
 } )( props => <Settings { ...props } location={ useLocation() } /> );

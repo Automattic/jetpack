@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { __, _x } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import {
 	startOfDay,
 	endOfDay,
@@ -28,9 +28,12 @@ import {
 	PRESET_LAST_30_DAYS,
 	PRESET_LAST_90_DAYS,
 	PRESET_LAST_365_DAYS,
+	PRESET_MONTH_TO_DATE,
 	PRESET_LAST_MONTH,
+	PRESET_YEAR_TO_DATE,
 	PRESET_LAST_12_MONTHS,
 	PRESET_LAST_YEAR,
+	PRESET_LAST_3_YEARS,
 	PRESET_CUSTOM,
 	PRESET_ALL_TIME,
 	QUICK_SURFACE_PRESETS,
@@ -38,24 +41,27 @@ import {
 	isYearSurfacePresetId,
 	toYearPresetId,
 	type ComputablePresetId,
+	MENU_SURFACE_PRESETS,
+	MENU_SURFACE_PRESET_GROUPS,
 	type QuickSurfacePresetId,
 	type SelectablePresetId,
 	type PrimaryPresetId,
 	type YearSurfacePresetId,
 } from './types';
 import type { DateRange } from '../get-comparison-range';
+import type { TZDate } from '@date-fns/tz';
 
 /**
  * Shared date calculations used by multiple presets.
  */
 type DateContext = {
-	now: Date;
-	initOfToday: Date;
-	endOfToday: Date;
-	endOfYesterday: Date;
-	lastMonth: Date;
-	endOfLastMonth: Date;
-	lastYear: Date;
+	now: TZDate;
+	initOfToday: TZDate;
+	endOfToday: TZDate;
+	endOfYesterday: TZDate;
+	lastMonth: TZDate;
+	endOfLastMonth: TZDate;
+	lastYear: TZDate;
 	timeZone: string;
 };
 
@@ -67,14 +73,23 @@ export const DEFAULT_YEAR_SURFACE_COUNT = 6;
 type PresetDefinition = {
 	id: SelectablePresetId;
 	getLabel: () => string;
-	/**
-	 * Short label for the surface pills. Only the quick surface presets carry
-	 * one: they are the only presets rendered in a fixed-width row. Translated
-	 * separately rather than truncated, since the English forms are initials.
-	 */
-	getShortLabel?: () => string;
 	getRange: ( ctx: DateContext ) => Required< DateRange >;
 };
+
+/**
+ * The first instant of the day `days` before a day's start. Not `subDays`
+ * alone: where the clocks moved forward at midnight, today starts at 01:00,
+ * and the wall time would carry to a day that does start at 00:00.
+ *
+ * @param startOfToday - The first instant of today.
+ * @param days         - How many days back.
+ * @return The first instant of that day.
+ */
+function startOfDayBefore( startOfToday: TZDate, days: number ): TZDate {
+	const day = subDays( startOfToday, days );
+
+	return startOfDay( day );
+}
 
 /**
  * Canonical preset definitions. Labels are defined once here and reused by all
@@ -93,16 +108,13 @@ export const PRESET_DEFINITIONS: ReadonlyArray< PresetDefinition > = [
 		id: PRESET_YESTERDAY,
 		getLabel: () => __( 'Yesterday', 'jetpack-premium-analytics-pkg' ),
 		getRange: ( { initOfToday, endOfYesterday } ) => ( {
-			from: subDays( initOfToday, 1 ),
+			from: startOfDayBefore( initOfToday, 1 ),
 			to: endOfYesterday,
 		} ),
 	},
 	{
 		id: PRESET_LAST_24_HOURS,
 		getLabel: () => __( 'Last 24 hours', 'jetpack-premium-analytics-pkg' ),
-		getShortLabel: () =>
-			/* translators: abbreviation for "Last 24 hours". Shown in a segmented control too narrow for the full label, so keep it as short as the language allows. */
-			_x( '24H', 'short date range preset', 'jetpack-premium-analytics-pkg' ),
 		// Snapped to the hour rather than the raw instant: the range is sent
 		// verbatim and forms part of the request's React Query key, so off a raw
 		// `now` identical requests never dedupe or hit the cache.
@@ -116,44 +128,42 @@ export const PRESET_DEFINITIONS: ReadonlyArray< PresetDefinition > = [
 	},
 	{
 		id: PRESET_LAST_7_DAYS,
-		getLabel: () =>
-			/* translators: Rolling date-range preset pill. The last 7 days; keep it short. */
-			__( '7 days', 'jetpack-premium-analytics-pkg' ),
-		getShortLabel: () =>
-			/* translators: abbreviation for "7 days". Shown in a segmented control too narrow for the full label, so keep it as short as the language allows. */
-			_x( '7D', 'short date range preset', 'jetpack-premium-analytics-pkg' ),
-		getRange: ( { initOfToday, endOfYesterday } ) => ( {
-			from: subDays( initOfToday, 7 ),
-			to: endOfYesterday,
+		getLabel: () => __( 'Last 7 days', 'jetpack-premium-analytics-pkg' ),
+		getRange: ( { initOfToday, endOfToday } ) => ( {
+			from: startOfDayBefore( initOfToday, 6 ),
+			to: endOfToday,
 		} ),
 	},
 	{
 		id: PRESET_LAST_30_DAYS,
-		getLabel: () =>
-			/* translators: Rolling date-range preset pill. The last 30 days; keep it short. */
-			__( '30 days', 'jetpack-premium-analytics-pkg' ),
-		getShortLabel: () =>
-			/* translators: abbreviation for "30 days". Shown in a segmented control too narrow for the full label, so keep it as short as the language allows. */
-			_x( '30D', 'short date range preset', 'jetpack-premium-analytics-pkg' ),
-		getRange: ( { initOfToday, endOfYesterday } ) => ( {
-			from: subDays( initOfToday, 30 ),
-			to: endOfYesterday,
+		getLabel: () => __( 'Last 30 days', 'jetpack-premium-analytics-pkg' ),
+		getRange: ( { initOfToday, endOfToday } ) => ( {
+			from: startOfDayBefore( initOfToday, 29 ),
+			to: endOfToday,
 		} ),
 	},
 	{
 		id: PRESET_LAST_90_DAYS,
 		getLabel: () => __( 'Last 90 days', 'jetpack-premium-analytics-pkg' ),
-		getRange: ( { initOfToday, endOfYesterday } ) => ( {
-			from: subDays( initOfToday, 90 ),
-			to: endOfYesterday,
+		getRange: ( { initOfToday, endOfToday } ) => ( {
+			from: startOfDayBefore( initOfToday, 89 ),
+			to: endOfToday,
 		} ),
 	},
 	{
 		id: PRESET_LAST_365_DAYS,
 		getLabel: () => __( 'Last 365 days', 'jetpack-premium-analytics-pkg' ),
-		getRange: ( { initOfToday, endOfYesterday } ) => ( {
-			from: subDays( initOfToday, 365 ),
-			to: endOfYesterday,
+		getRange: ( { initOfToday, endOfToday } ) => ( {
+			from: startOfDayBefore( initOfToday, 364 ),
+			to: endOfToday,
+		} ),
+	},
+	{
+		id: PRESET_MONTH_TO_DATE,
+		getLabel: () => __( 'Month to date', 'jetpack-premium-analytics-pkg' ),
+		getRange: ( { initOfToday, endOfToday } ) => ( {
+			from: startOfMonth( initOfToday ),
+			to: endOfToday,
 		} ),
 	},
 	{
@@ -165,16 +175,21 @@ export const PRESET_DEFINITIONS: ReadonlyArray< PresetDefinition > = [
 		} ),
 	},
 	{
+		id: PRESET_YEAR_TO_DATE,
+		getLabel: () => __( 'Year to date', 'jetpack-premium-analytics-pkg' ),
+		getRange: ( { initOfToday, endOfToday } ) => ( {
+			from: startOfYear( initOfToday ),
+			to: endOfToday,
+		} ),
+	},
+	{
 		id: PRESET_LAST_12_MONTHS,
-		getLabel: () =>
-			/* translators: Rolling date-range preset pill. The last 12 months; keep it short. */
-			__( '12 months', 'jetpack-premium-analytics-pkg' ),
-		getShortLabel: () =>
-			/* translators: abbreviation for "12 months". Shown in a segmented control too narrow for the full label, so keep it as short as the language allows. */
-			_x( '12M', 'short date range preset', 'jetpack-premium-analytics-pkg' ),
-		getRange: ( { initOfToday, endOfYesterday } ) => ( {
-			from: subMonths( initOfToday, 12 ),
-			to: endOfYesterday,
+		getLabel: () => __( 'Last 12 months', 'jetpack-premium-analytics-pkg' ),
+		// The chart buckets this preset by month, so a mid-month start would split
+		// the current month across a partial bucket at each end.
+		getRange: ( { initOfToday, endOfToday } ) => ( {
+			from: startOfMonth( subMonths( initOfToday, 11 ) ),
+			to: endOfToday,
 		} ),
 	},
 	{
@@ -183,6 +198,16 @@ export const PRESET_DEFINITIONS: ReadonlyArray< PresetDefinition > = [
 		getRange: ( { lastYear } ) => ( {
 			from: startOfYear( lastYear ),
 			to: endOfYear( lastYear ),
+		} ),
+	},
+	{
+		id: PRESET_LAST_3_YEARS,
+		getLabel: () => __( 'Last 3 years', 'jetpack-premium-analytics-pkg' ),
+		// Two years back, not three: the running year is the third, so the chart
+		// draws three yearly buckets rather than four with two cut.
+		getRange: ( { initOfToday, endOfToday } ) => ( {
+			from: startOfYear( subYears( initOfToday, 2 ) ),
+			to: endOfToday,
 		} ),
 	},
 ];
@@ -208,17 +233,6 @@ function getAllTimeLabel(): string {
 }
 
 /**
- * The all-time preset's abbreviated label, for a quick surface too narrow for
- * the full one.
- *
- * @return The translated short label.
- */
-function getAllTimeShortLabel(): string {
-	/* translators: abbreviation for "All time". Shown in a segmented control too narrow for the full label, so keep it as short as the language allows. */
-	return _x( 'All', 'short date range preset', 'jetpack-premium-analytics-pkg' );
-}
-
-/**
  * Get the label for a preset without calculating date ranges.
  *
  * @param id - The preset identifier
@@ -240,12 +254,15 @@ export function getPresetLabel( id: PrimaryPresetId | null | undefined ): string
 /**
  * Build a DateContext for a given timezone.
  * @param timeZone
+ * @param now      - The instant to build it at; the clock by default.
  */
-function buildDateContext( timeZone: string ): DateContext {
-	const nowWithTZ = toLocalTZ( undefined, timeZone );
+function buildDateContext( timeZone: string, now?: Date ): DateContext {
+	const nowWithTZ = toLocalTZ( now, timeZone );
 	const initOfToday = startOfDay( nowWithTZ );
 	const endOfToday = endOfDay( nowWithTZ );
-	const endOfYesterday = endOfDay( subDays( initOfToday, 1 ) );
+	// A nested `date-fns` call has no contextual type, and widens the result to `Date`.
+	const initOfYesterday = subDays( initOfToday, 1 );
+	const endOfYesterday = endOfDay( initOfYesterday );
 	const lastMonth = subMonths( initOfToday, 1 );
 	const endOfLastMonth = endOfMonth( lastMonth );
 	const lastYear = subYears( initOfToday, 1 );
@@ -268,11 +285,6 @@ function buildDateContext( timeZone: string ): DateContext {
 export type DateRangePreset< TId extends ComputablePresetId = SelectablePresetId > = {
 	id: TId;
 	label: string;
-	/**
-	 * Abbreviated label, present only on presets that render as surface pills.
-	 * Consumers that never run out of room can ignore it.
-	 */
-	shortLabel?: string;
 	range: Required< DateRange >;
 };
 
@@ -350,10 +362,9 @@ function resolveAllTimeStart( options: AllTimeRangeOptions, ctx: DateContext ): 
 export function getDefaultDateRangePresets( timeZone: string ): DateRangePreset[] {
 	const ctx = buildDateContext( timeZone );
 
-	return PRESET_DEFINITIONS.map( ( { id, getLabel, getShortLabel, getRange } ) => ( {
+	return PRESET_DEFINITIONS.map( ( { id, getLabel, getRange } ) => ( {
 		id,
 		label: getLabel(),
-		shortLabel: getShortLabel?.(),
 		range: getRange( ctx ),
 	} ) );
 }
@@ -364,9 +375,7 @@ export function getDefaultDateRangePresets( timeZone: string ): DateRangePreset[
  */
 export type QuickSurfaceOptions = AllTimeRangeOptions & {
 	/**
-	 * The presets to render, in display order. Defaults to the rolling windows
-	 * of `QUICK_SURFACE_PRESETS`; a detail page passes `DETAIL_SURFACE_PRESETS`
-	 * to lead with all time.
+	 * The presets to render, in display order. Defaults to `QUICK_SURFACE_PRESETS`.
 	 */
 	presetIds?: readonly QuickSurfacePresetId[];
 };
@@ -390,7 +399,6 @@ export function getQuickSurfacePresets(
 	presetsById.set( PRESET_ALL_TIME, {
 		id: PRESET_ALL_TIME,
 		label: getAllTimeLabel(),
-		shortLabel: getAllTimeShortLabel(),
 		range: computeAllTimeRange( resolveAllTimeStart( options, ctx ), ctx ),
 	} );
 
@@ -462,20 +470,64 @@ export function getYearSurfacePresets(
 }
 
 /**
+ * Options of the period menu: which periods it offers, and where its all-time
+ * entry starts.
+ */
+export type MenuSurfaceOptions = AllTimeRangeOptions & {
+	/**
+	 * The presets to offer, filtered against the menu's own order. Defaults to
+	 * every selectable preset; a surface that can anchor one adds all time.
+	 */
+	presetIds?: readonly QuickSurfacePresetId[];
+};
+
+/**
+ * Presets for the period menu, grouped by scale.
+ *
+ * The grouping is the menu's, not the caller's: `presetIds` only says what is
+ * offered, and a group left with nothing is dropped rather than rendered empty.
+ *
+ * @param timeZone - IANA timezone string (e.g., 'America/New_York')
+ * @param options  - Which presets to offer, and the all-time anchor.
+ * @return The groups in display order, each in the menu's own order.
+ */
+export function getMenuSurfacePresetGroups(
+	timeZone: string,
+	options: MenuSurfaceOptions = {}
+): DateRangePreset< QuickSurfacePresetId >[][] {
+	const offered = new Set< string >( options.presetIds ?? MENU_SURFACE_PRESETS );
+	const presetsById = new Map< string, DateRangePreset< QuickSurfacePresetId > >(
+		getQuickSurfacePresets( timeZone, {
+			...options,
+			presetIds: [ ...offered ] as readonly QuickSurfacePresetId[],
+		} ).map( preset => [ preset.id, preset ] )
+	);
+
+	return MENU_SURFACE_PRESET_GROUPS.map( group =>
+		group
+			.map( id => presetsById.get( id ) )
+			.filter(
+				( preset ): preset is DateRangePreset< QuickSurfacePresetId > => preset !== undefined
+			)
+	).filter( group => group.length > 0 );
+}
+
+/**
  * Compute the absolute date range for a preset ID in the given timezone.
  *
- * @param presetId - A valid computable preset identifier.
- * @param timeZone - IANA timezone string.
- * @param options  - All-time options; only read for the all-time preset,
- *                 whose start is a property of the surface, not of the ID.
+ * @param presetId    - A valid computable preset identifier.
+ * @param timeZone    - IANA timezone string.
+ * @param options     - All-time options; only read for the all-time preset,
+ *                    whose start is a property of the surface, not of the ID.
+ * @param options.now - The instant to read the preset at; the clock by default.
  * @return The computed range, or undefined if the preset is not recognized.
  */
 export function computePrimaryRange(
 	presetId: ComputablePresetId,
 	timeZone: string,
-	options: AllTimeRangeOptions = {}
+	options: AllTimeRangeOptions & { now?: Date } = {}
 ): Required< DateRange > | undefined {
-	const ctx = buildDateContext( timeZone );
+	const ctx = buildDateContext( timeZone, options.now );
 
 	if ( presetId === PRESET_ALL_TIME ) {
 		return computeAllTimeRange( resolveAllTimeStart( options, ctx ), ctx );

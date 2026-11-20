@@ -8,9 +8,14 @@
 namespace Automattic\Jetpack\Podcast;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
+use Automattic\Jetpack\Admin_UI\Admin_Shell;
+use Automattic\Jetpack\Admin_UI\Media_Library;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\My_Jetpack\Products as My_Jetpack_Products;
+use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
+use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Screen_Id;
 
 /**
  * Adds the "Jetpack > Podcast" wp-admin screen.
@@ -20,17 +25,18 @@ class Admin_Page {
 	const ADMIN_PAGE_SLUG = 'jetpack-podcast';
 
 	/**
-	 * Where the Podcast item sits in the Jetpack submenu on self-hosted.
+	 * Where the Podcast item used to sit in the Jetpack submenu on self-hosted.
 	 *
-	 * Placed after content/product items like Newsletter and Search (10), and
-	 * above Activity Log (12) so Activity Log stays immediately before Settings (13).
+	 * Unread since Podcast registers without a position; kept so consumers do not fatal.
+	 *
+	 * @deprecated 2.1.1
 	 */
 	const MENU_POSITION = 11;
 
 	/**
 	 * Slug emitted by `@wordpress/build`. wp-build's auto-generated enqueue
 	 * callback only fires when `$screen->id` matches this value, so we alias
-	 * the screen id via `current_screen` without changing the user-facing URL.
+	 * the screen id around that check without changing the user-facing URL.
 	 */
 	const WP_BUILD_SLUG = 'jetpack-podcast-dashboard';
 
@@ -42,6 +48,27 @@ class Admin_Page {
 	private static $initialized = false;
 
 	/**
+	 * The screen ID alias_screen_id_for_wp_build() replaced, until it is restored.
+	 *
+	 * @var string|null
+	 */
+	private static $wp_build_original_screen_id = null;
+
+	/**
+	 * The dashboard screen hide_jitms_on_wp_build_dashboard() opts out of JITMs.
+	 *
+	 * @var string|null
+	 */
+	private static $jitm_opt_out_screen_id = null;
+
+	/**
+	 * Overrides the generated entry point path. Test seam, null in production.
+	 *
+	 * @var string|null
+	 */
+	private static $wp_build_index = null;
+
+	/**
 	 * Wire admin hooks. Idempotent.
 	 */
 	public static function init() {
@@ -51,6 +78,15 @@ class Admin_Page {
 		self::$initialized = true;
 
 		add_action( 'admin_menu', array( __CLASS__, 'maybe_load_wp_build' ), 1 );
+
+		if ( class_exists( Admin_Shell::class ) ) {
+			add_filter( 'jetpack_admin_shell_members', array( __CLASS__, 'add_admin_shell_member' ) );
+		}
+
+		// The cover image picker loads the media library from this endpoint.
+		if ( method_exists( Media_Library::class, 'init' ) ) {
+			Media_Library::init();
+		}
 
 		// On Simple/Atomic, wpcom-admin-menu.php builds the Jetpack menu at
 		// priority 999999 and calls add_wp_admin_submenu() itself. Self-hosted
@@ -88,22 +124,82 @@ class Admin_Page {
 				'manage_options',
 				self::ADMIN_PAGE_SLUG,
 				$callback,
-				self::MENU_POSITION
+				null,
+				// Podcast has no My Jetpack product class, so the module is the only gate available.
+				array(
+					'module' => 'podcast',
+					'key'    => 'jetpack-podcast',
+				)
 			);
 		}
 
 		if ( $page_suffix ) {
 			add_action( 'load-' . $page_suffix, array( __CLASS__, 'admin_init' ) );
+			self::opt_out_of_jitms( $page_suffix );
 		}
+	}
+
+	/**
+	 * Register Podcast with the admin shell, which switches between Jetpack dashboards without a page load.
+	 *
+	 * @since 2.2.7
+	 *
+	 * @param array $members Shell members keyed by admin page slug.
+	 * @return array
+	 */
+	public static function add_admin_shell_member( $members ) {
+		if ( ! file_exists( self::wp_build_index_path() ) ) {
+			return $members;
+		}
+
+		$members[ self::ADMIN_PAGE_SLUG ] = array(
+			'build_prefix' => 'jetpack_podcast',
+			'build_page'   => self::WP_BUILD_SLUG,
+			'init_modules' => array( '@jetpack-podcast/init' ),
+			/** "Podcast" is a product name, do not translate. */
+			'title'        => 'Podcast',
+			'header'       => array(
+				'title'    => 'Podcast',
+				'subtitle' => __( 'Publish a podcast and reach your fans, anywhere they listen.', 'jetpack-podcast' ),
+			),
+			'capability'   => 'manage_options',
+			'handles'      => array( 'jetpack-script-data', 'jp-tracks', 'wp-jp-i18n-loader' ),
+			'load'         => array( __CLASS__, 'load_as_admin_shell_guest' ),
+		);
+		return $members;
+	}
+
+	/**
+	 * Ready the Podcast routes and page data while another dashboard's page is open, without the screen ID alias.
+	 *
+	 * @since 2.2.7
+	 *
+	 * @return void
+	 */
+	public static function load_as_admin_shell_guest() {
+		self::load_wp_build();
+		add_filter( 'jetpack_admin_js_script_data', array( __CLASS__, 'inject_podcast_script_data' ) );
+		self::admin_init();
 	}
 
 	/**
 	 * Wire admin-init actions once we know the Podcast page is loading.
 	 */
 	public static function admin_init() {
-		// MediaUpload (cover-image-control) reads wp.media.view — only defined after this runs.
-		add_action( 'admin_enqueue_scripts', 'wp_enqueue_media' );
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_tracks_transport' ) );
+		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_i18n_loader' ) );
+	}
+
+	/**
+	 * Enqueue the JS translation loader so the dashboard's init module can download its catalogs.
+	 *
+	 * The loader is registered on every admin page by jetpack-assets but only enqueued when
+	 * something depends on it; the esbuild bundles don't pull it in.
+	 */
+	public static function enqueue_i18n_loader() {
+		if ( wp_script_is( 'wp-jp-i18n-loader', 'registered' ) ) {
+			wp_enqueue_script( 'wp-jp-i18n-loader' );
+		}
 	}
 
 	/**
@@ -135,8 +231,7 @@ class Admin_Page {
 			return;
 		}
 
-		self::load_wp_build();
-		add_action( 'current_screen', array( __CLASS__, 'alias_screen_id_for_wp_build' ) );
+		self::load_wp_build_with_screen_alias();
 		add_filter( 'jetpack_admin_js_script_data', array( __CLASS__, 'inject_podcast_script_data' ) );
 	}
 
@@ -163,22 +258,36 @@ class Admin_Page {
 			}
 		}
 
-		// Self-hosted upsells the Growth plan; WordPress.com keeps Premium.
-		// `product_slug` is fed straight to the checkout URL; `plan_name` is a
-		// product name shown in the locked-preview copy (not translated).
+		$upgrade = array(
+			'product_slug' => $is_wpcom ? 'premium' : 'jetpack_growth_yearly',
+			'plan_name'    => $is_wpcom ? 'Premium' : 'Growth',
+		);
+		if ( ! $is_wpcom && method_exists( My_Jetpack_Products::class, 'get_bundle_offer' ) ) {
+			$offer = My_Jetpack_Products::get_bundle_offer( 'growth' );
+			if ( 'growth' !== ( $offer['slug'] ?? '' ) ) {
+				$upgrade = array(
+					'product_slug' => $offer['wpcom_product_slug'] ?? '',
+					'plan_name'    => $offer['title'] ?? '',
+				);
+			}
+		}
+		$status         = new Status();
+		$is_site_public = 1 === (int) get_option( 'blog_public', 1 )
+			&& 'unlaunched' !== get_option( 'launch-status' )
+			&& ! $status->is_private_site()
+			&& ! $status->is_coming_soon();
+
 		$data['podcast'] = array(
 			'has_product_access'  => Podcast_Gate::has_product_access(),
 			'is_connected'        => $is_wpcom || ( new Connection_Manager( 'jetpack' ) )->is_connected(),
+			'is_site_public'      => $is_site_public,
 			'show_url_hosts'      => Settings::SHOW_URL_HOSTS,
 			'show_url_max_length' => Settings::SHOW_URL_MAX_LENGTH,
 			'feed_limit_max'      => Settings::feed_limit_max(),
 			'preload'             => rest_preload_api_request( array(), '/wpcom/v2/podcast/settings' ),
 			'selected_category'   => self::get_selected_category(),
 			'tracks_user_data'    => self::get_tracks_user_data(),
-			'upgrade'             => array(
-				'product_slug' => $is_wpcom ? 'premium' : 'jetpack_growth_yearly',
-				'plan_name'    => $is_wpcom ? 'Premium' : 'Growth',
-			),
+			'upgrade'             => $upgrade,
 		);
 
 		return $data;
@@ -235,18 +344,34 @@ class Admin_Page {
 	}
 
 	/**
+	 * Absolute path to the entry point generated by the WP build script.
+	 *
+	 * @return string
+	 */
+	private static function wp_build_index_path() {
+		return self::$wp_build_index ?? dirname( __DIR__ ) . '/build/build.php';
+	}
+
+	/**
 	 * The build artifact may be absent on a fresh checkout before
 	 * `pnpm build` has run; in that case `add_wp_admin_submenu()` falls back
 	 * to `render()` so the page still loads (just without the React app).
 	 */
 	private static function load_wp_build() {
-		$build_index = dirname( __DIR__ ) . '/build/build.php';
+		$build_index = self::wp_build_index_path();
 
 		if ( ! file_exists( $build_index ) ) {
 			return;
 		}
 
 		require_once $build_index;
+
+		// wp-build hooks module registration to wp_default_scripts, which has
+		// already fired by admin_menu — call it directly or the init module
+		// never reaches the import map.
+		if ( function_exists( 'jetpack_podcast_register_script_modules' ) ) {
+			jetpack_podcast_register_script_modules(); // @phan-suppress-current-line PhanUndeclaredFunction -- Checked with function_exists(); defined in the generated build/modules.php, which Phan excludes.
+		}
 
 		WP_Build_Polyfills::register(
 			'jetpack-podcast',
@@ -255,16 +380,86 @@ class Admin_Page {
 	}
 
 	/**
-	 * Alias the current screen id to wp-build's expected slug.
+	 * Load wp-build with the screen ID aliased across its generated enqueue check.
 	 *
-	 * @param \WP_Screen|null $screen The current screen object (passed by WP).
+	 * @see WP_Build_Screen_Id::load_with_alias()
+	 * @return void
 	 */
-	public static function alias_screen_id_for_wp_build( $screen ) {
-		if ( ! is_object( $screen ) ) {
+	private static function load_wp_build_with_screen_alias() {
+		// Fallback: an older wp-build-polyfills under the jetpack-autoloader may predate load_with_alias().
+		if ( method_exists( WP_Build_Screen_Id::class, 'load_with_alias' ) ) {
+			WP_Build_Screen_Id::load_with_alias(
+				array( __CLASS__, 'alias_screen_id_for_wp_build' ),
+				array( __CLASS__, 'restore_screen_id_after_wp_build' ),
+				function () {
+					self::load_wp_build();
+				}
+			);
 			return;
 		}
 
-		$screen->id = self::WP_BUILD_SLUG;
+		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'alias_screen_id_for_wp_build' ) );
+		self::load_wp_build();
+		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'restore_screen_id_after_wp_build' ) );
+	}
+
+	/**
+	 * Alias the current screen id to wp-build's expected slug.
+	 *
+	 * @since 2.1.3 Takes no argument; hooked on `admin_enqueue_scripts`.
+	 */
+	public static function alias_screen_id_for_wp_build() {
+		$screen = get_current_screen();
+		if ( ! $screen ) {
+			return;
+		}
+
+		self::$wp_build_original_screen_id = $screen->id;
+		$screen->id                        = self::WP_BUILD_SLUG;
+	}
+
+	/**
+	 * Undo alias_screen_id_for_wp_build(), so code after the generated check sees the real screen ID.
+	 *
+	 * @since 2.1.3
+	 */
+	public static function restore_screen_id_after_wp_build() {
+		$screen = get_current_screen();
+		if ( ! $screen || null === self::$wp_build_original_screen_id ) {
+			return;
+		}
+
+		$screen->id                        = self::$wp_build_original_screen_id;
+		self::$wp_build_original_screen_id = null;
+	}
+
+	/**
+	 * Opt the dashboard's screen out of JITMs.
+	 *
+	 * @param string $screen_id The hook suffix the page was registered under, which is its screen ID.
+	 */
+	private static function opt_out_of_jitms( $screen_id ) {
+		self::$jitm_opt_out_screen_id = $screen_id;
+		add_filter( 'jetpack_display_jitms_on_screen', array( __CLASS__, 'hide_jitms_on_wp_build_dashboard' ), 10, 2 );
+	}
+
+	/**
+	 * Keep JITMs off the wp-build dashboard, which has no `#jp-admin-notices` to show them in.
+	 *
+	 * Fetching a JITM records a view, so one the page hides would still be counted.
+	 *
+	 * @since 2.1.3
+	 *
+	 * @param bool   $show      Whether to show JITMs on the screen.
+	 * @param string $screen_id The screen ID.
+	 * @return bool
+	 */
+	public static function hide_jitms_on_wp_build_dashboard( $show, $screen_id ) {
+		if ( null !== self::$jitm_opt_out_screen_id && self::$jitm_opt_out_screen_id === $screen_id ) {
+			return false;
+		}
+
+		return $show;
 	}
 
 	/**

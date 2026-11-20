@@ -241,12 +241,12 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 	 */
 	public function update( $new_instance, $old_instance ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		$instance          = array();
-		$instance['title'] = wp_kses( $new_instance['title'], array() );
+		$instance['title'] = wp_kses( $new_instance['title'] ?? '', array() );
 		if ( $instance['title'] === $this->default_title ) {
 			$instance['title'] = false; // Store as false in case of language change.
 		}
 
-		$instance['count'] = (int) $new_instance['count'];
+		$instance['count'] = (int) ( $new_instance['count'] ?? 0 );
 		if ( $instance['count'] < 1 || 10 < $instance['count'] ) {
 			$instance['count'] = 10;
 		}

@@ -1,0 +1,252 @@
+import { render, renderHook, act, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { PRODUCT_STATUSES } from '../../../constants';
+import useActivatePlugins from '../../../data/products/use-activate-plugins';
+import useActivateSearchFreeProduct from '../../../data/products/use-activate-search-free-product';
+import useInstallPlugins from '../../../data/products/use-install-plugins';
+import useProduct from '../../../data/products/use-product';
+import useAnalytics from '../../../hooks/use-analytics';
+import PriceComponent from '../pricing-component';
+import RecommendationActions from '../recommendation-actions';
+import usePricingData from '../use-pricing-data';
+import type { ProductCamelCase } from '../../../data/types';
+
+jest.mock( '../../../data/products/use-activate-plugins' );
+jest.mock( '../../../data/products/use-activate-search-free-product' );
+jest.mock( '../../../data/products/use-install-plugins' );
+jest.mock( '../../../data/products/use-product' );
+jest.mock( '../../../hooks/use-my-jetpack-connection', () => () => ( { isUserConnected: true } ) );
+jest.mock( '../../../data/utils/get-my-jetpack-window-state', () => ( {
+	getMyJetpackWindowInitialState: () => ( {
+		myJetpackUrl: 'https://example.org/wp-admin/admin.php?page=my-jetpack',
+		siteSuffix: 'example.org',
+	} ),
+} ) );
+
+jest.mock( '@automattic/jetpack-script-data', () => ( {
+	getJetpackAdminPageUrl: () => 'https://example.org/wp-admin/admin.php?page=jetpack',
+	getMyJetpackUrl: () => 'https://example.org/wp-admin/admin.php?page=my-jetpack',
+} ) );
+
+let mockRunFreeCheckout: jest.Mock;
+jest.mock( '@automattic/jetpack-connection', () => ( {
+	...jest.requireActual( '@automattic/jetpack-connection' ),
+	useProductCheckoutWorkflow: () => ( { run: mockRunFreeCheckout } ),
+} ) );
+
+const mockUseProduct = useProduct as jest.MockedFunction< typeof useProduct >;
+const mockUseActivatePlugins = useActivatePlugins as jest.MockedFunction<
+	typeof useActivatePlugins
+>;
+const mockUseInstallPlugins = useInstallPlugins as jest.MockedFunction< typeof useInstallPlugins >;
+const mockUseActivateSearchFreeProduct = useActivateSearchFreeProduct as jest.MockedFunction<
+	typeof useActivateSearchFreeProduct
+>;
+const mockRecordEvent = jest.mocked( jest.mocked( useAnalytics )().recordEvent );
+
+let activate: jest.Mock;
+let runSearchFreeActivation: jest.Mock;
+
+/**
+ * Build a product detail for a *feature* product — one whose card offers Activate rather than
+ * Purchase. Search is not one today, which is why the branch under test cannot be reached
+ * through the real card; see the note on the Search case below.
+ *
+ * Only the fields this hook reads are set, so the result is cast rather than fully built.
+ *
+ * @param {object} overrides - Fields to override on the detail.
+ * @return {object} The product detail.
+ */
+const featureDetail = ( overrides = {} ) =>
+	( {
+		slug: 'search',
+		isFeature: true,
+		status: PRODUCT_STATUSES.MODULE_DISABLED,
+		isUpgradableByBundle: [],
+		isUpgradable: false,
+		isPluginActive: true,
+		hasFreeOffering: true,
+		tiers: [],
+		manageUrl: 'https://example.org/manage',
+		pricingForUi: { wpcomFreeProductSlug: 'jetpack_search_free' },
+		...overrides,
+	} ) as unknown as ProductCamelCase;
+
+/**
+ * Wrap a detail in the full shape useProduct returns.
+ *
+ * @param {object} detail - The product detail.
+ * @return {object} The hook's return value.
+ */
+const productState = ( detail: ProductCamelCase ) => ( {
+	detail,
+	refetch: () => Promise.resolve(),
+	isLoading: false,
+	isRefetching: false,
+} );
+
+beforeEach( () => {
+	jest.clearAllMocks();
+	activate = jest.fn();
+	runSearchFreeActivation = jest.fn();
+	mockRunFreeCheckout = jest.fn();
+
+	mockUseActivatePlugins.mockReturnValue( {
+		activate,
+		isPending: false,
+		isSuccess: false,
+	} as unknown as ReturnType< typeof useActivatePlugins > );
+	mockUseInstallPlugins.mockReturnValue( {
+		install: jest.fn(),
+		isPending: false,
+	} as unknown as ReturnType< typeof useInstallPlugins > );
+	mockUseActivateSearchFreeProduct.mockReturnValue( {
+		run: runSearchFreeActivation,
+		isPending: false,
+	} );
+} );
+
+describe( 'usePricingData activation routing', () => {
+	test( 'a product with no free product slug activates directly', () => {
+		mockUseProduct.mockReturnValue(
+			productState( featureDetail( { slug: 'boost', pricingForUi: {} } ) )
+		);
+
+		const { result } = renderHook( () => usePricingData( 'boost' ) );
+		act( () => result.current.primaryAction.onClick() );
+
+		expect( activate ).toHaveBeenCalled();
+		expect( mockRunFreeCheckout ).not.toHaveBeenCalled();
+		expect( runSearchFreeActivation ).not.toHaveBeenCalled();
+	} );
+
+	test( 'a non-Search product with a free product slug still buys it at $0', () => {
+		mockUseProduct.mockReturnValue( productState( featureDetail( { slug: 'stats' } ) ) );
+
+		const { result } = renderHook( () => usePricingData( 'stats' ) );
+		act( () => result.current.primaryAction.onClick() );
+
+		expect( mockRunFreeCheckout ).toHaveBeenCalled();
+		expect( runSearchFreeActivation ).not.toHaveBeenCalled();
+	} );
+
+	test( 'Search grants its free product in place rather than going to checkout', () => {
+		/*
+		 * This configuration does not occur today: the branch needs `isFeature` to reach
+		 * handleActivate at all, and Search never sets it (Product::$is_feature defaults to
+		 * false and only five products override it). The branch is kept for a possible future
+		 * where Search becomes a feature product, and this pins what it should do if it does.
+		 */
+		mockUseProduct.mockReturnValue( productState( featureDetail() ) );
+
+		const { result } = renderHook( () => usePricingData( 'search' ) );
+		act( () => result.current.primaryAction.onClick() );
+
+		expect( runSearchFreeActivation ).toHaveBeenCalled();
+		expect( mockRunFreeCheckout ).not.toHaveBeenCalled();
+	} );
+
+	test( 'an in-flight grant reports as activating, so the card can stay disabled', () => {
+		mockUseProduct.mockReturnValue( productState( featureDetail() ) );
+		mockUseActivateSearchFreeProduct.mockReturnValue( {
+			run: runSearchFreeActivation,
+			isPending: true,
+		} );
+
+		const { result } = renderHook( () => usePricingData( 'search' ) );
+
+		expect( result.current.isActivating ).toBe( true );
+	} );
+} );
+
+describe( 'usePricingData connect link', () => {
+	test( 'a recommendation sends its own name and returns to the current page', () => {
+		mockUseProduct.mockReturnValue(
+			productState(
+				featureDetail( { slug: 'stats', status: PRODUCT_STATUSES.USER_CONNECTION_ERROR } )
+			)
+		);
+
+		const { result } = renderHook( () => usePricingData( 'stats' ) );
+		const { href } = result.current.primaryAction as { href: string };
+		const params = new URL( href ).searchParams;
+
+		expect( params.get( 'from' ) ).toBe( 'my_jetpack_recommendations_stats' );
+		expect( params.get( 'redirect_after_auth' ) ).toBe( window.location.href );
+	} );
+} );
+
+describe( 'RecommendationActions', () => {
+	const toBuy = { isFeature: false, status: PRODUCT_STATUSES.NEEDS_PLAN };
+	const hostSold = { ...toBuy, hostPurchaseUrl: 'https://example.com/plans' };
+
+	it.each( [
+		[ 'a product to buy', toBuy, { 'Learn more': '#/add-search' } ],
+		[
+			'a product its host sells',
+			hostSold,
+			{ Purchase: 'https://example.com/plans', 'Learn more': 'https://example.com/plans' },
+		],
+		[
+			'a feature that is on',
+			{ status: PRODUCT_STATUSES.ACTIVE },
+			{ Manage: 'https://example.org/manage' },
+		],
+		[
+			'a feature that needs a connection',
+			{ status: PRODUCT_STATUSES.USER_CONNECTION_ERROR },
+			{ Connect: expect.stringContaining( 'from=my_jetpack_recommendations_search' ) },
+		],
+	] )( 'links the actions that go somewhere for %s', ( _name, overrides, links ) => {
+		mockUseProduct.mockReturnValue( productState( featureDetail( overrides ) ) );
+
+		render( <RecommendationActions slug="search" /> );
+
+		const rendered = screen
+			.getAllByRole( 'link' )
+			.map( link => [ link.textContent, link.getAttribute( 'href' ) ] );
+		expect( Object.fromEntries( rendered ) ).toEqual( links );
+	} );
+
+	it( 'keeps an action that goes nowhere a button, and runs it', async () => {
+		mockUseProduct.mockReturnValue( productState( featureDetail( toBuy ) ) );
+
+		render( <RecommendationActions slug="search" /> );
+		await userEvent.click( screen.getByRole( 'button', { name: 'Purchase' } ) );
+
+		expect( mockRunFreeCheckout ).toHaveBeenCalledTimes( 1 );
+	} );
+
+	it( "records a click on a host-sold product without starting Jetpack's checkout", () => {
+		mockUseProduct.mockReturnValue( productState( featureDetail( hostSold ) ) );
+
+		const { result } = renderHook( () => usePricingData( 'search' ) );
+		act( () => result.current.primaryAction.onClick() );
+
+		expect( mockRecordEvent ).toHaveBeenCalledWith(
+			'jetpack_myjetpack_evaluation_recommendations_checkout_click',
+			{ slug: 'search' }
+		);
+		expect( mockRunFreeCheckout ).not.toHaveBeenCalled();
+	} );
+} );
+
+describe( 'PriceComponent', () => {
+	const yearly = { currencyCode: 'USD', fullPrice: 120, discountPrice: 120 };
+	const tenDollars = /^\$10\.00\s*\/month, billed yearly$/;
+
+	it.each( [
+		[ 'single-price, catalog failed', false, {}, /^$/ ],
+		[ 'tier-priced, catalog failed', false, { tiers: { upgraded: {} } }, /^$/ ],
+		[ 'single-price, catalog loaded', false, { ...yearly, fullPricePerMonth: 10 }, tenDollars ],
+		[ 'tier-priced, catalog loaded', false, { tiers: { upgraded: yearly } }, tenDollars ],
+		[ 'free feature', true, { isFree: true }, /^Free$/ ],
+		[ 'free non-feature', false, { available: true, isFree: true }, /^Free$/ ],
+	] )( 'shows the right price for a %s product', ( _case, isFeature, pricingForUi, text ) => {
+		mockUseProduct.mockReturnValue( productState( featureDetail( { isFeature, pricingForUi } ) ) );
+
+		const { container } = render( <PriceComponent slug="search" /> );
+
+		expect( container ).toHaveTextContent( text );
+	} );
+} );

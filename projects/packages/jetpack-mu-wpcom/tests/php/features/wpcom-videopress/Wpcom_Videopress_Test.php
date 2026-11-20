@@ -15,8 +15,7 @@ use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/wpcom-videopress/wpcom-videopress.php';
 
 /**
- * Tests that neither the VIDP-285 dashboard rollout nor the chapters editor
- * still registers a restricting gate here — both are at 100%.
+ * Tests that the generally available dashboard and editors have no cohort restrictions.
  */
 class Wpcom_Videopress_Test extends \WorDBless\BaseTestCase {
 	/**
@@ -25,6 +24,7 @@ class Wpcom_Videopress_Test extends \WorDBless\BaseTestCase {
 	public function tear_down() {
 		Constants::clear_constants();
 		remove_all_filters( 'jetpack_videopress_chapters_editor' );
+		remove_all_filters( 'jetpack_videopress_trim_cut' );
 		wp_set_current_user( 0 );
 
 		parent::tear_down();
@@ -69,5 +69,14 @@ class Wpcom_Videopress_Test extends \WorDBless\BaseTestCase {
 
 		$this->assertFalse( has_filter( 'jetpack_videopress_chapters_editor' ) );
 		$this->assertFalse( function_exists( 'wpcom_videopress_chapters_editor_enabled' ) );
+	}
+
+	/** Simple sites inherit the editor default without staff or sticker checks. */
+	public function test_no_trim_cut_gate_registered() {
+		$this->simulate_wpcom_simple();
+		\wpcom_videopress_init_admin_ui();
+
+		$this->assertFalse( has_filter( 'jetpack_videopress_trim_cut' ) );
+		$this->assertFalse( function_exists( 'wpcom_videopress_trim_cut_enabled' ) );
 	}
 }

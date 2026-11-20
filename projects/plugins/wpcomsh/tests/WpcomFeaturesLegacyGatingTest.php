@@ -10,7 +10,7 @@
 /**
  * Covers the sticker plumbing WPCOM_Features uses on Atomic: `is_legacy_gating_site()`, the single
  * predicate that decides whether a site stays on the pre-2026 feature gating, and the
- * `required_sticker` / `sticker_not_present` keys in the products map that read the same helper.
+ * `legacy_gating` key in the products map that reads the same helper.
  *
  * Ported from the wpcom-side LegacyGatingSiteTest, with the differences that matter on Atomic:
  *
@@ -44,8 +44,8 @@ class WpcomFeaturesLegacyGatingTest extends WP_UnitTestCase {
 		if ( ! self::stickers_are_writable() ) {
 			$this->markTestSkipped(
 				'These tests write blog stickers into Atomic Persistent Data, which only the mock in tests/lib/mocks supports. '
-				. 'On a real Atomic host the platform defines Atomic_Persistent_Data first and its stickers are read-only, so this test '
-				. 'is skipped there. Run it in the monorepo instead: '
+				. 'On a real Atomic host the platform defines Atomic_Persistent_Data first and its stickers are read-only, which is '
+				. 'why this file is excluded from the "wpcloud" suite. Run it in the monorepo instead: '
 				. 'jp docker phpunit wpcomsh -- --filter=WpcomFeaturesLegacyGatingTest'
 			);
 		}
@@ -247,34 +247,36 @@ class WpcomFeaturesLegacyGatingTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * `required_sticker` in the products map goes through the same helper, so a plan that only
-	 * unlocks a feature for stickered sites has to stay locked without the sticker.
+	 * The additive half of the 2026 flip, on Atomic.
 	 *
-	 * ADVANCED_SEO grants Premium plans access only behind `gating-business-q1`; Premium appears
-	 * nowhere else in that feature's map.
+	 * ADVANCED_SEO used to grant Premium only behind `gating-business-q1`. It is now unconditional
+	 * at Premium, so both cohorts have it -- which is what makes the legacy set a union of the old
+	 * and new gating rather than a freeze.
 	 */
-	public function test_required_sticker_gates_a_purchase_on_atomic() {
+	public function test_advanced_seo_is_unconditional_at_premium_on_atomic() {
 		$purchases = array( (object) array( 'product_slug' => 'value_bundle' ) );
 
-		$this->assertFalse(
+		$this->assertTrue(
 			WPCOM_Features::has_feature( WPCOM_Features::ADVANCED_SEO, $purchases, 'wpcom' ),
-			'Without the sticker a Premium plan must not unlock Advanced SEO.'
+			'A legacy Premium site must gain Advanced SEO.'
 		);
 
-		$this->add_sticker( WPCOM_Features::STICKER_GATING_BUSINESS_Q1 );
+		$this->add_sticker( WPCOM_Features::STICKER_FEATURE_GATING_2026 );
 
 		$this->assertTrue(
-			WPCOM_Features::has_feature( WPCOM_Features::ADVANCED_SEO, $purchases, 'wpcom' )
+			WPCOM_Features::has_feature( WPCOM_Features::ADVANCED_SEO, $purchases, 'wpcom' ),
+			'A Premium site on the 2026 gating must have Advanced SEO too.'
 		);
 	}
 
 	/**
-	 * The mirror image: `sticker_not_present` withdraws a legacy grant once the site is stickered.
+	 * The subtractive half: `legacy_gating` withdraws a pre-2026 grant once the site is off legacy.
 	 *
-	 * DONATIONS is available to Personal and higher only while `gating-business-q1` is absent;
-	 * under the new gating it starts at Premium.
+	 * DONATIONS is available to Personal and higher only while the site is legacy; under the 2026
+	 * gating it starts at Premium. `gating-business-q1` is one of the three markers the predicate
+	 * reads, so a site carrying it is already on the new gating.
 	 */
-	public function test_sticker_not_present_gates_a_purchase_on_atomic() {
+	public function test_legacy_gating_withdraws_a_purchase_grant_on_atomic() {
 		$purchases = array( (object) array( 'product_slug' => 'personal-bundle' ) );
 
 		$this->assertTrue(

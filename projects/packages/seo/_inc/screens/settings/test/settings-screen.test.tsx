@@ -1,16 +1,12 @@
 import '@testing-library/jest-dom';
 import { jest } from '@jest/globals';
-import { render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import type { SettingsResponse } from '../../../data/settings-types';
 import type { SettingsForm } from '../../../data/use-settings';
-import type { ReactNode } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 
 // `--experimental-vm-modules` (true ESM): mock with `jest.unstable_mockModule`
 // and import the components under test dynamically after the mocks are registered.
-jest.unstable_mockModule( '../../../data/is-gated', () => ( {
-	isGated: () => false,
-	getUpsellUrl: () => 'https://wordpress.com/checkout/example.com/value_bundle',
-} ) );
 
 jest.unstable_mockModule( '@wordpress/route', () => ( {
 	useSearch: () => ( {} ),
@@ -22,13 +18,25 @@ jest.unstable_mockModule( '@wordpress/route', () => ( {
 // its completion threshold is one of the rules under test — but the Google field
 // inside it reaches for the verify endpoint, so that one field is stubbed.
 jest.unstable_mockModule( '../author-profile-card', () => ( {
-	default: () => <div>author</div>,
+	default: ( { disabled }: { disabled?: boolean } ) => (
+		<div data-testid="author" aria-disabled={ disabled }>
+			author
+		</div>
+	),
 } ) );
 jest.unstable_mockModule( '../schema-card', () => ( {
-	default: () => <div>schema</div>,
+	default: ( { disabled }: { disabled?: boolean } ) => (
+		<div data-testid="schema" aria-disabled={ disabled }>
+			schema
+		</div>
+	),
 } ) );
+// Records its props so the wiring into it (the live title format) can be checked.
+const SocialPreviewsCard = jest.fn< ( props: Record< string, unknown > ) => ReactElement >( () => (
+	<div>social previews</div>
+) );
 jest.unstable_mockModule( '../social-previews-card', () => ( {
-	default: () => <div>social previews</div>,
+	default: SocialPreviewsCard,
 } ) );
 jest.unstable_mockModule( '../title-structure-field', () => ( {
 	default: () => <div>title structure</div>,
@@ -36,9 +44,14 @@ jest.unstable_mockModule( '../title-structure-field', () => ( {
 jest.unstable_mockModule( '../google-verification-field', () => ( {
 	default: () => <div>google field</div>,
 } ) );
-jest.unstable_mockModule( '../advanced-card', () => ( {
-	default: () => <div>advanced</div>,
-} ) );
+
+const IndexnowSettings = jest.fn< ( props: Record< string, unknown > ) => ReactElement >( () => (
+	<div>notification settings</div>
+) );
+jest.unstable_mockModule( '../indexnow-settings', () => ( { default: IndexnowSettings } ) );
+
+const sharingFetch = jest.fn< ( options: unknown ) => Promise< unknown > >();
+jest.unstable_mockModule( '@wordpress/api-fetch', () => ( { default: sharingFetch } ) );
 
 const { default: SettingsScreen } = await import( '../index' );
 
@@ -68,9 +81,14 @@ const buildForm = ( overrides: Partial< SettingsResponse > = {} ): SettingsForm 
 		verification: { ...EMPTY_VERIFICATION },
 		search_engines_visible: false,
 		site_is_private: false,
+		site_is_coming_soon: false,
+		site_visibility_url: '',
 		sitemap_active: false,
+		sitemap_switchable: true,
 		sitemap_url: '',
 		canonical_active: false,
+		canonical_switchable: true,
+		canonical_conflicted: false,
 		schema: {} as SettingsResponse[ 'schema' ],
 		...overrides,
 	};
@@ -81,6 +99,7 @@ const buildForm = ( overrides: Partial< SettingsResponse > = {} ): SettingsForm 
 		setField: jest.fn(),
 		setSchemaSettings: jest.fn(),
 		setVerification: jest.fn(),
+		saveVerification: jest.fn(),
 		commit: jest.fn(),
 		commitFields: jest.fn(),
 		isDirty: () => false,
@@ -89,7 +108,19 @@ const buildForm = ( overrides: Partial< SettingsResponse > = {} ): SettingsForm 
 	} as unknown as SettingsForm;
 };
 
-const STATUS_LABELS = [ 'Not started', 'In progress', 'Complete' ];
+const STATUS_LABELS = [ 'Not started', 'Incomplete', 'Complete', 'Paused' ];
+
+/**
+ * Report Jetpack's SEO output as paused in the page bootstrap `getOutput()` reads.
+ *
+ * @param plugin - The SEO plugin that manages the site's SEO, or '' for none.
+ */
+const setPaused = ( plugin: string ) => {
+	( window as unknown as { JetpackScriptData?: unknown } ).JetpackScriptData = {
+		site: { admin_url: 'https://example.com/wp-admin/' },
+		seo: { output: { paused: true, conflicting_plugin: plugin } },
+	};
+};
 
 /**
  * The status shown in a given module's header. `Card.Title` is itself an
@@ -115,30 +146,171 @@ const statusFor = ( moduleTitle: string ): string | undefined => {
 	return undefined;
 };
 
+describe( 'Jetpack SEO output paused', () => {
+	afterEach( () => {
+		delete ( window as unknown as { JetpackScriptData?: unknown } ).JetpackScriptData;
+	} );
+
+	const openDescription = () => {
+		// eslint-disable-next-line testing-library/prefer-user-event -- Match the package's existing disclosure tests without adding a dependency.
+		fireEvent.click( screen.getByRole( 'button', { name: 'Front-page description' } ) );
+		return screen.findByRole( 'textbox', { name: 'Home page description' } );
+	};
+
+	// A filter can switch Jetpack's output off without a plugin; the lock can't depend on the name.
+	it.each( [
+		[ 'Yoast SEO', 'Paused while Yoast SEO is active.' ],
+		[ '', 'Paused on this site.' ],
+	] )( 'with "%s" in charge, locks the cards it feeds', async ( plugin, line ) => {
+		setPaused( plugin );
+		render( <SettingsScreen form={ buildForm( { title_formats_editable: false } ) } /> );
+
+		expect( statusFor( 'Front-page description' ) ).toBe( 'Paused' );
+		expect( screen.getByTestId( 'schema' ) ).toHaveAttribute( 'aria-disabled', 'true' );
+		expect( screen.getByTestId( 'author' ) ).toHaveAttribute( 'aria-disabled', 'true' );
+		await expect( openDescription() ).resolves.toBeDisabled();
+		expect( screen.getByText( line ) ).toBeInTheDocument();
+		// The description keeps its usual help; the banner carries the cause.
+		expect( screen.getByText( /^Shown under your site name/ ) ).toBeInTheDocument();
+		// The previews stay visible, read-only, with the same line.
+		expect( SocialPreviewsCard.mock.lastCall?.[ 0 ] ).toEqual(
+			expect.objectContaining( { paused: true, disabled: true } )
+		);
+	} );
+
+	it( 'leaves everything alone while Jetpack owns the output', async () => {
+		render( <SettingsScreen form={ buildForm() } /> );
+
+		expect( screen.queryByText( /SEO titles, descriptions/ ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( /^Paused (while|on)/ ) ).not.toBeInTheDocument();
+		expect( screen.getByTestId( 'schema' ) ).not.toHaveAttribute( 'aria-disabled', 'true' );
+		expect( SocialPreviewsCard.mock.lastCall?.[ 0 ] ).toEqual(
+			expect.objectContaining( { paused: false } )
+		);
+		await expect( openDescription() ).resolves.toBeEnabled();
+	} );
+} );
+
 describe( 'Indexing toggle on an unpublished site', () => {
+	afterEach( () => {
+		jest.useRealTimers();
+	} );
+
 	const indexingToggle = () =>
 		screen.getByRole( 'checkbox', { name: /Allow search engines to index this site/i } );
 
-	// WordPress.com stores a private or coming-soon site as a negative `blog_public`.
-	// Such a site isn't hidden from search by a setting, so no SEO toggle can reveal
-	// it — turning this on would have to publish the site, which isn't this surface's
-	// decision. Disabled and explained, rather than appearing to work.
-	it( 'is disabled and explains why when the site is private', () => {
-		render( <SettingsScreen form={ buildForm( { site_is_private: true } ) } /> );
+	const visibilityLink = () => screen.queryByRole( 'link', { name: 'Manage site visibility' } );
+	const visibilityUrl = 'http://example.com/wp-admin/options-reading.php';
+
+	it.each( [
+		[ 'private', { site_is_private: true }, /Your site is private/i ],
+		[
+			'Coming Soon',
+			{ site_is_private: true, site_is_coming_soon: true },
+			/Your site is in Coming Soon mode/i,
+		],
+	] )( 'is disabled, explained and linked when the site is %s', ( _, overrides, help ) => {
+		render(
+			<SettingsScreen form={ buildForm( { ...overrides, site_visibility_url: visibilityUrl } ) } />
+		);
 
 		expect( indexingToggle() ).toBeDisabled();
-		expect( screen.getByText( /Your site is private/i ) ).toBeInTheDocument();
+		expect( screen.getByText( help ) ).toBeInTheDocument();
+		expect( visibilityLink() ).toHaveAttribute( 'href', visibilityUrl );
+		expect( statusFor( 'Site visibility' ) ).toBeUndefined();
+	} );
+
+	it.each( [
+		[ 'shows', true ],
+		[ 'hides', false ],
+	] )( '%s the managed-elsewhere tooltip on hover', ( _, locked ) => {
+		jest.useFakeTimers();
+		render( <SettingsScreen form={ buildForm( { site_is_private: locked } ) } /> );
+
+		// A real pointer enters the toggle's wrapper on its way in and rests there.
+		// eslint-disable-next-line testing-library/no-node-access -- the tooltip wrapper has no role or name.
+		const wrapper = indexingToggle().closest(
+			'[data-base-ui-tooltip-trigger], [data-trigger-disabled]'
+		) as Element;
+		/* eslint-disable testing-library/prefer-user-event -- Match the package's existing interaction tests without adding a dependency. */
+		fireEvent.pointerMove( wrapper, { pointerType: 'mouse' } );
+		fireEvent.mouseEnter( wrapper );
+		fireEvent.mouseMove( wrapper );
+		/* eslint-enable testing-library/prefer-user-event */
+		act( () => jest.runAllTimers() );
+
+		expect( Boolean( screen.queryByText( 'Managed in your site visibility settings' ) ) ).toBe(
+			locked
+		);
 	} );
 
 	it( 'is enabled with the usual help text on a public site', () => {
-		render( <SettingsScreen form={ buildForm( { site_is_private: false } ) } /> );
+		render( <SettingsScreen form={ buildForm( { site_visibility_url: visibilityUrl } ) } /> );
 
 		expect( indexingToggle() ).toBeEnabled();
-		expect( screen.queryByText( /Your site is private/i ) ).not.toBeInTheDocument();
+		expect(
+			screen.queryByText( /Your site is (private|in Coming Soon)/i )
+		).not.toBeInTheDocument();
+		expect( visibilityLink() ).not.toBeInTheDocument();
 	} );
 } );
 
 describe( 'Settings module completion status', () => {
+	afterEach( () => {
+		delete ( window as unknown as { JetpackScriptData?: unknown } ).JetpackScriptData;
+	} );
+
+	it( 'keeps platform-managed sitemap and canonical controls read-only', async () => {
+		render(
+			<SettingsScreen
+				form={ buildForm( {
+					search_engines_visible: true,
+					sitemap_active: true,
+					sitemap_switchable: false,
+					canonical_active: true,
+					canonical_switchable: false,
+				} ) }
+			/>
+		);
+		expect( screen.getByRole( 'checkbox', { name: /Generate an XML sitemap/i } ) ).toBeDisabled();
+		// eslint-disable-next-line testing-library/prefer-user-event -- Match the package's existing disclosure tests without adding a dependency.
+		fireEvent.click( screen.getByRole( 'button', { name: 'Canonical URLs' } ) );
+		await expect(
+			screen.findByRole( 'checkbox', { name: /Add canonical URLs/i } )
+		).resolves.toBeDisabled();
+		expect( screen.getAllByText( /managed by your hosting platform/i ) ).toHaveLength( 2 );
+	} );
+
+	it( 'locks the canonical switch at its saved state while another SEO plugin is active', async () => {
+		setPaused( 'Yoast SEO' );
+		render(
+			<SettingsScreen
+				form={ buildForm( { canonical_active: true, canonical_conflicted: true } ) }
+			/>
+		);
+		// eslint-disable-next-line testing-library/prefer-user-event -- Match the package's existing disclosure tests without adding a dependency.
+		fireEvent.click( screen.getByRole( 'button', { name: 'Canonical URLs' } ) );
+		await expect(
+			screen.findByRole( 'checkbox', { name: /Add canonical URLs/i, checked: true } )
+		).resolves.toBeDisabled();
+		// Its saved "on" no longer prints a tag, so the header doesn't call it complete.
+		expect( statusFor( 'Canonical URLs' ) ).toBe( 'Paused' );
+		expect( screen.getAllByText( 'Paused while Yoast SEO is active.' ) ).not.toHaveLength( 0 );
+		expect( screen.getByText( /^Points search engines to one preferred URL/ ) ).toBeVisible();
+	} );
+
+	// Canonical output only steps aside for a plugin, not for the general switch.
+	it( 'keeps the canonical switch live while SEO output is off without a plugin', async () => {
+		setPaused( '' );
+		render( <SettingsScreen form={ buildForm( { canonical_active: true } ) } /> );
+		// eslint-disable-next-line testing-library/prefer-user-event -- Match the package's existing disclosure tests without adding a dependency.
+		fireEvent.click( screen.getByRole( 'button', { name: 'Canonical URLs' } ) );
+		await expect(
+			screen.findByRole( 'checkbox', { name: /Add canonical URLs/i, checked: true } )
+		).resolves.toBeEnabled();
+		expect( statusFor( 'Canonical URLs' ) ).toBe( 'Complete' );
+	} );
+
 	describe( 'Site visibility — counts its two toggles', () => {
 		it( 'reports not started when neither indexing nor the sitemap is on', () => {
 			render( <SettingsScreen form={ buildForm() } /> );
@@ -147,7 +319,7 @@ describe( 'Settings module completion status', () => {
 
 		it( 'reports in progress when indexing is on but the sitemap is not', () => {
 			render( <SettingsScreen form={ buildForm( { search_engines_visible: true } ) } /> );
-			expect( statusFor( 'Site visibility' ) ).toBe( 'In progress' );
+			expect( statusFor( 'Site visibility' ) ).toBe( 'Incomplete' );
 		} );
 
 		it( 'reports complete when both are on', () => {
@@ -193,9 +365,6 @@ describe( 'Settings module completion status', () => {
 		} );
 	} );
 
-	// The count is purely informational — the field is deliberately uncapped,
-	// because the real limits differ per surface (search truncates for display,
-	// Jetpack's own og:description cuts at 197) and none is enforced on this save path.
 	describe( 'Front-page description character count', () => {
 		it( 'counts an empty description as zero, pluralized', () => {
 			render( <SettingsScreen form={ buildForm() } /> );
@@ -212,6 +381,21 @@ describe( 'Settings module completion status', () => {
 			render( <SettingsScreen form={ buildForm( { front_page_description: description } ) } /> );
 			expect( screen.getByText( `${ description.length } characters` ) ).toBeInTheDocument();
 		} );
+
+		it.each( [
+			{ name: '299 letters', description: 'x'.repeat( 299 ), count: 299, atMax: false },
+			{ name: '300 letters', description: 'x'.repeat( 300 ), count: 300, atMax: true },
+			{
+				name: '10 emoji and 280 letters',
+				description: '😀'.repeat( 10 ) + 'x'.repeat( 280 ),
+				count: 290,
+				atMax: true,
+			},
+		] )( 'says whether the maximum is reached with $name', ( { description, count, atMax } ) => {
+			render( <SettingsScreen form={ buildForm( { front_page_description: description } ) } /> );
+			const text = screen.getByText( new RegExp( `^${ count } characters` ) );
+			expect( text.textContent?.includes( 'Maximum characters reached.' ) ).toBe( atMax );
+		} );
 	} );
 
 	describe( 'Site verification — one service is enough', () => {
@@ -222,9 +406,9 @@ describe( 'Settings module completion status', () => {
 
 		// Deliberate: verifying with a single search engine is the realistic end
 		// state, so this module goes straight to complete and never sits at
-		// in-progress (JETPACK-2051). Bing rather than Google, to show no single
+		// incomplete. Bing rather than Google, to show no single
 		// service is privileged.
-		it( 'reports complete — not in progress — with a single service verified', () => {
+		it( 'reports complete — not incomplete — with a single service verified', () => {
 			render(
 				<SettingsScreen
 					form={ buildForm( {
@@ -237,15 +421,15 @@ describe( 'Settings module completion status', () => {
 	} );
 } );
 
-describe( 'Settings module title chips', () => {
-	// The chip must not swallow the title text: the header is how these modules are
+describe( 'Settings module title icons', () => {
+	// The icon must not swallow the title text: the header is how these modules are
 	// found by assistive tech, and by every other test in this file.
 	it.each( [ 'Site visibility', 'Site verification', 'Canonical URLs', 'Front-page description' ] )(
-		'renders %s with its title text and a leading icon chip',
+		'renders %s with its title text and a leading icon',
 		moduleTitle => {
 			render( <SettingsScreen form={ buildForm() } /> );
 
-			// `getByText` resolves to the chip wrapper, whose text content is the title
+			// `getByText` resolves to the title wrapper, whose text content is the title
 			// alone — the glyph beside it is a decorative SVG with no role.
 			const title = screen.getByText( moduleTitle );
 
@@ -256,7 +440,7 @@ describe( 'Settings module title chips', () => {
 	);
 } );
 
-describe( 'Advanced module — WordPress.com Simple', () => {
+describe( 'WordPress.com Simple settings', () => {
 	/**
 	 * Flip the dashboard into WordPress.com Simple mode by seeding the global
 	 * `isSimpleSite()` reads, rather than mocking the module — that keeps
@@ -265,6 +449,7 @@ describe( 'Advanced module — WordPress.com Simple', () => {
 	const setSimpleSite = () => {
 		( window as unknown as { JetpackScriptData?: unknown } ).JetpackScriptData = {
 			site: { host: 'wpcom' },
+			seo: { hosting_options_url: 'https://wordpress.com/support/activate-your-plan/' },
 		};
 	};
 
@@ -272,20 +457,121 @@ describe( 'Advanced module — WordPress.com Simple', () => {
 		delete ( window as unknown as { JetpackScriptData?: unknown } ).JetpackScriptData;
 	} );
 
-	it( 'renders the module on a self-hosted site', () => {
-		render( <SettingsScreen form={ buildForm() } /> );
+	it.each( [
+		[ 'wpcom', true ],
+		[ 'wpcom', false ],
+		[ 'woa', true ],
+		[ 'woa', false ],
+		[ 'unknown', true ],
+		[ 'unknown', false ],
+	] )( 'keeps the canonical switch functional on %s when active is %s', ( host, active ) => {
+		( window as unknown as { JetpackScriptData?: unknown } ).JetpackScriptData = {
+			site: { host },
+		};
+		const form = buildForm( { canonical_active: active } );
 
-		expect( screen.getByText( 'advanced' ) ).toBeInTheDocument();
+		render( <SettingsScreen form={ form } /> );
+		// eslint-disable-next-line testing-library/prefer-user-event -- Match this file's existing disclosure tests.
+		fireEvent.click( screen.getByRole( 'button', { name: 'Canonical URLs' } ) );
+
+		const toggle = screen.getByRole( 'checkbox', { name: /Add canonical URLs/i, checked: active } );
+		expect( toggle ).toBeEnabled();
+		// eslint-disable-next-line testing-library/prefer-user-event -- Exercise the module-switch callback directly.
+		fireEvent.click( toggle );
+
+		expect( form.commit ).toHaveBeenCalledWith( { canonical_active: ! active } );
 	} );
 
-	it( 'hides it on Simple, where SEO tools cannot actually be turned off', () => {
-		// `Modules::is_active()` reports every module active there, so the control
-		// would appear to do nothing.
-		setSimpleSite();
+	it.each( [
+		[ 'wpcom', false ],
+		[ 'woa', true ],
+		[ 'unknown', true ],
+	] )(
+		'keeps verification codes editable and respects module availability on %s',
+		( host, switchable ) => {
+			( window as unknown as { JetpackScriptData?: unknown } ).JetpackScriptData = {
+				site: { host },
+				seo: {
+					preload: {
+						'/jetpack/v4/seo/overview': { body: { verification_switchable: switchable } },
+					},
+				},
+			};
+			const form = buildForm();
 
-		render( <SettingsScreen form={ buildForm() } /> );
+			render( <SettingsScreen form={ form } /> );
+			// eslint-disable-next-line testing-library/prefer-user-event -- Match this file's existing disclosure tests.
+			fireEvent.click( screen.getByRole( 'button', { name: 'Site verification' } ) );
 
-		expect( screen.queryByText( 'advanced' ) ).not.toBeInTheDocument();
+			const input = screen.getByRole( 'textbox', { name: /Bing/ } );
+			expect( input ).toBeEnabled();
+			// eslint-disable-next-line testing-library/prefer-user-event -- Exercise the controlled field's change callback directly.
+			fireEvent.change( input, { target: { value: 'bing-code' } } );
+			fireEvent.blur( input );
+			expect( form.setVerification ).toHaveBeenCalledWith( 'bing', 'bing-code' );
+			expect( form.commitFields ).toHaveBeenCalledWith( [ 'verification' ] );
+
+			const toggle = screen.queryByRole( 'checkbox', { name: /Enable site verification/ } );
+			expect( toggle !== null ).toBe( switchable );
+			if ( toggle ) {
+				// eslint-disable-next-line testing-library/prefer-user-event -- Exercise only the module-switch callback.
+				fireEvent.click( toggle );
+			}
+			expect( jest.mocked( form.commit ).mock.calls ).toEqual(
+				switchable ? [ [ { verification_tools_active: false } ] ] : []
+			);
+		}
+	);
+
+	it.each( [ true, false ] )(
+		'makes the read-only Simple sitemap switch follow indexing, not the module, when indexing is %s',
+		searchEnginesVisible => {
+			setSimpleSite();
+			const form = buildForm( {
+				search_engines_visible: searchEnginesVisible,
+				sitemap_active: false,
+				sitemap_switchable: true,
+				sitemap_url: 'https://example.com/sitemap.xml',
+			} );
+
+			render( <SettingsScreen form={ form } /> );
+
+			const toggle = screen.getByRole( 'checkbox', {
+				name: /Generate an XML sitemap/i,
+				checked: searchEnginesVisible,
+			} );
+			expect( toggle ).toBeDisabled();
+			expect( statusFor( 'Site visibility' ) ).toBe(
+				searchEnginesVisible ? 'Complete' : 'Not started'
+			);
+			expect( toggle ).toHaveAccessibleDescription(
+				'WordPress.com manages sitemap generation for this site. Additional hosting features let you turn sitemap generation on or off.'
+			);
+			expect( screen.getByRole( 'link', { name: /Explore hosting options/ } ) ).toHaveAttribute(
+				'href',
+				'https://wordpress.com/support/activate-your-plan/'
+			);
+			expect( screen.queryByRole( 'link', { name: /View sitemap/ } ) ).not.toBeInTheDocument();
+			expect( form.commit ).not.toHaveBeenCalled();
+		}
+	);
+
+	it.each( [ 'woa', 'self-hosted' ] )( 'keeps the sitemap control available on %s', host => {
+		( window as unknown as { JetpackScriptData?: unknown } ).JetpackScriptData = {
+			site: { host },
+		};
+
+		render( <SettingsScreen form={ buildForm( { search_engines_visible: true } ) } /> );
+
+		expect( screen.getByRole( 'checkbox', { name: /Generate an XML sitemap/i } ) ).toBeEnabled();
+		expect(
+			screen.queryByText(
+				'WordPress.com manages sitemap generation for this site. Additional hosting features let you turn sitemap generation on or off.'
+			)
+		).not.toBeInTheDocument();
+		expect(
+			screen.queryByRole( 'link', { name: /Explore hosting options/ } )
+		).not.toBeInTheDocument();
 	} );
 } );
 
@@ -306,4 +592,170 @@ describe( 'Settings module text hierarchy', () => {
 		// `variant` prop were deleted outright. The `<p>` pins that it's a real paragraph.
 		expect( description.tagName ).toBe( 'P' );
 	} );
+} );
+
+describe( 'Search & social previews', () => {
+	// Earlier tests render the card too. Clear their calls so each assertion reads
+	// this test's render, and fails if the card isn't rendered at all.
+	beforeEach( () => {
+		SocialPreviewsCard.mockClear();
+	} );
+
+	// The previews show the home page's title, so they are fed the Front page
+	// format being edited in Title structure, not only the saved one.
+	it( 'passes the Front page title format and the separator to the previews', () => {
+		const frontPage = [
+			{ type: 'token', value: 'site_name' },
+			{ type: 'string', value: ' | ' },
+			{ type: 'token', value: 'tagline' },
+		] as SettingsResponse[ 'title_formats' ][ string ];
+
+		render(
+			<SettingsScreen
+				form={ buildForm( { title_formats: { front_page: frontPage }, title_separator: '–' } ) }
+			/>
+		);
+
+		expect( SocialPreviewsCard.mock.lastCall?.[ 0 ] ).toEqual(
+			expect.objectContaining( { frontPageTitleFormat: frontPage, titleSeparator: '–' } )
+		);
+	} );
+
+	it( 'passes an empty format when the Front page keeps the default title', () => {
+		render( <SettingsScreen form={ buildForm() } /> );
+
+		expect( SocialPreviewsCard.mock.lastCall?.[ 0 ] ).toEqual(
+			expect.objectContaining( { frontPageTitleFormat: [] } )
+		);
+	} );
+
+	it( 'keeps the default share image editable in the manual settings', () => {
+		const image = { id: 12, src: 'https://example.com/share.jpg', alt_text: 'Share image' };
+		const form = buildForm( { default_share_image: image, share_image_preview: image.src } );
+
+		render( <SettingsScreen form={ form } /> );
+
+		const props = SocialPreviewsCard.mock.lastCall?.[ 0 ];
+		expect( props ).toEqual(
+			expect.objectContaining( {
+				defaultImage: image,
+				resolvedImage: image.src,
+				disabled: false,
+			} )
+		);
+		( props?.onImageChange as ( image: number ) => void )( 34 );
+		expect( form.commit ).toHaveBeenCalledWith( { default_share_image: 34 } );
+	} );
+} );
+
+describe( 'Notification settings inside Site visibility', () => {
+	beforeEach( () => {
+		( window as unknown as { JetpackScriptData?: unknown } ).JetpackScriptData = {
+			seo: { indexnow_available: true },
+		};
+		IndexnowSettings.mockClear();
+	} );
+
+	afterEach( () => {
+		delete ( window as unknown as { JetpackScriptData?: unknown } ).JetpackScriptData;
+	} );
+
+	it.each( [ false, undefined ] )(
+		'does not mount notifications when host availability is %s',
+		available => {
+			( window as unknown as { JetpackScriptData?: unknown } ).JetpackScriptData = {
+				seo: { indexnow_available: available },
+			};
+			render( <SettingsScreen form={ buildForm() } /> );
+			expect( IndexnowSettings ).not.toHaveBeenCalled();
+			expect( screen.queryByText( 'notification settings' ) ).not.toBeInTheDocument();
+		}
+	);
+
+	it( 'places notifications after the sitemap and forwards the parent save state', () => {
+		const form = { ...buildForm(), isSaving: true };
+		render( <SettingsScreen form={ form } /> );
+		expect( IndexnowSettings.mock.lastCall?.[ 0 ] ).toEqual(
+			expect.objectContaining( { isSaving: true, onSavingChange: expect.any( Function ) } )
+		);
+		const sitemap = screen.getByRole( 'checkbox', { name: /Generate an XML sitemap/i } );
+		const notifications = screen.getByText( 'notification settings' );
+		expect( sitemap.compareDocumentPosition( notifications ) ).toBe(
+			Node.DOCUMENT_POSITION_FOLLOWING
+		);
+		// eslint-disable-next-line testing-library/no-node-access -- The section anchor owns the inline controls.
+		expect( notifications.closest( '#visibility' ) ).not.toBeNull();
+	} );
+
+	it( 'locks visibility toggles only while a notification save is in flight', () => {
+		render( <SettingsScreen form={ buildForm( { search_engines_visible: true } ) } /> );
+		const indexing = screen.getByRole( 'checkbox', { name: /Allow search engines/i } );
+		const sitemap = screen.getByRole( 'checkbox', { name: /Generate an XML sitemap/i } );
+		const onSavingChange = IndexnowSettings.mock.lastCall?.[ 0 ].onSavingChange as (
+			saving: boolean
+		) => void;
+		act( () => onSavingChange( true ) );
+		expect( indexing ).toBeDisabled();
+		expect( sitemap ).toBeDisabled();
+		act( () => onSavingChange( false ) );
+		expect( indexing ).toBeEnabled();
+		expect( sitemap ).toBeEnabled();
+	} );
+} );
+
+describe( 'sharing save coordination', () => {
+	it.each( [ 'saved', 'rejected' ] )(
+		'locks other settings until consent is %s and confirmed',
+		async outcome => {
+			sharingFetch.mockReset();
+			const initial = {
+				prevent_sharing: false,
+				locked: false,
+				privacy_url: '/wp-admin/options-reading.php',
+			};
+			sharingFetch.mockResolvedValueOnce( initial );
+			const form = buildForm( { data_sharing_available: true, search_engines_visible: true } );
+			render( <SettingsScreen form={ form } /> );
+			const sharing = await screen.findByRole( 'switch', { name: 'Prevent third-party sharing' } );
+			await waitFor( () => expect( sharing ).toBeEnabled() );
+			let resolveSave!: ( value: unknown ) => void;
+			let rejectSave!: ( reason: Error ) => void;
+			sharingFetch.mockReturnValueOnce(
+				new Promise( ( resolve, reject ) => {
+					resolveSave = resolve;
+					rejectSave = reject;
+				} )
+			);
+			// eslint-disable-next-line testing-library/prefer-user-event -- Match the package settings tests.
+			fireEvent.click( sharing );
+			const indexing = screen.getByRole( 'checkbox', {
+				name: 'Allow search engines to index this site',
+			} );
+			expect( indexing ).toBeDisabled();
+			expect( SocialPreviewsCard.mock.lastCall?.[ 0 ] ).toEqual(
+				expect.objectContaining( { disabled: true } )
+			);
+			indexing.click();
+			expect( form.commit ).not.toHaveBeenCalled();
+			let confirm!: ( value: unknown ) => void;
+			sharingFetch.mockReturnValueOnce(
+				new Promise( resolve => {
+					confirm = resolve;
+				} )
+			);
+			await act( async () => {
+				if ( outcome === 'saved' ) {
+					resolveSave( { ...initial, prevent_sharing: true } );
+				} else {
+					rejectSave( new Error( 'Rejected' ) );
+				}
+			} );
+			expect( indexing ).toBeDisabled();
+			await act( async () => confirm( outcome === 'saved' ? { crawlers: {} } : initial ) );
+			await waitFor( () => expect( indexing ).toBeEnabled() );
+			// eslint-disable-next-line jest-dom/prefer-checked -- Compare the table's expected state without conditional assertions.
+			expect( sharing ).toHaveAttribute( 'aria-checked', String( outcome === 'saved' ) );
+			expect( sharingFetch ).toHaveBeenCalledTimes( 3 );
+		}
+	);
 } );

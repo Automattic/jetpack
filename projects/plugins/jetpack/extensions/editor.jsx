@@ -7,6 +7,7 @@ import './shared/block-category';
 import './shared/plan-upgrade-notification';
 import './shared/reader-repost';
 import './shared/stripe-connection-notification';
+import './shared/unavailable-blocks-notice/editor';
 import './extended-blocks/core-embed';
 import './extended-blocks/core-site-logo/index.tsx';
 import './extended-blocks/core-social-links';

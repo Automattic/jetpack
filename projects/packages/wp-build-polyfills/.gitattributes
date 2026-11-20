@@ -7,4 +7,5 @@ build/**          production-include
 # (see also entries in the monorepo root .gitattributes)
 # Remember to end all directories with `/**` to properly tag every file.
 bin/**               production-exclude
+src/js/**            production-exclude
 preserve-dynamic-imports-loader.js  production-exclude

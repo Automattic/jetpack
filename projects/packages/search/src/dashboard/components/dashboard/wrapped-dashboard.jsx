@@ -1,7 +1,7 @@
 import analytics from '@automattic/jetpack-analytics';
 import restApi from '@automattic/jetpack-api';
 import { useSelect, select as syncSelect } from '@wordpress/data';
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import SearchConnectionPage from 'components/pages/connection-page';
 import SearchDashboardPage from 'components/pages/dashboard-page';
 import UpsellPage from 'components/pages/upsell-page';
@@ -11,7 +11,7 @@ import { STORE_ID } from 'store';
 /**
  * Return appropriate components.
  *
- * @return {import('react').Component} WrappedDashboard component.
+ * @return {import('react').ReactElement} WrappedDashboard component.
  */
 export default function WrappedDashboard() {
 	const { isFullyConnected } = useConnection();
@@ -37,9 +37,18 @@ export default function WrappedDashboard() {
 		wpcomOriginApiUrl && restApi.setWpcomOriginApiUrl( wpcomOriginApiUrl );
 		apiNonce && restApi.setApiNonce( apiNonce );
 		initializeAnalytics();
-		analytics.tracks.recordEvent( 'jetpack_search_admin_page_view', {
-			current_version: syncSelect( STORE_ID ).getVersion(),
-		} );
+		recordPageView();
+	}, [] );
+
+	// The admin shell keeps this page mounted, so a return to it is a new visit: see the admin-ui README.
+	useEffect( () => {
+		const onShown = event => {
+			if ( event.detail?.page === 'jetpack-search' && ! event.detail.firstShow ) {
+				recordPageView();
+			}
+		};
+		window.addEventListener( 'jetpack-admin-shell:page-shown', onShown );
+		return () => window.removeEventListener( 'jetpack-admin-shell:page-shown', onShown );
 	}, [] );
 
 	return (
@@ -48,6 +57,15 @@ export default function WrappedDashboard() {
 			{ ( isFullyConnected || isNewPricing ) && <WrappedDashboard202208 /> }
 		</>
 	);
+}
+
+/**
+ * Record the Search page view.
+ */
+function recordPageView() {
+	analytics.tracks.recordEvent( 'jetpack_search_admin_page_view', {
+		current_version: syncSelect( STORE_ID ).getVersion(),
+	} );
 }
 
 /**

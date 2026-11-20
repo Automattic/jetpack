@@ -32,7 +32,8 @@ class Publicize_Utils {
 	public static function is_jetpack_settings_page() {
 		$screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
 
-		return ! empty( $screen ) && 'toplevel_page_jetpack' === $screen->base;
+		// Older Jetpack plugins still render Settings at page=jetpack.
+		return ! empty( $screen ) && in_array( $screen->base, array( 'jetpack_page_jetpack-settings', 'toplevel_page_jetpack' ), true );
 	}
 
 	/**
@@ -83,6 +84,17 @@ class Publicize_Utils {
 	 */
 	public static function is_publicize_active() {
 		return ( new Modules() )->is_active( 'publicize' );
+	}
+
+	/**
+	 * Whether the current user may open the Social dashboard: admins can turn Social on, so they see it while Publicize is off.
+	 *
+	 * @since 0.89.0
+	 *
+	 * @return bool
+	 */
+	public static function can_open_social_dashboard() {
+		return current_user_can( 'manage_options' ) || self::is_publicize_active();
 	}
 
 	/**

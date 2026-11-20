@@ -12,7 +12,10 @@ import {
 } from '../constants';
 import useProductsByOwnership from '../products/use-products-by-ownership';
 import useSimpleMutation from '../use-simple-mutation';
-import { getMyJetpackWindowInitialState } from '../utils/get-my-jetpack-window-state';
+import {
+	getHiddenFeatures,
+	getMyJetpackWindowInitialState,
+} from '../utils/get-my-jetpack-window-state';
 
 const NUMBER_OF_RECOMMENDATIONS_TO_SHOW = 5;
 
@@ -48,9 +51,10 @@ const useEvaluationRecommendations = () => {
 				? [ 'anti-spam', 'extras', 'jetpack-ai' ]
 				: ownedProductsData || []
 		) as JetpackModule[];
-		// We filter out owned modules, and return the top recommendations
+		const hidden = getHiddenFeatures();
+		// We filter out owned and host-hidden modules, and return the top recommendations
 		return recommendedModules
-			?.filter( module => ! ownedProducts.includes( module ) )
+			?.filter( module => ! ownedProducts.includes( module ) && ! hidden.includes( module ) )
 			.slice( 0, NUMBER_OF_RECOMMENDATIONS_TO_SHOW );
 	}, [ recommendedModules, ownedProductsData ] );
 

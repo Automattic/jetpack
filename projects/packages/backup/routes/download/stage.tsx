@@ -13,7 +13,7 @@ import './style.scss';
  * @return The Download screen wrapped in the dashboard's query client.
  */
 const Stage = () => (
-	<ErrorBoundary>
+	<ErrorBoundary screen="download">
 		<QueryClientProvider>
 			<DownloadScreen />
 		</QueryClientProvider>

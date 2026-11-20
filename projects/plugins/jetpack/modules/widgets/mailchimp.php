@@ -80,7 +80,7 @@ if ( ! class_exists( 'Jetpack_MailChimp_Subscriber_Popup_Widget' ) ) {
 
 			// Process the shortcode only, if exists.
 			if ( ! empty( $matches[0] ) ) {
-				echo do_shortcode( $matches[0] );
+				echo apply_shortcodes( $matches[0] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- https://github.com/WordPress/WordPress-Coding-Standards/pull/2782
 			}
 
 			/** This action is documented in modules/widgets/gravatar-profile.php */

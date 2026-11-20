@@ -211,11 +211,8 @@ export default function ViewsTrendsCard( {
 		[ config.yTickFormat ]
 	);
 
-	// LineChart's default tooltip renders a light card and formats values
-	// with `formatNumber`, ignoring `axis.y.tickFormat`. We provide our own
-	// so (a) Watch time tooltips read in the same unit as the axis ticks
-	// ("12 min", not "720"), and (b) the surface is dark to match the
-	// WordPress DS tooltip (https://wordpress.github.io/gutenberg/?path=/story/design-system-components-tooltip--default).
+	// LineChart's default tooltip formats values with `formatNumber`, ignoring `axis.y.tickFormat`,
+	// so Watch time tooltips would not read in the axis unit ("12 min", not "720").
 	const renderTooltip = useCallback(
 		( params: ChartTooltipParams ): ReactNode => {
 			const nearestDatum = params.tooltipData?.nearestDatum?.datum;

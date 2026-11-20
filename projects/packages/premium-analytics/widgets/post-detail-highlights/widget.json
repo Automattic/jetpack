@@ -1,5 +1,6 @@
 {
 	"name": "jpa/post-detail-highlights",
+	"icon": "jpa/chart-bar",
 	"title": "Post highlights",
 	"description": "Views, comments, and likes for the post or page being viewed.",
 	"help": {

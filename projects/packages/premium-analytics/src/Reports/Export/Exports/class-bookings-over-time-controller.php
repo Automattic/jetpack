@@ -114,8 +114,7 @@ class Bookings_Over_Time_Controller extends Abstract_Csv_Report_Controller {
 	 */
 	public function get_additional_params(): array {
 		return array(
-			'date_type' => self::DEFAULT_DATE_TYPE,
-			'filters'   => array(
+			'filters' => array(
 				array(
 					'key'     => 'product_type',
 					'compare' => 'IN',

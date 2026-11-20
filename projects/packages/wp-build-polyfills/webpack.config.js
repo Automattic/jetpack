@@ -1,8 +1,8 @@
 /**
  * Webpack configuration for wp-build-polyfills.
  *
- * Bundles `@wordpress` packages not available in WordPress Core < 7.0
- * as both classic scripts (IIFE) and script modules (ESM).
+ * Bundles the `@wordpress` packages `WP_Build_Polyfills` registers, as both
+ * classic scripts (IIFE) and script modules (ESM).
  *
  * IIFE builds use `@wordpress/dependency-extraction-webpack-plugin` (via
  * jetpack-webpack-config's StandardPlugins) for externals and .asset.php.
@@ -97,6 +97,17 @@ function resolveEntry( packageName, subEntry = null ) {
 	return path.join( pkgDir, pkg.module || pkg.main );
 }
 
+/**
+ * Read the version of a bundled package.
+ *
+ * @param {string} packageName - npm package name.
+ * @return {string} The package.json version.
+ */
+function resolvePackageVersion( packageName ) {
+	const pkgPath = localRequire.resolve( `${ packageName }/package.json` );
+	return JSON.parse( readFileSync( pkgPath, 'utf8' ) ).version;
+}
+
 // ── Shared config ───────────────────────────────────────────────────────────
 
 // Files inside upstream @wordpress packages that import a helper from
@@ -158,8 +169,8 @@ const sharedConfig = {
 };
 
 // Plugins disabled for all polyfill builds: no CSS is bundled, and the i18n
-// loader/checker are unnecessary since Core doesn't provide translations for
-// these packages (they aren't shipped with Core in the first place).
+// loader/checker serve this package's own text domain, which the bundles never
+// use — their strings are upstream ones in Core's `default` domain.
 const disabledPlugins = {
 	MiniCssExtractPlugin: false,
 	MiniCssWithRtlPlugin: false,
@@ -169,9 +180,6 @@ const disabledPlugins = {
 };
 
 // ── Polyfill definitions ────────────────────────────────────────────────────
-//
-// If adding or removing something here, you'll probably also want to add or remove it
-// from the "Bundled @wordpress/* monorepo" group in `.github/renovate.json5`.
 
 const classicPolyfills = [
 	{
@@ -183,6 +191,9 @@ const classicPolyfills = [
 		name: 'private-apis',
 		packageName: '@wordpress/private-apis',
 		library: [ 'wp', 'privateApis' ],
+		// Re-allows the Core modules that the WordPress versions this polyfill
+		// replaces private-apis on still opt in with; see the wrapper.
+		entry: path.join( packageRoot, 'src', 'js', 'private-apis.mjs' ),
 	},
 	{
 		name: 'rich-text',
@@ -230,7 +241,7 @@ const iifeConfigs = classicPolyfills.map( polyfill => ( {
 	name: `script-${ polyfill.name }`,
 	...sharedConfig,
 	entry: {
-		index: resolveEntry( polyfill.packageName ),
+		index: polyfill.entry ?? resolveEntry( polyfill.packageName ),
 	},
 	output: {
 		...jetpackWebpackConfig.output,
@@ -278,8 +289,9 @@ const VENDOR_EXTERNALS = {
 };
 
 class PolyfillModulePlugin {
-	constructor( { skipPackage } ) {
+	constructor( { skipPackage, packageVersion } ) {
 		this.skipPackage = skipPackage;
+		this.packageVersion = packageVersion;
 	}
 
 	apply( compiler ) {
@@ -402,6 +414,9 @@ class PolyfillModulePlugin {
 								parts.push( `'module_dependencies' => array(${ modDepsPhp })` );
 							}
 							parts.push( `'version' => '${ hash }'` );
+							if ( this.packageVersion ) {
+								parts.push( `'package_version' => '${ this.packageVersion }'` );
+							}
 
 							const assetContent = `<?php return array(${ parts.join( ', ' ) });\n`;
 							const assetFilename = jsFile.replace( /\.m?js$/i, '.asset.php' );
@@ -446,15 +461,15 @@ const esmConfigs = modulePolyfills.map( polyfill => ( {
 		environment: { module: true },
 		library: { type: 'module' },
 	},
-	experiments: {
-		outputModule: true,
-	},
 	plugins: [
 		...jetpackWebpackConfig.StandardPlugins( {
 			DependencyExtractionPlugin: false,
 			...disabledPlugins,
 		} ),
-		new PolyfillModulePlugin( { skipPackage: polyfill.packageName } ),
+		new PolyfillModulePlugin( {
+			skipPackage: polyfill.packageName,
+			packageVersion: resolvePackageVersion( polyfill.packageName ),
+		} ),
 	],
 } ) );
 

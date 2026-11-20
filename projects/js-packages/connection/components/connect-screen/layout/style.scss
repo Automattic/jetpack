@@ -84,6 +84,9 @@
 			li {
 				background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAMAAABg3Am1AAAANlBMVEVHcEwFnwUInggGnggGnggHnAcAnwUFnQcAnwcGnwkFnQgGnQgFnwcGnQYFnQcFnAcGnQkDnwdhiL0pAAAAEnRSTlMAMF//f2Aw7yBQ3+9gcIBgcED+HDbkAAAAZklEQVR4Ae3LNwICARDDQC0+cv7/Y8mwV9odSfWIcf/+VegnGkIvDaGXKvTTn/Gz+Uf5xTL0K1XotS7fs5H6GHvvaO8d7c3j7rdgHne/A/PYt/cO+R42oYdN6OEQetiFHo4A//6dAXqtBEkmtWutAAAAAElFTkSuQmCC) no-repeat;
 				background-size: 24px;
+				// Kept physical: the checkmark background-image has no logical
+				// position, and reserves this padding for itself. Both must
+				// stay on the same (left) side or the icon and text overlap.
 				padding-left: 30px;
 				margin-bottom: 9px;
 				color: var(--jp-black);
@@ -142,7 +145,8 @@
 		}
 
 		@include mixins.break-small {
-			padding: 4rem 6rem 4rem 4rem;
+			padding-block: 4rem;
+			padding-inline: 4rem 6rem;
 		}
 	}
 
@@ -155,7 +159,7 @@
 		@include mixins.break-xlarge {
 			position: absolute;
 			top: calc(var(--spacing-base) * 9.25);
-			right: calc(var(--spacing-base) * -45);
+			inset-inline-end: calc(var(--spacing-base) * -45);
 		}
 
 		.jp-components__pricing-card {
@@ -188,7 +192,7 @@
 		display: none;
 		position: absolute;
 		top: 0;
-		right: 0;
+		inset-inline-end: 0;
 		width: 363px;
 		height: 677px;
 		z-index: 1;
@@ -206,7 +210,7 @@
 		&__blue {
 			width: 400px;
 			height: 400px;
-			right: -100px;
+			inset-inline-end: -100px;
 			top: -275px;
 			z-index: 3;
 
@@ -216,7 +220,7 @@
 		&__yellow {
 			width: 250px;
 			height: 250px;
-			right: -25px;
+			inset-inline-end: -25px;
 			top: 10px;
 			z-index: 2;
 
@@ -226,7 +230,7 @@
 		&__green {
 			width: 300px;
 			height: 300px;
-			right: 0;
+			inset-inline-end: 0;
 			top: 175px;
 			z-index: 1;
 

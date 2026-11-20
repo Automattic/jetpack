@@ -2,11 +2,13 @@
 
 namespace Automattic\Jetpack\My_Jetpack;
 
+use Automattic\Jetpack\Connection\Error_Handler;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Tokens;
 use Automattic\Jetpack\Menu_Badges\Notification_Counts;
 use Automattic\Jetpack\My_Jetpack\Products\Protect;
 use Jetpack_Options;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use WorDBless\Options as WorDBless_Options;
 use WorDBless\Users as WorDBless_Users;
@@ -59,6 +61,10 @@ class Red_Bubble_Menu_Badge_Test extends TestCase {
 			)
 		);
 		wp_set_current_user( self::$user_id );
+		// Connection errors are capability-gated on jetpack_connect in
+		// get_displayable_errors(); production admins have it via the meta-cap map,
+		// which isn't wired in this bootstrap, so grant it explicitly.
+		wp_get_current_user()->add_cap( 'jetpack_connect' );
 	}
 
 	/**
@@ -66,6 +72,8 @@ class Red_Bubble_Menu_Badge_Test extends TestCase {
 	 */
 	public function tearDown(): void {
 		Notification_Counts::reset();
+		remove_all_filters( 'jetpack_connection_bypass_error_reporting_gate' );
+		Error_Handler::get_instance()->delete_all_errors();
 		wp_set_current_user( 0 );
 
 		WorDBless_Options::init()->clear_options();
@@ -182,6 +190,23 @@ class Red_Bubble_Menu_Badge_Test extends TestCase {
 		$this->assertSame( 1, Notification_Counts::get_total() );
 	}
 
+	public function test_skips_protect_has_threats_when_the_protect_dashboard_is_loaded() {
+		do_action( 'jetpack_protect_dashboard_initialized' );
+		$this->seed_cached_alerts(
+			array(
+				'protect_has_threats' => array( 'count' => 3 ),
+			)
+		);
+
+		try {
+			Initializer::maybe_show_red_bubble();
+		} finally {
+			unset( $GLOBALS['wp_actions']['jetpack_protect_dashboard_initialized'] );
+		}
+
+		$this->assertArrayNotHasKey( 'my-jetpack-protect_has_threats', Notification_Counts::all() );
+	}
+
 	/**
 	 * The registered total for the my-jetpack submenu should equal the number of
 	 * non-silent alerts (each attention entry contributes 1 to the total), excluding
@@ -252,6 +277,41 @@ class Red_Bubble_Menu_Badge_Test extends TestCase {
 	}
 
 	/**
+	 * Whether the Protect dashboard loaded, and the alerts the async badge must skip.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_async_exclusions() {
+		return array(
+			'Protect dashboard loaded'     => array( true, '["protect_has_threats"]' ),
+			'Protect dashboard not loaded' => array( false, '[]' ),
+		);
+	}
+
+	/**
+	 * @dataProvider provide_async_exclusions
+	 *
+	 * @param bool   $loaded   Whether the Protect dashboard loaded.
+	 * @param string $excluded JSON list of the alerts the async badge must skip.
+	 */
+	#[DataProvider( 'provide_async_exclusions' )]
+	public function test_async_badge_skips_the_alerts_the_server_skips( $loaded, $excluded ) {
+		if ( $loaded ) {
+			do_action( 'jetpack_protect_dashboard_initialized' );
+		}
+
+		try {
+			Initializer::enqueue_red_bubble_script();
+		} finally {
+			unset( $GLOBALS['wp_actions']['jetpack_protect_dashboard_initialized'] );
+		}
+
+		$data = (string) wp_scripts()->get_data( 'my-jetpack-notification-bubble', 'data' );
+		wp_deregister_script( 'my-jetpack-notification-bubble' );
+		$this->assertStringContainsString( '"excludedAlerts":' . $excluded, $data );
+	}
+
+	/**
 	 * Disconnected sites should not have anything registered.
 	 */
 	public function test_skips_registration_when_disconnected() {
@@ -290,5 +350,97 @@ class Red_Bubble_Menu_Badge_Test extends TestCase {
 			has_action( 'admin_init', array( Initializer::class, 'maybe_show_red_bubble' ) ),
 			'maybe_show_red_bubble must not be registered on admin_init.'
 		);
+	}
+
+	/**
+	 * Seeds a verified, displayable connection error via the Error Handler.
+	 */
+	private function seed_connection_error() {
+		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
+		Error_Handler::get_instance()->report_error(
+			Error_Handler::build_connection_wp_error(
+				'xmlrpc_request_blocked',
+				'WordPress.com requests to the site are blocked',
+				array( 'token' => '' ),
+				Error_Handler::ERROR_TYPE_LOCAL_STATE,
+				'',
+				array(
+					'user_id' => 0,
+					'action'  => 'none',
+				)
+			),
+			false,
+			true
+		);
+	}
+
+	/**
+	 * A displayable connection error registers its own attention entry.
+	 */
+	public function test_registers_connection_error_when_error_handler_reports_one() {
+		$this->seed_connection_error();
+		$this->seed_cached_alerts( array() );
+
+		Initializer::maybe_show_red_bubble();
+
+		$entries = Notification_Counts::all();
+		$this->assertArrayHasKey( 'my-jetpack-connection-error', $entries );
+		$this->assertSame( 'my-jetpack', $entries['my-jetpack-connection-error']['menu_slug'] );
+		$this->assertSame( 'attention', $entries['my-jetpack-connection-error']['type'] );
+		$this->assertSame( 1, Notification_Counts::get_for_menu( 'my-jetpack' ) );
+	}
+
+	/**
+	 * With no Error Handler error, no connection-error entry is registered.
+	 */
+	public function test_no_connection_error_entry_when_error_handler_is_empty() {
+		$this->seed_cached_alerts( array() );
+
+		Initializer::maybe_show_red_bubble();
+
+		$this->assertArrayNotHasKey( 'my-jetpack-connection-error', Notification_Counts::all() );
+	}
+
+	/**
+	 * A connection error and the missing-connection slug describe the same broken
+	 * connection, so the badge counts it once: the error entry registers and the
+	 * missing-connection slug is suppressed.
+	 */
+	public function test_connection_error_suppresses_missing_connection_slug() {
+		$this->seed_connection_error();
+		$this->seed_cached_alerts(
+			array(
+				'missing-connection' => array(
+					'type'     => 'user',
+					'is_error' => true,
+				),
+			)
+		);
+
+		Initializer::maybe_show_red_bubble();
+
+		$entries = Notification_Counts::all();
+		$this->assertArrayHasKey( 'my-jetpack-connection-error', $entries );
+		$this->assertArrayNotHasKey( 'my-jetpack-missing-connection', $entries, 'missing-connection must be suppressed when a connection error is present.' );
+		$this->assertSame( 1, Notification_Counts::get_for_menu( 'my-jetpack' ), 'A single broken connection must count once.' );
+	}
+
+	/**
+	 * Without a connection error, the missing-connection slug still registers
+	 * (the product-prerequisite path is independent of the Error Handler).
+	 */
+	public function test_missing_connection_slug_registers_without_connection_error() {
+		$this->seed_cached_alerts(
+			array(
+				'missing-connection' => array(
+					'type'     => 'user',
+					'is_error' => true,
+				),
+			)
+		);
+
+		Initializer::maybe_show_red_bubble();
+
+		$this->assertArrayHasKey( 'my-jetpack-missing-connection', Notification_Counts::all() );
 	}
 }

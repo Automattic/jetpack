@@ -20,9 +20,7 @@ class Ai_Seo {
 	 * Whether the site can offer AI SEO, independent of the admin's toggle.
 	 * Callers own the outer AI master and host gates.
 	 *
-	 * The plan term is `advanced-seo`, the entitlement for the SEO title and
-	 * meta description fields every AI SEO surface writes to. Automatic
-	 * generation needs `ai-seo-enhancer` on top, checked where it runs.
+	 * Requires the metadata abilities' `ai-seo-enhancer` entitlement.
 	 *
 	 * @since 0.8.2
 	 *
@@ -31,9 +29,19 @@ class Ai_Seo {
 	public static function is_available() {
 		/** This filter is documented in projects/plugins/jetpack/_inc/lib/class.core-rest-api-endpoints.php */
 		return (bool) apply_filters( 'ai_seo_enhancer_enabled', true )
-			/** This filter is documented in projects/plugins/jetpack/modules/seo-tools/class-jetpack-seo-utils.php */
-			&& ! apply_filters( 'jetpack_disable_seo_tools', false )
+			&& ! Seo_Tools::is_disabled()
 			&& ( new Modules() )->is_active( 'seo-tools' )
-			&& Current_Plan::supports( 'advanced-seo' );
+			&& Current_Plan::supports( 'ai-seo-enhancer' );
+	}
+
+	/**
+	 * Whether an entitled AI SEO surface is available to the settings control.
+	 *
+	 * @since 0.9.1
+	 *
+	 * @return bool
+	 */
+	public static function has_reachable_surface() {
+		return self::is_available();
 	}
 }

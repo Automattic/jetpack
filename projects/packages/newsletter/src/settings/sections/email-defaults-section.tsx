@@ -11,6 +11,7 @@ import { Card } from '@wordpress/ui';
  * Internal dependencies
  */
 import type { NewsletterSettings } from '../types';
+import type { JSX } from 'react';
 
 interface EmailDefaultsSectionProps {
 	data: NewsletterSettings;

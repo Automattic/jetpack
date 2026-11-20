@@ -74,12 +74,15 @@ class Average_Order_Value_Controller extends Abstract_Csv_Report_Controller {
 	 */
 	public function format_row_for_csv( array $item, ?string $interval = null ): array {
 		$defaults = $this->get_default_values();
+		$orders   = $item['orders_no'] ?? $defaults['orders_no'];
 
 		return array(
 			'time_interval'       => $this->format_time_interval( $item, $interval ),
-			'orders_no'           => $item['orders_no'] ?? $defaults['orders_no'],
+			'orders_no'           => $orders,
 			'total_sales'         => self::format_amount( $item['total_sales'] ?? $defaults['total_sales'] ),
-			'average_order_value' => self::format_amount( $item['average_order_value'] ?? $defaults['average_order_value'] ),
+			'average_order_value' => (int) $orders > 0 && isset( $item['average_order_value'] )
+				? self::format_amount( $item['average_order_value'] )
+				: '',
 		);
 	}
 
@@ -108,17 +111,6 @@ class Average_Order_Value_Controller extends Abstract_Csv_Report_Controller {
 			'orders_no',
 			'total_sales',
 			'average_order_value',
-		);
-	}
-
-	/**
-	 * Get additional request parameters for data fetching.
-	 *
-	 * @return array Additional parameters to include in data requests.
-	 */
-	public function get_additional_params(): array {
-		return array(
-			'date_type' => self::DEFAULT_DATE_TYPE,
 		);
 	}
 }

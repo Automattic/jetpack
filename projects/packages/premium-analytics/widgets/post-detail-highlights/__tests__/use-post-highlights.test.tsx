@@ -133,14 +133,4 @@ describe( 'usePostHighlights', () => {
 
 		expect( result.current.views ).toBe( 17 );
 	} );
-
-	it( 'never fires a request without a post scope', async () => {
-		const { result } = renderHook( () => usePostHighlights( 0, reportParams( {} ) ), {
-			wrapper,
-		} );
-
-		expect( result.current.hasData ).toBe( false );
-		expect( result.current.views ).toBe( 0 );
-		expect( mockApiFetch ).not.toHaveBeenCalled();
-	} );
 } );

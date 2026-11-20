@@ -39,15 +39,16 @@ for SLUG in "${SLUGS[@]}"; do
 			printf '\n\e[1mTest upgrade of %s from %s via %s\e[0m\n' "$SLUG" "$FROM" "$HOW"
 
 			echo "::group::Restoring database from backup"
-			wp --allow-root db import "$GITHUB_WORKSPACE/db.sql"
+			wp db import "$GITHUB_WORKSPACE/db.sql"
 			echo "::endgroup::"
 
 			ERRMSG=
 			echo "::group::Installing $SLUG $FROM"
 			: > /var/www/html/wp-content/debug.log
-			if ! wp --allow-root plugin install --activate "$ZIPDIR/$SLUG-$FROM.zip"; then
+			if ! wp plugin install --activate "$ZIPDIR/$SLUG-$FROM.zip"; then
 				failed "Plugin install failed for $SLUG $FROM!"
 			fi
+			wp cron event run --due-now
 			echo '== Debug log =='
 			cat /var/www/html/wp-content/debug.log
 			rm -f "/var/www/html/wp-content/plugins/$SLUG/ci-flag.txt"
@@ -58,14 +59,8 @@ for SLUG in "${SLUGS[@]}"; do
 				continue
 			fi
 
-			# Cron running asynchronously seems to like to stomp on the `jetpack_options` being set for the fake connection.
-			# Run it manually to avoid that.
-			echo "::group::Prophylactic cron run"
-			wp --allow-root cron event run --due-now
-			echo "::endgroup::"
-
 			# Mock a connection.
-			wp --allow-root eval-file - "$SLUG" <<-'EOF'
+			wp eval-file - "$SLUG" <<-'EOF'
 			<?php
 			if ( class_exists( \Jetpack_Options::class ) && class_exists( \Automattic\Jetpack\Connection\Manager::class ) ) {
 				echo "Faking connection... ";
@@ -81,12 +76,12 @@ for SLUG in "${SLUGS[@]}"; do
 
 			ERRMSG=
 			echo "::group::Upgrading $SLUG via $HOW"
-			P="$(wp --allow-root plugin path "$SLUG" | sed 's!^/var/www/html/wp-content/plugins/!!')"
-			wp --allow-root --quiet option set fake_plugin_update_plugin "$P"
-			wp --allow-root --quiet option set fake_plugin_update_url "$ZIPDIR/$SLUG-dev.zip"
+			P="$(wp plugin path "$SLUG" | sed 's!^/var/www/html/wp-content/plugins/!!')"
+			wp --quiet option set fake_plugin_update_plugin "$P"
+			wp --quiet option set fake_plugin_update_url "$ZIPDIR/$SLUG-dev.zip"
 			: > /var/www/html/wp-content/debug.log
 			if [[ "$HOW" == 'cli' ]]; then
-				if ! wp --allow-root plugin upgrade "$SLUG" 2>&1 | tee "$GITHUB_WORKSPACE/out.txt"; then
+				if ! wp plugin upgrade "$SLUG" 2>&1 | tee "$GITHUB_WORKSPACE/out.txt"; then
 					failed "CLI upgrade of $SLUG from $FROM exited with a non-zero status"
 				fi
 			else
@@ -95,6 +90,7 @@ for SLUG in "${SLUGS[@]}"; do
 				curl -v --get --url 'http://localhost/wp-admin/update.php?action=upgrade-plugin&_wpnonce=bogus' --data "plugin=$P" --output "$GITHUB_WORKSPACE/out.txt" 2>&1
 				cat "$GITHUB_WORKSPACE/out.txt"
 			fi
+			wp cron event run --due-now
 			echo '== Debug log =='
 			cat /var/www/html/wp-content/debug.log
 			echo "::endgroup::"
@@ -113,7 +109,7 @@ for SLUG in "${SLUGS[@]}"; do
 			ERRMSG=
 			echo "::group::Deactivating $SLUG"
 			: > /var/www/html/wp-content/debug.log
-			if ! wp --allow-root plugin deactivate "$SLUG"; then
+			if ! wp plugin deactivate "$SLUG"; then
 				failed "Plugin deactivate failed after $SLUG $HOW update from $FROM!"
 			fi
 			echo '== Debug log =='
@@ -126,7 +122,7 @@ for SLUG in "${SLUGS[@]}"; do
 			ERRMSG=
 			echo "::group::Uninstalling $SLUG"
 			: > /var/www/html/wp-content/debug.log
-			if ! wp --allow-root plugin uninstall "$SLUG"; then
+			if ! wp plugin uninstall "$SLUG"; then
 				failed "Plugin uninstall failed after $SLUG $HOW update from $FROM!"
 				rm -rf "/var/www/html/wp-content/plugins/$SLUG"
 			fi
@@ -137,8 +133,8 @@ for SLUG in "${SLUGS[@]}"; do
 				echo "::error::$ERRMSG"
 			fi
 
-			wp --allow-root --quiet option delete fake_plugin_update_plugin
-			wp --allow-root --quiet option delete fake_plugin_update_url
+			wp --quiet option delete fake_plugin_update_plugin
+			wp --quiet option delete fake_plugin_update_url
 
 			if [[ -z "$FAILED" ]]; then
 				echo "✅ Upgrade of $SLUG from $FROM via $HOW succeeded!" >> "$GITHUB_STEP_SUMMARY"

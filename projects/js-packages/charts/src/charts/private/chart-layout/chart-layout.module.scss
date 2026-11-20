@@ -8,8 +8,9 @@
 	// The svg displaying inline includes a few px for descenders, which
 	// confuses some browser environments (e.g. headless Chrome) into
 	// constantly growing the container. Setting it to display as block avoids
-	// that.
-	svg {
+	// that. The tooltip renders in here too, and an inline icon in its rows
+	// must stay inline.
+	svg:not(:global(.visx-tooltip) svg) {
 		display: block;
 	}
 }

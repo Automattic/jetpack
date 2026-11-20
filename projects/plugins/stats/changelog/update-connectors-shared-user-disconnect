@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Connection: Ask for confirmation before disconnecting your user account, and offer to transfer ownership first when you own the connection.

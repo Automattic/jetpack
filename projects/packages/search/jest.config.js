@@ -2,7 +2,7 @@ const baseConfig = require( 'jetpack-js-tools/jest/config.base.js' );
 
 module.exports = {
 	...baseConfig,
-	roots: [ '<rootDir>/src', '<rootDir>/tests/js' ],
+	roots: [ '<rootDir>/src', '<rootDir>/tests/js', '<rootDir>/packages', '<rootDir>/routes' ],
 
 	// Pin jsdom's window URL so tests that inspect `window.location.protocol`
 	// or `hostname` (e.g. use-photon's protocol-detection tests) see a
@@ -36,5 +36,12 @@ module.exports = {
 		'^hooks/use-entity-record-state$': '<rootDir>/src/customberg/hooks/use-entity-record-state.js',
 	},
 	moduleDirectories: [ 'node_modules', '<rootDir>/src/dashboard' ],
+
+	// packages/init/src/index.ts reads `import.meta.url`, so Jest's CJS runtime cannot
+	// require it at all. Counting a file no test can load as uncovered is noise.
+	coveragePathIgnorePatterns: [
+		...( baseConfig.coveragePathIgnorePatterns ?? [] ),
+		'/packages/init/src/index\\.ts$',
+	],
 	setupFilesAfterEnv: [ ...baseConfig.setupFilesAfterEnv, '<rootDir>/tests/jest-globals.gui.js' ],
 };

@@ -1,0 +1,22 @@
+// A flex item of the admin frame: without this the page grows past it
+// instead of scrolling inside it.
+.page {
+	min-block-size: 0;
+}
+
+// The scroll container under the page header.
+.scroll {
+	flex: 1 1 auto;
+	min-block-size: 0;
+	overflow-y: auto;
+
+	// A scroll container's flex items would otherwise shrink to fit it.
+	> * {
+		flex-shrink: 0;
+	}
+}
+
+.body {
+	padding-block-end: var(--wpds-dimension-padding-3xl);
+	padding-inline: var(--wpds-dimension-padding-2xl);
+}

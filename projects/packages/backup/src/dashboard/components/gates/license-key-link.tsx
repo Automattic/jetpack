@@ -1,5 +1,5 @@
-import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import { ButtonLink } from '@wordpress/ui';
 
 /**
  * Where a license key is redeemed. My Jetpack owns redemption for the
@@ -25,12 +25,21 @@ const ADD_LICENSE_URL = 'admin.php?page=my-jetpack#/add-license';
  * a deliberate widening: someone who bought a license and hit a "link
  * your account" wall is exactly who needs it.
  *
- * @return The rendered link.
+ * @return The rendered link, or nothing where My Jetpack's add-license screen is off.
  */
 export default function LicenseKeyLink() {
+	if ( window.JPBACKUP_DASHBOARD_STATE?.addLicense === false ) {
+		return null;
+	}
+
 	return (
-		<Button variant="link" href={ ADD_LICENSE_URL }>
+		<ButtonLink
+			className="jpb-gates__license"
+			variant="minimal"
+			tone="brand"
+			href={ ADD_LICENSE_URL }
+		>
 			{ __( 'Use license key', 'jetpack-backup-pkg' ) }
-		</Button>
+		</ButtonLink>
 	);
 }

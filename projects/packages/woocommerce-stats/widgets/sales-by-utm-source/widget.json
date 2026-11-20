@@ -1,0 +1,12 @@
+{
+	"name": "woocommerce-analytics/sales-by-utm-source",
+	"icon": "jpa/chart-bar",
+	"title": "Sales by UTM source",
+	"description": "Shows the top UTM sources by order revenue over the selected time period.",
+	"help": {
+		"content": "See which referral sources are driving sales in your store."
+	},
+	"category": "store",
+	"presentation": "framed",
+	"textdomain": "jetpack-woocommerce-stats-pkg"
+}

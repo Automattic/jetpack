@@ -34,7 +34,21 @@ export function handleIframeResult( eventFromIframe ) {
 	}
 }
 
+// The checkout modal only loads the WordPress.com subscribe host.
+function isSubscribeUrl( url ) {
+	try {
+		return new URL( url ).host === 'subscribe.wordpress.com';
+	} catch {
+		return false;
+	}
+}
+
 export function showModal( url ) {
+	if ( ! isSubscribeUrl( url ) ) {
+		return Promise.reject(
+			new Error( 'Refusing to open membership modal for a non-subscribe URL.' )
+		);
+	}
 	return new Promise( resolvePromise => {
 		const existingModal = document.getElementById( 'memberships-modal-window' );
 		if ( existingModal ) {
@@ -102,10 +116,11 @@ function setUpModal( button ) {
 		button.setAttribute( 'aria-live', 'polite' );
 
 		const url = button.getAttribute( 'href' );
-		showModal( url ).then( () => {
+		const clearLoading = () => {
 			button.classList.remove( 'is-loading' );
 			button.setAttribute( 'aria-busy', 'false' );
-		} );
+		};
+		showModal( url ).then( clearLoading, clearLoading );
 
 		button.blur();
 		return false;

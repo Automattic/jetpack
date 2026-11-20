@@ -47,7 +47,7 @@ export async function createSyncedForm(
 		currentPostId > 0
 			? {
 					[ FORM_SOURCE_META_KEY ]: currentPostId,
-			  }
+				}
 			: {};
 
 	const response = ( await dispatch( coreStore ).saveEntityRecord( 'postType', FORM_POST_TYPE, {
@@ -55,7 +55,7 @@ export async function createSyncedForm(
 		content: blockMarkup,
 		status: 'publish',
 		meta,
-	} ) ) as JetpackFormPost;
+	} ) ) as unknown as JetpackFormPost;
 
 	return response.id;
 }

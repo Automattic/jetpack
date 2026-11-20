@@ -13,6 +13,10 @@ use Automattic\Jetpack\WP_Abilities\Registrar;
 use Jetpack_RelatedPosts;
 use WP_Error;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Registers Jetpack Related Posts abilities with the WordPress Abilities API.
  *
@@ -30,6 +34,13 @@ class Related_Posts_Abilities extends Registrar {
 	private const MAX_SIZE = 20;
 
 	private const DEFAULT_SIZE = 3;
+
+	/**
+	 * {@inheritDoc}
+	 */
+	protected static function enabled_by_default(): bool {
+		return true;
+	}
 
 	/**
 	 * Returns the category slug this registrar owns.
@@ -122,6 +133,7 @@ class Related_Posts_Abilities extends Registrar {
 						'destructive' => false,
 						'idempotent'  => true,
 					),
+					'public'       => true,
 					'show_in_rest' => true,
 					'mcp'          => array(
 						'public' => true,

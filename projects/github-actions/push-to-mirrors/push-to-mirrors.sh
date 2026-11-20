@@ -81,6 +81,9 @@ if [[ "$NO_UPSTREAM_REFS" != 'true' ]]; then
 
 	if [[ -f .git/shallow ]]; then
 		echo "::group::Fetching treeless commits for source repo"
+		# Git 2.56 bug: It breaks when combining --unshallow and --filter. Seems we can avoid it by fetching without --unshallow first, then repeating with --unshallow.
+		# https://lore.kernel.org/git/CAJwQ=KQynymg4CJOLkyebACYVQa+LhXB2UifniTASkLyArWejA@mail.gmail.com/
+		git -c protocol.version=2 fetch --filter=tree:0 --no-tags --progress --no-recurse-submodules origin HEAD
 		git -c protocol.version=2 fetch --unshallow --filter=tree:0 --no-tags --progress --no-recurse-submodules origin HEAD
 		echo "::endgroup::"
 	fi
@@ -207,6 +210,9 @@ while read -r GIT_SLUG; do
 
 			if [[ -f .git/shallow ]]; then
 				echo "::group::Fetching treeless commits for source repo"
+				# Git 2.56 bug: It breaks when combining --unshallow and --filter. Seems we can avoid it by fetching without --unshallow first, then repeating with --unshallow.
+				# https://lore.kernel.org/git/CAJwQ=KQynymg4CJOLkyebACYVQa+LhXB2UifniTASkLyArWejA@mail.gmail.com/
+				git -c protocol.version=2 fetch --filter=tree:0 --no-tags --progress --no-recurse-submodules origin HEAD
 				git -c protocol.version=2 fetch --unshallow --filter=tree:0 --no-tags --progress --no-recurse-submodules origin HEAD
 				echo "::endgroup::"
 			fi

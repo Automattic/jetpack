@@ -52,6 +52,7 @@ describe( 'useMcpSettings with the native WordPress.com API', () => {
 			blog_id: 123,
 			site_level_enabled: true,
 			abilities: { 'wpcom/get-site': false },
+			remote_groups: {},
 			group_intents: { read: true },
 		} );
 	} );

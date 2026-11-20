@@ -1,14 +1,25 @@
 .card {
 	background-color: var(--jp-white);
+	container: product-detail-card / inline-size;
 	height: 100%;
-	padding: calc(var(--spacing-base) * 8);
+	padding-block: calc(var(--spacing-base) * 8);
 	position: relative;
+	width: 100%;
 }
 
 .container {
 	height: 100%;
 	display: flex;
 	flex-direction: column;
+	padding-inline: calc(var(--spacing-base) * 3);
+}
+
+// Follows the card, not the viewport: narrow sidebars need this padding too.
+@container product-detail-card (min-width: 25rem) {
+
+	.container {
+		padding-inline: calc(var(--spacing-base) * 8);
+	}
 }
 
 .card-header {
@@ -26,7 +37,7 @@
 }
 
 .product-bundle-icon {
-	fill: var(--jp-white);
+	color: var(--jp-white);
 	margin-right: var(--spacing-base);
 }
 
@@ -34,12 +45,22 @@
 .product-icon {
 	display: flex;
 	align-items: center;
-	height: calc(var(--spacing-base) * 4);
+	min-height: calc(var(--spacing-base) * 4);
 	margin-bottom: calc(var(--spacing-base) * 4);
 }
 
+.product-bundle-icons {
+	flex-wrap: wrap;
+	row-gap: var(--spacing-base);
+}
+
+.product-bundle-icon-item {
+	display: inline-flex;
+	align-items: center;
+}
+
 .plus-icon {
-	fill: rgb(140, 143, 148);
+	color: rgb(140, 143, 148);
 	height: 24px;
 	line-height: 24px;
 }
@@ -97,7 +118,7 @@
 	}
 
 	svg {
-		fill: var(--jp-green-primary);
+		color: var(--jp-green-primary);
 		margin-right: var(--spacing-base);
 		flex-shrink: 0;
 	}
@@ -154,4 +175,9 @@
 
 .tos-container {
 	margin-bottom: calc(var(--spacing-base) * 4);
+}
+
+.skeleton-card {
+	width: 100%;
+	align-self: stretch;
 }

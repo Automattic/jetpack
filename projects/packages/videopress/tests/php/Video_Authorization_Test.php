@@ -32,6 +32,8 @@ class Video_Authorization_Test extends BaseTestCase {
 	 */
 	protected function tear_down() {
 		wp_set_current_user( 0 );
+		unset( $_COOKIE[ 'wp-postpass_' . COOKIEHASH ], $GLOBALS['__vp_memberships_access_level'], $GLOBALS['__vp_memberships_has_access'] );
+		unregister_post_type( 'vp_test_unlisted' );
 		\WorDBless\Posts::init()->clear_all_posts();
 		// Clear cached GUID-list transients: post ids are reused across tests once the
 		// posts table is emptied, so a stale videopress_guids_{id} entry from one test
@@ -245,6 +247,92 @@ class Video_Authorization_Test extends BaseTestCase {
 	}
 
 	/**
+	 * @dataProvider unpublished_embedding_provider
+	 * @param string $post_status The embedding post status.
+	 * @param int    $privacy_setting The video's privacy setting.
+	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'unpublished_embedding_provider' )]
+	public function test_unpublished_embed_does_not_authorize_private_video( $post_status, $privacy_setting ) {
+		$guid = 'dRaFt123';
+		$this->create_videopress_attachment( $guid, $privacy_setting );
+		update_option( 'videopress_private_enabled_for_site', true );
+		$this->set_current_user_role( 'contributor' );
+		kses_remove_filters();
+		$embedding = wp_insert_post(
+			array(
+				'post_author'  => get_current_user_id(),
+				'post_content' => '<!-- wp:videopress/video {"guid":"' . $guid . '"} /-->',
+				'post_status'  => $post_status,
+				'post_date'    => 'future' === $post_status ? gmdate( 'Y-m-d H:i:s', time() + DAY_IN_SECONDS ) : '',
+			)
+		);
+
+		$this->assertFalse( current_user_can( 'upload_files' ) );
+		$this->assertSame( $post_status, get_post_status( $embedding ) );
+		$this->assertTrue( current_user_can( 'read_post', $embedding ) );
+		$this->assertContains( $guid, Access_Control::build_and_cache_post_guids( $embedding ) );
+		$this->assertFalse( Access_Control::instance()->is_current_user_authed_for_video( $guid, $embedding ) );
+		$this->assertFalse( Access_Control::instance()->is_current_user_authed_for_video( $guid, $embedding, 123 ) );
+	}
+
+	/**
+	 * Unpublished embedding states for explicit and site-default private videos.
+	 *
+	 * @return array
+	 */
+	public static function unpublished_embedding_provider() {
+		$cases = array();
+		foreach ( array( 'draft', 'pending', 'auto-draft', 'future', 'private', 'trash' ) as $status ) {
+			$cases[ $status . '-private' ]      = array( $status, \VIDEOPRESS_PRIVACY::IS_PRIVATE );
+			$cases[ $status . '-site-default' ] = array( $status, \VIDEOPRESS_PRIVACY::SITE_DEFAULT );
+		}
+		return $cases;
+	}
+
+	/**
+	 * The post status must be checked even when the embedding GUID list is cached.
+	 */
+	public function test_previously_published_embed_does_not_authorize_after_unpublishing() {
+		$guid = 'uNpUb123';
+		$this->create_private_videopress_attachment( $guid );
+		$embedding = $this->create_embedding_post( '[videopress ' . $guid . ']' );
+		$this->set_current_user_role( 'contributor' );
+		wp_update_post(
+			array(
+				'ID'          => $embedding,
+				'post_author' => get_current_user_id(),
+			)
+		);
+		$this->assertTrue( Access_Control::instance()->is_current_user_authed_for_video( $guid, $embedding ) );
+
+		wp_update_post(
+			array(
+				'ID'          => $embedding,
+				'post_status' => 'draft',
+			)
+		);
+		set_transient( 'videopress_guids_' . $embedding, array( $guid ), HOUR_IN_SECONDS );
+		$this->assertFalse( Access_Control::instance()->is_current_user_authed_for_video( $guid, $embedding ) );
+	}
+
+	public function test_invalid_embedding_context_does_not_use_global_post() {
+		$guid = 'gLoBa123';
+		$this->create_private_videopress_attachment( $guid );
+		$embedding = $this->create_embedding_post( '[videopress ' . $guid . ']' );
+		$unrelated = $this->create_embedding_post( 'Unrelated content.' );
+		$this->set_current_user_role( 'subscriber' );
+		$original_post   = $GLOBALS['post'] ?? null;
+		$GLOBALS['post'] = get_post( $embedding );
+
+		try {
+			$this->assertFalse( Access_Control::instance()->is_current_user_authed_for_video( $guid, 0 ) );
+			$this->assertFalse( Access_Control::instance()->is_current_user_authed_for_video( $guid, $unrelated ) );
+		} finally {
+			$GLOBALS['post'] = $original_post;
+		}
+	}
+
+	/**
 	 * A page that embeds the video only through a synced pattern (core/block ref) is a
 	 * legitimate embedding context: parse_blocks() does not expand the ref, so the
 	 * authorization scan must resolve it manually.
@@ -349,6 +437,89 @@ class Video_Authorization_Test extends BaseTestCase {
 		$this->set_current_user_role( 'subscriber' );
 
 		$this->assertTrue( Access_Control::instance()->is_current_user_authed_for_video( $guid, $embedding ) );
+	}
+
+	/**
+	 * @dataProvider password_protected_post_provider
+	 * @param array $post     Overrides for the embedding post: access_level, password, post_type, privacy.
+	 * @param array $visitor  Overrides for the visitor: role (null when logged out), membership, entered_password.
+	 * @param bool  $expected Whether playback is allowed.
+	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'password_protected_post_provider' )]
+	public function test_password_protected_post_requires_the_password_for_private_video( $post, $visitor, $expected ) {
+		require_once __DIR__ . '/mocks/class-jetpack-memberships.php';
+		$post    = array_merge(
+			array(
+				'access_level' => 'everybody',
+				'password'     => 'secret',
+				'post_type'    => 'post',
+				'privacy'      => \VIDEOPRESS_PRIVACY::IS_PRIVATE,
+			),
+			$post
+		);
+		$visitor = array_merge(
+			array(
+				'role'             => 'subscriber',
+				'membership'       => true,
+				'entered_password' => false,
+			),
+			$visitor
+		);
+
+		$guid = 'pAsSwd12';
+		$this->create_videopress_attachment( $guid, $post['privacy'] );
+		update_option( 'videopress_private_enabled_for_site', true );
+		if ( ! post_type_exists( $post['post_type'] ) ) {
+			register_post_type( $post['post_type'], array( 'public' => false ) );
+		}
+		$embedding = wp_insert_post(
+			array(
+				'post_title'    => 'Password protected',
+				'post_content'  => '[videopress ' . $guid . ']',
+				'post_status'   => 'publish',
+				'post_type'     => $post['post_type'],
+				'post_password' => $post['password'],
+			)
+		);
+
+		$GLOBALS['__vp_memberships_access_level'] = $post['access_level'];
+		$GLOBALS['__vp_memberships_has_access']   = $visitor['membership'];
+		if ( $visitor['entered_password'] ) {
+			require_once ABSPATH . WPINC . '/class-phpass.php';
+			$_COOKIE[ 'wp-postpass_' . COOKIEHASH ] = ( new \PasswordHash( 8, true ) )->HashPassword( 'secret' );
+		}
+		if ( null !== $visitor['role'] ) {
+			$this->set_current_user_role( $visitor['role'] );
+		}
+
+		$this->assertSame( $expected, Access_Control::instance()->is_current_user_authed_for_video( $guid, $embedding ) );
+	}
+
+	/**
+	 * Post and visitor states around the post password, for a post open to everybody and a subscriber-only post.
+	 *
+	 * @return array
+	 */
+	public static function password_protected_post_provider() {
+		$subscriber_only = array( 'access_level' => 'subscribers' );
+		$entered         = array( 'entered_password' => true );
+		return array(
+			'open post, password not entered'            => array( array(), array(), false ),
+			'open post, password entered'                => array( array(), $entered, true ),
+			'subscriber-only post, password not entered' => array( $subscriber_only, array(), false ),
+			'subscriber-only post, password entered'     => array( $subscriber_only, $entered, true ),
+			'subscriber-only post without a password, member' => array( $subscriber_only + array( 'password' => '' ), array(), true ),
+			'subscriber-only post, password entered, not member' => array( $subscriber_only, $entered + array( 'membership' => false ), false ),
+			'site-default private video, password not entered' => array( array( 'privacy' => \VIDEOPRESS_PRIVACY::SITE_DEFAULT ), array(), false ),
+			'non-public post type without a password, logged-out member' => array(
+				$subscriber_only + array(
+					'password'  => '',
+					'post_type' => 'vp_test_unlisted',
+				),
+				array( 'role' => null ),
+				true,
+			),
+		);
 	}
 
 	/**

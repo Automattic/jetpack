@@ -1,0 +1,51 @@
+// Keep `flex-shrink: 0`: the dialogs lay this out in a `height: 100%` box
+// beside a footer, and without it the button rides up over the text above.
+.jp-connection__transfer-ownership-form {
+	flex-shrink: 0;
+}
+
+.jp-connection__transfer-ownership {
+	flex-shrink: 0;
+	text-align: start;
+
+	// @wordpress/ui's scale starts at 13px, which reads as fine print beside
+	// the 16px the surrounding dialog uses. Size the step from Jetpack's
+	// token instead, and keep the smaller pieces relative to it.
+	font-size: var(--font-body, 16px);
+
+	p {
+		font-size: inherit;
+	}
+}
+
+.jp-connection__transfer-ownership__avatar {
+	flex-shrink: 0;
+	inline-size: 38px;
+	block-size: 38px;
+	border-radius: 50%;
+	object-fit: cover;
+}
+
+.jp-connection__transfer-ownership__who {
+	min-inline-size: 0;
+}
+
+.jp-connection__transfer-ownership__meta {
+	color: var(--jp-gray-50, #646970);
+	font-size: 0.875em;
+}
+
+.jp-connection__transfer-ownership__hint {
+	font-size: 0.875em;
+	color: var(--jp-gray-50, #646970);
+}
+
+.jp-connection__transfer-ownership__outcomes {
+	margin: 0;
+	padding-inline-start: 20px;
+	list-style: disc;
+}
+
+.jp-connection__transfer-ownership__arrow {
+	color: var(--jp-gray-50, #646970);
+}

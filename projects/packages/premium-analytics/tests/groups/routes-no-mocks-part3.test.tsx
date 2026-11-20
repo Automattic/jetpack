@@ -1,8 +1,8 @@
 // See README.md before adding a suite to this group.
 
-import '../../routes/reports/report-names.test';
-import '../../routes/reports/search-terms/config/aggregate.test';
+import '../../routes/single-report/pages/video/video-header-slots.test';
+import '../../routes/dashboard/components/onboarding-tour/onboarding-tour.test';
+import '../../routes/dashboard/components/onboarding-tour/steps.test';
+import '../../routes/dashboard/hooks/use-dashboard-policy/use-dashboard-policy.test';
 import '../../routes/reports/search-terms/config/fields.test';
-import '../../routes/reports/utm/config/aggregate.test';
 import '../../routes/reports/utm/config/tabs.test';
-import '../../routes/video-detail/config/layout.test';

@@ -1,6 +1,6 @@
 import { act, renderHook } from '@testing-library/react';
 import { usePersistedView } from '../use-persisted-view';
-import type { View } from '@wordpress/dataviews';
+import type { SupportedLayouts, View } from '@wordpress/dataviews';
 
 // Mutable so individual tests can exercise different site shapes (e.g. a
 // disconnected site whose `blog_id` is 0).
@@ -16,6 +16,11 @@ jest.mock( '@automattic/jetpack-script-data', () => ( {
 const STORAGE_KEY = 'jetpack-videopress-preferences-123-7';
 const SCOPE = 'jetpack/videopress';
 const NAME = 'libraryView';
+
+const DEFAULT_LAYOUTS = {
+	grid: { layout: { previewSize: 220, density: 'comfortable', aspectRatio: '16/9' } },
+	table: { layout: { density: 'balanced', aspectRatio: '16/9' } },
+} satisfies SupportedLayouts;
 
 const DEFAULT_VIEW: View = {
 	type: 'grid',
@@ -82,6 +87,49 @@ describe( 'usePersistedView', () => {
 
 		expect( initialView.page ).toBe( 1 );
 		expect( initialView.search ).toBe( '' );
+	} );
+
+	it.each( [ 'grid', 'table' ] as const )(
+		'fills missing %s layout settings without discarding saved preferences',
+		type => {
+			seedStorage( { type, layout: { density: 'compact' } } );
+
+			const { result } = renderHook( () => usePersistedView( DEFAULT_VIEW, DEFAULT_LAYOUTS ) );
+
+			expect( result.current[ 0 ].layout ).toEqual( {
+				...DEFAULT_LAYOUTS[ type ].layout,
+				density: 'compact',
+			} );
+		}
+	);
+
+	it( 'keeps the grid preview size and aspect ratio after saving and reloading', () => {
+		seedStorage( { type: 'grid', layout: { previewSize: 300, density: 'compact' } } );
+		const { result, unmount } = renderHook( () =>
+			usePersistedView( DEFAULT_VIEW, DEFAULT_LAYOUTS )
+		);
+
+		act( () => result.current[ 1 ]( { ...result.current[ 0 ], perPage: 24 } ) );
+		unmount();
+		const { result: reloaded } = renderHook( () =>
+			usePersistedView( DEFAULT_VIEW, DEFAULT_LAYOUTS )
+		);
+
+		expect( reloaded.current[ 0 ].layout ).toEqual( {
+			previewSize: 300,
+			density: 'compact',
+			aspectRatio: '16/9',
+		} );
+		expect( reloaded.current[ 0 ].perPage ).toBe( 24 );
+	} );
+
+	it( 'uses table defaults when the saved table view has no layout settings', () => {
+		seedStorage( { type: 'table' } );
+		const { result } = renderHook( () =>
+			usePersistedView( { ...DEFAULT_VIEW, layout: DEFAULT_LAYOUTS.grid.layout }, DEFAULT_LAYOUTS )
+		);
+
+		expect( result.current[ 0 ].layout ).toEqual( DEFAULT_LAYOUTS.table.layout );
 	} );
 
 	it( 'drops unknown fields and an invalid type, falling back to defaults', () => {

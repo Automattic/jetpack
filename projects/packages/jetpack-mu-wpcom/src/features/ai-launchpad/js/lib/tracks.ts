@@ -18,7 +18,10 @@ declare global {
 }
 
 /** The screens the Site Setup page can open on. */
-export type ViewedStep = 'goal' | 'site_details' | 'launchpad';
+export type ViewedStep = 'setup_choice' | 'ai_tool' | 'goal' | 'site_details' | 'launchpad';
+
+/** How far a tailoring run had got: waiting on the AI call, or saving the result. */
+export type TailoringStage = 'ai' | 'saving';
 
 /** The wizard steps that can be completed or skipped. */
 export type WizardStepName = 'goal' | 'site_details';
@@ -26,8 +29,8 @@ export type WizardStepName = 'goal' | 'site_details';
 /**
  * Context merged into every event, so each one can be analyzed against the
  * site's goal, inferred details, and rendered list without joins. Keys are null
- * until the corresponding data exists (e.g. everything is null during the
- * wizard funnel — tailoring hasn't run yet).
+ * until the corresponding data exists (e.g. the tailoring keys are null during
+ * the wizard funnel — tailoring hasn't run yet).
  */
 export interface TracksContext {
 	goal: string | null;
@@ -46,6 +49,8 @@ export interface TracksContext {
 	source: string | null;
 	outcome: string | null;
 	ai_session_id: string | null;
+	// `ai-tool` when the URL asked Site Setup to open on the AI tool view, also when the page could not.
+	start: string | null;
 }
 
 const EMPTY_CONTEXT: TracksContext = {
@@ -59,6 +64,7 @@ const EMPTY_CONTEXT: TracksContext = {
 	source: null,
 	outcome: null,
 	ai_session_id: null,
+	start: null,
 };
 
 let context: TracksContext = { ...EMPTY_CONTEXT };
@@ -197,11 +203,129 @@ export function trackViewed( props: { step: ViewedStep } ): void {
 /**
  * Records a goal-card click (fires on every click, including reselection).
  *
- * @param props              - The event properties.
- * @param props.goal_clicked - The goal card the user clicked.
+ * @param props                 - The event properties.
+ * @param props.goal_clicked    - The goal card the user clicked.
+ * @param props.goals_variation - The goals step's experiment variation, or null when not assigned.
  */
-export function trackWizardGoalClicked( props: { goal_clicked: GoalSlug } ): void {
+export function trackWizardGoalClicked( props: {
+	goal_clicked: GoalSlug;
+	goals_variation?: string | null;
+} ): void {
 	record( 'jetpack_ai_launchpad_wizard_goal_clicked', props );
+}
+
+/**
+ * Records Continue on the "How would you like to get set up?" choice.
+ *
+ * @param props                 - The event properties.
+ * @param props.choice          - `guide` for Guide me, `ai` for Build with AI.
+ * @param props.goals_variation - The goals step's experiment variation.
+ */
+export function trackWizardSetupChoiceSelected( props: {
+	choice: 'guide' | 'ai';
+	goals_variation: string;
+} ): void {
+	record( 'jetpack_ai_launchpad_wizard_setup_choice_selected', props );
+}
+
+/**
+ * Records a click on an AI tool's Set up link in the "Which AI do you use?" view.
+ *
+ * @param tool                  - The agent whose link was clicked.
+ * @param props                 - The event properties.
+ * @param props.goals_variation - The goals step's experiment variation.
+ */
+export function trackWizardMcpLinkClicked(
+	tool: 'chatgpt' | 'claude',
+	props: { goals_variation: string | null }
+): void {
+	record( `jetpack_ai_launchpad_wizard_mcp_${ tool }_clicked`, props );
+}
+
+/**
+ * Records the "Which AI do you use?" view being shown.
+ *
+ * @param props                 - The event properties.
+ * @param props.goals_variation - The goals step's experiment variation.
+ */
+export function trackWizardMcpScreenViewed( props: { goals_variation: string | null } ): void {
+	record( 'jetpack_ai_launchpad_wizard_mcp_screen_viewed', props );
+}
+
+/**
+ * Records the "Which AI do you use?" view waiting for a connection after a Set up click.
+ *
+ * @param props                 - The event properties.
+ * @param props.goals_variation - The goals step's experiment variation.
+ * @param props.integration     - The AI tool it waits for.
+ */
+export function trackWizardMcpWaitingViewed( props: {
+	goals_variation: string | null;
+	integration: 'chatgpt' | 'claude';
+} ): void {
+	record( 'jetpack_ai_launchpad_wizard_mcp_waiting_viewed', props );
+}
+
+/**
+ * Records a click on Copy prompt, for an AI tool without a Set up link.
+ *
+ * @param props                 - The event properties.
+ * @param props.goals_variation - The goals step's experiment variation.
+ */
+export function trackWizardMcpPromptCopied( props: { goals_variation: string | null } ): void {
+	record( 'jetpack_ai_launchpad_wizard_mcp_prompt_copied', props );
+}
+
+/** The props every AI tool view event about an integration carries. */
+interface McpConnectedProps< Extra extends string = never > extends TrackEventProps {
+	goals_variation: string | null;
+	// The AI tool that connected, the latest one when both did, or `other` after copying the prompt for another tool.
+	integration: 'chatgpt' | 'claude' | 'other' | Extra;
+}
+
+/**
+ * Records an AI tool showing as connected, once the wizard sees the new connection.
+ * `already_connected` is true for a tool that was connected before the AI tool view opened.
+ *
+ * @param props - The event properties.
+ */
+export function trackWizardMcpConnectedViewed(
+	props: McpConnectedProps & { already_connected: boolean }
+): void {
+	record( 'jetpack_ai_launchpad_wizard_mcp_connected_viewed', props );
+}
+
+/**
+ * Records a connected AI tool showing as read only.
+ *
+ * @param props - The event properties.
+ */
+export function trackWizardMcpReadOnlyViewed( props: McpConnectedProps ): void {
+	record( 'jetpack_ai_launchpad_wizard_mcp_read_only_viewed', props );
+}
+
+/**
+ * Records a click on "Allow full access" while a connected AI tool is read only, with how it ended: full access
+ * allowed in place, the attempt failed and the MCP settings opened instead, or the MCP settings opened because the
+ * wizard can't allow it in place. Not `outcome`: that is a standard prop with its own meaning.
+ *
+ * @param props        - The event properties.
+ * @param props.result - How the click ended.
+ */
+export function trackWizardMcpAllowFullAccessClicked(
+	props: McpConnectedProps & { result: 'success' | 'error' | 'settings_link' }
+): void {
+	record( 'jetpack_ai_launchpad_wizard_mcp_allow_full_access_clicked', props );
+}
+
+/**
+ * Records a click on "Go to my dashboard" in the AI tool view, with `integration` `none` when nothing was connected or
+ * copied.
+ *
+ * @param props - The event properties.
+ */
+export function trackWizardMcpGoToDashboardClicked( props: McpConnectedProps< 'none' > ): void {
+	record( 'jetpack_ai_launchpad_wizard_mcp_go_to_dashboard_clicked', props );
 }
 
 /**
@@ -236,6 +360,14 @@ export function trackWizardBackClicked( props: { step: WizardStepName } ): void 
 }
 
 /**
+ * Records Back on an AI tool view the URL opened, which leaves for Calypso's setup chooser. Sent with `use_beacon`
+ * (see trackTailoringAbandoned), since the page unloads right after.
+ */
+export function trackWizardBackToSetupChooser(): void {
+	record( 'jetpack_ai_launchpad_wizard_back_clicked', { step: 'ai_tool', use_beacon: true } );
+}
+
+/**
  * Records that the user modified a site-details field before completing the
  * step (compared against the pre-filled value; one event per changed field).
  *
@@ -244,6 +376,16 @@ export function trackWizardBackClicked( props: { step: WizardStepName } ): void 
  */
 export function trackWizardSiteDetailsChanged( props: { field: 'title' | 'description' } ): void {
 	record( 'jetpack_ai_launchpad_wizard_site_details_changed', props );
+}
+
+/**
+ * The wizard was skipped because the AI Website Builder already learned what it asks.
+ *
+ * @param props        - Event props.
+ * @param props.reason - Why the wizard was skipped.
+ */
+export function trackWizardBypassed( props: { reason: 'ai_builder' } ): void {
+	record( 'jetpack_ai_launchpad_wizard_bypassed', props );
 }
 
 /**
@@ -294,4 +436,85 @@ export function trackTaskCtaClicked( props: { task_id: string } ): void {
  */
 export function trackTaskSkipped( props: { task_id: string } ): void {
 	record( 'jetpack_ai_launchpad_task_skipped', props );
+}
+
+/**
+ * Records a failed `PUT /tailored` write, once per failed attempt: each automatic retry and each
+ * "Try again" click included, for the AI output's write and then the fallback's. Without it a site
+ * whose writes keep failing leaves nothing behind, since the `tailored` Logstash record is only
+ * written on success.
+ *
+ * @param props               - The event properties.
+ * @param props.failed_write  - Which write failed: the AI output or the deterministic fallback. Not
+ *                            `source`, which is a standard prop with its own meaning.
+ * @param props.retry         - Which attempt at that write failed, from 0 (the first).
+ * @param props.http_status   - The response status, or 0 when there was no response (e.g. offline).
+ * @param props.error_code    - The WP error code, or a thrown Error's name, reduced to [a-z0-9_]; else 'unknown'.
+ * @param props.ai_session_id - The id of the tailoring run whose write failed, or 'none'.
+ */
+export function trackTailoringSaveFailed( props: {
+	failed_write: TailorSource;
+	retry: number;
+	http_status: number;
+	error_code: string;
+	ai_session_id: string;
+} ): void {
+	record( 'jetpack_ai_launchpad_tailoring_save_failed', props );
+}
+
+/** How saving a tailoring run's list ended, before any "Try again". */
+export type SaveOutcome = 'saved' | 'error_shown' | 'fallback_saved';
+
+/**
+ * Records how saving a tailoring run's list ended, once per run: the AI list saved, the fallback
+ * saved in place of an AI list the server rejected (or of an AI call that failed), or neither, so
+ * the save error was shown. Nothing is recorded for a run the user left, which the abandoned event
+ * covers. Not `outcome`: that is a standard prop with its own meaning.
+ *
+ * @param props               - The event properties.
+ * @param props.save_outcome  - How the save ended.
+ * @param props.ai_session_id - The id of the tailoring run, or 'none'.
+ */
+export function trackTailoringSaveOutcome( props: {
+	save_outcome: SaveOutcome;
+	ai_session_id: string;
+} ): void {
+	record( 'jetpack_ai_launchpad_tailoring_save_outcome', props );
+}
+
+/**
+ * Records a click on the save error's "Try again" button, with whether that attempt saved the list.
+ *
+ * @param props               - The event properties.
+ * @param props.failed_write  - Which list the button re-sent: the AI output or the fallback.
+ * @param props.result        - Whether the re-sent list was saved.
+ * @param props.ai_session_id - The id of the tailoring run, or 'none'.
+ */
+export function trackTailoringSaveRetryClicked( props: {
+	failed_write: TailorSource;
+	result: 'saved' | 'failed';
+	ai_session_id: string;
+} ): void {
+	record( 'jetpack_ai_launchpad_tailoring_save_retry_clicked', props );
+}
+
+/**
+ * Records the user leaving the page while a tailoring run is still in progress, so the list it was
+ * producing was never saved.
+ *
+ * Sent with `use_beacon`: the Tracks transport (stats.wp.com/w.js) then sends the event with
+ * `fetch( …, { keepalive: true } )` instead of an image pixel, so the request outlives the page that
+ * is unloading. The flag also goes out as an event property, as it does for every other caller of it.
+ *
+ * @param props               - The event properties.
+ * @param props.stage         - Whether the run was still waiting on the AI call or already saving.
+ * @param props.elapsed_ms    - How long the run had been going, in milliseconds.
+ * @param props.ai_session_id - The id of the abandoned tailoring run, or 'none'.
+ */
+export function trackTailoringAbandoned( props: {
+	stage: TailoringStage;
+	elapsed_ms: number;
+	ai_session_id: string;
+} ): void {
+	record( 'jetpack_ai_launchpad_tailoring_abandoned', { ...props, use_beacon: true } );
 }

@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Search;
 
+use Automattic\Jetpack\Constants;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
@@ -22,6 +23,13 @@ class Search_Blocks_Test extends TestCase {
 	 * @var \WP_Query|null
 	 */
 	private $original_wp_the_query;
+
+	/**
+	 * The main query object as it was before a block style test replaced it.
+	 *
+	 * @var \WP_Query|null
+	 */
+	private $original_wp_query;
 
 	/**
 	 * Snapshot the main query before each test so tearDown can restore it.
@@ -306,6 +314,49 @@ class Search_Blocks_Test extends TestCase {
 			'empty/unknown'     => array( '', false ),
 			// No WC_VERSION constant in the test process, so the default path reads unsupported.
 			'default no WC'     => array( null, false ),
+		);
+	}
+
+	/**
+	 * @dataProvider provider_widget_area_hiding_blocks
+	 *
+	 * @param bool        $sidebar_registered Whether the legacy Overlay sidebar is registered.
+	 * @param string|null $screen_id          Current admin screen, or null for none.
+	 * @param bool        $expect_overlay     Whether the Overlay sidebar is expected, rather than null.
+	 */
+	#[DataProvider( 'provider_widget_area_hiding_blocks' )]
+	public function test_widget_area_hiding_blocks( bool $sidebar_registered, ?string $screen_id, bool $expect_overlay ) {
+		if ( $sidebar_registered ) {
+			register_sidebar( array( 'id' => Instant_Search::INSTANT_SEARCH_SIDEBAR ) );
+		}
+		if ( null !== $screen_id ) {
+			set_current_screen( $screen_id );
+		}
+
+		try {
+			$this->assertSame(
+				$expect_overlay ? Instant_Search::INSTANT_SEARCH_SIDEBAR : null,
+				Search_Blocks::widget_area_hiding_blocks()
+			);
+		} finally {
+			unregister_sidebar( Instant_Search::INSTANT_SEARCH_SIDEBAR );
+			unset( $GLOBALS['current_screen'] );
+		}
+	}
+
+	/**
+	 * Cases for `test_widget_area_hiding_blocks`.
+	 *
+	 * @return array<string, array{0: bool, 1: string|null, 2: bool}>
+	 */
+	public static function provider_widget_area_hiding_blocks(): array {
+		return array(
+			'overlay sidebar, widgets screen'    => array( true, 'widgets', true ),
+			'overlay sidebar, customizer'        => array( true, 'customize', true ),
+			'overlay sidebar, post editor'       => array( true, 'post', false ),
+			'overlay sidebar, no screen'         => array( true, null, false ),
+			'no overlay sidebar, widgets screen' => array( false, 'widgets', false ),
+			'no overlay sidebar, customizer'     => array( false, 'customize', false ),
 		);
 	}
 
@@ -1320,6 +1371,11 @@ class Search_Blocks_Test extends TestCase {
 			has_action( 'wp_enqueue_scripts', array( Search_Blocks::class, 'seed_interactivity_state' ) ),
 			'seed_interactivity_state must always hook into wp_enqueue_scripts (blocks may be on any page)'
 		);
+		$this->assertSame(
+			9,
+			has_action( 'wp_enqueue_scripts', array( Search_Blocks::class, 'load_block_styles_only_where_rendered' ) ),
+			'must run before wp_common_block_scripts_and_styles() enqueues every block style at priority 10'
+		);
 	}
 
 	/**
@@ -1392,6 +1448,36 @@ class Search_Blocks_Test extends TestCase {
 				'enqueue_editor_assets must call wp_set_script_translations() with the jetpack-search-pkg domain'
 			);
 		} finally {
+			wp_deregister_script( $handle );
+			$cleanup();
+		}
+	}
+
+	/**
+	 * Pass the AI restriction to the editor independently of the plan.
+	 */
+	public function test_editor_ai_flag_respects_host_restrictions() {
+		$cleanup = $this->stub_editor_asset_file( array() );
+		$handle  = 'jetpack-search-blocks-register';
+		try {
+			foreach ( array( true, false ) as $allowed ) {
+				$filter = $allowed ? '__return_true' : '__return_false';
+				add_filter( 'wp_supports_ai', $filter );
+				Constants::set_constant( 'WP_AI_SUPPORT', $allowed );
+				Search_Blocks::enqueue_editor_assets();
+
+				$scripts = wp_scripts()->get_data( $handle, 'before' );
+				$config  = json_decode( substr( end( $scripts ), strlen( 'window.JetpackSearchBlocksConfig = ' ), -1 ), true );
+				$this->assertIsArray( $config );
+				$this->assertSame( $allowed, $config['aiMasterEnabled'] );
+
+				remove_filter( 'wp_supports_ai', $filter );
+				wp_deregister_script( $handle );
+			}
+		} finally {
+			remove_filter( 'wp_supports_ai', '__return_true' );
+			remove_filter( 'wp_supports_ai', '__return_false' );
+			Constants::clear_single_constant( 'WP_AI_SUPPORT' );
 			wp_deregister_script( $handle );
 			$cleanup();
 		}
@@ -1868,6 +1954,7 @@ class Search_Blocks_Test extends TestCase {
 		remove_action( 'init', array( Product_Search_Template::class, 'register_post_type' ), 9 );
 		remove_action( 'template_redirect', array( Search_Blocks::class, 'seed_interactivity_state' ) );
 		remove_action( 'wp_enqueue_scripts', array( Search_Blocks::class, 'seed_interactivity_state' ) );
+		remove_action( 'wp_enqueue_scripts', array( Search_Blocks::class, 'load_block_styles_only_where_rendered' ), 9 );
 		remove_action( 'enqueue_block_editor_assets', array( Search_Blocks::class, 'enqueue_editor_assets' ) );
 		remove_filter( 'posts_pre_query', array( Search_Blocks::class, 'filter__posts_pre_query' ), 10 );
 		remove_filter( 'script_module_loader_src', array( Search_Blocks::class, 'same_origin_script_module_src' ), 10 );
@@ -3747,5 +3834,88 @@ class Search_Blocks_Test extends TestCase {
 
 		$this->assertContains( 'filters-product', $on );
 		$this->assertNotContains( 'filters-product', $off );
+	}
+
+	/**
+	 * Register a Search block and run the front-end block style enqueue with on-demand block assets on or off.
+	 *
+	 * @param bool $on_demand Value for the on-demand block asset filters.
+	 * @param bool $is_search Whether the request is a search.
+	 * @return \WP_Block_Type
+	 */
+	private function register_block_and_enqueue_styles( $on_demand, $is_search = false ) {
+		// Core's on-demand checks call is_feed(), which needs a main query.
+		$this->original_wp_query        = $GLOBALS['wp_query'] ?? null;
+		$GLOBALS['wp_query']            = new \WP_Query();
+		$GLOBALS['wp_query']->is_search = $is_search;
+		$GLOBALS['wp_styles']           = new \WP_Styles();
+		$block_type                     = register_block_type( dirname( __DIR__, 2 ) . '/src/search-blocks/blocks/powered-by' );
+
+		$filter = $on_demand ? '__return_true' : '__return_false';
+		add_filter( 'should_load_separate_core_block_assets', $filter, 99 );
+		add_filter( 'should_load_block_assets_on_demand', $filter, 99 );
+		Search_Blocks::load_block_styles_only_where_rendered();
+		wp_enqueue_registered_block_scripts_and_styles();
+
+		return $block_type;
+	}
+
+	/**
+	 * Clean up after register_block_and_enqueue_styles().
+	 */
+	private function unregister_block_and_styles() {
+		foreach ( array( '__return_true', '__return_false' ) as $filter ) {
+			remove_filter( 'should_load_separate_core_block_assets', $filter, 99 );
+			remove_filter( 'should_load_block_assets_on_demand', $filter, 99 );
+		}
+		unregister_block_type( 'jetpack-search/powered-by' );
+		$GLOBALS['wp_styles'] = new \WP_Styles();
+		$GLOBALS['wp_query']  = $this->original_wp_query;
+	}
+
+	/**
+	 * A site that turns off on-demand block assets loads a Search block's style only where the block renders.
+	 */
+	public function test_block_style_loads_only_where_block_renders_when_on_demand_assets_are_off() {
+		try {
+			$this->register_block_and_enqueue_styles( false );
+			$this->assertFalse( wp_style_is( 'jetpack-search-powered-by-style', 'enqueued' ) );
+
+			render_block( array( 'blockName' => 'jetpack-search/powered-by' ) );
+			$this->assertTrue( wp_style_is( 'jetpack-search-powered-by-style', 'enqueued' ) );
+		} finally {
+			$this->unregister_block_and_styles();
+		}
+	}
+
+	/**
+	 * Requests where the style stays a block `style`, which keeps it in the head.
+	 *
+	 * @return array<string, array{bool, bool}>
+	 */
+	public static function provide_requests_that_keep_block_style() {
+		return array(
+			'on-demand assets on'               => array( true, false ),
+			'search page, on-demand assets off' => array( false, true ),
+		);
+	}
+
+	/**
+	 * With on-demand block assets core hoists the style, and a classic theme's search page can't, so both keep it a block `style`.
+	 *
+	 * @param bool $on_demand Value for the on-demand block asset filters.
+	 * @param bool $is_search Whether the request is a search.
+	 *
+	 * @dataProvider provide_requests_that_keep_block_style
+	 */
+	#[DataProvider( 'provide_requests_that_keep_block_style' )]
+	public function test_block_style_stays_a_block_style( $on_demand, $is_search ) {
+		try {
+			$block_type = $this->register_block_and_enqueue_styles( $on_demand, $is_search );
+			$this->assertSame( array( 'jetpack-search-powered-by-style' ), $block_type->style_handles );
+			$this->assertSame( array(), $block_type->view_style_handles );
+		} finally {
+			$this->unregister_block_and_styles();
+		}
 	}
 }

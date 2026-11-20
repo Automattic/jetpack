@@ -1,5 +1,6 @@
 import apiFetch from '@wordpress/api-fetch';
-import { paragraphsToBlocks } from './paragraph-blocks.ts';
+import { blockAttributes, headingBlock, paragraphsToBlocks } from './paragraph-blocks.ts';
+import type { SiteCopy } from './types.ts';
 
 interface CreatedPage {
 	id: number;
@@ -21,11 +22,14 @@ interface CreatedPage {
  * part the AI supplies.
  */
 
-// Untranslated placeholder heading, in the same class as the "About" and "Gallery" page titles:
-// jetpack-mu-wpcom's JS strings are not extracted for translation, and the AI intro beside it is
-// English-only for now. The user lands in the editor on it, which is where it gets changed.
-const HEADING_BLOCK =
-	'<!-- wp:heading --><h2 class="wp-block-heading">Get in touch</h2><!-- /wp:heading -->';
+type ContactCopy = Pick<
+	SiteCopy,
+	| 'contact_page_title'
+	| 'contact_page_heading'
+	| 'contact_form_name_label'
+	| 'contact_form_email_label'
+	| 'contact_form_message_label'
+>;
 
 /**
  * The form itself: name, email, message.
@@ -39,12 +43,25 @@ const HEADING_BLOCK =
  * No submit button block: Jetpack Forms renders its own translated submit button for a form that has
  * none, so leaving it out is both less markup to keep in step and the only way the button is
  * localized at all.
+ *
+ * @param copy - The site-language field labels.
+ * @return The serialized form block.
  */
-const CONTACT_FORM_BLOCK = `<!-- wp:jetpack/contact-form -->
-<!-- wp:jetpack/field-name {"label":"Name","required":true} /-->
-<!-- wp:jetpack/field-email {"label":"Email","required":true} /-->
-<!-- wp:jetpack/field-textarea {"label":"Message"} /-->
+function contactFormBlock( copy: ContactCopy ): string {
+	return `<!-- wp:jetpack/contact-form -->
+<!-- wp:jetpack/field-name ${ blockAttributes( {
+		label: copy.contact_form_name_label,
+		required: true,
+	} ) } /-->
+<!-- wp:jetpack/field-email ${ blockAttributes( {
+		label: copy.contact_form_email_label,
+		required: true,
+	} ) } /-->
+<!-- wp:jetpack/field-textarea ${ blockAttributes( {
+		label: copy.contact_form_message_label,
+	} ) } /-->
 <!-- /wp:jetpack/contact-form -->`;
+}
 
 /**
  * Create the Contact page as a draft: a heading, the AI-written intro line, and a Jetpack contact form.
@@ -52,28 +69,30 @@ const CONTACT_FORM_BLOCK = `<!-- wp:jetpack/contact-form -->
  * @param intro   - The AI-written opening line, or undefined for an output persisted before
  *                `page_intros` existed and for a run where the model omitted the key. The page is
  *                then created without an intro paragraph — the form is what the task is for.
+ * @param copy    - The site-language copy for the title, heading, and form labels.
  * @param fetcher - Injectable request handler, so the node:test suite can stub the REST call.
  * @return The created page id and its editor URL.
  */
 export async function createContactPage(
 	intro: string | undefined,
+	copy: ContactCopy,
 	fetcher: ( options: Parameters< typeof apiFetch >[ 0 ] ) => Promise< unknown > = apiFetch
 ): Promise< { page_id: number; edit_url: string } > {
 	const line = intro?.trim();
-	const blocks = [ HEADING_BLOCK ];
+	const blocks = [ headingBlock( copy.contact_page_heading ) ];
 	if ( line ) {
 		// Through the shared helper, so the AI text is escaped exactly as the About and first-post
 		// drafts escape theirs.
 		blocks.push( paragraphsToBlocks( [ line ] ) );
 	}
-	blocks.push( CONTACT_FORM_BLOCK );
+	blocks.push( contactFormBlock( copy ) );
 
 	const page = ( await fetcher( {
 		path: '/wp/v2/pages',
 		method: 'POST',
 		data: {
-			// Untranslated placeholder title, like core's "Auto Draft" and the About/Gallery pages.
-			title: 'Contact',
+			// Placeholder title, like core's "Auto Draft" and the About/Gallery pages.
+			title: copy.contact_page_title,
 			content: blocks.join( '\n\n' ),
 			status: 'draft',
 			// Tag as the AI Launchpad page so the server-side listener can complete the task on publish.

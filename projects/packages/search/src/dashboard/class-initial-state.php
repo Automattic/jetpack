@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Search;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack\Status;
 use Jetpack_Options;
 
@@ -31,14 +32,23 @@ class Initial_State {
 	protected $module_control;
 
 	/**
+	 * Whether the admin shell is readying the page behind another dashboard, where nothing may be saved.
+	 *
+	 * @var bool
+	 */
+	protected $is_admin_shell_guest;
+
+	/**
 	 * Constructor
 	 *
-	 * @param Connection_Manager $connection_manager - Connection mananger instance.
-	 * @param Module_Control     $module_control - Module control instance.
+	 * @param Connection_Manager|null $connection_manager   - Connection manager instance.
+	 * @param Module_Control|null     $module_control       - Module control instance.
+	 * @param bool                    $is_admin_shell_guest - Whether the admin shell is readying the page behind another dashboard.
 	 */
-	public function __construct( $connection_manager = null, $module_control = null ) {
-		$this->connection_manager = $connection_manager ? $connection_manager : new Connection_Manager( Package::SLUG );
-		$this->module_control     = $module_control ? $module_control : new Module_Control();
+	public function __construct( $connection_manager = null, $module_control = null, $is_admin_shell_guest = false ) {
+		$this->connection_manager   = $connection_manager ? $connection_manager : new Connection_Manager( Package::SLUG );
+		$this->module_control       = $module_control ? $module_control : new Module_Control();
+		$this->is_admin_shell_guest = $is_admin_shell_guest;
 	}
 
 	/**
@@ -56,38 +66,38 @@ class Initial_State {
 	 * @return array
 	 */
 	public function get_initial_state() {
-		return array(
+		$state = array(
 			'siteData'        => array(
-				'WP_API_root'                => esc_url_raw( rest_url() ),
-				'wpcomOriginApiUrl'          => $this->get_wp_api_root(),
-				'WP_API_nonce'               => wp_create_nonce( 'wp_rest' ),
-				'registrationNonce'          => wp_create_nonce( 'jetpack-registration-nonce' ),
-				'purchaseToken'              => $this->get_purchase_token(),
+				'WP_API_root'             => esc_url_raw( rest_url() ),
+				'wpcomOriginApiUrl'       => $this->get_wp_api_root(),
+				'WP_API_nonce'            => wp_create_nonce( 'wp_rest' ),
+				'registrationNonce'       => wp_create_nonce( 'jetpack-registration-nonce' ),
+				'purchaseToken'           => $this->get_purchase_token(),
 				/**
 				 * Whether promotions are visible or not.
 				 *
 				 * @param bool $are_promotions_active Status of promotions visibility. True by default.
 				 */
-				'showPromotions'             => apply_filters( 'jetpack_show_promotions', true ),
-				'adminUrl'                   => esc_url( admin_url() ),
-				'readerChatGuidelinesUrl'    => $this->get_reader_chat_guidelines_url(),
-				'aiAgentAccessAvailable'     => $this->is_ai_agent_access_available(),
-				'aiAgentAccessGuidelinesUrl' => $this->get_ai_agent_access_guidelines_url(),
-				'blogId'                     => Jetpack_Options::get_option( 'id', 0 ),
-				'version'                    => Package::VERSION,
-				'calypsoSlug'                => ( new Status() )->get_site_suffix(),
-				'title'                      => get_bloginfo( 'name' ),
-				'postTypes'                  => $this->get_post_types_with_labels(),
-				'isWpcom'                    => Helper::is_wpcom(),
+				'showPromotions'          => apply_filters( 'jetpack_show_promotions', true ),
+				'adminUrl'                => esc_url( admin_url() ),
+				'readerChatGuidelinesUrl' => $this->get_reader_chat_guidelines_url(),
+				'blogId'                  => Jetpack_Options::get_option( 'id', 0 ),
+				'version'                 => Package::VERSION,
+				'calypsoSlug'             => ( new Status() )->get_site_suffix(),
+				'title'                   => get_bloginfo( 'name' ),
+				'postTypes'               => $this->get_post_types_with_labels(),
+				'isWpcom'                 => Helper::is_wpcom(),
+				// My Jetpack's add-license screen, which offline mode turns off.
+				'addLicense'              => class_exists( My_Jetpack_Initializer::class ) && My_Jetpack_Initializer::is_licensing_ui_enabled(),
 				// phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-				'isPlanJustUpgraded'         => isset( $_GET['just_upgraded'] ) && wp_unslash( $_GET['just_upgraded'] ),
+				'isPlanJustUpgraded'      => isset( $_GET['just_upgraded'] ) && wp_unslash( $_GET['just_upgraded'] ),
 				/**
 				 * Whether the Jetpack Search 3.0 Interactivity API blocks are enabled.
 				 * Mirrors the `jetpack_search_blocks_enabled` server-side filter so the
 				 * dashboard React app can gate the new feature-selection UI on the
 				 * same flag the back end uses to register the blocks themselves.
 				 */
-				'searchBlocksEnabled'        => (bool) apply_filters( 'jetpack_search_blocks_enabled', true ),
+				'searchBlocksEnabled'     => (bool) apply_filters( 'jetpack_search_blocks_enabled', true ),
 				/**
 				 * Whether the experimental blocks-powered Overlay search experience
 				 * is available in the Experience Selector. Mirrors the
@@ -97,7 +107,7 @@ class Initial_State {
 				 * the Beta card ships to every site; operators that pin the filter
 				 * to false fall back to the original four-card selector.
 				 */
-				'blockOverlayEnabled'        => (bool) apply_filters( 'jetpack_search_overlay_block_template_enabled', true ),
+				'blockOverlayEnabled'     => (bool) apply_filters( 'jetpack_search_overlay_block_template_enabled', true ),
 				/**
 				 * Editor affordances for the experimental blocks-powered overlay.
 				 * Surfaces in the new Overlay search card so admins can edit the
@@ -106,14 +116,14 @@ class Initial_State {
 				 * visitor without `manage_options`; the action handlers also
 				 * enforce that capability server-side.
 				 */
-				'blockTemplateOverlay'       => $this->get_block_template_overlay_config(),
+				'blockTemplateOverlay'    => $this->get_block_template_overlay_config(),
 				/**
 				 * Same as `blockTemplateOverlay` but for the WooCommerce product
 				 * variant of the overlay — the Overlay card surfaces a second
 				 * "Edit the product Search overlay" entry on Woo stores so the
 				 * product-search overlay template is customizable too.
 				 */
-				'productOverlayTemplate'     => $this->get_product_overlay_template_config(),
+				'productOverlayTemplate'  => $this->get_product_overlay_template_config(),
 				/**
 				 * Editor affordances for the classic-theme search-template
 				 * singleton CPT. The Embedded card surfaces these on
@@ -121,7 +131,7 @@ class Initial_State {
 				 * admins still get an "Edit search template" entry — same
 				 * shape and same React link as `blockTemplateOverlay`.
 				 */
-				'searchTemplate'             => $this->get_search_template_config(),
+				'searchTemplate'          => $this->get_search_template_config(),
 				/**
 				 * Same as `searchTemplate` but for the WooCommerce product
 				 * search shim — the `WooCommerceProductSearchControl`
@@ -129,15 +139,15 @@ class Initial_State {
 				 * search template" link routes to `post.php` on the hidden
 				 * CPT instead of a useless Site Editor URL.
 				 */
-				'productSearchTemplate'      => $this->get_product_search_template_config(),
+				'productSearchTemplate'   => $this->get_product_search_template_config(),
 				// Gates the WooCommerce Product Search control to stores.
-				'isWooCommerceActive'        => Search_Blocks::woocommerce_blocks_enabled(),
+				'isWooCommerceActive'     => Search_Blocks::woocommerce_blocks_enabled(),
 				/**
 				 * Active theme stylesheet — used by the experience-selector to deep-link
 				 * the "Edit search template" action to the right Site Editor entry
 				 * (`?p=/wp_template/<stylesheet>//jetpack-search`).
 				 */
-				'activeThemeStylesheet'      => get_stylesheet(),
+				'activeThemeStylesheet'   => get_stylesheet(),
 				/**
 				 * Whether the active theme is a block theme. Embedded itself
 				 * works on every theme — block themes through the FSE
@@ -149,7 +159,7 @@ class Initial_State {
 				 * CPT path via `searchTemplate`. This flag is the dashboard's
 				 * branch selector for which to render.
 				 */
-				'themeSupportsBlocks'        => wp_is_block_theme(),
+				'themeSupportsBlocks'     => wp_is_block_theme(),
 			),
 			'userData'        => array(
 				'currentUser' => $this->current_user_data(),
@@ -165,6 +175,14 @@ class Initial_State {
 				isset( $_GET['features'] ) ? explode( ',', wp_unslash( $_GET['features'] ) ) : array()
 			),
 		);
+
+		// The last plan the site saved, so the page can pick its view before the plan request returns.
+		$plan_info = get_option( Plan::JETPACK_SEARCH_PLAN_INFO_OPTION_KEY );
+		if ( is_array( $plan_info ) ) {
+			$state['sitePlan'] = $plan_info;
+		}
+
+		return $state;
 	}
 
 	/**
@@ -193,23 +211,16 @@ class Initial_State {
 	}
 
 	/**
-	 * Get the AI Agent Access guidelines admin page URL when it is registered.
-	 *
-	 * The guidelines page is controlled outside Jetpack. Returning an empty
-	 * URL lets the dashboard hide the link when that page is unavailable.
-	 *
-	 * @return string Guidelines admin URL, or an empty string when unavailable.
-	 */
-	protected function get_ai_agent_access_guidelines_url() {
-		return $this->get_guidelines_url();
-	}
-
-	/**
 	 * Get the Guidelines admin page URL when it is registered.
 	 *
 	 * @return string Guidelines admin URL, or an empty string when unavailable.
 	 */
 	protected function get_guidelines_url() {
+		// No admin menu here: see Admin_Shell::guest_assets().
+		if ( wp_doing_ajax() ) {
+			return self::guidelines_page_will_register() ? esc_url_raw( admin_url( 'options-general.php?page=guidelines-wp-admin' ) ) : '';
+		}
+
 		if ( ! function_exists( 'menu_page_url' ) ) {
 			return '';
 		}
@@ -218,15 +229,15 @@ class Initial_State {
 	}
 
 	/**
-	 * Check whether the AI Agent Access toggle should be available.
+	 * Whether the Guidelines page registers for this user, for requests that never build the menu.
 	 *
-	 * Private sites are not eligible because external AI agents cannot read
-	 * their public content.
+	 * Gutenberg's Guidelines experiment hooks this registrar only while the experiment is on.
 	 *
 	 * @return bool
 	 */
-	protected function is_ai_agent_access_available() {
-		return ! $this->is_private_site();
+	private static function guidelines_page_will_register() {
+		return current_user_can( 'manage_options' )
+			&& false !== has_action( 'admin_menu', 'gutenberg_register_guidelines_settings_submenu' );
 	}
 
 	/**
@@ -362,19 +373,6 @@ class Initial_State {
 	}
 
 	/**
-	 * Check whether the current site is private.
-	 *
-	 * @return bool
-	 */
-	protected function is_private_site() {
-		if ( function_exists( 'is_private_blog' ) ) {
-			return (bool) \is_private_blog();
-		}
-
-		return -1 === (int) get_option( 'blog_public', 1 );
-	}
-
-	/**
 	 * Gather data about the current user.
 	 *
 	 * @return array
@@ -439,7 +437,8 @@ class Initial_State {
 
 		$purchase_token = Jetpack_Options::get_option( 'purchase_token', false );
 
-		if ( $purchase_token ) {
+		// A menu hover readies the page through the admin shell; the page's own load creates the token.
+		if ( $purchase_token || $this->is_admin_shell_guest ) {
 			return $purchase_token;
 		}
 		// If the purchase token is not saved in the options table yet, then add it.

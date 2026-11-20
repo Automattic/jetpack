@@ -1,4 +1,0 @@
-Significance: patch
-Type: enhancement
-
-Premium Analytics: Post detail: the email tabs' opens and clicks timelines cover the first 30 days after the send instead of the page date filter, which no longer shows there; the other email cards stay all-time.

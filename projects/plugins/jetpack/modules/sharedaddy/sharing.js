@@ -180,10 +180,12 @@
 		this.pane.style.top = positionTop + this.button.offsetHeight + 3 + 'px';
 
 		showNode( this.pane );
+		this.button.setAttribute( 'aria-expanded', 'true' );
 	};
 
 	MoreButton.prototype.close = function () {
 		hideNode( this.pane );
+		this.button.setAttribute( 'aria-expanded', 'false' );
 		this.openedBy = null;
 	};
 
@@ -621,6 +623,9 @@
 	// also appears in the link's `share-<service>` class. Sharing_Source::js_dialog()
 	// prints that map in an inline script after this file, and the one delegated
 	// listener below serves every service, with only one popup open at a time.
+	//
+	// The Sharing Buttons block runs a parallel popup handler in
+	// extensions/blocks/sharing-buttons/view.js; a change here usually belongs there too.
 	var sharePopup;
 	var sharePopupNames = {};
 

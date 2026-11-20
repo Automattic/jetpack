@@ -1,4 +1,4 @@
-import type { FC, PropsWithChildren } from 'react';
+import type { JSX, FC, PropsWithChildren } from 'react';
 
 /**
  * Compound component for SVG children in charts.

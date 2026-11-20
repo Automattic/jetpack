@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { useDashboardAnalytics } from '../../hooks/use-dashboard-analytics';
+import { useDashboardAnalytics, type DashboardRoute } from '../../hooks/use-dashboard-analytics';
 import { useObserveFirstRunSignals } from '../../hooks/use-first-run-state';
 import ConnectionGate from '../connection-gate';
 import type { ReactNode } from 'react';
@@ -49,10 +49,16 @@ const FirstRunSignalObserver = () => {
 	return null;
 };
 
-const QueryClientWrapper = ( { children }: { children: ReactNode } ) => {
+const QueryClientWrapper = ( {
+	children,
+	route,
+}: {
+	children: ReactNode;
+	route: DashboardRoute;
+} ) => {
 	// Rendered by every route stage, so it's the single shared spot to record
 	// the once-per-load dashboard page view.
-	useDashboardAnalytics();
+	useDashboardAnalytics( route );
 
 	return (
 		<QueryClientProvider client={ getClient() }>
