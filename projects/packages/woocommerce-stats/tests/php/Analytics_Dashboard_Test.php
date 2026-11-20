@@ -7,10 +7,13 @@
 
 namespace Automattic\Jetpack\WooCommerceStats;
 
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\PremiumAnalytics\Dashboard_Section_Registry;
 use Automattic\Jetpack\PremiumAnalytics\Sync\Sync_Status_Tracker;
 use Automattic\Jetpack\PremiumAnalytics\Widget_Type_Registry;
+use Automattic\Jetpack\WooCommerceStats\Report_Execution\Provider_Setting;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use WorDBless\BaseTestCase;
@@ -33,6 +36,8 @@ class Analytics_Dashboard_Test extends BaseTestCase {
 
 	/**
 	 * Reset the dashboard registries and the hooks between tests.
+	 *
+	 * @phan-suppress PhanAccessClassConstantInternal -- Internal to this package, not to its sub-namespace.
 	 */
 	public function tear_down() {
 		remove_action( Analytics_Dashboard::REGISTER_SECTIONS_ACTION, array( Analytics_Dashboard::class, 'register_section' ), 20 );
@@ -44,6 +49,9 @@ class Analytics_Dashboard_Test extends BaseTestCase {
 		remove_filter( 'jetpack_admin_js_script_data', array( Store_Currency::class, 'add_script_data' ), 20 );
 		remove_action( Analytics_Dashboard::DASHBOARD_PAGE_INIT_ACTION, array( Analytics_Dashboard::class, 'enqueue_store_performance_bookings' ) );
 		delete_option( 'active_plugins' );
+		delete_option( Provider_Setting::OPTION );
+		\Jetpack_Options::delete_option( array( 'blog_token', 'id' ) );
+		( new Connection_Manager() )->reset_connection_status();
 		wp_dequeue_script_module( Analytics_Dashboard::STORE_PERFORMANCE_BOOKINGS_MODULE );
 		wp_deregister_script_module( Analytics_Dashboard::STORE_PERFORMANCE_BOOKINGS_MODULE );
 
@@ -224,6 +232,75 @@ class Analytics_Dashboard_Test extends BaseTestCase {
 		Analytics_Dashboard::enqueue_store_performance_bookings();
 
 		$this->assertNotContains( Analytics_Dashboard::STORE_PERFORMANCE_BOOKINGS_MODULE, wp_script_modules()->get_queue() );
+	}
+
+	/**
+	 * Only a disconnected store set to local drops the connection and the sync, and explains why.
+	 *
+	 * @dataProvider provide_connection_and_setting
+	 *
+	 * @param bool   $connected  Whether the site is connected.
+	 * @param string $providers  The provider setting.
+	 * @param bool   $woocommerce Whether WooCommerce is active.
+	 * @param bool   $runs_without_connection Whether the tab runs without the connection.
+	 *
+	 * @phan-suppress PhanAccessClassConstantInternal -- Internal to this package, not to its sub-namespace.
+	 */
+	#[DataProvider( 'provide_connection_and_setting' )]
+	public function test_runs_without_the_connection_only_when_disconnected_and_set_to_local( $connected, $providers, $woocommerce, $runs_without_connection ) {
+		wp_set_current_user( $this->create_admin() );
+		add_filter( Analytics_Dashboard::WOOCOMMERCE_AVAILABLE_FILTER, $woocommerce ? '__return_true' : '__return_false' );
+		update_option( Provider_Setting::OPTION, $providers );
+		if ( $connected ) {
+			\Jetpack_Options::update_option( 'id', 4242 );
+			\Jetpack_Options::update_option( 'blog_token', 'blog_token.secret' );
+		}
+		( new Connection_Manager() )->reset_connection_status();
+		Analytics_Dashboard::init();
+
+		$section = get_registered_dashboard_section( DASHBOARD_NAME, Analytics_Dashboard::SECTION_ID );
+
+		$this->assertSame( ! $runs_without_connection, $section->requires_connection );
+		$this->assertSame( ! $runs_without_connection, $section->requires_sync );
+		$this->assertSame( $runs_without_connection, null !== $section->get_notice() );
+	}
+
+	/**
+	 * An empty store still hears that Analytics is off and that WordPress.com reports need the connection.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 * @phan-suppress PhanAccessClassConstantInternal -- Internal to this package, not to its sub-namespace.
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_local_mode_notice_keeps_the_prerequisites_of_an_empty_store() {
+		require_once __DIR__ . '/mocks/woocommerce-mock.php';
+		require_once __DIR__ . '/mocks/woocommerce-analytics-mock.php';
+		$GLOBALS['woocommerce_stats_mock_orders']        = array();
+		$GLOBALS['woocommerce_stats_mock_analytics_off'] = true;
+		$this->enable_store();
+		update_option( Provider_Setting::OPTION, 'local' );
+		Analytics_Dashboard::init();
+
+		$notice = get_registered_dashboard_section( DASHBOARD_NAME, Analytics_Dashboard::SECTION_ID )->get_notice();
+
+		$this->assertMatchesRegularExpression( '/Analytics is off.*no orders yet.*connected to WordPress\.com/s', (string) $notice );
+	}
+
+	/**
+	 * @return array[]
+	 */
+	public static function provide_connection_and_setting() {
+		return array(
+			'disconnected, no setting'            => array( false, '', true, false ),
+			'disconnected, wpcom'                 => array( false, 'wpcom', true, false ),
+			'disconnected, local'                 => array( false, 'local', true, true ),
+			'disconnected, local,wpcom'           => array( false, 'local,wpcom', true, true ),
+			'disconnected, wpcom,local'           => array( false, 'wpcom,local', true, false ),
+			'disconnected, local, no WooCommerce' => array( false, 'local', false, false ),
+			'connected, local'                    => array( true, 'local', true, false ),
+		);
 	}
 
 	/**
