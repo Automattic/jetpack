@@ -1891,17 +1891,20 @@ class Stats_Abilities extends Registrar {
 			'opens'   => self::email_summary( null ),
 			'clicks'  => self::email_summary( null ),
 		);
-		if ( $emailable ) {
-			$opens  = $failed( 'email' ) ? null : $values['email/opens'];
-			$clicks = $failed( 'email' ) ? null : $values['email/clicks'];
+		if ( $emailable && $failed( 'email' ) ) {
+			$email['emailed'] = null;
+		} elseif ( $emailable ) {
+			$opens  = $values['email/opens'];
+			$clicks = $values['email/clicks'];
 			// The Stats dashboard's own test: a post nobody was sent, opened or clicked was never emailed.
-			$emailed = null === $opens ? null : 0 < self::as_int( $opens, 'total_sends' ) + self::as_int( $opens, 'total_opens' ) + self::as_int( $clicks, 'total_clicks' );
-			$email   = array(
-				'emailed' => $emailed,
-				'sent'    => $emailed ? self::as_int( $opens, 'total_sends' ) : null,
-				'opens'   => self::email_summary( $emailed ? array( $opens['total_opens'] ?? 0, $opens['unique_opens'] ?? 0, $opens['opens_rate'] ?? 0 ) : null ),
-				'clicks'  => self::email_summary( $emailed ? array( $clicks['total_clicks'] ?? 0, $clicks['unique_clicks'] ?? 0, $clicks['clicks_rate'] ?? 0 ) : null ),
-			);
+			if ( 0 < self::as_int( $opens, 'total_sends' ) + self::as_int( $opens, 'total_opens' ) + self::as_int( $clicks, 'total_clicks' ) ) {
+				$email = array(
+					'emailed' => true,
+					'sent'    => self::as_int( $opens, 'total_sends' ),
+					'opens'   => self::email_summary( array( $opens['total_opens'] ?? 0, $opens['unique_opens'] ?? 0, $opens['opens_rate'] ?? 0 ) ),
+					'clicks'  => self::email_summary( array( $clicks['total_clicks'] ?? 0, $clicks['unique_clicks'] ?? 0, $clicks['clicks_rate'] ?? 0 ) ),
+				);
+			}
 		}
 
 		$published = in_array( $post->post_status, array( 'publish', 'private' ), true ) ? (string) mysql2date( 'c', $post->post_date ) : null;

@@ -2578,7 +2578,7 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 			)
 		);
 		// WorDBless stores no comments, so serve the newest approved ones the way the query would.
-		$asked = null;
+		$asked = array();
 		add_filter(
 			'comments_pre_query',
 			static function ( $comments, $query ) use ( &$asked ) {
@@ -2625,6 +2625,9 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 		$stub->method( 'get_email_breakdown' )->willReturnCallback(
 			static function ( $post, $stat ) use ( &$sends, &$calls ) {
 				$calls[] = "email/$stat";
+				if ( null === $sends ) {
+					return new \WP_Error( 'stats_error', 'Unavailable' );
+				}
 				return 'opens' === $stat
 					? array(
 						'total_sends'  => $sends,
@@ -2707,6 +2710,12 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 			),
 		);
 		$this->assertSame( $no_email, $unsent['email'] );
+
+		// Email stats that could not be read are unknown, not proof the post was never sent.
+		$sends   = null;
+		$unknown = Stats_Abilities::get_post_detail( array( 'post_id' => $post_id ) );
+		$this->assertSame( array( 'emailed' => null ) + $no_email, $unknown['email'] );
+		$this->assertSame( array( 'email' ), $unknown['errors'] );
 
 		// A page is never emailed, so its email figures cost no request; a refused UTM read leaves the rest.
 		$calls = array();
