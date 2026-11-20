@@ -251,6 +251,60 @@ describe( 'header stand-in', () => {
 		jest.useRealTimers();
 	} );
 
+	it( 'keeps an anonymous layer’s rules in one layer', () => {
+		jest.useFakeTimers();
+		document.head.innerHTML =
+			'<style>@layer { .x__title.big{color:red} .x__title{color:blue} }</style>';
+		const app = document.getElementById( 'app' );
+		app.innerHTML =
+			'<div class="admin-ui-navigable-region"><header><h1 class="x__title big">Forms</h1></header></div>';
+
+		rememberHeader( 'forms', app );
+		jest.runAllTimers();
+		app.innerHTML = '';
+		showHeader( 'forms', app );
+
+		const css = document.querySelector( '[data-shell-header="forms"] style' ).textContent;
+		expect( css.match( /@layer/g ) ).toHaveLength( 1 );
+		jest.useRealTimers();
+	} );
+
+	it( 'saves a header again once another tab’s save has dropped it', () => {
+		jest.useFakeTimers();
+		const app = document.getElementById( 'app' );
+		app.innerHTML = '<div class="admin-ui-navigable-region"><header><h1>Social</h1></header></div>';
+		rememberHeader( 'social', app );
+		jest.runAllTimers();
+
+		localStorage.setItem( PREFIX, '{}' );
+		window.dispatchEvent( new StorageEvent( 'storage', { key: PREFIX } ) );
+		rememberHeader( 'social', app );
+		jest.runAllTimers();
+
+		expect( Object.keys( stored().pages ) ).toEqual( [ 'social' ] );
+		jest.useRealTimers();
+	} );
+
+	it.each( [
+		[ 'no pages', { pages: null } ],
+		[ 'a page without CSS', { pages: { forms: { html: '<div><h1>Forms</h1></div>' } } } ],
+		[ 'a donor without markup', { pages: { other: { css: [], styles: [] } } } ],
+		[
+			'a page naming pieces it lacks',
+			{
+				pieces: {},
+				pages: {
+					forms: { html: '<div style="9"><h1>Forms</h1></div>', css: [ '9' ], styles: [ '9' ] },
+				},
+			},
+		],
+	] )( 'shows what it can of a store with %s, without failing', ( _, store ) => {
+		localStorage.setItem( PREFIX, JSON.stringify( store ) );
+
+		expect( () => showHeader( 'forms', document.getElementById( 'app' ), 'Forms' ) ).not.toThrow();
+		expect( document.body.innerHTML ).not.toContain( 'undefined' );
+	} );
+
 	it( 'gives the app back after a few seconds, even if it never shows a heading', () => {
 		jest.useFakeTimers();
 		save( 'forms', '<div><h1>Forms</h1></div>' );
