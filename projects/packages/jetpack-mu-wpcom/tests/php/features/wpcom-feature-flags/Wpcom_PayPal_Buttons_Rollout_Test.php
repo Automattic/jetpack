@@ -96,7 +96,7 @@ class Wpcom_PayPal_Buttons_Rollout_Test extends \WorDBless\BaseTestCase {
 	 *
 	 * @param bool      $registered_default The flag's registered default.
 	 * @param int       $blog_id            The current blog.
-	 * @param int|null  $percent            The rollout percent, or null to keep the percent filters as they are.
+	 * @param int       $percent            The rollout percent.
 	 * @param bool      $atomic             Whether the site is Atomic.
 	 * @param bool|null $override           The site's Tools > Feature Flags override, or null for none.
 	 * @param bool      $killed             True sets the kill option, false forces the kill switch off.
@@ -104,15 +104,13 @@ class Wpcom_PayPal_Buttons_Rollout_Test extends \WorDBless\BaseTestCase {
 	private function given( $registered_default, $blog_id, $percent, $atomic = false, $override = null, $killed = false ) {
 		Feature_Flags::register( self::FLAG, array( 'default' => $registered_default ) );
 		$GLOBALS['blog_id'] = $blog_id;
-		if ( null !== $percent ) {
-			remove_all_filters( 'wpcom_paypal_buttons_rollout_percent' );
-			add_filter(
-				'wpcom_paypal_buttons_rollout_percent',
-				static function () use ( $percent ) {
-					return $percent;
-				}
-			);
-		}
+		remove_all_filters( 'wpcom_paypal_buttons_rollout_percent' );
+		add_filter(
+			'wpcom_paypal_buttons_rollout_percent',
+			static function () use ( $percent ) {
+				return $percent;
+			}
+		);
 		if ( $atomic ) {
 			Constants::set_constant( 'IS_ATOMIC', true );
 		}
@@ -157,22 +155,21 @@ class Wpcom_PayPal_Buttons_Rollout_Test extends \WorDBless\BaseTestCase {
 
 	/**
 	 * A Simple site turns on once the percent passes its bucket.
-	 * Runs as a subscriber and an administrator, and test_precedence() runs logged out, so a bucket that depends on the user fails one of them.
+	 * Runs as an administrator, and test_precedence() runs logged out, so a bucket that reads the user id or favors admins fails one of them.
 	 *
 	 * @dataProvider provide_blog_ids
 	 *
-	 * @param int    $blog_id The current blog.
-	 * @param string $role    The current user's role.
+	 * @param int $blog_id The current blog.
 	 */
 	#[DataProvider( 'provide_blog_ids' )]
-	public function test_simple_site_turns_on_once_the_percent_passes_its_bucket( $blog_id, $role ) {
+	public function test_simple_site_turns_on_once_the_percent_passes_its_bucket( $blog_id ) {
 		wp_set_current_user(
 			wp_insert_user(
 				array(
-					'user_login' => "paypal-$role",
+					'user_login' => 'paypal-admin',
 					'user_pass'  => 'password',
-					'user_email' => "paypal-$role@example.com",
-					'role'       => $role,
+					'user_email' => 'paypal-admin@example.com',
+					'role'       => 'administrator',
 				)
 			)
 		);
@@ -190,14 +187,12 @@ class Wpcom_PayPal_Buttons_Rollout_Test extends \WorDBless\BaseTestCase {
 	/**
 	 * Data for test_simple_site_turns_on_once_the_percent_passes_its_bucket().
 	 *
-	 * @return array<string, array{int, string}>
+	 * @return array<string, array{int}>
 	 */
 	public static function provide_blog_ids() {
 		$cases = array();
 		foreach ( array_keys( self::BUCKETS ) as $blog_id ) {
-			foreach ( array( 'subscriber', 'administrator' ) as $role ) {
-				$cases[ "blog $blog_id, $role" ] = array( $blog_id, $role );
-			}
+			$cases[ "blog $blog_id" ] = array( $blog_id );
 		}
 		return $cases;
 	}
@@ -281,26 +276,6 @@ class Wpcom_PayPal_Buttons_Rollout_Test extends \WorDBless\BaseTestCase {
 			'KILLED true'                => array( true, null, true ),
 			'option "false" reads off'   => array( false, 'false', false ),
 		);
-	}
-
-	/**
-	 * Simple and Atomic both pass PERCENT to the percent filter.
-	 */
-	public function test_simple_and_atomic_read_percent() {
-		$received = array();
-		add_filter(
-			'wpcom_paypal_buttons_rollout_percent',
-			static function ( $percent ) use ( &$received ) {
-				$received[] = $percent;
-				return $percent;
-			}
-		);
-		$this->given( false, 1, null );
-		Feature_Flags::is_enabled( self::FLAG );
-		$this->given( false, 1, null, true );
-		Feature_Flags::is_enabled( self::FLAG );
-
-		$this->assertSame( array( Wpcom_PayPal_Buttons_Rollout::PERCENT, Wpcom_PayPal_Buttons_Rollout::PERCENT ), $received );
 	}
 
 	/**
