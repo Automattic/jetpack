@@ -79,7 +79,7 @@ const CoverageRing: FC< RingProps > = ( { label, action, segment, total, need, o
 					donutWidth="112px"
 					thickness="4"
 				/>
-				<span className={ styles.pct } aria-hidden={ segment >= total }>
+				<span className={ styles.pct } aria-hidden={ segment >= total || undefined }>
 					<Text variant="heading-lg" className={ styles.pctValue }>
 						{ percent }
 					</Text>

@@ -8,8 +8,9 @@ import type { ReactElement, ReactNode } from 'react';
 // `--experimental-vm-modules` (true ESM): mock with `jest.unstable_mockModule`
 // and import the components under test dynamically after the mocks are registered.
 
+const useSearch = jest.fn< () => { focus?: string } >( () => ( {} ) );
 jest.unstable_mockModule( '@wordpress/route', () => ( {
-	useSearch: () => ( {} ),
+	useSearch,
 	Link: ( { children }: { children?: ReactNode } ) => <a href="#">{ children }</a>,
 } ) );
 
@@ -224,6 +225,19 @@ describe( 'Indexing toggle on an unpublished site', () => {
 			screen.queryByText( /Your site is (private|in Coming Soon)/i )
 		).not.toBeInTheDocument();
 		expect( visibilityLink() ).not.toBeInTheDocument();
+	} );
+} );
+
+describe( 'Overview deep link', () => {
+	it( 'moves keyboard focus to the linked section', async () => {
+		// eslint-disable-next-line jest/prefer-spy-on -- jsdom has no scrollIntoView to spy on.
+		Element.prototype.scrollIntoView = jest.fn();
+		useSearch.mockReturnValueOnce( { focus: 'visibility' } );
+		render( <SettingsScreen form={ buildForm() } /> );
+
+		await waitFor( () =>
+			expect( screen.getByRole( 'button', { name: /Site visibility/ } ) ).toHaveFocus()
+		);
 	} );
 } );
 

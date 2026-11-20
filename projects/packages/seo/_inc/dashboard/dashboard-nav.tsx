@@ -45,6 +45,7 @@ const DashboardNav = ( { active, children }: { active: SeoTab; children: ReactNo
 		}
 		const ownerDocument = root.ownerDocument;
 		const body = ownerDocument.body;
+		// Each route mounts its own nav, so the focus handoff lives on the body.
 		const previousFocus = body.dataset.jetpackSeoTabFocus;
 		delete body.dataset.jetpackSeoTabFocus;
 		let focusFrame = 0;
@@ -126,7 +127,14 @@ const DashboardNav = ( { active, children }: { active: SeoTab; children: ReactNo
 				</Tabs.List>
 			</div>
 			{ ( Object.keys( ROUTE_BY_TAB ) as SeoTab[] ).map( tab => (
-				<Tabs.Panel key={ tab } value={ tab } keepMounted className="jetpack-seo-tab-panel">
+				<Tabs.Panel
+					key={ tab }
+					value={ tab }
+					keepMounted
+					// Every panel starts with focusable content, so the panel is not a tab stop.
+					tabIndex={ -1 }
+					className="jetpack-seo-tab-panel"
+				>
 					{ active === tab && children }
 				</Tabs.Panel>
 			) ) }
