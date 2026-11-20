@@ -1,6 +1,8 @@
 /*
  * A progress bar in the content area while a dashboard boots, the same for every page. The shell
  * takes it down with the stand-in header, once the page's own heading renders.
+ * Plain DOM rather than @wordpress/ui's Progress: it must paint before any dashboard's React has
+ * loaded, and the shell bundles no React. It borrows Progress's tokens and styles instead.
  */
 import { log } from './debug';
 
@@ -11,6 +13,7 @@ const SHOW_AFTER = 120;
 const STYLE_ID = 'jetpack-admin-shell-loader-style';
 const BAR_WIDTH = 200;
 
+// Fallbacks are the tokens' defaults: the shell also runs on pages that don't load them.
 const LOADER_CSS = `
 .jetpack-admin-shell-loader {
 	margin: 0 !important;
@@ -23,21 +26,29 @@ const LOADER_CSS = `
 .jetpack-admin-shell-loader__track {
 	position: fixed;
 	z-index: 10;
-	block-size: 2px;
-	border-radius: 2px;
+	block-size: 1.5px;
+	border-radius: var(--wpds-border-radius-lg, 16px);
 	overflow: hidden;
-	background: color-mix(in srgb, #1e1e1e 8%, transparent);
+	background-color: var(--wpds-color-background-track-neutral, #dbdbdb);
 }
 .jetpack-admin-shell-loader__fill {
 	position: absolute;
 	inset: 0;
-	background: var(--wp-admin-theme-color, #3858e9);
-	opacity: 0.85;
+	border-radius: inherit;
+	background-color: var(--wpds-color-background-thumb-neutral, #1e1e1e);
 	transform-origin: left center;
 	transform: scaleX(var(--jetpack-admin-shell-progress, 0));
-	transition: transform 400ms cubic-bezier(.2,.7,.3,1);
+	transition: transform var(--wpds-motion-duration-xl, 400ms) ease-in-out;
 }
 [dir="rtl"] .jetpack-admin-shell-loader__fill { transform-origin: right center; }
+@media (prefers-reduced-motion: reduce) {
+	.jetpack-admin-shell-loader,
+	.jetpack-admin-shell-loader__fill { transition: none; }
+}
+@media (forced-colors: active) {
+	.jetpack-admin-shell-loader__track { outline: 1px solid CanvasText; outline-offset: 1px; }
+	.jetpack-admin-shell-loader__fill { background-color: CanvasText; }
+}
 `;
 
 const addStyle = () => {
