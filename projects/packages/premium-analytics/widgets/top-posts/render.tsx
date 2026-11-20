@@ -21,11 +21,12 @@ import {
 	getArchiveTypeLabel,
 	postsPagesCsvExporter,
 	safeHttpUrl,
+	toDay,
 	useWidgetDrillDown,
 	useWidgetNavigationSearch,
 	useWidgetRootContext,
 	type LeaderboardChartData,
-	type LeaderboardRowAction,
+	type LeaderboardRowActionWithTrailing,
 	type ReportParamsFieldAttributes,
 	useReportActions,
 } from '@jetpack-premium-analytics/widgets-toolkit';
@@ -94,7 +95,7 @@ function resolveRowAction(
 	row: TopPostRow,
 	detailSearch: Record< string, unknown >,
 	onDrillDown?: ( row: TopPostRow ) => void
-): LeaderboardRowAction {
+): LeaderboardRowActionWithTrailing {
 	if ( ! row.children?.length ) {
 		return { kind: 'postLink', id: row.postId, href: row.href, search: detailSearch };
 	}
@@ -190,15 +191,15 @@ export const TopPostsLeaderboard = ( {
 
 /**
  * Whether a post date, as the API sends it (`YYYY-MM-DD HH:MM:SS`, site time), falls on
- * a day of the window, both ends included. The homepage and archive rows have none.
+ * a day of the window, both ends included. The window's ends arrive as ISO timestamps,
+ * so all three are cut to their day first. The homepage and archive rows have no date.
  */
 function isPublishedWithin( date: unknown, { from, to }: Pick< ReportParams, 'from' | 'to' > ) {
-	if ( typeof date !== 'string' || date.length < 10 ) {
-		return false;
-	}
+	const day = typeof date === 'string' ? toDay( date ) : undefined;
+	const firstDay = toDay( from );
+	const lastDay = toDay( to );
 
-	const day = date.slice( 0, 10 );
-	return day >= from && day <= to;
+	return !! day && !! firstDay && !! lastDay && day >= firstDay && day <= lastDay;
 }
 
 /**

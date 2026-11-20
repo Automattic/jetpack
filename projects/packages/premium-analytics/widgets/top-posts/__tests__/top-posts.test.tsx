@@ -104,20 +104,48 @@ describe( 'TopPostsWidget', () => {
 						type: 'post',
 						views: 3,
 					},
+					{
+						id: 4,
+						href: 'https://example.com/last-day/',
+						date: '2026-06-10 23:59:59',
+						title: 'Last Day Post',
+						type: 'post',
+						views: 2,
+					},
+					{
+						id: 5,
+						href: 'https://example.com/next-day/',
+						date: '2026-06-11 00:00:00',
+						title: 'Next Day Post',
+						type: 'post',
+						views: 1,
+					},
 				],
 			},
 		} );
+		// The dashboard sends the window's ends as timestamps, not days.
 		render(
-			<TopPostsWidget attributes={ { reportParams: { from: '2026-06-01', to: '2026-06-10' } } } />
+			<TopPostsWidget
+				attributes={ {
+					reportParams: {
+						from: '2026-06-01T00:00:00.000+00:00',
+						to: '2026-06-10T00:00:00.000+00:00',
+					},
+				} }
+			/>
 		);
 
-		// Hello World went live on the window's first day; Older Post the day before, and
-		// the About page carries no date.
+		// Hello World went live on the first day and Last Day Post on the last; Older Post
+		// and Next Day Post fall just outside, and the About page carries no date.
 		const marks = await screen.findAllByRole( 'img', { name: 'Published in this period' } );
-		expect( marks ).toHaveLength( 1 );
+		expect( marks ).toHaveLength( 2 );
 		// eslint-disable-next-line testing-library/no-node-access -- The row wrapper has no accessible query target.
-		expect( marks[ 0 ].parentElement ).toContainElement(
+		const markedRows = marks.map( mark => mark.parentElement );
+		expect( markedRows[ 0 ] ).toContainElement(
 			screen.getByRole( 'link', { name: /^Hello World Post$/ } )
+		);
+		expect( markedRows[ 1 ] ).toContainElement(
+			screen.getByRole( 'link', { name: /^Last Day Post$/ } )
 		);
 	} );
 

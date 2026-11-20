@@ -60,6 +60,7 @@ export {
 	resolveLeaderboardRowAction,
 	type LeaderboardRowAction,
 	type LeaderboardRowActionOptions,
+	type LeaderboardRowActionWithTrailing,
 	type LeaderboardRowChartProps,
 	type LeaderboardRowMedia,
 	type LeaderboardRowProps,

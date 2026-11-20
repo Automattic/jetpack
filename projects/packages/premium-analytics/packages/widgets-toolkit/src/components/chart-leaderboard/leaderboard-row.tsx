@@ -98,11 +98,6 @@ export type LeaderboardRowProps = {
 	media: LeaderboardRowMedia;
 	/** The look of the chart the row sits in. Only `list` insets the label and sizes the bar. */
 	variant?: LeaderboardVariant;
-	/**
-	 * Names a mark drawn at the row's start, e.g. "Published in this period". It sits
-	 * beside the label's own control, so the control keeps its name.
-	 */
-	indicator?: string;
 } & (
 	| {
 			/** The mutually exclusive action applied to this chart row. */
@@ -112,11 +107,17 @@ export type LeaderboardRowProps = {
 			 * "View" action when there is one).
 			 */
 			trailingAction?: ReactElement;
+			/**
+			 * Names a mark drawn at the row's start, e.g. "Published in this period". It sits
+			 * beside the label's own control, so the control keeps its name.
+			 */
+			indicator?: string;
 	  }
 	| {
 			/** Any action; a row that links out as a whole has no room for another. */
 			action: LeaderboardRowAction;
 			trailingAction?: never;
+			indicator?: never;
 	  }
 );
 
@@ -277,7 +278,6 @@ export function LeaderboardRow( {
 	if ( action.kind === 'link' ) {
 		return (
 			<ExternalLink className={ rowLinkClassName } href={ action.href } title={ label }>
-				{ mark }
 				{ content }
 			</ExternalLink>
 		);
