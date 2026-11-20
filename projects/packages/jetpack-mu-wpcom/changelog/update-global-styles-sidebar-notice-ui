@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Global Styles: Use design system components for the premium styles notice in the site editor sidebar, so it reads better on the dark sidebar and wraps on narrow screens.
