@@ -72,7 +72,12 @@ if ( studioSync && data.wpcomBlogId ) {
 
 	// The notice must stay up: navigating away dismisses Chrome's "Open Studio?" prompt.
 	const container = document.createElement( 'div' );
-	document.querySelector( '#wpbody-content .wrap > h1' )?.after( container );
+	const heading = document.querySelector( '#wpbody-content .wrap > h1' );
+	if ( heading ) {
+		heading.after( container );
+	} else {
+		document.getElementById( 'wpbody-content' )?.prepend( container );
+	}
 	createRoot( container ).render(
 		<div className="notice notice-info">
 			<p>
