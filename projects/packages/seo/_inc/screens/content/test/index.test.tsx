@@ -1,19 +1,22 @@
 import '@testing-library/jest-dom';
 import { jest } from '@jest/globals';
-import { render } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import type { View } from '@wordpress/dataviews';
+import type { ReactNode } from 'react';
 
 // `--experimental-vm-modules` (true ESM): mock with `jest.unstable_mockModule`
 // and import the component under test dynamically after the mocks are registered.
 // DataViews is stubbed to capture the props the screen hands it, so we can assert
 // the initial view/fields without rendering the (heavy) real grid.
 let capturedView: View | undefined;
-let capturedFields: Array< { id: string } > = [];
+let capturedFields: Array< { id: string; render?: ( props: { item: object } ) => ReactNode } > = [];
+let changeView: ( view: View ) => void;
 
-const useSearch = jest.fn< () => { needs?: string } >();
+const navigate = jest.fn();
+const useSearch = jest.fn< () => { needs?: string; postId?: number; postType?: string } >();
 
 jest.unstable_mockModule( '@wordpress/route', () => ( {
-	useNavigate: () => jest.fn(),
+	useNavigate: () => navigate,
 	useSearch,
 } ) );
 
@@ -26,9 +29,14 @@ jest.unstable_mockModule( '../../../data/use-seo-posts', () => ( {
 } ) );
 
 jest.unstable_mockModule( '@wordpress/dataviews', () => ( {
-	DataViews: ( props: { view: View; fields: Array< { id: string } > } ) => {
+	DataViews: ( props: {
+		view: View;
+		fields: typeof capturedFields;
+		onChangeView: typeof changeView;
+	} ) => {
 		capturedView = props.view;
 		capturedFields = props.fields;
+		changeView = props.onChangeView;
 		return null;
 	},
 	filterSortAndPaginate: () => ( {
@@ -100,5 +108,37 @@ describe( 'ContentScreen — ?needs= deep-link seeding', () => {
 		render( <ContentScreen /> );
 
 		expect( capturedFields.some( field => field.id === 'titleFilter' ) ).toBe( true );
+	} );
+
+	it( 'opens the editor from a post-specific button without dropping the current filter', () => {
+		useSearch.mockReturnValue( { needs: 'title' } );
+		render( <ContentScreen /> );
+		const editAction = capturedFields.find( field => field.id === 'editAction' );
+		render( <>{ editAction?.render?.( { item: { id: 5, type: 'page', title: 'Hello' } } ) }</> );
+
+		// eslint-disable-next-line testing-library/prefer-user-event -- No user-event devDep for one click.
+		fireEvent.click( screen.getByRole( 'button', { name: 'Edit SEO for Hello' } ) );
+
+		expect( navigate ).toHaveBeenCalledWith( {
+			to: '/content',
+			search: { needs: 'title', postId: 5, postType: 'page' },
+		} );
+	} );
+
+	it( 'clears the deep-link query when its filter is removed with the inspector open', () => {
+		useSearch.mockReturnValue( { needs: 'title', postId: 5, postType: 'page' } );
+		render( <ContentScreen /> );
+		const view = capturedView as View;
+
+		act( () => changeView( { ...view, page: 2 } ) );
+		expect( navigate ).not.toHaveBeenCalled();
+
+		act( () => changeView( { ...view, filters: [] } ) );
+		expect( navigate ).toHaveBeenCalledWith( {
+			to: '/content',
+			search: { needs: undefined, postId: 5, postType: 'page' },
+			replace: true,
+			resetScroll: false,
+		} );
 	} );
 } );

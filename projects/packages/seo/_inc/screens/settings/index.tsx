@@ -125,7 +125,8 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 	const isSaving = formSaving || sharingSaving;
 
 	// Overview deep links (`?focus=visibility|verification`) scroll the matching
-	// section to its top. `scroll-margin-block-start` on the section's module clears
+	// section to its top and focus its header, so the next Tab continues from there.
+	// `scroll-margin-block-start` on the section's module clears
 	// the fixed header + sticky tabs so the section title stays visible.
 	// Bound to the Settings route id (`/settings`); the screen only renders there.
 	const search = useSearch( {
@@ -138,7 +139,9 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 			return;
 		}
 		const frame = requestAnimationFrame( () => {
-			document.getElementById( focus )?.scrollIntoView( { block: 'start' } );
+			const section = document.getElementById( focus );
+			section?.scrollIntoView( { block: 'start' } );
+			section?.querySelector< HTMLElement >( '[aria-expanded]' )?.focus( { preventScroll: true } );
 		} );
 		return () => cancelAnimationFrame( frame );
 	}, [ focus ] );

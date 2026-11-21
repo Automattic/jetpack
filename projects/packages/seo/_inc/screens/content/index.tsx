@@ -1,6 +1,6 @@
 import { DataViews, filterSortAndPaginate } from '@wordpress/dataviews';
 import { useCallback, useMemo, useState } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { pencil } from '@wordpress/icons';
 import { useNavigate, useSearch } from '@wordpress/route';
 import { Badge, IconButton, Link } from '@wordpress/ui';
@@ -93,7 +93,12 @@ const EditButton: FC< EditButtonProps > = ( { item, onEdit } ) => {
 	return (
 		<IconButton
 			icon={ pencil }
-			label={ editSeoLabel }
+			label={ sprintf(
+				/* translators: %s: post title. */
+				__( 'Edit SEO for %s', 'jetpack-seo' ),
+				item.title || noTitleLabel
+			) }
+			data-jetpack-seo-edit-post={ item.id }
 			size="small"
 			variant="minimal"
 			tone="neutral"
@@ -151,9 +156,10 @@ const ContentScreen: FC = () => {
 	const onEdit = useCallback(
 		( item: ContentRow ) =>
 			navigate( {
-				href: `/content?postId=${ item.id }&postType=${ encodeURIComponent( item.type ) }`,
+				to: '/content',
+				search: { ...search, postId: item.id, postType: item.type } as never,
 			} ),
-		[ navigate ]
+		[ navigate, search ]
 	);
 
 	const fields: Field< ContentRow >[] = useMemo(
@@ -300,11 +306,32 @@ const ContentScreen: FC = () => {
 		[ items, view, fields ]
 	);
 
-	const onChangeView = useCallback( ( next: View ) => setView( next ), [] );
+	const onChangeView = useCallback(
+		( next: View ) => {
+			setView( next );
+			const filter = needsToFilter( search.needs );
+			if (
+				filter &&
+				! next.filters?.some(
+					( { field, operator, value } ) =>
+						field === filter.field && operator === filter.operator && value === filter.value
+				)
+			) {
+				navigate( {
+					to: '/content',
+					search: { ...search, needs: undefined } as never,
+					replace: true,
+					resetScroll: false,
+				} );
+			}
+		},
+		[ navigate, search ]
+	);
 	const getItemId = useCallback( ( item: ContentRow ) => String( item.id ), [] );
 
 	return (
 		<div className={ styles.root }>
+			<h2 className="screen-reader-text">{ __( 'Content SEO', 'jetpack-seo' ) }</h2>
 			<DataViews
 				data={ data }
 				fields={ fields as Field< unknown >[] }

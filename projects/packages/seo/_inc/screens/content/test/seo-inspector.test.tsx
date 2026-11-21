@@ -1,6 +1,7 @@
 import '@testing-library/jest-dom';
 import { jest } from '@jest/globals';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { useState } from 'react';
 import type { ReactNode } from 'react';
 
 // True-ESM Jest: register mocks, then import the inspector. Only the data/REST edges
@@ -32,7 +33,12 @@ jest.unstable_mockModule( '../../../data/coverage-store', () => ( {
 	coverageStore: 'seo/coverage',
 } ) );
 jest.unstable_mockModule( '@wordpress/admin-ui', () => ( {
-	Page: ( { children }: { children: ReactNode } ) => <div>{ children }</div>,
+	Page: ( { actions, children }: { actions?: ReactNode; children: ReactNode } ) => (
+		<div>
+			{ actions }
+			{ children }
+		</div>
+	),
 } ) );
 jest.unstable_mockModule( '@automattic/jetpack-components/sidebar-footer', () => ( {
 	default: ( { children }: { children: ReactNode } ) => <div>{ children }</div>,
@@ -152,4 +158,38 @@ describe( 'SeoInspector — Always include in llms.txt', () => {
 			expect( mockApiFetch ).not.toHaveBeenCalled();
 		}
 	);
+} );
+
+describe( 'SeoInspector — focus', () => {
+	const Harness = ( { open, row }: { open: boolean; row: boolean } ) => {
+		const [ frame, setFrame ] = useState< HTMLDivElement | null >( null );
+		return (
+			<>
+				<button id="jetpack-seo-tab-content">Content</button>
+				{ row && <button data-jetpack-seo-edit-post="1">Edit</button> }
+				{ open && (
+					<div ref={ setFrame }>
+						{ frame && (
+							<SeoInspector frame={ frame } postId={ 1 } postType="post" onClose={ jest.fn() } />
+						) }
+					</div>
+				) }
+			</>
+		);
+	};
+
+	it.each( [
+		[ 'the row that opened it', true, 'Edit' ],
+		[ 'the Content tab when the row is gone', false, 'Content' ],
+	] )( 'takes focus on open and returns it to %s on close', async ( _, row, target ) => {
+		meta = {};
+		const { rerender } = render( <Harness open={ false } row /> );
+		act( () => screen.getByRole( 'button', { name: 'Edit' } ).focus() );
+
+		rerender( <Harness open row /> );
+		expect( screen.getByRole( 'button', { name: 'Close SEO editor' } ) ).toHaveFocus();
+
+		rerender( <Harness open={ false } row={ row } /> );
+		await waitFor( () => expect( screen.getByRole( 'button', { name: target } ) ).toHaveFocus() );
+	} );
 } );

@@ -613,6 +613,7 @@ const GeoScreen: FC< Props > = ( { form, searchEnginesVisible } ) => {
 					</CollapsibleCard.Header>
 					<CollapsibleCard.Content>
 						<SwitchControl
+							className="jetpack-seo-geo__enhancer-switch"
 							label={ __(
 								'Automatically generate SEO title, SEO description, and image alt text for new posts',
 								'jetpack-seo'
