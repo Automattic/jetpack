@@ -9,6 +9,7 @@ export type BusyAction = 'primary' | 'skip';
 
 interface Props {
 	task: EnrichedTask;
+	usePublishCopy: boolean;
 	busyAction: BusyAction | null;
 	isLocked: boolean;
 	canStart: boolean;
@@ -37,7 +38,7 @@ interface Props {
  * Thunks rather than plain strings, so each `__()` still runs at render time — a module-scope call
  * would resolve before the locale data is in place.
  */
-const CTA_KIND_LABELS: Record< CtaKind, () => string > = {
+const CTA_KIND_LABELS: Record< CtaKind, ( usePublishCopy: boolean ) => string > = {
 	first_post: () => __( 'Write post', 'jetpack-mu-wpcom' ),
 	about_page: () => __( 'Add page', 'jetpack-mu-wpcom' ),
 	gallery_page: () => __( 'Create gallery', 'jetpack-mu-wpcom' ),
@@ -45,7 +46,13 @@ const CTA_KIND_LABELS: Record< CtaKind, () => string > = {
 	events_page: () => __( 'Add events page', 'jetpack-mu-wpcom' ),
 	video_page: () => __( 'Add video page', 'jetpack-mu-wpcom' ),
 	portfolio_piece: () => __( 'Add portfolio piece', 'jetpack-mu-wpcom' ),
-	launch: () => __( 'Launch site', 'jetpack-mu-wpcom' ),
+	launch: usePublishCopy => {
+		// Separate __() calls: terser folds `cond ? __( a ) : __( b )` into `__( cond ? a : b )`,
+		// which i18n-check-webpack-plugin rejects.
+		const launchLabel = __( 'Launch site', 'jetpack-mu-wpcom' );
+		const publishLabel = __( 'Publish site', 'jetpack-mu-wpcom' );
+		return usePublishCopy ? publishLabel : launchLabel;
+	},
 	deeplink: () => __( 'Get started', 'jetpack-mu-wpcom' ),
 };
 
@@ -53,11 +60,12 @@ const CTA_KIND_LABELS: Record< CtaKind, () => string > = {
  * Resolve the action-specific label for a task's primary CTA, keyed first by task
  * id then by {@link ctaKind}.
  *
- * @param taskId     - The catalog task id.
- * @param inProgress - Whether the task has a saved-but-unpublished draft.
+ * @param taskId         - The catalog task id.
+ * @param inProgress     - Whether the task has a saved-but-unpublished draft.
+ * @param usePublishCopy - Whether the launch CTA says "Publish" instead of "Launch".
  * @return The translated CTA label.
  */
-function getCtaLabel( taskId: string, inProgress: boolean ): string {
+function getCtaLabel( taskId: string, inProgress: boolean, usePublishCopy: boolean ): string {
 	// The install task's in-progress state means "installed but inactive", so its CTA activates the plugin rather
 	// than resuming a draft.
 	if ( inProgress && taskId === 'install_woocommerce' ) {
@@ -95,7 +103,7 @@ function getCtaLabel( taskId: string, inProgress: boolean ): string {
 			return __( 'Add subscribers', 'jetpack-mu-wpcom' );
 	}
 
-	return CTA_KIND_LABELS[ ctaKind( taskId ) ]();
+	return CTA_KIND_LABELS[ ctaKind( taskId ) ]( usePublishCopy );
 }
 
 /**
@@ -106,6 +114,7 @@ function getCtaLabel( taskId: string, inProgress: boolean ): string {
  *
  * @param props                  - The component props.
  * @param props.task             - The enriched task to render.
+ * @param props.usePublishCopy   - Whether the launch CTA says "Publish" instead of "Launch".
  * @param props.busyAction       - Which of this card's actions is in flight, or null; the
  *                               matching button shows the spinner.
  * @param props.isLocked         - Whether any card's action is in flight; disables all
@@ -125,6 +134,7 @@ function getCtaLabel( taskId: string, inProgress: boolean ): string {
  */
 export function TaskCard( {
 	task,
+	usePublishCopy,
 	busyAction,
 	isLocked,
 	canStart,
@@ -220,7 +230,7 @@ export function TaskCard( {
 							loading={ busyAction === 'primary' }
 							disabled={ isLocked }
 						>
-							{ getCtaLabel( task.id, task.in_progress ) }
+							{ getCtaLabel( task.id, task.in_progress, usePublishCopy ) }
 						</Button>
 					) }
 					{ ! canStart && canMarkComplete && (

@@ -242,6 +242,25 @@ class Write_Post_Publish_Checklist_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * In the treatment of the copy experiment, the launch task says "Publish".
+	 */
+	public function test_post_publish_checklist_says_publish_in_the_treatment() {
+		add_filter( 'wpcom_site_launch_publish_copy_override_is_treatment', '__return_true' );
+		wp_set_current_user( $this->admin_id );
+		update_option( 'wpcom_public_coming_soon', 1 );
+		$this->go_to_singular_post();
+		$_GET[ WPCOM_WRITE_PUBLISHED_MARKER ] = '1';
+
+		ob_start();
+		wpcom_write_render_post_publish_checklist();
+		$html = ob_get_clean();
+		remove_all_filters( 'wpcom_site_launch_publish_copy_override_is_treatment' );
+
+		$this->assertStringContainsString( 'Publish your site', $html );
+		$this->assertStringNotContainsString( 'Launch your site', $html );
+	}
+
+	/**
 	 * The overlay assets should be enqueued when the checklist is eligible to show.
 	 */
 	public function test_post_publish_checklist_enqueues_assets_when_eligible() {
