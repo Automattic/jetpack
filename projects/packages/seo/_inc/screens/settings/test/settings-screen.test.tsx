@@ -193,6 +193,10 @@ describe( 'Jetpack SEO output paused', () => {
 } );
 
 describe( 'Indexing toggle on an unpublished site', () => {
+	afterEach( () => {
+		jest.useRealTimers();
+	} );
+
 	const indexingToggle = () =>
 		screen.getByRole( 'checkbox', { name: /Allow search engines to index this site/i } );
 
@@ -215,6 +219,30 @@ describe( 'Indexing toggle on an unpublished site', () => {
 		expect( indexingToggle() ).toHaveAccessibleDescription( help );
 		expect( visibilityLink() ).toHaveAttribute( 'href', visibilityUrl );
 		expect( statusFor( 'Site visibility' ) ).toBeUndefined();
+	} );
+
+	it.each( [
+		[ 'shows', true ],
+		[ 'hides', false ],
+	] )( '%s the managed-elsewhere tooltip on hover', ( _, locked ) => {
+		jest.useFakeTimers();
+		render( <SettingsScreen form={ buildForm( { site_is_private: locked } ) } /> );
+
+		// A real pointer enters the toggle's wrapper on its way in and rests there.
+		// eslint-disable-next-line testing-library/no-node-access -- the tooltip wrapper has no role or name.
+		const wrapper = indexingToggle().closest(
+			'[data-base-ui-tooltip-trigger], [data-trigger-disabled]'
+		) as Element;
+		/* eslint-disable testing-library/prefer-user-event -- Match the package's existing interaction tests without adding a dependency. */
+		fireEvent.pointerMove( wrapper, { pointerType: 'mouse' } );
+		fireEvent.mouseEnter( wrapper );
+		fireEvent.mouseMove( wrapper );
+		/* eslint-enable testing-library/prefer-user-event */
+		act( () => jest.runAllTimers() );
+
+		expect( Boolean( screen.queryByText( 'Managed in your site visibility settings' ) ) ).toBe(
+			locked
+		);
 	} );
 
 	it( 'is enabled with the usual help text on a public site', () => {

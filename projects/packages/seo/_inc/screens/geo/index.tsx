@@ -11,6 +11,7 @@ import {
 	Stack,
 	SwitchControl,
 	Text,
+	Tooltip,
 } from '@wordpress/ui';
 import CardTitleIcon from '../../components/card-title-icon';
 import PausedNote from '../../components/paused-note';
@@ -57,6 +58,10 @@ const allowedLabel = __( 'Allowed', 'jetpack-seo' );
 const blockedLabel = __( 'Blocked', 'jetpack-seo' );
 const partlyBlockedLabel = __( 'Partly blocked', 'jetpack-seo' );
 const crawlerAccessTitle = __( 'AI crawler access', 'jetpack-seo' );
+const managedByPrivacyTooltip = __(
+	'Set by your privacy settings while third-party sharing is turned off.',
+	'jetpack-seo'
+);
 
 /**
  * The card that stands in for the crawler groups when site-level controls can't
@@ -81,10 +86,32 @@ const CrawlerAccessCard: FC< { children: ReactNode } > = ( { children } ) => (
 	</CollapsibleCard.Root>
 );
 
+/**
+ * Explains a disabled toggle on hover when another setting decides its state.
+ *
+ * @param props          - Component props.
+ * @param props.reason   - Why the toggle is locked; renders the toggle alone when absent.
+ * @param props.children - The toggle.
+ * @return The toggle, wrapped in a tooltip when locked.
+ */
+const LockedTooltip: FC< { reason?: string; children: ReactNode } > = ( { reason, children } ) => {
+	if ( ! reason ) {
+		return <>{ children }</>;
+	}
+	// A div trigger, because a disabled input gets no hover events of its own.
+	return (
+		<Tooltip.Root>
+			<Tooltip.Trigger render={ <div /> }>{ children }</Tooltip.Trigger>
+			<Tooltip.Popup>{ reason }</Tooltip.Popup>
+		</Tooltip.Root>
+	);
+};
+
 interface CrawlerToggleProps {
 	crawler: AiCrawler;
 	blocked: boolean;
 	disabled: boolean;
+	lockedReason?: string;
 	onToggle: ( slug: string, blocked: boolean ) => void;
 }
 
@@ -92,31 +119,40 @@ interface CrawlerToggleProps {
  * A single "Block this crawler" toggle: on means blocked. Extracted so its change
  * handler is a stable callback bound to the crawler's slug.
  *
- * @param props          - Component props.
- * @param props.crawler  - The crawler this row represents.
- * @param props.blocked  - Whether the crawler is currently blocked.
- * @param props.disabled - Whether the toggle is disabled.
- * @param props.onToggle - Called with `(slug, blocked)` on change.
+ * @param props              - Component props.
+ * @param props.crawler      - The crawler this row represents.
+ * @param props.blocked      - Whether the crawler is currently blocked.
+ * @param props.disabled     - Whether the toggle is disabled.
+ * @param props.lockedReason - Tooltip text when another setting decides the state.
+ * @param props.onToggle     - Called with `(slug, blocked)` on change.
  * @return The crawler toggle.
  */
-const CrawlerToggle: FC< CrawlerToggleProps > = ( { crawler, blocked, disabled, onToggle } ) => {
+const CrawlerToggle: FC< CrawlerToggleProps > = ( {
+	crawler,
+	blocked,
+	disabled,
+	lockedReason,
+	onToggle,
+} ) => {
 	const handleChange = useCallback(
 		( next: boolean ) => onToggle( crawler.slug, next ),
 		[ crawler.slug, onToggle ]
 	);
 
 	return (
-		<SwitchControl
-			label={ sprintf(
-				/* translators: %s: AI crawler name, e.g. "ChatGPT". */
-				__( 'Block %s', 'jetpack-seo' ),
-				crawler.label
-			) }
-			description={ crawler.userAgents.join( ', ' ) }
-			checked={ blocked }
-			onCheckedChange={ handleChange }
-			disabled={ disabled }
-		/>
+		<LockedTooltip reason={ lockedReason }>
+			<SwitchControl
+				label={ sprintf(
+					/* translators: %s: AI crawler name, e.g. "ChatGPT". */
+					__( 'Block %s', 'jetpack-seo' ),
+					crawler.label
+				) }
+				description={ crawler.userAgents.join( ', ' ) }
+				checked={ blocked }
+				onCheckedChange={ handleChange }
+				disabled={ disabled }
+			/>
+		</LockedTooltip>
 	);
 };
 
@@ -130,6 +166,8 @@ interface CrawlerSectionProps {
 	/** The slugs blocked right now. */
 	blockedSlugs: string[];
 	disabled: boolean;
+	/** Tooltip text for the disabled toggles when another setting decides their state. */
+	lockedReason?: string;
 	onToggle: ( slug: string, blocked: boolean ) => void;
 	onToggleAll: ( type: AiCrawler[ 'type' ], blocked: boolean ) => void;
 	/** The site's `/robots.txt` URL, linked under the description. */
@@ -152,6 +190,7 @@ interface CrawlerSectionProps {
  * @param props.type         - The crawler group's type.
  * @param props.blockedSlugs - The slugs blocked right now.
  * @param props.disabled     - Whether toggles are disabled.
+ * @param props.lockedReason - Tooltip text when another setting decides the toggles' state.
  * @param props.onToggle     - Called with `(slug, blocked)` on a single toggle.
  * @param props.onToggleAll  - Called with `(type, blocked)` on the "Block all" toggle.
  * @param props.robotsTxtUrl - The site's `/robots.txt` URL, linked under the description.
@@ -166,6 +205,7 @@ const CrawlerSection: FC< CrawlerSectionProps > = ( {
 	type,
 	blockedSlugs,
 	disabled,
+	lockedReason,
 	onToggle,
 	onToggleAll,
 	robotsTxtUrl,
@@ -253,12 +293,14 @@ const CrawlerSection: FC< CrawlerSectionProps > = ( {
 						aria-describedby={ introId }
 					>
 						<div className="jetpack-seo-geo__crawler-bulk">
-							<SwitchControl
-								label={ __( 'Block all', 'jetpack-seo' ) }
-								checked={ allBlocked }
-								onCheckedChange={ handleToggleAll }
-								disabled={ disabled }
-							/>
+							<LockedTooltip reason={ lockedReason }>
+								<SwitchControl
+									label={ __( 'Block all', 'jetpack-seo' ) }
+									checked={ allBlocked }
+									onCheckedChange={ handleToggleAll }
+									disabled={ disabled }
+								/>
+							</LockedTooltip>
 						</div>
 						{ crawlers.map( crawler => (
 							<CrawlerToggle
@@ -266,6 +308,7 @@ const CrawlerSection: FC< CrawlerSectionProps > = ( {
 								crawler={ crawler }
 								blocked={ isBlocked( crawler ) }
 								disabled={ disabled }
+								lockedReason={ lockedReason }
 								onToggle={ onToggle }
 							/>
 						) ) }
@@ -407,6 +450,7 @@ const GeoScreen: FC< Props > = ( { form, searchEnginesVisible } ) => {
 			: crawlers.catalog
 					.filter( crawler => isCrawlerBlocked( crawlers.blocked, crawler ) )
 					.map( crawler => crawler.slug );
+		const lockedReason = managedByPrivacySetting ? managedByPrivacyTooltip : undefined;
 		const privacyNotice = managedByPrivacySetting ? (
 			<Notice.Root intent="info" className="jetpack-seo-geo__crawler-notice">
 				<Notice.Description>
@@ -436,6 +480,7 @@ const GeoScreen: FC< Props > = ( { form, searchEnginesVisible } ) => {
 					type="answer"
 					blockedSlugs={ blockedSlugs }
 					disabled={ isSaving || managedByPrivacySetting }
+					lockedReason={ lockedReason }
 					onToggle={ setCrawlerBlocked }
 					onToggleAll={ setCrawlerGroupBlocked }
 					robotsTxtUrl={ crawlers.robotsTxtUrl }
@@ -452,6 +497,7 @@ const GeoScreen: FC< Props > = ( { form, searchEnginesVisible } ) => {
 					type="training"
 					blockedSlugs={ blockedSlugs }
 					disabled={ isSaving || managedByPrivacySetting }
+					lockedReason={ lockedReason }
 					onToggle={ setCrawlerBlocked }
 					onToggleAll={ setCrawlerGroupBlocked }
 					robotsTxtUrl={ crawlers.robotsTxtUrl }
