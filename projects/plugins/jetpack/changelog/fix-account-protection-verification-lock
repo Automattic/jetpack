@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Account Protection: Accept the correct login verification code on sites whose database cannot store the verification lock.
