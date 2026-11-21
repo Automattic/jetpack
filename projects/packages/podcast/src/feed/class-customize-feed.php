@@ -11,6 +11,7 @@ declare( strict_types = 1 );
 namespace Automattic\Jetpack\Podcast\Feed;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Podcast\Episode_Query;
 use Automattic\Jetpack\Podcast\Settings;
 use WP_Post;
 
@@ -64,15 +65,10 @@ class Customize_Feed {
 		// they're registered up-front and self-gated to the podcast feed query,
 		// rather than wired conditionally in `maybe_register_feed_hooks`.
 		//
-		// `posts_where` constrains the SQL itself so LIMIT/OFFSET paginate over
-		// episodes that actually have an enclosure; `the_posts` is a cheap final
-		// guard for the rare row the SQL constraint can't reach.
-		//
 		// `pre_get_posts` runs last so the gate reads the category every other
 		// callback has finished rewriting — and so `get_queried_object()` doesn't
-		// memoize a term ahead of them, which `posts_where` would then inherit.
-		add_action( 'pre_get_posts', array( __CLASS__, 'apply_feed_limit' ), PHP_INT_MAX );
-		add_filter( 'posts_where', array( __CLASS__, 'constrain_feed_query' ), 10, 2 );
+		// memoize a term ahead of them.
+		add_action( 'pre_get_posts', array( __CLASS__, 'configure_feed_query' ), PHP_INT_MAX );
 		add_filter( 'the_posts', array( __CLASS__, 'filter_posts_with_enclosure' ), 10, 2 );
 	}
 
@@ -398,51 +394,20 @@ class Customize_Feed {
 	}
 
 	/**
-	 * Cap the podcast feed at the configured number of episodes. Core reads the
-	 * `posts_per_rss` *query var* before the site option of the same name, so the
-	 * podcast feed gets its own length and every other feed keeps the site's.
+	 * Cap the podcast feed at the configured number of episodes and keep it to
+	 * posts with an enclosure, so `LIMIT`/`OFFSET` paginate over real episodes.
+	 * Core reads the `posts_per_rss` query var before the site option of the
+	 * same name, so every other feed keeps the site's length.
 	 *
 	 * @param \WP_Query $query Query about to run.
 	 */
-	public static function apply_feed_limit( $query ) {
+	public static function configure_feed_query( $query ) {
 		if ( ! self::is_podcast_feed_query( $query ) ) {
 			return;
 		}
 
 		$query->set( 'posts_per_rss', Settings::feed_limit() );
-	}
-
-	/**
-	 * Constrain the podcast feed's main query to episodes that carry an
-	 * `enclosure` meta row, so the SQL `LIMIT`/`OFFSET` paginate over valid
-	 * episodes only. Without this the enclosure filter runs on `the_posts` —
-	 * after pagination — so a nominal ten-item page could come back short or
-	 * empty while older valid episodes sit stranded on later pages.
-	 *
-	 * A correlated `EXISTS` subquery (semi-join) is used rather than a
-	 * `meta_query` clause on purpose: episodes routinely accumulate several
-	 * `enclosure` meta rows (see {@see self::rewrite_enclosure()}), and a
-	 * single-clause `meta_query` INNER JOIN would multiply those into duplicate
-	 * posts, breaking the `LIMIT` count all over again.
-	 *
-	 * @param string    $where The `WHERE` clause of the query.
-	 * @param \WP_Query $query Query about to run.
-	 * @return string
-	 */
-	public static function constrain_feed_query( $where, $query ) {
-		if ( ! self::is_podcast_feed_query( $query ) ) {
-			return $where;
-		}
-
-		global $wpdb;
-
-		// Table names come from `$wpdb`; `meta_key` runs through `prepare()`.
-		$where .= $wpdb->prepare(
-			" AND EXISTS ( SELECT 1 FROM {$wpdb->postmeta} WHERE {$wpdb->postmeta}.post_id = {$wpdb->posts}.ID AND {$wpdb->postmeta}.meta_key = %s )",
-			'enclosure'
-		);
-
-		return $where;
+		$query->set( Episode_Query::QUERY_VAR, true );
 	}
 
 	/**
@@ -450,8 +415,8 @@ class Customize_Feed {
 	 * take down the whole submission. The `enclosure` post meta is what
 	 * `rss_enclosure()` reads, so it's the authoritative signal here too.
 	 *
-	 * The SQL constraint in {@see self::constrain_feed_query()} already excludes
-	 * these at query time; this stays as a cheap final guard.
+	 * {@see Episode_Query} already excludes these at query time; this stays as
+	 * a cheap final guard.
 	 *
 	 * Doubles as the warm-up point for the render: this is the first hook that
 	 * sees the whole page of episodes, so {@see Episode_Media_Cache::prime()}
@@ -481,7 +446,7 @@ class Customize_Feed {
 
 	/**
 	 * Whether `$query` is the main podcast category feed query — the shared gate
-	 * for the two query-time hooks ({@see self::constrain_feed_query()} and
+	 * for the query-time hooks ({@see self::configure_feed_query()} and
 	 * {@see self::filter_posts_with_enclosure()}), which fire before the `wp`
 	 * action and so can't lean on `maybe_register_feed_hooks()`.
 	 *
