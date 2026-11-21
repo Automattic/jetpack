@@ -471,7 +471,12 @@ class Jetpack_AI_Helper {
 		}
 
 		// Outside of WPCOM, we need to fetch the data from the site.
-		$blog_id = Jetpack_Options::get_option( 'id' );
+		$connection = new Manager();
+		$blog_id    = Jetpack_Options::get_option( 'id' );
+
+		if ( ! $connection->is_connected() || empty( $blog_id ) ) {
+			return self::get_default_ai_assistance_feature();
+		}
 
 		// Try to pick the AI Assistant feature from cache.
 		$transient_name = self::transient_name_for_ai_assistance_feature( $blog_id );
@@ -513,7 +518,7 @@ class Jetpack_AI_Helper {
 				'failed_to_fetch_data',
 				esc_html__( 'Unable to fetch the requested data.', 'jetpack' ),
 				array(
-					'status' => $response_code,
+					'status' => ! empty( $response_code ) ? (int) $response_code : 500,
 					'ts'     => time(),
 				)
 			);
@@ -525,5 +530,37 @@ class Jetpack_AI_Helper {
 
 			return $error;
 		}
+	}
+
+	/**
+	 * Get default AI assistance feature data for unconnected or unprovisioned sites.
+	 *
+	 * @return array
+	 */
+	public static function get_default_ai_assistance_feature() {
+		return array(
+			'has-feature'          => false,
+			'is-over-limit'        => false,
+			'requests-count'       => 0,
+			'requests-limit'       => 20,
+			'usage-period'         => array(
+				'current-start'  => '',
+				'next-start'     => '',
+				'requests-count' => 0,
+			),
+			'site-require-upgrade' => false,
+			'upgrade-type'         => 'default',
+			'upgrade-url'          => '',
+			'current-tier'         => array(
+				'slug'  => 'ai-assistant-tier-free',
+				'value' => 0,
+				'limit' => 20,
+			),
+			'next-tier'            => null,
+			'tier-plans'           => array(),
+			'tier-plans-enabled'   => false,
+			'costs'                => array(),
+			'features-control'     => array(),
+		);
 	}
 }
