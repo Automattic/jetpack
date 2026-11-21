@@ -48,16 +48,6 @@ class Initializer {
 	const SUPPRESS_WP_SITEMAP_OPTION = 'jetpack_seo_suppress_wp_sitemap';
 
 	/**
-	 * Legacy discoverability preference, retained for older clients and integrations.
-	 *
-	 * The dashboard is available on eligible hosts regardless of this value. Migration
-	 * leaves the saved preference untouched and does not change module activation.
-	 *
-	 * @var string
-	 */
-	const VISIBILITY_OPTION = 'jetpack_seo_surface_visible_v2';
-
-	/**
 	 * Whether the package has been initialized.
 	 *
 	 * @var bool
@@ -86,11 +76,8 @@ class Initializer {
 		// Before anything can read the AI crawler choices.
 		Ai_Crawlers::register_legacy_migration();
 
-		// Keep the explicit opt-in route for older clients; the new surface no longer offers it.
-		add_action( 'rest_api_init', array( Surface_Visibility::class, 'register_optin_route' ) );
-
 		// Legacy admin surfaces use these signals to retire their replaced controls.
-		add_filter( 'jetpack_admin_js_script_data', array( Surface_Visibility::class, 'inject_optin_availability' ) );
+		add_filter( 'jetpack_admin_js_script_data', array( Surface_Visibility::class, 'inject_surface_visibility' ) );
 
 		// Honor a deliberate sitemap-off choice independently of dashboard visibility.
 		add_action( 'jetpack_deactivate_module_sitemaps', array( __CLASS__, 'flag_sitemap_user_disabled' ) );
@@ -199,15 +186,6 @@ class Initializer {
 	 */
 	public static function is_seo_surface_visible() {
 		return Surface_Visibility::is_visible();
-	}
-
-	/**
-	 * Legacy opt-in signal retained for older admin clients.
-	 *
-	 * @return bool
-	 */
-	public static function is_optin_available() {
-		return Surface_Visibility::is_optin_available();
 	}
 
 	/**

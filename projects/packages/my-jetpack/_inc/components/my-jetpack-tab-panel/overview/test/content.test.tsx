@@ -12,7 +12,6 @@ jest.mock( '../../../header-controls/slot', () => ( { isHeaderControlsEnabled: (
 jest.mock( '../../../overview-blog-posts', () => () => null );
 jest.mock( '../../../product-cards-section', () => () => null );
 jest.mock( '../../../product-cards-section/overview-sections', () => () => null );
-jest.mock( '../../../seo-opt-in-card', () => () => null );
 jest.mock( '../a4a-upsell', () => ( { A4AUpsell: () => null } ) );
 
 describe( 'OverviewContent', () => {
