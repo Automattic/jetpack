@@ -216,18 +216,19 @@ class Akismet_Admin_Chrome {
 			body[class*="_page_akismet-key-config"] #wpfooter {
 				display: none;
 			}
-			/* `#screen-meta-links` (the Screen Options / Help tabs container) is always
-				emitted by core's admin header even when empty, and core gives it
-				`margin: 0 10px 20px 0`. On wp.com Simple sites its contents are hidden
-				but the element — and its 20px bottom margin — remain, reserving a blank
-				slot at the very top of the page above the Jetpack header. The
-				`jetpack-admin-page-layout` mixin hides it for the same reason; do it here
-				too. Left UNSCOPED (not under `_page_akismet-key-config`) on purpose: the
-				inline stylesheet is only ever printed on Akismet admin views, and Simple
-				renders its stats UI under a different slug (`dashboard_page_akismet-stats`),
-				so an unscoped rule covers every page this chrome appears on. */
-			#screen-meta-links {
-				display: none;
+			/* Don't hide `#screen-meta-links`: Akismet registers real help tabs here, so
+				hiding it removes its Help button. `#wpbody-content` is a flex column
+				below, which makes core's `float: right` a no-op — restore the toggle's
+				position and keep it and the panel from being squeezed. */
+			body[class*="_page_akismet-key-config"] #screen-meta,
+			body[class*="_page_akismet-key-config"] #screen-meta-links {
+				flex-shrink: 0;
+			}
+			body[class*="_page_akismet-key-config"] #screen-meta-links {
+				display: flex;
+				justify-content: flex-end;
+				margin: 0;
+				padding-inline-end: 20px;
 			}
 			body[class*="_page_akismet-key-config"] #wpbody-content {
 				box-sizing: border-box;
