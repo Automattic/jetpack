@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add WORDPRESS_LABS feature slug to WPCOM_Features, gated by the wordpress-labs blog sticker.
