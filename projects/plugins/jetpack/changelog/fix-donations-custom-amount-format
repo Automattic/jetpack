@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Donations: Format the custom amount with the same decimal and thousands separators as the preset amounts.

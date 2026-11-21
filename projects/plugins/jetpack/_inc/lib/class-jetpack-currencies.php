@@ -177,4 +177,36 @@ class Jetpack_Currencies {
 			$amount
 		);
 	}
+
+	/**
+	 * Get the separators and precision format_price() uses for a currency, so client-side code can match it.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param  string $currency Currency.
+	 * @return array {
+	 *     @type string $decimal   Decimal separator.
+	 *     @type string $grouping  Thousands separator.
+	 *     @type int    $precision Number of decimals.
+	 * }
+	 */
+	public static function get_number_format( $currency ) {
+		global $wp_locale;
+
+		$precision = self::CURRENCIES[ $currency ]['decimal'] ?? 2;
+
+		if ( 'USD' === $currency || ! isset( $wp_locale ) ) {
+			return array(
+				'decimal'   => '.',
+				'grouping'  => ',',
+				'precision' => $precision,
+			);
+		}
+
+		return array(
+			'decimal'   => $wp_locale->number_format['decimal_point'],
+			'grouping'  => $wp_locale->number_format['thousands_sep'],
+			'precision' => $precision,
+		);
+	}
 }

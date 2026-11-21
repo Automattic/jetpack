@@ -52,3 +52,37 @@ export function getDefaultTexts() {
 
 	return texts;
 }
+
+/**
+ * Parses an amount typed with the given separators.
+ *
+ * @param {string} amount          - The amount as typed.
+ * @param {object} format          - Number format.
+ * @param {string} format.decimal  - Decimal separator.
+ * @param {string} format.grouping - Thousands separator.
+ * @return {number|null} The parsed amount, or null if it is not a number.
+ */
+export function parseLocalizedAmount( amount, { decimal, grouping } ) {
+	const ungrouped = grouping ? amount.split( grouping ).join( '' ) : amount;
+	// Also drop whitespace: a typed space must not end the number when grouping is a non-breaking space.
+	const parsed = parseFloat( ungrouped.replace( /\s/g, '' ).split( decimal ).join( '.' ) );
+
+	return isNaN( parsed ) ? null : parsed;
+}
+
+/**
+ * Formats an amount with the given separators, without currency symbol.
+ *
+ * @param {number} amount           - The amount to format.
+ * @param {object} format           - Number format.
+ * @param {string} format.decimal   - Decimal separator.
+ * @param {string} format.grouping  - Thousands separator.
+ * @param {number} format.precision - Number of decimals.
+ * @return {string} The formatted amount.
+ */
+export function formatLocalizedAmount( amount, { decimal, grouping, precision } ) {
+	const [ integer, fraction ] = amount.toFixed( precision ).split( '.' );
+	const grouped = integer.replace( /\B(?=(\d{3})+(?!\d))/g, grouping );
+
+	return fraction ? grouped + decimal + fraction : grouped;
+}

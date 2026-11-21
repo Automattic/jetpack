@@ -240,16 +240,21 @@ function render_block( $attr, $content ) {
 		if ( '' !== trim( $custom_amount_html ) ) {
 			$custom_amount .= sprintf( '<p>%s</p>', $custom_amount_html );
 		}
+		// Lets the frontend format the custom amount like the preset amounts above.
+		$number_format         = \Jetpack_Currencies::get_number_format( $currency );
 		$default_custom_amount = $attr['customAmountPlaceholder']
 			?? ( \Jetpack_Memberships::SUPPORTED_CURRENCIES[ $currency ] ?? 1 ) * 100;
 		$custom_amount        .= sprintf(
 			'<div class="donations__amount donations__custom-amount">
 				%1$s
-				<div class="donations__amount-value" data-currency="%2$s" data-empty-text="%3$s"></div>
+				<div class="donations__amount-value" data-currency="%2$s" data-empty-text="%3$s" data-decimal="%4$s" data-grouping="%5$s" data-precision="%6$d"></div>
 			</div>',
 			esc_html( \Jetpack_Currencies::CURRENCIES[ $currency ]['symbol'] ?? '¤' ),
 			esc_attr( $currency ),
-			esc_attr( \Jetpack_Currencies::format_price( $default_custom_amount, $currency, false ) )
+			esc_attr( \Jetpack_Currencies::format_price( $default_custom_amount, $currency, false ) ),
+			esc_attr( $number_format['decimal'] ),
+			esc_attr( $number_format['grouping'] ),
+			(int) $number_format['precision']
 		);
 	}
 
