@@ -1233,7 +1233,7 @@ if ( ! class_exists( __NAMESPACE__ . '\Nova_Restaurant' ) ) {
 						? sanitize_text_field( $_POST['nova_content'][ $key ] )
 						: '',
 					'post_title'   => isset( $_POST['nova_title'][ $key ] )
-						? sanitize_title( $_POST['nova_title'][ $key ] )
+						? sanitize_text_field( $_POST['nova_title'][ $key ] )
 						: '',
 					'tax_input'    => array(
 						self::MENU_ITEM_LABEL_TAX => isset( $_POST['nova_labels'][ $key ] )
