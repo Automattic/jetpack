@@ -7,3 +7,11 @@
 	background: none;
 	border: none;
 }
+
+// The new screen draws no frame of its own.
+.jp-identity-crisis-notice {
+	margin-block: 20px;
+	padding: 24px;
+	background: #fff;
+	border: 1px solid #c3c4c7;
+}

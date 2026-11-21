@@ -1,5 +1,7 @@
 import { IDCScreen } from '@automattic/jetpack-idc';
+import { select } from '@wordpress/data';
 import * as WPElement from '@wordpress/element';
+import { goTo, reloadPage } from './navigate';
 
 import './style.scss';
 
@@ -22,7 +24,7 @@ function render() {
 		return;
 	}
 
-	renderInto( container );
+	renderInto( container, ! containerID );
 }
 
 /**
@@ -43,18 +45,51 @@ function waitForContainer( containerId ) {
 		// Rendering changes the page, so without this the observer renders over and over.
 		observer.disconnect();
 		clearTimeout( timeout );
-		renderInto( container );
+		renderInto( container, false );
 	} );
 	observer.observe( document.body, { childList: true, subtree: true } );
 	timeout = setTimeout( () => observer.disconnect(), 60 * 1000 );
 }
 
 /**
+ * The shared connection script, when the `connection-idc-screen` flag is on.
+ *
+ * Read at runtime, not imported: the server loads the script for this notice only when it shows the new screen.
+ *
+ * @return {object|null} The script's exports, or null for the old screen.
+ */
+function getNewScreenScript() {
+	const connection = window.JetpackConnection;
+	if ( ! connection ) {
+		return null;
+	}
+	const state = select( connection.CONNECTION_STORE_ID ).getIdentityCrisis();
+	return true === state?.useNewScreen ? connection : null;
+}
+
+/**
+ * What the notice does after a Safe Mode action succeeds.
+ *
+ * @param {object} result            - The action's result.
+ * @param {string} result.action     - The action.
+ * @param {string} result.connectUrl - Where a fresh connection continues.
+ */
+function onActionSuccess( { action, connectUrl } ) {
+	if ( 'start-fresh' === action ) {
+		goTo( connectUrl );
+	} else if ( 'confirm-safe-mode' === action ) {
+		reloadPage();
+	}
+	// Migrate shows its done view first; its button reloads.
+}
+
+/**
  * Render the Safe Mode screen into its container.
  *
  * @param {HTMLElement} container - The container element.
+ * @param {boolean}     isNotice  - Whether it is the admin notice's container rather than a custom one.
  */
-function renderInto( container ) {
+function renderInto( container, isNotice ) {
 	const {
 		WP_API_root,
 		WP_API_nonce,
@@ -70,27 +105,47 @@ function renderInto( container ) {
 		isDevelopmentSite,
 	} = window.JP_IDENTITY_CRISIS__INITIAL_STATE;
 
-	if ( ! isSafeModeConfirmed ) {
-		const component = (
-			<IDCScreen
-				wpcomHomeUrl={ wpcomHomeUrl }
-				currentUrl={ currentUrl }
-				apiRoot={ WP_API_root }
-				apiNonce={ WP_API_nonce }
-				redirectUri={ redirectUri }
-				tracksUserData={ tracksUserData || {} }
-				tracksEventData={ tracksEventData }
-				customContent={
-					Object.hasOwn( consumerData, 'customContent' ) ? consumerData.customContent : {}
-				}
-				isAdmin={ isAdmin }
-				logo={ Object.hasOwn( consumerData, 'logo' ) ? consumerData.logo : undefined }
-				possibleDynamicSiteUrlDetected={ possibleDynamicSiteUrlDetected }
-				isDevelopmentSite={ isDevelopmentSite }
-			/>
-		);
-		WPElement.createRoot( container ).render( component );
+	if ( isSafeModeConfirmed ) {
+		return;
 	}
+
+	const root = WPElement.createRoot( container );
+	const newScreenScript = isNotice ? getNewScreenScript() : null;
+
+	if ( newScreenScript ) {
+		const { IdentityCrisis, CONNECTION_FROM } = newScreenScript;
+		root.render(
+			<div className="jp-identity-crisis-notice">
+				<IdentityCrisis
+					context="notice"
+					redirectUri={ redirectUri }
+					from={ CONNECTION_FROM.connectionSafeModeNotice }
+					onActionSuccess={ onActionSuccess }
+					onMigratedDone={ reloadPage }
+				/>
+			</div>
+		);
+		return;
+	}
+
+	root.render(
+		<IDCScreen
+			wpcomHomeUrl={ wpcomHomeUrl }
+			currentUrl={ currentUrl }
+			apiRoot={ WP_API_root }
+			apiNonce={ WP_API_nonce }
+			redirectUri={ redirectUri }
+			tracksUserData={ tracksUserData || {} }
+			tracksEventData={ tracksEventData }
+			customContent={
+				Object.hasOwn( consumerData, 'customContent' ) ? consumerData.customContent : {}
+			}
+			isAdmin={ isAdmin }
+			logo={ Object.hasOwn( consumerData, 'logo' ) ? consumerData.logo : undefined }
+			possibleDynamicSiteUrlDetected={ possibleDynamicSiteUrlDetected }
+			isDevelopmentSite={ isDevelopmentSite }
+		/>
+	);
 }
 
 window.addEventListener( 'load', () => render() );
