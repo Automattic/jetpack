@@ -1,0 +1,3 @@
+Significance: patch
+Type: bugfix
+Comment: Image Compare: Render comparison UI with broken image handling when images fail to load.

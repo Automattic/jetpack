@@ -26,22 +26,43 @@ domReady( function () {
 		this.image = new Image();
 
 		this.loaded = false;
+		this.hasError = false;
+
 		this.image.onload = function () {
 			self.loaded = true;
+			slider._onLoaded();
+		};
+
+		this.image.onerror = function () {
+			self.loaded = true;
+			self.hasError = true;
 			slider._onLoaded();
 		};
 
 		this.image.src = properties.src;
 		this.image.alt = properties.alt || '';
 		this.label = properties.label || false;
+		this.width = properties.width || 0;
+		this.height = properties.height || 0;
 	}
 
-	function getImageDimensions( img ) {
+	function getImageDimensions( img, fallbackProperties ) {
+		let width = img.naturalWidth;
+		let height = img.naturalHeight;
+
+		if ( ( ! width || ! height ) && fallbackProperties ) {
+			width = fallbackProperties.width || width;
+			height = fallbackProperties.height || height;
+		}
+
 		const dimensions = {
-			width: img.naturalWidth,
-			height: img.naturalHeight,
+			width: width,
+			height: height,
 			aspect: function () {
-				return this.width / this.height;
+				if ( this.width && this.height ) {
+					return this.width / this.height;
+				}
+				return 0;
 			},
 		};
 		return dimensions;
@@ -240,7 +261,13 @@ domReady( function () {
 		},
 
 		calculateDims: function ( width, height ) {
-			const ratio = getImageDimensions( this.imgBefore.image ).aspect();
+			let ratio = getImageDimensions( this.imgBefore.image, this.imgBefore ).aspect();
+			if ( ! ratio || ! isFinite( ratio ) ) {
+				ratio = getImageDimensions( this.imgAfter.image, this.imgAfter ).aspect();
+			}
+			if ( ! ratio || ! isFinite( ratio ) ) {
+				ratio = 16 / 9;
+			}
 			if ( width ) {
 				height = width / ratio;
 			} else if ( height ) {
@@ -285,16 +312,18 @@ domReady( function () {
 
 		optimizeWrapper: function ( maxWidth ) {
 			let result = juxtapose.OPTIMIZATION_ACCEPTED;
-			if (
-				this.imgBefore.image.naturalWidth >= maxWidth &&
-				this.imgAfter.image.naturalWidth >= maxWidth
-			) {
+			const widthBefore = this.imgBefore.image.naturalWidth || this.imgBefore.width || 0;
+			const widthAfter = this.imgAfter.image.naturalWidth || this.imgAfter.width || 0;
+
+			if ( widthBefore >= maxWidth && widthAfter >= maxWidth ) {
 				this.wrapper.style.width = maxWidth + 'px';
 				result = juxtapose.OPTIMIZATION_WAS_CONSTRAINED;
-			} else if ( this.imgAfter.image.naturalWidth < maxWidth ) {
-				this.wrapper.style.width = this.imgAfter.image.naturalWidth + 'px';
+			} else if ( widthAfter > 0 && widthAfter < maxWidth ) {
+				this.wrapper.style.width = widthAfter + 'px';
+			} else if ( widthBefore > 0 ) {
+				this.wrapper.style.width = widthBefore + 'px';
 			} else {
-				this.wrapper.style.width = this.imgBefore.image.naturalWidth + 'px';
+				this.wrapper.style.width = maxWidth + 'px';
 			}
 			this.setWrapperDimensions();
 			return result;
@@ -312,9 +341,18 @@ domReady( function () {
 				if ( ! this.wrapper || this.wrapper.querySelector( '.jx-slider' ) ) {
 					return;
 				}
+				this.wrapper.innerHTML = '';
 				addClass( this.wrapper, 'juxtapose' );
 
-				this.wrapper.style.width = this.imgBefore.image.naturalWidth;
+				const naturalWidth =
+					this.imgBefore.image.naturalWidth ||
+					this.imgAfter.image.naturalWidth ||
+					this.imgBefore.width ||
+					this.imgAfter.width ||
+					0;
+				if ( naturalWidth > 0 ) {
+					this.wrapper.style.width = naturalWidth + 'px';
+				}
 				this.setWrapperDimensions();
 
 				this.slider = document.createElement( 'div' );
@@ -332,10 +370,16 @@ domReady( function () {
 
 				this.rightImage = document.createElement( 'div' );
 				this.rightImage.className = 'jx-image jx-right';
+				if ( this.imgAfter.hasError ) {
+					addClass( this.rightImage, 'jx-image-error' );
+				}
 				this.rightImage.appendChild( this.imgAfter.image );
 
 				this.leftImage = document.createElement( 'div' );
 				this.leftImage.className = 'jx-image jx-left';
+				if ( this.imgBefore.hasError ) {
+					addClass( this.leftImage, 'jx-image-error' );
+				}
 				this.leftImage.appendChild( this.imgBefore.image );
 
 				this.slider.appendChild( this.handle );
@@ -511,11 +555,14 @@ domReady( function () {
 		const specificClass = 'juxtapose-' + idx;
 		addClass( element, specificClass );
 
-		if ( w.innerHTML ) {
-			w.innerHTML = '';
-		} else {
-			w.innerText = '';
-		}
+		const img0Width =
+			parseInt( images[ 0 ].getAttribute( 'width' ), 10 ) || images[ 0 ].naturalWidth || 0;
+		const img0Height =
+			parseInt( images[ 0 ].getAttribute( 'height' ), 10 ) || images[ 0 ].naturalHeight || 0;
+		const img1Width =
+			parseInt( images[ 1 ].getAttribute( 'width' ), 10 ) || images[ 1 ].naturalWidth || 0;
+		const img1Height =
+			parseInt( images[ 1 ].getAttribute( 'height' ), 10 ) || images[ 1 ].naturalHeight || 0;
 
 		return new juxtapose.JXSlider(
 			element,
@@ -524,11 +571,15 @@ domReady( function () {
 					src: images[ 0 ].src,
 					label: images[ 0 ].getAttribute( 'data-label' ),
 					alt: images[ 0 ].alt,
+					width: img0Width,
+					height: img0Height,
 				},
 				{
 					src: images[ 1 ].src,
 					label: images[ 1 ].getAttribute( 'data-label' ),
 					alt: images[ 1 ].alt,
+					width: img1Width,
+					height: img1Height,
 				},
 			],
 			options
