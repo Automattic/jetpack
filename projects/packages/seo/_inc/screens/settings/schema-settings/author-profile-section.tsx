@@ -1,8 +1,15 @@
 /* eslint-disable react/jsx-no-bind */
 
-import { TextControl, TextareaControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { Button, ButtonLink, Link, Stack, Text } from '@wordpress/ui';
+import {
+	Button,
+	ButtonLink,
+	InputControl,
+	Link,
+	Stack,
+	Text,
+	TextareaControl,
+} from '@wordpress/ui';
 import ProfileUrlList, { hasProfileUrlErrors } from './profile-url-list';
 import styles from './style.module.scss';
 import type { AuthorProfileForm } from '../../../data/use-author-profile';
@@ -116,34 +123,29 @@ const AuthorProfileSection: FC< Props > = ( { form, disabled = false } ) => {
 				</div>
 			) : (
 				<>
-					<TextControl
+					<InputControl
 						label={ __( 'Name', 'jetpack-seo' ) }
 						value={ name }
-						onChange={ next => setProfileField( { name: next } ) }
+						onValueChange={ next => setProfileField( { name: next } ) }
 						disabled={ controlsDisabled }
-						help={ hasNameError ? __( 'Name is required.', 'jetpack-seo' ) : undefined }
+						description={ hasNameError ? __( 'Name is required.', 'jetpack-seo' ) : undefined }
 						aria-invalid={ hasNameError }
-						__next40pxDefaultSize
-						__nextHasNoMarginBottom
 					/>
 
 					<TextareaControl
 						label={ __( 'Bio', 'jetpack-seo' ) }
 						value={ description }
-						onChange={ next => setProfileField( { description: next } ) }
+						onValueChange={ next => setProfileField( { description: next } ) }
 						rows={ 3 }
 						disabled={ controlsDisabled }
-						__nextHasNoMarginBottom
 					/>
 
-					<TextControl
+					<InputControl
 						label={ __( 'Website', 'jetpack-seo' ) }
 						type="url"
 						value={ url }
-						onChange={ next => setProfileField( { url: next } ) }
+						onValueChange={ next => setProfileField( { url: next } ) }
 						disabled={ controlsDisabled }
-						__next40pxDefaultSize
-						__nextHasNoMarginBottom
 					/>
 
 					<Stack direction="column" gap="sm">
@@ -155,13 +157,11 @@ const AuthorProfileSection: FC< Props > = ( { form, disabled = false } ) => {
 				</>
 			) }
 
-			<TextControl
+			<InputControl
 				label={ __( 'Job title', 'jetpack-seo' ) }
 				value={ jobTitle }
-				onChange={ next => setProfileField( { jobTitle: next } ) }
+				onValueChange={ next => setProfileField( { jobTitle: next } ) }
 				disabled={ controlsDisabled }
-				__next40pxDefaultSize
-				__nextHasNoMarginBottom
 			/>
 
 			<ProfileUrlList

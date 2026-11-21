@@ -197,7 +197,7 @@ describe( 'Indexing toggle on an unpublished site', () => {
 	} );
 
 	const indexingToggle = () =>
-		screen.getByRole( 'checkbox', { name: /Allow search engines to index this site/i } );
+		screen.getByRole( 'switch', { name: /Allow search engines to index this site/i } );
 
 	const visibilityLink = () => screen.queryByRole( 'link', { name: 'Manage site visibility' } );
 	const visibilityUrl = 'http://example.com/wp-admin/options-reading.php';
@@ -214,7 +214,7 @@ describe( 'Indexing toggle on an unpublished site', () => {
 			<SettingsScreen form={ buildForm( { ...overrides, site_visibility_url: visibilityUrl } ) } />
 		);
 
-		expect( indexingToggle() ).toBeDisabled();
+		expect( indexingToggle() ).toHaveAttribute( 'aria-disabled', 'true' );
 		expect( screen.getByText( help ) ).toBeInTheDocument();
 		expect( visibilityLink() ).toHaveAttribute( 'href', visibilityUrl );
 		expect( statusFor( 'Site visibility' ) ).toBeUndefined();
@@ -247,7 +247,7 @@ describe( 'Indexing toggle on an unpublished site', () => {
 	it( 'is enabled with the usual help text on a public site', () => {
 		render( <SettingsScreen form={ buildForm( { site_visibility_url: visibilityUrl } ) } /> );
 
-		expect( indexingToggle() ).toBeEnabled();
+		expect( indexingToggle() ).not.toHaveAttribute( 'aria-disabled' );
 		expect(
 			screen.queryByText( /Your site is (private|in Coming Soon)/i )
 		).not.toBeInTheDocument();
@@ -272,12 +272,15 @@ describe( 'Settings module completion status', () => {
 				} ) }
 			/>
 		);
-		expect( screen.getByRole( 'checkbox', { name: /Generate an XML sitemap/i } ) ).toBeDisabled();
+		expect( screen.getByRole( 'switch', { name: /Generate an XML sitemap/i } ) ).toHaveAttribute(
+			'aria-disabled',
+			'true'
+		);
 		// eslint-disable-next-line testing-library/prefer-user-event -- Match the package's existing disclosure tests without adding a dependency.
 		fireEvent.click( screen.getByRole( 'button', { name: 'Canonical URLs' } ) );
 		await expect(
-			screen.findByRole( 'checkbox', { name: /Add canonical URLs/i } )
-		).resolves.toBeDisabled();
+			screen.findByRole( 'switch', { name: /Add canonical URLs/i } )
+		).resolves.toHaveAttribute( 'aria-disabled', 'true' );
 		expect( screen.getAllByText( /managed by your hosting platform/i ) ).toHaveLength( 2 );
 	} );
 
@@ -291,8 +294,8 @@ describe( 'Settings module completion status', () => {
 		// eslint-disable-next-line testing-library/prefer-user-event -- Match the package's existing disclosure tests without adding a dependency.
 		fireEvent.click( screen.getByRole( 'button', { name: 'Canonical URLs' } ) );
 		await expect(
-			screen.findByRole( 'checkbox', { name: /Add canonical URLs/i, checked: true } )
-		).resolves.toBeDisabled();
+			screen.findByRole( 'switch', { name: /Add canonical URLs/i, checked: true } )
+		).resolves.toHaveAttribute( 'aria-disabled', 'true' );
 		// Its saved "on" no longer prints a tag, so the header doesn't call it complete.
 		expect( statusFor( 'Canonical URLs' ) ).toBe( 'Paused' );
 		expect( screen.getAllByText( 'Paused while Yoast SEO is active.' ) ).not.toHaveLength( 0 );
@@ -306,8 +309,8 @@ describe( 'Settings module completion status', () => {
 		// eslint-disable-next-line testing-library/prefer-user-event -- Match the package's existing disclosure tests without adding a dependency.
 		fireEvent.click( screen.getByRole( 'button', { name: 'Canonical URLs' } ) );
 		await expect(
-			screen.findByRole( 'checkbox', { name: /Add canonical URLs/i, checked: true } )
-		).resolves.toBeEnabled();
+			screen.findByRole( 'switch', { name: /Add canonical URLs/i, checked: true } )
+		).resolves.not.toHaveAttribute( 'aria-disabled' );
 		expect( statusFor( 'Canonical URLs' ) ).toBe( 'Complete' );
 	} );
 
@@ -474,8 +477,8 @@ describe( 'WordPress.com Simple settings', () => {
 		// eslint-disable-next-line testing-library/prefer-user-event -- Match this file's existing disclosure tests.
 		fireEvent.click( screen.getByRole( 'button', { name: 'Canonical URLs' } ) );
 
-		const toggle = screen.getByRole( 'checkbox', { name: /Add canonical URLs/i, checked: active } );
-		expect( toggle ).toBeEnabled();
+		const toggle = screen.getByRole( 'switch', { name: /Add canonical URLs/i, checked: active } );
+		expect( toggle ).not.toHaveAttribute( 'aria-disabled' );
 		// eslint-disable-next-line testing-library/prefer-user-event -- Exercise the module-switch callback directly.
 		fireEvent.click( toggle );
 
@@ -511,7 +514,7 @@ describe( 'WordPress.com Simple settings', () => {
 			expect( form.setVerification ).toHaveBeenCalledWith( 'bing', 'bing-code' );
 			expect( form.commitFields ).toHaveBeenCalledWith( [ 'verification' ] );
 
-			const toggle = screen.queryByRole( 'checkbox', { name: /Enable site verification/ } );
+			const toggle = screen.queryByRole( 'switch', { name: /Enable site verification/ } );
 			expect( toggle !== null ).toBe( switchable );
 			if ( toggle ) {
 				// eslint-disable-next-line testing-library/prefer-user-event -- Exercise only the module-switch callback.
@@ -536,11 +539,11 @@ describe( 'WordPress.com Simple settings', () => {
 
 			render( <SettingsScreen form={ form } /> );
 
-			const toggle = screen.getByRole( 'checkbox', {
+			const toggle = screen.getByRole( 'switch', {
 				name: /Generate an XML sitemap/i,
 				checked: searchEnginesVisible,
 			} );
-			expect( toggle ).toBeDisabled();
+			expect( toggle ).toHaveAttribute( 'aria-disabled', 'true' );
 			expect( statusFor( 'Site visibility' ) ).toBe(
 				searchEnginesVisible ? 'Complete' : 'Not started'
 			);
@@ -563,7 +566,9 @@ describe( 'WordPress.com Simple settings', () => {
 
 		render( <SettingsScreen form={ buildForm( { search_engines_visible: true } ) } /> );
 
-		expect( screen.getByRole( 'checkbox', { name: /Generate an XML sitemap/i } ) ).toBeEnabled();
+		expect(
+			screen.getByRole( 'switch', { name: /Generate an XML sitemap/i } )
+		).not.toHaveAttribute( 'aria-disabled' );
 		expect(
 			screen.queryByText(
 				'WordPress.com manages sitemap generation for this site. Additional hosting features let you turn sitemap generation on or off.'
@@ -678,7 +683,7 @@ describe( 'Notification settings inside Site visibility', () => {
 		expect( IndexnowSettings.mock.lastCall?.[ 0 ] ).toEqual(
 			expect.objectContaining( { isSaving: true, onSavingChange: expect.any( Function ) } )
 		);
-		const sitemap = screen.getByRole( 'checkbox', { name: /Generate an XML sitemap/i } );
+		const sitemap = screen.getByRole( 'switch', { name: /Generate an XML sitemap/i } );
 		const notifications = screen.getByText( 'notification settings' );
 		expect( sitemap.compareDocumentPosition( notifications ) ).toBe(
 			Node.DOCUMENT_POSITION_FOLLOWING
@@ -689,17 +694,17 @@ describe( 'Notification settings inside Site visibility', () => {
 
 	it( 'locks visibility toggles only while a notification save is in flight', () => {
 		render( <SettingsScreen form={ buildForm( { search_engines_visible: true } ) } /> );
-		const indexing = screen.getByRole( 'checkbox', { name: /Allow search engines/i } );
-		const sitemap = screen.getByRole( 'checkbox', { name: /Generate an XML sitemap/i } );
+		const indexing = screen.getByRole( 'switch', { name: /Allow search engines/i } );
+		const sitemap = screen.getByRole( 'switch', { name: /Generate an XML sitemap/i } );
 		const onSavingChange = IndexnowSettings.mock.lastCall?.[ 0 ].onSavingChange as (
 			saving: boolean
 		) => void;
 		act( () => onSavingChange( true ) );
-		expect( indexing ).toBeDisabled();
-		expect( sitemap ).toBeDisabled();
+		expect( indexing ).toHaveAttribute( 'aria-disabled', 'true' );
+		expect( sitemap ).toHaveAttribute( 'aria-disabled', 'true' );
 		act( () => onSavingChange( false ) );
-		expect( indexing ).toBeEnabled();
-		expect( sitemap ).toBeEnabled();
+		expect( indexing ).not.toHaveAttribute( 'aria-disabled' );
+		expect( sitemap ).not.toHaveAttribute( 'aria-disabled' );
 	} );
 } );
 
