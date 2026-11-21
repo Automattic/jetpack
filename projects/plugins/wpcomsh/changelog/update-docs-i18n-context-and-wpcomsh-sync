@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+Comment: Document regenerating the autoloader before syncing to a dev site.
+

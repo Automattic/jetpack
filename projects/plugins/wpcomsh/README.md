@@ -34,6 +34,7 @@ You will also need to go through [the Monorepo install procedure](https://develo
 
 1. Build the wpcomsh plugin using [the Monorepo tools](https://developer.jetpack.com/docs/jetpack-development/jetpack-cli/#build).
 2. Synchronize the code using `jetpack rsync` into the `wp-content/mu-plugins` folder.
+   If you rebuilt only a bundled package rather than wpcomsh itself, and any bundled package gained PHP classes since wpcomsh was last built (on trunk or your own branch), rebuild wpcomsh or run `composer dump-autoload` in `projects/plugins/wpcomsh` before syncing. Otherwise the synced autoloader classmap lacks those classes and the site fatals.
 3. Then, either copy or symlink the `wp-content/mu-plugins/wpcomsh/wpcomsh-loader.php` file to `wp-content/mu-plugins`.
    It acts as a "loader" for wpcomsh and we need this because plugin folders put into `mu-plugins` are not automatically loaded like plugins in `wp-content/plugins`.
 
