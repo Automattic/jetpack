@@ -27,6 +27,7 @@ import deprecatedV2 from './deprecated/v2';
 import deprecatedV3 from './deprecated/v3';
 import deprecatedV4 from './deprecated/v4';
 import withVideoPressEdit from './edit';
+import { registerNativeVideoHtmlSources } from './native-video-attributes';
 import withVideoPressSave from './save';
 import { pickGUIDFromUrl, isVideoPressBlockBasedOnAttributes } from './utils';
 import addV6TransformSupport from './v6-transform';
@@ -300,6 +301,8 @@ const addVideoPressSupport = ( settings, name ) => {
 		};
 
 		const oldVideoEmbedRegex = /https?:\/\/v\.wordpress\.com\/([a-zA-Z\d]{8})(.+)?/i;
+
+		registerNativeVideoHtmlSources( settings.attributes );
 
 		return {
 			...settings,
