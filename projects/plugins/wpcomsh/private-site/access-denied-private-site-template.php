@@ -22,6 +22,8 @@ header( 'Content-Type: ' . get_bloginfo( 'html_type' ) . '; charset=' . get_blog
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<title><?php bloginfo( 'name' ); ?></title>
 	<?php
+	print_rest_api_discovery_link();
+
 	// Use styles from wp-login.
 	wp_enqueue_style( 'login' );
 	do_action( 'login_enqueue_scripts' );
