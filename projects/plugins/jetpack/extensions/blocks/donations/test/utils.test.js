@@ -1,4 +1,9 @@
-import { checkAmountRange, firstShownInterval } from '../utils';
+import {
+	checkAmountRange,
+	firstShownInterval,
+	formatLocalizedAmount,
+	parseLocalizedAmount,
+} from '../utils';
 
 describe( 'firstShownInterval', () => {
 	test( 'returns one-time when it is shown', () => {
@@ -56,5 +61,29 @@ describe( 'checkAmountRange', () => {
 	test( 'returns maxError with only a maximum set', () => {
 		expect( checkAmountRange( 200, null, 100, MIN_ERROR, MAX_ERROR ) ).toBe( MAX_ERROR );
 		expect( checkAmountRange( 100, null, 100, MIN_ERROR, MAX_ERROR ) ).toBeNull();
+	} );
+} );
+
+const DOT_DECIMAL = { decimal: '.', grouping: ',', precision: 2 };
+const COMMA_DECIMAL = { decimal: ',', grouping: '\u00a0', precision: 2 };
+
+describe( 'formatLocalizedAmount', () => {
+	test.each( [
+		[ 2, DOT_DECIMAL, '2.00' ],
+		[ 1234567.891, COMMA_DECIMAL, '1\u00a0234\u00a0567,89' ],
+		[ 5000, { ...DOT_DECIMAL, precision: 0 }, '5,000' ],
+	] )( 'formats %p with %p as %p', ( amount, format, expected ) => {
+		expect( formatLocalizedAmount( amount, format ) ).toBe( expected );
+	} );
+} );
+
+describe( 'parseLocalizedAmount', () => {
+	test.each( [
+		[ '1,234.50', DOT_DECIMAL, 1234.5 ],
+		[ '1\u00a0234,5', COMMA_DECIMAL, 1234.5 ],
+		[ '1 234,5', COMMA_DECIMAL, 1234.5 ],
+		[ 'abc', DOT_DECIMAL, null ],
+	] )( 'parses %p with %p as %p', ( amount, format, expected ) => {
+		expect( parseLocalizedAmount( amount, format ) ).toBe( expected );
 	} );
 } );

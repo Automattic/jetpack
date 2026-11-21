@@ -3,7 +3,11 @@ import domReady from '@wordpress/dom-ready';
 import { addQueryArgs, removeQueryArgs } from '@wordpress/url';
 import { minimumTransactionAmountForCurrency, parseAmount } from '../../shared/currencies';
 import { initializeMembershipButtons } from '../../shared/memberships';
-import { checkAmountRange as checkRange } from './utils';
+import {
+	checkAmountRange as checkRange,
+	formatLocalizedAmount,
+	parseLocalizedAmount,
+} from './utils';
 
 import './view.scss';
 
@@ -12,6 +16,20 @@ const INTERVAL_TO_AMOUNT_CLASS = {
 	'1 month': 'donations__monthly-item',
 	'1 year': 'donations__annual-item',
 };
+
+/**
+ * Reads the server-side number format of the custom amount, so it is formatted like the preset amounts.
+ *
+ * @param {HTMLElement} input - The custom amount input.
+ * @return {object|null} Number format, or null if the markup does not provide it.
+ */
+function getNumberFormat( input ) {
+	const { decimal, grouping, precision } = input.dataset;
+	if ( undefined === decimal || undefined === grouping || undefined === precision ) {
+		return null;
+	}
+	return { decimal, grouping, precision: parseInt( precision, 10 ) };
+}
 
 class JetpackDonations {
 	constructor( block ) {
@@ -121,7 +139,7 @@ class JetpackDonations {
 	updateAmountFromCustomAmountInput() {
 		const input = this.block.querySelector( '.donations__custom-amount .donations__amount-value' );
 
-		const amount = input.innerHTML;
+		const amount = input.textContent;
 		if ( ! amount ) {
 			this.amount = null;
 			this.toggleDonateButton( false );
@@ -130,7 +148,10 @@ class JetpackDonations {
 
 		// Validates the amount.
 		const currency = input.dataset.currency;
-		const parsedAmount = parseAmount( amount, currency );
+		const numberFormat = getNumberFormat( input );
+		const parsedAmount = numberFormat
+			? parseLocalizedAmount( amount, numberFormat )
+			: parseAmount( amount, currency );
 		const wrapper = this.block.querySelector( '.donations__custom-amount' );
 		if ( parsedAmount && parsedAmount >= minimumTransactionAmountForCurrency( currency ) ) {
 			wrapper.classList.remove( 'has-error' );
@@ -248,9 +269,10 @@ class JetpackDonations {
 			}
 
 			// Formats the entered amount.
-			input.innerHTML = formatCurrency( this.amount, input.dataset.currency, {
-				symbol: '',
-			} );
+			const numberFormat = getNumberFormat( input );
+			input.textContent = numberFormat
+				? formatLocalizedAmount( this.amount, numberFormat )
+				: formatCurrency( this.amount, input.dataset.currency, { symbol: '' } );
 		} );
 
 		input.addEventListener( 'input', () => this.updateAmountFromCustomAmountInput() );
