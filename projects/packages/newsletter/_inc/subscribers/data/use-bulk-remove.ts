@@ -26,6 +26,31 @@ export function isBulkRemoveActive( job: BulkRemoveJob | null | undefined ): boo
 	return !! job && ACTIVE_STATUSES.includes( job.status ) && ! job.stalled;
 }
 
+const MAX_STATUS_RETRIES = 3;
+
+/**
+ * Whether to retry a failed status request. A client error, such as the missing route on a site
+ * without bulk removal (404), is final, except a timeout (408) or rate limit (429). A server error
+ * or a network failure may pass, and giving up on it would hide the remove actions.
+ *
+ * @param failureCount - Retries so far.
+ * @param error        - The error `apiFetch` rejected with.
+ * @return True to try again.
+ */
+export function shouldRetryBulkRemoveStatus(
+	failureCount: number,
+	error: BulkRemoveError | null | undefined
+): boolean {
+	if ( failureCount >= MAX_STATUS_RETRIES || error?.code === 'rest_no_route' ) {
+		return false;
+	}
+	const status = error?.data?.status;
+	if ( status === 408 || status === 429 ) {
+		return true;
+	}
+	return ! ( typeof status === 'number' && status >= 400 && status < 500 );
+}
+
 /**
  * The current bulk removal, polled every 5 seconds while it runs. On load this picks up a
  * removal started earlier (or in another tab), so the progress notice comes back after a reload.
@@ -42,7 +67,7 @@ export function isBulkRemoveActive( job: BulkRemoveJob | null | undefined ): boo
  */
 export function useBulkRemoveStatus( enabled = true, onFinished?: ( job: BulkRemoveJob ) => void ) {
 	const queryClient = useQueryClient();
-	const query = useQuery< BulkRemoveState >( {
+	const query = useQuery< BulkRemoveState, BulkRemoveError >( {
 		queryKey: BULK_REMOVE_QUERY_KEY,
 		queryFn: async () => {
 			const response = await fetchBulkRemoveStatus();
@@ -50,8 +75,17 @@ export function useBulkRemoveStatus( enabled = true, onFinished?: ( job: BulkRem
 		},
 		enabled,
 		refetchInterval: q => ( isBulkRemoveActive( q.state.data?.job ) ? POLL_MS : false ),
-		// The shared client skips focus refetches; this one must catch a removal started in another tab.
-		refetchOnWindowFocus: 'always',
+		retry: shouldRetryBulkRemoveStatus,
+		// The shared client skips focus refetches; catch a removal started in another tab, but only
+		// when removal is on for the site or a job is running. After a failure that may pass, try
+		// again, so the remove actions can come back without a reload.
+		refetchOnWindowFocus: q => {
+			const { data, error, status } = q.state;
+			if ( data?.enabled || isBulkRemoveActive( data?.job ) ) {
+				return 'always';
+			}
+			return status === 'error' && shouldRetryBulkRemoveStatus( 0, error ) ? 'always' : false;
+		},
 	} );
 
 	const job = query.data?.job ?? null;

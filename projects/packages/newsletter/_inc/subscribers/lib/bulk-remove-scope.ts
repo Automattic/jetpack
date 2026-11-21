@@ -1,4 +1,5 @@
-import { __, sprintf } from '@wordpress/i18n';
+import { formatNumber } from '@automattic/number-formatters';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import type { SubscribersFilter } from '../data/types';
 
 /**
@@ -63,23 +64,56 @@ export function describeScope(
 }
 
 /**
- * What narrows the list, for "not only the N that match your search": "search", "filter" or
- * "search and filter".
+ * The warning shown when "Remove all" is chosen while a search or filter is on. One whole
+ * sentence per case, so translators are not handed fragments to splice.
  *
  * @param filters - Active filters.
  * @param search  - Search term, or an empty string.
- * @return Localized noun phrase.
+ * @param count   - Number of subscribers that match.
+ * @return Localized sentence.
  */
 export function describeNarrowing(
 	filters: Array< SubscribersFilter | string >,
-	search: string
+	search: string,
+	count: number
 ): string {
 	const hasFilter = filters.some( filter => filter !== 'all' );
 	const hasSearch = !! search.trim();
+	const n = formatNumber( count );
 	if ( hasFilter && hasSearch ) {
-		return __( 'search and filter', 'jetpack-newsletter' );
+		return sprintf(
+			// translators: %s: number of matching subscribers.
+			_n(
+				'This removes everyone on your list, not only the %s that matches your search and filter.',
+				'This removes everyone on your list, not only the %s that match your search and filter.',
+				count,
+				'jetpack-newsletter'
+			),
+			n
+		);
 	}
-	return hasSearch ? __( 'search', 'jetpack-newsletter' ) : __( 'filter', 'jetpack-newsletter' );
+	if ( hasSearch ) {
+		return sprintf(
+			// translators: %s: number of matching subscribers.
+			_n(
+				'This removes everyone on your list, not only the %s that matches your search.',
+				'This removes everyone on your list, not only the %s that match your search.',
+				count,
+				'jetpack-newsletter'
+			),
+			n
+		);
+	}
+	return sprintf(
+		// translators: %s: number of matching subscribers.
+		_n(
+			'This removes everyone on your list, not only the %s that matches your filter.',
+			'This removes everyone on your list, not only the %s that match your filter.',
+			count,
+			'jetpack-newsletter'
+		),
+		n
+	);
 }
 
 /**

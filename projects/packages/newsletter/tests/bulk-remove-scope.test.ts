@@ -32,11 +32,18 @@ describe( 'bulk remove scope helpers', () => {
 		expect( describeScope( [ 'all' ], '' ) ).toEqual( [] );
 	} );
 
-	it( 'names what narrows the list', () => {
-		expect( describeNarrowing( [ 'paid' ], '' ) ).toBe( 'filter' );
-		expect( describeNarrowing( [ 'all' ], 'bob' ) ).toBe( 'search' );
-		expect( describeNarrowing( [ 'paid' ], 'bob' ) ).toBe( 'search and filter' );
-	} );
+	it.each( [
+		[ [ 'paid' ], '', 'filter' ],
+		[ [ 'all' ], 'bob', 'search' ],
+		[ [ 'paid' ], 'bob', 'search and filter' ],
+	] )(
+		'warns about the %j filters and %j search as a whole sentence',
+		( filters, search, tail ) => {
+			expect( describeNarrowing( filters, search, 1200 ) ).toBe(
+				`This removes everyone on your list, not only the 1,200 that match your ${ tail }.`
+			);
+		}
+	);
 
 	it( 'treats `all` and a blank search as the whole list', () => {
 		expect( isNarrowed( [ 'all' ], '' ) ).toBe( false );

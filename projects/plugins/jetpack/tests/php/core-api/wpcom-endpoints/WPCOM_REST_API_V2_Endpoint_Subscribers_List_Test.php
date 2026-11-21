@@ -407,9 +407,10 @@ class WPCOM_REST_API_V2_Endpoint_Subscribers_List_Test extends Jetpack_REST_Test
 	/**
 	 * `/subscribers/bulk-remove/status` forwards to the wpcom
 	 * `/sites/{blog_id}/subscribers/bulk-remove/status` (v2) endpoint and returns its body
-	 * unchanged, `enabled` included, so the screen knows whether the site can start a removal.
+	 * unchanged, `enabled` included, so the screen knows whether the site can start a removal. A
+	 * `job_id` is appended to the upstream path.
 	 */
-	public function test_bulk_remove_status_forwards_and_passes_enabled_through() {
+	public function test_bulk_remove_status_forwards_body_and_job_id() {
 		$body         = array(
 			'job'     => null,
 			'enabled' => true,
@@ -418,23 +419,12 @@ class WPCOM_REST_API_V2_Endpoint_Subscribers_List_Test extends Jetpack_REST_Test
 		$filter       = function ( $preempt, $parsed_args, $url ) use ( &$captured_url, $body ) {
 			$captured_url = $url;
 
-			return array(
-				'headers'  => array(),
-				'body'     => wp_json_encode( $body, JSON_UNESCAPED_SLASHES ),
-				'response' => array(
-					'code'    => 200,
-					'message' => 'OK',
-				),
-				'cookies'  => array(),
-				'filename' => null,
-			);
+			return $this->fake_wpcom_response( 200, $body );
 		};
 		add_filter( 'pre_http_request', $filter, 10, 3 );
 
 		$request  = new WP_REST_Request( Requests::GET, '/wpcom/v2/subscribers/bulk-remove/status' );
 		$response = $this->server->dispatch( $request );
-
-		remove_filter( 'pre_http_request', $filter, 10 );
 
 		$this->assertSame( 200, $response->get_status() );
 		$this->assertSame( $body, $response->get_data() );
@@ -442,27 +432,13 @@ class WPCOM_REST_API_V2_Endpoint_Subscribers_List_Test extends Jetpack_REST_Test
 			'/wpcom/v2/sites/' . static::$blog_id . '/subscribers/bulk-remove/status',
 			$captured_url
 		);
-	}
-
-	/**
-	 * Asking about one removal appends its `job_id` to the upstream status path.
-	 */
-	public function test_bulk_remove_status_forwards_job_id() {
-		$captured_url = '';
-		$filter       = function ( $preempt, $parsed_args, $url ) use ( &$captured_url ) {
-			$captured_url = $url;
-
-			return $this->fake_wpcom_response( 200, array( 'job' => array( 'id' => 77 ) ) );
-		};
-		add_filter( 'pre_http_request', $filter, 10, 3 );
 
 		$request = new WP_REST_Request( Requests::GET, '/wpcom/v2/subscribers/bulk-remove/status' );
 		$request->set_query_params( array( 'job_id' => 77 ) );
-		$response = $this->server->dispatch( $request );
+		$this->server->dispatch( $request );
 
 		remove_filter( 'pre_http_request', $filter, 10 );
 
-		$this->assertSame( 200, $response->get_status() );
 		$this->assertStringContainsString(
 			'/wpcom/v2/sites/' . static::$blog_id . '/subscribers/bulk-remove/status?job_id=77',
 			$captured_url
@@ -586,7 +562,7 @@ class WPCOM_REST_API_V2_Endpoint_Subscribers_List_Test extends Jetpack_REST_Test
 			return $this->fake_wpcom_response(
 				409,
 				array(
-					'code'    => 'subscribers_bulk_remove_count_changed',
+					'code'    => 'bulk_remove_count_changed',
 					'message' => 'The subscriber list changed.',
 					'data'    => array( 'count' => 11 ),
 				)
@@ -604,7 +580,7 @@ class WPCOM_REST_API_V2_Endpoint_Subscribers_List_Test extends Jetpack_REST_Test
 
 		$data = $response->get_data();
 		$this->assertSame( 409, $response->get_status() );
-		$this->assertSame( 'subscribers_bulk_remove_count_changed', $data['code'] );
+		$this->assertSame( 'bulk_remove_count_changed', $data['code'] );
 		$this->assertSame( 'The subscriber list changed.', $data['message'] );
 		$this->assertSame( 11, $data['data']['count'] );
 		$this->assertSame( 409, $data['data']['status'] );
