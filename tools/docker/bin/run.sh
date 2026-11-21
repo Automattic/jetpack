@@ -94,7 +94,9 @@ if [[ -e /var/www/html/wp-cli.yml ]] && grep -q '^require: /usr/local/bin/psysh$
 	fi
 fi
 
-if [ "$COMPOSE_PROJECT_NAME" == "jetpack_dev" ] ; then
+# Set up PHPUnit for every instance but e2e, which never runs it.
+# Keyed on type, not name: e2e runs as `--name t1`, and worktrees get their own names.
+if [ "$JETPACK_DOCKER_TYPE" != "e2e" ] ; then
 	# If we don't have the wordpress test helpers, download them
 	if [[ ! -d /tmp/wordpress-develop/tests/phpunit/data || ! -d /tmp/wordpress-develop/tests/phpunit/includes ]]; then
 		CUR_WP_VERSION=$(wp core version);

@@ -582,6 +582,33 @@ const runRsyncWithProxy = async ( monorepoRoot, args ) => {
 };
 
 // Main execution
+/**
+ * Removes an instance's local files after `docker compose down -v`.
+ *
+ * @param {string} monorepoRoot - Monorepo root.
+ * @param {string} projectName  - The instance's COMPOSE_PROJECT_NAME.
+ */
+const cleanLocalFiles = ( monorepoRoot, projectName ) => {
+	const dockerDir = resolve( monorepoRoot, 'tools/docker' );
+	const paths = [
+		resolve( dockerDir, 'wordpress' ),
+		// Only this instance's PHPUnit helpers, plus the shared layout's leftovers no instance uses now.
+		resolve( dockerDir, 'wordpress-develop', projectName ),
+		resolve( dockerDir, 'wordpress-develop', 'tests' ),
+		resolve( dockerDir, 'wordpress-develop', 'wp-tests-config.php' ),
+		resolve( dockerDir, 'logs', projectName ),
+		resolve( dockerDir, 'data', `${ projectName }_mysql` ),
+	];
+
+	for ( const path of paths ) {
+		try {
+			fs.rmSync( path, { recursive: true, force: true } );
+		} catch ( error ) {
+			console.warn( chalk.yellow( `Warning: Could not remove ${ path }: ${ error.message }` ) );
+		}
+	}
+};
+
 const main = async () => {
 	try {
 		const args = process.argv.slice( 2 );
@@ -676,6 +703,8 @@ const main = async () => {
 		if ( args[ 0 ] === 'docker' ) {
 			const hostCommands = [ 'up', 'down', 'stop', 'clean' ];
 			if ( hostCommands.includes( args[ 1 ] ) ) {
+				let isClean = false;
+
 				// Handle command-specific setup/cleanup
 				if ( args[ 1 ] === 'up' ) {
 					// Create required directories
@@ -703,33 +732,9 @@ const main = async () => {
 						throw new Error( 'Failed to generate Docker config' );
 					}
 				} else if ( args[ 1 ] === 'clean' ) {
-					// After docker-compose down -v, also remove local files
-					const projectName = args.includes( '--type=e2e' ) ? 'jetpack_e2e' : 'jetpack_dev';
-					const cleanupPaths = [
-						resolve( monorepoRoot, 'tools/docker/wordpress/' ),
-						resolve( monorepoRoot, 'tools/docker/wordpress-develop/*' ),
-						resolve( monorepoRoot, 'tools/docker/logs/', projectName ),
-						resolve( monorepoRoot, 'tools/docker/data/', `${ projectName }_mysql` ),
-					];
-
-					// Function to clean up after docker-compose down
-					const cleanupFiles = () => {
-						for ( const path of cleanupPaths ) {
-							try {
-								fs.rmSync( path, { recursive: true, force: true } );
-							} catch ( error ) {
-								console.warn(
-									chalk.yellow( `Warning: Could not remove ${ path }: ${ error.message }` )
-								);
-							}
-						}
-					};
-
-					// Add cleanup to process events to ensure it runs after docker-compose
-					process.once( 'beforeExit', cleanupFiles );
-
-					// Replace 'clean' with 'down -v' in the arguments
+					// Removing local files waits for the project name, so it's registered below.
 					args.splice( 1, 1, 'down', '-v' );
+					isClean = true;
 				}
 
 				// Get project name (from docker.js)
@@ -759,6 +764,12 @@ const main = async () => {
 				// Only set these specific vars if they're not already set in .env
 				if ( ! envVars.COMPOSE_PROJECT_NAME ) {
 					envVars.COMPOSE_PROJECT_NAME = projectName;
+				}
+				if ( isClean ) {
+					// After `docker compose down -v`, remove this instance's local files.
+					process.once( 'beforeExit', () =>
+						cleanLocalFiles( monorepoRoot, envVars.COMPOSE_PROJECT_NAME )
+					);
 				}
 				if ( ! envVars.PORT_WORDPRESS ) {
 					envVars.PORT_WORDPRESS = args.includes( '--type=e2e' ) ? '8889' : '80';

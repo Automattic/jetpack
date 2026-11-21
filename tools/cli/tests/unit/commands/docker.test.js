@@ -117,6 +117,10 @@ describe( 'buildEnv', () => {
 		expect( env.PORT_WORDPRESS ).toBe( 8889 );
 	} );
 
+	test.each( [ 'dev', 'e2e' ] )( 'passes type %s through for run.sh', type => {
+		expect( buildEnv( { type, name: 'feature' } ).JETPACK_DOCKER_TYPE ).toBe( type );
+	} );
+
 	test( 'honors --port for dev type', () => {
 		const env = buildEnv( { type: 'dev', port: 8080 } );
 		expect( env.PORT_WORDPRESS ).toBe( 8080 );
