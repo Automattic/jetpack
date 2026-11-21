@@ -16,7 +16,7 @@ describe( 'OnboardingWelcomeModal', () => {
 		renderModal();
 
 		const dialog = screen.getByRole( 'dialog', {
-			name: 'Welcome to the new Stats',
+			name: 'Welcome to Stats',
 		} );
 		expect( dialog ).toBeInTheDocument();
 		expect( dialog ).toHaveTextContent(
@@ -65,9 +65,7 @@ describe( 'OnboardingWelcomeModal', () => {
 
 		await userEvent.click( document.body );
 
-		expect(
-			screen.getByRole( 'dialog', { name: 'Welcome to the new Stats' } )
-		).toBeInTheDocument();
+		expect( screen.getByRole( 'dialog', { name: 'Welcome to Stats' } ) ).toBeInTheDocument();
 		expect( onDismiss ).not.toHaveBeenCalled();
 	} );
 
@@ -75,7 +73,7 @@ describe( 'OnboardingWelcomeModal', () => {
 		{ variant: 'store' as const, titles: [ 'Your Woo analytics in one place' ] },
 		{
 			variant: 'stats-and-store' as const,
-			titles: [ 'Welcome to the new Stats', 'Your store analytics integrated' ],
+			titles: [ 'Welcome to Stats', 'Your store analytics integrated' ],
 		},
 	] )( 'walks the $variant slides before starting the tour', async ( { variant, titles } ) => {
 		const onStart = jest.fn();
