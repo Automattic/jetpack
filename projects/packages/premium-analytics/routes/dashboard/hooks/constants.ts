@@ -17,3 +17,6 @@ export {
 
 /** Preferences key holding when the reader closed the feedback banner, as an ISO date. */
 export const DASHBOARD_FEEDBACK_BANNER_KEY = 'feedbackBannerClosedAt';
+
+/** Preferences key holding when the reader closed the Upgrade to Parsely card, as an ISO date. */
+export const DASHBOARD_PARSELY_UPGRADE_CARD_KEY = 'parselyUpgradeCardClosedAt';

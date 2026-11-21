@@ -123,6 +123,7 @@ export {
 	type LockedSectionGate,
 	type StatsFeatureKey,
 } from './utils/plan-gates';
+export { getParselySignupUrl, offersParselyPrompts } from './utils/parsely-prompts';
 export { getStatsCheckoutUrl } from './utils/stats-checkout-url';
 export {
 	applyStatsDatePolicy,

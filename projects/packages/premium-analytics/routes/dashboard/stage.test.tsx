@@ -387,6 +387,7 @@ jest.mock( '@wordpress/widget-dashboard', () => {
 } );
 
 jest.mock( './components', () => ( {
+	ParselyUpgradeCard: () => null,
 	DashboardSections: ( {
 		children,
 		sections,
