@@ -496,6 +496,10 @@ class Jetpack_Sitemap_Manager {
 
 			// Catch image sitemap xsl.
 			if ( 'image-sitemap.xsl' === $request['sitemap_name'] ) {
+				if ( (bool) apply_filters( 'jetpack_sitemap_disable_image_sitemap', false ) ) {
+					$this->serve_raw_and_die( 'application/xml', '' );
+				}
+
 				$this->serve_raw_and_die(
 					'application/xml',
 					Jetpack_Sitemap_Stylist::image_sitemap_xsl()
@@ -551,6 +555,10 @@ class Jetpack_Sitemap_Manager {
 
 			// Catch image sitemap xml.
 			if ( preg_match( $regex['image'], $request['sitemap_name'] ) ) {
+				if ( (bool) apply_filters( 'jetpack_sitemap_disable_image_sitemap', false ) ) {
+					$this->serve_raw_and_die( $xml_content_type, '' );
+				}
+
 				$this->serve_raw_and_die(
 					$xml_content_type,
 					$this->librarian->get_sitemap_text(
@@ -562,6 +570,10 @@ class Jetpack_Sitemap_Manager {
 
 			// Catch image sitemap index xml.
 			if ( preg_match( $regex['image-index'], $request['sitemap_name'] ) ) {
+				if ( (bool) apply_filters( 'jetpack_sitemap_disable_image_sitemap', false ) ) {
+					$this->serve_raw_and_die( $xml_content_type, '' );
+				}
+
 				$this->serve_raw_and_die(
 					$xml_content_type,
 					$this->librarian->get_sitemap_text(
