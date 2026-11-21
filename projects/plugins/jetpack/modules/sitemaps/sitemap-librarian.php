@@ -492,7 +492,7 @@ class Jetpack_Sitemap_Librarian {
 	public function query_most_recent_posts( $num_posts ) {
 		global $wpdb;
 
-		$two_days_ago = gmdate( 'Y-m-d', strtotime( '-2 days' ) );
+		$two_days_ago = gmdate( 'Y-m-d H:i:s', time() - 2 * DAY_IN_SECONDS );
 
 		/**
 		 * Filter post types to be included in news sitemap.
@@ -522,9 +522,9 @@ class Jetpack_Sitemap_Librarian {
 				"SELECT $columns_list
 					FROM $wpdb->posts
 					WHERE post_status='publish'
-						AND post_date >= '%s'
+						AND post_date_gmt >= '%s'
 						AND post_type IN ($post_types_list)
-					ORDER BY post_date DESC
+					ORDER BY post_date_gmt DESC
 					LIMIT %d;",
 				$two_days_ago,
 				$num_posts
