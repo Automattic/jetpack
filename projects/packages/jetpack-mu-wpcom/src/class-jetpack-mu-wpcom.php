@@ -143,6 +143,12 @@ class Jetpack_Mu_Wpcom {
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_my_jetpack' ) );
 			// Elsewhere load-jetpack.php starts the admin shell, and Simple never loads that file.
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_admin_shell' ) );
+			// Elsewhere the Jetpack plugin's `monetize` module loads the page.
+			add_action( 'plugins_loaded', array( __CLASS__, 'load_monetize' ) );
+		}
+
+		if ( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) || Constants::is_true( 'IS_ATOMIC' ) ) {
+			add_filter( 'jetpack_feature_upgrade', array( \Automattic\Jetpack\Jetpack_Mu_Wpcom\WPCOM_Feature_Upgrades::class, 'filter_monetize_upgrade' ), 10, 2 );
 		}
 
 		// At mu-plugin scope, because the Jetpack plugin can resolve these filters before plugins_loaded loads the pages.
@@ -986,6 +992,25 @@ class Jetpack_Mu_Wpcom {
 		\Automattic\Jetpack\Admin_UI\Admin_Shell::register_feature_flag();
 		// Not left to Admin_Menu: admin-ajax requests never build the menu, and the guest endpoint lives there.
 		\Automattic\Jetpack\Admin_UI\Admin_Shell::init();
+	}
+
+	/**
+	 * Load the Monetize page on Simple while its feature flag is on.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return void
+	 */
+	public static function load_monetize() {
+		// The package ships with Jetpack, which deploys separately from this one.
+		if ( ! method_exists( \Automattic\Jetpack\Monetize\Dashboard::class, 'register_feature_flag' ) ) {
+			return;
+		}
+
+		\Automattic\Jetpack\Monetize\Dashboard::register_feature_flag();
+		if ( \Automattic\Jetpack\Monetize\Dashboard::is_enabled() ) {
+			\Automattic\Jetpack\Monetize\Dashboard::init();
+		}
 	}
 
 	/**

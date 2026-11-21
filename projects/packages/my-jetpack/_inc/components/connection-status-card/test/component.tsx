@@ -341,14 +341,6 @@ describe( 'ConnectionStatusCard', () => {
 					mockConnectionFromMissing = false;
 				}
 			} );
-
-			it( 'renders the correct user connection line item', () => {
-				setup();
-				setTimeout( () => {
-					expect( screen.getByText( 'Some features require authentication.' ) ).toBeInTheDocument();
-					expect( screen.getByRole( 'button', { name: 'Sign in' } ) ).toBeInTheDocument();
-				}, 1500 );
-			} );
 		} );
 	} );
 

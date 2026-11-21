@@ -690,6 +690,64 @@ class Main_Features_Test extends TestCase {
 	}
 
 	/**
+	 * A product's purchase link follows its feature's host URL, asked for from the Overview once per
+	 * description; a bundle's never does.
+	 *
+	 * @dataProvider provide_host_upgrade_urls
+	 *
+	 * @param string[]    $owned       The products the site pays for.
+	 * @param string      $url         The URL the host sends.
+	 * @param string|null $feature_url The URL the feature carries, or null or empty for none.
+	 */
+	#[DataProvider( 'provide_host_upgrade_urls' )]
+	public function test_host_purchase_url_for_a_product( $owned, $url, $feature_url ) {
+		$this->own( $owned );
+		$asked        = array();
+		$send_to_host = static function ( $upgrade, $slug ) use ( $url, &$asked ) {
+			$asked[ $slug ][] = $upgrade['back_url'] ?? null;
+			return array_merge( $upgrade, array( 'url' => $url ) );
+		};
+		add_filter( 'jetpack_feature_upgrade', $send_to_host, 10, 2 );
+
+		$info       = Products\Backup::get_wpcom_info();
+		$bundle_url = Products\Complete::get_purchase_url();
+		$asked_once = $asked;
+		$later_url  = Products\Backup::get_purchase_url();
+		remove_filter( 'jetpack_feature_upgrade', $send_to_host, 10 );
+
+		$expected = $feature_url ? $feature_url : null;
+		$this->assertSame( $expected, $info['purchase_url'] );
+		$this->assertSame( $expected, $info['host_purchase_url'] );
+		$this->assertNull( $bundle_url );
+		$this->assertSame( array( 'backup' => array( admin_url( 'admin.php?page=my-jetpack' ) ) ), $asked_once );
+		$this->assertSame( $expected, $later_url );
+		$this->assertCount( 2, $asked['backup'] ?? array() );
+	}
+
+	/**
+	 * The info every page load builds says a host may sell a product without asking the host.
+	 */
+	public function test_static_product_info_flags_a_listening_host_without_asking_it() {
+		$asked = 0;
+		$spy   = static function ( $upgrade ) use ( &$asked ) {
+			++$asked;
+			return $upgrade;
+		};
+
+		$unheard = Products\Backup::get_info();
+		add_filter( 'jetpack_feature_upgrade', $spy );
+		$product = Products\Backup::get_info();
+		$bundle  = Products\Complete::get_info();
+		remove_filter( 'jetpack_feature_upgrade', $spy );
+
+		$this->assertSame( 0, $asked );
+		$this->assertArrayNotHasKey( 'host_purchase_url', $product );
+		$this->assertTrue( $product['host_may_sell'] );
+		$this->assertFalse( $bundle['host_may_sell'] );
+		$this->assertFalse( $unheard['host_may_sell'] );
+	}
+
+	/**
 	 * A host is told the link is on My Jetpack's Features tab, and that address stays out of the feature's data.
 	 */
 	public function test_upgrade_filter_gets_the_features_tab_as_back_url() {

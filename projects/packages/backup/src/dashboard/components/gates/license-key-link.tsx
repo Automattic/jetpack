@@ -25,9 +25,13 @@ const ADD_LICENSE_URL = 'admin.php?page=my-jetpack#/add-license';
  * a deliberate widening: someone who bought a license and hit a "link
  * your account" wall is exactly who needs it.
  *
- * @return The rendered link.
+ * @return The rendered link, or nothing where My Jetpack's add-license screen is off.
  */
 export default function LicenseKeyLink() {
+	if ( window.JPBACKUP_DASHBOARD_STATE?.addLicense === false ) {
+		return null;
+	}
+
 	return (
 		<ButtonLink
 			className="jpb-gates__license"

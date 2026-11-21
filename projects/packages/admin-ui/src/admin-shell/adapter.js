@@ -1,9 +1,14 @@
 /*
- * Every workaround for @wordpress/boot and TanStack Router internals lives here, so when
- * Gutenberg ships APIs for several apps in one document only this file changes (JETPACK-3414).
+ * Every workaround for @wordpress/boot and TanStack Router internals lives or is re-exported here,
+ * so when Gutenberg ships APIs for several apps in one document only this file changes (JETPACK-3414).
  */
 import { pageOf } from './chrome';
 import { log } from './debug';
+
+export {
+	trackViewTransitions,
+	transitionSettled,
+} from '@automattic/jetpack-wp-build-polyfills/src/js/view-transitions';
 
 /**
  * Keep each app's router deaf to URLs that belong to another app.
@@ -119,57 +124,6 @@ export function isolateRouters( getVisible, onWrite ) {
 			onWrite();
 		},
 	};
-}
-
-let activeTransition = null;
-
-/**
- * Keep view transitions from erroring when one app's transition cuts off another's.
- *
- * Boot animates every route change, and a document runs one transition at a time, so two apps
- * navigating close together skip the first one. Nobody awaits its promises, so the skip would
- * surface as an unhandled "Transition was skipped" error.
- */
-export function trackViewTransitions() {
-	if ( typeof document.startViewTransition !== 'function' ) {
-		return;
-	}
-	const start = document.startViewTransition.bind( document );
-	document.startViewTransition = ( ...args ) => {
-		const transition = start( ...args );
-		for ( const promise of [
-			transition.ready,
-			transition.finished,
-			transition.updateCallbackDone,
-		] ) {
-			promise?.catch( () => {} );
-		}
-		activeTransition = transition;
-		transition.finished
-			.catch( () => {} )
-			.then( () => {
-				if ( activeTransition === transition ) {
-					activeTransition = null;
-				}
-			} );
-		return transition;
-	};
-}
-
-/**
- * Wait for a running view transition to finish, so the next navigation doesn't cut it off.
- *
- * @param {number} timeout - Milliseconds to wait at most.
- * @return {Promise<void>} Resolves when no transition is running.
- */
-export function transitionSettled( timeout = 500 ) {
-	if ( ! activeTransition ) {
-		return Promise.resolve();
-	}
-	return Promise.race( [
-		activeTransition.finished.catch( () => {} ),
-		new Promise( resolve => setTimeout( resolve, timeout ) ),
-	] ).then( () => undefined );
 }
 
 /**

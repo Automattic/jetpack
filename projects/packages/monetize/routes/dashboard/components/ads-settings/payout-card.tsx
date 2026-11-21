@@ -60,7 +60,7 @@ export function PayoutCard( { adsActive }: { adsActive: boolean } ) {
 	const onPaypalChange = useCallback( ( next: unknown ) => setPaypal( String( next ?? '' ) ), [] );
 	const onSave = useCallback( () => {
 		save.mutate(
-			{ paypal: address, tos: agreed },
+			{ paypal: address, tos: agreed, adsOff: ! adsActive },
 			{
 				onSuccess: () => {
 					trackPayoutSave( agreed );
@@ -69,7 +69,7 @@ export function PayoutCard( { adsActive }: { adsActive: boolean } ) {
 				},
 			}
 		);
-	}, [ save, address, agreed ] );
+	}, [ save, address, agreed, adsActive ] );
 
 	// The card shows from the start, its fields disabled until WordPress.com answers.
 	const isReady = Boolean( stored );

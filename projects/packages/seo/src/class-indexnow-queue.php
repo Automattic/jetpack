@@ -439,7 +439,7 @@ class Indexnow_Queue {
 				continue;
 			}
 			$receipt = maybe_unserialize( $row['option_value'] );
-			if ( self::ACCEPTED_OPTION === $option && is_array( $receipt ) && 'accepted' === ( $receipt['state'] ?? '' ) && get_option( Indexnow_Client::SCOPE_OPTION, '' ) === Indexnow_Client::scope() ) {
+			if ( self::ACCEPTED_OPTION === $option && is_array( $receipt ) && 'accepted' === ( $receipt['state'] ?? '' ) && Indexnow_Client::matches_scope( get_option( Indexnow_Client::SCOPE_OPTION, '' ) ) ) {
 				continue;
 			}
 			$history[] = $row;
@@ -555,7 +555,7 @@ class Indexnow_Queue {
 						$expired += self::compare_and_swap( $row, null ) ? 1 : 0;
 						continue;
 					}
-					if ( ( $item['scope'] ?? '' ) !== Indexnow_Client::scope() || ( isset( $item['url'] ) && ! Indexnow_Client::in_scope( $item['url'] ) ) ) {
+					if ( ! Indexnow_Client::matches_scope( $item['scope'] ?? '' ) || ( isset( $item['url'] ) && ! Indexnow_Client::in_scope( $item['url'] ) ) ) {
 						self::compare_and_swap( $row, null );
 						continue;
 					}
@@ -631,14 +631,15 @@ class Indexnow_Queue {
 					self::delete_rows( array( $enqueue_error ), $generation );
 					self::invalidate_summary_cache( array( 'jetpack_seo_indexnow_enqueue_error' ) );
 				}
+				$now = time();
 				if ( 'http_429' === $result['state'] ) {
-					self::store_status_option( self::COOLDOWN_OPTION, time() + max( 600, $result['retry_after'] ?? 0 ), $generation );
+					self::store_status_option( self::COOLDOWN_OPTION, $now + max( 600, $result['retry_after'] ?? 0 ), $generation );
 				}
 				foreach ( $claimed as $row ) {
 					$item = (array) json_decode( $row['option_value'], true );
 					if ( $result['retry'] && $item['attempt'] < 5 ) {
 						++$item['attempt'];
-						$item['due']  = time() + max( $result['retry_after'] ?? 0, min( 43200, 60 * pow( 4, $item['attempt'] ) ), 'http_429' === $result['state'] ? 600 : 0 );
+						$item['due']  = $now + max( $result['retry_after'] ?? 0, min( 43200, 60 * pow( 4, $item['attempt'] ) ), 'http_429' === $result['state'] ? 600 : 0 );
 						$earliest_due = min( $earliest_due, $item['due'] );
 						$retrying    += self::compare_and_swap( $row, $item, $generation ) ? 1 : 0;
 					} elseif ( self::compare_and_swap( $row, null ) ) {

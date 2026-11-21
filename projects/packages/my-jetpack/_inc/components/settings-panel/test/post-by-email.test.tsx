@@ -23,16 +23,24 @@ jest.mock( '@wordpress/api-fetch', () => jest.fn() );
 jest.mock( '@automattic/jetpack-shared-stores', () => ( { store: {} } ) );
 jest.mock( '@wordpress/notices', () => ( { store: 'core/notices' } ) );
 jest.mock( '@wordpress/data', () => ( {
+	combineReducers: () => {},
+	createReduxStore: () => {},
+	createSelector: () => {},
+	register: () => {},
 	useDispatch: () => ( {
 		fetchModules: mockFetchModules,
 		createErrorNotice: mockCreateErrorNotice,
 		createSuccessNotice: mockCreateSuccessNotice,
 	} ),
 } ) );
-jest.mock( '@wordpress/compose', () => ( {
-	useCopyToClipboard: ( text: string, onSuccess: () => void, onError: () => void ) =>
-		mockUseCopyToClipboard( text, onSuccess, onError ),
-} ) );
+jest.mock( '@wordpress/compose', () => {
+	const actual = jest.requireActual( '@wordpress/compose' );
+	return {
+		...actual,
+		useCopyToClipboard: ( text: string, onSuccess: () => void, onError: () => void ) =>
+			mockUseCopyToClipboard( text, onSuccess, onError ),
+	};
+} );
 jest.mock( '../../my-jetpack-tab-panel/features/feature-state', () => ( {
 	useAccountConnected: () => mockAccountConnected,
 } ) );

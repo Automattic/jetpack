@@ -140,6 +140,7 @@ class Initializer {
 		Indexnow::init();
 
 		Indexnow_Client::init();
+		add_action( 'rest_api_init', array( Data_Sharing::class, 'register_routes' ) );
 
 		// Editing routes and output follow the saved SEO Tools activation choice.
 		if ( self::is_seo_tools_module_active() ) {

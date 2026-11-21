@@ -722,7 +722,9 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 					}
 
 					if ( 'en_US' === $value || empty( $value ) ) {
-						return delete_option( 'WPLANG' );
+						delete_option( 'WPLANG' );
+						$updated = '' === get_option( 'WPLANG', '' );
+						break;
 					}
 
 					if ( ! function_exists( 'request_filesystem_credentials' ) ) {
