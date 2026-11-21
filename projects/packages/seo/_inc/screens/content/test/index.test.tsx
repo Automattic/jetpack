@@ -1,6 +1,6 @@
 import '@testing-library/jest-dom';
 import { jest } from '@jest/globals';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import type { View } from '@wordpress/dataviews';
 import type { ReactNode } from 'react';
 
@@ -10,9 +10,10 @@ import type { ReactNode } from 'react';
 // the initial view/fields without rendering the (heavy) real grid.
 let capturedView: View | undefined;
 let capturedFields: Array< { id: string; render?: ( props: { item: object } ) => ReactNode } > = [];
+let changeView: ( view: View ) => void;
 
 const navigate = jest.fn();
-const useSearch = jest.fn< () => { needs?: string } >();
+const useSearch = jest.fn< () => { needs?: string; postId?: number; postType?: string } >();
 
 jest.unstable_mockModule( '@wordpress/route', () => ( {
 	useNavigate: () => navigate,
@@ -28,9 +29,14 @@ jest.unstable_mockModule( '../../../data/use-seo-posts', () => ( {
 } ) );
 
 jest.unstable_mockModule( '@wordpress/dataviews', () => ( {
-	DataViews: ( props: { view: View; fields: typeof capturedFields } ) => {
+	DataViews: ( props: {
+		view: View;
+		fields: typeof capturedFields;
+		onChangeView: typeof changeView;
+	} ) => {
 		capturedView = props.view;
 		capturedFields = props.fields;
+		changeView = props.onChangeView;
 		return null;
 	},
 	filterSortAndPaginate: () => ( {
@@ -116,6 +122,23 @@ describe( 'ContentScreen — ?needs= deep-link seeding', () => {
 		expect( navigate ).toHaveBeenCalledWith( {
 			to: '/content',
 			search: { needs: 'title', postId: 5, postType: 'page' },
+		} );
+	} );
+
+	it( 'clears the deep-link query when its filter is removed with the inspector open', () => {
+		useSearch.mockReturnValue( { needs: 'title', postId: 5, postType: 'page' } );
+		render( <ContentScreen /> );
+		const view = capturedView as View;
+
+		act( () => changeView( { ...view, page: 2 } ) );
+		expect( navigate ).not.toHaveBeenCalled();
+
+		act( () => changeView( { ...view, filters: [] } ) );
+		expect( navigate ).toHaveBeenCalledWith( {
+			to: '/content',
+			search: { needs: undefined, postId: 5, postType: 'page' },
+			replace: true,
+			resetScroll: false,
 		} );
 	} );
 } );

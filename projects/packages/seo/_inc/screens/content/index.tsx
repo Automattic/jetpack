@@ -306,7 +306,27 @@ const ContentScreen: FC = () => {
 		[ items, view, fields ]
 	);
 
-	const onChangeView = useCallback( ( next: View ) => setView( next ), [] );
+	const onChangeView = useCallback(
+		( next: View ) => {
+			setView( next );
+			const filter = needsToFilter( search.needs );
+			if (
+				filter &&
+				! next.filters?.some(
+					( { field, operator, value } ) =>
+						field === filter.field && operator === filter.operator && value === filter.value
+				)
+			) {
+				navigate( {
+					to: '/content',
+					search: { ...search, needs: undefined } as never,
+					replace: true,
+					resetScroll: false,
+				} );
+			}
+		},
+		[ navigate, search ]
+	);
 	const getItemId = useCallback( ( item: ContentRow ) => String( item.id ), [] );
 
 	return (
