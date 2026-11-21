@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Help Center: load on WooCommerce admin screens again. It was skipped on the WooCommerce home, Analytics, Customers, and Marketing screens, which removed the admin bar entry point there.
