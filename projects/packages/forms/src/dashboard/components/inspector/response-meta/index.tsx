@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { ClipboardIconButton } from '@automattic/jetpack-components';
 import Gravatar from '@automattic/jetpack-components/gravatar';
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
 import { useId } from '@wordpress/element';
@@ -10,7 +11,6 @@ import { Badge, Link, Stack, Text, Tooltip, VisuallyHidden } from '@wordpress/ui
 /**
  * Internal dependencies
  */
-import CopyClipboardButton from '../../../components/copy-clipboard-button/index.tsx';
 import { getPath } from '../../../inbox/utils.js';
 import TextWithFlag from '../../text-with-flag/index.tsx';
 import { getDisplayName } from '../utils.ts';
@@ -119,7 +119,12 @@ const ResponseMeta = ( { response }: ResponseMetaProps ): import( 'react' ).JSX.
 								{ responseAuthorEmailParts[ 0 ] }
 								<wbr />@{ responseAuthorEmailParts[ 1 ] }
 							</Text>
-							<CopyClipboardButton text={ response.author_email } />
+							<ClipboardIconButton
+								className="jp-forms__copy-clipboard-button"
+								text={ response.author_email }
+								label={ __( 'Copy', 'jetpack-forms' ) }
+								size="small"
+							/>
 						</Stack>
 					) }
 				</Stack>

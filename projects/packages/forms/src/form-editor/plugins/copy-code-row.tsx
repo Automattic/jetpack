@@ -2,15 +2,13 @@
  * External dependencies
  */
 import './copy-code-row.scss';
-import { Button, Popover } from '@wordpress/components';
+import { ClipboardIconButton } from '@automattic/jetpack-components';
 import { useInstanceId } from '@wordpress/compose';
 import { useRef, useCallback } from '@wordpress/element';
-import { __, isRTL, sprintf } from '@wordpress/i18n';
-import { copySmall, check } from '@wordpress/icons';
+import { __, sprintf } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import useCopyConfirmation from '../../hooks/use-copy-confirmation';
 import type { JSX } from 'react';
 
 type CopyCodeRowProps = {
@@ -30,7 +28,6 @@ export const CopyCodeRow = ( { text, label, help }: CopyCodeRowProps ) => {
 	const instanceId = useInstanceId( CopyCodeRow );
 	const labelId = `jetpack-form-embed-code__label-${ instanceId }`;
 	const helpId = `jetpack-form-embed-code__help-${ instanceId }`;
-	const { ref, copied: showCopyConfirmation } = useCopyConfirmation( text, 2000 );
 
 	const handleTextClick = useCallback( () => {
 		if ( ! textRef.current ) {
@@ -75,34 +72,14 @@ export const CopyCodeRow = ( { text, label, help }: CopyCodeRowProps ) => {
 				>
 					{ text }
 				</span>
-				{ showCopyConfirmation ? (
-					<Button
-						ref={ ref }
-						icon={ check }
-						size="compact"
-						label={ __( 'Copied!', 'jetpack-forms' ) }
-					>
-						<Popover
-							placement={ isRTL() ? 'top-start' : 'top-end' }
-							noArrow={ false }
-							focusOnMount={ false }
-							className="jetpack-form-embed-code__popover"
-						>
-							{ __( 'Copied!', 'jetpack-forms' ) }
-						</Popover>
-					</Button>
-				) : (
-					<Button
-						ref={ ref }
-						icon={ copySmall }
-						size="compact"
-						label={ sprintf(
-							/* translators: %s: label for the code row (e.g. "Embed code", "Shortcode") */
-							__( 'Copy %s', 'jetpack-forms' ),
-							label.toLowerCase()
-						) }
-					/>
-				) }
+				<ClipboardIconButton
+					text={ text }
+					label={ sprintf(
+						/* translators: %s: label for the code row (e.g. "Embed code", "Shortcode") */
+						__( 'Copy %s', 'jetpack-forms' ),
+						label.toLowerCase()
+					) }
+				/>
 			</div>
 			{ help && (
 				<p id={ helpId } className="jetpack-form-embed-code__help">
