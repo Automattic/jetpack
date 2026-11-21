@@ -690,7 +690,8 @@ class Password_Detection {
 
 		if ( ! $taken ) {
 			// Only an error on option_id or the primary key means the table refused the row (e.g. wp_options lost AUTO_INCREMENT).
-			$refused = false === stripos( $error, $name ) && ( false !== stripos( $error, 'PRIMARY' ) || false !== stripos( $error, 'option_id' ) );
+			// The SQLite integration's error also quotes the query and a backtrace, so match only key-shaped tokens.
+			$refused = false === stripos( $error, "entry '{$name}'" ) && preg_match( "/PRIMARY'|'option_id'|\\.option_id\\b/i", $error );
 			if ( $refused ) {
 				return true;
 			}

@@ -822,8 +822,16 @@ class Password_Detection_Test extends BaseTestCase {
 			'table refuses the row at option_id 0'         => array( false, "Duplicate entry '0' for key 'PRIMARY'", 0, true, false ),
 			'table refuses the row (MySQL 8)'              => array( false, "Duplicate entry '0' for key 'primary_options.PRIMARY'", 0, true, false ),
 			'table refuses the row (SQLite)'               => array( false, 'UNIQUE constraint failed: primary_options.option_id', 0, true, false ),
+			'lock held (SQLite integration)'               => array( false, self::error_from_sqlite_integration( 'option_name' ), 0, false, false ),
+			'table refuses the row (SQLite integration)'   => array( false, self::error_from_sqlite_integration( 'option_id' ), 0, true, false ),
 			'table has no option_id default'               => array( false, "Field 'option_id' doesn't have a default value", 0, true, false ),
 		);
+	}
+
+	private static function error_from_sqlite_integration( string $column ): string {
+		return "<div>MySQL query:</div><div>INSERT INTO primary_options (option_name, option_value, autoload) VALUES ('jetpack_account_protection_attempt_lock_123', '1795210420.000000001', 'off')</div>"
+			. "<div>SQLSTATE[23000]: Integrity constraint violation: 19 UNIQUE constraint failed: primary_options.{$column}</div>"
+			. '<pre>#0 /home/primary/wp-content/plugins/sqlite-database-integration/wp-includes/sqlite/class-wp-sqlite-db.php(310)</pre>';
 	}
 
 	public function test_login_form_password_detection_does_not_send_email_past_the_user_limit(): void {
