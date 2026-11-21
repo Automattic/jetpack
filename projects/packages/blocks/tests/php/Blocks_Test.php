@@ -354,6 +354,73 @@ class Blocks_Test extends TestCase {
 	}
 
 	/**
+	 * Register a block with a front-end style, then run the front-end enqueue as a site that opted out of on-demand assets.
+	 *
+	 * @param bool $on_demand Value for the on-demand block asset filters.
+	 * @return \WP_Block_Type
+	 */
+	private function register_styled_block_and_enqueue( $on_demand ) {
+		$GLOBALS['wp_styles'] = new \WP_Styles();
+		wp_register_style( 'jetpack-styled-block', 'https://example.com/styled-block.css', array(), '1' );
+		$block_type = Blocks::jetpack_register_block(
+			'jetpack/styled-block',
+			array(
+				'style'           => 'jetpack-styled-block',
+				'render_callback' => static function () {
+					return '<p>Styled block</p>';
+				},
+			)
+		);
+
+		$filter = $on_demand ? '__return_true' : '__return_false';
+		add_filter( 'should_load_separate_core_block_assets', $filter, 99 );
+		add_filter( 'should_load_block_assets_on_demand', $filter, 99 );
+		do_action( 'wp_enqueue_scripts' );
+
+		return $block_type;
+	}
+
+	/**
+	 * Clean up after register_styled_block_and_enqueue().
+	 */
+	private function unregister_styled_block() {
+		foreach ( array( '__return_true', '__return_false' ) as $filter ) {
+			remove_filter( 'should_load_separate_core_block_assets', $filter, 99 );
+			remove_filter( 'should_load_block_assets_on_demand', $filter, 99 );
+		}
+		unregister_block_type( 'jetpack/styled-block' );
+		$GLOBALS['wp_styles'] = new \WP_Styles();
+	}
+
+	/**
+	 * A site that turns off on-demand block assets loads a block's style only on pages that render the block.
+	 */
+	public function test_style_loads_only_where_block_renders_when_on_demand_assets_are_off() {
+		try {
+			$this->register_styled_block_and_enqueue( false );
+			$this->assertFalse( wp_style_is( 'jetpack-styled-block', 'enqueued' ) );
+
+			render_block( array( 'blockName' => 'jetpack/styled-block' ) );
+			$this->assertTrue( wp_style_is( 'jetpack-styled-block', 'enqueued' ) );
+		} finally {
+			$this->unregister_styled_block();
+		}
+	}
+
+	/**
+	 * With on-demand block assets, the style stays a block `style` so core keeps hoisting it to the block styles slot.
+	 */
+	public function test_style_stays_a_block_style_when_on_demand_assets_are_on() {
+		try {
+			$block_type = $this->register_styled_block_and_enqueue( true );
+			$this->assertSame( array( 'jetpack-styled-block' ), $block_type->style_handles );
+			$this->assertSame( array(), $block_type->view_style_handles );
+		} finally {
+			$this->unregister_styled_block();
+		}
+	}
+
+	/**
 	 * Test reading metadata from a block.json file by specifying its path.
 	 *
 	 * @since 1.5.0
