@@ -5,6 +5,7 @@ declare global {
 			homeUrl: string;
 			siteSlug: string;
 			optionsGeneralUrl: string;
+			primaryDomainCandidates: string[];
 		};
 	}
 }

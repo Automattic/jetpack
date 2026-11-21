@@ -5,6 +5,8 @@
  * @package automattic/jetpack-mu-wpcom
  */
 
+use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 
 /**
@@ -222,9 +224,99 @@ function wpcom_site_management_panel() {
 add_action( 'load-options-general.php', 'wpcom_site_management_panel' );
 
 /**
- * Display the site URL in General Settings on Simple Classic sites.
+ * Get the site's domains, from the domains table on Simple and from the WordPress.com API on Atomic.
+ *
+ * @return array<int,object>|null Domain objects shaped like /sites/{id}/domains, or null if the lookup failed.
  */
-function wpcom_enqueue_options_general_assets() {
+function wpcom_options_general_get_site_domains() {
+	if ( Constants::is_true( 'IS_WPCOM' ) ) {
+		if ( ! class_exists( 'Domain_Management' ) && file_exists( WP_CONTENT_DIR . '/admin-plugins/domains/management.php' ) ) {
+			require_once WP_CONTENT_DIR . '/admin-plugins/domains/management.php';
+		}
+		if ( ! class_exists( 'Domain_Management' ) ) {
+			return null;
+		}
+		return \Domain_Management::get_domains_for_current_blog_light_load();
+	}
+
+	$site_id = \Jetpack_Options::get_option( 'id' );
+	if ( ! $site_id ) {
+		return null;
+	}
+
+	$response = Client::wpcom_json_api_request_as_blog(
+		sprintf( '/sites/%d/domains', (int) $site_id ),
+		'1.2',
+		array(
+			'method'  => 'GET',
+			// A slow answer must not become a slow settings page.
+			'timeout' => 5,
+		),
+		null,
+		'rest'
+	);
+	if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
+		return null;
+	}
+
+	$body = json_decode( wp_remote_retrieve_body( $response ) );
+	if ( ! is_object( $body ) || ! isset( $body->domains ) || ! is_array( $body->domains ) ) {
+		return null;
+	}
+
+	return $body->domains;
+}
+
+/**
+ * Get the custom domains that could become the site address of a site still on its WordPress.com address.
+ *
+ * Covers a domain bought during setup that never became primary. A site that already
+ * uses a custom domain gets an empty list, so it keeps the "Add custom address" button.
+ *
+ * @return string[] Domain names.
+ */
+function wpcom_options_general_get_primary_domain_candidates() {
+	$domains = wpcom_options_general_get_site_domains();
+	if ( ! is_array( $domains ) ) {
+		return array();
+	}
+
+	$candidates = array();
+	foreach ( $domains as $domain ) {
+		if ( empty( $domain->domain ) || ! is_string( $domain->domain ) ) {
+			continue;
+		}
+
+		$is_wpcom_provided = ! empty( $domain->wpcom_domain ) || ! empty( $domain->is_wpcom_staging_domain );
+
+		if ( ! empty( $domain->primary_domain ) ) {
+			if ( ! $is_wpcom_provided ) {
+				return array();
+			}
+			continue;
+		}
+
+		if (
+			$is_wpcom_provided ||
+			empty( $domain->can_set_as_primary ) ||
+			! empty( $domain->expired ) ||
+			! empty( $domain->set_primary_domain_pending )
+		) {
+			continue;
+		}
+
+		$candidates[] = $domain->domain;
+	}
+
+	return $candidates;
+}
+
+/**
+ * Display the site URL in General Settings on Simple Classic sites.
+ *
+ * @param string $hook_suffix The current admin page.
+ */
+function wpcom_enqueue_options_general_assets( $hook_suffix = '' ) {
 	$asset_file = include Jetpack_Mu_Wpcom::BASE_DIR . 'build/wpcom-options-general/wpcom-options-general.asset.php';
 
 	wp_enqueue_style(
@@ -248,10 +340,12 @@ function wpcom_enqueue_options_general_assets() {
 		'wpcom-options-general',
 		'window.wpcomSiteUrl = ' . wp_json_encode(
 			array(
-				'siteUrl'           => get_site_url(),
-				'homeUrl'           => home_url(),
-				'siteSlug'          => $site_slug,
-				'optionsGeneralUrl' => $options_general_url,
+				'siteUrl'                 => get_site_url(),
+				'homeUrl'                 => home_url(),
+				'siteSlug'                => $site_slug,
+				'optionsGeneralUrl'       => $options_general_url,
+				// Only looked up on Settings > General, the one page that uses it.
+				'primaryDomainCandidates' => 'options-general.php' === $hook_suffix ? wpcom_options_general_get_primary_domain_candidates() : array(),
 			),
 			JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
 		) . ';',
