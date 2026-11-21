@@ -111,9 +111,15 @@ export function StartCard( { openTab }: { openTab: OpenTab } ) {
 		trackAdsEvent( 'setup_click' );
 		openTab( 'settings' );
 	}, [ openTab ] );
+	// Joining approves the site; Settings is where it then turns ads on.
 	const onJoin = useCallback( () => {
-		join.mutate( undefined, { onSuccess: () => trackAdsEvent( 'join' ) } );
-	}, [ join ] );
+		join.mutate( undefined, {
+			onSuccess: () => {
+				trackAdsEvent( 'join' );
+				openTab( 'settings' );
+			},
+		} );
+	}, [ join, openTab ] );
 
 	return (
 		<Card.Root>

@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Give hosts the hook that reads and writes the switch that turns the teaser off.

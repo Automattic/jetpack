@@ -18,7 +18,7 @@ namespace Automattic\Jetpack\Announcements;
  *
  *     @type string   $date       When it was published. Parsed as GMT unless it carries an offset.
  *     @type string   $title      Plain text.
- *     @type string[] $channels   The channels it is published to, such as `premium-analytics`.
+ *     @type string[] $channels   The channels it is published to, such as `premium-analytics` or `premium-analytics/main`.
  *     @type string   $excerpt    Optional. Plain text, one or two sentences.
  *     @type string   $content    Optional. HTML, as a post allows it, without styles, classes or ids.
  *     @type array    $media      Optional. `type` (`image` or `video`), `url` (http or https) and `alt`.

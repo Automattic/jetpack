@@ -2,9 +2,11 @@ import { CONNECTION_FROM } from '@automattic/jetpack-connection/connection-from'
 import { getUserConnectionUrl } from '@automattic/jetpack-connection/get-user-connection-url';
 import { __, _x } from '@wordpress/i18n';
 import { Notice } from '@wordpress/ui';
-import { getPageData } from '../../data/state';
+import { useCallback } from 'react';
+import { getPageData, getSectionState } from '../../data/state';
 import { trackBannerClick } from '../../data/tracking';
 import type { AdsSettingsData } from '../../data/ads-settings-data';
+import type { TabValue } from '../../data/tabs';
 
 const trackConnectClick = () => trackBannerClick( 'connect' );
 const trackUpgradeClick = () => trackBannerClick( 'upgrade' );
@@ -45,19 +47,60 @@ export function AdsPrompt( { data }: { data: AdsSettingsData } ) {
 		);
 	}
 
+	const { upgradeUrl } = getPageData();
+
 	return (
 		<Notice.Root intent="info">
 			<Notice.Description>
 				{ __( 'Generate income with high-quality ads.', 'jetpack-monetize' ) }
 			</Notice.Description>
-			<Notice.Actions>
-				<Notice.ActionLink href={ getPageData().upgradeUrl } onClick={ trackUpgradeClick }>
-					{ _x(
-						'Upgrade',
-						'A caption for a button to upgrade an existing paid feature to a higher tier.',
+			{ upgradeUrl && (
+				<Notice.Actions>
+					<Notice.ActionLink href={ upgradeUrl } onClick={ trackUpgradeClick }>
+						{ _x(
+							'Upgrade',
+							'A caption for a button to upgrade an existing paid feature to a higher tier.',
+							'jetpack-monetize'
+						) }
+					</Notice.ActionLink>
+				</Notice.Actions>
+			) }
+		</Notice.Root>
+	);
+}
+
+/**
+ * What Simple's Settings show before the site joins WordAds, which happens on the Ads tab.
+ *
+ * @param props         - Component props.
+ * @param props.openTab - Opens another of the page's tabs.
+ * @return The prompt.
+ */
+export function JoinPrompt( { openTab }: { openTab: ( tab: TabValue ) => void } ) {
+	const openAds = useCallback( () => openTab( 'ads' ), [ openTab ] );
+
+	if ( ! getSectionState< { canJoinWordAds?: boolean } >( 'ads' )?.canJoinWordAds ) {
+		return (
+			<Notice.Root intent="info">
+				<Notice.Description>
+					{ __(
+						'Only the site owner can join WordAds, which lets you turn on ads and change where they appear.',
 						'jetpack-monetize'
 					) }
-				</Notice.ActionLink>
+				</Notice.Description>
+			</Notice.Root>
+		);
+	}
+
+	return (
+		<Notice.Root intent="info">
+			<Notice.Description>
+				{ __( 'Join WordAds to turn on ads and change where they appear.', 'jetpack-monetize' ) }
+			</Notice.Description>
+			<Notice.Actions>
+				<Notice.ActionButton onClick={ openAds }>
+					{ __( 'Join WordAds', 'jetpack-monetize' ) }
+				</Notice.ActionButton>
 			</Notice.Actions>
 		</Notice.Root>
 	);

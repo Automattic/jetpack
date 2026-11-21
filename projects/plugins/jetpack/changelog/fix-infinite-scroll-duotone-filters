@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Infinite Scroll: Keep duotone filters on images in posts loaded as you scroll.
