@@ -529,9 +529,9 @@ function wpcom_display_global_styles_notice_admin_bar( $wp_admin_bar ) {
 		: 'https://wordpress.com/support/using-styles/';
 
 	$message = sprintf(
-		/* translators: %1$s - documentation URL, %2$s - the name of the required plan */
+		/* translators: %1$s - documentation URL, %2$s - the name of the plan that unlocks site styles. Site styles are the sitewide changes made in the Styles panel (Global Styles). Visitors only see them on a paid plan. */
 		__(
-			'Your site includes <a href="%1$s" target="_blank">premium styles</a> that are only visible to visitors after upgrading to the %2$s plan or higher.',
+			'Your <a href="%1$s" target="_blank">sitewide styles</a> (changes made in Styles) are only visible to visitors after upgrading to the %2$s plan or higher.',
 			'jetpack-mu-wpcom'
 		),
 		$support_url,
@@ -585,7 +585,8 @@ function wpcom_display_global_styles_notice_admin_bar( $wp_admin_bar ) {
 		array(
 			'parent' => 'wpcom-global-styles',
 			'id'     => 'wpcom-global-styles-reset',
-			'title'  => esc_html__( 'Remove premium styles', 'jetpack-mu-wpcom' ),
+			/* translators: Admin bar link to the Styles panel, where the site styles can be reset. Site styles are the sitewide changes made in the Styles panel (Global Styles). Visitors only see them on a paid plan. */
+			'title'  => esc_html__( 'Reset site styles', 'jetpack-mu-wpcom' ),
 			'href'   => admin_url( 'site-editor.php?p=/styles' ),
 		)
 	);
@@ -603,7 +604,8 @@ function wpcom_display_global_styles_notice_admin_bar( $wp_admin_bar ) {
 		array(
 			'parent' => 'wpcom-global-styles-preview',
 			'id'     => 'wpcom-global-styles-preview-button',
-			'title'  => '<label><input type="checkbox" ' . ( wpcom_is_previewing_global_styles() ? 'checked' : '' ) . '><span></span></label>' . esc_html__( 'Preview premium styles', 'jetpack-mu-wpcom' ),
+			/* translators: Admin bar toggle that shows or hides the site styles on the front end. Site styles are the sitewide changes made in the Styles panel (Global Styles). Visitors only see them on a paid plan. */
+			'title'  => '<label><input type="checkbox" ' . ( wpcom_is_previewing_global_styles() ? 'checked' : '' ) . '><span></span></label>' . esc_html__( 'Preview site styles', 'jetpack-mu-wpcom' ),
 			'href'   => $preview_url,
 		)
 	);
