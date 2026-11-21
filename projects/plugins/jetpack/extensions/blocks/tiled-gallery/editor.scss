@@ -64,7 +64,7 @@
 		}
 
 		&.is-selected {
-			outline: 4px solid vars.$tiled-gallery-selection;
+			outline: 4px solid var(--wpds-color-stroke-interactive-brand-active);
 
 			// Disable filters when selected
 			filter: none;
