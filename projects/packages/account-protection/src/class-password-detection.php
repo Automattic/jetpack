@@ -684,20 +684,14 @@ class Password_Detection {
 		$wpdb->last_error = '';
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- The Options API cannot add a row only when it is missing; the table name is not user input.
 		$taken = $wpdb->query( $wpdb->prepare( "INSERT INTO {$table} (option_name, option_value, autoload) VALUES (%s, %s, 'off')", $name, $value ) );
-		// MySQL 8 and SQLite name the table in the error, and a prefix such as block_ must not read as a lock.
+		// MySQL 8 and SQLite name the table in the error, and a prefix such as primary_ must not read as the key.
 		$error = str_ireplace( $table, '', $wpdb->last_error );
 		$wpdb->suppress_errors( $suppress );
 
 		if ( ! $taken ) {
-			/*
-			 * A duplicate lock name or a lock conflict means the lock is held.
-			 * Any other error means the table refused the row (e.g. wp_options lost AUTO_INCREMENT).
-			 */
-			$held = '' === $error;
-			foreach ( array( $name, 'option_name', 'deadlock', 'lock wait', 'locked' ) as $sign ) {
-				$held = $held || false !== stripos( $error, $sign );
-			}
-			if ( ! $held ) {
+			// Only an error on option_id or the primary key means the table refused the row (e.g. wp_options lost AUTO_INCREMENT).
+			$refused = false === stripos( $error, $name ) && ( false !== stripos( $error, 'PRIMARY' ) || false !== stripos( $error, 'option_id' ) );
+			if ( $refused ) {
 				return true;
 			}
 
