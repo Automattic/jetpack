@@ -35,7 +35,7 @@ class Jetpack_Sitemap_Finder {
 	public function construct_sitemap_url( $filename ) {
 		$url = jetpack_sitemap_uri( $filename );
 
-		if ( pathinfo( $filename, PATHINFO_EXTENSION ) === 'xsl' ) {
+		if ( in_array( pathinfo( $filename, PATHINFO_EXTENSION ), array( 'xsl', 'css' ), true ) ) {
 			// Strip scheme for sites where sitemap could be access via http or https.
 			$url = preg_replace( '/^https?:/', '', $url );
 		}

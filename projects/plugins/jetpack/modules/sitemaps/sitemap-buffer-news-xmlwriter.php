@@ -28,7 +28,7 @@ class Jetpack_Sitemap_Buffer_News_XMLWriter extends Jetpack_Sitemap_Buffer_XMLWr
 		// Add stylesheet
 		$this->writer->writePi(
 			'xml-stylesheet',
-			'type="text/xsl" href="' . $this->finder->construct_sitemap_url( 'news-sitemap.xsl' ) . '"'
+			'type="text/css" href="' . $this->finder->construct_sitemap_url( 'sitemap.css' ) . '"'
 		);
 	}
 

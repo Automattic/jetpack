@@ -1,0 +1,123 @@
+/* stylelint-disable selector-type-no-unknown -- These selectors target XML sitemap elements. */
+@namespace sm url(http://www.sitemaps.org/schemas/sitemap/0.9);
+
+sm|sitemapindex,
+sm|urlset {
+	display: block;
+	box-sizing: border-box;
+	max-inline-size: 1100px;
+	margin-inline: auto;
+	padding: clamp(16px, 4vw, 48px);
+	background: #fff;
+	color: #1e1e1e;
+	font: 14px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+sm|sitemapindex::before,
+sm|urlset::before {
+	display: block;
+	margin-block-end: 32px;
+	white-space: pre-line;
+	font-size: 18px;
+	content: var(--jetpack-sitemap-title) "\a\a" var(--jetpack-sitemap-description);
+}
+
+sm|sitemapindex::before {
+	content: var(--jetpack-sitemap-index-title) "\a\a" var(--jetpack-sitemap-description);
+}
+
+sm|sitemapindex::after,
+sm|urlset::after {
+	display: block;
+	margin-block-start: 24px;
+	color: #50575e;
+	content: var(--jetpack-sitemap-footer);
+}
+
+sm|sitemap,
+sm|url {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) minmax(20ch, 24ch);
+	gap: 12px 24px;
+	padding: 16px;
+	border-block-end: 1px solid #dcdcde;
+}
+
+sm|sitemap:nth-of-type(even),
+sm|url:nth-of-type(even) {
+	background: #f6f7f7;
+}
+
+sm|sitemap > *,
+sm|url > * {
+	display: none;
+}
+
+sm|sitemap > sm|loc,
+sm|url > sm|loc {
+	display: block;
+	grid-column: 1;
+	direction: ltr;
+	overflow-wrap: anywhere;
+	text-align: start;
+}
+
+sm|sitemap > sm|lastmod,
+sm|url > sm|lastmod {
+	display: block;
+	grid-column: 2;
+	direction: ltr;
+	overflow-wrap: anywhere;
+	text-align: start;
+}
+
+sm|sitemap:first-of-type::before,
+sm|url:first-of-type::before,
+sm|sitemap:first-of-type::after,
+sm|url:first-of-type::after {
+	grid-row: 1;
+	font-weight: 600;
+}
+
+sm|sitemap:first-of-type::before,
+sm|url:first-of-type::before {
+	grid-column: 1;
+	content: var(--jetpack-sitemap-url);
+}
+
+sm|sitemap:first-of-type::after,
+sm|url:first-of-type::after {
+	grid-column: 2;
+	content: var(--jetpack-sitemap-lastmod);
+}
+
+@media (max-width: 600px) {
+
+	sm|sitemap,
+	sm|url {
+		grid-template-columns: minmax(0, 1fr);
+	}
+
+	sm|sitemap > sm|lastmod,
+	sm|url > sm|lastmod {
+		grid-column: 1;
+	}
+
+	sm|sitemap:first-of-type::before,
+	sm|url:first-of-type::before,
+	sm|sitemap:first-of-type::after,
+	sm|url:first-of-type::after {
+		display: none;
+	}
+
+	sm|loc::before,
+	sm|lastmod::before {
+		display: block;
+		font-weight: 600;
+		content: var(--jetpack-sitemap-url);
+	}
+
+	sm|lastmod::before {
+		content: var(--jetpack-sitemap-lastmod);
+	}
+}

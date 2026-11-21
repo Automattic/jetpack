@@ -27,7 +27,7 @@ class Jetpack_Sitemap_Buffer_Image_XMLWriter extends Jetpack_Sitemap_Buffer_XMLW
 		// Add stylesheet
 		$this->writer->writePi(
 			'xml-stylesheet',
-			'type="text/xsl" href="' . $this->finder->construct_sitemap_url( 'image-sitemap.xsl' ) . '"'
+			'type="text/css" href="' . $this->finder->construct_sitemap_url( 'sitemap.css' ) . '"'
 		);
 	}
 
