@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Carousel: Let Tiled Gallery images with custom links open those links instead of the carousel.
