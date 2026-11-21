@@ -777,11 +777,11 @@ class Password_Detection_Test extends BaseTestCase {
 		$original_wpdb = $wpdb;
 
 		$wpdb          = $this->getMockBuilder( \wpdb::class )->disableOriginalConstructor()->onlyMethods( array( 'prepare', 'query', 'suppress_errors', 'delete' ) )->getMock();
-		$wpdb->options = 'wp_options';
+		$wpdb->options = 'block_options';
 		$wpdb->method( 'prepare' )->willReturnArgument( 0 );
 		$wpdb->method( 'query' )->willReturnCallback(
 			function ( $query ) use ( $wpdb, $inserted, $insert_error, $taken_over ) {
-				$this->assertStringContainsString( 'wp_options', $query );
+				$this->assertStringContainsString( 'block_options', $query );
 				$is_insert        = 0 === strpos( $query, 'INSERT' );
 				$wpdb->last_error = $is_insert ? $insert_error : '';
 				return $is_insert ? $inserted : $taken_over;
@@ -811,11 +811,15 @@ class Password_Detection_Test extends BaseTestCase {
 		return array(
 			'lock row added'                               => array( 1, '', 0, true, true ),
 			'abandoned lock row taken over'                => array( false, $held_mariadb, 1, true, true ),
-			'lock held (MySQL 8)'                          => array( false, "Duplicate entry 'jetpack_account_protection_attempt_lock_123' for key 'wp_options.option_name'", 0, false, false ),
-			'lock held (SQLite)'                           => array( false, 'UNIQUE constraint failed: wp_options.option_name', 0, false, false ),
 			'lock released after the insert found it held' => array( false, $held_mariadb, 0, false, false ),
+			'lock held (MySQL 8)'                          => array( false, "Duplicate entry 'jetpack_account_protection_attempt_lock_123' for key 'block_options.option_name'", 0, false, false ),
+			'lock held (SQLite)'                           => array( false, 'UNIQUE constraint failed: block_options.option_name', 0, false, false ),
+			'insert fails with no error text'              => array( false, '', 0, false, false ),
 			'insert loses a deadlock to the holder'        => array( false, 'Deadlock found when trying to get lock; try restarting transaction', 0, false, false ),
+			'insert times out on a lock wait'              => array( false, 'Lock wait timeout exceeded; try restarting transaction', 0, false, false ),
+			'SQLite database is locked'                    => array( false, 'database is locked', 0, false, false ),
 			'table refuses the row at option_id 0'         => array( false, "Duplicate entry '0' for key 'PRIMARY'", 0, true, false ),
+			'table refuses the row (MySQL 8)'              => array( false, "Duplicate entry '0' for key 'block_options.PRIMARY'", 0, true, false ),
 			'table has no option_id default'               => array( false, "Field 'option_id' doesn't have a default value", 0, true, false ),
 		);
 	}
