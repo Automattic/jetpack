@@ -1,7 +1,3 @@
-# Nux Welcome Tour Modal
+# WPCOM Block Editor NUX
 
-A help tour to show new users some of the basics of using the editor.
-
-## Testing Instructions
-
-Instructions for testing the modal and its variants, and for resetting the state of `nux-status` so that the modal is shown again can be found on the PR [#47779](https://github.com/Automattic/wp-calypso/pull/47779)
+Editor prompts for WordPress.com users: the modals shown after publishing (first post, 4 for 4, seller and VideoPress celebrations), the recommended tags modal, the purchase notice and the Coming Soon post-publish panel.
