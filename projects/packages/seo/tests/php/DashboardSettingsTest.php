@@ -88,6 +88,7 @@ class DashboardSettingsTest extends TestCase {
 		remove_filter( 'jetpack_active_modules', '\\Private_Site\\filter_jetpack_active_modules' );
 		remove_filter( 'register_setting_args', array( Dashboard_Data::class, 'force_setting_args' ), 10 );
 		remove_filter( 'rest_pre_get_setting', array( Dashboard_Data::class, 'read_boolean_setting' ), 10 );
+		remove_filter( 'rest_pre_update_setting', array( Dashboard_Data::class, 'save_verification_codes' ), 10 );
 		remove_all_filters( 'jetpack_get_available_standalone_modules' );
 		remove_all_filters( 'jetpack_disable_seo_tools' );
 		remove_all_filters( 'pre_option_' . \Automattic\Jetpack\Current_Plan::PLAN_OPTION );
@@ -440,9 +441,10 @@ class DashboardSettingsTest extends TestCase {
 	public function test_verification_sanitizer_handles_malformed_option_values() {
 		update_option( Dashboard_Data::VERIFICATION_CODES_OPTION, array( 'bing' => 'bing-code' ) );
 
-		update_option( Dashboard_Data::VERIFICATION_CODES_OPTION, 'invalid' );
-
-		$this->assertSame( array( 'bing' => 'bing-code' ), get_option( Dashboard_Data::VERIFICATION_CODES_OPTION ) );
+		$this->assertSame(
+			array( 'bing' => 'bing-code' ),
+			Dashboard_Data::sanitize_verification_codes( 'invalid' )
+		);
 
 		$old_value = static function () {
 			return 'malformed old storage';
@@ -478,6 +480,55 @@ class DashboardSettingsTest extends TestCase {
 
 		$this->assertSame( 'g00gle-c0de', $stored['google'] );
 		$this->assertSame( 'bing-code', $stored['bing'] );
+	}
+
+	/**
+	 * Exposing the dashboard must not change Sync or legacy direct option writes.
+	 */
+	public function test_rest_registration_preserves_legacy_verification_writes() {
+		update_option( Dashboard_Data::VERIFICATION_CODES_OPTION, 'pineapple' );
+		$this->assertSame( 'pineapple', get_option( Dashboard_Data::VERIFICATION_CODES_OPTION ) );
+
+		$code = '+nxGUDJ4QpAZ5l9Bsjdi102tLVC21AIh5d1Nl23908vVuFHs34=';
+		update_option( Dashboard_Data::VERIFICATION_CODES_OPTION, array( 'google' => $code ) );
+		$this->assertSame( array( 'google' => $code ), get_option( Dashboard_Data::VERIFICATION_CODES_OPTION ) );
+	}
+
+	/**
+	 * Real verification tokens preserve punctuation and literal plus signs across REST saves.
+	 */
+	public function test_verification_rest_saves_preserve_provider_token_punctuation() {
+		$this->act_as( 'administrator' );
+		$code     = '+nxGUDJ4QpAZ5l9Bsjdi102tLVC21AIh5d1Nl23908vVuFHs34=';
+		$response = $this->save_settings(
+			array(
+				Dashboard_Data::VERIFICATION_CODES_OPTION => array(
+					'google' => '<meta name="google-site-verification" content="' . $code . '" />',
+					'bing'   => 'verification.Code_123-+/=:@~',
+				),
+			)
+		);
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertSame(
+			array(
+				'google' => $code,
+				'bing'   => 'verification.Code_123-+/=:@~',
+			),
+			get_option( Dashboard_Data::VERIFICATION_CODES_OPTION )
+		);
+	}
+
+	/**
+	 * A REST default must not turn a missing modern description into a saved empty value.
+	 */
+	public function test_description_rest_default_preserves_legacy_absence() {
+		delete_option( Dashboard_Data::FRONT_PAGE_META_OPTION );
+		$this->assertFalse( get_option( Dashboard_Data::FRONT_PAGE_META_OPTION ) );
+		$this->act_as( 'administrator' );
+		$response = rest_do_request( new WP_REST_Request( 'GET', self::CORE_SETTINGS_ROUTE ) );
+		$this->assertSame( '', $response->get_data()[ Dashboard_Data::FRONT_PAGE_META_OPTION ] );
+		$this->assertFalse( get_option( Dashboard_Data::FRONT_PAGE_META_OPTION ) );
 	}
 
 	/**
@@ -1151,7 +1202,7 @@ class DashboardSettingsTest extends TestCase {
 		// `update_option()` on a missing option routes through `add_option()`, so the
 		// filter runs on both — what matters is that it ran at all.
 		$this->assertNotEmpty( $seen );
-		// And ours still ran too — sanitize filters accumulate rather than replace.
+		// The module's own normalization remains attached for direct writes.
 		$this->assertSame( array( 'bing' => 'bing-code' ), get_option( Dashboard_Data::VERIFICATION_CODES_OPTION ) );
 	}
 

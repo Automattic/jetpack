@@ -803,10 +803,6 @@ interface Window {
 		userIsAdmin: string;
 		userFirstName: string;
 		isWelcomeTourActive: boolean;
-		seoOptIn: {
-			showCard: boolean;
-			redirect: string;
-		};
 		// Security modules whose settings live on the Protect page, keyed by module slug; empty without that page.
 		protectPageModuleUrls?: Record< string, string >;
 		// Null while the notices Jetpack › Settings shows stay there.

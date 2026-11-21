@@ -1,6 +1,6 @@
 <?php
 /**
- * Bootstrap the Jetpack SEO dashboard and its discoverability cohort.
+ * Bootstrap the Jetpack SEO dashboard and its services.
  *
  * @package automattic/jetpack-seo-package
  */
@@ -48,23 +48,6 @@ class Initializer {
 	const SUPPRESS_WP_SITEMAP_OPTION = 'jetpack_seo_suppress_wp_sitemap';
 
 	/**
-	 * Option recording whether the Jetpack SEO surface is discoverable on this site.
-	 *
-	 * Gates whether the SEO admin menu registers on self-hosted sites. Seeded once by the
-	 * Jetpack plugin on install/upgrade: fresh installs default to visible, existing
-	 * installs default to hidden and opt in via the legacy Traffic page or My Jetpack.
-	 * WordPress.com (Simple + Atomic) bypasses this option entirely and is always visible.
-	 * Absent until seeded, in which case self-hosted defaults to hidden (the non-disruptive
-	 * default). See {@see Surface_Visibility::is_visible()}.
-	 *
-	 * Replaces `jetpack_seo_surface_visible`, which was seeded before the self-hosted rollout and
-	 * marked every install since as fresh; a new key makes every site re-seed once on upgrade.
-	 *
-	 * @var string
-	 */
-	const VISIBILITY_OPTION = 'jetpack_seo_surface_visible_v2';
-
-	/**
 	 * Whether the package has been initialized.
 	 *
 	 * @var bool
@@ -93,25 +76,10 @@ class Initializer {
 		// Before anything can read the AI crawler choices.
 		Ai_Crawlers::register_legacy_migration();
 
-		// The opt-in endpoint must be reachable even before the surface is visible, so
-		// existing self-hosted installs can switch to the new experience from the legacy
-		// Traffic page or My Jetpack (JETPACK-1700). Registered ahead of the cohort gate.
-		add_action( 'rest_api_init', array( Surface_Visibility::class, 'register_optin_route' ) );
+		// Legacy admin surfaces use these signals to retire their replaced controls.
+		add_filter( 'jetpack_admin_js_script_data', array( Surface_Visibility::class, 'inject_surface_visibility' ) );
 
-		// Hidden self-hosted installs need the opt-in signal before the cohort gate.
-		add_filter( 'jetpack_admin_js_script_data', array( Surface_Visibility::class, 'inject_optin_availability' ) );
-
-		// Sitemap output is a front-end concern tied to the SEO feature itself, not to
-		// whether the admin dashboard is visible — so register it here, ahead of the
-		// cohort gate. This keeps the deliberate-off behavior consistent in the two
-		// edges the surface gate would otherwise break: a site that turns the sitemap
-		// off while the dashboard is still hidden (an existing self-hosted install that
-		// hasn't opted in), and a flag set while the dashboard was visible that must
-		// stay honored if the dashboard is later hidden.
-		//
-		// Maintain the deliberate-off flag as the sitemap is toggled: these fire only on
-		// a genuine module toggle (not wpcomsh's private-site suppression, which is a
-		// filter, not a deactivation), and are registered before the toggle's REST write.
+		// Honor a deliberate sitemap-off choice independently of dashboard visibility.
 		add_action( 'jetpack_deactivate_module_sitemaps', array( __CLASS__, 'flag_sitemap_user_disabled' ) );
 		add_action( 'jetpack_activate_module_sitemaps', array( __CLASS__, 'clear_sitemap_user_disabled' ) );
 
@@ -126,14 +94,6 @@ class Initializer {
 		// Jetpack sitemaps module already disables core's duplicate.)
 		if ( get_option( self::SUPPRESS_WP_SITEMAP_OPTION, false ) ) {
 			add_filter( 'wp_sitemaps_enabled', '__return_false' );
-		}
-
-		// Discoverability cohort gate: the SEO surface is auto-discoverable for fresh
-		// installs and all WordPress.com sites; existing self-hosted installs opt in via
-		// the legacy Traffic page or My Jetpack (JETPACK-1700). Until it's visible we
-		// register nothing else here and let those opt-in surfaces drive discovery.
-		if ( ! self::is_seo_surface_visible() ) {
-			return;
 		}
 
 		// Each SEO module's configure URL defaults to Jetpack › Settings filtered to the
@@ -169,12 +129,7 @@ class Initializer {
 		Indexnow_Client::init();
 		add_action( 'rest_api_init', array( Data_Sharing::class, 'register_routes' ) );
 
-		// The settings surface only comes online once SEO tools are active — there's
-		// nothing to configure while the module is off, so we don't register its REST
-		// endpoints until then. Everything the dashboard saves is exposed to WordPress
-		// core's `/wp/v2/settings` endpoint, which exists on every platform the package
-		// runs on and capability-gates writes itself; module activation, the one thing
-		// `register_setting()` can't express, has its own package-owned route.
+		// Editing routes and output follow the saved SEO Tools activation choice.
 		if ( self::is_seo_tools_module_active() ) {
 			Share_Image::init();
 			Schema_Builder::init();
@@ -183,13 +138,10 @@ class Initializer {
 			Llms_Txt::init();
 			Ai_Crawlers::init();
 
-			// On `rest_api_init` rather than here: which option the front page description
-			// is stored in depends on `jetpack_disable_seo_tools`, which a conflicting SEO
-			// plugin can add from anywhere up to the end of `init`. Priority 5 is after all
-			// of those and before core builds the settings route at 99.
+			// Wait for init-time conflict filters before core builds its settings route.
 			add_action( 'rest_api_init', array( Dashboard_Data::class, 'register_rest_settings' ), 5 );
-			// Package-owned route for the three settings whose write switches a Jetpack module.
 			add_action( 'rest_api_init', array( Dashboard_Data::class, 'register_module_routes' ) );
+
 			// Package-owned route for the site-level Schema settings (see the controller).
 			add_action( 'rest_api_init', array( Schema_Settings_Controller::class, 'register_routes' ) );
 		}
@@ -234,15 +186,6 @@ class Initializer {
 	 */
 	public static function is_seo_surface_visible() {
 		return Surface_Visibility::is_visible();
-	}
-
-	/**
-	 * Whether to offer an existing install the chance to opt into the new SEO experience.
-	 *
-	 * @return bool
-	 */
-	public static function is_optin_available() {
-		return Surface_Visibility::is_optin_available();
 	}
 
 	/**

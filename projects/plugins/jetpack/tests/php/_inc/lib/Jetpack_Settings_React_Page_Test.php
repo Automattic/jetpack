@@ -11,7 +11,6 @@ use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Monetize\Dashboard as Monetize_Dashboard;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack\PremiumAnalytics\Analytics;
-use Automattic\Jetpack\SEO\Initializer as SEO_Initializer;
 use Automattic\Jetpack\Stats\Options as Stats_Options;
 use Automattic\Jetpack\Status\Cache as Status_Cache;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -185,7 +184,7 @@ class Jetpack_Settings_React_Page_Test extends WP_UnitTestCase {
 			$GLOBALS['wp_actions']['jetpack_protect_dashboard_initialized'] = 1;
 		}
 
-		update_option( SEO_Initializer::VISIBILITY_OPTION, $site['seo_page'] );
+		Constants::set_constant( 'WPCOM_IS_VIP_ENV', ! $site['seo_page'] );
 		Stats_Options::set_option( 'enable_odyssey_stats', $site['odyssey'] );
 		self::set_stats_v2_booted( ! empty( $site['analytics'] ) );
 
