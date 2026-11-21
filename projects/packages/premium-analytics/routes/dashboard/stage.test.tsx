@@ -52,6 +52,8 @@ let mockIsSyncFinished: boolean;
 let mockSyncOptions: { enabled?: boolean; autoStart?: boolean } | undefined;
 let mockIsAdmin: boolean;
 let mockCanSendFeedback: boolean;
+let mockIsConnected: boolean;
+let mockMenuConnected: boolean | undefined;
 let mockMenuTabs: { onPreview?: ( order?: string[] ) => void } | undefined;
 const mockResetLayout = jest.fn();
 const mockChangeComparison = jest.fn();
@@ -85,6 +87,7 @@ jest.mock( '@automattic/jetpack-script-data', () => ( {
 
 jest.mock( '../site-readiness', () => ( {
 	isPremiumAnalyticsInitialSyncFinished: () => mockIsSyncFinished,
+	isPremiumAnalyticsSiteConnected: () => mockIsConnected,
 } ) );
 
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
@@ -182,13 +185,16 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 	useTrackCustomize: () => mockTrackCustomize,
 	canSendFeedback: () => mockCanSendFeedback,
 	StatsOptionsMenu: ( {
+		isSiteConnected,
 		onCustomize,
 		tabs,
 	}: {
+		isSiteConnected?: boolean;
 		onCustomize?: () => void;
 		tabs?: typeof mockMenuTabs;
 	} ) => {
 		mockMenuTabs = tabs;
+		mockMenuConnected = isSiteConnected;
 
 		return (
 			<div data-testid="stats-options-menu">
@@ -475,6 +481,7 @@ beforeEach( () => {
 	mockSyncOptions = undefined;
 	mockIsAdmin = true;
 	mockCanSendFeedback = true;
+	mockIsConnected = true;
 	delete window.JetpackScriptData;
 	mockMountedSectionSlugs = null;
 	mockTriggerSync.mockImplementation( () => Promise.resolve() );
@@ -910,6 +917,20 @@ describe( 'Dashboard feedback banner', () => {
 		await userEvent.click( screen.getByRole( 'button', { name: 'Customize' } ) );
 
 		expect( screen.queryByTestId( 'feedback-banner' ) ).not.toBeInTheDocument();
+	} );
+
+	// A disconnected site shows only tabs that run without a connection; the Stats chrome can't work there.
+	it( 'leaves the Stats chrome off on a disconnected site', () => {
+		mockIsConnected = false;
+
+		render( <Dashboard /> );
+
+		expect( screen.queryByTestId( 'feedback-banner' ) ).not.toBeInTheDocument();
+		expect( screen.queryByTestId( 'dashboard-notices' ) ).not.toBeInTheDocument();
+		expect( mockMenuConnected ).toBe( false );
+		expect( useOnboardingMock ).toHaveBeenLastCalledWith(
+			expect.objectContaining( { enabled: false } )
+		);
 	} );
 
 	it( 'puts the Stats notices away while the reader arranges the layout', async () => {
