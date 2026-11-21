@@ -776,13 +776,12 @@ class Password_Detection_Test extends BaseTestCase {
 		global $wpdb;
 		$original_wpdb = $wpdb;
 
-		$wpdb          = $this->getMockBuilder( \wpdb::class )->disableOriginalConstructor()->onlyMethods( array( 'prepare', 'query', 'get_var', 'suppress_errors', 'delete' ) )->getMock();
+		$wpdb          = $this->getMockBuilder( \wpdb::class )->disableOriginalConstructor()->onlyMethods( array( 'prepare', 'query', 'suppress_errors', 'delete' ) )->getMock();
 		$wpdb->options = 'wp_options';
 		$wpdb->method( 'prepare' )->willReturnArgument( 0 );
-		// Any read-back sees no row, as when the holder releases the lock right after the INSERT fails.
-		$wpdb->method( 'get_var' )->willReturn( null );
 		$wpdb->method( 'query' )->willReturnCallback(
 			function ( $query ) use ( $wpdb, $inserted, $insert_error, $taken_over ) {
+				$this->assertStringContainsString( 'wp_options', $query );
 				$is_insert        = 0 === strpos( $query, 'INSERT' );
 				$wpdb->last_error = $is_insert ? $insert_error : '';
 				return $is_insert ? $inserted : $taken_over;
@@ -815,6 +814,7 @@ class Password_Detection_Test extends BaseTestCase {
 			'lock held (MySQL 8)'                          => array( false, "Duplicate entry 'jetpack_account_protection_attempt_lock_123' for key 'wp_options.option_name'", 0, false, false ),
 			'lock held (SQLite)'                           => array( false, 'UNIQUE constraint failed: wp_options.option_name', 0, false, false ),
 			'lock released after the insert found it held' => array( false, $held_mariadb, 0, false, false ),
+			'insert loses a deadlock to the holder'        => array( false, 'Deadlock found when trying to get lock; try restarting transaction', 0, false, false ),
 			'table refuses the row at option_id 0'         => array( false, "Duplicate entry '0' for key 'PRIMARY'", 0, true, false ),
 			'table has no option_id default'               => array( false, "Field 'option_id' doesn't have a default value", 0, true, false ),
 		);

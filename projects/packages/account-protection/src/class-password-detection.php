@@ -687,8 +687,8 @@ class Password_Detection {
 		$wpdb->suppress_errors( $suppress );
 
 		if ( ! $taken ) {
-			// Only a duplicate lock name means the lock is held; any other error means the table refused the row (e.g. wp_options lost AUTO_INCREMENT).
-			$held = '' === $error || false !== strpos( $error, "'{$name}'" ) || false !== strpos( $error, 'option_name' );
+			// A duplicate lock name or a row lock conflict means the lock is held; any other error means the table refused the row (e.g. wp_options lost AUTO_INCREMENT).
+			$held = '' === $error || false !== stripos( $error, 'option_name' ) || false !== stripos( $error, 'lock' );
 			if ( ! $held ) {
 				return true;
 			}
