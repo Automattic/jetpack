@@ -709,6 +709,22 @@ class Contact_Form_Block {
 							'backgroundImage' => true,
 						),
 					),
+
+					// Keep in sync with form-step/index.js: each surface reads only its own registration.
+					'layout'     => array(
+						'default'                => array(
+							'type'           => 'flex',
+							'orientation'    => 'vertical',
+							'justifyContent' => 'stretch',
+							'flexWrap'       => 'nowrap',
+						),
+						'allowSwitching'         => false,
+						'allowEditing'           => true,
+						'allowOrientation'       => false,
+						'allowJustification'     => true,
+						'allowVerticalAlignment' => false,
+						'allowWrap'              => false,
+					),
 				),
 			)
 		);
