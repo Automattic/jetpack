@@ -573,8 +573,8 @@ class Password_Detection {
 			$this->set_transient_error(
 				$user->ID,
 				array(
-					'code'    => 'auth_code_error',
-					'message' => __( 'Authentication code verification failed. Please try again.', 'jetpack-account-protection' ),
+					'code'    => 'auth_code_check_in_progress',
+					'message' => __( 'Another verification code is being checked. Please wait a moment and try again.', 'jetpack-account-protection' ),
 				)
 			);
 			return;
@@ -668,7 +668,7 @@ class Password_Detection {
 	 *
 	 * @param int $user_id The user ID.
 	 *
-	 * @return bool Whether the lock was taken.
+	 * @return bool Whether the code can be checked: the lock was taken, or the table cannot hold it.
 	 */
 	protected function acquire_attempt_lock( int $user_id ): bool {
 		global $wpdb;
@@ -679,21 +679,33 @@ class Password_Detection {
 		// The time it was taken, then digits that tell this request's lock from any other.
 		$value = sprintf( '%d.%09d', $now, wp_rand( 0, 999999999 ) );
 
-		// INSERT IGNORE adds the row only when there is none, as WP_Upgrader::create_lock() does.
+		// A plain INSERT, unlike INSERT IGNORE, reports which key refused the row.
+		$suppress         = $wpdb->suppress_errors();
+		$wpdb->last_error = '';
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- The Options API cannot add a row only when it is missing; the table name is not user input.
-		$taken = $wpdb->query( $wpdb->prepare( "INSERT IGNORE INTO {$table} (option_name, option_value, autoload) VALUES (%s, %s, 'off')", $name, $value ) );
+		$taken = $wpdb->query( $wpdb->prepare( "INSERT INTO {$table} (option_name, option_value, autoload) VALUES (%s, %s, 'off')", $name, $value ) );
+		// MySQL 8 and SQLite name the table in the error, and a prefix such as primary_ must not read as the key.
+		$error = str_ireplace( $table, '', $wpdb->last_error );
+		$wpdb->suppress_errors( $suppress );
 
 		if ( ! $taken ) {
+			// Only an error on option_id or the primary key means the table refused the row (e.g. wp_options lost AUTO_INCREMENT).
+			// The SQLite integration's error also quotes the query and a backtrace, so match only key-shaped tokens.
+			$refused = false === stripos( $error, "entry '{$name}'" ) && preg_match( "/PRIMARY'|'option_id'|\\.option_id\\b/i", $error );
+			if ( $refused ) {
+				return true;
+			}
+
 			// Take over a lock that a request left behind without releasing it.
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- See above.
 			$taken = $wpdb->query( $wpdb->prepare( "UPDATE {$table} SET option_value = %s WHERE option_name = %s AND option_value + 0 < %d", $value, $name, $now - Config::PASSWORD_DETECTION_ATTEMPT_LOCK_EXPIRATION ) );
+			if ( ! $taken ) {
+				return false;
+			}
 		}
 
-		if ( $taken ) {
-			$this->attempt_locks[ $user_id ] = $value;
-		}
-
-		return (bool) $taken;
+		$this->attempt_locks[ $user_id ] = $value;
+		return true;
 	}
 
 	/**

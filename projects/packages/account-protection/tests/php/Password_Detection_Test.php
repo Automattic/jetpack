@@ -762,10 +762,76 @@ class Password_Detection_Test extends BaseTestCase {
 		$this->store_code( '123456' );
 
 		$this->assertSame( 0, $this->submit_code( '123456', false ), 'The correct code should not log the user in without the lock.' );
-		$this->assertSame( 'auth_code_error', get_transient( Config::PREFIX . '_error_123' )['code'] );
+		$this->assertSame( 'auth_code_check_in_progress', get_transient( Config::PREFIX . '_error_123' )['code'] );
 
 		$this->submit_code( '837467', false );
 		$this->assertFalse( get_site_transient( Config::PREFIX . '_failed_attempts_user_123' ), 'A code that was not checked should not be counted.' );
+	}
+
+	/**
+	 * @dataProvider provide_attempt_lock_states
+	 */
+	#[DataProvider( 'provide_attempt_lock_states' )]
+	public function test_acquire_attempt_lock_checks_unlocked_only_when_the_table_refuses_the_row( $inserted, string $insert_error, int $taken_over, bool $can_check, bool $releases ): void {
+		global $wpdb;
+		$original_wpdb = $wpdb;
+
+		$wpdb          = $this->getMockBuilder( \wpdb::class )->disableOriginalConstructor()->onlyMethods( array( 'prepare', 'query', 'suppress_errors', 'delete' ) )->getMock();
+		$wpdb->options = 'primary_options';
+		$wpdb->method( 'prepare' )->willReturnArgument( 0 );
+		$wpdb->method( 'query' )->willReturnCallback(
+			function ( $query ) use ( $wpdb, $inserted, $insert_error, $taken_over ) {
+				$this->assertStringContainsString( 'primary_options', $query );
+				$is_insert        = 0 === strpos( $query, 'INSERT' );
+				$wpdb->last_error = $is_insert ? $insert_error : '';
+				return $is_insert ? $inserted : $taken_over;
+			}
+		);
+		$wpdb->expects( $this->exactly( $releases ? 1 : 0 ) )->method( 'delete' );
+
+		try {
+			$sut = new class( $this->createStub( Email_Service::class ), $this->createStub( Validation_Service::class ) ) extends Password_Detection {
+				public function acquire( int $user_id ): bool {
+					return $this->acquire_attempt_lock( $user_id );
+				}
+
+				public function release( int $user_id ): void {
+					$this->release_attempt_lock( $user_id );
+				}
+			};
+			$this->assertSame( $can_check, $sut->acquire( 123 ) );
+			$sut->release( 123 );
+		} finally {
+			$wpdb = $original_wpdb;
+		}
+	}
+
+	public static function provide_attempt_lock_states(): array {
+		$held_mariadb = "Duplicate entry 'jetpack_account_protection_attempt_lock_123' for key 'option_name'";
+		return array(
+			'lock row added'                               => array( 1, '', 0, true, true ),
+			'abandoned lock row taken over'                => array( false, $held_mariadb, 1, true, true ),
+			'lock released after the insert found it held' => array( false, $held_mariadb, 0, false, false ),
+			'lock held (MySQL 8)'                          => array( false, "Duplicate entry 'jetpack_account_protection_attempt_lock_123' for key 'primary_options.option_name'", 0, false, false ),
+			'lock held (SQLite)'                           => array( false, 'UNIQUE constraint failed: primary_options.option_name', 0, false, false ),
+			'insert fails with no error text'              => array( false, '', 0, false, false ),
+			'insert loses a deadlock to the holder'        => array( false, 'Deadlock found when trying to get lock; try restarting transaction', 0, false, false ),
+			'insert times out on a lock wait'              => array( false, 'Lock wait timeout exceeded; try restarting transaction', 0, false, false ),
+			'SQLite database is locked'                    => array( false, 'database is locked', 0, false, false ),
+			'insert fails on a read-only server'           => array( false, 'The MySQL server is running with the --read-only option so it cannot execute this statement', 0, false, false ),
+			'table refuses the row at option_id 0'         => array( false, "Duplicate entry '0' for key 'PRIMARY'", 0, true, false ),
+			'table refuses the row (MySQL 8)'              => array( false, "Duplicate entry '0' for key 'primary_options.PRIMARY'", 0, true, false ),
+			'table has no option_id default (SQLite)'      => array( false, 'NOT NULL constraint failed: primary_options.option_id', 0, true, false ),
+			'lock held (SQLite integration)'               => array( false, self::error_from_sqlite_integration( 'option_name' ), 0, false, false ),
+			'table refuses the row (SQLite integration)'   => array( false, self::error_from_sqlite_integration( 'option_id' ), 0, true, false ),
+			'table has no option_id default'               => array( false, "Field 'option_id' doesn't have a default value", 0, true, false ),
+		);
+	}
+
+	private static function error_from_sqlite_integration( string $column ): string {
+		return "<div>MySQL query:</div><div>INSERT INTO primary_options (option_name, option_value, autoload) VALUES ('jetpack_account_protection_attempt_lock_123', '1795210420.000000001', 'off')</div>"
+			. "<div>SQLSTATE[23000]: Integrity constraint violation: 19 UNIQUE constraint failed: primary_options.{$column}</div>"
+			. '<pre>#0 /home/primary/wp-content/plugins/sqlite-database-integration/wp-includes/sqlite/class-wp-sqlite-db.php(310)</pre>';
 	}
 
 	public function test_login_form_password_detection_does_not_send_email_past_the_user_limit(): void {
