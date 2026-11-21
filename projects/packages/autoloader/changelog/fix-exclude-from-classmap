@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+AutoloadGenerator: respect exclude-from-classmap patterns from package autoload configuration.
