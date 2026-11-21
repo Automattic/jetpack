@@ -106,7 +106,7 @@ class Form_Webhooks {
 			return;
 		}
 
-		$webhooks = $this->get_enabled_webhooks( $form->attributes );
+		$webhooks = $this->get_enabled_webhooks( $form->attributes, $post_id );
 
 		if ( empty( $webhooks ) ) {
 			return;
@@ -119,6 +119,21 @@ class Form_Webhooks {
 			$response = $this->send_webhook( $form_data, $webhook, $post_id );
 			$this->log_response_to_post_meta( $post_id, $response );
 		}
+	}
+
+	/**
+	 * Record a URL that failed validation, so a skipped webhook is as diagnosable as a failed request.
+	 *
+	 * @param int|null $post_id The feedback post ID, if known.
+	 * @param WP_Error $error   The validation error.
+	 */
+	private function log_validation_error_to_post_meta( $post_id, $error ) {
+		if ( empty( $post_id ) ) {
+			return;
+		}
+
+		update_post_meta( $post_id, '_jetpack_forms_webhook_error', sanitize_text_field( $error->get_error_message() ) );
+		$this->track_webhook_request( 'error' );
 	}
 
 	/**
@@ -188,27 +203,69 @@ class Form_Webhooks {
 	}
 
 	/**
-	 * Check if an IP address is in a blocked range.
+	 * Check if an IP address is blocked as a webhook destination.
 	 *
-	 * @param string $ip The IP address to check.
+	 * @param string $ip  The IP address to check.
+	 * @param string $url The webhook URL being validated.
 	 * @return bool True if the IP should be blocked.
 	 */
-	private function is_blocked_ip( $ip ) {
+	private function is_blocked_ip( $ip, $url ) {
+		$blocked = $this->ip_is_in_blocked_range( $ip );
+
+		/**
+		 * Filters whether a resolved address is rejected as a webhook destination.
+		 *
+		 * Forms validates ahead of wp_safe_remote_request(), so core's own
+		 * `http_request_host_is_external` escape hatch is never reached. This is the
+		 * equivalent for a site that deliberately points a webhook at its own network.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param bool   $blocked Whether the address is blocked.
+		 * @param string $ip      The address being checked.
+		 * @param string $url     The webhook URL being validated, when known.
+		 */
+		return (bool) apply_filters( 'jetpack_forms_webhook_blocked_ip', $blocked, $ip, $url );
+	}
+
+	/**
+	 * Check whether an IP address falls in a range we refuse to send webhooks to.
+	 *
+	 * @param string $ip The IP address to check.
+	 * @return bool True if the address is in a blocked range.
+	 */
+	private function ip_is_in_blocked_range( $ip ) {
 		// Strip IPv6 zone identifier if present (e.g., fe80::1%eth0 -> fe80::1)
 		$ip = preg_replace( '/%.*$/', '', $ip );
 
-		// Check IPv4 link-local addresses (169.254.0.0/16)
-		// This range includes the AWS/cloud metadata endpoint (169.254.169.254)
 		if ( filter_var( $ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 ) ) {
-			$ip_long = ip2long( $ip );
-			// 169.254.0.0/16 = 2851995648 to 2852061183
-			if ( $ip_long !== false && $ip_long >= 2851995648 && $ip_long <= 2852061183 ) {
+			// Azure Wire Server, which fronts Azure internal services including the metadata endpoint.
+			if ( '168.63.129.16' === $ip ) {
 				return true;
 			}
 
-			// Block Azure Wire Server (168.63.129.16)
-			// Used for Azure internal services including Instance Metadata Service
-			if ( $ip === '168.63.129.16' ) {
+			$ip_long = ip2long( $ip );
+			if ( false === $ip_long ) {
+				return false;
+			}
+
+			/*
+			 * Octet math rather than range comparisons: ip2long() returns a negative int on 32-bit
+			 * PHP for anything above 127.255.255.255, which silently defeats a `>=` range check.
+			 */
+			$first_octet  = ( $ip_long >> 24 ) & 0xff;
+			$second_octet = ( $ip_long >> 16 ) & 0xff;
+
+			/*
+			 * Loopback (127.0.0.0/8) and "this network" (0.0.0.0/8). Core blocks both, but
+			 * wp_http_validate_url() skips that check when the host matches the site's own home host.
+			 */
+			if ( 127 === $first_octet || 0 === $first_octet ) {
+				return true;
+			}
+
+			// Link-local 169.254.0.0/16, which holds the AWS/cloud metadata endpoint.
+			if ( 169 === $first_octet && 254 === $second_octet ) {
 				return true;
 			}
 
@@ -222,21 +279,37 @@ class Form_Webhooks {
 				return false;
 			}
 
-			// Check for IPv6 loopback (::1) using binary comparison
-			// This handles all valid representations (e.g., 0:0:0:0:0:0:0:1, ::0:1)
+			// Loopback ::1, by binary comparison so every spelling matches (0:0:0:0:0:0:0:1, ::0:1).
 			if ( $ip_binary === inet_pton( '::1' ) ) {
 				return true;
 			}
 
-			// Check for IPv4-mapped IPv6 addresses (::ffff:x.x.x.x)
-			// These are 16 bytes where first 10 are zeros, next 2 are 0xff, last 4 are IPv4
-			if ( strlen( $ip_binary ) === 16 &&
-				substr( $ip_binary, 0, 10 ) === "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" &&
-				substr( $ip_binary, 10, 2 ) === "\xff\xff" ) {
-				// Extract the embedded IPv4 address (last 4 bytes) and check it
-				$ipv4 = inet_ntop( substr( $ip_binary, 12, 4 ) );
-				if ( $ipv4 && $this->is_blocked_ip( $ipv4 ) ) {
-					return true;
+			/*
+			 * Decode the IPv6 forms that embed an IPv4 address and check that address, so
+			 * 127.0.0.1 is caught however it is spelled -- 64:ff9b::7f00:1 and 2002:7f00:1::1
+			 * both reach loopback.
+			 */
+			if ( 16 === strlen( $ip_binary ) ) {
+				$prefix12 = substr( $ip_binary, 0, 12 );
+				$embedded = null;
+
+				if (
+					"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\xff\xff" === $prefix12 // IPv4-mapped ::ffff:0:0/96.
+					|| "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" === $prefix12 // IPv4-compatible ::/96.
+					|| "\x00\x00\x00\x00\x00\x00\x00\x00\xff\xff\x00\x00" === $prefix12 // IPv4-translated ::ffff:0:0:0/96.
+					|| "\x00\x64\xff\x9b\x00\x00\x00\x00\x00\x00\x00\x00" === $prefix12 // NAT64 64:ff9b::/96.
+				) {
+					$embedded = substr( $ip_binary, 12, 4 );
+				} elseif ( "\x20\x02" === substr( $ip_binary, 0, 2 ) ) {
+					// 6to4 2002::/16 carries the embedded IPv4 gateway in bytes 2-5.
+					$embedded = substr( $ip_binary, 2, 4 );
+				}
+
+				if ( null !== $embedded ) {
+					$ipv4 = inet_ntop( $embedded );
+					if ( $ipv4 && $this->ip_is_in_blocked_range( $ipv4 ) ) {
+						return true;
+					}
 				}
 			}
 
@@ -271,7 +344,8 @@ class Form_Webhooks {
 	 * Performs validation:
 	 * - Valid URL format
 	 * - HTTPS scheme requirement
-	 * - Blocks link-local and private IP ranges not covered by wp_safe_remote_request()
+	 * - Blocks loopback, link-local, and cloud-metadata addresses, plus IPv6 private (ULA) ranges.
+	 *   IPv4 RFC1918 ranges are left to wp_safe_remote_request().
 	 *
 	 * @param string $url The webhook URL to validate.
 	 * @return bool|WP_Error True if valid, WP_Error with reason if invalid.
@@ -313,7 +387,7 @@ class Form_Webhooks {
 
 		// If host is already an IP, check it directly
 		if ( filter_var( $host, FILTER_VALIDATE_IP ) ) {
-			if ( $this->is_blocked_ip( $host ) ) {
+			if ( $this->is_blocked_ip( $host, $url ) ) {
 				return new WP_Error( 'blocked_ip', __( 'Webhook URL cannot point to private or internal networks.', 'jetpack-forms' ) );
 			}
 			return true;
@@ -321,7 +395,7 @@ class Form_Webhooks {
 
 		// For hostnames, check IPv4 via gethostbyname
 		$ipv4 = gethostbyname( $host );
-		if ( $ipv4 !== $host && $this->is_blocked_ip( $ipv4 ) ) {
+		if ( $ipv4 !== $host && $this->is_blocked_ip( $ipv4, $url ) ) {
 			return new WP_Error( 'blocked_ip', __( 'Webhook URL cannot point to private or internal networks.', 'jetpack-forms' ) );
 		}
 
@@ -332,7 +406,7 @@ class Form_Webhooks {
 			$aaaa_records = @dns_get_record( $host, DNS_AAAA );
 			if ( $aaaa_records ) {
 				foreach ( $aaaa_records as $record ) {
-					if ( isset( $record['ipv6'] ) && $this->is_blocked_ip( $record['ipv6'] ) ) {
+					if ( isset( $record['ipv6'] ) && $this->is_blocked_ip( $record['ipv6'], $url ) ) {
 						return new WP_Error( 'blocked_ip', __( 'Webhook URL cannot point to private or internal networks.', 'jetpack-forms' ) );
 					}
 				}
@@ -345,10 +419,11 @@ class Form_Webhooks {
 	/**
 	 * Get the enabled webhooks from the form attributes.
 	 *
-	 * @param array $attributes - the attributes of the contact form.
+	 * @param array    $attributes - the attributes of the contact form.
+	 * @param int|null $post_id - the feedback post to record validation failures on.
 	 * @return array Array of enabled webhooks.
 	 */
-	private function get_enabled_webhooks( $attributes = array() ) {
+	private function get_enabled_webhooks( $attributes = array(), $post_id = null ) {
 		if ( empty( $attributes['webhooks'] ) || ! is_array( $attributes['webhooks'] ) ) {
 			return array();
 		}
@@ -383,6 +458,7 @@ class Form_Webhooks {
 			$url_validation = $this->validate_webhook_url( $setup['url'] );
 			if ( is_wp_error( $url_validation ) ) {
 				do_action( 'jetpack_forms_log', 'webhook_skipped', $url_validation->get_error_code(), $setup );
+				$this->log_validation_error_to_post_meta( $post_id, $url_validation );
 				continue;
 			}
 
