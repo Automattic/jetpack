@@ -58,6 +58,32 @@ class Jetpack_Top_Posts_Helper {
 
 		$acceptable_types = $is_rendering_block ? explode( ',', $types ) : array();
 
+		/**
+		 * Filters the categories whose posts are excluded from the Top Posts block.
+		 *
+		 * @module stats
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param array      $categories Category IDs or slugs. Default empty.
+		 * @param int|string $period     Period of days to draw stats from, or 'all-time'.
+		 * @param string     $types      Comma-separated content types the block displays, or empty in the editor.
+		 */
+		$excluded_categories = (array) apply_filters( 'jetpack_top_posts_excluded_categories', array(), $period, $types );
+
+		/**
+		 * Filters the tags whose posts are excluded from the Top Posts block.
+		 *
+		 * @module stats
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param array      $tags   Tag IDs or slugs. Default empty.
+		 * @param int|string $period Period of days to draw stats from, or 'all-time'.
+		 * @param string     $types  Comma-separated content types the block displays, or empty in the editor.
+		 */
+		$excluded_tags = (array) apply_filters( 'jetpack_top_posts_excluded_tags', array(), $period, $types );
+
 		// Remove posts that have subsequently been deleted. The endpoint can return more
 		// entries than the `max` we asked for, so stop there, then keep only further ones
 		// the block can render, so its type filter is never starved.
@@ -71,6 +97,10 @@ class Jetpack_Top_Posts_Helper {
 				break;
 			}
 			if ( get_post_status( $item['id'] ) !== 'publish' ) {
+				continue;
+			}
+			// Skipped before counting, so excluded posts never consume the cap.
+			if ( self::is_excluded( $item['id'], $excluded_categories, $excluded_tags ) ) {
 				continue;
 			}
 
@@ -104,6 +134,10 @@ class Jetpack_Top_Posts_Helper {
 			$random_posts = get_posts( $args );
 
 			foreach ( $random_posts as $post ) {
+				if ( self::is_excluded( $post->ID, $excluded_categories, $excluded_tags ) ) {
+					continue;
+				}
+
 				$random_posts_data = array(
 					'id'     => $post->ID,
 					'href'   => get_permalink( $post->ID ),
@@ -178,10 +212,46 @@ class Jetpack_Top_Posts_Helper {
 					return in_array( $item['type'], $acceptable_types, true );
 				}
 			);
+		}
 
+		/**
+		 * Filters the posts returned by the Top Posts helper, before they are trimmed to the block's item count.
+		 *
+		 * Use it to remove or reorder posts by any criteria. Applies to both the Top Posts
+		 * block's front-end output and the REST response used by the block editor preview.
+		 *
+		 * @module stats
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param array      $top_posts   Posts, each an array as passed to `jetpack_top_posts_item_title`.
+		 * @param int|string $period      Period of days to draw stats from, or 'all-time'.
+		 * @param int|null   $items_count Number of items the block displays, or null in the editor.
+		 * @param string     $types       Comma-separated content types the block displays, or empty in the editor.
+		 */
+		$filtered_posts = apply_filters( 'jetpack_top_posts_block_posts', array_values( $top_posts ), $period, $items_count, $types );
+
+		if ( is_array( $filtered_posts ) ) {
+			$top_posts = array_values( $filtered_posts );
+		}
+
+		if ( $is_rendering_block ) {
 			$top_posts = array_slice( $top_posts, 0, $items_count );
 		}
 
 		return $top_posts;
+	}
+
+	/**
+	 * Whether a post belongs to any of the excluded categories or tags.
+	 *
+	 * @param int   $post_id    Post ID.
+	 * @param array $categories Category IDs or slugs.
+	 * @param array $tags       Tag IDs or slugs.
+	 * @return bool
+	 */
+	private static function is_excluded( $post_id, $categories, $tags ) {
+		return ( $categories && has_term( $categories, 'category', $post_id ) )
+			|| ( $tags && has_term( $tags, 'post_tag', $post_id ) );
 	}
 }

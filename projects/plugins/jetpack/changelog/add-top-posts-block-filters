@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Top Posts block: Add filters to exclude posts by category or tag, filter the list of posts, and hook into each item's output.
