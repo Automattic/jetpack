@@ -7,7 +7,11 @@
 
 namespace Automattic\Jetpack\WooCommerceStats;
 
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\PremiumAnalytics\Dashboard_Section;
 use Automattic\Jetpack\PremiumAnalytics\Sync\Sync_Status_Tracker;
+use Automattic\Jetpack\WooCommerceStats\Report_Execution\Local_Data_Status;
+use Automattic\Jetpack\WooCommerceStats\Report_Execution\Provider_Setting;
 use function Automattic\Jetpack\PremiumAnalytics\get_dashboard_default_widget_instance;
 use function Automattic\Jetpack\PremiumAnalytics\register_dashboard_section;
 use function Automattic\Jetpack\PremiumAnalytics\register_widget_types_from_manifest;
@@ -172,6 +176,9 @@ class Analytics_Dashboard {
 			return;
 		}
 
+		// A dashboard that predates the arg still sends a disconnected site to `/connect`.
+		$runs_without_connection = property_exists( Dashboard_Section::class, 'requires_connection' ) && self::runs_without_connection();
+
 		register_dashboard_section(
 			DASHBOARD_NAME,
 			self::SECTION_ID,
@@ -179,9 +186,15 @@ class Analytics_Dashboard {
 				'label'                   => __( 'WooCommerce', 'jetpack-woocommerce-stats-pkg' ),
 				'order'                   => self::SECTION_ORDER,
 				'is_available'            => array( __CLASS__, 'is_section_available' ),
-				// Nothing backfills historical orders to WordPress.com but the analytics full sync.
-				'requires_sync'           => true,
-				'notice'                  => array( __CLASS__, 'get_no_orders_notice' ),
+				// Nothing backfills historical orders to WordPress.com but the analytics full sync,
+				// which a disconnected site must not start.
+				'requires_sync'           => ! $runs_without_connection,
+				'requires_connection'     => ! $runs_without_connection,
+				'notice'                  => $runs_without_connection
+					? static function () {
+						return self::get_local_mode_notice();
+					}
+					: array( __CLASS__, 'get_no_orders_notice' ),
 				'default_layout'          => array( __CLASS__, 'get_default_layout' ),
 				'insertable_widget_types' => self::INSERTABLE_WIDGET_TYPES,
 			)
@@ -213,6 +226,57 @@ class Analytics_Dashboard {
 		}
 
 		return __( 'Your store has no orders yet. Your sales, orders and customers will show here after your first order.', 'jetpack-woocommerce-stats-pkg' );
+	}
+
+	/**
+	 * Whether the tab opens on this disconnected site because its provider setting puts `local`
+	 * ahead of `wpcom`. Behind it, `local` serves nothing: `wpcom` covers every report.
+	 *
+	 * @phan-suppress PhanAccessMethodInternal, PhanAccessClassConstantInternal -- Internal to this package, not to its sub-namespace.
+	 *
+	 * @return bool
+	 */
+	private static function runs_without_connection() {
+		if ( ( new Connection_Manager() )->is_connected() || ! self::is_woocommerce_available() ) {
+			return false;
+		}
+
+		$providers = Provider_Setting::get_providers();
+		$local     = array_search( 'local', $providers, true );
+		$wpcom     = array_search( Provider_Setting::DEFAULT_PROVIDER, $providers, true );
+
+		return false !== $local && ( false === $wpcom || $local < $wpcom );
+	}
+
+	/**
+	 * The message above the tab of a disconnected store set to local: what its own data lacks, then
+	 * what the missing connection holds back. A store without orders gets that message between them.
+	 *
+	 * @phan-suppress PhanAccessMethodInternal, PhanAccessClassConstantInternal -- Internal to this package, not to its sub-namespace.
+	 *
+	 * @return string
+	 */
+	private static function get_local_mode_notice() {
+		$messages = array();
+		foreach ( ( new Local_Data_Status() )->get_issues() as $issue ) {
+			switch ( $issue ) {
+				case Local_Data_Status::ANALYTICS_OFF:
+					$messages[] = __( 'WooCommerce Analytics is off, so this tab can’t read your store’s orders. Turn it on in WooCommerce › Settings › Advanced › Features.', 'jetpack-woocommerce-stats-pkg' );
+					break;
+				case Local_Data_Status::IMPORT_INCOMPLETE:
+					$messages[] = __( 'Some orders aren’t in WooCommerce Analytics yet, so reports may be incomplete. Import them in WooCommerce › Analytics › Settings › Import historical data.', 'jetpack-woocommerce-stats-pkg' );
+					break;
+			}
+		}
+
+		$no_orders = self::get_no_orders_notice();
+		if ( null !== $no_orders ) {
+			$messages[] = $no_orders;
+		}
+
+		$messages[] = __( 'This site isn’t connected to WordPress.com, so reports that come from WordPress.com can’t load.', 'jetpack-woocommerce-stats-pkg' );
+
+		return implode( ' ', $messages );
 	}
 
 	/**
