@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix the gallery URL filter staying attached after looking up gallery images, which made get_post_gallery() return empty HTML.
