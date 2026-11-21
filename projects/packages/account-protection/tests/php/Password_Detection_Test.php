@@ -821,7 +821,7 @@ class Password_Detection_Test extends BaseTestCase {
 			'insert fails on a read-only server'           => array( false, 'The MySQL server is running with the --read-only option so it cannot execute this statement', 0, false, false ),
 			'table refuses the row at option_id 0'         => array( false, "Duplicate entry '0' for key 'PRIMARY'", 0, true, false ),
 			'table refuses the row (MySQL 8)'              => array( false, "Duplicate entry '0' for key 'primary_options.PRIMARY'", 0, true, false ),
-			'table refuses the row (SQLite)'               => array( false, 'UNIQUE constraint failed: primary_options.option_id', 0, true, false ),
+			'table has no option_id default (SQLite)'      => array( false, 'NOT NULL constraint failed: primary_options.option_id', 0, true, false ),
 			'lock held (SQLite integration)'               => array( false, self::error_from_sqlite_integration( 'option_name' ), 0, false, false ),
 			'table refuses the row (SQLite integration)'   => array( false, self::error_from_sqlite_integration( 'option_id' ), 0, true, false ),
 			'table has no option_id default'               => array( false, "Field 'option_id' doesn't have a default value", 0, true, false ),
