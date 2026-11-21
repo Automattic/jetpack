@@ -291,6 +291,56 @@ class WPCOM_REST_API_V2_Endpoint_Memberships_Test extends Jetpack_REST_TestCase 
 	}
 
 	/**
+	 * Tests GET 'memberships/status' endpoint syncs the has-connected-account option
+	 * when WPCOM reports a connected Stripe account.
+	 */
+	public function test_get_status_syncs_option_when_stripe_connected() {
+		add_filter( 'pre_http_request', array( $this, 'mock_wpcom_api_response_get_status_with_connected_account' ), 10, 3 );
+
+		// Ensure the option starts as false to prove it was updated.
+		update_option( 'jetpack-memberships-has-connected-account', false );
+
+		$request  = new WP_REST_Request( Requests::GET, '/wpcom/v2/memberships/status' );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertTrue( (bool) get_option( 'jetpack-memberships-has-connected-account' ) );
+	}
+
+	/**
+	 * Tests GET 'memberships/status' endpoint syncs the has-connected-account option
+	 * to false when WPCOM returns an empty connected_account_id (e.g. broken Stripe).
+	 */
+	public function test_get_status_syncs_option_when_stripe_disconnected() {
+		add_filter( 'pre_http_request', array( $this, 'mock_wpcom_api_response_get_status_no_connected_account' ), 10, 3 );
+
+		// Pre-seed the option as true to simulate a stale "connected" state.
+		update_option( 'jetpack-memberships-has-connected-account', true );
+
+		$request  = new WP_REST_Request( Requests::GET, '/wpcom/v2/memberships/status' );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertFalse( (bool) get_option( 'jetpack-memberships-has-connected-account' ) );
+	}
+
+	/**
+	 * Tests GET 'memberships/status' endpoint does NOT update the option on a WPCOM error.
+	 */
+	public function test_get_status_does_not_sync_option_on_remote_error() {
+		add_filter( 'pre_http_request', array( $this, 'mock_wpcom_api_response_get_status_remote_error' ), 10, 3 );
+
+		// Pre-seed the option as true; it should remain unchanged on error.
+		update_option( 'jetpack-memberships-has-connected-account', true );
+
+		$request  = new WP_REST_Request( Requests::GET, '/wpcom/v2/memberships/status' );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertErrorResponse( 'dummy_error', $response, 500 );
+		$this->assertTrue( (bool) get_option( 'jetpack-memberships-has-connected-account' ) );
+	}
+
+	/**
 	 * Tests POST 'memberships/product' endpoint without authorization.
 	 */
 	public function test_create_product_no_auth() {
@@ -858,6 +908,56 @@ class WPCOM_REST_API_V2_Endpoint_Memberships_Test extends Jetpack_REST_TestCase 
 			'status_code' => 500,
 			'response'    => array(
 				'code' => 500,
+			),
+		);
+	}
+
+	/**
+	 * Validate the Jetpack API request for memberships status and mock a response
+	 * that includes a connected Stripe account ID.
+	 *
+	 * @param bool   $response Whether to preempt an HTTP request's return value. Default false.
+	 * @param array  $args     HTTP request arguments.
+	 * @param string $url      The request URL.
+	 * @return array
+	 */
+	public function mock_wpcom_api_response_get_status_with_connected_account( $response, $args, $url ) {
+		$this->assertEquals( Requests::GET, $args['method'] );
+		$this->assertStringStartsWith( 'https://public-api.wordpress.com/wpcom/v2/sites/' . static::$blog_id . '/memberships/status', $url );
+
+		return array(
+			'headers'     => array(
+				'Allow' => 'GET',
+			),
+			'body'        => '{"products":[],"connected_account_id":"acct_test123"}',
+			'status_code' => 200,
+			'response'    => array(
+				'code' => 200,
+			),
+		);
+	}
+
+	/**
+	 * Validate the Jetpack API request for memberships status and mock a response
+	 * that has no connected Stripe account (e.g. broken/disconnected).
+	 *
+	 * @param bool   $response Whether to preempt an HTTP request's return value. Default false.
+	 * @param array  $args     HTTP request arguments.
+	 * @param string $url      The request URL.
+	 * @return array
+	 */
+	public function mock_wpcom_api_response_get_status_no_connected_account( $response, $args, $url ) {
+		$this->assertEquals( Requests::GET, $args['method'] );
+		$this->assertStringStartsWith( 'https://public-api.wordpress.com/wpcom/v2/sites/' . static::$blog_id . '/memberships/status', $url );
+
+		return array(
+			'headers'     => array(
+				'Allow' => 'GET',
+			),
+			'body'        => '{"products":[],"connected_account_id":""}',
+			'status_code' => 200,
+			'response'    => array(
+				'code' => 200,
 			),
 		);
 	}
