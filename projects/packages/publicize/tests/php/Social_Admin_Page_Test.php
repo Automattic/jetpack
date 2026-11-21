@@ -13,6 +13,8 @@ use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Status\Cache;
 use Jetpack_Options;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use WorDBless\BaseTestCase;
 
 /**
@@ -151,6 +153,34 @@ class Social_Admin_Page_Test extends BaseTestCase {
 	}
 
 	/**
+	 * The page leaves the media library to the image picker, which loads it when clicked.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_admin_init_does_not_load_the_media_library() {
+		Social_Admin_Page::init()->admin_init();
+
+		$this->assertSame( 0, did_action( 'wp_enqueue_media' ) );
+	}
+
+	/**
+	 * The picker's endpoint is hooked without the admin menu, which admin-ajax never builds.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_init_hooks_the_media_library_endpoint() {
+		Social_Admin_Page::init();
+
+		$this->assertNotFalse( has_action( 'wp_ajax_jetpack_media_library' ) );
+	}
+
+	/**
 	 * The wp-build dashboard owns its own enqueue pipeline, so the enqueue step
 	 * never registers a legacy admin script.
 	 */
@@ -218,7 +248,7 @@ class Social_Admin_Page_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Who the admin shell offers Social to: the users the Social menu shows it to, on a built, non-Simple site.
+	 * Who the admin shell offers Social to: the users the Social menu shows it to, on a built site.
 	 *
 	 * @return array
 	 */
@@ -228,7 +258,7 @@ class Social_Admin_Page_Test extends BaseTestCase {
 			'author, Publicize off' => array( 'author', false, true, false, true, false ),
 			'author, Publicize on'  => array( 'author', true, true, false, true, true ),
 			'unbuilt'               => array( 'administrator', false, false, false, true, false ),
-			'Simple'                => array( 'administrator', false, true, true, true, false ),
+			'Simple, no blog token' => array( 'administrator', false, true, true, false, true ),
 			'not connected'         => array( 'administrator', false, true, false, false, false ),
 		);
 	}

@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Memberships: Avoid an extra database query on capability checks for comments, users and terms.

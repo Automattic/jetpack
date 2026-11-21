@@ -9,17 +9,23 @@ import { connect } from 'react-redux';
 import { useLocation } from 'react-router';
 import Discussion from 'discussion';
 import Earn from 'earn';
-import { getMovedOutModules, searchFindsGoogleAnalytics } from 'lib/settings-consolidation';
+import {
+	getMovedOutModules,
+	isSettingsConsolidationEnabled,
+	searchFindsGoogleAnalytics,
+	searchFindsPrivacy,
+} from 'lib/settings-consolidation';
 import Subscriptions from 'newsletter';
 import Performance from 'performance';
 import Privacy from 'privacy';
+import { PrivacyMoved } from 'privacy/privacy-moved';
 import Reader from 'reader';
 import SearchableModules from 'searchable-modules';
 import Security from 'security';
 import { HIDDEN_WITH_PROTECT_PAGE } from 'security/protect-page';
 import Sharing from 'sharing';
-import { isSiteVisibleToSearchEngines } from 'state/initial-state';
-import { hasProtectPage, isModuleActivated as isModuleActivatedSelector } from 'state/modules';
+import { hasProtectPage, isSiteVisibleToSearchEngines } from 'state/initial-state';
+import { isModuleActivated as isModuleActivatedSelector } from 'state/modules';
 import { hasAnyMatchingModule as hasAnyMatchingModuleSelector } from 'state/search';
 import Traffic from 'traffic';
 import Writing from 'writing';
@@ -48,7 +54,8 @@ class Settings extends Component {
 		const showEmptySearchState =
 			!! searchTerm &&
 			! hasAnyMatchingModule &&
-			! ( isWoASite() && searchFindsGoogleAnalytics( searchTerm ) );
+			! ( isWoASite() && searchFindsGoogleAnalytics( searchTerm ) ) &&
+			! ( isSettingsConsolidationEnabled() && searchFindsPrivacy( searchTerm ) );
 
 		return (
 			<ThemeProvider>
@@ -120,7 +127,11 @@ class Settings extends Component {
 						}
 						{ ...commonProps }
 					/>
-					<Privacy active={ '/privacy' === pathname } { ...commonProps } />
+					{ isSettingsConsolidationEnabled() ? (
+						<PrivacyMoved searchTerm={ searchTerm } />
+					) : (
+						<Privacy active={ '/privacy' === pathname } { ...commonProps } />
+					) }
 					<Subscriptions siteAdminUrl={ siteAdminUrl } searchTerm={ searchTerm } />
 					<SearchableModules searchTerm={ searchTerm } />
 				</div>

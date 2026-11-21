@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Comment: Drop a connection status card test that asserted copy the card no longer shows, from an un-awaited timer that could fail other tests.

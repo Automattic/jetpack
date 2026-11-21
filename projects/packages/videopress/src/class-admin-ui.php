@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\VideoPress;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Admin_UI\Admin_Shell;
+use Automattic\Jetpack\Admin_UI\Media_Library;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack\Status\Host;
@@ -98,6 +99,11 @@ class Admin_UI {
 
 		if ( class_exists( Admin_Shell::class ) ) {
 			add_filter( 'jetpack_admin_shell_members', array( __CLASS__, 'add_admin_shell_member' ) );
+		}
+
+		// The thumbnail picker loads the media library from this endpoint.
+		if ( method_exists( Media_Library::class, 'init' ) ) {
+			Media_Library::init();
 		}
 
 		// On WordPress.com Simple the standalone menu system (Admin_Menu) is not used:
@@ -377,7 +383,6 @@ class Admin_UI {
 			),
 			'capability'   => 'manage_options',
 			'handles'      => array( self::GUEST_DATA_HANDLE, 'jetpack-videopress-dashboard-shell', Admin_Menu::DESIGN_TOKENS_HANDLE, 'jetpack-script-data', 'wp-jp-i18n-loader' ),
-			'media'        => true,
 			'load'         => array( __CLASS__, 'load_as_admin_shell_guest' ),
 		);
 		return $members;
@@ -466,18 +471,13 @@ class Admin_UI {
 			wp_enqueue_style( 'jetpack-videopress-dashboard-shell' );
 		}
 
-		// The Video details screen's thumbnail editor opens the WordPress
-		// media library (via window.wp.media) for the "Upload image"
-		// action, so the media scripts must be present here too.
-		wp_enqueue_media();
-
 		// The i18n loader is registered on every admin page by jetpack-assets but
 		// only enqueued when depended on; the esbuild bundles don't pull it in.
 		if ( wp_script_is( 'wp-jp-i18n-loader', 'registered' ) ) {
 			wp_enqueue_script( 'wp-jp-i18n-loader' );
 		}
 
-		// Beyond the shell stylesheet and the media library, wp-build
+		// Beyond the shell stylesheet, wp-build
 		// manages its own enqueue pipeline.
 	}
 

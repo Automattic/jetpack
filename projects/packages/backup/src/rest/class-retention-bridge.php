@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Backup\V0005\REST;
 
+use Automattic\Jetpack\Backup\V0005\Jetpack_Backup;
 use Automattic\Jetpack\Connection\Client;
 use WP_Error;
 use WP_REST_Request;
@@ -74,6 +75,9 @@ class Retention_Bridge {
 			array( 'retention_days' => $days ),
 			'wpcom'
 		);
+
+		// Whatever the outcome: the dashboard re-reads `/site/backup/size` for `retention_days` either way.
+		Jetpack_Backup::clear_storage_cache();
 
 		if ( is_wp_error( $response ) ) {
 			return Rest_Controller::transport_error( $response, 'retention_update_failed' );

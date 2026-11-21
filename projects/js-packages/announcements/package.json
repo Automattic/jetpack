@@ -1,0 +1,32 @@
+{
+	"name": "@automattic/jetpack-announcements",
+	"private": true,
+	"description": "What a page imports to show the Jetpack Announcements surface.",
+	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/announcements/#readme",
+	"bugs": {
+		"url": "https://github.com/Automattic/jetpack/labels/[JS Package] Announcements"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Automattic/jetpack.git",
+		"directory": "projects/js-packages/announcements"
+	},
+	"license": "GPL-2.0-or-later",
+	"author": "Automattic",
+	"type": "module",
+	"exports": {
+		".": {
+			"types": "./src/index.d.ts",
+			"default": "./src/index.js"
+		},
+		"./package.json": "./package.json"
+	},
+	"types": "./src/index.d.ts",
+	"wpScriptModuleExports": "./src/index.js",
+	"scripts": {
+		"typecheck": "tsgo --noEmit"
+	},
+	"devDependencies": {
+		"@typescript/native-preview": "7.0.0-dev.20260707.2"
+	}
+}

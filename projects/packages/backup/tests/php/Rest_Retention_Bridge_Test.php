@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Backup\V0005\REST;
 
 use Automattic\Jetpack\Backup\V0005\Jetpack_Backup;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use WorDBless\Options as WorDBless_Options;
 use WorDBless\Users as WorDBless_Users;
@@ -74,6 +75,38 @@ class Rest_Retention_Bridge_Test extends TestCase {
 		$this->assertStringContainsString( '/backup/retention/update', $this->captured_url );
 		$this->assertSame( 'POST', $this->captured_request_args[0]['method'] );
 		$this->assertSame( array( 'retention_days' => 120 ), $this->captured_body );
+	}
+
+	/**
+	 * The dashboard re-reads `retention_days` from `/site/backup/size` after any attempt, so it must not come from cache.
+	 *
+	 * @param int $status WordPress.com's status for the update.
+	 * @dataProvider provide_update_outcomes
+	 */
+	#[DataProvider( 'provide_update_outcomes' )]
+	public function test_forgets_the_cached_storage_figures( $status ) {
+		set_transient( Jetpack_Backup::SITE_SIZE_TRANSIENT, array( 'retention_days' => 30 ) );
+		set_transient( Jetpack_Backup::SITE_POLICIES_TRANSIENT, array( 'policies' => array() ) );
+		$this->arrange_wpcom( array( 'success' => 200 === $status ), $status );
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/site/backup/retention' );
+		$request->set_param( 'retention_days', 120 );
+		Retention_Bridge::update_retention( $request );
+
+		$this->assertFalse( get_transient( Jetpack_Backup::SITE_SIZE_TRANSIENT ) );
+		$this->assertFalse( get_transient( Jetpack_Backup::SITE_POLICIES_TRANSIENT ) );
+	}
+
+	/**
+	 * A saved and a refused update.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_update_outcomes() {
+		return array(
+			'saved'   => array( 200 ),
+			'refused' => array( 503 ),
+		);
 	}
 
 	/**

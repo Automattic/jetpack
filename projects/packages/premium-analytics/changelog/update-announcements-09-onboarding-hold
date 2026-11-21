@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Hold the What's new teaser while the onboarding is pending; the surface is behind a feature flag that is off.
+
+

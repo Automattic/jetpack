@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Add a view transition wrapper that keeps a skipped route transition from throwing an uncaught error.

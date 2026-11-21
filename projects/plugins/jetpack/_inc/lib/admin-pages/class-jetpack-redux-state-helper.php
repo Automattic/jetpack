@@ -73,6 +73,7 @@ class Jetpack_Redux_State_Helper {
 		require_once JETPACK__PLUGIN_DIR . '_inc/lib/core-api/class.jetpack-core-api-xmlrpc-consumer-endpoint.php';
 		require_once JETPACK__PLUGIN_DIR . '_inc/lib/core-api/class.jetpack-core-api-module-endpoints.php';
 		require_once JETPACK__PLUGIN_DIR . '_inc/lib/core-api/class.jetpack-core-api-site-endpoints.php';
+		require_once __DIR__ . '/class-jetpack-settings-react-page.php';
 
 		$module_list_endpoint = new Jetpack_Core_API_Module_List_Endpoint();
 		$modules              = $module_list_endpoint->get_modules();
@@ -199,7 +200,10 @@ class Jetpack_Redux_State_Helper {
 				'isMultisite'                => is_multisite(),
 				// Set when Jetpack or the standalone plugin registered the Backup page on this request.
 				'hasBackupPage'              => (bool) did_action( 'jetpack_backup_initialized' ),
+				// Set when Jetpack or the Protect plugin registered the Protect page on this request.
+				'hasProtectPage'             => (bool) did_action( 'jetpack_protect_dashboard_initialized' ),
 				'hasSocialPage'              => self::has_social_page(),
+				'settingsTabs'               => Jetpack_Settings_React_Page::get_remaining_tabs(),
 				'dateFormat'                 => get_option( 'date_format' ),
 				'isSharingBlockAvailable'    => isset( $block_availability['sharing-buttons'] )
 					&& $block_availability['sharing-buttons']['available'],

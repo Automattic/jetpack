@@ -3,13 +3,15 @@ import { speak } from '@wordpress/a11y';
 import { useCopyToClipboard } from '@wordpress/compose';
 import { __, _x } from '@wordpress/i18n';
 import { check, copy, error } from '@wordpress/icons';
-import { Button, InputControl, InputLayout, Link, Stack, Text } from '@wordpress/ui';
+import { Button, InputControl, InputLayout, Stack, Text } from '@wordpress/ui';
 import { useCallback, useEffect, useId, useState } from 'react';
 import { moduleSwitchKey, useRequestedSwitch } from '../../data/requested-switch-state';
 import { useAccountConnected } from '../my-jetpack-tab-panel/features/feature-state';
+import { LearnMoreLink } from './learn-more-link';
 import { PanelModuleToggle } from './panel-module-toggle';
 import styles from './styles.module.scss';
 import { useModuleSetting } from './use-module-option';
+import { useSettingsPanelTracking } from './use-settings-panel-tracking';
 import type { ModuleSettingsProps } from './registry';
 
 const ADDRESS_OPTION = 'post_by_email_address';
@@ -37,6 +39,7 @@ export function PostByEmailSettings( { module: $module, disabled }: ModuleSettin
 		result: 'idle',
 	} );
 	const labelId = useId();
+	const { trackClick } = useSettingsPanelTracking( $module.module );
 
 	// While a request runs, the hook's value is the action sent, so read the stored address here.
 	const option = Array.isArray( $module.options ) ? undefined : $module.options?.[ ADDRESS_OPTION ];
@@ -67,7 +70,11 @@ export function PostByEmailSettings( { module: $module, disabled }: ModuleSettin
 	}, [ copyFeedback ] );
 
 	const { setValue } = request;
-	const regenerate = useCallback( () => setValue( 'regenerate' ), [ setValue ] );
+	const regenerate = useCallback( () => {
+		// Misspelled on purpose: the old Settings screen's target, so the data joins.
+		trackClick( { target: 'pbe-regenerage-email' } );
+		setValue( 'regenerate' );
+	}, [ setValue, trackClick ] );
 
 	return (
 		<Stack direction="column" gap="lg">
@@ -77,13 +84,12 @@ export function PostByEmailSettings( { module: $module, disabled }: ModuleSettin
 					'jetpack-my-jetpack'
 				) }
 			</Text>
-			<Link
+			<LearnMoreLink
+				module={ $module.module }
 				href={ getRedirectUrl( 'jetpack-support-post-by-email' ) }
-				target="_blank"
-				rel="noopener noreferrer"
 			>
 				{ __( 'Learn more about Post by Email', 'jetpack-my-jetpack' ) }
-			</Link>
+			</LearnMoreLink>
 
 			<Stack
 				direction="row"

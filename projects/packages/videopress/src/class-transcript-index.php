@@ -610,17 +610,19 @@ class Transcript_Index {
 			return $search;
 		}
 		global $wpdb;
+		$hidden  = self::hidden_transcript_ids();
+		$scope   = $hidden ? ' AND vpt.post_id NOT IN (' . implode( ',', array_map( 'intval', $hidden ) ) . ')' : '';
 		$clauses = array();
 		foreach ( $terms as $term ) {
 			$like      = '%' . $wpdb->esc_like( $term ) . '%';
 			$clauses[] = $wpdb->prepare(
-				"({$wpdb->posts}.post_title LIKE %s OR {$wpdb->posts}.post_excerpt LIKE %s OR {$wpdb->posts}.post_content LIKE %s OR EXISTS ( SELECT 1 FROM {$wpdb->postmeta} vpt WHERE vpt.post_id = {$wpdb->posts}.ID AND vpt.meta_key = %s AND vpt.meta_value LIKE %s ))",
+				"({$wpdb->posts}.post_title LIKE %s OR {$wpdb->posts}.post_excerpt LIKE %s OR {$wpdb->posts}.post_content LIKE %s OR EXISTS ( SELECT 1 FROM {$wpdb->postmeta} vpt WHERE vpt.post_id = {$wpdb->posts}.ID AND vpt.meta_key = %s AND vpt.meta_value LIKE %s",
 				$like,
 				$like,
 				$like,
 				self::META_TEXT,
 				$like
-			);
+			) . $scope . ' ))';
 		}
 		return ' AND (' . implode( ' AND ', $clauses ) . ') ';
 	}
@@ -688,7 +690,51 @@ class Transcript_Index {
 		if ( ! $id || ! self::is_enabled() ) {
 			return new WP_Error( 'videopress_transcript_not_found', __( 'This video does not belong to this site.', 'jetpack-videopress-pkg' ), array( 'status' => 404 ) );
 		}
-		return self::is_public_video( $id ) || current_user_can( 'read' );
+		return self::can_read_transcript( $id );
+	}
+
+	/**
+	 * Whether the current visitor may read a video's transcript: anyone for a public video, members otherwise.
+	 *
+	 * @param int $attachment_id Attachment ID.
+	 * @return bool
+	 */
+	public static function can_read_transcript( $attachment_id ) {
+		return current_user_can( 'read' ) || self::is_public_video( $attachment_id );
+	}
+
+	/**
+	 * Indexed videos whose transcripts the current visitor may not read, so searches skip their text.
+	 *
+	 * @return int[]
+	 */
+	private static function hidden_transcript_ids() {
+		if ( current_user_can( 'read' ) ) {
+			return array();
+		}
+		$ids = array_map(
+			'intval',
+			get_posts(
+				array(
+					'post_type'              => 'attachment',
+					'post_status'            => 'inherit',
+					'meta_key'               => self::META_TEXT, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- IDs only, visitors' searches.
+					'fields'                 => 'ids',
+					'posts_per_page'         => -1,
+					'no_found_rows'          => true,
+					'update_post_term_cache' => false,
+				)
+			)
+		);
+		update_postmeta_cache( $ids );
+		return array_values(
+			array_filter(
+				$ids,
+				function ( $id ) {
+					return ! self::is_public_video( $id );
+				}
+			)
+		);
 	}
 
 	/**

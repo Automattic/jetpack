@@ -50,6 +50,13 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	private $saved_current_user_id;
 
 	/**
+	 * Atomic purchase fixture override.
+	 *
+	 * @var \Patchwork\CallRerouting\Handle|null
+	 */
+	private $atomic_purchases_override;
+
+	/**
 	 * Set up before each test.
 	 */
 	public function set_up() {
@@ -86,6 +93,11 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	 * Tear down after each test.
 	 */
 	public function tear_down() {
+		if ( $this->atomic_purchases_override ) {
+			\Patchwork\restore( $this->atomic_purchases_override );
+			$this->atomic_purchases_override = null;
+		}
+
 		$this->deactivate_ai_module_for_test();
 		unset( $_SERVER['A8C_PROXIED_REQUEST'] );
 		delete_transient( AiAssistantPlugin\AI_SIDEBAR_ASSET_TRANSIENT );
@@ -1634,10 +1646,25 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Activate the seo-tools module for the duration of the test. SEO suggestions
-	 * require it: the module registers the SEO meta fields the suggestions write to.
+	 * Activate SEO Tools with a plan fixture for suggestion tests.
+	 *
+	 * @param bool $entitled Whether metadata generation is entitled.
 	 */
-	private function activate_seo_tools_module(): void {
+	private function activate_seo_tools_module( $entitled = true ): void {
+		Current_Plan::update_from_site_record(
+			array( 'plan' => array( 'product_slug' => $entitled ? 'jetpack_business' : 'jetpack_free' ) )
+		);
+		if ( getenv( 'JETPACK_TEST_WPCOMSH' ) ) {
+			$this->atomic_purchases_override = \Patchwork\redefine(
+				'Atomic_Persistent_Data::__get',
+				function ( $key ) use ( $entitled ) {
+					if ( 'WPCOM_PURCHASES' !== $key ) {
+						return \Patchwork\relay();
+					}
+					return wp_json_encode( array( array( 'product_slug' => $entitled ? 'business-bundle' : 'pro-plan' ) ), JSON_UNESCAPED_SLASHES );
+				}
+			);
+		}
 		add_filter(
 			'jetpack_active_modules',
 			static function ( $modules ) {
@@ -1649,10 +1676,33 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Released suggestions are exposed to eligible users. The test plan supports
-	 * advanced-seo, the seo-tools module is activated, and the SEO feature
-	 * toggle from the AI settings page is switched on so the SEO suggestions
-	 * gate is satisfied.
+	 * @dataProvider provide_seo_entitlements
+	 * @param bool $entitled Whether the site has the enhancer entitlement.
+	 */
+	#[DataProvider( 'provide_seo_entitlements' )]
+	public function test_metadata_ui_requires_the_enhancer_entitlement( $entitled ) {
+		$this->set_block_editor_screen();
+		$this->activate_seo_tools_module( $entitled );
+		$this->assertTrue( Current_Plan::supports( 'advanced-seo' ) );
+
+		$data = Jetpack_AI_Sidebar::add_agents_manager_data( array( 'sectionName' => 'gutenberg' ) );
+
+		$this->assertSame( $entitled, $data['jetpackAiSidebar']['features']['seoSuggestions'] );
+		$this->assertTrue( $data['jetpackAiSidebar']['features']['optimizeTitleSuggestion'] );
+
+		$settings = ( new WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings() )->get_settings()->get_data();
+		$this->assertSame( $entitled, $settings['features']['ai_seo']['available'] );
+	}
+
+	public static function provide_seo_entitlements() {
+		return array(
+			'manual SEO only'   => array( false ),
+			'enhancer entitled' => array( true ),
+		);
+	}
+
+	/**
+	 * Released suggestions are exposed with the enhancer entitlement and SEO tools enabled.
 	 */
 	public function test_add_agents_manager_data_exposes_released_features() {
 		$this->set_block_editor_screen();

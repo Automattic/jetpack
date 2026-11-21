@@ -43,6 +43,30 @@ function wpcom_register_native_activity_log_flag() {
 wpcom_register_native_activity_log_flag();
 
 /**
+ * Feature flag showing My Jetpack on Atomic Personal and Premium plans.
+ */
+const WPCOM_MY_JETPACK_ALL_ATOMIC_PLANS_FLAG = 'wpcom-my-jetpack-all-atomic-plans';
+
+/**
+ * Registers the feature flag for My Jetpack on Atomic Personal and Premium plans as this file loads.
+ *
+ * @since $$next-version$$
+ *
+ * @return void
+ */
+function wpcom_register_my_jetpack_all_atomic_plans_flag() {
+	Feature_Flags::register(
+		WPCOM_MY_JETPACK_ALL_ATOMIC_PLANS_FLAG,
+		array(
+			'default'     => false,
+			'description' => 'Show My Jetpack and Jetpack Settings on Atomic Personal and Premium plans and drop the Calypso Traffic menu item, instead of redirecting My Jetpack to Stats.',
+			'owner'       => 'jetpack-mu-wpcom',
+		)
+	);
+}
+wpcom_register_my_jetpack_all_atomic_plans_flag();
+
+/**
  * Checks if the current user has a WordPress.com account connected.
  *
  * @return bool
@@ -147,7 +171,7 @@ function wpcom_add_hosting_menu() {
 		__( 'Hosting', 'jetpack-mu-wpcom' ),
 		$menu_title,
 		'manage_options',
-		esc_url( "https://wordpress.com/overview/$domain" ),
+		esc_url( "https://my.wordpress.com/sites/$domain" ),
 		null, // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal
 		'dashicons-cloud',
 		2.98
@@ -342,7 +366,8 @@ function jetpack_mu_wpcom_redirects_my_jetpack_to_stats() {
 		return false;
 	}
 	$plan = \Automattic\Jetpack\Current_Plan::get();
-	return in_array( $plan['class'] ?? '', array( 'personal', 'premium' ), true );
+	// Plan first: whatever answers the flag must only be asked on the plans it can affect.
+	return in_array( $plan['class'] ?? '', array( 'personal', 'premium' ), true ) && ! Feature_Flags::is_enabled( WPCOM_MY_JETPACK_ALL_ATOMIC_PLANS_FLAG );
 }
 add_filter(
 	'jetpack_my_jetpack_modules_management_available',
@@ -451,14 +476,16 @@ function wpcom_add_jetpack_submenu() {
 	}
 
 	// Jetpack > Monetize.
-	add_submenu_page(
-		'jetpack',
-		esc_attr__( 'Monetize', 'jetpack-mu-wpcom' ),
-		__( 'Monetize', 'jetpack-mu-wpcom' ),
-		'manage_options',
-		'https://wordpress.com/earn/' . $domain,
-		null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-	);
+	if ( ! wpcom_add_monetize_submenu() ) {
+		add_submenu_page(
+			'jetpack',
+			esc_attr__( 'Monetize', 'jetpack-mu-wpcom' ),
+			__( 'Monetize', 'jetpack-mu-wpcom' ),
+			'manage_options',
+			'https://wordpress.com/earn/' . $domain,
+			null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
+		);
+	}
 
 	// Jetpack > Subscribers. Always hide the auto-added Calypso redirect link.
 	wpcom_hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'jetpack-menu-jetpack-manage-subscribers', array( 'site' => $blog_id ) ) ) );
@@ -627,6 +654,24 @@ function wpcom_add_native_activity_log_submenu() {
 	// A package predating Simple support returns null, which keeps the Calypso link.
 	// @phan-suppress-next-line PhanUndeclaredClassMethod -- class_exists guarded above; provided by sibling autoloader.
 	return null !== \Automattic\Jetpack\Activity_Log\Jetpack_Activity_Log::add_wp_admin_submenu();
+}
+
+/**
+ * Registers the Monetize page under Jetpack wherever it loaded: from the Jetpack module on WoA, or from this package on Simple.
+ *
+ * @return bool Whether the page was registered.
+ */
+function wpcom_add_monetize_submenu() {
+	// No leading backslash: has_action() matches the class name init() hooked with.
+	$dashboard = 'Automattic\\Jetpack\\Monetize\\Dashboard';
+
+	// Dashboard::init() hooks this on every host, so it tells whether the page loaded.
+	if ( ! class_exists( $dashboard ) || false === has_action( 'admin_menu', array( $dashboard, 'maybe_load_wp_build' ) ) ) {
+		return false;
+	}
+
+	$dashboard::add_wp_admin_submenu();
+	return true;
 }
 
 /*
@@ -846,7 +891,6 @@ function wpcom_add_tools_menu() {
 		'tools.php',
 		array(
 			'tools.php',
-			'advertising-moved',
 			'monetize',
 			'import',
 			'export.php',

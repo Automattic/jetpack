@@ -288,6 +288,73 @@ class Initializer_Wp_Build_Test extends BaseTestCase {
 	}
 
 	/**
+	 * A host's plan links, or the links it hides, reach the page with the rest of its state, and nothing but web URLs do.
+	 *
+	 * @dataProvider provide_plan_urls
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 *
+	 * @param mixed $answer   What the host returns from the filter, or null when no host answers.
+	 * @param array $expected The plan URLs in the page state.
+	 * @return void
+	 */
+	#[DataProvider( 'provide_plan_urls' )]
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_enqueue_scripts_publishes_the_plan_links_a_host_answered( $answer, $expected ) {
+		$_GET['page'] = 'my-jetpack';
+		require_once __DIR__ . '/stubs/wp-build-render-page.php';
+		wp_register_script( 'wp-jp-i18n-loader', 'https://example.org/i18n.js', array(), '1.0.0', true );
+		if ( null !== $answer ) {
+			add_filter(
+				'jetpack_my_jetpack_plan_urls',
+				function () use ( $answer ) {
+					return $answer;
+				}
+			);
+		}
+
+		Initializer::enqueue_scripts();
+
+		$localized = wp_scripts()->get_data( Initializer::DATA_SCRIPT_HANDLE, 'data' );
+		$this->assertSame( 1, preg_match( '/var myJetpackInitialState = (.*?);\nvar myJetpackRest/s', $localized, $matches ) );
+		$state = (array) json_decode( $matches[1], true );
+		$this->assertSame( $expected, $state['planUrls'] ?? null );
+	}
+
+	/**
+	 * Data provider for test_enqueue_scripts_publishes_the_plan_links_a_host_answered.
+	 *
+	 * @return array
+	 */
+	public static function provide_plan_urls() {
+		$jetpack = array(
+			'purchase' => '',
+			'manage'   => '',
+		);
+		$host    = array(
+			'purchase' => 'https://wordpress.com/setup/plan-upgrade?siteSlug=example.org&back_to=https%3A%2F%2Fexample.org%2Fwp-admin%2Fadmin.php%3Fpage%3Dmy-jetpack',
+			'manage'   => 'https://wordpress.com/purchases/subscriptions/example.org',
+		);
+
+		return array(
+			'no host answers'      => array( null, $jetpack ),
+			'a host answers both'  => array( $host, $host ),
+			'a host answers one'   => array( array( 'manage' => $host['manage'] ), array_merge( $jetpack, array( 'manage' => $host['manage'] ) ) ),
+			'a host hides one'     => array( array( 'manage' => false ), array_merge( $jetpack, array( 'manage' => false ) ) ),
+			'a host hides both'    => array( array_fill_keys( array_keys( $jetpack ), false ), array_fill_keys( array_keys( $jetpack ), false ) ),
+			// Only false hides a link.
+			'answers not web URLs' => array(
+				array(
+					'purchase' => 'javascript:alert(1)',
+					'manage'   => true,
+				),
+				$jetpack,
+			),
+		);
+	}
+
+	/**
 	 * Onboarding loads its webpack bundle after the state it reads.
 	 *
 	 * @runInSeparateProcess

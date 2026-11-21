@@ -119,10 +119,37 @@ export function trackPaymentsEvent(
 	action:
 		| 'stripe_connect_click'
 		| 'stripe_disconnect'
+		| 'plan_add_click'
+		| 'plan_dialog_show'
+		| 'plan_save'
 		| 'plan_delete'
 		| 'free_tier_edit_click'
-		| 'free_tier_update',
+		| 'free_tier_update'
+		| 'coupon_save'
+		| 'coupon_delete',
 	properties: Record< string, unknown > = {}
 ) {
 	record( `jetpack_monetize_payments_${ action }`, properties );
+}
+
+/**
+ * Record an action on the Paid subscribers tab.
+ *
+ * @param action     - What was done, e.g. `cancel`.
+ * @param properties - Event properties.
+ */
+export function trackSubscribersEvent(
+	action: 'cancel' | 'details_view' | 'export_click' | 'stripe_click',
+	properties: Record< string, unknown > = {}
+) {
+	record( `jetpack_monetize_subscribers_${ action }`, properties );
+}
+
+/**
+ * Record an action on the Ads tab.
+ *
+ * @param action - What was done, e.g. `upgrade_click`.
+ */
+export function trackAdsEvent( action: 'upgrade_click' | 'setup_click' | 'join' | 'payout_click' ) {
+	record( `jetpack_monetize_ads_${ action }`, {} );
 }

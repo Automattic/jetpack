@@ -1,4 +1,5 @@
-import { getScriptData } from '@automattic/jetpack-script-data';
+import { getScriptData, isSimpleSite } from '@automattic/jetpack-script-data';
+import { getSectionState } from './state';
 
 /**
  * What the Settings tab's Ads card needs from the server, printed by the Jetpack plugin's `Jetpack_Ads_Settings_Home`.
@@ -16,8 +17,22 @@ type MonetizeScriptData = { monetize?: { adsSettings?: AdsSettingsData } };
 /**
  * The Ads card's data, absent wherever the Jetpack plugin doesn't print it.
  *
+ * Simple never runs that plugin code, so there the card's data comes from the Ads section's state.
+ *
  * @return The data, or undefined.
  */
 export function getAdsSettingsData(): AdsSettingsData | undefined {
+	if ( isSimpleSite() ) {
+		const ads = getSectionState< { hasWordAds?: boolean } >( 'ads' );
+		return (
+			ads && {
+				hasWordAds: Boolean( ads.hasWordAds ),
+				hasConnectedOwner: true,
+				isSubdirectorySite: false,
+				moduleOverride: false,
+			}
+		);
+	}
+
 	return ( getScriptData() as MonetizeScriptData | undefined )?.monetize?.adsSettings;
 }

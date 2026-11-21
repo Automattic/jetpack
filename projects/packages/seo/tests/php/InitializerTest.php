@@ -63,12 +63,16 @@ class InitializerTest extends TestCase {
 			$this->assertFalse( Initializer::is_optin_available() );
 
 			update_option( Initializer::VISIBILITY_OPTION, '1' );
-			unset( $GLOBALS['wp_filter']['rest_api_init'], $GLOBALS['wp_filter']['admin_menu'], $GLOBALS['wp_filter']['jetpack_deactivate_module_sitemaps'] );
+			foreach ( array( 'rest_api_init', 'admin_menu', 'jetpack_deactivate_module_sitemaps', 'redirect_canonical', 'old_slug_redirect_url' ) as $hook ) {
+				unset( $GLOBALS['wp_filter'][ $hook ] );
+			}
 			Initializer::init();
 
 			$this->assertFalse( has_action( 'rest_api_init', array( Surface_Visibility::class, 'register_optin_route' ) ) );
 			$this->assertFalse( has_action( 'admin_menu', array( Admin_Page::class, 'add_menu_item' ) ) );
 			$this->assertFalse( has_action( 'jetpack_deactivate_module_sitemaps', array( Initializer::class, 'flag_sitemap_user_disabled' ) ) );
+			$this->assertFalse( has_filter( 'redirect_canonical', array( Llms_Txt::class, 'preserve_llms_txt_request' ) ) );
+			$this->assertFalse( has_filter( 'old_slug_redirect_url', array( Llms_Txt::class, 'preserve_llms_txt_request' ) ) );
 		} finally {
 			Constants::clear_single_constant( 'WPCOM_IS_VIP_ENV' );
 			$GLOBALS['wp_filter'] = $hooks; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
@@ -79,6 +83,60 @@ class InitializerTest extends TestCase {
 			}
 			$initialized->setValue( null, $was_initialized );
 		}
+	}
+
+	/**
+	 * @dataProvider provide_hidden_output_states
+	 * @param bool $visible Whether the dashboard is visible.
+	 * @param bool $active Whether SEO Tools is active.
+	 */
+	#[DataProvider( 'provide_hidden_output_states' )]
+	public function test_redirect_protection_precedes_output_gates( $visible, $active ) {
+		$hooks       = array_map(
+			static function ( $hook ) {
+				return clone $hook;
+			},
+			$GLOBALS['wp_filter']
+		);
+		$visibility  = get_option( Initializer::VISIBILITY_OPTION, null );
+		$initialized = new \ReflectionProperty( Initializer::class, 'initialized' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$initialized->setAccessible( true );
+		}
+		$was_initialized = $initialized->getValue();
+		$initialized->setValue( null, false );
+		$modules = static function () use ( $active ) {
+			return $active ? array( 'seo-tools' ) : array();
+		};
+		add_filter( 'jetpack_active_modules', $modules );
+		update_option( Initializer::VISIBILITY_OPTION, $visible );
+		foreach ( array( 'template_redirect', 'redirect_canonical', 'old_slug_redirect_url' ) as $hook ) {
+			unset( $GLOBALS['wp_filter'][ $hook ] );
+		}
+		try {
+			Initializer::init();
+			$this->assertSame( 10, has_filter( 'redirect_canonical', array( Llms_Txt::class, 'preserve_llms_txt_request' ) ) );
+			$this->assertSame( 10, has_filter( 'old_slug_redirect_url', array( Llms_Txt::class, 'preserve_llms_txt_request' ) ) );
+			$this->assertFalse( has_action( 'template_redirect', array( Llms_Txt::class, 'maybe_serve' ) ) );
+		} finally {
+			$GLOBALS['wp_filter'] = $hooks; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+			if ( null === $visibility ) {
+				delete_option( Initializer::VISIBILITY_OPTION );
+			} else {
+				update_option( Initializer::VISIBILITY_OPTION, $visibility );
+			}
+			$initialized->setValue( null, $was_initialized );
+		}
+	}
+
+	/**
+	 * @return array Dashboard visibility and module activation states that suppress output.
+	 */
+	public static function provide_hidden_output_states() {
+		return array(
+			'module off'       => array( true, false ),
+			'hidden dashboard' => array( false, true ),
+		);
 	}
 
 	/**
@@ -188,7 +246,7 @@ class InitializerTest extends TestCase {
 
 	/**
 	 * WordPress.com's API requests call register_write_hooks() without init(), so it alone must
-	 * register the "Always include" page field and hook the coverage and llms.txt clearing.
+	 * register the "Always include" field and hook the coverage and llms.txt clearing.
 	 */
 	public function test_write_hooks_register_without_init() {
 		$hooks = array_map(
@@ -198,14 +256,18 @@ class InitializerTest extends TestCase {
 			$GLOBALS['wp_filter']
 		);
 		unset( $GLOBALS['wp_filter']['transition_post_status'], $GLOBALS['wp_filter']['clean_post_cache'] );
-		unregister_meta_key( 'post', Llms_Txt::META_ALWAYS_INCLUDE, 'page' );
+		unregister_meta_key( 'post', Llms_Txt::META_ALWAYS_INCLUDE );
+		remove_action( 'wp_after_insert_post', array( Indexnow_Events::class, 'saved' ) );
+		remove_action( Indexnow_Queue::HOOK, array( Indexnow_Queue::class, 'work' ) );
 		try {
 			Initializer::register_write_hooks();
-			$this->assertTrue( registered_meta_key_exists( 'post', Llms_Txt::META_ALWAYS_INCLUDE, 'page' ) );
+			$this->assertTrue( registered_meta_key_exists( 'post', Llms_Txt::META_ALWAYS_INCLUDE ) );
 			$this->assertNotFalse(
 				has_action( 'transition_post_status', array( Content_Coverage::class, 'invalidate_on_status_change' ) )
 			);
 			$this->assertNotFalse( has_action( 'clean_post_cache', array( Llms_Txt::class, 'clear_cache_for_post' ) ) );
+			$this->assertNotFalse( has_action( 'wp_after_insert_post', array( Indexnow_Events::class, 'saved' ) ) );
+			$this->assertNotFalse( has_action( Indexnow_Queue::HOOK, array( Indexnow_Queue::class, 'work' ) ) );
 		} finally {
 			$GLOBALS['wp_filter'] = $hooks; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		}
@@ -247,7 +309,7 @@ class InitializerTest extends TestCase {
 	 *
 	 * @return array{llms_txt: bool, ai_crawlers: bool, canonical: bool}
 	 */
-	private function init_and_check_paid_services() {
+	private function init_and_check_services() {
 		$initialized = new \ReflectionProperty( Initializer::class, 'initialized' );
 		if ( PHP_VERSION_ID < 80100 ) {
 			$initialized->setAccessible( true );
@@ -284,27 +346,18 @@ class InitializerTest extends TestCase {
 		}
 	}
 
-	/**
-	 * A self-hosted (never-gated) site registers both GEO-tab front-end services:
-	 * /llms.txt is served and the AI-crawler robots.txt directives are appended.
-	 */
-	public function test_init_registers_paid_services_when_not_gated() {
-		$hooked = $this->init_and_check_paid_services();
+	public function test_init_registers_services_on_self_hosted_sites() {
+		$hooked = $this->init_and_check_services();
 
 		$this->assertTrue( $hooked['llms_txt'] );
 		$this->assertTrue( $hooked['ai_crawlers'] );
 	}
 
-	/**
-	 * A WordPress.com site entitled to `advanced-seo` (Premium and above) is not
-	 * gated, so it registers the paid services too — gating keys off entitlement,
-	 * not merely off being on WordPress.com.
-	 */
-	public function test_init_registers_paid_services_on_entitled_wpcom_site() {
+	public function test_init_registers_services_on_entitled_wpcom_site() {
 		$this->simulate_wpcom_site( true );
 
 		try {
-			$hooked = $this->init_and_check_paid_services();
+			$hooked = $this->init_and_check_services();
 
 			$this->assertTrue( $hooked['llms_txt'] );
 			$this->assertTrue( $hooked['ai_crawlers'] );
@@ -314,34 +367,25 @@ class InitializerTest extends TestCase {
 		}
 	}
 
-	/**
-	 * A plan-gated WordPress.com site must not merely hide the paid controls — it must
-	 * stop running the services behind them, or it would keep emitting output it isn't
-	 * entitled to.
-	 */
-	public function test_init_skips_paid_services_when_gated() {
+	public function test_init_registers_services_without_wpcom_entitlement() {
 		$this->simulate_wpcom_site( false );
 
 		try {
-			$hooked = $this->init_and_check_paid_services();
+			$hooked = $this->init_and_check_services();
 
-			$this->assertFalse( $hooked['llms_txt'] );
-			$this->assertFalse( $hooked['ai_crawlers'] );
-			$this->assertFalse( $hooked['canonical'] );
+			$this->assertTrue( $hooked['llms_txt'] );
+			$this->assertTrue( $hooked['ai_crawlers'] );
+			$this->assertTrue( $hooked['canonical'] );
 		} finally {
 			$this->reset_wpcom_site();
 		}
 	}
 
-	/**
-	 * Gating only suppresses the paid services — the schema output and the admin
-	 * surface still register, so a gated site keeps the free subset of the dashboard.
-	 */
-	public function test_init_still_registers_schema_and_menu_when_gated() {
+	public function test_init_registers_schema_and_menu_without_wpcom_entitlement() {
 		$this->simulate_wpcom_site( false );
 
 		try {
-			$this->init_and_check_paid_services();
+			$this->init_and_check_services();
 
 			$this->assertNotFalse( has_action( 'wp_head', array( Schema_Builder::class, 'emit' ) ) );
 			$this->assertNotFalse(

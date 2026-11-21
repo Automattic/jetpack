@@ -5,6 +5,7 @@
 // center-crops to the source's *smaller* dimension, so a 3000×1000 source
 // still produces a 1000×1000 cover — too small for podcast directories).
 
+import { loadMediaLibrary } from '@automattic/jetpack-components/tools/load-media-library';
 import { Button } from '@wordpress/components';
 import { useCallback, useId, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -27,6 +28,43 @@ interface MediaUploadAttachment {
 
 const COVER_MIN_PX = 1400;
 
+interface OpenLibraryButtonProps {
+	open: () => void;
+	label: string;
+	disabled?: boolean;
+	onLoad: ( failed: boolean ) => void;
+}
+
+// MediaUpload's `open` needs wp.media, which loads on the first click.
+const OpenLibraryButton = ( { open, label, disabled, onLoad }: OpenLibraryButtonProps ) => {
+	const [ isLoading, setIsLoading ] = useState( false );
+	const onClick = useCallback( async () => {
+		setIsLoading( true );
+		try {
+			await loadMediaLibrary();
+		} catch {
+			onLoad( true );
+			return;
+		} finally {
+			setIsLoading( false );
+		}
+		onLoad( false );
+		open();
+	}, [ open, onLoad ] );
+
+	return (
+		<Button
+			variant="secondary"
+			onClick={ onClick }
+			disabled={ disabled || isLoading }
+			isBusy={ isLoading }
+			accessibleWhenDisabled
+		>
+			{ label }
+		</Button>
+	);
+};
+
 const CoverImageControl = ( {
 	imageUrl,
 	imageId,
@@ -35,6 +73,7 @@ const CoverImageControl = ( {
 	disabled,
 }: CoverImageControlProps ) => {
 	const [ warning, setWarning ] = useState< string | null >( null );
+	const [ loadFailed, setLoadFailed ] = useState( false );
 	const labelId = useId();
 
 	const hasImage = !! imageUrl || imageId > 0;
@@ -66,9 +105,12 @@ const CoverImageControl = ( {
 
 	const renderTrigger = useCallback(
 		( { open }: { open: () => void } ) => (
-			<Button variant="secondary" onClick={ open } disabled={ disabled } accessibleWhenDisabled>
-				{ triggerLabel }
-			</Button>
+			<OpenLibraryButton
+				open={ open }
+				label={ triggerLabel }
+				disabled={ disabled }
+				onLoad={ setLoadFailed }
+			/>
 		),
 		[ disabled, triggerLabel ]
 	);
@@ -105,6 +147,11 @@ const CoverImageControl = ( {
 					</Button>
 				) }
 			</div>
+			{ loadFailed && (
+				<p className="podcast__cover-warning" role="alert">
+					{ __( 'The media library could not be loaded. Try again.', 'jetpack-podcast' ) }
+				</p>
+			) }
 			{ warning && (
 				<p className="podcast__cover-warning" role="alert">
 					{ warning }

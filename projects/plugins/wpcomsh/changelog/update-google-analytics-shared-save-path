@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Google Analytics: Refuse new Measurement IDs with extra text around them.
