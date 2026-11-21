@@ -736,7 +736,7 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 				'label' => 'WooCommerce',
 			),
 			array(
-				'url'   => array( '#wordpress\.(com|org)#' ),
+				'url'   => array( '#wordpress\.(com|org)(?!.*(?:\/feed(?:\/|\?|$)|[?&]feed=|\/feeds\/|\.xml|\.atom|\.rss|\/rss(?:\/|\?|$)))#' ),
 				'icon'  => 'wordpress',
 				'label' => 'WordPress',
 			),
@@ -765,6 +765,7 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 			array(
 				'url'   => array(
 					'/feed/',         // WordPress default feed url.
+					'#/feed(\?|$)#',  // WordPress feed without trailing slash.
 					'/feeds/',        // Blogspot and others.
 					'/blog/feed',     // No trailing slash WordPress feed, could use /feed but may match unexpectedly.
 					'format=RSS',     // Squarespace and others.
