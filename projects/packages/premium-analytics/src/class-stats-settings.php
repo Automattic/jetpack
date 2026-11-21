@@ -30,13 +30,6 @@ final class Stats_Settings {
 	private const GROUP = 'jetpack_premium_analytics';
 
 	/**
-	 * Site option holding whether the WordPress.com Reader shows post views.
-	 *
-	 * @var string
-	 */
-	private const READER_VIEWS_OPTION = 'wpcom_reader_views_enabled';
-
-	/**
 	 * The visitor consent card's entry in the host's list. It is not a setting, so the route never offers it.
 	 *
 	 * @var string
@@ -156,38 +149,25 @@ final class Stats_Settings {
 				)
 			);
 		}
-		if ( in_array( self::READER_VIEWS_OPTION, $fields, true ) ) {
-			register_setting(
-				self::GROUP,
-				self::READER_VIEWS_OPTION,
-				array(
-					'type'              => 'boolean',
-					'default'           => true,
-					'show_in_rest'      => true,
-					'sanitize_callback' => array( __CLASS__, 'sanitize_reader_views' ),
-					'description'       => __( 'Whether the WordPress.com Reader shows post views for this site.', 'jetpack-premium-analytics-pkg' ),
-				)
-			);
-		}
 		add_filter( 'rest_pre_get_setting', array( __CLASS__, 'get_stats_options' ), 10, 2 );
 		add_filter( 'rest_pre_update_setting', array( __CLASS__, 'update_stats_options' ), 10, 3 );
 		add_filter( 'rest_request_after_callbacks', array( __CLASS__, 'report_update_error' ) );
 	}
 
 	/**
-	 * What the site offers: the `stats_options` fields, the Reader setting and the consent card, less any the host leaves out.
+	 * What the site offers: the `stats_options` fields and the consent card, less any the host leaves out.
 	 *
 	 * @return string[]
 	 */
 	private static function get_fields() {
-		$fields = array_merge( self::FIELDS, array( self::READER_VIEWS_OPTION, self::CONSENT ) );
+		$fields = array_merge( self::FIELDS, array( self::CONSENT ) );
 
 		/**
 		 * Filters the Stats settings the dashboard's Settings page and the settings route offer, and whether the page shows the visitor consent card.
 		 *
 		 * @since 0.16.0
 		 *
-		 * @param string[] $fields `admin_bar`, `roles`, `count_roles`, `wpcom_reader_views_enabled` and `consent`.
+		 * @param string[] $fields `admin_bar`, `roles`, `count_roles` and `consent`.
 		 */
 		$kept = apply_filters( self::FIELDS_FILTER, $fields );
 
@@ -237,7 +217,7 @@ final class Stats_Settings {
 	}
 
 	/**
-	 * Save a write to `stats_options` through the Stats package, which keeps the option's internal state and administrators' access, and check that the Reader setting was stored.
+	 * Save a write to `stats_options` through the Stats package, which keeps the option's internal state and administrators' access.
 	 *
 	 * Core ignores an error from this filter, so a refusal is held for `report_update_error()`.
 	 *
@@ -247,17 +227,11 @@ final class Stats_Settings {
 	 * @return bool Whether the setting was handled.
 	 */
 	public static function update_stats_options( $updated, $name, $value ) {
-		if ( self::READER_VIEWS_OPTION === $name ) {
-			// Core deletes the option for null, which restores the default.
-			if ( null === $value ) {
-				return $updated;
-			}
-			$result = Stats_Package_Settings::update_reader_views( rest_sanitize_boolean( $value ) );
-		} elseif ( Stats_Options::OPTION_NAME === $name ) {
-			$result = Stats_Package_Settings::update( is_array( $value ) ? $value : array(), self::get_stats_option_fields() );
-		} else {
+		if ( Stats_Options::OPTION_NAME !== $name ) {
 			return $updated;
 		}
+
+		$result = Stats_Package_Settings::update( is_array( $value ) ? $value : array(), self::get_stats_option_fields() );
 
 		if ( is_wp_error( $result ) ) {
 			self::$update_error = $result;
@@ -281,16 +255,6 @@ final class Stats_Settings {
 		self::$update_error = null;
 
 		return $error;
-	}
-
-	/**
-	 * Store the Reader setting as 0 or 1: a bare `false` would reach the options table as `''`, which the schema does not read back as a boolean.
-	 *
-	 * @param mixed $value The value being written.
-	 * @return int
-	 */
-	public static function sanitize_reader_views( $value ) {
-		return (int) rest_sanitize_boolean( $value );
 	}
 
 	/**
