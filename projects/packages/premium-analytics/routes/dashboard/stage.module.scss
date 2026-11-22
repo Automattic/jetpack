@@ -32,14 +32,23 @@
 }
 
 /*
- * The trail is the page's only heading, so it is clipped rather than dropped:
- * a reader navigating by heading keeps it while the lockup stands down.
+ * The trail is the page's only heading, so it is hidden rather than dropped: a
+ * reader navigating by heading keeps it. Out of flow it takes the row's 8px gap
+ * with it, so the actions need their own right anchor: `space-between` puts a
+ * lone child at the start.
  */
 .tightHeader {
 
 	[class*="__header-lockup"] {
-		inline-size: 0;
-		overflow: clip;
+		position: absolute;
+		inline-size: 1px;
+		block-size: 1px;
+		overflow: hidden;
+		clip-path: inset(50%);
+	}
+
+	[class*="__header-actions"] {
+		margin-inline-start: auto;
 	}
 }
 
