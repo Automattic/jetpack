@@ -9,7 +9,7 @@ import {
 } from '@jetpack-premium-analytics/data';
 import { PRESET_CUSTOM } from '@jetpack-premium-analytics/datetime';
 import { StatsErrorBoundary } from '@jetpack-premium-analytics/error-reporting';
-import { Icon, JetpackFooter, Stack } from '@jetpack-premium-analytics/externals';
+import { Icon, JetpackFooter, Stack, VisuallyHidden } from '@jetpack-premium-analytics/externals';
 import { jetpack } from '@jetpack-premium-analytics/icons';
 import {
 	DashboardWidgetHostProvider,
@@ -541,7 +541,15 @@ function Dashboard(): JSX.Element {
 						>
 							<Page
 								visual={ hasTightHeader ? undefined : <Icon icon={ jetpack } /> }
-								breadcrumbs={ <StatsBreadcrumbs isRoot /> }
+								breadcrumbs={
+									hasTightHeader ? (
+										<VisuallyHidden>
+											<StatsBreadcrumbs isRoot />
+										</VisuallyHidden>
+									) : (
+										<StatsBreadcrumbs isRoot />
+									)
+								}
 								actions={
 									<Stack direction="row" gap={ isCrowdedHeader ? 'xs' : 'sm' }>
 										{ /* At rest these would add a second Customize beside the menu's. */ }
