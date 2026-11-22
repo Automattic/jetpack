@@ -188,7 +188,8 @@ it( 'omits one requested product from the details response', async () => {
 	expect( products ).toHaveLength( 2 );
 	// The gap falls in the middle of the ranking, not at the end of the list.
 	expect( products.map( product => product.id ) ).toEqual( [ 18, 20 ] );
-	expect( products[ 0 ].images[ 0 ].src ).toBe( 'https://picsum.photos/seed/18/96/96' );
+	// Inline, so a story renders its thumbnails offline and on CI.
+	expect( products[ 0 ].images[ 0 ].src ).toMatch( /^data:image\/svg\+xml,/ );
 	expect( products[ 0 ].permalink ).toMatch( /^https:\/\// );
 } );
 
