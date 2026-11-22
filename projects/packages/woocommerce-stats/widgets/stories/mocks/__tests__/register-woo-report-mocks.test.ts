@@ -267,11 +267,12 @@ describe( 'setWooReportMockState', () => {
 	it( 'never settles for `loading`', async () => {
 		setWooReportMockState( 'orders/by-date', 'loading' );
 
-		const settled = Symbol( 'settled' );
+		const pending = Symbol( 'pending' );
+		const nextTask = new Promise( resolve => setTimeout( () => resolve( pending ), 0 ) );
 
-		await expect(
-			Promise.race( [ request( PRIMARY_ORDERS ), Promise.resolve( settled ) ] )
-		).resolves.toBe( settled );
+		await expect( Promise.race( [ request( PRIMARY_ORDERS ), nextTask ] ) ).resolves.toBe(
+			pending
+		);
 	} );
 
 	it( 'stops forcing once cleared with null', async () => {
