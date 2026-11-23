@@ -1,5 +1,5 @@
 import getRedirectUrl from '@automattic/jetpack-components/tools/jp-redirect';
-import { isSimpleSite, isWpcomPlatformSite } from '@automattic/jetpack-script-data';
+import { isSimpleSite } from '@automattic/jetpack-script-data';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Card, Fieldset, Link, Notice, Spinner, Stack, SwitchControl, Text } from '@wordpress/ui';
@@ -248,9 +248,7 @@ function AdsOptions( { data, openTab }: { data: AdsSettingsData; openTab: OpenTa
 									'Enables a targeted advertising opt-out link in US states where this is legally required.',
 									'jetpack-monetize'
 								),
-								href: getRedirectUrl(
-									isWpcomPlatformSite() ? 'wpcom-support-us-privacy' : 'jetpack-support-ads'
-								),
+								href: getDocUrl( 'adsUsPrivacy' ),
 							}
 						) }
 						{ values.wordads_ccpa_enabled && (
@@ -304,9 +302,7 @@ function AdsOptions( { data, openTab }: { data: AdsSettingsData; openTab: OpenTa
 										'Show a cookie banner to all EU and UK site visitors prompting them to consent to their personal data being used to personalize the ads they see. Without proper consents EU/UK visitors will only see lower paying non-personalized ads.',
 										'jetpack-monetize'
 									),
-									href: isWpcomPlatformSite()
-										? 'https://wordpress.com/support/wordads-and-earn/configure-ad-settings/#consent-management'
-										: getRedirectUrl( 'jetpack-support-ads' ),
+									href: getDocUrl( 'adsGdpr' ),
 								}
 							) }
 					</Stack>
@@ -325,9 +321,7 @@ function AdsOptions( { data, openTab }: { data: AdsSettingsData; openTab: OpenTa
 										'Ads.txt (Authorized Digital Sellers) is a mechanism that enables content owners to declare who is authorized to sell their ad inventory. It’s the formal list of advertising partners you support as a publisher.',
 										'jetpack-monetize'
 									),
-									href: isWpcomPlatformSite()
-										? 'https://wordpress.com/support/manage-your-ads-txt-file/'
-										: getRedirectUrl( 'jetpack-support-ads' ),
+									href: getDocUrl( 'adsTxt' ),
 								}
 							) }
 							{ values.wordads_custom_adstxt_enabled && (

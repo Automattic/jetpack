@@ -13,9 +13,9 @@ import { groupPlans, hasMonthlyTier, isTier, planPriceLabel } from './plans';
 import { getPaymentsState } from './state';
 import type { Plan } from './plans';
 
-// Links elsewhere, such as Newsletter settings, open the add dialog with these.
 const trackUpgradeClick = () => trackPaymentsEvent( 'upgrade_click' );
 
+// Links elsewhere, such as Newsletter settings, open the add dialog with these.
 const ADD_HASHES: Record< string, boolean > = {
 	'#add-new-payment-plan': false,
 	'#add-tier-plan': true,
