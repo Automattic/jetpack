@@ -300,6 +300,49 @@ describe( 'stats-options-menu', () => {
 				expect( screen.queryByRole( 'button', { name: 'Stats options' } ) ).not.toBeInTheDocument();
 			} );
 
+			it( 'fires the view event once per menu open, not on render', async () => {
+				showPromos();
+				const user = await openMenu();
+
+				await expect(
+					screen.findByRole( 'menuitem', { name: /^Try Acme/ } )
+				).resolves.toBeInTheDocument();
+				await user.keyboard( '{Escape}' );
+				await waitFor( () =>
+					expect( screen.queryByRole( 'menuitem', { name: /^Try Acme/ } ) ).not.toBeInTheDocument()
+				);
+				await user.click( screen.getByRole( 'button', { name: 'Stats options' } ) );
+				await expect(
+					screen.findByRole( 'menuitem', { name: /^Try Acme/ } )
+				).resolves.toBeInTheDocument();
+
+				const views = recordEvent.mock.calls.filter(
+					( [ name ] ) => name === 'jetpack_premium_analytics_promo_view'
+				);
+				expect( views ).toEqual( [
+					[
+						'jetpack_premium_analytics_promo_view',
+						{ slug: 'acme/offer', placement: 'options-menu' },
+					],
+					[
+						'jetpack_premium_analytics_promo_view',
+						{ slug: 'acme/offer', placement: 'options-menu' },
+					],
+				] );
+			} );
+
+			it( 'fires no view event when the menu opens without a promo', async () => {
+				await openMenu();
+
+				await expect(
+					screen.findByRole( 'menuitem', { name: 'Any feedback?' } )
+				).resolves.toBeInTheDocument();
+				expect( recordEvent ).not.toHaveBeenCalledWith(
+					'jetpack_premium_analytics_promo_view',
+					expect.anything()
+				);
+			} );
+
 			it( 'fires the click event with the promo slug and placement', async () => {
 				showPromos();
 				const user = await openMenu();
