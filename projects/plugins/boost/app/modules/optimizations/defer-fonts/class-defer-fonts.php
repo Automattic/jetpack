@@ -67,7 +67,10 @@ class Defer_Fonts implements Feature, Changes_Output_On_Activation, Optimization
 	 * Print the theme's font faces as a deferred loader, with a <noscript> fallback.
 	 */
 	public function print_deferred_font_faces() {
-		$fonts = \WP_Font_Face_Resolver::get_fonts_from_theme_json();
+		list( $fonts, $excluded ) = self::split_excluded( \WP_Font_Face_Resolver::get_fonts_from_theme_json() );
+		if ( ! empty( $excluded ) ) {
+			wp_print_font_faces( $excluded );
+		}
 		if ( empty( $fonts ) ) {
 			return;
 		}
@@ -92,6 +95,45 @@ class Defer_Fonts implements Feature, Changes_Output_On_Activation, Optimization
 				$ignore_attribute => 'ignore',
 			)
 		);
+	}
+
+	/**
+	 * Split font families into those to defer and those left to core, such as icon fonts that must not flash.
+	 *
+	 * @param array $fonts Font families, each a list of font faces, as WP_Font_Face_Resolver returns them.
+	 * @return array The families to defer, then the excluded ones.
+	 */
+	public static function split_excluded( array $fonts ) {
+		/**
+		 * Filters the font-family names Defer Web Fonts loads normally, matched case-insensitively as a prefix.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param string[] $prefixes Font-family name prefixes. Defaults to Font Awesome's names.
+		 */
+		$prefixes = (array) apply_filters( 'jetpack_boost_defer_fonts_excluded_families', array( 'Font Awesome', 'FontAwesome' ) );
+
+		$deferred = array();
+		$excluded = array();
+		foreach ( $fonts as $key => $faces ) {
+			$family = strtolower( trim( (string) ( reset( $faces )['font-family'] ?? '' ), "\"' " ) );
+
+			$is_excluded = false;
+			foreach ( $prefixes as $prefix ) {
+				if ( '' !== (string) $prefix && str_starts_with( $family, strtolower( (string) $prefix ) ) ) {
+					$is_excluded = true;
+					break;
+				}
+			}
+
+			if ( $is_excluded ) {
+				$excluded[ $key ] = $faces;
+			} else {
+				$deferred[ $key ] = $faces;
+			}
+		}
+
+		return array( $deferred, $excluded );
 	}
 
 	/**

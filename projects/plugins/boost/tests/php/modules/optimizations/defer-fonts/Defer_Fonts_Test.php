@@ -9,7 +9,9 @@ namespace Automattic\Jetpack_Boost\Tests\Modules\Optimizations\Defer_Fonts;
 
 use Automattic\Jetpack_Boost\Modules\Optimizations\Defer_Fonts\Defer_Fonts;
 use Automattic\Jetpack_Boost\Tests\Base_TestCase;
+use Brain\Monkey\Filters;
 use Brain\Monkey\Functions;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * Class Defer_Fonts_Test
@@ -60,5 +62,36 @@ class Defer_Fonts_Test extends Base_TestCase {
 
 		$this->assertStringNotContainsString( '</script>', $script );
 		$this->assertStringContainsString( 'addEventListener("load",add)', $script );
+	}
+
+	/**
+	 * @dataProvider excluded_family_cases
+	 */
+	#[DataProvider( 'excluded_family_cases' )]
+	public function test_icon_fonts_are_left_to_load_normally( $filtered_prefixes, $expected_excluded ) {
+		if ( null !== $filtered_prefixes ) {
+			Filters\expectApplied( 'jetpack_boost_defer_fonts_excluded_families' )->andReturnUsing(
+				function ( $prefixes ) use ( $filtered_prefixes ) {
+					return array_merge( $prefixes, $filtered_prefixes );
+				}
+			);
+		}
+
+		$fonts = array();
+		foreach ( array( 'Inter', '"Font Awesome 6 Free"', 'fontawesome', 'Material Icons' ) as $family ) {
+			$fonts[ $family ] = array( array( 'font-family' => $family ) );
+		}
+
+		list( $deferred, $excluded ) = Defer_Fonts::split_excluded( $fonts );
+
+		$this->assertSame( $expected_excluded, array_keys( $excluded ) );
+		$this->assertSame( array_values( array_diff( array_keys( $fonts ), $expected_excluded ) ), array_keys( $deferred ) );
+	}
+
+	public static function excluded_family_cases() {
+		return array(
+			'Font Awesome by default'       => array( null, array( '"Font Awesome 6 Free"', 'fontawesome' ) ),
+			'a site adds its own icon font' => array( array( 'Material Icons' ), array( '"Font Awesome 6 Free"', 'fontawesome', 'Material Icons' ) ),
+		);
 	}
 }
