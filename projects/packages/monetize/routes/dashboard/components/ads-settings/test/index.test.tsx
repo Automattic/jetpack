@@ -162,45 +162,36 @@ describe( 'AdsSettings', () => {
 	} );
 
 	it.each( [
-		[
-			'the upgrade prompt without a plan',
-			{ hasWordAds: false },
-			[],
-			'link',
-			'Upgrade',
-			MOCK_UPGRADE_URL,
-		],
+		[ 'the upgrade prompt without a plan', { hasWordAds: false }, [], 'Upgrade', MOCK_UPGRADE_URL ],
 		[
 			'the connect prompt without a plan or owner',
 			{ hasWordAds: false, hasConnectedOwner: false },
 			[],
-			'link',
 			'Connect',
 			'#connect',
-		],
-		[ 'the Ads switch with a plan', {}, [], 'switch', SWITCH, null ],
-		[
-			'the Ads switch when the cached plan missed a purchase',
-			{ hasWordAds: false },
-			[ 'wordads' ],
-			'switch',
-			SWITCH,
-			null,
 		],
 		[
 			'the upgrade prompt when WordPress.com cannot say',
 			{ hasWordAds: false },
 			new Error(),
-			'link',
 			'Upgrade',
 			MOCK_UPGRADE_URL,
 		],
-	] )( 'shows %s', async ( _label, data, features, role, name, href ) => {
+	] )( 'shows %s', async ( _label, data, features, name, href ) => {
 		renderTab( data, {}, features );
 
-		const control = await screen.findByRole( role, { name } );
-		expect( control ).toHaveAttribute( 'href', href );
-		expect( screen.queryAllByRole( 'switch' ).length > 0 ).toBe( role === 'switch' );
+		await expect( screen.findByRole( 'link', { name } ) ).resolves.toHaveAttribute( 'href', href );
+		expect( screen.queryByRole( 'switch' ) ).not.toBeInTheDocument();
+	} );
+
+	it.each( [
+		[ 'with a plan', {}, [] ],
+		[ 'when the cached plan missed a purchase', { hasWordAds: false }, [ 'wordads' ] ],
+	] )( 'shows the Ads switch %s', async ( _label, data, features ) => {
+		renderTab( data, {}, features );
+
+		await expect( screen.findByRole( 'switch', { name: SWITCH } ) ).resolves.toBeInTheDocument();
+		expect( screen.queryByRole( 'link', { name: 'Upgrade' } ) ).not.toBeInTheDocument();
 	} );
 
 	it.each( [
