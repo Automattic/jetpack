@@ -43,9 +43,9 @@
 	text-decoration: underline;
 }
 
-/* DataViews keeps a cell on one line, so a long value widened the table past
+/* DataViews keeps a cell on one line, so a long title widened the table past
  * its card and pushed the other columns under the sticky actions column. */
-.root :global(.dataviews-view-table tbody .dataviews-view-table__cell-content-wrapper:not(.dataviews-view-table__cell-align-end)) {
+.root :global(.dataviews-view-table tbody .dataviews-title-field) {
 	white-space: normal;
 	overflow-wrap: anywhere;
 }

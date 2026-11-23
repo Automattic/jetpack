@@ -178,7 +178,7 @@ function ReferrerField( { item }: DataViewRenderFieldProps< ReferrerRow > ): JSX
 
 /**
  * A title render shaped like the report consumers' — a thumbnail beside the
- * label — where the ellipsis has to sit on the label, not the flex row.
+ * label — with the label held to one line, as some report consumers hold theirs.
  */
 function ThumbnailReferrerField( { item }: DataViewRenderFieldProps< ReferrerRow > ): JSX.Element {
 	return (
@@ -529,7 +529,7 @@ export const LongGroupTitleWithThumbnail: Story = {
 		docs: {
 			description: {
 				story:
-					'The same over-long label, rendered the way the report pages render theirs: a thumbnail beside the text. The cell clips a flex row without ellipsizing it, so the consumer puts the ellipsis on its own label — the rule the Authors and Referrers reports each carry.',
+					'The same over-long label, rendered the way some report pages render theirs: a thumbnail beside text the consumer holds to one line. The table wraps a title by default; a label that sets its own `nowrap` stays on one line.',
 			},
 		},
 	},
