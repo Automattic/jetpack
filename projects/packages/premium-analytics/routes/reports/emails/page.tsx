@@ -10,6 +10,7 @@ import {
 	ReportErrorState,
 	ReportRecordsTable,
 	StatsOptionsMenu,
+	createViewLiveAction,
 	emailsCsvExporter,
 	toViewLiveUrl,
 } from '@jetpack-premium-analytics/widgets-toolkit';
@@ -22,7 +23,6 @@ import { __ } from '@wordpress/i18n';
 import reportPageStyles from '../page.module.scss';
 import { REPORTS } from '../registry';
 import { useReportParams } from '../use-report-params';
-import { createViewLiveAction } from '../view-live-action';
 import { getEmailsFields, useEmailsReportRecords } from './config';
 import type { StatsEmailSummaryItem } from '@jetpack-premium-analytics/data';
 import type { JSX } from 'react';

@@ -1,8 +1,25 @@
 /**
  * Internal dependencies
  */
-import { getReportDefinition, REPORTS } from './registry';
+import { getReportDefinition, getReportsPage, REPORTS } from './registry';
 import { REPORT_PAGES } from './report-pages';
+
+// A reports page as the server registers it: a record of sections, each a layout of widgets.
+const POSTS_PAGE = {
+	id: 'analytics/posts',
+	path: 'posts',
+	label: 'All pages',
+	dashboard_section: 'traffic',
+	feature: 'top-posts',
+	icon: null,
+	controls: null,
+	preferences_scope: 'jetpack-premium-analytics/posts-report',
+	default_layout: [],
+	sections: [
+		{ slug: 'posts-pages', label: 'Posts & Pages', default_layout: [], controls: null },
+		{ slug: 'archives', label: 'Archives', default_layout: [], controls: null },
+	],
+};
 
 /**
  * Publish the script data of a Simple site running VideoPress, with any overrides applied.
@@ -19,7 +36,10 @@ function setSite( {
 }: { host?: string; sections?: string[]; videos?: boolean } = {} ) {
 	Object.defineProperty( window, 'JetpackScriptData', {
 		configurable: true,
-		value: { site: { host }, premium_analytics: { has_videopress: videos, sections } },
+		value: {
+			site: { host },
+			premium_analytics: { has_videopress: videos, sections, reports_pages: [ POSTS_PAGE ] },
+		},
 	} );
 }
 
@@ -63,6 +83,24 @@ describe( 'getReportDefinition', () => {
 		setSite( { host: 'unknown' } );
 
 		expect( getReportDefinition( 'posts' )?.id ).toBe( 'posts' );
+	} );
+
+	it( 'reads a registered reports page: its label, its feature and its sections', () => {
+		const definition = getReportDefinition( 'posts' );
+
+		expect( getReportsPage( 'posts' ) ).toBe( POSTS_PAGE );
+		expect( definition?.getLabel() ).toBe( 'All pages' );
+		expect( definition?.feature ).toBe( 'top-posts' );
+		expect( definition?.resolveSection?.( 'archives' ) ).toBe( 'archives' );
+		expect( definition?.resolveSection?.( 'bogus' ) ).toBe( 'posts-pages' );
+		// `isPostDetailAvailable()` checks only the tab, so a gate here would send post links to a redirect.
+		expect( definition?.isAvailable ).toBeUndefined();
+	} );
+
+	it( 'hides a registered reports page behind a hidden tab', () => {
+		setSite( { sections: [ 'insights' ] } );
+
+		expect( getReportDefinition( 'posts' ) ).toBeUndefined();
 	} );
 
 	it( 'returns the videos report on sites running VideoPress', () => {
@@ -109,11 +147,6 @@ describe( 'REPORTS', () => {
 		return grouped;
 	}
 
-	// `isPostDetailAvailable()` checks only the tab, so a gate here would send post links to a redirect.
-	it( 'gates the posts report by its tab alone', () => {
-		expect( REPORTS.posts.isAvailable ).toBeUndefined();
-	} );
-
 	it( 'keys every report by its own id', () => {
 		const misKeyed = Object.entries( REPORTS )
 			.filter( ( [ key, { id } ] ) => key !== id )
@@ -131,7 +164,6 @@ describe( 'REPORTS', () => {
 				'clicks',
 				'downloads',
 				'locations',
-				'posts',
 				'search-terms',
 				'tags',
 				'videos',

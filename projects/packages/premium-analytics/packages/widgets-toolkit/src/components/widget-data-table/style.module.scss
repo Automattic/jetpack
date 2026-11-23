@@ -2,6 +2,8 @@
  * table declare `presentation: "content-bleed"` and the host contributes no
  * body padding; otherwise the two stack and the table sits doubly inset. */
 .root {
+	flex: 1 1 auto;
+	min-block-size: 0;
 	min-inline-size: 0;
 	overflow: hidden;
 }

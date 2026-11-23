@@ -17,12 +17,12 @@ import CommentsReportPage from '../../routes/reports/comments/page';
 import DownloadsReportPage from '../../routes/reports/downloads/page';
 import EmailsReportPage from '../../routes/reports/emails/page';
 import LocationsReportPage from '../../routes/reports/locations/page';
-import PostsReportPage from '../../routes/reports/posts/page';
 import ReferrersReportPage from '../../routes/reports/referrers/page';
 import SearchTermsReportPage from '../../routes/reports/search-terms/page';
 import TagsReportPage from '../../routes/reports/tags/page';
 import UtmReportPage from '../../routes/reports/utm/page';
 import AnnualHighlightsWidget from '../../widgets/annual-highlights/render';
+import ArchivesTableWidget from '../../widgets/archives-table/render';
 import AuthorsWidget from '../../widgets/authors/render';
 import ClicksWidget from '../../widgets/clicks/render';
 import EmailsWidget from '../../widgets/emails/render';
@@ -30,6 +30,7 @@ import FileDownloadsWidget from '../../widgets/file-downloads/render';
 import LocationsWidget from '../../widgets/locations/render';
 import MostCommentedAuthorsWidget from '../../widgets/most-commented-authors/render';
 import MostCommentedPostsWidget from '../../widgets/most-commented-posts/render';
+import PostsTableWidget from '../../widgets/posts-table/render';
 import ReferrersWidget from '../../widgets/referrers/render';
 import SearchTermsWidget from '../../widgets/search-terms/render';
 import TagsWidget from '../../widgets/tags/render';
@@ -344,6 +345,10 @@ const RESPONSES: Record< string, unknown | ( ( path: string ) => unknown ) > = {
 	},
 };
 
+// The All pages report is a page of widgets: its two tables stand in for it.
+const PostsTable = () => <PostsTableWidget attributes={ { reportParams: REPORT_PARAMS } } />;
+const ArchivesTable = () => <ArchivesTableWidget attributes={ { reportParams: REPORT_PARAMS } } />;
+
 const CASES: {
 	name: string;
 	Page: ComponentType;
@@ -352,17 +357,15 @@ const CASES: {
 }[] = [
 	{
 		name: 'Posts & pages',
-		Page: PostsReportPage,
+		Page: PostsTable,
 		widget: reportParams => <TopPostsWidget attributes={ { reportParams } } />,
-		tab: 'posts-pages',
 	},
 	{
 		name: 'Archives',
-		Page: PostsReportPage,
+		Page: ArchivesTable,
 		widget: reportParams => (
 			<TopPostsWidget attributes={ { contentView: 'archives', reportParams } } />
 		),
-		tab: 'archives',
 	},
 	{
 		name: 'File downloads',
@@ -496,7 +499,7 @@ describe( 'Widget and report CSV parity', () => {
 	);
 
 	it( 'reuses the report page cached rows for the widget download', async () => {
-		await download( <PostsReportPage /> );
+		await download( <PostsTable /> );
 
 		render( withProviders( CASES[ 0 ].widget( REPORT_PARAMS ) ) );
 		const action = await actionsHost.findDeclaredAction( 'download-csv' );

@@ -1,7 +1,7 @@
 /**
  * Internal dependencies
  */
-import { createViewLiveAction } from './view-live-action';
+import { createViewLiveAction } from '../view-live-action';
 
 type Row = { url?: string };
 

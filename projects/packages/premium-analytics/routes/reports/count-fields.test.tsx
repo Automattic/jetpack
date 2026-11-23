@@ -5,6 +5,8 @@ import { render } from '@testing-library/react';
 /**
  * Internal dependencies
  */
+import { getArchivesFields } from '../../widgets/archives-table/fields';
+import { getPostsFields } from '../../widgets/posts-table/fields';
 import { getAnnualInsightsFields } from './annual-insights/config/fields';
 import { getAuthorsFields } from './authors/config/fields';
 import { getClicksFields } from './clicks/config/fields';
@@ -13,7 +15,6 @@ import { getCommentsFields } from './comments/config/fields';
 import { getDownloadsFields } from './downloads/config/fields';
 import { getEmailsFields } from './emails/config/fields';
 import { getLocationFields } from './locations/config/fields';
-import { getArchivesFields, getPostsFields } from './posts/config/fields';
 import { getReferrerFields } from './referrers/config/fields';
 import { getSearchTermsFields } from './search-terms/config/fields';
 import { getTagsFields } from './tags/config/fields';
@@ -53,7 +54,7 @@ describe( 'report table count fields', () => {
 	} );
 
 	it.each( [
-		[ 'Posts views', getPostsFields( false, 'posts-pages' ), 'views', { views: 12345 } ],
+		[ 'Posts views', getPostsFields( false, {} ), 'views', { views: 12345 } ],
 		[ 'Archives views', getArchivesFields(), 'views', { views: 12345 } ],
 		[ 'Authors views', getAuthorsFields(), 'views', { views: 12345 } ],
 		[ 'Subscribers', getCommentFollowersFields(), 'subscribers', { followers: 12345 } ],

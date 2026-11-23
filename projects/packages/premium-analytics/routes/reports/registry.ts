@@ -1,8 +1,8 @@
 /**
  * External dependencies
  */
-import { isSimpleSite } from '@automattic/jetpack-script-data';
-import { isDashboardSectionAvailable, POST_DETAIL_SECTION } from '@jetpack-premium-analytics/data';
+import { getScriptData, isSimpleSite } from '@automattic/jetpack-script-data';
+import { isDashboardSectionAvailable } from '@jetpack-premium-analytics/data';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
@@ -13,8 +13,8 @@ import { isVideoPressAvailable } from '../site-readiness';
 import { resolveTabId as resolveCommentsTabId } from './comments/config/tabs';
 import { resolveSection as resolveEarningsSection } from './earnings/config/tabs';
 import { resolveSection as resolveLocationsSection } from './locations/config/tabs';
-import { resolveTabId } from './posts/config/tabs';
 import { resolveSection as resolveUtmSection } from './utm/config/tabs';
+import type { ReportPageRecord } from '../single-report/registry';
 import type { DashboardSectionSlug, StatsFeatureKey } from '@jetpack-premium-analytics/data';
 
 /**
@@ -128,13 +128,6 @@ export const REPORTS: Record< string, ReportDefinition > = {
 		getLabel: () => __( 'All locations', 'jetpack-premium-analytics-pkg' ),
 		resolveSection: resolveLocationsSection,
 	},
-	posts: {
-		id: 'posts',
-		feature: 'top-posts',
-		dashboardSection: POST_DETAIL_SECTION,
-		getLabel: () => __( 'All pages', 'jetpack-premium-analytics-pkg' ),
-		resolveSection: resolveTabId,
-	},
 	'search-terms': {
 		id: 'search-terms',
 		feature: 'search-terms',
@@ -172,7 +165,48 @@ export const REPORTS: Record< string, ReportDefinition > = {
 };
 
 /**
- * Look up a report definition by its id.
+ * The reports page the server registered under a path, as it publishes it in
+ * `premium_analytics.reports_pages`: a report page of widgets, without an entity scope.
+ *
+ * @param id - The `$report` path segment.
+ * @return The page record, or undefined when no registered page uses the path.
+ */
+export function getReportsPage( id: string | undefined ): ReportPageRecord | undefined {
+	const pages = getScriptData()?.premium_analytics?.reports_pages;
+	if ( ! id || ! Array.isArray( pages ) ) {
+		return undefined;
+	}
+
+	// The script data type keeps the layout loose; the server serializes `DashboardWidget` instances.
+	return pages.find( candidate => candidate.path === id ) as unknown as
+		ReportPageRecord | undefined;
+}
+
+/**
+ * The definition of a registered reports page: what the guards and the crumbs read of it.
+ *
+ * @param page - The page record.
+ * @return The definition.
+ */
+function toReportDefinition( page: ReportPageRecord ): ReportDefinition {
+	const { sections } = page;
+
+	return {
+		id: page.path,
+		dashboardSection: page.dashboard_section as DashboardSectionSlug,
+		getLabel: () => page.label,
+		...( sections.length
+			? {
+					resolveSection: value =>
+						( sections.find( section => section.slug === value ) ?? sections[ 0 ] ).slug,
+				}
+			: {} ),
+		...( page.feature ? { feature: page.feature as StatsFeatureKey } : {} ),
+	};
+}
+
+/**
+ * Look up a report definition by its id: a registered reports page first, then the bundled map.
  *
  * The id comes from the URL, so this is an own-property check: a plain index
  * would resolve an inherited name such as `constructor` to a function.
@@ -182,7 +216,9 @@ export const REPORTS: Record< string, ReportDefinition > = {
  * section the dashboard does not expose.
  */
 export function getReportDefinition( id: string | undefined ): ReportDefinition | undefined {
-	const definition = id && Object.hasOwn( REPORTS, id ) ? REPORTS[ id ] : undefined;
+	const page = getReportsPage( id );
+	const bundled = id && Object.hasOwn( REPORTS, id ) ? REPORTS[ id ] : undefined;
+	const definition = page ? toReportDefinition( page ) : bundled;
 
 	if ( definition?.isAvailable && ! definition.isAvailable() ) {
 		return undefined;

@@ -3,12 +3,13 @@
  */
 import {
 	DataViews,
+	type Action,
 	type Field,
 	type SupportedLayouts,
 	type View,
 } from '@jetpack-premium-analytics/externals';
 import { usePaginatedView } from '@jetpack-premium-analytics/ui';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 /**
  * Internal dependencies
  */
@@ -30,7 +31,9 @@ const GenericDataViews = DataViews as unknown as < Item >( props: {
 	getItemId: ( item: Item ) => string;
 	paginationInfo: { totalItems: number; totalPages: number };
 	defaultLayouts?: SupportedLayouts;
+	actions?: Action< Item >[];
 	search?: boolean;
+	searchLabel?: string;
 	config?: { perPageSizes: number[] };
 	children?: ReactNode;
 } ) => ReturnType< typeof DataViews >;
@@ -46,8 +49,14 @@ export interface WidgetDataTableProps< Item > {
 	initialView?: Partial< View >;
 	/** Whether to show DataViews search UI. */
 	search?: boolean;
+	/** Accessible label for the search input. */
+	searchLabel?: string;
+	/** Row actions; each one's `isEligible` decides which rows offer it. */
+	actions?: Action< Item >[];
 	/** Page-size choices. */
 	perPageSizes?: number[];
+	/** Called with the rows of the page on screen. */
+	onChangePageItems?: ( items: Item[] ) => void;
 }
 
 /**
@@ -67,7 +76,10 @@ export function WidgetDataTable< Item >( {
 	getItemId,
 	initialView,
 	search = false,
+	searchLabel,
+	actions,
 	perPageSizes = DEFAULT_PER_PAGE_SIZES,
+	onChangePageItems,
 }: WidgetDataTableProps< Item > ) {
 	const [ view, setView ] = useState< View >(
 		() =>
@@ -90,6 +102,10 @@ export function WidgetDataTable< Item >( {
 		paginationInfo,
 	} = usePaginatedView( data, view, fields, setView );
 
+	useEffect( () => {
+		onChangePageItems?.( pageItems );
+	}, [ onChangePageItems, pageItems ] );
+
 	return (
 		<div className={ styles.root }>
 			<GenericDataViews< Item >
@@ -100,7 +116,9 @@ export function WidgetDataTable< Item >( {
 				getItemId={ getItemId }
 				paginationInfo={ paginationInfo }
 				defaultLayouts={ { table: {} } }
+				actions={ actions }
 				search={ search }
+				searchLabel={ searchLabel }
 				config={ { perPageSizes } }
 			>
 				{ search ? undefined : (
