@@ -23,6 +23,7 @@ registerWooReportMocks();
 type ReportRow = Record< string, string | null >;
 type OrdersResponse = { data: ReportRow[]; summary: ReportRow };
 type ProductsResponse = { data: ReportRow[]; summary: ReportRow };
+type VisitorsResponse = { data: ReportRow[]; summary: ReportRow };
 type ProductDetail = { id: number; permalink: string; images: { src: string; alt: string }[] };
 type SessionsResponse = {
 	data: { device_type: string | null; active_sessions: string | null }[];
@@ -232,6 +233,31 @@ it( 'states no sessions at all when every device row is zero', async () => {
 
 	expect( data.map( row => row.active_sessions ) ).toEqual( [ '0', '0', '0', '0' ] );
 	expect( summary.active_sessions ).toBe( '0' );
+} );
+
+const visitorsPath = ( reportWindow: ReportWindow ) =>
+	reportPath( 'sessions/by-date', { ...reportWindow, interval: STORY_PARAMS.interval } );
+
+it( 'buckets the visitors report and keeps visitors below sessions', async () => {
+	const { data, summary } = await request< VisitorsResponse >( visitorsPath( PRIMARY_WINDOW ) );
+
+	expect( data ).toHaveLength( daysInWindow( PRIMARY_WINDOW ) );
+	expect( Number( summary.visitors ) ).toBeLessThan( Number( summary.active_sessions ) );
+	data.forEach( row => {
+		expect( typeof row.visitors ).toBe( 'string' );
+		expect( row.date_start ).toMatch( /^\d{4}-\d{2}-\d{2} / );
+		expect( row.date_end ).toMatch( /^\d{4}-\d{2}-\d{2} / );
+	} );
+	expect( summary.date_start ).toMatch( /^\d{4}-\d{2}-\d{2} / );
+} );
+
+it( 'serves fewer visitors for the comparison window', async () => {
+	const primary = await request< VisitorsResponse >( visitorsPath( PRIMARY_WINDOW ) );
+	const comparison = await request< VisitorsResponse >( visitorsPath( COMPARISON_WINDOW ) );
+
+	expect( Number( comparison.summary.visitors ) ).toBeLessThan(
+		Number( primary.summary.visitors )
+	);
 } );
 
 it( 'falls through for a path it does not own', async () => {

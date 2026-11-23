@@ -13,6 +13,7 @@ import {
 	buildProductDetailsResponse,
 	buildProductsResponse,
 	buildSessionsByDeviceResponse,
+	buildVisitorsByDateResponse,
 } from './data';
 import type { APIFetchMiddleware, APIFetchOptions } from '@wordpress/api-fetch';
 
@@ -92,6 +93,8 @@ const wooReportMocksMiddleware: APIFetchMiddleware = async ( options: APIFetchOp
 				return buildOrdersByDateResponse( query, { share: BOOKINGS_SHARE } );
 			case 'products':
 				return buildProductsResponse( query );
+			case 'sessions/by-date':
+				return buildVisitorsByDateResponse( query );
 			case 'sessions/by-device':
 				return buildSessionsByDeviceResponse( query );
 		}

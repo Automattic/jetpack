@@ -14,8 +14,8 @@ const DEVICES = [
 	{ device_type: null, share: 0.04, phase: 3.3 },
 ];
 
-const sessionsPerDay = ( dayIndex: number ) =>
-	Math.max( 1, 920 + 0.9 * ( dayIndex - ANCHOR_DAY ) + 180 * Math.sin( dayIndex / 8 ) );
+export const sessionsPerDay = ( dayIndex: number ) =>
+	Math.max( 1, 920 + 8 * ( dayIndex - ANCHOR_DAY ) + 180 * Math.sin( dayIndex / 8 ) );
 
 /**
  * The sessions-by-device report of a window: one row per device category, plus one for the
