@@ -123,19 +123,26 @@ function buildLeaderboardData(
 	detailSearch: Record< string, unknown >,
 	onDrillDown?: ( row: TopPostRow ) => void
 ): LeaderboardChartData {
-	return rows.map( ( row, index ) => ( {
-		id: `${ index }-${ row.href ?? row.label }`,
-		...buildLeaderboardRow( {
-			label: row.label,
-			media: { kind: 'none' },
-			action: resolveRowAction( row, detailSearch, onDrillDown ),
-			indicator: row.publishedInPeriod
-				? __( 'Published in this period', 'jetpack-premium-analytics-pkg' )
-				: undefined,
-		} ),
-		currentValue: row.value,
-		previousValue: row.previousValue,
-	} ) );
+	return rows.map( ( row, index ) => {
+		const base = { label: row.label, media: { kind: 'none' as const } };
+		const action = resolveRowAction( row, detailSearch, onDrillDown );
+
+		return {
+			id: `${ index }-${ row.href ?? row.label }`,
+			// The mark needs a title link beside it, which only a post's own row has.
+			...buildLeaderboardRow(
+				action.kind === 'postLink' && row.publishedInPeriod
+					? {
+							...base,
+							action,
+							indicator: __( 'Published in this period', 'jetpack-premium-analytics-pkg' ),
+						}
+					: { ...base, action }
+			),
+			currentValue: row.value,
+			previousValue: row.previousValue,
+		};
+	} );
 }
 
 type TopPostsLeaderboardProps = {

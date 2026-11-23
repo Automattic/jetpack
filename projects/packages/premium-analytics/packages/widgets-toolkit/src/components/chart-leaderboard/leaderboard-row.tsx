@@ -91,6 +91,12 @@ export type LeaderboardRowActionWithTrailing = Extract<
 	{ kind: 'viewLink' | 'postLink' | 'videoLink' | 'static' | 'drillDown' }
 >;
 
+/** The actions whose title is its own link, so a mark beside it stays out of every control's name. */
+type LeaderboardRowActionWithIndicator = Extract<
+	LeaderboardRowAction,
+	{ kind: 'postLink' | 'videoLink' }
+>;
+
 export type LeaderboardRowProps = {
 	/** Label text. */
 	label: string;
@@ -107,9 +113,16 @@ export type LeaderboardRowProps = {
 			 * "View" action when there is one).
 			 */
 			trailingAction?: ReactElement;
+			indicator?: never;
+	  }
+	| {
+			action: LeaderboardRowActionWithIndicator;
+			/** A `bars` row has no room for the mark: its bar starts where the mark would sit. */
+			variant?: 'list';
+			trailingAction?: ReactElement;
 			/**
 			 * Names a mark drawn at the row's start, e.g. "Published in this period". It sits
-			 * beside the label's own control, so the control keeps its name.
+			 * beside the title link, so the link keeps its name.
 			 */
 			indicator?: string;
 	  }
@@ -246,7 +259,6 @@ export function LeaderboardRow( {
 	if ( ( action.kind === 'drillDown' || action.kind === 'static' ) && action.link ) {
 		return (
 			<span className={ styles.row } title={ label }>
-				{ mark }
 				<InternalLink { ...action.link } className={ styles.labelLink }>
 					<LeaderboardLabel label={ label } media={ media } decorativeMedia />
 				</InternalLink>
@@ -263,7 +275,6 @@ export function LeaderboardRow( {
 	if ( action.kind === 'viewLink' || ( action.kind !== 'link' && trailing ) ) {
 		return (
 			<span className={ rowClassName }>
-				{ mark }
 				<span className={ styles.plainLabel } title={ label }>
 					{ content }
 				</span>
@@ -285,7 +296,6 @@ export function LeaderboardRow( {
 
 	return (
 		<span className={ rowClassName } title={ label }>
-			{ mark }
 			{ content }
 		</span>
 	);
