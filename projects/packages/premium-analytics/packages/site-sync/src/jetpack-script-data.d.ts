@@ -109,6 +109,20 @@ declare module '@automattic/jetpack-script-data' {
 			purchase_success?: { type: 'paid' | 'free' };
 			// Whether the dashboard mounts the What's new surface; a feature flag decides it for now.
 			whats_new_enabled?: boolean;
+			// The promos other packages registered, in display order. Absent until the promo registry is hydrated.
+			promos?: Array< {
+				slug: string;
+				placement: 'section-footer' | 'options-menu' | 'settings';
+				target: string | null;
+				order: number;
+				title: string;
+				description: string;
+				cta_label: string;
+				cta_url: string;
+				dismissible: boolean;
+				snooze_days: number;
+				render_module: string | null;
+			} >;
 		};
 		newsletter?: {
 			// The Newsletter page's Subscribers tab; null when this user cannot open it.
