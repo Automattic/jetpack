@@ -8,4 +8,8 @@ import './editor.scss';
 registerJetpackBlockFromMetadata( metadata, {
 	edit,
 	save,
+	supports: {
+		...metadata.supports,
+		inserter: window?.Jetpack_Editor_Initial_State?.screenBase === 'site-editor',
+	},
 } );

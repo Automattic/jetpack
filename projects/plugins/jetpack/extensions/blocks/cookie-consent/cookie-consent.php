@@ -19,36 +19,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 const COOKIE_NAME = 'eucookielaw';
 
 /**
- * Should the block be registered?
- * In wp-admin, we only want to show the block in the site editor.
- *
- * @since 12.0
- *
- * @return bool
- */
-function should_register_block() {
-	global $pagenow;
-
-	// Always register the widget if we're on the front end
-	if ( ! is_admin() ) {
-		return true;
-	}
-
-	if ( is_admin() && $pagenow === 'site-editor.php' ) {
-		return true;
-	}
-}
-
-/**
  * Registers the block for use in Gutenberg
  * This is done via an action so that we can disable
  * registration if we need to.
  */
 function register_block() {
-	if ( ! should_register_block() ) {
-		return;
-	}
-
 	Blocks::jetpack_register_block(
 		__DIR__,
 		array(
