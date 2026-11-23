@@ -91,8 +91,21 @@ export function StackedAreaChart( {
 
 	const isEmptyData = useMemo( () => isEmptyChartData( series ), [ series ] );
 	const currencyCode = dataFormat.options?.currencyCode;
+	// The chart sizes its axis gutter from single values unless the domain is
+	// pinned, which clips the label of a stack's total.
+	const stackedMax = useMemo( () => {
+		const totals = new Map< number, number >();
+		for ( const { data } of series ) {
+			for ( const point of data ) {
+				const time = point.date.getTime();
+				totals.set( time, ( totals.get( time ) ?? 0 ) + ( point.value ?? 0 ) );
+			}
+		}
+		return Math.max( 0, ...totals.values() );
+	}, [ series ] );
 	const chartOptions = useMemo(
 		() => ( {
+			...( stackedMax > 0 ? { yScale: { domain: [ 0, stackedMax ] as [ number, number ] } } : {} ),
 			axis: {
 				x: { tickResolution: libraryTickResolution },
 				y: {
@@ -101,7 +114,7 @@ export function StackedAreaChart( {
 				},
 			},
 		} ),
-		[ libraryTickResolution, dataFormat.type, currencyCode ]
+		[ libraryTickResolution, dataFormat.type, currencyCode, stackedMax ]
 	);
 
 	return (

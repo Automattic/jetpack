@@ -367,9 +367,10 @@ function register_default_dashboard_sections( $registry = null ) {
 			// Right after Traffic, ahead of Insights.
 			'order'               => 15,
 			'is_available'        => array( AI_Traffic::class, 'is_available' ),
-			// The edge reports have no previous period to compare with yet.
+			// The edge reports have no previous period yet, and pick their own buckets.
 			'date_filter_options' => array(
-				'with_date_comparison' => false,
+				'with_date_comparison'         => false,
+				'with_header_interval_control' => false,
 			),
 			'default_layout'      => __NAMESPACE__ . '\\get_ai_section_default_layout',
 		),
