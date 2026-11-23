@@ -21,6 +21,15 @@ class Jetpack_Email_Design_Editor_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
 	/**
+	 * What a WoA site defines.
+	 */
+	const WOA = array(
+		'ATOMIC_SITE_ID'       => 123,
+		'ATOMIC_CLIENT_ID'     => 2,
+		'WPCOMSH__PLUGIN_FILE' => '/wpcomsh.php',
+	);
+
+	/**
 	 * The asset file the screen looks for, which decides whether it enqueues anything.
 	 *
 	 * @var string
@@ -270,8 +279,8 @@ class Jetpack_Email_Design_Editor_Test extends WP_UnitTestCase {
 		$this->theme_directories = $GLOBALS['wp_theme_directories'];
 		register_theme_directory( DIR_TESTDATA . '/themedir1' );
 
-		// The rest of Jetpack's `admin_init` callbacks raise notices outside wp-admin.
-		remove_all_actions( 'admin_init' );
+		// The rest of Jetpack's `admin_menu` callbacks expect a real wp-admin request.
+		remove_all_actions( 'admin_menu' );
 		Jetpack_Email_Design_Editor::init();
 	}
 
@@ -538,14 +547,7 @@ class Jetpack_Email_Design_Editor_Test extends WP_UnitTestCase {
 	 */
 	public static function provide_block_theme_platforms() {
 		return array(
-			'WoA'         => array(
-				array(
-					'ATOMIC_SITE_ID'       => 123,
-					'ATOMIC_CLIENT_ID'     => 2,
-					'WPCOMSH__PLUGIN_FILE' => '/wpcomsh.php',
-				),
-				true,
-			),
+			'WoA'         => array( self::WOA, true ),
 			'Flex'        => array(
 				array(
 					'ATOMIC_SITE_ID'       => 123,
@@ -568,33 +570,43 @@ class Jetpack_Email_Design_Editor_Test extends WP_UnitTestCase {
 	 * Once in, stays in: wpcom keeps sending the new emails, so the screen to edit them has to stay.
 	 */
 	public function test_a_later_classic_theme_keeps_the_site_in() {
-		$this->as_platform_with_test_themes( self::provide_block_theme_platforms()['WoA'][0] );
+		$this->as_platform_with_test_themes( self::WOA );
 
 		switch_theme( 'block-theme' );
 		switch_theme( 'default' );
-		do_action( 'admin_init' );
+		do_action( 'admin_menu' );
 
 		$this->assertFalse( wp_is_block_theme(), 'Precondition: the site must have left the block theme.' );
 		$this->assertTrue( (bool) get_option( Jetpack_Email_Design_Editor::BLOCK_THEME_OPTION ) );
 	}
 
-	public function test_a_site_already_on_a_block_theme_comes_in_from_wp_admin() {
-		$this->as_platform_with_test_themes( self::provide_block_theme_platforms()['WoA'][0] );
+	/**
+	 * A site already on a block theme comes in on its next wp-admin load, with the screen in that same menu.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_a_site_already_on_a_block_theme_gets_the_screen_on_its_next_wp_admin_load() {
+		$this->stub_site_stickers( array() );
+		$this->as_platform_with_test_themes( self::WOA );
 
 		remove_action( 'switch_theme', array( 'Jetpack_Email_Design_Editor', 'maybe_mark_block_theme' ) );
 		switch_theme( 'block-theme' );
 		$this->assertFalse( get_option( Jetpack_Email_Design_Editor::BLOCK_THEME_OPTION ), 'Precondition: the switch must not have set it.' );
 
-		do_action( 'admin_init' );
+		do_action( 'admin_menu' );
 
 		$this->assertTrue( (bool) get_option( Jetpack_Email_Design_Editor::BLOCK_THEME_OPTION ) );
+		$this->assertCount( 1, $this->appearance_entries_for_screen() );
 	}
 
 	public function test_a_classic_theme_alone_does_not_bring_a_woa_site_in() {
-		$this->as_platform_with_test_themes( self::provide_block_theme_platforms()['WoA'][0] );
+		$this->as_platform_with_test_themes( self::WOA );
 
 		switch_theme( 'default' );
-		do_action( 'admin_init' );
+		do_action( 'admin_menu' );
 
 		$this->assertFalse( get_option( Jetpack_Email_Design_Editor::BLOCK_THEME_OPTION ) );
 	}

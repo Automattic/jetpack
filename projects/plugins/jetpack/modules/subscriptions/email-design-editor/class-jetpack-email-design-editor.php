@@ -84,8 +84,9 @@ class Jetpack_Email_Design_Editor {
 		// a flag that outlives the sticker is not a kill switch.
 		add_filter( 'jetpack_feature_flag_enabled_' . self::FEATURE_FLAG, array( __CLASS__, 'filter_flag_for_atomic' ), PHP_INT_MAX );
 
+		// Before `add_admin_page()`, so a site already on a block theme gets the screen on this request.
 		add_action( 'switch_theme', array( __CLASS__, 'maybe_mark_block_theme' ) );
-		add_action( 'admin_init', array( __CLASS__, 'maybe_mark_block_theme' ) );
+		add_action( 'admin_menu', array( __CLASS__, 'maybe_mark_block_theme' ), 9 );
 
 		add_action( 'admin_menu', array( __CLASS__, 'add_admin_page' ) );
 
