@@ -65,14 +65,11 @@ class Post_Schema_Node {
 	 * @return string
 	 */
 	private static function default_schema_for_post( WP_Post $post ) {
-		// Only standard posts get Article schema by default; everything else
-		// (pages, attachments, custom post types) requires an explicit override
-		// unless a site opts its own post types in through the filter below.
 		$default = 'post' === $post->post_type ? 'article' : '';
 
 		/**
-		 * Filters the Schema type a post gets when no per-post type is set, e.g. to
-		 * give a custom post type Article schema by default.
+		 * Filters the default schema type for a post without a saved override.
+		 * Return 'article' to emit Article schema. Other values emit no default schema.
 		 *
 		 * @since $$next-version$$
 		 *
