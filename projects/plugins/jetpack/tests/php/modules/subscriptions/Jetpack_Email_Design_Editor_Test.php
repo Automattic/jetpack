@@ -612,14 +612,16 @@ class Jetpack_Email_Design_Editor_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Spelled out rather than read from the constant: wpcom reads the option under this name through sync.
+	 *
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
 	 */
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
-	public function test_the_block_theme_option_turns_the_screen_on_on_atomic_without_the_sticker() {
+	public function test_the_synced_option_name_turns_the_screen_on_on_atomic_without_the_sticker() {
 		$this->stub_site_stickers( array() );
-		update_option( Jetpack_Email_Design_Editor::BLOCK_THEME_OPTION, 1 );
+		update_option( 'jetpack_email_design_enabled', 1 );
 
 		Jetpack_Email_Design_Editor::init();
 
