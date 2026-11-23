@@ -1372,16 +1372,43 @@ class Dashboard_Section_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The AI availability filter cannot hand the tab to a reader who may not see Stats.
+	 * The AI availability filter answers only for the site's data: it cannot override the flag or the capability.
+	 *
+	 * @dataProvider provide_ai_availability_filter_limits
+	 *
+	 * @param bool $flag     Whether the flag is on.
+	 * @param bool $is_admin Whether the reader is an administrator.
+	 * @param bool $expected Whether the surfaces are available with the filter returning true.
 	 */
-	public function test_ai_availability_filter_does_not_override_the_capability() {
+	#[DataProvider( 'provide_ai_availability_filter_limits' )]
+	public function test_ai_availability_filter_limits( $flag, $is_admin, $expected ) {
+		if ( $flag ) {
+			add_filter( 'jetpack_feature_flag_enabled_' . AI_Traffic::FLAG, '__return_true' );
+		}
+		if ( $is_admin ) {
+			$this->set_admin_user();
+		}
 		add_filter( AI_Traffic::AVAILABLE_FILTER, '__return_true' );
 
 		try {
-			$this->assertFalse( AI_Traffic::is_available() );
+			$this->assertSame( $expected, AI_Traffic::is_available() );
 		} finally {
 			remove_all_filters( AI_Traffic::AVAILABLE_FILTER );
+			remove_all_filters( 'jetpack_feature_flag_enabled_' . AI_Traffic::FLAG );
 		}
+	}
+
+	/**
+	 * Data provider for test_ai_availability_filter_limits.
+	 *
+	 * @return array
+	 */
+	public static function provide_ai_availability_filter_limits() {
+		return array(
+			'flag on, logged out'                      => array( true, false, false ),
+			'flag off, administrator'                  => array( false, true, false ),
+			'flag on, administrator, no edge data yet' => array( true, true, true ),
+		);
 	}
 
 	/**
