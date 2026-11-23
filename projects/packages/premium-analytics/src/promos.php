@@ -1,0 +1,83 @@
+<?php
+/**
+ * Promo Slot API: the registry helpers and the gates a registered promo passes before it shows.
+ *
+ * @package automattic/jetpack-premium-analytics
+ */
+
+namespace Automattic\Jetpack\PremiumAnalytics;
+
+use Automattic\Jetpack\Feature_Flags\Feature_Flags;
+
+require_once __DIR__ . '/class-promo.php';
+require_once __DIR__ . '/class-promo-registry.php';
+
+const PROMO_API_VERSION = '1.0.0';
+
+const PROMO_PLACEMENTS = Promo_Registry::PLACEMENTS;
+
+const PROMO_FLAG = 'jetpack-stats-promos';
+
+/**
+ * Registers a promo.
+ *
+ * @since $$next-version$$
+ *
+ * @param string $slug Promo identifier, namespaced like `acme/offer`.
+ * @param array  $args Optional. Promo arguments.
+ * @return Promo|false The registered promo on success, or false on failure.
+ */
+function register_promo( $slug, $args = array() ) {
+	return Promo_Registry::get_instance()->register( $slug, $args );
+}
+
+/**
+ * Retrieves the promos to show, ordered by `order` and then `slug`.
+ *
+ * @since $$next-version$$
+ *
+ * @return Promo[] Ordered list of available promos.
+ */
+function get_available_promos() {
+	if ( ! Feature_Flags::is_enabled( PROMO_FLAG ) ) {
+		return array();
+	}
+
+	/**
+	 * Filters whether promotions show at all.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param bool $show_promotions Whether promotions show. Default true.
+	 */
+	if ( ! apply_filters( 'jetpack_show_promotions', true ) ) {
+		return array();
+	}
+
+	$promos = array_filter(
+		Promo_Registry::get_instance()->get_all_registered(),
+		static function ( Promo $promo ) {
+			return $promo->is_available();
+		}
+	);
+
+	/**
+	 * Filters the promos that passed the flag, the promotions switch and their own rule.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param Promo[] $promos Available promos, as `$slug => $promo` pairs.
+	 */
+	$promos = apply_filters( 'jetpack_premium_analytics_promos', $promos );
+
+	$promos = array_values( $promos );
+
+	usort(
+		$promos,
+		static function ( Promo $a, Promo $b ) {
+			return array( $a->order, $a->slug ) <=> array( $b->order, $b->slug );
+		}
+	);
+
+	return $promos;
+}
