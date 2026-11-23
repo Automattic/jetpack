@@ -336,8 +336,6 @@ export {
 	type ElementSize,
 	useHostLinkSearch,
 	useMapName,
-	resetPromoDismissalForTesting,
-	usePromoDismissal,
 	usePromoSlot,
 	useReportNavigationSearch,
 	useOpenChartBucket,
