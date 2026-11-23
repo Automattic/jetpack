@@ -9,11 +9,11 @@ export { DASHBOARD_PREFERENCES_SCOPE } from '@jetpack-premium-analytics/data';
 /** Re-exported from the widgets toolkit, whose feedback modal cannot import this route. */
 export { DASHBOARD_SECTION_LAYOUTS_KEY } from '@jetpack-premium-analytics/widgets-toolkit';
 
-/** Preferences key holding when the reader completed or dismissed the onboarding, as an ISO date. */
-export const DASHBOARD_ONBOARDING_KEY = 'onboardingCompletedAt';
-
-/** Preferences key holding when the reader was shown the WooCommerce tab onboarding, as an ISO date. */
-export const DASHBOARD_STORE_ONBOARDING_KEY = 'storeOnboardingCompletedAt';
+/** Defined in the data package, which the init module reads them from too. */
+export {
+	DASHBOARD_ONBOARDING_KEY,
+	DASHBOARD_STORE_ONBOARDING_KEY,
+} from '@jetpack-premium-analytics/data';
 
 /** Preferences key holding when the reader closed the feedback banner, as an ISO date. */
 export const DASHBOARD_FEEDBACK_BANNER_KEY = 'feedbackBannerClosedAt';

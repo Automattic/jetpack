@@ -1,0 +1,30 @@
+.jp-monetize-ads {
+
+	&__figures {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+		gap: var(--wpds-dimension-gap-lg);
+	}
+
+	&__figure-placeholder {
+		inline-size: 6rem;
+		block-size: 1.75rem;
+	}
+
+	&__table {
+
+		// Line the edge columns up with the card's headings.
+		.dataviews-view-table tr {
+
+			td:first-child,
+			th:first-child {
+				padding-inline-start: 0;
+			}
+
+			td:last-child,
+			th:last-child {
+				padding-inline-end: 0;
+			}
+		}
+	}
+}

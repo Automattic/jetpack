@@ -218,6 +218,13 @@ class Stats_Abilities extends Registrar {
 	/**
 	 * {@inheritDoc}
 	 */
+	protected static function enabled_by_default(): bool {
+		return true;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public static function get_category_slug(): string {
 		return self::CATEGORY_SLUG;
 	}
@@ -241,6 +248,7 @@ class Stats_Abilities extends Registrar {
 			'jetpack-stats/get-site-overview' => self::spec_get_site_overview(),
 			'jetpack-stats/get-top-content'   => self::spec_get_top_content(),
 			'jetpack-stats/get-post-views'    => self::spec_get_post_views(),
+			'jetpack-stats/get-post-detail'   => self::spec_get_post_detail(),
 			'jetpack-stats/get-visits'        => self::spec_get_visits(),
 			'jetpack-stats/get-followers'     => self::spec_get_followers(),
 			'jetpack-stats/get-author-views'  => self::spec_get_author_views(),
@@ -442,6 +450,130 @@ class Stats_Abilities extends Registrar {
 				),
 			),
 			'execute_callback'    => array( __CLASS__, 'get_top_content' ),
+			'permission_callback' => array( __CLASS__, 'can_view_stats' ),
+			'meta'                => self::reader_meta(),
+		);
+	}
+
+	/**
+	 * Spec: jetpack-stats/get-post-detail.
+	 */
+	private static function spec_get_post_detail(): array {
+		$int     = array( 'type' => array( 'integer', 'null' ) );
+		$rate    = array( 'type' => array( 'number', 'null' ) );
+		$summary = array(
+			'type'       => 'object',
+			'properties' => array(
+				'total'  => $int,
+				'unique' => $int,
+				'rate'   => $rate,
+			),
+		);
+
+		return array(
+			'label'               => __( 'Get one post\'s stats', 'jetpack-stats-pkg' ),
+			'description'         => __(
+				'Report everything Stats knows about one post or page, as on the Stats dashboard\'s page for it: all-time `views`, `likes` and `comments` with the most recent ones, the UTM values that brought views to it, and how it did as a newsletter email. `post` names it: title, type (post, page or another type), permalink and publication date. `likes.recent` lists the most recent likers by display name and `comments.recent` the most recent approved comments, each at most `max` long. `utm` ranks the UTM values (grouped by `utm_param`) of the links that opened the post, over all time, top `max` first; it needs a Stats plan that includes UTM, so on other sites it is null, `partial` is true and `errors` lists `utm`. `email.emailed` is false when the post was never sent to subscribers (pages never are), and then every other `email` figure is null rather than 0. When it was sent, `email.sent` is how many subscribers it went to and `opens` and `clicks` hold all-time totals, unique people and rates. Composes several WPCOM endpoints — if one fails, `partial` is true, `errors` lists it (`views`, `likes`, `utm` or `email`) and the fields it feeds are null. Returns `jetpack_stats_post_not_found` when no post or page has that ID or the user cannot open it, like an unpublished one. `site` is the WordPress.com blog ID and home URL of the site whose Stats were read. `definitions` explains, in plain words, each metric in the response — read it before reporting a number. Precondition: site must be connected to WordPress.com.',
+				'jetpack-stats-pkg'
+			),
+			'input_schema'        => array(
+				'type'                 => 'object',
+				'required'             => array( 'post_id' ),
+				'properties'           => array(
+					'post_id'   => array(
+						'type'        => array( 'integer', 'string' ),
+						'description' => __( 'The ID of the post or page. Must be positive.', 'jetpack-stats-pkg' ),
+					),
+					'utm_param' => array(
+						'type'        => 'string',
+						'description' => __( 'The UTM parameter, or combination of them, to group the post\'s UTM views by.', 'jetpack-stats-pkg' ),
+						'enum'        => self::UTM_PARAMS,
+						'default'     => 'utm_source,utm_medium',
+					),
+					'max'       => array(
+						'type'        => 'integer',
+						'description' => __( 'Cap on each list: recent likes, recent comments and UTM values (1-100).', 'jetpack-stats-pkg' ),
+						'minimum'     => 1,
+						'maximum'     => 100,
+						'default'     => 10,
+					),
+				),
+				'additionalProperties' => false,
+			),
+			'output_schema'       => array(
+				'type'       => 'object',
+				'properties' => array(
+					'site'        => self::site_schema(),
+					'post'        => array(
+						'type'       => 'object',
+						'properties' => array(
+							'id'        => array( 'type' => 'integer' ),
+							'title'     => array( 'type' => 'string' ),
+							'type'      => array( 'type' => 'string' ),
+							'url'       => array( 'type' => 'string' ),
+							'published' => array( 'type' => array( 'string', 'null' ) ),
+						),
+					),
+					'views'       => $int,
+					'likes'       => array(
+						'type'       => 'object',
+						'properties' => array(
+							'total'  => $int,
+							'recent' => array(
+								'type'  => array( 'array', 'null' ),
+								'items' => array(
+									'type'       => 'object',
+									'properties' => array(
+										'name' => array( 'type' => 'string' ),
+									),
+								),
+							),
+						),
+					),
+					'comments'    => array(
+						'type'       => 'object',
+						'properties' => array(
+							'total'  => array( 'type' => 'integer' ),
+							'recent' => array(
+								'type'  => 'array',
+								'items' => array(
+									'type'       => 'object',
+									'properties' => array(
+										'author'  => array( 'type' => 'string' ),
+										'date'    => array( 'type' => 'string' ),
+										'excerpt' => array( 'type' => 'string' ),
+										'url'     => array( 'type' => 'string' ),
+									),
+								),
+							),
+						),
+					),
+					'utm_param'   => array( 'type' => 'string' ),
+					'utm'         => array(
+						'type'  => array( 'array', 'null' ),
+						'items' => array(
+							'type'       => 'object',
+							'properties' => array(
+								'label' => array( 'type' => 'string' ),
+								'value' => array( 'type' => 'integer' ),
+							),
+						),
+					),
+					'email'       => array(
+						'type'       => 'object',
+						'properties' => array(
+							'emailed' => array( 'type' => array( 'boolean', 'null' ) ),
+							'sent'    => $int,
+							'opens'   => $summary,
+							'clicks'  => $summary,
+						),
+					),
+					'partial'     => array( 'type' => 'boolean' ),
+					'errors'      => self::errors_schema(),
+					'definitions' => self::definitions_schema(),
+				),
+			),
+			'execute_callback'    => array( __CLASS__, 'get_post_detail' ),
 			'permission_callback' => array( __CLASS__, 'can_view_stats' ),
 			'meta'                => self::reader_meta(),
 		);
@@ -1313,6 +1445,7 @@ class Stats_Abilities extends Registrar {
 					'destructive' => true,
 					'idempotent'  => true,
 				),
+				'public'       => true,
 				'show_in_rest' => true,
 				'mcp'          => array(
 					'public' => true,
@@ -1663,6 +1796,163 @@ class Stats_Abilities extends Registrar {
 			'date'        => $date,
 			'series'      => $series,
 			'definitions' => self::definitions( array( 'total_views', 'series', 'views' ) ),
+		);
+	}
+
+	/**
+	 * Execute: get-post-detail.
+	 *
+	 * @param array|null $input Input matching the ability's input_schema.
+	 * @return array|WP_Error
+	 */
+	public static function get_post_detail( $input = null ) {
+		$input = is_array( $input ) ? $input : array();
+		if ( ! isset( $input['post_id'] ) || ! is_numeric( $input['post_id'] ) || (int) $input['post_id'] <= 0 ) {
+			return new WP_Error(
+				self::ERROR_PREFIX . 'missing_post_id',
+				__( 'A positive post_id is required.', 'jetpack-stats-pkg' )
+			);
+		}
+		$post_id   = (int) $input['post_id'];
+		$max       = self::clamp_int( $input['max'] ?? 10, 1, 100, 10 );
+		$utm_param = isset( $input['utm_param'] ) && in_array( $input['utm_param'], self::UTM_PARAMS, true ) ? $input['utm_param'] : self::UTM_PARAMS[0];
+		$post      = get_post( $post_id );
+		// WPCOM answers an unknown post with zeros, which would read as a post nobody saw. Stats access can go to any
+		// role, so a post the caller cannot open on the site is unknown to them too: its title and comments stay private.
+		if ( ! $post || ( ! is_post_publicly_viewable( $post ) && ! current_user_can( 'read_post', $post->ID ) ) ) {
+			return new WP_Error(
+				self::ERROR_PREFIX . 'post_not_found',
+				__( 'No post exists with that post_id.', 'jetpack-stats-pkg' ),
+				array( 'status' => 404 )
+			);
+		}
+
+		// Only posts go out as newsletters, so a page's email figures need no request.
+		$emailable = 'post' === $post->post_type;
+		$stats     = self::get_wpcom_stats();
+		$results   = array(
+			'views' => $stats->get_post_views( $post_id ),
+			'likes' => $stats->get_post_likes( $post_id ),
+			'utm'   => $stats->get_utm_views(
+				$utm_param,
+				array(
+					'post_id' => $post_id,
+					'days'    => -1,
+					'max'     => $max,
+				)
+			),
+		);
+		if ( $emailable ) {
+			$results['email/opens']  = $stats->get_email_breakdown( $post_id, 'opens', 'rate' );
+			$results['email/clicks'] = $stats->get_email_breakdown( $post_id, 'clicks', 'rate' );
+		}
+		$composed = self::compose_subcalls(
+			$results,
+			__( 'Stats for that post could not be fetched from WordPress.com. Confirm the site is connected and try again.', 'jetpack-stats-pkg' )
+		);
+		if ( is_wp_error( $composed ) ) {
+			return $composed;
+		}
+		$values = $composed['values'];
+		$errors = array_values( array_unique( preg_replace( '#/.*$#', '', $composed['errors'] ) ) );
+		$failed = static function ( string $tag ) use ( $errors ): bool {
+			return in_array( $tag, $errors, true );
+		};
+
+		$likes = array(
+			'total'  => null,
+			'recent' => null,
+		);
+		if ( ! $failed( 'likes' ) ) {
+			$likers = array();
+			foreach ( array_slice( self::rows_at( $values['likes'], 'likes' ), 0, $max ) as $liker ) {
+				$likers[] = array( 'name' => html_entity_decode( (string) ( $liker['name'] ?? '' ), ENT_QUOTES | ENT_HTML5, 'UTF-8' ) );
+			}
+			$likes = array(
+				'total'  => self::count_or_null( $values['likes']['found'] ?? null ),
+				'recent' => $likers,
+			);
+		}
+
+		$comments = array();
+		foreach ( get_comments(
+			array(
+				'post_id' => $post_id,
+				'status'  => 'approve',
+				'number'  => $max,
+				'orderby' => 'comment_date_gmt',
+				'order'   => 'DESC',
+			)
+		) as $comment ) {
+			$comments[] = array(
+				'author'  => (string) $comment->comment_author,
+				'date'    => (string) mysql2date( 'c', $comment->comment_date ),
+				'excerpt' => wp_trim_words( $comment->comment_content, 30, '…' ),
+				'url'     => (string) get_comment_link( $comment ),
+			);
+		}
+
+		$email = array(
+			'emailed' => false,
+			'sent'    => null,
+			'opens'   => self::email_summary( null ),
+			'clicks'  => self::email_summary( null ),
+		);
+		if ( $emailable && $failed( 'email' ) ) {
+			$email['emailed'] = null;
+		} elseif ( $emailable ) {
+			$opens  = $values['email/opens'];
+			$clicks = $values['email/clicks'];
+			// The Stats dashboard's own test: a post nobody was sent, opened or clicked was never emailed.
+			if ( 0 < self::as_int( $opens, 'total_sends' ) + self::as_int( $opens, 'total_opens' ) + self::as_int( $clicks, 'total_clicks' ) ) {
+				$email = array(
+					'emailed' => true,
+					'sent'    => self::as_int( $opens, 'total_sends' ),
+					'opens'   => self::email_summary( array( $opens['total_opens'] ?? 0, $opens['unique_opens'] ?? 0, $opens['opens_rate'] ?? 0 ) ),
+					'clicks'  => self::email_summary( array( $clicks['total_clicks'] ?? 0, $clicks['unique_clicks'] ?? 0, $clicks['clicks_rate'] ?? 0 ) ),
+				);
+			}
+		}
+
+		$published = in_array( $post->post_status, array( 'publish', 'private' ), true ) ? (string) mysql2date( 'c', $post->post_date ) : null;
+		$out       = array(
+			'site'        => self::site(),
+			'post'        => array(
+				'id'        => $post_id,
+				'title'     => html_entity_decode( $post->post_title, ENT_QUOTES | ENT_HTML5, 'UTF-8' ),
+				'type'      => $post->post_type,
+				'url'       => (string) get_permalink( $post ),
+				'published' => $published,
+			),
+			'views'       => $failed( 'views' ) ? null : self::count_or_null( $values['views']['views'] ?? null ),
+			'likes'       => $likes,
+			'comments'    => array(
+				'total'  => (int) get_comments_number( $post ),
+				'recent' => $comments,
+			),
+			'utm_param'   => $utm_param,
+			'utm'         => $failed( 'utm' ) ? null : array_slice( self::value_map_rows( $values['utm']['top_utm_values'] ?? null ), 0, $max ),
+			'email'       => $email,
+			'partial'     => ! empty( $errors ),
+			'definitions' => self::definitions( array( 'post_detail', 'sent' ) ),
+		);
+		if ( ! empty( $errors ) ) {
+			$out['errors'] = $errors;
+		}
+		return $out;
+	}
+
+	/**
+	 * An email's all-time opens or clicks: total, unique people and rate as a percent, or every figure null.
+	 *
+	 * @param array|null $figures `[ total, unique, rate as a fraction ]`, or null when unknown or never emailed.
+	 * @return array{total: int|null, unique: int|null, rate: float|null}
+	 */
+	private static function email_summary( ?array $figures ): array {
+		return array(
+			'total'  => null === $figures ? null : (int) $figures[0],
+			'unique' => null === $figures ? null : (int) $figures[1],
+			'rate'   => null === $figures ? null : round( (float) $figures[2] * 100, 2 ),
 		);
 	}
 
@@ -3617,6 +3907,7 @@ class Stats_Abilities extends Registrar {
 			'email_window'          => __( '`opens` and `clicks` count only the days from `start_date` to `end_date`; unique counts and rates are all-time.', 'jetpack-stats-pkg' ),
 			'email_all_time'        => __( 'Every figure covers all time since the post was sent.', 'jetpack-stats-pkg' ),
 			'video_plays'           => __( '`plays` counts each time the video was started, wherever it was played: on the site or embedded elsewhere. `total_plays` adds up the `series` rows.', 'jetpack-stats-pkg' ),
+			'post_detail'           => __( '`views`, `likes` and `comments` cover all time since the post was published; `comments` counts approved comments, pingbacks and trackbacks included. `utm` counts views of the post opened from links tagged with those UTM values, over all time. `email` covers all time since the post was sent: `total` counts every open or click, repeat ones by one person included, `unique` counts people, and `rate` is `unique` as a percent of `sent`; mail apps that load images automatically or block them make opens approximate.', 'jetpack-stats-pkg' ),
 			'email_detail'          => __( 'Every figure covers all time since the post was sent. `total` counts every open or click, repeat ones by one person included, and `unique` counts people; `rate` is `unique` as a percent of `sent`. Mail apps that load images automatically or block them make opens approximate. `by_client` is the mail app, `by_device` the operating system and `by_country` where the email was opened or clicked; each row counts opens or clicks, not people.', 'jetpack-stats-pkg' ),
 			'paid'                  => __( 'People with a paid subscription to the site, now. They are also counted in `email` or `wpcom`.', 'jetpack-stats-pkg' ),
 			'subscriber_series'     => __( 'One row per period, oldest first: `subscribers` is the count at the end of the period and `change` the net gain or loss during it.', 'jetpack-stats-pkg' ),
@@ -3716,6 +4007,7 @@ class Stats_Abilities extends Registrar {
 				'destructive' => false,
 				'idempotent'  => true,
 			),
+			'public'       => true,
 			'show_in_rest' => true,
 			'mcp'          => array(
 				'public' => true,

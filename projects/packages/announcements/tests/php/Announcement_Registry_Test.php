@@ -78,7 +78,7 @@ class Announcement_Registry_Test extends BaseTestCase {
 					'alt'  => 'The <i>tabs</i> menu',
 				),
 				'link'       => 'https://example.com/whats-new/tabs',
-				'channels'   => array( 'Premium-Analytics', 'premium-analytics', 'my jetpack' ),
+				'channels'   => array( 'Premium-Analytics', 'premium-analytics', 'my jetpack', '/Premium-Analytics//Main/' ),
 				'capability' => 'manage_options',
 			)
 		);
@@ -96,7 +96,7 @@ class Announcement_Registry_Test extends BaseTestCase {
 					'alt'  => 'The tabs menu',
 				),
 				'link'       => 'https://example.com/whats-new/tabs',
-				'channels'   => array( 'premium-analytics', 'myjetpack' ),
+				'channels'   => array( 'premium-analytics', 'myjetpack', 'premium-analytics/main' ),
 				'capability' => 'manage_options',
 			),
 			$announcement

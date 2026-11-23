@@ -723,9 +723,9 @@ class Admin_Shell {
 	}
 
 	/**
-	 * Fire a print hook, discarding what callbacks echo unless the member added them or core defines them.
+	 * Fire a print hook, discarding what callbacks echo or enqueue unless the member added them or core defines them.
 	 *
-	 * Every callback still runs, so data attached to the member's handles prints. Their echoes already ran on the host page.
+	 * Every callback still runs, so data attached to the member's handles prints. Their output already ran on the host page.
 	 *
 	 * @param string             $hook Hook name.
 	 * @param array<string,true> $own  Callbacks the member's loader added, keyed as hook_snapshot() keys them.
@@ -743,10 +743,14 @@ class Admin_Shell {
 				$wrapped[ $priority ][ $id ] = $function;
 				$wp_filter[ $hook ]->callbacks[ $priority ][ $id ]['function'] = static function ( ...$args ) use ( $function ) {
 					$level = ob_get_level();
+					// WordPress.com enqueues jQuery here; printed again, it drops the host's plugins, like wpcom_proxy_request.
+					$queues = array( wp_scripts()->queue, wp_styles()->queue );
 					ob_start();
 					try {
 						call_user_func_array( $function, $args );
 					} finally {
+						wp_scripts()->queue = $queues[0];
+						wp_styles()->queue  = $queues[1];
 						// Also closes buffers the callback left open, stopping at one that can't be removed.
 						while ( ob_get_level() > $level && ob_end_clean() ) {
 							continue;

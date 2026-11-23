@@ -187,6 +187,21 @@ describe( 'PlansSection', () => {
 		);
 	} );
 
+	it.each( [
+		[ 'Renew subscription', 'expiring', 'renew' ],
+		[ 'Resume subscription', 'expired', 'resume' ],
+	] )( 'reports which plan "%s" is for', async ( name, expiry_status, action ) => {
+		setPurchases( [ { ...buildPurchase( 'Jetpack Security' ), expiry_status } as Purchase ] );
+		render( <PlansSection /> );
+
+		await userEvent.click( screen.getByRole( 'link', { name: new RegExp( name ) } ) );
+
+		expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_myjetpack_plans_renew_click', {
+			action,
+			product_slug: 'jetpack_security_t1_yearly',
+		} );
+	} );
+
 	const HOST_PLANS = 'https://host.example/plans?site=a&back=b';
 	const HOST_PURCHASES = 'https://host.example/purchases';
 	const COMPLETE_UPSELL = [

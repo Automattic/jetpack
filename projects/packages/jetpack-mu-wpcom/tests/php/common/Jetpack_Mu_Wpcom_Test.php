@@ -9,6 +9,7 @@ use Automattic\Jetpack\Admin_UI\Admin_Shell;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Feature_Flags\Feature_Flags;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
+use Automattic\Jetpack\Monetize\Dashboard;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
@@ -136,5 +137,41 @@ class Jetpack_Mu_Wpcom_Test extends TestCase {
 		$this->assertNotNull( Feature_Flags::get( Admin_Shell::FLAG ) );
 		$this->assertSame( 10, has_action( 'wp_ajax_' . Admin_Shell::GUEST_ACTION, array( Admin_Shell::class, 'ajax_guest_assets' ) ) );
 		$this->assertNotFalse( has_action( 'admin_enqueue_scripts', array( Admin_Shell::class, 'setup' ) ) );
+	}
+
+	/**
+	 * Simple loads the Monetize dashboard only while its flag is on.
+	 *
+	 * @dataProvider provide_monetize_flag
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 *
+	 * @param bool $flag Whether the Monetize dashboard's flag is on.
+	 */
+	#[DataProvider( 'provide_monetize_flag' )]
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_init_loads_monetize_on_simple_behind_its_flag( $flag ) {
+		unset( $GLOBALS['wp_actions']['jetpack_mu_wpcom_initialized'] );
+		define( 'IS_WPCOM', true );
+		Jetpack_Mu_Wpcom::init();
+		$this->assertSame( 10, has_action( 'plugins_loaded', array( Jetpack_Mu_Wpcom::class, 'load_monetize' ) ) );
+
+		add_filter( 'jetpack_feature_flag_enabled_' . Dashboard::FEATURE_FLAG, $flag ? '__return_true' : '__return_false' );
+		Jetpack_Mu_Wpcom::load_monetize();
+
+		$this->assertSame( $flag, false !== has_action( 'admin_menu', array( Dashboard::class, 'maybe_load_wp_build' ) ) );
+	}
+
+	/**
+	 * Data provider for test_init_loads_monetize_on_simple_behind_its_flag.
+	 *
+	 * @return array
+	 */
+	public static function provide_monetize_flag() {
+		return array(
+			'flag on'  => array( true ),
+			'flag off' => array( false ),
+		);
 	}
 }

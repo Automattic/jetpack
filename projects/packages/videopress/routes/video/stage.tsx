@@ -10,6 +10,7 @@ import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
 import { Link, useNavigate, useParams } from '@wordpress/route';
 import { Card, Stack, Text } from '@wordpress/ui';
+import clsx from 'clsx';
 import CaptionManagerModal from '../../src/client/components/caption-manager-modal/lazy';
 import { getVideoInfoQueryKeyPrefix } from '../../src/client/components/caption-manager-modal/use-video-tracks';
 import { DeleteVideoConfirmationDialog } from '../../src/dashboard/components/delete-video-confirmation-modal';
@@ -313,7 +314,9 @@ const Editor = ( {
 						) }
 					</div>
 					<section
-						className="vp-video-details__player-slot"
+						className={ clsx( 'vp-video-details__player-slot', {
+							'is-portrait': video.orientation === 'portrait',
+						} ) }
 						aria-label={ __( 'Video preview', 'jetpack-videopress-pkg' ) }
 					>
 						{ isPendingUpload ? (

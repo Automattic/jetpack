@@ -144,3 +144,12 @@ export function trackSubscribersEvent(
 ) {
 	record( `jetpack_monetize_subscribers_${ action }`, properties );
 }
+
+/**
+ * Record an action on the Ads tab.
+ *
+ * @param action - What was done, e.g. `upgrade_click`.
+ */
+export function trackAdsEvent( action: 'upgrade_click' | 'setup_click' | 'join' | 'payout_click' ) {
+	record( `jetpack_monetize_ads_${ action }`, {} );
+}

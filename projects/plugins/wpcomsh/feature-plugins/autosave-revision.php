@@ -91,8 +91,8 @@ function wpcom_post_has_changed_since_last_revision( $post_id, $post ) {
  */
 function wpcom_is_big_edit( $post_before, $post_after ) {
 	// TODO: make the criteria more reasonable, maybe even make a text diff and look at its +-.
-	$before_len = strlen( $post_before->post_content );
-	$after_len  = strlen( $post_after->post_content );
+	$before_len = strlen( (string) $post_before->post_content );
+	$after_len  = strlen( (string) $post_after->post_content );
 	$size_diff  = absint( $after_len - $before_len );
 
 	/*

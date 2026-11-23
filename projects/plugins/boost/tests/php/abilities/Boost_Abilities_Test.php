@@ -122,6 +122,8 @@ class Boost_Abilities_Test extends BaseTestCase {
 				$this->assertArrayHasKey( $key, $spec, "Ability {$slug} missing key {$key}." );
 			}
 			$this->assertArrayHasKey( 'annotations', $spec['meta'] );
+			$this->assertArrayHasKey( 'public', $spec['meta'] );
+			$this->assertTrue( $spec['meta']['public'], "Ability {$slug} must set meta.public=true." );
 			$this->assertArrayHasKey( 'show_in_rest', $spec['meta'] );
 			$this->assertTrue( $spec['meta']['show_in_rest'], "Ability {$slug} must be visible in REST." );
 			$this->assertArrayHasKey( 'additionalProperties', $spec['input_schema'] );
