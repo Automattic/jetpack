@@ -75,6 +75,9 @@ class Media_Library {
 		ob_end_clean();
 		wp_scripts()->done = array_merge( wp_scripts()->done, $done_scripts );
 		wp_styles()->done  = array_merge( wp_styles()->done, $done_styles );
+		// WordPress.com concatenation drops the handle ids the client needs to skip what the page already runs.
+		add_filter( 'wpcom_js_do_concat', '__return_false' );
+		add_filter( 'wpcom_css_do_concat', '__return_false' );
 		ob_start();
 		wp_print_styles( self::HANDLES );
 		wp_print_scripts( self::HANDLES );

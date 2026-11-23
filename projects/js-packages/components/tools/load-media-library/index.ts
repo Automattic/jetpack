@@ -55,14 +55,8 @@ const PAGE_GLOBALS: Record< string, () => unknown > = {
 	'wp-i18n-js': () => ( window as { wp?: { i18n?: unknown } } ).wp?.i18n,
 };
 
-const isOnPage = ( node: HTMLElement ): boolean => {
-	const existing = node.id && document.getElementById( node.id );
-	// WordPress.com's CSS concatenation reuses ids like `all-css-0-1` for different files.
-	if ( node instanceof HTMLLinkElement ) {
-		return existing instanceof HTMLLinkElement && existing.href === node.href;
-	}
-	return Boolean( existing || PAGE_GLOBALS[ node.id ]?.() );
-};
+const isOnPage = ( node: HTMLElement ): boolean =>
+	Boolean( node.id && ( document.getElementById( node.id ) || PAGE_GLOBALS[ node.id ]?.() ) );
 
 const isJavaScript = ( script: HTMLScriptElement ): boolean =>
 	! script.type || /^(text|application)\/(java|ecma)script$/i.test( script.type );

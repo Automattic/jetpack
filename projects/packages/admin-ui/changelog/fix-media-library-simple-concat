@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Media library: Load the media modal styles on WordPress.com Simple sites, and keep REST requests working after it opens.
