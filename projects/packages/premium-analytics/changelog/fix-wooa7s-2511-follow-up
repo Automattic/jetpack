@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Charts: Decide a percentage axis from the series the legend leaves visible, so hiding a rate above 100% returns the others to a 0% to 100% axis.

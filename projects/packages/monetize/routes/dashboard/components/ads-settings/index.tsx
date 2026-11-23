@@ -1,5 +1,5 @@
 import getRedirectUrl from '@automattic/jetpack-components/tools/jp-redirect';
-import { isWoASite } from '@automattic/jetpack-script-data';
+import { isSimpleSite, isWpcomPlatformSite } from '@automattic/jetpack-script-data';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Card, Fieldset, Link, Notice, Spinner, Stack, SwitchControl, Text } from '@wordpress/ui';
@@ -11,15 +11,16 @@ import { useAdsSettings } from '../../data/use-ads-settings';
 import { useSiteHasFeature } from '../../data/use-site-feature';
 import { usePayout, useSavePayout, useWpcomAdsSync } from '../../data/use-wpcom-ads-settings';
 import useWpcomConnection from '../../data/use-wpcom-connection';
+import { useAdsAccount } from '../../data/wordads';
 import ConnectionGate from '../connection-gate';
 import { LearnMore, OptionSwitch } from './option-switch';
 import { PayoutCard } from './payout-card';
-import { AdsPrompt } from './prompt';
+import { AdsPrompt, JoinPrompt } from './prompt';
 import { TextOption } from './text-option';
 import type { Help } from './option-switch';
 import type { AdsSettingsData } from '../../data/ads-settings-data';
 import type { TabValue } from '../../data/tabs';
-import type { AdsOption } from '../../data/use-ads-settings';
+import type { AdsOption, SimpleOption } from '../../data/use-ads-settings';
 import type { MouseEvent } from 'react';
 
 type OpenTab = ( tab: TabValue ) => void;
@@ -36,6 +37,7 @@ const trackEarningsClick = () => trackClick( 'view-earnings' );
  * @return The options.
  */
 function AdsOptions( { data, openTab }: { data: AdsSettingsData; openTab: OpenTab } ) {
+	const simple = isSimpleSite();
 	const { canUseWpcom } = useWpcomConnection();
 	const requestSync = useWpcomAdsSync( canUseWpcom );
 	const { values, loadError, saveError, saving, setOption, setModuleActive } =
@@ -47,8 +49,8 @@ function AdsOptions( { data, openTab }: { data: AdsSettingsData; openTab: OpenTa
 	const { mutateAsync: signTerms } = acceptTerms;
 	const onAdsToggle = useCallback(
 		async ( active: boolean ) => {
-			// Turning ads on agrees to the terms, so WordPress.com records that first.
-			if ( active && canUseWpcom && ! tosSigned ) {
+			// Turning ads on agrees to the terms, so WordPress.com records that first; Simple's switch saves both at once.
+			if ( active && canUseWpcom && ! tosSigned && ! simple ) {
 				try {
 					await signTerms( { tos: true } );
 				} catch {
@@ -57,7 +59,7 @@ function AdsOptions( { data, openTab }: { data: AdsSettingsData; openTab: OpenTa
 			}
 			await setModuleActive( active );
 		},
-		[ canUseWpcom, tosSigned, signTerms, setModuleActive ]
+		[ simple, canUseWpcom, tosSigned, signTerms, setModuleActive ]
 	);
 
 	const openEarnings = useCallback(
@@ -96,7 +98,7 @@ function AdsOptions( { data, openTab }: { data: AdsSettingsData; openTab: OpenTa
 	const isActive = values.wordads;
 	const optionsDisabled = ! isActive || saving.has( 'wordads' );
 
-	const toggle = ( name: AdsOption, label: string, help?: Help ) => (
+	const toggle = ( name: AdsOption | SimpleOption, label: string, help?: Help ) => (
 		<OptionSwitch
 			name={ name }
 			label={ label }
@@ -177,6 +179,11 @@ function AdsOptions( { data, openTab }: { data: AdsSettingsData; openTab: OpenTa
 								</Notice.Description>
 							</Notice.Root>
 						) }
+						{ simple &&
+							toggle(
+								'logged_out_only',
+								__( 'Only show ads to logged-out visitors', 'jetpack-monetize' )
+							) }
 						{ data.moduleOverride && (
 							<Notice.Root intent="info">
 								<Notice.Description>
@@ -211,6 +218,7 @@ function AdsOptions( { data, openTab }: { data: AdsSettingsData; openTab: OpenTa
 									'wordads_inline_enabled',
 									__( 'Inline within post content', 'jetpack-monetize' )
 								) }
+								{ simple && toggle( 'sidebar', __( 'Sidebar', 'jetpack-monetize' ) ) }
 							</Stack>
 						</Fieldset.Root>
 						{ isActive && (
@@ -241,7 +249,7 @@ function AdsOptions( { data, openTab }: { data: AdsSettingsData; openTab: OpenTa
 									'jetpack-monetize'
 								),
 								href: getRedirectUrl(
-									isWoASite() ? 'wpcom-support-us-privacy' : 'jetpack-support-ads'
+									isWpcomPlatformSite() ? 'wpcom-support-us-privacy' : 'jetpack-support-ads'
 								),
 							}
 						) }
@@ -291,19 +299,25 @@ function AdsOptions( { data, openTab }: { data: AdsSettingsData; openTab: OpenTa
 				</Card.Content>
 			</Card.Root>
 
-			<Card.Root>
-				<Card.Content>
-					{ toggle( 'wordads_cmp_enabled', __( 'Enable GDPR Consent Banner', 'jetpack-monetize' ), {
-						text: __(
-							'Show a cookie banner to all EU and UK site visitors prompting them to consent to their personal data being used to personalize the ads they see. Without proper consents EU/UK visitors will only see lower paying non-personalized ads.',
-							'jetpack-monetize'
-						),
-						href: getRedirectUrl( 'jetpack-support-ads' ),
-					} ) }
-				</Card.Content>
-			</Card.Root>
+			{ ! simple && (
+				<Card.Root>
+					<Card.Content>
+						{ toggle(
+							'wordads_cmp_enabled',
+							__( 'Enable GDPR Consent Banner', 'jetpack-monetize' ),
+							{
+								text: __(
+									'Show a cookie banner to all EU and UK site visitors prompting them to consent to their personal data being used to personalize the ads they see. Without proper consents EU/UK visitors will only see lower paying non-personalized ads.',
+									'jetpack-monetize'
+								),
+								href: getRedirectUrl( 'jetpack-support-ads' ),
+							}
+						) }
+					</Card.Content>
+				</Card.Root>
+			) }
 
-			{ ! data.isSubdirectorySite && (
+			{ ! simple && ! data.isSubdirectorySite && (
 				<Card.Root>
 					<Card.Content>
 						<Stack direction="column" gap="lg">
@@ -383,16 +397,23 @@ function Loading() {
  */
 function AdsCard( { data, openTab }: { data: AdsSettingsData; openTab: OpenTab } ) {
 	const hasWordAds = useSiteHasFeature( 'wordads', data.hasWordAds );
+	const simple = isSimpleSite();
+	const account = useAdsAccount( simple );
 
-	if ( hasWordAds === undefined ) {
+	if ( hasWordAds === undefined || ( simple && account.isPending ) ) {
 		return <Loading />;
 	}
 
-	return hasWordAds ? (
-		<AdsOptions data={ data } openTab={ openTab } />
-	) : (
-		<AdsPrompt data={ data } />
-	);
+	if ( ! hasWordAds ) {
+		return <AdsPrompt data={ data } />;
+	}
+
+	// Simple can switch ads on only once WordPress.com approves the site, which joining does.
+	if ( simple && account.data && ! account.data.approved ) {
+		return <JoinPrompt openTab={ openTab } />;
+	}
+
+	return <AdsOptions data={ data } openTab={ openTab } />;
 }
 
 /**

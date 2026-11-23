@@ -18,7 +18,7 @@ use Jetpack_Tracks_Client;
  */
 class Admin_Menu {
 
-	const PACKAGE_VERSION = '0.14.16';
+	const PACKAGE_VERSION = '0.15.0';
 
 	/**
 	 * Slug used for the upgrade menu item and redirect URL.
@@ -180,6 +180,20 @@ class Admin_Menu {
 	 * @var callable|null
 	 */
 	private static $visibility_resolver = null;
+
+	/**
+	 * Callback that switches a menu item's gated feature on, set by My Jetpack beside the resolver.
+	 *
+	 * @var callable|null
+	 */
+	private static $feature_activator = null;
+
+	/**
+	 * Callback that says whether the activator can switch a gate's feature on, set with it.
+	 *
+	 * @var callable|null
+	 */
+	private static $feature_offer_check = null;
 
 	/**
 	 * Menu slugs registered this request but kept out of the rendered sidebar.
@@ -579,6 +593,89 @@ class Admin_Menu {
 	 */
 	public static function set_visibility_resolver( $resolver ) {
 		self::$visibility_resolver = $resolver;
+	}
+
+	/**
+	 * Sets the callback that switches a declared gate's feature on, and the one that says whether it can.
+	 *
+	 * The activator receives a gate as returned by get_feature_gate() and returns true or a WP_Error.
+	 * The check receives the same gate and returns false where turning it on can't work, as when a host holds it off.
+	 *
+	 * @since 0.15.0
+	 *
+	 * @param callable|null $activator   Activator callback, or null to clear it.
+	 * @param callable|null $offer_check Check callback, or null to offer every gate the activator is given.
+	 * @return void
+	 */
+	public static function set_feature_activator( $activator, $offer_check = null ) {
+		self::$feature_activator   = $activator;
+		self::$feature_offer_check = $offer_check;
+	}
+
+	/**
+	 * Whether a gate's feature can be turned on here: an activator is set and its check allows it.
+	 *
+	 * @since 0.15.0
+	 *
+	 * @param array $gate A gate, as returned by get_feature_gate().
+	 * @return bool
+	 */
+	public static function can_turn_feature_on( array $gate ) {
+		if ( ! is_callable( self::$feature_activator ) ) {
+			return false;
+		}
+
+		return ! is_callable( self::$feature_offer_check ) || (bool) call_user_func( self::$feature_offer_check, $gate );
+	}
+
+	/**
+	 * The gate a registered menu item declared, for pages that check their feature is still on.
+	 *
+	 * @since 0.15.0
+	 *
+	 * @param string $menu_slug The item's menu slug.
+	 * @return array{product?: string, module?: string}|null Null when no item has that slug or it declares no gate.
+	 */
+	public static function get_feature_gate( $menu_slug ) {
+		foreach ( array_merge( self::$menu_items, self::$top_level_items ) as $menu_item ) {
+			if ( $menu_item['menu_slug'] !== $menu_slug ) {
+				continue;
+			}
+			$gate = array_intersect_key( (array) ( $menu_item['args'] ?? array() ), array_flip( array( 'product', 'module' ) ) );
+			$gate = array_filter( $gate, 'is_string' );
+			return $gate ? $gate : null;
+		}
+		return null;
+	}
+
+	/**
+	 * Whether a gate's feature is on. Fails open like the sidebar does.
+	 *
+	 * @since 0.15.0
+	 *
+	 * @param array $gate A gate, as returned by get_feature_gate().
+	 * @return bool
+	 */
+	public static function is_feature_on( array $gate ) {
+		return self::is_gate_satisfied( $gate );
+	}
+
+	/**
+	 * Switch a gate's feature on.
+	 *
+	 * @since 0.15.0
+	 *
+	 * @param array $gate A gate, as returned by get_feature_gate().
+	 * @return true|\WP_Error
+	 */
+	public static function turn_feature_on( array $gate ) {
+		if ( ! is_callable( self::$feature_activator ) ) {
+			return new \WP_Error( 'no_activator', __( 'This feature can only be turned on from My Jetpack.', 'jetpack-admin-ui' ) );
+		}
+
+		$result = call_user_func( self::$feature_activator, $gate );
+
+		return is_wp_error( $result ) ? $result : true;
 	}
 
 	/**

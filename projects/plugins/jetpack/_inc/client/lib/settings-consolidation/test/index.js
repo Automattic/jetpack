@@ -1,6 +1,11 @@
 import { getScriptData, isWoASite } from '@automattic/jetpack-script-data';
 import { userCanManageModules } from 'state/initial-state';
-import { getMovedOutModules, isInSettingsPanel, isSettingsConsolidationEnabled } from '../index';
+import {
+	areStatsSettingsMovedOut,
+	getMovedOutModules,
+	isInSettingsPanel,
+	isSettingsConsolidationEnabled,
+} from '../index';
 
 jest.mock( '@automattic/jetpack-script-data', () => ( {
 	getScriptData: jest.fn(),
@@ -46,5 +51,15 @@ describe( 'isInSettingsPanel', () => {
 		userCanManageModules.mockReturnValue( canManage );
 
 		expect( isInSettingsPanel( {} ) ).toBe( expected );
+	} );
+} );
+
+describe( 'areStatsSettingsMovedOut', () => {
+	it( 'keeps the Stats settings here while the settings flag is off', () => {
+		getScriptData.mockReturnValue( { myJetpack: { settingsConsolidation: false } } );
+
+		expect(
+			areStatsSettingsMovedOut( { jetpack: { initialState: { isOdysseyStatsEnabled: true } } } )
+		).toBe( false );
 	} );
 } );

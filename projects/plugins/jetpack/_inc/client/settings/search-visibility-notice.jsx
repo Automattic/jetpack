@@ -1,6 +1,7 @@
 import { getAdminUrl } from '@automattic/jetpack-script-data';
 import { __ } from '@wordpress/i18n';
 import { Notice } from '@wordpress/ui';
+import { areSettingsNoticesInMyJetpack } from 'lib/settings-consolidation';
 
 /**
  * Explain restricted indexing without depending on the SEO module.
@@ -10,7 +11,7 @@ import { Notice } from '@wordpress/ui';
  * @return {import('react').ReactNode} The visibility warning, or null.
  */
 export default function SearchVisibilityNotice( { visible } ) {
-	if ( visible !== false ) {
+	if ( visible !== false || areSettingsNoticesInMyJetpack() ) {
 		return null;
 	}
 	return (

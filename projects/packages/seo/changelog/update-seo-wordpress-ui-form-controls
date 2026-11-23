@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Move the SEO screens' text fields and switches to @wordpress/ui controls. No functional change.
+
+

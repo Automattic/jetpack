@@ -191,9 +191,9 @@ class DashboardSettingsTest extends TestCase {
 	 * @return void
 	 */
 	private function become_legacy_site() {
-		// A WordPress.com Simple site without the `advanced-seo` feature.
 		Constants::set_constant( 'IS_WPCOM', true );
 		\Wpcom_Test_Features::$entitled = array();
+		add_filter( 'jetpack_disable_seo_tools', '__return_true' );
 		update_option( Dashboard_Data::LEGACY_FRONT_PAGE_META_OPTION, 'Old description.' );
 		// Re-register: which option is exposed is decided at registration time.
 		$this->reset_rest_server();
@@ -632,21 +632,14 @@ class DashboardSettingsTest extends TestCase {
 
 		$this->assertTrue( Dashboard_Data::get_settings_data()['has_legacy_front_page_meta'] );
 
-		\Wpcom_Test_Features::$entitled = array( 'advanced-seo' );
+		remove_filter( 'jetpack_disable_seo_tools', '__return_true' );
 
 		$this->assertFalse( Dashboard_Data::get_settings_data()['has_legacy_front_page_meta'] );
 	}
 
-	/**
-	 * The site's plan does not get a vote off WordPress.com Simple.
-	 *
-	 * `Seo_Tools::is_enabled()` plan-gates only behind `IS_WPCOM`, so
-	 * an Atomic site below the SEO plan still has SEO enabled and its front end still
-	 * prefers the modern description. A gate of our own that also covered Atomic would
-	 * send that site's edits to the legacy option, report success, and never change the
-	 * public description.
-	 */
-	public function test_a_plan_gate_does_not_disable_seo_off_simple() {
+	public function test_free_simple_site_saves_the_modern_front_page_description() {
+		Constants::set_constant( 'IS_WPCOM', true );
+		\Wpcom_Test_Features::$entitled = array();
 		self::set_plan( 'free_plan' );
 		update_option( Dashboard_Data::LEGACY_FRONT_PAGE_META_OPTION, 'Old description.' );
 		$this->reset_rest_server();
@@ -659,13 +652,12 @@ class DashboardSettingsTest extends TestCase {
 	}
 
 	/**
-	 * Whether SEO output is live decides which option a save targets: off for a
-	 * conflicting plugin anywhere, and plan-gated only behind `IS_WPCOM`.
+	 * Conflicts disable SEO output independently of the site's host and plan.
 	 */
 	public function test_seo_enabled_rule() {
 		$enabled = array( Seo_Tools::class, 'is_enabled' );
 
-		// Self-hosted: never gated, whatever the plan says.
+		// A free self-hosted site has manual SEO output.
 		self::set_plan( 'free_plan' );
 		$this->assertTrue( $enabled() );
 
@@ -682,24 +674,17 @@ class DashboardSettingsTest extends TestCase {
 		$this->assertFalse( $enabled() );
 		remove_filter( 'jetpack_seo_conflicting_plugin', $yoast );
 
-		// WordPress.com Simple: the site's `advanced-seo` entitlement decides.
+		// Simple keeps manual SEO output with or without the old entitlement.
 		Constants::set_constant( 'IS_WPCOM', true );
 		\Wpcom_Test_Features::$known    = array( 'advanced-seo' );
 		\Wpcom_Test_Features::$entitled = array();
 		self::reset_active_plan_cache();
-		$this->assertFalse( $enabled() );
+		$this->assertTrue( $enabled() );
 
 		\Wpcom_Test_Features::$entitled = array( 'advanced-seo' );
 		self::reset_active_plan_cache();
 		$this->assertTrue( $enabled() );
 
-		// And Atomic — WordPress.com, but not Simple — is not gated by it even without
-		// the entitlement. That's the case a wider copy of this rule got wrong.
-		//
-		// The site has to actually be Atomic for this to prove anything: merely clearing
-		// `IS_WPCOM` makes `is_wpcom_platform()` false too, so the assertion passes under
-		// the very bug it names. Verified by mutation — with `is_wpcom_simple()` widened
-		// to `is_wpcom_platform()`, this block fails and the one above still passes.
 		Constants::clear_single_constant( 'IS_WPCOM' );
 		Constants::set_constant( 'ATOMIC_SITE_ID', 1 );
 		Constants::set_constant( 'ATOMIC_CLIENT_ID', 1 );
@@ -1016,13 +1001,13 @@ class DashboardSettingsTest extends TestCase {
 		update_option( Dashboard_Data::LEGACY_FRONT_PAGE_META_OPTION, 'Legacy description.' );
 		Constants::set_constant( 'IS_WPCOM', true );
 		\Wpcom_Test_Features::$entitled = array();
+		add_filter( 'jetpack_disable_seo_tools', '__return_true' );
 
 		update_option( Dashboard_Data::FRONT_PAGE_META_OPTION, 'Modern description.' );
 
 		$this->assertSame( 'Legacy description.', get_option( Dashboard_Data::LEGACY_FRONT_PAGE_META_OPTION ) );
 
-		// And once SEO output is live, the superseded legacy value does go.
-		\Wpcom_Test_Features::$entitled = array( 'advanced-seo' );
+		remove_filter( 'jetpack_disable_seo_tools', '__return_true' );
 		update_option( Dashboard_Data::FRONT_PAGE_META_OPTION, 'Newer description.' );
 
 		$this->assertFalse( get_option( Dashboard_Data::LEGACY_FRONT_PAGE_META_OPTION, false ) );

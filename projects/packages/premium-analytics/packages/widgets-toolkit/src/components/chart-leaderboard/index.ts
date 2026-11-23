@@ -18,6 +18,7 @@ export {
 export type {
 	LeaderboardRowAction,
 	LeaderboardRowActionOptions,
+	LeaderboardRowActionWithTrailing,
 	LeaderboardRowChartProps,
 	LeaderboardRowProps,
 } from './leaderboard-row';

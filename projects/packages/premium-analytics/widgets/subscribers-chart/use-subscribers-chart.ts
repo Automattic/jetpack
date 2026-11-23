@@ -21,6 +21,8 @@ export type SubscribersPeriod = Extract< StatsSubscribersUnit, 'day' | 'week' | 
  */
 export interface SubscribersChartPoint {
 	date: Date;
+	/** The last instant of the bucket, so a tooltip can name the days of a month the range cuts. */
+	endDate?: Date;
 	subscribers: number | null;
 	paid: number | null;
 }
@@ -50,11 +52,13 @@ function toPoints(
 ): SubscribersChartPoint[] {
 	return ( report?.data ?? [] ).flatMap( point => {
 		const date = resolveBucketStamp( point.date_start, zone );
+		const endDate = resolveBucketStamp( point.date_end, zone );
 
 		return date
 			? [
 					{
 						date,
+						...( endDate ? { endDate } : {} ),
 						subscribers:
 							point.subscribers === null ? null : Number( point.subscribers ?? point.value ?? 0 ),
 						paid: point.subscribers_paid === null ? null : Number( point.subscribers_paid ?? 0 ),

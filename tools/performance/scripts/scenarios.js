@@ -116,7 +116,7 @@ export const SCENARIOS = [
 		// even though the dashboard rendered fine ("locator resolved to hidden"). `.boot-layout` is
 		// the positioned surface that actually fills the viewport (a stable, non-hashed BEM class
 		// from the wp-build boot framework), so it reflects the rendered page. Scoped by the app id
-		// so it can only match this dashboard's layout. See FORMS-729.
+		// so it can only match this dashboard's layout.
 		waitForSelector: '#jetpack-forms-responses-wp-admin-app .boot-layout',
 		expectUrlIncludes: '/responses/inbox',
 		// Don't gate the measurement on `networkidle`. The wp-build dashboard framework fires a
@@ -129,7 +129,7 @@ export const SCENARIOS = [
 		// completeness for decodedBytesKB is then guarded by an in-flight-aware resource settle in
 		// measure-lcp.js (networkidle's quiet + nothing-in-flight guarantee minus only that one
 		// stuck probe, failing the iteration at its deadline) plus the `minResourceCount` floor
-		// below. Other scenarios keep the default 'networkidle'. See FORMS-729.
+		// below. Other scenarios keep the default 'networkidle'.
 		loadState: 'load',
 		// A healthy load of this page fetches ~91 resources (stable across iterations locally);
 		// measure-lcp.js fails the run if it captures fewer than this floor, so a truncated/partial

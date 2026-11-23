@@ -35,10 +35,10 @@ describe( 'formatBucketTooltipDate', () => {
 			'September 21, 2026',
 		],
 		[
-			'keeps a month on its start date',
+			'names a whole month by its month and year',
 			{ date: at( '2026-09-01T00:00:00' ), endDate: at( '2026-09-30T23:59:59' ) },
 			'month' as const,
-			'September 1, 2026',
+			'September 2026',
 		],
 		[
 			'names the days of a month the range cuts',

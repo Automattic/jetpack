@@ -323,6 +323,16 @@
 	border-radius: 4px;
 	background: #000;
 	overflow: hidden;
+
+	// A portrait video in the 16:9 frame plays about a third of the column wide.
+	// Height-capped and centered so it doesn't push the settings below the fold.
+	&.is-portrait {
+		justify-self: center;
+		inline-size: auto;
+		block-size: min(560px, 70vh);
+		max-inline-size: 100%;
+		aspect-ratio: 9 / 16;
+	}
 }
 
 .vp-video-details__upload-progress {

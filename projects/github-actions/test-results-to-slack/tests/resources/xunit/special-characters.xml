@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="Slack" tests="1" failures="1">
+	<testcase classname="Slack" name="keeps &lt;!channel&gt; &amp; links as text" time="0.001">
+		<failure message="Expected &lt;@U123&gt;"><![CDATA[See <https://example.com|this link> & retry]]></failure>
+	</testcase>
+</testsuite>

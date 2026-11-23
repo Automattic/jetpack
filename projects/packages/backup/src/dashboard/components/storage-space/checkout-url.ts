@@ -19,11 +19,15 @@ import { getProductCheckoutUrl } from '@automattic/jetpack-components';
  * @return The Calypso checkout URL.
  */
 export function storageAddonCheckoutUrl( productSlug: string, siteSuffix: string ): string {
-	return getProductCheckoutUrl( productSlug, siteSuffix, window.location.href, true );
+	const here = new URL( window.location.href );
+	here.searchParams.set( STORAGE_PURCHASED_ARG, '1' );
+
+	return getProductCheckoutUrl( productSlug, siteSuffix, here.toString(), true );
 }
 
 /** Query args that carry a retention choice through checkout and back. */
 export const RETENTION_ARG = 'retention';
+// Also tells the server to drop its cached storage figures; `Jetpack_Backup::admin_init()` reads it.
 export const STORAGE_PURCHASED_ARG = 'storage_purchased';
 
 /**
