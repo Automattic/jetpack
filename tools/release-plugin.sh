@@ -470,7 +470,7 @@ function do_create_backport_PR {
 	fi
 
 	# Replaces the prerelease branch pushed from the release branch.
-	git push -u --force origin prerelease
+	git push -u --force-with-lease origin prerelease
 	RELEASED_PLUGIN="$(basename "$PLUGIN") $VERSION"
 	sed "s/%RELEASED_PLUGIN%/$RELEASED_PLUGIN/g" .github/files/BACKPORT_RELEASE_CHANGES.md | gh pr create --title "Backport $RELEASED_PLUGIN changes" --body-file - --label "[Status] Needs Review" --label "[Type] Janitorial" --head prerelease
 }
