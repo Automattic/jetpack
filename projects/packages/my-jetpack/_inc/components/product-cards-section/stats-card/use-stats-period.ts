@@ -2,11 +2,11 @@ import { useCallback, useMemo, useState } from 'react';
 import { getMyJetpackWindowConnectionState } from '../../../data/utils/get-my-jetpack-window-state';
 import { VISITS_OPTIONS } from '../../stats-section';
 
-export const STATS_PERIOD_DAYS = [ 7, 30 ] as const;
+const DEFAULT_DAYS = 30;
+
+export const STATS_PERIOD_DAYS = [ 7, DEFAULT_DAYS ] as const;
 
 export type StatsPeriodDays = ( typeof STATS_PERIOD_DAYS )[ number ];
-
-const DEFAULT_DAYS: StatsPeriodDays = 30;
 
 export type StatsPeriod = {
 	days: StatsPeriodDays;
