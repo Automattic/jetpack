@@ -2,7 +2,6 @@
 import { useDispatch } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import clsx from 'clsx';
 import { wpcomTrackEvent } from '../../common/tracks';
 import { useGlobalStylesConfig } from './use-global-styles-config';
 
@@ -27,15 +26,19 @@ export default function useGlobalStyleNoticeActions( { isSiteEditor, context = '
 	const setShowHelpCenter = helpCenterDispatch?.setShowHelpCenter;
 	const setShowSupportDoc = helpCenterDispatch?.setShowSupportDoc;
 
-	const upgradePlan = useCallback( () => {
-		window.open( wpcomGlobalStyles.upgradeUrl, '_blank' ).focus();
-
+	const trackUpgradeClick = useCallback( () => {
 		if ( context === 'view_canvas' ) {
 			trackEvent( 'calypso_global_styles_notice_view_canvas_upgrade_click', isSiteEditor );
 		} else {
 			trackEvent( 'calypso_global_styles_gating_notice_upgrade_click', isSiteEditor );
 		}
 	}, [ context, isSiteEditor ] );
+
+	// Workaround: switch once https://github.com/WordPress/gutenberg/pull/86959 is available.
+	const upgradePlan = useCallback( () => {
+		window.open( wpcomGlobalStyles.upgradeUrl, '_blank' ).focus();
+		trackUpgradeClick();
+	}, [ trackUpgradeClick ] );
 
 	const resetGlobalStyles = useCallback( () => {
 		if ( ! globalStylesId ) {
@@ -73,6 +76,7 @@ export default function useGlobalStyleNoticeActions( { isSiteEditor, context = '
 	}, [ context, isSiteEditor, setShowHelpCenter, setShowSupportDoc ] );
 
 	return {
+		trackUpgradeClick,
 		learnMore: {
 			label: __( 'Learn more', 'jetpack-mu-wpcom' ),
 			onClick: openLearnMoreAboutStylesDialog,
@@ -90,11 +94,6 @@ export default function useGlobalStyleNoticeActions( { isSiteEditor, context = '
 			onClick: upgradePlan,
 			variant: 'primary',
 			noDefaultClasses: true,
-			className: clsx(
-				'wpcom-global-styles-action-is-upgrade',
-				'wpcom-global-styles-action-has-icon',
-				'wpcom-global-styles-action-is-external'
-			),
 		},
 	};
 }

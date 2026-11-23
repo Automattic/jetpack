@@ -280,6 +280,39 @@ class Jetpack_React_Page_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Tests that a pending error goes to My Jetpack, with no route, once My Jetpack shows Settings' notices.
+	 */
+	public function test_pending_error_goes_to_my_jetpack_once_it_shows_settings_notices() {
+		global $_registered_pages, $wp_actions;
+
+		$registered_pages = $_registered_pages;
+		$actions          = $wp_actions;
+		$flag_filter      = 'jetpack_feature_flag_enabled_' . Initializer::SETTINGS_CONSOLIDATION_FLAG;
+
+		add_filter( $flag_filter, '__return_true' );
+		// An earlier test can leave a local site URL, which reads as offline, where My Jetpack has no notice slot.
+		add_filter( 'jetpack_offline_mode', '__return_false' );
+		Status_Cache::clear();
+		// What Initializer::is_admin_page_available() reads, without running My Jetpack's init.
+		$wp_actions['my_jetpack_init'] = 1;
+		$_registered_pages[ get_plugin_page_hookname( 'my-jetpack', 'jetpack' ) ] = true;
+		Jetpack::state( 'error', 'wrong_state' );
+
+		try {
+			$table = Jetpack_React_Page::get_legacy_route_redirects();
+
+			$this->assertSame( admin_url( 'admin.php?page=my-jetpack' ), $table['fallback'] );
+			$this->assertSame( array(), $table['routes'] );
+		} finally {
+			Jetpack::state( 'error', '' );
+			remove_filter( $flag_filter, '__return_true' );
+			remove_filter( 'jetpack_offline_mode', '__return_false' );
+			$_registered_pages = $registered_pages;
+			$wp_actions        = $actions; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- Restoring the test's own change.
+		}
+	}
+
+	/**
 	 * Tests that offline administrators reach My Jetpack unless the offline entry is disabled.
 	 */
 	public function test_offline_mode_defaults_to_my_jetpack_and_allows_rollback() {

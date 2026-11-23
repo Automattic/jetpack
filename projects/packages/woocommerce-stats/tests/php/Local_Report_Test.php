@@ -13,6 +13,7 @@ use Automattic\Jetpack\WooCommerceStats\Report_Execution\Core_Report_Handler;
 use Automattic\Jetpack\WooCommerceStats\Report_Execution\Core_Revenue_Stats_Handler;
 use Automattic\Jetpack\WooCommerceStats\Report_Execution\Default_Reports;
 use Automattic\Jetpack\WooCommerceStats\Report_Execution\Local_Report_Provider;
+use Automattic\Jetpack\WooCommerceStats\Report_Execution\Provider_Setting;
 use Automattic\Jetpack\WooCommerceStats\Report_Execution\Report_Executor;
 use Automattic\Jetpack\WooCommerceStats\Report_Execution\Report_Registry;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -30,6 +31,7 @@ use WP_REST_Server;
  * @covers \Automattic\Jetpack\WooCommerceStats\Report_Execution\Core_Report_Handler
  * @covers \Automattic\Jetpack\WooCommerceStats\Report_Execution\Core_Revenue_Stats_Handler
  * @covers \Automattic\Jetpack\WooCommerceStats\Report_Execution\Local_Report_Provider
+ * @covers \Automattic\Jetpack\WooCommerceStats\Report_Execution\Provider_Setting
  * @covers \Automattic\Jetpack\WooCommerceStats\Report_Execution\Report_Executor
  *
  * @runTestsInSeparateProcesses
@@ -38,6 +40,7 @@ use WP_REST_Server;
 #[CoversClass( Core_Report_Handler::class )]
 #[CoversClass( Core_Revenue_Stats_Handler::class )]
 #[CoversClass( Local_Report_Provider::class )]
+#[CoversClass( Provider_Setting::class )]
 #[CoversClass( Report_Executor::class )]
 #[RunTestsInSeparateProcesses]
 #[PreserveGlobalState( false )]
@@ -349,6 +352,68 @@ class Local_Report_Test extends BaseTestCase {
 		$this->assertSame( 'wpcom', $response->get_headers()['X-Jetpack-Report-Provider'] );
 		$this->assertCount( 1, $this->wpcom_requests );
 		$this->assertSame( array(), $this->core_queries );
+	}
+
+	/**
+	 * @dataProvider data_settings
+	 *
+	 * @param mixed       $option   Stored provider names, null when unset.
+	 * @param mixed       $filtered What the filter returns, null when unfiltered.
+	 * @param array       $params   Params replacing `provider=auto` and the local defaults; null removes one.
+	 * @param int         $status   Expected status.
+	 * @param string      $answer   Expected provider header, or error code.
+	 * @param string|null $names    Provider the error message names.
+	 */
+	#[DataProvider( 'data_settings' )]
+	public function test_serves_auto_from_the_providers_the_site_setting_allows( $option, $filtered, array $params, $status, $answer, $names = null ) {
+		if ( null !== $option ) {
+			update_option( 'jetpack_woocommerce_stats_report_providers', $option );
+		}
+		if ( null !== $filtered ) {
+			add_filter( 'jetpack_woocommerce_stats_report_providers', static fn() => $filtered );
+		}
+
+		$response = $this->get_local( $params + array( 'provider' => 'auto' ) );
+
+		$this->assertSame( $status, $response->get_status() );
+		$this->assertSame( $answer, 200 === $status ? $response->get_headers()['X-Jetpack-Report-Provider'] : $response->get_data()['code'] );
+		if ( null !== $names ) {
+			$this->assertStringContainsString( $names . ' provider', $response->get_data()['message'] );
+		}
+	}
+
+	/**
+	 * @return array<string, array{0: mixed, 1: mixed, 2: array, 3: int, 4: string, 5?: string}>
+	 */
+	public static function data_settings() {
+		return array(
+			'no setting'                             => array( null, null, array(), 200, 'wpcom' ),
+			'local'                                  => array( 'local', null, array(), 200, 'local' ),
+			'local, the whole contract'              => array( 'local', null, array( 'report_fields' => null ), 422, 'unsupported_fields' ),
+			'local then wpcom, fields local serves'  => array( 'local,wpcom', null, array(), 200, 'local' ),
+			'local then wpcom, the whole contract'   => array( 'local,wpcom', null, array( 'report_fields' => null ), 200, 'wpcom' ),
+			'local then wpcom, over the cap'         => array( 'local,wpcom', null, self::range( '2025-01-01', '2026-05-16' ), 200, 'wpcom' ),
+			'wpcom then local'                       => array( 'wpcom,local', null, array(), 200, 'wpcom' ),
+			'the filter over the option, as a list'  => array( 'local', array( 'wpcom' ), array(), 200, 'wpcom' ),
+			'an unregistered provider first'         => array( 'mars,local', null, array(), 200, 'local' ),
+			'unregistered first, local refuses'      => array( 'mars,local', null, array( 'report_fields' => null ), 422, 'unsupported_fields' ),
+			'only an unregistered provider'          => array( 'mars', null, array(), 422, 'unsupported_provider', 'mars' ),
+			'only blank names'                       => array( array( ' ', '' ), null, array(), 200, 'wpcom' ),
+			'a filter returning an object'           => array( 'local', new \stdClass(), array(), 200, 'wpcom' ),
+			'no provider on a local site'            => array( 'local', null, array( 'provider' => null ), 200, 'wpcom' ),
+			'provider=wpcom on a local site'         => array( 'local', null, array( 'provider' => 'wpcom' ), 200, 'wpcom' ),
+			'provider=local on a WordPress.com site' => array( 'wpcom', null, array( 'provider' => 'local' ), 200, 'local' ),
+		);
+	}
+
+	public function test_auto_does_not_fall_back_to_the_next_provider_when_the_chosen_one_is_not_ready() {
+		update_option( 'jetpack_woocommerce_stats_report_providers', 'local,wpcom' );
+		$GLOBALS['woocommerce_stats_mock_analytics_off'] = true;
+
+		$response = $this->get_local( array( 'provider' => 'auto' ) );
+
+		$this->assertSame( 'local_unavailable', $response->get_data()['code'] );
+		$this->assertSame( array(), $this->wpcom_requests );
 	}
 
 	/**

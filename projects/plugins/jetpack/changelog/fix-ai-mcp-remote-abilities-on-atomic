@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+AI: Show a site's own abilities on the MCP Read and Write views on WordPress.com sites with plugins, as WordPress.com does.

@@ -9,7 +9,7 @@ import {
 } from '@jetpack-premium-analytics/data';
 import { PRESET_CUSTOM } from '@jetpack-premium-analytics/datetime';
 import { StatsErrorBoundary } from '@jetpack-premium-analytics/error-reporting';
-import { Icon, JetpackFooter, Stack } from '@jetpack-premium-analytics/externals';
+import { Icon, JetpackFooter, Stack, VisuallyHidden } from '@jetpack-premium-analytics/externals';
 import { jetpack } from '@jetpack-premium-analytics/icons';
 import {
 	DashboardWidgetHostProvider,
@@ -38,8 +38,10 @@ import {
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { Page } from '@wordpress/admin-ui';
 import { Spinner } from '@wordpress/components';
+import { useViewportMatch } from '@wordpress/compose';
 import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import { WidgetDashboard } from '@wordpress/widget-dashboard';
+import clsx from 'clsx';
 import { useDateWindowNotice } from '../date-window-notice';
 import { isPremiumAnalyticsInitialSyncFinished } from '../site-readiness';
 import { useStatsDateLimits } from '../use-stats-date-limits';
@@ -94,6 +96,12 @@ import type { JSX } from 'react';
 function Dashboard(): JSX.Element {
 	const { sections, hasResolved: hasResolvedSections } = useDashboardSections();
 	const [ editMode, setEditMode ] = useState( false );
+	// At 480px and under there is no room for the title lockup beside a full row of
+	// actions: the actions hold their width and the page icon cannot shrink, so the
+	// lockup stands down rather than being painted over (STATS-630). Only while
+	// customizing, since at rest the actions leave it room.
+	const isCrowdedHeader = useViewportMatch( 'mobile', '<' );
+	const hasTightHeader = isCrowdedHeader && editMode;
 	const switchSearch = useCallback(
 		( id: string, search: Record< string, unknown > ) =>
 			dateWindowForSectionSwitch(
@@ -532,10 +540,18 @@ function Dashboard(): JSX.Element {
 							onEditChange={ onEditChange }
 						>
 							<Page
-								visual={ <Icon icon={ jetpack } /> }
-								breadcrumbs={ <StatsBreadcrumbs isRoot /> }
+								visual={ hasTightHeader ? undefined : <Icon icon={ jetpack } /> }
+								breadcrumbs={
+									hasTightHeader ? (
+										<VisuallyHidden>
+											<StatsBreadcrumbs isRoot />
+										</VisuallyHidden>
+									) : (
+										<StatsBreadcrumbs isRoot />
+									)
+								}
 								actions={
-									<Stack direction="row" gap="sm">
+									<Stack direction="row" gap={ isCrowdedHeader ? 'xs' : 'sm' }>
 										{ /* At rest these would add a second Customize beside the menu's. */ }
 										{ editMode && (
 											<>
@@ -556,7 +572,7 @@ function Dashboard(): JSX.Element {
 										</Stack>
 									</Stack>
 								}
-								className={ styles.dashboard }
+								className={ clsx( styles.dashboard, hasTightHeader && styles.tightHeader ) }
 							>
 								<DashboardSections
 									sections={ tabBarSections }

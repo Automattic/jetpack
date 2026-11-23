@@ -28,8 +28,9 @@ This page covers sections only. Widget types have their own page, [Dashboard wid
 | `src/dashboard-sections.php`                       | The section API: the `register_dashboard_section()` family, the section script data, the REST routes and their schema.                                                                                                |
 | `src/dashboard-layout.php`                         | Layout primitives: `DASHBOARD_NAME`, the default-layout and insertable-types filter names, `get_dashboard_default_widget_instance()`, and the package's availability policy on default layouts.                       |
 | `src/default-dashboard-sections.php`               | The package's own sections: Traffic, Insights, Subscribers, their gates and their default layouts, registered through the action like any plugin's. The WooCommerce tab registers from the WooCommerce stats package. |
-| `src/class-analytics.php`                          | Loads the three files above on wp-admin requests (`load_dashboard_components()`).                                                                                                                                     |
-| `src/class-dashboard-support-routes.php`           | Loads them on REST requests (`boot_routes()`), on connected sites and, called directly by WordPress.com, on Simple.                                                                                                   |
+| `src/class-dashboard-support.php`                  | Loads the section API and the layout primitives on wp-admin requests (`load()`), for the package and for a plugin that hosts a dashboard of its own.                                                                  |
+| `src/class-analytics.php`                          | Calls it, then loads the package's own sections (`load_dashboard_components()`).                                                                                                                                      |
+| `src/class-dashboard-support-routes.php`           | Loads the three files on REST requests (`boot_routes()`), on connected sites and, called directly by WordPress.com, on Simple.                                                                                        |
 | `packages/data/src/entities/dashboard-entities.ts` | The `dashboardSection` core-data entity the client reads.                                                                                                                                                             |
 | `routes/dashboard/`                                | `useDashboardSections()`, `useActiveSection()`, `useDashboardSectionLayout()`, and the stage that renders the navigation.                                                                                             |
 | `packages/data/src/utils/dashboard-sections.ts`    | `isDashboardSectionAvailable()`, the report routes' gate, fed by the inline script data, and `isPostDetailAvailable()`, which post links read before linking to `/post/:id`.                                          |
@@ -38,7 +39,7 @@ This page covers sections only. Widget types have their own page, [Dashboard wid
 
 ![The three section files load at plugin load in wp-admin and on rest_api_init on REST and on WordPress.com Simple; on every path the registry hydrates on its first read after init and fires the registration action.](diagrams/sections-load-paths.svg)
 
-The same three files load on three paths, at three moments. In wp-admin `Analytics::load_dashboard_components()` requires them at plugin load, before `init`.
+The same three files load on three paths, at three moments. In wp-admin `Analytics::load_dashboard_surface()` requires them at plugin load, before `init`: the section API and the layout primitives through `Dashboard_Support::load()`, the package's own sections through `load_dashboard_components()`.
 
 On a connected site's REST request, `Dashboard_Support_Routes::boot_routes()` requires them on `rest_api_init`, after `init`.
 

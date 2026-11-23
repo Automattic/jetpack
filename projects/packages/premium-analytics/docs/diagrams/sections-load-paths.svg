@@ -32,7 +32,7 @@
   <text class="muted" x="25" y="82" text-anchor="start">connected site</text>
   <rect class="box" x="175" y="42" width="250" height="56" rx="4"/>
   <text class="title" x="300" y="66" text-anchor="middle">Analytics::init()</text>
-  <text class="mono" x="300" y="82" text-anchor="middle">load_dashboard_components()</text>
+  <text class="mono" x="300" y="82" text-anchor="middle">load_dashboard_surface()</text>
   <rect class="box" x="445" y="42" width="140" height="56" rx="4"/>
   <text class="title" x="515" y="66" text-anchor="middle">at plugin load</text>
   <text class="muted" x="515" y="82" text-anchor="middle">before init</text>

@@ -6,13 +6,21 @@ jest.mock( 'discussion', () => () => null );
 jest.mock( 'earn', () => () => null );
 jest.mock( 'newsletter', () => () => null );
 jest.mock( 'performance', () => () => null );
-jest.mock( 'privacy', () => () => null );
+jest.mock( 'privacy', () => () => <div data-testid="privacy-card" /> );
 jest.mock( 'reader', () => () => null );
 jest.mock( 'searchable-modules', () => () => null );
 jest.mock( 'security', () => () => null );
 jest.mock( 'sharing', () => () => null );
 jest.mock( 'traffic', () => () => null );
 jest.mock( 'writing', () => () => null );
+jest.mock( 'components/settings-card', () => ( {
+	__esModule: true,
+	default: ( { children } ) => children,
+} ) );
+jest.mock( 'components/settings-group', () => ( {
+	__esModule: true,
+	default: ( { children } ) => children,
+} ) );
 
 const buildState = ( module, { activated = true, isBlockTheme = false } = {} ) => ( {
 	jetpack: {
@@ -77,5 +85,44 @@ describe( 'Settings search for Google Analytics', () => {
 		);
 
 		expect( Boolean( screen.queryByText( 'No matching settings' ) ) ).toBe( isEmpty );
+	} );
+} );
+
+describe( 'Settings Privacy card', () => {
+	afterEach( () => {
+		delete window.JetpackScriptData;
+	} );
+
+	const searchPrivacy = flag => {
+		window.JetpackScriptData = {
+			myJetpack: { settingsConsolidation: flag },
+			site: { admin_url: 'https://example.com/wp-admin/' },
+		};
+		const state = buildState( 'stats' );
+		state.jetpack.search.searchTerm = 'privacy';
+
+		render(
+			<MemoryRouter>
+				<Settings searchTerm="privacy" userCanManageModules />
+			</MemoryRouter>,
+			{ initialState: state }
+		);
+	};
+
+	it( 'keeps the card with the settings flag off', () => {
+		searchPrivacy( false );
+
+		expect( screen.getByTestId( 'privacy-card' ) ).toBeInTheDocument();
+	} );
+
+	it( 'points a search to the Profile page with the settings flag on', () => {
+		searchPrivacy( true );
+
+		expect( screen.queryByTestId( 'privacy-card' ) ).not.toBeInTheDocument();
+		expect( screen.getByRole( 'link', { name: 'Open your Profile' } ) ).toHaveAttribute(
+			'href',
+			'https://example.com/wp-admin/profile.php#jetpack-privacy'
+		);
+		expect( screen.queryByText( 'No matching settings' ) ).not.toBeInTheDocument();
 	} );
 } );
