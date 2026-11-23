@@ -110,6 +110,9 @@ export function getFeatureStatusLabel( state: FeatureState, controlIsLink = fals
 	) {
 		return null;
 	}
+	if ( state.needsSetup ) {
+		return __( 'Needs setup', 'jetpack-my-jetpack' );
+	}
 	return getActivationStatusLabel( state.status === 'active' );
 }
 

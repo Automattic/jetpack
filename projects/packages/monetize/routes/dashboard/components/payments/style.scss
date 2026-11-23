@@ -1,0 +1,38 @@
+.jp-monetize-payments {
+
+	&__description {
+
+		> :first-child {
+			margin-block-start: 0;
+		}
+
+		> :last-child {
+			margin-block-end: 0;
+		}
+	}
+
+	&__delete-options {
+		margin-block-start: var(--wpds-dimension-gap-lg);
+	}
+
+	// The slot shrinks to fit by default, which wraps the button's label.
+	&__input-action {
+		flex-shrink: 0;
+		white-space: nowrap;
+	}
+
+	&__row:not(:last-child) {
+		padding-block-end: var(--wpds-dimension-gap-lg);
+		border-block-end: 1px solid var(--wpds-color-stroke-surface-neutral-weak);
+	}
+}
+
+.jp-monetize-payments__prices {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+	gap: var(--wpds-dimension-gap-lg);
+}
+
+.jp-monetize-payments__advanced {
+	padding-block-start: var(--wpds-dimension-gap-md);
+}

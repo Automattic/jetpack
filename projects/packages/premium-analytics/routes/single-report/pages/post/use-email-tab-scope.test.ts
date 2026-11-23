@@ -1,11 +1,11 @@
 /**
  * External dependencies
  */
-import { renderHook } from '@testing-library/react';
+import { act, renderHook } from '@testing-library/react';
 /**
  * Internal dependencies
  */
-import { EMAIL_SEND_WINDOW_DAYS, useEmailTabScope } from './use-email-tab-scope';
+import { useEmailTabScope } from './use-email-tab-scope';
 
 const POST_ID = 91;
 const TIME_ZONE = 'UTC';
@@ -18,10 +18,6 @@ describe( 'useEmailTabScope', () => {
 
 	afterEach( () => {
 		jest.useRealTimers();
-	} );
-
-	it( 'matches the timeline endpoint cap of 30 daily buckets', () => {
-		expect( EMAIL_SEND_WINDOW_DAYS ).toBe( 30 );
 	} );
 
 	it( 'pins the range to the first 30 days after an older send', () => {
@@ -51,6 +47,19 @@ describe( 'useEmailTabScope', () => {
 		expect( scope?.reportParams.to.startsWith( '2026-08-28' ) ).toBe( true );
 	} );
 
+	it( "moves a young send's window to the new day after the site's midnight", () => {
+		jest.setSystemTime( new Date( '2026-08-28T23:59:30Z' ) );
+		const recent = new Date( '2026-08-20T00:00:00Z' );
+		const { result } = renderHook( () => useEmailTabScope( POST_ID, recent, TIME_ZONE ) );
+
+		act( () => {
+			jest.advanceTimersByTime( 60 * 1000 );
+		} );
+
+		expect( result.current?.range.to.toISOString() ).toBe( '2026-08-29T23:59:59.999Z' );
+		expect( result.current?.reportParams.to.startsWith( '2026-08-29' ) ).toBe( true );
+	} );
+
 	it( 'is undefined until the publish day is known', () => {
 		const { result } = renderHook( () => useEmailTabScope( POST_ID, undefined, TIME_ZONE ) );
 
@@ -73,5 +82,20 @@ describe( 'useEmailTabScope', () => {
 		rerender( { start: PUBLISHED } );
 
 		expect( result.current ).toBe( first );
+	} );
+
+	it.each( [
+		[ 'first-24-hours', '2026-06-22T23:59:59.999Z' ],
+		[ 'all-time', '2026-08-28T23:59:59.999Z' ],
+		// Nothing saved reads as the default first 30 days, as the chart does.
+		[ undefined, '2026-07-21T23:59:59.999Z' ],
+	] )( 'states the %s window the chart saved for the header', ( sendWindow, end ) => {
+		const { result } = renderHook( () => useEmailTabScope( POST_ID, PUBLISHED, TIME_ZONE ) );
+		const range = result.current?.headerRange( [
+			{ type: 'jpa/email-top-row', attributes: { metric: 'opens' } },
+			{ type: 'jpa/email-time-series--total-opens', attributes: { sendWindow } },
+		] );
+
+		expect( range?.to?.toISOString() ).toBe( end );
 	} );
 } );

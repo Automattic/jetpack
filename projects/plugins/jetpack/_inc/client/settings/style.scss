@@ -22,6 +22,10 @@
 .jp-settings-container {
 	padding-block-start: rem.convert(24px);
 
+	.jp-settings__visibility-notice {
+		margin-block-end: rem.convert(24px);
+	}
+
 	a,
 	a:link,
 	a:visited {

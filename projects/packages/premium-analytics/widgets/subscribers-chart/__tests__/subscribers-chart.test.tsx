@@ -12,6 +12,8 @@ import { store as preferencesStore } from '@wordpress/preferences';
  * Internal dependencies
  */
 import { setMockRouteSearch } from '../../../tests/js/route-test-utils';
+import { renderWithActionsHost } from '../../../tests/js/widget-host-test-utils';
+import { captureCsvDownloads } from '../../test-utils';
 import SubscribersChartWidget from '../render';
 import type { ReactNode } from 'react';
 
@@ -37,7 +39,7 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 		metrics: {
 			key: string;
 			value: number;
-			current: { date: Date; value: number | null }[];
+			current: { date: Date; endDate?: Date; value: number | null }[];
 			countLabel?: ( count: number ) => string;
 		}[];
 		empty?: ReactNode;
@@ -53,6 +55,9 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 			data-values={ JSON.stringify( metrics[ 0 ]?.current.map( point => point.value ) ) }
 			data-headline={ metrics[ 0 ]?.value }
 			data-dates={ metrics[ 0 ]?.current.map( point => point.date.toISOString() ).join( ',' ) }
+			data-end-dates={ metrics[ 0 ]?.current
+				.map( point => point.endDate?.toISOString() ?? '' )
+				.join( ',' ) }
 		>
 			{ empty }
 		</div>
@@ -103,11 +108,21 @@ describe( 'SubscribersChartWidget', () => {
 		expect( chart ).toHaveAttribute( 'data-values', '[5,6]' );
 	} );
 
-	it( 'declares its bucket size, which a month the range cuts would otherwise misread', async () => {
+	it( "declares its bucket size and each bucket's end, which a month the range cuts would otherwise misread", async () => {
 		mockUseStatsSubscribersReport.mockReturnValue(
 			reportWith( [
-				{ date_start: '2025-04-11T00:00:00', subscribers: 5, subscribers_paid: 0 },
-				{ date_start: '2025-05-01T00:00:00', subscribers: 6, subscribers_paid: 0 },
+				{
+					date_start: '2025-04-11T00:00:00',
+					date_end: '2025-04-30T23:59:59',
+					subscribers: 5,
+					subscribers_paid: 0,
+				},
+				{
+					date_start: '2025-05-01T00:00:00',
+					date_end: '2025-05-31T23:59:59',
+					subscribers: 6,
+					subscribers_paid: 0,
+				},
 			] )
 		);
 
@@ -123,9 +138,11 @@ describe( 'SubscribersChartWidget', () => {
 			/>
 		);
 
-		await expect( screen.findByTestId( 'metric-tabs-chart' ) ).resolves.toHaveAttribute(
-			'data-tick-resolution',
-			'month'
+		const chart = await screen.findByTestId( 'metric-tabs-chart' );
+		expect( chart ).toHaveAttribute( 'data-tick-resolution', 'month' );
+		expect( chart ).toHaveAttribute(
+			'data-end-dates',
+			'2025-04-30T23:59:59.000Z,2025-05-31T23:59:59.000Z'
 		);
 	} );
 
@@ -328,6 +345,107 @@ describe( 'SubscribersChartWidget', () => {
 			expect( mockUseStatsSubscribersReport ).not.toHaveBeenCalledWith(
 				expect.objectContaining( { comp: '1' } )
 			);
+		} );
+	} );
+	describe( 'CSV download', () => {
+		const REPORT_PARAMS = {
+			from: '2026-07-01T00:00:00',
+			to: '2026-07-31T23:59:59',
+			interval: 'day',
+		};
+		let downloads: ReturnType< typeof captureCsvDownloads > | undefined;
+
+		beforeEach( () => {
+			jest.useFakeTimers();
+		} );
+
+		afterEach( () => {
+			downloads?.restore();
+			downloads = undefined;
+			jest.useRealTimers();
+		} );
+
+		function renderWidget() {
+			return renderWithActionsHost(
+				<SubscribersChartWidget attributes={ { reportParams: REPORT_PARAMS } } />
+			);
+		}
+
+		it.each( [
+			[
+				'with paid subscribers',
+				2,
+				[
+					'"Date","Subscribers","Paid subscribers"',
+					'"2026-07-04","5","1"',
+					'"2026-07-05","6","2"',
+				],
+			],
+			[
+				'without paid subscribers',
+				0,
+				[ '"Date","Subscribers"', '"2026-07-04","5"', '"2026-07-05","6"' ],
+			],
+		] )( 'saves each bucket in the site zone, %s', async ( _, paid, lines ) => {
+			downloads = captureCsvDownloads();
+			mockUseStatsSubscribersReport.mockReturnValue( {
+				...reportWith( [
+					{ date_start: '2026-07-04T00:00:00', subscribers: 5, subscribers_paid: paid / 2 },
+					{ date_start: '2026-07-05T00:00:00', subscribers: 6, subscribers_paid: paid },
+				] ),
+				// Fourteen hours ahead of UTC: a bucket written in any other zone lands on the day before.
+				timezone: 'Pacific/Kiritimati',
+			} );
+
+			const { findDeclaredAction } = renderWidget();
+			await downloads.runAndSave( await findDeclaredAction( 'download-csv' ) );
+
+			expect( downloads.files[ 0 ].filename ).toBe(
+				'subscriber-summary-2026-07-01_2026-07-31.csv'
+			);
+			await expect( downloads.lines() ).resolves.toEqual( lines );
+		} );
+
+		it.each( [
+			[
+				'no subscriber in the range',
+				reportWith( [
+					{ date_start: '2026-07-04T00:00:00', subscribers: 0, subscribers_paid: 0 },
+				] ),
+			],
+			[
+				'a refetch failed behind the points on screen',
+				{
+					...reportWith( [
+						{ date_start: '2026-07-04T00:00:00', subscribers: 5, subscribers_paid: 0 },
+					] ),
+					primary: {
+						data: {
+							data: [ { date_start: '2026-07-04T00:00:00', subscribers: 5, subscribers_paid: 0 } ],
+						},
+						isError: true,
+					},
+					isError: true,
+				},
+			],
+			[
+				"a previous range's points on screen",
+				{
+					...reportWith( [] ),
+					primary: {
+						data: {
+							data: [ { date_start: '2026-07-04T00:00:00', subscribers: 5, subscribers_paid: 0 } ],
+						},
+						isPlaceholderData: true,
+					},
+				},
+			],
+		] )( 'offers no download with %s', ( _, report ) => {
+			mockUseStatsSubscribersReport.mockReturnValue( report );
+
+			const { declaredAction } = renderWidget();
+
+			expect( declaredAction( 'download-csv' ) ).toBeUndefined();
 		} );
 	} );
 } );

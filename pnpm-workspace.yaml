@@ -10,16 +10,15 @@ packages:
   - tools/port-verification
   - .github/files/coverage-munger
 
+autoDedupe: true
 engineStrict: true
+lockfile:
+  includeResolutionSettings: true
 pmOnFail: ignore
 preferWorkspacePackages: true
 
-# Feature is buggy in pnpm 11.5, e.g. https://github.com/pnpm/pnpm/issues/12100.
-optimisticRepeatInstall: false
-
 # Be strict about peer deps
 autoInstallPeers: false
-dedupePeerDependents: false
 dedupePeers: false
 strictPeerDependencies: true
 
@@ -39,8 +38,6 @@ minimumReleaseAgeExclude:
   - '@wordpress/*'
   - 'gridicons'
   - 'wpcom-proxy-request'
-  # Renovate security update: zod@4.6.6
-  - zod@4.6.6
 
 trustPolicy: no-downgrade
 trustPolicyExclude:
@@ -53,16 +50,25 @@ trustPolicyExclude:
 # Package compromise avoidance: require dep build script approval.
 strictDepBuilds: true
 verifyDepsBeforeRun: install
-allowBuilds:
+permissions:
   # Tries to download/install stuff if optional deps weren't installed.
-  esbuild: false
-  unrs-resolver: false
+  esbuild:
+    build: false
+  unrs-resolver:
+    build: false
   # Tries to rebuild itself if an environment variable is set.
-  '@parcel/watcher': false
+  '@parcel/watcher':
+    build: false
   # Attempt to show "support me" spam.
-  core-js: false
-  core-js-pure: false
-  print-this: false
+  core-js:
+    build: false
+  core-js-pure:
+    build: false
+  print-this:
+    build: false
+  # Unaudited.
+  tsdown:
+    skills: false
 
 # Package compromise avoidance: Block odd protocols in subdeps
 blockExoticSubdeps: true
@@ -95,18 +101,3 @@ patchedDependencies:
   # until Jetpack's minimum WordPress version requests the @wordpress/build 0.26 list,
   # even if upstream fixes init-module handling first.
   "@wordpress/build": .pnpm-patches/@wordpress__build.patch
-
-  # The CommonJS build of 44.0.0 resolves `BaseControl` for `useBaseControlProps`
-  # through a circular require that rolldown snapshots before `index.cjs` has set
-  # its exports, so every CJS consumer (jest) renders ToggleGroupControl, and the
-  # DataViews view options built on it, with `useInstanceId( undefined )` and dies
-  # with "Invalid value used as weak map key". The ESM build is unaffected.
-  # Remove once the fix in WordPress/gutenberg (base-control hooks) ships.
-  "@wordpress/components@44.0.0": .pnpm-patches/@wordpress__components.patch
-
-  # Same rolldown CommonJS snapshot in block-editor 20.0.0: inner-blocks and the
-  # auto block preview memoize block-list exports at load, before that circular
-  # module has set them, so InnerBlocks renders in jest die with "Element type
-  # is invalid" and `memo()` warns about an undefined component.
-  # Remove once the fix in WordPress/gutenberg ships.
-  "@wordpress/block-editor@20.0.0": .pnpm-patches/@wordpress__block-editor.patch

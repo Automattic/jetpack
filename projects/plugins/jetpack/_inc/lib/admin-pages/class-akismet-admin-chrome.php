@@ -30,7 +30,6 @@ use Automattic\Jetpack\Plugin\Admin_Chrome_Logo;
 use Automattic\Jetpack\Plugin\Footer_Links;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
-use Automattic\Jetpack\Status\Host;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
@@ -338,7 +337,7 @@ class Akismet_Admin_Chrome {
 				<?php echo Admin_Chrome_Logo::render( 16, 'jp-akismet-logo' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG. ?>
 				<span><?php esc_html_e( 'Jetpack', 'jetpack' ); ?></span>
 			</div>
-			<?php if ( ! ( new Host() )->is_wpcom_platform() && Footer_Links::is_my_jetpack_available() ) : ?>
+			<?php if ( Footer_Links::shows_my_jetpack_links() ) : ?>
 			<nav class="jp-akismet-footer__menu">
 				<a href="<?php echo esc_url( admin_url( 'admin.php?page=my-jetpack#/features' ) ); ?>"><?php echo esc_html_x( 'Features', 'Navigation item', 'jetpack' ); ?></a>
 				<a href="<?php echo esc_url( admin_url( 'admin.php?page=my-jetpack#/help' ) ); ?>"><?php echo esc_html_x( 'Help', 'Navigation item', 'jetpack' ); ?></a>

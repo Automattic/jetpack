@@ -16,6 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
+use Automattic\Jetpack\Admin_UI\Admin_Shell;
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Backup\V0005\Initial_State as Backup_Initial_State;
 use Automattic\Jetpack\Config;
@@ -26,6 +27,7 @@ use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authent
 use Automattic\Jetpack\JITMS\JITM;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
 use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Terms_Of_Service;
 use Automattic\Jetpack\Tracking;
 use Jetpack_Options;
@@ -43,6 +45,7 @@ use function menu_page_url;
 use function rest_ensure_response;
 use function update_option;
 use function wp_add_inline_script;
+use function wp_doing_ajax;
 use function wp_remote_get;
 use function wp_remote_retrieve_body;
 use function wp_remote_retrieve_response_code;
@@ -101,6 +104,48 @@ class Jetpack_Backup {
 	const PROMOTED_PRODUCT_CACHE_TTL = 12 * HOUR_IN_SECONDS;
 
 	/**
+	 * Transient holding the last good `/rewind/size` answer.
+	 *
+	 * @var string
+	 */
+	const SITE_SIZE_TRANSIENT = 'jetpack_backup_site_size';
+
+	/**
+	 * Transient holding the last good `/rewind/policies` answer.
+	 *
+	 * @var string
+	 */
+	const SITE_POLICIES_TRANSIENT = 'jetpack_backup_site_policies';
+
+	/**
+	 * Transient that, while set, keeps the storage reads out of the cache.
+	 *
+	 * @var string
+	 */
+	const STORAGE_CACHE_BYPASS_TRANSIENT = 'jetpack_backup_storage_cache_bypass';
+
+	/**
+	 * Transient holding the dashboard's capabilities, kept only while they include Backup.
+	 *
+	 * @var string
+	 */
+	const CAPABILITIES_TRANSIENT = 'jetpack_backup_capabilities';
+
+	/**
+	 * How long a rewind read stays cached: the same window the dashboard already treats these reads as fresh.
+	 *
+	 * @var int
+	 */
+	const REWIND_READ_CACHE_TTL = 5 * MINUTE_IN_SECONDS;
+
+	/**
+	 * Query arg the dashboard's checkout links return with, so the storage figures are read again.
+	 *
+	 * @var string
+	 */
+	const STORAGE_PURCHASED_ARG = 'storage_purchased';
+
+	/**
 	 * Licenses product ID.
 	 *
 	 * @var string
@@ -141,6 +186,11 @@ class Jetpack_Backup {
 	 * Atomic sees it only if it is on WordPress.com's `atomic_site_stickers()` allowlist.
 	 */
 	const LEGACY_DASHBOARD_STICKER = 'use-backup-legacy-dashboard';
+
+	/**
+	 * The wp-build page id, which the screen ID is aliased to on the Backup page.
+	 */
+	const WP_BUILD_PAGE_ID = 'jetpack-backup-dashboard';
 
 	/**
 	 * Rewind state read from WordPress.com, memoized for the request.
@@ -188,6 +238,10 @@ class Jetpack_Backup {
 
 		add_action( 'admin_menu', array( __CLASS__, 'maybe_load_wp_build' ), 1 );
 		add_action( 'admin_menu', array( __CLASS__, 'add_wp_admin_submenu' ), 1 ); // Akismet uses 4, so we need to use 1 to ensure both menus are added when only they exist.
+
+		if ( class_exists( Admin_Shell::class ) ) {
+			add_filter( 'jetpack_admin_shell_members', array( __CLASS__, 'add_admin_shell_member' ) );
+		}
 
 		if ( $options['manage_connection'] ) {
 			self::init_standalone_connection();
@@ -250,10 +304,15 @@ class Jetpack_Backup {
 			? 'jetpack_backup_jetpack_backup_dashboard_wp_admin_render_page'
 			: array( __CLASS__, 'plugin_settings_page' );
 
-		// The page title's relabel rides the modernized dashboard rather than the filter alone,
-		// so a fallback to the legacy page also falls back to the legacy title.
-		$page_title = $wp_build_active ? 'Jetpack VaultPress Backup' : 'Jetpack Backup';
-		$menu_title = 'Backup'; // Product name, do not translate.
+		/*
+		 * The page title's relabel rides the modernized dashboard rather than the filter alone,
+		 * so a fallback to the legacy page also falls back to the legacy title. Off the Backup
+		 * page the build isn't loaded, so the admin shell's title comes from the build index.
+		 */
+		$renders_modernized = $wp_build_active
+			|| ( ! self::is_backup_admin_request() && self::is_modernized() && file_exists( dirname( __DIR__ ) . '/build/build.php' ) );
+		$page_title         = $renders_modernized ? 'Jetpack VaultPress Backup' : 'Jetpack Backup';
+		$menu_title         = 'Backup'; // Product name, do not translate.
 
 		$page_suffix = Admin_Menu::add_menu(
 			$page_title,
@@ -279,6 +338,13 @@ class Jetpack_Backup {
 	public static function admin_init() {
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_admin_scripts' ) );
 
+		// Only bypasses a cache, so it needs no nonce.
+		if ( isset( $_GET[ self::STORAGE_PURCHASED_ARG ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			self::clear_storage_cache();
+			// A purchase can take a moment to reach `/rewind/policies`, so a read made right after checkout is not kept.
+			set_transient( self::STORAGE_CACHE_BYPASS_TRANSIENT, 1, self::REWIND_READ_CACHE_TTL );
+		}
+
 		if ( self::is_wp_build_dashboard_active() ) {
 			// Notices reflow the dual-pane layout, so clear them but keep our own.
 			// An older jetpack-jitm may predate the helper; the fallback costs the JITM.
@@ -289,6 +355,55 @@ class Jetpack_Backup {
 				remove_all_actions( 'all_admin_notices' );
 			}
 		}
+	}
+
+	/**
+	 * Register Backup with the admin shell, which switches between Jetpack dashboards without a page load.
+	 *
+	 * The page is added whenever the package is initialized; only the modernized dashboard is a wp-build page.
+	 *
+	 * @since 5.2.5
+	 *
+	 * @param array $members Shell members keyed by admin page slug.
+	 * @return array
+	 */
+	public static function add_admin_shell_member( $members ) {
+		if (
+			( new Host() )->is_wpcom_simple()
+			|| ! self::is_modernized()
+			|| ! file_exists( dirname( __DIR__ ) . '/build/build.php' )
+		) {
+			return $members;
+		}
+
+		$members[ self::JETPACK_BACKUP_SLUG ] = array(
+			'build_prefix' => 'jetpack_backup',
+			'build_page'   => self::WP_BUILD_PAGE_ID,
+			'init_modules' => array( '@jetpack-backup/init' ),
+			// "Backup" is a product name, do not translate.
+			'title'        => 'Backup',
+			'header'       => array(
+				'title'    => 'VaultPress Backup',
+				'subtitle' => __( 'Save changes and restore quickly with one-click recovery.', 'jetpack-backup-pkg' ),
+			),
+			'capability'   => 'manage_options',
+			'handles'      => array( 'jetpack-script-data', 'jp-tracks-functions', 'wp-jp-i18n-loader' ),
+			'load'         => array( __CLASS__, 'load_as_admin_shell_guest' ),
+		);
+		return $members;
+	}
+
+	/**
+	 * Ready the Backup routes and page data while another dashboard's page is open, without the screen ID alias.
+	 *
+	 * @since 5.2.5
+	 *
+	 * @return void
+	 */
+	public static function load_as_admin_shell_guest() {
+		self::load_wp_build();
+		add_action( 'admin_print_scripts', array( __CLASS__, 'render_connection_initial_state' ), 1 );
+		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_admin_scripts' ) );
 	}
 
 	/**
@@ -318,8 +433,8 @@ class Jetpack_Backup {
 	 * Enqueue plugin admin scripts and styles.
 	 */
 	public static function enqueue_admin_scripts() {
-		// This callback is registered via `load-{$page_suffix}` in `add_wp_admin_submenu()`,
-		// so it only fires on the Backup admin page — no need to re-check the page here.
+		// Hooked only for the Backup page: via `load-{$page_suffix}` in `add_wp_admin_submenu()`,
+		// or by the admin shell's guest load, so there's no need to re-check the page here.
 		if ( self::is_wp_build_dashboard_active() ) {
 			// The i18n loader is registered on every admin page by jetpack-assets but
 			// only enqueued when depended on; the esbuild bundles don't pull it in.
@@ -982,25 +1097,7 @@ class Jetpack_Backup {
 	 * @return \WP_REST_Response|WP_Error The site storage size, or a WP_Error if WordPress.com could not be reached.
 	 */
 	public static function get_site_backup_size() {
-		$blog_id = Jetpack_Options::get_option( 'id' );
-
-		$response = Client::wpcom_json_api_request_as_user(
-			'/sites/' . $blog_id . '/rewind/size?force=wpcom',
-			'v2',
-			array(),
-			null,
-			'wpcom'
-		);
-
-		$response_code = (int) wp_remote_retrieve_response_code( $response );
-
-		if ( 200 !== $response_code ) {
-			return self::get_failed_fetch_error( $response );
-		}
-
-		return rest_ensure_response(
-			json_decode( $response['body'], true )
-		);
+		return self::get_cached_rewind_read( 'size', self::SITE_SIZE_TRANSIENT );
 	}
 
 	/**
@@ -1009,10 +1106,40 @@ class Jetpack_Backup {
 	 * @return \WP_REST_Response|WP_Error The site storage policies, or a WP_Error if WordPress.com could not be reached.
 	 */
 	public static function get_site_backup_policies() {
+		return self::get_cached_rewind_read( 'policies', self::SITE_POLICIES_TRANSIENT );
+	}
+
+	/**
+	 * Forget the cached storage figures, after anything that changes them.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return void
+	 */
+	public static function clear_storage_cache() {
+		delete_transient( self::SITE_SIZE_TRANSIENT );
+		delete_transient( self::SITE_POLICIES_TRANSIENT );
+	}
+
+	/**
+	 * Read a `/rewind/<endpoint>` route as the user, answering from a transient while one is warm.
+	 *
+	 * @param string $endpoint  The route under `/sites/<id>/rewind/`.
+	 * @param string $transient The transient that holds a good answer.
+	 * @return \WP_REST_Response|WP_Error The decoded answer, or a WP_Error if WordPress.com could not be reached.
+	 */
+	private static function get_cached_rewind_read( $endpoint, $transient ) {
+		$use_cache = false === get_transient( self::STORAGE_CACHE_BYPASS_TRANSIENT );
+		$cached    = $use_cache ? get_transient( $transient ) : false;
+
+		if ( is_array( $cached ) ) {
+			return rest_ensure_response( $cached );
+		}
+
 		$blog_id = Jetpack_Options::get_option( 'id' );
 
 		$response = Client::wpcom_json_api_request_as_user(
-			'/sites/' . $blog_id . '/rewind/policies?force=wpcom',
+			'/sites/' . $blog_id . '/rewind/' . $endpoint . '?force=wpcom',
 			'v2',
 			array(),
 			null,
@@ -1025,9 +1152,14 @@ class Jetpack_Backup {
 			return self::get_failed_fetch_error( $response );
 		}
 
-		return rest_ensure_response(
-			json_decode( $response['body'], true )
-		);
+		$body = json_decode( $response['body'], true );
+
+		// `ok: false` is WordPress.com failing to measure; caching it would hide the figures once it recovers.
+		if ( $use_cache && is_array( $body ) && false !== ( $body['ok'] ?? true ) ) {
+			set_transient( $transient, $body, self::REWIND_READ_CACHE_TTL );
+		}
+
+		return rest_ensure_response( $body );
 	}
 
 	/**
@@ -1194,13 +1326,6 @@ class Jetpack_Backup {
 
 		self::load_wp_build_with_screen_alias();
 
-		// wp-build registers standalone modules (e.g. the init module) on
-		// wp_default_scripts, which has already fired by admin_menu. Register them
-		// directly so the init module makes it into the import map.
-		if ( function_exists( 'jetpack_backup_register_script_modules' ) ) {
-			jetpack_backup_register_script_modules(); // @phan-suppress-current-line PhanUndeclaredFunction -- Checked with function_exists(); defined in the generated build/modules.php, which Phan excludes.
-		}
-
 		add_action( 'admin_print_scripts', array( __CLASS__, 'render_connection_initial_state' ), 1 );
 	}
 
@@ -1228,6 +1353,7 @@ class Jetpack_Backup {
 				array(
 					'activityLogUrl'        => self::get_activity_log_url(),
 					'knownThreatsAvailable' => \Automattic\Jetpack\Backup\V0005\REST\Restore_Bridge::known_threats_available(),
+					'addLicense'            => Backup_Initial_State::is_add_license_screen_enabled(),
 				),
 				JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
 			) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- wp_json_encode() with JSON_HEX_* flags is safe in a script tag.
@@ -1243,8 +1369,24 @@ class Jetpack_Backup {
 	 * @return string|null
 	 */
 	public static function get_activity_log_url() {
+		// No admin menu here: see Admin_Shell::guest_assets().
+		if ( wp_doing_ajax() ) {
+			return self::activity_log_page_will_register() ? admin_url( 'admin.php?page=jetpack-activity-log' ) : null;
+		}
+
 		$url = menu_page_url( 'jetpack-activity-log', false );
 		return $url ? $url : null;
+	}
+
+	/**
+	 * Whether the Activity Log page registers for this user, for requests that never build the menu.
+	 *
+	 * @return bool
+	 */
+	private static function activity_log_page_will_register() {
+		return did_action( 'jetpack_activity_log_initialized' )
+			&& class_exists( 'Automattic\Jetpack\Activity_Log\Jetpack_Activity_Log' )
+			&& \Automattic\Jetpack\Activity_Log\Jetpack_Activity_Log::is_available();
 	}
 
 	/**
@@ -1263,6 +1405,13 @@ class Jetpack_Backup {
 		}
 
 		require_once $build_index;
+
+		// wp-build registers standalone modules (e.g. the init module) on
+		// wp_default_scripts, which has already fired by admin_menu. Register them
+		// directly so the init module makes it into the import map.
+		if ( function_exists( 'jetpack_backup_register_script_modules' ) ) {
+			jetpack_backup_register_script_modules(); // @phan-suppress-current-line PhanUndeclaredFunction -- Checked with function_exists(); defined in the generated build/modules.php, which Phan excludes.
+		}
 
 		\Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills::register(
 			'jetpack-backup',
@@ -1319,7 +1468,7 @@ class Jetpack_Backup {
 		}
 
 		self::$wp_build_original_screen_id = $screen->id;
-		$screen->id                        = 'jetpack-backup-dashboard';
+		$screen->id                        = self::WP_BUILD_PAGE_ID;
 	}
 
 	/**

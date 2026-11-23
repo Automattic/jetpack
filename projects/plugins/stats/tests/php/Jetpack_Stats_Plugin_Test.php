@@ -91,17 +91,20 @@ class Jetpack_Stats_Plugin_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The complete set of hooks `bootstrap()` registers, as `hook, method, priority`.
+	 * The complete set of hooks `bootstrap()` registers, as `hook, callback, priority`.
 	 */
 	private function bootstrap_hooks() {
+		$plugin = Jetpack_Stats_Plugin::class;
+
 		return array(
-			array( 'plugins_loaded', 'configure_packages', 1 ),
-			array( 'plugins_loaded', 'initialize_other_packages', 10 ),
-			array( 'activated_plugin', 'handle_plugin_activation', 10 ),
-			array( 'jetpack_site_registered', 'activate_stats_module', 10 ),
-			array( 'deactivate_jetpack/jetpack.php', 'activate_stats_module', 10 ),
-			array( 'plugin_action_links_' . JETPACK_STATS_PLUGIN__FILE_RELATIVE_PATH, 'plugin_page_add_links', 10 ),
-			array( 'jetpack_get_available_standalone_modules', 'filter_available_modules_add_stats', 10 ),
+			array( 'plugins_loaded', array( $plugin, 'configure_packages' ), 1 ),
+			array( 'plugins_loaded', array( $plugin, 'initialize_other_packages' ), 10 ),
+			array( 'activated_plugin', array( $plugin, 'handle_plugin_activation' ), 10 ),
+			array( 'jetpack_site_registered', array( $plugin, 'activate_stats_module' ), 10 ),
+			array( 'deactivate_jetpack/jetpack.php', array( $plugin, 'activate_stats_module' ), 10 ),
+			array( 'plugin_action_links_' . JETPACK_STATS_PLUGIN__FILE_RELATIVE_PATH, array( $plugin, 'plugin_page_add_links' ), 10 ),
+			array( 'jetpack_get_available_standalone_modules', array( $plugin, 'filter_available_modules_add_stats' ), 10 ),
+			array( 'wp_consent_api_registered_' . JETPACK_STATS_PLUGIN__FILE_RELATIVE_PATH, '__return_true', 10 ),
 		);
 	}
 
@@ -191,22 +194,22 @@ class Jetpack_Stats_Plugin_Test extends BaseTestCase {
 	 * WordPress stores actions as filters, so `has_filter()` and `remove_filter()` cover both.
 	 */
 	public function test_bootstrap_registers_every_hook() {
-		foreach ( $this->bootstrap_hooks() as list( $hook, $method, $priority ) ) {
-			remove_filter( $hook, array( Jetpack_Stats_Plugin::class, $method ), $priority );
+		foreach ( $this->bootstrap_hooks() as list( $hook, $callback, $priority ) ) {
+			remove_filter( $hook, $callback, $priority );
 
 			$this->assertFalse(
-				has_filter( $hook, array( Jetpack_Stats_Plugin::class, $method ) ),
-				"$hook still holds $method before bootstrap() runs."
+				has_filter( $hook, $callback ),
+				"$hook still holds its callback before bootstrap() runs."
 			);
 		}
 
 		Jetpack_Stats_Plugin::bootstrap();
 
-		foreach ( $this->bootstrap_hooks() as list( $hook, $method, $priority ) ) {
+		foreach ( $this->bootstrap_hooks() as list( $hook, $callback, $priority ) ) {
 			$this->assertSame(
 				$priority,
-				has_filter( $hook, array( Jetpack_Stats_Plugin::class, $method ) ),
-				"bootstrap() did not register $method on $hook."
+				has_filter( $hook, $callback ),
+				"bootstrap() did not register its callback on $hook."
 			);
 		}
 	}
@@ -329,6 +332,7 @@ class Jetpack_Stats_Plugin_Test extends BaseTestCase {
 	 */
 	public function test_disconnected_site_gets_its_menu_from_the_stats_admin_package() {
 		$this->assertFalse( ( new Connection_Manager() )->is_connected(), 'Test environment is expected to be unconnected.' );
+		add_filter( 'jetpack_feature_flag_enabled_' . Classic_Stats::RETIRED_FLAG, '__return_false' );
 
 		Jetpack_Stats_Plugin::configure_packages();
 		do_action( 'plugins_loaded' );
@@ -410,13 +414,17 @@ class Jetpack_Stats_Plugin_Test extends BaseTestCase {
 	 *
 	 * @dataProvider provide_stats_v2_states
 	 *
-	 * @param bool $opted_in Whether the site opted in to Stats v2.
-	 * @param bool $expected Whether Stats v2 boots.
+	 * @param bool      $opted_in Whether the site opted in to Stats v2.
+	 * @param bool|null $retired  Whether the classic Stats page is retired, or null for the flag's default.
+	 * @param bool      $expected Whether Stats v2 boots.
 	 */
 	#[DataProvider( 'provide_stats_v2_states' )]
-	public function test_stats_v2_boots_with_the_packages( $opted_in, $expected ) {
+	public function test_stats_v2_boots_with_the_packages( $opted_in, $retired, $expected ) {
 		add_filter( 'jetpack_active_modules', array( $this, 'activate_stats' ) );
 		update_option( Enablement_Setting::ENABLED_OPTION, (int) $opted_in );
+		if ( null !== $retired ) {
+			add_filter( 'jetpack_feature_flag_enabled_' . Classic_Stats::RETIRED_FLAG, $retired ? '__return_true' : '__return_false' );
+		}
 
 		Jetpack_Stats_Plugin::configure_packages();
 
@@ -429,14 +437,15 @@ class Jetpack_Stats_Plugin_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Stats v2 states, as opted in, boots.
+	 * Stats v2 states, as opted in, classic page retired, boots.
 	 *
 	 * @return array
 	 */
 	public static function provide_stats_v2_states() {
 		return array(
-			'off by default' => array( false, false ),
-			'opted in'       => array( true, true ),
+			'on by default'                => array( false, null, true ),
+			'classic Stats kept'           => array( false, false, false ),
+			'opted in, classic Stats kept' => array( true, false, true ),
 		);
 	}
 

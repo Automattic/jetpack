@@ -6,7 +6,6 @@ import useAnalytics from '../../../hooks/use-analytics';
 import A4ABanner from '../index';
 
 jest.mock( '../../../data/use-dismiss-a4a-banner' );
-jest.mock( '../../../hooks/use-analytics' );
 
 const mockUseDismissA4ABanner = useDismissA4ABanner as jest.MockedFunction<
 	typeof useDismissA4ABanner

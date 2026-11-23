@@ -1,20 +1,13 @@
 /**
  * External dependencies
  */
-import {
-	dateToISOStringWithLocalTZ,
-	findComparisonOption,
-	getComparisonOptions,
-	getComparisonRangeFromPreset,
-	localTZDate,
-	type ComparisonPresetId,
-} from '@jetpack-premium-analytics/datetime';
 /**
  * Internal dependencies
  */
 // Leaf modules, not the `../utils` barrel, which loads `@wordpress/core-data`.
 import { getDefaultIntervalForPeriod } from '../utils/interval';
 import { computeDateRangeFromPreset } from '../utils/preset-date-range';
+import { deriveComparisonRange } from './derive-comparison-range';
 import {
 	NO_COMPARISON,
 	getRememberedComparison,
@@ -22,6 +15,7 @@ import {
 	getStatsV1Preset,
 } from './remembered-preset';
 import type { PresetType, ReportParams } from '../utils/search';
+import type { ComparisonPresetId } from '@jetpack-premium-analytics/datetime';
 
 /**
  * The preset a page opens on when its URL names no dates: the reader's last applied
@@ -53,30 +47,9 @@ export function withComparisonPreset(
 	params: ReportParams,
 	presetId: ComparisonPresetId
 ): ReportParams {
-	const reference = { from: localTZDate( params.from ), to: localTZDate( params.to ) };
-	// An unreadable window, say a hand-edited offset, has no comparison to measure.
-	if ( isNaN( reference.from.getTime() ) || isNaN( reference.to.getTime() ) ) {
-		return params;
-	}
+	const comparison = deriveComparisonRange( { ...params, comp: '1', compare_preset: presetId } );
 
-	const options = { primaryPresetId: params.preset };
-
-	// A preset the range does not offer, say the previous week of a year, falls back.
-	const isOffered = !! findComparisonOption( getComparisonOptions( reference, options ), presetId );
-	const comparisonPresetId = isOffered ? presetId : 'previous-period';
-	const comparison = getComparisonRangeFromPreset( reference, comparisonPresetId, options );
-
-	if ( ! comparison?.from || ! comparison.to ) {
-		return params;
-	}
-
-	return {
-		...params,
-		compare_from: dateToISOStringWithLocalTZ( comparison.from ),
-		compare_to: dateToISOStringWithLocalTZ( comparison.to ),
-		compare_preset: comparisonPresetId,
-		comp: '1',
-	};
+	return comparison ? { ...params, ...comparison, comp: '1' } : params;
 }
 
 /**

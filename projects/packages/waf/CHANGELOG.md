@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.32.1] - 2026-11-16
+### Changed
+- Update dependencies.
+
 ## [0.32.0] - 2026-11-09
 ### Added
 - Add a method that returns how many requests the firewall blocked on each day. [#54570]
@@ -618,6 +622,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Core: do not ship .phpcs.dir.xml in production builds.
 
+[0.32.1]: https://github.com/Automattic/jetpack-waf/compare/v0.32.0...v0.32.1
 [0.32.0]: https://github.com/Automattic/jetpack-waf/compare/v0.31.0...v0.32.0
 [0.31.0]: https://github.com/Automattic/jetpack-waf/compare/v0.30.1...v0.31.0
 [0.30.1]: https://github.com/Automattic/jetpack-waf/compare/v0.30.0...v0.30.1

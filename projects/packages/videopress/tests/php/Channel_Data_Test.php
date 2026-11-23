@@ -265,4 +265,23 @@ class Channel_Data_Test extends BaseTestCase {
 		);
 		$this->assertSame( '', Channel_Data::views_and_age( array() ) );
 	}
+
+	public function test_members_and_visitors_do_not_share_cached_search_results() {
+		$visitor = Channel_Data::cache_key( 'videos', 'acquisition' );
+		wp_set_current_user(
+			wp_insert_user(
+				array(
+					'user_login' => 'member',
+					'user_pass'  => 'pass',
+					'role'       => 'subscriber',
+				)
+			)
+		);
+		$member = Channel_Data::cache_key( 'videos', 'acquisition' );
+		$all    = Channel_Data::cache_key( 'videos' );
+		wp_set_current_user( 0 );
+
+		$this->assertNotSame( $visitor, $member );
+		$this->assertSame( Channel_Data::cache_key( 'videos' ), $all, 'Unsearched lists stay shared.' );
+	}
 }

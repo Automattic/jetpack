@@ -8,7 +8,6 @@ import SeoOptInCard from '../index';
 
 jest.mock( '../../../data/use-seo-opt-in' );
 jest.mock( '../../../data/utils/get-my-jetpack-window-state' );
-jest.mock( '../../../hooks/use-analytics' );
 
 const mockUseSeoOptIn = useSeoOptIn as jest.MockedFunction< typeof useSeoOptIn >;
 const mockGetWindowState = getMyJetpackWindowInitialState as jest.MockedFunction<
@@ -31,7 +30,9 @@ describe( 'SeoOptInCard', () => {
 		render( <SeoOptInCard /> );
 
 		expect( screen.getByText( 'A fresh way to manage your SEO' ) ).toBeInTheDocument();
-		expect( recordEvent ).toHaveBeenCalledWith( 'jetpack_myjetpack_seo_opt_in_card_view', {} );
+		expect( recordEvent ).toHaveBeenCalledWith( 'jetpack_myjetpack_seo_opt_in_card_view', {
+			surface: 'overview',
+		} );
 	} );
 
 	it( 'renders nothing and records no view event when the card is not eligible', () => {
@@ -48,7 +49,9 @@ describe( 'SeoOptInCard', () => {
 
 		await userEvent.click( screen.getByRole( 'button', { name: 'Try the new SEO experience' } ) );
 
-		expect( recordEvent ).toHaveBeenCalledWith( 'jetpack_myjetpack_seo_opt_in_card_click', {} );
+		expect( recordEvent ).toHaveBeenCalledWith( 'jetpack_myjetpack_seo_opt_in_card_click', {
+			surface: 'overview',
+		} );
 		expect( optIn ).toHaveBeenCalledTimes( 1 );
 	} );
 

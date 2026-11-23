@@ -53,13 +53,7 @@ class Sharing_Buttons_Block_Test extends WP_UnitTestCase {
 	 * A theme's flex gap must not spread the buttons apart on the front end.
 	 *
 	 * The theme's `.is-layout-flex` gap ties the block stylesheet's specificity and prints later.
-	 * Isolated because it registers the block and filters the theme's global styles.
-	 *
-	 * @runInSeparateProcess
-	 * @preserveGlobalState disabled
 	 */
-	#[RunInSeparateProcess]
-	#[PreserveGlobalState( false )]
 	public function test_block_default_gap_overrides_theme_flex_gap() {
 		register_block();
 		add_filter(

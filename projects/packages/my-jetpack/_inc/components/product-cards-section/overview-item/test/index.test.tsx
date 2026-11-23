@@ -2,7 +2,6 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import OverviewItem from '..';
 
-jest.mock( '../../../../hooks/use-analytics', () => () => ( { recordEvent: jest.fn() } ) );
 let mockStatus = 'active';
 
 jest.mock( '../../../../data/products/use-product', () => () => ( {

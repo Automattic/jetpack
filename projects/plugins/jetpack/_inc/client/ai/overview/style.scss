@@ -276,8 +276,8 @@
 }
 
 // Without an actions row the banner is shorter, which would push the shared
-// shell's bottom sphere up into the copy — sink it so only a rim shows.
-.jetpack-ai-overview__assistant-banner .jetpack-ai-banner__orb--bottom {
+// shell's bottom sphere up into the copy, so hide it.
+.jetpack-ai-overview__assistant-banner .jp-highlight-banner__orb--bottom {
 	display: none;
 }
 

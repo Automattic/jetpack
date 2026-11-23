@@ -32,6 +32,13 @@ class Monitor_Abilities extends Registrar {
 
 	/**
 	 * {@inheritDoc}
+	 */
+	protected static function enabled_by_default(): bool {
+		return true;
+	}
+
+	/**
+	 * {@inheritDoc}
 	 *
 	 * Monitor abilities live under the WordPress core `site` category — it is
 	 * registered by the Abilities API itself, so we reference it by slug and
@@ -91,6 +98,7 @@ class Monitor_Abilities extends Registrar {
 						'destructive' => false,
 						'idempotent'  => true,
 					),
+					'public'       => true,
 					'show_in_rest' => true,
 					'mcp'          => array(
 						'public' => true,
@@ -128,6 +136,7 @@ class Monitor_Abilities extends Registrar {
 						'destructive' => false,
 						'idempotent'  => true,
 					),
+					'public'       => true,
 					'show_in_rest' => true,
 					'mcp'          => array(
 						'public' => true,
@@ -148,12 +157,12 @@ class Monitor_Abilities extends Registrar {
 	/**
 	 * Permission check: can the current user manage Monitor notifications?
 	 *
-	 * Notifications are a per-user preference that affects the caller's own inbox,
-	 * so `jetpack_admin_page` (the same capability that gates the admin settings UI)
-	 * is the right gate — no stricter cap is warranted.
+	 * The settings API needs `jetpack_configure_modules` (`manage_options`) for this setting, and the
+	 * write also updates the current user's local copy (`monitor_receive_notifications{user_id}`) the
+	 * settings screen reads.
 	 */
 	public static function can_manage_monitor(): bool {
-		return current_user_can( 'jetpack_admin_page' );
+		return current_user_can( 'manage_options' );
 	}
 
 	/**

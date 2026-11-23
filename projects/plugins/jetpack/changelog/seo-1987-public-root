@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+SEO: Detect static files when WordPress is installed in a subdirectory.

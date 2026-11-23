@@ -1,6 +1,8 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
 import App from '../app';
+import { replaceLocation } from '../components/host-purchase-gate/replace-location';
+import useAnalytics from '../hooks/use-analytics';
 import useMyJetpackConnection from '../hooks/use-my-jetpack-connection';
 import { queryClient } from '../providers';
 import { getRouteHref } from '../utils/route-href';
@@ -46,6 +48,7 @@ jest.mock( '@wordpress/route', () => {
 	};
 } );
 jest.mock( '../hooks/use-my-jetpack-connection' );
+const mockRecordEvent = jest.mocked( jest.mocked( useAnalytics )().recordEvent );
 jest.mock( '../hooks/use-paid-menu-sync', () => ( { usePaidMenuSync: jest.fn() } ) );
 
 jest.mock( '../components/my-jetpack-screen', () => ( {
@@ -58,6 +61,12 @@ jest.mock( '@automattic/jetpack-partner-coupon', () => ( {
 	isPartnerCouponDismissed: () => false,
 	PartnerCouponRedeem: () => <div data-testid="partner-coupon-screen" />,
 } ) );
+
+jest.mock( '../components/product-interstitial/pricing-interstitial', () => ( {
+	__esModule: true,
+	default: ( { slug } ) => <div data-testid="pricing-page">{ slug }</div>,
+} ) );
+jest.mock( '../components/host-purchase-gate/replace-location' );
 
 /**
  * Point the page at a route the way the boot router stores it.
@@ -81,6 +90,42 @@ describe( 'App', () => {
 		window.scrollTo = () => {};
 		useMyJetpackConnection.mockReset();
 		useMyJetpackConnection.mockReturnValue( {} );
+	} );
+
+	it.each( [
+		[
+			'records a deep link for a panel the page loaded open',
+			true,
+			'/features?configure=carousel',
+			1,
+		],
+		[ 'records nothing with settings consolidation off', false, '/features?configure=carousel', 0 ],
+		[ 'records nothing without a panel to open', true, '/features', 0 ],
+	] )( '%s', ( _name, consolidation, route, opens ) => {
+		const scriptData = window.JetpackScriptData;
+		window.JetpackScriptData = {
+			...scriptData,
+			myJetpack: { settingsConsolidation: consolidation },
+		};
+		setRoute( route );
+		mockRecordEvent.mockClear();
+
+		try {
+			const { rerender } = render( <App /> );
+			rerender( <App /> );
+		} finally {
+			window.JetpackScriptData = scriptData;
+		}
+
+		const panelOpens = mockRecordEvent.mock.calls.filter(
+			( [ event ] ) => event === 'jetpack_myjetpack_settings_panel_open'
+		);
+		expect( panelOpens ).toEqual(
+			Array( opens ).fill( [
+				'jetpack_myjetpack_settings_panel_open',
+				{ feature_slug: 'carousel', trigger: 'deep-link', event_version: 1 },
+			] )
+		);
 	} );
 
 	it( 'renders the home screen at the default route', () => {
@@ -129,6 +174,71 @@ describe( 'App', () => {
 		} finally {
 			delete window.myJetpackInitialState.partnerCoupon;
 		}
+	} );
+
+	describe( 'on a pricing route', () => {
+		const purchaseData = {
+			backup: { host_purchase_url: 'https://example.com/plans' },
+			'anti-spam': { host_purchase_url: 'https://example.com/anti-spam' },
+			protect: { host_purchase_url: 'https://example.com/scan' },
+			stats: { purchase_url: 'https://example.org/stats-purchase', host_purchase_url: null },
+		};
+		const answers = {
+			loaded: () => Promise.resolve( purchaseData ),
+			failed: () => Promise.reject( { code: 'failed', message: 'Failed' } ),
+			pending: () => new Promise( () => {} ),
+		};
+
+		const openRoute = ( route, hostMaySell, answer ) => {
+			setRoute( route );
+			queryClient.clear();
+			replaceLocation.mockClear();
+			apiFetch.mockImplementation( answers[ answer ] );
+			window.myJetpackInitialState.products = {
+				items: Object.fromEntries(
+					Object.keys( purchaseData ).map( slug => [ slug, { slug, host_may_sell: hostMaySell } ] )
+				),
+			};
+			render( <App /> );
+		};
+
+		afterEach( () => {
+			queryClient.clear();
+			apiFetch.mockReset();
+			delete window.myJetpackInitialState.products;
+		} );
+
+		it.each( [
+			[ '/add-backup', 'https://example.com/plans' ],
+			[ '/add-akismet', 'https://example.com/anti-spam' ],
+			[ '/add-anti-spam', 'https://example.com/anti-spam' ],
+			[ '/add-scan', 'https://example.com/scan' ],
+			[ '/add-protect/scan', 'https://example.com/scan' ],
+		] )( 'leaves %s for the plans its host sells', async ( route, destination ) => {
+			openRoute( route, true, 'loaded' );
+
+			await waitFor( () => expect( replaceLocation.mock.calls ).toEqual( [ [ destination ] ] ) );
+			expect( screen.queryByTestId( 'pricing-page' ) ).not.toBeInTheDocument();
+		} );
+
+		it.each( [
+			[ 'once its host turns out not to sell the product', '/add-stats', true, 'loaded' ],
+			[ "after the first failed attempt to load the host's answer", '/add-backup', true, 'failed' ],
+			[ 'without waiting where no host sells', '/add-backup', false, 'pending' ],
+		] )( 'shows the pricing page %s', async ( _name, route, hostMaySell, answer ) => {
+			openRoute( route, hostMaySell, answer );
+
+			await expect( screen.findByTestId( 'pricing-page' ) ).resolves.toBeInTheDocument();
+			expect( replaceLocation ).not.toHaveBeenCalled();
+		} );
+
+		it( 'holds the pricing page until the host has answered', async () => {
+			openRoute( '/add-backup', true, 'pending' );
+			await waitFor( () => expect( apiFetch ).toHaveBeenCalled() );
+
+			expect( screen.queryByTestId( 'pricing-page' ) ).not.toBeInTheDocument();
+			expect( replaceLocation ).not.toHaveBeenCalled();
+		} );
 	} );
 
 	it( 'hides the footer on offline Features', () => {

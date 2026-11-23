@@ -1,9 +1,9 @@
 import { useAiFeature } from '@automattic/jetpack-ai-client';
+import HighlightBanner from '@automattic/jetpack-components/highlight-banner';
 import { Button } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import AiBanner from '../../shared/components/ai-banner';
 import useGenerateAll from '../hooks/use-generate-all';
 import { AI_STORE_NAME } from '../store';
 
@@ -28,7 +28,7 @@ export default function WelcomeBanner() {
 	}
 
 	return (
-		<AiBanner
+		<HighlightBanner
 			className="jetpack-content-guidelines-ai__banner"
 			title={ __( 'Generate your guidelines in seconds', 'jetpack' ) }
 			description={ __(
@@ -37,11 +37,15 @@ export default function WelcomeBanner() {
 			) }
 			actions={
 				<>
-					<Button className="jetpack-ai-banner__cta" variant="primary" onClick={ handleGetStarted }>
+					<Button
+						className="jp-highlight-banner__cta"
+						variant="primary"
+						onClick={ handleGetStarted }
+					>
 						{ __( 'Get started', 'jetpack' ) }
 					</Button>
 					<Button
-						className="jetpack-ai-banner__secondary"
+						className="jp-highlight-banner__secondary"
 						variant="tertiary"
 						onClick={ handleDismiss }
 					>

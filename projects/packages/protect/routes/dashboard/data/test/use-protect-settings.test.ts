@@ -29,7 +29,7 @@ const defer = (): Deferred => {
  * Answer the next settings GET and the next POST with the given promises.
  *
  * @param responses      - The promises to answer with.
- * @param responses.get  - Answers `GET /jetpack/v4/settings`.
+ * @param responses.get  - Answers `GET /jetpack/v4/protect-dashboard/settings`.
  * @param responses.post - Answers any POST.
  */
 const respondWith = ( { get, post }: { get?: Promise< unknown >; post?: Promise< unknown > } ) => {
@@ -37,13 +37,14 @@ const respondWith = ( { get, post }: { get?: Promise< unknown >; post?: Promise<
 		if ( method === 'POST' ) {
 			return post;
 		}
-		return path === '/jetpack/v4/settings' ? get : Promise.resolve( null );
+		return path === '/jetpack/v4/protect-dashboard/settings' ? get : Promise.resolve( null );
 	} );
 };
 
 const settingsRequests = () =>
 	mockApiFetch.mock.calls.filter(
-		( [ { path, method } ] ) => path === '/jetpack/v4/settings' && method !== 'POST'
+		( [ { path, method } ] ) =>
+			path === '/jetpack/v4/protect-dashboard/settings' && method !== 'POST'
 	);
 
 const snackbars = () =>
@@ -112,6 +113,7 @@ describe( 'useProtectSettings', () => {
 		],
 		[ 'waf_error', 'The firewall couldn’t finish applying your change.', { list: 'stored' } ],
 		[ 'other_error', 'Raw server text', {} ],
+		[ 'rest_no_route', 'This page is out of date. Reload it to continue.', {} ],
 		[
 			'rest_invalid_param',
 			'Your IP address is on the block list.',
@@ -188,6 +190,18 @@ describe( 'useProtectSettings', () => {
 
 		expect( result.current.settings ).toEqual( { list: 'b' } );
 		expect( result.current.isSaving( 'list' ) ).toBe( false );
+	} );
+
+	it.each( [
+		[ 'offline', 'Your settings couldn’t be loaded.' ],
+		[ 'rest_no_route', 'This page is out of date. Reload it to continue.' ],
+	] )( 'a failed load with the code %s shows "%s"', async ( code, message ) => {
+		respondWith( { get: Promise.reject( { code, message: 'Raw server text' } ) } );
+		const { result } = renderHook( () => useProtectSettings() );
+
+		await act( async () => result.current.load() );
+
+		expect( result.current.error ).toBe( message );
 	} );
 
 	it( 'refetches after a failed load, clearing the error', async () => {

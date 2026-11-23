@@ -4,7 +4,7 @@ import { createTestWrapper } from '../../test-utils/query-client-wrapper';
 import { setSimpleSite, unsetSimpleSite } from '../../test-utils/simple-site';
 import { toLibraryItem } from '../../utils/library-item';
 import { LIBRARY_POLL_INTERVAL_MS } from '../../utils/processing-poll';
-import { useLibrary, viewToQueryArgs } from '../use-library';
+import { isWholeLibraryView, useLibrary, viewToQueryArgs } from '../use-library';
 import type { View } from '@wordpress/dataviews';
 
 const DEFAULT_VIEW: View = {
@@ -58,6 +58,39 @@ describe( 'viewToQueryArgs', () => {
 		expect( viewToQueryArgs( { ...DEFAULT_VIEW, search: 'foo' } ) ).toMatchObject( {
 			search: 'foo',
 		} );
+	} );
+} );
+
+describe( 'isWholeLibraryView', () => {
+	// Only the args that narrow the total; pagination and sort never change X-WP-Total.
+	const totalArgs = ( view: View ) => {
+		const args = viewToQueryArgs( view );
+		for ( const key of [ 'page', 'per_page', 'orderby', 'order' ] ) {
+			delete args[ key ];
+		}
+		return args;
+	};
+
+	it.each< [ string, Partial< View > ] >( [
+		[ 'the default view', {} ],
+		[ 'a whitespace search', { search: '   ' } ],
+		[
+			'a type filter set to all',
+			{ filters: [ { field: 'type', operator: 'is', value: 'all' } ] },
+		],
+		[
+			'a filter with no value',
+			{ filters: [ { field: 'privacy', operator: 'is', value: undefined } ] },
+		],
+		[ 'a search', { search: 'cat' } ],
+		[ 'a type filter', { filters: [ { field: 'type', operator: 'is', value: 'local' } ] } ],
+		[ 'a privacy filter', { filters: [ { field: 'privacy', operator: 'is', value: 'private' } ] } ],
+	] )( 'agrees with the request args for %s', ( _label, overrides ) => {
+		const view = { ...DEFAULT_VIEW, ...overrides };
+
+		expect( isWholeLibraryView( view ) ).toBe(
+			JSON.stringify( totalArgs( view ) ) === JSON.stringify( totalArgs( DEFAULT_VIEW ) )
+		);
 	} );
 } );
 

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "830bd564d52fd7b1d39a572b328fb17f",
+    "content-hash": "1030e5113b812752a11861b65db3ae7f",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -12,12 +12,13 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/a8c-mc-stats",
-                "reference": "4feb4eda7fca7e17d6887d41b9e021869d22297d"
+                "reference": "0b2f6b5c81e65107b79587b26455791b6d027811"
             },
             "require": {
                 "php": ">=7.4"
             },
             "require-dev": {
+                "automattic/jetpack-test-environment": "@dev",
                 "automattic/phpunit-select-config": "@dev",
                 "yoast/phpunit-polyfills": "^4.0.0"
             },
@@ -31,7 +32,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-a8c-mc-stats/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "4.0.x-dev"
+                    "dev-trunk": "4.1.x-dev"
                 }
             },
             "autoload": {
@@ -218,9 +219,10 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/admin-ui",
-                "reference": "f43dba75b5f21db4d2f691b450ee7b70c5f80760"
+                "reference": "114c85c94d30632d5aa4c9b16e39522c8a78e0c9"
             },
             "require": {
+                "automattic/jetpack-feature-flags": "@dev",
                 "automattic/jetpack-redirect": "@dev",
                 "automattic/jetpack-status": "@dev",
                 "php": ">=7.4"
@@ -268,6 +270,12 @@
                 ],
                 "phpunit": [
                     "phpunit-select-config phpunit.#.xml.dist --colors=always"
+                ],
+                "test-js": [
+                    "pnpm run test"
+                ],
+                "test-js-coverage": [
+                    "pnpm run test-coverage"
                 ],
                 "test-php": [
                     "@composer phpunit"
@@ -540,7 +548,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/boost-speed-score",
-                "reference": "cab9ab9cc93dd4e7608559cec408eaaad5426bd6"
+                "reference": "5bb5bc507616c4c740752773da6e605c74be0694"
             },
             "require": {
                 "automattic/jetpack-boost-core": "@dev",
@@ -561,7 +569,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-boost-speed-score/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.6.x-dev"
+                    "dev-trunk": "0.7.x-dev"
                 },
                 "textdomain": "jetpack-boost-speed-score",
                 "version-constants": {
@@ -732,13 +740,14 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "c8a4acc3337e952c3bb0abbf83760ad6c483e486"
+                "reference": "3c1ee1080cbc5f1035282f735539cdb0bedaeb27"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "@dev",
                 "automattic/jetpack-admin-ui": "@dev",
                 "automattic/jetpack-assets": "@dev",
                 "automattic/jetpack-constants": "@dev",
+                "automattic/jetpack-feature-flags": "@dev",
                 "automattic/jetpack-ip": "@dev",
                 "automattic/jetpack-redirect": "@dev",
                 "automattic/jetpack-roles": "@dev",
@@ -768,7 +777,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-connection/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "9.17.x-dev"
+                    "dev-trunk": "9.18.x-dev"
                 },
                 "dependencies": {
                     "test-only": [
@@ -1054,7 +1063,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/ip",
-                "reference": "f3b7e33bea8e2522ec56a327788ac13f38204996"
+                "reference": "b9eef465b2f03c2bcb9072ce51c7e17e82607606"
             },
             "require": {
                 "php": ">=7.4"
@@ -1074,7 +1083,7 @@
                     "link-template": "https://github.com/automattic/jetpack-ip/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.7.x-dev"
+                    "dev-trunk": "0.8.x-dev"
                 },
                 "textdomain": "jetpack-ip",
                 "version-constants": {
@@ -1111,7 +1120,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/jitm",
-                "reference": "7fe8fde7addb6e3087291809d420f77c068845ff"
+                "reference": "e16aaa646f8051f6ad338d8af1ddb63e2330099e"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "@dev",
@@ -1159,6 +1168,9 @@
                 ],
                 "phpunit": [
                     "phpunit-select-config phpunit.#.xml.dist --colors=always"
+                ],
+                "test-js": [
+                    "pnpm run test"
                 ],
                 "test-php": [
                     "@composer phpunit"
@@ -1348,12 +1360,76 @@
             }
         },
         {
+            "name": "automattic/jetpack-monitor",
+            "version": "dev-trunk",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/monitor",
+                "reference": "4dedb02dddb6763f3f16b68b8c03c044fbd04739"
+            },
+            "require": {
+                "automattic/jetpack-connection": "@dev",
+                "php": ">=7.4"
+            },
+            "require-dev": {
+                "automattic/jetpack-test-environment": "@dev",
+                "automattic/phpunit-select-config": "@dev",
+                "yoast/phpunit-polyfills": "^4.0.0"
+            },
+            "suggest": {
+                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
+            },
+            "type": "jetpack-library",
+            "extra": {
+                "autotagger": true,
+                "branch-alias": {
+                    "dev-trunk": "0.1.x-dev"
+                },
+                "changelogger": {
+                    "link-template": "https://github.com/Automattic/jetpack-monitor/compare/v${old}...v${new}"
+                },
+                "mirror-repo": "Automattic/jetpack-monitor",
+                "textdomain": "jetpack-monitor",
+                "version-constants": {
+                    "::PACKAGE_VERSION": "src/class-monitor.php"
+                }
+            },
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Automattic\\Jetpack\\Monitor\\": "tests/php"
+                }
+            },
+            "scripts": {
+                "phpunit": [
+                    "phpunit-select-config phpunit.#.xml.dist --colors=always"
+                ],
+                "test-php": [
+                    "@composer phpunit"
+                ],
+                "test-php-coverage": [
+                    "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Downtime monitoring for connected sites: the module's email alerts and status from WordPress.com.",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
             "name": "automattic/jetpack-my-jetpack",
             "version": "dev-trunk",
             "dist": {
                 "type": "path",
                 "url": "../../packages/my-jetpack",
-                "reference": "46c5b504fb0917063e4df2cd2461f9d5bafa8240"
+                "reference": "d62eeb7a98999cdf875255608a6a079332b2569d"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -1395,7 +1471,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-my-jetpack/compare/${old}...${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "6.17.x-dev"
+                    "dev-trunk": "6.18.x-dev"
                 },
                 "version-constants": {
                     "::PACKAGE_VERSION": "src/class-initializer.php"
@@ -1630,6 +1706,90 @@
             }
         },
         {
+            "name": "automattic/jetpack-protect",
+            "version": "dev-trunk",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/protect",
+                "reference": "a008d3e96eeb37561c7c3ecc625bb072d1bed816"
+            },
+            "require": {
+                "automattic/jetpack-admin-ui": "@dev",
+                "automattic/jetpack-connection": "@dev",
+                "automattic/jetpack-ip": "@dev",
+                "automattic/jetpack-menu-badges": "@dev",
+                "automattic/jetpack-monitor": "@dev",
+                "automattic/jetpack-protect-models": "@dev",
+                "automattic/jetpack-protect-status": "@dev",
+                "automattic/jetpack-status": "@dev",
+                "automattic/jetpack-wp-build-polyfills": "@dev",
+                "php": ">=7.4"
+            },
+            "require-dev": {
+                "automattic/jetpack-changelogger": "@dev",
+                "automattic/jetpack-test-environment": "@dev",
+                "automattic/jetpack-waf": "@dev",
+                "automattic/phpunit-select-config": "@dev",
+                "yoast/phpunit-polyfills": "^4.0.0"
+            },
+            "suggest": {
+                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
+            },
+            "type": "jetpack-library",
+            "extra": {
+                "branch-alias": {
+                    "dev-trunk": "0.7.x-dev"
+                },
+                "changelogger": {
+                    "link-template": "https://github.com/Automattic/jetpack-protect/compare/v${old}...v${new}"
+                },
+                "mirror-repo": "Automattic/jetpack-protect",
+                "textdomain": "jetpack-protect-pkg",
+                "version-constants": {
+                    "::PACKAGE_VERSION": "src/class-dashboard.php"
+                }
+            },
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "build-development": [
+                    "pnpm run build"
+                ],
+                "build-production": [
+                    "pnpm run build-production"
+                ],
+                "watch": [
+                    "Composer\\Config::disableProcessTimeout",
+                    "pnpm run watch"
+                ],
+                "phpunit": [
+                    "phpunit-select-config phpunit.#.xml.dist --colors=always"
+                ],
+                "test-php": [
+                    "@composer phpunit"
+                ],
+                "test-php-coverage": [
+                    "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
+                ],
+                "test-js": [
+                    "pnpm run test"
+                ],
+                "test-js-coverage": [
+                    "pnpm run test-coverage"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Shared Protect code for the Jetpack and Jetpack Protect plugins.",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
             "name": "automattic/jetpack-protect-models",
             "version": "dev-trunk",
             "dist": {
@@ -1699,7 +1859,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/protect-status",
-                "reference": "d83ac2a036574eb12fa0396179dcee02677a79a7"
+                "reference": "3c844eac092dce8bed3a0f2ec6d12cfe28cac57f"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -1720,7 +1880,7 @@
             "type": "jetpack-library",
             "extra": {
                 "branch-alias": {
-                    "dev-trunk": "0.10.x-dev"
+                    "dev-trunk": "0.11.x-dev"
                 },
                 "changelogger": {
                     "link-template": "https://github.com/Automattic/jetpack-protect-status/compare/v${old}...v${new}"
@@ -1937,7 +2097,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/sync",
-                "reference": "2d549a904273704cfb99a2855fc9543ebc0b0643"
+                "reference": "8445087228e624d0dd71975fb11249796d3f8e60"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -1969,7 +2129,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-sync/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "5.5.x-dev"
+                    "dev-trunk": "5.6.x-dev"
                 },
                 "dependencies": {
                     "test-only": [
@@ -4166,9 +4326,11 @@
         "automattic/jetpack-composer-plugin": 20,
         "automattic/jetpack-config": 20,
         "automattic/jetpack-menu-badges": 20,
+        "automattic/jetpack-monitor": 20,
         "automattic/jetpack-my-jetpack": 20,
         "automattic/jetpack-plans": 20,
         "automattic/jetpack-plugins-installer": 20,
+        "automattic/jetpack-protect": 20,
         "automattic/jetpack-protect-status": 20,
         "automattic/jetpack-status": 20,
         "automattic/jetpack-sync": 20,

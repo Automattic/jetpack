@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Payments: Warn when the connected Stripe account can't accept charges.

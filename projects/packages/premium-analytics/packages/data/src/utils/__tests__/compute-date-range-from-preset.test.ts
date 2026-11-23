@@ -79,6 +79,7 @@ describe( 'computeDateRangeFromPreset', () => {
 		[ 'year-to-date', startOfYear( TODAY_START, { in: UTC } ), TODAY_END ],
 		[ 'last-12-months', startOfMonth( subMonths( TODAY_START, 11 ), { in: UTC } ), TODAY_END ],
 		[ 'last-year', startOfYear( LAST_YEAR, { in: UTC } ), endOfYear( LAST_YEAR, { in: UTC } ) ],
+		[ 'last-3-years', startOfYear( subYears( TODAY_START, 2 ), { in: UTC } ), TODAY_END ],
 	] )( 'resolves "%s" to its site-local range', ( preset, from, to ) => {
 		expect( computeDateRangeFromPreset( preset ) ).toEqual( {
 			from: toSiteISO( from ),

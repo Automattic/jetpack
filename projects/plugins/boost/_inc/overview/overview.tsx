@@ -295,6 +295,7 @@ function OverviewContent( {
 					isLoading={ isLoading }
 					isRunning={ scoreState.isRunning }
 					hasScores={ scoreState.hasScores }
+					progress={ scoreState.progress }
 					error={ scoreState.error }
 					onRetry={ () => onRefresh( 'score_card' ) }
 					isVisible={ isVisible }
@@ -305,6 +306,7 @@ function OverviewContent( {
 				scoreChange={
 					scoreState.status === 'loaded' &&
 					! scoreState.scores.isStale &&
+					! scoreState.scores.noBoostPending &&
 					getScoreMovementPercentage( scoreState.scores )
 				}
 				isVisible={ isVisible }

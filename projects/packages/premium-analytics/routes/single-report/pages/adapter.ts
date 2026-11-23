@@ -12,7 +12,7 @@ import type { ReactNode } from 'react';
  */
 export type EntitySummary = {
 	/*
-	 * The entity's title: the last crumb and the document title.
+	 * The entity's title as saved, possibly blank; the page then states the adapter's untitled title.
 	 */
 	title?: string;
 
@@ -59,7 +59,17 @@ export type SingleReportHeaderSlots = {
  * `pending` while the window resolves, `blocked` when it never will and the widgets mount anyway.
  */
 export type SectionScope =
-	{ reportParams: Record< string, unknown >; range: DateRange } | 'pending' | 'blocked';
+	| {
+			reportParams: Record< string, unknown >;
+			range: DateRange;
+			/** The window the header states when a widget in the layout picks its own, else `range`. */
+			headerRange?: ( layout: readonly SectionWidget[] ) => DateRange | undefined;
+	  }
+	| 'pending'
+	| 'blocked';
+
+/** What a section reads of a widget in its layout. */
+export type SectionWidget = { type: string; attributes?: unknown };
 
 /**
  * What an adapter says about one of the record's sections for the current entity.
@@ -123,6 +133,11 @@ export type HeaderContext = {
 	label: string;
 
 	/*
+	 * The title the page states, in the crumb and the header: the entity's, else the untitled one.
+	 */
+	title: string;
+
+	/*
 	 * The active inner section, on a page with sections.
 	 */
 	section?: SectionState;
@@ -144,12 +159,17 @@ export type SingleReportAdapter< Summary extends EntitySummary = EntitySummary >
 	useSummary( entityId: string ): Summary;
 
 	/*
+	 * The title of an entity saved without one, such as "Untitled video"; absent, the record's label stands in.
+	 */
+	untitledTitle?( summary: Summary ): string;
+
+	/*
 	 * The header slots for a summary in any state.
 	 */
 	headerSlots( summary: Summary, context: HeaderContext ): SingleReportHeaderSlots;
 
 	/*
-	 * Actions beside the page options, such as View post.
+	 * Actions beside the Stats options, such as View post.
 	 */
 	headerActions?( summary: Summary ): ReactNode;
 

@@ -1,4 +1,6 @@
 import { createContext } from 'react';
+import type { BaseLegendItem } from '../../../components/legend';
+import type { ChartType } from '../../../types';
 
 export interface ChartInstanceRef {
 	getScales: () => { xScale: unknown; yScale: unknown } | null;
@@ -16,6 +18,14 @@ export interface ChartInstanceContextValue {
 	chartWidth?: number;
 	chartHeight?: number;
 	isSeriesVisible?: ( seriesLabel: string ) => boolean;
+	/**
+	 * The chart's legend items, for a legend inside it. The registry carries the same items
+	 * anywhere on the page, but fills from an effect a frame later, too late for a legend the
+	 * chart's own layout is sized around.
+	 */
+	legendItems?: BaseLegendItem[];
+	/** The chart's type, which gives a legend inside it its default shape. */
+	chartType?: ChartType;
 }
 
 export const ChartInstanceContext = createContext< ChartInstanceContextValue | null >( null );

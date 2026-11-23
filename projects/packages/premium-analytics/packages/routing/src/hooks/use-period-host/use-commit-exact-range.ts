@@ -1,8 +1,16 @@
 /**
  * External dependencies
  */
-import { useRaisePeriodChange, type LockableInterval } from '@jetpack-premium-analytics/data';
-import { PRESET_CUSTOM, type DateRange } from '@jetpack-premium-analytics/datetime';
+import {
+	startsBeforePolicy,
+	useRaisePeriodChange,
+	type LockableInterval,
+} from '@jetpack-premium-analytics/data';
+import {
+	PRESET_CUSTOM,
+	type DateRange,
+	type DateStepId,
+} from '@jetpack-premium-analytics/datetime';
 import { useCallback } from 'react';
 /**
  * Internal dependencies
@@ -18,12 +26,23 @@ type ExactRangeSearch = ReportQuerySearchParams & { section?: string };
 export type CommitExactRange = (
 	surface: string,
 	range: Required< DateRange >,
-	options?: { opensSection?: boolean; lockedIntervals?: readonly LockableInterval[] }
+	options?: {
+		opensSection?: boolean;
+		lockedIntervals?: readonly LockableInterval[];
+		/** Keep the window being left in the URL, for the date control to zoom back out to. */
+		withZoomOut?: boolean;
+		/** The first day the surface's plan shows; a range starting earlier is committed unsignalled. */
+		earliestDate?: Date;
+		/** How the arrows step the range, when the widget knows: a bucket's own unit. */
+		step?: DateStepId;
+	}
 ) => void;
 
 /**
  * Commit a range a widget computed as a custom period, in one history entry so
  * Back returns to where the reader left, and signal the change to `surface`.
+ * A range the plan will move is still committed, so the route's redirect explains
+ * it, but not signalled: the control never lands on it.
  *
  * @return The commit, taking the surface, the range, and whether to open the surface as a dashboard section.
  */
@@ -32,16 +51,24 @@ export function useCommitExactRange(): CommitExactRange {
 	const raisePeriodChange = useRaisePeriodChange();
 
 	return useCallback(
-		( surface, range, { opensSection = false, lockedIntervals } = {} ) => {
+		(
+			surface,
+			range,
+			{ opensSection = false, lockedIntervals, withZoomOut = false, earliestDate, step } = {}
+		) => {
 			const patch = buildRangePatch( {
 				nextRange: range,
 				nextPresetId: PRESET_CUSTOM,
 				exactRange: true,
+				withZoomOut,
+				step,
 				effective,
 				lockedIntervals,
 			} );
 
-			raisePeriodChange( surface, range );
+			if ( ! startsBeforePolicy( range.from, { earliestDate } ) ) {
+				raisePeriodChange( surface, range );
+			}
 			stage( opensSection ? { ...patch, section: surface } : patch );
 			commit( { replace: false } );
 		},

@@ -1,4 +1,5 @@
 import { requestSpeedScores } from '@automattic/jetpack-boost-score-api';
+import type { SpeedScoreProgress } from '@automattic/jetpack-boost-score-api';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import apiFetch from '@wordpress/api-fetch';
 import { createElement, type PropsWithChildren } from 'react';
@@ -544,4 +545,57 @@ test( 'does not announce a run started elsewhere when an automatic refresh follo
 	acceptThen( Promise.resolve( fresh ) );
 	await act( async () => refresh( true ) );
 	expect( completed ).not.toHaveBeenCalled();
+} );
+
+test( 'keeps the latest reported progress during a run and drops it when scores land', async () => {
+	const { result } = renderHook( () => useSpeedScores(), { wrapper } );
+	await waitFor( () => expect( result.current[ 0 ].status ).toBe( 'loaded' ) );
+	const nextScores = { current: { mobile: 88, desktop: 95 }, noBoost: null, isStale: false };
+	let report!: ( progress: SpeedScoreProgress ) => void;
+	let resolveRequest!: ( scores: typeof nextScores ) => void;
+	jest.mocked( requestSpeedScores ).mockImplementationOnce(
+		( _force, _root, _url, _nonce, options ) =>
+			new Promise( resolve => {
+				options?.onPending?.();
+				report = progress => options?.onProgress?.( progress );
+				resolveRequest = resolve;
+			} )
+	);
+	let request!: ReturnType< ( typeof result.current )[ 1 ] >;
+	act( () => {
+		request = result.current[ 1 ]( true );
+	} );
+	const reported = { elapsed: 12, expected: 40, stage: 'desktop', scores: { mobile: 71 } } as const;
+	act( () => report( reported ) );
+	expect( result.current[ 0 ].progress ).toMatchObject( reported );
+	await act( async () => {
+		resolveRequest( nextScores );
+		await request;
+	} );
+	expect( result.current[ 0 ].progress ).toBeUndefined();
+} );
+
+test( 'quietly collects the comparison run after showing the new scores', async () => {
+	jest.useFakeTimers();
+	try {
+		const shown = { current: { mobile: 88, desktop: 95 }, noBoost: null, isStale: false };
+		const compared = { ...shown, noBoost: { mobile: 60, desktop: 70 } };
+		jest
+			.mocked( requestSpeedScores )
+			.mockResolvedValueOnce( { ...shown, noBoostPending: true } )
+			.mockResolvedValue( compared );
+		const { result } = renderHook( () => useSpeedScores(), { wrapper } );
+		await waitFor( () => expect( result.current[ 0 ].status ).toBe( 'loaded' ) );
+		expect( result.current[ 0 ].scores.noBoost ).toBeNull();
+		await act( () => jest.advanceTimersByTimeAsync( 5000 ) );
+		expect( result.current[ 0 ] ).toMatchObject( {
+			status: 'loaded',
+			isRunning: false,
+			scores: compared,
+		} );
+		await act( () => jest.advanceTimersByTimeAsync( 10000 ) );
+		expect( requestSpeedScores ).toHaveBeenCalledTimes( 2 );
+	} finally {
+		jest.useRealTimers();
+	}
 } );

@@ -2,7 +2,7 @@ import '../css/admin-style.scss';
 import { StrictMode } from 'react';
 import * as WPElement from '@wordpress/element';
 import ModernApp from '$layout/modern/modern-app';
-import { detectMode, waitForSlots } from '$lib/modern/mode';
+import { waitForSlots } from '$lib/modern/mode';
 
 /**
  * Render the modern app once the chassis has created its slots.
@@ -22,6 +22,5 @@ async function renderModern() {
 	);
 }
 
-if ( detectMode() === 'modern' ) {
-	renderModern();
-}
+// The admin shell runs this bundle before it mounts the chassis root, so always wait for the slots.
+renderModern();
