@@ -238,6 +238,8 @@ class Analytics {
 		// Must be hooked before admin_menu and rest_api_init check the capability.
 		Capabilities::register();
 
+		AI_Traffic::register_feature_flag();
+
 		// Emit WooCommerce store events into the Woo pipeline (ClickHouse + proxy).
 		WooCommerce_Analytics_Tracker::configure();
 
