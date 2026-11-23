@@ -632,7 +632,7 @@ function Dashboard(): JSX.Element {
 											isSectionCommitted &&
 											! needsConnection( section.slug ) ? (
 												<DashboardSectionProvider section={ section.slug }>
-													<div className={ styles.body }>
+													<div className={ styles.body } data-testid="section-body">
 														<RefreshFailureNotice />
 														{ ! editMode && isSiteConnected && <DashboardNotices /> }
 
