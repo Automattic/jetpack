@@ -4,5 +4,5 @@
 	"title": "Archives",
 	"description": "Every archive page with its views in the selected period, grouped by type.",
 	"category": "stats",
-	"presentation": "content-bleed"
+	"presentation": "full-bleed"
 }
