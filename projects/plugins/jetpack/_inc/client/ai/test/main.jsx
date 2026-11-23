@@ -2398,7 +2398,7 @@ describe( 'Settings tab (main.jsx)', () => {
 		render( <App /> );
 
 		await expect(
-			screen.findByRole( 'heading', { name: 'How it works', level: 2 } )
+			screen.findByRole( 'heading', { name: 'External AI agent access', level: 2 } )
 		).resolves.toBeInTheDocument();
 		expect( screen.getByRole( 'tab', { name: 'Settings' } ) ).toHaveAttribute(
 			'aria-selected',
@@ -2414,16 +2414,11 @@ describe( 'Settings tab (main.jsx)', () => {
 		).resolves.toBeInTheDocument();
 
 		// The page title is the only h1; every section is an h2, and only the
-		// explainer's steps and the feature groups sit a level under one.
+		// feature groups sit a level under one.
 		expect( screen.queryAllByRole( 'heading', { level: 1 } ).length ).toBeLessThanOrEqual( 1 );
 		expect(
 			screen.getAllByRole( 'heading', { level: 2 } ).map( heading => heading.textContent )
-		).toEqual( [
-			'Connect an external AI agent',
-			'How it works',
-			'External AI agent access',
-			'AI features',
-		] );
+		).toEqual( [ 'Connect an external AI agent', 'External AI agent access', 'AI features' ] );
 		expect( screen.queryAllByRole( 'heading', { level: 4 } ) ).toHaveLength( 0 );
 	} );
 

@@ -63,17 +63,13 @@ describe( 'McpHub activity log tracks', () => {
 } );
 
 describe( 'McpHub connect card', () => {
-	test( 'leads the view, before the explainer and the access card', () => {
+	test( 'leads the view, before the access card', () => {
 		renderHub();
 
 		const headings = screen
 			.getAllByRole( 'heading', { level: 2 } )
 			.map( heading => heading.textContent );
-		expect( headings ).toEqual( [
-			'Connect an external AI agent',
-			'How it works',
-			'External AI agent access',
-		] );
+		expect( headings ).toEqual( [ 'Connect an external AI agent', 'External AI agent access' ] );
 	} );
 
 	test( 'Turn on MCP access saves the same update as the toggle', async () => {

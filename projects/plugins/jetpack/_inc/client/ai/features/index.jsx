@@ -309,8 +309,7 @@ export default function AiFeatures( {
 										render={ <section aria-labelledby={ titleId } /> }
 									>
 										<div className="jetpack-ai-features__section-header">
-											{ /* A step under the section's heading-lg h2, as the other h3s on
-											     the Settings tab (How it works). */ }
+											{ /* A step under the section's heading-lg h2. */ }
 											<Text variant="heading-md" render={ <h3 id={ titleId } /> }>
 												{ section.title }
 											</Text>
