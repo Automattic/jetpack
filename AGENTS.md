@@ -80,7 +80,7 @@ When adding a version number in a DocBlock, MUST use `$$next-version$$`:
 
 The `$$next-version$$` placeholder is automatically replaced with the correct version at release time. Do NOT replace these with actual version numbers.
 
-Keep each `_deprecated_*()`, `apply_filters_deprecated()`, `do_action_deprecated()` or `_doing_it_wrong()` call on one line, with the version in a single-quoted string: `tools/replace-next-version-tag.sh` cannot replace the token in a wrapped call, and the build fails with "Unexpected `$$next-version$$` token".
+Keep each `_deprecated_*()`, `apply_filters_deprecated()`, `do_action_deprecated()` or `_doing_it_wrong()` call on one line, with the version in a single-quoted string, or `tools/replace-next-version-tag.sh` can't replace `$$next-version$$` and the build fails.
 
 #### Deprecating Public Code
 
