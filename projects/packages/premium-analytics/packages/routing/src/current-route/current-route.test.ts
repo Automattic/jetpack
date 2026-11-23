@@ -39,6 +39,16 @@ describe( 'onLocationChange', () => {
 		delete ( window as { navigation?: unknown } ).navigation;
 	} );
 
+	// Kept first: the cases below wrap the history, and it stays wrapped for the rest of the file.
+	it( 'leaves the history alone where the Navigation API tells of its writes', () => {
+		Object.defineProperty( window, 'navigation', { configurable: true, value: new EventTarget() } );
+
+		onLocationChange( jest.fn() );
+
+		// The two methods live on the prototype, so a wrap shows as a property of the history itself.
+		expect( Object.getOwnPropertyNames( window.history ) ).toEqual( [] );
+	} );
+
 	it( 'runs the listener when the URL changes', () => {
 		// jsdom has no Navigation API.
 		const navigation = new EventTarget();
@@ -51,14 +61,22 @@ describe( 'onLocationChange', () => {
 		expect( listener ).toHaveBeenCalledTimes( 1 );
 	} );
 
-	it.each< [ string, string ] >( [
-		[ 'the admin shell shows a page', 'jetpack-admin-shell:page-shown' ],
-		[ 'the user goes back or forward', 'popstate' ],
-	] )( 'runs the listener when %s', ( _case, type ) => {
+	it.each< [ string, () => void ] >( [
+		[
+			'the admin shell shows a page',
+			() => window.dispatchEvent( new Event( 'jetpack-admin-shell:page-shown' ) ),
+		],
+		[ 'the user goes back or forward', () => window.dispatchEvent( new Event( 'popstate' ) ) ],
+		[ 'a router opens a route', () => window.history.pushState( null, '', window.location.href ) ],
+		[
+			'a router rewrites the URL',
+			() => window.history.replaceState( null, '', window.location.href ),
+		],
+	] )( 'runs the listener when %s', ( _case, change ) => {
 		const listener = jest.fn();
 
 		onLocationChange( listener );
-		window.dispatchEvent( new Event( type ) );
+		change();
 
 		expect( listener ).toHaveBeenCalledTimes( 1 );
 	} );

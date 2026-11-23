@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Safe Mode: Show the new Safe Mode screen on the Connectors card behind a feature flag.
