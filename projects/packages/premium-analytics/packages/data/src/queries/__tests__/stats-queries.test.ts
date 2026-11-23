@@ -19,6 +19,7 @@ import { statsAuthorAllTimeOrApproximateQuery, statsAuthorQuery } from '../stats
 import { statsClicksQuery } from '../stats-clicks-query';
 import { statsCountryViewsQuery } from '../stats-country-views-query';
 import { statsDevicesQuery } from '../stats-devices-query';
+import { statsEdgeBotRequestsQuery } from '../stats-edge-bot-requests-query';
 import {
 	statsEmailClicksBreakdownQuery,
 	statsEmailOpensBreakdownQuery,
@@ -1432,6 +1433,28 @@ describe( 'Stats query factories', () => {
 			date: '2026-06-07',
 			start_date: '2026-06-01',
 			stat_fields: 'views,visitors',
+		} );
+	} );
+
+	// The endpoint's `end` is exclusive, and hours exist only in the raw table.
+	it.each( [
+		[ 'day', 'rollup' ],
+		[ 'hour', 'raw' ],
+	] as const )( 'asks for edge requests by %s from the %s table', ( granularity, table ) => {
+		const query = statsEdgeBotRequestsQuery( {
+			from: '2026-11-01T00:00:00+08:00',
+			to: '2026-11-07T23:59:59+08:00',
+			interval: 'day',
+			granularity,
+		} );
+
+		expect( query.queryKey[ 3 ] ).toBe( 'stats/ua-queries' );
+		expect( query.queryKey[ 5 ] ).toEqual( {
+			template: 'edge-bot-requests',
+			start: '2026-11-01',
+			end: '2026-11-08',
+			granularity,
+			table,
 		} );
 	} );
 
