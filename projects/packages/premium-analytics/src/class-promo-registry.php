@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\PremiumAnalytics;
 
+require_once __DIR__ . '/dashboard-grammar.php';
+
 /**
  * Stores Promo instances keyed by slug.
  *
@@ -91,6 +93,10 @@ final class Promo_Registry {
 			return $this->refuse( __( 'A section-footer promo needs a target section.', 'jetpack-premium-analytics-pkg' ) );
 		}
 
+		if ( 'section-footer' === $promo->placement && 1 !== preg_match( '/^' . get_dashboard_section_id_pattern() . '$/', $promo->target ) ) {
+			return $this->refuse( __( 'A section-footer promo target must be a namespaced section ID, the one register_dashboard_section() takes. Example: analytics/traffic', 'jetpack-premium-analytics-pkg' ) );
+		}
+
 		if ( 'options-menu' === $promo->placement && $promo->dismissible ) {
 			return $this->refuse( __( 'An options-menu promo cannot be dismissible. Pass dismissible as false.', 'jetpack-premium-analytics-pkg' ) );
 		}
@@ -165,7 +171,6 @@ final class Promo_Registry {
 		// Latching this early would drop every registrant hooked later, so the read skips the action.
 		if ( ! did_action( 'init' ) ) {
 			$message = __( 'Promos are read after init. A read before it does not hydrate the registry and answers only what was registered directly.', 'jetpack-premium-analytics-pkg' );
-			// One line: tools/replace-next-version-tag.sh only rewrites the token in a single-line call.
 			_doing_it_wrong( __METHOD__, esc_html( $message ), 'jetpack-premium-analytics-$$next-version$$' );
 			return;
 		}

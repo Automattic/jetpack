@@ -45,7 +45,7 @@ function register_promo_fixtures() {
 		'fixture/section-footer',
 		array(
 			'placement'    => 'section-footer',
-			'target'       => 'traffic',
+			'target'       => 'analytics/traffic',
 			'title'        => 'Fixture section footer promo',
 			'description'  => 'Plain copy that Premium Analytics draws itself, with no script module.',
 			'cta_label'    => 'Open the fixture',
