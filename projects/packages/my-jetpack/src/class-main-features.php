@@ -456,7 +456,7 @@ class Main_Features {
 				'name'             => __( 'SEO', 'jetpack-my-jetpack' ),
 				'description'      => __( 'Control how your site appears in search results, social shares, and AI tools.', 'jetpack-my-jetpack' ),
 				'long_description' => __( 'Manage your sitemap, search engine verification, titles and descriptions, social previews, structured data, and AI crawler access from one page.', 'jetpack-my-jetpack' ),
-				'icon'             => 'search',
+				'icon'             => 'seo',
 				'admin_page'       => 'jetpack-seo',
 				// No artwork yet: its details window shows the glyph, and its turned-off card is plain text.
 				'artwork'          => false,
