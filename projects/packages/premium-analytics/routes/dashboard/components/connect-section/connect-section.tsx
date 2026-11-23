@@ -28,17 +28,17 @@ export function ConnectSection() {
 			<Icon icon={ jetpack } size={ 32 } />
 			<Stack direction="column" gap="sm">
 				<Text variant="heading-xl" render={ <h3 /> }>
-					{ __( 'Connect your site to see these stats', 'jetpack-premium-analytics-pkg' ) }
+					{ __( 'Connect Jetpack to see these stats', 'jetpack-premium-analytics-pkg' ) }
 				</Text>
 				<Text variant="body-lg" className={ styles.description }>
 					{ __(
-						'These stats come from WordPress.com, so this tab needs your site to be connected.',
+						'These stats need a Jetpack connection to load.',
 						'jetpack-premium-analytics-pkg'
 					) }
 				</Text>
 			</Stack>
 			<Button onClick={ openConnect }>
-				{ __( 'Connect your site', 'jetpack-premium-analytics-pkg' ) }
+				{ __( 'Connect Jetpack', 'jetpack-premium-analytics-pkg' ) }
 			</Button>
 		</Stack>
 	);
