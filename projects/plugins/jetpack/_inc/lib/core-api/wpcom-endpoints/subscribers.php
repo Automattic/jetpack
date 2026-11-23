@@ -76,11 +76,6 @@ class WPCOM_REST_API_V2_Endpoint_Subscribers extends WP_REST_Controller {
 	 * @return array data object containing subscriber count
 	 */
 	public function get_subscriber_count( $request ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		// Get the most up to date subscriber count when request is not a test.
-		if ( ! Constants::is_defined( 'TESTING_IN_JETPACK' ) ) {
-			delete_transient( 'wpcom_subscribers_total' );
-			delete_transient( 'wpcom_subscribers_total_no_publicize' );
-		}
 		$subscriber_count = Jetpack_Subscriptions_Widget::fetch_subscriber_count();
 
 		return array(
@@ -94,10 +89,6 @@ class WPCOM_REST_API_V2_Endpoint_Subscribers extends WP_REST_Controller {
 	 * @return array data object containing subscriber counts.
 	 */
 	public function get_subscriber_counts() {
-		if ( ! Constants::is_defined( 'TESTING_IN_JETPACK' ) ) {
-			delete_transient( 'wpcom_subscribers_totals' );
-		}
-
 		$subscriber_info   = Automattic\Jetpack\Extensions\Subscriptions\fetch_subscriber_counts();
 		$subscriber_counts = $subscriber_info['value'];
 

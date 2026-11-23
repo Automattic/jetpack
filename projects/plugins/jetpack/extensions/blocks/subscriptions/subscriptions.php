@@ -24,6 +24,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 require_once __DIR__ . '/class-jetpack-subscription-site.php';
 require_once __DIR__ . '/constants.php';
+require_once JETPACK__PLUGIN_DIR . 'modules/subscriptions/class-jetpack-subscriber-data.php';
 require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/premium-content/_inc/subscription-service/include.php';
 
 /**
@@ -374,40 +375,7 @@ function newsletter_access_column_styles() {
  * @return array containing ['value' => ['total_subscribers' => 0, 'email_subscribers' => 0, 'paid_subscribers' => 0, 'social_followers' => 0]]
  */
 function fetch_subscriber_counts() {
-	$subs_count = 0;
-	if ( is_wpcom() ) {
-		$subs_count = array(
-			'value' => \wpcom_fetch_subs_counts( true ),
-		);
-	} else {
-		$cache_key  = 'wpcom_subscribers_totals';
-		$subs_count = get_transient( $cache_key );
-		if ( false === $subs_count || 'failed' === $subs_count['status'] ) {
-			$xml = new \Jetpack_IXR_Client();
-			$xml->query( 'jetpack.fetchSubscriberCounts' );
-
-			if ( $xml->isError() ) { // If we get an error from .com, set the status to failed so that we will try again next time the data is requested.
-				$subs_count = array(
-					'status'  => 'failed',
-					'code'    => $xml->getErrorCode(),
-					'message' => $xml->getErrorMessage(),
-					'value'   => $subs_count['value'] ?? array(
-						'total_subscribers' => 0,
-						'email_subscribers' => 0,
-						'social_followers'  => 0,
-						'paid_subscribers'  => 0,
-					),
-				);
-			} else {
-				$subs_count = array(
-					'status' => 'success',
-					'value'  => $xml->getResponse(),
-				);
-			}
-			set_transient( $cache_key, $subs_count, 3600 ); // Try to cache the result for at least 1 hour.
-		}
-	}
-	return $subs_count;
+	return \Jetpack_Subscriber_Data::get();
 }
 
 /**

@@ -25,24 +25,17 @@ class WPCOM_REST_API_V2_Subscribers_Endpoint_Test extends Jetpack_REST_TestCase 
 		self::$subscriber_user_id = $factory->user->create( array( 'role' => 'subscriber' ) );
 	}
 
-	public static function set_subscribers_count( $count ) {
-		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			wp_cache_set( 'wpcom_blog_reach_total_' . get_current_blog_id(), $count, 'subs' );
-		} else {
-			set_transient(
-				'wpcom_subscribers_total',
-				array(
-					'value'  => $count,
-					'status' => 'success',
-				)
-			);
-		}
-	}
-
 	public static function set_subscribers_counts( $total_subscribers, $email_subscribers, $social_followers ) {
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			wp_cache_set( 'wpcom_blog_subscriber_total_' . get_current_blog_id(), $total_subscribers, 'subs' );
 			wp_cache_set( 'wpcom_blog_social_followers_total_' . get_current_blog_id(), $social_followers, 'subs' );
+			wp_cache_set( 'wpcom_wpcomuser_blog_paid_subscriber_total_' . get_current_blog_id(), 0, 'subs' );
+			wp_cache_set( 'subscription_cache_version', 1 );
+			wp_cache_set(
+				'email_newsletter_subscribers_' . get_current_blog_id() . '_all_subscribers_active_subscriptions_1',
+				$email_subscribers,
+				'wpcom_subscriptions_helper'
+			);
 
 		} else {
 			set_transient(
@@ -61,7 +54,7 @@ class WPCOM_REST_API_V2_Subscribers_Endpoint_Test extends Jetpack_REST_TestCase 
 
 	public function test_get_subscriber_count_with_edit_permission() {
 		wp_set_current_user( self::$editor_user_id );
-		self::set_subscribers_count( 100 );
+		self::set_subscribers_counts( 75, 50, 25 );
 
 		$request  = new WP_REST_Request( WP_REST_Server::READABLE, '/wpcom/v2/subscribers/count' );
 		$response = $this->server->dispatch( $request );

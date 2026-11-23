@@ -10,11 +10,9 @@
 
 namespace Automattic\Jetpack\Plugin\Abilities;
 
-use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Modules\Subscriptions\Settings as Subscriptions_Settings;
 use Automattic\Jetpack\WP_Abilities\Registrar;
-use Jetpack;
-use Jetpack_Options;
+use Jetpack_Subscriber_Data;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
@@ -24,6 +22,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 // in here so `Subscriptions_Settings::$default_reply_to` and
 // `is_valid_reply_to()` are resolvable when the abilities run.
 require_once __DIR__ . '/../class-settings.php';
+require_once __DIR__ . '/../class-jetpack-subscriber-data.php';
 
 /**
  * Registers Jetpack Newsletter abilities with the WordPress Abilities API.
@@ -246,19 +245,6 @@ class Newsletter_Abilities extends Registrar {
 	}
 
 	/**
-	 * Transient key for the wpcom subscriber-stats response.
-	 */
-	private const SUBSCRIBER_STATS_CACHE_KEY = 'jetpack_newsletter_subscriber_stats';
-
-	/**
-	 * Transient TTL for subscriber-stats responses, in seconds.
-	 *
-	 * Matches the existing legacy widget pattern of an hour-long cache so
-	 * agents calling this ability repeatedly don't fan out to wpcom.
-	 */
-	private const SUBSCRIBER_STATS_CACHE_TTL = HOUR_IN_SECONDS;
-
-	/**
 	 * Execute: fetch (and cache) aggregate subscriber counts from WordPress.com.
 	 *
 	 * @param array|null $input Unused — input schema accepts no parameters.
@@ -267,62 +253,17 @@ class Newsletter_Abilities extends Registrar {
 	public static function get_subscriber_stats( $input = null ) {
 		unset( $input );
 
-		$cached = get_transient( self::SUBSCRIBER_STATS_CACHE_KEY );
-		if ( is_array( $cached ) ) {
-			return $cached;
+		$data = Jetpack_Subscriber_Data::get( 'stats' );
+		if ( is_wp_error( $data ) ) {
+			return $data;
 		}
 
-		if ( ! class_exists( 'Jetpack' ) || ! Jetpack::is_connection_ready() ) {
-			return new \WP_Error(
-				'jetpack_newsletter_not_connected',
-				__( 'Subscriber stats are only available on Jetpack-connected sites. Connect Jetpack and retry.', 'jetpack' )
-			);
-		}
-
-		$site_id = (int) Jetpack_Options::get_option( 'id' );
-		if ( $site_id <= 0 ) {
-			return new \WP_Error(
-				'jetpack_newsletter_not_connected',
-				__( 'No Jetpack site ID is registered. Connect Jetpack and retry.', 'jetpack' )
-			);
-		}
-
-		$response = Client::wpcom_json_api_request_as_blog(
-			sprintf( '/sites/%d/subscribers/stats', $site_id ),
-			'2',
-			array(),
-			null,
-			'wpcom'
-		);
-
-		if ( is_wp_error( $response ) ) {
-			return new \WP_Error(
-				'jetpack_newsletter_subscriber_stats_unavailable',
-				$response->get_error_message()
-			);
-		}
-
-		if ( 200 !== (int) wp_remote_retrieve_response_code( $response ) ) {
-			return new \WP_Error(
-				'jetpack_newsletter_subscriber_stats_unavailable',
-				__( 'WordPress.com did not return subscriber stats. Retry shortly.', 'jetpack' )
-			);
-		}
-
-		$body   = json_decode( wp_remote_retrieve_body( $response ), true );
-		$counts = is_array( $body ) && isset( $body['counts'] ) && is_array( $body['counts'] )
-			? $body['counts']
-			: array();
-
-		$stats = array(
+		$counts = $data['counts'];
+		return array(
 			'all'   => isset( $counts['all_subscribers'] ) ? (int) $counts['all_subscribers'] : 0,
 			'email' => isset( $counts['email_subscribers'] ) ? (int) $counts['email_subscribers'] : 0,
 			'paid'  => isset( $counts['paid_subscribers'] ) ? (int) $counts['paid_subscribers'] : 0,
 		);
-
-		set_transient( self::SUBSCRIBER_STATS_CACHE_KEY, $stats, self::SUBSCRIBER_STATS_CACHE_TTL );
-
-		return $stats;
 	}
 
 	/**

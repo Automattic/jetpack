@@ -16,6 +16,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
 }
 
+require_once JETPACK__PLUGIN_DIR . 'modules/subscriptions/class-jetpack-subscriber-data.php';
+
 /**
  * Class WPCOM_REST_API_V2_Endpoint_Subscribers_List
  */
@@ -454,36 +456,7 @@ class WPCOM_REST_API_V2_Endpoint_Subscribers_List extends WP_REST_Controller {
 	 * @return WP_REST_Response|WP_Error
 	 */
 	public function get_subscriber_totals() {
-		$blog_id = Connection_Manager::get_site_id();
-
-		if ( is_wp_error( $blog_id ) ) {
-			return $blog_id;
-		}
-
-		$response = Client::wpcom_json_api_request_as_user(
-			sprintf( '/sites/%d/subscribers/counts', (int) $blog_id ),
-			'2',
-			array( 'method' => 'GET' ),
-			null,
-			'wpcom'
-		);
-
-		if ( is_wp_error( $response ) ) {
-			return $response;
-		}
-
-		$status = (int) wp_remote_retrieve_response_code( $response );
-		$body   = json_decode( wp_remote_retrieve_body( $response ), true );
-
-		if ( $status >= 400 ) {
-			return new WP_Error(
-				'subscribers_totals_failed',
-				is_array( $body ) && isset( $body['message'] ) ? $body['message'] : __( 'Could not fetch subscriber totals.', 'jetpack' ),
-				array( 'status' => $status )
-			);
-		}
-
-		return rest_ensure_response( $body );
+		return rest_ensure_response( Jetpack_Subscriber_Data::get( 'counts', true, true ) );
 	}
 
 	/**

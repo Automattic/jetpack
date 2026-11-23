@@ -6,7 +6,9 @@
  */
 
 require_once __DIR__ . '/../../../../modules/subscriptions/abilities/class-newsletter-abilities.php';
+require_once __DIR__ . '/../../../../modules/subscriptions/newsletter-widget/class-jetpack-newsletter-dashboard-widget.php';
 
+use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Plugin\Abilities\Newsletter_Abilities;
 use PHPUnit\Framework\Attributes\CoversClass;
 
@@ -369,15 +371,116 @@ class Newsletter_Abilities_Test extends WP_UnitTestCase {
 		}
 	}
 
+	public function test_dashboard_and_ability_share_cached_subscriber_stats() {
+		delete_transient( 'jetpack_newsletter_subscriber_stats_data' );
+		add_filter( 'jetpack_is_connection_ready', '__return_true' );
+		$previous_site_id = Jetpack_Options::get_option( 'id' );
+		Jetpack_Options::update_option( 'id', 123 );
+		$requests = 0;
+		$body     = array(
+			'counts'    => array(
+				'all_subscribers'   => 120,
+				'email_subscribers' => 100,
+				'paid_subscribers'  => 20,
+			),
+			'aggregate' => array(
+				'2026-01-01' => array(
+					'all'  => 120,
+					'paid' => 20,
+				),
+			),
+		);
+		$mock     = \Patchwork\redefine(
+			Client::class . '::wpcom_json_api_request_as_blog',
+			static function () use ( &$requests, &$body ) {
+				++$requests;
+				return array(
+					'response' => array( 'code' => 200 ),
+					'body'     => wp_json_encode( $body, JSON_UNESCAPED_SLASHES ),
+				);
+			}
+		);
+
+		try {
+			$dashboard = Jetpack_Newsletter_Dashboard_Widget::get_config_data();
+			$this->assertSame( 120, $dashboard['allSubscribers'] );
+			$this->assertSame( 100, $dashboard['emailSubscribers'] );
+			$this->assertSame( 20, $dashboard['paidSubscribers'] );
+			$this->assertSame(
+				array(
+					'2026-01-01' => array(
+						'all'  => 120,
+						'paid' => 20,
+					),
+				),
+				$dashboard['subscriberTotalsByDate']
+			);
+			$this->assertSame(
+				array(
+					'all'   => 120,
+					'email' => 100,
+					'paid'  => 20,
+				),
+				Newsletter_Abilities::get_subscriber_stats()
+			);
+			$this->assertSame( $dashboard, Jetpack_Newsletter_Dashboard_Widget::get_config_data() );
+			$this->assertSame( 1, $requests );
+
+			delete_transient( 'jetpack_newsletter_subscriber_stats_data' );
+			$body['counts']['all_subscribers']   = 130;
+			$body['counts']['email_subscribers'] = 105;
+			$body['counts']['paid_subscribers']  = 25;
+			$body['aggregate']['2026-01-02']     = array(
+				'all'  => 130,
+				'paid' => 25,
+			);
+
+			$dashboard = Jetpack_Newsletter_Dashboard_Widget::get_config_data();
+			$this->assertSame( 130, $dashboard['allSubscribers'] );
+			$this->assertSame( 105, $dashboard['emailSubscribers'] );
+			$this->assertSame( 25, $dashboard['paidSubscribers'] );
+			$this->assertSame(
+				array(
+					'2026-01-01' => array(
+						'all'  => 120,
+						'paid' => 20,
+					),
+					'2026-01-02' => array(
+						'all'  => 130,
+						'paid' => 25,
+					),
+				),
+				$dashboard['subscriberTotalsByDate']
+			);
+			$this->assertSame(
+				array(
+					'all'   => 130,
+					'email' => 105,
+					'paid'  => 25,
+				),
+				Newsletter_Abilities::get_subscriber_stats()
+			);
+			$this->assertSame( $dashboard, Jetpack_Newsletter_Dashboard_Widget::get_config_data() );
+			$this->assertSame( 2, $requests );
+		} finally {
+			\Patchwork\restore( $mock );
+			remove_filter( 'jetpack_is_connection_ready', '__return_true' );
+			Jetpack_Options::update_option( 'id', $previous_site_id );
+			delete_transient( 'jetpack_newsletter_subscriber_stats_data' );
+			delete_transient( 'jetpack_newsletter_subscriber_stats' );
+		}
+	}
+
 	public function test_get_subscriber_stats_returns_cached_response_without_remote_call() {
-		// Pre-seed the transient so the callback's short-circuit returns it
-		// without hitting wpcom or any class_exists/connection check.
 		set_transient(
-			'jetpack_newsletter_subscriber_stats',
+			'jetpack_newsletter_subscriber_stats_data',
 			array(
-				'all'   => 1234,
-				'email' => 1000,
-				'paid'  => 234,
+				'counts'    => array(
+					'all_subscribers'   => 1234,
+					'email_subscribers' => 1000,
+					'paid_subscribers'  => 234,
+				),
+				'aggregate' => array(),
 			),
 			HOUR_IN_SECONDS
 		);
@@ -388,13 +491,13 @@ class Newsletter_Abilities_Test extends WP_UnitTestCase {
 		$this->assertSame( 1000, $result['email'] );
 		$this->assertSame( 234, $result['paid'] );
 
-		delete_transient( 'jetpack_newsletter_subscriber_stats' );
+		delete_transient( 'jetpack_newsletter_subscriber_stats_data' );
 	}
 
 	public function test_get_subscriber_stats_returns_wp_error_when_disconnected() {
 		// No cached stats and Jetpack reports as disconnected — must surface a
 		// jetpack_newsletter_not_connected error so the agent stops calling.
-		delete_transient( 'jetpack_newsletter_subscriber_stats' );
+		delete_transient( 'jetpack_newsletter_subscriber_stats_data' );
 		add_filter( 'jetpack_is_connection_ready', '__return_false' );
 
 		$result = Newsletter_Abilities::get_subscriber_stats();

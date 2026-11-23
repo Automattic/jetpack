@@ -8,6 +8,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
 }
 
+require_once __DIR__ . '/class-jetpack-subscriber-data.php';
+
 /**
  * Jetpack_Subscriptions_Widget main view class.
  */
@@ -653,37 +655,9 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 	 * @return int
 	 */
 	public static function fetch_subscriber_count() {
-		$subs_count = 0;
-		if ( self::is_jetpack() ) {
-			$cache_key  = 'wpcom_subscribers_total';
-			$subs_count = get_transient( $cache_key );
-			if ( false === $subs_count || 'failed' === $subs_count['status'] ) {
-				$xml = new Jetpack_IXR_Client();
-				$xml->query( 'jetpack.fetchSubscriberCount' );
-
-				if ( $xml->isError() ) { // If we get an error from .com, set the status to failed so that we will try again next time the data is requested.
-
-					$subs_count = array(
-						'status'  => 'failed',
-						'code'    => $xml->getErrorCode(),
-						'message' => $xml->getErrorMessage(),
-						'value'   => $subs_count['value'] ?? 0,
-					);
-				} else {
-					$subs_count = array(
-						'status' => 'success',
-						'value'  => $xml->getResponse(),
-					);
-				}
-				set_transient( $cache_key, $subs_count, 3600 ); // Try to cache the result for at least 1 hour.
-			}
-			return $subs_count['value'];
-		}
-
-		if ( self::is_wpcom() ) {
-			$subs_count = wpcom_reach_total_for_blog();
-			return $subs_count;
-		}
+		$subs_count = Jetpack_Subscriber_Data::get();
+		$counts     = $subs_count['value'];
+		return (int) $counts['total_subscribers'] + (int) $counts['social_followers'];
 	}
 
 	/**

@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Subscriptions: Reuse cached subscriber statistics to reduce repeated dashboard requests.
