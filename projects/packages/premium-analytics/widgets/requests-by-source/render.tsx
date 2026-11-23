@@ -80,7 +80,8 @@ function RequestsBySourceInner( { chartType }: { chartType: RequestsBySourceChar
 							<li key={ source.key } className={ styles.total }>
 								<span className={ styles.label }>
 									<span
-										className={ styles.swatch }
+										// A line for the outlined areas, a block for the bars, as a chart legend would.
+										className={ chartType === 'bar' ? styles.swatch : styles.stroke }
 										style={ { background: seriesStyles[ index ]?.stroke } }
 										aria-hidden="true"
 									/>
