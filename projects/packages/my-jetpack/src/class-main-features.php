@@ -334,21 +334,22 @@ class Main_Features {
 					__( 'Payment plans for paid content and newsletters', 'jetpack-my-jetpack' ),
 					__( 'Donations and one-time payments', 'jetpack-my-jetpack' ),
 					__( 'A list of your paying subscribers', 'jetpack-my-jetpack' ),
-					/* translators: %d is the percentage fee, such as 10. */
-					sprintf( __( 'A %d%% fee on payments', 'jetpack-my-jetpack' ), 10 ),
 				),
+				// No fee lines: the fee depends on the plan, and only the Monetize page can ask WordPress.com for the site's.
 				'paid_highlights'  => array(
-					/* translators: %d is the percentage fee, such as 10. */
-					sprintf( __( 'A %d%% fee on payments', 'jetpack-my-jetpack' ), 2 ),
+					__( 'Lower fees on payments', 'jetpack-my-jetpack' ),
 					__( 'Earn from ads shown on your site', 'jetpack-my-jetpack' ),
 				),
 				'delivery'         => array(
-					// The module is on offer only while the Monetize dashboard's flag is on.
-					'jetpack' => in_array( 'monetize', (array) ( new \Automattic\Jetpack\Modules() )->get_available(), true ),
+					// The module is on offer only while the Monetize dashboard's flag is on, and never on Simple, where jetpack-mu-wpcom loads the page.
+					'jetpack' => ! ( new Host() )->is_wpcom_simple() && in_array( 'monetize', (array) ( new \Automattic\Jetpack\Modules() )->get_available(), true ),
 					'plugin'  => '',
 					'free'    => true,
 				),
-				'plans'            => array( 'growth', 'pro', 'complete' ),
+				// WordPress.com's half of the Monetize page's ads check; the bundles in `plans` cover self-hosted.
+				'paid_feature'     => ( new Host() )->is_wpcom_platform() ? 'wordads' : '',
+				'plans'            => array( 'pro', 'complete' ),
+				'also_included_in' => array( 'creator', 'growth' ),
 			),
 			'newsletter'        => array(
 				'info_url'         => 'https://jetpack.com/newsletter/',
@@ -755,7 +756,8 @@ class Main_Features {
 			return true;
 		}
 
-		foreach ( $definition['plans'] ?? array() as $plan ) {
+		// `also_included_in` names plans that include the feature but that the card doesn't sell.
+		foreach ( array_merge( $definition['plans'] ?? array(), $definition['also_included_in'] ?? array() ) as $plan ) {
 			$bundle_class = Products::get_product_class( $plan );
 
 			if ( $bundle_class && $bundle_class::has_paid_plan_for_product() && ! ( $expiry_counts && $bundle_class::is_paid_plan_expired() ) ) {
@@ -1175,7 +1177,7 @@ class Main_Features {
 
 			$delivery = $definition['delivery'] ?? array();
 			$plugin   = $delivery['plugin'] ?? '';
-			// A feature neither Jetpack nor a plugin delivers here, such as one behind a flag, has no card.
+			// Any feature neither Jetpack nor a plugin delivers on this site has no card, such as one whose module is behind a flag.
 			if ( empty( $delivery['jetpack'] ) && '' === $plugin ) {
 				continue;
 			}
@@ -1210,7 +1212,7 @@ class Main_Features {
 				'screenshot'       => self::get_screenshot_url( $slug ),
 				'plans'            => self::get_plan_badges( $definition, $local ),
 				// The filter pills' categories, kept when those bundles go off sale and drop out of `plans`.
-				'groups'           => array_values( array_intersect( $definition['plans'] ?? array(), self::FILTER_GROUPS ) ),
+				'groups'           => array_values( array_intersect( array_merge( $definition['plans'] ?? array(), $definition['also_included_in'] ?? array() ), self::FILTER_GROUPS ) ),
 				'info_url'         => $definition['info_url'],
 				'docs_url'         => $definition['docs_url'],
 				// Join keys: the UI reads live state from the module and plugin it names,

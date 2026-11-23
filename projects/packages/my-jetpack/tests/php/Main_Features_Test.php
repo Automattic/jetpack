@@ -524,13 +524,34 @@ class Main_Features_Test extends TestCase {
 	}
 
 	/**
-	 * A listed feature Jetpack does not switch must have a plugin to install instead.
+	 * With every flagged module on offer, a feature Jetpack does not switch must have a plugin to install instead.
 	 */
-	public function test_every_listed_feature_can_be_switched_somewhere() {
-		foreach ( Main_Features::get_features() as $feature ) {
+	public function test_every_feature_can_be_switched_somewhere() {
+		$flagged = array( 'monetize', 'protect-dashboard' );
+		$offer   = static function ( $modules ) use ( $flagged ) {
+			return array_merge( (array) $modules, $flagged );
+		};
+		// Earlier tests may load the mock Jetpack plugin, which moves get_available() off the standalone filter.
+		$jetpack_offer = static function ( $modules ) use ( $flagged ) {
+			return array_merge( (array) $modules, array_fill_keys( $flagged, '1.0' ) );
+		};
+		// Definitions are memoized per locale, so a locale nothing else uses gets a fresh build.
+		$locale = static function () {
+			return 'every_module_on_offer';
+		};
+		add_filter( 'jetpack_get_available_standalone_modules', $offer );
+		add_filter( 'jetpack_get_available_modules', $jetpack_offer, PHP_INT_MAX );
+		add_filter( 'locale', $locale );
+
+		$definitions = Main_Features::get_feature_definitions();
+
+		remove_filter( 'jetpack_get_available_standalone_modules', $offer );
+		remove_filter( 'jetpack_get_available_modules', $jetpack_offer, PHP_INT_MAX );
+		remove_filter( 'locale', $locale );
+		foreach ( $definitions as $slug => $definition ) {
 			$this->assertTrue(
-				$feature['in_jetpack'] || '' !== $feature['plugin'],
-				"Feature {$feature['slug']} can be switched neither in Jetpack nor by a plugin"
+				$definition['delivery']['jetpack'] || '' !== $definition['delivery']['plugin'],
+				"Feature {$slug} can be switched neither in Jetpack nor by a plugin"
 			);
 		}
 	}
@@ -864,6 +885,26 @@ class Main_Features_Test extends TestCase {
 	}
 
 	/**
+	 * A plan the card doesn't sell still counts as paying for the feature.
+	 */
+	public function test_monetize_is_included_with_creator() {
+		$this->own( array( 'jetpack_creator_yearly' ) );
+		$offer         = static fn( $modules ) => array_merge( (array) $modules, array( 'monetize' ) );
+		$jetpack_offer = static fn( $modules ) => array_merge( (array) $modules, array( 'monetize' => '1.0' ) );
+		$locale        = static fn() => 'monetize_creator';
+		add_filter( 'jetpack_get_available_standalone_modules', $offer );
+		add_filter( 'jetpack_get_available_modules', $jetpack_offer, PHP_INT_MAX );
+		add_filter( 'locale', $locale );
+
+		$monetize = array_column( Main_Features::get_features(), null, 'slug' )['monetize'];
+
+		remove_filter( 'jetpack_get_available_standalone_modules', $offer );
+		remove_filter( 'jetpack_get_available_modules', $jetpack_offer, PHP_INT_MAX );
+		remove_filter( 'locale', $locale );
+		$this->assertTrue( $monetize['included'] );
+	}
+
+	/**
 	 * Marked per plan, not per feature: a site on one bundle still has the others to buy,
 	 * so only the plan it holds stops being a link to its own checkout.
 	 */
@@ -1030,11 +1071,12 @@ class Main_Features_Test extends TestCase {
 	 */
 	public static function provide_flagged_module_offers() {
 		return array(
-			'Protect module on offer'                 => array( 'protect-dashboard', array( 'protect-dashboard' ), false, true ),
-			'Protect, nothing on offer'               => array( 'protect-dashboard', array(), false, false ),
-			'Protect module on offer on WPCOM Simple' => array( 'protect-dashboard', array( 'protect-dashboard' ), true, false ),
-			'Monetize module on offer'                => array( 'monetize', array( 'monetize' ), false, true ),
-			'Monetize, nothing on offer'              => array( 'monetize', array(), false, false ),
+			'Protect module on offer'                  => array( 'protect-dashboard', array( 'protect-dashboard' ), false, true ),
+			'Protect, nothing on offer'                => array( 'protect-dashboard', array(), false, false ),
+			'Protect module on offer on WPCOM Simple'  => array( 'protect-dashboard', array( 'protect-dashboard' ), true, false ),
+			'Monetize module on offer'                 => array( 'monetize', array( 'monetize' ), false, true ),
+			'Monetize, nothing on offer'               => array( 'monetize', array(), false, false ),
+			'Monetize module on offer on WPCOM Simple' => array( 'monetize', array( 'monetize' ), true, false ),
 		);
 	}
 

@@ -23,11 +23,11 @@ class WPCOM_Feature_Upgrades {
 	);
 
 	/**
-	 * The slug the Monetize page's upgrade links pass to `jetpack_feature_upgrade`.
+	 * The slug the Monetize page's upgrade links and My Jetpack's Monetize feature pass to `jetpack_feature_upgrade`.
 	 *
 	 * @var string
 	 */
-	const MONETIZE_SLUG = 'monetize-dashboard';
+	const MONETIZE_SLUG = 'monetize';
 
 	/**
 	 * The plan feature the flow filters Monetize's upgrade on: Calypso's plan lists name ads `wordads-instant`.
@@ -75,7 +75,7 @@ class WPCOM_Feature_Upgrades {
 	}
 
 	/**
-	 * Send the Monetize page's upgrade links to the WordPress.com plans with ads, which come back to the page.
+	 * Send Monetize's upgrade links to the WordPress.com plans with ads, which come back to the page they're on.
 	 *
 	 * Staging and fully managed agency sites can't buy a plan, so they get no upgrade link, as in filter_plan_urls().
 	 *
