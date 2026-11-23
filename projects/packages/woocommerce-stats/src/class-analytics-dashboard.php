@@ -274,7 +274,7 @@ class Analytics_Dashboard {
 			$messages[] = $no_orders;
 		}
 
-		$messages[] = __( 'This site isn’t connected to WordPress.com, so reports that come from WordPress.com can’t load.', 'jetpack-woocommerce-stats-pkg' );
+		$messages[] = __( 'Some reports need a Jetpack connection, so they can’t load yet.', 'jetpack-woocommerce-stats-pkg' );
 
 		return implode( ' ', $messages );
 	}

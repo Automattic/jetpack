@@ -285,7 +285,7 @@ class Analytics_Dashboard_Test extends BaseTestCase {
 
 		$notice = get_registered_dashboard_section( DASHBOARD_NAME, Analytics_Dashboard::SECTION_ID )->get_notice();
 
-		$this->assertMatchesRegularExpression( '/Analytics is off.*no orders yet.*connected to WordPress\.com/s', (string) $notice );
+		$this->assertMatchesRegularExpression( '/Analytics is off.*no orders yet.*need a Jetpack connection/s', (string) $notice );
 	}
 
 	/**
