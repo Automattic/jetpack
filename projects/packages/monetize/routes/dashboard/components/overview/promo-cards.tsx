@@ -1,3 +1,4 @@
+import { isSimpleSite, isWpcomPlatformSite } from '@automattic/jetpack-script-data';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { currencyDollar, envelope, lock, megaphone, payment, tip } from '@wordpress/icons';
@@ -5,6 +6,7 @@ import { Button, ButtonLink, Card, Icon, Link, Stack, Text } from '@wordpress/ui
 import { getPageData } from '../../data/state';
 import { trackOverviewClick } from '../../data/tracking';
 import { useSiteHasFeature } from '../../data/use-site-feature';
+import { useAdsAccount } from '../../data/wordads';
 import { getDocUrl } from './docs';
 import { getOverviewState } from './state';
 import type { DocKey } from './docs';
@@ -109,7 +111,10 @@ function Upgrade( { feature }: TrackedProps ) {
  */
 function AdsCard( { openTab }: { openTab: ( tab: TabValue ) => void } ) {
 	const state = getOverviewState();
-	const { isWordAdsActive } = state;
+	const simple = isSimpleSite();
+	// Simple switches ads on WordPress.com, so only it knows whether they are on there.
+	const account = useAdsAccount( simple );
+	const isWordAdsActive = simple ? Boolean( account.data?.active ) : state.isWordAdsActive;
 	const hasWordAds = useSiteHasFeature( 'wordads', state.hasWordAds );
 	const open = useCallback( () => {
 		trackOverviewClick( 'ads', 'open' );
@@ -120,7 +125,9 @@ function AdsCard( { openTab }: { openTab: ( tab: TabValue ) => void } ) {
 		: __( 'Earn ad revenue', 'jetpack-monetize' );
 
 	let actions: ReactNode = null;
-	if ( hasWordAds || isWordAdsActive ) {
+	// No action until WordPress.com says whether ads are on, so it can't point at the wrong tab.
+	const activeKnown = ! simple || ! account.isPending;
+	if ( activeKnown && ( hasWordAds || isWordAdsActive ) ) {
 		actions = (
 			<Button variant="outline" size="compact" onClick={ open }>
 				{ title }
@@ -152,7 +159,9 @@ function AdsCard( { openTab }: { openTab: ( tab: TabValue ) => void } ) {
 						<>
 							{ ' ' }
 							<em>
-								{ __( 'Available with Jetpack Creator, or a bundled plan.', 'jetpack-monetize' ) }
+								{ isWpcomPlatformSite()
+									? __( 'Available with an upgraded plan.', 'jetpack-monetize' )
+									: __( 'Available with Jetpack Creator, or a bundled plan.', 'jetpack-monetize' ) }
 							</em>
 						</>
 					) }

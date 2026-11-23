@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Load the Monetize page on WordPress.com Simple sites, link Jetpack › Monetize to it where it loads, and send its upgrade links to the WordPress.com plans that include ads.

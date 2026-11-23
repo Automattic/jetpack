@@ -144,6 +144,100 @@ class PlaygroundDBImporterTest extends WP_UnitTestCase {
 	}
 
 	/**
+	 * SQLite has no spatial types, so a `POINT` column holds WKT, MySQL's binary geometry, WKB or ''. MySQL only
+	 * takes its binary form, and fails the restore on the rest with ERROR 1416. A spatial index has no prefix length.
+	 */
+	public function test_generate_sql_writes_spatial_values_as_geometry() {
+		$db_path = wp_tempnam( 'geometry.sqlite' );
+		copy( self::$fixtures_path . '/valid/plain.sqlite', $db_path );
+
+		$db = new SQLite3( $db_path );
+		$db->exec( 'CREATE TABLE `wp_store_locations` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `location` TEXT NOT NULL, `area` TEXT DEFAULT NULL);' );
+		$db->exec(
+			"INSERT INTO `wp_store_locations` VALUES
+				(1, 'POINT(3 4)', 'SRID=4326;POLYGON((0 0,1 0,1 1,0 0))'),
+				(2, CAST(X'000000000101000000000000000000F03F0000000000000040' AS TEXT), CAST(X'0101000000000000000000F03F0000000000000040' AS TEXT)),
+				(3, '', 'not geometry')"
+		);
+		$columns = array(
+			array( 'id', 1, 'NO', 'int', 'int(10) unsigned', 'PRI', 'auto_increment' ),
+			array( 'location', 2, 'NO', 'point', 'point', 'MUL', '' ),
+			array( 'area', 3, 'YES', 'geometry', 'geometry', '', '' ),
+		);
+		foreach ( $columns as $column ) {
+			$db->exec(
+				sprintf(
+					"INSERT INTO `_wp_sqlite_mysql_information_schema_columns` (TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME, ORDINAL_POSITION, IS_NULLABLE, DATA_TYPE, COLUMN_TYPE, COLUMN_KEY, EXTRA, PRIVILEGES) VALUES ('sqlite_database', 'wp_store_locations', '%s', %d, '%s', '%s', '%s', '%s', '%s', 'select,insert,update,references')",
+					...$column
+				)
+			);
+		}
+		$db->exec( "INSERT INTO `_wp_sqlite_mysql_information_schema_statistics` VALUES('def','sqlite_database','wp_store_locations',1,'sqlite_database','location',1,'location','A',0,32,NULL,'','SPATIAL','','','YES',NULL)" );
+		$db->close();
+
+		$result = $this->db_importer->generate_sql( $db_path );
+		unlink( $db_path );
+
+		$this->assertNotWPError( $result );
+		$this->assertStringContainsString( '  SPATIAL KEY `location` (`location`)', $result );
+		$this->assertStringContainsString(
+			"('1',ST_GeomFromText('POINT(3 4)', 0),ST_GeomFromText('POLYGON((0 0,1 0,1 1,0 0))', 4326)),\n" .
+			"('2',0x000000000101000000000000000000f03f0000000000000040,ST_GeomFromWKB(0x0101000000000000000000f03f0000000000000040)),\n" .
+			"('3',ST_GeomFromText('POINT(0 0)'),NULL);",
+			$result
+		);
+	}
+
+	/**
+	 * MySQL limits a row's non-TEXT columns to 65,535 bytes and fails the restore with ERROR 1118 past that. SQLite
+	 * doesn't, so the widest VARCHAR columns become TEXT until the row fits. Indexed columns are kept.
+	 */
+	public function test_generate_sql_fits_wide_rows() {
+		$db_path = wp_tempnam( 'wide-row.sqlite' );
+		copy( self::$fixtures_path . '/valid/plain.sqlite', $db_path );
+
+		$db      = new SQLite3( $db_path );
+		$fields  = array( '`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL', '`slug` TEXT NOT NULL' );
+		$columns = array(
+			array( 'id', 1, 'NO', 'bigint', 'bigint(20) unsigned', 'PRI', 'auto_increment' ),
+			array( 'slug', 2, 'NO', 'varchar', 'varchar(20000)', 'MUL', '' ),
+			array( 'payload', 3, 'YES', 'varbinary', 'varbinary(3000)', '', '' ),
+			array( 'code', 4, 'YES', 'char', 'char(255)', '', '' ),
+			array( 'hash', 5, 'YES', 'binary', 'binary(16)', '', '' ),
+		);
+		array_push( $fields, '`payload` BLOB DEFAULT NULL', '`code` TEXT DEFAULT NULL', '`hash` BLOB DEFAULT NULL' );
+		for ( $i = 1; $i <= 50; $i++ ) {
+			$fields[]  = "`field_{$i}` TEXT NOT NULL DEFAULT ''";
+			$columns[] = array( "field_{$i}", $i + 5, 'NO', 'varchar', 0 === $i % 10 ? 'varchar(2000)' : 'varchar(1000)', '', '' );
+		}
+		$db->exec( 'CREATE TABLE `wp_wide_form_entries` (' . implode( ', ', $fields ) . ');' );
+		foreach ( $columns as $column ) {
+			$db->exec(
+				sprintf(
+					"INSERT INTO `_wp_sqlite_mysql_information_schema_columns` (TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME, ORDINAL_POSITION, IS_NULLABLE, DATA_TYPE, COLUMN_TYPE, COLUMN_KEY, EXTRA, PRIVILEGES) VALUES ('sqlite_database', 'wp_wide_form_entries', '%s', %d, '%s', '%s', '%s', '%s', '%s', 'select,insert,update,references')",
+					...$column
+				)
+			);
+		}
+		$db->exec( "INSERT INTO `_wp_sqlite_mysql_information_schema_statistics` VALUES('def','sqlite_database','wp_wide_form_entries',1,'sqlite_database','slug',1,'slug','A',0,100,NULL,'','BTREE','','','YES',NULL)" );
+		$db->close();
+
+		$result = $this->db_importer->generate_sql( $db_path );
+		unlink( $db_path );
+
+		$this->assertNotWPError( $result );
+		// 20,002 + 3,002 + 255 + 16 + 5 × 2,002 + 45 × 1,002 bytes is 78,375. The 6 widest unindexed columns are enough.
+		$this->assertStringContainsString( '  `slug` varchar(20000) NOT NULL,', $result );
+		$this->assertStringContainsString( '  `payload` blob DEFAULT NULL,', $result );
+		$this->assertStringContainsString( '  `code` char(255) DEFAULT NULL,', $result );
+		$this->assertStringContainsString( '  `hash` binary(16) DEFAULT NULL,', $result );
+		$this->assertStringContainsString( "  `field_10` text NOT NULL DEFAULT (''),", $result );
+		$this->assertStringContainsString( "  `field_50` text NOT NULL DEFAULT (''),", $result );
+		$this->assertStringContainsString( "  `field_1` varchar(1000) NOT NULL DEFAULT '',", $result );
+		$this->assertSame( 5, substr_count( $result, ' text NOT NULL DEFAULT' ) );
+	}
+
+	/**
 	 * Test loading valid fixture database files.
 	 *
 	 * @dataProvider provide_valid_fixture_files

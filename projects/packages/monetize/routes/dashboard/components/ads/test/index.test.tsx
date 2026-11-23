@@ -1,19 +1,25 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
 import { wpcomFetch } from '../../../data/wpcom-fetch';
 import Ads from '../index';
 
 jest.mock( '@wordpress/api-fetch', () => ( { __esModule: true, default: jest.fn() } ) );
-jest.mock( '@automattic/jetpack-script-data', () => ( { isSimpleSite: () => mockSimple } ) );
+jest.mock( '@automattic/jetpack-script-data', () => ( {
+	isSimpleSite: () => mockSimple,
+	isWpcomPlatformSite: () => mockSimple,
+} ) );
 jest.mock( '../../../data/state', () => ( {
 	getPageData: () => ( { upgradeUrl: 'https://example.com/upgrade', tracks: false } ),
-	getSectionState: () => ( { hasWordAds: mockHasWordAds, canJoinWordAds: false } ),
+	getSectionState: () => ( { hasWordAds: mockHasWordAds, canJoinWordAds: mockCanJoin } ),
 } ) );
 jest.mock( '../../../data/wpcom-fetch', () => ( { wpcomFetch: jest.fn() } ) );
+jest.mock( '../../../data/tracking' );
 
 let mockHasWordAds = false;
 let mockSimple = false;
+let mockCanJoin = false;
 
 const renderTab = ( {
 	hasWordAds,
@@ -24,6 +30,7 @@ const renderTab = ( {
 	owed = 0,
 	status = false,
 	simple = false,
+	canJoin = false,
 }: {
 	hasWordAds: boolean;
 	active: boolean;
@@ -33,14 +40,19 @@ const renderTab = ( {
 	owed?: number;
 	status?: string | false;
 	simple?: boolean;
+	canJoin?: boolean;
 } ) => {
 	mockHasWordAds = hasWordAds;
 	mockSimple = simple;
+	mockCanJoin = canJoin;
 	// Only the settings read answers, so the plan stays what PHP printed.
 	( apiFetch as unknown as jest.Mock ).mockImplementation( ( { path } ) =>
 		path === '/jetpack/v4/settings' ? Promise.resolve( { wordads: active } ) : Promise.reject()
 	);
-	( wpcomFetch as jest.Mock ).mockImplementation( ( { path } ) => {
+	( wpcomFetch as jest.Mock ).mockImplementation( ( { path, method } ) => {
+		if ( method === 'POST' ) {
+			return Promise.resolve( { approved: true } );
+		}
 		const responses: Record< string, unknown > = {
 			'wordads/account': { approved, active, unsafe: false, status },
 			'wordads/earnings': {
@@ -51,11 +63,13 @@ const renderTab = ( {
 		};
 		return Promise.resolve( responses[ path ] );
 	} );
+	const openTab = jest.fn();
 	render(
 		<QueryClientProvider client={ new QueryClient() }>
-			<Ads openTab={ jest.fn() } />
+			<Ads openTab={ openTab } />
 		</QueryClientProvider>
 	);
+	return { openTab };
 };
 
 describe( 'Ads', () => {
@@ -98,6 +112,20 @@ describe( 'Ads', () => {
 
 		await expect( screen.findByText( 'Ad earnings' ) ).resolves.toBeVisible();
 		expect( screen.queryByText( /no longer includes ads/ ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'opens Settings once the Simple site’s owner joins', async () => {
+		const { openTab } = renderTab( {
+			hasWordAds: true,
+			active: false,
+			simple: true,
+			canJoin: true,
+		} );
+
+		await userEvent.click( await screen.findByRole( 'button', { name: 'Join WordAds' } ) );
+
+		expect( wpcomFetch ).toHaveBeenCalledWith( expect.objectContaining( { method: 'POST' } ) );
+		expect( openTab ).toHaveBeenCalledWith( 'settings' );
 	} );
 
 	it( 'hides earnings from a site that never showed ads', async () => {

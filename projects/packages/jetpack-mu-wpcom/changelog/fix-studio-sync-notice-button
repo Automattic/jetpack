@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Dashboard: Fix the "Open Studio" button in the Studio notice, which stopped responding once the Dashboard finished loading.

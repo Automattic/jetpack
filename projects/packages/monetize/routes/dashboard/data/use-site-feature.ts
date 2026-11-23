@@ -1,3 +1,4 @@
+import { isWpcomPlatformSite } from '@automattic/jetpack-script-data';
 import { useQuery } from '@tanstack/react-query';
 import apiFetch from '@wordpress/api-fetch';
 
@@ -24,12 +25,13 @@ export function useSiteHasFeature( feature: string, cached: boolean ): boolean |
 	const { data, isError } = useQuery( {
 		queryKey: [ 'monetize', 'site-features' ],
 		queryFn: fetchActiveFeatures,
-		enabled: ! cached,
+		// WordPress.com sites read the plan live, so the cache is already the answer there.
+		enabled: ! cached && ! isWpcomPlatformSite(),
 		// A failure keeps the cached answer, so retrying would only delay it.
 		retry: false,
 	} );
 
-	if ( cached || isError ) {
+	if ( cached || isError || isWpcomPlatformSite() ) {
 		return cached;
 	}
 	return data?.includes( feature );

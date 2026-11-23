@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+Comment: Update package dependencies: Premium Analytics now requires the announcements package, and its What's new surface is behind a feature flag that is off.
+
