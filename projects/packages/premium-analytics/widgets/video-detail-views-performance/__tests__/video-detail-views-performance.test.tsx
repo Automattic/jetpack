@@ -23,6 +23,7 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 	MetricTabsChart: ( {
 		metrics,
 		chartType,
+		tickResolution,
 		chartTitle,
 		empty,
 		hideSingleMetricLabel,
@@ -36,6 +37,7 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 			dataFormat?: { type: string };
 		}[];
 		chartType?: string;
+		tickResolution?: string;
 		chartTitle?: string;
 		empty?: ReactNode;
 		hideSingleMetricLabel?: boolean;
@@ -43,6 +45,7 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 		<div
 			data-testid="metric-tabs-chart"
 			data-chart-type={ String( chartType ) }
+			data-tick-resolution={ tickResolution }
 			data-chart-title={ chartTitle }
 			data-hide-single-metric-label={ String( hideSingleMetricLabel ) }
 			data-metrics={ JSON.stringify(
@@ -274,7 +277,10 @@ describe( 'VideoDetailViewsPerformanceWidget', () => {
 			/>
 		);
 
-		const [ views ] = chartedMetrics( await screen.findByTestId( 'metric-tabs-chart' ) );
+		const chart = await screen.findByTestId( 'metric-tabs-chart' );
+		const [ views ] = chartedMetrics( chart );
+		// Declared, since a cut first bucket no longer sits a month from the next.
+		expect( chart ).toHaveAttribute( 'data-tick-resolution', 'month' );
 		expect( views.spans ).toEqual( [
 			'2026-06-20/2026-06-30',
 			'2026-07-01/2026-07-31',

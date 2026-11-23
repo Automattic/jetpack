@@ -20,6 +20,7 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 	MetricTabsChart: ( {
 		metrics,
 		chartType,
+		tickResolution,
 		empty,
 	}: {
 		metrics: {
@@ -32,11 +33,13 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 			seriesUnavailable?: string;
 		}[];
 		chartType?: string;
+		tickResolution?: string;
 		empty?: ReactNode;
 	} ) => (
 		<div
 			data-testid="metric-tabs-chart"
 			data-chart-type={ String( chartType ) }
+			data-tick-resolution={ tickResolution }
 			data-metrics={ JSON.stringify(
 				metrics.map( metric => ( {
 					label: metric.label,
@@ -185,6 +188,8 @@ describe( 'AuthorPerformanceWidget', () => {
 			const chart = await screen.findByTestId( 'metric-tabs-chart' );
 			const [ metric ] = chartedMetrics( chart );
 			expect( metric.spans ).toEqual( spans );
+			// Declared, since a cut first bucket no longer sits a whole bucket from the next.
+			expect( chart ).toHaveAttribute( 'data-tick-resolution', period );
 			expect( metric.values ).toEqual( keys.map( ( _key, index ) => 3 * ( index + 1 ) ) );
 			expect( metric.value ).toBe( 9 );
 			expect( decodeURIComponent( mockApiFetch.mock.calls[ 0 ][ 0 ].path as string ) ).toContain(
