@@ -516,6 +516,20 @@ class WPCOM_Stats {
 	}
 
 	/**
+	 * Get the opens or clicks of a post the site sent as an email, bucketed over time.
+	 *
+	 * @param int    $post_id The post the site emailed.
+	 * @param string $stat    `opens` or `clicks`.
+	 * @param array  $args    `period` (`hour`, `day` or `month`), `quantity` buckets, and the first bucket's `date`.
+	 * @return array|WP_Error
+	 */
+	public function get_email_timeline( $post_id, $stat, $args = array() ) {
+		$this->resource = sprintf( '%s/emails/%d', $stat, $post_id );
+
+		return $this->fetch_stats( array_merge( $args, array( 'stats_fields' => 'timeline' ) ) );
+	}
+
+	/**
 	 * Get the site's subscriber count over time.
 	 *
 	 * @param array $args Optional query parameters: `unit`, `quantity`, `date`.

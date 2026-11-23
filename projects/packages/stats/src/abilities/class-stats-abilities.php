@@ -98,6 +98,16 @@ class Stats_Abilities extends Registrar {
 	const VIDEO_PAGES_LIMIT = 20;
 
 	/**
+	 * The windows `get-email-detail` can draw an email's timeline over, each counted from the send.
+	 */
+	const EMAIL_TIMELINES = array( 'first_24_hours', 'first_7_days', 'first_30_days', 'all_time' );
+
+	/**
+	 * The most monthly buckets the email timeline endpoint answers per request.
+	 */
+	const EMAIL_TIMELINE_MAX_MONTHS = 120;
+
+	/**
 	 * The `get-email-detail` breakdowns: each `{stat}/{field}` WordPress.com reports for one emailed post.
 	 */
 	const EMAIL_BREAKDOWNS = array(
@@ -1070,23 +1080,28 @@ class Stats_Abilities extends Registrar {
 		return array(
 			'label'               => __( 'Get one newsletter email\'s stats', 'jetpack-stats-pkg' ),
 			'description'         => __(
-				'Break down how one post the site sent to subscribers as an email performed, over all time since it was sent, as on the Stats dashboard\'s page for that email. `sent` is how many subscribers it went to. `opens` and `clicks` each hold the `total` count, the `unique` people, the `rate` (unique people as a percent of `sent`), and label/value rows ranked by count: `by_client` (mail app), `by_device` (operating system) and `by_country`. Each list holds its top `max` rows, so it can add up to less than `total`. `clicks.by_link` ranks the links clicked: a link in the post by its URL, and the email\'s own links by name (post title, like, comment, unsubscribe and the like). Composes ten WPCOM endpoints — if any sub-call fails, `partial` is true, `errors` lists the failed sub-calls by `{stat}/{field}` (such as `opens/rate` or `clicks/link`), and the fields they feed are null. If every sub-call fails, returns `jetpack_stats_data_unavailable`; an unknown post returns `jetpack_stats_post_not_found`. `site` is the WordPress.com blog ID and home URL of the site whose Stats were read. `definitions` explains, in plain words, each metric in the response — read it before reporting a number. Precondition: site must be connected to WordPress.com.',
+				'Break down how one post the site sent to subscribers as an email performed, over all time since it was sent, as on the Stats dashboard\'s page for that email. `sent` is how many subscribers it went to. `opens` and `clicks` each hold the `total` count, the `unique` people, the `rate` (unique people as a percent of `sent`), and label/value rows ranked by count: `by_client` (mail app), `by_device` (operating system) and `by_country`. Each list holds its top `max` rows, so it can add up to less than `total`. `clicks.by_link` ranks the links clicked: a link in the post by its URL, and the email\'s own links by name (post title, like, comment, unsubscribe and the like). Pass `timeline` to also get the opens and clicks over time since the send, as the email page\'s chart draws them: `first_24_hours` by the hour, `first_7_days` or `first_30_days` by the day, or `all_time` by the month. `timeline.rows` has one row per bucket, oldest first, with its `date` (`YYYY-MM-DD HH:00` for hours, the first day of the month for months), `opens` and `clicks`; rows stop at the current bucket, so a recent email has fewer. Without `timeline`, `timeline` is null. Composes ten WPCOM endpoints, twelve with `timeline` — if any sub-call fails, `partial` is true, `errors` lists the failed sub-calls by `{stat}/{field}` (such as `opens/rate`, `clicks/link` or `opens/timeline`), and the fields they feed are null. If every sub-call fails, returns `jetpack_stats_data_unavailable`; an unknown post returns `jetpack_stats_post_not_found`. `site` is the WordPress.com blog ID and home URL of the site whose Stats were read. `definitions` explains, in plain words, each metric in the response — read it before reporting a number. Precondition: site must be connected to WordPress.com.',
 				'jetpack-stats-pkg'
 			),
 			'input_schema'        => array(
 				'type'                 => 'object',
 				'required'             => array( 'post_id' ),
 				'properties'           => array(
-					'post_id' => array(
+					'post_id'  => array(
 						'type'        => array( 'integer', 'string' ),
 						'description' => __( 'The ID of the post the site emailed, as email stats report it. Must be positive.', 'jetpack-stats-pkg' ),
 					),
-					'max'     => array(
+					'max'      => array(
 						'type'        => 'integer',
 						'description' => __( 'Rows cap for each breakdown (1-100).', 'jetpack-stats-pkg' ),
 						'minimum'     => 1,
 						'maximum'     => 100,
 						'default'     => 10,
+					),
+					'timeline' => array(
+						'type'        => 'string',
+						'description' => __( 'The window since the send to chart opens and clicks over. Omit to skip the timeline.', 'jetpack-stats-pkg' ),
+						'enum'        => self::EMAIL_TIMELINES,
 					),
 				),
 				'additionalProperties' => false,
@@ -1120,6 +1135,30 @@ class Stats_Abilities extends Registrar {
 							'by_link'    => $rows,
 						),
 					),
+					'timeline'    => array(
+						'type'       => array( 'object', 'null' ),
+						'properties' => array(
+							'window' => array(
+								'type' => 'string',
+								'enum' => self::EMAIL_TIMELINES,
+							),
+							'unit'   => array(
+								'type' => 'string',
+								'enum' => array( 'hour', 'day', 'month' ),
+							),
+							'rows'   => array(
+								'type'  => 'array',
+								'items' => array(
+									'type'       => 'object',
+									'properties' => array(
+										'date'   => array( 'type' => 'string' ),
+										'opens'  => $int,
+										'clicks' => $int,
+									),
+								),
+							),
+						),
+					),
 					'partial'     => array( 'type' => 'boolean' ),
 					'errors'      => self::errors_schema(),
 					'definitions' => self::definitions_schema(),
@@ -1135,10 +1174,17 @@ class Stats_Abilities extends Registrar {
 	 * Spec: jetpack-stats/get-video-stats.
 	 */
 	private static function spec_get_video_stats(): array {
+		$figures = array(
+			'plays'          => array( 'type' => 'integer' ),
+			'impressions'    => array( 'type' => 'integer' ),
+			'hours_watched'  => array( 'type' => 'number' ),
+			'retention_rate' => array( 'type' => array( 'number', 'null' ) ),
+		);
+
 		return array(
-			'label'               => __( 'Get plays for a video', 'jetpack-stats-pkg' ),
+			'label'               => __( 'Get stats for a video', 'jetpack-stats-pkg' ),
 			'description'         => __(
-				'Read how often one video was played over time, and where, as on the Stats dashboard\'s page for that video. `total_plays` adds up the window\'s plays. `pages` lists up to 20 pages the video was played on; a page on this site carries its `post_id` and `title`, and one elsewhere has them null. `series` has one row per period, oldest first, ending with the period that contains `date`; each row\'s `date` is the first day of its period (weeks start on Monday). Returns `jetpack_stats_video_not_found` when no video has that ID. `site` is the WordPress.com blog ID and home URL of the site whose Stats were read. `definitions` explains, in plain words, each metric and time window in the response — read it before reporting a number. Precondition: site must be connected to WordPress.com.',
+				'Read how often one video was loaded, played and watched over time, and where, as on the Stats dashboard\'s page for that video. Each `series` row and the window `total` hold `plays`, `impressions`, `hours_watched` and `retention_rate`; `retention_rate` is null when the video\'s length is unknown. `pages` lists up to 20 pages the video was played on; a page on this site carries its `post_id` and `title`, and one elsewhere has them null. `series` has one row per period, oldest first, ending with the period that contains `date`; each row\'s `date` is the first day of its period (weeks start on Monday). Returns `jetpack_stats_video_not_found` when no video has that ID. `site` is the WordPress.com blog ID and home URL of the site whose Stats were read. `definitions` explains, in plain words, each metric and time window in the response — read it before reporting a number. Precondition: site must be connected to WordPress.com.',
 				'jetpack-stats-pkg'
 			),
 			'input_schema'        => array(
@@ -1179,15 +1225,15 @@ class Stats_Abilities extends Registrar {
 					'period'      => array( 'type' => 'string' ),
 					'num'         => array( 'type' => 'integer' ),
 					'date'        => array( 'type' => 'string' ),
-					'total_plays' => array( 'type' => 'integer' ),
+					'total'       => array(
+						'type'       => 'object',
+						'properties' => $figures,
+					),
 					'series'      => array(
 						'type'  => 'array',
 						'items' => array(
 							'type'       => 'object',
-							'properties' => array(
-								'date'  => array( 'type' => 'string' ),
-								'plays' => array( 'type' => 'integer' ),
-							),
+							'properties' => array( 'date' => array( 'type' => 'string' ) ) + $figures,
 						),
 					),
 					'pages'       => array(
@@ -2379,8 +2425,9 @@ class Stats_Abilities extends Registrar {
 		}
 		$post_id = (int) $input['post_id'];
 		$max     = self::clamp_int( $input['max'] ?? 10, 1, 100, 10 );
+		$post    = get_post( $post_id );
 		// WPCOM answers an unknown post with zeros, which would read as an email nobody opened.
-		if ( ! get_post( $post_id ) ) {
+		if ( ! $post ) {
 			return new WP_Error(
 				self::ERROR_PREFIX . 'post_not_found',
 				__( 'No post exists with that post_id.', 'jetpack-stats-pkg' ),
@@ -2393,6 +2440,13 @@ class Stats_Abilities extends Registrar {
 		foreach ( self::EMAIL_BREAKDOWNS as $breakdown ) {
 			list( $stat, $field )  = explode( '/', $breakdown );
 			$results[ $breakdown ] = $stats->get_email_breakdown( $post_id, $stat, $field );
+		}
+		$window   = isset( $input['timeline'] ) && in_array( $input['timeline'], self::EMAIL_TIMELINES, true ) ? $input['timeline'] : null;
+		$timeline = null === $window ? null : self::email_timeline_request( $post, $window );
+		if ( null !== $timeline ) {
+			foreach ( array( 'opens', 'clicks' ) as $stat ) {
+				$results[ "$stat/timeline" ] = $stats->get_email_timeline( $post_id, $stat, $timeline['args'] );
+			}
 		}
 		$composed = self::compose_subcalls(
 			$results,
@@ -2483,13 +2537,124 @@ class Stats_Abilities extends Registrar {
 				'by_country' => $rows( 'clicks/country', 'countries', $country( 'clicks/country' ) ),
 				'by_link'    => $links,
 			),
+			'timeline'    => null === $timeline ? null : self::email_timeline( $window, $timeline, $values, $errors ),
 			'partial'     => ! empty( $errors ),
-			'definitions' => self::definitions( array( 'sent', 'email_detail' ) ),
+			'definitions' => self::definitions( null === $timeline ? array( 'sent', 'email_detail' ) : array( 'sent', 'email_detail', 'email_timeline' ) ),
 		);
 		if ( ! empty( $errors ) ) {
 			$out['errors'] = $errors;
 		}
 		return $out;
+	}
+
+	/**
+	 * The timeline request for one window of an email: WordPress.com reads `date` as the first
+	 * bucket and returns `quantity` buckets going forward, in the site's timezone.
+	 *
+	 * Hourly buckets start at the send day's midnight, so the request spans the hours before the
+	 * send and `skip` drops them. Monthly buckets run from the send month through this one.
+	 *
+	 * @param \WP_Post $post   The emailed post; it was sent when it was published.
+	 * @param string   $window One of EMAIL_TIMELINES.
+	 * @return array{args: array, skip: int}|null Null when the post has no publish date.
+	 */
+	private static function email_timeline_request( \WP_Post $post, string $window ): ?array {
+		$sent = get_post_datetime( $post );
+		if ( ! $sent ) {
+			return null;
+		}
+		$day = $sent->format( 'Y-m-d' );
+		switch ( $window ) {
+			case 'first_24_hours':
+				$hour = (int) $sent->format( 'G' );
+				$args = array(
+					'period'   => 'hour',
+					'quantity' => $hour + 24,
+					'date'     => $day,
+				);
+				return array(
+					'args' => $args,
+					'skip' => $hour,
+				);
+			case 'all_time':
+				$now    = current_datetime();
+				$months = ( (int) $now->format( 'Y' ) - (int) $sent->format( 'Y' ) ) * 12 + (int) $now->format( 'n' ) - (int) $sent->format( 'n' ) + 1;
+				$args   = array(
+					'period'   => 'month',
+					'quantity' => max( 1, min( self::EMAIL_TIMELINE_MAX_MONTHS, $months ) ),
+					'date'     => $sent->format( 'Y-m-01' ),
+				);
+				break;
+			default:
+				$args = array(
+					'period'   => 'day',
+					'quantity' => 'first_7_days' === $window ? 7 : 30,
+					'date'     => $day,
+				);
+		}
+		return array(
+			'args' => $args,
+			'skip' => 0,
+		);
+	}
+
+	/**
+	 * Merge an email's opens and clicks timelines into one row per bucket, oldest first.
+	 *
+	 * WordPress.com answers buckets that have not started yet with zeros, so rows stop at the
+	 * current one; a sent email that is younger than its window has fewer rows.
+	 *
+	 * @param string $window   One of EMAIL_TIMELINES.
+	 * @param array  $request  The request email_timeline_request() built.
+	 * @param array  $values   Sub-call responses keyed `{stat}/{field}`.
+	 * @param array  $errors   The sub-calls that failed.
+	 * @return array{window: string, unit: string, rows: array}|null Null when both timelines failed.
+	 */
+	private static function email_timeline( string $window, array $request, array $values, array $errors ): ?array {
+		$unit = $request['args']['period'];
+		$now  = current_datetime()->format(
+			array(
+				'hour'  => 'Y-m-d H:00',
+				'day'   => 'Y-m-d',
+				'month' => 'Y-m-01',
+			)[ $unit ]
+		);
+		$rows = array();
+		$read = 0;
+		foreach ( array( 'opens', 'clicks' ) as $stat ) {
+			if ( in_array( "$stat/timeline", $errors, true ) ) {
+				continue;
+			}
+			++$read;
+			$block  = is_array( $values[ "$stat/timeline" ]['timeline'] ?? null ) ? $values[ "$stat/timeline" ]['timeline'] : array();
+			$fields = is_array( $block['fields'] ?? null ) ? $block['fields'] : array();
+			$hour   = array_search( 'hour', $fields, true );
+			$count  = array_search( "{$stat}_count", $fields, true );
+			foreach ( array_slice( self::rows_at( $block, 'data' ), $request['skip'] ) as $row ) {
+				$date = (string) ( $row[0] ?? '' );
+				if ( false !== $hour ) {
+					$date .= sprintf( ' %02d:00', (int) ( $row[ $hour ] ?? 0 ) );
+				}
+				if ( $date > $now ) {
+					break;
+				}
+				$rows[ $date ]        ??= array(
+					'date'   => $date,
+					'opens'  => null,
+					'clicks' => null,
+				);
+				$rows[ $date ][ $stat ] = false === $count ? 0 : (int) ( $row[ $count ] ?? 0 );
+			}
+		}
+		if ( 0 === $read ) {
+			return null;
+		}
+		ksort( $rows );
+		return array(
+			'window' => $window,
+			'unit'   => $unit,
+			'rows'   => array_values( $rows ),
+		);
 	}
 
 	/**
@@ -2525,7 +2690,7 @@ class Stats_Abilities extends Registrar {
 		$raw = self::get_wpcom_stats()->get_video_details(
 			$video_id,
 			array(
-				'statType' => 'plays',
+				'statType' => 'all',
 				'period'   => $period,
 				'num'      => $num,
 				'date'     => $date,
@@ -2535,16 +2700,33 @@ class Stats_Abilities extends Registrar {
 			return $raw;
 		}
 
-		$fields = is_array( $raw['fields'] ?? null ) ? $raw['fields'] : array();
-		$column = array_search( 'plays', $fields, true );
-		$series = array();
+		$fields  = is_array( $raw['fields'] ?? null ) ? $raw['fields'] : array();
+		$figures = static function ( callable $at ): array {
+			$retention = $at( 'retention_rate' );
+			return array(
+				'plays'          => (int) $at( 'plays' ),
+				'impressions'    => (int) $at( 'impressions' ),
+				'hours_watched'  => round( (float) $at( 'watch_time' ), 2 ),
+				// WPCOM sends null when it does not know the video's length.
+				'retention_rate' => is_numeric( $retention ) ? round( (float) $retention, 1 ) : null,
+			);
+		};
+		$series  = array();
 		foreach ( self::rows_at( $raw, 'data' ) as $row ) {
-			$series[] = array(
-				'date'  => (string) ( $row[0] ?? '' ),
-				'plays' => false === $column ? 0 : (int) ( $row[ $column ] ?? 0 ),
+			$series[] = array( 'date' => (string) ( $row[0] ?? '' ) ) + $figures(
+				static function ( string $field ) use ( $fields, $row ) {
+					$column = array_search( $field, $fields, true );
+					return false === $column ? null : ( $row[ $column ] ?? null );
+				}
 			);
 		}
-		$pages = array();
+		$total  = is_array( $raw['total'] ?? null ) ? $raw['total'] : array();
+		$totals = $figures(
+			static function ( string $field ) use ( $total ) {
+				return $total[ $field ] ?? null;
+			}
+		);
+		$pages  = array();
 		foreach ( array_slice( self::rows_at( $raw, 'pages_detail' ), 0, self::VIDEO_PAGES_LIMIT ) as $page ) {
 			$pages[] = array(
 				'url'     => (string) ( $page['url'] ?? '' ),
@@ -2560,7 +2742,7 @@ class Stats_Abilities extends Registrar {
 			'period'      => $period,
 			'num'         => $num,
 			'date'        => $date,
-			'total_plays' => self::as_int( is_array( $raw['total'] ?? null ) ? $raw['total'] : array(), 'plays' ),
+			'total'       => $totals,
 			'series'      => $series,
 			'pages'       => $pages,
 			'definitions' => self::definitions( array( 'video_plays', 'series' ) ),
@@ -3906,9 +4088,10 @@ class Stats_Abilities extends Registrar {
 			'email_rates'           => __( '`open_rate` and `click_rate` are unique opens and unique clicks as a percent of `sent`, over all time.', 'jetpack-stats-pkg' ),
 			'email_window'          => __( '`opens` and `clicks` count only the days from `start_date` to `end_date`; unique counts and rates are all-time.', 'jetpack-stats-pkg' ),
 			'email_all_time'        => __( 'Every figure covers all time since the post was sent.', 'jetpack-stats-pkg' ),
-			'video_plays'           => __( '`plays` counts each time the video was started, wherever it was played: on the site or embedded elsewhere. `total_plays` adds up the `series` rows.', 'jetpack-stats-pkg' ),
+			'video_plays'           => __( '`plays` counts each time the video was started, wherever it was played: on the site or embedded elsewhere. `impressions` counts each time a player loaded the video ready to play; not every player reports loads, so `impressions` can be lower than `plays`. `hours_watched` is the playback time across all plays, in hours. `retention_rate` is the average share of the video watched per play, as a percent of its length; it passes 100 when people rewatch, skip back or let the video loop. `total` adds up the `series` rows, except `retention_rate`, which is worked out from the whole window\'s plays and playback time.', 'jetpack-stats-pkg' ),
 			'post_detail'           => __( '`views`, `likes` and `comments` cover all time since the post was published; `comments` counts approved comments, pingbacks and trackbacks included. `utm` counts views of the post opened from links tagged with those UTM values, over all time. `email` covers all time since the post was sent: `total` counts every open or click, repeat ones by one person included, `unique` counts people, and `rate` is `unique` as a percent of `sent`; mail apps that load images automatically or block them make opens approximate.', 'jetpack-stats-pkg' ),
 			'email_detail'          => __( 'Every figure covers all time since the post was sent. `total` counts every open or click, repeat ones by one person included, and `unique` counts people; `rate` is `unique` as a percent of `sent`. Mail apps that load images automatically or block them make opens approximate. `by_client` is the mail app, `by_device` the operating system and `by_country` where the email was opened or clicked; each row counts opens or clicks, not people.', 'jetpack-stats-pkg' ),
+			'email_timeline'        => __( '`timeline` counts opens and clicks in each bucket of the window since the email was sent, repeat ones by one person included, in the site\'s timezone. The window starts at the send: `first_24_hours` runs 24 hours from the send hour, the others from the send day. `all_time` buckets by calendar month.', 'jetpack-stats-pkg' ),
 			'paid'                  => __( 'People with a paid subscription to the site, now. They are also counted in `email` or `wpcom`.', 'jetpack-stats-pkg' ),
 			'subscriber_series'     => __( 'One row per period, oldest first: `subscribers` is the count at the end of the period and `change` the net gain or loss during it.', 'jetpack-stats-pkg' ),
 			'comparison_series'     => __( 'The same figures for the window `compare` names, ending on `comparison.date`: row i of `comparison.series` is the earlier period matching row i of `series`. Weeks, months and years shift by whole periods, so a previous year of weeks is 52 weeks earlier, and both last rows end at the same point in their period.', 'jetpack-stats-pkg' ),
