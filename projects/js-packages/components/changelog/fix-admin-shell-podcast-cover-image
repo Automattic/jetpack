@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Load the media library's styles when the page already has a stylesheet with the same id but a different URL, as WordPress.com's concatenated stylesheets can.

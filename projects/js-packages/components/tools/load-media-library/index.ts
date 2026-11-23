@@ -55,8 +55,18 @@ const PAGE_GLOBALS: Record< string, () => unknown > = {
 	'wp-i18n-js': () => ( window as { wp?: { i18n?: unknown } } ).wp?.i18n,
 };
 
-const isOnPage = ( node: HTMLElement ): boolean =>
-	Boolean( node.id && ( document.getElementById( node.id ) || PAGE_GLOBALS[ node.id ]?.() ) );
+const isOnPage = ( node: HTMLElement ): boolean => {
+	if ( ! node.id ) {
+		return false;
+	}
+	const existing = document.getElementById( node.id );
+	if ( node instanceof HTMLLinkElement ) {
+		// WordPress.com names concatenated stylesheets by position, so another bundle can share the id.
+		const href = new URL( node.getAttribute( 'href' ) ?? '', window.location.href ).href;
+		return existing instanceof HTMLLinkElement && existing.href === href;
+	}
+	return Boolean( existing || PAGE_GLOBALS[ node.id ]?.() );
+};
 
 const isJavaScript = ( script: HTMLScriptElement ): boolean =>
 	! script.type || /^(text|application)\/(java|ecma)script$/i.test( script.type );

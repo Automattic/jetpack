@@ -104,6 +104,17 @@ describe( 'loadMediaLibrary', () => {
 		expect( global.fetch ).toHaveBeenCalledTimes( 1 );
 	} );
 
+	it( "loads a stylesheet whose id another bundle on the page has, like WordPress.com's concatenated all-css-N", async () => {
+		document.head.innerHTML = '<link rel="stylesheet" id="all-css-0-1" href="/_static/??-host" />';
+		respondWith(
+			`<link rel="stylesheet" id="all-css-0-1" href="/_static/??-media" />${ MEDIA_VIEWS }${ TEMPLATES }`
+		);
+
+		await loadMediaLibrary();
+
+		expect( document.querySelector( 'link[href="/_static/??-media"]' ) ).not.toBeNull();
+	} );
+
 	it( "keeps the page's jQuery when the page loaded it with no id", async () => {
 		const pageJQuery = () => {};
 		window.jQuery = pageJQuery;
