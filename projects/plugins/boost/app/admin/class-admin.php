@@ -33,7 +33,7 @@ class Admin {
 	 *
 	 * @var bool
 	 */
-	private $modern_dashboard_loaded = false;
+	private $dashboard_build_loaded = false;
 
 	/**
 	 * The screen ID alias_screen_id_for_wp_build() replaced, until it is restored.
@@ -142,7 +142,7 @@ class Admin {
 			'Boost', // "Boost" is a product name, do not translate.
 			'manage_options',
 			JETPACK_BOOST_SLUG,
-			$this->modern_dashboard_loaded ? 'jetpack_boost_jetpack_boost_dashboard_wp_admin_render_page' : array( $this, 'render_missing_build_notice' ),
+			$this->dashboard_build_loaded ? 'jetpack_boost_jetpack_boost_dashboard_wp_admin_render_page' : array( $this, 'render_missing_build_notice' ),
 			null,
 			array(
 				'product' => 'boost',
@@ -176,7 +176,7 @@ class Admin {
 
 		// wp_default_scripts has already fired by admin_menu, so register the init module now.
 		jetpack_boost_register_script_modules(); // @phan-suppress-current-line PhanUndeclaredFunction -- Defined by the generated build; callers check it exists.
-		$this->modern_dashboard_loaded = true;
+		$this->dashboard_build_loaded = true;
 	}
 
 	/**
@@ -258,7 +258,7 @@ class Admin {
 		if ( current_user_can( 'manage_options' ) ) {
 			$already_activated = get_option( Premium_Features::CLOUD_CSS_ACTIVATED_OPTION );
 			Premium_Features::enable_cloud_css_after_upgrade( $cache_confirmed );
-			if ( $this->modern_dashboard_loaded && ! $already_activated && get_option( Premium_Features::CLOUD_CSS_ACTIVATED_OPTION ) ) {
+			if ( $this->dashboard_build_loaded && ! $already_activated && get_option( Premium_Features::CLOUD_CSS_ACTIVATED_OPTION ) ) {
 				jetpack_boost_ds_set( 'cloud_css_upgrade_notice', true );
 			}
 		}
@@ -315,7 +315,7 @@ class Admin {
 
 		Assets::enqueue_script( $admin_js_handle );
 
-		if ( $this->modern_dashboard_loaded ) {
+		if ( $this->dashboard_build_loaded ) {
 			$this->localize_api_settings( $admin_js_handle );
 			$i18n_loader_registered = wp_script_is( 'wp-jp-i18n-loader', 'registered' );
 			if ( $i18n_loader_registered ) {
@@ -375,5 +375,27 @@ class Admin {
 			</div>
 		</div>
 		<?php
+	}
+
+	/**
+	 * Whether the modern dashboard is enabled. It always is, now that the legacy dashboard is gone.
+	 *
+	 * @deprecated $$next-version$$
+	 *
+	 * @return bool Always true.
+	 */
+	public static function is_modernization_enabled() {
+		_deprecated_function( __METHOD__, 'jetpack-boost-$$next-version$$' );
+		return true;
+	}
+
+	/**
+	 * Render the page body the legacy dashboard used to mount into.
+	 *
+	 * @deprecated $$next-version$$ Renders the missing-build notice, since the legacy dashboard is gone.
+	 */
+	public function render_settings() {
+		_deprecated_function( __METHOD__, 'jetpack-boost-$$next-version$$' );
+		$this->render_missing_build_notice();
 	}
 }
