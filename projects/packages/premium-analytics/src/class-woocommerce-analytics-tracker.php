@@ -46,9 +46,10 @@ class WooCommerce_Analytics_Tracker {
 	}
 
 	/**
-	 * Whether the Jetpack WooCommerce Analytics module, where it governs tracking, is on.
+	 * Whether the Jetpack WooCommerce Analytics module allows tracking.
 	 *
-	 * Only the Jetpack plugin ships the module, and it stops governing once the WooCommerce Analytics plugin loads the package (`WC_ANALYTICS`).
+	 * Allowed without the Jetpack plugin, which ships the module, or once the
+	 * WooCommerce Analytics plugin loads the package (`WC_ANALYTICS`) instead.
 	 *
 	 * @return bool
 	 */
