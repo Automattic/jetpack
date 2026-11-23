@@ -40,6 +40,7 @@ class Media_Library {
 		}
 		self::$initialized = true;
 		add_action( 'wp_ajax_' . self::AJAX_ACTION, array( __CLASS__, 'ajax_media_library' ) );
+		Page_Handles::init();
 	}
 
 	/**
@@ -75,9 +76,7 @@ class Media_Library {
 		ob_end_clean();
 		wp_scripts()->done = array_merge( wp_scripts()->done, $done_scripts );
 		wp_styles()->done  = array_merge( wp_styles()->done, $done_styles );
-		// WordPress.com concatenation drops the handle ids the client needs to skip what the page already runs.
-		add_filter( 'wpcom_js_do_concat', '__return_false' );
-		add_filter( 'wpcom_css_do_concat', '__return_false' );
+		Page_Handles::print_one_tag_per_handle();
 		ob_start();
 		wp_print_styles( self::HANDLES );
 		wp_print_scripts( self::HANDLES );

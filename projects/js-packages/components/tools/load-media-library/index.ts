@@ -22,31 +22,19 @@ const isReady = (): boolean =>
 	Boolean( document.getElementById( 'tmpl-media-modal' ) );
 
 /**
- * Handles the page loaded through core's concatenated load-scripts.php or load-styles.php, whose tags carry no per-handle id.
+ * Handles the page printed, listed by Page_Handles in automattic/jetpack-admin-ui.
  *
- * @param file - `load-scripts.php` or `load-styles.php`.
- * @return Comma-separated handles.
+ * @return Script and style handles.
  */
-const concatenatedHandles = ( file: string ): string => {
-	const handles: string[] = [];
-	for ( const element of document.querySelectorAll< HTMLScriptElement | HTMLLinkElement >(
-		'script[src], link[rel="stylesheet"][href]'
-	) ) {
-		const url = new URL( 'src' in element ? element.src : element.href, window.location.href );
-		if ( ! url.pathname.endsWith( `/${ file }` ) ) {
-			continue;
-		}
-		// Core cuts the handle list into fixed-length chunks, which can split a handle in two.
-		const list = [ ...url.searchParams ]
-			.filter( ( [ key ] ) => key.startsWith( 'load' ) )
-			.map( ( [ , value ] ) => value )
-			.join( '' );
-		handles.push( ...list.split( ',' ).filter( Boolean ) );
+const pageHandles = (): { scripts?: string[]; styles?: string[] } => {
+	try {
+		return JSON.parse( document.getElementById( 'jetpack-page-handles' )?.textContent ?? '{}' );
+	} catch {
+		return {};
 	}
-	return handles.join( ',' );
 };
 
-// Libraries whose second copy would replace the page's, for pages that concatenate scripts some other way.
+// Libraries whose second copy would replace the page's, for pages that print no handle list.
 const PAGE_GLOBALS: Record< string, () => unknown > = {
 	'jquery-core-js': () => ( window as { jQuery?: unknown } ).jQuery,
 	'underscore-js': () => ( window as { _?: unknown } )._,
@@ -55,8 +43,20 @@ const PAGE_GLOBALS: Record< string, () => unknown > = {
 	'wp-i18n-js': () => ( window as { wp?: { i18n?: unknown } } ).wp?.i18n,
 };
 
-const isOnPage = ( node: HTMLElement ): boolean =>
-	Boolean( node.id && ( document.getElementById( node.id ) || PAGE_GLOBALS[ node.id ]?.() ) );
+const isOnPage = ( node: HTMLElement, printed: ReturnType< typeof pageHandles > ): boolean => {
+	if ( ! node.id ) {
+		return false;
+	}
+	if ( document.getElementById( node.id ) || PAGE_GLOBALS[ node.id ]?.() ) {
+		return true;
+	}
+	if ( node instanceof HTMLLinkElement ) {
+		return Boolean( printed.styles?.includes( node.id.replace( /-css$/, '' ) ) );
+	}
+	// A script, or the data core prints with it.
+	const handle = node.id.match( /^(.+)-js(?:-extra|-before|-after|-translations)?$/ )?.[ 1 ];
+	return Boolean( handle && printed.scripts?.includes( handle ) );
+};
 
 const isJavaScript = ( script: HTMLScriptElement ): boolean =>
 	! script.type || /^(text|application)\/(java|ecma)script$/i.test( script.type );
@@ -103,6 +103,7 @@ async function insert( html: string, added: Element[] ): Promise< void > {
 	const template = document.createElement( 'template' );
 	template.innerHTML = html;
 	const loading: Promise< void >[] = [];
+	const printed = pageHandles();
 	const wait = ( promise: Promise< void > ) => {
 		// Handled by Promise.all below; this only keeps an early failure from being reported as unhandled.
 		promise.catch( () => {} );
@@ -111,7 +112,7 @@ async function insert( html: string, added: Element[] ): Promise< void > {
 	for ( const node of template.content.querySelectorAll< HTMLElement >(
 		'link[rel="stylesheet"], style, script'
 	) ) {
-		if ( isOnPage( node ) ) {
+		if ( isOnPage( node, printed ) ) {
 			continue;
 		}
 		if ( node instanceof HTMLLinkElement ) {
@@ -159,8 +160,6 @@ async function load(): Promise< void > {
 		throw new Error( 'Media library: ajaxurl is on another origin' );
 	}
 	url.searchParams.set( 'action', AJAX_ACTION );
-	url.searchParams.set( 'scripts', concatenatedHandles( 'load-scripts.php' ) );
-	url.searchParams.set( 'styles', concatenatedHandles( 'load-styles.php' ) );
 	const response = await fetch( url, {
 		credentials: 'same-origin',
 		signal: AbortSignal.timeout( TIMEOUT_MS ),
