@@ -109,7 +109,7 @@ class Premium_Features_Test extends Base_TestCase {
 
 	private function dashboard_admin( $modern ) {
 		$admin  = new Admin();
-		$loaded = new \ReflectionProperty( Admin::class, 'modern_dashboard_loaded' );
+		$loaded = new \ReflectionProperty( Admin::class, 'dashboard_build_loaded' );
 		if ( PHP_VERSION_ID < 80100 ) {
 			$loaded->setAccessible( true );
 		}
