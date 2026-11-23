@@ -1116,6 +1116,7 @@ class Main_Features {
 				continue;
 			}
 
+			// Drop the SEO card where SEO isn't offered (no seo-dashboard module, or VIP); every other card carries on.
 			if ( 'seo' === $slug && ! self::is_seo_offered() ) {
 				continue;
 			}
