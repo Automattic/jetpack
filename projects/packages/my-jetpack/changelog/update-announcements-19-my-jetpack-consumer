@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Show the recent posts of Jetpack.com as What's new announcements, behind a feature flag.

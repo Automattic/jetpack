@@ -140,6 +140,13 @@ class Initializer {
 	public const OVERVIEW_V1_FLAG = 'my-jetpack-overview-v1';
 
 	/**
+	 * Feature flag for What's new, shared by every Jetpack product that shows it.
+	 *
+	 * @var string
+	 */
+	public const WHATS_NEW_FLAG = 'jetpack-whats-new';
+
+	/**
 	 * Feature flag for sending classic Modules links to Features.
 	 *
 	 * @var string
@@ -204,6 +211,9 @@ class Initializer {
 		// Answer "is this product on?" for admin menu registration.
 		Menu_Visibility::init();
 		Turned_Off_Page::init();
+
+		// What My Jetpack publishes on the What's new surface it hosts.
+		Whats_New::init();
 
 		self::register_settings_panel_urls();
 
@@ -1574,6 +1584,15 @@ class Initializer {
 				'owner'       => 'my-jetpack',
 			)
 		);
+		// Each Jetpack product that shows What's new registers this flag, with this same definition.
+		Feature_Flags::register(
+			self::WHATS_NEW_FLAG,
+			array(
+				'default'     => false,
+				'description' => "Show What's new, the teaser and the reader of the Jetpack announcements, in the Jetpack dashboards.",
+				'owner'       => 'jetpack',
+			)
+		);
 		Feature_Flags::register(
 			self::MODULES_TO_FEATURES_FLAG,
 			array(
@@ -1652,6 +1671,7 @@ class Initializer {
 			'headerControls'           => self::is_header_controls_enabled(),
 			'accountConnect'           => Feature_Flags::is_enabled( self::ACCOUNT_CONNECT_FLAG ),
 			'overviewV1'               => self::is_overview_v1_enabled(),
+			'whatsNew'                 => self::is_whats_new_enabled(),
 		);
 
 		if ( $flags['accountConnect'] ) {
@@ -1669,6 +1689,16 @@ class Initializer {
 	 */
 	public static function is_overview_v1_enabled() {
 		return Feature_Flags::is_enabled( self::OVERVIEW_V1_FLAG );
+	}
+
+	/**
+	 * Whether My Jetpack shows What's new.
+	 *
+	 * @since $$next-version$$
+	 * @return bool
+	 */
+	public static function is_whats_new_enabled() {
+		return Feature_Flags::is_enabled( self::WHATS_NEW_FLAG );
 	}
 
 	/**
