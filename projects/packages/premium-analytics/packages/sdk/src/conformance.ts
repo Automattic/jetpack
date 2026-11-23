@@ -1,5 +1,7 @@
 import type * as Facade from './index';
 import type * as Api from '@automattic/jetpack-premium-analytics-sdk';
+import type { Promo } from '@jetpack-premium-analytics/data';
+import type { ComponentProps } from 'react';
 
 // Fails the typecheck when the facade misses a value the API contract declares.
 type MissingFromFacade = Exclude< keyof typeof Api, keyof typeof Facade >;
@@ -40,3 +42,23 @@ export const columnsConforms: typeof Api.Columns = null as unknown as typeof Fac
 
 // And when the facade's `Locations` stops accepting the props the contract declares.
 export const locationsConforms: typeof Api.Locations = null as unknown as typeof Facade.Locations;
+
+// And when the facade's `PromoCta` stops accepting the props the contract declares.
+export const promoCtaConforms: typeof Api.PromoCta = null as unknown as typeof Facade.PromoCta;
+
+type SameType< A, B > = [ A ] extends [ B ] ? ( [ B ] extends [ A ] ? true : false ) : false;
+
+// And when the contract declares a `PromoCta` prop the facade does not take: assignability alone lets
+// an extra prop on the contract through.
+export const promoCtaPropsMatch: SameType<
+	ComponentProps< typeof Api.PromoCta >,
+	ComponentProps< typeof Facade.PromoCta >
+> = true;
+
+// And when the render props the contract declares and the facade's differ in either direction.
+export const promoRenderPropsMatch: SameType< Api.PromoRenderProps, Facade.PromoRenderProps > =
+	true;
+
+// And when the promo the contract hands a module and the registry's `Promo` differ in either
+// direction, a new field or a new placement included.
+export const promoRecordMatches: SameType< Api.PromoRenderProps[ 'promo' ], Promo > = true;
