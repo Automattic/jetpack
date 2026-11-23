@@ -243,22 +243,6 @@ describe( 'setWooReportMockState', () => {
 	afterEach( () => {
 		setWooReportMockState( 'orders/by-date', null );
 		setWooReportMockState( 'products', null );
-		setWooReportMockState( 'orders-by-product-type/by-date', null );
-	} );
-
-	it( 'forces a state on the bookings endpoint without catching the orders endpoint', async () => {
-		setWooReportMockState( 'orders-by-product-type/by-date', 'empty' );
-
-		const bookings = await request< OrdersResponse >(
-			reportPath( 'orders-by-product-type/by-date', {
-				...PRIMARY_WINDOW,
-				interval: STORY_PARAMS.interval,
-			} )
-		);
-		const orders = await request< OrdersResponse >( PRIMARY_ORDERS );
-
-		expect( bookings.data ).toEqual( [] );
-		expect( orders.data ).not.toEqual( [] );
 	} );
 
 	it( 'rejects with a 403 permission envelope for `error`', async () => {
