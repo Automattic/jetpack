@@ -52,6 +52,7 @@ function bucketBounds( key: string, hourly: boolean ) {
  * The template returns only the buckets that had requests, as
  * `{ ts, human_requests, ai_requests, other_requests, blocked_requests }`, so
  * the buckets between `start` and the exclusive `end` are filled with zeroes.
+ * A bucket that has not started yet is left out: it has no count to show.
  *
  * @param response - The endpoint's rows.
  * @param query    - The request params.
@@ -82,7 +83,9 @@ export function sanitizeStatsEdgeBotRequestsResponse(
 	const step = hourly ? MS_PER_HOUR : MS_PER_DAY;
 	const keys: string[] = [];
 	if ( Number.isFinite( start ) && Number.isFinite( end ) ) {
-		for ( let time = start; time < end; time += step ) {
+		// The edge's days are UTC days, so a site ahead of UTC asks for one that has not begun.
+		const lastStarted = Math.min( end, Date.now() + 1 );
+		for ( let time = start; time < lastStarted; time += step ) {
 			keys.push( toBucketKey( time, hourly ) );
 		}
 	} else {
