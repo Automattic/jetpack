@@ -25,7 +25,6 @@ import { useCallback, useMemo, useState } from 'react';
  * Internal dependencies
  */
 import { getPostsFields } from './fields';
-import styles from './style.module.css';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
 export type PostsTableAttributes = Record< never, never >;
@@ -98,7 +97,7 @@ function PostsTable() {
 	);
 
 	return (
-		<Stack direction="column" className={ styles.root }>
+		<Stack direction="column">
 			<WidgetState
 				isLoading={ isLoading }
 				isFetching={ isFetching }
