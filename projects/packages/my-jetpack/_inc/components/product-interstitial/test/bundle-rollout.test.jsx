@@ -15,7 +15,6 @@ jest.mock( 'react-router', () => ( {
 	useLocation: () => ( { search: '?feature=backup' } ),
 } ) );
 jest.mock( '../../../data/products/use-activate-plugins', () => () => ( {} ) );
-jest.mock( '../../../hooks/use-analytics', () => () => ( { recordEvent: jest.fn() } ) );
 jest.mock( '../../../hooks/use-go-back', () => ( { useGoBack: () => ( {} ) } ) );
 const mockUseMyJetpackConnection = jest.fn( () => ( {} ) );
 jest.mock(

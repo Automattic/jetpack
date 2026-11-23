@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Dashboard: Let another plugin load the dashboard API and the shared script modules without booting Stats v2.

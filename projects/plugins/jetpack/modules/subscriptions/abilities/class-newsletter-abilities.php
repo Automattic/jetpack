@@ -50,6 +50,13 @@ class Newsletter_Abilities extends Registrar {
 	private const REPLY_TO_VALUES = array( 'comment', 'author', 'no-reply' );
 
 	/**
+	 * {@inheritDoc}
+	 */
+	protected static function enabled_by_default(): bool {
+		return true;
+	}
+
+	/**
 	 * Returns the abilities category, definition, or registered abilities.
 	 *
 	 * @inheritDoc
@@ -128,6 +135,7 @@ class Newsletter_Abilities extends Registrar {
 						'destructive' => false,
 						'idempotent'  => true,
 					),
+					'public'       => true,
 					'show_in_rest' => true,
 					'mcp'          => array(
 						'public' => true,
@@ -162,6 +170,7 @@ class Newsletter_Abilities extends Registrar {
 						'destructive' => false,
 						'idempotent'  => true,
 					),
+					'public'       => true,
 					'show_in_rest' => true,
 					'mcp'          => array(
 						'public' => true,
@@ -198,6 +207,7 @@ class Newsletter_Abilities extends Registrar {
 						'destructive' => false,
 						'idempotent'  => true,
 					),
+					'public'       => true,
 					'show_in_rest' => true,
 					'mcp'          => array(
 						'public' => true,

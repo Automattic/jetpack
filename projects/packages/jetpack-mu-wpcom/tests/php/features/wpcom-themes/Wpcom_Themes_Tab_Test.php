@@ -376,6 +376,63 @@ class Wpcom_Themes_Tab_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Core's Feature Filter, applied on the tab, narrows the tab's catalog as WordPress.org would.
+	 *
+	 * @param string[] $tags   Tags checked in the filter drawer.
+	 * @param string[] $listed Slugs the tab lists.
+	 * @dataProvider provide_feature_filters
+	 */
+	#[DataProvider( 'provide_feature_filters' )]
+	public function test_the_feature_filter_lists_themes_with_every_tag( array $tags, array $listed ) {
+		$this->enable_tab();
+		$this->answer_with_themes(
+			array(
+				array_merge(
+					self::THEME,
+					array(
+						'id'         => 'cafe',
+						'taxonomies' => array(
+							'theme_subject' => array( array( 'slug' => 'restaurant' ) ),
+							'theme_feature' => array( array( 'slug' => 'one-column' ) ),
+						),
+					)
+				),
+				array_merge(
+					self::THEME,
+					array(
+						'id'         => 'diary',
+						'taxonomies' => array( 'theme_feature' => array( array( 'slug' => 'one-column' ) ) ),
+					)
+				),
+				array_merge( self::THEME, array( 'id' => 'plain' ) ),
+			)
+		);
+
+		$result = $this->query(
+			array(
+				'browse' => WPCOM_THEMES_TAB,
+				'tag'    => $tags,
+			)
+		);
+
+		$this->assertSame( $listed, array_column( $result->themes, 'slug' ) );
+		$this->assertSame( count( $listed ), $result->info['results'] );
+	}
+
+	/**
+	 * Feature filters, and what each leaves on the tab.
+	 *
+	 * @return array<string, array>
+	 */
+	public static function provide_feature_filters(): array {
+		return array(
+			'one tag'                                   => array( array( 'one-column' ), array( 'cafe', 'diary' ) ),
+			'every tag, not any of them'                => array( array( 'one-column', 'food-and-drink' ), array( 'cafe' ) ),
+			'a subject named as WordPress.org names it' => array( array( 'food-and-drink' ), array( 'cafe' ) ),
+		);
+	}
+
+	/**
 	 * A second view within the cache window does not call WordPress.com again.
 	 */
 	public function test_caches_the_catalog() {
@@ -443,6 +500,7 @@ class Wpcom_Themes_Tab_Test extends \WorDBless\BaseTestCase {
 
 		$this->assertFalse( $this->query( array( 'browse' => 'popular' ) ) );
 		$this->assertFalse( $this->query( array( 'search' => 'blog' ) ) );
+		$this->assertFalse( $this->query( array( 'tag' => array( 'blog' ) ) ) );
 		$this->assertFalse( wpcom_themes_tab_serve_themes_api( false, 'theme_information', (object) array( 'slug' => 'organic-stax' ) ) );
 		$this->assertSame( array(), $this->requests );
 	}
@@ -649,6 +707,24 @@ class Wpcom_Themes_Tab_Test extends \WorDBless\BaseTestCase {
 
 		$this->assertSame( 'personal-bundle', $theme->required_plan );
 		$this->assertStringContainsString( '/personal-bundle,theme_stax_yearly?', $theme->purchase_url );
+	}
+
+	/**
+	 * Simple sites can't request the store, so wpcom supplies it through the filter instead.
+	 */
+	public function test_a_partner_theme_is_sold_from_the_supplied_store() {
+		$this->site_has_plan( true );
+		$this->answer_wpcom( array( 'tier=partner' => array( 'body' => self::PARTNER_THEMES ) ) );
+		$supplied = static function () {
+			return self::STORE_PRODUCTS + array( 'personal-bundle' => array( 'product_type' => 'bundle' ) );
+		};
+
+		add_filter( 'wpcom_marketplace_store_products', $supplied );
+		$theme = $this->add_plan_to_partner_theme();
+		remove_filter( 'wpcom_marketplace_store_products', $supplied );
+
+		$this->assertSame( 'theme_stax_yearly', $theme->price_product );
+		$this->assertSame( array(), preg_grep( '#/products#', $this->requests ) );
 	}
 
 	/**

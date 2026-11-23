@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-components",
-	"version": "6.3.0",
+	"version": "7.0.0",
 	"description": "Jetpack Components Package",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/components/#readme",
 	"bugs": {
@@ -96,6 +96,11 @@
 			"jetpack:src": "./tools/jp-redirect/index.ts",
 			"types": "./build/tools/jp-redirect/index.d.ts",
 			"default": "./build/tools/jp-redirect/index.js"
+		},
+		"./tools/load-media-library": {
+			"jetpack:src": "./tools/load-media-library/index.ts",
+			"types": "./build/tools/load-media-library/index.d.ts",
+			"default": "./build/tools/load-media-library/index.js"
 		}
 	},
 	"scripts": {

@@ -25,6 +25,10 @@ describe( 'toMembershipProduct', () => {
 			type: 'tier',
 			tier: 3,
 			isReadOnly: false,
+			welcomeEmailContent: '',
+			buyerCanChangeAmount: false,
+			multiplePerUser: false,
+			subscribeAsSiteSubscriber: false,
 		} );
 	} );
 } );

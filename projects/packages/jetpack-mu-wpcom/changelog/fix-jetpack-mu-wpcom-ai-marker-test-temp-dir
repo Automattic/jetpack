@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Keep the AI marker tests from failing when other suites empty the shared uploads folder.
+
+

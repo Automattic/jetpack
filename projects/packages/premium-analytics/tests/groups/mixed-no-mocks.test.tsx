@@ -8,4 +8,5 @@ import '../../packages/routing/src/search/report-origin/report-origin.test';
 import '../../packages/routing/src/search/report-params/report-params.test';
 import '../../packages/routing/src/tabs/define-report-tabs.test';
 import '../../packages/site-sync/src/status.test';
+import '../../tests/js/route-stages-error-boundary.test';
 import '../../tests/js/site-readiness.test';

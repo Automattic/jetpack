@@ -48,6 +48,16 @@ export function featuresFrom( slug: string ): string {
 }
 
 /**
+ * The name an Overview item's connect links send, such as `my_jetpack_overview_stats`.
+ *
+ * @param slug - My Jetpack's product slug.
+ * @return The name.
+ */
+export function overviewFrom( slug: string ): string {
+	return CONNECTION_FROM?.myJetpackOverview( slug ) ?? 'my-jetpack';
+}
+
+/**
  * The route to the connection screen, with `from` in its query.
  *
  * @param from                - The entry-point name, such as `my_jetpack_products_backup`.

@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Connection: Stop showing a connection error notice for a request signature mismatch, which reconnecting rarely fixes.

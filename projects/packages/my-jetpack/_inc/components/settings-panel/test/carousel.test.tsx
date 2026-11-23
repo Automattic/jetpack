@@ -12,15 +12,15 @@ jest.mock( '@wordpress/api-fetch', () => jest.fn() );
 jest.mock( '@automattic/jetpack-shared-stores', () => ( { store: {} } ) );
 jest.mock( '@wordpress/notices', () => ( { store: 'core/notices' } ) );
 jest.mock( '@wordpress/data', () => ( {
+	combineReducers: () => {},
+	createReduxStore: () => {},
+	createSelector: () => {},
+	register: () => {},
 	useDispatch: () => ( {
 		fetchModules: mockFetchModules,
 		createErrorNotice: mockCreateErrorNotice,
 		createSuccessNotice: mockCreateSuccessNotice,
 	} ),
-} ) );
-jest.mock( '../../../hooks/use-analytics', () => ( {
-	__esModule: true,
-	default: () => ( { recordEvent: jest.fn() } ),
 } ) );
 jest.mock( '../../module-toggle', () => ( {
 	ModuleToggle: ( { labelledby, disabled }: { labelledby?: string; disabled?: boolean } ) => (

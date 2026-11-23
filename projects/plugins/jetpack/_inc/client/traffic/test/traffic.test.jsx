@@ -17,7 +17,10 @@ jest.mock( '../related-posts-moved', () => ( {
 jest.mock( '../seo', () => () => null );
 jest.mock( '../seo-optin-banner', () => () => 'SEO opt-in banner' );
 jest.mock( '../shortlinks', () => () => 'shortlinks card' );
-jest.mock( '../site-stats', () => ( { SiteStats: () => null } ) );
+jest.mock( '../site-stats', () => ( {
+	SiteStats: ( { settingsOnStatsPage } ) =>
+		settingsOnStatsPage ? 'stats pointer' : 'stats card',
+} ) );
 jest.mock( '../sitemaps', () => () => null );
 jest.mock( '../verification-services', () => ( { VerificationServices: () => null } ) );
 
@@ -27,6 +30,7 @@ const findsOnly = {
 	'related-posts': module => module === 'related-posts',
 	blaze: module => module === 'blaze',
 	shortlinks: module => module === 'shortlinks',
+	stats: module => module === 'stats',
 	ga: () => false,
 };
 
@@ -90,6 +94,24 @@ describe( 'Traffic settings', () => {
 			}
 		}
 	);
+
+	it.each( [
+		[ 'keeps the Stats card while its settings stay here', false, '', [ 'stats card' ] ],
+		[ 'hides the Stats card once its settings have their own page', true, '', [] ],
+		[ 'points a search to the Stats settings page', true, 'stats', [ 'stats pointer' ] ],
+	] )( '%s', ( _name, movedOut, searchTerm, expected ) => {
+		render(
+			<Traffic
+				active
+				searchTerm={ searchTerm }
+				isModuleFound={ findsOnly.stats }
+				statsSettingsMovedOut={ movedOut }
+			/>
+		);
+
+		const shown = [ 'stats card', 'stats pointer' ].filter( text => screen.queryByText( text ) );
+		expect( shown ).toEqual( expected );
+	} );
 } );
 
 it( 'links the Google Analytics pointer to the panel URL from My Jetpack', () => {

@@ -256,9 +256,41 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 		$this->assertSame( array(), $this->requests );
 	}
 
-	public function test_refuses_an_unknown_provider() {
-		$this->assertSame( 400, $this->get_report( 'orders/by-date', array( 'provider' => 'mars' ) )->get_status() );
+	/**
+	 * @dataProvider data_unknown_providers
+	 *
+	 * @param string $provider The `provider` param.
+	 * @param int    $status   Expected status.
+	 * @param string $code     Expected error code.
+	 */
+	#[DataProvider( 'data_unknown_providers' )]
+	public function test_refuses_an_unknown_provider( $provider, $status, $code ) {
+		$response = $this->get_report( 'orders/by-date', array( 'provider' => $provider ) );
+
+		$this->assertSame( $status, $response->get_status() );
+		$this->assertSame( $code, $response->get_data()['code'] );
 		$this->assertSame( array(), $this->requests );
+	}
+
+	/**
+	 * @return array<string, array{0: string, 1: int, 2: string}>
+	 */
+	public static function data_unknown_providers() {
+		return array(
+			'an unregistered name' => array( 'mars', 422, 'unsupported_provider' ),
+			'a malformed name'     => array( 'Mars/../x', 400, 'rest_invalid_param' ),
+			'a trailing newline'   => array( "mars\n", 400, 'rest_invalid_param' ),
+		);
+	}
+
+	public function test_auto_names_the_registered_provider_that_lacks_a_handler() {
+		update_option( 'jetpack_woocommerce_stats_report_providers', 'mars,local' );
+		$this->register_partial_local_handler();
+
+		$response = $this->get_report( 'products', array( 'provider' => 'auto' ) );
+
+		$this->assertSame( 'unsupported_provider', $response->get_data()['code'] );
+		$this->assertStringContainsString( 'local provider', $response->get_data()['message'] );
 	}
 
 	public function test_answers_unsupported_provider_for_a_provider_without_a_handler() {

@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+My Jetpack: Fix the Learn more, Manage and Connect buttons on recommendation cards, which did nothing.

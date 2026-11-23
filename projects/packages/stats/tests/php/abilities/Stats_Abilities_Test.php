@@ -45,6 +45,23 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 	private static $subscriber_id;
 
 	/**
+	 * The `email` figures of get-post-detail, other than `emailed`, for a post that was not sent or whose email stats are unknown.
+	 */
+	private const NO_EMAIL = array(
+		'sent'   => null,
+		'opens'  => array(
+			'total'  => null,
+			'unique' => null,
+			'rate'   => null,
+		),
+		'clicks' => array(
+			'total'  => null,
+			'unique' => null,
+			'rate'   => null,
+		),
+	);
+
+	/**
 	 * {@inheritDoc}
 	 */
 	protected function set_up() {
@@ -212,18 +229,11 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 	}
 
 	public function test_read_abilities_declared_readonly_and_non_destructive(): void {
-		$read_slugs = array(
-			'jetpack-stats/get-site-overview',
-			'jetpack-stats/get-top-content',
-			'jetpack-stats/get-post-views',
-			'jetpack-stats/get-visits',
-			'jetpack-stats/get-followers',
-			'jetpack-stats/get-settings',
-		);
-		$abilities  = Stats_Abilities::get_abilities();
-		foreach ( $read_slugs as $slug ) {
-			$this->assertArrayHasKey( $slug, $abilities );
-			$ann = $abilities[ $slug ]['meta']['annotations'];
+		foreach ( Stats_Abilities::get_abilities() as $slug => $spec ) {
+			if ( 'jetpack-stats/update-settings' === $slug ) {
+				continue;
+			}
+			$ann = $spec['meta']['annotations'];
 			$this->assertTrue( $ann['readonly'], "{$slug} should be readonly" );
 			$this->assertFalse( $ann['destructive'], "{$slug} should not be destructive" );
 			$this->assertTrue( $ann['idempotent'], "{$slug} should be idempotent" );
@@ -231,27 +241,30 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 	}
 
 	public function test_read_abilities_without_required_input_have_empty_object_default(): void {
-		$abilities = Stats_Abilities::get_abilities();
-
-		foreach (
-			array(
-				'jetpack-stats/get-site-overview',
-				'jetpack-stats/get-visits',
-				'jetpack-stats/get-followers',
-				'jetpack-stats/get-settings',
-			) as $slug
-		) {
-			$schema = $abilities[ $slug ]['input_schema'];
+		foreach ( Stats_Abilities::get_abilities() as $slug => $spec ) {
+			$schema = $spec['input_schema'];
+			if ( 'jetpack-stats/update-settings' === $slug || isset( $schema['required'] ) ) {
+				continue;
+			}
 
 			$this->assertSame( 'object', $schema['type'], "{$slug} input must remain an object schema." );
-			$this->assertArrayNotHasKey( 'required', $schema, "{$slug} should continue to allow empty input." );
 			$this->assertArrayHasKey( 'default', $schema, "{$slug} must default missing tunnel input to an empty object." );
 			$this->assertSame( array(), $schema['default'], "{$slug} must default missing tunnel input to an empty object." );
 		}
 	}
 
+	public function test_every_input_schema_validates_an_unexpected_key_without_a_php_error(): void {
+		foreach ( Stats_Abilities::get_abilities() as $slug => $spec ) {
+			$result = rest_validate_value_from_schema( array( 'unexpected' => 1 ), $spec['input_schema'], 'input' );
+			$this->assertInstanceOf( \WP_Error::class, $result, "{$slug} must reject an unexpected key." );
+		}
+	}
+
 	public function test_every_ability_opts_into_mcp_as_public_tool(): void {
 		foreach ( Stats_Abilities::get_abilities() as $slug => $spec ) {
+			$this->assertArrayHasKey( 'public', $spec['meta'], "{$slug} must declare meta.public." );
+			$this->assertSame( true, $spec['meta']['public'], "{$slug} must be marked public." );
+			$this->assertSame( true, $spec['meta']['show_in_rest'], "{$slug} must be exposed through the Abilities REST API." );
 			$this->assertSame( true, $spec['meta']['mcp']['public'], "{$slug} must opt into MCP." );
 			$this->assertSame( 'tool', $spec['meta']['mcp']['type'], "{$slug} must be exposed as an MCP tool." );
 		}
@@ -418,9 +431,7 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 				return '1405-07-20';
 			}
 		);
-		$responses = self::overview_responses();
-		$responses['get_streak']['streak']['current']['end'] = $today;
-		$requests = $this->filter_wpcom_stats( $responses );
+		$requests = $this->filter_wpcom_stats( self::overview_responses() );
 
 		$result = Stats_Abilities::get_site_overview();
 		$this->assert_matches_output_schema( 'jetpack-stats/get-site-overview', $result );
@@ -441,15 +452,7 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 		$this->assertSame( 90, $result['visitors_today'] );
 		$this->assertSame( 10 + 20 + 30 + 40 + 50 + 60 + 120, $result['views_week'] );
 		$this->assertSame( 1000 + 2000 + 10 + 20 + 30 + 40 + 50 + 60 + 120, $result['views_month'] );
-		$this->assertSame(
-			array(
-				'current_length' => 3,
-				'longest_length' => 12,
-				'longest_start'  => '2026-01-01',
-				'longest_end'    => '2026-01-12',
-			),
-			$result['streak']
-		);
+		$this->assertArrayNotHasKey( 'streak', $result );
 		$this->assertSame(
 			array(
 				'id'    => 7,
@@ -478,7 +481,6 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 		return array(
 			'ended yesterday'    => array( '-1 day', true ),
 			'ended two days ago' => array( '-2 days', false ),
-			'ended months ago'   => array( '-90 days', false ),
 		);
 	}
 
@@ -489,15 +491,20 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 	 * @param bool   $current Whether the streak still counts as current.
 	 */
 	#[DataProvider( 'provide_streak_ends' )]
-	public function test_get_site_overview_counts_a_streak_only_while_it_lasts( string $ago, bool $current ): void {
-		$responses = self::overview_responses();
-		$responses['get_streak']['streak']['current']['end'] = gmdate( 'Y-m-d', strtotime( current_time( 'Y-m-d' ) . ' ' . $ago ) );
-		$this->filter_wpcom_stats( $responses );
+	public function test_get_insights_finds_the_streaks_among_the_posting_days( string $ago, bool $current ): void {
+		$end  = strtotime( current_time( 'Y-m-d' ) . ' ' . $ago );
+		$data = array();
+		// A three-day run ending `$ago`, and a four-day run before it.
+		foreach ( array( 0, 1, 2, 10, 11, 12, 13 ) as $back ) {
+			$data[ (string) ( new \DateTime( gmdate( 'Y-m-d', $end - $back * DAY_IN_SECONDS ) . ' 12:00', wp_timezone() ) )->getTimestamp() ] = 1;
+		}
+		$this->filter_wpcom_stats( array( 'get_streak' => array( 'data' => $data ) ) );
 
-		$streak = Stats_Abilities::get_site_overview()['streak'];
+		$streak = Stats_Abilities::get_insights()['streak'];
 
 		$this->assertSame( $current ? 3 : 0, $streak['current_length'] );
-		$this->assertSame( 12, $streak['longest_length'] );
+		$this->assertSame( 4, $streak['longest_length'] );
+		$this->assertSame( gmdate( 'Y-m-d', $end - 13 * DAY_IN_SECONDS ), $streak['longest_start'] );
 	}
 
 	/**
@@ -511,7 +518,6 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 		return array(
 			'visits'                  => array( 'get_visits', $error, 'visits', 'views_today', null ),
 			'visits body is not JSON' => array( 'get_visits', null, 'visits', 'views_month', null ),
-			'streak'                  => array( 'get_streak', $error, 'streak', 'streak', null ),
 			'top posts'               => array( 'get_top_posts', $error, 'top_posts', 'top_post', null ),
 			'referrers'               => array( 'get_referrers', $error, 'referrers', 'top_referrer', null ),
 		);
@@ -539,13 +545,138 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 		$this->assertSame( $placeholder, $result[ $field ] );
 	}
 
-	public function test_get_site_overview_returns_wp_error_when_all_subcalls_fail(): void {
-		$this->filter_wpcom_stats( array_fill_keys( array_keys( self::overview_responses() ), new \WP_Error( 'boom', 'nope' ) ) );
+	/**
+	 * Every reader, and the WordPress.com calls it makes.
+	 *
+	 * @return array<string, array{0: string, 1: array, 2: string[]}>
+	 */
+	public static function provide_reader_calls(): array {
+		return array(
+			'overview'    => array( 'get_site_overview', array(), array_keys( self::overview_responses() ) ),
+			'top content' => array( 'get_top_content', array( 'type' => 'posts' ), array( 'get_top_posts' ) ),
+			'post views'  => array( 'get_post_views', array( 'post_id' => 'new' ), array( 'get_post_views' ) ),
+			'visits'      => array( 'get_visits', array(), array( 'get_visits' ) ),
+			'followers'   => array( 'get_followers', array( 'period' => 'month' ), array( 'get_followers', 'get_comment_followers', 'get_publicize_followers', 'get_subscriber_counts', 'get_subscriber_history' ) ),
+			'author'      => array( 'get_author_views', array( 'author_id' => 7 ), array( 'get_author_views' ) ),
+			'insights'    => array( 'get_insights', array(), array( 'get_stats', 'get_insights', 'get_highlights', 'get_streak', 'get_stats_usage' ) ),
+			'emails'      => array( 'get_email_stats', array(), array( 'get_email_summary' ) ),
+			'email'       => array( 'get_email_detail', array( 'post_id' => 'new' ), array( 'get_email_breakdown' ) ),
+			'post detail' => array( 'get_post_detail', array( 'post_id' => 'new' ), array( 'get_post_views', 'get_post_likes', 'get_utm_views', 'get_email_breakdown' ) ),
+			'video'       => array( 'get_video_stats', array( 'video_id' => 'new' ), array( 'get_video_details' ) ),
+			'subscribers' => array( 'get_subscribers', array(), array( 'get_subscribers' ) ),
+			'ads'         => array( 'get_ad_stats', array(), array( 'get_wordads_stats', 'get_wordads_earnings' ) ),
+		);
+	}
 
-		$result = Stats_Abilities::get_site_overview();
+	/**
+	 * A reader whose every WordPress.com call fails reports an error, never an empty report.
+	 *
+	 * @dataProvider provide_reader_calls
+	 *
+	 * @param string   $reader Stats_Abilities reader.
+	 * @param array    $input  Its input.
+	 * @param string[] $calls  The WPCOM_Stats methods it calls.
+	 */
+	#[DataProvider( 'provide_reader_calls' )]
+	public function test_reader_reports_an_error_when_wordpress_com_answers_nothing( string $reader, array $input, array $calls ): void {
+		if ( 'new' === ( $input['post_id'] ?? null ) ) {
+			$input['post_id'] = wp_insert_post(
+				array(
+					'post_title'  => 'Hello',
+					'post_status' => 'publish',
+				)
+			);
+		}
+		if ( 'new' === ( $input['video_id'] ?? null ) ) {
+			$input['video_id'] = wp_insert_post( array( 'post_type' => 'attachment' ) );
+		}
+		$this->filter_wpcom_stats( array_fill_keys( $calls, new \WP_Error( 'wpcom_boom', 'nope' ) ) );
+
+		$this->assertInstanceOf( \WP_Error::class, Stats_Abilities::$reader( $input ) );
+	}
+
+	/**
+	 * @return array<string, array{0: string, 1: array, 2: string}>
+	 */
+	public static function provide_invalid_reader_input(): array {
+		$bad_day = '2026-04-31';
+		return array(
+			'post views date'  => array(
+				'get_post_views',
+				array(
+					'post_id' => 1,
+					'date'    => $bad_day,
+				),
+				'jetpack_stats_invalid_date',
+			),
+			'visits date'      => array( 'get_visits', array( 'date' => $bad_day ), 'jetpack_stats_invalid_date' ),
+			'visits compare'   => array( 'get_visits', array( 'compare' => 'last-decade' ), 'jetpack_stats_invalid_compare' ),
+			'followers date'   => array(
+				'get_followers',
+				array(
+					'period' => 'month',
+					'date'   => $bad_day,
+				),
+				'jetpack_stats_invalid_date',
+			),
+			'author missing'   => array( 'get_author_views', array(), 'jetpack_stats_missing_author_id' ),
+			'author date'      => array(
+				'get_author_views',
+				array(
+					'author_id' => 7,
+					'date'      => $bad_day,
+				),
+				'jetpack_stats_invalid_date',
+			),
+			'emails start'     => array( 'get_email_stats', array( 'start_date' => $bad_day ), 'jetpack_stats_invalid_date' ),
+			'emails empty end' => array( 'get_email_stats', array( 'end_date' => '' ), 'jetpack_stats_invalid_date' ),
+			'email missing'    => array( 'get_email_detail', array(), 'jetpack_stats_missing_post_id' ),
+			'email no post'    => array( 'get_email_detail', array( 'post_id' => 999999 ), 'jetpack_stats_post_not_found' ),
+			'detail missing'   => array( 'get_post_detail', array( 'post_id' => '0' ), 'jetpack_stats_missing_post_id' ),
+			'detail no post'   => array( 'get_post_detail', array( 'post_id' => 999999 ), 'jetpack_stats_post_not_found' ),
+			'detail private'   => array( 'get_post_detail', array( 'post_id' => 'private' ), 'jetpack_stats_post_not_found' ),
+			'detail draft'     => array( 'get_post_detail', array( 'post_id' => 'draft' ), 'jetpack_stats_post_not_found' ),
+			'video missing'    => array( 'get_video_stats', array( 'video_id' => 0 ), 'jetpack_stats_missing_video_id' ),
+			'video date'       => array(
+				'get_video_stats',
+				array(
+					'video_id' => 1,
+					'date'     => $bad_day,
+				),
+				'jetpack_stats_invalid_date',
+			),
+			'video no video'   => array( 'get_video_stats', array( 'video_id' => 999999 ), 'jetpack_stats_video_not_found' ),
+			'ads date'         => array( 'get_ad_stats', array( 'date' => $bad_day ), 'jetpack_stats_invalid_date' ),
+		);
+	}
+
+	/**
+	 * A reader refuses input it cannot answer for, instead of answering a different question.
+	 *
+	 * @dataProvider provide_invalid_reader_input
+	 *
+	 * @param string $reader Stats_Abilities reader.
+	 * @param array  $input  Its input.
+	 * @param string $code   The error code it returns.
+	 */
+	#[DataProvider( 'provide_invalid_reader_input' )]
+	public function test_reader_refuses_invalid_input( string $reader, array $input, string $code ): void {
+		// A post the subscriber cannot open on the site, named by its status.
+		if ( in_array( $input['post_id'] ?? null, array( 'private', 'draft' ), true ) ) {
+			$input['post_id'] = wp_insert_post(
+				array(
+					'post_title'  => 'Unannounced',
+					'post_status' => $input['post_id'],
+				)
+			);
+			wp_set_current_user( self::$subscriber_id );
+		}
+		$this->filter_wpcom_stats( array() );
+
+		$result = Stats_Abilities::$reader( $input );
 
 		$this->assertInstanceOf( \WP_Error::class, $result );
-		$this->assertSame( 'jetpack_stats_data_unavailable', $result->get_error_code() );
+		$this->assertSame( $code, $result->get_error_code() );
 	}
 
 	public function test_get_top_content_rejects_missing_type(): void {
@@ -1054,18 +1185,6 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 		$this->assertSame( $truncated, $result['truncated'] );
 	}
 
-	public function test_get_top_content_propagates_wp_error(): void {
-		$this->filter_wpcom_stats(
-			array(
-				'get_top_posts' => new \WP_Error( 'wpcom_boom', 'bad' ),
-			)
-		);
-
-		$result = Stats_Abilities::get_top_content( array( 'type' => 'posts' ) );
-
-		$this->assertInstanceOf( \WP_Error::class, $result );
-	}
-
 	public function test_get_top_content_referrers_normalizes_groups_shape(): void {
 		// Regression guard: WPCOM `stats/referrers` keys per-day data under `groups`,
 		// not `referrers`. The mapping must read from `groups -> name/total/url?`.
@@ -1230,8 +1349,9 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 					'plays',
 					array(
 						array(
-							'title' => 'Launch demo',
-							'plays' => 200,
+							'post_id' => 34,
+							'title'   => 'Launch demo',
+							'plays'   => 200,
 						),
 						array(
 							'title' => 'Tutorial',
@@ -1252,7 +1372,72 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 		$this->assertCount( 2, $result['items'] );
 		$this->assertSame( 'Launch demo', $result['items'][0]['label'] );
 		$this->assertSame( 200, $result['items'][0]['value'] );
+		$this->assertSame( 34, $result['items'][0]['id'] );
 		$this->assertArrayNotHasKey( 'href', $result['items'][0] );
+	}
+
+	public function test_get_video_stats_reads_one_video_over_time(): void {
+		$video_id = wp_insert_post(
+			array(
+				'post_type'  => 'attachment',
+				'post_title' => 'Launch demo',
+			)
+		);
+		$requests = $this->filter_wpcom_stats(
+			array(
+				'get_video_details' => array(
+					'fields'       => array( 'period', 'plays' ),
+					'data'         => array( array( '2026-03-01', 141 ), array( '2026-04-01', 81 ) ),
+					'total'        => array( 'plays' => 222 ),
+					'pages_detail' => array(
+						array(
+							'url'     => 'https://example.com/launch',
+							'post_id' => 41,
+							'title'   => 'Launch &amp; demo',
+						),
+						array(
+							'url'     => 'https://elsewhere.example/embed',
+							'post_id' => null,
+							'title'   => null,
+						),
+					),
+				),
+			)
+		);
+
+		$result = Stats_Abilities::get_video_stats(
+			array(
+				'video_id' => (string) $video_id,
+				'period'   => 'month',
+				'num'      => 2,
+				'date'     => '2026-04-23',
+			)
+		);
+
+		$this->assert_matches_output_schema( 'jetpack-stats/get-video-stats', $result );
+		$this->assertSame(
+			array(
+				$video_id,
+				array(
+					'statType' => 'plays',
+					'period'   => 'month',
+					'num'      => 2,
+					'date'     => '2026-04-23',
+				),
+			),
+			$requests['get_video_details']
+		);
+		$this->assertSame( 'Launch demo', $result['title'] );
+		$this->assertSame( 222, $result['total_plays'] );
+		$this->assertSame(
+			array(
+				'date'  => '2026-04-01',
+				'plays' => 81,
+			),
+			$result['series'][1]
+		);
+		$this->assertSame( 'Launch & demo', $result['pages'][0]['title'] );
+		$this->assertNull( $result['pages'][1]['post_id'] );
 	}
 
 	public function test_get_post_views_rejects_missing_post_id(): void {
@@ -1333,8 +1518,9 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 		};
 
 		return array(
-			'week'  => array( 'week', $daily, array( $row( '2026-09-14', 0 ), $row( '2026-09-21', 1 ), $row( '2026-09-28', 2 + 3 ), $row( '2026-10-05', 4 + 5 ) ) ),
-			'month' => array( 'month', $daily, array( $row( '2026-09-01', 1 + 2 ), $row( '2026-10-01', 3 + 4 + 5 ) ) ),
+			'week'    => array( 'week', $daily, array( $row( '2026-09-14', 0 ), $row( '2026-09-21', 1 ), $row( '2026-09-28', 2 + 3 ), $row( '2026-10-05', 4 + 5 ) ) ),
+			'month'   => array( 'month', $daily, array( $row( '2026-09-01', 1 + 2 ), $row( '2026-10-01', 3 + 4 + 5 ) ) ),
+			'quarter' => array( 'quarter', $daily, array( $row( '2026-04-01', 0 ), $row( '2026-07-01', 7 + 1 + 2 ), $row( '2026-10-01', 3 + 4 + 5 ) ) ),
 		);
 	}
 
@@ -1506,6 +1692,9 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 			'month end stays month end'      => array( 'month', 1, '2026-03-31', 'previous-period', '2026-02-28' ),
 			'months a year earlier'          => array( 'month', 3, '2026-03-31', 'previous-year', '2025-03-31' ),
 			'previous years'                 => array( 'year', 2, '2026-04-23', 'previous-period', '2024-04-23' ),
+			'previous quarters'              => array( 'quarter', 2, '2026-11-18', 'previous-period', '2026-05-18' ),
+			'quarter end stays quarter end'  => array( 'quarter', 1, '2026-12-31', 'previous-period', '2026-09-30' ),
+			'quarters a year earlier'        => array( 'quarter', 4, '2026-11-18', 'previous-year', '2025-11-18' ),
 		);
 	}
 
@@ -1596,7 +1785,7 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 	public function test_get_visits_refuses_to_line_up_months_or_years_by_weekday(): void {
 		$this->filter_wpcom_stats( array( 'get_visits' => array() ) );
 
-		foreach ( array( 'month', 'year' ) as $period ) {
+		foreach ( array( 'month', 'quarter', 'year' ) as $period ) {
 			$result = Stats_Abilities::get_visits(
 				array(
 					'period'  => $period,
@@ -1663,8 +1852,8 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 		$this->assertArrayHasKey( 'comparison', $result['definitions'] );
 	}
 
-	public function test_get_followers_composes_three_subcalls(): void {
-		$this->filter_wpcom_stats(
+	public function test_get_followers_composes_its_subcalls(): void {
+		$requests = $this->filter_wpcom_stats(
 			array(
 				'get_followers'           => array(
 					'page'        => 1,
@@ -1708,11 +1897,48 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 						),
 					),
 				),
+				'get_subscriber_counts'   => array( 'counts' => array( 'paid_subscribers' => 3 ) ),
+				// WordPress.com lists the newest period first.
+				'get_subscriber_history'  => array(
+					'fields' => array( 'period', 'subscribers', 'subscribers_change' ),
+					'data'   => array( array( '2026-04-01', 35, 2 ), 'malformed', array( '2026-03-01', 33, -1 ) ),
+				),
 			)
 		);
 
-		$result = Stats_Abilities::get_followers();
+		$result = Stats_Abilities::get_followers(
+			array(
+				'period' => 'month',
+				'num'    => 2,
+				'date'   => '2026-04-20',
+			)
+		);
 		$this->assert_matches_output_schema( 'jetpack-stats/get-followers', $result );
+
+		$this->assertSame(
+			array(
+				'unit'     => 'month',
+				'quantity' => 2,
+				'date'     => '2026-04-20',
+			),
+			$requests['get_subscriber_history']
+		);
+		$this->assertSame(
+			array(
+				array(
+					'date'        => '2026-03-01',
+					'subscribers' => 33,
+					'change'      => -1,
+				),
+				array(
+					'date'        => '2026-04-01',
+					'subscribers' => 35,
+					'change'      => 2,
+				),
+			),
+			$result['series']
+		);
+		$this->assertSame( 3, $result['paid'] );
 
 		$this->assertSame( 10, $result['email'] );
 		$this->assertSame( 25, $result['wpcom'] );
@@ -1759,6 +1985,7 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 				),
 				'get_comment_followers'   => $comment_followers,
 				'get_publicize_followers' => array( 'services' => array() ),
+				'get_subscriber_counts'   => array( 'counts' => array( 'paid_subscribers' => 0 ) ),
 			)
 		);
 
@@ -1773,6 +2000,950 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 		$this->assertSame( '{}', wp_json_encode( $result['publicize'], JSON_UNESCAPED_SLASHES ) );
 	}
 
+	/**
+	 * The top-content types that read a report other than a `days` list, and the items each reports.
+	 *
+	 * @return array
+	 */
+	public static function provide_report_types(): array {
+		return array(
+			'regions name the country'                => array(
+				array( 'type' => 'regions' ),
+				'get_views_by_location',
+				array(
+					'days' => array(
+						'2026-04-23' => array(
+							'views' => array(
+								array(
+									'location'     => 'Texas',
+									'views'        => 9,
+									'country_code' => 'US',
+								),
+							),
+						),
+					),
+				),
+				array(
+					array(
+						'rank'    => 1,
+						'label'   => 'Texas',
+						'value'   => 9,
+						'country' => 'US',
+					),
+				),
+			),
+			'browsers rank a value map'               => array(
+				array( 'type' => 'browsers' ),
+				'get_device_views',
+				array(
+					'top_values' => array(
+						'chrome'  => 30,
+						'firefox' => 4,
+					),
+				),
+				array(
+					array(
+						'rank'  => 1,
+						'label' => 'chrome',
+						'value' => 30,
+					),
+					array(
+						'rank'  => 2,
+						'label' => 'firefox',
+						'value' => 4,
+					),
+				),
+			),
+			'a device report without values is empty' => array(
+				array( 'type' => 'platforms' ),
+				'get_device_views',
+				array(),
+				array(),
+			),
+			'screen sizes are whole percents'         => array(
+				array( 'type' => 'screen-sizes' ),
+				'get_device_views',
+				array( 'top_values' => array( 'desktop' => 61.6 ) ),
+				array(
+					array(
+						'rank'  => 1,
+						'label' => 'desktop',
+						'value' => 62,
+					),
+				),
+			),
+			'utm combinations read as their values'   => array(
+				array( 'type' => 'utm' ),
+				'get_utm_views',
+				array( 'top_utm_values' => array( '["google","cpc"]' => 12 ) ),
+				array(
+					array(
+						'rank'  => 1,
+						'label' => 'google / cpc',
+						'value' => 12,
+					),
+				),
+			),
+			'commenters count comments'               => array(
+				array( 'type' => 'commenters' ),
+				'get_top_comments',
+				array(
+					'authors' => array(
+						array(
+							'name'     => 'Ada',
+							'comments' => '7',
+						),
+					),
+				),
+				array(
+					array(
+						'rank'  => 1,
+						'label' => 'Ada',
+						'value' => 7,
+					),
+				),
+			),
+			'commented posts link to the post'        => array(
+				array( 'type' => 'commented-posts' ),
+				'get_top_comments',
+				array(
+					'posts' => array(
+						array(
+							'name'     => 'Launch',
+							'link'     => 'https://example.com/launch',
+							'id'       => 41,
+							'comments' => 5,
+						),
+					),
+				),
+				array(
+					array(
+						'rank'  => 1,
+						'label' => 'Launch',
+						'value' => 5,
+						'href'  => 'https://example.com/launch',
+						'id'    => 41,
+					),
+				),
+			),
+			'authors carry their ID and their posts'  => array(
+				array(
+					'type'   => 'authors',
+					'expand' => true,
+				),
+				'get_top_authors',
+				self::days_fixture(
+					'authors',
+					array(
+						array(
+							'name'      => 'Ada',
+							'views'     => 11,
+							'author_id' => 7,
+							'posts'     => array(
+								array(
+									'title' => 'Launch',
+									'url'   => 'https://example.com/?p=41',
+									'views' => 10,
+								),
+							),
+						),
+					)
+				),
+				array(
+					array(
+						'rank'     => 1,
+						'label'    => 'Ada',
+						'value'    => 11,
+						'id'       => 7,
+						'children' => array(
+							array(
+								'label' => 'Launch',
+								'value' => 10,
+								'href'  => 'https://example.com/?p=41',
+							),
+						),
+					),
+				),
+			),
+		);
+	}
+
+	/**
+	 * @dataProvider provide_report_types
+	 *
+	 * @param array  $input    get-top-content input.
+	 * @param string $method   WPCOM_Stats method the type reads.
+	 * @param array  $response What that method returns.
+	 * @param array  $items    Expected items.
+	 */
+	#[DataProvider( 'provide_report_types' )]
+	public function test_get_top_content_projects_each_report_into_items( array $input, string $method, array $response, array $items ): void {
+		$this->filter_wpcom_stats( array( $method => $response ) );
+
+		$result = Stats_Abilities::get_top_content( $input + array( 'date' => '2026-04-23' ) );
+
+		$this->assert_matches_output_schema( 'jetpack-stats/get-top-content', $result );
+		$this->assertSame( $items, $result['items'] );
+		$this->assertNotContains( '', $result['definitions'] );
+	}
+
+	public function test_get_top_content_expand_lists_the_posts_each_utm_value_sent_views_to(): void {
+		$requests = $this->filter_wpcom_stats(
+			array(
+				'get_utm_views'     => array(
+					'top_utm_values' => array(
+						'["guides","email"]'       => 249,
+						'["google","paid_search"]' => 81,
+					),
+				),
+				'get_utm_top_posts' => array(
+					'top_posts' => array(
+						array(
+							'id'    => 89335,
+							'href'  => 'https://example.com/chores/',
+							'title' => 'Four Website Chores',
+							'views' => 108,
+						),
+					),
+				),
+			)
+		);
+
+		$result = Stats_Abilities::get_top_content(
+			array(
+				'type'   => 'utm',
+				'date'   => '2026-11-18',
+				'max'    => 1,
+				'expand' => true,
+			)
+		);
+		$this->assert_matches_output_schema( 'jetpack-stats/get-top-content', $result );
+
+		// The value is passed back exactly as WordPress.com keyed it, over the same days.
+		$this->assertSame(
+			array(
+				'utm_source,utm_medium',
+				'["guides","email"]',
+				array(
+					'max'  => 1,
+					'date' => '2026-11-18',
+					'days' => 1,
+				),
+			),
+			$requests['get_utm_top_posts']
+		);
+		$this->assertSame(
+			array(
+				array(
+					'rank'     => 1,
+					'label'    => 'guides / email',
+					'value'    => 249,
+					'children' => array(
+						array(
+							'label' => 'Four Website Chores',
+							'value' => 108,
+							'href'  => 'https://example.com/chores/',
+							'id'    => 89335,
+						),
+					),
+				),
+			),
+			$result['items']
+		);
+		$this->assertArrayHasKey( 'children', $result['definitions'] );
+
+		// A value whose posts cannot be read keeps its row and flags the gap.
+		$this->filter_wpcom_stats(
+			array(
+				'get_utm_views'     => array( 'top_utm_values' => array( 'email' => 5 ) ),
+				'get_utm_top_posts' => new \WP_Error( 'boom', 'bad' ),
+			)
+		);
+		$failed = Stats_Abilities::get_top_content(
+			array(
+				'type'      => 'utm',
+				'utm_param' => 'utm_source',
+				'expand'    => true,
+			)
+		);
+		$this->assertSame( 5, $failed['items'][0]['value'] );
+		$this->assertArrayNotHasKey( 'children', $failed['items'][0] );
+		$this->assertTrue( $failed['partial'] );
+		$this->assertSame( array( 'children' ), $failed['errors'] );
+
+		// One read per value keeps an expanded UTM list short.
+		$this->assertSame(
+			'jetpack_stats_invalid_max',
+			Stats_Abilities::get_top_content(
+				array(
+					'type'   => 'utm',
+					'max'    => 0,
+					'expand' => true,
+				)
+			)->get_error_code()
+		);
+	}
+
+	public function test_get_top_content_asks_device_and_utm_reports_for_days_ending_on_a_date(): void {
+		$requests = $this->filter_wpcom_stats(
+			array(
+				'get_device_views' => array( 'top_values' => array() ),
+				'get_utm_views'    => array( 'top_utm_values' => array() ),
+			)
+		);
+
+		Stats_Abilities::get_top_content(
+			array(
+				'type'   => 'platforms',
+				'period' => 'week',
+				'num'    => 2,
+				'date'   => '2026-04-15',
+				'max'    => 5,
+			)
+		);
+		$result = Stats_Abilities::get_top_content(
+			array(
+				'type'      => 'utm',
+				'utm_param' => 'utm_campaign',
+				'date'      => '2026-04-15',
+			)
+		);
+
+		// Two weeks from Monday 2026-04-06 to Sunday 2026-04-19, and the extra row that shows a cut.
+		$this->assertSame(
+			array(
+				'platform',
+				array(
+					'date' => '2026-04-19',
+					'days' => 14,
+					'max'  => 6,
+				),
+			),
+			$requests['get_device_views']
+		);
+		$this->assertSame( 'utm_campaign', $requests['get_utm_views'][0] );
+		$this->assertSame( 'utm_campaign', $result['utm_param'] );
+	}
+
+	public function test_get_top_content_flags_a_full_authors_list_as_truncated(): void {
+		$authors = array();
+		for ( $i = 1; $i <= Stats_Abilities::TOP_AUTHORS_LIMIT; $i++ ) {
+			$authors[] = array(
+				'name'  => "Author {$i}",
+				'views' => 100 - $i,
+			);
+		}
+		$this->filter_wpcom_stats( array( 'get_top_authors' => self::days_fixture( 'authors', $authors ) ) );
+
+		$result = Stats_Abilities::get_top_content(
+			array(
+				'type' => 'authors',
+				'date' => '2026-04-23',
+				'max'  => 0,
+			)
+		);
+
+		$this->assertCount( Stats_Abilities::TOP_AUTHORS_LIMIT, $result['items'] );
+		$this->assertTrue( $result['truncated'] );
+	}
+
+	public function test_get_author_views_reports_the_author_window(): void {
+		$requests = $this->filter_wpcom_stats(
+			array(
+				'get_author_views' => array(
+					'views'              => 112,
+					'likes'              => 20,
+					'comments'           => 1,
+					'fields'             => array( 'period', 'views' ),
+					'data'               => array( array( '2026-04-22', 100 ), array( '2026-04-23', 12 ) ),
+					'author'             => array( 'name' => 'Ada &amp; Co' ),
+					'content_counts'     => array( 'post' => 194 ),
+					'first_content_date' => '2010-05-03 21:00:40',
+				),
+			)
+		);
+
+		$result = Stats_Abilities::get_author_views(
+			array(
+				'author_id' => 7,
+				'num'       => 2,
+				'date'      => '2026-04-23',
+			)
+		);
+
+		$this->assert_matches_output_schema( 'jetpack-stats/get-author-views', $result );
+		$this->assertSame(
+			array(
+				7,
+				array(
+					'period' => 'day',
+					'date'   => '2026-04-23',
+					'num'    => 2,
+				),
+			),
+			$requests['get_author_views']
+		);
+		$this->assertSame(
+			array(
+				'id'   => 7,
+				'name' => 'Ada & Co',
+			),
+			$result['author']
+		);
+		$this->assertSame( array( 112, 20, 1 ), array( $result['views'], $result['likes'], $result['comments'] ) );
+		$this->assertSame(
+			array(
+				array(
+					'date'  => '2026-04-22',
+					'views' => 100,
+				),
+				array(
+					'date'  => '2026-04-23',
+					'views' => 12,
+				),
+			),
+			$result['series']
+		);
+		$this->assertSame( '{"post":194}', wp_json_encode( $result['content_counts'], JSON_UNESCAPED_SLASHES ) );
+	}
+
+	public function test_get_insights_composes_the_insights_page(): void {
+		$this->filter_wpcom_stats(
+			array(
+				'get_stats'       => array(
+					'stats' => array(
+						'views'                => 1000,
+						'visitors'             => 300,
+						'posts'                => 12,
+						'comments'             => 40,
+						'shares'               => 2,
+						'views_best_day'       => '2024-06-12',
+						'views_best_day_total' => 90,
+					),
+				),
+				'get_insights'    => array(
+					'highest_hour'         => 14,
+					'highest_hour_percent' => 7.34,
+					'highest_day_of_week'  => 1,
+					'highest_day_percent'  => 20.88,
+					'years'                => array(
+						array(
+							'year'           => '2026',
+							'total_posts'    => 4,
+							'total_words'    => 900,
+							'total_likes'    => 8,
+							'total_comments' => 3,
+						),
+					),
+				),
+				'get_highlights'  => array(
+					'past_seven_days' => array(
+						'range'    => array(
+							'start' => '2026-04-16',
+							'end'   => '2026-04-22',
+						),
+						'views'    => 70,
+						'visitors' => 30,
+						'likes'    => 5,
+						'comments' => 1,
+					),
+				),
+				'get_streak'      => new \WP_Error( 'boom', 'bad' ),
+				'get_stats_usage' => array(
+					'current_usage' => array(
+						'current_start' => '2026-04-12',
+						'next_start'    => '2026-05-12',
+						'views_count'   => 530,
+					),
+					'views_limit'   => 10000,
+					'current_tier'  => array( 'slug' => 'jetpack_stats_pwyw' ),
+				),
+			)
+		);
+
+		$result = Stats_Abilities::get_insights();
+
+		$this->assert_matches_output_schema( 'jetpack-stats/get-insights', $result );
+		$this->assertSame( 1000, $result['all_time']['views'] );
+		$this->assertSame( '2024-06-12', $result['all_time']['best_day'] );
+		$this->assertSame( 'Tuesday', $result['busiest']['day_of_week'] );
+		$this->assertSame( 7.3, $result['busiest']['hour_percent'] );
+		$this->assertSame( 70, $result['recent']['last_7_days']['views'] );
+		$this->assertSame( '2026', $result['years'][0]['year'] );
+		$this->assertSame( 10000, $result['plan_usage']['views_limit'] );
+		$this->assertNull( $result['streak'] );
+		$this->assertSame( array( 'streak' ), $result['errors'] );
+	}
+
+	public function test_get_email_stats_maps_posts_and_window(): void {
+		$requests = $this->filter_wpcom_stats(
+			array(
+				'get_email_summary' => array(
+					'start_date' => '2026-04-01',
+					'end_date'   => '2026-04-23',
+					'posts'      => array(
+						array(
+							'id'            => 41,
+							'title'         => 'Launch',
+							'href'          => 'https://example.com/launch',
+							'date'          => '2026-04-02 10:00:00',
+							'total_sends'   => 200,
+							'opens'         => 90,
+							'unique_opens'  => 80,
+							'opens_rate'    => 40,
+							'clicks'        => 12,
+							'unique_clicks' => 10,
+							'clicks_rate'   => 5,
+						),
+					),
+				),
+			)
+		);
+
+		$result = Stats_Abilities::get_email_stats(
+			array(
+				'sort'       => 'opens',
+				'max'        => 5,
+				'start_date' => '2026-04-01',
+			)
+		);
+
+		$this->assert_matches_output_schema( 'jetpack-stats/get-email-stats', $result );
+		$this->assertSame(
+			array(
+				'quantity'   => 5,
+				'sort_field' => 'opens',
+				'sort_order' => 'desc',
+				'start_date' => '2026-04-01',
+			),
+			$requests['get_email_summary']
+		);
+		$this->assertSame( 200, $result['posts'][0]['sent'] );
+		$this->assertSame( 40.0, $result['posts'][0]['open_rate'] );
+		$this->assertArrayHasKey( 'email_window', $result['definitions'] );
+	}
+
+	public function test_get_email_detail_breaks_one_email_down(): void {
+		$post_id   = wp_insert_post( array( 'post_title' => 'Launch' ) );
+		$responses = array(
+			'opens/rate'               => array(
+				'total_sends'  => 200,
+				'unique_opens' => 80,
+				'total_opens'  => 90,
+				'opens_rate'   => 0.4,
+			),
+			'opens/client'             => array(
+				'clients' => array(
+					'data' => array( array( 'Other', '10' ), array( 'Gmail', '80' ) ),
+				),
+			),
+			'opens/country'            => array(
+				'countries'      => array(
+					'data' => array( array( 'US', '60' ), array( 'BR', '20' ), array( 'A1', '10' ) ),
+				),
+				'countries-info' => array(
+					'US' => array( 'country_full' => 'United States' ),
+					'BR' => array( 'country_full' => 'Brazil' ),
+				),
+			),
+			'opens/device'             => new \WP_Error( 'boom', 'nope' ),
+			'clicks/link'              => array(
+				'links' => array(
+					'data' => array( array( 'user_link', '9' ), array( 'post-url', '4' ), array( 'remove-subscription', '1' ) ),
+				),
+			),
+			'clicks/user-content-link' => array(
+				'user-content-links' => array(
+					'data' => array( array( 'https://example.com/shop', '9' ) ),
+				),
+			),
+		);
+		$stub      = $this->createStub( WPCOM_Stats::class );
+		$stub->method( 'get_email_breakdown' )->willReturnCallback(
+			static function ( $post, $stat, $field ) use ( $post_id, $responses ) {
+				return $post === $post_id ? ( $responses[ "$stat/$field" ] ?? array() ) : new \WP_Error( 'wrong_post', 'nope' );
+			}
+		);
+		add_filter(
+			'jetpack_stats_abilities_wpcom_stats',
+			static function () use ( $stub ) {
+				return $stub;
+			}
+		);
+
+		$result = Stats_Abilities::get_email_detail(
+			array(
+				'post_id' => (string) $post_id,
+				'max'     => 2,
+			)
+		);
+
+		$this->assert_matches_output_schema( 'jetpack-stats/get-email-detail', $result );
+		$this->assertSame( 200, $result['sent'] );
+		$this->assertSame( 40.0, $result['opens']['rate'] );
+		$this->assertSame(
+			array(
+				array(
+					'label' => 'Gmail',
+					'value' => 80,
+				),
+				array(
+					'label' => 'Other',
+					'value' => 10,
+				),
+			),
+			$result['opens']['by_client']
+		);
+		$this->assertSame( array( 'United States', 'Brazil' ), array_column( $result['opens']['by_country'], 'label' ) );
+		$this->assertSame( array( 'https://example.com/shop', 'Post title' ), array_column( $result['clicks']['by_link'], 'label' ) );
+		$this->assertNull( $result['opens']['by_device'] );
+		$this->assertSame( array( 'opens/device' ), $result['errors'] );
+	}
+
+	public function test_get_post_detail_reports_one_post(): void {
+		$post_id = wp_insert_post(
+			array(
+				'post_title'  => 'Launch &amp; more',
+				'post_status' => 'publish',
+			)
+		);
+		// WorDBless stores no comments, so serve the newest approved ones the way the query would.
+		$asked = new \ArrayObject();
+		add_filter(
+			'comments_pre_query',
+			static function ( $comments, $query ) use ( $asked ) {
+				$asked->exchangeArray( $query->query_vars );
+				return array_map(
+					static function ( $text ) {
+						return new \WP_Comment(
+							(object) array(
+								'comment_ID'      => 1,
+								'comment_author'  => 'Reader',
+								'comment_content' => "<p>$text</p>",
+								'comment_date'    => '2026-11-03 10:00:00',
+							)
+						);
+					},
+					array( 'Third', 'Second <b>reply</b> ' . str_repeat( 'word ', 30 ) )
+				);
+			},
+			10,
+			2
+		);
+		add_filter(
+			'get_comments_number',
+			static function () {
+				return '3';
+			}
+		);
+		$this->stub_post_detail_stats( 200 );
+
+		$result = Stats_Abilities::get_post_detail(
+			array(
+				'post_id' => (string) $post_id,
+				'max'     => 2,
+			)
+		);
+
+		$this->assert_matches_output_schema( 'jetpack-stats/get-post-detail', $result );
+		$this->assertSame( 'Launch & more', $result['post']['title'] );
+		$this->assertSame( 4029, $result['views'] );
+		$this->assertSame( 3, $result['likes']['total'] );
+		$this->assertSame( array( 'Ana & Bo', 'Cy' ), array_column( $result['likes']['recent'], 'name' ) );
+		// The total and the list count the same things: approved comments of every type.
+		$this->assertSame( 3, $result['comments']['total'] );
+		$this->assertSame( array( $post_id, 'approve', 2, '' ), array( $asked['post_id'], $asked['status'], $asked['number'], $asked['type'] ) );
+		$this->assertSame( array( 'Third', 'Second reply ' . trim( str_repeat( 'word ', 28 ) ) . '…' ), array_column( $result['comments']['recent'], 'excerpt' ) );
+		$this->assertSame(
+			array(
+				array(
+					'label' => 'guides / email',
+					'value' => 109,
+				),
+			),
+			$result['utm']
+		);
+		$this->assertSame(
+			array(
+				'emailed' => true,
+				'sent'    => 200,
+				'opens'   => array(
+					'total'  => 90,
+					'unique' => 80,
+					'rate'   => 40.0,
+				),
+				'clicks'  => array(
+					'total'  => 12,
+					'unique' => 10,
+					'rate'   => 5.0,
+				),
+			),
+			$result['email']
+		);
+		$this->assertFalse( $result['partial'] );
+	}
+
+	/**
+	 * Email figures for a post nobody was sent, or whose email stats could not be read.
+	 */
+	public static function provide_unknown_email(): array {
+		return array(
+			'never sent' => array( 0, false, array() ),
+			'unreadable' => array( null, null, array( 'email' ) ),
+		);
+	}
+
+	/**
+	 * A post nobody was sent reads as never emailed, and unreadable email stats as unknown, never as an email with no opens.
+	 *
+	 * @dataProvider provide_unknown_email
+	 *
+	 * @param int|null  $sends   Subscribers WPCOM says the post went to, or null when it refuses.
+	 * @param bool|null $emailed The `email.emailed` this gives.
+	 * @param string[]  $errors  The errors reported.
+	 */
+	#[DataProvider( 'provide_unknown_email' )]
+	public function test_get_post_detail_leaves_email_figures_null_unless_it_was_sent( ?int $sends, ?bool $emailed, array $errors ): void {
+		$this->stub_post_detail_stats( $sends );
+
+		$post_id = wp_insert_post(
+			array(
+				'post_title'  => 'Hello',
+				'post_status' => 'publish',
+			)
+		);
+
+		$result = Stats_Abilities::get_post_detail( array( 'post_id' => $post_id ) );
+
+		$this->assertSame( array( 'emailed' => $emailed ) + self::NO_EMAIL, $result['email'] );
+		$this->assertSame( $errors, $result['errors'] ?? array() );
+	}
+
+	public function test_get_post_detail_asks_nothing_about_email_for_a_page(): void {
+		// Someone who can open a private page on the site can read its report.
+		wp_set_current_user( self::$admin_id );
+		$page_id = wp_insert_post(
+			array(
+				'post_title'  => 'Members',
+				'post_type'   => 'page',
+				'post_status' => 'private',
+			)
+		);
+		$calls   = $this->stub_post_detail_stats( 200 );
+
+		$page = Stats_Abilities::get_post_detail(
+			array(
+				'post_id'   => $page_id,
+				'utm_param' => 'utm_campaign',
+			)
+		);
+
+		// A refused UTM read leaves the rest of the report.
+		$this->assertSame( array( 'utm' ), $calls->getArrayCopy() );
+		$this->assertSame( array( 'emailed' => false ) + self::NO_EMAIL, $page['email'] );
+		$this->assertNull( $page['utm'] );
+		$this->assertSame( array( 'utm' ), $page['errors'] );
+		$this->assertSame( 4029, $page['views'] );
+	}
+
+	/**
+	 * Serve get-post-detail's WPCOM reads: the post's views, likes and UTM values, and an email sent to `$sends` people.
+	 *
+	 * UTM answers only for an all-time read grouped by source and medium, as a plan without UTM refuses the rest.
+	 *
+	 * @param int|null $sends Subscribers the post went to, or null to refuse the email reads.
+	 * @return \ArrayObject The UTM and email reads made, in order.
+	 */
+	private function stub_post_detail_stats( ?int $sends ): \ArrayObject {
+		$calls = new \ArrayObject();
+		$stub  = $this->createStub( WPCOM_Stats::class );
+		$stub->method( 'get_post_views' )->willReturn( array( 'views' => 4029 ) );
+		$stub->method( 'get_post_likes' )->willReturn(
+			array(
+				'found' => 3,
+				'likes' => array( array( 'name' => 'Ana &amp; Bo' ), array( 'name' => 'Cy' ), array( 'name' => 'Di' ) ),
+			)
+		);
+		$stub->method( 'get_utm_views' )->willReturnCallback(
+			static function ( $param, $args ) use ( $calls ) {
+				$calls[] = 'utm';
+				return 'utm_source,utm_medium' === $param && -1 === $args['days'] ? array( 'top_utm_values' => array( '["guides","email"]' => 109 ) ) : new \WP_Error( 'stats_error', 'No UTM on this plan' );
+			}
+		);
+		$stub->method( 'get_email_breakdown' )->willReturnCallback(
+			static function ( $post, $stat ) use ( $sends, $calls ) {
+				$calls[] = "email/$stat";
+				if ( null === $sends ) {
+					return new \WP_Error( 'stats_error', 'Unavailable' );
+				}
+				return 'opens' === $stat
+					? array(
+						'total_sends'  => $sends,
+						'total_opens'  => $sends ? 90 : 0,
+						'unique_opens' => $sends ? 80 : 0,
+						'opens_rate'   => $sends ? 0.4 : 0,
+					)
+					: array(
+						'total_clicks'  => $sends ? 12 : 0,
+						'unique_clicks' => $sends ? 10 : 0,
+						'clicks_rate'   => $sends ? 0.05 : 0,
+					);
+			}
+		);
+		add_filter(
+			'jetpack_stats_abilities_wpcom_stats',
+			static function () use ( $stub ) {
+				return $stub;
+			}
+		);
+
+		return $calls;
+	}
+
+	public function test_get_insights_reads_a_year_of_posts_for_the_streak_and_calendar(): void {
+		update_option( 'timezone_string', 'America/New_York' );
+		$today    = current_time( 'Y-m-d' );
+		$day      = gmdate( 'Y-m-d', strtotime( $today . ' -3 days' ) );
+		$at       = static function ( string $time ) use ( $day ): string {
+			return (string) ( new \DateTime( "$day $time", wp_timezone() ) )->getTimestamp();
+		};
+		$requests = $this->filter_wpcom_stats(
+			array(
+				'get_streak' => array(
+					'streak' => array(),
+					'data'   => array(
+						$at( '00:30' ) => 1,
+						$at( '23:30' ) => 2,
+					),
+				),
+			)
+		);
+
+		$result = Stats_Abilities::get_insights();
+
+		$this->assertSame(
+			array(
+				'startDate' => gmdate( 'Y-m-d', strtotime( $today . ' -1 year +1 day' ) ),
+				'endDate'   => $today,
+				'max'       => Stats_Abilities::STREAK_MAX_POSTS,
+			),
+			$requests['get_streak']
+		);
+		$this->assertSame(
+			array(
+				array(
+					'date'  => $day,
+					'posts' => 3,
+				),
+			),
+			$result['calendar']['days']
+		);
+	}
+
+	public function test_get_subscribers_lists_a_page_for_site_managers_only(): void {
+		$requests = $this->filter_wpcom_stats(
+			array(
+				'get_subscribers' => array(
+					'total'       => 601,
+					'pages'       => 301,
+					'subscribers' => array(
+						array(
+							'user_id'             => 0,
+							'subscription_id'     => 951,
+							'email_address'       => 'ada@example.com',
+							'display_name'        => 'Ada',
+							'date_subscribed'     => '2026-04-02T15:26:56+00:00',
+							'is_email_subscriber' => true,
+							'subscription_status' => 'Subscribed',
+						),
+					),
+				),
+			)
+		);
+
+		$result = Stats_Abilities::get_subscribers(
+			array(
+				'per_page' => 2,
+				'filter'   => 'paid',
+				'search'   => ' ada ',
+			)
+		);
+
+		$this->assert_matches_output_schema( 'jetpack-stats/get-subscribers', $result );
+		$this->assertSame( 'paid', $requests['get_subscribers']['filter'] );
+		$this->assertSame( 'ada', $requests['get_subscribers']['search'] );
+		$this->assertSame( 601, $result['total'] );
+		$this->assertNull( $result['subscribers'][0]['user_id'] );
+		$this->assertSame( 'ada@example.com', $result['subscribers'][0]['email'] );
+
+		$permission = Stats_Abilities::get_abilities()['jetpack-stats/get-subscribers']['permission_callback'];
+		wp_set_current_user( self::$subscriber_id );
+		$this->assertFalse( $permission() );
+		wp_set_current_user( self::$admin_id );
+		$this->assertTrue( $permission() );
+	}
+
+	public function test_get_ad_stats_reports_series_and_monthly_earnings(): void {
+		$this->filter_wpcom_stats(
+			array(
+				'get_wordads_stats'    => array(
+					'fields' => array( 'period', 'impressions', 'revenue', 'cpm' ),
+					'data'   => array( 'malformed', array( '2026-04-01', 1000, 1.234, 1.23 ) ),
+				),
+				'get_wordads_earnings' => array(
+					'earnings' => array(
+						'total_earnings'    => '12.50',
+						'total_amount_owed' => '2.50',
+						'wordads'           => array(
+							'2026-03' => array(
+								'amount' => 2,
+								'status' => 0,
+							),
+							'2026-02' => array(
+								'amount' => 10,
+								'status' => 1,
+							),
+						),
+						'adjustment'        => array(
+							'2026-03' => array(
+								'amount' => 0.5,
+								'status' => 0,
+							),
+						),
+					),
+				),
+			)
+		);
+
+		$result = Stats_Abilities::get_ad_stats( array( 'period' => 'month' ) );
+
+		$this->assert_matches_output_schema( 'jetpack-stats/get-ad-stats', $result );
+		$this->assertSame( 1.23, $result['series'][0]['revenue'] );
+		$this->assertSame( 12.5, $result['earnings']['total'] );
+		$this->assertSame(
+			array(
+				array(
+					'month'  => '2026-03',
+					'amount' => 2.5,
+					'paid'   => false,
+				),
+				array(
+					'month'  => '2026-02',
+					'amount' => 10.0,
+					'paid'   => true,
+				),
+			),
+			$result['earnings']['months']
+		);
+		$this->assertFalse( $result['partial'] );
+
+		$permission = Stats_Abilities::get_abilities()['jetpack-stats/get-ad-stats']['permission_callback'];
+		wp_set_current_user( self::$subscriber_id );
+		$this->assertFalse( $permission() );
+		wp_set_current_user( self::$admin_id );
+		$this->assertTrue( $permission() );
+	}
+
 	public function test_every_reader_names_the_site_it_read(): void {
 		\Jetpack_Options::update_option( 'id', 1234 );
 		$post_id = wp_insert_post( array( 'post_title' => 'Hello' ) );
@@ -1785,6 +2956,7 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 				),
 				'get_comment_followers'   => array(),
 				'get_publicize_followers' => array(),
+				'get_subscriber_counts'   => array( 'counts' => array( 'paid_subscribers' => 0 ) ),
 			)
 		);
 		$site = array(
@@ -1811,17 +2983,18 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 				),
 				'get_comment_followers'   => array(),
 				'get_publicize_followers' => array(),
+				'get_subscriber_counts'   => array( 'counts' => array( 'paid_subscribers' => 0 ) ),
 			)
 		);
 
 		$readers = array(
-			'overview'         => array( Stats_Abilities::get_site_overview(), array( 'date', 'views', 'visitors', 'views_today', 'visitors_today', 'views_week', 'views_month', 'streak', 'top_post', 'top_referrer' ) ),
+			'overview'         => array( Stats_Abilities::get_site_overview(), array( 'date', 'views', 'visitors', 'views_today', 'visitors_today', 'views_week', 'views_month', 'top_post', 'top_referrer' ) ),
 			'top posts'        => array( Stats_Abilities::get_top_content( array( 'type' => 'posts' ) ), array( 'value', 'items', 'views' ) ),
 			// Clicks are not views, so views is not defined for them.
 			'top clicks'       => array( Stats_Abilities::get_top_content( array( 'type' => 'clicks' ) ), array( 'value', 'items' ) ),
 			'post views'       => array( Stats_Abilities::get_post_views( array( 'post_id' => $post_id ) ), array( 'views', 'series', 'total_views' ) ),
 			'visits by fields' => array( Stats_Abilities::get_visits( array( 'fields' => array( 'likes', 'views' ) ) ), array( 'views', 'likes', 'series' ) ),
-			'followers'        => array( Stats_Abilities::get_followers(), array( 'total', 'email', 'wpcom', 'comment', 'publicize' ) ),
+			'followers'        => array( Stats_Abilities::get_followers(), array( 'total', 'email', 'wpcom', 'comment', 'publicize', 'paid' ) ),
 		);
 		foreach ( $readers as $reader => list( $result, $terms ) ) {
 			$this->assertEqualsCanonicalizing( $terms, array_keys( $result['definitions'] ), $reader );
@@ -2026,20 +3199,6 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 					array( '2026-04-23', 120, 90 ),
 				),
 			),
-			'get_streak'    => array(
-				'streak' => array(
-					'long'    => array(
-						'start'  => '2026-01-01',
-						'end'    => '2026-01-12',
-						'length' => 12,
-					),
-					'current' => array(
-						'start'  => '2026-04-21',
-						'end'    => '2026-04-23',
-						'length' => 3,
-					),
-				),
-			),
 			'get_top_posts' => self::days_fixture(
 				'postviews',
 				array(
@@ -2073,7 +3232,7 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 	 * Install a filter that makes the abilities class use a stubbed WPCOM_Stats.
 	 *
 	 * @param array $method_returns Map of WPCOM_Stats method => return value.
-	 * @return \ArrayObject The first argument each called method received, keyed by method.
+	 * @return \ArrayObject What each called method received, keyed by method: its query args, or its whole argument list when the first names what to read (a post, an author, a device property).
 	 */
 	private function filter_wpcom_stats( array $method_returns ): \ArrayObject {
 		$requests = new \ArrayObject();
@@ -2081,7 +3240,7 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 		foreach ( $method_returns as $method => $value ) {
 			$stub->method( $method )->willReturnCallback(
 				static function ( ...$args ) use ( $requests, $method, $value ) {
-					$requests[ $method ] = $args[0] ?? null;
+					$requests[ $method ] = isset( $args[0] ) && ! is_array( $args[0] ) ? $args : ( $args[0] ?? null );
 					return $value;
 				}
 			);

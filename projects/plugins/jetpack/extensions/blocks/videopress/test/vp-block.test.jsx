@@ -1,5 +1,6 @@
 import { render, screen } from '@testing-library/react';
-import { VpBlock } from '../edit';
+import apiFetch from '@wordpress/api-fetch';
+import withVideoPressEdit, { VpBlock } from '../edit';
 
 const mockSandBoxProps = jest.fn();
 
@@ -44,7 +45,7 @@ jest.mock( '@wordpress/components', () => {
 	};
 } );
 jest.mock( '@wordpress/compose', () => ( {
-	compose: () => component => component,
+	compose: hocs => hocs[ hocs.length - 1 ],
 	createHigherOrderComponent: transform => transform,
 	usePrevious: jest.fn(),
 	withInstanceId: component => component,
@@ -106,6 +107,31 @@ describe( 'VpBlock', () => {
 				allowSameOrigin: true,
 				scripts: [ 'https://example.com/preview.js' ],
 			} )
+		);
+	} );
+} );
+
+describe( 'VideoPressEdit setTracks', () => {
+	const VideoPressEdit = withVideoPressEdit( () => null );
+	const storedTracks = [
+		{ src: 'auto_en.vtt', kind: 'subtitles', srcLang: 'en', label: 'English' },
+	];
+
+	it.each( [
+		[ 'leaves equal tracks alone', storedTracks, false ],
+		[ 'writes changed tracks', [], true ],
+	] )( '%s', async ( _name, videoPressTracks, shouldWrite ) => {
+		apiFetch.mockResolvedValue( {
+			tracks: { subtitles: { en: { src: 'auto_en.vtt', label: 'English' } } },
+		} );
+		const setAttributes = jest.fn();
+		const edit = new VideoPressEdit( { attributes: { videoPressTracks }, setAttributes } );
+
+		edit.setTracks( 'abcd1234' );
+		await new Promise( process.nextTick );
+
+		expect( setAttributes.mock.calls ).toEqual(
+			shouldWrite ? [ [ { videoPressTracks: storedTracks } ] ] : []
 		);
 	} );
 } );

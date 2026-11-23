@@ -502,6 +502,82 @@
             }
         },
         {
+            "name": "automattic/jetpack-announcements",
+            "version": "dev-trunk",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/announcements",
+                "reference": "002853c7b0b879c7c36b57793edb3e878938b441"
+            },
+            "require": {
+                "php": ">=7.4"
+            },
+            "require-dev": {
+                "automattic/jetpack-test-environment": "@dev",
+                "automattic/phpunit-select-config": "@dev",
+                "yoast/phpunit-polyfills": "^4.0.0"
+            },
+            "suggest": {
+                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
+            },
+            "type": "jetpack-library",
+            "extra": {
+                "mirror-repo": "Automattic/jetpack-announcements",
+                "branch-alias": {
+                    "dev-trunk": "0.1.x-dev"
+                },
+                "textdomain": "jetpack-announcements",
+                "version-constants": {
+                    "::PACKAGE_VERSION": "src/class-announcements.php"
+                },
+                "changelogger": {
+                    "link-template": "https://github.com/Automattic/jetpack-announcements/compare/v${old}...v${new}"
+                }
+            },
+            "autoload": {
+                "files": [
+                    "actions.php"
+                ],
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "build-development": [
+                    "pnpm run build"
+                ],
+                "build-production": [
+                    "pnpm run build-production"
+                ],
+                "watch": [
+                    "Composer\\Config::disableProcessTimeout",
+                    "pnpm run watch"
+                ],
+                "phpunit": [
+                    "phpunit-select-config phpunit.#.xml.dist --colors=always"
+                ],
+                "test-php": [
+                    "@composer phpunit"
+                ],
+                "test-php-coverage": [
+                    "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
+                ],
+                "test-js": [
+                    "pnpm run test"
+                ],
+                "test-js-coverage": [
+                    "pnpm run test-coverage"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "A product-agnostic channel to tell Jetpack users what is new.",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
             "name": "automattic/jetpack-assets",
             "version": "dev-trunk",
             "dist": {
@@ -1339,13 +1415,14 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "a005b4ebd3963c975245f9072493641e4812914d"
+                "reference": "3c1ee1080cbc5f1035282f735539cdb0bedaeb27"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "@dev",
                 "automattic/jetpack-admin-ui": "@dev",
                 "automattic/jetpack-assets": "@dev",
                 "automattic/jetpack-constants": "@dev",
+                "automattic/jetpack-feature-flags": "@dev",
                 "automattic/jetpack-ip": "@dev",
                 "automattic/jetpack-redirect": "@dev",
                 "automattic/jetpack-roles": "@dev",
@@ -2113,7 +2190,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/jitm",
-                "reference": "7fe8fde7addb6e3087291809d420f77c068845ff"
+                "reference": "e16aaa646f8051f6ad338d8af1ddb63e2330099e"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "@dev",
@@ -2161,6 +2238,9 @@
                 ],
                 "phpunit": [
                     "phpunit-select-config phpunit.#.xml.dist --colors=always"
+                ],
+                "test-js": [
+                    "pnpm run test"
                 ],
                 "test-php": [
                     "@composer phpunit"
@@ -3144,7 +3224,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/podcast",
-                "reference": "7f60fbf10ad66e5eea9ba5e026767489a3dde91d"
+                "reference": "0c816b7f3e9035bbcda6d1bd6943cbcb3cec5aa9"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "@dev",
@@ -3204,6 +3284,9 @@
                 ],
                 "phpunit": [
                     "phpunit-select-config phpunit.#.xml.dist --colors=always"
+                ],
+                "test-js": [
+                    "pnpm run test"
                 ],
                 "test-php": [
                     "@composer phpunit"
@@ -3356,10 +3439,11 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/premium-analytics",
-                "reference": "4d58948e4aa84339573d0c503add11241be9e06a"
+                "reference": "a67590ec41ffc6153c7193540cb65f8b35a06e1d"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
+                "automattic/jetpack-announcements": "@dev",
                 "automattic/jetpack-assets": "@dev",
                 "automattic/jetpack-config": "@dev",
                 "automattic/jetpack-connection": "@dev",
@@ -3653,7 +3737,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/publicize",
-                "reference": "c0a9110575a8b3dec27fd0ca666b0cfdbab2f535"
+                "reference": "4f49f7b3749b1e7da98035e864e02c53b4ceb69b"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -3666,6 +3750,7 @@
                 "automattic/jetpack-post-media": "@dev",
                 "automattic/jetpack-redirect": "@dev",
                 "automattic/jetpack-status": "@dev",
+                "automattic/jetpack-wp-abilities": "@dev",
                 "automattic/jetpack-wp-build-polyfills": "@dev",
                 "php": ">=7.4"
             },
