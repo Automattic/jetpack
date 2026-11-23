@@ -4,7 +4,8 @@
 import { __, _n, sprintf } from '@wordpress/i18n';
 
 /** What a list widget's values count. */
-export type ListMetric = 'views' | 'clicks' | 'downloads' | 'shares' | 'comments' | 'opens';
+export type ListMetric =
+	'views' | 'clicks' | 'downloads' | 'shares' | 'comments' | 'opens' | 'requests';
 
 /** The column heading for a list metric, e.g. "Views". */
 export function getListMetricLabel( metric: ListMetric ): string {
@@ -19,6 +20,8 @@ export function getListMetricLabel( metric: ListMetric ): string {
 			return __( 'Comments', 'jetpack-premium-analytics-pkg' );
 		case 'opens':
 			return __( 'Opens', 'jetpack-premium-analytics-pkg' );
+		case 'requests':
+			return __( 'Requests', 'jetpack-premium-analytics-pkg' );
 		case 'views':
 			return __( 'Views', 'jetpack-premium-analytics-pkg' );
 	}
@@ -55,6 +58,12 @@ export function formatListMetricCount( metric: ListMetric, value: number, exact:
 			return sprintf(
 				/* translators: %s: number of email opens, e.g. "1,287". */
 				_n( '%s open', '%s opens', value, 'jetpack-premium-analytics-pkg' ),
+				exact
+			);
+		case 'requests':
+			return sprintf(
+				/* translators: %s: number of requests a site received, e.g. "1,287". */
+				_n( '%s request', '%s requests', value, 'jetpack-premium-analytics-pkg' ),
 				exact
 			);
 		case 'views':

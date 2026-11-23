@@ -63,6 +63,8 @@ export {
 export { sanitizeStatsStreakResponse } from './streak';
 export { sanitizeStatsTagsResponse } from './tags';
 export { mergeStatsDevicesComparisonRows, sanitizeStatsDevicesResponse } from './devices';
+export { AI_PROVIDER_UNKNOWN, sanitizeStatsAiProvidersResponse } from './ai-providers';
+export type { StatsAiProvider, StatsAiProviderBot, StatsAiProvidersReport } from './ai-providers';
 export { EDGE_REQUEST_SOURCES, sanitizeStatsEdgeBotRequestsResponse } from './edge-bot-requests';
 export type {
 	EdgeRequestSource,

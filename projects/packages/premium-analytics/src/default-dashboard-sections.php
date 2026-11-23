@@ -299,9 +299,16 @@ function get_subscribers_section_default_layout() {
 function get_ai_section_default_layout() {
 	return array(
 		get_dashboard_default_widget_instance(
+			'default-top-ai-companies-widget-instance',
+			'ai-traffic/top-ai-companies',
+			0,
+			2,
+			DASHBOARD_TILE_LIST
+		),
+		get_dashboard_default_widget_instance(
 			'default-requests-by-source-widget-instance',
 			'ai-traffic/requests-by-source',
-			0,
+			1,
 			'full',
 			DASHBOARD_TILE_CARD
 		),

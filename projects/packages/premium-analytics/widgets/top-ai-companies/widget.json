@@ -1,0 +1,11 @@
+{
+	"name": "ai-traffic/top-ai-companies",
+	"icon": "jpa/globe",
+	"title": "Top AI companies",
+	"description": "The AI companies whose bots requested your site the most.",
+	"help": {
+		"content": "The AI companies whose bots sent the most requests to your site in the selected period. Open a company to see its bots. Bots are named by what they say they are."
+	},
+	"category": "traffic",
+	"presentation": "framed"
+}
