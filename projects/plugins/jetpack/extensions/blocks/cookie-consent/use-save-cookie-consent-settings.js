@@ -5,6 +5,7 @@ import { useSelect, useDispatch } from '@wordpress/data';
 import { useEffect, useState, useCallback } from '@wordpress/element';
 
 export function useSaveCookieConsentSettings( clientId ) {
+	const { getCurrentPostType, getRenderingMode } = useSelect( 'core/editor' );
 	const isSaving = useSelect( select => {
 		const { isSavingPost, isSavingNonPostEntityChanges } = select( 'core/editor' );
 		return isSavingPost() || isSavingNonPostEntityChanges();
@@ -37,8 +38,16 @@ export function useSaveCookieConsentSettings( clientId ) {
 	useEffect( () => {
 		return () => {
 			const block = getBlockById( clientId );
+			const isEditingTemplate = [ 'wp_template', 'wp_template_part' ].includes(
+				getCurrentPostType()
+			);
+			// Hiding a page's template removes its blocks from the store without deleting them.
+			const isTemplateHidden =
+				window.Jetpack_Editor_Initial_State?.screenBase === 'post' &&
+				! isEditingTemplate &&
+				getRenderingMode?.() === 'post-only';
 
-			if ( ! block ) {
+			if ( ! block && ! isTemplateHidden ) {
 				saveTemplate( null );
 			}
 		};

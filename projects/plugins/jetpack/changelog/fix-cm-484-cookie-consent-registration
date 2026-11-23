@@ -1,4 +1,4 @@
 Significance: patch
 Type: bugfix
 
-Cookie Consent: Fix unsupported block errors when viewing or editing templates in the page editor.
+Cookie Consent: Fix unsupported blocks in the page editor and preserve the saved banner when hiding a page or post's template.
