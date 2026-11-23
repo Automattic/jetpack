@@ -6,16 +6,23 @@ import useSeoToolsSwitch from '../../data/use-seo-tools-switch';
 import type { FC } from 'react';
 
 const seoToolsHelp = __(
-	'Turning this off pauses custom titles and descriptions, structured data, llms.txt, AI crawler rules, and IndexNow. Your sitemap, site verification, and canonical URLs keep working.',
+	'Controls custom titles and descriptions, structured data, share images, llms.txt, AI crawler rules, IndexNow, and the AI SEO Enhancer. Your sitemap, site verification, and canonical URLs work either way.',
 	'jetpack-seo'
 );
 
+interface Props {
+	/** Whether the `seo-tools` module is on. */
+	active: boolean;
+}
+
 /**
- * The `seo-tools` module's switch, last on Settings while the module is on.
+ * The `seo-tools` module's switch, last on Settings.
  *
+ * @param props        - Component props.
+ * @param props.active - Whether the `seo-tools` module is on.
  * @return The SEO tools card.
  */
-const SeoToolsCard: FC = () => {
+const SeoToolsCard: FC< Props > = ( { active } ) => {
 	const { isSwitching, setActive } = useSeoToolsSwitch( 'settings' );
 
 	return (
@@ -29,7 +36,7 @@ const SeoToolsCard: FC = () => {
 				<SwitchControl
 					label={ __( 'Use SEO tools', 'jetpack-seo' ) }
 					description={ seoToolsHelp }
-					checked
+					checked={ active }
 					onCheckedChange={ setActive }
 					disabled={ isSwitching }
 				/>

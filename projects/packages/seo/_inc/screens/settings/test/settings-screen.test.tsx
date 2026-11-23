@@ -50,7 +50,9 @@ const IndexnowSettings = jest.fn< ( props: Record< string, unknown > ) => ReactE
 ) );
 jest.unstable_mockModule( '../indexnow-settings', () => ( { default: IndexnowSettings } ) );
 jest.unstable_mockModule( '../seo-tools-card', () => ( {
-	default: () => <div data-testid="seo-tools-switch" />,
+	default: ( { active }: { active: boolean } ) => (
+		<div data-testid="seo-tools-switch" data-active={ String( active ) } />
+	),
 } ) );
 jest.unstable_mockModule( '../seo-tools-off-notice', () => ( {
 	default: () => <div data-testid="seo-tools-off" />,
@@ -754,16 +756,21 @@ describe( 'Settings and the SEO tools switch', () => {
 		}
 	);
 
-	it( 'drops the tabs and tops Settings with the off notice while SEO tools are off', () => {
+	it( 'drops the tabs, tops Settings with the off notice and ends it with the switch while SEO tools are off', () => {
 		routeForm = buildForm();
 		render( <SettingsStage /> );
 
 		expect( screen.getByTestId( 'page' ) ).toHaveAttribute( 'data-show-tabs', 'false' );
 		const notice = screen.getByTestId( 'seo-tools-off' );
-		expect( notice.compareDocumentPosition( screen.getByText( 'google field' ) ) ).toBe(
+		const googleField = screen.getByText( 'google field' );
+		const toggle = screen.getByTestId( 'seo-tools-switch' );
+		expect( notice.compareDocumentPosition( googleField ) ).toBe(
 			Node.DOCUMENT_POSITION_FOLLOWING
 		);
-		expect( screen.queryByTestId( 'seo-tools-switch' ) ).not.toBeInTheDocument();
+		expect( googleField.compareDocumentPosition( toggle ) ).toBe(
+			Node.DOCUMENT_POSITION_FOLLOWING
+		);
+		expect( toggle ).toHaveAttribute( 'data-active', 'false' );
 	} );
 
 	it( 'keeps the tabs and ends Settings with the switch while SEO tools are on', () => {
@@ -777,6 +784,7 @@ describe( 'Settings and the SEO tools switch', () => {
 				.getByText( 'social previews' )
 				.compareDocumentPosition( screen.getByTestId( 'seo-tools-switch' ) )
 		).toBe( Node.DOCUMENT_POSITION_FOLLOWING );
+		expect( screen.getByTestId( 'seo-tools-switch' ) ).toHaveAttribute( 'data-active', 'true' );
 		expect( screen.queryByTestId( 'seo-tools-off' ) ).not.toBeInTheDocument();
 	} );
 

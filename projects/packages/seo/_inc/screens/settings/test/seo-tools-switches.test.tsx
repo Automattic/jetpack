@@ -22,14 +22,17 @@ describe( 'SEO tools switches', () => {
 		expect( setActive ).toHaveBeenCalledWith( true );
 	} );
 
-	it( 'turns SEO tools off from the Settings card', () => {
-		render( <SeoToolsCard /> );
+	it.each( [ true, false ] )(
+		'flips SEO tools from the Settings card when active is %s',
+		active => {
+			render( <SeoToolsCard active={ active } /> );
 
-		// eslint-disable-next-line testing-library/prefer-user-event -- fireEvent keeps this off the @testing-library/user-event devDep.
-		fireEvent.click( screen.getByRole( 'button', { name: 'SEO tools' } ) );
-		// eslint-disable-next-line testing-library/prefer-user-event -- fireEvent keeps this off the @testing-library/user-event devDep.
-		fireEvent.click( screen.getByRole( 'switch', { name: 'Use SEO tools' } ) );
+			// eslint-disable-next-line testing-library/prefer-user-event -- fireEvent keeps this off the @testing-library/user-event devDep.
+			fireEvent.click( screen.getByRole( 'button', { name: 'SEO tools' } ) );
+			// eslint-disable-next-line testing-library/prefer-user-event -- fireEvent keeps this off the @testing-library/user-event devDep.
+			fireEvent.click( screen.getByRole( 'switch', { name: 'Use SEO tools', checked: active } ) );
 
-		expect( setActive.mock.calls[ 0 ]?.[ 0 ] ).toBe( false );
-	} );
+			expect( setActive.mock.calls[ 0 ]?.[ 0 ] ).toBe( ! active );
+		}
+	);
 } );

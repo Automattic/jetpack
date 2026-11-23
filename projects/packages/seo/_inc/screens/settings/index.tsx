@@ -470,11 +470,11 @@ const SettingsScreen: FC< Props > = ( { form, independentOnly = false } ) => {
 						onImageChange={ image => commit( { default_share_image: image } ) }
 						disabled={ isSaving || outputLocked }
 					/>
-
-					{ /* Simple has no modules to switch: it reports SEO Tools on, and always will. */ }
-					{ ! simpleSite && <SeoToolsCard /> }
 				</>
 			) }
+
+			{ /* Simple has no modules to switch: it reports SEO Tools on, and always will. */ }
+			{ ! simpleSite && <SeoToolsCard active={ ! independentOnly } /> }
 		</Stack>
 	);
 };
