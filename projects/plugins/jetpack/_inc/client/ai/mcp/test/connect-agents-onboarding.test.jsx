@@ -67,7 +67,7 @@ describe( 'McpConnectAgents', () => {
 		await userEvent.click( button );
 		expect( analytics.tracks.recordEvent ).toHaveBeenCalledWith(
 			'jetpack_ai_hub_link_click',
-			expect.objectContaining( { link_type: 'settings_connect', link } )
+			expect.objectContaining( { link_type: 'overview_connect', link } )
 		);
 	} );
 
@@ -84,7 +84,7 @@ describe( 'McpConnectAgents', () => {
 		expect( onNavigate ).toHaveBeenCalledWith( 'setup' );
 		expect( analytics.tracks.recordEvent ).toHaveBeenCalledWith(
 			'jetpack_ai_hub_link_click',
-			expect.objectContaining( { link_type: 'settings_connect', link: 'other' } )
+			expect.objectContaining( { link_type: 'overview_connect', link: 'other' } )
 		);
 	} );
 
@@ -103,9 +103,7 @@ describe( 'McpConnectAgents', () => {
 	test( 'with MCP access off, it points at the access switch first', () => {
 		renderCard( { isMcpEnabled: false } );
 
-		expect(
-			screen.getByText( 'Turn on MCP access below, then connect your agent.' )
-		).toBeInTheDocument();
+		expect( screen.getByRole( 'link', { name: 'Settings' } ) ).toBeInTheDocument();
 		// The buttons stay: connecting works before access is on.
 		expect( screen.getByRole( 'link', { name: /^Connect Claude/ } ) ).toBeInTheDocument();
 	} );

@@ -1,5 +1,5 @@
 /**
- * "Connect an external AI agent" card shown at the top of the MCP hub.
+ * "Connect an external AI agent" card that leads the Settings tab.
  * Ported from client/dashboard/me/mcp/connect-card.tsx in wp-calypso.
  */
 

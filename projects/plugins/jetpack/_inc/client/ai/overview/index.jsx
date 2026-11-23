@@ -340,7 +340,7 @@ export default function AiOverview( {
 	const usageCard = canLoadUsage && <UsageCard upgradeUrl={ upgradeUrl } planName={ planName } />;
 	// Without the Skills tab, the connect actions keep their card.
 	const connectCard = (
-		<McpConnectAgents isMcpEnabled={ isMcpEnabled } onNavigate={ onMcpNavigate } onOverview />
+		<McpConnectAgents isMcpEnabled={ isMcpEnabled } onNavigate={ onMcpNavigate } />
 	);
 	return (
 		<Stack direction="column" gap="3xl">

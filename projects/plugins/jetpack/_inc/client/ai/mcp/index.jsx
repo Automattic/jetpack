@@ -234,7 +234,7 @@ export default function McpHub( {
 	const navigateToWrite = useCallback( () => onNavigate( 'write' ), [ onNavigate ] );
 
 	return (
-		<>
+		<Stack direction="column" gap="3xl">
 			<McpConnectCard
 				mcpEnabled={ isMcpEnabled }
 				onTurnOn={ handleTurnOn }
@@ -253,15 +253,13 @@ export default function McpHub( {
 					</Stack>
 				</Card.Header>
 				<Card.Content>
-					<Stack direction="column" gap="md">
-						<ToggleControl
-							__nextHasNoMarginBottom
-							checked={ isMcpEnabled }
-							disabled={ savingToolIds.has( '__site_level__' ) }
-							label={ __( 'Enable MCP access', 'jetpack' ) }
-							onChange={ handleMcpToggle }
-						/>
-					</Stack>
+					<ToggleControl
+						__nextHasNoMarginBottom
+						checked={ isMcpEnabled }
+						disabled={ savingToolIds.has( '__site_level__' ) }
+						label={ __( 'Enable MCP access', 'jetpack' ) }
+						onChange={ handleMcpToggle }
+					/>
 					{ isMcpEnabled && (
 						<Card.FullBleed className="jetpack-ai-mcp__summary-rows">
 							<SummaryRow
@@ -305,6 +303,6 @@ export default function McpHub( {
 					</a>
 				</Card.Root>
 			) }
-		</>
+		</Stack>
 	);
 }

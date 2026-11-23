@@ -1,13 +1,11 @@
 /**
- * "Connect your AI agent" onboarding card. It leads the Settings tab where
- * there is no Overview tab, and the Overview without the Skills tab. With
- * Skills on, the Overview's opening column carries the same actions bare.
+ * "Connect your AI agent" card on the Overview tab. With Skills on, the
+ * Overview's opening column carries the same actions bare.
  *
  * Claude and ChatGPT each install the WordPress.com connector from their own
  * directory (see ../agent-connectors.js), so they get a button apiece. Every
  * other client — Claude Code, Cursor, VS Code — follows the steps on the setup
- * sub-view, behind a quieter link. This card is the tab's one connect prompt:
- * it took the place of the hub's "Connect external AI agent" row.
+ * sub-view, behind a quieter link.
  */
 
 import { createInterpolateElement, useCallback, useId } from '@wordpress/element';
@@ -27,14 +25,10 @@ const AGENT_BUTTONS = [
 /**
  * Record a click on one of the card's links.
  *
- * @param {string}  link       - 'claude' | 'chatgpt' | 'other'.
- * @param {boolean} onOverview - Whether the card is on Overview rather than Settings.
+ * @param {string} link - 'claude' | 'chatgpt' | 'other'.
  */
-function recordConnectClick( link, onOverview ) {
-	recordAiHubEvent( EVENTS.LINK_CLICK, {
-		link_type: onOverview ? 'overview_connect' : 'settings_connect',
-		link,
-	} );
+function recordConnectClick( link ) {
+	recordAiHubEvent( EVENTS.LINK_CLICK, { link_type: 'overview_connect', link } );
 }
 
 /**
@@ -50,17 +44,13 @@ const isModifiedClick = event =>
 /**
  * One agent's connect button: its directory listing, in a new tab.
  *
- * @param {object}  props            - Component props.
- * @param {string}  props.agent      - 'claude' | 'chatgpt'.
- * @param {*}       props.icon       - The agent's mark.
- * @param {boolean} props.onOverview - Whether the card is on Overview.
+ * @param {object} props       - Component props.
+ * @param {string} props.agent - 'claude' | 'chatgpt'.
+ * @param {*}      props.icon  - The agent's mark.
  * @return {object} Component markup.
  */
-function ConnectButton( { agent, icon, onOverview } ) {
-	const handleClick = useCallback(
-		() => recordConnectClick( agent, onOverview ),
-		[ agent, onOverview ]
-	);
+function ConnectButton( { agent, icon } ) {
+	const handleClick = useCallback( () => recordConnectClick( agent ), [ agent ] );
 	return (
 		<ButtonLink
 			href={ getAgentConnectorUrl( agent ) }
@@ -92,8 +82,6 @@ function ConnectButton( { agent, icon, onOverview } ) {
  *                                      they cannot, the copy points at the access
  *                                      switch first.
  * @param {Function} [props.onNavigate] - Called with 'setup' to open the setup sub-view.
- * @param {boolean}  [props.onOverview] - Whether this sits on Overview, so the access
- *                                      switch is on Settings rather than below it.
  * @param {string}   props.description  - The copy while agents can reach the site.
  * @param {boolean}  [props.centered]   - Whether to centre everything, as the Overview does.
  * @return {object} Component markup.
@@ -101,7 +89,6 @@ function ConnectButton( { agent, icon, onOverview } ) {
 export function ConnectAgentsActions( {
 	isMcpEnabled,
 	onNavigate,
-	onOverview = false,
 	description,
 	centered = false,
 } ) {
@@ -109,7 +96,7 @@ export function ConnectAgentsActions( {
 	// click moves in-app instead, through the page's own history handling.
 	const handleOtherAgentsClick = useCallback(
 		event => {
-			recordConnectClick( 'other', onOverview );
+			recordConnectClick( 'other' );
 			// Without a handler the link's own href moves in-app.
 			if ( isModifiedClick( event ) || ! onNavigate ) {
 				return;
@@ -117,15 +104,13 @@ export function ConnectAgentsActions( {
 			event.preventDefault();
 			onNavigate( 'setup' );
 		},
-		[ onNavigate, onOverview ]
+		[ onNavigate ]
 	);
 
-	const offCopy = onOverview
-		? createInterpolateElement(
-				__( 'Turn on MCP access in <link>Settings</link>, then connect your agent.', 'jetpack' ),
-				{ link: <Link href={ getViewHref( 'mcp' ) } /> }
-			)
-		: __( 'Turn on MCP access below, then connect your agent.', 'jetpack' );
+	const offCopy = createInterpolateElement(
+		__( 'Turn on MCP access in <link>Settings</link>, then connect your agent.', 'jetpack' ),
+		{ link: <Link href={ getViewHref( 'mcp' ) } /> }
+	);
 
 	return (
 		// The Overview's column is a tight block under its heading.
@@ -139,7 +124,7 @@ export function ConnectAgentsActions( {
 			</Text>
 			<Stack direction="row" gap="sm" wrap="wrap" justify={ centered ? 'center' : undefined }>
 				{ AGENT_BUTTONS.map( ( { agent, icon } ) => (
-					<ConnectButton key={ agent } agent={ agent } icon={ icon } onOverview={ onOverview } />
+					<ConnectButton key={ agent } agent={ agent } icon={ icon } />
 				) ) }
 			</Stack>
 			<Text variant="body-sm" render={ <p /> } className="jetpack-ai-mcp__connect-description">

@@ -824,7 +824,7 @@ export default function App() {
 						) }
 
 						{ hasHub && (
-							<Stack direction="column" gap="3xl">
+							<Stack direction="column" gap="lg">
 								{ view === 'mcp' && (
 									<McpHub
 										remoteAbilities={ remoteAbilities }

@@ -122,7 +122,6 @@ export default function SkillsHero( { isMcpEnabled = true, onMcpNavigate, before
 				<ConnectAgentsActions
 					isMcpEnabled={ isMcpEnabled }
 					onNavigate={ onMcpNavigate }
-					onOverview
 					centered
 					// Concrete asks sell the idea faster than "skills" does.
 					description={ __(
