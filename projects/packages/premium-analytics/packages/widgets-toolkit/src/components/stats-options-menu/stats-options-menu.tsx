@@ -11,7 +11,6 @@ import {
 	chevronUpDown,
 	cog,
 	comment,
-	external,
 	moreVertical,
 	pencil,
 } from '@wordpress/icons';
@@ -199,7 +198,6 @@ export function StatsOptionsMenu( {
 						href={ promoHref }
 						target="_blank"
 						rel="noopener noreferrer"
-						prefix={ <Icon icon={ external } /> }
 						onClick={ trackPromoClick }
 					>
 						<Menu.ItemLabel>{ promo.cta_label }</Menu.ItemLabel>

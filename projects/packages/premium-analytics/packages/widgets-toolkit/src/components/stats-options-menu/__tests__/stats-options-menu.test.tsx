@@ -244,6 +244,20 @@ describe( 'stats-options-menu', () => {
 				expect( screen.getAllByRole( 'separator' ) ).toHaveLength( 2 );
 			} );
 
+			it( 'marks the promo as opening in a new tab with one arrow only', async () => {
+				showPromos();
+				await openMenu();
+
+				const row = await screen.findByRole( 'menuitem', { name: /^Try Acme/ } );
+
+				expect( row ).toHaveAttribute( 'target', '_blank' );
+				expect( within( row ).getAllByRole( 'img', { hidden: true } ) ).toHaveLength( 1 );
+				expect( within( row ).getByRole( 'img', { name: '(opens in a new tab)' } ) ).toBeVisible();
+				// A prefix icon renders as a decorative svg, which has no role to query.
+				// eslint-disable-next-line testing-library/no-node-access
+				expect( row.querySelectorAll( 'svg' ) ).toHaveLength( 0 );
+			} );
+
 			it( 'renders no promo item when withPromo is false', async () => {
 				showPromos();
 				await openMenu( { withPromo: false } );
