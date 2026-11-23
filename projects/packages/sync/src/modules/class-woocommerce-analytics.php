@@ -749,8 +749,8 @@ class WooCommerce_Analytics extends Module {
 			// Follow core's stored row when there is one: rows an older WooCommerce wrote keep their dates, and the checksum compares both.
 			$order_stats_item ??= $this->get_order_stats_item( $order->get_id() );
 			if ( $order_stats_item ) {
-				$has_date_completed = null !== $order_stats_item['date_completed'];
-				$has_date_paid      = null !== $order_stats_item['date_paid'];
+				$has_date_completed = isset( $order_stats_item['date_completed'] );
+				$has_date_paid      = isset( $order_stats_item['date_paid'] );
 			} else {
 				$dates_follow_parent = $parent_order instanceof WC_Order && self::refund_dates_follow_parent();
 				$has_date_completed  = ! $dates_follow_parent || $parent_order->get_date_completed();
