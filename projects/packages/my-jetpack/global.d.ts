@@ -616,6 +616,7 @@ interface Window {
 			showAiModuleToggle: boolean;
 			showAiModuleToggleOnceConnected?: boolean;
 			showFullJetpackStatsCard: boolean;
+			whatsNew?: boolean;
 			videoPressStats: boolean;
 		};
 		purchaseToken: string;

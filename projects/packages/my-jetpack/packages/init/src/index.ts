@@ -1,5 +1,6 @@
 import { loadI18nCatalogs } from '@automattic/jetpack-wp-build-polyfills/src/js/load-i18n-catalogs';
 import { provideJetpackConfig } from './jetpack-config';
+import { showWhatsNew } from './whats-new';
 
 /**
  * Provide the Jetpack config and load the JS translation catalogs before the app renders.
@@ -7,4 +8,5 @@ import { provideJetpackConfig } from './jetpack-config';
 export async function init(): Promise< void > {
 	provideJetpackConfig();
 	await loadI18nCatalogs( 'jetpack-my-jetpack', import.meta.url );
+	showWhatsNew();
 }

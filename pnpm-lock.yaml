@@ -3762,6 +3762,9 @@ importers:
         specifier: 7.18.2
         version: 7.18.2(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
     devDependencies:
+      '@automattic/jetpack-announcements':
+        specifier: workspace:*
+        version: link:../../js-packages/announcements
       '@automattic/jetpack-webpack-config':
         specifier: workspace:*
         version: link:../../js-packages/webpack-config
