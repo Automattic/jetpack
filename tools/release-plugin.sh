@@ -169,6 +169,19 @@ function report_failed_step {
 	generate_resume_command
 }
 
+# Wait for untracked files to be removed, e.g. build output and node_modules of a project that
+# exists in one checkout but not the other, whose .gitignore no longer applies.
+function wait_for_no_stray_untracked_files {
+	local untracked
+	# Use `--directory`; otherwise for node_modules one could end up with hundreds of lines.
+	while untracked=$(git ls-files --others --exclude-standard --directory --no-empty-directory) && [[ -n $untracked ]]; do
+		warn "Untracked files found after checkout:"
+		echo "$untracked"
+		echo "In another terminal, remove or otherwise resolve them."
+		proceed_p "" "Check again?" Y || die 'Aborted due to untracked files.'
+	done
+}
+
 # Create the prerelease branch from the local release branch with -R, else from origin/trunk.
 function do_prerelease_branch_prep() {
 	if [[ -n "$(git status --porcelain)" ]]; then
@@ -212,6 +225,7 @@ function do_prerelease_branch_prep() {
 		git fetch origin "$BASE_BRANCH"
 		git checkout --no-track -b prerelease "origin/$BASE_BRANCH"
 	fi
+	wait_for_no_stray_untracked_files
 	yellow "Installing root packages."
 	pnpm jetpack install --root
 	# @todo: Push once we're ready to test more lively.
@@ -234,6 +248,7 @@ function do_create_release_branch_from_release_branch {
 	fi
 
 	git checkout --no-track -b "$RELEASE_BRANCH" "origin/$BASE_BRANCH"
+	wait_for_no_stray_untracked_files
 	yellow "Installing root packages."
 	pnpm jetpack install --root
 }
@@ -428,6 +443,7 @@ function do_create_backport_PR {
 
 	# Rather than deleting the old branch, just reset it to `trunk`, which keeps other people from releasing until we're done.
 	git checkout --no-track -B prerelease origin/trunk
+	wait_for_no_stray_untracked_files
 	pnpm jetpack install --root
 
 	if [[ $(git rev-list --count "$patch_range") -gt 0 ]]; then
