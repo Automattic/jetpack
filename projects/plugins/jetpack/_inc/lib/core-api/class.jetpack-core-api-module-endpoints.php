@@ -722,7 +722,9 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 					}
 
 					if ( 'en_US' === $value || empty( $value ) ) {
-						return delete_option( 'WPLANG' );
+						delete_option( 'WPLANG' );
+						$updated = '' === get_option( 'WPLANG', '' );
+						break;
 					}
 
 					if ( ! function_exists( 'request_filesystem_credentials' ) ) {
@@ -1829,15 +1831,3 @@ function jetpack_do_after_gravatar_hovercards_deactivation() {
 	update_option( 'gravatar_disable_hovercards', 'disabled' );
 }
 add_action( 'jetpack_deactivate_module_gravatar-hovercards', 'jetpack_do_after_gravatar_hovercards_deactivation' );
-
-/**
- * Actions performed only when Markdown is activated through the endpoint call.
- *
- * @since 4.7.0
- */
-function jetpack_do_after_markdown_activation() {
-
-	// When Markdown is activated, enable support for post editing automatically.
-	update_option( 'wpcom_publish_posts_with_markdown', true );
-}
-add_action( 'jetpack_activate_module_markdown', 'jetpack_do_after_markdown_activation' );

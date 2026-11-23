@@ -477,11 +477,6 @@ class Dashboard_Layout_Test extends BaseTestCase {
 		$this->assertNotContains( 'jpa/stats-emails', $layout_types );
 		// The Comments module ships as two focused widgets, not one toggled widget.
 		$this->assertNotContains( 'jpa/comments', $layout_types );
-		// The period widgets are held back while their return is decided (WOOA7S-2020).
-		$this->assertNotContains( 'jpa/total-views', $layout_types );
-		$this->assertNotContains( 'jpa/total-visitors', $layout_types );
-		$this->assertNotContains( 'jpa/popular-days', $layout_types );
-		$this->assertNotContains( 'jpa/popular-hours', $layout_types );
 
 		// Highlights falls back to the widget's own default metric list.
 		$this->assertArrayNotHasKey(

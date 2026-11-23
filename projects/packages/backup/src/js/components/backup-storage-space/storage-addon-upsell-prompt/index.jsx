@@ -68,7 +68,7 @@ export const StorageAddonUpsellPrompt = ( { usageLevel } ) => {
 				href={ getProductCheckoutUrl(
 					addonSlug,
 					siteSlug,
-					`${ adminUrl }admin.php?page=jetpack-backup`,
+					`${ adminUrl }admin.php?page=jetpack-backup&storage_purchased=1`,
 					true
 				) }
 				onClick={ trackUpgradeStorageClick }

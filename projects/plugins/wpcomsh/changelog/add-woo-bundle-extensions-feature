@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Features: Add the woo-bundle-extensions feature, gated on the woo-bundle-experiment sticker and a paid Business or Commerce plan.

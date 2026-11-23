@@ -19,6 +19,7 @@ import useAnalytics from '../../../hooks/use-analytics';
 import { useGoBack } from '../../../hooks/use-go-back';
 import useMyJetpackConnection from '../../../hooks/use-my-jetpack-connection';
 import useMyJetpackNavigate from '../../../hooks/use-my-jetpack-navigate';
+import { connectionScreenRoute, productsFrom } from '../../../utils/connect-url';
 import GoBackLink from '../../go-back-link';
 import LoadingBlock from '../../loading-block';
 import { ProductInterstitialMyJetpack } from '../../product-interstitial-modal';
@@ -86,7 +87,7 @@ export default function () {
 	// isRegistered works as a flag to know if the page can link to a post creation or not
 	const ctaURL = isRegistered
 		? 'post-new.php?use_ai_block=1&_wpnonce=' + window?.jetpackAi?.nonce
-		: '#/connection';
+		: '#' + connectionScreenRoute( productsFrom( 'jetpack-ai' ) );
 	const newPostCta = __( 'Create new post', 'jetpack-my-jetpack' );
 	const installCta = __(
 		'Connect to Jetpack to start using the AI Assistant',

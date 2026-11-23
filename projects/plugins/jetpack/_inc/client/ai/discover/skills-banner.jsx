@@ -1,15 +1,15 @@
 /**
- * What skills are, in a compact take on the Overview's dark-green banner.
+ * What skills are, in a compact take on the shared dark-green HighlightBanner.
  * Dismissed per user through the preferences store, as the Overview's
  * assistant banner is (see overview/assistant-banner).
  */
 
+import HighlightBanner from '@automattic/jetpack-components/highlight-banner';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { store as preferencesStore } from '@wordpress/preferences';
 import { Path, SVG } from '@wordpress/primitives';
-import AiBanner from '../../../shared/components/ai-banner';
 import { recordAiHubEvent } from '../tracks';
 
 const PREFERENCE_SCOPE = 'jetpack/ai';
@@ -51,7 +51,7 @@ export default function SkillsBanner() {
 	}
 
 	return (
-		<AiBanner
+		<HighlightBanner
 			className="jetpack-ai-discover__banner"
 			icon={ openBook }
 			title={ __( 'What are skills?', 'jetpack' ) }

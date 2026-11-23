@@ -22,9 +22,12 @@
 		<testsuite name="wpcloud">
 			<directory suffix="Test.php">tests/</directory>
 			<exclude>tests/feature-manager/FeatureHookTest.php</exclude>
+			<exclude>tests/ConnectionHandlersTest.php</exclude>
 			<exclude>tests/FrontendNoticesTest.php</exclude>
 			<exclude>tests/FunctionsTest.php</exclude>
 			<exclude>tests/PlanNoticesTest.php</exclude>
+			<exclude>tests/PreventOwnerRemovalTest.php</exclude>
+			<exclude>tests/WpcomCurrentBlogIdTest.php</exclude>
 			<exclude>tests/WpcomFeaturesMapTest.php</exclude>
 			<exclude>tests/WpcomFeaturesTest.php</exclude>
 			<exclude>tests/WpcomSitePurchaseTest.php</exclude>
@@ -32,9 +35,12 @@
 		</testsuite>
 		<testsuite name="other">
 			<file>tests/feature-manager/FeatureHookTest.php</file>
+			<file>tests/ConnectionHandlersTest.php</file>
 			<file>tests/FrontendNoticesTest.php</file>
 			<file>tests/FunctionsTest.php</file>
 			<file>tests/PlanNoticesTest.php</file>
+			<file>tests/PreventOwnerRemovalTest.php</file>
+			<file>tests/WpcomCurrentBlogIdTest.php</file>
 			<file>tests/WpcomFeaturesMapTest.php</file>
 			<file>tests/WpcomFeaturesTest.php</file>
 			<file>tests/WpcomSitePurchaseTest.php</file>
@@ -54,6 +60,7 @@
 			<!-- Add additional lines for any files or directories outside of src/ that need coverage. -->
 			<file>class-atomic-persistent-data.php</file>
 			<file>class-jetpack-plugin-compatibility.php</file>
+			<file>connection/connection-handlers.php</file>
 			<file>class-wpcomsh-cli-commands.php</file>
 			<file>class-wpcomsh-log.php</file>
 			<file>constants.php</file>

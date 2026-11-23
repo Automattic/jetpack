@@ -32,6 +32,8 @@ export function useElementSize< T extends HTMLElement = HTMLDivElement >( {
 				setWidth( rect.width || 0 );
 				setHeight( rect.height || 0 );
 			};
+			// Measure here, not only from the observer: ChartLayout holds its render-prop children
+			// back until this lands, and a ref callback runs before paint where the observer does not.
 			handleResize();
 			const resizeObserver = new ResizeObserver( handleResize );
 			resizeObserver.observe( node );

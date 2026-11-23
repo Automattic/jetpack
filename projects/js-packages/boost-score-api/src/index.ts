@@ -2,7 +2,7 @@ import { __ } from '@wordpress/i18n';
 import api from './api';
 import { castToNumber } from './utils/cast-to-number';
 import { castToString } from './utils/cast-to-string';
-import { isJsonObject, JSONObject } from './utils/json-types';
+import { isJsonObject, JSONObject, type JSONValue } from './utils/json-types';
 import pollPromise from './utils/poll-promise';
 import { standardizeError } from './utils/standardize-error';
 
@@ -65,9 +65,15 @@ interface SpeedHistoryResponse {
 	};
 }
 
+const stages = [ 'queued', 'mobile', 'desktop' ] as const;
+
+export type SpeedScoreStage = ( typeof stages )[ number ];
+
 export type SpeedScoreProgress = {
 	elapsed: number;
 	expected: number;
+	stage?: SpeedScoreStage;
+	scores?: { mobile?: number; desktop?: number };
 };
 
 type ParsedApiResponse = {
@@ -222,14 +228,66 @@ function parseResponse( response: JSONObject ): ParsedApiResponse {
 		throw new Error( __( 'Invalid response while requesting metrics', 'boost-score-api' ) );
 	}
 
-	const progress = isJsonObject( response.progress ) ? response.progress : {};
-	const elapsed = castToNumber( progress.elapsed );
-	const expected = castToNumber( progress.expected );
-
 	return {
 		status: requestStatus,
-		...( elapsed !== undefined && expected && { progress: { elapsed, expected } } ),
+		...parseProgress( response.progress ),
 	};
+}
+
+/**
+ * Parse the progress of a pending response, keeping only the fields the dashboard understands.
+ *
+ * @param {JSONValue} value - The `progress` member of a response.
+ * @return {object} `{ progress }`, or nothing when there is no usable estimate.
+ */
+function parseProgress( value: JSONValue ): { progress?: SpeedScoreProgress } {
+	const reported = isJsonObject( value ) ? value : {};
+	const elapsed = castToNumber( reported.elapsed );
+	const expected = castToNumber( reported.expected );
+	if ( elapsed === undefined || ! expected ) {
+		return {};
+	}
+
+	const progress: SpeedScoreProgress = { elapsed, expected };
+	const stage = castToString( reported.stage );
+	if ( isSpeedScoreStage( stage ) ) {
+		progress.stage = stage;
+	}
+	const scores = parseDeviceScores( reported.scores );
+	if ( scores ) {
+		progress.scores = scores;
+	}
+
+	return { progress };
+}
+
+/**
+ * Whether a value is one of the stages Boost Cloud reports.
+ *
+ * @param {string|undefined} value - The value to check.
+ * @return {boolean} True for a known stage.
+ */
+function isSpeedScoreStage( value: string | undefined ): value is SpeedScoreStage {
+	return ( stages as readonly string[] ).includes( value ?? '' );
+}
+
+/**
+ * Parse the scores of the devices already measured, keeping only numeric ones.
+ *
+ * @param {JSONValue} value - The `scores` member of a response's progress.
+ * @return {object|undefined} Scores by device, or undefined when there are none.
+ */
+function parseDeviceScores( value: JSONValue ): SpeedScoreProgress[ 'scores' ] {
+	const reported = isJsonObject( value ) ? value : {};
+	const scores: NonNullable< SpeedScoreProgress[ 'scores' ] > = {};
+	for ( const device of [ 'mobile', 'desktop' ] as const ) {
+		const score = castToNumber( reported[ device ] );
+		if ( score !== undefined ) {
+			scores[ device ] = score;
+		}
+	}
+
+	return Object.keys( scores ).length ? scores : undefined;
 }
 
 /**

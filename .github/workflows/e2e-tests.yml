@@ -181,8 +181,12 @@ jobs:
         if: needs.build-projects.result == 'success'
         env:
           BUILD_GROUP: ${{ matrix.buildGroup }}
+          TEMP: ${{ runner.temp }}
         run: |
-          tar --xz -xvvf "$BUILD_GROUP.tar.xz" .
+          mkdir "$TEMP/tmp"
+          tar -C "$TEMP/tmp" --xz -k -xvvf "$BUILD_GROUP.tar.xz" .
+          rsync -a "$TEMP/tmp/." .
+          rm -rf "$TEMP/tmp"
 
       - name: Setup tools
         uses: $/.github/actions/tool-setup
@@ -274,6 +278,11 @@ jobs:
         run: |
           # Copy debug.log to output folder, if it exists
           [[ ! -f "$WP_DEBUG_PATH" ]] || { mkdir -p "output/logs" && cp "$WP_DEBUG_PATH" "output/logs/php_errors.log"; }
+
+          # Deregister the site from WordPress.com, or each run leaves a site on the test user.
+          # Calls the Connection package, not `wp jetpack`: Social specs deactivate Jetpack.
+          # Warns only on local failures: disconnect_site() ignores the deregister result, so a WordPress.com refusal still exits 0.
+          timeout 30 pnpm jetpack docker --type e2e --name t1 wp -- eval '$m = new Automattic\Jetpack\Connection\Manager(); if ( $m->is_connected() ) { $m->disconnect_site(); WP_CLI::success( "Disconnected the test site from WordPress.com." ); }' || echo "::warning::Could not disconnect the test site from WordPress.com."
 
           pnpm run tunnel:down
           echo "::group::Tunnel logs"

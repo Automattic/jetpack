@@ -1,5 +1,6 @@
 import '@testing-library/jest-dom';
 import { render, screen } from '@testing-library/react';
+import useAnalytics from '../../../../hooks/use-analytics';
 import ConnectionForm from '../connection-form';
 
 let mockRegistrationError: unknown = false;
@@ -17,11 +18,7 @@ jest.mock( '@automattic/jetpack-connection', () => {
 	};
 } );
 
-const mockRecordEvent = jest.fn();
-jest.mock( '../../../../hooks/use-analytics', () => ( {
-	__esModule: true,
-	default: () => ( { recordEvent: mockRecordEvent } ),
-} ) );
+const mockRecordEvent = jest.mocked( jest.mocked( useAnalytics )().recordEvent );
 
 describe( 'ConnectionForm', () => {
 	beforeEach( () => {

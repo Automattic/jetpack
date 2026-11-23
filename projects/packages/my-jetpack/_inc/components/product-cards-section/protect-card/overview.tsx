@@ -50,7 +50,8 @@ const ProtectOverviewItem: ProductCardComponent = ( { admin } ) => {
 	let failureReason: string;
 	if ( hasPaidPlanForProduct ) {
 		label = __( 'Threats found', 'jetpack-my-jetpack' );
-		count = isPluginActive && isSiteConnected ? ( data?.scanData?.num_threats ?? 0 ) : undefined;
+		count =
+			isPluginActive && isSiteConnected ? ( data?.scanData?.threats?.length ?? 0 ) : undefined;
 		if ( manageUrl ) {
 			action = {
 				label: count
@@ -73,7 +74,7 @@ const ProtectOverviewItem: ProductCardComponent = ( { admin } ) => {
 		count = canBlockLogins ? ( data?.wafConfig?.blocked_logins ?? 0 ) : undefined;
 		upgrade = {
 			label: __( 'Scan threats', 'jetpack-my-jetpack' ),
-			href: `#${ generatePath( MyJetpackRoutes.AddProtect ) }`,
+			href: detail?.hostPurchaseUrl || `#${ generatePath( MyJetpackRoutes.AddProtect ) }`,
 			onClick: () =>
 				recordEvent( 'jetpack_myjetpack_product_card_add_click', {
 					product: PRODUCT_SLUGS.PROTECT,

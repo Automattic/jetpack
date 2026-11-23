@@ -326,6 +326,56 @@ describe( 'AI admin page (main.jsx)', () => {
 			expect( hubViews() ).toHaveLength( 4 );
 		} );
 
+		test( 'records the tab again when the admin shell shows the page again, not on its first show', async () => {
+			window.history.replaceState( null, '', '#/overview' );
+			render( <App /> );
+			await waitFor( () => expect( viewedTabs() ).toEqual( [ 'overview' ] ) );
+			const shown = ( page, firstShow ) =>
+				window.dispatchEvent(
+					new CustomEvent( 'jetpack-admin-shell:page-shown', { detail: { page, firstShow } } )
+				);
+
+			shown( 'jetpack-ai', true );
+			shown( 'my-jetpack', false );
+			shown( 'jetpack-ai', false );
+
+			expect( viewedTabs() ).toEqual( [ 'overview', 'overview' ] );
+		} );
+
+		test.each( [
+			[ 'another tab', 'overview', 'mcp', [ 'overview', 'mcp' ] ],
+			[ 'the same tab at another view', 'mcp', 'mcp/read', [ 'mcp', 'mcp' ] ],
+		] )(
+			'records one view when the admin shell shows the page again at %s',
+			async ( _, from, view, tabs ) => {
+				window.history.replaceState( null, '', '#/' + from );
+				render( <App /> );
+				await waitFor( () => expect( viewedTabs() ).toEqual( [ tabs[ 0 ] ] ) );
+
+				window.dispatchEvent(
+					new CustomEvent( 'jetpack-admin-shell:page-hidden', {
+						detail: { page: 'jetpack-ai', next: 'my-jetpack' },
+					} )
+				);
+				await act( async () => {
+					window.history.replaceState( null, '', '#/' + view );
+					window.dispatchEvent( new Event( 'popstate' ) );
+				} );
+				window.dispatchEvent(
+					new CustomEvent( 'jetpack-admin-shell:page-shown', {
+						detail: {
+							page: 'jetpack-ai',
+							firstShow: false,
+							routeChanged: true,
+							url: window.location.href,
+						},
+					} )
+				);
+
+				expect( viewedTabs() ).toEqual( tabs );
+			}
+		);
+
 		test( 'records hash and history navigation without counting MCP sub-view changes', async () => {
 			window.history.replaceState( null, '', '#/overview' );
 			render( <App /> );

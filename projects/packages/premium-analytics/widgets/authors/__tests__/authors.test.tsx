@@ -98,11 +98,11 @@ describe( 'AuthorsWidget', () => {
 			( await screen.findByRole( 'link', { name: 'Jane Cooper' } ) ).getAttribute( 'href' ) ?? '',
 			'https://example.com'
 		);
-		expect( authorUrl.pathname ).toBe( '/author/101' );
+		expect( authorUrl.pathname ).toBe( '/report/author/101' );
 		expect( authorUrl.searchParams.get( 'ref' ) ).toBeNull();
 		expect( screen.getByRole( 'link', { name: 'Guy Hawkins' } ) ).toHaveAttribute(
 			'href',
-			expect.stringContaining( '/author/102' )
+			expect.stringContaining( '/report/author/102' )
 		);
 
 		expect( screen.getByText( 'Authors' ) ).toBeInTheDocument();

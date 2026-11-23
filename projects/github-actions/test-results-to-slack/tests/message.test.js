@@ -23,6 +23,8 @@ describe( 'Message content', () => {
 		${ 'schedule' }            | ${ true }  | ${ '' }           | ${ { text: `:x:	Tests failed for scheduled run on ${ refType } _*${ refName }*_` } }
 		${ 'pull_request' }        | ${ false } | ${ undefined }    | ${ { text: `:white_check_mark:	Tests passed for pull request *#${ prNumber }*` } }
 		${ 'pull_request' }        | ${ true }  | ${ undefined }    | ${ { text: `:x:	Tests failed for pull request *#${ prNumber }*` } }
+		${ 'workflow_dispatch' }   | ${ true }  | ${ undefined }    | ${ { text: `:x:	Tests failed for manual run on ${ refType } _*${ refName }*_` } }
+		${ 'workflow_dispatch' }   | ${ false } | ${ 'test-suite' } | ${ { text: `:white_check_mark:	_*test-suite*_ tests passed for manual run on ${ refType } _*${ refName }*_` } }
 		${ 'repository_dispatch' } | ${ true }  | ${ undefined }    | ${ { text: `:x:	Tests failed for event _*${ action }*_` } }
 		${ 'repository_dispatch' } | ${ false } | ${ 'test-suite' } | ${ { text: `:white_check_mark:	_*test-suite*_ tests passed for event _*${ action }*_` } }
 		${ 'unsupported' }         | ${ true }  | ${ undefined }    | ${ { text: `:x:	Tests failed for ${ sha }` } }
@@ -114,6 +116,7 @@ describe( 'Message content', () => {
 		${ 'push' }
 		${ 'schedule' }
 		${ 'workflow_run' }
+		${ 'workflow_dispatch' }
 		${ 'repository_dispatch' }
 		${ 'unsupported' }
 	`( 'There are no empty blocks elements lists for $eventName event', async ( { eventName } ) => {
@@ -140,6 +143,42 @@ describe( 'Message content', () => {
 	} );
 
 	test.each`
+		description                                      | inputs                                                        | expectedId                                | expectedContextLength | expectedButtonsLength | expectedFirstContextText                                     | expectedSecondButtonUrl
+		${ 'upstream sha, upstream repository' }         | ${ { sha: 'abcdef1234567890', repository: 'upstream/repo' } } | ${ 'workflow_dispatch-abcdef1234567890' } | ${ 2 }                | ${ 2 }                | ${ 'Last commit: abcdef12' }                                 | ${ 'https://github.com/upstream/repo/commit/abcdef1234567890' }
+		${ 'upstream sha, missing upstream repository' } | ${ { sha: 'abcdef1234567890' } }                              | ${ 'workflow_dispatch-abcdef1234567890' } | ${ 2 }                | ${ 1 }                | ${ 'Last commit: abcdef12' }                                 | ${ undefined }
+		${ 'missing upstream sha, upstream repository' } | ${ { sha: '', repository: 'upstream/repo' } }                 | ${ 'workflow_dispatch-123456789' }        | ${ 1 }                | ${ 1 }                | ${ 'Last run: 123456789/1, triggered by the-other-octocat' } | ${ undefined }
+		${ 'missing inputs' }                            | ${ undefined }                                                | ${ 'workflow_dispatch-123456789' }        | ${ 1 }                | ${ 1 }                | ${ 'Last run: 123456789/1, triggered by the-other-octocat' } | ${ undefined }
+	`(
+		`Workflow dispatch blocks for #description`,
+		async ( {
+			inputs,
+			expectedId,
+			expectedContextLength,
+			expectedButtonsLength,
+			expectedFirstContextText,
+			expectedSecondButtonUrl,
+		} ) => {
+			// Mock GitHub context
+			await mockGitHubContext( {
+				payload: { inputs },
+				eventName: 'workflow_dispatch',
+				runId: 123456789,
+				serverUrl: 'https://github.com',
+			} );
+			mockContextExtras( { refType, refName } );
+
+			const { createMessage } = await import( '../src/message.js' );
+			const { id, mainMsgBlocks } = await createMessage( true );
+
+			expect( id ).toBe( expectedId );
+			expect( mainMsgBlocks[ 1 ].elements ).toHaveLength( expectedContextLength );
+			expect( mainMsgBlocks[ 2 ].elements ).toHaveLength( expectedButtonsLength );
+			expect( mainMsgBlocks[ 1 ].elements[ 0 ].text ).toBe( expectedFirstContextText );
+			expect( mainMsgBlocks[ 2 ].elements[ 1 ]?.url ).toBe( expectedSecondButtonUrl );
+		}
+	);
+
+	test.each`
 		description                                      | clientPayload                                          | expectedContextLength | expectedButtonsLength
 		${ 'upstream sha, upstream repository' }         | ${ { sha: '123456789', repository: 'upstream/repo' } } | ${ 2 }                | ${ 2 }
 		${ 'upstream sha, missing upstream repository' } | ${ { sha: '123456789' } }                              | ${ 2 }                | ${ 1 }
@@ -163,6 +202,30 @@ describe( 'Message content', () => {
 			expect( mainMsgBlocks[ 2 ].elements ).toHaveLength( expectedButtonsLength );
 		}
 	);
+
+	test( 'xUnit failure blocks are included in the details message', async () => {
+		setInputData( { xunitReportPath: 'tests/resources/xunit/single-report.xml' } );
+		await mockGitHubContext( {
+			payload: {},
+			sha,
+			eventName: 'unsupported',
+		} );
+		mockContextExtras( { repository, refType, refName } );
+
+		const { createMessage } = await import( '../src/message.js' );
+		const { detailsMsgBlocksChunks } = await createMessage( true );
+
+		expect( detailsMsgBlocksChunks ).toContainEqual( {
+			type: 'context',
+			elements: [ { type: 'mrkdwn', text: '*1/3 tests failed*' } ],
+		} );
+		expect( detailsMsgBlocksChunks ).toContainEqual( {
+			type: 'context',
+			elements: expect.arrayContaining( [
+				{ type: 'mrkdwn', text: '*Calculator: subtracts numbers*' },
+			] ),
+		} );
+	} );
 } );
 
 describe( 'Send message', () => {

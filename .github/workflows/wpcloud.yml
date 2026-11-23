@@ -89,7 +89,8 @@ jobs:
 
       - name: Extract wpcomsh build
         run: |
-          tar --xz -xvvf wpcomsh.tar.xz wpcomsh
+          mkdir wpcomsh
+          tar --xz -k -xvvf wpcomsh.tar.xz wpcomsh
 
       - name: Configure Github to be able to SSH to the WP Cloud site
         env:

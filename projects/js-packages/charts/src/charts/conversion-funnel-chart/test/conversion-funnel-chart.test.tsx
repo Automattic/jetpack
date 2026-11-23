@@ -671,7 +671,9 @@ describe( 'ConversionFunnelChart', () => {
 
 			await user.click( screen.getByRole( 'option', { name: /cart/i } ) );
 
-			expect( screen.getByTestId( 'bounded-tooltip' ) ).toHaveStyle( { background: 'purple' } );
+			expect( screen.getByTestId( 'bounded-tooltip' ) ).toHaveStyle( {
+				background: 'rgb(128, 0, 128)',
+			} );
 		} );
 
 		it( 'disables tooltip when renderTooltip returns null', async () => {

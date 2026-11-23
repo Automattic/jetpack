@@ -137,11 +137,6 @@ function wpcom_get_sidebar_notice_data() {
 		return;
 	}
 
-	$link = ! empty( $notice['link'] ) ? $notice['link'] : '';
-	if ( str_starts_with( $link, '/' ) ) {
-		$link = 'https://wordpress.com' . $link;
-	}
-
 	$user_id    = null;
 	$user_login = null;
 

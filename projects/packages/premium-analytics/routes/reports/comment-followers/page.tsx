@@ -12,6 +12,7 @@ import {
 	ReportErrorState,
 	ReportRecordsTable,
 	ReportCsvAction,
+	StatsOptionsMenu,
 	useReportCsvExport,
 	type CsvColumn,
 } from '@jetpack-premium-analytics/widgets-toolkit';
@@ -96,9 +97,12 @@ function CommentFollowersReport(): JSX.Element {
 			visual={ <Icon icon={ jetpack } /> }
 			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
 			actions={
-				canExport ? (
-					<ReportCsvAction columns={ csvColumns } rows={ csvRows } filename={ csvFilename } />
-				) : undefined
+				<>
+					{ canExport && (
+						<ReportCsvAction columns={ csvColumns } rows={ csvRows } filename={ csvFilename } />
+					) }
+					<StatsOptionsMenu />
+				</>
 			}
 		>
 			<ReportPageLayout title={ getLabel() }>

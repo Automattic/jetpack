@@ -9,6 +9,7 @@ The action will send notifications with the workflow status grouped by a unique 
 For pull_request, the notifications will be grouped by PR number.
 For push, the notifications will be grouped by commit id.
 For schedule event there will be no grouping. Each new run will have its own main message. 
+For workflow_dispatch, the notifications will be grouped by the optional `sha` input. Without that input, each new run will have its own main message.
 
 If workflow failed and no main message exists, a main message is created and then a reply is sent with the failed run details.
 
@@ -70,6 +71,7 @@ jobs:
           rules_configuration_path: 'path/to/rules/configuration/file'
           playwright_report_path: 'test-artifacts/**/report.json'
           playwright_output_dir: 'test-artifacts/**/results'
+          xunit_report_path: 'test-artifacts/**/*.xml'
 ```
 
 ### Inputs
@@ -85,6 +87,7 @@ The action relies on the following parameters.
 - (Optional) `rules_configuration_path` is the path to the configuration file that defines the rules. See more in the Rules section.
 - (Optional) `playwright_report_path` is the path to the JSON report, output from Playwright test runner JSON reporter. See [Playwright's docs](https://playwright.dev/docs/test-reporters#json-reporter) for details on how to generate this file. If specified, it will be parsed and failures details will be included in the message. You can use the glob pattern to specify multiple files. For example: `playwright_report_path: 'artifacts/**/report.json'`.
 - (Optional) `playwright_output_dir` is the path to the Playwright's configured output directory, where results and attachments are saved. It is needed when the artefacts are downloaded from a previous job, and the absolute paths to attachments found in the JSON report are not valid anymore. This path will be used to convert the paths to those attachments. You can use the glob pattern. For example: `playwright_output_dir: 'artifacts/**/results'`
+- (Optional) `xunit_report_path` is the path to an xUnit XML report. If specified, failed test names and error details will be included in the message. You can use a glob pattern to specify multiple files. For example: `xunit_report_path: 'artifacts/**/*.xml'`.
 
 ### GitHub permissions required
 
@@ -160,6 +163,27 @@ Example:
 ```
 
 In the example, for runs with `suite_name` set to "Smoke tests", a notification will be sent to `CHANNEL_ID_1` and to the default channel.
+
+## Inputs for workflow_dispatch event
+
+If a workflow is triggered manually with a `workflow_dispatch` event, it can provide information about the commit being tested through optional workflow inputs:
+
+```yml
+on:
+  workflow_dispatch:
+    inputs:
+      sha:
+        description: 'Commit tested'
+        type: string
+      repository:
+        description: 'Repository tested'
+        type: string
+```
+
+- `sha`: the commit that triggered the workflow. Notifications with the same value will be grouped.
+- `repository`: the repository containing the commit. When supplied with `sha`, the notification will include a link to the commit.
+
+When `sha` is not supplied, each manual run will have its own main message. A `repository` value without `sha` is ignored.
 
 ## Client payload for repository_dispatch event
  If the workflow is triggered by a `repository_dispatch` event from another repository, you may want to include some additional information about the upstream repository in the notification. This can be included in the `client_payload` object of the repository dispatch event. The action will parse the `client_payload` object and use the use information in the notification. The following properties are supported:

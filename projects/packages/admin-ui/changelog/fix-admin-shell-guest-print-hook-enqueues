@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Admin shell: Stop scripts other plugins enqueue on the print hooks from loading again when switching dashboards, which broke switching to Social on WordPress.com.

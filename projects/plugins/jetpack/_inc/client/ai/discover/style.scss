@@ -14,35 +14,32 @@
 
 	// The shared dark banner, compact: icon, a short title and copy on one
 	// line with the close, and only the top glow (the bottom orb would show
-	// as a solid sphere at this height).
-	// Doubled with the shell's class, so it wins whatever loads first.
-	&__banner.jetpack-ai-banner {
+	// as a solid sphere at this height). Doubled with the banner's class, so
+	// it wins whatever loads first.
+	&__banner.jp-highlight-banner {
 		align-items: center;
 		padding-block: var(--wpds-dimension-padding-xl);
 		padding-inline: var(--wpds-dimension-padding-xl) 56px;
-	}
-
-	&__banner {
 
 		// Level with the title, not centred on the copy.
-		.jetpack-ai-banner__icon {
+		.jp-highlight-banner__icon {
 			align-self: flex-start;
 		}
 
 		// A comfortable line length for the copy, with its lines evened out.
-		.jetpack-ai-banner__content {
+		.jp-highlight-banner__content {
 			gap: var(--wpds-dimension-gap-xs);
 			max-inline-size: 750px;
 			text-wrap: balance;
 		}
 
-		.jetpack-ai-banner__title {
+		.jp-highlight-banner__title {
 			font-size: 15px;
 			line-height: 20px;
 			font-weight: 600;
 		}
 
-		.jetpack-ai-banner__orb--bottom {
+		.jp-highlight-banner__orb--bottom {
 			display: none;
 		}
 	}

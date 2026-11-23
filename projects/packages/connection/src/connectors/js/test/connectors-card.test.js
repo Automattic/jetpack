@@ -37,6 +37,9 @@ jest.mock( '@automattic/jetpack-connection', () => {
 		TransferConnectionOwnership: stub( 'transfer-ownership' ),
 		ProtectedOwnerConfirmation: stub( 'protected-owner-confirmation' ),
 		ProtectedOwnerRelease: stub( 'protected-owner-release' ),
+		IdentityCrisis: jest.fn( ( { hostActions } ) =>
+			createElement( 'div', { 'data-testid': 'identity-crisis' }, hostActions )
+		),
 	};
 } );
 
@@ -96,7 +99,7 @@ const brokenOwner = {
  * @param {object} options.data        - The card's script module data.
  * @param {string} options.search      - The page's query string.
  * @param {object} options.errorNotice - What useConnectionErrorNotice() returns.
- * @return {object} A user-event instance, this load's mocked connection package and its decorateAuthUrl spy.
+ * @return {object} A user-event instance, this load's mocked connection package and the card-state URL spies.
  */
 function renderCard( { state = connectedAsOwner, data = {}, search = '', errorNotice } = {} ) {
 	window.JP_CONNECTION_INITIAL_STATE = state;
@@ -112,7 +115,12 @@ function renderCard( { state = connectedAsOwner, data = {}, search = '', errorNo
 	jest.doMock( 'react', () => React );
 	jest.doMock( '../card-state.mjs', () => {
 		const actual = jest.requireActual( '../card-state.mjs' );
-		return { ...actual, decorateAuthUrl: jest.fn( actual.decorateAuthUrl ) };
+		return {
+			...actual,
+			decorateAuthUrl: jest.fn( actual.decorateAuthUrl ),
+			withSkipPricing: jest.fn( actual.withSkipPricing ),
+			withoutClearConfirmation: jest.fn( actual.withoutClearConfirmation ),
+		};
 	} );
 	const connection = require( '@automattic/jetpack-connection' );
 	if ( errorNotice ) {
@@ -123,8 +131,18 @@ function renderCard( { state = connectedAsOwner, data = {}, search = '', errorNo
 	const { render: Card, ...props } = registerConnector.mock.calls[ 0 ][ 1 ];
 
 	render( React.createElement( Card, props ) );
-	const { decorateAuthUrl } = require( '../card-state.mjs' );
-	return { user: userEvent.setup(), connection, decorateAuthUrl };
+	const {
+		decorateAuthUrl,
+		withSkipPricing,
+		withoutClearConfirmation,
+	} = require( '../card-state.mjs' );
+	return {
+		user: userEvent.setup(),
+		connection,
+		decorateAuthUrl,
+		withSkipPricing,
+		withoutClearConfirmation,
+	};
 }
 
 /**
@@ -375,6 +393,22 @@ describe( 'Connectors card', () => {
 			expect( decorateAuthUrl ).toHaveBeenCalledWith( AUTH_URL );
 		} );
 
+		it.each( [
+			[ 'offers the owner slot', true, /you can become the new connection owner/ ],
+			[ 'does not offer an owner slot it cannot take', false, /You can still connect/ ],
+		] )( '%s to an admin connecting past a broken owner', ( _, transferable, copy ) => {
+			renderCard( {
+				state: {
+					...unlinkedAdmin,
+					connectionStatus: { isRegistered: true, hasConnectedOwner: false },
+					canTakeOwnerSlot: transferable,
+				},
+				search: '?connector=wordpress_com',
+			} );
+
+			expect( screen.getByText( copy ) ).toBeInTheDocument();
+		} );
+
 		it( 'shows why registration failed and lets the admin retry', async () => {
 			const { user } = renderCard( { state: neverConnected } );
 			respondWith( { code: 'unknown_code', message: 'The site said no.' }, false );
@@ -619,6 +653,82 @@ describe( 'Connectors card', () => {
 			expect( connection.bumpConnectionStat.mock.calls ).toEqual(
 				bumped ? [ [ 'jetpack-idc', 'migrate' ] ] : []
 			);
+		} );
+	} );
+
+	describe( 'new Safe Mode screen', () => {
+		const newScreen = {
+			...connectedAsOwner,
+			connectionStatus: { ...connectedStatus, isInSafeMode: true },
+			identityCrisis: { useNewScreen: true, isSafeModeConfirmed: false, canResolve: true },
+		};
+
+		/**
+		 * Open the card's Safe Mode screen.
+		 *
+		 * @param {object} data   - The card's script module data.
+		 * @param {string} search - The page's query string.
+		 * @return {Promise<object>} The user-event instance, the props the screen got and the card-state URL spies.
+		 */
+		async function openScreen( data = {}, search = '' ) {
+			const { user, connection, ...spies } = renderCard( {
+				state: newScreen,
+				data,
+				search,
+			} );
+			await user.click( screen.getByRole( 'button', { name: 'Resolve' } ) );
+			return { user, props: connection.IdentityCrisis.mock.calls.at( -1 )[ 0 ], ...spies };
+		}
+
+		it.each( [
+			[ 'offers', {}, true ],
+			[ 'does not offer on WoA', { isWoaSite: true }, false ],
+		] )( 'replaces the Safe Mode panel, and %s Disconnect', async ( _, data, hasDisconnect ) => {
+			const { props } = await openScreen( { redirectUri: 'options-connectors.php', ...data } );
+
+			expect( props ).toMatchObject( {
+				context: 'connectors',
+				showHeader: false,
+				redirectUri: 'options-connectors.php',
+				from: 'connection_safe_mode_connectors',
+			} );
+			expect( screen.queryByRole( 'button', { name: 'Update address' } ) ).not.toBeInTheDocument();
+			expect( Boolean( screen.queryByRole( 'button', { name: 'Disconnect site' } ) ) ).toBe(
+				hasDisconnect
+			);
+		} );
+
+		it( 'after a fresh connection, goes to the connect URL with only skip_pricing added', async () => {
+			const { props, decorateAuthUrl, withSkipPricing } = await openScreen();
+
+			act( () => props.onActionSuccess( { action: 'start-fresh', connectUrl: AUTH_URL } ) );
+
+			await expectNavigation();
+			// The endpoint already put `from` in the URL.
+			expect( decorateAuthUrl ).not.toHaveBeenCalled();
+			expect( withSkipPricing ).toHaveBeenCalledWith( AUTH_URL );
+		} );
+
+		it( 'after staying in Safe Mode, reloads without the admin bar link arguments', async () => {
+			const { props, withoutClearConfirmation } = await openScreen(
+				{},
+				'?jetpack_idc_clear_confirmation=1&_wpnonce=abc'
+			);
+
+			act( () => props.onActionSuccess( { action: 'confirm-safe-mode' } ) );
+
+			await expectNavigation();
+			expect( withoutClearConfirmation.mock.results[ 0 ].value ).toBe(
+				'http://localhost/wp-admin/options-connectors.php'
+			);
+		} );
+
+		it( "opens the card's own disconnect dialog", async () => {
+			const { user } = await openScreen();
+
+			await user.click( screen.getByRole( 'button', { name: 'Disconnect site' } ) );
+
+			expect( screen.getByTestId( 'disconnect-dialog' ) ).toBeInTheDocument();
 		} );
 	} );
 

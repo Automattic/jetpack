@@ -1,11 +1,17 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { loadMediaLibrary } from '@automattic/jetpack-components/tools/load-media-library';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { ReactElement } from 'react';
 import MediaPicker from '..';
 
+jest.mock( '@automattic/jetpack-components/tools/load-media-library', () => ( {
+	loadMediaLibrary: jest.fn(),
+} ) );
+
+const mockOpen = jest.fn();
 jest.mock( '@wordpress/block-editor', () => ( {
 	...jest.requireActual( '@wordpress/block-editor' ),
-	MediaUpload: ( { render: onRender } ) => <div>{ onRender( 'open' ) }</div>,
+	MediaUpload: ( { render: onRender } ) => <div>{ onRender( { open: mockOpen } ) }</div>,
 	MediaUploadCheck: ( { children } ) => children,
 } ) );
 
@@ -72,6 +78,64 @@ const MediaPickerMock = ( { detailsMock = {}, mediaIdMock = null, onChangeMock =
 );
 
 describe( 'MediaPicker', () => {
+	beforeEach( () => {
+		mockOpen.mockReset();
+		loadMediaLibrary.mockReset();
+	} );
+
+	it( 'opens the media library once it has loaded, busy until then', async () => {
+		let finishLoading;
+		loadMediaLibrary.mockReturnValue(
+			new Promise( resolve => {
+				finishLoading = resolve;
+			} )
+		);
+		const { user } = await setup( <MediaPickerMock /> );
+		const button = screen.getByRole( 'button', { name: /Choose media/i } );
+
+		await user.click( button );
+
+		expect( button ).toHaveAttribute( 'aria-disabled', 'true' );
+		expect( mockOpen ).not.toHaveBeenCalled();
+
+		await act( async () => finishLoading() );
+
+		expect( mockOpen ).toHaveBeenCalledTimes( 1 );
+		expect( button ).not.toHaveAttribute( 'aria-disabled', 'true' );
+	} );
+
+	it( 'opens the media library once when the preview is clicked twice while it loads', async () => {
+		let finishLoading;
+		loadMediaLibrary.mockReturnValue(
+			new Promise( resolve => {
+				finishLoading = resolve;
+			} )
+		);
+		const { user } = await setup(
+			<MediaPickerMock detailsMock={ DUMMY_IMAGE_DETAILS } mediaIdMock={ 1 } />
+		);
+		// The image inside the preview button; the click bubbles to the button.
+		const preview = screen.getByRole( 'presentation' );
+
+		await user.click( preview );
+		await user.click( preview );
+		await act( async () => finishLoading() );
+
+		expect( mockOpen ).toHaveBeenCalledTimes( 1 );
+	} );
+
+	it( 'says so when the media library fails to load', async () => {
+		loadMediaLibrary.mockRejectedValue( new Error( 'HTTP 500' ) );
+		const { user } = await setup( <MediaPickerMock /> );
+
+		await user.click( screen.getByRole( 'button', { name: /Choose media/i } ) );
+
+		expect( mockOpen ).not.toHaveBeenCalled();
+		await expect( screen.findByRole( 'alert' ) ).resolves.toHaveTextContent(
+			'The media library could not be loaded. Try again.'
+		);
+	} );
+
 	it( 'should render the picker if media is not selected', async () => {
 		render( <MediaPickerMock /> );
 

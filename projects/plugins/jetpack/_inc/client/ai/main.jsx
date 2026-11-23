@@ -119,7 +119,7 @@ const AI_FEATURES_TITLE_ID = `${ AI_FEATURES_SECTION_ID }-title`;
 // no such entry.
 const hasInAppHistory = () => !! window.history.state?.[ IN_APP_HISTORY_KEY ];
 
-const getRawHash = () => window.location.hash.replace( /^#\//, '' );
+const getRawHash = ( hash = window.location.hash ) => hash.replace( /^#\//, '' );
 
 const isFeaturesHash = () => getRawHash() === 'features';
 
@@ -143,8 +143,8 @@ const getTabViews = () => {
 // Settings hub — never Discover, even when it leads the tab bar. A hash pointing
 // at a hidden view falls back too. The MCP Read and Write views also take a
 // trailing tool anchor (`#/mcp/read/<anchor>`).
-const getRouteFromHash = () => {
-	const raw = getRawHash();
+const getRouteFromHash = ( hash = window.location.hash ) => {
+	const raw = getRawHash( hash );
 	if ( getLegacySkill( raw ) ) {
 		return { view: 'skills', anchor: null };
 	}
@@ -358,7 +358,7 @@ export default function App() {
 		isOfflineMode = false,
 		showFeaturesView = false,
 		showA12sBadge = false,
-		isSelfHosted = false,
+		showSiteAbilities = false,
 	} = window?.jetpackAiSettings ?? {};
 	const [ route, setRoute ] = useState( getRouteFromHash );
 	const { view, anchor } = route;
@@ -391,7 +391,7 @@ export default function App() {
 	const showConnectNotice = !! blogId && userUnlinked;
 	const { isLoading, savingToolIds, mcpAbilities, hasMcpAccess, error, updateMcpAbilities } =
 		useMcpSettings( { skip: showConnectNotice || ! blogId } );
-	const showRemoteAbilities = isSelfHosted && ! showConnectNotice && !! blogId;
+	const showRemoteAbilities = showSiteAbilities && ! showConnectNotice && !! blogId;
 	const publishedAbilities = useSiteAbilities( { enabled: showRemoteAbilities } );
 	const remoteAbilities = showRemoteAbilities ? publishedAbilities : null;
 	const {
@@ -483,6 +483,7 @@ export default function App() {
 	// Scheduled tasks can bring the bar without the host gate. An old #/features
 	// link names the section it meant; the hash is current here, since the view
 	// always follows it.
+	const hiddenTab = useRef( activeTab );
 	useEffect( () => {
 		if ( ! hasTabBar ) {
 			return;
@@ -491,6 +492,30 @@ export default function App() {
 			tab: activeTab,
 			...( showFeaturesView && isFeaturesHash() ? { section: 'ai_features' } : {} ),
 		} );
+		// The admin shell keeps this page mounted, so a return to it is a new visit: see the admin-ui README.
+		const onHidden = event => {
+			if ( event.detail?.page === 'jetpack-ai' ) {
+				hiddenTab.current = activeTab;
+			}
+		};
+		const onShown = event => {
+			const { page, firstShow, routeChanged, url } = event.detail ?? {};
+			if ( page !== 'jetpack-ai' || firstShow ) {
+				return;
+			}
+			// This effect records a return to another tab, but not to another view of the same tab.
+			const shownTab =
+				routeChanged && getRouteFromHash( new URL( url ).hash ).view.split( '/' )[ 0 ];
+			if ( ! routeChanged || shownTab === hiddenTab.current ) {
+				recordAiHubEvent( EVENTS.VIEWED, { tab: activeTab } );
+			}
+		};
+		window.addEventListener( 'jetpack-admin-shell:page-hidden', onHidden );
+		window.addEventListener( 'jetpack-admin-shell:page-shown', onShown );
+		return () => {
+			window.removeEventListener( 'jetpack-admin-shell:page-hidden', onHidden );
+			window.removeEventListener( 'jetpack-admin-shell:page-shown', onShown );
+		};
 	}, [ activeTab, hasTabBar, showFeaturesView ] );
 
 	useEffect( () => {

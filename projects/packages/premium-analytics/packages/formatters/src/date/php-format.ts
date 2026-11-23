@@ -15,6 +15,15 @@ const WEEKDAY_FORMAT = 'l';
 /** Tokens that render a day of the month: unpadded, padded, and its ordinal suffix. */
 const DAY_TOKENS = new Set( [ 'j', 'd', 'S' ] );
 
+/** Tokens that name the day of the month itself; `S` is only its ordinal suffix. */
+const DAY_OF_MONTH_TOKENS = new Set( [ 'j', 'd' ] );
+
+/** Year tokens that name the calendar year; `o` is the ISO week year, so 1 January 2021 reads 2020. */
+const CALENDAR_YEAR_TOKENS = new Set( [ 'Y', 'y' ] );
+
+/** Tokens that render a month: spelled out, abbreviated, padded and unpadded. */
+const MONTH_TOKENS = new Set( [ 'F', 'M', 'm', 'n' ] );
+
 /** Textual month, spelled out and abbreviated. */
 const MONTH_FULL_TOKEN = 'F';
 const MONTH_SHORT_TOKEN = 'M';
@@ -79,6 +88,20 @@ function toSegments( phpFormat: string ): Segment[] {
  */
 export function hasToken( phpFormat: string, tokens: Set< string > ): boolean {
 	return toSegments( phpFormat ).some( segment => segment.isToken && tokens.has( segment.char ) );
+}
+
+/**
+ * Whether a format names the day of the month, the month and the year.
+ *
+ * The shorter forms drop one of these, so a format missing one leaves a bare `10` for October.
+ *
+ * @param phpFormat - PHP `date()` format string.
+ * @return Whether all three are present.
+ */
+export function isCompleteDate( phpFormat: string ): boolean {
+	return [ DAY_OF_MONTH_TOKENS, MONTH_TOKENS, CALENDAR_YEAR_TOKENS ].every( tokens =>
+		hasToken( phpFormat, tokens )
+	);
 }
 
 /**
@@ -206,8 +229,9 @@ function literalRunStart( segments: Segment[], index: number ): number {
  * Remove the day from a PHP format string, with its adjoining punctuation.
  *
  * The weekday goes too: neither has anything to name in a month-and-year label.
- * The run to remove is the one after the day (`F j, Y` → `F Y`), or the one
- * before it where nothing follows (`Y-m-d` → `Y-m`).
+ * The run to remove is the one after the day (`F j, Y` → `F Y`). A final day
+ * takes the text after it as its suffix (`Y年n月j日` → `Y年n月`), or the run
+ * before it when nothing follows (`Y-m-d` → `Y-m`).
  *
  * @param phpFormat - PHP `date()` format string.
  * @return The format without its day, or unchanged when it has none.
@@ -216,6 +240,8 @@ export function withoutDay( phpFormat: string ): string {
 	const segments = toSegments( phpFormat );
 	const isDay = ( segment: Segment ): boolean =>
 		segment.isToken && ( DAY_TOKENS.has( segment.char ) || WEEKDAY_TOKENS.has( segment.char ) );
+	const isSpace = ( segment: Segment ): boolean =>
+		! segment.isToken && /^\s$/.test( segment.source );
 	const dropped = new Set< number >();
 
 	for ( let index = 0; index < segments.length; index++ ) {
@@ -230,10 +256,18 @@ export function withoutDay( phpFormat: string ): string {
 		}
 
 		const following = nextTokenAt( segments, last + 1 );
-		const [ start, end ] =
+		let [ start, end ] =
 			following < segments.length
 				? [ index, following ]
 				: [ literalRunStart( segments, index ), last + 1 ];
+
+		if ( following === segments.length && last + 1 < segments.length ) {
+			start = index;
+			while ( start > 0 && isSpace( segments[ start - 1 ] ) ) {
+				start--;
+			}
+			end = segments.length;
+		}
 
 		for ( let at = start; at < end; at++ ) {
 			dropped.add( at );

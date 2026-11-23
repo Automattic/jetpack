@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Admin shell: Don't ask a second time about unsaved edits when the shell already asked before loading the page.

@@ -194,8 +194,8 @@ class Monitor_Abilities_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Both abilities are agent-facing, so each must expose the `meta.mcp`
-	 * descriptor (public tool) alongside `show_in_rest`, matching the sibling
+	 * Both abilities are agent-facing, so each must set `meta.public` and expose the
+	 * `meta.mcp` descriptor (public tool) alongside `show_in_rest`, matching the sibling
 	 * `jetpack/get-modules` and `jetpack/set-module-status` definitions.
 	 *
 	 * @dataProvider provider_ability_slugs
@@ -205,6 +205,8 @@ class Monitor_Abilities_Test extends WP_UnitTestCase {
 	#[DataProvider( 'provider_ability_slugs' )]
 	public function test_abilities_expose_public_mcp_tool_metadata( string $slug ) {
 		$meta = Monitor_Abilities::get_abilities()[ $slug ]['meta'];
+		$this->assertArrayHasKey( 'public', $meta, "{$slug} should declare meta.public." );
+		$this->assertTrue( $meta['public'], "{$slug} should be marked public." );
 		$this->assertTrue( $meta['show_in_rest'], "{$slug} should be exposed in REST." );
 		$this->assertArrayHasKey( 'mcp', $meta, "{$slug} should carry mcp metadata so MCP/agent tooling can discover it." );
 		$this->assertTrue( $meta['mcp']['public'], "{$slug} mcp metadata should be public." );
@@ -346,6 +348,22 @@ class Monitor_Abilities_Test extends WP_UnitTestCase {
 
 	public function test_can_manage_monitor_denies_subscriber() {
 		wp_set_current_user( $this->subscriber_id );
+		$this->assertFalse( Monitor_Abilities::can_manage_monitor() );
+	}
+
+	public function test_can_manage_monitor_denies_contributor_who_can_open_the_jetpack_admin_page() {
+		wp_set_current_user(
+			wp_insert_user(
+				array(
+					'user_login' => 'monitor_abilities_contributor_' . wp_generate_password( 8, false, false ),
+					'user_pass'  => 'pw',
+					'user_email' => 'contributor_' . wp_generate_password( 6, false, false ) . '@example.test',
+					'role'       => 'contributor',
+				)
+			)
+		);
+
+		$this->assertTrue( current_user_can( 'jetpack_admin_page' ) );
 		$this->assertFalse( Monitor_Abilities::can_manage_monitor() );
 	}
 

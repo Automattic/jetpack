@@ -208,6 +208,67 @@ class Settings_Test extends BaseTestCase {
 	}
 
 	/**
+	 * The shell offers Newsletter where the menu shows it: connected sites, and Simple, whose menu doesn't check the connection.
+	 *
+	 * @dataProvider provide_admin_shell_member_cases
+	 *
+	 * @param bool $simple        Whether the site is WordPress.com Simple.
+	 * @param bool $connected     Whether the site has a blog token.
+	 * @param bool $subscriptions Whether the subscriptions module is active.
+	 * @param bool $expected      Whether Newsletter joins the shell.
+	 */
+	#[DataProvider( 'provide_admin_shell_member_cases' )]
+	public function test_admin_shell_member( $simple, $connected, $subscriptions, $expected ) {
+		if ( $connected ) {
+			\Jetpack_Options::update_option( 'id', 1234 );
+			\Jetpack_Options::update_option( 'blog_token', 'test_token.secret' );
+		}
+		( new Connection_Manager() )->reset_connection_status();
+		if ( $simple ) {
+			\Automattic\Jetpack\Constants::set_constant( 'IS_WPCOM', true );
+		}
+		if ( $subscriptions ) {
+			add_filter( 'jetpack_active_modules', array( $this, 'mock_subscriptions_active' ) );
+		}
+		$this->set_wp_build_index( __FILE__ );
+
+		try {
+			$members = ( new Settings() )->add_admin_shell_member( array() );
+		} finally {
+			$this->set_wp_build_index( null );
+		}
+
+		$this->assertSame( $expected, isset( $members[ Settings::ADMIN_PAGE_SLUG ] ) );
+	}
+
+	/**
+	 * Admin shell member cases.
+	 *
+	 * @return array<string, array{bool, bool, bool, bool}>
+	 */
+	public static function provide_admin_shell_member_cases() {
+		return array(
+			'connected'                 => array( false, true, true, true ),
+			'not connected'             => array( false, false, true, false ),
+			'Simple, no token'          => array( true, false, true, true ),
+			'Simple, subscriptions off' => array( true, false, false, false ),
+		);
+	}
+
+	/**
+	 * Point the class at a build entry point, or back at the real one with null.
+	 *
+	 * @param string|null $path Entry point path.
+	 */
+	private function set_wp_build_index( $path ) {
+		$property = new \ReflectionProperty( Settings::class, 'wp_build_index' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$property->setAccessible( true );
+		}
+		$property->setValue( null, $path );
+	}
+
+	/**
 	 * Test that the legacy (unmodernized) dashboard still registers the menu when
 	 * the subscriptions module is inactive — the module gate must not change
 	 * non-modernized behavior.
@@ -822,5 +883,44 @@ class Settings_Test extends BaseTestCase {
 			1,
 			has_action( 'admin_menu', array( Settings::class, 'redirect_retired_subscribers_page' ) )
 		);
+	}
+
+	/**
+	 * Data provider for test_shell_landing_subtitle_is_the_tab_the_dashboard_opens.
+	 *
+	 * @return array[] Subscriber management on, Overview flag on, expected subtitle.
+	 */
+	public static function provide_landing_tabs() {
+		return array(
+			'Settings only' => array( false, true, 'Configure how your newsletter looks, behaves, and reaches subscribers.' ),
+			'Overview'      => array( true, true, 'View a summary of your newsletter.' ),
+			'Subscribers'   => array( true, false, 'Manage everyone subscribed to your site.' ),
+		);
+	}
+
+	/**
+	 * The admin shell's subtitle is that of the tab a bare Newsletter link opens: Settings, Overview, or Subscribers.
+	 *
+	 * @dataProvider provide_landing_tabs
+	 *
+	 * @param bool   $management Whether wp-admin subscriber management is on.
+	 * @param bool   $overview   Whether the Overview feature flag is on.
+	 * @param string $expected   Expected subtitle.
+	 */
+	#[DataProvider( 'provide_landing_tabs' )]
+	public function test_shell_landing_subtitle_is_the_tab_the_dashboard_opens( $management, $overview, $expected ) {
+		Settings::register_feature_flags();
+		add_filter( 'jetpack_feature_flag_enabled_' . Settings::OVERVIEW_FEATURE_FLAG, $overview ? '__return_true' : '__return_false' );
+		add_filter( 'jetpack_wp_admin_subscriber_management_enabled', $management ? '__return_true' : '__return_false' );
+		$method = new \ReflectionMethod( Settings::class, 'landing_subtitle' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+
+		try {
+			$this->assertSame( $expected, $method->invoke( null ) );
+		} finally {
+			remove_all_filters( 'jetpack_wp_admin_subscriber_management_enabled' );
+		}
 	}
 }

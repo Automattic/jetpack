@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "9be91a4c6483b9306ac9143ea09b9229",
+    "content-hash": "db380d2c670f0d2c6566ea4fd6a7af72",
     "packages": [
         {
             "name": "automattic/block-delimiter",
@@ -122,12 +122,13 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/a8c-mc-stats",
-                "reference": "541c1a337db228eaabc700491d9a4a43c8187ee1"
+                "reference": "710fd080f042f238759fcdc1527347c7ce81e83f"
             },
             "require": {
                 "php": ">=7.4"
             },
             "require-dev": {
+                "automattic/jetpack-test-environment": "@dev",
                 "automattic/phpunit-select-config": "@dev",
                 "yoast/phpunit-polyfills": "^4.0.0"
             },
@@ -141,7 +142,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-a8c-mc-stats/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "4.0.x-dev"
+                    "dev-trunk": "4.1.x-dev"
                 }
             },
             "autoload": {
@@ -174,7 +175,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/admin-ui",
-                "reference": "f997d354525ea5e38f5cacea2ae0f9843b2ec4c7"
+                "reference": "838ca9a21e304710a2e58934cfa1da5d6c6681d7"
             },
             "require": {
                 "automattic/jetpack-feature-flags": "@dev",
@@ -225,6 +226,12 @@
                 ],
                 "phpunit": [
                     "phpunit-select-config phpunit.#.xml.dist --colors=always"
+                ],
+                "test-js": [
+                    "pnpm run test"
+                ],
+                "test-js-coverage": [
+                    "pnpm run test-coverage"
                 ],
                 "test-php": [
                     "@composer phpunit"
@@ -897,13 +904,14 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "c59acc0e885c3508277611c58cd995b81c52ee9e"
+                "reference": "1f96b7e514a056f188f8bb5589cc89d5a111a3b7"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "@dev",
                 "automattic/jetpack-admin-ui": "@dev",
                 "automattic/jetpack-assets": "@dev",
                 "automattic/jetpack-constants": "@dev",
+                "automattic/jetpack-feature-flags": "@dev",
                 "automattic/jetpack-ip": "@dev",
                 "automattic/jetpack-redirect": "@dev",
                 "automattic/jetpack-roles": "@dev",
@@ -933,7 +941,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-connection/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "9.17.x-dev"
+                    "dev-trunk": "9.18.x-dev"
                 },
                 "dependencies": {
                     "test-only": [
@@ -1409,7 +1417,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/ip",
-                "reference": "a82b5b8395f0d4428db7e93d3e6fda1a7d4d8d7c"
+                "reference": "77ff2c19f1e1ab15ddbf73c4056d187caf9b4df8"
             },
             "require": {
                 "php": ">=7.4"
@@ -1429,7 +1437,7 @@
                     "link-template": "https://github.com/automattic/jetpack-ip/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.7.x-dev"
+                    "dev-trunk": "0.8.x-dev"
                 },
                 "textdomain": "jetpack-ip",
                 "version-constants": {
@@ -1466,7 +1474,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/jitm",
-                "reference": "6375a38a7e591b3bca07db3d5bb6521e0ba878ef"
+                "reference": "414708f5f1ed763824d3f23a3fc7679b585815b9"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "@dev",
@@ -1514,6 +1522,9 @@
                 ],
                 "phpunit": [
                     "phpunit-select-config phpunit.#.xml.dist --colors=always"
+                ],
+                "test-js": [
+                    "pnpm run test"
                 ],
                 "test-php": [
                     "@composer phpunit"
@@ -1672,7 +1683,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/jetpack-mu-wpcom",
-                "reference": "3130c61fe91852c2d6707769215b684f006fb8cf"
+                "reference": "cc758a54fea2f122bfb69f50683298eb232581b7"
             },
             "require": {
                 "automattic/block-delimiter": "@dev",
@@ -1702,6 +1713,7 @@
             },
             "require-dev": {
                 "automattic/jetpack-ads": "@dev",
+                "automattic/jetpack-monetize": "@dev",
                 "automattic/jetpack-podcast": "@dev",
                 "automattic/jetpack-premium-analytics": "@dev",
                 "automattic/jetpack-test-environment": "@dev",
@@ -2404,7 +2416,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/sync",
-                "reference": "3aabc132eb9296a74d5c75fb6817dba512df9e04"
+                "reference": "2cba13d0306a2d757f8ac3ecc067e0e4390013f2"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -2436,7 +2448,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-sync/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "5.5.x-dev"
+                    "dev-trunk": "5.6.x-dev"
                 },
                 "dependencies": {
                     "test-only": [
@@ -2675,16 +2687,16 @@
         },
         {
             "name": "automattic/wc-calypso-bridge",
-            "version": "v2.11.10",
+            "version": "v2.11.11",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/wc-calypso-bridge.git",
-                "reference": "01dacf401792f455da725fa07657f2a031d06628"
+                "reference": "b9e63d6daa6c329acab044f23e39074838404fa4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/wc-calypso-bridge/zipball/01dacf401792f455da725fa07657f2a031d06628",
-                "reference": "01dacf401792f455da725fa07657f2a031d06628",
+                "url": "https://api.github.com/repos/Automattic/wc-calypso-bridge/zipball/b9e63d6daa6c329acab044f23e39074838404fa4",
+                "reference": "b9e63d6daa6c329acab044f23e39074838404fa4",
                 "shasum": ""
             },
             "require-dev": {
@@ -2726,7 +2738,7 @@
             "license": [
                 "GPL-2.0-or-later"
             ],
-            "time": "2026-09-16T13:59:30+00:00"
+            "time": "2026-11-12T09:45:14+00:00"
         },
         {
             "name": "league/uri",
@@ -3448,7 +3460,8 @@
                 "issues": "https://github.com/tubalmartin/YUI-CSS-compressor-PHP-port/issues",
                 "source": "https://github.com/tubalmartin/YUI-CSS-compressor-PHP-port"
             },
-            "time": "2018-01-15T15:26:51+00:00"
+            "time": "2018-01-15T15:26:51+00:00",
+            "published-time": "2018-01-15T15:27:55+00:00"
         },
         {
             "name": "wordpress/classic-editor-plugin",
@@ -5307,7 +5320,8 @@
                 "security": "https://github.com/Yoast/PHPUnit-Polyfills/security/policy",
                 "source": "https://github.com/Yoast/PHPUnit-Polyfills"
             },
-            "time": "2025-02-09T18:58:54+00:00"
+            "time": "2025-02-09T18:58:54+00:00",
+            "published-time": "2025-02-09T19:10:16+00:00"
         }
     ],
     "aliases": [],

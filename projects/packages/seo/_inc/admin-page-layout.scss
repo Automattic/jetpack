@@ -92,9 +92,46 @@ body.toplevel_page_jetpack-seo {
 	justify-content: center;
 }
 
-// With the tabs shown (plan-gated Settings, see `SeoDisabledStage`) the content
-// div sits inside `Tabs.Root`, which is sized to its content. Let it grow so
-// the message centers in the space under the tab strip.
+// Let centered content fill the space below the tabs.
 .jetpack-seo-tabs:has(.jetpack-seo-page-content--centered) {
 	flex-grow: 1;
+}
+
+// The site-wide banners above each tab's content (see `DashboardNotices`).
+.jetpack-seo-notices {
+	display: flex;
+	flex-direction: column;
+	flex-shrink: 0;
+	gap: var(--wpds-dimension-gap-lg);
+	margin-block-start: var(--wpds-dimension-padding-2xl);
+	margin-inline: var(--wpds-dimension-padding-2xl);
+
+	&:empty {
+		display: none;
+	}
+
+	&:has(+ .jetpack-seo-page-content--flush) {
+		margin-block-end: var(--wpds-dimension-padding-2xl);
+	}
+
+	.jetpack-seo-page-column > & {
+		margin-block: 0 var(--wpds-dimension-gap-lg);
+		margin-inline: 0;
+	}
+}
+
+// Centered tab columns. 660px is the Jetpack settings-page width (see
+// Newsletter's settings/style.scss); 1128px, as in My Jetpack, fits the
+// Overview's side-by-side cards.
+.jetpack-seo-page-column--narrow,
+.jetpack-seo-page-column--wide {
+	margin-inline: auto;
+}
+
+.jetpack-seo-page-column--narrow {
+	max-inline-size: 660px;
+}
+
+.jetpack-seo-page-column--wide {
+	max-inline-size: 1128px;
 }

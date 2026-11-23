@@ -1,0 +1,16 @@
+@use "../styles/preset-surface";
+
+// Framed like the arrows beside it: one more way of moving the choice.
+.date-zoom-out {
+
+	@include preset-surface.group;
+}
+
+.date-zoom-out__button {
+
+	@include preset-surface.pill;
+
+	--wp-ui-button-height: calc(var(--wpds-dimension-size-lg) - 2px);
+
+	min-inline-size: var(--wpds-dimension-size-lg);
+}

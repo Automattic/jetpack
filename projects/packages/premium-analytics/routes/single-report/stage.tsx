@@ -7,7 +7,9 @@ import {
 	ReportScopeProvider,
 	isPlanDateLimitedSection,
 } from '@jetpack-premium-analytics/data';
-import { Badge, Icon } from '@jetpack-premium-analytics/externals';
+import { PRESET_CUSTOM, type PrimaryPresetId } from '@jetpack-premium-analytics/datetime';
+import { StatsErrorBoundary } from '@jetpack-premium-analytics/error-reporting';
+import { Icon } from '@jetpack-premium-analytics/externals';
 import { jetpack, lookupWidgetIcon } from '@jetpack-premium-analytics/icons';
 import {
 	DashboardWidgetHostProvider,
@@ -19,6 +21,7 @@ import {
 } from '@jetpack-premium-analytics/routing';
 import { PeriodChangeStatus, SectionTabs, StatsBreadcrumbs } from '@jetpack-premium-analytics/ui';
 import {
+	CustomizingBadge,
 	DetailPageActions,
 	PageEmptyState,
 	PageNotice,
@@ -40,14 +43,12 @@ import { WidgetDashboard, type DashboardWidget } from '@wordpress/widget-dashboa
 import { useDateWindowNotice } from '../date-window-notice';
 import { DETAIL_GRID } from '../grid';
 import { getReportDefinition } from '../reports/registry';
-import { useDetailBreadcrumbs } from '../use-detail-breadcrumbs';
-import { useDetailDateControls } from '../use-detail-date-controls';
 import { useStatsDateLimits } from '../use-stats-date-limits';
 import { useWidgetModules } from '../use-widget-modules';
 import { useWidgetModuleResolver, useWidgetTypesWithI18n } from '../widget-module-i18n';
 import { SinglePageLayout } from './components';
 import { buildControlFields, type ControlsItem } from './controls';
-import { useActiveSection } from './hooks';
+import { useActiveSection, useDetailBreadcrumbs, useDetailDateControls } from './hooks';
 import { route } from './package.json';
 import {
 	getSingleReportAdapter,
@@ -63,7 +64,6 @@ import {
 	type SingleReportPageSection,
 } from './registry';
 import styles from './stage.module.scss';
-import type { PrimaryPresetId } from '@jetpack-premium-analytics/datetime';
 import type { WidgetType } from '@wordpress/widget-primitives';
 import type { JSX } from 'react';
 
@@ -85,7 +85,7 @@ const READY_SUMMARY: EntitySummary = {
 // A page the route ships no adapter for renders from its record: the label titles it.
 const RECORD_ADAPTER: SingleReportAdapter = {
 	useSummary: () => READY_SUMMARY,
-	headerSlots: ( summary, { label } ) => ( { title: label } ),
+	headerSlots: ( summary, { title } ) => ( { title } ),
 };
 
 /**
@@ -140,10 +140,11 @@ function SingleReportBody( { page, entityId, adapter }: SingleReportBodyProps ):
 
 	const search = useSearch( { strict: false } ) as Record< string, unknown > | undefined;
 
+	useDateWindowNotice();
+
 	const { dateLimits } = useStatsDateLimits(
 		isPlanDateLimitedSection( page.dashboard_section ?? undefined )
 	);
-	useDateWindowNotice();
 	const lockedIntervals = dateLimits?.lockedIntervals;
 
 	const dateFilters = useReportDateFilters( ROUTE_FROM, { dateLimits } );
@@ -156,6 +157,7 @@ function SingleReportBody( { page, entityId, adapter }: SingleReportBodyProps ):
 		activeSlug: urlSection,
 		timeZone: dateFilters.timeZone,
 	} );
+
 	const visibleStates = useMemo(
 		() => sectionStates.filter( state => ! state.hidden ),
 		[ sectionStates ]
@@ -234,6 +236,7 @@ function SingleReportBody( { page, entityId, adapter }: SingleReportBodyProps ):
 		() => ( isPinned ? [] : buildControlFields( controls ) ),
 		[ isPinned, controls ]
 	);
+
 	const controlsData = useMemo< ControlsItem >(
 		() => ( {
 			reportParams: pickReportDateParams( search ),
@@ -243,6 +246,7 @@ function SingleReportBody( { page, entityId, adapter }: SingleReportBodyProps ):
 	);
 
 	const { onChange: changeDateRange, onApply: applyDateRange, timeZone } = dateFilters;
+
 	// Through the date controller, so a new named preset starts from its own default bucket: there
 	// is no bucket control here to fix one carried over.
 	const applyReportParams = useCallback(
@@ -268,11 +272,20 @@ function SingleReportBody( { page, entityId, adapter }: SingleReportBodyProps ):
 
 	// A card can set the period (the All-time traffic card opens a month): the change is read
 	// out and the page returns to the top, where the re-scoped cards are.
-	const { openPeriod, attentionId } = usePeriodHost(
+	const { openPeriod, attention } = usePeriodHost(
 		`${ page.path }:${ entityId }`,
 		dateFilters.appliedRange,
 		! isPinned,
-		lockedIntervals
+		dateLimits
+	);
+	// A period a card opens applies at once, as the custom range it commits.
+	const onOpenPeriod = useCallback< typeof openPeriod >(
+		( range, options ) => {
+			openPeriod( range, options );
+			trackedOnChange( range, PRESET_CUSTOM, { exactRange: true, trigger: 'widget' } );
+			trackedOnApply();
+		},
+		[ openPeriod, trackedOnChange, trackedOnApply ]
 	);
 
 	const reportSearch = pickReportNavigationParams( search );
@@ -283,6 +296,7 @@ function SingleReportBody( { page, entityId, adapter }: SingleReportBodyProps ):
 		sectionLayout
 	);
 	const canRenderWidgets = ! summary.isLoading && ! summary.isError && ! summary.isNotFound;
+
 	// A URL-scoped section waits for All time to anchor; a pinned one for its window.
 	const showWidgets =
 		canRenderWidgets &&
@@ -307,15 +321,19 @@ function SingleReportBody( { page, entityId, adapter }: SingleReportBodyProps ):
 		surface,
 	} );
 
+	// One title for the crumb and the header: the entity's, else the adapter's untitled one.
+	const title = summary.title?.trim() || adapter.untitledTitle?.( summary ) || page.label;
 	const breadcrumbs = useDetailBreadcrumbs(
-		canRenderWidgets ? summary.title?.trim() || page.label : undefined,
+		canRenderWidgets ? title : undefined,
 		page.reports_page ?? undefined
 	);
 
 	const header = adapter.headerSlots( summary, {
 		label: page.label,
+		title,
 		section: activeState,
-		performanceRange: pinnedWindow?.range ?? dateFilters.appliedRange,
+		performanceRange:
+			pinnedWindow?.headerRange?.( layout ) ?? pinnedWindow?.range ?? dateFilters.appliedRange,
 	} );
 	const recordIcon = ( page.icon && lookupWidgetIcon( page.icon ) ) || jetpack;
 	const reportsPage = page.reports_page ? getReportDefinition( page.reports_page ) : undefined;
@@ -370,14 +388,10 @@ function SingleReportBody( { page, entityId, adapter }: SingleReportBodyProps ):
 
 	return (
 		<>
-			<PeriodChangeStatus
-				attentionId={ attentionId }
-				appliedPresetId={ dateFilters.appliedPresetId }
-				appliedRange={ dateFilters.appliedRange }
-			/>
+			<PeriodChangeStatus periodChange={ attention } />
 			<ReportScopeProvider
-				openPeriod={ openPeriod }
-				attentionId={ attentionId }
+				openPeriod={ onOpenPeriod }
+				attentionId={ attention?.id }
 				dateLimits={ dateLimits }
 			>
 				<DashboardWidgetHostProvider useLinkSearch={ useHostLinkSearch }>
@@ -397,13 +411,7 @@ function SingleReportBody( { page, entityId, adapter }: SingleReportBodyProps ):
 								className={ styles.page }
 								visual={ <Icon icon={ jetpack } /> }
 								breadcrumbs={ <StatsBreadcrumbs items={ breadcrumbs } /> }
-								badges={
-									isCustomizing ? (
-										<Badge intent="informational">
-											{ __( 'Customizing', 'jetpack-premium-analytics-pkg' ) }
-										</Badge>
-									) : undefined
-								}
+								badges={ isCustomizing ? <CustomizingBadge /> : undefined }
 								actions={
 									<DetailPageActions
 										isCustomizing={ isCustomizing }
@@ -428,7 +436,7 @@ function SingleReportBody( { page, entityId, adapter }: SingleReportBodyProps ):
 									controls={ controlFields as never }
 									data={ controlsData }
 									onChange={ applyReportParams }
-									returnToTopKey={ attentionId }
+									returnToTopKey={ attention?.id }
 								>
 									{ emptyState ? <PageEmptyState { ...emptyState } /> : null }
 									{ /* Keyed by section: each is its own layout, so the grid mounts fresh. */ }
@@ -464,7 +472,7 @@ function SingleReport(): JSX.Element | null {
 			key={ page.path }
 			page={ page }
 			entityId={ id }
-			adapter={ getSingleReportAdapter( page.path ) ?? RECORD_ADAPTER }
+			adapter={ getSingleReportAdapter( page ) ?? RECORD_ADAPTER }
 		/>
 	);
 }
@@ -476,13 +484,15 @@ function SingleReport(): JSX.Element | null {
  */
 export function stage(): JSX.Element {
 	return (
-		<AnalyticsQueryClientProvider>
-			{ /* No compared period on this page, whatever a hand-edited URL carries. */ }
-			<ReportScopeProvider offersComparison={ false }>
-				<PeriodChangeSignalProvider>
-					<SingleReport />
-				</PeriodChangeSignalProvider>
-			</ReportScopeProvider>
-		</AnalyticsQueryClientProvider>
+		<StatsErrorBoundary>
+			<AnalyticsQueryClientProvider>
+				{ /* No compared period on this page, whatever a hand-edited URL carries. */ }
+				<ReportScopeProvider offersComparison={ false }>
+					<PeriodChangeSignalProvider>
+						<SingleReport />
+					</PeriodChangeSignalProvider>
+				</ReportScopeProvider>
+			</AnalyticsQueryClientProvider>
+		</StatsErrorBoundary>
 	);
 }
