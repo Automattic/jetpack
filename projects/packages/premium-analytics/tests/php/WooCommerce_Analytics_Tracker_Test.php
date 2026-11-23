@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\PremiumAnalytics;
 
+use Automattic\Woocommerce_Analytics;
 use PHPUnit\Framework\Attributes\After;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -49,7 +50,7 @@ class WooCommerce_Analytics_Tracker_Test extends TestCase {
 	 * Runs in its own process, since the `Jetpack` stub and `WC_ANALYTICS` cannot be undefined.
 	 *
 	 * @param bool $module_active        Whether the woocommerce-analytics module is on.
-	 * @param bool $wc_analytics_defined Whether WooCommerce core loads the package itself.
+	 * @param bool $wc_analytics_defined Whether the WooCommerce Analytics plugin loads the package.
 	 * @param bool $expected             Whether the modern pipeline is turned on.
 	 * @dataProvider provide_jetpack_module_states
 	 * @runInSeparateProcess
@@ -74,6 +75,8 @@ class WooCommerce_Analytics_Tracker_Test extends TestCase {
 
 		$this->assertSame( $expected, apply_filters( 'woocommerce_analytics_clickhouse_enabled', false ) );
 		$this->assertSame( $expected, apply_filters( 'woocommerce_analytics_experimental_proxy_tracking_enabled', false ) );
+		// init() registers this before any of its own early returns, so it shows init() ran.
+		$this->assertSame( $expected, false !== has_action( 'init', array( Woocommerce_Analytics::class, 'sync_proxy_tracking_state' ) ) );
 	}
 
 	/**
@@ -81,9 +84,9 @@ class WooCommerce_Analytics_Tracker_Test extends TestCase {
 	 */
 	public static function provide_jetpack_module_states() {
 		return array(
-			'module off'                         => array( false, false, false ),
-			'module on'                          => array( true, false, true ),
-			'WooCommerce core loads the package' => array( false, true, true ),
+			'module off' => array( false, false, false ),
+			'module on'  => array( true, false, true ),
+			'WooCommerce Analytics plugin loads the package' => array( false, true, true ),
 		);
 	}
 

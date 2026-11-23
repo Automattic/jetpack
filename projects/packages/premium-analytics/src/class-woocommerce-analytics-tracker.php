@@ -12,8 +12,8 @@ use Automattic\Woocommerce_Analytics;
 
 /**
  * Turns on the modern (ClickHouse + proxy) pipeline and triggers the vendored
- * WooCommerce Analytics tracker, which self-gates on WooCommerce + connection
- * and is idempotent.
+ * WooCommerce Analytics tracker, unless the Jetpack module is off. The tracker
+ * self-gates on WooCommerce + connection and is idempotent.
  */
 class WooCommerce_Analytics_Tracker {
 
@@ -48,7 +48,7 @@ class WooCommerce_Analytics_Tracker {
 	/**
 	 * Whether the Jetpack WooCommerce Analytics module, where it governs tracking, is on.
 	 *
-	 * Only the Jetpack plugin ships the module, and it stops governing once WooCommerce core loads the package (`WC_ANALYTICS`).
+	 * Only the Jetpack plugin ships the module, and it stops governing once the WooCommerce Analytics plugin loads the package (`WC_ANALYTICS`).
 	 *
 	 * @return bool
 	 */
