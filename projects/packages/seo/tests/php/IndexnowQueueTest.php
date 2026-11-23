@@ -225,9 +225,10 @@ class IndexnowQueueTest extends SeoTestCase {
 		);
 		$this->make_pending_due();
 		wp_clear_scheduled_hook( Indexnow_Queue::HOOK );
+		$started_at = time();
 		Indexnow_Queue::work();
 		$item = json_decode( Indexnow_Queue::rows()[0]['option_value'], true );
-		$this->assertGreaterThanOrEqual( time() + DAY_IN_SECONDS - 1, $item['due'] );
+		$this->assertGreaterThanOrEqual( $started_at + DAY_IN_SECONDS, $item['due'] );
 		$this->assertGreaterThanOrEqual( $item['due'], wp_next_scheduled( Indexnow_Queue::HOOK ) );
 	}
 	public function test_restricted_deletion_does_not_revive_an_older_removal_notification() {

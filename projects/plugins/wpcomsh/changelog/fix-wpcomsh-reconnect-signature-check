@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Reconnect endpoint: Reject the request when signature verification errors out.

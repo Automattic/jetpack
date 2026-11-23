@@ -1,15 +1,15 @@
 {
 	"description": "Where each Jetpack Settings hash route and ?term= search goes once the Settings screen retires. Nothing reads it yet: the redirect document that page=jetpack-settings and the page=jetpack forwarder (Jetpack_React_Page) will print resolves these rules in PHP, since the server never sees the hash. It applies only while Initializer::is_settings_consolidation_enabled() is true. The Network Admin jetpack-settings page is out of scope. It is production-excluded in .gitattributes; the PR that first reads it must remove that exclusion.",
-	"matching": "`everySource` runs before any route or term rule. A term matches its decoded value, case-insensitively, before its route; an unmatched term falls back to its route. On page=jetpack-settings, an empty hash (the bare menu link) or an unknown route gets the /settings rules, as main.jsx does. On page=jetpack, an unknown route never reaches these rules: the forwarder (Jetpack_React_Page::get_legacy_route_redirects()) sends it to My Jetpack for admins and to Settings for everyone else, as it does today, so #/my-plan, #/dashboard and #/stats keep landing on My Jetpack. In each list, the first rule whose `when` all hold wins, and a rule without `when` is the default. A rule with `pending` keeps the source on Settings until each marker clears: `D<n>` is an open decision, `JETPACK-<n>` an issue that must land, `flag:<name>` a feature flag that must retire, `error-notice-home` a new home for the Jetpack::state( 'error' ) notice, which only Settings shows today, and `monetize-page` a Monetize page that shows the Ads settings (its flag on and the `monetize` module active), without which the Ads settings stay on Settings. A `destination` next to `pending` is where the source goes once it clears. A settings panel destination (`configure=`) waits on the issue that gives the panel that module's settings, since until then the panel's fallback links back here through configure_url. Destinations are relative to wp-admin. My Jetpack `#/` links work on every My Jetpack version, since its router rewrites them to `?p=`.",
+	"matching": "`everySource` runs before any route or term rule. A term matches its decoded value, case-insensitively, before its route; an unmatched term falls back to its route. On page=jetpack-settings, an empty hash (the bare menu link) or an unknown route gets the /settings rules, as main.jsx does. On page=jetpack, an unknown route never reaches these rules: the forwarder (Jetpack_React_Page::get_legacy_route_redirects()) sends it to My Jetpack for admins and to Settings for everyone else, as it does today, so #/my-plan, #/dashboard and #/stats keep landing on My Jetpack. In each list, the first rule whose `when` all hold wins, and a rule without `when` is the default. A rule with `pending` keeps the source on Settings until each marker clears: `D<n>` is an open decision, `JETPACK-<n>` an issue that must land, `flag:<name>` a feature flag that must retire, `error-notice-home` a page that shows the Jetpack::state( 'error' ) notice where My Jetpack doesn't (to users who can't open it, offline, and during onboarding), and `monetize-page` a Monetize page that shows the Ads settings (its flag on and the `monetize` module active), without which the Ads settings stay on Settings. A `destination` next to `pending` is where the source goes once it clears. A settings panel destination (`configure=`) waits on the issue that gives the panel that module's settings, since until then the panel's fallback links back here through configure_url. Destinations are relative to wp-admin. My Jetpack `#/` links work on every My Jetpack version, since its router rewrites them to `?p=`.",
 	"decisions": {
 		"D7": "Where Google Analytics settings go on Atomic sites where the settings panel does not offer them (googleAnalyticsPanel is false).",
 		"D9": "Where users who cannot manage modules find Publicize and their own account connection, since Features needs manage_options. Post by Email stays on their Profile page.",
-		"D10": "What happens to the legacy SEO block on self-hosted sites that have not opted in to the SEO page.",
-		"D11": "Where the per-user usage tracking (Privacy) setting lives."
+		"D10": "What happens to the legacy SEO block on self-hosted sites that have not opted in to the SEO page."
 	},
 	"conditions": {
 		"partnerCoupon": "Jetpack_React_Page::get_partner_coupon_redirect() returns a URL; that screen takes every route.",
-		"error": "Jetpack::state( 'error' ) is set. Settings is the only screen that shows it, so Jetpack_React_Page::should_redirect_legacy_routes() keeps the user there.",
+		"error": "Jetpack::state( 'error' ) is set. Elsewhere than My Jetpack (see settingsNoticesInMyJetpack), Settings is the only screen that shows it.",
+		"settingsNoticesInMyJetpack": "The user can open My Jetpack (Jetpack_React_Page::can_use_my_jetpack()) and Automattic\\Jetpack\\My_Jetpack\\Initializer::shows_settings_notices() is true: settings consolidation is on, and My Jetpack is neither offline nor sending the user to onboarding.",
 		"canManageModules": "The user has jetpack_manage_modules. Users without it reach Settings only for Publicize, since Post by Email stays on their Profile page.",
 		"capability": "The user has this capability.",
 		"host": "\"atomic\" for a WoA site.",
@@ -19,12 +19,18 @@
 		"adsSettingsHome": "Jetpack_Ads_Settings_Home::is_moved_off_settings(): settings consolidation is on and the Monetize page shows the Ads settings.",
 		"seoSurfaceVisible": "Automattic\\Jetpack\\SEO\\Initializer::is_seo_surface_visible().",
 		"odysseyStats": "Stats_Options::get_option( 'enable_odyssey_stats' ).",
-		"googleAnalyticsPanel": "Automattic\\Jetpack\\My_Jetpack\\Google_Analytics_Settings::is_available()."
+		"analyticsDashboard": "Automattic\\Jetpack\\PremiumAnalytics\\Analytics::is_initialized(): Stats v2 booted, from Jetpack (Jetpack::is_premium_analytics_enabled()) or the Premium Analytics plugin, and is the site's analytics UI (script data analytics.enabled).",
+		"googleAnalyticsPanel": "Automattic\\Jetpack\\My_Jetpack\\Google_Analytics_Settings::is_available().",
+		"settingsTabsLeft": "Jetpack_Settings_React_Page::get_remaining_tabs() lists a tab (siteData.settingsTabs), so Settings keeps its sidebar entry. Without one, the entry is hidden."
 	},
 	"everySource": [
 		{
 			"when": { "partnerCoupon": true },
 			"destinationFrom": "Jetpack_React_Page::get_partner_coupon_redirect()"
+		},
+		{
+			"when": { "error": true, "settingsNoticesInMyJetpack": true },
+			"destination": "admin.php?page=my-jetpack"
 		},
 		{ "when": { "error": true }, "pending": [ "error-notice-home" ] }
 	],
@@ -47,10 +53,15 @@
 					"destination": "profile.php#post-by-email"
 				},
 				{ "when": { "canManageModules": false }, "pending": [ "D9" ] },
+				{
+					"when": { "settingsTabsLeft": false },
+					"destination": "admin.php?page=my-jetpack#/features",
+					"alreadyRedirects": true
+				},
 				{ "destination": "admin.php?page=my-jetpack#/features" }
 			],
 			"linkedFrom": [
-				"plugins/jetpack Jetpack_Settings_React_Page::get_page_hook(): the Jetpack > Settings menu item, with no hash",
+				"plugins/jetpack Jetpack_Settings_React_Page::get_page_hook(): the Jetpack > Settings menu item, with no hash, hidden while settingsTabsLeft is false",
 				"plugins/jetpack Jetpack::plugin_action_links(): the Plugins screen's Settings link",
 				"plugins/jetpack Jetpack_Admin_Page::wrap_ui(): the header's Settings button",
 				"plugins/jetpack _inc/client masthead: the logo",
@@ -62,7 +73,8 @@
 				"wpcom: Jetpack onboarding emails, 'Configure Jetpack' button",
 				"wpcom: a one-off plugin's Settings link",
 				"Calypso apps/odyssey-stats get-explore-more-url.ts: an admin menu selector, not a link"
-			]
+			],
+			"note": "main.jsx redirects only the bare route; a ?term= search stays on Settings, which shows where the settings went."
 		},
 		{
 			"source": "/security",
@@ -175,7 +187,11 @@
 			"rules": [
 				{ "when": { "host": "atomic", "googleAnalyticsPanel": false }, "pending": [ "D7" ] },
 				{ "when": { "seoSurfaceVisible": false }, "pending": [ "D10" ] },
-				{ "destination": "admin.php?page=my-jetpack#/features" }
+				{
+					"when": { "odysseyStats": false, "analyticsDashboard": false },
+					"pending": [ "flag:jetpack-stats-classic-page-retired" ]
+				},
+				{ "destination": "admin.php?page=my-jetpack#/features", "alreadyRedirects": true }
 			],
 			"linkedFrom": [
 				"plugins/jetpack Jetpack_AI_Page: the SEO settings link while the SEO page is off",
@@ -189,7 +205,14 @@
 				"Calypso apps/blaze-dashboard blaze-disabled.jsx: Blaze setup; wants admin.php?page=my-jetpack#/features?search=blaze"
 			]
 		},
-		{ "source": "/privacy", "rules": [ { "pending": [ "D11" ] } ], "linkedFrom": [] },
+		{
+			"source": "/privacy",
+			"rules": [ { "destination": "profile.php#jetpack-privacy", "alreadyRedirects": true } ],
+			"linkedFrom": [],
+			"outsideRepo": [
+				"jetpack.com/support/privacy: points users to the Jetpack footer's Privacy link, which is gone"
+			]
+		},
 		{
 			"source": "/newsletter",
 			"rules": [ { "destination": "admin.php?page=jetpack-newsletter", "alreadyRedirects": true } ],
@@ -298,6 +321,10 @@
 			"source": "jetpack stats",
 			"rules": [
 				{
+					"when": { "analyticsDashboard": true },
+					"destinationFrom": "Automattic\\Jetpack\\PremiumAnalytics\\Analytics::dashboard_url( '/settings' )"
+				},
+				{
 					"when": { "odysseyStats": false },
 					"pending": [ "flag:jetpack-stats-classic-page-retired" ]
 				},
@@ -309,6 +336,10 @@
 		{
 			"source": "stats",
 			"rules": [
+				{
+					"when": { "analyticsDashboard": true },
+					"destinationFrom": "Automattic\\Jetpack\\PremiumAnalytics\\Analytics::dashboard_url( '/settings' )"
+				},
 				{
 					"when": { "odysseyStats": false },
 					"pending": [ "flag:jetpack-stats-classic-page-retired" ]

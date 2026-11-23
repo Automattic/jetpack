@@ -294,7 +294,7 @@ class SQL_Generator {
 
 		// Output the columns.
 		foreach ( $types_map as $column ) {
-			if ( in_array( $column['type'], array( 'UNIQUE', 'KEY', 'FULLTEXT' ), true ) ) {
+			if ( in_array( $column['type'], array( 'UNIQUE', 'KEY', 'FULLTEXT', 'SPATIAL' ), true ) ) {
 				$indexes[] = $column;
 
 				continue;

@@ -12,6 +12,10 @@ import { store as bootStore } from '@wordpress/boot';
 import { dispatch } from '@wordpress/data';
 import { chartBar } from '@wordpress/icons';
 import { registerIconResolver } from '@wordpress/widget-primitives';
+/**
+ * Internal dependencies
+ */
+import { showWhatsNew } from './whats-new';
 
 // apiFetch middleware registers onto a shared, process-wide chain. Guard so
 // repeated init() calls (re-mount, HMR, a future second boot) don't stack
@@ -79,4 +83,6 @@ export async function init(): Promise< void > {
 
 	// After the catalogs: the entity labels are built with `__()` at call time.
 	ensureDashboardEntities();
+
+	showWhatsNew();
 }
