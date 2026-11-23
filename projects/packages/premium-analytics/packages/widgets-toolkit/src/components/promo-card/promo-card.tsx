@@ -1,8 +1,9 @@
 /**
  * External dependencies
  */
-import { IconButton, Stack, Text, close } from '@jetpack-premium-analytics/externals';
+import { IconButton, Stack, Text } from '@jetpack-premium-analytics/externals';
 import { __ } from '@wordpress/i18n';
+import { close } from '@wordpress/icons';
 import {
 	Component,
 	Suspense,
