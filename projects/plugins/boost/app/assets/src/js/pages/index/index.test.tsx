@@ -119,6 +119,7 @@ describe( 'Index', () => {
 			'module-lcp',
 			'module-page_cache',
 			'module-render_blocking_js',
+			'module-defer_fonts',
 			'module-minify_js',
 			'module-minify_css',
 			'module-image_cdn',

@@ -1,6 +1,7 @@
 import CornerstonePages from '$features/cornerstone-pages/cornerstone-pages';
 import CloudCssModule from '$features/critical-css/cloud-css-module/cloud-css-module';
 import CriticalCssModule from '$features/critical-css/critical-css-module/critical-css-module';
+import DeferFonts from '$features/defer-fonts/defer-fonts';
 import ImageCdn from '$features/image-cdn/image-cdn';
 import ImageGuide from '$features/image-guide/image-guide';
 import LcpModule from '$features/lcp/lcp';
@@ -25,6 +26,7 @@ const Index = () => {
 			<LcpModule />
 			<PageCacheModule />
 			<RenderBlockingJs />
+			<DeferFonts />
 			<MinifyJs />
 			<MinifyCss />
 			<ImageCdn />

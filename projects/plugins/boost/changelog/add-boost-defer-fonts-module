@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add a Defer Web Fonts module that loads theme fonts after the page content, with font-display swap.
