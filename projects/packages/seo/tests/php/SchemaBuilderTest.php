@@ -620,6 +620,7 @@ class SchemaBuilderTest extends TestCase {
 		$this->assertCount( 2, array_filter( $doc['@graph'], static fn( $node ) => 'Person' === ( $node['@type'] ?? '' ) ) );
 
 		remove_all_filters( 'jetpack_seo_schema_article_authors' );
+		$guest['@id'] = '123';
 		add_filter(
 			'jetpack_seo_schema_article_authors',
 			static function () use ( $guest ) {

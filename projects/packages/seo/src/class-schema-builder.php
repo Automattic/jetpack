@@ -128,7 +128,8 @@ class Schema_Builder {
 					// The site entity is already in the graph on the front page, and always for a person site.
 					$site_entity_in_graph = $has_site_entity && ( is_front_page() || null === $organization );
 					$author_refs          = array();
-					foreach ( $authors_by_id as $author_id => $author ) {
+					foreach ( $authors_by_id as $author ) {
+						$author_id     = $author['@id'];
 						$author_refs[] = array( '@id' => $author_id );
 						if ( ! ( $site_entity_in_graph && $publisher_id === $author_id ) ) {
 							$graph->add( $author );
