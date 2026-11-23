@@ -35,6 +35,10 @@ type AttributionSummaryResponse = {
 	data: { item: string; current_period: AttributionPeriod; previous_period: AttributionPeriod }[];
 };
 
+type AttributionByProductResponse = {
+	data: { item: string; value: string | null; intervals: unknown[] }[];
+};
+
 const ORDERS_NUMERIC_FIELDS = [
 	'average_order_value',
 	'avg_items',
@@ -300,6 +304,49 @@ it( 'repeats the primary period when no comparison window is asked for', async (
 	expect( response.data[ 0 ].previous_period.value ).toBe(
 		response.data[ 0 ].current_period.value
 	);
+} );
+
+it( 'answers the by-product attribution endpoint flat, one window at a time', async () => {
+	const primary = await request< AttributionByProductResponse >(
+		reportPath( 'order-attribution-by-product/device/summary', {
+			...PRIMARY_WINDOW,
+			interval: STORY_PARAMS.interval,
+			view: 'device',
+		} )
+	);
+	const comparison = await request< AttributionByProductResponse >(
+		reportPath( 'order-attribution-by-product/device/summary', {
+			...COMPARISON_WINDOW,
+			interval: STORY_PARAMS.interval,
+			view: 'device',
+		} )
+	);
+
+	expect( primary.data[ 0 ] ).not.toHaveProperty( 'current_period' );
+	expect( typeof primary.data[ 0 ].value ).toBe( 'string' );
+	expect( Array.isArray( primary.data[ 0 ].intervals ) ).toBe( true );
+	expect( Number( comparison.data[ 0 ].value ) ).toBeLessThan( Number( primary.data[ 0 ].value ) );
+} );
+
+it( 'keeps every by-product device row in both windows, the unassigned one included', async () => {
+	const items = async ( reportWindow: ReportWindow ) =>
+		(
+			await request< AttributionByProductResponse >(
+				reportPath( 'order-attribution-by-product/device/summary', {
+					...reportWindow,
+					interval: STORY_PARAMS.interval,
+					view: 'device',
+				} )
+			)
+		).data.map( row => row.item );
+
+	await expect( items( PRIMARY_WINDOW ) ).resolves.toEqual( [ 'Mobile', 'Desktop', 'Tablet', '' ] );
+	await expect( items( COMPARISON_WINDOW ) ).resolves.toEqual( [
+		'Mobile',
+		'Desktop',
+		'Tablet',
+		'',
+	] );
 } );
 
 it( 'falls through for a path it does not own', async () => {
