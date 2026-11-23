@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\IdentityCrisis;
 
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Connection\Jetpack_Connector;
 use Automattic\Jetpack\Identity_Crisis;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
@@ -71,6 +72,11 @@ class UI {
 	 */
 	public static function enqueue_scripts() {
 		if ( is_admin() ) {
+			// The Connectors card shows the new screen itself, so a notice would show it twice.
+			if ( static::use_new_screen() && Jetpack_Connector::is_card_page() ) {
+				return;
+			}
+
 			// Only the notice's own container shows the new screen, and a confirmed Safe Mode shows no screen.
 			$shows_new_screen = static::use_new_screen() && ! Identity_Crisis::$is_safe_mode_confirmed && ! static::get_container_id();
 

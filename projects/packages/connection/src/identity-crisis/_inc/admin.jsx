@@ -60,10 +60,11 @@ function waitForContainer( containerId ) {
  */
 function getNewScreenScript() {
 	const connection = window.JetpackConnection;
-	if ( ! connection ) {
+	// An older shared script has neither the screen nor its selector.
+	if ( typeof connection?.IdentityCrisis !== 'function' ) {
 		return null;
 	}
-	const state = select( connection.CONNECTION_STORE_ID ).getIdentityCrisis();
+	const state = select( connection.CONNECTION_STORE_ID ).getIdentityCrisis?.();
 	return true === state?.useNewScreen ? connection : null;
 }
 

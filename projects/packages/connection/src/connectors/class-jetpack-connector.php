@@ -113,13 +113,7 @@ class Jetpack_Connector {
 	 * @since 9.14.0 Loads the Tracks script when tracking is allowed.
 	 */
 	public static function enqueue_script_module() {
-		$screen = get_current_screen();
-
-		if ( ! $screen || ! static::is_connectors_screen( $screen ) ) {
-			return;
-		}
-
-		if ( ! class_exists( 'WP_Connector_Registry' ) ) {
+		if ( ! static::is_card_page() ) {
 			return;
 		}
 
@@ -374,6 +368,19 @@ class Jetpack_Connector {
 		$url      = $owner_id > 0 ? get_edit_user_link( $owner_id ) : '';
 
 		return '' !== $url ? $url : null;
+	}
+
+	/**
+	 * Whether the current admin page is the Connectors page, on a WordPress that shows connector cards.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	public static function is_card_page() {
+		$screen = get_current_screen();
+
+		return $screen && static::is_connectors_screen( $screen ) && class_exists( 'WP_Connector_Registry' );
 	}
 
 	/**

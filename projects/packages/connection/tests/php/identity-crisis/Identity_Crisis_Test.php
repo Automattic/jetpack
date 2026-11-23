@@ -2173,6 +2173,40 @@ class Identity_Crisis_Test extends BaseTestCase {
 	}
 
 	/**
+	 * With the new screen, the notice leaves the Connectors page to the card.
+	 *
+	 * @param bool   $use_new_screen Whether the `connection-idc-screen` flag is on.
+	 * @param string $screen         The admin screen.
+	 * @param bool   $expected       Whether the notice script is enqueued.
+	 *
+	 * @dataProvider data_provider_test_ui_skips_connectors_page
+	 */
+	#[DataProvider( 'data_provider_test_ui_skips_connectors_page' )]
+	public function test_ui_skips_connectors_page( $use_new_screen, $screen, $expected ) {
+		require_once ABSPATH . 'wp-admin/includes/class-wp-screen.php';
+		require_once ABSPATH . 'wp-admin/includes/screen.php';
+		set_current_screen( $screen );
+		add_filter( 'jetpack_feature_flag_enabled_' . Identity_Crisis::NEW_SCREEN_FLAG, $use_new_screen ? '__return_true' : '__return_false' );
+
+		UI::enqueue_scripts();
+
+		$this->assertSame( $expected, wp_script_is( 'jp_identity_crisis_banner', 'enqueued' ) );
+	}
+
+	/**
+	 * Data provider for test_ui_skips_connectors_page.
+	 *
+	 * @return array
+	 */
+	public static function data_provider_test_ui_skips_connectors_page() {
+		return array(
+			'new screen, Connectors page' => array( true, 'options-connectors', false ),
+			'new screen, other page'      => array( true, 'dashboard', true ),
+			'old screen, Connectors page' => array( false, 'options-connectors', true ),
+		);
+	}
+
+	/**
 	 * Forget the consumer UI::get_consumer_data() keeps for the rest of the request.
 	 */
 	private function reset_ui_consumers() {
