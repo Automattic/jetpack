@@ -1,4 +1,0 @@
-Significance: patch
-Type: deprecated
-
-Settings: Deprecate `Settings::update_reader_views()`, as the WordPress.com Reader no longer shows post views.

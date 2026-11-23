@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Dashboard: Stop creating the purchase token when the admin shell readies the page on a menu hover.

@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Detect static SEO files when WordPress is installed in a subdirectory.

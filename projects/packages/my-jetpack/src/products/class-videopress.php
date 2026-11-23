@@ -204,7 +204,7 @@ class Videopress extends Hybrid_Product {
 	 * Leave the standalone plugin alone where the Jetpack plugin is active: its VideoPress module
 	 * already brings the VideoPress dashboard, so turning the module on is enough.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.19.0
 	 *
 	 * @return bool
 	 */

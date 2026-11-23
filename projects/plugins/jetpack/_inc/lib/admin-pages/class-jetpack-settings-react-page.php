@@ -251,7 +251,7 @@ class Jetpack_Settings_React_Page extends Jetpack_Admin_Page {
 	/**
 	 * The tabs Settings still shows this user once settings move to My Jetpack, which the sidebar entry and the nav both follow.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.5
 	 *
 	 * @return string[]|null Tab routes without the slash, or null while settings stay here: consolidation is off, or the user cannot manage modules.
 	 */
