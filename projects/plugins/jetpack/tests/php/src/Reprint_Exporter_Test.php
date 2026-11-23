@@ -950,6 +950,29 @@ class Reprint_Exporter_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * A concurrent request's stale `notoptions` copy does not hide a stored key or window.
+	 */
+	public function test_state_survives_a_stale_notoptions_cache() {
+		Utils::override_key_auth_required_for_tests( true );
+		Reprint_Exporter::store_public_key( self::keypair()[1] );
+		Reprint_Exporter::open_export_window();
+
+		// What another request writes back when it loaded notoptions before these options existed.
+		wp_cache_set(
+			'notoptions',
+			array(
+				Reprint_Exporter::PUBLIC_KEY_OPTION => true,
+				Reprint_Exporter::ENABLED_OPTION    => true,
+			),
+			'options'
+		);
+
+		$state = Reprint_Exporter::get_state();
+		$this->assertTrue( $state['has_credential'] );
+		$this->assertTrue( $state['window_open'] );
+	}
+
+	/**
 	 * Re-installing the stored key succeeds, though update_option() reports no change.
 	 */
 	public function test_install_public_key_retry_with_the_same_key_succeeds() {

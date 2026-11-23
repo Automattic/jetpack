@@ -159,6 +159,29 @@ class Reprint_Exporter {
 	}
 
 	/**
+	 * Reads one of the export options, trusting the database over a cached absence.
+	 *
+	 * The options are created on first use, and on a persistent object cache a
+	 * concurrent request can write back a `notoptions` copy from before that,
+	 * after which get_option() reports the option missing although it is stored.
+	 *
+	 * @param string $option Option name.
+	 * @return mixed The stored value, or null when there is none.
+	 */
+	private static function read_option( $option ) {
+		$value = get_option( $option, null );
+		if ( null !== $value ) {
+			return $value;
+		}
+
+		global $wpdb;
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Bypasses the cache on purpose, see above.
+		$stored = $wpdb->get_var( $wpdb->prepare( "SELECT option_value FROM $wpdb->options WHERE option_name = %s LIMIT 1", $option ) );
+
+		return null === $stored ? null : maybe_unserialize( $stored );
+	}
+
+	/**
 	 * Reports an export event.
 	 *
 	 * @param string $event   Event name.
@@ -219,7 +242,7 @@ class Reprint_Exporter {
 		self::write_option( self::SECRET_OPTION, $secret );
 
 		// Read back: update_option() reports false for an unchanged value.
-		return get_option( self::SECRET_OPTION ) === $secret;
+		return self::read_option( self::SECRET_OPTION ) === $secret;
 	}
 
 	/**
@@ -237,7 +260,7 @@ class Reprint_Exporter {
 
 		self::write_option( self::PUBLIC_KEY_OPTION, $public_key );
 
-		return get_option( self::PUBLIC_KEY_OPTION ) === $public_key;
+		return self::read_option( self::PUBLIC_KEY_OPTION ) === $public_key;
 	}
 
 	/**
@@ -248,9 +271,9 @@ class Reprint_Exporter {
 	 * @return array<string, bool>
 	 */
 	public static function get_state() {
-		$secret         = get_option( self::SECRET_OPTION, '' );
+		$secret         = self::read_option( self::SECRET_OPTION );
 		$has_secret     = is_string( $secret ) && '' !== $secret;
-		$public_key     = get_option( self::PUBLIC_KEY_OPTION, '' );
+		$public_key     = self::read_option( self::PUBLIC_KEY_OPTION );
 		$has_public_key = is_string( $public_key ) && '' !== $public_key;
 
 		return array(
@@ -352,10 +375,10 @@ class Reprint_Exporter {
 			return;
 		}
 
-		$secret      = $state['has_secret'] ? get_option( self::SECRET_OPTION ) : null;
+		$secret      = $state['has_secret'] ? self::read_option( self::SECRET_OPTION ) : null;
 		$public_keys = array();
 		if ( $state['has_public_key'] ) {
-			$public_key = get_option( self::PUBLIC_KEY_OPTION );
+			$public_key = self::read_option( self::PUBLIC_KEY_OPTION );
 
 			$public_keys[ Utils::public_key_fingerprint( $public_key ) ] = $public_key;
 		}
@@ -417,7 +440,7 @@ class Reprint_Exporter {
 	 * @return bool
 	 */
 	public static function is_export_window_open( $now = null ) {
-		$enabled_at = (int) get_option( self::ENABLED_OPTION, 0 );
+		$enabled_at = (int) self::read_option( self::ENABLED_OPTION );
 		$now        = null === $now ? time() : (int) $now;
 		return $enabled_at > 0
 			&& $enabled_at <= $now + self::CLOCK_SKEW

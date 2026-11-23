@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Reprint export: Keep a freshly installed export key working when the object cache briefly reports it missing.
