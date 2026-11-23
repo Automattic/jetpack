@@ -132,6 +132,7 @@ export function StackedAreaChart( {
 				resizeDebounceTime={ RESIZE_DEBOUNCE_MS }
 				stacked
 				fillOpacity={ AREA_FILL_OPACITY }
+				withStroke
 				curveType="monotone"
 				showLegend={ false }
 				withTooltips={ ! isEmptyData }
