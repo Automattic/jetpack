@@ -50,6 +50,12 @@
 	overflow-wrap: anywhere;
 }
 
+/* DataViews holds every column at 15ch, more than a number needs, and the
+ * title pays for it on a phone. Remove with WordPress/gutenberg#87226. */
+.root :global(.dataviews-view-table tbody .dataviews-view-table__cell-content-wrapper.dataviews-view-table__cell-align-end) {
+	min-inline-size: 0;
+}
+
 /* The title column takes the spare width anyway, so a lower floor only
  * matters on a phone. */
 .root :global(.dataviews-view-table tbody .dataviews-view-table__primary-column-content:not(.dataviews-column-primary__media)),
