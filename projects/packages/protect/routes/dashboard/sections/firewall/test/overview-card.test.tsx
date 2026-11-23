@@ -70,11 +70,15 @@ describe( 'FirewallOverviewCard', () => {
 	beforeEach( resetFirewallBlocks );
 
 	it.each( [
-		[ 'Active', true, /Your host provides a firewall/ ],
-		[ 'Unavailable', false, /isn’t available on your site/ ],
+		[ 'Active', true, '', /^Your host provides a firewall/ ],
+		[ 'Active', true, 'WordPress.com', /^WordPress\.com provides a firewall/ ],
+		[ 'Unavailable', false, '', /isn’t available on your site/ ],
 	] )(
-		'shows %s, with nothing to test, where Jetpack’s firewall can’t run (host firewall: %s)',
-		( badge, providedByHost, message ) => {
+		'shows %s, with nothing to test, where Jetpack’s firewall can’t run (host firewall: %s, named: "%s")',
+		( badge, providedByHost, hostName, message ) => {
+			( window as { JetpackScriptData?: object } ).JetpackScriptData = {
+				site: { host_name: hostName },
+			};
 			render(
 				<FirewallOverviewCard
 					{ ...props }
@@ -85,6 +89,7 @@ describe( 'FirewallOverviewCard', () => {
 			expect( screen.getByText( badge ) ).toBeInTheDocument();
 			expect( screen.getByText( message ) ).toBeInTheDocument();
 			expect( screen.queryByRole( 'button', { name: 'Run test' } ) ).not.toBeInTheDocument();
+			delete ( window as { JetpackScriptData?: object } ).JetpackScriptData;
 		}
 	);
 

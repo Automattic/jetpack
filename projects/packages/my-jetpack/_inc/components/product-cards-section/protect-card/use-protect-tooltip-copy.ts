@@ -1,3 +1,4 @@
+import { getScriptData } from '@automattic/jetpack-script-data';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { useCallback, useMemo, createElement, type ReactElement } from 'react';
@@ -24,6 +25,7 @@ export type TooltipContent = {
 export const useProtectTooltipCopy = ( data: ProtectData ): TooltipContent => {
 	const slug = PRODUCT_SLUGS.PROTECT;
 	const { detail } = useProduct( slug );
+	const hostName = getScriptData()?.site?.host_name;
 	const {
 		standalonePluginInfo,
 		hasPaidPlanForProduct: hasProtectPaidPlan,
@@ -211,10 +213,16 @@ export const useProtectTooltipCopy = ( data: ProtectData ): TooltipContent => {
 			active,
 			host: {
 				title: __( 'Firewall: On', 'jetpack-my-jetpack' ),
-				text: __(
-					'Your hosting provider runs a firewall for your site, so you’re all set.',
-					'jetpack-my-jetpack'
-				),
+				text: hostName
+					? sprintf(
+							/* translators: %s: The name of the site's host, such as WordPress.com. */
+							__( '%s runs a firewall for your site, so you’re all set.', 'jetpack-my-jetpack' ),
+							hostName
+						)
+					: __(
+							'Your hosting provider runs a firewall for your site, so you’re all set.',
+							'jetpack-my-jetpack'
+						),
 			},
 			inactive: {
 				title: __( 'Firewall: Inactive', 'jetpack-my-jetpack' ),
@@ -239,6 +247,7 @@ export const useProtectTooltipCopy = ( data: ProtectData ): TooltipContent => {
 		hasProtectPaidPlan,
 		firewallSettingsLink,
 		trackFirewallSettingsLinkClick,
+		hostName,
 	] );
 
 	return {
