@@ -5672,6 +5672,9 @@ importers:
         specifier: 8.24.2
         version: 8.24.2
     devDependencies:
+      '@automattic/jetpack-announcements':
+        specifier: workspace:*
+        version: link:../../js-packages/announcements
       '@automattic/jetpack-base-styles':
         specifier: workspace:*
         version: link:../../js-packages/base-styles

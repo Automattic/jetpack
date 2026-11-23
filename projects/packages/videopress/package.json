@@ -83,6 +83,7 @@
 		"video.js": "8.24.2"
 	},
 	"devDependencies": {
+		"@automattic/jetpack-announcements": "workspace:*",
 		"@automattic/jetpack-base-styles": "workspace:*",
 		"@automattic/jetpack-shared-extension-utils": "workspace:*",
 		"@automattic/jetpack-webpack-config": "workspace:*",

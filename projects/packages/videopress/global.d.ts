@@ -34,6 +34,7 @@ declare global {
 				features?: {
 					chaptersEditor: boolean;
 					trimCut?: boolean;
+					whatsNew?: boolean;
 				};
 				// Authoritative accepted-upload map (extension => mimetype) from the
 				// server's `Admin_UI::get_allowed_video_extensions()`.
