@@ -86,7 +86,7 @@ Keep each `_deprecated_*()`, `apply_filters_deprecated()`, `do_action_deprecated
 
 Follow `docs/coding-guidelines.md` § "Deprecating code":
 
-- Never remove or rename a public PHP function, method, class, hook, or loaded file in one step. Deprecate it first (`_deprecated_function()`, `_deprecated_file()`, `apply_filters_deprecated()`, `do_action_deprecated()`), keep it working or delegating to its replacement, and remove it only after the 6 months that section requires.
+- Never remove or rename a public PHP function, method, class, hook, or loaded file in one step. Deprecate it first (`_deprecated_function()`, `_deprecated_file()`, `apply_filters_deprecated()`, `do_action_deprecated()`), keep it working or delegating to its replacement, and remove it only after the deprecation period that section sets.
 - Before removing deprecated code, check for outside callers as that section describes; a clean monorepo search does not prove nothing else calls it.
 
 ### JavaScript & React Standards
