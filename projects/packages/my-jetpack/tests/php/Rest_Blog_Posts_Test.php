@@ -120,10 +120,10 @@ class Rest_Blog_Posts_Test extends TestCase {
 	public static function provide_excerpts() {
 		return array(
 			'hand-written, with brackets mid-text' => array( '<p>Use [&#8230;] to cut.</p>', 'Use […] to cut.', false ),
-			'automatic, numeric entity'            => array( 'Some text that runs on [&#8230;]', 'Some text that runs on', true ),
-			'automatic, named entity'              => array( 'Some text that runs on [&hellip;]', 'Some text that runs on', true ),
-			'automatic, after a no-break space'    => array( 'Some text.&#160; [&#8230;]', 'Some text.', true ),
-			'automatic, three dots'                => array( 'Some text [...]', 'Some text', true ),
+			'automatic, numeric entity'            => array( 'Some text that runs on [&#8230;]', 'Some text that runs on…', true ),
+			'automatic, named entity'              => array( 'Some text that runs on [&hellip;]', 'Some text that runs on…', true ),
+			'automatic, ending a sentence'         => array( 'Some text.&#160; [&#8230;]', 'Some text.', true ),
+			'automatic, three dots'                => array( 'Some text [...]', 'Some text…', true ),
 		);
 	}
 
@@ -135,7 +135,7 @@ class Rest_Blog_Posts_Test extends TestCase {
 	 * @param bool   $excerpt_is_automatic Whether the excerpt counts as automatic.
 	 */
 	#[DataProvider( 'provide_excerpts' )]
-	public function test_strips_automatic_excerpt_marker( $description, $excerpt, $excerpt_is_automatic ) {
+	public function test_reduces_automatic_excerpt_marker_to_one_ellipsis( $description, $excerpt, $excerpt_is_automatic ) {
 		$this->serve_feed_body(
 			'<?xml version="1.0" encoding="UTF-8"?><rss version="2.0"><channel><title>Jetpack</title><item>'
 			. '<title>Post</title><link>https://jetpack.com/p/</link>'
