@@ -87,7 +87,8 @@ class Jetpack_AI_Skills_Catalog {
 		$host   = ( new Host() )->is_wpcom_platform() ? 'wpcom' : 'jetpack';
 		$index  = self::fetch_index( self::HOST_TERMS[ $host ] );
 		$failed = null === $index;
-		$index  = $index ?? self::empty_index();
+
+		$index ??= self::empty_index();
 		set_transient( self::INDEX_TRANSIENT, $index, $failed ? self::FAILURE_CACHE_TTL : self::CACHE_TTL );
 
 		return $index;
