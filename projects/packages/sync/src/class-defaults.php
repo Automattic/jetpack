@@ -212,6 +212,7 @@ class Defaults {
 		'jetpack_subscriptions_reply_to',
 		'jetpack_subscriptions_from_name',
 		'jetpack_verbum_subscription_modal',
+		'jetpack_email_design_enabled',
 		'jetpack_blocks_disabled',
 		'jetpack_newsletters_publishing_default_frequency',
 		'jetpack_scheduled_plugins_update',
