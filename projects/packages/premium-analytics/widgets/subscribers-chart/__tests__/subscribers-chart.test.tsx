@@ -39,7 +39,7 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 		metrics: {
 			key: string;
 			value: number;
-			current: { date: Date; value: number | null }[];
+			current: { date: Date; endDate?: Date; value: number | null }[];
 			countLabel?: ( count: number ) => string;
 		}[];
 		empty?: ReactNode;
@@ -55,6 +55,9 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 			data-values={ JSON.stringify( metrics[ 0 ]?.current.map( point => point.value ) ) }
 			data-headline={ metrics[ 0 ]?.value }
 			data-dates={ metrics[ 0 ]?.current.map( point => point.date.toISOString() ).join( ',' ) }
+			data-end-dates={ metrics[ 0 ]?.current
+				.map( point => point.endDate?.toISOString() ?? '' )
+				.join( ',' ) }
 		>
 			{ empty }
 		</div>
@@ -105,11 +108,21 @@ describe( 'SubscribersChartWidget', () => {
 		expect( chart ).toHaveAttribute( 'data-values', '[5,6]' );
 	} );
 
-	it( 'declares its bucket size, which a month the range cuts would otherwise misread', async () => {
+	it( "declares its bucket size and each bucket's end, which a month the range cuts would otherwise misread", async () => {
 		mockUseStatsSubscribersReport.mockReturnValue(
 			reportWith( [
-				{ date_start: '2025-04-11T00:00:00', subscribers: 5, subscribers_paid: 0 },
-				{ date_start: '2025-05-01T00:00:00', subscribers: 6, subscribers_paid: 0 },
+				{
+					date_start: '2025-04-11T00:00:00',
+					date_end: '2025-04-30T23:59:59',
+					subscribers: 5,
+					subscribers_paid: 0,
+				},
+				{
+					date_start: '2025-05-01T00:00:00',
+					date_end: '2025-05-31T23:59:59',
+					subscribers: 6,
+					subscribers_paid: 0,
+				},
 			] )
 		);
 
@@ -125,9 +138,11 @@ describe( 'SubscribersChartWidget', () => {
 			/>
 		);
 
-		await expect( screen.findByTestId( 'metric-tabs-chart' ) ).resolves.toHaveAttribute(
-			'data-tick-resolution',
-			'month'
+		const chart = await screen.findByTestId( 'metric-tabs-chart' );
+		expect( chart ).toHaveAttribute( 'data-tick-resolution', 'month' );
+		expect( chart ).toHaveAttribute(
+			'data-end-dates',
+			'2025-04-30T23:59:59.000Z,2025-05-31T23:59:59.000Z'
 		);
 	} );
 

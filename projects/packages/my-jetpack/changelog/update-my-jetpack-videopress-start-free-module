@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+VideoPress: Turn on the VideoPress module instead of installing the VideoPress plugin when Jetpack is active and you start for free.

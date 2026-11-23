@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Themes: Read the store through the wpcom_marketplace_store_products filter, so Simple sites can answer it.

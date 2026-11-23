@@ -131,8 +131,9 @@ JS;
 	 * Where links into page=jetpack land.
 	 *
 	 * Settings hashes keep their hash on the Settings page. Admins go to My Jetpack
-	 * wherever it runs; everyone else, and a request with a pending error, lands on
-	 * Settings. While the partner coupon screen applies, every route goes there.
+	 * wherever it runs; everyone else lands on Settings, and so does a request with a
+	 * pending error unless My Jetpack shows Settings' notices. While the partner coupon
+	 * screen applies, every route goes there.
 	 *
 	 * @return array{settings: string, forward: string[], routes: array<string, string>, fallback: string}
 	 */
@@ -156,6 +157,9 @@ JS;
 		);
 
 		if ( ! self::should_redirect_legacy_routes() ) {
+			if ( self::my_jetpack_shows_settings_notices() ) {
+				$table['fallback'] = admin_url( 'admin.php?page=my-jetpack' );
+			}
 			return $table;
 		}
 
@@ -186,13 +190,23 @@ JS;
 	}
 
 	/**
-	 * Whether this request may leave Settings.
+	 * Whether this request may follow the forwarder's routes; a pending error must land where its notice shows.
 	 *
 	 * @return bool
 	 */
 	public static function should_redirect_legacy_routes() {
-		// A pending error only renders via the Settings app's state notices.
 		return ! Jetpack::state( 'error' );
+	}
+
+	/**
+	 * Whether My Jetpack shows the notices Settings used to, this request's `Jetpack::state()` included.
+	 *
+	 * @return bool
+	 */
+	private static function my_jetpack_shows_settings_notices() {
+		return self::can_use_my_jetpack()
+			&& method_exists( 'Automattic\Jetpack\My_Jetpack\Initializer', 'shows_settings_notices' )
+			&& \Automattic\Jetpack\My_Jetpack\Initializer::shows_settings_notices();
 	}
 
 	/**
@@ -223,8 +237,8 @@ JS;
 	 */
 	public function render_redirect_document() {
 		$table = self::get_legacy_route_redirects();
-		if ( $table['settings'] === $table['fallback'] ) {
-			// Settings renders this request's notices, so its state must survive the hop.
+		if ( $table['settings'] === $table['fallback'] || self::my_jetpack_shows_settings_notices() ) {
+			// The landing page renders this request's notices, so its state must survive the hop.
 			Jetpack::restate();
 		}
 

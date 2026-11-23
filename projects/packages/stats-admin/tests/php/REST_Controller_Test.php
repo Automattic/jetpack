@@ -379,7 +379,7 @@ class REST_Controller_Test extends Stats_TestCase {
 
 		$this->assertSame( 200, $response->get_status() );
 		$data = $response->get_data();
-		$this->assertSame( array( 'admin_bar', 'roles', 'count_roles', 'wpcom_reader_views_enabled' ), array_keys( $data['settings'] ) );
+		$this->assertSame( array( 'admin_bar', 'roles', 'count_roles' ), array_keys( $data['settings'] ) );
 		$this->assertContains( 'editor', wp_list_pluck( $data['roles'], 'slug' ) );
 	}
 
@@ -408,15 +408,6 @@ class REST_Controller_Test extends Stats_TestCase {
 
 		$this->assertSame( 400, $response->get_status() );
 		$this->assertSame( array( 'administrator' ), Stats_Options::get_option( 'roles' ) );
-	}
-
-	public function test_settings_save_turns_reader_views_off() {
-		wp_set_current_user( $this->admin_id );
-
-		$response = $this->dispatch_settings_request( 'POST', array( 'wpcom_reader_views_enabled' => false ) );
-
-		$this->assertSame( 200, $response->get_status() );
-		$this->assertFalse( $response->get_data()['settings']['wpcom_reader_views_enabled'] );
 	}
 
 	public function test_settings_save_refused_for_editor_who_can_view_stats() {
@@ -454,19 +445,6 @@ class REST_Controller_Test extends Stats_TestCase {
 		$response = $this->dispatch_settings_request( 'POST', array( 'adminbar' => false ) );
 
 		$this->assertSame( 400, $response->get_status() );
-	}
-
-	public function test_settings_save_reports_reader_views_that_did_not_persist() {
-		wp_set_current_user( $this->admin_id );
-		$keep_stored = static function ( $value, $old_value ) {
-			return $old_value;
-		};
-		add_filter( 'pre_update_option_wpcom_reader_views_enabled', $keep_stored, 10, 2 );
-
-		$response = $this->dispatch_settings_request( 'POST', array( 'wpcom_reader_views_enabled' => false ) );
-		remove_filter( 'pre_update_option_wpcom_reader_views_enabled', $keep_stored, 10 );
-
-		$this->assertSame( 500, $response->get_status() );
 	}
 
 	/**

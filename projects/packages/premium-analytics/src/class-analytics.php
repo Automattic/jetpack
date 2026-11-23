@@ -146,6 +146,7 @@ class Analytics {
 	 * @return void
 	 */
 	private static function load_dashboard() {
+		Dashboard_Support::load();
 		self::load_dashboard_components();
 		self::load_build();
 		self::remove_full_page_interceptor();
@@ -236,6 +237,8 @@ class Analytics {
 	private static function boot_shared_services() {
 		// Must be hooked before admin_menu and rest_api_init check the capability.
 		Capabilities::register();
+
+		AI_Traffic::register_feature_flag();
 
 		// Emit WooCommerce store events into the Woo pipeline (ClickHouse + proxy).
 		WooCommerce_Analytics_Tracker::configure();
@@ -356,7 +359,7 @@ class Analytics {
 	}
 
 	/**
-	 * Load the dashboard components every platform renders with.
+	 * Load the package's own dashboard components, over the API Dashboard_Support::load() provides.
 	 *
 	 * Admin-only, via load_dashboard_surface(); boot_routes() requires these
 	 * again for REST.
@@ -364,14 +367,7 @@ class Analytics {
 	 * @return void
 	 */
 	private static function load_dashboard_components() {
-		// Widget modules for the client's dynamic import() map.
-		require_once __DIR__ . '/widget-modules.php';
-
-		// Default layout primitives and the bundled defaults' seed.
-		require_once __DIR__ . '/dashboard-layout.php';
-
-		// Dashboard section API, then the package's own sections registered through it.
-		require_once __DIR__ . '/dashboard-sections.php';
+		// The package's own sections, registered through the section API.
 		require_once __DIR__ . '/default-dashboard-sections.php';
 		configure_dashboard_sections_script_data();
 
@@ -423,7 +419,8 @@ class Analytics {
 	}
 
 	/**
-	 * Load the wp-build output (interceptor, modules, routes, page render).
+	 * Load the wp-build output (interceptor, routes, page render); Dashboard_Support::load()
+	 * already registered its script modules.
 	 *
 	 * Admin-only, via load_dashboard_surface(). REST does not need it:
 	 * boot_routes() and ensure_widget_registry_ready() load what they use.
@@ -434,7 +431,6 @@ class Analytics {
 		$build_entry = self::build_entry_path();
 		if ( file_exists( $build_entry ) ) {
 			require_once $build_entry;
-			require_once __DIR__ . '/sdk-module.php';
 		}
 	}
 

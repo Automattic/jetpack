@@ -6,7 +6,7 @@ import useIdentityCrisisActions from '../../hooks/use-identity-crisis-actions';
 import IdentityCrisisAddresses from './addresses';
 import IdentityCrisisErrorNotice from './error-notice';
 import ChoiceStep from './flow/choice-step';
-import { getOptionCopy, getStagingNote } from './flow/copy';
+import { getConfirmedNote, getOptionCopy, getStagingNote } from './flow/copy';
 import Intro from './flow/intro';
 import StepActions from './flow/step-actions';
 import { getOptions, getPath } from './flow/steps';
@@ -40,7 +40,7 @@ interface ResolverProps extends IdentityCrisisProps {
 function IdentityCrisisResolver( {
 	state,
 	plugins,
-	context,
+	showHeader = true,
 	redirectUri,
 	from,
 	hostActions,
@@ -126,7 +126,7 @@ function IdentityCrisisResolver( {
 		return (
 			<IdentityCrisisLayout
 				logoUrl={ state.logoUrl }
-				showHeader={ context !== 'connectors' }
+				showHeader={ showHeader }
 				hostActions={ hostActions }
 			>
 				{ addresses }
@@ -144,7 +144,7 @@ function IdentityCrisisResolver( {
 	return (
 		<IdentityCrisisLayout
 			logoUrl={ state.logoUrl }
-			showHeader={ context !== 'connectors' }
+			showHeader={ showHeader }
 			hostActions={ hostActions }
 		>
 			{ addresses }
@@ -152,6 +152,11 @@ function IdentityCrisisResolver( {
 			{ flow.isFirstView && ctx.isDevelopmentSite && (
 				<Text variant="body-md" render={ <p /> } className={ styles.note }>
 					{ getStagingNote( copy ) }
+				</Text>
+			) }
+			{ flow.isFirstView && state.isSafeModeConfirmed && (
+				<Text variant="body-md" render={ <p /> } className={ styles.note }>
+					{ getConfirmedNote() }
 				</Text>
 			) }
 			<Stack direction="column" gap="md">
@@ -193,7 +198,7 @@ export default function IdentityCrisis( props: IdentityCrisisProps ): ReactNode 
 
 	if ( ! state.canResolve ) {
 		return (
-			<IdentityCrisisLayout showHeader={ props.context !== 'connectors' }>
+			<IdentityCrisisLayout showHeader={ props.showHeader ?? true }>
 				<IdentityCrisisNonAdmin isStore={ hasWooPlugin( plugins ) } onDismiss={ props.onDismiss } />
 			</IdentityCrisisLayout>
 		);
