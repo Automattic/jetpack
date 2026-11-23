@@ -56,18 +56,18 @@ final class AI_Traffic {
 	 */
 	public static function is_available() {
 		// Outside the filter, which answers only whether the site has the data.
-		if ( ! Capabilities::current_user_can_view_stats() ) {
+		if ( ! Capabilities::current_user_can_view_stats() || ! Feature_Flags::is_enabled( self::FLAG ) ) {
 			return false;
 		}
 
-		$is_available = Feature_Flags::is_enabled( self::FLAG ) && self::site_has_edge_data();
+		$is_available = self::site_has_edge_data();
 
 		/**
 		 * Filters whether the AI and bot traffic surfaces of Stats are available.
 		 *
 		 * @since $$next-version$$
 		 *
-		 * @param bool $is_available Whether the flag is on and the site has edge request data.
+		 * @param bool $is_available Whether the site has edge request data.
 		 */
 		return (bool) apply_filters( self::AVAILABLE_FILTER, $is_available );
 	}

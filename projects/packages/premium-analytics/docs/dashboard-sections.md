@@ -218,7 +218,7 @@ The rule is a capability check, a plugin's presence, a plan feature, or a featur
 
 A section that declares no rule is visible to readers who can view Stats (`Capabilities::current_user_can_view_stats()`). The dashboard itself, its menu and the sections route, opens for anyone with at least one available section, so a section's rule is also who it lets in: a shop manager reaches the dashboard through the WooCommerce tab alone.
 
-Subscribers has a filter of its own (`jetpack_premium_analytics_subscribers_dashboard_section_available`); the WooCommerce Stats package filters its WooCommerce detection through `jetpack_woocommerce_stats_woocommerce_available`.
+Subscribers has a filter of its own (`jetpack_premium_analytics_subscribers_dashboard_section_available`); AI filters whether the site has edge request data through `jetpack_premium_analytics_ai_traffic_available`, which cannot override its feature flag or the capability; the WooCommerce Stats package filters its WooCommerce detection through `jetpack_woocommerce_stats_woocommerce_available`.
 
 A section that fails its rule is absent from the sections route, from the script data, and from the navigation, and `GET …/sections/{section}/default-layout` answers 404 for it.
 
