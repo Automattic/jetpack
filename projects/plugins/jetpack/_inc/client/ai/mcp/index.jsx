@@ -243,13 +243,17 @@ export default function McpHub( {
 			/>
 			<Card.Root className="jetpack-ai-mcp__access-card">
 				<Card.Header>
-					<Card.Title render={ <h2 /> }>{ __( 'External AI agent access', 'jetpack' ) }</Card.Title>
-				</Card.Header>
-				<Card.Content>
-					<Stack direction="column" gap="md">
+					<Stack direction="column" gap="xs">
+						<Card.Title render={ <h2 /> }>
+							{ __( 'External AI agent access', 'jetpack' ) }
+						</Card.Title>
 						<Text variant="muted">
 							{ __( 'Allow external AI agents to access this site via MCP.', 'jetpack' ) }
 						</Text>
+					</Stack>
+				</Card.Header>
+				<Card.Content>
+					<Stack direction="column" gap="md">
 						<ToggleControl
 							__nextHasNoMarginBottom
 							checked={ isMcpEnabled }
