@@ -339,6 +339,7 @@ export {
 	type ReportActionsOptions,
 	type ReportCsvActionOptions,
 	useSegmentStyles,
+	useChartRoleColor,
 	useSeriesStyles,
 	useStoredDetailLayout,
 	useTrackCustomize,

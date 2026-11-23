@@ -8,6 +8,7 @@ import {
 	StackedAreaChart,
 	WidgetRoot,
 	WidgetState,
+	useChartRoleColor,
 	useSeriesStyles,
 	useWidgetRootContext,
 	type ReportParamsFieldAttributes,
@@ -33,16 +34,24 @@ type RequestsBySourceProps = WidgetRenderProps< RequestsBySourceRenderAttributes
 	setError?: ComponentProps< typeof WidgetRoot >[ 'setError' ];
 };
 
+/** Before the element mounts, and outside a charts scope. */
+const BLOCKED_FALLBACK = '#d63638';
+
 function RequestsBySourceInner() {
 	const { reportParams } = useWidgetRootContext();
+	// What was refused takes the charts' own negative color, so it follows the theme.
+	const [ rootRef, blockedColor ] = useChartRoleColor< HTMLDivElement >(
+		'trend-down',
+		BLOCKED_FALLBACK
+	);
 	const { sources, granularity, isLoading, isFetching, isError, isEmpty, refetch } =
-		useRequestsBySource( reportParams );
+		useRequestsBySource( reportParams, blockedColor );
 	const series = useMemo( () => sources.map( source => source.series ), [ sources ] );
 	// The totals double as the chart's legend, so they take its colors.
 	const seriesStyles = useSeriesStyles( series );
 
 	return (
-		<div className={ styles.root }>
+		<div className={ styles.root } ref={ rootRef }>
 			<WidgetState
 				isLoading={ isLoading }
 				isFetching={ isFetching }

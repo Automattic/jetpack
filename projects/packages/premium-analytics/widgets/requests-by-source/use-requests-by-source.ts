@@ -14,9 +14,6 @@ import { __ } from '@wordpress/i18n';
 import { useMemo } from 'react';
 import type { ComparativeLineChartSeries } from '@jetpack-premium-analytics/widgets-toolkit';
 
-/** The same red in every color scheme: it marks what was refused. */
-const BLOCKED_COLOR = '#d63638';
-
 /** A window this short is drawn by the hour, since two daily points make no area. */
 const HOURLY_MAX_DAYS = 2;
 
@@ -43,9 +40,10 @@ function sourceLabels(): Record< EdgeRequestSource, string > {
  * share and its points over time.
  *
  * @param reportParams - The dashboard range.
+ * @param blockedColor - The color of the Blocked part, which is not one of the series colors.
  * @return The sources, the bucket size drawn and the request's state.
  */
-export default function useRequestsBySource( reportParams: ReportParams ) {
+export default function useRequestsBySource( reportParams: ReportParams, blockedColor: string ) {
 	const granularity: StatsEdgeBotRequestsGranularity =
 		getDaysBetweenInclusive( reportParams.from, reportParams.to ) <= HOURLY_MAX_DAYS
 			? 'hour'
@@ -82,11 +80,11 @@ export default function useRequestsBySource( reportParams: ReportParams ) {
 				series: {
 					label: labels[ key ],
 					data,
-					options: key === 'blocked' ? { stroke: BLOCKED_COLOR } : {},
+					options: key === 'blocked' ? { stroke: blockedColor } : {},
 				},
 			};
 		} );
-	}, [ report, timezone ] );
+	}, [ report, timezone, blockedColor ] );
 
 	const hasRequests = sources.some( source => source.total > 0 );
 
