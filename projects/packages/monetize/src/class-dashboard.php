@@ -469,8 +469,8 @@ class Dashboard {
 	public static function add_wp_admin_submenu() {
 		global $submenu;
 
-		// On WoA, add_menu() already added it for every admin.
-		if ( in_array( self::MENU_SLUG, array_column( $submenu['jetpack'] ?? array(), 2 ), true ) ) {
+		// Admin_Menu already added it at 1000 where init() queued it, as on WoA.
+		if ( ! empty( $submenu['jetpack'] ) && in_array( self::MENU_SLUG, array_column( $submenu['jetpack'], 2 ), true ) ) {
 			return;
 		}
 

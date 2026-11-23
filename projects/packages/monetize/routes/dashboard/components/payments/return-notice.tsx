@@ -2,7 +2,8 @@ import { __ } from '@wordpress/i18n';
 import { Notice } from '@wordpress/ui';
 import { useEffect, useState } from 'react';
 
-const PARAMS = [ 'stripe_connect_success', 'stripe_connect_cancelled' ];
+const SUCCESS = 'stripe_connect_success';
+const CANCELLED = 'stripe_connect_cancelled';
 
 /**
  * How the trip to Stripe ended, from the params WordPress.com adds to the admin URL.
@@ -14,10 +15,10 @@ const PARAMS = [ 'stripe_connect_success', 'stripe_connect_cancelled' ];
  */
 export function readStripeReturn( href: string ): 'connected' | 'cancelled' | null {
 	const search = new URL( href ).searchParams;
-	if ( search.has( PARAMS[ 0 ] ) ) {
+	if ( search.has( SUCCESS ) ) {
 		return 'connected';
 	}
-	return search.has( PARAMS[ 1 ] ) ? 'cancelled' : null;
+	return search.has( CANCELLED ) ? 'cancelled' : null;
 }
 
 /**
@@ -28,7 +29,7 @@ export function readStripeReturn( href: string ): 'connected' | 'cancelled' | nu
  */
 export function withoutStripeReturn( href: string ): string {
 	const url = new URL( href );
-	PARAMS.forEach( param => url.searchParams.delete( param ) );
+	[ SUCCESS, CANCELLED ].forEach( param => url.searchParams.delete( param ) );
 	return url.toString();
 }
 
