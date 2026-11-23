@@ -250,13 +250,15 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 			$this->assertSame( 'object', $schema['type'], "{$slug} input must remain an object schema." );
 			$this->assertArrayHasKey( 'default', $schema, "{$slug} must default missing tunnel input to an empty object." );
 			$this->assertSame( array(), $schema['default'], "{$slug} must default missing tunnel input to an empty object." );
+			$this->assertTrue( rest_validate_value_from_schema( $schema['default'], $schema, 'input' ), "{$slug} must accept its empty input default." );
 		}
 	}
 
-	public function test_every_input_schema_validates_an_unexpected_key_without_a_php_error(): void {
+	public function test_every_input_schema_rejects_unexpected_keys_and_avoids_empty_property_arrays(): void {
 		foreach ( Stats_Abilities::get_abilities() as $slug => $spec ) {
 			$result = rest_validate_value_from_schema( array( 'unexpected' => 1 ), $spec['input_schema'], 'input' );
 			$this->assertInstanceOf( \WP_Error::class, $result, "{$slug} must reject an unexpected key." );
+			$this->assertStringNotContainsString( '"properties":[]', wp_json_encode( $spec['input_schema'], JSON_UNESCAPED_SLASHES ), "{$slug} must not list properties as a JSON array." );
 		}
 	}
 
