@@ -310,7 +310,7 @@ class Dashboard_Test extends BaseTestCase {
 	}
 
 	/**
-	 * A connection state, and whether the upgrade link should say the user is unlinked and carry a purchase token.
+	 * A connection state, and whether the upgrade link should say the user is unlinked and carry a purchase token. Every link returns to the dashboard.
 	 *
 	 * @return array[]
 	 */
@@ -354,6 +354,7 @@ class Dashboard_Test extends BaseTestCase {
 		wp_parse_str( $query['query'] ?? '', $checkout );
 
 		$this->assertSame( $unlinked, isset( $checkout['unlinked'] ) );
+		$this->assertSame( admin_url( 'admin.php?page=jetpack-monetize' ), $checkout['redirect_to'] );
 		$this->assertSame( $purchase_token, ! empty( $checkout['purchasetoken'] ) );
 		if ( $purchase_token ) {
 			$this->assertSame( \Jetpack_Options::get_option( 'purchase_token' ), $checkout['purchasetoken'] );

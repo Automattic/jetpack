@@ -42,6 +42,8 @@ class Media_Library_Test extends TestCase {
 		remove_all_actions( 'print_media_templates' );
 		remove_all_filters( 'wp_doing_ajax' );
 		remove_all_filters( 'wp_die_ajax_handler' );
+		remove_all_filters( 'wpcom_js_do_concat' );
+		remove_all_filters( 'wpcom_css_do_concat' );
 		wp_set_current_user( 0 );
 		parent::tearDown();
 	}
@@ -81,6 +83,18 @@ class Media_Library_Test extends TestCase {
 		$this->assertStringContainsString( 'id="media-views-js"', $html );
 		$this->assertStringNotContainsString( 'id="jquery-core-js"', $html );
 		$this->assertStringNotContainsString( 'id="buttons-css"', $html );
+	}
+
+	/**
+	 * WordPress.com concatenation is off for the response.
+	 *
+	 * @return void
+	 */
+	public function test_get_html_turns_off_wordpress_com_concatenation() {
+		Media_Library::get_html();
+
+		$this->assertFalse( apply_filters( 'wpcom_js_do_concat', true, 'jquery-core' ) );
+		$this->assertFalse( apply_filters( 'wpcom_css_do_concat', true, 'media-views' ) );
 	}
 
 	/**

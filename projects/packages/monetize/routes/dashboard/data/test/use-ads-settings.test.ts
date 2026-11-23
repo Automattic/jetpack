@@ -96,6 +96,20 @@ describe( 'useAdsSettings', () => {
 		} );
 	} );
 
+	it( 'ignores a failed WordPress.com Ads account off Simple, which another tab may have loaded', async () => {
+		mockedApiFetch.mockResolvedValueOnce( STORED );
+		const queryClient = new QueryClient();
+		await queryClient
+			.fetchQuery( { queryKey: ADS_ACCOUNT_KEY, queryFn: () => Promise.reject( new Error() ) } )
+			.catch( () => undefined );
+		const wrapper = ( { children }: { children: ReactNode } ) =>
+			createElement( QueryClientProvider, { client: queryClient }, children );
+		const { result } = renderHook( () => useAdsSettings(), { wrapper } );
+
+		await waitFor( () => expect( result.current.values ).toBeDefined() );
+		expect( result.current.loadError ).toBe( false );
+	} );
+
 	it( 'saves an option and records the toggle', async () => {
 		const { result } = await renderLoaded();
 		mockedApiFetch.mockResolvedValueOnce( {} );

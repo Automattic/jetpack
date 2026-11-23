@@ -141,4 +141,14 @@ describe( 'Subscribers', () => {
 
 		await expect( screen.findByText( 'b@example.com' ) ).resolves.toBeVisible();
 	} );
+
+	it( 'shows only the empty message, without the table’s controls, when nobody has paid yet', async () => {
+		( wpcomFetch as jest.Mock ).mockResolvedValue( { total: 0, ownerships: [] } );
+		renderTab();
+
+		await expect(
+			screen.findByText( /You don’t have any paid subscribers yet/ )
+		).resolves.toBeVisible();
+		expect( screen.queryByRole( 'button', { name: 'View options' } ) ).not.toBeInTheDocument();
+	} );
 } );
