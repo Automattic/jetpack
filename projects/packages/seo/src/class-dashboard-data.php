@@ -1058,6 +1058,29 @@ class Dashboard_Data {
 	}
 
 	/**
+	 * PROTOTYPE (JPPROD-116): bootstrap the Bing connect flow, mirroring get_google_verify_data().
+	 *
+	 * @return array
+	 */
+	public static function get_bing_verify_data() {
+		$connect_url = '';
+		if ( class_exists( 'Automattic\\Jetpack\\Publicize\\Keyring_Helper' ) ) {
+			// @phan-suppress-next-line PhanUndeclaredClassMethod -- guarded; Publicize package is provided by the host plugin.
+			$connect_url = (string) \Automattic\Jetpack\Publicize\Keyring_Helper::connect_url( 'bing_webmaster', 'other' );
+		}
+
+		$is_connected = false;
+		if ( class_exists( 'Automattic\\Jetpack\\Connection\\Manager' ) ) {
+			$is_connected = ( new \Automattic\Jetpack\Connection\Manager() )->is_user_connected();
+		}
+
+		return array(
+			'connect_url'  => $connect_url,
+			'is_connected' => (bool) $is_connected,
+		);
+	}
+
+	/**
 	 * Build the GEO tab's initial state.
 	 *
 	 * The AI SEO Enhancer auto-generates SEO titles/descriptions/alt-text in the

@@ -6,6 +6,7 @@ import { Card, CollapsibleCard, InputControl, Stack, SwitchControl, Text } from 
 import CardTitleIcon from '../../components/card-title-icon';
 import StatusIndicator from '../../components/status-indicator';
 import { VERIFICATION_SERVICES } from '../../data/verification-services';
+import BingVerificationField from './bing-verification-field';
 import GoogleVerificationField from './google-verification-field';
 import type { SettingStatus } from '../../components/status-indicator';
 import type { SettingsResponse, VerificationKey } from '../../data/settings-types';
@@ -23,6 +24,8 @@ interface Props {
 	onChange: ( key: VerificationKey, value: string ) => void;
 	/** Save the Google code auto-verify fetches, through the settings form. */
 	saveGoogleCode: ( code: string ) => Promise< void >;
+	/** PROTOTYPE (JPPROD-116): save the Bing code the connect flow fetches. */
+	saveBingCode?: ( code: string ) => Promise< void >;
 	/** Save the current value — called on blur (auto-save, no Save button). */
 	onCommit?: () => void;
 	disabled?: boolean;
@@ -49,11 +52,7 @@ const description = __(
 //
 // Google is absent by design — its field is the keyring component below, which
 // carries its own hint.
-const HINTS: Record< Exclude< VerificationKey, 'google' >, string > = {
-	bing: __(
-		'Paste the verification tag from Bing Webmaster Tools, or just the code inside it.',
-		'jetpack-seo'
-	),
+const HINTS: Record< Exclude< VerificationKey, 'google' | 'bing' >, string > = {
 	pinterest: __(
 		'Paste the verification tag from Pinterest, or just the code inside it.',
 		'jetpack-seo'
@@ -74,6 +73,7 @@ const VerificationCard: FC< Props > = ( {
 	onToggle,
 	onChange,
 	saveGoogleCode,
+	saveBingCode,
 	onCommit,
 	disabled,
 	open,
@@ -125,7 +125,7 @@ const VerificationCard: FC< Props > = ( {
 							disabled={ disabled }
 						/>
 					) }
-					{ /* Google gets the keyring auto-verify flow; the rest are simple code fields. */ }
+					{ /* Google and Bing get keyring connect flows; the rest are simple code fields. */ }
 					<GoogleVerificationField
 						value={ value.google }
 						onChange={ next => onChange( 'google', next ) }
@@ -133,20 +133,30 @@ const VerificationCard: FC< Props > = ( {
 						onCommit={ onCommit }
 						disabled={ controlsDisabled }
 					/>
+					<BingVerificationField
+						value={ value.bing }
+						onChange={ next => onChange( 'bing', next ) }
+						saveCode={ saveBingCode ?? ( () => Promise.resolve() ) }
+						onCommit={ onCommit }
+						disabled={ controlsDisabled }
+					/>
 					<Stack direction="column" gap="md">
-						{ VERIFICATION_SERVICES.filter( ( { key } ) => key !== 'google' ).map(
-							( { key, label } ) => (
-								<InputControl
-									key={ key }
-									label={ label }
-									value={ value[ key ] }
-									onValueChange={ next => onChange( key, next ) }
-									onBlur={ onCommit }
-									description={ HINTS[ key ] }
-									disabled={ controlsDisabled }
-								/>
-							)
-						) }
+						{ VERIFICATION_SERVICES.filter(
+							(
+								service
+							): service is { key: Exclude< VerificationKey, 'google' | 'bing' >; label: string } =>
+								service.key !== 'google' && service.key !== 'bing'
+						).map( ( { key, label } ) => (
+							<InputControl
+								key={ key }
+								label={ label }
+								value={ value[ key ] }
+								onValueChange={ next => onChange( key, next ) }
+								onBlur={ onCommit }
+								description={ HINTS[ key ] }
+								disabled={ controlsDisabled }
+							/>
+						) ) }
 					</Stack>
 				</Stack>
 			</CollapsibleCard.Content>
