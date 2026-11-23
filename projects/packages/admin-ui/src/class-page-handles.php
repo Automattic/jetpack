@@ -8,9 +8,7 @@
 namespace Automattic\Jetpack\Admin_UI;
 
 /**
- * Lets `loadMediaLibrary()` and the admin shell skip what the page already runs.
- *
- * Both skip a tag whose id is on the page, but concatenation, core's load-scripts.php or WordPress.com's, prints a handle with no id.
+ * Lets `loadMediaLibrary()` and the admin shell skip what the page already runs, which they otherwise do by tag id: concatenation prints a handle with no id.
  */
 class Page_Handles {
 
@@ -20,28 +18,9 @@ class Page_Handles {
 	const ELEMENT_ID = 'jetpack-page-handles';
 
 	/**
-	 * Whether init() has run.
-	 *
-	 * @var bool
-	 */
-	private static $initialized = false;
-
-	/**
-	 * Print the list on admin pages.
-	 *
-	 * @return void
-	 */
-	public static function init() {
-		if ( self::$initialized ) {
-			return;
-		}
-		self::$initialized = true;
-		// After _wp_footer_scripts(), so the late scripts and styles are done too.
-		add_action( 'admin_print_footer_scripts', array( __CLASS__, 'print_handles' ), 100 );
-	}
-
-	/**
 	 * Print the scripts and styles the page printed, on admin shell member pages, the only ones that load more.
+	 *
+	 * Hooked late on admin_print_footer_scripts, after core prints the late scripts and styles.
 	 *
 	 * @return void
 	 */

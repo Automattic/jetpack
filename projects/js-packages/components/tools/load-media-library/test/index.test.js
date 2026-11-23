@@ -74,20 +74,42 @@ describe( 'loadMediaLibrary', () => {
 		expect( global.fetch ).toHaveBeenCalledTimes( 1 );
 	} );
 
-	it( 'skips the scripts, their data and the styles the page lists as printed, since concatenation leaves them no id', async () => {
-		document.head.innerHTML =
-			'<script type="application/json" id="jetpack-page-handles">{"scripts":["utils"],"styles":["buttons"]}</script>';
-		respondWith(
-			'<link rel="stylesheet" id="buttons-css" href="/buttons.css" />' +
-				'<script id="utils-js-extra">window.mediaLibraryTestOrder.push( "extra" );</script>' +
-				`<script src="/utils.js" id="utils-js"></script>${ MEDIA_VIEWS }${ TEMPLATES }`
-		);
+	const CONCATENATED =
+		'<link rel="stylesheet" href="/wp-admin/load-styles.php?c=0&amp;load%5Bchunk_0%5D=dashicons,buttons" />' +
+		'<script src="/wp-admin/load-scripts.php?c=0&amp;load%5Bchunk_0%5D=jquery-core,unders&amp;load%5Bchunk_1%5D=core,backbone"></script>';
 
-		await loadMediaLibrary();
+	it.each( [
+		[
+			'the handle list',
+			'{"scripts":["jquery-core","utils"],"styles":["common"]}',
+			'jquery-core,utils',
+			'common',
+		],
+		[
+			'load-scripts.php when it lists none',
+			null,
+			'jquery-core,underscore,backbone',
+			'dashicons,buttons',
+		],
+	] )(
+		'tells the endpoint which handles the page loaded, from %s, since concatenated tags carry no id',
+		async ( _, list, scripts, styles ) => {
+			document.head.innerHTML =
+				CONCATENATED +
+				( list
+					? `<script type="application/json" id="jetpack-page-handles">${ list }</script>`
+					: '' );
+			respondWith( `${ MEDIA_VIEWS }${ TEMPLATES }` );
 
-		expect( runs ).toEqual( { 'media-views-js': 1 } );
-		expect( window.mediaLibraryTestOrder ).toEqual( [] );
-	} );
+			await loadMediaLibrary();
+
+			const [ url, { body } ] = global.fetch.mock.calls[ 0 ];
+			expect( Object.fromEntries( new URL( String( url ) ).searchParams ) ).toEqual( {
+				action: 'jetpack_media_library',
+			} );
+			expect( Object.fromEntries( body ) ).toEqual( { scripts, styles } );
+		}
+	);
 
 	it( 'skips what the page already has, and fetches nothing once the library is ready', async () => {
 		document.head.innerHTML = '<script id="jquery-core-js"></script>';

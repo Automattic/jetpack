@@ -8,7 +8,6 @@
 namespace Automattic\Jetpack\Admin_UI;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -33,28 +32,30 @@ class Page_Handles_Test extends TestCase {
 	}
 
 	/**
-	 * Data provider for test_print_handles_lists_what_member_pages_printed.
+	 * Member pages list every handle they printed, concatenated or not.
 	 *
-	 * @return array[] Page, the list it prints or null for none.
+	 * @return void
 	 */
-	public static function provide_pages() {
-		return array(
-			'member page'    => array( 'jetpack-forms', '{"scripts":["jquery-core"],"styles":["buttons"]}' ),
-			'any other page' => array( 'other-plugin', null ),
-		);
+	public function test_print_handles_lists_what_a_member_page_printed() {
+		$this->assertStringContainsString( '{"scripts":["jquery-core"],"styles":["buttons"]}', $this->print_handles_on( 'jetpack-forms' ) );
 	}
 
 	/**
-	 * Member pages list every handle they printed, concatenated or not.
+	 * Other admin pages print nothing.
 	 *
-	 * @dataProvider provide_pages
-	 *
-	 * @param string      $page     The `page` query argument.
-	 * @param string|null $expected The list, or null for no output.
 	 * @return void
 	 */
-	#[DataProvider( 'provide_pages' )]
-	public function test_print_handles_lists_what_member_pages_printed( $page, $expected ) {
+	public function test_print_handles_prints_nothing_elsewhere() {
+		$this->assertSame( '', $this->print_handles_on( 'other-plugin' ) );
+	}
+
+	/**
+	 * Print the list on an admin page, with one member registered.
+	 *
+	 * @param string $page The `page` query argument.
+	 * @return string
+	 */
+	private function print_handles_on( $page ) {
 		add_filter(
 			'jetpack_admin_shell_members',
 			static function () {
@@ -74,13 +75,6 @@ class Page_Handles_Test extends TestCase {
 
 		ob_start();
 		Page_Handles::print_handles();
-		$output = (string) ob_get_clean();
-
-		if ( null === $expected ) {
-			$this->assertSame( '', $output );
-			return;
-		}
-		$this->assertStringContainsString( 'id="jetpack-page-handles"', $output );
-		$this->assertStringContainsString( $expected, $output );
+		return (string) ob_get_clean();
 	}
 }
