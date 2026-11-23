@@ -5,7 +5,7 @@ import { __ } from '@wordpress/i18n';
 import { Card, Fieldset, Link, Notice, Spinner, Stack, SwitchControl, Text } from '@wordpress/ui';
 import { useCallback } from 'react';
 import { getAdsSettingsData } from '../../data/ads-settings-data';
-import { getTabHref } from '../../data/tabs';
+import { getTabHref, isPlainClick } from '../../data/tabs';
 import { trackClick } from '../../data/tracking';
 import { useAdsSettings } from '../../data/use-ads-settings';
 import { useSiteHasFeature } from '../../data/use-site-feature';
@@ -65,14 +65,7 @@ function AdsOptions( { data, openTab }: { data: AdsSettingsData; openTab: OpenTa
 	const openEarnings = useCallback(
 		( event: MouseEvent ) => {
 			trackEarningsClick();
-			// Let modified clicks open the tab's URL in a new browser tab.
-			if (
-				event.button !== 0 ||
-				event.metaKey ||
-				event.ctrlKey ||
-				event.shiftKey ||
-				event.altKey
-			) {
+			if ( ! isPlainClick( event ) ) {
 				return;
 			}
 			event.preventDefault();
@@ -410,7 +403,7 @@ function AdsCard( { data, openTab }: { data: AdsSettingsData; openTab: OpenTab }
 
 	// Simple can switch ads on only once WordPress.com approves the site, which joining does.
 	if ( simple && account.data && ! account.data.approved ) {
-		return <JoinPrompt openTab={ openTab } />;
+		return <JoinPrompt />;
 	}
 
 	return <AdsOptions data={ data } openTab={ openTab } />;

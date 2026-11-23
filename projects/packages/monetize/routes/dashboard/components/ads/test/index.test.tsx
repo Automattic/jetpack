@@ -31,6 +31,7 @@ const renderTab = ( {
 	status = false,
 	simple = false,
 	canJoin = false,
+	unsafe = false,
 }: {
 	hasWordAds: boolean;
 	active: boolean;
@@ -41,6 +42,7 @@ const renderTab = ( {
 	status?: string | false;
 	simple?: boolean;
 	canJoin?: boolean;
+	unsafe?: string | false;
 } ) => {
 	mockHasWordAds = hasWordAds;
 	mockSimple = simple;
@@ -49,12 +51,9 @@ const renderTab = ( {
 	( apiFetch as unknown as jest.Mock ).mockImplementation( ( { path } ) =>
 		path === '/jetpack/v4/settings' ? Promise.resolve( { wordads: active } ) : Promise.reject()
 	);
-	( wpcomFetch as jest.Mock ).mockImplementation( ( { path, method } ) => {
-		if ( method === 'POST' ) {
-			return Promise.resolve( { approved: true } );
-		}
+	( wpcomFetch as jest.Mock ).mockImplementation( ( { path } ) => {
 		const responses: Record< string, unknown > = {
-			'wordads/account': { approved, active, unsafe: false, status },
+			'wordads/account': { approved, active, unsafe, status },
 			'wordads/earnings': {
 				earnings: { total_earnings: totalEarnings, total_amount_owed: owed },
 			},
@@ -92,9 +91,14 @@ describe( 'Ads', () => {
 			'Only the site owner can join WordAds.',
 		],
 		[
+			'Simple, the owner',
+			{ hasWordAds: true, active: false, simple: true, canJoin: true },
+			'Join WordAds in Settings',
+		],
+		[
 			'Simple, joined, ads off',
 			{ hasWordAds: true, active: false, approved: true, simple: true },
-			'Turn on ads',
+			'Turn on ads in Settings',
 		],
 		[
 			'ads off, owed earnings',
@@ -107,6 +111,15 @@ describe( 'Ads', () => {
 		await expect( screen.findByText( text ) ).resolves.toBeVisible();
 	} );
 
+	it( 'offers no way to join for a Simple site WordPress.com reports unsafe', async () => {
+		renderTab( { hasWordAds: true, active: false, simple: true, canJoin: true, unsafe: 'spam' } );
+
+		await expect( screen.findByText( 'Join WordAds' ) ).resolves.toBeVisible();
+		expect(
+			screen.queryByRole( 'link', { name: 'Join WordAds in Settings' } )
+		).not.toBeInTheDocument();
+	} );
+
 	it( 'keeps quiet about the plan for a site WordPress.com still serves ads on', async () => {
 		renderTab( { hasWordAds: false, active: true, status: 'approved' } );
 
@@ -114,17 +127,11 @@ describe( 'Ads', () => {
 		expect( screen.queryByText( /no longer includes ads/ ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'opens Settings once the Simple site’s owner joins', async () => {
-		const { openTab } = renderTab( {
-			hasWordAds: true,
-			active: false,
-			simple: true,
-			canJoin: true,
-		} );
+	it( 'opens Settings in place to turn on ads', async () => {
+		const { openTab } = renderTab( { hasWordAds: true, active: false } );
 
-		await userEvent.click( await screen.findByRole( 'button', { name: 'Join WordAds' } ) );
+		await userEvent.click( await screen.findByRole( 'link', { name: 'Turn on ads in Settings' } ) );
 
-		expect( wpcomFetch ).toHaveBeenCalledWith( expect.objectContaining( { method: 'POST' } ) );
 		expect( openTab ).toHaveBeenCalledWith( 'settings' );
 	} );
 

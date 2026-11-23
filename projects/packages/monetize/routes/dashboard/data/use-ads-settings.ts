@@ -274,7 +274,8 @@ export function useAdsSettings( onSaved?: () => void ) {
 
 	return {
 		values: stored && ( { ...stored, ...requested } as AdsValues ),
-		loadError: settings.isError || account.isError,
+		// The account is read only on Simple; elsewhere another tab's failed lookup may sit in the cache.
+		loadError: settings.isError || ( simple && account.isError ),
 		saveError,
 		saving: new Set< string >( Object.keys( requested ) ),
 		setOption,
