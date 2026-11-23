@@ -218,7 +218,7 @@ class Turned_Off_Page {
 				'slug'    => $slug,
 				'name'    => $definition['name'],
 				'icon'    => $definition['icon'] ?? '',
-				'artwork' => $definition['off_card_artwork'] ?? true,
+				'artwork' => $definition['artwork'] ?? true,
 				'gate'    => $gate,
 				// Where My Jetpack sets it up, e.g. adds the free plan Search needs before its module can switch on.
 				'setup'   => admin_url( 'admin.php?page=my-jetpack#' . ( $definition['interstitial'] ?? '/features' ) ),

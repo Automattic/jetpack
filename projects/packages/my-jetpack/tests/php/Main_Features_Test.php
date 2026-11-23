@@ -243,10 +243,27 @@ class Main_Features_Test extends TestCase {
 	}
 
 	/**
-	 * Every feature's artwork ships with the package, under the name its URL points at.
+	 * Every feature's artwork ships with the package, under the name its URL points at; SEO has none and sends no URL.
 	 */
 	public function test_every_feature_has_a_bundled_image() {
-		foreach ( Main_Features::get_features() as $feature ) {
+		$seo_module         = static function ( $modules ) {
+			return array_merge( (array) $modules, array( Main_Features::SEO_MODULE ) );
+		};
+		$seo_module_version = static function ( $modules ) {
+			return array_merge( (array) $modules, array( Main_Features::SEO_MODULE => '1.0' ) );
+		};
+		add_filter( 'jetpack_get_available_standalone_modules', $seo_module );
+		add_filter( 'jetpack_get_available_modules', $seo_module_version );
+		try {
+			$features = array_column( Main_Features::get_features(), null, 'slug' );
+		} finally {
+			remove_filter( 'jetpack_get_available_standalone_modules', $seo_module );
+			remove_filter( 'jetpack_get_available_modules', $seo_module_version );
+		}
+
+		$this->assertSame( '', $features['seo']['screenshot'] ?? null );
+		unset( $features['seo'] );
+		foreach ( $features as $feature ) {
 			$path = 'components/my-jetpack-tab-panel/features/images/' . $feature['slug'] . '.webp';
 
 			$this->assertFileExists( dirname( __DIR__, 2 ) . '/_inc/' . $path, "Feature {$feature['slug']} has no image." );
