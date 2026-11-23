@@ -185,13 +185,13 @@ class Settings {
 	 * Save whether the WordPress.com Reader shows post views for this site.
 	 *
 	 * @since 0.23.0
-	 * @deprecated $$next-version$$ The Reader no longer shows post views, so the setting has no effect.
+	 * @deprecated 0.25.0 The Reader no longer shows post views, so the setting has no effect.
 	 *
 	 * @param bool $enabled Whether the Reader shows post views.
 	 * @return true|WP_Error True once stored, or an error when the site kept another value.
 	 */
 	public static function update_reader_views( bool $enabled ) {
-		_deprecated_function( __METHOD__, 'jetpack-stats-$$next-version$$' );
+		_deprecated_function( __METHOD__, 'jetpack-stats-0.25.0' );
 		$value = (int) $enabled;
 		update_option( 'wpcom_reader_views_enabled', $value );
 		// update_option() also returns false for an unchanged value, so read the option back.

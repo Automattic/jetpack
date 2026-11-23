@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Admin shell: Switch pages without a reload when the Gutenberg plugin provides @wordpress/boot.

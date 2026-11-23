@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Registrar: Each registrar sets the default of the jetpack_wp_abilities_enabled filter through enabled_by_default(), which is false unless it overrides it, so a registrar from an older plugin release stays off.

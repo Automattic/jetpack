@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Abilities: Add `expand` to the top-content reader, returning the pages, engines, links and terms each referrer, click and tags item groups. Links WordPress.com routes through its href.li redirector now report where they lead.

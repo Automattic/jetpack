@@ -18,7 +18,7 @@ use Jetpack_Tracks_Client;
  */
 class Admin_Menu {
 
-	const PACKAGE_VERSION = '0.14.16';
+	const PACKAGE_VERSION = '0.15.0';
 
 	/**
 	 * Slug used for the upgrade menu item and redirect URL.
@@ -601,7 +601,7 @@ class Admin_Menu {
 	 * The activator receives a gate as returned by get_feature_gate() and returns true or a WP_Error.
 	 * The check receives the same gate and returns false where turning it on can't work, as when a host holds it off.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.15.0
 	 *
 	 * @param callable|null $activator   Activator callback, or null to clear it.
 	 * @param callable|null $offer_check Check callback, or null to offer every gate the activator is given.
@@ -615,7 +615,7 @@ class Admin_Menu {
 	/**
 	 * Whether a gate's feature can be turned on here: an activator is set and its check allows it.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.15.0
 	 *
 	 * @param array $gate A gate, as returned by get_feature_gate().
 	 * @return bool
@@ -631,7 +631,7 @@ class Admin_Menu {
 	/**
 	 * The gate a registered menu item declared, for pages that check their feature is still on.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.15.0
 	 *
 	 * @param string $menu_slug The item's menu slug.
 	 * @return array{product?: string, module?: string}|null Null when no item has that slug or it declares no gate.
@@ -651,7 +651,7 @@ class Admin_Menu {
 	/**
 	 * Whether a gate's feature is on. Fails open like the sidebar does.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.15.0
 	 *
 	 * @param array $gate A gate, as returned by get_feature_gate().
 	 * @return bool
@@ -663,7 +663,7 @@ class Admin_Menu {
 	/**
 	 * Switch a gate's feature on.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.15.0
 	 *
 	 * @param array $gate A gate, as returned by get_feature_gate().
 	 * @return true|\WP_Error

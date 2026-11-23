@@ -71,7 +71,7 @@ class Dashboard {
 	 *
 	 * Otherwise the browser asks for it only after the app boots. Other routes stay dynamic.
 	 *
-	 * @since $$next-version$$
+	 * @since 8.4.1
 	 *
 	 * @param array $dependencies Boot script-module dependencies, each with an `id` and an `import` type.
 	 * @return array

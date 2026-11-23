@@ -58,7 +58,7 @@ describe( 'SeoInspector — Always include in llms.txt', () => {
 		meta = { jetpack_seo_noindex: false, jetpack_seo_llms_txt_always_include: false };
 		render( <SeoInspector postId={ 1 } postType={ postType } onClose={ jest.fn() } /> );
 
-		const toggle = screen.getByLabelText( LABEL );
+		const toggle = screen.getByRole( 'switch', { name: LABEL } );
 		/* eslint-disable testing-library/prefer-user-event -- No user-event devDep for two clicks. */
 		fireEvent.click( toggle );
 		fireEvent.click( screen.getByRole( 'button', { name: 'Save' } ) );
@@ -79,7 +79,7 @@ describe( 'SeoInspector — Always include in llms.txt', () => {
 			render( <SeoInspector postId={ 1 } postType={ postType } onClose={ jest.fn() } /> );
 
 			/* eslint-disable testing-library/prefer-user-event -- No user-event devDep for two clicks. */
-			fireEvent.click( screen.getByLabelText( 'Hide from search engines' ) );
+			fireEvent.click( screen.getByRole( 'switch', { name: 'Hide from search engines' } ) );
 			fireEvent.click( screen.getByRole( 'button', { name: 'Save' } ) );
 			/* eslint-enable testing-library/prefer-user-event */
 
@@ -97,9 +97,9 @@ describe( 'SeoInspector — Always include in llms.txt', () => {
 			meta = { jetpack_seo_noindex: true, jetpack_seo_llms_txt_always_include: true };
 			render( <SeoInspector postId={ 1 } postType={ postType } onClose={ jest.fn() } /> );
 
-			const toggle = screen.getByLabelText( LABEL );
+			const toggle = screen.getByRole( 'switch', { name: LABEL } );
 			expect( toggle ).not.toBeChecked();
-			expect( toggle ).toBeDisabled();
+			expect( toggle ).toHaveAttribute( 'aria-disabled', 'true' );
 		}
 	);
 
@@ -115,11 +115,16 @@ describe( 'SeoInspector — Always include in llms.txt', () => {
 				screen.getByRole( 'textbox', { name: 'SEO title' } ),
 				screen.getByRole( 'textbox', { name: 'Meta description' } ),
 				screen.getByRole( 'combobox', { name: 'Schema type' } ),
-				screen.getByLabelText( 'Hide from search engines' ),
-				screen.getByLabelText( LABEL ),
+			];
+			const switches = [
+				screen.getByRole( 'switch', { name: 'Hide from search engines' } ),
+				screen.getByRole( 'switch', { name: LABEL } ),
 			];
 			for ( const control of controls ) {
 				expect( control ).toBeDisabled();
+			}
+			for ( const control of switches ) {
+				expect( control ).toHaveAttribute( 'aria-disabled', 'true' );
 			}
 			expect( screen.getByRole( 'button', { name: 'Save' } ) ).toHaveAttribute(
 				'aria-disabled',
@@ -137,6 +142,9 @@ describe( 'SeoInspector — Always include in llms.txt', () => {
 			for ( const control of controls ) {
 				expect( control ).toBeEnabled();
 			}
+			for ( const control of switches ) {
+				expect( control ).not.toHaveAttribute( 'aria-disabled' );
+			}
 			expect( screen.getByRole( 'textbox', { name: 'SEO title' } ) ).toHaveValue(
 				'Saved SEO title'
 			);
@@ -144,7 +152,7 @@ describe( 'SeoInspector — Always include in llms.txt', () => {
 				'Saved description'
 			);
 			expect( screen.getByRole( 'combobox', { name: 'Schema type' } ) ).toHaveValue( 'article' );
-			expect( screen.getByLabelText( LABEL ) ).toBeChecked();
+			expect( screen.getByRole( 'switch', { name: LABEL } ) ).toBeChecked();
 			expect( screen.getByRole( 'button', { name: 'Save' } ) ).not.toHaveAttribute(
 				'aria-disabled',
 				'true'

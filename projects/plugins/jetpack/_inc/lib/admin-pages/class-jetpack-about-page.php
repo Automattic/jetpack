@@ -62,7 +62,7 @@ class Jetpack_About_Page extends Jetpack_Admin_Page {
 	/**
 	 * Load the A12s data when the About page loads, so other admin pages never fetch it.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.5
 	 */
 	public function load_a8c_data() {
 		$this->a8c_data = $this->fetch_a8c_data();

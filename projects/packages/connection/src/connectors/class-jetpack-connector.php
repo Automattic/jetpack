@@ -272,7 +272,7 @@ class Jetpack_Connector {
 	 *
 	 * @since 8.7.0
 	 * @since 9.13.0 No longer sends `isInSafeMode`; the card reads it from the store.
-	 * @since $$next-version$$ Not sent with the `connection-idc-screen` flag on.
+	 * @since 9.18.3 Not sent with the `connection-idc-screen` flag on.
 	 *
 	 * @param array $data Script module data passed by reference.
 	 */

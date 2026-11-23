@@ -61,7 +61,7 @@ class Indexnow_Queue {
 		/**
 		 * Filters the maximum pending IndexNow URLs admitted on a site.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.13.0
 		 * @param int $capacity Pending URLs, between 1 and 50,000.
 		 */
 		$capacity = apply_filters( 'jetpack_seo_indexnow_queue_capacity', self::CAPACITY );
@@ -399,7 +399,7 @@ class Indexnow_Queue {
 	/**
 	 * Avoid queue work for passive site changes before the first admission.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.13.0
 	 */
 	public static function clear_if_used() {
 		if ( self::row( self::GENERATION_OPTION ) ) {
