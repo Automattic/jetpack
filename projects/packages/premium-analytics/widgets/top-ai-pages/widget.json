@@ -1,0 +1,11 @@
+{
+	"name": "ai-traffic/top-ai-pages",
+	"icon": "jpa/pages",
+	"title": "Top pages by AI bot requests",
+	"description": "The pages AI bots requested the most.",
+	"help": {
+		"content": "The pages AI bots requested most over the selected period. Visits from people who followed a link in an AI app are not counted here."
+	},
+	"category": "traffic",
+	"presentation": "framed"
+}

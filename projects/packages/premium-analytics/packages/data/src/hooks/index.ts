@@ -129,6 +129,7 @@ export type { StatsHighlightsParams, StatsHighlightsResponse } from './use-stats
 export { useStatsTags, type StatsTagsParams, type StatsTagsResponse } from './use-stats-tags';
 export { useStatsDevices } from './use-stats-devices';
 export { useStatsAiProviders } from './use-stats-ai-providers';
+export { useStatsTopAiUrls, type StatsTopAiUrlsParams } from './use-stats-top-ai-urls';
 export {
 	isEdgeBotRequestsRangeTooLong,
 	useStatsEdgeBotRequests,

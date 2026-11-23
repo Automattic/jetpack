@@ -188,6 +188,8 @@ export type {
 	StatsAiProvider,
 	StatsAiProviderBot,
 	StatsAiProvidersReport,
+	StatsTopAiUrl,
+	StatsTopAiUrlsReport,
 	StatsFileDownloadsComparisonItem,
 	StatsFileDownloadsItem,
 	StatsFollowersItem,

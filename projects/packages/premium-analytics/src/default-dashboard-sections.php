@@ -306,9 +306,16 @@ function get_ai_section_default_layout() {
 			DASHBOARD_TILE_LIST
 		),
 		get_dashboard_default_widget_instance(
+			'default-top-ai-pages-widget-instance',
+			'ai-traffic/top-ai-pages',
+			1,
+			1,
+			DASHBOARD_TILE_LIST
+		),
+		get_dashboard_default_widget_instance(
 			'default-requests-by-source-widget-instance',
 			'ai-traffic/requests-by-source',
-			1,
+			2,
 			'full',
 			DASHBOARD_TILE_CARD
 		),
