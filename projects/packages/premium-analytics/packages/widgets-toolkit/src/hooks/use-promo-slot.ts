@@ -1,6 +1,7 @@
 import {
 	DASHBOARD_PREFERENCES_SCOPE,
 	getPromosForPlacement,
+	isFinalClose,
 	isPromoDismissed,
 	pickPromo,
 	type Promo,
@@ -76,11 +77,11 @@ export function usePromoSlot( placement: PromoPlacement, target?: string ): Prom
  * One promo's dismissal state. A first close snoozes it, a second is final.
  *
  * @param promo - The promo the card shows.
- * @return Whether it is hidden, how often it was closed before, and how to close it.
+ * @return `isDismissed` includes the per-load placement latch, not only a stored dismissal. `willBeFinal` is whether the next close is final. `dismiss` closes the promo.
  */
 export function usePromoDismissal( promo: Promo ): {
 	isDismissed: boolean;
-	closeCount: number;
+	willBeFinal: boolean;
 	dismiss: () => void;
 } {
 	const { slug, placement, snooze_days: snoozeDays } = promo;
@@ -99,7 +100,7 @@ export function usePromoDismissal( promo: Promo ): {
 
 	return {
 		isDismissed: isClosed || isPromoDismissed( dismissed[ slug ], snoozeDays, Date.now() ),
-		closeCount: dismissed[ slug ]?.count ?? 0,
+		willBeFinal: isFinalClose( ( dismissed[ slug ]?.count ?? 0 ) + 1, snoozeDays ),
 		dismiss,
 	};
 }

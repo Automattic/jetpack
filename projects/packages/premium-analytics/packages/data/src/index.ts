@@ -125,6 +125,7 @@ export {
 } from './utils/plan-gates';
 export {
 	getPromosForPlacement,
+	isFinalClose,
 	isPromoDismissed,
 	pickPromo,
 	type Promo,

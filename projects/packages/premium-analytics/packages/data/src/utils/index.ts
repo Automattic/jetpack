@@ -20,6 +20,7 @@ export { safeParseInt, safeParseFloat } from './parsing';
 export { computeDateRangeFromPreset } from './preset-date-range';
 export {
 	getPromosForPlacement,
+	isFinalClose,
 	isPromoDismissed,
 	pickPromo,
 	type Promo,

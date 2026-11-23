@@ -30,6 +30,17 @@ export type Promo = {
 export type PromoDismissal = { count: number; at: string };
 
 /**
+ * Whether the close that brings a promo to this count is final: a second close, or any close when snoozing is off.
+ *
+ * @param closeCount - How often the promo was closed, counting this close.
+ * @param snoozeDays - Days a first close lasts; 0 makes it final.
+ * @return Whether the promo never returns.
+ */
+export function isFinalClose( closeCount: number, snoozeDays: number ): boolean {
+	return closeCount >= 2 || snoozeDays <= 0;
+}
+
+/**
  * Whether a closed promo stays hidden. A second close is final, and so is an unreadable timestamp.
  *
  * @param dismissal  - The user's record for the promo, if any.
@@ -48,7 +59,7 @@ export function isPromoDismissed(
 
 	const closedAt = Date.parse( dismissal.at );
 
-	if ( dismissal.count >= 2 || snoozeDays <= 0 || Number.isNaN( closedAt ) ) {
+	if ( isFinalClose( dismissal.count, snoozeDays ) || Number.isNaN( closedAt ) ) {
 		return true;
 	}
 
