@@ -32,9 +32,14 @@ class Whats_New {
 	const FEED_URL = 'https://jetpack.com/feed/';
 
 	/**
-	 * Label a post of that feed carries when it is about VideoPress.
+	 * What the feed is asked for: the posts in both categories that carry the tag.
+	 *
+	 * A `+` between two slugs asks for the posts in both. A comma would ask for the posts in either.
 	 */
-	const LABEL = 'VideoPress';
+	const FEED_QUERY = array(
+		'category_name' => 'jetpack-news+videopress',
+		'tag'           => 'videopress',
+	);
 
 	/**
 	 * How old a post may be to count as news, in seconds.
@@ -74,12 +79,17 @@ class Whats_New {
 			return;
 		}
 
-		$announcements = get_announcements_from_feed( self::FEED_URL, self::CHANNEL, array( 'max_age' => self::MAX_AGE ) );
+		$announcements = get_announcements_from_feed(
+			self::FEED_URL,
+			self::CHANNEL,
+			array(
+				'max_age' => self::MAX_AGE,
+				'query'   => self::FEED_QUERY,
+			)
+		);
 
 		foreach ( $announcements as $announcement ) {
-			if ( in_array( self::LABEL, $announcement['categories'], true ) ) {
-				register_announcement( $announcement['id'], $announcement['args'] + array( 'channels' => array( self::CHANNEL ) ) );
-			}
+			register_announcement( $announcement['id'], $announcement['args'] + array( 'channels' => array( self::CHANNEL ) ) );
 		}
 	}
 }

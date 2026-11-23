@@ -18,18 +18,18 @@ use WorDBless\BaseTestCase;
 class Whats_New_Test extends BaseTestCase {
 
 	/**
-	 * Requests made for the feed during a test.
+	 * URLs requested during a test.
 	 *
-	 * @var int
+	 * @var string[]
 	 */
-	private $requests = 0;
+	private $requests = array();
 
 	/**
 	 * Answer the feed without the network, and hook the registrant.
 	 */
 	public function set_up() {
-		$this->requests = 0;
-		add_filter( 'pre_http_request', array( $this, 'answer_request' ) );
+		$this->requests = array();
+		add_filter( 'pre_http_request', array( $this, 'answer_request' ), 10, 3 );
 		add_action( 'wp_feed_options', array( $this, 'skip_the_feed_cache' ) );
 
 		// `fetch_feed()` converts the feed to the charset of the site, which the test site lacks.
@@ -55,25 +55,25 @@ class Whats_New_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Answers a request with a feed of three posts: two of yesterday, one of them about VideoPress,
-	 * and one about VideoPress of 100 days ago.
+	 * Answers a request with a feed of two posts: one of yesterday and one of 100 days ago.
 	 *
+	 * @param false|array $response The response so far.
+	 * @param array       $args     The arguments of the request.
+	 * @param string      $url      The URL requested.
 	 * @return array
 	 */
-	public function answer_request() {
-		++$this->requests;
+	public function answer_request( $response, $args, $url ) {
+		$this->requests[] = $url;
 
 		$posts = array(
-			'Playlists' => array( 'VideoPress', DAY_IN_SECONDS ),
-			'Forms'     => array( 'Forms', DAY_IN_SECONDS ),
-			'Player'    => array( 'VideoPress', 100 * DAY_IN_SECONDS ),
+			'Playlists' => DAY_IN_SECONDS,
+			'Player'    => 100 * DAY_IN_SECONDS,
 		);
 
 		$items = '';
-		foreach ( $posts as $title => list( $label, $age ) ) {
+		foreach ( $posts as $title => $age ) {
 			$items .= "<item><title>{$title}</title><link>https://jetpack.com/blog/{$title}/</link>"
 				. "<guid isPermaLink=\"false\">https://jetpack.com/?p={$title}</guid>"
-				. "<category><![CDATA[Jetpack News]]></category><category><![CDATA[{$label}]]></category>"
 				. '<pubDate>' . gmdate( 'D, d M Y H:i:s', time() - $age ) . ' +0000</pubDate></item>';
 		}
 
@@ -99,11 +99,12 @@ class Whats_New_Test extends BaseTestCase {
 		$feed->enable_cache( false );
 	}
 
-	public function test_publishes_the_recent_posts_about_videopress_to_its_channel() {
+	public function test_publishes_the_recent_posts_of_its_feed_to_its_channel() {
 		add_filter( 'jetpack_feature_flag_enabled_' . Whats_New::FLAG, '__return_true' );
 
 		$announcements = array_values( Announcement_Registry::get_instance()->get_all_registered() );
 
+		$this->assertSame( array( 'https://jetpack.com/feed/?category_name=jetpack-news%2Bvideopress&tag=videopress' ), $this->requests );
 		$this->assertSame( array( 'Playlists' ), array_column( $announcements, 'title' ) );
 		$this->assertSame( array( Whats_New::CHANNEL ), $announcements[0]['channels'] );
 		$this->assertSame( 'videopress/' . md5( 'https://jetpack.com/?p=Playlists' ), $announcements[0]['id'] );
@@ -111,6 +112,6 @@ class Whats_New_Test extends BaseTestCase {
 
 	public function test_reads_no_feed_while_the_flag_is_off() {
 		$this->assertSame( array(), Announcement_Registry::get_instance()->get_all_registered() );
-		$this->assertSame( 0, $this->requests );
+		$this->assertSame( array(), $this->requests );
 	}
 }
