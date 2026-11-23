@@ -59,39 +59,41 @@ function RequestsBySourceInner() {
 					description: __( 'No requests in this period.', 'jetpack-premium-analytics-pkg' ),
 				} }
 			>
-				<ul className={ styles.totals }>
-					{ sources.map( ( source, index ) => (
-						<li key={ source.key } className={ styles.total }>
-							<span className={ styles.label }>
-								<span
-									className={ styles.swatch }
-									style={ { background: seriesStyles[ index ]?.stroke } }
-									aria-hidden="true"
-								/>
-								{ source.label }
-							</span>
-							<MetricValue value={ source.total } dataFormat={ HEADLINE_COUNT_FORMAT } />
-							{ source.share !== null && (
-								<span className={ styles.share }>
-									{ sprintf(
-										/* translators: %s: a percentage, e.g. "12.5%". */
-										__( '%s of requests', 'jetpack-premium-analytics-pkg' ),
-										formatMetricValue( source.share, 'percentage', {
-											decimals: 1,
-											signDisplay: 'never',
-										} )
-									) }
+				<div className={ styles.body }>
+					<ul className={ styles.totals }>
+						{ sources.map( ( source, index ) => (
+							<li key={ source.key } className={ styles.total }>
+								<span className={ styles.label }>
+									<span
+										className={ styles.swatch }
+										style={ { background: seriesStyles[ index ]?.stroke } }
+										aria-hidden="true"
+									/>
+									{ source.label }
 								</span>
-							) }
-						</li>
-					) ) }
-				</ul>
-				<StackedAreaChart
-					className={ styles.chart }
-					series={ series }
-					dataFormat={ HEADLINE_COUNT_FORMAT }
-					tickResolution={ granularity }
-				/>
+								<MetricValue value={ source.total } dataFormat={ HEADLINE_COUNT_FORMAT } />
+								{ source.share !== null && (
+									<span className={ styles.share }>
+										{ sprintf(
+											/* translators: %s: a percentage, e.g. "12.5%". */
+											__( '%s of requests', 'jetpack-premium-analytics-pkg' ),
+											formatMetricValue( source.share, 'percentage', {
+												decimals: 1,
+												signDisplay: 'never',
+											} )
+										) }
+									</span>
+								) }
+							</li>
+						) ) }
+					</ul>
+					<StackedAreaChart
+						className={ styles.chart }
+						series={ series }
+						dataFormat={ HEADLINE_COUNT_FORMAT }
+						tickResolution={ granularity }
+					/>
+				</div>
 			</WidgetState>
 		</div>
 	);

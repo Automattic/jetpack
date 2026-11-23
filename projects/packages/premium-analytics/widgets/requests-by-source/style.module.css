@@ -2,12 +2,20 @@
 	container-type: inline-size;
 	display: flex;
 	flex-direction: column;
-	gap: var(--wpds-dimension-gap-lg);
 	height: 100%;
 	overflow: hidden;
 }
 
+.body {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-lg);
+	block-size: 100%;
+	min-block-size: 0;
+}
+
 .totals {
+	flex: 0 0 auto;
 	display: grid;
 	grid-template-columns: repeat(4, minmax(0, 1fr));
 	gap: var(--wpds-dimension-gap-md);
