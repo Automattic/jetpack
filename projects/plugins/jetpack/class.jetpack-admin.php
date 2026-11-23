@@ -155,7 +155,8 @@ class Jetpack_Admin {
 			)
 		) {
 			// Add in our legacy page to support old bookmarks and such.
-			add_submenu_page( '', __( 'CSS', 'jetpack' ), __( 'Additional CSS', 'jetpack' ), 'edit_theme_options', 'editcss', array( __CLASS__, 'customizer_redirect' ) );
+			$legacy_hook = add_submenu_page( '', __( 'CSS', 'jetpack' ), __( 'Additional CSS', 'jetpack' ), 'edit_theme_options', 'editcss', '__return_null' );
+			add_action( "load-{$legacy_hook}", array( __CLASS__, 'customizer_redirect' ) );
 
 			// Add in our new page slug that will redirect to the customizer.
 			$hook = add_theme_page( __( 'CSS', 'jetpack' ), __( 'Additional CSS', 'jetpack' ), 'edit_theme_options', 'editcss-customizer-redirect', array( __CLASS__, 'customizer_redirect' ) );
