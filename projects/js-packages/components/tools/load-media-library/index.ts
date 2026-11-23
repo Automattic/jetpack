@@ -56,12 +56,9 @@ const PAGE_GLOBALS: Record< string, () => unknown > = {
 };
 
 const isOnPage = ( node: HTMLElement ): boolean => {
-	if ( ! node.id ) {
-		return false;
-	}
-	const existing = document.getElementById( node.id );
-	// WordPress.com's CSS concatenation numbers its tags per print, so another stylesheet can reuse an id the page has.
-	if ( existing && node instanceof HTMLLinkElement ) {
+	const existing = node.id && document.getElementById( node.id );
+	// WordPress.com's CSS concatenation reuses ids like `all-css-0-1` for different files.
+	if ( node instanceof HTMLLinkElement ) {
 		return existing instanceof HTMLLinkElement && existing.href === node.href;
 	}
 	return Boolean( existing || PAGE_GLOBALS[ node.id ]?.() );
