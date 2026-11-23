@@ -112,7 +112,7 @@ const App = () => {
 		if ( isLoading || ! settings ) {
 			return;
 		}
-		recordDashboardView( {
+		return recordDashboardView( {
 			view: showWelcome ? 'welcome' : activeTab,
 			is_set_up: isSetUp,
 			settings_missing: getValidationIssues( settings ).length,

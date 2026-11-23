@@ -6,6 +6,7 @@ import { connect } from 'react-redux';
 import QuerySite from 'components/data/query-site';
 import { FeaturesPointer } from 'components/pointer-card';
 import {
+	areStatsSettingsMovedOut,
 	isSettingsConsolidationEnabled,
 	searchFindsGoogleAnalytics,
 } from 'lib/settings-consolidation';
@@ -117,7 +118,12 @@ export class Traffic extends Component {
 						} ) }
 					/>
 				) }
-				{ foundStats && <SiteStats { ...commonProps } /> }
+				{ foundStats &&
+					( this.props.statsSettingsMovedOut ? (
+						this.props.searchTerm && <SiteStats { ...commonProps } settingsOnStatsPage />
+					) : (
+						<SiteStats { ...commonProps } />
+					) ) }
 				{ foundAnalytics &&
 					( gaInPanel ? (
 						<GoogleAnalyticsMoved href={ gaPanelUrl } />
@@ -178,5 +184,6 @@ export default connect( state => {
 		hasConnectedOwner: hasConnectedOwner( state ),
 		blogID: getSiteId( state ),
 		siteUsesWpAdminInterface: siteUsesWpAdminInterface( state ),
+		statsSettingsMovedOut: areStatsSettingsMovedOut( state ),
 	};
 } )( Traffic );

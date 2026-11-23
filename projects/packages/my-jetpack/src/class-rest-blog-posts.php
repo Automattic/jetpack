@@ -88,18 +88,43 @@ class REST_Blog_Posts {
 
 			$enclosure = $item->get_enclosure();
 			$thumbnail = $enclosure ? esc_url_raw( (string) $enclosure->get_thumbnail() ) : '';
+			$excerpt   = self::parse_excerpt( (string) $item->get_description() );
 
 			$posts[] = array(
 				// The feed parser returns entity-encoded text; the client renders plain text.
-				'title'     => html_entity_decode( (string) $item->get_title(), ENT_QUOTES, 'UTF-8' ),
-				'link'      => $link,
-				'date'      => $item->get_date( 'c' ),
-				'excerpt'   => wp_trim_words( html_entity_decode( (string) $item->get_description(), ENT_QUOTES, 'UTF-8' ), 20, '…' ),
-				// Jetpack.com crops on request: 2x the 56px thumbnail in overview-blog-posts/style.module.scss.
-				'thumbnail' => '' === $thumbnail ? null : add_query_arg( 'resize', '112,112', $thumbnail ),
+				'title'                => html_entity_decode( (string) $item->get_title(), ENT_QUOTES, 'UTF-8' ),
+				'link'                 => $link,
+				'date'                 => $item->get_date( 'c' ),
+				'excerpt'              => $excerpt['text'],
+				'excerpt_is_automatic' => $excerpt['is_automatic'],
+				// Twice $thumbnail-width in overview-blog-posts/style.module.scss. `w` scales; `resize` would crop.
+				'thumbnail'            => '' === $thumbnail ? null : add_query_arg( 'w', 240, $thumbnail ),
 			);
 		}
 
 		return rest_ensure_response( $posts );
+	}
+
+	/**
+	 * Plain excerpt text, with the "[…]" WordPress appends to automatic excerpts reduced to one "…".
+	 *
+	 * @param string $description The feed item's description.
+	 * @return array{text: string, is_automatic: bool}
+	 */
+	private static function parse_excerpt( $description ) {
+		$text = html_entity_decode( wp_strip_all_tags( $description ), ENT_QUOTES, 'UTF-8' );
+		$text = preg_replace( '/\[(?:…|\.\.\.)\][\s\x{00A0}]*$/u', '', $text, 1, $count );
+		// Byte-wise trim() would also eat the \xA0 ending characters such as "à".
+		$text = (string) preg_replace( '/^[\s\x{00A0}]+|[\s\x{00A0}]+$/u', '', (string) $text );
+
+		// The card's line clamp adds an ellipsis only when the text overflows.
+		if ( $count > 0 && ! preg_match( '/[.!?…]$/u', $text ) ) {
+			$text .= '…';
+		}
+
+		return array(
+			'text'         => $text,
+			'is_automatic' => $count > 0,
+		);
 	}
 }

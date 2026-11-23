@@ -46,9 +46,26 @@ if [ ! -f /var/www/html/wp-config.php ]; then
 
 	# Respecting Dockerfile-forwarded environment variables
 	# Allow to be reverse-proxied from https
-	wp config set "_SERVER['HTTPS']" "isset( \$_SERVER['HTTP_X_FORWARDED_PROTO'] ) && \$_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https' ? 'on' : NULL" \
-		--raw \
-		--type=variable
+	# Can't use `wp config set` for this anymore since https://github.com/wp-cli/wp-config-transformer/pull/69, sigh.
+	perl -i -pwe '
+		BEGIN {
+			$found = 0;
+			$k = shift;
+			$v = shift;
+		}
+		if ( ! $found && m#^/\* That\x27s all, stop editing!# ) {
+			$found = 1;
+			print "\$$k = $v;\n";
+		}
+		END {
+			if ( $found ) {
+				print STDERR "Success: Added the variable \x27$k\x27 to the \x27wp-config.php\x27 file with raw value \x27$v\x27\n";
+			} else {
+				print STDERR "Error: Could not find insertion point to assign variable \x27$k\x27\n";
+				exit 1;
+			}
+		}
+	' "_SERVER['HTTPS']" "isset( \$_SERVER['HTTP_X_FORWARDED_PROTO'] ) && \$_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https' ? 'on' : NULL" /var/www/html/wp-config.php
 
 	# Allow this installation to run on http or https.
 	wp config set DOCKER_REQUEST_URL \

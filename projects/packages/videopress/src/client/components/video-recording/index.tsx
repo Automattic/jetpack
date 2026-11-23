@@ -8,6 +8,7 @@ const RecordingModal = lazy( () => import( /* webpackChunkName: "video-recording
 type Props = {
 	onRecorded: ( file: File ) => void;
 	disabled?: boolean;
+	size?: 'default' | 'compact';
 	__next40pxDefaultSize?: boolean;
 };
 
@@ -17,12 +18,14 @@ type Props = {
  * @param props                       - Standard-upload handoff and availability.
  * @param props.onRecorded            - Standard-upload handoff.
  * @param props.disabled              - Whether the upload surface is unavailable.
+ * @param props.size                  - Button size; `compact` matches the 32px dashboard header actions.
  * @param props.__next40pxDefaultSize - Match the 40px default used by editor buttons.
  * @return Recording trigger and modal.
  */
 export default function RecordVideoButton( {
 	onRecorded,
 	disabled = false,
+	size = 'default',
 	__next40pxDefaultSize = false,
 }: Props ) {
 	const [ open, setOpen ] = useState( false );
@@ -30,6 +33,7 @@ export default function RecordVideoButton( {
 		<>
 			<Button
 				__next40pxDefaultSize={ __next40pxDefaultSize }
+				size={ size }
 				variant="secondary"
 				icon={ <RecordIcon /> }
 				disabled={ disabled }

@@ -13,13 +13,13 @@ class FakeXHR {
 	}
 }
 
-const respond = styles => {
+const respond = ( styles, extra = {} ) => {
 	const scroller = window.infiniteScroll.scroller;
 	scroller.ready = true;
 	scroller.refresh();
 	const xhr = sentRequests[ sentRequests.length - 1 ];
 	xhr.status = 200;
-	xhr.responseText = JSON.stringify( { type: 'success', html: '', styles } );
+	xhr.responseText = JSON.stringify( { type: 'success', html: '', styles, ...extra } );
 	xhr.onload();
 };
 
@@ -129,5 +129,16 @@ describe( 'Infinite Scroll response styles', () => {
 		expect( links[ 0 ].media ).toBe( 'print' );
 		expect( window.infiniteScroll.settings.styles ).toContain( 'is-filtered' );
 		expect( window.infiniteScroll.settings.styles ).not.toContain( 'is-ie-only' );
+	} );
+
+	test( 'adds duotone SVG filters whose IDs are not on the page yet', () => {
+		const svg = id => `<svg width="0" height="0"><defs><filter id="${ id }"></filter></defs></svg>`;
+		document.body.insertAdjacentHTML( 'beforeend', svg( 'wp-duotone-on-page' ) );
+
+		respond( [], { svg_filters: svg( 'wp-duotone-on-page' ) + svg( 'wp-duotone-new' ) } );
+		respond( [], { svg_filters: svg( 'wp-duotone-new' ) } );
+
+		expect( document.querySelectorAll( '#wp-duotone-on-page' ) ).toHaveLength( 1 );
+		expect( document.querySelectorAll( 'svg #wp-duotone-new' ) ).toHaveLength( 1 );
 	} );
 } );

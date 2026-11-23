@@ -16,6 +16,12 @@ declare module '@automattic/jetpack-script-data' {
 			// The single-report pages the reader may open, as `routes/single-report/registry.ts` reads them. Absent until the page registry is hydrated.
 			single_report_pages?: Array< {
 				id: string;
+				// The core-data entity the page is about. Absent from servers that predate the binding, null when the page names none.
+				entity?: {
+					kind: string;
+					name: string;
+					key?: string;
+				} | null;
 				path: string;
 				label: string;
 				dashboard_section: string | null;
@@ -97,8 +103,12 @@ declare module '@automattic/jetpack-script-data' {
 			};
 			// URL of the dashboard's copied `build/images/` directory, with a trailing slash. Dashboard only.
 			assets_url?: string;
+			// Whether the dashboard reports its errors, the package version sent with them, and the URL prefixes that mark a stack frame as dashboard code. Dashboard only.
+			error_reporting?: { enabled: boolean; version: string; script_origins: string[] };
 			// The Stats purchase this page load returned from checkout with; absent on every other load.
 			purchase_success?: { type: 'paid' | 'free' };
+			// Whether the dashboard mounts the What's new surface; a feature flag decides it for now.
+			whats_new_enabled?: boolean;
 		};
 		newsletter?: {
 			// The Newsletter page's Subscribers tab; null when this user cannot open it.

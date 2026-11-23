@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Media Library: Fix bulk-deleting many videos timing out; deletion now shows progress and lists any item that could not be deleted.

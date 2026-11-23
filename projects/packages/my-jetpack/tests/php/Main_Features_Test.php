@@ -3,6 +3,7 @@
 namespace Automattic\Jetpack\My_Jetpack;
 
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Status\Cache as StatusCache;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
@@ -210,6 +211,25 @@ class Main_Features_Test extends TestCase {
 		sort( $slugs );
 
 		$this->assertSame( array( 'activity-log', 'backup', 'jetpack-ai', 'newsletter', 'social' ), $slugs );
+	}
+
+	/**
+	 * @dataProvider provide_local_flags
+	 * @param bool $local Whether the catalog is built for offline Features.
+	 */
+	#[DataProvider( 'provide_local_flags' )]
+	public function test_forms_names_its_cloud_parts_only_offline( $local ) {
+		$forms = array_column( Main_Features::get_features( $local ), 'long_description', 'slug' )['jetpack-forms'];
+
+		$this->assertSame( $local, str_contains( $forms, 'need a WordPress.com connection' ) );
+		$this->assertSame( ! $local, str_contains( $forms, 'Upgrade' ) );
+	}
+
+	public static function provide_local_flags() {
+		return array(
+			'offline' => array( true ),
+			'online'  => array( false ),
+		);
 	}
 
 	/**
@@ -671,6 +691,64 @@ class Main_Features_Test extends TestCase {
 	}
 
 	/**
+	 * A product's purchase link follows its feature's host URL, asked for from the Overview once per
+	 * description; a bundle's never does.
+	 *
+	 * @dataProvider provide_host_upgrade_urls
+	 *
+	 * @param string[]    $owned       The products the site pays for.
+	 * @param string      $url         The URL the host sends.
+	 * @param string|null $feature_url The URL the feature carries, or null or empty for none.
+	 */
+	#[DataProvider( 'provide_host_upgrade_urls' )]
+	public function test_host_purchase_url_for_a_product( $owned, $url, $feature_url ) {
+		$this->own( $owned );
+		$asked        = array();
+		$send_to_host = static function ( $upgrade, $slug ) use ( $url, &$asked ) {
+			$asked[ $slug ][] = $upgrade['back_url'] ?? null;
+			return array_merge( $upgrade, array( 'url' => $url ) );
+		};
+		add_filter( 'jetpack_feature_upgrade', $send_to_host, 10, 2 );
+
+		$info       = Products\Backup::get_wpcom_info();
+		$bundle_url = Products\Complete::get_purchase_url();
+		$asked_once = $asked;
+		$later_url  = Products\Backup::get_purchase_url();
+		remove_filter( 'jetpack_feature_upgrade', $send_to_host, 10 );
+
+		$expected = $feature_url ? $feature_url : null;
+		$this->assertSame( $expected, $info['purchase_url'] );
+		$this->assertSame( $expected, $info['host_purchase_url'] );
+		$this->assertNull( $bundle_url );
+		$this->assertSame( array( 'backup' => array( admin_url( 'admin.php?page=my-jetpack' ) ) ), $asked_once );
+		$this->assertSame( $expected, $later_url );
+		$this->assertCount( 2, $asked['backup'] ?? array() );
+	}
+
+	/**
+	 * The info every page load builds says a host may sell a product without asking the host.
+	 */
+	public function test_static_product_info_flags_a_listening_host_without_asking_it() {
+		$asked = 0;
+		$spy   = static function ( $upgrade ) use ( &$asked ) {
+			++$asked;
+			return $upgrade;
+		};
+
+		$unheard = Products\Backup::get_info();
+		add_filter( 'jetpack_feature_upgrade', $spy );
+		$product = Products\Backup::get_info();
+		$bundle  = Products\Complete::get_info();
+		remove_filter( 'jetpack_feature_upgrade', $spy );
+
+		$this->assertSame( 0, $asked );
+		$this->assertArrayNotHasKey( 'host_purchase_url', $product );
+		$this->assertTrue( $product['host_may_sell'] );
+		$this->assertFalse( $bundle['host_may_sell'] );
+		$this->assertFalse( $unheard['host_may_sell'] );
+	}
+
+	/**
 	 * A host is told the link is on My Jetpack's Features tab, and that address stays out of the feature's data.
 	 */
 	public function test_upgrade_filter_gets_the_features_tab_as_back_url() {
@@ -824,6 +902,54 @@ class Main_Features_Test extends TestCase {
 		$upgrades = array_column( Main_Features::get_features(), 'upgrade', 'slug' );
 
 		$this->assertSame( '', $upgrades['activity-log']['path'] );
+	}
+
+	/**
+	 * Whether the site is on WordPress.com Atomic, the site feature it has, the feature card, and whether the plan includes it.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_wpcom_site_features() {
+		return array(
+			'Atomic plan with podcasting'                  => array( true, 'podcasting', 'podcast', true ),
+			'self-hosted, where every site has podcasting' => array( false, 'podcasting', 'podcast', false ),
+			'Atomic plan with file uploads'                => array( true, 'field-file', 'jetpack-forms', true ),
+		);
+	}
+
+	/**
+	 * A WordPress.com plan includes a feature when its site features grant it.
+	 *
+	 * @dataProvider provide_wpcom_site_features
+	 *
+	 * @param bool   $is_atomic    Whether the site is on WordPress.com Atomic.
+	 * @param string $site_feature The site feature WordPress.com reports as active.
+	 * @param string $slug         The feature card.
+	 * @param bool   $expected     Whether the card counts as included in the plan.
+	 */
+	#[DataProvider( 'provide_wpcom_site_features' )]
+	public function test_included_follows_the_site_features_of_a_wpcom_plan( $is_atomic, $site_feature, $slug, $expected ) {
+		if ( $is_atomic ) {
+			Constants::set_constant( 'ATOMIC_SITE_ID', 123 );
+			Constants::set_constant( 'ATOMIC_CLIENT_ID', 123 );
+			Constants::set_constant( 'WPCOMSH__PLUGIN_FILE', '/tmp/wpcomsh/wpcomsh.php' );
+		}
+		StatusCache::clear();
+		// Definitions are memoized per locale, so a locale nothing else uses gets a fresh build.
+		$locale = static function () use ( $is_atomic ) {
+			return 'wpcom_site_features_' . ( $is_atomic ? 'atomic' : 'self_hosted' );
+		};
+		add_filter( 'locale', $locale );
+		set_transient( Product::MY_JETPACK_SITE_FEATURES_TRANSIENT_KEY, array( 'active' => array( $site_feature ) ), HOUR_IN_SECONDS );
+
+		$included = array_column( Main_Features::get_features(), 'included', 'slug' );
+
+		remove_filter( 'locale', $locale );
+		Constants::clear_single_constant( 'ATOMIC_SITE_ID' );
+		Constants::clear_single_constant( 'ATOMIC_CLIENT_ID' );
+		Constants::clear_single_constant( 'WPCOMSH__PLUGIN_FILE' );
+		StatusCache::clear();
+		$this->assertSame( $expected, $included[ $slug ] );
 	}
 
 	/**

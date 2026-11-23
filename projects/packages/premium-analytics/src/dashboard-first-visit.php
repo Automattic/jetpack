@@ -33,10 +33,19 @@ function configure_dashboard_first_visit() {
  * @return void
  */
 function record_dashboard_first_visit() {
-	if ( ! Analytics::is_dashboard_request() ) {
-		return;
+	if ( Analytics::is_dashboard_request() ) {
+		store_dashboard_first_visit();
 	}
+}
 
+/**
+ * Stores the current time as the first dashboard load, unless one is already stored.
+ *
+ * @since 0.19.0
+ *
+ * @return void
+ */
+function store_dashboard_first_visit() {
 	// add_option() is a no-op once the option exists.
 	add_option( DASHBOARD_FIRST_VISIT_OPTION, time(), '', false );
 }

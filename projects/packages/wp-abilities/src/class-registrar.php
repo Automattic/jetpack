@@ -21,7 +21,7 @@ namespace Automattic\Jetpack\WP_Abilities;
  */
 abstract class Registrar {
 
-	const PACKAGE_VERSION = '0.2.2';
+	const PACKAGE_VERSION = '0.3.0';
 
 	/**
 	 * Action fired by the Abilities API when ability categories should register.
@@ -63,10 +63,9 @@ abstract class Registrar {
 	/**
 	 * Wire up the Abilities API registrations.
 	 *
-	 * Gated behind the `jetpack_wp_abilities_enabled` filter, which defaults
-	 * to `false`. Consumers opt in explicitly — per site, per user, or via
-	 * feature flag — so abilities roll out gradually rather than flipping on
-	 * for every site the moment the package loads.
+	 * Gated behind the `jetpack_wp_abilities_enabled` filter, whose default
+	 * comes from `enabled_by_default()`. Return `false` from it to turn
+	 * registration off for a site or a single request.
 	 *
 	 * When the filter returns `true`, each registration method runs inside its
 	 * lifecycle action: right away if `init()` is called while that action
@@ -80,15 +79,15 @@ abstract class Registrar {
 		/**
 		 * Filters whether Jetpack Abilities API registration should run.
 		 *
-		 * Default `false`. Return `true` to enable registration for this
-		 * request, typically gated on a site option, user capability, or
-		 * feature flag to support staged rollout.
+		 * Return `false` to skip registration for this request, for
+		 * example to turn Jetpack's abilities off on a site.
 		 *
 		 * @since 0.1.0
+		 * @since 0.3.0 Defaults to the registrar's `enabled_by_default()`.
 		 *
-		 * @param bool $enabled Whether to register abilities. Default false.
+		 * @param bool $enabled Whether to register abilities. Default is the registrar's `enabled_by_default()`.
 		 */
-		if ( ! apply_filters( 'jetpack_wp_abilities_enabled', false ) ) {
+		if ( ! apply_filters( 'jetpack_wp_abilities_enabled', static::enabled_by_default() ) ) {
 			return;
 		}
 
@@ -103,6 +102,19 @@ abstract class Registrar {
 		} else {
 			add_action( self::ABILITIES_INIT_ACTION, array( static::class, 'register_abilities' ) );
 		}
+	}
+
+	/**
+	 * Whether this registrar's abilities register when nothing filters `jetpack_wp_abilities_enabled`.
+	 *
+	 * The newest copy of this class loads for every plugin on a site, so the
+	 * default belongs to each registrar: a registrar from an older plugin
+	 * release doesn't override this and stays off.
+	 *
+	 * @return bool
+	 */
+	protected static function enabled_by_default(): bool {
+		return false;
 	}
 
 	/**
@@ -135,7 +147,8 @@ abstract class Registrar {
 	 * WordPress accepts an ability. Each ability slug is passed through the
 	 * `jetpack_wp_abilities_should_register` filter individually, so
 	 * consumers can enable a subset of abilities on a subset of sites or
-	 * users.
+	 * users. An ability whose category isn't registered
+	 * is skipped, since WordPress would reject it.
 	 *
 	 * @return void
 	 */
@@ -152,6 +165,10 @@ abstract class Registrar {
 			}
 			if ( ! array_key_exists( 'category', $spec ) ) {
 				$spec['category'] = $category_slug;
+			}
+			// For example a category the should-register filter blocked, or `site` in core's own tests, which unhook it.
+			if ( function_exists( 'wp_has_ability_category' ) && ! wp_has_ability_category( $spec['category'] ) ) {
+				continue;
 			}
 			wp_register_ability( $slug, $spec );
 		}

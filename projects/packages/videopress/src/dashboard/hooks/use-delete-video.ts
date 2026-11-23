@@ -22,9 +22,41 @@ export class DeleteVideosError extends Error {
 	}
 }
 
+// Each VideoPress delete waits on WordPress.com, so a large selection fired at once exhausts PHP workers.
+const MAX_PARALLEL_DELETES = 3;
+
+/**
+ * Like Promise.allSettled over `items.map( run )`, with at most `limit` calls in flight.
+ *
+ * @param items - Inputs, in order.
+ * @param limit - Maximum concurrent calls.
+ * @param run   - Starts the work for one input.
+ * @return Settled results, in input order.
+ */
+async function settleWithLimit< T, R >(
+	items: T[],
+	limit: number,
+	run: ( item: T ) => Promise< R >
+): Promise< PromiseSettledResult< R >[] > {
+	const results: PromiseSettledResult< R >[] = new Array( items.length );
+	let next = 0;
+	const worker = async () => {
+		while ( next < items.length ) {
+			const index = next++;
+			try {
+				results[ index ] = { status: 'fulfilled', value: await run( items[ index ] ) };
+			} catch ( reason ) {
+				results[ index ] = { status: 'rejected', reason };
+			}
+		}
+	};
+	await Promise.all( Array.from( { length: Math.min( limit, items.length ) }, worker ) );
+	return results;
+}
+
 /**
  * Return a mutation that permanently deletes one or more videos via DELETE
- * /wp/v2/media/{id}?force=true. Requests run in parallel; if any fail the
+ * /wp/v2/media/{id}?force=true, a few at a time; if any fail the
  * mutation rejects with a DeleteVideosError listing the failed ids (the rest
  * stay deleted). The library cache is invalidated on settle — success and
  * partial failure both change the listing — and the invalidation promise is
@@ -46,13 +78,11 @@ export function useDeleteVideo() {
 				...new Map( input.map( ( { id, type } ) => [ id, { id, type } ] ) ).values(),
 			];
 			const ids = items.map( item => item.id );
-			const results = await Promise.allSettled(
-				ids.map( id =>
-					apiFetch< { deleted?: boolean } >( {
-						path: `/wp/v2/media/${ id }?force=true`,
-						method: 'DELETE',
-					} )
-				)
+			const results = await settleWithLimit( ids, MAX_PARALLEL_DELETES, id =>
+				apiFetch< { deleted?: boolean } >( {
+					path: `/wp/v2/media/${ id }?force=true`,
+					method: 'DELETE',
+				} )
 			);
 			const count = items.filter( ( item, index ) => {
 				const result = results[ index ];

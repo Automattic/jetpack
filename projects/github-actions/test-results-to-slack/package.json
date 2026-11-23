@@ -23,7 +23,8 @@
 		"@actions/github": "9.1.1",
 		"@slack/web-api": "7.15.1",
 		"glob": "14.0.2",
-		"minimatch": "11.0.3"
+		"minimatch": "11.0.3",
+		"xml2js": "0.6.2"
 	},
 	"devDependencies": {
 		"jest": "30.5.2",

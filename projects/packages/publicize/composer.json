@@ -15,6 +15,7 @@
 		"automattic/jetpack-plans": "@dev",
 		"automattic/jetpack-post-media": "@dev",
 		"automattic/jetpack-status": "@dev",
+		"automattic/jetpack-wp-abilities": "@dev",
 		"automattic/jetpack-wp-build-polyfills": "@dev"
 	},
 	"require-dev": {
@@ -75,7 +76,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-publicize/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-trunk": "0.89.x-dev"
+			"dev-trunk": "0.90.x-dev"
 		}
 	},
 	"config": {

@@ -1009,6 +1009,41 @@ class Jetpack_REST_API_endpoints_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Switching the site language to English answers like any other setting, whether
+	 * or not a language was set, and still saves the settings sent with it.
+	 *
+	 * @return void
+	 */
+	public function test_settings_lang_id_en_us_returns_the_settings_response() {
+		$user = $this->create_and_get_user( 'administrator' );
+		$user->add_cap( 'jetpack_configure_modules' );
+		if ( is_multisite() ) {
+			// Only super admins can install languages on multisite.
+			grant_super_admin( $user->ID );
+		}
+		wp_set_current_user( $user->ID );
+
+		foreach ( array( 'fr_FR', '' ) as $current ) {
+			update_option( 'WPLANG', $current );
+			update_option( 'jetpack_portfolio', 0 );
+
+			$response = $this->create_and_get_request(
+				'settings',
+				array(
+					'lang_id'           => 'en_US',
+					'jetpack_portfolio' => true,
+				),
+				'POST'
+			);
+
+			$this->assertResponseStatus( 200, $response );
+			$this->assertSame( 'success', $response->get_data()['code'], $current );
+			$this->assertSame( '', get_option( 'WPLANG', '' ), $current );
+			$this->assertSame( '1', (string) get_option( 'jetpack_portfolio' ), $current );
+		}
+	}
+
+	/**
 	 * Regression for NL-618: re-posting newsletter categories with the same selection the option
 	 * already holds must return 200, not a `some_updated` 400. The previous code left `$updated`
 	 * false on the "values equal" short-circuit, so any save without an actual change blew up.
@@ -1662,16 +1697,23 @@ class Jetpack_REST_API_endpoints_Test extends WP_UnitTestCase {
 	 * Register a subscription service that reports a valid subscriber token, so
 	 * set_subscriber_cookie_and_redirect() reaches its redirect logic without a
 	 * live Jetpack connection. Filter is removed automatically at tear_down.
+	 *
+	 * @param string|null $token The token found on the request. Null means none.
 	 */
-	private function mock_valid_subscriber_token() {
+	private function mock_valid_subscriber_token( $token = 'valid-token' ) {
 		require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/premium-content/_inc/subscription-service/include.php';
 
 		add_filter(
 			'earn_premium_content_subscription_service',
-			static function () {
-				return new class() extends \Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Jetpack_Token_Subscription_Service {
+			function () use ( $token ) {
+				return new class( $token ) extends \Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Jetpack_Token_Subscription_Service {
+					private $token;
+					public function __construct( $token ) {
+						parent::__construct();
+						$this->token = $token;
+					}
 					public function get_and_set_token_from_request() {
-						return 'valid-token';
+						return $this->token;
 					}
 					public function decode_token( $token ) {
 						return 'valid-token' === $token
@@ -1797,5 +1839,41 @@ class Jetpack_REST_API_endpoints_Test extends WP_UnitTestCase {
 		$this->assertSame( 'invalid-token', $response->get_error_code() );
 		$error_data = $response->get_error_data();
 		$this->assertSame( 403, $error_data['status'], 'An invalid token must surface as an HTTP 403.' );
+	}
+
+	/**
+	 * A silent paywall check that comes back without a token returns the visitor to the post.
+	 */
+	public function test_subscriber_auth_silent_without_token_redirects_back() {
+		$this->load_rest_endpoints_direct();
+		$this->mock_valid_subscriber_token( null );
+
+		$redirect_url = home_url( '/?p=123&jp_sub_check=1' );
+		$request      = new WP_REST_Request( 'GET', '/jetpack/v4/subscribers/auth' );
+		$request->set_param( 'redirect_url', $redirect_url );
+		$request->set_param( 'silent', true );
+
+		$response = Jetpack_Core_Json_Api_Endpoints::set_subscriber_cookie_and_redirect( $request );
+
+		$this->assertInstanceOf( 'WP_REST_Response', $response, 'A silent check without a token must not fail.' );
+		$this->assertSame( 302, $response->get_status() );
+		$this->assertSame( $redirect_url, $response->get_headers()['location'] );
+	}
+
+	/**
+	 * A silent check without a token still never redirects to another host.
+	 */
+	public function test_subscriber_auth_silent_without_token_rejects_external_redirect() {
+		$this->load_rest_endpoints_direct();
+		$this->mock_valid_subscriber_token( null );
+
+		$request = new WP_REST_Request( 'GET', '/jetpack/v4/subscribers/auth' );
+		$request->set_param( 'redirect_url', 'https://attacker.example/phishing' );
+		$request->set_param( 'silent', true );
+
+		$response = Jetpack_Core_Json_Api_Endpoints::set_subscriber_cookie_and_redirect( $request );
+
+		$this->assertInstanceOf( 'WP_Error', $response );
+		$this->assertSame( 'invalid-redirect', $response->get_error_code() );
 	}
 } // class end

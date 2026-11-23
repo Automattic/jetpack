@@ -1,0 +1,3 @@
+Significance: patch
+Type: changed
+Comment: Add a test that the Jetpack AI page hooks the Scheduled tasks flag filter.

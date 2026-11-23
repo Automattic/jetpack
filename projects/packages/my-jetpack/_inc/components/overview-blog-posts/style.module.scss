@@ -1,16 +1,95 @@
+@use "@wordpress/base-styles/breakpoints";
+
+$thumbnail-width: 120px;
+$thumbnail-width-narrow: 96px;
+
 .list {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-sm);
 	margin: 0;
 	padding: 0;
 	list-style: none;
 }
 
+// The title link stretches over the row: one link, the whole row clickable.
+.post {
+	position: relative;
+	display: flex;
+	align-items: flex-start;
+	gap: var(--wpds-dimension-gap-md);
+	// The negative margin keeps the text aligned with the section heading.
+	margin-inline: calc(-1 * var(--wpds-dimension-padding-sm));
+	padding: var(--wpds-dimension-padding-sm);
+	border-radius: var(--wpds-border-radius-md);
+
+	&:hover {
+		background-color: var(--wpds-color-background-interactive-neutral-weak-active);
+
+		.link {
+			text-decoration: underline;
+		}
+	}
+
+	&:has(.link:focus-visible) {
+		outline: var(--wpds-border-width-focus) solid var(--wpds-color-stroke-focus);
+		outline-offset: 0;
+	}
+}
+
+.link {
+
+	&::after {
+		content: "";
+		position: absolute;
+		inset: 0;
+	}
+
+	// The row draws the focus ring instead.
+	&:focus,
+	&:focus-visible {
+		outline: none;
+	}
+}
+
 .thumbnail {
 	flex-shrink: 0;
-	// Half the 112px crop REST_Blog_Posts asks Jetpack.com for.
-	inline-size: 56px;
-	block-size: 56px;
+	inline-size: $thumbnail-width;
+	aspect-ratio: 16 / 9;
 	object-fit: cover;
 	border-radius: var(--wpds-border-radius-md);
+
+	@media (max-width: breakpoints.$break-small) {
+		inline-size: $thumbnail-width-narrow;
+	}
+}
+
+.thumbnail--empty {
+	background-color: var(--jp-green);
+}
+
+.text {
+	min-inline-size: 0;
+}
+
+.title,
+.excerpt {
+	display: -webkit-box;
+	-webkit-box-orient: vertical;
+	-webkit-line-clamp: 2;
+	overflow: hidden;
+}
+
+.title {
+	line-height: var(--wpds-typography-line-height-sm);
+}
+
+.excerpt {
+	-webkit-line-clamp: 3;
+}
+
+.excerpt--automatic {
+	-webkit-line-clamp: 2;
 }
 
 .muted {
