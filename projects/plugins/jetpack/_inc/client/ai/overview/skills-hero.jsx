@@ -130,7 +130,7 @@ export default function SkillsHero( { isMcpEnabled = true, onOpenSettings, befor
 					centered
 					// Concrete asks sell the idea faster than "skills" does.
 					description={ __(
-						'Connect Claude, ChatGPT, or another agent once. Then ask it to write a post, fix your SEO, or speed up your site.',
+						'Connect ChatGPT, Claude, or another agent once. Then ask it to write a post, fix your SEO, or speed up your site.',
 						'jetpack'
 					) }
 				/>

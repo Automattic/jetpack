@@ -442,7 +442,7 @@ describe( 'AiOverview', () => {
 		const card = screen.getByRole( 'region', { name: 'Connect your AI agent' } );
 		expect(
 			within( card ).getByText(
-				'Manage your site by chatting with Claude, ChatGPT, or another agent.'
+				'Manage your site by chatting with ChatGPT, Claude, or another agent.'
 			)
 		).toBeInTheDocument();
 		expect( within( card ).getByRole( 'link', { name: 'Other agents' } ) ).toBeInTheDocument();

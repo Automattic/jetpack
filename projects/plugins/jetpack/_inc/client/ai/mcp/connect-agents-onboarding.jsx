@@ -155,7 +155,7 @@ export default function McpConnectAgents( props ) {
 				<ConnectAgentsActions
 					{ ...props }
 					description={ __(
-						'Manage your site by chatting with Claude, ChatGPT, or another agent.',
+						'Manage your site by chatting with ChatGPT, Claude, or another agent.',
 						'jetpack'
 					) }
 				/>
