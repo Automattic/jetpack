@@ -150,6 +150,7 @@ class Initial_State {
 			'features'               => array(
 				'chaptersEditor' => Admin_UI::is_chapters_editor_enabled(),
 				'trimCut'        => Admin_UI::is_trim_cut_enabled(),
+				'whatsNew'       => Whats_New::is_enabled(),
 			),
 			// Authoritative map of accepted upload types (extension => mimetype),
 			// so the dashboard's drag-and-drop filter accepts exactly what the
