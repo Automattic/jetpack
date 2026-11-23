@@ -99,8 +99,10 @@ function configure_promos() {
 		)
 	);
 
-	require_once __DIR__ . '/promo-fixture.php';
-	configure_promo_fixtures();
+	if ( file_exists( __DIR__ . '/promo-fixture.php' ) ) {
+		require_once __DIR__ . '/promo-fixture.php';
+		configure_promo_fixtures();
+	}
 
 	add_filter( 'jetpack_admin_js_script_data', __NAMESPACE__ . '\\inject_promos_script_data', 20 );
 	add_filter( 'jetpack-premium-analytics-wp-admin_boot_dependencies', __NAMESPACE__ . '\\add_promo_modules_to_boot_deps' );
