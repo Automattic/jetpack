@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\PremiumAnalytics;
 
+use Automattic\Jetpack\Modules;
 use Automattic\Woocommerce_Analytics;
 
 /**
@@ -30,6 +31,10 @@ class WooCommerce_Analytics_Tracker {
 	 * them while localizing `window.wcAnalytics` at `wp_footer`.
 	 */
 	public static function bootstrap() {
+		if ( ! self::is_allowed_by_module() ) {
+			return;
+		}
+
 		add_filter( 'woocommerce_analytics_clickhouse_enabled', '__return_true' );
 		add_filter( 'woocommerce_analytics_experimental_proxy_tracking_enabled', '__return_true' );
 
@@ -38,5 +43,20 @@ class WooCommerce_Analytics_Tracker {
 		if ( class_exists( Woocommerce_Analytics::class ) ) {
 			Woocommerce_Analytics::init();
 		}
+	}
+
+	/**
+	 * Whether the Jetpack WooCommerce Analytics module, where it governs tracking, is on.
+	 *
+	 * Only the Jetpack plugin ships the module, and it stops governing once WooCommerce core loads the package (`WC_ANALYTICS`).
+	 *
+	 * @return bool
+	 */
+	private static function is_allowed_by_module() {
+		if ( ! class_exists( 'Jetpack' ) || defined( 'WC_ANALYTICS' ) ) {
+			return true;
+		}
+
+		return ( new Modules() )->is_active( 'woocommerce-analytics' );
 	}
 }

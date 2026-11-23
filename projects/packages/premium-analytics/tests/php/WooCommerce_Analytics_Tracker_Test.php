@@ -9,6 +9,9 @@ namespace Automattic\Jetpack\PremiumAnalytics;
 
 use PHPUnit\Framework\Attributes\After;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -40,6 +43,48 @@ class WooCommerce_Analytics_Tracker_Test extends TestCase {
 
 		$this->assertTrue( apply_filters( 'woocommerce_analytics_clickhouse_enabled', false ) );
 		$this->assertTrue( apply_filters( 'woocommerce_analytics_experimental_proxy_tracking_enabled', false ) );
+	}
+
+	/**
+	 * Runs in its own process, since the `Jetpack` stub and `WC_ANALYTICS` cannot be undefined.
+	 *
+	 * @param bool $module_active        Whether the woocommerce-analytics module is on.
+	 * @param bool $wc_analytics_defined Whether WooCommerce core loads the package itself.
+	 * @param bool $expected             Whether the modern pipeline is turned on.
+	 * @dataProvider provide_jetpack_module_states
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[DataProvider( 'provide_jetpack_module_states' )]
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_bootstrap_follows_the_jetpack_module( $module_active, $wc_analytics_defined, $expected ) {
+		class_alias( \stdClass::class, 'Jetpack' );
+		if ( $wc_analytics_defined ) {
+			define( 'WC_ANALYTICS', true );
+		}
+		add_filter(
+			'jetpack_active_modules',
+			static function ( $modules ) use ( $module_active ) {
+				return $module_active ? array_merge( $modules, array( 'woocommerce-analytics' ) ) : $modules;
+			}
+		);
+
+		WooCommerce_Analytics_Tracker::bootstrap();
+
+		$this->assertSame( $expected, apply_filters( 'woocommerce_analytics_clickhouse_enabled', false ) );
+		$this->assertSame( $expected, apply_filters( 'woocommerce_analytics_experimental_proxy_tracking_enabled', false ) );
+	}
+
+	/**
+	 * @return array<string, array{bool, bool, bool}>
+	 */
+	public static function provide_jetpack_module_states() {
+		return array(
+			'module off'                         => array( false, false, false ),
+			'module on'                          => array( true, false, true ),
+			'WooCommerce core loads the package' => array( false, true, true ),
+		);
 	}
 
 	public function test_bootstrap_is_safe_to_run_twice() {
