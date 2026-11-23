@@ -22,6 +22,11 @@ import { StackedAreaChart } from '@jetpack-premium-analytics/widgets-toolkit';
 `series` is ordered bottom of the stack first. Give a series `options.stroke` to fix its color;
 the rest come from the chart theme. It must be rendered inside a `GlobalChartsProvider`.
 
+## Outlined parts
+
+Each part is drawn as an outline over a light fill of the same color, rather than the library's
+near-opaque default, so a stack reads like the dashboard's line charts.
+
 ## No legend
 
 The chart draws no legend. A stack has few, fixed parts, so the widget names them beside their
