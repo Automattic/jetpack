@@ -104,6 +104,17 @@ describe( 'loadMediaLibrary', () => {
 		expect( global.fetch ).toHaveBeenCalledTimes( 1 );
 	} );
 
+	it( 'adds a stylesheet whose id the page already uses for a different file', async () => {
+		document.head.innerHTML = '<link rel="stylesheet" id="all-css-0-1" href="/_static/??/a.css" />';
+		respondWith(
+			`<link rel="stylesheet" id="all-css-0-1" href="/_static/??/media-views.css" />${ MEDIA_VIEWS }${ TEMPLATES }`
+		);
+
+		await loadMediaLibrary();
+
+		expect( document.querySelectorAll( 'link[href$="media-views.css"]' ) ).toHaveLength( 1 );
+	} );
+
 	it( "keeps the page's jQuery when the page loaded it with no id", async () => {
 		const pageJQuery = () => {};
 		window.jQuery = pageJQuery;
