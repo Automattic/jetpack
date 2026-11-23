@@ -7,8 +7,13 @@ import PromoCards from '../promo-cards';
 import type { OverviewState } from '../state';
 
 const mockState = jest.fn< OverviewState, [] >();
+let mockSimple = false;
 
 jest.mock( '@wordpress/api-fetch', () => ( { __esModule: true, default: jest.fn() } ) );
+jest.mock( '@automattic/jetpack-script-data', () => ( {
+	isSimpleSite: () => mockSimple,
+	isWpcomPlatformSite: () => mockSimple,
+} ) );
 jest.mock( '../state', () => ( { getOverviewState: () => mockState() } ) );
 jest.mock( '../../../data/state', () => ( {
 	getPageData: () => ( { upgradeUrl: 'https://example.com/upgrade', tracks: true } ),
@@ -16,6 +21,8 @@ jest.mock( '../../../data/state', () => ( {
 jest.mock( '../../../data/tracking', () => ( { trackOverviewClick: jest.fn() } ) );
 
 const mockedApiFetch = apiFetch as unknown as jest.Mock;
+
+type Account = { active: boolean };
 
 const base: OverviewState = {
 	hasWordAds: false,
@@ -25,15 +32,27 @@ const base: OverviewState = {
 };
 
 /**
- * Render the cards with the given state and the features WordPress.com reports now.
+ * Render the cards with the given state and what WordPress.com reports now.
  *
  * @param state    - Overrides for the Overview state.
  * @param features - The active features.
+ * @param account  - WordPress.com's Ads account, which makes the site a Simple one.
  * @return The openTab mock.
  */
-function setup( state: Partial< OverviewState > = {}, features: string[] = [] ) {
+function setup(
+	state: Partial< OverviewState > = {},
+	features: string[] = [],
+	account?: Account | Promise< Account >
+) {
+	mockSimple = Boolean( account );
 	mockState.mockReturnValue( { ...base, ...state } );
-	mockedApiFetch.mockResolvedValue( { data: JSON.stringify( { active: features } ) } );
+	mockedApiFetch.mockImplementation( ( { path }: { path: string } ) =>
+		Promise.resolve(
+			path.includes( 'wordads/account' )
+				? account
+				: { data: JSON.stringify( { active: features } ) }
+		)
+	);
 	const openTab = jest.fn();
 	const client = new QueryClient( { defaultOptions: { queries: { retry: false } } } );
 	render(
@@ -46,23 +65,58 @@ function setup( state: Partial< OverviewState > = {}, features: string[] = [] ) 
 
 describe( 'PromoCards', () => {
 	it.each( [
-		[ 'ads are on', { hasWordAds: true, isWordAdsActive: true }, [], 'View ad dashboard', 'ads' ],
-		[ 'the plan includes ads', { hasWordAds: true }, [], 'Earn ad revenue', 'settings' ],
+		[
+			'ads are on',
+			{ hasWordAds: true, isWordAdsActive: true },
+			[],
+			undefined,
+			'View ad dashboard',
+			'ads',
+		],
+		[ 'the plan includes ads', { hasWordAds: true }, [], undefined, 'Earn ad revenue', 'settings' ],
 		[
 			'ads were bought since the plan was cached',
 			{},
 			[ 'wordads' ],
+			undefined,
 			'Earn ad revenue',
 			'settings',
 		],
-	] )( 'when %s, the Ads card opens its tab', async ( _case, state, features, label, tab ) => {
-		const openTab = setup( state, features );
+		[
+			'WordPress.com runs ads on Simple',
+			{ hasWordAds: true },
+			[],
+			{ active: true },
+			'View ad dashboard',
+			'ads',
+		],
+		[
+			'WordPress.com has paused ads on Simple, whatever the module says',
+			{ hasWordAds: true, isWordAdsActive: true },
+			[],
+			{ active: false },
+			'Earn ad revenue',
+			'settings',
+		],
+	] )(
+		'when %s, the Ads card opens its tab',
+		async ( _case, state, features, account, label, tab ) => {
+			const openTab = setup( state, features, account );
 
-		await userEvent.click( await screen.findByRole( 'button', { name: label } ) );
+			await userEvent.click( await screen.findByRole( 'button', { name: label } ) );
 
-		expect( openTab ).toHaveBeenCalledWith( tab );
-		expect( trackOverviewClick ).toHaveBeenCalledWith( 'ads', 'open' );
-		expect( screen.queryByRole( 'link', { name: 'Upgrade' } ) ).not.toBeInTheDocument();
+			expect( openTab ).toHaveBeenCalledWith( tab );
+			expect( trackOverviewClick ).toHaveBeenCalledWith( 'ads', 'open' );
+			expect( screen.queryByRole( 'link', { name: 'Upgrade' } ) ).not.toBeInTheDocument();
+		}
+	);
+
+	it( 'on Simple, the Ads card offers no way in until WordPress.com says whether ads are on', () => {
+		setup( { hasWordAds: true }, [], new Promise( () => {} ) );
+
+		expect(
+			screen.queryByRole( 'button', { name: /ad revenue|ad dashboard/ } )
+		).not.toBeInTheDocument();
 	} );
 
 	it( 'without ads in the plan, the Ads card offers the upgrade', async () => {

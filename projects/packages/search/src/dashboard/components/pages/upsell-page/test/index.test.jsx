@@ -79,11 +79,12 @@ jest.mock( 'hooks/use-activate-search-free', () => () => ( {
 import { render, screen } from '@testing-library/react';
 import UpsellPage from '../index';
 
-const createSelectMethods = ( { isSearchBlocksEnabled = false } = {} ) => ( {
+const createSelectMethods = ( { isSearchBlocksEnabled = false, canAddLicense = true } = {} ) => ( {
 	getAPINonce: jest.fn( () => 'nonce' ),
 	getAPIRootUrl: jest.fn( () => 'https://example.com/wp-json/' ),
 	isNewPricing202208: jest.fn( () => true ),
 	isWpcom: jest.fn( () => false ),
+	canAddLicense: jest.fn( () => canAddLicense ),
 	getSiteAdminUrl: jest.fn( () => 'https://example.com/wp-admin/' ),
 	getSearchPricing: jest.fn( () => ( {} ) ),
 	getCalypsoSlug: jest.fn( () => 'example.com' ),
@@ -174,5 +175,20 @@ describe( 'UpsellPage pricing grid — AI Answers (paid-only)', () => {
 		render( <UpsellPage /> );
 		expect( screen.getByText( 'AI Answers' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'Jetpack Search blocks' ) ).toBeInTheDocument();
+	} );
+} );
+
+describe( 'UpsellPage — license link', () => {
+	test.each( [
+		[ 'on', true ],
+		[ 'off', false ],
+	] )( 'follows the add-license screen being %s', ( _, canAddLicense ) => {
+		mockSelectMethods = createSelectMethods( { canAddLicense } );
+
+		render( <UpsellPage /> );
+
+		const { actions } = mockAdminPage.mock.calls.at( -1 )[ 0 ];
+		render( <>{ actions }</> );
+		expect( screen.queryAllByText( 'Use license key' ) ).toHaveLength( canAddLicense ? 1 : 0 );
 	} );
 } );

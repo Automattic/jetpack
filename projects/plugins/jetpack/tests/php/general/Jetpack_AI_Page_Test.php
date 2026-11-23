@@ -708,6 +708,37 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 	}
 
 	/**
+	 * Atomic sites list their own abilities too, as Calypso does; only Simple sites don't.
+	 *
+	 * @param string $host     Host to simulate: self-hosted, woa or simple.
+	 * @param bool   $expected Expected showSiteAbilities setting.
+	 *
+	 * @dataProvider show_site_abilities_provider
+	 */
+	#[DataProvider( 'show_site_abilities_provider' )]
+	public function test_show_site_abilities_setting( $host, $expected ) {
+		$this->given_woa( 'woa' === $host );
+		if ( 'simple' === $host ) {
+			$this->given_simple_site();
+		}
+
+		$this->assertSame( $expected, $this->get_injected_settings()['showSiteAbilities'] );
+	}
+
+	/**
+	 * Data provider for test_show_site_abilities_setting.
+	 *
+	 * @return array
+	 */
+	public static function show_site_abilities_provider() {
+		return array(
+			'self-hosted' => array( 'self-hosted', true ),
+			'WoA'         => array( 'woa', true ),
+			'Simple'      => array( 'simple', false ),
+		);
+	}
+
+	/**
 	 * Hosts can replace the MCP endpoint contract without copying the page.
 	 */
 	public function test_admin_settings_can_be_filtered_by_the_host() {

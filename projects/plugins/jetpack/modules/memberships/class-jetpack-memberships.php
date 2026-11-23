@@ -285,6 +285,7 @@ class Jetpack_Memberships {
 		}
 
 		Abstract_Token_Subscription_Service::clear_token_cookie();
+		Abstract_Token_Subscription_Service::pause_silent_subscriber_check();
 	}
 
 	/**

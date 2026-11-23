@@ -32,6 +32,13 @@ class Monitor_Abilities extends Registrar {
 
 	/**
 	 * {@inheritDoc}
+	 */
+	protected static function enabled_by_default(): bool {
+		return true;
+	}
+
+	/**
+	 * {@inheritDoc}
 	 *
 	 * Monitor abilities live under the WordPress core `site` category — it is
 	 * registered by the Abilities API itself, so we reference it by slug and
