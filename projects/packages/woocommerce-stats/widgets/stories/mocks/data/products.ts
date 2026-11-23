@@ -225,7 +225,7 @@ export function buildProductsResponse( query: URLSearchParams ): unknown {
 			total_quantity: count( revenue / 26 ),
 			stock_status: product.stock_status,
 		} ) ),
-		// The store's own totals, which the live endpoint reports over the whole catalogue.
+		// Totals over every ranked product, not only the `limit` rows returned.
 		summary: {
 			total_orders: count( ranked.reduce( ( total, row ) => total + row.revenue / 46, 0 ) ),
 			total_products: String( ranked.length ),
