@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Premium Analytics: Fix short figures such as 9.5 lakh showing as 9 lakh in Hindi and other locales with their own units.

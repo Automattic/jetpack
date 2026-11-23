@@ -12,6 +12,32 @@ type NavigationEvents = {
 	addEventListener: ( type: 'currententrychange', listener: () => void ) => void;
 };
 
+// Fired after each write to the history, in a browser that has no event of its own for it.
+const HISTORY_WRITE_EVENT = 'jetpack-premium-analytics:history-write';
+
+let isHistoryWrapped = false;
+
+/**
+ * Wrap the two methods that write to the history, once, so an event follows each write.
+ */
+function announceHistoryWrites(): void {
+	if ( isHistoryWrapped ) {
+		return;
+	}
+
+	isHistoryWrapped = true;
+
+	for ( const method of [ 'pushState', 'replaceState' ] as const ) {
+		const write = window.history[ method ];
+
+		window.history[ method ] = ( ...args ) => {
+			// A router calls it detached, so the history is named instead of taken from `this`.
+			write.apply( window.history, args );
+			window.dispatchEvent( new Event( HISTORY_WRITE_EVENT ) );
+		};
+	}
+}
+
 /**
  * The path of the route on screen, such as `/reports/clicks`, or `/` for the dashboard.
  *
@@ -40,19 +66,22 @@ export function getCurrentRoutePath(): string | null {
  * Listen to the changes of the URL, which is where a change of route shows outside of the router.
  *
  * The listener also runs when only the search params change, so it compares what it reads. Without
- * the Navigation API it runs for Back and Forward only, not for a route opened from a link.
+ * the Navigation API it hears the writes to the history by wrapping them, as a router does.
  *
  * @param listener - Called after every change of the URL.
  */
 export function onLocationChange( listener: () => void ): void {
-	// The router changes the URL through the History API, which fires no event for it.
-	( window as { navigation?: NavigationEvents } ).navigation?.addEventListener(
-		'currententrychange',
-		listener
-	);
+	const navigation = ( window as { navigation?: NavigationEvents } ).navigation;
 
-	// Back and Forward: the changes a browser without the Navigation API still tells of.
-	window.addEventListener( 'popstate', listener );
+	if ( navigation ) {
+		// The router changes the URL through the History API, which fires no event for it.
+		navigation.addEventListener( 'currententrychange', listener );
+	} else {
+		// Without it, `popstate` tells of Back and Forward only, and nothing tells of a write.
+		window.addEventListener( 'popstate', listener );
+		announceHistoryWrites();
+		window.addEventListener( HISTORY_WRITE_EVENT, listener );
+	}
 
 	// The admin shell tells when a page is on screen with its URL written, in every browser.
 	window.addEventListener( 'jetpack-admin-shell:page-shown', listener );

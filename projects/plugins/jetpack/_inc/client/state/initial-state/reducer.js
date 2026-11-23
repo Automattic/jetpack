@@ -605,6 +605,17 @@ export function hasSocialPage( state ) {
 }
 
 /**
+ * The tabs left once settings move to My Jetpack, from the server, which hides the Settings menu entry when none are.
+ *
+ * @param {object} state - Global state tree
+ *
+ * @return {string[]|null} Tab routes without the slash, or null while settings stay here or the user cannot manage modules.
+ */
+export function getRemainingSettingsTabs( state ) {
+	return state.jetpack.initialState.siteData?.settingsTabs ?? null;
+}
+
+/**
  * Get the site's date format, in format accepted by DateTimeInterface::format().
  *
  * @param {object} state - Global state tree

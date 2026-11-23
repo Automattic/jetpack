@@ -40,6 +40,8 @@ jest.mock( '@wordpress/admin-ui', () => ( {
 } ) );
 
 const mockApiFetch = apiFetch as unknown as jest.Mock;
+const mockFetch = jest.fn();
+const realFetch = globalThis.fetch;
 
 const PRICE_TIERS = [ 10000, 100000, 250000 ].map( ( maximum_units, index ) => ( {
 	minimum_units: 0,
@@ -53,6 +55,15 @@ const PRICE_TIERS = [ 10000, 100000, 250000 ].map( ( maximum_units, index ) => (
 } ) );
 
 /**
+ * Answers the price list with the given products.
+ *
+ * @param products - The WordPress.com price list.
+ */
+function mockPriceList( products: object ) {
+	mockFetch.mockResolvedValue( { ok: true, json: () => Promise.resolve( products ) } );
+}
+
+/**
  * Answers the page's requests: the tier prices, plan usage and purchases.
  *
  * @param purchases - The site's purchases, active unless they say otherwise.
@@ -64,18 +75,16 @@ function mockEndpoints(
 	failing?: string,
 	usage: object = { views_limit: null, billable_monthly_views: 0, current_usage: {} }
 ) {
+	mockPriceList( {
+		jetpack_stats_yearly: {
+			product_slug: 'jetpack_stats_yearly',
+			currency_code: 'USD',
+			price_tier_list: PRICE_TIERS,
+		},
+	} );
 	mockApiFetch.mockImplementation( ( { path }: { path: string } ) => {
 		if ( failing && path.includes( failing ) ) {
 			return Promise.reject( { code: 'api_error', data: { status: 502 } } );
-		}
-		if ( path.includes( '/products' ) ) {
-			return Promise.resolve( {
-				jetpack_stats_yearly: {
-					product_slug: 'jetpack_stats_yearly',
-					currency_code: 'USD',
-					price_tier_list: PRICE_TIERS,
-				},
-			} );
 		}
 		if ( path.includes( 'jetpack-stats/usage' ) ) {
 			return Promise.resolve( usage );
@@ -134,6 +143,8 @@ describe( 'UpgradePage', () => {
 		jest.useFakeTimers();
 		queryClient.clear();
 		mockApiFetch.mockReset();
+		mockFetch.mockReset();
+		globalThis.fetch = mockFetch;
 		mockHandleConnectUser.mockReset();
 		// The real flow leaves the page, so its promise does not settle.
 		mockHandleConnectUser.mockReturnValue( new Promise( () => {} ) );
@@ -143,6 +154,7 @@ describe( 'UpgradePage', () => {
 
 	afterEach( () => {
 		jest.useRealTimers();
+		globalThis.fetch = realFetch;
 		delete window.JetpackScriptData;
 	} );
 
@@ -227,10 +239,7 @@ describe( 'UpgradePage', () => {
 	it( 'says no tiers are on sale, not that the network failed, when the price list has no Stats tiers', async () => {
 		setScriptData( true );
 		mockEndpoints();
-		const answer = mockApiFetch.getMockImplementation() as ( req: { path: string } ) => unknown;
-		mockApiFetch.mockImplementation( ( req: { path: string } ) =>
-			req.path.includes( '/products' ) ? Promise.resolve( {} ) : answer( req )
-		);
+		mockPriceList( {} );
 		await renderPage();
 
 		const message = 'No Stats tiers are available to buy for this site right now.';

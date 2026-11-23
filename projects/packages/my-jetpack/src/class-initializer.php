@@ -19,6 +19,7 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
 use Automattic\Jetpack\Connection\REST_Jetpack_AI_JWT;
 use Automattic\Jetpack\Constants as Jetpack_Constants;
+use Automattic\Jetpack\CookieState;
 use Automattic\Jetpack\ExPlat;
 use Automattic\Jetpack\Feature_Flags\Feature_Flags;
 use Automattic\Jetpack\JITMS\JITM;
@@ -386,6 +387,11 @@ class Initializer {
 	 * @return void
 	 */
 	public static function admin_init() {
+		// Read the Jetpack state before any output: reading it deletes its cookie.
+		if ( self::shows_settings_notices() ) {
+			( new CookieState() )->state();
+		}
+
 		if ( self::is_offline_features_enabled() ) {
 			if ( ! self::current_user_can_access_page() ) {
 				wp_die( esc_html__( 'Sorry, you are not allowed to access this page.', 'jetpack-my-jetpack' ), 403 );
@@ -1092,6 +1098,7 @@ class Initializer {
 				'seoOptIn'               => self::get_seo_opt_in_state(),
 				'protectPageModuleUrls'  => (object) Products\Protect::get_protect_page_module_urls(),
 				'partnerCoupon'          => self::get_partner_coupon_screen(),
+				'settingsNotices'        => self::get_settings_notices_state(),
 			)
 		);
 
@@ -1372,6 +1379,7 @@ class Initializer {
 		$data['myJetpack']['assetsUrl']             = self::get_assets_url();
 		$data['myJetpack']['productsSection']       = self::get_products_section();
 		$data['myJetpack']['settingsConsolidation'] = self::is_settings_consolidation_enabled();
+		$data['myJetpack']['showsSettingsNotices']  = self::shows_settings_notices();
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Only selects which navigation data to seed.
 		if ( in_array( $_GET['page'] ?? '', array( 'my-jetpack', 'jetpack-settings', 'jetpack' ), true ) ) {
 			$data['myJetpack']['modulesManagementUrl'] = self::get_modules_management_url();
@@ -1706,6 +1714,52 @@ class Initializer {
 	 */
 	public static function is_settings_consolidation_enabled() {
 		return self::is_settings_consolidation_on_for_site() && self::is_admin_page_available();
+	}
+
+	/**
+	 * Whether My Jetpack shows the notices Jetpack › Settings used to show, which settings consolidation moves here.
+	 *
+	 * Plugins check that this method exists before sending a pending `Jetpack::state()` here instead of to Settings.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	public static function shows_settings_notices() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Only reads which setup step is open.
+		$step = isset( $_GET['step'] ) ? sanitize_text_field( wp_unslash( $_GET['step'] ) ) : '';
+
+		// Neither the offline Features page nor onboarding has the notice slot.
+		return self::is_settings_consolidation_enabled()
+			&& ! self::is_offline_features_enabled()
+			&& 'onboarding' !== $step
+			&& null === self::get_onboarding_redirect_args_for_step( $step );
+	}
+
+	/**
+	 * What the notices moved from Jetpack › Settings need, or null while they stay there, leaving the Jetpack state to Settings.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return array|null
+	 */
+	public static function get_settings_notices_state() {
+		if ( ! self::shows_settings_notices() ) {
+			return null;
+		}
+
+		$cookie_state = new CookieState();
+
+		return array(
+			'jetpackState'         => array(
+				'error'            => $cookie_state->state( 'error' ),
+				'errorDescription' => $cookie_state->state( 'error_description' ),
+				'message'          => $cookie_state->state( 'message' ),
+			),
+			'jetpackVersion'       => defined( 'JETPACK__VERSION' ) ? constant( 'JETPACK__VERSION' ) : null,
+			// Settings showed it only to admins, the users who can change it.
+			'searchEnginesVisible' => current_user_can( 'manage_options' ) ? '0' !== (string) get_option( 'blog_public' ) : null,
+		);
 	}
 
 	/**

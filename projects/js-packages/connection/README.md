@@ -268,11 +268,13 @@ import { TransferConnectionOwnership } from '@automattic/jetpack-connection';
 `IdentityCrisis` is the new Safe Mode (identity crisis) screen. It reads the Safe Mode state and the connected plugins from the connection store's initial state, sends no request until the user picks an action, and renders nothing outside Safe Mode. It renders no frame of its own: the host supplies the frame and decides what happens after each action.
 
 - An administrator answers "What is {registered address}?" and, for a copy, one follow-up question; each answer shows its consequence once selected, and one button runs the matching action. A site WordPress marks as staging starts at "What should happen to this copy?" with Safe Mode preselected.
+- Once an administrator chose to stay in Safe Mode, a host that still shows the screen, such as the Connectors card, gets a note that Safe Mode is on above the same questions.
 - A viewer who cannot resolve Safe Mode sees what is paused and that an administrator needs to resolve it.
 - The copy says "store" instead of "site" when a WooCommerce-family plugin is connected, and names Stats and Backups only when a Jetpack-family plugin is. `hasWooPlugin()` and `hasJetpackPlugin()` export those rules, and `toConnectedPlugins()` reads the store's plugin list for them.
 
 Props:
-- `context` (required): `notice`, `my-jetpack` or `connectors`. `connectors` hides the logo and heading, which the card already shows.
+- `context` (required): `notice`, `my-jetpack` or `connectors`, recorded with the Safe Mode events.
+- `showHeader`: `false` hides the logo and heading where the host already shows both, as the Connectors card does.
 - `onActionSuccess( result )` (required): `{ action: 'migrate' }` as soon as Migrate succeeds (the screen then shows that the address update started), `{ action: 'start-fresh', connectUrl }` for the host to open, or `{ action: 'confirm-safe-mode' }`. The package never navigates.
 - `redirectUri`: admin path to return to after a fresh connection.
 - `from`: a name from `CONNECTION_FROM`, reported to WordPress.com with a fresh connection.
