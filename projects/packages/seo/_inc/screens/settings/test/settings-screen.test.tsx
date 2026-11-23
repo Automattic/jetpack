@@ -733,10 +733,10 @@ describe( 'sharing save coordination', () => {
 			);
 			// eslint-disable-next-line testing-library/prefer-user-event -- Match the package settings tests.
 			fireEvent.click( sharing );
-			const indexing = screen.getByRole( 'checkbox', {
+			const indexing = screen.getByRole( 'switch', {
 				name: 'Allow search engines to index this site',
 			} );
-			expect( indexing ).toBeDisabled();
+			expect( indexing ).toHaveAttribute( 'aria-disabled', 'true' );
 			expect( SocialPreviewsCard.mock.lastCall?.[ 0 ] ).toEqual(
 				expect.objectContaining( { disabled: true } )
 			);
@@ -755,9 +755,9 @@ describe( 'sharing save coordination', () => {
 					rejectSave( new Error( 'Rejected' ) );
 				}
 			} );
-			expect( indexing ).toBeDisabled();
+			expect( indexing ).toHaveAttribute( 'aria-disabled', 'true' );
 			await act( async () => confirm( outcome === 'saved' ? { crawlers: {} } : initial ) );
-			await waitFor( () => expect( indexing ).toBeEnabled() );
+			await waitFor( () => expect( indexing ).not.toHaveAttribute( 'aria-disabled' ) );
 			// eslint-disable-next-line jest-dom/prefer-checked -- Compare the table's expected state without conditional assertions.
 			expect( sharing ).toHaveAttribute( 'aria-checked', String( outcome === 'saved' ) );
 			expect( sharingFetch ).toHaveBeenCalledTimes( 3 );
