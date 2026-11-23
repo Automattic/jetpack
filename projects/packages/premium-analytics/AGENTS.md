@@ -83,17 +83,9 @@ when charts exports look stale. After an edit, `pnpm run build` is enough and ta
 seconds. `pnpm run watch` is faster but skips the text-domain stamp, so strings stay
 English until the next `pnpm run build`.
 
-### Storybook serves the built artifact of some internal packages
+### Storybook reads the internal packages from source
 
-Storybook's Vite config maps bare `@jetpack-premium-analytics/*` imports to `src/`, but that only
-takes effect for packages whose `package.json` declares no `module` field (`datetime`,
-`formatters`, `icons`, `routing`). The rest — `data`, `error-reporting`, `externals`, `fields`,
-`init`, `sdk`, `site-sync`, `ui`, `widgets-toolkit` — point `module` at `build-module/index.mjs`, and Storybook
-loads that artifact instead, so an edit to their source is invisible there until it is rebuilt. A
-newly added export surfaces as `The requested module '…/build-module/index.mjs' does not provide an
-export named 'X'`, and a changed one silently renders the old behaviour. Run `pnpm run build` (or
-`jetpack build --deps packages/premium-analytics`) before trusting what Storybook shows for those
-packages.
+Most of these packages point `module` at `build-module/index.mjs`, so a story would be expected to serve a stale build. It does not: the `premium-analytics-source-package-imports` plugin in `projects/js-packages/storybook/storybook/main.js` resolves every bare `@jetpack-premium-analytics/*` import to that package's `src/index.ts`, and a subpath import reaches the source through the `@jetpack-premium-analytics` alias. An edit to any of them shows in Storybook without a rebuild.
 
 Add a route: create `routes/<name>/package.json` (with `route.path` + `route.page`) and a
 `stage.tsx` exporting `stage()`; rebuild — routes are auto-discovered.
@@ -303,10 +295,9 @@ of it folding into `@automattic/charts`), so treat its module paths as provision
   `link:` for internal packages (e.g.
   `"@jetpack-premium-analytics/widgets-toolkit": "link:../../packages/widgets-toolkit"`).
 
-### REQUIRED: Storybook story for every widget
+### Storybook story for every widget
 
-Every widget MUST have a story at `widgets/<widget-name>/stories/<widget-name>-widget.stories.tsx`;
-new widgets without one should not be merged.
+`.agents/rules/widgets.md` carries the requirement itself, for every package whose widgets this dashboard hosts. This section is what it means here: the file is `widgets/<widget-name>/stories/<widget-name>-widget.stories.tsx`, and the rest is below.
 
 1. **Stories**: a `Default` close-up (current period only) and a `WidgetDashboardWithWidget`
    story that mounts the real `WidgetDashboard` through the shared helper in
