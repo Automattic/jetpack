@@ -9,7 +9,7 @@ import { trackAdsEvent } from '../../data/tracking';
 import { useAdsAccount } from '../../data/wordads';
 import type { TabValue } from '../../data/tabs';
 import type { UnsafeReason } from '../../data/wordads';
-import type { MouseEvent } from 'react';
+import type { MouseEvent, ReactNode } from 'react';
 
 type OpenTab = ( next: TabValue ) => void;
 
@@ -33,6 +33,17 @@ const UNSAFE_MESSAGES: Record< UnsafeReason, () => string > = {
 };
 
 const trackUpgradeClick = () => trackAdsEvent( 'upgrade_click' );
+
+/**
+ * What a plan with ads lets the site do, for the cards that start ads.
+ *
+ * @return The text.
+ */
+export const START_TEXT = () =>
+	__(
+		'Top ad suppliers bid against each other to show their ads on your site, maximizing your revenue. Your plan lets you start right away, with no review.',
+		'jetpack-monetize'
+	);
 
 /**
  * Why WordPress.com won't serve ads on the site, if it says so.
@@ -61,36 +72,56 @@ export function UnsafeNotice() {
 }
 
 /**
- * What a plan with ads brings, and the way to it.
+ * A card that offers the next step toward showing ads.
  *
+ * @param props          - Component props.
+ * @param props.title    - The card's heading.
+ * @param props.children - The message and its action.
  * @return The card.
  */
-export function UpsellCard() {
-	const { upgradeUrl } = getPageData();
-
+export function PromptCard( { title, children }: { title: string; children: ReactNode } ) {
 	return (
 		<Card.Root>
 			<Card.Header>
-				<Card.Title render={ <h2 /> }>
-					{ __( 'Upgrade and start earning', 'jetpack-monetize' ) }
-				</Card.Title>
+				<Card.Title render={ <h2 /> }>{ title }</Card.Title>
 			</Card.Header>
 			<Card.Content>
 				<Stack direction="column" gap="md" align="start">
-					<Text>
-						{ __(
-							'Make money each time someone visits your site by displaying ads on all your posts and pages.',
-							'jetpack-monetize'
-						) }
-					</Text>
-					{ upgradeUrl && (
-						<ButtonLink variant="solid" href={ upgradeUrl } onClick={ trackUpgradeClick }>
-							{ __( 'Upgrade', 'jetpack-monetize' ) }
-						</ButtonLink>
-					) }
+					{ children }
 				</Stack>
 			</Card.Content>
 		</Card.Root>
+	);
+}
+
+/**
+ * What a plan with ads brings, and the way to it.
+ *
+ * @param props                - Component props.
+ * @param props.onUpgradeClick - Records the upgrade click.
+ * @return The card.
+ */
+export function UpsellCard( {
+	onUpgradeClick = trackUpgradeClick,
+}: {
+	onUpgradeClick?: () => void;
+} ) {
+	const { upgradeUrl } = getPageData();
+
+	return (
+		<PromptCard title={ __( 'Upgrade and start earning', 'jetpack-monetize' ) }>
+			<Text>
+				{ __(
+					'Make money each time someone visits your site by displaying ads on all your posts and pages.',
+					'jetpack-monetize'
+				) }
+			</Text>
+			{ upgradeUrl && (
+				<ButtonLink variant="solid" href={ upgradeUrl } onClick={ onUpgradeClick }>
+					{ __( 'Upgrade', 'jetpack-monetize' ) }
+				</ButtonLink>
+			) }
+		</PromptCard>
 	);
 }
 
@@ -121,33 +152,23 @@ export function StartCard( { openTab }: { openTab: OpenTab } ) {
 	);
 
 	return (
-		<Card.Root>
-			<Card.Header>
-				<Card.Title render={ <h2 /> }>
+		<PromptCard
+			title={
+				mustJoin
+					? __( 'Join WordAds', 'jetpack-monetize' )
+					: __( 'Start earning from ads', 'jetpack-monetize' )
+			}
+		>
+			<Text>{ START_TEXT() }</Text>
+			{ mustJoin && ! canJoin ? (
+				<Text>{ __( 'Only the site owner can join WordAds.', 'jetpack-monetize' ) }</Text>
+			) : (
+				<Link href={ getTabHref( 'settings' ) } onClick={ onSetUp }>
 					{ mustJoin
-						? __( 'Join WordAds', 'jetpack-monetize' )
-						: __( 'Start earning from ads', 'jetpack-monetize' ) }
-				</Card.Title>
-			</Card.Header>
-			<Card.Content>
-				<Stack direction="column" gap="md" align="start">
-					<Text>
-						{ __(
-							'Top ad suppliers bid against each other to show their ads on your site, maximizing your revenue. Your plan lets you start right away, with no review.',
-							'jetpack-monetize'
-						) }
-					</Text>
-					{ mustJoin && ! canJoin ? (
-						<Text>{ __( 'Only the site owner can join WordAds.', 'jetpack-monetize' ) }</Text>
-					) : (
-						<Link href={ getTabHref( 'settings' ) } onClick={ onSetUp }>
-							{ mustJoin
-								? __( 'Join WordAds in Settings', 'jetpack-monetize' )
-								: __( 'Turn on ads in Settings', 'jetpack-monetize' ) }
-						</Link>
-					) }
-				</Stack>
-			</Card.Content>
-		</Card.Root>
+						? __( 'Join WordAds in Settings', 'jetpack-monetize' )
+						: __( 'Turn on ads in Settings', 'jetpack-monetize' ) }
+				</Link>
+			) }
+		</PromptCard>
 	);
 }
