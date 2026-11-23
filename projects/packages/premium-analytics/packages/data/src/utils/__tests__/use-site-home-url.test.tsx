@@ -6,7 +6,7 @@ import { useSelect } from '@wordpress/data';
 /**
  * Internal dependencies
  */
-import { useSiteHomeUrl } from '../use-site-home-url';
+import { useSiteHomeUrl, useSiteTitle } from '../use-site-home-url';
 
 jest.mock( '@wordpress/data', () => ( {
 	select: jest.fn(),
@@ -45,5 +45,13 @@ describe( 'useSiteHomeUrl', () => {
 		const { result } = renderHook( () => useSiteHomeUrl() );
 
 		expect( result.current ).toBeUndefined();
+	} );
+
+	it( 'reads the site title from the same record', () => {
+		getEntityRecord.mockReturnValue( { url: 'https://example.com/', title: 'Example' } );
+
+		const { result } = renderHook( () => useSiteTitle() );
+
+		expect( result.current ).toBe( 'Example' );
 	} );
 } );

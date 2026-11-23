@@ -5,6 +5,7 @@ import {
 	getParselySignupUrl,
 	offersParselyPrompts,
 	useSiteHomeUrl,
+	useSiteTitle,
 } from '@jetpack-premium-analytics/data';
 import {
 	ButtonLink,
@@ -37,15 +38,47 @@ type ParselyUpgradeCardProps = {
 	enabled: boolean;
 };
 
+/** How often the reader closed the card, and when they last did. */
+export type ParselyUpgradeCardDismissal = {
+	count: number;
+	at: string;
+};
+
 type PreferencesSelectors = {
-	get: ( scope: string, key: string ) => string | undefined;
+	get: ( scope: string, key: string ) => ParselyUpgradeCardDismissal | undefined;
 };
 
 type PreferencesActions = {
-	set: ( scope: string, key: string, value: string ) => Promise< void > | void;
+	set: ( scope: string, key: string, value: ParselyUpgradeCardDismissal ) => Promise< void > | void;
 };
 
 const TRACKS_SOURCE = 'traffic_card';
+
+// The first close is a snooze; the second is for good.
+const SNOOZE_DAYS = 90;
+const SNOOZE_MS = SNOOZE_DAYS * 24 * 60 * 60 * 1000;
+
+/**
+ * Whether a stored dismissal still hides the card.
+ *
+ * @param dismissal - The stored record, if any.
+ * @param now       - The current time, in ms.
+ * @return True while the card stays closed.
+ */
+export function isParselyUpgradeCardDismissed(
+	dismissal: ParselyUpgradeCardDismissal | undefined,
+	now: number
+): boolean {
+	if ( ! dismissal ) {
+		return false;
+	}
+	if ( dismissal.count >= 2 ) {
+		return true;
+	}
+	const at = Date.parse( dismissal.at );
+
+	return Number.isNaN( at ) || now - at < SNOOZE_MS;
+}
 
 // Once per page load, not per mount: the dashboard stage remounts on the way
 // back from a report, before the persisted preference has necessarily landed.
@@ -61,7 +94,7 @@ export function resetParselyUpgradeCardForTesting() {
 }
 
 /**
- * Stands below the widgets offering Parsely to a site that outgrew Stats, until the reader closes it.
+ * Stands below the widgets offering Parse.ly to a site that outgrew Stats, until the reader closes it.
  *
  * @param {ParselyUpgradeCardProps} props - Component props.
  * @return The card, or null.
@@ -70,8 +103,9 @@ export function ParselyUpgradeCard( { enabled }: ParselyUpgradeCardProps ): JSX.
 	const trackEvent = useTrackEvent();
 	const titleId = useId();
 	const siteUrl = useSiteHomeUrl();
+	const siteTitle = useSiteTitle();
 
-	const closedAt = useSelect(
+	const dismissal = useSelect(
 		select =>
 			( select( preferencesStore ) as unknown as PreferencesSelectors ).get(
 				DASHBOARD_PREFERENCES_SCOPE,
@@ -82,7 +116,11 @@ export function ParselyUpgradeCard( { enabled }: ParselyUpgradeCardProps ): JSX.
 	const { set } = useDispatch( preferencesStore ) as unknown as PreferencesActions;
 	const [ isClosed, setIsClosed ] = useState( () => hasClosedThisLoad );
 
-	const isVisible = enabled && offersParselyPrompts() && ! isClosed && ! closedAt;
+	const isVisible =
+		enabled &&
+		offersParselyPrompts() &&
+		! isClosed &&
+		! isParselyUpgradeCardDismissed( dismissal, Date.now() );
 
 	useEffect( () => {
 		if ( ! isVisible || hasRecordedViewThisLoad ) {
@@ -94,15 +132,19 @@ export function ParselyUpgradeCard( { enabled }: ParselyUpgradeCardProps ): JSX.
 	}, [ isVisible, trackEvent ] );
 
 	const dismiss = useCallback( () => {
+		const count = ( dismissal?.count ?? 0 ) + 1;
+
 		hasClosedThisLoad = true;
 		setIsClosed( true );
-		void set(
-			DASHBOARD_PREFERENCES_SCOPE,
-			DASHBOARD_PARSELY_UPGRADE_CARD_KEY,
-			new Date().toISOString()
-		);
-		trackEvent( 'jetpack_premium_analytics_parsely_upgrade_dismiss', { source: TRACKS_SOURCE } );
-	}, [ set, trackEvent ] );
+		void set( DASHBOARD_PREFERENCES_SCOPE, DASHBOARD_PARSELY_UPGRADE_CARD_KEY, {
+			count,
+			at: new Date().toISOString(),
+		} );
+		trackEvent( 'jetpack_premium_analytics_parsely_upgrade_dismiss', {
+			source: TRACKS_SOURCE,
+			dismissal: count >= 2 ? 'final' : 'snooze',
+		} );
+	}, [ dismissal, set, trackEvent ] );
 
 	const trackUpgrade = useCallback(
 		() =>
@@ -151,7 +193,7 @@ export function ParselyUpgradeCard( { enabled }: ParselyUpgradeCardProps ): JSX.
 						</Text>
 						<Text variant="body-md" className={ styles.description }>
 							{ __(
-								'Grow with Parsely, the favorite analytics provider for professional brands and media companies. See which stories hold attention, not just which ones get clicks.',
+								'Grow with Parse.ly, the favorite analytics provider for professional brands and media companies. See which stories hold attention, not just which ones get clicks.',
 								'jetpack-premium-analytics-pkg'
 							) }
 						</Text>
@@ -194,12 +236,12 @@ export function ParselyUpgradeCard( { enabled }: ParselyUpgradeCardProps ): JSX.
 					</Stack>
 
 					<ButtonLink
-						href={ getParselySignupUrl( siteUrl ) }
+						href={ getParselySignupUrl( { url: siteUrl, title: siteTitle } ) }
 						openInNewTab
 						onClick={ trackUpgrade }
 						className={ styles.action }
 					>
-						{ __( 'Upgrade to Parsely', 'jetpack-premium-analytics-pkg' ) }
+						{ __( 'Upgrade to Parse.ly', 'jetpack-premium-analytics-pkg' ) }
 					</ButtonLink>
 				</div>
 			</Card.Content>

@@ -22,7 +22,7 @@ export { resolveReportTimeZone, type ReportTimeZoneParams } from './report-timez
 export { saveBlob } from './save-blob';
 export { findAuthorRow, toAuthorId, toPostId } from './to-post-id';
 export { withoutComparison } from './without-comparison';
-export { useSiteHomeUrl } from './use-site-home-url';
+export { useSiteHomeUrl, useSiteTitle } from './use-site-home-url';
 export type { PresetType, ReportParams } from './search';
 export { isSelectablePreset } from '@jetpack-premium-analytics/datetime';
 export type { Override, BaseReportParams } from './types';
