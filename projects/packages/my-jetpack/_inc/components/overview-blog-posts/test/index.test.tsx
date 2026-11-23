@@ -26,6 +26,7 @@ describe( 'OverviewBlogPosts', () => {
 			link: 'https://jetpack.com/p/',
 			date: '2026-10-15T21:24:22+00:00',
 			excerpt: '',
+			excerpt_is_automatic: false,
 		};
 		mockUseSimpleQuery.mockReturnValue( {
 			data: [ { ...post, thumbnail: null } ],
