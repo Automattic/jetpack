@@ -74,7 +74,7 @@ class Dashboard_Test extends BaseTestCase {
 					'ATOMIC_CLIENT_ID'     => 2,
 					'WPCOMSH__PLUGIN_FILE' => 'wpcomsh.php',
 				),
-				false,
+				true,
 				true,
 			),
 		);
@@ -88,7 +88,7 @@ class Dashboard_Test extends BaseTestCase {
 	 * @param bool  $routes    Whether the REST routes should be registered.
 	 */
 	#[DataProvider( 'provide_hosts' )]
-	public function test_init_queues_the_item_off_the_wpcom_platform_and_routes_off_simple( $constants, $queued, $routes ) {
+	public function test_init_queues_the_item_and_routes_off_simple( $constants, $queued, $routes ) {
 		foreach ( $constants as $name => $value ) {
 			Constants::set_constant( $name, $value );
 		}
@@ -112,8 +112,27 @@ class Dashboard_Test extends BaseTestCase {
 		$this->assertSame( 'monetize', $item['args']['module'] );
 	}
 
-	public function test_add_wp_admin_submenu_adds_the_page_under_the_jetpack_menu() {
+	/**
+	 * Whether the Jetpack menu already has the Monetize item.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_jetpack_menus() {
+		return array(
+			'without the item' => array( false ),
+			'with the item'    => array( true ),
+		);
+	}
+
+	/**
+	 * @dataProvider provide_jetpack_menus
+	 *
+	 * @param bool $registered Whether the Jetpack menu already has the item, as Admin_Menu adds it on WoA.
+	 */
+	#[DataProvider( 'provide_jetpack_menus' )]
+	public function test_add_wp_admin_submenu_adds_the_page_under_the_jetpack_menu_once( $registered ) {
 		global $submenu;
+		$submenu = array(); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		require_once ABSPATH . 'wp-admin/includes/plugin.php';
 		$user_id = wp_insert_user(
 			array(
@@ -123,6 +142,9 @@ class Dashboard_Test extends BaseTestCase {
 			)
 		);
 		wp_set_current_user( $user_id );
+		if ( $registered ) {
+			Dashboard::add_wp_admin_submenu();
+		}
 
 		Dashboard::add_wp_admin_submenu();
 
