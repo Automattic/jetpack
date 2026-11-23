@@ -427,6 +427,56 @@ div#actionbar .actnbr-hidden .actnbr-popover {
 	display: none;
 }
 
+div#actionbar .actnbr-undo {
+	position: absolute;
+	inset-inline-end: 0;
+	inset-block-end: 40px;
+	z-index: 1000;
+	display: flex;
+	align-items: center;
+	gap: $grid-unit-15;
+	padding: $grid-unit-10 $grid-unit-10 $grid-unit-10 $grid-unit-15;
+	background: $gray-900;
+	border-radius: $radius-medium;
+	box-shadow: $elevation-medium;
+	color: $white;
+	font-family: $default-font;
+	font-size: $font-size-medium;
+	line-height: $default-line-height;
+	white-space: nowrap;
+}
+
+div#actionbar .actnbr-undo__button {
+	margin: 0;
+	padding: $grid-unit-05 $grid-unit-10;
+	border: 0;
+	border-radius: $radius-small;
+	background: transparent;
+	box-shadow: none;
+	color: $white;
+	font-family: inherit;
+	font-size: inherit;
+	font-weight: 600;
+	line-height: inherit;
+	text-decoration: underline;
+	text-transform: none;
+	cursor: pointer;
+}
+
+div#actionbar .actnbr-undo__button:hover {
+	background: rgba(255, 255, 255, 0.15);
+}
+
+div#actionbar .actnbr-undo__button:focus-visible {
+	outline: 2px solid $white;
+	outline-offset: 0;
+}
+
+div#actionbar.actnbr-premium-shelf .actnbr-undo {
+	inset-inline-end: auto;
+	inset-inline-start: 0;
+}
+
 div#actionbar .actnbr-follow-bubble .actnbr-site-settings {
 	display: flex;
 	flex-direction: column;

@@ -18,10 +18,6 @@ jest.mock( '../../../data/products/use-products-by-ownership', () => ( {
 	__esModule: true,
 	default: () => ( { refetch: jest.fn() } ),
 } ) );
-jest.mock( '../../use-analytics', () => ( {
-	__esModule: true,
-	default: () => ( { recordEvent: jest.fn() } ),
-} ) );
 jest.mock( '../../../data/utils/get-my-jetpack-window-state', () => ( {
 	getMyJetpackWindowInitialState: () => ( {
 		siteSuffix: 'example.org',
@@ -37,6 +33,8 @@ jest.mock( '../../../data/utils/get-my-jetpack-window-state', () => ( {
 describe( 'useConnectSite', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
+		// jsdom doesn't implement scrollTo, which connectSite calls on a 100ms timer.
+		jest.spyOn( window, 'scrollTo' ).mockImplementation( () => {} );
 		( restApi.registerSite as jest.Mock ).mockResolvedValue( { authorizeUrl: 'x' } );
 		// The connection store is shared, and each registration marks the site registered.
 		(

@@ -1,3 +1,4 @@
+import { getFeatureStatusLabel } from '../module-availability';
 import { filterMoreFeatures, getModuleFeatureState, groupMoreFeatures } from '../use-more-features';
 import type { MyJetpackModule } from '../../../../types';
 
@@ -72,6 +73,39 @@ describe( 'groupMoreFeatures', () => {
 			[ 'Security', [ 'monitor', 'sso', 'waf' ] ],
 			[ 'Other', [ 'alpha' ] ],
 		] );
+	} );
+
+	it( 'lists settings entries under the heading that names them, else under Other, as rows with no switch', () => {
+		const entry = ( slug: string, name: string ) => ( {
+			slug,
+			name,
+			description: '',
+			status: 'needs-setup' as const,
+		} );
+		const withEntries = groupMoreFeatures(
+			features,
+			[ ...groups.slice( 0, 2 ), { ...groups[ 2 ], settings: [ 'ga' ] } ],
+			modules,
+			{ social: 'publicize' },
+			{},
+			new Set( [ 'google-fonts' ] ),
+			false,
+			[ entry( 'ga', 'A GA' ), entry( 'loose', 'B LOOSE' ) ]
+		);
+
+		expect( slugsOf( withEntries ) ).toEqual( [
+			[ 'Analytics', [ 'ga', 'zeta' ] ],
+			[ 'Security', [ 'monitor', 'sso', 'waf' ] ],
+			[ 'Other', [ 'alpha', 'loose' ] ],
+		] );
+		// On but unfinished: filtered as active, badged as needing setup.
+		expect( withEntries[ 0 ].states[ 0 ] ).toMatchObject( {
+			status: 'active',
+			control: { kind: 'none' },
+			settingsEntry: true,
+			needsSetup: true,
+		} );
+		expect( getFeatureStatusLabel( withEntries[ 0 ].states[ 0 ] ) ).toBe( 'Needs setup' );
 	} );
 
 	it( 'leaves out a product\u2019s module even while a pre-release gate hides its card', () => {

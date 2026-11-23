@@ -156,6 +156,7 @@ describe( 'DateFiltersPanel', () => {
 			'Last month',
 			'Year to date',
 			'Last 12 months',
+			'Last 3 years',
 			'All time',
 			'Custom range',
 		] );

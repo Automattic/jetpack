@@ -15,7 +15,7 @@ import { type ImageType } from '../../../hooks/use-sig-preview/utils';
 import MediaPreview from '../../media-section-v2/media-preview';
 import styles from './styles.module.scss';
 
-const ALLOWED_MEDIA_TYPES = [ 'image/jpeg', 'image/png' ];
+const ALLOWED_MEDIA_TYPES = [ 'image/jpeg', 'image/png', 'image/webp' ];
 
 interface MenuOption {
 	id: string;

@@ -8,6 +8,8 @@ import { Link as RouterLink, useSearchParams } from 'react-router';
 import { getBlockThemeMigration } from '../../../utils/block-theme-migration';
 import { getProtectPageUrl } from '../../../utils/protect-page';
 import { isSettingsConsolidationEnabled } from '../../../utils/settings-consolidation';
+import { getLeavingLinkLabel } from '../../../utils/settings-link-label';
+import { useSettingsPanelTracking } from '../../settings-panel/use-settings-panel-tracking';
 import { FeatureAction } from './feature-action';
 import { FeatureIcon } from './feature-icon';
 import { FeatureInstallNotice } from './feature-install-notice';
@@ -28,7 +30,7 @@ import { getDeprecatedModules } from './use-more-features';
 import type { FeatureState } from './feature-state';
 import type { FeatureActionOrigin } from './features-tracking-context';
 import type { MyJetpackModule } from '../../../types';
-import type { ReactNode } from 'react';
+import type { MouseEvent, ReactNode } from 'react';
 
 /**
  * The module's settings link, unless all it would lead to is the switch the card already has.
@@ -75,17 +77,30 @@ export function opensInSettingsPanel( url: string ): boolean {
  * Configure for a module, opening the settings panel over the page instead of leaving it.
  *
  * @param props      - Component props.
- * @param props.slug - The module slug.
+ * @param props.slug - The module or settings entry slug.
  * @param props.name - The feature name.
  * @return The link.
  */
 function PanelConfigureLink( { slug, name }: { slug: string; name: string } ) {
 	const [ searchParams ] = useSearchParams();
+	const { trackPanelOpen } = useSettingsPanelTracking( slug );
+	const isOpen = searchParams.get( 'configure' ) === slug;
+	const onClick = useCallback(
+		( event: MouseEvent ) => {
+			// A modified click opens a new tab, which records its own deep-link open.
+			const modified = event.metaKey || event.ctrlKey || event.shiftKey || event.altKey;
+			if ( ! isOpen && ! modified ) {
+				trackPanelOpen( 'configure-link' );
+			}
+		},
+		[ isOpen, trackPanelOpen ]
+	);
 	const next = new URLSearchParams( searchParams );
 	next.set( 'configure', slug );
 
 	return (
 		<Link
+			onClick={ onClick }
 			render={ <RouterLink to={ { search: `?${ next }` } } replace /> }
 			aria-label={ sprintf(
 				/* translators: %s is the feature name. */
@@ -94,6 +109,41 @@ function PanelConfigureLink( { slug, name }: { slug: string; name: string } ) {
 			) }
 		>
 			{ __( 'Configure', 'jetpack-my-jetpack' ) }
+		</Link>
+	);
+}
+
+/**
+ * A module's settings link: Configure for the panel, or, with the panel on, the page it leaves for.
+ *
+ * @param props      - Component props.
+ * @param props.url  - The module's settings URL.
+ * @param props.slug - The module slug.
+ * @param props.name - The feature name.
+ * @return The link.
+ */
+function SettingsLink( { url, slug, name }: { url: string; slug: string; name: string } ) {
+	const hasPanel = isSettingsConsolidationEnabled();
+	if ( hasPanel && opensInSettingsPanel( url ) ) {
+		return <PanelConfigureLink slug={ slug } name={ name } />;
+	}
+
+	// Without the panel every link leaves Features, so naming the page would tell people nothing.
+	const leaving = hasPanel ? getLeavingLinkLabel( url, name ) : null;
+
+	return (
+		<Link
+			href={ url }
+			aria-label={
+				leaving?.label ??
+				sprintf(
+					/* translators: %s is the feature name. */
+					__( 'Configure %s', 'jetpack-my-jetpack' ),
+					name
+				)
+			}
+		>
+			{ leaving?.text ?? __( 'Configure', 'jetpack-my-jetpack' ) }
 		</Link>
 	);
 }
@@ -227,7 +277,13 @@ export function FeatureItem( {
 					) }
 
 					{ ! isSettling && statusLabel && (
-						<Badge id={ statusId } intent={ isActive && ! unavailable ? 'stable' : 'none' }>
+						<Badge
+							id={ statusId }
+							intent={
+								( state.needsSetup && 'medium' ) ||
+								( isActive && ! unavailable ? 'stable' : 'none' )
+							}
+						>
 							{ statusLabel }
 						</Badge>
 					) }
@@ -257,21 +313,13 @@ export function FeatureItem( {
 			</span>
 
 			<span className={ styles[ 'feature-action-slot' ] }>
-				{ settingsUrl &&
-					( isSettingsConsolidationEnabled() && opensInSettingsPanel( settingsUrl ) ? (
-						<PanelConfigureLink slug={ feature.slug } name={ feature.name } />
-					) : (
-						<Link
-							href={ settingsUrl }
-							aria-label={ sprintf(
-								/* translators: %s is the feature name. */
-								__( 'Configure %s', 'jetpack-my-jetpack' ),
-								feature.name
-							) }
-						>
-							{ __( 'Configure', 'jetpack-my-jetpack' ) }
-						</Link>
-					) ) }
+				{ state.settingsEntry && ! onOpen && (
+					// The switch lives in the panel, so Configure shows even while the setting is off.
+					<PanelConfigureLink slug={ feature.slug } name={ feature.name } />
+				) }
+				{ settingsUrl && (
+					<SettingsLink url={ settingsUrl } slug={ feature.slug } name={ feature.name } />
+				) }
 				<FeatureAction
 					state={ state }
 					origin={ origin }

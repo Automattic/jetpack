@@ -50,15 +50,16 @@ export class Sharing extends Component {
 			return null;
 		}
 
-		// Once settings move out, admins find Social in Features, and a search here points them there.
-		const socialInFeatures = isSettingsConsolidationEnabled() && this.props.userCanManageModules,
-			foundPublicize =
-				this.props.isModuleFound( 'publicize' ) &&
-				( ! socialInFeatures || !! this.props.searchTerm ),
+		// Once settings move out, every card here gives way, for admins, to a Features pointer that only a search shows.
+		const inFeatures = isSettingsConsolidationEnabled() && this.props.userCanManageModules,
+			foundPublicize = this.props.isModuleFound( 'publicize' ),
 			foundSharing = this.props.isModuleFound( 'sharedaddy' ),
 			foundLikes = this.props.isModuleFound( 'likes' );
 
-		if ( ! foundPublicize && ! foundSharing && ! foundLikes ) {
+		if (
+			( inFeatures && ! this.props.searchTerm ) ||
+			( ! foundPublicize && ! foundSharing && ! foundLikes )
+		) {
 			return null;
 		}
 
@@ -70,7 +71,7 @@ export class Sharing extends Component {
 					<h2 className="jp-settings__section-title">{ __( 'Sharing', 'jetpack' ) }</h2>
 				) }
 				{ foundPublicize &&
-					( socialInFeatures ? (
+					( inFeatures ? (
 						<FeaturesPointer
 							header={ _x( 'Jetpack Social', 'Settings header', 'jetpack' ) }
 							name="Jetpack Social"
@@ -79,8 +80,26 @@ export class Sharing extends Component {
 					) : (
 						<Publicize { ...commonProps } />
 					) ) }
-				{ foundSharing && <ShareButtons { ...commonProps } /> }
-				{ foundLikes && <Likes { ...commonProps } /> }
+				{ foundSharing &&
+					( inFeatures ? (
+						<FeaturesPointer
+							header={ _x( 'Sharing buttons', 'Settings header', 'jetpack' ) }
+							name={ this.props.module( 'sharedaddy' ).name }
+							search="sharing"
+						/>
+					) : (
+						<ShareButtons { ...commonProps } />
+					) ) }
+				{ foundLikes &&
+					( inFeatures ? (
+						<FeaturesPointer
+							header={ _x( 'Like buttons', 'Settings header', 'jetpack' ) }
+							name={ this.props.module( 'likes' ).name }
+							search="likes"
+						/>
+					) : (
+						<Likes { ...commonProps } />
+					) ) }
 			</div>
 		);
 	}

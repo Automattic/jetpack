@@ -27,7 +27,7 @@ add_action( 'admin_init', 'wpcom_attachment_pages_settings_init', 11 );
  */
 function wpcom_attachment_pages_settings_display() {
 	printf(
-		'<label><input type="checkbox" name="wp_attachment_pages_enabled" id="wp_attachment_pages_enabled" value="1" %s/> <label for="wp_attachment_pages_enabled">%s</label>',
+		'<input type="checkbox" name="wp_attachment_pages_enabled" id="wp_attachment_pages_enabled" value="1" %s/> <label for="wp_attachment_pages_enabled">%s</label>',
 		checked( '1', get_option( 'wp_attachment_pages_enabled' ), false ),
 		esc_html__( 'Enable attachment pages.', 'jetpack-mu-wpcom' )
 	);

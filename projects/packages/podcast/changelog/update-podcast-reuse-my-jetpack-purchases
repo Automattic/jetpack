@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Admin page: Reuse My Jetpack's lookup of the site's purchases instead of requesting the same list from WordPress.com a second time.

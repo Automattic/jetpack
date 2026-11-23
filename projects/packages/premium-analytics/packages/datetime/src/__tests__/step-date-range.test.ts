@@ -8,6 +8,7 @@ import { TZDate } from '@date-fns/tz';
 import {
 	endOfStepHorizon,
 	getStepSpan,
+	bucketStepId,
 	measureStepId,
 	parseDateStepId,
 	shiftStep,
@@ -101,6 +102,7 @@ describe( 'getStepSpan', () => {
 		[ 'month-to-date', { unit: 'month', value: 1 } ],
 		[ 'last-12-months', { unit: 'month', value: 12 } ],
 		[ 'last-year', { unit: 'year', value: 1 } ],
+		[ 'last-3-years', { unit: 'year', value: 3 } ],
 		[ 'P90D', { unit: 'day', value: 90 } ],
 		[ 'P3M', { unit: 'month', value: 3 } ],
 		[ 'P2Y', { unit: 'year', value: 2 } ],
@@ -144,6 +146,14 @@ describe( 'shiftStep', () => {
 
 		expect( shiftStep( range, { unit: 'day', value: 7 }, 'previous' ) ).toEqual(
 			wholeDays( at( 2026, 7, 14 ), at( 2026, 7, 20 ) )
+		);
+	} );
+
+	it( 'moves a three-year window to the three calendar years before it', () => {
+		const range = wholeDays( at( 2024, 1, 1 ), at( 2026, 11, 9 ) );
+
+		expect( shiftStep( range, getStepSpan( 'last-3-years' ), 'previous' ) ).toEqual(
+			wholeDays( at( 2021, 1, 1 ), at( 2023, 12, 31 ) )
 		);
 	} );
 
@@ -222,5 +232,18 @@ describe( 'endOfStepHorizon', () => {
 
 	it( 'ends the running hour for a window stepping by hours', () => {
 		expect( endOfStepHorizon( now, 'hour' ) ).toEqual( endOfHourAt( 2026, 8, 20, 12 ) );
+	} );
+} );
+
+describe( 'bucketStepId', () => {
+	it.each( [
+		[ 'hour', undefined ],
+		[ 'day', 'P1D' ],
+		[ 'week', 'P7D' ],
+		[ 'month', 'P1M' ],
+		[ 'quarter', 'P3M' ],
+		[ 'year', 'P1Y' ],
+	] as const )( 'steps a %s bucket by its own unit', ( interval, stepId ) => {
+		expect( bucketStepId( interval ) ).toBe( stepId );
 	} );
 } );

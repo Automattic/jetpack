@@ -52,6 +52,7 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 	formatLegendLabels: () => [],
 	ReportErrorState: jest.requireActual( '@jetpack-premium-analytics/widgets-toolkit' )
 		.ReportErrorState,
+	StatsOptionsMenu: () => null,
 	ReportPageLayout: ( { children }: { children: ReactNode } ) => <>{ children }</>,
 	ReportPageTabs: () => null,
 	ReportDrilldownTable: jest.fn( () => null ),

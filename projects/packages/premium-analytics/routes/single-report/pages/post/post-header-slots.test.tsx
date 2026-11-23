@@ -17,6 +17,8 @@ const SUMMARY: PostSummary = {
 	refetch: () => {},
 };
 
+const CONTEXT = { label: 'Post', title: 'Hello world' };
+
 const EMAIL_SECTION = {
 	section: {
 		section: {
@@ -46,9 +48,7 @@ function renderHeader(
 	summary: PostSummary,
 	context: Partial< Parameters< typeof postHeaderSlots >[ 1 ] > = {}
 ) {
-	return render(
-		<SectionHeader { ...postHeaderSlots( summary, { label: 'Post', ...context } ) } />
-	);
+	return render( <SectionHeader { ...postHeaderSlots( summary, { ...CONTEXT, ...context } ) } /> );
 }
 
 describe( 'postHeaderSlots', () => {
@@ -68,6 +68,25 @@ describe( 'postHeaderSlots', () => {
 			screen.getByText( /Performance from Jul 9, 2026 to Jul 15, 2026/ )
 		).toBeInTheDocument();
 	} );
+
+	it.each( [
+		[
+			PERFORMANCE_RANGE,
+			/The chart covers Jul 9, 2026 to Jul 15, 2026; the totals are all-time\./,
+		],
+		[
+			{ from: PERFORMANCE_RANGE.from, to: PERFORMANCE_RANGE.from },
+			/The chart covers Jul 9, 2026; the totals are all-time\./,
+		],
+	] )(
+		'says on an email tab that the window is the chart’s alone',
+		( performanceRange, sentence ) => {
+			renderHeader( SUMMARY, { ...EMAIL_SECTION, performanceRange } );
+
+			expect( screen.getByText( sentence ) ).toBeInTheDocument();
+			expect( screen.queryByText( /Performance from/ ) ).not.toBeInTheDocument();
+		}
+	);
 
 	it( 'shows the email identity on the email variant: envelope tile and sent wording', () => {
 		renderHeader( SUMMARY, EMAIL_SECTION );
@@ -94,16 +113,6 @@ describe( 'postHeaderSlots', () => {
 		expect(
 			screen.getByText( new RegExp( `^${ label } published on Jan 10, 2026\\.` ) )
 		).toBeInTheDocument();
-	} );
-
-	it.each( [
-		[ 'post', 'Untitled post' ],
-		[ 'page', 'Untitled page' ],
-		[ 'product', 'Untitled product' ],
-	] )( 'names an untitled %s so the page keeps its heading', ( type, heading ) => {
-		renderHeader( { ...SUMMARY, type, title: '' } );
-
-		expect( screen.getByRole( 'heading', { level: 2 } ) ).toHaveTextContent( heading );
 	} );
 
 	it.each( [
@@ -139,7 +148,7 @@ describe( 'postHeaderSlots', () => {
 			'true'
 		);
 
-		rerender( <SectionHeader { ...postHeaderSlots( SUMMARY, { label: 'Post' } ) } /> );
+		rerender( <SectionHeader { ...postHeaderSlots( SUMMARY, CONTEXT ) } /> );
 
 		// eslint-disable-next-line testing-library/no-node-access -- The text cell the slot fills has no accessible query target.
 		expect( screen.getByRole( 'heading', { level: 2 } ).parentElement ).not.toHaveAttribute(

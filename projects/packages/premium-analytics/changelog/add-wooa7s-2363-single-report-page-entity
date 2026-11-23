@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Single-report pages: Add a report for an individual page at /report/page/<id>, with the same sections as a post.

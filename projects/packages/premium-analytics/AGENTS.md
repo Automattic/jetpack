@@ -19,7 +19,9 @@ Jetpack Premium Analytics is the unified analytics dashboard for Jetpack-connect
 
 `Analytics::init()` loads the generated `build/build.php` on requests that render an admin screen
 (not on front-end page views, REST, cron, `admin-ajax.php`, or `admin-post.php` — see
-`renders_admin_chrome()`). The dashboard is served from one URL,
+`renders_admin_chrome()`). The one exception is the admin shell's guest endpoint, an `admin-ajax.php`
+request that loads it through `load_as_admin_shell_guest()` after `admin_init`, to show Stats inside
+another Jetpack page. The dashboard is served from one URL,
 `?page=jetpack-premium-analytics-wp-admin` (`Analytics::MENU_PAGE_SLUG`), registered with
 `Admin_Menu::add_top_level_menu()` so hosts can hide it via `jetpack_admin_menu_visibility`, and
 gated on `Capabilities::VIEW_ANALYTICS`. REST requests reach the dashboard's data
@@ -49,11 +51,13 @@ follow their own report (`posts`, `videos`, `authors`) rather than declaring a t
 
 ```text
 src/class-analytics.php                 # entry: loads build, registers menu + routes
+src/class-dashboard-support.php         # entry without Stats v2: dashboard API + shared script modules
 src/dashboard-sections.php              # section API: registry helpers, section script data, REST
 src/default-dashboard-sections.php      # the package's own sections, registered through that API
 docs/dashboard-sections.md              # how a section is registered, served and rendered (diagrams)
 src/widget-types.php                    # widget type API: registry helpers, metadata, availability filters
 docs/dashboard-widgets.md               # how a widget type is registered, served and imported (diagram)
+docs/whats-new-channels.md              # which page shows a What's new announcement: channels by route
 src/REST/class-api-proxy-controller.php # the WPCOM data proxy (PREFIX_CONFIG)
 src/REST/class-notices-controller.php   # /notices route
 src/Reports/Export/                     # /reports/csv-export route
@@ -79,17 +83,9 @@ when charts exports look stale. After an edit, `pnpm run build` is enough and ta
 seconds. `pnpm run watch` is faster but skips the text-domain stamp, so strings stay
 English until the next `pnpm run build`.
 
-### Storybook serves the built artifact of some internal packages
+### Storybook reads the internal packages from source
 
-Storybook's Vite config maps bare `@jetpack-premium-analytics/*` imports to `src/`, but that only
-takes effect for packages whose `package.json` declares no `module` field (`datetime`,
-`formatters`, `icons`, `routing`). The rest — `data`, `externals`, `fields`, `init`, `sdk`,
-`site-sync`, `ui`, `widgets-toolkit` — point `module` at `build-module/index.mjs`, and Storybook
-loads that artifact instead, so an edit to their source is invisible there until it is rebuilt. A
-newly added export surfaces as `The requested module '…/build-module/index.mjs' does not provide an
-export named 'X'`, and a changed one silently renders the old behaviour. Run `pnpm run build` (or
-`jetpack build --deps packages/premium-analytics`) before trusting what Storybook shows for those
-packages.
+Most of these packages point `module` at `build-module/index.mjs`, so a story would be expected to serve a stale build. It does not: the `premium-analytics-source-package-imports` plugin in `projects/js-packages/storybook/storybook/main.js` resolves every bare `@jetpack-premium-analytics/*` import to that package's `src/index.ts`, and a subpath import reaches the source through the `@jetpack-premium-analytics` alias. An edit to any of them shows in Storybook without a rebuild.
 
 Add a route: create `routes/<name>/package.json` (with `route.path` + `route.page`) and a
 `stage.tsx` exporting `stage()`; rebuild — routes are auto-discovered.
@@ -153,7 +149,6 @@ under `wpcom/v2` (see "Choosing a REST namespace" below).
 | `jetpack-stats-dashboard`                                | `view_stats`                                | whole prefix (busts read cache) |
 | `commercial-classification`                              | `view_stats`                                | exact path                      |
 | `upgrades` (not under `/sites/`)                         | `view_stats`                                | —                               |
-| `products` (fixed: `products?type=jetpack`)              | `view_stats`                                | —                               |
 | `posts` (only `<id>/likes` and `<id>/replies`, unsigned) | `view_stats`                                | —                               |
 
 `manage_options` is always accepted too. `POST` is rejected (`405 rest_read_only`) outside the
@@ -299,10 +294,9 @@ of it folding into `@automattic/charts`), so treat its module paths as provision
   `link:` for internal packages (e.g.
   `"@jetpack-premium-analytics/widgets-toolkit": "link:../../packages/widgets-toolkit"`).
 
-### REQUIRED: Storybook story for every widget
+### Storybook story for every widget
 
-Every widget MUST have a story at `widgets/<widget-name>/stories/<widget-name>-widget.stories.tsx`;
-new widgets without one should not be merged.
+`.agents/rules/widgets.md` carries the requirement itself, for every package whose widgets this dashboard hosts. This section is what it means here: the file is `widgets/<widget-name>/stories/<widget-name>-widget.stories.tsx`, and the rest is below.
 
 1. **Stories**: a `Default` close-up (current period only) and a `WidgetDashboardWithWidget`
    story that mounts the real `WidgetDashboard` through the shared helper in
@@ -510,8 +504,9 @@ give it a story for each; both mocks are 403s, so neither waits out the query's 
 - Setting the period of the surface a widget sits on by writing the URL (`useReportDateFilters`,
   `useStagedSearch`) — call `useReportScope().openPeriod` instead. The host owns the period: it
   commits the range and draws the date control's attention to it. A host that offers none leaves
-  `openPeriod` undefined, so the click must degrade to inert. Opening another dashboard section
-  over a range is `useOpenSectionRange`.
+  `openPeriod` undefined, so the click must degrade to inert. On the dashboard the host also
+  keeps the window left (`up_*` params) for the date control's zoom-out. Opening another
+  dashboard section over a range is `useOpenSectionRange`.
 - Writing `<button>` without an explicit `type` — the HTML default is `type="submit"`, which
   can fire accidental form submissions. Use `type="button"` for non-submit actions.
 - Do not use inline `style={{ … }}` props in production widget render files — all widget

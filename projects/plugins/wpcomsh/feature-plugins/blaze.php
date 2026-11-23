@@ -24,7 +24,7 @@ function wpcomsh_activate_blaze_module() {
 }
 
 /**
- * Force-enable the Blaze module
+ * Force-enable the Blaze module, and report it as forced on.
  */
 function wpcomsh_force_activate_blaze_module() {
 	if ( 'wp-admin' === get_option( 'wpcom_admin_interface' ) ) {
@@ -32,8 +32,23 @@ function wpcomsh_force_activate_blaze_module() {
 	}
 
 	wpcomsh_activate_blaze_module();
+
+	// Only after activating: the filter makes Blaze read as active, so activation would skip saving it.
+	if ( class_exists( 'Jetpack' ) && Jetpack::is_module_active( 'blaze' ) ) {
+		add_filter( 'jetpack_active_modules', 'wpcomsh_report_forced_blaze_module' );
+	}
 }
 add_action( 'init', 'wpcomsh_force_activate_blaze_module', 0, 0 );
+
+/**
+ * Add Blaze to the active modules, which Jetpack reads as forced on and locks its switch.
+ *
+ * @param array $modules Active module slugs.
+ * @return array
+ */
+function wpcomsh_report_forced_blaze_module( $modules ) {
+	return array_merge( (array) $modules, array( 'blaze' ) );
+}
 
 /**
  * Remove Blaze from the old Module list.

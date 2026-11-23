@@ -544,6 +544,70 @@ class Initializer_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Preview-on-hover timing values reach the view script only as non-negative integers.
+	 *
+	 * @dataProvider data_preview_on_hover_times
+	 *
+	 * @param array $poster_data Extra posterData attributes.
+	 * @param int   $at_time     Expected previewAtTime.
+	 * @param int   $duration    Expected previewLoopDuration.
+	 */
+	#[DataProvider( 'data_preview_on_hover_times' )]
+	public function test_preview_on_hover_times_are_sanitized( $poster_data, $at_time, $duration ) {
+		$html = $this->render(
+			array(
+				'posterData' => array_merge( array( 'previewOnHover' => true ), $poster_data ),
+			)
+		);
+
+		$this->assertSame( 1, preg_match( '#<script type="application/json">(.*?)</script>#', $html, $matches ) );
+		$this->assertSame(
+			array(
+				'previewAtTime'       => $at_time,
+				'previewLoopDuration' => $duration,
+				'autoplay'            => false,
+				'showControls'        => true,
+			),
+			json_decode( $matches[1], true )
+		);
+	}
+
+	/**
+	 * Preview-on-hover timing values and the times they render as.
+	 *
+	 * @return array[] Test cases.
+	 */
+	public static function data_preview_on_hover_times() {
+		return array(
+			'valid values'    => array(
+				array(
+					'previewAtTime'       => 1500,
+					'previewLoopDuration' => 3000,
+				),
+				1500,
+				3000,
+			),
+			'numeric strings' => array(
+				array(
+					'previewAtTime'       => '1500',
+					'previewLoopDuration' => '3000',
+				),
+				1500,
+				3000,
+			),
+			'missing values'  => array( array(), 0, 5000 ),
+			'invalid values'  => array(
+				array(
+					'previewAtTime'       => -1,
+					'previewLoopDuration' => array( 'x' ),
+				),
+				0,
+				5000,
+			),
+		);
+	}
+
+	/**
 	 * The maxWidth block attribute is rendered into an inline style, so only a
 	 * plain CSS length or percentage is applied; any other value is dropped.
 	 */

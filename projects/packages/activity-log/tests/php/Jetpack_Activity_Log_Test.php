@@ -261,6 +261,17 @@ class Jetpack_Activity_Log_Test extends TestCase {
 	}
 
 	/**
+	 * The menu item names its module, which the admin shell checks each time the page is opened.
+	 */
+	public function test_menu_item_declares_its_module() {
+		$this->enter_activity_log_admin_request();
+
+		Jetpack_Activity_Log::add_wp_admin_submenu();
+
+		$this->assertSame( array( 'module' => 'activity-log' ), Admin_Menu::get_feature_gate( 'jetpack-activity-log' ) );
+	}
+
+	/**
 	 * Simple has no module system, so the standalone default would write an option to every blog.
 	 */
 	public function test_initialize_is_inert_on_wpcom_simple() {
@@ -294,12 +305,12 @@ class Jetpack_Activity_Log_Test extends TestCase {
 		$this->assertContains( Jetpack_Activity_Log::PAGE_SLUG, array_column( $GLOBALS['submenu']['jetpack'] ?? array(), 2 ) );
 	}
 
-	public function test_jetpack_config_reaches_the_data_script() {
+	public function test_initial_state_reaches_the_data_script() {
 		Jetpack_Activity_Log::enqueue_initial_state();
 
-		$before = (array) wp_scripts()->get_data( Jetpack_Activity_Log::DATA_SCRIPT_HANDLE, 'before' );
+		$before = implode( "\n", (array) wp_scripts()->get_data( Jetpack_Activity_Log::DATA_SCRIPT_HANDLE, 'before' ) );
 		wp_deregister_script( Jetpack_Activity_Log::DATA_SCRIPT_HANDLE );
 
-		$this->assertContains( 'window.jetpackConfig = {"consumer_slug":"jetpack-activity-log"};', $before );
+		$this->assertStringContainsString( 'var JPACTIVITYLOG_INITIAL_STATE=', $before );
 	}
 }

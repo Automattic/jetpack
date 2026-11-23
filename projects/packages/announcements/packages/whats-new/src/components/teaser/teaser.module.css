@@ -1,0 +1,23 @@
+.teaser {
+	--wp-ui-card-padding: var(--wpds-dimension-padding-lg);
+	--wp-ui-card-header-content-gap: var(--wpds-dimension-gap-sm);
+
+	/* WPDS has no elevation token. */
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+.cover {
+	margin-block-end: var(--wpds-dimension-gap-md);
+}
+
+/* One box for every image, so the card keeps its height. */
+.cover img {
+	display: block;
+	inline-size: 100%;
+	aspect-ratio: 16 / 9;
+	object-fit: cover;
+}
+
+.muted {
+	color: var(--wpds-color-foreground-content-neutral-weak);
+}

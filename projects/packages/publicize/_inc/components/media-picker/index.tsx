@@ -1,10 +1,10 @@
 import { ThemeProvider } from '@automattic/jetpack-components';
+import { loadMediaLibrary } from '@automattic/jetpack-components/tools/load-media-library';
 import { MediaUpload, MediaUploadCheck } from '@wordpress/block-editor';
-import { ResponsiveWrapper, Spinner, VisuallyHidden } from '@wordpress/components';
-import { Fragment, useCallback } from '@wordpress/element';
+import { Fragment, useCallback, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Icon, closeSmall } from '@wordpress/icons';
-import { Button } from '@wordpress/ui';
+import { Button, Spinner, VisuallyHidden } from '@wordpress/ui';
 import clsx from 'clsx';
 import { isVideo } from '../../hooks/use-media-restrictions';
 import { SELECTABLE_MEDIA_TYPES } from '../../hooks/use-media-restrictions/restrictions';
@@ -22,13 +22,6 @@ type MediaPickerProps = {
 	wrapperClassName?: string;
 	allowedMediaTypes?: string[] | null;
 	isEditor?: boolean;
-};
-
-// This is to cope with the problem describeed here:
-// https://github.com/WordPress/gutenberg/blob/ebad47952fc94ce4324e989691dde2d3d7689f45/packages/block-editor/src/components/inserter/media-tab/media-tab.js#L122
-const clickHandler = open => e => {
-	e.currentTarget.focus();
-	open();
 };
 
 /**
@@ -62,6 +55,36 @@ export default function MediaPicker( {
 	} = mediaDetails;
 
 	const isImageLoading = ! sourceUrl || ! width || ! height || ! mime;
+	const [ isLoadingLibrary, setIsLoadingLibrary ] = useState( false );
+	const [ hasLibraryError, setHasLibraryError ] = useState( false );
+	const isLoadingRef = useRef( false );
+
+	// MediaUpload's `open` needs wp.media, which loads on the first click.
+	const clickHandler = useCallback(
+		open => async e => {
+			// Focus first, to cope with the problem described here:
+			// https://github.com/WordPress/gutenberg/blob/ebad47952fc94ce4324e989691dde2d3d7689f45/packages/block-editor/src/components/inserter/media-tab/media-tab.js#L122
+			e.currentTarget.focus();
+			// The preview button has no disabled state, so a second click must not open it twice.
+			if ( isLoadingRef.current ) {
+				return;
+			}
+			isLoadingRef.current = true;
+			setIsLoadingLibrary( true );
+			setHasLibraryError( false );
+			try {
+				await loadMediaLibrary();
+			} catch {
+				setHasLibraryError( true );
+				return;
+			} finally {
+				isLoadingRef.current = false;
+				setIsLoadingLibrary( false );
+			}
+			open();
+		},
+		[]
+	);
 
 	const onRemoveMedia = useCallback( () => onChange( null ), [ onChange ] );
 	const onUpdateMedia = useCallback(
@@ -83,6 +106,7 @@ export default function MediaPicker( {
 					<button
 						className={ styles.preview }
 						onClick={ clickHandler( open ) }
+						aria-busy={ isLoadingLibrary }
 						data-unstable-ignore-focus-outside-for-relatedtarget=".media-modal"
 					>
 						{ renderVideoPreview ? (
@@ -92,24 +116,23 @@ export default function MediaPicker( {
 								duration={ length }
 							></VideoPreview>
 						) : (
-							<ResponsiveWrapper
-								naturalWidth={ previewWidth || width }
-								naturalHeight={ previewHeight || height }
-								isInline
-							>
-								<img
-									src={ previewUrl || sourceUrl }
-									alt=""
-									className={ styles[ 'preview-image' ] }
-								/>
-							</ResponsiveWrapper>
+							<img
+								src={ previewUrl || sourceUrl }
+								alt=""
+								className={ styles[ 'preview-image' ] }
+								style={ {
+									aspectRatio: `${ previewWidth || width } / ${ previewHeight || height }`,
+								} }
+							/>
 						) }
 					</button>
 				</div>
 			);
 		},
 		[
+			clickHandler,
 			height,
+			isLoadingLibrary,
 			length,
 			mime,
 			onRemoveMedia,
@@ -132,6 +155,8 @@ export default function MediaPicker( {
 							size="small"
 							className={ styles[ 'picker-button' ] }
 							onClick={ clickHandler( open ) }
+							loading={ isLoadingLibrary }
+							disabled={ isLoadingLibrary }
 							data-unstable-ignore-focus-outside-for-relatedtarget=".media-modal"
 						>
 							{ buttonLabel }
@@ -149,7 +174,7 @@ export default function MediaPicker( {
 				) }
 			</div>
 		),
-		[ buttonLabel, mediaId, onRemoveMedia, subTitle ]
+		[ buttonLabel, clickHandler, isLoadingLibrary, mediaId, onRemoveMedia, subTitle ]
 	);
 
 	const setMediaRender = useCallback(
@@ -170,6 +195,11 @@ export default function MediaPicker( {
 					value={ mediaId }
 				/>
 			</MediaUploadComponent>
+			{ hasLibraryError && (
+				<p role="alert" className={ styles[ 'library-error' ] }>
+					{ __( 'The media library could not be loaded. Try again.', 'jetpack-publicize-pkg' ) }
+				</p>
+			) }
 		</ThemeProvider>
 	);
 }

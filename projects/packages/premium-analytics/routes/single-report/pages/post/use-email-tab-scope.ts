@@ -1,23 +1,20 @@
 /**
  * External dependencies
  */
-import { type ReportParams } from '@jetpack-premium-analytics/data';
+import {
+	emailSendWindowRange,
+	readEmailSendWindow,
+	type ReportParams,
+	useSiteDay,
+} from '@jetpack-premium-analytics/data';
 import {
 	PRESET_ALL_TIME,
 	computePrimaryRange,
-	endOfDayTZ,
 	type DateRange,
 } from '@jetpack-premium-analytics/datetime';
 import { encodeDateToSearchParam } from '@jetpack-premium-analytics/routing';
 import { useMemo } from '@wordpress/element';
-import { addDays } from 'date-fns';
-
-/**
- * How many days after the send the email tabs' timeline covers, the send day
- * included. Matches the per-post email timeline endpoint's cap of 30 daily
- * buckets per request, and the window the legacy Stats email page shows.
- */
-export const EMAIL_SEND_WINDOW_DAYS = 30;
+import type { SectionWidget } from '../adapter';
 
 /**
  * The window the email tabs report over, and the report params that carry it
@@ -26,9 +23,34 @@ export const EMAIL_SEND_WINDOW_DAYS = 30;
 export type EmailTabScope = {
 	/** The send window: the publish day through day 30, or today if sooner. */
 	range: Required< DateRange >;
-	/** The same window as widget report params, replacing the URL's. */
-	reportParams: ReportParams;
+	/** The same window as widget report params, replacing the URL's, plus the send instant. */
+	reportParams: ReportParams & { sent_at?: string };
+	/** The window the email chart in a layout draws: the one its own control saved, or the default. */
+	headerRange: ( layout: readonly SectionWidget[] ) => DateRange | undefined;
 };
+
+const EMAIL_CHART_TYPE = 'jpa/email-time-series';
+
+/**
+ * The window the layout's email chart reaches over.
+ *
+ * @param layout   - The section's widgets.
+ * @param day      - The start of the send day.
+ * @param sentAt   - The send instant.
+ * @param timeZone - The site timezone.
+ * @return The chart's window, or undefined without a readable send day.
+ */
+function emailChartRange(
+	layout: readonly SectionWidget[],
+	day: Date,
+	sentAt: Date,
+	timeZone: string
+): DateRange | undefined {
+	const chart = layout.find( widget => widget.type.startsWith( EMAIL_CHART_TYPE ) );
+	const window = ( chart?.attributes as { sendWindow?: unknown } | undefined )?.sendWindow;
+
+	return emailSendWindowRange( readEmailSendWindow( window ), { day, sentAt }, timeZone );
+}
 
 /**
  * Pin the email tabs to the first 30 days after the send.
@@ -36,7 +58,7 @@ export type EmailTabScope = {
  * An email goes out once and collects nearly all of its opens within the
  * first days, so the page's rolling presets ("last 7 days") would show a send
  * from months ago as an empty tail. The email tabs therefore report over a
- * window anchored at the publish day — `EMAIL_SEND_WINDOW_DAYS` long, or
+ * window anchored at the publish day — the chart's default one, or
  * through today for a younger send — and hand it to their widgets as report
  * params, which `WidgetRoot` reads in place of the URL. The URL keeps the
  * Post traffic tab's selection untouched for when the reader tabs back.
@@ -58,7 +80,10 @@ export function useEmailTabScope(
 	allTimeStart: Date | undefined,
 	timeZone: string
 ): EmailTabScope | undefined {
+	const siteDay = useSiteDay();
+
 	return useMemo( () => {
+		void siteDay;
 		if ( ! allTimeStart || ! ( postId > 0 ) ) {
 			return undefined;
 		}
@@ -70,11 +95,16 @@ export function useEmailTabScope(
 			return undefined;
 		}
 
-		const windowEnd = endOfDayTZ( addDays( lifetime.from, EMAIL_SEND_WINDOW_DAYS - 1 ), timeZone );
-		const range = {
-			from: lifetime.from,
-			to: windowEnd < lifetime.to ? windowEnd : lifetime.to,
-		};
+		const window = emailSendWindowRange(
+			readEmailSendWindow( undefined ),
+			{ day: lifetime.from },
+			timeZone
+		);
+		if ( ! window ) {
+			return undefined;
+		}
+
+		const range = { from: window.from, to: window.to };
 		const from = encodeDateToSearchParam( range.from );
 		const to = encodeDateToSearchParam( range.to );
 
@@ -84,14 +114,16 @@ export function useEmailTabScope(
 
 		return {
 			range,
+			headerRange: layout => emailChartRange( layout, range.from, allTimeStart, timeZone ),
 			reportParams: {
 				post_id: postId,
 				from,
 				to,
-				// One bucket per day: the window is at most 30 days, and the
-				// endpoint only offers hourly or daily buckets.
+				// The email chart counts its first 24 hours from here.
+				sent_at: encodeDateToSearchParam( allTimeStart ),
+				// A fixed bucket in place of the URL's: the chart's own control settles the one it draws.
 				interval: 'day',
 			},
 		};
-	}, [ postId, allTimeStart, timeZone ] );
+	}, [ postId, allTimeStart, timeZone, siteDay ] );
 }

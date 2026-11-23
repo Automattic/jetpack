@@ -14,6 +14,27 @@ if ( getenv( 'DOCKER_PHPUNIT_BASE_DIR' ) ) {
 }
 \Automattic\RedefineExit::setup();
 
+$jetpack_patchwork_cache = getenv( 'JETPACK_PLUGIN_PATCHWORK_CACHE' );
+if ( ! $jetpack_patchwork_cache ) {
+	$jetpack_patchwork_cache = sys_get_temp_dir() . '/jetpack-plugin-patchwork-' . uniqid( '', true );
+	if ( ! mkdir( $jetpack_patchwork_cache, 0700 ) ) {
+		throw new RuntimeException( "Could not create the Patchwork cache directory $jetpack_patchwork_cache." );
+	}
+	$jetpack_patchwork_cache = realpath( $jetpack_patchwork_cache );
+	putenv( "JETPACK_PLUGIN_PATCHWORK_CACHE=$jetpack_patchwork_cache" );
+	register_shutdown_function(
+		static function () use ( $jetpack_patchwork_cache ) {
+			foreach ( glob( $jetpack_patchwork_cache . '/*' ) as $file ) {
+				unlink( $file );
+			}
+			rmdir( $jetpack_patchwork_cache );
+		}
+	);
+} elseif ( ! is_dir( $jetpack_patchwork_cache ) || ! is_writable( $jetpack_patchwork_cache ) ) {
+	throw new RuntimeException( "The Patchwork cache directory $jetpack_patchwork_cache is missing or not writable." );
+}
+\Patchwork\Config\setCachePath( $jetpack_patchwork_cache, __DIR__ );
+
 /*
  * For tests that should be skipped in Jetpack but run in WPCOM (or vice versa), test against this constant.
  *
@@ -198,6 +219,12 @@ function _manually_load_muplugin() {
 		mkdir( WPCOMSH_PREMIUM_THEMES_PATH, 0777 );
 	}
 }
+
+// Ability tests turn abilities on themselves, so keep them off while the plugin loads.
+tests_add_filter( 'jetpack_wp_abilities_enabled', '__return_false' );
+
+// With the flag on, Stats v2 sets up WooCommerce Stats Sync while the plugin loads, which Sync tests do not expect; Stats v2 tests turn it on themselves.
+tests_add_filter( 'jetpack_feature_flag_enabled_jetpack-stats-classic-page-retired', '__return_false' );
 
 // If we are running the uninstall tests don't load jetpack.
 if ( ! ( in_running_uninstall_group() ) ) {

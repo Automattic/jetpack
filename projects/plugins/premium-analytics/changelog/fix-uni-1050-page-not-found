@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Open the dashboard for `admin.php?page=stats` on WordPress 7.2, which reports an unregistered page as not found instead of denied.

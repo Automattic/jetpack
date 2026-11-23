@@ -383,3 +383,86 @@ describe( 'buildRequestData shipping', () => {
 		).toBe( true );
 	} );
 } );
+
+describe( 'images', () => {
+	const images = [
+		{
+			assetId: 'asset-1',
+			attachmentId: 1,
+			name: 'one.jpg',
+			thumbnailUrl: 'https://example.test/1.jpg',
+			status: 'APPROVED',
+		},
+		{ assetId: 'asset-2', attachmentId: 2, name: 'two.jpg', status: 'IN_REVIEW' },
+	];
+
+	// PayPal reads the asset id and the primary flag, and nothing the block keeps for itself.
+	it( 'sends the images by asset id, the first as primary', () => {
+		expect( buildRequestData( { ...attributes, images }, true ).line_items[ 0 ].images ).toEqual( [
+			{ asset_id: 'asset-1', is_primary: true },
+			{ asset_id: 'asset-2', is_primary: false },
+		] );
+	} );
+
+	it.each( [ [ [] ], [ undefined ], [ [ { attachmentId: 3 } ] ] ] )(
+		'leaves the key out when there is nothing to send: %p',
+		value => {
+			expect(
+				buildRequestData( { ...attributes, images: value }, true ).line_items[ 0 ]
+			).not.toHaveProperty( 'images' );
+		}
+	);
+
+	it( 'sends an option image on the primary group only, by asset id', () => {
+		const image = { assetId: 'asset-9', attachmentId: 9, name: 'red.jpg' };
+		const variants = {
+			dimensions: [
+				{
+					_key: 'd1',
+					name: 'Size',
+					primary: true,
+					options: [
+						{
+							_key: 'o1',
+							label: 'S',
+							unit_amount: { currency_code: 'USD', value: '10.00' },
+							images: [ image ],
+						},
+					],
+				},
+				{
+					_key: 'd2',
+					name: 'Color',
+					primary: false,
+					options: [ { _key: 'o2', label: 'Red', images: [ image ] } ],
+				},
+			],
+		};
+
+		const [ size, color ] = buildRequestData( { ...attributes, variants }, true ).line_items[ 0 ]
+			.variants.dimensions;
+
+		expect( size.options[ 0 ].images ).toEqual( [ { asset_id: 'asset-9' } ] );
+		expect( color.options[ 0 ] ).not.toHaveProperty( 'images' );
+	} );
+
+	// With pricing off the save flags the first group, so that is where PayPal takes images.
+	it( 'sends an option image on the first group when no group is priced', () => {
+		const variants = {
+			dimensions: [
+				{
+					_key: 'd1',
+					name: 'Size',
+					primary: false,
+					options: [ { _key: 'o1', label: 'S', images: [ { assetId: 'asset-9' } ] } ],
+				},
+			],
+		};
+
+		const [ size ] = buildRequestData( { ...attributes, variants }, false ).line_items[ 0 ].variants
+			.dimensions;
+
+		expect( size.primary ).toBe( true );
+		expect( size.options[ 0 ].images ).toEqual( [ { asset_id: 'asset-9' } ] );
+	} );
+} );

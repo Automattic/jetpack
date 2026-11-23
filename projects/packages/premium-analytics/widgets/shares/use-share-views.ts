@@ -18,18 +18,14 @@ export interface ShareView {
 	value: number;
 }
 
-interface UseShareViewsArgs {
-	/**
-	 * Maximum rows to display; `0` means all.
-	 */
-	max: number;
-}
-
 interface ShareViewsState {
 	data: ShareView[];
 	isLoading: boolean;
 	isFetching: boolean;
 	isError: boolean;
+	/** The request's own error, which `isError` hides while rows stay on screen. */
+	csvIsError: boolean;
+	csvIsPlaceholderData: boolean;
 	refetch: () => void;
 }
 
@@ -85,7 +81,7 @@ function serviceLabel( service: string ): string {
 	);
 }
 
-export function buildShareViews( summary: Record< string, unknown >, max: number ): ShareView[] {
+export function buildShareViews( summary: Record< string, unknown > ): ShareView[] {
 	const byService = new Map< string, ShareView >();
 
 	Object.entries( summary ).forEach( ( [ key, value ] ) => {
@@ -108,9 +104,7 @@ export function buildShareViews( summary: Record< string, unknown >, max: number
 		} );
 	} );
 
-	return [ ...byService.values() ]
-		.sort( ( a, b ) => b.value - a.value )
-		.slice( 0, max > 0 ? max : undefined );
+	return [ ...byService.values() ].sort( ( a, b ) => b.value - a.value );
 }
 
 /**
@@ -118,15 +112,15 @@ export function buildShareViews( summary: Record< string, unknown >, max: number
  *
  * The counts live on the site summary (`stats` endpoint) as `shares_<service>`
  * fields, so this delegates to `useStatsSite`. The summary is all-time and has no
- * comparison period; rows are sorted by share count and trimmed to `max`.
+ * comparison period; every network with shares comes back, most shared first.
  */
-export default function useShareViews( { max }: UseShareViewsArgs ): ShareViewsState {
+export default function useShareViews(): ShareViewsState {
 	// No `stat_fields`: it takes exact keys, and the site's `shares_<service>` keys are not known up front.
-	const { data, isLoading, isFetching, isError, refetch } = useStatsSite();
+	const { data, isLoading, isFetching, isError, isPlaceholderData, refetch } = useStatsSite();
 
 	const summary = ( data as { stats?: Record< string, unknown > } | undefined )?.stats ?? {};
 
-	const items = buildShareViews( summary, max );
+	const items = buildShareViews( summary );
 
 	return {
 		data: items,
@@ -136,6 +130,8 @@ export default function useShareViews( { max }: UseShareViewsArgs ): ShareViewsS
 		// keep showing prior rows on a transient refetch failure and only surface the
 		// error when there's nothing to show.
 		isError: items.length === 0 && isError,
+		csvIsError: isError,
+		csvIsPlaceholderData: isPlaceholderData,
 		refetch,
 	};
 }

@@ -78,7 +78,7 @@ describe( 'default report params', () => {
 		it.each( [
 			[ 'last_30_days', 'last-30-days' ],
 			[ 'year_to_date', 'year-to-date' ],
-			[ 'last_3_years', 'last-12-months' ],
+			[ 'last_3_years', 'last-3-years' ],
 			[ 'not_a_shortcut', 'last-7-days' ],
 		] )( 'maps the v1 shortcut %s to %s', ( shortcutId, preset ) => {
 			window.localStorage.setItem( V1_KEY, shortcutId );

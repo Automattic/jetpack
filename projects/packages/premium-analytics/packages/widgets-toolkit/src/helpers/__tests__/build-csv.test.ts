@@ -1,7 +1,13 @@
 /**
  * Internal dependencies
  */
-import { buildCsv, buildCsvDateRangeFilename, saveCsv, type CsvColumn } from '../build-csv';
+import {
+	buildCsv,
+	buildCsvDateRangeFilename,
+	formatCsvDate,
+	saveCsv,
+	type CsvColumn,
+} from '../build-csv';
 
 type Row = {
 	label: string;
@@ -88,6 +94,18 @@ describe( 'buildCsvDateRangeFilename', () => {
 		expect( buildCsvDateRangeFilename( 'top-posts', { from: 123, to: 456 } ) ).toBe(
 			'top-posts-123_456'
 		);
+	} );
+} );
+
+describe( 'formatCsvDate', () => {
+	const INSTANT = new Date( '2026-03-01T16:30:00Z' );
+
+	it.each( [
+		[ 'Asia/Taipei', false, '2026-03-02' ],
+		[ 'Asia/Taipei', true, '2026-03-02 00:30' ],
+		[ 'America/New_York', false, '2026-03-01' ],
+	] )( 'writes the instant in %s (with time: %s) as %s', ( zone, withTime, expected ) => {
+		expect( formatCsvDate( INSTANT, zone, withTime ) ).toBe( expected );
 	} );
 } );
 

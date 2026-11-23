@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Schema: Stop including Query Loop block text in the Article description when Open Graph tags are off.

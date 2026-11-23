@@ -73,6 +73,7 @@ class Jetpack_Redux_State_Helper {
 		require_once JETPACK__PLUGIN_DIR . '_inc/lib/core-api/class.jetpack-core-api-xmlrpc-consumer-endpoint.php';
 		require_once JETPACK__PLUGIN_DIR . '_inc/lib/core-api/class.jetpack-core-api-module-endpoints.php';
 		require_once JETPACK__PLUGIN_DIR . '_inc/lib/core-api/class.jetpack-core-api-site-endpoints.php';
+		require_once __DIR__ . '/class-jetpack-settings-react-page.php';
 
 		$module_list_endpoint = new Jetpack_Core_API_Module_List_Endpoint();
 		$modules              = $module_list_endpoint->get_modules();
@@ -199,6 +200,10 @@ class Jetpack_Redux_State_Helper {
 				'isMultisite'                => is_multisite(),
 				// Set when Jetpack or the standalone plugin registered the Backup page on this request.
 				'hasBackupPage'              => (bool) did_action( 'jetpack_backup_initialized' ),
+				// Set when Jetpack or the Protect plugin registered the Protect page on this request.
+				'hasProtectPage'             => (bool) did_action( 'jetpack_protect_dashboard_initialized' ),
+				'hasSocialPage'              => self::has_social_page(),
+				'settingsTabs'               => Jetpack_Settings_React_Page::get_remaining_tabs(),
 				'dateFormat'                 => get_option( 'date_format' ),
 				'isSharingBlockAvailable'    => isset( $block_availability['sharing-buttons'] )
 					&& $block_availability['sharing-buttons']['available'],
@@ -224,7 +229,8 @@ class Jetpack_Redux_State_Helper {
 				'errorDescription' => Jetpack::state( 'error_description' ),
 			),
 			'tracksUserData'                       => Jetpack_Tracks_Client::get_connected_user_tracks_identity(),
-			'currentIp'                            => IP_Utils::get_ip(),
+			// Don't suggest the fallback address when the configured trusted header can't be resolved.
+			'currentIp'                            => method_exists( IP_Utils::class, 'is_trusted_header_unresolved' ) && IP_Utils::is_trusted_header_unresolved() ? false : IP_Utils::get_ip(),
 			'lastPostUrl'                          => esc_url( $last_post ),
 			'externalServicesConnectUrls'          => self::get_external_services_connect_urls(),
 			'calypsoEnv'                           => ( new Host() )->get_calypso_env(),
@@ -398,6 +404,21 @@ class Jetpack_Redux_State_Helper {
 		// Get the dynamic image generated for the Open Graph Meta tags.
 		require_once JETPACK__PLUGIN_DIR . 'functions.opengraph.php';
 		return jetpack_og_get_fallback_social_image( 200, 200 )['src'];
+	}
+
+	/**
+	 * Whether the Jetpack Social page is in the Jetpack menu for this user.
+	 *
+	 * Publicize skips it when `jetpack_publicize_should_load` is false, even on a connected site, so this reads the built menu.
+	 *
+	 * @since 16.5
+	 *
+	 * @return bool
+	 */
+	private static function has_social_page() {
+		global $submenu;
+
+		return in_array( 'jetpack-social', array_column( $submenu['jetpack'] ?? array(), 2 ), true );
 	}
 }
 

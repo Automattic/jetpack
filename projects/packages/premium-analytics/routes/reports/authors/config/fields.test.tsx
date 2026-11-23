@@ -70,7 +70,7 @@ describe( 'authors fields', () => {
 		renderField( 'author', author );
 
 		const url = getMockRouteLinkUrl( screen.getByRole( 'link', { name: 'Ada Lovelace' } ) );
-		expect( url.pathname ).toBe( '/author/42' );
+		expect( url.pathname ).toBe( '/report/author/42' );
 		expect( Object.fromEntries( url.searchParams ) ).toEqual( {
 			from: '2026-06-01',
 			to: '2026-06-16',

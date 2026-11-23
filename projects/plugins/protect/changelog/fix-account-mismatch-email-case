@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Connection: Stop showing a duplicate account notice when your WordPress.com email differs from your site email only in letter case.
