@@ -12,6 +12,7 @@ import {
 	setMockRoutePath,
 	setMockRouteSearch,
 } from '../../../../../../tests/js/route-test-utils';
+import { resetPromoDismissalForTesting } from '../../../hooks';
 import { DashboardSectionProvider } from '../../../hooks/use-dashboard-origin-search';
 import { StatsOptionsMenu } from '../stats-options-menu';
 
@@ -45,6 +46,7 @@ describe( 'stats-options-menu Settings entry', () => {
 	beforeEach( () => {
 		jest.useFakeTimers();
 		jest.clearAllMocks();
+		resetPromoDismissalForTesting();
 		setMockRouteSearch();
 		setMockRoutePath();
 	} );
@@ -70,6 +72,39 @@ describe( 'stats-options-menu Settings entry', () => {
 		expect( url.searchParams.get( 'preset' ) ).toBe( 'last-30-days' );
 		expect( url.searchParams.get( 'ds' ) ).toBe( 'traffic' );
 		expect( url.searchParams.has( 'section' ) ).toBe( false );
+	} );
+
+	it( 'renders the promo item with its CTA label after Settings', async () => {
+		jest.mocked( getScriptData ).mockReturnValue( {
+			premium_analytics: {
+				...WITH_SETTINGS?.premium_analytics,
+				promos: [
+					{
+						slug: 'acme/offer',
+						placement: 'options-menu',
+						target: null,
+						order: 10,
+						title: 'Grow with Acme',
+						description: 'Reach more readers.',
+						cta_label: 'Try Acme',
+						cta_url: 'https://example.com/acme',
+						dismissible: false,
+						snooze_days: 0,
+						render_module: null,
+					},
+				],
+			},
+		} as ReturnType< typeof getScriptData > );
+		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
+
+		render( <StatsOptionsMenu /> );
+		await user.click( screen.getByRole( 'button', { name: 'Stats options' } ) );
+
+		const items = await screen.findAllByRole( 'menuitem' );
+		expect( items.slice( 0, 2 ).map( item => item.textContent ) ).toEqual( [
+			'Settings',
+			'Try Acme',
+		] );
 	} );
 
 	it.each( [
