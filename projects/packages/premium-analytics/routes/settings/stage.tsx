@@ -36,7 +36,7 @@ export function stage(): JSX.Element {
 						items={ [ { label: __( 'Settings', 'jetpack-premium-analytics-pkg' ) } ] }
 					/>
 				}
-				actions={ <StatsOptionsMenu withPromo={ false } /> }
+				actions={ <StatsOptionsMenu /> }
 				className={ styles.page }
 			>
 				<Stack direction="column" justify="space-between" className={ styles.scroll }>
