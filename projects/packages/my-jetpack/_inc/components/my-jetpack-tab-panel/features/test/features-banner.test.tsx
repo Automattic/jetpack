@@ -2,15 +2,12 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
+import useAnalytics from '../../../../hooks/use-analytics';
 import { FeaturesBanner } from '../features-banner';
 
 jest.mock( '@wordpress/api-fetch' );
 
-const mockRecordEvent = jest.fn();
-jest.mock( '../../../../hooks/use-analytics', () => ( {
-	__esModule: true,
-	default: () => ( { recordEvent: mockRecordEvent } ),
-} ) );
+const mockRecordEvent = jest.mocked( jest.mocked( useAnalytics )().recordEvent );
 
 const mockApiFetch = apiFetch as unknown as jest.Mock;
 

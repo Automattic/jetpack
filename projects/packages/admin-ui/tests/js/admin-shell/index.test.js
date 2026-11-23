@@ -3,6 +3,8 @@ const mockInits = { a: jest.fn(), b: jest.fn() };
 // One mock for every copy of the shell: each test loads it again, and earlier copies still hear clicks.
 const mockShowHeader = jest.fn( () => () => {} );
 const mockCapturedSlug = {};
+const mockFeature = { on: true, card: '' };
+const mockRouteLoaders = [];
 
 jest.mock( '../../../src/admin-shell/adapter', () => ( {
 	bootFor: jest.fn( () => Promise.resolve( { initSinglePage: jest.fn() } ) ),
@@ -23,6 +25,14 @@ jest.mock( '../../../src/admin-shell/adapter', () => ( {
 	loadPage: jest.fn(),
 	notifyRouters: jest.fn(),
 	prefetchBoot: jest.fn( () => Promise.resolve() ),
+	preloadModules: jest.fn( () => Promise.resolve() ),
+	routeAt: ( ...args ) =>
+		jest.requireActual( '../../../src/admin-shell/adapter' ).routeAt( ...args ),
+	// jsdom can't import the blob stand-ins, so tests call each guest's loader themselves.
+	routesLoadedBy: jest.fn( ( routes, load ) => {
+		mockRouteLoaders.push( load );
+		return routes;
+	} ),
 	trackViewTransitions: jest.fn(),
 	transitionSettled: jest.fn( () => Promise.resolve() ),
 } ) );
@@ -68,6 +78,15 @@ jest.mock(
 );
 
 jest.mock(
+	'test-guest-a/other',
+	() => {
+		mockCapturedSlug.aOther = globalThis.jetpackConfig?.consumer_slug;
+		return {};
+	},
+	{ virtual: true }
+);
+
+jest.mock(
 	'test-guest-a2/route',
 	() => {
 		mockCapturedSlug.a2 = globalThis.jetpackConfig?.consumer_slug;
@@ -87,7 +106,7 @@ jest.mock(
 const member = ( slug, guest, routes = guest ) => ( {
 	mountId: `${ slug }-app`,
 	initModules: guest ? [ `test-guest-${ guest }/init` ] : [],
-	routes: routes ? [ { route_module: `test-guest-${ routes }/route` } ] : [],
+	routes: routes ? [ { path: '/$', route_module: `test-guest-${ routes }/route` } ] : [],
 } );
 
 const settle = async () => {
@@ -99,6 +118,7 @@ const settle = async () => {
 let mockConfigExtra = {};
 
 const menuLink = slug => document.querySelector( `#adminmenu a[href$="page=${ slug }"]` );
+const open = slug => menuLink( slug ).click();
 const pointer = ( slug, type ) =>
 	menuLink( slug ).dispatchEvent( new Event( type, { bubbles: true } ) );
 
@@ -120,6 +140,8 @@ beforeEach( () => {
 	mockShowHeader.mockClear();
 	mockInits.a.mockReset();
 	mockInits.b.mockReset();
+	mockRouteLoaders.length = 0;
+	delete mockCapturedSlug.aOther;
 	delete mockCapturedSlug.a;
 	delete mockCapturedSlug.b;
 	delete mockCapturedSlug.a2;
@@ -130,7 +152,14 @@ beforeEach( () => {
 		host: 'host',
 		members: {
 			host: { ...member( 'host' ), initModules: [ 'test-guest-h/init' ] },
-			'guest-a': { ...member( 'guest-a', 'a' ), header: { title: 'Guest A', subtitle: 'Sub' } },
+			'guest-a': {
+				...member( 'guest-a', 'a' ),
+				routes: [
+					...member( 'guest-a', 'a' ).routes,
+					{ path: '/other', route_module: 'test-guest-a/other' },
+				],
+				header: { title: 'Guest A', subtitle: 'Sub' },
+			},
 			'guest-b': member( 'guest-b', 'b' ),
 			// Another page built from guest A's package: same init module.
 			'guest-a2': { ...member( 'guest-a2', 'a', 'a2' ), header: false },
@@ -139,10 +168,31 @@ beforeEach( () => {
 		},
 		guestAssetsUrl: '/wp-admin/admin-ajax.php',
 		headerStorageKey: 'test',
+		featureUrl: '/wp-admin/admin-ajax.php?action=feature',
+		featureOff: {
+			heading: '%s is turned off',
+			text: 'Turn it back on.',
+			button: 'Turn on',
+			busy: 'Turning on…',
+			failed: 'Failed.',
+		},
 		...mockConfigExtra,
 	};
+	config.members[ 'guest-b' ].gate = { module: 'b-module' };
+	config.members[ 'guest-b' ].gateNonce = 'b-nonce';
+	mockFeature.on = true;
+	mockFeature.card = '';
+	jest.spyOn( window, 'scrollTo' ).mockImplementation();
+	// eslint-disable-next-line jest/prefer-spy-on -- jsdom has no fetch to spy on.
+	global.fetch = jest.fn( async ( url, options ) => ( {
+		json: async () =>
+			options?.method === 'POST'
+				? { success: false, data: { message: 'Not allowed.' } }
+				: { success: true, data: { on: mockFeature.on, card: mockFeature.card } },
+	} ) );
 	document.body.innerHTML = `
 		<ul id="adminmenu">
+			<li><a href="/wp-admin/admin.php?page=host">Host</a></li>
 			<li><a href="/wp-admin/admin.php?page=guest-a">A</a></li>
 			<li><a href="/wp-admin/admin.php?page=guest-b">B</a></li>
 			<li><a href="/wp-admin/admin.php?page=guest-a2">A2</a></li>
@@ -397,6 +447,62 @@ describe( 'admin shell prewarm', () => {
 		await settle();
 
 		expect( mockCapturedSlug ).toEqual( { a: 'a', b: 'b' } );
+	} );
+
+	it.each( [
+		[ 'its landing route', 'guest-a', { a: 'a' } ],
+		[ 'the route its link opens', 'guest-a&p=%2Fother', { aOther: 'a' } ],
+	] )( 'prewarms only %s', async ( _, page, captured ) => {
+		mockInits.a.mockImplementation( () => {
+			globalThis.jetpackConfig = { consumer_slug: 'a' };
+		} );
+		document
+			.querySelector( '#adminmenu' )
+			.insertAdjacentHTML(
+				'beforeend',
+				`<li><a id="link" href="/wp-admin/admin.php?page=${ page }">A</a></li>`
+			);
+
+		jest.useFakeTimers();
+		document
+			.getElementById( 'link' )
+			.dispatchEvent( new Event( 'pointerover', { bubbles: true } ) );
+		jest.advanceTimersByTime( 100 );
+		jest.useRealTimers();
+		await settle();
+
+		expect( mockCapturedSlug ).toEqual( captured );
+	} );
+
+	it( "evaluates a route a guest reaches later with that guest's Jetpack config", async () => {
+		const pageConfig = { consumer_slug: 'host' };
+		globalThis.jetpackConfig = pageConfig;
+		mockInits.a.mockImplementation( () => {
+			globalThis.jetpackConfig = { consumer_slug: 'a' };
+		} );
+		click( '/wp-admin/admin.php?page=guest-a' );
+		await settle();
+
+		await mockRouteLoaders[ 0 ]( 'test-guest-a/other' );
+
+		expect( mockCapturedSlug ).toEqual( { a: 'a', aOther: 'a' } );
+		expect( globalThis.jetpackConfig ).toBe( pageConfig );
+	} );
+
+	it( "starts downloading a route a guest reaches while another guest's prewarm holds the queue", async () => {
+		const { preloadModules } = require( '../../../src/admin-shell/adapter' );
+		click( '/wp-admin/admin.php?page=guest-a' );
+		await settle();
+		mockInits.b.mockImplementation( () => new Promise( () => {} ) );
+		hover( 'guest-b' );
+		await settle();
+
+		const loading = mockRouteLoaders[ 0 ]( 'test-guest-a/other' );
+		await settle();
+
+		expect( preloadModules ).toHaveBeenLastCalledWith( [ 'test-guest-a/other' ] );
+		expect( mockCapturedSlug.aOther ).toBeUndefined();
+		loading.catch( () => {} );
 	} );
 
 	it( "keeps the page's Jetpack config, and gives a page sharing an init module that init's config", async () => {
@@ -812,5 +918,282 @@ describe( 'admin shell live-app limit', () => {
 
 		expect( kept ).toBe( true );
 		expect( stateOf( 'guest-b' ) ).toBe( 'visible' );
+	} );
+} );
+
+describe( 'admin shell turned-off features', () => {
+	const panel = () => document.querySelector( '.jetpack-admin-shell-feature-off' );
+
+	const shownEvents = [];
+	const recordShown = event => shownEvents.push( event.detail.page );
+	beforeEach( () => {
+		shownEvents.length = 0;
+		window.addEventListener( 'jetpack-admin-shell:page-shown', recordShown );
+	} );
+	afterEach( () => window.removeEventListener( 'jetpack-admin-shell:page-shown', recordShown ) );
+
+	// Holds the next feature checks for guest B until released.
+	const holdChecks = () => {
+		const answer = global.fetch.getMockImplementation();
+		const held = [];
+		global.fetch.mockImplementation( ( url, options ) =>
+			String( url ).includes( 'member=guest-b' ) && ! options?.method
+				? new Promise( resolve => held.push( () => resolve( answer( url, options ) ) ) )
+				: answer( url, options )
+		);
+		return () => held.splice( 0 ).forEach( release => release() );
+	};
+
+	it( 'shows the turn-on panel instead of a page whose feature is off, without downloading the page', async () => {
+		mockFeature.on = false;
+
+		open( 'guest-b' );
+		await settle();
+
+		expect( panel()?.querySelector( 'h1' ).textContent ).toBe( 'B is turned off' );
+		expect( panel().querySelector( 'h1' ) ).toHaveFocus();
+		const { applyGuestAssets } = require( '../../../src/admin-shell/guest-assets' );
+		expect( applyGuestAssets ).not.toHaveBeenCalledWith( expect.anything(), 'guest-b' );
+	} );
+
+	it( 'boots a page once when it is opened again before its first check came back', async () => {
+		const release = holdChecks();
+
+		open( 'guest-b' );
+		await settle();
+		open( 'host' );
+		await settle();
+		open( 'guest-b' );
+		await settle();
+		release();
+		await settle();
+
+		const { createApp } = require( '../../../src/admin-shell/app' );
+		expect( createApp.mock.calls.filter( ( [ page ] ) => page === 'guest-b' ) ).toHaveLength( 1 );
+		expect( stateOf( 'guest-b' ) ).toBe( 'visible' );
+	} );
+
+	it( 'shows the stand-in header while the check is out, and boots the page when the check stalls', async () => {
+		const stall = new AbortController();
+		const timeout = AbortSignal.timeout;
+		AbortSignal.timeout = () => stall.signal;
+		const answer = global.fetch.getMockImplementation();
+		// The check never answers; only its timeout ends it.
+		global.fetch.mockImplementation( ( url, options ) =>
+			String( url ).includes( 'member=guest-b' )
+				? new Promise( ( resolve, reject ) =>
+						options?.signal?.addEventListener( 'abort', () => reject( options.signal.reason ) )
+					)
+				: answer( url, options )
+		);
+
+		open( 'guest-b' );
+		await settle();
+		expect( mockShowHeader ).toHaveBeenCalledWith( 'guest-b', expect.anything(), 'B', undefined );
+		stall.abort();
+		await settle();
+		AbortSignal.timeout = timeout;
+
+		expect( stateOf( 'guest-b' ) ).toBe( 'visible' );
+		expect( panel() ).toBeNull();
+	} );
+
+	it( 'checks again on every visit and swaps a booted page for the panel once it is off', async () => {
+		open( 'guest-b' );
+		await settle();
+		expect( panel() ).toBeNull();
+		open( 'host' );
+		await settle();
+
+		mockFeature.on = false;
+		open( 'guest-b' );
+		await settle();
+
+		expect( panel() ).not.toBeNull();
+		open( 'host' );
+		await settle();
+		expect( panel() ).toBeNull();
+	} );
+
+	it.each( [
+		[ 'booted', true, 'on' ],
+		[ 'still booting', false, 'on' ],
+		[ 'booted', true, 'off' ],
+		[ 'still booting', false, 'off' ],
+	] )(
+		'lets the newer check win for a %s page when it says %s and an older one comes back last',
+		async ( _, booted, newer ) => {
+			const newerOn = newer === 'on';
+			if ( booted ) {
+				open( 'guest-b' );
+				await settle();
+				open( 'host' );
+				await settle();
+			}
+			const answers = [];
+			const answer = global.fetch.getMockImplementation();
+			global.fetch.mockImplementation( ( url, options ) =>
+				String( url ).includes( 'member=guest-b' ) && ! options?.method
+					? new Promise( resolve => answers.push( resolve ) )
+					: answer( url, options )
+			);
+			const reply = on => ( { json: async () => ( { success: true, data: { on, card: '' } } ) } );
+
+			open( 'guest-b' );
+			await settle();
+			open( 'host' );
+			await settle();
+			open( 'guest-b' );
+			await settle();
+			answers[ 1 ]( reply( newerOn ) );
+			await settle();
+			answers[ 0 ]( reply( ! newerOn ) );
+			await settle();
+
+			expect( { panel: !! panel(), app: stateOf( 'guest-b' ) === 'visible' } ).toEqual( {
+				panel: ! newerOn,
+				app: newerOn,
+			} );
+		}
+	);
+
+	it( 'does not prewarm a page on hover once its check said its feature is off', async () => {
+		mockFeature.on = false;
+		open( 'guest-b' );
+		await settle();
+		open( 'host' );
+		await settle();
+
+		hover( 'guest-b' );
+		await settle();
+
+		const { applyGuestAssets } = require( '../../../src/admin-shell/guest-assets' );
+		expect( applyGuestAssets ).not.toHaveBeenCalledWith( expect.anything(), 'guest-b' );
+	} );
+
+	it( 'counts the panel as neither showing nor hiding the page', async () => {
+		open( 'guest-b' );
+		await settle();
+		open( 'host' );
+		await settle();
+		const hidden = [];
+		const recordHidden = event => hidden.push( event.detail.page );
+		window.addEventListener( 'jetpack-admin-shell:page-hidden', recordHidden );
+		shownEvents.length = 0;
+
+		mockFeature.on = false;
+		open( 'guest-b' );
+		await settle();
+		open( 'host' );
+		await settle();
+		window.removeEventListener( 'jetpack-admin-shell:page-hidden', recordHidden );
+
+		expect( hidden ).toEqual( [ 'host' ] );
+		expect( shownEvents ).toEqual( [ 'host' ] );
+	} );
+
+	it( 'says a booted page was shown only once its check says it is still on', async () => {
+		open( 'guest-b' );
+		await settle();
+		open( 'host' );
+		await settle();
+		const release = holdChecks();
+		mockFeature.on = false;
+
+		open( 'guest-b' );
+		await settle();
+		release();
+		await settle();
+
+		expect( shownEvents.filter( page => page === 'guest-b' ) ).toHaveLength( 1 );
+		expect( panel().querySelector( 'h1' ) ).toHaveFocus();
+	} );
+
+	it( 'moves focus to the panel only once a closing dialog is gone', async () => {
+		const { closeDialogsOf } = require( '../../../src/admin-shell/overlays' );
+		let closeDialog;
+		closeDialogsOf.mockImplementation( () => new Promise( resolve => ( closeDialog = resolve ) ) );
+		mockFeature.on = false;
+
+		open( 'guest-b' );
+		await settle();
+		expect( panel().querySelector( 'h1' ) ).not.toHaveFocus();
+		closeDialog();
+		await settle();
+
+		expect( panel().querySelector( 'h1' ) ).toHaveFocus();
+	} );
+
+	it( 'shows the panel over the host page when it loads with its feature off', async () => {
+		const data = document.getElementById( 'wp-script-module-data-@automattic/jetpack-admin-shell' );
+		const config = JSON.parse( data.textContent );
+		config.members.host = {
+			...config.members.host,
+			gate: { module: 'h' },
+			featureOn: false,
+			featureCard: '<div class="site-card"><h1>Host card</h1></div>',
+		};
+		data.textContent = JSON.stringify( config );
+
+		jest.resetModules();
+		require( '../../../src/admin-shell/index' );
+		await settle();
+
+		expect( panel()?.dataset.shellPage ).toBe( 'host' );
+		expect( panel().querySelector( '.site-card h1' ) ).toHaveTextContent( 'Host card' );
+		expect( global.fetch.mock.calls.map( ( [ url ] ) => String( url ) ).join() ).not.toContain(
+			'member=host'
+		);
+		expect( shownEvents ).not.toContain( 'host' );
+	} );
+
+	it( 'shows no panel for a page the user left before its check came back', async () => {
+		const answer = global.fetch.getMockImplementation();
+		let release;
+		global.fetch.mockImplementation( ( url, options ) =>
+			String( url ).includes( 'action=feature' ) && String( url ).includes( 'member=guest-b' )
+				? new Promise( resolve => ( release = () => resolve( answer( url, options ) ) ) )
+				: answer( url, options )
+		);
+		mockFeature.on = false;
+
+		open( 'guest-b' );
+		await settle();
+		open( 'guest-a' );
+		await settle();
+		release();
+		await settle();
+
+		expect( panel() ).toBeNull();
+	} );
+
+	it( "shows the site's card for the feature when it sends one, and runs its script", async () => {
+		mockFeature.on = false;
+		mockFeature.card =
+			'<div class="site-card"><h1>B card</h1></div><script>document.querySelector( ".site-card" ).dataset.ran = "yes";</script>';
+
+		open( 'guest-b' );
+		await settle();
+
+		expect( panel().querySelector( '.site-card h1' ) ).toHaveTextContent( 'B card' );
+		expect( panel().querySelector( '.site-card' ) ).toHaveAttribute( 'data-ran', 'yes' );
+	} );
+
+	it( "sends the page's gate to turn it on, and shows why when that fails", async () => {
+		mockFeature.on = false;
+		open( 'guest-b' );
+		await settle();
+
+		panel().querySelector( 'button' ).click();
+		await settle();
+
+		const [ , options ] = global.fetch.mock.calls.at( -1 );
+		expect( Object.fromEntries( options.body ) ).toEqual( {
+			member: 'guest-b',
+			module: 'b-module',
+			gate_nonce: 'b-nonce',
+			activate: '1',
+		} );
+		expect( panel().querySelector( '[role="alert"]' ) ).toHaveTextContent( 'Not allowed.' );
 	} );
 } );

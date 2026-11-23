@@ -5,6 +5,7 @@ import {
 import { renderHook, waitFor } from '@testing-library/react';
 import { useEffect, useState } from '@wordpress/element';
 import { useWidgetTypes } from '@wordpress/widget-primitives';
+import { reportError } from '@jetpack-premium-analytics/error-reporting';
 import { LOCKED_RENDER_MODULE_PREFIX } from '../../routes/plan-locked-widgets';
 import {
 	createWidgetModuleResolver,
@@ -25,6 +26,10 @@ jest.mock( '@automattic/jetpack-wp-build-polyfills/src/js/load-i18n-catalogs', (
 
 jest.mock( '@wordpress/widget-primitives', () => ( {
 	useWidgetTypes: jest.fn(),
+} ) );
+
+jest.mock( '@jetpack-premium-analytics/error-reporting', () => ( {
+	reportError: jest.fn(),
 } ) );
 
 const loadCatalogMock = loadBundleI18nCatalog as jest.Mock;
@@ -70,6 +75,7 @@ beforeEach( () => {
 	loadManifestMock.mockClear();
 	useWidgetTypesMock.mockClear();
 	useWidgetTypesMock.mockImplementation( useWidgetTypesSyncStandIn );
+	jest.mocked( reportError ).mockClear();
 
 	idleCallbacks = [];
 	globalThis.requestIdleCallback = ( ( callback: () => void ) => {
@@ -162,6 +168,22 @@ describe( 'resolveWidgetModuleWithI18n', () => {
 		expect( importModule ).toHaveBeenCalledWith(
 			'jetpack-premium-analytics/widgets/search-terms/render'
 		);
+	} );
+
+	it( 'reports a module that fails to load and still rejects, so the host can fall back', async () => {
+		const failure = new TypeError( 'Failed to fetch dynamically imported module' );
+		const importModule = jest.fn( () => Promise.reject( failure ) );
+
+		// React.lazy takes the rejection, so no window handler ever sees this one.
+		await expect(
+			resolveWidgetModuleWithI18n(
+				'jetpack-premium-analytics/widgets/search-terms/render',
+				importModule
+			)
+		).rejects.toBe( failure );
+		expect( reportError ).toHaveBeenCalledWith( failure, 'module', {
+			module: 'jetpack-premium-analytics/widgets/search-terms/render',
+		} );
 	} );
 
 	it( 'imports non-widget module ids without a catalog request', async () => {

@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Stats: Retire the classic Stats page by default, so Stats and old Stats links open the new Stats on every site.

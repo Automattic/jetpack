@@ -295,13 +295,10 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings extends WP_REST_Controller 
 	}
 
 	/**
-	 * Whether the AI SEO row is available, so the settings page can hide it. The
-	 * row is offered only where a surface it governs can run: the sidebar's
-	 * suggestions or the editor's generation.
+	 * Whether the AI SEO settings row is available.
 	 *
-	 * Guarded with is_callable: the autoloader can pick an older jetpack-seo copy
-	 * from another plugin, predating this gate. Without its verdict the row is
-	 * hidden rather than offered.
+	 * Require ai-seo-enhancer here too because an older SEO package may not check it.
+	 * Hide the row if the shared availability method is missing.
 	 *
 	 * @return bool
 	 */
@@ -310,7 +307,7 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings extends WP_REST_Controller 
 			return false;
 		}
 
-		return Ai_Seo::has_reachable_surface();
+		return Current_Plan::supports( 'ai-seo-enhancer' ) && Ai_Seo::has_reachable_surface();
 	}
 
 	/**

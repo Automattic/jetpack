@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+AI Launchpad: Stop showing the read-only prompt to accounts with per-tool MCP settings, and soften its heading.
