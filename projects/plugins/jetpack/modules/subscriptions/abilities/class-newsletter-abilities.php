@@ -253,7 +253,7 @@ class Newsletter_Abilities extends Registrar {
 	public static function get_subscriber_stats( $input = null ) {
 		unset( $input );
 
-		$data = Jetpack_Subscriber_Data::get( 'stats' );
+		$data = Jetpack_Subscriber_Data::get_stats();
 		if ( is_wp_error( $data ) ) {
 			return $data;
 		}

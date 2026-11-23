@@ -62,7 +62,7 @@ class Jetpack_Newsletter_Dashboard_Widget {
 		);
 
 		if ( Jetpack::is_connection_ready() ) {
-			$subscriber_counts = Jetpack_Subscriber_Data::get( 'stats' );
+			$subscriber_counts = Jetpack_Subscriber_Data::get_stats();
 
 			if ( ! is_wp_error( $subscriber_counts ) ) {
 				if ( isset( $subscriber_counts['counts']['email_subscribers'] ) ) {

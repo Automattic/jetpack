@@ -6,7 +6,6 @@
  */
 
 use Automattic\Jetpack\Connection\Client;
-use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
@@ -17,38 +16,18 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class Jetpack_Subscriber_Data {
 	/**
-	 * Get cached counts or statistics, or fresh user-authenticated totals.
-	 *
-	 * @param string $kind Counts or stats.
-	 * @param bool   $force_refresh Bypass the cache.
-	 * @param bool   $as_user Fetch counts as the current user without reading or writing the cache.
-	 * @return array|WP_Error|null
-	 */
-	public static function get( $kind = 'counts', $force_refresh = false, $as_user = false ) {
-		switch ( $kind ) {
-			case 'counts':
-				return $as_user ? self::get_user_totals() : self::get_counts( $force_refresh );
-			case 'stats':
-				return self::get_stats( $force_refresh );
-			default:
-				return new WP_Error( 'jetpack_subscriber_data_invalid_kind', __( 'Unknown subscriber data kind.', 'jetpack' ) );
-		}
-	}
-
-	/**
 	 * Preserve the public count envelope and the native WordPress.com cache.
 	 *
-	 * @param bool $force_refresh Bypass the cache.
 	 * @return array
 	 */
-	private static function get_counts( $force_refresh ) {
+	public static function get_counts() {
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			return array( 'value' => wpcom_fetch_subs_counts( true ) );
 		}
 
 		$cache_key  = 'wpcom_subscribers_totals';
 		$subs_count = get_transient( $cache_key );
-		if ( $force_refresh || false === $subs_count || 'failed' === $subs_count['status'] ) {
+		if ( false === $subs_count || 'failed' === $subs_count['status'] ) {
 			$xml = new Jetpack_IXR_Client();
 			$xml->query( 'jetpack.fetchSubscriberCounts' );
 
@@ -78,13 +57,12 @@ class Jetpack_Subscriber_Data {
 	/**
 	 * Share counts and chart history between dashboard and ability requests.
 	 *
-	 * @param bool $force_refresh Bypass the cache.
 	 * @return array|WP_Error
 	 */
-	private static function get_stats( $force_refresh ) {
+	public static function get_stats() {
 		$cache_key = 'jetpack_newsletter_subscriber_stats_data';
 		$cached    = get_transient( $cache_key );
-		if ( ! $force_refresh && is_array( $cached ) ) {
+		if ( is_array( $cached ) ) {
 			return $cached;
 		}
 
@@ -135,39 +113,5 @@ class Jetpack_Subscriber_Data {
 		);
 		set_transient( $cache_key, $stats, HOUR_IN_SECONDS );
 		return $stats;
-	}
-
-	/**
-	 * Keep subscriber-management totals fresh after mutations.
-	 *
-	 * @return array|WP_Error|null
-	 */
-	private static function get_user_totals() {
-		$blog_id = Connection_Manager::get_site_id();
-		if ( is_wp_error( $blog_id ) ) {
-			return $blog_id;
-		}
-
-		$response = Client::wpcom_json_api_request_as_user(
-			sprintf( '/sites/%d/subscribers/counts', (int) $blog_id ),
-			'2',
-			array( 'method' => 'GET' ),
-			null,
-			'wpcom'
-		);
-		if ( is_wp_error( $response ) ) {
-			return $response;
-		}
-
-		$status = (int) wp_remote_retrieve_response_code( $response );
-		$body   = json_decode( wp_remote_retrieve_body( $response ), true );
-		if ( $status >= 400 ) {
-			return new WP_Error(
-				'subscribers_totals_failed',
-				is_array( $body ) && isset( $body['message'] ) ? $body['message'] : __( 'Could not fetch subscriber totals.', 'jetpack' ),
-				array( 'status' => $status )
-			);
-		}
-		return $body;
 	}
 }

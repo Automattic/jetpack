@@ -375,7 +375,7 @@ function newsletter_access_column_styles() {
  * @return array containing ['value' => ['total_subscribers' => 0, 'email_subscribers' => 0, 'paid_subscribers' => 0, 'social_followers' => 0]]
  */
 function fetch_subscriber_counts() {
-	return \Jetpack_Subscriber_Data::get();
+	return \Jetpack_Subscriber_Data::get_counts();
 }
 
 /**
