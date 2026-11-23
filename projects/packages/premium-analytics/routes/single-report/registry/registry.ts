@@ -49,9 +49,10 @@ export type SingleReportPageSection = {
 };
 
 /**
- * A single-report page as the server publishes it in `premium_analytics.single_report_pages`.
+ * What every report page declares, a reports page and a single-report page alike: its
+ * identity, its controls and the widgets of each section.
  */
-export type SingleReportPageRecord = {
+export type ReportPageRecord = {
 	/*
 	 * The namespaced id the owner registered, e.g. `analytics/video`.
 	 */
@@ -67,12 +68,12 @@ export type SingleReportPageRecord = {
 	} | null;
 
 	/*
-	 * The `$kind` segment of `/report/$kind/$id`.
+	 * The page's URL segment: `$kind` in `/report/$kind/$id`, `$report` in `/reports/$report`.
 	 */
 	path: string;
 
 	/*
-	 * The entity kind, translated: the crumb, the title fallback, the not-found copy.
+	 * The page's name, translated: the crumb and the title fallback.
 	 */
 	label: string;
 
@@ -87,16 +88,6 @@ export type SingleReportPageRecord = {
 	feature: string | null;
 
 	/*
-	 * The report param that carries the entity id to the widgets.
-	 */
-	scope_param: string;
-
-	/*
-	 * The regex the `$id` segment must match.
-	 */
-	id_pattern: string;
-
-	/*
 	 * A registered icon name (`jpa/video`), the header's visual without media; null for the Stats icon.
 	 */
 	icon: string | null;
@@ -105,11 +96,6 @@ export type SingleReportPageRecord = {
 	 * The page's header controls; null for the default date control.
 	 */
 	controls: SingleReportControls;
-
-	/*
-	 * The reports page of the same entities, for the not-found notice's back link.
-	 */
-	reports_page: string | null;
 
 	/*
 	 * Where the stage persists the arrangement.
@@ -125,6 +111,27 @@ export type SingleReportPageRecord = {
 	 * The inner sections, each with its own layout; empty for a page with one layout.
 	 */
 	sections: SingleReportPageSection[];
+};
+
+/**
+ * A single-report page as the server publishes it in `premium_analytics.single_report_pages`:
+ * a report page scoped to one entity.
+ */
+export type SingleReportPageRecord = ReportPageRecord & {
+	/*
+	 * The report param that carries the entity id to the widgets.
+	 */
+	scope_param: string;
+
+	/*
+	 * The regex the `$id` segment must match.
+	 */
+	id_pattern: string;
+
+	/*
+	 * The reports page of the same entities, for the not-found notice's back link.
+	 */
+	reports_page: string | null;
 };
 
 /**
@@ -189,7 +196,7 @@ export function isValidEntityId(
  * @return The section, or undefined.
  */
 export function resolveSingleReportSection(
-	page: SingleReportPageRecord,
+	page: ReportPageRecord,
 	value: string | undefined
 ): SingleReportPageSection | undefined {
 	const sections = page.sections ?? [];
@@ -208,7 +215,7 @@ export function resolveSingleReportSection(
  * @return The default layout.
  */
 export function getSingleReportLayout(
-	page: SingleReportPageRecord,
+	page: ReportPageRecord,
 	section: SingleReportPageSection | undefined
 ): DashboardWidget[] {
 	return section ? section.default_layout : page.default_layout;
@@ -222,7 +229,7 @@ export function getSingleReportLayout(
  * @return The field declarations, empty for none, null for the default date control.
  */
 export function resolveSingleReportControls(
-	page: SingleReportPageRecord,
+	page: ReportPageRecord,
 	section: SingleReportPageSection | undefined
 ): SingleReportControls {
 	return section && section.controls !== null ? section.controls : page.controls;
