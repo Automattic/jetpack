@@ -31,6 +31,7 @@ export function useFeatureSearch(
 			const module = modules?.[ getFeatureModuleSlug( state.feature, PRODUCT_MODULES ) ];
 			return [
 				{ value: state.feature.name, weight: 3 },
+				{ value: state.feature.search_terms, weight: 2 },
 				{ value: state.feature.description, weight: 1 },
 				...( module ? moduleFields( module, true ) : [] ),
 			];

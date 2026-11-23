@@ -227,6 +227,8 @@ class Main_Features_Test extends TestCase {
 				$shows ? Main_Features::SEO_CARD_MODULES : array(),
 				array_values( array_intersect( Main_Features::SEO_CARD_MODULES, $state['hidden_modules'] ) )
 			);
+			// The rows' words still find their switch.
+			$this->assertSame( $shows, str_contains( array_column( $state['features'], 'search_terms', 'slug' )['seo'] ?? '', 'Sitemaps' ) );
 		} finally {
 			remove_filter( 'jetpack_get_available_standalone_modules', $standalone );
 			remove_filter( 'jetpack_get_available_modules', $versioned );

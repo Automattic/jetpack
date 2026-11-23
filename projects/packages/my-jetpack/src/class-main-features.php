@@ -461,6 +461,8 @@ class Main_Features {
 				'name'             => __( 'SEO', 'jetpack-my-jetpack' ),
 				'description'      => __( 'Control how your site appears in search results, social shares, and AI tools.', 'jetpack-my-jetpack' ),
 				'long_description' => __( 'Manage your sitemap, search engine verification, titles and descriptions, social previews, structured data, and AI crawler access from one page.', 'jetpack-my-jetpack' ),
+				// What the Search engines rows this card replaces were found by.
+				'search_terms'     => _x( 'Sitemaps, SEO Tools, Site Verification, Canonical URLs, search engine optimization, meta description, title tag, open graph, social preview, webmaster, Google, Bing, Pinterest, search console, duplicate content', 'Comma-separated search keywords for the SEO feature', 'jetpack-my-jetpack' ),
 				'icon'             => 'seo',
 				'admin_page'       => 'jetpack-seo',
 				// Switches the SEO page and the Search engines modules together; each module keeps its own state.
@@ -1140,6 +1142,7 @@ class Main_Features {
 				'name'             => $definition['name'],
 				'description'      => $definition['description'],
 				'long_description' => $local && isset( $definition['offline_long_description'] ) ? $definition['offline_long_description'] : ( $definition['long_description'] ?? '' ),
+				'search_terms'     => $definition['search_terms'] ?? '',
 				'icon'             => $definition['icon'],
 				'manage_url'       => self::get_feature_manage_url( $definition, $product_class, $local ),
 				'essential'        => ! empty( $definition['essential'] ),
