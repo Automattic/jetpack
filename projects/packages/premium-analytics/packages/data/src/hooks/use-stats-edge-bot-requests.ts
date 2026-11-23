@@ -17,10 +17,8 @@ export function useStatsEdgeBotRequests(
 	params: StatsEdgeBotRequestsParams,
 	options?: UseStatsOptions
 ) {
-	return useStatsReport< StatsReportParams & StatsEdgeBotRequestsParams, StatsEdgeBotRequestsReport >(
-		statsEdgeBotRequestsQuery,
-		params,
-		'edge-bot-requests',
-		options
-	);
+	return useStatsReport<
+		StatsReportParams & StatsEdgeBotRequestsParams,
+		StatsEdgeBotRequestsReport
+	>( statsEdgeBotRequestsQuery, params, 'edge-bot-requests', options );
 }
