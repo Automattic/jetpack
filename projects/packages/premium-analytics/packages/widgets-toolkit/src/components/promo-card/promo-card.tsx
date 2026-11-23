@@ -86,7 +86,7 @@ function DataOnlyContent( {
  */
 export function PromoCard( { promo, resolveModule = importModule }: PromoCardProps ) {
 	const { slug, placement, dismissible, render_module: renderModule } = promo;
-	const { isDismissed, closeCount, dismiss } = usePromoDismissal( promo );
+	const { isDismissed, willBeFinal, dismiss } = usePromoDismissal( promo );
 	const trackEvent = useTrackEvent();
 
 	useEffect( () => {
@@ -104,14 +104,13 @@ export function PromoCard( { promo, resolveModule = importModule }: PromoCardPro
 	);
 
 	const handleDismiss = useCallback( () => {
-		const isFinal = closeCount > 0 || promo.snooze_days <= 0;
 		trackEvent( 'jetpack_premium_analytics_promo_dismiss', {
 			slug,
 			placement,
-			dismissal: isFinal ? 'final' : 'snooze',
+			dismissal: willBeFinal ? 'final' : 'snooze',
 		} );
 		dismiss();
-	}, [ closeCount, promo.snooze_days, trackEvent, slug, placement, dismiss ] );
+	}, [ willBeFinal, trackEvent, slug, placement, dismiss ] );
 
 	const Module = useMemo(
 		() => ( renderModule ? lazy( () => resolveModule( renderModule ) ) : null ),
