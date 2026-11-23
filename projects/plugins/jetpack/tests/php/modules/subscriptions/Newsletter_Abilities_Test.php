@@ -467,7 +467,6 @@ class Newsletter_Abilities_Test extends WP_UnitTestCase {
 			remove_filter( 'jetpack_is_connection_ready', '__return_true' );
 			Jetpack_Options::update_option( 'id', $previous_site_id );
 			delete_transient( 'jetpack_newsletter_subscriber_stats_data' );
-			delete_transient( 'jetpack_newsletter_subscriber_stats' );
 		}
 	}
 
