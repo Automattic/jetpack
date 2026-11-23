@@ -204,6 +204,27 @@ class Feed_Announcements_Test extends BaseTestCase {
 		);
 	}
 
+	/**
+	 * @dataProvider provide_ages
+	 *
+	 * @param array $args  Settings of the read.
+	 * @param int   $count Announcements expected from a feed whose item is 10 days old.
+	 */
+	#[DataProvider( 'provide_ages' )]
+	public function test_leaves_out_the_items_older_than_a_consumer_asks( array $args, $count ) {
+		$this->serve_item( array( 'date' => '<pubDate>' . gmdate( 'D, d M Y H:i:s', time() - 10 * DAY_IN_SECONDS ) . ' +0000</pubDate>' ) );
+
+		$this->assertCount( $count, get_announcements_from_feed( self::FEED_URL, 'my-plugin', $args ) );
+	}
+
+	public static function provide_ages() {
+		return array(
+			'no limit'        => array( array(), 1 ),
+			'a longer limit'  => array( array( 'max_age' => 20 * DAY_IN_SECONDS ), 1 ),
+			'a shorter limit' => array( array( 'max_age' => 5 * DAY_IN_SECONDS ), 0 ),
+		);
+	}
+
 	public function test_keeps_the_id_of_an_item_after_an_edit() {
 		$this->serve_item();
 		$first = get_announcements_from_feed( self::FEED_URL, 'my-plugin' )[0]['id'];

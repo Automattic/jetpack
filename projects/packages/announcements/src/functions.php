@@ -41,6 +41,11 @@ function register_announcement( $id, $args ) {
  *
  * @param string $url    URL of the feed, RSS or Atom.
  * @param string $vendor First half of the id of each announcement, such as `my-plugin`.
+ * @param array  $args   {
+ *     Optional. Settings of the read.
+ *
+ *     @type int $max_age How old an item may be, in seconds. Older ones are left out. Default no limit.
+ * }
  * @return array[] {
  *     One entry per item that has a title, a date and a link. Empty when the feed fails.
  *
@@ -49,6 +54,6 @@ function register_announcement( $id, $args ) {
  *     @type string[] $categories The labels the feed gives the item, categories and tags alike.
  * }
  */
-function get_announcements_from_feed( $url, $vendor ) {
-	return Feed_Announcements::get( $url, $vendor );
+function get_announcements_from_feed( $url, $vendor, $args = array() ) {
+	return Feed_Announcements::get( $url, $vendor, $args );
 }

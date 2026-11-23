@@ -74,7 +74,11 @@ The `categories` are the labels the feed gives the item. A feed lists categories
 
 The feed is read with WordPress's `fetch_feed()`, which keeps it for 12 hours. A feed that fails is left alone for an hour, and the call returns nothing meanwhile.
 
-How old an item may be is the registrant's choice as well: compare `$announcement['args']['date']` before registering.
+How old an item may be is the registrant's choice as well. A third argument leaves the older ones out:
+
+```php
+get_announcements_from_feed( 'https://example.com/feed/', 'my-plugin', array( 'max_age' => 90 * DAY_IN_SECONDS ) );
+```
 
 ## Showing the surface
 

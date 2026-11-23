@@ -27,9 +27,10 @@ class Feed_Announcements {
 	 *
 	 * @param string $url    URL of the feed.
 	 * @param string $vendor First half of the id of each announcement.
+	 * @param array  $args   Settings of the read, as `get_announcements_from_feed()` documents them.
 	 * @return array[] One entry per item, as `get_announcements_from_feed()` documents it.
 	 */
-	public static function get( $url, $vendor ) {
+	public static function get( $url, $vendor, $args = array() ) {
 		$failed = 'jetpack_announcements_feed_failed_' . md5( $url );
 
 		// A site transient, as core's cache of the feed is.
@@ -44,10 +45,12 @@ class Feed_Announcements {
 			return array();
 		}
 
+		$oldest = isset( $args['max_age'] ) ? time() - (int) $args['max_age'] : null;
+
 		$announcements = array();
 		foreach ( (array) $feed->get_items() as $item ) {
 			$announcement = self::feed_item_to_announcement( $item, $vendor );
-			if ( $announcement ) {
+			if ( $announcement && ( null === $oldest || strtotime( $announcement['args']['date'] ) >= $oldest ) ) {
 				$announcements[] = $announcement;
 			}
 		}
