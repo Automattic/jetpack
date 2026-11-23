@@ -76,9 +76,13 @@ export function usePromoSlot( placement: PromoPlacement, target?: string ): Prom
  * One promo's dismissal state. A first close snoozes it, a second is final.
  *
  * @param promo - The promo the card shows.
- * @return Whether it is hidden, and how to close it.
+ * @return Whether it is hidden, how often it was closed before, and how to close it.
  */
-export function usePromoDismissal( promo: Promo ): { isDismissed: boolean; dismiss: () => void } {
+export function usePromoDismissal( promo: Promo ): {
+	isDismissed: boolean;
+	closeCount: number;
+	dismiss: () => void;
+} {
 	const { slug, placement, snooze_days: snoozeDays } = promo;
 	const isClosed = useIsPlacementClosed( placement );
 	const dismissed = useStoredDismissals();
@@ -95,6 +99,7 @@ export function usePromoDismissal( promo: Promo ): { isDismissed: boolean; dismi
 
 	return {
 		isDismissed: isClosed || isPromoDismissed( dismissed[ slug ], snoozeDays, Date.now() ),
+		closeCount: dismissed[ slug ]?.count ?? 0,
 		dismiss,
 	};
 }

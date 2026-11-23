@@ -167,6 +167,7 @@ export {
 	type DetailPageActionsProps,
 	type DetailPageCustomize,
 } from './detail-page';
+export { PromoCard, PromoCta, type PromoRenderProps } from './promo-card';
 export { PageEmptyState, type PageEmptyStateProps } from './page-empty-state';
 export { LockedPage, LockedWidget } from './locked-widget';
 export { PageNotice, type PageNoticeProps } from './page-notice';
