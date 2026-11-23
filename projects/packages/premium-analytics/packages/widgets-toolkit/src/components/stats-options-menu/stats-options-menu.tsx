@@ -14,7 +14,7 @@ import {
 	pencil,
 } from '@wordpress/icons';
 import { Link as RouteLink, useLinkProps } from '@wordpress/route';
-import { useCallback, useState } from 'react';
+import { Fragment, useCallback, useState, type ReactNode } from 'react';
 /**
  * Internal dependencies
  */
@@ -71,6 +71,8 @@ function SettingsMenuItem( { disabled }: { disabled: boolean } ) {
 		</Menu.LinkItem>
 	);
 }
+
+type MenuGroup = { id: string; items: ReactNode[] };
 
 type StatsOptionsMenuProps = {
 	/*
@@ -140,7 +142,60 @@ export function StatsOptionsMenu( {
 	}, [ section, tabs, trackEvent ] );
 	const closeArrangeTabs = useCallback( () => setIsArrangingTabs( false ), [] );
 
-	if ( ! onCustomize && ! canArrangeTabs && ! hasSettings && ! canGiveFeedback && ! canSwitchOff ) {
+	const groups: MenuGroup[] = [
+		{
+			id: 'layout',
+			items: [
+				onCustomize && (
+					<Menu.Item key="customize" prefix={ <Icon icon={ pencil } /> } onClick={ onCustomize }>
+						<Menu.ItemLabel>{ __( 'Customize', 'jetpack-premium-analytics-pkg' ) }</Menu.ItemLabel>
+					</Menu.Item>
+				),
+				canArrangeTabs && (
+					<Menu.Item
+						key="arrange-tabs"
+						prefix={ <Icon icon={ chevronUpDown } /> }
+						onClick={ openArrangeTabs }
+					>
+						<Menu.ItemLabel>
+							{ __( 'Arrange tabs', 'jetpack-premium-analytics-pkg' ) }
+						</Menu.ItemLabel>
+					</Menu.Item>
+				),
+			],
+		},
+		{
+			id: 'settings',
+			items: [ hasSettings && <SettingsMenuItem key="settings" disabled={ ! isSiteConnected } /> ],
+		},
+		{
+			id: 'exit',
+			items: [
+				canGiveFeedback && (
+					<Menu.Item key="feedback" prefix={ <Icon icon={ comment } /> } onClick={ openFeedback }>
+						<Menu.ItemLabel>
+							{ __( 'Any feedback?', 'jetpack-premium-analytics-pkg' ) }
+						</Menu.ItemLabel>
+					</Menu.Item>
+				),
+				canSwitchOff && (
+					<Menu.Item
+						key="switch-off"
+						prefix={ <Icon icon={ cancelCircleFilled } /> }
+						onClick={ openSwitchOff }
+					>
+						<Menu.ItemLabel>
+							{ __( 'Switch off the preview', 'jetpack-premium-analytics-pkg' ) }
+						</Menu.ItemLabel>
+					</Menu.Item>
+				),
+			],
+		},
+	]
+		.map( group => ( { ...group, items: group.items.filter( Boolean ) } ) )
+		.filter( group => group.items.length > 0 );
+
+	if ( groups.length === 0 ) {
 		return null;
 	}
 
@@ -159,38 +214,12 @@ export function StatsOptionsMenu( {
 					}
 				/>
 				<Menu.Popup positioner={ <Menu.Positioner align="end" /> }>
-					{ onCustomize && (
-						<Menu.Item prefix={ <Icon icon={ pencil } /> } onClick={ onCustomize }>
-							<Menu.ItemLabel>
-								{ __( 'Customize', 'jetpack-premium-analytics-pkg' ) }
-							</Menu.ItemLabel>
-						</Menu.Item>
-					) }
-					{ canArrangeTabs && (
-						<Menu.Item prefix={ <Icon icon={ chevronUpDown } /> } onClick={ openArrangeTabs }>
-							<Menu.ItemLabel>
-								{ __( 'Arrange tabs', 'jetpack-premium-analytics-pkg' ) }
-							</Menu.ItemLabel>
-						</Menu.Item>
-					) }
-					{ ( onCustomize || canArrangeTabs ) && hasSettings && <Menu.Separator /> }
-					{ hasSettings && <SettingsMenuItem disabled={ ! isSiteConnected } /> }
-					{ ( onCustomize || canArrangeTabs || hasSettings ) &&
-						( canGiveFeedback || canSwitchOff ) && <Menu.Separator /> }
-					{ canGiveFeedback && (
-						<Menu.Item prefix={ <Icon icon={ comment } /> } onClick={ openFeedback }>
-							<Menu.ItemLabel>
-								{ __( 'Any feedback?', 'jetpack-premium-analytics-pkg' ) }
-							</Menu.ItemLabel>
-						</Menu.Item>
-					) }
-					{ canSwitchOff && (
-						<Menu.Item prefix={ <Icon icon={ cancelCircleFilled } /> } onClick={ openSwitchOff }>
-							<Menu.ItemLabel>
-								{ __( 'Switch off the preview', 'jetpack-premium-analytics-pkg' ) }
-							</Menu.ItemLabel>
-						</Menu.Item>
-					) }
+					{ groups.map( ( group, index ) => (
+						<Fragment key={ group.id }>
+							{ index > 0 && <Menu.Separator /> }
+							{ group.items }
+						</Fragment>
+					) ) }
 				</Menu.Popup>
 			</Menu.Root>
 			{ isFeedbackOpen && <FeedbackModal source="menu" onClose={ closeFeedback } /> }
