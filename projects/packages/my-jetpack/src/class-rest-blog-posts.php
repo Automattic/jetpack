@@ -97,7 +97,7 @@ class REST_Blog_Posts {
 				'date'                 => $item->get_date( 'c' ),
 				'excerpt'              => $excerpt['text'],
 				'excerpt_is_automatic' => $excerpt['is_automatic'],
-				// Jetpack.com's image service scales to `w` without cropping; `resize` would crop.
+				// Twice $thumbnail-width in overview-blog-posts/style.module.scss. `w` scales; `resize` would crop.
 				'thumbnail'            => '' === $thumbnail ? null : add_query_arg( 'w', 240, $thumbnail ),
 			);
 		}

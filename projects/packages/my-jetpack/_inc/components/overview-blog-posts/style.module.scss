@@ -1,5 +1,8 @@
 @use "@wordpress/base-styles/breakpoints";
 
+$thumbnail-width: 120px;
+$thumbnail-width-narrow: 96px;
+
 .list {
 	display: flex;
 	flex-direction: column;
@@ -51,15 +54,13 @@
 
 .thumbnail {
 	flex-shrink: 0;
-	// 16:9, half the 240px width REST_Blog_Posts asks Jetpack.com for.
-	inline-size: 120px;
-	block-size: 68px;
+	inline-size: $thumbnail-width;
+	aspect-ratio: 16 / 9;
 	object-fit: cover;
 	border-radius: var(--wpds-border-radius-md);
 
 	@media (max-width: breakpoints.$break-small) {
-		inline-size: 96px;
-		block-size: 54px;
+		inline-size: $thumbnail-width-narrow;
 	}
 }
 
