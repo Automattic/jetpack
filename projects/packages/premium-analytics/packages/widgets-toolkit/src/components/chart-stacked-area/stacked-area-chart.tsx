@@ -27,6 +27,9 @@ import type {
 } from '../chart-comparative-line/types';
 import type { ComponentProps } from 'react';
 
+/** Light enough for each part's outline to carry its color, as the chart's lines do elsewhere. */
+const AREA_FILL_OPACITY = 0.25;
+
 type AreaChartProps = ComponentProps< typeof AreaChart >;
 type RenderTooltipParams = Parameters< NonNullable< AreaChartProps[ 'renderTooltip' ] > >[ 0 ];
 
@@ -128,6 +131,7 @@ export function StackedAreaChart( {
 				compactWhenShort={ compactWhenShort }
 				resizeDebounceTime={ RESIZE_DEBOUNCE_MS }
 				stacked
+				fillOpacity={ AREA_FILL_OPACITY }
 				curveType="monotone"
 				showLegend={ false }
 				withTooltips={ ! isEmptyData }
