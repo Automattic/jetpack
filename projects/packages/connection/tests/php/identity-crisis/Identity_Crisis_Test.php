@@ -2130,12 +2130,12 @@ class Identity_Crisis_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The notice script needs the shared connection script only to show the new screen.
+	 * The notice loads the shared connection script, and its stylesheet, only to show the new screen.
 	 *
 	 * @param bool        $use_new_screen Whether the `connection-idc-screen` flag is on.
 	 * @param bool        $is_confirmed   Whether Safe Mode is confirmed.
 	 * @param string|null $container_id   A custom container, as My Jetpack sets one.
-	 * @param bool        $expected       Whether the notice script depends on `jetpack-connection`.
+	 * @param bool        $expected       Whether the notice loads `jetpack-connection` and its stylesheet.
 	 *
 	 * @dataProvider data_provider_test_ui_shared_script_dependency
 	 */
@@ -2144,6 +2144,10 @@ class Identity_Crisis_Test extends BaseTestCase {
 		require_once ABSPATH . 'wp-admin/includes/class-wp-screen.php';
 		require_once ABSPATH . 'wp-admin/includes/screen.php';
 		set_current_screen( 'dashboard' );
+		// Stands in for Connection_Assets, registered with a stylesheet as Assets::register_script() does.
+		wp_register_script( 'jetpack-connection', 'https://example.org/jetpack-connection.js', array(), 'test', true );
+		wp_register_style( 'jetpack-connection', 'https://example.org/jetpack-connection.css', array(), 'test' );
+		wp_script_add_data( 'jetpack-connection', 'Jetpack::Assets::hascss', true );
 		add_filter( 'jetpack_feature_flag_enabled_' . Identity_Crisis::NEW_SCREEN_FLAG, $use_new_screen ? '__return_true' : '__return_false' );
 		Identity_Crisis::$is_safe_mode_confirmed = $is_confirmed;
 		add_filter(
@@ -2156,6 +2160,7 @@ class Identity_Crisis_Test extends BaseTestCase {
 		UI::enqueue_scripts();
 
 		$this->assertSame( $expected, in_array( 'jetpack-connection', wp_scripts()->registered['jp_identity_crisis_banner']->deps, true ) );
+		$this->assertSame( $expected, wp_style_is( 'jetpack-connection', 'enqueued' ) );
 	}
 
 	/**
@@ -2173,20 +2178,21 @@ class Identity_Crisis_Test extends BaseTestCase {
 	}
 
 	/**
-	 * With the new screen, the notice leaves the Connectors page to the card.
+	 * With the new screen, a page that shows the screen itself can turn the notice off.
 	 *
-	 * @param bool   $use_new_screen Whether the `connection-idc-screen` flag is on.
-	 * @param string $screen         The admin screen.
-	 * @param bool   $expected       Whether the notice script is enqueued.
+	 * @param bool $use_new_screen Whether the `connection-idc-screen` flag is on.
+	 * @param bool $show_notice    What the `jetpack_identity_crisis_show_notice` filter returns.
+	 * @param bool $expected       Whether the notice script is enqueued.
 	 *
-	 * @dataProvider data_provider_test_ui_skips_connectors_page
+	 * @dataProvider data_provider_test_ui_show_notice_filter
 	 */
-	#[DataProvider( 'data_provider_test_ui_skips_connectors_page' )]
-	public function test_ui_skips_connectors_page( $use_new_screen, $screen, $expected ) {
+	#[DataProvider( 'data_provider_test_ui_show_notice_filter' )]
+	public function test_ui_show_notice_filter( $use_new_screen, $show_notice, $expected ) {
 		require_once ABSPATH . 'wp-admin/includes/class-wp-screen.php';
 		require_once ABSPATH . 'wp-admin/includes/screen.php';
-		set_current_screen( $screen );
+		set_current_screen( 'dashboard' );
 		add_filter( 'jetpack_feature_flag_enabled_' . Identity_Crisis::NEW_SCREEN_FLAG, $use_new_screen ? '__return_true' : '__return_false' );
+		add_filter( 'jetpack_identity_crisis_show_notice', $show_notice ? '__return_true' : '__return_false' );
 
 		UI::enqueue_scripts();
 
@@ -2194,15 +2200,15 @@ class Identity_Crisis_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Data provider for test_ui_skips_connectors_page.
+	 * Data provider for test_ui_show_notice_filter.
 	 *
 	 * @return array
 	 */
-	public static function data_provider_test_ui_skips_connectors_page() {
+	public static function data_provider_test_ui_show_notice_filter() {
 		return array(
-			'new screen, Connectors page' => array( true, 'options-connectors', false ),
-			'new screen, other page'      => array( true, 'dashboard', true ),
-			'old screen, Connectors page' => array( false, 'options-connectors', true ),
+			'new screen, notice turned off' => array( true, false, false ),
+			'new screen, notice left on'    => array( true, true, true ),
+			'old screen, notice turned off' => array( false, false, true ),
 		);
 	}
 

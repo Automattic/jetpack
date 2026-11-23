@@ -8,7 +8,6 @@
 namespace Automattic\Jetpack\IdentityCrisis;
 
 use Automattic\Jetpack\Assets;
-use Automattic\Jetpack\Connection\Jetpack_Connector;
 use Automattic\Jetpack\Identity_Crisis;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
@@ -72,8 +71,16 @@ class UI {
 	 */
 	public static function enqueue_scripts() {
 		if ( is_admin() ) {
-			// The Connectors card shows the new screen itself, so a notice would show it twice.
-			if ( static::use_new_screen() && Jetpack_Connector::is_card_page() ) {
+			/**
+			 * Whether to show the Safe Mode notice when the `connection-idc-screen` flag is on.
+			 *
+			 * A page that shows the Safe Mode screen itself returns false, so the screen doesn't show twice.
+			 *
+			 * @since $$next-version$$
+			 *
+			 * @param bool $show Whether to show the notice. Default true.
+			 */
+			if ( static::use_new_screen() && ! apply_filters( 'jetpack_identity_crisis_show_notice', true ) ) {
 				return;
 			}
 
@@ -92,6 +99,10 @@ class UI {
 				)
 			);
 			Assets::enqueue_script( 'jp_identity_crisis_banner' );
+			if ( $shows_new_screen ) {
+				// Also loads the screen's stylesheet, which a script dependency doesn't.
+				Assets::enqueue_script( 'jetpack-connection' );
+			}
 			wp_add_inline_script( 'jp_identity_crisis_banner', static::get_initial_state(), 'before' );
 
 			add_action( 'admin_notices', array( static::class, 'render_container' ) );
