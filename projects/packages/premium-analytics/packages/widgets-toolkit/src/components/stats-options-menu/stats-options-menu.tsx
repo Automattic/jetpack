@@ -4,12 +4,14 @@
 import { currentUserCan, getScriptData } from '@automattic/jetpack-script-data';
 import { getSectionOrder } from '@jetpack-premium-analytics/data';
 import { Icon, IconButton, Menu } from '@jetpack-premium-analytics/externals';
+import { safeHttpUrl } from '@jetpack-premium-analytics/ui';
 import { __ } from '@wordpress/i18n';
 import {
 	cancelCircleFilled,
 	chevronUpDown,
 	cog,
 	comment,
+	external,
 	moreVertical,
 	pencil,
 } from '@wordpress/icons';
@@ -19,6 +21,7 @@ import { Fragment, useCallback, useState, type ReactNode } from 'react';
  * Internal dependencies
  */
 import { useDashboardSection } from '../../hooks/use-dashboard-origin-search';
+import { usePromoSlot } from '../../hooks/use-promo-slot';
 import { useReportNavigationSearch } from '../../hooks/use-report-navigation-search';
 import { useTrackEvent } from '../../hooks/use-track-event';
 import { ArrangeTabsDialog, type ArrangeableTabs } from './arrange-tabs-dialog';
@@ -90,6 +93,11 @@ type StatsOptionsMenuProps = {
 	 * without it Settings is disabled and feedback is left out.
 	 */
 	isSiteConnected?: boolean;
+
+	/*
+	 * Whether a promo registered for the options menu is on offer.
+	 */
+	withPromo?: boolean;
 };
 
 /**
@@ -107,6 +115,7 @@ export function StatsOptionsMenu( {
 	onCustomize,
 	tabs,
 	isSiteConnected = true,
+	withPromo = true,
 }: StatsOptionsMenuProps ) {
 	const trackEvent = useTrackEvent();
 	const section = useDashboardSection();
@@ -142,6 +151,19 @@ export function StatsOptionsMenu( {
 	}, [ section, tabs, trackEvent ] );
 	const closeArrangeTabs = useCallback( () => setIsArrangingTabs( false ), [] );
 
+	const slotPromo = usePromoSlot( 'options-menu' );
+	const promo = withPromo ? slotPromo : null;
+	const promoHref = promo ? safeHttpUrl( promo.cta_url ) : null;
+	const trackPromoClick = useCallback( () => {
+		if ( promo ) {
+			trackEvent( 'jetpack_premium_analytics_promo_click', {
+				slug: promo.slug,
+				placement: promo.placement,
+				label: promo.cta_label,
+			} );
+		}
+	}, [ promo, trackEvent ] );
+
 	const groups: MenuGroup[] = [
 		{
 			id: 'layout',
@@ -167,6 +189,23 @@ export function StatsOptionsMenu( {
 		{
 			id: 'settings',
 			items: [ hasSettings && <SettingsMenuItem key="settings" disabled={ ! isSiteConnected } /> ],
+		},
+		{
+			id: 'promo',
+			items: [
+				promoHref && promo && (
+					<Menu.LinkItem
+						key={ promo.slug }
+						href={ promoHref }
+						target="_blank"
+						rel="noopener noreferrer"
+						prefix={ <Icon icon={ external } /> }
+						onClick={ trackPromoClick }
+					>
+						<Menu.ItemLabel>{ promo.cta_label }</Menu.ItemLabel>
+					</Menu.LinkItem>
+				),
+			],
 		},
 		{
 			id: 'exit',
