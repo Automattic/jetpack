@@ -49,13 +49,19 @@ const isOffline = () => true;
  * @param {object}  _                       - Options.
  * @param {boolean} _.isOdysseyStatsEnabled - Whether the site uses the Stats dashboard.
  * @param {boolean} _.offline               - Whether Stats is unavailable in offline mode.
+ * @param {boolean} _.settingsOnStatsPage   - Whether the Traffic page says the settings left for a Stats page.
  */
-function renderSiteStats( { isOdysseyStatsEnabled, offline = false } ) {
+function renderSiteStats( {
+	isOdysseyStatsEnabled,
+	offline = false,
+	settingsOnStatsPage = false,
+} ) {
 	render(
 		<SiteStats
 			getModule={ getModule }
 			getModuleOverride={ getModuleOverride }
 			isUnavailableInOfflineMode={ offline ? isOffline : isOnline }
+			settingsOnStatsPage={ settingsOnStatsPage }
 		/>,
 		{ initialState: buildInitialState( { isOdysseyStatsEnabled } ), reducer: rootReducer }
 	);
@@ -71,7 +77,10 @@ describe( 'SiteStats', () => {
 		);
 	} );
 
-	it( 'links to the Stats v2 Settings page when Stats v2 is the analytics UI', () => {
+	it.each( [
+		[ 'the site uses the Stats dashboard', true, false ],
+		[ 'the classic Stats settings moved there', false, true ],
+	] )( 'links to the Stats v2 Settings page when %s', ( _when, odyssey, settingsOnStatsPage ) => {
 		window.JetpackScriptData = {
 			site: { admin_url: 'https://example.com/wp-admin/' },
 			analytics: {
@@ -81,7 +90,7 @@ describe( 'SiteStats', () => {
 				timezone: 'UTC',
 			},
 		};
-		renderSiteStats( { isOdysseyStatsEnabled: true } );
+		renderSiteStats( { isOdysseyStatsEnabled: odyssey, settingsOnStatsPage } );
 		delete window.JetpackScriptData;
 
 		expect( screen.getByRole( 'link', { name: LINK_NAME } ) ).toHaveAttribute(

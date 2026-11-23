@@ -39,7 +39,7 @@ The announcements of the dashboard are registered in `src/class-dashboard-announ
 
 It learns both from `packages/routing/src/current-route/current-route.ts`, which reads the URL for now and returns `null` while the URL on screen belongs to another page.
 
-A browser without the Navigation API reports Back and Forward only. A page opened from a link then keeps the announcements of the page before it, until the next reload.
+A browser without the Navigation API reports no change of route made from a link, so there the helper wraps the two methods that write to the history.
 
 Under the admin shell the dashboard stays loaded while another Jetpack page is on screen. The surface leaves with the dashboard and comes back with it.
 

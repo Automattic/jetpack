@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Upgrade page: Price the Stats tiers for the visitor's location instead of the site's server when the user has not connected a WordPress.com account.

@@ -32,12 +32,8 @@ export const useProtectTooltipCopy = ( data: ProtectData ): TooltipContent => {
 	const { isStandaloneActive } = standalonePluginInfo || {};
 	const { recordEvent } = useAnalytics();
 	const { plugins, themes } = getMyJetpackWindowInitialState();
-	const {
-		plugins: fromScanPlugins,
-		themes: fromScanThemes,
-		num_threats: numThreats = 0,
-		threats = [],
-	} = data?.scanData || {};
+	const { plugins: fromScanPlugins, themes: fromScanThemes, threats = [] } = data?.scanData || {};
+	const numThreats = threats.length;
 	const {
 		jetpack_waf_automatic_rules: hasAutomaticRules,
 		blocked_logins: blockedLoginsCount,

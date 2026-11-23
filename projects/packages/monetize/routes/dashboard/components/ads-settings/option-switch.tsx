@@ -1,17 +1,17 @@
 import { __ } from '@wordpress/i18n';
 import { Link, SwitchControl } from '@wordpress/ui';
 import { useCallback } from 'react';
-import type { AdsOption } from '../../data/use-ads-settings';
+import type { AdsOption, SimpleOption } from '../../data/use-ads-settings';
 
 // A group's help text and support page, which the Settings card showed in its info popover.
 export type Help = { text: string; href: string };
 
 interface OptionSwitchProps {
-	name: AdsOption;
+	name: AdsOption | SimpleOption;
 	label: string;
 	checked: boolean;
 	disabled: boolean;
-	onChange: ( name: AdsOption, checked: boolean ) => void;
+	onChange: ( name: AdsOption | SimpleOption, checked: boolean ) => void;
 	help?: Help;
 }
 

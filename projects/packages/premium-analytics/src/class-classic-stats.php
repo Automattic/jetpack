@@ -27,7 +27,7 @@ final class Classic_Stats {
 		Feature_Flags::register(
 			self::RETIRED_FLAG,
 			array(
-				'default'     => false,
+				'default'     => true,
 				'description' => 'Turn Stats v2 on for every site and stop registering the classic Stats page; old admin.php?page=stats links open Stats v2.',
 				'owner'       => 'jetpack-stats',
 			)

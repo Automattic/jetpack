@@ -136,6 +136,7 @@ function enqueue_wpcom_dashboard_widgets( $args = array() ) {
 			'hasCustomDomain' => wpcom_site_has_feature( 'custom-domain' ),
 			'tasks'           => $args['tasks'],
 			'blogId'          => get_current_blog_id(),
+			'wpcomBlogId'     => get_wpcom_blog_id(),
 		),
 		JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
 	);

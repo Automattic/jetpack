@@ -6,6 +6,7 @@ require_once JETPACK__PLUGIN_DIR . 'modules/memberships/class-jetpack-membership
 require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/subscriptions/subscriptions.php';
 require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/paywall/paywall.php';
 
+use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Extensions\Premium_Content\JWT;
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Abstract_Token_Subscription_Service;
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Jetpack_Token_Subscription_Service;
@@ -51,6 +52,7 @@ class Jetpack_Subscriptions_Test extends WP_UnitTestCase {
 		remove_all_filters( 'earn_get_user_subscriptions_for_site_id' );
 		remove_all_filters( 'jetpack_is_connection_ready' );
 		remove_all_filters( 'pre_http_request' );
+		Constants::clear_single_constant( 'IS_WPCOM' );
 
 		// Status\Cache is a process-wide static that WP_UnitTestCase does not reset.
 		\Automattic\Jetpack\Status\Cache::clear();
@@ -1141,5 +1143,185 @@ class Jetpack_Subscriptions_Test extends WP_UnitTestCase {
 
 		$this->assertCount( 1, $new, 'The legacy Calypso Subscribers shortcut should be registered.' );
 		$this->assertStringContainsString( 'jetpack-menu-jetpack-manage-subscribers', $new[0] );
+	}
+
+	/**
+	 * Serve the site over https, connected, as a production site, so the silent check can run.
+	 */
+	private function set_up_silent_check_site() {
+		$this->set_up_connected_self_hosted_site();
+		add_filter( 'jetpack_is_development_site', '__return_false', 99 );
+		add_filter(
+			'home_url',
+			function ( $url ) {
+				return set_url_scheme( $url, 'https' );
+			},
+			99
+		);
+	}
+
+	/**
+	 * Capture what a printer function prints.
+	 *
+	 * @param callable $printer Function that prints.
+	 * @return string
+	 */
+	private function capture( $printer ) {
+		ob_start();
+		$printer();
+		return (string) ob_get_clean();
+	}
+
+	/**
+	 * A connected https site gets the script, pointed at its own site ID and silent auth route.
+	 */
+	public function test_silent_subscriber_check_prints_for_connected_https_site() {
+		$this->set_up_silent_check_site();
+
+		$output = $this->capture( 'Automattic\Jetpack\Extensions\Subscriptions\print_silent_subscriber_check' );
+
+		$this->assertStringContainsString( '<script', $output );
+		$this->assertMatchesRegularExpression( '#"jwtBase":"https://subscribe\.wordpress\.com/memberships/jwt/\?site_id=12345[^"]*silent=1"#', $output );
+		$this->assertMatchesRegularExpression( '#"authBase":"https://example\.org/[^"]*subscribers(/|%2F)auth[^"]*silent=1"#', $output );
+		$this->assertStringContainsString( '"pauseCookie":"' . Abstract_Token_Subscription_Service::SILENT_SUBSCRIBER_CHECK_COOKIE . '"', $output );
+	}
+
+	/**
+	 * A WordPress.com Simple site on a custom domain gets the script, pointed at its blog ID with no Jetpack auth hop.
+	 */
+	public function test_silent_subscriber_check_prints_for_simple_site_on_custom_domain() {
+		$this->set_up_silent_check_site();
+		Constants::set_constant( 'IS_WPCOM', true );
+
+		$output = $this->capture( 'Automattic\Jetpack\Extensions\Subscriptions\print_silent_subscriber_check' );
+
+		$this->assertMatchesRegularExpression( '#"jwtBase":"https://subscribe\.wordpress\.com/memberships/jwt/\?site_id=' . get_current_blog_id() . '[^"]*silent=1"#', $output );
+		$this->assertStringContainsString( '"authBase":""', $output );
+	}
+
+	/**
+	 * Each row puts the site or request in a state where the check must print nothing.
+	 *
+	 * @return array[]
+	 */
+	public static function silent_subscriber_check_skip_provider() {
+		return array(
+			'plain http site'                        => array(
+				function () {
+					add_filter(
+						'home_url',
+						function ( $url ) {
+							return set_url_scheme( $url, 'http' );
+						},
+						100
+					);
+				},
+			),
+			'development site'                       => array(
+				function () {
+					add_filter( 'jetpack_is_development_site', '__return_true', 100 );
+				},
+			),
+			'offline site'                           => array(
+				function () {
+					add_filter( 'jetpack_offline_mode', '__return_true', 100 );
+				},
+			),
+			'safe mode'                              => array(
+				function () {
+					add_filter( 'jetpack_is_in_safe_mode', '__return_true', 100 );
+				},
+			),
+			'unconnected site'                       => array(
+				function () {
+					Jetpack_Options::delete_option( 'id' );
+				},
+			),
+			'filter off'                             => array(
+				function () {
+					add_filter( 'jetpack_subscriptions_silent_subscriber_check', '__return_false' );
+				},
+			),
+			'return from a check'                    => array(
+				function () {
+					$_GET['jp_sub_check'] = '1';
+				},
+			),
+			'Simple site on a wordpress.com address' => array(
+				function () {
+					Constants::set_constant( 'IS_WPCOM', true );
+					add_filter(
+						'home_url',
+						function () {
+							return 'https://example.wordpress.com/';
+						},
+						100
+					);
+				},
+			),
+		);
+	}
+
+	/**
+	 * @dataProvider silent_subscriber_check_skip_provider
+	 *
+	 * @param callable $make_ineligible Puts the site or request in a state the check must skip.
+	 */
+	#[DataProvider( 'silent_subscriber_check_skip_provider' )]
+	public function test_silent_subscriber_check_skips_ineligible_site( $make_ineligible ) {
+		$this->set_up_silent_check_site();
+		$make_ineligible();
+		\Automattic\Jetpack\Status\Cache::clear();
+
+		$this->assertSame( '', $this->capture( 'Automattic\Jetpack\Extensions\Subscriptions\print_silent_subscriber_check' ) );
+	}
+
+	/**
+	 * The cleanup script prints only on the way back from a check, so other pages keep their query string.
+	 */
+	public function test_silent_subscriber_check_cleanup_prints_only_with_marker() {
+		$printer = 'Automattic\Jetpack\Extensions\Subscriptions\print_silent_subscriber_check_cleanup';
+
+		$this->assertSame( '', $this->capture( $printer ) );
+
+		$_GET['jp_sub_check'] = '1';
+		$this->assertStringContainsString( 'history.replaceState', $this->capture( $printer ) );
+	}
+
+	/**
+	 * Logging out clears the subscriber token and pauses the silent check, so it can't sign them straight back in.
+	 */
+	public function test_subscriber_logout_pauses_silent_subscriber_check() {
+		$token_cookie             = Jetpack_Token_Subscription_Service::JWT_AUTH_TOKEN_COOKIE_NAME;
+		$pause_cookie             = Jetpack_Token_Subscription_Service::SILENT_SUBSCRIBER_CHECK_COOKIE;
+		$_COOKIE[ $token_cookie ] = 'token';
+		unset( $_COOKIE[ $pause_cookie ] );
+
+		Jetpack_Memberships::get_instance()->subscriber_logout();
+		$paused = $_COOKIE[ $pause_cookie ] ?? null;
+		unset( $_COOKIE[ $pause_cookie ] );
+
+		$this->assertArrayNotHasKey( $token_cookie, $_COOKIE );
+		$this->assertSame( '1', $paused );
+	}
+
+	/**
+	 * The paywall queues the check for a logged-out visitor, and not for someone it already recognizes.
+	 */
+	public function test_paywall_queues_silent_subscriber_check_only_for_unrecognized_visitor() {
+		$printer = 'Automattic\Jetpack\Extensions\Subscriptions\print_silent_subscriber_check';
+		remove_action( 'wp_footer', $printer );
+
+		wp_set_current_user( $this->admin_user_id );
+		\Automattic\Jetpack\Extensions\Subscriptions\get_paywall_blocks();
+		$queued_for_admin = has_action( 'wp_footer', $printer );
+
+		wp_set_current_user( 0 );
+		\Automattic\Jetpack\Extensions\Subscriptions\get_paywall_blocks();
+		$queued_for_visitor = has_action( 'wp_footer', $printer );
+		remove_action( 'wp_footer', $printer );
+
+		$this->assertFalse( $queued_for_admin );
+		$this->assertNotFalse( $queued_for_visitor );
 	}
 }
