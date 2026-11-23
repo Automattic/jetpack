@@ -1,5 +1,5 @@
 {
-	"name": "jpa/requests-by-source",
+	"name": "ai-traffic/requests-by-source",
 	"icon": "jpa/chart-line",
 	"title": "Requests by source",
 	"description": "See how many requests came from people, AI bots and other bots, and how many were blocked.",

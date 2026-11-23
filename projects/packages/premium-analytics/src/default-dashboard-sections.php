@@ -300,7 +300,7 @@ function get_ai_section_default_layout() {
 	return array(
 		get_dashboard_default_widget_instance(
 			'default-requests-by-source-widget-instance',
-			'jpa/requests-by-source',
+			'ai-traffic/requests-by-source',
 			0,
 			'full',
 			DASHBOARD_TILE_CARD
