@@ -4,8 +4,6 @@ import userEvent from '@testing-library/user-event';
 import useAnalytics from '../../../../hooks/use-analytics';
 import { ProtectInfoPopover } from '../info-popover';
 
-jest.mock( '../../../../hooks/use-analytics' );
-
 const mockUseAnalytics = useAnalytics as jest.MockedFunction< typeof useAnalytics >;
 
 describe( 'ProtectInfoPopover', () => {

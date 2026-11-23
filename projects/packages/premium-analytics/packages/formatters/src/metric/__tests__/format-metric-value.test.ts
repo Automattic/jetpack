@@ -418,6 +418,18 @@ describe( 'formatMetricValue', () => {
 		} );
 
 		it.each( [
+			[ 'en-IN', 949600, '9.5L' ],
+			[ 'ja', 12345678, '1235万' ],
+		] )( 'counts the decimals in the %s unit: %d as %s', ( locale, value, expected ) => {
+			setLocale( locale );
+			try {
+				expect( formatMetricValue( value, 'number', { useMultipliers: true } ) ).toBe( expected );
+			} finally {
+				setLocale( 'en' );
+			}
+		} );
+
+		it.each( [
 			[ 0.04, 1, '< 0.1' ],
 			[ 0, 1, '0.0' ],
 			[ 0.05, 1, '0.1' ],

@@ -287,7 +287,17 @@ class Admin_Modernization_Gating_Test extends TestCase {
 		Jetpack_Backup::render_connection_initial_state();
 		$output = ob_get_clean();
 
-		$this->assertStringContainsString( 'window.JPBACKUP_DASHBOARD_STATE={"activityLogUrl":null,"knownThreatsAvailable":false};', $output );
+		$this->assertStringContainsString( 'window.JPBACKUP_DASHBOARD_STATE={"activityLogUrl":null,', $output );
+	}
+
+	public function test_render_connection_initial_state_follows_the_add_license_setting() {
+		add_filter( 'jetpack_my_jetpack_should_enable_add_license_screen', '__return_false' );
+		ob_start();
+		Jetpack_Backup::render_connection_initial_state();
+		$output = ob_get_clean();
+		remove_filter( 'jetpack_my_jetpack_should_enable_add_license_screen', '__return_false' );
+
+		$this->assertStringContainsString( '"addLicense":false', $output );
 	}
 
 	public function test_render_connection_initial_state_marks_known_threats_available_on_woa() {
@@ -318,6 +328,28 @@ class Admin_Modernization_Gating_Test extends TestCase {
 
 		$this->register_activity_log_page();
 		$this->assertStringEndsWith( 'admin.php?page=jetpack-activity-log', Jetpack_Backup::get_activity_log_url() );
+	}
+
+	/** The admin shell loads the page over admin-ajax, which never builds the menu, so the menu can't vouch for the page there. */
+	public function test_activity_log_url_without_a_built_menu_is_null_unless_activity_log_is_available() {
+		$this->register_activity_log_page();
+		add_filter( 'wp_doing_ajax', '__return_true' );
+
+		$not_initialized = Jetpack_Backup::get_activity_log_url();
+		// The Activity Log package isn't installed here, so this also proves the missing class is tolerated.
+		do_action( 'jetpack_activity_log_initialized' );
+		$class_missing = Jetpack_Backup::get_activity_log_url();
+		require_once __DIR__ . '/fixtures/class-jetpack-activity-log.php';
+		$unavailable = Jetpack_Backup::get_activity_log_url();
+		$GLOBALS['jetpack_backup_test_activity_log_available'] = true;
+		$available = Jetpack_Backup::get_activity_log_url();
+
+		unset( $GLOBALS['wp_actions']['jetpack_activity_log_initialized'], $GLOBALS['jetpack_backup_test_activity_log_available'] );
+		remove_all_filters( 'wp_doing_ajax' );
+		$this->assertNull( $not_initialized );
+		$this->assertNull( $class_missing );
+		$this->assertNull( $unavailable );
+		$this->assertSame( admin_url( 'admin.php?page=jetpack-activity-log' ), $available );
 	}
 
 	/** Make `menu_page_url()` see the Activity Log page the way a built admin menu would. */

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Keep `llms.txt` from redirecting to posts, including before generation is enabled.

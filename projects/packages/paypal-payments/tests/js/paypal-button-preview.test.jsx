@@ -997,12 +997,264 @@ describe( 'PayPalButtonPreview', () => {
 			).not.toBeInTheDocument();
 		} );
 	} );
+
+	describe( 'discounted card', () => {
+		const sizes = {
+			dimensions: [
+				{
+					name: 'size',
+					primary: true,
+					options: [
+						{ label: 'small', unit_amount: { value: '20.00' } },
+						{ label: 'large', unit_amount: { value: '30.00' } },
+					],
+				},
+			],
+		};
+		const options = { price: '', variantsEnabled: true, variants: sizes };
+
+		// The editor passes the content as props and the whole block as `attributes`,
+		// so the discount reaches the preview through `attributes` alone.
+		const preview = attributes => (
+			<PayPalButtonPreview
+				{ ...defaultProps }
+				productName={ attributes.productName }
+				price={ attributes.price }
+				currencyCode={ attributes.currencyCode }
+				productDescription={ attributes.productDescription }
+				variantsEnabled={ attributes.variantsEnabled }
+				variants={ attributes.variants }
+				attributes={ attributes }
+			/>
+		);
+		const block = ( price, discountType, discountValue, extra = {} ) => ( {
+			productName: 'Widget',
+			price,
+			currencyCode: 'USD',
+			discountEnabled: true,
+			discountType,
+			discountValue,
+			...extra,
+		} );
+		const struck = ( original, discounted ) =>
+			`<s class="jetpack-paypal-button__original-price">${ original }</s> ${ discounted }`;
+		const chip = ( label, original, discounted ) =>
+			`${ label } <span class="jetpack-paypal-button__variant-price">${ struck( original, discounted ) }</span>`;
+
+		const headline = () =>
+			document.querySelector( '.jetpack-paypal-button__product-price' )?.innerHTML ?? null;
+		const tag = () => document.querySelectorAll( '.jetpack-paypal-button__discount' );
+		const chips = () =>
+			[ ...document.querySelectorAll( '.jetpack-paypal-button__variant-option' ) ].map(
+				option => option.innerHTML
+			);
+
+		/**
+		 * Check the tag reads `text` and sits right after the headline price.
+		 *
+		 * @param {string} text - The tag text.
+		 */
+		const expectTag = text => {
+			expect( tag() ).toHaveLength( 1 );
+			expect( tag()[ 0 ].innerHTML ).toBe( text );
+			expect( document.querySelector( '.jetpack-paypal-button__product-price' ).nextSibling ).toBe(
+				tag()[ 0 ]
+			);
+		};
+
+		it.each( [
+			[
+				'a percentage',
+				block( '1.00', 'PERCENTAGE', '10' ),
+				struck( '$1.00', '$0.90' ),
+				'10% discount',
+			],
+			[
+				'a price saved as 1',
+				block( '1', 'PERCENTAGE', '10' ),
+				struck( '$1', '$0.90' ),
+				'10% discount',
+			],
+			[
+				'a flat amount',
+				block( '10.00', 'FLAT', '2.00' ),
+				struck( '$10.00', '$8.00' ),
+				'$2.00 discount',
+			],
+			[
+				'yen',
+				block( '999', 'PERCENTAGE', '15', { currencyCode: 'JPY' } ),
+				struck( '¥999', '¥849' ),
+				'15% discount',
+			],
+		] )(
+			'shows the struck price, the discounted price and the tag for %s',
+			( _label, attributes, expected, tagText ) => {
+				render( preview( attributes ) );
+
+				expect( headline() ).toBe( expected );
+				expectTag( tagText );
+			}
+		);
+
+		it.each( [
+			[
+				'a percentage',
+				block( '', 'PERCENTAGE', '10', options ),
+				struck( '$20.00', '$18.00' ),
+				[ chip( 'small', '$20.00', '$18.00' ), chip( 'large', '$30.00', '$27.00' ) ],
+				'10% discount',
+			],
+			[
+				'a flat amount',
+				block( '', 'FLAT', '2.00', options ),
+				struck( '$20.00', '$18.00' ),
+				[ chip( 'small', '$20.00', '$18.00' ), chip( 'large', '$30.00', '$28.00' ) ],
+				'$2.00 discount',
+			],
+			[
+				'a flat amount over the cheapest option',
+				block( '', 'FLAT', '25.00', options ),
+				struck( '$20.00', '-$5.00' ),
+				[ chip( 'small', '$20.00', '-$5.00' ), chip( 'large', '$30.00', '$5.00' ) ],
+				'$25.00 discount',
+			],
+		] )(
+			'discounts the From price and each option for %s',
+			( _label, attributes, expected, expectedChips, tagText ) => {
+				render( preview( attributes ) );
+
+				expect( headline() ).toBe( `From ${ expected }` );
+				expect( chips() ).toEqual( expectedChips );
+				expectTag( tagText );
+			}
+		);
+
+		it.each( [
+			[
+				'a discount turned off with a value saved',
+				block( '1.00', 'PERCENTAGE', '10', { discountEnabled: false } ),
+			],
+			[ 'a blank percentage', block( '10.00', 'PERCENTAGE', '' ) ],
+			[ 'a blank flat amount', block( '10.00', 'FLAT', '' ) ],
+			[
+				'a discount turned off on options',
+				block( '', 'PERCENTAGE', '10', { ...options, discountEnabled: false } ),
+			],
+		] )( 'shows the same card as with no discount for %s', ( _label, attributes ) => {
+			const {
+				discountEnabled: _enabled,
+				discountType: _type,
+				discountValue: _value,
+				...plain
+			} = attributes;
+			const { container, rerender } = render( preview( plain ) );
+			const expected = container.innerHTML;
+
+			rerender( preview( attributes ) );
+
+			// The card has a price, so the equal-markup check below compares real cards.
+			expect( headline() ).toMatch( /^(From )?\$\d+\.00$/ );
+			expect( container.innerHTML ).toBe( expected );
+		} );
+
+		it( 'discounts the product price when the options are unpriced', () => {
+			const variants = {
+				dimensions: [
+					{
+						name: 'size',
+						primary: true,
+						options: [
+							{ label: 'small', unit_amount: { value: '' } },
+							{ label: 'large', unit_amount: { value: '' } },
+						],
+					},
+				],
+			};
+			render(
+				preview( block( '10.00', 'PERCENTAGE', '10', { variantsEnabled: true, variants } ) )
+			);
+
+			expect( headline() ).toBe( struck( '$10.00', '$9.00' ) );
+			expect( chips() ).toEqual( [ 'small', 'large' ] );
+			expectTag( '10% discount' );
+		} );
+
+		it( 'shows the label alone for an unpriced option', () => {
+			const variants = {
+				dimensions: [
+					{
+						name: 'size',
+						primary: true,
+						options: [
+							{ label: 'small', unit_amount: { value: '20.00' } },
+							{ label: 'large', unit_amount: { value: '' } },
+						],
+					},
+				],
+			};
+			render( preview( block( '', 'PERCENTAGE', '10', { variantsEnabled: true, variants } ) ) );
+
+			expect( chips() ).toEqual( [ chip( 'small', '$20.00', '$18.00' ), 'large' ] );
+		} );
+
+		it( 'shows just the name for a discount with options off and a blank price', () => {
+			render(
+				preview( block( '', 'PERCENTAGE', '10', { variantsEnabled: false, variants: sizes } ) )
+			);
+
+			expect( screen.getByText( 'Widget' ) ).toBeInTheDocument();
+			expect( headline() ).toBeNull();
+			expect( tag() ).toHaveLength( 0 );
+		} );
+
+		it( 'updates the price, tag and option prices as the discount changes', () => {
+			const { rerender } = render( preview( block( '10.00', 'FLAT', '' ) ) );
+			expect( headline() ).toBe( '$10.00' );
+			expect( tag() ).toHaveLength( 0 );
+
+			rerender( preview( block( '10.00', 'FLAT', '2' ) ) );
+			expect( headline() ).toBe( struck( '$10.00', '$8.00' ) );
+			expectTag( '$2 discount' );
+
+			rerender( preview( block( '10.00', 'PERCENTAGE', '10' ) ) );
+			expect( headline() ).toBe( struck( '$10.00', '$9.00' ) );
+			expectTag( '10% discount' );
+
+			rerender( preview( block( '20.00', 'PERCENTAGE', '10' ) ) );
+			expect( headline() ).toBe( struck( '$20.00', '$18.00' ) );
+
+			rerender( preview( block( '20.00', 'PERCENTAGE', '10', { discountEnabled: false } ) ) );
+			expect( headline() ).toBe( '$20.00' );
+			expect( tag() ).toHaveLength( 0 );
+
+			rerender( preview( block( '', 'PERCENTAGE', '10', options ) ) );
+			expect( chips() ).toEqual( [
+				chip( 'small', '$20.00', '$18.00' ),
+				chip( 'large', '$30.00', '$27.00' ),
+			] );
+
+			rerender( preview( block( '', 'FLAT', '5.00', options ) ) );
+			expect( headline() ).toBe( `From ${ struck( '$20.00', '$15.00' ) }` );
+			expect( chips() ).toEqual( [
+				chip( 'small', '$20.00', '$15.00' ),
+				chip( 'large', '$30.00', '$25.00' ),
+			] );
+		} );
+	} );
 } );
 
 // The same cases run against the PHP render in Paypal_Payment_Buttons_Test.
 describe( 'product card matches the published page', () => {
 	it.each( cardParity.cases.map( c => [ c.name, c ] ) )( '%s', ( _name, testCase ) => {
-		render( <PayPalButtonPreview { ...testCase.attributes } attributes={ testCase.attributes } /> );
+		// The editor passes the discount in `attributes` only.
+		const {
+			discountEnabled: _enabled,
+			discountType: _type,
+			discountValue: _value,
+			...props
+		} = testCase.attributes;
+		render( <PayPalButtonPreview { ...props } attributes={ testCase.attributes } /> );
 
 		const card = document.querySelector( '.jetpack-paypal-button__product' );
 		expect( card?.outerHTML ?? null ).toBe( testCase.card );

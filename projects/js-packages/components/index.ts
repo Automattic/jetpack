@@ -16,6 +16,7 @@ along with this program; if not, see <https://www.gnu.org/licenses/>.
 export { default as JetpackLogo } from './components/jetpack-logo/index.tsx';
 export { default as JetpackVaultPressBackupLogo } from './components/jetpack-vaultpress-backup-logo/index.tsx';
 export { default as getRedirectUrl } from './tools/jp-redirect/index.ts';
+export { loadMediaLibrary } from './tools/load-media-library/index.ts';
 export { default as getProductCheckoutUrl } from './tools/get-product-checkout-url/index.ts';
 export { isFirstMonthTrial } from './tools/pricing-utils/index.ts';
 export { default as AutomatticBylineLogo } from './components/automattic-byline-logo/index.tsx';
@@ -76,5 +77,4 @@ export { default as MarkedLines } from './components/marked-lines/index.tsx';
 export { default as DetailsViewer } from './components/details-viewer/index.tsx';
 export { default as SidebarFooter } from './components/sidebar-footer/index.tsx';
 export type { SidebarFooterProps } from './components/sidebar-footer/types.ts';
-export * from './components/global-notices/index.ts';
 export * from './components/navigator-modal/index.tsx';

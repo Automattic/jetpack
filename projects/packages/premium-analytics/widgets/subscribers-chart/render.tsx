@@ -12,6 +12,8 @@ import {
 	MetricTabsChartSkeleton,
 	WidgetRoot,
 	WidgetState,
+	metricTabsToCsv,
+	useReportActions,
 	useWidgetRootContext,
 	type MetricTab,
 } from '@jetpack-premium-analytics/widgets-toolkit';
@@ -81,7 +83,11 @@ function buildMetrics( state: SubscribersChartState ): MetricTab[] {
 				label,
 				countLabel,
 				value: latest( state.current, accessor ),
-				current: state.current.map( point => ( { date: point.date, value: accessor( point ) } ) ),
+				current: state.current.map( point => ( {
+					date: point.date,
+					endDate: point.endDate,
+					value: accessor( point ),
+				} ) ),
 			};
 		}
 	);
@@ -112,6 +118,28 @@ function SubscribersChartInner( { chartType }: SubscribersChartInnerProps ) {
 	// An unread total says nothing about the site, so only a known zero changes the copy.
 	const hasNoSubscribers = counts.data?.total_subscribers === 0;
 	const metricTabs = useMemo( () => buildMetrics( state ), [ state ] );
+	const csv = useMemo(
+		() =>
+			metricTabsToCsv( isChartEmpty ? [] : metricTabs, {
+				zone: state.timezone,
+				withTime: false,
+				dateLabel: __( 'Date', 'jetpack-premium-analytics-pkg' ),
+			} ),
+		[ isChartEmpty, metricTabs, state.timezone ]
+	);
+	useReportActions( {
+		csv: {
+			...csv,
+			filenamePrefix: 'subscriber-summary',
+			hasDateRange: true,
+			status: {
+				isLoading: state.isLoading,
+				isFetching: state.isFetching,
+				isError: state.csvIsError,
+				isPlaceholderData: state.csvIsPlaceholderData,
+			},
+		},
+	} );
 	const groupLabel = __( 'Subscriber metric', 'jetpack-premium-analytics-pkg' );
 
 	return (

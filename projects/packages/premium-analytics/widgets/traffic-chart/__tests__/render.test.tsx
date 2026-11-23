@@ -81,7 +81,7 @@ function requestedBucket(): string {
 }
 
 /** The click handler the widget handed the chart on the latest render. */
-function chartClickHandler(): ( date: Date ) => void {
+function chartClickHandler(): ( clicked: { date: Date; isComparison: boolean } ) => void {
 	const calls = mockMetricTabsChart.mock.calls;
 	return calls[ calls.length - 1 ][ 0 ].onDatumClick;
 }
@@ -365,12 +365,15 @@ describe( 'TrafficChart drill-down', () => {
 			</ReportScopeProvider>
 		);
 
-		chartClickHandler()( new Date( '2026-02-14T00:00:00.000Z' ) );
+		chartClickHandler()( { date: new Date( '2026-02-14T00:00:00.000Z' ), isComparison: false } );
 
-		expect( openPeriod ).toHaveBeenCalledWith( {
-			from: new Date( '2026-02-01T00:00:00.000Z' ),
-			to: new Date( '2026-02-28T23:59:59.999Z' ),
-		} );
+		expect( openPeriod ).toHaveBeenCalledWith(
+			{
+				from: new Date( '2026-02-01T00:00:00.000Z' ),
+				to: new Date( '2026-02-28T23:59:59.999Z' ),
+			},
+			{ step: 'P1M' }
+		);
 	} );
 
 	it( 'opens the quarter a quarter bar drew, declared to the chart as quarters', () => {
@@ -386,15 +389,18 @@ describe( 'TrafficChart drill-down', () => {
 		const calls = mockMetricTabsChart.mock.calls;
 		expect( calls[ calls.length - 1 ][ 0 ].tickResolution ).toBe( 'quarter' );
 
-		chartClickHandler()( new Date( '2026-02-14T00:00:00.000Z' ) );
+		chartClickHandler()( { date: new Date( '2026-02-14T00:00:00.000Z' ), isComparison: false } );
 
-		expect( openPeriod ).toHaveBeenCalledWith( {
-			from: new Date( '2026-01-01T00:00:00.000Z' ),
-			to: new Date( '2026-03-31T23:59:59.999Z' ),
-		} );
+		expect( openPeriod ).toHaveBeenCalledWith(
+			{
+				from: new Date( '2026-01-01T00:00:00.000Z' ),
+				to: new Date( '2026-03-31T23:59:59.999Z' ),
+			},
+			{ step: 'P3M' }
+		);
 	} );
 
-	it( 'cuts an edge bar to the window it drew', () => {
+	it( 'cuts an edge bar to the window it drew, leaving its step to the arrows', () => {
 		const openPeriod = jest.fn();
 		render(
 			<ReportScopeProvider openPeriod={ openPeriod }>
@@ -407,12 +413,25 @@ describe( 'TrafficChart drill-down', () => {
 			</ReportScopeProvider>
 		);
 
-		chartClickHandler()( new Date( '2026-02-14T00:00:00.000Z' ) );
+		chartClickHandler()( { date: new Date( '2026-02-14T00:00:00.000Z' ), isComparison: false } );
 
-		expect( openPeriod ).toHaveBeenCalledWith( {
-			from: new Date( '2026-02-10T00:00:00.000Z' ),
-			to: new Date( '2026-02-28T23:59:59.999Z' ),
-		} );
+		expect( openPeriod ).toHaveBeenCalledWith(
+			{
+				from: new Date( '2026-02-10T00:00:00.000Z' ),
+				to: new Date( '2026-02-28T23:59:59.999Z' ),
+			},
+			{ step: undefined }
+		);
+	} );
+
+	it( 'leaves hourly bars inert, as an hour has nothing smaller to open', () => {
+		render(
+			<ReportScopeProvider openPeriod={ jest.fn() }>
+				<TrafficChartRender attributes={ { reportParams: reportParams( 'hour' ) } } />
+			</ReportScopeProvider>
+		);
+
+		expect( chartClickHandler() ).toBeUndefined();
 	} );
 
 	it( 'leaves the bars inert on a surface with no period to set', () => {

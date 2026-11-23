@@ -630,6 +630,18 @@ class Jetpack_Ai extends Module_Product {
 	}
 
 	/**
+	 * Whether `jetpack_ai_enabled` holds AI off: the site's master switch, its host, or custom code.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	public static function is_held_off() {
+		/** This filter is documented in projects/packages/my-jetpack/src/products/class-jetpack-ai.php */
+		return ! apply_filters( 'jetpack_ai_enabled', true );
+	}
+
+	/**
 	 * Checks whether the site has switched the product on, respecting the jetpack_ai_enabled filter.
 	 *
 	 * @return boolean

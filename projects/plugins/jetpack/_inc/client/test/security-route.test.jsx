@@ -78,23 +78,34 @@ describe( 'Main routes that leave Settings once settings move out', () => {
 		[ '/performance', 'admin.php?page=my-jetpack#/features?search=cdn' ],
 		[ '/sharing', 'admin.php?page=my-jetpack#/features?search=sharing' ],
 		[ '/reader', 'admin.php?page=my-jetpack#/features?search=reader' ],
-	] )( 'sends %s to %s with the settings flag on', ( route, destination ) => {
+		[ '/writing', 'admin.php?page=my-jetpack#/features' ],
+		[ '/discussion', 'admin.php?page=my-jetpack&p=%2Ffeatures%3Fconfigure%3Dcomments' ],
+		[ '/traffic', 'admin.php?page=my-jetpack#/features' ],
+		[ '/settings', 'admin.php?page=my-jetpack#/features' ],
+		[ '/privacy', 'profile.php#jetpack-privacy' ],
+	] )( 'sends %s to %s with the settings flag on and no tab left', ( route, destination ) => {
 		isSettingsConsolidationEnabled.mockReturnValue( true );
-		renderAt( route, false );
+		renderAt( route, false, { remainingTabs: [] } );
 
 		expect( getAdminUrl ).toHaveBeenCalledWith( destination );
 		expect( console ).toHaveErroredWith( 'Not implemented: navigation to another Document' );
 		expect( screen.queryByTestId( 'searchable-settings' ) ).not.toBeInTheDocument();
 	} );
 
-	it.each( [ '/performance', '/sharing', '/reader' ] )(
-		'keeps %s on Settings with the settings flag off',
-		route => {
-			renderAt( route, false );
+	it.each( [
+		'/performance',
+		'/sharing',
+		'/reader',
+		'/writing',
+		'/discussion',
+		'/traffic',
+		'/settings',
+		'/privacy',
+	] )( 'keeps %s on Settings with the settings flag off', route => {
+		renderAt( route, false );
 
-			expect( screen.getByTestId( 'searchable-settings' ) ).toBeInTheDocument();
-		}
-	);
+		expect( screen.getByTestId( 'searchable-settings' ) ).toBeInTheDocument();
+	} );
 
 	it( 'sends #/sharing to the Social page when it is registered', () => {
 		isSettingsConsolidationEnabled.mockReturnValue( true );
@@ -103,6 +114,18 @@ describe( 'Main routes that leave Settings once settings move out', () => {
 		expect( getAdminUrl ).toHaveBeenCalledWith( 'admin.php?page=jetpack-social' );
 		expect( console ).toHaveErroredWith( 'Not implemented: navigation to another Document' );
 		expect( screen.queryByTestId( 'searchable-settings' ) ).not.toBeInTheDocument();
+	} );
+
+	it.each( [
+		[ '/traffic', 'while the Traffic tab is left', [ 'traffic' ], '' ],
+		[ '/settings', 'while a tab is left', [ 'security' ], '' ],
+		[ '/settings', 'for a search', [], '?term=sso' ],
+	] )( 'keeps %s on Settings %s', ( pathname, _when, remainingTabs, search ) => {
+		isSettingsConsolidationEnabled.mockReturnValue( true );
+		renderAt( pathname, false, { remainingTabs, location: { pathname, search } } );
+
+		expect( getAdminUrl ).not.toHaveBeenCalled();
+		expect( screen.getByTestId( 'searchable-settings' ) ).toBeInTheDocument();
 	} );
 
 	it( 'keeps #/security on Settings with the settings flag on and no Protect page', () => {

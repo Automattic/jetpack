@@ -8,20 +8,6 @@
 namespace Automattic\Jetpack\PremiumAnalytics;
 
 require_once __DIR__ . '/single-report-pages.php';
-require_once __DIR__ . '/videopress-availability.php';
-
-/**
- * The video page's fixed composition: the performance chart full width, then the player beside the embeds list.
- *
- * @return array
- */
-function get_video_single_report_page_default_layout() {
-	return array(
-		get_dashboard_default_widget_instance( 'video-detail-views-performance', 'jpa/video-detail-views-performance', 10, 'full', 2, array( 'chartType' => 'bar' ) ),
-		get_dashboard_default_widget_instance( 'videopress-video-player', 'videopress/video-player', 20, 1, 2 ),
-		get_dashboard_default_widget_instance( 'video-detail-embeds', 'jpa/video-detail-embeds', 30, 'fill', 2 ),
-	);
-}
 
 /**
  * The author page's fixed composition: performance, the scoped spotlights, top posts, all-time traffic.
@@ -62,6 +48,27 @@ function get_post_traffic_single_report_section_default_layout() {
 			)
 		),
 		get_dashboard_default_widget_instance( 'post-all-time-traffic', 'jpa/post-all-time-traffic', 6, 3, 2 ),
+	);
+}
+
+/**
+ * The Page traffic section of the page report: the post traffic layout, its two post cards titled for a page.
+ *
+ * @return array
+ */
+function get_page_traffic_single_report_section_default_layout() {
+	$page_types = array(
+		'jpa/post-detail-highlights' => 'jpa/post-detail-highlights--page',
+		'jpa/post-views'             => 'jpa/post-views--page',
+	);
+
+	return array_map(
+		static function ( $widget ) use ( $page_types ) {
+			$widget['type'] = $page_types[ $widget['type'] ] ?? $widget['type'];
+
+			return $widget;
+		},
+		get_post_traffic_single_report_section_default_layout()
 	);
 }
 
@@ -169,19 +176,6 @@ function get_email_clicks_single_report_section_default_layout() {
 }
 
 /**
- * Whether the video page is available: VideoPress is there and the reader may view Stats.
- *
- * @return bool
- */
-function is_video_single_report_page_available() {
-	if ( ! Capabilities::current_user_can_view_stats() ) {
-		return false;
-	}
-
-	return is_videopress_available();
-}
-
-/**
  * Registers the package's own single-report pages into the registry being hydrated.
  *
  * @param Single_Report_Page_Registry|null $registry The registry the action hands over.
@@ -190,6 +184,26 @@ function register_default_single_report_pages( $registry = null ) {
 	if ( ! $registry instanceof Single_Report_Page_Registry ) {
 		$registry = Single_Report_Page_Registry::get_instance();
 	}
+
+	$post_sections = array(
+		array(
+			'slug'           => 'post-traffic',
+			'label'          => __( 'Post traffic', 'jetpack-premium-analytics-pkg' ),
+			'default_layout' => __NAMESPACE__ . '\\get_post_traffic_single_report_section_default_layout',
+		),
+		array(
+			'slug'           => 'email-opens',
+			'label'          => __( 'Email opens', 'jetpack-premium-analytics-pkg' ),
+			'default_layout' => __NAMESPACE__ . '\\get_email_opens_single_report_section_default_layout',
+			'controls'       => false,
+		),
+		array(
+			'slug'           => 'email-clicks',
+			'label'          => __( 'Email clicks', 'jetpack-premium-analytics-pkg' ),
+			'default_layout' => __NAMESPACE__ . '\\get_email_clicks_single_report_section_default_layout',
+			'controls'       => false,
+		),
+	);
 
 	$pages = array(
 		'analytics/author' => array(
@@ -204,44 +218,30 @@ function register_default_single_report_pages( $registry = null ) {
 			'preferences_scope' => 'jetpack-premium-analytics/author-detail',
 		),
 		'analytics/post'   => array(
-			'path'              => 'post',
-			'label'             => __( 'Post', 'jetpack-premium-analytics-pkg' ),
+			'entity'            => array(
+				'kind' => 'postType',
+				'name' => 'post',
+			),
 			'dashboard_section' => 'traffic',
-			'scope_param'       => 'post_id',
 			'icon'              => 'jpa/post',
-			'reports_page'      => 'posts',
+			'sections'          => $post_sections,
+			// Its adapter reads the entry from Stats, so the type need not be in REST.
+			'is_available'      => array( Capabilities::class, 'current_user_can_view_stats' ),
+		),
+		'analytics/page'   => array(
+			'entity'            => array(
+				'kind' => 'postType',
+				'name' => 'page',
+			),
+			'dashboard_section' => 'traffic',
+			'icon'              => 'jpa/page',
 			'sections'          => array(
 				array(
 					'slug'           => 'post-traffic',
-					'label'          => __( 'Post traffic', 'jetpack-premium-analytics-pkg' ),
-					'default_layout' => __NAMESPACE__ . '\\get_post_traffic_single_report_section_default_layout',
-				),
-				array(
-					'slug'           => 'email-opens',
-					'label'          => __( 'Email opens', 'jetpack-premium-analytics-pkg' ),
-					'default_layout' => __NAMESPACE__ . '\\get_email_opens_single_report_section_default_layout',
-					'controls'       => false,
-				),
-				array(
-					'slug'           => 'email-clicks',
-					'label'          => __( 'Email clicks', 'jetpack-premium-analytics-pkg' ),
-					'default_layout' => __NAMESPACE__ . '\\get_email_clicks_single_report_section_default_layout',
-					'controls'       => false,
+					'label'          => __( 'Page traffic', 'jetpack-premium-analytics-pkg' ),
+					'default_layout' => __NAMESPACE__ . '\\get_page_traffic_single_report_section_default_layout',
 				),
 			),
-			'preferences_scope' => 'jetpack-premium-analytics/post-detail',
-		),
-		'analytics/video'  => array(
-			'path'              => 'video',
-			'label'             => __( 'Video', 'jetpack-premium-analytics-pkg' ),
-			'dashboard_section' => 'traffic',
-			'is_available'      => __NAMESPACE__ . '\\is_video_single_report_page_available',
-			'feature'           => 'videos',
-			'scope_param'       => 'post_id',
-			'icon'              => 'jpa/video',
-			'reports_page'      => 'videos',
-			'default_layout'    => __NAMESPACE__ . '\\get_video_single_report_page_default_layout',
-			'preferences_scope' => 'jetpack-premium-analytics/video-detail',
 		),
 	);
 

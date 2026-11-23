@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+llms.txt: Add a filter to change how many items are listed per content type.

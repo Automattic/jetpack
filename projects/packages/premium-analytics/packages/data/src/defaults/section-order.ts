@@ -37,16 +37,40 @@ export function getSectionOrder(
 }
 
 /**
+ * A new order with the stored slugs it leaves out put back in the positions they held.
+ *
+ * @param stored - The order stored so far.
+ * @param order  - The new order.
+ * @return The order to store.
+ */
+function keepAbsentSlugs( stored: readonly string[], order: readonly string[] ): string[] {
+	const named = new Set( order );
+	const pending = [ ...order ];
+	const merged: string[] = [];
+
+	for ( const slug of stored ) {
+		if ( ! named.has( slug ) ) {
+			merged.push( slug );
+		} else if ( pending.length > 0 ) {
+			merged.push( pending.shift() as string );
+		}
+	}
+
+	return [ ...merged, ...pending ];
+}
+
+/**
  * Store the order the reader gave a screen's tabs; none goes back to the default order.
+ * A stored slug the new order leaves out keeps its position, so a tab hidden for now returns to its place.
  *
  * @param scope - The screen's preferences scope.
- * @param order - The section slugs, first tab first.
+ * @param order - The section slugs of the tabs on screen, first tab first.
  */
 export function setSectionOrder( scope: string, order?: readonly string[] ): void {
 	( dispatch( PREFERENCES_STORE ) as PreferencesActions | undefined )?.set(
 		scope,
 		SECTION_ORDER_KEY,
-		order
+		order && keepAbsentSlugs( getSectionOrder( scope ), order )
 	);
 }
 

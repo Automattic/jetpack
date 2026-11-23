@@ -13,7 +13,7 @@ use WP_REST_Request;
 /**
  * Supplies an owner-selected image through the existing social fallback.
  *
- * @since $$next-version$$
+ * @since 0.12.0
  */
 class Share_Image {
 	/**

@@ -1,6 +1,5 @@
 {
 	"name": "@automattic/jetpack-admin-ui",
-	"version": "0.14.14",
 	"private": true,
 	"description": "Generic Jetpack wp-admin UI elements",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/admin-ui/#readme",
@@ -29,6 +28,7 @@
 	"devDependencies": {
 		"@automattic/jetpack-base-styles": "workspace:*",
 		"@automattic/jetpack-webpack-config": "workspace:*",
+		"@automattic/jetpack-wp-build-polyfills": "workspace:*",
 		"@wordpress/browserslist-config": "7.1.0",
 		"@wordpress/theme": "4.0.0",
 		"jest": "30.5.2",

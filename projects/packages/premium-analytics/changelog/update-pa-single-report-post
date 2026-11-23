@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Single-report pages: Serve the post page from /report/post/<id>, rendered from its registered record with its three sections; the old /post/<id> address redirects.

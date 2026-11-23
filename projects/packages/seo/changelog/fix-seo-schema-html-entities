@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Show apostrophes, quotes, and ampersands as characters instead of HTML entities in schema markup.

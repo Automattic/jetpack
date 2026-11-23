@@ -2028,6 +2028,7 @@ class PayPal_REST_Controller_Test extends TestCase {
 			'/environment'                               => array( 'POST' ),
 			'/buttons'                                   => array( 'GET', 'POST' ),
 			'/buttons/(?P<resource_id>PLB-[A-Za-z0-9]+)' => array( 'DELETE', 'GET', 'PUT' ),
+			'/images'                                    => array( 'DELETE', 'POST' ),
 		);
 	}
 
@@ -2745,6 +2746,7 @@ class PayPal_REST_Controller_Test extends TestCase {
 						'integration_mode' => 'BUTTON',
 						'currency'         => 'EUR',
 						'has_variants'     => false,
+						'image_count'      => 0,
 					),
 				),
 			),
@@ -2914,7 +2916,7 @@ class PayPal_REST_Controller_Test extends TestCase {
 		$this->assertSame( 'jetpack_paypal_button_created', $events[0]['event_name'] );
 		$this->assertSame( get_current_user_id(), $events[0]['user']->ID );
 		$this->assertSame(
-			array( 'environment', 'integration_mode', 'currency', 'has_variants', 'blog_id', 'platform' ),
+			array( 'environment', 'integration_mode', 'currency', 'has_variants', 'image_count', 'blog_id', 'platform' ),
 			array_keys( $events[0]['properties'] )
 		);
 		$this->assertSame( 1234, $events[0]['properties']['blog_id'] );
@@ -2991,6 +2993,509 @@ class PayPal_REST_Controller_Test extends TestCase {
 		$request->set_param( 'line_items', array( $line_item ) );
 
 		return $request;
+	}
+
+	// --- Product images ---
+
+	/**
+	 * A small PNG in the media library, as the media modal leaves one.
+	 *
+	 * @param string $mime  The attachment's MIME type.
+	 * @param int    $width The width kept in its metadata.
+	 * @return int The attachment id.
+	 */
+	private function create_image_attachment( $mime = 'image/png', $width = 20 ) {
+		$path = tempnam( sys_get_temp_dir(), 'ppimg' );
+		imagepng( imagecreatetruecolor( 20, 20 ), $path );
+
+		$attachment_id = wp_insert_attachment(
+			array(
+				'post_mime_type' => $mime,
+				'post_title'     => 'photo',
+				'post_status'    => 'inherit',
+			),
+			$path
+		);
+		wp_update_attachment_metadata(
+			$attachment_id,
+			array(
+				'width'  => $width,
+				'height' => 20,
+				'file'   => $path,
+			)
+		);
+
+		return $attachment_id;
+	}
+
+	/**
+	 * An upload request for the given attachments.
+	 *
+	 * @param int[] $attachment_ids The attachments.
+	 * @return \WP_REST_Request
+	 */
+	private function upload_request( array $attachment_ids ) {
+		$request = new \WP_REST_Request( 'POST', '/wpcom/v2/paypal/images' );
+		$request->set_param( 'attachment_ids', $attachment_ids );
+
+		return $request;
+	}
+
+	/**
+	 * PayPal's 207 answer to an upload.
+	 *
+	 * @param array $rows One row per file.
+	 * @return array
+	 */
+	private function upload_response( array $rows ) {
+		return $this->http_response( 207, array( 'images' => $rows ) );
+	}
+
+	public function test_upload_images_sends_the_files_and_reports_each_row() {
+		$this->set_up_connected_admin_state();
+		$first    = $this->create_image_attachment();
+		$second   = $this->create_image_attachment();
+		$requests = array();
+		$this->mock_http_routes(
+			array(
+				PayPal_API_Client::IMAGES_ENDPOINT => $this->upload_response(
+					array(
+						array(
+							'asset_id' => 'ASSET-1',
+							'status'   => 'APPROVED',
+							'sizes'    => array(
+								array(
+									'type' => 'thumbnail',
+									'url'  => 'https://pics.sandbox.paypal.com/t.jpg',
+								),
+								array(
+									'type' => 'medium',
+									'url'  => 'https://pics.sandbox.paypal.com/m.jpg',
+								),
+							),
+						),
+						array(
+							'error'       => array(
+								'name'    => 'IMAGE_REJECTED',
+								'message' => 'Rejected',
+							),
+							'input_index' => 1,
+						),
+					)
+				),
+			),
+			$requests
+		);
+
+		$response = PayPal_REST_Controller::handle_upload_images( $this->upload_request( array( $first, $second ) ) );
+
+		$this->assertInstanceOf( \WP_REST_Response::class, $response );
+		$this->assertCount( 1, $requests );
+		$this->assertStringStartsWith( 'multipart/form-data; boundary=', $requests[0]['args']['headers']['Content-Type'] );
+		$this->assertSame( 2, substr_count( $requests[0]['args']['body'], 'name="files"' ) );
+		$this->assertStringContainsString( 'Content-Type: image/png', $requests[0]['args']['body'] );
+
+		$rows = $response->get_data()['images'];
+		$this->assertSame(
+			array(
+				'attachment_id' => $first,
+				'asset_id'      => 'ASSET-1',
+				'status'        => 'APPROVED',
+				'url'           => 'https://pics.sandbox.paypal.com/m.jpg',
+				'thumbnail_url' => 'https://pics.sandbox.paypal.com/t.jpg',
+			),
+			$rows[0]
+		);
+		$this->assertSame( $second, $rows[1]['attachment_id'] );
+		$this->assertSame( 'IMAGE_REJECTED', $rows[1]['error']['name'] );
+		$this->assertStringContainsString( 'content check', $rows[1]['error']['message'] );
+	}
+
+	/**
+	 * A file PayPal would refuse never goes, and does not hold the others back.
+	 */
+	public function test_upload_images_refuses_an_unsupported_file_and_sends_the_rest() {
+		$this->set_up_connected_admin_state();
+		$gif      = $this->create_image_attachment( 'image/gif' );
+		$png      = $this->create_image_attachment();
+		$requests = array();
+		$this->mock_http_routes(
+			array(
+				PayPal_API_Client::IMAGES_ENDPOINT => $this->upload_response(
+					array(
+						array(
+							'asset_id' => 'ASSET-2',
+							'status'   => 'IN_REVIEW',
+						),
+					)
+				),
+			),
+			$requests
+		);
+
+		$rows = PayPal_REST_Controller::handle_upload_images( $this->upload_request( array( $gif, $png ) ) )->get_data()['images'];
+
+		$this->assertSame( 1, substr_count( $requests[0]['args']['body'], 'name="files"' ) );
+		$this->assertSame( 'UNSUPPORTED_FORMAT', $rows[0]['error']['name'] );
+		$this->assertSame(
+			array(
+				'attachment_id' => $png,
+				'asset_id'      => 'ASSET-2',
+				'status'        => 'IN_REVIEW',
+				'url'           => '',
+				'thumbnail_url' => '',
+			),
+			$rows[1]
+		);
+	}
+
+	public function test_upload_images_calls_paypal_with_nothing_when_every_file_is_refused() {
+		$this->set_up_connected_admin_state();
+		$wide     = $this->create_image_attachment( 'image/png', 9001 );
+		$requests = array();
+		$this->mock_http_routes( array(), $requests );
+
+		$rows = PayPal_REST_Controller::handle_upload_images( $this->upload_request( array( $wide, 999999 ) ) )->get_data()['images'];
+
+		$this->assertSame( array(), $requests );
+		$this->assertSame( 'DIMENSION_OUT_OF_RANGE', $rows[0]['error']['name'] );
+		$this->assertSame( 'IMAGE_NOT_FOUND', $rows[1]['error']['name'] );
+	}
+
+	/**
+	 * An attachment whose file is not on this server's disk, as on a site that keeps media on a CDN.
+	 *
+	 * @param array $meta Its metadata.
+	 * @return int The attachment id.
+	 */
+	private function create_cdn_attachment( array $meta = array() ) {
+		$attachment_id = wp_insert_attachment(
+			array(
+				'post_mime_type' => 'image/png',
+				'post_title'     => 'photo',
+				'post_status'    => 'inherit',
+			),
+			'cdn/photo-cdn.png'
+		);
+		wp_update_attachment_metadata( $attachment_id, $meta );
+
+		return $attachment_id;
+	}
+
+	public function test_upload_images_fetches_a_file_that_is_not_on_disk() {
+		$this->set_up_connected_admin_state();
+		$requests = array();
+		$this->mock_http_routes(
+			array(
+				'photo-cdn.png'                    => array(
+					'response' => array(
+						'code'    => 200,
+						'message' => 'OK',
+					),
+					'body'     => 'cdn-bytes',
+				),
+				PayPal_API_Client::IMAGES_ENDPOINT => $this->upload_response( array( array( 'asset_id' => 'ASSET-3' ) ) ),
+			),
+			$requests
+		);
+
+		$rows = PayPal_REST_Controller::handle_upload_images( $this->upload_request( array( $this->create_cdn_attachment() ) ) )->get_data()['images'];
+
+		$this->assertSame( 'ASSET-3', $rows[0]['asset_id'] );
+		$this->assertStringContainsString( "filename=\"photo-cdn.png\"\r\nContent-Type: image/png\r\n\r\ncdn-bytes\r\n", $requests[1]['args']['body'] );
+	}
+
+	/**
+	 * @param array  $meta       The attachment's metadata.
+	 * @param string $error_name The error its row carries.
+	 * @param string $message    Part of the message for the merchant.
+	 * @dataProvider unsendable_files_provider
+	 */
+	#[DataProvider( 'unsendable_files_provider' )]
+	public function test_upload_images_refuses_a_file_it_cannot_send( array $meta, $error_name, $message ) {
+		$this->set_up_connected_admin_state();
+		$requests = array();
+		$this->mock_http_routes( array( 'photo-cdn.png' => $this->http_response( 404, array() ) ), $requests );
+
+		$rows = PayPal_REST_Controller::handle_upload_images( $this->upload_request( array( $this->create_cdn_attachment( $meta ) ) ) )->get_data()['images'];
+
+		$this->assertSame( $error_name, $rows[0]['error']['name'] );
+		$this->assertStringContainsString( $message, $rows[0]['error']['message'] );
+		foreach ( $requests as $request ) {
+			$this->assertStringNotContainsString( PayPal_API_Client::IMAGES_ENDPOINT, $request['url'] );
+		}
+	}
+
+	public static function unsendable_files_provider() {
+		return array(
+			'over 12 MB'     => array( array( 'filesize' => PayPal_API_Client::MAX_IMAGE_BYTES + 1 ), 'FILE_TOO_LARGE', 'photo-cdn.png is over 12 MB' ),
+			'nowhere to get' => array( array(), 'IMAGE_UNREADABLE', 'photo-cdn.png could not be read' ),
+		);
+	}
+
+	/**
+	 * A file PayPal says nothing usable about is reported, not left looking uploaded.
+	 */
+	public function test_upload_images_reports_a_file_paypal_did_not_answer_for() {
+		$this->set_up_connected_admin_state();
+		$first  = $this->create_image_attachment();
+		$second = $this->create_image_attachment();
+		$this->mock_http_routes(
+			array(
+				PayPal_API_Client::IMAGES_ENDPOINT => $this->upload_response(
+					array(
+						array(
+							'error'       => array( 'name' => 'SOMETHING_NEW' ),
+							'input_index' => 0,
+						),
+						'not a row',
+						array(
+							'asset_id'    => 'ASSET-FOR-NO-FILE',
+							'input_index' => 9,
+						),
+					)
+				),
+			)
+		);
+
+		$rows = PayPal_REST_Controller::handle_upload_images( $this->upload_request( array( $first, $second ) ) )->get_data()['images'];
+
+		$this->assertSame( 'SOMETHING_NEW', $rows[0]['error']['name'] );
+		$this->assertStringContainsString( 'PayPal did not accept', $rows[0]['error']['message'] );
+		$this->assertSame( 'NO_RESPONSE', $rows[1]['error']['name'] );
+		$this->assertStringContainsString( 'Please try again', $rows[1]['error']['message'] );
+	}
+
+	public function test_upload_images_converts_a_failed_call_to_a_rest_error() {
+		$this->set_up_connected_admin_state();
+		$png = $this->create_image_attachment();
+		$this->mock_http_response( 500, array( 'message' => 'down' ) );
+
+		$result = PayPal_REST_Controller::handle_upload_images( $this->upload_request( array( $png ) ) );
+
+		$this->assertInstanceOf( \WP_Error::class, $result );
+		$this->assertSame( 500, $result->get_error_data()['status'] );
+	}
+
+	/**
+	 * @param int  $status  What PayPal answers the delete with.
+	 * @param bool $deleted Whether the route reports the image gone.
+	 * @dataProvider delete_image_statuses_provider
+	 */
+	#[DataProvider( 'delete_image_statuses_provider' )]
+	public function test_delete_image_reports_gone_for_a_404_too( $status, $deleted ) {
+		$this->set_up_connected_admin_state();
+		$requests = array();
+		$this->mock_http_routes(
+			array( PayPal_API_Client::IMAGES_ENDPOINT => $this->http_response( $status, array( 'name' => 'IMAGE_NOT_FOUND' ) ) ),
+			$requests
+		);
+
+		$request = new \WP_REST_Request( 'DELETE', '/wpcom/v2/paypal/images' );
+		$request->set_param( 'asset_id', 'ASSET/1=' );
+		$result = PayPal_REST_Controller::handle_delete_image( $request );
+
+		$this->assertStringEndsWith( PayPal_API_Client::IMAGES_ENDPOINT . '/ASSET%2F1%3D', $requests[0]['url'] );
+		$this->assertSame( 'DELETE', $requests[0]['args']['method'] );
+		if ( $deleted ) {
+			$this->assertSame(
+				array(
+					'deleted'  => true,
+					'asset_id' => 'ASSET/1=',
+				),
+				$result->get_data()
+			);
+		} else {
+			$this->assertInstanceOf( \WP_Error::class, $result );
+		}
+	}
+
+	/**
+	 * @return array<string, array{0: int, 1: bool}>
+	 */
+	public static function delete_image_statuses_provider() {
+		return array(
+			'deleted'        => array( 204, true ),
+			'already gone'   => array( 404, true ),
+			'still attached' => array( 422, false ),
+		);
+	}
+
+	/**
+	 * PayPal takes five images with exactly one primary: the one flagged, or the first.
+	 */
+	public function test_create_button_caps_images_at_five_with_one_primary() {
+		$this->set_up_connected_admin_state();
+		$store = array();
+		$this->mock_paypal_store( $store );
+
+		// An image that never got an asset id is left out, and does not count toward the five.
+		$images = array( array( 'asset_id' => '' ) );
+		foreach ( range( 1, 6 ) as $i ) {
+			$images[] = array( 'asset_id' => "ASSET-$i" ) + ( 2 === $i ? array( 'is_primary' => true ) : array() );
+		}
+		PayPal_REST_Controller::handle_create_button(
+			$this->create_request(
+				array(
+					'name'        => 'Widget',
+					'unit_amount' => array(
+						'currency_code' => 'USD',
+						'value'         => '10.00',
+					),
+					'images'      => $images,
+				)
+			)
+		);
+
+		$this->assertSame(
+			array(
+				array(
+					'asset_id'   => 'ASSET-1',
+					'is_primary' => false,
+				),
+				array(
+					'asset_id'   => 'ASSET-2',
+					'is_primary' => true,
+				),
+				array(
+					'asset_id'   => 'ASSET-3',
+					'is_primary' => false,
+				),
+				array(
+					'asset_id'   => 'ASSET-4',
+					'is_primary' => false,
+				),
+				array(
+					'asset_id'   => 'ASSET-5',
+					'is_primary' => false,
+				),
+			),
+			$store['line_items'][0]['images']
+		);
+	}
+
+	/**
+	 * PayPal rejects an image on an option of a non-primary group, and more than one per option.
+	 */
+	public function test_create_button_keeps_one_option_image_on_the_primary_group_only() {
+		$this->set_up_connected_admin_state();
+		$store = array();
+		$this->mock_paypal_store( $store );
+
+		PayPal_REST_Controller::handle_create_button(
+			$this->create_request(
+				array(
+					'name'     => 'Widget',
+					'variants' => array(
+						'dimensions' => array(
+							array(
+								'name'    => 'Size',
+								'primary' => true,
+								'options' => array(
+									array(
+										'label'       => 'S',
+										'unit_amount' => array(
+											'currency_code' => 'USD',
+											'value' => '10.00',
+										),
+										'images'      => array(
+											array( 'asset_id' => 'ASSET-S' ),
+											array( 'asset_id' => 'ASSET-S2' ),
+										),
+									),
+								),
+							),
+							array(
+								'name'    => 'Color',
+								'primary' => false,
+								'options' => array(
+									array(
+										'label'  => 'Red',
+										'images' => array( array( 'asset_id' => 'ASSET-RED' ) ),
+									),
+								),
+							),
+						),
+					),
+				)
+			)
+		);
+
+		list( $size, $color ) = $store['line_items'][0]['variants']['dimensions'];
+		$this->assertSame( array( array( 'asset_id' => 'ASSET-S' ) ), $size['options'][0]['images'] );
+		$this->assertArrayNotHasKey( 'images', $color['options'][0] );
+	}
+
+	/**
+	 * A PUT detaches the images it leaves out but keeps them in the account, so the
+	 * route deletes them once the PUT has gone through.
+	 */
+	public function test_update_button_deletes_the_images_it_took_off_the_payment() {
+		$this->set_up_connected_admin_state();
+		$current                              = $this->one_line_item_payment();
+		$current['line_items'][0]['images']   = array(
+			array(
+				'asset_id'   => 'KEEP',
+				'is_primary' => true,
+			),
+			array( 'asset_id' => 'GONE' ),
+		);
+		$current['line_items'][0]['variants'] = array(
+			'dimensions' => array(
+				array(
+					'name'    => 'Color',
+					'primary' => true,
+					'options' => array(
+						array(
+							'label'  => 'Red',
+							'images' => array( array( 'asset_id' => 'GONE-RED' ) ),
+						),
+					),
+				),
+			),
+		);
+		$calls                                = array();
+		add_filter(
+			'pre_http_request',
+			function ( $preempt, $args, $url ) use ( $current, &$calls ) {
+				if ( false === strpos( $url, '/v1/checkout/payment-resources' ) ) {
+					return $preempt;
+				}
+				$calls[] = $args['method'] . ' ' . wp_parse_url( $url, PHP_URL_PATH );
+				if ( 'GET' === $args['method'] ) {
+					return $this->http_response( 200, $current );
+				}
+				return $this->http_response( 204, array() );
+			},
+			10,
+			3
+		);
+
+		$line_items              = $this->one_line_item();
+		$line_items[0]['images'] = array(
+			array(
+				'asset_id'   => 'KEEP',
+				'is_primary' => true,
+			),
+		);
+		$request                 = new \WP_REST_Request( 'PUT', '/wpcom/v2/paypal/buttons/PLB-42' );
+		$request->set_param( 'resource_id', 'PLB-42' );
+		$request->set_param( 'type', 'BUY_NOW' );
+		$request->set_param( 'integration_mode', 'LINK' );
+		$request->set_param( 'line_items', $line_items );
+
+		$result = PayPal_REST_Controller::handle_update_button( $request );
+
+		$this->assertInstanceOf( \WP_REST_Response::class, $result );
+		$this->assertSame(
+			array(
+				'GET /v1/checkout/payment-resources/PLB-42',
+				'PUT /v1/checkout/payment-resources/PLB-42',
+				'DELETE ' . PayPal_API_Client::IMAGES_ENDPOINT . '/GONE',
+				'DELETE ' . PayPal_API_Client::IMAGES_ENDPOINT . '/GONE-RED',
+			),
+			$calls
+		);
 	}
 
 	/**

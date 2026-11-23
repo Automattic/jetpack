@@ -267,7 +267,10 @@ class Jetpack_Activity_Log {
 				'Activity Log',
 				'manage_options',
 				self::PAGE_SLUG,
-				$render_callback
+				$render_callback,
+				null,
+				// The admin shell reads this to check the module is still on each time the page is opened.
+				array( 'module' => 'activity-log' )
 			);
 		}
 
@@ -284,7 +287,7 @@ class Jetpack_Activity_Log {
 	/**
 	 * Register the Activity Log with the admin shell, which switches between Jetpack dashboards without a page load.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.7.5
 	 *
 	 * @param array $members Shell members keyed by admin page slug.
 	 * @return array
@@ -300,6 +303,10 @@ class Jetpack_Activity_Log {
 			'init_modules' => array( '@jetpack-activity-log/init' ),
 			/** "Activity Log" is a product name, do not translate. */
 			'title'        => 'Activity Log',
+			'header'       => array(
+				'title'    => __( 'Activity Log', 'jetpack-activity-log' ),
+				'subtitle' => __( 'Every change made to your site, in one searchable timeline.', 'jetpack-activity-log' ),
+			),
 			'capability'   => 'manage_options',
 			'handles'      => array( self::DATA_SCRIPT_HANDLE, 'jetpack-script-data', 'jp-tracks', 'wp-jp-i18n-loader' ),
 			'load'         => array( __CLASS__, 'load_as_admin_shell_guest' ),
@@ -310,7 +317,7 @@ class Jetpack_Activity_Log {
 	/**
 	 * Ready the Activity Log routes and page data while another dashboard's page is open, without the screen ID alias.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.7.5
 	 *
 	 * @return void
 	 */

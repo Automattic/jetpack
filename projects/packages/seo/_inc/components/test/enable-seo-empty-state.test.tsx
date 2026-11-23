@@ -4,6 +4,9 @@ import { fireEvent, render, screen } from '@testing-library/react';
 
 // `--experimental-vm-modules` (true ESM): mock with `jest.unstable_mockModule`
 // and import the component under test dynamically after the mock is registered.
+const getScriptData = jest.fn< () => unknown >( () => ( {} ) );
+jest.unstable_mockModule( '@automattic/jetpack-script-data', () => ( { getScriptData } ) );
+
 const enable = jest.fn();
 const useEnableSeoTools = jest.fn( () => ( { isEnabling: false, enable } ) );
 
@@ -16,6 +19,7 @@ const { default: EnableSeoEmptyState } = await import( '../enable-seo-empty-stat
 describe( 'EnableSeoEmptyState', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
+		getScriptData.mockReturnValue( {} );
 		useEnableSeoTools.mockReturnValue( { isEnabling: false, enable } );
 	} );
 
@@ -31,6 +35,30 @@ describe( 'EnableSeoEmptyState', () => {
 			)
 		).toBeInTheDocument();
 	} );
+
+	it.each( [
+		[
+			true,
+			"Yoast SEO is active on this site. Enabling Jetpack's SEO tools will not deactivate it, and overlapping SEO output will remain paused.",
+		],
+		[
+			false,
+			"Yoast SEO is active on this site. Enabling Jetpack's SEO tools will not deactivate it.",
+		],
+	] )(
+		'explains enabling alongside the competing plugin with paused output %s',
+		( paused, description ) => {
+			getScriptData.mockReturnValue( {
+				seo: { output: { paused, conflicting_plugin: 'Yoast SEO' } },
+			} );
+			render( <EnableSeoEmptyState screen="settings" /> );
+
+			expect( screen.getByText( description ) ).toBeInTheDocument();
+			// eslint-disable-next-line testing-library/prefer-user-event -- Match the existing single-click activation check.
+			fireEvent.click( screen.getByRole( 'button', { name: 'Enable SEO tools' } ) );
+			expect( enable ).toHaveBeenCalled();
+		}
+	);
 
 	it( 'enables SEO tools when the primary button is clicked', () => {
 		render( <EnableSeoEmptyState screen="overview" /> );
@@ -56,5 +84,8 @@ describe( 'EnableSeoEmptyState', () => {
 			'aria-disabled',
 			'true'
 		);
+		// eslint-disable-next-line testing-library/prefer-user-event -- Exercise the existing single-click activation path.
+		fireEvent.click( screen.getByRole( 'button', { name: 'Enable SEO tools' } ) );
+		expect( enable ).not.toHaveBeenCalled();
 	} );
 } );

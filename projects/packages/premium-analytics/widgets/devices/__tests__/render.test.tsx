@@ -31,6 +31,8 @@ beforeEach( () => {
 		data: [ { label: 'desktop', displayLabel: 'Desktop', percentage: 100 } ],
 		hasComparison: false,
 		error: null,
+		csvIsError: false,
+		csvIsPlaceholderData: false,
 	} );
 	mockUseDeviceViewsOverTime.mockReturnValue( {
 		...state,

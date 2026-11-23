@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Jetpack Social: Only register the deprecated connection test results REST endpoint when Jetpack Social is available.

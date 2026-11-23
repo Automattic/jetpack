@@ -13,6 +13,18 @@ declare global {
 }
 
 /**
+ * Refetch what Backup shows once the admin shell shows it again after keeping it hidden a while.
+ *
+ * @param event - The shell's `jetpack-admin-shell:page-shown` event.
+ */
+export function refetchWhenStale( event: Event ): void {
+	const { page, stale } = ( event as CustomEvent ).detail ?? {};
+	if ( page === 'jetpack-backup' && stale ) {
+		window[ CLIENT_KEY ]?.invalidateQueries( { queryKey: [ 'backup' ] } );
+	}
+}
+
+/**
  * The one QueryClient every route of the modernized Backup dashboard renders against.
  *
  * Parked on `window` because each wp-build route bundles its own copy of this module: a
@@ -32,6 +44,8 @@ function sharedClient(): QueryClient {
 				},
 			},
 		} );
+		// Here, not at module scope, so the routes' copies of this module listen once between them.
+		window.addEventListener( 'jetpack-admin-shell:page-shown', refetchWhenStale );
 	}
 
 	return window[ CLIENT_KEY ];

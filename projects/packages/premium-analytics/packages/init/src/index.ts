@@ -4,6 +4,7 @@
 import { getScriptData } from '@automattic/jetpack-script-data';
 import { loadI18nCatalogs } from '@automattic/jetpack-wp-build-polyfills/src/js/load-i18n-catalogs';
 import { ensureDashboardEntities } from '@jetpack-premium-analytics/data';
+import { installGlobalErrorHandlers } from '@jetpack-premium-analytics/error-reporting';
 import { registerFieldTypes } from '@jetpack-premium-analytics/fields';
 import { resolveWidgetIcon } from '@jetpack-premium-analytics/icons';
 import apiFetch from '@wordpress/api-fetch';
@@ -11,6 +12,10 @@ import { store as bootStore } from '@wordpress/boot';
 import { dispatch } from '@wordpress/data';
 import { chartBar } from '@wordpress/icons';
 import { registerIconResolver } from '@wordpress/widget-primitives';
+/**
+ * Internal dependencies
+ */
+import { showWhatsNew } from './whats-new';
 
 // apiFetch middleware registers onto a shared, process-wide chain. Guard so
 // repeated init() calls (re-mount, HMR, a future second boot) don't stack
@@ -45,6 +50,8 @@ function setupApiFetch(): void {
  * Runs before routes render.
  */
 export async function init(): Promise< void > {
+	installGlobalErrorHandlers();
+
 	// Kick off the JS translation catalog downloads first (async), then do the
 	// synchronous setup in parallel while they're in flight.
 	const catalogs = loadI18nCatalogs( 'jetpack-premium-analytics-pkg', import.meta.url );
@@ -76,4 +83,6 @@ export async function init(): Promise< void > {
 
 	// After the catalogs: the entity labels are built with `__()` at call time.
 	ensureDashboardEntities();
+
+	showWhatsNew();
 }

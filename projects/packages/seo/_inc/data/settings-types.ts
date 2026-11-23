@@ -18,12 +18,12 @@ export interface ShareImage {
 }
 
 export interface SettingsResponse {
+	data_sharing_available?: boolean;
 	default_share_image?: ShareImage | null;
 	share_image_preview?: string | null;
 	front_page_description: string;
-	// True when the site kept a front-page description from the era it was free for
-	// all WordPress.com Simple sites. Such sites keep editing that one field even
-	// when otherwise plan-gated (the value stays live). Read-only, never sent back.
+	// Read-only: SEO output is disabled, but a legacy front-page description
+	// remains available. Never sent back in a save payload.
 	has_legacy_front_page_meta: boolean;
 	title_formats: Record< string, TitleFormatToken[] >;
 	// Separator WordPress joins document-title parts with (`document_title_separator`,

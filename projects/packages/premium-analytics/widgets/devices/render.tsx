@@ -14,8 +14,10 @@ import {
 	formatComparisonSeriesLabel,
 	getComparisonPeriodLabel,
 	WidgetRoot,
+	useReportActions,
 	useWidgetRootContext,
 	type ComparativeBarChartSeries,
+	type CsvColumn,
 	type DonutSegmentInput,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
@@ -25,7 +27,7 @@ import { useMemo } from 'react';
  */
 import { useNoViewsEmptyState } from '../use-no-views-empty-state';
 import { usePreviousPeriodShown } from '../use-previous-period-shown';
-import useDeviceViews from './use-device-views';
+import useDeviceViews, { type DeviceView } from './use-device-views';
 import useDeviceViewsOverTime from './use-device-views-over-time';
 import { DEVICES_PERIODS } from './widget';
 import type { DevicesAttributes, DevicesChartGranularity } from './widget';
@@ -47,13 +49,31 @@ const PERCENTAGE_DATA_FORMAT = {
 const NO_VIEWS = () =>
 	__( 'You don’t have devices recorded yet.', 'jetpack-premium-analytics-pkg' );
 
+const DEVICE_COLUMNS: CsvColumn< DeviceView >[] = [
+	{
+		label: __( 'Screen size', 'jetpack-premium-analytics-pkg' ),
+		getValue: row => row.displayLabel,
+	},
+	{ label: __( 'Share (%)', 'jetpack-premium-analytics-pkg' ), getValue: row => row.percentage },
+];
+
 function toRatio( percentage: number ) {
 	return percentage / 100;
 }
 
 function DevicesInner() {
 	const { reportParams } = useWidgetRootContext();
-	const { data, hasComparison, isLoading, isFetching, isError, error, refetch } = useDeviceViews( {
+	const {
+		data,
+		hasComparison,
+		isLoading,
+		isFetching,
+		isError,
+		csvIsError,
+		csvIsPlaceholderData,
+		error,
+		refetch,
+	} = useDeviceViews( {
 		reportParams,
 		max: WIDGET_ROW_LIMIT,
 		deviceProperty: 'screensize',
@@ -69,10 +89,23 @@ function DevicesInner() {
 			} ) ),
 		[ data ]
 	);
-	const emptyState = useNoViewsEmptyState(
-		{ isLoading, isError, isEmpty: segments.every( segment => ! segment.value ) },
-		NO_VIEWS()
-	);
+	const isEmpty = segments.every( segment => ! segment.value );
+	const emptyState = useNoViewsEmptyState( { isLoading, isError, isEmpty }, NO_VIEWS() );
+
+	useReportActions( {
+		csv: {
+			rows: isEmpty ? [] : data,
+			columns: DEVICE_COLUMNS,
+			filenamePrefix: 'devices',
+			hasDateRange: true,
+			status: {
+				isLoading,
+				isFetching,
+				isError: csvIsError,
+				isPlaceholderData: csvIsPlaceholderData,
+			},
+		},
+	} );
 
 	return (
 		<Donut

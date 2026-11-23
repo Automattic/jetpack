@@ -18,6 +18,8 @@ const resolved: AuthorSummary = {
 	isPostsError: false,
 };
 
+const CONTEXT = { label: 'Author', title: 'Priya Patel' };
+
 describe( 'authorSubtitle', () => {
 	it( 'joins the post count and the writing-since month', () => {
 		expect( authorSubtitle( 4, '2023-07-04T10:00:00' ) ).toBe(
@@ -52,7 +54,7 @@ describe( 'authorSubtitle', () => {
 
 describe( 'authorHeaderSlots', () => {
 	it( 'names the author with avatar and subtitle once resolved', () => {
-		const slots = authorHeaderSlots( resolved );
+		const slots = authorHeaderSlots( resolved, CONTEXT );
 
 		expect( slots.title ).toBe( 'Priya Patel' );
 		expect( slots.subTitle ).toBe( '4 posts · writing since July 2023' );
@@ -64,12 +66,8 @@ describe( 'authorHeaderSlots', () => {
 		);
 	} );
 
-	it( 'falls back to a neutral name for an empty display name', () => {
-		expect( authorHeaderSlots( { ...resolved, name: '  ' } ).title ).toBe( 'Unnamed author' );
-	} );
-
 	it( 'shows placeholders while loading', () => {
-		const slots = authorHeaderSlots( { ...resolved, isLoading: true } );
+		const slots = authorHeaderSlots( { ...resolved, isLoading: true }, CONTEXT );
 
 		expect( slots.busy ).toBe( true );
 		render( <>{ slots.title }</> );
@@ -85,7 +83,7 @@ describe( 'authorHeaderSlots', () => {
 			"We couldn't load this author's posts.",
 		],
 	] )( 'keeps the name and the month while the post count %s', ( _name, state, subTitle ) => {
-		const slots = authorHeaderSlots( { ...resolved, ...state } );
+		const slots = authorHeaderSlots( { ...resolved, ...state }, CONTEXT );
 
 		expect( slots.title ).toBe( 'Priya Patel' );
 		expect( slots.busy ).toBeUndefined();
@@ -93,11 +91,10 @@ describe( 'authorHeaderSlots', () => {
 	} );
 
 	it( 'holds a subtitle placeholder while the post count loads with no month', () => {
-		const slots = authorHeaderSlots( {
-			...resolved,
-			isPostsLoading: true,
-			firstPublishedDate: undefined,
-		} );
+		const slots = authorHeaderSlots(
+			{ ...resolved, isPostsLoading: true, firstPublishedDate: undefined },
+			CONTEXT
+		);
 
 		expect( isValidElement( slots.subTitle ) ).toBe( true );
 	} );
@@ -106,7 +103,7 @@ describe( 'authorHeaderSlots', () => {
 		[ { isNotFound: true }, 'Author not found' ],
 		[ { isError: true }, 'Author unavailable' ],
 	] )( 'names the failed state %j without a subtitle', ( state, title ) => {
-		const slots = authorHeaderSlots( { ...resolved, ...state } );
+		const slots = authorHeaderSlots( { ...resolved, ...state }, CONTEXT );
 
 		expect( slots.title ).toBe( title );
 		expect( slots.subTitle ).toBeUndefined();

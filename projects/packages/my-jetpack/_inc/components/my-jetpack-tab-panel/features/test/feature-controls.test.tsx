@@ -891,11 +891,11 @@ describe( 'features waiting for an account', () => {
 	} );
 
 	it.each( [
-		[ 'card', 'a module', accountModule( false ) ],
-		[ 'details', 'a plugin that is on', accountPlugin( 'active' ) ],
+		[ 'card', 'a module', accountModule( false ), 'my_jetpack_features_activity_log' ],
+		[ 'details', 'a plugin that is on', accountPlugin( 'active' ), 'my_jetpack_features_backup' ],
 	] as const )(
 		'connects from the %s for %s and changes nothing on the feature',
-		async ( where, _, state ) => {
+		async ( where, _, state, from ) => {
 			render(
 				where === 'card' ? (
 					<FeatureAction state={ state } />
@@ -906,7 +906,9 @@ describe( 'features waiting for an account', () => {
 			await userEvent.click( screen.getByRole( 'button', { name: /^Connect account for / } ) );
 
 			expect( getUserConnectionUrl ).toHaveBeenCalledWith( {
+				from,
 				redirect_url: expect.stringMatching( /#\/features\?connect_intent=[0-9a-f]{16}$/ ),
+				skip_pricing: true,
 			} );
 			expect( leavePageFor ).toHaveBeenCalledWith( connectionUrl );
 			expect( mockRun ).not.toHaveBeenCalled();

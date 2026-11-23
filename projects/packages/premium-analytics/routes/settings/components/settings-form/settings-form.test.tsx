@@ -31,7 +31,6 @@ const SETTINGS = {
 	admin_bar: true,
 	roles: [ 'administrator' ],
 	count_roles: [],
-	wpcom_reader_views_enabled: true,
 };
 
 const ROLES = [
@@ -166,7 +165,7 @@ describe( 'SettingsForm', () => {
 	} );
 
 	it( 'leaves out a card whose settings the site does not offer', () => {
-		setScriptData( [ 'admin_bar', 'wpcom_reader_views_enabled' ] );
+		setScriptData( [ 'admin_bar', 'consent' ] );
 		useStatsSettingsMock.mockReturnValue( {
 			settings: SETTINGS,
 			isError: false,
@@ -176,12 +175,8 @@ describe( 'SettingsForm', () => {
 		render( <SettingsForm /> );
 
 		expect( screen.getByText( 'Admin bar widget' ) ).toBeInTheDocument();
-		expect( screen.getByText( 'WordPress.com Reader' ) ).toBeInTheDocument();
 		expect( screen.queryByText( 'Manage permissions' ) ).not.toBeInTheDocument();
-		expect( useStatsSettingsMock ).toHaveBeenCalledWith( [
-			'admin_bar',
-			'wpcom_reader_views_enabled',
-		] );
+		expect( useStatsSettingsMock ).toHaveBeenCalledWith( [ 'admin_bar' ] );
 	} );
 
 	it( 'draws no form, and no load error, when the site offers no setting', () => {

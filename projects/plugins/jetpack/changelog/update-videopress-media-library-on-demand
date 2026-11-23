@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+VideoPress: Load the media library only when uploading a video thumbnail, so the dashboard loads less on each visit.
