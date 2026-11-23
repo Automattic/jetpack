@@ -1,4 +1,3 @@
 Significance: patch
-Type: fixed
-
-Hide WooCommerce's llms.txt on private and coming-soon sites.
+Type: changed
+Comment: Add regression tests for WooCommerce llms.txt on restricted sites.

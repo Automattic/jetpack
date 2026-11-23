@@ -1,0 +1,77 @@
+<?php
+/**
+ * WooCommerce llms.txt privacy tests.
+ *
+ * @package wpcomsh
+ */
+
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
+
+/**
+ * Check the WooCommerce filter alongside WordPress.com access rules.
+ */
+class WooCommerceLlmsTxtPrivacyTest extends WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
+
+	/**
+	 * @param string $role Site member role.
+	 * @dataProvider site_member_roles
+	 */
+	#[DataProvider( 'site_member_roles' )]
+	public function test_coming_soon_does_not_disable_guidance_for_members( $role ) {
+		update_option( 'wpcom_public_coming_soon', 1 );
+		$this->go_to( home_url( '/llms.txt' ) );
+
+		wp_set_current_user( 0 );
+		$this->assertTrue( \A8C\FSE\Coming_soon\should_show_coming_soon_page() );
+
+		wp_set_current_user( self::factory()->user->create( array( 'role' => $role ) ) );
+		$this->assertFalse( \A8C\FSE\Coming_soon\should_show_coming_soon_page() );
+		$this->assertTrue( apply_filters( 'woocommerce_enable_llms_txt', true ) );
+	}
+
+	/**
+	 * @return array Site member roles.
+	 */
+	public static function site_member_roles(): array {
+		return array(
+			'administrator' => array( 'administrator' ),
+			'subscriber'    => array( 'subscriber' ),
+		);
+	}
+
+	/**
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_private_site_does_not_disable_guidance_for_members() {
+		if ( defined( 'AT_PRIVACY_MODEL' ) && 'wp_uploads' !== AT_PRIVACY_MODEL ) {
+			$this->markTestSkipped( 'The test site already defines a different privacy model.' );
+		}
+		if ( ! defined( 'AT_PRIVACY_MODEL' ) ) {
+			define( 'AT_PRIVACY_MODEL', 'wp_uploads' );
+		}
+
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'subscriber' ) ) );
+		$this->assertTrue( \Private_Site\is_private_blog_user() );
+		$this->assertTrue( apply_filters( 'woocommerce_enable_llms_txt', true ) );
+	}
+
+	public function test_coming_soon_does_not_disable_guidance_for_preview_links() {
+		update_option( 'wpcom_public_coming_soon', 1 );
+		update_option( 'wpcom_public_preview_links', array( array( 'code' => 'preview-code' ) ) );
+		wp_set_current_user( 0 );
+		$_COOKIE['wp_share_code'] = 'preview-code';
+
+		try {
+			$this->assertTrue( \A8C\FSE\Coming_soon\is_accessed_by_valid_share_link( \A8C\FSE\Coming_soon\get_share_code() ) );
+			$this->assertTrue( apply_filters( 'woocommerce_enable_llms_txt', true ) );
+		} finally {
+			unset( $_COOKIE['wp_share_code'] );
+		}
+	}
+}
