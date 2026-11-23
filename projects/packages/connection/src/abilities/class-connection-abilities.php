@@ -33,6 +33,13 @@ class Connection_Abilities extends Registrar {
 	/**
 	 * {@inheritDoc}
 	 */
+	protected static function enabled_by_default(): bool {
+		return true;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public static function get_category_slug(): string {
 		return self::CATEGORY_SLUG;
 	}
@@ -102,6 +109,7 @@ class Connection_Abilities extends Registrar {
 					'destructive' => false,
 					'idempotent'  => true,
 				),
+				'public'       => true,
 				'show_in_rest' => true,
 				'mcp'          => array(
 					'public' => true,

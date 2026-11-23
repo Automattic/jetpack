@@ -88,9 +88,30 @@ export function getPurchaseExpiry( purchase: Purchase ): PurchaseExpiry {
 	};
 }
 
+/**
+ * The click handler for a plan's Renew or Resume link, recording which plan it was.
+ *
+ * @param purchase         - The purchase the link is for.
+ * @param tracksProperties - Added to the event, e.g. where the link is shown.
+ * @return The click handler.
+ */
+export function useRenewClickHandler( purchase: Purchase, tracksProperties?: TracksProperties ) {
+	const { recordEvent } = useAnalytics();
+	const { expiry_status, product_slug } = purchase;
+
+	return useCallback( () => {
+		recordEvent( 'jetpack_myjetpack_plans_renew_click', {
+			...tracksProperties,
+			action: PRODUCT_STATUSES.EXPIRED === expiry_status ? 'resume' : 'renew',
+			product_slug,
+		} );
+	}, [ expiry_status, product_slug, recordEvent, tracksProperties ] );
+}
+
 const PlanExpiry: FC< PlanSectionProps > = ( { purchase } ) => {
 	const { product_name, subscribed_date } = purchase;
 	const { state, date, partnerName, actionUrl } = getPurchaseExpiry( purchase );
+	const onActionClick = useRenewClickHandler( purchase );
 
 	const isExpired = state === 'expired';
 	const isExpiringSoon = state === 'expiring-soon';
@@ -147,18 +168,18 @@ const PlanExpiry: FC< PlanSectionProps > = ( { purchase } ) => {
 
 		if ( isExpiringSoon ) {
 			return (
-				<Link href={ actionUrl } openInNewTab>
+				<Link href={ actionUrl } onClick={ onActionClick } openInNewTab>
 					{ __( 'Renew subscription', 'jetpack-my-jetpack' ) }
 				</Link>
 			);
 		}
 
 		return (
-			<Link href={ actionUrl } openInNewTab>
+			<Link href={ actionUrl } onClick={ onActionClick } openInNewTab>
 				{ __( 'Resume subscription', 'jetpack-my-jetpack' ) }
 			</Link>
 		);
-	}, [ actionUrl, isExpiringPurchase, isExpiringSoon ] );
+	}, [ actionUrl, isExpiringPurchase, isExpiringSoon, onActionClick ] );
 
 	if ( isLifetimePurchase( purchase ) ) {
 		return (
@@ -268,19 +289,28 @@ export const PlanSectionFooter: FC< PlanSectionFooterProps > = ( {
 		blogID,
 		siteSuffix = '',
 		myJetpackCheckoutUri = '',
+		planUrls,
 	} = getMyJetpackWindowInitialState();
+
+	// The host's URL, false when it has no plan to sell this site, or '' for Jetpack's own plans.
+	const hostPurchase = planUrls?.purchase ?? '';
+	// A host that sells its own plans has no Complete to upgrade to.
+	const completeSlug = hostPurchase === '' ? completeUpgradeSlug : undefined;
 
 	// Not a ternary, for the same minification reason as "Activate a license" below.
 	let planPurchaseDescription: string = __( 'Purchase a plan', 'jetpack-my-jetpack' );
-	let planPurchaseUrl = getPurchasePlanUrl();
-	if ( completeUpgradeSlug ) {
+	let planPurchaseUrl = hostPurchase || getPurchasePlanUrl();
+	if ( hostPurchase ) {
+		planPurchaseDescription = __( 'Upgrade your plan', 'jetpack-my-jetpack' );
+	}
+	if ( completeSlug ) {
 		planPurchaseDescription = sprintf(
 			/* translators: %s is a product name, such as "Jetpack Akismet Anti-spam". */
 			__( 'Upgrade to %s', 'jetpack-my-jetpack' ),
 			'Complete'
 		);
 		planPurchaseUrl = getProductCheckoutUrl(
-			completeUpgradeSlug,
+			completeSlug,
 			blogID || siteSuffix,
 			myJetpackCheckoutUri,
 			isUserConnected
@@ -298,9 +328,9 @@ export const PlanSectionFooter: FC< PlanSectionFooterProps > = ( {
 	const planPurchaseClickHandler = useCallback( () => {
 		recordEvent( 'jetpack_myjetpack_plans_purchase_click', {
 			...tracksProperties,
-			...( completeUpgradeSlug && { product_slug: completeUpgradeSlug } ),
+			...( completeSlug && { product_slug: completeSlug } ),
 		} );
-	}, [ completeUpgradeSlug, recordEvent, tracksProperties ] );
+	}, [ completeSlug, recordEvent, tracksProperties ] );
 
 	const activateLicenseClickHandler = useCallback( () => {
 		// `from` only when the click connects the user first, so it never reports a connection that didn't start.
@@ -340,9 +370,13 @@ export const PlanSectionFooter: FC< PlanSectionFooterProps > = ( {
 
 	return (
 		<ul className={ styles[ 'actions-list' ] }>
-			{ numberOfPurchases > 0 && (
+			{ numberOfPurchases > 0 && planUrls?.manage !== false && (
 				<li className={ styles[ 'actions-list-item' ] }>
-					<Link openInNewTab onClick={ planManageClickHandler } href={ getManageYourPlanUrl() }>
+					<Link
+						openInNewTab
+						onClick={ planManageClickHandler }
+						href={ planUrls?.manage || getManageYourPlanUrl() }
+					>
 						{ planManageDescription }
 					</Link>
 				</li>
@@ -357,7 +391,7 @@ export const PlanSectionFooter: FC< PlanSectionFooterProps > = ( {
 					</Link>
 				</li>
 			) }
-			{ ! hasComplete && (
+			{ ! hasComplete && hostPurchase !== false && (
 				<li className={ styles[ 'actions-list-item' ] }>
 					<Link onClick={ planPurchaseClickHandler } href={ planPurchaseUrl } openInNewTab>
 						{ planPurchaseDescription }

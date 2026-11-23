@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add `useTeaserSwitch()`, the hook that reads and writes the switch that turns the teaser off.

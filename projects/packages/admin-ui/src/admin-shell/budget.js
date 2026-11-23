@@ -14,12 +14,12 @@ export function liveAppLimit( override, nav = globalThis.navigator ) {
 	const memory = nav?.deviceMemory;
 	// Firefox and Safari don't report it.
 	if ( ! memory ) {
-		return 6;
+		return 10;
 	}
 	if ( memory <= 2 ) {
 		return 3;
 	}
-	return memory < 8 ? 6 : Infinity;
+	return memory < 8 ? 10 : Infinity;
 }
 
 /**

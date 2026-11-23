@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+About page: Fetch the page's data only when the About page loads, not on other admin pages.

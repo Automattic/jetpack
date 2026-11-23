@@ -483,6 +483,18 @@
 				} );
 			}
 
+			// Add the duotone SVG filters the new posts use, skipping any already on the page.
+			if ( 'string' === typeof response.svg_filters ) {
+				var svgTemplate = document.createElement( 'template' );
+				svgTemplate.innerHTML = response.svg_filters;
+				Array.prototype.slice.call( svgTemplate.content.children ).forEach( function ( svg ) {
+					var filter = svg.querySelector( 'filter[id]' );
+					if ( filter && ! document.getElementById( filter.id ) ) {
+						document.body.appendChild( svg );
+					}
+				} );
+			}
+
 			// Convert the response.html to a fragment element.
 			// Using a div instead of DocumentFragment, because the latter doesn't support innerHTML.
 			response.fragment = document.createElement( 'div' );

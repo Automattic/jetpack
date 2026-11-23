@@ -1683,7 +1683,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/jetpack-mu-wpcom",
-                "reference": "3130c61fe91852c2d6707769215b684f006fb8cf"
+                "reference": "cc758a54fea2f122bfb69f50683298eb232581b7"
             },
             "require": {
                 "automattic/block-delimiter": "@dev",
@@ -1713,6 +1713,7 @@
             },
             "require-dev": {
                 "automattic/jetpack-ads": "@dev",
+                "automattic/jetpack-monetize": "@dev",
                 "automattic/jetpack-podcast": "@dev",
                 "automattic/jetpack-premium-analytics": "@dev",
                 "automattic/jetpack-test-environment": "@dev",

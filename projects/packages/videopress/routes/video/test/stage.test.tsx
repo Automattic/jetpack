@@ -747,6 +747,22 @@ describe( 'video stage', () => {
 		expect( screen.getByTestId( 'preview-player' ) ).toBeInTheDocument();
 	} );
 
+	it.each( [
+		[ 'portrait', 1080, 1920, true ],
+		[ 'landscape', 1920, 1080, false ],
+		[ 'square', 1080, 1080, false ],
+	] )( 'sizes the player slot for a %s video', async ( _, width, height, isPortrait ) => {
+		const media = makeRawMedia();
+		mockApiFetch( () => ( {
+			...media,
+			media_details: { ...media.media_details, width, height },
+		} ) );
+		await renderReadyStage();
+
+		const slot = screen.getByRole( 'region', { name: 'Video preview' } );
+		expect( slot.matches( '.is-portrait' ) ).toBe( isPortrait );
+	} );
+
 	/*
 	 * The split is authoring vs. configuring, not editable vs. read-only. The
 	 * canvas holds what a person writes; the panel holds the read-outs plus the

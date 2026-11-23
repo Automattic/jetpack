@@ -2,6 +2,7 @@ import '@testing-library/jest-dom';
 import { currentUserCan, isSimpleSite } from '@automattic/jetpack-script-data';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import useAnalytics from '../../../hooks/use-analytics';
 import {
 	MY_JETPACK_SECTION_FEATURES,
 	MY_JETPACK_SECTION_HELP,
@@ -28,11 +29,7 @@ jest.mock( 'react-router', () => ( {
 	useParams: () => ( { section: mockSection } ),
 } ) );
 
-const mockRecordEvent = jest.fn();
-jest.mock( '../../../hooks/use-analytics', () => ( {
-	__esModule: true,
-	default: () => ( { recordEvent: mockRecordEvent } ),
-} ) );
+const mockRecordEvent = jest.mocked( jest.mocked( useAnalytics )().recordEvent );
 
 jest.mock( '../../../hooks/use-is-jetpack-user-new', () => ( {
 	__esModule: true,
