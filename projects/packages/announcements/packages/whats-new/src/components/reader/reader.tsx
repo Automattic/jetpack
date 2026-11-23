@@ -67,7 +67,7 @@ function Media( { media }: MediaProps ) {
  * @return The reader.
  */
 export function Reader( { announcement, isOpen, onClose }: ReaderProps ) {
-	const { id, title, date, media, content, link } = announcement;
+	const { id, title, date, media, excerpt, content, link } = announcement;
 
 	const handleOpenChange = useCallback(
 		( open: boolean ) => {
@@ -96,6 +96,7 @@ export function Reader( { announcement, isOpen, onClose }: ReaderProps ) {
 						</Text>
 						{ media && <Media media={ media } /> }
 						{ content && <RawHTML className={ styles.body }>{ content }</RawHTML> }
+						{ ! content && excerpt && <Text render={ <p /> }>{ excerpt }</Text> }
 						{ link && (
 							<Link href={ link } openInNewTab onClick={ handleLinkClick }>
 								{ __( 'Read the full article', 'jetpack-announcements' ) }

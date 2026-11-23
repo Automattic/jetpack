@@ -50,6 +50,20 @@ describe( 'Reader', () => {
 		).toHaveAttribute( 'href', 'https://example.com/whats-new/tabs' );
 	} );
 
+	it.each( [
+		[ 'shows the excerpt of an announcement without a body', '', 1 ],
+		[ 'leaves the excerpt out of an announcement with a body', '<p>Open Settings.</p>', 0 ],
+	] )( '%s', async ( _case, content, times ) => {
+		const excerpt = 'Group your videos in a playlist.';
+		render(
+			<Reader announcement={ announcement( { content, excerpt } ) } isOpen onClose={ jest.fn() } />
+		);
+
+		const dialog = await screen.findByRole( 'dialog' );
+
+		expect( within( dialog ).queryAllByText( excerpt ) ).toHaveLength( times );
+	} );
+
 	it( 'shows an image with its text alternative', async () => {
 		const media = {
 			type: 'image',

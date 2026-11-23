@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+What's new: show the excerpt in the reader of an announcement that has no body.
