@@ -57,6 +57,8 @@ src/default-dashboard-sections.php      # the package's own sections, registered
 docs/dashboard-sections.md              # how a section is registered, served and rendered (diagrams)
 src/widget-types.php                    # widget type API: registry helpers, metadata, availability filters
 docs/dashboard-widgets.md               # how a widget type is registered, served and imported (diagram)
+src/promos.php                          # promo API: registry helpers, availability gates, promo script data
+docs/dashboard-promos.md                # how a promo is registered, gated, rendered, dismissed and tracked
 docs/whats-new-channels.md              # which page shows a What's new announcement: channels by route
 src/REST/class-api-proxy-controller.php # the WPCOM data proxy (PREFIX_CONFIG)
 src/REST/class-notices-controller.php   # /notices route
@@ -101,6 +103,10 @@ Add widget types from another plugin: hook `jetpack_premium_analytics_register_w
 compare `WIDGET_API_VERSION`, and call `register_widget_types_from_manifest()` there with the
 manifest that plugin's wp-build generates. A renamed type declares `former_names`, and one that
 shows a paid Stats feature declares `plan_feature`; `docs/dashboard-widgets.md` covers both.
+
+Add a promo card from another plugin: hook `jetpack_premium_analytics_register_promos`, compare
+`PROMO_API_VERSION`, and call `register_promo()` there. A `section-footer` promo takes the namespaced
+section ID as its `target`. `docs/dashboard-promos.md` covers the placements, gates and tracking.
 
 ### Timing-dependent JS tests use fake timers
 

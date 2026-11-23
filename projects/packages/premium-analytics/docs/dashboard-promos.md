@@ -10,7 +10,7 @@ Nothing renders until the `jetpack-stats-promos` feature flag is on. It is regis
 | --------- | ----------------------------------------------------------------------------------------------- | -------------------------------- |
 | Slug      | Namespaced identifier, `<namespace>/<name>`, matching `^[a-z][a-z0-9-]*\/[a-z][a-z0-9-]*$`.     | `acme/offer`                     |
 | Placement | Where the promo renders: `section-footer`, `options-menu` or `settings`.                        | `section-footer`                 |
-| Target    | The section slug a `section-footer` promo attaches to, for example `traffic`.                   | `traffic`                        |
+| Target    | The namespaced section ID a `section-footer` promo attaches to, as `register_dashboard_section()` takes it. | `analytics/traffic`              |
 | Tier      | Whether Premium Analytics draws the card from plain copy, or a script module draws its content. | plain copy, or a `render_module` |
 | Snooze    | How long a first dismissal hides the promo, in days.                                            | `90`                             |
 
@@ -44,7 +44,7 @@ add_action(
 			'acme/offer',
 			array(
 				'placement'    => 'section-footer',
-				'target'       => 'traffic',
+				'target'       => 'analytics/traffic',
 				'title'        => __( 'Grow with Acme', 'acme' ),
 				'description'  => __( 'Reach more readers with Acme.', 'acme' ),
 				'cta_label'    => __( 'Try Acme', 'acme' ),
@@ -65,7 +65,7 @@ add_action(
 | Key             | Default        | Meaning                                                                                     |
 | --------------- | -------------- | ------------------------------------------------------------------------------------------- |
 | `placement`     | none, required | `section-footer`, `options-menu` or `settings`.                                             |
-| `target`        | `null`         | The section slug. Required for `section-footer`, ignored by the others.                     |
+| `target`        | `null`         | The namespaced section ID, such as `analytics/traffic`. Required for `section-footer`, ignored by the others. |
 | `order`         | `10`           | Lower shows first. Ties break on the slug.                                                  |
 | `title`         | `''`           | The card heading. It also labels the card for assistive technology.                         |
 | `description`   | `''`           | The card body.                                                                              |
@@ -82,12 +82,14 @@ Each refusal is a `_doing_it_wrong()` and a `false` return, and nothing is regis
 
 - A slug that does not match the pattern above, or one that is already registered.
 - A `placement` that is not one of the three.
-- A `section-footer` promo with no `target`.
+- A `section-footer` promo with no `target`, or one whose `target` is not a namespaced section ID. The bare slug `traffic` is refused: pass `analytics/traffic`.
 - An `options-menu` promo that is `dismissible`. A menu item has no close control, so pass `'dismissible' => false`.
 - An `options-menu` promo with a `render_module`. A menu item is not a card.
 - A negative `snooze_days`.
 - `snooze_days` on a promo that is not `dismissible`. A promo that cannot be dismissed has nothing to snooze.
 - A `render_module` that is not a non-empty string.
+
+A `target` naming a section that is not registered cannot be refused at registration: the section registry hydrates on its own first read, and a promo registrant may run before that registry has every section. The promo registers, and the dashboard page then drops it with a `_doing_it_wrong()` naming the promo and the section. When the promo is published, the namespaced `target` is resolved to the section's slug, which is the form the client matches on.
 
 ## Who sees a promo
 
@@ -114,11 +116,13 @@ On a Jurassic Ninja site, use `wp companion feature-flag enable jetpack-stats-pr
 
 | Placement        | Renders                                                                                                          | Takes a target |
 | ---------------- | ---------------------------------------------------------------------------------------------------------------- | -------------- |
-| `section-footer` | A card inside a dashboard section's container, under its widgets. Matched by `target` against the section slug.  | Yes, required  |
+| `section-footer` | A card inside a dashboard section's container, under its widgets. Matched by `target`, published as the section slug. | Yes, required  |
 | `settings`       | A card in the settings panel.                                                                                    | No             |
 | `options-menu`   | One item in the Stats options menu. It behaves as a link: `cta_label` is its text and `cta_url` its destination. | No             |
 
 A `section-footer` promo is suppressed while the reader is editing the dashboard, and in a section the plan locks, where the upgrade prompt takes the place.
+
+The `options-menu` placement is not on every page. Its menu item does not appear on the connect page, on the locked report page or on the upgrade page, because each of those carries Premium Analytics' own upsell and a promo would sit beside it. It does appear on the dashboard and on the Settings page. Registering the same offer in more than one placement is the registrant's choice.
 
 ## The two tiers
 
@@ -208,11 +212,38 @@ Premium Analytics records three events, each with the `slug` and the `placement`
 
 | Event                                     | When                                                             | Extra properties                 |
 | ----------------------------------------- | ---------------------------------------------------------------- | -------------------------------- |
-| `jetpack_premium_analytics_promo_view`    | A card first shows. Once per placement per page load.            |                                  |
+| `jetpack_premium_analytics_promo_view`    | A card first shows, once per placement per page load. For an `options-menu` promo, each time the menu opens with the promo in it. |                                  |
 | `jetpack_premium_analytics_promo_click`   | The reader follows the call to action, or the options menu item. | `label`                          |
 | `jetpack_premium_analytics_promo_dismiss` | The reader closes a card.                                        | `dismissal`: `snooze` or `final` |
 
 For a card with a render module, the click event is the module's to send through `trackClick()`.
+
+## Versioning the contract
+
+`PROMO_API_VERSION` (`Automattic\Jetpack\PremiumAnalytics\PROMO_API_VERSION`) names the contract a registrant is built against: the arguments `register_promo()` takes and what each means, the placements, the `Promo` fields a render module reads, and `PromoRenderProps`, `PromoRecord` and `PromoCta` from `@automattic/jetpack-premium-analytics-sdk`.
+
+The major changes when a registrant built against the previous contract stops working: an argument or placement removed, or a changed meaning. The minor changes when a registrant can rely on something new: a new argument, placement or SDK export. A registrant compares the version in its callback. It skips registration when the major differs, and when the minor is below the one it needs.
+
+| Version | Contract                                                                                                       |
+| ------- | -------------------------------------------------------------------------------------------------------------- |
+| 1.0.0   | The arguments and placements above, `target` as a namespaced section ID, and the SDK's `PromoRenderProps`, `PromoRecord` and `PromoCta`. |
+
+```php
+add_action(
+	Promo_Registry::REGISTER_ACTION,
+	static function () {
+		if ( ! defined( 'Automattic\\Jetpack\\PremiumAnalytics\\PROMO_API_VERSION' ) ) {
+			return;
+		}
+		$version = \Automattic\Jetpack\PremiumAnalytics\PROMO_API_VERSION;
+		if ( version_compare( $version, '1.0.0', '<' ) || version_compare( $version, '2', '>=' ) ) {
+			return;
+		}
+
+		register_promo( 'acme/offer', array( /* ... */ ) );
+	}
+);
+```
 
 ## Trying it locally
 
