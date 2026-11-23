@@ -332,6 +332,7 @@ class Jetpack_Stats_Plugin_Test extends BaseTestCase {
 	 */
 	public function test_disconnected_site_gets_its_menu_from_the_stats_admin_package() {
 		$this->assertFalse( ( new Connection_Manager() )->is_connected(), 'Test environment is expected to be unconnected.' );
+		add_filter( 'jetpack_feature_flag_enabled_' . Classic_Stats::RETIRED_FLAG, '__return_false' );
 
 		Jetpack_Stats_Plugin::configure_packages();
 		do_action( 'plugins_loaded' );
@@ -413,13 +414,17 @@ class Jetpack_Stats_Plugin_Test extends BaseTestCase {
 	 *
 	 * @dataProvider provide_stats_v2_states
 	 *
-	 * @param bool $opted_in Whether the site opted in to Stats v2.
-	 * @param bool $expected Whether Stats v2 boots.
+	 * @param bool      $opted_in Whether the site opted in to Stats v2.
+	 * @param bool|null $retired  Whether the classic Stats page is retired, or null for the flag's default.
+	 * @param bool      $expected Whether Stats v2 boots.
 	 */
 	#[DataProvider( 'provide_stats_v2_states' )]
-	public function test_stats_v2_boots_with_the_packages( $opted_in, $expected ) {
+	public function test_stats_v2_boots_with_the_packages( $opted_in, $retired, $expected ) {
 		add_filter( 'jetpack_active_modules', array( $this, 'activate_stats' ) );
 		update_option( Enablement_Setting::ENABLED_OPTION, (int) $opted_in );
+		if ( null !== $retired ) {
+			add_filter( 'jetpack_feature_flag_enabled_' . Classic_Stats::RETIRED_FLAG, $retired ? '__return_true' : '__return_false' );
+		}
 
 		Jetpack_Stats_Plugin::configure_packages();
 
@@ -432,14 +437,15 @@ class Jetpack_Stats_Plugin_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Stats v2 states, as opted in, boots.
+	 * Stats v2 states, as opted in, classic page retired, boots.
 	 *
 	 * @return array
 	 */
 	public static function provide_stats_v2_states() {
 		return array(
-			'off by default' => array( false, false ),
-			'opted in'       => array( true, true ),
+			'on by default'                => array( false, null, true ),
+			'classic Stats kept'           => array( false, false, false ),
+			'opted in, classic Stats kept' => array( true, false, true ),
 		);
 	}
 
