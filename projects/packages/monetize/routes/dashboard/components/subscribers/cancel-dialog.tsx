@@ -44,7 +44,7 @@ export default function CancelDialog( {
 			showSuccessSnackbar(
 				oneTime
 					? __( 'Payment removed.', 'jetpack-monetize' )
-					: __( 'Subscription cancelled.', 'jetpack-monetize' )
+					: __( 'Payment cancelled.', 'jetpack-monetize' )
 			);
 			onCancelled?.();
 		} catch ( error ) {

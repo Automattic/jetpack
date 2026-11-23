@@ -31,6 +31,7 @@ const renderTab = ( {
 	status = false,
 	simple = false,
 	canJoin = false,
+	unsafe = false,
 }: {
 	hasWordAds: boolean;
 	active: boolean;
@@ -41,6 +42,7 @@ const renderTab = ( {
 	status?: string | false;
 	simple?: boolean;
 	canJoin?: boolean;
+	unsafe?: string | false;
 } ) => {
 	mockHasWordAds = hasWordAds;
 	mockSimple = simple;
@@ -51,7 +53,7 @@ const renderTab = ( {
 	);
 	( wpcomFetch as jest.Mock ).mockImplementation( ( { path } ) => {
 		const responses: Record< string, unknown > = {
-			'wordads/account': { approved, active, unsafe: false, status },
+			'wordads/account': { approved, active, unsafe, status },
 			'wordads/earnings': {
 				earnings: { total_earnings: totalEarnings, total_amount_owed: owed },
 			},
@@ -107,6 +109,15 @@ describe( 'Ads', () => {
 		renderTab( state );
 
 		await expect( screen.findByText( text ) ).resolves.toBeVisible();
+	} );
+
+	it( 'offers no way to join for a Simple site WordPress.com reports unsafe', async () => {
+		renderTab( { hasWordAds: true, active: false, simple: true, canJoin: true, unsafe: 'spam' } );
+
+		await expect( screen.findByText( 'Join WordAds' ) ).resolves.toBeVisible();
+		expect(
+			screen.queryByRole( 'link', { name: 'Join WordAds in Settings' } )
+		).not.toBeInTheDocument();
 	} );
 
 	it( 'keeps quiet about the plan for a site WordPress.com still serves ads on', async () => {

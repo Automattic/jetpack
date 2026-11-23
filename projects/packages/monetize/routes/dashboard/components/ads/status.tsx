@@ -160,9 +160,11 @@ export function StartCard( { openTab }: { openTab: OpenTab } ) {
 			}
 		>
 			<Text>{ START_TEXT() }</Text>
-			{ mustJoin && ! canJoin ? (
+			{ mustJoin && ! canJoin && (
 				<Text>{ __( 'Only the site owner can join WordAds.', 'jetpack-monetize' ) }</Text>
-			) : (
+			) }
+			{ /* An unsafe site can't join, and UnsafeNotice above says why. */ }
+			{ ( ! mustJoin || ( canJoin && ! account?.unsafe ) ) && (
 				<Link href={ getTabHref( 'settings' ) } onClick={ onSetUp }>
 					{ mustJoin
 						? __( 'Join WordAds in Settings', 'jetpack-monetize' )
