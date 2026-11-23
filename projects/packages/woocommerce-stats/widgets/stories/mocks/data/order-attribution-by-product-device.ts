@@ -1,33 +1,17 @@
 /**
  * Internal dependencies
  */
-import {
-	ANCHOR_DAY,
-	bucketsForWindow,
-	dayIndexOf,
-	money,
-	type ReportBucket,
-} from './interval-buckets';
+import { deviceNetSales, windowOf } from './device-net-sales';
 
 const DEVICES = [
 	{ item: 'Mobile', share: 0.58 },
 	{ item: 'Desktop', share: 0.27 },
 	{ item: 'Tablet', share: 0.1 },
-	// The live report sends an empty item for orders with no recorded device.
 	{ item: '', share: 0.05 },
 ];
 
 /** Bookings are a fraction of the store's net sales, so this widget reads smaller than Sales by device. */
-const BOOKINGS_NET_SALES_PER_DAY = 400;
-
-const netSalesPerDay = ( dayIndex: number ) =>
-	Math.max(
-		1,
-		BOOKINGS_NET_SALES_PER_DAY + 3 * ( dayIndex - ANCHOR_DAY ) + 45 * Math.sin( dayIndex / 8 )
-	);
-
-const netSalesOf = ( bucket: ReportBucket ) =>
-	netSalesPerDay( bucket.dayIndex ) * ( dayIndexOf( bucket.date_end ) - bucket.dayIndex + 1 );
+const BOOKINGS_NET_SALES_TREND = { base: 400, growth: 3, amplitude: 45 };
 
 /**
  * The order-attribution-by-product report, flat and for one window: unlike the regular endpoint it
@@ -39,31 +23,14 @@ const netSalesOf = ( bucket: ReportBucket ) =>
  * @return {unknown} The raw report response.
  */
 export function buildOrderAttributionByProductDeviceResponse( query: URLSearchParams ): unknown {
-	const windowQuery = new URLSearchParams( {
-		from: query.get( 'from' ) ?? '',
-		to: query.get( 'to' ) ?? '',
-		interval: query.get( 'interval' ) ?? 'day',
-	} );
-	const buckets = bucketsForWindow( windowQuery );
+	const windowQuery = windowOf( query, 'from', 'to' );
 
 	return {
 		view: 'device',
 		order_by: 'net_sales',
-		data: DEVICES.map( ( { item, share } ) => {
-			const intervals = buckets.map( bucket => ( {
-				time_interval: bucket.time_interval,
-				date_start: bucket.date_start,
-				date_end: bucket.date_end,
-				net_sales: money( netSalesOf( bucket ) * share ),
-			} ) );
-
-			return {
-				item,
-				value: money(
-					intervals.reduce( ( total, interval ) => total + Number( interval.net_sales ), 0 )
-				),
-				intervals,
-			};
-		} ),
+		data: DEVICES.map( ( { item, share } ) => ( {
+			item,
+			...deviceNetSales( windowQuery, BOOKINGS_NET_SALES_TREND, share ),
+		} ) ),
 	};
 }

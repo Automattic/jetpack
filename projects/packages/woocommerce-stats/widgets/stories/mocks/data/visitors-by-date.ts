@@ -1,8 +1,13 @@
 /**
  * Internal dependencies
  */
-import { bucketsForWindow, count, dayIndexOf, type ReportBucket } from './interval-buckets';
-import { sessionsPerDay } from './sessions-by-device';
+import {
+	bucketsForWindow,
+	count,
+	dayIndexOf,
+	sessionsPerDay,
+	type ReportBucket,
+} from './interval-buckets';
 
 /** The share of sessions that come from distinct visitors, so visitors always read below sessions. */
 const VISITOR_SHARE = 0.62;
@@ -11,7 +16,7 @@ type VisitorTotals = { sessions: number; visitors: number };
 
 /**
  * A bucket's sessions and visitors, on the daily-sessions trend the by-device report uses, so the
- * two session reports agree with each other.
+ * two session reports share a trend.
  *
  * @param {ReportBucket} bucket - The bucket to total.
  * @return {VisitorTotals} The bucket's totals.

@@ -1,13 +1,9 @@
 /**
  * Internal dependencies
  */
-import {
-	ANCHOR_DAY,
-	bucketsForWindow,
-	dayIndexOf,
-	money,
-	type ReportBucket,
-} from './interval-buckets';
+import { deviceNetSales, windowOf } from './device-net-sales';
+
+const NET_SALES_TREND = { base: 1400, growth: 10, amplitude: 150 };
 
 const DEVICES = [
 	{ item: 'Mobile', share: 0.52 },
@@ -16,42 +12,6 @@ const DEVICES = [
 	// The live report sends an empty item for orders with no recorded device.
 	{ item: '', share: 0.05 },
 ];
-
-const netSalesPerDay = ( dayIndex: number ) =>
-	Math.max( 1, 1400 + 10 * ( dayIndex - ANCHOR_DAY ) + 150 * Math.sin( dayIndex / 8 ) );
-
-const netSalesOf = ( bucket: ReportBucket ) =>
-	netSalesPerDay( bucket.dayIndex ) * ( dayIndexOf( bucket.date_end ) - bucket.dayIndex + 1 );
-
-/**
- * One device's figures for a window: its share of each bucket's net sales, and their sum.
- *
- * @param {URLSearchParams} windowQuery - The window's `from`, `to` and `interval`.
- * @param {number}          share       - The device's share of the store's net sales.
- * @return {object} The period's value and intervals, as the live endpoint sends them.
- */
-function periodFor( windowQuery: URLSearchParams, share: number ) {
-	const intervals = bucketsForWindow( windowQuery ).map( bucket => ( {
-		time_interval: bucket.time_interval,
-		date_start: bucket.date_start,
-		date_end: bucket.date_end,
-		net_sales: money( netSalesOf( bucket ) * share ),
-	} ) );
-
-	return {
-		value: money(
-			intervals.reduce( ( total, interval ) => total + Number( interval.net_sales ), 0 )
-		),
-		intervals,
-	};
-}
-
-const windowOf = ( query: URLSearchParams, fromKey: string, toKey: string ) =>
-	new URLSearchParams( {
-		from: query.get( fromKey ) ?? '',
-		to: query.get( toKey ) ?? '',
-		interval: query.get( 'interval' ) ?? 'day',
-	} );
 
 /**
  * The order-attribution-by-device report. The endpoint answers both periods in one response, so
@@ -69,8 +29,8 @@ export function buildOrderAttributionDeviceResponse( query: URLSearchParams ): u
 		order_by: 'net_sales',
 		data: DEVICES.map( ( { item, share } ) => ( {
 			item,
-			current_period: periodFor( primary, share ),
-			previous_period: periodFor( comparison, share ),
+			current_period: deviceNetSales( primary, NET_SALES_TREND, share ),
+			previous_period: deviceNetSales( comparison, NET_SALES_TREND, share ),
 		} ) ),
 	};
 }
