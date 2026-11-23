@@ -1098,6 +1098,7 @@ class DashboardSettingsTest extends TestCase {
 		$this->assertSame( 'jetpack_seo_module_toggle_failed', $response->get_data()['code'] );
 
 		remove_all_filters( 'jetpack_active_modules' );
+		add_filter( 'jetpack_active_modules', 'jetpack_seo_test_switch_on', 1000 );
 	}
 
 	/**
@@ -1399,6 +1400,7 @@ class DashboardSettingsTest extends TestCase {
 		$this->assertSame( 'jetpack_seo_module_toggle_failed', $response->get_data()['code'] );
 
 		remove_all_filters( 'jetpack_active_modules' );
+		add_filter( 'jetpack_active_modules', 'jetpack_seo_test_switch_on', 1000 );
 	}
 
 	/**

@@ -248,28 +248,17 @@ class Initializer {
 	}
 
 	/**
-	 * Whether this site offers the {@see self::DASHBOARD_MODULE} switch: the Jetpack plugin ships it.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @return bool
-	 */
-	public static function has_dashboard_module() {
-		return in_array( self::DASHBOARD_MODULE, ( new Modules() )->get_available(), true );
-	}
-
-	/**
 	 * Whether the SEO page and the SEO modules may run.
 	 *
-	 * True where there is no switch, so hosts without the SEO page and sites without the
-	 * Jetpack plugin keep their old behaviour. WordPress.com Simple reports every module on.
+	 * True where SEO isn't offered, so VIP keeps its SEO modules running. WordPress.com Simple
+	 * reports every module on.
 	 *
 	 * @since $$next-version$$
 	 *
 	 * @return bool
 	 */
 	public static function is_dashboard_on() {
-		if ( ! self::is_available() || ! self::has_dashboard_module() ) {
+		if ( ! self::is_available() ) {
 			return true;
 		}
 
@@ -322,7 +311,7 @@ class Initializer {
 		}
 
 		// Checked only once the switch is missing, so a normal request reads no extra option.
-		if ( get_option( self::DASHBOARD_OFF_OPTION ) || ! self::has_dashboard_module() ) {
+		if ( get_option( self::DASHBOARD_OFF_OPTION ) ) {
 			return;
 		}
 

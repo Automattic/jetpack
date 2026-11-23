@@ -32,6 +32,7 @@ class IndexnowQueueTest extends SeoTestCase {
 		}
 		remove_filter( 'rsm_jetpack_seo', '__return_true' );
 		remove_all_filters( 'jetpack_active_modules' );
+		add_filter( 'jetpack_active_modules', 'jetpack_seo_test_switch_on', 1000 );
 		remove_all_filters( 'pre_http_request' );
 		remove_all_filters( 'jetpack_seo_indexnow_queue_capacity' );
 		remove_all_filters( 'jetpack_seo_indexnow_batch_size' );

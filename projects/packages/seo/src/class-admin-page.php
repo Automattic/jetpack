@@ -88,17 +88,6 @@ class Admin_Page {
 	}
 
 	/**
-	 * The module whose switch shows the menu item: the SEO switch, or `seo-tools` where there is none.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @return string Module slug.
-	 */
-	public static function get_menu_module() {
-		return Initializer::has_dashboard_module() ? Initializer::DASHBOARD_MODULE : 'seo-tools';
-	}
-
-	/**
 	 * Register the admin menu item.
 	 *
 	 * Uses Admin_Menu so the page is reachable on wp-admin across all site
@@ -121,9 +110,9 @@ class Admin_Page {
 			self::MENU_SLUG,
 			$callback,
 			null,
-			// Hidden while its module is off, like other Jetpack features; My Jetpack turns it back on.
+			// Hidden while the SEO switch is off, like other Jetpack features; My Jetpack turns it back on.
 			array(
-				'module' => self::get_menu_module(),
+				'module' => Initializer::DASHBOARD_MODULE,
 				'key'    => 'jetpack-seo',
 			)
 		);
@@ -186,7 +175,7 @@ class Admin_Page {
 		}
 
 		// The menu item hides while its module is off, so there is no link to switch to.
-		if ( ! ( new Modules() )->is_active( self::get_menu_module() ) ) {
+		if ( ! ( new Modules() )->is_active( Initializer::DASHBOARD_MODULE ) ) {
 			return $members;
 		}
 
