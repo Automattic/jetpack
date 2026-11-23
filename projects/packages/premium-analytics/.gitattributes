@@ -12,3 +12,5 @@ packages/**       production-exclude
 shims/**          production-exclude
 types/**          production-exclude
 widgets/**        production-exclude
+src/promo-fixture.php        production-exclude
+src/promo-fixture-module.js  production-exclude
