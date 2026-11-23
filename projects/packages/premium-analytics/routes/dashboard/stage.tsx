@@ -44,6 +44,7 @@ import { WidgetDashboard } from '@wordpress/widget-dashboard';
 import clsx from 'clsx';
 import { useDateWindowNotice } from '../date-window-notice';
 import {
+	getConnectionlessSectionSlugs,
 	isPremiumAnalyticsInitialSyncFinished,
 	isPremiumAnalyticsSiteConnected,
 } from '../site-readiness';
@@ -51,6 +52,7 @@ import { useStatsDateLimits } from '../use-stats-date-limits';
 import { useWidgetModules } from '../use-widget-modules';
 import { useWidgetModuleResolver, useWidgetTypesWithI18n } from '../widget-module-i18n';
 import {
+	ConnectSection,
 	DashboardNotices,
 	DashboardSections,
 	FeedbackBanner,
@@ -155,8 +157,11 @@ function Dashboard(): JSX.Element {
 	 * sync starts as soon as the dashboard opens rather than when the section is visited.
 	 */
 	const isSyncFinished = isPremiumAnalyticsInitialSyncFinished();
-	// Only tabs that run without a connection open on a disconnected site, so the Stats chrome stays off.
+	// While disconnected, a tab that needs the connection shows a connect prompt, and the Stats chrome stays off.
 	const isSiteConnected = isPremiumAnalyticsSiteConnected();
+	const connectionlessSections = getConnectionlessSectionSlugs();
+	const needsConnection = ( slug: string ) =>
+		! isSiteConnected && ! connectionlessSections.includes( slug );
 	const sectionsAwaitSync = sections.some( section =>
 		isSectionAwaitingSync( section, isSyncFinished )
 	);
@@ -599,11 +604,16 @@ function Dashboard(): JSX.Element {
 												pinned
 												controlsRef={ setControlsAnchor }
 											>
-												{ dateControls }
+												{ needsConnection( section.slug ) ? null : dateControls }
 											</SectionHeader>
 
 											{ /* Widgets query the committed URL, which keeps the last tab's window until a switch lands. */ }
-											{ activeSection === section.slug && isSectionCommitted ? (
+											{ activeSection === section.slug && needsConnection( section.slug ) && (
+												<ConnectSection />
+											) }
+											{ activeSection === section.slug &&
+											isSectionCommitted &&
+											! needsConnection( section.slug ) ? (
 												<DashboardSectionProvider section={ section.slug }>
 													<div className={ styles.body }>
 														<RefreshFailureNotice />

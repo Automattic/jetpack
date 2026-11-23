@@ -53,6 +53,7 @@ let mockSyncOptions: { enabled?: boolean; autoStart?: boolean } | undefined;
 let mockIsAdmin: boolean;
 let mockCanSendFeedback: boolean;
 let mockIsConnected: boolean;
+let mockConnectionless: string[];
 let mockMenuConnected: boolean | undefined;
 let mockMenuTabs: { onPreview?: ( order?: string[] ) => void } | undefined;
 const mockResetLayout = jest.fn();
@@ -88,6 +89,7 @@ jest.mock( '@automattic/jetpack-script-data', () => ( {
 jest.mock( '../site-readiness', () => ( {
 	isPremiumAnalyticsInitialSyncFinished: () => mockIsSyncFinished,
 	isPremiumAnalyticsSiteConnected: () => mockIsConnected,
+	getConnectionlessSectionSlugs: () => mockConnectionless,
 } ) );
 
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
@@ -417,6 +419,7 @@ jest.mock( './components', () => ( {
 	OnboardingTour: () => <div data-testid="onboarding-tour" />,
 	onboardingTourSteps: jest.fn( () => [] ),
 	DashboardNotices: () => <div data-testid="dashboard-notices" />,
+	ConnectSection: () => <div data-testid="connect-section" />,
 	// A marker, not the real notice, which reads a query cache these tests do not
 	// stand up. Covered here: where the stage puts it.
 	RefreshFailureNotice: () => <div data-testid="refresh-failure-notice" />,
@@ -482,6 +485,7 @@ beforeEach( () => {
 	mockIsAdmin = true;
 	mockCanSendFeedback = true;
 	mockIsConnected = true;
+	mockConnectionless = [];
 	delete window.JetpackScriptData;
 	mockMountedSectionSlugs = null;
 	mockTriggerSync.mockImplementation( () => Promise.resolve() );
@@ -922,6 +926,7 @@ describe( 'Dashboard feedback banner', () => {
 	// A disconnected site shows only tabs that run without a connection; the Stats chrome can't work there.
 	it( 'leaves the Stats chrome off on a disconnected site', () => {
 		mockIsConnected = false;
+		mockConnectionless = [ 'traffic' ];
 
 		render( <Dashboard /> );
 
@@ -932,6 +937,22 @@ describe( 'Dashboard feedback banner', () => {
 			expect.objectContaining( { enabled: false } )
 		);
 	} );
+
+	it.each( [
+		[ 'shows the connect prompt instead of', [ 'woocommerce' ], true ],
+		[ 'keeps the widgets of', [ 'traffic' ], false ],
+	] )(
+		'%s a tab on a disconnected site, by whether it runs without a connection',
+		( _case, connectionless, showsPrompt ) => {
+			mockIsConnected = false;
+			mockConnectionless = connectionless;
+
+			render( <Dashboard /> );
+
+			expect( !! screen.queryByTestId( 'connect-section' ) ).toBe( showsPrompt );
+			expect( !! screen.queryByText( 'offers comparison' ) ).toBe( ! showsPrompt );
+		}
+	);
 
 	it( 'puts the Stats notices away while the reader arranges the layout', async () => {
 		render( <Dashboard /> );

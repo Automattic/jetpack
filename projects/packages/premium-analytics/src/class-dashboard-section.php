@@ -127,8 +127,8 @@ final class Dashboard_Section {
 	public $requires_sync = false;
 
 	/**
-	 * Whether the section needs the site's Jetpack connection. A section that does not stays open
-	 * on a disconnected site, where the dashboard shows only such sections.
+	 * Whether the section needs the site's Jetpack connection. On a disconnected site, a section that
+	 * does not keeps working, and the others show a prompt to connect it.
 	 *
 	 * @since $$next-version$$
 	 * @var bool

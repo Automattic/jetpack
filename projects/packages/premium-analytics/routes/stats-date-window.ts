@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { getScriptData } from '@automattic/jetpack-script-data';
 import {
 	applyStatsDatePolicy,
 	DASHBOARD_PREFERENCES_SCOPE,
@@ -16,10 +17,6 @@ import {
 } from '@jetpack-premium-analytics/data';
 import { isYearSurfacePresetId } from '@jetpack-premium-analytics/datetime';
 import { omitReportDateParams } from '@jetpack-premium-analytics/routing';
-/**
- * Internal dependencies
- */
-import { getOpenableSectionSlugs } from './site-readiness';
 
 type Search = Record< string, unknown >;
 type NormalizeInput = Parameters< typeof normalizeReportParams >[ 0 ];
@@ -32,7 +29,7 @@ type NormalizeInput = Parameters< typeof normalizeReportParams >[ 0 ];
  * @return The tab's slug, or undefined when the server lists no tabs.
  */
 export function dashboardSectionOf( section: unknown ): string | undefined {
-	const slugs = getOpenableSectionSlugs();
+	const slugs = getScriptData()?.premium_analytics?.sections;
 	const isKnown =
 		typeof section === 'string' && ( ! Array.isArray( slugs ) || slugs.includes( section ) );
 	if ( isKnown ) {

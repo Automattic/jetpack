@@ -51,51 +51,6 @@ function get_available_dashboard_sections( $dashboard_name ) {
 }
 
 /**
- * Slugs of the tabs the dashboard exposes, for the client's report routes.
- *
- * Reads the same sections the tab list does, so a report cannot outlive the tab it sits
- * behind. Null, never `array()`, while nothing is registered: an empty array means no
- * tab is available.
- *
- * @since 0.6.0
- *
- * @return string[]|null
- */
-function get_available_dashboard_section_slugs() {
-	$registry = Dashboard_Section_Registry::get_instance();
-
-	if ( empty( $registry->get_all_registered( DASHBOARD_NAME ) ) ) {
-		return null;
-	}
-
-	return array_map(
-		static function ( Dashboard_Section $section ) {
-			return $section->slug;
-		},
-		$registry->get_available_sections( DASHBOARD_NAME )
-	);
-}
-
-/**
- * Slugs of the available tabs whose window follows the plan's Stats date limits.
- *
- * @since 0.14.0
- *
- * @return string[]
- */
-function get_plan_date_limited_section_slugs() {
-	$slugs = array();
-
-	foreach ( Dashboard_Section_Registry::get_instance()->get_available_sections( DASHBOARD_NAME ) as $section ) {
-		if ( $section->follows_plan_date_limits ) {
-			$slugs[] = $section->slug;
-		}
-	}
-
-	return $slugs;
-}
-
-/**
  * Configures the section script data.
  *
  * @since 0.6.0
@@ -144,7 +99,7 @@ function inject_dashboard_sections_script_data( array $data ): array {
 			if ( $section->follows_plan_date_limits ) {
 				$limited[] = $section->slug;
 			}
-			if ( isset( $section->requires_connection ) && false === $section->requires_connection ) {
+			if ( ! $section->requires_connection ) {
 				$connectionless[] = $section->slug;
 			}
 		}

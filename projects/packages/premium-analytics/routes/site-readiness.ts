@@ -13,26 +13,12 @@ export function isPremiumAnalyticsSiteConnected(): boolean {
 }
 
 /**
- * Slugs of the dashboard tabs that open while the site has no Jetpack connection.
+ * Slugs of the dashboard tabs that work while the site has no Jetpack connection.
  *
  * @return The slugs; empty when every tab needs the connection.
  */
 export function getConnectionlessSectionSlugs(): string[] {
 	return getScriptData()?.premium_analytics?.connectionless_sections ?? [];
-}
-
-/**
- * Slugs of the dashboard tabs this site can open: all of them when connected, otherwise those that
- * run without a connection. Without any of those the dashboard sends the reader to `/connect`.
- *
- * @return The slugs, or undefined when the server lists no tabs.
- */
-export function getOpenableSectionSlugs(): string[] | undefined {
-	const data = getScriptData()?.premium_analytics;
-	if ( isPremiumAnalyticsSiteConnected() || ! Array.isArray( data?.connectionless_sections ) ) {
-		return data?.sections;
-	}
-	return data.connectionless_sections;
 }
 
 /**

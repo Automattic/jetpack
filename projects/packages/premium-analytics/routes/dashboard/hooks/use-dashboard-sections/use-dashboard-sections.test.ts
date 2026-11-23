@@ -11,12 +11,6 @@ import '@wordpress/preferences';
 import { useDashboardSections } from './use-dashboard-sections';
 
 const mockUseEntityRecords = jest.fn();
-let mockIsConnected = true;
-
-jest.mock( '../../../site-readiness', () => ( {
-	getConnectionlessSectionSlugs: () => [ 'insights' ],
-	isPremiumAnalyticsSiteConnected: () => mockIsConnected,
-} ) );
 
 jest.mock( '@wordpress/core-data', () => ( {
 	useEntityRecords: ( ...args: unknown[] ) => mockUseEntityRecords( ...args ),
@@ -30,7 +24,6 @@ const RECORDS = [
 describe( 'useDashboardSections', () => {
 	beforeEach( () => {
 		mockUseEntityRecords.mockReset();
-		mockIsConnected = true;
 	} );
 
 	afterEach( () => {
@@ -75,14 +68,5 @@ describe( 'useDashboardSections', () => {
 			'insights',
 			'traffic',
 		] );
-	} );
-
-	it( 'keeps only the tabs that run without a connection on a disconnected site', () => {
-		mockIsConnected = false;
-		mockUseEntityRecords.mockReturnValue( { records: RECORDS, hasResolved: true } );
-
-		const { result } = renderHook( () => useDashboardSections() );
-
-		expect( result.current.sections.map( section => section.slug ) ).toEqual( [ 'insights' ] );
 	} );
 } );

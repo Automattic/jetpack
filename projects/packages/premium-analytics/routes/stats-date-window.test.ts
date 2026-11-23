@@ -88,14 +88,4 @@ describe( 'dashboardSectionOf', () => {
 
 		expect( dashboardSectionOf( section ) ).toBe( expected );
 	} );
-
-	it( 'resolves only among the tabs a disconnected site can open', () => {
-		const data = planGatesScriptData( [ 'recent-7-days' ], [ 'traffic', 'store' ] );
-		( getScriptData as jest.Mock ).mockReturnValue( {
-			...data,
-			premium_analytics: { ...data.premium_analytics, connectionless_sections: [ 'store' ] },
-		} );
-
-		expect( dashboardSectionOf( 'traffic' ) ).toBe( 'store' );
-	} );
 } );

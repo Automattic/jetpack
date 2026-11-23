@@ -1,4 +1,4 @@
 Significance: minor
 Type: added
 
-Dashboard: Let a section declare that it runs without a Jetpack connection, and open the dashboard on those sections while the site is disconnected.
+Dashboard: Let a section declare that it runs without a Jetpack connection, and open the dashboard on a disconnected site that has one, with a connect prompt in the other tabs.
