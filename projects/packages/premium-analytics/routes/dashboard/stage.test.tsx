@@ -18,6 +18,7 @@ import { useCallback } from 'react';
 /**
  * Internal dependencies
  */
+import { resetPromoDismissalForTesting } from '../../packages/widgets-toolkit/src/hooks/use-promo-slot';
 import { useStatsDateLimits } from '../use-stats-date-limits';
 import { useWidgetTypesWithI18n } from '../widget-module-i18n';
 import { onboardingTourSteps } from './components';
@@ -179,6 +180,11 @@ jest.mock( '@wordpress/route', () => ( {
 
 jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 	...jest.requireActual( '../../packages/widgets-toolkit/src/hooks/use-dashboard-origin-search' ),
+	usePromoSlot: jest.requireActual( '../../packages/widgets-toolkit/src/hooks/use-promo-slot' )
+		.usePromoSlot,
+	PromoCard: ( { promo }: { promo: { slug: string } } ) => (
+		<div data-testid="promo-card">{ promo.slug }</div>
+	),
 	useTrackCustomize: () => mockTrackCustomize,
 	canSendFeedback: () => mockCanSendFeedback,
 	StatsOptionsMenu: ( {
@@ -1690,5 +1696,90 @@ describe( 'Dashboard locked section', () => {
 		expect( screen.queryByTestId( 'locked-section' ) ).not.toBeInTheDocument();
 		expect( screen.getByTestId( 'no-widgets-state' ) ).toBeInTheDocument();
 		expect( screen.getByRole( 'button', { name: 'Customize' } ) ).toBeInTheDocument();
+	} );
+} );
+
+describe( 'Dashboard section-footer promo', () => {
+	const promo = {
+		slug: 'upgrade',
+		placement: 'section-footer',
+		target: 'traffic',
+		order: 0,
+		title: 'Upgrade',
+		description: '',
+		cta_label: 'Go',
+		cta_url: 'https://example.com',
+		dismissible: true,
+		snooze_days: 7,
+		render_module: null,
+	};
+
+	const registerPromos = ( ...promos: Array< Record< string, unknown > > ) => {
+		window.JetpackScriptData = {
+			premium_analytics: { promos },
+		} as unknown as typeof window.JetpackScriptData;
+	};
+
+	beforeEach( () => {
+		jest.clearAllMocks();
+		resetPromoDismissalForTesting();
+		useActiveSectionMock.mockReturnValue( [ 'traffic', jest.fn(), true ] );
+		mockActiveSectionSlug = 'traffic';
+		useSectionDateFilterMock.mockReturnValue( DATE_FILTER_RANGE );
+		mockSection( { slug: 'traffic', date_filter: DATE_FILTER_RANGE } );
+		registerPromos( promo );
+	} );
+
+	it( 'renders the section-footer promo under the widgets for its target section', () => {
+		render( <Dashboard /> );
+
+		expect( screen.getByTestId( 'promo-card' ) ).toHaveTextContent( 'upgrade' );
+		expect(
+			screen.getAllByTestId( /^(widgets|promo-card)$/ ).map( el => el.dataset.testid )
+		).toEqual( [ 'widgets', 'promo-card' ] );
+	} );
+
+	it( 'renders no promo when the section is locked', () => {
+		useLockedSectionLayoutMock.mockImplementation( ( section, layout, onLayoutChange ) =>
+			section === 'traffic'
+				? {
+						lockedSection: { title: 'Unlock traffic' } as LockedSectionGate,
+						visibleLayout: layout,
+						onVisibleLayoutChange: onLayoutChange,
+						isHiddenWidget: undefined,
+					}
+				: passThroughLockedLayout( section, layout, onLayoutChange )
+		);
+
+		render( <Dashboard /> );
+
+		expect( screen.getByTestId( 'locked-section' ) ).toBeInTheDocument();
+		expect( screen.queryByTestId( 'promo-card' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'renders no promo in edit mode, and brings it back on Done', async () => {
+		render( <Dashboard /> );
+
+		await userEvent.click( screen.getByRole( 'button', { name: 'Customize' } ) );
+		expect( screen.queryByTestId( 'promo-card' ) ).not.toBeInTheDocument();
+
+		await userEvent.click( screen.getByRole( 'button', { name: 'Done' } ) );
+		expect( screen.getByTestId( 'promo-card' ) ).toBeInTheDocument();
+	} );
+
+	it( 'renders no promo when its target names a section that is not on screen', () => {
+		registerPromos( { ...promo, target: 'subscribers' } );
+
+		render( <Dashboard /> );
+
+		expect( screen.queryByTestId( 'promo-card' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'renders no promo registered for another placement', () => {
+		registerPromos( { ...promo, placement: 'settings', target: null } );
+
+		render( <Dashboard /> );
+
+		expect( screen.queryByTestId( 'promo-card' ) ).not.toBeInTheDocument();
 	} );
 } );
