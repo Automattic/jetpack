@@ -388,4 +388,28 @@ class Jetpack_Carousel_Test extends WP_UnitTestCase {
 
 		$this->assertStringContainsString( '<span>Loading Comments...</span>', $output );
 	}
+
+	/**
+	 * Overlay icons are decorative, so scanners must not flag them as images missing alt text.
+	 */
+	public function test_add_carousel_skeleton_hides_every_svg_from_assistive_technology() {
+		update_option( 'carousel_display_comments', 1 );
+		$this->get_localized_carousel_strings();
+		ob_start();
+		$this->instance->add_carousel_skeleton();
+		$output = ob_get_clean();
+
+		$previous = libxml_use_internal_errors( true );
+		$dom      = new DOMDocument();
+		$dom->loadHTML( $output );
+		libxml_clear_errors();
+		libxml_use_internal_errors( $previous );
+
+		$svgs = $dom->getElementsByTagName( 'svg' );
+		$this->assertGreaterThanOrEqual( 6, $svgs->length );
+		foreach ( $svgs as $svg ) {
+			$this->assertSame( 'true', $svg->getAttribute( 'aria-hidden' ) );
+			$this->assertSame( 'false', $svg->getAttribute( 'focusable' ) );
+		}
+	}
 }
