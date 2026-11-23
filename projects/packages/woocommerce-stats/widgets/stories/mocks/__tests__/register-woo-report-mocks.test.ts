@@ -5,6 +5,11 @@ import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
  */
+import { fetchReportProducts } from '../../../../src/reports/api/report-products-fetch';
+import {
+	BOOKINGS_FILTER,
+	PHYSICAL_PRODUCTS_FILTER,
+} from '../../../../src/reports/utils/product-filters';
 import { storyReportParams } from '../../story-report-params';
 import { registerWooReportMocks, setWooReportMockState } from '../register-woo-report-mocks';
 import type { APIFetchMiddleware } from '@wordpress/api-fetch';
@@ -201,6 +206,42 @@ it( 'ranks the products differently in an earlier window', async () => {
 	expect( Number( comparison.summary.total_revenue ) ).toBeLessThan(
 		Number( primary.summary.total_revenue )
 	);
+} );
+
+describe( 'products report filtered by product type', () => {
+	const BOOKING_TYPES = BOOKINGS_FILTER.value as string[];
+
+	it( 'returns only bookable products for the bookings filter', async () => {
+		const { data } = await fetchReportProducts( {
+			...PRIMARY_WINDOW,
+			limit: 5,
+			filters: [ BOOKINGS_FILTER ],
+		} );
+
+		expect( data ).not.toHaveLength( 0 );
+		data.forEach( row => expect( BOOKING_TYPES ).toContain( row.product_type ) );
+	} );
+
+	it( 'ranks the bookable products differently in an earlier window', async () => {
+		const ids = async ( reportWindow: ReportWindow ) =>
+			(
+				await fetchReportProducts( { ...reportWindow, limit: 5, filters: [ BOOKINGS_FILTER ] } )
+			).data.map( row => row.product_id );
+
+		await expect( ids( COMPARISON_WINDOW ) ).resolves.not.toEqual( await ids( PRIMARY_WINDOW ) );
+	} );
+
+	it( 'answers the physical filter exactly as it answers a request with no filter', async () => {
+		const unfiltered = await fetchReportProducts( { ...PRIMARY_WINDOW, limit: 5 } );
+		const physical = await fetchReportProducts( {
+			...PRIMARY_WINDOW,
+			limit: 5,
+			filters: [ PHYSICAL_PRODUCTS_FILTER ],
+		} );
+
+		expect( physical ).toEqual( unfiltered );
+		unfiltered.data.forEach( row => expect( BOOKING_TYPES ).not.toContain( row.product_type ) );
+	} );
 } );
 
 it( 'omits one requested product from the details response', async () => {
