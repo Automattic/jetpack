@@ -1,8 +1,7 @@
 /**
  * Settings hub — the Settings tab's main view (view key `mcp`) at
- * wp-admin/admin.php?page=jetpack-ai#/mcp. Leads with the connect card (when there is no Overview tab to carry it), then
- * shows the enable/disable toggle and navigation to the Read and Write
- * sub-views; the connect card links to the Setup sub-view.
+ * wp-admin/admin.php?page=jetpack-ai#/mcp. Leads with the connect card, then shows the
+ * enable/disable toggle and navigation to the Read and Write sub-views.
  */
 
 import {
@@ -16,7 +15,7 @@ import { seen, pencil, chevronRight, info, published, caution, list } from '@wor
 import { Badge, Button, Card, Stack } from '@wordpress/ui';
 import { getActivityLogDescription, onActivityLogClick } from '../activity-log';
 import { isWriteTool } from './categories';
-import McpConnectAgents from './connect-agents-onboarding';
+import McpConnectCard from './connect-card';
 import McpHowItWorks from './how-it-works';
 import { recordMcpTracksEvent } from './tracks';
 import {
@@ -139,8 +138,6 @@ function SummaryRow( { icon, title, badge, onClick } ) {
  * @param {object}   [props.remoteAbilities]     - Published-abilities state; counted in the badges when set.
  * @param {boolean}  [props.showActivityLog]     - Whether this view owns the activity log row
  *                                               (false when the Overview tab renders it instead).
- * @param {boolean}  [props.showConnectCard]     - Whether to lead with the connect card (false
- *                                               when the Overview tab carries it instead).
  * @return {object} Component markup.
  */
 export default function McpHub( {
@@ -152,7 +149,6 @@ export default function McpHub( {
 	onNavigate,
 	onUpdate,
 	showActivityLog = true,
-	showConnectCard = true,
 	remoteAbilities = null,
 } ) {
 	const accountAbilities = getAccountMcpAbilities( mcpAbilities ?? {} );
@@ -230,14 +226,22 @@ export default function McpHub( {
 		[ blogId, onUpdate, availableTools ]
 	);
 
+	const handleTurnOn = useCallback(
+		() => handleMcpToggle( true, 'connect_notice' ),
+		[ handleMcpToggle ]
+	);
+
 	const navigateToRead = useCallback( () => onNavigate( 'read' ), [ onNavigate ] );
 	const navigateToWrite = useCallback( () => onNavigate( 'write' ), [ onNavigate ] );
 
 	return (
 		<>
-			{ showConnectCard && (
-				<McpConnectAgents isMcpEnabled={ isMcpEnabled } onNavigate={ onNavigate } />
-			) }
+			<McpConnectCard
+				mcpEnabled={ isMcpEnabled }
+				onTurnOn={ handleTurnOn }
+				isTurningOn={ savingToolIds.has( '__site_level__' ) }
+				onNavigate={ onNavigate }
+			/>
 			<McpHowItWorks />
 			<Card.Root className="jetpack-ai-mcp__access-card">
 				<Card.Header>

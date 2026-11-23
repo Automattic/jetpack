@@ -2406,7 +2406,7 @@ describe( 'Settings tab (main.jsx)', () => {
 		);
 	} );
 
-	test( 'leaves the connect card to Overview, under a clean h2/h3 outline', async () => {
+	test( 'leads with the agent grid, under a clean h2/h3 outline', async () => {
 		render( <App /> );
 
 		await expect(
@@ -2418,7 +2418,12 @@ describe( 'Settings tab (main.jsx)', () => {
 		expect( screen.queryAllByRole( 'heading', { level: 1 } ).length ).toBeLessThanOrEqual( 1 );
 		expect(
 			screen.getAllByRole( 'heading', { level: 2 } ).map( heading => heading.textContent )
-		).toEqual( [ 'How it works', 'External AI agent access', 'AI features' ] );
+		).toEqual( [
+			'Connect an external AI agent',
+			'How it works',
+			'External AI agent access',
+			'AI features',
+		] );
 		expect( screen.queryAllByRole( 'heading', { level: 4 } ) ).toHaveLength( 0 );
 	} );
 
@@ -2468,7 +2473,9 @@ describe( 'Settings tab (main.jsx)', () => {
 		window.location.hash = '';
 		render( <App /> );
 
-		await expect( screen.findByRole( 'heading', CONNECT_HEADING ) ).resolves.toBeInTheDocument();
+		await expect(
+			screen.findByRole( 'heading', { name: 'Connect an external AI agent' } )
+		).resolves.toBeInTheDocument();
 		expect( screen.queryByRole( 'tab' ) ).not.toBeInTheDocument();
 	} );
 } );

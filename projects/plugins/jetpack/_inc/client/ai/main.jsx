@@ -55,8 +55,8 @@ import { getStickyHeight } from './discover/use-toolbar-offset';
 import AiFeatures from './features/index';
 import { useFeatureSettings } from './features/use-feature-settings';
 import { splitViewAnchor } from './mcp/anchors';
-import McpConnectAgents from './mcp/connect-agents-onboarding';
 import McpConnectCallout from './mcp/connect-callout';
+import McpConnectCard from './mcp/connect-card';
 import McpHub from './mcp/index';
 import McpRead from './mcp/read';
 import McpSetup from './mcp/setup';
@@ -816,13 +816,11 @@ export default function App() {
 							<McpUpsell />
 						) }
 
-						{ /* Without the hub — offline, disconnected, unlinked, or no MCP
-						     access — the connect buttons still show: installing the
+						{ /* Without the hub the connect card still shows: installing the
 						     connector happens in the agent, and the notice above says what
-						     the site needs first. Overview carries the card whenever that
-						     tab exists. */ }
-						{ view === 'mcp' && ! isLoading && ! hasHub && ! tabViews.includes( 'overview' ) && (
-							<McpConnectAgents isMcpEnabled onNavigate={ handleMcpNavigate } />
+						     the site needs first. */ }
+						{ view === 'mcp' && ! isLoading && ! hasHub && (
+							<McpConnectCard mcpEnabled onNavigate={ handleMcpNavigate } />
 						) }
 
 						{ hasHub && (
@@ -841,8 +839,6 @@ export default function App() {
 										// row whenever the Overview tab exists; the Settings hub
 										// keeps it in the ungated MCP-only shape.
 										showActivityLog={ ! tabViews.includes( 'overview' ) }
-										// The connect card's home follows the same rule.
-										showConnectCard={ ! tabViews.includes( 'overview' ) }
 									/>
 								) }
 								{ view === 'mcp/read' && (

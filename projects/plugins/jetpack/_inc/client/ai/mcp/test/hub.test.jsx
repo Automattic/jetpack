@@ -70,26 +70,32 @@ describe( 'McpHub connect card', () => {
 			.getAllByRole( 'heading', { level: 2 } )
 			.map( heading => heading.textContent );
 		expect( headings ).toEqual( [
-			'Connect your AI agent',
+			'Connect an external AI agent',
 			'How it works',
 			'External AI agent access',
 		] );
 	} );
 
-	test( 'is the one connect prompt: the old setup row is gone', () => {
-		renderHub();
+	test( 'Turn on MCP access saves the same update as the toggle', async () => {
+		const onUpdate = jest.fn();
+		render(
+			<McpHub
+				mcpAbilities={ mcpAbilities( false ) }
+				blogId={ 1 }
+				savingToolIds={ new Set() }
+				onNavigate={ jest.fn() }
+				onUpdate={ onUpdate }
+			/>
+		);
 
-		expect(
-			screen.queryByRole( 'button', { name: 'Connect external AI agent' } )
-		).not.toBeInTheDocument();
-		expect( screen.getAllByRole( 'region', { name: 'Connect your AI agent' } ) ).toHaveLength( 1 );
-	} );
+		await userEvent.click( screen.getByRole( 'button', { name: 'Turn on MCP access' } ) );
 
-	test( 'shows with MCP off too, pointing at the switch', () => {
-		renderHub( { siteLevelEnabled: false } );
-
-		expect(
-			screen.getByText( 'Turn on MCP access below, then connect your agent.' )
-		).toBeInTheDocument();
+		expect( onUpdate ).toHaveBeenCalledWith( {
+			sites: [ expect.objectContaining( { blog_id: 1, site_level_enabled: true } ) ],
+		} );
+		expect( analytics.tracks.recordEvent ).toHaveBeenCalledWith(
+			'jetpack_mcp_enabled_toggled',
+			expect.objectContaining( { enabled: true, source: 'connect_notice' } )
+		);
 	} );
 } );
