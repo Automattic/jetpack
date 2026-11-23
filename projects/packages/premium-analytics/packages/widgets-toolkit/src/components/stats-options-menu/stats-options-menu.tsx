@@ -162,6 +162,17 @@ export function StatsOptionsMenu( {
 			} );
 		}
 	}, [ promo, trackEvent ] );
+	const trackPromoView = useCallback(
+		( isOpen: boolean ) => {
+			if ( isOpen && promo && promoHref ) {
+				trackEvent( 'jetpack_premium_analytics_promo_view', {
+					slug: promo.slug,
+					placement: promo.placement,
+				} );
+			}
+		},
+		[ promo, promoHref, trackEvent ]
+	);
 
 	const groups: MenuGroup[] = [
 		{
@@ -238,7 +249,7 @@ export function StatsOptionsMenu( {
 
 	return (
 		<>
-			<Menu.Root>
+			<Menu.Root onOpenChange={ trackPromoView }>
 				<Menu.Trigger
 					render={
 						<IconButton
