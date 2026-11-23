@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Crowdsignal: Send rating titles as plain text so they no longer appear garbled in rating results.

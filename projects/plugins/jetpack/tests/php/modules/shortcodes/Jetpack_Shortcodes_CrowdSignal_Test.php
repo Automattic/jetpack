@@ -270,6 +270,23 @@ class Jetpack_Shortcodes_CrowdSignal_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Test that a rating passes its title to rating.js as plain text, not URL-encoded.
+	 *
+	 * @since $$next-version$$
+	 */
+	public function test_shortcodes_crowdsignal_rating_title_is_not_url_encoded() {
+		update_option( 'polldaddy_load_poll_inline', true );
+
+		do_shortcode( '[crowdsignal rating=8755352 title="Apprenez à votre IA : Don&#8217;t panic"]' );
+
+		preg_match( '/PDRTJS_settings_\w+=(\{.*?\});/', wp_scripts()->get_inline_script_data( 'crowdsignal-rating', 'before' ), $matches );
+		$settings = json_decode( $matches[1], true );
+		$this->assertIsArray( $settings );
+
+		$this->assertSame( 'Apprenez à votre IA : Don’t panic', $settings['title'] );
+	}
+
+	/**
 	 * Test that the crowdsignal_link function prevents XSS attacks by not processing URLs inside HTML tags.
 	 *
 	 * This test verifies that malicious URLs embedded in HTML attributes are not processed
