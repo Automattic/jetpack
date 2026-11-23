@@ -71,7 +71,11 @@ function RequestsBySourceInner() {
 									/>
 									{ source.label }
 								</span>
-								<MetricValue value={ source.total } dataFormat={ HEADLINE_COUNT_FORMAT } />
+								<MetricValue
+									value={ source.total }
+									dataFormat={ HEADLINE_COUNT_FORMAT }
+									fontSize="2xl"
+								/>
 								{ source.share !== null && (
 									<span className={ styles.share }>
 										{ sprintf(
