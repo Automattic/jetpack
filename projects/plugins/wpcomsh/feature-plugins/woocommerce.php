@@ -41,3 +41,10 @@ function wpcom_maybe_redirect_to_woo_design_with_ai() {
 }
 
 add_action( 'admin_init', 'wpcom_maybe_redirect_to_woo_design_with_ai', 1 );
+
+add_filter(
+	'woocommerce_enable_llms_txt',
+	static function ( $enabled ) {
+		return $enabled && ! \Private_Site\site_is_private() && ! \Private_Site\site_is_public_coming_soon();
+	}
+);

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Hide WooCommerce's llms.txt on private and coming-soon sites.
