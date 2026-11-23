@@ -164,8 +164,8 @@ final class Announcement_Registry {
 		/**
 		 * Fires when the announcement registry hydrates, on its first read after `init`.
 		 *
-		 * Register announcements here with `register_announcement()`. Do no I/O: the read
-		 * that triggers it may be a REST request.
+		 * Register announcements here with `register_announcement()`. Do no I/O of your own: the read
+		 * that triggers it may be a REST request. `get_announcements_from_feed()` reads a feed for you.
 		 *
 		 * @since $$next-version$$
 		 *
