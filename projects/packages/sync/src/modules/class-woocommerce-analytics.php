@@ -700,7 +700,7 @@ class WooCommerce_Analytics extends Module {
 			'num_items_sold'     => self::get_num_items_sold( $order ),
 			'total_sales'        => $order->get_total(),
 			'tax_total'          => $order->get_total_tax(),
-			'total_fees'         => $order->get_total_fees(),
+			'total_fees'         => self::get_total_fees( $order ),
 			'total_fees_tax'     => self::get_total_fees_tax( $order ),
 			'shipping_total'     => $order->get_shipping_total(),
 			'shipping_tax'       => $order->get_shipping_tax(),
@@ -844,6 +844,27 @@ class WooCommerce_Analytics extends Module {
 	protected static function get_net_total( $order ) {
 		$net_total = floatval( $order->get_total() ) - floatval( $order->get_total_tax() ) - floatval( $order->get_shipping_total() );
 		return $net_total;
+	}
+
+	/**
+	 * Get the total fees from an order.
+	 *
+	 * @param WC_Order $order WC_Order object.
+	 * @return float
+	 */
+	protected static function get_total_fees( $order ) {
+		// Added in WooCommerce 4.0; the fallback mirrors WC_Abstract_Order::get_total_fees().
+		if ( method_exists( $order, 'get_total_fees' ) ) {
+			return $order->get_total_fees();
+		}
+
+		return array_reduce(
+			$order->get_fees(),
+			function ( $carry, $item ) {
+				return $carry + (float) $item->get_total();
+			},
+			0.0
+		);
 	}
 
 	/**
