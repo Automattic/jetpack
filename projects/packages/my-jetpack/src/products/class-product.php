@@ -446,7 +446,7 @@ abstract class Product {
 
 		// Simple has no blog token to ask the API with, and knows its own features.
 		if ( ( new Host() )->is_wpcom_simple() && function_exists( 'wpcom_site_has_feature' ) ) {
-			return wpcom_site_has_feature( $feature );
+			return \wpcom_site_has_feature( $feature );
 		}
 
 		$features = self::get_site_features_from_wpcom();
