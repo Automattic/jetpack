@@ -446,7 +446,8 @@ function do_create_backport_PR {
 			continue
 		fi
 		# Delete change files.
-		git diff --name-only --diff-filter=D "$changelog_commit^" "$RELEASE_BRANCH" -- "$dir" | git rm --ignore-unmatch --pathspec-from-file=-
+		changes_dir=$(git show "$RELEASE_BRANCH:$dir/composer.json" | jq -r '.extra.changelogger["changes-dir"] // "changelog"')
+		git diff --name-only --diff-filter=D "$changelog_commit^" "$RELEASE_BRANCH" -- "$dir/$changes_dir" | git rm --ignore-unmatch --pathspec-from-file=-
 		git diff "$changelog_commit^" "$RELEASE_BRANCH" -- "$file" | git apply
 	done < <(git diff --name-only "$changelog_commit^" "$RELEASE_BRANCH" -- '*/CHANGELOG.md')
 
