@@ -71,17 +71,17 @@ describe( 'McpConnectAgents', () => {
 		);
 	} );
 
-	test( 'Other agents opens the setup sub-view in-app and is recorded', async () => {
+	test( 'Other agents opens Settings in-app and is recorded', async () => {
 		const { onNavigate } = renderCard();
 
 		const link = screen.getByRole( 'link', { name: 'Other agents' } );
-		expect( link ).toHaveAttribute( 'href', expect.stringMatching( /#\/mcp\/setup$/ ) );
+		expect( link ).toHaveAttribute( 'href', expect.stringMatching( /#\/mcp$/ ) );
 		// The quieter link stays in this tab.
 		expect( link ).not.toHaveAttribute( 'target' );
 		expect( screen.getByText( /Claude Code, Cursor, VS Code, and more/ ) ).toBeInTheDocument();
 
 		await userEvent.click( link );
-		expect( onNavigate ).toHaveBeenCalledWith( 'setup' );
+		expect( onNavigate ).toHaveBeenCalled();
 		expect( analytics.tracks.recordEvent ).toHaveBeenCalledWith(
 			'jetpack_ai_hub_link_click',
 			expect.objectContaining( { link_type: 'overview_connect', link: 'other' } )

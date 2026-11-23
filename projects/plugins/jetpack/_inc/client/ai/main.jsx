@@ -690,6 +690,8 @@ export default function App() {
 	// like the connect buttons: installing the connector happens in the agent.
 	const hasHub = ! isLoading && ! error && !! blogId && ! userUnlinked && hasMcpAccess;
 
+	const handleOpenSettings = useCallback( () => navigateToView( 'mcp' ), [ navigateToView ] );
+
 	const handleMcpNavigate = useCallback(
 		subView => {
 			focusSubViewRef.current = true;
@@ -907,7 +909,7 @@ export default function App() {
 						// access) the connect buttons still show: installing the
 						// connector happens in the agent.
 						isMcpEnabled={ ! hasHub || getSiteLevelEnabled( mcpAbilities ?? {}, blogId ) }
-						onMcpNavigate={ handleMcpNavigate }
+						onOpenSettings={ handleOpenSettings }
 						// Same preconditions the Settings hub applies to its copy of the row.
 						showActivityLog={
 							!! blogId && hasMcpAccess && getSiteLevelEnabled( mcpAbilities ?? {}, blogId )

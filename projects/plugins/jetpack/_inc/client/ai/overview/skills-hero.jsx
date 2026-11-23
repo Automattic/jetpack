@@ -64,13 +64,13 @@ export function pickSuggestedSkills( catalog ) {
 /**
  * Skills hero.
  *
- * @param {object}   props                 - Component props.
- * @param {boolean}  [props.isMcpEnabled]  - Whether agents can reach the site yet.
- * @param {Function} [props.onMcpNavigate] - Opens a Settings sub-view ('setup').
- * @param {*}        [props.beforeSkills]  - Shown between the opening and the skills.
+ * @param {object}   props                  - Component props.
+ * @param {boolean}  [props.isMcpEnabled]   - Whether agents can reach the site yet.
+ * @param {Function} [props.onOpenSettings] - Opens the Settings tab in-app.
+ * @param {*}        [props.beforeSkills]   - Shown between the opening and the skills.
  * @return {object} Component markup.
  */
-export default function SkillsHero( { isMcpEnabled = true, onMcpNavigate, beforeSkills } = {} ) {
+export default function SkillsHero( { isMcpEnabled = true, onOpenSettings, beforeSkills } = {} ) {
 	const catalog = useMemo( () => getCatalog(), [] );
 	const suggestions = useMemo( () => pickSuggestedSkills( catalog ), [ catalog ] );
 	const showWordPressAgent = useIsWordPressAgentAvailable();
@@ -121,7 +121,7 @@ export default function SkillsHero( { isMcpEnabled = true, onMcpNavigate, before
 				</Text>
 				<ConnectAgentsActions
 					isMcpEnabled={ isMcpEnabled }
-					onNavigate={ onMcpNavigate }
+					onNavigate={ onOpenSettings }
 					centered
 					// Concrete asks sell the idea faster than "skills" does.
 					description={ __(

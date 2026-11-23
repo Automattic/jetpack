@@ -2422,17 +2422,20 @@ describe( 'Settings tab (main.jsx)', () => {
 		expect( screen.queryAllByRole( 'heading', { level: 4 } ) ).toHaveLength( 0 );
 	} );
 
-	test( 'Overview’s Other agents opens the setup sub-view, with the way back named Settings', async () => {
+	test( 'Overview’s Other agents opens Settings at the agent grid', async () => {
 		window.location.hash = '#/overview';
 		render( <App /> );
 
 		await userEvent.click( await screen.findByRole( 'link', { name: 'Other agents' } ) );
 
 		await expect(
-			screen.findByRole( 'button', { name: 'Back to Settings' } )
+			screen.findByRole( 'heading', { name: 'Connect an external AI agent' } )
 		).resolves.toBeInTheDocument();
-		expect( window.location.hash ).toBe( '#/mcp/setup' );
-		expect( screen.queryByRole( 'heading', CONNECT_HEADING ) ).not.toBeInTheDocument();
+		expect( window.location.hash ).toBe( '#/mcp' );
+		expect( screen.getByRole( 'tab', { name: 'Settings' } ) ).toHaveAttribute(
+			'aria-selected',
+			'true'
+		);
 		expect( analytics.tracks.recordEvent ).toHaveBeenCalledWith(
 			'jetpack_ai_hub_link_click',
 			expect.objectContaining( { link_type: 'overview_connect', link: 'other' } )

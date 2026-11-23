@@ -320,7 +320,7 @@ function UsageCard( { upgradeUrl, planName } ) {
  *                                               site; when it cannot, usage is neither shown nor asked for.
  * @param {boolean}  [props.isMcpEnabled]        - Whether agents can reach the site yet; the
  *                                               connect card points at Settings while they cannot.
- * @param {Function} [props.onMcpNavigate]       - Opens a Settings sub-view ('setup').
+ * @param {Function} [props.onOpenSettings]      - Opens the Settings tab in-app.
  * @return {object} Component markup.
  */
 export default function AiOverview( {
@@ -331,7 +331,7 @@ export default function AiOverview( {
 	showActivityLog,
 	canLoadUsage = true,
 	isMcpEnabled = true,
-	onMcpNavigate,
+	onOpenSettings,
 } ) {
 	const recordLinkClick = ( linkType, slug ) => () =>
 		recordAiHubEvent( EVENTS.LINK_CLICK, { link_type: linkType, link: slug } );
@@ -340,7 +340,7 @@ export default function AiOverview( {
 	const usageCard = canLoadUsage && <UsageCard upgradeUrl={ upgradeUrl } planName={ planName } />;
 	// Without the Skills tab, the connect actions keep their card.
 	const connectCard = (
-		<McpConnectAgents isMcpEnabled={ isMcpEnabled } onNavigate={ onMcpNavigate } />
+		<McpConnectAgents isMcpEnabled={ isMcpEnabled } onNavigate={ onOpenSettings } />
 	);
 	return (
 		<Stack direction="column" gap="3xl">
@@ -351,7 +351,7 @@ export default function AiOverview( {
 				// the requests it meters are still the thing to act on.
 				<SkillsHero
 					isMcpEnabled={ isMcpEnabled }
-					onMcpNavigate={ onMcpNavigate }
+					onOpenSettings={ onOpenSettings }
 					beforeSkills={ usageCard }
 				/>
 			) : (

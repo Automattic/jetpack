@@ -4,8 +4,8 @@
  *
  * Claude and ChatGPT each install the WordPress.com connector from their own
  * directory (see ../agent-connectors.js), so they get a button apiece. Every
- * other client — Claude Code, Cursor, VS Code — follows the steps on the setup
- * sub-view, behind a quieter link.
+ * other client — Claude Code, Cursor, VS Code — is on the Settings tab's agent
+ * grid, behind a quieter link.
  */
 
 import { createInterpolateElement, useCallback, useId } from '@wordpress/element';
@@ -18,8 +18,8 @@ import { EVENTS, recordAiHubEvent } from '../tracks';
 
 // One button per agent with a directory listing, in the order they show.
 const AGENT_BUTTONS = [
-	{ agent: 'claude', icon: claudeIcon },
 	{ agent: 'chatgpt', icon: chatGptIcon },
+	{ agent: 'claude', icon: claudeIcon },
 ];
 
 /**
@@ -74,14 +74,14 @@ function ConnectButton( { agent, icon } ) {
 
 /**
  * What to say, a button for each directory-listed agent, and a link to the
- * manual setup for the rest. The card below wraps it; the Overview's opening
+ * Settings tab's agent grid for the rest. The card below wraps it; the Overview's opening
  * column uses it bare, under its own heading.
  *
  * @param {object}   props              - Component props.
  * @param {boolean}  props.isMcpEnabled - Whether agents can reach this site yet. While
  *                                      they cannot, the copy points at the access
  *                                      switch first.
- * @param {Function} [props.onNavigate] - Called with 'setup' to open the setup sub-view.
+ * @param {Function} [props.onNavigate] - Opens the Settings tab in-app.
  * @param {string}   props.description  - The copy while agents can reach the site.
  * @param {boolean}  [props.centered]   - Whether to centre everything, as the Overview does.
  * @return {object} Component markup.
@@ -102,7 +102,7 @@ export function ConnectAgentsActions( {
 				return;
 			}
 			event.preventDefault();
-			onNavigate( 'setup' );
+			onNavigate();
 		},
 		[ onNavigate ]
 	);
@@ -131,7 +131,7 @@ export function ConnectAgentsActions( {
 				{ createInterpolateElement(
 					__( '<link>Other agents</link>: Claude Code, Cursor, VS Code, and more.', 'jetpack' ),
 					{
-						link: <Link href={ getViewHref( 'mcp/setup' ) } onClick={ handleOtherAgentsClick } />,
+						link: <Link href={ getViewHref( 'mcp' ) } onClick={ handleOtherAgentsClick } />,
 					}
 				) }
 			</Text>
