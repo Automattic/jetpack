@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Fix Social missing from the Jetpack menu, and paid plans offered an upgrade, on WordPress.com Simple sites.
+Show Social in the Jetpack menu, and stop offering upgrades on paid plans, on WordPress.com Simple sites.
