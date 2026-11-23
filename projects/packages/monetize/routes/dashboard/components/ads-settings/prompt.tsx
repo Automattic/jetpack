@@ -3,11 +3,10 @@ import { getUserConnectionUrl } from '@automattic/jetpack-connection/get-user-co
 import { __, _x } from '@wordpress/i18n';
 import { Button, ButtonLink, Notice, Text } from '@wordpress/ui';
 import { useCallback } from 'react';
-import { showSuccessSnackbar } from '../../data/notices';
 import { getSectionState } from '../../data/state';
-import { trackAdsEvent, trackBannerClick } from '../../data/tracking';
+import { trackBannerClick } from '../../data/tracking';
 import { useAdsAccount, useJoinWordAds } from '../../data/wordads';
-import { PromptCard, START_TEXT, UpsellCard } from '../ads/status';
+import { PromptCard, START_TEXT, UnsafeNotice, UpsellCard } from '../ads/status';
 import type { AdsSettingsData } from '../../data/ads-settings-data';
 
 const trackConnectClick = () => trackBannerClick( 'connect' );
@@ -60,24 +59,14 @@ export function JoinPrompt() {
 	const { data: account } = useAdsAccount();
 	const join = useJoinWordAds();
 	const { mutate } = join;
-	const onJoin = useCallback(
-		() =>
-			mutate( undefined, {
-				onSuccess: () => {
-					trackAdsEvent( 'join' );
-					showSuccessSnackbar(
-						__( 'Your site joined WordAds. Turn on ads to start earning.', 'jetpack-monetize' )
-					);
-				},
-			} ),
-		[ mutate ]
-	);
+	const onJoin = useCallback( () => mutate(), [ mutate ] );
 	const canJoin = Boolean(
 		getSectionState< { canJoinWordAds?: boolean } >( 'ads' )?.canJoinWordAds
 	);
 
 	return (
 		<PromptCard title={ __( 'Join WordAds', 'jetpack-monetize' ) }>
+			<UnsafeNotice />
 			<Text>{ START_TEXT() }</Text>
 			{ join.isError && (
 				<Notice.Root intent="error">

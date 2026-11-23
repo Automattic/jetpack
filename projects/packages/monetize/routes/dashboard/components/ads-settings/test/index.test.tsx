@@ -259,6 +259,21 @@ describe( 'AdsSettings', () => {
 		expect( openTab ).not.toHaveBeenCalled();
 	} );
 
+	it( 'says why the owner cannot join when WordPress.com reports the site unsafe', () => {
+		mockSimple = true;
+		( useAdsAccount as jest.Mock ).mockReturnValue( {
+			data: { approved: false, unsafe: 'mature' },
+			isPending: false,
+		} );
+		renderTab();
+
+		expect( screen.getByText( /identified as serving mature content/ ) ).toBeVisible();
+		expect( screen.getByRole( 'button', { name: 'Join WordAds' } ) ).toHaveAttribute(
+			'aria-disabled',
+			'true'
+		);
+	} );
+
 	it( 'tells an admin who is not the owner that only the owner can join', () => {
 		mockSimple = true;
 		mockCanJoin = false;
