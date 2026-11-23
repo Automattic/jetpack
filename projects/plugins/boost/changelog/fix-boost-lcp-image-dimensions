@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+LCP: Add width and height to an unsized LCP image served from the site, so the page no longer shifts when it loads.

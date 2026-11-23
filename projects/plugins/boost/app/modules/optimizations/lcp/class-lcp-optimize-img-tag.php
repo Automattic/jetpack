@@ -4,6 +4,7 @@ namespace Automattic\Jetpack_Boost\Modules\Optimizations\Lcp;
 
 use Automattic\Jetpack\Image_CDN\Image_CDN;
 use Automattic\Jetpack\Image_CDN\Image_CDN_Core;
+use Automattic\Jetpack_Boost\Lib\Minify\Dependency_Path_Mapping;
 use WP_HTML_Tag_Processor;
 
 class LCP_Optimize_Img_Tag {
@@ -98,6 +99,8 @@ class LCP_Optimize_Img_Tag {
 			if ( $image_url !== $original_src || $this->is_attachment_size( $buffer_processor, $original_src ) ) {
 				$resized_src = $original_src;
 			}
+
+			$this->add_missing_dimensions( $buffer_processor, $original_src, $resized_src );
 		} else {
 			// In case it's Photonized, we need to remove any size change arguments.
 			$image_url = remove_query_arg( array( 'w', 'h' ), $image_url );
@@ -126,6 +129,44 @@ class LCP_Optimize_Img_Tag {
 		}
 
 		return $buffer_processor->get_updated_html();
+	}
+
+	/**
+	 * Give an image with neither width nor height its file's dimensions, so the browser reserves its space.
+	 *
+	 * @param WP_HTML_Tag_Processor $element     The image tag.
+	 * @param string                $src         The image src, before any CDN rewrite.
+	 * @param string                $resized_src The src, if its -WxH suffix names a WordPress size.
+	 */
+	private function add_missing_dimensions( $element, $src, $resized_src ) {
+		if ( null !== $element->get_attribute( 'width' ) || null !== $element->get_attribute( 'height' ) ) {
+			return;
+		}
+
+		list( $width, $height ) = Image_CDN::parse_dimensions_from_filename( (string) $resized_src );
+		if ( ! $width || ! $height ) {
+			list( $width, $height ) = $this->get_local_file_dimensions( $src );
+		}
+
+		$width  = $this->to_dimension( $width );
+		$height = $this->to_dimension( $height );
+		if ( $width && $height ) {
+			$element->set_attribute( 'width', (string) $width );
+			$element->set_attribute( 'height', (string) $height );
+		}
+	}
+
+	/**
+	 * Read the pixel size of an image served from this site.
+	 *
+	 * @param string $url The image URL.
+	 * @return array Width and height, or nulls when the URL is not a readable local image.
+	 */
+	private function get_local_file_dimensions( $url ) {
+		$file = ( new Dependency_Path_Mapping() )->dependency_src_to_fs_path( $url );
+		$size = $file ? wp_getimagesize( $file ) : false;
+
+		return is_array( $size ) ? array( (int) $size[0], (int) $size[1] ) : array( null, null );
 	}
 
 	/**

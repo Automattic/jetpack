@@ -538,4 +538,48 @@ class LCP_Optimize_Img_Tag_Test extends BaseTestCase {
 			'A non-string widthValue must be skipped before it reaches preg_match().'
 		);
 	}
+
+	/**
+	 * Write a 3x2 PNG inside wp-content and one just outside it.
+	 */
+	public static function set_up_before_class() {
+		parent::set_up_before_class();
+		// wp_mkdir_p() refuses the ../ in WorDBless's WP_CONTENT_DIR.
+		$content = realpath( WP_CONTENT_DIR );
+		$png     = base64_decode( 'iVBORw0KGgoAAAANSUhEUgAAAAMAAAACCAIAAAASFvFNAAAAEElEQVR4nGP4z8AAQQxwFgBB0gX7h/C5SAAAAABJRU5ErkJggg==' ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode
+		wp_mkdir_p( $content . '/themes/lcp-dimensions' );
+		file_put_contents( $content . '/themes/lcp-dimensions/hero.png', $png ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+		file_put_contents( dirname( $content ) . '/outside.png', $png ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+	}
+
+	public static function tear_down_after_class() {
+		$content = realpath( WP_CONTENT_DIR );
+		wp_delete_file( $content . '/themes/lcp-dimensions/hero.png' );
+		rmdir( $content . '/themes/lcp-dimensions' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir
+		wp_delete_file( dirname( $content ) . '/outside.png' );
+		parent::tear_down_after_class();
+	}
+
+	/**
+	 * @dataProvider missing_dimension_cases
+	 */
+	#[DataProvider( 'missing_dimension_cases' )]
+	public function test_an_unsized_local_image_gets_its_file_dimensions( $src, $attributes, $expected ) {
+		$tag  = '<img class="wp-post-image" id="test-img" src="' . str_replace( '{content}', get_site_url() . '/wp-content', $src ) . '"' . $attributes . '>';
+		$data = array_merge( $this->create_lcp_data( $this->get_default_optimizations() ), array( 'html' => $tag ) );
+
+		$result = new WP_HTML_Tag_Processor( ( new LCP_Optimize_Img_Tag( $data ) )->optimize_buffer( '<html><body>' . $tag . '</body></html>' ) );
+		$result->next_tag( 'img' );
+
+		$this->assertSame( $expected, array( $result->get_attribute( 'width' ), $result->get_attribute( 'height' ) ) );
+	}
+
+	public static function missing_dimension_cases() {
+		return array(
+			'theme image without dimensions'  => array( '{content}/themes/lcp-dimensions/hero.png', '', array( '3', '2' ) ),
+			'author-set width is left alone'  => array( '{content}/themes/lcp-dimensions/hero.png', ' width="300"', array( '300', null ) ),
+			'image on another host'           => array( 'https://wordpress.org/wp-content/themes/lcp-dimensions/hero.png', '', array( null, null ) ),
+			'path climbing out of wp-content' => array( '{content}/../outside.png', '', array( null, null ) ),
+		);
+	}
 }
