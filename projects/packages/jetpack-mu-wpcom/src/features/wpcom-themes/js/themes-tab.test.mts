@@ -570,9 +570,66 @@ it( 'lists the tab again when the filter changes', () => {
 	assert.deepEqual( page.browsed, [ 'wpcom' ] );
 } );
 
+it( 'marks the side of the tabs that has more out of view', () => {
+	const classes = new Set< string >();
+	const list = Object.assign( node( 'ul' ), {
+		classList: {
+			contains: ( name: string ) => classes.has( name ),
+			toggle: ( name: string, on: boolean ) => {
+				if ( on ) {
+					classes.add( name );
+				} else {
+					classes.delete( name );
+				}
+			},
+		},
+		clientWidth: 500,
+		scrollWidth: 800,
+		scrollLeft: 0,
+	} );
+	const config = { sort: 'wpcom', label: 'Marketplace' };
+
+	// Stands in for the browser's observer, which reports once as soon as it starts watching.
+	let observed: unknown;
+	const ResizeObserver = function ( callback: () => void ) {
+		return {
+			observe: ( target: unknown ) => {
+				observed = target;
+				callback();
+			},
+		};
+	};
+	const context = {
+		document: { querySelector: () => list, createElement: node, addEventListener: () => {} },
+		window: { wpcomThemesTab: config, ResizeObserver },
+		wpcomThemesTab: config,
+	};
+	const file = new URL( './themes-tab.js', import.meta.url ).pathname;
+	vm.createContext( context );
+	new vm.Script( readFileSync( file, 'utf8' ), { filename: file } ).runInContext( context );
+
+	assert.equal( observed, list );
+	assert.deepEqual( [ ...classes ], [ 'is-clipped-end' ] );
+
+	list.scrollLeft = 150;
+	list.listeners.scroll();
+	assert.deepEqual( [ ...classes ].sort(), [ 'is-clipped-end', 'is-clipped-start' ] );
+
+	// Right to left, browsers count the scroll down from zero.
+	list.scrollLeft = -300;
+	list.listeners.scroll();
+	assert.deepEqual( [ ...classes ], [ 'is-clipped-start' ] );
+
+	// Nothing to fade once the tabs all fit.
+	list.scrollLeft = 0;
+	list.scrollWidth = 500;
+	list.listeners.scroll();
+	assert.deepEqual( [ ...classes ], [] );
+} );
+
 it( "names the search box, and keeps core's own attributes on it", () => {
 	const InstallerSearch = { prototype: { attributes: { type: 'search' } } };
-	const config = { sort: 'wpcom', label: 'Marketplace', searchLabel: 'Search themes' };
+	const config = { sort: 'wpcom', label: 'Marketplace', searchLabel: 'Search Themes' };
 	const context = {
 		document: { querySelector: () => null, createElement: node, addEventListener: () => {} },
 		window: {
@@ -590,6 +647,6 @@ it( "names the search box, and keeps core's own attributes on it", () => {
 
 	assert.deepEqual( JSON.parse( JSON.stringify( InstallerSearch.prototype.attributes ) ), {
 		type: 'search',
-		placeholder: 'Search themes',
+		placeholder: 'Search Themes',
 	} );
 } );
