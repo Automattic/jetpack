@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Dashboards: Keep the page from shifting while a Jetpack dashboard loads.

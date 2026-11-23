@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Newsletter;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Admin_UI\Admin_Shell;
+use Automattic\Jetpack\Admin_UI\Page_Layout;
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Feature_Flags\Feature_Flags;
@@ -458,6 +459,10 @@ class Settings {
 		);
 
 		if ( self::is_modernized() ) {
+			if ( class_exists( Page_Layout::class ) ) {
+				Page_Layout::enqueue();
+			}
+
 			// The i18n loader is registered on every admin page by jetpack-assets but
 			// only enqueued when depended on; the esbuild bundles don't pull it in.
 			// Enqueue it so the wp-build dashboard's init module can download its JS

@@ -12,6 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 use Automattic\Jetpack\Account_Protection\Settings as Account_Protection_Settings;
 use Automattic\Jetpack\Activity_Log\Jetpack_Activity_Log;
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
+use Automattic\Jetpack\Admin_UI\Page_Layout;
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
@@ -304,6 +305,9 @@ class Jetpack_Protect {
 	 * Enqueue plugin admin scripts and styles.
 	 */
 	public function enqueue_admin_scripts() {
+		if ( class_exists( Page_Layout::class ) ) {
+			Page_Layout::enqueue();
+		}
 
 		Assets::register_script(
 			'jetpack-protect',

@@ -14,6 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 use Automattic\Jetpack\Activity_Log\Initial_State as Activity_Log_Initial_State;
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Admin_UI\Admin_Shell;
+use Automattic\Jetpack\Admin_UI\Page_Layout;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Modules;
@@ -525,6 +526,10 @@ class Jetpack_Activity_Log {
 	 * @return void
 	 */
 	public static function enqueue_initial_state() {
+		if ( class_exists( Page_Layout::class ) ) {
+			Page_Layout::enqueue();
+		}
+
 		wp_register_script( self::DATA_SCRIPT_HANDLE, false, array(), Package_Version::PACKAGE_VERSION, true );
 		wp_enqueue_script( self::DATA_SCRIPT_HANDLE );
 

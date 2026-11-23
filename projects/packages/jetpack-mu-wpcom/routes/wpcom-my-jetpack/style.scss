@@ -1,13 +1,4 @@
-// Route-level styles for the Simple My Jetpack page. The layout mixin is
-// included per route because each wp-build route bundles its own CSS.
-
-@use "@automattic/jetpack-base-styles/admin-page-layout" as *;
-
-// Scoped to the body class so the layout cannot leak onto other Jetpack pages.
-body.jetpack_page_my-jetpack {
-
-	@include jetpack-admin-page-layout-wp-build;
-}
+// Route-level styles for the Simple My Jetpack page.
 
 .wpcom-my-jetpack__body {
 	padding: var(--wpds-dimension-padding-2xl);

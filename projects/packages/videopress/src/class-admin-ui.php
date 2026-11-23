@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\VideoPress;
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Admin_UI\Admin_Shell;
 use Automattic\Jetpack\Admin_UI\Media_Library;
+use Automattic\Jetpack\Admin_UI\Page_Layout;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack\Status\Host;
@@ -444,13 +445,11 @@ class Admin_UI {
 		// This callback is registered via `load-{$page_suffix}` in `enable_menu()`,
 		// so it only fires on the VideoPress admin page — no need to re-check the page here.
 		Admin_Menu::enqueue_design_tokens();
+		if ( class_exists( Page_Layout::class ) ) {
+			Page_Layout::enqueue();
+		}
 
-		// Page-level shell stylesheet: scopes the shared `jetpack-admin-page-layout`
-		// mixin to the dashboard body so every route inherits the proper
-		// scrollable chrome (fixed `#wpbody-content`, scrollable middle, pinned
-		// footer) regardless of whether it uses DashboardLayout. Without this,
-		// non-tabbed routes (e.g. Video details) would only get the layout
-		// after a sibling route's chunk happened to inject the same CSS.
+		// Page-level shell stylesheet: the dashboard's canvas and tokens, on every route.
 		// Pick the flipped build ourselves on RTL locales rather than leaning on
 		// `wp_style_add_data( …, 'rtl', 'replace' )`: core resolves that by
 		// rewriting `index.css` to `index-rtl.css` (hyphenated) *and* dropping

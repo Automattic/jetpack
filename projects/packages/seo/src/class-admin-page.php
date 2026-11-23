@@ -13,6 +13,7 @@
 namespace Automattic\Jetpack\SEO;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
+use Automattic\Jetpack\Admin_UI\Page_Layout;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Modules;
@@ -142,6 +143,19 @@ class Admin_Page {
 	}
 
 	/**
+	 * Enqueue the shared dashboard page layout.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return void
+	 */
+	public static function enqueue_page_layout() {
+		if ( class_exists( Page_Layout::class ) ) {
+			Page_Layout::enqueue();
+		}
+	}
+
+	/**
 	 * Hook the app's initial state and, when the site allows tracking, its Tracks transport and context.
 	 *
 	 * @since 0.12.0
@@ -151,6 +165,7 @@ class Admin_Page {
 	public static function register_page_data() {
 		add_filter( 'jetpack_admin_js_script_data', array( __CLASS__, 'inject_script_data' ) );
 		self::enqueue_runtime_config();
+		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_page_layout' ) );
 
 		// Without the context the client records nothing, so another script's Tracks transport can't send our events.
 		if ( self::can_use_analytics() ) {

@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Search;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Admin_UI\Admin_Shell;
+use Automattic\Jetpack\Admin_UI\Page_Layout;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Status;
@@ -407,6 +408,10 @@ class Dashboard {
 	 * Enqueue admin scripts.
 	 */
 	public function load_admin_scripts() {
+		if ( class_exists( Page_Layout::class ) ) {
+			Page_Layout::enqueue();
+		}
+
 		if ( $this->should_enqueue_tracking_script() ) {
 			// Required for Analytics.
 			Tracking::register_tracks_functions_scripts( true );

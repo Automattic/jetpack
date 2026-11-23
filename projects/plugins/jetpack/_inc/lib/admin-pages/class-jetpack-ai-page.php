@@ -11,6 +11,7 @@
 use Automattic\Jetpack\Activity_Log\Jetpack_Activity_Log;
 use Automattic\Jetpack\Activity_Log\REST_Controller as Activity_Log_REST_Controller;
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
+use Automattic\Jetpack\Admin_UI\Page_Layout;
 use Automattic\Jetpack\Agents_Manager\Agents_Manager;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
@@ -138,6 +139,7 @@ class Jetpack_AI_Page {
 	public function load_as_admin_shell_guest() {
 		if ( Jetpack_WP_Build_Page::load( self::WP_BUILD_PAGE_ID, false ) ) {
 			add_action( 'admin_enqueue_scripts', array( $this, 'page_admin_scripts' ) );
+			add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_page_layout' ) );
 		}
 	}
 
@@ -166,6 +168,8 @@ class Jetpack_AI_Page {
 		}
 
 		add_action( 'admin_print_scripts-' . $hook, array( $this, 'page_admin_scripts' ) );
+		// Styles queued on admin_print_scripts would print too late, in the footer.
+		add_action( 'load-' . $hook, array( __CLASS__, 'enqueue_page_layout' ) );
 
 		// Preserve the standalone Jetpack page's existing base stylesheet. Simple
 		// never loaded it for the Hub because it conflicts with wpcom admin pages.
@@ -215,6 +219,19 @@ class Jetpack_AI_Page {
 		wp_enqueue_style( 'jetpack-admin', plugins_url( "css/jetpack-admin{$min}.css", JETPACK__PLUGIN_FILE ), array( 'genericons', 'jetpack-connection' ), JETPACK__VERSION . '-20121016' );
 		wp_style_add_data( 'jetpack-admin', 'rtl', 'replace' );
 		wp_style_add_data( 'jetpack-admin', 'suffix', $min );
+	}
+
+	/**
+	 * Enqueue the shared dashboard page layout.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return void
+	 */
+	public static function enqueue_page_layout() {
+		if ( class_exists( Page_Layout::class ) ) {
+			Page_Layout::enqueue();
+		}
 	}
 
 	/**

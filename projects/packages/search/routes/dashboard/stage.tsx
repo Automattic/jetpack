@@ -1,7 +1,6 @@
 import { createReduxStore, register } from '@wordpress/data';
 import SearchDashboard from '../../src/dashboard/components/dashboard/wrapped-dashboard';
 import { STORE_ID, storeConfig } from '../../src/dashboard/store';
-import './route.scss';
 
 // `<SearchDashboard>` reads this store via `useSelect()`, so it must exist before boot mounts `stage`.
 const store = createReduxStore( STORE_ID, storeConfig );
