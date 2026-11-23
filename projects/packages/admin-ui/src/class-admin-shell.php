@@ -646,7 +646,7 @@ class Admin_Shell {
 		$own         = self::added_keys( $snapshot );
 		$hook_suffix = self::screen_id( $slug );
 		set_current_screen( $hook_suffix );
-		$GLOBALS['concatenate_scripts'] = false; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- One script tag per handle, so the client can skip what the host already has.
+		Page_Handles::print_one_tag_per_handle();
 
 		ob_start();
 		do_action( 'admin_enqueue_scripts', $hook_suffix ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Core hook.
