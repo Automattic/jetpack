@@ -36,15 +36,16 @@ export function copyText( text ) {
 }
 
 /**
- * The site's address for prompts and copy, from the admin URL the page
- * already carries: "example.com", or "example.com/blog" for a subdirectory.
+ * The site's address for prompts and copy: "example.com", or "example.com/blog"
+ * for a subdirectory. The home URL, since the admin URL names WordPress's own
+ * directory, which differs where core is installed in a subdirectory.
  *
  * @return {string} The site's address.
  */
 export function getSiteName() {
-	const { siteAdminUrl } = window?.jetpackAiSettings ?? {};
+	const { siteHomeUrl, siteAdminUrl } = window?.jetpackAiSettings ?? {};
 	try {
-		const url = new URL( siteAdminUrl );
+		const url = new URL( siteHomeUrl || siteAdminUrl );
 		return ( url.host + url.pathname.replace( /\/wp-admin\/?$/, '' ) ).replace( /\/$/, '' );
 	} catch {
 		return window.location.host;

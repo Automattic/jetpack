@@ -9,6 +9,7 @@ import { Path, SVG } from '@wordpress/primitives';
 import { Icon, Text } from '@wordpress/ui';
 import { getCategoryIcon } from './category-icons';
 import SendToAgentMenu from './send-to-agent';
+import { isModifiedClick } from './skill-panel-state';
 import { getCategoryName } from './skills';
 
 // jetpack.com/prompts' card arrow, mirrored for right-to-left.
@@ -57,7 +58,7 @@ export default function SkillCard( {
 		event => {
 			// Plain clicks route in place; modified clicks keep the browser's
 			// own new-tab behaviour.
-			if ( event.metaKey || event.ctrlKey || event.shiftKey || event.button !== 0 ) {
+			if ( isModifiedClick( event ) ) {
 				return;
 			}
 			event.preventDefault();

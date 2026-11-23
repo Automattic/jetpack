@@ -34,8 +34,8 @@ $page-surface: #fcfcfc;
 		min-inline-size: 0;
 
 		.jetpack-ai-discover__tile {
-			width: 30px;
-			height: 30px;
+			inline-size: 30px;
+			block-size: 30px;
 		}
 	}
 
@@ -138,7 +138,8 @@ $page-surface: #fcfcfc;
 // catalog keeps room beside it.
 @media (min-width: 782px) {
 
-	.boot-layout__inspector:has(> .jetpack-ai-skill-panel) {
+	// Boot 0.21+ hashes its class names (pinned by wp-build-polyfills' tests).
+	:is(.boot-layout__inspector, [class*="__inspector"]):has(> .jetpack-ai-skill-panel) {
 		inline-size: min(480px, 50vw);
 		max-inline-size: min(480px, 50vw);
 		flex: 0 0 auto;

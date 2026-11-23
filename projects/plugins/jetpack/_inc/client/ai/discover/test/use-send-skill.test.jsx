@@ -58,6 +58,12 @@ describe( 'useSendSkill', () => {
 		expect( setup().current.siteName ).toBe( 'example.com/blog' );
 	} );
 
+	test( 'prefers the home address where core lives in its own directory', () => {
+		window.jetpackAiSettings.siteAdminUrl = 'https://example.com/wp/wp-admin/';
+		window.jetpackAiSettings.siteHomeUrl = 'https://example.com';
+		expect( getSiteName() ).toBe( 'example.com' );
+	} );
+
 	test( 'opens Claude with the prompt and records the caller’s location', async () => {
 		const result = setup();
 

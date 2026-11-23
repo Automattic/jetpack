@@ -12,7 +12,7 @@ import { createInterpolateElement, useCallback, useId } from '@wordpress/element
 import { __, sprintf } from '@wordpress/i18n';
 import { ButtonLink, Card, Link, Stack, Text } from '@wordpress/ui';
 import { AGENT_CONNECTORS, getAgentConnectorUrl } from '../agent-connectors';
-import { getViewHref } from '../discover/skill-panel-state';
+import { getViewHref, isModifiedClick } from '../discover/skill-panel-state';
 import { chatGptIcon, claudeIcon } from '../overview/connector-icons';
 import { EVENTS, recordAiHubEvent } from '../tracks';
 
@@ -30,16 +30,6 @@ const AGENT_BUTTONS = [
 function recordConnectClick( link ) {
 	recordAiHubEvent( EVENTS.LINK_CLICK, { link_type: 'overview_connect', link } );
 }
-
-/**
- * Whether a click asks the browser for something other than a plain follow —
- * a new tab or window, a download — which the link should be left to do.
- *
- * @param {MouseEvent} event - The click.
- * @return {boolean} True for a modified or non-primary click.
- */
-const isModifiedClick = event =>
-	event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey;
 
 /**
  * One agent's connect button: its directory listing, in a new tab.
@@ -94,9 +84,8 @@ export function ConnectAgentsActions( {
 } ) {
 	// The link keeps a real href, so it can still open in a new tab; a plain
 	// click moves in-app instead, through the page's own history handling.
-	const handleOtherAgentsClick = useCallback(
+	const handleSettingsClick = useCallback(
 		event => {
-			recordConnectClick( 'other' );
 			// Without a handler the link's own href moves in-app.
 			if ( isModifiedClick( event ) || ! onNavigate ) {
 				return;
@@ -106,10 +95,17 @@ export function ConnectAgentsActions( {
 		},
 		[ onNavigate ]
 	);
+	const handleOtherAgentsClick = useCallback(
+		event => {
+			recordConnectClick( 'other' );
+			handleSettingsClick( event );
+		},
+		[ handleSettingsClick ]
+	);
 
 	const offCopy = createInterpolateElement(
 		__( 'Turn on MCP access in <link>Settings</link>, then connect your agent.', 'jetpack' ),
-		{ link: <Link href={ getViewHref( 'mcp' ) } /> }
+		{ link: <Link href={ getViewHref( 'mcp' ) } onClick={ handleSettingsClick } /> }
 	);
 
 	return (

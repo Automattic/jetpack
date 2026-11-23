@@ -40,7 +40,13 @@ const DISCOVER_HASH = '#/skills';
 // side panel. An old link like that names the open skill in the hash instead.
 const LEGACY_SKILL_HASH_PREFIX = '#/discover/';
 
-const isDiscoverEnabled = () => !! window?.jetpackAiSettings?.featureFlags?.[ 'ai-hub-discover' ];
+/**
+ * Whether the Skills tab is on.
+ *
+ * @return {boolean} True when the ai-hub-discover flag is set in the page data.
+ */
+export const isDiscoverEnabled = () =>
+	!! window?.jetpackAiSettings?.featureFlags?.[ 'ai-hub-discover' ];
 
 /**
  * The page URL and boot's route inside it.
@@ -174,6 +180,16 @@ export function getViewHref( view ) {
 	url.hash = '#/' + view;
 	return writeUrl( url, route );
 }
+
+/**
+ * Whether a click asks the browser for something other than a plain follow —
+ * a new tab or window, a download — which an in-app link should be left to do.
+ *
+ * @param {MouseEvent} event - The click.
+ * @return {boolean} True for a modified or non-primary click.
+ */
+export const isModifiedClick = event =>
+	event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey;
 
 // How the panel that opens next was asked for, for its Tracks event.
 let openSource = null;

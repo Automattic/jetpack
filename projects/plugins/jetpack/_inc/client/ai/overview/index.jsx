@@ -23,6 +23,7 @@ import {
 } from '@wordpress/ui';
 import { getActivityLogDescription, onActivityLogClick } from '../activity-log';
 import NavRow from '../components/nav-row';
+import { isDiscoverEnabled } from '../discover/skill-panel-state';
 import McpConnectAgents from '../mcp/connect-agents-onboarding';
 import { EVENTS, recordAiHubEvent } from '../tracks';
 import AssistantBanner from './assistant-banner';
@@ -336,7 +337,7 @@ export default function AiOverview( {
 	const recordLinkClick = ( linkType, slug ) => () =>
 		recordAiHubEvent( EVENTS.LINK_CLICK, { link_type: linkType, link: slug } );
 	// Every link in the hero lands on the Skills tab, so it shows only with it.
-	const showSkills = !! window?.jetpackAiSettings?.featureFlags?.[ 'ai-hub-discover' ];
+	const showSkills = isDiscoverEnabled();
 	const usageCard = canLoadUsage && <UsageCard upgradeUrl={ upgradeUrl } planName={ planName } />;
 	// Without the Skills tab, the connect actions keep their card.
 	const connectCard = (

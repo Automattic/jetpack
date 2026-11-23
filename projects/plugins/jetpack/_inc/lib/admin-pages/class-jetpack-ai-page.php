@@ -441,6 +441,8 @@ class Jetpack_AI_Page {
 			'seoSettingsUrl'      => $seo_settings_url,
 			'searchSettingsUrl'   => self::get_search_settings_url(),
 			'siteAdminUrl'        => admin_url(),
+			// The address the skill prompts name; admin_url() follows siteurl, not home.
+			'siteHomeUrl'         => home_url(),
 			'userConnectionUrl'   => esc_url_raw( $config['userConnectionUrl'] ?? '' ),
 			'manageUrl'           => esc_url_raw( $config['manageUrl'] ?? '' ),
 			'hasMyJetpack'        => ! empty( $config['hasMyJetpack'] ),

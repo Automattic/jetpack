@@ -13,7 +13,12 @@ import { __ } from '@wordpress/i18n';
 import { Path, SVG } from '@wordpress/primitives';
 import { Link, Text } from '@wordpress/ui';
 import SkillCard from '../discover/skill-card';
-import { IN_APP_HISTORY_KEY, getViewHref, openSkillPanel } from '../discover/skill-panel-state';
+import {
+	IN_APP_HISTORY_KEY,
+	getViewHref,
+	isModifiedClick,
+	openSkillPanel,
+} from '../discover/skill-panel-state';
 import { getCatalog } from '../discover/skills';
 import useSendSkill from '../discover/use-send-skill';
 import { useIsWordPressAgentAvailable } from '../discover/wordpress-agent';
@@ -99,7 +104,7 @@ export default function SkillsHero( { isMcpEnabled = true, onOpenSettings, befor
 	// href instead would reload the page whenever it drops a leftover param.
 	const handleBrowse = useCallback( event => {
 		recordAiHubEvent( EVENTS.LINK_CLICK, { link_type: 'overview_skill', link: 'browse_all' } );
-		if ( event.metaKey || event.ctrlKey || event.shiftKey || event.button !== 0 ) {
+		if ( isModifiedClick( event ) ) {
 			return;
 		}
 		event.preventDefault();

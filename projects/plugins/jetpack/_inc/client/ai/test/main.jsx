@@ -2436,6 +2436,8 @@ describe( 'Settings tab (main.jsx)', () => {
 			'aria-selected',
 			'true'
 		);
+		// The link left with the Overview, so focus lands on the tab, not <body>.
+		expect( screen.getByRole( 'tab', { name: 'Settings' } ) ).toHaveFocus();
 		expect( analytics.tracks.recordEvent ).toHaveBeenCalledWith(
 			'jetpack_ai_hub_link_click',
 			expect.objectContaining( { link_type: 'overview_connect', link: 'other' } )

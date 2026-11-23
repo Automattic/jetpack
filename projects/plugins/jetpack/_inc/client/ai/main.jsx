@@ -1,7 +1,7 @@
 /**
  * Root component for the Jetpack AI admin page.
  *
- * Up to four top-level tabs (Overview | Discover | Settings | Scheduled tasks)
+ * Up to four top-level tabs (Overview | Skills | Settings | Scheduled tasks)
  * with hash-based routing. Settings keeps the view key it had as MCP and
  * Connectors, `mcp`, so its links and Tracks props stay as they were. It holds
  * every setting the hub has: the connect card, MCP access with its mcp/read |
@@ -48,6 +48,7 @@ import {
 	getPanelSkill,
 	getSkillParam,
 	getViewHref,
+	isDiscoverEnabled,
 	openSkillPanel,
 	useOpenSkillSlug,
 } from './discover/skill-panel-state';
@@ -82,11 +83,8 @@ const SETTINGS_REF = 'jetpack-ai-mcp-settings';
 const MCP_SUB_VIEWS = [ 'mcp/read', 'mcp/write', 'mcp/setup' ];
 const ANCHOR_VIEWS = [ 'mcp/read', 'mcp/write' ];
 
-// Skills had pages of their own at discover/<slug> before they opened in the
-// side panel; an old link lands on Discover with that skill's panel open.
+// An old skill link (see discover/skill-panel-state.js) lands on Skills with its panel open.
 const DISCOVER_SKILL_PREFIX = 'discover/';
-
-const isDiscoverEnabled = () => !! window?.jetpackAiSettings?.featureFlags?.[ 'ai-hub-discover' ];
 
 // The skill an old discover/<slug> hash names, when this site can run it.
 const getLegacySkill = raw =>
@@ -466,8 +464,11 @@ export default function App() {
 	const contentRef = useRef( null );
 	useEffect( () => {
 		const content = contentRef.current;
+		// Boot 0.21+ hashes its class names (see wp-build-polyfills' class-contract test).
 		const root =
-			content?.closest( '.boot-layout__stage' ) ?? content?.closest( '.jp-admin-page' ) ?? content;
+			content?.closest( '.boot-layout__stage, [class*="__stage"]' ) ??
+			content?.closest( '.jp-admin-page' ) ??
+			content;
 		if ( ! root || ! isPanelCovering ) {
 			return;
 		}
@@ -682,16 +683,20 @@ export default function App() {
 		window.history.back();
 	}, [ navigateToParent ] );
 
-	// Settings navigation targets are sub-views; McpHub calls this with their
-	// bare keys ('read' | 'write' | 'setup'), which live under the mcp path
-	// segment.
 	// Whether the Settings hub renders: the access toggle and the Read and Write
 	// rows need a linked site with MCP access. The setup steps render without it,
 	// like the connect buttons: installing the connector happens in the agent.
 	const hasHub = ! isLoading && ! error && !! blogId && ! userUnlinked && hasMcpAccess;
 
-	const handleOpenSettings = useCallback( () => navigateToView( 'mcp' ), [ navigateToView ] );
+	// The Overview's link unmounts with it, so the Settings tab takes focus.
+	const handleOpenSettings = useCallback( () => {
+		restoreFocusRef.current = true;
+		navigateToView( 'mcp' );
+	}, [ navigateToView ] );
 
+	// Settings navigation targets are sub-views; McpHub calls this with their
+	// bare keys ('read' | 'write' | 'setup'), which live under the mcp path
+	// segment.
 	const handleMcpNavigate = useCallback(
 		subView => {
 			focusSubViewRef.current = true;
