@@ -7,11 +7,15 @@ import userEvent from '@testing-library/user-event';
  * Internal dependencies
  */
 import { useAnnouncements } from '../../../hooks';
+import { emitSurfaceEvent } from '../../../utils';
 import { WhatsNew } from '../whats-new';
 import type { Announcement } from '../../../types';
 
 jest.mock( '../../../hooks', () => ( {
 	useAnnouncements: jest.fn(),
+} ) );
+jest.mock( '../../../utils', () => ( {
+	emitSurfaceEvent: jest.fn(),
 } ) );
 
 const CHANNELS = [ 'my-plugin' ];
@@ -34,6 +38,27 @@ describe( 'WhatsNew', () => {
 
 	afterEach( () => {
 		jest.useRealTimers();
+		jest.mocked( emitSurfaceEvent ).mockClear();
+	} );
+
+	it.each< [ string, string[], string[] ] >( [
+		[ 'is shown', [], [ 'teaserView' ] ],
+		[ 'is dismissed', [ 'Dismiss' ], [ 'teaserView', 'teaserDismiss' ] ],
+		[ 'is opened', [ 'Read more' ], [ 'teaserView', 'teaserOpen' ] ],
+	] )( 'tells when the teaser %s', async ( _case, buttons, types ) => {
+		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
+		jest
+			.mocked( useAnnouncements )
+			.mockReturnValue( { announcements: [ unseen ], teaser: unseen, markSeen: jest.fn() } );
+
+		render( <WhatsNew channels={ CHANNELS } /> );
+		for ( const name of buttons ) {
+			await user.click( screen.getByRole( 'button', { name } ) );
+		}
+
+		expect( jest.mocked( emitSurfaceEvent ).mock.calls ).toEqual(
+			types.map( type => [ { type, announcementId: unseen.id } ] )
+		);
 	} );
 
 	it( 'renders nothing without an announcement to tease', () => {
