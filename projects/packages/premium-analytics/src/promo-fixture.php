@@ -39,7 +39,7 @@ function register_promo_fixtures() {
 		return;
 	}
 
-	wp_register_script_module( PROMO_FIXTURE_MODULE_ID, plugins_url( 'promo-fixture-module.js', __FILE__ ), array(), '1.0.0' );
+	wp_register_script_module( PROMO_FIXTURE_MODULE_ID, plugins_url( 'promo-fixture-module.js', __FILE__ ), array( '@automattic/jetpack-premium-analytics-sdk' ), '1.0.0' );
 
 	register_promo(
 		'fixture/section-footer',
