@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\PremiumAnalytics;
 
 use Automattic\Jetpack\Feature_Flags\Feature_Flags;
 
+require_once __DIR__ . '/dashboard-sections.php';
 require_once __DIR__ . '/class-promo.php';
 require_once __DIR__ . '/class-promo-registry.php';
 
@@ -70,7 +71,14 @@ function get_available_promos() {
 	 */
 	$promos = apply_filters( 'jetpack_premium_analytics_promos', $promos );
 
-	$promos = array_values( $promos );
+	$promos = is_array( $promos ) ? array_values(
+		array_filter(
+			$promos,
+			static function ( $promo ) {
+				return $promo instanceof Promo;
+			}
+		)
+	) : array();
 
 	usort(
 		$promos,
@@ -125,12 +133,28 @@ function inject_promos_script_data( array $data ): array {
 		$data['premium_analytics'] = array();
 	}
 
-	$data['premium_analytics']['promos'] = array_map(
-		static function ( Promo $promo ) {
-			return $promo->to_array();
-		},
-		get_available_promos()
-	);
+	$payloads = array();
+
+	foreach ( get_available_promos() as $promo ) {
+		$payload = $promo->to_array();
+
+		if ( 'section-footer' === $promo->placement ) {
+			$section = get_registered_dashboard_section( DASHBOARD_NAME, $promo->target );
+
+			if ( ! $section ) {
+				/* translators: 1: Promo slug. 2: Section identifier. */
+				$message = sprintf( __( 'Promo "%1$s" targets section "%2$s", which is not registered. The promo is not shown.', 'jetpack-premium-analytics-pkg' ), $promo->slug, $promo->target );
+				_doing_it_wrong( __FUNCTION__, esc_html( $message ), 'jetpack-premium-analytics-$$next-version$$' );
+				continue;
+			}
+
+			$payload['target'] = $section->slug;
+		}
+
+		$payloads[] = $payload;
+	}
+
+	$data['premium_analytics']['promos'] = $payloads;
 
 	return $data;
 }

@@ -110,6 +110,16 @@ class Promo_Registry_Test extends BaseTestCase {
 		);
 	}
 
+	public function test_register_refuses_a_section_footer_target_in_the_bare_slug_form() {
+		$this->assert_refused(
+			'acme/offer',
+			array(
+				'placement' => 'section-footer',
+				'target'    => 'traffic',
+			)
+		);
+	}
+
 	public function test_register_refuses_a_dismissible_options_menu_promo() {
 		$this->assert_refused(
 			'acme/offer',
@@ -190,7 +200,7 @@ class Promo_Registry_Test extends BaseTestCase {
 			'acme/offer',
 			array(
 				'placement' => 'section-footer',
-				'target'    => 'traffic',
+				'target'    => 'analytics/traffic',
 			)
 		);
 

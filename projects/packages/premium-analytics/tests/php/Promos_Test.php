@@ -40,11 +40,16 @@ class Promos_Test extends BaseTestCase {
 		remove_all_actions( Promo_Registry::REGISTER_ACTION );
 		Feature_Flags::reset();
 
-		$instance = new \ReflectionProperty( Promo_Registry::class, 'instance' );
-		if ( PHP_VERSION_ID < 80100 ) {
-			$instance->setAccessible( true );
+		foreach ( array( Promo_Registry::class, Dashboard_Section_Registry::class ) as $registry_class ) {
+			$instance = new \ReflectionProperty( $registry_class, 'instance' );
+			if ( PHP_VERSION_ID < 80100 ) {
+				$instance->setAccessible( true );
+			}
+			$instance->setValue( null, null );
 		}
-		$instance->setValue( null, null );
+
+		remove_all_filters( 'doing_it_wrong_trigger_error' );
+		remove_all_actions( 'doing_it_wrong_run' );
 
 		parent::tear_down();
 	}
@@ -227,6 +232,81 @@ class Promos_Test extends BaseTestCase {
 		$this->assertTrue( $data['premium_analytics']['can_view_stats'] );
 		$this->assertCount( 1, $data['premium_analytics']['promos'] );
 		$this->assertSame( 'acme/offer', $data['premium_analytics']['promos'][0]['slug'] );
+	}
+
+	public function test_script_data_publishes_a_section_footer_target_as_the_section_slug() {
+		register_dashboard_section( DASHBOARD_NAME, 'analytics/traffic' );
+		$this->register_fixture_promos(
+			array(
+				'slug'         => 'acme/offer',
+				'placement'    => 'section-footer',
+				'target'       => 'analytics/traffic',
+				'is_available' => true,
+			)
+		);
+		$this->open_dashboard();
+
+		$data = inject_promos_script_data( array() );
+
+		$this->assertSame( 'traffic', $data['premium_analytics']['promos'][0]['target'] );
+	}
+
+	public function test_script_data_drops_and_reports_a_promo_whose_target_section_is_not_registered() {
+		$this->register_fixture_promos(
+			array(
+				'slug'         => 'acme/offer',
+				'placement'    => 'section-footer',
+				'target'       => 'analytics/missing',
+				'is_available' => true,
+			)
+		);
+		$this->open_dashboard();
+
+		$reported = array();
+		add_filter( 'doing_it_wrong_trigger_error', '__return_false' );
+		add_action(
+			'doing_it_wrong_run',
+			static function ( $function_name ) use ( &$reported ) {
+				$reported[] = $function_name;
+			}
+		);
+
+		$data = inject_promos_script_data( array() );
+
+		$this->assertSame( array(), $data['premium_analytics']['promos'] );
+		$this->assertSame( array( __NAMESPACE__ . '\\inject_promos_script_data' ), $reported );
+	}
+
+	public function test_a_filter_returning_a_non_array_yields_no_promos() {
+		$this->register_fixture_promos(
+			array(
+				'slug'         => 'acme/offer',
+				'placement'    => 'settings',
+				'is_available' => true,
+			)
+		);
+		add_filter( 'jetpack_premium_analytics_promos', '__return_null' );
+
+		$this->assertSame( array(), get_available_promos() );
+	}
+
+	public function test_a_filter_adding_a_non_promo_item_does_not_break_the_list() {
+		$this->register_fixture_promos(
+			array(
+				'slug'         => 'acme/offer',
+				'placement'    => 'settings',
+				'is_available' => true,
+			)
+		);
+		add_filter(
+			'jetpack_premium_analytics_promos',
+			static function ( array $promos ) {
+				$promos[] = 'not a promo';
+				return $promos;
+			}
+		);
+
+		$this->assertSame( array( 'acme/offer' ), $this->available_slugs() );
 	}
 
 	public function test_script_data_is_left_alone_off_the_dashboard() {
