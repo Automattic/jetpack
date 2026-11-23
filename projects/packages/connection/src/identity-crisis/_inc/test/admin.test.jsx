@@ -1,6 +1,5 @@
 import { createRoot } from '@wordpress/element';
 import { act } from 'react';
-import { goTo, reloadPage } from '../navigate';
 
 let mockIdentityCrisis = null;
 let mockScreenProps = null;
@@ -17,7 +16,6 @@ const sharedScript = {
 jest.mock( '@wordpress/data', () => ( {
 	select: () => ( { getIdentityCrisis: () => mockIdentityCrisis } ),
 } ) );
-jest.mock( '../navigate', () => ( { goTo: jest.fn(), reloadPage: jest.fn() } ) );
 jest.mock( '@automattic/jetpack-idc', () => ( { IDCScreen: () => 'Safe Mode choices' } ) );
 jest.mock( '@wordpress/element', () => {
 	const element = jest.requireActual( '@wordpress/element' );
@@ -179,37 +177,9 @@ describe( 'Safe Mode screen', () => {
 				from: 'connection_safe_mode_notice',
 				redirectUri: '/edit.php',
 			} );
-		} );
-
-		it.each( [
-			[
-				'a fresh connection goes on to connect',
-				props =>
-					props.onActionSuccess( {
-						action: 'start-fresh',
-						connectUrl: 'https://wordpress.com/connect',
-					} ),
-				[ [ 'https://wordpress.com/connect' ] ],
-				0,
-			],
-			[
-				'staying in Safe Mode reloads',
-				props => props.onActionSuccess( { action: 'confirm-safe-mode' } ),
-				[],
-				1,
-			],
-			[
-				'migrating waits for its done view',
-				props => props.onActionSuccess( { action: 'migrate' } ),
-				[],
-				0,
-			],
-			[ 'the migrate done view reloads', props => props.onMigratedDone(), [], 1 ],
-		] )( '%s', ( _, trigger, goToCalls, reloads ) => {
-			trigger( mockScreenProps );
-
-			expect( goTo.mock.calls ).toEqual( goToCalls );
-			expect( reloadPage ).toHaveBeenCalledTimes( reloads );
+			// The screen's own handlers navigate.
+			expect( mockScreenProps ).not.toHaveProperty( 'onActionSuccess' );
+			expect( mockScreenProps ).not.toHaveProperty( 'onMigratedDone' );
 		} );
 	} );
 } );

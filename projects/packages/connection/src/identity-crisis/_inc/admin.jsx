@@ -1,7 +1,6 @@
 import { IDCScreen } from '@automattic/jetpack-idc';
 import { select } from '@wordpress/data';
 import * as WPElement from '@wordpress/element';
-import { goTo, reloadPage } from './navigate';
 
 import './style.scss';
 
@@ -69,22 +68,6 @@ function getNewScreenScript() {
 }
 
 /**
- * What the notice does after a Safe Mode action succeeds.
- *
- * @param {object} result            - The action's result.
- * @param {string} result.action     - The action.
- * @param {string} result.connectUrl - Where a fresh connection continues.
- */
-function onActionSuccess( { action, connectUrl } ) {
-	if ( 'start-fresh' === action ) {
-		goTo( connectUrl );
-	} else if ( 'confirm-safe-mode' === action ) {
-		reloadPage();
-	}
-	// Migrate shows its done view first; its button reloads.
-}
-
-/**
  * Render the Safe Mode screen into its container.
  *
  * @param {HTMLElement} container - The container element.
@@ -121,8 +104,6 @@ function renderInto( container, isNotice ) {
 					context="notice"
 					redirectUri={ redirectUri }
 					from={ CONNECTION_FROM.connectionSafeModeNotice }
-					onActionSuccess={ onActionSuccess }
-					onMigratedDone={ reloadPage }
 				/>
 			</div>
 		);

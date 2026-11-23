@@ -265,7 +265,7 @@ import { TransferConnectionOwnership } from '@automattic/jetpack-connection';
 ```
 
 ## Safe Mode screen
-`IdentityCrisis` is the new Safe Mode (identity crisis) screen. It reads the Safe Mode state and the connected plugins from the connection store's initial state, sends no request until the user picks an action, and renders nothing outside Safe Mode. It renders no frame of its own: the host supplies the frame and decides what happens after each action.
+`IdentityCrisis` is the new Safe Mode (identity crisis) screen. It reads the Safe Mode state and the connected plugins from the connection store's initial state, sends no request until the user picks an action, and renders nothing outside Safe Mode. It renders no frame of its own: the host supplies the frame. After each action it leaves or reloads the page, unless the host says otherwise.
 
 - An administrator answers "What is {registered address}?" and, for a copy, one follow-up question; each answer shows its consequence once selected, and one button runs the matching action. A site WordPress marks as staging starts at "What should happen to this copy?" with Safe Mode preselected.
 - Once an administrator chose to stay in Safe Mode, a host that still shows the screen, such as the Connectors card, gets a note that Safe Mode is on above the same questions.
@@ -275,11 +275,11 @@ import { TransferConnectionOwnership } from '@automattic/jetpack-connection';
 Props:
 - `context` (required): `notice`, `my-jetpack` or `connectors`, recorded with the Safe Mode events.
 - `showHeader`: `false` hides the logo and heading where the host already shows both, as the Connectors card does.
-- `onActionSuccess( result )` (required): `{ action: 'migrate' }` as soon as Migrate succeeds (the screen then shows that the address update started), `{ action: 'start-fresh', connectUrl }` for the host to open, or `{ action: 'confirm-safe-mode' }`. The package never navigates.
+- `onActionSuccess( result )`: `{ action: 'migrate' }` as soon as Migrate succeeds (the screen then shows that the address update started), `{ action: 'start-fresh', connectUrl }`, or `{ action: 'confirm-safe-mode' }`. Defaults to `onIdentityCrisisActionSuccess()`, which opens `connectUrl` after a fresh connection and reloads after staying in Safe Mode. The reload drops `jetpack_idc_clear_confirmation` and `_wpnonce`, which the admin bar's Safe Mode link adds, so it doesn't clear the confirmation again. To change one action, handle it and pass the rest to `onIdentityCrisisActionSuccess()`.
 - `redirectUri`: admin path to return to after a fresh connection.
 - `from`: a name from `CONNECTION_FROM`, reported to WordPress.com with a fresh connection.
 - `hostActions`: actions only that host offers, such as Disconnect, shown to viewers who can resolve Safe Mode.
-- `onMigratedDone`: shows "Got it, thanks" after Migrate.
+- `onMigratedDone`: what "Got it, thanks" does after Migrate. Defaults to the same reload.
 - `onDismiss`: shows Dismiss to viewers who cannot resolve Safe Mode.
 
 ```jsx
@@ -288,11 +288,6 @@ import { IdentityCrisis } from '@automattic/jetpack-connection';
 <IdentityCrisis
 	context="notice"
 	redirectUri="admin.php?page=jetpack"
-	onActionSuccess={ result =>
-		result.action === 'start-fresh'
-			? window.location.assign( result.connectUrl )
-			: window.location.reload()
-	}
 />
 ```
 
