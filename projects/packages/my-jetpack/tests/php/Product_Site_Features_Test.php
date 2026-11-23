@@ -9,6 +9,8 @@ use PHPUnit\Framework\TestCase;
 use WorDBless\Options as WorDBless_Options;
 use WP_Error;
 
+require_once __DIR__ . '/stubs/wpcom-site-has-feature.php';
+
 /**
  * Unit tests for the caching in Product::get_site_features_from_wpcom().
  *
@@ -49,6 +51,8 @@ class Product_Site_Features_Test extends TestCase {
 		remove_filter( 'pre_http_request', array( $this, 'succeed_http_request' ) );
 		remove_filter( 'pre_set_transient_' . Product::MY_JETPACK_SITE_FEATURES_TRANSIENT_KEY, '__return_false' );
 		Product::reset_site_features_cache();
+		Constants::clear_single_constant( 'IS_WPCOM' );
+		unset( $GLOBALS['my_jetpack_test_site_features'] );
 
 		WorDBless_Options::init()->clear_options();
 	}
@@ -152,5 +156,18 @@ class Product_Site_Features_Test extends TestCase {
 		$this->assertIsArray( $features );
 		$this->assertSame( array( 'backups' ), $features['active'] );
 		$this->assertTrue( Product::does_site_have_feature( 'backups' ) );
+	}
+
+	/**
+	 * Simple answers from its own feature list, without the API request it has no blog token to sign.
+	 */
+	public function test_simple_reads_its_own_features_without_a_request() {
+		Constants::set_constant( 'IS_WPCOM', true );
+		$GLOBALS['my_jetpack_test_site_features'] = array( 'social-enhanced-publishing' );
+		add_filter( 'pre_http_request', array( $this, 'fail_http_request' ) );
+
+		$this->assertTrue( Product::does_site_have_feature( 'social-enhanced-publishing' ) );
+		$this->assertFalse( Product::does_site_have_feature( 'backups' ) );
+		$this->assertSame( 0, $this->http_calls );
 	}
 }
