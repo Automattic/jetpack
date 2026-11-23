@@ -7,7 +7,12 @@ import { store as preferencesStore } from '@wordpress/preferences';
 /**
  * Internal dependencies
  */
+import { emitSurfaceEvent } from '../../../utils';
 import { useTeaserSwitch } from '../use-teaser-switch';
+
+jest.mock( '../../../utils', () => ( {
+	emitSurfaceEvent: jest.fn(),
+} ) );
 
 const SCOPE = 'jetpack-announcements/whats-new';
 
@@ -42,5 +47,13 @@ describe( 'useTeaserSwitch', () => {
 
 		expect( result.current.isOn ).toBe( true );
 		expect( storedTeaserOff() ).toBe( false );
+	} );
+
+	it( 'tells when the user changes it', () => {
+		const { result } = renderHook( () => useTeaserSwitch() );
+
+		act( () => result.current.setIsOn( false ) );
+
+		expect( emitSurfaceEvent ).toHaveBeenCalledWith( { type: 'teaserSwitch', isOn: false } );
 	} );
 } );
