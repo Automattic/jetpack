@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Skip block pruning on a site that does not use Jetpack Comments, including after a process switches sites.

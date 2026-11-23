@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Admin shell: Close the sidebar on phones when switching to another dashboard, as a page load does.

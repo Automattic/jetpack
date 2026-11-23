@@ -320,6 +320,8 @@ class Main_Features {
 					'free'    => true,
 				),
 				'plans'                    => array( 'pro', 'complete' ),
+				// The WordPress.com site feature that gates the file upload field.
+				'paid_feature'             => 'field-file',
 			),
 			'newsletter'        => array(
 				'info_url'         => 'https://jetpack.com/newsletter/',
@@ -379,6 +381,8 @@ class Main_Features {
 					'free'    => true,
 				),
 				'plans'            => array( 'growth', 'pro', 'complete' ),
+				// WordPress.com's half of Podcast_Gate::has_product_access(); the bundles in `plans` cover self-hosted.
+				'paid_feature'     => ( new Host() )->is_wpcom_platform() ? 'podcasting' : '',
 			),
 			'protect-dashboard' => array(
 				'info_url'         => 'https://jetpack.com/protect/',
@@ -589,7 +593,7 @@ class Main_Features {
 		 *
 		 * @since 6.14.0
 		 * @since 6.16.0 No longer reads `manage_url`; a feature's manage link is always My Jetpack's own.
-		 * @since $$next-version$$ Also asked for the purchase links of the feature's product, with the Overview as `back_url`.
+		 * @since 6.19.0 Also asked for the purchase links of the feature's product, with the Overview as `back_url`.
 		 *
 		 * @param array  $upgrade          `path` (a My Jetpack route) and `name` (the product sold), both empty when nothing is,
 		 *                                 and `back_url`, the admin page the link is on, for a host flow to return to.
@@ -618,7 +622,7 @@ class Main_Features {
 	/**
 	 * Where a host sells the feature a product delivers, for the purchase links outside the Features tab.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.19.0
 	 *
 	 * @param string $product_slug A My Jetpack product slug, matched to the catalog's `product` key.
 	 * @return ?string Null when the host names no address, the site has the feature, or no feature is the product's.
@@ -645,7 +649,7 @@ class Main_Features {
 	/**
 	 * Whether a host could be selling the feature a product delivers, told without asking it or looking up ownership.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.19.0
 	 *
 	 * @param string $product_slug A My Jetpack product slug.
 	 * @return bool True when a host listens and the product has a feature; get_host_purchase_url() has the answer.
@@ -734,7 +738,7 @@ class Main_Features {
 			}
 		}
 
-		// Covers plans no bundle class lists, such as the legacy Jetpack Personal, Premium and Professional.
+		// Covers plans no bundle class lists: WordPress.com plans and the legacy Jetpack Personal, Premium and Professional.
 		return ! empty( $definition['paid_feature'] ) && Product::does_site_have_feature( $definition['paid_feature'] );
 	}
 

@@ -1,5 +1,5 @@
 {
-	"version": "0.1.0-alpha",
+	"version": "0.1.0",
 	"private": true,
 	"description": "A product-agnostic channel to tell Jetpack users what is new.",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/announcements/#readme",

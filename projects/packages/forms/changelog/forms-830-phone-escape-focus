@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Phone field: Return focus to the country selector when its dropdown is closed with Escape.

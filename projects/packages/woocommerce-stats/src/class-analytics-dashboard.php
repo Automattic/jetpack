@@ -25,7 +25,7 @@ use const Automattic\Jetpack\PremiumAnalytics\DASHBOARD_TILE_LIST;
  */
 class Analytics_Dashboard {
 
-	const PACKAGE_VERSION = '0.4.0';
+	const PACKAGE_VERSION = '0.5.0';
 
 	/**
 	 * Namespaced section identifier. Its slug, `woocommerce`, keys the section's URL and stored layouts.

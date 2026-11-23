@@ -21,7 +21,7 @@ namespace Automattic\Jetpack\WP_Abilities;
  */
 abstract class Registrar {
 
-	const PACKAGE_VERSION = '0.2.2';
+	const PACKAGE_VERSION = '0.3.0';
 
 	/**
 	 * Action fired by the Abilities API when ability categories should register.
@@ -83,7 +83,7 @@ abstract class Registrar {
 		 * example to turn Jetpack's abilities off on a site.
 		 *
 		 * @since 0.1.0
-		 * @since $$next-version$$ Defaults to the registrar's `enabled_by_default()`.
+		 * @since 0.3.0 Defaults to the registrar's `enabled_by_default()`.
 		 *
 		 * @param bool $enabled Whether to register abilities. Default is the registrar's `enabled_by_default()`.
 		 */

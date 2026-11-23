@@ -154,7 +154,7 @@ final class Announcement_Registry {
 		// Latching before init ends would drop every registrant hooked later, so the read skips the action.
 		if ( ! did_action( 'init' ) || doing_action( 'init' ) ) {
 			$message = __( 'Announcements are read after init. An earlier read answers only what was registered directly.', 'jetpack-announcements' );
-			_doing_it_wrong( __CLASS__, esc_html( $message ), 'jetpack-announcements-$$next-version$$' );
+			_doing_it_wrong( __CLASS__, esc_html( $message ), 'jetpack-announcements-0.1.0' );
 			return;
 		}
 
@@ -167,7 +167,7 @@ final class Announcement_Registry {
 		 * Register announcements here with `register_announcement()`. Do no I/O of your own: the read
 		 * that triggers it may be a REST request. `get_announcements_from_feed()` reads a feed for you.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.1.0
 		 *
 		 * @param Announcement_Registry $registry The registry being hydrated.
 		 */
@@ -301,7 +301,7 @@ final class Announcement_Registry {
 	 * @return false
 	 */
 	private static function refuse( $message ) {
-		_doing_it_wrong( __NAMESPACE__ . '\register_announcement', esc_html( $message ), 'jetpack-announcements-$$next-version$$' );
+		_doing_it_wrong( __NAMESPACE__ . '\register_announcement', esc_html( $message ), 'jetpack-announcements-0.1.0' );
 
 		return false;
 	}

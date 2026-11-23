@@ -311,7 +311,7 @@ class Identity_Crisis {
 	/**
 	 * Style the admin bar item, in wp-admin and on the front end.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.18.3
 	 *
 	 * @return void
 	 */
@@ -943,7 +943,7 @@ class Identity_Crisis {
 	/**
 	 * Register the Safe Mode feature flags.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.18.3
 	 *
 	 * @return void
 	 */
@@ -961,7 +961,7 @@ class Identity_Crisis {
 	/**
 	 * Whether the Safe Mode surfaces show the shared screen.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.18.3
 	 *
 	 * @return bool
 	 */
@@ -985,7 +985,7 @@ class Identity_Crisis {
 	/**
 	 * Returns the mismatched URLs from the stored Safe Mode error, including once Safe Mode is confirmed.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.18.3
 	 *
 	 * @return array|bool The mismatched urls, or false if the site is not connected, offline, or the IDC error is not valid.
 	 */

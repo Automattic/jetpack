@@ -10,7 +10,7 @@ namespace Automattic\Jetpack\Announcements;
 /**
  * Registers an announcement. Call it on the `jetpack_register_announcements` action.
  *
- * @since $$next-version$$
+ * @since 0.1.0
  *
  * @param string $id   Namespaced id, `vendor/slug`.
  * @param array  $args {

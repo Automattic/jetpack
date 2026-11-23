@@ -5,6 +5,31 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.13.0] - 2026-11-23
+### Added
+- Add automatic search engine notifications for content changes. [#54970]
+- llms.txt: Add a filter to change how many items are listed per content type. [#55090]
+
+### Changed
+- Admin shell: Let SEO join the shell on WordPress.com Simple sites too. [#55084]
+- Admin shell: Record the page view again when the shell shows the SEO page again. [#55079]
+- Improve access to SEO settings. [#54759]
+- Make manual SEO settings and output available on WordPress.com sites without a paid plan. [#54754]
+- Reduce storage used by pending search engine notifications. [#54967]
+
+### Fixed
+- Clarify site-wide search indexing restrictions and per-item preferences. [#54782]
+- Content: Allow posts and supported custom post types to be marked for inclusion in llms.txt. [#54961]
+- Dashboard: Fix console errors when switching between tabs. [#54973]
+- Detect static SEO files when WordPress is installed in a subdirectory. [#54972]
+- Fix IndexNow verification and delivery when a site's address resolves as HTTP or HTTPS. [#55234]
+- Hide AI SEO controls when metadata generation is unavailable. [#55133]
+- Identify the active SEO plugin before enabling SEO tools. [#54969]
+- Keep `llms.txt` from redirecting to posts, including before generation is enabled. [#55200]
+- Manage WordPress.com third-party sharing preferences from SEO settings. [#55236]
+- Schema: Stop including Query Loop block text in the Article description when Open Graph tags are off. [#54889]
+- Support automatic Google verification through the hosting platform when available. [#54920]
+
 ## [0.12.0] - 2026-11-16
 ### Added
 - Add a default share image setting and update social previews when it changes. [#54729]
@@ -275,6 +300,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Create a Settings screen with site visibility, post title structure, front-page description, and site verification. [#49256]
 - Scaffold the new `jetpack-seo` package and mount its admin page. [#49203]
 
+[0.13.0]: https://github.com/Automattic/jetpack-seo/compare/0.12.0...0.13.0
 [0.12.0]: https://github.com/Automattic/jetpack-seo/compare/0.11.0...0.12.0
 [0.11.0]: https://github.com/Automattic/jetpack-seo/compare/0.10.3...0.11.0
 [0.10.3]: https://github.com/Automattic/jetpack-seo/compare/0.10.2...0.10.3

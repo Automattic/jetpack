@@ -41,7 +41,7 @@ function record_dashboard_first_visit() {
 /**
  * Stores the current time as the first dashboard load, unless one is already stored.
  *
- * @since $$next-version$$
+ * @since 0.19.0
  *
  * @return void
  */

@@ -49,7 +49,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '6.18.2';
+	const PACKAGE_VERSION = '6.19.0';
 
 	/**
 	 * Feature flag that swaps the single-screen onboarding takeover for the setup wizard.
@@ -1148,7 +1148,7 @@ class Initializer {
 	/**
 	 * Where a host sends the plan links, in place of Jetpack's own checkout and purchases.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.19.0
 	 *
 	 * @return array{purchase: string|false, manage: string|false} An empty string keeps Jetpack's own link; false hides the link.
 	 */
@@ -1163,7 +1163,7 @@ class Initializer {
 		 *
 		 * An answer that is neither an http or https URL nor false is discarded, keeping Jetpack's own link.
 		 *
-		 * @since $$next-version$$
+		 * @since 6.19.0
 		 * @param array{purchase: string|false, manage: string|false} $plan_urls The URL of each link; an empty string keeps Jetpack's own, and false hides the link.
 		 */
 		$filtered = apply_filters( 'jetpack_my_jetpack_plan_urls', $plan_urls );
@@ -1712,7 +1712,7 @@ class Initializer {
 		 *
 		 * @since 6.11.0
 		 * @since 6.17.1 False also keeps settings on the Settings screen.
-		 * @since $$next-version$$ False also removes the links to My Jetpack from Jetpack admin headers and footers.
+		 * @since 6.19.0 False also removes the links to My Jetpack from Jetpack admin headers and footers.
 		 * @param bool $available True to allow the Features tab; false keeps the classic Modules and Settings screens, for a host where My Jetpack is not shown.
 		 */
 		return (bool) apply_filters( 'jetpack_my_jetpack_modules_management_available', true );
@@ -1751,7 +1751,7 @@ class Initializer {
 	 *
 	 * Plugins check that this method exists before sending a pending `Jetpack::state()` here instead of to Settings.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.19.0
 	 *
 	 * @return bool
 	 */
@@ -1769,7 +1769,7 @@ class Initializer {
 	/**
 	 * What the notices moved from Jetpack › Settings need, or null while they stay there, leaving the Jetpack state to Settings.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.19.0
 	 *
 	 * @return array|null
 	 */
