@@ -1439,7 +1439,7 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 			array(
 				'plays'          => 222,
 				'impressions'    => 191,
-				'hours_watched'  => 0.89,
+				'hours_watched'  => 0.8916666,
 				'retention_rate' => 219.3,
 			),
 			$result['total']

@@ -2706,7 +2706,7 @@ class Stats_Abilities extends Registrar {
 			return array(
 				'plays'          => (int) $at( 'plays' ),
 				'impressions'    => (int) $at( 'impressions' ),
-				'hours_watched'  => round( (float) $at( 'watch_time' ), 2 ),
+				'hours_watched'  => (float) $at( 'watch_time' ),
 				// WPCOM sends null when it does not know the video's length.
 				'retention_rate' => is_numeric( $retention ) ? round( (float) $retention, 1 ) : null,
 			);
