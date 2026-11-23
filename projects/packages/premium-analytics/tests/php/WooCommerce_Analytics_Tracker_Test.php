@@ -60,7 +60,7 @@ class WooCommerce_Analytics_Tracker_Test extends TestCase {
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
 	public function test_bootstrap_follows_the_jetpack_module( $module_active, $wc_analytics_defined, $expected ) {
-		class_alias( \stdClass::class, 'Jetpack' );
+		require_once __DIR__ . '/mocks/jetpack-plugin-mock.php';
 		if ( $wc_analytics_defined ) {
 			define( 'WC_ANALYTICS', true );
 		}
