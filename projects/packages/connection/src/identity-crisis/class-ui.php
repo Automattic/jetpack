@@ -51,7 +51,8 @@ class UI {
 
 		add_action( 'admin_enqueue_scripts', array( static::class, 'enqueue_scripts' ) );
 
-		if ( ! static::use_new_screen() || ( new Tracking() )->should_enable_tracking( new Terms_Of_Service(), new Status() ) ) {
+		// The new screen loads Tracks from enqueue_scripts(), so only in wp-admin.
+		if ( ! static::use_new_screen() ) {
 			Tracking::register_tracks_functions_scripts( true );
 		}
 	}
@@ -82,6 +83,10 @@ class UI {
 			 */
 			if ( static::use_new_screen() && ! apply_filters( 'jetpack_identity_crisis_show_notice', true ) ) {
 				return;
+			}
+
+			if ( static::use_new_screen() && ( new Tracking() )->should_enable_tracking( new Terms_Of_Service(), new Status() ) ) {
+				Tracking::register_tracks_functions_scripts( true );
 			}
 
 			// Only the notice's own container shows the new screen, and a confirmed Safe Mode shows no screen.

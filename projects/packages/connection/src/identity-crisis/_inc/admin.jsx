@@ -64,7 +64,7 @@ function getNewScreenScript() {
 	if ( typeof connection?.IdentityCrisis !== 'function' ) {
 		return null;
 	}
-	const state = select( connection.CONNECTION_STORE_ID ).getIdentityCrisis?.();
+	const state = select( connection.CONNECTION_STORE_ID ).getIdentityCrisis();
 	return true === state?.useNewScreen ? connection : null;
 }
 

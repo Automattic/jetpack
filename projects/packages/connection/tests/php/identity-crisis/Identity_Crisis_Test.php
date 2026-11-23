@@ -2097,21 +2097,28 @@ class Identity_Crisis_Test extends BaseTestCase {
 	}
 
 	/**
-	 * With the new screen, Safe Mode loads the Tracks script only when tracking is allowed.
+	 * With the new screen, Safe Mode loads the Tracks script only in wp-admin, and only when tracking is allowed.
 	 *
 	 * @param bool $use_new_screen   Whether the `connection-idc-screen` flag is on.
 	 * @param bool $tracking_allowed Whether the site has agreed to the terms of service.
+	 * @param bool $in_admin         Whether the page is in wp-admin.
 	 * @param bool $expected         Whether the script is enqueued.
 	 *
 	 * @dataProvider data_provider_test_ui_tracks_script
 	 */
 	#[DataProvider( 'data_provider_test_ui_tracks_script' )]
-	public function test_ui_tracks_script( $use_new_screen, $tracking_allowed, $expected ) {
+	public function test_ui_tracks_script( $use_new_screen, $tracking_allowed, $in_admin, $expected ) {
 		$this->check_identity_crisis_return_error( array( 'test' ) );
 		Jetpack_Options::update_option( 'tos_agreed', $tracking_allowed );
 		add_filter( 'jetpack_feature_flag_enabled_' . Identity_Crisis::NEW_SCREEN_FLAG, $use_new_screen ? '__return_true' : '__return_false' );
 
 		UI::init();
+		if ( $in_admin ) {
+			require_once ABSPATH . 'wp-admin/includes/class-wp-screen.php';
+			require_once ABSPATH . 'wp-admin/includes/screen.php';
+			set_current_screen( 'dashboard' );
+			UI::enqueue_scripts();
+		}
 
 		$this->assertSame( $expected, wp_script_is( 'jp-tracks-functions', 'enqueued' ) );
 	}
@@ -2123,9 +2130,10 @@ class Identity_Crisis_Test extends BaseTestCase {
 	 */
 	public static function data_provider_test_ui_tracks_script() {
 		return array(
-			'old screen, tracking not allowed' => array( false, false, true ),
-			'new screen, tracking allowed'     => array( true, true, true ),
-			'new screen, tracking not allowed' => array( true, false, false ),
+			'old screen, tracking not allowed, front end' => array( false, false, false, true ),
+			'new screen, tracking allowed'                => array( true, true, true, true ),
+			'new screen, tracking allowed, front end'     => array( true, true, false, false ),
+			'new screen, tracking not allowed'            => array( true, false, true, false ),
 		);
 	}
 

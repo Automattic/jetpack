@@ -14,10 +14,8 @@ const sharedScript = {
 	IdentityCrisis: mockNewScreen,
 };
 
-// Undefined stands for a store without the selector.
 jest.mock( '@wordpress/data', () => ( {
-	select: () =>
-		mockIdentityCrisis === undefined ? {} : { getIdentityCrisis: () => mockIdentityCrisis },
+	select: () => ( { getIdentityCrisis: () => mockIdentityCrisis } ),
 } ) );
 jest.mock( '../navigate', () => ( { goTo: jest.fn(), reloadPage: jest.fn() } ) );
 jest.mock( '@automattic/jetpack-idc', () => ( { IDCScreen: () => 'Safe Mode choices' } ) );
@@ -145,13 +143,6 @@ describe( 'Safe Mode screen', () => {
 			'the shared script has no new screen',
 			{ useNewScreen: true },
 			{ ...sharedScript, IdentityCrisis: undefined },
-			undefined,
-			'Safe Mode choices',
-		],
-		[
-			'the store has no Safe Mode selector',
-			undefined,
-			sharedScript,
 			undefined,
 			'Safe Mode choices',
 		],
