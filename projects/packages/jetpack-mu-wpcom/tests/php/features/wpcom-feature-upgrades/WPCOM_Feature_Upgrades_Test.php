@@ -76,6 +76,48 @@ class WPCOM_Feature_Upgrades_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * A feature with no hosting page goes to the plans that include it, and comes back to the page the link was on.
+	 *
+	 * @dataProvider provide_plan_feature_upgrades
+	 *
+	 * @param string $slug    The My Jetpack feature slug.
+	 * @param string $feature The plan feature the flow filters on, '' for none.
+	 */
+	#[DataProvider( 'provide_plan_feature_upgrades' )]
+	public function test_feature_upgrade_goes_to_the_plans_with_the_feature( $slug, $feature ) {
+		$back    = admin_url( 'admin.php?page=my-jetpack#/features' );
+		$upgrade = WPCOM_Feature_Upgrades::filter_feature_upgrade(
+			array(
+				'path'     => '/add-' . $slug,
+				'name'     => 'Jetpack',
+				'back_url' => $back,
+			),
+			$slug,
+			false
+		);
+		parse_str( (string) wp_parse_url( $upgrade['url'], PHP_URL_QUERY ), $query );
+
+		$this->assertSame( '', $upgrade['path'] );
+		$this->assertStringStartsWith( 'https://wordpress.com/setup/plan-upgrade?', $upgrade['url'] );
+		$this->assertSame( $feature, $query['feature'] ?? '' );
+		$this->assertSame( $back, $query['back_to'] );
+		$this->assertSame( $back, $query['redirect_to'] );
+	}
+
+	/**
+	 * Data provider for test_feature_upgrade_goes_to_the_plans_with_the_feature.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_plan_feature_upgrades() {
+		return array(
+			'Social'   => array( 'social', 'republicize' ),
+			'Podcast'  => array( 'podcast', '' ),
+			'Monetize' => array( 'monetize', 'wordads-instant' ),
+		);
+	}
+
+	/**
 	 * Other features keep the upgrade they were given.
 	 */
 	public function test_monetize_upgrade_leaves_other_features_alone() {
