@@ -444,7 +444,7 @@ abstract class Product {
 			return false;
 		}
 
-		// Simple has no blog token to ask the API with, and knows its own features.
+		// Simple runs the API call in-process, which 404s for the v1.1 features route, so ask WordPress.com's own check.
 		if ( ( new Host() )->is_wpcom_simple() && function_exists( 'wpcom_site_has_feature' ) ) {
 			return \wpcom_site_has_feature( $feature );
 		}

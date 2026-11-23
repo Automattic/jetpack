@@ -159,7 +159,7 @@ class Product_Site_Features_Test extends TestCase {
 	}
 
 	/**
-	 * Simple answers from its own feature list, without the API request it has no blog token to sign.
+	 * Simple answers from WordPress.com's own feature check, without the API lookup that 404s there.
 	 */
 	public function test_simple_reads_its_own_features_without_a_request() {
 		Constants::set_constant( 'IS_WPCOM', true );
