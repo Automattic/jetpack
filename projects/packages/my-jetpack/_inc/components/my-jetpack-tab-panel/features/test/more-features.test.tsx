@@ -11,8 +11,6 @@ import { filterMoreFeatures, getModuleFeatureState } from '../use-more-features'
 import type { MyJetpackModule } from '../../../../types';
 import type { FeatureSelection } from '../use-feature-selection';
 
-jest.mock( '../../../../hooks/use-analytics' );
-
 // The real switch reports through this; here it is held onto and called directly.
 const mockModuleSwitch: { onSwitch?: ( active: boolean ) => void } = {};
 

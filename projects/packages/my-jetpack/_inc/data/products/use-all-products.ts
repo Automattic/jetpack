@@ -14,6 +14,7 @@ export const useAllProducts = () => {
 		isLoading,
 		isRefetching,
 		isError,
+		failureCount,
 		refetch,
 	} = useSimpleQuery< { [ key: string ]: ProductSnakeCase } >( {
 		name: `${ QUERY_PRODUCT_KEY }`,
@@ -28,6 +29,7 @@ export const useAllProducts = () => {
 			data: {},
 			isLoading: false,
 			isError: false,
+			failureCount: 0,
 			isRefetching,
 			refetch,
 		};
@@ -63,5 +65,6 @@ export const useAllProducts = () => {
 		isLoading,
 		isRefetching,
 		isError,
+		failureCount,
 	};
 };

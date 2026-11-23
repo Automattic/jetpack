@@ -223,11 +223,13 @@ useEffect( () => {
 
 A hidden dashboard isn't remounted when it's shown again, so data it fetched before it was hidden stays on screen. On `page-shown` for its own page with `stale` set, a dashboard refetches its queries, such as with `queryClient.invalidateQueries()`, rather than remounting.
 
+A page whose feature was switched off since the menu was drawn opens to a panel that offers to turn it back on. The panel dispatches neither event, since the dashboard isn't on screen: its next `page-shown` comes once the dashboard is, and its `hiddenFor` counts the time behind the panel.
+
 Neither event fires while the shell is off.
 
 ### Admin shell: memory
 
-Every dashboard the shell prewarms or mounts stays in the document until the next page load, since a booted app can't be disposed of. So the shell keeps at most a few dashboards live, the one the page loaded included, and once that many are live, opening another dashboard is a normal page load, which frees the rest. A menu link prewarms its dashboard once the pointer rests on it for 100 ms, so sweeping down the menu prewarms nothing, and hovering never spends the last slot, so the dashboard the user clicks next still opens in place. When the browser reports Save-Data, 2 GB of memory or less, or a 2G connection, hovering doesn't prewarm at all, and the dashboard loads on the click. It sizes the limit from the device memory the browser reports: 3 at 2 GB or less, 6 below 8 GB or when the browser doesn't say, and no limit from 8 GB. A site can set it with the `jetpack_admin_shell_max_live_apps` filter:
+Every dashboard the shell prewarms or mounts stays in the document until the next page load, since a booted app can't be disposed of. So the shell keeps at most a few dashboards live, the one the page loaded included, and once that many are live, opening another dashboard is a normal page load, which frees the rest. Prewarming downloads only the route the link opens; the dashboard's other routes load when it first navigates to them. A menu link prewarms its dashboard once the pointer rests on it for 100 ms, so sweeping down the menu prewarms nothing, and hovering never spends the last slot, so the dashboard the user clicks next still opens in place. Hovering doesn't prewarm a dashboard whose page last opened to the turned-off panel. When the browser reports Save-Data, 2 GB of memory or less, or a 2G connection, hovering doesn't prewarm at all, and the dashboard loads on the click. It sizes the limit from the device memory the browser reports: 3 at 2 GB or less, 10 below 8 GB or when the browser doesn't say, and no limit from 8 GB. A site can set it with the `jetpack_admin_shell_max_live_apps` filter:
 
 ```PHP
 add_filter( 'jetpack_admin_shell_max_live_apps', fn() => 4 );

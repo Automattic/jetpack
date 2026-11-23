@@ -21,7 +21,10 @@ import { getOverridesToMatch } from './group-intents';
 import { groupToolsByGroup } from './groups';
 import McpGroupCard, { McpToolSections } from './mcp-group-card';
 import McpToolbar from './mcp-toolbar';
-import RemoteAbilitiesSection from './remote-abilities-section';
+import RemoteAbilitiesSection, {
+	areRemoteGroupsEnabled,
+	collectRemoteKeys,
+} from './remote-abilities-section';
 import { recordMcpTracksEvent } from './tracks';
 import useToolSearch from './use-tool-search';
 import {
@@ -30,6 +33,7 @@ import {
 	getSiteContextToolIds,
 	getSiteLevelEnabled,
 	getSiteMcpAbilities,
+	getSiteRemoteGroups,
 	mergeSiteMcpAbilities,
 } from './utils';
 
@@ -98,13 +102,26 @@ export default function McpRead( {
 		[ blogId, onUpdate ]
 	);
 
-	const pageAllEnabled = readTools.length > 0 && readTools.every( ( [ , t ] ) => t.enabled );
+	const toolsAllEnabled = readTools.length > 0 && readTools.every( ( [ , t ] ) => t.enabled );
+	const pageAllEnabled =
+		toolsAllEnabled &&
+		areRemoteGroupsEnabled(
+			remoteAbilities?.abilities ?? [],
+			getSiteRemoteGroups( mcpAbilities, blogId ),
+			'read',
+			toolsAllEnabled
+		);
 	const isSavingAny = readTools.some( ( [ id ] ) => savingToolIds.has( id ) );
 
 	const handlePageToggle = useCallback(
 		enabled => {
 			const overrides = getOverridesToMatch( readTools, enabled );
-			if ( ! overrides ) {
+			const remoteKeys = collectRemoteKeys(
+				remoteAbilities?.abilities ?? [],
+				getSiteRemoteGroups( mcpAbilities, blogId ),
+				'read'
+			);
+			if ( ! overrides && remoteKeys.length === 0 ) {
 				return;
 			}
 			recordMcpTracksEvent( 'jetpack_mcp_allowlist_updated', {
@@ -116,12 +133,15 @@ export default function McpRead( {
 				sites: [
 					{
 						blog_id: blogId,
-						abilities: overrides,
+						...( overrides && { abilities: overrides } ),
+						...( remoteKeys.length > 0 && {
+							remote_groups: Object.fromEntries( remoteKeys.map( key => [ key, enabled ] ) ),
+						} ),
 					},
 				],
 			} );
 		},
-		[ blogId, readTools, onUpdate ]
+		[ blogId, readTools, mcpAbilities, remoteAbilities, onUpdate ]
 	);
 
 	const handleGroupEnableAll = useCallback(
@@ -207,7 +227,7 @@ export default function McpRead( {
 					mcpAbilities={ mcpAbilities }
 					blogId={ blogId }
 					remoteAbilities={ remoteAbilities }
-					defaultEnabled={ pageAllEnabled }
+					defaultEnabled={ toolsAllEnabled }
 					query={ query }
 					anchor={ anchor }
 					savingToolIds={ savingToolIds }

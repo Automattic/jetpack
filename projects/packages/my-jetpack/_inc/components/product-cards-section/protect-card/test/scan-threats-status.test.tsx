@@ -14,11 +14,6 @@ jest.mock( '../../../../hooks/use-my-jetpack-connection', () => ( {
 	default: () => ( { isSiteConnected: true } ),
 } ) );
 
-jest.mock( '../../../../hooks/use-analytics', () => ( {
-	__esModule: true,
-	default: () => ( { recordEvent: jest.fn() } ),
-} ) );
-
 jest.mock( '../../../../data/utils/get-my-jetpack-window-state', () => ( {
 	getMyJetpackWindowInitialState: () => ( { plugins: {}, themes: {} } ),
 } ) );

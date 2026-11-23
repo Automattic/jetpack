@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Search: Load the Search block styles only on pages that show the blocks, on sites that turn off on-demand block assets.

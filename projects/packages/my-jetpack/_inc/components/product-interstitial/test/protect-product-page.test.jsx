@@ -4,7 +4,6 @@ import ProtectProductPage from '../protect/product-page';
 
 jest.mock( '../../../data/products/use-product' );
 jest.mock( '../../../data/use-simple-query', () => () => ( { data: {}, isLoading: false } ) );
-jest.mock( '../../../hooks/use-analytics', () => () => ( { recordEvent: jest.fn() } ) );
 jest.mock( '../../../hooks/use-go-back', () => ( { useGoBack: () => ( {} ) } ) );
 jest.mock( '../../../hooks/use-my-jetpack-connection', () => () => ( {} ) );
 jest.mock( '../../go-back-link', () => () => null );

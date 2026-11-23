@@ -7,7 +7,12 @@
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Monetize\Dashboard as Monetize_Dashboard;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
+use Automattic\Jetpack\PremiumAnalytics\Analytics;
+use Automattic\Jetpack\SEO\Initializer as SEO_Initializer;
+use Automattic\Jetpack\Stats\Options as Stats_Options;
 use Automattic\Jetpack\Status\Cache as Status_Cache;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -20,6 +25,13 @@ require_once JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class-jetpack-settings-
 #[CoversClass( Jetpack_Settings_React_Page::class )]
 class Jetpack_Settings_React_Page_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
+
+	/**
+	 * What arrange_moved_out_site() changed, for tear_down() to put back.
+	 *
+	 * @var array|null
+	 */
+	private $moved_out_site;
 
 	/**
 	 * Log in as an administrator of a connected site.
@@ -65,6 +77,7 @@ class Jetpack_Settings_React_Page_Test extends WP_UnitTestCase {
 		remove_all_filters( 'pre_update_option_jetpack_private_options' );
 		wp_dequeue_style( 'components-css' );
 		set_current_screen( 'front' );
+		$this->restore_moved_out_site();
 
 		parent::tear_down();
 	}
@@ -136,6 +149,99 @@ class Jetpack_Settings_React_Page_Test extends WP_UnitTestCase {
 		Admin_Menu::admin_menu_hook_callback();
 
 		return array_column( $GLOBALS['submenu']['jetpack'] ?? array(), 2 );
+	}
+
+	/**
+	 * Move settings out on a site that has what a provide_sites_once_settings_move_out() row names.
+	 *
+	 * @param array $site What the site has.
+	 */
+	private function arrange_moved_out_site( array $site ) {
+		$modules              = array_fill_keys( array_merge( $site['modules'], array( 'monetize' ) ), '1.0' );
+		$this->moved_out_site = array(
+			'active_modules' => Jetpack_Options::get_option( 'active_modules' ),
+			'protect_page'   => $GLOBALS['wp_actions']['jetpack_protect_dashboard_initialized'] ?? null,
+			'odyssey'        => Stats_Options::get_option( 'enable_odyssey_stats' ),
+			'stats_v2'       => Analytics::is_initialized(),
+			'modules'        => static function () use ( $modules ) {
+				return $modules;
+			},
+			'plugins'        => static function () use ( $site ) {
+				return empty( $site['akismet'] ) ? array() : array( 'akismet/akismet.php' );
+			},
+		);
+
+		if ( ! empty( $site['editor'] ) ) {
+			wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
+		}
+		add_filter( 'jetpack_feature_flag_enabled_' . My_Jetpack_Initializer::SETTINGS_CONSOLIDATION_FLAG, empty( $site['flag_off'] ) ? '__return_true' : '__return_false' );
+		// An earlier test can leave a local site URL, which Status reads as offline.
+		add_filter( 'jetpack_offline_mode', '__return_false' );
+		add_filter( 'jetpack_get_available_modules', $this->moved_out_site['modules'], PHP_INT_MAX );
+		add_filter( 'pre_option_active_plugins', $this->moved_out_site['plugins'], PHP_INT_MAX );
+
+		unset( $GLOBALS['wp_actions']['jetpack_protect_dashboard_initialized'] );
+		if ( $site['protect_page'] ) {
+			$GLOBALS['wp_actions']['jetpack_protect_dashboard_initialized'] = 1;
+		}
+
+		update_option( SEO_Initializer::VISIBILITY_OPTION, $site['seo_page'] );
+		Stats_Options::set_option( 'enable_odyssey_stats', $site['odyssey'] );
+		self::set_stats_v2_booted( ! empty( $site['analytics'] ) );
+
+		add_filter( 'jetpack_feature_flag_enabled_' . Monetize_Dashboard::FEATURE_FLAG, $site['ads_home'] ? '__return_true' : '__return_false' );
+		if ( $site['ads_home'] ) {
+			Jetpack_Options::update_option( 'active_modules', array( 'monetize' ) );
+		}
+
+		if ( ! empty( $site['atomic'] ) ) {
+			Constants::set_constant( 'ATOMIC_SITE_ID', 1 );
+			Constants::set_constant( 'ATOMIC_CLIENT_ID', 2 );
+			Constants::set_constant( 'WPCOMSH__PLUGIN_FILE', 'wpcomsh/wpcomsh.php' );
+		}
+		Status_Cache::clear();
+	}
+
+	/**
+	 * Undo arrange_moved_out_site().
+	 */
+	private function restore_moved_out_site() {
+		if ( null === $this->moved_out_site ) {
+			return;
+		}
+
+		remove_all_filters( 'jetpack_feature_flag_enabled_' . My_Jetpack_Initializer::SETTINGS_CONSOLIDATION_FLAG );
+		remove_all_filters( 'jetpack_feature_flag_enabled_' . Monetize_Dashboard::FEATURE_FLAG );
+		remove_filter( 'jetpack_offline_mode', '__return_false' );
+		remove_filter( 'jetpack_get_available_modules', $this->moved_out_site['modules'], PHP_INT_MAX );
+		remove_filter( 'pre_option_active_plugins', $this->moved_out_site['plugins'], PHP_INT_MAX );
+		Jetpack_Options::update_option( 'active_modules', $this->moved_out_site['active_modules'] );
+
+		unset( $GLOBALS['wp_actions']['jetpack_protect_dashboard_initialized'] );
+		if ( null !== $this->moved_out_site['protect_page'] ) {
+			$GLOBALS['wp_actions']['jetpack_protect_dashboard_initialized'] = $this->moved_out_site['protect_page'];
+		}
+
+		// Stats_Options caches its options in a static the database rollback doesn't reach.
+		Stats_Options::set_option( 'enable_odyssey_stats', $this->moved_out_site['odyssey'] );
+		self::set_stats_v2_booted( $this->moved_out_site['stats_v2'] );
+		Constants::clear_constants();
+		Status_Cache::clear();
+		$this->moved_out_site = null;
+	}
+
+	/**
+	 * Pin whether Stats v2 booted in this request, which Analytics::init() sets once per process.
+	 *
+	 * @param bool $booted Whether it booted.
+	 */
+	private static function set_stats_v2_booted( $booted ) {
+		$initialized = new ReflectionProperty( Analytics::class, 'initialized' );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$initialized->setAccessible( true );
+		}
+		$initialized->setValue( null, $booted );
 	}
 
 	/**
@@ -223,6 +329,104 @@ class Jetpack_Settings_React_Page_Test extends WP_UnitTestCase {
 		return array(
 			'settings stay'     => array( false, true ),
 			'settings move out' => array( true, false ),
+		);
+	}
+
+	/**
+	 * @dataProvider provide_sites_once_settings_move_out
+	 *
+	 * @param array         $site What the site has, as arrange_moved_out_site() reads it.
+	 * @param string[]|null $tabs The tabs left.
+	 */
+	#[DataProvider( 'provide_sites_once_settings_move_out' )]
+	public function test_remaining_tabs_are_the_ones_without_a_new_home( $site, $tabs ) {
+		$this->arrange_moved_out_site( $site );
+
+		$this->assertSame( $tabs, Jetpack_Settings_React_Page::get_remaining_tabs() );
+	}
+
+	/**
+	 * Sites with settings moved out, by what each still has, and the tabs left on Settings.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_sites_once_settings_move_out() {
+		$settled = array(
+			'modules'      => array( 'protect', 'sso', 'stats', 'seo-tools', 'wordads' ),
+			'protect_page' => true,
+			'seo_page'     => true,
+			'odyssey'      => true,
+			'ads_home'     => true,
+		);
+
+		return array(
+			'nothing left'                             => array( $settled, array() ),
+			'Security without the Protect page'        => array( array( 'protect_page' => false ) + $settled, array( 'security' ) ),
+			'Security for Akismet alone'               => array(
+				array(
+					'modules'      => array(),
+					'protect_page' => false,
+					'akismet'      => true,
+				) + $settled,
+				array( 'security' ),
+			),
+			'Traffic for the legacy SEO settings'      => array( array( 'seo_page' => false ) + $settled, array( 'traffic' ) ),
+			'Traffic for canonical URLs alone'         => array(
+				array(
+					'modules'  => array( 'canonical-urls' ),
+					'seo_page' => false,
+				) + $settled,
+				array( 'traffic' ),
+			),
+			'Traffic for classic Stats'                => array( array( 'odyssey' => false ) + $settled, array( 'traffic' ) ),
+			'nothing left on Stats v2'                 => array(
+				array(
+					'odyssey'   => false,
+					'analytics' => true,
+				) + $settled,
+				array(),
+			),
+			'Traffic for Google Analytics on Atomic'   => array(
+				array(
+					'atomic'  => true,
+					'modules' => array( 'protect', 'sso', 'stats' ),
+				) + $settled,
+				array( 'traffic' ),
+			),
+			'Monetize while the Ads settings stay'     => array( array( 'ads_home' => false ) + $settled, array( 'earn' ) ),
+			'null with the flag off'                   => array( array( 'flag_off' => true ) + $settled, null ),
+			'null for users who cannot manage modules' => array( array( 'editor' => true ) + $settled, null ),
+		);
+	}
+
+	/**
+	 * @dataProvider provide_entry_once_settings_move_out
+	 *
+	 * @param array $site      What the site has, as arrange_moved_out_site() reads it.
+	 * @param bool  $has_entry Whether the admin should see the Settings entry.
+	 */
+	#[DataProvider( 'provide_entry_once_settings_move_out' )]
+	public function test_admins_keep_the_entry_only_while_a_tab_is_left( $site, $has_entry ) {
+		$this->arrange_moved_out_site( $site );
+
+		// Old page=jetpack-settings#/… links and #/privacy need the page either way.
+		$this->assertContains( 'jetpack-settings', $this->register_and_list_slugs() );
+		Admin_Menu::remove_hidden_menu_items();
+
+		$this->assertSame( $has_entry, in_array( 'jetpack-settings', array_column( $GLOBALS['submenu']['jetpack'] ?? array(), 2 ), true ) );
+	}
+
+	/**
+	 * Sites with settings moved out, and whether Settings keeps its sidebar entry.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_entry_once_settings_move_out() {
+		$settled = self::provide_sites_once_settings_move_out()['nothing left'][0];
+
+		return array(
+			'nothing left' => array( $settled, false ),
+			'a tab left'   => array( array( 'odyssey' => false ) + $settled, true ),
 		);
 	}
 

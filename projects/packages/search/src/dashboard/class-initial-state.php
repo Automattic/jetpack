@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Search;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack\Status;
 use Jetpack_Options;
 
@@ -65,7 +66,7 @@ class Initial_State {
 	 * @return array
 	 */
 	public function get_initial_state() {
-		return array(
+		$state = array(
 			'siteData'        => array(
 				'WP_API_root'             => esc_url_raw( rest_url() ),
 				'wpcomOriginApiUrl'       => $this->get_wp_api_root(),
@@ -86,6 +87,8 @@ class Initial_State {
 				'title'                   => get_bloginfo( 'name' ),
 				'postTypes'               => $this->get_post_types_with_labels(),
 				'isWpcom'                 => Helper::is_wpcom(),
+				// My Jetpack's add-license screen, which offline mode turns off.
+				'addLicense'              => class_exists( My_Jetpack_Initializer::class ) && My_Jetpack_Initializer::is_licensing_ui_enabled(),
 				// phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 				'isPlanJustUpgraded'      => isset( $_GET['just_upgraded'] ) && wp_unslash( $_GET['just_upgraded'] ),
 				/**
@@ -172,6 +175,14 @@ class Initial_State {
 				isset( $_GET['features'] ) ? explode( ',', wp_unslash( $_GET['features'] ) ) : array()
 			),
 		);
+
+		// The last plan the site saved, so the page can pick its view before the plan request returns.
+		$plan_info = get_option( Plan::JETPACK_SEARCH_PLAN_INFO_OPTION_KEY );
+		if ( is_array( $plan_info ) ) {
+			$state['sitePlan'] = $plan_info;
+		}
+
+		return $state;
 	}
 
 	/**

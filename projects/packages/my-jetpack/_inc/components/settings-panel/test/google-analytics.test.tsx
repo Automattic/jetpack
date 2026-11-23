@@ -2,21 +2,22 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
+import useAnalytics from '../../../hooks/use-analytics';
 import { GoogleAnalyticsSettings } from '../google-analytics';
 
-const mockRecordEvent = jest.fn();
+const mockRecordEvent = jest.mocked( jest.mocked( useAnalytics )().recordEvent );
 
 jest.mock( '@wordpress/api-fetch', () => jest.fn() );
 jest.mock( '@wordpress/notices', () => ( { store: 'core/notices' } ) );
 jest.mock( '@wordpress/data', () => ( {
+	combineReducers: () => {},
+	createReduxStore: () => {},
+	createSelector: () => {},
+	register: () => {},
 	useDispatch: () => ( { createErrorNotice: jest.fn(), createSuccessNotice: jest.fn() } ),
 } ) );
 jest.mock( '../../my-jetpack-tab-panel/features/use-main-features', () => ( {
 	QUERY_KEY: [ 'my-jetpack-main-features' ],
-} ) );
-jest.mock( '../../../hooks/use-analytics', () => ( {
-	__esModule: true,
-	default: () => ( { recordEvent: mockRecordEvent } ),
 } ) );
 
 const mockFetch = apiFetch as unknown as jest.Mock;

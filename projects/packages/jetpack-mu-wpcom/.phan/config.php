@@ -27,6 +27,8 @@ return make_phan_config(
 			'tests/php/features/editor-welcome-guides/fixtures/tracks-spy.php',
 			// Stands in for a Jetpack package the code reaches through a class_exists() guard.
 			'tests/php/features/wpcom-admin-menu/fixtures/class-jetpack-activity-log.php',
+			// Redefines Photon_OpenCV, which the photon-opencv stubs already declare.
+			'tests/php/features/media/fixtures/class-photon-opencv.php',
 		),
 		'exclude_file_regex'              => array(
 			'build/',

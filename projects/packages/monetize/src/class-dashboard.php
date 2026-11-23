@@ -78,6 +78,7 @@ class Dashboard {
 	const SECTIONS = array(
 		Sections\Overview::class,
 		Sections\Payments::class,
+		Sections\Subscribers::class,
 		Sections\Ads::class,
 	);
 
@@ -241,6 +242,8 @@ class Dashboard {
 	/**
 	 * Where the page's upgrade links go: Jetpack Creator, unless a host sends them to its own plans.
 	 *
+	 * A host that sets `url` to an empty string offers no upgrade, and the page hides its links.
+	 *
 	 * @since 0.2.0
 	 *
 	 * @return string
@@ -257,6 +260,10 @@ class Dashboard {
 			self::UPGRADE_SLUG,
 			false
 		);
+
+		if ( is_array( $upgrade ) && array_key_exists( 'url', $upgrade ) && '' === $upgrade['url'] ) {
+			return '';
+		}
 
 		$url = is_array( $upgrade ) ? esc_url_raw( (string) ( $upgrade['url'] ?? '' ) ) : '';
 
@@ -454,7 +461,7 @@ class Dashboard {
 	}
 
 	/**
-	 * Add the "Monetize" item under the Jetpack menu on Simple, once wpcom-admin-menu.php has built that menu.
+	 * Add the "Monetize" item under the Jetpack menu on the WordPress.com platform, once wpcom-admin-menu.php has built that menu.
 	 *
 	 * @return void
 	 */

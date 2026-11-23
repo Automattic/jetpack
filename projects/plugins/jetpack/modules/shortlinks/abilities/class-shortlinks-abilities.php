@@ -31,6 +31,13 @@ class Shortlinks_Abilities extends Registrar {
 	const MAX_POST_IDS = 100;
 
 	/**
+	 * {@inheritDoc}
+	 */
+	protected static function enabled_by_default(): bool {
+		return true;
+	}
+
+	/**
 	 * Returns the category slug this registrar owns.
 	 *
 	 * @return string
@@ -118,6 +125,7 @@ class Shortlinks_Abilities extends Registrar {
 						'destructive' => false,
 						'idempotent'  => true,
 					),
+					'public'       => true,
 					'show_in_rest' => true,
 					'mcp'          => array(
 						'public' => true,
