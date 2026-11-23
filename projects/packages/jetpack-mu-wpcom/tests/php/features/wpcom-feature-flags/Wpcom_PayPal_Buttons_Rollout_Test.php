@@ -16,18 +16,17 @@ use PHPUnit\Framework\Attributes\DataProvider;
 /**
  * Covers the precedence: kill switch, then the per-site override, then the rollout default.
  *
- * Tests run on the hooks the package bootstrap adds, and set the percent and the kill switch themselves,
- * so they pass at any shipped PERCENT or KILLED.
+ * Tests set the percent and the kill switch themselves. They pass at any shipped PERCENT or KILLED.
  */
 class Wpcom_PayPal_Buttons_Rollout_Test extends \WorDBless\BaseTestCase {
 
 	/**
-	 * The flag the paypal-payments package registers. A literal, so renaming the class constant fails here.
+	 * The flag the paypal-payments package registers. A literal. Renaming the class constant fails here.
 	 */
 	const FLAG = 'paypal-payments-api-managed-buttons';
 
 	/**
-	 * The kill switch network option, set by name on WordPress.com. A literal, so renaming the class constant fails here.
+	 * Kill option (network option `wpcom_paypal_buttons_kill_switch`). A literal. Renaming the class constant fails here.
 	 */
 	const KILL_SWITCH_OPTION = 'wpcom_paypal_buttons_kill_switch';
 
@@ -99,7 +98,7 @@ class Wpcom_PayPal_Buttons_Rollout_Test extends \WorDBless\BaseTestCase {
 	 * @param int       $percent            The rollout percent.
 	 * @param bool      $atomic             Whether the site is Atomic.
 	 * @param bool|null $override           The site's Tools > Feature Flags override, or null for none.
-	 * @param bool      $killed             True sets the kill option, false forces the kill switch off.
+	 * @param bool      $killed             True sets the kill option. False forces the kill switch off.
 	 */
 	private function given( $registered_default, $blog_id, $percent, $atomic = false, $override = null, $killed = false ) {
 		Feature_Flags::register( self::FLAG, array( 'default' => $registered_default ) );
@@ -141,7 +140,7 @@ class Wpcom_PayPal_Buttons_Rollout_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * The default runs before the override, and the kill switch runs last on the flag's own hook.
+	 * The default runs before the override. The kill switch runs last on the flag's own hook.
 	 */
 	public function test_package_bootstrap_wires_the_rollout() {
 		$this->assertSame(
@@ -155,7 +154,7 @@ class Wpcom_PayPal_Buttons_Rollout_Test extends \WorDBless\BaseTestCase {
 
 	/**
 	 * A Simple site turns on once the percent passes its bucket.
-	 * Runs as an administrator, and test_precedence() runs logged out, so a bucket that reads the user id or favors admins fails one of them.
+	 * Runs as an administrator. test_precedence() runs logged out.
 	 *
 	 * @dataProvider provide_blog_ids
 	 *
@@ -241,7 +240,7 @@ class Wpcom_PayPal_Buttons_Rollout_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * KILLED or a truthy kill option turns the kill switch on. Subclasses set KILLED, so this passes at any shipped value.
+	 * KILLED or the kill option turns the kill switch on. Subclasses set KILLED.
 	 *
 	 * @dataProvider provide_kill_switch
 	 *

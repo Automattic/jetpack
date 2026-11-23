@@ -53,7 +53,7 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding_Test extends \WorDBless\BaseT
 	const FLAG = 'paypal-payments-api-managed-buttons';
 
 	/**
-	 * The kill switch network option. A literal, so renaming the rollout's constant fails here.
+	 * Kill option (network option `wpcom_paypal_buttons_kill_switch`). A literal. Renaming the rollout's constant fails here.
 	 *
 	 * @var string
 	 */
@@ -423,12 +423,12 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding_Test extends \WorDBless\BaseT
 	}
 
 	/**
-	 * Test that every platform route refuses production while the kill switch is on, and only then.
+	 * Test that every platform route refuses production only while the kill switch is on.
 	 *
-	 * The flag is off in every case, so the kill switch alone decides.
+	 * The flag is off in every case.
 	 *
 	 * @param string $environment 'sandbox' or 'production'.
-	 * @param bool   $killed      Whether the kill switch option is set.
+	 * @param bool   $killed      Whether the kill option is set.
 	 * @param bool   $refused     Whether the routes refuse.
 	 * @dataProvider provide_kill_switch
 	 */

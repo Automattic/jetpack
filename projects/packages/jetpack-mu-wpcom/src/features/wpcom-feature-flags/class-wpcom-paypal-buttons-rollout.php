@@ -10,22 +10,21 @@ namespace Automattic\Jetpack\Jetpack_Mu_Wpcom;
 use Automattic\Jetpack\Constants;
 
 /**
- * Turns the `paypal-payments-api-managed-buttons` flag on for a percent of sites, and lets WordPress.com force it off.
+ * Turns the `paypal-payments-api-managed-buttons` flag on for a percent of sites. WordPress.com can force it off.
  *
  * Precedence, highest first: kill switch, the site's Tools > Feature Flags override, the rollout default.
  * Temporary: remove once PERCENT is 100, the flag defaults on everywhere, and the kill switch is retired.
- * The PayPal onboarding endpoint calls is_killed(), so remove that call with this class.
+ * Remove the is_killed() call in the PayPal onboarding endpoint with it.
  */
 class Wpcom_PayPal_Buttons_Rollout {
 
 	/**
-	 * The flag PayPal_Payment_Buttons registers in the paypal-payments package, which this package does not require.
+	 * The flag the paypal-payments package registers.
 	 */
 	const FLAG = 'paypal-payments-api-managed-buttons';
 
 	/**
-	 * Network option that, when truthy, turns the flag off on every Simple site and refuses live PayPal for every caller.
-	 * Atomic reads its own options, so use KILLED there.
+	 * Kill option (network option `wpcom_paypal_buttons_kill_switch`). Truthy turns the flag off on every Simple site and refuses live PayPal. Atomic uses KILLED.
 	 */
 	const KILL_SWITCH_OPTION = 'wpcom_paypal_buttons_kill_switch';
 
@@ -35,7 +34,7 @@ class Wpcom_PayPal_Buttons_Rollout {
 	const PERCENT = 0;
 
 	/**
-	 * True turns the flag off on Simple and Atomic, and refuses live PayPal for every caller.
+	 * True turns the flag off on Simple and Atomic and refuses live PayPal.
 	 */
 	const KILLED = false;
 
@@ -45,7 +44,7 @@ class Wpcom_PayPal_Buttons_Rollout {
 	 * @return void
 	 */
 	public static function init() {
-		// Before Wpcom_Feature_Flags::filter_enabled() at 10, so a per-site override beats this default.
+		// Before Wpcom_Feature_Flags::filter_enabled() at 10. A per-site override beats this default.
 		add_filter( 'jetpack_feature_flag_enabled', array( self::class, 'rollout_default' ), 5, 2 );
 		add_filter( 'jetpack_feature_flag_enabled_' . self::FLAG, array( self::class, 'apply_kill_switch' ), PHP_INT_MAX );
 	}
@@ -114,9 +113,9 @@ class Wpcom_PayPal_Buttons_Rollout {
 	}
 
 	/**
-	 * The site's bucket, 0-99. Salted with the flag, so each rollout turns on its own set of sites.
+	 * The site's bucket, 0-99. Salted with the flag.
 	 *
-	 * `abs()` after the modulo: 32-bit PHP returns a signed `crc32()`, and `abs( PHP_INT_MIN )` overflows.
+	 * `abs()` after the modulo: 32-bit `crc32()` can be negative. `abs( PHP_INT_MIN )` overflows.
 	 *
 	 * @param int $blog_id Blog ID.
 	 * @return int
