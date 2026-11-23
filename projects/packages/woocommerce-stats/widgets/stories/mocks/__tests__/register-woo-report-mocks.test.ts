@@ -30,6 +30,11 @@ type SessionsResponse = {
 	summary: ReportRow;
 };
 
+type AttributionPeriod = { value: string | null; intervals: unknown[] };
+type AttributionSummaryResponse = {
+	data: { item: string; current_period: AttributionPeriod; previous_period: AttributionPeriod }[];
+};
+
 const ORDERS_NUMERIC_FIELDS = [
 	'average_order_value',
 	'avg_items',
@@ -257,6 +262,43 @@ it( 'serves fewer visitors for the comparison window', async () => {
 
 	expect( Number( comparison.summary.visitors ) ).toBeLessThan(
 		Number( primary.summary.visitors )
+	);
+} );
+
+it( 'splits order attribution by device and fills both periods from the query', async () => {
+	const response = await request< AttributionSummaryResponse >(
+		reportPath( 'order-attribution/device/summary', {
+			...PRIMARY_WINDOW,
+			interval: STORY_PARAMS.interval,
+			view: 'device',
+			compare_from: COMPARISON_WINDOW.from,
+			compare_to: COMPARISON_WINDOW.to,
+		} )
+	);
+
+	expect( response.data.map( row => row.item ) ).toEqual( [ 'Mobile', 'Desktop', 'Tablet', '' ] );
+	response.data.forEach( row => {
+		expect( typeof row.current_period.value ).toBe( 'string' );
+		expect( Array.isArray( row.current_period.intervals ) ).toBe( true );
+		expect( Number( row.previous_period.value ) ).toBeLessThan(
+			Number( row.current_period.value )
+		);
+	} );
+} );
+
+it( 'repeats the primary period when no comparison window is asked for', async () => {
+	const response = await request< AttributionSummaryResponse >(
+		reportPath( 'order-attribution/device/summary', {
+			...PRIMARY_WINDOW,
+			interval: STORY_PARAMS.interval,
+			view: 'device',
+			compare_from: PRIMARY_WINDOW.from,
+			compare_to: PRIMARY_WINDOW.to,
+		} )
+	);
+
+	expect( response.data[ 0 ].previous_period.value ).toBe(
+		response.data[ 0 ].current_period.value
 	);
 } );
 

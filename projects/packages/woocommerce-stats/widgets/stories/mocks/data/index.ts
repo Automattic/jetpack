@@ -1,4 +1,5 @@
 export { bucketsForWindow, type ReportBucket } from './interval-buckets';
+export { buildOrderAttributionDeviceResponse } from './order-attribution-device';
 export { buildOrdersByDateResponse } from './orders-by-date';
 export { buildProductsResponse } from './products';
 export { buildProductDetailsResponse } from './product-details';

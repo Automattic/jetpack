@@ -9,6 +9,7 @@ import apiFetch from '@wordpress/api-fetch';
 // failure can originate in Premium Analytics source with nothing in this package to say so.
 import { resetForcedStateQueries } from '../../../../premium-analytics/packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import {
+	buildOrderAttributionDeviceResponse,
 	buildOrdersByDateResponse,
 	buildProductDetailsResponse,
 	buildProductsResponse,
@@ -87,6 +88,8 @@ const wooReportMocksMiddleware: APIFetchMiddleware = async ( options: APIFetchOp
 		const query = queryOf( requestPath );
 
 		switch ( requestPath.slice( REPORTS_PATH.length ).split( '?' )[ 0 ] ) {
+			case 'order-attribution/device/summary':
+				return buildOrderAttributionDeviceResponse( query );
 			case 'orders/by-date':
 				return buildOrdersByDateResponse( query );
 			case 'orders-by-product-type/by-date':
