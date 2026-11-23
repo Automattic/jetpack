@@ -20,10 +20,12 @@ import {
 } from 'date-fns';
 
 /**
- * One chart point: a bucket-start date and the views summed into the bucket.
+ * One chart point: the first and last day of the bucket that fall in the range,
+ * and the views summed into it.
  */
 export type PostViewsPoint = {
 	date: Date;
+	endDate?: Date;
 	value: number;
 };
 
@@ -132,8 +134,11 @@ function bucketDays( days: StatsPostDay[], buckets: BucketWindow[] ): PostViewsP
 	// `parseSiteDateTime` keeps the site-local day key round-tripping through the
 	// chart's same-zone labels; a null parse can't happen with `format()`-built keys.
 	return buckets.flatMap( bucket => {
-		const date = parseSiteDateTime( bucket.date );
-		return date ? [ { date, value: totals.get( bucket.date ) ?? 0 } ] : [];
+		// The clipped bounds, so the tooltip names a month the range cuts by its days.
+		const date = parseSiteDateTime( bucket.from );
+		const endDate = parseSiteDateTime( bucket.to );
+		const value = totals.get( bucket.date ) ?? 0;
+		return date ? [ endDate ? { date, endDate, value } : { date, value } ] : [];
 	} );
 }
 

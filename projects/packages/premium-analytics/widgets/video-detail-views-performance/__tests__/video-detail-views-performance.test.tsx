@@ -31,7 +31,7 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 			key: string;
 			label: string;
 			value: number;
-			current: { date: Date; value: number }[];
+			current: { date: Date; endDate?: Date; value: number }[];
 			countLabel?: ( count: number ) => string;
 			dataFormat?: { type: string };
 		}[];
@@ -55,6 +55,11 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 					values: metric.current.map( point => point.value ),
 					firstDate: metric.current[ 0 ]?.date.toISOString(),
 					days: metric.current.map( point => point.date.getDate() ),
+					spans: metric.current.map( point =>
+						[ point.date, point.endDate ]
+							.map( day => day?.toISOString().slice( 0, 10 ) )
+							.join( '/' )
+					),
 				} ) )
 			) }
 		>
@@ -78,6 +83,7 @@ type ChartedMetric = {
 	values: number[];
 	firstDate?: string;
 	days: number[];
+	spans: string[];
 };
 
 /**
@@ -249,6 +255,33 @@ describe( 'VideoDetailViewsPerformanceWidget', () => {
 		// days, not their raw average; the empty weeks have no measured retention.
 		expect( retention.values[ 1 ] ).toBeCloseTo( ( 5 * 40 + 7 * 60 ) / 12 / 100, 10 );
 		expect( retention.values[ 2 ] ).toBe( 0 );
+	} );
+
+	it( 'carries the days of a month the window cuts, so its tooltip does not name the whole month', async () => {
+		mockApiFetch.mockImplementation( respondByWindow( { '2026-06-20': WEEKLY_WINDOW_RESPONSE } ) );
+
+		render(
+			<VideoDetailViewsPerformanceWidget
+				attributes={ {
+					reportParams: {
+						...DEFAULT_PARAMS,
+						from: '2026-06-20T00:00:00.000+00:00',
+						to: '2026-10-10T23:59:59.999+00:00',
+						interval: 'month',
+						post_id: 105,
+					},
+				} }
+			/>
+		);
+
+		const [ views ] = chartedMetrics( await screen.findByTestId( 'metric-tabs-chart' ) );
+		expect( views.spans ).toEqual( [
+			'2026-06-20/2026-06-30',
+			'2026-07-01/2026-07-31',
+			'2026-08-01/2026-08-31',
+			'2026-09-01/2026-09-30',
+			'2026-10-01/2026-10-10',
+		] );
 	} );
 
 	it( 'draws a line when the chartType attribute says so', async () => {
