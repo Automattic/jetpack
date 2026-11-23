@@ -28,18 +28,21 @@ class Settings_Panel_Url_Test extends BaseTestCase {
 	const INIT_FILTER = 'jetpack_my_jetpack_should_initialize';
 
 	/**
-	 * Start from a registered flag, with no admin page: the shape of a REST request.
+	 * Start from a registered flag turned off, with no admin page: the shape of a REST request.
 	 */
 	public function set_up() {
 		parent::set_up();
 		Feature_Flags::reset();
 		Initializer::register_feature_flags();
+		// A test's later `__return_true` runs after this one, so it turns the flag on.
+		add_filter( self::FLAG_FILTER, '__return_false' );
 	}
 
 	/**
-	 * Drop the flag override and the registry.
+	 * Drop the flag overrides and the registry.
 	 */
 	public function tear_down() {
+		remove_filter( self::FLAG_FILTER, '__return_false' );
 		remove_filter( self::FLAG_FILTER, '__return_true' );
 		remove_filter( self::HOST_FILTER, '__return_false' );
 		remove_filter( self::INIT_FILTER, '__return_false' );
