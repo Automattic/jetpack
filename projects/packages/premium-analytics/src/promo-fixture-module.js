@@ -1,4 +1,10 @@
-const { createElement: h } = window.React;
+import { PromoCta } from '@automattic/jetpack-premium-analytics-sdk';
+
+if ( ! window.React ) {
+	throw new Error( 'promo-fixture: window.React is missing, so the render module cannot draw.' );
+}
+
+const h = window.React.createElement;
 
 /**
  * Content of the fixture settings promo, to exercise the render module tier.
@@ -11,18 +17,9 @@ const { createElement: h } = window.React;
 export default function PromoFixtureModule( { promo, trackClick } ) {
 	return h(
 		'div',
-		null,
+		{ 'data-testid': 'promo-fixture-module' },
 		h( 'h3', null, promo.title ),
 		h( 'p', null, promo.description ),
-		h(
-			'a',
-			{
-				href: promo.cta_url,
-				target: '_blank',
-				rel: 'noopener noreferrer',
-				onClick: () => trackClick( 'fixture-cta' ),
-			},
-			promo.cta_label
-		)
+		h( PromoCta, { href: promo.cta_url, label: promo.cta_label, trackClick } )
 	);
 }

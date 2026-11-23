@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\PremiumAnalytics;
 
+use Automattic\Jetpack\Feature_Flags\Feature_Flags;
 use PHPUnit\Framework\Attributes\CoversFunction;
 use WorDBless\BaseTestCase;
 
@@ -26,6 +27,8 @@ class Promo_Fixture_Test extends BaseTestCase {
 	 */
 	public function tear_down() {
 		remove_all_filters( 'jetpack_premium_analytics_register_promo_fixtures' );
+		remove_all_filters( 'jetpack_feature_flag_enabled_' . PROMO_FLAG );
+		Feature_Flags::reset();
 		remove_all_actions( Promo_Registry::REGISTER_ACTION );
 
 		$instance = new \ReflectionProperty( Promo_Registry::class, 'instance' );
@@ -68,5 +71,24 @@ class Promo_Fixture_Test extends BaseTestCase {
 		sort( $expected );
 
 		$this->assertSame( $expected, $this->registered_placements() );
+	}
+
+	public function test_every_fixture_promo_is_available_once_the_flag_is_on() {
+		add_filter( 'jetpack_premium_analytics_register_promo_fixtures', '__return_true' );
+		add_filter( 'jetpack_feature_flag_enabled_' . PROMO_FLAG, '__return_true' );
+
+		$expected = PROMO_PLACEMENTS;
+		sort( $expected );
+
+		$this->registered_placements();
+		$available = array_map(
+			static function ( Promo $promo ) {
+				return $promo->placement;
+			},
+			get_available_promos()
+		);
+		sort( $available );
+
+		$this->assertSame( $expected, $available );
 	}
 }

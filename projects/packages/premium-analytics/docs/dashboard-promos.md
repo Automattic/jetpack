@@ -6,27 +6,24 @@ Nothing renders until the `jetpack-stats-promos` feature flag is on. It is regis
 
 ## Vocabulary
 
-| Term      | Meaning                                                                                               | Example                          |
-| --------- | ----------------------------------------------------------------------------------------------------- | -------------------------------- |
-| Slug      | Namespaced identifier, `<namespace>/<name>`, matching `^[a-z][a-z0-9-]*\/[a-z][a-z0-9-]*$`.           | `acme/offer`                     |
-| Placement | Where the promo renders: `section-footer`, `options-menu` or `settings`.                              | `section-footer`                 |
-| Target    | The slug of the dashboard section a `section-footer` promo attaches to. The part after the namespace. | `traffic`                        |
-| Tier      | Whether Premium Analytics draws the card from plain copy, or a script module draws its content.       | plain copy, or a `render_module` |
-| Snooze    | How long a first dismissal hides the promo, in days.                                                  | `90`                             |
+| Term      | Meaning                                                                                         | Example                          |
+| --------- | ----------------------------------------------------------------------------------------------- | -------------------------------- |
+| Slug      | Namespaced identifier, `<namespace>/<name>`, matching `^[a-z][a-z0-9-]*\/[a-z][a-z0-9-]*$`.     | `acme/offer`                     |
+| Placement | Where the promo renders: `section-footer`, `options-menu` or `settings`.                        | `section-footer`                 |
+| Target    | The section slug a `section-footer` promo attaches to, for example `traffic`.                   | `traffic`                        |
+| Tier      | Whether Premium Analytics draws the card from plain copy, or a script module draws its content. | plain copy, or a `render_module` |
+| Snooze    | How long a first dismissal hides the promo, in days.                                            | `90`                             |
 
 ## Files
 
-| File                                                                       | Role                                                                                                                            |
-| -------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
-| `src/class-promo.php`                                                      | The promo model: properties, `is_available()`, `to_array()`.                                                                    |
-| `src/class-promo-registry.php`                                             | The registry: `register()` with its refusals, the reads, and the lazy hydration that fires the registration action.             |
-| `src/promos.php`                                                           | The API: `register_promo()`, `get_available_promos()` and its gates, the feature flag, the script data and the page import map. |
-| `src/promo-fixture.php`, `src/promo-fixture-module.js`                     | A fixture registrant, one promo per placement, for trying the slot in a browser.                                                |
-| `packages/data/src/utils/promos.ts`                                        | The client's reads: `getPromosForPlacement()`, `pickPromo()` and the snooze rule.                                               |
-| `packages/widgets-toolkit/src/hooks/use-promo-slot.ts`                     | `usePromoSlot()` picks the promo a placement mounts. `usePromoDismissal()` records a close.                                     |
-| `packages/widgets-toolkit/src/components/promo-card/`                      | The card frame, the plain-copy content, the module loader and the tracking.                                                     |
-| `routes/dashboard/stage.tsx`, `routes/settings/`, `stats-options-menu.tsx` | The three placements.                                                                                                           |
-| `projects/js-packages/premium-analytics-sdk/src/index.d.ts`                | `PromoRenderProps`, `PromoRecord` and `PromoCta`, the types and component a render module builds on.                            |
+| Where                                         | Role                                                                                                                                                             |
+| --------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/` (`promos.php`, `class-promo*.php`)     | The model, the registry and its refusals, `register_promo()`, `get_available_promos()` and its gates, the feature flag, the script data and the page import map. |
+| `src/` (`promo-fixture*`)                     | A fixture registrant, one promo per placement, for trying the slot in a browser. Excluded from the production mirror.                                            |
+| `packages/data/src/utils/`                    | The client's reads and the snooze rule.                                                                                                                          |
+| `packages/widgets-toolkit/src/`               | `usePromoSlot()`, `usePromoDismissal()` and the card frame with its tracking, in `hooks/` and `components/promo-card/`.                                          |
+| `routes/dashboard/`, `routes/settings/`       | Two of the placements. The third is the options menu in `packages/widgets-toolkit/`.                                                                             |
+| `projects/js-packages/premium-analytics-sdk/` | `PromoRenderProps`, `PromoRecord` and `PromoCta`, the types and component a render module builds on.                                                             |
 
 ## Registering a promo
 
@@ -137,7 +134,65 @@ A `section-footer` promo is suppressed while the reader is editing the dashboard
 
 **Click tracking belongs to the module.** Premium Analytics cannot see a click inside content it does not draw, so a module calls `trackClick()` from each link or button. `PromoCta` from the same SDK is a link that already does. Until the module loads, and if it fails to load, the card shows the plain-copy content, so keep `title`, `description`, `cta_label` and `cta_url` filled in on a promo that has a module.
 
-Register the module with `wp_register_script_module()` under the id passed as `render_module`, from the same callback. The registry adds it to the page import map.
+Register the module with `wp_register_script_module()` under the id passed as `render_module`, in the same callback. The registry adds it to the page import map. Declare the SDK as a module dependency: the page's import map resolves `@automattic/jetpack-premium-analytics-sdk` to the dashboard's own exports, which is how a module reaches `PromoCta` without bundling it.
+
+```php
+add_action(
+	Promo_Registry::REGISTER_ACTION,
+	static function () {
+		wp_register_script_module(
+			'acme/offer-card',
+			plugins_url( 'build/offer-card.js', __FILE__ ),
+			array( '@automattic/jetpack-premium-analytics-sdk' ),
+			'1.0.0'
+		);
+
+		register_promo(
+			'acme/offer',
+			array(
+				'placement'     => 'settings',
+				'title'         => __( 'Grow with Acme', 'acme' ),
+				'description'   => __( 'Reach more readers with Acme.', 'acme' ),
+				'cta_label'     => __( 'Try Acme', 'acme' ),
+				'cta_url'       => 'https://example.com/acme',
+				'render_module' => 'acme/offer-card',
+				'is_available'  => true,
+			)
+		);
+	}
+);
+```
+
+```tsx
+import { PromoCta, type PromoRenderProps } from '@automattic/jetpack-premium-analytics-sdk';
+
+export default function OfferCard( { promo, trackClick }: PromoRenderProps ) {
+	return (
+		<div>
+			<h3>{ promo.title }</h3>
+			<p>{ promo.description }</p>
+			<PromoCta href={ promo.cta_url } label={ promo.cta_label } trackClick={ trackClick } />
+		</div>
+	);
+}
+```
+
+React is not a module specifier here. The dashboard page loads it as the classic script handles `react` and `react-jsx-runtime`, and a wp-build module reads it from `window.React` and `window.ReactJSXRuntime`, so build the module with wp-build and leave React external. A module that cannot find `window.React` fails to load, and the card shows the plain-copy fallback.
+
+An `options-menu` promo is a link, so it carries no module and cannot be dismissed:
+
+```php
+register_promo(
+	'acme/menu-offer',
+	array(
+		'placement'    => 'options-menu',
+		'cta_label'    => __( 'Try Acme', 'acme' ),
+		'cta_url'      => 'https://example.com/acme',
+		'dismissible'  => false,
+		'is_available' => true,
+	)
+);
+```
 
 ## Dismissal
 
@@ -177,11 +232,9 @@ Add a case to the fixture whenever a placement is added: `Promo_Fixture_Test` fa
 
 ## Where the tests are
 
-| Behaviour                                                 | Test                                                                                                                                                      |
-| --------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| The model, the registry's refusals and its hydration      | `tests/php/Promo_Test.php`, `tests/php/Promo_Registry_Test.php`                                                                                           |
-| The gates, the order, the script data and the import map  | `tests/php/Promos_Test.php`                                                                                                                               |
-| The fixture registrant                                    | `tests/php/Promo_Fixture_Test.php`                                                                                                                        |
-| The snooze rule and the placement reads                   | `packages/data/src/utils/__tests__/`                                                                                                                      |
-| Dismissal, the card, its tracking and its module fallback | `packages/widgets-toolkit/src/hooks/__tests__/use-promo-slot.test.ts`, `packages/widgets-toolkit/src/components/promo-card/__tests__/promo-card.test.tsx` |
-| The section footer, the settings card and the menu item   | `routes/dashboard/stage.test.tsx`, `routes/settings/`, the options menu tests                                                                             |
+| Behaviour                                                                        | Where                                                                        |
+| -------------------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
+| The model, the registry, the gates, the script data, the import map, the fixture | `tests/php/` (`Promo_*`, `Promos_Test.php`)                                  |
+| The snooze rule and the placement reads                                          | `packages/data/src/utils/__tests__/`                                         |
+| Dismissal, the card, its tracking and its module fallback                        | `packages/widgets-toolkit/src/hooks/__tests__/`, `.../promo-card/__tests__/` |
+| The three placements                                                             | `routes/dashboard/`, `routes/settings/`, the options menu tests              |
