@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add a CLI command to rename a user's login so it can be kept in step with their WordPress.com username.

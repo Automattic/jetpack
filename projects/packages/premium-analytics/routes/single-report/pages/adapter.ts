@@ -3,6 +3,8 @@
  */
 import type { SingleReportPageSection } from '../registry';
 import type { DateRange } from '@jetpack-premium-analytics/datetime';
+import type { PageEmptyStateProps } from '@jetpack-premium-analytics/widgets-toolkit';
+import type { WidgetType } from '@wordpress/widget-primitives';
 import type { ReactNode } from 'react';
 
 /**
@@ -10,7 +12,7 @@ import type { ReactNode } from 'react';
  */
 export type EntitySummary = {
 	/*
-	 * The entity's title: the last crumb and the document title.
+	 * The entity's title as saved, possibly blank; the page then states the adapter's untitled title.
 	 */
 	title?: string;
 
@@ -53,6 +55,75 @@ export type SingleReportHeaderSlots = {
 };
 
 /**
+ * The window a section pins its widgets to in place of the URL's, or why it has none yet:
+ * `pending` while the window resolves, `blocked` when it never will and the widgets mount anyway.
+ */
+export type SectionScope =
+	| {
+			reportParams: Record< string, unknown >;
+			range: DateRange;
+			/** The window the header states when a widget in the layout picks its own, else `range`. */
+			headerRange?: ( layout: readonly SectionWidget[] ) => DateRange | undefined;
+	  }
+	| 'pending'
+	| 'blocked';
+
+/** What a section reads of a widget in its layout. */
+export type SectionWidget = { type: string; attributes?: unknown };
+
+/**
+ * What an adapter says about one of the record's sections for the current entity.
+ */
+export type SectionState = {
+	section: SingleReportPageSection;
+
+	/*
+	 * The tab is absent: the section does not apply to this entity.
+	 */
+	hidden?: boolean;
+
+	/*
+	 * The tab's name when the adapter names it, such as "Page traffic"; absent, the record's.
+	 */
+	label?: string;
+
+	/*
+	 * The label waits on data that has not loaded: the tab shows a placeholder.
+	 */
+	isPending?: boolean;
+
+	/*
+	 * A pinned window; the section then renders no date controls.
+	 */
+	scope?: SectionScope;
+
+	/*
+	 * Replaces the header and the widgets with one page-level state.
+	 */
+	emptyState?: PageEmptyStateProps;
+};
+
+/**
+ * What the page knows when it asks an adapter about the sections.
+ */
+export type SectionsContext = {
+	/*
+	 * The entity id, as the URL carries it.
+	 */
+	entityId: string;
+
+	/*
+	 * The section the URL names, if any.
+	 */
+	activeSlug?: string;
+
+	/*
+	 * The site timezone, for a window computed from a date.
+	 */
+	timeZone: string;
+};
+
+/**
  * What the page hands an adapter along with the summary.
  */
 export type HeaderContext = {
@@ -62,9 +133,14 @@ export type HeaderContext = {
 	label: string;
 
 	/*
+	 * The title the page states, in the crumb and the header: the entity's, else the untitled one.
+	 */
+	title: string;
+
+	/*
 	 * The active inner section, on a page with sections.
 	 */
-	section?: SingleReportPageSection;
+	section?: SectionState;
 
 	/*
 	 * The committed report range, stated as the performance window.
@@ -83,12 +159,17 @@ export type SingleReportAdapter< Summary extends EntitySummary = EntitySummary >
 	useSummary( entityId: string ): Summary;
 
 	/*
+	 * The title of an entity saved without one, such as "Untitled video"; absent, the record's label stands in.
+	 */
+	untitledTitle?( summary: Summary ): string;
+
+	/*
 	 * The header slots for a summary in any state.
 	 */
 	headerSlots( summary: Summary, context: HeaderContext ): SingleReportHeaderSlots;
 
 	/*
-	 * Actions beside the page options, such as View post.
+	 * Actions beside the Stats options, such as View post.
 	 */
 	headerActions?( summary: Summary ): ReactNode;
 
@@ -96,4 +177,18 @@ export type SingleReportAdapter< Summary extends EntitySummary = EntitySummary >
 	 * The not-found notice's sentence, whole for translators; a page without one names no kind.
 	 */
 	notFoundDescription?(): string;
+
+	/*
+	 * The state of each of the record's sections for this entity; absent, every section renders as declared.
+	 */
+	useSections?(
+		summary: Summary,
+		sections: SingleReportPageSection[],
+		context: SectionsContext
+	): SectionState[];
+
+	/*
+	 * The widget types as this page presents them, such as a card title naming the entity's kind; absent, as registered.
+	 */
+	useWidgetTypes?( widgetTypes: WidgetType[], summary: Summary ): WidgetType[];
 };

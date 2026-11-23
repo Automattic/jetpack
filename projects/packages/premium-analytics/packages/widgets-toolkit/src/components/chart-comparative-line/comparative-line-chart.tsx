@@ -238,15 +238,16 @@ export function ComparativeLineChart( {
 	);
 
 	// A percentage metric or an all-zero period pins its own axis; otherwise a
-	// padded baseline pads what the legend leaves visible. Null lets the chart fit
-	// the data above zero.
+	// padded baseline pads the data. Both read what the legend leaves visible.
+	// Null lets the chart fit the data above zero.
 	const pinnedYAxis = useMemo( () => {
-		const fixedYAxis = getFixedYAxis( dataFormat.type, isEmptyData );
+		const hiddenSeries = getHiddenSeries( resolvedChartId );
+		const visibleSeries = styledSeries.filter( s => ! hiddenSeries.has( s.label ) );
+		const fixedYAxis = getFixedYAxis( dataFormat.type, isEmptyData, visibleSeries );
 		if ( fixedYAxis || baseline !== 'padded' ) {
 			return fixedYAxis;
 		}
-		const hiddenSeries = getHiddenSeries( resolvedChartId );
-		return getPaddedYAxis( styledSeries.filter( s => ! hiddenSeries.has( s.label ) ) );
+		return getPaddedYAxis( visibleSeries );
 	}, [ dataFormat.type, isEmptyData, baseline, styledSeries, getHiddenSeries, resolvedChartId ] );
 
 	// Pinned ticks let the label format see exactly what the axis draws.

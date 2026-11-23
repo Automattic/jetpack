@@ -623,6 +623,11 @@ class Jetpack_Core_Json_Api_Endpoints {
 						'type'              => 'string',
 						'format'            => 'uri',
 					),
+					'silent'       => array(
+						'description' => __( 'Whether to return to the site without a token instead of failing.', 'jetpack' ),
+						'type'        => 'boolean',
+						'default'     => false,
+					),
 				),
 			)
 		);
@@ -691,10 +696,11 @@ class Jetpack_Core_Json_Api_Endpoints {
 		$subscription_service = \Automattic\Jetpack\Extensions\Premium_Content\subscription_service();
 		// Note: get_and_set_token_from_request() sets the subscriber cookie as a side effect.
 		// The cookie is set regardless of the redirect target below; only the redirect is gated.
-		$token          = $subscription_service->get_and_set_token_from_request();
-		$payload        = $subscription_service->decode_token( $token );
-		$is_valid_token = ! empty( $payload );
-		if ( ! $is_valid_token ) {
+		$token   = $subscription_service->get_and_set_token_from_request();
+		$payload = $subscription_service->decode_token( $token );
+
+		// A silent check from the paywall goes back to the post whether or not it brought a token.
+		if ( empty( $payload ) && empty( $request['silent'] ) ) {
 			return new WP_Error( 'invalid-token', 'Invalid Token', array( 'status' => 403 ) );
 		}
 
@@ -1961,6 +1967,14 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'validate_callback' => __CLASS__ . '::validate_string',
 				'sanitize_callback' => 'esc_textarea',
 				'jp_group'          => 'protect',
+			),
+			// Not a module option: the free check runs without the Brute Force Protection module.
+			'jetpack_protect_vulnerability_checks'      => array(
+				'description'       => esc_html__( 'Check the site every day for known vulnerabilities in WordPress, plugins and themes.', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 1,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'settings',
 			),
 
 			// Sharing.

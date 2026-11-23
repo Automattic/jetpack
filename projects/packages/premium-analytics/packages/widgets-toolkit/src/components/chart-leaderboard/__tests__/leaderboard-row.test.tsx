@@ -303,7 +303,7 @@ describe( 'buildLeaderboardRow', () => {
 
 	it.each( [
 		[ 'a video detail link', { kind: 'videoLink', id: 12, search: {} }, '/report/video/12' ],
-		[ 'a post detail link', { kind: 'postLink', id: 5, search: {} }, '/post/5' ],
+		[ 'a post detail link', { kind: 'postLink', id: 5, search: {} }, '/report/post/5' ],
 		[
 			'a public page link',
 			{ kind: 'postLink', href: 'https://example.com/hello/', search: {} },
@@ -346,7 +346,7 @@ describe( 'buildLeaderboardRow', () => {
 		render( row.label );
 
 		const title = screen.getByRole( 'link', { name: 'Hello' } );
-		expect( title ).toHaveAttribute( 'href', expect.stringMatching( /^\/post\/5/ ) );
+		expect( title ).toHaveAttribute( 'href', expect.stringMatching( /^\/report\/post\/5/ ) );
 		// The tooltip stays on the title, so hovering the arrow shows only "View".
 		expect( title ).toHaveAttribute( 'title', 'Hello' );
 		const view = screen.getByRole( 'link', { name: 'View "Hello" in a new tab' } );
@@ -456,9 +456,29 @@ describe( 'buildLeaderboardRow', () => {
 
 		expect( screen.getAllByRole( 'link' ) ).toHaveLength( 1 );
 		const title = screen.getByRole( 'link', { name: 'Hello' } );
-		expect( title ).toHaveAttribute( 'href', '/post/5' );
+		expect( title ).toHaveAttribute( 'href', '/report/post/5' );
 		// The lone link carries the row chrome itself; a two-link wrapper would take it instead.
 		expect( title ).toHaveClass( 'rowLink' );
+	} );
+
+	it( 'draws the mark of an indicated row beside the title, outside its name', () => {
+		render(
+			buildLeaderboardRow( {
+				label: 'Hello',
+				media: { kind: 'none' },
+				action: { kind: 'postLink', id: 5, href: null, search: {} },
+				indicator: 'Published in this period',
+			} ).label
+		);
+
+		const title = screen.getByRole( 'link', { name: 'Hello' } );
+		const mark = screen.getByRole( 'img', { name: 'Published in this period' } );
+		// The mark moves the row chrome to a wrapper, as a "View" action does.
+		// eslint-disable-next-line testing-library/no-node-access -- The wrapper has no accessible query target.
+		const wrapper = mark.parentElement;
+		expect( wrapper ).toHaveClass( 'row' );
+		expect( wrapper ).toContainElement( title );
+		expect( title ).toHaveClass( 'titleLink' );
 	} );
 
 	it( 'returns chart button props for a drill-down without nesting an action', () => {

@@ -6,7 +6,7 @@ import STORE_ID from './store-id';
 const REGISTER_SITE = ( { redirectUri, from } ) => restApi.registerSite( null, redirectUri, from );
 
 const CONNECT_USER = createRegistryControl(
-	( { resolveSelect } ) =>
+	( { dispatch, resolveSelect } ) =>
 		( { from, redirectFunc, redirectUri, skipPricingPage } = {} ) => {
 			return new Promise( ( resolve, reject ) => {
 				resolveSelect( STORE_ID )
@@ -29,6 +29,8 @@ const CONNECT_USER = createRegistryControl(
 						resolve( finalUrl );
 					} )
 					.catch( error => {
+						// A failed resolution is cached, so a retry would otherwise never refetch.
+						dispatch( STORE_ID ).invalidateResolution( 'getAuthorizationUrl', [ redirectUri ] );
 						reject( error );
 					} );
 			} );

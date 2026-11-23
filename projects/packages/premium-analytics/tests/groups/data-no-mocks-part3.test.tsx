@@ -3,7 +3,6 @@
 import '../../packages/data/src/processing/stats/__tests__/file-downloads.test';
 import '../../packages/data/src/processing/stats/__tests__/followers.test';
 import '../../packages/data/src/processing/stats/__tests__/highlights.test';
-import '../../packages/data/src/processing/stats/__tests__/hour-of-day.test';
 import '../../packages/data/src/processing/stats/__tests__/insights.test';
 import '../../packages/data/src/processing/stats/__tests__/locations.test';
 import '../../packages/data/src/processing/stats/__tests__/post-comments.test';

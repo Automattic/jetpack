@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Playground backup restores: build indexes from the MySQL definitions in the SQLite database, keeping their names and prefix lengths, so plugin tables like TranslatePress and Solid Security import.

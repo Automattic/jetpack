@@ -41,6 +41,8 @@ export type ScanState = {
 	/** Whether a filter chose `upsellVariant`, so it's shown without rotating. */
 	upsellVariantForced?: boolean;
 	error: boolean;
+	/** False when the site owner turned off the free daily vulnerability check. */
+	checksEnabled?: boolean;
 	scanning?: boolean;
 	lastChecked?: string | null;
 	/** Whether the last scan started but failed, so `lastChecked` is when it tried, not when it vouched for the site. */

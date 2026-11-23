@@ -22,7 +22,7 @@ import {
 import { jetpack } from '@jetpack-premium-analytics/icons';
 import { useDashboardLink } from '@jetpack-premium-analytics/routing';
 import { StatsBreadcrumbs, StatsTierSlider } from '@jetpack-premium-analytics/ui';
-import { useTrackEvent } from '@jetpack-premium-analytics/widgets-toolkit';
+import { StatsOptionsMenu, useTrackEvent } from '@jetpack-premium-analytics/widgets-toolkit';
 import { speak } from '@wordpress/a11y';
 import { Page } from '@wordpress/admin-ui';
 import { useCallback, useEffect, useState } from '@wordpress/element';
@@ -108,7 +108,6 @@ export function UpgradePage(): JSX.Element {
 		from: 'jetpack_premium_analytics_upsell',
 		redirectUri: upgradePath,
 	} );
-	// The connection store never clears its own "connecting" flag when the flow fails to start.
 	const [ connectState, setConnectState ] = useState< 'idle' | 'connecting' | 'failed' >( 'idle' );
 	const connectUser = useCallback( () => {
 		setConnectState( 'connecting' );
@@ -229,6 +228,7 @@ export function UpgradePage(): JSX.Element {
 					items={ [ { label: __( 'Upgrade', 'jetpack-premium-analytics-pkg' ) } ] }
 				/>
 			}
+			actions={ <StatsOptionsMenu /> }
 			className={ styles.page }
 		>
 			<div className={ styles.layout }>

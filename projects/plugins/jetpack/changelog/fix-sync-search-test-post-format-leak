@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: Fix a test that leaked an unregistered post_format taxonomy.
+
+

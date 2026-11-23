@@ -58,9 +58,9 @@ class Channel_Data {
 	const DEFAULT_HANDLE_PREFIX = '@';
 
 	/**
-	 * Per-request cache of the video lists, keyed by blog ID and then search term.
+	 * Per-request cache of the video lists, keyed by blog ID, search scope and search term.
 	 *
-	 * @var array<int, array<string, array[]>>
+	 * @var array<int, array<string, array<string, array[]>>>
 	 */
 	private static $videos = array();
 
@@ -91,8 +91,9 @@ class Channel_Data {
 	public static function videos( $search = '' ) {
 		$search  = is_string( $search ) ? trim( $search ) : '';
 		$blog_id = get_current_blog_id();
-		if ( isset( self::$videos[ $blog_id ][ $search ] ) ) {
-			return self::$videos[ $blog_id ][ $search ];
+		$scope   = self::search_scope( $search );
+		if ( isset( self::$videos[ $blog_id ][ $scope ][ $search ] ) ) {
+			return self::$videos[ $blog_id ][ $scope ][ $search ];
 		}
 
 		/**
@@ -113,7 +114,7 @@ class Channel_Data {
 			}
 		}
 
-		self::$videos[ $blog_id ][ $search ] = $videos;
+		self::$videos[ $blog_id ][ $scope ][ $search ] = $videos;
 		return $videos;
 	}
 
@@ -126,7 +127,18 @@ class Channel_Data {
 	 * @return string
 	 */
 	public static function cache_key( $what, $search = '' ) {
-		return implode( ':', array( $what, get_current_blog_id(), wp_cache_get_last_changed( 'posts' ), md5( (string) $search ) ) );
+		return implode( ':', array( $what, get_current_blog_id(), wp_cache_get_last_changed( 'posts' ), self::search_scope( $search ), md5( (string) $search ) ) );
+	}
+
+	/**
+	 * Who a search's matches are for, since members also match private videos' transcripts.
+	 *
+	 * @param string $search Search term.
+	 *
+	 * @return string
+	 */
+	private static function search_scope( $search ) {
+		return '' !== (string) $search && current_user_can( 'read' ) ? 'member' : 'public';
 	}
 
 	/**
@@ -165,7 +177,8 @@ class Channel_Data {
 			'suppress_filters' => false,
 		);
 		if ( '' !== $search ) {
-			$args['s'] = $search;
+			$args['s']                            = $search;
+			$args['videopress_transcript_search'] = Transcript_Index::is_search_enabled();
 		}
 		return $args;
 	}
@@ -472,6 +485,33 @@ class Channel_Data {
 	 * @return array{entries: array[], total: int, page: int, pages: int, start: int}
 	 */
 	public static function browse( array $state, $per_page, array $exclude = array(), $with_views = false ) {
+		$result = self::browse_results( $state, $per_page, $exclude, $with_views );
+		$search = trim( (string) ( $state['search'] ?? '' ) );
+		if ( '' !== $search && Transcript_Index::is_search_enabled() ) {
+			foreach ( $result['entries'] as &$entry ) {
+				$match = Transcript_Index::can_read_transcript( (int) $entry['id'] ) ? Transcript_Index::match( (int) $entry['id'], $search ) : null;
+				if ( $match ) {
+					$entry['snippet']      = $match['text'];
+					$entry['snippetMatch'] = $match['needle'];
+					$entry['startMs']      = $match['start'];
+				}
+			}
+			unset( $entry );
+		}
+		return $result;
+	}
+
+	/**
+	 * One page of browse() before transcript snippets are added.
+	 *
+	 * @param array    $state      From browse_request().
+	 * @param int      $per_page   Page size.
+	 * @param string[] $exclude    GUIDs to leave out.
+	 * @param bool     $with_views Whether records need play counts.
+	 *
+	 * @return array{entries: array[], total: int, page: int, pages: int, start: int}
+	 */
+	private static function browse_results( array $state, $per_page, array $exclude, $with_views ) {
 		$per_page = max( 1, (int) $per_page );
 		$fast     = self::browse_page( $state, $per_page, $exclude, $with_views );
 		if ( null !== $fast ) {

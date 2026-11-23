@@ -8,7 +8,6 @@ import { getMyJetpackWindowInitialState } from '../utils/get-my-jetpack-window-s
 import type { FC, ReactNode } from 'react';
 
 jest.mock( '@wordpress/api-fetch' );
-jest.mock( '../../hooks/use-analytics' );
 jest.mock( '../../hooks/use-notification-watcher/assignLocation' );
 jest.mock( '../utils/get-my-jetpack-window-state' );
 
@@ -70,7 +69,9 @@ describe( 'useSeoOptIn', () => {
 				'https://example.org/wp-admin/admin.php?page=jetpack-seo'
 			)
 		);
-		expect( recordEvent ).toHaveBeenCalledWith( 'jetpack_myjetpack_seo_opt_in_card_success', {} );
+		expect( recordEvent ).toHaveBeenCalledWith( 'jetpack_myjetpack_seo_opt_in_card_success', {
+			surface: 'overview',
+		} );
 	} );
 
 	it( 'falls back to the bootstrapped redirect when the response has none', async () => {

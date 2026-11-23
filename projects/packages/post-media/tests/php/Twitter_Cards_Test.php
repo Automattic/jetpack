@@ -277,6 +277,56 @@ class Twitter_Cards_Test extends BaseTestCase {
 		$this->assertStringContainsString( 'test-icon.png', $result_tags['twitter:image'] );
 	}
 
+	/** OG's usable fallback must win over a site icon, retaining its own alt text. */
+	public function test_og_fallback_is_used_without_content_images() {
+		$tags           = array(
+			'og:image'     => 'https://example.com/default.jpg',
+			'og:image:alt' => 'Default image',
+		);
+		list( $result ) = Twitter_Cards::twitter_cards_define_type_based_on_image_count(
+			$tags,
+			array(
+				'type'  => 'standard',
+				'count' => array( 'image' => 0 ),
+			)
+		);
+		$this->assertSame( $tags['og:image'], $result['twitter:image'] );
+		$this->assertSame( $tags['og:image:alt'], $result['twitter:image:alt'] );
+	}
+
+	/** The built-in blank placeholder must never become an X fallback. */
+	public function test_blank_og_placeholder_is_not_an_x_fallback() {
+		$tags           = array( 'og:image' => 'https://s0.wp.com/i/blank.jpg' );
+		list( $result ) = Twitter_Cards::twitter_cards_define_type_based_on_image_count(
+			$tags,
+			array(
+				'type'  => 'standard',
+				'count' => array( 'image' => 0 ),
+			)
+		);
+		$this->assertArrayNotHasKey( 'twitter:image', $result );
+	}
+
+	/** SVG site icons cannot be used in X cards. */
+	public function test_svg_site_icon_is_not_a_fallback() {
+		$id = wp_insert_attachment(
+			array(
+				'post_mime_type' => 'image/svg+xml',
+				'post_title'     => 'SVG icon',
+			),
+			'icon.svg'
+		);
+		update_option( 'site_icon', $id );
+		list( $result ) = Twitter_Cards::twitter_cards_define_type_based_on_image_count(
+			array(),
+			array(
+				'type'  => 'standard',
+				'count' => array( 'image' => 0 ),
+			)
+		);
+		$this->assertEmpty( $result['twitter:image'] ?? '' );
+	}
+
 	/**
 	 * Test that extract image is used when images array is empty.
 	 */
@@ -331,6 +381,9 @@ class Twitter_Cards_Test extends BaseTestCase {
 		global $post;
 		$post = get_post( $post_id );
 		$this->assertInstanceOf( 'WP_Post', $post );
+
+		$GLOBALS['wp_query']              = new WP_Query();
+		$GLOBALS['wp_query']->is_singular = true;
 
 		$og_tags = array( 'og:title' => 'Test' );
 		$result  = Twitter_Cards::twitter_cards_tags( $og_tags );

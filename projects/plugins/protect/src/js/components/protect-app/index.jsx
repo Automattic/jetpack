@@ -7,6 +7,7 @@ import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router';
 import useNotices from '../../hooks/use-notices';
 import useProtectData from '../../hooks/use-protect-data';
+import useThreatCountSync from '../../hooks/use-threat-count-sync';
 import Notice from '../notice';
 
 /**
@@ -40,6 +41,8 @@ const ProtectApp = () => {
 			current: { threats: numThreats },
 		},
 	} = useProtectData();
+
+	useThreatCountSync( numThreats );
 
 	// Redirect to the setup page if the site is not registered.
 	useEffect( () => {

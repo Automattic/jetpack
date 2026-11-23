@@ -52,6 +52,24 @@ class Site_Health {
 	 * @return array
 	 */
 	public static function do_checks() {
+		// Protect_Status::STATUS_DISABLED.
+		if ( 'disabled' === Status::get_status()->status ) {
+			return array(
+				'label'       => __( 'Jetpack Protect’s vulnerability check is off', 'jetpack-protect' ),
+				'status'      => 'recommended',
+				'badge'       => array(
+					'label' => __( 'Security', 'jetpack-protect' ),
+					'color' => 'gray',
+				),
+				'description' => sprintf(
+					'<p>%s</p>',
+					__( 'Jetpack isn’t checking WordPress, plugins and themes for known vulnerabilities. You can turn the check back on in Jetpack’s Protect settings.', 'jetpack-protect' )
+				),
+				'actions'     => '',
+				'test'        => 'jetpack_protect_checks',
+			);
+		}
+
 		$total_threats = Status::get_total_threats();
 		$threats       = Status::get_all_threats();
 		$threats       = array_map(

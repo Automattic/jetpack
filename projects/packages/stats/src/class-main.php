@@ -70,6 +70,9 @@ class Main {
 		// Generate the tracking code after wp() has queried for posts.
 		add_action( 'template_redirect', array( __CLASS__, 'template_redirect' ), 1 );
 
+		// Not on template_redirect: the AMP plugin reads its sanitizers on `wp`, which runs first.
+		add_filter( 'amp_content_sanitizers', array( Tracking_Pixel::class, 'add_amp_consent_sanitizer' ) );
+
 		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'hide_smile_css' ) );
 
 		// Map stats caps.
@@ -99,10 +102,7 @@ class Main {
 		// Set up package version hook.
 		add_filter( 'jetpack_package_versions', __NAMESPACE__ . '\Package_Version::send_package_version_to_tracker' );
 
-		// Register WP Abilities API surface. Gated behind the
-		// `jetpack_wp_abilities_enabled` filter inside Registrar::init(),
-		// which defaults to false — so this call is safe to make unconditionally
-		// and still opt-in per-site until the flag is flipped.
+		// Register WP Abilities API surface; Registrar::init() checks the `jetpack_wp_abilities_enabled` filter.
 		Stats_Abilities::init();
 	}
 
@@ -170,7 +170,11 @@ class Main {
 
 		add_action( 'wp_enqueue_scripts', array( Tracking_Pixel::class, 'enqueue_stats_script' ), 101 );
 		add_action( 'wp_footer', array( Tracking_Pixel::class, 'add_amp_pixel' ), 101 );
-		add_action( 'web_stories_print_analytics', array( Tracking_Pixel::class, 'add_amp_pixel' ), 101 );
+
+		// Web Stories polyfill amp_is_request() but have no amp-consent and never run AMP_Consent_Sanitizer, so they go uncounted.
+		if ( ! function_exists( 'wp_has_consent' ) ) {
+			add_action( 'web_stories_print_analytics', array( Tracking_Pixel::class, 'add_amp_pixel' ), 101 );
+		}
 	}
 
 	/**

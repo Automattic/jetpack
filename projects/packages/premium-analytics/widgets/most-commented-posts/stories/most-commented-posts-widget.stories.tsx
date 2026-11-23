@@ -113,6 +113,7 @@ function MostCommentedPostsDashboardStory( dashboardArgs: WidgetDashboardWithWid
 }
 
 export const WidgetDashboardWithWidget: StoryObj< WidgetDashboardWithWidgetControls > = {
+	tags: [ 'widget-dashboard' ],
 	render: args => <MostCommentedPostsDashboardStory { ...args } />,
 	args: {
 		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,

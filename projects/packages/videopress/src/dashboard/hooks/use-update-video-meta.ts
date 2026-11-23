@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import apiFetch from '@wordpress/api-fetch';
 import { privacyStringToInt } from '../utils/library-item';
 import { recordVideoPressPrivacyChange } from '../utils/privacy-analytics';
+import { postVideoMeta, VideoMetaSaveError } from '../utils/video-meta-request';
 import { LIBRARY_ITEM_QUERY_SEGMENT, LIBRARY_QUERY_KEY } from './use-library';
 import type { LibraryItemPrivacy, VideoDetailsPatch } from '../types/library';
 
@@ -46,7 +46,7 @@ export function patchToApi( patch: Partial< VideoDetailsPatch > ): ApiPatch {
 
 /**
  * Return a mutation that POSTs video meta updates to wpcom/v2/videopress/meta and
- * invalidates the library cache on success.
+ * invalidates the library cache on success. It rejects unless the server acknowledges the save.
  *
  * @return A TanStack Query mutation object with a mutateAsync method.
  */
@@ -54,7 +54,7 @@ export function useUpdateVideoMeta() {
 	const client = useQueryClient();
 	return useMutation<
 		void,
-		Error,
+		VideoMetaSaveError,
 		{
 			id: number | string;
 			patch: Partial< VideoDetailsPatch >;
@@ -63,14 +63,8 @@ export function useUpdateVideoMeta() {
 	>( {
 		mutationFn: async ( { id, patch, previousPrivacy } ) => {
 			const privacy = patch.privacy;
-			const response = await apiFetch< { code?: string } >( {
-				path: '/wpcom/v2/videopress/meta',
-				method: 'POST',
-				data: { id: Number( id ), ...patchToApi( patch ) },
-			} );
-			if ( response?.code === 'success' ) {
-				recordVideoPressPrivacyChange( previousPrivacy, privacy, false );
-			}
+			await postVideoMeta( { id: Number( id ), ...patchToApi( patch ) } );
+			recordVideoPressPrivacyChange( previousPrivacy, privacy, false );
 		},
 		onSuccess: ( _data, { id } ) => {
 			client.invalidateQueries( { queryKey: [ LIBRARY_QUERY_KEY ] } );

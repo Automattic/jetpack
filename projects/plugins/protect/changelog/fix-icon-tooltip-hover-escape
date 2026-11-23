@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Close information tooltips opened on hover when Escape is pressed, wherever focus is.

@@ -9,6 +9,7 @@
  */
 
 import metadata from '../block.json';
+import { imageFromResource } from './images';
 
 /**
  * Attributes that come from PayPal, which the form leaves out.
@@ -25,8 +26,7 @@ export const PAYPAL_SET_ATTRIBUTES = [
 
 /**
  * Attributes the PayPal payment is the source of truth for. Everything else
- * (image, format, colors, button text) belongs to the block. The image stays on
- * the site.
+ * (the legacy imageUrl, format, colors, button text) belongs to the block.
  */
 export const RESOURCE_ATTRIBUTES = [
 	...PAYPAL_SET_ATTRIBUTES,
@@ -35,6 +35,7 @@ export const RESOURCE_ATTRIBUTES = [
 	'currencyCode',
 	'productDescription',
 	'productId',
+	'images',
 	'variantsEnabled',
 	'variants',
 	'adjustableQuantity',
@@ -133,8 +134,105 @@ function comparableVariants( variants ) {
 		options: ( dim.options || [] ).map( opt => ( {
 			label: opt.label ?? '',
 			value: `${ opt.unit_amount?.value ?? '' }`.trim(),
+			image: comparableImage( opt.images?.[ 0 ] ),
 		} ) ),
 	} ) );
+}
+
+/**
+ * Reduce an image to what PayPal holds: which it is, and whether it is approved yet.
+ *
+ * @param {object} image - The image as the block stores it.
+ * @return {string} The comparable form, '' for no image.
+ */
+function comparableImage( image ) {
+	return image?.assetId ? `${ image.assetId }|${ image.status ?? '' }` : '';
+}
+
+/**
+ * Reduce an images list to what PayPal holds, so two copies compare on content.
+ *
+ * The order matters: the first image is the primary one.
+ *
+ * @param {Array} images - The images attribute.
+ * @return {string[]} The comparable images in order.
+ */
+function comparableImages( images ) {
+	return ( Array.isArray( images ) ? images : [] ).map( comparableImage );
+}
+
+/**
+ * What the media library knows about each image the block holds, by asset id.
+ *
+ * PayPal returns no name and no thumbnail for an image still in review, so the
+ * block's own record of what it sent carries the row until then.
+ *
+ * @param {object} current - The block's current attributes.
+ * @return {Map} attachmentId, name and thumbnailUrl per asset id.
+ */
+function localImageMeta( current ) {
+	const meta = new Map();
+	const note = image => {
+		if ( image?.assetId && ( image.attachmentId || image.name ) ) {
+			meta.set( image.assetId, {
+				attachmentId: image.attachmentId,
+				name: image.name,
+				thumbnailUrl: image.thumbnailUrl,
+			} );
+		}
+	};
+
+	( current?.images || [] ).forEach( note );
+	( current?.variants?.dimensions || [] ).forEach( dim =>
+		( dim.options || [] ).forEach( opt => ( opt.images || [] ).forEach( note ) )
+	);
+
+	return meta;
+}
+
+/**
+ * Lay the block's own record of each image over what PayPal returned for it.
+ *
+ * @param {Array} images - Images as read from the payment.
+ * @param {Map}   meta   - From localImageMeta().
+ * @return {Array} The images, named and with a thumbnail where the block had one.
+ */
+function withLocalImageMeta( images, meta ) {
+	return ( images || [] ).map( image => {
+		const local = meta.get( image.assetId );
+		if ( ! local ) {
+			return image;
+		}
+		return {
+			...image,
+			...( local.attachmentId ? { attachmentId: local.attachmentId } : {} ),
+			...( local.name ? { name: local.name } : {} ),
+			thumbnailUrl: local.thumbnailUrl || image.thumbnailUrl || '',
+		};
+	} );
+}
+
+/**
+ * withLocalImageMeta() for the image on each variant option.
+ *
+ * @param {object|null} variants - Normalized variants.
+ * @param {Map}         meta     - From localImageMeta().
+ * @return {object|null} The variants.
+ */
+function withLocalOptionImageMeta( variants, meta ) {
+	if ( ! variants?.dimensions ) {
+		return variants;
+	}
+
+	return {
+		...variants,
+		dimensions: variants.dimensions.map( dim => ( {
+			...dim,
+			options: ( dim.options || [] ).map( opt =>
+				opt.images ? { ...opt, images: withLocalImageMeta( opt.images, meta ) } : opt
+			),
+		} ) ),
+	};
 }
 
 /**
@@ -143,7 +241,8 @@ function comparableVariants( variants ) {
  * Adds the `_key`s the builder uses for React keys. PayPal flags exactly one group
  * `primary` whether or not it is priced, but `primary` is what the form reads for
  * "per-variant pricing is on", so the flag is kept only on a group that carries a
- * price, and inferred from where the prices are when the payment has none.
+ * price, and inferred from where the prices are when the payment has none. An
+ * option's image comes back in PayPal's shape and is put into the block's.
  *
  * @param {object} variants - Variants data from the payment.
  * @return {object|null} Editable variants, or null when there are none.
@@ -165,6 +264,9 @@ export function normalizeResourceVariants( variants ) {
 			options: ( dim.options || [] ).map( opt => ( {
 				...opt,
 				_key: opt._key || `rs-${ nextKey++ }`,
+				...( Array.isArray( opt.images )
+					? { images: opt.images.slice( 0, 1 ).map( imageFromResource ) }
+					: {} ),
 			} ) ),
 		} ) ),
 	};
@@ -231,6 +333,9 @@ export function isSameValue( key, a, b ) {
 	if ( key === 'variants' ) {
 		return JSON.stringify( comparableVariants( a ) ) === JSON.stringify( comparableVariants( b ) );
 	}
+	if ( key === 'images' ) {
+		return JSON.stringify( comparableImages( a ) ) === JSON.stringify( comparableImages( b ) );
+	}
 	if ( typeof a === 'object' || typeof b === 'object' ) {
 		return JSON.stringify( a ?? null ) === JSON.stringify( b ?? null );
 	}
@@ -272,7 +377,7 @@ export function isBookkeeping( key, prior, format ) {
  * A field the payment no longer carries goes back to its block.json default,
  * so a description or a per-option price removed elsewhere clears here too. The
  * link is the exception: it is fixed to the payment's id, so a read with an empty
- * link keeps the block's.
+ * link keeps the block's. An image keeps the name and thumbnail the block has for it.
  *
  * @param {object} current      - The block's current attributes.
  * @param {object} fromResource - Attributes mapped from the payment by the server.
@@ -280,6 +385,7 @@ export function isBookkeeping( key, prior, format ) {
  */
 export function getResourceAttributeUpdates( current, fromResource ) {
 	const updates = {};
+	const imageMeta = localImageMeta( current );
 
 	RESOURCE_ATTRIBUTES.forEach( key => {
 		if ( key === 'paymentLink' && ! fromResource?.paymentLink ) {
@@ -291,7 +397,10 @@ export function getResourceAttributeUpdates( current, fromResource ) {
 
 		let next = fromResource?.[ key ] === undefined ? fallback : fromResource[ key ];
 		if ( key === 'variants' ) {
-			next = normalizeResourceVariants( next );
+			next = withLocalOptionImageMeta( normalizeResourceVariants( next ), imageMeta );
+		}
+		if ( key === 'images' ) {
+			next = withLocalImageMeta( next, imageMeta );
 		}
 
 		if ( ! isSameValue( key, value, next ) ) {

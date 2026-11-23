@@ -171,7 +171,8 @@ export type ComparisonRangeOptions = {
 	/**
 	 * The preset the reference range came from. A to-date preset is measured
 	 * by the day it is read on, so its previous period steps by the length of
-	 * the completed window: "12 months" moves back twelve months, not 354 days.
+	 * the completed window: "12 months" moves back twelve months and "3 years"
+	 * three years, not the raw day count.
 	 */
 	primaryPresetId?: PrimaryPresetId;
 };
@@ -263,10 +264,10 @@ export function getComparisonRangeFromPreset(
 	}
 
 	if ( presetId === COMPARISON_PREVIOUS_PERIOD ) {
-		// Measured on the window a to-date preset covers once its running month
-		// closes, so "12 months" steps back twelve months rather than 354 days.
-		// The previous month and year shift the dates as read, so a to-date
-		// window compares with the same days a month or a year earlier.
+		// Measured on the window a to-date preset covers once its running unit
+		// closes: the month for "12 months", the year for "3 years". The previous
+		// month and year shift the dates as read, so a to-date window compares
+		// with the same days a month or a year earlier.
 		const completed = completeToDateRange( { from: refFrom, to: refTo }, options.primaryPresetId );
 		const completedTo = completed.to ?? refTo;
 

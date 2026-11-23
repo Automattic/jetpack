@@ -1,6 +1,9 @@
 import { AdminSection, Container, Col } from '@automattic/jetpack-components';
 import ThreatsList from '../../components/threats-list';
-import useScanStatusQuery, { isScanInProgress } from '../../data/scan/use-scan-status-query';
+import useScanStatusQuery, {
+	isChecksOff,
+	isScanInProgress,
+} from '../../data/scan/use-scan-status-query';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 import { OnboardingContext } from '../../hooks/use-onboarding';
 import usePlan from '../../hooks/use-plan';
@@ -26,8 +29,11 @@ const ScanPage = () => {
 	} = useProtectData();
 	const { data: status } = useScanStatusQuery( { usePolling: true } );
 
+	const checksOff = isChecksOff( status );
 	let currentScanStatus;
-	if ( status.error ) {
+	if ( checksOff ) {
+		currentScanStatus = 'disabled';
+	} else if ( status.error ) {
 		currentScanStatus = 'error';
 	} else if ( status.lastScanFailed && ! numThreats && ! isScanInProgress( status ) ) {
 		currentScanStatus = 'scan_failed';
@@ -49,7 +55,7 @@ const ScanPage = () => {
 	return (
 		<OnboardingContext.Provider value={ onboardingSteps }>
 			<ScanAdminSectionHero />
-			{ ( ! status.error || numThreats > 0 ) && (
+			{ ! checksOff && ( ! status.error || numThreats > 0 ) && (
 				<AdminSection>
 					<Container horizontalSpacing={ 7 } horizontalGap={ 4 }>
 						<Col>

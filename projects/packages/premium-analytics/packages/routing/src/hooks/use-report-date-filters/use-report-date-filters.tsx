@@ -6,6 +6,7 @@ import {
 	normalizeReportParams,
 	useReportScope,
 	useScopeLockedIntervals,
+	useSiteDay,
 	type DateLimits,
 	type LockableInterval,
 } from '@jetpack-premium-analytics/data';
@@ -19,13 +20,14 @@ import { useCallback, useMemo } from 'react';
  * Internal dependencies
  */
 import { decodeDateSearchParam, encodeDateToSearchParam } from '../../search/date-range';
-import { hasPrimaryDateDraft } from '../../search/report-params';
+import { hasPrimaryDateDraft, readZoomOutWindow } from '../../search/report-params';
 import { useStagedSearch } from '../use-staged-search';
 import { buildRangePatch, type ReportQuerySearchParams } from './build-range-patch';
 import type {
 	ComparisonPresetId,
 	DateRange,
 	DateStep,
+	DateStepId,
 	IntervalType,
 	PrimaryPresetId,
 	StepDirection,
@@ -87,6 +89,17 @@ export type ReportDateFilters = {
 		onStep: ( direction: StepDirection ) => ( DateStep & { interval: IntervalType } ) | undefined;
 	};
 
+	/**
+	 * The window a widget zoomed in from, while the URL carries one: what the
+	 * zoom-out control names, and the window `onZoomOut` commits, read as it
+	 * names today. Absent once the reader moves the window anywhere else.
+	 */
+	zoomOut?: {
+		presetId: PrimaryPresetId;
+		range: DateRange;
+		onZoomOut: () => { range: DateRange; presetId: PrimaryPresetId; interval: IntervalType };
+	};
+
 	onApply: () => void;
 	onCancel: () => void;
 	canApply: boolean;
@@ -121,6 +134,45 @@ function toPickerRange( from: string | undefined, to: string | undefined, timeZo
 }
 
 /**
+ * Whether `outer` holds all of `inner`. Unparseable ends fail the comparison.
+ *
+ * @param inner - The window that may sit inside.
+ * @param outer - The window that may hold it.
+ * @return Whether it does.
+ */
+function isWithin( inner: DateRange, outer: DateRange | undefined ): boolean {
+	if ( ! inner.from || ! inner.to || ! outer?.from || ! outer.to ) {
+		return false;
+	}
+
+	return inner.from.getTime() >= outer.from.getTime() && inner.to.getTime() <= outer.to.getTime();
+}
+
+/**
+ * Whether `applied` is a hand-picked window a widget opened from `target`: a part of it, or
+ * of the period it was compared with, whose bars open too.
+ *
+ * @param applied          - The window the widgets are querying with.
+ * @param target           - The window to zoom back out to.
+ * @param targetComparison - The period `target` was compared with, when it was.
+ * @param appliedPresetId  - The applied window's preset.
+ * @return Whether zooming out to `target` is a change back.
+ */
+function isZoomedInto(
+	applied: DateRange,
+	target: DateRange,
+	targetComparison: DateRange | undefined,
+	appliedPresetId: PrimaryPresetId | undefined
+): boolean {
+	if ( appliedPresetId !== undefined && appliedPresetId !== PRESET_CUSTOM ) {
+		return false;
+	}
+	const isPartOfTarget = isWithin( applied, target ) && ! isWithin( target, applied );
+
+	return isPartOfTarget || isWithin( applied, targetComparison );
+}
+
+/**
  * The window, bucket and comparison the picker shows, read through `normalizeReportParams` so they
  * are the ones the widgets query by.
  *
@@ -139,11 +191,7 @@ function resolveWindow(
 	comparisonPresetId?: ComparisonPresetId;
 	comparisonRange?: DateRange;
 } {
-	const normalized = normalizeReportParams(
-		params as Parameters< typeof normalizeReportParams >[ 0 ],
-		undefined,
-		{ lockedIntervals }
-	);
+	const normalized = normalizeReportParams( params, undefined, { lockedIntervals } );
 	// Defaults stand in for a URL that names no window; the picker shows none, and the arrows
 	// have nothing to step from. The route seeds one before the hook sees it.
 	const namesWindow = !! params.from || !! params.to || normalized.preset === params.preset;
@@ -190,13 +238,14 @@ export function useReportDateFilters< TFrom extends string >(
 	const { earliestDate } = filterOptions.dateLimits ?? scopedDateLimits ?? {};
 
 	const timeZone = reportingTimeZone();
+	const siteDay = useSiteDay();
 
 	const presetId = useMemo( () => effective.preset ?? undefined, [ effective.preset ] );
 	// The window being edited; the comparison it names is what applying it would compare.
-	const draft = useMemo(
-		() => resolveWindow( effective, timeZone, lockedIntervals ),
-		[ effective, timeZone, lockedIntervals ]
-	);
+	const draft = useMemo( () => {
+		void siteDay;
+		return resolveWindow( effective, timeZone, lockedIntervals );
+	}, [ effective, timeZone, lockedIntervals, siteDay ] );
 	const { range, interval, comparisonPresetId } = draft;
 
 	const appliedPresetId = useMemo( () => committed.preset ?? undefined, [ committed.preset ] );
@@ -204,10 +253,10 @@ export function useReportDateFilters< TFrom extends string >(
 	 * Applied, not staged: a comparison commits on its own but can ride
 	 * uncommitted alongside a staged primary edit, so this can't read `effective`.
 	 */
-	const applied = useMemo(
-		() => resolveWindow( committed, timeZone, lockedIntervals ),
-		[ committed, timeZone, lockedIntervals ]
-	);
+	const applied = useMemo( () => {
+		void siteDay;
+		return resolveWindow( committed, timeZone, lockedIntervals );
+	}, [ committed, timeZone, lockedIntervals, siteDay ] );
 	const {
 		range: appliedRange,
 		comparisonPresetId: appliedComparisonPresetId,
@@ -349,6 +398,61 @@ export function useReportDateFilters< TFrom extends string >(
 		[ canStepBackward, canStepForward, onStep ]
 	);
 
+	// The window to zoom back out to, read like the applied one; `isZoomedInto` says when it is offered.
+	const zoomOut = useMemo( () => {
+		const origin = readZoomOutWindow( committed as Record< string, unknown > );
+		if ( ! origin ) {
+			return undefined;
+		}
+		const target = normalizeReportParams(
+			origin as Parameters< typeof normalizeReportParams >[ 0 ],
+			undefined,
+			{ lockedIntervals }
+		);
+		const targetPresetId = target.preset ?? PRESET_CUSTOM;
+		const targetRange = toPickerRange( target.from, target.to, timeZone );
+		const targetComparison = target.comp
+			? toPickerRange( target.compare_from, target.compare_to, timeZone )
+			: undefined;
+		if ( ! isZoomedInto( appliedRange, targetRange, targetComparison, appliedPresetId ) ) {
+			return undefined;
+		}
+
+		return {
+			presetId: targetPresetId,
+			range: targetRange,
+			onZoomOut: () => {
+				stage( {
+					...buildRangePatch( {
+						nextRange: targetRange,
+						nextPresetId: targetPresetId,
+						exactRange: true,
+						step: target.step as DateStepId | undefined,
+						// The comparison stays as the reader has it now, by the preset it had there where it still has one.
+						effective: {
+							...effective,
+							compare_preset: target.compare_preset ?? effective.compare_preset,
+						},
+						lockedIntervals,
+					} ),
+					interval: target.interval,
+				} );
+				commit();
+
+				return { range: targetRange, presetId: targetPresetId, interval: target.interval };
+			},
+		};
+	}, [
+		committed,
+		appliedRange,
+		appliedPresetId,
+		lockedIntervals,
+		timeZone,
+		stage,
+		commit,
+		effective,
+	] );
+
 	const onApply = useCallback( () => commit(), [ commit ] );
 	const onCancel = useCallback( () => revert(), [ revert ] );
 
@@ -383,6 +487,7 @@ export function useReportDateFilters< TFrom extends string >(
 		onComparisonChange,
 		onIntervalChange,
 		stepping,
+		zoomOut,
 		onApply,
 		onCancel,
 		canApply: isDirty,

@@ -8,6 +8,7 @@ import useAnalytics from '../../hooks/use-analytics';
 import useConnectSite from '../../hooks/use-connect-site';
 import useForcedOffReason from '../../hooks/use-forced-off-reason';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
+import { productsFrom } from '../../utils/connect-url';
 import ActionButton from '../action-button';
 import SecondaryButton from '../action-button/secondary-button';
 import Card from '../card';
@@ -101,11 +102,13 @@ const ProductCard: FC< ProductCardProps > = props => {
 	const [ isActionLoading, setIsActionLoading ] = useState( false );
 	const { recordEvent } = useAnalytics();
 	const { siteIsRegistering, isUserConnected } = useMyJetpackConnection();
+	const connectFrom = productsFrom( slug );
 	const { connectSite } = useConnectSite( {
 		tracksInfo: {
 			event: `jetpack_myjetpack_product_card_fix_site_connection`,
-			properties: {},
+			properties: { from: connectFrom },
 		},
+		from: connectFrom,
 	} );
 	const isLoading =
 		isActionLoading || ( siteIsRegistering && status === PRODUCT_STATUSES.SITE_CONNECTION_ERROR );

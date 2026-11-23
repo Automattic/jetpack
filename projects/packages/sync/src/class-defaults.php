@@ -88,6 +88,7 @@ class Defaults {
 		'jetpack_premium_analytics_enabled',
 		'jetpack_protect_global_whitelist',
 		'jetpack_protect_key',
+		'jetpack_protect_vulnerability_checks',
 		'jetpack_publicize_options',
 		'jetpack_relatedposts',
 		'jetpack_social_message_template',

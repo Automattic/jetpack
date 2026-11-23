@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Search;
 
 use Automattic\Jetpack\Search\TestCase as Search_TestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * @covers \Automattic\Jetpack\Search\Initial_State
@@ -29,6 +30,9 @@ class Initial_State_Test extends Search_TestCase {
 	 */
 	public function tearDown(): void {
 		remove_all_filters( 'jetpack_search_blocks_enabled' );
+		remove_all_filters( 'jetpack_my_jetpack_should_enable_add_license_screen' );
+		remove_all_filters( 'pre_http_request' );
+		delete_option( Plan::JETPACK_SEARCH_PLAN_INFO_OPTION_KEY );
 		$this->unregister_guidelines_page();
 		parent::tearDown();
 	}
@@ -55,6 +59,56 @@ class Initial_State_Test extends Search_TestCase {
 	}
 
 	/**
+	 * Test that the license link follows My Jetpack's add-license screen, which offline mode turns off.
+	 */
+	public function test_add_license_follows_the_add_license_screen() {
+		add_filter( 'jetpack_my_jetpack_should_enable_add_license_screen', '__return_false' );
+		$state = ( new Initial_State() )->get_initial_state();
+		$this->assertFalse( $state['siteData']['addLicense'] );
+	}
+
+	/**
+	 * The stored plan seeds the page, so it can pick its view before the plan request returns.
+	 *
+	 * @dataProvider provide_stored_plans
+	 * @param array|false $stored   The stored plan option.
+	 * @param array|null  $expected The expected `sitePlan`, or null when the key is left out.
+	 */
+	#[DataProvider( 'provide_stored_plans' )]
+	public function test_site_plan_comes_from_the_stored_plan( $stored, $expected ) {
+		if ( false !== $stored ) {
+			update_option( Plan::JETPACK_SEARCH_PLAN_INFO_OPTION_KEY, $stored );
+		}
+		add_filter(
+			'pre_http_request',
+			function () {
+				return new \WP_Error( 'offline' );
+			}
+		);
+
+		$state = ( new Initial_State() )->get_initial_state();
+
+		$this->assertSame( $expected, $state['sitePlan'] ?? null );
+	}
+
+	/**
+	 * Stored plans and the `sitePlan` each should produce.
+	 *
+	 * @return array
+	 */
+	public static function provide_stored_plans() {
+		$plan = array(
+			'supports_instant_search' => true,
+			'supports_search'         => true,
+		);
+		return array(
+			'stored plan'                            => array( $plan, $plan ),
+			'no plan, and WordPress.com unreachable' => array( false, null ),
+			'malformed stored plan'                  => array( 'x', null ),
+		);
+	}
+
+	/**
 	 * Test that the Reader Chat guidelines URL is empty when the page is unavailable.
 	 */
 	public function test_reader_chat_guidelines_url_is_empty_when_page_is_unavailable() {
@@ -68,6 +122,24 @@ class Initial_State_Test extends Search_TestCase {
 	 */
 	public function test_reader_chat_guidelines_url_is_included_when_page_is_available() {
 		$this->assert_guidelines_url_is_included( 'readerChatGuidelinesUrl' );
+	}
+
+	/**
+	 * The admin shell loads the page over admin-ajax, which never builds the menu; the link follows Gutenberg's registrar.
+	 */
+	public function test_reader_chat_guidelines_url_without_a_built_menu() {
+		require_once __DIR__ . '/fixtures/gutenberg-guidelines.php';
+		wp_set_current_user( $this->admin_id );
+		add_filter( 'wp_doing_ajax', '__return_true' );
+
+		$without = ( new Initial_State() )->get_initial_state();
+		add_action( 'admin_menu', 'gutenberg_register_guidelines_settings_submenu' );
+		$with = ( new Initial_State() )->get_initial_state();
+
+		remove_action( 'admin_menu', 'gutenberg_register_guidelines_settings_submenu' );
+		remove_filter( 'wp_doing_ajax', '__return_true' );
+		$this->assertSame( '', $without['siteData']['readerChatGuidelinesUrl'] );
+		$this->assertSame( admin_url( 'options-general.php?page=guidelines-wp-admin' ), $with['siteData']['readerChatGuidelinesUrl'] );
 	}
 
 	/**

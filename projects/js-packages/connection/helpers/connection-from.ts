@@ -38,8 +38,16 @@ export const CONNECTION_FROM = {
 	myJetpackOverview: ( slug: string ) => `my_jetpack_overview_${ toNamePart( slug ) }`,
 	jetpackPremiumAnalyticsOnboarding: 'jetpack_premium_analytics_onboarding',
 	jetpackPremiumAnalyticsUpsell: 'jetpack_premium_analytics_upsell',
+	jetpackMonetizeConnectionGate: 'jetpack_monetize_connection_gate',
+	jetpackMonetizeSettings: 'jetpack_monetize_settings',
 	// Sent by this package's PHP notice to a user about to delete the connection owner.
 	deleteConnectionOwnerNotice: 'delete_connection_owner_notice',
+	// Sent by this package's PHP "Connect your account" link on every page except Connectors.
+	connectionNoticeOwnerError: 'connection_notice_owner_error',
+	// "Connect separately" on the new Safe Mode screen, in the admin notice, the My Jetpack window and the Connectors card.
+	connectionSafeModeNotice: 'connection_safe_mode_notice',
+	myJetpackSafeMode: 'my_jetpack_safe_mode',
+	connectionSafeModeConnectors: 'connection_safe_mode_connectors',
 } as const;
 
 // Both functions below mirror https://github.com/Automattic/wp-calypso/blob/99b8d308db6/client/jetpack-connect/entry-points.ts

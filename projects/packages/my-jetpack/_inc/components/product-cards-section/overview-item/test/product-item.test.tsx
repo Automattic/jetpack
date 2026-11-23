@@ -1,9 +1,9 @@
 import { render, screen } from '@testing-library/react';
 import ProductOverviewItem from '../product-item';
+import useStatusAction from '../use-status-action';
 
 let mockStatus = 'active';
 
-jest.mock( '../../../../hooks/use-analytics', () => () => ( { recordEvent: jest.fn() } ) );
 jest.mock( '../../../../data/products/use-product', () => () => ( {
 	detail: { name: 'AI', status: mockStatus, manageUrl: 'https://example.org/ai' },
 	isLoading: false,
@@ -12,10 +12,12 @@ jest.mock( '../../../../data/products/use-products-by-ownership', () => () => ( 
 	data: { ownedProducts: [ 'jetpack-ai' ] },
 } ) );
 jest.mock( '../use-overview-load-event', () => () => undefined );
-jest.mock( '../use-status-action', () => () => ( {
-	action: { label: 'Activate AI', onClick: jest.fn() },
-	forcedOffReason: null,
-} ) );
+jest.mock( '../use-status-action', () =>
+	jest.fn( () => ( {
+		action: { label: 'Activate AI', onClick: jest.fn() },
+		forcedOffReason: null,
+	} ) )
+);
 
 describe( 'ProductOverviewItem', () => {
 	it.each( [
@@ -39,5 +41,18 @@ describe( 'ProductOverviewItem', () => {
 				screen.queryByText( label )
 			)
 		).toEqual( links );
+	} );
+
+	it( 'names the product by its name prop in place of its own', () => {
+		mockStatus = 'active';
+		render( <ProductOverviewItem slug="jetpack-ai" admin actionLabel="More" name="Jetpack AI" /> );
+
+		expect( screen.getByText( 'Jetpack AI' ) ).toBeInTheDocument();
+		expect( useStatusAction ).toHaveBeenLastCalledWith(
+			'jetpack-ai',
+			'Activate Jetpack AI',
+			null,
+			'Jetpack AI'
+		);
 	} );
 } );

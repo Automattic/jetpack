@@ -4,12 +4,12 @@
 import jetpackAnalytics from '@automattic/jetpack-analytics';
 import { getScriptData } from '@automattic/jetpack-script-data';
 import {
+	deriveComparisonRange,
 	resolveIntervalForPresetChange,
 	type LockableInterval,
 } from '@jetpack-premium-analytics/data';
 import { PRESET_CUSTOM, type IntervalType } from '@jetpack-premium-analytics/datetime';
 import {
-	deriveComparisonRange,
 	encodeRangeToSearchParams,
 	type ReportDateFilters,
 } from '@jetpack-premium-analytics/routing';
@@ -183,15 +183,18 @@ type DateRangeState = Pick<
 
 type OnChangeArgs = Parameters< ReportDateFilters[ 'onChange' ] >;
 
+/** The control that applied the range: the date picker unless the caller says otherwise. */
+export type DateRangeApplyTrigger = 'picker' | 'arrow' | 'widget' | 'zoom_out';
+
 /**
  * What `onChange` was called with, plus the interval the change committed when
- * the caller knows it: a step keeps the rendered interval where a preset pick
- * would reset it.
+ * the caller knows it (a step keeps the rendered interval where a preset pick
+ * would reset it) and the control that applied it.
  */
 type StagedRange = [
 	range?: OnChangeArgs[ 0 ],
 	presetId?: OnChangeArgs[ 1 ],
-	options?: OnChangeArgs[ 2 ] & { interval?: IntervalType },
+	options?: OnChangeArgs[ 2 ] & { interval?: IntervalType; trigger?: DateRangeApplyTrigger },
 ];
 
 /**
@@ -258,6 +261,7 @@ export function useTrackedDateRangeApply(
 					lockedIntervals
 				),
 			comparison: comparison ?? 'none',
+			trigger: options?.trigger ?? 'picker',
 		} );
 	}, [
 		presetId,

@@ -12,6 +12,7 @@
  **/
 
 use Automattic\Jetpack\Blaze;
+use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 
@@ -1672,7 +1673,7 @@ abstract class SAL_Site {
 
 	/**
 	 * Whether the site gets no setup guidance: no My Home, Site Setup, or launchpad. Mirrors
-	 * wpcom_launchpad_is_no_guidance() in jetpack-mu-wpcom, which also counts a skipped AI Launchpad.
+	 * wpcom_launchpad_is_no_guidance() in jetpack-mu-wpcom.
 	 *
 	 * @return bool
 	 */
@@ -1681,7 +1682,27 @@ abstract class SAL_Site {
 			return true;
 		}
 
-		return (bool) get_option( 'wpcom_ai_launchpad_enabled' ) && (bool) get_option( 'wpcom_ai_launchpad_dismissed' );
+		if ( get_option( 'wpcom_ai_launchpad_enabled' ) ) {
+			return (bool) get_option( 'wpcom_ai_launchpad_dismissed' );
+		}
+
+		return $this->is_past_no_guidance_cutoff();
+	}
+
+	/**
+	 * Whether this Simple or Atomic site was created on or after WPCOM_LAUNCHPAD_NO_GUIDANCE_CUTOFF_BLOG_ID.
+	 *
+	 * Self-hosted Jetpack sites take blog IDs from the same sequence, so they never count.
+	 *
+	 * @return bool
+	 */
+	protected function is_past_no_guidance_cutoff() {
+		$cutoff = (int) Constants::get_constant( 'WPCOM_LAUNCHPAD_NO_GUIDANCE_CUTOFF_BLOG_ID' );
+		if ( $cutoff <= 0 || ( $this->is_jetpack_connection() && ! $this->is_wpcom_atomic() ) ) {
+			return false;
+		}
+
+		return (int) $this->get_id() >= $cutoff;
 	}
 
 	/**

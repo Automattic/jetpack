@@ -39,6 +39,9 @@ import type { View } from '@wordpress/dataviews';
 
 type OverviewSearch = Record< string, unknown > & { selected?: string };
 
+// The Backup page's admin slug, as the admin shell names it in its events.
+const ADMIN_PAGE_SLUG = 'jetpack-backup';
+
 /**
  * The list's starting view state, exported so tests can pin what a reader sees first.
  */
@@ -95,6 +98,18 @@ export default function OverviewScreen() {
 
 		overviewState.hasRecordedPageView = true;
 		tracks.recordEvent( 'jetpack_backup_admin_page_view' );
+	}, [ tracks ] );
+
+	// The admin shell keeps this page mounted while another dashboard shows, so a return is a new visit.
+	useEffect( () => {
+		const onShown = ( event: Event ) => {
+			const { page, firstShow } = ( event as CustomEvent ).detail ?? {};
+			if ( page === ADMIN_PAGE_SLUG && ! firstShow ) {
+				tracks.recordEvent( 'jetpack_backup_admin_page_view' );
+			}
+		};
+		window.addEventListener( 'jetpack-admin-shell:page-shown', onShown );
+		return () => window.removeEventListener( 'jetpack-admin-shell:page-shown', onShown );
 	}, [ tracks ] );
 
 	return (

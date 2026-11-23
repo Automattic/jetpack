@@ -11,6 +11,7 @@ use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Abstract_Token_Subscription_Service;
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Jetpack_Token_Subscription_Service;
 use Automattic\Jetpack\Modules;
+use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Status\Request;
 use Jetpack_Gutenberg;
@@ -185,6 +186,8 @@ function register_block() {
 
 	add_action( 'init', __NAMESPACE__ . '\maybe_prevent_super_cache_caching' );
 
+	add_action( 'wp_head', __NAMESPACE__ . '\print_silent_subscriber_check_cleanup', 1 );
+
 	add_action( 'wp_after_insert_post', __NAMESPACE__ . '\add_paywalled_content_post_meta', 99, 2 );
 
 	add_filter( 'rest_pre_insert_post', __NAMESPACE__ . '\reject_unknown_access_level', 10, 2 );
@@ -199,8 +202,8 @@ function register_block() {
 		}
 	);
 
-	// If called via REST API, we need to register later in the lifecycle
-	if ( ( new Host() )->is_wpcom_platform() && ! Request::is_frontend() ) {
+	// The WordPress.com Simple JSON API loads the theme late and replays `init` as `restapi_theme_init`.
+	if ( ( new Host() )->is_wpcom_simple() && ! Request::is_frontend() ) {
 		add_action(
 			'restapi_theme_init',
 			function () {
@@ -1311,6 +1314,8 @@ function get_paywall_blocks() {
 <!-- /wp:paragraph -->';
 		}
 	} else {
+		add_action( 'wp_footer', __NAMESPACE__ . '\print_silent_subscriber_check' );
+
 		$access_question = $is_paid_post ? esc_html__( 'Already a paid subscriber?', 'jetpack' ) : esc_html__( 'Already a subscriber?', 'jetpack' );
 		$login_block     = '<!-- wp:group {"style":{"typography":{"fontSize":"14px"}},"layout":{"type":"flex","justifyContent":"center"}} -->
 <div class="wp-block-group" style="font-size:14px">
@@ -1362,6 +1367,127 @@ function is_user_auth(): bool {
 		}
 	}
 	return false;
+}
+
+/**
+ * Prints a script that checks once a day whether a paywalled visitor already subscribes through WordPress.com.
+ *
+ * A custom domain can't see the WordPress.com login, so the script sends the visitor there and back (NL-267).
+ *
+ * @since $$next-version$$
+ */
+function print_silent_subscriber_check() {
+	// The visitor is on the way back from a check, so never send them round again.
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Only checks that the marker is present.
+	if ( isset( $_GET['jp_sub_check'] ) ) {
+		return;
+	}
+
+	/**
+	 * Filters whether the paywall checks for a WordPress.com subscriber without a click.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param bool $enabled Whether to run the check. Default true.
+	 */
+	if ( ! apply_filters( 'jetpack_subscriptions_silent_subscriber_check', true ) ) {
+		return;
+	}
+
+	$home = wp_parse_url( home_url( '/' ) );
+	// WordPress.com only issues a silent token over https.
+	if ( 'https' !== ( $home['scheme'] ?? '' ) ) {
+		return;
+	}
+	$home_host = $home['host'] ?? '';
+
+	if ( ( new Host() )->is_wpcom_simple() ) {
+		// A *.wordpress.com address already shares the WordPress.com login.
+		if ( str_ends_with( $home_host, '.wordpress.com' ) ) {
+			return;
+		}
+		$site_id   = get_current_blog_id();
+		$auth_base = '';
+	} else {
+		$site_id = (int) \Jetpack_Options::get_option( 'id' );
+		$status  = new Status();
+		// A staging copy or a site with a mismatched address would send visitors to the wrong host.
+		if ( ! $site_id || $status->is_offline_mode() || $status->in_safe_mode() || Status::is_development_site() ) {
+			return;
+		}
+		$auth_base = add_query_arg( 'silent', '1', rest_url( 'jetpack/v4/subscribers/auth' ) );
+	}
+
+	$config = array(
+		'host'        => $home_host,
+		'tokenCookie' => Abstract_Token_Subscription_Service::JWT_AUTH_TOKEN_COOKIE_NAME,
+		'pauseCookie' => Abstract_Token_Subscription_Service::SILENT_SUBSCRIBER_CHECK_COOKIE,
+		'jwtBase'     => add_query_arg(
+			array(
+				'site_id' => $site_id,
+				'silent'  => '1',
+			),
+			Abstract_Token_Subscription_Service::REST_URL_ORIGIN . 'memberships/jwt/'
+		),
+		'authBase'    => $auth_base,
+	);
+
+	$script = <<<'JS'
+( function ( c ) {
+	try {
+		if ( window.top !== window.self || document.prerendering || navigator.webdriver || location.hostname !== c.host ) {
+			return;
+		}
+		if ( /bot|crawl|spider|slurp|facebookexternalhit|lighthouse|preview/i.test( navigator.userAgent ) ) {
+			return;
+		}
+		var hasCookie = function ( name ) {
+			return new RegExp( '(^|; )' + name + '=' ).test( document.cookie );
+		};
+		if ( hasCookie( c.tokenCookie ) || hasCookie( c.pauseCookie ) ) {
+			return;
+		}
+		document.cookie = c.pauseCookie + '=1; max-age=86400; path=/; SameSite=Lax; secure';
+		if ( ! hasCookie( c.pauseCookie ) ) {
+			return;
+		}
+		var back = new URL( location.href );
+		back.searchParams.set( 'jp_sub_check', '1' );
+		var url = back.toString();
+		if ( c.authBase ) {
+			url = c.authBase + '&redirect_url=' + encodeURIComponent( url );
+		}
+		location.replace( c.jwtBase + '&redirect_url=' + encodeURIComponent( url ) );
+	} catch ( e ) {}
+} )( %s );
+JS;
+
+	wp_print_inline_script_tag( sprintf( $script, wp_json_encode( $config, JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_SLASHES ) ) );
+}
+
+/**
+ * Removes the silent check's marker and token from the address bar after the visitor comes back.
+ *
+ * @since $$next-version$$
+ */
+function print_silent_subscriber_check_cleanup() {
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Only checks that the marker is present.
+	if ( ! isset( $_GET['jp_sub_check'] ) ) {
+		return;
+	}
+
+	$script = <<<'JS'
+( function () {
+	try {
+		var u = new URL( location.href );
+		u.searchParams.delete( 'jp_sub_check' );
+		u.searchParams.delete( 'token' );
+		history.replaceState( history.state, '', u.toString() );
+	} catch ( e ) {}
+} )();
+JS;
+
+	wp_print_inline_script_tag( $script );
 }
 
 /**

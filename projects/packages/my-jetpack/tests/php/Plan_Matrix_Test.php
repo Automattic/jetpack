@@ -16,10 +16,12 @@ use Automattic\Jetpack\My_Jetpack\Products\Crm;
 use Automattic\Jetpack\My_Jetpack\Products\Jetpack_Ai;
 use Automattic\Jetpack\My_Jetpack\Products\Jetpack_Forms;
 use Automattic\Jetpack\My_Jetpack\Products\Protect;
+use Automattic\Jetpack\My_Jetpack\Products\Scan;
 use Automattic\Jetpack\My_Jetpack\Products\Search;
 use Automattic\Jetpack\My_Jetpack\Products\Social;
 use Automattic\Jetpack\My_Jetpack\Products\Stats;
 use Automattic\Jetpack\My_Jetpack\Products\Videopress;
+use Automattic\Jetpack\Protect_Status\Plan;
 use Jetpack_Options;
 use PHPUnit\Framework\Attributes\CoversMethod;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -36,8 +38,12 @@ use WorDBless\Users as WorDBless_Users;
  * are pinned to a shared vocabulary by Status_Vocabulary_Parity_Test.
  *
  * @covers \Automattic\Jetpack\My_Jetpack\Product::get_status
+ * @covers \Automattic\Jetpack\My_Jetpack\Products\Protect::get_status
+ * @covers \Automattic\Jetpack\My_Jetpack\Products\Scan::get_status
  */
 #[CoversMethod( Product::class, 'get_status' )]
+#[CoversMethod( Protect::class, 'get_status' )]
+#[CoversMethod( Scan::class, 'get_status' )]
 class Plan_Matrix_Test extends TestCase {
 
 	/**
@@ -381,6 +387,59 @@ class Plan_Matrix_Test extends TestCase {
 				$this->assertNotContains( $expected, $upsell_statuses, "$slug / $state expects an upsell status for a site that owns the product." );
 			}
 		}
+	}
+
+	/**
+	 * A lapsed Scan purchase shows as Expired on the card, while Protect Status still treats the site as without Scan.
+	 *
+	 * @dataProvider provide_lapsed_scan_purchases
+	 *
+	 * @param string $class        Product class name.
+	 * @param string $product_slug The lapsed purchase's product slug.
+	 */
+	#[DataProvider( 'provide_lapsed_scan_purchases' )]
+	public function test_a_lapsed_scan_purchase_shows_as_expired( string $class, string $product_slug ) {
+		$this->apply_state( $class, self::OWNERSHIP_NONE, self::ACTIVATION_ON );
+		set_transient(
+			Product::MY_JETPACK_SITE_FEATURES_TRANSIENT_KEY,
+			array(
+				'active'    => array(),
+				'available' => (object) array( 'scan' => array( 'jetpack_security_t1_yearly' ) ),
+			),
+			HOUR_IN_SECONDS
+		);
+		// Keeps get_site_current_plan() from asking wpcom for a refresh.
+		set_transient( Wpcom_Products::MY_JETPACK_PLAN_REFRESHED_TRANSIENT_KEY, 1, HOUR_IN_SECONDS );
+		set_transient(
+			Wpcom_Products::MY_JETPACK_PURCHASES_TRANSIENT_KEY,
+			array(
+				(object) array(
+					'ID'            => 1,
+					'product_slug'  => $product_slug,
+					'expiry_status' => Products::STATUS_EXPIRED,
+					'expiry_date'   => gmdate( 'Y-m-d H:i:s', strtotime( '-1 week' ) ),
+				),
+			),
+			HOUR_IN_SECONDS
+		);
+
+		$this->assertFalse( Plan::has_required_plan() );
+		$this->assertFalse( $class::has_paid_plan_for_product() );
+		$this->assertSame( Products::STATUS_EXPIRED, $class::get_status() );
+	}
+
+	/**
+	 * Data provider for test_a_lapsed_scan_purchase_shows_as_expired.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_lapsed_scan_purchases() {
+		return array(
+			'Protect, lapsed Scan'     => array( Protect::class, 'jetpack_scan' ),
+			'Protect, lapsed Security' => array( Protect::class, 'jetpack_security_t1_yearly' ),
+			'Scan, lapsed Scan'        => array( Scan::class, 'jetpack_scan' ),
+			'Scan, lapsed Security'    => array( Scan::class, 'jetpack_security_t1_yearly' ),
+		);
 	}
 
 	/**

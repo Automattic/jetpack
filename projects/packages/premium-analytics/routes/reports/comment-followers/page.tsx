@@ -12,6 +12,7 @@ import {
 	ReportErrorState,
 	ReportRecordsTable,
 	ReportCsvAction,
+	StatsOptionsMenu,
 	useReportCsvExport,
 	type CsvColumn,
 } from '@jetpack-premium-analytics/widgets-toolkit';
@@ -96,9 +97,12 @@ function CommentFollowersReport(): JSX.Element {
 			visual={ <Icon icon={ jetpack } /> }
 			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
 			actions={
-				canExport ? (
-					<ReportCsvAction columns={ csvColumns } rows={ csvRows } filename={ csvFilename } />
-				) : undefined
+				<>
+					{ canExport && (
+						<ReportCsvAction columns={ csvColumns } rows={ csvRows } filename={ csvFilename } />
+					) }
+					<StatsOptionsMenu />
+				</>
 			}
 		>
 			<ReportPageLayout title={ getLabel() }>
@@ -139,7 +143,7 @@ function CommentFollowersReport(): JSX.Element {
 
 /**
  * Registry entry point; React Query and error handling come from the shared
- * report stage that renders this lazily.
+ * report stage that renders this.
  *
  * @return The Comments Subscribers report page.
  */

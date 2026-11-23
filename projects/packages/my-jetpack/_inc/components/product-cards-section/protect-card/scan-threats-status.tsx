@@ -28,6 +28,7 @@ export const ScanAndThreatStatus: FC< ScanAndThreatStatusProps > = ( { data } ) 
 		num_threats: numThreats = 0,
 		last_scan_failed: lastScanFailed = false,
 		last_checked: lastChecked = null,
+		status: scanStatus,
 	} = data?.scanData || {};
 
 	const criticalScanThreatCount = useMemo( () => {
@@ -71,7 +72,7 @@ export const ScanAndThreatStatus: FC< ScanAndThreatStatusProps > = ( { data } ) 
 		return numThreats ? (
 			<ThreatStatus data={ data } numThreats={ numThreats } />
 		) : (
-			<ScanStatus data={ data } status="partial" />
+			<ScanStatus data={ data } status={ scanStatus === 'disabled' ? 'off' : 'partial' } />
 		);
 	}
 

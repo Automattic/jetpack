@@ -119,12 +119,3 @@
 		margin-bottom: 0.5rem;
 	}
 }
-
-
-:global(.account-error-tooltip) {
-	color: var(--jp-yellow-50) !important;
-
-	svg {
-		color: var(--jp-yellow-50) !important;
-	}
-}

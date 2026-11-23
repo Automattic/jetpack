@@ -46,8 +46,6 @@ class SiteStatsComponent extends Component {
 			roles_author: !! roles?.includes( 'author' ),
 			roles_contributor: !! roles?.includes( 'contributor' ),
 			roles_subscriber: !! roles?.includes( 'subscriber' ),
-
-			wpcom_reader_views_enabled: props.getOptionValue( 'wpcom_reader_views_enabled' ),
 		};
 
 		const defaultRoles = [ 'administrator', 'editor', 'author', 'contributor', 'subscriber' ];
@@ -130,27 +128,6 @@ class SiteStatsComponent extends Component {
 		return () => this.props.updateFormStateModuleOption( 'stats', option_slug );
 	}
 
-	handleOptionToggle = option_slug => () => {
-		const value = ! this.props.getOptionValue( option_slug );
-
-		this.setState(
-			{
-				[ option_slug ]: ! this.state[ option_slug ],
-			},
-			() => {
-				this.props.updateOptions( {
-					[ option_slug ]: value,
-				} );
-			}
-		);
-
-		analytics.tracks.recordEvent( 'jetpack_wpa_settings_toggle', {
-			module: 'stats',
-			setting: option_slug,
-			toggled: value ? 'on' : 'off',
-		} );
-	};
-
 	render() {
 		const stats = this.props.getModule( 'stats' );
 		const isStatsActive = this.props.getOptionValue( 'stats' );
@@ -217,7 +194,7 @@ class SiteStatsComponent extends Component {
 			wpcomLink: 'https://wordpress.com/support/stats/',
 		};
 
-		if ( this.props.isOdysseyStatsEnabled ) {
+		if ( this.props.isOdysseyStatsEnabled || this.props.settingsOnStatsPage ) {
 			return (
 				<SettingsCard
 					{ ...this.props }
@@ -237,8 +214,7 @@ class SiteStatsComponent extends Component {
 							compact
 							className="jp-settings-card__configure-link"
 							href={
-								getAnalyticsUrl( { view: 'dashboard', section: 'settings' } ) ??
-								'admin.php?page=stats#!/stats/settings'
+								getAnalyticsUrl( { view: 'settings' } ) ?? 'admin.php?page=stats#!/stats/settings'
 							}
 						>
 							{ __( 'Manage Stats settings', 'jetpack' ) }
@@ -324,16 +300,6 @@ class SiteStatsComponent extends Component {
 									/>
 								) : null
 							) }
-						</FormFieldset>
-						<FormFieldset className="jp-stats-form-fieldset">
-							<FormLegend>{ __( 'WordPress.com Reader', 'jetpack' ) }</FormLegend>
-							<ToggleControl
-								__nextHasNoMarginBottom={ true }
-								checked={ this.state.wpcom_reader_views_enabled }
-								disabled={ ! isStatsActive || unavailableInOfflineMode }
-								onChange={ this.handleOptionToggle( 'wpcom_reader_views_enabled' ) }
-								label={ __( 'Show post views for this site.', 'jetpack' ) }
-							/>
 						</FormFieldset>
 					</SettingsGroup>
 				</FoldableCard>

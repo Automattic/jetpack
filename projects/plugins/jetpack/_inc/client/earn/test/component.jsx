@@ -94,4 +94,34 @@ describe( 'Earn', () => {
 
 		expect( container ).toBeEmptyDOMElement();
 	} );
+
+	describe( 'with the Ads settings moved', () => {
+		const ADS_HOME =
+			'http://example.org/wp-admin/admin.php?page=jetpack-monetize&p=%2F%3Ftab%3Dsettings';
+
+		beforeEach( () => {
+			window.JetpackScriptData = {
+				myJetpack: { settingsConsolidation: true },
+				monetize: { adsSettingsUrl: ADS_HOME },
+			};
+		} );
+
+		it( 'points a search to the new home instead of the card', () => {
+			render( <Earn searchTerm="ads" isModuleFound={ findsEverything } hasConnectedOwner /> );
+
+			expect( screen.getByRole( 'link', { name: /Open Ads settings/ } ) ).toHaveAttribute(
+				'href',
+				ADS_HOME
+			);
+			expect( screen.queryByText( 'Ads card' ) ).not.toBeInTheDocument();
+		} );
+
+		it( 'renders nothing outside a search', () => {
+			const { container } = render(
+				<Earn active isModuleFound={ findsEverything } hasConnectedOwner />
+			);
+
+			expect( container ).toBeEmptyDOMElement();
+		} );
+	} );
 } );

@@ -11,11 +11,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Removes sharing markup from post content if we're not in the loop and it's a
- * formatted post.
+ * Removes sharing and Related Posts markup from post content if we're not in the loop
+ * and it's a formatted post, such as one shown by the Ephemera widget.
  *
- * @param bool    $show Whether to show sharing options.
- * @param WP_Post $post The post to share.
+ * @param bool    $show Whether to show the markup.
+ * @param WP_Post $post The post being filtered.
  * @return bool
  */
 function twentyfourteen_mute_content_filters( $show, $post ) {
@@ -26,6 +26,7 @@ function twentyfourteen_mute_content_filters( $show, $post ) {
 	return $show;
 }
 add_filter( 'sharing_show', 'twentyfourteen_mute_content_filters', 10, 2 );
+add_filter( 'jetpack_relatedposts_filter_add_target_to_content', 'twentyfourteen_mute_content_filters', 10, 2 );
 
 /**
  * Enqueue Jetpack compat styles for Twenty Fourteen.

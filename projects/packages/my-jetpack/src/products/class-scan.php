@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\My_Jetpack\Products;
 
 use Automattic\Jetpack\My_Jetpack\Module_Product;
+use Automattic\Jetpack\My_Jetpack\Products;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
 use Automattic\Jetpack\Protect_Status\Plan;
 use Automattic\Jetpack\Redirect;
@@ -182,6 +183,21 @@ class Scan extends Module_Product {
 	 */
 	public static function has_paid_plan_for_product() {
 		return Plan::has_required_plan();
+	}
+
+	/**
+	 * Get the card's status, Expired for a lapsed purchase, as Protect::get_status() does.
+	 *
+	 * @return string
+	 */
+	public static function get_status() {
+		$status = parent::get_status();
+
+		if ( Products::STATUS_CAN_UPGRADE === $status && static::is_paid_plan_expired() ) {
+			return Products::STATUS_EXPIRED;
+		}
+
+		return $status;
 	}
 
 	/**

@@ -4,7 +4,11 @@ import { decodeEntities } from '@wordpress/html-entities';
 import {
 	buildAutoInput,
 	decideInitialView,
+	AI_TOOL_START,
+	asksForAiTool,
 	isAllTasksMode,
+	readPath,
+	startsOnAiTool,
 	type View,
 } from './lib/orchestration.ts';
 import { tailor } from './lib/tailor.ts';
@@ -37,10 +41,10 @@ export function App() {
 
 	useEffect( () => {
 		let cancelled = false;
+		const search = window.location.search;
 		// Testing aid: ?all_tasks=1 skips the wizard and renders the full catalog.
-		const allTasks = isAllTasksMode( window.location.search );
-		const path = allTasks ? '/wpcom/v2/ai-launchpad?all_tasks=1' : '/wpcom/v2/ai-launchpad';
-		apiFetch< LaunchpadData >( { path } ).then( data => {
+		const allTasks = isAllTasksMode( search );
+		apiFetch< LaunchpadData >( { path: readPath( search ) } ).then( data => {
 			if ( cancelled ) {
 				return;
 			}
@@ -67,6 +71,9 @@ export function App() {
 			}
 
 			const nextView = allTasks ? 'list' : decideInitialView( data );
+			if ( asksForAiTool( search ) ) {
+				setTracksContext( { start: AI_TOOL_START } );
+			}
 			const siteCopy = data.site?.copy;
 			const input = nextView === 'auto' ? buildAutoInput( data ) : null;
 			if ( input && siteCopy ) {
@@ -99,10 +106,17 @@ export function App() {
 			<Wizard
 				initialSiteName={ initialData?.site?.title }
 				initialIntent={ initialData?.site?.description }
+				initialGoal={ initialData?.site?.site_intent }
 				locale={ initialData?.site?.language }
 				uiLocale={ initialData?.user_language }
 				copy={ copy }
 				aiBuilt={ !! initialData?.ai_built }
+				goalsVariation={ initialData?.goals_variation }
+				mcpDetection={ !! initialData?.mcp_detection }
+				mcpRemote={ !! initialData?.mcp_remote }
+				mcpAllowFull={ !! initialData?.mcp_allow_full }
+				startOnAiTool={ startsOnAiTool( window.location.search, view ) }
+				aiToolBackUrl={ initialData?.ai_tool_back_url ?? undefined }
 				onComplete={ ( input, tailoring ) => {
 					setFromWizard( true );
 					setPendingTailor( () => tailoring );

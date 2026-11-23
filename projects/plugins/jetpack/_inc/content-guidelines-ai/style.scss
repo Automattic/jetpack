@@ -15,8 +15,8 @@ $cg-diff-removed: #f8d7da;
 	height: 18px;
 }
 
-// Welcome banner: page-specific layout on top of the shared AiBanner
-// shell (which carries the dark background, orbs, and typography).
+// Welcome banner: page-specific layout on top of Jetpack components'
+// HighlightBanner (which carries the dark background, orbs, and typography).
 .jetpack-content-guidelines-ai__banner {
 	inline-size: min(680px, 100%);
 	margin: 0 auto 24px;

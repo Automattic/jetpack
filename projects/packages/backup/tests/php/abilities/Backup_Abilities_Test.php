@@ -261,6 +261,8 @@ class Backup_Abilities_Test extends BaseTestCase {
 			$this->assertArrayHasKey( 'output_schema', $spec, "Ability {$slug} missing output_schema." );
 			$this->assertNotEmpty( $spec['output_schema'], "Ability {$slug} must declare a non-empty output_schema." );
 			$this->assertArrayHasKey( 'meta', $spec, "Ability {$slug} missing meta." );
+			$this->assertArrayHasKey( 'public', $spec['meta'], "Ability {$slug} must declare meta.public." );
+			$this->assertTrue( $spec['meta']['public'], "{$slug} must be marked public." );
 			$this->assertArrayHasKey( 'mcp', $spec['meta'], "Ability {$slug} must publish meta.mcp." );
 			$this->assertSame(
 				array(
@@ -306,6 +308,7 @@ class Backup_Abilities_Test extends BaseTestCase {
 					'destructive' => false,
 					'idempotent'  => false,
 				),
+				'public'       => true,
 				'mcp'          => array(
 					'public' => true,
 					'type'   => 'tool',
@@ -497,12 +500,16 @@ class Backup_Abilities_Test extends BaseTestCase {
 
 			$meta = $registered[ $slug ]->get_meta();
 			$this->assertSame( $spec['meta']['annotations'], $meta['annotations'], "{$slug} registered annotations drifted." );
+			$this->assertSame( $spec['meta']['public'], $meta['public'], "{$slug} registered public metadata drifted." );
 			$this->assertSame( $spec['meta']['mcp'], $meta['mcp'], "{$slug} registered MCP metadata drifted." );
 			$this->assertSame( $spec['meta']['show_in_rest'], $meta['show_in_rest'], "{$slug} registered show_in_rest metadata drifted." );
 		}
 	}
 
 	public function test_init_registers_nothing_when_gate_filter_is_false(): void {
+		// The package's own plugins_loaded wiring already hooked these while the test environment loaded.
+		remove_action( 'wp_abilities_api_categories_init', array( Backup_Abilities::class, 'register_category' ) );
+		remove_action( 'wp_abilities_api_init', array( Backup_Abilities::class, 'register_abilities' ) );
 		remove_filter( 'jetpack_wp_abilities_enabled', '__return_true' );
 		add_filter( 'jetpack_wp_abilities_enabled', '__return_false' );
 

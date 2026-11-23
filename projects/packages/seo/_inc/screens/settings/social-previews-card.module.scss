@@ -43,10 +43,11 @@
 	border-radius: var(--wpds-border-radius-md);
 
 	.image {
+		display: block;
+		inline-size: 100%;
+		object-fit: cover;
 		block-size: 240px;
 		background-color: var(--wpds-color-background-surface-neutral);
-		background-position: center;
-		background-size: cover;
 	}
 
 	.cardBody {

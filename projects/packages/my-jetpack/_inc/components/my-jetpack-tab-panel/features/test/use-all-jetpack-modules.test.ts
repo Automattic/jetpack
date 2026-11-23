@@ -19,9 +19,6 @@ let mockResolved = true;
 let mockFailed = false;
 
 jest.mock( '@wordpress/api-fetch' );
-jest.mock( '@automattic/jetpack-components', () => ( {
-	useGlobalNotices: () => ( { createSuccessNotice: jest.fn(), createErrorNotice: jest.fn() } ),
-} ) );
 jest.mock( '@wordpress/notices', () => ( { store: 'core/notices' } ) );
 jest.mock( '@automattic/jetpack-script-data', () => ( {
 	getScriptData: () => ( { myJetpack: { offlineFeatures: mockOfflineSeed.current } } ),
@@ -36,6 +33,8 @@ jest.mock( '@automattic/jetpack-connection/use-connection-error-notice', () => (
 jest.mock( '@wordpress/data', () => ( {
 	useDispatch: () => ( {
 		fetchModules: mockFetchModules,
+		createSuccessNotice: jest.fn(),
+		createErrorNotice: jest.fn(),
 	} ),
 	useSelect: ( selector: ( select: unknown ) => unknown ) =>
 		selector( () => ( {

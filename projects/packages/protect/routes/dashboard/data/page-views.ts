@@ -3,12 +3,15 @@ import { recordEvent } from './tracks';
 import type { ScanState } from '../sections/scan/types';
 
 /**
- * The scan status for the page view: the Protect plugin's values, plus `scan_failed` and `not_scanned`.
+ * The scan status for the page view: the Protect plugin's values, plus `scan_failed`, `not_scanned` and `disabled`.
  *
  * @param scan - The latest report.
  * @return The status.
  */
 function getCheckStatus( scan: ScanState ): string {
+	if ( scan.checksEnabled === false ) {
+		return 'disabled';
+	}
 	if ( scan.error ) {
 		return 'error';
 	}

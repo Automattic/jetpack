@@ -1,16 +1,12 @@
 import '@testing-library/jest-dom';
 import { jest } from '@jest/globals';
-import { act, fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import type { SettingsResponse } from '../../../data/settings-types';
 import type { SettingsForm } from '../../../data/use-settings';
 import type { ReactElement, ReactNode } from 'react';
 
 // `--experimental-vm-modules` (true ESM): mock with `jest.unstable_mockModule`
 // and import the components under test dynamically after the mocks are registered.
-jest.unstable_mockModule( '../../../data/is-gated', () => ( {
-	isGated: () => false,
-	getUpsellUrl: () => 'https://wordpress.com/checkout/example.com/value_bundle',
-} ) );
 
 jest.unstable_mockModule( '@wordpress/route', () => ( {
 	useSearch: () => ( {} ),
@@ -48,6 +44,14 @@ jest.unstable_mockModule( '../title-structure-field', () => ( {
 jest.unstable_mockModule( '../google-verification-field', () => ( {
 	default: () => <div>google field</div>,
 } ) );
+
+const IndexnowSettings = jest.fn< ( props: Record< string, unknown > ) => ReactElement >( () => (
+	<div>notification settings</div>
+) );
+jest.unstable_mockModule( '../indexnow-settings', () => ( { default: IndexnowSettings } ) );
+
+const sharingFetch = jest.fn< ( options: unknown ) => Promise< unknown > >();
+jest.unstable_mockModule( '@wordpress/api-fetch', () => ( { default: sharingFetch } ) );
 
 const { default: SettingsScreen } = await import( '../index' );
 
@@ -155,51 +159,23 @@ describe( 'Jetpack SEO output paused', () => {
 
 	// A filter can switch Jetpack's output off without a plugin; the lock can't depend on the name.
 	it.each( [
-		[
-			'Yoast SEO',
-			'Yoast SEO is managing your site’s SEO, so Jetpack has paused its SEO titles, descriptions, canonical URLs, structured data and llms.txt. Your saved settings are kept. Deactivate Yoast SEO to use them.',
-			'Paused while Yoast SEO is active.',
-		],
-		[
-			'',
-			'Jetpack’s SEO titles, descriptions, structured data and llms.txt are turned off on this site. Your saved settings are kept.',
-			'Paused on this site.',
-		],
-	] )(
-		'with "%s" in charge, explains it once and locks the cards it feeds',
-		async ( plugin, banner, line ) => {
-			setPaused( plugin );
-			render( <SettingsScreen form={ buildForm( { title_formats_editable: false } ) } /> );
+		[ 'Yoast SEO', 'Paused while Yoast SEO is active.' ],
+		[ '', 'Paused on this site.' ],
+	] )( 'with "%s" in charge, locks the cards it feeds', async ( plugin, line ) => {
+		setPaused( plugin );
+		render( <SettingsScreen form={ buildForm( { title_formats_editable: false } ) } /> );
 
-			expect( screen.getByText( banner ) ).toBeInTheDocument();
-			expect( statusFor( 'Front-page description' ) ).toBe( 'Paused' );
-			expect( screen.getByTestId( 'schema' ) ).toHaveAttribute( 'aria-disabled', 'true' );
-			expect( screen.getByTestId( 'author' ) ).toHaveAttribute( 'aria-disabled', 'true' );
-			await expect( openDescription() ).resolves.toBeDisabled();
-			expect( screen.getByText( line ) ).toBeInTheDocument();
-			// The description keeps its usual help; the banner carries the cause.
-			expect( screen.getByText( /^Shown under your site name/ ) ).toBeInTheDocument();
-			// The previews stay visible, read-only, with the same line.
-			expect( SocialPreviewsCard.mock.lastCall?.[ 0 ] ).toEqual(
-				expect.objectContaining( { paused: true } )
-			);
-		}
-	);
-
-	it( 'links to the Plugins screen only when a plugin is named', () => {
-		setPaused( 'Yoast SEO' );
-		const { unmount } = render( <SettingsScreen form={ buildForm() } /> );
-
-		expect( screen.getByRole( 'link', { name: 'Manage plugins' } ) ).toHaveAttribute(
-			'href',
-			'https://example.com/wp-admin/plugins.php'
+		expect( statusFor( 'Front-page description' ) ).toBe( 'Paused' );
+		expect( screen.getByTestId( 'schema' ) ).toHaveAttribute( 'aria-disabled', 'true' );
+		expect( screen.getByTestId( 'author' ) ).toHaveAttribute( 'aria-disabled', 'true' );
+		await expect( openDescription() ).resolves.toBeDisabled();
+		expect( screen.getByText( line ) ).toBeInTheDocument();
+		// The description keeps its usual help; the banner carries the cause.
+		expect( screen.getByText( /^Shown under your site name/ ) ).toBeInTheDocument();
+		// The previews stay visible, read-only, with the same line.
+		expect( SocialPreviewsCard.mock.lastCall?.[ 0 ] ).toEqual(
+			expect.objectContaining( { paused: true, disabled: true } )
 		);
-
-		unmount();
-		setPaused( '' );
-		render( <SettingsScreen form={ buildForm() } /> );
-
-		expect( screen.queryByRole( 'link', { name: 'Manage plugins' } ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'leaves everything alone while Jetpack owns the output', async () => {
@@ -548,21 +524,23 @@ describe( 'WordPress.com Simple settings', () => {
 	);
 
 	it.each( [ true, false ] )(
-		'keeps the sitemap control read-only without claiming publication when indexing is %s',
+		'makes the read-only Simple sitemap switch follow indexing, not the module, when indexing is %s',
 		searchEnginesVisible => {
 			setSimpleSite();
 			const form = buildForm( {
 				search_engines_visible: searchEnginesVisible,
-				sitemap_active: true,
+				sitemap_active: false,
 				sitemap_switchable: true,
 				sitemap_url: 'https://example.com/sitemap.xml',
 			} );
 
 			render( <SettingsScreen form={ form } /> );
 
-			const toggle = screen.getByRole( 'checkbox', { name: /Generate an XML sitemap/i } );
+			const toggle = screen.getByRole( 'checkbox', {
+				name: /Generate an XML sitemap/i,
+				checked: searchEnginesVisible,
+			} );
 			expect( toggle ).toBeDisabled();
-			expect( toggle ).not.toBeChecked();
 			expect( statusFor( 'Site visibility' ) ).toBe(
 				searchEnginesVisible ? 'Complete' : 'Not started'
 			);
@@ -573,7 +551,7 @@ describe( 'WordPress.com Simple settings', () => {
 				'href',
 				'https://wordpress.com/support/activate-your-plan/'
 			);
-			expect( screen.queryByRole( 'link', { name: 'View sitemap' } ) ).not.toBeInTheDocument();
+			expect( screen.queryByRole( 'link', { name: /View sitemap/ } ) ).not.toBeInTheDocument();
 			expect( form.commit ).not.toHaveBeenCalled();
 		}
 	);
@@ -650,4 +628,134 @@ describe( 'Search & social previews', () => {
 			expect.objectContaining( { frontPageTitleFormat: [] } )
 		);
 	} );
+
+	it( 'keeps the default share image editable in the manual settings', () => {
+		const image = { id: 12, src: 'https://example.com/share.jpg', alt_text: 'Share image' };
+		const form = buildForm( { default_share_image: image, share_image_preview: image.src } );
+
+		render( <SettingsScreen form={ form } /> );
+
+		const props = SocialPreviewsCard.mock.lastCall?.[ 0 ];
+		expect( props ).toEqual(
+			expect.objectContaining( {
+				defaultImage: image,
+				resolvedImage: image.src,
+				disabled: false,
+			} )
+		);
+		( props?.onImageChange as ( image: number ) => void )( 34 );
+		expect( form.commit ).toHaveBeenCalledWith( { default_share_image: 34 } );
+	} );
+} );
+
+describe( 'Notification settings inside Site visibility', () => {
+	beforeEach( () => {
+		( window as unknown as { JetpackScriptData?: unknown } ).JetpackScriptData = {
+			seo: { indexnow_available: true },
+		};
+		IndexnowSettings.mockClear();
+	} );
+
+	afterEach( () => {
+		delete ( window as unknown as { JetpackScriptData?: unknown } ).JetpackScriptData;
+	} );
+
+	it.each( [ false, undefined ] )(
+		'does not mount notifications when host availability is %s',
+		available => {
+			( window as unknown as { JetpackScriptData?: unknown } ).JetpackScriptData = {
+				seo: { indexnow_available: available },
+			};
+			render( <SettingsScreen form={ buildForm() } /> );
+			expect( IndexnowSettings ).not.toHaveBeenCalled();
+			expect( screen.queryByText( 'notification settings' ) ).not.toBeInTheDocument();
+		}
+	);
+
+	it( 'places notifications after the sitemap and forwards the parent save state', () => {
+		const form = { ...buildForm(), isSaving: true };
+		render( <SettingsScreen form={ form } /> );
+		expect( IndexnowSettings.mock.lastCall?.[ 0 ] ).toEqual(
+			expect.objectContaining( { isSaving: true, onSavingChange: expect.any( Function ) } )
+		);
+		const sitemap = screen.getByRole( 'checkbox', { name: /Generate an XML sitemap/i } );
+		const notifications = screen.getByText( 'notification settings' );
+		expect( sitemap.compareDocumentPosition( notifications ) ).toBe(
+			Node.DOCUMENT_POSITION_FOLLOWING
+		);
+		// eslint-disable-next-line testing-library/no-node-access -- The section anchor owns the inline controls.
+		expect( notifications.closest( '#visibility' ) ).not.toBeNull();
+	} );
+
+	it( 'locks visibility toggles only while a notification save is in flight', () => {
+		render( <SettingsScreen form={ buildForm( { search_engines_visible: true } ) } /> );
+		const indexing = screen.getByRole( 'checkbox', { name: /Allow search engines/i } );
+		const sitemap = screen.getByRole( 'checkbox', { name: /Generate an XML sitemap/i } );
+		const onSavingChange = IndexnowSettings.mock.lastCall?.[ 0 ].onSavingChange as (
+			saving: boolean
+		) => void;
+		act( () => onSavingChange( true ) );
+		expect( indexing ).toBeDisabled();
+		expect( sitemap ).toBeDisabled();
+		act( () => onSavingChange( false ) );
+		expect( indexing ).toBeEnabled();
+		expect( sitemap ).toBeEnabled();
+	} );
+} );
+
+describe( 'sharing save coordination', () => {
+	it.each( [ 'saved', 'rejected' ] )(
+		'locks other settings until consent is %s and confirmed',
+		async outcome => {
+			sharingFetch.mockReset();
+			const initial = {
+				prevent_sharing: false,
+				locked: false,
+				privacy_url: '/wp-admin/options-reading.php',
+			};
+			sharingFetch.mockResolvedValueOnce( initial );
+			const form = buildForm( { data_sharing_available: true, search_engines_visible: true } );
+			render( <SettingsScreen form={ form } /> );
+			const sharing = await screen.findByRole( 'switch', { name: 'Prevent third-party sharing' } );
+			await waitFor( () => expect( sharing ).toBeEnabled() );
+			let resolveSave!: ( value: unknown ) => void;
+			let rejectSave!: ( reason: Error ) => void;
+			sharingFetch.mockReturnValueOnce(
+				new Promise( ( resolve, reject ) => {
+					resolveSave = resolve;
+					rejectSave = reject;
+				} )
+			);
+			// eslint-disable-next-line testing-library/prefer-user-event -- Match the package settings tests.
+			fireEvent.click( sharing );
+			const indexing = screen.getByRole( 'checkbox', {
+				name: 'Allow search engines to index this site',
+			} );
+			expect( indexing ).toBeDisabled();
+			expect( SocialPreviewsCard.mock.lastCall?.[ 0 ] ).toEqual(
+				expect.objectContaining( { disabled: true } )
+			);
+			indexing.click();
+			expect( form.commit ).not.toHaveBeenCalled();
+			let confirm!: ( value: unknown ) => void;
+			sharingFetch.mockReturnValueOnce(
+				new Promise( resolve => {
+					confirm = resolve;
+				} )
+			);
+			await act( async () => {
+				if ( outcome === 'saved' ) {
+					resolveSave( { ...initial, prevent_sharing: true } );
+				} else {
+					rejectSave( new Error( 'Rejected' ) );
+				}
+			} );
+			expect( indexing ).toBeDisabled();
+			await act( async () => confirm( outcome === 'saved' ? { crawlers: {} } : initial ) );
+			await waitFor( () => expect( indexing ).toBeEnabled() );
+			// eslint-disable-next-line jest-dom/prefer-checked -- Compare the table's expected state without conditional assertions.
+			expect( sharing ).toHaveAttribute( 'aria-checked', String( outcome === 'saved' ) );
+			expect( sharingFetch ).toHaveBeenCalledTimes( 3 );
+		}
+	);
 } );

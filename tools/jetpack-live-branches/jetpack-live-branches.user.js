@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Jetpack Live Branches
 // @namespace    https://wordpress.com/
-// @version      1.38
+// @version      1.39
 // @description  Adds links to PRs pointing to Jurassic Ninja sites for live-testing a changeset
 // @grant        GM_xmlhttpRequest
 // @connect      betadownload.jetpack.me
@@ -15,7 +15,9 @@
 
 ( function () {
 	const $ = jQuery.noConflict();
-	const markdownBodySelector = '.pull-discussion-timeline .markdown-body';
+	// GitHub serves two PR page layouts: the classic timeline, and a React one with hashed class names.
+	const markdownBodySelector =
+		'.pull-discussion-timeline .markdown-body, section[aria-label="Description"] .markdown-body';
 	let pluginsList = null;
 
 	const style = document.createElement( 'style' );
@@ -129,6 +131,21 @@
 		return { currentBranch, branchStatus };
 	}
 
+	/**
+	 * Determine the PR's label names, from either PR page layout.
+	 *
+	 * @return {Set<string>} Label names.
+	 */
+	function getPRLabels() {
+		const labels = new Set(
+			$.map( $( '.js-issue-labels a.IssueLabel' ), e => $( e ).data( 'name' ) )
+		);
+		$( 'section[aria-label="Labels"] a[href*="label%3A"]' ).each( ( i, e ) => {
+			labels.add( e.textContent.trim() );
+		} );
+		return labels;
+	}
+
 	/** Function. */
 	function doit() {
 		const markdownBody = document.querySelectorAll( markdownBodySelector )[ 0 ];
@@ -176,9 +193,7 @@
 					const plugins = [];
 
 					if ( Object.hasOwn( body, 'plugins' ) ) {
-						const labels = new Set(
-							$.map( $( '.js-issue-labels a.IssueLabel' ), e => $( e ).data( 'name' ) )
-						);
+						const labels = getPRLabels();
 						Object.keys( body.plugins ).forEach( k => {
 							const data = body.plugins[ k ];
 							plugins.push( {

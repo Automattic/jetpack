@@ -1,0 +1,18 @@
+{
+	"name": "automattic/js-announcements",
+	"description": "What a page imports to show the Jetpack Announcements surface.",
+	"type": "library",
+	"license": "GPL-2.0-or-later",
+	"require": {},
+	"repositories": [
+		{
+			"type": "path",
+			"url": "../../packages/*",
+			"options": {
+				"monorepo": true
+			}
+		}
+	],
+	"minimum-stability": "dev",
+	"prefer-stable": true
+}
