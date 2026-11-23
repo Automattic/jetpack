@@ -101,8 +101,10 @@ declare module '@automattic/jetpack-script-data' {
 				// The paid plan offer the banner shows, or null when the site does not qualify (see docs/dashboard-widgets.md). The URL is empty when there is nowhere to buy it, and `has_stats_product` says whether the site has the free Jetpack Stats product.
 				free_site_upgrade?: { upgrade_url: string; has_stats_product: boolean } | null;
 			};
-			// Whether this site and user qualify for the Upgrade to Parsely prompts. Dashboard only.
+			// Whether this site and user qualify for the Upgrade to Parse.ly prompts. Dashboard only.
 			offers_parsely_prompts?: boolean;
+			// The Parse.ly signup page with this site filled in. Dashboard only.
+			parsely_signup_url?: string;
 			// URL of the dashboard's copied `build/images/` directory, with a trailing slash. Dashboard only.
 			assets_url?: string;
 			// Whether the dashboard reports its errors, the package version sent with them, and the URL prefixes that mark a stack frame as dashboard code. Dashboard only.

@@ -16,14 +16,3 @@ export function useSiteHomeUrl(): string | undefined {
 		return settings?.url || undefined;
 	}, [] );
 }
-
-/**
- * Read the site title from the same core site settings; the same caveats apply.
- */
-export function useSiteTitle(): string | undefined {
-	return useSelect( select => {
-		const settings = select( coreStore ).getEntityRecord( 'root', 'site' ) as Settings | undefined;
-
-		return settings?.title || undefined;
-	}, [] );
-}

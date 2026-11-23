@@ -1,12 +1,7 @@
 /**
  * External dependencies
  */
-import {
-	getParselySignupUrl,
-	offersParselyPrompts,
-	useSiteHomeUrl,
-	useSiteTitle,
-} from '@jetpack-premium-analytics/data';
+import { getParselySignupUrl, offersParselyPrompts } from '@jetpack-premium-analytics/data';
 import {
 	ButtonLink,
 	Card,
@@ -102,8 +97,7 @@ export function resetParselyUpgradeCardForTesting() {
 export function ParselyUpgradeCard( { enabled }: ParselyUpgradeCardProps ): JSX.Element | null {
 	const trackEvent = useTrackEvent();
 	const titleId = useId();
-	const siteUrl = useSiteHomeUrl();
-	const siteTitle = useSiteTitle();
+	const signupUrl = getParselySignupUrl();
 
 	const dismissal = useSelect(
 		select =>
@@ -119,6 +113,7 @@ export function ParselyUpgradeCard( { enabled }: ParselyUpgradeCardProps ): JSX.
 	const isVisible =
 		enabled &&
 		offersParselyPrompts() &&
+		!! signupUrl &&
 		! isClosed &&
 		! isParselyUpgradeCardDismissed( dismissal, Date.now() );
 
@@ -152,7 +147,7 @@ export function ParselyUpgradeCard( { enabled }: ParselyUpgradeCardProps ): JSX.
 		[ trackEvent ]
 	);
 
-	if ( ! isVisible ) {
+	if ( ! isVisible || ! signupUrl ) {
 		return null;
 	}
 
@@ -236,7 +231,7 @@ export function ParselyUpgradeCard( { enabled }: ParselyUpgradeCardProps ): JSX.
 					</Stack>
 
 					<ButtonLink
-						href={ getParselySignupUrl( { url: siteUrl, title: siteTitle } ) }
+						href={ signupUrl }
 						openInNewTab
 						onClick={ trackUpgrade }
 						className={ styles.action }

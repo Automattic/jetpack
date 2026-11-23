@@ -90,7 +90,6 @@ export {
 	toAuthorId,
 	toPostId,
 	useSiteHomeUrl,
-	useSiteTitle,
 	withoutComparison,
 } from './utils';
 export {

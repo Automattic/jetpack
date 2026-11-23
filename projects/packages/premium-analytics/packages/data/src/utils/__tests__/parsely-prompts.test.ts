@@ -1,21 +1,44 @@
 /**
  * Internal dependencies
  */
-import { getParselySignupUrl } from '../parsely-prompts';
+import { getParselySignupUrl, offersParselyPrompts } from '../parsely-prompts';
 
-describe( 'getParselySignupUrl', () => {
-	it( 'fills in the site and says the visit came from Jetpack', () => {
-		expect( getParselySignupUrl( { url: 'https://example.com/blog', title: 'My Blog' } ) ).toBe(
-			'https://dash.parsely.com/self-serve?utm_source=jetpack&publisher_name=My+Blog&site_domain=example.com'
-		);
-	} );
+const mockScriptData = jest.fn();
 
+jest.mock( '@automattic/jetpack-script-data', () => ( {
+	...jest.requireActual( '@automattic/jetpack-script-data' ),
+	getScriptData: () => mockScriptData(),
+} ) );
+
+describe( 'parsely prompts script data', () => {
 	it.each( [
-		[ 'the site address is not known yet', {} ],
-		[ 'the site address does not parse', { url: 'not a url' } ],
-	] )( 'still opens the signup page when %s', ( _case, site ) => {
-		expect( getParselySignupUrl( site ) ).toBe(
-			'https://dash.parsely.com/self-serve?utm_source=jetpack'
-		);
+		[
+			'reads what the server published',
+			{
+				premium_analytics: {
+					offers_parsely_prompts: true,
+					parsely_signup_url: 'https://dash.parsely.com/self-serve?utm_source=jetpack',
+				},
+			},
+			true,
+			'https://dash.parsely.com/self-serve?utm_source=jetpack',
+		],
+		[
+			'offers nothing on a server that predates the prompts',
+			{ premium_analytics: {} },
+			false,
+			undefined,
+		],
+		[
+			'treats an empty URL as none',
+			{ premium_analytics: { offers_parsely_prompts: false, parsely_signup_url: '' } },
+			false,
+			undefined,
+		],
+	] )( '%s', ( _case, scriptData, offers, url ) => {
+		mockScriptData.mockReturnValue( scriptData );
+
+		expect( offersParselyPrompts() ).toBe( offers );
+		expect( getParselySignupUrl() ).toBe( url );
 	} );
 } );

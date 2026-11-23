@@ -26,12 +26,6 @@ jest.mock( '@automattic/jetpack-script-data', () => ( {
 	getScriptData: () => mockScriptData(),
 } ) );
 
-jest.mock( '@jetpack-premium-analytics/data', () => ( {
-	...jest.requireActual( '@jetpack-premium-analytics/data' ),
-	useSiteHomeUrl: () => 'https://example.com',
-	useSiteTitle: () => 'Example',
-} ) );
-
 jest.mock(
 	'@jetpack-premium-analytics/widgets-toolkit',
 	() =>
@@ -48,6 +42,12 @@ type PreferencesSelectors = {
 
 type PreferencesActions = {
 	set: ( scope: string, key: string, value: ParselyUpgradeCardDismissal | null ) => void;
+};
+
+const SIGNUP_URL =
+	'https://dash.parsely.com/self-serve?utm_source=jetpack&publisher_name=Example&site_domain=example.com';
+const offered = {
+	premium_analytics: { offers_parsely_prompts: true, parsely_signup_url: SIGNUP_URL },
 };
 
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -69,7 +69,7 @@ describe( 'ParselyUpgradeCard', () => {
 	beforeEach( () => {
 		resetParselyUpgradeCardForTesting();
 		mockRecordEvent.mockClear();
-		mockScriptData.mockReturnValue( { premium_analytics: { offers_parsely_prompts: true } } );
+		mockScriptData.mockReturnValue( offered );
 		setDismissal( null );
 	} );
 
@@ -78,7 +78,7 @@ describe( 'ParselyUpgradeCard', () => {
 
 		expect( screen.getByRole( 'link', { name: /Upgrade to Parse\.ly/ } ) ).toHaveAttribute(
 			'href',
-			'https://dash.parsely.com/self-serve?utm_source=jetpack&publisher_name=Example&site_domain=example.com'
+			SIGNUP_URL
 		);
 		expect( mockRecordEvent ).toHaveBeenCalledWith(
 			'jetpack_premium_analytics_parsely_upgrade_view',
@@ -87,9 +87,18 @@ describe( 'ParselyUpgradeCard', () => {
 	} );
 
 	it.each( [
-		[ 'the site does not qualify', { premium_analytics: { offers_parsely_prompts: false } }, true ],
+		[
+			'the site does not qualify',
+			{ premium_analytics: { offers_parsely_prompts: false, parsely_signup_url: SIGNUP_URL } },
+			true,
+		],
 		[ 'the server published no answer', { premium_analytics: {} }, true ],
-		[ 'the surface holds it back', { premium_analytics: { offers_parsely_prompts: true } }, false ],
+		[
+			'the server published no signup URL',
+			{ premium_analytics: { offers_parsely_prompts: true } },
+			true,
+		],
+		[ 'the surface holds it back', offered, false ],
 	] )( 'renders nothing when %s', ( _case, scriptData, enabled ) => {
 		mockScriptData.mockReturnValue( scriptData );
 

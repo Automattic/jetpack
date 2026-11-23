@@ -398,6 +398,10 @@ class Analytics {
 		require_once __DIR__ . '/assets-url.php';
 		configure_assets_url();
 
+		// Where the Upgrade to Parse.ly card sends a reader, with the site filled in.
+		require_once __DIR__ . '/parsely-signup-url.php';
+		configure_parsely_signup_url();
+
 		// The locale's default date format, for site formats the dashboard cannot shorten.
 		require_once __DIR__ . '/date-format.php';
 		configure_date_format();
