@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add a promo slot extension API so another package can register a promo for the dashboard, the Stats options menu and Settings.
