@@ -143,6 +143,18 @@ describe( 'DevVersionNotice', () => {
 		expect( container ).toBeEmptyDOMElement();
 	} );
 
+	it( 'should not render once settings move to My Jetpack', () => {
+		window.JetpackScriptData = { myJetpack: { settingsConsolidation: true } };
+		try {
+			const { container } = render(
+				<DevVersionNotice isDevVersion={ true } userIsSubscriber={ false } />
+			);
+			expect( container ).toBeEmptyDOMElement();
+		} finally {
+			delete window.JetpackScriptData;
+		}
+	} );
+
 	it( 'should show notice when Jetpack is a dev version and user is not a subscriber', () => {
 		render( <DevVersionNotice isDevVersion={ true } userIsSubscriber={ false } /> );
 		expect(

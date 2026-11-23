@@ -67,7 +67,12 @@ class Dashboard_Announcements_Test extends BaseTestCase {
 
 		$this->assertNotEmpty( $announcements );
 		foreach ( $announcements as $announcement ) {
-			$this->assertContains( Dashboard_Announcements::CHANNEL, $announcement['channels'] );
+			foreach ( $announcement['channels'] as $channel ) {
+				$this->assertTrue(
+					Dashboard_Announcements::CHANNEL === $channel || 0 === strpos( $channel, Dashboard_Announcements::CHANNEL . '/' ),
+					"No page of the dashboard subscribes to the channel {$channel}."
+				);
+			}
 			$this->assertSame( Capabilities::VIEW_ANALYTICS, $announcement['capability'] );
 		}
 	}

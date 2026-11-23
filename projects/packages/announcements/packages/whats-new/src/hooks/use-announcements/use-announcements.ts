@@ -9,6 +9,8 @@ import { useCallback, useMemo } from 'react';
 /**
  * Internal dependencies
  */
+import { PREFERENCES_SCOPE } from '../constants';
+import { useTeaserSwitch } from '../use-teaser-switch';
 import { getAnnouncementsForChannels, selectTeaser } from './select-announcements';
 import type { Announcement, SeenDates } from '../../types';
 
@@ -18,10 +20,7 @@ const ENTITY_NAME = 'announcement';
 // Without `per_page: -1` core-data pages the list on the client.
 const ALL_ANNOUNCEMENTS = { per_page: -1 };
 
-// One scope for every host: what is seen or turned off in one is so in all of them.
-const PREFERENCES_SCOPE = 'jetpack-announcements/whats-new';
 const SEEN_KEY = 'seen';
-const TEASER_OFF_KEY = 'teaserOff';
 
 const NOTHING_SEEN: SeenDates = {};
 
@@ -114,14 +113,7 @@ export function useAnnouncements( channels: string[] ): UseAnnouncementsResult {
 		[]
 	);
 
-	const isTeaserOff = useSelect(
-		storeSelect =>
-			( storeSelect( preferencesStore ) as PreferencesSelectors ).get(
-				PREFERENCES_SCOPE,
-				TEASER_OFF_KEY
-			) === true,
-		[]
-	);
+	const { isOn: isTeaserOn } = useTeaserSwitch();
 
 	const announcements = useMemo(
 		() => getAnnouncementsForChannels( records ?? [], channels ),
@@ -149,7 +141,7 @@ export function useAnnouncements( channels: string[] ): UseAnnouncementsResult {
 
 	return {
 		announcements,
-		teaser: isTeaserOff ? null : selectTeaser( announcements, seen ),
+		teaser: isTeaserOn ? selectTeaser( announcements, seen ) : null,
 		markSeen,
 	};
 }
