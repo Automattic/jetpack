@@ -205,8 +205,7 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 	}
 
 	/**
-	 * On WordPress.com the API switches to the target site after rest_api_init, so its
-	 * flag can turn on after the routes are registered.
+	 * On WordPress.com the flag can turn on after the routes are registered.
 	 */
 	public function test_a_flag_turned_on_after_the_routes_are_registered_opens_them() {
 		PayPal_Payment_Buttons::register_feature_flags();

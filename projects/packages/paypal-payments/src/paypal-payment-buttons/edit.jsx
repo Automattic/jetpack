@@ -3,8 +3,7 @@
  *
  * Picks the paste-code or the API-managed editor from the feature flag PHP
  * puts on the editor state. The two editors are separate components so the
- * API-managed hooks, which call REST routes that answer 404 while the flag is
- * off, never run for the paste-code path.
+ * API-managed hooks never run for the paste-code path.
  *
  * @package
  */

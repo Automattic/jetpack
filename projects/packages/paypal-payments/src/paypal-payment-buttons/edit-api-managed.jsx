@@ -514,7 +514,7 @@ export default function ApiManagedEdit( {
 			path: `${ API_BASE }/disconnect`,
 			method: 'POST',
 		} )
-			// On failure the site is still connected, so the block stays as it is.
+			// The site is still connected on failure.
 			.then( doDisconnect, err => toast( 'error', getUserFriendlyError( err ) ) );
 	}, [ setAttributes, setIsConnected, setShowReconnect, setWizardStep ] );
 

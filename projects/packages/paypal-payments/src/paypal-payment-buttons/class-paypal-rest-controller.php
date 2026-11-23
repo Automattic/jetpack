@@ -377,8 +377,7 @@ class PayPal_REST_Controller {
 
 	/**
 	 * Permission check: the API-managed buttons flag is on and the current user can
-	 * manage_options. Flag off returns core's 404 rest_no_route, as if the route were
-	 * missing.
+	 * manage_options.
 	 *
 	 * @return bool|WP_Error True if permitted, WP_Error otherwise.
 	 */

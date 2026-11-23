@@ -480,7 +480,6 @@ describe( 'isNotFound', () => {
 		expect( isNotFound( err ) ).toBe( true );
 	} );
 
-	// The routes answer this while the feature flag is off. The payment is still at PayPal.
 	it( 'returns false for a 404 rest_no_route', () => {
 		expect( isNotFound( { code: 'rest_no_route', data: { status: 404 } } ) ).toBe( false );
 	} );

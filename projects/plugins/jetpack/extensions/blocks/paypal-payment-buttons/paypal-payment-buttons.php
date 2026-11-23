@@ -26,8 +26,7 @@ add_action( 'init', array( PayPal_Payment_Buttons::class, 'register_block' ), 9 
  * but every request the editor makes -- onboarding, connect, button CRUD -- 404s.
  *
  * Only the routes: init_api() also hooks sharing and the email sender, neither of
- * which is wired up on Jetpack today. While the flag is off the routes answer 404
- * and init_admin() no-ops.
+ * which is wired up on Jetpack today.
  */
 PayPal_Payment_Buttons::init_rest_api();
 

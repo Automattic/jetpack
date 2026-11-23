@@ -1953,8 +1953,7 @@ class PayPal_Payment_Buttons {
 	/**
 	 * Register the PayPal REST routes.
 	 *
-	 * Registered with the flag off too: on WordPress.com the API switches to the
-	 * target site after rest_api_init, so the permission check reads the flag.
+	 * Access is checked per request.
 	 *
 	 * @since 0.9.0
 	 * @return void

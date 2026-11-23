@@ -183,7 +183,7 @@ export function registerSaveSync( isEnabled ) {
 				if ( isForbidden( err ) ) {
 					return edits;
 				}
-				// The check failed, so nothing was sent to PayPal.
+				// Nothing was sent to PayPal.
 				const { reportError } = syncDeps();
 				blocks
 					.filter( block => isReadyForPayPal( block.attributes ) )

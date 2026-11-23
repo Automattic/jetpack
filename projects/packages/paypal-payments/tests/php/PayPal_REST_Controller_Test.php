@@ -49,7 +49,7 @@ class PayPal_REST_Controller_Test extends TestCase {
 	private const FLAG_FILTER = 'jetpack_feature_flag_enabled_' . PayPal_Payment_Buttons::API_MANAGED_BUTTONS_FLAG;
 
 	/**
-	 * Turn the API-managed buttons flag on, so the route handlers run.
+	 * Turn the API-managed buttons flag on.
 	 */
 	protected function setUp(): void {
 		parent::setUp();
@@ -164,7 +164,7 @@ class PayPal_REST_Controller_Test extends TestCase {
 	/**
 	 * Test that manage_options_permission_check returns WP_Error for unauthorized users.
 	 *
-	 * @param string $role Role of the current user; empty for logged out.
+	 * @param string $role Role of the current user. Empty for logged out.
 	 * @dataProvider unauthorized_users_provider
 	 */
 	#[DataProvider( 'unauthorized_users_provider' )]
@@ -2118,7 +2118,7 @@ class PayPal_REST_Controller_Test extends TestCase {
 	 * Every registered PayPal endpoint uses the shared permission check.
 	 *
 	 * A missing permission_callback would expose merchant credentials and button
-	 * management to anonymous requests, and any other callback skips the flag check.
+	 * management to anonymous requests.
 	 */
 	public function test_every_registered_endpoint_uses_the_shared_permission_check() {
 		$paypal_routes = array_filter(
@@ -2144,9 +2144,9 @@ class PayPal_REST_Controller_Test extends TestCase {
 	/**
 	 * With the flag off, a read route and a write route answer 404 rest_no_route to any user.
 	 *
-	 * Core validates params before the permission check, so the test uses two routes that take none.
+	 * Core validates params before the permission check. These routes take none.
 	 *
-	 * @param string $role   Role of the user making the request; empty for logged out.
+	 * @param string $role   Role of the user making the request. Empty for logged out.
 	 * @param string $method HTTP method.
 	 * @param string $route  Route to dispatch against.
 	 * @dataProvider flag_off_requests_provider
