@@ -458,8 +458,6 @@ class Main_Features {
 				'long_description' => __( 'Manage your sitemap, search engine verification, titles and descriptions, social previews, structured data, and AI crawler access from one page.', 'jetpack-my-jetpack' ),
 				'icon'             => 'seo',
 				'admin_page'       => 'jetpack-seo',
-				// No artwork yet: its details window shows the glyph, and its turned-off card is plain text.
-				'artwork'          => false,
 				// Switches the SEO page and the Search engines modules together; each module keeps its own state.
 				'module'           => self::SEO_MODULE,
 				'free_highlights'  => array(
@@ -1150,7 +1148,7 @@ class Main_Features {
 				'included'         => $included,
 				// Both notes tell the site what to buy next, which a site that pays already has.
 				'setup_note'       => $included ? '' : ( $definition['setup_note'] ?? '' ),
-				'screenshot'       => ( $definition['artwork'] ?? true ) ? self::get_screenshot_url( $slug ) : '',
+				'screenshot'       => self::get_screenshot_url( $slug ),
 				'plans'            => self::get_plan_badges( $definition, $local ),
 				// The filter pills' categories, kept when those bundles go off sale and drop out of `plans`.
 				'groups'           => array_values( array_intersect( $definition['plans'] ?? array(), self::FILTER_GROUPS ) ),
