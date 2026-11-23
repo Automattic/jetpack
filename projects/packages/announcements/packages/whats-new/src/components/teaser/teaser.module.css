@@ -6,6 +6,20 @@
 	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
 }
 
+@media not (prefers-reduced-motion) {
+
+	.teaser {
+		animation: fade-in var(--wpds-motion-duration-lg) var(--wpds-motion-easing-subtle);
+	}
+}
+
+@keyframes fade-in {
+
+	from {
+		opacity: 0;
+	}
+}
+
 .cover {
 	margin-block-end: var(--wpds-dimension-gap-md);
 }
