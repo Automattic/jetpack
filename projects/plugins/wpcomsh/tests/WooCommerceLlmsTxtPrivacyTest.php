@@ -18,11 +18,18 @@ class WooCommerceLlmsTxtPrivacyTest extends WP_UnitTestCase {
 	/**
 	 * @param string $role Site member role.
 	 * @dataProvider site_member_roles
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
 	 */
 	#[DataProvider( 'site_member_roles' )]
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
 	public function test_coming_soon_does_not_disable_guidance_for_members( $role ) {
 		global $wp_query;
 
+		if ( \Private_Site\site_is_private() ) {
+			$this->markTestSkipped( 'Public Coming Soon is not available on a private test site.' );
+		}
 		update_option( 'wpcom_public_coming_soon', 1 );
 		$previous_query = $wp_query;
 		// A full request can exit at WP Cloud's private-site check.
@@ -70,7 +77,16 @@ class WooCommerceLlmsTxtPrivacyTest extends WP_UnitTestCase {
 		$this->assertTrue( apply_filters( 'woocommerce_enable_llms_txt', true ) );
 	}
 
+	/**
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
 	public function test_coming_soon_does_not_disable_guidance_for_preview_links() {
+		if ( \Private_Site\site_is_private() ) {
+			$this->markTestSkipped( 'Public Coming Soon is not available on a private test site.' );
+		}
 		update_option( 'wpcom_public_coming_soon', 1 );
 		update_option( 'wpcom_public_preview_links', array( array( 'code' => 'preview-code' ) ) );
 		wp_set_current_user( 0 );
