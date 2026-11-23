@@ -101,6 +101,8 @@ export {
 	VisuallyHidden,
 } from '@wordpress/ui';
 
+export { close } from '@wordpress/icons';
+
 /**
  * Base UI
  *
