@@ -6,13 +6,13 @@ Nothing renders until the `jetpack-stats-promos` feature flag is on. It is regis
 
 ## Vocabulary
 
-| Term      | Meaning                                                                                         | Example                          |
-| --------- | ----------------------------------------------------------------------------------------------- | -------------------------------- |
-| Slug      | Namespaced identifier, `<namespace>/<name>`, matching `^[a-z][a-z0-9-]*\/[a-z][a-z0-9-]*$`.     | `acme/offer`                     |
-| Placement | Where the promo renders: `section-footer`, `options-menu` or `settings`.                        | `section-footer`                 |
+| Term      | Meaning                                                                                                     | Example                          |
+| --------- | ----------------------------------------------------------------------------------------------------------- | -------------------------------- |
+| Slug      | Namespaced identifier, `<namespace>/<name>`, matching `^[a-z][a-z0-9-]*\/[a-z][a-z0-9-]*$`.                 | `acme/offer`                     |
+| Placement | Where the promo renders: `section-footer`, `options-menu` or `settings`.                                    | `section-footer`                 |
 | Target    | The namespaced section ID a `section-footer` promo attaches to, as `register_dashboard_section()` takes it. | `analytics/traffic`              |
-| Tier      | Whether Premium Analytics draws the card from plain copy, or a script module draws its content. | plain copy, or a `render_module` |
-| Snooze    | How long a first dismissal hides the promo, in days.                                            | `90`                             |
+| Tier      | Whether Premium Analytics draws the card from plain copy, or a script module draws its content.             | plain copy, or a `render_module` |
+| Snooze    | How long a first dismissal hides the promo, in days.                                                        | `90`                             |
 
 ## Files
 
@@ -62,19 +62,19 @@ add_action(
 
 ### Arguments
 
-| Key             | Default        | Meaning                                                                                     |
-| --------------- | -------------- | ------------------------------------------------------------------------------------------- |
-| `placement`     | none, required | `section-footer`, `options-menu` or `settings`.                                             |
+| Key             | Default        | Meaning                                                                                                       |
+| --------------- | -------------- | ------------------------------------------------------------------------------------------------------------- |
+| `placement`     | none, required | `section-footer`, `options-menu` or `settings`.                                                               |
 | `target`        | `null`         | The namespaced section ID, such as `analytics/traffic`. Required for `section-footer`, ignored by the others. |
-| `order`         | `10`           | Lower shows first. Ties break on the slug.                                                  |
-| `title`         | `''`           | The card heading. It also labels the card for assistive technology.                         |
-| `description`   | `''`           | The card body.                                                                              |
-| `cta_label`     | `''`           | The call to action text. The text of the menu item for `options-menu`.                      |
-| `cta_url`       | `''`           | The call to action link. Only `http` and `https` links render.                              |
-| `dismissible`   | `true`         | Whether the card has a close control.                                                       |
-| `snooze_days`   | `90`           | Days a first dismissal lasts. `0` makes the first dismissal final.                          |
-| `render_module` | `null`         | The id of a script module that draws the card content. See [The two tiers](#the-two-tiers). |
-| `is_available`  | none           | A boolean, or a callable that receives the promo. Without it the promo is never available.  |
+| `order`         | `10`           | Lower shows first. Ties break on the slug.                                                                    |
+| `title`         | `''`           | The card heading. It also labels the card for assistive technology.                                           |
+| `description`   | `''`           | The card body.                                                                                                |
+| `cta_label`     | `''`           | The call to action text. The text of the menu item for `options-menu`.                                        |
+| `cta_url`       | `''`           | The call to action link. Only `http` and `https` links render.                                                |
+| `dismissible`   | `true`         | Whether the card has a close control.                                                                         |
+| `snooze_days`   | `90`           | Days a first dismissal lasts. `0` makes the first dismissal final.                                            |
+| `render_module` | `null`         | The id of a script module that draws the card content. See [The two tiers](#the-two-tiers).                   |
+| `is_available`  | none           | A boolean, or a callable that receives the promo. Without it the promo is never available.                    |
 
 ### What `register()` refuses
 
@@ -114,11 +114,11 @@ On a Jurassic Ninja site, use `wp companion feature-flag enable jetpack-stats-pr
 
 ## The three placements
 
-| Placement        | Renders                                                                                                          | Takes a target |
-| ---------------- | ---------------------------------------------------------------------------------------------------------------- | -------------- |
+| Placement        | Renders                                                                                                               | Takes a target |
+| ---------------- | --------------------------------------------------------------------------------------------------------------------- | -------------- |
 | `section-footer` | A card inside a dashboard section's container, under its widgets. Matched by `target`, published as the section slug. | Yes, required  |
-| `settings`       | A card in the settings panel.                                                                                    | No             |
-| `options-menu`   | One item in the Stats options menu. It behaves as a link: `cta_label` is its text and `cta_url` its destination. | No             |
+| `settings`       | A card in the settings panel.                                                                                         | No             |
+| `options-menu`   | One item in the Stats options menu. It behaves as a link: `cta_label` is its text and `cta_url` its destination.      | No             |
 
 A `section-footer` promo is suppressed while the reader is editing the dashboard, and in a section the plan locks, where the upgrade prompt takes the place.
 
@@ -210,11 +210,11 @@ Records live in the `core/preferences` scope `jetpack-premium-analytics/dashboar
 
 Premium Analytics records three events, each with the `slug` and the `placement`:
 
-| Event                                     | When                                                             | Extra properties                 |
-| ----------------------------------------- | ---------------------------------------------------------------- | -------------------------------- |
+| Event                                     | When                                                                                                                              | Extra properties                 |
+| ----------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- | -------------------------------- |
 | `jetpack_premium_analytics_promo_view`    | A card first shows, once per placement per page load. For an `options-menu` promo, each time the menu opens with the promo in it. |                                  |
-| `jetpack_premium_analytics_promo_click`   | The reader follows the call to action, or the options menu item. | `label`                          |
-| `jetpack_premium_analytics_promo_dismiss` | The reader closes a card.                                        | `dismissal`: `snooze` or `final` |
+| `jetpack_premium_analytics_promo_click`   | The reader follows the call to action, or the options menu item.                                                                  | `label`                          |
+| `jetpack_premium_analytics_promo_dismiss` | The reader closes a card.                                                                                                         | `dismissal`: `snooze` or `final` |
 
 For a card with a render module, the click event is the module's to send through `trackClick()`.
 
@@ -224,8 +224,8 @@ For a card with a render module, the click event is the module's to send through
 
 The major changes when a registrant built against the previous contract stops working: an argument or placement removed, or a changed meaning. The minor changes when a registrant can rely on something new: a new argument, placement or SDK export. A registrant compares the version in its callback. It skips registration when the major differs, and when the minor is below the one it needs.
 
-| Version | Contract                                                                                                       |
-| ------- | -------------------------------------------------------------------------------------------------------------- |
+| Version | Contract                                                                                                                                 |
+| ------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
 | 1.0.0   | The arguments and placements above, `target` as a namespaced section ID, and the SDK's `PromoRenderProps`, `PromoRecord` and `PromoCta`. |
 
 ```php
