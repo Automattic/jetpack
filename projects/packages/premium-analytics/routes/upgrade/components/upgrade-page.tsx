@@ -228,7 +228,7 @@ export function UpgradePage(): JSX.Element {
 					items={ [ { label: __( 'Upgrade', 'jetpack-premium-analytics-pkg' ) } ] }
 				/>
 			}
-			actions={ <StatsOptionsMenu /> }
+			actions={ <StatsOptionsMenu withPromo={ false } /> }
 			className={ styles.page }
 		>
 			<div className={ styles.layout }>
