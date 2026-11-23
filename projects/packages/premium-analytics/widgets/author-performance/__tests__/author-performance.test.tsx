@@ -26,7 +26,7 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 			key: string;
 			label: string;
 			value: number;
-			current: { date: Date; value: number }[];
+			current: { date: Date; endDate?: Date; value: number }[];
 			countLabel?: ( count: number ) => string;
 			unavailable?: string;
 			seriesUnavailable?: string;
@@ -44,6 +44,11 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 					value: metric.value,
 					values: metric.current.map( point => point.value ),
 					dates: metric.current.map( point => point.date.toISOString().slice( 0, 10 ) ),
+					spans: metric.current.map( point =>
+						[ point.date, point.endDate ]
+							.map( day => day?.toISOString().slice( 0, 10 ) )
+							.join( '/' )
+					),
 					hasReason: !! metric.seriesUnavailable,
 					unavailable: !! metric.unavailable,
 				} ) )
@@ -67,6 +72,7 @@ function chartedMetrics( chart: HTMLElement ) {
 		value: number;
 		values: number[];
 		dates: string[];
+		spans: string[];
 		hasReason: boolean;
 		unavailable: boolean;
 	}[];
@@ -136,42 +142,56 @@ describe( 'AuthorPerformanceWidget', () => {
 		expect( requestedPath ).not.toContain( 'days=' );
 	} );
 
-	it( 'asks the endpoint for the page’s chart bucket and keeps a partial first week', async () => {
-		// Week buckets are keyed at the calendar Monday, so the first one starts
-		// before a window that opens on a Thursday.
-		mockApiFetch.mockResolvedValue( {
-			...AUTHOR_DAYS,
+	// Buckets are keyed at the calendar Monday or the 1st, so the first one starts
+	// before a window that opens midway.
+	it.each( [
+		{
 			period: 'week',
-			views: 9,
-			data: [
-				[ '2026-06-15', 6 ],
-				[ '2026-06-22', 3 ],
-			],
-		} );
+			from: '2026-06-18',
+			to: '2026-07-15',
+			keys: [ '2026-06-15', '2026-06-22' ],
+			spans: [ '2026-06-18/2026-06-21', '2026-06-22/2026-06-28' ],
+		},
+		{
+			period: 'month',
+			from: '2026-06-20',
+			to: '2026-10-10',
+			keys: [ '2026-06-01', '2026-07-01', '2026-10-01' ],
+			spans: [ '2026-06-20/2026-06-30', '2026-07-01/2026-07-31', '2026-10-01/2026-10-10' ],
+		},
+	] )(
+		'asks the endpoint for $period buckets and carries the days of each that fall in the window',
+		async ( { period, from, to, keys, spans } ) => {
+			mockApiFetch.mockResolvedValue( {
+				...AUTHOR_DAYS,
+				period,
+				views: 9,
+				data: keys.map( ( key, index ) => [ key, 3 * ( index + 1 ) ] ),
+			} );
 
-		// 28 days from a Thursday: the shortest window that keeps a weekly interval.
-		render(
-			<AuthorPerformanceWidget
-				attributes={ {
-					reportParams: {
-						...WINDOW_PARAMS,
-						from: '2026-06-18T00:00:00.000+00:00',
-						to: '2026-07-15T23:59:59.999+00:00',
-						interval: 'week',
-					},
-				} }
-			/>
-		);
+			render(
+				<AuthorPerformanceWidget
+					attributes={ {
+						reportParams: {
+							...WINDOW_PARAMS,
+							from: `${ from }T00:00:00.000+00:00`,
+							to: `${ to }T23:59:59.999+00:00`,
+							interval: period,
+						},
+					} }
+				/>
+			);
 
-		const chart = await screen.findByTestId( 'metric-tabs-chart' );
-		const [ metric ] = chartedMetrics( chart );
-		expect( metric.dates ).toEqual( [ '2026-06-15', '2026-06-22' ] );
-		expect( metric.values ).toEqual( [ 6, 3 ] );
-		expect( metric.value ).toBe( 9 );
-		expect( decodeURIComponent( mockApiFetch.mock.calls[ 0 ][ 0 ].path as string ) ).toContain(
-			'period=week'
-		);
-	} );
+			const chart = await screen.findByTestId( 'metric-tabs-chart' );
+			const [ metric ] = chartedMetrics( chart );
+			expect( metric.spans ).toEqual( spans );
+			expect( metric.values ).toEqual( keys.map( ( _key, index ) => 3 * ( index + 1 ) ) );
+			expect( metric.value ).toBe( 9 );
+			expect( decodeURIComponent( mockApiFetch.mock.calls[ 0 ][ 0 ].path as string ) ).toContain(
+				`period=${ period }`
+			);
+		}
+	);
 
 	it( 'drops a bucket keyed by an impossible calendar day', async () => {
 		mockApiFetch.mockResolvedValue( {

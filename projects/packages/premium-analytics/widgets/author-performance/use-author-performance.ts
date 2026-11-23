@@ -7,15 +7,46 @@ import {
 	type StatsChartBucketPeriod,
 } from '@jetpack-premium-analytics/data';
 import { parseSiteDateTime } from '@jetpack-premium-analytics/datetime';
+import { toDay } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from '@wordpress/element';
+import { addDays, endOfMonth, format, parseISO } from 'date-fns';
 
 /**
- * One chart point: a bucket-start date and the author's views in the bucket.
+ * One chart point: the first and last day of the bucket that fall in the range,
+ * and the author's views in it.
  */
 export type AuthorPerformancePoint = {
 	date: Date;
+	endDate?: Date;
 	value: number;
 };
+
+const BUCKET_END: Record< StatsChartBucketPeriod, ( start: Date ) => Date > = {
+	day: start => start,
+	week: start => addDays( start, 6 ),
+	month: endOfMonth,
+};
+
+/**
+ * The days of a bucket that fall in the range, so the tooltip names a month the
+ * range cuts by its days.
+ *
+ * @param start  - The bucket's first calendar day, `yyyy-MM-dd`.
+ * @param period - The bucket size.
+ * @param from   - The range's first day, `yyyy-MM-dd`.
+ * @param to     - The range's last day, `yyyy-MM-dd`.
+ * @return The bucket's clipped first and last day.
+ */
+function clipBucketToRange(
+	start: string,
+	period: StatsChartBucketPeriod,
+	from: string,
+	to: string
+) {
+	const end = format( BUCKET_END[ period ]( parseISO( start ) ), 'yyyy-MM-dd' );
+
+	return { from: start < from ? from : start, to: end > to ? to : end };
+}
 
 export interface AuthorPerformanceState {
 	current: AuthorPerformancePoint[];
@@ -55,15 +86,24 @@ export default function useAuthorPerformance(
 		params
 	);
 
-	const current = useMemo(
-		() =>
-			( data?.data ?? [] ).flatMap( point => {
-				const date = parseSiteDateTime( point.period );
+	const current = useMemo( () => {
+		const from = toDay( reportParams.from );
+		const to = toDay( reportParams.to );
 
-				return date ? [ { date, value: point.views } ] : [];
-			} ),
-		[ data ]
-	);
+		return ( data?.data ?? [] ).flatMap( point => {
+			const start = parseSiteDateTime( point.period );
+			if ( ! start ) {
+				return [];
+			}
+
+			const bounds = from && to ? clipBucketToRange( point.period, period, from, to ) : undefined;
+			const date = parseSiteDateTime( bounds?.from ) ?? start;
+			const endDate = parseSiteDateTime( bounds?.to );
+			const value = point.views;
+
+			return [ endDate ? { date, endDate, value } : { date, value } ];
+		} );
+	}, [ data, period, reportParams.from, reportParams.to ] );
 
 	return {
 		current,

@@ -31,7 +31,7 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 			key: string;
 			label: string;
 			value: number;
-			current: { date: Date; value: number }[];
+			current: { date: Date; endDate?: Date; value: number }[];
 			countLabel?: ( count: number ) => string;
 			dataFormat?: { type: string };
 		}[];
@@ -55,6 +55,11 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 					values: metric.current.map( point => point.value ),
 					firstDate: metric.current[ 0 ]?.date.toISOString(),
 					days: metric.current.map( point => point.date.getDate() ),
+					spans: metric.current.map( point =>
+						[ point.date, point.endDate ]
+							.map( day => day?.toISOString().slice( 0, 10 ) )
+							.join( '/' )
+					),
 				} ) )
 			) }
 		>
@@ -77,6 +82,7 @@ type ChartedMetric = {
 	format?: string;
 	values: number[];
 	firstDate?: string;
+	spans: string[];
 };
 
 /**
@@ -185,6 +191,34 @@ describe( 'PostViewsWidget', () => {
 		// Mon 6/29 (5 + 7), Mon 7/6 and Mon 7/13 (zero).
 		const chart = await screen.findByTestId( 'metric-tabs-chart' );
 		expect( chartedMetrics( chart )[ 0 ].values ).toEqual( [ 9, 12, 0, 0 ] );
+	} );
+
+	it( 'carries the days of a month the window cuts, so its tooltip does not name the whole month', async () => {
+		mockApiFetch.mockResolvedValue( STATS_POST_RESPONSE );
+
+		render(
+			<PostViewsWidget
+				attributes={ {
+					reportParams: {
+						...DEFAULT_PARAMS,
+						from: '2026-06-20T00:00:00.000+00:00',
+						to: '2026-10-10T23:59:59.999+00:00',
+						interval: 'month',
+						post_id: 779,
+					},
+				} }
+			/>
+		);
+
+		const [ views ] = chartedMetrics( await screen.findByTestId( 'metric-tabs-chart' ) );
+		expect( views.spans ).toEqual( [
+			'2026-06-20/2026-06-30',
+			'2026-07-01/2026-07-31',
+			'2026-08-01/2026-08-31',
+			'2026-09-01/2026-09-30',
+			'2026-10-01/2026-10-10',
+		] );
+		expect( views.values ).toEqual( [ 9, 12, 0, 0, 0 ] );
 	} );
 
 	it.each( [

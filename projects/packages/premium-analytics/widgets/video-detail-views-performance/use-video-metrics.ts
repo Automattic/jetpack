@@ -31,10 +31,12 @@ import {
  */
 
 /**
- * One chart point: a bucket-start date and the metric's value for the bucket.
+ * One chart point: the first and last day of the bucket that fall in the range,
+ * and the metric's value for it.
  */
 export type VideoMetricPoint = {
 	date: Date;
+	endDate?: Date;
 	value: number;
 };
 
@@ -163,9 +165,12 @@ function toBucketPoints(
 	zone: string
 ): VideoMetricPoint[] {
 	return buckets.flatMap( bucket => {
-		const date = resolveBucketStamp( bucket.date, zone );
+		// The clipped bounds, so the tooltip names a month the range cuts by its days.
+		const date = resolveBucketStamp( bucket.from, zone );
+		const endDate = resolveBucketStamp( bucket.to, zone );
+		const value = totals.get( bucket.date ) ?? 0;
 
-		return date ? [ { date, value: totals.get( bucket.date ) ?? 0 } ] : [];
+		return date ? [ endDate ? { date, endDate, value } : { date, value } ] : [];
 	} );
 }
 
