@@ -6,6 +6,7 @@ import {
 	useStatsTopPosts,
 	type StatsTopPostsComparisonItem,
 } from '@jetpack-premium-analytics/data';
+import { Stack } from '@jetpack-premium-analytics/externals';
 import {
 	WidgetDataTable,
 	WidgetRoot,
@@ -107,7 +108,7 @@ function PostsTable() {
 	} );
 
 	return (
-		<div className={ styles.root }>
+		<Stack direction="column" className={ styles.root }>
 			<WidgetState
 				isLoading={ isLoading }
 				isFetching={ isFetching }
@@ -132,7 +133,7 @@ function PostsTable() {
 					onChangePageItems={ handlePageRowsChange }
 				/>
 			</WidgetState>
-		</div>
+		</Stack>
 	);
 }
 
