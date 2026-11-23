@@ -1,6 +1,7 @@
 import { __ } from '@wordpress/i18n';
 import { useModuleSurface } from '$features/module/surface';
 import Module from '$features/module/module';
+import DeferFontsMeta from './defer-fonts-meta';
 
 const DeferFonts = () => {
 	const legacyDescription = __(
@@ -18,7 +19,9 @@ const DeferFonts = () => {
 			slug="defer_fonts"
 			title={ __( 'Defer Web Fonts', 'jetpack-boost' ) }
 			description={ <p>{ isModern ? modernDescription : legacyDescription }</p> }
-		/>
+		>
+			<DeferFontsMeta />
+		</Module>
 	);
 };
 

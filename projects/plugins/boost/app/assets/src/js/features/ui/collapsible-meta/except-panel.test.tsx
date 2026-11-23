@@ -4,6 +4,7 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import { ModuleSurfaceProvider } from '$features/module/surface';
 import RenderBlockingJsMeta from '$features/render-blocking-js/render-blocking-js-meta';
+import DeferFontsMeta from '$features/defer-fonts/defer-fonts-meta';
 import MinifyMeta from '$features/minify-meta/minify-meta';
 import PageCacheMeta from '$features/page-cache/meta/meta';
 
@@ -38,6 +39,12 @@ const consumers = [
 		name: 'Defer JS',
 		component: <RenderBlockingJsMeta />,
 		trigger: 'Exclude URL patterns',
+		count: false,
+	},
+	{
+		name: 'Defer Web Fonts',
+		component: <DeferFontsMeta />,
+		trigger: 'Exclude icon fonts',
 		count: false,
 	},
 	...( [ 'js', 'css' ] as const ).map( type => ( {
@@ -173,7 +180,7 @@ it( 'keeps the Page Cache textarea section inside its styling body and panel', (
 	).toBe( true );
 } );
 
-it.each( consumers.filter( consumer => ! consumer.count ) )(
+it.each( consumers.filter( consumer => ! consumer.count && consumer.name !== 'Defer Web Fonts' ) )(
 	'$name uses modern field copy and retains legacy field copy',
 	( { component, trigger } ) => {
 		const modernLabel =

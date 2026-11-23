@@ -7,19 +7,29 @@
 
 namespace Automattic\Jetpack_Boost\Modules\Optimizations\Defer_Fonts;
 
+use Automattic\Jetpack\Schema\Schema;
+use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync;
+use Automattic\Jetpack_Boost\Contracts\Changes_Output_After_Activation;
 use Automattic\Jetpack_Boost\Contracts\Changes_Output_On_Activation;
 use Automattic\Jetpack_Boost\Contracts\Feature;
+use Automattic\Jetpack_Boost\Contracts\Has_Data_Sync;
 use Automattic\Jetpack_Boost\Contracts\Optimization;
+use Automattic\Jetpack_Boost\Data_Sync\Minify_Excludes_State_Entry;
 
 /**
  * Prints core's @font-face rules with `font-display: swap` and injects them after the `load` event.
  */
-class Defer_Fonts implements Feature, Changes_Output_On_Activation, Optimization {
+class Defer_Fonts implements Feature, Changes_Output_On_Activation, Changes_Output_After_Activation, Optimization, Has_Data_Sync {
 
 	/**
 	 * Key in localStorage remembering which font set the visitor's browser has already downloaded.
 	 */
 	const STORAGE_KEY = 'jetpack-boost-defer-fonts';
+
+	/**
+	 * Font-family name prefixes left to load normally until the site owner edits the list.
+	 */
+	const DEFAULT_EXCLUDES = array( 'Font Awesome', 'FontAwesome' );
 
 	/**
 	 * Get the slug for this module.
@@ -37,6 +47,33 @@ class Defer_Fonts implements Feature, Changes_Output_On_Activation, Optimization
 	 */
 	public static function is_available() {
 		return true;
+	}
+
+	/**
+	 * Register the data sync entry holding the font families left to load normally.
+	 *
+	 * @param Data_Sync $instance The data sync instance.
+	 */
+	public function register_data_sync( Data_Sync $instance ) {
+		$instance->register(
+			'defer_fonts_excludes',
+			Schema::as_array( Schema::as_string() )->fallback( self::DEFAULT_EXCLUDES ),
+			new Minify_Excludes_State_Entry( 'defer_fonts_excludes' )
+		);
+	}
+
+	/**
+	 * Cached pages need to be invalidated when the exclusion list changes.
+	 *
+	 * @return string[] Action names fired when the exclusion list is saved.
+	 */
+	public static function get_change_output_action_names() {
+		$option = JETPACK_BOOST_DATASYNC_NAMESPACE . '_defer_fonts_excludes';
+
+		return array(
+			'add_option_' . $option,
+			'update_option_' . $option,
+		);
 	}
 
 	/**
@@ -67,7 +104,7 @@ class Defer_Fonts implements Feature, Changes_Output_On_Activation, Optimization
 	 * Print the theme's font faces as a deferred loader, with a <noscript> fallback.
 	 */
 	public function print_deferred_font_faces() {
-		list( $fonts, $excluded ) = self::split_excluded( \WP_Font_Face_Resolver::get_fonts_from_theme_json() );
+		list( $fonts, $excluded ) = self::split_excluded( \WP_Font_Face_Resolver::get_fonts_from_theme_json(), self::get_excluded_families() );
 		if ( ! empty( $excluded ) ) {
 			wp_print_font_faces( $excluded );
 		}
@@ -98,21 +135,31 @@ class Defer_Fonts implements Feature, Changes_Output_On_Activation, Optimization
 	}
 
 	/**
-	 * Split font families into those to defer and those left to core, such as icon fonts that must not flash.
+	 * The font-family name prefixes the site owner saved, such as icon fonts that must not flash.
 	 *
-	 * @param array $fonts Font families, each a list of font faces, as WP_Font_Face_Resolver returns them.
-	 * @return array The families to defer, then the excluded ones.
+	 * @return string[]
 	 */
-	public static function split_excluded( array $fonts ) {
+	public static function get_excluded_families() {
+		$saved = function_exists( 'jetpack_boost_ds_get' ) ? jetpack_boost_ds_get( 'defer_fonts_excludes' ) : self::DEFAULT_EXCLUDES;
+
 		/**
 		 * Filters the font-family names Defer Web Fonts loads normally, matched case-insensitively as a prefix.
 		 *
 		 * @since $$next-version$$
 		 *
-		 * @param string[] $prefixes Font-family name prefixes. Defaults to Font Awesome's names.
+		 * @param string[] $prefixes Font-family name prefixes from the module's settings.
 		 */
-		$prefixes = (array) apply_filters( 'jetpack_boost_defer_fonts_excluded_families', array( 'Font Awesome', 'FontAwesome' ) );
+		return (array) apply_filters( 'jetpack_boost_defer_fonts_excluded_families', is_array( $saved ) ? $saved : self::DEFAULT_EXCLUDES );
+	}
 
+	/**
+	 * Split font families into those to defer and those whose name starts with an excluded prefix.
+	 *
+	 * @param array    $fonts    Font families, each a list of font faces, as WP_Font_Face_Resolver returns them.
+	 * @param string[] $prefixes Font-family name prefixes to leave to core, matched case-insensitively.
+	 * @return array The families to defer, then the excluded ones.
+	 */
+	public static function split_excluded( array $fonts, array $prefixes ) {
 		$deferred = array();
 		$excluded = array();
 		foreach ( $fonts as $key => $faces ) {

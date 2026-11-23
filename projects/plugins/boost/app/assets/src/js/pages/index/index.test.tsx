@@ -28,6 +28,7 @@ jest.mock( '$features/critical-css/critical-css-meta/critical-css-meta', () => (
 jest.mock( '$features/critical-css/cloud-css-meta/cloud-css-meta', () => () => (
 	<div>cloud css meta</div>
 ) );
+jest.mock( '$features/defer-fonts/defer-fonts-meta', () => () => null );
 jest.mock( '$features/render-blocking-js/render-blocking-js-meta', () => () => (
 	<div>defer js meta</div>
 ) );
