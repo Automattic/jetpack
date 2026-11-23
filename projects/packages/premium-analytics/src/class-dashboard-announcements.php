@@ -23,9 +23,9 @@ class Dashboard_Announcements {
 	const CHANNEL = 'premium-analytics';
 
 	/**
-	 * Flag that turns the dashboard's What's new surface and its announcements on.
+	 * Flag that turns What's new on, in every Jetpack product that shows it.
 	 */
-	const FLAG = 'jetpack-stats-whats-new';
+	const FLAG = 'jetpack-whats-new';
 
 	/**
 	 * Register the flag, the registrant, and the flag's answer for the dashboard's client.
@@ -33,12 +33,13 @@ class Dashboard_Announcements {
 	 * @return void
 	 */
 	public static function configure() {
+		// Each Jetpack product that shows What's new registers this flag, with this same definition.
 		Feature_Flags::register(
 			self::FLAG,
 			array(
 				'default'     => false,
-				'description' => "Show the What's new teaser and reader on Stats v2, with the announcements the dashboard registers.",
-				'owner'       => 'jetpack-stats',
+				'description' => "Show What's new, the teaser and the reader of the Jetpack announcements, in the Jetpack dashboards.",
+				'owner'       => 'jetpack',
 			)
 		);
 

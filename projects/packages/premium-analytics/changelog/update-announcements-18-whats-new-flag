@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Rename the feature flag of What's new to `jetpack-whats-new`, the one every Jetpack product that shows it shares; the flag is off.
+
+
