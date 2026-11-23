@@ -21,15 +21,24 @@ class WooCommerceLlmsTxtPrivacyTest extends WP_UnitTestCase {
 	 */
 	#[DataProvider( 'site_member_roles' )]
 	public function test_coming_soon_does_not_disable_guidance_for_members( $role ) {
+		global $wp_query;
+
 		update_option( 'wpcom_public_coming_soon', 1 );
-		$this->go_to( home_url( '/llms.txt' ) );
+		$previous_query = $wp_query;
+		// A full request can exit at WP Cloud's private-site check.
+		$wp_query = new WP_Query();
+		$wp_query->set_404();
 
-		wp_set_current_user( 0 );
-		$this->assertTrue( \A8C\FSE\Coming_soon\should_show_coming_soon_page() );
+		try {
+			wp_set_current_user( 0 );
+			$this->assertTrue( \A8C\FSE\Coming_soon\should_show_coming_soon_page() );
 
-		wp_set_current_user( self::factory()->user->create( array( 'role' => $role ) ) );
-		$this->assertFalse( \A8C\FSE\Coming_soon\should_show_coming_soon_page() );
-		$this->assertTrue( apply_filters( 'woocommerce_enable_llms_txt', true ) );
+			wp_set_current_user( self::factory()->user->create( array( 'role' => $role ) ) );
+			$this->assertFalse( \A8C\FSE\Coming_soon\should_show_coming_soon_page() );
+			$this->assertTrue( apply_filters( 'woocommerce_enable_llms_txt', true ) );
+		} finally {
+			$wp_query = $previous_query;
+		}
 	}
 
 	/**
