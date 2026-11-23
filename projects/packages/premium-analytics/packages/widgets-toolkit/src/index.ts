@@ -15,6 +15,8 @@ export {
 	MetricWithComparison,
 	ComparativeLineChart,
 	type ComparativeLineChartSeries,
+	StackedAreaChart,
+	type StackedAreaChartProps,
 	ComparativeBarChart,
 	type ComparativeBarChartProps,
 	type ComparativeBarChartSeries,
