@@ -64,11 +64,11 @@ class Dashboard {
 	const RENDER_FUNCTION = 'jetpack_monetize_jetpack_monetize_dashboard_wp_admin_render_page';
 
 	/**
-	 * The slug the `jetpack_feature_upgrade` filter sees for this page's upgrade links: My Jetpack's Monetize feature, so a host answers both alike.
+	 * The slug the `jetpack_feature_upgrade` filter sees for this page's upgrade links.
 	 *
 	 * @var string
 	 */
-	const UPGRADE_SLUG = 'monetize';
+	const UPGRADE_SLUG = 'monetize-dashboard';
 
 	/**
 	 * The dashboard's sections.
