@@ -46,7 +46,6 @@ class VersionCommand extends Command {
 			->addOption( 'prerelease', 'p', InputOption::VALUE_REQUIRED, 'When fetching the next version, include this prerelease suffix' )
 			->addOption( 'buildinfo', 'b', InputOption::VALUE_REQUIRED, 'When fetching the next version, include this buildinfo suffix' )
 			->addOption( 'default-first-version', null, InputOption::VALUE_NONE, 'If the changelog is currently empty, guess a "first" version instead of erroring. When used with <info>current</>, makes it work as <info>next</> in that situation.' )
-			->addOption( 'ref', null, InputOption::VALUE_REQUIRED, 'When fetching the previous or current version, read the changelog as of this git ref instead of from the working tree' )
 			->setHelp(
 				<<<'EOF'
 The <info>version</info> command reads the versions from the changelog, and outputs the previous, current, or next version based on the change files.
@@ -147,44 +146,26 @@ EOF
 			return 1;
 		}
 
-		$ref = $input->getOption( 'ref' );
-		// Change files would still come from the working tree, so the result would be a confusing mess.
-		if ( $which === 'next' && $ref !== null ) {
-			$output->writeln( '<error>The --ref option cannot be used when fetching the next version</>' );
-			return 1;
-		}
-
 		// Read current versions, either from command line or changelog.
 		if ( 'next' === $which && $input->getOption( 'use-version' ) !== null ) {
 			$versions = array( (string) $input->getOption( 'use-version' ) );
 		} else {
 			$file = Config::changelogFile();
-			if ( $ref !== null ) {
-				$debugHelper = $this->getHelper( 'debug_formatter' );
-				'@phan-var \Symfony\Component\Console\Helper\DebugFormatterHelper $debugHelper';
-				$process = Utils::runCommand( array( 'git', 'show', "$ref:./" . basename( $file ) ), $output, $debugHelper, array( 'cwd' => dirname( $file ) ) );
-				if ( ! $process->isSuccessful() ) {
-					$output->writeln( "<error>Failed to read $file at $ref: " . trim( $process->getErrorOutput() ) . '</>' );
-					return 1;
-				}
-				$contents = $process->getOutput();
-			} else {
-				if ( ! file_exists( $file ) ) {
-					$output->writeln( "<error>Changelog file $file does not exist</>" );
-					return 1;
-				}
-
-				error_clear_last();
-				// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
-				$contents = @file_get_contents( $file );
-				// @codeCoverageIgnoreStart
-				if ( ! is_string( $contents ) ) {
-					$err = error_get_last();
-					$output->writeln( "<error>Failed to read $file: {$err['message']}</>" );
-					return 1;
-				}
-				// @codeCoverageIgnoreEnd
+			if ( ! file_exists( $file ) ) {
+				$output->writeln( "<error>Changelog file $file does not exist</>" );
+				return 1;
 			}
+
+			error_clear_last();
+			// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+			$contents = @file_get_contents( $file );
+			// @codeCoverageIgnoreStart
+			if ( ! is_string( $contents ) ) {
+				$err = error_get_last();
+				$output->writeln( "<error>Failed to read $file: {$err['message']}</>" );
+				return 1;
+			}
+			// @codeCoverageIgnoreEnd
 
 			try {
 				$versions = $formatter->parse( $contents )->getVersions();

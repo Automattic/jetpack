@@ -440,7 +440,7 @@ function do_create_backport_PR {
 	# Backport each released project's changelogs, skipping four-point package releases.
 	while read -r file; do
 		dir=${file%/CHANGELOG.md}
-		ver=$(cd "$BASE/$dir" && changelogger version current --ref "$RELEASE_BRANCH")
+		ver=$(git show "$RELEASE_BRANCH:$file" | sed -n -E -e 's/^## \[?([0-9.]+(-[a-zA-Z0-9.+-]*)?)\]? - .*$/\1/p' -e 'tq' -e 'd' -e ':q' -e 'q')
 		if [[ $dir == projects/packages/* && $ver =~ ^[0-9]+(\.[0-9]+){3}$ ]]; then
 			echo "Skipping $dir; released as four-point version $ver."
 			continue
