@@ -1,16 +1,12 @@
 import '@testing-library/jest-dom';
 import { jest } from '@jest/globals';
-import { act, fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import type { SettingsResponse } from '../../../data/settings-types';
 import type { SettingsForm } from '../../../data/use-settings';
 import type { ReactElement, ReactNode } from 'react';
 
 // `--experimental-vm-modules` (true ESM): mock with `jest.unstable_mockModule`
 // and import the components under test dynamically after the mocks are registered.
-jest.unstable_mockModule( '../../../data/is-gated', () => ( {
-	isGated: () => false,
-	getUpsellUrl: () => 'https://wordpress.com/checkout/example.com/value_bundle',
-} ) );
 
 jest.unstable_mockModule( '@wordpress/route', () => ( {
 	useSearch: () => ( {} ),
@@ -48,6 +44,14 @@ jest.unstable_mockModule( '../title-structure-field', () => ( {
 jest.unstable_mockModule( '../google-verification-field', () => ( {
 	default: () => <div>google field</div>,
 } ) );
+
+const IndexnowSettings = jest.fn< ( props: Record< string, unknown > ) => ReactElement >( () => (
+	<div>notification settings</div>
+) );
+jest.unstable_mockModule( '../indexnow-settings', () => ( { default: IndexnowSettings } ) );
+
+const sharingFetch = jest.fn< ( options: unknown ) => Promise< unknown > >();
+jest.unstable_mockModule( '@wordpress/api-fetch', () => ( { default: sharingFetch } ) );
 
 const { default: SettingsScreen } = await import( '../index' );
 
@@ -155,51 +159,23 @@ describe( 'Jetpack SEO output paused', () => {
 
 	// A filter can switch Jetpack's output off without a plugin; the lock can't depend on the name.
 	it.each( [
-		[
-			'Yoast SEO',
-			'Yoast SEO is managing your site’s SEO, so Jetpack has paused its SEO titles, descriptions, canonical URLs, structured data and llms.txt. Your saved settings are kept. Deactivate Yoast SEO to use them.',
-			'Paused while Yoast SEO is active.',
-		],
-		[
-			'',
-			'Jetpack’s SEO titles, descriptions, structured data and llms.txt are turned off on this site. Your saved settings are kept.',
-			'Paused on this site.',
-		],
-	] )(
-		'with "%s" in charge, explains it once and locks the cards it feeds',
-		async ( plugin, banner, line ) => {
-			setPaused( plugin );
-			render( <SettingsScreen form={ buildForm( { title_formats_editable: false } ) } /> );
+		[ 'Yoast SEO', 'Paused while Yoast SEO is active.' ],
+		[ '', 'Paused on this site.' ],
+	] )( 'with "%s" in charge, locks the cards it feeds', async ( plugin, line ) => {
+		setPaused( plugin );
+		render( <SettingsScreen form={ buildForm( { title_formats_editable: false } ) } /> );
 
-			expect( screen.getByText( banner ) ).toBeInTheDocument();
-			expect( statusFor( 'Front-page description' ) ).toBe( 'Paused' );
-			expect( screen.getByTestId( 'schema' ) ).toHaveAttribute( 'aria-disabled', 'true' );
-			expect( screen.getByTestId( 'author' ) ).toHaveAttribute( 'aria-disabled', 'true' );
-			await expect( openDescription() ).resolves.toBeDisabled();
-			expect( screen.getByText( line ) ).toBeInTheDocument();
-			// The description keeps its usual help; the banner carries the cause.
-			expect( screen.getByText( /^Shown under your site name/ ) ).toBeInTheDocument();
-			// The previews stay visible, read-only, with the same line.
-			expect( SocialPreviewsCard.mock.lastCall?.[ 0 ] ).toEqual(
-				expect.objectContaining( { paused: true } )
-			);
-		}
-	);
-
-	it( 'links to the Plugins screen only when a plugin is named', () => {
-		setPaused( 'Yoast SEO' );
-		const { unmount } = render( <SettingsScreen form={ buildForm() } /> );
-
-		expect( screen.getByRole( 'link', { name: 'Manage plugins' } ) ).toHaveAttribute(
-			'href',
-			'https://example.com/wp-admin/plugins.php'
+		expect( statusFor( 'Front-page description' ) ).toBe( 'Paused' );
+		expect( screen.getByTestId( 'schema' ) ).toHaveAttribute( 'aria-disabled', 'true' );
+		expect( screen.getByTestId( 'author' ) ).toHaveAttribute( 'aria-disabled', 'true' );
+		await expect( openDescription() ).resolves.toBeDisabled();
+		expect( screen.getByText( line ) ).toBeInTheDocument();
+		// The description keeps its usual help; the banner carries the cause.
+		expect( screen.getByText( /^Shown under your site name/ ) ).toBeInTheDocument();
+		// The previews stay visible, read-only, with the same line.
+		expect( SocialPreviewsCard.mock.lastCall?.[ 0 ] ).toEqual(
+			expect.objectContaining( { paused: true, disabled: true } )
 		);
-
-		unmount();
-		setPaused( '' );
-		render( <SettingsScreen form={ buildForm() } /> );
-
-		expect( screen.queryByRole( 'link', { name: 'Manage plugins' } ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'leaves everything alone while Jetpack owns the output', async () => {
@@ -221,7 +197,7 @@ describe( 'Indexing toggle on an unpublished site', () => {
 	} );
 
 	const indexingToggle = () =>
-		screen.getByRole( 'checkbox', { name: /Allow search engines to index this site/i } );
+		screen.getByRole( 'switch', { name: /Allow search engines to index this site/i } );
 
 	const visibilityLink = () => screen.queryByRole( 'link', { name: 'Manage site visibility' } );
 	const visibilityUrl = 'http://example.com/wp-admin/options-reading.php';
@@ -238,7 +214,7 @@ describe( 'Indexing toggle on an unpublished site', () => {
 			<SettingsScreen form={ buildForm( { ...overrides, site_visibility_url: visibilityUrl } ) } />
 		);
 
-		expect( indexingToggle() ).toBeDisabled();
+		expect( indexingToggle() ).toHaveAttribute( 'aria-disabled', 'true' );
 		expect( screen.getByText( help ) ).toBeInTheDocument();
 		expect( visibilityLink() ).toHaveAttribute( 'href', visibilityUrl );
 		expect( statusFor( 'Site visibility' ) ).toBeUndefined();
@@ -271,7 +247,7 @@ describe( 'Indexing toggle on an unpublished site', () => {
 	it( 'is enabled with the usual help text on a public site', () => {
 		render( <SettingsScreen form={ buildForm( { site_visibility_url: visibilityUrl } ) } /> );
 
-		expect( indexingToggle() ).toBeEnabled();
+		expect( indexingToggle() ).not.toHaveAttribute( 'aria-disabled' );
 		expect(
 			screen.queryByText( /Your site is (private|in Coming Soon)/i )
 		).not.toBeInTheDocument();
@@ -296,12 +272,15 @@ describe( 'Settings module completion status', () => {
 				} ) }
 			/>
 		);
-		expect( screen.getByRole( 'checkbox', { name: /Generate an XML sitemap/i } ) ).toBeDisabled();
+		expect( screen.getByRole( 'switch', { name: /Generate an XML sitemap/i } ) ).toHaveAttribute(
+			'aria-disabled',
+			'true'
+		);
 		// eslint-disable-next-line testing-library/prefer-user-event -- Match the package's existing disclosure tests without adding a dependency.
 		fireEvent.click( screen.getByRole( 'button', { name: 'Canonical URLs' } ) );
 		await expect(
-			screen.findByRole( 'checkbox', { name: /Add canonical URLs/i } )
-		).resolves.toBeDisabled();
+			screen.findByRole( 'switch', { name: /Add canonical URLs/i } )
+		).resolves.toHaveAttribute( 'aria-disabled', 'true' );
 		expect( screen.getAllByText( /managed by your hosting platform/i ) ).toHaveLength( 2 );
 	} );
 
@@ -315,8 +294,8 @@ describe( 'Settings module completion status', () => {
 		// eslint-disable-next-line testing-library/prefer-user-event -- Match the package's existing disclosure tests without adding a dependency.
 		fireEvent.click( screen.getByRole( 'button', { name: 'Canonical URLs' } ) );
 		await expect(
-			screen.findByRole( 'checkbox', { name: /Add canonical URLs/i, checked: true } )
-		).resolves.toBeDisabled();
+			screen.findByRole( 'switch', { name: /Add canonical URLs/i, checked: true } )
+		).resolves.toHaveAttribute( 'aria-disabled', 'true' );
 		// Its saved "on" no longer prints a tag, so the header doesn't call it complete.
 		expect( statusFor( 'Canonical URLs' ) ).toBe( 'Paused' );
 		expect( screen.getAllByText( 'Paused while Yoast SEO is active.' ) ).not.toHaveLength( 0 );
@@ -330,8 +309,8 @@ describe( 'Settings module completion status', () => {
 		// eslint-disable-next-line testing-library/prefer-user-event -- Match the package's existing disclosure tests without adding a dependency.
 		fireEvent.click( screen.getByRole( 'button', { name: 'Canonical URLs' } ) );
 		await expect(
-			screen.findByRole( 'checkbox', { name: /Add canonical URLs/i, checked: true } )
-		).resolves.toBeEnabled();
+			screen.findByRole( 'switch', { name: /Add canonical URLs/i, checked: true } )
+		).resolves.not.toHaveAttribute( 'aria-disabled' );
 		expect( statusFor( 'Canonical URLs' ) ).toBe( 'Complete' );
 	} );
 
@@ -498,8 +477,8 @@ describe( 'WordPress.com Simple settings', () => {
 		// eslint-disable-next-line testing-library/prefer-user-event -- Match this file's existing disclosure tests.
 		fireEvent.click( screen.getByRole( 'button', { name: 'Canonical URLs' } ) );
 
-		const toggle = screen.getByRole( 'checkbox', { name: /Add canonical URLs/i, checked: active } );
-		expect( toggle ).toBeEnabled();
+		const toggle = screen.getByRole( 'switch', { name: /Add canonical URLs/i, checked: active } );
+		expect( toggle ).not.toHaveAttribute( 'aria-disabled' );
 		// eslint-disable-next-line testing-library/prefer-user-event -- Exercise the module-switch callback directly.
 		fireEvent.click( toggle );
 
@@ -535,7 +514,7 @@ describe( 'WordPress.com Simple settings', () => {
 			expect( form.setVerification ).toHaveBeenCalledWith( 'bing', 'bing-code' );
 			expect( form.commitFields ).toHaveBeenCalledWith( [ 'verification' ] );
 
-			const toggle = screen.queryByRole( 'checkbox', { name: /Enable site verification/ } );
+			const toggle = screen.queryByRole( 'switch', { name: /Enable site verification/ } );
 			expect( toggle !== null ).toBe( switchable );
 			if ( toggle ) {
 				// eslint-disable-next-line testing-library/prefer-user-event -- Exercise only the module-switch callback.
@@ -560,11 +539,11 @@ describe( 'WordPress.com Simple settings', () => {
 
 			render( <SettingsScreen form={ form } /> );
 
-			const toggle = screen.getByRole( 'checkbox', {
+			const toggle = screen.getByRole( 'switch', {
 				name: /Generate an XML sitemap/i,
 				checked: searchEnginesVisible,
 			} );
-			expect( toggle ).toBeDisabled();
+			expect( toggle ).toHaveAttribute( 'aria-disabled', 'true' );
 			expect( statusFor( 'Site visibility' ) ).toBe(
 				searchEnginesVisible ? 'Complete' : 'Not started'
 			);
@@ -587,7 +566,9 @@ describe( 'WordPress.com Simple settings', () => {
 
 		render( <SettingsScreen form={ buildForm( { search_engines_visible: true } ) } /> );
 
-		expect( screen.getByRole( 'checkbox', { name: /Generate an XML sitemap/i } ) ).toBeEnabled();
+		expect(
+			screen.getByRole( 'switch', { name: /Generate an XML sitemap/i } )
+		).not.toHaveAttribute( 'aria-disabled' );
 		expect(
 			screen.queryByText(
 				'WordPress.com manages sitemap generation for this site. Additional hosting features let you turn sitemap generation on or off.'
@@ -652,4 +633,134 @@ describe( 'Search & social previews', () => {
 			expect.objectContaining( { frontPageTitleFormat: [] } )
 		);
 	} );
+
+	it( 'keeps the default share image editable in the manual settings', () => {
+		const image = { id: 12, src: 'https://example.com/share.jpg', alt_text: 'Share image' };
+		const form = buildForm( { default_share_image: image, share_image_preview: image.src } );
+
+		render( <SettingsScreen form={ form } /> );
+
+		const props = SocialPreviewsCard.mock.lastCall?.[ 0 ];
+		expect( props ).toEqual(
+			expect.objectContaining( {
+				defaultImage: image,
+				resolvedImage: image.src,
+				disabled: false,
+			} )
+		);
+		( props?.onImageChange as ( image: number ) => void )( 34 );
+		expect( form.commit ).toHaveBeenCalledWith( { default_share_image: 34 } );
+	} );
+} );
+
+describe( 'Notification settings inside Site visibility', () => {
+	beforeEach( () => {
+		( window as unknown as { JetpackScriptData?: unknown } ).JetpackScriptData = {
+			seo: { indexnow_available: true },
+		};
+		IndexnowSettings.mockClear();
+	} );
+
+	afterEach( () => {
+		delete ( window as unknown as { JetpackScriptData?: unknown } ).JetpackScriptData;
+	} );
+
+	it.each( [ false, undefined ] )(
+		'does not mount notifications when host availability is %s',
+		available => {
+			( window as unknown as { JetpackScriptData?: unknown } ).JetpackScriptData = {
+				seo: { indexnow_available: available },
+			};
+			render( <SettingsScreen form={ buildForm() } /> );
+			expect( IndexnowSettings ).not.toHaveBeenCalled();
+			expect( screen.queryByText( 'notification settings' ) ).not.toBeInTheDocument();
+		}
+	);
+
+	it( 'places notifications after the sitemap and forwards the parent save state', () => {
+		const form = { ...buildForm(), isSaving: true };
+		render( <SettingsScreen form={ form } /> );
+		expect( IndexnowSettings.mock.lastCall?.[ 0 ] ).toEqual(
+			expect.objectContaining( { isSaving: true, onSavingChange: expect.any( Function ) } )
+		);
+		const sitemap = screen.getByRole( 'switch', { name: /Generate an XML sitemap/i } );
+		const notifications = screen.getByText( 'notification settings' );
+		expect( sitemap.compareDocumentPosition( notifications ) ).toBe(
+			Node.DOCUMENT_POSITION_FOLLOWING
+		);
+		// eslint-disable-next-line testing-library/no-node-access -- The section anchor owns the inline controls.
+		expect( notifications.closest( '#visibility' ) ).not.toBeNull();
+	} );
+
+	it( 'locks visibility toggles only while a notification save is in flight', () => {
+		render( <SettingsScreen form={ buildForm( { search_engines_visible: true } ) } /> );
+		const indexing = screen.getByRole( 'switch', { name: /Allow search engines/i } );
+		const sitemap = screen.getByRole( 'switch', { name: /Generate an XML sitemap/i } );
+		const onSavingChange = IndexnowSettings.mock.lastCall?.[ 0 ].onSavingChange as (
+			saving: boolean
+		) => void;
+		act( () => onSavingChange( true ) );
+		expect( indexing ).toHaveAttribute( 'aria-disabled', 'true' );
+		expect( sitemap ).toHaveAttribute( 'aria-disabled', 'true' );
+		act( () => onSavingChange( false ) );
+		expect( indexing ).not.toHaveAttribute( 'aria-disabled' );
+		expect( sitemap ).not.toHaveAttribute( 'aria-disabled' );
+	} );
+} );
+
+describe( 'sharing save coordination', () => {
+	it.each( [ 'saved', 'rejected' ] )(
+		'locks other settings until consent is %s and confirmed',
+		async outcome => {
+			sharingFetch.mockReset();
+			const initial = {
+				prevent_sharing: false,
+				locked: false,
+				privacy_url: '/wp-admin/options-reading.php',
+			};
+			sharingFetch.mockResolvedValueOnce( initial );
+			const form = buildForm( { data_sharing_available: true, search_engines_visible: true } );
+			render( <SettingsScreen form={ form } /> );
+			const sharing = await screen.findByRole( 'switch', { name: 'Prevent third-party sharing' } );
+			await waitFor( () => expect( sharing ).toBeEnabled() );
+			let resolveSave!: ( value: unknown ) => void;
+			let rejectSave!: ( reason: Error ) => void;
+			sharingFetch.mockReturnValueOnce(
+				new Promise( ( resolve, reject ) => {
+					resolveSave = resolve;
+					rejectSave = reject;
+				} )
+			);
+			// eslint-disable-next-line testing-library/prefer-user-event -- Match the package settings tests.
+			fireEvent.click( sharing );
+			const indexing = screen.getByRole( 'switch', {
+				name: 'Allow search engines to index this site',
+			} );
+			expect( indexing ).toHaveAttribute( 'aria-disabled', 'true' );
+			expect( SocialPreviewsCard.mock.lastCall?.[ 0 ] ).toEqual(
+				expect.objectContaining( { disabled: true } )
+			);
+			indexing.click();
+			expect( form.commit ).not.toHaveBeenCalled();
+			let confirm!: ( value: unknown ) => void;
+			sharingFetch.mockReturnValueOnce(
+				new Promise( resolve => {
+					confirm = resolve;
+				} )
+			);
+			await act( async () => {
+				if ( outcome === 'saved' ) {
+					resolveSave( { ...initial, prevent_sharing: true } );
+				} else {
+					rejectSave( new Error( 'Rejected' ) );
+				}
+			} );
+			expect( indexing ).toHaveAttribute( 'aria-disabled', 'true' );
+			await act( async () => confirm( outcome === 'saved' ? { crawlers: {} } : initial ) );
+			await waitFor( () => expect( indexing ).not.toHaveAttribute( 'aria-disabled' ) );
+			// eslint-disable-next-line jest-dom/prefer-checked -- Compare the table's expected state without conditional assertions.
+			expect( sharing ).toHaveAttribute( 'aria-checked', String( outcome === 'saved' ) );
+			expect( sharingFetch ).toHaveBeenCalledTimes( 3 );
+		}
+	);
 } );

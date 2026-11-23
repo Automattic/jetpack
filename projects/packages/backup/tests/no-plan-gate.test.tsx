@@ -98,6 +98,7 @@ beforeEach( () => {
 	// Default to a catalogue that answers with nothing, so the tests that
 	// are not about the price render without one.
 	mockApiFetch.mockResolvedValue( null );
+	delete window.JPBACKUP_DASHBOARD_STATE;
 
 	window.JP_CONNECTION_INITIAL_STATE = {
 		...window.JP_CONNECTION_INITIAL_STATE,
@@ -129,6 +130,16 @@ describe( 'No-plan gate', () => {
 		await expect(
 			screen.findByRole( 'link', { name: /^Use license key$/ } )
 		).resolves.toHaveAttribute( 'href', 'admin.php?page=my-jetpack#/add-license' );
+	} );
+
+	it( 'drops the license link where My Jetpack cannot redeem one', async () => {
+		window.JPBACKUP_DASHBOARD_STATE = { addLicense: false };
+		renderScreen( NoBackupPlanScreen );
+
+		await expect(
+			screen.findByRole( 'link', { name: /^Get VaultPress Backup$/ } )
+		).resolves.toBeInTheDocument();
+		expect( screen.queryByRole( 'link', { name: /^Use license key$/ } ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'omits the site rather than sending the word "undefined"', async () => {

@@ -5,6 +5,33 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.19.0] - 2026-11-23
+### Added
+- Admin shell: Show the turned-off feature card in place of a page whose feature is off, including for Jetpack AI, Social and Search. [#55003]
+- Plans: Add the jetpack_my_jetpack_plan_urls filter, so a host can send the "Purchase a plan" and "Manage your plan" links to its own plans, or hide either link. [#55176]
+- Report whether the host shows My Jetpack, so Jetpack footers can link to it on WordPress.com sites that have it. [#55174]
+- Show a page that turns a switched-off feature back on, instead of an error, when one of its admin pages is opened. [#55037]
+- Tracks: Record header connection opens and clicks, and Renew and Resume clicks on plans. [#55246]
+
+### Changed
+- Admin shell: Record one page view, not two, when the shell reopens My Jetpack at another tab. [#55088]
+- Admin shell: Record the page view again when the shell shows the My Jetpack page again. [#55079]
+- Comment: Drop a connection status card test that asserted copy the card no longer shows, from an un-awaited timer that could fail other tests. [#55285]
+- Features: Say which parts of Forms need a WordPress.com connection on an offline site. [#55154]
+- Help: Link to WordPress.com support and contact pages on WordPress.com sites, and hide the Jetpack for developers card there. [#55173]
+- Let a host send product purchase buttons to its own plans. [#55179]
+- Overview: Count connections started from an Overview item under its own name, instead of the product card's. [#54986]
+- Overview: Show the last 30 days of Stats by default. [#55303]
+- Settings panel: Record Tracks events for option changes, panel open and close, and links. [#55100]
+- VideoPress: Turn on the VideoPress module instead of installing the VideoPress plugin when Jetpack is active and you start for free. [#55346]
+
+### Fixed
+- Fix the Site Accelerator and Newsletter descriptions, which showed Related Posts text. [#55065]
+- Overview: Call the AI row Jetpack AI, as Features and the admin menu do. [#55243]
+- Protect card: Show the same threat count as the Protect page, one per vulnerable plugin or theme. [#55248]
+- Recommendations: Fix the Learn more, Manage and Connect buttons on recommendation cards, which did nothing. [#55177]
+- Site Accelerator: Fix the product status and activation, which pointed to a module that does not exist. [#55216]
+
 ## [6.18.2] - 2026-11-17
 ### Changed
 - Use WordPress Design System tokens for the info popover trigger styles. [#55046]
@@ -3285,6 +3312,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[6.19.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.18.2...6.19.0
 [6.18.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.18.1...6.18.2
 [6.18.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.18.0...6.18.1
 [6.18.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.17.1...6.18.0

@@ -89,6 +89,66 @@ describe( 'TopPostsWidget', () => {
 		expect( search.get( 'ref_section' ) ).toBe( 'posts-pages' );
 	} );
 
+	it( 'marks only the rows published inside the selected period', async () => {
+		mockApiFetch.mockResolvedValue( {
+			...TOP_POSTS_RESPONSE,
+			summary: {
+				...TOP_POSTS_RESPONSE.summary,
+				postviews: [
+					...TOP_POSTS_RESPONSE.summary.postviews,
+					{
+						id: 3,
+						href: 'https://example.com/older/',
+						date: '2026-05-31 23:59:59',
+						title: 'Older Post',
+						type: 'post',
+						views: 3,
+					},
+					{
+						id: 4,
+						href: 'https://example.com/last-day/',
+						date: '2026-06-10 23:59:59',
+						title: 'Last Day Post',
+						type: 'post',
+						views: 2,
+					},
+					{
+						id: 5,
+						href: 'https://example.com/next-day/',
+						date: '2026-06-11 00:00:00',
+						title: 'Next Day Post',
+						type: 'post',
+						views: 1,
+					},
+				],
+			},
+		} );
+		// The dashboard sends the window's ends as timestamps, not days.
+		render(
+			<TopPostsWidget
+				attributes={ {
+					reportParams: {
+						from: '2026-06-01T00:00:00.000+00:00',
+						to: '2026-06-10T00:00:00.000+00:00',
+					},
+				} }
+			/>
+		);
+
+		// Hello World went live on the first day and Last Day Post on the last; Older Post
+		// and Next Day Post fall just outside, and the About page carries no date.
+		const marks = await screen.findAllByRole( 'img', { name: 'Published in this period' } );
+		expect( marks ).toHaveLength( 2 );
+		// eslint-disable-next-line testing-library/no-node-access -- The row wrapper has no accessible query target.
+		const markedRows = marks.map( mark => mark.parentElement );
+		expect( markedRows[ 0 ] ).toContainElement(
+			screen.getByRole( 'link', { name: /^Hello World Post$/ } )
+		);
+		expect( markedRows[ 1 ] ).toContainElement(
+			screen.getByRole( 'link', { name: /^Last Day Post$/ } )
+		);
+	} );
+
 	it( 'requests the dashboard date range from report params', async () => {
 		render(
 			<TopPostsWidget attributes={ { reportParams: { from: '2026-03-01', to: '2026-03-10' } } } />

@@ -7,8 +7,6 @@
 
 namespace Automattic\Jetpack\SEO;
 
-use Automattic\Jetpack\Constants;
-
 /**
  * Separates plugin conflicts from other reasons to disable SEO output.
  */
@@ -16,7 +14,7 @@ class Seo_Tools {
 	/**
 	 * Option holding the front page meta description.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.13.0
 	 */
 	const FRONT_PAGE_META_OPTION = 'advanced_seo_front_page_description';
 
@@ -24,7 +22,7 @@ class Seo_Tools {
 	 * Legacy option the description is stored in on WordPress.com sites that set
 	 * one while SEO tools were free for every Simple site.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.13.0
 	 */
 	const LEGACY_FRONT_PAGE_META_OPTION = 'seo_meta_description';
 
@@ -67,16 +65,12 @@ class Seo_Tools {
 	/**
 	 * Whether Jetpack's SEO output is live for this site.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.13.0
 	 * @return bool
 	 */
 	public static function is_enabled() {
 		if ( self::is_disabled() ) {
 			return false;
-		}
-
-		if ( Constants::is_true( 'IS_WPCOM' ) && function_exists( 'wpcom_site_has_feature' ) ) {
-			return wpcom_site_has_feature( 'advanced-seo', get_current_blog_id() );
 		}
 
 		return true;
@@ -87,7 +81,7 @@ class Seo_Tools {
 	 *
 	 * True when SEO output is off and a description was saved while SEO tools were free on WordPress.com.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.13.0
 	 * @return bool
 	 */
 	public static function has_legacy_front_page_meta() {
@@ -97,7 +91,7 @@ class Seo_Tools {
 	/**
 	 * The front page meta description the front end emits.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.13.0
 	 * @return string
 	 */
 	public static function get_front_page_meta_description() {

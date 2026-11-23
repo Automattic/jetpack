@@ -7,8 +7,8 @@ import { useLocation, useNavigate } from 'react-router';
 import QuerySitePlugins from 'components/data/query-site-plugins';
 import Search from 'components/search';
 import analytics from 'lib/analytics';
-import { getAdsSettingsUrl, isSettingsConsolidationEnabled } from 'lib/settings-consolidation';
 import {
+	getRemainingSettingsTabs,
 	hasProtectPage as _hasProtectPage,
 	userCanManageModules as _userCanManageModules,
 	userIsSubscriber as _userIsSubscriber,
@@ -50,6 +50,7 @@ const SettingsNavTabs = props => {
 		hasSecurityFeature,
 		hasProtectPage,
 		hasPerformanceFeature,
+		remainingTabs,
 		hasModules,
 		isModuleActive,
 		searchTerm,
@@ -100,34 +101,26 @@ const SettingsNavTabs = props => {
 	// Build the list of visible tabs based on permissions and modules.
 	const visibleTabs = [];
 
-	if ( userCanManageModules ) {
+	if ( userCanManageModules && remainingTabs ) {
+		// Once settings move out, the server lists what's left, so the Settings menu entry agrees.
+		visibleTabs.push( ...remainingTabs.map( tab => `/${ tab }` ) );
+	} else if ( userCanManageModules ) {
 		if ( hasSecurityFeature && ! hasProtectPage ) {
 			visibleTabs.push( '/security' );
 		}
-		// Empty once settings move out; see Performance.
-		if ( ! isSettingsConsolidationEnabled() && hasPerformanceFeature ) {
+		if ( hasPerformanceFeature ) {
 			visibleTabs.push( '/performance' );
 		}
-		// Once settings move out, every Writing card has a new home and leaves only a search pointer here.
 		if (
-			! isSettingsConsolidationEnabled() &&
-			( hasModules( [ 'markdown', 'post-by-email', 'infinite-scroll', 'copy-post' ] ) ||
-				window.CUSTOM_CONTENT_TYPE__INITIAL_STATE?.active )
+			hasModules( [ 'markdown', 'post-by-email', 'infinite-scroll', 'copy-post' ] ) ||
+			window.CUSTOM_CONTENT_TYPE__INITIAL_STATE?.active
 		) {
 			visibleTabs.push( '/writing' );
 		}
-		// Once settings move out, admins find Social, Sharing and Likes in Features, so nothing fills this tab.
-		if (
-			! isSettingsConsolidationEnabled() &&
-			hasModules( [ 'publicize', 'sharedaddy', 'likes' ] )
-		) {
+		if ( hasModules( [ 'publicize', 'sharedaddy', 'likes' ] ) ) {
 			visibleTabs.push( '/sharing' );
 		}
-		// Once settings move out, admins find every Discussion setting in Features.
-		if (
-			! isSettingsConsolidationEnabled() &&
-			hasModules( [ 'comments', 'gravatar-hovercards', 'markdown' ] )
-		) {
+		if ( hasModules( [ 'comments', 'gravatar-hovercards', 'markdown' ] ) ) {
 			visibleTabs.push( '/discussion' );
 		}
 		if (
@@ -142,12 +135,10 @@ const SettingsNavTabs = props => {
 		) {
 			visibleTabs.push( '/traffic' );
 		}
-		// The Reader card is the tab's only one, and it leaves once settings move out.
-		if ( hasModules( [ 'wpcom-reader' ] ) && ! isWoASite && ! isSettingsConsolidationEnabled() ) {
+		if ( hasModules( [ 'wpcom-reader' ] ) && ! isWoASite ) {
 			visibleTabs.push( '/reader' );
 		}
-		// Ads is the tab's last card, so the tab goes once the Ads settings have a new home.
-		if ( hasModules( [ 'wordads' ] ) && ! getAdsSettingsUrl() ) {
+		if ( hasModules( [ 'wordads' ] ) ) {
 			visibleTabs.push( '/earn' );
 		}
 	} else if ( ! isSubscriber ) {
@@ -224,6 +215,7 @@ export default connect(
 		hasSecurityFeature: hasAnySecurityFeature( state ),
 		hasProtectPage: _hasProtectPage( state ),
 		hasPerformanceFeature: hasAnyPerformanceFeature( state ),
+		remainingTabs: getRemainingSettingsTabs( state ),
 		hasModules: modules => hasAnyOfTheseModules( state, modules ),
 		isModuleActive: module => isModuleActivated( state, module ),
 		searchTerm: getSearchTerm( state ),

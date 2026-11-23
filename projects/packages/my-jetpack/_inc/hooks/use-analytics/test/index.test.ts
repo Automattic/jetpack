@@ -15,6 +15,8 @@ jest.mock( '@automattic/jetpack-analytics', () => ( {
 		tracks: { recordEvent: ( ...args: unknown[] ) => mockRecordEvent( ...args ) },
 	},
 } ) );
+// tests/jest.setup.js mocks this hook for every other test file.
+jest.unmock( '../index' );
 
 // Imports must come after the jest.mock factory above.
 import { CONNECTION_STORE_ID } from '@automattic/jetpack-connection';

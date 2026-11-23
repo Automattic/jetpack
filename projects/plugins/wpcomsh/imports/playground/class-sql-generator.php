@@ -294,7 +294,7 @@ class SQL_Generator {
 
 		// Output the columns.
 		foreach ( $types_map as $column ) {
-			if ( $column['type'] === 'UNIQUE' || $column['type'] === 'KEY' ) {
+			if ( in_array( $column['type'], array( 'UNIQUE', 'KEY', 'FULLTEXT', 'SPATIAL' ), true ) ) {
 				$indexes[] = $column;
 
 				continue;
@@ -316,7 +316,7 @@ class SQL_Generator {
 
 		foreach ( $indexes as $index ) {
 			$index_list = $index['columns'];
-			$key_type   = $index['type'] === 'UNIQUE' ? 'UNIQUE KEY' : 'KEY';
+			$key_type   = $index['type'] === 'KEY' ? 'KEY' : $index['type'] . ' KEY';
 
 			// Output the keys.
 			$columns[] = "{$key_type} `{$index['name']}` {$index_list}";

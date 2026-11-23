@@ -103,7 +103,7 @@ class Initial_State {
 	/**
 	 * Get the Safe Mode state the shared Safe Mode screen reads.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.18.3
 	 *
 	 * @param Status $status Status instance.
 	 * @return array|null Null outside Safe Mode.
@@ -140,7 +140,7 @@ class Initial_State {
 	/**
 	 * Get the mismatched URLs, including once Safe Mode is confirmed.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.18.3
 	 *
 	 * @return array{wpcom_url: string, current_url: string}|false
 	 */

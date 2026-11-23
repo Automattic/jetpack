@@ -75,6 +75,10 @@ export {
 	computeDateRangeFromPreset,
 	getApiErrorCode,
 	getApiErrorStatus,
+	emailSendWindowParams,
+	emailSendWindowRange,
+	readEmailSendWindow,
+	type EmailSendWindow,
 	findAuthorRow,
 	isAccessDenied,
 	isAnalyticsSchemaOutdated,
@@ -82,6 +86,7 @@ export {
 	isUserRetryableError,
 	saveBlob,
 	shouldRetryApiError,
+	StatsResponseShapeError,
 	toAuthorId,
 	toPostId,
 	useSiteHomeUrl,
@@ -109,6 +114,7 @@ export {
 	POST_DETAIL_SECTION,
 	type DashboardSectionSlug,
 } from './utils/dashboard-sections';
+export { DASHBOARD_ONBOARDING_KEY, DASHBOARD_STORE_ONBOARDING_KEY } from './utils/onboarding-keys';
 export {
 	getLockedFeature,
 	getLockedSection,

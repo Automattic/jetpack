@@ -1178,7 +1178,7 @@ function sharing_display( $text = '', $echo = false ) {
 				} else {
 					$expand = __( 'Share', 'jetpack' );
 				}
-				$parts[] = '<li><a href="#" class="sharing-anchor sd-button share-more"><span>' . $expand . '</span></a></li>';
+				$parts[] = '<li><a href="#" class="sharing-anchor sd-button share-more" role="button" aria-expanded="false"><span>' . $expand . '</span></a></li>';
 			}
 
 			if ( 'rtl' === $dir ) {

@@ -34,7 +34,7 @@ const WpcomSiteManagementWidget = ( { siteName, siteUrl, siteIconUrl, isBlockThe
 					</div>
 				</div>
 				<div className="wpcom_site_management_widget__site-actions">
-					<a className="button-secondary" href={ `https://wordpress.com/overview/${ siteDomain }` }>
+					<a className="button-secondary" href={ `https://my.wordpress.com/sites/${ siteDomain }` }>
 						{ __( 'Hosting Overview', 'jetpack-mu-wpcom' ) }
 					</a>
 					{ isBlockTheme ? (

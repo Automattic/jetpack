@@ -1,5 +1,6 @@
 /* @jsxImportSource react */
-// First: it sets the translations the modules below read as they load.
+// First: they fill gaps and set translations the modules below rely on as they load.
+import './polyfills';
 import './locale';
 import {
 	BlockEditorProvider,

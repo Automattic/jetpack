@@ -44,6 +44,7 @@ require_once __DIR__ . '/wpcom-features/functions-wpcom-features.php';
 require_once __DIR__ . '/wpcom-marketplace/software/class-marketplace-software-manager.php';
 require_once __DIR__ . '/functions.php';
 require_once __DIR__ . '/user-login.php';
+require_once __DIR__ . '/author-slug-redirect.php';
 require_once __DIR__ . '/i18n.php';
 require_once __DIR__ . '/lib/require-lib.php';
 
@@ -176,6 +177,10 @@ require_once __DIR__ . '/feature-plugins/wordpress-mods.php';
 require_once __DIR__ . '/feature-plugins/wpcom-reader-link.php';
 require_once __DIR__ . '/feature-plugins/featured-image-in-email.php';
 
+// Jetpack Connection Handlers (external storage and protected owner).
+// Load this file before jetpack-mu-wpcom, so that the storage provider is in place before its init() reads the blog ID.
+require_once __DIR__ . '/connection/connection-handlers.php';
+
 /**
  * Conditionally load the jetpack-mu-wpcom package.
  *
@@ -224,9 +229,6 @@ require_once __DIR__ . '/support-session.php';
 
 // Adds fallback behavior for non-Gutenframed sites to be able to use the 'Share Post' functionality from WPCOM Reader.
 require_once __DIR__ . '/share-post/share-post.php';
-
-// Jetpack Connection Handlers (external storage and protected owner).
-require_once __DIR__ . '/connection/connection-handlers.php';
 
 // Require a Jetpack Connection Owner.
 require_once __DIR__ . '/jetpack-require-connection-owner/class-wpcomsh-require-connection-owner.php';
@@ -459,7 +461,7 @@ add_filter( 'allowed_redirect_hosts', 'wpcomsh_allowed_redirect_hosts', 11 );
 function wpcomsh_make_content_clickable( $content ) {
 	// Fast path: no URL-shaped substring, no work to do. Avoids loading the
 	// linkifier and walking the tokenizer for the common case.
-	if ( false === stripos( $content, 'http' ) && false === stripos( $content, 'www.' ) ) {
+	if ( ! $content || ( false === stripos( $content, 'http' ) && false === stripos( $content, 'www.' ) ) ) {
 		return $content;
 	}
 

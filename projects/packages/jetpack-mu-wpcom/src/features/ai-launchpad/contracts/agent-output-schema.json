@@ -2,7 +2,7 @@
 	"$schema": "https://json-schema.org/draft/2020-12/schema",
 	"$id": "https://github.com/Automattic/jetpack/projects/packages/jetpack-mu-wpcom/src/features/ai-launchpad/contracts/agent-output-schema.json",
 	"title": "AI Launchpad Selector Agent Output",
-	"description": "Cross-stream contract for the AI Launchpad. Three consumers: (1) Stream F's `js/lib/tailor.ts` parses the `jetpack-ai-query` response and validates against this schema (Ajv); (2) Stream B's `PUT /tailored` validates incoming request bodies against this schema server-side; (3) the Node eval runner (`bin/eval-ai-launchpad.mjs`) validates fixture outputs against this schema during prompt iteration. Change this schema and three test paths fail in lockstep — that's the point.",
+	"description": "Contract for the AI's tailoring output. `js/lib/schema-validator.ts` keeps an inlined copy to validate the `jetpack-ai-query` response (a test keeps the two in sync), and `PUT /wpcom/v2/ai-launchpad/tailored` validates request bodies against this file.",
 	"type": "object",
 	"required": [ "tasks", "inferred", "first_post_draft", "about_page_draft" ],
 	"additionalProperties": false,
@@ -11,7 +11,7 @@
 			"type": "array",
 			"minItems": 6,
 			"maxItems": 6,
-			"description": "Exactly six task selections. The last task MUST be a launch task (canonical: `site_launched`; flow-specific alternatives: `blog_launched`, `link_in_bio_launched`, `videopress_launched`); server enforces. Order follows the STEP rules from the system prompt: first-creation → niche-specific → foundation → launch. Catalog uses snake_case IDs.",
+			"description": "Exactly six task selections. The last task must be a launch task (`site_launched` or `blog_launched`; `woo_launch_site`, `link_in_bio_launched` and `videopress_launched` are accepted and remapped to `site_launched`); the server enforces it.",
 			"items": {
 				"type": "object",
 				"required": [ "id", "subtitle" ],
@@ -20,13 +20,13 @@
 					"id": {
 						"type": "string",
 						"minLength": 1,
-						"description": "Task ID drawn from the legacy PHP launchpad catalog. Stream B's PUT /tailored re-validates id ∈ menu; rejects with 422 if intersection < 4."
+						"description": "Task ID from the launchpad catalog or the AI task registry. PUT /tailored remaps legacy ids and drops unknown or goal-excluded ones before saving."
 					},
 					"subtitle": {
 						"type": "string",
 						"minLength": 1,
 						"maxLength": 200,
-						"description": "AI-generated subtitle (v1 = English only). Server strips HTML and rejects URLs / template syntax before persisting."
+						"description": "AI-generated subtitle, in the UI language. Server strips HTML and rejects URLs / template syntax before persisting."
 					}
 				}
 			}
@@ -40,7 +40,7 @@
 				"goal": {
 					"type": "string",
 					"enum": [ "write", "build", "sell", "newsletter", "educate", "portfolio" ],
-					"description": "Echoes or re-resolves the wizard goal. Single source of truth downstream."
+					"description": "Echoes or re-resolves the wizard goal. The stored wizard goal wins when both exist (`wpcom_ai_launchpad_resolve_goal()`)."
 				},
 				"inferred_goal": {
 					"type": "string",
