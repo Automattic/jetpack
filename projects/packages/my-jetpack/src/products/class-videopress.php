@@ -201,6 +201,18 @@ class Videopress extends Hybrid_Product {
 	}
 
 	/**
+	 * Leave the standalone plugin alone where the Jetpack plugin is active: its VideoPress module
+	 * already brings the VideoPress dashboard, so turning the module on is enough.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	public static function should_use_standalone_plugin() {
+		return ! static::is_jetpack_plugin_active();
+	}
+
+	/**
 	 * Get the URL the user is taken after activating the product
 	 *
 	 * @return ?string
