@@ -3,6 +3,7 @@
  */
 import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
 import {
+	ComparativeBarChart,
 	HEADLINE_COUNT_FORMAT,
 	MetricValue,
 	StackedAreaChart,
@@ -23,7 +24,12 @@ import useRequestsBySource from './use-requests-by-source';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps } from 'react';
 
-export type RequestsBySourceAttributes = Record< never, never >;
+export type RequestsBySourceChartType = 'line' | 'bar';
+
+export type RequestsBySourceAttributes = {
+	/** How the sources are drawn over time: stacked areas or stacked bars. */
+	chartType?: RequestsBySourceChartType;
+};
 
 type RequestsBySourceRenderAttributes = RequestsBySourceAttributes &
 	Partial< ReportParamsFieldAttributes >;
@@ -37,7 +43,7 @@ type RequestsBySourceProps = WidgetRenderProps< RequestsBySourceRenderAttributes
 /** Before the element mounts, and outside a charts scope. */
 const BLOCKED_FALLBACK = '#d63638';
 
-function RequestsBySourceInner() {
+function RequestsBySourceInner( { chartType }: { chartType: RequestsBySourceChartType } ) {
 	const { reportParams } = useWidgetRootContext();
 	// What was refused takes the charts' own negative color, so it follows the theme.
 	const [ rootRef, blockedColor ] = useChartRoleColor< HTMLDivElement >(
@@ -100,12 +106,22 @@ function RequestsBySourceInner() {
 							</li>
 						) ) }
 					</ul>
-					<StackedAreaChart
-						className={ styles.chart }
-						series={ series }
-						dataFormat={ HEADLINE_COUNT_FORMAT }
-						tickResolution={ granularity }
-					/>
+					{ chartType === 'bar' ? (
+						<ComparativeBarChart
+							className={ styles.chart }
+							series={ series }
+							layout="stacked"
+							dataFormat={ HEADLINE_COUNT_FORMAT }
+							tickResolution={ granularity }
+						/>
+					) : (
+						<StackedAreaChart
+							className={ styles.chart }
+							series={ series }
+							dataFormat={ HEADLINE_COUNT_FORMAT }
+							tickResolution={ granularity }
+						/>
+					) }
 				</div>
 			</WidgetState>
 		</div>
@@ -113,9 +129,12 @@ function RequestsBySourceInner() {
 }
 
 export default function RequestsBySource( { attributes = {}, setError }: RequestsBySourceProps ) {
+	// Coerce unknown persisted values to the default.
+	const chartType = attributes?.chartType === 'bar' ? 'bar' : 'line';
+
 	return (
 		<WidgetRoot attributes={ attributes } setError={ setError }>
-			<RequestsBySourceInner />
+			<RequestsBySourceInner chartType={ chartType } />
 		</WidgetRoot>
 	);
 }
