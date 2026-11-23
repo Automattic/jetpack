@@ -23,6 +23,9 @@ interface DeviceViewsOverTimeState {
 	isLoading: boolean;
 	isFetching: boolean;
 	isError: boolean;
+	csvIsError: boolean;
+	csvIsPlaceholderData: boolean;
+	timezone: string;
 	refetch: () => void;
 }
 
@@ -93,6 +96,9 @@ export default function useDeviceViewsOverTime(
 		isFetching: report.isFetching,
 		// A failed background refetch of the same range keeps its bars.
 		isError: report.isError && ! primary?.data?.length,
+		csvIsError: report.primary.isError,
+		csvIsPlaceholderData: report.primary.isPlaceholderData,
+		timezone,
 		refetch: report.refetch,
 	};
 }

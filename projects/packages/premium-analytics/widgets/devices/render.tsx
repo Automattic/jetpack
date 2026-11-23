@@ -13,6 +13,7 @@ import {
 	describeError,
 	formatComparisonSeriesLabel,
 	getComparisonPeriodLabel,
+	metricTabsToCsv,
 	WidgetRoot,
 	useReportActions,
 	useWidgetRootContext,
@@ -146,10 +147,16 @@ function DevicesBarChart( { interval }: { interval?: DevicesChartGranularity } )
 		'devicesChartPreviousPeriod'
 	);
 	const period = chartInterval( { ...reportParams, interval }, DEVICES_PERIODS, lockedIntervals );
-	const { devices, isLoading, isFetching, isError, refetch } = useDeviceViewsOverTime(
-		reportParams,
-		period
-	);
+	const {
+		devices,
+		isLoading,
+		isFetching,
+		isError,
+		csvIsError,
+		csvIsPlaceholderData,
+		timezone,
+		refetch,
+	} = useDeviceViewsOverTime( reportParams, period );
 
 	const series = useMemo< ComparativeBarChartSeries[] >(
 		() =>
@@ -171,6 +178,32 @@ function DevicesBarChart( { interval }: { interval?: DevicesChartGranularity } )
 	);
 	const isEmpty = devices.every( device => ! device.value && ! device.previousValue );
 	const emptyState = useNoViewsEmptyState( { isLoading, isError, isEmpty }, NO_VIEWS() );
+
+	// Like the semi-circle's, the file holds the current period only.
+	const csv = useMemo(
+		() =>
+			devices.some( device => device.value )
+				? metricTabsToCsv( devices, {
+						zone: timezone,
+						withTime: false,
+						dateLabel: __( 'Date', 'jetpack-premium-analytics-pkg' ),
+					} )
+				: undefined,
+		[ devices, timezone ]
+	);
+	useReportActions( {
+		csv: csv && {
+			...csv,
+			filenamePrefix: 'devices-over-time',
+			hasDateRange: true,
+			status: {
+				isLoading,
+				isFetching,
+				isError: csvIsError,
+				isPlaceholderData: csvIsPlaceholderData,
+			},
+		},
+	} );
 
 	return (
 		<WidgetState

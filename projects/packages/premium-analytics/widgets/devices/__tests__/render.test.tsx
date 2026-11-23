@@ -37,6 +37,9 @@ beforeEach( () => {
 	mockUseDeviceViewsOverTime.mockReturnValue( {
 		...state,
 		devices: [ { key: 'desktop', label: 'Desktop', value: 10, current: [] } ],
+		csvIsError: false,
+		csvIsPlaceholderData: false,
+		timezone: 'UTC',
 	} );
 } );
 
