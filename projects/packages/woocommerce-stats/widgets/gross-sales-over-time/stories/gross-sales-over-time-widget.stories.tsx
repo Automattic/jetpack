@@ -1,3 +1,4 @@
+import { expect, within } from 'storybook/test';
 import {
 	createStoryWidgetType,
 	DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
@@ -111,6 +112,11 @@ export const Default: Story = {
 	render: renderGrossSalesOverTimeWidget,
 	args: { withComparison: false, chartType: 'line' },
 	decorators: [ withWidgetCanvas ],
+	play: async ( { canvasElement } ) => {
+		const canvas = within( canvasElement );
+
+		await expect( await canvas.findByText( '$82,427.81' ) ).toBeVisible();
+	},
 };
 
 export const WithComparison: Story = {
