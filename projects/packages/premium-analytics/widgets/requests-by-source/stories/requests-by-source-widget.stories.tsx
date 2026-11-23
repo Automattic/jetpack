@@ -68,6 +68,19 @@ export const Hourly: Story = {
 	decorators: [ withWidgetCanvas ],
 };
 
+/** The chart type setting swaps the stacked areas for stacked bars. */
+export const Bars: Story = {
+	render: () => (
+		<RequestsBySourceRender
+			attributes={ {
+				reportParams: getDefaultQueryParams( false, 'last-30-days' ),
+				chartType: 'bar',
+			} }
+		/>
+	),
+	decorators: [ withWidgetCanvas ],
+};
+
 export const Loading: Story = {
 	render: () => renderOnPreset( 'last-90-days' ),
 	// Off the shared autodocs page — path-keyed override; see forceStatsMockState.
