@@ -432,7 +432,19 @@ function do_create_backport_PR {
 
 	if [[ $(git rev-list --count "$patch_range") -gt 0 ]]; then
 		yellow "Cherry-picking patches from $RELEASE_BRANCH."
-		git cherry-pick --empty=drop "$patch_range" || die 'Merge conflict during cherry-pick! Please resolve manually.'
+		if ! git cherry-pick --empty=drop "$patch_range"; then
+			warn "Merge conflict during cherry-pick!"
+			echo "In another terminal, resolve the conflicts."
+			while git rev-parse -q --verify CHERRY_PICK_HEAD &>/dev/null; do
+				proceed_p "" "Continue the cherry-pick?" Y || die 'Aborted during cherry-pick.'
+				if [[ $(git diff --check HEAD) =~ 'leftover conflict marker' ]]; then
+					warn "Conflict markers remain."
+					continue
+				fi
+				git add -u
+				git cherry-pick --continue || true
+			done
+		fi
 	fi
 
 	yellow "Bringing over changelogs."
