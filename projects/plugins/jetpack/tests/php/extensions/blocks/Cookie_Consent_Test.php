@@ -57,6 +57,15 @@ class Cookie_Consent_Test extends \WP_UnitTestCase {
 	}
 
 	/**
+	 * The deprecated registration helper remains callable.
+	 *
+	 * @expectedDeprecated Automattic\Jetpack\Extensions\CookieConsent\should_register_block
+	 */
+	public function test_should_register_block_remains_callable() {
+		$this->assertTrue( CookieConsent\should_register_block() );
+	}
+
+	/**
 	 * Editor entry points that can display template blocks.
 	 *
 	 * @return array

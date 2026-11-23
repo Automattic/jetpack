@@ -4,8 +4,21 @@ import { store as coreStore, useEntityProp } from '@wordpress/core-data';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { useEffect, useState, useCallback } from '@wordpress/element';
 
-export function useSaveCookieConsentSettings( clientId ) {
-	const { getCurrentPostType, getRenderingMode } = useSelect( 'core/editor' );
+export function CookieConsentSettings( { clientId } ) {
+	const isEditingTemplate = useSelect(
+		select =>
+			[ 'wp_template', 'wp_template_part' ].includes(
+				select( 'core/editor' ).getCurrentPostType()
+			),
+		[]
+	);
+	return window.Jetpack_Editor_Initial_State?.screenBase === 'site-editor' || isEditingTemplate ? (
+		<SaveCookieConsentSettings clientId={ clientId } />
+	) : null;
+}
+
+function SaveCookieConsentSettings( { clientId } ) {
+	const { getCurrentPostType } = useSelect( 'core/editor' );
 	const isSaving = useSelect( select => {
 		const { isSavingPost, isSavingNonPostEntityChanges } = select( 'core/editor' );
 		return isSavingPost() || isSavingNonPostEntityChanges();
@@ -41,13 +54,11 @@ export function useSaveCookieConsentSettings( clientId ) {
 			const isEditingTemplate = [ 'wp_template', 'wp_template_part' ].includes(
 				getCurrentPostType()
 			);
-			// Hiding a page's template removes its blocks from the store without deleting them.
-			const isTemplateHidden =
-				window.Jetpack_Editor_Initial_State?.screenBase === 'post' &&
-				! isEditingTemplate &&
-				getRenderingMode?.() === 'post-only';
+			// Returning to a page preview can unmount settings without deleting the banner.
+			const isTemplatePreview =
+				window.Jetpack_Editor_Initial_State?.screenBase === 'post' && ! isEditingTemplate;
 
-			if ( ! block && ! isTemplateHidden ) {
+			if ( ! block && ! isTemplatePreview ) {
 				saveTemplate( null );
 			}
 		};
@@ -59,4 +70,6 @@ export function useSaveCookieConsentSettings( clientId ) {
 			saveTemplate( serialize( [ getBlockById( clientId ) ] ) );
 		}
 	}, [ postHasBeenJustSaved, isSavingSetting, saveTemplate, getBlockById, clientId ] );
+
+	return null;
 }

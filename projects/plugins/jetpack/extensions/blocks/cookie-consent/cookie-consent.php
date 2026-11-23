@@ -19,6 +19,19 @@ if ( ! defined( 'ABSPATH' ) ) {
 const COOKIE_NAME = 'eucookielaw';
 
 /**
+ * Whether the block should be registered.
+ *
+ * @since 12.0
+ * @deprecated $$next-version$$ The block is now registered in every editor.
+ *
+ * @return bool Always true.
+ */
+function should_register_block() {
+	_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$' );
+	return true;
+}
+
+/**
  * Registers the block for use in Gutenberg
  * This is done via an action so that we can disable
  * registration if we need to.
