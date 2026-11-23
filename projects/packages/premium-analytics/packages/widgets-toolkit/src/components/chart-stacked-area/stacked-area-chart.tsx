@@ -87,7 +87,7 @@ export function StackedAreaChart( {
 				formatDate: formatTooltipBucket,
 			} );
 
-			return model && <DatedTooltip model={ model } indicatorType="rect" />;
+			return model && <DatedTooltip model={ model } indicatorType="line" />;
 		},
 		[ dataFormat, seriesStyles, series, formatTooltipBucket ]
 	);
