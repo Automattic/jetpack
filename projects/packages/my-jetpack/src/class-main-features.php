@@ -62,6 +62,11 @@ class Main_Features {
 	const SEO_MODULE = 'seo-dashboard';
 
 	/**
+	 * The modules the SEO card switches together. Must match `Initializer::SEO_MODULES` in the SEO package.
+	 */
+	const SEO_CARD_MODULES = array( 'seo-tools', 'sitemaps', 'canonical-urls', 'verification-tools' );
+
+	/**
 	 * The bundles the Features tab offers as filter pills. Must match `GROUPS` in use-feature-filter.ts.
 	 */
 	private const FILTER_GROUPS = array( 'security', 'growth' );
@@ -981,7 +986,7 @@ class Main_Features {
 			),
 			array(
 				'label'   => __( 'Search engines', 'jetpack-my-jetpack' ),
-				'modules' => array( 'sitemaps', 'seo-tools', 'canonical-urls', 'verification-tools' ),
+				'modules' => self::SEO_CARD_MODULES,
 			),
 			array(
 				'label'   => __( 'Engagement', 'jetpack-my-jetpack' ),
@@ -1028,7 +1033,8 @@ class Main_Features {
 	}
 
 	/**
-	 * Slugs the host has hidden, plus the module behind each hidden feature or product.
+	 * Slugs the host has hidden, plus the module behind each hidden feature or product, and the
+	 * SEO card's modules wherever that card shows.
 	 *
 	 * @since 6.11.0
 	 * @return string[] Hidden module and feature slugs.
@@ -1041,6 +1047,10 @@ class Main_Features {
 				$product_class = isset( $definition['product'] ) ? Products::get_product_class( $definition['product'] ) : null;
 				$hidden[]      = $definition['module'] ?? ( $product_class ? $product_class::get_module_name() : '' );
 			}
+		}
+		// Where the SEO card shows it is their switch, and each keeps its own in SEO › Settings.
+		if ( self::is_seo_offered() && ! in_array( self::SEO_MODULE, $hidden, true ) ) {
+			$hidden = array_merge( $hidden, self::SEO_CARD_MODULES );
 		}
 		return array_values( array_unique( array_filter( $hidden ) ) );
 	}

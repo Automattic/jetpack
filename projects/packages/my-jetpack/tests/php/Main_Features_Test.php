@@ -200,6 +200,52 @@ class Main_Features_Test extends TestCase {
 	}
 
 	/**
+	 * Features lists either the SEO card or its modules' rows, never both and never neither.
+	 *
+	 * @dataProvider provide_seo_card_cases
+	 * @param bool $offered    Whether Jetpack offers the SEO card's module.
+	 * @param bool $host_hides Whether the host hides the SEO card.
+	 */
+	#[DataProvider( 'provide_seo_card_cases' )]
+	public function test_seo_card_replaces_its_module_rows_only_where_it_shows( $offered, $host_hides ) {
+		$standalone = static fn( $modules ) => array_merge( (array) $modules, array( Main_Features::SEO_MODULE ) );
+		$versioned  = static fn( $modules ) => array_merge( (array) $modules, array( Main_Features::SEO_MODULE => '1.0' ) );
+		$visibility = static fn( $states ) => array_merge( (array) $states, array( 'seo' => 'hidden' ) );
+		if ( $offered ) {
+			add_filter( 'jetpack_get_available_standalone_modules', $standalone );
+			add_filter( 'jetpack_get_available_modules', $versioned );
+		}
+		if ( $host_hides ) {
+			add_filter( 'jetpack_my_jetpack_feature_visibility', $visibility );
+		}
+		try {
+			$state = Main_Features::get_state( true );
+			$shows = in_array( 'seo', array_column( $state['features'], 'slug' ), true );
+
+			$this->assertSame( $offered && ! $host_hides, $shows );
+			$this->assertSame(
+				$shows ? Main_Features::SEO_CARD_MODULES : array(),
+				array_values( array_intersect( Main_Features::SEO_CARD_MODULES, $state['hidden_modules'] ) )
+			);
+		} finally {
+			remove_filter( 'jetpack_get_available_standalone_modules', $standalone );
+			remove_filter( 'jetpack_get_available_modules', $versioned );
+			remove_filter( 'jetpack_my_jetpack_feature_visibility', $visibility );
+		}
+	}
+
+	/**
+	 * @return array<string, array{bool, bool}>
+	 */
+	public static function provide_seo_card_cases() {
+		return array(
+			'not offered'         => array( false, false ),
+			'offered'             => array( true, false ),
+			'offered, host hides' => array( true, true ),
+		);
+	}
+
+	/**
 	 * The essential set is what a site is nudged towards, so it is asserted explicitly
 	 * rather than left to whoever edits the catalog next.
 	 */
