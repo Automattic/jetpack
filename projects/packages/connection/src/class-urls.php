@@ -105,6 +105,13 @@ class Urls {
 			$scheme_history = array();
 		}
 
+		// Don't record a scheme that says nothing about whether the site uses https.
+		if ( self::is_request_scheme_unknown() ) {
+			$has_https = 'https' === $scheme || in_array( 'https', $scheme_history, true );
+
+			return set_url_scheme( $new_value, $has_https ? 'https' : 'http' );
+		}
+
 		$scheme_history[] = $scheme;
 
 		// Limit length to self::HTTPS_CHECK_HISTORY.
@@ -115,6 +122,15 @@ class Urls {
 		$forced_scheme = in_array( 'https', $scheme_history, true ) ? 'https' : 'http';
 
 		return set_url_scheme( $new_value, $forced_scheme );
+	}
+
+	/**
+	 * Whether there is no web request to tell us if the site uses https, as during command-line cron.
+	 *
+	 * @return bool
+	 */
+	private static function is_request_scheme_unknown() {
+		return ! is_ssl() && ( Constants::is_true( 'WP_CLI' ) || empty( $_SERVER['HTTP_HOST'] ) );
 	}
 
 	/**
@@ -133,9 +149,10 @@ class Urls {
 			! Constants::is_defined( 'JETPACK_SYNC_USE_RAW_URL' ) ||
 			Constants::get_constant( 'JETPACK_SYNC_USE_RAW_URL' )
 		) {
-			$scheme = is_ssl() ? 'https' : 'http';
-			$url    = (string) self::get_raw_url( $url_type );
-			$url    = set_url_scheme( $url, $scheme );
+			$url = (string) self::get_raw_url( $url_type );
+			if ( ! self::is_request_scheme_unknown() ) {
+				$url = set_url_scheme( $url, is_ssl() ? 'https' : 'http' );
+			}
 		} else {
 			$url = self::normalize_www_in_url( $url_type, $url_function );
 		}

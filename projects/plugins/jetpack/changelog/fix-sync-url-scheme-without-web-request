@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Connection: Keep the site's https URLs when they are reported to WordPress.com during command-line cron or WP-CLI runs.
