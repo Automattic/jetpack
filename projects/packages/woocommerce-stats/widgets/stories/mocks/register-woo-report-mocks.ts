@@ -20,6 +20,9 @@ const REPORTS_PATH = '/jetpack/v4/woocommerce-stats/proxy/v2/analytics/reports/'
 const WC_REST_PATH = '/wc/v3/';
 const WC_PRODUCTS_PATH = `${ WC_REST_PATH }products`;
 
+/** The bookings subset's share of the store's order volume. */
+const BOOKINGS_SHARE = 0.28;
+
 export type WooReportMockState = 'error' | 'error-retryable' | 'loading' | 'empty';
 
 const mockStateOverrides = new Map< string, WooReportMockState >();
@@ -84,8 +87,9 @@ const wooReportMocksMiddleware: APIFetchMiddleware = async ( options: APIFetchOp
 
 		switch ( requestPath.slice( REPORTS_PATH.length ).split( '?' )[ 0 ] ) {
 			case 'orders/by-date':
-			case 'orders-by-product-type/by-date':
 				return buildOrdersByDateResponse( query );
+			case 'orders-by-product-type/by-date':
+				return buildOrdersByDateResponse( query, { share: BOOKINGS_SHARE } );
 			case 'products':
 				return buildProductsResponse( query );
 			case 'sessions/by-device':
