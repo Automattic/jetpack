@@ -458,6 +458,8 @@ class Main_Features {
 				'long_description' => __( 'Manage your sitemap, search engine verification, titles and descriptions, social previews, structured data, and AI crawler access from one page.', 'jetpack-my-jetpack' ),
 				'icon'             => 'search',
 				'admin_page'       => 'jetpack-seo',
+				// Its Features tab image is a placeholder, so the turned-off card goes without one.
+				'off_card_artwork' => false,
 				// Switches the SEO page and the Search engines modules together; each module keeps its own state.
 				'module'           => self::SEO_MODULE,
 				'free_highlights'  => array(

@@ -173,6 +173,35 @@ class Turned_Off_Page_Test extends TestCase {
 	}
 
 	/**
+	 * Data provider for test_card_leaves_out_artwork_a_feature_opts_out_of.
+	 *
+	 * @return array[] Page slug, whether the card shows the icon and illustration.
+	 */
+	public static function provide_card_artwork() {
+		return array(
+			'Activity Log' => array( 'jetpack-activity-log', true ),
+			'SEO'          => array( 'jetpack-seo', false ),
+		);
+	}
+
+	/**
+	 * A feature without its own artwork gets the plain, centered card.
+	 *
+	 * @dataProvider provide_card_artwork
+	 *
+	 * @param string $page     Page slug.
+	 * @param bool   $expected Whether the card shows the icon and illustration.
+	 */
+	#[DataProvider( 'provide_card_artwork' )]
+	public function test_card_leaves_out_artwork_a_feature_opts_out_of( $page, $expected ) {
+		$html = Turned_Off_Page::get_card_html( Turned_Off_Page::get_feature_for_page( $page ), admin_url() );
+
+		$this->assertSame( $expected, str_contains( $html, '<img ' ) );
+		$this->assertSame( $expected, str_contains( $html, 'jetpack-feature-off__icon"' ) );
+		$this->assertSame( ! $expected, str_contains( $html, 'jetpack-feature-off--plain"' ) );
+	}
+
+	/**
 	 * Adds the Activity Log module to a list of module slugs.
 	 *
 	 * @param array $modules Module slugs.

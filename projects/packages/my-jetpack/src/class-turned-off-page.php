@@ -139,6 +139,11 @@ class Turned_Off_Page {
 		. '@keyframes jetpack-feature-off-spin{to{transform:rotate(360deg)}}'
 		. '.jetpack-feature-off__media{display:flex;align-items:center;justify-content:center;min-block-size:220px;padding:16px;border-radius:4px;background:#f6f7f7 radial-gradient(#d0d0d0 1px,transparent 1px) 0 0/16px 16px}'
 		. '.jetpack-feature-off__media img{display:block;inline-size:300px;max-inline-size:100%;block-size:auto}'
+		. '.jetpack-feature-off--plain{grid-template-columns:minmax(0,1fr);max-inline-size:480px;padding:40px 32px;text-align:center}'
+		. '.jetpack-feature-off--plain .jetpack-feature-off__title{margin-block-start:0}'
+		. '.jetpack-feature-off--plain .jetpack-feature-off__form{justify-content:center}'
+		// Takes no room, so the centered button doesn't shift when the spinner shows.
+		. '.jetpack-feature-off--plain .jetpack-feature-off__spinner{margin-inline-end:-24px}'
 		. '.jetpack-feature-off .jetpack-feature-off__error{margin-block:0 16px;font-size:13px;color:#cc1818}'
 		. '.jetpack-feature-off .notice,.jetpack-feature-off .updated,.jetpack-feature-off .error,.jetpack-feature-off .update-nag{display:none!important}'
 		. '@media (max-width:782px){.jetpack-feature-off{grid-template-columns:minmax(0,1fr);margin-block:24px}.jetpack-feature-off__media{min-block-size:0}}';
@@ -200,7 +205,7 @@ class Turned_Off_Page {
 	 * The feature whose page this is, from the Features tab's map.
 	 *
 	 * @param string $page Admin page slug.
-	 * @return array{slug: string, name: string, icon: string, gate: array, setup: string}|null
+	 * @return array{slug: string, name: string, icon: string, artwork: bool, gate: array, setup: string}|null
 	 */
 	public static function get_feature_for_page( $page ) {
 		foreach ( Main_Features::get_feature_definitions() as $slug => $definition ) {
@@ -210,12 +215,13 @@ class Turned_Off_Page {
 			}
 			$gate = array_filter( array_intersect_key( $definition, array_flip( array( 'product', 'module' ) ) ) );
 			return $gate ? array(
-				'slug'  => $slug,
-				'name'  => $definition['name'],
-				'icon'  => $definition['icon'] ?? '',
-				'gate'  => $gate,
+				'slug'    => $slug,
+				'name'    => $definition['name'],
+				'icon'    => $definition['icon'] ?? '',
+				'artwork' => $definition['off_card_artwork'] ?? true,
+				'gate'    => $gate,
 				// Where My Jetpack sets it up, e.g. adds the free plan Search needs before its module can switch on.
-				'setup' => admin_url( 'admin.php?page=my-jetpack#' . ( $definition['interstitial'] ?? '/features' ) ),
+				'setup'   => admin_url( 'admin.php?page=my-jetpack#' . ( $definition['interstitial'] ?? '/features' ) ),
 			) : null;
 		}
 		return null;
@@ -271,7 +277,7 @@ class Turned_Off_Page {
 	}
 
 	/**
-	 * The card saying a feature is off, with its icon and illustration from the Features tab.
+	 * The card saying a feature is off, with its icon and illustration from the Features tab, or centered text alone for a feature without artwork.
 	 *
 	 * @param array  $feature  Feature, as get_feature_for_page() returns it.
 	 * @param string $redirect Where Turn on sends the user afterwards.
@@ -280,13 +286,16 @@ class Turned_Off_Page {
 	 * @return string
 	 */
 	public static function get_card_html( array $feature, $redirect, $error = '', $context = 'page' ) {
-		$image = Initializer::get_assets_url() . 'components/my-jetpack-tab-panel/features/images/' . $feature['slug'] . '.webp';
+		$artwork = $feature['artwork'] ?? true;
+		$image   = Initializer::get_assets_url() . 'components/my-jetpack-tab-panel/features/images/' . $feature['slug'] . '.webp';
 		ob_start();
 		?>
 		<style><?php echo self::STYLES; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- A constant. ?></style>
-		<div class="jetpack-feature-off" data-feature="<?php echo esc_attr( $feature['slug'] ); ?>" data-context="<?php echo esc_attr( $context ); ?>" data-error="<?php echo esc_attr( $error ); ?>" data-track-url="<?php echo esc_url( admin_url( 'admin-ajax.php' ) ); ?>" data-track-nonce="<?php echo esc_attr( wp_create_nonce( self::VIEW_ACTION ) ); ?>">
+		<div class="jetpack-feature-off<?php echo $artwork ? '' : ' jetpack-feature-off--plain'; ?>" data-feature="<?php echo esc_attr( $feature['slug'] ); ?>" data-context="<?php echo esc_attr( $context ); ?>" data-error="<?php echo esc_attr( $error ); ?>" data-track-url="<?php echo esc_url( admin_url( 'admin-ajax.php' ) ); ?>" data-track-nonce="<?php echo esc_attr( wp_create_nonce( self::VIEW_ACTION ) ); ?>">
 			<div class="jetpack-feature-off__content">
-				<span class="jetpack-feature-off__icon"><?php echo self::get_icon_html( $feature ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Constants. ?></span>
+				<?php if ( $artwork ) : ?>
+					<span class="jetpack-feature-off__icon"><?php echo self::get_icon_html( $feature ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Constants. ?></span>
+				<?php endif; ?>
 				<h1 class="jetpack-feature-off__title">
 					<?php
 					/* translators: %s is a feature name, e.g. "Forms". */
@@ -324,10 +333,12 @@ class Turned_Off_Page {
 					</form>
 				<?php endif; ?>
 			</div>
-			<div class="jetpack-feature-off__media">
-				<?php // Half its 599px width, so it stays sharp on 2x screens. ?>
-				<img src="<?php echo esc_url( $image ); ?>" alt="" width="300" height="238" />
-			</div>
+			<?php if ( $artwork ) : ?>
+				<div class="jetpack-feature-off__media">
+					<?php // Half its 599px width, so it stays sharp on 2x screens. ?>
+					<img src="<?php echo esc_url( $image ); ?>" alt="" width="300" height="238" />
+				</div>
+			<?php endif; ?>
 		</div>
 		<?php
 		wp_print_inline_script_tag( self::SCRIPT );
