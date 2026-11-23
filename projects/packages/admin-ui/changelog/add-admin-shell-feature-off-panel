@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Admin shell: Check that a page's feature is still on each time it is opened, and offer to turn it back on when it is not.

@@ -160,7 +160,7 @@ class Admin_Shell {
 	/**
 	 * The member the guest endpoint is loading in this request, readable from `init` on so members can scope their hooks to it.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.15.0
 	 *
 	 * @return string|null Member slug, or null on any other request.
 	 */
@@ -479,7 +479,7 @@ class Admin_Shell {
 		/**
 		 * Filters the HTML the shell shows in place of a member page whose feature is off. Empty for the shell's plain panel.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.15.0
 		 *
 		 * @param string $html Card HTML.
 		 * @param string $slug Admin page slug of the member.
@@ -573,7 +573,7 @@ class Admin_Shell {
 		 * Filters how many dashboards the admin shell keeps live, prewarmed or mounted, in one document.
 		 * Past the limit, opening another dashboard loads the page.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.15.0
 		 *
 		 * @param int|null $max_live_apps A positive limit, counting the page that loaded; null sizes it from the device's memory.
 		 */

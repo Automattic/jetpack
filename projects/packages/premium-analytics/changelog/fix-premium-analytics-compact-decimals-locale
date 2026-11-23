@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Number formatting: Keep the decimal in short figures shown in lakh, crore or 万, so 9.5 lakh no longer shows as 9 lakh.

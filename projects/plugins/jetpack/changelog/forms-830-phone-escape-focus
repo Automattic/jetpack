@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Forms: Return focus to the phone field's country selector when its dropdown is closed with Escape.

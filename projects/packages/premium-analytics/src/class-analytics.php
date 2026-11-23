@@ -24,7 +24,7 @@ use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
  */
 class Analytics {
 
-	const PACKAGE_VERSION = '0.18.0';
+	const PACKAGE_VERSION = '0.19.0';
 
 	/**
 	 * Whether the class has been initialized.
@@ -549,7 +549,7 @@ class Analytics {
 	/**
 	 * Register the dashboard with the admin shell.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.19.0
 	 *
 	 * @param array $members Shell members keyed by admin page slug.
 	 * @return array
@@ -579,7 +579,7 @@ class Analytics {
 	/**
 	 * Ready the dashboard's routes and page data while another dashboard's page is open.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.19.0
 	 *
 	 * @return void
 	 */
@@ -647,7 +647,7 @@ class Analytics {
 	 *
 	 * The shell also loads it on a menu hover, so code that marks a visit or writes anything checks is_dashboard_request() instead.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.19.0
 	 *
 	 * @return bool
 	 */

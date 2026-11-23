@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Stats abilities: add an email detail reader that breaks one newsletter email down by mail app, device, country and clicked link, and a video reader for one video's plays over time; give video-plays top content items their video ID; add the posting calendar to insights, and find its streaks among a year of posts instead of only the latest.
