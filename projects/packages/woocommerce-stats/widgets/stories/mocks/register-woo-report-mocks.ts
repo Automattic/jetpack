@@ -95,6 +95,7 @@ const wooReportMocksMiddleware: APIFetchMiddleware = async ( options: APIFetchOp
 				return buildOrderAttributionDeviceResponse( query );
 			case 'orders/by-date':
 				return buildOrdersByDateResponse( query );
+			// Assumes the bookings product_type filter, the only caller; it does not read the filter it is given.
 			case 'orders-by-product-type/by-date':
 				return buildOrdersByDateResponse( query, { share: BOOKINGS_SHARE } );
 			case 'products':

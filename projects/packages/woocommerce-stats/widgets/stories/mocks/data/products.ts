@@ -163,6 +163,7 @@ function storeRevenue( catalogue: CatalogueProduct[], dayIndex: number, spanDays
 /**
  * The product types a request filters by. `addQueryArgs` flattens `filters` into bracketed keys
  * such as `filters[0][value][1]`, so the filter's key and its values are matched by index.
+ * Every `product_type` filter is treated as `IN`; its `compare` operator is not read.
  *
  * @param {URLSearchParams} query - The request's query params.
  * @return {string[]} The requested product types, empty when the request has no such filter.

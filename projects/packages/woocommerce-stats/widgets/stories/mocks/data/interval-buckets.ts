@@ -124,7 +124,7 @@ export const ANCHOR_DAY = dayIndexOf( '2026-01-01' );
 export type DailyTrend = { base: number; growth: number; amplitude: number };
 
 /**
- * A daily value that grows linearly from `ANCHOR_DAY` under a seasonal wobble. `growth` must outrun `amplitude` across the gap to the comparison window, or an earlier window reads higher and every comparison assertion inverts (`sessionsPerDay` growth was raised from 0.9 to 8 for this).
+ * A daily value that grows linearly from `ANCHOR_DAY` under a seasonal wobble. `growth` must outrun `amplitude` across the gap to the comparison window, or an earlier window reads higher and every comparison assertion inverts.
  *
  * @param {DailyTrend} trend - The trend's starting level, daily growth and seasonal amplitude.
  * @return {Function} The value for an absolute day number.
