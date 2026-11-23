@@ -31,12 +31,12 @@ class Defer_Fonts implements Feature, Changes_Output_On_Activation, Optimization
 	}
 
 	/**
-	 * The module works on any site using the WordPress Font API (WordPress 6.4+).
+	 * Check if the feature is available.
 	 *
 	 * @return bool
 	 */
 	public static function is_available() {
-		return class_exists( '\WP_Font_Face_Resolver' ) && class_exists( '\WP_Font_Face' );
+		return true;
 	}
 
 	/**
@@ -73,7 +73,7 @@ class Defer_Fonts implements Feature, Changes_Output_On_Activation, Optimization
 		}
 
 		ob_start();
-		( new \WP_Font_Face() )->generate_and_print( self::with_font_display( $fonts, 'swap' ) );
+		( new \WP_Font_Face() )->generate_and_print( self::with_swap( $fonts ) );
 		$css = self::extract_css( (string) ob_get_clean() );
 		if ( '' === $css ) {
 			return;
@@ -95,18 +95,15 @@ class Defer_Fonts implements Feature, Changes_Output_On_Activation, Optimization
 	}
 
 	/**
-	 * Set `font-display` on every font face resolved from theme.json.
+	 * Set `font-display: swap` on every font face resolved from theme.json.
 	 *
-	 * @param array  $fonts   Font families, each a list of font faces, as WP_Font_Face_Resolver returns them.
-	 * @param string $display The font-display value to apply.
+	 * @param array $fonts Font families, each a list of font faces, as WP_Font_Face_Resolver returns them.
 	 * @return array
 	 */
-	public static function with_font_display( array $fonts, $display ) {
+	public static function with_swap( array $fonts ) {
 		foreach ( $fonts as $family => $faces ) {
-			foreach ( (array) $faces as $index => $face ) {
-				if ( is_array( $face ) ) {
-					$fonts[ $family ][ $index ]['font-display'] = $display;
-				}
+			foreach ( array_keys( $faces ) as $index ) {
+				$fonts[ $family ][ $index ]['font-display'] = 'swap';
 			}
 		}
 

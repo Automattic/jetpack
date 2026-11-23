@@ -4,6 +4,7 @@ namespace Automattic\Jetpack_Boost\Modules\Optimizations\Lcp;
 
 use Automattic\Jetpack\Image_CDN\Image_CDN;
 use Automattic\Jetpack\Image_CDN\Image_CDN_Core;
+use Automattic\Jetpack_Boost\Lib\Minify\Dependency_Path_Mapping;
 use WP_HTML_Tag_Processor;
 
 class LCP_Optimize_Img_Tag {
@@ -156,35 +157,16 @@ class LCP_Optimize_Img_Tag {
 	}
 
 	/**
-	 * Read the pixel size of an image served from wp-content on this site.
+	 * Read the pixel size of an image served from this site.
 	 *
 	 * @param string $url The image URL.
 	 * @return array Width and height, or nulls when the URL is not a readable local image.
 	 */
 	private function get_local_file_dimensions( $url ) {
-		$none        = array( null, null );
-		$content_url = content_url( '/' );
+		$file = ( new Dependency_Path_Mapping() )->dependency_src_to_fs_path( $url );
+		$size = $file ? wp_getimagesize( $file ) : false;
 
-		if ( wp_parse_url( $url, PHP_URL_HOST ) !== wp_parse_url( $content_url, PHP_URL_HOST ) ) {
-			return $none;
-		}
-
-		$path        = rawurldecode( (string) wp_parse_url( $url, PHP_URL_PATH ) );
-		$content_dir = (string) wp_parse_url( $content_url, PHP_URL_PATH );
-		if ( '' === $content_dir || ! str_starts_with( $path, $content_dir ) ) {
-			return $none;
-		}
-
-		// realpath() resolves any ../ so the file must really sit inside wp-content.
-		$root = realpath( WP_CONTENT_DIR );
-		$file = realpath( WP_CONTENT_DIR . '/' . substr( $path, strlen( $content_dir ) ) );
-		if ( ! $root || ! $file || ! str_starts_with( $file, $root . DIRECTORY_SEPARATOR ) || ! is_file( $file ) ) {
-			return $none;
-		}
-
-		$size = wp_getimagesize( $file );
-
-		return is_array( $size ) ? array( (int) $size[0], (int) $size[1] ) : $none;
+		return is_array( $size ) ? array( (int) $size[0], (int) $size[1] ) : array( null, null );
 	}
 
 	/**

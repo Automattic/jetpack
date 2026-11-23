@@ -50,7 +50,6 @@ class LCP_Optimize_Img_Tag_Test extends BaseTestCase {
 		remove_all_filters( 'jetpack_photon_url' );
 		remove_all_filters( 'jetpack_boost_pre_should_skip_lcp_optimization' );
 		remove_all_filters( 'jetpack_photon_development_mode' );
-		remove_all_filters( 'content_url' );
 	}
 
 	/**
@@ -541,28 +540,32 @@ class LCP_Optimize_Img_Tag_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Write a 3x2 PNG inside wp-content and one just outside it.
+	 */
+	public static function set_up_before_class() {
+		parent::set_up_before_class();
+		// wp_mkdir_p() refuses the ../ in WorDBless's WP_CONTENT_DIR.
+		$content = realpath( WP_CONTENT_DIR );
+		$png     = base64_decode( 'iVBORw0KGgoAAAANSUhEUgAAAAMAAAACCAIAAAASFvFNAAAAEElEQVR4nGP4z8AAQQxwFgBB0gX7h/C5SAAAAABJRU5ErkJggg==' ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode
+		wp_mkdir_p( $content . '/themes/lcp-dimensions' );
+		file_put_contents( $content . '/themes/lcp-dimensions/hero.png', $png ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+		file_put_contents( dirname( $content ) . '/outside.png', $png ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+	}
+
+	public static function tear_down_after_class() {
+		$content = realpath( WP_CONTENT_DIR );
+		wp_delete_file( $content . '/themes/lcp-dimensions/hero.png' );
+		rmdir( $content . '/themes/lcp-dimensions' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir
+		wp_delete_file( dirname( $content ) . '/outside.png' );
+		parent::tear_down_after_class();
+	}
+
+	/**
 	 * @dataProvider missing_dimension_cases
 	 */
 	#[DataProvider( 'missing_dimension_cases' )]
 	public function test_an_unsized_local_image_gets_its_file_dimensions( $src, $attributes, $expected ) {
-		// wp_mkdir_p() refuses the ../ in WorDBless's WP_CONTENT_DIR.
-		$content = realpath( WP_CONTENT_DIR );
-		$dir     = $content . '/themes/lcp-dimensions';
-		wp_mkdir_p( $dir );
-		// A 3x2 PNG, inside wp-content and just outside it.
-		$png = base64_decode( 'iVBORw0KGgoAAAANSUhEUgAAAAMAAAACCAIAAAASFvFNAAAAEElEQVR4nGP4z8AAQQxwFgBB0gX7h/C5SAAAAABJRU5ErkJggg==' ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode
-		file_put_contents( $dir . '/hero.png', $png ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
-		file_put_contents( dirname( $content ) . '/outside.png', $png ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
-
-		// WorDBless has no site URL, so content_url() would be relative.
-		add_filter(
-			'content_url',
-			function ( $url ) {
-				return 'https://example.com' . $url;
-			}
-		);
-
-		$tag  = '<img class="wp-post-image" id="test-img" src="' . str_replace( '{content}', content_url(), $src ) . '"' . $attributes . '>';
+		$tag  = '<img class="wp-post-image" id="test-img" src="' . str_replace( '{content}', get_site_url() . '/wp-content', $src ) . '"' . $attributes . '>';
 		$data = array_merge( $this->create_lcp_data( $this->get_default_optimizations() ), array( 'html' => $tag ) );
 
 		$result = new WP_HTML_Tag_Processor( ( new LCP_Optimize_Img_Tag( $data ) )->optimize_buffer( '<html><body>' . $tag . '</body></html>' ) );
@@ -575,7 +578,7 @@ class LCP_Optimize_Img_Tag_Test extends BaseTestCase {
 		return array(
 			'theme image without dimensions'  => array( '{content}/themes/lcp-dimensions/hero.png', '', array( '3', '2' ) ),
 			'author-set width is left alone'  => array( '{content}/themes/lcp-dimensions/hero.png', ' width="300"', array( '300', null ) ),
-			'image on another host'           => array( 'https://example.org/wp-content/themes/lcp-dimensions/hero.png', '', array( null, null ) ),
+			'image on another host'           => array( 'https://wordpress.org/wp-content/themes/lcp-dimensions/hero.png', '', array( null, null ) ),
 			'path climbing out of wp-content' => array( '{content}/../outside.png', '', array( null, null ) ),
 		);
 	}

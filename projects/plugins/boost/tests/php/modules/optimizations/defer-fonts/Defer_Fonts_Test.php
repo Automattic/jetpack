@@ -48,7 +48,7 @@ class Defer_Fonts_Test extends Base_TestCase {
 			),
 		);
 
-		$displays = array_column( array_merge( ...Defer_Fonts::with_font_display( $fonts, 'swap' ) ), 'font-display' );
+		$displays = array_column( array_merge( ...Defer_Fonts::with_swap( $fonts ) ), 'font-display' );
 
 		$this->assertSame( array( 'swap', 'swap', 'swap' ), $displays );
 	}
