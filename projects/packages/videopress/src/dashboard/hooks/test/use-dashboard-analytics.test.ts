@@ -119,4 +119,24 @@ describe( 'useDashboardAnalytics', () => {
 			{ route: 'video' }
 		);
 	} );
+
+	it( 'records the route on screen again when the admin shell shows the page again, not on its first show', () => {
+		const { rerender } = renderHook( ( { route } ) => useDashboardAnalytics( route ), {
+			initialProps: { route: 'overview' as DashboardRoute },
+		} );
+		rerender( { route: 'library' } );
+		const shown = ( page: string, firstShow: boolean ) =>
+			window.dispatchEvent(
+				new CustomEvent( 'jetpack-admin-shell:page-shown', { detail: { page, firstShow } } )
+			);
+
+		shown( 'jetpack-videopress', true );
+		shown( 'my-jetpack', false );
+		shown( 'jetpack-videopress', false );
+
+		expect( mockedAnalytics.tracks.recordEvent.mock.calls ).toEqual( [
+			[ 'jetpack_videopress_admin_page_view', { route: 'overview' } ],
+			[ 'jetpack_videopress_admin_page_view', { route: 'library' } ],
+		] );
+	} );
 } );

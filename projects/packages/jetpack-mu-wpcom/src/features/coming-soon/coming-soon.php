@@ -24,7 +24,19 @@ function should_show_coming_soon_page() {
 	$share_code = get_share_code();
 	if ( is_accessed_by_valid_share_link( $share_code ) ) {
 		track_preview_link_event();
-		setcookie( 'wp_share_code', $share_code, time() + 3600, '/', '', is_ssl(), true );
+		$secure = is_ssl();
+		// SameSite=None lets the share link keep working when the site is previewed in a cross-site iframe.
+		setcookie(
+			'wp_share_code',
+			$share_code,
+			array(
+				'expires'  => time() + 3600,
+				'path'     => '/',
+				'secure'   => $secure,
+				'httponly' => true,
+				'samesite' => $secure ? 'None' : 'Lax',
+			)
+		);
 		return false;
 	}
 

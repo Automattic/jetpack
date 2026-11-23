@@ -26,11 +26,10 @@ class DashboardDataTest extends SeoTestCase {
 			unregister_post_type( 'seo_book' );
 		}
 
-		\Jetpack_SEO_Utils::$enabled                    = true;
-		\Jetpack_SEO_Utils::$has_legacy_front_page_meta = false;
-		\Jetpack_Redux_State_Helper::$site_image        = '';
-		\Jetpack_AI_Settings::$is_ai_seo_enabled        = true;
-		\Jetpack_AI_Settings::$is_ai_enabled            = true;
+		remove_all_filters( 'jetpack_disable_seo_tools' );
+		\Jetpack_Redux_State_Helper::$site_image = '';
+		\Jetpack_AI_Settings::$is_ai_seo_enabled = true;
+		\Jetpack_AI_Settings::$is_ai_enabled     = true;
 		delete_option( 'advanced_seo_title_formats' );
 		delete_option( Dashboard_Data::FRONT_PAGE_META_OPTION );
 		delete_option( 'jetpack_ai_seo_enabled' );
@@ -349,7 +348,7 @@ class DashboardDataTest extends SeoTestCase {
 			),
 		);
 		update_option( 'advanced_seo_title_formats', $formats );
-		\Jetpack_SEO_Utils::$enabled = false;
+		add_filter( 'jetpack_disable_seo_tools', '__return_true' );
 
 		$settings = Dashboard_Data::get_settings_data();
 

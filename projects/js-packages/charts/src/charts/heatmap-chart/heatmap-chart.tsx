@@ -1,6 +1,6 @@
 import { formatNumber, formatNumberCompact } from '@automattic/number-formatters';
 import { useTooltip } from '@visx/tooltip';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
 import isEqual from 'fast-deep-equal';
 import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
@@ -33,15 +33,21 @@ import { pickLabelTextColorForFill, resolveLabelRoles } from '../private/label-t
 import { withResponsive } from '../private/with-responsive';
 import styles from './heatmap-chart.module.scss';
 import {
+	canPlaceOnLogScale,
 	fitCompactCells,
-	getHeatmapScale,
-	getValueExtent,
+	getBucketedValue,
+	getExtentOf,
+	getLogValue,
 	getNormalizedValue,
+	getHeatmapScale,
+	getValueBuckets,
+	HEATMAP_SCALE_STEPS,
 	HeatmapContext,
 	HeatmapLegend,
 	isEmptyValue,
 	isPresent,
 	resolveColumnGroups,
+	scaleValues,
 	wrapColumnGroups,
 } from './private';
 import {
@@ -98,6 +104,15 @@ const cellName = ( info: HeatmapTooltipData ) =>
 	info.cellLabel ||
 	[ info.groupLabel, info.columnLabel, info.rowLabel ].filter( Boolean ).join( ' ' );
 
+const withIncompleteNote = ( text: string, partial?: boolean ) =>
+	partial
+		? sprintf(
+				/* translators: %s: a heatmap cell's name, or its name and value, whose period is unfinished. */
+				__( '%s (incomplete)', 'jetpack-charts' ),
+				text
+			)
+		: text;
+
 const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 	data,
 	chartId: providedChartId,
@@ -116,6 +131,7 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 	keyboardNavigation = 'grid',
 	ariaLabel,
 	primaryColor,
+	scale: valueScale = 'linear',
 	gap = 'md',
 	withTooltips = false,
 	renderTooltip,
@@ -194,10 +210,35 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 		setLabelRoles( previous => ( isEqual( previous, next ) ? previous : next ) );
 	}, [ data, className, primaryColorHex, chartBackgroundHex ] );
 
-	const extent = useMemo( () => getValueExtent( data ), [ data ] );
+	const values = useMemo( () => scaleValues( data ), [ data ] );
+	const extent = useMemo( () => getExtentOf( values ), [ values ] );
+	const buckets = useMemo(
+		() => getValueBuckets( values, extent, HEATMAP_SCALE_STEPS ),
+		[ values, extent ]
+	);
+	const logUnusable = valueScale === 'log' && ! canPlaceOnLogScale( extent );
+	if ( logUnusable ) {
+		warnOnce(
+			'heatmap:logScale',
+			'The log scale needs every value above zero, so the cells keep their placement by distance.'
+		);
+	}
+	const effectiveScale = logUnusable ? 'linear' : valueScale;
+	const placeOnScale = useCallback(
+		( value: number ) => {
+			if ( effectiveScale === 'buckets' ) {
+				return getBucketedValue( value, buckets );
+			}
+			if ( effectiveScale === 'log' ) {
+				return getLogValue( value, extent, HEATMAP_SCALE_STEPS );
+			}
+			return getNormalizedValue( value, extent );
+		},
+		[ effectiveScale, extent, buckets ]
+	);
 	const heatmapContext = useMemo< HeatmapContextValue >(
-		() => ( { extent, fillVars } ),
-		[ extent, fillVars ]
+		() => ( { extent, buckets, scale: effectiveScale, fillVars } ),
+		[ extent, buckets, effectiveScale, fillVars ]
 	);
 
 	const columns = data.length;
@@ -282,6 +323,7 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 				columnLabel: data[ columnIndex ]?.label,
 				groupLabel: group === undefined ? undefined : groupLayout.groups[ group ]?.label,
 				cellLabel: cell?.label,
+				partial: cell?.partial === true && ! data[ columnIndex ]?.summary,
 				row: rowIndex,
 				column: columnIndex,
 			};
@@ -425,7 +467,7 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 	const defaultRenderTooltip = useCallback(
 		( info: HeatmapTooltipData ) => (
 			<div>
-				<strong>{ cellName( info ) }</strong>
+				<strong>{ withIncompleteNote( cellName( info ), info.partial ) }</strong>
 				<div>
 					{ info.value === null ? __( 'No data', 'jetpack-charts' ) : formatNumber( info.value ) }
 				</div>
@@ -658,21 +700,32 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 
 										const value = cell?.value ?? null;
 										const present = isPresent( value );
-										// A summary cell is on another scale, so it takes no fill.
-										const filled = present && ! column.summary && ! isEmptyValue( value, extent );
-										const normalized = filled ? getNormalizedValue( value, extent ) : 0;
 										const info = buildTooltipData( columnIndex, rowIndex );
-										const accessibleLabel = `${ cellName( info ) }: ${
+										// A summary cell is on another scale, so it takes no fill.
+										const partial = info.partial === true;
+										let testId = 'heatmap-cell';
+										if ( column.summary ) {
+											testId = 'heatmap-cell-summary';
+										} else if ( partial ) {
+											testId = 'heatmap-cell-partial';
+										}
+										const filled =
+											present && ! partial && ! column.summary && ! isEmptyValue( value, extent );
+										const normalized = filled ? placeOnScale( value ) : 0;
+										const valueLabel =
 											info.value === null
 												? __( 'No data', 'jetpack-charts' )
-												: formatNumber( info.value )
-										}`;
+												: formatNumber( info.value );
+										const accessibleLabel = withIncompleteNote(
+											`${ cellName( info ) }: ${ valueLabel }`,
+											partial
+										);
 
 										return (
 											<div
 												key={ `cell-${ columnIndex }-${ rowIndex }` }
 												id={ `${ chartId }-cell-${ columnIndex }-${ rowIndex }` }
-												data-testid={ column.summary ? 'heatmap-cell-summary' : 'heatmap-cell' }
+												data-testid={ testId }
 												role="gridcell"
 												// Focus stays on the grid (aria-activedescendant); cells are
 												// focusable but out of the tab order.
@@ -684,6 +737,7 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 												className={ clsx( styles[ 'heatmap-chart__cell' ], {
 													[ styles[ 'heatmap-chart__cell--filled' ] ]: filled,
 													[ styles[ 'heatmap-chart__cell--summary' ] ]: column.summary,
+													[ styles[ 'heatmap-chart__cell--partial' ] ]: partial,
 													...summaryGaps( columnIndex ),
 													[ styles[ 'heatmap-chart__cell--selected' ] ]:
 														selected?.column === columnIndex && selected?.row === rowIndex,
@@ -703,7 +757,10 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 													<span
 														className={ clsx(
 															styles[ 'heatmap-chart__cell-value' ],
-															filled && CELL_VALUE_MODIFIER[ cellTextColor( normalized ) ]
+															// A hatch stripes the lowest fill tone over the empty one, so its
+															// figure takes the pick that tone gets as the scale's lowest step.
+															( filled || partial ) &&
+																CELL_VALUE_MODIFIER[ cellTextColor( normalized ) ]
 														) }
 													>
 														{ /* Compact display; tooltip and aria-label keep full precision. */ }

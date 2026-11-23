@@ -34,6 +34,7 @@ const AI_SIDEBAR_AGENT_ID                 = 'wp-orchestrator';
 const AI_SIDEBAR_TOOLBAR_BUTTON_EXTENSION = 'ai-sidebar-toolbar-button';
 const AI_SIDEBAR_AGENT_NOTICE_EXTENSION   = 'ai-sidebar-agent-notice';
 const AI_SIDEBAR_AGENT_SUPPORT_EXTENSION  = 'ai-sidebar-agent-support';
+const AI_SIDEBAR_AGENT_ENABLE_EXTENSION   = 'ai-sidebar-agent-enable';
 
 /**
  * Initializes the Agents Manager package and registers the Jetpack AI
@@ -315,6 +316,7 @@ class Jetpack_AI_Sidebar {
 	 */
 	private static function is_seo_suggestions_enabled(): bool {
 		return class_exists( Ai_Seo::class )
+			&& Current_Plan::supports( 'ai-seo-enhancer' )
 			&& Ai_Seo::is_available()
 			&& \Jetpack_AI_Settings::is_ai_seo_enabled();
 	}
@@ -330,9 +332,7 @@ class Jetpack_AI_Sidebar {
 	}
 
 	/**
-	 * Whether this host loads the sidebar at all: a WordPress.com platform site
-	 * with Big Sky enabled, past the filter and the master switch. Public and
-	 * feature-free so the AI SEO gate can ask without asking back through it.
+	 * Whether this host enables the sidebar, before checking individual features.
 	 *
 	 * @since 16.2
 	 *
@@ -591,6 +591,15 @@ class Jetpack_AI_Sidebar {
 
 		\Jetpack_Gutenberg::set_extension_available( AI_SIDEBAR_AGENT_NOTICE_EXTENSION );
 
+		if ( self::can_current_user_enable_agent() ) {
+			\Jetpack_Gutenberg::set_extension_available( AI_SIDEBAR_AGENT_ENABLE_EXTENSION );
+		} else {
+			\Jetpack_Gutenberg::set_extension_unavailable(
+				AI_SIDEBAR_AGENT_ENABLE_EXTENSION,
+				'jetpack_ai_sidebar_agent_enable_not_allowed'
+			);
+		}
+
 		// Tells the notice whether to offer to enable the Agent or to open it.
 		if ( self::is_wordpress_agent_enabled() ) {
 			\Jetpack_Gutenberg::set_extension_available( AI_SIDEBAR_AGENT_SUPPORT_EXTENSION );
@@ -601,6 +610,23 @@ class Jetpack_AI_Sidebar {
 			AI_SIDEBAR_AGENT_SUPPORT_EXTENSION,
 			'jetpack_ai_sidebar_agent_disabled'
 		);
+	}
+
+	/**
+	 * Whether the current user can reach the WordPress.com page that turns the Agent on.
+	 *
+	 * Mirrors the dashboard's canManageSite(), which answers anything else with a 404.
+	 * Membership matters because super admins pass manage_options on sites they do not belong to.
+	 *
+	 * @return bool
+	 */
+	public static function can_current_user_enable_agent(): bool {
+		$host = new Host();
+
+		return is_user_member_of_blog()
+			&& current_user_can( 'manage_options' )
+			&& ! $host->is_p2_site()
+			&& ! $host->is_vip_site();
 	}
 
 	/**

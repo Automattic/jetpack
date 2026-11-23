@@ -1,6 +1,12 @@
 import { getScriptData, isWoASite } from '@automattic/jetpack-script-data';
-import { currentThemeIsBlockTheme, userCanManageModules } from 'state/initial-state';
+import { _x } from '@wordpress/i18n';
+import {
+	currentThemeIsBlockTheme,
+	isOdysseyStatsEnabled,
+	userCanManageModules,
+} from 'state/initial-state';
 import { isModuleActivated } from 'state/modules';
+import { hasAnalyticsDashboard } from '../../../shared/analytics-url';
 
 // The modules behind the Writing tab's Widgets card, in card order.
 export const WIDGET_MODULES = [ 'widgets', 'widget-visibility' ];
@@ -14,6 +20,14 @@ export const WIDGET_MODULES = [ 'widgets', 'widget-visibility' ];
  */
 export const isSettingsConsolidationEnabled = () =>
 	Boolean( getScriptData()?.myJetpack?.settingsConsolidation );
+
+/**
+ * Whether My Jetpack shows the notices this screen did; an older My Jetpack leaves it out, which keeps them here.
+ *
+ * @return {boolean} True when the moved notices leave this screen.
+ */
+export const areSettingsNoticesInMyJetpack = () =>
+	Boolean( getScriptData()?.myJetpack?.showsSettingsNotices );
 
 /**
  * Where the Ads settings live now, from the Jetpack plugin's `Jetpack_Ads_Settings_Home`.
@@ -59,6 +73,26 @@ export function getMovedOutModules( state ) {
 export const isMovedOut = ( module, state ) => getMovedOutModules( state ).includes( module );
 
 /**
+ * Whether settings that moved to a My Jetpack settings panel leave only a pointer here.
+ *
+ * The panel lives in Features, which needs manage_options, so users who cannot manage modules keep the card.
+ *
+ * @param {object} state - Global state tree.
+ * @return {boolean} True when the card gives way to a pointer.
+ */
+export const isInSettingsPanel = state =>
+	isSettingsConsolidationEnabled() && userCanManageModules( state );
+
+/**
+ * Whether Post by Email's card gives way to a pointer to the user's Profile page, which holds the same settings.
+ *
+ * @param {object} state - Global state tree.
+ * @return {boolean} True once settings move out, for users who cannot manage modules.
+ */
+export const isPostByEmailOnProfile = state =>
+	isSettingsConsolidationEnabled() && ! userCanManageModules( state );
+
+/**
  * Whether a module's Settings toggle gives way to its switch in My Jetpack › Features, leaving only a search result that points there.
  *
  * Users who cannot manage modules have no Features, so they keep the toggle.
@@ -87,3 +121,46 @@ export function isSwitchedInFeatures( state, module ) {
 export function isDeprecatedInFeatures( state, module ) {
 	return currentThemeIsBlockTheme( state ) && WIDGET_MODULES.includes( module );
 }
+
+/**
+ * Whether a search matches the Privacy card's search terms.
+ *
+ * @param {string} searchTerm - The search term.
+ * @return {boolean} True on a match.
+ */
+export const searchFindsPrivacy = searchTerm =>
+	!! searchTerm &&
+	[
+		_x( 'privacy', 'Search term.', 'jetpack' ),
+		_x( 'tracks', 'Search term.', 'jetpack' ),
+		_x( 'data', 'Search term.', 'jetpack' ),
+		_x( 'gdpr', 'Search term.', 'jetpack' ),
+		_x( 'tos', 'Search term.', 'jetpack' ),
+		_x( 'terms of service', 'Search term.', 'jetpack' ),
+	]
+		.join( ' ' )
+		.toLowerCase()
+		.includes( searchTerm.toLowerCase() );
+
+/**
+ * Whether a search names Google Analytics, in English or the site's language.
+ *
+ * @param {string} searchTerm - The search term.
+ * @return {boolean} True on a match.
+ */
+export const searchFindsGoogleAnalytics = searchTerm =>
+	!! searchTerm &&
+	`google analytics ${ _x( 'Google Analytics', 'Settings header', 'jetpack' ) }`
+		.toLowerCase()
+		.includes( searchTerm.toLowerCase() );
+
+/**
+ * Whether the Stats settings left this screen for a Stats page: the Stats dashboard's, or Stats v2's.
+ *
+ * Classic Stats keeps them here until `jetpack-stats-classic-page-retired` turns Stats v2 on for every site.
+ *
+ * @param {object} state - Global state tree.
+ * @return {boolean} True when the Stats card leaves the Traffic tab for a search result.
+ */
+export const areStatsSettingsMovedOut = state =>
+	isSettingsConsolidationEnabled() && ( isOdysseyStatsEnabled( state ) || hasAnalyticsDashboard() );

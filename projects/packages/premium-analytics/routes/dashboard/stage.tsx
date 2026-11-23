@@ -7,7 +7,9 @@ import {
 	queryClient,
 	ReportScopeProvider,
 } from '@jetpack-premium-analytics/data';
-import { Icon, JetpackFooter, Stack } from '@jetpack-premium-analytics/externals';
+import { PRESET_CUSTOM } from '@jetpack-premium-analytics/datetime';
+import { StatsErrorBoundary } from '@jetpack-premium-analytics/error-reporting';
+import { Icon, JetpackFooter, Stack, VisuallyHidden } from '@jetpack-premium-analytics/externals';
 import { jetpack } from '@jetpack-premium-analytics/icons';
 import {
 	DashboardWidgetHostProvider,
@@ -28,7 +30,7 @@ import {
 import {
 	canSendFeedback,
 	DashboardSectionProvider,
-	PageOptionsMenu,
+	StatsOptionsMenu,
 	ResetLayoutAction,
 	useHostLinkSearch,
 	useTrackCustomize,
@@ -36,8 +38,10 @@ import {
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { Page } from '@wordpress/admin-ui';
 import { Spinner } from '@wordpress/components';
+import { useViewportMatch } from '@wordpress/compose';
 import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import { WidgetDashboard } from '@wordpress/widget-dashboard';
+import clsx from 'clsx';
 import { useDateWindowNotice } from '../date-window-notice';
 import { isPremiumAnalyticsInitialSyncFinished } from '../site-readiness';
 import { useStatsDateLimits } from '../use-stats-date-limits';
@@ -92,6 +96,12 @@ import type { JSX } from 'react';
 function Dashboard(): JSX.Element {
 	const { sections, hasResolved: hasResolvedSections } = useDashboardSections();
 	const [ editMode, setEditMode ] = useState( false );
+	// At 480px and under there is no room for the title lockup beside a full row of
+	// actions: the actions hold their width and the page icon cannot shrink, so the
+	// lockup stands down rather than being painted over (STATS-630). Only while
+	// customizing, since at rest the actions leave it room.
+	const isCrowdedHeader = useViewportMatch( 'mobile', '<' );
+	const hasTightHeader = isCrowdedHeader && editMode;
 	const switchSearch = useCallback(
 		( id: string, search: Record< string, unknown > ) =>
 			dateWindowForSectionSwitch(
@@ -306,11 +316,12 @@ function Dashboard(): JSX.Element {
 	// the section shows the period control, it draws attention to the new period.
 	const showsPeriodControl =
 		showHeaderDateControl && ! editMode && dateFilterSurface !== DATE_FILTER_YEAR;
-	const { openPeriod, attentionId } = usePeriodHost(
+	const { openPeriod, attention } = usePeriodHost(
 		activeSection,
 		dateFilters.appliedRange,
 		showsPeriodControl,
-		lockedIntervals
+		dateLimits,
+		{ withZoomOut: true }
 	);
 
 	const {
@@ -318,6 +329,7 @@ function Dashboard(): JSX.Element {
 		onComparisonChange: changeComparison,
 		onApply: applyDateRange,
 		stepping,
+		zoomOut,
 	} = dateFilters;
 
 	const { trackedOnChange, trackedOnApply } = useTrackedDateRangeApply(
@@ -372,6 +384,7 @@ function Dashboard(): JSX.Element {
 				trackedOnChange( stepped.range, stepped.presetId, {
 					exactRange: true,
 					interval: stepped.interval,
+					trigger: 'arrow',
 				} );
 				trackedOnApply();
 			}
@@ -383,6 +396,33 @@ function Dashboard(): JSX.Element {
 	const dateStepping = useMemo(
 		() => ( { ...stepping, onStep: onDateStep } ),
 		[ stepping, onDateStep ]
+	);
+	// Zooming back out applies at once too, and is tracked the same way.
+	const zoomOutOfPeriod = zoomOut?.onZoomOut;
+	const onDateZoomOut = useCallback( () => {
+		const zoomed = zoomOutOfPeriod?.();
+
+		if ( zoomed ) {
+			trackedOnChange( zoomed.range, zoomed.presetId, {
+				exactRange: true,
+				interval: zoomed.interval,
+				trigger: 'zoom_out',
+			} );
+			trackedOnApply();
+		}
+	}, [ zoomOutOfPeriod, trackedOnChange, trackedOnApply ] );
+	const dateZoomOut = useMemo(
+		() => zoomOut && { ...zoomOut, onZoomOut: onDateZoomOut },
+		[ zoomOut, onDateZoomOut ]
+	);
+	// A period a widget opens applies at once as well, as the custom range it commits.
+	const onOpenPeriod = useCallback< typeof openPeriod >(
+		( range, options ) => {
+			openPeriod( range, options );
+			trackedOnChange( range, PRESET_CUSTOM, { exactRange: true, trigger: 'widget' } );
+			trackedOnApply();
+		},
+		[ openPeriod, trackedOnChange, trackedOnApply ]
 	);
 
 	/*
@@ -466,26 +506,23 @@ function Dashboard(): JSX.Element {
 					onComparisonChange={ onComparisonChange }
 					onApply={ onDateApply }
 					stepping={ dateStepping }
+					zoomOut={ dateZoomOut }
 					withIntervalControl={ showHeaderIntervalControl }
-					attentionId={ attentionId }
+					attentionId={ attention?.id }
 				/>
 			);
 	}
 
 	return (
 		<>
-			<PeriodChangeStatus
-				attentionId={ attentionId }
-				appliedPresetId={ dateFilters.appliedPresetId }
-				appliedRange={ dateFilters.appliedRange }
-			/>
+			<PeriodChangeStatus periodChange={ attention } />
 			{ /*
 			 * Declared once for widgets below: hiding the control doesn't strip the params,
 			 * so a widget reading them off the URL could show a comparison the reader can't see.
 			 */ }
 			<ReportScopeProvider
 				offersComparison={ offersComparison }
-				openPeriod={ openPeriod }
+				openPeriod={ onOpenPeriod }
 				dateLimits={ dateLimits }
 			>
 				{ /* Outside the dashboard: the inserter mounts beyond `children`. */ }
@@ -503,10 +540,18 @@ function Dashboard(): JSX.Element {
 							onEditChange={ onEditChange }
 						>
 							<Page
-								visual={ <Icon icon={ jetpack } /> }
-								breadcrumbs={ <StatsBreadcrumbs isRoot /> }
+								visual={ hasTightHeader ? undefined : <Icon icon={ jetpack } /> }
+								breadcrumbs={
+									hasTightHeader ? (
+										<VisuallyHidden>
+											<StatsBreadcrumbs isRoot />
+										</VisuallyHidden>
+									) : (
+										<StatsBreadcrumbs isRoot />
+									)
+								}
 								actions={
-									<Stack direction="row" gap="sm">
+									<Stack direction="row" gap={ isCrowdedHeader ? 'xs' : 'sm' }>
 										{ /* At rest these would add a second Customize beside the menu's. */ }
 										{ editMode && (
 											<>
@@ -517,7 +562,7 @@ function Dashboard(): JSX.Element {
 										<Stack ref={ setOptionsMenuFrame } direction="row">
 											{ /* Outside the section panels, so the menu's links name the tab to return to. */ }
 											<DashboardSectionProvider section={ activeSection }>
-												<PageOptionsMenu
+												<StatsOptionsMenu
 													onCustomize={
 														editMode || ! canCustomizeSection ? undefined : startCustomizing
 													}
@@ -527,7 +572,7 @@ function Dashboard(): JSX.Element {
 										</Stack>
 									</Stack>
 								}
-								className={ styles.dashboard }
+								className={ clsx( styles.dashboard, hasTightHeader && styles.tightHeader ) }
 							>
 								<DashboardSections
 									sections={ tabBarSections }
@@ -628,8 +673,10 @@ function Dashboard(): JSX.Element {
  */
 export function stage(): JSX.Element {
 	return (
-		<PeriodChangeSignalProvider>
-			<Dashboard />
-		</PeriodChangeSignalProvider>
+		<StatsErrorBoundary>
+			<PeriodChangeSignalProvider>
+				<Dashboard />
+			</PeriodChangeSignalProvider>
+		</StatsErrorBoundary>
 	);
 }

@@ -52,8 +52,6 @@ class Jetpack_Ads_Settings_Home_Test extends WP_UnitTestCase {
 		remove_filter( 'jetpack_offline_mode', '__return_true' );
 		remove_filter( 'jetpack_offline_mode', '__return_false' );
 		remove_filter( 'jetpack_is_connection_ready', '__return_true', PHP_INT_MAX );
-		wp_dequeue_script( 'jp-tracks' );
-		Jetpack_Options::delete_option( 'tos_agreed' );
 		Jetpack_Options::update_option( 'active_modules', $this->active_modules );
 		unset( $_GET['page'] );
 		Constants::clear_constants();
@@ -116,9 +114,7 @@ class Jetpack_Ads_Settings_Home_Test extends WP_UnitTestCase {
 
 		$_GET['page'] = 'jetpack-monetize';
 		$payload      = Jetpack_Ads_Settings_Home::add_script_data( array() )['monetize']['adsSettings'];
-		$this->assertSame( array( 'hasWordAds', 'hasConnectedOwner', 'upgradeUrl', 'earningsUrl', 'isSubdirectorySite', 'moduleOverride', 'tracks' ), array_keys( $payload ) );
-		$this->assertStringContainsString( 'source=calypso-stats-ads-day', $payload['earningsUrl'] );
-		$this->assertStringContainsString( 'source=jetpack-creator-cta', $payload['upgradeUrl'] );
+		$this->assertSame( array( 'hasWordAds', 'hasConnectedOwner', 'isSubdirectorySite', 'moduleOverride' ), array_keys( $payload ) );
 	}
 
 	/**
@@ -132,23 +128,6 @@ class Jetpack_Ads_Settings_Home_Test extends WP_UnitTestCase {
 		$data         = Jetpack_Ads_Settings_Home::add_script_data( array() );
 		$this->assertArrayHasKey( 'adsSettings', $data['monetize'] );
 		$this->assertArrayNotHasKey( 'adsSettingsUrl', $data['monetize'] );
-	}
-
-	/**
-	 * The tab's events reach Tracks only when the site and user allow it, as on Jetpack's other pages.
-	 */
-	public function test_tracks_load_on_the_tab_only_with_consent() {
-		$this->arrange( self::ALL_ON );
-		$_GET['page'] = 'jetpack-monetize';
-
-		Jetpack_Ads_Settings_Home::enqueue_tracks_transport();
-		$this->assertFalse( wp_script_is( 'jp-tracks', 'enqueued' ) );
-		$this->assertFalse( Jetpack_Ads_Settings_Home::add_script_data( array() )['monetize']['adsSettings']['tracks'] );
-
-		Jetpack_Options::update_option( 'tos_agreed', true );
-		Jetpack_Ads_Settings_Home::enqueue_tracks_transport();
-		$this->assertTrue( wp_script_is( 'jp-tracks', 'enqueued' ) );
-		$this->assertTrue( Jetpack_Ads_Settings_Home::add_script_data( array() )['monetize']['adsSettings']['tracks'] );
 	}
 
 	/**

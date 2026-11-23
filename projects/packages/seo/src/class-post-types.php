@@ -83,7 +83,7 @@ class Post_Types {
 		/**
 		 * Filters the post types left out of llms.txt, the SEO Content tab, Content coverage and the SEO admin columns.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.12.0
 		 *
 		 * @param string[] $excluded Post type slugs to leave out. Remove a slug to include that type.
 		 */

@@ -12,7 +12,7 @@ const { default: GoogleVerificationField } = await import( '../google-verificati
 
 const googleVerifyDefaults = {
 	state: 'unverified',
-	isConnected: true,
+	canAutoVerify: true,
 	isOwner: false,
 	searchConsoleUrl: '',
 	isVerifying: false,

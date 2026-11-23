@@ -57,6 +57,8 @@ export interface UserData {
 export interface MyJetpackScriptData {
 	/** Whether My Jetpack initialized and its admin page is reachable by the current user. */
 	isAvailable?: boolean;
+	/** Whether the host shows the full My Jetpack; `false` where it hides or redirects the page, or serves only WordPress.com Simple's lightweight one. Absent from older My Jetpack packages. */
+	isShownByHost?: boolean;
 	/** Site editor state. Only on the My Jetpack page. */
 	siteEditor?: {
 		isBlockTheme: boolean;
@@ -71,6 +73,8 @@ export interface MyJetpackScriptData {
 	aiManageUrl?: string;
 	/** Whether settings move to My Jetpack: the settings consolidation flag is on and My Jetpack is available. */
 	settingsConsolidation?: boolean;
+	/** The settings panel URL when it holds Google Analytics for this user, `false` otherwise. Only on the Jetpack, Settings and My Jetpack pages. */
+	googleAnalyticsPanel?: string | false;
 }
 
 export interface JetpackScriptData {

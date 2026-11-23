@@ -3,6 +3,7 @@ import { CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
 import { render, renderHook, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useSelect } from '@wordpress/data';
+import useAnalytics from '../../../hooks/use-analytics';
 import Providers from '../../../providers';
 import { leavePageFor } from '../../../utils/reload-page';
 import ConnectionStatusCard from '../index';
@@ -50,11 +51,7 @@ jest.mock( '../../../data/products/use-all-products', () => {
 
 jest.mock( '../../../utils/reload-page', () => ( { leavePageFor: jest.fn() } ) );
 
-const mockRecordEvent = jest.fn();
-jest.mock( '../../../hooks/use-analytics', () => ( {
-	__esModule: true,
-	default: () => ( { recordEvent: mockRecordEvent } ),
-} ) );
+const mockRecordEvent = jest.mocked( jest.mocked( useAnalytics )().recordEvent );
 
 interface TestMyJetpackInitialState {
 	lifecycleStats: Pick<
@@ -343,14 +340,6 @@ describe( 'ConnectionStatusCard', () => {
 				} finally {
 					mockConnectionFromMissing = false;
 				}
-			} );
-
-			it( 'renders the correct user connection line item', () => {
-				setup();
-				setTimeout( () => {
-					expect( screen.getByText( 'Some features require authentication.' ) ).toBeInTheDocument();
-					expect( screen.getByRole( 'button', { name: 'Sign in' } ) ).toBeInTheDocument();
-				}, 1500 );
 			} );
 		} );
 	} );
@@ -739,17 +728,12 @@ describe( 'ConnectionStatusCard', () => {
 			);
 		};
 
-		it( 'renders the tooltip icon for account errors', () => {
+		it( 'shows the account error when the tooltip is opened', async () => {
 			setup();
-			// Instead of looking for the button directly, we can verify that the component
-			// shows the email, which indicates the user data with errors is being displayed
-			expect( screen.getByText( /email@example.com/ ) ).toBeInTheDocument();
-
-			// Note: To fully test the tooltip functionality, we would need to:
-			// 1. Add data-testid to the InfoTooltip button for reliable selection
-			// 2. Use fireEvent.click to trigger the tooltip to show
-			// 3. Assert on the tooltip content (error message)
-			// This would require modifying the InfoTooltip component
+			await userEvent.click( screen.getByRole( 'button', { name: 'Possible account issue' } ) );
+			expect(
+				screen.getByText( 'Your WordPress.com email is also used by another user account.' )
+			).toBeInTheDocument();
 		} );
 
 		it( 'renders user information when account has errors', () => {

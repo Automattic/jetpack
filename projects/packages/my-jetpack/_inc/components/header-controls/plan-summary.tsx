@@ -7,14 +7,18 @@ import { useCallback, useMemo, useState } from 'react';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import { isLifetimePurchase } from '../../utils/is-lifetime-purchase';
 import { GoldenTokenTooltip } from '../golden-token/tooltip';
-import { PlanLogo, PlanSectionFooter, getPurchaseExpiry } from '../plans-section';
+import {
+	PlanLogo,
+	PlanSectionFooter,
+	getCompleteUpgradeSlug,
+	getPurchaseExpiry,
+	useRenewClickHandler,
+} from '../plans-section';
 import styles from './style.module.scss';
 import type { Purchase } from '../../data/types';
+import type { TracksProperties } from '../../hooks/use-analytics';
 import type { PurchaseExpiryState } from '../plans-section';
 import type { FC, ReactNode } from 'react';
-
-// Tells the plan links' Tracks events apart from the same links on the Overview.
-const HEADER_TRACKS_PROPERTIES = { location: 'header' };
 
 // Rows past this fold behind a toggle, so the panel stays short.
 const VISIBLE_PLANS = 3;
@@ -82,11 +86,12 @@ function getPlanStatus( purchase: Purchase ): PlanStatus {
 	};
 }
 
-const PlanRow: FC< { name: string; status: PlanStatus; children?: ReactNode } > = ( {
-	name,
-	status: { state, text, action, iconLabel },
-	children,
-} ) => (
+const PlanRow: FC< {
+	name: string;
+	status: PlanStatus;
+	onActionClick?: () => void;
+	children?: ReactNode;
+} > = ( { name, status: { state, text, action, iconLabel }, onActionClick, children } ) => (
 	<li className={ clsx( styles.plan, styles[ state ] ) }>
 		<PlanLogo />
 		<div className={ styles[ 'plan-body' ] }>
@@ -107,7 +112,12 @@ const PlanRow: FC< { name: string; status: PlanStatus; children?: ReactNode } > 
 			</div>
 		</div>
 		{ action && (
-			<Link href={ action.href } openInNewTab className={ styles[ 'plan-action' ] }>
+			<Link
+				href={ action.href }
+				openInNewTab
+				onClick={ onActionClick }
+				className={ styles[ 'plan-action' ] }
+			>
 				{ action.label }
 			</Link>
 		) }
@@ -115,17 +125,47 @@ const PlanRow: FC< { name: string; status: PlanStatus; children?: ReactNode } > 
 );
 
 /**
+ * A purchase's row, reporting which plan its Renew or Resume link is for.
+ *
+ * @param props                  - Component props.
+ * @param props.purchase         - A WPCOM purchase.
+ * @param props.status           - The purchase's status, from `getPlanStatus()`.
+ * @param props.tracksProperties - Added to the link's Tracks event.
+ * @return The row.
+ */
+const PurchaseRow: FC< {
+	purchase: Purchase;
+	status: PlanStatus;
+	tracksProperties: TracksProperties;
+} > = ( { purchase, status, tracksProperties } ) => {
+	const onActionClick = useRenewClickHandler( purchase, tracksProperties );
+
+	return (
+		<PlanRow name={ purchase.product_name } status={ status } onActionClick={ onActionClick }>
+			{ isLifetimePurchase( purchase ) && (
+				<GoldenTokenTooltip
+					productName={ purchase.product_name }
+					giftedDate={ purchase.subscribed_date }
+				/>
+			) }
+		</PlanRow>
+	);
+};
+
+/**
  * The site's plans, those that need attention first, with the Overview's plan links.
  *
- * @param props           - Component props.
- * @param props.purchases - The site's purchases, or null until they load.
- * @param props.hasFailed - Whether loading the purchases failed.
+ * @param props                  - Component props.
+ * @param props.purchases        - The site's purchases, or null until they load.
+ * @param props.hasFailed        - Whether loading the purchases failed.
+ * @param props.tracksProperties - Added to the plan links' Tracks events.
  * @return The plans and their links, only the links when the plans fail to load, or nothing while they load.
  */
-const PlanSummary: FC< { purchases: Purchase[] | null; hasFailed?: boolean } > = ( {
-	purchases,
-	hasFailed = false,
-} ) => {
+const PlanSummary: FC< {
+	purchases: Purchase[] | null;
+	hasFailed?: boolean;
+	tracksProperties: TracksProperties;
+} > = ( { purchases, hasFailed = false, tracksProperties } ) => {
 	const [ showAll, setShowAll ] = useState( false );
 	const toggleShowAll = useCallback( () => setShowAll( value => ! value ), [] );
 	// Array#sort is stable, so plans in the same state keep their order.
@@ -148,7 +188,7 @@ const PlanSummary: FC< { purchases: Purchase[] | null; hasFailed?: boolean } > =
 				numberOfPurchases={ 0 }
 				hasComplete={ hasComplete }
 				from={ CONNECTION_FROM?.myJetpackHeaderPlans }
-				tracksProperties={ HEADER_TRACKS_PROPERTIES }
+				tracksProperties={ tracksProperties }
 			/>
 		) : null;
 	}
@@ -165,14 +205,12 @@ const PlanSummary: FC< { purchases: Purchase[] | null; hasFailed?: boolean } > =
 			<ul className={ styles.plans }>
 				{ purchases.length ? (
 					visible.map( ( { purchase, status } ) => (
-						<PlanRow key={ purchase.ID } name={ purchase.product_name } status={ status }>
-							{ isLifetimePurchase( purchase ) && (
-								<GoldenTokenTooltip
-									productName={ purchase.product_name }
-									giftedDate={ purchase.subscribed_date }
-								/>
-							) }
-						</PlanRow>
+						<PurchaseRow
+							key={ purchase.ID }
+							purchase={ purchase }
+							status={ status }
+							tracksProperties={ tracksProperties }
+						/>
 					) )
 				) : (
 					<PlanRow
@@ -202,8 +240,9 @@ const PlanSummary: FC< { purchases: Purchase[] | null; hasFailed?: boolean } > =
 					<PlanSectionFooter
 						numberOfPurchases={ purchases.length }
 						hasComplete={ hasComplete }
+						completeUpgradeSlug={ getCompleteUpgradeSlug( purchases ) }
 						from={ CONNECTION_FROM?.myJetpackHeaderPlans }
-						tracksProperties={ HEADER_TRACKS_PROPERTIES }
+						tracksProperties={ tracksProperties }
 					/>
 				</div>
 			) }

@@ -14,6 +14,7 @@ Dashboard widgets are ES Modules loaded asynchronously via lazy-load. This means
 - **ChartsProvider** - Chart theme, site formatting and light tooltips
 - **Report params resolution** - From widget attributes or URL fallback
 - **Context provider** - Child widgets access resolved params via `useWidgetRootContext()`
+- **Text size** - Overrides `--wpds-typography-font-size-md` to 14px, so everything inside a widget that uses the medium size grows from 13px
 
 ## Usage
 

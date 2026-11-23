@@ -50,6 +50,13 @@ class Newsletter_Abilities extends Registrar {
 	private const REPLY_TO_VALUES = array( 'comment', 'author', 'no-reply' );
 
 	/**
+	 * {@inheritDoc}
+	 */
+	protected static function enabled_by_default(): bool {
+		return true;
+	}
+
+	/**
 	 * Returns the abilities category, definition, or registered abilities.
 	 *
 	 * @inheritDoc
@@ -83,7 +90,7 @@ class Newsletter_Abilities extends Registrar {
 			'properties'           => array(
 				'subscribe_post_end_enabled' => array(
 					'type'        => 'boolean',
-					'description' => __( 'Show a "subscribe to blog" checkbox at the end of every post. Default true.', 'jetpack' ),
+					'description' => __( 'Add a Subscribe block at the end of every post. Default false.', 'jetpack' ),
 				),
 				'subscribe_comments_enabled' => array(
 					'type'        => 'boolean',
@@ -128,6 +135,7 @@ class Newsletter_Abilities extends Registrar {
 						'destructive' => false,
 						'idempotent'  => true,
 					),
+					'public'       => true,
 					'show_in_rest' => true,
 					'mcp'          => array(
 						'public' => true,
@@ -162,6 +170,7 @@ class Newsletter_Abilities extends Registrar {
 						'destructive' => false,
 						'idempotent'  => true,
 					),
+					'public'       => true,
 					'show_in_rest' => true,
 					'mcp'          => array(
 						'public' => true,
@@ -198,6 +207,7 @@ class Newsletter_Abilities extends Registrar {
 						'destructive' => false,
 						'idempotent'  => true,
 					),
+					'public'       => true,
 					'show_in_rest' => true,
 					'mcp'          => array(
 						'public' => true,
@@ -390,9 +400,9 @@ class Newsletter_Abilities extends Registrar {
 	private static function settings_map(): array {
 		return array(
 			'subscribe_post_end_enabled' => array(
-				'option'  => 'stb_enabled',
+				'option'  => 'jetpack_subscriptions_subscribe_post_end_enabled',
 				'type'    => self::TYPE_BOOL,
-				'default' => 1,
+				'default' => 0,
 			),
 			'subscribe_comments_enabled' => array(
 				'option'  => 'stc_enabled',

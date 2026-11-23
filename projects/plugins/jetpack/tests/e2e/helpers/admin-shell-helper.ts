@@ -53,6 +53,15 @@ export const MEMBERS: Member[] = [
 		// Needs the `seo-admin-ui` plan feature or the `rsm_jetpack_seo` filter, and the seo-tools module on.
 		optional: true,
 	},
+	{
+		slug: 'jetpack-boost',
+		mountId: 'jetpack-boost-dashboard-wp-admin-app',
+		title: 'Jetpack Boost - Settings',
+		heading: 'Boost',
+		landing: /^\?page=jetpack-boost$/,
+		// Needs the Boost plugin.
+		optional: true,
+	},
 ];
 
 export const member = ( slug: string ): Member => {

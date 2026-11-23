@@ -1,6 +1,6 @@
 import jetpackAnalytics from '@automattic/jetpack-analytics';
 import { getScriptData } from '@automattic/jetpack-script-data';
-import { getAdsSettingsData } from './ads-settings-data';
+import { getPageData } from './state';
 
 // Jetpack › Settings' event names, as in my-jetpack's settings-panel/use-settings-panel-tracking.ts.
 const ORIGIN = 'monetize-settings-tab';
@@ -19,7 +19,7 @@ const toggled = ( active: boolean ) => ( active ? 'on' : 'off' );
  * @param properties - Event properties.
  */
 function record( event: string, properties: Record< string, unknown > ) {
-	if ( ! getAdsSettingsData()?.tracks ) {
+	if ( ! getPageData().tracks ) {
 		return;
 	}
 
@@ -97,4 +97,59 @@ export function trackBannerClick( type: 'upgrade' | 'connect' ) {
  */
 export function trackPayoutSave( signedTos: boolean ) {
 	record( 'jetpack_monetize_ads_payout_save', { signed_tos: signedTos, origin: ORIGIN } );
+}
+
+/**
+ * Record a click on one of the Overview's cards, with Calypso's Earn page `feature` names.
+ *
+ * @param feature - The card's feature, e.g. `ads`.
+ * @param target  - What was clicked.
+ */
+export function trackOverviewClick( feature: string, target: 'learn-more' | 'upgrade' | 'open' ) {
+	record( 'jetpack_monetize_overview_click', { feature, target } );
+}
+
+/**
+ * Record an action on the Payments tab.
+ *
+ * @param action     - What was done, e.g. `stripe_connect_click`.
+ * @param properties - Event properties.
+ */
+export function trackPaymentsEvent(
+	action:
+		| 'stripe_connect_click'
+		| 'stripe_disconnect'
+		| 'plan_add_click'
+		| 'plan_dialog_show'
+		| 'plan_save'
+		| 'plan_delete'
+		| 'free_tier_edit_click'
+		| 'free_tier_update'
+		| 'coupon_save'
+		| 'coupon_delete',
+	properties: Record< string, unknown > = {}
+) {
+	record( `jetpack_monetize_payments_${ action }`, properties );
+}
+
+/**
+ * Record an action on the Paid subscribers tab.
+ *
+ * @param action     - What was done, e.g. `cancel`.
+ * @param properties - Event properties.
+ */
+export function trackSubscribersEvent(
+	action: 'cancel' | 'details_view' | 'export_click' | 'stripe_click',
+	properties: Record< string, unknown > = {}
+) {
+	record( `jetpack_monetize_subscribers_${ action }`, properties );
+}
+
+/**
+ * Record an action on the Ads tab.
+ *
+ * @param action - What was done, e.g. `upgrade_click`.
+ */
+export function trackAdsEvent( action: 'upgrade_click' | 'setup_click' | 'join' | 'payout_click' ) {
+	record( `jetpack_monetize_ads_${ action }`, {} );
 }

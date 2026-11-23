@@ -2,7 +2,7 @@
 
 Two templates — one per host-project type. Each template covers the same five assertion groups:
 
-1. **Registrar wiring** — gate filter defaulting false, hook wiring, late-load, per-ability allow-list, category auto-injection. This is the differentiating value-add; a hand-rolled ability class without these assertions is incomplete.
+1. **Registrar wiring** — gate filter turning registration off, hook wiring, per-ability allow-list, category auto-injection. This is the differentiating value-add; a hand-rolled ability class without these assertions is incomplete.
 2. **Module-activation gating (Case A only)** — for module-backed abilities, the ability must not register when the backing module is inactive. Because Case A wires `::init()` from inside `modules/<slug>.php` (which Jetpack only includes for active modules), the assertion is: when `Jetpack::is_module_active()` returns false, `<Name>_Abilities::init()` either never runs OR, if defensively called, registers nothing. See `references/module-colocation.md`.
 2. **Abstract getters** — the three static methods return the expected shapes.
 3. **Permission callbacks** — allowed user returns true; denied user returns false; unauth returns false.
@@ -101,6 +101,17 @@ class <Name>_Abilities_Test extends WP_UnitTestCase {
 				$spec,
 				"Ability {$slug} should not set its own category — Registrar injects it."
 			);
+		}
+	}
+
+	public function test_every_ability_opts_into_mcp_as_public_tool() {
+		foreach ( <Name>_Abilities::get_abilities() as $slug => $spec ) {
+			$this->assertArrayHasKey( 'public', $spec['meta'], "{$slug} must declare meta.public." );
+			$this->assertTrue( $spec['meta']['public'], "{$slug} must be marked public." );
+			$this->assertTrue( $spec['meta']['show_in_rest'], "{$slug} must be exposed through the Abilities REST API." );
+			$this->assertArrayHasKey( 'mcp', $spec['meta'], "{$slug} must publish meta.mcp." );
+			$this->assertTrue( $spec['meta']['mcp']['public'], "{$slug} must opt into MCP." );
+			$this->assertSame( 'tool', $spec['meta']['mcp']['type'], "{$slug} must be exposed as an MCP tool." );
 		}
 	}
 
@@ -388,12 +399,23 @@ class <Name>AbilitiesTest extends TestCase {
 		}
 	}
 
+	public function test_every_ability_opts_into_mcp_as_public_tool(): void {
+		foreach ( <Name>_Abilities::get_abilities() as $slug => $spec ) {
+			$this->assertArrayHasKey( 'public', $spec['meta'], "{$slug} must declare meta.public." );
+			$this->assertTrue( $spec['meta']['public'], "{$slug} must be marked public." );
+			$this->assertTrue( $spec['meta']['show_in_rest'], "{$slug} must be exposed through the Abilities REST API." );
+			$this->assertArrayHasKey( 'mcp', $spec['meta'], "{$slug} must publish meta.mcp." );
+			$this->assertTrue( $spec['meta']['mcp']['public'], "{$slug} must opt into MCP." );
+			$this->assertSame( 'tool', $spec['meta']['mcp']['type'], "{$slug} must be exposed as an MCP tool." );
+		}
+	}
+
 	// -------------------- Registrar wiring --------------------
 
-	public function test_init_is_disabled_by_default(): void {
+	public function test_init_registers_nothing_when_the_gate_filter_returns_false(): void {
 		Filters\expectApplied( 'jetpack_wp_abilities_enabled' )
 			->once()
-			->with( false )
+			->with( true )
 			->andReturn( false );
 
 		Functions\expect( 'did_action' )->never();
@@ -416,25 +438,6 @@ class <Name>AbilitiesTest extends TestCase {
 
 		Functions\expect( 'wp_register_ability_category' )->never();
 		Functions\expect( 'wp_register_ability' )->never();
-
-		<Name>_Abilities::init();
-	}
-
-	public function test_init_registers_directly_when_both_actions_already_fired(): void {
-		$this->enable_abilities();
-		Functions\when( 'did_action' )->justReturn( 1 );
-
-		$ability_count = count( <Name>_Abilities::get_abilities() );
-
-		Filters\expectApplied( 'jetpack_wp_abilities_should_register' )
-			->atLeast()->times( 1 )
-			->andReturn( true );
-
-		Functions\expect( 'wp_register_ability_category' )->once();
-		Functions\expect( 'wp_register_ability' )->times( $ability_count );
-
-		Actions\expectAdded( Registrar::CATEGORIES_INIT_ACTION )->never();
-		Actions\expectAdded( Registrar::ABILITIES_INIT_ACTION )->never();
 
 		<Name>_Abilities::init();
 	}

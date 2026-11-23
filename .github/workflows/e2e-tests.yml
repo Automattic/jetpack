@@ -279,6 +279,11 @@ jobs:
           # Copy debug.log to output folder, if it exists
           [[ ! -f "$WP_DEBUG_PATH" ]] || { mkdir -p "output/logs" && cp "$WP_DEBUG_PATH" "output/logs/php_errors.log"; }
 
+          # Deregister the site from WordPress.com, or each run leaves a site on the test user.
+          # Calls the Connection package, not `wp jetpack`: Social specs deactivate Jetpack.
+          # Warns only on local failures: disconnect_site() ignores the deregister result, so a WordPress.com refusal still exits 0.
+          timeout 30 pnpm jetpack docker --type e2e --name t1 wp -- eval '$m = new Automattic\Jetpack\Connection\Manager(); if ( $m->is_connected() ) { $m->disconnect_site(); WP_CLI::success( "Disconnected the test site from WordPress.com." ); }' || echo "::warning::Could not disconnect the test site from WordPress.com."
+
           pnpm run tunnel:down
           echo "::group::Tunnel logs"
           cat "$HOME/tunnel.log"

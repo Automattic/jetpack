@@ -19,7 +19,7 @@ function mockScriptData( tracks: boolean ) {
 	( getScriptData as jest.Mock ).mockReturnValue( {
 		site: { wpcom: { blog_id: 123 } },
 		user: { current_user: { wpcom: { ID: 7, login: 'owner' } } },
-		monetize: { adsSettings: { tracks } },
+		monetize: { tracks },
 	} );
 }
 

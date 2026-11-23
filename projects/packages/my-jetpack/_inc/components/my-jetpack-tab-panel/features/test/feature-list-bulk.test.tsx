@@ -11,7 +11,6 @@ import type { ReactNode } from 'react';
 const mockSuccess = jest.fn();
 
 jest.mock( '@wordpress/api-fetch' );
-jest.mock( '../../../../hooks/use-analytics' );
 
 const recordEvent = jest.fn();
 const bulkEvent = () =>
@@ -19,17 +18,18 @@ const bulkEvent = () =>
 		.filter( ( [ name ] ) => name === 'jetpack_myjetpack_features_bulk_action' )
 		.at( -1 )?.[ 1 ];
 
-jest.mock( '@automattic/jetpack-components', () => ( {
-	useGlobalNotices: () => ( { createSuccessNotice: mockSuccess, createErrorNotice: jest.fn() } ),
-} ) );
-
 jest.mock( '@automattic/jetpack-shared-stores', () => ( { store: 'modules-store' } ) );
+jest.mock( '@wordpress/notices', () => ( { store: 'core/notices' } ) );
 
 // A proxy rather than a spread: the real module's exports are read lazily, since spreading it
 // here copies them before its circular imports have settled.
 jest.mock( '@wordpress/data', () => {
 	const actual = jest.requireActual( '@wordpress/data' );
-	const useDispatch = () => ( { fetchModules: () => Promise.resolve( true ) } );
+	const useDispatch = () => ( {
+		fetchModules: () => Promise.resolve( true ),
+		createSuccessNotice: mockSuccess,
+		createErrorNotice: jest.fn(),
+	} );
 	return new Proxy( actual, {
 		get: ( target, key ) => ( key === 'useDispatch' ? useDispatch : target[ key ] ),
 	} );
@@ -90,7 +90,9 @@ describe( 'FeatureList with the bulk switch', () => {
 		await userEvent.click( screen.getByRole( 'checkbox', { name: 'Select boost' } ) );
 		await userEvent.click( screen.getByRole( 'button', { name: 'Activate' } ) );
 
-		await waitFor( () => expect( mockSuccess ).toHaveBeenCalledWith( '2 features activated.' ) );
+		await waitFor( () =>
+			expect( mockSuccess ).toHaveBeenCalledWith( '2 features activated.', { type: 'snackbar' } )
+		);
 		expect( mockApiFetch ).toHaveBeenCalledTimes( 1 );
 		expect( mockApiFetch ).toHaveBeenCalledWith(
 			expect.objectContaining( {
@@ -123,7 +125,9 @@ describe( 'FeatureList with the bulk switch', () => {
 		await userEvent.click( screen.getByRole( 'checkbox', { name: 'Select all features' } ) );
 		await userEvent.click( screen.getByRole( 'button', { name: 'Activate' } ) );
 
-		await waitFor( () => expect( mockSuccess ).toHaveBeenCalledWith( '3 features activated.' ) );
+		await waitFor( () =>
+			expect( mockSuccess ).toHaveBeenCalledWith( '3 features activated.', { type: 'snackbar' } )
+		);
 		expect( mockApiFetch ).toHaveBeenCalledWith(
 			expect.objectContaining( {
 				data: { active: true, modules: [ 'monitor', 'markdown' ], plugins: [ 'akismet' ] },
