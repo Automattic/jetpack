@@ -17,9 +17,20 @@ const trackUpgradeClick = () => trackBannerClick( 'upgrade' );
  *
  * @param props      - Component props.
  * @param props.data - The Settings tab's server data.
- * @return The upgrade card, or the connect card without a connected owner.
+ * @return The upgrade card, the connect card without a connected owner, or why neither would help.
  */
 export function AdsPrompt( { data }: { data: AdsSettingsData } ) {
+	// An upgrade can't turn on ads the host keeps off.
+	if ( data.moduleOverride === 'inactive' ) {
+		return (
+			<Notice.Root intent="info">
+				<Notice.Description>
+					{ __( 'Disabled by your host or site administrator.', 'jetpack-monetize' ) }
+				</Notice.Description>
+			</Notice.Root>
+		);
+	}
+
 	if ( data.hasConnectedOwner ) {
 		return <UpsellCard onUpgradeClick={ trackUpgradeClick } />;
 	}

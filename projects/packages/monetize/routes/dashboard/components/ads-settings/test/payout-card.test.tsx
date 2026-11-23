@@ -77,7 +77,7 @@ describe( 'PayoutCard', () => {
 		mockedApiFetch.mockImplementationOnce( respond );
 		renderCard();
 
-		expect( screen.getByRole( 'heading', { name: 'Payouts' } ) ).toBeVisible();
+		expect( screen.getByRole( 'heading', { name: 'Payout details' } ) ).toBeVisible();
 		expect( screen.getByRole( 'textbox', { name: 'PayPal email address' } ) ).toBeDisabled();
 		await waitFor( () =>
 			expect( Boolean( screen.queryByText( 'Your payout details could not be loaded.' ) ) ).toBe(

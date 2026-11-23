@@ -13,6 +13,7 @@ import { usePayout, useSavePayout, useWpcomAdsSync } from '../../data/use-wpcom-
 import useWpcomConnection from '../../data/use-wpcom-connection';
 import { useAdsAccount, useAdsEarnings } from '../../data/wordads';
 import ConnectionGate from '../connection-gate';
+import { getDocUrl } from '../overview/docs';
 import { LearnMore, OptionSwitch } from './option-switch';
 import { PayoutCard } from './payout-card';
 import { AdsPrompt, JoinPrompt } from './prompt';
@@ -45,21 +46,19 @@ function AdsOptions( { data, openTab }: { data: AdsSettingsData; openTab: OpenTa
 	const payout = usePayout( canUseWpcom );
 	const acceptTerms = useSavePayout();
 
-	const tosSigned = payout.data?.tosSigned;
+	// False until the payout details load, so terms already on file aren't signed again.
+	const tosUnsigned = payout.data ? ! payout.data.tosSigned : false;
 	const { mutateAsync: signTerms } = acceptTerms;
 	const onAdsToggle = useCallback(
 		async ( active: boolean ) => {
-			// Turning ads on agrees to the terms, so WordPress.com records that first; Simple's switch saves both at once.
-			if ( active && canUseWpcom && ! tosSigned && ! simple ) {
-				try {
-					await signTerms( { tos: true } );
-				} catch {
-					return;
-				}
+			// Turning ads on agrees to the terms, which only WordPress.com records; Simple's switch saves both at once.
+			if ( active && canUseWpcom && tosUnsigned && ! simple ) {
+				// A failure leaves ads on and asks for the terms in the payout card instead.
+				await signTerms( { tos: true } ).catch( () => undefined );
 			}
 			await setModuleActive( active );
 		},
-		[ simple, canUseWpcom, tosSigned, signTerms, setModuleActive ]
+		[ simple, canUseWpcom, tosUnsigned, signTerms, setModuleActive ]
 	);
 
 	const openEarnings = useCallback(
@@ -121,6 +120,9 @@ function AdsOptions( { data, openTab }: { data: AdsSettingsData; openTab: OpenTa
 			) }
 
 			<Card.Root>
+				<Card.Header>
+					<Card.Title render={ <h2 /> }>{ __( 'Ads', 'jetpack-monetize' ) }</Card.Title>
+				</Card.Header>
 				<Card.Content>
 					<Stack direction="column" gap="lg">
 						<Text>
@@ -155,18 +157,18 @@ function AdsOptions( { data, openTab }: { data: AdsSettingsData; openTab: OpenTa
 								'Displays high-quality ads on your site that allow you to earn income.',
 								'jetpack-monetize'
 							) }
-							details={ <LearnMore href={ getRedirectUrl( 'jetpack-support-ads' ) } /> }
+							details={ <LearnMore href={ getDocUrl( 'ads' ) } /> }
 							checked={ isActive }
 							disabled={
 								saving.has( 'wordads' ) || acceptTerms.isPending || Boolean( data.moduleOverride )
 							}
 							onCheckedChange={ onAdsToggle }
 						/>
-						{ acceptTerms.isError && (
+						{ isActive && acceptTerms.isError && (
 							<Notice.Root intent="error">
 								<Notice.Description>
 									{ __(
-										'Ads could not be turned on because your agreement to the Terms of Service could not be saved. Please try again.',
+										'Ads are on, but your agreement to the Terms of Service could not be recorded. Please accept the terms in the Payout details card below.',
 										'jetpack-monetize'
 									) }
 								</Notice.Description>
@@ -181,8 +183,8 @@ function AdsOptions( { data, openTab }: { data: AdsSettingsData; openTab: OpenTa
 							<Notice.Root intent="info">
 								<Notice.Description>
 									{ data.moduleOverride === 'active'
-										? __( 'Enabled by your host or site administrator', 'jetpack-monetize' )
-										: __( 'Disabled by your host or site administrator', 'jetpack-monetize' ) }
+										? __( 'Enabled by your host or site administrator.', 'jetpack-monetize' )
+										: __( 'Disabled by your host or site administrator.', 'jetpack-monetize' ) }
 								</Notice.Description>
 							</Notice.Root>
 						) }
@@ -228,6 +230,11 @@ function AdsOptions( { data, openTab }: { data: AdsSettingsData; openTab: OpenTa
 			</ConnectionGate>
 
 			<Card.Root>
+				<Card.Header>
+					<Card.Title render={ <h2 /> }>
+						{ __( 'Privacy and consent', 'jetpack-monetize' ) }
+					</Card.Title>
+				</Card.Header>
 				<Card.Content>
 					<Stack direction="column" gap="lg">
 						{ toggle(
@@ -276,39 +283,35 @@ function AdsOptions( { data, openTab }: { data: AdsSettingsData; openTab: OpenTa
 											'jetpack-monetize'
 										) }
 									</Text>
+									<TextOption
+										{ ...text( 'wordads_ccpa_privacy_policy_url' ) }
+										label={ __( 'Privacy Policy URL', 'jetpack-monetize' ) }
+										placeholder="https://"
+										description={ __(
+											'Adds a link to your privacy policy to the notice popup triggered by the do not sell link (optional).',
+											'jetpack-monetize'
+										) }
+									/>
 								</Fieldset.Root>
-								<TextOption
-									{ ...text( 'wordads_ccpa_privacy_policy_url' ) }
-									label={ __( 'Privacy Policy URL', 'jetpack-monetize' ) }
-									placeholder="https://"
-									description={ __(
-										'Adds a link to your privacy policy to the notice popup triggered by the do not sell link (optional).',
-										'jetpack-monetize'
-									) }
-								/>
 							</>
 						) }
+						{ ! simple &&
+							toggle(
+								'wordads_cmp_enabled',
+								__( 'Enable GDPR Consent Banner', 'jetpack-monetize' ),
+								{
+									text: __(
+										'Show a cookie banner to all EU and UK site visitors prompting them to consent to their personal data being used to personalize the ads they see. Without proper consents EU/UK visitors will only see lower paying non-personalized ads.',
+										'jetpack-monetize'
+									),
+									href: isWpcomPlatformSite()
+										? 'https://wordpress.com/support/wordads-and-earn/configure-ad-settings/#consent-management'
+										: getRedirectUrl( 'jetpack-support-ads' ),
+								}
+							) }
 					</Stack>
 				</Card.Content>
 			</Card.Root>
-
-			{ ! simple && (
-				<Card.Root>
-					<Card.Content>
-						{ toggle(
-							'wordads_cmp_enabled',
-							__( 'Enable GDPR Consent Banner', 'jetpack-monetize' ),
-							{
-								text: __(
-									'Show a cookie banner to all EU and UK site visitors prompting them to consent to their personal data being used to personalize the ads they see. Without proper consents EU/UK visitors will only see lower paying non-personalized ads.',
-									'jetpack-monetize'
-								),
-								href: getRedirectUrl( 'jetpack-support-ads' ),
-							}
-						) }
-					</Card.Content>
-				</Card.Root>
-			) }
 
 			{ ! simple && ! data.isSubdirectorySite && (
 				<Card.Root>
@@ -322,7 +325,9 @@ function AdsOptions( { data, openTab }: { data: AdsSettingsData; openTab: OpenTa
 										'Ads.txt (Authorized Digital Sellers) is a mechanism that enables content owners to declare who is authorized to sell their ad inventory. It’s the formal list of advertising partners you support as a publisher.',
 										'jetpack-monetize'
 									),
-									href: 'https://jetpack.com/support/ads/',
+									href: isWpcomPlatformSite()
+										? 'https://wordpress.com/support/manage-your-ads-txt-file/'
+										: getRedirectUrl( 'jetpack-support-ads' ),
 								}
 							) }
 							{ values.wordads_custom_adstxt_enabled && (

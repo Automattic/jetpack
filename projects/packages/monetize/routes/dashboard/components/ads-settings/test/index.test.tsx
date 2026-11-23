@@ -134,13 +134,20 @@ describe( 'AdsSettings', () => {
 	} );
 
 	it.each( [
-		[ 'accepts the terms before turning ads on', false, true, true, false ],
-		[ 'leaves ads off when the terms cannot be accepted', false, false, false, false ],
-		[ 'turns ads on straight away once the terms are signed', true, true, true, false ],
-		[ 'turns ads on and signs the terms in one save on Simple', false, true, true, true ],
-	] )( '%s', async ( _name, tosSigned, accepted, activated, simple ) => {
+		[ 'accepts the terms before turning ads on', { tosSigned: false }, true, false, 1 ],
+		[ 'turns ads on when the terms cannot be accepted', { tosSigned: false }, false, false, 1 ],
+		[ 'turns ads on straight away once the terms are signed', { tosSigned: true }, true, false, 0 ],
+		[ 'turns ads on before the payout details load', undefined, true, false, 0 ],
+		[
+			'turns ads on and signs the terms in one save on Simple',
+			{ tosSigned: false },
+			true,
+			true,
+			0,
+		],
+	] )( '%s', async ( _name, payout, accepted, simple, signs ) => {
 		mockSimple = simple;
-		( usePayout as jest.Mock ).mockReturnValue( { data: { paypal: '', tosSigned } } );
+		( usePayout as jest.Mock ).mockReturnValue( { data: payout && { paypal: '', ...payout } } );
 		if ( ! accepted ) {
 			acceptTerms.mockRejectedValue( new Error() );
 		}
@@ -150,26 +157,35 @@ describe( 'AdsSettings', () => {
 		await userEvent.click( screen.getByRole( 'switch', { name: SWITCH } ) );
 		await act( () => Promise.resolve() );
 
-		expect( acceptTerms ).toHaveBeenCalledTimes( tosSigned || simple ? 0 : 1 );
-		expect( setModuleActive ).toHaveBeenCalledTimes( activated ? 1 : 0 );
+		expect( acceptTerms ).toHaveBeenCalledTimes( signs );
+		expect( setModuleActive ).toHaveBeenCalledWith( true );
 	} );
 
 	it.each( [
-		[ 'the upgrade prompt without a plan', { hasWordAds: false }, [], 'link', 'Upgrade' ],
+		[
+			'the upgrade prompt without a plan',
+			{ hasWordAds: false },
+			[],
+			'link',
+			'Upgrade',
+			MOCK_UPGRADE_URL,
+		],
 		[
 			'the connect prompt without a plan or owner',
 			{ hasWordAds: false, hasConnectedOwner: false },
 			[],
 			'link',
 			'Connect',
+			'#connect',
 		],
-		[ 'the Ads switch with a plan', {}, [], 'switch', SWITCH ],
+		[ 'the Ads switch with a plan', {}, [], 'switch', SWITCH, null ],
 		[
 			'the Ads switch when the cached plan missed a purchase',
 			{ hasWordAds: false },
 			[ 'wordads' ],
 			'switch',
 			SWITCH,
+			null,
 		],
 		[
 			'the upgrade prompt when WordPress.com cannot say',
@@ -177,11 +193,13 @@ describe( 'AdsSettings', () => {
 			new Error(),
 			'link',
 			'Upgrade',
+			MOCK_UPGRADE_URL,
 		],
-	] )( 'shows %s', async ( _label, data, features, role, name ) => {
+	] )( 'shows %s', async ( _label, data, features, role, name, href ) => {
 		renderTab( data, {}, features );
 
-		await expect( screen.findByRole( role, { name } ) ).resolves.toBeInTheDocument();
+		const control = await screen.findByRole( role, { name } );
+		expect( control ).toHaveAttribute( 'href', href );
 		expect( screen.queryAllByRole( 'switch' ).length > 0 ).toBe( role === 'switch' );
 	} );
 
@@ -206,15 +224,6 @@ describe( 'AdsSettings', () => {
 		expect( mockedApiFetch ).not.toHaveBeenCalled();
 	} );
 
-	it( 'links the upgrade prompt to the upgrade URL', async () => {
-		renderTab( { hasWordAds: false } );
-
-		await expect( screen.findByRole( 'link', { name: 'Upgrade' } ) ).resolves.toHaveAttribute(
-			'href',
-			MOCK_UPGRADE_URL
-		);
-	} );
-
 	it( 'locks the Ads switch the host forces, and says why', () => {
 		renderTab( { moduleOverride: 'active' } );
 
@@ -222,7 +231,16 @@ describe( 'AdsSettings', () => {
 			'aria-disabled',
 			'true'
 		);
-		expect( screen.getByText( 'Enabled by your host or site administrator' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Enabled by your host or site administrator.' ) ).toBeInTheDocument();
+	} );
+
+	it( 'offers no upgrade when the host keeps ads off', async () => {
+		renderTab( { hasWordAds: false, moduleOverride: 'inactive' } );
+
+		await expect(
+			screen.findByText( 'Disabled by your host or site administrator.' )
+		).resolves.toBeVisible();
+		expect( screen.queryByRole( 'link', { name: 'Upgrade' } ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'disables the placements while ads are off', () => {

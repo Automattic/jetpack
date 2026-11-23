@@ -84,7 +84,7 @@ export function PayoutCard( { adsActive }: { adsActive: boolean } ) {
 	return (
 		<Card.Root>
 			<Card.Header>
-				<Card.Title render={ <h2 /> }>{ __( 'Payouts', 'jetpack-monetize' ) }</Card.Title>
+				<Card.Title render={ <h2 /> }>{ __( 'Payout details', 'jetpack-monetize' ) }</Card.Title>
 			</Card.Header>
 			<Card.Content>
 				<Stack direction="column" gap="lg" aria-busy={ payout.isPending }>

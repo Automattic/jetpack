@@ -1,7 +1,14 @@
 import { getScriptData } from '@automattic/jetpack-script-data';
+import type { AdsSettingsData } from './ads-settings-data';
 
 type MonetizeScriptData = {
-	monetize?: { sections?: Record< string, unknown >; upgradeUrl?: string; tracks?: boolean };
+	monetize?: {
+		sections?: Record< string, unknown >;
+		upgradeUrl?: string;
+		tracks?: boolean;
+		/** Printed by the Jetpack plugin, not this package. */
+		adsSettings?: AdsSettingsData;
+	};
 };
 
 /**
@@ -19,7 +26,7 @@ export interface PageData {
  *
  * @return The data, or undefined when PHP printed none.
  */
-function getMonetizeData() {
+export function getMonetizeData() {
 	return ( getScriptData() as MonetizeScriptData | undefined )?.monetize;
 }
 

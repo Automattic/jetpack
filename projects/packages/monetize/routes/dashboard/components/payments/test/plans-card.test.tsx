@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import { wpcomFetch } from '../../../data/wpcom-fetch';
 import PlansCard from '../plans-card';
 import { getPaymentsState } from '../state';
@@ -53,5 +53,21 @@ describe( 'PlansCard', () => {
 
 		await expect( screen.findByRole( 'dialog', { name: title } ) ).resolves.toBeVisible();
 		expect( window.location.hash ).toBe( '' );
+	} );
+
+	it( 'opens the add dialog when the Stripe return notice sets the hash after loading', async () => {
+		window.history.replaceState( null, '', '#' );
+		renderCard( {} );
+		await expect(
+			screen.findByRole( 'button', { name: 'Add a payment plan' } )
+		).resolves.toBeVisible();
+
+		act( () => {
+			window.location.hash = 'add-new-payment-plan';
+		} );
+
+		await expect(
+			screen.findByRole( 'dialog', { name: 'Add a payment plan' } )
+		).resolves.toBeVisible();
 	} );
 } );
