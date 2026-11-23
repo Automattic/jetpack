@@ -80,6 +80,21 @@ How old an item may be is the registrant's choice as well. A third argument leav
 get_announcements_from_feed( 'https://example.com/feed/', 'my-plugin', array( 'max_age' => 90 * DAY_IN_SECONDS ) );
 ```
 
+A feed that takes arguments in its URL can do the choosing itself. A `query` asks it with them. On a WordPress site, `category_name` and `tag` ask for the posts of a category and of a tag, which the labels of an item cannot tell apart:
+
+```php
+get_announcements_from_feed(
+	'https://example.com/feed/',
+	'my-plugin',
+	array(
+		'query' => array(
+			'category_name' => 'news',
+			'tag'           => 'reports',
+		),
+	)
+);
+```
+
 ## Showing the surface
 
 The surface is "What's new": a teaser of the newest announcement the user has not seen, and a dialog that shows it in full. It ships as one script module, `packages/whats-new`, registered as `@automattic/jetpack-announcements`.

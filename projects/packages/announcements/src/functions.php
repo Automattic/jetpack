@@ -44,7 +44,8 @@ function register_announcement( $id, $args ) {
  * @param array  $args   {
  *     Optional. Settings of the read.
  *
- *     @type int $max_age How old an item may be, in seconds. Older ones are left out. Default no limit.
+ *     @type int      $max_age How old an item may be, in seconds. Older ones are left out. Default no limit.
+ *     @type string[] $query   Arguments to ask the feed with, by name, added to its URL. Default none.
  * }
  * @return array[] {
  *     One entry per item that has a title, a date and a link. Empty when the feed fails.

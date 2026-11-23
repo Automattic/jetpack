@@ -31,6 +31,11 @@ class Feed_Announcements {
 	 * @return array[] One entry per item, as `get_announcements_from_feed()` documents it.
 	 */
 	public static function get( $url, $vendor, $args = array() ) {
+		if ( ! empty( $args['query'] ) && is_array( $args['query'] ) ) {
+			// `add_query_arg()` encodes nothing.
+			$url = add_query_arg( rawurlencode_deep( $args['query'] ), $url );
+		}
+
 		$failed = 'jetpack_announcements_feed_failed_' . md5( $url );
 
 		// A site transient, as core's cache of the feed is.

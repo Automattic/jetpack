@@ -40,18 +40,18 @@ class Feed_Announcements_Test extends BaseTestCase {
 	private $answer;
 
 	/**
-	 * Requests made for the feed during a test.
+	 * URLs requested during a test.
 	 *
-	 * @var int
+	 * @var string[]
 	 */
-	private $requests = 0;
+	private $requests = array();
 
 	/**
 	 * Answer the requests of the feed without the network.
 	 */
 	public function set_up() {
-		$this->requests = 0;
-		add_filter( 'pre_http_request', array( $this, 'answer_request' ) );
+		$this->requests = array();
+		add_filter( 'pre_http_request', array( $this, 'answer_request' ), 10, 3 );
 
 		// `fetch_feed()` converts the feed to the charset of the site, which the test site lacks.
 		update_option( 'blog_charset', 'UTF-8' );
@@ -67,10 +67,13 @@ class Feed_Announcements_Test extends BaseTestCase {
 	/**
 	 * Answers a request with the feed of the test.
 	 *
+	 * @param false|array $response The response so far.
+	 * @param array       $args     The arguments of the request.
+	 * @param string      $url      The URL requested.
 	 * @return array|\WP_Error
 	 */
-	public function answer_request() {
-		++$this->requests;
+	public function answer_request( $response, $args, $url ) {
+		$this->requests[] = $url;
 
 		if ( is_wp_error( $this->answer ) ) {
 			return $this->answer;
@@ -225,6 +228,18 @@ class Feed_Announcements_Test extends BaseTestCase {
 		);
 	}
 
+	public function test_asks_the_feed_with_the_query_of_a_consumer() {
+		$this->serve_item();
+
+		$query = array(
+			'category_name' => 'news+reports',
+			'tag'           => 'reports',
+		);
+		get_announcements_from_feed( self::FEED_URL, 'my-plugin', array( 'query' => $query ) );
+
+		$this->assertSame( array( 'https://example.com/feed/?category_name=news%2Breports&tag=reports' ), $this->requests );
+	}
+
 	public function test_keeps_the_id_of_an_item_after_an_edit() {
 		$this->serve_item();
 		$first = get_announcements_from_feed( self::FEED_URL, 'my-plugin' )[0]['id'];
@@ -240,12 +255,12 @@ class Feed_Announcements_Test extends BaseTestCase {
 
 		$this->assertSame( array(), get_announcements_from_feed( self::FEED_URL, 'my-plugin' ) );
 
-		$requests = $this->requests;
+		$requests = count( $this->requests );
 		$this->serve_item();
 
 		$this->assertGreaterThan( 0, $requests );
 		$this->assertSame( array(), get_announcements_from_feed( self::FEED_URL, 'my-plugin' ) );
-		$this->assertSame( $requests, $this->requests );
+		$this->assertCount( $requests, $this->requests );
 	}
 
 	public function test_returns_what_the_registry_accepts() {
