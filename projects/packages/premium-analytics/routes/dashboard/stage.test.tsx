@@ -1733,9 +1733,10 @@ describe( 'Dashboard section-footer promo', () => {
 	it( 'renders the section-footer promo under the widgets for its target section', () => {
 		render( <Dashboard /> );
 
-		expect( screen.getByTestId( 'promo-card' ) ).toHaveTextContent( 'upgrade' );
+		const body = within( screen.getByTestId( 'section-body' ) );
+		expect( body.getByTestId( 'promo-card' ) ).toHaveTextContent( 'upgrade' );
 		expect(
-			screen.getAllByTestId( /^(widgets|promo-card)$/ ).map( el => el.dataset.testid )
+			body.getAllByTestId( /^(widgets|promo-card)$/ ).map( el => el.dataset.testid )
 		).toEqual( [ 'widgets', 'promo-card' ] );
 	} );
 

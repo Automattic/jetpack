@@ -613,7 +613,7 @@ function Dashboard(): JSX.Element {
 											{ /* Widgets query the committed URL, which keeps the last tab's window until a switch lands. */ }
 											{ activeSection === section.slug && isSectionCommitted ? (
 												<DashboardSectionProvider section={ section.slug }>
-													<div className={ styles.body }>
+													<div className={ styles.body } data-testid="section-body">
 														<RefreshFailureNotice />
 														{ ! editMode && <DashboardNotices /> }
 
