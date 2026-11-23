@@ -14,9 +14,7 @@ import {
 	createViewLiveAction,
 	describeError,
 	getPostsReportQueryParams,
-	postsPagesCsvExporter,
 	toViewLiveUrl,
-	useReportActions,
 	useWidgetNavigationSearch,
 	useWidgetRootContext,
 	type ReportParamsFieldAttributes,
@@ -70,7 +68,7 @@ function PostsTable() {
 		() => getPostsReportQueryParams( reportParams ),
 		[ reportParams ]
 	);
-	const { primary, comparisonRows, hasComparison, isLoading, isFetching, isError, error, refetch } =
+	const { comparisonRows, hasComparison, isLoading, isFetching, isError, error, refetch } =
 		useStatsTopPosts( recordsParams );
 	const rows = comparisonRows?.rows ?? [];
 
@@ -98,14 +96,6 @@ function PostsTable() {
 		],
 		[]
 	);
-
-	useReportActions( {
-		csv: {
-			exporter: postsPagesCsvExporter,
-			status: { isLoading, isFetching, isError: primary.isError },
-			rowCount: rows.length,
-		},
-	} );
 
 	return (
 		<Stack direction="column" className={ styles.root }>

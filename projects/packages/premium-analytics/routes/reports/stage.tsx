@@ -16,25 +16,17 @@ import { useParams } from '@wordpress/route';
  */
 import { useDateWindowNotice } from '../date-window-notice';
 // The page of widgets a registered reports page renders is the single-report page's, without an entity.
-import { READY_SUMMARY, ReportPage } from '../single-report/components';
+import { ReportPage } from '../single-report/components';
 import { useStatsDateLimits } from '../use-stats-date-limits';
 import { LockedReportPage } from './locked-report-page';
 import { route } from './package.json';
+import { getReportsPageAdapter } from './pages';
 import { getReportDefinition, getReportsPage } from './registry';
 import { getReportPage } from './report-pages';
-import type { SingleReportAdapter } from '../single-report/pages';
 import type { ReportPageRecord } from '../single-report/registry';
 import type { JSX, ReactNode } from 'react';
 
 const ROUTE_FROM = route.path;
-
-// A reports page waits on no entity: the open section heads it, else its own label.
-const REPORTS_PAGE_ADAPTER: SingleReportAdapter = {
-	useSummary: () => READY_SUMMARY,
-	headerSlots: ( summary, { label, section } ) => ( {
-		title: section?.label ?? section?.section.label ?? label,
-	} ),
-};
 
 /**
  * Dispatcher for the `/reports/$report` route.
@@ -120,7 +112,7 @@ function RegisteredReportsPage( { page }: RegisteredReportsPageProps ): JSX.Elem
 						key={ page.path }
 						routeFrom={ ROUTE_FROM }
 						page={ page }
-						adapter={ REPORTS_PAGE_ADAPTER }
+						adapter={ getReportsPageAdapter( page ) }
 					/>
 				</PeriodChangeSignalProvider>
 			</ReportScopeProvider>

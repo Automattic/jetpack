@@ -7,11 +7,9 @@ import {
 	DataViewsDrilldownNative,
 	WidgetRoot,
 	WidgetState,
-	archivesCsvExporter,
 	buildArchiveRows,
 	describeError,
 	getPostsReportQueryParams,
-	useReportActions,
 	useWidgetRootContext,
 	type ArchiveRow,
 	type ReportParamsFieldAttributes,
@@ -71,19 +69,11 @@ function ArchivesTable() {
 		() => getPostsReportQueryParams( reportParams ),
 		[ reportParams ]
 	);
-	const { primary, comparisonRows, hasComparison, isLoading, isFetching, isError, error, refetch } =
+	const { comparisonRows, hasComparison, isLoading, isFetching, isError, error, refetch } =
 		useStatsArchives( recordsParams );
 	const items = useMemo( () => comparisonRows?.rows ?? [], [ comparisonRows ] );
 	const rows = useMemo( () => buildArchiveRows( items ), [ items ] );
 	const fields = useMemo( () => getArchivesFields( hasComparison ), [ hasComparison ] );
-
-	useReportActions( {
-		csv: {
-			exporter: archivesCsvExporter,
-			status: { isLoading, isFetching, isError: primary.isError },
-			rowCount: items.length,
-		},
-	} );
 
 	return (
 		<Stack direction="column" className={ styles.root }>
