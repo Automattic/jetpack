@@ -40,6 +40,7 @@ class Media_Library {
 		}
 		self::$initialized = true;
 		add_action( 'wp_ajax_' . self::AJAX_ACTION, array( __CLASS__, 'ajax_media_library' ) );
+		// After core prints the late scripts and styles.
 		add_action( 'admin_print_footer_scripts', array( Page_Handles::class, 'print_handles' ), 100 );
 	}
 

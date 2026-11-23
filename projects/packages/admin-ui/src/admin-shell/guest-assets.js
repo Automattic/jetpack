@@ -122,12 +122,11 @@ export async function applyGuestAssets( endpoint, slug ) {
 	const inlineTexts = new Set(
 		[ ...document.querySelectorAll( 'script:not([src])' ) ].map( script => script.textContent )
 	);
-	// Listed by Page_Handles.
 	let printed = {};
 	try {
 		printed = JSON.parse( document.getElementById( 'jetpack-page-handles' )?.textContent ?? '{}' );
 	} catch {
-		// Unreadable: the ids alone decide.
+		// The ids alone decide.
 	}
 	const wasPrinted = node =>
 		node.tagName === 'LINK'

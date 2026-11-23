@@ -1,6 +1,6 @@
 <?php
 /**
- * The handles a dashboard page printed, for clients that add more scripts and styles to it later.
+ * Page_Handles class.
  *
  * @package automattic/jetpack-admin-ui
  */
@@ -8,7 +8,7 @@
 namespace Automattic\Jetpack\Admin_UI;
 
 /**
- * Lets `loadMediaLibrary()` and the admin shell skip what the page already runs, which they otherwise do by tag id: concatenation prints a handle with no id.
+ * Lists the handles a page printed, since concatenated ones have no tag id for `loadMediaLibrary()` and the admin shell to skip.
  */
 class Page_Handles {
 
@@ -18,9 +18,7 @@ class Page_Handles {
 	const ELEMENT_ID = 'jetpack-page-handles';
 
 	/**
-	 * Print the scripts and styles the page printed, on admin shell member pages, the only ones that load more.
-	 *
-	 * Hooked late on admin_print_footer_scripts, after core prints the late scripts and styles.
+	 * Print the list on admin shell member pages, the only ones that load more.
 	 *
 	 * @return void
 	 */
@@ -46,13 +44,13 @@ class Page_Handles {
 	}
 
 	/**
-	 * Print one tag per handle, with its id, for the rest of the request.
+	 * Print one tag per handle for the rest of the request.
 	 *
 	 * @return void
 	 */
 	public static function print_one_tag_per_handle() {
 		$GLOBALS['concatenate_scripts'] = false; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- Core's load-scripts.php.
-		// WordPress.com's: its stylesheet ids are positions, so they also collide with the page's.
+		// WordPress.com's stylesheet ids are positions, which also collide with the page's.
 		add_filter( 'wpcom_js_do_concat', '__return_false' );
 		add_filter( 'wpcom_css_do_concat', '__return_false' );
 	}

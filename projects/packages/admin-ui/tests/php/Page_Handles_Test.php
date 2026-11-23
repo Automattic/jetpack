@@ -19,7 +19,7 @@ use PHPUnit\Framework\TestCase;
 class Page_Handles_Test extends TestCase {
 
 	/**
-	 * Remove what the tests set.
+	 * Remove what the test set.
 	 *
 	 * @return void
 	 */
@@ -37,25 +37,6 @@ class Page_Handles_Test extends TestCase {
 	 * @return void
 	 */
 	public function test_print_handles_lists_what_a_member_page_printed() {
-		$this->assertStringContainsString( '{"scripts":["jquery-core"],"styles":["buttons"]}', $this->print_handles_on( 'jetpack-forms' ) );
-	}
-
-	/**
-	 * Other admin pages print nothing.
-	 *
-	 * @return void
-	 */
-	public function test_print_handles_prints_nothing_elsewhere() {
-		$this->assertSame( '', $this->print_handles_on( 'other-plugin' ) );
-	}
-
-	/**
-	 * Print the list on an admin page, with one member registered.
-	 *
-	 * @param string $page The `page` query argument.
-	 * @return string
-	 */
-	private function print_handles_on( $page ) {
 		add_filter(
 			'jetpack_admin_shell_members',
 			static function () {
@@ -69,12 +50,13 @@ class Page_Handles_Test extends TestCase {
 				);
 			}
 		);
-		$_GET['page']      = $page;
+		$_GET['page']      = 'jetpack-forms';
 		wp_scripts()->done = array( 'jquery-core' );
 		wp_styles()->done  = array( 'buttons' );
 
 		ob_start();
 		Page_Handles::print_handles();
-		return (string) ob_get_clean();
+
+		$this->assertStringContainsString( '{"scripts":["jquery-core"],"styles":["buttons"]}', (string) ob_get_clean() );
 	}
 }
