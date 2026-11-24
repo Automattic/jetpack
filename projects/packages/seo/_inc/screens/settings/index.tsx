@@ -402,8 +402,7 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 							: undefined
 					}
 					onChange={ setVerification }
-					saveGoogleCode={ code => saveVerification( 'google', code ) }
-					saveBingCode={ code => saveVerification( 'bing', code ) }
+					saveVerificationCode={ saveVerification }
 					onCommit={ () => commitFields( [ 'verification' ] ) }
 					disabled={ isSaving }
 					open={ verificationOpen }

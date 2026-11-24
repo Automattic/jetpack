@@ -5,11 +5,12 @@ import { globe } from '@wordpress/icons';
 import { Card, CollapsibleCard, InputControl, Stack, SwitchControl, Text } from '@wordpress/ui';
 import CardTitleIcon from '../../components/card-title-icon';
 import StatusIndicator from '../../components/status-indicator';
+import { SITE_VERIFY_SERVICES } from '../../data/site-verify-services';
 import { VERIFICATION_SERVICES } from '../../data/verification-services';
-import BingVerificationField from './bing-verification-field';
-import GoogleVerificationField from './google-verification-field';
+import SiteVerificationField from './site-verification-field';
 import type { SettingStatus } from '../../components/status-indicator';
 import type { SettingsResponse, VerificationKey } from '../../data/settings-types';
+import type { SiteVerifyKey } from '../../data/site-verify-services';
 import type { FC } from 'react';
 
 interface Props {
@@ -22,10 +23,8 @@ interface Props {
 	 */
 	onToggle?: ( active: boolean ) => void;
 	onChange: ( key: VerificationKey, value: string ) => void;
-	/** Save the Google code auto-verify fetches, through the settings form. */
-	saveGoogleCode: ( code: string ) => Promise< void >;
-	/** PROTOTYPE (JPPROD-116): save the Bing code the connect flow fetches. */
-	saveBingCode?: ( code: string ) => Promise< void >;
+	/** Save the code a keyring verify flow fetches, through the settings form. */
+	saveVerificationCode: ( key: SiteVerifyKey, code: string ) => Promise< void >;
 	/** Save the current value — called on blur (auto-save, no Save button). */
 	onCommit?: () => void;
 	disabled?: boolean;
@@ -50,9 +49,11 @@ const description = __(
 // Deliberately not repeating each service's own name for the tag ("HTML tag",
 // "HTML Meta Tag", …): those are third-party UI labels that drift out of date.
 //
-// Google is absent by design — its field is the keyring component below, which
-// carries its own hint.
-const HINTS: Record< Exclude< VerificationKey, 'google' | 'bing' >, string > = {
+// Google and Bing are absent by design — their fields are the keyring components
+// below, which carry their own hints.
+type CodeOnlyKey = Exclude< VerificationKey, SiteVerifyKey >;
+
+const HINTS: Record< CodeOnlyKey, string > = {
 	pinterest: __(
 		'Paste the verification tag from Pinterest, or just the code inside it.',
 		'jetpack-seo'
@@ -72,8 +73,7 @@ const VerificationCard: FC< Props > = ( {
 	active,
 	onToggle,
 	onChange,
-	saveGoogleCode,
-	saveBingCode,
+	saveVerificationCode,
 	onCommit,
 	disabled,
 	open,
@@ -125,27 +125,21 @@ const VerificationCard: FC< Props > = ( {
 							disabled={ disabled }
 						/>
 					) }
-					{ /* Google and Bing get keyring connect flows; the rest are simple code fields. */ }
-					<GoogleVerificationField
-						value={ value.google }
-						onChange={ next => onChange( 'google', next ) }
-						saveCode={ saveGoogleCode }
-						onCommit={ onCommit }
-						disabled={ controlsDisabled }
-					/>
-					<BingVerificationField
-						value={ value.bing }
-						onChange={ next => onChange( 'bing', next ) }
-						saveCode={ saveBingCode ?? ( () => Promise.resolve() ) }
-						onCommit={ onCommit }
-						disabled={ controlsDisabled }
-					/>
+					{ Object.values( SITE_VERIFY_SERVICES ).map( service => (
+						<SiteVerificationField
+							key={ service.key }
+							service={ service }
+							value={ value[ service.key ] }
+							onChange={ next => onChange( service.key, next ) }
+							saveCode={ code => saveVerificationCode( service.key, code ) }
+							onCommit={ onCommit }
+							disabled={ controlsDisabled }
+						/>
+					) ) }
 					<Stack direction="column" gap="md">
 						{ VERIFICATION_SERVICES.filter(
-							(
-								service
-							): service is { key: Exclude< VerificationKey, 'google' | 'bing' >; label: string } =>
-								service.key !== 'google' && service.key !== 'bing'
+							( service ): service is { key: CodeOnlyKey; label: string } =>
+								! ( service.key in SITE_VERIFY_SERVICES )
 						).map( ( { key, label } ) => (
 							<InputControl
 								key={ key }

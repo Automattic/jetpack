@@ -5,41 +5,37 @@ import { useDispatch } from '@wordpress/data';
 import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
-import type { GoogleVerifyBootstrap, GoogleVerifyStatus } from './google-verify-types';
-
-const ENDPOINT = '/jetpack/v4/verify-site/google';
-// Single snackbar id reused across a verify so the "Verifying…" toast is replaced
-// in place by the result.
-const NOTICE_ID = 'jetpack-seo-google-verify';
+import type { SiteVerifyService } from './site-verify-services';
+import type { SiteVerifyBootstrap, SiteVerifyStatus } from './site-verify-types';
 
 // Thrown to short-circuit the auto-verify promise chain when the site is already
 // verified; the chain's catch handler ignores it so it is not treated as a failure.
 const ALREADY_VERIFIED = {};
 
 type SeoScriptData = {
-	seo?: {
-		google_verify?: GoogleVerifyBootstrap;
-	};
+	seo?: Partial< Record< SiteVerifyService[ 'scriptDataKey' ], SiteVerifyBootstrap > >;
 };
 
 /**
- * Read the Google-verification bootstrap from `window.JetpackScriptData.seo.google_verify`.
+ * Read a service's verification bootstrap from `window.JetpackScriptData.seo`.
  *
+ * @param service - The verification service.
  * @return The bootstrap, or `null` when unavailable.
  */
-export function getGoogleVerifyBootstrap(): GoogleVerifyBootstrap | null {
+export function getSiteVerifyBootstrap( service: SiteVerifyService ): SiteVerifyBootstrap | null {
 	const scriptData = getScriptData() as SeoScriptData | undefined;
-	return scriptData?.seo?.google_verify ?? null;
+	return scriptData?.seo?.[ service.scriptDataKey ] ?? null;
 }
 
 /** `loading` while the initial status request is in flight; `unavailable` when disconnected. */
-export type GoogleVerifyState = 'loading' | 'verified' | 'unverified' | 'unavailable';
+export type SiteVerifyState = 'loading' | 'verified' | 'unverified' | 'unavailable';
 
-export interface GoogleVerify {
-	state: GoogleVerifyState;
+export interface SiteVerify {
+	state: SiteVerifyState;
 	canAutoVerify: boolean;
 	isOwner: boolean;
-	searchConsoleUrl: string;
+	/** Link to the service's own dashboard, such as Google Search Console. */
+	toolsUrl: string;
 	isVerifying: boolean;
 	/** The popup returned a keyring, and the token is being saved and checked. */
 	isConfirming: boolean;
@@ -50,35 +46,43 @@ export interface GoogleVerify {
 /**
  * Verify through the host's transport, retaining manual entry when unavailable.
  *
+ * @param service          - The verification service.
  * @param options          - Hook options.
- * @param options.saveCode - Persist the token before asking Google to verify.
- * @return The Google-verification controller.
+ * @param options.saveCode - Persist the token before asking the service to verify.
+ * @return The site-verification controller.
  */
-export function useGoogleVerify( {
-	saveCode,
-}: {
-	saveCode: ( code: string ) => Promise< void >;
-} ): GoogleVerify {
-	const bootstrap = useMemo( () => getGoogleVerifyBootstrap(), [] );
+export function useSiteVerify(
+	service: SiteVerifyService,
+	{
+		saveCode,
+	}: {
+		saveCode: ( code: string ) => Promise< void >;
+	}
+): SiteVerify {
+	const bootstrap = useMemo( () => getSiteVerifyBootstrap( service ), [ service ] );
 	const connectUrl = bootstrap?.connect_url ?? '';
-	const endpoint = bootstrap?.api_path ?? ENDPOINT;
+	const endpoint = bootstrap?.api_path ?? service.endpoint;
 	const canAutoVerify =
 		( bootstrap?.can_auto_verify ?? bootstrap?.is_connected ?? false ) && !! connectUrl;
+	const { noticeId, strings, toolsUrlField } = service;
 
-	const [ state, setState ] = useState< GoogleVerifyState >(
+	const [ state, setState ] = useState< SiteVerifyState >(
 		canAutoVerify ? 'loading' : 'unavailable'
 	);
 	const [ isOwner, setIsOwner ] = useState( false );
-	const [ searchConsoleUrl, setSearchConsoleUrl ] = useState( '' );
+	const [ toolsUrl, setToolsUrl ] = useState( '' );
 	const [ isVerifying, setIsVerifying ] = useState( false );
 	const [ isConfirming, setIsConfirming ] = useState( false );
 	const { createInfoNotice, createSuccessNotice, createErrorNotice } = useDispatch( noticesStore );
 
-	const applyStatus = useCallback( ( status: GoogleVerifyStatus ) => {
-		setState( status.verified ? 'verified' : 'unverified' );
-		setIsOwner( !! status.is_owner );
-		setSearchConsoleUrl( status.google_search_console_url ?? '' );
-	}, [] );
+	const applyStatus = useCallback(
+		( status: SiteVerifyStatus ) => {
+			setState( status.verified ? 'verified' : 'unverified' );
+			setIsOwner( !! status.is_owner );
+			setToolsUrl( status[ toolsUrlField ] ?? '' );
+		},
+		[ toolsUrlField ]
+	);
 
 	// Read status only when the host supplies a usable verification flow.
 	useEffect( () => {
@@ -86,7 +90,7 @@ export function useGoogleVerify( {
 			return undefined;
 		}
 		let cancelled = false;
-		apiFetch< GoogleVerifyStatus >( { path: endpoint } )
+		apiFetch< SiteVerifyStatus >( { path: endpoint } )
 			.then( status => {
 				if ( ! cancelled ) {
 					applyStatus( status );
@@ -130,36 +134,27 @@ export function useGoogleVerify( {
 				return;
 			}
 			setIsConfirming( true );
-			createInfoNotice( __( 'Verifying with Google…', 'jetpack-seo' ), {
-				id: NOTICE_ID,
+			createInfoNotice( strings.verifying, {
+				id: noticeId,
 				type: 'snackbar',
 				isDismissible: false,
 			} );
 			// The auto-verify flow is: (1) fetch the verification token for this keyring,
-			// (2) save it to `verification_services_codes.google` so the site serves the
-			// `google-site-verification` meta tag, (3) ask Google to verify (it fetches the
-			// tag), (4) re-read the authoritative status. Skipping step 2 fails with
-			// "the necessary verification token could not be found on your site".
-			apiFetch< GoogleVerifyStatus >( { path: `${ endpoint }/${ keyringId }` } )
+			// (2) save it to `verification_services_codes` so the site serves the service's
+			// meta tag, (3) ask the service to verify (it fetches the tag), (4) re-read the
+			// authoritative status. Skipping step 2 fails because the tag isn't on the site.
+			apiFetch< SiteVerifyStatus >( { path: `${ endpoint }/${ keyringId }` } )
 				.then( status => {
 					if ( status.verified ) {
 						// Already verified: report it and skip the save/verify round-trips.
 						applyStatus( status );
-						createSuccessNotice( __( 'Your site is verified with Google.', 'jetpack-seo' ), {
-							id: NOTICE_ID,
-							type: 'snackbar',
-						} );
+						createSuccessNotice( strings.verified, { id: noticeId, type: 'snackbar' } );
 						throw ALREADY_VERIFIED;
 					}
 					if ( ! status.token ) {
 						// Without a token the meta tag cannot be served, so verification
 						// cannot proceed; surface it as an actionable error.
-						throw new Error(
-							__(
-								'Google did not return a verification token for this account. Try another account, or enter a code manually.',
-								'jetpack-seo'
-							)
-						);
+						throw new Error( strings.noToken );
 					}
 					return saveCode( status.token );
 				} )
@@ -170,22 +165,13 @@ export function useGoogleVerify( {
 						data: { keyring_id: keyringId },
 					} )
 				)
-				.then( () => apiFetch< GoogleVerifyStatus >( { path: `${ endpoint }/${ keyringId }` } ) )
+				.then( () => apiFetch< SiteVerifyStatus >( { path: `${ endpoint }/${ keyringId }` } ) )
 				.then( status => {
 					applyStatus( status );
 					if ( status.verified ) {
-						createSuccessNotice( __( 'Your site is verified with Google.', 'jetpack-seo' ), {
-							id: NOTICE_ID,
-							type: 'snackbar',
-						} );
+						createSuccessNotice( strings.verified, { id: noticeId, type: 'snackbar' } );
 					} else {
-						createErrorNotice(
-							__(
-								"Google couldn't verify this site. Make sure the Google account you used has access to it in Search Console.",
-								'jetpack-seo'
-							),
-							{ id: NOTICE_ID, type: 'snackbar' }
-						);
+						createErrorNotice( strings.notVerified, { id: noticeId, type: 'snackbar' } );
 					}
 				} )
 				.catch( ( error: unknown ) => {
@@ -198,7 +184,7 @@ export function useGoogleVerify( {
 					createErrorNotice(
 						( error as { message?: string } )?.message ??
 							__( 'Could not verify the site. Please try again.', 'jetpack-seo' ),
-						{ id: NOTICE_ID, type: 'snackbar' }
+						{ id: noticeId, type: 'snackbar' }
 					);
 				} )
 				.finally( () => {
@@ -214,6 +200,8 @@ export function useGoogleVerify( {
 		isVerifying,
 		applyStatus,
 		saveCode,
+		noticeId,
+		strings,
 		createInfoNotice,
 		createSuccessNotice,
 		createErrorNotice,
@@ -223,7 +211,7 @@ export function useGoogleVerify( {
 		state,
 		canAutoVerify,
 		isOwner,
-		searchConsoleUrl,
+		toolsUrl,
 		isVerifying,
 		isConfirming,
 		autoVerify,

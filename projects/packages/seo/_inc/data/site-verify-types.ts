@@ -1,4 +1,4 @@
-export interface GoogleVerifyBootstrap {
+export interface SiteVerifyBootstrap {
 	/** WordPress.com keyring OAuth URL that opens the auto-verify popup. */
 	connect_url: string;
 	/** Whether the current user has a Jetpack user connection. */
@@ -9,11 +9,12 @@ export interface GoogleVerifyBootstrap {
 	api_path?: string;
 }
 
-/** Shared response from the host's Google verification endpoints. */
-export interface GoogleVerifyStatus {
+/** Shared response from the host's verification endpoints. */
+export interface SiteVerifyStatus {
 	verified: boolean;
 	is_owner: boolean;
 	google_search_console_url?: string;
-	/** Save this to verification_services_codes.google before requesting verification. */
+	webmaster_tools_url?: string;
+	/** Save this to `verification_services_codes` before requesting verification. */
 	token?: string;
 }

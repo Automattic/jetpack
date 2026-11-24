@@ -58,7 +58,7 @@ Field labels should be uppercase across the board. Where a `TextControl` renders
 
 - Prose → `render={ <p /> }`.
 - A real sub-heading → `render={ <h3 /> }`. Card headers are `h2` (the page `<h1>` is in `Admin_Page`), so a module's own sub-headings are `h3`. Without this a screen-reader user navigating by heading finds the card title and nothing beneath it.
-- A hand-drawn field label heading a _group_ of controls rather than one input → keep it a `span`, but give the wrapper `role="group"` and `aria-labelledby` pointing at it (see `google-verification-field`), or it announces as a label attached to nothing.
+- A hand-drawn field label heading a _group_ of controls rather than one input → keep it a `span`, but give the wrapper `role="group"` and `aria-labelledby` pointing at it (see `site-verification-field`), or it announces as a label attached to nothing.
 
 Rendering as `<p>` or a heading is safe: `Text` always applies both of `@wordpress/ui`'s global-CSS defenses, and every variant defines `--_gcd-heading-*` alongside `--_gcd-p-*`, so the element change doesn't alter the type.
 
