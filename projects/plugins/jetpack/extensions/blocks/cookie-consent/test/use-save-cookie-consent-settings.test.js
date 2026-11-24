@@ -25,7 +25,12 @@ const stateReducer =
 	( state = initialState, action ) =>
 		action.type === 'SET' ? { ...state, ...action.state } : state;
 
-function setup( { screenBase = 'post', postType = 'wp_template', content } = {} ) {
+function setup( {
+	screenBase = 'post',
+	postType = 'wp_template',
+	content,
+	templateParts = [],
+} = {} ) {
 	window.Jetpack_Editor_Initial_State = { screenBase };
 	const banner = createBlock( TYPE, { text: 'Saved banner' } );
 	const savedBanner = serialize( [ banner ] );
@@ -37,6 +42,7 @@ function setup( { screenBase = 'post', postType = 'wp_template', content } = {} 
 			{ ...record, content: { raw: name === postType ? record.content.raw : '' } },
 		] )
 	);
+	const parts = Object.fromEntries( templateParts.map( part => [ part.id, part ] ) );
 	apiFetch.mockImplementation( async ( { path, method, data, parse: shouldParse } ) => {
 		if ( method === 'OPTIONS' ) {
 			return { schema: { properties: {} } };
@@ -47,9 +53,24 @@ function setup( { screenBase = 'post', postType = 'wp_template', content } = {} 
 			Object.assign( settings, data );
 			response = { ...settings };
 		} else if ( data ) {
-			response = records[ name ] = { ...record, content: { raw: data.content } };
+			const saved = {
+				...record,
+				...( method === 'POST' && name === 'wp_template_part'
+					? { id: 'theme//new-part', theme: 'theme', slug: 'new-part' }
+					: {} ),
+				content: { raw: data.content },
+			};
+			response = saved;
+			if ( saved.id === TEMPLATE_ID ) {
+				records[ name ] = saved;
+			} else {
+				parts[ saved.id ] = saved;
+			}
 		} else {
-			response = [ records[ name ] ];
+			const id = path.split( '?' )[ 0 ].split( '/' ).slice( 4 ).join( '/' );
+			response = id
+				? ( parts[ id ] ?? records[ name ] )
+				: [ records[ name ], ...( name === 'wp_template_part' ? Object.values( parts ) : [] ) ];
 		}
 		return shouldParse === false
 			? { headers: new Headers(), json: async () => response }
@@ -76,7 +97,9 @@ function setup( { screenBase = 'post', postType = 'wp_template', content } = {} 
 		} )
 	);
 	const core = registry.dispatch( coreStore );
+	core.receiveCurrentTheme( { stylesheet: 'theme' } );
 	core.addEntities( [
+		{ kind: 'root', name: 'theme', baseURL: '/wp/v2/themes' },
 		{ kind: 'root', name: 'site', key: false, baseURL: '/wp/v2/settings' },
 		...[ 'page', 'wp_template', 'wp_template_part' ].map( name => ( {
 			kind: 'postType',
@@ -85,6 +108,8 @@ function setup( { screenBase = 'post', postType = 'wp_template', content } = {} 
 			rawAttributes: [ 'content' ],
 		} ) ),
 	] );
+	core.receiveEntityRecords( 'root', 'theme', { id: 'theme', stylesheet: 'theme' } );
+	core.finishResolution( 'getCurrentTheme', [] );
 	core.receiveEntityRecords( 'root', 'site', { ...settings } );
 	core.finishResolution( 'getEntityRecord', [ 'root', 'site' ] );
 	for ( const name of [ 'page', 'wp_template', 'wp_template_part' ] ) {
@@ -351,6 +376,66 @@ describe( 'Cookie Consent settings synchronization', () => {
 				'cookie_consent_template',
 				currentTemplate
 			);
+		}
+	);
+
+	it.each( [
+		[ 'wp_template', false ],
+		[ 'wp_template', true ],
+		[ 'wp_template_part', false ],
+		[ 'wp_template_part', true ],
+	] )(
+		'syncs a banner converted to a new template part when its source is saved (%s, edited: %s)',
+		async ( name, edited ) => {
+			const originalBanner = serialize( [ createBlock( TYPE, { text: 'Saved banner' } ) ] );
+			const oldReference = '<!-- wp:template-part {"slug":"old-part","theme":"theme"} /-->';
+			const { core, save, savedBanner, settings } = setup( {
+				postType: name,
+				content: originalBanner + oldReference,
+				templateParts: [
+					{
+						id: 'theme//old-part',
+						content: { raw: originalBanner.replaceAll( 'Saved banner', 'Old banner' ) },
+					},
+				],
+			} );
+			const movedBanner = edited
+				? savedBanner.replaceAll( 'Saved banner', 'New banner' )
+				: savedBanner;
+			let part;
+			await act( async () => {
+				part = await core.saveEntityRecord( 'postType', 'wp_template_part', {
+					content: movedBanner,
+				} );
+				await new Promise( resolve => setTimeout( resolve, 0 ) );
+			} );
+
+			expect( settings.cookie_consent_template ).toBe( savedBanner );
+			expect( settingsWrites() ).toEqual( [] );
+			expect(
+				apiFetch.mock.calls.filter(
+					( [ { path, method } ] ) =>
+						path.startsWith( '/wp/v2/wp_template_part' ) && ( ! method || method === 'GET' )
+				)
+			).toEqual( [] );
+
+			const attributes = {
+				slug: part.slug,
+				...( name === 'wp_template' ? { theme: part.theme } : {} ),
+			};
+			await save(
+				name,
+				`${ oldReference }<!-- wp:group --><div><!-- wp:template-part ${ JSON.stringify(
+					attributes
+				) } /--></div><!-- /wp:group -->`
+			);
+
+			await waitFor( () => expect( settings.cookie_consent_template ).toBe( movedBanner ) );
+			await waitFor( () => expect( settingsWrites() ).toHaveLength( 1 ) );
+			expect( settingsWrites()[ 0 ][ 0 ].data.cookie_consent_template ).toBe( movedBanner );
+			expect(
+				settingsWrites().some( ( [ { data } ] ) => data.cookie_consent_template === null )
+			).toBe( false );
 		}
 	);
 
