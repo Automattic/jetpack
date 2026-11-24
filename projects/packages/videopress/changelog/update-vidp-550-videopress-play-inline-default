@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+VideoPress block and shortcode: play videos in the page on iPhones by default, instead of opening the system fullscreen player. Turning "Play Inline" off still gets the fullscreen player.

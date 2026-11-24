@@ -79,7 +79,8 @@ class Inline_Player {
 				'controls'            => true,
 				'loop'                => false,
 				'muted'               => false,
-				'playsinline'         => false,
+				// On by default, as in Utils::get_video_press_url().
+				'playsinline'         => true,
 				'poster'              => '',
 				'preload'             => 'metadata',
 				'seekbarColor'        => '',

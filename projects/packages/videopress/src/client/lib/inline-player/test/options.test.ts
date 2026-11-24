@@ -8,13 +8,20 @@ describe( 'getInlinePlayerOptions', () => {
 			loop: false,
 			muted: false,
 			persistVolume: true,
-			playsinline: false,
+			playsinline: true,
 			cover: true,
 			hd: false,
 			useAverageColor: true,
 			preloadContent: 'metadata',
 			chrome: 'v2',
 		} );
+	} );
+
+	it( 'plays in the page unless the block says otherwise', () => {
+		// An iPhone plays a video in the page only when asked to.
+		expect( getInlinePlayerOptions( { playsinline: true } ).playsinline ).toBe( true );
+		expect( getInlinePlayerOptions( { playsinline: undefined } ).playsinline ).toBe( true );
+		expect( getInlinePlayerOptions( { playsinline: false } ).playsinline ).toBe( false );
 	} );
 
 	it( 'maps the block attributes the way the server does', () => {

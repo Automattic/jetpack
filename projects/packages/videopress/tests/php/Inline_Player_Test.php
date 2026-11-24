@@ -117,6 +117,7 @@ class Inline_Player_Test extends BaseTestCase {
 		$this->assertFalse( $defaults['autoPlay'] );
 		$this->assertTrue( $defaults['controls'] );
 		$this->assertTrue( $defaults['persistVolume'] );
+		$this->assertTrue( $defaults['playsinline'] );
 		$this->assertTrue( $defaults['useAverageColor'] );
 		$this->assertSame( 'metadata', $defaults['preloadContent'] );
 		$this->assertSame( 'v2', $defaults['chrome'] );
@@ -147,6 +148,22 @@ class Inline_Player_Test extends BaseTestCase {
 		$this->assertSame( 'green', $options['seekbarPlayedColor'] );
 		$this->assertSame( 'blue', $options['seekbarLoadedColor'] );
 		$this->assertSame( 12, $options['at'] );
+	}
+
+	/**
+	 * A video plays in the page unless the embed says otherwise, whether its attributes come from a block or from an embed URL.
+	 */
+	public function test_get_player_options_plays_inline_unless_told_not_to() {
+		$this->assertTrue( Inline_Player::get_player_options( array( 'playsinline' => true ) )['playsinline'] );
+		$this->assertFalse( Inline_Player::get_player_options( array( 'playsinline' => false ) )['playsinline'] );
+
+		// An embed URL that does not say gets what the embed page would do with it.
+		$unsaid = Inline_Player::get_attributes_from_embed_url( 'https://videopress.com/v/abcDEF12?loop=1' );
+		$this->assertArrayNotHasKey( 'playsinline', $unsaid );
+		$this->assertTrue( Inline_Player::get_player_options( $unsaid )['playsinline'] );
+
+		$off = Inline_Player::get_attributes_from_embed_url( 'https://videopress.com/v/abcDEF12?playsinline=0' );
+		$this->assertFalse( Inline_Player::get_player_options( $off )['playsinline'] );
 	}
 
 	/**

@@ -47,7 +47,8 @@
 			"type": "boolean"
 		},
 		"playsinline": {
-			"type": "boolean"
+			"type": "boolean",
+			"default": true
 		},
 		"preload": {
 			"type": "string",
