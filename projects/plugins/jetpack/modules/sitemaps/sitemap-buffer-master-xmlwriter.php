@@ -36,11 +36,7 @@ class Jetpack_Sitemap_Buffer_Master_XMLWriter extends Jetpack_Sitemap_Buffer_XML
 	 */
 	protected function start_root() {
 		$this->writer->startElement( 'sitemapindex' );
-		$namespaces = Jetpack_Sitemap_Stylist::presentation_namespaces( array( 'xmlns' => 'http://www.sitemaps.org/schemas/sitemap/0.9' ), 'master' );
-		foreach ( $namespaces as $name => $value ) {
-			$this->writer->writeAttribute( $name, $value );
-		}
-		$this->writer->writeRaw( Jetpack_Sitemap_Stylist::sitemap_title_xml( 'master' ) );
+		$this->writer->writeAttribute( 'xmlns', 'http://www.sitemaps.org/schemas/sitemap/0.9' );
 	}
 
 	/**

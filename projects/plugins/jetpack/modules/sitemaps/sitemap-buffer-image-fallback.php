@@ -50,13 +50,10 @@ class Jetpack_Sitemap_Buffer_Image extends Jetpack_Sitemap_Buffer_Fallback {
 			$stylesheets     = Jetpack_Sitemap_Stylist::sitemap_stylesheet_xml();
 			$jetpack_version = JETPACK__VERSION;
 
-			$namespaces = Jetpack_Sitemap_Stylist::presentation_namespaces( $namespaces, 'image' );
-
 			$this->root = array(
 				"<!-- generator='jetpack-{$jetpack_version}' -->" . PHP_EOL
 				. $stylesheets
-				. '<urlset ' . $this->array_to_xml_attr_string( $namespaces ) . '>' . PHP_EOL
-				. Jetpack_Sitemap_Stylist::sitemap_title_xml( 'image' ),
+				. '<urlset ' . $this->array_to_xml_attr_string( $namespaces ) . '>' . PHP_EOL,
 				'</urlset>',
 			);
 

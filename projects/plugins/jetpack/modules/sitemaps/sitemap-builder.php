@@ -70,7 +70,6 @@ class Jetpack_Sitemap_Buffer_Empty extends Jetpack_Sitemap_Buffer {
 		if ( ! isset( $this->root ) ) {
 			$this->root = $this->doc->createElement( 'sitemapindex' );
 			$this->root->setAttribute( 'xmlns', 'http://www.sitemaps.org/schemas/sitemap/0.9' );
-			$this->initialize_presentation( 'master' );
 			$this->doc->appendChild( $this->root );
 			$this->byte_capacity -= strlen( $this->doc->saveXML( $this->root ) );
 		}

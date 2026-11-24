@@ -56,11 +56,9 @@ class Jetpack_Sitemap_Buffer_News_XMLWriter extends Jetpack_Sitemap_Buffer_XMLWr
 			)
 		);
 
-		$namespaces = Jetpack_Sitemap_Stylist::presentation_namespaces( $namespaces, 'news' );
 		foreach ( $namespaces as $name => $value ) {
 			$this->writer->writeAttribute( $name, $value );
 		}
-		$this->writer->writeRaw( Jetpack_Sitemap_Stylist::sitemap_title_xml( 'news' ) );
 	}
 
 	/**

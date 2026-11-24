@@ -55,11 +55,9 @@ class Jetpack_Sitemap_Buffer_Image_XMLWriter extends Jetpack_Sitemap_Buffer_XMLW
 			)
 		);
 
-		$namespaces = Jetpack_Sitemap_Stylist::presentation_namespaces( $namespaces, 'image' );
 		foreach ( $namespaces as $name => $value ) {
 			$this->writer->writeAttribute( $name, $value );
 		}
-		$this->writer->writeRaw( Jetpack_Sitemap_Stylist::sitemap_title_xml( 'image' ) );
 	}
 
 	/**

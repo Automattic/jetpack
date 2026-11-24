@@ -76,7 +76,6 @@ class Jetpack_Sitemap_Buffer_News extends Jetpack_Sitemap_Buffer {
 				$this->root->setAttribute( $name, $value );
 			}
 
-			$this->initialize_presentation( 'news' );
 			$this->doc->appendChild( $this->root );
 			$this->byte_capacity -= strlen( $this->doc->saveXML( $this->root ) );
 		}
