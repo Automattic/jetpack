@@ -97,9 +97,6 @@ runs:
       if: steps.versions.outputs.node-version != 'false'
       shell: bash
       run: |
-        # https://github.com/pnpm/setup/issues/51
-        [[ -f pnpm-lock.yaml ]] && git restore pnpm-lock.yaml
-
         # https://github.com/pnpm/setup/issues/83
         echo "::add-matcher::$GITHUB_ACTION_PATH/matchers/eslint-compact.jsonc"
         echo "::add-matcher::$GITHUB_ACTION_PATH/matchers/eslint-stylish.jsonc"
