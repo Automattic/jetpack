@@ -8,7 +8,7 @@ import {
 import { __, sprintf } from '@wordpress/i18n';
 import { Badge, Link, Popover, Stack, Text } from '@wordpress/ui';
 import clsx from 'clsx';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
 import { connectionStatusEmptyAvatar as emptyAvatar } from '../../assets/inline-svgs';
 import useSitePurchases from '../../data/use-site-purchases';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
@@ -33,7 +33,7 @@ const STATUS_INTENTS = {
 } as const;
 
 /**
- * The badge text: a short "Connected" or "Not connected" for the plain connection states, else the state's own label.
+ * The badge text, also the trigger's name: a short "Connected" or "Not connected" for the plain connection states, else the state's own label.
  *
  * @param state - The connection state.
  * @return The badge text.
@@ -116,12 +116,10 @@ const ConnectionControl: FC< ConnectionControlProps > = ( { trackingContext } ) 
 	const triggerRef = useRef< HTMLButtonElement >( null );
 	const popupRef = useRef< HTMLDivElement >( null );
 	const returnFocusRef = useRef( false );
-	// Any open except from the keyboard (a click, tap or pen) focuses the panel, since its first link shows a focus ring even then.
-	// Opening from the keyboard still focuses that first link, as the library does by default.
-	const initialFocus = useCallback(
-		( type: string ) => ( type === 'keyboard' ? true : popupRef.current ),
-		[]
-	);
+	const badgeId = useId();
+	// Focus the panel itself on every open: its first link shows a focus ring even after a click (JETPACK-3422),
+	// and a screen reader would skip the title and status above it (JETPACK-3907).
+	const initialFocus = useCallback( () => popupRef.current, [] );
 	// Never stale, so opening reuses what the Overview or an earlier open loaded.
 	const isAdmin = !! getMyJetpackWindowInitialState( 'userIsAdmin' );
 	const { data: purchases = null, isError: hasPurchasesError } = useSitePurchases( {
@@ -153,6 +151,7 @@ const ConnectionControl: FC< ConnectionControlProps > = ( { trackingContext } ) 
 	}, [] );
 	const onUnlinked = useCallback( () => window.location.reload(), [] );
 
+	const badgeLabel = getBadgeLabel( state );
 	const avatar = userConnectionData?.currentUser?.wpcomUser?.avatar;
 	const showAvatar = isUserConnected || state.action === 'CONNECT_USER';
 
@@ -163,9 +162,9 @@ const ConnectionControl: FC< ConnectionControlProps > = ( { trackingContext } ) 
 					ref={ triggerRef }
 					className={ styles.trigger }
 					aria-label={ sprintf(
-						/* translators: %s is the connection state, e.g. "Site and account connected". */
+						/* translators: %s is the connection state, e.g. "Connected" or "Not connected". */
 						__( 'Connection: %s', 'jetpack-my-jetpack' ),
-						state.label
+						badgeLabel
 					) }
 				>
 					<img
@@ -178,6 +177,7 @@ const ConnectionControl: FC< ConnectionControlProps > = ( { trackingContext } ) 
 				<Popover.Popup
 					ref={ popupRef }
 					initialFocus={ initialFocus }
+					aria-describedby={ badgeId }
 					positioner={ <Popover.Positioner align="end" collisionPadding={ 16 } /> }
 				>
 					<Stack direction="column" gap="lg" className={ styles.content }>
@@ -190,7 +190,9 @@ const ConnectionControl: FC< ConnectionControlProps > = ( { trackingContext } ) 
 								showAvatar={ showAvatar }
 								className={ styles.illustration }
 							/>
-							<Badge intent={ STATUS_INTENTS[ state.status ] }>{ getBadgeLabel( state ) }</Badge>
+							<Badge id={ badgeId } intent={ STATUS_INTENTS[ state.status ] }>
+								{ badgeLabel }
+							</Badge>
 							<ConnectionOwnerInfo />
 							{ state.isDiagnosis && restoreConnectionError && (
 								<Text variant="body-sm">

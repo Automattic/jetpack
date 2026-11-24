@@ -153,29 +153,46 @@ describe( 'HeaderControls', () => {
 		expect( dialog ).toContainElement( screen.getByRole( role, { name } ) );
 	} );
 
-	it( 'focuses the panel, not its first link, when it opens with a click', async () => {
-		mockUseConnectionState.mockReturnValue(
-			stateWith( { action: 'CONNECT_USER', status: 'warning' } )
-		);
+	it.each( [
+		[ 'connected', 'Site and account connected', 'Connected' ],
+		[ 'site-connected', 'Site connected', 'Connected' ],
+		[ 'user-not-connected', 'Site connected', 'Not connected' ],
+		[ 'owner-missing', 'Site connected', 'Not connected' ],
+		[ 'site-not-connected', 'Site not connected', 'Site not connected' ],
+		[ 'error', 'The connection is broken', 'The connection is broken' ],
+		[ 'offline', 'Offline Mode', 'Offline Mode' ],
+	] as const )( 'names its button after the badge when %s', async ( id, label, badge ) => {
+		mockUseConnectionState.mockReturnValue( stateWith( { id, label } ) );
 		render( <HeaderControls trackingContext="my-jetpack" /> );
 
 		const dialog = await openControl();
 
-		await waitFor( () => expect( dialog ).toHaveFocus() );
+		expect( screen.getByRole( 'button', { name: `Connection: ${ badge }` } ) ).toBeInTheDocument();
+		expect( dialog ).toHaveAccessibleDescription( badge );
 	} );
 
-	it( 'focuses its first link when it opens from the keyboard', async () => {
+	it.each( [
+		[ 'a click', () => userEvent.click( screen.getByRole( 'button', { name: /^Connection:/ } ) ) ],
+		[
+			'the keyboard',
+			() => {
+				screen.getByRole( 'button', { name: /^Connection:/ } ).focus();
+				return userEvent.keyboard( '{Enter}' );
+			},
+		],
+	] )( 'focuses the panel, titled and described, when it opens with %s', async ( _, open ) => {
 		mockUseConnectionState.mockReturnValue(
-			stateWith( { action: 'CONNECT_USER', status: 'warning' } )
+			stateWith( { id: 'user-not-connected', action: 'CONNECT_USER', status: 'warning' } )
 		);
 		render( <HeaderControls trackingContext="my-jetpack" /> );
 
-		screen.getByRole( 'button', { name: /^Connection:/ } ).focus();
-		await userEvent.keyboard( '{Enter}' );
+		await open();
+		const dialog = await screen.findByRole( 'dialog', { name: 'Connection' } );
 
-		await waitFor( () =>
-			expect( screen.getByRole( 'link', { name: 'Connect my account' } ) ).toHaveFocus()
-		);
+		await waitFor( () => expect( dialog ).toHaveFocus() );
+		expect( dialog ).toHaveAccessibleDescription( 'Not connected' );
+		await userEvent.tab();
+		expect( screen.getByRole( 'link', { name: 'Connect my account' } ) ).toHaveFocus();
 	} );
 
 	it( 'offers no action in Safe Mode', async () => {
