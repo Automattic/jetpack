@@ -67,6 +67,16 @@ class AdminPageTest extends TestCase {
 	}
 
 	/**
+	 * The Settings tab reads each keyring verify flow's bootstrap from script data.
+	 */
+	public function test_script_data_bootstraps_each_verify_flow() {
+		$data = Admin_Page::inject_script_data( array() );
+
+		$this->assertSame( Dashboard_Data::get_google_verify_data(), $data[ Initializer::SCRIPT_DATA_KEY ]['google_verify'] );
+		$this->assertSame( Dashboard_Data::get_bing_verify_data(), $data[ Initializer::SCRIPT_DATA_KEY ]['bing_verify'] );
+	}
+
+	/**
 	 * Every tab reads whether SEO output is paused from the same script data.
 	 */
 	public function test_script_data_reports_the_output_state() {

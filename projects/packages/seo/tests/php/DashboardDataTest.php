@@ -109,20 +109,34 @@ class DashboardDataTest extends SeoTestCase {
 	}
 
 	/**
-	 * The Google-verification bootstrap exposes the connect URL + connection flag the
-	 * React app expects, with the right types. Without the host plugin's Keyring/Manager
-	 * classes present (the package test context) it degrades to an empty URL and not
-	 * connected, so the UI falls back to manual entry.
+	 * Each verify bootstrap exposes the connect URL + connection flag the React app expects.
+	 * Without the host plugin's Keyring/Manager classes (the package test context) it degrades
+	 * to an empty URL and not connected, so the UI falls back to manual entry.
+	 *
+	 * @dataProvider provide_verify_bootstraps
+	 * @param string $method The Dashboard_Data bootstrap method.
 	 */
-	public function test_get_google_verify_data_shape() {
-		$data = Dashboard_Data::get_google_verify_data();
+	#[DataProvider( 'provide_verify_bootstraps' )]
+	public function test_verify_data_shape( $method ) {
+		$this->assertSame(
+			array(
+				'connect_url'  => '',
+				'is_connected' => false,
+			),
+			Dashboard_Data::$method()
+		);
+	}
 
-		$this->assertArrayHasKey( 'connect_url', $data );
-		$this->assertArrayHasKey( 'is_connected', $data );
-		$this->assertIsString( $data['connect_url'] );
-		$this->assertIsBool( $data['is_connected'] );
-		$this->assertSame( '', $data['connect_url'] );
-		$this->assertFalse( $data['is_connected'] );
+	/**
+	 * Verify bootstrap methods, one per service with a keyring flow.
+	 *
+	 * @return array
+	 */
+	public static function provide_verify_bootstraps() {
+		return array(
+			'google' => array( 'get_google_verify_data' ),
+			'bing'   => array( 'get_bing_verify_data' ),
+		);
 	}
 
 	/**

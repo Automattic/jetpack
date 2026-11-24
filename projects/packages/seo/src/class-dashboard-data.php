@@ -1027,46 +1027,35 @@ class Dashboard_Data {
 	/**
 	 * Build the Google site-verification state for the Settings tab.
 	 *
-	 * The Settings verification card lets a connected user verify with Google via a
-	 * WordPress.com keyring OAuth popup (in addition to pasting a meta-tag code). This
-	 * bootstraps the keyring connect URL and whether the current user is connected —
-	 * the live verified status is fetched client-side from `/jetpack/v4/verify-site/google`
-	 * (a wpcom round-trip we don't want to make on every page load).
-	 *
-	 * Both `Keyring_Helper` (Publicize package) and the connection `Manager` are provided
-	 * by the host Jetpack plugin, so they're guarded with `class_exists`. On a disconnected self-hosted site `is_connected` is false
-	 * and the UI falls back to manual code entry only.
-	 *
 	 * @return array
 	 */
 	public static function get_google_verify_data() {
-		$connect_url = '';
-		if ( class_exists( 'Automattic\\Jetpack\\Publicize\\Keyring_Helper' ) ) {
-			// @phan-suppress-next-line PhanUndeclaredClassMethod -- guarded; Publicize package is provided by the host plugin.
-			$connect_url = (string) \Automattic\Jetpack\Publicize\Keyring_Helper::connect_url( 'google_site_verification', 'other' );
-		}
-
-		$is_connected = false;
-		if ( class_exists( 'Automattic\\Jetpack\\Connection\\Manager' ) ) {
-			$is_connected = ( new \Automattic\Jetpack\Connection\Manager() )->is_user_connected();
-		}
-
-		return array(
-			'connect_url'  => $connect_url,
-			'is_connected' => (bool) $is_connected,
-		);
+		return self::get_verify_data( 'google_site_verification' );
 	}
 
 	/**
-	 * PROTOTYPE (JPPROD-116): bootstrap the Bing connect flow, mirroring get_google_verify_data().
+	 * Build the Bing site-verification state for the Settings tab.
 	 *
 	 * @return array
 	 */
 	public static function get_bing_verify_data() {
+		return self::get_verify_data( 'bing_webmaster' );
+	}
+
+	/**
+	 * Bootstrap a WordPress.com keyring verify flow: its popup URL and whether the user is connected.
+	 *
+	 * Live status is read client-side to keep a wpcom round-trip off page load. `Keyring_Helper` and
+	 * `Manager` come from the host plugin, hence the guards; without them the UI offers manual entry.
+	 *
+	 * @param string $keyring_service The WordPress.com keyring service name.
+	 * @return array
+	 */
+	private static function get_verify_data( $keyring_service ) {
 		$connect_url = '';
 		if ( class_exists( 'Automattic\\Jetpack\\Publicize\\Keyring_Helper' ) ) {
 			// @phan-suppress-next-line PhanUndeclaredClassMethod -- guarded; Publicize package is provided by the host plugin.
-			$connect_url = (string) \Automattic\Jetpack\Publicize\Keyring_Helper::connect_url( 'bing_webmaster', 'other' );
+			$connect_url = (string) \Automattic\Jetpack\Publicize\Keyring_Helper::connect_url( $keyring_service, 'other' );
 		}
 
 		$is_connected = false;
