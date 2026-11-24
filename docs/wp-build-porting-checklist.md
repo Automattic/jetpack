@@ -39,6 +39,7 @@ Bare specifiers only resolve under webpack's `resolve.modules`. esbuild has no e
 - [ ] Gate loading on the page slug, so polyfills never replace core scripts on any other admin screen. See `Jetpack_Backup::is_backup_admin_request()` (`projects/packages/backup/src/class-jetpack-backup.php:1305`).
 - [ ] After `require_once build/build.php`, call `<prefix>_register_script_modules()` **directly**. wp-build hooks module registration to `wp_default_scripts`, which has already fired by `admin_menu`.
 - [ ] Give the route a page id different from the menu slug, or the generated standalone `page.php` intercepts `admin_init` for that slug and exits, bypassing wp-admin's chrome.
+- [ ] Pass each page's build prefix and slug to `WP_Build_Polyfills::register()` in its fourth argument. Follow the [package usage instructions](../projects/packages/wp-build-polyfills/README.md#usage) for the required array shape, string page IDs, default prefix and hyphen conversion.
 
 ## 4. Alias the screen ID, and restore it
 

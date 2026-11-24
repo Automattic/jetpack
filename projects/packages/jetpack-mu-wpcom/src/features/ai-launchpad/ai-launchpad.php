@@ -205,6 +205,13 @@ class AI_Launchpad {
 			array_merge(
 				WP_Build_Polyfills::SCRIPT_HANDLES,
 				WP_Build_Polyfills::MODULE_IDS
+			),
+			null,
+			array(
+				array(
+					'prefix' => 'jetpack_mu_wpcom',
+					'slug'   => 'site-setup',
+				),
 			)
 		);
 	}
