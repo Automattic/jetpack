@@ -409,8 +409,6 @@ class Jetpack_Sitemap_Manager {
 			);
 		}
 
-		$the_content = Jetpack_Sitemap_Stylist::replace_xsl_stylesheet( $the_content, $this->finder->construct_sitemap_url( 'sitemap.css' ) );
-
 		echo $the_content; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- All content created by Jetpack.
 
 		die( 0 );
