@@ -1230,9 +1230,26 @@ class Scan implements Dashboard_Section {
 			'lastChecked'    => $status->last_checked,
 			'lastScanFailed' => ! empty( $status->last_scan_failed ),
 			'progress'       => isset( $status->current_progress ) ? (int) $status->current_progress : null,
-			'pluginsChecked' => count( get_plugins() ),
-			'themesChecked'  => count( wp_get_themes() ),
+			'pluginsChecked' => self::count_checked( $status->plugins ), // @phan-suppress-current-line PhanDeprecatedProperty -- The report's only record of what it checked.
+			'themesChecked'  => self::count_checked( $status->themes ), // @phan-suppress-current-line PhanDeprecatedProperty -- The report's only record of what it checked.
 			'threats'        => Dashboard_Threats::format_all( Dashboard_Threats::without_resolved( $status->threats, Dashboard_Threats::get_scanned_at( $status ) ) ),
+		);
+	}
+
+	/**
+	 * How many of a report's plugins or themes its last check covered at their installed version.
+	 *
+	 * @param array $extensions Extension_Model objects from the report.
+	 * @return int
+	 */
+	private static function count_checked( $extensions ) {
+		return count(
+			array_filter(
+				(array) $extensions,
+				function ( $extension ) {
+					return ! empty( $extension->checked );
+				}
+			)
 		);
 	}
 }
