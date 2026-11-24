@@ -221,7 +221,51 @@ const SCENARIOS = {
 			] )
 		),
 	} ),
-	scanGroups: () => {
+	scanSeptemberWeights: () => ( {
+		metrics: [
+			{
+				...metricRow( 207, 'Forms weight', 'forms-responses-connection-sim-decodedBytesKB' ),
+				unit: 'KB',
+			},
+			{
+				...metricRow( 214, 'My Jetpack weight', 'my-jetpack-connection-sim-decodedBytesKB' ),
+				unit: 'KB',
+			},
+		],
+		series: {
+			207: flaggedSeries(
+				[ ...Array( 8 ).fill( 6687 ), ...Array( 16 ).fill( 7149 ) ],
+				[],
+				'formsweight'
+			),
+			214: flaggedSeries(
+				[ ...Array( 8 ).fill( 6138 ), ...Array( 16 ).fill( 6487 ) ],
+				[],
+				'myweight'
+			),
+		},
+		no302: true,
+	} ),
+	scanExcursion: () => ( {
+		series: {
+			301: flaggedSeries(
+				[
+					...Array( 30 ).fill( 100 ),
+					...Array( 4 ).fill( 106 ),
+					...Array( 8 ).fill( 112.4 ),
+					...Array( 25 ).fill( 106 ),
+				],
+				[],
+				'excursion'
+			),
+		},
+	} ),
+	scanSevenBaseline: () => ( {
+		series: {
+			301: flaggedSeries( [ ...Array( 7 ).fill( 100 ), ...Array( 17 ).fill( 107 ) ], [], 'seven' ),
+		},
+	} ),
+	scanSteps: () => {
 		const noisy = [
 			102, 103, 97, 100, 99, 97, 103, 100, 99, 101, 100, 98, 100, 99, 98, 103, 113, 102, 108, 106,
 			109, 103, 109, 103, 107, 114, 107, 111, 113, 102, 107, 114, 102, 113, 112, 111, 110, 114, 110,
@@ -765,7 +809,7 @@ const SCENARIOS = {
 		series[ 506 ] = levelSeries( Array( 10 ).fill( 0 ), 100, Array( 10 ).fill( 100 ) );
 		return { metrics, series };
 	},
-	// The original rise holds across the brief dip, so the re-land flag adds no new change.
+	// The brief dip interrupts the scan's later comparison window.
 	relanded: () => ( {
 		series: {
 			301: [
@@ -1807,7 +1851,7 @@ test( 'level gate confirms a step with median magnitude and rejects a dip recove
 	assert.ok( ! dip.out.includes( 'sustained regression*' ), dip.out );
 } );
 
-test( 'an unflagged step needs ten commits on each side and produces one digest line', async () => {
+test( 'an unflagged step needs ten later commits and produces one digest line', async () => {
 	const result = await runDigest( 'scannedStep' );
 	assert.equal( result.code, 0, result.err );
 	const payload = JSON.parse( result.out );
@@ -1826,26 +1870,57 @@ test( 'the scan rejects rises that revert before ten later commits', async () =>
 	assert.match( result.out, /No sustained metric regressions/ );
 } );
 
-test( 'scan groups bridge gaps between passing windows and report the full rise', async () => {
-	const result = await runDigest( 'scanGroups' );
+test( 'September weight rises use eight earlier and ten later readings', async () => {
+	const result = await runDigest( 'scanSeptemberWeights' );
 	assert.equal( result.code, 0, result.err );
 	const lines = JSON.parse( result.out ).blocks.map( block => block.text?.text );
-	assert.equal(
-		lines.filter( text => text?.startsWith( '• *Noisy step*' ) ).length,
-		1,
-		result.out
+	for ( const [ name, prefix, rise ] of [
+		[ 'Forms weight', 'formsweight', '+6.9% (6687→7149KB)' ],
+		[ 'My Jetpack weight', 'myweight', '+5.7% (6138→6487KB)' ],
+	] ) {
+		const line = lines.find( text => text?.startsWith( `• *${ name }*` ) );
+		assert.ok( line, result.out );
+		assert.ok( line.includes( `median ${ rise }` ), line );
+		assert.deepEqual(
+			[ ...line.matchAll( /\/commit\/([a-f0-9]{40})\|/g ) ].map( match => match[ 1 ] ),
+			[ hx( prefix + '0' ), hx( prefix + '18' ) ]
+		);
+	}
+} );
+
+test( 'a short excursion after a held rise cannot supply the reported level', async () => {
+	const result = await runDigest( 'scanExcursion' );
+	assert.equal( result.code, 0, result.err );
+	assert.match( result.out, /0 sustained regression\(s\)/ );
+} );
+
+test( 'the scan defers a change point with only seven earlier readings', async () => {
+	const result = await runDigest( 'scanSevenBaseline' );
+	assert.equal( result.code, 0, result.err );
+	assert.match( result.out, /0 sustained regression\(s\)/ );
+	assert.match(
+		result.err,
+		/metric 301: scan windows skipped — 0 outside the look-back, 0 covered by flags, 1 without a confirmed level/
 	);
-	assert.equal(
-		lines.filter( text => text?.startsWith( '• *Nearby steps*' ) ).length,
-		1,
-		result.out
-	);
-	assert.match( result.out, /Nearby steps\* median \+14\.0% \(100→114ms\)/ );
-	assert.equal(
-		lines.filter( text => text?.startsWith( '• *Separate steps*' ) ).length,
-		2,
-		result.out
-	);
+} );
+
+test( 'scan lines report nearby held steps separately', async () => {
+	const result = await runDigest( 'scanSteps' );
+	assert.equal( result.code, 0, result.err );
+	const lines = JSON.parse( result.out ).blocks.map( block => block.text?.text );
+	const reportedRises = name =>
+		lines
+			.filter( text => text?.startsWith( `• *${ name }*` ) )
+			.map( text => text.split( ' — ' )[ 0 ] );
+	assert.deepEqual( reportedRises( 'Noisy step' ), [
+		'• *Noisy step* median +8.0% (99.5→107.5ms)',
+	] );
+	for ( const name of [ 'Nearby steps', 'Separate steps' ] ) {
+		assert.deepEqual( reportedRises( name ), [
+			`• *${ name }* median +6.5% (107→114ms)`,
+			`• *${ name }* median +7.0% (100→107ms)`,
+		] );
+	}
 } );
 
 test( 'scan persistence checks the later window from the estimated change', async () => {
@@ -1854,24 +1929,24 @@ test( 'scan persistence checks the later window from the estimated change', asyn
 	assert.match( result.out, /No sustained metric regressions/ );
 } );
 
-test( 'overlapping flags preserve the full scan rise in one line', async () => {
+test( 'a service flag reports its own comparison when the scan cannot confirm a level', async () => {
 	const result = await runDigest( 'scanFlagOverlap' );
 	assert.equal( result.code, 0, result.err );
 	const lines = JSON.parse( result.out ).blocks.filter( block =>
 		block.text?.text.startsWith( '•' )
 	);
 	assert.equal( lines.length, 2, result.out );
-	assert.match( result.out, /Alpha: TTFB\* median \+23\.0% \(100→123ms\).*flags observed at/ );
-	assert.match( result.out, /Beta: LCP\* median \+14\.8% \(100→114\.8ms\).*flags observed at/ );
+	assert.match( result.out, /Alpha: TTFB\* median \+15\.0% \(107→123ms\).*flags observed at/ );
+	assert.match( result.out, /Beta: LCP\* median \+5\.5% \(100\.3→105\.8ms\).*flags observed at/ );
 } );
 
-test( 'a matching pending flag takes precedence over a held scan rise', async () => {
+test( 'a flag stays pending when the scan cannot confirm a held level', async () => {
 	const result = await runDigest( 'scanPendingOverlap' );
 	assert.equal( result.code, 0, result.err );
 	assert.match( result.out, /0 sustained regression\(s\), 1 pending/ );
 	assert.match(
 		result.err,
-		/metric 301: scan groups skipped — 0 outside the look-back, 1 covered by flags, 0 rises that did not hold/
+		/metric 301: scan windows skipped — 0 outside the look-back, 0 covered by flags, 1 without a confirmed level/
 	);
 } );
 
@@ -1889,14 +1964,14 @@ test( 'a pending second rise stays out of the sustained total', async () => {
 	assert.match( result.out, /median \+7\.0% \(100→107ms\)/ );
 } );
 
-test( 'a nearby pending flag at a different level preserves the held rise', async () => {
+test( 'a nearby pending rise defers a scan window that spans both levels', async () => {
 	const result = await runDigest( 'scanNearPending' );
 	assert.equal( result.code, 0, result.err );
-	assert.match( result.out, /1 sustained regression\(s\), 1 pending/ );
-	assert.match( result.out, /median \+7\.0% \(100→107ms\)/ );
+	assert.match( result.out, /0 sustained regression\(s\), 1 pending/ );
+	assert.match( result.out, /\+15\.0% \(single pair\)/ );
 } );
 
-test( 'an off-time re-run one position outside the scan covers the same rise', async () => {
+test( 'an off-time re-run one position from the estimated change covers the same rise', async () => {
 	const result = await runDigest( 'scanRerunMargin' );
 	assert.equal( result.code, 0, result.err );
 	assert.match( result.out, /1 sustained regression\(s\)/ );
@@ -1907,7 +1982,10 @@ test( 'a scan outside the look-back is counted in the log', async () => {
 	const result = await runDigest( 'agedScan', { STALENESS_DAYS: '60' } );
 	assert.equal( result.code, 0, result.err );
 	assert.match( result.out, /0 sustained regression\(s\)/ );
-	assert.match( result.err, /metric 301: scan groups skipped — 1 outside the look-back/ );
+	assert.match(
+		result.err,
+		/metric 301: scan windows skipped — 1 outside the look-back, 0 covered by flags, 0 without a confirmed level/
+	);
 } );
 
 test( 'Dashboard FCP is excluded from discovery and overrides', async () => {
@@ -2331,10 +2409,11 @@ const CASES = [
 		out: [ 'No sustained metric regressions', '1 transient spike', 'feedbeef8', '(late)' ],
 	},
 	{
-		n: 'scan-finds-the-original-rise-without-confirming-the-reland-flag',
+		n: 'scan-defers-a-rise-whose-later-window-includes-a-dip',
 		sc: 'relanded',
 		exit: 0,
-		out: [ '1 sustained regression*', 'median +100.0% (100→200ms)', '1 transient spike' ],
+		out: [ 'No sustained metric regressions', '1 transient spike', 'feedbeef' ],
+		err: [ '1 without a confirmed level' ],
 	},
 	{
 		n: 'overshoot-flag-value-is-never-a-suppression-reference',

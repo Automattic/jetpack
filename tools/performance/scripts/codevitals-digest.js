@@ -44,6 +44,7 @@ const PAGE_WEIGHT_KEYS = new Set(
 );
 const TIMING_CAVEAT = 'Timings: warm reload, test site with default data, simulated connection.';
 const LEVEL_WINDOW = 10;
+const SCAN_BEFORE_WINDOW = 8;
 const METRIC_POLICIES = [
 	{ id: '203', key: metricKey( 'jetpackConnected', 'fcp' ), exclude: true }, // Duplicates Dashboard LCP.
 	// My Jetpack TTFB and FCP vary more between commits. Remove these factors once more loads lower their noise.
@@ -78,8 +79,8 @@ const levelScore = ( before, fromCandidate, pre ) =>
 	);
 const strongestWindow = ( best, candidate ) => ( candidate.score > best.score ? candidate : best );
 
-const scanLevelHolds = ( rows, { position, pre, post, postValues }, noiseFactor ) => {
-	// Locate the change where assigning readings to the two medians gives the smallest total error.
+const estimateChangePoint = ( rows, position, pre, post ) => {
+	// Pick the split with the least absolute error against the two seed levels.
 	let changeIndex = position - LEVEL_WINDOW;
 	let errorDifference = 0;
 	let bestError = 0;
@@ -91,17 +92,14 @@ const scanLevelHolds = ( rows, { position, pre, post, postValues }, noiseFactor 
 			changeIndex = i + 1;
 		}
 	}
-	const after = rows.slice( changeIndex + 1, changeIndex + 1 + LEVEL_WINDOW ).map( row => row.v );
-	const midpoint = ( pre + post ) / 2;
-	if ( after.length < LEVEL_WINDOW || median( after ) < midpoint ) return false;
+	return changeIndex;
+};
 
-	// A dip can be noise. Reject a return toward baseline only if the readings from the dip support it.
-	return ! after.some( ( value, i ) => {
-		if ( value >= midpoint ) return false;
-		const dip = changeIndex + 1 + i;
-		const following = rows.slice( dip, dip + LEVEL_WINDOW ).map( item => item.v );
-		return median( following ) < midpoint && hasLevelRise( following, postValues, noiseFactor );
-	} );
+const isHeldLevel = ( values, level ) => {
+	// Use adjacent differences so one jump does not widen the tolerance for a mixed window.
+	const differences = values.slice( 1 ).map( ( value, i ) => Math.abs( value - values[ i ] ) );
+	const scale = Math.max( ( 1.4826 * median( differences ) ) / Math.SQRT2, 0.002 * level );
+	return values.every( value => Math.abs( value - level ) <= 3 * scale );
 };
 
 const fmt = v => ( Number.isInteger( v ) ? String( v ) : Number( v ).toFixed( 1 ) );
@@ -751,23 +749,51 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 			else pending.push( entry );
 		}
 
-		// Neighbouring windows can see the same step even when a window between them fails the gate.
 		const scans = [];
-		for ( let position = LEVEL_WINDOW; position < byServe.length - LEVEL_WINDOW; position++ ) {
+		const checkedPositions = new Set();
+		let agedScans = 0;
+		let coveredScans = 0;
+		let unheldScans = 0;
+		for ( let seed = LEVEL_WINDOW; seed < byServe.length - LEVEL_WINDOW; seed++ ) {
+			const seedBefore = byServe.slice( seed - LEVEL_WINDOW, seed ).map( row => row.v );
+			const seedAfter = byServe.slice( seed + 1, seed + LEVEL_WINDOW + 1 ).map( row => row.v );
+			if ( ! hasLevelRise( seedBefore, seedAfter, noiseFactor ) ) continue;
+			const position = estimateChangePoint(
+				byServe,
+				seed,
+				median( seedBefore ),
+				median( seedAfter )
+			);
+			if ( checkedPositions.has( position ) ) continue;
+			checkedPositions.add( position );
+
 			const { t } = byServe[ position ];
-			const before = byServe.slice( position - LEVEL_WINDOW, position );
+			if ( now - t > detectMs ) {
+				agedScans++;
+				continue;
+			}
+			const before = byServe.slice( Math.max( 0, position - SCAN_BEFORE_WINDOW ), position );
 			const after = byServe.slice( position + 1, position + LEVEL_WINDOW + 1 );
 			const preValues = before.map( row => row.v );
 			const postValues = after.map( row => row.v );
-			if ( ! hasLevelRise( preValues, postValues, noiseFactor ) ) continue;
 			const pre = median( preValues );
+			const post = median( postValues );
+			if (
+				before.length !== SCAN_BEFORE_WINDOW ||
+				after.length !== LEVEL_WINDOW ||
+				! hasLevelRise( preValues, postValues, noiseFactor ) ||
+				! isHeldLevel( postValues, post )
+			) {
+				unheldScans++;
+				continue;
+			}
 			const fromCandidate = byServe.slice( position, position + LEVEL_WINDOW ).map( row => row.v );
-			const entry = {
+			scans.push( {
 				...series,
 				t,
 				late: now - t > windowMs,
 				pre,
-				post: median( postValues ),
+				post,
 				preValues,
 				postValues,
 				score: levelScore( preValues, fromCandidate, pre ),
@@ -775,80 +801,44 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 				rangeEnd: after.at( -1 ).p.hash,
 				position,
 				fromScan: true,
-			};
-			const group = scans.at( -1 );
-			if ( group && position - group.at( -1 ).position <= LEVEL_WINDOW ) group.push( entry );
-			else scans.push( [ entry ] );
+			} );
 		}
-		let agedScans = 0;
-		let coveredScans = 0;
-		let unheldScans = 0;
-		for ( const group of scans ) {
-			// The reported later level must hold, or a short excursion inflates the total.
-			while ( group.length > 1 && ! scanLevelHolds( byServe, group.at( -1 ), noiseFactor ) ) {
-				group.pop();
-			}
-			const entry = group.reduce( strongestWindow );
-			const first = group[ 0 ];
-			const last = group.at( -1 );
-			if ( now - entry.t > detectMs ) {
-				agedScans++;
-				continue;
-			}
-			// A nearby pending spike can describe the same plateau without enough later commits to confirm it.
-			const tolerance = Math.min( 0.05 * last.post, 3 * robustScale( last.postValues, last.post ) );
+
+		const levelsAgree = ( a, b ) =>
+			! hasLevelRise( a, b, noiseFactor ) && ! hasLevelRise( b, a, noiseFactor );
+		const sameChange = ( a, b ) =>
+			Math.abs( a.position - b.position ) <= LEVEL_WINDOW &&
+			levelsAgree( a.preValues, b.preValues ) &&
+			levelsAgree( a.postValues, b.postValues );
+		const reportedScans = [];
+		for ( const entry of scans.sort( ( a, b ) => b.score - a.score ) ) {
+			const tolerance = Math.min(
+				0.05 * entry.post,
+				3 * robustScale( entry.postValues, entry.post )
+			);
 			const pendingOnPlateau = metricPending.some(
 				flag =>
 					Math.abs( flag.position - entry.position ) <= LEVEL_WINDOW &&
-					Math.abs( median( flag.postValues ) - last.post ) <= tolerance
+					Math.abs( median( flag.postValues ) - entry.post ) <= tolerance
 			);
-			if ( pendingOnPlateau ) {
+			if ( pendingOnPlateau || sustained.some( flag => sameChange( flag, entry ) ) ) {
 				coveredScans++;
 				continue;
 			}
-			if ( ! scanLevelHolds( byServe, entry, noiseFactor ) ) {
-				unheldScans++;
-				continue;
-			}
-
-			// An off-time re-run can sit between the kept commits of the same change.
-			const overlapping = groups.filter( g =>
-				g.some(
-					member =>
-						! member.fromScan &&
-						member.pre !== undefined &&
-						member.position >= first.position - 1 &&
-						member.position <= last.position + 1
-				)
-			);
-			if ( overlapping.length === 0 ) {
-				groups.push( group );
-				continue;
-			}
-			const matchedMembers = overlapping.flat().sort( ( a, b ) => a.position - b.position );
-			const complete = matchedMembers.filter( member => member.pre !== undefined );
-			if (
-				! hasLevelRise( first.preValues, complete[ 0 ].preValues, noiseFactor ) &&
-				! hasLevelRise( complete.at( -1 ).postValues, last.postValues, noiseFactor )
-			) {
-				coveredScans++;
-				continue;
-			}
-			for ( const matched of overlapping ) groups.splice( groups.indexOf( matched ), 1 );
-			groups.push( [ ...matchedMembers, ...group ].sort( ( a, b ) => a.position - b.position ) );
+			// Compare only against the selected windows. A discarded window cannot join two changes.
+			if ( reportedScans.some( prior => sameChange( prior, entry ) ) ) continue;
+			reportedScans.push( entry );
+			groups.push( [ entry ] );
 		}
 		if ( agedScans || coveredScans || unheldScans )
 			console.error(
-				`metric ${ id }: scan groups skipped — ${ agedScans } outside the look-back, ${ coveredScans } covered by flags, ${ unheldScans } rises that did not hold`
+				`metric ${ id }: scan windows skipped — ${ agedScans } outside the look-back, ${ coveredScans } covered by flags, ${ unheldScans } without a confirmed level`
 			);
 
 		for ( const group of groups ) {
 			const complete = group.filter( entry => entry.pre !== undefined );
-			const flags = group.filter( entry => ! entry.fromScan );
-			const confirmedFlags = flags.filter( entry => entry.pre !== undefined );
-			const candidates = confirmedFlags.length > 0 ? confirmedFlags : complete;
-			const originals = candidates.filter( entry => entry.self );
-			const pool = originals.length > 0 ? originals : candidates;
+			const originals = complete.filter( entry => entry.self );
+			const pool = originals.length > 0 ? originals : complete;
 			const entry = pool.reduce( strongestWindow );
 			// Only confirmed in-window members keep the group in the sustained bucket.
 			const late = complete.every( member => member.late );
@@ -859,8 +849,8 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 				rangeStart: complete[ 0 ].rangeStart,
 				rangeEnd: complete.at( -1 ).rangeEnd,
 				late,
-				members: flags,
-				grouped: flags.length,
+				members: group,
+				grouped: group.length,
 			} );
 		}
 	}
