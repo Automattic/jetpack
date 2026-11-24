@@ -63,7 +63,9 @@ class Defer_Fonts_Test extends Base_TestCase {
 		$this->assertStringNotContainsString( '</script>', $script );
 		$this->assertStringContainsString( 'addEventListener("load",add)', $script );
 		$this->assertStringContainsString( 'd.readyState==="complete"', $script, 'Fonts must still be added when the loader runs after `load`.' );
-		$this->assertStringContainsString( '"jetpack-boost-defer-fonts-3"', $script, 'Each site on a multisite needs its own localStorage key.' );
+		$this->assertStringContainsString( '"jetpack-boost-defer-fonts-3"', $script, 'Each site on a multisite needs its own storage key.' );
+		$this->assertStringNotContainsString( 'localStorage', $script, 'A hash that outlives the HTTP cache loads uncached fonts alongside the LCP image.' );
+		$this->assertStringContainsString( 'sessionStorage.setItem(key,hash)', $script );
 		$this->assertStringContainsString( 'setTimeout(add,wait)', $script, 'A slow embed must not hold the fonts back past the cap.' );
 		$this->assertStringEndsWith( ',' . Defer_Fonts::LOAD_WAIT_MS . ');', $script );
 		$this->assertStringContainsString( 'if(done){return}', $script, 'The fonts must be added once, whichever of load and the cap comes first.' );

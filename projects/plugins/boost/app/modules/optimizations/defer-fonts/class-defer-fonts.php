@@ -22,7 +22,9 @@ use Automattic\Jetpack_Boost\Data_Sync\Minify_Excludes_State_Entry;
 class Defer_Fonts implements Feature, Changes_Output_On_Activation, Changes_Output_After_Activation, Optimization, Has_Data_Sync {
 
 	/**
-	 * Key in localStorage remembering which font set the visitor's browser has already downloaded.
+	 * Key in sessionStorage remembering which font set this visit has already downloaded.
+	 *
+	 * Not localStorage: it outlives the HTTP cache, and a stale hash would load uncached fonts alongside the LCP image.
 	 */
 	const STORAGE_KEY = 'jetpack-boost-defer-fonts';
 
@@ -296,7 +298,7 @@ class Defer_Fonts implements Feature, Changes_Output_On_Activation, Changes_Outp
 		return sprintf(
 			// Adds once: on `load`, after LOAD_WAIT_MS at the latest, or at once if `load` already fired (delayed-JS plugins).
 			// Waits a frame before fonts.ready so the new fonts are pending when it is checked.
-			'(function(css,key,hash,wait){var d=document,stored,done;function add(){if(done){return}done=1;var s=d.createElement("style");s.className="wp-fonts-local";s.textContent=css;d.head.appendChild(s);d.fonts&&requestAnimationFrame(function(){d.fonts.ready.then(function(){try{localStorage.setItem(key,hash)}catch(e){}})})}try{stored=localStorage.getItem(key)}catch(e){}if(stored===hash||d.readyState==="complete"){add()}else{addEventListener("load",add);setTimeout(add,wait)}})(%s,%s,%s,%d);',
+			'(function(css,key,hash,wait){var d=document,stored,done;function add(){if(done){return}done=1;var s=d.createElement("style");s.className="wp-fonts-local";s.textContent=css;d.head.appendChild(s);d.fonts&&requestAnimationFrame(function(){d.fonts.ready.then(function(){try{sessionStorage.setItem(key,hash)}catch(e){}})})}try{stored=sessionStorage.getItem(key)}catch(e){}if(stored===hash||d.readyState==="complete"){add()}else{addEventListener("load",add);setTimeout(add,wait)}})(%s,%s,%s,%d);',
 			$encode( $css ),
 			$encode( self::STORAGE_KEY . '-' . get_current_blog_id() ),
 			$encode( substr( md5( $css ), 0, 12 ) ),
