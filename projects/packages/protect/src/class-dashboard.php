@@ -11,6 +11,7 @@ use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Admin_UI\Admin_Shell;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Modules;
+use Automattic\Jetpack\Protect_Status\Ignored_Vulnerabilities;
 use Automattic\Jetpack\Protect_Status\Plan;
 use Automattic\Jetpack\Protect_Status\Scan_Status;
 use Automattic\Jetpack\Protect_Status\Status as Protect_Status;
@@ -131,6 +132,9 @@ class Dashboard {
 		}
 		Threat_Count::init();
 		Settings::init();
+		if ( class_exists( Ignored_Vulnerabilities::class ) && method_exists( Ignored_Vulnerabilities::class, 'register_hooks' ) ) {
+			Ignored_Vulnerabilities::register_hooks();
+		}
 		add_action( 'add_option_' . Scan_Status::OPTION_NAME, array( Dashboard_Threats::class, 'prune_on_stored_scan' ), 10, 2 );
 		add_action( 'update_option_' . Scan_Status::OPTION_NAME, array( Dashboard_Threats::class, 'prune_on_stored_scan' ), 10, 2 );
 

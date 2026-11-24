@@ -4,7 +4,7 @@ import { __ } from '@wordpress/i18n';
 import { close } from '@wordpress/icons';
 import { IconButton } from '@wordpress/ui';
 import { useRecordThreatOpen } from '../../data/threat-events';
-import { useSearchParam } from '../scan/store';
+import { useScan, useSearchParam } from '../scan/store';
 import ThreatDetails from '../scan/threat-details';
 import { HISTORY_THREAT_PARAM, loadHistory, useHistory } from './store';
 
@@ -16,7 +16,11 @@ import { HISTORY_THREAT_PARAM, loadHistory, useHistory } from './store';
 export default function HistoryInspector() {
 	const [ selected, setThreat ] = useSearchParam( HISTORY_THREAT_PARAM );
 	const { threats } = useHistory();
-	const threat = threats?.find( item => String( item.id ) === selected );
+	const scan = useScan();
+	// Free sites list only ignored threats here, so read the live list an unignore updates.
+	const threat = ( scan?.hasPlan ? threats : threats && scan?.ignored )?.find(
+		item => String( item.id ) === selected
+	);
 	const onClose = useCallback( () => setThreat(), [ setThreat ] );
 	useRecordThreatOpen( threat );
 

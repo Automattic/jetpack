@@ -12,6 +12,7 @@ use Automattic\Jetpack\Admin_UI\Admin_Shell;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Protect\Sections\Scan;
+use Automattic\Jetpack\Protect_Status\Ignored_Vulnerabilities;
 use Automattic\Jetpack\Protect_Status\Plan;
 use Automattic\Jetpack\Protect_Status\Protect_Status;
 use Automattic\Jetpack\Protect_Status\Scan_Status;
@@ -41,6 +42,14 @@ class Dashboard_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Test that init() hooks the ignored-vulnerability cleanup to plugin and theme deletion.
+	 */
+	public function test_init_clears_ignores_when_a_plugin_or_theme_is_deleted() {
+		$this->assertNotFalse( has_action( 'deleted_plugin', array( Ignored_Vulnerabilities::class, 'on_plugin_deleted' ) ) );
+		$this->assertNotFalse( has_action( 'deleted_theme', array( Ignored_Vulnerabilities::class, 'on_theme_deleted' ) ) );
+	}
+
+	/**
 	 * Leave no queued items or hooks behind.
 	 */
 	public function tear_down() {
@@ -48,6 +57,8 @@ class Dashboard_Test extends BaseTestCase {
 		self::reset_sections();
 		remove_all_actions( 'admin_menu' );
 		remove_all_actions( 'rest_api_init' );
+		remove_all_actions( 'deleted_plugin' );
+		remove_all_actions( 'deleted_theme' );
 		remove_all_actions( 'doing_it_wrong_run' );
 		remove_all_filters( 'doing_it_wrong_trigger_error' );
 		remove_all_actions( 'admin_enqueue_scripts' );

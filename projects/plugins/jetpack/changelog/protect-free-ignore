@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Protect: Let sites without a Scan plan ignore a vulnerability they've reviewed.

@@ -9,6 +9,9 @@ import type { ScanThreat } from '../types';
 jest.mock( '@wordpress/api-fetch', () => ( { __esModule: true, default: jest.fn() } ) );
 
 const mockApiFetch = apiFetch as unknown as jest.Mock;
+// A Scan site, where canAct holds, unless a test sets another.
+const SCAN_SITE = { scan: { hasPlan: true, url: '' } };
+window.jetpackProtectDashboard = SCAN_SITE;
 const open = jest.fn();
 
 const threatIn = ( id: number | string ): ScanThreat => ( {
@@ -170,7 +173,7 @@ describe( 'useThreatRowActions with bulk actions', () => {
 
 describe( 'useThreatRowActions where the host decides about ignoring', () => {
 	afterEach( () => {
-		delete window.jetpackProtectDashboard;
+		window.jetpackProtectDashboard = SCAN_SITE;
 		resetScan();
 	} );
 
@@ -193,11 +196,34 @@ describe( 'useThreatRowActions where the host decides about ignoring', () => {
 			expect( isEligible( false ) ).toBe( offered );
 		}
 	);
+
+	it.each( [
+		[ 'current', true, [ 'ignore' ] ],
+		[ 'ignored', true, [ 'unignore' ] ],
+		[ 'current', false, [] ],
+		[ 'ignored', false, [ 'unignore' ] ],
+	] as const )(
+		'on a free site, offers a %s threat with canIgnore %p only %p',
+		( status, canIgnore, expected ) => {
+			window.jetpackProtectDashboard = {
+				scan: { hasPlan: false, url: '', freeIgnore: true, canIgnore },
+			};
+			resetScan();
+			const threat = { ...threatIn( 21 ), status };
+			const { result } = renderHook( () => useThreatRowActions( open, false ) );
+
+			expect(
+				eligibleIds( result.current, threat ).filter(
+					id => id.startsWith( 'auto-fix' ) || id.endsWith( 'ignore' ) || id === 'view-file'
+				)
+			).toEqual( expected );
+		}
+	);
 } );
 
 describe( 'useThreatRowActions where the user may not see the site’s code', () => {
 	afterEach( () => {
-		delete window.jetpackProtectDashboard;
+		window.jetpackProtectDashboard = SCAN_SITE;
 		resetScan();
 	} );
 

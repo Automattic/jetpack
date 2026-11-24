@@ -134,6 +134,7 @@ add_filter(
 
 register_activation_hook( __FILE__, array( 'Jetpack_Protect', 'plugin_activation' ) );
 register_deactivation_hook( __FILE__, array( 'Jetpack_Protect', 'plugin_deactivation' ) );
+register_uninstall_hook( __FILE__, array( 'Jetpack_Protect', 'plugin_uninstall' ) );
 
 // Main plugin class.
 new Jetpack_Protect();

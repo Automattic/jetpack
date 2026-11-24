@@ -366,6 +366,16 @@ export function useCanIgnore(): boolean {
 }
 
 /**
+ * Whether the site can ignore and unignore threats at all: with Scan, or on the free check.
+ *
+ * @return True with a Scan plan, or where the free check supports ignoring.
+ */
+export function useCanToggleIgnore(): boolean {
+	const scan = useScan();
+	return !! scan?.hasPlan || scan?.freeIgnore === true;
+}
+
+/**
  * Whether the user may view, delete or restore the file a threat was found in.
  *
  * @return True when the site lets the user edit its code.

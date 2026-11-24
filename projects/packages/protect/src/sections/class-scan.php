@@ -13,6 +13,9 @@ use Automattic\Jetpack\Protect\Dashboard_Section;
 use Automattic\Jetpack\Protect\Dashboard_Threats;
 use Automattic\Jetpack\Protect\Protected_Options;
 use Automattic\Jetpack\Protect\Threat_File;
+use Automattic\Jetpack\Protect_Models\Extension_Model;
+use Automattic\Jetpack\Protect_Models\Threat_Model;
+use Automattic\Jetpack\Protect_Status\Ignored_Vulnerabilities;
 use Automattic\Jetpack\Protect_Status\Protect_Status;
 use Automattic\Jetpack\Protect_Status\Scan_Status;
 use Automattic\Jetpack\Protect_Status\Status;
@@ -133,6 +136,7 @@ class Scan implements Dashboard_Section {
 				'hasPlan'      => $has_plan,
 				'canIgnore'    => self::allows_ignoring(),
 				'canViewFiles' => self::can_view_threat_files(),
+				'freeIgnore'   => self::supports_free_ignore(),
 			),
 			$plan_state,
 			$report
@@ -260,9 +264,28 @@ class Scan implements Dashboard_Section {
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( __CLASS__, 'get_ignored_threats' ),
-				'permission_callback' => array( __CLASS__, 'can_act_on_threats' ),
+				'permission_callback' => array( __CLASS__, 'can_list_ignored_threats' ),
 			)
 		);
+
+		foreach ( array( 'ignore', 'unignore' ) as $action ) {
+			register_rest_route(
+				'jetpack/v4',
+				"/protect-dashboard/scan/vulnerabilities/$action",
+				array(
+					'methods'             => WP_REST_Server::CREATABLE,
+					'callback'            => array( __CLASS__, "{$action}_vulnerability_threat" ),
+					'permission_callback' => array( __CLASS__, "can_{$action}_vulnerabilities" ),
+					'args'                => array(
+						'id' => array(
+							'description' => __( 'The ID of the threat, as the free vulnerability check reports it.', 'jetpack-protect-pkg' ),
+							'type'        => 'string',
+							'required'    => true,
+						),
+					),
+				)
+			);
+		}
 
 		register_rest_route(
 			'jetpack/v4',
@@ -352,7 +375,7 @@ class Scan implements Dashboard_Section {
 	}
 
 	/**
-	 * Only Scan can fix or ignore threats; the free vulnerability check can't.
+	 * Only Scan can fix threats, and act on the threats it reports.
 	 *
 	 * @return bool|WP_Error
 	 */
@@ -364,6 +387,158 @@ class Scan implements Dashboard_Section {
 			return new WP_Error( 'scan_plan_required', __( 'Fixing and ignoring threats needs Jetpack Scan.', 'jetpack-protect-pkg' ), array( 'status' => 403 ) );
 		}
 		return true;
+	}
+
+	/**
+	 * Whether a site without Scan can ignore threats from the free vulnerability check.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	public static function supports_free_ignore() {
+		return ! Dashboard::has_scan_plan() && class_exists( Ignored_Vulnerabilities::class );
+	}
+
+	/**
+	 * Ignoring a free-check threat needs everything unignoring does, and a host that allows it.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool|WP_Error
+	 */
+	public static function can_ignore_vulnerabilities() {
+		$allowed = self::can_unignore_vulnerabilities();
+		if ( true !== $allowed || self::allows_ignoring() ) {
+			return $allowed;
+		}
+		return new WP_Error( 'threat_ignoring_disabled', __( 'Threats can’t be ignored on this site.', 'jetpack-protect-pkg' ), array( 'status' => 403 ) );
+	}
+
+	/**
+	 * Only a site without Scan keeps its own ignored list; Scan ignores threats on WordPress.com.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool|WP_Error
+	 */
+	public static function can_unignore_vulnerabilities() {
+		if ( ! Dashboard::can_manage() ) {
+			return false;
+		}
+		if ( Dashboard::has_scan_plan() ) {
+			return new WP_Error( 'scan_plan_has_its_own_ignore', __( 'Ignore threats from the threat list, where Jetpack Scan reports them.', 'jetpack-protect-pkg' ), array( 'status' => 403 ) );
+		}
+		if ( ! self::supports_free_ignore() ) {
+			return new WP_Error( 'threat_ignoring_disabled', __( 'Threats can’t be ignored on this site.', 'jetpack-protect-pkg' ), array( 'status' => 403 ) );
+		}
+		return true;
+	}
+
+	/**
+	 * The ignored list comes from Scan history with a plan, and from the site's own list without one.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool|WP_Error
+	 */
+	public static function can_list_ignored_threats() {
+		return self::supports_free_ignore() ? Dashboard::can_manage() : self::can_act_on_threats();
+	}
+
+	/**
+	 * Ignore a threat from the free vulnerability check, until a new vulnerability is reported for its extension.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param WP_REST_Request $request The request, with the threat `id`.
+	 * @return array|WP_Error
+	 */
+	public static function ignore_vulnerability_threat( WP_REST_Request $request ) {
+		$id = (string) $request['id'];
+		foreach ( (array) Protect_Status::get_status()->threats as $threat ) {
+			if ( $threat->id !== $id ) {
+				continue;
+			}
+			if ( ! Ignored_Vulnerabilities::ignore( $threat ) ) {
+				return new WP_Error( 'threat_not_ignored', __( 'The threat couldn’t be ignored. Try again in a few minutes.', 'jetpack-protect-pkg' ), array( 'status' => 500 ) );
+			}
+			self::forget_free_report();
+			return array( 'ok' => true );
+		}
+		return new WP_Error( 'threat_not_found', __( 'The threat wasn’t found. Reload the page and try again.', 'jetpack-protect-pkg' ), array( 'status' => 404 ) );
+	}
+
+	/**
+	 * Report an ignored free-check threat again.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param WP_REST_Request $request The request, with the threat `id`.
+	 * @return array|WP_Error
+	 */
+	public static function unignore_vulnerability_threat( WP_REST_Request $request ) {
+		if ( ! Ignored_Vulnerabilities::unignore( (string) $request['id'] ) ) {
+			return new WP_Error( 'threat_not_found', __( 'The threat wasn’t found. Reload the page and try again.', 'jetpack-protect-pkg' ), array( 'status' => 404 ) );
+		}
+		self::forget_free_report();
+		return array( 'ok' => true );
+	}
+
+	/**
+	 * Drop the free report read this request, so the next read applies the ignored list.
+	 *
+	 * @return void
+	 */
+	private static function forget_free_report() {
+		Protect_Status::$status = null;
+		Status::$status         = null;
+	}
+
+	/**
+	 * The free check's ignored threats, shaped like the threat list's.
+	 *
+	 * @return array
+	 */
+	private static function format_ignored_vulnerabilities() {
+		$threats = array();
+		foreach ( Ignored_Vulnerabilities::get_all() as $entry ) {
+			$extension = new Extension_Model(
+				array(
+					'slug'    => $entry['slug'],
+					'name'    => $entry['name'],
+					'version' => $entry['version'],
+					'type'    => $entry['type'],
+				)
+			);
+
+			$vulnerabilities = array();
+			foreach ( $entry['vulnerabilities'] as $key => $title ) {
+				$vulnerabilities[] = array(
+					// Ignored_Vulnerabilities keys a vulnerability without an ID by its title.
+					'id'    => 0 === strpos( (string) $key, 'title:' ) ? null : (string) $key,
+					'title' => $title,
+				);
+			}
+
+			$ignored_at = $entry['ignored_at'] ? strtotime( $entry['ignored_at'] . ' UTC' ) : false;
+
+			$threats[] = array(
+				'id'              => $entry['threat_id'],
+				'title'           => Threat_Model::generate_from_extension_vulnerabilities( $extension, array() )->title,
+				'status'          => 'ignored',
+				'severity'        => null,
+				'firstDetected'   => $ignored_at ? gmdate( 'Y-m-d\TH:i:s.000\Z', $ignored_at ) : null,
+				'extension'       => array(
+					'slug'    => $entry['slug'],
+					'name'    => $entry['name'],
+					'type'    => $entry['type'],
+					'version' => $entry['version'],
+				),
+				'vulnerabilities' => $vulnerabilities,
+			);
+		}
+		return $threats;
 	}
 
 	/**
@@ -434,11 +609,14 @@ class Scan implements Dashboard_Section {
 	}
 
 	/**
-	 * Threats the site has ignored, from Scan history.
+	 * Threats the site has ignored: from Scan history, or the free check's ignored list without Scan.
 	 *
 	 * @return array|WP_Error
 	 */
 	public static function get_ignored_threats() {
+		if ( self::supports_free_ignore() ) {
+			return self::format_ignored_vulnerabilities();
+		}
 		$history = self::get_history_threats();
 		if ( is_wp_error( $history ) ) {
 			return new WP_Error( 'ignored_unavailable', __( 'Ignored threats are unavailable right now.', 'jetpack-protect-pkg' ), array( 'status' => 502 ) );

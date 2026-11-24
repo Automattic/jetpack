@@ -10,8 +10,10 @@ namespace Automattic\Jetpack\Protect;
 use Automattic\Jetpack\Protect\Sections\Scan;
 use Automattic\Jetpack\Protect_Models\Status_Model;
 use Automattic\Jetpack\Protect_Models\Threat_Model;
+use Automattic\Jetpack\Protect_Status\Ignored_Vulnerabilities;
 use Automattic\Jetpack\Protect_Status\Protect_Status;
 use Automattic\Jetpack\Protect_Status\Scan_Status;
+use Automattic\Jetpack\Protect_Status\Status;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
@@ -70,6 +72,11 @@ class Scan_Section_Test extends BaseTestCase {
 		\Jetpack_Options::delete_option( 'id' );
 		delete_option( Scan_Status::OPTION_NAME );
 		Scan_Status::$status = null;
+		delete_option( Protect_Status::OPTION_NAME );
+		delete_option( Protect_Status::OPTION_TIMESTAMP_NAME );
+		Protect_Status::$status = null;
+		Status::$status         = null;
+		Ignored_Vulnerabilities::delete_option();
 		\Automattic\Jetpack\Constants::clear_constants();
 		\Automattic\Jetpack\Status\Cache::clear();
 		if ( self::$row_lookup ) {
@@ -136,6 +143,8 @@ class Scan_Section_Test extends BaseTestCase {
 	 * Test that the ignored list keeps only ignored threats from the history it shares with the History tab.
 	 */
 	public function test_ignored_threats_come_from_the_shared_history() {
+		update_option( \Automattic\Jetpack\Current_Plan::SITE_PRODUCTS_OPTION, array( array( 'product_slug' => 'jetpack_scan' ) ) );
+		\Automattic\Jetpack\Protect_Status\Plan::has_required_plan( true );
 		set_transient(
 			Scan::HISTORY_CACHE,
 			array(
@@ -1194,5 +1203,178 @@ class Scan_Section_Test extends BaseTestCase {
 		$path = self::call( 'locate_threat_file', self::scan_path( $filename ) );
 
 		$this->assertSame( $is_found ? realpath( $dir ) . '/protect-threat-file.php' : null, $path );
+	}
+
+	/**
+	 * Store a free report with a vulnerable Akismet, and log in as an administrator.
+	 *
+	 * @return string The Akismet threat's ID.
+	 */
+	private static function set_up_free_report() {
+		self::seed_plugin_cache(
+			array(
+				'akismet/akismet.php' => array(
+					'Name'    => 'Akismet',
+					'Version' => '1.0',
+				),
+			)
+		);
+		update_option(
+			Protect_Status::OPTION_NAME,
+			(object) array(
+				'last_checked' => '2026-11-05 10:00:00',
+				'plugins'      => (object) array(
+					'akismet/akismet.php' => (object) array(
+						'slug'            => 'akismet/akismet.php',
+						'name'            => 'Akismet',
+						'version'         => '1.0',
+						'checked'         => true,
+						'vulnerabilities' => array(
+							(object) array(
+								'id'       => 'vuln-1',
+								'title'    => 'XSS in Akismet',
+								'fixed_in' => '1.1',
+							),
+						),
+					),
+				),
+			)
+		);
+		update_option( Protect_Status::OPTION_TIMESTAMP_NAME, time() + HOUR_IN_SECONDS );
+		wp_set_current_user(
+			wp_insert_user(
+				array(
+					'user_login' => 'admin',
+					'user_pass'  => 'pass',
+					'role'       => 'administrator',
+				)
+			)
+		);
+		add_action( 'rest_api_init', array( new Scan(), 'register_routes' ) );
+		return 'plugins-akismet/akismet.php-1.0';
+	}
+
+	/**
+	 * Send a request to a free-plan ignore route.
+	 *
+	 * @param string $action `ignore` or `unignore`.
+	 * @param string $id     The threat ID.
+	 * @return \WP_REST_Response
+	 */
+	private static function request_free_ignore( $action, $id ) {
+		$request = new WP_REST_Request( 'POST', "/jetpack/v4/protect-dashboard/scan/vulnerabilities/$action" );
+		$request->set_param( 'id', $id );
+		return rest_do_request( $request );
+	}
+
+	/**
+	 * The IDs of the threats the free report shows.
+	 *
+	 * @return string[]
+	 */
+	private static function free_threat_ids() {
+		Protect_Status::$status = null;
+		return array_column( ( new Scan() )->get_state()['threats'], 'id' );
+	}
+
+	public function test_free_site_can_ignore_and_unignore_a_vulnerability_threat() {
+		$id = self::set_up_free_report();
+		$this->assertSame( array( $id ), self::free_threat_ids() );
+
+		$ignored = self::request_free_ignore( 'ignore', $id );
+
+		$this->assertSame( array( 'ok' => true ), $ignored->get_data() );
+		$this->assertSame( array(), array_column( ( new Scan() )->get_state()['threats'], 'id' ) );
+		$list = rest_do_request( new WP_REST_Request( 'GET', '/jetpack/v4/protect-dashboard/scan/ignored' ) )->get_data();
+		$this->assertCount( 1, $list );
+		$this->assertSame( $id, $list[0]['id'] );
+		$this->assertSame( 'ignored', $list[0]['status'] );
+		$this->assertSame( 'Vulnerable plugin: Akismet (version 1.0)', $list[0]['title'] );
+		$this->assertMatchesRegularExpression( '/^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d\.000Z$/', $list[0]['firstDetected'] );
+		$this->assertSame( 'akismet/akismet.php', $list[0]['extension']['slug'] );
+		$this->assertSame(
+			array(
+				array(
+					'id'    => 'vuln-1',
+					'title' => 'XSS in Akismet',
+				),
+			),
+			$list[0]['vulnerabilities']
+		);
+
+		$unignored = self::request_free_ignore( 'unignore', $id );
+
+		$this->assertSame( array( 'ok' => true ), $unignored->get_data() );
+		$this->assertSame( array( $id ), array_column( ( new Scan() )->get_state()['threats'], 'id' ) );
+	}
+
+	/**
+	 * @dataProvider provide_free_ignore_refusals
+	 *
+	 * @param string      $setup    `scan plan`, `ignoring off`, `unknown id` or `subscriber`.
+	 * @param string      $action   `ignore` or `unignore`.
+	 * @param string|null $expected The error code, or null when the request goes through.
+	 */
+	#[DataProvider( 'provide_free_ignore_refusals' )]
+	public function test_free_ignore_routes_refuse( $setup, $action, $expected ) {
+		$id = self::set_up_free_report();
+		if ( 'unignore' === $action ) {
+			Ignored_Vulnerabilities::ignore( Protect_Status::get_status()->threats[0] );
+		}
+		if ( 'scan plan' === $setup ) {
+			update_option( \Automattic\Jetpack\Current_Plan::SITE_PRODUCTS_OPTION, array( array( 'product_slug' => 'jetpack_scan' ) ) );
+			\Automattic\Jetpack\Protect_Status\Plan::has_required_plan( true );
+		} elseif ( 'ignoring off' === $setup ) {
+			add_filter( 'jetpack_protect_threat_ignoring_enabled', '__return_false' );
+		} elseif ( 'unknown id' === $setup ) {
+			$id = 'plugins-hello-1.0';
+		} elseif ( 'subscriber' === $setup ) {
+			wp_set_current_user(
+				wp_insert_user(
+					array(
+						'user_login' => 'subscriber',
+						'user_pass'  => 'pass',
+						'role'       => 'subscriber',
+					)
+				)
+			);
+		}
+
+		$response = self::request_free_ignore( $action, $id );
+
+		$this->assertSame( $expected, $response->is_error() ? $response->as_error()->get_error_code() : null );
+	}
+
+	/**
+	 * Requests the free-plan ignore routes refuse, and what each answers with.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_free_ignore_refusals() {
+		return array(
+			'Scan plan, ignore'      => array( 'scan plan', 'ignore', 'scan_plan_has_its_own_ignore' ),
+			'Scan plan, unignore'    => array( 'scan plan', 'unignore', 'scan_plan_has_its_own_ignore' ),
+			'ignoring off, ignore'   => array( 'ignoring off', 'ignore', 'threat_ignoring_disabled' ),
+			'ignoring off, unignore' => array( 'ignoring off', 'unignore', null ),
+			'unknown ID, ignore'     => array( 'unknown id', 'ignore', 'threat_not_found' ),
+			'unknown ID, unignore'   => array( 'unknown id', 'unignore', 'threat_not_found' ),
+			'subscriber, ignore'     => array( 'subscriber', 'ignore', 'rest_forbidden' ),
+			'subscriber, unignore'   => array( 'subscriber', 'unignore', 'rest_forbidden' ),
+		);
+	}
+
+	/**
+	 * @dataProvider provide_plans
+	 *
+	 * @param bool $has_plan Whether the site has a Scan plan.
+	 */
+	#[DataProvider( 'provide_plans' )]
+	public function test_free_state_says_ignore_is_supported( $has_plan ) {
+		if ( $has_plan ) {
+			update_option( \Automattic\Jetpack\Current_Plan::SITE_PRODUCTS_OPTION, array( array( 'product_slug' => 'jetpack_scan' ) ) );
+			\Automattic\Jetpack\Protect_Status\Plan::has_required_plan( true );
+		}
+
+		$this->assertSame( ! $has_plan, ( new Scan() )->get_state()['freeIgnore'] );
 	}
 }

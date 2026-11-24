@@ -30,6 +30,7 @@ use Automattic\Jetpack\Protect\REST_Controller;
 use Automattic\Jetpack\Protect\Scan_History;
 use Automattic\Jetpack\Protect\Site_Health;
 use Automattic\Jetpack\Protect\Threats;
+use Automattic\Jetpack\Protect_Status\Ignored_Vulnerabilities;
 use Automattic\Jetpack\Protect_Status\Plan;
 use Automattic\Jetpack\Protect_Status\Protect_Status;
 use Automattic\Jetpack\Protect_Status\Scan_Status;
@@ -438,6 +439,22 @@ class Jetpack_Protect {
 		Protect_Status::delete_option();
 		Scan_Status::delete_option();
 		Scan_History::delete_option();
+	}
+
+	/**
+	 * Delete the site's ignored vulnerabilities, unless another Jetpack plugin still shows them.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return void
+	 */
+	public static function plugin_uninstall() {
+		if ( ! Connection_Manager::is_ready_for_cleanup( JETPACK_PROTECT_FOLDER ) ) {
+			return;
+		}
+		if ( class_exists( Ignored_Vulnerabilities::class ) ) {
+			Ignored_Vulnerabilities::delete_option();
+		}
 	}
 
 	/**

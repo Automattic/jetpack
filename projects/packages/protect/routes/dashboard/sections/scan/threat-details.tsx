@@ -10,7 +10,14 @@ import { FixDeleteConfirmation, getDeleteFixTitle } from './fix-delete-confirmat
 import { FixUpdateConfirmation, getUpdateFixTitle } from './fix-update-confirmation';
 import { getSoftwareActionLabels, getThreatLabel } from './labels';
 import SeverityBadge from './severity-badge';
-import { THREAT_PARAM, useCanIgnore, useCanViewFiles, useScan, useSearchParam } from './store';
+import {
+	THREAT_PARAM,
+	useCanIgnore,
+	useCanToggleIgnore,
+	useCanViewFiles,
+	useScan,
+	useSearchParam,
+} from './store';
 import {
 	deleteThreatRow,
 	fixThreat,
@@ -416,9 +423,10 @@ function ConfirmFixButton( {
  *
  * @param props        - Component props.
  * @param props.threat - The threat.
+ * @param props.canAct - Whether the site's plan can fix threats.
  * @return The footer.
  */
-function ThreatFooter( { threat }: { threat: ScanThreat } ) {
+function ThreatFooter( { threat, canAct }: { threat: ScanThreat; canAct: boolean } ) {
 	const { busy } = useThreatAction( threat.id );
 	const isIgnored = threat.status === 'ignored';
 	const canIgnore = useCanIgnore();
@@ -435,7 +443,9 @@ function ThreatFooter( { threat }: { threat: ScanThreat } ) {
 		[ threat ]
 	);
 
-	if ( ! canIgnore && ! isIgnored && ! threat.fixable ) {
+	const fixable = canAct && !! threat.fixable;
+
+	if ( ! canIgnore && ! isIgnored && ! fixable ) {
 		return null;
 	}
 
@@ -475,10 +485,10 @@ function ThreatFooter( { threat }: { threat: ScanThreat } ) {
 							{ __( 'Ignore it', 'jetpack-protect-pkg' ) }
 						</Button>
 					) }
-					{ threat.fixable && ! isDeleteFix( threat ) && ! isUpdateFix( threat ) && (
+					{ fixable && ! isDeleteFix( threat ) && ! isUpdateFix( threat ) && (
 						<Button onClick={ onFix } { ...getFixButtonProps( busy ) } />
 					) }
-					{ isDeleteFix( threat ) && (
+					{ fixable && isDeleteFix( threat ) && (
 						<ConfirmFixButton
 							threat={ threat }
 							onFix={ onFix }
@@ -486,7 +496,7 @@ function ThreatFooter( { threat }: { threat: ScanThreat } ) {
 							confirmation={ confirmDelete }
 						/>
 					) }
-					{ isUpdateFix( threat ) && (
+					{ fixable && isUpdateFix( threat ) && (
 						<ConfirmFixButton
 							threat={ threat }
 							onFix={ onFix }
@@ -550,7 +560,7 @@ function SoftwareActions( { threat, canAct }: { threat: ScanThreat; canAct: bool
  *
  * @param props        - Component props.
  * @param props.threat - The threat.
- * @param props.canAct - Whether the site's plan can fix and ignore threats.
+ * @param props.canAct - Whether the site's plan can fix threats; with Scan, ignore them too.
  * @return The details.
  */
 export default function ThreatDetails( {
@@ -565,7 +575,11 @@ export default function ThreatDetails( {
 	const context = threat.context ?? [];
 	const { row, rowError } = useThreatRow( threat, canAct );
 	const canViewFile = useCanViewFiles();
-	const explainNoFix = ! useScan()?.hasPlan && lacksFixedVersion( threat );
+	const hasPlan = !! useScan()?.hasPlan;
+	const canToggleIgnore = useCanToggleIgnore();
+	const explainNoFix = ! hasPlan && lacksFixedVersion( threat );
+	// With Scan, no canAct means it's the read-only History inspector, which lists fixed threats too.
+	const showFooter = canAct || ( ! hasPlan && canToggleIgnore );
 
 	return (
 		<div className="jp-protect-threat-details">
@@ -709,7 +723,7 @@ export default function ThreatDetails( {
 				) }
 				<SoftwareActions threat={ threat } canAct={ canAct } />
 			</Section>
-			{ canAct && <ThreatFooter threat={ threat } /> }
+			{ showFooter && <ThreatFooter threat={ threat } canAct={ canAct } /> }
 		</div>
 	);
 }

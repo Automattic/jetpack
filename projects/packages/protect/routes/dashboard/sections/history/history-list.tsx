@@ -38,9 +38,12 @@ const getDate = ( item: ScanThreat ) =>
 export default function HistoryList( { threats }: { threats: ScanThreat[] } ) {
 	const fixed = useMemo( () => threats.filter( item => item.status === 'fixed' ), [ threats ] );
 	// Ignore and unignore update this list in place, so it is current right after either.
-	const ignored = useScan()?.ignored ?? NO_THREATS;
+	const scan = useScan();
+	const ignored = scan?.ignored ?? NO_THREATS;
+	// Free sites have no Scan history, only the ignored list.
+	const hasPlan = Boolean( scan?.hasPlan );
 	const [ statusParam ] = useSearchParam( HISTORY_STATUS_PARAM );
-	const status = statusParam === 'ignored' ? 'ignored' : 'fixed';
+	const status = hasPlan && statusParam !== 'ignored' ? 'fixed' : 'ignored';
 
 	const [ view, setView ] = useState< View >( () => createThreatView( 'date' ) );
 	const navigate = useNavigate();
@@ -66,22 +69,24 @@ export default function HistoryList( { threats }: { threats: ScanThreat[] } ) {
 	const open = useOpenThreat();
 	const getItemId = useCallback( ( item: ScanThreat ) => String( item.id ), [] );
 
-	const fields = useMemo(
-		() =>
-			getThreatFields( open, {
-				threatLabel:
-					status === 'fixed'
-						? __( 'Fixed threats', 'jetpack-protect-pkg' )
-						: __( 'Ignored threats', 'jetpack-protect-pkg' ),
-				dateLabel:
-					status === 'fixed'
-						? __( 'Fixed on', 'jetpack-protect-pkg' )
-						: __( 'Detected on', 'jetpack-protect-pkg' ),
-				getDate,
-			} ),
-		[ open, status ]
-	);
-	// History only shows with a Scan plan, so ignored threats can always be unignored.
+	const fields = useMemo( () => {
+		let dateLabel: string = __( 'Detected on', 'jetpack-protect-pkg' );
+		if ( status === 'fixed' ) {
+			dateLabel = __( 'Fixed on', 'jetpack-protect-pkg' );
+		} else if ( ! hasPlan ) {
+			// The free ignored list's firstDetected holds when the threat was ignored.
+			dateLabel = __( 'Ignored on', 'jetpack-protect-pkg' );
+		}
+		return getThreatFields( open, {
+			threatLabel:
+				status === 'fixed'
+					? __( 'Fixed threats', 'jetpack-protect-pkg' )
+					: __( 'Ignored threats', 'jetpack-protect-pkg' ),
+			dateLabel,
+			getDate,
+		} );
+	}, [ open, status, hasPlan ] );
+	// Unignoring is available in History for free sites too.
 	const actions = useThreatRowActions( open, true );
 
 	const { data, paginationInfo } = useMemo(
@@ -145,6 +150,10 @@ export default function HistoryList( { threats }: { threats: ScanThreat[] } ) {
 	);
 
 	const panelTabIndex = data.length ? -1 : 0;
+
+	if ( ! hasPlan ) {
+		return <div className="jp-protect-threats">{ table }</div>;
+	}
 
 	return (
 		<Tabs.Root className="jp-protect-threats" value={ status } onValueChange={ onStatusChange }>

@@ -7,6 +7,7 @@
 
 use Automattic\Jetpack\Backup\V0005\Helper_Script_Manager;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Protect_Status\Ignored_Vulnerabilities;
 use Automattic\Jetpack\Sync\Sender;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -58,6 +59,11 @@ function jetpack_uninstall() {
 
 	// Jetpack Backup: Cleanup any leftover Helper Scripts.
 	Helper_Script_Manager::delete_all_helper_scripts();
+
+	// Protect: Delete the vulnerabilities the site ignored.
+	if ( class_exists( Ignored_Vulnerabilities::class ) ) {
+		Ignored_Vulnerabilities::delete_option();
+	}
 }
 
 jetpack_uninstall();

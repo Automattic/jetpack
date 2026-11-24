@@ -1,5 +1,5 @@
 import { ThreatSeverityBadge } from '@automattic/jetpack-scan';
-import { act, render, screen, within } from '@testing-library/react';
+import { act, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
 import ScanCard from '../scan-card';
@@ -79,6 +79,34 @@ describe( 'ScanCard without Scan', () => {
 		expect( screen.getByText( 'Get the rest of your site’s protection' ) ).toBeInTheDocument();
 		expect( screen.getByRole( 'link', { name: 'Upgrade' } ) ).toHaveAttribute( 'href', '#' );
 	} );
+
+	it.each( [
+		[ true, 1, 'View 2 ignored threats' ],
+		[ false, 0, null ],
+	] )(
+		'with freeIgnore %p, loads ignored threats %p times and links to them',
+		async ( freeIgnore, loads, link ) => {
+			const ignored = [ 1, 2 ].map( id => ( {
+				id,
+				title: `Threat ${ id }`,
+				status: 'ignored' as const,
+			} ) );
+			mockApiFetch.mockResolvedValue( ignored );
+			renderCard( { freeIgnore, ignored } );
+
+			await waitFor( () =>
+				expect(
+					mockApiFetch.mock.calls.filter(
+						( [ { path } ] ) => path === '/jetpack/v4/protect-dashboard/scan/ignored'
+					)
+				).toHaveLength( loads )
+			);
+			expect( screen.queryByText( /^View \d+ ignored threats$/ )?.textContent ?? null ).toBe(
+				link
+			);
+			expect( screen.queryByText( 'View scan history' ) ).not.toBeInTheDocument();
+		}
+	);
 
 	it( 'says the check is off and links to Settings instead of a result or an upsell', () => {
 		renderCard( { checksEnabled: false, lastChecked: null } );

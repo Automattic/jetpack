@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Scan: Let sites without a Scan plan ignore vulnerability threats.
