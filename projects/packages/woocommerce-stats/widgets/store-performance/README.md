@@ -1,6 +1,6 @@
 # Store performance
 
-Tabs over a comparison chart, one per metric. The widget owns five metrics (`metrics.ts`); a plugin adds its own through a filter, and the user picks what shows from the Metrics menu in the widget header. The Chart type toggle beside it draws them as lines or bars.
+Tabs over a comparison chart, one per metric. The widget owns six metrics (`metrics.ts`); a plugin adds its own through a filter, and the user picks what shows from the Metrics menu in the widget header. The Chart type toggle beside it draws them as lines or bars.
 
 ## Add a metric
 
@@ -33,7 +33,7 @@ addFilter(
 | Field                  | What it does                                                                                                                                                                                                                                                                                  |
 | ---------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `id`                   | Keys the tab and names the metric in the `hiddenMetrics` attribute. Unique: a repeat is dropped.                                                                                                                                                                                              |
-| `order`                | Tab position, lowest first. The widget's own run 10 to 50. Absent, the tab goes after every placed one, in registration order.                                                                                                                                                                |
+| `order`                | Tab position, lowest first. The widget's own run 10 to 60. Absent, the tab goes after every placed one, in registration order.                                                                                                                                                                |
 | `label`, `description` | The tab and the text shown with it.                                                                                                                                                                                                                                                           |
 | `field`                | The key the chart reads from the report's summary and from each of its rows.                                                                                                                                                                                                                  |
 | `dataFormat`           | How values are formatted: `{ type: 'number' \| 'currency' \| 'percentage', options? }`.                                                                                                                                                                                                       |

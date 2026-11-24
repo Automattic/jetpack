@@ -46,5 +46,13 @@ type TeaserSwitch = {
  */
 export declare function useTeaserSwitch(): TeaserSwitch;
 
+/**
+ * Records the events of the surface in Tracks, from this call on: the teaser shown, opened and
+ * dismissed, the link of the reader followed, and the switch changed.
+ *
+ * Optional. The surface works the same without it, and a second call does nothing.
+ */
+export declare function trackWhatsNew(): void;
+
 // Without this, a declaration file exports every top-level name, the types above included.
 export {};

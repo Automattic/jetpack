@@ -463,7 +463,14 @@ class Analytics {
 	private static function register_polyfills() {
 		WP_Build_Polyfills::register(
 			'jetpack-premium-analytics',
-			array_merge( WP_Build_Polyfills::SCRIPT_HANDLES, WP_Build_Polyfills::MODULE_IDS )
+			array_merge( WP_Build_Polyfills::SCRIPT_HANDLES, WP_Build_Polyfills::MODULE_IDS ),
+			null,
+			array(
+				array(
+					'prefix' => 'jpa',
+					'slug'   => 'jetpack-premium-analytics',
+				),
+			)
 		);
 	}
 

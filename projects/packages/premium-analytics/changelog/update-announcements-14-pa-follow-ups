@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Make the tests of the route helper independent of their order, and document when What's new waits for the onboarding; no change in behavior.
+
+

@@ -47,7 +47,7 @@ jest.mock( '../boost-card/use-boost-speed-score', () => () => ( {
 } ) );
 
 const StatsItem: FC< { admin: boolean } > = props => (
-	<StatsOverviewItem { ...props } period={ { days: 7, end: new Date() } } />
+	<StatsOverviewItem { ...props } period={ { days: 7, end: new Date(), offset: 0 } } />
 );
 
 const loaded = {

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Center snackbar notices over the content column of wp-build admin pages instead of the whole screen.

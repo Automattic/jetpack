@@ -43,11 +43,16 @@ import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import { WidgetDashboard } from '@wordpress/widget-dashboard';
 import clsx from 'clsx';
 import { useDateWindowNotice } from '../date-window-notice';
-import { isPremiumAnalyticsInitialSyncFinished } from '../site-readiness';
+import {
+	getConnectionlessSectionSlugs,
+	isPremiumAnalyticsInitialSyncFinished,
+	isPremiumAnalyticsSiteConnected,
+} from '../site-readiness';
 import { useStatsDateLimits } from '../use-stats-date-limits';
 import { useWidgetModules } from '../use-widget-modules';
 import { useWidgetModuleResolver, useWidgetTypesWithI18n } from '../widget-module-i18n';
 import {
+	ConnectSection,
 	DashboardNotices,
 	DashboardSections,
 	FeedbackBanner,
@@ -152,6 +157,11 @@ function Dashboard(): JSX.Element {
 	 * sync starts as soon as the dashboard opens rather than when the section is visited.
 	 */
 	const isSyncFinished = isPremiumAnalyticsInitialSyncFinished();
+	// While disconnected, a tab that needs the connection shows a connect prompt, and the Stats chrome stays off.
+	const isSiteConnected = isPremiumAnalyticsSiteConnected();
+	const connectionlessSections = getConnectionlessSectionSlugs();
+	const needsConnection = ( slug: string ) =>
+		! isSiteConnected && ! connectionlessSections.includes( slug );
 	const sectionsAwaitSync = sections.some( section =>
 		isSectionAwaitingSync( section, isSyncFinished )
 	);
@@ -211,6 +221,7 @@ function Dashboard(): JSX.Element {
 	const dashboardPolicy = useDashboardPolicy( {
 		insertableWidgetTypes,
 		lockedLayout: isSectionLocked ? visibleLayout : undefined,
+		needsConnection: needsConnection( activeSection ),
 	} );
 	const canCustomizeSection = dashboardPolicy( { operation: 'customize' } );
 	// Edit mode survives a tab switch, so leave it on arriving at a section that cannot be arranged.
@@ -296,7 +307,8 @@ function Dashboard(): JSX.Element {
 	// The journey introduces the default section at rest: not another tab, and
 	// not while the reader is already customizing.
 	const onboarding = useOnboarding( {
-		enabled: hasResolvedSections && ! editMode && activeSection === defaultSection,
+		enabled:
+			isSiteConnected && hasResolvedSections && ! editMode && activeSection === defaultSection,
 		hasStoreSection: hasStoreSection( sections ),
 		stepCounts: {
 			stats: tourStepsByFlow.stats.length,
@@ -563,6 +575,7 @@ function Dashboard(): JSX.Element {
 											{ /* Outside the section panels, so the menu's links name the tab to return to. */ }
 											<DashboardSectionProvider section={ activeSection }>
 												<StatsOptionsMenu
+													isSiteConnected={ isSiteConnected }
 													onCustomize={
 														editMode || ! canCustomizeSection ? undefined : startCustomizing
 													}
@@ -592,20 +605,26 @@ function Dashboard(): JSX.Element {
 												pinned
 												controlsRef={ setControlsAnchor }
 											>
-												{ dateControls }
+												{ needsConnection( section.slug ) ? null : dateControls }
 											</SectionHeader>
 
 											{ /* Widgets query the committed URL, which keeps the last tab's window until a switch lands. */ }
-											{ activeSection === section.slug && isSectionCommitted ? (
+											{ activeSection === section.slug && needsConnection( section.slug ) && (
+												<ConnectSection />
+											) }
+											{ activeSection === section.slug &&
+											isSectionCommitted &&
+											! needsConnection( section.slug ) ? (
 												<DashboardSectionProvider section={ section.slug }>
 													<div className={ styles.body }>
 														<RefreshFailureNotice />
-														{ ! editMode && <DashboardNotices /> }
+														{ ! editMode && isSiteConnected && <DashboardNotices /> }
 
 														{ /* Behind the onboarding journey: it introduces the tabs
 														     the banner asks about. */ }
 														<FeedbackBanner
 															enabled={
+																isSiteConnected &&
 																canSendFeedback() &&
 																! editMode &&
 																section.slug === defaultSection &&

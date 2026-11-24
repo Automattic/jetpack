@@ -21,6 +21,7 @@ import { debugEnabled, log, stopwatch } from './debug';
 import { checkFeature, showFeatureOff } from './feature';
 import { applyGuestAssets } from './guest-assets';
 import { configureHeaders, rememberHeader, removeHeader, showHeader } from './header';
+import { removeLoader, showLoader } from './loader';
 import { closeDialogsOf, closeOverlayAround, showOverlaysOf, trackOverlays } from './overlays';
 
 const CONFIG_ID = 'wp-script-module-data-@automattic/jetpack-admin-shell';
@@ -80,17 +81,29 @@ const start = ( {
 	members[ host ].adminTitle = document.title;
 	configureHeaders( headerStorageKey, members );
 	trackViewTransitions();
-	// A member declares the header of the view its bare menu link opens; other views only get its title.
-	const showHeaderAt = ( slug, el, url ) => {
+	/*
+	 * Stand in for a page until it renders: the loader, and the header it declares for the view its bare
+	 * menu link opens, or else just its title. Returns what takes both down.
+	 */
+	const showStandIn = ( slug, el, url ) => {
 		const { header, defaultPath, title } = members[ slug ];
+		const removeLoaderOf = showLoader( slug, el, menuLabel( slug ) ?? title );
 		if ( header === false ) {
 			log( 'header', `${ slug } opts out of the stand-in header` );
-			return () => {};
+			return removeLoaderOf;
 		}
 		const path = new URL( url, location.href ).searchParams.get( 'p' ) ?? '/';
 		const landing = [ '/', defaultPath ].includes( path );
 		const heading = header?.title ?? menuLabel( slug ) ?? title;
-		return showHeader( slug, el, heading, landing ? header : null );
+		const removeHeaderOf = showHeader( slug, el, heading, landing ? header : null );
+		return () => {
+			removeLoaderOf();
+			removeHeaderOf();
+		};
+	};
+	const removeStandInOf = slug => {
+		removeLoader( slug );
+		removeHeader( slug );
 	};
 
 	log(
@@ -299,7 +312,7 @@ const start = ( {
 			return;
 		}
 		apps.get( slug )?.place( false );
-		removeHeader( slug );
+		removeStandInOf( slug );
 		offPanels.set(
 			slug,
 			showFeatureOff( {
@@ -341,7 +354,7 @@ const start = ( {
 			apps.delete( slug );
 			el.remove();
 		};
-		const removeStandIn = showHeaderAt( slug, el, url );
+		const removeStandIn = showStandIn( slug, el, url );
 
 		try {
 			// After the check, so a page whose feature is off downloads nothing.
@@ -424,7 +437,7 @@ const start = ( {
 			lastUrl[ slug ] = url;
 		}
 		if ( apps.get( previous )?.state === 'loading' ) {
-			removeHeader( previous );
+			removeStandInOf( previous );
 		}
 		apps.get( previous )?.place( false );
 		// The panel never showed the page, so taking it down doesn't hide the page either.
@@ -633,7 +646,7 @@ const start = ( {
 	trackOverlays( () => visible );
 	const hostApp = createApp( host, hostEl );
 	apps.set( host, hostApp );
-	const removeHostHeader = showHeaderAt( host, hostEl, location.href );
+	const removeHostStandIn = showStandIn( host, hostEl, location.href );
 	// The page load already said its feature is off, and sent the card with the config.
 	if ( members[ host ].featureOn === false ) {
 		hiddenAt[ host ] = Date.now();
@@ -644,7 +657,7 @@ const start = ( {
 	whenRendered( hostEl, 30000 )
 		.then( () => {
 			log( 'host', `${ host } rendered its first route` );
-			removeHostHeader();
+			removeHostStandIn();
 			markReady( hostApp );
 			if ( onScreen( host ) ) {
 				emit( 'page-shown', {
@@ -659,7 +672,7 @@ const start = ( {
 			}
 		} )
 		.catch( error => {
-			removeHostHeader();
+			removeHostStandIn();
 			log( 'host', `${ host } did not render`, error );
 		} )
 		.finally( () => gate.mounted( host ) );
