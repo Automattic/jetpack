@@ -1,6 +1,6 @@
 <?php
 /**
- * Tests for the sample that tells a store whether WooCommerce Analytics has imported its orders.
+ * Tests for what the local mode notice reads of WooCommerce Analytics' own state.
  *
  * @package automattic/jetpack-woocommerce-stats
  */
@@ -12,193 +12,116 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use WorDBless\BaseTestCase;
+use WP_Error;
+use WP_REST_Server;
 
 /**
- * Each test stubs WooCommerce Analytics, so it runs in its own process.
- *
  * @covers \Automattic\Jetpack\WooCommerceStats\Report_Execution\Local_Data_Status
  */
 #[CoversClass( Local_Data_Status::class )]
 class Local_Data_Status_Test extends BaseTestCase {
 
 	/**
-	 * @runInSeparateProcess
-	 * @preserveGlobalState disabled
-	 * @dataProvider provide_stores
+	 * Drop the REST server and the stand-in route.
+	 */
+	public function tear_down() {
+		global $wp_rest_server;
+		$wp_rest_server = null;
+		remove_all_actions( 'rest_api_init' );
+
+		parent::tear_down();
+	}
+
+	/**
+	 * Each case stubs WooCommerce Analytics, so it runs in its own process.
 	 *
-	 * @param array<int,bool> $orders   Sampled orders, by id: whether each has a `wc_order_stats` row.
-	 * @param int[]           $excluded Orders core leaves out of its import on purpose.
-	 * @param int[]           $recent   Orders changed within the last hour.
-	 * @param string[]        $issues   The issues expected.
-	 */
-	#[RunInSeparateProcess]
-	#[PreserveGlobalState( false )]
-	#[DataProvider( 'provide_stores' )]
-	public function test_reports_what_the_sample_finds( $orders, $excluded, $recent, $issues ) {
-		require_once __DIR__ . '/mocks/woocommerce-analytics-mock.php';
-
-		$this->assertSame( $issues, self::fixture_status( $orders, $excluded, $recent )->get_issues() );
-	}
-
-	/**
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
 	 */
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
-	public function test_reuses_the_sample_until_it_expires() {
+	public function test_reports_analytics_off_only_while_it_is_off() {
 		require_once __DIR__ . '/mocks/woocommerce-analytics-mock.php';
+		$status = new Local_Data_Status();
 
-		self::fixture_status( array( 1 => false ) )->get_issues();
-		$issues = self::fixture_status( array( 1 => false ) )->get_issues();
+		$this->assertFalse( $status->is_analytics_off() );
 
-		$this->assertSame( array( Local_Data_Status::IMPORT_INCOMPLETE ), $issues );
-		$this->assertSame( 1, $GLOBALS['woocommerce_stats_samples_taken'] );
-	}
-
-	/**
-	 * @runInSeparateProcess
-	 * @preserveGlobalState disabled
-	 */
-	#[RunInSeparateProcess]
-	#[PreserveGlobalState( false )]
-	public function test_reports_only_analytics_off_while_it_is_off() {
-		require_once __DIR__ . '/mocks/woocommerce-analytics-mock.php';
 		$GLOBALS['woocommerce_stats_mock_analytics_off'] = true;
-
-		$this->assertSame( array( Local_Data_Status::ANALYTICS_OFF ), self::fixture_status( array( 1 => false ) )->get_issues() );
+		$this->assertTrue( $status->is_analytics_off() );
 	}
 
 	/**
-	 * A failed exclusion check (null) is not an exclusion: the order still counts as missing.
+	 * @dataProvider provide_import_statuses
 	 *
-	 * @runInSeparateProcess
-	 * @preserveGlobalState disabled
-	 * @dataProvider provide_exclusions
-	 *
-	 * @param bool|null $excluded  What core's exclusion check answers.
-	 * @param bool      $test_mode Whether the order is a test-mode payment.
-	 * @param bool      $left_out  Whether the order is expected to be left out of the import.
+	 * @param array|WP_Error|null $answer   What core's route answers; null when there is no route.
+	 * @param array|null          $expected The status read.
 	 */
-	#[RunInSeparateProcess]
-	#[PreserveGlobalState( false )]
-	#[DataProvider( 'provide_exclusions' )]
-	public function test_leaves_out_only_what_core_excludes( $excluded, $test_mode, $left_out ) {
-		require_once __DIR__ . '/mocks/woocommerce-orders-scheduler-mock.php';
-		$GLOBALS['woocommerce_stats_mock_import_exclusions'] = array( 7 => $excluded );
-		$GLOBALS['woocommerce_stats_mock_test_orders']       = $test_mode ? array( 7 ) : array();
-
-		$method = new \ReflectionMethod( Local_Data_Status::class, 'is_left_out_of_import' );
-		if ( PHP_VERSION_ID < 80100 ) {
-			$method->setAccessible( true );
-		}
-
-		$this->assertSame( $left_out, $method->invoke( new Local_Data_Status(), 7 ) );
-	}
-
-	/**
-	 * @return array[]
-	 */
-	public static function provide_exclusions() {
-		return array(
-			'excluded by the import filter' => array( true, false, true ),
-			'the exclusion check failed'    => array( null, false, false ),
-			'a test-mode payment'           => array( false, true, true ),
-			'an ordinary order'             => array( false, false, false ),
-		);
-	}
-
-	/**
-	 * @return array[]
-	 */
-	public static function provide_stores() {
-		return array(
-			'no orders'                           => array( array(), array(), array(), array() ),
-			'every order imported'                => array(
-				array(
-					1 => true,
-					2 => true,
-				),
-				array(),
-				array(),
-				array(),
-			),
-			'an order not imported'               => array(
-				array(
-					1 => true,
-					3 => false,
-				),
-				array(),
-				array(),
-				array( Local_Data_Status::IMPORT_INCOMPLETE ),
-			),
-			'an order core leaves out on purpose' => array(
-				array(
-					1 => true,
-					3 => false,
-				),
-				array( 3 ),
-				array(),
-				array(),
-			),
-			// Core may not have imported it yet.
-			'an order changed within the hour'    => array(
-				array(
-					1 => true,
-					3 => false,
-				),
-				array(),
-				array( 3 ),
-				array(),
-			),
-		);
-	}
-
-	/**
-	 * A status reading the fixtures instead of the database.
-	 *
-	 * @param array<int,bool> $orders   Sampled orders, by id: whether each has a row.
-	 * @param int[]           $excluded Orders left out on purpose.
-	 * @param int[]           $recent   Orders changed within the last hour.
-	 * @return Local_Data_Status
-	 */
-	private static function fixture_status( $orders, $excluded = array(), $recent = array() ) {
-		return new class( $orders, $excluded, $recent ) extends Local_Data_Status {
-			/**
-			 * Fixtures.
-			 *
-			 * @var array
-			 */
-			private $fixtures;
-
-			/**
-			 * @param array<int,bool> $orders   Orders.
-			 * @param int[]           $excluded Excluded ids.
-			 * @param int[]           $recent   Recently changed ids.
-			 */
-			public function __construct( $orders, $excluded, $recent ) {
-				$this->fixtures = array( $orders, $excluded, $recent );
-			}
-
-			/** @inheritDoc */
-			protected function get_sample_orders() {
-				$GLOBALS['woocommerce_stats_samples_taken'] = ( $GLOBALS['woocommerce_stats_samples_taken'] ?? 0 ) + 1;
-				$modified                                   = array();
-				foreach ( array_keys( $this->fixtures[0] ) as $id ) {
-					$modified[ $id ] = in_array( $id, $this->fixtures[2], true ) ? gmdate( 'Y-m-d H:i:s' ) : '2026-01-01 00:00:00';
+	#[DataProvider( 'provide_import_statuses' )]
+	public function test_reads_core_import_status( $answer, $expected ) {
+		global $wp_rest_server;
+		$wp_rest_server = new WP_REST_Server();
+		if ( null !== $answer ) {
+			add_action(
+				'rest_api_init',
+				static function () use ( $answer ) {
+					register_rest_route(
+						'wc-analytics',
+						'/imports/status',
+						array(
+							'methods'             => 'GET',
+							'callback'            => static function () use ( $answer ) {
+								return $answer;
+							},
+							'permission_callback' => '__return_true',
+						)
+					);
 				}
-				return $modified;
-			}
+			);
+		}
+		do_action( 'rest_api_init', $wp_rest_server );
 
-			/** @inheritDoc */
-			protected function get_imported_ids( array $ids ) {
-				return array_keys( array_filter( array_intersect_key( $this->fixtures[0], array_flip( $ids ) ) ) );
-			}
+		$this->assertSame( $expected, ( new Local_Data_Status() )->get_import_status() );
+	}
 
-			/** @inheritDoc */
-			protected function is_left_out_of_import( $id ) {
-				return in_array( $id, $this->fixtures[1], true );
-			}
-		};
+	/**
+	 * @return array[]
+	 */
+	public static function provide_import_statuses() {
+		return array(
+			'scheduled'            => array(
+				array(
+					'mode'                      => 'scheduled',
+					'last_processed_date'       => '2026-11-24 09:00:00',
+					'next_scheduled'            => '2026-11-24 21:00:00',
+					'import_in_progress_or_due' => false,
+					'failed_count'              => 2,
+					'failed_overflow_count'     => 1,
+				),
+				array(
+					'mode'                => 'scheduled',
+					'last_processed_date' => '2026-11-24 09:00:00',
+					'next_scheduled'      => '2026-11-24 21:00:00',
+					'failed_count'        => 3,
+				),
+			),
+			'immediate'            => array(
+				array(
+					'mode'                      => 'immediate',
+					'last_processed_date'       => null,
+					'next_scheduled'            => null,
+					'import_in_progress_or_due' => null,
+					'failed_count'              => 0,
+					'failed_overflow_count'     => 0,
+				),
+				array(
+					'mode'                => 'immediate',
+					'last_processed_date' => null,
+					'next_scheduled'      => null,
+					'failed_count'        => 0,
+				),
+			),
+			'no such route'        => array( null, null ),
+			'the user may not see' => array( new WP_Error( 'woocommerce_rest_cannot_access', 'No.', array( 'status' => 403 ) ), null ),
+		);
 	}
 }
