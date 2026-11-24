@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Sitemaps: Keep News sitemaps within the publication window as cached articles age.
