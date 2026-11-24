@@ -40,6 +40,7 @@ import {
 	pairedCommitTimestampMs,
 	postToCodeVitals,
 	redactToken,
+	REGISTERED_CODEVITALS_KEYS,
 	resolveDedupEnabled,
 	resolvePostTimestamp,
 	VALIDATION_FAILED_EXIT_CODE,
@@ -49,7 +50,7 @@ import {
 	resolveCommitTimestampEnv,
 	shouldFailBuildOnPostError,
 } from './run-performance-tests.js';
-import { SANITY_RANGES, SCENARIOS } from './scenarios.js';
+import { DASHBOARD_DELTA_METRICS, SANITY_RANGES, SCENARIOS } from './scenarios.js';
 
 const SCRIPTS_DIR = path.dirname( fileURLToPath( import.meta.url ) );
 const LCP_KEY = 'wp-admin-dashboard-connection-sim-largestContentfulPaint';
@@ -469,6 +470,19 @@ test( 'every posted keyed metric declares a type with a matching sanity range', 
 				`metric "${ label }" type "${ type }" needs a SANITY_RANGES row`
 			);
 		}
+	}
+} );
+
+test( 'every expected registered key is posted by a scenario or Dashboard delta', () => {
+	const scenarioKeys = SCENARIOS.filter( scenario => scenario.postToCodeVitals ).flatMap(
+		scenario => extractScenarioMetrics( scenario, {} ).map( ( { key } ) => key )
+	);
+	const postedKeys = new Set( [
+		...scenarioKeys,
+		...DASHBOARD_DELTA_METRICS.map( ( { codevitalsKey } ) => codevitalsKey ),
+	] );
+	for ( const key of REGISTERED_CODEVITALS_KEYS ) {
+		assert.ok( postedKeys.has( key ), `No scenario or Dashboard delta posts "${ key }"` );
 	}
 } );
 

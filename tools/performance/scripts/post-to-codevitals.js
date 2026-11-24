@@ -4,7 +4,7 @@ import fs from 'fs';
 import path from 'path';
 import { DASHBOARD_DELTA_METRICS, SCENARIOS, SANITY_RANGES } from './scenarios.js';
 
-// Keep the expected count independent of the service's current registrations.
+// Metric keys expected to be registered on CodeVitals.
 const REGISTERED_CODEVITALS_KEYS = new Set( [
 	'wp-admin-dashboard-connection-sim-largestContentfulPaint',
 	'wp-admin-dashboard-connection-sim-timeToFirstByte',
@@ -915,6 +915,7 @@ export {
 	hashAlreadyPosted,
 	resolveDedupEnabled,
 	pairedCommitTimestampMs,
+	REGISTERED_CODEVITALS_KEYS,
 	ValidationError,
 	VALIDATION_FAILED_EXIT_CODE,
 };
