@@ -10,10 +10,9 @@
 return [
     // # Issue statistics:
     // PhanTypeMismatchArgumentNullable : 65+ occurrences
-    // PhanTypeMismatchPropertyDefault : 15+ occurrences
     // PhanAbstractStaticMethodCallInStatic : 10+ occurrences
     // PhanTypeMismatchReturnProbablyReal : 7 occurrences
-    // PhanNonClassMethodCall : 2 occurrences
+    // PhanNonClassMethodCall : 4 occurrences
     // PhanPluginMixedKeyNoKey : 2 occurrences
     // PhanTypeMismatchReturnNullable : 2 occurrences
     // PhanTypeMismatchArgumentNullableInternal : 1 occurrence
@@ -25,27 +24,23 @@ return [
         'src/class-products.php' => ['PhanNonClassMethodCall'],
         'src/class-rest-products.php' => ['PhanPluginMixedKeyNoKey'],
         'src/class-wpcom-products.php' => ['PhanTypeMismatchReturnProbablyReal'],
-        'src/products/class-anti-spam.php' => ['PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchPropertyDefault'],
-        'src/products/class-backup.php' => ['PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchPropertyDefault', 'PhanTypeSuspiciousNonTraversableForeach'],
-        'src/products/class-boost.php' => ['PhanTypeMismatchPropertyDefault'],
-        'src/products/class-creator.php' => ['PhanTypeMismatchPropertyDefault', 'PhanTypeMismatchReturnProbablyReal'],
-        'src/products/class-crm.php' => ['PhanTypeMismatchPropertyDefault'],
-        'src/products/class-extras.php' => ['PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchPropertyDefault'],
+        'src/products/class-anti-spam.php' => ['PhanTypeMismatchArgumentNullable'],
+        'src/products/class-backup.php' => ['PhanTypeMismatchArgumentNullable', 'PhanTypeSuspiciousNonTraversableForeach'],
+        'src/products/class-creator.php' => ['PhanTypeMismatchReturnProbablyReal'],
+        'src/products/class-extras.php' => ['PhanTypeMismatchArgumentNullable'],
         'src/products/class-hybrid-product.php' => ['PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchReturnNullable'],
         'src/products/class-jetpack-ai.php' => ['PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal'],
         'src/products/class-module-product.php' => ['PhanTypeMismatchReturnProbablyReal'],
-        'src/products/class-product.php' => ['PhanAbstractStaticMethodCallInStatic', 'PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchPropertyDefault'],
-        'src/products/class-protect.php' => ['PhanTypeMismatchPropertyDefault'],
+        'src/products/class-product.php' => ['PhanAbstractStaticMethodCallInStatic', 'PhanTypeMismatchArgumentNullable'],
         'src/products/class-scan.php' => ['PhanTypeMismatchArgumentNullable'],
-        'src/products/class-search.php' => ['PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchPropertyDefault', 'PhanTypeMismatchReturnNullable'],
+        'src/products/class-search.php' => ['PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchReturnNullable'],
         'src/products/class-security.php' => ['PhanTypeMismatchArgumentNullable'],
-        'src/products/class-social.php' => ['PhanTypeMismatchPropertyDefault'],
         'src/products/class-starter.php' => ['PhanTypeMismatchArgumentNullable'],
         'src/products/class-stats.php' => ['PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchArgumentNullableInternal'],
-        'src/products/class-videopress.php' => ['PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchPropertyDefault'],
+        'src/products/class-videopress.php' => ['PhanTypeMismatchArgumentNullable'],
         'tests/php/Backup_Product_Test.php' => ['PhanTypeMismatchArgumentNullable'],
         'tests/php/Hybrid_Product_Test.php' => ['PhanTypeMismatchArgumentNullable'],
-        'tests/php/Product_Multiple_Filenames_Test.php' => ['PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchPropertyDefault'],
+        'tests/php/Product_Multiple_Filenames_Test.php' => ['PhanTypeMismatchArgumentNullable'],
         'tests/php/Products_Test.php' => ['PhanNonClassMethodCall'],
         'tests/php/Search_Product_Test.php' => ['PhanTypeMismatchArgumentNullable'],
         'tests/php/Social_Product_Test.php' => ['PhanTypeMismatchArgumentNullable'],

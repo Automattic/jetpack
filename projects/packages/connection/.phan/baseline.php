@@ -9,37 +9,33 @@
  */
 return [
     // # Issue statistics:
-    // PhanTypeMismatchArgument : 50+ occurrences
+    // PhanTypeMismatchArgument : 55+ occurrences
     // PhanTypeMismatchReturn : 15+ occurrences
     // PhanTypeMismatchPropertyProbablyReal : 9 occurrences
     // PhanTypeMismatchReturnProbablyReal : 8 occurrences
     // PhanTypeArraySuspiciousNullable : 5 occurrences
     // PhanTypeMismatchArgumentProbablyReal : 4 occurrences
-    // PhanTypeMismatchDefault : 4 occurrences
     // PhanDeprecatedFunction : 2 occurrences
     // PhanNonClassMethodCall : 2 occurrences
     // PhanPluginUnreachableCode : 2 occurrences
-    // PhanTypeMismatchPropertyDefault : 2 occurrences
     // PhanTypeObjectUnsetDeclaredProperty : 2 occurrences
     // PhanTypeMismatchArgumentNullable : 1 occurrence
-    // PhanTypeMismatchDeclaredParamNullable : 1 occurrence
     // PhanUndeclaredClassMethod : 1 occurrence
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
         'legacy/class-jetpack-options.php' => ['PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchArgumentProbablyReal'],
         'legacy/class-jetpack-tracks-client.php' => ['PhanNonClassMethodCall', 'PhanTypeMismatchArgument', 'PhanTypeMismatchPropertyProbablyReal'],
-        'legacy/class-jetpack-xmlrpc-server.php' => ['PhanTypeMismatchDefault', 'PhanTypeMismatchReturn'],
+        'legacy/class-jetpack-xmlrpc-server.php' => ['PhanTypeMismatchReturn'],
         'src/class-error-handler.php' => ['PhanTypeMismatchReturnProbablyReal'],
-        'src/class-heartbeat.php' => ['PhanTypeMismatchPropertyDefault'],
-        'src/class-manager.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchDeclaredParamNullable', 'PhanTypeMismatchDefault', 'PhanTypeMismatchPropertyProbablyReal', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal'],
+        'src/class-manager.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchPropertyProbablyReal', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal'],
         'src/class-partner.php' => ['PhanTypeMismatchPropertyProbablyReal'],
-        'src/class-rest-authentication.php' => ['PhanTypeMismatchPropertyDefault', 'PhanTypeMismatchPropertyProbablyReal'],
+        'src/class-rest-authentication.php' => ['PhanTypeMismatchPropertyProbablyReal'],
         'src/class-rest-connector.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchReturnProbablyReal'],
         'src/class-secrets.php' => ['PhanNonClassMethodCall', 'PhanTypeMismatchArgument'],
         'src/class-server-sandbox.php' => ['PhanTypeMismatchArgument'],
         'src/class-tokens.php' => ['PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal'],
-        'src/class-tracking.php' => ['PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchDefault'],
+        'src/class-tracking.php' => ['PhanTypeMismatchArgumentProbablyReal'],
         'src/sso/class-sso.php' => ['PhanTypeMismatchArgument'],
         'src/sso/class-user-admin.php' => ['PhanPluginUnreachableCode', 'PhanTypeMismatchArgument'],
         'src/webhooks/class-authorize-redirect.php' => ['PhanUndeclaredClassMethod'],

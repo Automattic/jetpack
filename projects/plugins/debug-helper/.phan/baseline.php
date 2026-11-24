@@ -10,7 +10,7 @@
 return [
     // # Issue statistics:
     // PhanUndeclaredClassMethod : 70+ occurrences
-    // PhanUndeclaredClassConstant : 7 occurrences
+    // PhanUndeclaredClassConstant : 8 occurrences
     // PhanUndeclaredConstantOfClass : 3 occurrences
     // PhanUndeclaredMethod : 3 occurrences
     // PhanTypeMismatchArgument : 2 occurrences

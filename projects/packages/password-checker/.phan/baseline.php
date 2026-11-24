@@ -9,12 +9,11 @@
  */
 return [
     // # Issue statistics:
-    // PhanTypeMismatchArgument : 2 occurrences
-    // PhanTypeMismatchDefault : 1 occurrence
+    // PhanTypeMismatchArgument : 6 occurrences
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
-        'src/class-password-checker.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchDefault'],
+        'src/class-password-checker.php' => ['PhanTypeMismatchArgument'],
         'tests/php/Password_Checker_Test.php' => ['PhanTypeMismatchArgument'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.

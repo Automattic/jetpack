@@ -19,8 +19,6 @@ return [
     // PhanImpossibleCondition : 2 occurrences
     // PhanDeprecatedPartiallySupportedCallable : 1 occurrence
     // PhanTypeInvalidDimOffset : 1 occurrence
-    // PhanTypeMismatchDeclaredParamNullable : 1 occurrence
-    // PhanTypeMismatchDefault : 1 occurrence
     // PhanTypeMismatchDimAssignment : 1 occurrence
     // PhanTypePossiblyInvalidDimOffset : 1 occurrence
     // PhanUndeclaredClassMethod : 1 occurrence
@@ -28,9 +26,9 @@ return [
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
         'src/class-cli.php' => ['PhanTypeMismatchArgument'],
-        'src/class-helper.php' => ['PhanDeprecatedPartiallySupportedCallable', 'PhanTypeMismatchArgument', 'PhanTypeMismatchDefault', 'PhanTypeMismatchReturn', 'PhanUndeclaredClassMethod'],
+        'src/class-helper.php' => ['PhanDeprecatedPartiallySupportedCallable', 'PhanTypeMismatchArgument', 'PhanTypeMismatchReturn', 'PhanUndeclaredClassMethod'],
         'src/class-template-tags.php' => ['PhanTypeMismatchArgumentProbablyReal'],
-        'src/classic-search/class-classic-search.php' => ['PhanTypeInvalidDimOffset', 'PhanTypeMismatchDeclaredParamNullable', 'PhanTypeMismatchProperty', 'PhanTypeMismatchReturn', 'PhanTypePossiblyInvalidDimOffset'],
+        'src/classic-search/class-classic-search.php' => ['PhanTypeInvalidDimOffset', 'PhanTypeMismatchProperty', 'PhanTypeMismatchReturn', 'PhanTypePossiblyInvalidDimOffset'],
         'src/customizer/customize-controls/class-excluded-post-types-control.php' => ['PhanTypeMismatchReturnProbablyReal'],
         'src/instant-search/class-instant-search.php' => ['PhanTypeMismatchProperty', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal'],
         'src/widgets/class-search-widget.php' => ['PhanTypeMismatchArgument'],

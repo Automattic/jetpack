@@ -13,14 +13,12 @@ return [
     // PhanTypeMismatchArgumentNullable : 2 occurrences
     // PhanTypeMismatchProperty : 2 occurrences
     // PhanRedefineFunction : 1 occurrence
-    // PhanTypeMismatchPropertyDefault : 1 occurrence
     // PhanTypeMismatchPropertyProbablyReal : 1 occurrence
     // PhanTypeMismatchReturnNullable : 1 occurrence
     // PhanTypeMismatchReturnProbablyReal : 1 occurrence
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
-        'src/class-jetpack-boost-modules.php' => ['PhanTypeMismatchPropertyDefault'],
         'src/class-speed-score-graph-history-request.php' => ['PhanTypeMismatchProperty'],
         'src/class-speed-score-request.php' => ['PhanTypeMismatchProperty', 'PhanTypeMismatchPropertyProbablyReal'],
         'src/class-speed-score.php' => ['PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchReturnNullable'],

@@ -9,19 +9,17 @@
  */
 return [
     // # Issue statistics:
-    // PhanTypeArraySuspiciousNullable : 15+ occurrences
-    // PhanTypeArraySuspicious : 8 occurrences
+    // PhanTypeArraySuspiciousNullable : 20+ occurrences
+    // PhanTypeArraySuspicious : 9 occurrences
     // PhanTypeMismatchArgument : 6 occurrences
     // PhanUndeclaredConstant : 5 occurrences
     // PhanTypeMismatchReturnProbablyReal : 4 occurrences
     // PhanUndeclaredClassConstant : 4 occurrences
     // PhanUndeclaredFunction : 4 occurrences
     // PhanPluginUseReturnValueInternalKnown : 2 occurrences
-    // PhanTypeMismatchPropertyDefault : 1 occurrence
     // PhanCoalescingNeverNull : 1 occurrence
     // PhanRedefineFunction : 1 occurrence
     // PhanTypeMismatchArgumentNullableInternal : 1 occurrence
-    // PhanTypeMismatchProperty : 1 occurrence
     // PhanTypeMissingReturn : 1 occurrence
     // PhanUndeclaredClassMethod : 1 occurrence
     // PhanUndeclaredClassReference : 1 occurrence
@@ -39,7 +37,6 @@ return [
         'app/lib/minify/functions-helpers.php' => ['PhanTypeMismatchArgumentNullableInternal', 'PhanUndeclaredClassMethod', 'PhanUndeclaredClassReference', 'PhanUndeclaredConstant'],
         'app/modules/optimizations/page-cache/class-page-cache-setup.php' => ['PhanTypeMismatchReturnProbablyReal', 'PhanTypeMissingReturn'],
         'app/modules/optimizations/page-cache/pre-wordpress/class-logger.php' => ['PhanCoalescingNeverNull'],
-        'app/modules/optimizations/render-blocking-js/class-render-blocking-js.php' => ['PhanTypeMismatchProperty', 'PhanTypeMismatchPropertyDefault'],
         'compatibility/elementor.php' => ['PhanUndeclaredClassConstant'],
         'compatibility/page-optimize.php' => ['PhanUndeclaredFunction'],
         'compatibility/web-stories.php' => ['PhanUndeclaredClassConstant'],
