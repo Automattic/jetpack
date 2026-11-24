@@ -94,10 +94,15 @@ describe.each( [
 		{ scope: 'group', toggleIndex: 1 },
 	] )( '$scope enables skip opt-in tools and disables include them', async ( { toggleIndex } ) => {
 		const onUpdate = jest.fn();
-		const settings = enabled => ( {
+		const settings = ( enabled, optInEnabled = enabled ) => ( {
 			account: {
 				ordinary: { title: 'Ordinary tool', readonly, enabled },
-				opt_in: { title: 'Opt-in tool', readonly, enabled, requires_opt_in: true },
+				opt_in: {
+					title: 'Opt-in tool',
+					readonly,
+					enabled: optInEnabled,
+					requires_opt_in: true,
+				},
 			},
 			sites: [ { blog_id: BLOG_ID, site_level_enabled: enabled } ],
 		} );
@@ -107,6 +112,13 @@ describe.each( [
 		await userEvent.click( screen.getAllByRole( 'switch', { name: 'Enable all' } )[ toggleIndex ] );
 		expect( onUpdate ).toHaveBeenLastCalledWith( {
 			sites: [ { blog_id: BLOG_ID, abilities: { ordinary: true } } ],
+		} );
+
+		rerender( <Component { ...props } mcpAbilities={ settings( true, false ) } /> );
+		expect( screen.getAllByRole( 'switch', { name: 'Enable all' } )[ toggleIndex ] ).toBeChecked();
+		await userEvent.click( screen.getAllByRole( 'switch', { name: 'Enable all' } )[ toggleIndex ] );
+		expect( onUpdate ).toHaveBeenLastCalledWith( {
+			sites: [ { blog_id: BLOG_ID, abilities: { ordinary: false } } ],
 		} );
 
 		rerender( <Component { ...props } mcpAbilities={ settings( true ) } /> );

@@ -19,6 +19,7 @@ import { getOverridesToMatch } from './group-intents';
 import { recordMcpTracksEvent } from './tracks';
 import {
 	getAccountMcpAbilities,
+	getRemoteAbilitiesDefaultEnabled,
 	getRemoteAbilityCategory,
 	getSiteContextToolIds,
 	getSiteLevelEnabled,
@@ -175,8 +176,10 @@ export default function McpHub( {
 	// "All enabled" while a site group is off.
 	const savedRemoteGroups = getSiteRemoteGroups( mcpAbilities ?? {}, blogId );
 	const remoteTools = { read: [], write: [] };
-	const allEnabledIn = tools => tools.length > 0 && tools.every( ( [ , t ] ) => t.enabled );
-	const remoteDefaults = { read: allEnabledIn( readTools ), write: allEnabledIn( writeTools ) };
+	const remoteDefaults = {
+		read: getRemoteAbilitiesDefaultEnabled( readTools ),
+		write: getRemoteAbilitiesDefaultEnabled( writeTools ),
+	};
 	for ( const ability of remoteAbilities?.abilities ?? [] ) {
 		const annotations = ability.meta?.annotations;
 		const category = getRemoteAbilityCategory( ability.name, annotations );

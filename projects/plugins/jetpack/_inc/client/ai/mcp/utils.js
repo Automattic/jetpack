@@ -132,6 +132,18 @@ export function isRemoteAbilityEnabled(
 }
 
 /**
+ * Default remote access, matching the server: on only when every ordinary tool in the
+ * category is on. Tools that require opt-in don't count either way.
+ *
+ * @param {Array<[string, object]>} scopedTools - Tools in the Read or Write category.
+ * @return {boolean} Whether unsaved remote abilities are enabled.
+ */
+export function getRemoteAbilitiesDefaultEnabled( scopedTools ) {
+	const ordinaryTools = scopedTools.filter( ( [ , tool ] ) => tool.requires_opt_in !== true );
+	return ordinaryTools.length > 0 && ordinaryTools.every( ( [ , tool ] ) => tool.enabled );
+}
+
+/**
  * Merge account-level abilities with site-level overrides.
  *
  * @param {Record<string, Object>}  accountAbilities - Account-level tool definitions.

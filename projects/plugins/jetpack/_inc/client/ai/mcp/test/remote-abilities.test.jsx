@@ -144,6 +144,73 @@ describe( 'remote_groups settings payload', () => {
 	} );
 } );
 
+describe.each( [
+	{ view: 'Read', Component: McpRead, readonly: true },
+	{ view: 'Write', Component: McpWrite, readonly: false },
+] )( '$view remote defaults', ( { view, Component, readonly } ) => {
+	test.each( [
+		{ ordinary: [ true, true ], optInEnabled: false, expected: true, badge: '3 of 4 enabled' },
+		{ ordinary: [ true, true ], optInEnabled: true, expected: true, badge: 'All enabled' },
+		{ ordinary: [ true, false ], optInEnabled: false, expected: false, badge: '1 of 4 enabled' },
+		{ ordinary: [ true, false ], optInEnabled: true, expected: false, badge: '2 of 4 enabled' },
+		{ ordinary: [ false, false ], optInEnabled: true, expected: false, badge: '1 of 4 enabled' },
+		{ ordinary: [ false, false ], optInEnabled: false, expected: false, badge: 'Disabled' },
+	] )(
+		'are on only when every ordinary tool in the same category is on: %j',
+		async ( { ordinary, optInEnabled, expected, badge } ) => {
+			const props = {
+				mcpAbilities: {
+					account: {
+						ordinary_a: { title: 'Ordinary tool A', readonly, enabled: ordinary[ 0 ] },
+						ordinary_b: { title: 'Ordinary tool B', readonly, enabled: ordinary[ 1 ] },
+						opt_in: {
+							title: 'Opt-in tool',
+							readonly,
+							enabled: optInEnabled,
+							requires_opt_in: true,
+						},
+						opposite: { readonly: ! readonly, enabled: true },
+					},
+					sites: [
+						{
+							blog_id: 1,
+							site_level_enabled: true,
+							abilities: { ordinary_a: ordinary[ 0 ], ordinary_b: ordinary[ 1 ] },
+						},
+					],
+				},
+				blogId: 1,
+				savingToolIds: new Set(),
+				onUpdate,
+				remoteAbilities: {
+					abilities: [
+						{
+							name: 'example/remote-tool',
+							label: 'Remote tool',
+							meta: { annotations: { readonly } },
+						},
+					],
+					isLoading: false,
+					isError: false,
+				},
+			};
+			const { unmount } = render( <Component { ...props } /> );
+			for ( const button of screen.getAllByRole( 'button', { name: 'Show operations' } ) ) {
+				await userEvent.click( button );
+			}
+			expect(
+				screen.getByRole( 'switch', { name: 'Remote tool', checked: expected } )
+			).toBeInTheDocument();
+			unmount();
+
+			render( <McpHub { ...props } onNavigate={ jest.fn() } /> );
+			expect( screen.getByRole( 'button', { name: new RegExp( view ) } ) ).toHaveTextContent(
+				badge
+			);
+		}
+	);
+} );
+
 describe( 'page-level Enable all', () => {
 	test.each( [
 		[ 'read', McpRead, true, { 'read:akismet': false } ],

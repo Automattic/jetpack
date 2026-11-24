@@ -17,7 +17,7 @@ import { __ } from '@wordpress/i18n';
 import { Stack } from '@wordpress/ui';
 import { getGroupDomId } from './anchors';
 import { isWriteTool } from './categories';
-import { getOverridesToMatch } from './group-intents';
+import { getOverridesToMatch, isBulkEnabled } from './group-intents';
 import { groupToolsByGroup } from './groups';
 import McpGroupCard, { McpToolSections } from './mcp-group-card';
 import McpToolbar from './mcp-toolbar';
@@ -30,6 +30,7 @@ import useToolSearch from './use-tool-search';
 import {
 	getAccountMcpAbilities,
 	getGroupDescriptors,
+	getRemoteAbilitiesDefaultEnabled,
 	getSiteContextToolIds,
 	getSiteLevelEnabled,
 	getSiteMcpAbilities,
@@ -102,14 +103,14 @@ export default function McpWrite( {
 		[ blogId, onUpdate ]
 	);
 
-	const toolsAllEnabled = writeTools.length > 0 && writeTools.every( ( [ , t ] ) => t.enabled );
+	const remoteDefaultEnabled = getRemoteAbilitiesDefaultEnabled( writeTools );
 	const pageAllEnabled =
-		toolsAllEnabled &&
+		isBulkEnabled( writeTools ) &&
 		areRemoteGroupsEnabled(
 			remoteAbilities?.abilities ?? [],
 			getSiteRemoteGroups( mcpAbilities, blogId ),
 			'write',
-			toolsAllEnabled
+			remoteDefaultEnabled
 		);
 	const isSavingAny = writeTools.some( ( [ id ] ) => savingToolIds.has( id ) );
 
@@ -194,7 +195,7 @@ export default function McpWrite( {
 								anchorToolId={ groupTools.some( ( [ id ] ) => id === anchor ) ? anchor : null }
 								label={ label }
 								description={ descriptor?.description }
-								allEnabled={ groupTools.every( ( [ , t ] ) => t.enabled ) }
+								allEnabled={ isBulkEnabled( groupTools ) }
 								isSaving={ groupTools.some( ( [ id ] ) => savingToolIds.has( id ) ) }
 								group={ { name: descriptor?.name ?? null, tools: groupTools } }
 								onEnableAll={ handleGroupEnableAll }
@@ -227,7 +228,7 @@ export default function McpWrite( {
 					mcpAbilities={ mcpAbilities }
 					blogId={ blogId }
 					remoteAbilities={ remoteAbilities }
-					defaultEnabled={ toolsAllEnabled }
+					defaultEnabled={ remoteDefaultEnabled }
 					query={ query }
 					anchor={ anchor }
 					savingToolIds={ savingToolIds }
