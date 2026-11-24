@@ -31,7 +31,6 @@
 			<exclude>tests/WpcomFeaturesMapTest.php</exclude>
 			<exclude>tests/WpcomFeaturesTest.php</exclude>
 			<exclude>tests/WpcomSitePurchaseTest.php</exclude>
-			<exclude>tests/WpcomshPremiumAnalyticsTest.php</exclude>
 		</testsuite>
 		<testsuite name="other">
 			<file>tests/feature-manager/FeatureHookTest.php</file>
@@ -44,7 +43,6 @@
 			<file>tests/WpcomFeaturesMapTest.php</file>
 			<file>tests/WpcomFeaturesTest.php</file>
 			<file>tests/WpcomSitePurchaseTest.php</file>
-			<file>tests/WpcomshPremiumAnalyticsTest.php</file>
 		</testsuite>
 	</testsuites>
 
