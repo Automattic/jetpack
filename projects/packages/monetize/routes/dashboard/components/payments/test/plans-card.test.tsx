@@ -5,13 +5,17 @@ import PlansCard from '../plans-card';
 import { getPaymentsState } from '../state';
 
 jest.mock( '../state', () => ( { getPaymentsState: jest.fn() } ) );
+jest.mock( '../../../data/state', () => ( {
+	...jest.requireActual( '../../../data/state' ),
+	getPageData: () => ( { upgradeUrl: 'https://example.com/upgrade' } ),
+} ) );
 jest.mock( '../../../data/wpcom-fetch', () => ( { wpcomFetch: jest.fn() } ) );
 jest.mock( '../../../data/free-tier', () => ( { useFreeTier: () => ( { data: undefined } ) } ) );
 
-const renderCard = ( product: Record< string, unknown >, canManagePlans = true ) => {
+const renderCard = ( product: Record< string, unknown > | null, canManagePlans = true ) => {
 	( getPaymentsState as jest.Mock ).mockReturnValue( { canManagePlans } );
 	( wpcomFetch as jest.Mock ).mockResolvedValue( {
-		products: [ { id: 1, title: 'Gold', price: 5, currency: 'USD', ...product } ],
+		products: product ? [ { id: 1, title: 'Gold', price: 5, currency: 'USD', ...product } ] : [],
 	} );
 	render(
 		<QueryClientProvider client={ new QueryClient() }>
@@ -53,6 +57,15 @@ describe( 'PlansCard', () => {
 
 		await expect( screen.findByRole( 'dialog', { name: title } ) ).resolves.toBeVisible();
 		expect( window.location.hash ).toBe( '' );
+	} );
+
+	it( 'offers an upgrade to a site that can’t manage plans and has none', async () => {
+		renderCard( null, false );
+
+		await expect( screen.findByRole( 'link', { name: 'Upgrade' } ) ).resolves.toHaveAttribute(
+			'href',
+			'https://example.com/upgrade'
+		);
 	} );
 
 	it( 'opens the add dialog when the Stripe return notice sets the hash after loading', async () => {
