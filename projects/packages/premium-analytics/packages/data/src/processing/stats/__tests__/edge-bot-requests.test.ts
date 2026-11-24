@@ -63,26 +63,38 @@ describe( 'sanitizeStatsEdgeBotRequestsResponse', () => {
 		] );
 	} );
 
-	it( 'buckets by hour when the request asked for hours', () => {
+	it( "cuts the hours to the reader's window and names them in the site's time", () => {
+		// Taipei's November 2: 16:00 UTC on the 1st to 15:59 UTC on the 2nd.
 		const report = sanitizeStatsEdgeBotRequestsResponse(
-			[ { ts: '2026-11-01 13:00:00', human_requests: 7 } ],
-			{ start: '2026-11-01', end: '2026-11-02', granularity: 'hour' }
+			[
+				{ ts: '2026-11-01 15:00:00', human_requests: 99 },
+				{ ts: '2026-11-01 16:00:00', human_requests: 7 },
+				{ ts: '2026-11-02 15:00:00', human_requests: 3 },
+				{ ts: '2026-11-02 16:00:00', human_requests: 99 },
+			],
+			{
+				start: '2026-11-01',
+				end: '2026-11-03',
+				granularity: 'hour',
+				window_start: '2026-11-01T16:00:00.000Z',
+				window_end: '2026-11-02T15:59:59.999Z',
+				timezone: 'Asia/Taipei',
+			}
 		);
 
+		expect( report.summary.human ).toBe( 10 );
 		expect( report.data ).toHaveLength( 24 );
-		expect( report.data[ 13 ] ).toEqual( {
-			date_start: '2026-11-01T13:00:00',
-			date_end: '2026-11-01T13:59:59',
+		expect( report.data[ 0 ] ).toMatchObject( {
+			date_start: '2026-11-02T00:00:00',
+			date_end: '2026-11-02T00:59:59',
 			human: 7,
-			ai: 0,
-			other: 0,
-			blocked: 0,
 		} );
+		expect( report.data[ 23 ] ).toMatchObject( { date_start: '2026-11-02T23:00:00', human: 3 } );
 	} );
 
 	it.each( [
-		[ 'day', '2026-11-05', [ '2026-11-01', '2026-11-02', '2026-11-03' ] ],
-		[ 'hour', '2026-11-04', [ '2026-11-03T00', '2026-11-03T16', '2026-11-03T17' ] ],
+		[ 'day', '2026-11-05', [ '2026-11-01T00:00:00', '2026-11-03T00:00:00' ] ],
+		[ 'hour', '2026-11-04', [ '2026-11-03T00:00:00', '2026-11-03T17:00:00' ] ],
 	] as const )( 'leaves out the %ss that have not started', ( granularity, end, expected ) => {
 		jest.setSystemTime( new Date( '2026-11-03T17:19:00Z' ) );
 
@@ -94,8 +106,8 @@ describe( 'sanitizeStatsEdgeBotRequestsResponse', () => {
 		const starts = report.data.map( point => point.date_start );
 
 		expect( starts ).toHaveLength( granularity === 'day' ? 3 : 18 );
-		expect( starts[ 0 ] ).toContain( expected[ 0 ] );
-		expect( starts[ starts.length - 1 ] ).toContain( expected[ 2 ] );
+		expect( starts[ 0 ] ).toBe( expected[ 0 ] );
+		expect( starts[ starts.length - 1 ] ).toBe( expected[ 1 ] );
 	} );
 
 	it( 'reads a response that is not a list as no requests', () => {

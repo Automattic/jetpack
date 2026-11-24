@@ -129,9 +129,9 @@ export type { StatsHighlightsParams, StatsHighlightsResponse } from './use-stats
 export { useStatsTags, type StatsTagsParams, type StatsTagsResponse } from './use-stats-tags';
 export { useStatsDevices } from './use-stats-devices';
 export {
+	isEdgeBotRequestsRangeTooLong,
 	useStatsEdgeBotRequests,
 	type StatsEdgeBotRequestsGranularity,
-	type StatsEdgeBotRequestsParams,
 } from './use-stats-edge-bot-requests';
 export {
 	useStatsAppSiteHasNeverPublishedPost,

@@ -4,6 +4,7 @@
 import {
 	EDGE_REQUEST_SOURCES,
 	getDaysBetweenInclusive,
+	isEdgeBotRequestsRangeTooLong,
 	useStatsEdgeBotRequests,
 	type EdgeRequestSource,
 	type ReportParams,
@@ -16,6 +17,8 @@ import type { ComparativeLineChartSeries } from '@jetpack-premium-analytics/widg
 
 /** A window this short is drawn by the hour, since two daily points make no area. */
 const HOURLY_MAX_DAYS = 2;
+
+const BLOCKED_STROKE = 'var(--a8c-charts-color-trend-down)';
 
 export type RequestSource = {
 	key: EdgeRequestSource;
@@ -40,10 +43,9 @@ function sourceLabels(): Record< EdgeRequestSource, string > {
  * share and its points over time.
  *
  * @param reportParams - The dashboard range.
- * @param blockedColor - The color of the Blocked part, which is not one of the series colors.
  * @return The sources, the bucket size drawn and the request's state.
  */
-export default function useRequestsBySource( reportParams: ReportParams, blockedColor: string ) {
+export default function useRequestsBySource( reportParams: ReportParams ) {
 	const granularity: StatsEdgeBotRequestsGranularity =
 		getDaysBetweenInclusive( reportParams.from, reportParams.to ) <= HOURLY_MAX_DAYS
 			? 'hour'
@@ -52,7 +54,8 @@ export default function useRequestsBySource( reportParams: ReportParams, blocked
 		() => ( { ...reportParams, granularity } ),
 		[ reportParams, granularity ]
 	);
-	const { primary, timezone, isLoading, isFetching, isError, refetch } =
+	const isRangeTooLong = isEdgeBotRequestsRangeTooLong( params );
+	const { primary, timezone, isLoading, isFetching, isError, error, refetch } =
 		useStatsEdgeBotRequests( params );
 	const report = primary.data;
 
@@ -80,11 +83,12 @@ export default function useRequestsBySource( reportParams: ReportParams, blocked
 				series: {
 					label: labels[ key ],
 					data,
-					options: key === 'blocked' ? { stroke: blockedColor } : {},
+					// What was refused takes the charts' own negative color, so it follows the theme.
+					options: key === 'blocked' ? { stroke: BLOCKED_STROKE } : {},
 				},
 			};
 		} );
-	}, [ report, timezone, blockedColor ] );
+	}, [ report, timezone ] );
 
 	const hasRequests = sources.some( source => source.total > 0 );
 
@@ -95,7 +99,9 @@ export default function useRequestsBySource( reportParams: ReportParams, blocked
 		isFetching,
 		// Placeholder rows from the previous window outlive a failed refetch.
 		isError: isError && ! report?.data.length,
-		isEmpty: ! isLoading && ! hasRequests,
+		isEmpty: isRangeTooLong || ( ! isLoading && ! hasRequests ),
+		isRangeTooLong,
+		error,
 		refetch,
 	};
 }

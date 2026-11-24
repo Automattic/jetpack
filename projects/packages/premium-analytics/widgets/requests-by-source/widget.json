@@ -4,7 +4,7 @@
 	"title": "Requests by source",
 	"description": "See how many requests came from people, AI bots and other bots, and how many were blocked.",
 	"help": {
-		"content": "Every request your site's edge received in the selected period, split by who sent it. Blocked requests were refused before they reached your site. Days are counted in UTC."
+		"content": "Every request served to your site, split by who made it: people, AI bots, and other bots, plus the requests we blocked. These are requests, not views, so the totals will not match your Traffic summary. Views only count visitors whose browsers run JavaScript and do not block the Stats pixel. Requests count everything that reaches your site, bots included."
 	},
 	"category": "traffic",
 	"presentation": "framed",
@@ -16,8 +16,8 @@
 			"relevance": "high",
 			"elements": [
 				{
-					"value": "line",
-					"label": "Line chart",
+					"value": "area",
+					"label": "Area chart",
 					"icon": "jpa/chart-line"
 				},
 				{

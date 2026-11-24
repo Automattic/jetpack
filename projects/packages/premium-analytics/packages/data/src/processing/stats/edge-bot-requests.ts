@@ -1,9 +1,10 @@
 /**
  * Internal dependencies
  */
+import { toBucketStamp } from '@jetpack-premium-analytics/datetime';
 import { safeParseFloat } from '../../utils/parsing';
 import { coerceStatsArray, coerceStatsRecord } from './utils';
-import type { StatsQueryParams } from '../../utils/stats-params';
+import type { StatsSanitizerParams } from '../../utils/stats-params';
 
 /** Who sent a request, as the edge classifies it; the four never overlap. */
 export const EDGE_REQUEST_SOURCES = [ 'human', 'ai', 'other', 'blocked' ] as const;
@@ -38,11 +39,28 @@ function toBucketKey( time: number, hourly: boolean ): string {
 	return new Date( time ).toISOString().slice( 0, hourly ? 13 : 10 );
 }
 
-/** A bucket's first and last second, offset-less like every Stats bucket label. */
-function bucketBounds( key: string, hourly: boolean ) {
-	return hourly
-		? { date_start: `${ key }:00:00`, date_end: `${ key }:59:59` }
-		: { date_start: `${ key }T00:00:00`, date_end: `${ key }T23:59:59` };
+/**
+ * A bucket's first and last second, offset-less like every Stats bucket label.
+ *
+ * A day keeps its UTC date, which the site's calendar then stands in for. An hour
+ * is exact, so it is moved to the wall time it has on the site.
+ *
+ * @param key    - The bucket's UTC day, or day and hour.
+ * @param hourly - Whether the bucket is an hour.
+ * @param zone   - The report's timezone.
+ * @return The bucket's bounds.
+ */
+function bucketBounds( key: string, hourly: boolean, zone?: string ) {
+	if ( ! hourly ) {
+		return { date_start: `${ key }T00:00:00`, date_end: `${ key }T23:59:59` };
+	}
+
+	return zone
+		? {
+				date_start: toBucketStamp( `${ key }:00:00Z`, zone ),
+				date_end: toBucketStamp( `${ key }:59:59Z`, zone ),
+			}
+		: { date_start: `${ key }:00:00`, date_end: `${ key }:59:59` };
 }
 
 /**
@@ -54,13 +72,16 @@ function bucketBounds( key: string, hourly: boolean ) {
  * the buckets between `start` and the exclusive `end` are filled with zeroes.
  * A bucket that has not started yet is left out: it has no count to show.
  *
+ * An hourly request covers whole UTC days around the reader's window, so its hours
+ * are cut back to `window_start` and `window_end`.
+ *
  * @param response - The endpoint's rows.
- * @param query    - The request params.
+ * @param query    - The request params, the trim window and the report's timezone.
  * @return The report.
  */
 export function sanitizeStatsEdgeBotRequestsResponse(
 	response: unknown,
-	query?: StatsQueryParams
+	query?: Partial< StatsSanitizerParams >
 ): StatsEdgeBotRequestsReport {
 	const hourly = query?.granularity === 'hour';
 	const counts = new Map< string, Record< EdgeRequestSource, number > >();
@@ -78,9 +99,16 @@ export function sanitizeStatsEdgeBotRequestsResponse(
 		counts.set( key, bucket );
 	}
 
-	const start = Date.parse( `${ query?.start }T00:00:00Z` );
-	const end = Date.parse( `${ query?.end }T00:00:00Z` );
 	const step = hourly ? MS_PER_HOUR : MS_PER_DAY;
+	const windowStart = hourly ? Date.parse( String( query?.window_start ) ) : NaN;
+	const windowEnd = hourly ? Date.parse( String( query?.window_end ) ) : NaN;
+	// The hour the window opens in counts whole, as the edge has no finer bucket.
+	const start = Number.isFinite( windowStart )
+		? Math.floor( windowStart / step ) * step
+		: Date.parse( `${ query?.start }T00:00:00Z` );
+	const end = Number.isFinite( windowEnd )
+		? windowEnd + 1
+		: Date.parse( `${ query?.end }T00:00:00Z` );
 	const keys: string[] = [];
 	if ( Number.isFinite( start ) && Number.isFinite( end ) ) {
 		// The edge's days are UTC days, so a site ahead of UTC asks for one that has not begun.
@@ -98,7 +126,7 @@ export function sanitizeStatsEdgeBotRequestsResponse(
 		for ( const source of EDGE_REQUEST_SOURCES ) {
 			summary[ source ] += bucket[ source ];
 		}
-		return { ...bucketBounds( key, hourly ), ...bucket };
+		return { ...bucketBounds( key, hourly, query?.timezone ), ...bucket };
 	} );
 
 	return { summary, data };

@@ -45,12 +45,7 @@ function renderWidget( reportParams: Partial< ReportParams > ) {
 
 describe( 'RequestsBySource', () => {
 	beforeEach( () => {
-		jest.useFakeTimers();
 		mockUseStatsEdgeBotRequests.mockReset();
-	} );
-
-	afterEach( () => {
-		jest.useRealTimers();
 	} );
 
 	it( 'shows each source with its total and its share of every request', () => {
@@ -84,14 +79,24 @@ describe( 'RequestsBySource', () => {
 		);
 	} );
 
-	it( 'says there were no requests rather than drawing an empty chart', () => {
+	it( 'shows the shared empty state rather than an empty chart', () => {
 		mockUseStatsEdgeBotRequests.mockReturnValue(
 			requestsResult( { human: 0, ai: 0, other: 0, blocked: 0 } )
 		);
 
 		renderWidget( { from: '2026-11-01', to: '2026-11-07', interval: 'day' } );
 
-		expect( screen.getByText( 'No requests in this period.' ) ).toBeVisible();
+		expect( screen.getByText( 'We couldn’t find results for this time period.' ) ).toBeVisible();
 		expect( screen.queryByRole( 'listitem' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'asks for a shorter period when the range is longer than the edge data serves', () => {
+		mockUseStatsEdgeBotRequests.mockReturnValue(
+			requestsResult( { human: 0, ai: 0, other: 0, blocked: 0 } )
+		);
+
+		renderWidget( { from: '2023-11-08', to: '2026-11-07', interval: 'month' } );
+
+		expect( screen.getByText( /Choose a shorter period\./ ) ).toBeVisible();
 	} );
 } );

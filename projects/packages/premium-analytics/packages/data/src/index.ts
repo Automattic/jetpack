@@ -184,8 +184,6 @@ export type {
 	StatsDevicesComparisonItem,
 	StatsDevicesItem,
 	EdgeRequestSource,
-	StatsEdgeBotRequestsDataPoint,
-	StatsEdgeBotRequestsReport,
 	StatsFileDownloadsComparisonItem,
 	StatsFileDownloadsItem,
 	StatsFollowersItem,

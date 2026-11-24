@@ -1,33 +1,79 @@
 /**
  * External dependencies
  */
-import { getDatePart } from '@jetpack-premium-analytics/datetime';
+import { getDatePart, toLocalTZ } from '@jetpack-premium-analytics/datetime';
 /**
  * Internal dependencies
  */
+import { resolveReportTimeZone, type ReportTimeZoneParams } from '../utils/report-timezone';
 import { statsProxyQuery, type StatsReportQueryOptions } from './stats-query';
 import type { ReportParams } from '../utils/search';
 
 export type StatsEdgeBotRequestsGranularity = 'hour' | 'day';
 
-export type StatsEdgeBotRequestsParams = ReportParams & {
-	granularity?: StatsEdgeBotRequestsGranularity;
-};
+export type StatsEdgeBotRequestsParams = ReportParams &
+	ReportTimeZoneParams & {
+		granularity?: StatsEdgeBotRequestsGranularity;
+	};
 
-/** The day after a `yyyy-MM-dd`, for the endpoint's exclusive `end`. */
-function nextDay( day: string ): string | undefined {
-	const time = Date.parse( `${ day }T00:00:00Z` );
+const MS_PER_DAY = 24 * 60 * 60 * 1000;
 
-	return Number.isFinite( time )
-		? new Date( time + 24 * 60 * 60 * 1000 ).toISOString().slice( 0, 10 )
+/** The most days each table serves; the endpoint answers a longer range with a 400. */
+const MAX_DAYS: Record< StatsEdgeBotRequestsGranularity, number > = { hour: 30, day: 366 };
+
+function utcDay( time: number ): string {
+	return new Date( time ).toISOString().slice( 0, 10 );
+}
+
+/**
+ * The UTC days to ask the endpoint for, `end` exclusive, and for hours the instants
+ * the reader's window runs between.
+ *
+ * Days are sent as the site's calendar days, since the edge counts them in UTC.
+ * Hours are exact, so their window is the site's own, widened to whole UTC days.
+ *
+ * @param params - The report window and bucket size.
+ * @return The request's bounds, or undefined when the window cannot be read.
+ */
+function requestWindow( params: StatsEdgeBotRequestsParams ) {
+	if ( params.granularity === 'hour' ) {
+		const timezone = resolveReportTimeZone( params.timezone );
+		const from = toLocalTZ( params.from, timezone ).getTime();
+		const to = toLocalTZ( params.to, timezone ).getTime();
+
+		return Number.isFinite( from ) && Number.isFinite( to )
+			? { start: utcDay( from ), end: utcDay( to + MS_PER_DAY ), from, to }
+			: undefined;
+	}
+
+	const start = getDatePart( params.from );
+	const lastDay = Date.parse( `${ getDatePart( params.to ) }T00:00:00Z` );
+
+	return start && Number.isFinite( lastDay )
+		? { start, end: utcDay( lastDay + MS_PER_DAY ) }
 		: undefined;
+}
+
+/**
+ * Whether the window is longer than its table serves, so no request is worth sending.
+ *
+ * @param params - The report window and bucket size.
+ * @return True when the endpoint would refuse the range.
+ */
+export function isEdgeBotRequestsRangeTooLong( params: StatsEdgeBotRequestsParams ): boolean {
+	const bounds = requestWindow( params );
+	if ( ! bounds ) {
+		return false;
+	}
+	const days = ( Date.parse( bounds.end ) - Date.parse( bounds.start ) ) / MS_PER_DAY;
+
+	return days > MAX_DAYS[ params.granularity ?? 'day' ];
 }
 
 /**
  * Requests the edge saw per day or hour, split by who sent them.
  *
- * Days come from the pre-aggregated table, which serves up to 366 of them; hours
- * exist only in the raw one, which serves 30 days.
+ * Days come from the pre-aggregated table; hours exist only in the raw one.
  *
  * @param params - The report window and bucket size.
  * @return The query options.
@@ -36,9 +82,7 @@ export const statsEdgeBotRequestsQuery = (
 	params: StatsEdgeBotRequestsParams
 ): StatsReportQueryOptions< 'edgeBotRequests' > => {
 	const granularity = params.granularity ?? 'day';
-	const start = getDatePart( params.from );
-	const lastDay = getDatePart( params.to );
-	const end = lastDay ? nextDay( lastDay ) : undefined;
+	const bounds = requestWindow( { ...params, granularity } );
 
 	return statsProxyQuery( {
 		name: 'edge-bot-requests',
@@ -46,13 +90,21 @@ export const statsEdgeBotRequestsQuery = (
 		endpoint: 'stats/ua-queries',
 		params: {
 			template: 'edge-bot-requests',
-			start,
-			end,
+			start: bounds?.start,
+			end: bounds?.end,
 			granularity,
 			table: granularity === 'hour' ? 'raw' : 'rollup',
+			timezone: params.timezone,
 		},
+		sanitizerParams:
+			bounds && 'from' in bounds
+				? {
+						window_start: new Date( bounds.from ).toISOString(),
+						window_end: new Date( bounds.to ).toISOString(),
+					}
+				: undefined,
 		sanitizer: 'edgeBotRequests',
-		enabled: !! ( start && end ),
+		enabled: !! bounds && ! isEdgeBotRequestsRangeTooLong( { ...params, granularity } ),
 		windowEnd: params.to || null,
 	} );
 };

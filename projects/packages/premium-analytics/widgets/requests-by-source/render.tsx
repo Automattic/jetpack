@@ -6,10 +6,11 @@ import {
 	ComparativeBarChart,
 	HEADLINE_COUNT_FORMAT,
 	MetricValue,
+	SeriesIndicator,
 	StackedAreaChart,
 	WidgetRoot,
 	WidgetState,
-	useChartRoleColor,
+	describeError,
 	useSeriesStyles,
 	useWidgetRootContext,
 	type ReportParamsFieldAttributes,
@@ -24,7 +25,7 @@ import useRequestsBySource from './use-requests-by-source';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps } from 'react';
 
-export type RequestsBySourceChartType = 'line' | 'bar';
+export type RequestsBySourceChartType = 'area' | 'bar';
 
 export type RequestsBySourceAttributes = {
 	/** How the sources are drawn over time: stacked areas or stacked bars. */
@@ -40,50 +41,57 @@ type RequestsBySourceProps = WidgetRenderProps< RequestsBySourceRenderAttributes
 	setError?: ComponentProps< typeof WidgetRoot >[ 'setError' ];
 };
 
-/** Before the element mounts, and outside a charts scope. */
-const BLOCKED_FALLBACK = '#d63638';
-
 function RequestsBySourceInner( { chartType }: { chartType: RequestsBySourceChartType } ) {
 	const { reportParams } = useWidgetRootContext();
-	// What was refused takes the charts' own negative color, so it follows the theme.
-	const [ rootRef, blockedColor ] = useChartRoleColor< HTMLDivElement >(
-		'trend-down',
-		BLOCKED_FALLBACK
-	);
-	const { sources, granularity, isLoading, isFetching, isError, isEmpty, refetch } =
-		useRequestsBySource( reportParams, blockedColor );
+	const {
+		sources,
+		granularity,
+		isLoading,
+		isFetching,
+		isError,
+		isEmpty,
+		isRangeTooLong,
+		error,
+		refetch,
+	} = useRequestsBySource( reportParams );
 	const series = useMemo( () => sources.map( source => source.series ), [ sources ] );
 	// The totals double as the chart's legend, so they take its colors.
 	const seriesStyles = useSeriesStyles( series );
 
 	return (
-		<div className={ styles.root } ref={ rootRef }>
+		<div className={ styles.root }>
 			<WidgetState
 				isLoading={ isLoading }
 				isFetching={ isFetching }
 				isError={ isError }
 				isEmpty={ isEmpty }
-				error={ {
-					description: __(
+				error={ describeError( error, {
+					retryDescription: __(
 						"We couldn't load your requests. Please try again in a moment.",
 						'jetpack-premium-analytics-pkg'
 					),
-					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
-				} }
-				empty={ {
-					description: __( 'No requests in this period.', 'jetpack-premium-analytics-pkg' ),
-				} }
+					onRetry: refetch,
+				} ) }
+				empty={
+					isRangeTooLong
+						? {
+								description: __(
+									'Requests are available for up to a year at a time. Choose a shorter period.',
+									'jetpack-premium-analytics-pkg'
+								),
+							}
+						: undefined
+				}
 			>
 				<div className={ styles.body }>
 					<ul className={ styles.totals }>
 						{ sources.map( ( source, index ) => (
 							<li key={ source.key } className={ styles.total }>
 								<span className={ styles.label }>
-									<span
-										// A line for the outlined areas, a block for the bars, as a chart legend would.
-										className={ chartType === 'bar' ? styles.swatch : styles.stroke }
-										style={ { background: seriesStyles[ index ]?.stroke } }
-										aria-hidden="true"
+									{ /* A line for the outlined areas, a block for the bars, as the tooltip marks them. */ }
+									<SeriesIndicator
+										indicatorType={ chartType === 'bar' ? 'rect' : 'line' }
+										style={ seriesStyles[ index ] }
 									/>
 									{ source.label }
 								</span>
@@ -131,7 +139,7 @@ function RequestsBySourceInner( { chartType }: { chartType: RequestsBySourceChar
 
 export default function RequestsBySource( { attributes = {}, setError }: RequestsBySourceProps ) {
 	// Coerce unknown persisted values to the default.
-	const chartType = attributes?.chartType === 'bar' ? 'bar' : 'line';
+	const chartType = attributes?.chartType === 'bar' ? 'bar' : 'area';
 
 	return (
 		<WidgetRoot attributes={ attributes } setError={ setError }>

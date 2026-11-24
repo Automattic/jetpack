@@ -193,6 +193,7 @@ export {
 	SkeletonRoot,
 	type SkeletonRootProps,
 } from './components';
+export { SeriesIndicator } from './components/chart-tooltip';
 
 /**
  * Report CSV exports
@@ -339,7 +340,6 @@ export {
 	type ReportActionsOptions,
 	type ReportCsvActionOptions,
 	useSegmentStyles,
-	useChartRoleColor,
 	useSeriesStyles,
 	useStoredDetailLayout,
 	useTrackCustomize,

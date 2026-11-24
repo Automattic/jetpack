@@ -8,10 +8,8 @@ import type { StatsEdgeBotRequestsReport } from '../processing/stats';
 import type { StatsEdgeBotRequestsParams } from '../queries/stats-edge-bot-requests-query';
 import type { StatsReportParams } from '../queries/stats-query';
 
-export type {
-	StatsEdgeBotRequestsGranularity,
-	StatsEdgeBotRequestsParams,
-} from '../queries/stats-edge-bot-requests-query';
+export { isEdgeBotRequestsRangeTooLong } from '../queries/stats-edge-bot-requests-query';
+export type { StatsEdgeBotRequestsGranularity } from '../queries/stats-edge-bot-requests-query';
 
 export function useStatsEdgeBotRequests(
 	params: StatsEdgeBotRequestsParams,

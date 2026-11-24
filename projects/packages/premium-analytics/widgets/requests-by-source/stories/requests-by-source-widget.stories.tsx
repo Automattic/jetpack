@@ -40,7 +40,7 @@ function DashboardRender( props: WidgetRenderProps< unknown > ) {
 }
 
 const meta = {
-	title: 'Packages/Premium Analytics/Widgets/Requests by source',
+	title: 'Packages/Premium Analytics/Widgets/RequestsBySource',
 	component: RequestsBySourceRender,
 	tags: [ 'autodocs' ],
 	parameters: {

@@ -2,7 +2,7 @@
 	container-type: inline-size;
 	display: flex;
 	flex-direction: column;
-	height: 100%;
+	block-size: 100%;
 	overflow: hidden;
 }
 
@@ -38,20 +38,6 @@
 	color: var(--wpds-color-foreground-content-neutral-weak);
 }
 
-.swatch {
-	flex: 0 0 auto;
-	inline-size: 8px;
-	block-size: 8px;
-	border-radius: 2px;
-}
-
-.stroke {
-	flex: 0 0 auto;
-	inline-size: 16px;
-	block-size: 2px;
-	border-radius: 1px;
-}
-
 .share {
 	margin-block-start: var(--wpds-dimension-gap-xs);
 	color: var(--wpds-color-foreground-content-neutral-weak);
@@ -62,7 +48,7 @@
 	min-block-size: 0;
 }
 
-@container (max-width: 480px) {
+@container (max-inline-size: 480px) {
 
 	.totals {
 		grid-template-columns: repeat(2, minmax(0, 1fr));
