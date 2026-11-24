@@ -272,6 +272,34 @@ describe( 'Cookie Consent settings synchronization', () => {
 		expect( settingsWrites() ).toEqual( [] );
 	} );
 
+	it( 'keeps the banner when template and part list requests fail after saving a deletion', async () => {
+		const { registry, save } = setup();
+		const fetch = apiFetch.getMockImplementation();
+		apiFetch.mockImplementation( options => {
+			if ( /^\/wp\/v2\/wp_template(?:_part)?\?/.test( options.path ) ) {
+				return Promise.reject( new Error( 'List request failed' ) );
+			}
+			return fetch( options );
+		} );
+
+		await save( 'wp_template', '' );
+		await waitFor( () =>
+			expect(
+				[ 'wp_template', 'wp_template_part' ].every( name =>
+					registry
+						.select( coreStore )
+						.hasFinishedResolution( 'getEntityRecords', [
+							'postType',
+							name,
+							{ per_page: -1, context: 'edit' },
+						] )
+				)
+			).toBe( true )
+		);
+
+		expect( settingsWrites() ).toEqual( [] );
+	} );
+
 	it( 'syncs a banner added to a template that did not have one', async () => {
 		const { save, savedBanner } = setup( { content: '' } );
 
