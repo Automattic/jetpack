@@ -311,6 +311,20 @@ describe( 'Cookie Consent settings synchronization', () => {
 		);
 	} );
 
+	it( 'syncs the edited banner when a Site Editor save finishes', async () => {
+		const { editor, blockEditor } = setup( { screenBase: 'site-editor' } );
+		await act( () =>
+			blockEditor.setState( { block: createBlock( TYPE, { text: 'Updated banner' } ) } )
+		);
+
+		await act( () => editor.setState( { isSaving: true } ) );
+		expect( settingsWrites() ).toEqual( [] );
+		await act( () => editor.setState( { isSaving: false } ) );
+
+		await waitFor( () => expect( settingsWrites() ).toHaveLength( 1 ) );
+		expect( settingsWrites()[ 0 ][ 0 ].data.cookie_consent_template ).toContain( 'Updated banner' );
+	} );
+
 	it( 'keeps Site Editor deletion behavior', async () => {
 		const { blockEditor, unmount } = setup( { screenBase: 'site-editor' } );
 
