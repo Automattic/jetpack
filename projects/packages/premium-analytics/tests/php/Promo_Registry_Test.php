@@ -96,6 +96,17 @@ class Promo_Registry_Test extends BaseTestCase {
 		$this->assert_refused( 'acme/offer', array( 'placement' => 'sidebar' ) );
 	}
 
+	public function test_register_refuses_an_options_menu_promo_without_a_cta_label() {
+		$this->assert_refused(
+			'acme/offer',
+			array(
+				'placement'   => 'options-menu',
+				'cta_url'     => 'https://example.com/acme',
+				'dismissible' => false,
+			)
+		);
+	}
+
 	public function test_register_refuses_a_dismissible_options_menu_promo() {
 		$this->assert_refused(
 			'acme/offer',
@@ -187,6 +198,7 @@ class Promo_Registry_Test extends BaseTestCase {
 			'acme/offer',
 			array(
 				'placement'   => 'options-menu',
+				'cta_label'   => 'Try Acme',
 				'dismissible' => false,
 			)
 		);

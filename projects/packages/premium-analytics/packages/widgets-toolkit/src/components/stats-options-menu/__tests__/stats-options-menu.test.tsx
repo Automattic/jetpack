@@ -288,6 +288,16 @@ describe( 'stats-options-menu', () => {
 				expect( screen.queryByRole( 'menuitem', { name: /Try Acme/ } ) ).not.toBeInTheDocument();
 			} );
 
+			it( 'renders no promo item when the promo has no label to show', async () => {
+				showPromos( { promos: [ { ...PROMO, cta_label: '' } ] } );
+				await openMenu();
+
+				const items = await screen.findAllByRole( 'menuitem' );
+
+				expect( items.map( item => item.textContent ) ).not.toContain( '' );
+				expect( screen.queryByRole( 'menuitem', { name: '' } ) ).not.toBeInTheDocument();
+			} );
+
 			it( 'renders no trigger when the only promo has an unsafe URL', () => {
 				showPromos( {
 					can_view_stats: false,

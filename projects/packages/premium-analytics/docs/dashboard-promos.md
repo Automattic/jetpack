@@ -56,7 +56,7 @@ add_action(
 | `order`         | `10`           | Lower shows first. Ties break on the slug.                                                  |
 | `title`         | `''`           | The card heading. It also labels the card for assistive technology.                         |
 | `description`   | `''`           | The card body.                                                                              |
-| `cta_label`     | `''`           | The call to action text. The text of the menu item for `options-menu`.                      |
+| `cta_label`     | `''`           | The call to action text, and the whole menu item for `options-menu`, which requires one.    |
 | `cta_url`       | `''`           | The call to action link. Only `http` and `https` links render.                              |
 | `dismissible`   | `true`         | Whether the card has a close control.                                                       |
 | `snooze_days`   | `90`           | Days a first dismissal lasts. `0` makes the first dismissal final.                          |
@@ -69,6 +69,7 @@ Each refusal is a `_doing_it_wrong()` and a `false` return, and nothing is regis
 
 - A slug that does not match the pattern above, or one that is already registered.
 - A `placement` that is not one of the two.
+- An `options-menu` promo with no `cta_label`. The label is the menu item, and an item with no text is a focusable link with no name.
 - An `options-menu` promo that is `dismissible`. A menu item has no close control, so pass `'dismissible' => false`.
 - An `options-menu` promo with a `render_module`. A menu item is not a card.
 - A negative `snooze_days`.

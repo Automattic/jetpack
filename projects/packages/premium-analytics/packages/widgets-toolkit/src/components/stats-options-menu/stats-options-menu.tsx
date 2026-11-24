@@ -152,7 +152,8 @@ export function StatsOptionsMenu( {
 
 	const slotPromo = usePromoSlot( 'options-menu' );
 	const promo = withPromo ? slotPromo : null;
-	const promoHref = promo ? safeHttpUrl( promo.cta_url ) : null;
+	// The label is the menu item: without one the item would be a focusable link with no name.
+	const promoHref = promo?.cta_label ? safeHttpUrl( promo.cta_url ) : null;
 	const trackPromoClick = useCallback( () => {
 		if ( promo ) {
 			trackEvent( 'jetpack_premium_analytics_promo_click', {

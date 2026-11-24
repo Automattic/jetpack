@@ -87,6 +87,10 @@ final class Promo_Registry {
 			return $this->refuse( sprintf( __( 'A promo placement must be one of: %s.', 'jetpack-premium-analytics-pkg' ), implode( ', ', self::PLACEMENTS ) ) );
 		}
 
+		if ( 'options-menu' === $promo->placement && '' === $promo->cta_label ) {
+			return $this->refuse( __( 'An options-menu promo needs a cta_label. The label is the menu item.', 'jetpack-premium-analytics-pkg' ) );
+		}
+
 		if ( 'options-menu' === $promo->placement && $promo->dismissible ) {
 			return $this->refuse( __( 'An options-menu promo cannot be dismissible. Pass dismissible as false.', 'jetpack-premium-analytics-pkg' ) );
 		}
