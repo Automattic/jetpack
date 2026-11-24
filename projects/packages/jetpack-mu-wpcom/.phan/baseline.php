@@ -11,7 +11,7 @@ return [
     // # Issue statistics:
     // PhanTypeMismatchArgument : 15+ occurrences
     // PhanTypeMismatchArgumentProbablyReal : 15+ occurrences
-    // PhanRedefineFunction : 8 occurrences
+    // PhanRedefineFunction : 7 occurrences
     // PhanTypeMismatchReturn : 6 occurrences
     // PhanTypeMismatchReturnProbablyReal : 4 occurrences
     // PhanTypePossiblyInvalidDimOffset : 3 occurrences
@@ -45,7 +45,6 @@ return [
         'tests/php/features/launchpad/Launchpad_Task_Lists_Test.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal'],
         'tests/php/features/launchpad/Launchpad_WPCOM_Requests_Test.php' => ['PhanTypeMismatchArgument'],
         'tests/php/features/launchpad/class-launchpad-jetpack-connection-client-mock.php' => ['PhanTypeMissingReturn'],
-        'tests/php/features/premium-analytics/wordads-manifest-stand-in.php' => ['PhanRedefineFunction'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.
     // (directory_suppressions will currently be ignored by subsequent calls to --save-baseline, but may be preserved in future Phan releases)
