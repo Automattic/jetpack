@@ -121,17 +121,7 @@ export const useGetErrorContent = ( licenseError: string, errorType: LicenseErro
 					</ul>
 				),
 			};
-		case LICENSE_ERRORS.PRODUCT_INCOMPATIBILITY: {
-			// Text after the [code] token is the server's reason; prefer it over the generic copy.
-			const serverMessage = licenseError
-				.slice( licenseError.indexOf( errorType ) + errorType.length )
-				.trim();
-			if ( serverMessage ) {
-				return {
-					errorMessage: serverMessage,
-					errorInfo: <p>{ needHelpGetInTouchLink }</p>,
-				};
-			}
+		case LICENSE_ERRORS.PRODUCT_INCOMPATIBILITY:
 			return {
 				errorMessage: __(
 					'Your site already has an active Jetpack plan of equal or higher value.',
@@ -156,7 +146,22 @@ export const useGetErrorContent = ( licenseError: string, errorType: LicenseErro
 					</>
 				),
 			};
-		}
+		case LICENSE_ERRORS.JETPACK_PRO_LOWER_LIMITS:
+			return {
+				errorMessage: __(
+					'This site has a Jetpack product with higher limits than Jetpack Pro, so Pro can’t replace it. You can use this license on another site, or contact us for a refund.',
+					'jetpack-licensing'
+				),
+				errorInfo: <p>{ needHelpGetInTouchLink }</p>,
+			};
+		case LICENSE_ERRORS.JETPACK_PRO_OTHER_OWNER:
+			return {
+				errorMessage: __(
+					'A Jetpack product on this site belongs to another WordPress.com account, so Jetpack Pro can’t be activated here. Contact us and we’ll help you sort it out.',
+					'jetpack-licensing'
+				),
+				errorInfo: <p>{ needHelpGetInTouchLink }</p>,
+			};
 		case LICENSE_ERRORS.REVOKED_LICENSE:
 			return {
 				errorMessage: __(

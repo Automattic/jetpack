@@ -40,19 +40,17 @@ describe( 'ActivationScreenError', () => {
 	} );
 
 	it.each( [
-		[
-			'Jetpack: [product_incompatibility] We could not activate Jetpack Pro.',
-			'We could not activate Jetpack Pro.',
-		],
-		[
-			'[product_incompatibility]',
-			'Your site already has an active Jetpack plan of equal or higher value.',
-		],
-	] )( 'shows the right product incompatibility message for %s', ( licenseError, expected ) => {
+		[ '[jetpack_pro_lower_limits]', /higher limits than Jetpack Pro/ ],
+		[ '[jetpack_pro_other_owner]', /belongs to another WordPress\.com account/ ],
+		[ '[product_incompatibility]', /active Jetpack plan of equal or higher value/ ],
+	] )( 'shows translated copy, not the server text, for %s', ( errorType, expected ) => {
 		render(
-			<ActivationScreenError licenseError={ licenseError } errorType="[product_incompatibility]" />
+			<ActivationScreenError
+				licenseError={ `Jetpack: ${ errorType } Server reason.` }
+				errorType={ errorType }
+			/>
 		);
 		expect( screen.getAllByText( expected ).length ).toBeGreaterThan( 0 );
-		expect( screen.queryByText( /\[product_incompatibility\]/ ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( /Server reason/ ) ).not.toBeInTheDocument();
 	} );
 } );
