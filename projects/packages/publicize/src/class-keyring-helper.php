@@ -43,7 +43,6 @@ class Keyring_Helper {
 		'google_site_verification' => array(
 			'for' => 'other',
 		),
-		// PROTOTYPE (JPPROD-116).
 		'bing_webmaster'           => array(
 			'for' => 'other',
 		),

@@ -1,4 +1,4 @@
 Significance: patch
-Type: changed
-Comment: Prototype a Bing Webmaster connection request for the SEO settings page. Not for release.
+Type: added
 
+Keyring: Allow a site to request a Bing Webmaster Tools connection for site verification.
