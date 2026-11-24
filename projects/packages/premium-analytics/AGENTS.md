@@ -105,8 +105,8 @@ manifest that plugin's wp-build generates. A renamed type declares `former_names
 shows a paid Stats feature declares `plan_feature`; `docs/dashboard-widgets.md` covers both.
 
 Add a promo card from another plugin: hook `jetpack_premium_analytics_register_promos`, compare
-`PROMO_API_VERSION`, and call `register_promo()` there. A `section-footer` promo takes the namespaced
-section ID as its `target`. `docs/dashboard-promos.md` covers the placements, gates and tracking.
+`PROMO_API_VERSION`, and call `register_promo()` there. `docs/dashboard-promos.md` covers the
+placements, gates and tracking.
 
 ### Timing-dependent JS tests use fake timers
 

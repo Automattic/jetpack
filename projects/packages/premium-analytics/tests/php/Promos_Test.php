@@ -234,49 +234,6 @@ class Promos_Test extends BaseTestCase {
 		$this->assertSame( 'acme/offer', $data['premium_analytics']['promos'][0]['slug'] );
 	}
 
-	public function test_script_data_publishes_a_section_footer_target_as_the_section_slug() {
-		register_dashboard_section( DASHBOARD_NAME, 'analytics/traffic' );
-		$this->register_fixture_promos(
-			array(
-				'slug'         => 'acme/offer',
-				'placement'    => 'section-footer',
-				'target'       => 'analytics/traffic',
-				'is_available' => true,
-			)
-		);
-		$this->open_dashboard();
-
-		$data = inject_promos_script_data( array() );
-
-		$this->assertSame( 'traffic', $data['premium_analytics']['promos'][0]['target'] );
-	}
-
-	public function test_script_data_drops_and_reports_a_promo_whose_target_section_is_not_registered() {
-		$this->register_fixture_promos(
-			array(
-				'slug'         => 'acme/offer',
-				'placement'    => 'section-footer',
-				'target'       => 'analytics/missing',
-				'is_available' => true,
-			)
-		);
-		$this->open_dashboard();
-
-		$reported = array();
-		add_filter( 'doing_it_wrong_trigger_error', '__return_false' );
-		add_action(
-			'doing_it_wrong_run',
-			static function ( $function_name ) use ( &$reported ) {
-				$reported[] = $function_name;
-			}
-		);
-
-		$data = inject_promos_script_data( array() );
-
-		$this->assertSame( array(), $data['premium_analytics']['promos'] );
-		$this->assertSame( array( __NAMESPACE__ . '\\inject_promos_script_data' ), $reported );
-	}
-
 	public function test_a_filter_returning_a_non_array_yields_no_promos() {
 		$this->register_fixture_promos(
 			array(
