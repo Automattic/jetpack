@@ -75,8 +75,7 @@ class Default_Reports_Pages_Test extends BaseTestCase {
 		$this->assertSame( 'top-posts', $record['feature'] );
 		$this->assertSame( 'jetpack-premium-analytics/posts-report', $record['preferences_scope'] );
 		$this->assertSame( array( 'posts-pages', 'archives' ), array_column( $record['sections'], 'slug' ) );
-		$this->assertSame( array( 'jpa/data-views--posts' ), array_column( $record['sections'][0]['default_layout'], 'type' ) );
-		$this->assertSame( 'jpa/posts', $record['sections'][0]['default_layout'][0]['attributes']['source'] );
+		$this->assertSame( array( 'jpa/posts-table' ), array_column( $record['sections'][0]['default_layout'], 'type' ) );
 		$this->assertSame( array( 'jpa/archives-table' ), array_column( $record['sections'][1]['default_layout'], 'type' ) );
 	}
 

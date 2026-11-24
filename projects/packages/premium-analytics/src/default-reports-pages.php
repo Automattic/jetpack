@@ -35,7 +35,7 @@ function register_default_reports_pages( $registry = null ) {
 					'slug'           => 'posts-pages',
 					'label'          => __( 'Posts & Pages', 'jetpack-premium-analytics-pkg' ),
 					'default_layout' => array(
-						get_dashboard_default_widget_instance( 'posts-table', 'jpa/data-views--posts', 1, 'full', REPORTS_PAGE_TABLE_TILE, get_data_views_widget_attributes( 'jpa/data-views--posts' ) ),
+						get_dashboard_default_widget_instance( 'posts-table', 'jpa/posts-table', 1, 'full', REPORTS_PAGE_TABLE_TILE ),
 					),
 				),
 				array(

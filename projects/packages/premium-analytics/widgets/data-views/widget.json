@@ -1,8 +1,0 @@
-{
-	"name": "jpa/data-views",
-	"icon": "jpa/post-list",
-	"title": "Data views",
-	"description": "The records of a source as a searchable, sortable table.",
-	"category": "stats",
-	"presentation": "full-bleed"
-}
