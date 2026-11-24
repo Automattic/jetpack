@@ -39,7 +39,7 @@ function getIdentityCrisisErrorMessage( cause: IdentityCrisisErrorCause ): strin
 			);
 		case 'disconnected':
 			return __(
-				'Your site couldn’t be registered with WordPress.com again, so it is now disconnected. Try again to connect it, or connect it later from My Jetpack.',
+				'Your site couldn’t be registered with WordPress.com again, so it is now disconnected. Try again to connect it, or connect it later in Settings › Connectors, under Jetpack Connection.',
 				'jetpack-connection-js'
 			);
 		case 'server':

@@ -142,6 +142,8 @@ function IdentityCrisisResolver( {
 	}
 
 	const isBusy = actions.busyAction !== null;
+	// The site is no longer in Safe Mode, so only Try again still applies.
+	const isDisconnected = actions.error?.cause === 'disconnected';
 
 	return (
 		<IdentityCrisisLayout
@@ -167,7 +169,7 @@ function IdentityCrisisResolver( {
 					options={ getOptions( flow.state.step, ctx ) }
 					pick={ flow.state.pick }
 					copy={ copy }
-					disabled={ isBusy }
+					disabled={ isBusy || isDisconnected }
 					onPick={ flow.pick }
 					legendRef={ legendRef }
 				/>
@@ -176,7 +178,7 @@ function IdentityCrisisResolver( {
 					selected={ flow.selected ? getOptionCopy( flow.selected.id, copy ) : null }
 					isBusy={ isBusy }
 					hasError={ actions.error !== null }
-					canGoBack={ flow.state.history.length > 0 }
+					canGoBack={ flow.state.history.length > 0 && ! isDisconnected }
 					onContinue={ onContinue }
 					onBack={ flow.back }
 				/>
