@@ -11,6 +11,7 @@ use Automattic\Jetpack\Menu_Badges\Notification_Counts;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Monitor\Monitor;
 use Automattic\Jetpack\Protect\Dashboard;
+use Automattic\Jetpack\Protect_Status\Ignored_Vulnerabilities;
 use Automattic\Jetpack\Protect_Status\Protect_Status;
 use Automattic\Jetpack\Protect_Status\Status;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -74,6 +75,8 @@ class Jetpack_Protect_Test extends BaseTestCase {
 		unset( $_GET['page'], $GLOBALS['current_screen'] );
 		Status::$status = null;
 		Protect_Status::delete_option();
+		Ignored_Vulnerabilities::delete_option();
+		delete_option( 'jetpack_connection_active_plugins' );
 		( new Connection_Manager() )->reset_connection_status();
 		delete_option( Jetpack_Protect::OPTED_IN_OPTION_PREFIX . 'sso' );
 		delete_option( Jetpack_Protect::OPTED_IN_OPTION_PREFIX . 'monitor' );
@@ -241,5 +244,35 @@ class Jetpack_Protect_Test extends BaseTestCase {
 
 		$node = $admin_bar->get_node( 'jetpack-protect' );
 		$this->assertSame( $in_admin ? 'hidden' : null, $node ? $node->meta['class'] : null );
+	}
+
+	/**
+	 * Test that uninstalling clears ignored vulnerabilities only when no other Jetpack plugin still uses them.
+	 *
+	 * @dataProvider provide_active_connection_plugins
+	 *
+	 * @param array $active_plugins The connection's active plugins at uninstall.
+	 * @param bool  $cleared        Whether the ignores are cleared.
+	 */
+	#[DataProvider( 'provide_active_connection_plugins' )]
+	public function test_uninstall_clears_ignored_vulnerabilities_when_last_jetpack_plugin( $active_plugins, $cleared ) {
+		update_option( 'jetpack_connection_active_plugins', $active_plugins );
+		update_option( Ignored_Vulnerabilities::OPTION_NAME, array( 'plugins' => array( 'a/a.php' => array() ) ) );
+
+		Jetpack_Protect::plugin_uninstall();
+
+		$this->assertSame( $cleared, false === get_option( Ignored_Vulnerabilities::OPTION_NAME ) );
+	}
+
+	/**
+	 * The connection's active plugins at uninstall, and whether ignores are cleared.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_active_connection_plugins() {
+		return array(
+			'no other plugin'      => array( array(), true ),
+			'Jetpack still active' => array( array( 'jetpack' => array( 'name' => 'Jetpack' ) ), false ),
+		);
 	}
 }
