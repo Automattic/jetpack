@@ -2777,10 +2777,11 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/my-jetpack",
-                "reference": "4588a2331708215831069c0c3fe336f5913de333"
+                "reference": "0ec128e2891cb246e326c2148310644b4e77076f"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
+                "automattic/jetpack-announcements": "@dev",
                 "automattic/jetpack-assets": "@dev",
                 "automattic/jetpack-boost-speed-score": "@dev",
                 "automattic/jetpack-connection": "@dev",
@@ -4453,12 +4454,14 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/videopress",
-                "reference": "cad12488523caeefaf66a8041e44a87508017384"
+                "reference": "14530a6ab728c97411a584700b4aba8eb6fe6625"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
+                "automattic/jetpack-announcements": "@dev",
                 "automattic/jetpack-assets": "@dev",
                 "automattic/jetpack-connection": "@dev",
+                "automattic/jetpack-feature-flags": "@dev",
                 "automattic/jetpack-my-jetpack": "@dev",
                 "automattic/jetpack-plans": "@dev",
                 "automattic/jetpack-status": "@dev",

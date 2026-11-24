@@ -89,6 +89,7 @@
 		"react-router": "7.18.2"
 	},
 	"devDependencies": {
+		"@automattic/jetpack-announcements": "workspace:*",
 		"@automattic/jetpack-webpack-config": "workspace:*",
 		"@automattic/jetpack-wp-build-polyfills": "workspace:*",
 		"@babel/core": "7.29.13",
@@ -134,6 +135,16 @@
 					"@jetpack-my-jetpack/init"
 				]
 			}
-		]
+		],
+		"externalNamespaces": {
+			"wordpress": {
+				"global": "wp",
+				"handlePrefix": "wp"
+			},
+			"automattic": {
+				"global": "automattic",
+				"handlePrefix": "automattic"
+			}
+		}
 	}
 }

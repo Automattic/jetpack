@@ -2049,6 +2049,12 @@ importers:
 
   projects/packages/announcements:
     dependencies:
+      '@automattic/jetpack-analytics':
+        specifier: workspace:*
+        version: link:../../js-packages/analytics
+      '@automattic/jetpack-script-data':
+        specifier: workspace:*
+        version: link:../../js-packages/script-data
       '@wordpress/core-data':
         specifier: 9.1.0
         version: 9.1.0(@date-fns/tz@1.5.0)(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
@@ -3756,6 +3762,9 @@ importers:
         specifier: 7.18.2
         version: 7.18.2(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
     devDependencies:
+      '@automattic/jetpack-announcements':
+        specifier: workspace:*
+        version: link:../../js-packages/announcements
       '@automattic/jetpack-webpack-config':
         specifier: workspace:*
         version: link:../../js-packages/webpack-config
@@ -5663,6 +5672,9 @@ importers:
         specifier: 8.24.2
         version: 8.24.2
     devDependencies:
+      '@automattic/jetpack-announcements':
+        specifier: workspace:*
+        version: link:../../js-packages/announcements
       '@automattic/jetpack-base-styles':
         specifier: workspace:*
         version: link:../../js-packages/base-styles

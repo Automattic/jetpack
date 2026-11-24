@@ -1,4 +1,5 @@
 import { loadI18nCatalogs } from '@automattic/jetpack-wp-build-polyfills/src/js/load-i18n-catalogs';
+import { showWhatsNew } from './whats-new';
 
 /**
  * Provide the Jetpack config and load VideoPress' translation catalogs before the app renders.
@@ -9,4 +10,5 @@ export async function init(): Promise< void > {
 		consumer_slug: 'jetpack-videopress',
 	};
 	await loadI18nCatalogs( 'jetpack-videopress-pkg', import.meta.url );
+	showWhatsNew();
 }

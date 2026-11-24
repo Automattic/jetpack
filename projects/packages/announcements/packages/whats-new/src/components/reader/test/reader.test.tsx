@@ -6,8 +6,13 @@ import userEvent from '@testing-library/user-event';
 /**
  * Internal dependencies
  */
+import { emitSurfaceEvent } from '../../../utils';
 import { Reader } from '../reader';
 import type { Announcement } from '../../../types';
+
+jest.mock( '../../../utils', () => ( {
+	emitSurfaceEvent: jest.fn(),
+} ) );
 
 const announcement = ( overrides: Partial< Announcement > = {} ): Announcement => ( {
 	id: 'my-plugin/newest',
@@ -45,6 +50,20 @@ describe( 'Reader', () => {
 		).toHaveAttribute( 'href', 'https://example.com/whats-new/tabs' );
 	} );
 
+	it.each( [
+		[ 'shows the excerpt of an announcement without a body', '', 1 ],
+		[ 'leaves the excerpt out of an announcement with a body', '<p>Open Settings.</p>', 0 ],
+	] )( '%s', async ( _case, content, times ) => {
+		const excerpt = 'Group your videos in a playlist.';
+		render(
+			<Reader announcement={ announcement( { content, excerpt } ) } isOpen onClose={ jest.fn() } />
+		);
+
+		const dialog = await screen.findByRole( 'dialog' );
+
+		expect( within( dialog ).queryAllByText( excerpt ) ).toHaveLength( times );
+	} );
+
 	it( 'shows an image with its text alternative', async () => {
 		const media = {
 			type: 'image',
@@ -75,6 +94,18 @@ describe( 'Reader', () => {
 		expect( video ).toHaveAttribute( 'src', media.url );
 		expect( video ).toHaveAttribute( 'controls' );
 		expect( video.muted ).toBe( true );
+	} );
+
+	it( 'tells when the link of the announcement is followed', async () => {
+		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
+		render( <Reader announcement={ announcement() } isOpen onClose={ jest.fn() } /> );
+
+		await user.click( await screen.findByRole( 'link', { name: /Read the full article/ } ) );
+
+		expect( emitSurfaceEvent ).toHaveBeenCalledWith( {
+			type: 'readerLinkClick',
+			announcementId: 'my-plugin/newest',
+		} );
 	} );
 
 	it( 'tells its owner when the dialog is closed', async () => {

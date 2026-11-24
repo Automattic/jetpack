@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add `get_announcements_from_feed()`, which reads the items of a feed as announcements a registrant can register.

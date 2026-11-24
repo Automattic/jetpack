@@ -15,8 +15,11 @@ import { store as preferencesStore } from '@wordpress/preferences';
  */
 import { showWhatsNew } from './whats-new';
 
+// Marked as a module, so a test can take an export away from the copy the code imports.
 jest.mock( '@automattic/jetpack-announcements', () => ( {
+	__esModule: true,
 	mountWhatsNew: jest.fn(),
+	trackWhatsNew: jest.fn(),
 } ) );
 
 jest.mock( '@jetpack-premium-analytics/routing', () => ( {
@@ -27,6 +30,11 @@ jest.mock( '@jetpack-premium-analytics/routing', () => ( {
 const SEEN = '2026-11-01T00:00:00.000Z';
 
 const unmount = jest.fn();
+
+const announcementsModule: { trackWhatsNew?: jest.Mock } = jest.requireMock(
+	'@automattic/jetpack-announcements'
+);
+const trackWhatsNew = announcementsModule.trackWhatsNew as jest.Mock;
 
 type PreferencesActions = {
 	set: ( scope: string, key: string, value: string | undefined ) => unknown;
@@ -78,6 +86,27 @@ describe( 'showWhatsNew', () => {
 		jest.mocked( mountWhatsNew ).mockReset();
 		jest.mocked( onLocationChange ).mockClear();
 		unmount.mockClear();
+		trackWhatsNew.mockClear();
+		announcementsModule.trackWhatsNew = trackWhatsNew;
+	} );
+
+	it( 'asks the surface to record what the reader does with it', async () => {
+		setFlag( true );
+		openRoute( '/' );
+
+		await showAndSettle();
+
+		expect( trackWhatsNew ).toHaveBeenCalledTimes( 1 );
+	} );
+
+	it( 'mounts with an older copy of the module, which has no tracking', async () => {
+		delete announcementsModule.trackWhatsNew;
+		setFlag( true );
+		openRoute( '/' );
+
+		await showAndSettle();
+
+		expect( mountWhatsNew ).toHaveBeenCalledTimes( 1 );
 	} );
 
 	it.each( [

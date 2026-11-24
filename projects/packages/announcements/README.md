@@ -38,7 +38,62 @@ The registrant translates its own strings. Every value is sanitized at registrat
 
 The body keeps the HTML WordPress allows in a post, and loses styles, classes and ids. A URL is kept when it is http or https.
 
-Do no I/O in the action: the read that fires it may be a REST request.
+Do no I/O of your own in the action: the read that fires it may be a REST request. To bring announcements from a feed, use the helper below.
+
+## Announcements from a feed
+
+`get_announcements_from_feed()` reads an RSS or Atom feed and returns its items as announcements. The registrant chooses which ones to register, and to which channels.
+
+```php
+add_action(
+	'jetpack_register_announcements',
+	static function () {
+		if ( ! function_exists( '\Automattic\Jetpack\Announcements\get_announcements_from_feed' ) ) {
+			return;
+		}
+
+		$announcements = \Automattic\Jetpack\Announcements\get_announcements_from_feed( 'https://example.com/feed/', 'my-plugin' );
+
+		foreach ( $announcements as $announcement ) {
+			if ( in_array( 'Reports', $announcement['categories'], true ) ) {
+				\Automattic\Jetpack\Announcements\register_announcement(
+					$announcement['id'],
+					$announcement['args'] + array( 'channels' => array( 'my-plugin' ) )
+				);
+			}
+		}
+	}
+);
+```
+
+Each entry has the `id` of the announcement, its `args` and the `categories` of the item.
+
+The `args` carry a date, a title, an excerpt, a link and an image, as plain text and URLs. The HTML of the item is never kept.
+
+The `categories` are the labels the feed gives the item. A feed lists categories and tags together, by name.
+
+The feed is read with WordPress's `fetch_feed()`, which keeps it for 12 hours. A feed that fails is left alone for an hour, and the call returns nothing meanwhile.
+
+How old an item may be is the registrant's choice as well. A third argument leaves the older ones out:
+
+```php
+get_announcements_from_feed( 'https://example.com/feed/', 'my-plugin', array( 'max_age' => 90 * DAY_IN_SECONDS ) );
+```
+
+A feed that takes arguments in its URL can do the choosing itself. A `query` asks it with them. On a WordPress site, `category_name` and `tag` ask for the posts of a category and of a tag, which the labels of an item cannot tell apart:
+
+```php
+get_announcements_from_feed(
+	'https://example.com/feed/',
+	'my-plugin',
+	array(
+		'query' => array(
+			'category_name' => 'news',
+			'tag'           => 'reports',
+		),
+	)
+);
+```
 
 ## Showing the surface
 

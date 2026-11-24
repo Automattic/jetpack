@@ -6,8 +6,10 @@
 	"require": {
 		"php": ">=7.4",
 		"automattic/jetpack-admin-ui": "@dev",
+		"automattic/jetpack-announcements": "@dev",
 		"automattic/jetpack-assets": "@dev",
 		"automattic/jetpack-connection": "@dev",
+		"automattic/jetpack-feature-flags": "@dev",
 		"automattic/jetpack-my-jetpack": "@dev",
 		"automattic/jetpack-plans": "@dev",
 		"automattic/jetpack-status": "@dev",

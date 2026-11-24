@@ -9,6 +9,7 @@ import { useCallback } from 'react';
 /**
  * Internal dependencies
  */
+import { emitSurfaceEvent } from '../../utils';
 import styles from './reader.module.css';
 import type { Announcement, AnnouncementMedia } from '../../types';
 
@@ -66,7 +67,7 @@ function Media( { media }: MediaProps ) {
  * @return The reader.
  */
 export function Reader( { announcement, isOpen, onClose }: ReaderProps ) {
-	const { title, date, media, content, link } = announcement;
+	const { id, title, date, media, excerpt, content, link } = announcement;
 
 	const handleOpenChange = useCallback(
 		( open: boolean ) => {
@@ -76,6 +77,10 @@ export function Reader( { announcement, isOpen, onClose }: ReaderProps ) {
 		},
 		[ onClose ]
 	);
+
+	const handleLinkClick = useCallback( () => {
+		emitSurfaceEvent( { type: 'readerLinkClick', announcementId: id } );
+	}, [ id ] );
 
 	return (
 		<Dialog.Root open={ isOpen } onOpenChange={ handleOpenChange }>
@@ -91,8 +96,9 @@ export function Reader( { announcement, isOpen, onClose }: ReaderProps ) {
 						</Text>
 						{ media && <Media media={ media } /> }
 						{ content && <RawHTML className={ styles.body }>{ content }</RawHTML> }
+						{ ! content && excerpt && <Text render={ <p /> }>{ excerpt }</Text> }
 						{ link && (
-							<Link href={ link } openInNewTab>
+							<Link href={ link } openInNewTab onClick={ handleLinkClick }>
 								{ __( 'Read the full article', 'jetpack-announcements' ) }
 							</Link>
 						) }
