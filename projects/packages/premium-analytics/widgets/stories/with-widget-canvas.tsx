@@ -173,10 +173,9 @@ export const withWidgetCanvas: Decorator = ( Story, context ) => (
 	</WidgetSizesCanvas>
 );
 
-// The scope a `play` assertion needs. The size matrix mounts the story in every box at once, so
-// querying the whole canvas finds one match per box. It takes the largest box because the shortest
-// ones are there to show what a widget drops when it has no room, including the rows a leaderboard
-// stops drawing.
+// The scope a `play` assertion needs: the size matrix mounts the story in every box at once, so the
+// whole canvas matches once per box. Take the largest, since the shortest boxes drop content on
+// purpose, a leaderboard's rows included.
 export function withinWidgetCanvas( canvasElement: HTMLElement ) {
 	const canvas = within( canvasElement );
 	const cards = canvas.queryAllByTestId( WIDGET_CANVAS_TEST_ID );
