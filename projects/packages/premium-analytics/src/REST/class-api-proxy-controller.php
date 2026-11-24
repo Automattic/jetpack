@@ -79,6 +79,13 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 	private const API_TIMEOUT = 20;
 
 	/**
+	 * Most reads one batch request may carry.
+	 *
+	 * @var int
+	 */
+	private const BATCH_MAX_ITEMS = 20;
+
+	/**
 	 * Response headers worth forwarding back to the dashboard.
 	 *
 	 * @var string[]
@@ -257,6 +264,200 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 					),
 				),
 			)
+		);
+
+		// proxy/batch — several reads in one local request, so HTTP/1.1 connections and PHP workers aren't held one per read.
+		register_rest_route(
+			$this->namespace,
+			'/proxy/batch',
+			array(
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => array( $this, 'handle_batch_request' ),
+				// Each item runs its own prefix capability check in the callback.
+				'permission_callback' => 'is_user_logged_in',
+				'args'                => array(
+					'requests' => array(
+						'type'     => 'array',
+						'required' => true,
+						'minItems' => 1,
+						'maxItems' => self::BATCH_MAX_ITEMS,
+						'items'    => array( 'type' => 'string' ),
+					),
+				),
+			)
+		);
+	}
+
+	/**
+	 * Serve a batch of proxy reads: cache hits and errors locally, the misses through one parallel fan-out to WPCOM.
+	 *
+	 * @param WP_REST_Request $request Request object.
+	 *
+	 * @return WP_REST_Response
+	 */
+	public function handle_batch_request( WP_REST_Request $request ): WP_REST_Response {
+		$force_refresh = null !== $request->get_param( 'force_refresh' );
+		$results       = array();
+		$pending       = array();
+
+		foreach ( array_values( (array) $request->get_param( 'requests' ) ) as $index => $item ) {
+			$sub = $this->build_batch_item_request( (string) $item, $force_refresh );
+			if ( ! is_wp_error( $sub ) && ! $this->check_data_permission( $sub ) ) {
+				$sub = new WP_Error( 'rest_forbidden', __( 'Sorry, you are not allowed to do that.', 'jetpack-premium-analytics-pkg' ), array( 'status' => rest_authorization_required_code() ) );
+			}
+
+			$prepared = is_wp_error( $sub ) ? $sub : $this->prepare_batched_read( $sub );
+			if ( is_array( $prepared ) ) {
+				$pending[ $index ] = $prepared;
+			} else {
+				$results[ $index ] = $this->batch_item_result( $prepared );
+			}
+		}
+
+		foreach ( $this->fetch_batched_reads( $pending ) as $index => $response ) {
+			$results[ $index ] = $this->batch_item_result( $response );
+		}
+
+		ksort( $results );
+
+		return new WP_REST_Response( array_values( $results ), 200 );
+	}
+
+	/**
+	 * Turn one batch item (`/v<version>/<endpoint>?<query>`) into the GET request the single route would see.
+	 *
+	 * @param string $item          The item path.
+	 * @param bool   $force_refresh Whether the batch asked to bypass the cache.
+	 *
+	 * @return WP_REST_Request|WP_Error
+	 */
+	private function build_batch_item_request( string $item, bool $force_refresh ) {
+		$path = (string) wp_parse_url( $item, PHP_URL_PATH );
+		if ( ! preg_match( '#^/v([0-9]+(?:\.[0-9]+)?)/(.+)$#', $path, $matches )
+			|| ! $this->validate_version( $matches[1] )
+			|| ! $this->validate_data_endpoint( $matches[2] )
+		) {
+			return new WP_Error( 'rest_no_route', __( 'No route was found matching the URL and request method.', 'jetpack-premium-analytics-pkg' ), array( 'status' => 404 ) );
+		}
+
+		parse_str( (string) wp_parse_url( $item, PHP_URL_QUERY ), $query );
+		// A real request's `get_param()` would let these shadow the route captures; here the route wins.
+		unset( $query['endpoint'], $query['version'] );
+		if ( $force_refresh ) {
+			$query['force_refresh'] = '1';
+		}
+
+		$sub = new WP_REST_Request( 'GET', '/' . $this->namespace . '/proxy' . $path );
+		$sub->set_url_params(
+			array(
+				'version'  => $matches[1],
+				'endpoint' => $matches[2],
+			)
+		);
+		$sub->set_query_params( $query );
+
+		return $sub;
+	}
+
+	/**
+	 * Run a batched read up to its WPCOM call: a cache hit or error is the answer, a miss what to fetch.
+	 *
+	 * Groups with special forwarding (unsigned, visitor IP) take the single-request path instead.
+	 *
+	 * @param WP_REST_Request $sub The item's GET request.
+	 *
+	 * @return WP_REST_Response|WP_Error|array{request: WP_REST_Request, path: string, version: string, base: string, cache_key: string|null}
+	 */
+	private function prepare_batched_read( WP_REST_Request $sub ) {
+		$endpoint = (string) $sub->get_param( 'endpoint' );
+		$config   = $this->config_for( $endpoint );
+		if ( ! empty( $config['unauthenticated'] ) || ! empty( $config['forward_visitor_ip'] ) ) {
+			return $this->handle_data_request( $sub );
+		}
+
+		$version    = (string) $sub->get_param( 'version' );
+		$base       = $this->base_for_version( $version );
+		$wpcom_path = $this->build_data_path( $endpoint );
+		$cache_key  = null === $sub->get_param( 'force_refresh' )
+			? $this->cache_key_for( $wpcom_path, $version, $base, $this->get_forwarded_params( $sub, $wpcom_path ), $this->cache_scope_for( $endpoint ) )
+			: null;
+
+		if ( null !== $cache_key ) {
+			$cached = get_transient( $cache_key );
+			if ( false !== $cached ) {
+				return $this->build_response( $cached );
+			}
+		}
+
+		if ( ! ( new Manager( self::SLUG ) )->is_connected() ) {
+			return new WP_Error( 'no_connection', __( 'Please connect Jetpack to load your data.', 'jetpack-premium-analytics-pkg' ), array( 'status' => 403 ) );
+		}
+
+		return array(
+			'request'   => $sub,
+			'path'      => $this->append_forwarded_params( $sub, $wpcom_path ),
+			'version'   => $version,
+			'base'      => $base,
+			'cache_key' => $cache_key,
+		);
+	}
+
+	/**
+	 * Fetch the batch's cache misses from WPCOM in parallel, caching each success as the single route would.
+	 *
+	 * @param array<int, array> $pending Reads from `prepare_batched_read()`, keyed by batch index.
+	 *
+	 * @return array<int, WP_REST_Response|WP_Error> Keyed like `$pending`.
+	 */
+	private function fetch_batched_reads( array $pending ): array {
+		$results = array();
+
+		// An older Connection package loaded by another plugin lacks the parallel client: answer one by one.
+		if ( ! method_exists( Client::class, 'wpcom_json_api_get_multiple_as_blog' ) ) {
+			foreach ( $pending as $index => $read ) {
+				$results[ $index ] = $this->handle_data_request( $read['request'] );
+			}
+			return $results;
+		}
+
+		$responses = Client::wpcom_json_api_get_multiple_as_blog(
+			array_map(
+				static function ( $read ) {
+					return array(
+						'path'          => $read['path'],
+						'version'       => $read['version'],
+						'base_api_path' => $read['base'],
+						'args'          => array( 'timeout' => self::API_TIMEOUT ),
+					);
+				},
+				$pending
+			)
+		);
+
+		foreach ( $pending as $index => $read ) {
+			$response          = $responses[ $index ] ?? null;
+			$results[ $index ] = is_array( $response )
+				? $this->cache_and_build_response( $response, $read['cache_key'] )
+				: new WP_Error( 'api_error', __( 'Error communicating with the data service.', 'jetpack-premium-analytics-pkg' ), array( 'status' => 500 ) );
+		}
+
+		return $results;
+	}
+
+	/**
+	 * One batch item as the client reads it: the status, body and headers the single route would have sent.
+	 *
+	 * @param WP_REST_Response|WP_Error $response The item's outcome.
+	 *
+	 * @return array{status: int, body: mixed, headers: array}
+	 */
+	private function batch_item_result( $response ): array {
+		$response = is_wp_error( $response ) ? rest_convert_error_to_response( $response ) : rest_ensure_response( $response );
+
+		return array(
+			'status'  => $response->get_status(),
+			'body'    => $response->get_data(),
+			'headers' => $response->get_headers(),
 		);
 	}
 
@@ -879,7 +1080,8 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 		if ( ! is_array( $params ) ) {
 			return array();
 		}
-		unset( $params['rest_route'], $params['_locale'], $params['endpoint'], $params['version'], $params['force_refresh'] );
+		// `_method` too: WPCOM would honour it as the HTTP method, turning a forwarded read into a write.
+		unset( $params['rest_route'], $params['_locale'], $params['_method'], $params['endpoint'], $params['version'], $params['force_refresh'] );
 
 		parse_str( (string) wp_parse_url( $wpcom_path, PHP_URL_QUERY ), $fixed );
 

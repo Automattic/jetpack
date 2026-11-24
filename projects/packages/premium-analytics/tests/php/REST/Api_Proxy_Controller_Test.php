@@ -1294,6 +1294,141 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 		return $accessor->call( $this->controller, $endpoint, $version );
 	}
 
+	public function test_batch_checks_each_items_own_capability() {
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'jpa_batch_stats_only',
+				'user_pass'  => 'password',
+				'role'       => 'subscriber',
+			)
+		);
+		( new \WP_User( $user_id ) )->add_cap( 'view_stats' );
+		wp_set_current_user( $user_id );
+		// A cached stats read needs no connection, so only the capability decides each item.
+		set_transient(
+			$this->cache_key_for_path( '/sites/0/stats/top-posts', '1.1', 'rest', array( 'max' => '10' ) ),
+			array(
+				'data'    => array( 'top' => 1 ),
+				'status'  => 200,
+				'headers' => array(),
+			),
+			MINUTE_IN_SECONDS
+		);
+
+		$items = $this->dispatch_batch( array( '/v1.1/stats/top-posts?max=10', '/v2/analytics/reports/totals' ) );
+
+		$this->assertSame( array( 200, 403 ), array_column( $items, 'status' ) );
+		$this->assertSame( array( 'top' => 1 ), $items[0]['body'] );
+		$this->assertSame( 'rest_forbidden', $items[1]['body']['code'] );
+	}
+
+	public function test_batch_rejects_items_the_single_route_would_not_match() {
+		wp_set_current_user(
+			wp_insert_user(
+				array(
+					'user_login' => 'jpa_batch_admin',
+					'user_pass'  => 'password',
+					'role'       => 'administrator',
+				)
+			)
+		);
+
+		$items = $this->dispatch_batch( array( '/v1.1/me', '/v1.1/stats/../me', '/v2/upgrades/foo', '/v1.1/posts/1/content', 'stats/top-posts' ) );
+
+		$this->assertSame( array( 404, 404, 404, 404, 404 ), array_column( $items, 'status' ) );
+	}
+
+	public function test_batch_sends_misses_as_signed_gets_and_caches_them() {
+		Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
+		\Jetpack_Options::update_option( 'id', 4242 );
+		\Jetpack_Options::update_option( 'blog_token', 'blog_token.secret' );
+		( new Connection_Manager() )->reset_connection_status();
+		wp_set_current_user(
+			wp_insert_user(
+				array(
+					'user_login' => 'jpa_batch_sender',
+					'user_pass'  => 'password',
+					'role'       => 'administrator',
+				)
+			)
+		);
+
+		$sent = array();
+		add_filter(
+			'pre_http_request',
+			static function ( $pre, $args, $url ) use ( &$sent ) {
+				$sent[] = array( $url, $args['method'] );
+				return array(
+					'response' => array( 'code' => 200 ),
+					'body'     => '{"ok":true}',
+					'headers'  => array(),
+				);
+			},
+			10,
+			3
+		);
+
+		$first = array();
+		$again = array();
+		try {
+			$items = array( '/v1.1/stats/visits?unit=day&_method=POST', '/v1.1/stats/top-posts?max=10' );
+			$first = $this->dispatch_batch( $items );
+			$again = $this->dispatch_batch( $items );
+		} finally {
+			remove_all_filters( 'pre_http_request' );
+			\Jetpack_Options::delete_option( 'blog_token' );
+			\Jetpack_Options::delete_option( 'id' );
+			( new Connection_Manager() )->reset_connection_status();
+			Constants::clear_single_constant( 'JETPACK__WPCOM_JSON_API_BASE' );
+		}
+
+		$this->assertSame( array( 200, 200 ), array_column( $first, 'status' ) );
+		$this->assertSame( array( 200, 200 ), array_column( $again, 'status' ) );
+		// The repeat is served from the cache the first batch filled.
+		$this->assertCount( 2, $sent );
+		$visits_url = (string) current( array_column( $sent, 0 ) );
+		$this->assertStringContainsString( '/rest/v1.1/sites/4242/stats/visits?unit=day', $visits_url );
+		$this->assertStringNotContainsString( '_method', $visits_url );
+		$this->assertSame( array( 'GET', 'GET' ), array_column( $sent, 1 ) );
+	}
+
+	/**
+	 * Dispatch a batch through the REST server and return its items.
+	 *
+	 * @param string[] $items Batch item paths.
+	 *
+	 * @return array[]
+	 */
+	private function dispatch_batch( array $items ): array {
+		$request = new WP_REST_Request( 'POST', '/jetpack-premium-analytics/v1/proxy/batch' );
+		$request->set_header( 'Content-Type', 'application/json' );
+		$request->set_body( (string) wp_json_encode( array( 'requests' => $items ), JSON_UNESCAPED_SLASHES ) );
+		$response = rest_do_request( $request );
+
+		$this->assertSame( 200, $response->get_status() );
+
+		return json_decode( (string) wp_json_encode( $response->get_data(), JSON_UNESCAPED_SLASHES ), true );
+	}
+
+	/**
+	 * The controller's cache key for a WPCOM path.
+	 *
+	 * @param string $path    WPCOM path.
+	 * @param string $version WPCOM API version.
+	 * @param string $base    WPCOM API base.
+	 * @param array  $params  Forwarded query params.
+	 *
+	 * @return string
+	 */
+	private function cache_key_for_path( string $path, string $version, string $base, array $params ): string {
+		$accessor = function ( ...$args ) {
+			// @phan-suppress-next-line PhanUndeclaredMethod -- rebound to the controller via Closure::call() below.
+			return $this->cache_key_for( ...$args );
+		};
+
+		return $accessor->call( $this->controller, $path, $version, $base, $params );
+	}
+
 	/**
 	 * Build an analytics GET request on the data route (analytics is the `analytics` prefix, v2).
 	 *

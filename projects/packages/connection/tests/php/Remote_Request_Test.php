@@ -455,6 +455,74 @@ class Remote_Request_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Test that every request is signed as a GET through the WordPress HTTP filters, and comes back under the caller's key.
+	 */
+	public function test_get_multiple_as_blog_sends_each_request_through_the_http_filters() {
+		$this->capture_sent_url();
+		add_filter(
+			'http_request_args',
+			static function ( $args ) {
+				$args['headers']['X-Test'] = 'filtered';
+				return $args;
+			}
+		);
+		$sent = array();
+		add_filter(
+			'pre_http_request',
+			static function ( $response, $args, $url ) use ( &$sent ) {
+				$sent[] = array( $url, $args['method'], $args['headers']['X-Test'] ?? null );
+				return array(
+					'headers'  => array(),
+					'body'     => (string) wp_json_encode( array( 'url' => $url ), JSON_UNESCAPED_SLASHES ),
+					'response' => array( 'code' => 200 ),
+				);
+			},
+			20,
+			3
+		);
+
+		$responses = Client::wpcom_json_api_get_multiple_as_blog(
+			array(
+				'visits' => array( 'path' => '/sites/12345/stats/visits?unit=day' ),
+				'posts'  => array(
+					'path'    => '/sites/12345/stats/top-posts',
+					'args'    => array( 'method' => 'POST' ),
+					'version' => '1.2',
+				),
+			)
+		);
+		remove_all_filters( 'http_request_args' );
+
+		$this->assertSame( array( 'visits', 'posts' ), array_keys( $responses ) );
+		$this->assertCount( 2, $sent );
+		foreach ( $sent as list( $url, $method, $header ) ) {
+			$this->assertStringStartsWith( 'https://public-api.wordpress.com/rest/v1.', $url );
+			$this->assertStringContainsString( 'signature=', $url );
+			$this->assertSame( 'GET', $method );
+			$this->assertSame( 'filtered', $header );
+		}
+		$this->assertStringStartsWith( 'https://public-api.wordpress.com/rest/v1.2/sites/12345/stats/top-posts', json_decode( $responses['posts']['body'] )->url );
+	}
+
+	/**
+	 * Test that a request that cannot be signed fails alone, while the others are still sent.
+	 */
+	public function test_get_multiple_as_blog_fails_an_unsignable_request_alone() {
+		$this->capture_sent_url();
+
+		$responses = Client::wpcom_json_api_get_multiple_as_blog(
+			array(
+				array( 'path' => '/sites/12345/../me' ),
+				array( 'path' => '/sites/12345/stats' ),
+			)
+		);
+
+		$this->assertSame( 'invalid_request_path', $responses[0]->get_error_code() );
+		$this->assertSame( 200, wp_remote_retrieve_response_code( $responses[1] ) );
+		$this->assertStringContainsString( '/sites/12345/stats', (string) $this->sent_url );
+	}
+
+	/**
 	 * Connect the site and record the URL of the next outgoing request instead of sending it.
 	 */
 	private function capture_sent_url() {

@@ -150,16 +150,14 @@ describe( 'useReport', () => {
 		expect( result.current.timezone ).toBe( 'Asia/Kolkata' );
 	} );
 
-	it( 'awaits data when only the comparison window moves, leaving primary untouched', async () => {
-		// Deliberate: the whole widget skeletons even though the primary numbers
-		// never went stale, because the deltas on screen did — showing one
-		// comparison's deltas under another's label is the bug this prevents.
+	it( 'keeps the primary numbers but withholds the old comparison when only the comparison window moves', async () => {
+		// Showing one comparison's deltas under another's label is the bug this prevents.
 		const queryFactory = (
 			params: ReportParams,
 			queryType: string
 		): UseQueryOptions< { summary: Record< string, unknown > } > => ( {
 			queryKey: [ 'test-report', queryType, params.from, params.to ],
-			queryFn: async () => ( { summary: { views: 1 } } ),
+			queryFn: async () => ( { summary: { views: params.from } } ),
 			placeholderData: ( previousData?: { summary: Record< string, unknown > } ) => previousData,
 		} );
 
@@ -181,17 +179,49 @@ describe( 'useReport', () => {
 			{ wrapper, initialProps: { compare: [ '2026-05-01', '2026-05-07' ] as [ string, string ] } }
 		);
 
-		await waitFor( () => expect( result.current.isLoading ).toBe( false ) );
-		expect( result.current.hasData ).toBe( true );
+		await waitFor( () => expect( result.current.comparison.data ).toBeDefined() );
 
 		rerender( { compare: [ '2025-06-01', '2025-06-07' ] } );
 
-		// `hasData` proves the old `&& ! hasData` guard would have cancelled this
-		// skeleton.
-		expect( result.current.hasData ).toBe( true );
-		expect( result.current.isLoading ).toBe( true );
+		expect( result.current.isLoading ).toBe( false );
+		expect( result.current.primary.data?.summary.views ).toBe( '2026-06-01' );
+		expect( result.current.comparison.data ).toBeUndefined();
 
-		await waitFor( () => expect( result.current.isLoading ).toBe( false ) );
+		await waitFor( () =>
+			expect( result.current.comparison.data?.summary.views ).toBe( '2025-06-01' )
+		);
+	} );
+
+	it( 'paints the primary period when its comparison fails', async () => {
+		const queryFactory = (
+			params: ReportParams,
+			queryType: string
+		): UseQueryOptions< { summary: Record< string, unknown > } > => ( {
+			queryKey: [ 'failing-comparison', queryType ],
+			queryFn: async () => {
+				if ( queryType === 'comparison' ) {
+					throw new Error( 'comparison failed' );
+				}
+				return { summary: { views: 1 } };
+			},
+		} );
+
+		const { result } = renderHook(
+			() =>
+				useReport( queryFactory, {
+					from: '2026-06-01',
+					to: '2026-06-07',
+					compare_from: '2026-05-01',
+					compare_to: '2026-05-07',
+					comp: '1',
+				} as ReportParams ),
+			{ wrapper }
+		);
+
+		await waitFor( () => expect( result.current.comparison.isError ).toBe( true ) );
+		expect( result.current.isLoading ).toBe( false );
+		expect( result.current.isError ).toBe( false );
+		expect( result.current.hasData ).toBe( true );
 	} );
 
 	// The stuck-skeleton bug (WOOA7S-1902): the Traffic chart switches a request

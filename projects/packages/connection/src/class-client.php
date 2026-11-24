@@ -28,6 +28,26 @@ class Client {
 	 * @phan-return _WP_Remote_Response_Array|WP_Error
 	 */
 	public static function remote_request( $args, $body = null ) {
+		$result = self::sign_remote_request( $args, $body );
+		if ( is_wp_error( $result ) ) {
+			return $result;
+		}
+
+		$response = self::_wp_remote_request( $result['url'], $result['request'] );
+
+		self::report_remote_response( $response, $result, $args );
+
+		return $response;
+	}
+
+	/**
+	 * Sign a remote request, reporting a signing failure to the Error_Handler.
+	 *
+	 * @param array             $args the arguments for the remote request.
+	 * @param array|string|null $body the request body.
+	 * @return WP_Error|array{url:string,request:array,auth:array,args:array} The signed request, with the filtered `$args` it was built from.
+	 */
+	private static function sign_remote_request( $args, $body = null ) {
 		if ( isset( $args['url'] ) ) {
 			/**
 			 * Filters the remote request url.
@@ -38,18 +58,6 @@ class Client {
 			 */
 			$args['url'] = apply_filters( 'jetpack_remote_request_url', $args['url'] );
 		}
-
-		// Feed failures into the outgoing-request error flow of Error_Handler: any known
-		// connection error is stored and surfaced to the user. See the Error_Handler
-		// class docblock for the full picture of both error-handling flows.
-		// Outgoing XML-RPC calls (Jetpack_IXR_Client) are funneled through this method too;
-		// tell the transports apart by the endpoint the request targets.
-		// The literals match Error_Handler::ERROR_TYPE_XMLRPC / ERROR_TYPE_REST. The constants
-		// themselves must not be referenced from this class: during a plugin update, a stale
-		// Error_Handler that predates them can already be loaded, and resolving them against
-		// it would fatal the request.
-		$request_path = (string) wp_parse_url( empty( $args['url'] ) ? '' : $args['url'], PHP_URL_PATH );
-		$error_type   = '/xmlrpc.php' === substr( $request_path, -strlen( '/xmlrpc.php' ) ) ? 'xmlrpc' : 'rest';
 
 		$result = self::build_signed_request( $args, $body );
 		if ( is_wp_error( $result ) ) {
@@ -63,21 +71,38 @@ class Client {
 					$result,
 					empty( $args['url'] ) ? '' : $args['url'],
 					empty( $args['method'] ) ? 'POST' : $args['method'],
-					$error_type
+					self::remote_request_error_type( $args )
 				);
 			}
 
 			return $result;
 		}
 
-		$response = self::_wp_remote_request( $result['url'], $result['request'] );
+		$result['args'] = $args;
 
+		return $result;
+	}
+
+	/**
+	 * Feed a remote response into the outgoing-request error flow and announce it.
+	 *
+	 * @param array|WP_Error $response The HTTP response.
+	 * @param array          $signed   The signed request, from `sign_remote_request()`.
+	 * @param array          $args     The arguments for the remote request.
+	 * @phan-param _WP_Remote_Response_Array|WP_Error $response
+	 */
+	private static function report_remote_response( $response, $signed, $args ) {
+		$url = empty( $signed['args']['url'] ) ? '' : $signed['args']['url'];
+
+		// Feed failures into the outgoing-request error flow of Error_Handler: any known
+		// connection error is stored and surfaced to the user. See the Error_Handler
+		// class docblock for the full picture of both error-handling flows.
 		Error_Handler::get_instance()->check_api_response_for_errors(
 			$response,
-			$result['auth'],
-			empty( $args['url'] ) ? '' : $args['url'],
+			$signed['auth'],
+			$url,
 			empty( $args['method'] ) ? 'POST' : $args['method'],
-			$error_type
+			self::remote_request_error_type( $signed['args'] )
 		);
 
 		/**
@@ -88,8 +113,21 @@ class Client {
 		 * @param array|WP_Error The HTTP response.
 		 */
 		do_action( 'jetpack_received_remote_request_response', $response );
+	}
 
-		return $response;
+	/**
+	 * Which Error_Handler flow a request belongs to: XML-RPC calls (Jetpack_IXR_Client) go through `remote_request()` too.
+	 *
+	 * The literals match Error_Handler::ERROR_TYPE_XMLRPC / ERROR_TYPE_REST. Referencing the constants
+	 * would fatal mid-update against a stale Error_Handler that predates them.
+	 *
+	 * @param array $args the arguments for the remote request.
+	 * @return string
+	 */
+	private static function remote_request_error_type( $args ) {
+		$request_path = (string) wp_parse_url( empty( $args['url'] ) ? '' : $args['url'], PHP_URL_PATH );
+
+		return '/xmlrpc.php' === substr( $request_path, -strlen( '/xmlrpc.php' ) ) ? 'xmlrpc' : 'rest';
 	}
 
 	/**
@@ -567,6 +605,259 @@ class Client {
 		}
 
 		return self::remote_request( $validated_args, $body );
+	}
+
+	/**
+	 * Query several WordPress.com REST API endpoints at once using the blog token, sending the GETs in parallel.
+	 *
+	 * Each request is signed, filtered, proxied and reported like one sent through `wpcom_json_api_request_as_blog()`.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array $requests Requests keyed by the caller: `path`, and optionally `version`, `args` and `base_api_path`
+	 *                        as `wpcom_json_api_request_as_blog()` takes them. The method is always GET.
+	 * @return array Responses (array or WP_Error) keyed like `$requests`.
+	 * @phan-param array<array-key,array{path:string,version?:string,args?:array,base_api_path?:string}> $requests
+	 * @phan-return array<array-key,_WP_Remote_Response_Array|WP_Error>
+	 */
+	public static function wpcom_json_api_get_multiple_as_blog( array $requests ) {
+		$responses = array();
+		$serial    = ( defined( 'IS_WPCOM' ) && IS_WPCOM ) || ! class_exists( \WpOrg\Requests\Requests::class );
+
+		$signed = array();
+		foreach ( $requests as $key => $request ) {
+			$version = $request['version'] ?? self::WPCOM_JSON_API_VERSION;
+			$base    = $request['base_api_path'] ?? 'rest';
+			$args    = array_merge( $request['args'] ?? array(), array( 'method' => 'GET' ) );
+
+			if ( $serial ) {
+				$responses[ $key ] = self::wpcom_json_api_request_as_blog( $request['path'], $version, $args, null, $base );
+				continue;
+			}
+
+			$validated_args            = self::validate_args_for_wpcom_json_api_request( $request['path'], $version, $args, $base );
+			$validated_args['blog_id'] = (int) \Jetpack_Options::get_option( 'id' );
+
+			$result = self::sign_remote_request( $validated_args );
+			if ( is_wp_error( $result ) ) {
+				$responses[ $key ] = $result;
+			} else {
+				$signed[ $key ] = $result;
+			}
+		}
+
+		foreach ( self::send_multiple( $signed ) as $key => $response ) {
+			self::report_remote_response( $response, $signed[ $key ], $signed[ $key ]['args'] );
+			$responses[ $key ] = $response;
+		}
+
+		// Callers read results by key, but keep the order they asked in too.
+		return array_replace( array_intersect_key( $requests, $responses ), $responses );
+	}
+
+	/**
+	 * Send signed requests at once, as `_wp_remote_request()` and `WP_Http::request()` would send each of them.
+	 *
+	 * @param array $signed Signed requests from `sign_remote_request()`, keyed by the caller.
+	 * @return array Responses (array or WP_Error) keyed like `$signed`.
+	 * @phan-return array<array-key,_WP_Remote_Response_Array|WP_Error>
+	 */
+	private static function send_multiple( array $signed ) {
+		if ( ! $signed ) {
+			return array();
+		}
+
+		$fallback = \Jetpack_Options::get_option( 'fallback_no_verify_ssl_certs' );
+		if ( false === $fallback ) {
+			\Jetpack_Options::update_option( 'fallback_no_verify_ssl_certs', 0 );
+		}
+		/** This filter is documented in `_wp_remote_request()` above. */
+		$force_verify = apply_filters( 'jetpack_client_verify_ssl_certs', false );
+
+		$responses = array();
+		$queued    = array();
+		foreach ( $signed as $key => $request ) {
+			$args = $request['request'];
+			if ( ! $force_verify && (int) $fallback ) {
+				$args['sslverify'] = false;
+			}
+
+			$prepared = self::prepare_http_request( $request['url'], $args );
+			if ( isset( $prepared['response'] ) ) {
+				$responses[ $key ] = $prepared['response'];
+			} else {
+				$queued[ $key ] = $prepared;
+			}
+		}
+
+		if ( $queued ) {
+			mbstring_binary_safe_encoding();
+			$results = \WpOrg\Requests\Requests::request_multiple(
+				array_map(
+					static function ( $prepared ) {
+						return $prepared['request'];
+					},
+					$queued
+				)
+			);
+			reset_mbstring_encoding();
+
+			foreach ( $queued as $key => $prepared ) {
+				$result = $results[ $key ] ?? null;
+				if ( $result instanceof \WpOrg\Requests\Response ) {
+					$http_response             = new \WP_HTTP_Requests_Response( $result );
+					$response                  = $http_response->to_array();
+					$response['http_response'] = $http_response;
+				} else {
+					$response = new WP_Error( 'http_request_failed', $result instanceof \Exception ? $result->getMessage() : '' );
+				}
+
+				/** This action is documented in wp-includes/class-wp-http.php */
+				do_action( 'http_api_debug', $response, 'response', 'WpOrg\Requests\Requests', $prepared['parsed_args'], $prepared['url'] );
+				if ( ! is_wp_error( $response ) ) {
+					/** This filter is documented in wp-includes/class-wp-http.php */
+					$response = apply_filters( 'http_response', $response, $prepared['parsed_args'], $prepared['url'] );
+				}
+
+				self::set_time_diff( $response );
+				$responses[ $key ] = $response;
+			}
+		}
+
+		return array_replace( array_intersect_key( $signed, $responses ), $responses );
+	}
+
+	/**
+	 * Run a GET through `WP_Http::request()`'s preparation: its defaults and filters, the URL and
+	 * external-request checks, SSL and proxy settings.
+	 *
+	 * @param string $url  The signed request URL.
+	 * @param array  $args The signed request arguments.
+	 * @return array Either `response` (a short-circuited response or error), or the Requests `request` to send
+	 *               with the `url` and `parsed_args` the WordPress HTTP hooks receive.
+	 */
+	private static function prepare_http_request( $url, array $args ) {
+		$defaults = array(
+			'method'              => 'GET',
+			/** This filter is documented in wp-includes/class-wp-http.php */
+			'timeout'             => apply_filters( 'http_request_timeout', 5, $url ),
+			/** This filter is documented in wp-includes/class-wp-http.php */
+			'redirection'         => apply_filters( 'http_request_redirection_count', 5, $url ),
+			/** This filter is documented in wp-includes/class-wp-http.php */
+			'httpversion'         => apply_filters( 'http_request_version', '1.0', $url ),
+			/** This filter is documented in wp-includes/class-wp-http.php */
+			'user-agent'          => apply_filters( 'http_headers_useragent', 'WordPress/' . get_bloginfo( 'version' ) . '; ' . get_bloginfo( 'url' ), $url ),
+			/** This filter is documented in wp-includes/class-wp-http.php */
+			'reject_unsafe_urls'  => apply_filters( 'http_request_reject_unsafe_urls', false, $url ),
+			'blocking'            => true,
+			'headers'             => array(),
+			'sslverify'           => true,
+			'sslcertificates'     => ABSPATH . WPINC . '/certificates/ca-bundle.crt',
+			'limit_response_size' => null,
+		);
+
+		$parsed_args = wp_parse_args( $args, $defaults );
+		/** This filter is documented in wp-includes/class-wp-http.php */
+		$parsed_args = apply_filters( 'http_request_args', $parsed_args, $url );
+		if ( ! isset( $parsed_args['_redirection'] ) ) {
+			$parsed_args['_redirection'] = $parsed_args['redirection'];
+		}
+
+		/** This filter is documented in wp-includes/class-wp-http.php */
+		$pre = apply_filters( 'pre_http_request', false, $parsed_args, $url );
+		if ( false !== $pre ) {
+			return array( 'response' => $pre );
+		}
+
+		if ( $parsed_args['reject_unsafe_urls'] ) {
+			$url = wp_http_validate_url( $url );
+		}
+		if ( $url ) {
+			$url = wp_kses_bad_protocol( $url, array( 'http', 'https', 'ssl' ) );
+		}
+
+		$error = null;
+		if ( empty( $url ) || ! wp_parse_url( $url, PHP_URL_SCHEME ) ) {
+			$error = new WP_Error( 'http_request_failed', __( 'A valid URL was not provided.', 'jetpack-connection' ) );
+		} elseif ( _wp_http_get_object()->block_request( $url ) ) {
+			/* translators: %s: URL to which the HTTP request was blocked. */
+			$error = new WP_Error( 'http_request_not_executed', sprintf( __( 'User has blocked requests through HTTP to the URL: %s.', 'jetpack-connection' ), $url ) );
+		}
+		if ( $error ) {
+			/** This action is documented in wp-includes/class-wp-http.php */
+			do_action( 'http_api_debug', $error, 'response', 'WpOrg\Requests\Requests', $parsed_args, $url );
+			return array( 'response' => $error );
+		}
+
+		$hooks   = new \WP_HTTP_Requests_Hooks( $url, $parsed_args );
+		$options = array(
+			'timeout'   => $parsed_args['timeout'],
+			'useragent' => $parsed_args['user-agent'],
+			'blocking'  => true,
+			'hooks'     => $hooks,
+		);
+		if ( empty( $parsed_args['redirection'] ) ) {
+			$options['follow_redirects'] = false;
+		} else {
+			$options['redirects'] = $parsed_args['redirection'];
+			$hooks->register( 'requests.before_redirect', array( \WP_Http::class, 'browser_redirect_compatibility' ) );
+			if ( $parsed_args['reject_unsafe_urls'] ) {
+				$hooks->register( 'requests.before_redirect', array( \WP_Http::class, 'validate_redirects' ) );
+			}
+		}
+		if ( isset( $parsed_args['limit_response_size'] ) ) {
+			$options['max_bytes'] = $parsed_args['limit_response_size'];
+		}
+		if ( ! $parsed_args['sslverify'] ) {
+			$options['verify']     = false;
+			$options['verifyname'] = false;
+		} else {
+			$options['verify'] = $parsed_args['sslcertificates'];
+		}
+		/** This filter is documented in wp-includes/class-wp-http.php */
+		$options['verify'] = apply_filters( 'https_ssl_verify', $options['verify'], $url );
+
+		$proxy = new \WP_HTTP_Proxy();
+		if ( $proxy->is_enabled() && $proxy->send_through_proxy( $url ) ) {
+			$options['proxy'] = new \WpOrg\Requests\Proxy\Http( $proxy->host() . ':' . $proxy->port() );
+			if ( $proxy->use_authentication() ) {
+				$options['proxy']->use_authentication = true;
+				$options['proxy']->user               = $proxy->username();
+				$options['proxy']->pass               = $proxy->password();
+			}
+		}
+
+		// cURL's multi path skips `curl.before_send`, where Requests applies the proxy and WordPress fires
+		// `http_api_curl`, and the SSL options its single path sets; apply both per handle.
+		$verify     = $options['verify'];
+		$verifyname = $options['verifyname'] ?? true;
+		$hooks->register(
+			'curl.before_multi_add',
+			static function ( &$handle ) use ( $hooks, $verify, $verifyname ) {
+				if ( false === $verify ) {
+					curl_setopt( $handle, CURLOPT_SSL_VERIFYHOST, 0 ); // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_setopt
+					curl_setopt( $handle, CURLOPT_SSL_VERIFYPEER, 0 ); // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_setopt
+				} elseif ( is_string( $verify ) ) {
+					curl_setopt( $handle, CURLOPT_CAINFO, $verify ); // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_setopt
+				}
+				if ( ! $verifyname ) {
+					curl_setopt( $handle, CURLOPT_SSL_VERIFYHOST, 0 ); // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_setopt
+				}
+				$hooks->dispatch( 'curl.before_send', array( &$handle ) );
+			}
+		);
+
+		return array(
+			'url'         => $url,
+			'parsed_args' => $parsed_args,
+			'request'     => array(
+				'url'     => $url,
+				'headers' => (array) $parsed_args['headers'],
+				'data'    => array(),
+				'type'    => 'GET',
+				'options' => $options,
+			),
+		);
 	}
 
 	/**
