@@ -1,66 +1,99 @@
-import { serialize } from '@wordpress/blocks';
+import { parse } from '@wordpress/block-serialization-default-parser';
+import { serialize, serializeRawBlock } from '@wordpress/blocks';
 import { usePrevious } from '@wordpress/compose';
 import { store as coreStore } from '@wordpress/core-data';
 import { useRegistry, useSelect, useDispatch } from '@wordpress/data';
 import { useEffect, useState, useCallback } from '@wordpress/element';
 
-/**
- * Whether the saved site-wide banner follows the block in the current editor context.
- *
- * @param {Function} select - Data registry select function.
- * @return {boolean} True in the Site Editor, or while editing a template in another editor.
- */
-const canSyncSettings = select =>
-	window.Jetpack_Editor_Initial_State?.screenBase === 'site-editor' ||
-	[ 'wp_template', 'wp_template_part' ].includes( select( 'core/editor' ).getCurrentPostType() );
+const findBanner = blocks => {
+	for ( const block of blocks ?? [] ) {
+		const banner =
+			block.blockName === 'jetpack/cookie-consent' ? block : findBanner( block.innerBlocks );
+		if ( banner ) {
+			return banner;
+		}
+	}
+};
 
-const containsBlock = ( blocks, clientId ) =>
-	blocks?.some(
-		block => block.clientId === clientId || containsBlock( block.innerBlocks, clientId )
-	);
+const getBanner = record => {
+	const content = record?.content?.raw ?? record?.content;
+	return findBanner( parse( typeof content === 'string' ? content : '' ) );
+};
+
+export function useSyncCookieConsentSettings() {
+	const registry = useRegistry();
+
+	useEffect( () => {
+		const pendingSaves = new Map();
+		return registry.subscribe( () => {
+			const core = registry.select( coreStore );
+			for ( const { kind, name, key } of core.__experimentalGetEntitiesBeingSaved() ) {
+				if (
+					kind !== 'postType' ||
+					! [ 'wp_template', 'wp_template_part' ].includes( name ) ||
+					core.isAutosavingEntityRecord( kind, name, key )
+				) {
+					continue;
+				}
+				const id = `${ name }:${ key }`;
+				if ( ! pendingSaves.has( id ) ) {
+					const hadBanner = !! getBanner( core.getEntityRecord( kind, name, key ) );
+					pendingSaves.set( id, { kind, name, key, hadBanner } );
+				}
+			}
+			for ( const [ id, { kind, name, key, hadBanner } ] of pendingSaves ) {
+				if ( core.isSavingEntityRecord( kind, name, key ) ) {
+					continue;
+				}
+				pendingSaves.delete( id );
+				if ( core.getLastEntitySaveError( kind, name, key ) ) {
+					continue;
+				}
+				const banner = getBanner( core.getEntityRecord( kind, name, key ) );
+				if ( ! banner && ! hadBanner ) {
+					continue;
+				}
+				registry
+					.resolveSelect( coreStore )
+					.getEntityRecord( 'root', 'site' )
+					.then( () => {
+						const { editEntityRecord, saveEditedEntityRecord } = registry.dispatch( coreStore );
+						editEntityRecord( 'root', 'site', undefined, {
+							cookie_consent_template: banner ? serializeRawBlock( banner ) : null,
+						} );
+						return saveEditedEntityRecord( 'root', 'site', undefined, { throwOnError: true } );
+					} )
+					.catch( error => {
+						console.error( error ); // eslint-disable-line no-console
+					} );
+			}
+		}, coreStore );
+	}, [ registry ] );
+}
 
 export function useSaveCookieConsentSettings( clientId ) {
-	const registry = useRegistry();
+	const isSiteEditor = window.Jetpack_Editor_Initial_State?.screenBase === 'site-editor';
 	const isSaving = useSelect(
 		select => {
-			if ( window.Jetpack_Editor_Initial_State?.screenBase === 'site-editor' ) {
+			if ( isSiteEditor ) {
 				const { isSavingPost, isSavingNonPostEntityChanges } = select( 'core/editor' );
 				return isSavingPost() || isSavingNonPostEntityChanges();
 			}
-
-			const { __experimentalGetEntitiesBeingSaved, getEditedEntityRecord } = select( coreStore );
-			const { getBlockParentsByBlockName, getBlockAttributes } = select( 'core/block-editor' );
-			const templatePartClientId = getBlockParentsByBlockName(
-				clientId,
-				'core/template-part',
-				true
-			)[ 0 ];
-			return __experimentalGetEntitiesBeingSaved().some( ( { kind, name, key } ) => {
-				if ( kind !== 'postType' || ! [ 'wp_template', 'wp_template_part' ].includes( name ) ) {
-					return false;
-				}
-				const record = getEditedEntityRecord( kind, name, key );
-				if ( templatePartClientId ) {
-					const { slug, theme = select( coreStore ).getCurrentTheme()?.stylesheet } =
-						getBlockAttributes( templatePartClientId );
-					return name === 'wp_template_part' && record?.slug === slug && record?.theme === theme;
-				}
-				return containsBlock( record?.blocks, clientId );
-			} );
+			return false;
 		},
-		[ clientId ]
+		[ isSiteEditor ]
 	);
 	const wasSaving = usePrevious( isSaving );
 	const postHasBeenJustSaved = !! ( wasSaving && ! isSaving );
 
 	useSelect(
 		select => {
-			if ( canSyncSettings( select ) || isSaving ) {
+			if ( isSiteEditor ) {
 				// Editing the site record requires it to be loaded first.
 				return select( coreStore ).getEntityRecord( 'root', 'site' );
 			}
 		},
-		[ isSaving ]
+		[ isSiteEditor ]
 	);
 	const { editEntityRecord, saveEditedEntityRecord } = useDispatch( coreStore );
 	const [ isSavingSetting, setIsSavingSetting ] = useState( false );
@@ -87,8 +120,7 @@ export function useSaveCookieConsentSettings( clientId ) {
 		return () => {
 			const block = getBlockById( clientId );
 
-			// Hiding a template in the Page Editor also unmounts the block, so check the context again.
-			if ( ! block && canSyncSettings( registry.select ) ) {
+			if ( ! block && isSiteEditor ) {
 				saveTemplate( null );
 			}
 		};
