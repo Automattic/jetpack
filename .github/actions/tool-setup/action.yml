@@ -94,7 +94,7 @@ runs:
         version: ${{ steps.versions.outputs.pnpm-version }}
         install: false
         cache: true
-        save-cache: $(( inputs.pnpm-save-cache }}
+        save-cache: ${{ inputs.pnpm-save-cache }}
         runtime: node@${{ steps.versions.outputs.node-version }}
 
     - name: Work around pnpm/setup bugs
