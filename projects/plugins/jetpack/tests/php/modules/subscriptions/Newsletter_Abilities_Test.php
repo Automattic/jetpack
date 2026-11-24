@@ -380,7 +380,7 @@ class Newsletter_Abilities_Test extends WP_UnitTestCase {
 	#[DataProvider( 'subscriber_stats_responses_provider' )]
 	public function test_dashboard_and_ability_share_cached_subscriber_stats( $counts, $expected_paid_subscribers ) {
 		delete_transient( 'jetpack_newsletter_subscriber_stats_data' );
-		add_filter( 'jetpack_is_connection_ready', '__return_true' );
+		add_filter( 'jetpack_is_connection_ready', '__return_true', PHP_INT_MAX );
 		$previous_site_id = Jetpack_Options::get_option( 'id' );
 		Jetpack_Options::update_option( 'id', 123 );
 		$requests = 0;
@@ -471,7 +471,7 @@ class Newsletter_Abilities_Test extends WP_UnitTestCase {
 			if ( null !== $mock ) {
 				\Patchwork\restore( $mock );
 			}
-			remove_filter( 'jetpack_is_connection_ready', '__return_true' );
+			remove_filter( 'jetpack_is_connection_ready', '__return_true', PHP_INT_MAX );
 			Jetpack_Options::update_option( 'id', $previous_site_id );
 			delete_transient( 'jetpack_newsletter_subscriber_stats_data' );
 		}
@@ -479,7 +479,7 @@ class Newsletter_Abilities_Test extends WP_UnitTestCase {
 
 	public function test_failed_subscriber_stats_request_is_not_repeated_on_every_load() {
 		delete_transient( 'jetpack_newsletter_subscriber_stats_data' );
-		add_filter( 'jetpack_is_connection_ready', '__return_true' );
+		add_filter( 'jetpack_is_connection_ready', '__return_true', PHP_INT_MAX );
 		$previous_site_id = Jetpack_Options::get_option( 'id' );
 		Jetpack_Options::update_option( 'id', 123 );
 		$requests = 0;
@@ -503,7 +503,7 @@ class Newsletter_Abilities_Test extends WP_UnitTestCase {
 			if ( null !== $mock ) {
 				\Patchwork\restore( $mock );
 			}
-			remove_filter( 'jetpack_is_connection_ready', '__return_true' );
+			remove_filter( 'jetpack_is_connection_ready', '__return_true', PHP_INT_MAX );
 			Jetpack_Options::update_option( 'id', $previous_site_id );
 			delete_transient( 'jetpack_newsletter_subscriber_stats_data' );
 		}
