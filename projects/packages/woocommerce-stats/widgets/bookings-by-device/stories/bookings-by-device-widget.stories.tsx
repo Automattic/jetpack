@@ -9,6 +9,7 @@ import {
 	widgetDashboardWithWidgetArgTypes,
 	withinWidgetCanvas,
 	withWidgetCanvas,
+	WOO_REPORT_PATHS,
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/shared';
 import BookingsByDeviceRender from '../render';
@@ -20,8 +21,6 @@ import type { ComponentProps, ComponentType } from 'react';
 registerWooReportMocks();
 
 const BOOKINGS_BY_DEVICE_RENDER_MODULE = 'storybook/bookings-by-device';
-const ATTRIBUTION_REPORT_PATH = 'analytics/reports/order-attribution-by-product/device/summary';
-
 const storyWidgetType = createStoryWidgetType( widgetManifest );
 
 interface BookingsByDeviceStoryControls {
@@ -119,7 +118,7 @@ export const Loading: Story = {
 	args: { withComparison: false },
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas ],
-	beforeEach: forceWooReportState( ATTRIBUTION_REPORT_PATH, 'loading' ),
+	beforeEach: forceWooReportState( WOO_REPORT_PATHS.orderAttributionByProductDevice, 'loading' ),
 };
 
 export const Empty: Story = {
@@ -127,7 +126,7 @@ export const Empty: Story = {
 	args: { withComparison: false },
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas ],
-	beforeEach: forceWooReportState( ATTRIBUTION_REPORT_PATH, 'empty' ),
+	beforeEach: forceWooReportState( WOO_REPORT_PATHS.orderAttributionByProductDevice, 'empty' ),
 };
 
 export const ErrorState: Story = {
@@ -135,7 +134,7 @@ export const ErrorState: Story = {
 	args: { withComparison: false },
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas ],
-	beforeEach: forceWooReportState( ATTRIBUTION_REPORT_PATH, 'error' ),
+	beforeEach: forceWooReportState( WOO_REPORT_PATHS.orderAttributionByProductDevice, 'error' ),
 };
 
 export const ErrorRetryable: Story = {
@@ -143,7 +142,10 @@ export const ErrorRetryable: Story = {
 	args: { withComparison: false },
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas ],
-	beforeEach: forceWooReportState( ATTRIBUTION_REPORT_PATH, 'error-retryable' ),
+	beforeEach: forceWooReportState(
+		WOO_REPORT_PATHS.orderAttributionByProductDevice,
+		'error-retryable'
+	),
 };
 
 export const WidgetDashboardWithWidget: DashboardStory = {

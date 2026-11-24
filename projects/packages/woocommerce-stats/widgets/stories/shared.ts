@@ -10,5 +10,9 @@ export {
 	withinWidgetCanvas,
 	withWidgetCanvas,
 } from '../../../premium-analytics/widgets/stories/with-widget-canvas';
-export { forceWooReportState, registerWooReportMocks } from './mocks/register-woo-report-mocks';
+export {
+	forceWooReportState,
+	registerWooReportMocks,
+	WOO_REPORT_PATHS,
+} from './mocks/register-woo-report-mocks';
 export { storyReportParams } from './story-report-params';

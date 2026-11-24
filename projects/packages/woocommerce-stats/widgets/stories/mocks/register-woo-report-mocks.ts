@@ -19,9 +19,48 @@ import {
 } from './data';
 import type { APIFetchMiddleware, APIFetchOptions } from '@wordpress/api-fetch';
 
-const REPORTS_PATH = '/jetpack/v4/woocommerce-stats/proxy/v2/analytics/reports/';
+const REPORTS_FRAGMENT = 'analytics/reports/';
+const REPORTS_PATH = `/jetpack/v4/woocommerce-stats/proxy/v2/${ REPORTS_FRAGMENT }`;
 const WC_REST_PATH = '/wc/v3/';
 const WC_PRODUCTS_PATH = `${ WC_REST_PATH }products`;
+
+/**
+ * The report each mocked endpoint answers, as the path fragment that identifies it.
+ *
+ * A story names its report from here rather than typing the fragment, because `forceWooReportState`
+ * matches by substring: a fragment naming an endpoint the widget never requests forces nothing, and
+ * the story then renders as `Default` does and still reports a pass. The near miss that makes this
+ * worth a shared table is `orders/by-date` against `orders-by-product-type/by-date`, which the
+ * bookings widgets use and which does not contain the other.
+ */
+export const WOO_REPORT_PATHS = {
+	orderAttributionByProductDevice: `${ REPORTS_FRAGMENT }order-attribution-by-product/device/summary`,
+	orderAttributionDevice: `${ REPORTS_FRAGMENT }order-attribution/device/summary`,
+	ordersByDate: `${ REPORTS_FRAGMENT }orders/by-date`,
+	ordersByProductType: `${ REPORTS_FRAGMENT }orders-by-product-type/by-date`,
+	products: `${ REPORTS_FRAGMENT }products`,
+	sessionsByDate: `${ REPORTS_FRAGMENT }sessions/by-date`,
+	sessionsByDevice: `${ REPORTS_FRAGMENT }sessions/by-device`,
+} as const;
+
+const subPathOf = ( reportPath: string ) => reportPath.slice( REPORTS_FRAGMENT.length );
+
+const reportResponders = new Map< string, ( query: URLSearchParams ) => unknown >( [
+	[
+		subPathOf( WOO_REPORT_PATHS.orderAttributionByProductDevice ),
+		buildOrderAttributionByProductDeviceResponse,
+	],
+	[ subPathOf( WOO_REPORT_PATHS.orderAttributionDevice ), buildOrderAttributionDeviceResponse ],
+	[ subPathOf( WOO_REPORT_PATHS.ordersByDate ), buildOrdersByDateResponse ],
+	// Assumes the bookings product_type filter, the only caller; it does not read the filter it is given.
+	[
+		subPathOf( WOO_REPORT_PATHS.ordersByProductType ),
+		query => buildOrdersByDateResponse( query, { share: BOOKINGS_SHARE } ),
+	],
+	[ subPathOf( WOO_REPORT_PATHS.products ), buildProductsResponse ],
+	[ subPathOf( WOO_REPORT_PATHS.sessionsByDate ), buildVisitorsByDateResponse ],
+	[ subPathOf( WOO_REPORT_PATHS.sessionsByDevice ), buildSessionsByDeviceResponse ],
+] );
 
 /** The bookings subset's share of the store's order volume. */
 const BOOKINGS_SHARE = 0.28;
@@ -86,24 +125,12 @@ const wooReportMocksMiddleware: APIFetchMiddleware = async ( options: APIFetchOp
 	}
 
 	if ( requestPath.startsWith( REPORTS_PATH ) ) {
-		const query = queryOf( requestPath );
+		const respond = reportResponders.get(
+			requestPath.slice( REPORTS_PATH.length ).split( '?' )[ 0 ]
+		);
 
-		switch ( requestPath.slice( REPORTS_PATH.length ).split( '?' )[ 0 ] ) {
-			case 'order-attribution-by-product/device/summary':
-				return buildOrderAttributionByProductDeviceResponse( query );
-			case 'order-attribution/device/summary':
-				return buildOrderAttributionDeviceResponse( query );
-			case 'orders/by-date':
-				return buildOrdersByDateResponse( query );
-			// Assumes the bookings product_type filter, the only caller; it does not read the filter it is given.
-			case 'orders-by-product-type/by-date':
-				return buildOrdersByDateResponse( query, { share: BOOKINGS_SHARE } );
-			case 'products':
-				return buildProductsResponse( query );
-			case 'sessions/by-date':
-				return buildVisitorsByDateResponse( query );
-			case 'sessions/by-device':
-				return buildSessionsByDeviceResponse( query );
+		if ( respond ) {
+			return respond( queryOf( requestPath ) );
 		}
 	}
 

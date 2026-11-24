@@ -9,6 +9,7 @@ import {
 	widgetDashboardWithWidgetArgTypes,
 	withinWidgetCanvas,
 	withWidgetCanvas,
+	WOO_REPORT_PATHS,
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/shared';
 import SessionsByDeviceRender from '../render';
@@ -20,8 +21,6 @@ import type { ComponentProps, ComponentType } from 'react';
 registerWooReportMocks();
 
 const SESSIONS_BY_DEVICE_RENDER_MODULE = 'storybook/sessions-by-device';
-const SESSIONS_REPORT_PATH = 'analytics/reports/sessions/by-device';
-
 const storyWidgetType = createStoryWidgetType( widgetManifest );
 
 interface SessionsByDeviceStoryControls {
@@ -122,7 +121,7 @@ export const Loading: Story = {
 	args: { withComparison: false },
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas ],
-	beforeEach: forceWooReportState( SESSIONS_REPORT_PATH, 'loading' ),
+	beforeEach: forceWooReportState( WOO_REPORT_PATHS.sessionsByDevice, 'loading' ),
 };
 
 export const Empty: Story = {
@@ -130,7 +129,7 @@ export const Empty: Story = {
 	args: { withComparison: false },
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas ],
-	beforeEach: forceWooReportState( SESSIONS_REPORT_PATH, 'empty' ),
+	beforeEach: forceWooReportState( WOO_REPORT_PATHS.sessionsByDevice, 'empty' ),
 };
 
 export const ErrorState: Story = {
@@ -138,7 +137,7 @@ export const ErrorState: Story = {
 	args: { withComparison: false },
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas ],
-	beforeEach: forceWooReportState( SESSIONS_REPORT_PATH, 'error' ),
+	beforeEach: forceWooReportState( WOO_REPORT_PATHS.sessionsByDevice, 'error' ),
 };
 
 export const ErrorRetryable: Story = {
@@ -146,7 +145,7 @@ export const ErrorRetryable: Story = {
 	args: { withComparison: false },
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas ],
-	beforeEach: forceWooReportState( SESSIONS_REPORT_PATH, 'error-retryable' ),
+	beforeEach: forceWooReportState( WOO_REPORT_PATHS.sessionsByDevice, 'error-retryable' ),
 };
 
 export const WidgetDashboardWithWidget: DashboardStory = {

@@ -10,6 +10,7 @@ import {
 	withinWidgetCanvas,
 	withStoryRouter,
 	withWidgetCanvas,
+	WOO_REPORT_PATHS,
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/shared';
 import TopPerformingProductsRender from '../render';
@@ -21,8 +22,6 @@ import type { ComponentProps, ComponentType } from 'react';
 registerWooReportMocks();
 
 const TOP_PERFORMING_PRODUCTS_RENDER_MODULE = 'storybook/top-performing-products';
-const PRODUCTS_REPORT_PATH = 'analytics/reports/products';
-
 const storyWidgetType = createStoryWidgetType( widgetManifest );
 
 interface TopPerformingProductsStoryControls {
@@ -135,7 +134,7 @@ export const Loading: Story = {
 	args: { withComparison: false },
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas ],
-	beforeEach: forceWooReportState( PRODUCTS_REPORT_PATH, 'loading' ),
+	beforeEach: forceWooReportState( WOO_REPORT_PATHS.products, 'loading' ),
 };
 
 export const Empty: Story = {
@@ -143,7 +142,7 @@ export const Empty: Story = {
 	args: { withComparison: false },
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas ],
-	beforeEach: forceWooReportState( PRODUCTS_REPORT_PATH, 'empty' ),
+	beforeEach: forceWooReportState( WOO_REPORT_PATHS.products, 'empty' ),
 };
 
 export const ErrorState: Story = {
@@ -151,7 +150,7 @@ export const ErrorState: Story = {
 	args: { withComparison: false },
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas ],
-	beforeEach: forceWooReportState( PRODUCTS_REPORT_PATH, 'error' ),
+	beforeEach: forceWooReportState( WOO_REPORT_PATHS.products, 'error' ),
 };
 
 export const ErrorRetryable: Story = {
@@ -159,7 +158,7 @@ export const ErrorRetryable: Story = {
 	args: { withComparison: false },
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas ],
-	beforeEach: forceWooReportState( PRODUCTS_REPORT_PATH, 'error-retryable' ),
+	beforeEach: forceWooReportState( WOO_REPORT_PATHS.products, 'error-retryable' ),
 };
 
 export const WidgetDashboardWithWidget: DashboardStory = {

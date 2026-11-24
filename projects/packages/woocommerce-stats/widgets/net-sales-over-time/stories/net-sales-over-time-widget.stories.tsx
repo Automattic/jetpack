@@ -9,6 +9,7 @@ import {
 	widgetDashboardWithWidgetArgTypes,
 	withinWidgetCanvas,
 	withWidgetCanvas,
+	WOO_REPORT_PATHS,
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/shared';
 import NetSalesOverTimeRender from '../render';
@@ -20,8 +21,6 @@ import type { ComponentProps, ComponentType } from 'react';
 registerWooReportMocks();
 
 const NET_SALES_OVER_TIME_RENDER_MODULE = 'storybook/net-sales-over-time';
-const ORDERS_REPORT_PATH = 'analytics/reports/orders/by-date';
-
 const storyWidgetType = createStoryWidgetType( widgetManifest );
 
 interface NetSalesOverTimeStoryControls {
@@ -129,7 +128,7 @@ export const Loading: Story = {
 	args: { withComparison: false, chartType: 'line' },
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas ],
-	beforeEach: forceWooReportState( ORDERS_REPORT_PATH, 'loading' ),
+	beforeEach: forceWooReportState( WOO_REPORT_PATHS.ordersByDate, 'loading' ),
 };
 
 export const Empty: Story = {
@@ -137,7 +136,7 @@ export const Empty: Story = {
 	args: { withComparison: false, chartType: 'line' },
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas ],
-	beforeEach: forceWooReportState( ORDERS_REPORT_PATH, 'empty' ),
+	beforeEach: forceWooReportState( WOO_REPORT_PATHS.ordersByDate, 'empty' ),
 };
 
 export const ErrorState: Story = {
@@ -145,7 +144,7 @@ export const ErrorState: Story = {
 	args: { withComparison: false, chartType: 'line' },
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas ],
-	beforeEach: forceWooReportState( ORDERS_REPORT_PATH, 'error' ),
+	beforeEach: forceWooReportState( WOO_REPORT_PATHS.ordersByDate, 'error' ),
 };
 
 export const ErrorRetryable: Story = {
@@ -153,7 +152,7 @@ export const ErrorRetryable: Story = {
 	args: { withComparison: false, chartType: 'line' },
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas ],
-	beforeEach: forceWooReportState( ORDERS_REPORT_PATH, 'error-retryable' ),
+	beforeEach: forceWooReportState( WOO_REPORT_PATHS.ordersByDate, 'error-retryable' ),
 };
 
 export const WidgetDashboardWithWidget: DashboardStory = {
