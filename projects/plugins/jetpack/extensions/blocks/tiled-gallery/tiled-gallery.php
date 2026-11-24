@@ -708,7 +708,7 @@ class Tiled_Gallery {
 				);
 
 				// The pixel size is for Outlook, which ignores CSS widths; other clients scale the image with its cell.
-				$image_styles = sprintf( 'margin: 0; width: 100%%; max-width: %dpx; display: block; height: auto;', $image_width );
+				$image_styles = self::generate_image_styles( $image_width . 'px' );
 
 				$cell_content = self::generate_image_html( $image, $image_styles, $border_radius_style, $attr, array( $image_width, $image_height ) );
 
@@ -903,10 +903,11 @@ class Tiled_Gallery {
 	/**
 	 * Generate image styles for email rendering.
 	 *
+	 * @param string $max_width CSS max-width value.
 	 * @return string CSS style string.
 	 */
-	private static function generate_image_styles() {
-		return 'margin: 0; width: 100%; max-width: 100%; display: block; height: auto;';
+	private static function generate_image_styles( $max_width = '100%' ) {
+		return 'margin: 0; width: 100%; max-width: ' . $max_width . '; display: block; height: auto;';
 	}
 
 	/**
