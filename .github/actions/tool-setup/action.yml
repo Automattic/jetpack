@@ -8,6 +8,9 @@ inputs:
     default: 'none'
   node:
     description: "Override the Node version, or set 'false' to skip setting up Node and Pnpm."
+  pnpm-save-cache:
+    description: "save-cache value for pnpm/setup"
+    default: true
 runs:
   using: composite
   steps:
@@ -91,6 +94,7 @@ runs:
         version: ${{ steps.versions.outputs.pnpm-version }}
         install: false
         cache: true
+        save-cache: $(( inputs.pnpm-save-cache }}
         runtime: node@${{ steps.versions.outputs.node-version }}
 
     - name: Work around pnpm/setup bugs
