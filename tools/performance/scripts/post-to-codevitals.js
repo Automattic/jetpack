@@ -615,6 +615,14 @@ async function postToCodeVitals( resultsPath, config ) {
 		return { posted: false, validationFailed };
 	}
 
+	const keysSent = Object.keys( metrics );
+	const expectedRows = keysSent.filter( key => REGISTERED_CODEVITALS_KEYS.has( key ) ).length;
+	if ( expectedRows === 0 ) {
+		throw new ValidationError(
+			'No measured keys are in REGISTERED_CODEVITALS_KEYS. No post was sent to CodeVitals.'
+		);
+	}
+
 	// Cross-commit dedup (live posts only — kept after the dry-run return so the
 	// token-free CI smoke test still makes zero network calls). CodeVitals is
 	// append-only, so re-testing a commit (a manual re-run, a TeamCity retryBuild,
@@ -723,8 +731,6 @@ async function postToCodeVitals( resultsPath, config ) {
 		clearTimeout( timeoutId );
 	}
 
-	const keysSent = Object.keys( metrics );
-	const expectedRows = keysSent.filter( key => REGISTERED_CODEVITALS_KEYS.has( key ) ).length;
 	const rowsStored =
 		data !== null && typeof data === 'object' && ! Array.isArray( data ) ? data.count : undefined;
 	if ( ! Number.isInteger( rowsStored ) || rowsStored <= 0 || rowsStored !== expectedRows ) {
@@ -737,7 +743,8 @@ async function postToCodeVitals( resultsPath, config ) {
 			received = `a ${ typeof rowsStored } count`;
 		}
 		throw new Error(
-			`CodeVitals receipt expected ${ expectedRows } stored rows, received ${ received }.`
+			`CodeVitals receipt expected ${ expectedRows } stored rows, received ${ received }. ` +
+				'The post was sent and rows may already be stored. Check the series before re-running.'
 		);
 	}
 

@@ -1374,6 +1374,9 @@ test( 'a post rejects an invalid receipt count', async t => {
 		[ 'null response', null, 'null' ],
 		[ 'missing count', {}, 'no count' ],
 		[ 'string count', { count: '3' }, 'a string count' ],
+		[ 'count below expected', { count: 2 }, '2' ],
+		[ 'zero count', { count: 0 }, '0' ],
+		[ 'negative count', { count: -1 }, '-1' ],
 		[ 'count includes unregistered keys', { count: 6 }, '6' ],
 	] ) {
 		await t.test( label, async subtest => {
@@ -1388,27 +1391,35 @@ test( 'a post rejects an invalid receipt count', async t => {
 						codeVitalsToken: 'tok',
 					} )
 				),
-				{ message: `CodeVitals receipt expected 3 stored rows, received ${ received }.` }
+				{
+					message:
+						`CodeVitals receipt expected 3 stored rows, received ${ received }. ` +
+						'The post was sent and rows may already be stored. Check the series before re-running.',
+				}
 			);
 		} );
 	}
 } );
 
-test( 'a zero-row receipt fails even when the run measures only staging keys', async t => {
+test( 'a live run with no registered keys fails before posting', async t => {
 	const file = writeResults( 120 );
 	const results = JSON.parse( fs.readFileSync( file, 'utf8' ) );
 	results.measurements = { jetpackSettings: { summary: formsSummary() } };
 	fs.writeFileSync( file, JSON.stringify( results ) );
-	t.mock.method( global, 'fetch', async () => ( {
-		ok: true,
-		json: async () => ( { count: 0 } ),
-	} ) );
+	const fetch = t.mock.method( global, 'fetch', async () => {
+		throw new Error( 'Unexpected fetch for results with no registered keys' );
+	} );
 	await assert.rejects(
 		silenced( () =>
 			postToCodeVitals( file, { codeVitalsUrl: 'https://codevitals.test', codeVitalsToken: 'tok' } )
 		),
-		/expected 0 stored rows, received 0/
+		{
+			name: 'ValidationError',
+			message:
+				'No measured keys are in REGISTERED_CODEVITALS_KEYS. No post was sent to CodeVitals.',
+		}
 	);
+	assert.equal( fetch.mock.callCount(), 0 );
 } );
 
 test( 'a receipt counts only the registered keys measured when an optional scenario fails', async t => {
