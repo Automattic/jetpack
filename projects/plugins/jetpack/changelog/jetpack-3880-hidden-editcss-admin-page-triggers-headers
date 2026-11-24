@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Custom CSS: Redirect the legacy Additional CSS admin page to the Customizer instead of showing a blank page.
