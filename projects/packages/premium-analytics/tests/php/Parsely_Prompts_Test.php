@@ -24,6 +24,7 @@ require_once __DIR__ . '/../../src/parsely-prompts.php';
  * @covers ::Automattic\Jetpack\PremiumAnalytics\has_parsely_integration
  * @covers ::Automattic\Jetpack\PremiumAnalytics\get_monthly_stats_views
  * @covers ::Automattic\Jetpack\PremiumAnalytics\fetch_monthly_stats_views
+ * @covers ::Automattic\Jetpack\PremiumAnalytics\quietest_monthly_views
  * @covers Automattic\Jetpack\PremiumAnalytics\Parsely_Prompts
  * @covers ::Automattic\Jetpack\PremiumAnalytics\configure_parsely_prompts
  * @covers ::Automattic\Jetpack\PremiumAnalytics\inject_parsely_prompts_script_data
@@ -32,6 +33,7 @@ require_once __DIR__ . '/../../src/parsely-prompts.php';
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\has_parsely_integration' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\get_monthly_stats_views' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\fetch_monthly_stats_views' )]
+#[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\quietest_monthly_views' )]
 #[CoversClass( Parsely_Prompts::class )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\configure_parsely_prompts' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\inject_parsely_prompts_script_data' )]
@@ -143,19 +145,47 @@ class Parsely_Prompts_Test extends BaseTestCase {
 	}
 
 	/**
-	 * A usage payload reporting the given views for the current month.
+	 * A usage payload whose recent whole months each got the given views.
 	 *
-	 * @param mixed $views The month's view count.
+	 * @param mixed $views The views each whole month got.
 	 * @return array
 	 */
 	private static function usage_with_views( $views ) {
+		return self::usage_with_monthly_views( array( $views, $views ) );
+	}
+
+	/**
+	 * A usage payload reporting the given views per whole month, most recent first, behind a month
+	 * in progress that is far below the threshold. `billable_monthly_views` is 0, as it is for a
+	 * site whose plan already covers its traffic, so a gate reading it offers nothing.
+	 *
+	 * @param array $monthly_views The views each whole month got.
+	 * @return array
+	 */
+	private static function usage_with_monthly_views( array $monthly_views ) {
+		$open_month = '2026-11-01';
+		$months     = array(
+			array(
+				'current_start' => $open_month,
+				'views_count'   => 1,
+			),
+		);
+
+		foreach ( $monthly_views as $index => $views ) {
+			$months[] = array(
+				'current_start' => sprintf( '2026-%02d-01', 10 - $index ),
+				'views_count'   => $views,
+			);
+		}
+
 		return array(
-			'billable_monthly_views' => $views,
-			// Month-to-date, and deliberately far below the threshold: the gate must not read it.
+			'billable_monthly_views' => 0,
 			'current_usage'          => array(
+				'current_start' => $open_month,
 				'views_count'   => 1,
 				'days_to_reset' => 12,
 			),
+			'recent_usages'          => $months,
 		);
 	}
 
@@ -212,6 +242,18 @@ class Parsely_Prompts_Test extends BaseTestCase {
 
 	public function test_below_the_threshold_does_not_offer_the_prompts() {
 		$this->answer_stats_usage_with( self::usage_with_views( 99999 ) );
+
+		$this->assertFalse( offers_parsely_prompts() );
+	}
+
+	public function test_the_quietest_whole_month_decides() {
+		$this->answer_stats_usage_with( self::usage_with_monthly_views( array( 150000, 99999 ) ) );
+
+		$this->assertFalse( offers_parsely_prompts() );
+	}
+
+	public function test_a_site_with_no_whole_month_on_record_does_not_offer_the_prompts() {
+		$this->answer_stats_usage_with( self::usage_with_monthly_views( array() ) );
 
 		$this->assertFalse( offers_parsely_prompts() );
 	}

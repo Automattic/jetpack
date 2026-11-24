@@ -20,7 +20,7 @@ require_once __DIR__ . '/stats-plan-gates.php';
 const OFFERS_PARSELY_PROMPTS_FILTER = 'jetpack_premium_analytics_offers_parsely_prompts';
 
 /**
- * Billable monthly views a site must reach to qualify.
+ * Monthly views a site must reach to qualify.
  *
  * @var int
  */
@@ -139,7 +139,7 @@ function has_parsely_integration() {
 }
 
 /**
- * The site's billable views for a month, or null when WordPress.com does not say.
+ * The site's views for a month, or null when WordPress.com does not say.
  *
  * @since $$next-version$$
  *
@@ -169,7 +169,7 @@ function get_monthly_stats_views() {
 }
 
 /**
- * Ask WordPress.com for the site's billable views for a month.
+ * Ask WordPress.com for the site's views for a month.
  *
  * @since $$next-version$$
  *
@@ -189,11 +189,41 @@ function fetch_monthly_stats_views() {
 		return null;
 	}
 
-	/*
-	 * Not `current_usage.views_count`, which counts the open billing period so far: a site that
-	 * reliably clears the threshold would qualify late each month and lose it at every reset.
-	 */
-	$views = $usage['billable_monthly_views'] ?? null;
+	return quietest_monthly_views( is_array( $usage ) ? $usage : array() );
+}
 
-	return is_numeric( $views ) ? (int) $views : null;
+/**
+ * The lowest views any recent whole month got. WordPress.com measures a site by that figure and
+ * then subtracts the views its plan already paid for to reach `billable_monthly_views`, so a site
+ * provisioned for its own traffic reports 0 there and would never qualify.
+ *
+ * @since $$next-version$$
+ *
+ * @param array $usage The Stats usage payload.
+ * @return int|null
+ */
+function quietest_monthly_views( array $usage ) {
+	$months = $usage['recent_usages'] ?? null;
+
+	if ( ! is_array( $months ) ) {
+		return null;
+	}
+
+	$open_month = $usage['current_usage']['current_start'] ?? null;
+	$counts     = array();
+
+	foreach ( $months as $month ) {
+		if ( ! is_array( $month ) || ! is_numeric( $month['views_count'] ?? null ) ) {
+			continue;
+		}
+
+		// The month in progress is a part month, and the lowest of the set would read it as a slump.
+		if ( null !== $open_month && ( $month['current_start'] ?? null ) === $open_month ) {
+			continue;
+		}
+
+		$counts[] = (int) $month['views_count'];
+	}
+
+	return empty( $counts ) ? null : min( $counts );
 }
