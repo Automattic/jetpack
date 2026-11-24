@@ -6,10 +6,9 @@ import {
 	type ReportParams,
 	type StatsChartBucketPeriod,
 } from '@jetpack-premium-analytics/data';
-import { parseSiteDateTime } from '@jetpack-premium-analytics/datetime';
+import { getDateIntervalDateParts, parseSiteDateTime } from '@jetpack-premium-analytics/datetime';
 import { toDay } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from '@wordpress/element';
-import { addDays, endOfMonth, format, parseISO } from 'date-fns';
 
 /**
  * One chart point: the first and last day of the bucket that fall in the range,
@@ -19,12 +18,6 @@ export type AuthorPerformancePoint = {
 	date: Date;
 	endDate?: Date;
 	value: number;
-};
-
-const BUCKET_END: Record< StatsChartBucketPeriod, ( start: Date ) => Date > = {
-	day: start => start,
-	week: start => addDays( start, 6 ),
-	month: endOfMonth,
 };
 
 /**
@@ -43,7 +36,7 @@ function clipBucketToRange(
 	from: string,
 	to: string
 ) {
-	const end = format( BUCKET_END[ period ]( parseISO( start ) ), 'yyyy-MM-dd' );
+	const { endDate: end } = getDateIntervalDateParts( start, period );
 
 	return { from: start < from ? from : start, to: end > to ? to : end };
 }
