@@ -1,10 +1,22 @@
 import { __, sprintf } from '@wordpress/i18n';
 import { Link, Notice, Text } from '@wordpress/ui';
+import { PRODUCT_STATUSES } from '../../constants';
 
 type CantInstallPluginNoticeProps = {
 	productName: string;
 	pluginSlug: string;
 };
+
+/**
+ * Whether a product's plugin is missing and the server won't let My Jetpack install it, so pages show this notice and disable their install buttons.
+ *
+ * @param status                - The product's status.
+ * @param fileSystemWriteAccess - The site's `fileSystemWriteAccess` value, `yes` or `no`.
+ * @return True when the plugin has to be installed by hand.
+ */
+export function isPluginInstallBlocked( status?: string, fileSystemWriteAccess?: string ): boolean {
+	return status === PRODUCT_STATUSES.ABSENT && fileSystemWriteAccess === 'no';
+}
 
 /**
  * Asks the site owner to install a product's plugin by hand, for servers where My Jetpack can't write plugin files.

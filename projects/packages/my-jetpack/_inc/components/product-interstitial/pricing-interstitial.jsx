@@ -34,7 +34,7 @@ import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
 import { productsFrom } from '../../utils/connect-url';
 import { getMyJetpackRouteUrl } from '../../utils/route-href';
-import CantInstallPluginNotice from '../cant-install-plugin-notice';
+import CantInstallPluginNotice, { isPluginInstallBlocked } from '../cant-install-plugin-notice';
 import GoBackLink from '../go-back-link';
 import { getFeatureCheckoutReturnUrl } from '../my-jetpack-tab-panel/utils';
 import ProductDetailCard from '../product-detail-card';
@@ -130,9 +130,10 @@ export default function PricingInterstitial( { slug } ) {
 
 	// Disable all buttons when any action is in progress or data is loading.
 	const buttonsDisabled = Boolean( loadingButton ) || isProductLoading || isActivatingSearchFree;
-	const cantInstallPlugin =
-		detail?.status === 'plugin_absent' &&
-		getMyJetpackWindowInitialState( 'fileSystemWriteAccess' ) === 'no';
+	const cantInstallPlugin = isPluginInstallBlocked(
+		detail?.status,
+		getMyJetpackWindowInitialState( 'fileSystemWriteAccess' )
+	);
 
 	// Handle tiered pricing like trunk does - check for tiers.upgraded first
 	const productPricing = useMemo( () => {

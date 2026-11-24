@@ -16,7 +16,7 @@ import useProduct from '../../data/products/use-product';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import useAnalytics from '../../hooks/use-analytics';
 import { useRedirectToReferrer } from '../../hooks/use-redirect-to-referrer';
-import CantInstallPluginNotice from '../cant-install-plugin-notice';
+import CantInstallPluginNotice, { isPluginInstallBlocked } from '../cant-install-plugin-notice';
 import LoadingBlock from '../loading-block';
 import { getFeatureCheckoutReturnUrl } from '../my-jetpack-tab-panel/utils';
 import ProductDetailButton from '../product-detail-button';
@@ -136,7 +136,6 @@ const ProductDetailCard = ( {
 	};
 
 	const isBundleUpsell = isBundle && isUpsell;
-	const cantInstallPlugin = status === 'plugin_absent' && 'no' === fileSystemWriteAccess;
 
 	const {
 		isFree,
@@ -330,6 +329,7 @@ const ProductDetailCard = ( {
 	if ( isBundleUpsell && bundleUnavailable ) {
 		return null;
 	}
+	const cantInstallPlugin = isPluginInstallBlocked( status, fileSystemWriteAccess );
 	const termOptions = availableTerms.map( term => ( {
 		label: termLabels[ term.productTerm ],
 		value: term.wpcomProductSlug,
