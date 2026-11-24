@@ -59,16 +59,20 @@ it( 'keeps an empty list’s panel as a tab stop', async () => {
 } );
 
 it.each( [
-	[ true, 2, '1.php' ],
-	[ false, 0, '2.php' ],
-] )( 'with hasPlan %s, renders %d status tabs and the %s row', async ( hasPlan, tabs, file ) => {
-	window.jetpackProtectDashboard = {
-		scan: { hasPlan, ignored: [ threat( 2, 'ignored' ) ] } as ScanState,
-	};
-	mockSearch = {};
-	render( <HistoryList threats={ [ threat( 1, 'fixed' ) ] } /> );
-	await act( () => new Promise( resolve => setTimeout( resolve, 0 ) ) );
+	[ true, 2, '1.php', 'Fixed on' ],
+	[ false, 0, '2.php', 'Ignored on' ],
+] )(
+	'with hasPlan %s, renders %d status tabs, the %s row and the %s column',
+	async ( hasPlan, tabs, file, dateLabel ) => {
+		window.jetpackProtectDashboard = {
+			scan: { hasPlan, ignored: [ threat( 2, 'ignored' ) ] } as ScanState,
+		};
+		mockSearch = {};
+		render( <HistoryList threats={ [ threat( 1, 'fixed' ) ] } /> );
+		await act( () => new Promise( resolve => setTimeout( resolve, 0 ) ) );
 
-	expect( screen.queryAllByRole( 'tab' ) ).toHaveLength( tabs );
-	expect( screen.getByText( file ) ).toBeInTheDocument();
-} );
+		expect( screen.queryAllByRole( 'tab' ) ).toHaveLength( tabs );
+		expect( screen.getByText( file ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'columnheader', { name: dateLabel } ) ).toBeInTheDocument();
+	}
+);

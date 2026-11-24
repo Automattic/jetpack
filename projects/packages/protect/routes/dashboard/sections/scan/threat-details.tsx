@@ -578,7 +578,7 @@ export default function ThreatDetails( {
 	const hasPlan = !! useScan()?.hasPlan;
 	const canToggleIgnore = useCanToggleIgnore();
 	const explainNoFix = ! hasPlan && lacksFixedVersion( threat );
-	// With Scan, no canAct means its read-only History inspector, which lists fixed threats too.
+	// With Scan, no canAct means it's the read-only History inspector, which lists fixed threats too.
 	const showFooter = canAct || ( ! hasPlan && canToggleIgnore );
 
 	return (

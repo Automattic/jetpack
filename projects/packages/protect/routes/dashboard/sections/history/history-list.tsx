@@ -69,21 +69,23 @@ export default function HistoryList( { threats }: { threats: ScanThreat[] } ) {
 	const open = useOpenThreat();
 	const getItemId = useCallback( ( item: ScanThreat ) => String( item.id ), [] );
 
-	const fields = useMemo(
-		() =>
-			getThreatFields( open, {
-				threatLabel:
-					status === 'fixed'
-						? __( 'Fixed threats', 'jetpack-protect-pkg' )
-						: __( 'Ignored threats', 'jetpack-protect-pkg' ),
-				dateLabel:
-					status === 'fixed'
-						? __( 'Fixed on', 'jetpack-protect-pkg' )
-						: __( 'Detected on', 'jetpack-protect-pkg' ),
-				getDate,
-			} ),
-		[ open, status ]
-	);
+	const fields = useMemo( () => {
+		let dateLabel: string = __( 'Detected on', 'jetpack-protect-pkg' );
+		if ( status === 'fixed' ) {
+			dateLabel = __( 'Fixed on', 'jetpack-protect-pkg' );
+		} else if ( ! hasPlan ) {
+			// The free ignored list's firstDetected holds when the threat was ignored.
+			dateLabel = __( 'Ignored on', 'jetpack-protect-pkg' );
+		}
+		return getThreatFields( open, {
+			threatLabel:
+				status === 'fixed'
+					? __( 'Fixed threats', 'jetpack-protect-pkg' )
+					: __( 'Ignored threats', 'jetpack-protect-pkg' ),
+			dateLabel,
+			getDate,
+		} );
+	}, [ open, status, hasPlan ] );
 	// Unignoring is available in History for free sites too.
 	const actions = useThreatRowActions( open, true );
 

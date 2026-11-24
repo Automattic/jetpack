@@ -412,6 +412,72 @@ describe( 'bulk actions', () => {
 			} );
 		}
 	);
+
+	it.each( [
+		[ 'Scan', 3, { hasPlan: true }, 'Ignored 3 threats.' ],
+		[
+			'the free check',
+			1,
+			{ hasPlan: false, freeIgnore: true },
+			'Ignored 3 threats. They come back if a new vulnerability is reported.',
+		],
+	] )(
+		'with %s, a bulk ignore keeps %d requests in flight',
+		async ( _name, inFlight, plan, copy ) => {
+			const threats = [ 61, 62, 63 ].map( fileThreat );
+			setScan( current => ( { ...current, ...plan, threats, ignored: [] } ) );
+			const pending: Array< () => void > = [];
+			mockApiFetch
+				.mockReset()
+				.mockImplementation( () => new Promise( resolve => pending.push( () => resolve( {} ) ) ) );
+
+			const done = ignoreThreats( threats );
+			await waitFor( () => expect( mockApiFetch ).toHaveBeenCalled() );
+
+			expect( mockApiFetch ).toHaveBeenCalledTimes( inFlight );
+			while ( pending.length ) {
+				await act( async () => pending.shift()?.() );
+			}
+			await act( () => done );
+			expect( mockApiFetch ).toHaveBeenCalledTimes( 3 );
+			expect( bulkNotices()[ 0 ].content ).toBe( copy );
+		}
+	);
+} );
+
+describe( 'a successful unignore', () => {
+	const active = {
+		id: 'plugins-akismet/akismet.php-1.0',
+		title: 'Vulnerable plugin',
+		fixedIn: '1.1',
+	};
+	const listed = { id: active.id, title: 'Vulnerable plugin', status: 'ignored' as const };
+
+	// The free ignored list lacks the report's details, such as the fixed version.
+	it.each( [
+		[ 'Scan', { hasPlan: true }, [ { ...listed, status: 'current' } ], 1 ],
+		[ 'the free check', { hasPlan: false, freeIgnore: true }, [ active ], 2 ],
+	] )(
+		'with %s, shows the active threat from the right source',
+		async ( _name, plan, expected, calls ) => {
+			setScan( current => ( { ...current, ...plan, threats: [], ignored: [ listed ] } ) );
+			mockApiFetch
+				.mockReset()
+				.mockImplementation( ( { path, method } ) =>
+					method !== 'POST' && path.endsWith( '/scan' )
+						? Promise.resolve( { ...plan, error: false, threats: [ active ] } )
+						: Promise.resolve( method === 'POST' ? {} : [] )
+				);
+			const { result } = renderHook( () => useScan() );
+
+			await act( () => unignoreThreat( listed ) );
+
+			await waitFor( () => expect( result.current?.threats ).toEqual( expected ) );
+			expect(
+				mockApiFetch.mock.calls.filter( ( [ { path } ] ) => ! path.endsWith( '/history' ) )
+			).toHaveLength( calls );
+		}
+	);
 } );
 
 describe( 'threat action Tracks events', () => {

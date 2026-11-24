@@ -29,6 +29,8 @@ const MAX_MISSED_POLLS = 3;
 const BULK_CONCURRENCY = 5;
 let bulkRequests = 0;
 const bulkQueue: Array< () => void > = [];
+// The free check stores ignores in one site option, so its writes run one at a time or overwrite each other.
+let freeIgnoreQueue: Promise< unknown > = Promise.resolve();
 
 /**
  * Send one of a bulk action's requests once fewer than BULK_CONCURRENCY are in flight.
@@ -73,6 +75,7 @@ const actionStore = createStore( () => NO_ACTIONS );
 /** Forget which threats are busy, so tests start with none. */
 export const resetThreatActions = (): void => {
 	actionStore.reset();
+	freeIgnoreQueue = Promise.resolve();
 };
 
 // Every action checks this first, so a second click can't send a duplicate request.
@@ -208,10 +211,9 @@ export function loadIgnored(): Promise< void > {
 }
 
 /**
- * Fetch the threat lists and history again after an ignore or unignore fails, since WordPress.com may have applied it anyway.
- * A failed read keeps what the page shows rather than marking the scan failed.
+ * Fetch Scan's report again; a failed read keeps what the page shows rather than marking the scan failed.
  */
-function resyncAfterFailure() {
+function rereadReport() {
 	const apply = startReportRead();
 	apiFetch< ScanState >( { path: SCAN_PATH } )
 		// The report answers an unreachable WordPress.com with `error: true`, not a rejection.
@@ -221,8 +223,26 @@ function resyncAfterFailure() {
 			}
 		} )
 		.catch( () => {} );
+}
+
+/**
+ * Fetch the threat lists and history again after an ignore or unignore fails, since WordPress.com may have applied it anyway.
+ */
+function resyncAfterFailure() {
+	rereadReport();
 	loadIgnored();
 	loadHistory( true );
+}
+
+/**
+ * After a free unignore, read the report for the threat's details, which the free ignored list lacks.
+ *
+ * @param ignore - Whether the action was an ignore.
+ */
+function rereadAfterFreeUnignore( ignore: boolean ) {
+	if ( ! ignore && ! getScan()?.hasPlan ) {
+		rereadReport();
+	}
 }
 
 /**
@@ -280,6 +300,7 @@ function setIgnored(
 
 	return request( threat, ignore )
 		.then( () => {
+			rereadAfterFreeUnignore( ignore );
 			notify(
 				threat,
 				ignore
@@ -321,14 +342,20 @@ function request( threat: ScanThreat, ignore: boolean ): Promise< void > {
 	recordEvent( ignore ? 'jetpack_scan_ignore_threat_click' : 'jetpack_scan_unignore_threat_click' );
 	const action = ignore ? 'ignore' : 'unignore';
 	// Free check ids contain slashes, so they go in the body.
-	const options = getScan()?.hasPlan
-		? { path: threatPath( threat.id, action ), method: 'POST' }
-		: {
+	let sent: Promise< unknown >;
+	if ( getScan()?.hasPlan ) {
+		sent = apiFetch( { path: threatPath( threat.id, action ), method: 'POST' } );
+	} else {
+		const send = () =>
+			apiFetch( {
 				path: `${ SCAN_PATH }/vulnerabilities/${ action }`,
 				method: 'POST',
 				data: { id: threat.id },
-			};
-	return apiFetch( options ).then(
+			} );
+		sent = freeIgnoreQueue.then( send );
+		freeIgnoreQueue = sent.catch( () => {} );
+	}
+	return sent.then(
 		() => {
 			const moved = { ...threat, status: ignore ? ( 'ignored' as const ) : ( 'current' as const ) };
 			editScan( current => {
@@ -674,18 +701,40 @@ async function setManyIgnored(
 	const done = idle.filter( ( _, index ) => results[ index ] );
 	if ( done.length < total ) {
 		resyncAfterFailure();
+	} else {
+		rereadAfterFreeUnignore( ignore );
 	}
 	const undo: NoticeAction = {
 		label: __( 'Undo', 'jetpack-protect-pkg' ),
 		onClick: () => setManyIgnored( done, ! ignore, open ),
 	};
 	if ( done.length === total ) {
-		const finished = ignore
-			? /* translators: %d is a number of threats, two or more. */
-				_n( 'Ignored %d threat.', 'Ignored %d threats.', total, 'jetpack-protect-pkg' )
-			: /* translators: %d is a number of threats, two or more. */
-				_n( 'Unignored %d threat.', 'Unignored %d threats.', total, 'jetpack-protect-pkg' );
-		showNotice( id, sprintf( finished, total ), 'success', undo );
+		let finished: string;
+		if ( ! ignore ) {
+			finished = sprintf(
+				/* translators: %d is a number of threats, two or more. */
+				_n( 'Unignored %d threat.', 'Unignored %d threats.', total, 'jetpack-protect-pkg' ),
+				total
+			);
+		} else if ( getScan()?.hasPlan ) {
+			finished = sprintf(
+				/* translators: %d is a number of threats, two or more. */
+				_n( 'Ignored %d threat.', 'Ignored %d threats.', total, 'jetpack-protect-pkg' ),
+				total
+			);
+		} else {
+			finished = sprintf(
+				/* translators: %d is a number of threats, two or more. */
+				_n(
+					'Ignored %d threat. It comes back if a new vulnerability is reported.',
+					'Ignored %d threats. They come back if a new vulnerability is reported.',
+					total,
+					'jetpack-protect-pkg'
+				),
+				total
+			);
+		}
+		showNotice( id, finished, 'success', undo );
 		return;
 	}
 	if ( ! done.length ) {
