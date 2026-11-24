@@ -24,6 +24,8 @@ const storedTeaserOff = () =>
 
 describe( 'useTeaserSwitch', () => {
 	afterEach( () => {
+		jest.mocked( emitSurfaceEvent ).mockClear();
+
 		// The store's action answers a promise, which `act` must not be handed.
 		act( () => {
 			void ( dispatch( preferencesStore ) as { set: ( ...args: unknown[] ) => unknown } ).set(
