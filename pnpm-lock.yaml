@@ -7554,7 +7554,7 @@ importers:
         specifier: ^16.3.1
         version: 16.6.1
       playwright:
-        specifier: ^1.48.0
+        specifier: 1.65.0
         version: 1.65.0
 
   tools/port-verification:

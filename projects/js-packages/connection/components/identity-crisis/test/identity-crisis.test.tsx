@@ -1,5 +1,5 @@
 import { jest } from '@jest/globals';
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { ConnectedPlugin } from '../../../helpers/site-words';
 import type { IdentityCrisisState } from '../../../types';
@@ -18,7 +18,32 @@ jest.unstable_mockModule( '../use-identity-crisis-state', () => ( {
 	default: () => storeState,
 } ) );
 
+const goTo = jest.fn();
+const reloadPage = jest.fn();
+jest.unstable_mockModule( '../navigate', () => ( { __esModule: true, goTo, reloadPage } ) );
+
 const IdentityCrisis = ( await import( '../identity-crisis' ) ).default;
+
+/**
+ * Pick each answer in turn, then the action button.
+ *
+ * @param {ReturnType<typeof userEvent.setup>} user    - The user-event instance.
+ * @param {string[]}                           answers - The answers, one per step.
+ * @param {string}                             button  - The action button.
+ */
+async function answer(
+	user: ReturnType< typeof userEvent.setup >,
+	answers: string[],
+	button: string
+) {
+	for ( const [ index, label ] of answers.entries() ) {
+		await user.click( screen.getByRole( 'radio', { name: label } ) );
+		if ( index < answers.length - 1 ) {
+			await user.click( screen.getByRole( 'button', { name: 'Next' } ) );
+		}
+	}
+	await user.click( screen.getByRole( 'button', { name: button } ) );
+}
 
 const resolvable: IdentityCrisisState = {
 	useNewScreen: true,
@@ -37,6 +62,8 @@ describe( 'IdentityCrisis', () => {
 		migrateIDC.mockReset();
 		startIDCFresh.mockReset();
 		confirmIDCSafeMode.mockReset();
+		goTo.mockReset();
+		reloadPage.mockReset();
 		storeState = { state: resolvable, plugins: jetpack };
 	} );
 
@@ -71,17 +98,65 @@ describe( 'IdentityCrisis', () => {
 				/>
 			);
 
-			for ( const [ index, answer ] of answers.entries() ) {
-				await user.click( screen.getByRole( 'radio', { name: answer } ) );
-				if ( index < answers.length - 1 ) {
-					await user.click( screen.getByRole( 'button', { name: 'Next' } ) );
-				}
-			}
-			await user.click( screen.getByRole( 'button', { name: button } ) );
+			await answer( user, answers, button );
 
 			expect( request ).toHaveBeenCalledTimes( 1 );
 			expect( request ).toHaveBeenCalledWith( ...args );
 			expect( onActionSuccess ).toHaveBeenCalledWith( result );
+			expect( goTo ).not.toHaveBeenCalled();
+			expect( reloadPage ).not.toHaveBeenCalled();
+		}
+	);
+
+	it.each( [
+		[
+			'a fresh connection goes to the connect URL',
+			[ 'The original site', 'Give it its own connection' ],
+			'Connect separately',
+			null,
+			[ [ 'https://wordpress.com/connect' ] ],
+			0,
+		],
+		[
+			'staying in Safe Mode reloads',
+			[ 'A copy of this site', 'I’m not sure' ],
+			'Stay in Safe Mode',
+			null,
+			[],
+			1,
+		],
+		[
+			'updating the address waits for its done view',
+			[ 'This site’s old address' ],
+			'Update address',
+			null,
+			[],
+			0,
+		],
+		[
+			'the done view reloads',
+			[ 'This site’s old address' ],
+			'Update address',
+			'Got it, thanks',
+			[],
+			1,
+		],
+	] )(
+		'without host handlers, %s',
+		async ( _, answers, button, doneButton, goToCalls, reloads ) => {
+			const user = userEvent.setup();
+			[ migrateIDC, startIDCFresh, confirmIDCSafeMode ].forEach( request =>
+				request.mockResolvedValue( 'https://wordpress.com/connect' )
+			);
+			render( <IdentityCrisis context="notice" /> );
+
+			await answer( user, answers, button );
+			if ( doneButton ) {
+				await user.click( screen.getByRole( 'button', { name: doneButton } ) );
+			}
+
+			expect( goTo.mock.calls ).toEqual( goToCalls );
+			expect( reloadPage ).toHaveBeenCalledTimes( reloads );
 		}
 	);
 
@@ -119,6 +194,74 @@ describe( 'IdentityCrisis', () => {
 		).toHaveFocus();
 		expect( screen.getByRole( 'radio', { name: 'The original site' } ) ).toBeChecked();
 		expect( screen.queryByRole( 'alert' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'never offers "same" without a detected dynamic address', () => {
+		render( <IdentityCrisis context="notice" onActionSuccess={ jest.fn() } /> );
+
+		expect(
+			screen.queryByRole( 'radio', { name: 'Another address for this same site' } )
+		).not.toBeInTheDocument();
+	} );
+
+	it( '"same" explains the two addresses, stays in Safe Mode, and Back returns to the question', async () => {
+		const user = userEvent.setup();
+		storeState = {
+			state: { ...resolvable, possibleDynamicSiteUrlDetected: true },
+			plugins: jetpack,
+		};
+		confirmIDCSafeMode.mockResolvedValue( {} );
+		const onActionSuccess = jest.fn();
+		render( <IdentityCrisis context="notice" onActionSuccess={ onActionSuccess } /> );
+
+		await user.click( screen.getByRole( 'radio', { name: 'Another address for this same site' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Next' } ) );
+
+		expect(
+			screen.getByRole( 'heading', { name: 'This is one site with two addresses' } )
+		).toHaveFocus();
+		expect(
+			screen.getByRole( 'link', { name: /How to set a fixed address/ } )
+		).toBeInTheDocument();
+		expect(
+			screen.queryByRole( 'link', { name: /Learn more about Safe Mode/ } )
+		).not.toBeInTheDocument();
+
+		await user.click( screen.getByRole( 'button', { name: 'Back' } ) );
+		expect(
+			screen.getByRole( 'radio', { name: 'Another address for this same site' } )
+		).toBeChecked();
+
+		await user.click( screen.getByRole( 'button', { name: 'Next' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Stay in Safe Mode for now' } ) );
+
+		expect( confirmIDCSafeMode ).toHaveBeenCalledTimes( 1 );
+		expect( onActionSuccess ).toHaveBeenCalledWith( { action: 'confirm-safe-mode' } );
+	} );
+
+	it.each( [
+		[ 'a domain', 'new.example/', [ /set dynamically/ ] ],
+		[ 'an IP address', '203.0.113.5/', [ /set dynamically/, /is an IP address\./ ] ],
+	] )( 'for %s, lists what it can tell about the address', async ( _, currentUrl, facts ) => {
+		const user = userEvent.setup();
+		storeState = {
+			state: {
+				...resolvable,
+				currentUrl,
+				possibleDynamicSiteUrlDetected: true,
+			},
+			plugins: jetpack,
+		};
+		render( <IdentityCrisis context="notice" onActionSuccess={ jest.fn() } /> );
+
+		await user.click( screen.getByRole( 'radio', { name: 'Another address for this same site' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Next' } ) );
+
+		const items = within(
+			screen.getByRole( 'list', { name: 'What we already know' } )
+		).getAllByRole( 'listitem' );
+		expect( items ).toHaveLength( facts.length );
+		facts.forEach( ( fact, index ) => expect( items[ index ] ).toHaveTextContent( fact ) );
 	} );
 
 	it.each( [ true, false ] )(

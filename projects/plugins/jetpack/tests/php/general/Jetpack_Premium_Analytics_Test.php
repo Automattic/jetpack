@@ -8,6 +8,8 @@
 use Automattic\Jetpack\PremiumAnalytics\Classic_Stats;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\CoversFunction;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 
 require_once JETPACK__PLUGIN_DIR . 'class-jetpack-stats-dashboard-widget.php';
 require_once JETPACK__PLUGIN_DIR . 'modules/stats.php';
@@ -267,5 +269,45 @@ class Jetpack_Premium_Analytics_Test extends WP_UnitTestCase {
 		Jetpack::register_premium_analytics_enablement_setting();
 
 		$this->assertArrayHasKey( 'jetpack_premium_analytics_enabled', get_registered_settings() );
+	}
+
+	/**
+	 * Stats v2 store tracking follows the WooCommerce Analytics module.
+	 *
+	 * @param array $modules  Active modules.
+	 * @param bool  $expected Whether store tracking stays on.
+	 * @dataProvider provide_store_tracking_cases
+	 */
+	#[PHPUnit\Framework\Attributes\DataProvider( 'provide_store_tracking_cases' )]
+	public function test_store_tracking_follows_the_woocommerce_analytics_module( $modules, $expected ) {
+		Jetpack_Options::update_option( 'active_modules', $modules );
+
+		$this->assertSame( $expected, Jetpack::premium_analytics_store_tracking_enabled( true ) );
+	}
+
+	/**
+	 * Data for test_store_tracking_follows_the_woocommerce_analytics_module.
+	 *
+	 * @return array
+	 */
+	public static function provide_store_tracking_cases() {
+		return array(
+			'module off' => array( array( 'stats' ), false ),
+			'module on'  => array( array( 'stats', 'woocommerce-analytics' ), true ),
+		);
+	}
+
+	/**
+	 * The module does not apply once the WooCommerce Analytics plugin loads the package; `WC_ANALYTICS` cannot be undefined.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_store_tracking_ignores_the_module_when_the_woocommerce_analytics_plugin_loads_the_package() {
+		define( 'WC_ANALYTICS', true );
+
+		$this->assertTrue( Jetpack::premium_analytics_store_tracking_enabled( true ) );
 	}
 }

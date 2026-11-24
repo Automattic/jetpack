@@ -132,7 +132,7 @@ class Dashboard_Test extends BaseTestCase {
 	#[DataProvider( 'provide_jetpack_menus' )]
 	public function test_add_wp_admin_submenu_adds_the_page_under_the_jetpack_menu_once( $registered ) {
 		global $submenu;
-		$submenu = array(); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$submenu = array( 'jetpack' => array() ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		require_once ABSPATH . 'wp-admin/includes/plugin.php';
 		$user_id = wp_insert_user(
 			array(
@@ -148,7 +148,7 @@ class Dashboard_Test extends BaseTestCase {
 
 		Dashboard::add_wp_admin_submenu();
 
-		$item = array_values( array_filter( $submenu['jetpack'] ?? array(), fn( $entry ) => Dashboard::MENU_SLUG === $entry[2] ) );
+		$item = array_values( array_filter( $submenu['jetpack'], fn( $entry ) => Dashboard::MENU_SLUG === $entry[2] ) );
 		$this->assertCount( 1, $item );
 		$this->assertSame( 'manage_options', $item[0][1] );
 		$this->assertNotFalse( has_action( get_plugin_page_hookname( Dashboard::MENU_SLUG, 'jetpack' ), array( Dashboard::class, 'render' ) ) );
