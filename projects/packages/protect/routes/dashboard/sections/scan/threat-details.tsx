@@ -423,9 +423,10 @@ function ConfirmFixButton( {
  *
  * @param props        - Component props.
  * @param props.threat - The threat.
+ * @param props.canAct - Whether the site's plan can fix threats.
  * @return The footer.
  */
-function ThreatFooter( { threat }: { threat: ScanThreat } ) {
+function ThreatFooter( { threat, canAct }: { threat: ScanThreat; canAct: boolean } ) {
 	const { busy } = useThreatAction( threat.id );
 	const isIgnored = threat.status === 'ignored';
 	const canIgnore = useCanIgnore();
@@ -442,7 +443,9 @@ function ThreatFooter( { threat }: { threat: ScanThreat } ) {
 		[ threat ]
 	);
 
-	if ( ! canIgnore && ! isIgnored && ! threat.fixable ) {
+	const fixable = canAct && !! threat.fixable;
+
+	if ( ! canIgnore && ! isIgnored && ! fixable ) {
 		return null;
 	}
 
@@ -482,10 +485,10 @@ function ThreatFooter( { threat }: { threat: ScanThreat } ) {
 							{ __( 'Ignore it', 'jetpack-protect-pkg' ) }
 						</Button>
 					) }
-					{ threat.fixable && ! isDeleteFix( threat ) && ! isUpdateFix( threat ) && (
+					{ fixable && ! isDeleteFix( threat ) && ! isUpdateFix( threat ) && (
 						<Button onClick={ onFix } { ...getFixButtonProps( busy ) } />
 					) }
-					{ isDeleteFix( threat ) && (
+					{ fixable && isDeleteFix( threat ) && (
 						<ConfirmFixButton
 							threat={ threat }
 							onFix={ onFix }
@@ -493,7 +496,7 @@ function ThreatFooter( { threat }: { threat: ScanThreat } ) {
 							confirmation={ confirmDelete }
 						/>
 					) }
-					{ isUpdateFix( threat ) && (
+					{ fixable && isUpdateFix( threat ) && (
 						<ConfirmFixButton
 							threat={ threat }
 							onFix={ onFix }
@@ -720,7 +723,7 @@ export default function ThreatDetails( {
 				) }
 				<SoftwareActions threat={ threat } canAct={ canAct } />
 			</Section>
-			{ showFooter && <ThreatFooter threat={ threat } /> }
+			{ showFooter && <ThreatFooter threat={ threat } canAct={ canAct } /> }
 		</div>
 	);
 }

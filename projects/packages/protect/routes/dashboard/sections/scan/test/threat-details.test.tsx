@@ -32,7 +32,10 @@ describe( 'ThreatDetails', () => {
 		mockApiFetch.mockReset().mockReturnValue( new Promise( () => {} ) );
 	} );
 
-	afterEach( resetThreatActions );
+	afterEach( () => {
+		resetThreatActions();
+		resetScan();
+	} );
 
 	it.each( [
 		[ 'starts a replace fix at once', 1, 'replace', 1, [] ],
@@ -296,7 +299,7 @@ describe( 'ThreatDetails', () => {
 		render( <ThreatDetails threat={ threatIn( 7, 'replace' ) } canAct={ false } /> );
 
 		expect( !! screen.queryByRole( 'button', { name: 'Ignore it' } ) ).toBe( offered );
-		resetScan();
+		expect( screen.queryByRole( 'button', { name: 'Auto-fix it' } ) ).not.toBeInTheDocument();
 	} );
 
 	it.each( [
