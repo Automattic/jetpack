@@ -225,13 +225,12 @@ abstract class Jetpack_Sitemap_Buffer_XMLWriter {
 			return false;
 		}
 
+		$this->ensure_root_started();
+
 		if ( 0 >= $this->item_capacity || 0 >= $this->byte_capacity ) {
 			$this->is_full_flag = true;
 			return false;
 		}
-
-		// Ensure root is started on first append and account its bytes.
-		$this->ensure_root_started();
 
 		// Attempt to render the item. Subclasses may decide to skip writing
 		// if the input structure is invalid for that sitemap type.

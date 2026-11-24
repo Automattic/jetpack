@@ -50,10 +50,13 @@ class Jetpack_Sitemap_Buffer_Video extends Jetpack_Sitemap_Buffer_Fallback {
 			$stylesheet_url  = $this->finder->construct_sitemap_url( 'sitemap.css' );
 			$jetpack_version = JETPACK__VERSION;
 
+			$namespaces = Jetpack_Sitemap_Stylist::presentation_namespaces( $namespaces, 'video' );
+
 			$this->root = array(
 				"<!-- generator='jetpack-{$jetpack_version}' -->" . PHP_EOL
 				. "<?xml-stylesheet type='text/css' href='{$stylesheet_url}'?>" . PHP_EOL
-				. '<urlset ' . $this->array_to_xml_attr_string( $namespaces ) . '>',
+				. '<urlset ' . $this->array_to_xml_attr_string( $namespaces ) . '>'
+				. Jetpack_Sitemap_Stylist::sitemap_title_xml( 'video' ),
 				'</urlset>',
 			);
 

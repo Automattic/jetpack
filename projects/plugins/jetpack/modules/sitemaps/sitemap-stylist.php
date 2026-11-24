@@ -18,6 +18,63 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Jetpack_Sitemap_Stylist {
 
 	/**
+	 * Get the browser title for a sitemap type.
+	 *
+	 * @since $$next-version$$
+	 * @param string $type Sitemap type.
+	 * @return string Localized title.
+	 */
+	public static function sitemap_title( $type ) {
+		switch ( $type ) {
+			case 'master':
+				return __( 'XML Sitemap Index', 'jetpack' );
+			case 'image':
+				return __( 'Image Sitemap', 'jetpack' );
+			case 'video':
+				return __( 'Video Sitemap', 'jetpack' );
+			case 'news':
+				return __( 'News Sitemap', 'jetpack' );
+			default:
+				return __( 'XML Sitemap', 'jetpack' );
+		}
+	}
+
+	/**
+	 * Declare the XHTML title schema alongside existing sitemap extensions.
+	 *
+	 * @since $$next-version$$
+	 * @param array  $namespaces Existing namespace attributes.
+	 * @param string $type Sitemap type.
+	 * @return array Namespace attributes including presentation validation.
+	 */
+	public static function presentation_namespaces( $namespaces, $type ) {
+		$namespaces += array( 'xmlns:xsi' => 'http://www.w3.org/2001/XMLSchema-instance' );
+		$locations   = preg_split( '/\s+/', trim( $namespaces['xsi:schemaLocation'] ?? '' ), -1, PREG_SPLIT_NO_EMPTY );
+		foreach ( array(
+			'http://www.sitemaps.org/schemas/sitemap/0.9' => 'https://www.sitemaps.org/schemas/sitemap/0.9/' . ( 'master' === $type ? 'siteindex' : 'sitemap' ) . '.xsd',
+			'http://www.w3.org/1999/xhtml'                => 'https://www.w3.org/2002/08/xhtml/xhtml1-strict.xsd',
+		) as $namespace => $schema ) {
+			if ( ! in_array( $namespace, $locations, true ) ) {
+				$locations[] = $namespace;
+				$locations[] = $schema;
+			}
+		}
+		$namespaces['xsi:schemaLocation'] = implode( ' ', $locations );
+		return $namespaces;
+	}
+
+	/**
+	 * Render a text-only XHTML title for streaming sitemap writers.
+	 *
+	 * @since $$next-version$$
+	 * @param string $type Sitemap type.
+	 * @return string Escaped title element.
+	 */
+	public static function sitemap_title_xml( $type ) {
+		return '<title xmlns="http://www.w3.org/1999/xhtml">' . esc_xml( self::sitemap_title( $type ) ) . '</title>';
+	}
+
+	/**
 	 * Provide a localized browser presentation without transforming the XML.
 	 *
 	 * @since $$next-version$$
@@ -36,6 +93,7 @@ class Jetpack_Sitemap_Stylist {
 			'news-title'  => __( 'News Title', 'jetpack' ),
 			'published'   => __( 'Publication Date', 'jetpack' ),
 			'footer'      => __( 'Additional sitemap metadata remains available in the XML source.', 'jetpack' ),
+			'empty'       => __( 'No entries are available in this sitemap.', 'jetpack' ),
 		);
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Read the bundled local stylesheet.
 		$css = file_get_contents( __DIR__ . '/sitemap.css' ) . "\n:root {\n";

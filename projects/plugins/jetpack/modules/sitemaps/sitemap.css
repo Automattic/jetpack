@@ -3,6 +3,7 @@
 @namespace image url( http://www.google.com/schemas/sitemap-image/1.1 );
 @namespace video url( http://www.google.com/schemas/sitemap-video/1.1 );
 @namespace news url( http://www.google.com/schemas/sitemap-news/0.9 );
+@namespace html url( http://www.w3.org/1999/xhtml );
 
 sm|sitemapindex,
 sm|urlset {
@@ -186,4 +187,25 @@ sm|url:first-of-type::after {
 	sm|lastmod::before {
 		content: var(--jetpack-sitemap-lastmod);
 	}
+}
+
+sm|urlset:has(> html|title)::before,
+sm|sitemapindex:has(> html|title)::before {
+	display: none;
+}
+
+html|title {
+	display: block;
+	margin-block-end: 32px;
+	font-size: 18px;
+	white-space: pre-line;
+}
+
+html|title::after {
+	content: "\a\a" var(--jetpack-sitemap-description);
+}
+
+sm|urlset:not(:has(> sm|url))::after,
+sm|sitemapindex:not(:has(> sm|sitemap))::after {
+	content: var(--jetpack-sitemap-empty);
 }

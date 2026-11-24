@@ -13,6 +13,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
 }
 
+require_once __DIR__ . '/sitemap-stylist.php';
+
 /**
  * A buffer for constructing sitemap xml files.
  *
@@ -153,6 +155,8 @@ abstract class Jetpack_Sitemap_Buffer {
 			return false;
 		}
 
+		$this->get_root_element();
+
 		if ( 0 >= $this->item_capacity || 0 >= $this->byte_capacity ) {
 			$this->is_full_flag = true;
 			return false;
@@ -210,10 +214,34 @@ abstract class Jetpack_Sitemap_Buffer {
 	 * @return bool True if the buffer is empty, false otherwise.
 	 */
 	public function is_empty() {
-		return (
-			! isset( $this->root )
-			|| ! $this->root->hasChildNodes()
+		if ( ! isset( $this->root ) ) {
+			return true;
+		}
+		foreach ( $this->root->childNodes as $child ) {
+			// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase -- DOMNode properties.
+			if ( 'http://www.w3.org/1999/xhtml' !== $child->namespaceURI || 'title' !== $child->localName ) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	/**
+	 * Add presentation metadata before accounting for the root's bytes.
+	 *
+	 * @since $$next-version$$
+	 * @param string $type Sitemap type.
+	 */
+	protected function initialize_presentation( $type ) {
+		$namespaces = Jetpack_Sitemap_Stylist::presentation_namespaces(
+			array( 'xsi:schemaLocation' => $this->root->getAttribute( 'xsi:schemaLocation' ) ),
+			$type
 		);
+		$this->root->setAttribute( 'xmlns:xsi', 'http://www.w3.org/2001/XMLSchema-instance' );
+		$this->root->setAttribute( 'xsi:schemaLocation', $namespaces['xsi:schemaLocation'] );
+		$title = $this->doc->createElementNS( 'http://www.w3.org/1999/xhtml', 'title' );
+		$title->appendChild( $this->doc->createTextNode( Jetpack_Sitemap_Stylist::sitemap_title( $type ) ) );
+		$this->root->appendChild( $title );
 	}
 
 	/**
