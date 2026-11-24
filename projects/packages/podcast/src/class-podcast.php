@@ -34,8 +34,8 @@ class Podcast {
 	 * @return array
 	 */
 	public static function limit_episode_query( $args, $request ) {
-		$category_id = Customize_Feed::resolve_category_id();
-		if ( 0 === $category_id || array( $category_id ) !== array_map( 'intval', (array) $request->get_param( 'categories' ) ) ) {
+		$requested = array_map( 'intval', (array) $request->get_param( 'categories' ) );
+		if ( 1 !== count( $requested ) || 0 === $requested[0] || Customize_Feed::resolve_category_id() !== $requested[0] ) {
 			return $args;
 		}
 
