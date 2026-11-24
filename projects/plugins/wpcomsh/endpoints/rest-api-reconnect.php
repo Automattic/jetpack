@@ -62,12 +62,12 @@ function verify_jetpack_reconnect_data( $data, $sig ) {
  */
 function wpcomsh_rest_api_reconnect( $request = null ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter, VariableAnalysis.CodeAnalysis.VariableAnalysis
 	// phpcs:disable WordPress.Security
-	$package     = $_POST['package'];
-	$package_sig = $_POST['sig'];
-	$package_ts  = $_POST['ts'];
+	$package     = $_POST['package'] ?? '';
+	$package_sig = $_POST['sig'] ?? '';
+	$package_ts  = $_POST['ts'] ?? '';
 	// phpcs:enable
 
-	if ( empty( $package ) ) {
+	if ( ! is_string( $package ) || empty( $package ) ) {
 		return new WP_REST_Response(
 			array(
 				'error' => 'reconnect package missing',
@@ -75,7 +75,7 @@ function wpcomsh_rest_api_reconnect( $request = null ) { // phpcs:ignore Generic
 			400
 		);
 	}
-	if ( empty( $package_sig ) ) {
+	if ( ! is_string( $package_sig ) || empty( $package_sig ) ) {
 		return new WP_REST_Response(
 			array(
 				'error' => 'reconnect package signature missing',
@@ -83,7 +83,7 @@ function wpcomsh_rest_api_reconnect( $request = null ) { // phpcs:ignore Generic
 			400
 		);
 	}
-	if ( empty( $package_ts ) ) {
+	if ( ! is_string( $package_ts ) || empty( $package_ts ) ) {
 		return new WP_REST_Response(
 			array(
 				'error' => 'reconnect package timestamp missing',
