@@ -196,6 +196,31 @@ describe( 'IdentityCrisis', () => {
 		expect( screen.queryByRole( 'alert' ) ).not.toBeInTheDocument();
 	} );
 
+	it( 'after a failure that left the site disconnected, offers only Try again', async () => {
+		const user = userEvent.setup();
+		startIDCFresh.mockRejectedValue(
+			Object.assign( new Error(), {
+				name: 'ApiError',
+				response: { code: 'cannot_save_secrets', data: { status: 500, disconnected: true } },
+			} )
+		);
+		render( <IdentityCrisis context="notice" onActionSuccess={ jest.fn() } /> );
+
+		await answer(
+			user,
+			[ 'The original site', 'Give it its own connection' ],
+			'Connect separately'
+		);
+
+		expect( screen.getByRole( 'alert' ) ).toHaveTextContent( /now disconnected/ );
+		expect( screen.getByRole( 'button', { name: 'Try again' } ) ).toBeEnabled();
+		expect( screen.queryByRole( 'button', { name: 'Back' } ) ).not.toBeInTheDocument();
+		expect( screen.getByRole( 'radio', { name: 'Keep it in Safe Mode' } ) ).toHaveAttribute(
+			'aria-disabled',
+			'true'
+		);
+	} );
+
 	it( 'never offers "same" without a detected dynamic address', () => {
 		render( <IdentityCrisis context="notice" onActionSuccess={ jest.fn() } /> );
 

@@ -232,6 +232,7 @@ class REST_Endpoints {
 	 * @since 0.2.0
 	 * @since-jetpack 4.4.0
 	 * @since 9.18.3 Accepts `from`, reported to WordPress.com for the registration and the authorization.
+	 * @since $$next-version$$ A failed registration's error data has `disconnected` set, since the site is already disconnected.
 	 *
 	 * @param \WP_REST_Request $request The request sent to the WP REST API.
 	 *
@@ -257,6 +258,9 @@ class REST_Endpoints {
 		$result = $connection->try_registration( true, true );
 
 		if ( is_wp_error( $result ) ) {
+			// Any existing data moves to the response's `additional_data`.
+			$data = $result->get_error_data();
+			$result->add_data( array_merge( is_array( $data ) ? $data : array(), array( 'disconnected' => true ) ) );
 			return $result;
 		}
 

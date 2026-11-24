@@ -160,6 +160,8 @@ function IdentityCrisisResolver( {
 	}
 
 	const isBusy = actions.busyAction !== null;
+	// The site is no longer in Safe Mode, so only Try again still applies.
+	const isDisconnected = actions.error?.cause === 'disconnected';
 	let stepView: ReactNode;
 	let actionCopy: ActionCopy | null;
 	if ( isChoiceStep( step ) ) {
@@ -169,7 +171,7 @@ function IdentityCrisisResolver( {
 				options={ getOptions( step, ctx ) }
 				pick={ flow.state.pick }
 				copy={ copy }
-				disabled={ isBusy }
+				disabled={ isBusy || isDisconnected }
 				onPick={ flow.pick }
 				legendRef={ legendRef }
 			/>
@@ -206,7 +208,7 @@ function IdentityCrisisResolver( {
 					action={ actionCopy }
 					isBusy={ isBusy }
 					hasError={ actions.error !== null }
-					canGoBack={ flow.state.history.length > 0 }
+					canGoBack={ flow.state.history.length > 0 && ! isDisconnected }
 					onContinue={ onContinue }
 					onBack={ flow.back }
 				/>
