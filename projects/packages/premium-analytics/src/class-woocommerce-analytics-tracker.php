@@ -7,15 +7,21 @@
 
 namespace Automattic\Jetpack\PremiumAnalytics;
 
-use Automattic\Jetpack\Modules;
 use Automattic\Woocommerce_Analytics;
 
 /**
  * Turns on the modern (ClickHouse + proxy) pipeline and triggers the vendored
- * WooCommerce Analytics tracker, unless the Jetpack module is off. The tracker
- * self-gates on WooCommerce + connection and is idempotent.
+ * WooCommerce Analytics tracker, unless the host turns store tracking off. The
+ * tracker self-gates on WooCommerce + connection and is idempotent.
  */
 class WooCommerce_Analytics_Tracker {
+
+	/**
+	 * Filter a host answers to turn store tracking off, as the Jetpack plugin does while its module is off.
+	 *
+	 * @var string
+	 */
+	const ENABLED_FILTER = 'jetpack_premium_analytics_store_tracking_enabled';
 
 	/**
 	 * Register the tracker bootstrap.
@@ -31,7 +37,14 @@ class WooCommerce_Analytics_Tracker {
 	 * them while localizing `window.wcAnalytics` at `wp_footer`.
 	 */
 	public static function bootstrap() {
-		if ( ! self::is_allowed_by_module() ) {
+		/**
+		 * Filters whether Premium Analytics starts WooCommerce Analytics store tracking.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param bool $enabled Whether store tracking is on. Default true.
+		 */
+		if ( ! apply_filters( self::ENABLED_FILTER, true ) ) {
 			return;
 		}
 
@@ -43,21 +56,5 @@ class WooCommerce_Analytics_Tracker {
 		if ( class_exists( Woocommerce_Analytics::class ) ) {
 			Woocommerce_Analytics::init();
 		}
-	}
-
-	/**
-	 * Whether the Jetpack WooCommerce Analytics module allows tracking.
-	 *
-	 * Allowed without the Jetpack plugin, which ships the module, or once the
-	 * WooCommerce Analytics plugin loads the package (`WC_ANALYTICS`) instead.
-	 *
-	 * @return bool
-	 */
-	private static function is_allowed_by_module() {
-		if ( ! class_exists( 'Jetpack' ) || defined( 'WC_ANALYTICS' ) ) {
-			return true;
-		}
-
-		return ( new Modules() )->is_active( 'woocommerce-analytics' );
 	}
 }

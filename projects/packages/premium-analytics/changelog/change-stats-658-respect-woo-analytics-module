@@ -1,4 +1,4 @@
-Significance: patch
-Type: fixed
+Significance: minor
+Type: added
 
-Stop WooCommerce Analytics store tracking when the Jetpack WooCommerce Analytics module is turned off.
+Add a filter that lets the host turn off WooCommerce Analytics store tracking.

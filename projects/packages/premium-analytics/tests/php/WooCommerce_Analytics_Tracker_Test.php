@@ -10,9 +10,6 @@ namespace Automattic\Jetpack\PremiumAnalytics;
 use Automattic\Woocommerce_Analytics;
 use PHPUnit\Framework\Attributes\After;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\PreserveGlobalState;
-use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -29,6 +26,7 @@ class WooCommerce_Analytics_Tracker_Test extends TestCase {
 		remove_all_actions( 'after_setup_theme' );
 		remove_all_filters( 'woocommerce_analytics_clickhouse_enabled' );
 		remove_all_filters( 'woocommerce_analytics_experimental_proxy_tracking_enabled' );
+		remove_all_filters( WooCommerce_Analytics_Tracker::ENABLED_FILTER );
 	}
 
 	public function test_configure_registers_bootstrap_on_after_setup_theme() {
@@ -47,47 +45,22 @@ class WooCommerce_Analytics_Tracker_Test extends TestCase {
 	}
 
 	/**
-	 * Runs in its own process, since the `Jetpack` stub and `WC_ANALYTICS` cannot be undefined.
-	 *
-	 * @param bool $module_active        Whether the woocommerce-analytics module is on.
-	 * @param bool $wc_analytics_defined Whether the WooCommerce Analytics plugin loads the package.
-	 * @param bool $expected             Whether the modern pipeline is turned on.
-	 * @dataProvider provide_jetpack_module_states
-	 * @runInSeparateProcess
-	 * @preserveGlobalState disabled
+	 * The host's answer also skips init(), not just the pipeline filters.
 	 */
-	#[DataProvider( 'provide_jetpack_module_states' )]
-	#[RunInSeparateProcess]
-	#[PreserveGlobalState( false )]
-	public function test_bootstrap_follows_the_jetpack_module( $module_active, $wc_analytics_defined, $expected ) {
-		require_once __DIR__ . '/mocks/jetpack-plugin-mock.php';
-		if ( $wc_analytics_defined ) {
-			define( 'WC_ANALYTICS', true );
+	public function test_bootstrap_does_nothing_when_the_host_turns_store_tracking_off() {
+		$sync     = array( Woocommerce_Analytics::class, 'sync_proxy_tracking_state' );
+		$priority = has_action( 'init', $sync );
+		if ( false !== $priority ) {
+			remove_action( 'init', $sync, $priority );
 		}
-		add_filter(
-			'jetpack_active_modules',
-			static function ( $modules ) use ( $module_active ) {
-				return $module_active ? array_merge( $modules, array( 'woocommerce-analytics' ) ) : $modules;
-			}
-		);
+		add_filter( WooCommerce_Analytics_Tracker::ENABLED_FILTER, '__return_false' );
 
 		WooCommerce_Analytics_Tracker::bootstrap();
 
-		$this->assertSame( $expected, apply_filters( 'woocommerce_analytics_clickhouse_enabled', false ) );
-		$this->assertSame( $expected, apply_filters( 'woocommerce_analytics_experimental_proxy_tracking_enabled', false ) );
+		$this->assertFalse( apply_filters( 'woocommerce_analytics_clickhouse_enabled', false ) );
+		$this->assertFalse( apply_filters( 'woocommerce_analytics_experimental_proxy_tracking_enabled', false ) );
 		// init() registers this before any of its own early returns, so it shows init() ran.
-		$this->assertSame( $expected, false !== has_action( 'init', array( Woocommerce_Analytics::class, 'sync_proxy_tracking_state' ) ) );
-	}
-
-	/**
-	 * @return array<string, array{bool, bool, bool}>
-	 */
-	public static function provide_jetpack_module_states() {
-		return array(
-			'module off' => array( false, false, false ),
-			'module on'  => array( true, false, true ),
-			'WooCommerce Analytics plugin loads the package' => array( false, true, true ),
-		);
+		$this->assertFalse( has_action( 'init', $sync ) );
 	}
 
 	public function test_bootstrap_is_safe_to_run_twice() {
