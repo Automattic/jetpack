@@ -55,10 +55,19 @@
 		"phpunit": [
 			"phpunit-select-config phpunit.#.xml.dist --colors=always"
 		],
+		"phpunit-sqlite": [
+			"phpunit-select-config phpunit-sqlite.#.xml.dist --colors=always"
+		],
 		"test-js": "pnpm run test",
 		"test-js-coverage": "pnpm run test-coverage",
-		"test-php": "@composer phpunit",
-		"test-php-coverage": "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\"",
+		"test-php": [
+			"@composer phpunit",
+			"@composer phpunit-sqlite"
+		],
+		"test-php-coverage": [
+			"php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\"",
+			"php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit-sqlite.#.xml.dist --coverage-php \"$COVERAGE_DIR/php-sqlite.cov\""
+		],
 		"build-production": "pnpm run build-production-js",
 		"build-development": "pnpm run build-js",
 		"watch": [

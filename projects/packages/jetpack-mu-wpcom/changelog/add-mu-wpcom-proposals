@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Proposals: Add staged changes to published posts and pages that an agent proposes, a person previews on the site, and the agent applies once the person approves in chat. Off by default behind the `proposals` feature flag.
