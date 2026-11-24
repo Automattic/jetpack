@@ -80,6 +80,7 @@ class Main_Features {
 	 * Keyed by feature slug. `delivery` says what switches the feature: Protect ships inside
 	 * Jetpack too, but its switch is its own plugin, so it sets `jetpack` false and names
 	 * only that. `needs_account` repeats the feature module's "Requires User Connection" header.
+	 * `offline_long_description` replaces `long_description` in offline Features.
 	 *
 	 * @return array<string, array<string, mixed>> Feature definitions keyed by feature slug.
 	 */
@@ -103,6 +104,7 @@ class Main_Features {
 				'description'      => __( 'See what changed on your site, when it happened, and who did it.', 'jetpack-my-jetpack' ),
 				'long_description' => __( 'When something breaks, see exactly what changed and who changed it, from published posts to plugin updates and logins. Every connected site gets its 20 most recent events for free.', 'jetpack-my-jetpack' ),
 				'icon'             => 'list',
+				// The page a feature opens; `off_pages` lists its others. Each shows the turned-off card while the feature is off.
 				'admin_page'       => 'jetpack-activity-log',
 				'module'           => 'activity-log',
 				'needs_account'    => true,
@@ -270,6 +272,7 @@ class Main_Features {
 				'long_description' => __( 'Generate posts, tables, forms and images from a prompt, then change the tone, translate, or fix unclear sentences to make your writing easier to read. Before you publish, improve your title and create a featured image in one click.', 'jetpack-my-jetpack' ),
 				'icon'             => 'star',
 				'product'          => 'jetpack-ai',
+				'off_pages'        => array( 'jetpack-ai' ),
 				'needs_account'    => true,
 				'interstitial'     => '/add-jetpack-ai',
 				'free_highlights'  => array(
@@ -292,29 +295,63 @@ class Main_Features {
 				'paid_product'     => __( 'Jetpack AI Assistant', 'jetpack-my-jetpack' ),
 			),
 			'jetpack-forms'     => array(
-				'info_url'         => 'https://jetpack.com/forms/',
-				'docs_url'         => 'https://jetpack.com/support/jetpack-blocks/contact-form/',
-				'name'             => __( 'Forms', 'jetpack-my-jetpack' ),
-				'description'      => __( 'From quick contact forms to multistep surveys, everything you need is included.', 'jetpack-my-jetpack' ),
-				'long_description' => __( 'Break long forms into steps with a progress bar, and get every response by email and in your dashboard, with no limit on responses. Upgrade to add secure file uploads that keep harmful files off your server.', 'jetpack-my-jetpack' ),
-				'icon'             => 'list-bullets',
-				'product'          => 'jetpack-forms',
-				'essential'        => true,
-				'free_highlights'  => array(
+				'info_url'                 => 'https://jetpack.com/forms/',
+				'docs_url'                 => 'https://jetpack.com/support/jetpack-blocks/contact-form/',
+				'name'                     => __( 'Forms', 'jetpack-my-jetpack' ),
+				'description'              => __( 'From quick contact forms to multistep surveys, everything you need is included.', 'jetpack-my-jetpack' ),
+				'long_description'         => __( 'Break long forms into steps with a progress bar, and get every response by email and in your dashboard, with no limit on responses. Upgrade to add secure file uploads that keep harmful files off your server.', 'jetpack-my-jetpack' ),
+				'offline_long_description' => __( 'Break long forms into steps with a progress bar, and get every response by email and in your dashboard, with no limit on responses. File uploads, AI, Google Sheets and push notifications need a WordPress.com connection.', 'jetpack-my-jetpack' ),
+				'icon'                     => 'list-bullets',
+				'product'                  => 'jetpack-forms',
+				'off_pages'                => array( 'jetpack-forms-responses-wp-admin', 'jetpack-forms-admin' ),
+				'essential'                => true,
+				'free_highlights'          => array(
 					__( 'Unlimited responses, by email and in your dashboard', 'jetpack-my-jetpack' ),
 					__( 'Multi-step forms with a progress bar', 'jetpack-my-jetpack' ),
 				),
-				'paid_highlights'  => array(
+				'paid_highlights'          => array(
 					__( 'Secure file uploads that keep harmful files off your server', 'jetpack-my-jetpack' ),
 					__( 'Visitors’ files stay private, visible only to you and your editors', 'jetpack-my-jetpack' ),
 					__( 'Up to 10 files per field, 20 MB each', 'jetpack-my-jetpack' ),
 				),
-				'delivery'         => array(
+				'delivery'                 => array(
 					'jetpack' => true,
 					'plugin'  => '',
 					'free'    => true,
 				),
+				'plans'                    => array( 'pro', 'complete' ),
+				// The WordPress.com site feature that gates the file upload field.
+				'paid_feature'             => 'field-file',
+			),
+			'monetize'          => array(
+				'info_url'         => 'https://jetpack.com/growth/',
+				'docs_url'         => 'https://jetpack.com/support/features-earn/',
+				'name'             => __( 'Monetize', 'jetpack-my-jetpack' ),
+				'description'      => __( 'Earn from your site with paid subscriptions, donations, and ads.', 'jetpack-my-jetpack' ),
+				'long_description' => __( 'Sell paid subscriptions, take donations and one-time payments through Stripe, and manage your plans and paying subscribers in one place. Turn on ads to earn from your traffic too.', 'jetpack-my-jetpack' ),
+				'icon'             => 'currency-dollar',
+				'admin_page'       => 'jetpack-monetize',
+				'module'           => 'monetize',
+				'free_highlights'  => array(
+					__( 'Payment plans for paid content and newsletters', 'jetpack-my-jetpack' ),
+					__( 'Donations and one-time payments', 'jetpack-my-jetpack' ),
+					__( 'A list of your paying subscribers', 'jetpack-my-jetpack' ),
+				),
+				// No fee lines: the fee depends on the plan, and only the Monetize page can ask WordPress.com for the site's.
+				'paid_highlights'  => array(
+					__( 'Lower fees on payments', 'jetpack-my-jetpack' ),
+					__( 'Earn from ads shown on your site', 'jetpack-my-jetpack' ),
+				),
+				'delivery'         => array(
+					// The module is on offer only while the Monetize dashboard's flag is on, and never on Simple, where jetpack-mu-wpcom loads the page.
+					'jetpack' => ! ( new Host() )->is_wpcom_simple() && in_array( 'monetize', (array) ( new \Automattic\Jetpack\Modules() )->get_available(), true ),
+					'plugin'  => '',
+					'free'    => true,
+				),
+				// WordPress.com's half of the Monetize page's ads check; the bundles in `plans` cover self-hosted.
+				'paid_feature'     => ( new Host() )->is_wpcom_platform() ? 'wordads' : '',
 				'plans'            => array( 'pro', 'complete' ),
+				'also_included_in' => array( 'creator', 'growth' ),
 			),
 			'newsletter'        => array(
 				'info_url'         => 'https://jetpack.com/newsletter/',
@@ -325,6 +362,7 @@ class Main_Features {
 				'icon'             => 'envelope',
 				'product'          => 'newsletter',
 				'module'           => 'subscriptions',
+				'off_pages'        => array( 'jetpack-newsletter' ),
 				'needs_account'    => true,
 				'free_highlights'  => array(
 					__( 'No limit on subscribers or email sends', 'jetpack-my-jetpack' ),
@@ -373,6 +411,8 @@ class Main_Features {
 					'free'    => true,
 				),
 				'plans'            => array( 'growth', 'pro', 'complete' ),
+				// WordPress.com's half of Podcast_Gate::has_product_access(); the bundles in `plans` cover self-hosted.
+				'paid_feature'     => ( new Host() )->is_wpcom_platform() ? 'podcasting' : '',
 			),
 			'protect-dashboard' => array(
 				'info_url'         => 'https://jetpack.com/protect/',
@@ -384,6 +424,7 @@ class Main_Features {
 				'product'          => 'protect',
 				// Not `protect`: that module is Login protection, which has its own row.
 				'module'           => Products\Protect::DASHBOARD_MODULE_NAME,
+				'off_pages'        => array( 'jetpack-protect' ),
 				'essential'        => true,
 				'interstitial'     => '/add-protect',
 				'free_highlights'  => array(
@@ -415,6 +456,7 @@ class Main_Features {
 				'long_description' => __( 'Visitors see relevant results as they type and can filter by category, tag, date or author, so they find what they need instead of leaving. Match search to your theme without writing code.', 'jetpack-my-jetpack' ),
 				'icon'             => 'search',
 				'product'          => 'search',
+				'off_pages'        => array( 'jetpack-search' ),
 				'interstitial'     => '/add-search',
 				'setup_note'       => __( 'To start using it, choose a plan next, including a free one.', 'jetpack-my-jetpack' ),
 				'free_highlights'  => array(
@@ -445,6 +487,7 @@ class Main_Features {
 				'long_description' => __( 'Reach your followers on Facebook, Instagram, Threads, Bluesky, LinkedIn, Mastodon, Nextdoor and Tumblr without leaving WordPress. Posts share automatically when you publish, and you can re-share or schedule them later.', 'jetpack-my-jetpack' ),
 				'icon'             => 'share',
 				'product'          => 'social',
+				'off_pages'        => array( 'jetpack-social' ),
 				'needs_account'    => true,
 				'interstitial'     => '/add-social',
 				'free_highlights'  => array(
@@ -475,6 +518,7 @@ class Main_Features {
 				'long_description' => __( 'Track views, visitors, top posts, referrers and visitor countries right from your WordPress dashboard. Learn what works without seeing who your individual visitors are.', 'jetpack-my-jetpack' ),
 				'icon'             => 'chart-bar',
 				'product'          => 'stats',
+				'off_pages'        => array( 'stats' ),
 				'essential'        => true,
 				'interstitial'     => '/add-stats',
 				'free_highlights'  => array(
@@ -504,6 +548,7 @@ class Main_Features {
 				'long_description' => __( 'Keep the focus on your videos with ad-free playback that fits your brand. Drag and drop videos into the WordPress editor to get started.', 'jetpack-my-jetpack' ),
 				'icon'             => 'video',
 				'product'          => 'videopress',
+				'off_pages'        => array( 'jetpack-videopress' ),
 				'interstitial'     => '/add-videopress',
 				'free_highlights'  => array(
 					__( 'Host one video', 'jetpack-my-jetpack' ),
@@ -566,9 +611,10 @@ class Main_Features {
 	 * @param array  $upgrade          The Jetpack route, from get_upgrade().
 	 * @param string $slug             The feature slug.
 	 * @param bool   $site_has_feature Whether the site already has the feature.
+	 * @param string $back_route       The My Jetpack route the link is on, empty for the Overview.
 	 * @return array{path: string, name: string, url?: string}
 	 */
-	private static function filter_upgrade( array $upgrade, $slug, $site_has_feature ) {
+	private static function filter_upgrade( array $upgrade, $slug, $site_has_feature, $back_route = '#/features' ) {
 		/**
 		 * Filters where a feature's upgrade link goes, so a host can send it to its own plans.
 		 *
@@ -577,13 +623,14 @@ class Main_Features {
 		 *
 		 * @since 6.14.0
 		 * @since 6.16.0 No longer reads `manage_url`; a feature's manage link is always My Jetpack's own.
+		 * @since 6.19.0 Also asked for the purchase links of the feature's product, with the Overview as `back_url`.
 		 *
 		 * @param array  $upgrade          `path` (a My Jetpack route) and `name` (the product sold), both empty when nothing is,
 		 *                                 and `back_url`, the admin page the link is on, for a host flow to return to.
 		 * @param string $slug             The My Jetpack feature slug.
 		 * @param bool   $site_has_feature Whether the site already has the feature.
 		 */
-		$filtered = apply_filters( 'jetpack_feature_upgrade', $upgrade + array( 'back_url' => admin_url( 'admin.php?page=my-jetpack#/features' ) ), $slug, $site_has_feature );
+		$filtered = apply_filters( 'jetpack_feature_upgrade', $upgrade + array( 'back_url' => admin_url( 'admin.php?page=my-jetpack' . $back_route ) ), $slug, $site_has_feature );
 
 		if ( ! is_array( $filtered ) ) {
 			return $upgrade;
@@ -600,6 +647,61 @@ class Main_Features {
 		}
 
 		return $result;
+	}
+
+	/**
+	 * Where a host sells the feature a product delivers, for the purchase links outside the Features tab.
+	 *
+	 * @since 6.19.0
+	 *
+	 * @param string $product_slug A My Jetpack product slug, matched to the catalog's `product` key.
+	 * @return ?string Null when the host names no address, the site has the feature, or no feature is the product's.
+	 */
+	public static function get_host_purchase_url( $product_slug ) {
+		// No host listening settles the answer, and spares the ownership lookups below.
+		if ( ! has_filter( 'jetpack_feature_upgrade' ) ) {
+			return null;
+		}
+
+		$slug = self::get_product_feature_slug( $product_slug );
+		if ( null === $slug ) {
+			return null;
+		}
+
+		$definition    = self::get_feature_definitions()[ $slug ];
+		$product_class = Products::get_product_class( $product_slug );
+		$included      = self::is_included_in_plan( $definition, $product_class );
+		$upgrade       = self::filter_upgrade( self::get_upgrade( $definition, $product_class, $included ), $slug, $included, '' );
+
+		return empty( $upgrade['url'] ) ? null : $upgrade['url'];
+	}
+
+	/**
+	 * Whether a host could be selling the feature a product delivers, told without asking it or looking up ownership.
+	 *
+	 * @since 6.19.0
+	 *
+	 * @param string $product_slug A My Jetpack product slug.
+	 * @return bool True when a host listens and the product has a feature; get_host_purchase_url() has the answer.
+	 */
+	public static function may_host_sell_product( $product_slug ) {
+		return has_filter( 'jetpack_feature_upgrade' ) && null !== self::get_product_feature_slug( $product_slug );
+	}
+
+	/**
+	 * The catalog feature a product delivers, which is the slug a host is asked about.
+	 *
+	 * @param string $product_slug A My Jetpack product slug.
+	 * @return ?string The feature slug, null for a product with no feature, such as a bundle.
+	 */
+	private static function get_product_feature_slug( $product_slug ) {
+		foreach ( self::get_feature_definitions() as $slug => $definition ) {
+			if ( ( $definition['product'] ?? '' ) === $product_slug ) {
+				return $slug;
+			}
+		}
+
+		return null;
 	}
 
 	/**
@@ -658,7 +760,8 @@ class Main_Features {
 			return true;
 		}
 
-		foreach ( $definition['plans'] ?? array() as $plan ) {
+		// `also_included_in` names plans that include the feature but that the card doesn't sell.
+		foreach ( array_merge( $definition['plans'] ?? array(), $definition['also_included_in'] ?? array() ) as $plan ) {
 			$bundle_class = Products::get_product_class( $plan );
 
 			if ( $bundle_class && $bundle_class::has_paid_plan_for_product() && ! ( $expiry_counts && $bundle_class::is_paid_plan_expired() ) ) {
@@ -666,7 +769,7 @@ class Main_Features {
 			}
 		}
 
-		// Covers plans no bundle class lists, such as the legacy Jetpack Personal, Premium and Professional.
+		// Covers plans no bundle class lists: WordPress.com plans and the legacy Jetpack Personal, Premium and Professional.
 		return ! empty( $definition['paid_feature'] ) && Product::does_site_have_feature( $definition['paid_feature'] );
 	}
 
@@ -978,7 +1081,7 @@ class Main_Features {
 			),
 			array(
 				'label'   => __( 'Earn', 'jetpack-my-jetpack' ),
-				'modules' => array( 'monetize', 'wordads' ),
+				'modules' => array( 'wordads' ),
 			),
 			array(
 				'label'    => __( 'Analytics', 'jetpack-my-jetpack' ),
@@ -1059,8 +1162,9 @@ class Main_Features {
 	/**
 	 * The feature catalog merged with each feature's live state, sorted by name.
 	 *
-	 * @param bool $local Keep only local management URLs, set upgrade to null, and omit
-	 *                    included, setup_note, and plan owned fields without resolving ownership.
+	 * @param bool $local Keep only local management URLs, set upgrade to null, use any offline
+	 *                    long description, and omit included, setup_note, and plan owned fields
+	 *                    without resolving ownership.
 	 * @return array List of features, each with slug, name, description, icon, manage_url,
 	 *               the plugin it ships as and the product/module join keys.
 	 */
@@ -1075,8 +1179,13 @@ class Main_Features {
 				continue;
 			}
 
-			$delivery      = $definition['delivery'] ?? array();
-			$plugin        = $delivery['plugin'] ?? '';
+			$delivery = $definition['delivery'] ?? array();
+			$plugin   = $delivery['plugin'] ?? '';
+			// Any feature neither Jetpack nor a plugin delivers on this site has no card, such as one whose module is behind a flag.
+			if ( empty( $delivery['jetpack'] ) && '' === $plugin ) {
+				continue;
+			}
+
 			$product_class = isset( $definition['product'] ) ? Products::get_product_class( $definition['product'] ) : null;
 			$included      = ! $local && self::is_included_in_plan( $definition, $product_class );
 			$upgrade       = $local ? null : self::filter_upgrade( self::get_upgrade( $definition, $product_class, $included ), $slug, $included );
@@ -1085,7 +1194,7 @@ class Main_Features {
 				'slug'             => $slug,
 				'name'             => $definition['name'],
 				'description'      => $definition['description'],
-				'long_description' => $definition['long_description'] ?? '',
+				'long_description' => $local && isset( $definition['offline_long_description'] ) ? $definition['offline_long_description'] : ( $definition['long_description'] ?? '' ),
 				'icon'             => $definition['icon'],
 				'manage_url'       => self::get_feature_manage_url( $definition, $product_class, $local ),
 				'essential'        => ! empty( $definition['essential'] ),
@@ -1107,7 +1216,7 @@ class Main_Features {
 				'screenshot'       => self::get_screenshot_url( $slug ),
 				'plans'            => self::get_plan_badges( $definition, $local ),
 				// The filter pills' categories, kept when those bundles go off sale and drop out of `plans`.
-				'groups'           => array_values( array_intersect( $definition['plans'] ?? array(), self::FILTER_GROUPS ) ),
+				'groups'           => array_values( array_intersect( array_merge( $definition['plans'] ?? array(), $definition['also_included_in'] ?? array() ), self::FILTER_GROUPS ) ),
 				'info_url'         => $definition['info_url'],
 				'docs_url'         => $definition['docs_url'],
 				// Join keys: the UI reads live state from the module and plugin it names,

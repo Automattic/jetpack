@@ -1,5 +1,5 @@
 /**
- * Unit tests for the per-scenario failure-isolation policy (FORMS-728).
+ * Unit tests for the per-scenario failure-isolation policy.
  *
  * The posting policy lives once, in measure-lcp's exit semantics: exit 0 means "every
  * required scenario measured — safe to post". These tests pin that policy's two helpers
@@ -201,8 +201,6 @@ test( 'all scenarios measured: exit 0, no failures', () => {
 } );
 
 test( 'optional-only failures with the required scenario OK: exit 0, names reported', () => {
-	// The FORMS-728 case itself: a broken optional scenario must not blank the required
-	// scenario's posting. Green build, loud warning, keys skip the build.
 	const outcome = computeRunOutcome( { req: ok, optA: failed, optB: ok }, DOUBLES );
 	assert.equal( outcome.exitCode, 0 );
 	assert.deepEqual( outcome.requiredFailures, [] );
@@ -436,14 +434,41 @@ const healthyIteration = i => ( {
 	},
 } );
 
-test( 'finalizeMeasurement returns the measurement for healthy iterations', () => {
+test( 'finalizeMeasurement returns the measurement when three of five loads succeed', () => {
 	const forms = SCENARIOS.find( s => s.key === 'formsResponses' );
-	const results = [ 1, 2, 3 ].map( healthyIteration );
-	const measurement = finalizeMeasurement( forms, results, 3, 'http://example.test' );
-	assert.equal( measurement.url, 'http://example.test' );
-	assert.equal( measurement.results, results );
-	assert.equal( measurement.summary.lcp.median, 302 );
-	assert.deepEqual( findIncompleteSummaryFields( forms, measurement.summary ), [] );
+	// Two TTFB samples still make a majority of the three successful loads.
+	for ( const middleTtfb of [ 200, null ] ) {
+		const results = [
+			...[ 100, middleTtfb, 300 ].map( ( ttfb, index ) => {
+				const iteration = healthyIteration( index + 1 );
+				iteration.metrics.ttfb = ttfb;
+				return iteration;
+			} ),
+			{ iteration: 4, error: 'boom' },
+			{ iteration: 5, error: 'boom' },
+		];
+		const measurement = finalizeMeasurement( forms, results, 5, 'http://example.test' );
+		assert.equal( measurement.url, 'http://example.test' );
+		assert.equal( measurement.results, results );
+		assert.equal( measurement.summary.lcp.median, 302 );
+		assert.equal( measurement.summary.ttfb.median, 200 );
+		assert.deepEqual( findIncompleteSummaryFields( forms, measurement.summary ), [] );
+	}
+} );
+
+test( 'finalizeMeasurement refuses a page when half or fewer of its loads succeed', () => {
+	const forms = SCENARIOS.find( s => s.key === 'formsResponses' );
+	for ( const [ attempted, successful, minimum ] of [
+		[ 5, 2, 3 ],
+		[ 2, 1, 2 ],
+	] ) {
+		const results = Array.from( { length: attempted }, ( _, index ) =>
+			index < successful ? healthyIteration( index + 1 ) : { iteration: index + 1, error: 'boom' }
+		);
+		assert.throws( () => finalizeMeasurement( forms, results, attempted, 'u' ), {
+			message: `Only ${ successful } of ${ attempted } loads succeeded. At least ${ minimum } are required.`,
+		} );
+	}
 } );
 
 test( 'finalizeMeasurement throws when every iteration failed', () => {
@@ -545,10 +570,6 @@ test( 'backend capture failures preserve browser samples and use the per-field m
 } );
 
 test( 'finalizeMeasurement throws on a partial summary, naming the dropped field', () => {
-	// The CASE P wiring, pinned through the real measure tail: a posted field finite in
-	// only a minority of valid iterations must throw INSIDE the measure step (so main()'s
-	// catch records a scenario error the optional/required policy classifies), never
-	// return a truthy-but-incomplete measurement for the artifact.
 	const forms = SCENARIOS.find( s => s.key === 'formsResponses' );
 	const results = [ 1, 2, 3 ].map( healthyIteration );
 	results[ 1 ].metrics = { ...results[ 1 ].metrics, ttfb: null };
@@ -560,9 +581,6 @@ test( 'finalizeMeasurement throws on a partial summary, naming the dropped field
 } );
 
 test( 'finalizeMeasurement counts valid iterations, not attempted ones, in the partial message', () => {
-	// 5 attempted, 2 errored, 3 valid — the message must say 3: the majority rule runs
-	// over the VALID iterations, and a misleading count sends the operator to the wrong
-	// denominator when reading the build log.
 	const forms = SCENARIOS.find( s => s.key === 'formsResponses' );
 	const results = [
 		...[ 1, 2, 3 ].map( healthyIteration ),

@@ -157,7 +157,7 @@ async function measureLCP(
 	// pending — e.g. the Forms dashboard's canUser OPTIONS to /wp/v2/settings stalls in the
 	// headless-Chromium fixture — sets 'load' so a single un-settling request cannot blackhole the
 	// whole scenario; readiness is then carried by the visible-selector + hydration + resource-count
-	// settle below, not by network quiescence. See scenarios.js (formsResponses) and FORMS-729.
+	// settle below, not by network quiescence. See formsResponses in scenarios.js.
 	const navWaitUntil = scenario.loadState || 'networkidle';
 	// The one predicate the readiness plumbing branches on, bound once so the ledger creation,
 	// the warm-up settle and the measured settle can never disagree about which path they are on.
@@ -581,12 +581,7 @@ function readIterationField( result, field ) {
  */
 function summarizeField( values ) {
 	const finite = values.filter( v => typeof v === 'number' && Number.isFinite( v ) );
-	// Require a STRICT majority of the valid iterations to have produced a finite sample:
-	// finite*2 > n. This keeps single-iteration runs working (1 of 1) while rejecting a thin
-	// field that would otherwise post a lone/minority sample as a trend point — including the
-	// even-count edge (1 of 2, 2 of 4) that a ceil(n/2) floor would let slip through. n=0 also
-	// falls through to null (0 > 0 is false). LCP is unaffected in practice: it is finite on
-	// every valid iteration by construction (validResults already filtered out null LCP).
+	// A strict majority rejects ties, such as one finite sample from two successful loads.
 	if ( finite.length * 2 <= values.length ) {
 		return null;
 	}
@@ -666,17 +661,12 @@ function findIncompleteSummaryFields( scenario, summary ) {
 /**
  * Turn the raw per-iteration results into the scenario's final measurement, or throw.
  *
- * The tail of measureLCP(), extracted pure so its two refusal paths are unit-testable
- * without a browser: (1) no valid iterations at all; (2) an INCOMPLETE summary — a posted
- * field dropped by summarizeField's majority rule. Both must throw INSIDE the measure
- * step, so main()'s catch records a scenario error the optional/required policy can
- * classify. An incomplete summary let through would green this step with no warning
- * naming the scenario, then trip the poster's atomic sanity gate on the undefined
- * median — one flaky optional field blanking the whole post, required survivors included.
+ * Reject incomplete summaries during measurement so the poster's sanity gate
+ * cannot block the entire post when an optional page is missing a metric.
  *
  * @param {object} scenario   - Scenario definition; its metrics[] names the posted fields.
  * @param {Array}  results    - Raw per-iteration results (successes and error records).
- * @param {number} iterations - Total iterations attempted (for the summary counters).
+ * @param {number} iterations - Total loads attempted.
  * @param {string} url        - The measured URL, echoed into the saved measurement.
  * @return {object} The measurement: `{ summary, results, url }`.
  */
@@ -686,6 +676,12 @@ function finalizeMeasurement( scenario, results, iterations, url ) {
 	if ( validResults.length === 0 ) {
 		throw new Error(
 			'All iterations failed - check WordPress is accessible and credentials are correct'
+		);
+	}
+	const minimumSuccessfulLoads = Math.floor( iterations / 2 ) + 1;
+	if ( validResults.length < minimumSuccessfulLoads ) {
+		throw new Error(
+			`Only ${ validResults.length } of ${ iterations } loads succeeded. At least ${ minimumSuccessfulLoads } are required.`
 		);
 	}
 

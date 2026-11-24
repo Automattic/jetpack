@@ -19,13 +19,20 @@ export interface UseIdentityCrisisActionsOptions {
 	from?: string;
 }
 
+/** How the user reached an action, for the `jetpack_idc_*` events (CONNECT-620); unused until then. */
+export interface IdentityCrisisActionPath {
+	entry: 'main' | 'guide';
+	/** Picks joined by `>`, e.g. `detected_copy>safe`; see `getPath()`. */
+	path: string;
+}
+
 export interface IdentityCrisisActions {
 	/** Moves the connection to this site's address. Resolves true on success. */
-	migrate: () => Promise< boolean >;
+	migrate: ( path?: IdentityCrisisActionPath ) => Promise< boolean >;
 	/** Starts a fresh connection. Resolves with the URL to send the user to, or null on failure. */
-	startFresh: () => Promise< string | null >;
+	startFresh: ( path?: IdentityCrisisActionPath ) => Promise< string | null >;
 	/** Keeps the site in Safe Mode. Resolves true on success. */
-	confirmSafeMode: () => Promise< boolean >;
+	confirmSafeMode: ( path?: IdentityCrisisActionPath ) => Promise< boolean >;
 	/** Forgets the last failure, e.g. when the user moves to another step. */
 	clearError: () => void;
 	/**

@@ -17,7 +17,6 @@ jest.mock( '../../product-detail-card/skeleton', () => () => (
 ) );
 jest.mock( '../../../data/products/use-activate-search-free-product' );
 jest.mock( '../../../data/products/use-product' );
-jest.mock( '../../../hooks/use-analytics', () => () => ( { recordEvent: jest.fn() } ) );
 jest.mock( '../../../hooks/use-go-back', () => ( {
 	useGoBack: () => ( { onClickGoBack: jest.fn() } ),
 } ) );

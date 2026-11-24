@@ -852,7 +852,7 @@ class Block_Scanner {
 	 *     $html = "Before.\n<!-- wp:query --><div>List</div><!-- /wp:query -->\nAfter.";
 	 *     "Before.\nAfter." === Block_Scanner::remove_blocks( $html, 'query' );
 	 *
-	 * @since $$next-version$$
+	 * @since 0.4.3
 	 *
 	 * @param string $source_text Input document potentially containing block content.
 	 * @param string $block_type  Block type name to remove, e.g. "query" or "core/query".

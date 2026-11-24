@@ -1,6 +1,42 @@
 import { safeHTML } from '@wordpress/dom';
-import { Badge, Stack, Text } from '@wordpress/ui';
+import { Badge, Button, Stack, Text } from '@wordpress/ui';
+import { useCallback } from 'react';
 import type { ReactNode } from 'react';
+
+/**
+ * A button that acts on one row's item.
+ *
+ * @param props           - Component props.
+ * @param props.item      - The item.
+ * @param props.label     - The button's text.
+ * @param props.ariaLabel - Its accessible name, when the text alone doesn't say which item.
+ * @param props.onSelect  - Called with the item.
+ * @return The button.
+ */
+export function RowAction< T >( {
+	item,
+	label,
+	ariaLabel,
+	onSelect,
+}: {
+	item: T;
+	label: string;
+	ariaLabel?: string;
+	onSelect: ( item: T ) => void;
+} ) {
+	const onClick = useCallback( () => onSelect( item ), [ onSelect, item ] );
+	return (
+		<Button
+			variant="minimal"
+			tone="neutral"
+			size="compact"
+			onClick={ onClick }
+			aria-label={ ariaLabel }
+		>
+			{ label }
+		</Button>
+	);
+}
 
 /**
  * One row of a Payments list, such as a plan or a coupon.

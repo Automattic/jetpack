@@ -358,6 +358,7 @@ class Jetpack_Protect {
 			'adminUrl'           => 'admin.php?page=jetpack-protect',
 			'siteSuffix'         => ( new Jetpack_Status() )->get_site_suffix(),
 			'blogID'             => Connection_Manager::get_site_id( true ),
+			'addLicense'         => My_Jetpack_Initializer::is_licensing_ui_enabled(),
 			'jetpackScan'        => My_Jetpack_Products::get_product( 'scan' ),
 			'hasPlan'            => $has_plan,
 			'onboardingProgress' => Onboarding::get_current_user_progress(),

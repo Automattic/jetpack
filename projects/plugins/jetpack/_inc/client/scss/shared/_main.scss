@@ -24,6 +24,11 @@
 .wp-admin.jetpack_page_jetpack-settings:not(.network-admin) {
 	background-color: colors.$gray-light;
 	line-height: 1.4; // fixes core bug that sets an em unit on body
+}
+
+// Not on Settings: its wp-build page scrolls #wpwrap on phones,
+// which collapses unless body keeps its 100% height.
+.wp-admin.toplevel_page_jetpack {
 	height: auto;
 }
 

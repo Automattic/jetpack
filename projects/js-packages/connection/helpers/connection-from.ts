@@ -44,9 +44,10 @@ export const CONNECTION_FROM = {
 	deleteConnectionOwnerNotice: 'delete_connection_owner_notice',
 	// Sent by this package's PHP "Connect your account" link on every page except Connectors.
 	connectionNoticeOwnerError: 'connection_notice_owner_error',
-	// "Connect separately" on the new Safe Mode screen, in the admin notice and the My Jetpack window.
+	// "Connect separately" on the new Safe Mode screen, in the admin notice, the My Jetpack window and the Connectors card.
 	connectionSafeModeNotice: 'connection_safe_mode_notice',
 	myJetpackSafeMode: 'my_jetpack_safe_mode',
+	connectionSafeModeConnectors: 'connection_safe_mode_connectors',
 } as const;
 
 // Both functions below mirror https://github.com/Automattic/wp-calypso/blob/99b8d308db6/client/jetpack-connect/entry-points.ts

@@ -9,6 +9,7 @@ namespace Automattic\Jetpack;
 
 use Automattic\Jetpack\VideoPress\Caption_Tracks;
 use Automattic\Jetpack\VideoPress\Channel;
+use Automattic\Jetpack\VideoPress\Channel_Data;
 use Automattic\Jetpack\VideoPress\Transcript_Index;
 use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
@@ -90,6 +91,49 @@ class Transcript_Index_Test extends BaseTestCase {
 		remove_all_filters( 'videopress_transcript_video_details' );
 		remove_all_filters( 'pre_http_request' );
 		remove_all_filters( 'posts_pre_query' );
+		remove_all_filters( 'videopress_channel_videos' );
+		wp_set_current_user( 0 );
+		Channel_Data::reset();
+	}
+
+	/**
+	 * A public and a private video that both say "acquisition", and a member who may read both.
+	 *
+	 * @return int[] Public ID, private ID and member user ID.
+	 */
+	private function public_and_private_transcripts() {
+		$ids = array( $this->video(), $this->video() );
+		wp_update_attachment_metadata( $ids[1], array( 'videopress' => array( 'privacy_setting' => 1 ) ) );
+		foreach ( $ids as $id ) {
+			update_post_meta( $id, Transcript_Index::META_TEXT, 'The acquisition price is 42 million.' );
+			update_post_meta(
+				$id,
+				Transcript_Index::META_CUES,
+				array(
+					array(
+						'start' => 1000,
+						'end'   => 2000,
+						'text'  => 'The acquisition price is 42 million.',
+					),
+				)
+			);
+		}
+		add_filter(
+			'posts_pre_query',
+			function ( $posts, $query ) use ( $ids ) {
+				return Transcript_Index::META_TEXT === $query->get( 'meta_key' ) ? $ids : $posts;
+			},
+			10,
+			2
+		);
+		$ids[] = wp_insert_user(
+			array(
+				'user_login' => 'member',
+				'user_pass'  => 'pass',
+				'role'       => 'subscriber',
+			)
+		);
+		return $ids;
 	}
 
 	/**
@@ -271,6 +315,51 @@ class Transcript_Index_Test extends BaseTestCase {
 		$this->assertStringContainsString( 'a\\_b', $sql );
 		$this->assertSame( 2, substr_count( $sql, 'EXISTS' ), 'Every term must match somewhere.' );
 		$this->assertStringContainsString( ') AND (', $sql );
+	}
+
+	public function test_search_sql_matches_private_transcripts_only_for_members() {
+		list( , $private, $member ) = $this->public_and_private_transcripts();
+		$query                      = new \WP_Query();
+		$query->set( 'search_terms', array( 'acquisition' ) );
+		$query->set( 'videopress_transcript_search', true );
+
+		$this->assertStringContainsString( "vpt.post_id NOT IN ({$private})", Transcript_Index::search_sql( ' AND (core) ', $query ) );
+
+		wp_set_current_user( $member );
+		$this->assertStringNotContainsString( 'NOT IN', Transcript_Index::search_sql( ' AND (core) ', $query ) );
+	}
+
+	public function test_browse_quotes_private_transcripts_only_for_members() {
+		list( $public, $private, $member ) = $this->public_and_private_transcripts();
+		add_filter(
+			'videopress_channel_videos',
+			function () use ( $public, $private ) {
+				return array(
+					array(
+						'id'          => $public,
+						'guid'        => 'public01',
+						'durationMs'  => 60000,
+						'height'      => 720,
+						'publishedAt' => 1700000000,
+					),
+					array(
+						'id'          => $private,
+						'guid'        => 'private1',
+						'durationMs'  => 60000,
+						'height'      => 720,
+						'publishedAt' => 1690000000,
+					),
+				);
+			}
+		);
+		$snippets = function () {
+			Channel_Data::reset();
+			return array_column( Channel_Data::browse( array( 'search' => 'acquisition' ), 10 )['entries'], 'snippet', 'guid' );
+		};
+
+		$this->assertSame( array( 'public01' ), array_keys( $snippets() ), 'Visitors see no passage from a private video.' );
+		wp_set_current_user( $member );
+		$this->assertSame( array( 'public01', 'private1' ), array_keys( $snippets() ) );
 	}
 
 	public function test_match_prefers_the_spoken_phrase() {

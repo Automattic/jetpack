@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\PremiumAnalytics;
 
+use Automattic\Woocommerce_Analytics;
 use PHPUnit\Framework\Attributes\After;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
@@ -25,6 +26,7 @@ class WooCommerce_Analytics_Tracker_Test extends TestCase {
 		remove_all_actions( 'after_setup_theme' );
 		remove_all_filters( 'woocommerce_analytics_clickhouse_enabled' );
 		remove_all_filters( 'woocommerce_analytics_experimental_proxy_tracking_enabled' );
+		remove_all_filters( WooCommerce_Analytics_Tracker::ENABLED_FILTER );
 	}
 
 	public function test_configure_registers_bootstrap_on_after_setup_theme() {
@@ -40,6 +42,25 @@ class WooCommerce_Analytics_Tracker_Test extends TestCase {
 
 		$this->assertTrue( apply_filters( 'woocommerce_analytics_clickhouse_enabled', false ) );
 		$this->assertTrue( apply_filters( 'woocommerce_analytics_experimental_proxy_tracking_enabled', false ) );
+	}
+
+	/**
+	 * The host's answer also skips init(), not just the pipeline filters.
+	 */
+	public function test_bootstrap_does_nothing_when_the_host_turns_store_tracking_off() {
+		$sync     = array( Woocommerce_Analytics::class, 'sync_proxy_tracking_state' );
+		$priority = has_action( 'init', $sync );
+		if ( false !== $priority ) {
+			remove_action( 'init', $sync, $priority );
+		}
+		add_filter( WooCommerce_Analytics_Tracker::ENABLED_FILTER, '__return_false' );
+
+		WooCommerce_Analytics_Tracker::bootstrap();
+
+		$this->assertFalse( apply_filters( 'woocommerce_analytics_clickhouse_enabled', false ) );
+		$this->assertFalse( apply_filters( 'woocommerce_analytics_experimental_proxy_tracking_enabled', false ) );
+		// init() registers this before any of its own early returns, so it shows init() ran.
+		$this->assertFalse( has_action( 'init', $sync ) );
 	}
 
 	public function test_bootstrap_is_safe_to_run_twice() {

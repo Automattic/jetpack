@@ -13,6 +13,15 @@ export function isPremiumAnalyticsSiteConnected(): boolean {
 }
 
 /**
+ * Slugs of the dashboard tabs that work while the site has no Jetpack connection.
+ *
+ * @return The slugs; empty when every tab needs the connection.
+ */
+export function getConnectionlessSectionSlugs(): string[] {
+	return getScriptData()?.premium_analytics?.connectionless_sections ?? [];
+}
+
+/**
  * Check whether Premium Analytics can treat the initial sync as finished.
  *
  * @return Whether initial sync is finished for Premium Analytics.

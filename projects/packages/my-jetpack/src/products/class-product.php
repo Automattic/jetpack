@@ -12,6 +12,7 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Plugins_Installer;
 use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Status\Host;
 use Jetpack_Options;
 use WP_Error;
 
@@ -106,6 +107,13 @@ abstract class Product {
 	 * @var int
 	 */
 	private static $site_features_failure_expires = 0;
+
+	/**
+	 * The host's answer for each product get_wpcom_info() is describing, wrapped so a null answer counts.
+	 *
+	 * @var array<string, array{0: ?string}>
+	 */
+	private static $host_purchase_urls = array();
 
 	/**
 	 * A successful site features lookup, kept so one WPCOM request serves a whole render
@@ -279,6 +287,8 @@ abstract class Product {
 			'feature_identifying_paid_plan'   => static::$feature_identifying_paid_plan,
 			'has_free_offering'               => static::$has_free_offering,
 			'manage_url'                      => static::get_manage_url(),
+			// Whether to wait for `host_purchase_url`, which costs lookups and so comes with get_wpcom_info().
+			'host_may_sell'                   => Main_Features::may_host_sell_product( static::$slug ),
 			'post_activation_url'             => static::get_post_activation_url(),
 			'post_activation_urls_by_feature' => static::get_manage_urls_by_feature(),
 			'standalone_plugin_info'          => static::get_standalone_info(),
@@ -320,6 +330,16 @@ abstract class Product {
 			throw new \Exception( 'Product classes must declare the $slug attribute.' );
 		}
 
+		// Held for this call only: get_purchase_url() wants the same answer, and each ask costs ownership lookups.
+		$host_purchase_url                         = static::get_host_purchase_url();
+		$purchase_url                              = null;
+		self::$host_purchase_urls[ static::$slug ] = array( $host_purchase_url );
+		try {
+			$purchase_url = static::get_purchase_url();
+		} finally {
+			unset( self::$host_purchase_urls[ static::$slug ] );
+		}
+
 		$product_data = array(
 			'status'                        => static::get_status(),
 			'pricing_for_ui'                => static::get_pricing_for_ui(),
@@ -331,7 +351,8 @@ abstract class Product {
 			'has_any_plan_for_product'      => static::has_any_plan_for_product(),
 			'has_free_plan_for_product'     => static::has_free_plan_for_product(),
 			'has_paid_plan_for_product'     => static::has_paid_plan_for_product(),
-			'purchase_url'                  => static::get_purchase_url(),
+			'purchase_url'                  => $purchase_url,
+			'host_purchase_url'             => $host_purchase_url,
 			'manage_paid_plan_purchase_url' => static::get_manage_paid_plan_purchase_url(),
 			'renew_paid_plan_purchase_url'  => static::get_renew_paid_plan_purchase_url(),
 			'does_module_need_attention'    => static::does_module_need_attention(),
@@ -421,6 +442,11 @@ abstract class Product {
 	public static function does_site_have_feature( $feature ) {
 		if ( ! $feature ) {
 			return false;
+		}
+
+		// Simple runs the API call in-process, which 404s for the v1.1 features route, so ask WordPress.com's own check.
+		if ( ( new Host() )->is_wpcom_simple() && function_exists( 'wpcom_site_has_feature' ) ) {
+			return \wpcom_site_has_feature( $feature );
 		}
 
 		$features = self::get_site_features_from_wpcom();
@@ -526,11 +552,28 @@ abstract class Product {
 	/**
 	 * Get the URL where the user can purchase the product iff it doesn't have an interstitial page in My Jetpack.
 	 *
+	 * @since 6.19.0 Returns the host's own address when it sells the product's feature.
+	 *
 	 * @return ?string
 	 */
 	public static function get_purchase_url() {
-		// Declare as concrete method as most Jetpack products use an interstitial page within My Jetpack.
-		return null;
+		// Most Jetpack products sell through an interstitial page within My Jetpack, so only a host names an address.
+		return static::get_host_purchase_url();
+	}
+
+	/**
+	 * Get the URL where the site's host sells the product, in place of My Jetpack's interstitial page.
+	 *
+	 * @since 6.19.0
+	 *
+	 * @return ?string Null when no host sells it or the site already has it.
+	 */
+	public static function get_host_purchase_url() {
+		if ( isset( self::$host_purchase_urls[ static::$slug ] ) ) {
+			return self::$host_purchase_urls[ static::$slug ][0];
+		}
+
+		return Main_Features::get_host_purchase_url( static::$slug );
 	}
 
 	/**
@@ -977,6 +1020,19 @@ abstract class Product {
 	 */
 	public static function is_active() {
 		return static::is_plugin_active() && ( static::has_any_plan_for_product() || ( ! static::$requires_plan && static::$has_free_offering ) );
+	}
+
+	/**
+	 * Whether something other than its switch keeps the product off, such as a host or a filter.
+	 *
+	 * Turning its module or plugin on can't bring it back, so nothing should offer to.
+	 *
+	 * @since 6.19.0
+	 *
+	 * @return bool
+	 */
+	public static function is_held_off() {
+		return false;
 	}
 
 	/**

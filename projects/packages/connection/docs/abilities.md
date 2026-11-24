@@ -29,7 +29,7 @@ A read-only, idempotent ability that is safe to poll. It takes no input and retu
 
 **Permissions:** Access is gated on `current_user_can( 'jetpack_admin_page' )`, mirroring the capability used by the Jetpack admin page.
 
-**MCP:** This ability is opted into the MCP tool surface (`meta.mcp.public = true`), so it is exposed as a public MCP tool.
+**MCP:** This ability is marked public (`meta.public = true`) and keeps the MCP opt-in (`meta.mcp.public = true`) for older MCP adapters, so it is exposed as a public MCP tool.
 
 ## Initialization
 

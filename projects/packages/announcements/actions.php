@@ -25,3 +25,6 @@ if ( function_exists( 'add_action' ) ) {
 
 // Register REST routes.
 $add_action( 'rest_api_init', array( 'Automattic\\Jetpack\\Announcements\\REST_Controller', 'register_rest_routes' ) );
+
+// Register the script module of the What's new surface.
+$add_action( 'admin_init', array( 'Automattic\\Jetpack\\Announcements\\Announcements', 'register_script_module' ) );

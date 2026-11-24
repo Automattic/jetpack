@@ -6,37 +6,11 @@ import { useMembershipProducts, useStripeStatus } from '../../data/memberships';
 import { trackPaymentsEvent } from '../../data/tracking';
 import DeletePlanDialog from './delete-plan-dialog';
 import FreeTierDialog from './free-tier-dialog';
-import ListRow from './list-row';
+import ListRow, { RowAction } from './list-row';
 import PlanDialog from './plan-dialog';
 import { groupPlans, isTier, planPriceLabel } from './plans';
 import { getPaymentsState } from './state';
 import type { Plan } from './plans';
-
-/**
- * A button that acts on one plan.
- *
- * @param props          - Component props.
- * @param props.plan     - The plan.
- * @param props.label    - The button's text.
- * @param props.onSelect - Called with the plan.
- * @return The button.
- */
-function PlanAction( {
-	plan,
-	label,
-	onSelect,
-}: {
-	plan: Plan;
-	label: string;
-	onSelect: ( plan: Plan ) => void;
-} ) {
-	const onClick = useCallback( () => onSelect( plan ), [ onSelect, plan ] );
-	return (
-		<Button variant="minimal" tone="neutral" size="compact" onClick={ onClick }>
-			{ label }
-		</Button>
-	);
-}
 
 // Links elsewhere, such as Newsletter settings, open the add dialog with these.
 const ADD_HASHES: Record< string, boolean > = {
@@ -140,14 +114,14 @@ export default function PlansCard() {
 								<Stack direction="row" gap="xs">
 									{ /* An annual product whose monthly one is gone can only be deleted, as in Calypso. */ }
 									{ ! plan.product.tier && (
-										<PlanAction
-											plan={ plan }
+										<RowAction
+											item={ plan }
 											label={ __( 'Edit', 'jetpack-monetize' ) }
 											onSelect={ openEdit }
 										/>
 									) }
-									<PlanAction
-										plan={ plan }
+									<RowAction
+										item={ plan }
 										label={ __( 'Delete', 'jetpack-monetize' ) }
 										onSelect={ setDeleting }
 									/>

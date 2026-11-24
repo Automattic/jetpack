@@ -153,7 +153,7 @@ trait Fake_AI_Marker_Tools {
 	 *
 	 * Not the uploads folder: suites that run at the same time share it, and WorDBless empties it after each test.
 	 *
-	 * @param string $extension File extension.
+	 * @param string $extension File extension, or '' for none.
 	 * @return string
 	 */
 	private function temp_path( $extension ) {
@@ -162,7 +162,7 @@ trait Fake_AI_Marker_Tools {
 			mkdir( $this->temp_dir );
 		}
 
-		return $this->temp_dir . '/' . wp_generate_password( 12, false ) . '.' . $extension;
+		return $this->temp_dir . '/' . wp_generate_password( 12, false ) . ( '' === $extension ? '' : '.' . $extension );
 	}
 
 	/**

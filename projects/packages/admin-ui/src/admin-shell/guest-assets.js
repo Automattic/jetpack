@@ -122,8 +122,18 @@ export async function applyGuestAssets( endpoint, slug ) {
 	const inlineTexts = new Set(
 		[ ...document.querySelectorAll( 'script:not([src])' ) ].map( script => script.textContent )
 	);
+	let printed = {};
+	try {
+		printed = JSON.parse( document.getElementById( 'jetpack-page-handles' )?.textContent ?? '{}' );
+	} catch {
+		// The ids alone decide.
+	}
+	const wasPrinted = node =>
+		node.tagName === 'LINK'
+			? printed.styles?.includes( node.id.replace( /-css$/, '' ) )
+			: Boolean( node.src ) && printed.scripts?.includes( node.id.replace( /-js$/, '' ) );
 	for ( const node of nodes ) {
-		const existing = node.id && document.getElementById( node.id );
+		const existing = node.id && ( document.getElementById( node.id ) || wasPrinted( node ) );
 		if ( node.tagName !== 'SCRIPT' ) {
 			if ( existing ) {
 				added.skipped++;

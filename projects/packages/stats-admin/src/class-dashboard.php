@@ -213,7 +213,14 @@ JS;
 	 * Load the admin scripts.
 	 */
 	public function load_admin_scripts() {
-		( new Odyssey_Assets() )->load_admin_scripts( 'jp-stats-dashboard', 'build.min', array( 'config_variable_name' => 'jetpackStatsOdysseyAppConfigData' ) );
+		( new Odyssey_Assets() )->load_admin_scripts(
+			'jp-stats-dashboard',
+			'build.min',
+			array(
+				'config_variable_name' => 'jetpackStatsOdysseyAppConfigData',
+				'config_data'          => ( new Odyssey_Config_Data() )->get_data( true ),
+			)
+		);
 
 		// The bootstrap runs on jQuery, which the Odyssey bundle does not depend on. It gets its own
 		// handle rather than jQuery being added to that bundle, which the dashboard widget shares
