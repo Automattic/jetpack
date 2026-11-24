@@ -374,4 +374,9 @@ export {
  * `@jetpack-premium-analytics/ui` directly: the toolkit bundles the ui package
  * once instead of once per widget.
  */
-export { DataViewsDrilldownNative, safeHttpUrl, tagRowGlyph } from '@jetpack-premium-analytics/ui';
+export {
+	DataViewsDrilldownNative,
+	safeHttpUrl,
+	tagRowGlyph,
+	usePaginatedView,
+} from '@jetpack-premium-analytics/ui';

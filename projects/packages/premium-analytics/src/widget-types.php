@@ -536,6 +536,7 @@ function register_widget_types( $registry = null ) {
 	);
 
 	register_detail_page_widget_types( $registry );
+	register_data_views_widget_types( $registry );
 }
 
 add_action( Widget_Type_Registry::REGISTER_ACTION, __NAMESPACE__ . '\\register_widget_types' );
@@ -683,6 +684,71 @@ function register_widget_type_variation( Widget_Type_Registry $registry, $name, 
 			'plan_feature'  => $implementation->plan_feature,
 		)
 	);
+}
+
+/**
+ * The data views widget's variations: each registers as a type of its own on the `jpa/data-views`
+ * implementation, and declares the source its instances read and the view they start from.
+ *
+ * @since $$next-version$$
+ *
+ * @return array<string, array{title: string, description?: string, icon?: string, source: string, view?: array}> Variations keyed by type name.
+ */
+function get_data_views_widget_types() {
+	return array(
+		'jpa/data-views--posts' => array(
+			'title'       => __( 'Posts & Pages', 'jetpack-premium-analytics-pkg' ),
+			'description' => __( 'Every post and page with its views in the selected period.', 'jetpack-premium-analytics-pkg' ),
+			'icon'        => 'jpa/page',
+			'source'      => 'jpa/posts',
+			'view'        => array(
+				'titleField' => 'title',
+				'mediaField' => 'thumbnail',
+				'fields'     => array( 'views' ),
+				'sort'       => array(
+					'field'     => 'views',
+					'direction' => 'desc',
+				),
+				'layout'     => array(
+					'styles' => array(
+						'views' => array( 'align' => 'end' ),
+					),
+				),
+			),
+		),
+	);
+}
+
+/**
+ * Registers the data views variations, once their implementation is registered.
+ *
+ * @since $$next-version$$
+ *
+ * @param Widget_Type_Registry|null $registry Optional. The registry being hydrated. Defaults to the main instance.
+ * @return void
+ */
+function register_data_views_widget_types( $registry = null ) {
+	if ( ! $registry instanceof Widget_Type_Registry ) {
+		$registry = Widget_Type_Registry::get_instance();
+	}
+
+	foreach ( get_data_views_widget_types() as $name => $variation ) {
+		register_widget_type_variation( $registry, $name, array( 'implementation' => 'jpa/data-views' ) + $variation );
+	}
+}
+
+/**
+ * The attributes an instance of a data views variation starts from: its source and its view.
+ *
+ * @since $$next-version$$
+ *
+ * @param string $name Variation name.
+ * @return array The attributes, empty for a name that is not a variation.
+ */
+function get_data_views_widget_attributes( $name ) {
+	$variation = get_data_views_widget_types()[ $name ] ?? array();
+
+	return array_intersect_key( $variation, array_flip( array( 'source', 'view' ) ) );
 }
 
 /**

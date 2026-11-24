@@ -6,7 +6,7 @@ import { render } from '@testing-library/react';
  * Internal dependencies
  */
 import { getArchivesFields } from '../../widgets/archives-table/fields';
-import { getPostsFields } from '../../widgets/posts-table/fields';
+import { getPostsFields } from '../../widgets/data-views/sources/posts/fields';
 import { getAnnualInsightsFields } from './annual-insights/config/fields';
 import { getAuthorsFields } from './authors/config/fields';
 import { getClicksFields } from './clicks/config/fields';

@@ -1,8 +1,0 @@
-{
-	"name": "jpa/posts-table",
-	"icon": "jpa/page",
-	"title": "Posts & Pages",
-	"description": "Every post and page with its views in the selected period.",
-	"category": "stats",
-	"presentation": "full-bleed"
-}

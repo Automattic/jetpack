@@ -16,7 +16,7 @@ import {
 } from '../../stories/widget-dashboard-with-widget';
 import { withStoryRouter } from '../../stories/with-story-router';
 import { withWidgetCanvas } from '../../stories/with-widget-canvas';
-import PostsTableRender from '../render';
+import DataViewsRender, { type DataViewsAttributes } from '../render';
 import widgetManifest from '../widget.json';
 import type { Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
@@ -25,39 +25,59 @@ import type { ComponentProps, ComponentType } from 'react';
 registerReportMocks();
 registerStatsMocks();
 
-const POSTS_TABLE_RENDER_MODULE = 'storybook/posts-table';
+const DATA_VIEWS_RENDER_MODULE = 'storybook/data-views';
 
-interface PostsTableStoryControls {
+const POSTS_VARIATION = {
+	...widgetManifest,
+	name: 'jpa/data-views--posts',
+	icon: 'jpa/page',
+	title: 'Posts & Pages',
+};
+
+const POSTS_ATTRIBUTES: DataViewsAttributes = {
+	source: 'jpa/posts',
+	view: {
+		titleField: 'title',
+		mediaField: 'thumbnail',
+		fields: [ 'views' ],
+		sort: { field: 'views', direction: 'desc' },
+		layout: { styles: { views: { align: 'end' } } },
+	},
+};
+
+interface DataViewsStoryControls {
 	withComparison: boolean;
 }
 
-interface PostsTableDashboardStoryProps
-	extends WidgetDashboardWithWidgetControls, PostsTableStoryControls {}
+interface DataViewsDashboardStoryProps
+	extends WidgetDashboardWithWidgetControls, DataViewsStoryControls {}
 
-function renderPostsTableWidget( { withComparison }: PostsTableStoryControls ) {
+function renderDataViewsWidget( { withComparison }: DataViewsStoryControls ) {
 	return (
-		<PostsTableRender attributes={ { reportParams: getDefaultQueryParams( withComparison ) } } />
+		<DataViewsRender
+			attributes={ { ...POSTS_ATTRIBUTES, reportParams: getDefaultQueryParams( withComparison ) } }
+		/>
 	);
 }
 
-function PostsTableDashboardStory( {
+function DataViewsDashboardStory( {
 	withComparison,
 	...dashboardArgs
-}: PostsTableDashboardStoryProps ) {
+}: DataViewsDashboardStoryProps ) {
 	return (
 		<WidgetDashboardWithWidgetStory
 			{ ...dashboardArgs }
-			widgetType={ createStoryWidgetType( widgetManifest ) }
-			renderModule={ POSTS_TABLE_RENDER_MODULE }
-			renderComponent={ PostsTableRender as ComponentType< WidgetRenderProps< unknown > > }
-			attributes={ { reportParams: getDefaultQueryParams( withComparison ) } }
+			widgetType={ createStoryWidgetType( POSTS_VARIATION ) }
+			renderModule={ DATA_VIEWS_RENDER_MODULE }
+			renderComponent={ DataViewsRender as ComponentType< WidgetRenderProps< unknown > > }
+			attributes={ { ...POSTS_ATTRIBUTES, reportParams: getDefaultQueryParams( withComparison ) } }
 		/>
 	);
 }
 
 const meta = {
-	title: 'Packages/Premium Analytics/Widgets/PostsTable',
-	component: PostsTableRender,
+	title: 'Packages/Premium Analytics/Widgets/DataViews',
+	component: DataViewsRender,
 	tags: [ 'autodocs' ],
 	argTypes: {
 		withComparison: {
@@ -69,32 +89,32 @@ const meta = {
 		docs: {
 			description: {
 				component:
-					'The table of the All pages report: every post and page of the period with its views, searchable, sortable and paginated inside the tile. Each title opens the post’s own report.',
+					'A wrapper of DataViews: the table of the source an instance names, in the view it carries. These stories mount its Posts & Pages variation, the table of the All pages report: every post and page of the period with its views, searchable, sortable and paginated inside the tile. Each title opens the post’s own report.',
 			},
 		},
 	},
-} satisfies Meta< ComponentProps< typeof PostsTableRender > & PostsTableStoryControls >;
+} satisfies Meta< ComponentProps< typeof DataViewsRender > & DataViewsStoryControls >;
 
 export default meta;
 
-type Story = StoryObj< PostsTableStoryControls >;
-type DashboardStory = StoryObj< PostsTableDashboardStoryProps >;
+type Story = StoryObj< DataViewsStoryControls >;
+type DashboardStory = StoryObj< DataViewsDashboardStoryProps >;
 
 export const Default: Story = {
-	render: renderPostsTableWidget,
+	render: renderDataViewsWidget,
 	args: { withComparison: false },
 	decorators: [ withWidgetCanvas, withStoryRouter ],
 };
 
 export const WithComparison: Story = {
-	render: renderPostsTableWidget,
+	render: renderDataViewsWidget,
 	args: { withComparison: true },
 	decorators: [ withWidgetCanvas, withStoryRouter ],
 };
 
 export const WidgetDashboardWithWidget: DashboardStory = {
 	tags: [ 'widget-dashboard' ],
-	render: args => <PostsTableDashboardStory { ...args } />,
+	render: args => <DataViewsDashboardStory { ...args } />,
 	args: {
 		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
 		withComparison: true,
