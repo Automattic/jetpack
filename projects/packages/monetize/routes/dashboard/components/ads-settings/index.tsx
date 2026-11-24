@@ -53,7 +53,7 @@ function AdsOptions( { data, openTab }: { data: AdsSettingsData; openTab: OpenTa
 		async ( active: boolean ) => {
 			// Turning ads on agrees to the terms, which only WordPress.com records; Simple's switch saves both at once.
 			if ( active && canUseWpcom && tosUnsigned && ! simple ) {
-				// A failure leaves ads on and asks for the terms in the payout card instead.
+				// On failure, ads still turn on and the payout card records the terms on its next save.
 				await signTerms( { tos: true } ).catch( () => undefined );
 			}
 			await setModuleActive( active );
@@ -125,32 +125,34 @@ function AdsOptions( { data, openTab }: { data: AdsSettingsData; openTab: OpenTa
 				</Card.Header>
 				<Card.Content>
 					<Stack direction="column" gap="lg">
-						<Text>
-							{ __(
-								'Show ads on the first article on your home page or at the end of every page and post. Place additional ads at the top of your site and to any widget area to increase your earnings.',
-								'jetpack-monetize'
-							) }
-						</Text>
-						<Text variant="body-sm">
-							{ createInterpolateElement(
-								__(
-									'By activating ads, you agree to the Automattic Ads <link>Terms of Service</link>, to post only <family>family-friendly content</family>, and not to purchase non-human traffic.',
+						<Stack direction="column" gap="xs">
+							<Text>
+								{ __(
+									'Show ads on the first article on your home page or at the end of every page and post. Place additional ads at the top of your site and to any widget area to increase your earnings.',
 									'jetpack-monetize'
-								),
-								{
-									link: (
-										<Link
-											href={ getRedirectUrl( 'wpcom-automattic-ads-tos' ) }
-											openInNewTab
-											onClick={ trackTermsClick }
-										/>
+								) }
+							</Text>
+							<Text variant="body-sm" className="jp-monetize-ads__terms">
+								{ createInterpolateElement(
+									__(
+										'By activating ads, you agree to the Automattic Ads <link>Terms of Service</link>, to post only <family>family-friendly content</family>, and not to purchase non-human traffic.',
+										'jetpack-monetize'
 									),
-									family: (
-										<Link href={ getRedirectUrl( 'wordads-family-safe-sites' ) } openInNewTab />
-									),
-								}
-							) }
-						</Text>
+									{
+										link: (
+											<Link
+												href={ getRedirectUrl( 'wpcom-automattic-ads-tos' ) }
+												openInNewTab
+												onClick={ trackTermsClick }
+											/>
+										),
+										family: (
+											<Link href={ getRedirectUrl( 'wordads-family-safe-sites' ) } openInNewTab />
+										),
+									}
+								) }
+							</Text>
+						</Stack>
 						<SwitchControl
 							label={ __( 'Enable ads and display an ad below each post', 'jetpack-monetize' ) }
 							description={ __(
@@ -164,16 +166,6 @@ function AdsOptions( { data, openTab }: { data: AdsSettingsData; openTab: OpenTa
 							}
 							onCheckedChange={ onAdsToggle }
 						/>
-						{ isActive && acceptTerms.isError && (
-							<Notice.Root intent="error">
-								<Notice.Description>
-									{ __(
-										'Ads are on, but your agreement to the Terms of Service could not be recorded. Please accept the terms in the Payout details card below.',
-										'jetpack-monetize'
-									) }
-								</Notice.Description>
-							</Notice.Root>
-						) }
 						{ simple &&
 							toggle(
 								'logged_out_only',
