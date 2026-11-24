@@ -4,8 +4,6 @@
 import {
 	DataViews,
 	Stack,
-	type Action,
-	type Field,
 	type SupportedLayouts,
 	type View,
 } from '@jetpack-premium-analytics/externals';
@@ -21,7 +19,6 @@ import { useEffect, useState } from 'react';
  * Internal dependencies
  */
 import { getDataViewsSource } from './sources';
-import styles from './style.module.css';
 import type { DataViewsSource } from './sources/types';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
@@ -37,24 +34,6 @@ type DataViewsRenderAttributes = DataViewsAttributes & Partial< ReportParamsFiel
 const PER_PAGE_SIZES = [ 10, 25, 50, 100 ];
 
 const DEFAULT_LAYOUTS: SupportedLayouts = { table: {} };
-
-/**
- * DataViews makes `getItemId` conditionally optional when an item has a string
- * `id`. This alias always requires it, so the generic contract stays stable.
- */
-const GenericDataViews = DataViews as unknown as < Item >( props: {
-	view: View;
-	onChangeView: ( view: View ) => void;
-	fields: Field< Item >[];
-	data: Item[];
-	getItemId: ( item: Item ) => string;
-	paginationInfo: { totalItems: number; totalPages: number };
-	defaultLayouts?: SupportedLayouts;
-	actions?: Action< Item >[];
-	search?: boolean;
-	searchLabel?: string;
-	config?: { perPageSizes: number[] };
-} ) => ReturnType< typeof DataViews >;
 
 type DataViewsTableProps< Item > = {
 	source: DataViewsSource< Item >;
@@ -106,21 +85,19 @@ function DataViewsTable< Item >( { source, initialView }: DataViewsTableProps< I
 				isEmpty={ data.length === 0 }
 				error={ error }
 			>
-				<div className={ styles.root }>
-					<GenericDataViews< Item >
-						view={ page.view }
-						onChangeView={ setView }
-						fields={ fields }
-						data={ page.data }
-						getItemId={ source.getItemId }
-						paginationInfo={ page.paginationInfo }
-						defaultLayouts={ DEFAULT_LAYOUTS }
-						actions={ actions }
-						search={ fields.some( field => field.enableGlobalSearch ) }
-						searchLabel={ searchLabel }
-						config={ { perPageSizes: PER_PAGE_SIZES } }
-					/>
-				</div>
+				<DataViews< Item >
+					view={ page.view }
+					onChangeView={ setView }
+					fields={ fields }
+					data={ page.data }
+					getItemId={ source.getItemId }
+					paginationInfo={ page.paginationInfo }
+					defaultLayouts={ DEFAULT_LAYOUTS }
+					actions={ actions }
+					search={ fields.some( field => field.enableGlobalSearch ) }
+					searchLabel={ searchLabel }
+					config={ { perPageSizes: PER_PAGE_SIZES } }
+				/>
 			</WidgetState>
 		</Stack>
 	);

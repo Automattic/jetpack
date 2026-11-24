@@ -76,7 +76,7 @@ export function getPostsFields(
 	return [
 		{
 			id: 'title',
-			label: __( 'Title', 'jetpack-premium-analytics-pkg' ),
+			label: __( 'Post title', 'jetpack-premium-analytics-pkg' ),
 			enableGlobalSearch: true,
 			enableHiding: false,
 			getValue: ( { item } ) => String( item.label ?? '' ),
