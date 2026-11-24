@@ -1171,14 +1171,14 @@ function buildDevicesPeriodsResponse( query: URLSearchParams, isComparison: bool
 	const dayOf = ( value: string ) => new Date( `${ value.slice( 0, 10 ) }T00:00:00Z` );
 	const end = dayOf( getRequestDate( query ) );
 	const start = dayOf( query.get( 'start_date' ) || getRequestDate( query ) );
-	const days: Record< string, Record< string, number > > = {};
+	const views: Record< string, Record< string, number > > = {};
 
 	for (
 		let day = new Date( start ), index = 0;
 		day <= end;
 		day.setUTCDate( day.getUTCDate() + 1 ), index++
 	) {
-		const bucket = ( days[ devicesBucketStart( day, unit ) ] ??= {
+		const bucket = ( views[ devicesBucketStart( day, unit ) ] ??= {
 			desktop: 0,
 			mobile: 0,
 			tablet: 0,
@@ -1188,6 +1188,16 @@ function buildDevicesPeriodsResponse( query: URLSearchParams, isComparison: bool
 		bucket.mobile += Math.round( ( 1400 + ( ( index * 89 ) % 500 ) ) * scale );
 		bucket.tablet += Math.round( ( 200 + ( ( index * 53 ) % 150 ) ) * scale );
 	}
+	const days = Object.fromEntries(
+		Object.entries( views ).map( ( [ period, counts ] ) => [
+			period,
+			{
+				views: counts,
+				other_views: 0,
+				total_views: counts.desktop + counts.mobile + counts.tablet,
+			},
+		] )
+	);
 
 	return { date: getRequestDate( query ).slice( 0, 10 ), unit, days, utc_offset: 0 };
 }

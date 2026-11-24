@@ -91,4 +91,28 @@ describe( 'sanitizeStatsDevicesPeriodsResponse', () => {
 	it( 'reads an empty days map as a range with no views', () => {
 		expect( sanitizeStatsDevicesPeriodsResponse( { unit: 'day', days: {} } ).data ).toEqual( [] );
 	} );
+
+	it( 'reads each bucket’s device counts from its views', () => {
+		const { summary, data } = sanitizeStatsDevicesPeriodsResponse( {
+			unit: 'year',
+			days: {
+				'2026-01-01': {
+					views: { desktop: 10, tablet: 5, mobile: 3, other: 2 },
+					other_views: 0,
+					total_views: 20,
+				},
+			},
+		} );
+
+		expect( summary ).toEqual( {
+			desktop: 10,
+			tablet: 5,
+			mobile: 3,
+			other: 2,
+			date_start: expect.any( String ),
+			date_end: expect.any( String ),
+		} );
+		expect( data ).toHaveLength( 1 );
+		expect( data[ 0 ] ).toMatchObject( { desktop: 10, tablet: 5, mobile: 3, other: 2 } );
+	} );
 } );

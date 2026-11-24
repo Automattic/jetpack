@@ -110,9 +110,18 @@ export function mergeStatsDevicesComparisonRows(
  * @return The time series, a field per device.
  */
 export function sanitizeStatsDevicesPeriodsResponse( response: unknown, query?: StatsQueryParams ) {
-	if ( ! ( 'days' in coerceStatsRecord( response ) ) ) {
+	const payload = coerceStatsRecord( response );
+	if ( ! ( 'days' in payload ) ) {
 		throw new Error( 'stats/devices returned no per-period views.' );
 	}
 
-	return sanitizeStatsTimeSeriesResponse( response, query );
+	// Each bucket's `other_views` and `total_views` sit beside its devices, so only `views` becomes fields.
+	const days = Object.fromEntries(
+		Object.entries( coerceStatsRecord( payload.days ) ).map( ( [ period, bucket ] ) => [
+			period,
+			coerceStatsRecord( coerceStatsRecord( bucket ).views ),
+		] )
+	);
+
+	return sanitizeStatsTimeSeriesResponse( { ...payload, days }, query );
 }
