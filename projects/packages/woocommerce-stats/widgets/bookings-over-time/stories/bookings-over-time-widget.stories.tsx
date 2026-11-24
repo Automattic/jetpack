@@ -9,6 +9,7 @@ import {
 	widgetDashboardWithWidgetArgTypes,
 	withinWidgetCanvas,
 	withWidgetCanvas,
+	WOO_REPORT_PATHS,
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/shared';
 import BookingsOverTimeRender from '../render';
@@ -20,8 +21,6 @@ import type { ComponentProps, ComponentType } from 'react';
 registerWooReportMocks();
 
 const BOOKINGS_OVER_TIME_RENDER_MODULE = 'storybook/bookings-over-time';
-const BOOKINGS_REPORT_PATH = 'analytics/reports/orders-by-product-type/by-date';
-
 const storyWidgetType = createStoryWidgetType( widgetManifest );
 
 interface BookingsOverTimeStoryControls {
@@ -129,7 +128,7 @@ export const Loading: Story = {
 	args: { withComparison: false, chartType: 'line' },
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas ],
-	beforeEach: forceWooReportState( BOOKINGS_REPORT_PATH, 'loading' ),
+	beforeEach: forceWooReportState( WOO_REPORT_PATHS.ordersByProductType, 'loading' ),
 };
 
 export const Empty: Story = {
@@ -137,7 +136,7 @@ export const Empty: Story = {
 	args: { withComparison: false, chartType: 'line' },
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas ],
-	beforeEach: forceWooReportState( BOOKINGS_REPORT_PATH, 'empty' ),
+	beforeEach: forceWooReportState( WOO_REPORT_PATHS.ordersByProductType, 'empty' ),
 };
 
 export const ErrorState: Story = {
@@ -145,7 +144,7 @@ export const ErrorState: Story = {
 	args: { withComparison: false, chartType: 'line' },
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas ],
-	beforeEach: forceWooReportState( BOOKINGS_REPORT_PATH, 'error' ),
+	beforeEach: forceWooReportState( WOO_REPORT_PATHS.ordersByProductType, 'error' ),
 };
 
 export const ErrorRetryable: Story = {
@@ -153,7 +152,7 @@ export const ErrorRetryable: Story = {
 	args: { withComparison: false, chartType: 'line' },
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas ],
-	beforeEach: forceWooReportState( BOOKINGS_REPORT_PATH, 'error-retryable' ),
+	beforeEach: forceWooReportState( WOO_REPORT_PATHS.ordersByProductType, 'error-retryable' ),
 };
 
 export const WidgetDashboardWithWidget: DashboardStory = {

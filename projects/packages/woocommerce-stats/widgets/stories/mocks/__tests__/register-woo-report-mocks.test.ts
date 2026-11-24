@@ -11,10 +11,15 @@ import {
 	PHYSICAL_PRODUCTS_FILTER,
 } from '../../../../src/reports/utils/product-filters';
 import { storyReportParams } from '../../story-report-params';
-import { registerWooReportMocks, setWooReportMockState } from '../register-woo-report-mocks';
+import {
+	registerWooReportMocks,
+	setWooReportMockState,
+	WOO_REPORT_PATHS,
+} from '../register-woo-report-mocks';
 import type { APIFetchMiddleware } from '@wordpress/api-fetch';
 
-const REPORTS = '/jetpack/v4/woocommerce-stats/proxy/v2/analytics/reports';
+const PROXY = '/jetpack/v4/woocommerce-stats/proxy/v2/';
+const REPORTS = `${ PROXY }analytics/reports`;
 
 const FELL_THROUGH = { fellThrough: true };
 
@@ -93,6 +98,21 @@ const productsPath = ( reportWindow: ReportWindow ) =>
 	reportPath( 'products', { ...reportWindow, limit: '5' } );
 
 const PRIMARY_ORDERS = ordersPath( PRIMARY_WINDOW );
+
+// An entry with no responder leaves the widget fetching for real, which renders its error state.
+it.each( Object.entries( WOO_REPORT_PATHS ) )(
+	'answers the %s report path the stories force states on',
+	async ( _report, reportFragment ) => {
+		const response = await request(
+			`${ PROXY }${ reportFragment }?${ new URLSearchParams( {
+				...PRIMARY_WINDOW,
+				...STORY_PARAMS,
+			} ) }`
+		);
+
+		expect( response ).not.toBe( FELL_THROUGH );
+	}
+);
 
 it( 'buckets the orders report by the requested interval', async () => {
 	const daily = await request< OrdersResponse >( PRIMARY_ORDERS );

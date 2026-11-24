@@ -9,6 +9,7 @@ import {
 	widgetDashboardWithWidgetArgTypes,
 	withinWidgetCanvas,
 	withWidgetCanvas,
+	WOO_REPORT_PATHS,
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/shared';
 import VisitorsOverTimeRender from '../render';
@@ -20,8 +21,6 @@ import type { ComponentProps, ComponentType } from 'react';
 registerWooReportMocks();
 
 const VISITORS_OVER_TIME_RENDER_MODULE = 'storybook/visitors-over-time';
-const VISITORS_REPORT_PATH = 'analytics/reports/sessions/by-date';
-
 const storyWidgetType = createStoryWidgetType( widgetManifest );
 
 interface VisitorsOverTimeStoryControls {
@@ -129,7 +128,7 @@ export const Loading: Story = {
 	args: { withComparison: false, chartType: 'line' },
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas ],
-	beforeEach: forceWooReportState( VISITORS_REPORT_PATH, 'loading' ),
+	beforeEach: forceWooReportState( WOO_REPORT_PATHS.sessionsByDate, 'loading' ),
 };
 
 export const Empty: Story = {
@@ -137,7 +136,7 @@ export const Empty: Story = {
 	args: { withComparison: false, chartType: 'line' },
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas ],
-	beforeEach: forceWooReportState( VISITORS_REPORT_PATH, 'empty' ),
+	beforeEach: forceWooReportState( WOO_REPORT_PATHS.sessionsByDate, 'empty' ),
 };
 
 export const ErrorState: Story = {
@@ -145,7 +144,7 @@ export const ErrorState: Story = {
 	args: { withComparison: false, chartType: 'line' },
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas ],
-	beforeEach: forceWooReportState( VISITORS_REPORT_PATH, 'error' ),
+	beforeEach: forceWooReportState( WOO_REPORT_PATHS.sessionsByDate, 'error' ),
 };
 
 export const ErrorRetryable: Story = {
@@ -153,7 +152,7 @@ export const ErrorRetryable: Story = {
 	args: { withComparison: false, chartType: 'line' },
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas ],
-	beforeEach: forceWooReportState( VISITORS_REPORT_PATH, 'error-retryable' ),
+	beforeEach: forceWooReportState( WOO_REPORT_PATHS.sessionsByDate, 'error-retryable' ),
 };
 
 export const WidgetDashboardWithWidget: DashboardStory = {
