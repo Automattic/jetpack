@@ -416,7 +416,7 @@ export function getResultCopy( step: ResultStepId, c: CopyContext ): ResultCopy 
 					fill(
 						/* translators: <x />: this site's address. */
 						__(
-							'Keep both addresses, and make <x /> reachable from the internet. Then come back here, so Jetpack Connection can check again. Safe Mode ends once the check passes.',
+							'Keep both addresses, and make <x /> reachable from the internet. Then choose Safe Mode in the admin bar to start the checks again. Safe Mode ends once one passes.',
 							'jetpack-connection-js'
 						),
 						c
