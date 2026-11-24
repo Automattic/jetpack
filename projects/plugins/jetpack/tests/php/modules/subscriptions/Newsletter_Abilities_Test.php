@@ -477,6 +477,38 @@ class Newsletter_Abilities_Test extends WP_UnitTestCase {
 		}
 	}
 
+	public function test_failed_subscriber_stats_request_is_not_repeated_on_every_load() {
+		delete_transient( 'jetpack_newsletter_subscriber_stats_data' );
+		add_filter( 'jetpack_is_connection_ready', '__return_true' );
+		$previous_site_id = Jetpack_Options::get_option( 'id' );
+		Jetpack_Options::update_option( 'id', 123 );
+		$requests = 0;
+		$mock     = \Patchwork\redefine(
+			Client::class . '::wpcom_json_api_request_as_blog',
+			static function () use ( &$requests ) {
+				++$requests;
+				return array(
+					'response' => array( 'code' => 400 ),
+					'body'     => '',
+				);
+			}
+		);
+
+		try {
+			$this->assertFalse( Jetpack_Newsletter_Dashboard_Widget::get_config_data()['isWidgetVisible'] );
+			$this->assertSame( 0, Jetpack_Newsletter_Dashboard_Widget::get_config_data()['allSubscribers'] );
+			$this->assertSame( 'jetpack_newsletter_subscriber_stats_unavailable', Newsletter_Abilities::get_subscriber_stats()->get_error_code() );
+			$this->assertSame( 1, $requests );
+		} finally {
+			if ( null !== $mock ) {
+				\Patchwork\restore( $mock );
+			}
+			remove_filter( 'jetpack_is_connection_ready', '__return_true' );
+			Jetpack_Options::update_option( 'id', $previous_site_id );
+			delete_transient( 'jetpack_newsletter_subscriber_stats_data' );
+		}
+	}
+
 	public static function subscriber_stats_responses_provider() {
 		$counts = array(
 			'all_subscribers'   => 120,

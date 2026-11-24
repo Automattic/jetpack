@@ -661,7 +661,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 
 		$subs_count = Jetpack_Subscriber_Data::get_counts();
 		$counts     = $subs_count['value'];
-		return (int) $counts['total_subscribers'] + (int) $counts['social_followers'];
+		return (int) ( $counts['total_subscribers'] ?? 0 ) + (int) ( $counts['social_followers'] ?? 0 );
 	}
 
 	/**

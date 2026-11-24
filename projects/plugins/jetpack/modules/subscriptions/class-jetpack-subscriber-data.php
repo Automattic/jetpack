@@ -30,12 +30,14 @@ class Jetpack_Subscriber_Data {
 		if ( false === $subs_count || 'failed' === $subs_count['status'] ) {
 			$xml = new Jetpack_IXR_Client();
 			$xml->query( 'jetpack.fetchSubscriberCounts' );
+			$is_error = $xml->isError();
+			$value    = $is_error ? null : $xml->getResponse();
 
-			if ( $xml->isError() ) { // If we get an error from .com, set the status to failed so that we will try again next time the data is requested.
+			if ( ! is_array( $value ) || ! isset( $value['total_subscribers'] ) || ! isset( $value['social_followers'] ) ) { // If we get an error from .com, set the status to failed so that we will try again next time the data is requested.
 				$subs_count = array(
 					'status'  => 'failed',
-					'code'    => $xml->getErrorCode(),
-					'message' => $xml->getErrorMessage(),
+					'code'    => $is_error ? $xml->getErrorCode() : 'invalid_response',
+					'message' => $is_error ? $xml->getErrorMessage() : '',
 					'value'   => $subs_count['value'] ?? array(
 						'total_subscribers' => 0,
 						'email_subscribers' => 0,
@@ -46,7 +48,7 @@ class Jetpack_Subscriber_Data {
 			} else {
 				$subs_count = array(
 					'status' => 'success',
-					'value'  => $xml->getResponse(),
+					'value'  => $value,
 				);
 			}
 			set_transient( $cache_key, $subs_count, HOUR_IN_SECONDS );
@@ -60,10 +62,14 @@ class Jetpack_Subscriber_Data {
 	 * @return array|WP_Error
 	 */
 	public static function get_stats() {
+		// WordPress.com answers in-process from its own cache, which it clears when subscribers change.
+		$use_cache = ! ( defined( 'IS_WPCOM' ) && IS_WPCOM );
 		$cache_key = 'jetpack_newsletter_subscriber_stats_data';
-		$cached    = get_transient( $cache_key );
+		$cached    = $use_cache ? get_transient( $cache_key ) : false;
 		if ( is_array( $cached ) ) {
-			return $cached;
+			return isset( $cached['error'] )
+				? new WP_Error( 'jetpack_newsletter_subscriber_stats_unavailable', $cached['error'] )
+				: $cached;
 		}
 
 		if ( ! class_exists( 'Jetpack' ) || ! Jetpack::is_connection_ready() ) {
@@ -89,26 +95,34 @@ class Jetpack_Subscriber_Data {
 			'wpcom'
 		);
 
+		$error = null;
+		$body  = null;
 		if ( is_wp_error( $response ) ) {
-			return new WP_Error( 'jetpack_newsletter_subscriber_stats_unavailable', $response->get_error_message() );
+			$error = $response->get_error_message();
+		} else {
+			$body = json_decode( wp_remote_retrieve_body( $response ), true );
+			if ( 200 !== (int) wp_remote_retrieve_response_code( $response )
+				|| ! is_array( $body ) || ! isset( $body['counts'] ) || ! is_array( $body['counts'] )
+				|| ( isset( $body['aggregate'] ) && ! is_array( $body['aggregate'] ) )
+			) {
+				$error = __( 'WordPress.com did not return subscriber stats. Retry shortly.', 'jetpack' );
+			}
 		}
 
-		$body = json_decode( wp_remote_retrieve_body( $response ), true );
-		if ( 200 !== (int) wp_remote_retrieve_response_code( $response )
-			|| ! is_array( $body ) || ! isset( $body['counts'] ) || ! is_array( $body['counts'] )
-			|| ( isset( $body['aggregate'] ) && ! is_array( $body['aggregate'] ) )
-		) {
-			return new WP_Error(
-				'jetpack_newsletter_subscriber_stats_unavailable',
-				__( 'WordPress.com did not return subscriber stats. Retry shortly.', 'jetpack' )
-			);
+		if ( null !== $error ) {
+			if ( $use_cache ) {
+				set_transient( $cache_key, array( 'error' => $error ), 5 * MINUTE_IN_SECONDS );
+			}
+			return new WP_Error( 'jetpack_newsletter_subscriber_stats_unavailable', $error );
 		}
 
 		$stats = array(
 			'counts'    => $body['counts'],
 			'aggregate' => $body['aggregate'] ?? array(),
 		);
-		set_transient( $cache_key, $stats, HOUR_IN_SECONDS );
+		if ( $use_cache ) {
+			set_transient( $cache_key, $stats, HOUR_IN_SECONDS );
+		}
 		return $stats;
 	}
 }

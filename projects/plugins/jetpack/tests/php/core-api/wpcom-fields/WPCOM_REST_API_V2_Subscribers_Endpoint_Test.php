@@ -166,6 +166,33 @@ class WPCOM_REST_API_V2_Subscribers_Endpoint_Test extends Jetpack_REST_TestCase 
 		}
 	}
 
+	public function test_malformed_counts_response_is_not_cached_as_success() {
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			$this->markTestSkipped( 'Native WordPress.com uses its own subscriber cache.' );
+		}
+
+		delete_transient( 'wpcom_subscribers_totals' );
+		$mock = \Patchwork\redefine(
+			Client::class . '::remote_request',
+			static function () {
+				return array(
+					'response' => array( 'code' => 200 ),
+					'body'     => '<methodResponse><params><param><value><string></string></value></param></params></methodResponse>',
+				);
+			}
+		);
+
+		try {
+			$this->assertSame( 0, Jetpack_Subscriptions_Widget::fetch_subscriber_count() );
+			$this->assertSame( 'failed', get_transient( 'wpcom_subscribers_totals' )['status'] );
+		} finally {
+			if ( null !== $mock ) {
+				\Patchwork\restore( $mock );
+			}
+			delete_transient( 'wpcom_subscribers_totals' );
+		}
+	}
+
 	public static function count_routes_provider() {
 		return array(
 			'combined count' => array( 'count', array( 'count' => 100 ) ),
