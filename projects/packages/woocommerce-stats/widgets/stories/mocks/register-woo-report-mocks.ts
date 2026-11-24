@@ -27,11 +27,8 @@ const WC_PRODUCTS_PATH = `${ WC_REST_PATH }products`;
 /**
  * The report each mocked endpoint answers, as the path fragment that identifies it.
  *
- * A story names its report from here rather than typing the fragment, because `forceWooReportState`
- * matches by substring: a fragment naming an endpoint the widget never requests forces nothing, and
- * the story then renders as `Default` does and still reports a pass. The near miss that makes this
- * worth a shared table is `orders/by-date` against `orders-by-product-type/by-date`, which the
- * bookings widgets use and which does not contain the other.
+ * `forceWooReportState` matches by substring, so a story names its report from here rather than
+ * typing a fragment that no request contains.
  */
 export const WOO_REPORT_PATHS = {
 	orderAttributionByProductDevice: `${ REPORTS_FRAGMENT }order-attribution-by-product/device/summary`,
@@ -67,7 +64,13 @@ const BOOKINGS_SHARE = 0.28;
 
 export type WooReportMockState = 'error' | 'error-retryable' | 'loading' | 'empty';
 
+export type WooReportPath = ( typeof WOO_REPORT_PATHS )[ keyof typeof WOO_REPORT_PATHS ];
+
 const mockStateOverrides = new Map< string, WooReportMockState >();
+
+// Fragments some request has actually contained since they were forced. A forced state the widget
+// never asks for is the failure this set exists to catch, so it is read on cleanup.
+const matchedOverrides = new Set< string >();
 
 const queryOf = ( requestPath: string ) =>
 	new URLSearchParams( requestPath.split( '?' )[ 1 ] ?? '' );
@@ -84,6 +87,7 @@ function forcedResponse( requestPath: string ): Promise< unknown > | undefined {
 		if ( ! requestPath.includes( fragment ) ) {
 			continue;
 		}
+		matchedOverrides.add( fragment );
 		if ( state === 'loading' ) {
 			return new Promise< never >( () => {} );
 		}
@@ -134,7 +138,7 @@ const wooReportMocksMiddleware: APIFetchMiddleware = async ( options: APIFetchOp
 		}
 	}
 
-	// An unrouted report sub-path falls through too, so a later endpoint is one `case` and
+	// An unrouted report sub-path falls through too, so a later endpoint is one entry and
 	// registration order decides nothing.
 	return next( options );
 };
@@ -165,6 +169,7 @@ export function setWooReportMockState(
 	pathFragment: string,
 	state: WooReportMockState | null
 ): void {
+	matchedOverrides.delete( pathFragment );
 	if ( state === null ) {
 		mockStateOverrides.delete( pathFragment );
 	} else {
@@ -176,17 +181,30 @@ export function setWooReportMockState(
 /**
  * Story `beforeEach` that forces the matching requests into a state and clears it on cleanup.
  *
- * @param {string}             pathFragment - Substring matched against the request path.
- * @param {WooReportMockState} state        - The forced state.
+ * The cleanup throws when no request ever matched, because the story then rendered as `Default`
+ * does: without this, forcing a report the widget does not request is a silent pass.
+ *
+ * @param {WooReportPath}      reportPath - The report to force, from `WOO_REPORT_PATHS`.
+ * @param {WooReportMockState} state      - The forced state.
  * @return {Function} A Storybook `beforeEach` implementation returning its cleanup.
  */
 export function forceWooReportState(
-	pathFragment: string,
+	reportPath: WooReportPath,
 	state: WooReportMockState
 ): () => () => void {
 	return () => {
-		setWooReportMockState( pathFragment, state );
+		setWooReportMockState( reportPath, state );
 
-		return () => setWooReportMockState( pathFragment, null );
+		return () => {
+			const matched = matchedOverrides.has( reportPath );
+
+			setWooReportMockState( reportPath, null );
+
+			if ( ! matched ) {
+				throw new Error(
+					`No request matched the forced report path "${ reportPath }", so this story rendered its default state. Force the report the widget actually requests.`
+				);
+			}
+		};
 	};
 }

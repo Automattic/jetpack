@@ -99,8 +99,7 @@ const productsPath = ( reportWindow: ReportWindow ) =>
 
 const PRIMARY_ORDERS = ordersPath( PRIMARY_WINDOW );
 
-// A path a story can force a state on but no `case` answers would leave the widget fetching for
-// real, so the story would render its error state and still pass `storybook:test`.
+// An entry with no responder leaves the widget fetching for real, which renders its error state.
 it.each( Object.entries( WOO_REPORT_PATHS ) )(
 	'answers the %s report path the stories force states on',
 	async ( _report, reportFragment ) => {
