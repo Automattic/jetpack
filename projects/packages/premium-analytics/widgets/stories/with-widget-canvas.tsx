@@ -1,7 +1,10 @@
 import { useElementSize } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useLayoutEffect, useRef } from 'react';
+import { within } from 'storybook/test';
 import type { Decorator, StoryContext } from '@storybook/react';
 import type { ReactNode } from 'react';
+
+const WIDGET_CANVAS_TEST_ID = 'widget-canvas';
 
 // The card's own inset in pixels: a widget gets the card minus this on each side.
 const CANVAS_PADDING = 16;
@@ -62,6 +65,7 @@ export function WidgetCanvas( {
 	return (
 		<div
 			ref={ hostRef }
+			data-testid={ WIDGET_CANVAS_TEST_ID }
 			style={ {
 				width,
 				height,
@@ -168,3 +172,21 @@ export const withWidgetCanvas: Decorator = ( Story, context ) => (
 		<Story />
 	</WidgetSizesCanvas>
 );
+
+// The scope a `play` assertion needs. The size matrix mounts the story in every box at once, so
+// querying the whole canvas finds one match per box. It takes the largest box because the shortest
+// ones are there to show what a widget drops when it has no room, including the rows a leaderboard
+// stops drawing.
+export function withinWidgetCanvas( canvasElement: HTMLElement ) {
+	const canvas = within( canvasElement );
+	const cards = canvas.queryAllByTestId( WIDGET_CANVAS_TEST_ID );
+	const largest = cards.reduce< HTMLElement | undefined >(
+		( widest, card ) =>
+			! widest || card.clientWidth * card.clientHeight > widest.clientWidth * widest.clientHeight
+				? card
+				: widest,
+		undefined
+	);
+
+	return largest ? within( largest ) : canvas;
+}

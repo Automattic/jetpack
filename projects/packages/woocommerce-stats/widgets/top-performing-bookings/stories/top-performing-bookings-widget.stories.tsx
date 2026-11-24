@@ -7,6 +7,7 @@ import {
 	storyReportParams,
 	WidgetDashboardWithWidget as WidgetDashboardWithWidgetStory,
 	widgetDashboardWithWidgetArgTypes,
+	withinWidgetCanvas,
 	withStoryRouter,
 	withWidgetCanvas,
 	type WidgetDashboardWithWidgetControls,
@@ -110,7 +111,7 @@ export const Default: Story = {
 	args: { withComparison: false },
 	decorators: [ withWidgetCanvas, withStoryRouter ],
 	play: async ( { canvasElement } ) => {
-		const canvas = within( canvasElement );
+		const canvas = withinWidgetCanvas( canvasElement );
 
 		await canvas.findByText( 'Sourdough Baking Workshop' );
 		await canvas.findByText( 'Saturday Pottery Class' );

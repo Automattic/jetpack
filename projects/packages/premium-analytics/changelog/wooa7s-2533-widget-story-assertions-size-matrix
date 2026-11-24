@@ -1,0 +1,3 @@
+Significance: patch
+Type: changed
+Comment: Add a story helper that scopes a play assertion to one widget canvas
