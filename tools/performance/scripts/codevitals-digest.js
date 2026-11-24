@@ -970,8 +970,7 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 
 	const allFailed = ! discoveryFailed && failedIds.length === metricIds.length;
 	const recentCommits = [ ...firstSeenByCommit.values() ].filter( t => t >= weekStart ).length;
-	const weeklyBatchReadable =
-		isJetpackTrunk && ! discoveryError && ! discoveryFailed && failedIds.length === 0;
+	const weeklyBatchReadable = isJetpackTrunk && ! discoveryFailed && failedIds.length === 0;
 	const thinBatch = weeklyBatchReadable && recentCommits < MIN_WEEKLY_COMMITS;
 	const batchCount = `Commits first measured in the last 7 days (by commit time): ${ recentCommits }.`;
 	// Staleness is PER METRIC: one fresh metric must not mask a silently-dead sibling. A
@@ -1111,7 +1110,7 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 						: `${ fmt( r.pre ) }→${ fmt( r.post ) }${ esc( clip( r.unit ) ) }${ pct ? ` (${ pct })` : '' }`;
 				const skipped = r?.skippedConfirmations;
 				const note = skipped
-					? ` · ${ skipped } possible change${ skipped === 1 ? '' : 's' } skipped across the break`
+					? ` · ${ skipped } possible ${ skipped === 1 ? 'change across the break was' : 'changes across the break were' } not checked`
 					: '';
 				return `• *${ label( id ) }* ${ level }${ note }`;
 			} );

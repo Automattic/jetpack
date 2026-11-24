@@ -1785,7 +1785,7 @@ test( 'a measurement break skips cross-break windows and reports both levels wit
 	assert.match( breakBlocks[ 0 ].text.text, /Beta: LCP\* 100→80ms \(-20\.0%\)/ );
 	assert.match(
 		breakBlocks[ 0 ].text.text,
-		/Step near the break\* .* · 1 possible change skipped across the break/
+		/Step near the break\* .* · 1 possible change across the break was not checked/
 	);
 } );
 
@@ -2510,7 +2510,13 @@ const CASES = [
 		out: [ 'Could not enumerate the tracked metrics', 'METRIC DISCOVERY FAILURE' ],
 		not: [ 'THIN MEASUREMENT BATCH', 'Commits first measured' ],
 	},
-	{ n: 'disco-empty-fails-loud', sc: 'disco-empty', exit: 1, out: [ 'METRIC DISCOVERY FAILURE' ] },
+	{
+		n: 'disco-empty-fails-loud',
+		sc: 'disco-empty',
+		exit: 1,
+		out: [ 'METRIC DISCOVERY FAILURE' ],
+		not: [ 'THIN MEASUREMENT BATCH', 'Commits first measured' ],
+	},
 	{
 		n: 'disco-html-override-keeps-reading-ids',
 		sc: 'disco-html',
@@ -2518,6 +2524,14 @@ const CASES = [
 		exit: 0,
 		out: [ 'across 2 tracked metrics' ],
 		err: [ 'metrics lookup failed' ],
+	},
+	{
+		n: 'disco-html-override-warns-on-thin-batch',
+		sc: 'weeklyBatch',
+		env: { METRIC_IDS: '301,302' },
+		discoFail: true,
+		exit: 1,
+		out: [ 'THIN MEASUREMENT BATCH (19 commits)', 'METRIC NAME LOOKUP FAILURE' ],
 	},
 	{
 		n: 'disco-html-override-label-fallback',
