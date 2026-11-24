@@ -1,118 +1,150 @@
 import { jest } from '@jest/globals';
-import { act, renderHook, waitFor } from '@testing-library/react';
+import { act, renderHook } from '@testing-library/react';
 
-// This package runs Jest with `--experimental-vm-modules` (true ESM), where the
-// `jest.mock` factory cannot be hoisted. Mock with `jest.unstable_mockModule`
-// and pull the module under test in via dynamic `import()` after the mocks are
-// registered.
-const mockApiFetch = jest.fn< ( options: unknown ) => Promise< unknown > >();
-const createErrorNotice = jest.fn();
-const useDispatch = jest.fn( () => ( { createErrorNotice } ) );
+// True-ESM Jest (`--experimental-vm-modules`): register the mocks with
+// `jest.unstable_mockModule` and import the module under test dynamically after.
+const mockApiFetch = jest.fn< ( options: { path: string } ) => Promise< unknown > >();
+const notices = {
+	createErrorNotice: jest.fn(),
+	createInfoNotice: jest.fn(),
+	createSuccessNotice: jest.fn(),
+};
+const setSeoToolsActive = jest.fn();
+const writePreloaded = jest.fn();
+const forgetPreloaded = jest.fn();
+const recordSeoEvent = jest.fn();
 
-jest.unstable_mockModule( '@wordpress/api-fetch', () => ( {
-	default: mockApiFetch,
-} ) );
-// Mock `@wordpress/data` to expose only `useDispatch` — the hook under test
-// uses nothing else, and a full mock keeps the real data store (which pulls in
-// `keyedReducer` etc.) out of the graph.
+jest.unstable_mockModule( '@wordpress/api-fetch', () => ( { default: mockApiFetch } ) );
 jest.unstable_mockModule( '@wordpress/data', () => ( {
-	useDispatch,
+	useDispatch: ( store: string ) => ( store === 'core/notices' ? notices : { setSeoToolsActive } ),
 } ) );
-// Likewise stub the notices store so importing it doesn't register against the
-// real (now-mocked) data module.
-jest.unstable_mockModule( '@wordpress/notices', () => ( {
-	store: 'core/notices',
+jest.unstable_mockModule( '@wordpress/notices', () => ( { store: 'core/notices' } ) );
+jest.unstable_mockModule( '../settings-store', () => ( {
+	settingsStore: 'jetpack-seo/settings',
+} ) );
+jest.unstable_mockModule( '../record-seo-event', () => ( { recordSeoEvent } ) );
+jest.unstable_mockModule( '../get-preloaded', () => ( {
+	OVERVIEW_PATH: '/jetpack/v4/seo/overview',
+	GEO_PATH: '/jetpack/v4/seo/geo',
+	CONTENT_PATH: '/jetpack/v4/seo/content',
+	writePreloaded,
+	forgetPreloaded,
 } ) );
 
 const { default: useSeoToolsSwitch } = await import( '../use-seo-tools-switch' );
 
-describe( 'useSeoToolsSwitch', () => {
-	// The success path calls `window.location.reload()`. jsdom can't navigate and
-	// can't be made to spy on `location.reload` (`window.location` is
-	// non-configurable and can't be redefined), so the call surfaces as a
-	// "Not implemented: navigation" `console.error`. Silence it here so the
-	// strict `jetpack-js-tools` console guard doesn't flag it; the success-path
-	// tests assert the deterministic, observable behavior instead — `apiFetch`
-	// was POSTed with the right payload and no error notice was raised.
-	let consoleErrorSpy: ReturnType< typeof jest.spyOn >;
+const MODULES_PATH = '/jetpack/v4/seo/modules';
 
+describe( 'useSeoToolsSwitch', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
-		useDispatch.mockReturnValue( { createErrorNotice } );
-		consoleErrorSpy = jest.spyOn( console, 'error' ).mockImplementation( () => {} );
 	} );
 
 	afterEach( () => {
-		consoleErrorSpy.mockRestore();
+		jest.useRealTimers();
 	} );
 
 	it.each( [ true, false ] )(
-		'POSTs active: %s to the module endpoint on success',
+		'saves active: %s, refreshes the other tabs, then updates the store',
 		async active => {
-			mockApiFetch.mockResolvedValue( undefined );
+			const overview = { site_visibility: { seo_tools_active: active } };
+			mockApiFetch.mockImplementation( async ( { path } ) =>
+				path === MODULES_PATH ? { seo_tools_active: active } : overview
+			);
 
-			const { result } = renderHook( () => useSeoToolsSwitch( 'overview' ) );
-
-			expect( result.current.isSwitching ).toBe( false );
-
-			await act( async () => {
-				await result.current.setActive( active );
-			} );
+			const { result } = renderHook( () => useSeoToolsSwitch( 'settings' ) );
+			await act( () => result.current.setActive( active ) );
 
 			expect( mockApiFetch ).toHaveBeenCalledWith( {
-				path: '/jetpack/v4/module/seo-tools/active',
+				path: MODULES_PATH,
 				method: 'POST',
-				data: { active },
+				data: { seo_tools_active: active },
 			} );
-			// On success we reload rather than notify, so no error notice is raised.
-			expect( createErrorNotice ).not.toHaveBeenCalled();
+			expect( forgetPreloaded.mock.calls ).toEqual( [
+				[ '/jetpack/v4/seo/geo' ],
+				[ '/jetpack/v4/seo/content' ],
+			] );
+			expect( writePreloaded ).toHaveBeenCalledWith( '/jetpack/v4/seo/overview', overview );
+			// The tabs follow the store, so they must not change before the Overview behind them.
+			expect( setSeoToolsActive ).toHaveBeenCalledWith( active );
+			expect( writePreloaded.mock.invocationCallOrder[ 0 ] ).toBeLessThan(
+				setSeoToolsActive.mock.invocationCallOrder[ 0 ]
+			);
+			expect( notices.createSuccessNotice ).toHaveBeenCalledWith( 'Settings saved.', {
+				id: 'seo-tools-toggle',
+				type: 'snackbar',
+			} );
+			expect( recordSeoEvent ).toHaveBeenCalledWith( 'jetpack_seo_tools_toggled', 'settings', {
+				enabled: active,
+			} );
+			expect( result.current.pending ).toBeNull();
 		}
 	);
 
-	it( 'sets isSwitching while the request is in flight', async () => {
-		let resolveFetch: () => void;
-		mockApiFetch.mockReturnValue(
-			new Promise< void >( resolve => {
-				resolveFetch = resolve;
-			} )
+	it( 'shows the requested state while the save is in flight', async () => {
+		let resolveSave: ( value: unknown ) => void = () => {};
+		mockApiFetch.mockImplementation( ( { path } ) =>
+			path === MODULES_PATH
+				? new Promise( resolve => {
+						resolveSave = resolve;
+					} )
+				: Promise.resolve( {} )
 		);
 
-		const { result } = renderHook( () => useSeoToolsSwitch( 'overview' ) );
-
+		const { result } = renderHook( () => useSeoToolsSwitch( 'settings' ) );
+		let saving: Promise< void > = Promise.resolve();
 		act( () => {
-			result.current.setActive( true );
+			saving = result.current.setActive( true );
 		} );
 
-		await waitFor( () => expect( result.current.isSwitching ).toBe( true ) );
+		expect( result.current.pending ).toBe( true );
+		expect( result.current.isSwitching ).toBe( true );
 
 		await act( async () => {
-			resolveFetch();
+			resolveSave( {} );
+			await saving;
 		} );
 
-		// Resolving completes the success path, which reloads rather than notifies.
-		expect( createErrorNotice ).not.toHaveBeenCalled();
+		expect( result.current.isSwitching ).toBe( false );
 	} );
 
 	it.each( [
 		[ true, 'Could not enable SEO tools. Please try again.' ],
 		[ false, 'Could not disable SEO tools. Please try again.' ],
-	] )(
-		'surfaces an error snackbar notice and clears isSwitching when active: %s is rejected',
-		async ( active, message ) => {
-			mockApiFetch.mockRejectedValue( new Error( 'nope' ) );
+	] )( 'leaves everything as it was when active: %s is refused', async ( active, message ) => {
+		mockApiFetch.mockRejectedValue( new Error( 'nope' ) );
 
-			const { result } = renderHook( () => useSeoToolsSwitch( 'overview' ) );
+		const { result } = renderHook( () => useSeoToolsSwitch( 'settings' ) );
+		await act( () => result.current.setActive( active ) );
 
-			await act( async () => {
-				await result.current.setActive( active );
-			} );
+		expect( notices.createErrorNotice ).toHaveBeenCalledWith( message, {
+			id: 'seo-tools-toggle',
+			type: 'snackbar',
+		} );
+		expect( setSeoToolsActive ).not.toHaveBeenCalled();
+		expect( forgetPreloaded ).not.toHaveBeenCalled();
+		expect( recordSeoEvent ).not.toHaveBeenCalled();
+		expect( result.current.pending ).toBeNull();
+	} );
 
-			// On failure we don't reload (no jsdom navigation error) — just notify.
-			expect( createErrorNotice ).toHaveBeenCalledWith( message, {
-				id: 'seo-tools-toggle',
-				type: 'snackbar',
-			} );
-			await waitFor( () => expect( result.current.isSwitching ).toBe( false ) );
-		}
-	);
+	it.each( [
+		[ 'fails', () => Promise.reject( new Error( 'nope' ) ) ],
+		[ 'never answers', () => new Promise( () => {} ) ],
+	] )( 'still applies the switch when the Overview refresh %s', async ( _case, overview ) => {
+		jest.useFakeTimers();
+		mockApiFetch.mockImplementation( ( { path } ) =>
+			path === MODULES_PATH ? Promise.resolve( {} ) : overview()
+		);
+
+		const { result } = renderHook( () => useSeoToolsSwitch( 'settings' ) );
+		await act( async () => {
+			const saving = result.current.setActive( true );
+			await jest.advanceTimersByTimeAsync( 10000 );
+			await saving;
+		} );
+
+		expect( writePreloaded ).not.toHaveBeenCalled();
+		expect( setSeoToolsActive ).toHaveBeenCalledWith( true );
+		expect( result.current.pending ).toBeNull();
+	} );
 } );

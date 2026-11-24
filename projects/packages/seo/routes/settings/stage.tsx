@@ -3,7 +3,7 @@ import DashboardLoadError from '../../_inc/components/dashboard-load-error';
 import DashboardSkeleton from '../../_inc/components/dashboard-skeleton';
 import DashboardPage from '../../_inc/dashboard/dashboard-page';
 import { OVERVIEW_PATH, SETTINGS_PATH } from '../../_inc/data/get-preloaded';
-import isSeoToolsActive from '../../_inc/data/is-seo-tools-active';
+import isSeoToolsActive, { useSeoToolsActive } from '../../_inc/data/is-seo-tools-active';
 import { settingsStore } from '../../_inc/data/settings-store';
 import useEnsureTabData from '../../_inc/data/use-ensure-tab-data';
 import { useSettingsForm } from '../../_inc/data/use-settings';
@@ -17,7 +17,7 @@ import type { SettingsResponse } from '../../_inc/data/settings-types';
 // populated by then.
 const SettingsReady = () => {
 	const form = useSettingsForm();
-	const seoToolsActive = isSeoToolsActive();
+	const seoToolsActive = useSeoToolsActive();
 	// While SEO tools are off, the other tabs redirect here, so there is no tab bar.
 	return (
 		<DashboardPage active="settings" showTabs={ seoToolsActive }>
@@ -28,9 +28,8 @@ const SettingsReady = () => {
 
 const Stage = () => {
 	const { setSettings } = useDispatch( settingsStore );
-	// The SEO Tools state, in the Overview slice, decides which editors show, so load
-	// it alongside Settings. A recovered Settings payload is pushed into the store so
-	// the form (seeded from it) reflects it.
+	// Settings also reads the Overview slice. A recovered Settings payload is pushed
+	// into the store so the form (seeded from it) reflects it.
 	const { status, retry } = useEnsureTabData( [
 		{ path: OVERVIEW_PATH },
 		{ path: SETTINGS_PATH, seed: body => setSettings( body as SettingsResponse ) },

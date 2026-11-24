@@ -790,20 +790,37 @@ class DashboardSettingsTest extends TestCase {
 	}
 
 	/**
-	 * Switching sitemaps changes the module state the dashboard reads.
+	 * Data provider for test_module_setting_toggles_its_module.
+	 *
+	 * @return array[] Setting field, module slug.
 	 */
-	public function test_sitemap_setting_toggles_the_legacy_module() {
-		$this->make_modules_available( array( 'sitemaps' ) );
+	public static function provide_module_settings() {
+		return array(
+			'sitemaps'  => array( 'sitemap_active', 'sitemaps' ),
+			'SEO tools' => array( 'seo_tools_active', 'seo-tools' ),
+		);
+	}
+
+	/**
+	 * Switching a module-backed setting changes the module state the dashboard reads.
+	 *
+	 * @dataProvider provide_module_settings
+	 * @param string $field  Setting field.
+	 * @param string $module Module slug.
+	 */
+	#[DataProvider( 'provide_module_settings' )]
+	public function test_module_setting_toggles_its_module( $field, $module ) {
+		$this->make_modules_available( array( $module ) );
 		$this->act_as( 'administrator' );
 		$modules = new Modules();
 
-		$response = $this->update_modules( array( 'sitemap_active' => true ) );
+		$response = $this->update_modules( array( $field => true ) );
 		$this->assertSame( 200, $response->get_status() );
-		$this->assertTrue( $modules->is_active( 'sitemaps' ) );
+		$this->assertTrue( $modules->is_active( $module ) );
 
-		$this->update_modules( array( 'sitemap_active' => false ) );
+		$this->update_modules( array( $field => false ) );
 
-		$this->assertFalse( $modules->is_active( 'sitemaps' ) );
+		$this->assertFalse( $modules->is_active( $module ) );
 	}
 
 	/**

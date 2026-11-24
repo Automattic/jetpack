@@ -69,6 +69,7 @@ jest.unstable_mockModule( '../../../dashboard/dashboard-page', () => ( {
 } ) );
 jest.unstable_mockModule( '../../../data/is-seo-tools-active', () => ( {
 	default: () => routeSeoToolsActive,
+	useSeoToolsActive: () => routeSeoToolsActive,
 } ) );
 jest.unstable_mockModule( '../../../data/use-ensure-tab-data', () => ( {
 	default: () => ( { status: 'ready' } ),
@@ -103,6 +104,7 @@ const buildForm = ( overrides: Partial< SettingsResponse > = {} ): SettingsForm 
 		title_separator: '-',
 		title_formats_editable: true,
 		verification_tools_active: true,
+		seo_tools_active: true,
 		verification: { ...EMPTY_VERIFICATION },
 		search_engines_visible: false,
 		site_is_private: false,

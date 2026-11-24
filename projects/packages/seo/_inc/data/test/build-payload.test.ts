@@ -12,6 +12,7 @@ const makeSettings = ( overrides: Partial< SettingsResponse > = {} ): SettingsRe
 	title_separator: '-',
 	title_formats_editable: true,
 	verification_tools_active: true,
+	seo_tools_active: true,
 	verification: { google: '', bing: '', pinterest: '', yandex: '', facebook: '' },
 	site_is_private: false,
 	site_is_coming_soon: false,

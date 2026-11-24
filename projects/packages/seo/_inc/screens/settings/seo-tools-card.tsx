@@ -23,7 +23,7 @@ interface Props {
  * @return The SEO tools card.
  */
 const SeoToolsCard: FC< Props > = ( { active } ) => {
-	const { isSwitching, setActive } = useSeoToolsSwitch( 'settings' );
+	const { pending, isSwitching, setActive } = useSeoToolsSwitch( 'settings' );
 
 	return (
 		<CollapsibleCard.Root defaultOpen={ false }>
@@ -36,7 +36,7 @@ const SeoToolsCard: FC< Props > = ( { active } ) => {
 				<SwitchControl
 					label={ __( 'Use SEO tools', 'jetpack-seo' ) }
 					description={ seoToolsHelp }
-					checked={ active }
+					checked={ pending ?? active }
 					onCheckedChange={ setActive }
 					disabled={ isSwitching }
 				/>

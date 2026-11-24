@@ -1,8 +1,8 @@
 // Shape of the editable Settings state the server bootstraps onto
 // `window.JetpackScriptData.seo.settings` (see `Dashboard_Data::get_settings_data()`).
-// Fields backed by an option alone save through core's `/wp/v2/settings`; the three
-// whose write switches a Jetpack module — sitemap, canonical URLs and site
-// verification — and the nested Schema container use package-owned routes.
+// Fields backed by an option alone save through core's `/wp/v2/settings`; those
+// whose write switches a Jetpack module — sitemap, canonical URLs, site verification
+// and SEO tools — and the nested Schema container use package-owned routes.
 
 import type { SchemaSettings } from './schema-settings-types';
 
@@ -33,6 +33,8 @@ export interface SettingsResponse {
 	// formats out of a save payload. The card itself locks from `getOutput().paused`.
 	title_formats_editable: boolean;
 	verification_tools_active: boolean;
+	// Saved by its own switch (`useSeoToolsSwitch`), which also refreshes the other tabs.
+	seo_tools_active: boolean;
 	verification: {
 		google: string;
 		bing: string;
