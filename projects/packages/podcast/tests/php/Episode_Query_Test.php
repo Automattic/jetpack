@@ -7,12 +7,13 @@ namespace Automattic\Jetpack\Podcast\Tests;
 
 use Automattic\Jetpack\Podcast\Podcast;
 use WorDBless\BaseTestCase;
+use WP_Query;
 use WP_REST_Request;
 use WP_Term;
 
 /**
  * The episode dashboard reads core's posts endpoint. That query must match the
- * feed: published posts in the podcast category that have an enclosure.
+ * feed: posts in the podcast category that have an audio or episode block.
  */
 class Episode_Query_Test extends BaseTestCase {
 
@@ -46,23 +47,25 @@ class Episode_Query_Test extends BaseTestCase {
 		return apply_filters( 'rest_post_query', array( 'post_status' => $status ), $request );
 	}
 
-	public function test_podcast_category_query_is_limited_to_published_posts_with_enclosure() {
+	public function test_podcast_category_query_is_flagged_and_keeps_its_status() {
 		$args = $this->query_for( self::CATEGORY_ID );
 
-		$this->assertSame( 'publish', $args['post_status'] );
-		$this->assertContains(
-			array(
-				'key'     => 'enclosure',
-				'compare' => 'EXISTS',
-			),
-			$args['meta_query'] ?? array()
-		);
+		$this->assertTrue( $args['jetpack_podcast_episodes'] );
+		$this->assertSame( 'any', $args['post_status'] );
 	}
 
 	public function test_other_category_query_is_untouched() {
-		$args = $this->query_for( 99 );
+		$this->assertArrayNotHasKey( 'jetpack_podcast_episodes', $this->query_for( 99 ) );
+	}
 
-		$this->assertSame( 'any', $args['post_status'] );
-		$this->assertArrayNotHasKey( 'meta_query', $args );
+	public function test_flagged_query_requires_an_audio_or_episode_block() {
+		$query = new WP_Query();
+		$query->set( 'jetpack_podcast_episodes', true );
+
+		$where = Podcast::limit_episode_where( '', $query );
+
+		$this->assertStringContainsString( '<!-- wp:audio ', $where );
+		$this->assertStringContainsString( '<!-- wp:jetpack/podcast-episode ', $where );
+		$this->assertSame( ' AND 1=1', Podcast::limit_episode_where( ' AND 1=1', new WP_Query() ) );
 	}
 }

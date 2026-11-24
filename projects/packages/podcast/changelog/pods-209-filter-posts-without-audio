@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Episodes: List only published posts with audio in the episode dashboard, matching the podcast feed.
+Episodes: List only posts that have an audio or podcast episode block in the episode dashboard.

@@ -26,8 +26,8 @@ class Podcast {
 	private static $initialized = false;
 
 	/**
-	 * Limit a posts REST query for the podcast category to what the feed includes:
-	 * published posts with an enclosure.
+	 * Limit a posts REST query for the podcast category to posts with an audio
+	 * or podcast episode block.
 	 *
 	 * @param array            $args    WP_Query args.
 	 * @param \WP_REST_Request $request REST request.
@@ -39,12 +39,27 @@ class Podcast {
 			return $args;
 		}
 
-		$args['post_status']  = 'publish';
-		$args['meta_query'][] = array(
-			'key'     => 'enclosure',
-			'compare' => 'EXISTS',
-		);
+		$args['jetpack_podcast_episodes'] = true;
 		return $args;
+	}
+
+	/**
+	 * Restrict a flagged query to posts whose content has an audio or podcast episode block.
+	 *
+	 * @param string    $where WHERE clause.
+	 * @param \WP_Query $query Query.
+	 * @return string
+	 */
+	public static function limit_episode_where( $where, $query ) {
+		if ( ! $query->get( 'jetpack_podcast_episodes' ) ) {
+			return $where;
+		}
+
+		global $wpdb;
+		$audio   = '%' . $wpdb->esc_like( '<!-- wp:audio ' ) . '%';
+		$episode = '%' . $wpdb->esc_like( '<!-- wp:jetpack/podcast-episode ' ) . '%';
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Prepared below.
+		return $where . $wpdb->prepare( " AND ( {$wpdb->posts}.post_content LIKE %s OR {$wpdb->posts}.post_content LIKE %s )", $audio, $episode );
 	}
 
 	/**
@@ -69,6 +84,7 @@ class Podcast {
 		Customize_Feed::init();
 
 		add_filter( 'rest_post_query', array( __CLASS__, 'limit_episode_query' ), 10, 2 );
+		add_filter( 'posts_where', array( __CLASS__, 'limit_episode_where' ), 10, 2 );
 
 		Tracks::init();
 
