@@ -972,7 +972,7 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 	const recentCommits = [ ...firstSeenByCommit.values() ].filter( t => t >= weekStart ).length;
 	const weeklyBatchReadable = isJetpackTrunk && ! discoveryFailed && failedIds.length === 0;
 	const thinBatch = weeklyBatchReadable && recentCommits < MIN_WEEKLY_COMMITS;
-	const batchCount = `Commits first measured in the last 7 days (by commit time): ${ recentCommits }.`;
+	const batchCount = `Commits dated in the last 7 days: ${ recentCommits }.`;
 	// Staleness is PER METRIC: one fresh metric must not mask a silently-dead sibling. A
 	// recreated or stalled metric serves HTTP 200 with zero points, exactly the failure mode this
 	// digest exists to catch. A metric CREATED inside the threshold is warming up, not stale

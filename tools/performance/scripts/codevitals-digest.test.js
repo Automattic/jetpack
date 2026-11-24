@@ -1752,12 +1752,12 @@ test( 'the digest warns below twenty distinct recently dated commits', async () 
 
 	const full = await runDigest( 'fullWeeklyBatch' );
 	assert.equal( full.code, 0, full.out );
-	assert.match( full.out, /Commits first measured in the last 7 days \(by commit time\): 20/ );
+	assert.match( full.out, /Commits dated in the last 7 days: 20/ );
 	assert.doesNotMatch( full.out, /THIN MEASUREMENT BATCH/ );
 	for ( const env of [ { CODEVITALS_REPO: 'example/project' }, { CODEVITALS_BRANCH: 'stable' } ] ) {
 		const otherTarget = await runDigest( 'weeklyBatch', env );
 		assert.equal( otherTarget.code, 0, otherTarget.out );
-		assert.doesNotMatch( otherTarget.out, /Thin measurement batch|Commits first measured/i );
+		assert.doesNotMatch( otherTarget.out, /Thin measurement batch|Commits dated/i );
 	}
 } );
 
@@ -2508,14 +2508,14 @@ const CASES = [
 		sc: 'disco-html',
 		exit: 1,
 		out: [ 'Could not enumerate the tracked metrics', 'METRIC DISCOVERY FAILURE' ],
-		not: [ 'THIN MEASUREMENT BATCH', 'Commits first measured' ],
+		not: [ 'THIN MEASUREMENT BATCH', 'Commits dated in the last 7 days' ],
 	},
 	{
 		n: 'disco-empty-fails-loud',
 		sc: 'disco-empty',
 		exit: 1,
 		out: [ 'METRIC DISCOVERY FAILURE' ],
-		not: [ 'THIN MEASUREMENT BATCH', 'Commits first measured' ],
+		not: [ 'THIN MEASUREMENT BATCH', 'Commits dated in the last 7 days' ],
 	},
 	{
 		n: 'disco-html-override-keeps-reading-ids',
@@ -3185,7 +3185,7 @@ const CASES = [
 		sc: 'allfail',
 		exit: 1,
 		out: [ 'Could not read any metric data', 'DATA READ FAILURE' ],
-		not: [ 'THIN MEASUREMENT BATCH', 'Commits first measured' ],
+		not: [ 'THIN MEASUREMENT BATCH', 'Commits dated in the last 7 days' ],
 	},
 ];
 
