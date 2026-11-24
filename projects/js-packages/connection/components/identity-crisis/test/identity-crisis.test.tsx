@@ -1,5 +1,5 @@
 import { jest } from '@jest/globals';
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { ConnectedPlugin } from '../../../helpers/site-words';
 import type { IdentityCrisisState } from '../../../types';
@@ -194,6 +194,74 @@ describe( 'IdentityCrisis', () => {
 		).toHaveFocus();
 		expect( screen.getByRole( 'radio', { name: 'The original site' } ) ).toBeChecked();
 		expect( screen.queryByRole( 'alert' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'never offers "same" without a detected dynamic address', () => {
+		render( <IdentityCrisis context="notice" onActionSuccess={ jest.fn() } /> );
+
+		expect(
+			screen.queryByRole( 'radio', { name: 'Another address for this same site' } )
+		).not.toBeInTheDocument();
+	} );
+
+	it( '"same" explains the two addresses, stays in Safe Mode, and Back returns to the question', async () => {
+		const user = userEvent.setup();
+		storeState = {
+			state: { ...resolvable, possibleDynamicSiteUrlDetected: true },
+			plugins: jetpack,
+		};
+		confirmIDCSafeMode.mockResolvedValue( {} );
+		const onActionSuccess = jest.fn();
+		render( <IdentityCrisis context="notice" onActionSuccess={ onActionSuccess } /> );
+
+		await user.click( screen.getByRole( 'radio', { name: 'Another address for this same site' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Next' } ) );
+
+		expect(
+			screen.getByRole( 'heading', { name: 'This is one site with two addresses' } )
+		).toHaveFocus();
+		expect(
+			screen.getByRole( 'link', { name: /How to set a fixed address/ } )
+		).toBeInTheDocument();
+		expect(
+			screen.queryByRole( 'link', { name: /Learn more about Safe Mode/ } )
+		).not.toBeInTheDocument();
+
+		await user.click( screen.getByRole( 'button', { name: 'Back' } ) );
+		expect(
+			screen.getByRole( 'radio', { name: 'Another address for this same site' } )
+		).toBeChecked();
+
+		await user.click( screen.getByRole( 'button', { name: 'Next' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Stay in Safe Mode for now' } ) );
+
+		expect( confirmIDCSafeMode ).toHaveBeenCalledTimes( 1 );
+		expect( onActionSuccess ).toHaveBeenCalledWith( { action: 'confirm-safe-mode' } );
+	} );
+
+	it.each( [
+		[ 'a domain', 'new.example/', [ /set dynamically/ ] ],
+		[ 'an IP address', '203.0.113.5/', [ /set dynamically/, /is an IP address\./ ] ],
+	] )( 'for %s, lists what it can tell about the address', async ( _, currentUrl, facts ) => {
+		const user = userEvent.setup();
+		storeState = {
+			state: {
+				...resolvable,
+				currentUrl,
+				possibleDynamicSiteUrlDetected: true,
+			},
+			plugins: jetpack,
+		};
+		render( <IdentityCrisis context="notice" onActionSuccess={ jest.fn() } /> );
+
+		await user.click( screen.getByRole( 'radio', { name: 'Another address for this same site' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Next' } ) );
+
+		const items = within(
+			screen.getByRole( 'list', { name: 'What we already know' } )
+		).getAllByRole( 'listitem' );
+		expect( items ).toHaveLength( facts.length );
+		facts.forEach( ( fact, index ) => expect( items[ index ] ).toHaveTextContent( fact ) );
 	} );
 
 	it.each( [ true, false ] )(

@@ -6,10 +6,11 @@ import useIdentityCrisisActions from '../../hooks/use-identity-crisis-actions';
 import IdentityCrisisAddresses from './addresses';
 import IdentityCrisisErrorNotice from './error-notice';
 import ChoiceStep from './flow/choice-step';
-import { getConfirmedNote, getOptionCopy, getStagingNote } from './flow/copy';
+import { getConfirmedNote, getOptionCopy, getResultCopy, getStagingNote } from './flow/copy';
 import Intro from './flow/intro';
+import ResultStep from './flow/result-step';
 import StepActions from './flow/step-actions';
-import { getOptions, getPath } from './flow/steps';
+import { getOptions, getPath, getResultAction, isChoiceStep } from './flow/steps';
 import useIdentityCrisisFlow from './flow/use-identity-crisis-flow';
 import IdentityCrisisLayout from './layout';
 import IdentityCrisisMigrated from './migrated';
@@ -18,11 +19,14 @@ import IdentityCrisisNonAdmin from './non-admin';
 import { onIdentityCrisisActionSuccess } from './on-action-success';
 import styles from './styles.module.scss';
 import useIdentityCrisisState from './use-identity-crisis-state';
-import type { CopyContext } from './flow/copy';
+import type { ActionCopy, CopyContext } from './flow/copy';
 import type { FlowContext } from './flow/steps';
 import type { IdentityCrisisProps } from './types';
 import type { ConnectedPlugin } from '../../helpers/site-words';
-import type { IdentityCrisisActionPath } from '../../hooks/use-identity-crisis-actions/types';
+import type {
+	IdentityCrisisAction,
+	IdentityCrisisActionPath,
+} from '../../hooks/use-identity-crisis-actions/types';
 import type { IdentityCrisisState } from '../../types';
 import type { ReactNode } from 'react';
 
@@ -62,23 +66,63 @@ function IdentityCrisisResolver( {
 	const copy: CopyContext = {
 		isStore: ctx.isStore,
 		hasJetpackPlugin: ctx.hasJetpackPlugin,
+		isDynamicAddress: state.possibleDynamicSiteUrlDetected,
 		x: formatSiteAddress( state.currentUrl ),
 		z: formatSiteAddress( state.wpcomHomeUrl ),
 	};
 	const flow = useIdentityCrisisFlow( ctx, actions.clearError );
 
-	// Focus the new question when the step changes, but not on the first render.
+	// Focus the new question or result when the step changes, but not on the first render.
 	const legendRef = useRef< HTMLDivElement >( null );
+	const headingRef = useRef< HTMLHeadingElement >( null );
 	const stepKey = `${ flow.state.step }:${ flow.state.history.length }`;
 	const previousStepKey = useRef( stepKey );
 	useEffect( () => {
 		if ( previousStepKey.current !== stepKey ) {
 			previousStepKey.current = stepKey;
-			legendRef.current?.focus();
+			( legendRef.current ?? headingRef.current )?.focus();
 		}
 	}, [ stepKey ] );
 
+	const runAction = useCallback(
+		async ( action: IdentityCrisisAction ) => {
+			const path: IdentityCrisisActionPath = {
+				entry: flow.state.entry,
+				path: getPath( flow.state, ctx ),
+			};
+			switch ( action ) {
+				case 'migrate':
+					if ( await actions.migrate( path ) ) {
+						onActionSuccess( { action: 'migrate' } );
+					}
+					return;
+				case 'start-fresh': {
+					const connectUrl = await actions.startFresh( path );
+					if ( connectUrl ) {
+						onActionSuccess( { action: 'start-fresh', connectUrl } );
+					}
+					return;
+				}
+				case 'confirm-safe-mode':
+					if ( await actions.confirmSafeMode( path ) ) {
+						onActionSuccess( { action: 'confirm-safe-mode' } );
+					}
+					return;
+				default: {
+					const unhandled: never = action;
+					return unhandled;
+				}
+			}
+		},
+		[ flow.state, ctx, actions, onActionSuccess ]
+	);
+
+	const step = flow.state.step;
 	const onContinue = useCallback( async () => {
+		if ( ! isChoiceStep( step ) ) {
+			await runAction( getResultAction( step ) );
+			return;
+		}
 		const option = flow.selected;
 		if ( ! option ) {
 			return;
@@ -87,34 +131,8 @@ function IdentityCrisisResolver( {
 			flow.next();
 			return;
 		}
-		const path: IdentityCrisisActionPath = {
-			entry: flow.state.entry,
-			path: getPath( flow.state, ctx ),
-		};
-		switch ( option.action ) {
-			case 'migrate':
-				if ( await actions.migrate( path ) ) {
-					onActionSuccess( { action: 'migrate' } );
-				}
-				return;
-			case 'start-fresh': {
-				const connectUrl = await actions.startFresh( path );
-				if ( connectUrl ) {
-					onActionSuccess( { action: 'start-fresh', connectUrl } );
-				}
-				return;
-			}
-			case 'confirm-safe-mode':
-				if ( await actions.confirmSafeMode( path ) ) {
-					onActionSuccess( { action: 'confirm-safe-mode' } );
-				}
-				return;
-			default: {
-				const unhandled: never = option.action;
-				return unhandled;
-			}
-		}
-	}, [ flow, ctx, actions, onActionSuccess ] );
+		await runAction( option.action );
+	}, [ step, flow, runAction ] );
 
 	const addresses = (
 		<IdentityCrisisAddresses
@@ -142,6 +160,26 @@ function IdentityCrisisResolver( {
 	}
 
 	const isBusy = actions.busyAction !== null;
+	let stepView: ReactNode;
+	let actionCopy: ActionCopy | null;
+	if ( isChoiceStep( step ) ) {
+		stepView = (
+			<ChoiceStep
+				step={ step }
+				options={ getOptions( step, ctx ) }
+				pick={ flow.state.pick }
+				copy={ copy }
+				disabled={ isBusy }
+				onPick={ flow.pick }
+				legendRef={ legendRef }
+			/>
+		);
+		actionCopy = flow.selected ? getOptionCopy( flow.selected.id, copy ) : null;
+	} else {
+		const result = getResultCopy( step, copy );
+		stepView = <ResultStep copy={ result } headingRef={ headingRef } />;
+		actionCopy = result;
+	}
 
 	return (
 		<IdentityCrisisLayout
@@ -162,18 +200,10 @@ function IdentityCrisisResolver( {
 				</Text>
 			) }
 			<Stack direction="column" gap="md">
-				<ChoiceStep
-					step={ flow.state.step }
-					options={ getOptions( flow.state.step, ctx ) }
-					pick={ flow.state.pick }
-					copy={ copy }
-					disabled={ isBusy }
-					onPick={ flow.pick }
-					legendRef={ legendRef }
-				/>
+				{ stepView }
 				<IdentityCrisisErrorNotice error={ actions.error } />
 				<StepActions
-					selected={ flow.selected ? getOptionCopy( flow.selected.id, copy ) : null }
+					action={ actionCopy }
 					isBusy={ isBusy }
 					hasError={ actions.error !== null }
 					canGoBack={ flow.state.history.length > 0 }
