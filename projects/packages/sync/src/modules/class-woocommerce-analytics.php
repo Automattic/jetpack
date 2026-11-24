@@ -1349,8 +1349,8 @@ class WooCommerce_Analytics extends Module {
 
 		// Convert date strings to datetime objects.
 		$order_stats_data['date_created']   = self::datetime_to_object( $order_stats_data['date_created'] );
-		$order_stats_data['date_completed'] = self::datetime_to_object( $order_stats_data['date_completed'] );
-		$order_stats_data['date_paid']      = self::datetime_to_object( $order_stats_data['date_paid'] );
+		$order_stats_data['date_completed'] = self::datetime_to_object( $order_stats_data['date_completed'] ?? null );
+		$order_stats_data['date_paid']      = self::datetime_to_object( $order_stats_data['date_paid'] ?? null );
 
 		return $order_stats_data;
 	}
