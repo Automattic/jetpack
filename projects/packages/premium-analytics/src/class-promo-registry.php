@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\PremiumAnalytics;
 
+require_once __DIR__ . '/dashboard-grammar.php';
+
 /**
  * Stores Promo instances keyed by slug.
  *
@@ -31,7 +33,7 @@ final class Promo_Registry {
 	 * @since $$next-version$$
 	 * @var string[]
 	 */
-	const PLACEMENTS = array( 'options-menu', 'settings' );
+	const PLACEMENTS = array( 'section-footer', 'options-menu', 'settings' );
 
 	/**
 	 * Registered promos, as `$slug => $promo` pairs.
@@ -85,6 +87,14 @@ final class Promo_Registry {
 		if ( ! in_array( $promo->placement, self::PLACEMENTS, true ) ) {
 			/* translators: %s: Comma-separated list of placements. */
 			return $this->refuse( sprintf( __( 'A promo placement must be one of: %s.', 'jetpack-premium-analytics-pkg' ), implode( ', ', self::PLACEMENTS ) ) );
+		}
+
+		if ( 'section-footer' === $promo->placement && ( null === $promo->target || '' === $promo->target ) ) {
+			return $this->refuse( __( 'A section-footer promo needs a target section.', 'jetpack-premium-analytics-pkg' ) );
+		}
+
+		if ( 'section-footer' === $promo->placement && 1 !== preg_match( '/^' . get_dashboard_section_id_pattern() . '$/', $promo->target ) ) {
+			return $this->refuse( __( 'A section-footer promo target must be a namespaced section ID, the one register_dashboard_section() takes. Example: analytics/traffic', 'jetpack-premium-analytics-pkg' ) );
 		}
 
 		if ( 'options-menu' === $promo->placement && $promo->dismissible ) {

@@ -20,6 +20,7 @@ const daysAgo = ( days: number ) => now - days * DAY;
 const makePromo = ( overrides: Partial< Promo > = {} ): Promo => ( {
 	slug: 'acme/offer',
 	placement: 'settings',
+	target: null,
 	order: 10,
 	title: 'Offer',
 	description: 'An offer.',
@@ -52,6 +53,23 @@ describe( 'getPromosForPlacement', () => {
 		mockPromos( [ first, menu, second ] );
 
 		expect( getPromosForPlacement( 'settings' ) ).toEqual( [ first, second ] );
+	} );
+
+	it( 'filters a section-footer promo by its target section', () => {
+		const traffic = makePromo( {
+			slug: 'a/traffic',
+			placement: 'section-footer',
+			target: 'traffic',
+		} );
+		const insights = makePromo( {
+			slug: 'a/insights',
+			placement: 'section-footer',
+			target: 'insights',
+		} );
+		mockPromos( [ traffic, insights ] );
+
+		expect( getPromosForPlacement( 'section-footer', 'insights' ) ).toEqual( [ insights ] );
+		expect( getPromosForPlacement( 'section-footer' ) ).toEqual( [ traffic, insights ] );
 	} );
 } );
 

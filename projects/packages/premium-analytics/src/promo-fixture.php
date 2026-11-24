@@ -42,6 +42,19 @@ function register_promo_fixtures() {
 	wp_register_script_module( PROMO_FIXTURE_MODULE_ID, plugins_url( 'promo-fixture-module.js', __FILE__ ), array( '@automattic/jetpack-premium-analytics-sdk' ), '1.0.0' );
 
 	register_promo(
+		'fixture/section-footer',
+		array(
+			'placement'    => 'section-footer',
+			'target'       => 'analytics/traffic',
+			'title'        => 'Fixture section footer promo',
+			'description'  => 'Plain copy that Premium Analytics draws itself, with no script module.',
+			'cta_label'    => 'Open the fixture',
+			'cta_url'      => 'https://jetpack.com/',
+			'is_available' => '__return_true',
+		)
+	);
+
+	register_promo(
 		'fixture/options-menu',
 		array(
 			'placement'    => 'options-menu',

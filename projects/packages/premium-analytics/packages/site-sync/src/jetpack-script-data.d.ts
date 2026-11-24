@@ -112,7 +112,8 @@ declare module '@automattic/jetpack-script-data' {
 			// The promos other packages registered, in display order. Absent until the promo registry is hydrated.
 			promos?: Array< {
 				slug: string;
-				placement: 'options-menu' | 'settings';
+				placement: 'section-footer' | 'options-menu' | 'settings';
+				target: string | null;
 				order: number;
 				title: string;
 				description: string;

@@ -6,12 +6,13 @@ Nothing renders until the `jetpack-stats-promos` feature flag is on. It is regis
 
 ## Vocabulary
 
-| Term      | Meaning                                                                                         | Example                          |
-| --------- | ------------------------------------------------------------------------------------------------- | -------------------------------- |
-| Slug      | Namespaced identifier, `<namespace>/<name>`, matching `^[a-z][a-z0-9-]*\/[a-z][a-z0-9-]*$`.     | `acme/offer`                     |
-| Placement | Where the promo renders: `options-menu` or `settings`.                                          | `settings`                       |
-| Tier      | Whether Premium Analytics draws the card from plain copy, or a script module draws its content. | plain copy, or a `render_module` |
-| Snooze    | How long a first dismissal hides the promo, in days.                                            | `90`                             |
+| Term      | Meaning                                                                                                     | Example                          |
+| --------- | ----------------------------------------------------------------------------------------------------------- | -------------------------------- |
+| Slug      | Namespaced identifier, `<namespace>/<name>`, matching `^[a-z][a-z0-9-]*\/[a-z][a-z0-9-]*$`.                 | `acme/offer`                     |
+| Placement | Where the promo renders: `section-footer`, `options-menu` or `settings`.                                    | `section-footer`                 |
+| Target    | The namespaced section ID a `section-footer` promo attaches to, as `register_dashboard_section()` takes it. | `analytics/traffic`              |
+| Tier      | Whether Premium Analytics draws the card from plain copy, or a script module draws its content.             | plain copy, or a `render_module` |
+| Snooze    | How long a first dismissal hides the promo, in days.                                                        | `90`                             |
 
 ## Files
 
@@ -21,7 +22,7 @@ Nothing renders until the `jetpack-stats-promos` feature flag is on. It is regis
 | `src/` (`promo-fixture*`)                     | A fixture registrant, one promo per placement, for trying the slot in a browser. Excluded from the production mirror.                                            |
 | `packages/data/src/utils/`                    | The client's reads and the snooze rule.                                                                                                                          |
 | `packages/widgets-toolkit/src/`               | `usePromoSlot()`, `usePromoDismissal()` and the card frame with its tracking, in `hooks/` and `components/promo-card/`.                                          |
-| `routes/settings/`                            | One of the placements. The other is the options menu in `packages/widgets-toolkit/`.                                                                            |
+| `routes/dashboard/`, `routes/settings/`       | Two of the placements. The third is the options menu in `packages/widgets-toolkit/`.                                                                             |
 | `projects/js-packages/premium-analytics-sdk/` | `PromoRenderProps`, `PromoRecord` and `PromoCta`, the types and component a render module builds on.                                                             |
 
 ## Registering a promo
@@ -42,7 +43,8 @@ add_action(
 		register_promo(
 			'acme/offer',
 			array(
-				'placement'    => 'settings',
+				'placement'    => 'section-footer',
+				'target'       => 'analytics/traffic',
 				'title'        => __( 'Grow with Acme', 'acme' ),
 				'description'  => __( 'Reach more readers with Acme.', 'acme' ),
 				'cta_label'    => __( 'Try Acme', 'acme' ),
@@ -60,30 +62,34 @@ add_action(
 
 ### Arguments
 
-| Key             | Default        | Meaning                                                                                     |
-| --------------- | -------------- | --------------------------------------------------------------------------------------------- |
-| `placement`     | none, required | `options-menu` or `settings`.                                                               |
-| `order`         | `10`           | Lower shows first. Ties break on the slug.                                                  |
-| `title`         | `''`           | The card heading. It also labels the card for assistive technology.                         |
-| `description`   | `''`           | The card body.                                                                              |
-| `cta_label`     | `''`           | The call to action text. The text of the menu item for `options-menu`.                      |
-| `cta_url`       | `''`           | The call to action link. Only `http` and `https` links render.                              |
-| `dismissible`   | `true`         | Whether the card has a close control.                                                       |
-| `snooze_days`   | `90`           | Days a first dismissal lasts. `0` makes the first dismissal final.                          |
-| `render_module` | `null`         | The id of a script module that draws the card content. See [The two tiers](#the-two-tiers). |
-| `is_available`  | none           | A boolean, or a callable that receives the promo. Without it the promo is never available.  |
+| Key             | Default        | Meaning                                                                                                       |
+| --------------- | -------------- | ------------------------------------------------------------------------------------------------------------- |
+| `placement`     | none, required | `section-footer`, `options-menu` or `settings`.                                                               |
+| `target`        | `null`         | The namespaced section ID, such as `analytics/traffic`. Required for `section-footer`, ignored by the others. |
+| `order`         | `10`           | Lower shows first. Ties break on the slug.                                                                    |
+| `title`         | `''`           | The card heading. It also labels the card for assistive technology.                                           |
+| `description`   | `''`           | The card body.                                                                                                |
+| `cta_label`     | `''`           | The call to action text. The text of the menu item for `options-menu`.                                        |
+| `cta_url`       | `''`           | The call to action link. Only `http` and `https` links render.                                                |
+| `dismissible`   | `true`         | Whether the card has a close control.                                                                         |
+| `snooze_days`   | `90`           | Days a first dismissal lasts. `0` makes the first dismissal final.                                            |
+| `render_module` | `null`         | The id of a script module that draws the card content. See [The two tiers](#the-two-tiers).                   |
+| `is_available`  | none           | A boolean, or a callable that receives the promo. Without it the promo is never available.                    |
 
 ### What `register()` refuses
 
 Each refusal is a `_doing_it_wrong()` and a `false` return, and nothing is registered.
 
 - A slug that does not match the pattern above, or one that is already registered.
-- A `placement` that is not one of the two.
+- A `placement` that is not one of the three.
+- A `section-footer` promo with no `target`, or one whose `target` is not a namespaced section ID. The bare slug `traffic` is refused: pass `analytics/traffic`.
 - An `options-menu` promo that is `dismissible`. A menu item has no close control, so pass `'dismissible' => false`.
 - An `options-menu` promo with a `render_module`. A menu item is not a card.
 - A negative `snooze_days`.
 - `snooze_days` on a promo that is not `dismissible`. A promo that cannot be dismissed has nothing to snooze.
 - A `render_module` that is not a non-empty string.
+
+A `target` naming a section that is not registered cannot be refused at registration: the section registry hydrates on its own first read, and a promo registrant may run before that registry has every section. The promo registers, and the dashboard page then drops it with a `_doing_it_wrong()` naming the promo and the section. When the promo is published, the namespaced `target` is resolved to the section's slug, which is the form the client matches on.
 
 ## Who sees a promo
 
@@ -106,14 +112,15 @@ add_filter( 'jetpack_feature_flag_enabled_jetpack-stats-promos', '__return_true'
 
 On a Jurassic Ninja site, use `wp companion feature-flag enable jetpack-stats-promos` instead. The fixture filter below still needs a mu-plugin or a code snippet, since a `wp companion` command cannot add a filter.
 
-## The two placements
+## The three placements
 
-| Placement      | Renders                                                                                                          |
-| -------------- | ------------------------------------------------------------------------------------------------------------------ |
-| `settings`     | A card in the settings panel.                                                                                    |
-| `options-menu` | One item in the Stats options menu. It behaves as a link: `cta_label` is its text and `cta_url` its destination. |
+| Placement        | Renders                                                                                                               | Takes a target |
+| ---------------- | --------------------------------------------------------------------------------------------------------------------- | -------------- |
+| `section-footer` | A card inside a dashboard section's container, under its widgets. Matched by `target`, published as the section slug. | Yes, required  |
+| `settings`       | A card in the settings panel.                                                                                         | No             |
+| `options-menu`   | One item in the Stats options menu. It behaves as a link: `cta_label` is its text and `cta_url` its destination.      | No             |
 
-A third placement, a card at the foot of a dashboard section, is not in this version. It arrives with a `target` argument and a minor version of its own.
+A `section-footer` promo is suppressed while the reader is editing the dashboard, and in a section the plan locks, where the upgrade prompt takes the place.
 
 The `options-menu` placement is not on every page. Its menu item does not appear on the connect page, on the locked report page or on the upgrade page, because each of those carries Premium Analytics' own upsell and a promo would sit beside it. It does appear on the dashboard and on the Settings page. Registering the same offer in more than one placement is the registrant's choice.
 
@@ -217,9 +224,10 @@ For a card with a render module, the click event is the module's to send through
 
 The major changes when a registrant built against the previous contract stops working: an argument or placement removed, or a changed meaning. The minor changes when a registrant can rely on something new: a new argument, placement or SDK export. A registrant compares the version in its callback. It skips registration when the major differs, and when the minor is below the one it needs.
 
-| Version | Contract                                                                                       |
-| ------- | ------------------------------------------------------------------------------------------------ |
-| 1.0.0   | The arguments and placements above, and the SDK's `PromoRenderProps`, `PromoRecord` and `PromoCta`. |
+| Version | Contract                                                                                                                              |
+| ------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| 1.0.0   | The `options-menu` and `settings` placements, their arguments, and the SDK's `PromoRenderProps`, `PromoRecord` and `PromoCta`.         |
+| 1.1.0   | Adds the `section-footer` placement and its `target` argument, a namespaced section ID. A 1.0.0 registrant is unaffected.              |
 
 ```php
 add_action(
@@ -240,7 +248,7 @@ add_action(
 
 ## Trying it locally
 
-`src/promo-fixture.php` registers one promo per placement: a menu item, and a settings card drawn by a render module. It registers only when two things are on, so turning the feature flag on alone shows nothing.
+`src/promo-fixture.php` registers one promo per placement: a plain-copy card in the Traffic section footer, a menu item, and a settings card drawn by a render module. It registers only when two things are on, so turning the feature flag on alone shows nothing.
 
 1. Force the feature flag on, as above.
 2. Force the fixtures on:
@@ -249,7 +257,7 @@ add_action(
 add_filter( 'jetpack_premium_analytics_register_promo_fixtures', '__return_true' );
 ```
 
-3. Open the dashboard. The Stats options menu has a Fixture menu item.
+3. Open the dashboard. The Traffic tab ends with the plain-copy card, and the Stats options menu has a Fixture menu item.
 4. Open Settings. The card there is the render module tier.
 
 Add a case to the fixture whenever a placement is added: `Promo_Fixture_Test` fails until every placement has one.
@@ -261,4 +269,4 @@ Add a case to the fixture whenever a placement is added: `Promo_Fixture_Test` fa
 | The model, the registry, the gates, the script data, the import map, the fixture | `tests/php/` (`Promo_*`, `Promos_Test.php`)                                  |
 | The snooze rule and the placement reads                                          | `packages/data/src/utils/__tests__/`                                         |
 | Dismissal, the card, its tracking and its module fallback                        | `packages/widgets-toolkit/src/hooks/__tests__/`, `.../promo-card/__tests__/` |
-| The two placements                                                               | `routes/settings/` and the options menu tests                                |
+| The three placements                                                             | `routes/dashboard/`, `routes/settings/`, the options menu tests              |

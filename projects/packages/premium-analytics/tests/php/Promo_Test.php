@@ -72,6 +72,7 @@ class Promo_Test extends BaseTestCase {
 		$this->assertTrue( $promo->dismissible );
 		$this->assertSame( 90, $promo->snooze_days );
 		$this->assertNull( $promo->render_module );
+		$this->assertNull( $promo->target );
 	}
 
 	/**
@@ -81,7 +82,8 @@ class Promo_Test extends BaseTestCase {
 		$promo = new Promo(
 			'acme/offer',
 			array(
-				'placement'     => 'settings',
+				'placement'     => 'section-footer',
+				'target'        => 'analytics/traffic',
 				'order'         => 5,
 				'title'         => 'Acme',
 				'description'   => 'Grow with Acme.',
@@ -97,7 +99,8 @@ class Promo_Test extends BaseTestCase {
 		$this->assertSame(
 			array(
 				'slug'          => 'acme/offer',
-				'placement'     => 'settings',
+				'placement'     => 'section-footer',
+				'target'        => 'analytics/traffic',
 				'order'         => 5,
 				'title'         => 'Acme',
 				'description'   => 'Grow with Acme.',
