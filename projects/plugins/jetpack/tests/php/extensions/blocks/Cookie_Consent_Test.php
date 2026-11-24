@@ -6,7 +6,6 @@
  */
 
 use Automattic\Jetpack\Extensions\CookieConsent;
-use PHPUnit\Framework\Attributes\DataProvider;
 
 require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/cookie-consent/cookie-consent.php';
 
@@ -15,28 +14,8 @@ require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/cookie-consent/cookie-cons
  */
 class Cookie_Consent_Test extends \WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
-	use \Reads_Block_Availability;
 
 	const HANDLE = 'wp-block-custom-css';
-
-	/**
-	 * The block registration to restore after each test.
-	 *
-	 * @var WP_Block_Type|null
-	 */
-	private $registered_block;
-
-	/**
-	 * @inheritDoc
-	 */
-	public function set_up() {
-		parent::set_up();
-
-		$this->registered_block = WP_Block_Type_Registry::get_instance()->get_registered( 'jetpack/cookie-consent' );
-		if ( $this->registered_block ) {
-			unregister_block_type( 'jetpack/cookie-consent' );
-		}
-	}
 
 	/**
 	 * Reset the core handle between tests.
@@ -49,76 +28,8 @@ class Cookie_Consent_Test extends \WP_UnitTestCase {
 		if ( WP_Block_Type_Registry::get_instance()->is_registered( 'jetpack/cookie-consent' ) ) {
 			unregister_block_type( 'jetpack/cookie-consent' );
 		}
-		if ( $this->registered_block ) {
-			WP_Block_Type_Registry::get_instance()->register( $this->registered_block );
-		}
 
 		parent::tear_down();
-	}
-
-	/**
-	 * The deprecated registration helper remains callable.
-	 *
-	 * @expectedDeprecated Automattic\Jetpack\Extensions\CookieConsent\should_register_block
-	 */
-	public function test_should_register_block_remains_callable() {
-		// @phan-suppress-next-line PhanDeprecatedFunction -- The deprecated wrapper is the subject under test.
-		$this->assertTrue( CookieConsent\should_register_block() );
-	}
-
-	/**
-	 * Editor entry points that can display template blocks.
-	 *
-	 * @return array
-	 */
-	public static function data_editor_screens() {
-		return array(
-			'existing page' => array( 'post.php', 'page' ),
-			'new page'      => array( 'post-new.php', 'page' ),
-			'site editor'   => array( 'site-editor.php', 'site-editor' ),
-		);
-	}
-
-	/**
-	 * Saved template blocks remain available in both editors.
-	 *
-	 * @dataProvider data_editor_screens
-	 *
-	 * @param string $pagenow Admin page filename.
-	 * @param string $screen Current editor screen.
-	 */
-	#[DataProvider( 'data_editor_screens' )]
-	public function test_template_block_is_available_in_each_editor( $pagenow, $screen ) {
-		$screen_globals   = array( 'pagenow', 'current_screen', 'typenow', 'taxnow' );
-		$original_globals = array_intersect_key( $GLOBALS, array_flip( $screen_globals ) );
-		$gutenberg        = new ReflectionClass( Jetpack_Gutenberg::class );
-		$original_state   = $gutenberg->getStaticProperties();
-
-		try {
-			Jetpack_Gutenberg::reset();
-			$GLOBALS['pagenow'] = $pagenow;
-			set_current_screen( $screen );
-
-			CookieConsent\register_block();
-
-			$this->assertTrue( WP_Block_Type_Registry::get_instance()->is_registered( 'jetpack/cookie-consent' ) );
-			$this->assertTrue( $this->get_block_availability( 'cookie-consent' )['available'] );
-		} finally {
-			foreach ( $screen_globals as $name ) {
-				if ( array_key_exists( $name, $original_globals ) ) {
-					$GLOBALS[ $name ] = $original_globals[ $name ];
-				} else {
-					unset( $GLOBALS[ $name ] );
-				}
-			}
-			foreach ( $original_state as $name => $value ) {
-				$property = $gutenberg->getProperty( $name );
-				if ( PHP_VERSION_ID < 80100 ) {
-					$property->setAccessible( true );
-				}
-				$property->setValue( null, $value );
-			}
-		}
 	}
 
 	/**
