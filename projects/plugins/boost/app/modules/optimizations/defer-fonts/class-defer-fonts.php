@@ -160,14 +160,19 @@ class Defer_Fonts implements Feature, Changes_Output_On_Activation, Changes_Outp
 	 * @return array The families to defer, then the excluded ones.
 	 */
 	public static function split_excluded( array $fonts, array $prefixes ) {
+		$normalize = static function ( $name ) {
+			return strtolower( trim( (string) $name, "\"' " ) );
+		};
+		$prefixes  = array_filter( array_map( $normalize, $prefixes ), 'strlen' );
+
 		$deferred = array();
 		$excluded = array();
 		foreach ( $fonts as $key => $faces ) {
-			$family = strtolower( trim( (string) ( reset( $faces )['font-family'] ?? '' ), "\"' " ) );
+			$family = $normalize( reset( $faces )['font-family'] ?? '' );
 
 			$is_excluded = false;
 			foreach ( $prefixes as $prefix ) {
-				if ( '' !== (string) $prefix && str_starts_with( $family, strtolower( (string) $prefix ) ) ) {
+				if ( str_starts_with( $family, $prefix ) ) {
 					$is_excluded = true;
 					break;
 				}
@@ -225,9 +230,10 @@ class Defer_Fonts implements Feature, Changes_Output_On_Activation, Changes_Outp
 		};
 
 		return sprintf(
-			'(function(css,key,hash){var d=document,stored;function add(){var s=d.createElement("style");s.className="wp-fonts-local";s.textContent=css;d.head.appendChild(s);d.fonts&&d.fonts.ready.then(function(){try{localStorage.setItem(key,hash)}catch(e){}})}try{stored=localStorage.getItem(key)}catch(e){}if(stored===hash){add()}else{addEventListener("load",add)}})(%s,%s,%s);',
+			// Waits a frame so the new fonts are pending before fonts.ready; adds at once if `load` already fired (delayed-JS plugins).
+			'(function(css,key,hash){var d=document,stored;function add(){var s=d.createElement("style");s.className="wp-fonts-local";s.textContent=css;d.head.appendChild(s);d.fonts&&requestAnimationFrame(function(){d.fonts.ready.then(function(){try{localStorage.setItem(key,hash)}catch(e){}})})}try{stored=localStorage.getItem(key)}catch(e){}if(stored===hash||d.readyState==="complete"){add()}else{addEventListener("load",add)}})(%s,%s,%s);',
 			$encode( $css ),
-			$encode( self::STORAGE_KEY ),
+			$encode( self::STORAGE_KEY . '-' . get_current_blog_id() ),
 			$encode( substr( md5( $css ), 0, 12 ) )
 		);
 	}

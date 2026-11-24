@@ -20,6 +20,7 @@ class Defer_Fonts_Test extends Base_TestCase {
 	protected function set_up() {
 		parent::set_up();
 		Functions\when( 'wp_json_encode' )->alias( 'json_encode' );
+		Functions\when( 'get_current_blog_id' )->justReturn( 3 );
 	}
 
 	public function test_replaces_core_printer_at_the_same_priority() {
@@ -61,6 +62,8 @@ class Defer_Fonts_Test extends Base_TestCase {
 
 		$this->assertStringNotContainsString( '</script>', $script );
 		$this->assertStringContainsString( 'addEventListener("load",add)', $script );
+		$this->assertStringContainsString( 'd.readyState==="complete"', $script, 'Fonts must still be added when the loader runs after `load`.' );
+		$this->assertStringContainsString( '"jetpack-boost-defer-fonts-3"', $script, 'Each site on a multisite needs its own localStorage key.' );
 	}
 
 	/**
@@ -86,6 +89,7 @@ class Defer_Fonts_Test extends Base_TestCase {
 			'Font Awesome by default'    => array( Defer_Fonts::DEFAULT_EXCLUDES, array( '"Font Awesome 6 Free"', 'fontawesome' ) ),
 			'site owner lists their own' => array( array( 'material icons' ), array( 'Material Icons' ) ),
 			'site owner clears the list' => array( array(), array() ),
+			'saved name typed in quotes' => array( array( '"Font Awesome"' ), array( '"Font Awesome 6 Free"' ) ),
 		);
 	}
 }

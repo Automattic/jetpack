@@ -46,6 +46,7 @@ const consumers = [
 		component: <DeferFontsMeta />,
 		trigger: 'Exclude icon fonts',
 		count: false,
+		legacyCopy: false,
 	},
 	...( [ 'js', 'css' ] as const ).map( type => ( {
 		name: `Concatenate ${ type }`,
@@ -180,7 +181,7 @@ it( 'keeps the Page Cache textarea section inside its styling body and panel', (
 	).toBe( true );
 } );
 
-it.each( consumers.filter( consumer => ! consumer.count && consumer.name !== 'Defer Web Fonts' ) )(
+it.each( consumers.filter( consumer => ! consumer.count && consumer.legacyCopy !== false ) )(
 	'$name uses modern field copy and retains legacy field copy',
 	( { component, trigger } ) => {
 		const modernLabel =
