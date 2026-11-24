@@ -71,6 +71,8 @@ class Protect_Status extends Status {
 	/**
 	 * Number of vulnerabilities hidden as ignored, per extension type, while normalizing a report.
 	 *
+	 * @since $$next-version$$
+	 *
 	 * @var array<string, int>
 	 */
 	private static $hidden_counts = array();

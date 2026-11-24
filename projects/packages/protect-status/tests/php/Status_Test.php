@@ -434,22 +434,22 @@ class Status_Test extends BaseTestCase {
 		$report = static::get_sample_api_response();
 		$change( $report );
 		$this->teardown_mock_data();
-		add_filter(
-			'pre_http_request',
-			function () use ( $report ) {
-				return array(
-					'body'     => wp_json_encode( $report, JSON_UNESCAPED_SLASHES ),
-					'response' => array(
-						'code'    => 200,
-						'message' => '',
-					),
-				);
-			}
-		);
+		$filter = function () use ( $report ) {
+			return array(
+				'body'     => wp_json_encode( $report, JSON_UNESCAPED_SLASHES ),
+				'response' => array(
+					'code'    => 200,
+					'message' => '',
+				),
+			);
+		};
+		add_filter( 'pre_http_request', $filter );
 		add_filter( 'all_plugins', array( $this, 'return_sample_plugins' ) );
 		add_filter( 'jetpack_sync_get_themes_callable', array( $this, 'return_sample_themes' ) );
 		Protect_Status::$status = null;
-		return Protect_Status::get_status( true );
+		$status                 = Protect_Status::get_status( true );
+		remove_filter( 'pre_http_request', $filter );
+		return $status;
 	}
 
 	/**
@@ -546,7 +546,8 @@ class Status_Test extends BaseTestCase {
 
 		$this->get_status_from_changed_report(
 			function ( $report ) {
-				$report->themes->{'theme-1'}->version = '0.9.0';
+				$report->themes->{'theme-1'}->version         = '0.9.0';
+				$report->themes->{'theme-1'}->vulnerabilities = array();
 			}
 		);
 
