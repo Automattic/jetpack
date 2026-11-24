@@ -66,7 +66,7 @@ class Server {
 	 *
 	 * @access public
 	 *
-	 * @param Automattic\Jetpack\Sync\Codec_Interface $codec Codec instance.
+	 * @param Codec_Interface $codec Codec instance.
 	 */
 	public function set_codec( Codec_Interface $codec ) {
 		$this->codec = $codec;

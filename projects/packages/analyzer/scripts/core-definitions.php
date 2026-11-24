@@ -19,7 +19,7 @@ class CoreDefinitions {
 	 * A static method to handle the Composer script call that
 	 * triggers a WordPress Core code scan for function and method definitions.
 	 *
-	 * @param Composer\Script\Event $event a script call event.
+	 * @param Event $event a script call event.
 	 */
 	public static function callback( Event $event ) {
 		$arguments = $event->getArguments();
