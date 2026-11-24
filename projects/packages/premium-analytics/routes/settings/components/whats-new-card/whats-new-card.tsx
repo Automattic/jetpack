@@ -109,13 +109,14 @@ const NoCard = (): null => null;
 // On demand, so the page loads nothing of What's new while its flag is off.
 const TeaserSwitch = lazy( async () => {
 	// A load that fails, or an older copy of the module without the hook, leaves the page without the card.
-	const useTeaserSwitch = await import( '@automattic/jetpack-announcements' ).then(
-		module => module.useTeaserSwitch,
-		() => undefined
-	);
+	const whatsNew = await import( '@automattic/jetpack-announcements' ).catch( () => undefined );
+	const useTeaserSwitch = whatsNew?.useTeaserSwitch;
 	if ( ! useTeaserSwitch ) {
 		return { default: NoCard };
 	}
+
+	// The dashboard asks for it too, but not while it holds the surface for an onboarding.
+	whatsNew.trackWhatsNew?.();
 
 	return {
 		default: function TeaserSwitchCard(): JSX.Element {
