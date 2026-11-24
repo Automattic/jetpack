@@ -68,16 +68,17 @@ function get_available_promos() {
 	 *
 	 * @param Promo[] $promos Available promos, as `$slug => $promo` pairs.
 	 */
-	$promos = apply_filters( 'jetpack_premium_analytics_promos', $promos );
+	$filtered = apply_filters( 'jetpack_premium_analytics_promos', $promos );
 
-	$promos = is_array( $promos ) ? array_values(
-		array_filter(
-			$promos,
-			static function ( $promo ) {
-				return $promo instanceof Promo;
+	// A closure here would take the hook docblock's @param with it (PhanCommentParamWithoutRealParam).
+	$promos = array();
+	if ( is_array( $filtered ) ) {
+		foreach ( $filtered as $candidate ) {
+			if ( $candidate instanceof Promo ) {
+				$promos[] = $candidate;
 			}
-		)
-	) : array();
+		}
+	}
 
 	usort(
 		$promos,

@@ -206,12 +206,13 @@ class Promo_Registry_Test extends BaseTestCase {
 			}
 		);
 
-		$registry = Promo_Registry::get_instance();
-		$registry->get_all_registered();
-		$registry->get_all_registered();
+		$registry    = Promo_Registry::get_instance();
+		$first_read  = $registry->get_all_registered();
+		$second_read = $registry->get_all_registered();
 
 		$this->assertSame( 1, $calls );
-		$this->assertArrayHasKey( 'acme/offer', $registry->get_all_registered() );
+		$this->assertSame( $first_read, $second_read );
+		$this->assertArrayHasKey( 'acme/offer', $second_read );
 	}
 
 	public function test_a_registrant_that_reads_the_registry_does_not_re_enter() {
