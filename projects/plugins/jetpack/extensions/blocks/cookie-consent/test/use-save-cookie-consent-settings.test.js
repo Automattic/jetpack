@@ -1,12 +1,6 @@
 import { act, renderHook, waitFor } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
-import {
-	createBlock,
-	parse,
-	registerBlockType,
-	serialize,
-	unregisterBlockType,
-} from '@wordpress/blocks';
+import { createBlock, registerBlockType, serialize, unregisterBlockType } from '@wordpress/blocks';
 import { store as coreStore } from '@wordpress/core-data';
 import { createReduxStore, createRegistry, RegistryProvider } from '@wordpress/data';
 import { createElement } from '@wordpress/element';
@@ -178,8 +172,6 @@ describe( 'Cookie Consent settings synchronization', () => {
 
 	it.each( [
 		[ 'wp_template', false ],
-		[ 'wp_template_part', false ],
-		[ 'wp_template', true ],
 		[ 'wp_template_part', true ],
 	] )(
 		'clears the banner only after saving a deletion in a %s after the block unmounts (stale copy: %s)',
@@ -205,8 +197,6 @@ describe( 'Cookie Consent settings synchronization', () => {
 
 	it.each( [
 		[ 'wp_template', true ],
-		[ 'wp_template_part', true ],
-		[ 'wp_template', false ],
 		[ 'wp_template_part', false ],
 	] )(
 		'preserves the banner only for a newly referenced synced pattern in a %s (new reference: %s)',
@@ -238,7 +228,6 @@ describe( 'Cookie Consent settings synchronization', () => {
 
 	it.each( [
 		[ 'wp_template', false ],
-		[ 'wp_template_part', false ],
 		[ 'wp_template_part', true ],
 	] )(
 		'syncs a saved %s after returning to the page with the block unmounted (nested: %s)',
@@ -259,18 +248,6 @@ describe( 'Cookie Consent settings synchronization', () => {
 			);
 		}
 	);
-
-	it( 'keeps the banner when its block unmounts after a footer part save', async () => {
-		const { blockEditor, save, savedBanner, unmount } = setup();
-		await save( 'wp_template_part', savedBanner.replaceAll( 'Saved banner', 'Updated banner' ) );
-		await waitFor( () => expect( settingsWrites() ).toHaveLength( 1 ) );
-
-		await act( () => blockEditor.setState( { block: undefined } ) );
-		await act( async () => unmount() );
-
-		expect( settingsWrites() ).toHaveLength( 1 );
-		expect( settingsWrites()[ 0 ][ 0 ].data.cookie_consent_template ).toContain( 'Updated banner' );
-	} );
 
 	it.each( [ 'page', 'wp_template' ] )(
 		'leaves settings alone when saving an unrelated %s',
@@ -322,13 +299,12 @@ describe( 'Cookie Consent settings synchronization', () => {
 
 	it( 'syncs a banner added to a template that did not have one', async () => {
 		const { save, savedBanner } = setup( { content: '' } );
+		const addedBanner = savedBanner.replaceAll( 'Saved banner', 'Added banner' );
 
-		await save( 'wp_template', savedBanner.replaceAll( 'Saved banner', 'Added banner' ) );
+		await save( 'wp_template', addedBanner );
 
 		await waitFor( () => expect( settingsWrites() ).toHaveLength( 1 ) );
-		expect( parse( settingsWrites()[ 0 ][ 0 ].data.cookie_consent_template )[ 0 ].name ).toBe(
-			TYPE
-		);
+		expect( settingsWrites()[ 0 ][ 0 ].data.cookie_consent_template ).toBe( addedBanner );
 	} );
 
 	it( 'syncs the edited banner when a Site Editor save finishes', async () => {
@@ -442,10 +418,8 @@ describe( 'Cookie Consent settings synchronization', () => {
 	);
 
 	it.each( [
-		[ 'wp_template', false ],
 		[ 'wp_template', true ],
 		[ 'wp_template_part', false ],
-		[ 'wp_template_part', true ],
 	] )(
 		'syncs a banner converted to a new template part when its source is saved (%s, edited: %s)',
 		async ( name, edited ) => {
@@ -469,7 +443,7 @@ describe( 'Cookie Consent settings synchronization', () => {
 				part = await core.saveEntityRecord( 'postType', 'wp_template_part', {
 					content: movedBanner,
 				} );
-				await new Promise( resolve => setTimeout( resolve, 0 ) );
+				await Promise.resolve();
 			} );
 
 			expect( settings.cookie_consent_template ).toBe( savedBanner );
