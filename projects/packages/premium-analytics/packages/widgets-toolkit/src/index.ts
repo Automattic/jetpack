@@ -177,6 +177,8 @@ export {
 	useReportCsvExport,
 	type UseReportCsvExportOptions,
 	type UseReportCsvExportResult,
+	WidgetDataTable,
+	type WidgetDataTableProps,
 	EarningsHistoryList,
 	type EarningsHistoryListProps,
 	flattenEarningsBreakdown,

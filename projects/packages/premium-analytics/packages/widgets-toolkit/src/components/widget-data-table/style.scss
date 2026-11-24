@@ -1,0 +1,5 @@
+@use "sass:meta";
+
+/* DataViews ships its styles separately from the component. Inline them in a
+ * global stylesheet so CSS Modules does not scope its public class names. */
+@include meta.load-css("@wordpress/dataviews/build-style/style");
