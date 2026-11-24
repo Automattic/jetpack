@@ -1,5 +1,0 @@
-Significance: patch
-Type: enhancement
-Comment: Settings: Show the Jetpack Stats card only in a search where the Stats settings have their own page, and hide Traffic and send #/traffic to Features once no card is left, behind the settings consolidation flag.
-
-

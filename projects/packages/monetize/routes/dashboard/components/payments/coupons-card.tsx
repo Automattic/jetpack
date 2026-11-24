@@ -1,6 +1,6 @@
 import { dateI18n, getSettings } from '@wordpress/date';
 import { __, sprintf } from '@wordpress/i18n';
-import { Button, Card, Notice, Stack, Text } from '@wordpress/ui';
+import { Button, Card, Notice, Spinner, Stack, Text } from '@wordpress/ui';
 import { useCallback, useState } from 'react';
 import { useCoupons } from '../../data/coupons';
 import { useStripeStatus } from '../../data/memberships';
@@ -73,7 +73,11 @@ function Coupons( { status }: { status: StripeStatus } ) {
 			</Notice.Root>
 		);
 	} else if ( ! coupons ) {
-		content = <Text>{ __( 'Loading…', 'jetpack-monetize' ) }</Text>;
+		content = (
+			<Stack direction="row" justify="center" className="jp-monetize-loading">
+				<Spinner />
+			</Stack>
+		);
 	} else if ( ! coupons.length ) {
 		content = (
 			<Text>

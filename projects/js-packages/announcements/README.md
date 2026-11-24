@@ -27,3 +27,26 @@ The call returns the function that takes the surface off the page, for a host th
 With wp-build, add the `automattic` scope to `wpPlugin.externalNamespaces`. wp-build finds the package installed, sees it declared as a script module (`wpScriptModuleExports`), and leaves the import external; the page import map resolves it to the module the Jetpack Announcements package registers.
 
 The host's build then names that module as a dependency. WordPress does not print a script module with a dependency that is not registered, so the PHP package that requires this one also requires `automattic/jetpack-announcements`.
+
+## Recording what users do
+
+The surface records nothing by itself. A host that wants its events in Tracks asks for them once, before it mounts:
+
+```ts
+const { mountWhatsNew, trackWhatsNew } = await import( '@automattic/jetpack-announcements' );
+
+trackWhatsNew();
+mountWhatsNew( { channels: [ 'my-plugin' ] } );
+```
+
+| Event                                     | Recorded when                                   | Property          |
+| ----------------------------------------- | ----------------------------------------------- | ----------------- |
+| `jetpack_announcements_teaser_view`       | The teaser is shown                             | `announcement_id` |
+| `jetpack_announcements_teaser_open`       | The user opens the announcement from the teaser | `announcement_id` |
+| `jetpack_announcements_teaser_dismiss`    | The user dismisses the teaser                   | `announcement_id` |
+| `jetpack_announcements_reader_link_click` | The user follows the link of the announcement   | `announcement_id` |
+| `jetpack_announcements_teaser_switch`     | The user turns the teaser on or off             | `enabled`         |
+
+Every event carries the `blog_id` of the site. The names are the same for every host, and the id of the announcement tells the product.
+
+The call serves the whole page. Under the admin shell, where several Jetpack pages share one document, it also records the surface a later page mounts.

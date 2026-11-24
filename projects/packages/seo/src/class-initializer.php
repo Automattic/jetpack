@@ -22,7 +22,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '0.12.0';
+	const PACKAGE_VERSION = '0.13.0';
 
 	/**
 	 * Key under `window.JetpackScriptData` the React app reads its state from

@@ -3,7 +3,7 @@ export type IdentityCrisisAction = 'migrate' | 'start-fresh' | 'confirm-safe-mod
 
 /** Why a Safe Mode request failed; `getIdentityCrisisErrorCause()` says what each covers. */
 export type IdentityCrisisErrorCause =
-	'offline' | 'blocked' | 'output' | 'session' | 'permission' | 'server';
+	'offline' | 'blocked' | 'output' | 'session' | 'permission' | 'disconnected' | 'server';
 
 export interface IdentityCrisisError {
 	action: IdentityCrisisAction;

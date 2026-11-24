@@ -1,4 +1,11 @@
-import { flowReducer, getInitialFlowState, getOption, getPath } from '../steps';
+import {
+	flowReducer,
+	getInitialFlowState,
+	getOption,
+	getOptions,
+	getPath,
+	getResultAction,
+} from '../steps';
 import type { FlowContext, FlowState, OptionId } from '../steps';
 
 const ctx: FlowContext = {
@@ -42,4 +49,27 @@ describe( 'Safe Mode flow steps', () => {
 			expect( getPath( state, flowCtx ) ).toBe( path );
 		}
 	);
+
+	it.each( [ true, false ] )(
+		'offers "same" first only when a dynamic address is detected: %s',
+		possibleDynamicSiteUrlDetected => {
+			const ids = getOptions( 'main', { ...ctx, possibleDynamicSiteUrlDetected } ).map(
+				option => option.id
+			);
+
+			expect( ids[ 0 ] === 'same' ).toBe( possibleDynamicSiteUrlDetected );
+			expect( ids.includes( 'same' ) ).toBe( possibleDynamicSiteUrlDetected );
+		}
+	);
+
+	it( '"same" leads to the two-addresses result, which stays in Safe Mode, and Back restores it', () => {
+		const flowCtx = { ...ctx, possibleDynamicSiteUrlDetected: true };
+		const picked = answer( flowCtx, [ 'same' ] );
+		const result = flowReducer( picked, { type: 'next' } );
+
+		expect( result ).toMatchObject( { step: 'two-addresses', pick: null } );
+		expect( getResultAction( 'two-addresses' ) ).toBe( 'confirm-safe-mode' );
+		expect( getPath( result, flowCtx ) ).toBe( 'same' );
+		expect( flowReducer( result, { type: 'back' } ) ).toEqual( picked );
+	} );
 } );

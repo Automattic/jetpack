@@ -9,7 +9,7 @@ import { redirect } from '@wordpress/route';
  * Internal dependencies
  */
 import { dateWindowRedirect } from '../date-window-redirect';
-import { isPremiumAnalyticsSiteConnected } from '../site-readiness';
+import { getConnectionlessSectionSlugs, isPremiumAnalyticsSiteConnected } from '../site-readiness';
 import { dashboardSectionOf, withoutCarriedYearWindow } from '../stats-date-window';
 import { WIDGET_MODULES_QUERY } from '../use-widget-modules';
 import { DASHBOARD_SECTIONS_QUERY } from './hooks/use-dashboard-sections';
@@ -25,7 +25,7 @@ const SETTINGS_SECTION = 'settings';
  */
 export const route = {
 	beforeLoad: async ( { search }: { search?: DashboardSearch } = {} ) => {
-		if ( ! isPremiumAnalyticsSiteConnected() ) {
+		if ( ! isPremiumAnalyticsSiteConnected() && getConnectionlessSectionSlugs().length === 0 ) {
 			throw redirect( { to: '/connect' } );
 		}
 

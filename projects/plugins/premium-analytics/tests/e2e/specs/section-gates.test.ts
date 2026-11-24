@@ -4,11 +4,16 @@ import { test, expect, setSiteState } from '../fixtures/dashboard';
 const routeOf = ( url: URL ) => url.searchParams.get( 'p' )?.split( '?' )[ 0 ];
 
 test.describe( 'opt-in option', () => {
-	test( 'keeps the dashboard closed while the option is off', async ( {
+	test( 'keeps the dashboard closed while the option is off and classic Stats is kept', async ( {
 		dashboard,
 		testUtils,
 	} ) => {
-		await setSiteState( testUtils, { enabled: false, subscriptions: false, wordads: false } );
+		await setSiteState( testUtils, {
+			enabled: false,
+			subscriptions: false,
+			wordads: false,
+			classicStatsRetired: false,
+		} );
 
 		await dashboard.open();
 

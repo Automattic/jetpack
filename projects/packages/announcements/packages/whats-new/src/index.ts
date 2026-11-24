@@ -10,6 +10,7 @@ import { ensureAnnouncementEntity } from './hooks';
 import type * as Contract from '@automattic/jetpack-announcements';
 
 export { useTeaserSwitch } from './hooks';
+export { trackWhatsNew } from './utils';
 
 type Mount = {
 	/*

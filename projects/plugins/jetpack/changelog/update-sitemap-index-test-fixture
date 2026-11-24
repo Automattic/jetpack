@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-Comment: Speed up the sitemap builder tests. No user-facing change.
-

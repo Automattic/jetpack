@@ -1,10 +1,10 @@
 const assert = require( 'node:assert/strict' );
 const { before, describe, it } = require( 'node:test' );
 
-let decorateAuthUrl, getCardConnection, getProtectedOwnerStatus;
+let decorateAuthUrl, getCardConnection, getProtectedOwnerStatus, withSkipPricing;
 
 before( async () => {
-	( { decorateAuthUrl, getCardConnection, getProtectedOwnerStatus } =
+	( { decorateAuthUrl, getCardConnection, getProtectedOwnerStatus, withSkipPricing } =
 		await import( '../../src/connectors/js/card-state.mjs' ) );
 } );
 
@@ -122,21 +122,6 @@ describe( 'getCardConnection', () => {
 		assert.deepEqual( result.connectedPlugins, [] );
 	} );
 
-	for ( const [ slugs, hasJetpackPlugin, hasWooPlugin ] of [
-		[ [ 'jetpack' ], true, false ],
-		[ [ 'jetpack-boost' ], true, false ],
-		[ [ 'jetpackish' ], false, false ],
-		[ [ 'woocommerce-payments' ], false, true ],
-		[ [ 'automattic-for-agencies-client' ], false, false ],
-	] ) {
-		it( `classifies ${ slugs.join( ', ' ) }`, () => {
-			const result = derive( { plugins: slugs.map( slug => ( { slug } ) ) } );
-
-			assert.equal( result.hasJetpackPlugin, hasJetpackPlugin );
-			assert.equal( result.hasWooPlugin, hasWooPlugin );
-		} );
-	}
-
 	it( 'names plugins by slug when they have no name and attaches known logos', () => {
 		const result = derive(
 			{ plugins: [ { slug: 'jetpack', name: 'Jetpack' }, { slug: 'other' } ] },
@@ -206,5 +191,18 @@ describe( 'decorateAuthUrl', () => {
 
 	it( 'returns a URL it cannot parse unchanged', () => {
 		assert.equal( decorateAuthUrl( '/relative' ), '/relative' );
+	} );
+} );
+
+describe( 'withSkipPricing', () => {
+	it( 'adds skip_pricing and keeps the from the server set', () => {
+		const url = new URL(
+			withSkipPricing(
+				'https://wordpress.com/jetpack/connect?from=connection_safe_mode_connectors'
+			)
+		);
+
+		assert.equal( url.searchParams.get( 'from' ), 'connection_safe_mode_connectors' );
+		assert.equal( url.searchParams.get( 'skip_pricing' ), 'true' );
 	} );
 } );

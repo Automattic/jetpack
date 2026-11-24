@@ -52,6 +52,9 @@ let mockIsSyncFinished: boolean;
 let mockSyncOptions: { enabled?: boolean; autoStart?: boolean } | undefined;
 let mockIsAdmin: boolean;
 let mockCanSendFeedback: boolean;
+let mockIsConnected: boolean;
+let mockConnectionless: string[];
+let mockMenuConnected: boolean | undefined;
 let mockMenuTabs: { onPreview?: ( order?: string[] ) => void } | undefined;
 const mockResetLayout = jest.fn();
 const mockChangeComparison = jest.fn();
@@ -85,6 +88,8 @@ jest.mock( '@automattic/jetpack-script-data', () => ( {
 
 jest.mock( '../site-readiness', () => ( {
 	isPremiumAnalyticsInitialSyncFinished: () => mockIsSyncFinished,
+	isPremiumAnalyticsSiteConnected: () => mockIsConnected,
+	getConnectionlessSectionSlugs: () => mockConnectionless,
 } ) );
 
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
@@ -182,13 +187,16 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 	useTrackCustomize: () => mockTrackCustomize,
 	canSendFeedback: () => mockCanSendFeedback,
 	StatsOptionsMenu: ( {
+		isSiteConnected,
 		onCustomize,
 		tabs,
 	}: {
+		isSiteConnected?: boolean;
 		onCustomize?: () => void;
 		tabs?: typeof mockMenuTabs;
 	} ) => {
 		mockMenuTabs = tabs;
+		mockMenuConnected = isSiteConnected;
 
 		return (
 			<div data-testid="stats-options-menu">
@@ -411,6 +419,7 @@ jest.mock( './components', () => ( {
 	OnboardingTour: () => <div data-testid="onboarding-tour" />,
 	onboardingTourSteps: jest.fn( () => [] ),
 	DashboardNotices: () => <div data-testid="dashboard-notices" />,
+	ConnectSection: () => <div data-testid="connect-section" />,
 	// A marker, not the real notice, which reads a query cache these tests do not
 	// stand up. Covered here: where the stage puts it.
 	RefreshFailureNotice: () => <div data-testid="refresh-failure-notice" />,
@@ -475,6 +484,8 @@ beforeEach( () => {
 	mockSyncOptions = undefined;
 	mockIsAdmin = true;
 	mockCanSendFeedback = true;
+	mockIsConnected = true;
+	mockConnectionless = [];
 	delete window.JetpackScriptData;
 	mockMountedSectionSlugs = null;
 	mockTriggerSync.mockImplementation( () => Promise.resolve() );
@@ -911,6 +922,39 @@ describe( 'Dashboard feedback banner', () => {
 
 		expect( screen.queryByTestId( 'feedback-banner' ) ).not.toBeInTheDocument();
 	} );
+
+	it( 'leaves the Stats chrome off on a disconnected site', () => {
+		mockIsConnected = false;
+		mockConnectionless = [ 'traffic' ];
+
+		render( <Dashboard /> );
+
+		expect( screen.queryByTestId( 'feedback-banner' ) ).not.toBeInTheDocument();
+		expect( screen.queryByTestId( 'dashboard-notices' ) ).not.toBeInTheDocument();
+		expect( mockMenuConnected ).toBe( false );
+		expect( useOnboardingMock ).toHaveBeenLastCalledWith(
+			expect.objectContaining( { enabled: false } )
+		);
+	} );
+
+	it.each( [
+		[ 'shows the connect prompt instead of', [ 'woocommerce' ], true ],
+		[ 'keeps the widgets of', [ 'traffic' ], false ],
+	] )(
+		'%s a tab on a disconnected site, by whether it runs without a connection',
+		( _case, connectionless, showsPrompt ) => {
+			mockIsConnected = false;
+			mockConnectionless = connectionless;
+
+			render( <Dashboard /> );
+
+			expect( !! screen.queryByTestId( 'connect-section' ) ).toBe( showsPrompt );
+			expect( !! screen.queryByText( 'offers comparison' ) ).toBe( ! showsPrompt );
+			expect( useDashboardPolicyMock ).toHaveBeenLastCalledWith(
+				expect.objectContaining( { needsConnection: showsPrompt } )
+			);
+		}
+	);
 
 	it( 'puts the Stats notices away while the reader arranges the layout', async () => {
 		render( <Dashboard /> );
@@ -1451,6 +1495,7 @@ describe( 'Dashboard inserter', () => {
 
 		expect( useDashboardPolicyMock ).toHaveBeenLastCalledWith( {
 			insertableWidgetTypes: new Set( [ 'jpa/traffic-chart', 'jpa/devices' ] ),
+			needsConnection: false,
 		} );
 
 		useActiveSectionMock.mockReturnValue( [ 'insights', jest.fn(), true ] );
@@ -1460,6 +1505,7 @@ describe( 'Dashboard inserter', () => {
 
 		expect( useDashboardPolicyMock ).toHaveBeenLastCalledWith( {
 			insertableWidgetTypes: new Set( [ 'jpa/latest-post' ] ),
+			needsConnection: false,
 		} );
 	} );
 

@@ -1,9 +1,7 @@
 /* eslint-disable react/jsx-no-bind */
 
-// eslint-disable-next-line @wordpress/use-recommended-components -- Match the existing schema entity fields.
-import { TextControl, TextareaControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { Button, Stack, Text } from '@wordpress/ui';
+import { Button, InputControl, Stack, Text, TextareaControl } from '@wordpress/ui';
 import ProfileUrlList, { hasProfileUrlErrors } from './profile-url-list';
 import styles from './style.module.scss';
 import type { SchemaSettingsForm } from '../../../data/use-schema-settings';
@@ -43,33 +41,32 @@ const PersonSection: FC< Props > = ( { form, disabled = false, disabledReasonId 
 				) }
 			</Text>
 
-			<TextControl
+			<InputControl
 				label={ __( 'Name', 'jetpack-seo' ) }
 				aria-label={ __( 'Person name', 'jetpack-seo' ) }
-				help={ __(
+				// See the Organization name field in organization-section.tsx.
+				aria-labelledby={ undefined }
+				description={ __(
 					'Your full name, as you want it to appear in search results. Leave blank to use your Site Title.',
 					'jetpack-seo'
 				) }
 				placeholder={ personDefaults.name }
 				value={ name }
-				onChange={ next => setPersonField( { name: next } ) }
+				onValueChange={ next => setPersonField( { name: next } ) }
 				disabled={ disabled || isSaving }
-				__next40pxDefaultSize
-				__nextHasNoMarginBottom
 			/>
 
 			<TextareaControl
 				label={ __( 'Short bio', 'jetpack-seo' ) }
-				help={ __(
+				description={ __(
 					'A sentence or two about who you are and what you do. Leave blank to use your site Tagline.',
 					'jetpack-seo'
 				) }
 				placeholder={ personDefaults.description }
 				value={ description }
-				onChange={ next => setPersonField( { description: next } ) }
+				onValueChange={ next => setPersonField( { description: next } ) }
 				rows={ 3 }
 				disabled={ disabled || isSaving }
-				__nextHasNoMarginBottom
 			/>
 
 			<ProfileUrlList

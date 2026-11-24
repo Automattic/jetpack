@@ -2,9 +2,17 @@ import getRedirectUrl from '@automattic/jetpack-components/tools/jp-redirect';
 import { isWpcomPlatformSite } from '@automattic/jetpack-script-data';
 
 export type DocKey =
-	'payments' | 'donations' | 'premiumContent' | 'paidNewsletter' | 'paypal' | 'ads';
+	| 'payments'
+	| 'donations'
+	| 'premiumContent'
+	| 'paidNewsletter'
+	| 'paypal'
+	| 'ads'
+	| 'adsUsPrivacy'
+	| 'adsGdpr'
+	| 'adsTxt';
 
-// jetpack.com/redirect sources for each feature's doc on each kind of host.
+// jetpack.com/redirect sources for each feature's doc on each kind of host, or a full URL where there's no source.
 const DOCS: Record< DocKey, { jetpack: string; wpcom: string } > = {
 	payments: {
 		jetpack: 'jetpack-support-jetpack-blocks-payments-block',
@@ -30,15 +38,29 @@ const DOCS: Record< DocKey, { jetpack: string; wpcom: string } > = {
 		jetpack: 'jetpack-support-ads',
 		wpcom: 'wpcom-support-wordads-and-earn',
 	},
+	adsUsPrivacy: {
+		jetpack: 'jetpack-support-ads',
+		wpcom: 'wpcom-support-us-privacy',
+	},
+	adsGdpr: {
+		jetpack: 'jetpack-support-ads',
+		wpcom:
+			'https://wordpress.com/support/wordads-and-earn/configure-ad-settings/#consent-management',
+	},
+	adsTxt: {
+		jetpack: 'jetpack-support-ads',
+		wpcom: 'https://wordpress.com/support/manage-your-ads-txt-file/',
+	},
 };
 
 /**
  * A feature's support doc: WordPress.com's on WoA and Simple, Jetpack's elsewhere.
  *
  * @param key - The feature.
- * @return The doc's URL, through jetpack.com/redirect.
+ * @return The doc's URL, through jetpack.com/redirect unless it's a full URL.
  */
 export function getDocUrl( key: DocKey ): string {
-	const doc = DOCS[ key ];
-	return getRedirectUrl( isWpcomPlatformSite() ? doc.wpcom : doc.jetpack );
+	const doc = DOCS[ key ][ isWpcomPlatformSite() ? 'wpcom' : 'jetpack' ];
+	// The redirect would drop a full URL's anchor.
+	return doc.startsWith( 'https://' ) ? doc : getRedirectUrl( doc );
 }

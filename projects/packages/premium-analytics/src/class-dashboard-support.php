@@ -14,7 +14,7 @@ namespace Automattic\Jetpack\PremiumAnalytics;
  * It injects no section script data, and for now the page hooks add_widget_modules_to_boot_deps()
  * to its own boot dependencies filter. The REST half is Dashboard_Support_Routes::register().
  *
- * @since $$next-version$$
+ * @since 0.19.0
  */
 class Dashboard_Support {
 
@@ -33,7 +33,7 @@ class Dashboard_Support {
 	 * Idempotent. Call it before `wp_default_scripts` fires, on the requests that render the
 	 * host's page: that hook is where the modules register.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.19.0
 	 *
 	 * @return void
 	 */

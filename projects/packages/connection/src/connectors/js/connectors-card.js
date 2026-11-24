@@ -22,6 +22,7 @@
 import {
 	bumpConnectionStat,
 	CONNECTION_EVENTS,
+	CONNECTION_FROM,
 	CONNECTION_STORE_ID,
 	ConnectionErrorView,
 	DisconnectDialog,
@@ -29,7 +30,9 @@ import {
 	getProtectedOwnerConfirmationCopy,
 	getRegistrationErrorDisplay,
 	getTracksIdentity,
+	IdentityCrisis,
 	initializeTracksIdentity,
+	onIdentityCrisisActionSuccess,
 	ProtectedOwnerConfirmation,
 	ProtectedOwnerRelease,
 	TermsOfService,
@@ -37,6 +40,9 @@ import {
 	trackConnectionEvent,
 	getUserConnectKind,
 	getUserConnectMessage,
+	// Aliased: the card's connection state keeps the results under these names.
+	hasJetpackPlugin as includesJetpackPlugin,
+	hasWooPlugin as includesWooPlugin,
 	useConnectionErrorNotice,
 } from '@automattic/jetpack-connection';
 import * as components from '@wordpress/components';
@@ -47,6 +53,7 @@ import { useSelect } from '@wordpress/data';
 import {
 	createElement,
 	createInterpolateElement,
+	Fragment,
 	useState,
 	useEffect,
 	useMemo,
@@ -54,7 +61,12 @@ import {
 } from '@wordpress/element';
 import { __, _x, sprintf } from '@wordpress/i18n';
 import { getAccountSections } from './account-sections.mjs';
-import { decorateAuthUrl, getCardConnection, getProtectedOwnerStatus } from './card-state.mjs';
+import {
+	decorateAuthUrl,
+	getCardConnection,
+	getProtectedOwnerStatus,
+	withSkipPricing,
+} from './card-state.mjs';
 import { createRequestError, getConnectErrorDisplay } from './connect-error.mjs';
 
 const registerConnector =
@@ -112,6 +124,7 @@ function useCardConnection() {
 		isOfflineMode,
 		blogId,
 		canTakeOwnerSlot,
+		identityCrisis,
 	} = useSelect( select => {
 		const store = select( CONNECTION_STORE_ID );
 		return {
@@ -123,6 +136,7 @@ function useCardConnection() {
 			blogId: store.getBlogId() || null,
 			// Optional: an older shared connection bundle has no such selector.
 			canTakeOwnerSlot: store.getCanTakeOwnerSlot?.(),
+			identityCrisis: store.getIdentityCrisis?.(),
 		};
 	}, [] );
 
@@ -141,9 +155,13 @@ function useCardConnection() {
 
 		return {
 			...connection,
+			hasJetpackPlugin: includesJetpackPlugin( connection.connectedPlugins ),
 			canTakeOwnerSlot,
+			// Checked as a function too: an older shared connection bundle has no such component.
+			useNewSafeModeScreen:
+				Boolean( identityCrisis?.useNewScreen ) && typeof IdentityCrisis === 'function',
 			tracksIdentity: getTracksIdentity( connection.currentUser ),
-			subjectNoun: connection.hasWooPlugin
+			subjectNoun: includesWooPlugin( connection.connectedPlugins )
 				? _x(
 						'store',
 						'The thing connected to WordPress.com, in a WooCommerce context.',
@@ -159,6 +177,7 @@ function useCardConnection() {
 		isOfflineMode,
 		blogId,
 		canTakeOwnerSlot,
+		identityCrisis,
 	] );
 }
 
@@ -1446,6 +1465,80 @@ function IDCPanel() {
 	);
 }
 
+/**
+ * Disconnect site, and the dialog it opens. In Safe Mode the server only clears this site's tokens.
+ *
+ * @return {object} React element.
+ */
+function DisconnectSite() {
+	const [ isDialogOpen, setIsDialogOpen ] = useState( false );
+	const { isOfflineMode, tracksIdentity, connectedPlugins, viewerConnectionType } =
+		useCardConnection();
+	const { track } = useTracking( { isOfflineMode, viewerConnectionType } );
+	const buttonRef = useRef( null );
+
+	return createElement(
+		Fragment,
+		null,
+		createElement(
+			Button,
+			{
+				ref: buttonRef,
+				variant: 'secondary',
+				isDestructive: true,
+				size: 'compact',
+				disabled: isOfflineMode,
+				onClick: () => {
+					track( CONNECTION_EVENTS?.cardActionClick, { action: 'disconnect_site' } );
+					setIsDialogOpen( true );
+				},
+				className: 'jetpack-connector__disconnect-site',
+			},
+			__( 'Disconnect site', 'jetpack-connection' )
+		),
+		// Mounted only while open, so a reopened dialog starts again at its first step.
+		isDialogOpen
+			? createElement( DisconnectDialog, {
+					apiRoot,
+					apiNonce,
+					connectedPlugins,
+					// No connectedSiteId: without it the dialog skips the disconnect survey.
+					connectedUser: tracksIdentity,
+					context: TRACKING_CONTEXT,
+					isOpen: true,
+					// The dialog disconnects on its first step; the reload waits for its closing steps.
+					onDisconnected: () => window.location.reload(),
+					onClose: () => {
+						setIsDialogOpen( false );
+						focusWhenReady( buttonRef.current );
+					},
+				} )
+			: null
+	);
+}
+
+/**
+ * The new Safe Mode screen, behind the `connection-idc-screen` flag. It replaces IDCPanel and reads the shared state.
+ *
+ * @return {object} React element.
+ */
+function SafeModeScreen() {
+	return createElement( IdentityCrisis, {
+		context: 'connectors',
+		showHeader: false,
+		redirectUri: redirectUri || undefined,
+		from: CONNECTION_FROM.connectionSafeModeConnectors,
+		hostActions: isManagedPlatformSite ? null : createElement( DisconnectSite ),
+		onActionSuccess: result => {
+			if ( result.action === 'start-fresh' ) {
+				window.location.href = withSkipPricing( result.connectUrl );
+			} else {
+				onIdentityCrisisActionSuccess( result );
+			}
+		},
+	} );
+}
+
 /* ── Expanded details panel ─────────────────────────────────────── */
 
 /**
@@ -1468,14 +1561,11 @@ function ExpandedDetails( {
 		ownerIsViewer,
 		isOwnerConnectionBroken,
 		isOfflineMode,
-		tracksIdentity,
-		connectedPlugins,
 		viewerConnectionType,
 	} = useCardConnection();
 	const [ isDisconnectUserOpen, setIsDisconnectUserOpen ] = useState( false );
 	const [ showDetailsModal, setShowDetailsModal ] = useState( false );
 	const [ isTransferOpen, setIsTransferOpen ] = useState( false );
-	const [ isDisconnectDialogOpen, setIsDisconnectDialogOpen ] = useState( false );
 	const [ pendingConfirm, setPendingConfirm ] = useState( null );
 	const [ actionError, setActionError ] = useState( null );
 	const { track } = useTracking( { isOfflineMode, viewerConnectionType } );
@@ -1483,7 +1573,6 @@ function ExpandedDetails( {
 	const transferOwnershipRef = useRef( null );
 	const transferredRef = useRef( false );
 	const confirmTriggerRef = useRef( null );
-	const disconnectSiteRef = useRef( null );
 	const disconnectAccountRef = useRef( null );
 
 	const isErrorBannerShown = Boolean( connectionErrorNotice?.hasConnectionError );
@@ -1643,24 +1732,7 @@ function ExpandedDetails( {
 						)
 					: null
 			),
-			isManagedPlatformSite
-				? null
-				: createElement(
-						Button,
-						{
-							ref: disconnectSiteRef,
-							variant: 'secondary',
-							isDestructive: true,
-							size: 'compact',
-							disabled: isOfflineMode,
-							onClick: () => {
-								track( CONNECTION_EVENTS?.cardActionClick, { action: 'disconnect_site' } );
-								setIsDisconnectDialogOpen( true );
-							},
-							className: 'jetpack-connector__disconnect-site',
-						},
-						__( 'Disconnect site', 'jetpack-connection' )
-					)
+			isManagedPlatformSite ? null : createElement( DisconnectSite )
 		),
 
 		// Modals (rendered but visually hidden until triggered).
@@ -1680,24 +1752,6 @@ function ExpandedDetails( {
 					onCancel: () => {
 						setPendingConfirm( null );
 						focusWhenReady( confirmTriggerRef.current );
-					},
-				} )
-			: null,
-		// Mounted only while open, so a reopened dialog starts again at its first step.
-		isDisconnectDialogOpen
-			? createElement( DisconnectDialog, {
-					apiRoot,
-					apiNonce,
-					connectedPlugins,
-					// No connectedSiteId: without it the dialog skips the disconnect survey.
-					connectedUser: tracksIdentity,
-					context: TRACKING_CONTEXT,
-					isOpen: true,
-					// The dialog disconnects on its first step; the reload waits for its closing steps.
-					onDisconnected: () => window.location.reload(),
-					onClose: () => {
-						setIsDisconnectDialogOpen( false );
-						focusWhenReady( disconnectSiteRef.current );
 					},
 				} )
 			: null,
@@ -1773,6 +1827,7 @@ function JetpackConnectorCard( { name, label, description, logo, icon } ) {
 		isOfflineMode,
 		isFirstConnection,
 		isInSafeMode,
+		useNewSafeModeScreen,
 		isOwnerConnectionBroken,
 		viewer,
 		currentUser,
@@ -1920,7 +1975,7 @@ function JetpackConnectorCard( { name, label, description, logo, icon } ) {
 				// While in Safe Mode, the identity-crisis resolution options
 				// replace the standard connection details.
 				isInSafeMode
-					? createElement( IDCPanel )
+					? createElement( useNewSafeModeScreen ? SafeModeScreen : IDCPanel )
 					: createElement( ExpandedDetails, {
 							isConnecting: needsUserConnection ? isConnecting : false,
 							onConnect: needsUserConnection ? handleConnect : null,
