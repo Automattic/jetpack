@@ -189,9 +189,10 @@ class Keyring_Helper_Test extends BaseTestCase {
 		return $args;
 	}
 
-	public function test_only_google_site_verification_is_offered() {
-		$this->assertSame( array( 'google_site_verification' ), array_keys( Keyring_Helper::SERVICES ) );
+	public function test_only_site_verification_services_are_offered() {
+		$this->assertSame( array( 'google_site_verification', 'bing_webmaster' ), array_keys( Keyring_Helper::SERVICES ) );
 		$this->assertSame( 'other', Keyring_Helper::SERVICES['google_site_verification']['for'] );
+		$this->assertSame( 'other', Keyring_Helper::SERVICES['bing_webmaster']['for'] );
 	}
 
 	public function test_connect_url_starts_the_request_from_the_admin_root() {
