@@ -110,6 +110,7 @@ class REST_Endpoints_Test extends TestCase {
 		$this->register_body = null;
 
 		remove_all_filters( 'jetpack_idc_authorization_url' );
+		remove_all_filters( 'jetpack_is_in_safe_mode' );
 	}
 
 	/**
