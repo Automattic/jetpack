@@ -5,7 +5,7 @@ import { getScriptData } from '@automattic/jetpack-script-data';
 
 const DAY_MS = 86400000;
 
-export type PromoPlacement = 'section-footer' | 'options-menu' | 'settings';
+export type PromoPlacement = 'options-menu' | 'settings';
 
 /**
  * A promo as `Promo::to_array()` publishes it; the server's availability rule is not part of it.
@@ -13,7 +13,6 @@ export type PromoPlacement = 'section-footer' | 'options-menu' | 'settings';
 export type Promo = {
 	slug: string;
 	placement: PromoPlacement;
-	target: string | null;
 	order: number;
 	title: string;
 	description: string;
@@ -70,15 +69,12 @@ export function isPromoDismissed(
  * The promos registered for a placement, in the server's order. Empty when the server publishes none.
  *
  * @param placement - Where the promos render.
- * @param target    - The section a `section-footer` promo attaches to.
  * @return The promos.
  */
-export function getPromosForPlacement( placement: PromoPlacement, target?: string ): Promo[] {
+export function getPromosForPlacement( placement: PromoPlacement ): Promo[] {
 	const promos = getScriptData()?.premium_analytics?.promos ?? [];
 
-	return promos.filter(
-		promo => promo.placement === placement && ( target === undefined || promo.target === target )
-	);
+	return promos.filter( promo => promo.placement === placement );
 }
 
 /**

@@ -44,7 +44,6 @@ const THANKS = 'Thanks, your feedback has gone to the team.';
 const PROMO: Promo = {
 	slug: 'acme/offer',
 	placement: 'options-menu',
-	target: null,
 	order: 10,
 	title: 'Grow with Acme',
 	description: 'Reach more readers.',

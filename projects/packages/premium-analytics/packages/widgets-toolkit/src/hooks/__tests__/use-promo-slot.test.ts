@@ -17,7 +17,6 @@ const daysAgo = ( days: number ) => new Date( Date.now() - days * DAY ).toISOStr
 const makePromo = ( overrides: Partial< Promo > = {} ): Promo => ( {
 	slug: 'acme/offer',
 	placement: 'settings',
-	target: null,
 	order: 10,
 	title: 'Offer',
 	description: 'An offer.',

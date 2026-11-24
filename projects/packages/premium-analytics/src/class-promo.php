@@ -31,14 +31,6 @@ final class Promo {
 	public $placement = '';
 
 	/**
-	 * Section identifier the promo attaches to; null when the placement needs none.
-	 *
-	 * @since $$next-version$$
-	 * @var string|null
-	 */
-	public $target = null;
-
-	/**
 	 * Sort order.
 	 *
 	 * @since $$next-version$$
@@ -153,7 +145,6 @@ final class Promo {
 		return array(
 			'slug'          => $this->slug,
 			'placement'     => $this->placement,
-			'target'        => $this->target,
 			'order'         => (int) $this->order,
 			'title'         => $this->title,
 			'description'   => $this->description,
@@ -178,10 +169,6 @@ final class Promo {
 
 		if ( isset( $args['placement'] ) ) {
 			$this->placement = (string) $args['placement'];
-		}
-
-		if ( isset( $args['target'] ) ) {
-			$this->target = (string) $args['target'];
 		}
 
 		if ( isset( $args['order'] ) ) {

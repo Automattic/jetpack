@@ -87,37 +87,13 @@ class Promo_Registry_Test extends BaseTestCase {
 		$registry = new Promo_Registry();
 		$first    = $registry->register( 'acme/offer', array( 'placement' => 'settings' ) );
 
-		$this->assertFalse( $registry->register( 'acme/offer', array( 'placement' => 'section-footer' ) ) );
+		$this->assertFalse( $registry->register( 'acme/offer', array( 'placement' => 'settings' ) ) );
 		$this->assertSame( $first, $registry->get_registered( 'acme/offer' ) );
 		$this->assertSame( array( Promo_Registry::class . '::register' ), $this->doing_it_wrong );
 	}
 
 	public function test_register_refuses_an_unknown_placement() {
 		$this->assert_refused( 'acme/offer', array( 'placement' => 'sidebar' ) );
-	}
-
-	public function test_register_refuses_a_section_footer_without_a_target() {
-		$this->assert_refused( 'acme/offer', array( 'placement' => 'section-footer' ) );
-	}
-
-	public function test_register_refuses_a_section_footer_with_an_empty_target() {
-		$this->assert_refused(
-			'acme/offer',
-			array(
-				'placement' => 'section-footer',
-				'target'    => '',
-			)
-		);
-	}
-
-	public function test_register_refuses_a_section_footer_target_in_the_bare_slug_form() {
-		$this->assert_refused(
-			'acme/offer',
-			array(
-				'placement' => 'section-footer',
-				'target'    => 'traffic',
-			)
-		);
 	}
 
 	public function test_register_refuses_a_dismissible_options_menu_promo() {
@@ -196,13 +172,7 @@ class Promo_Registry_Test extends BaseTestCase {
 	public function test_register_returns_the_promo_on_success() {
 		$registry = new Promo_Registry();
 
-		$promo = $registry->register(
-			'acme/offer',
-			array(
-				'placement' => 'section-footer',
-				'target'    => 'analytics/traffic',
-			)
-		);
+		$promo = $registry->register( 'acme/offer', array( 'placement' => 'settings' ) );
 
 		$this->assertInstanceOf( Promo::class, $promo );
 		$this->assertSame( 'acme/offer', $promo->slug );

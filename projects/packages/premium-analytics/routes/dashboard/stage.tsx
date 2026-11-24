@@ -30,11 +30,9 @@ import {
 import {
 	canSendFeedback,
 	DashboardSectionProvider,
-	PromoCard,
 	StatsOptionsMenu,
 	ResetLayoutAction,
 	useHostLinkSearch,
-	usePromoSlot,
 	useTrackCustomize,
 	useTrackedDateRangeApply,
 } from '@jetpack-premium-analytics/widgets-toolkit';
@@ -89,19 +87,6 @@ import type { OnboardingFlow } from './hooks/use-onboarding';
 import type { DateRange, YearSurfacePresetId } from '@jetpack-premium-analytics/datetime';
 import type { DashboardWidget } from '@wordpress/widget-dashboard';
 import type { JSX } from 'react';
-
-/**
- * The promo registered for the end of a section, if any.
- *
- * @param {object} props         - The component props.
- * @param {string} props.section - The section the promo attaches to.
- * @return {JSX.Element | null} The promo card, or null when none applies.
- */
-function SectionFooterPromo( { section }: { section: string } ): JSX.Element | null {
-	const promo = usePromoSlot( 'section-footer', section );
-
-	return promo ? <PromoCard promo={ promo } /> : null;
-}
 
 /**
  * Premium Analytics dashboard page stage component.
@@ -613,7 +598,7 @@ function Dashboard(): JSX.Element {
 											{ /* Widgets query the committed URL, which keeps the last tab's window until a switch lands. */ }
 											{ activeSection === section.slug && isSectionCommitted ? (
 												<DashboardSectionProvider section={ section.slug }>
-													<div className={ styles.body } data-testid="section-body">
+													<div className={ styles.body }>
 														<RefreshFailureNotice />
 														{ ! editMode && <DashboardNotices /> }
 
@@ -646,9 +631,6 @@ function Dashboard(): JSX.Element {
 															<WidgetDashboard.Widgets className={ styles.widgets } />
 														</div>
 														{ isSectionLocked && <LockedSection section={ section.slug } /> }
-														{ ! editMode && ! isSectionLocked && (
-															<SectionFooterPromo section={ section.slug } />
-														) }
 													</div>
 												</DashboardSectionProvider>
 											) : null }
