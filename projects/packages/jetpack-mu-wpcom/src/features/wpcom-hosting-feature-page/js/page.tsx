@@ -8,7 +8,7 @@ import {
 	UpgradeScreen,
 } from './screens.tsx';
 import { getInitialState } from './state.ts';
-import type { FeatureConfig } from './types.ts';
+import type { BaseFeatureConfig, FeatureConfig } from './types.ts';
 import './style.scss';
 
 /**
@@ -21,7 +21,7 @@ import './style.scss';
  * @param props.config - The feature's copy, imagery and Tracks IDs.
  * @return The rendered page.
  */
-export function HostingFeaturePage( { config }: { config: FeatureConfig } ) {
+export function HostingFeaturePage( { config }: { config: BaseFeatureConfig | FeatureConfig } ) {
 	const initialState = getInitialState();
 
 	return (

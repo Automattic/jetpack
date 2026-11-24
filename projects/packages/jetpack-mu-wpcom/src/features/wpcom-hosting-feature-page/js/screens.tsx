@@ -8,7 +8,7 @@ import { TransferActivationModal } from './activation-modal.tsx';
 import { Callout } from './callout.tsx';
 import { needsConfirmation } from './eligibility.ts';
 import { pollFeatureArrival } from './feature-arrival.ts';
-import { useFeature } from './feature-context.ts';
+import { useFeature, usePlanFeature } from './feature-context.ts';
 import { upsell } from './icons.tsx';
 import { ViewTracker, useTracks } from './tracks.ts';
 import type { InitialState } from './types.ts';
@@ -31,7 +31,7 @@ function reloadWithoutCheckoutArg() {
  * @return The rendered prompt.
  */
 export function UpgradeScreen( { state }: { state: InitialState } ) {
-	const { icon, illustration, upgrade, UpgradeExtra } = useFeature();
+	const { icon, illustration, upgrade, UpgradeExtra } = usePlanFeature();
 	const { tracksFeatureId, recordTracksEvent } = useTracks();
 	const upsellProps = { upsell_id: tracksFeatureId, upsell_feature_id: tracksFeatureId };
 
@@ -77,7 +77,7 @@ export function UpgradeScreen( { state }: { state: InitialState } ) {
  * @return The rendered prompt.
  */
 export function ActivateScreen( { state }: { state: InitialState } ) {
-	const { icon, illustration, activate } = useFeature();
+	const { icon, illustration, activate } = usePlanFeature();
 	const { tracksFeatureId, recordTracksEvent, recordActivationConfirm } = useTracks();
 	const [ isModalOpen, setIsModalOpen ] = useState( false );
 
@@ -171,7 +171,7 @@ export function ActivateScreen( { state }: { state: InitialState } ) {
  * @return The rendered prompt.
  */
 export function InProgressScreen( { state }: { state: InitialState } ) {
-	const { icon, illustration, inProgress } = useFeature();
+	const { icon, illustration, inProgress } = usePlanFeature();
 	const { tracksFeatureId } = useTracks();
 	const awaiting = state.awaitingConnection ? inProgress.awaitingConnection : undefined;
 
@@ -211,7 +211,7 @@ export function InProgressScreen( { state }: { state: InitialState } ) {
  * @return The rendered prompt.
  */
 export function CheckoutPendingScreen( { state }: { state: InitialState } ) {
-	const { icon, illustration, checkoutPending } = useFeature();
+	const { icon, illustration, checkoutPending } = usePlanFeature();
 	const { tracksFeatureId, recordTracksEvent } = useTracks();
 	const [ timedOut, setTimedOut ] = useState( false );
 	const path = state.featureStatusPath;

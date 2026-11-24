@@ -70,22 +70,39 @@ export type InitialState = {
 };
 
 /**
- * Everything that differs between one hosting feature's page and another's.
+ * What differs between one hosting feature's page and another's, including a page that only offers to turn
+ * a Jetpack plugin dashboard back on.
  *
  * Built by a function rather than at module scope, so `__()` runs once the
  * locale data is loaded.
  */
-export type FeatureConfig = {
-	/** Product name for the page heading. Not translated. */
+export type BaseFeatureConfig = {
+	/** Product name for the page heading. */
 	productName: string;
 	subTitle: string;
 	icon: ComponentProps< typeof Icon >[ 'icon' ];
 	/** Callout illustration URL. */
-	illustration: string;
+	illustration?: string;
 	/** The upsell and feature ID the matching dashboard page reports. */
 	tracksFeatureId: string;
 	/** This page's wp-admin path, which marks its Tracks events. */
 	tracksPath: string;
+	/** For a feature whose Jetpack plugin dashboard a WoA site can turn off. */
+	enable?: {
+		title: string;
+		description: string;
+		action: string;
+		/** Notice shown when turning it on failed. */
+		failed: string;
+		/** Notice shown when turning it on failed because the site is not connected. */
+		connectionFailed: string;
+	};
+};
+
+/**
+ * A feature gated on the plan, whose page also prompts to upgrade or move to our hosting platform.
+ */
+export type FeatureConfig = BaseFeatureConfig & {
 	upgrade: {
 		title: string;
 		description: string;
@@ -111,16 +128,6 @@ export type FeatureConfig = {
 	checkoutPending: {
 		title: string;
 		description: string;
-	};
-	/** For a feature whose Jetpack plugin dashboard a WoA site can turn off. */
-	enable?: {
-		title: string;
-		description: string;
-		action: string;
-		/** Notice shown when turning it on failed. */
-		failed: string;
-		/** Notice shown when turning it on failed because the site is not connected. */
-		connectionFailed: string;
 	};
 	/** Rendered below the upgrade prompt, for anything only this feature offers there. */
 	UpgradeExtra?: ComponentType< { state: InitialState } >;

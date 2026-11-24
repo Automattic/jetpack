@@ -151,6 +151,11 @@ class Jetpack_Mu_Wpcom {
 			add_filter( 'jetpack_feature_upgrade', array( \Automattic\Jetpack\Jetpack_Mu_Wpcom\WPCOM_Feature_Upgrades::class, 'filter_monetize_upgrade' ), 10, 2 );
 		}
 
+		// Simple loads the Monetize page itself; on WoA the module does, and this page covers for it while it is off.
+		if ( Constants::is_true( 'IS_ATOMIC' ) ) {
+			add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_monetize' ) );
+		}
+
 		// At mu-plugin scope, because the Jetpack plugin can resolve these filters before plugins_loaded loads the pages.
 		if ( Constants::is_true( 'IS_ATOMIC' ) ) {
 			add_filter( 'jetpack_backup_dashboard_enabled', array( \Automattic\Jetpack\Jetpack_Mu_Wpcom\WPCOM_Backup::class, 'filter_jetpack_backup_dashboard' ) );
@@ -967,6 +972,15 @@ class Jetpack_Mu_Wpcom {
 	 */
 	public static function load_wpcom_scan() {
 		require_once __DIR__ . '/features/wpcom-scan/wpcom-scan.php';
+	}
+
+	/**
+	 * Load the page that offers to turn Monetize back on for WoA sites.
+	 *
+	 * The file hooks its own `init`, where the module list it gates on is ready.
+	 */
+	public static function load_wpcom_monetize() {
+		require_once __DIR__ . '/features/wpcom-monetize/wpcom-monetize.php';
 	}
 
 	/**

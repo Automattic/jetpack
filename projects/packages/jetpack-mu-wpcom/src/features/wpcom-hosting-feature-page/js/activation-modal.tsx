@@ -4,7 +4,7 @@ import { Badge, Button, Dialog, Link, ButtonLink, Stack, Text } from '@wordpress
 import { splitDomainName } from './domain.ts';
 import { canProceed, hasAnyBlockingError, needsPlanUpgrade } from './eligibility.ts';
 import { ErrorContentInfo } from './error-content-info.tsx';
-import { useFeature } from './feature-context.ts';
+import { usePlanFeature } from './feature-context.ts';
 import { ViewTracker, useTracks } from './tracks.ts';
 import type { DomainNames, TransferError, TransferWarning } from './types.ts';
 
@@ -130,7 +130,7 @@ export function TransferActivationModal( {
 	activateUrl: string;
 	onClose: () => void;
 } ) {
-	const { activate, modal } = useFeature();
+	const { activate, modal } = usePlanFeature();
 	const { recordActivationConfirm } = useTracks();
 	const isBlocked = hasAnyBlockingError( errors );
 	const needsUpgrade = needsPlanUpgrade( errors );
