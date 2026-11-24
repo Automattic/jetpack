@@ -190,7 +190,11 @@ describe( 'canSkip / writeManifest', () => {
 		// A pattern with a slash anchors to its .gitignore's directory, so this must be in the project.
 		await writeFile(
 			projectPath( '.gitignore' ),
-			'/build/\n/app/assets/dist/\nnode_modules/\n.DS_Store\n/wordpress/\n/tests/e2e/output/\n'
+			'/build/\n/app/assets/dist/\nnode_modules/\n/wordpress/\n'
+		);
+		await writeFile(
+			projectPath( '.gitattributes' ),
+			'/build/** production-include\n/app/assets/dist/** production-include\n'
 		);
 		await writeFile( projectPath( 'vendor/autoload.php' ) );
 	} );
@@ -216,9 +220,10 @@ describe( 'canSkip / writeManifest', () => {
 		await expect( canSkip( SLUG, 'fp2' ) ).resolves.toBe( false );
 	} );
 
-	test( 'does not skip a project that produced no output at all', async () => {
+	test( 'skips a project that has no outputs', async () => {
+		await fs.rm( projectPath( '.gitattributes' ) );
 		await writeManifest( SLUG, 'fp1' );
-		await expect( canSkip( SLUG, 'fp1' ) ).resolves.toBe( false );
+		await expect( canSkip( SLUG, 'fp1' ) ).resolves.toBe( true );
 	} );
 
 	test( 'does not skip after the manifest is invalidated', async () => {
@@ -253,46 +258,27 @@ describe( 'canSkip / writeManifest', () => {
 			'a nested output directory is deleted',
 			() => fs.rm( projectPath( 'app/assets/dist' ), { recursive: true } ),
 		],
-		[
-			'an output under a nested wordpress/ directory is deleted',
-			() => fs.rm( projectPath( 'build/lib/wordpress/x.php' ) ),
-		],
 	] )( 'does not skip when %s', async ( _, mutate ) => {
 		await addOutput( 'build/one.js' );
 		await addOutput( 'build/two.js' );
 		await addOutput( 'app/assets/dist/bundle.js' );
-		await addOutput( 'build/lib/wordpress/x.php' );
 		await writeManifest( SLUG, 'fp1' );
 		await expect( canSkip( SLUG, 'fp1' ) ).resolves.toBe( true );
 		await mutate();
 		await expect( canSkip( SLUG, 'fp1' ) ).resolves.toBe( false );
 	} );
 
-	test( 'with production-include declared, only flagged files count as output', async () => {
-		await writeFile( projectPath( '.gitattributes' ), '/build/** production-include\n' );
-		await addOutput( 'build/out.js' );
-		await writeManifest( SLUG, 'fp1' );
-		await addOutput( 'app/assets/dist/local-only.js' );
-		await expect( canSkip( SLUG, 'fp1' ) ).resolves.toBe( true );
-		await fs.rm( projectPath( 'build/out.js' ) );
-		await expect( canSkip( SLUG, 'fp1' ) ).resolves.toBe( false );
-	} );
-
-	test.each( [
-		'node_modules/dep/index.js',
-		'tests/e2e/node_modules/dep/index.js',
-		'.DS_Store',
-		'wordpress/wp-load.php',
-		'tests/e2e/output/log.txt',
-	] )( 'still skips when non-output %s appears', async file => {
-		await addOutput( 'build/out.js' );
-		await writeManifest( SLUG, 'fp1' );
-		await addOutput( file );
-		await expect( canSkip( SLUG, 'fp1' ) ).resolves.toBe( true );
-	} );
+	test.each( [ 'node_modules/dep/index.js', 'wordpress/wp-load.php' ] )(
+		'still skips when ignored but unflagged %s appears',
+		async file => {
+			await addOutput( 'build/out.js' );
+			await writeManifest( SLUG, 'fp1' );
+			await addOutput( file );
+			await expect( canSkip( SLUG, 'fp1' ) ).resolves.toBe( true );
+		}
+	);
 
 	test( 'does not skip when vendor/ is gone, even if it is not output', async () => {
-		await writeFile( projectPath( '.gitattributes' ), '/build/** production-include\n' );
 		await addOutput( 'build/out.js' );
 		await writeManifest( SLUG, 'fp1' );
 		await fs.rm( projectPath( 'vendor' ), { recursive: true } );
@@ -305,6 +291,10 @@ describe( 'canSkip / writeManifest', () => {
 
 		beforeEach( async () => {
 			await writeFile( npath.join( dir, 'projects', DEP, '.gitignore' ), '/build/\n' );
+			await writeFile(
+				npath.join( dir, 'projects', DEP, '.gitattributes' ),
+				'/build/** production-include\n'
+			);
 			await depOutput();
 			await addOutput( 'build/out.js' );
 		} );

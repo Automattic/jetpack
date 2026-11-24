@@ -10,11 +10,6 @@ import { projectDir } from './install.js';
 // Includes this file, so changing the fingerprint or manifest format invalidates every cached build.
 const SHARED_INPUT_FILES = [ ...infrastructureFileSets.build, 'tools/cli/helpers/build-cache.js' ];
 
-// Ignored paths that are dependencies, test artifacts or developer-local rather than build output,
-// so changing one shouldn't force a rebuild. The first group may nest; test artifacts sit at the root.
-const NON_OUTPUT =
-	/(^|\/)(node_modules|\.cache|\.phpunit\.cache|\.claude|\.playwright-mcp)\/|(^|\/)\.DS_Store$|^(wordpress|tests\/e2e|coverage|\.nyc_output|playwright-report)\//;
-
 const CACHE_DIR = '.cache/jetpack-cli-build';
 
 // isFile, not just exists: `git hash-object` fails on a directory, and fs.access follows a
@@ -256,7 +251,7 @@ async function readManifest( project ) {
 /**
  * A project's build outputs: its gitignored files flagged `production-include`, as for mirroring.
  *
- * A project that flags none falls back to every gitignored file outside NON_OUTPUT.
+ * A project that flags none has no outputs, which is fine: `canSkip` checks its `vendor/` separately.
  * Each file's size and mtime go into the digest, so an output rewritten in place invalidates too.
  *
  * @param {string} project - Slug.
@@ -264,10 +259,10 @@ async function readManifest( project ) {
  */
 async function projectOutputs( project ) {
 	const dir = projectDir( project );
-	const ignored = (
-		await gitLines( [ 'ls-files', '--others', '--ignored', '--exclude-standard' ], { cwd: dir } )
-	).filter( p => ! NON_OUTPUT.test( p ) );
-	const included = ignored.length
+	const ignored = await gitLines( [ 'ls-files', '--others', '--ignored', '--exclude-standard' ], {
+		cwd: dir,
+	} );
+	const files = ignored.length
 		? (
 				await gitLines( [ 'check-attr', '--stdin', 'production-include' ], {
 					cwd: dir,
@@ -276,8 +271,8 @@ async function projectOutputs( project ) {
 			)
 				.map( line => line.match( /^(.*): production-include: (?!unspecified|unset)/ )?.[ 1 ] )
 				.filter( Boolean )
+				.sort()
 		: [];
-	const files = ( included.length ? included : ignored ).sort();
 	// lstat, so a symlinked vendor package is recorded as the link rather than followed.
 	const stats = await Promise.all(
 		files.map( f =>
@@ -296,7 +291,6 @@ async function projectOutputs( project ) {
  * Whether a project can be skipped: manifest matches the current fingerprint, its outputs and
  * `vendor/` are still there, and no dependency has been rebuilt since.
  *
- * A project that recorded no outputs is never skipped: an empty set would match vacuously.
  * `vendor/` is checked separately because a skip also skips `composer install`, and it usually isn't output.
  * Any error means "rebuild" — the cache must never be the reason a build fails.
  *
@@ -307,7 +301,7 @@ async function projectOutputs( project ) {
 export async function canSkip( project, fp ) {
 	try {
 		const m = await readManifest( project );
-		if ( ! m || m.inputHash !== fp || ! m.outputs?.count ) {
+		if ( ! m || m.inputHash !== fp || ! m.outputs ) {
 			return false;
 		}
 		if ( ! ( await isFile( projectDir( project, 'vendor/autoload.php' ) ) ) ) {
