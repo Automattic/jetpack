@@ -81,8 +81,13 @@ class Jetpack_Sitemap_Stylist {
 	 * @return string[] Scheme-relative stylesheet URLs in cascade order.
 	 */
 	public static function sitemap_stylesheet_urls() {
+		static $asset_version;
+		if ( null === $asset_version ) {
+			// Hosted generators can have a fixed version, so version the asset independently.
+			$asset_version = md5_file( __DIR__ . '/sitemap.css' );
+		}
 		$urls = array(
-			add_query_arg( 'ver', JETPACK__VERSION, plugins_url( 'sitemap.css', __FILE__ ) ),
+			add_query_arg( 'ver', $asset_version, plugins_url( 'sitemap.css', __FILE__ ) ),
 			add_query_arg( 'jetpack-sitemap', 'sitemap-labels.css', home_url( '/' ) ),
 		);
 		return preg_replace( '/^https?:/', '', $urls );
