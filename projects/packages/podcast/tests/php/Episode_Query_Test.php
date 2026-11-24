@@ -5,6 +5,7 @@
 
 namespace Automattic\Jetpack\Podcast\Tests;
 
+use Automattic\Jetpack\Podcast\Podcast;
 use WorDBless\BaseTestCase;
 use WP_REST_Request;
 use WP_Term;
@@ -30,7 +31,7 @@ class Episode_Query_Test extends BaseTestCase {
 		);
 		wp_cache_set( self::CATEGORY_ID, $term, 'terms' );
 		update_option( 'podcasting_category_id', self::CATEGORY_ID );
-		\Automattic\Jetpack\Podcast\Podcast::init();
+		add_filter( 'rest_post_query', array( Podcast::class, 'limit_episode_query' ), 10, 2 );
 	}
 
 	protected function tearDown(): void {
