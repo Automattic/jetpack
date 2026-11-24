@@ -288,6 +288,18 @@ describe( 'ThreatDetails', () => {
 	} );
 
 	it.each( [
+		[ 'a free site that can ignore', { hasPlan: false, freeIgnore: true }, true ],
+		[ 'a free site that can’t', { hasPlan: false, freeIgnore: false }, false ],
+		[ 'Scan history, which is read-only', { hasPlan: true }, false ],
+	] )( 'offers Ignore it without canAct on %s: %p', ( _name, plan, offered ) => {
+		setScan( scan => ( { ...scan, ...plan } ) );
+		render( <ThreatDetails threat={ threatIn( 7, 'replace' ) } canAct={ false } /> );
+
+		expect( !! screen.queryByRole( 'button', { name: 'Ignore it' } ) ).toBe( offered );
+		resetScan();
+	} );
+
+	it.each( [
 		[ undefined, null ],
 		[ null, null ],
 		[ 5, 'Critical severity' ],

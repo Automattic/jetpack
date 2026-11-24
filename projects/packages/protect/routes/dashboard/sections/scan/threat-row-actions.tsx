@@ -4,7 +4,7 @@ import { DeleteSoftwareModal, getDeleteTitle } from './delete-software';
 import { FixDeleteModal, getDeleteFixTitle } from './fix-delete-confirmation';
 import { getUpdateFixTitle, makeFixUpdateModal } from './fix-update-confirmation';
 import { getSoftwareActionLabels } from './labels';
-import { useCanIgnore, useCanViewFiles } from './store';
+import { useCanIgnore, useCanToggleIgnore, useCanViewFiles } from './store';
 import {
 	fixThreats,
 	getBulkRun,
@@ -84,19 +84,21 @@ export function getLeftOutOfBulkFix(
 /**
  * A row's DataViews actions: primary ones show as buttons without hovering, and the ⋯ menu lists them all.
  *
- * @param open      - Opens a threat in the inspector.
- * @param canAct    - Whether the site's plan can fix and ignore threats.
- * @param canIgnore - Whether the host lets the site ignore threats.
- * @param canView   - Whether the user may view threat files.
- * @param getBusy   - Gets the action running on a threat.
- * @param FixUpdate - The confirmation for fixes that update software.
- * @param selected  - The selected threats, which the bulk Auto-fix actions are labeled for.
- * @param onBulk    - Offers Auto-fix and Ignore on selected rows; gets the threats either starts on.
+ * @param open            - Opens a threat in the inspector.
+ * @param canAct          - Whether the site's plan can fix threats.
+ * @param canToggleIgnore - Whether the site can ignore and unignore threats, with Scan or on the free check.
+ * @param canIgnore       - Whether the host lets the site ignore threats.
+ * @param canView         - Whether the user may view threat files.
+ * @param getBusy         - Gets the action running on a threat.
+ * @param FixUpdate       - The confirmation for fixes that update software.
+ * @param selected        - The selected threats, which the bulk Auto-fix actions are labeled for.
+ * @param onBulk          - Offers Auto-fix and Ignore on selected rows; gets the threats either starts on.
  * @return The actions.
  */
 function getThreatRowActions(
 	open: OpenThreat,
 	canAct: boolean,
+	canToggleIgnore: boolean,
 	canIgnore: boolean,
 	canView: boolean,
 	getBusy: GetBusy,
@@ -198,7 +200,7 @@ function getThreatRowActions(
 			id: 'unignore',
 			label: __( 'Unignore', 'jetpack-protect-pkg' ),
 			isPrimary: true,
-			isEligible: item => canAct && item.status === 'ignored',
+			isEligible: item => canToggleIgnore && item.status === 'ignored',
 			callback: locking( ( [ item ], from ) => unignoreThreat( item, from ) ),
 		},
 		{
@@ -230,7 +232,7 @@ function getThreatRowActions(
 			id: 'ignore',
 			label: __( 'Ignore', 'jetpack-protect-pkg' ),
 			isEligible: item =>
-				canAct && canIgnore && item.status !== 'ignored' && item.status !== 'fixed',
+				canToggleIgnore && canIgnore && item.status !== 'ignored' && item.status !== 'fixed',
 			supportsBulk: !! onBulk,
 			callback: locking( ( items, from ) => {
 				onBulk?.( items );
@@ -254,7 +256,7 @@ function getThreatRowActions(
  * A threats table's row actions, updated as actions on its threats start and finish.
  *
  * @param open     - Opens a threat in the inspector.
- * @param canAct   - Whether the site's plan can fix and ignore threats.
+ * @param canAct   - Whether the site's plan can fix threats.
  * @param onBulk   - Offers Auto-fix and Ignore on selected rows; gets the threats either starts on.
  * @param selected - The selected threats, for a list with bulk actions.
  * @return The actions.
@@ -265,6 +267,7 @@ export function useThreatRowActions(
 	onBulk?: ( items: ScanThreat[] ) => void,
 	selected: ScanThreat[] = NO_THREATS
 ): Action< ScanThreat >[] {
+	const canToggleIgnore = useCanToggleIgnore();
 	const canIgnore = useCanIgnore();
 	const canView = useCanViewFiles();
 	const getBusy = useGetThreatBusy();
@@ -272,7 +275,17 @@ export function useThreatRowActions(
 	const FixUpdate = useMemo( () => makeFixUpdateModal( onBulk ), [ onBulk ] );
 	return useMemo(
 		() =>
-			getThreatRowActions( open, canAct, canIgnore, canView, getBusy, FixUpdate, selected, onBulk ),
-		[ open, canAct, canIgnore, canView, getBusy, FixUpdate, selected, onBulk ]
+			getThreatRowActions(
+				open,
+				canAct,
+				canToggleIgnore,
+				canIgnore,
+				canView,
+				getBusy,
+				FixUpdate,
+				selected,
+				onBulk
+			),
+		[ open, canAct, canToggleIgnore, canIgnore, canView, getBusy, FixUpdate, selected, onBulk ]
 	);
 }

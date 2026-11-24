@@ -59,6 +59,42 @@ describe( 'ignoreThreat', () => {
 		} );
 		expect( result.current?.ignored ).toEqual( [] );
 	} );
+
+	it.each( [
+		[
+			'Scan',
+			{ hasPlan: true },
+			threat,
+			{ path: '/jetpack/v4/protect-dashboard/scan/threats/7/ignore', method: 'POST' },
+			'Ignored the threat in a.php.',
+		],
+		[
+			'the free check',
+			{ hasPlan: false, freeIgnore: true },
+			{
+				id: 'plugins-akismet/akismet.php-1.0',
+				title: 'Vulnerable plugin',
+				extension: { type: 'plugins', slug: 'akismet', name: 'Akismet', version: '1.0' },
+			},
+			{
+				path: '/jetpack/v4/protect-dashboard/scan/vulnerabilities/ignore',
+				method: 'POST',
+				data: { id: 'plugins-akismet/akismet.php-1.0' },
+			},
+			'Ignored the threat in Akismet (1.0). It comes back if a new vulnerability is reported.',
+		],
+	] as const )(
+		'with %s, sends the ignore and confirms it',
+		async ( _name, plan, item, call, copy ) => {
+			mockApiFetch.mockResolvedValue( { ok: true } );
+			setScan( current => ( { ...current, ...plan, threats: [ item ] } ) );
+
+			await act( () => ignoreThreat( item ) );
+
+			expect( mockApiFetch ).toHaveBeenCalledWith( call );
+			expect( select( noticesStore ).getNotices()[ 0 ].content ).toBe( copy );
+		}
+	);
 } );
 
 describe( 'a failed ignore or unignore', () => {

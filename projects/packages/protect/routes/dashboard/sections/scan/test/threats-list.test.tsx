@@ -14,6 +14,9 @@ jest.mock( '@wordpress/route', () => ( {
 } ) );
 
 const mockApiFetch = apiFetch as unknown as jest.Mock;
+// A Scan site, where canAct holds, unless a test sets another.
+const SCAN_SITE = { scan: { hasPlan: true, url: '' } };
+window.jetpackProtectDashboard = SCAN_SITE;
 const getItemId = ( item: ScanThreat ) => String( item.id );
 
 const vulnerable = (
@@ -229,7 +232,7 @@ describe( 'ThreatsList', () => {
 		expect(
 			screen.getAllByRole( 'checkbox', { name: /^Vulnerable plugin/, checked: true } )
 		).toHaveLength( 2 );
-		delete window.jetpackProtectDashboard;
+		window.jetpackProtectDashboard = SCAN_SITE;
 		resetScan();
 	} );
 } );

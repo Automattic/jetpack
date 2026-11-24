@@ -226,6 +226,21 @@ function resyncAfterFailure() {
 }
 
 /**
+ * The notice for an ignored threat; the free check ignores only the vulnerabilities reported so far.
+ *
+ * @return The notice's template.
+ */
+const ignoredCopy = (): Template =>
+	getScan()?.hasPlan
+		? /* translators: %s is a threat, such as "Contact Form 7 (5.3.1)" or "index.php". */
+			__( 'Ignored the threat in %s.', 'jetpack-protect-pkg' )
+		: /* translators: %s is a threat, such as "Contact Form 7 (5.3.1)" or "index.php". */
+			__(
+				'Ignored the threat in %s. It comes back if a new vulnerability is reported.',
+				'jetpack-protect-pkg'
+			);
+
+/**
  * Ignore or unignore a threat, moving it between the active and ignored lists, with Undo.
  *
  * @param threat - The threat.
@@ -268,8 +283,7 @@ function setIgnored(
 			notify(
 				threat,
 				ignore
-					? /* translators: %s is a threat, such as "Contact Form 7 (5.3.1)" or "index.php". */
-						__( 'Ignored the threat in %s.', 'jetpack-protect-pkg' )
+					? ignoredCopy()
 					: /* translators: %s is a threat, such as "Contact Form 7 (5.3.1)" or "index.php". */
 						__( 'Unignored the threat in %s.', 'jetpack-protect-pkg' ),
 				'success',
@@ -305,10 +319,16 @@ function setIgnored(
 function request( threat: ScanThreat, ignore: boolean ): Promise< void > {
 	// The Scan page's names, so its dashboards count these too.
 	recordEvent( ignore ? 'jetpack_scan_ignore_threat_click' : 'jetpack_scan_unignore_threat_click' );
-	return apiFetch( {
-		path: threatPath( threat.id, ignore ? 'ignore' : 'unignore' ),
-		method: 'POST',
-	} ).then(
+	const action = ignore ? 'ignore' : 'unignore';
+	// Free check ids contain slashes, so they go in the body.
+	const options = getScan()?.hasPlan
+		? { path: threatPath( threat.id, action ), method: 'POST' }
+		: {
+				path: `${ SCAN_PATH }/vulnerabilities/${ action }`,
+				method: 'POST',
+				data: { id: threat.id },
+			};
+	return apiFetch( options ).then(
 		() => {
 			const moved = { ...threat, status: ignore ? ( 'ignored' as const ) : ( 'current' as const ) };
 			editScan( current => {

@@ -136,12 +136,12 @@ export default function ScanCard( { openTab }: Pick< DashboardContext, 'openTab'
 		wasStarting.current = isStarting;
 	}, [ isScanning, isStarting, startError, scan.error, hasPlan ] );
 
-	// Ignored threats come from Scan history, which only a Scan plan has.
+	const { freeIgnore } = scan;
 	useEffect( () => {
-		if ( hasPlan ) {
+		if ( hasPlan || freeIgnore ) {
 			loadIgnored();
 		}
-	}, [ hasPlan ] );
+	}, [ hasPlan, freeIgnore ] );
 
 	const refresh = useCallback( () => {
 		setIsFetching( true );
@@ -267,12 +267,14 @@ export default function ScanCard( { openTab }: Pick< DashboardContext, 'openTab'
 					url={ scan.url }
 				/>
 			) }
-			{ scan.hasPlan && (
+			{ ( hasPlan || ( freeIgnore && !! ignored?.length ) ) && (
 				<CardRow>
 					<Stack direction="row" gap="lg" wrap="wrap">
-						<TabLink tab="history" params={ FIXED_PARAMS } onOpen={ openTab }>
-							{ __( 'View scan history', 'jetpack-protect-pkg' ) }
-						</TabLink>
+						{ hasPlan && (
+							<TabLink tab="history" params={ FIXED_PARAMS } onOpen={ openTab }>
+								{ __( 'View scan history', 'jetpack-protect-pkg' ) }
+							</TabLink>
+						) }
 						{ !! ignored?.length && (
 							<TabLink tab="history" params={ IGNORED_PARAMS } onOpen={ openTab }>
 								{ sprintf(
