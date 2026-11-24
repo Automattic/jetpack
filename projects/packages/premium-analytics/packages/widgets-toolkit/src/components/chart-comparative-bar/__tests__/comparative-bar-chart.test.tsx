@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { render } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { getSettings, setSettings } from '@wordpress/date';
 /**
  * Internal dependencies
@@ -206,6 +206,14 @@ describe( 'ComparativeBarChart', () => {
 		expect( mockBarChartSpy ).toHaveBeenLastCalledWith(
 			expect.objectContaining( { ariaLabel: 'Chart: Traffic summary' } )
 		);
+	} );
+
+	it( 'leaves the legend out when the widget names the series itself', () => {
+		render(
+			<ComparativeBarChart series={ SERIES } dataFormat={ DATA_FORMAT } showLegend={ false } />
+		);
+
+		expect( screen.queryByTestId( 'bar-chart-legend' ) ).not.toBeInTheDocument();
 	} );
 
 	it( "holds store money ticks to the store's decimals", () => {

@@ -3,6 +3,13 @@
 	min-height: 0;
 	flex: 1 1 auto;
 
+	:global(.visx-bar) {
+
+		@media not (prefers-reduced-motion) {
+			transition: opacity 150ms ease-out;
+		}
+	}
+
 	.chartContent {
 		flex: 1 1 auto;
 		height: 100%;

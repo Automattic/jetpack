@@ -8,4 +8,11 @@
 		height: 100%;
 		min-height: 0;
 	}
+
+	:global(.visx-area-stack) > path {
+
+		@media not (prefers-reduced-motion) {
+			transition: opacity 150ms ease-out;
+		}
+	}
 }

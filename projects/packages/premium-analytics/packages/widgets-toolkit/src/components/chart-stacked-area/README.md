@@ -34,6 +34,11 @@ near-opaque default, so a stack reads like the dashboard's line charts.
 The chart draws no legend. A stack has few, fixed parts, so the widget names them beside their
 totals, where each name can carry its number.
 
+## Bringing out one part
+
+`emphasizedIndex` dims every part but the one at that index, for a widget that lets the reader
+pick a part. All the parts stay drawn, and the tooltip still lists them.
+
 ## The y-axis fits the stack's total
 
 The y domain is fixed to the stack's largest total (`rescaleYOnVisibilityChange={ false }`), so the

@@ -32,6 +32,7 @@ import { resolvePrimarySeriesByGroup } from '../../helpers/resolve-series-names'
 import { useChartName } from '../../hooks/use-chart-name';
 import { useComparativeLegend } from '../../hooks/use-comparative-legend';
 import { alignSeriesDates } from '../chart-comparative-line/utils';
+import { DIMMED_SERIES_OPACITY } from '../chart-emphasis';
 import { DatedTooltip, buildDatedTooltipModel } from '../chart-tooltip';
 import styles from './comparative-bar-chart.module.scss';
 import type { ComparativeBarChartSeries } from './types';
@@ -130,6 +131,9 @@ export type ComparativeBarChartProps = {
 	/** Called with the new value when the reader presses the previous-period legend item. */
 	onPreviousPeriodShownChange?: ( shown: boolean ) => void;
 
+	/** Label of the series to bring out; the other series' bars dim. For charts without a previous period. */
+	emphasizedSeries?: string | null;
+
 	/** Pointer-down on the plot, carrying the datum nearest the pointer. */
 	onPointerDown?: BarChartProps[ 'onPointerDown' ];
 
@@ -167,10 +171,12 @@ export function ComparativeBarChart( {
 	primarySeries,
 	previousPeriodShown,
 	onPreviousPeriodShownChange,
+	emphasizedSeries = null,
 	onPointerDown,
 	onPointerUp,
 	onDatumActivate,
 }: ComparativeBarChartProps ) {
+	const scope = useId();
 	const chartName = useChartName( chartTitle );
 	const libraryTickResolution = toTickResolution( tickResolution );
 	const { displayResolution } = getBucketInfo( series, libraryTickResolution );
@@ -461,8 +467,22 @@ export function ComparativeBarChart( {
 		return { ...baseOptions, yScale: { domain: fixedYAxis.domain } };
 	}, [ xTickFormat, libraryTickResolution, yTickFormat, yTickDecimals, fixedYAxis ] );
 
+	// A bar carries its series' color as its fill, which is what tells the series apart.
+	const emphasizedColor =
+		emphasizedSeries === null
+			? undefined
+			: seriesStyles[ alignedSeries.findIndex( s => s.label === emphasizedSeries ) ]?.stroke;
+	const emphasisRule = emphasizedColor
+		? `[data-chart-scope="${ scope }"] .visx-bar:not([fill="${ emphasizedColor }"]) { opacity: ${ DIMMED_SERIES_OPACITY }; }`
+		: null;
+
 	return (
-		<Stack direction="column" className={ clsx( styles.chart, className ) }>
+		<Stack
+			direction="column"
+			className={ clsx( styles.chart, className ) }
+			data-chart-scope={ scope }
+		>
+			{ emphasisRule && <style>{ emphasisRule }</style> }
 			<BarChart
 				chartId={ chartId }
 				ariaLabel={ chartName }

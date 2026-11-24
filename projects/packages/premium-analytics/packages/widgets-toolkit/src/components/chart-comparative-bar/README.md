@@ -51,6 +51,7 @@ second current-period series keeps its own dates.
 | `primarySeries`               | `string`                      | No       | Label of the series the reader picked, when it is not the first one drawn. Its legend item comes first and stays locked                                                                                                                                           |
 | `previousPeriodShown`         | `boolean`                     | No       | Overlap layout only. Whether the previous period is drawn; with `onPreviousPeriodShownChange`, its legend item becomes a toggle. See below. Omit it to keep the previous period always drawn |
 | `onPreviousPeriodShownChange` | `( shown: boolean ) => void`  | No       | Called with the new value when the reader presses the previous-period legend item |
+| `emphasizedSeries`           | `string \| null`              | No       | Label of the series to bring out; the other series' bars dim. For charts without a previous period |
 
 ## Overlap layout
 
