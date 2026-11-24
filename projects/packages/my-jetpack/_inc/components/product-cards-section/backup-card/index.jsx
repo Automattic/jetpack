@@ -1,19 +1,19 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
+import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
 import { createInterpolateElement } from '@wordpress/element';
-import { __, _n, sprintf } from '@wordpress/i18n';
+import { __, _n, _x, sprintf } from '@wordpress/i18n';
 import { Link, Text } from '@wordpress/ui';
 import gridiconsModule from 'gridicons';
 import PropTypes from 'prop-types';
 import { PRODUCT_STATUSES } from '../../../constants';
 import {
-	REST_API_REWINDABLE_BACKUP_EVENTS_ENDPOINT,
-	QUERY_BACKUP_HISTORY_KEY,
+	REST_API_LATEST_BACKUP_ENDPOINT,
+	QUERY_LATEST_BACKUP_KEY,
 	PRODUCT_SLUGS,
 } from '../../../data/constants';
 import useProduct from '../../../data/products/use-product';
 import useSimpleQuery from '../../../data/use-simple-query';
 import { getMyJetpackWindowInitialState } from '../../../data/utils/get-my-jetpack-window-state';
-import useAnalytics from '../../../hooks/use-analytics';
 import useGetReadableFailedBackupReason from '../../../hooks/use-notification-watcher/use-get-readable-failed-backup-reason';
 import ProductCard from '../../connected-product-card';
 import { InfoTooltip } from '../../info-tooltip';
@@ -188,45 +188,50 @@ const BackupCard = props => {
 	);
 };
 
+/**
+ * A time in the site's own date and time formats and timezone.
+ *
+ * @param {string} time - An ISO 8601 time.
+ * @return {string} The formatted date and time.
+ */
+const formatBackupTime = time => {
+	const { formats } = getDateSettings();
+	return sprintf(
+		/* translators: 1: a date, 2: a time of day. */
+		_x( '%1$s %2$s', 'date and time', 'jetpack-my-jetpack' ),
+		dateI18n( formats.date, time ),
+		dateI18n( formats.time, time )
+	);
+};
+
 const WithBackupsValueSection = props => {
-	const { data, isLoading } = useSimpleQuery( {
-		name: QUERY_BACKUP_HISTORY_KEY,
+	const { data, isLoading, isError } = useSimpleQuery( {
+		name: QUERY_LATEST_BACKUP_KEY,
 		query: {
-			path: REST_API_REWINDABLE_BACKUP_EVENTS_ENDPOINT,
+			path: REST_API_LATEST_BACKUP_ENDPOINT,
 		},
 	} );
-	const lastRewindableEvent = data?.last_rewindable_event;
-	const lastRewindableEventTime = lastRewindableEvent?.published;
-	const undoBackupId = data?.undo_backup_id;
-	const { recordEvent } = useAnalytics();
-	const { siteSuffix = '' } = getMyJetpackWindowInitialState();
+	const lastBackupTime = data?.last_backup_time;
 
-	const handleUndoClick = () => {
-		recordEvent( 'jetpack_myjetpack_backup_card_undo_click', {
-			product: props.slug,
-			undo_backup_id: undoBackupId,
-		} );
-	};
-
-	const undoAction = {
-		href: getRedirectUrl( 'jetpack-backup-undo-cta', {
-			path: undoBackupId,
-			site: siteSuffix,
-		} ),
-		size: 'small',
-		variant: 'primary',
-		weight: 'regular',
-		label: __( 'Undo', 'jetpack-my-jetpack' ),
-		onClick: handleUndoClick,
-		isExternalLink: true,
-	};
+	let statusText = null;
+	if ( data?.is_backing_up ) {
+		statusText = __( 'Backing up now…', 'jetpack-my-jetpack' );
+	} else if ( ! lastBackupTime ) {
+		statusText = __( 'Waiting on first backup', 'jetpack-my-jetpack' );
+	}
 
 	const WithBackupsDescription = () => (
 		<Text variant="body-sm" className={ styles.description }>
-			<span>{ __( 'Activity Detected', 'jetpack-my-jetpack' ) }</span>
-			<span className={ styles.time }>
-				{ getTimeSinceLastRenewableEvent( lastRewindableEventTime ) }
-			</span>
+			{ statusText && <span>{ statusText }</span> }
+			{ lastBackupTime && (
+				<span className={ statusText ? styles.time : undefined }>
+					{ sprintf(
+						/* translators: %s: The date and time of the last backup. */
+						__( 'Last backup: %s', 'jetpack-my-jetpack' ),
+						formatBackupTime( lastBackupTime )
+					) }
+				</span>
+			) }
 		</Text>
 	);
 
@@ -235,32 +240,8 @@ const WithBackupsValueSection = props => {
 			{ ...props }
 			showMenu
 			isDataLoading={ isLoading }
-			Description={ lastRewindableEvent ? WithBackupsDescription : null }
-			additionalActions={ lastRewindableEvent ? [ undoAction ] : [] }
-		>
-			{ lastRewindableEvent ? (
-				<div className={ styles.activity }>
-					<Gridicon icon={ lastRewindableEvent.gridicon } size={ 24 } />
-					<p className={ styles.summary }>
-						{ lastRewindableEvent.summary }
-						{ lastRewindableEvent.actor?.is_mcp_agent && (
-							<>
-								{ ' ' }
-								<span className={ styles.mcpBadge }>
-									{ sprintf(
-										/* translators: %s: The name of the MCP client application. */
-										__( 'via %s (MCP)', 'jetpack-my-jetpack' ),
-										lastRewindableEvent.actor?.mcp_client ||
-											lastRewindableEvent.actor?.mcp_client_name ||
-											__( 'MCP client', 'jetpack-my-jetpack' )
-									) }
-								</span>
-							</>
-						) }
-					</p>
-				</div>
-			) : null }
-		</ProductCard>
+			Description={ data && ! isError ? WithBackupsDescription : null }
+		/>
 	);
 };
 
