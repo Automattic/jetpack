@@ -80,10 +80,9 @@ function setup( {
 	registry.register( coreStore );
 	registry.register(
 		createReduxStore( 'core/editor', {
-			reducer: stateReducer( { postType, isSaving: false } ),
+			reducer: stateReducer( { isSaving: false } ),
 			actions: { setState },
 			selectors: {
-				getCurrentPostType: state => state.postType,
 				isSavingPost: state => state.isSaving,
 				isSavingNonPostEntityChanges: () => false,
 			},
@@ -168,23 +167,14 @@ describe( 'Cookie Consent settings synchronization', () => {
 
 	afterAll( () => unregisterBlockType( TYPE ) );
 
-	it.each( [
-		[ 'page to a footer part and back', 'page', 'wp_template_part', 'page' ],
-		[ 'template to a footer part and back', 'wp_template', 'wp_template_part', 'wp_template' ],
-		[ 'template to the Code editor', 'wp_template', 'wp_template', 'wp_template' ],
-	] )(
-		'keeps the saved banner when moving from %s without saving',
-		async ( label, from, to, back ) => {
-			const { editor, blockEditor, unmount } = setup( { postType: from } );
+	it( 'keeps the saved banner when the block unmounts without saving outside the Site Editor', async () => {
+		const { blockEditor, unmount } = setup();
 
-			await act( () => editor.setState( { postType: to } ) );
-			await act( () => blockEditor.setState( { block: undefined } ) );
-			await act( async () => unmount() );
-			await act( () => editor.setState( { postType: back } ) );
+		await act( () => blockEditor.setState( { block: undefined } ) );
+		await act( async () => unmount() );
 
-			expect( apiFetch ).not.toHaveBeenCalled();
-		}
-	);
+		expect( apiFetch ).not.toHaveBeenCalled();
+	} );
 
 	it.each( [
 		[ 'wp_template', false ],
@@ -214,14 +204,46 @@ describe( 'Cookie Consent settings synchronization', () => {
 	);
 
 	it.each( [
+		[ 'wp_template', true ],
+		[ 'wp_template_part', true ],
+		[ 'wp_template', false ],
+		[ 'wp_template_part', false ],
+	] )(
+		'preserves the banner only for a newly referenced synced pattern in a %s (new reference: %s)',
+		async ( name, newReference ) => {
+			const originalBanner = serialize( [ createBlock( TYPE, { text: 'Saved banner' } ) ] );
+			const oldPattern = '<!-- wp:block {"ref":1} /-->';
+			const { save, savedBanner, settings } = setup( {
+				postType: name,
+				content: originalBanner + oldPattern,
+			} );
+
+			await save(
+				name,
+				oldPattern +
+					( newReference
+						? '<!-- wp:group --><div><!-- wp:block {"ref":2} /--></div><!-- /wp:group -->'
+						: '' )
+			);
+
+			const nextBanner = savedBanner.replaceAll( 'Saved banner', 'Next banner' );
+			await save( name, nextBanner );
+			await waitFor( () => expect( settings.cookie_consent_template ).toBe( nextBanner ) );
+
+			expect( settingsWrites().map( ( [ { data } ] ) => data.cookie_consent_template ) ).toEqual(
+				newReference ? [ nextBanner ] : [ null, nextBanner ]
+			);
+		}
+	);
+
+	it.each( [
 		[ 'wp_template', false ],
 		[ 'wp_template_part', false ],
 		[ 'wp_template_part', true ],
 	] )(
 		'syncs a saved %s after returning to the page with the block unmounted (nested: %s)',
 		async ( name, nested ) => {
-			const { editor, blockEditor, save, savedBanner, unmount } = setup( { postType: name } );
-			await act( () => editor.setState( { postType: 'page' } ) );
+			const { blockEditor, save, savedBanner, unmount } = setup( { postType: name } );
 			await act( () => blockEditor.setState( { block: undefined } ) );
 			await act( async () => unmount() );
 
@@ -238,13 +260,11 @@ describe( 'Cookie Consent settings synchronization', () => {
 		}
 	);
 
-	it( 'keeps the banner after saving a footer part and navigating back to its template', async () => {
-		const { editor, blockEditor, save, savedBanner, unmount } = setup();
-		await act( () => editor.setState( { postType: 'wp_template_part' } ) );
+	it( 'keeps the banner when its block unmounts after a footer part save', async () => {
+		const { blockEditor, save, savedBanner, unmount } = setup();
 		await save( 'wp_template_part', savedBanner.replaceAll( 'Saved banner', 'Updated banner' ) );
 		await waitFor( () => expect( settingsWrites() ).toHaveLength( 1 ) );
 
-		await act( () => editor.setState( { postType: 'wp_template' } ) );
 		await act( () => blockEditor.setState( { block: undefined } ) );
 		await act( async () => unmount() );
 

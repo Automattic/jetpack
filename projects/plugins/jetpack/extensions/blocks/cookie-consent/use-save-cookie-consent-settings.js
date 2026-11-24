@@ -20,21 +20,29 @@ const getBanner = record => {
 	return findBanner( parse( typeof content === 'string' ? content : '' ) );
 };
 
-const getTemplatePartIds = ( record, stylesheet ) => {
+const getBlockReferenceIds = ( record, getId ) => {
 	const collect = blocks =>
 		blocks.flatMap( block => {
-			const { slug } = block.attrs ?? {};
-			const theme = block.attrs?.theme || stylesheet;
-			return [
-				...( block.blockName === 'core/template-part' && theme && slug
-					? [ `${ theme }//${ slug }` ]
-					: [] ),
-				...collect( block.innerBlocks ?? [] ),
-			];
+			const id = getId( block );
+			return [ ...( id ? [ id ] : [] ), ...collect( block.innerBlocks ?? [] ) ];
 		} );
 	const content = record?.content?.raw ?? record?.content;
 	return collect( parse( typeof content === 'string' ? content : '' ) );
 };
+
+const getTemplatePartIds = ( record, stylesheet ) =>
+	getBlockReferenceIds( record, block => {
+		const { slug } = block.attrs ?? {};
+		const theme = block.attrs?.theme || stylesheet;
+		return block.blockName === 'core/template-part' && theme && slug
+			? `${ theme }//${ slug }`
+			: undefined;
+	} );
+
+const getPatternIds = record =>
+	getBlockReferenceIds( record, block =>
+		block.blockName === 'core/block' ? block.attrs?.ref : undefined
+	);
 
 export function useSyncCookieConsentSettings() {
 	const registry = useRegistry();
@@ -60,10 +68,14 @@ export function useSyncCookieConsentSettings() {
 					const record = core.getEntityRecord( kind, name, key );
 					const hadBanner = !! getBanner( record );
 					const templatePartIds = getTemplatePartIds( record, core.getCurrentTheme()?.stylesheet );
-					pendingSaves.set( id, { kind, name, key, hadBanner, templatePartIds } );
+					const patternIds = getPatternIds( record );
+					pendingSaves.set( id, { kind, name, key, hadBanner, templatePartIds, patternIds } );
 				}
 			}
-			for ( const [ id, { kind, name, key, hadBanner, templatePartIds } ] of pendingSaves ) {
+			for ( const [
+				id,
+				{ kind, name, key, hadBanner, templatePartIds, patternIds },
+			] of pendingSaves ) {
 				if ( core.isSavingEntityRecord( kind, name, key ) ) {
 					continue;
 				}
@@ -74,6 +86,12 @@ export function useSyncCookieConsentSettings() {
 				const record = core.getEntityRecord( kind, name, key );
 				const banner = getBanner( record );
 				if ( ! banner && ! hadBanner ) {
+					continue;
+				}
+				if (
+					! banner &&
+					getPatternIds( record ).some( patternId => ! patternIds.includes( patternId ) )
+				) {
 					continue;
 				}
 				completedSaves.push( {
