@@ -923,7 +923,6 @@ describe( 'Dashboard feedback banner', () => {
 		expect( screen.queryByTestId( 'feedback-banner' ) ).not.toBeInTheDocument();
 	} );
 
-	// A disconnected site shows only tabs that run without a connection; the Stats chrome can't work there.
 	it( 'leaves the Stats chrome off on a disconnected site', () => {
 		mockIsConnected = false;
 		mockConnectionless = [ 'traffic' ];
@@ -951,6 +950,9 @@ describe( 'Dashboard feedback banner', () => {
 
 			expect( !! screen.queryByTestId( 'connect-section' ) ).toBe( showsPrompt );
 			expect( !! screen.queryByText( 'offers comparison' ) ).toBe( ! showsPrompt );
+			expect( useDashboardPolicyMock ).toHaveBeenLastCalledWith(
+				expect.objectContaining( { needsConnection: showsPrompt } )
+			);
 		}
 	);
 
@@ -1493,6 +1495,7 @@ describe( 'Dashboard inserter', () => {
 
 		expect( useDashboardPolicyMock ).toHaveBeenLastCalledWith( {
 			insertableWidgetTypes: new Set( [ 'jpa/traffic-chart', 'jpa/devices' ] ),
+			needsConnection: false,
 		} );
 
 		useActiveSectionMock.mockReturnValue( [ 'insights', jest.fn(), true ] );
@@ -1502,6 +1505,7 @@ describe( 'Dashboard inserter', () => {
 
 		expect( useDashboardPolicyMock ).toHaveBeenLastCalledWith( {
 			insertableWidgetTypes: new Set( [ 'jpa/latest-post' ] ),
+			needsConnection: false,
 		} );
 	} );
 

@@ -221,6 +221,7 @@ function Dashboard(): JSX.Element {
 	const dashboardPolicy = useDashboardPolicy( {
 		insertableWidgetTypes,
 		lockedLayout: isSectionLocked ? visibleLayout : undefined,
+		needsConnection: needsConnection( activeSection ),
 	} );
 	const canCustomizeSection = dashboardPolicy( { operation: 'customize' } );
 	// Edit mode survives a tab switch, so leave it on arriving at a section that cannot be arranged.
