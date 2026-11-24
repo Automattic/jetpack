@@ -11,6 +11,7 @@ require_once __DIR__ . '/../../../../modules/subscriptions/newsletter-widget/cla
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Plugin\Abilities\Newsletter_Abilities;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * @covers \Automattic\Jetpack\Plugin\Abilities\Newsletter_Abilities
@@ -371,18 +372,20 @@ class Newsletter_Abilities_Test extends WP_UnitTestCase {
 		}
 	}
 
-	public function test_dashboard_and_ability_share_cached_subscriber_stats() {
+	/**
+	 * @dataProvider subscriber_stats_responses_provider
+	 * @param array $counts Subscriber counts returned by the API.
+	 * @param int   $expected_paid_subscribers Expected paid subscriber count.
+	 */
+	#[DataProvider( 'subscriber_stats_responses_provider' )]
+	public function test_dashboard_and_ability_share_cached_subscriber_stats( $counts, $expected_paid_subscribers ) {
 		delete_transient( 'jetpack_newsletter_subscriber_stats_data' );
 		add_filter( 'jetpack_is_connection_ready', '__return_true' );
 		$previous_site_id = Jetpack_Options::get_option( 'id' );
 		Jetpack_Options::update_option( 'id', 123 );
 		$requests = 0;
 		$body     = array(
-			'counts'    => array(
-				'all_subscribers'   => 120,
-				'email_subscribers' => 100,
-				'paid_subscribers'  => 20,
-			),
+			'counts'    => $counts,
 			'aggregate' => array(
 				'2026-01-01' => array(
 					'all'  => 120,
@@ -405,7 +408,9 @@ class Newsletter_Abilities_Test extends WP_UnitTestCase {
 			$dashboard = Jetpack_Newsletter_Dashboard_Widget::get_config_data();
 			$this->assertSame( 120, $dashboard['allSubscribers'] );
 			$this->assertSame( 100, $dashboard['emailSubscribers'] );
-			$this->assertSame( 20, $dashboard['paidSubscribers'] );
+			$this->assertSame( $expected_paid_subscribers, $dashboard['paidSubscribers'] );
+			$this->assertTrue( $dashboard['showChart'] );
+			$this->assertTrue( $dashboard['isWidgetVisible'] );
 			$this->assertSame(
 				array(
 					'2026-01-01' => array(
@@ -419,7 +424,7 @@ class Newsletter_Abilities_Test extends WP_UnitTestCase {
 				array(
 					'all'   => 120,
 					'email' => 100,
-					'paid'  => 20,
+					'paid'  => $expected_paid_subscribers,
 				),
 				Newsletter_Abilities::get_subscriber_stats()
 			);
@@ -468,6 +473,18 @@ class Newsletter_Abilities_Test extends WP_UnitTestCase {
 			Jetpack_Options::update_option( 'id', $previous_site_id );
 			delete_transient( 'jetpack_newsletter_subscriber_stats_data' );
 		}
+	}
+
+	public static function subscriber_stats_responses_provider() {
+		$counts = array(
+			'all_subscribers'   => 120,
+			'email_subscribers' => 100,
+		);
+		return array(
+			'complete counts' => array( $counts + array( 'paid_subscribers' => 20 ), 20 ),
+			'missing paid'    => array( $counts, 0 ),
+			'null paid'       => array( $counts + array( 'paid_subscribers' => null ), 0 ),
+		);
 	}
 
 	public function test_get_subscriber_stats_returns_cached_response_without_remote_call() {

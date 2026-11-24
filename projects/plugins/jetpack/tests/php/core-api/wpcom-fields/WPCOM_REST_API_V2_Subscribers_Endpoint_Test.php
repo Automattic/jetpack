@@ -58,12 +58,25 @@ class WPCOM_REST_API_V2_Subscribers_Endpoint_Test extends Jetpack_REST_TestCase 
 	public function test_get_subscriber_count_with_edit_permission() {
 		wp_set_current_user( self::$editor_user_id );
 		self::set_subscribers_counts( 75, 50, 25 );
+		$is_wpcom = defined( 'IS_WPCOM' ) && IS_WPCOM;
+		if ( $is_wpcom ) {
+			wp_cache_set( 'wpcom_blog_reach_total_' . get_current_blog_id(), 123, 'subs' );
+		}
 
-		$request  = new WP_REST_Request( WP_REST_Server::READABLE, '/wpcom/v2/subscribers/count' );
-		$response = $this->server->dispatch( $request );
-		$data     = $response->get_data();
+		try {
+			$expected_count = $is_wpcom ? 123 : 100;
+			$this->assertSame( $expected_count, Jetpack_Subscriptions_Widget::fetch_subscriber_count() );
 
-		$this->assertEquals( 100, $data['count'] );
+			$request  = new WP_REST_Request( WP_REST_Server::READABLE, '/wpcom/v2/subscribers/count' );
+			$response = $this->server->dispatch( $request );
+			$data     = $response->get_data();
+
+			$this->assertSame( $expected_count, $data['count'] );
+		} finally {
+			if ( $is_wpcom ) {
+				wp_cache_delete( 'wpcom_blog_reach_total_' . get_current_blog_id(), 'subs' );
+			}
+		}
 	}
 
 	public function test_get_subscriber_count_without_edit_permission() {

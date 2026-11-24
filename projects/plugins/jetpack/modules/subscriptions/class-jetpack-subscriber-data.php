@@ -96,9 +96,6 @@ class Jetpack_Subscriber_Data {
 		$body = json_decode( wp_remote_retrieve_body( $response ), true );
 		if ( 200 !== (int) wp_remote_retrieve_response_code( $response )
 			|| ! is_array( $body ) || ! isset( $body['counts'] ) || ! is_array( $body['counts'] )
-			|| ! is_numeric( $body['counts']['all_subscribers'] ?? null )
-			|| ! is_numeric( $body['counts']['email_subscribers'] ?? null )
-			|| ! is_numeric( $body['counts']['paid_subscribers'] ?? null )
 			|| ( isset( $body['aggregate'] ) && ! is_array( $body['aggregate'] ) )
 		) {
 			return new WP_Error(
