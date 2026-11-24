@@ -123,16 +123,13 @@ class Tiled_Gallery_Block_Email_Test extends WP_UnitTestCase {
 		// 740px less 4px of cell padding per image leaves 728px, so the row is 728 / ( 2 + 0.5 + 1 ) = 208px tall.
 		$result = \Automattic\Jetpack\Extensions\Tiled_Gallery::render_email( '', array( 'attrs' => array( 'ids' => $ids ) ), $this->create_rendering_context_mock( '740px' ) );
 
-		preg_match_all( '/<img [^>]*width="(\d+)" height="(\d+)"/', $result, $matches, PREG_SET_ORDER );
-		$this->assertSame(
-			array( array( '416', '208' ), array( '104', '208' ), array( '208', '208' ) ),
-			array_map(
-				function ( $match ) {
-					return array( $match[1], $match[2] );
-				},
-				$matches
-			)
-		);
+		preg_match_all( '/<img [^>]*width="(\d+)" height="(\d+)"/', $result, $sizes );
+		$this->assertSame( array( '416', '104', '208' ), $sizes[1] );
+		$this->assertSame( array( '208', '208', '208' ), $sizes[2] );
+
+		// Clients other than Outlook lay the row out from the cell widths: each image plus 4px of padding, out of 740px.
+		preg_match_all( '/<td style="width: ([\d.]+)%/', $result, $cells );
+		$this->assertSame( array( '56.7568', '14.5946', '28.6486' ), $cells[1] );
 		$this->assertStringNotContainsString( 'object-fit', $result );
 	}
 
