@@ -161,8 +161,8 @@ class Jetpack_Sitemap_Buffer_Factory_Test extends WP_UnitTestCase {
 		$this->assertSame( 2, $instructions->length );
 		$static = preg_replace( '/^https?:/', '', add_query_arg( 'ver', md5_file( JETPACK__PLUGIN_DIR . 'modules/sitemaps/sitemap.css' ), plugins_url( 'modules/sitemaps/sitemap.css', JETPACK__PLUGIN_DIR . 'jetpack.php' ) ) );
 		$labels = preg_replace( '/^https?:/', '', home_url( '/?jetpack-sitemap=sitemap-labels.css' ) );
-		$this->assertSame( 'type="text/css" href="' . esc_xml( $static ) . '"', $instructions->item( 0 )->data );
-		$this->assertSame( 'type="text/css" href="' . esc_xml( $labels ) . '"', $instructions->item( 1 )->data );
+		$this->assertSame( 'type="text/css" href="' . esc_xml( $static ) . '"', $instructions->item( 0 )->nodeValue );
+		$this->assertSame( 'type="text/css" href="' . esc_xml( $labels ) . '"', $instructions->item( 1 )->nodeValue );
 		$this->assertStringNotContainsString( 'text/xsl', $xml );
 	}
 
