@@ -258,7 +258,7 @@ class REST_Endpoints {
 		$result = $connection->try_registration( true, true );
 
 		if ( is_wp_error( $result ) ) {
-			// The disconnect above already ran; the old data moves to the response's `additional_data`.
+			// Any existing data moves to the response's `additional_data`.
 			$data = $result->get_error_data();
 			$result->add_data( array_merge( is_array( $data ) ? $data : array(), array( 'disconnected' => true ) ) );
 			return $result;

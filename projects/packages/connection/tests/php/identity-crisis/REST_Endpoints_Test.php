@@ -452,8 +452,6 @@ class REST_Endpoints_Test extends TestCase {
 				'code'    => 400,
 				'message' => 'Bad Request',
 			),
-			'cookies'  => array(),
-			'filename' => null,
 		);
 	}
 
