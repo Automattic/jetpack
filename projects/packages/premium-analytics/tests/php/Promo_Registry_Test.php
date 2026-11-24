@@ -85,15 +85,50 @@ class Promo_Registry_Test extends BaseTestCase {
 		$this->capture_doing_it_wrong();
 
 		$registry = new Promo_Registry();
-		$first    = $registry->register( 'acme/offer', array( 'placement' => 'settings' ) );
+		$first    = $registry->register(
+			'acme/offer',
+			array(
+				'placement' => 'settings',
+				'title'     => 'Try Acme',
+			)
+		);
 
-		$this->assertFalse( $registry->register( 'acme/offer', array( 'placement' => 'settings' ) ) );
+		$this->assertFalse(
+			$registry->register(
+				'acme/offer',
+				array(
+					'placement' => 'settings',
+					'title'     => 'Try Acme',
+				)
+			)
+		);
 		$this->assertSame( $first, $registry->get_registered( 'acme/offer' ) );
 		$this->assertSame( array( Promo_Registry::class . '::register' ), $this->doing_it_wrong );
 	}
 
 	public function test_register_refuses_an_unknown_placement() {
 		$this->assert_refused( 'acme/offer', array( 'placement' => 'sidebar' ) );
+	}
+
+	public function test_register_refuses_a_card_promo_without_a_title() {
+		$this->assert_refused(
+			'acme/offer',
+			array(
+				'placement'   => 'settings',
+				'description' => 'Acme makes everything better.',
+			)
+		);
+	}
+
+	public function test_register_refuses_an_is_available_that_is_not_callable() {
+		$this->assert_refused(
+			'acme/offer',
+			array(
+				'placement'    => 'settings',
+				'title'        => 'Try Acme',
+				'is_available' => 'acme_promo_rule_typo',
+			)
+		);
 	}
 
 	public function test_register_refuses_an_options_menu_promo_without_a_cta_label() {
@@ -164,6 +199,7 @@ class Promo_Registry_Test extends BaseTestCase {
 			'acme/offer',
 			array(
 				'placement'   => 'settings',
+				'title'       => 'Try Acme',
 				'snooze_days' => -1,
 			)
 		);
@@ -174,6 +210,7 @@ class Promo_Registry_Test extends BaseTestCase {
 			'acme/offer',
 			array(
 				'placement'   => 'settings',
+				'title'       => 'Try Acme',
 				'dismissible' => false,
 				'snooze_days' => 30,
 			)
@@ -183,7 +220,13 @@ class Promo_Registry_Test extends BaseTestCase {
 	public function test_register_returns_the_promo_on_success() {
 		$registry = new Promo_Registry();
 
-		$promo = $registry->register( 'acme/offer', array( 'placement' => 'settings' ) );
+		$promo = $registry->register(
+			'acme/offer',
+			array(
+				'placement' => 'settings',
+				'title'     => 'Try Acme',
+			)
+		);
 
 		$this->assertInstanceOf( Promo::class, $promo );
 		$this->assertSame( 'acme/offer', $promo->slug );
@@ -214,7 +257,13 @@ class Promo_Registry_Test extends BaseTestCase {
 			Promo_Registry::REGISTER_ACTION,
 			function ( $registry ) use ( &$calls ) {
 				++$calls;
-				$registry->register( 'acme/offer', array( 'placement' => 'settings' ) );
+				$registry->register(
+					'acme/offer',
+					array(
+						'placement' => 'settings',
+						'title'     => 'Try Acme',
+					)
+				);
 			}
 		);
 

@@ -39,17 +39,23 @@ function register_promo( $slug, $args = array() ) {
  * @return Promo[] Ordered list of available promos.
  */
 function get_available_promos() {
+	return Promo_Registry::get_instance()->remember_available( __NAMESPACE__ . '\\compute_available_promos' );
+}
+
+/**
+ * Applies the gates to the registered promos. Call `get_available_promos()` instead, which keeps
+ * the result for the rest of the request so no registrant's rule runs twice.
+ *
+ * @since $$next-version$$
+ *
+ * @return Promo[] Ordered list of available promos.
+ */
+function compute_available_promos() {
 	if ( ! Feature_Flags::is_enabled( PROMO_FLAG ) ) {
 		return array();
 	}
 
-	/**
-	 * Filters whether promotions show at all.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @param bool $show_promotions Whether promotions show. Default true.
-	 */
+	/** This filter is documented in projects/plugins/jetpack/_inc/lib/admin-pages/class-jetpack-redux-state-helper.php */
 	if ( ! apply_filters( 'jetpack_show_promotions', true ) ) {
 		return array();
 	}
@@ -102,7 +108,7 @@ function configure_promos() {
 		PROMO_FLAG,
 		array(
 			'default'     => false,
-			'description' => 'Show promotional cards that other packages register into the Stats v2 dashboard, menu and Settings.',
+			'description' => 'Show promotions that other packages register into the Stats v2 options menu and Settings.',
 			'owner'       => 'jetpack-stats',
 		)
 	);

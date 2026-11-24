@@ -48,6 +48,13 @@ final class Promo_Registry {
 	private $hydrated = false;
 
 	/**
+	 * The gated promos for this request, or null before anything has asked for them.
+	 *
+	 * @var Promo[]|null
+	 */
+	private $available_promos = null;
+
+	/**
 	 * Container for the main instance of the class.
 	 *
 	 * @var Promo_Registry|null
@@ -80,11 +87,21 @@ final class Promo_Registry {
 			return $this->refuse( __( 'A promo render module must be a non-empty string.', 'jetpack-premium-analytics-pkg' ) );
 		}
 
+		// A misspelled function name is truthy, and the promo would show to everyone.
+		if ( isset( $args['is_available'] ) && ! is_bool( $args['is_available'] ) && ! is_callable( $args['is_available'] ) ) {
+			return $this->refuse( __( 'A promo is_available must be a callable or a boolean.', 'jetpack-premium-analytics-pkg' ) );
+		}
+
 		$promo = new Promo( $slug, $args );
 
 		if ( ! in_array( $promo->placement, self::PLACEMENTS, true ) ) {
 			/* translators: %s: Comma-separated list of placements. */
 			return $this->refuse( sprintf( __( 'A promo placement must be one of: %s.', 'jetpack-premium-analytics-pkg' ), implode( ', ', self::PLACEMENTS ) ) );
+		}
+
+		// A card is labelled by its title; a menu item is labelled by its cta_label below.
+		if ( 'options-menu' !== $promo->placement && '' === $promo->title ) {
+			return $this->refuse( __( 'A promo card needs a title. The card is labelled by it.', 'jetpack-premium-analytics-pkg' ) );
 		}
 
 		if ( 'options-menu' === $promo->placement && '' === $promo->cta_label ) {
@@ -124,6 +141,23 @@ final class Promo_Registry {
 		$this->ensure_hydrated();
 
 		return $this->registered_promos[ $slug ] ?? null;
+	}
+
+	/**
+	 * Runs the gates once and answers from that result for the rest of the request. A registrant's
+	 * `is_available` rule may be expensive, and both the script data and the import map ask.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param callable $compute Applies the gates to the registered promos.
+	 * @return Promo[] The gated promos.
+	 */
+	public function remember_available( callable $compute ) {
+		if ( null === $this->available_promos ) {
+			$this->available_promos = $compute();
+		}
+
+		return $this->available_promos;
 	}
 
 	/**

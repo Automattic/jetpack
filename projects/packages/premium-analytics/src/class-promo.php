@@ -127,11 +127,14 @@ final class Promo {
 			return false;
 		}
 
-		if ( is_callable( $this->is_available ) ) {
-			return (bool) call_user_func( $this->is_available, $this );
+		if ( is_bool( $this->is_available ) ) {
+			return $this->is_available;
 		}
 
-		return (bool) $this->is_available;
+		// Registration refuses anything else, so reaching here means the callable stopped resolving.
+		return is_callable( $this->is_available )
+			? (bool) call_user_func( $this->is_available, $this )
+			: false;
 	}
 
 	/**

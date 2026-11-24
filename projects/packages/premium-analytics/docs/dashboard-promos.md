@@ -54,7 +54,7 @@ add_action(
 | --------------- | -------------- | --------------------------------------------------------------------------------------------- |
 | `placement`     | none, required | `options-menu` or `settings`.                                                               |
 | `order`         | `10`           | Lower shows first. Ties break on the slug.                                                  |
-| `title`         | `''`           | The card heading. It also labels the card for assistive technology.                         |
+| `title`         | `''`           | The card heading, which also labels the card for assistive technology. A card requires one. |
 | `description`   | `''`           | The card body.                                                                              |
 | `cta_label`     | `''`           | The call to action text, and the whole menu item for `options-menu`, which requires one.    |
 | `cta_url`       | `''`           | The call to action link. Only `http` and `https` links render.                              |
@@ -69,6 +69,8 @@ Each refusal is a `_doing_it_wrong()` and a `false` return, and nothing is regis
 
 - A slug that does not match the pattern above, or one that is already registered.
 - A `placement` that is not one of the two.
+- A card with no `title`. The title labels the card, and a landmark with no name is unusable with a screen reader. This holds for a promo with a `render_module` too, whose registered copy is what shows until the module loads.
+- An `is_available` that is neither a boolean nor callable. A misspelled function name is truthy, so the promo would show to everyone.
 - An `options-menu` promo with no `cta_label`. The label is the menu item, and an item with no text is a focusable link with no name.
 - An `options-menu` promo that is `dismissible`. A menu item has no close control, so pass `'dismissible' => false`.
 - An `options-menu` promo with a `render_module`. A menu item is not a card.
@@ -83,7 +85,9 @@ Each refusal is a `_doing_it_wrong()` and a `false` return, and nothing is regis
 1. The `jetpack-stats-promos` feature flag.
 2. The `jetpack_show_promotions` filter, which is `true` by default. A host returns `false` to turn every promotion off.
 3. The promo's own `is_available()`.
-4. The `jetpack_premium_analytics_promos` filter, which receives the surviving promos as `$slug => $promo` pairs and may drop some.
+4. The `jetpack_premium_analytics_promos` filter, which receives the surviving promos as `$slug => $promo` pairs and may drop some. A promo this filter adds reaches the client having passed none of the rules `register_promo()` enforces, so it can hold a placement or a combination the registry would have refused. Only the `Promo` type is checked.
+
+The gates run once per request: the dashboard's script data and its import map both ask, so a rule that answers them separately would run twice.
 
 It then sorts by `order`, then `slug`, and publishes the list to the client as `premium_analytics.promos` in the script data. A promo with a `render_module` also adds that module to the page import map, as a dynamic dependency.
 

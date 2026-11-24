@@ -68,7 +68,7 @@ class Promos_Test extends BaseTestCase {
 				foreach ( $promos as $args ) {
 					$slug = $args['slug'];
 					unset( $args['slug'] );
-					register_promo( $slug, $args );
+					register_promo( $slug, $args + array( 'title' => 'Try Acme' ) );
 				}
 			}
 		);
@@ -323,6 +323,25 @@ class Promos_Test extends BaseTestCase {
 			),
 			add_promo_modules_to_boot_deps( array( array( 'import' => 'static' ) ) )
 		);
+	}
+
+	public function test_a_registrants_rule_runs_once_however_many_callers_ask() {
+		$calls = 0;
+		$this->register_fixture_promos(
+			array(
+				'slug'         => 'acme/offer',
+				'placement'    => 'settings',
+				'is_available' => function () use ( &$calls ) {
+					++$calls;
+					return true;
+				},
+			)
+		);
+
+		add_promo_modules_to_boot_deps( array() );
+		get_available_promos();
+
+		$this->assertSame( 1, $calls );
 	}
 
 	public function test_a_promo_without_a_render_module_adds_no_import() {
