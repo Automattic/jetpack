@@ -102,6 +102,7 @@
 	},
 	"wpPlugin": {
 		"name": "jetpack_newsletter",
+		"sharedModules": "../admin-ui/package.json",
 		"scriptGlobal": "jetpackNewsletter",
 		"packageNamespace": "jetpack-newsletter",
 		"handlePrefix": "jetpack-newsletter",

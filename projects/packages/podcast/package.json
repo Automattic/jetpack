@@ -93,6 +93,7 @@
 	},
 	"wpPlugin": {
 		"name": "jetpack_podcast",
+		"sharedModules": "../admin-ui/package.json",
 		"scriptGlobal": "jetpackPodcast",
 		"packageNamespace": "jetpack-podcast",
 		"handlePrefix": "jetpack-podcast",

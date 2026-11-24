@@ -327,6 +327,9 @@ class Admin_Page {
 		}
 
 		require_once $build_index;
+		if ( class_exists( \Automattic\Jetpack\Admin_UI\Shared_Modules::class ) ) {
+			\Automattic\Jetpack\Admin_UI\Shared_Modules::init();
+		}
 
 		WP_Build_Polyfills::register(
 			'jetpack-seo',

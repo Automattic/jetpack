@@ -365,6 +365,9 @@ class Admin_Page {
 		}
 
 		require_once $build_index;
+		if ( class_exists( \Automattic\Jetpack\Admin_UI\Shared_Modules::class ) ) {
+			\Automattic\Jetpack\Admin_UI\Shared_Modules::init();
+		}
 
 		// wp-build hooks module registration to wp_default_scripts, which has
 		// already fired by admin_menu — call it directly or the init module

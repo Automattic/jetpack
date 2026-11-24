@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Register the shared script modules, so dashboards built with them load each library once.

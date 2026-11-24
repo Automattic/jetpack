@@ -124,6 +124,7 @@
 	},
 	"wpPlugin": {
 		"name": "jetpack_my_jetpack",
+		"sharedModules": "../admin-ui/package.json",
 		"scriptGlobal": "jetpackMyJetpack",
 		"packageNamespace": "jetpack-my-jetpack",
 		"handlePrefix": "jetpack-my-jetpack",

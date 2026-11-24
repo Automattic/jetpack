@@ -119,6 +119,7 @@
 	},
 	"wpPlugin": {
 		"name": "jetpack_social",
+		"sharedModules": "../admin-ui/package.json",
 		"scriptGlobal": "jetpackSocial",
 		"packageNamespace": "jetpack-social",
 		"handlePrefix": "jetpack-social",

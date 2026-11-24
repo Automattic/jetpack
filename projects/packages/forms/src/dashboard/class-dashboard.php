@@ -47,6 +47,9 @@ class Dashboard {
 
 		if ( file_exists( $wp_build_index ) ) {
 			require_once $wp_build_index;
+			if ( class_exists( \Automattic\Jetpack\Admin_UI\Shared_Modules::class ) ) {
+				\Automattic\Jetpack\Admin_UI\Shared_Modules::init();
+			}
 		}
 
 		// The remaining setup only applies to the standalone Forms page.
@@ -240,6 +243,9 @@ class Dashboard {
 
 		$wp_build_index = self::wp_build_index_path();
 		require_once $wp_build_index;
+		if ( class_exists( \Automattic\Jetpack\Admin_UI\Shared_Modules::class ) ) {
+			\Automattic\Jetpack\Admin_UI\Shared_Modules::init();
+		}
 
 		// The generated registration runs on wp_default_scripts, which has already fired.
 		if ( function_exists( 'jetpack_forms_register_script_modules' ) ) {

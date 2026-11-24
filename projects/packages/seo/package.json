@@ -84,6 +84,7 @@
 	},
 	"wpPlugin": {
 		"name": "jetpack_seo",
+		"sharedModules": "../admin-ui/package.json",
 		"scriptGlobal": "jetpackSeo",
 		"packageNamespace": "jetpack-seo",
 		"handlePrefix": "jetpack-seo",
