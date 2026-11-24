@@ -1427,56 +1427,6 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 		$this->assertSame( 'site_policy', $items[0]['body']['code'] );
 	}
 
-	public function test_batch_prices_products_for_the_visitor_like_the_single_route() {
-		Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
-		\Jetpack_Options::update_option( 'id', 4242 );
-		\Jetpack_Options::update_option( 'blog_token', 'blog_token.secret' );
-		( new Connection_Manager() )->reset_connection_status();
-		wp_set_current_user(
-			wp_insert_user(
-				array(
-					'user_login' => 'jpa_batch_products',
-					'user_pass'  => 'password',
-					'role'       => 'administrator',
-				)
-			)
-		);
-		$remote_addr            = $_SERVER['REMOTE_ADDR'] ?? null;
-		$_SERVER['REMOTE_ADDR'] = '203.0.113.9';
-
-		$forwarded = array();
-		add_filter(
-			'pre_http_request',
-			static function ( $pre, $args ) use ( &$forwarded ) {
-				$forwarded[] = $args['headers']['X-Forwarded-For'] ?? null;
-				return array(
-					'response' => array( 'code' => 200 ),
-					'body'     => '{}',
-					'headers'  => array(),
-				);
-			},
-			10,
-			2
-		);
-
-		try {
-			$this->dispatch_batch( array( '/v1.1/products' ) );
-		} finally {
-			remove_all_filters( 'pre_http_request' );
-			if ( null === $remote_addr ) {
-				unset( $_SERVER['REMOTE_ADDR'] );
-			} else {
-				$_SERVER['REMOTE_ADDR'] = $remote_addr;
-			}
-			\Jetpack_Options::delete_option( 'blog_token' );
-			\Jetpack_Options::delete_option( 'id' );
-			( new Connection_Manager() )->reset_connection_status();
-			Constants::clear_single_constant( 'JETPACK__WPCOM_JSON_API_BASE' );
-		}
-
-		$this->assertSame( array( '203.0.113.9' ), $forwarded );
-	}
-
 	/**
 	 * Dispatch a batch through the REST server and return its items.
 	 *

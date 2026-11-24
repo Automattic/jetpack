@@ -394,7 +394,7 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 	/**
 	 * Run a batched read up to its WPCOM call: a cache hit or error is the answer, a miss what to fetch.
 	 *
-	 * Groups with special forwarding (unsigned, visitor IP) take the single-request path instead.
+	 * Unsigned groups take the single-request path instead.
 	 *
 	 * @param WP_REST_Request $sub The item's GET request.
 	 *
@@ -403,7 +403,7 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 	private function prepare_batched_read( WP_REST_Request $sub ) {
 		$endpoint = (string) $sub->get_param( 'endpoint' );
 		$config   = $this->config_for( $endpoint );
-		if ( ! empty( $config['unauthenticated'] ) || ! empty( $config['forward_visitor_ip'] ) ) {
+		if ( ! empty( $config['unauthenticated'] ) ) {
 			return $this->handle_data_request( $sub );
 		}
 

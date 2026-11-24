@@ -25,12 +25,7 @@ function failedResponse( status: number, body: unknown ) {
 	return { status, json: async () => body };
 }
 
-// jsdom implements no Resource Timing entries.
-function setPage( nextHopProtocol: string, proxyBatch: boolean | undefined ) {
-	Object.defineProperty( performance, 'getEntriesByType', {
-		configurable: true,
-		value: () => [ { nextHopProtocol } ],
-	} );
+function setServer( proxyBatch: boolean | undefined ) {
 	Object.defineProperty( window, 'JetpackScriptData', {
 		configurable: true,
 		value: { premium_analytics: { proxy_batch: proxyBatch } },
@@ -47,29 +42,24 @@ function batchPaths( apiFetch: jest.MockedFunction< typeof apiFetchType > ) {
 describe( 'proxy scheduler', () => {
 	beforeEach( () => {
 		jest.useFakeTimers();
-		setPage( 'http/1.1', true );
+		setServer( true );
 	} );
 
 	afterEach( () => {
 		jest.useRealTimers();
-		delete ( performance as Partial< Performance > ).getEntriesByType;
 		delete window.JetpackScriptData;
 	} );
 
 	it.each( [
-		[ 'http/1.1', true, true ],
-		[ 'h2', true, false ],
-		[ '', true, false ],
-		[ 'http/1.1', undefined, false ],
-	] )(
-		'batches on a %p page whose server can fetch in parallel (%p): %p',
-		async ( protocol, proxyBatch, expected ) => {
-			const { scheduler } = await load();
-			setPage( protocol, proxyBatch );
+		[ true, true ],
+		[ false, false ],
+		[ undefined, false ],
+	] )( 'batches where the server reports proxy_batch %p: %p', async ( proxyBatch, expected ) => {
+		const { scheduler } = await load();
+		setServer( proxyBatch );
 
-			expect( scheduler.shouldBatchProxyReads() ).toBe( expected );
-		}
-	);
+		expect( scheduler.shouldBatchProxyReads() ).toBe( expected );
+	} );
 
 	it( 'sends the reads fetchStatsProxy is given in one window as a batch, settling each with its own item', async () => {
 		const { proxyFetch, apiFetch } = await load();
@@ -120,13 +110,13 @@ describe( 'proxy scheduler', () => {
 			return { path };
 		} ) as typeof apiFetchType );
 
-		// More reads than four batches of seven, so some are still queued when the 404 lands.
-		const reads = Array.from( { length: 35 }, ( _, i ) =>
+		// More reads than four batches of ten, so some are still queued when the 404 lands.
+		const reads = Array.from( { length: 45 }, ( _, i ) =>
 			scheduler.scheduleProxyGet( `${ PROXY }/v1.1/stats/r${ i }`, 'primary' )
 		);
 		jest.runOnlyPendingTimers();
 
-		await expect( Promise.all( reads ) ).resolves.toHaveLength( 35 );
+		await expect( Promise.all( reads ) ).resolves.toHaveLength( 45 );
 		expect( batchPaths( apiFetch ) ).toHaveLength( 4 );
 		expect( scheduler.shouldBatchProxyReads() ).toBe( false );
 	} );

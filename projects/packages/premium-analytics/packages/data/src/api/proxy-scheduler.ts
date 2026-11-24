@@ -11,14 +11,14 @@ import { fetchPreservingStatus } from './stats-proxy-fetch';
 
 export type ProxyPriority = 'primary' | 'comparison';
 
-/** Reads per batch; the route accepts up to 20. */
-const BATCH_SIZE = 7;
+/** Reads per batch, so a dashboard's primary and comparison reads fit one round of batches; the route accepts up to 20. */
+const BATCH_SIZE = 10;
 
-/** Batches in flight at once, leaving two of HTTP/1.1's six connections for assets and other requests. */
+/** Batches in flight at once; on HTTP/1.1 this leaves two of six connections for assets and other requests. */
 const MAX_IN_FLIGHT = 4;
 
-/** How long the first queued read waits for the rest of a render's reads to join it. */
-const BATCH_WINDOW_MS = 10;
+/** How long the first queued read waits for others to join it; widgets mount over several renders. */
+const BATCH_WINDOW_MS = 50;
 
 type Job = {
 	path: string;
@@ -40,24 +40,13 @@ let flushTimer: ReturnType< typeof setTimeout > | null = null;
 let batchRouteMissing = false;
 
 /**
- * Whether to batch local proxy reads: the page reached this origin over HTTP/1.1, where the browser
- * caps connections per host, and the server can fetch a batch in parallel. Unknown protocols don't batch.
+ * Whether to batch local proxy reads: the server can fetch a batch in parallel, and has the route.
+ * Batching runs on every protocol, though HTTP/1.1, with its six connections per host, gains most.
  *
  * @return Whether local proxy reads should be batched.
  */
 export function shouldBatchProxyReads(): boolean {
-	if (
-		batchRouteMissing ||
-		getScriptData()?.premium_analytics?.proxy_batch !== true ||
-		typeof performance === 'undefined' ||
-		! performance.getEntriesByType
-	) {
-		return false;
-	}
-	const [ navigation ] = performance.getEntriesByType(
-		'navigation'
-	) as PerformanceNavigationTiming[];
-	return navigation?.nextHopProtocol === 'http/1.1';
+	return ! batchRouteMissing && getScriptData()?.premium_analytics?.proxy_batch === true;
 }
 
 function abortReason( signal: AbortSignal ) {
