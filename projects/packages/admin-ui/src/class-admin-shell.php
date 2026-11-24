@@ -15,7 +15,7 @@ use Automattic\Jetpack\Feature_Flags\Feature_Flags;
 class Admin_Shell {
 
 	/**
-	 * Feature flag that turns the shell on. Off by default.
+	 * Feature flag that turns the shell on. On by default.
 	 */
 	const FLAG = 'jetpack-admin-shell';
 
@@ -65,7 +65,7 @@ class Admin_Shell {
 		Feature_Flags::register(
 			self::FLAG,
 			array(
-				'default'     => false,
+				'default'     => true,
 				'description' => 'Switch between Jetpack dashboards in wp-admin without a page load.',
 				'owner'       => 'jetpack-admin-ui',
 			)
