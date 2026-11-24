@@ -9,7 +9,10 @@ import {
 	useStatsAppPlanUsage,
 } from '@jetpack-premium-analytics/data';
 import { Notice } from '@jetpack-premium-analytics/externals';
-import { useTrackEvent } from '@jetpack-premium-analytics/widgets-toolkit';
+import {
+	useStatsUpgradeLinkProps,
+	useTrackEvent,
+} from '@jetpack-premium-analytics/widgets-toolkit';
 import { useDispatch } from '@wordpress/data';
 import { useCallback, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -17,7 +20,6 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import { getPlanLimitStatus } from '../../../plan-limit-status';
-import { usePlanUpgradeLinkProps } from '../../../use-plan-upgrade-link-props';
 import styles from './plan-limit-notice.module.scss';
 import type { JSX } from 'react';
 
@@ -59,7 +61,7 @@ function ConnectedNotice(): JSX.Element | null {
 			),
 	} );
 	const trackEvent = useTrackEvent();
-	const upgradeLink = usePlanUpgradeLinkProps( 'jetpack-premium-analytics-plan-limit-notice' );
+	const upgradeLink = useStatsUpgradeLinkProps( 'jetpack-premium-analytics-plan-limit-notice' );
 
 	const isHeld = isNear && ( ! notices || notices.tier_upgrade === false );
 	const statusName = status?.isOver ? 'over' : 'near';

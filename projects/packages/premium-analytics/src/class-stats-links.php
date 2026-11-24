@@ -178,6 +178,12 @@ class Stats_Links {
 			return '/settings';
 		}
 
+		if ( 'purchase' === $view ) {
+			$source = sanitize_key( is_string( $query['from'] ?? null ) ? $query['from'] : '' );
+
+			return self::path_with_query( '/upgrade', '' === $source ? array() : array( 'source' => $source ) );
+		}
+
 		if ( 'follows' === $view && 'comment' === ( $segments[1] ?? '' ) ) {
 			return '/reports/comment-followers';
 		}

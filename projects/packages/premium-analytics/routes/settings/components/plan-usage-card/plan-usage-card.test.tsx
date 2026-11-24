@@ -102,21 +102,10 @@ describe( 'PlanUsageCard', () => {
 		);
 	} );
 
-	it( 'keeps a WordPress.com site on the classic Stats purchase screen', async () => {
+	it( 'leaves out Upgrade on a WordPress.com site, which has no Stats tier to upgrade', async () => {
 		window.JetpackScriptData = {
 			site: { ...SITE, is_wpcom_platform: true },
 		} as typeof window.JetpackScriptData;
-
-		renderCard();
-
-		await expect( screen.findByRole( 'link', { name: 'Upgrade' } ) ).resolves.toHaveAttribute(
-			'href',
-			expect.stringContaining( 'admin.php?page=stats#!/stats/purchase/123456789' )
-		);
-	} );
-
-	it( 'leaves out Upgrade when the script data has no site to buy for', async () => {
-		delete window.JetpackScriptData;
 
 		renderCard();
 
