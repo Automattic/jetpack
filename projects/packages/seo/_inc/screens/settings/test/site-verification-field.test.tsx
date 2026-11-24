@@ -21,7 +21,11 @@ const siteVerifyDefaults = {
 	autoVerify: jest.fn(),
 };
 
-describe.each( Object.values( SITE_VERIFY_SERVICES ) )( 'SiteVerificationField ($key)', service => {
+describe.each( [
+	[ 'google', 'Google' ],
+	[ 'bing', 'Bing' ],
+] as const )( 'SiteVerificationField (%s)', ( key, label ) => {
+	const service = SITE_VERIFY_SERVICES[ key ];
 	const renderField = ( value = '' ) =>
 		render(
 			<SiteVerificationField
@@ -43,8 +47,8 @@ describe.each( Object.values( SITE_VERIFY_SERVICES ) )( 'SiteVerificationField (
 		// The service name is styled as a field label (`heading-sm`, 11px uppercase) to match
 		// the code-only services, but here it heads several controls rather than labelling
 		// one input. Without the group it would read as a label attached to nothing.
-		expect( screen.getByRole( 'group', { name: service.label } ) ).toBeInTheDocument();
-		expect( screen.getByText( service.label ).className ).toMatch( /heading-sm/ );
+		expect( screen.getByRole( 'group', { name: label } ) ).toBeInTheDocument();
+		expect( screen.getByText( label ).className ).toMatch( /heading-sm/ );
 	} );
 
 	it( 'shows the manual field, but not the manual button, when a value exists', () => {

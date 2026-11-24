@@ -4,6 +4,7 @@ import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Badge, Button, InputControl, Link, Stack, Text } from '@wordpress/ui';
 import { useSiteVerify } from '../../data/use-site-verify';
+import { VERIFICATION_SERVICES } from '../../data/verification-services';
 import type { SiteVerifyService } from '../../data/site-verify-services';
 import type { FC } from 'react';
 
@@ -43,7 +44,8 @@ const SiteVerificationField: FC< Props > = ( {
 		useSiteVerify( service, { saveCode } );
 	const [ manualOpen, setManualOpen ] = useState( false );
 	const manualVisible = manualOpen || !! value;
-	const { label, strings } = service;
+	const { strings } = service;
+	const label = VERIFICATION_SERVICES.find( ( { key } ) => key === service.key )?.label ?? '';
 	// Names the auto-verify group for assistive tech; one field per service, so it can't collide.
 	const groupLabelId = `jetpack-seo-settings-${ service.key }-verification-label`;
 

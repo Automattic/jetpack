@@ -7,7 +7,6 @@ export type SiteVerifyKey = Extract< VerificationKey, 'google' | 'bing' >;
 
 export interface SiteVerifyService {
 	key: SiteVerifyKey;
-	label: string;
 	/** Bootstrap key under `window.JetpackScriptData.seo`. */
 	scriptDataKey: 'google_verify' | 'bing_verify';
 	/** Jetpack route, used unless the bootstrap supplies a host-local `api_path`. */
@@ -32,7 +31,6 @@ export interface SiteVerifyService {
 export const SITE_VERIFY_SERVICES: Record< SiteVerifyKey, SiteVerifyService > = {
 	google: {
 		key: 'google',
-		label: __( 'Google', 'jetpack-seo' ),
 		scriptDataKey: 'google_verify',
 		endpoint: '/jetpack/v4/verify-site/google',
 		noticeId: 'jetpack-seo-google-verify',
@@ -59,7 +57,6 @@ export const SITE_VERIFY_SERVICES: Record< SiteVerifyKey, SiteVerifyService > = 
 	},
 	bing: {
 		key: 'bing',
-		label: __( 'Bing', 'jetpack-seo' ),
 		scriptDataKey: 'bing_verify',
 		endpoint: '/jetpack/v4/verify-site/bing',
 		noticeId: 'jetpack-seo-bing-verify',

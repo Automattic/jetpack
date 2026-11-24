@@ -42,7 +42,7 @@ jest.unstable_mockModule( '../title-structure-field', () => ( {
 	default: () => <div>title structure</div>,
 } ) );
 jest.unstable_mockModule( '../site-verification-field', () => ( {
-	default: ( { service }: { service: { label: string } } ) => <div>{ service.label } field</div>,
+	default: ( { service }: { service: { key: string } } ) => <div>{ service.key } field</div>,
 } ) );
 
 const IndexnowSettings = jest.fn< ( props: Record< string, unknown > ) => ReactElement >( () => (
