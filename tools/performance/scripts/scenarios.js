@@ -71,8 +71,9 @@ export const SCENARIOS = [
 		postToCodeVitals: true,
 		// Scenario failure policy, read by measure-lcp.js (computeRunOutcome):
 		//   optional: false — a failure here fails the build (exit 1) and suppresses ALL
-		//     posting. Retry-safety: a red build has posted nothing, so re-running it cannot
+		//     posting. Retry-safety: a required failure posts nothing, so re-running it cannot
 		//     append duplicate points to the append-only, dedup-off CodeVitals store.
+		//     A failed receipt follows a sent POST.
 		//   optional: true — a failure here must neither fail the build nor block the other
 		//     scenarios from posting; this scenario's own keys simply skip that build.
 		// Default NEW scenarios to optional: true; promoting one to required is a deliberate
