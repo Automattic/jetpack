@@ -13,17 +13,6 @@ Nothing renders until the `jetpack-stats-promos` feature flag is on. It is regis
 | Tier      | Whether Premium Analytics draws the card from plain copy, or a script module draws its content. | plain copy, or a `render_module` |
 | Snooze    | How long a first dismissal hides the promo, in days.                                            | `90`                             |
 
-## Files
-
-| Where                                         | Role                                                                                                                                                             |
-| --------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `src/` (`promos.php`, `class-promo*.php`)     | The model, the registry and its refusals, `register_promo()`, `get_available_promos()` and its gates, the feature flag, the script data and the page import map. |
-| `src/` (`promo-fixture*`)                     | A fixture registrant, one promo per placement, for trying the slot in a browser. Excluded from the production mirror.                                            |
-| `packages/data/src/utils/`                    | The client's reads and the snooze rule.                                                                                                                          |
-| `packages/widgets-toolkit/src/`               | `usePromoSlot()`, `usePromoDismissal()` and the card frame with its tracking, in `hooks/` and `components/promo-card/`.                                          |
-| `routes/settings/`                            | One of the placements. The other is the options menu in `packages/widgets-toolkit/`.                                                                            |
-| `projects/js-packages/premium-analytics-sdk/` | `PromoRenderProps`, `PromoRecord` and `PromoCta`, the types and component a render module builds on.                                                             |
-
 ## Registering a promo
 
 Hook `jetpack_premium_analytics_register_promos` (`Promo_Registry::REGISTER_ACTION`) and call `register_promo()` there. Do not hook `init`.
@@ -254,11 +243,3 @@ add_filter( 'jetpack_premium_analytics_register_promo_fixtures', '__return_true'
 
 Add a case to the fixture whenever a placement is added: `Promo_Fixture_Test` fails until every placement has one.
 
-## Where the tests are
-
-| Behaviour                                                                        | Where                                                                        |
-| -------------------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
-| The model, the registry, the gates, the script data, the import map, the fixture | `tests/php/` (`Promo_*`, `Promos_Test.php`)                                  |
-| The snooze rule and the placement reads                                          | `packages/data/src/utils/__tests__/`                                         |
-| Dismissal, the card, its tracking and its module fallback                        | `packages/widgets-toolkit/src/hooks/__tests__/`, `.../promo-card/__tests__/` |
-| The two placements                                                               | `routes/settings/` and the options menu tests                                |

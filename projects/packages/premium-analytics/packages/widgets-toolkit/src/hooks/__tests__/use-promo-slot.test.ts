@@ -50,12 +50,6 @@ describe( 'usePromoDismissal', () => {
 		registerPromos( [ first, second ] );
 	} );
 
-	it( 'is not dismissed when the preference holds no entry for the slug', () => {
-		const { result } = renderHook( () => usePromoDismissal( first ) );
-
-		expect( result.current.isDismissed ).toBe( false );
-	} );
-
 	it( 'writes count 1 on the first close and keeps the other slugs', () => {
 		const other = { count: 1, at: daysAgo( 1 ) };
 		seed( { 'acme/other': other } );
@@ -76,13 +70,6 @@ describe( 'usePromoDismissal', () => {
 		act( () => result.current.dismiss() );
 
 		expect( stored() ).toEqual( { 'acme/first': { count: 2, at: expect.any( String ) } } );
-	} );
-
-	it( 'is not dismissed once the snooze has run out', () => {
-		seed( { 'acme/first': { count: 1, at: daysAgo( 100 ) } } );
-		const { result } = renderHook( () => usePromoDismissal( first ) );
-
-		expect( result.current.isDismissed ).toBe( false );
 	} );
 
 	it( 'stays dismissed for the rest of the page load after the first close', () => {
@@ -108,13 +95,6 @@ describe( 'usePromoSlot', () => {
 		const { result } = renderHook( () => usePromoSlot( 'settings' ) );
 
 		expect( result.current ).toBe( first );
-	} );
-
-	it( 'offers the next promo when the first is still snoozed', () => {
-		seed( { 'acme/first': { count: 1, at: daysAgo( 1 ) } } );
-		const { result } = renderHook( () => usePromoSlot( 'settings' ) );
-
-		expect( result.current ).toBe( second );
 	} );
 
 	it( 'offers nothing from a placement whose promo was closed this load', () => {

@@ -104,9 +104,9 @@ compare `WIDGET_API_VERSION`, and call `register_widget_types_from_manifest()` t
 manifest that plugin's wp-build generates. A renamed type declares `former_names`, and one that
 shows a paid Stats feature declares `plan_feature`; `docs/dashboard-widgets.md` covers both.
 
-Add a promo card from another plugin: hook `jetpack_premium_analytics_register_promos`, compare
-`PROMO_API_VERSION`, and call `register_promo()` there. `docs/dashboard-promos.md` covers the
-placements, gates and tracking.
+Add a promo card from another plugin: `docs/dashboard-promos.md`. Compare `PROMO_API_VERSION` in
+the registration callback. Nothing in this repo reads it, so what a bump means lives only in that
+doc.
 
 ### Timing-dependent JS tests use fake timers
 
