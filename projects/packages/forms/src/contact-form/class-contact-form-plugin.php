@@ -16,6 +16,7 @@ use Automattic\Jetpack\Forms\Jetpack_Forms;
 use Automattic\Jetpack\Forms\Service\Form_Webhooks;
 use Automattic\Jetpack\Forms\Service\Google_Drive;
 use Automattic\Jetpack\Forms\Service\Hostinger_Reach_Integration;
+use Automattic\Jetpack\Forms\Service\Jetpack_CRM_Integration;
 use Automattic\Jetpack\Forms\Service\MailPoet_Integration;
 use Automattic\Jetpack\Forms\Service\Post_To_Url;
 use Automattic\Jetpack\Status;
@@ -391,6 +392,14 @@ class Contact_Form_Plugin {
 				4
 			);
 		}
+
+		// Runs ahead of Jetpack CRM's own handler (priority 10), which it calls with mapped fields.
+		add_action(
+			'grunion_after_feedback_post_inserted',
+			array( Jetpack_CRM_Integration::class, 'handle_jetpack_crm_integration' ),
+			5,
+			4
+		);
 
 		// Register Hostinger Reach integration hook after the class is loaded.
 		if ( Jetpack_Forms::is_hostinger_reach_enabled() ) {
