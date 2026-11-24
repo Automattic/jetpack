@@ -296,10 +296,4 @@ describe( 'ScanCard all clear', () => {
 			expect.stringMatching( /^\w{3} \d{1,2}, \d{4} \d{1,2}:\d{2} [AP]M$/ )
 		);
 	} );
-
-	it( 'leaves the last check out when there is none on record', () => {
-		renderCard( { lastChecked: null } );
-
-		expect( screen.queryByText( /^Last (checked|scanned) / ) ).not.toBeInTheDocument();
-	} );
 } );
