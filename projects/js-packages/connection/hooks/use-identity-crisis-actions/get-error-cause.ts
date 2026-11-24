@@ -39,6 +39,11 @@ export function getIdentityCrisisErrorCause( error: unknown ): IdentityCrisisErr
 	const data = isObject( body ) ? body.data : undefined;
 	const status = isObject( data ) && typeof data.status === 'number' ? data.status : null;
 
+	// A fresh connection disconnects the site before it registers again, so a failed registration leaves it disconnected.
+	if ( isObject( data ) && data.disconnected === true ) {
+		return 'disconnected';
+	}
+
 	// WordPress sends 401 when the request has no logged-in user, whatever the error code.
 	if ( status === 401 ) {
 		return 'session';

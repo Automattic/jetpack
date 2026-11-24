@@ -29,12 +29,13 @@ const { getIdentityCrisisErrorCause, getIdentityCrisisErrorCode } =
  *
  * @param code   - The REST error code.
  * @param status - The HTTP status.
+ * @param data   - More of the error's `data`.
  * @return The error.
  */
-function apiError( code: string, status: number ): Error {
+function apiError( code: string, status: number, data: Record< string, unknown > = {} ): Error {
 	return Object.assign( new Error( code ), {
 		name: 'ApiError',
-		response: { code, data: { status } },
+		response: { code, data: { status, ...data } },
 	} );
 }
 
@@ -210,6 +211,11 @@ describe( 'getIdentityCrisisErrorCause and getIdentityCrisisErrorCode', () => {
 		],
 		[ apiError( 'some_plugin_error', 403 ), 'permission', 'some_plugin_error' ],
 		[ apiError( 'error', 500 ), 'server', 'error' ],
+		[
+			apiError( 'site_inaccessible', 500, { disconnected: true } ),
+			'disconnected',
+			'site_inaccessible',
+		],
 		[ new Error( 'boom' ), 'server', undefined ],
 		[ undefined, 'server', undefined ],
 	] )( '%s is %s with code %s', ( error, cause, code ) => {
