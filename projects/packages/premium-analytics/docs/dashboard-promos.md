@@ -15,18 +15,19 @@ Nothing renders until the `jetpack-stats-promos` feature flag is on. It is regis
 
 ## Registering a promo
 
-Hook `jetpack_premium_analytics_register_promos` (`Promo_Registry::REGISTER_ACTION`) and call `register_promo()` there. Do not hook `init`.
+Hook `jetpack_premium_analytics_register_promos` and call `register_promo()` there. Do not hook `init`.
+
+Write the action as the literal string, not as `Promo_Registry::REGISTER_ACTION`. Another plugin may put an older copy of this package ahead of yours in the autoloader, and reading a constant off a class that copy does not have is a fatal error at `add_action()` time, before any version check inside your callback can run.
 
 The registry fires the action once, on its first read after `init`, whichever request makes that read: the dashboard page, or a REST request that runs later than `init`. A registrant hooked on `init` reaches one path and misses the other. A read before `init` is a `_doing_it_wrong()` and does not latch, so a registrant hooked later still runs on the first read after `init`.
 
 The action only fires from code that has loaded this package, so a callback on it needs no `function_exists()` guard. A registrant that may run twice guards with `$registry->is_registered( $slug )`.
 
 ```php
-use Automattic\Jetpack\PremiumAnalytics\Promo_Registry;
 use function Automattic\Jetpack\PremiumAnalytics\register_promo;
 
 add_action(
-	Promo_Registry::REGISTER_ACTION,
+	'jetpack_premium_analytics_register_promos',
 	static function () {
 		register_promo(
 			'acme/offer',
@@ -124,7 +125,7 @@ Register the module with `wp_register_script_module()` under the id passed as `r
 
 ```php
 add_action(
-	Promo_Registry::REGISTER_ACTION,
+	'jetpack_premium_analytics_register_promos',
 	static function () {
 		wp_register_script_module(
 			'acme/offer-card',
@@ -212,7 +213,7 @@ The major changes when a registrant built against the previous contract stops wo
 
 ```php
 add_action(
-	Promo_Registry::REGISTER_ACTION,
+	'jetpack_premium_analytics_register_promos',
 	static function () {
 		if ( ! defined( 'Automattic\\Jetpack\\PremiumAnalytics\\PROMO_API_VERSION' ) ) {
 			return;
