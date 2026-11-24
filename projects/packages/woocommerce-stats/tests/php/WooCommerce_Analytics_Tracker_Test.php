@@ -2,10 +2,10 @@
 /**
  * Tests for WooCommerce_Analytics_Tracker.
  *
- * @package automattic/jetpack-premium-analytics
+ * @package automattic/jetpack-woocommerce-stats
  */
 
-namespace Automattic\Jetpack\PremiumAnalytics;
+namespace Automattic\Jetpack\WooCommerceStats;
 
 use Automattic\Woocommerce_Analytics;
 use PHPUnit\Framework\Attributes\After;
@@ -13,7 +13,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
 /**
- * @covers \Automattic\Jetpack\PremiumAnalytics\WooCommerce_Analytics_Tracker
+ * @covers \Automattic\Jetpack\WooCommerceStats\WooCommerce_Analytics_Tracker
  */
 #[CoversClass( WooCommerce_Analytics_Tracker::class )]
 class WooCommerce_Analytics_Tracker_Test extends TestCase {

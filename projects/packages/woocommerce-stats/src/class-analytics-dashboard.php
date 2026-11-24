@@ -135,7 +135,7 @@ class Analytics_Dashboard {
 	const DASHBOARD_PAGE_INIT_ACTION = 'jetpack-premium-analytics-wp-admin_init';
 
 	/**
-	 * Register the sync opt-in, then hook both registrants on the dashboard's registry actions, the Bookings metric on the dashboard
+	 * Register the sync opt-in and the store tracker, then hook both registrants on the dashboard's registry actions, the Bookings metric on the dashboard
 	 * page, the reports proxy on REST requests and its cache reset on the end of the initial sync,
 	 * and the store currency on the script data.
 	 *
@@ -148,6 +148,7 @@ class Analytics_Dashboard {
 	 */
 	public static function init() {
 		Sync_Configuration::register();
+		WooCommerce_Analytics_Tracker::configure();
 
 		add_action( self::REGISTER_SECTIONS_ACTION, array( __CLASS__, 'register_section' ), 20 );
 		add_action( self::REGISTER_WIDGET_TYPES_ACTION, array( __CLASS__, 'register_widget_types' ), 20 );

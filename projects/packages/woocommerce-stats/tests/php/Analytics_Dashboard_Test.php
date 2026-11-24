@@ -43,6 +43,7 @@ class Analytics_Dashboard_Test extends BaseTestCase {
 		remove_action( Sync_Status_Tracker::MILESTONE_ACTION, array( Api_Proxy_Controller::class, 'clear_cache' ) );
 		remove_filter( 'jetpack_admin_js_script_data', array( Store_Currency::class, 'add_script_data' ), 20 );
 		remove_action( Analytics_Dashboard::DASHBOARD_PAGE_INIT_ACTION, array( Analytics_Dashboard::class, 'enqueue_store_performance_bookings' ) );
+		remove_action( 'after_setup_theme', array( WooCommerce_Analytics_Tracker::class, 'bootstrap' ) );
 		delete_option( 'active_plugins' );
 		wp_dequeue_script_module( Analytics_Dashboard::STORE_PERFORMANCE_BOOKINGS_MODULE );
 		wp_deregister_script_module( Analytics_Dashboard::STORE_PERFORMANCE_BOOKINGS_MODULE );
@@ -77,6 +78,12 @@ class Analytics_Dashboard_Test extends BaseTestCase {
 		Analytics_Dashboard::init();
 
 		$this->assertSame( 20, has_filter( 'jetpack_admin_js_script_data', array( Store_Currency::class, 'add_script_data' ) ) );
+	}
+
+	public function test_init_hooks_the_store_tracker() {
+		Analytics_Dashboard::init();
+
+		$this->assertSame( 10, has_action( 'after_setup_theme', array( WooCommerce_Analytics_Tracker::class, 'bootstrap' ) ) );
 	}
 
 	/**

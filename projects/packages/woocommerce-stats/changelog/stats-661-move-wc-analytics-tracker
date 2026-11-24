@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Start WooCommerce Analytics store tracking from the WooCommerce section, taking it over from Premium Analytics.

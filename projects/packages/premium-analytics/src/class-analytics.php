@@ -240,9 +240,6 @@ class Analytics {
 
 		AI_Traffic::register_feature_flag();
 
-		// Emit WooCommerce store events into the Woo pipeline (ClickHouse + proxy).
-		WooCommerce_Analytics_Tracker::configure();
-
 		// CSV report export pipeline (WOOA7S-1581): hooks rest_api_init, so it must
 		// register on all requests. Self-gates on WooCommerce + Jetpack connection.
 		Export::configure();
