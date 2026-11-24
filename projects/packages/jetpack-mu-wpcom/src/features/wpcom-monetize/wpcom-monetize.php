@@ -35,12 +35,12 @@ class WPCOM_Monetize extends WPCOM_Hosting_Feature_Page {
 	const ENABLE_ACTION = 'wpcom_enable_monetize_dashboard';
 
 	/**
-	 * Monetize needs no plan, so the page only ever offers to turn it back on.
+	 * Monetize needs no plan, so the page only offers to turn it back on, and only on its own request, as it exists to catch links.
 	 *
 	 * @return bool
 	 */
 	public static function should_register() {
-		return is_admin() && self::offers_enable();
+		return self::is_page_request() && self::offers_enable();
 	}
 
 	/**

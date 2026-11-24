@@ -490,17 +490,19 @@ class WPCOM_Hosting_Feature_Page_Test extends \WorDBless\BaseTestCase {
 	/**
 	 * Monetize needs no plan, so its page claims the slug only to offer turning a WoA site's module back on.
 	 *
-	 * @param bool $atomic    Whether the site is on WoA.
-	 * @param bool $available Whether the Jetpack plugin offers the module.
-	 * @param bool $active    Whether the module is on.
-	 * @param bool $registers Whether the page claims the slug.
+	 * @param bool   $atomic    Whether the site is on WoA.
+	 * @param bool   $available Whether the Jetpack plugin offers the module.
+	 * @param bool   $active    Whether the module is on.
+	 * @param string $page      The requested admin page.
+	 * @param bool   $registers Whether the page claims the slug.
 	 *
 	 * @dataProvider provide_monetize_dashboard_states
 	 */
 	#[DataProvider( 'provide_monetize_dashboard_states' )]
-	public function test_monetize_page_offers_only_to_turn_the_dashboard_on( $atomic, $available, $active, $registers ) {
+	public function test_monetize_page_offers_only_to_turn_the_dashboard_on( $atomic, $available, $active, $page, $registers ) {
 		$this->set_up_monetize_dashboard( $available, $active );
 		Constants::set_constant( 'IS_ATOMIC', $atomic );
+		$_GET['page'] = $page;
 
 		$this->assertSame( $registers, WPCOM_Monetize::should_register() );
 		if ( $registers ) {
@@ -517,12 +519,13 @@ class WPCOM_Hosting_Feature_Page_Test extends \WorDBless\BaseTestCase {
 	 */
 	public static function provide_monetize_dashboard_states() {
 		return array(
-			'module off'         => array( true, true, false, true ),
-			'module on'          => array( true, true, true, false ),
+			'module off'            => array( true, true, false, 'jetpack-monetize', true ),
+			'module on'             => array( true, true, true, 'jetpack-monetize', false ),
 			// As while the Monetize feature flag is off.
-			'module unavailable' => array( true, false, false, false ),
+			'module unavailable'    => array( true, false, false, 'jetpack-monetize', false ),
 			// Simple loads the dashboard itself.
-			'on Simple'          => array( false, true, false, false ),
+			'on Simple'             => array( false, true, false, 'jetpack-monetize', false ),
+			'on another admin page' => array( true, true, false, 'jetpack', false ),
 		);
 	}
 
@@ -554,7 +557,7 @@ class WPCOM_Hosting_Feature_Page_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Put a WoA admin request on a connected site with the Monetize module in the given state.
+	 * Put a WoA request for the Monetize page on a connected site with the Monetize module in the given state.
 	 *
 	 * @param bool $available Whether the Jetpack plugin offers the module.
 	 * @param bool $active    Whether the module is on.
@@ -563,6 +566,8 @@ class WPCOM_Hosting_Feature_Page_Test extends \WorDBless\BaseTestCase {
 	private function set_up_monetize_dashboard( $available, $active ) {
 		Constants::set_constant( 'IS_ATOMIC', true );
 		$GLOBALS['current_screen'] = \WP_Screen::get( 'dashboard' );
+		$GLOBALS['pagenow']        = 'admin.php';
+		$_GET['page']              = WPCOM_Monetize::MENU_SLUG;
 		if ( $available ) {
 			add_filter( 'jetpack_get_available_standalone_modules', fn( $modules ) => array_merge( $modules, array( 'monetize' ) ) );
 		}

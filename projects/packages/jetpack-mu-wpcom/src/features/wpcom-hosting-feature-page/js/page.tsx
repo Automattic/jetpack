@@ -23,6 +23,8 @@ import './style.scss';
  */
 export function HostingFeaturePage( { config }: { config: BaseFeatureConfig | FeatureConfig } ) {
 	const initialState = getInitialState();
+	// The other screens read the plan prompts' copy, which a feature without a plan has none of.
+	const isPlanFeature = 'upgrade' in config;
 
 	return (
 		<FeatureContext.Provider value={ config }>
@@ -34,9 +36,14 @@ export function HostingFeaturePage( { config }: { config: BaseFeatureConfig | Fe
 			>
 				<div className="wpcom-hosting-feature__body">
 					<div className="wpcom-hosting-feature__stage">
-						{ initialState.state === 'in_progress' && <InProgressScreen state={ initialState } /> }
-						{ initialState.state === 'activate' && <ActivateScreen state={ initialState } /> }
-						{ initialState.state === 'upgrade' &&
+						{ isPlanFeature && initialState.state === 'in_progress' && (
+							<InProgressScreen state={ initialState } />
+						) }
+						{ isPlanFeature && initialState.state === 'activate' && (
+							<ActivateScreen state={ initialState } />
+						) }
+						{ isPlanFeature &&
+							initialState.state === 'upgrade' &&
 							( initialState.checkoutPending ? (
 								<CheckoutPendingScreen state={ initialState } />
 							) : (

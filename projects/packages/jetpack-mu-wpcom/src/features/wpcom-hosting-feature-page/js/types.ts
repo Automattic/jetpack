@@ -82,7 +82,7 @@ export type BaseFeatureConfig = {
 	subTitle: string;
 	icon: ComponentProps< typeof Icon >[ 'icon' ];
 	/** Callout illustration URL. */
-	illustration?: string;
+	illustration: string;
 	/** The upsell and feature ID the matching dashboard page reports. */
 	tracksFeatureId: string;
 	/** This page's wp-admin path, which marks its Tracks events. */
