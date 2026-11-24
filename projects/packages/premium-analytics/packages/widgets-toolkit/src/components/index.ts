@@ -187,7 +187,6 @@ export {
 	getUtmUrlBuilderValues,
 	type UtmUrlBuilderValues,
 } from './utm-url-builder-dialog';
-export { WidgetDataTable, type WidgetDataTableProps } from './widget-data-table';
 export {
 	EarningsHistoryList,
 	type EarningsHistoryListProps,
