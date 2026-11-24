@@ -186,9 +186,8 @@ class Analytics_Dashboard {
 				'label'                   => __( 'WooCommerce', 'jetpack-woocommerce-stats-pkg' ),
 				'order'                   => self::SECTION_ORDER,
 				'is_available'            => array( __CLASS__, 'is_section_available' ),
-				// Nothing backfills historical orders to WordPress.com but the analytics full sync,
-				// which a disconnected site must not start.
-				'requires_sync'           => ! $runs_without_connection,
+				// Nothing backfills historical orders to WordPress.com but the analytics full sync.
+				'requires_sync'           => true,
 				'requires_connection'     => ! $runs_without_connection,
 				'notice'                  => $runs_without_connection
 					? static function () {

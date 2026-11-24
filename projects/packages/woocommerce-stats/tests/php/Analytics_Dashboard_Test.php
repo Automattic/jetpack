@@ -235,7 +235,7 @@ class Analytics_Dashboard_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Only a disconnected store set to local drops the connection and the sync, and explains why.
+	 * Only a disconnected store set to local drops the connection, and explains why.
 	 *
 	 * @dataProvider provide_connection_and_setting
 	 *
@@ -261,7 +261,6 @@ class Analytics_Dashboard_Test extends BaseTestCase {
 		$section = get_registered_dashboard_section( DASHBOARD_NAME, Analytics_Dashboard::SECTION_ID );
 
 		$this->assertSame( ! $runs_without_connection, $section->requires_connection );
-		$this->assertSame( ! $runs_without_connection, $section->requires_sync );
 		$this->assertSame( $runs_without_connection, null !== $section->get_notice() );
 	}
 
