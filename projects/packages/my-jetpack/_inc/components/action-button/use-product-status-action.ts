@@ -135,11 +135,11 @@ const useProductStatusAction = (
 	}, [ slug, installStandalonePlugin, recordEvent, tracksIdentifier ] );
 
 	const action: Partial< SecondaryButtonProps > = useMemo( () => {
-		// With nothing for sale, a product the site can upgrade gets the card of one it has.
+		// With nothing for sale, a product that would offer a plan gets the action of one the site has.
+		const offersPlan =
+			status === PRODUCT_STATUSES.CAN_UPGRADE || status === PRODUCT_STATUSES.NEEDS_PLAN;
 		const shownStatus =
-			status === PRODUCT_STATUSES.CAN_UPGRADE && hostSellsNothing( hostPurchaseUrl )
-				? PRODUCT_STATUSES.ACTIVE
-				: status;
+			offersPlan && hostSellsNothing( hostPurchaseUrl ) ? PRODUCT_STATUSES.ACTIVE : status;
 
 		switch ( shownStatus ) {
 			case PRODUCT_STATUSES.ABSENT: {
