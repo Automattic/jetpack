@@ -267,10 +267,15 @@ class Identity_Crisis {
 
 		$href = wp_nonce_url( add_query_arg( 'jetpack_idc_clear_confirmation', '1', self::get_admin_bar_button_target() ), 'jetpack_idc_clear_confirmation' );
 
-		$consumer_data = UI::get_consumer_data();
-		$label         = isset( $consumer_data['customContent']['adminBarSafeModeLabel'] )
-			? esc_html( $consumer_data['customContent']['adminBarSafeModeLabel'] )
-			: esc_html__( 'Jetpack Safe Mode', 'jetpack-connection' );
+		if ( self::is_new_screen_enabled() ) {
+			// The new screen names the connection the plugins share, so a plugin's own label no longer applies.
+			$label = esc_html__( 'Jetpack Connection Safe Mode', 'jetpack-connection' );
+		} else {
+			$consumer_data = UI::get_consumer_data();
+			$label         = isset( $consumer_data['customContent']['adminBarSafeModeLabel'] )
+				? esc_html( $consumer_data['customContent']['adminBarSafeModeLabel'] )
+				: esc_html__( 'Jetpack Safe Mode', 'jetpack-connection' );
+		}
 
 		$title = sprintf(
 			'<span class="jp-idc-admin-bar">%s %s</span>',
@@ -311,7 +316,7 @@ class Identity_Crisis {
 	/**
 	 * Style the admin bar item, in wp-admin and on the front end.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.18.3
 	 *
 	 * @return void
 	 */
@@ -943,7 +948,7 @@ class Identity_Crisis {
 	/**
 	 * Register the Safe Mode feature flags.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.18.3
 	 *
 	 * @return void
 	 */
@@ -961,7 +966,7 @@ class Identity_Crisis {
 	/**
 	 * Whether the Safe Mode surfaces show the shared screen.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.18.3
 	 *
 	 * @return bool
 	 */
@@ -985,7 +990,7 @@ class Identity_Crisis {
 	/**
 	 * Returns the mismatched URLs from the stored Safe Mode error, including once Safe Mode is confirmed.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.18.3
 	 *
 	 * @return array|bool The mismatched urls, or false if the site is not connected, offline, or the IDC error is not valid.
 	 */

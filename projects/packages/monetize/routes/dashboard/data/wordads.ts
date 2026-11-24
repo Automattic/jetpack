@@ -1,5 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { __ } from '@wordpress/i18n';
 import { ADS_ACCOUNT_KEY } from './ads-keys';
+import { showSuccessSnackbar } from './notices';
+import { trackAdsEvent } from './tracking';
 import { wpcomFetch } from './wpcom-fetch';
 import { WpcomApiError } from './wpcom-request';
 
@@ -68,12 +71,18 @@ export function useJoinWordAds() {
 				throw new WpcomApiError( 'not_approved', '' );
 			}
 		},
-		// So Settings, which it opens next, offers the switch without waiting on the refetch.
-		onSuccess: () =>
+		// Here, not in mutate()'s callbacks: those are skipped once the join prompt unmounts, which this causes.
+		onSuccess: () => {
+			trackAdsEvent( 'join' );
+			showSuccessSnackbar(
+				__( 'Your site joined WordAds. Turn on ads to start earning.', 'jetpack-monetize' )
+			);
+			// So Settings swaps the join prompt for the switch without waiting on the refetch.
 			queryClient.setQueryData< { approved?: boolean } >(
 				ADS_ACCOUNT_KEY,
 				prev => prev && { ...prev, approved: true }
-			),
+			);
+		},
 		onSettled: () => queryClient.invalidateQueries( { queryKey: ADS_ACCOUNT_KEY } ),
 	} );
 }

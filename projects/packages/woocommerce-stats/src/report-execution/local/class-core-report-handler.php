@@ -20,7 +20,7 @@ use WP_REST_Response;
  *
  * @internal
  *
- * @since $$next-version$$
+ * @since 0.5.0
  */
 abstract class Core_Report_Handler implements Report_Handler, Report_Capability, Report_Support, Report_Readiness {
 

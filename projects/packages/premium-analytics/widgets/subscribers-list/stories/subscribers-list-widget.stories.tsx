@@ -45,7 +45,7 @@ const meta = {
 		docs: {
 			description: {
 				component:
-					'Dashboard widget listing the most recent subscribers (avatar + name + relative "since" time) with an "N more" footer. Data comes from the designated `useStatsFollowers` hook; in Storybook it is served by `registerReportMocks`.',
+					'Dashboard widget listing the most recent subscribers (avatar + name + relative "since" time). Data comes from the designated `useStatsFollowers` hook; in Storybook it is served by `registerReportMocks`.',
 			},
 		},
 	},

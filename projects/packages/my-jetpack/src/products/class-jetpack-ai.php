@@ -632,7 +632,7 @@ class Jetpack_Ai extends Module_Product {
 	/**
 	 * Whether `jetpack_ai_enabled` holds AI off: the site's master switch, its host, or custom code.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.19.0
 	 *
 	 * @return bool
 	 */

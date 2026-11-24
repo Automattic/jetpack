@@ -378,7 +378,7 @@ class Indexnow_Events {
 		/**
 		 * Fires when queued URLs must be forgotten for restricted content.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.13.0
 		 * @param int $post_id Restricted content ID.
 		 */
 		do_action( 'jetpack_seo_indexnow_post_restricted', $post_id );
@@ -395,7 +395,7 @@ class Indexnow_Events {
 		/**
 		 * Fires when a public URL has a change eligible for IndexNow.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.13.0
 		 * @param string $url Known public URL.
 		 * @param int    $post_id Source post ID.
 		 * @param bool   $removed Whether the previous public representation was removed.

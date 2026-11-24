@@ -136,6 +136,7 @@ class Jetpack_Connector_Test extends TestCase {
 		$this->assertIsInt( has_action( 'wp_connectors_init', array( Jetpack_Connector::class, 'register_connector' ) ) );
 		$this->assertIsInt( has_action( 'admin_enqueue_scripts', array( Jetpack_Connector::class, 'enqueue_script_module' ) ) );
 		$this->assertIsInt( has_action( 'jetpack_client_authorize_error', array( Jetpack_Connector::class, 'store_auth_error' ) ) );
+		$this->assertIsInt( has_filter( 'jetpack_identity_crisis_show_notice', array( Jetpack_Connector::class, 'hide_safe_mode_notice' ) ) );
 	}
 
 	/**
@@ -654,6 +655,41 @@ class Jetpack_Connector_Test extends TestCase {
 
 		$this->assertNull( wp_script_modules()->get_registered( Jetpack_Connector::MODULE_ID ) );
 		$this->assertFalse( wp_style_is( 'jetpack-connector-card', 'enqueued' ) );
+	}
+
+	/**
+	 * Test that the Safe Mode notice is hidden only where the card shows.
+	 *
+	 * @param string $screen   The admin screen.
+	 * @param bool   $built    Whether the card's build is present.
+	 * @param bool   $expected Whether the notice shows.
+	 * @dataProvider provide_safe_mode_notice_pages
+	 */
+	#[DataProvider( 'provide_safe_mode_notice_pages' )]
+	public function test_hide_safe_mode_notice_only_where_the_card_shows( $screen, $built, $expected ) {
+		$restore = $this->stub_module_build( $built ? array( 'version' => 'test-card-version' ) : null );
+
+		try {
+			set_current_screen( $screen );
+			$show = Jetpack_Connector::hide_safe_mode_notice( true );
+		} finally {
+			$restore();
+		}
+
+		$this->assertSame( $expected, $show );
+	}
+
+	/**
+	 * Data provider for test_hide_safe_mode_notice_only_where_the_card_shows.
+	 *
+	 * @return array
+	 */
+	public static function provide_safe_mode_notice_pages() {
+		return array(
+			'Connectors page'                => array( 'options-connectors', true, false ),
+			'Connectors page, build missing' => array( 'options-connectors', false, true ),
+			'other page'                     => array( 'dashboard', true, true ),
+		);
 	}
 
 	/**

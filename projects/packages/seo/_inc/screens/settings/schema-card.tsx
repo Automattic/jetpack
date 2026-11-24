@@ -1,8 +1,6 @@
-// eslint-disable-next-line @wordpress/use-recommended-components -- Keep the existing breadcrumb control while adding the site entity.
-import { ToggleControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { code } from '@wordpress/icons';
-import { Button, Card, CollapsibleCard, Fieldset, Stack, Text } from '@wordpress/ui';
+import { Button, Card, CollapsibleCard, Fieldset, Stack, SwitchControl, Text } from '@wordpress/ui';
 import CardTitleIcon from '../../components/card-title-icon';
 import PausedNote from '../../components/paused-note';
 import StatusIndicator from '../../components/status-indicator';
@@ -134,21 +132,20 @@ function SchemaCard( { initialSettings, onSave, disabled = false }: Props ) {
 						) }
 					</Text>
 
-					<ToggleControl
+					<SwitchControl
 						label={ __( 'Breadcrumbs', 'jetpack-seo' ) }
-						help={ __(
+						description={ __(
 							'Add breadcrumb markup so search results can show where a page sits in your site (for example Home › Blog › Post).',
 							'jetpack-seo'
 						) }
 						checked={ breadcrumbList.enabled }
 						// eslint-disable-next-line react/jsx-no-bind
-						onChange={ next => {
+						onCheckedChange={ next => {
 							if ( ! disabled ) {
 								commitBreadcrumbList( { enabled: next } );
 							}
 						} }
 						disabled={ disabled || isSaving }
-						__nextHasNoMarginBottom
 					/>
 
 					{ /* Keep the entity selector and its fields in one visual group. */ }

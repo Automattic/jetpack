@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Dashboard: Hide the "Use license key" link where My Jetpack's add-license screen is turned off, such as in Offline Mode.

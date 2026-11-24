@@ -136,10 +136,12 @@ describe( 'SchemaCard', () => {
 			).toHaveAccessibleDescription( 'Paused while Yoast SEO is active.' );
 			for ( const control of [
 				...screen.getAllByRole( 'textbox' ),
-				...screen.getAllByRole( 'checkbox' ),
 				...screen.getAllByRole( 'radio' ),
 			] ) {
 				expect( control ).toBeDisabled();
+			}
+			for ( const control of screen.getAllByRole( 'switch' ) ) {
+				expect( control ).toHaveAttribute( 'aria-disabled', 'true' );
 			}
 			const saveLabel = siteRepresents === 'person' ? 'Save person' : 'Save schema settings';
 			expect( screen.getByRole( 'button', { name: saveLabel } ) ).toHaveAttribute(
@@ -154,7 +156,7 @@ describe( 'SchemaCard', () => {
 			// eslint-disable-next-line testing-library/prefer-user-event
 			fireEvent.click( screen.getByRole( 'button', { name: saveLabel } ) );
 			// eslint-disable-next-line testing-library/prefer-user-event
-			fireEvent.click( screen.getByRole( 'checkbox', { name: 'Breadcrumbs' } ) );
+			fireEvent.click( screen.getByRole( 'switch', { name: 'Breadcrumbs' } ) );
 			// eslint-disable-next-line testing-library/prefer-user-event
 			fireEvent.click(
 				screen.getByRole( 'radio', {
@@ -345,7 +347,7 @@ describe( 'SchemaCard', () => {
 
 		expect( screen.getByRole( 'textbox', { name: 'Short bio' } ) ).toBeInTheDocument();
 		// No local-business affordance, and no Organization fieldset, on this branch.
-		expect( screen.queryByRole( 'checkbox', { name: /local business/ } ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'switch', { name: /local business/ } ) ).not.toBeInTheDocument();
 		expect(
 			screen.queryByRole( 'group', { name: 'Organization details' } )
 		).not.toBeInTheDocument();
@@ -392,7 +394,7 @@ describe( 'SchemaCard', () => {
 		renderCard();
 		expandCard();
 
-		const toggle = screen.getByRole( 'checkbox', { name: 'Breadcrumbs' } );
+		const toggle = screen.getByRole( 'switch', { name: 'Breadcrumbs' } );
 		expect( toggle ).toBeChecked();
 
 		// eslint-disable-next-line testing-library/prefer-user-event -- single click; see note above.
@@ -407,7 +409,7 @@ describe( 'SchemaCard', () => {
 		renderCard();
 		expandCard();
 
-		const toggle = screen.getByRole( 'checkbox', { name: 'Breadcrumbs' } );
+		const toggle = screen.getByRole( 'switch', { name: 'Breadcrumbs' } );
 		expect( toggle ).not.toBeChecked();
 
 		// eslint-disable-next-line testing-library/prefer-user-event -- single click; see note above.
@@ -422,7 +424,7 @@ describe( 'SchemaCard', () => {
 		const nameField = screen.getByRole( 'textbox', { name: orgNameField } );
 		expect( nameField ).toHaveValue( '' );
 		expect( nameField ).toHaveAttribute( 'placeholder', 'Acme Co' );
-		expect( screen.getByRole( 'checkbox', { name: /local business/ } ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'switch', { name: /local business/ } ) ).toBeInTheDocument();
 	} );
 
 	it( 'adds an Organization social-profile row through the hook', () => {
@@ -456,7 +458,7 @@ describe( 'SchemaCard', () => {
 		expandCard();
 
 		// eslint-disable-next-line testing-library/prefer-user-event -- single click; see note above.
-		fireEvent.click( screen.getByRole( 'checkbox', { name: /local business/ } ) );
+		fireEvent.click( screen.getByRole( 'switch', { name: /local business/ } ) );
 
 		expect( setLocalBusinessField ).toHaveBeenCalledWith( { enabled: true } );
 	} );
@@ -520,7 +522,10 @@ describe( 'SchemaCard', () => {
 			'aria-disabled',
 			'true'
 		);
-		expect( screen.getByRole( 'checkbox', { name: 'Breadcrumbs' } ) ).toBeDisabled();
+		expect( screen.getByRole( 'switch', { name: 'Breadcrumbs' } ) ).toHaveAttribute(
+			'aria-disabled',
+			'true'
+		);
 	} );
 
 	it( 'enables the Save when a valid local business and valid profile links are set', () => {

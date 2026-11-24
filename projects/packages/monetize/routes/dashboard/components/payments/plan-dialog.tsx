@@ -13,6 +13,7 @@ import {
 } from '@wordpress/ui';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSavePlan } from '../../data/memberships';
+import { showSuccessSnackbar } from '../../data/notices';
 import { trackPaymentsEvent } from '../../data/tracking';
 import {
 	TIER_DESCRIPTION_MAX,
@@ -46,6 +47,7 @@ type PriceInputProps = {
 	value: number;
 	onChange: ( value: number ) => void;
 	description?: string;
+	disabled?: boolean;
 };
 
 /**
@@ -56,9 +58,10 @@ type PriceInputProps = {
  * @param props.value       - The starting price.
  * @param props.onChange    - Called with the price, 0 when blank.
  * @param props.description - Help or error text.
+ * @param props.disabled    - Whether the field is disabled.
  * @return The field.
  */
-function PriceInput( { label, value, onChange, description }: PriceInputProps ) {
+function PriceInput( { label, value, onChange, description, disabled }: PriceInputProps ) {
 	const [ text, setText ] = useState( () => String( value ) );
 	const onValueChange = useCallback(
 		( next: string ) => {
@@ -77,6 +80,7 @@ function PriceInput( { label, value, onChange, description }: PriceInputProps ) 
 			value={ text }
 			onValueChange={ onValueChange }
 			description={ description }
+			disabled={ disabled }
 		/>
 	);
 }
@@ -206,6 +210,13 @@ export default function PlanDialog( { plan, currencies, startAsTier = false, onC
 						interval: payload.interval,
 						currency: payload.currency,
 					} );
+					showSuccessSnackbar(
+						isEditing
+							? /* translators: %s: the plan's name. */
+								sprintf( __( 'Plan “%s” updated.', 'jetpack-monetize' ), payload.title )
+							: /* translators: %s: the plan's name. */
+								sprintf( __( 'Plan “%s” added.', 'jetpack-monetize' ), payload.title )
+					);
 					onClose();
 				},
 			}
@@ -248,6 +259,7 @@ export default function PlanDialog( { plan, currencies, startAsTier = false, onC
 							label={ __( 'Name', 'jetpack-monetize' ) }
 							value={ form.title }
 							onValueChange={ onTitleChange }
+							disabled={ isPending }
 							description={
 								errors.includes( 'title' )
 									? __( 'Enter a name.', 'jetpack-monetize' )
@@ -261,13 +273,14 @@ export default function PlanDialog( { plan, currencies, startAsTier = false, onC
 							label={ __( 'Paid newsletter tier', 'jetpack-monetize' ) }
 							checked={ form.isTier }
 							onCheckedChange={ onTierChange }
-							disabled={ isEditing }
+							disabled={ isEditing || isPending }
 						/>
 						{ form.isTier && (
 							<TextareaControl
 								label={ __( 'What subscribers get at this tier', 'jetpack-monetize' ) }
 								value={ form.description }
 								onChange={ onDescriptionChange }
+								disabled={ isPending }
 								placeholder={ __(
 									'e.g. Full archive access, community Q&A, and bonus newsletters',
 									'jetpack-monetize'
@@ -293,6 +306,7 @@ export default function PlanDialog( { plan, currencies, startAsTier = false, onC
 								items={ intervalItems }
 								value={ intervalItems.find( item => item.value === form.interval ) ?? null }
 								onValueChange={ onIntervalChange }
+								disabled={ isPending }
 							/>
 						) }
 						<SelectControl
@@ -300,7 +314,7 @@ export default function PlanDialog( { plan, currencies, startAsTier = false, onC
 							items={ currencyItems }
 							value={ currencyItems.find( item => item.value === form.currency ) ?? null }
 							onValueChange={ onCurrencyChange }
-							disabled={ currencyItems.length < 2 }
+							disabled={ isPending || currencyItems.length < 2 }
 						/>
 						<div className="jp-monetize-payments__prices">
 							<PriceInput
@@ -311,6 +325,7 @@ export default function PlanDialog( { plan, currencies, startAsTier = false, onC
 								}
 								value={ form.price }
 								onChange={ onPriceChange }
+								disabled={ isPending }
 								description={ errors.includes( 'price' ) ? priceError : undefined }
 							/>
 							{ form.isTier && (
@@ -318,6 +333,7 @@ export default function PlanDialog( { plan, currencies, startAsTier = false, onC
 									label={ __( 'Annual price', 'jetpack-monetize' ) }
 									value={ form.annualPrice }
 									onChange={ onAnnualPriceChange }
+									disabled={ isPending }
 									description={
 										errors.includes( 'annualPrice' )
 											? __(
@@ -343,6 +359,7 @@ export default function PlanDialog( { plan, currencies, startAsTier = false, onC
 							label={ __( 'Welcome message', 'jetpack-monetize' ) }
 							value={ form.welcomeMessage }
 							onChange={ onWelcomeChange }
+							disabled={ isPending }
 							placeholder={ __( 'Thank you for subscribing!', 'jetpack-monetize' ) }
 							description={
 								errors.includes( 'welcomeMessage' )
@@ -374,7 +391,7 @@ export default function PlanDialog( { plan, currencies, startAsTier = false, onC
 											) }
 											checked={ form.addToNewsletter }
 											onCheckedChange={ onNewsletterChange }
-											disabled={ isEditing }
+											disabled={ isEditing || isPending }
 										/>
 									) }
 									<SwitchControl
@@ -384,6 +401,7 @@ export default function PlanDialog( { plan, currencies, startAsTier = false, onC
 										) }
 										checked={ form.payWhatYouWant }
 										onCheckedChange={ onPayWhatYouWantChange }
+										disabled={ isPending }
 									/>
 									<SwitchControl
 										label={ __(
@@ -392,6 +410,7 @@ export default function PlanDialog( { plan, currencies, startAsTier = false, onC
 										) }
 										checked={ form.multiplePerUser }
 										onCheckedChange={ onMultipleChange }
+										disabled={ isPending }
 									/>
 								</Stack>
 							</Collapsible.Panel>

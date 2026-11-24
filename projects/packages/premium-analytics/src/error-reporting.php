@@ -17,7 +17,7 @@ use Automattic\Jetpack\Status\Host;
  * The logging was approved for WordPress.com users on WordPress.com sites (p2y3YZ-bzB-p2), and an
  * Atomic site can carry a local user with no WordPress.com account, so Atomic asks the connection.
  *
- * @since $$next-version$$
+ * @since 0.19.0
  *
  * @return bool
  */
@@ -38,7 +38,7 @@ function is_error_reporting_enabled(): bool {
  * The jetpack-mu-wpcom reporter sends every window error to the same endpoint with the full URL
  * and an unredacted stack, so both reporters on one screen file every error twice.
  *
- * @since $$next-version$$
+ * @since 0.19.0
  *
  * @param bool $delegated Whether another reporter already owns the screen.
  * @return bool
@@ -50,7 +50,7 @@ function delegate_wp_admin_error_reporting( $delegated ): bool {
 /**
  * Adds the error reporting gate, package version and script origins to JetpackScriptData.
  *
- * @since $$next-version$$
+ * @since 0.19.0
  *
  * @param array $data The script data passed by the assets package.
  * @return array
@@ -72,7 +72,7 @@ function add_error_reporting_script_data( array $data ): array {
 	 *
 	 * Packages that ship their own build for the dashboard add its base URL here.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.19.0
 	 *
 	 * @param string[] $origins Absolute URL prefixes, each ending in a slash.
 	 */
@@ -93,7 +93,7 @@ function add_error_reporting_script_data( array $data ): array {
  * An origin with no host, `/` or `https://` among them, would match every stack line of that shape,
  * so every error would look like dashboard code.
  *
- * @since $$next-version$$
+ * @since 0.19.0
  *
  * @param mixed  $filtered The filter result, which can be anything.
  * @param string $own      The package's own build origin.
