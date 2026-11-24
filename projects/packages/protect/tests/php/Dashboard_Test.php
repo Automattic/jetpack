@@ -40,6 +40,11 @@ class Dashboard_Test extends BaseTestCase {
 		self::reset_sections();
 	}
 
+	public function test_init_clears_ignores_when_a_plugin_or_theme_is_deleted() {
+		$this->assertNotFalse( has_action( 'deleted_plugin' ) );
+		$this->assertNotFalse( has_action( 'deleted_theme' ) );
+	}
+
 	/**
 	 * Leave no queued items or hooks behind.
 	 */
@@ -48,6 +53,8 @@ class Dashboard_Test extends BaseTestCase {
 		self::reset_sections();
 		remove_all_actions( 'admin_menu' );
 		remove_all_actions( 'rest_api_init' );
+		remove_all_actions( 'deleted_plugin' );
+		remove_all_actions( 'deleted_theme' );
 		remove_all_actions( 'doing_it_wrong_run' );
 		remove_all_filters( 'doing_it_wrong_trigger_error' );
 		remove_all_actions( 'admin_enqueue_scripts' );
