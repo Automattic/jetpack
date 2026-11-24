@@ -6,22 +6,13 @@ export type StatsSettings = {
 	admin_bar: boolean;
 	roles: string[];
 	count_roles: string[];
-	wpcom_reader_views_enabled: boolean;
 };
-
-type StatsOptions = Omit< StatsSettings, 'wpcom_reader_views_enabled' >;
 
 type SiteSettings = {
-	stats_options?: StatsOptions;
-	wpcom_reader_views_enabled?: boolean;
+	stats_options?: StatsSettings;
 };
 
-const ALL_SETTINGS: readonly ( keyof StatsSettings )[] = [
-	'admin_bar',
-	'roles',
-	'count_roles',
-	'wpcom_reader_views_enabled',
-];
+const ALL_SETTINGS: readonly ( keyof StatsSettings )[] = [ 'admin_bar', 'roles', 'count_roles' ];
 
 /**
  * The settings the site returned, once it has returned every one it offers.
@@ -34,13 +25,7 @@ function toSettings(
 	site: SiteSettings | null | undefined,
 	offered: readonly ( keyof StatsSettings )[]
 ): Partial< StatsSettings > | undefined {
-	const settings: Partial< StatsSettings > = {
-		...site?.stats_options,
-		...( site &&
-			'wpcom_reader_views_enabled' in site && {
-				wpcom_reader_views_enabled: Boolean( site.wpcom_reader_views_enabled ),
-			} ),
-	};
+	const settings: Partial< StatsSettings > = { ...site?.stats_options };
 	return offered.every( key => settings[ key ] !== undefined ) ? settings : undefined;
 }
 
@@ -52,13 +37,7 @@ function toSettings(
  * @return The site settings holding `values`.
  */
 function toSite( values: Partial< StatsSettings >, site: SiteSettings | undefined ): SiteSettings {
-	const { wpcom_reader_views_enabled: readerViews, ...options } = values;
-	return {
-		...( Object.keys( options ).length > 0 && {
-			stats_options: { ...site?.stats_options, ...options } as StatsOptions,
-		} ),
-		...( 'wpcom_reader_views_enabled' in values && { wpcom_reader_views_enabled: readerViews } ),
-	};
+	return { stats_options: { ...site?.stats_options, ...values } as StatsSettings };
 }
 
 /**

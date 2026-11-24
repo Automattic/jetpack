@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
+use Automattic\Jetpack\IdentityCrisis\UI;
 use Automattic\Jetpack\IdentityCrisis\URL_Secret;
 use Automattic\Jetpack\Status\Cache as StatusCache;
 use Jetpack_Options;
@@ -40,8 +41,7 @@ class Identity_Crisis_Test extends BaseTestCase {
 		StatusCache::clear();
 
 		// Reset IDC singleton.
-		$idc        = Identity_Crisis::init();
-		$reflection = new \ReflectionClass( $idc );
+		$reflection = new \ReflectionClass( Identity_Crisis::class );
 		$instance   = $reflection->getProperty( 'instance' );
 
 		// @todo Remove this call once we no longer need to support PHP <8.1.
@@ -56,7 +56,10 @@ class Identity_Crisis_Test extends BaseTestCase {
 		$_GET = array();
 		wp_set_current_user( 0 );
 		$GLOBALS['wp_styles']      = null;
+		$GLOBALS['wp_scripts']     = null;
 		$GLOBALS['show_admin_bar'] = null;
+		unset( $GLOBALS['current_screen'], $GLOBALS['wp_actions']['jetpack_identity_crisis_ui_init'] );
+		$this->reset_ui_consumers();
 	}
 
 	/**
@@ -2051,6 +2054,182 @@ class Identity_Crisis_Test extends BaseTestCase {
 		Identity_Crisis::$is_safe_mode_confirmed = true;
 
 		$this->assertNull( $this->render_admin_bar_button() );
+	}
+
+	/**
+	 * With the new screen, the admin bar item ignores a plugin's own label.
+	 *
+	 * @param bool   $use_new_screen Whether the `connection-idc-screen` flag is on.
+	 * @param string $expected       The label.
+	 *
+	 * @dataProvider data_provider_test_admin_bar_button_label
+	 */
+	#[DataProvider( 'data_provider_test_admin_bar_button_label' )]
+	public function test_admin_bar_button_label( $use_new_screen, $expected ) {
+		$this->set_current_user( true );
+		$consumers = static function () {
+			return array(
+				array(
+					'slug'          => 'woocommerce-payments',
+					'admin_page'    => '/wp-admin/admin.php?page=wc-admin',
+					'customContent' => array( 'adminBarSafeModeLabel' => 'WooPayments Safe Mode' ),
+				),
+			);
+		};
+		add_filter( 'jetpack_idc_consumers', $consumers );
+		add_filter( 'jetpack_feature_flag_enabled_' . Identity_Crisis::NEW_SCREEN_FLAG, $use_new_screen ? '__return_true' : '__return_false' );
+
+		$node = $this->render_admin_bar_button();
+
+		$this->assertStringContainsString( $expected, $node->title );
+	}
+
+	/**
+	 * Data provider for test_admin_bar_button_label.
+	 *
+	 * @return array
+	 */
+	public static function data_provider_test_admin_bar_button_label() {
+		return array(
+			'old screen' => array( false, 'WooPayments Safe Mode' ),
+			'new screen' => array( true, 'Jetpack Connection Safe Mode' ),
+		);
+	}
+
+	/**
+	 * With the new screen, Safe Mode loads the Tracks script only in wp-admin, and only when tracking is allowed.
+	 *
+	 * @param bool $use_new_screen   Whether the `connection-idc-screen` flag is on.
+	 * @param bool $tracking_allowed Whether the site has agreed to the terms of service.
+	 * @param bool $in_admin         Whether the page is in wp-admin.
+	 * @param bool $expected         Whether the script is enqueued.
+	 *
+	 * @dataProvider data_provider_test_ui_tracks_script
+	 */
+	#[DataProvider( 'data_provider_test_ui_tracks_script' )]
+	public function test_ui_tracks_script( $use_new_screen, $tracking_allowed, $in_admin, $expected ) {
+		$this->check_identity_crisis_return_error( array( 'test' ) );
+		Jetpack_Options::update_option( 'tos_agreed', $tracking_allowed );
+		add_filter( 'jetpack_feature_flag_enabled_' . Identity_Crisis::NEW_SCREEN_FLAG, $use_new_screen ? '__return_true' : '__return_false' );
+
+		UI::init();
+		if ( $in_admin ) {
+			require_once ABSPATH . 'wp-admin/includes/class-wp-screen.php';
+			require_once ABSPATH . 'wp-admin/includes/screen.php';
+			set_current_screen( 'dashboard' );
+			UI::enqueue_scripts();
+		}
+
+		$this->assertSame( $expected, wp_script_is( 'jp-tracks-functions', 'enqueued' ) );
+	}
+
+	/**
+	 * Data provider for test_ui_tracks_script.
+	 *
+	 * @return array
+	 */
+	public static function data_provider_test_ui_tracks_script() {
+		return array(
+			'old screen, tracking not allowed, front end' => array( false, false, false, true ),
+			'new screen, tracking allowed'                => array( true, true, true, true ),
+			'new screen, tracking allowed, front end'     => array( true, true, false, false ),
+			'new screen, tracking not allowed'            => array( true, false, true, false ),
+		);
+	}
+
+	/**
+	 * The notice loads the shared connection script, and its stylesheet, only to show the new screen.
+	 *
+	 * @param bool        $use_new_screen Whether the `connection-idc-screen` flag is on.
+	 * @param bool        $is_confirmed   Whether Safe Mode is confirmed.
+	 * @param string|null $container_id   A custom container, as My Jetpack sets one.
+	 * @param bool        $expected       Whether the notice loads `jetpack-connection` and its stylesheet.
+	 *
+	 * @dataProvider data_provider_test_ui_shared_script_dependency
+	 */
+	#[DataProvider( 'data_provider_test_ui_shared_script_dependency' )]
+	public function test_ui_shared_script_dependency( $use_new_screen, $is_confirmed, $container_id, $expected ) {
+		require_once ABSPATH . 'wp-admin/includes/class-wp-screen.php';
+		require_once ABSPATH . 'wp-admin/includes/screen.php';
+		set_current_screen( 'dashboard' );
+		// Stands in for Connection_Assets, registered with a stylesheet as Assets::register_script() does.
+		wp_register_script( 'jetpack-connection', 'https://example.org/jetpack-connection.js', array(), 'test', true );
+		wp_register_style( 'jetpack-connection', 'https://example.org/jetpack-connection.css', array(), 'test' );
+		wp_script_add_data( 'jetpack-connection', 'Jetpack::Assets::hascss', true );
+		add_filter( 'jetpack_feature_flag_enabled_' . Identity_Crisis::NEW_SCREEN_FLAG, $use_new_screen ? '__return_true' : '__return_false' );
+		Identity_Crisis::$is_safe_mode_confirmed = $is_confirmed;
+		add_filter(
+			'identity_crisis_container_id',
+			static function () use ( $container_id ) {
+				return $container_id;
+			}
+		);
+
+		UI::enqueue_scripts();
+
+		$this->assertSame( $expected, in_array( 'jetpack-connection', wp_scripts()->registered['jp_identity_crisis_banner']->deps, true ) );
+		$this->assertSame( $expected, wp_style_is( 'jetpack-connection', 'enqueued' ) );
+	}
+
+	/**
+	 * Data provider for test_ui_shared_script_dependency.
+	 *
+	 * @return array
+	 */
+	public static function data_provider_test_ui_shared_script_dependency() {
+		return array(
+			'old screen'                       => array( false, false, null, false ),
+			'new screen'                       => array( true, false, null, true ),
+			'new screen, Safe Mode confirmed'  => array( true, true, null, false ),
+			'new screen, My Jetpack container' => array( true, false, 'my-jetpack-identity-crisis-container', false ),
+		);
+	}
+
+	/**
+	 * With the new screen, a page that shows the screen itself can turn the notice off.
+	 *
+	 * @param bool $use_new_screen Whether the `connection-idc-screen` flag is on.
+	 * @param bool $show_notice    What the `jetpack_identity_crisis_show_notice` filter returns.
+	 * @param bool $expected       Whether the notice script is enqueued.
+	 *
+	 * @dataProvider data_provider_test_ui_show_notice_filter
+	 */
+	#[DataProvider( 'data_provider_test_ui_show_notice_filter' )]
+	public function test_ui_show_notice_filter( $use_new_screen, $show_notice, $expected ) {
+		require_once ABSPATH . 'wp-admin/includes/class-wp-screen.php';
+		require_once ABSPATH . 'wp-admin/includes/screen.php';
+		set_current_screen( 'dashboard' );
+		add_filter( 'jetpack_feature_flag_enabled_' . Identity_Crisis::NEW_SCREEN_FLAG, $use_new_screen ? '__return_true' : '__return_false' );
+		add_filter( 'jetpack_identity_crisis_show_notice', $show_notice ? '__return_true' : '__return_false' );
+
+		UI::enqueue_scripts();
+
+		$this->assertSame( $expected, wp_script_is( 'jp_identity_crisis_banner', 'enqueued' ) );
+	}
+
+	/**
+	 * Data provider for test_ui_show_notice_filter.
+	 *
+	 * @return array
+	 */
+	public static function data_provider_test_ui_show_notice_filter() {
+		return array(
+			'new screen, notice turned off' => array( true, false, false ),
+			'new screen, notice left on'    => array( true, true, true ),
+			'old screen, notice turned off' => array( false, false, true ),
+		);
+	}
+
+	/**
+	 * Forget the consumer UI::get_consumer_data() keeps for the rest of the request.
+	 */
+	private function reset_ui_consumers() {
+		$property = ( new \ReflectionClass( UI::class ) )->getProperty( 'consumers' );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$property->setAccessible( true );
+		}
+		$property->setValue( null, null );
 	}
 
 	/**

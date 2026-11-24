@@ -123,6 +123,7 @@ class Jetpack_Sitemap_Manager {
 		add_action( 'jetpack_activate_module_sitemaps', array( __CLASS__, 'callback_invalidate_index_cache' ) );
 		add_action( 'jetpack_deactivate_module_sitemaps', array( __CLASS__, 'callback_invalidate_index_cache' ) );
 		add_action( 'deleted_post', array( __CLASS__, 'callback_sitemap_deleted' ), 10, 2 );
+		add_action( 'deleted_post', array( $this, 'callback_action_news_post_deleted' ), 10, 2 );
 
 		// Add generator to wp_cron task list.
 		$this->schedule_sitemap_generation();
@@ -134,12 +135,12 @@ class Jetpack_Sitemap_Manager {
 			20
 		);
 
-		// The news sitemap is cached; here we add a callback to
-		// flush the cached news sitemap when a post is published.
+		// Keep cached news entries in sync with publication changes.
 		add_action(
-			'publish_post',
-			array( $this, 'callback_action_flush_news_sitemap_cache' ),
-			10
+			'transition_post_status',
+			array( $this, 'callback_action_news_publication_changed' ),
+			10,
+			3
 		);
 
 		// In case we need to purge all sitemaps, we do this.
@@ -726,6 +727,36 @@ class Jetpack_Sitemap_Manager {
 	}
 
 	/**
+	 * Invalidate news when an included post enters, leaves, or updates publication.
+	 *
+	 * @since $$next-version$$
+	 * @param string  $new_status New post status.
+	 * @param string  $old_status Previous post status.
+	 * @param WP_Post $post Updated post.
+	 */
+	public function callback_action_news_publication_changed( $new_status, $old_status, $post ) {
+		if ( 'publish' !== $new_status && 'publish' !== $old_status ) {
+			return;
+		}
+		/** This filter is documented in modules/sitemaps/sitemap-librarian.php. */
+		$post_types = apply_filters( 'jetpack_sitemap_news_sitemap_post_types', array( 'page', 'post' ) );
+		if ( in_array( $post->post_type, (array) $post_types, true ) ) {
+			$this->callback_action_flush_news_sitemap_cache();
+		}
+	}
+
+	/**
+	 * Invalidate news after an included published post is permanently deleted.
+	 *
+	 * @since $$next-version$$
+	 * @param int     $post_id Deleted post ID.
+	 * @param WP_Post $post Deleted post.
+	 */
+	public function callback_action_news_post_deleted( $post_id, $post ) {
+		$this->callback_action_news_publication_changed( 'delete', $post->post_status, $post );
+	}
+
+	/**
 	 * Callback to delete the news sitemap cache.
 	 *
 	 * @access public
@@ -733,6 +764,7 @@ class Jetpack_Sitemap_Manager {
 	 */
 	public function callback_action_flush_news_sitemap_cache() {
 		delete_transient( 'jetpack_news_sitemap_xml' );
+		delete_transient( 'jetpack_news_sitemap_xml_v2' );
 	}
 
 	/**

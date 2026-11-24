@@ -1320,7 +1320,7 @@ class Jetpack_Sitemap_Builder { // phpcs:ignore Generic.Files.OneObjectStructure
 
 	/**
 	 * Build and return the news sitemap xml. Note that the result of this
-	 * function is cached in the transient 'jetpack_news_sitemap_xml'.
+	 * function is cached in the transient 'jetpack_news_sitemap_xml_v2'.
 	 *
 	 * @access public
 	 * @since 4.8.0
@@ -1338,7 +1338,7 @@ class Jetpack_Sitemap_Builder { // phpcs:ignore Generic.Files.OneObjectStructure
 			return '';
 		}
 
-		$the_stored_news_sitemap = get_transient( 'jetpack_news_sitemap_xml' );
+		$the_stored_news_sitemap = get_transient( 'jetpack_news_sitemap_xml_v2' );
 
 		if ( false === $the_stored_news_sitemap ) {
 
@@ -1360,17 +1360,17 @@ class Jetpack_Sitemap_Builder { // phpcs:ignore Generic.Files.OneObjectStructure
 				JP_NEWS_SITEMAP_MAX_ITEMS
 			);
 
-			$posts = $this->librarian->query_most_recent_posts( $item_limit );
-			if ( empty( $posts ) ) {
-				$buffer->append( array( 'url' => array( 'loc' => home_url( '/' ) ) ) );
-			} else {
-				foreach ( $posts as $post ) {
-					$current_item = $this->post_to_news_sitemap_item( $post );
-
-					if ( $current_item['xml'] !== null && false === $buffer->append( $current_item['xml'] ) ) {
-						break;
-					}
+			$expires_at = time() + JP_NEWS_SITEMAP_INTERVAL;
+			$posts      = $this->librarian->query_most_recent_posts( $item_limit );
+			foreach ( (array) $posts as $post ) {
+				$current_item = $this->post_to_news_sitemap_item( $post );
+				if ( null === $current_item['xml'] ) {
+					continue;
 				}
+				if ( false === $buffer->append( $current_item['xml'] ) ) {
+					break;
+				}
+				$expires_at = min( $expires_at, strtotime( $post->post_date_gmt . ' UTC' ) + 2 * DAY_IN_SECONDS );
 			}
 
 			if ( $this->logger ) {
@@ -1380,9 +1380,9 @@ class Jetpack_Sitemap_Builder { // phpcs:ignore Generic.Files.OneObjectStructure
 			$the_stored_news_sitemap = $buffer->contents();
 
 			set_transient(
-				'jetpack_news_sitemap_xml',
+				'jetpack_news_sitemap_xml_v2',
 				$the_stored_news_sitemap,
-				JP_NEWS_SITEMAP_INTERVAL
+				max( 1, $expires_at - time() )
 			);
 		} // End if.
 

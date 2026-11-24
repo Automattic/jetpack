@@ -98,7 +98,7 @@ class Social_Abilities extends Registrar {
 		/**
 		 * Filters whether the Jetpack Social abilities register. Defaults to whether the Publicize module is active.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.90.0
 		 *
 		 * @param bool $should_load Whether to register the Jetpack Social abilities.
 		 */

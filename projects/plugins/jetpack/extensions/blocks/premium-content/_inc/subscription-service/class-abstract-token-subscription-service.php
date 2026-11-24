@@ -820,7 +820,7 @@ abstract class Abstract_Token_Subscription_Service implements Subscription_Servi
 	 * isn't signed straight back in from their WordPress.com session. The check's script
 	 * reads this cookie, so it can't be httponly.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.5
 	 */
 	public static function pause_silent_subscriber_check() {
 		$_COOKIE[ self::SILENT_SUBSCRIBER_CHECK_COOKIE ] = '1';

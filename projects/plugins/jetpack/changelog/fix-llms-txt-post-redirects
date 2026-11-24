@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-SEO: Keep `llms.txt` from redirecting to posts, including before generation is enabled.

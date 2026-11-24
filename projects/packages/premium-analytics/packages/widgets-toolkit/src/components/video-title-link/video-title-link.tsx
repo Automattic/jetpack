@@ -24,6 +24,9 @@ export type VideoTitleLinkProps = {
 		text?: string;
 	};
 	title?: string;
+
+	/** The id of an element that describes the link; the plain text takes none. */
+	ariaDescribedBy?: string;
 	/** Replaces the default label text inside the link or plain wrapper. */
 	children?: ReactNode;
 };
@@ -39,6 +42,7 @@ export function VideoTitleLink( {
 	search,
 	classNames,
 	title,
+	ariaDescribedBy,
 	children,
 }: VideoTitleLinkProps ): JSX.Element {
 	const videoId = toDetailId( id );
@@ -49,6 +53,7 @@ export function VideoTitleLink( {
 			<InternalLink
 				className={ classNames?.internal }
 				title={ title }
+				ariaDescribedBy={ ariaDescribedBy }
 				to="/report/$kind/$id"
 				params={ { kind: 'video', id: String( videoId ) } }
 				search={ search }
@@ -64,7 +69,12 @@ export function VideoTitleLink( {
 
 	if ( href ) {
 		return (
-			<ExternalLink className={ classNames?.external } href={ href } title={ title }>
+			<ExternalLink
+				className={ classNames?.external }
+				href={ href }
+				title={ title }
+				ariaDescribedBy={ ariaDescribedBy }
+			>
 				{ content }
 			</ExternalLink>
 		);

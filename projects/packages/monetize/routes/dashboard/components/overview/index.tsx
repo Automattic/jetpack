@@ -1,4 +1,5 @@
-import { Stack } from '@wordpress/ui';
+import { __ } from '@wordpress/i18n';
+import { Stack, Text } from '@wordpress/ui';
 import ConnectionGate from '../connection-gate';
 import EarningsCard from './earnings-card';
 import PromoCards from './promo-cards';
@@ -19,7 +20,12 @@ export default function Overview( { openTab }: { openTab: ( tab: TabValue ) => v
 			<ConnectionGate>
 				<EarningsCard />
 			</ConnectionGate>
-			<PromoCards openTab={ openTab } />
+			<Stack direction="column" gap="lg">
+				<Text variant="heading-lg" render={ <h2 /> }>
+					{ __( 'Ways to earn', 'jetpack-monetize' ) }
+				</Text>
+				<PromoCards openTab={ openTab } />
+			</Stack>
 		</Stack>
 	);
 }

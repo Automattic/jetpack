@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Admin shell: Fix edge cases in the turned-off feature panel, such as a late feature check overruling a newer one, or hover preloading a page that is turned off.

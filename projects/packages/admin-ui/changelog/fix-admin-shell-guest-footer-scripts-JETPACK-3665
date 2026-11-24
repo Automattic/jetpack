@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Admin shell: Stop other plugins' footer scripts from running again each time a dashboard opens.

@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Jetpack AI: Keep the "Improve with AI" tools for people who cannot turn on the WordPress Agent, instead of linking them to a page they cannot open.

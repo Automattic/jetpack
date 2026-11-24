@@ -862,6 +862,23 @@ class Jetpack_Reader_Chat_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Test that the config carries the site locale, whatever the viewer's own locale is.
+	 */
+	public function test_config_locale_is_the_site_locale() {
+		$user_id = self::factory()->user->create( array( 'locale' => 'fr_FR' ) );
+		wp_set_current_user( $user_id );
+		$set_site_locale = function () {
+			return 'nl_NL';
+		};
+		add_filter( 'locale', $set_site_locale );
+
+		$config = $this->get_enqueued_config();
+
+		remove_filter( 'locale', $set_site_locale );
+		$this->assertSame( 'nl_NL', $config['locale'] );
+	}
+
+	/**
 	 * Test that currentPost is NOT present on a non-singular view.
 	 */
 	public function test_config_has_no_current_post_on_non_singular() {

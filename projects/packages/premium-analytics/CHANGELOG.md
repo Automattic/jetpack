@@ -5,6 +5,42 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.19.0] - 2026-11-23
+### Added
+- Add a feature flag for the AI tab. [#55284]
+- Dashboard: Add a What's new teaser with the announcements of the dashboard, behind a feature flag that is off by default. [#55054]
+- Dashboard: Track how readers use the Arrange tabs dialog. [#54983]
+- Date control: Add a zoom-out button beside the arrows that returns to the period a chart was zoomed in from. [#54774]
+- Email tabs: Add a time-since-send control to the opens and clicks charts on the post page's email tabs: the first 24 hours by the hour, the first week or 30 days by the day, or all time by the month. [#54835]
+- Join the Jetpack admin shell, so switching to and from Stats does not reload the page. [#54915]
+- Reload the analytics dashboard once when part of it fails to load after an update, instead of showing an error. [#54669]
+- Report uncaught dashboard JavaScript errors to WordPress.com for WordPress.com users on WordPress.com Simple and Atomic sites. [#54669]
+- Settings: Add a switch that turns the What's new teaser off, behind the feature flag of the teaser. [#55245]
+- Single-report pages: Add a report for an individual page at /report/page/<id>, with the same sections as a post. [#54991]
+
+### Changed
+- Dashboard: Let another plugin load the dashboard API and the shared script modules without booting Stats v2. [#55149]
+- Dashboard: Show a What's new announcement only on the pages it is published for, with a channel per page. [#55255]
+- Single-report pages: Offer a post type's page only where the type is registered in REST, and give the page report its own section and cards. [#55152]
+- Stats: Retire the classic Stats page by default, so Stats and old Stats links open the new Stats on every site. [#55286]
+- Stats options menu: Rename the page options menu to Stats options, and show it on the report, connect and upgrade pages so Settings can be reached from every page. [#55086]
+
+### Removed
+- Settings: Remove the WordPress.com Reader "Show post views for this site" setting, which no longer has any effect. [#54987]
+
+### Fixed
+- Charts: Decide a percentage axis from the series the legend leaves visible, so hiding a rate above 100% returns the others to a 0% to 100% axis. [#54979]
+- Charts: Name a whole month by its month and year in tooltips, not by its first day. [#55330]
+- Date control: Step from a chart bar clicked today by the bar's own unit, so the arrows land on the whole of yesterday, last week or last month. [#54777]
+- Draw the legend labels and values in breakdown charts such as Devices, and the links in a video's Used on posts & pages card, at the same 14px size as the rest of the widget text. [#55235]
+- Keep the days, the Locations tab and the video an old Stats link names when it opens the dashboard. [#54981]
+- Number formatting: Keep the decimal in short figures shown in lakh, crore or 万, so 9.5 lakh no longer shows as 9 lakh. [#55288]
+- Open the matching report for old Stats links to a summary page, such as referrers or search terms, and today by the hour for the old hourly Traffic link, instead of the Traffic tab or the dashboard root. [#54935]
+- Stop the customize buttons covering the breadcrumb trail on a narrow screen. [#55138]
+- Top pages: Mark the posts and pages published in the selected period, as classic Stats did. [#55166]
+- Traffic chart: Open today's bar over the whole day, so its hourly chart keeps 24 bars all day. [#55072]
+- Upgrade page: Price the Stats tiers for the visitor's location instead of the site's server when the user has not connected a WordPress.com account. [#55296]
+
 ## [0.18.0] - 2026-11-16
 ### Added
 - Add Download CSV to the Devices and Top platforms cards. [#54843]
@@ -805,6 +841,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - VideoPress: Add a video detail page with plays leaderboard, video highlights, and embed locations. [#50311] [#50536]
 - WordAds: Add widgets for ads served, average CPM and revenue over time, all-time earnings highlights, and earnings, sponsored content and adjustments history. [#50314] [#50490]
 
+[0.19.0]: https://github.com/Automattic/jetpack-premium-analytics/compare/0.18.0...0.19.0
 [0.18.0]: https://github.com/Automattic/jetpack-premium-analytics/compare/0.17.0...0.18.0
 [0.17.0]: https://github.com/Automattic/jetpack-premium-analytics/compare/0.16.0...0.17.0
 [0.16.0]: https://github.com/Automattic/jetpack-premium-analytics/compare/0.15.0...0.16.0

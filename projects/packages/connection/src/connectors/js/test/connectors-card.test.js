@@ -37,6 +37,10 @@ jest.mock( '@automattic/jetpack-connection', () => {
 		TransferConnectionOwnership: stub( 'transfer-ownership' ),
 		ProtectedOwnerConfirmation: stub( 'protected-owner-confirmation' ),
 		ProtectedOwnerRelease: stub( 'protected-owner-release' ),
+		IdentityCrisis: jest.fn( ( { hostActions } ) =>
+			createElement( 'div', { 'data-testid': 'identity-crisis' }, hostActions )
+		),
+		onIdentityCrisisActionSuccess: jest.fn(),
 	};
 } );
 
@@ -96,7 +100,7 @@ const brokenOwner = {
  * @param {object} options.data        - The card's script module data.
  * @param {string} options.search      - The page's query string.
  * @param {object} options.errorNotice - What useConnectionErrorNotice() returns.
- * @return {object} A user-event instance, this load's mocked connection package and its decorateAuthUrl spy.
+ * @return {object} A user-event instance, this load's mocked connection package and the card-state URL spies.
  */
 function renderCard( { state = connectedAsOwner, data = {}, search = '', errorNotice } = {} ) {
 	window.JP_CONNECTION_INITIAL_STATE = state;
@@ -112,7 +116,11 @@ function renderCard( { state = connectedAsOwner, data = {}, search = '', errorNo
 	jest.doMock( 'react', () => React );
 	jest.doMock( '../card-state.mjs', () => {
 		const actual = jest.requireActual( '../card-state.mjs' );
-		return { ...actual, decorateAuthUrl: jest.fn( actual.decorateAuthUrl ) };
+		return {
+			...actual,
+			decorateAuthUrl: jest.fn( actual.decorateAuthUrl ),
+			withSkipPricing: jest.fn( actual.withSkipPricing ),
+		};
 	} );
 	const connection = require( '@automattic/jetpack-connection' );
 	if ( errorNotice ) {
@@ -123,8 +131,13 @@ function renderCard( { state = connectedAsOwner, data = {}, search = '', errorNo
 	const { render: Card, ...props } = registerConnector.mock.calls[ 0 ][ 1 ];
 
 	render( React.createElement( Card, props ) );
-	const { decorateAuthUrl } = require( '../card-state.mjs' );
-	return { user: userEvent.setup(), connection, decorateAuthUrl };
+	const { decorateAuthUrl, withSkipPricing } = require( '../card-state.mjs' );
+	return {
+		user: userEvent.setup(),
+		connection,
+		decorateAuthUrl,
+		withSkipPricing,
+	};
 }
 
 /**
@@ -635,6 +648,86 @@ describe( 'Connectors card', () => {
 			expect( connection.bumpConnectionStat.mock.calls ).toEqual(
 				bumped ? [ [ 'jetpack-idc', 'migrate' ] ] : []
 			);
+		} );
+	} );
+
+	describe( 'new Safe Mode screen', () => {
+		const newScreen = {
+			...connectedAsOwner,
+			connectionStatus: { ...connectedStatus, isInSafeMode: true },
+			identityCrisis: { useNewScreen: true, isSafeModeConfirmed: false, canResolve: true },
+		};
+
+		/**
+		 * Open the card's Safe Mode screen.
+		 *
+		 * @param {object} data   - The card's script module data.
+		 * @param {string} search - The page's query string.
+		 * @return {Promise<object>} The user-event instance, the props the screen got and the card-state URL spies.
+		 */
+		async function openScreen( data = {}, search = '' ) {
+			const { user, connection, ...spies } = renderCard( {
+				state: newScreen,
+				data,
+				search,
+			} );
+			await user.click( screen.getByRole( 'button', { name: 'Resolve' } ) );
+			return {
+				user,
+				connection,
+				props: connection.IdentityCrisis.mock.calls.at( -1 )[ 0 ],
+				...spies,
+			};
+		}
+
+		it.each( [
+			[ 'offers', {}, true ],
+			[ 'does not offer on WoA', { isWoaSite: true }, false ],
+		] )( 'replaces the Safe Mode panel, and %s Disconnect', async ( _, data, hasDisconnect ) => {
+			const { props } = await openScreen( { redirectUri: 'options-connectors.php', ...data } );
+
+			expect( props ).toMatchObject( {
+				context: 'connectors',
+				showHeader: false,
+				redirectUri: 'options-connectors.php',
+				from: 'connection_safe_mode_connectors',
+			} );
+			expect( screen.queryByRole( 'button', { name: 'Update address' } ) ).not.toBeInTheDocument();
+			expect( Boolean( screen.queryByRole( 'button', { name: 'Disconnect site' } ) ) ).toBe(
+				hasDisconnect
+			);
+		} );
+
+		it( 'after a fresh connection, goes to the connect URL with only skip_pricing added', async () => {
+			const { props, connection, decorateAuthUrl, withSkipPricing } = await openScreen();
+
+			act( () => props.onActionSuccess( { action: 'start-fresh', connectUrl: AUTH_URL } ) );
+
+			await expectNavigation();
+			// The endpoint already put `from` in the URL.
+			expect( decorateAuthUrl ).not.toHaveBeenCalled();
+			expect( withSkipPricing ).toHaveBeenCalledWith( AUTH_URL );
+			expect( connection.onIdentityCrisisActionSuccess ).not.toHaveBeenCalled();
+		} );
+
+		it.each( [ 'confirm-safe-mode', 'migrate' ] )(
+			"hands %s to the screen's default, and keeps its default done button",
+			async action => {
+				const { props, connection } = await openScreen();
+
+				props.onActionSuccess( { action } );
+
+				expect( connection.onIdentityCrisisActionSuccess ).toHaveBeenCalledWith( { action } );
+				expect( props.onMigratedDone ).toBeUndefined();
+			}
+		);
+
+		it( "opens the card's own disconnect dialog", async () => {
+			const { user } = await openScreen();
+
+			await user.click( screen.getByRole( 'button', { name: 'Disconnect site' } ) );
+
+			expect( screen.getByTestId( 'disconnect-dialog' ) ).toBeInTheDocument();
 		} );
 	} );
 

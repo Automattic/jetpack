@@ -2,11 +2,10 @@
 
 /* eslint-disable react/jsx-no-bind */
 
-import { TextControl } from '@wordpress/components';
 import { useCallback, useMemo, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { title as titleIcon } from '@wordpress/icons';
-import { Button, Card, CollapsibleCard, Stack, Text } from '@wordpress/ui';
+import { Button, Card, CollapsibleCard, InputControl, Stack, Text } from '@wordpress/ui';
 import CardTitleIcon from '../../components/card-title-icon';
 import PausedNote from '../../components/paused-note';
 import StatusIndicator from '../../components/status-indicator';
@@ -127,15 +126,13 @@ const TitleStructureRow: FC< RowProps > = ( {
 
 	return (
 		<Stack direction="column" gap="md" className={ styles.row }>
-			<TextControl
+			<InputControl
 				ref={ inputRef }
 				label={ label }
 				value={ value }
 				placeholder={ defaultPlaceholder }
-				onChange={ setFromString }
+				onValueChange={ setFromString }
 				disabled={ disabled }
-				__next40pxDefaultSize
-				__nextHasNoMarginBottom
 			/>
 			<Stack direction="column" gap="xs">
 				<Text variant="body-sm" className={ styles.muted }>

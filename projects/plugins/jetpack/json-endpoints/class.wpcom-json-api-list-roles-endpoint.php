@@ -151,7 +151,7 @@ class WPCOM_JSON_API_List_Roles_Endpoint extends WPCOM_JSON_API_Endpoint {
 			}
 		}
 
-		usort( $roles, array( 'self', 'role_sort' ) );
+		usort( $roles, array( self::class, 'role_sort' ) );
 
 		/**
 		 * Filter for curating the list of roles available for a wpcom site.
