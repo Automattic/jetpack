@@ -607,29 +607,11 @@ class Tiled_Gallery {
 		// Build table cells for columns layout
 		$row_cells = '';
 		foreach ( $column_arrays as $column_index => $column_images ) {
-			$cell_width_percent = self::get_cell_width_percent( $column_widths[ $column_index ], $cell_padding, $target_width );
-
-			if ( empty( $column_images ) ) {
-				// Add empty cell for balance
-				$cell_attrs = array(
-					'style' => sprintf(
-						'width: %s%%; padding: %dpx; vertical-align: top;',
-						$cell_width_percent,
-						$cell_padding
-					),
-				);
-				$row_cells .= \Automattic\WooCommerce\EmailEditor\Integrations\Utils\Table_Wrapper_Helper::render_table_cell(
-					'',
-					$cell_attrs
-				);
-				continue;
-			}
-
-			// Calculate cell attributes
+			// An empty column still gets its cell, for balance.
 			$cell_attrs = array(
 				'style' => sprintf(
 					'width: %s%%; padding: %dpx; vertical-align: top;',
-					$cell_width_percent,
+					self::get_cell_width_percent( $column_widths[ $column_index ], $cell_padding, $target_width ),
 					$cell_padding
 				),
 			);
@@ -988,7 +970,7 @@ class Tiled_Gallery {
 	 * @param string $max_width CSS max-width value.
 	 * @return string CSS style string.
 	 */
-	private static function generate_image_styles( $max_width = '100%' ) {
+	private static function generate_image_styles( $max_width ) {
 		return 'margin: 0; width: 100%; max-width: ' . $max_width . '; display: block; height: auto;';
 	}
 

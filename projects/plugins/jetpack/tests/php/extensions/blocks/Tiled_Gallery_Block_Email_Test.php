@@ -175,6 +175,15 @@ class Tiled_Gallery_Block_Email_Test extends WP_UnitTestCase {
 				array( '100', '100', '100' ),
 				false,
 			),
+			// The 3:1 panorama opens the gallery alone at 736px / 3 = 245px tall; the landscapes share 732px at 244px tall.
+			'a panorama opens the gallery'       => array(
+				array(),
+				'ids',
+				array( array( 900, 300 ), array( 600, 400 ), array( 600, 400 ) ),
+				array( array( '736', '245' ), array( '366', '244' ), array( '366', '244' ) ),
+				array( '100', '50', '50' ),
+				false,
+			),
 			// The image without dimensions counts as square, 728px / ( 1.5 + 1 + 1 ) = 208px tall, but gets no height.
 			'images attribute, one size unknown' => array(
 				array(),
