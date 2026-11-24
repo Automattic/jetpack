@@ -135,9 +135,9 @@ class Analytics_Dashboard {
 	const DASHBOARD_PAGE_INIT_ACTION = 'jetpack-premium-analytics-wp-admin_init';
 
 	/**
-	 * Register the sync opt-in and the store tracker, then hook both registrants on the dashboard's registry actions, the Bookings metric on the dashboard
-	 * page, the reports proxy on REST requests and its cache reset on the end of the initial sync,
-	 * and the store currency on the script data.
+	 * Register the sync opt-in and start store tracking, then hook the section and widget-type registrants on the dashboard's registry
+	 * actions, the Bookings metric on the dashboard page, the reports proxy on REST requests and its cache reset on the end of the
+	 * initial sync, and the store currency on the script data.
 	 *
 	 * Priority 20, after the dashboard package's own registrants: an older package that still
 	 * registers the section itself is found by slug and left alone.

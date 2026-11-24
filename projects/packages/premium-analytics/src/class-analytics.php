@@ -74,7 +74,7 @@ class Analytics {
 	 * notices, sync bootstrap, and the dashboard support routes itself.
 	 *
 	 * Hosts call this on every request once the flag is on, never only on admin ones: the
-	 * store-event tracker listens on the front end. {@see self::load_dashboard_surface()} is what
+	 * Jetpack Stats tracker listens on the front end. {@see self::load_dashboard_surface()} is what
 	 * keeps the admin-only work off those requests.
 	 *
 	 * @param array $options Optional configuration options.
