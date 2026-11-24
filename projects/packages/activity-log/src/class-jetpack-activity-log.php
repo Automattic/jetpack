@@ -267,7 +267,10 @@ class Jetpack_Activity_Log {
 				'Activity Log',
 				'manage_options',
 				self::PAGE_SLUG,
-				$render_callback
+				$render_callback,
+				null,
+				// The admin shell reads this to check the module is still on each time the page is opened.
+				array( 'module' => 'activity-log' )
 			);
 		}
 

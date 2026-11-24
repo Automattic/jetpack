@@ -30,6 +30,14 @@ export async function resetFake( testUtils: TestUtils ) {
 		'e2e_backup_capabilities_status',
 		'200',
 	] );
+	// The dashboard caches these reads, which would answer before the fake is asked.
+	for ( const transient of [
+		'jetpack_backup_capabilities',
+		'jetpack_backup_site_size',
+		'jetpack_backup_site_policies',
+	] ) {
+		await testUtils.executeWpCommand( [ 'transient', 'delete', transient ] );
+	}
 }
 
 /**

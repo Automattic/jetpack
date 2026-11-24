@@ -14,7 +14,6 @@ import type { ConnectionState } from '../../../hooks/use-connection-state';
 import type { ReactElement } from 'react';
 
 jest.mock( '@wordpress/api-fetch' );
-jest.mock( '../../../hooks/use-analytics' );
 jest.mock( '../../../hooks/use-connection-state' );
 jest.mock( '../../../hooks/use-my-jetpack-connection' );
 jest.mock( '../../../data/notices/use-fetching-error-notice', () => ( {
@@ -335,6 +334,62 @@ describe( 'HeaderControls', () => {
 		);
 	} );
 
+	it.each( [
+		[ 'Connect my account', 'link', { action: 'CONNECT_USER' }, 'connect_user' ],
+		[ 'Connect site', 'link', { action: 'CONNECT_SITE' }, 'connect_site' ],
+		[
+			'Manage connection',
+			'link',
+			{ manageConnection: { type: 'link', url: 'https://example.com/connectors' } },
+			'manage_connection',
+		],
+		[
+			'Manage connection',
+			'button',
+			{ manageConnection: { type: 'dialog' } },
+			'manage_connection',
+		],
+	] as const )(
+		'records opening the control and "%s" (%s) with the host page and connection state',
+		async ( name, role, overrides, action ) => {
+			mockUseConnectionState.mockReturnValue(
+				stateWith( { id: 'user-not-connected', status: 'warning', ...overrides } )
+			);
+			render( <HeaderControls trackingContext="boost" /> );
+			const properties = { context: 'boost', connection_state: 'user-not-connected' };
+
+			const dialog = await openControl();
+
+			expect( mockRecordEvent ).toHaveBeenCalledWith(
+				'jetpack_myjetpack_header_connection_open',
+				properties
+			);
+
+			const control = within( dialog ).getByRole( role, { name } );
+			control.addEventListener( 'click', event => event.preventDefault() );
+			await userEvent.click( control );
+
+			expect( mockRecordEvent ).toHaveBeenCalledWith(
+				'jetpack_myjetpack_header_connection_action_click',
+				{ ...properties, action }
+			);
+		}
+	);
+
+	it( 'records each open of the control, but not its close', async () => {
+		render( <HeaderControls trackingContext="my-jetpack" /> );
+
+		await openControl();
+		await userEvent.keyboard( '{Escape}' );
+		await waitFor( () => expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument() );
+		await openControl();
+
+		const opens = mockRecordEvent.mock.calls.filter(
+			( [ event ] ) => event === 'jetpack_myjetpack_header_connection_open'
+		);
+		expect( opens ).toHaveLength( 2 );
+	} );
+
 	it( 'loads the plan once, on first open', async () => {
 		render( <HeaderControls trackingContext="my-jetpack" /> );
 
@@ -366,7 +421,7 @@ describe( 'HeaderControls', () => {
 		expect( mockApiFetch ).not.toHaveBeenCalled();
 	} );
 
-	it( "tags the plan links' Tracks events as from the header", async () => {
+	it( "tags the plan links' Tracks events with the header and its host page", async () => {
 		window.myJetpackInitialState = {
 			userIsAdmin: true,
 			myJetpackFlags: {},
@@ -377,19 +432,27 @@ describe( 'HeaderControls', () => {
 				ID: 1,
 				product_name: 'Jetpack Search',
 				product_slug: 'jetpack_search',
-				expiry_date: null,
-				expiry_status: 'active',
+				expiry_date: '2027-01-28T00:00:00+00:00',
+				expiry_status: 'expiring',
 				subscribed_date: '2025-11-05T00:00:00+00:00',
 				domain: 'example.com',
 			},
 		] );
-		render( <HeaderControls trackingContext="my-jetpack" /> );
+		render( <HeaderControls trackingContext="boost" /> );
 
 		await openControl();
 		await userEvent.click( await screen.findByRole( 'link', { name: /Manage your plan/ } ) );
+		await userEvent.click( screen.getByRole( 'link', { name: /Renew/ } ) );
 
 		expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_myjetpack_plans_manage_click', {
 			location: 'header',
+			context: 'boost',
+		} );
+		expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_myjetpack_plans_renew_click', {
+			location: 'header',
+			context: 'boost',
+			action: 'renew',
+			product_slug: 'jetpack_search',
 		} );
 	} );
 

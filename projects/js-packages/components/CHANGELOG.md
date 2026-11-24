@@ -2,6 +2,18 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## [7.1.0] - 2026-11-23
+### Added
+- Add loadMediaLibrary(), which loads the WordPress media library when a dashboard first opens it. [#55120]
+
+### Fixed
+- JetpackFooter: Show the My Jetpack links on WordPress.com sites where the host shows My Jetpack. [#55174]
+- JitmSlot: Take the JITM container back when the admin shell shows the slot's dashboard again. [#55075]
+
+## [7.0.0] - 2026-11-17
+### Removed
+- Remove the deprecated `GlobalNotices` component, `useGlobalNotices` hook and `globalNoticesStore`; use `@wordpress/notices` directly. [#55007]
+
 ## [6.3.0] - 2026-11-16
 ### Added
 - Add a HighlightBanner component: Jetpack's dark green banner with gradient orbs, previously copied into the Jetpack plugin and My Jetpack. [#54518]
@@ -2074,6 +2086,8 @@
 ### Changed
 - Update node version requirement to 14.16.1
 
+[7.1.0]: https://github.com/Automattic/jetpack-components/compare/7.0.0...7.1.0
+[7.0.0]: https://github.com/Automattic/jetpack-components/compare/6.3.0...7.0.0
 [6.3.0]: https://github.com/Automattic/jetpack-components/compare/6.2.1...6.3.0
 [6.2.1]: https://github.com/Automattic/jetpack-components/compare/6.2.0...6.2.1
 [6.2.0]: https://github.com/Automattic/jetpack-components/compare/6.1.1...6.2.0

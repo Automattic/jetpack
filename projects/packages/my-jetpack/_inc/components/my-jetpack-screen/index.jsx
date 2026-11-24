@@ -7,7 +7,7 @@ import { isSimpleSite } from '@automattic/jetpack-script-data';
 import { __ } from '@wordpress/i18n';
 import { Notice } from '@wordpress/ui';
 import clsx from 'clsx';
-import { useContext, useEffect, useLayoutEffect, useRef } from 'react';
+import { useContext, useEffect } from 'react';
 import { useLocation, useParams } from 'react-router';
 /*
  * Internal dependencies
@@ -34,6 +34,7 @@ import { getModulesManagementUrl, resolveMyJetpackSection } from '../my-jetpack-
 import OnboardingTour from '../onboarding-tour';
 import buildOptionalMenuItems from './build-optional-menu-items';
 import styles from './styles.module.scss';
+import usePageView from './use-page-view';
 
 // Named export for testability: it has its own mount effect (Tracks view event) worth
 // covering without mounting the whole screen.
@@ -120,39 +121,15 @@ export default function MyJetpackScreen() {
 	const { recordEvent } = useAnalytics();
 	const params = useParams();
 	const routeLocation = useLocation();
-	const previousTabRef = useRef( null );
 
-	// useLayoutEffect gets called before useEffect.
-	// We are using it here to ensure the `page_view` event gets triggered first.
 	// Determine current tab
 	const currentTab = resolveMyJetpackSection( params.section );
 
-	useLayoutEffect( () => {
-		let customTracksData = {};
-
-		if ( ! isRedBubbleAlertsError && Object.keys( redBubbleAlerts )?.length ) {
-			customTracksData = {
-				red_bubble_alerts: Object.keys( redBubbleAlerts ).join( ',' ),
-			};
-		}
-
-		if ( ! isRedBubbleAlertsLoading ) {
-			recordEvent( 'jetpack_myjetpack_page_view', {
-				...customTracksData,
-				tab_name: currentTab,
-				previous_tab: previousTabRef.current,
-			} );
-
-			// Update previous tab for next navigation
-			previousTabRef.current = currentTab;
-		}
-	}, [
-		recordEvent,
+	usePageView( currentTab, {
 		redBubbleAlerts,
-		isRedBubbleAlertsError,
 		isRedBubbleAlertsLoading,
-		currentTab,
-	] );
+		isRedBubbleAlertsError,
+	} );
 
 	const { pathname: routePath, search: routeSearch } = routeLocation;
 	const shouldReload = new URLSearchParams( routeSearch ).get( 'reload' ) === 'true';

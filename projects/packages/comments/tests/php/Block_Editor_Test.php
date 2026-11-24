@@ -36,4 +36,21 @@ class Block_Editor_Test extends BaseTestCase {
 			'heading becomes bold'       => array( '<!-- wp:heading --><h2>Hi</h2><!-- /wp:heading -->', "<!-- wp:paragraph -->\n<p><strong>Hi</strong></p>\n<!-- /wp:paragraph -->" ),
 		);
 	}
+
+	/**
+	 * @dataProvider provide_render_by_blog
+	 */
+	#[DataProvider( 'provide_render_by_blog' )]
+	public function test_render_by_blog( $enabled, $expected ) {
+		add_filter( 'jetpack_comments_enabled', $enabled ? '__return_true' : '__return_false' );
+
+		$this->assertSame( $expected, Block_Editor::render( '<!-- wp:p2/embed-github --><div>GH</div><!-- /wp:p2/embed-github -->' ) );
+	}
+
+	public static function provide_render_by_blog() {
+		return array(
+			'blog with Jetpack Comments drops the block' => array( true, '' ),
+			'blog without it leaves the comment alone'   => array( false, '<!-- wp:p2/embed-github --><div>GH</div><!-- /wp:p2/embed-github -->' ),
+		);
+	}
 }

@@ -238,7 +238,6 @@ const VALUE_CARDS: ValueCard[] = [
  */
 export default function OnboardingModal(): ReactElement | null {
 	const [ isDismissed, setIsDismissed ] = useState( () => hasSeenOnboarding() );
-	const { videoPressCount, localCount, isSettled } = useOnboardingCounts();
 	// Observer instance, like `useFreeTier`'s: the queue lives in a shared
 	// window-scoped store, so reading it here starts nothing and owns nothing.
 	const { uploadQueue } = useUpload();
@@ -263,6 +262,10 @@ export default function OnboardingModal(): ReactElement | null {
 	// of the same load and owns visibility — see the two flags above.
 	const [ isPreview ] = useState( () => consumeWelcomeParam( search?.welcome === '1' ) );
 	const [ isWelcomeSession ] = useState( isWelcomeLoad );
+	// The local count only labels a button, so skip it when `isOpen` below cannot come true.
+	const { videoPressCount, localCount, isSettled } = useOnboardingCounts( {
+		includeLocal: ! isDismissed && ( isWelcomeSession || ! hasPublishedVideo() ),
+	} );
 
 	// The stored flag was already cleared at consume time (see
 	// consumeWelcomeParam); this only fixes up the in-memory copy, which the

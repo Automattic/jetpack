@@ -100,7 +100,7 @@ function wpcom_public_coming_soon_replace_yoast_seo_notice() {
 	}
 
 	$pagenow             = $GLOBALS['pagenow'];
-	$on_wpseo_admin_page = $pagenow === 'admin.php' && strpos( filter_input( INPUT_GET, 'page' ), 'wpseo' ) === 0;
+	$on_wpseo_admin_page = $pagenow === 'admin.php' && strpos( (string) filter_input( INPUT_GET, 'page' ), 'wpseo' ) === 0;
 	$notice_pages        = array(
 		'index.php',
 		'plugins.php',

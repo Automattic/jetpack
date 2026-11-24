@@ -2,12 +2,19 @@ import { AdminPage, ThemeProvider } from '@automattic/jetpack-components';
 import { useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
-import SearchVisibilityNotice from '../components/search-visibility-notice';
-import { recordScreenViewOnce } from '../data/record-seo-event';
+import { recordScreenViewOnce, recordSeoEvent } from '../data/record-seo-event';
 import DashboardNav from './dashboard-nav';
+import DashboardNotices from './dashboard-notices';
 import '../admin-page-layout.scss';
 import type { SeoTab } from './dashboard-nav';
 import type { ReactNode } from 'react';
+
+// Each tab's content column. The Content tab runs full width.
+const COLUMN_BY_TAB: Partial< Record< SeoTab, 'narrow' | 'wide' > > = {
+	overview: 'wide',
+	settings: 'narrow',
+	geo: 'narrow',
+};
 
 interface Props {
 	/** The tab for the currently rendered route (drives the active nav state). */
@@ -24,9 +31,8 @@ interface Props {
 	 */
 	flush?: boolean;
 	/**
-	 * Whether to render the tab bar. The module-off stage hides it, since every
-	 * tab would show the same enable prompt (except on plan-gated sites, see
-	 * `SeoDisabledStage`). Defaults to `true`.
+	 * Whether to render the tab bar. The module-off stage hides it because every
+	 * tab would show the same enable prompt. Defaults to `true`.
 	 */
 	showTabs?: boolean;
 	/**
@@ -64,16 +70,37 @@ const DashboardPage = ( {
 }: Props ) => {
 	useEffect( () => recordScreenViewOnce( active ), [ active ] );
 
+	// The admin shell keeps this page mounted, so a return to it is a new visit: see the admin-ui README.
+	useEffect( () => {
+		const onShown = ( event: Event ) => {
+			const { page, firstShow } = ( event as CustomEvent ).detail ?? {};
+			if ( page === 'jetpack-seo' && ! firstShow ) {
+				recordSeoEvent( 'jetpack_seo_screen_viewed', active );
+			}
+		};
+		window.addEventListener( 'jetpack-admin-shell:page-shown', onShown );
+		return () => window.removeEventListener( 'jetpack-admin-shell:page-shown', onShown );
+	}, [ active ] );
+
+	// Top the column with the notices so they line up; full-bleed and centered stages have no column.
+	const column = ! flush && ! centered && COLUMN_BY_TAB[ active ];
 	const content = (
 		<>
-			<SearchVisibilityNotice />
+			{ ! column && <DashboardNotices /> }
 			<div
 				className={ clsx( 'jetpack-seo-page-content', {
 					'jetpack-seo-page-content--flush': flush,
 					'jetpack-seo-page-content--centered': centered,
 				} ) }
 			>
-				{ children }
+				{ column ? (
+					<div className={ `jetpack-seo-page-column jetpack-seo-page-column--${ column }` }>
+						<DashboardNotices />
+						{ children }
+					</div>
+				) : (
+					children
+				) }
 			</div>
 		</>
 	);

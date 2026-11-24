@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [9.18.3] - 2026-11-23
+### Added
+- Safe Mode: Add a feature flag for the shared Safe Mode screen, and include Safe Mode state in the connection initial state. [#55014]
+- Safe Mode: Let a fresh connection from Safe Mode report where it started, for WordPress.com's connection tracking. [#55099]
+- Safe Mode: Show the new Safe Mode screen on the Connectors card behind a feature flag. [#55167]
+
+### Changed
+- Abilities: Mark abilities as public with the `meta.public` flag. [#55104]
+- Safe Mode: Show the Jetpack Safe Mode admin bar item while the choice is still pending, style it on the front end of the site too, and have it open My Jetpack from Jetpack pages that can't show the Safe Mode screen. [#55024]
+
+### Fixed
+- Abilities: validate an unexpected input key on a no-argument ability as an error instead of a PHP error. [#55136]
+- Safe Mode: Keep showing the WordPress.com address correctly after Safe Mode checks the connection again. [#55142]
+- Safe Mode: Show an error when starting a fresh connection fails to get a connection address, instead of sending the browser to a broken one. [#55077]
+- Safe Mode: Stop showing the Safe Mode screen to non-admins once an admin has chosen to stay in Safe Mode. [#55015]
+
+## [9.18.2] - 2026-11-17
+### Changed
+- Connection abilities: Describe the connection status without calling it a zero-argument call, since MCP servers may add a site argument. [#54953]
+
 ## [9.18.1] - 2026-11-16
 ### Changed
 - Internal updates.
@@ -2252,6 +2272,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Separate the connection library into its own package.
 
+[9.18.3]: https://github.com/Automattic/jetpack-connection/compare/v9.18.2...v9.18.3
+[9.18.2]: https://github.com/Automattic/jetpack-connection/compare/v9.18.1...v9.18.2
 [9.18.1]: https://github.com/Automattic/jetpack-connection/compare/v9.18.0...v9.18.1
 [9.18.0]: https://github.com/Automattic/jetpack-connection/compare/v9.17.2...v9.18.0
 [9.17.2]: https://github.com/Automattic/jetpack-connection/compare/v9.17.1...v9.17.2

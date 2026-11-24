@@ -80,6 +80,26 @@ const sbconfig = {
 					},
 				},
 
+				// The published SDK is a stub that throws; the dashboard registers the real module at runtime.
+				// Stories bundle the facade source instead, so they cannot catch version skew or externalisation failures.
+				{
+					name: 'premium-analytics-sdk-facade-source',
+					enforce: 'pre',
+					async resolveId( id, importer ) {
+						if ( id !== '@automattic/jetpack-premium-analytics-sdk' ) {
+							return;
+						}
+
+						return this.resolve(
+							path.join( premiumAnalyticsPackagesDir, 'sdk/src/index.ts' ),
+							importer,
+							{
+								skipSelf: true,
+							}
+						);
+					},
+				},
+
 				// Stub `@automattic/jetpack-config`, the whole `jetpackConfig` thing confuses Storybook/vite/vitest/esbuild/rolldown/etc to no end.
 				// If you're trying to use those tools for something else, consider somehow fixing `@automattic/jetpack-config` instead of perpetuating this hack.
 				{

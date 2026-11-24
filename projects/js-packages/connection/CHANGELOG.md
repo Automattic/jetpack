@@ -2,6 +2,18 @@
 
 ### This is a list detailing changes for the Jetpack RNA Connection Component releases.
 
+## [2.20.0] - 2026-11-23
+### Added
+- Add a getIdentityCrisis selector for the Safe Mode state. [#55014]
+- Add a `from` option to useIdentityCrisisActions(), and connection_safe_mode_notice and my_jetpack_safe_mode to CONNECTION_FROM. [#55099]
+- Add the building blocks for the new Safe Mode screen: an actions hook, a layout, an address diagram, migrated and non-admin views, and error messages that name the cause. [#55022]
+- Safe Mode: Add the question flow to the new Safe Mode screen. [#55143]
+- Safe Mode: Let the new Safe Mode screen run on the Connectors card, including on a site where Safe Mode is already confirmed. [#55167]
+
+## [2.19.1] - 2026-11-17
+### Changed
+- Update dependencies.
+
 ## [2.19.0] - 2026-11-16
 ### Added
 - Add a connection name for the Monetize dashboard, and export the connection names on their own. [#54684]
@@ -1618,6 +1630,8 @@
 - `Main` and `ConnectUser` components added.
 - `JetpackRestApiClient` API client added.
 
+[2.20.0]: https://github.com/Automattic/jetpack-connection-js/compare/v2.19.1...v2.20.0
+[2.19.1]: https://github.com/Automattic/jetpack-connection-js/compare/v2.19.0...v2.19.1
 [2.19.0]: https://github.com/Automattic/jetpack-connection-js/compare/v2.18.0...v2.19.0
 [2.18.0]: https://github.com/Automattic/jetpack-connection-js/compare/v2.17.0...v2.18.0
 [2.17.0]: https://github.com/Automattic/jetpack-connection-js/compare/v2.16.0...v2.17.0

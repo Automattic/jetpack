@@ -1342,6 +1342,18 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	}
 
 	/**
+	 * Return the id of a field's error message element.
+	 *
+	 * @param string $id   - the field ID.
+	 * @param string $type - the error type passed to get_error_div().
+	 *
+	 * @return string
+	 */
+	private function get_error_message_id( $id, $type ) {
+		return $id . '-' . $type . '-error-message';
+	}
+
+	/**
 	 * Return the HTML for the error div.
 	 *
 	 * @param string $id - the field ID.
@@ -1364,7 +1376,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 						<path fill-rule="evenodd" clip-rule="evenodd" d="M6.98331 3.0947C7.42933 2.30177 8.57096 2.30177 9.01698 3.09469L13.8771 11.7349C14.3145 12.5126 13.7525 13.4735 12.8602 13.4735H3.14004C2.24774 13.4735 1.68575 12.5126 2.12321 11.7349L6.98331 3.0947ZM8.14541 3.58496C8.08169 3.47168 7.9186 3.47168 7.85488 3.58496L2.99478 12.2251C2.93229 12.3362 3.01257 12.4735 3.14004 12.4735H12.8602C12.9877 12.4735 13.068 12.3362 13.0055 12.2251L8.14541 3.58496Z" />
 					</svg>
 				</span>
-				<span data-wp-text="state.errorMessage" id="' . esc_attr( $id ) . '-' . esc_attr( $type ) . '-error-message"></span>
+				<span data-wp-text="state.errorMessage" id="' . esc_attr( $this->get_error_message_id( $id, $type ) ) . '"></span>
 			</div>';
 	}
 
@@ -1434,7 +1446,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @return string
 	 */
 	private function get_described_by( $id, $type ) {
-		$ids = array( $id . '-' . $type . '-error-message' );
+		$ids = array( $this->get_error_message_id( $id, $type ) );
 
 		foreach ( $this->get_description_parts( $id, $type ) as $part ) {
 			$ids[] = $part['id'];
@@ -1827,6 +1839,8 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$is_outlined_style = 'outlined' === $form_style;
 		$fieldset_id       = "id='" . esc_attr( "$id-label" ) . "'" . $this->get_hidden_label_aria_label_attr();
 
+		$error_described_by = " aria-describedby='" . esc_attr( $this->get_error_message_id( $id, 'radio' ) ) . "'";
+
 		if ( $is_outlined_style ) {
 			$style_variation_attributes = $this->get_attribute( 'stylevariationattributes' );
 
@@ -1855,9 +1869,9 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			/*
 			 * For the "outlined" style, the styles and classes are applied to the fieldset element.
 			 */
-			$field = "<fieldset {$fieldset_id} class='grunion-radio-options " . esc_attr( $options_classes ) . "' style='" . esc_attr( $options_styles ) . "' data-wp-bind--aria-invalid='state.fieldAriaInvalid' >";
+			$field = "<fieldset {$fieldset_id} class='grunion-radio-options " . esc_attr( $options_classes ) . "' style='" . esc_attr( $options_styles ) . "' data-wp-bind--aria-invalid='state.fieldAriaInvalid'{$error_described_by} >";
 		} else {
-			$field = "<fieldset {$fieldset_id} class='jetpack-field-multiple__fieldset' data-wp-bind--aria-invalid='state.fieldAriaInvalid' >";
+			$field = "<fieldset {$fieldset_id} class='jetpack-field-multiple__fieldset' data-wp-bind--aria-invalid='state.fieldAriaInvalid'{$error_described_by} >";
 		}
 
 		$field .= $this->render_legend_as_label( '', $id, $label, $required, $required_field_text, array(), $required_indicator );
@@ -2563,6 +2577,10 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		 */
 		$fieldset_id = "id='" . esc_attr( "$id-label" ) . "'" . $this->get_hidden_label_aria_label_attr();
 
+		// Inset-label styles skip this field's 'select' error div; render_field() emits one typed by field type.
+		$error_type         = $this->has_inset_label() ? 'checkbox-multiple' : 'select';
+		$error_described_by = " aria-describedby='" . esc_attr( $this->get_error_message_id( $id, $error_type ) ) . "'";
+
 		if ( $is_outlined_style ) {
 			$style_variation_attributes = $this->get_attribute( 'stylevariationattributes' );
 
@@ -2593,9 +2611,9 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			/*
 			 * For the "outlined" style, the styles and classes are applied to the fieldset element.
 			 */
-			$field = "<fieldset {$fieldset_id} class='grunion-checkbox-multiple-options " . esc_attr( $options_classes ) . "' style='" . esc_attr( $options_styles ) . "' " . ( $required ? 'data-required' : '' ) . ' data-wp-bind--aria-invalid="state.fieldAriaInvalid">';
+			$field = "<fieldset {$fieldset_id} class='grunion-checkbox-multiple-options " . esc_attr( $options_classes ) . "' style='" . esc_attr( $options_styles ) . "' " . ( $required ? 'data-required' : '' ) . ' data-wp-bind--aria-invalid="state.fieldAriaInvalid"' . $error_described_by . '>';
 		} else {
-			$field = "<fieldset {$fieldset_id} class='jetpack-field-multiple__fieldset'" . ( $required ? 'data-required' : '' ) . ' data-wp-bind--aria-invalid="state.fieldAriaInvalid">';
+			$field = "<fieldset {$fieldset_id} class='jetpack-field-multiple__fieldset' " . ( $required ? 'data-required' : '' ) . ' data-wp-bind--aria-invalid="state.fieldAriaInvalid"' . $error_described_by . '>';
 		}
 
 		$field .= $this->render_legend_as_label( '', $id, $label, $required, $required_field_text, array(), $required_indicator );
@@ -2917,7 +2935,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 
 		$fieldset_id = "id='" . esc_attr( "$id-label" ) . "'" . $this->get_hidden_label_aria_label_attr();
 
-		$field .= "<fieldset {$fieldset_id} data-wp-bind--aria-invalid='state.fieldAriaInvalid' >";
+		$field .= "<fieldset {$fieldset_id} data-wp-bind--aria-invalid='state.fieldAriaInvalid' aria-describedby='" . esc_attr( $this->get_error_message_id( $id, 'image-select' ) ) . "' >";
 
 		$field .= $this->render_legend_as_label( '', $id, $label, $required, $required_field_text, array(), $required_indicator );
 
@@ -3818,7 +3836,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$style_attr .= ' ' . implode( ';', $remaining_styles ) . '"';
 
 		return sprintf(
-			'<fieldset id="%4$s-label" class="jetpack-field-multiple__fieldset jetpack-field-rating" %1$s%6$s>
+			'<fieldset id="%4$s-label" class="jetpack-field-multiple__fieldset jetpack-field-rating" aria-describedby="%7$s" %1$s%6$s>
 				%5$s
 				<div class="jetpack-field-rating__options %3$s">%2$s</div>
 			</fieldset>',
@@ -3827,7 +3845,8 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			esc_attr( $this->field_classes ),
 			esc_attr( $id ),
 			$label_html,
-			$this->get_hidden_label_aria_label_attr()
+			$this->get_hidden_label_aria_label_attr(),
+			esc_attr( $this->get_error_message_id( $id, 'rating' ) )
 		) . $this->get_error_div( $id, 'rating' );
 	}
 

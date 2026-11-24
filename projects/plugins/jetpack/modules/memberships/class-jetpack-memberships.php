@@ -285,6 +285,7 @@ class Jetpack_Memberships {
 		}
 
 		Abstract_Token_Subscription_Service::clear_token_cookie();
+		Abstract_Token_Subscription_Service::pause_silent_subscriber_check();
 	}
 
 	/**
@@ -305,6 +306,11 @@ class Jetpack_Memberships {
 	 */
 	public function map_plan_meta_cap( $caps, $cap, $user_id, $args ) {
 		if ( empty( $args[0] ) ) {
+			return $caps;
+		}
+
+		// Bail before get_post(): for other caps $args[0] may be a comment, user or term ID, and missing posts are not cached.
+		if ( 'edit_posts' !== $cap && 'delete_posts' !== $cap ) {
 			return $caps;
 		}
 

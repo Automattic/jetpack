@@ -27,17 +27,20 @@ type PeriodHost = {
  * Let the widgets on a surface set its period, and draw the date control's
  * attention when they do. Both come from one call, so a host wires them together.
  *
- * @param surface      - The surface's key: a dashboard section slug, or a `postSurface`.
- * @param appliedRange - The range its date control shows.
- * @param isShown      - Whether the date control is on screen.
- * @param dateLimits   - The buckets and the first day the surface's plan allows.
+ * @param surface             - The surface's key: a dashboard section slug, or a `postSurface`.
+ * @param appliedRange        - The range its date control shows.
+ * @param isShown             - Whether the date control is on screen.
+ * @param dateLimits          - The buckets and the first day the surface's plan allows.
+ * @param options             - Host options.
+ * @param options.withZoomOut - Keep the window a widget zooms in from, for a date control that offers the zoom out.
  * @return The period the widgets open, and the attention the control draws.
  */
 export function usePeriodHost(
 	surface: string,
 	appliedRange: DateRange | undefined,
 	isShown: boolean,
-	dateLimits?: Pick< DateLimits, 'lockedIntervals' | 'earliestDate' >
+	dateLimits?: Pick< DateLimits, 'lockedIntervals' | 'earliestDate' >,
+	{ withZoomOut = false }: { withZoomOut?: boolean } = {}
 ): PeriodHost {
 	const commitExactRange = useCommitExactRange();
 	const attention = useSettlePeriodChange( surface, appliedRange, isShown );
@@ -45,8 +48,14 @@ export function usePeriodHost(
 	const earliestDate = dateLimits?.earliestDate;
 
 	const openPeriod = useCallback< OpenPeriod >(
-		range => commitExactRange( surface, range, { lockedIntervals, earliestDate } ),
-		[ commitExactRange, surface, lockedIntervals, earliestDate ]
+		( range, options ) =>
+			commitExactRange( surface, range, {
+				lockedIntervals,
+				earliestDate,
+				withZoomOut,
+				step: options?.step,
+			} ),
+		[ commitExactRange, surface, lockedIntervals, earliestDate, withZoomOut ]
 	);
 
 	return { openPeriod, attention };

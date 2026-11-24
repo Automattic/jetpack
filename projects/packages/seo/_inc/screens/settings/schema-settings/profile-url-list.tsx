@@ -1,8 +1,8 @@
 /* eslint-disable react/jsx-no-bind */
 
-import { Button as WPButton, TextControl } from '@wordpress/components';
+import { Button as WPButton } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { Button, Stack, Text } from '@wordpress/ui';
+import { Button, InputControl, Stack, Text } from '@wordpress/ui';
 import clsx from 'clsx';
 import { normalizeProfileUrl } from '../../../data/schema-settings-utils';
 import styles from './style.module.scss';
@@ -65,18 +65,16 @@ const ProfileUrlList: FC< Props > = ( { label, help, urls, onChange, disabled } 
 								[ styles.profileError ]: profileError,
 							} ) }
 						>
-							<TextControl
+							<InputControl
 								label={ __( 'Profile URL', 'jetpack-seo' ) }
 								hideLabelFromVision
 								type="url"
 								placeholder="https://"
 								value={ profile }
-								onChange={ next => setUrl( index, next ) }
+								onValueChange={ next => setUrl( index, next ) }
 								disabled={ disabled }
-								help={ profileError || undefined }
+								description={ profileError || undefined }
 								aria-invalid={ Boolean( profileError ) }
-								__next40pxDefaultSize
-								__nextHasNoMarginBottom
 							/>
 						</div>
 						<WPButton

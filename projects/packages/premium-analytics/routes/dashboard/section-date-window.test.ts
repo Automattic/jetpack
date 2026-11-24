@@ -94,6 +94,13 @@ describe( 'dateWindowForSectionSwitch', () => {
 				compare_preset: 'previous-period',
 			} ),
 		],
+		[
+			'free carries year to date it zoomed in from into Traffic',
+			FREE,
+			'traffic',
+			{ ...YEAR_TO_DATE, up_preset: 'year-to-date' },
+			expect.objectContaining( { preset: 'last-7-days', up_preset: undefined } ),
+		],
 		[ 'free carries yesterday into Traffic', FREE, 'traffic', YESTERDAY, undefined ],
 		[
 			'legacy basic carries a custom comparison into Traffic',
@@ -134,6 +141,13 @@ describe( 'dateWindowForSectionSwitch', () => {
 				to: '2026-10-16T23:59:59.999+13:00',
 			} ),
 			13,
+		],
+		[
+			'an open plan carries a day it zoomed into on Traffic into Insights',
+			[],
+			'insights',
+			{ ...YESTERDAY, preset: 'custom', up_preset: 'last-7-days' },
+			expect.objectContaining( { preset: 'all-time', up_preset: undefined } ),
 		],
 		// Rest, not optional: jest hands `done` to a callback with more params than the row.
 	] )( 'when %s', ( _case, features, section, search, expected, ...[ offset ]: number[] ) => {

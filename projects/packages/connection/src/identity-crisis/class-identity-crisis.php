@@ -7,9 +7,11 @@
 
 namespace Automattic\Jetpack;
 
+use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Urls;
+use Automattic\Jetpack\Feature_Flags\Feature_Flags;
 use Automattic\Jetpack\IdentityCrisis\Exception;
 use Automattic\Jetpack\IdentityCrisis\UI;
 use Automattic\Jetpack\IdentityCrisis\URL_Secret;
@@ -40,6 +42,11 @@ class Identity_Crisis {
 	const IDC_VALIDATION_MAX_DELAY = 2592000;
 
 	/**
+	 * Feature flag that switches every Safe Mode surface to the shared screen.
+	 */
+	const NEW_SCREEN_FLAG = 'connection-idc-screen';
+
+	/**
 	 * Instance of the object.
 	 *
 	 * @var Identity_Crisis
@@ -54,10 +61,9 @@ class Identity_Crisis {
 	public static $wpcom_home_url;
 
 	/**
-	 * Has safe mode been confirmed?
-	 * Beware, it never contains `true` for non-admins, so doesn't always reflect the actual value.
+	 * Has safe mode been confirmed? Set on `init` during an identity crisis, null otherwise.
 	 *
-	 * @var bool
+	 * @var bool|null
 	 */
 	public static $is_safe_mode_confirmed;
 
@@ -87,6 +93,8 @@ class Identity_Crisis {
 	 * @return void
 	 */
 	private function __construct() {
+		self::register_feature_flags();
+
 		add_action( 'jetpack_sync_processed_actions', array( $this, 'maybe_clear_migrate_option' ) );
 		add_action( 'rest_api_init', array( 'Automattic\\Jetpack\\IdentityCrisis\\REST_Endpoints', 'initialize_rest_api' ) );
 		add_action( 'jetpack_idc_disconnect', array( __CLASS__, 'do_jetpack_idc_disconnect' ) );
@@ -176,20 +184,21 @@ class Identity_Crisis {
 	 * @return void
 	 */
 	public function wordpress_init() {
-		if ( current_user_can( 'jetpack_disconnect' ) ) {
-			if (
-				isset( $_GET['jetpack_idc_clear_confirmation'] ) && isset( $_GET['_wpnonce'] ) &&
-				wp_verify_nonce( $_GET['_wpnonce'], 'jetpack_idc_clear_confirmation' ) // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- WordPress core doesn't unslash or verify nonces either.
-			) {
-				Jetpack_Options::delete_option( 'safe_mode_confirmed' );
-				self::$is_safe_mode_confirmed = false;
-			} else {
-				self::$is_safe_mode_confirmed = (bool) Jetpack_Options::get_option( 'safe_mode_confirmed' );
-			}
+		if (
+			current_user_can( 'jetpack_disconnect' ) &&
+			isset( $_GET['jetpack_idc_clear_confirmation'] ) && isset( $_GET['_wpnonce'] ) &&
+			wp_verify_nonce( $_GET['_wpnonce'], 'jetpack_idc_clear_confirmation' ) // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- WordPress core doesn't unslash or verify nonces either.
+		) {
+			Jetpack_Options::delete_option( 'safe_mode_confirmed' );
+			self::$is_safe_mode_confirmed = false;
+		} else {
+			self::$is_safe_mode_confirmed = (bool) Jetpack_Options::get_option( 'safe_mode_confirmed' );
 		}
 
 		// 121 Priority so that it's the most inner Jetpack item in the admin bar.
 		add_action( 'admin_bar_menu', array( $this, 'display_admin_bar_button' ), 121 );
+		add_action( 'admin_enqueue_scripts', array( $this, 'add_admin_bar_styles' ) );
+		add_action( 'wp_enqueue_scripts', array( $this, 'add_admin_bar_styles' ) );
 
 		UI::init();
 	}
@@ -251,11 +260,12 @@ class Identity_Crisis {
 	public function display_admin_bar_button() {
 		global $wp_admin_bar;
 
-		$href = is_admin()
-			? add_query_arg( 'jetpack_idc_clear_confirmation', '1' )
-			: add_query_arg( 'jetpack_idc_clear_confirmation', '1', admin_url() );
+		// Its link clears the confirmation, which only these users can do.
+		if ( ! current_user_can( 'jetpack_disconnect' ) ) {
+			return;
+		}
 
-		$href = wp_nonce_url( $href, 'jetpack_idc_clear_confirmation' );
+		$href = wp_nonce_url( add_query_arg( 'jetpack_idc_clear_confirmation', '1', self::get_admin_bar_button_target() ), 'jetpack_idc_clear_confirmation' );
 
 		$consumer_data = UI::get_consumer_data();
 		$label         = isset( $consumer_data['customContent']['adminBarSafeModeLabel'] )
@@ -273,15 +283,51 @@ class Identity_Crisis {
 			'title'  => $title,
 			'href'   => esc_url( $href ),
 			'parent' => 'top-secondary',
+			// Router-driven dashboards such as Stats would otherwise swallow the click.
+			'meta'   => array( 'target' => '_self' ),
 		);
 
-		if ( ! self::$is_safe_mode_confirmed ) {
-			$menu['meta'] = array(
-				'class' => 'hide',
-			);
+		$wp_admin_bar->add_node( $menu );
+	}
+
+	/**
+	 * Where the admin bar item leads: a page that shows the Safe Mode screen.
+	 *
+	 * @return string|false The URL, or false for the current page, as add_query_arg() takes it.
+	 */
+	private static function get_admin_bar_button_target() {
+		if ( ! is_admin() ) {
+			return admin_url();
 		}
 
-		$wp_admin_bar->add_node( $menu );
+		// Jetpack dashboards hide admin notices, and the Safe Mode screen with them; My Jetpack shows it in its own container.
+		if ( ! wp_style_is( Admin_Menu::HIDE_CORE_NOTICES_HANDLE ) ) {
+			return false;
+		}
+
+		return '' !== menu_page_url( 'my-jetpack', false ) ? admin_url( 'admin.php?page=my-jetpack' ) : admin_url();
+	}
+
+	/**
+	 * Style the admin bar item, in wp-admin and on the front end.
+	 *
+	 * @since 9.18.3
+	 *
+	 * @return void
+	 */
+	public function add_admin_bar_styles() {
+		if ( ! is_admin_bar_showing() || ! current_user_can( 'jetpack_disconnect' ) ) {
+			return;
+		}
+
+		wp_add_inline_style(
+			'admin-bar',
+			'#wpadminbar #wp-admin-bar-jetpack-idc { margin-inline-end: 5px; }
+			#wpadminbar #wp-admin-bar-jetpack-idc .ab-item { padding: 0; background: #e68b28; }
+			#wpadminbar #wp-admin-bar-jetpack-idc .jp-idc-admin-bar { border-radius: 2px; font-weight: 500; font-size: 14px; line-height: 20px; color: #efeff0; padding: 6px 8px; }
+			#wpadminbar #wp-admin-bar-jetpack-idc .dashicons { font-family: dashicons; margin-block-start: -6px; }
+			#wpadminbar #wp-admin-bar-jetpack-idc .dashicons::before { font-size: 18px; }'
+		);
 	}
 
 	/**
@@ -412,11 +458,7 @@ class Identity_Crisis {
 	}
 
 	/**
-	 * Determines if two IDC error arrays have the same wpcom URLs.
-	 *
-	 * The wpcom URLs are stored in reversed form in the database, but the jetpack_options
-	 * filter un-reverses them when retrieved. This method normalizes both sets of URLs
-	 * to reversed form before comparing.
+	 * Determines if two IDC error arrays have the same wpcom URLs, compared in their stored form.
 	 *
 	 * @param array $idc1 First IDC error data (from get_option, may be un-reversed).
 	 * @param array $idc2 Second IDC error data (from get_sync_error_idc_option, reversed).
@@ -436,16 +478,10 @@ class Identity_Crisis {
 			return false;
 		}
 
-		// The existing IDC data has been un-reversed by the jetpack_options filter when
-		// retrieved via Jetpack_Options::get_option(), so the wpcom URLs are in normal format.
-		// The new data from get_sync_error_idc_option() has reversed URLs.
-		// Reverse the existing URLs to match the format of the new data for comparison.
-		$existing_wpcom_home    = strrev( $idc1['wpcom_home'] );
-		$existing_wpcom_siteurl = strrev( $idc1['wpcom_siteurl'] );
+		$existing = self::get_sync_error_for_storage( $idc1 );
 
-		// Compare the reversed URLs.
-		return $existing_wpcom_home === $idc2['wpcom_home']
-			&& $existing_wpcom_siteurl === $idc2['wpcom_siteurl'];
+		return $existing['wpcom_home'] === $idc2['wpcom_home']
+			&& $existing['wpcom_siteurl'] === $idc2['wpcom_siteurl'];
 	}
 
 	/**
@@ -612,7 +648,7 @@ class Identity_Crisis {
 	 * If the request fails (network error, timeout, etc.), timing is updated to prevent
 	 * immediate retries but the delay interval is not increased.
 	 *
-	 * @param array $sync_error The stored sync_error_idc option with timing fields.
+	 * @param array $sync_error The sync_error_idc option with timing fields, as read through `Jetpack_Options::get_option()`.
 	 * @return bool True if IDC was cleared, false otherwise.
 	 */
 	public static function remote_validate_idc( $sync_error ) {
@@ -653,7 +689,7 @@ class Identity_Crisis {
 		$sync_error['last_checked'] = time();
 		// Note: update_option may return false if value unchanged, which is OK.
 		// We only bail if we can't verify the option exists with correct timestamp.
-		Jetpack_Options::update_option( 'sync_error_idc', $sync_error );
+		Jetpack_Options::update_option( 'sync_error_idc', self::get_sync_error_for_storage( $sync_error ) );
 
 		// Verify the critical timing field was persisted.
 		// This protects against caching/DB issues that would cause request floods.
@@ -723,13 +759,34 @@ class Identity_Crisis {
 		} else {
 			// Network error, invalid JSON, or non-200 - just update last_checked without backoff.
 			$sync_error['last_checked'] = time();
-			Jetpack_Options::update_option( 'sync_error_idc', $sync_error );
+			Jetpack_Options::update_option( 'sync_error_idc', self::get_sync_error_for_storage( $sync_error ) );
 			self::invalidate_idc_option_cache();
 		}
 
 		delete_transient( $lock_key );
 		$is_validating = false;
 		return false;
+	}
+
+	/**
+	 * Puts the WordPress.com URLs of a sync error in their stored, reversed form, however it was read.
+	 *
+	 * The `jetpack_options` filter un-reverses them on read. Normalized URLs are host and path, so only a reversed one starts
+	 * with `/`; testing that rather than the filter also repairs an option an earlier save left un-reversed.
+	 *
+	 * @param array $sync_error The sync_error_idc option.
+	 * @return array The value to save.
+	 */
+	private static function get_sync_error_for_storage( $sync_error ) {
+		if ( ! isset( $sync_error['reversed_url'] ) ) {
+			return $sync_error;
+		}
+		foreach ( array( 'wpcom_home', 'wpcom_siteurl' ) as $key ) {
+			if ( isset( $sync_error[ $key ] ) && is_string( $sync_error[ $key ] ) && 0 !== strpos( $sync_error[ $key ], '/' ) ) {
+				$sync_error[ $key ] = strrev( $sync_error[ $key ] );
+			}
+		}
+		return $sync_error;
 	}
 
 	/**
@@ -884,15 +941,55 @@ class Identity_Crisis {
 	}
 
 	/**
+	 * Register the Safe Mode feature flags.
+	 *
+	 * @since 9.18.3
+	 *
+	 * @return void
+	 */
+	private static function register_feature_flags() {
+		Feature_Flags::register(
+			self::NEW_SCREEN_FLAG,
+			array(
+				'default'     => false,
+				'description' => 'Show the shared Safe Mode screen from the connection package in the admin notice, the My Jetpack window and the Connectors card.',
+				'owner'       => 'connection',
+			)
+		);
+	}
+
+	/**
+	 * Whether the Safe Mode surfaces show the shared screen.
+	 *
+	 * @since 9.18.3
+	 *
+	 * @return bool
+	 */
+	public static function is_new_screen_enabled() {
+		return Feature_Flags::is_enabled( self::NEW_SCREEN_FLAG );
+	}
+
+	/**
 	 * Returns the mismatched URLs.
 	 *
 	 * @return array|bool The mismatched urls, or false if the site is not connected, offline, in safe mode, or the IDC error is not valid.
 	 */
 	public static function get_mismatched_urls() {
-		if ( ! static::has_identity_crisis() ) {
+		if ( static::$is_safe_mode_confirmed ) {
 			return false;
 		}
 
+		return static::get_stored_mismatched_urls();
+	}
+
+	/**
+	 * Returns the mismatched URLs from the stored Safe Mode error, including once Safe Mode is confirmed.
+	 *
+	 * @since 9.18.3
+	 *
+	 * @return array|bool The mismatched urls, or false if the site is not connected, offline, or the IDC error is not valid.
+	 */
+	public static function get_stored_mismatched_urls() {
 		$data = static::check_identity_crisis();
 
 		if ( ! $data ||

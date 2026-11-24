@@ -41,6 +41,7 @@ import { __, _x, sprintf } from '@wordpress/i18n';
 import { Icon } from '@wordpress/icons';
 import { Link } from '@wordpress/ui';
 import clsx from 'clsx';
+import { isEqual } from 'lodash';
 import { VideoPressBlockProvider } from './components';
 import { VIDEO_PRIVACY } from './constants';
 import Loading from './loading';
@@ -296,7 +297,10 @@ const VideoPressEdit = CoreVideoEdit =>
 						} );
 					}
 				} );
-				setAttributes( { videoPressTracks: tracks } );
+				// A new but equal array would still mark the post or template as edited.
+				if ( ! isEqual( tracks, this.props.attributes.videoPressTracks ?? [] ) ) {
+					setAttributes( { videoPressTracks: tracks } );
+				}
 			} );
 		};
 
