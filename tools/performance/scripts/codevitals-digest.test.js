@@ -202,7 +202,7 @@ const SCENARIOS = {
 	scannedStep: () => ( {
 		series: {
 			301: [ ...steady( 20, 5, 100 ), ...seq( 20, 4.9, 107 ) ],
-			302: [ ...steady( 10, 5, 100 ), ...seq( 10, 4.9, 107 ) ],
+			302: [ ...steady( 30, 5, 100 ), ...seq( 10, 4.9, 107 ) ],
 		},
 	} ),
 	scannedReverts: () => ( {
@@ -263,6 +263,15 @@ const SCENARIOS = {
 	scanSevenBaseline: () => ( {
 		series: {
 			301: flaggedSeries( [ ...Array( 7 ).fill( 100 ), ...Array( 17 ).fill( 107 ) ], [], 'seven' ),
+		},
+	} ),
+	scanMixedBaseline: () => ( {
+		series: {
+			301: flaggedSeries(
+				[ ...Array( 30 ).fill( 100 ), ...Array( 4 ).fill( 107 ), ...Array( 30 ).fill( 114.5 ) ],
+				[],
+				'mixedbaseline'
+			),
 		},
 	} ),
 	scanSteps: () => {
@@ -342,6 +351,15 @@ const SCENARIOS = {
 			),
 		},
 	} ),
+	scanPendingCoverage: () => {
+		const values = [ ...Array( 30 ).fill( 100 ), ...Array( 15 ).fill( 107 ) ];
+		return {
+			series: {
+				301: flaggedSeries( values, [ 40 ], 'matching' ),
+				302: flaggedSeries( values, [], 'unflagged' ),
+			},
+		};
+	},
 	scanSecondRise: ( { pending = false, gap = 15 } = {} ) => ( {
 		series: {
 			301: flaggedSeries(
@@ -1862,6 +1880,10 @@ test( 'an unflagged step needs ten later commits and produces one digest line', 
 		/Alpha: TTFB\* median \+7\.0% \(100→107ms\).*observed between/
 	);
 	assert.doesNotMatch( result.out, /single-pair|flag|pending/ );
+	assert.match(
+		result.err,
+		/metric 302: scan windows skipped — 0 outside the look-back, 0 covered by flags, 1 waiting for later readings, 0 rejected, 0 repeated/
+	);
 } );
 
 test( 'the scan rejects rises that revert before ten later commits', async () => {
@@ -1894,14 +1916,20 @@ test( 'a short excursion after a held rise cannot supply the reported level', as
 	assert.match( result.out, /0 sustained regression\(s\)/ );
 } );
 
-test( 'the scan defers a change point with only seven earlier readings', async () => {
+test( 'the scan rejects a change point with only seven earlier readings', async () => {
 	const result = await runDigest( 'scanSevenBaseline' );
 	assert.equal( result.code, 0, result.err );
 	assert.match( result.out, /0 sustained regression\(s\)/ );
 	assert.match(
 		result.err,
-		/metric 301: scan windows skipped — 0 outside the look-back, 0 covered by flags, 1 without a confirmed level/
+		/metric 301: scan windows skipped — 0 outside the look-back, 0 covered by flags, 0 waiting for later readings, 1 rejected, 0 repeated/
 	);
+} );
+
+test( 'a scan does not use a baseline that mixes two held levels', async () => {
+	const result = await runDigest( 'scanMixedBaseline' );
+	assert.equal( result.code, 0, result.err );
+	assert.match( result.out, /No sustained metric regressions/ );
 } );
 
 test( 'scan lines report nearby held steps separately', async () => {
@@ -1915,6 +1943,10 @@ test( 'scan lines report nearby held steps separately', async () => {
 	assert.deepEqual( reportedRises( 'Noisy step' ), [
 		'• *Noisy step* median +8.0% (99.5→107.5ms)',
 	] );
+	assert.match(
+		result.err,
+		/metric 301: scan windows skipped — 0 outside the look-back, 0 covered by flags, 0 waiting for later readings, 1 rejected, 1 repeated/
+	);
 	for ( const name of [ 'Nearby steps', 'Separate steps' ] ) {
 		assert.deepEqual( reportedRises( name ), [
 			`• *${ name }* median +6.5% (107→114ms)`,
@@ -1946,7 +1978,19 @@ test( 'a flag stays pending when the scan cannot confirm a held level', async ()
 	assert.match( result.out, /0 sustained regression\(s\), 1 pending/ );
 	assert.match(
 		result.err,
-		/metric 301: scan windows skipped — 0 outside the look-back, 0 covered by flags, 1 without a confirmed level/
+		/metric 301: scan windows skipped — 0 outside the look-back, 0 covered by flags, 0 waiting for later readings, 1 rejected, 0 repeated/
+	);
+} );
+
+test( 'only the scan with a matching pending flag is covered', async () => {
+	const result = await runDigest( 'scanPendingCoverage' );
+	assert.equal( result.code, 0, result.err );
+	const payload = JSON.parse( result.out );
+	assert.match( payload.text, /1 sustained regression\(s\), 1 pending/ );
+	assert.match( payload.text, /Beta: LCP median \+7\.0%/ );
+	assert.match(
+		result.err,
+		/metric 301: scan windows skipped — 0 outside the look-back, 1 covered by flags, 0 waiting for later readings, 0 rejected, 0 repeated/
 	);
 } );
 
@@ -1964,7 +2008,7 @@ test( 'a pending second rise stays out of the sustained total', async () => {
 	assert.match( result.out, /median \+7\.0% \(100→107ms\)/ );
 } );
 
-test( 'a nearby pending rise defers a scan window that spans both levels', async () => {
+test( 'the scan rejects a window that spans a held level and a pending rise', async () => {
 	const result = await runDigest( 'scanNearPending' );
 	assert.equal( result.code, 0, result.err );
 	assert.match( result.out, /0 sustained regression\(s\), 1 pending/ );
@@ -1984,7 +2028,7 @@ test( 'a scan outside the look-back is counted in the log', async () => {
 	assert.match( result.out, /0 sustained regression\(s\)/ );
 	assert.match(
 		result.err,
-		/metric 301: scan windows skipped — 1 outside the look-back, 0 covered by flags, 0 without a confirmed level/
+		/metric 301: scan windows skipped — 1 outside the look-back, 0 covered by flags, 0 waiting for later readings, 0 rejected, 0 repeated/
 	);
 } );
 
@@ -2409,11 +2453,11 @@ const CASES = [
 		out: [ 'No sustained metric regressions', '1 transient spike', 'feedbeef8', '(late)' ],
 	},
 	{
-		n: 'scan-defers-a-rise-whose-later-window-includes-a-dip',
+		n: 'scan-rejects-a-rise-whose-later-window-includes-a-dip',
 		sc: 'relanded',
 		exit: 0,
 		out: [ 'No sustained metric regressions', '1 transient spike', 'feedbeef' ],
-		err: [ '1 without a confirmed level' ],
+		err: [ '1 rejected' ],
 	},
 	{
 		n: 'overshoot-flag-value-is-never-a-suppression-reference',

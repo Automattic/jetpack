@@ -753,7 +753,9 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 		const checkedPositions = new Set();
 		let agedScans = 0;
 		let coveredScans = 0;
-		let unheldScans = 0;
+		let waitingScans = 0;
+		let rejectedScans = 0;
+		let repeatedScans = 0;
 		for ( let seed = LEVEL_WINDOW; seed < byServe.length - LEVEL_WINDOW; seed++ ) {
 			const seedBefore = byServe.slice( seed - LEVEL_WINDOW, seed ).map( row => row.v );
 			const seedAfter = byServe.slice( seed + 1, seed + LEVEL_WINDOW + 1 ).map( row => row.v );
@@ -773,18 +775,24 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 				continue;
 			}
 			const before = byServe.slice( Math.max( 0, position - SCAN_BEFORE_WINDOW ), position );
-			const after = byServe.slice( position + 1, position + LEVEL_WINDOW + 1 );
 			const preValues = before.map( row => row.v );
-			const postValues = after.map( row => row.v );
 			const pre = median( preValues );
+			if ( before.length !== SCAN_BEFORE_WINDOW || ! isHeldLevel( preValues, pre ) ) {
+				rejectedScans++;
+				continue;
+			}
+			const after = byServe.slice( position + 1, position + LEVEL_WINDOW + 1 );
+			if ( after.length !== LEVEL_WINDOW ) {
+				waitingScans++;
+				continue;
+			}
+			const postValues = after.map( row => row.v );
 			const post = median( postValues );
 			if (
-				before.length !== SCAN_BEFORE_WINDOW ||
-				after.length !== LEVEL_WINDOW ||
 				! hasLevelRise( preValues, postValues, noiseFactor ) ||
 				! isHeldLevel( postValues, post )
 			) {
-				unheldScans++;
+				rejectedScans++;
 				continue;
 			}
 			const fromCandidate = byServe.slice( position, position + LEVEL_WINDOW ).map( row => row.v );
@@ -826,13 +834,16 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 				continue;
 			}
 			// Compare only against the selected windows. A discarded window cannot join two changes.
-			if ( reportedScans.some( prior => sameChange( prior, entry ) ) ) continue;
+			if ( reportedScans.some( prior => sameChange( prior, entry ) ) ) {
+				repeatedScans++;
+				continue;
+			}
 			reportedScans.push( entry );
 			groups.push( [ entry ] );
 		}
-		if ( agedScans || coveredScans || unheldScans )
+		if ( agedScans || coveredScans || waitingScans || rejectedScans || repeatedScans )
 			console.error(
-				`metric ${ id }: scan windows skipped — ${ agedScans } outside the look-back, ${ coveredScans } covered by flags, ${ unheldScans } without a confirmed level`
+				`metric ${ id }: scan windows skipped — ${ agedScans } outside the look-back, ${ coveredScans } covered by flags, ${ waitingScans } waiting for later readings, ${ rejectedScans } rejected, ${ repeatedScans } repeated`
 			);
 
 		for ( const group of groups ) {
