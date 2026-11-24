@@ -80,7 +80,7 @@ const GettingStarted: FC = () => {
 	}
 
 	return (
-		<BoostAdminPage showActivateLicense={ false }>
+		<BoostAdminPage>
 			<div id="jb-dashboard" className="jb-dashboard jb-dashboard--main">
 				<div className="jb-section jb-section--alt">
 					<div className="jb-container">

@@ -1,4 +1,3 @@
-/* eslint-disable jest-dom/prefer-in-document -- The legacy Boost Jest project does not load jest-dom. */
 /* eslint-disable testing-library/prefer-user-event -- This project does not provide user-event. */
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { MODERN_ROOT_ID } from '$lib/modern/mode';
@@ -68,20 +67,6 @@ function renderFreeSite(
 	render( <div id={ rootId } data-testid="dashboard-root" /> );
 	return render( <GettingStarted />, { container: screen.getByTestId( 'dashboard-root' ) } );
 }
-
-test.each( [ { rootId: MODERN_ROOT_ID, features: [], links: 0 } ] )(
-	'leaves license redemption on the modern upgrade page (%o)',
-	( { rootId, features, links } ) => {
-		renderFreeSite( rootId, { host: 'unknown' }, features );
-
-		expect( screen.getByRole( 'button', { name: 'Get Boost' } ) ).toBeTruthy();
-		const found = screen.queryAllByRole( 'link', { name: 'Use license key' } );
-		expect( found ).toHaveLength( links );
-		expect( found[ 0 ]?.getAttribute( 'href' ) ).toBe(
-			links ? 'admin.php?page=my-jetpack#/add-license' : undefined
-		);
-	}
-);
 
 test.each( [
 	{

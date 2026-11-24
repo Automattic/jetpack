@@ -80,9 +80,9 @@ describe( 'InterstitialModalCTA', () => {
 		expect( apiFetch ).not.toHaveBeenCalled();
 	} );
 
-	it.each( [ MODERN_ROOT_ID ] )( 'hides prompts when My Jetpack is unavailable (%s)', rootId => {
+	it( 'hides prompts when My Jetpack is unavailable', () => {
 		boostGlobal.site.myJetpack = false;
-		render( <div id={ rootId } data-testid="dashboard-root" /> );
+		render( <div id={ MODERN_ROOT_ID } data-testid="dashboard-root" /> );
 		render( <InterstitialModalCTA identifier="critical-css" />, {
 			container: screen.getByTestId( 'dashboard-root' ),
 		} );

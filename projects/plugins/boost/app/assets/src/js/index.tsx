@@ -22,5 +22,4 @@ async function renderModern() {
 	);
 }
 
-// The admin shell runs this bundle before it mounts the chassis root, so always wait for the slots.
 renderModern();

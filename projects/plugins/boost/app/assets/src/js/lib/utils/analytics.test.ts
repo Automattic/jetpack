@@ -91,44 +91,38 @@ describe( 'Settings event context', () => {
 		document.body.replaceChildren();
 	} );
 
-	it.each( [ [ MODERN_ROOT_ID, 'modern' ] ] )(
-		'uses the rendered %s for every Settings action and page view',
-		async ( root, mode ) => {
-			const element = document.createElement( 'div' );
-			element.id = root;
-			document.body.append( element );
-			for ( const event of settingsEvents ) {
-				await recordBoostEvent( event, { count: 2 } );
-				expect( mockRecordAjaxEvent ).toHaveBeenLastCalledWith( `boost_${ event }`, 'click', {
-					count: 2,
-					boost_version: '4.8.1',
-					dashboard_variant: mode,
-				} );
-			}
+	it( 'uses the rendered dashboard for every Settings action and page view', async () => {
+		const element = document.createElement( 'div' );
+		element.id = MODERN_ROOT_ID;
+		document.body.append( element );
+		for ( const event of settingsEvents ) {
+			await recordBoostEvent( event, { count: 2 } );
+			expect( mockRecordAjaxEvent ).toHaveBeenLastCalledWith( `boost_${ event }`, 'click', {
+				count: 2,
+				boost_version: '4.8.1',
+				dashboard_variant: 'modern',
+			} );
 		}
-	);
+	} );
 
-	it.each( [ [ MODERN_ROOT_ID, 'modern', 'exceptions', 'editor' ] ] )(
-		'annotates the two panel meanings in %s',
-		async ( root, mode, cacheScope, cornerstoneScope ) => {
-			const element = document.createElement( 'div' );
-			element.id = root;
-			document.body.append( element );
-			for ( const [ event, scope ] of [
-				[ 'page_cache_exceptions_panel_toggle', cacheScope ],
-				[ 'cornerstone_pages_panel_toggle', cornerstoneScope ],
-			] ) {
-				await recordBoostEvent( event, { status: 'open', panel_scope: scope } );
-				expect( mockRecordAjaxEvent ).toHaveBeenLastCalledWith( `boost_${ event }`, 'click', {
-					status: 'open',
-					panel_scope: scope,
-					boost_version: '4.8.1',
-					dashboard_variant: mode,
-				} );
-			}
-			expect( mockRecordAjaxEvent ).toHaveBeenCalledTimes( 2 );
+	it( 'annotates the two panel meanings', async () => {
+		const element = document.createElement( 'div' );
+		element.id = MODERN_ROOT_ID;
+		document.body.append( element );
+		for ( const [ event, scope ] of [
+			[ 'page_cache_exceptions_panel_toggle', 'exceptions' ],
+			[ 'cornerstone_pages_panel_toggle', 'editor' ],
+		] ) {
+			await recordBoostEvent( event, { status: 'open', panel_scope: scope } );
+			expect( mockRecordAjaxEvent ).toHaveBeenLastCalledWith( `boost_${ event }`, 'click', {
+				status: 'open',
+				panel_scope: scope,
+				boost_version: '4.8.1',
+				dashboard_variant: 'modern',
+			} );
 		}
-	);
+		expect( mockRecordAjaxEvent ).toHaveBeenCalledTimes( 2 );
+	} );
 
 	it( 'preserves caller properties over version and rendered dashboard context', async () => {
 		const element = document.createElement( 'div' );
