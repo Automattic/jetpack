@@ -515,6 +515,22 @@ describe( 'IdentityCrisis', () => {
 		);
 	} );
 
+	it.each( [
+		[ 'Yes, it moved from there', 'heading', 'old.example is this site’s old address' ],
+		[ 'No, or I’m not sure', 'button', 'Copy message' ],
+	] )( 'after “Nothing loads”, “%s” leads to its result', async ( choice, role, name ) => {
+		const user = userEvent.setup();
+		render( <IdentityCrisis context="notice" onActionSuccess={ jest.fn() } /> );
+
+		await user.click( screen.getByRole( 'button', { name: 'Work it out step by step' } ) );
+		await user.click(
+			screen.getByRole( 'button', { name: 'Nothing loads, or it is not my site' } )
+		);
+		await user.click( screen.getByRole( 'button', { name: choice } ) );
+
+		expect( screen.getByRole( role, { name } ) ).toBeInTheDocument();
+	} );
+
 	it( 'goes back to an earlier guide question from the answers so far', async () => {
 		const user = userEvent.setup();
 		render( <IdentityCrisis context="notice" onActionSuccess={ jest.fn() } /> );
