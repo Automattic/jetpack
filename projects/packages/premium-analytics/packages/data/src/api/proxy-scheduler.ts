@@ -9,9 +9,7 @@ import { getApiErrorCode } from '../utils/api-error';
 import { statsProxyPath } from './constants';
 import { fetchPreservingStatus } from './stats-proxy-fetch';
 
-export type ProxyPriority = 'primary' | 'comparison';
-
-/** Reads per batch, so a dashboard's primary and comparison reads fit one round of batches; the route accepts up to 20. */
+/** Reads per batch, so a dashboard's reads fit one round of batches; the route accepts up to 20. */
 const BATCH_SIZE = 10;
 
 /** Batches in flight at once; on HTTP/1.1 this leaves two of six connections for assets and other requests. */
@@ -22,8 +20,7 @@ const BATCH_WINDOW_MS = 50;
 
 type Job = {
 	path: string;
-	priority: number;
-	seq: number;
+	group?: string;
 	signal?: AbortSignal;
 	settled: boolean;
 	resolve: ( value: unknown ) => void;
@@ -35,7 +32,6 @@ type BatchItemResult = { status: number; body: unknown };
 
 const queue: Job[] = [];
 let inFlight = 0;
-let seq = 0;
 let flushTimer: ReturnType< typeof setTimeout > | null = null;
 let batchRouteMissing = false;
 
@@ -64,16 +60,29 @@ function settle( job: Job, outcome: 'resolve' | 'reject', value: unknown ) {
 	job[ outcome ]( value );
 }
 
-function takeNext(): Job {
-	let best = 0;
-	for ( let i = 1; i < queue.length; i++ ) {
-		const a = queue[ i ];
-		const b = queue[ best ];
-		if ( a.priority < b.priority || ( a.priority === b.priority && a.seq < b.seq ) ) {
-			best = i;
+/**
+ * Take the next reads off the queue, oldest first, keeping each read's group mates with it.
+ *
+ * @param size - How many reads to take; a group may run past it.
+ * @return The batch's reads.
+ */
+function takeBatch( size: number ): Job[] {
+	const jobs: Job[] = [];
+	while ( jobs.length < size && queue.length ) {
+		const job = queue.shift() as Job;
+		jobs.push( job );
+		// A widget's two periods land together, so its chart is drawn once rather than twice.
+		if ( size > 1 && job.group ) {
+			for ( let i = 0; i < queue.length; ) {
+				if ( queue[ i ].group === job.group ) {
+					jobs.push( ...queue.splice( i, 1 ) );
+				} else {
+					i++;
+				}
+			}
 		}
 	}
-	return queue.splice( best, 1 )[ 0 ];
+	return jobs;
 }
 
 function settleBatchItem( job: Job, item: BatchItemResult | undefined ) {
@@ -140,13 +149,7 @@ async function dispatch( jobs: Job[] ): Promise< void > {
 
 function pump() {
 	while ( inFlight < MAX_IN_FLIGHT && queue.length ) {
-		const jobs: Job[] = [ takeNext() ];
-		// A batch answers when its slowest read does, so a comparison never rides with primary reads.
-		const size = batchRouteMissing ? 1 : BATCH_SIZE;
-		// `takeNext()` drains the lowest priority first, so this stops at the first other-priority read.
-		while ( jobs.length < size && queue.some( job => job.priority === jobs[ 0 ].priority ) ) {
-			jobs.push( takeNext() );
-		}
+		const jobs = takeBatch( batchRouteMissing ? 1 : BATCH_SIZE );
 		inFlight++;
 		dispatch( jobs ).finally( () => {
 			inFlight--;
@@ -156,16 +159,16 @@ function pump() {
 }
 
 /**
- * Queue a local proxy GET to go out in a batch with the reads around it, primary periods first.
+ * Queue a local proxy GET to go out in a batch with the reads around it.
  *
- * @param path     - The full apiFetch path, query string included.
- * @param priority - Which period the read serves; comparison reads leave after primary ones.
- * @param signal   - Cancels the read: dropped from the queue, or detached from its batch.
+ * @param path   - The full apiFetch path, query string included.
+ * @param group  - Reads sharing a group go out in one batch, such as a widget's two periods.
+ * @param signal - Cancels the read: dropped from the queue, or detached from its batch.
  * @return The parsed response body.
  */
 export function scheduleProxyGet< T >(
 	path: string,
-	priority: ProxyPriority | undefined,
+	group: string | undefined,
 	signal?: AbortSignal
 ): Promise< T > {
 	return new Promise< T >( ( resolve, reject ) => {
@@ -176,8 +179,7 @@ export function scheduleProxyGet< T >(
 
 		const job: Job = {
 			path,
-			priority: priority === 'comparison' ? 1 : 0,
-			seq: seq++,
+			group,
 			signal,
 			settled: false,
 			resolve: resolve as ( value: unknown ) => void,

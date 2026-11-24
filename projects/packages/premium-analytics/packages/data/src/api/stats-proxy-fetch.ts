@@ -11,7 +11,7 @@ import { addQueryArgs } from '@wordpress/url';
 import { getApiErrorCode } from '../utils/api-error';
 import { statsProxyPath } from './constants';
 import { isResponse } from './is-response';
-import { scheduleProxyGet, shouldBatchProxyReads, type ProxyPriority } from './proxy-scheduler';
+import { scheduleProxyGet, shouldBatchProxyReads } from './proxy-scheduler';
 
 export type StatsProxyVersion = '1.1' | '1.2' | '2';
 
@@ -44,8 +44,8 @@ export type StatsProxyFetchParams< TBody = unknown > = {
 	 * otherwise silently miss the global-request handling.
 	 */
 	global?: boolean;
-	/** Which period the request serves; a batched comparison read leaves after the primary ones. */
-	priority?: ProxyPriority;
+	/** Batched reads sharing a group go out together, such as a widget's two periods. */
+	group?: string;
 	signal?: AbortSignal;
 };
 
@@ -291,7 +291,7 @@ export async function fetchStatsProxy< TResponse = unknown, TBody = unknown >( {
 	method = 'GET',
 	body,
 	global,
-	priority,
+	group,
 	signal,
 }: StatsProxyFetchParams< TBody > ): Promise< TResponse > {
 	const { path, global: isGlobal } = resolveStatsProxyRequest( {
@@ -302,7 +302,7 @@ export async function fetchStatsProxy< TResponse = unknown, TBody = unknown >( {
 	} );
 
 	if ( method === 'GET' && ! isSimpleSite() && shouldBatchProxyReads() ) {
-		return scheduleProxyGet< TResponse >( path, priority, signal );
+		return scheduleProxyGet< TResponse >( path, group, signal );
 	}
 
 	return fetchPreservingStatus< TResponse >( {

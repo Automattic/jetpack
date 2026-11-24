@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { useQuery, type UseQueryOptions } from '@tanstack/react-query';
-import { useCallback, useMemo } from 'react';
+import { useCallback, useId, useMemo } from 'react';
 /**
  * Internal dependencies
  */
@@ -69,16 +69,19 @@ export function useReport<
 	const comparisonQueryEnabled =
 		queryEnabled && comparisonEnabled && ( comparisonQueryOptions.enabled ?? true );
 
+	// Batches the two periods together; see `scheduleProxyGet()`.
+	const proxyGroup = useId();
+
 	const primary = useQuery( {
 		...primaryQueryOptions,
 		enabled: primaryEnabled,
-		meta: { ...primaryQueryOptions.meta, ...refreshNoticeMeta, proxyPriority: 'primary' },
+		meta: { ...primaryQueryOptions.meta, ...refreshNoticeMeta, proxyGroup },
 	} );
 
 	const comparison = useQuery( {
 		...comparisonQueryOptions,
 		enabled: comparisonQueryEnabled,
-		meta: { ...comparisonQueryOptions.meta, ...refreshNoticeMeta, proxyPriority: 'comparison' },
+		meta: { ...comparisonQueryOptions.meta, ...refreshNoticeMeta, proxyGroup },
 	} );
 
 	// Widened past React Query's `isLoading` (see `isAwaitingData`), and on the primary period alone:

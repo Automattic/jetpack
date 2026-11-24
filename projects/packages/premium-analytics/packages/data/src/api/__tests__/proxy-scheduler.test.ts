@@ -79,26 +79,25 @@ describe( 'proxy scheduler', () => {
 		] );
 	} );
 
-	it( 'keeps comparison reads out of primary batches, so a slow comparison holds up no primary read', async () => {
+	it( "sends a widget's two periods in one batch, even past the batch size", async () => {
 		const { scheduler, apiFetch } = await load();
-		apiFetch.mockImplementation( ( async ( { data }: { data?: { requests: string[] } } ) => {
-			if ( data?.requests[ 0 ].includes( 'c=' ) ) {
-				return new Promise( () => {} );
-			}
-			return data?.requests.map( () => ( { status: 200, body: 'primary' } ) );
-		} ) as typeof apiFetchType );
+		apiFetch.mockImplementation( ( async ( { data }: { data?: { requests: string[] } } ) =>
+			data?.requests.map( () => ( { status: 200, body: 'ok' } ) ) ) as typeof apiFetchType );
 
-		scheduler.scheduleProxyGet( `${ PROXY }/v1.1/stats/visits?c=1`, 'comparison' );
-		scheduler.scheduleProxyGet( `${ PROXY }/v1.1/stats/visits?c=2`, 'comparison' );
-		const primary = scheduler.scheduleProxyGet( `${ PROXY }/v1.1/stats/visits?p=1`, 'primary' );
-		scheduler.scheduleProxyGet( `${ PROXY }/v1.1/stats/visits?p=2`, 'primary' );
+		// The pair arrives as the tenth and eleventh reads, so a plain cut at ten would split it.
+		Array.from( { length: 9 }, ( _, i ) =>
+			scheduler.scheduleProxyGet( `${ PROXY }/v1.1/stats/r${ i }`, `widget-${ i }` )
+		);
+		scheduler.scheduleProxyGet( `${ PROXY }/v1.1/stats/chart?p=1`, 'chart' );
+		const comparison = scheduler.scheduleProxyGet( `${ PROXY }/v1.1/stats/chart?c=1`, 'chart' );
 		jest.runOnlyPendingTimers();
 
-		await expect( primary ).resolves.toBe( 'primary' );
-		expect( batchPaths( apiFetch ) ).toEqual( [
-			[ '/v1.1/stats/visits?p=1', '/v1.1/stats/visits?p=2' ],
-			[ '/v1.1/stats/visits?c=1', '/v1.1/stats/visits?c=2' ],
-		] );
+		await expect( comparison ).resolves.toBe( 'ok' );
+		const [ first ] = batchPaths( apiFetch );
+		expect( first ).toHaveLength( 11 );
+		expect( first ).toEqual(
+			expect.arrayContaining( [ '/v1.1/stats/chart?p=1', '/v1.1/stats/chart?c=1' ] )
+		);
 	} );
 
 	it( 'falls back to single reads, and sends no more batches, where the batch route is missing', async () => {
@@ -112,7 +111,7 @@ describe( 'proxy scheduler', () => {
 
 		// More reads than four batches of ten, so some are still queued when the 404 lands.
 		const reads = Array.from( { length: 45 }, ( _, i ) =>
-			scheduler.scheduleProxyGet( `${ PROXY }/v1.1/stats/r${ i }`, 'primary' )
+			scheduler.scheduleProxyGet( `${ PROXY }/v1.1/stats/r${ i }`, undefined )
 		);
 		jest.runOnlyPendingTimers();
 
@@ -128,10 +127,10 @@ describe( 'proxy scheduler', () => {
 
 		const cancelled = scheduler.scheduleProxyGet(
 			`${ PROXY }/v1.1/stats/old`,
-			'primary',
+			undefined,
 			controller.signal
 		);
-		const kept = scheduler.scheduleProxyGet( `${ PROXY }/v1.1/stats/new`, 'primary' );
+		const kept = scheduler.scheduleProxyGet( `${ PROXY }/v1.1/stats/new`, undefined );
 		controller.abort();
 		jest.runOnlyPendingTimers();
 

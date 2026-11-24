@@ -51,7 +51,6 @@ import {
 	type StatsQueryParamFields,
 	type StatsSanitizerParams,
 } from '../utils/stats-params';
-import type { ProxyPriority } from '../api/proxy-scheduler';
 import type { ReportParams } from '../utils/search';
 import type { UseQueryOptions } from '@tanstack/react-query';
 
@@ -176,7 +175,7 @@ export function statsProxyQuery( config: StatsQueryConfig ): StatsReportQueryOpt
 				params: apiParams,
 				method,
 				body,
-				priority: context?.meta?.proxyPriority as ProxyPriority | undefined,
+				group: context?.meta?.proxyGroup as string | undefined,
 				signal: context?.signal,
 			} );
 			return statsSanitizers[ sanitizer ]( response, {

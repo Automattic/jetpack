@@ -34,6 +34,24 @@ const isOwn = ( text: string ) => OWN_URL_PARTS.some( part => text.includes( par
 const isStatsRequest = ( request: Request ) =>
 	decodeURIComponent( request.url() ).includes( '/jetpack-premium-analytics/v1/proxy/' );
 
+// A `proxy/batch` POST carries its reads in the body, as paths below `proxy`.
+const statsReadUrls = ( request: Request ): URL[] => {
+	const url = new URL( decodeURIComponent( request.url() ) );
+	if (
+		! url.pathname.endsWith( '/proxy/batch' ) &&
+		! url.searchParams.get( 'rest_route' )?.endsWith( '/proxy/batch' )
+	) {
+		return [ url ];
+	}
+	const items: string[] = request.postDataJSON()?.requests ?? [];
+	return items.map(
+		item =>
+			new URL(
+				`${ url.origin }/wp-json/jetpack-premium-analytics/v1/proxy${ decodeURIComponent( item ) }`
+			)
+	);
+};
+
 // The app writes `p` encoded once more than `open()` does.
 export const route = ( url: URL ) => decodeURIComponent( url.searchParams.get( 'p' ) ?? '' );
 
@@ -149,7 +167,7 @@ export class Dashboard {
 			if ( ! isStatsRequest( request ) ) {
 				return;
 			}
-			this.statsRequests.push( new URL( decodeURIComponent( request.url() ) ) );
+			this.statsRequests.push( ...statsReadUrls( request ) );
 			this.statsInFlight++;
 			this.lastStatsActivity = Date.now();
 		} );
