@@ -40,7 +40,7 @@ function unpack_jetpack_reconnect_data( $data ) {
  * @return bool|WP_Error
  */
 function verify_jetpack_reconnect_data( $data, $sig ) {
-	if ( ! openssl_verify(
+	if ( 1 !== openssl_verify(
 		$data,
 		base64_decode( $sig ), // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode
 		JETPACK_RECONNECT_PUBLIC_KEY,

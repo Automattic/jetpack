@@ -38,6 +38,7 @@ class Google_Analytics_Settings_Test extends BaseTestCase {
 	 */
 	public function tear_down() {
 		remove_filter( self::FLAG_FILTER, '__return_true' );
+		remove_filter( self::FLAG_FILTER, '__return_false' );
 		unset( $GLOBALS['my_jetpack_test_site_features'] );
 		delete_option( 'jetpack_wga' );
 		Feature_Flags::reset();
@@ -91,6 +92,7 @@ class Google_Analytics_Settings_Test extends BaseTestCase {
 			wp_set_current_user( $this->user( 'editor' ) );
 		} else {
 			remove_filter( self::FLAG_FILTER, '__return_true' );
+			add_filter( self::FLAG_FILTER, '__return_false' );
 		}
 
 		$this->assertFalse( Google_Analytics_Settings::is_available() );

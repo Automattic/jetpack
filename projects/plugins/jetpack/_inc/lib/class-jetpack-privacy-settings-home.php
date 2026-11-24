@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Gives the usage tracking setting a section on the user's Profile page once Jetpack › Settings drops its Privacy card.
  *
- * @since $$next-version$$
+ * @since 16.5
  */
 class Jetpack_Privacy_Settings_Home {
 

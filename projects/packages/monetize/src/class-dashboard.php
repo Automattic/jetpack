@@ -32,7 +32,7 @@ class Dashboard {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '0.2.0';
+	const PACKAGE_VERSION = '0.3.0';
 
 	/**
 	 * Feature flag that makes the dashboard available while it is built.
@@ -280,11 +280,16 @@ class Dashboard {
 		$blog_id    = Jetpack_Options::get_option( 'id' );
 		$partner    = Partner::init();
 
-		$query = $connection->is_user_connected() ? '' : 'unlinked=1&';
+		$query = array();
+		if ( ! $connection->is_user_connected() ) {
+			$query['unlinked'] = 1;
+		}
 		// Lets an admin of a site with no connected user buy without a WordPress.com account.
 		if ( $connection->is_site_connection() && current_user_can( 'manage_options' ) ) {
-			$query .= 'purchasetoken=' . self::get_purchase_token();
+			$query['purchasetoken'] = self::get_purchase_token();
 		}
+		// Checkout sends the buyer back here instead of to Calypso.
+		$query['redirect_to'] = admin_url( 'admin.php?page=' . self::MENU_SLUG );
 
 		return Redirect::get_url(
 			'jetpack-creator-cta',
@@ -293,7 +298,7 @@ class Dashboard {
 				'aff'          => $partner->get_partner_code( Partner::AFFILIATE_CODE ),
 				'u'            => (string) get_current_user_id(),
 				'subsidiaryId' => $partner->get_partner_code( Partner::SUBSIDIARY_CODE ),
-				'query'        => $query,
+				'query'        => http_build_query( $query ),
 				'calypso_env'  => ( new Host() )->get_calypso_env(),
 			)
 		);

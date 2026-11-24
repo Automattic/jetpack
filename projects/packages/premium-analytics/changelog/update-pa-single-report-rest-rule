@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Single-report pages: Offer a post type's page only where the type is registered in REST, and give the page report its own section and cards.

@@ -40,6 +40,7 @@ jest.mock( '@automattic/jetpack-connection', () => {
 		IdentityCrisis: jest.fn( ( { hostActions } ) =>
 			createElement( 'div', { 'data-testid': 'identity-crisis' }, hostActions )
 		),
+		onIdentityCrisisActionSuccess: jest.fn(),
 	};
 } );
 
@@ -119,7 +120,6 @@ function renderCard( { state = connectedAsOwner, data = {}, search = '', errorNo
 			...actual,
 			decorateAuthUrl: jest.fn( actual.decorateAuthUrl ),
 			withSkipPricing: jest.fn( actual.withSkipPricing ),
-			withoutClearConfirmation: jest.fn( actual.withoutClearConfirmation ),
 		};
 	} );
 	const connection = require( '@automattic/jetpack-connection' );
@@ -131,17 +131,12 @@ function renderCard( { state = connectedAsOwner, data = {}, search = '', errorNo
 	const { render: Card, ...props } = registerConnector.mock.calls[ 0 ][ 1 ];
 
 	render( React.createElement( Card, props ) );
-	const {
-		decorateAuthUrl,
-		withSkipPricing,
-		withoutClearConfirmation,
-	} = require( '../card-state.mjs' );
+	const { decorateAuthUrl, withSkipPricing } = require( '../card-state.mjs' );
 	return {
 		user: userEvent.setup(),
 		connection,
 		decorateAuthUrl,
 		withSkipPricing,
-		withoutClearConfirmation,
 	};
 }
 
@@ -677,7 +672,12 @@ describe( 'Connectors card', () => {
 				search,
 			} );
 			await user.click( screen.getByRole( 'button', { name: 'Resolve' } ) );
-			return { user, props: connection.IdentityCrisis.mock.calls.at( -1 )[ 0 ], ...spies };
+			return {
+				user,
+				connection,
+				props: connection.IdentityCrisis.mock.calls.at( -1 )[ 0 ],
+				...spies,
+			};
 		}
 
 		it.each( [
@@ -699,7 +699,7 @@ describe( 'Connectors card', () => {
 		} );
 
 		it( 'after a fresh connection, goes to the connect URL with only skip_pricing added', async () => {
-			const { props, decorateAuthUrl, withSkipPricing } = await openScreen();
+			const { props, connection, decorateAuthUrl, withSkipPricing } = await openScreen();
 
 			act( () => props.onActionSuccess( { action: 'start-fresh', connectUrl: AUTH_URL } ) );
 
@@ -707,21 +707,20 @@ describe( 'Connectors card', () => {
 			// The endpoint already put `from` in the URL.
 			expect( decorateAuthUrl ).not.toHaveBeenCalled();
 			expect( withSkipPricing ).toHaveBeenCalledWith( AUTH_URL );
+			expect( connection.onIdentityCrisisActionSuccess ).not.toHaveBeenCalled();
 		} );
 
-		it( 'after staying in Safe Mode, reloads without the admin bar link arguments', async () => {
-			const { props, withoutClearConfirmation } = await openScreen(
-				{},
-				'?jetpack_idc_clear_confirmation=1&_wpnonce=abc'
-			);
+		it.each( [ 'confirm-safe-mode', 'migrate' ] )(
+			"hands %s to the screen's default, and keeps its default done button",
+			async action => {
+				const { props, connection } = await openScreen();
 
-			act( () => props.onActionSuccess( { action: 'confirm-safe-mode' } ) );
+				props.onActionSuccess( { action } );
 
-			await expectNavigation();
-			expect( withoutClearConfirmation.mock.results[ 0 ].value ).toBe(
-				'http://localhost/wp-admin/options-connectors.php'
-			);
-		} );
+				expect( connection.onIdentityCrisisActionSuccess ).toHaveBeenCalledWith( { action } );
+				expect( props.onMigratedDone ).toBeUndefined();
+			}
+		);
 
 		it( "opens the card's own disconnect dialog", async () => {
 			const { user } = await openScreen();

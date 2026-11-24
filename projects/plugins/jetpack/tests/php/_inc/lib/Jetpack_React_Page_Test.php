@@ -450,14 +450,17 @@ class Jetpack_React_Page_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Tests that a pending error sends every route to Settings, whose notices show it.
+	 * Tests that a pending error sends every route to Settings, whose notices show it, without settings consolidation.
 	 */
 	public function test_pending_error_sends_every_route_to_settings() {
+		$flag_filter = 'jetpack_feature_flag_enabled_' . Initializer::SETTINGS_CONSOLIDATION_FLAG;
+		add_filter( $flag_filter, '__return_false' );
 		Jetpack::state( 'error', 'some_error' );
 
 		$table = Jetpack_React_Page::get_legacy_route_redirects();
 
 		Jetpack::state( 'error', '' );
+		remove_filter( $flag_filter, '__return_false' );
 
 		$this->assertSame( array(), $table['routes'] );
 		$this->assertSame( admin_url( 'admin.php?page=jetpack-settings' ), $table['fallback'] );

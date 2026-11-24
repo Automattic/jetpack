@@ -32,7 +32,7 @@ jest.mock( '../../../hooks/use-stats-visits', () => () => mockStatsVisits );
 jest.mock( '../overview-item/use-status-action', () => () => ( { isPending: false } ) );
 jest.mock( '../stats-card/overview-stats', () => () => null );
 jest.mock( '../../../data/use-simple-query', () => () => ( {
-	data: { scanData: { num_threats: 0 }, wafConfig: {} },
+	data: { scanData: { threats: [] }, wafConfig: {} },
 	isLoading: false,
 	isFetching: false,
 	isError: false,
@@ -92,6 +92,9 @@ describe( "Protect's Scan upsell", () => {
 		mockHostPurchaseUrl = hostPurchaseUrl;
 		render( <ProtectOverviewItem admin /> );
 
-		expect( screen.getByRole( 'link', { name: 'Scan threats' } ) ).toHaveAttribute( 'href', href );
+		expect( screen.getByRole( 'link', { name: 'Add malware scanning' } ) ).toHaveAttribute(
+			'href',
+			href
+		);
 	} );
 } );

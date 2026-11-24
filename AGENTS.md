@@ -80,6 +80,15 @@ When adding a version number in a DocBlock, MUST use `$$next-version$$`:
 
 The `$$next-version$$` placeholder is automatically replaced with the correct version at release time. Do NOT replace these with actual version numbers.
 
+Keep each `_deprecated_*()`, `apply_filters_deprecated()`, `do_action_deprecated()` or `_doing_it_wrong()` call on one line, with the version in a single-quoted string, or `tools/replace-next-version-tag.sh` can't replace `$$next-version$$` and the build fails.
+
+#### Deprecating Public Code
+
+Follow `docs/coding-guidelines.md` § "Deprecating code":
+
+- Never remove or rename a public PHP function, method, class, hook, or loaded file in one step. Deprecate it first (`_deprecated_function()`, `_deprecated_file()`, `apply_filters_deprecated()`, `do_action_deprecated()`), keep it working or delegating to its replacement, and remove it only after the deprecation period that section sets.
+- Before removing deprecated code, check for outside callers as that section describes; a clean monorepo search does not prove nothing else calls it.
+
 ### JavaScript & React Standards
 
 - Importing from `react` directly is fine. `@wordpress/element` also works but is no longer required — follow the convention used in the package you're working in
@@ -335,6 +344,7 @@ When reviewing code, check for:
 - Adherence to `docs/coding-guidelines.md`
 - Changelog entries in the wrong set of plugins — a user-facing package change missing an entry in a plugin that surfaces it, or an entry added to plugins that cannot reach the change at all (see "User-Facing Changes Outside a Plugin Also Need Plugin Entries" above). CI only checks the directly-touched project, so both directions are reviewer-only
 - Missing documentation for public APIs, or missing explanations for non-obvious logic
+- Public PHP API (functions, methods, classes, hooks, loaded files) removed or renamed without first being deprecated, or removed before its deprecation period is over (see "Deprecating Public Code" above)
 - Typos in user-facing strings, comments, and docs — PHPCS and ESLint check naming and formatting, not spelling, so this needs human eyes
 - Performance hazards that no sniff catches: uncached `wp_remote_*` calls, queries inside loops, `meta_query`/`tax_query`/`orderby => rand` on large tables, and newly autoloaded options. `WordPress.DB.SlowDBQuery` is excluded from the Jetpack ruleset as too noisy, so this is reviewer-only
 - CSS/SCSS files not using logical properties for RTL

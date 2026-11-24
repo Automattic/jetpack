@@ -552,7 +552,7 @@ abstract class Product {
 	/**
 	 * Get the URL where the user can purchase the product iff it doesn't have an interstitial page in My Jetpack.
 	 *
-	 * @since $$next-version$$ Returns the host's own address when it sells the product's feature.
+	 * @since 6.19.0 Returns the host's own address when it sells the product's feature.
 	 *
 	 * @return ?string
 	 */
@@ -564,7 +564,7 @@ abstract class Product {
 	/**
 	 * Get the URL where the site's host sells the product, in place of My Jetpack's interstitial page.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.19.0
 	 *
 	 * @return ?string Null when no host sells it or the site already has it.
 	 */
@@ -1027,7 +1027,7 @@ abstract class Product {
 	 *
 	 * Turning its module or plugin on can't bring it back, so nothing should offer to.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.19.0
 	 *
 	 * @return bool
 	 */

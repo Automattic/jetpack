@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Forms: Open the Responses tab without a delay when switching from the Forms tab, and the other way around.

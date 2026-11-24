@@ -1,8 +1,7 @@
 /* eslint-disable react/jsx-no-bind */
 
-import { ToggleControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { Stack } from '@wordpress/ui';
+import { Stack, SwitchControl } from '@wordpress/ui';
 import LocalBusinessFields from './local-business-fields';
 import type { SchemaSettingsForm } from '../../../data/use-schema-settings';
 import type { FC } from 'react';
@@ -28,16 +27,15 @@ const LocalBusinessSection: FC< Props > = ( { form, disabled = false } ) => {
 
 	return (
 		<Stack direction="column" gap="lg">
-			<ToggleControl
+			<SwitchControl
 				label={ __( 'This is a local business', 'jetpack-seo' ) }
-				help={ __(
+				description={ __(
 					'Turn on if customers visit you in person (a shop, studio, restaurant, clinic). Adds your address, phone, and hours so search engines can show your local details.',
 					'jetpack-seo'
 				) }
 				checked={ localBusiness.enabled }
-				onChange={ next => setLocalBusinessField( { enabled: next } ) }
+				onCheckedChange={ next => setLocalBusinessField( { enabled: next } ) }
 				disabled={ disabled || isSaving }
-				__nextHasNoMarginBottom
 			/>
 
 			{ localBusiness.enabled && <LocalBusinessFields form={ form } disabled={ disabled } /> }

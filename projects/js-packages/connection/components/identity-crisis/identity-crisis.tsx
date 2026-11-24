@@ -13,7 +13,9 @@ import { getOptions, getPath } from './flow/steps';
 import useIdentityCrisisFlow from './flow/use-identity-crisis-flow';
 import IdentityCrisisLayout from './layout';
 import IdentityCrisisMigrated from './migrated';
+import { reloadPage } from './navigate';
 import IdentityCrisisNonAdmin from './non-admin';
+import { onIdentityCrisisActionSuccess } from './on-action-success';
 import styles from './styles.module.scss';
 import useIdentityCrisisState from './use-identity-crisis-state';
 import type { CopyContext } from './flow/copy';
@@ -44,8 +46,8 @@ function IdentityCrisisResolver( {
 	redirectUri,
 	from,
 	hostActions,
-	onActionSuccess,
-	onMigratedDone,
+	onActionSuccess = onIdentityCrisisActionSuccess,
+	onMigratedDone = reloadPage,
 }: ResolverProps ): ReactNode {
 	const actions = useIdentityCrisisActions( { redirectUri, from } );
 	const ctx: FlowContext = useMemo(

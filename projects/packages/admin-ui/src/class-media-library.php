@@ -40,6 +40,8 @@ class Media_Library {
 		}
 		self::$initialized = true;
 		add_action( 'wp_ajax_' . self::AJAX_ACTION, array( __CLASS__, 'ajax_media_library' ) );
+		// After core prints the late scripts and styles.
+		add_action( 'admin_print_footer_scripts', array( Page_Handles::class, 'print_handles' ), 100 );
 	}
 
 	/**
@@ -53,8 +55,8 @@ class Media_Library {
 		}
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- Read-only: they only leave out what the page already has.
 		$done = array(
-			'scripts' => isset( $_GET['scripts'] ) && is_string( $_GET['scripts'] ) ? sanitize_text_field( wp_unslash( $_GET['scripts'] ) ) : '',
-			'styles'  => isset( $_GET['styles'] ) && is_string( $_GET['styles'] ) ? sanitize_text_field( wp_unslash( $_GET['styles'] ) ) : '',
+			'scripts' => isset( $_REQUEST['scripts'] ) && is_string( $_REQUEST['scripts'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['scripts'] ) ) : '',
+			'styles'  => isset( $_REQUEST['styles'] ) && is_string( $_REQUEST['styles'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['styles'] ) ) : '',
 		);
 		// phpcs:enable WordPress.Security.NonceVerification.Recommended
 		$html = self::get_html( array_filter( explode( ',', $done['scripts'] ) ), array_filter( explode( ',', $done['styles'] ) ) );
@@ -75,6 +77,7 @@ class Media_Library {
 		ob_end_clean();
 		wp_scripts()->done = array_merge( wp_scripts()->done, $done_scripts );
 		wp_styles()->done  = array_merge( wp_styles()->done, $done_styles );
+		Page_Handles::print_one_tag_per_handle();
 		ob_start();
 		wp_print_styles( self::HANDLES );
 		wp_print_scripts( self::HANDLES );

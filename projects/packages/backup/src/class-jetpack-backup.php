@@ -1112,7 +1112,7 @@ class Jetpack_Backup {
 	/**
 	 * Forget the cached storage figures, after anything that changes them.
 	 *
-	 * @since $$next-version$$
+	 * @since 5.3.0
 	 *
 	 * @return void
 	 */

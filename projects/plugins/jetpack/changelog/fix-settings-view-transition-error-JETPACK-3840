@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Settings: Stop errors in the browser console when the Settings page loads.
