@@ -346,48 +346,52 @@ class WPCOM_Hosting_Feature_Page_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * On WoA, Protect's entry leaves the sidebar only while the page offers to turn a disabled dashboard back on.
+	 * On WoA, a page's entry leaves the sidebar only while the page offers to turn a disabled dashboard back on.
 	 *
+	 * @param string   $page          Page class.
 	 * @param string[] $plan_features The plan's features.
 	 * @param bool     $hidden        Whether the entry is hidden.
 	 *
-	 * @dataProvider provide_protect_entry_states
+	 * @dataProvider provide_entry_states
 	 */
-	#[DataProvider( 'provide_protect_entry_states' )]
-	public function test_protect_entry_hides_only_on_the_enable_prompt( $plan_features, $hidden ) {
+	#[DataProvider( 'provide_entry_states' )]
+	public function test_entry_hides_only_on_the_enable_prompt( $page, $plan_features, $hidden ) {
 		global $submenu;
 
 		$this->set_up_admin_menu();
 		$this->set_up_protect_dashboard( true, false );
+		$this->set_up_monetize_dashboard( true, false );
 		$this->grant_feature( ...$plan_features );
-		$GLOBALS['pagenow']     = 'admin.php';
-		$GLOBALS['plugin_page'] = WPCOM_Scan::MENU_SLUG;
-		$_GET['page']           = WPCOM_Scan::MENU_SLUG;
+		$GLOBALS['plugin_page'] = $page::MENU_SLUG;
+		$_GET['page']           = $page::MENU_SLUG;
 
-		WPCOM_Scan::register_page();
+		$page::register_page();
 
-		$item = current( wp_list_filter( $submenu['jetpack'], array( 2 => WPCOM_Scan::MENU_SLUG ) ) );
+		$item = current( wp_list_filter( $submenu['jetpack'], array( 2 => $page::MENU_SLUG ) ) );
 		$this->assertSame( $hidden, str_contains( $item[4] ?? '', 'hide-if-js' ) );
 		// Core's access check runs before admin_head, so a link into the page must still land.
 		$this->assertTrue( user_can_access_admin_page() );
 
 		// Run directly rather than through admin_head, which would fire other features' callbacks in this suite.
-		$this->assertSame( $hidden, false !== has_action( 'admin_head', array( WPCOM_Scan::class, 'remove_menu_entry' ) ) );
+		$this->assertSame( $hidden, false !== has_action( 'admin_head', array( $page, 'remove_menu_entry' ) ) );
 		if ( $hidden ) {
-			WPCOM_Scan::remove_menu_entry();
-			$this->assertEmpty( wp_list_filter( $submenu['jetpack'], array( 2 => WPCOM_Scan::MENU_SLUG ) ) );
+			$page::remove_menu_entry();
+			$this->assertEmpty( wp_list_filter( $submenu['jetpack'], array( 2 => $page::MENU_SLUG ) ) );
 		}
 	}
 
 	/**
-	 * Data provider for test_protect_entry_hides_only_on_the_enable_prompt.
+	 * Data provider for test_entry_hides_only_on_the_enable_prompt.
 	 *
 	 * @return array
 	 */
-	public static function provide_protect_entry_states() {
+	public static function provide_entry_states() {
 		return array(
-			'enable prompt'  => array( array( \WPCOM_Features::SCAN_SELF_SERVE ), true ),
-			'upgrade prompt' => array( array(), false ),
+			'Protect, enable prompt'  => array( WPCOM_Scan::class, array( \WPCOM_Features::SCAN_SELF_SERVE ), true ),
+			'Protect, upgrade prompt' => array( WPCOM_Scan::class, array(), false ),
+			'Monetize'                => array( WPCOM_Monetize::class, array(), true ),
+			// No dashboard module to turn back on.
+			'Backup, upgrade prompt'  => array( WPCOM_Backup::class, array(), false ),
 		);
 	}
 
