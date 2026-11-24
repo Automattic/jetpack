@@ -38,7 +38,7 @@ class Config {
 	/**
 	 * The initial setting values.
 	 *
-	 * @var Array
+	 * @var array
 	 */
 	protected $config = array(
 		'jitm'               => false,

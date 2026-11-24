@@ -19,7 +19,7 @@ class Jetpack_ReCaptcha {
 	/**
 	 * URL to which requests are POSTed.
 	 *
-	 * @const string
+	 * @var string
 	 */
 	const VERIFY_URL = 'https://www.google.com/recaptcha/api/siteverify';
 

@@ -24,7 +24,7 @@ class Term_Relationships extends Module {
 	 *
 	 * @access public
 	 *
-	 * @const int
+	 * @var int
 	 */
 	const QUERY_LIMIT = 1000;
 
@@ -33,7 +33,7 @@ class Term_Relationships extends Module {
 	 *
 	 * @access public
 	 *
-	 * @const int
+	 * @var int
 	 */
 	const MAX_INT = 2147483647;
 

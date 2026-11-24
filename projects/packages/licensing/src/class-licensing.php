@@ -23,14 +23,14 @@ class Licensing {
 	/**
 	 * Name of the WordPress option that holds all known Jetpack licenses.
 	 *
-	 * @const string
+	 * @var string
 	 */
 	const LICENSES_OPTION_NAME = 'jetpack_licenses';
 
 	/**
 	 * Name of the WordPress transient that holds the last license attaching error, if any.
 	 *
-	 * @const string
+	 * @var string
 	 */
 	const ERROR_TRANSIENT_NAME = 'jetpack_licenses_error';
 

@@ -8,7 +8,7 @@ class Colors_Manager_Control extends WP_Customize_Control {
 	/**
 	 * The color tool slug.
 	 *
-	 * @var String $type
+	 * @var string $type
 	 */
 	public $type = 'colorsTool';
 
