@@ -139,7 +139,7 @@ class Tiled_Gallery_Block_Email_Test extends WP_UnitTestCase {
 
 		$result = \Automattic\Jetpack\Extensions\Tiled_Gallery::render_email( '', array( 'attrs' => $attrs ), $this->create_rendering_context_mock( '740px' ) );
 
-		preg_match_all( '/<img [^>]*width="(\d+)" height="(\d+)"/', $result, $sizes );
+		preg_match_all( '/<img [^>]*width="(\d+)"(?: height="(\d+)")?/', $result, $sizes );
 		$this->assertSame( $expected_sizes, array_map( null, $sizes[1], $sizes[2] ) );
 
 		// Clients other than Outlook lay the row out from the cell widths: each image plus 4px of padding, out of 740px.
@@ -162,18 +162,18 @@ class Tiled_Gallery_Block_Email_Test extends WP_UnitTestCase {
 				array( array( '312', '208' ), array( '104', '208' ), array( '312', '208' ) ),
 				array( '42.7027', '14.5946', '42.7027' ),
 			),
-			// The 6:1 panorama is 736px / 6 = 123px tall on its own; the portraits are 732px / 1 tall.
+			// Each image is alone in its 736px row: the 6:1 panorama is 123px tall, the 3:2 landscapes 491px.
 			'a panorama gets a row of its own'   => array(
 				'ids',
-				array( array( 900, 150 ), array( 400, 800 ), array( 400, 800 ) ),
-				array( array( '736', '123' ), array( '366', '732' ), array( '366', '732' ) ),
-				array( '100', '50', '50' ),
+				array( array( 600, 400 ), array( 900, 150 ), array( 600, 400 ) ),
+				array( array( '736', '491' ), array( '736', '123' ), array( '736', '491' ) ),
+				array( '100', '100', '100' ),
 			),
-			// The image without dimensions counts as square: 728px / ( 1.5 + 1 + 1 ) = 208px tall.
+			// The image without dimensions counts as square, 728px / ( 1.5 + 1 + 1 ) = 208px tall, but gets no height.
 			'images attribute, one size unknown' => array(
 				'images',
 				array( array( 600, 400 ), null, array( 500, 500 ) ),
-				array( array( '312', '208' ), array( '208', '208' ), array( '208', '208' ) ),
+				array( array( '312', '208' ), array( '208', '' ), array( '208', '208' ) ),
 				array( '42.7027', '28.6486', '28.6486' ),
 			),
 		);

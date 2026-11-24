@@ -31,6 +31,9 @@ class Tiled_Gallery {
 	const IMG_SRCSET_WIDTH_MIN  = 600;
 	const IMG_SRCSET_WIDTH_STEP = 300;
 
+	/* Aspect ratio from which an image is a panorama, matching isPanoramic() in layout/mosaic/ratios.js */
+	const PANORAMIC_RATIO = 2;
+
 	/**
 	 * Register the block
 	 */
@@ -685,12 +688,6 @@ class Tiled_Gallery {
 		// Generate mosaic layout rows
 		$rows = self::generate_mosaic_rows( $images );
 
-		// Determine the maximum number of columns to ensure consistent layout
-		$max_columns = 0;
-		foreach ( $rows as $row ) {
-			$max_columns = max( $max_columns, count( $row ) );
-		}
-
 		// Build each row as a separate table to match flexbox behavior
 		$content_parts = array();
 		foreach ( $rows as $row ) {
@@ -744,7 +741,7 @@ class Tiled_Gallery {
 	 *
 	 * @param array $row Images in the row.
 	 * @param int   $width Width the row's images fill, in pixels.
-	 * @return array Width and height in pixels for each image.
+	 * @return array Width and height in pixels for each image; the height is null when the image's own is unknown.
 	 */
 	private static function get_mosaic_row_image_sizes( $row, $width ) {
 		$ratios = array_map( array( __CLASS__, 'get_image_ratio' ), $row );
@@ -756,7 +753,9 @@ class Tiled_Gallery {
 			// The last image takes the rounding remainder so the row fills the width exactly.
 			$image_width = $index === count( $ratios ) - 1 ? $remaining : (int) floor( $ratio * $row_height );
 			$remaining  -= $image_width;
-			$sizes[]     = array( max( 1, $image_width ), max( 1, (int) round( $row_height ) ) );
+			// Don't hand Outlook a guessed height, which would stretch the image to it.
+			$known_height = $row[ $index ]['width'] > 0 && $row[ $index ]['height'] > 0;
+			$sizes[]      = array( max( 1, $image_width ), $known_height ? max( 1, (int) round( $row_height ) ) : null );
 		}
 
 		return $sizes;
@@ -773,7 +772,7 @@ class Tiled_Gallery {
 	}
 
 	/**
-	 * Generate mosaic layout rows, giving each panorama a row of its own as the web mosaic does.
+	 * Generate mosaic layout rows, giving each panorama a row of its own.
 	 *
 	 * A panorama sharing a row would shrink the row's height, and its row-mates with it.
 	 *
@@ -784,7 +783,7 @@ class Tiled_Gallery {
 		$rows    = array();
 		$pending = array();
 		foreach ( $images as $image ) {
-			if ( self::get_image_ratio( $image ) >= 2 ) {
+			if ( self::get_image_ratio( $image ) >= self::PANORAMIC_RATIO ) {
 				$rows    = array_merge( $rows, self::group_mosaic_rows( $pending ), array( array( $image ) ) );
 				$pending = array();
 			} else {
@@ -948,13 +947,16 @@ class Tiled_Gallery {
 	 * @param string $additional_styles Additional CSS styles.
 	 * @param string $border_radius_style Border radius CSS.
 	 * @param array  $attr Block attributes (optional, for link processing).
-	 * @param array  $size Optional width and height attributes in pixels.
+	 * @param array  $size Optional width and height attributes in pixels; a null height is left out.
 	 * @return string Image HTML.
 	 */
 	private static function generate_image_html( $image, $additional_styles = '', $border_radius_style = '', $attr = array(), $size = array() ) {
 		$base_styles     = 'border:none;background-color:#0000001a;display:block;height:auto;max-width:100%;padding:0;';
 		$combined_styles = $base_styles . $additional_styles . $border_radius_style;
-		$size_attributes = $size ? sprintf( ' width="%d" height="%d"', $size[0], $size[1] ) : '';
+		$size_attributes = $size ? sprintf( ' width="%d"', $size[0] ) : '';
+		if ( isset( $size[1] ) ) {
+			$size_attributes .= sprintf( ' height="%d"', $size[1] );
+		}
 
 		$img_html = sprintf(
 			'<img alt="%s" src="%s"%s style="%s" />',
