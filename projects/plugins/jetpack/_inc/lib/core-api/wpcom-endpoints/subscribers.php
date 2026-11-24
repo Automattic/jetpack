@@ -76,6 +76,7 @@ class WPCOM_REST_API_V2_Endpoint_Subscribers extends WP_REST_Controller {
 	 * @return array data object containing subscriber count
 	 */
 	public function get_subscriber_count( $request ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		// Get the most up to date subscriber count when request is not a test.
 		if ( ! Constants::is_defined( 'TESTING_IN_JETPACK' ) ) {
 			delete_transient( 'wpcom_subscribers_totals' );
 		}

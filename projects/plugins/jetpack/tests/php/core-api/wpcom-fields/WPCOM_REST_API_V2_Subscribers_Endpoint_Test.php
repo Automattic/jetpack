@@ -157,8 +157,11 @@ class WPCOM_REST_API_V2_Subscribers_Endpoint_Test extends Jetpack_REST_TestCase 
 			$this->assertSame( $expected, $response->get_data() );
 			$this->assertSame( 75, get_transient( 'wpcom_subscribers_totals' )['value']['total_subscribers'] );
 		} finally {
-			\Patchwork\restore( $request_mock );
-			\Patchwork\restore( $constants_mock );
+			foreach ( array( $request_mock, $constants_mock ) as $mock ) {
+				if ( null !== $mock ) {
+					\Patchwork\restore( $mock );
+				}
+			}
 			delete_transient( 'wpcom_subscribers_totals' );
 		}
 	}

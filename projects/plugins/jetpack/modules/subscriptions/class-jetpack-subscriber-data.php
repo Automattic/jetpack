@@ -31,7 +31,7 @@ class Jetpack_Subscriber_Data {
 			$xml = new Jetpack_IXR_Client();
 			$xml->query( 'jetpack.fetchSubscriberCounts' );
 
-			if ( $xml->isError() ) {
+			if ( $xml->isError() ) { // If we get an error from .com, set the status to failed so that we will try again next time the data is requested.
 				$subs_count = array(
 					'status'  => 'failed',
 					'code'    => $xml->getErrorCode(),

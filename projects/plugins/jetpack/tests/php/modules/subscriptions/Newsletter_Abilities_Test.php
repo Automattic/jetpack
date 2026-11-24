@@ -468,7 +468,9 @@ class Newsletter_Abilities_Test extends WP_UnitTestCase {
 			$this->assertSame( $dashboard, Jetpack_Newsletter_Dashboard_Widget::get_config_data() );
 			$this->assertSame( 2, $requests );
 		} finally {
-			\Patchwork\restore( $mock );
+			if ( null !== $mock ) {
+				\Patchwork\restore( $mock );
+			}
 			remove_filter( 'jetpack_is_connection_ready', '__return_true' );
 			Jetpack_Options::update_option( 'id', $previous_site_id );
 			delete_transient( 'jetpack_newsletter_subscriber_stats_data' );
