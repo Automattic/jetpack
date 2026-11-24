@@ -941,7 +941,7 @@ class Manager {
 	 * Returns true if the user with the specified identifier is connected to
 	 * WordPress.com.
 	 *
-	 * @param int $user_id the user identifier. Default is the current user.
+	 * @param int|false $user_id the user identifier. Default is the current user.
 	 * @return bool Boolean is the user connected?
 	 */
 	public function is_user_connected( $user_id = false ) {

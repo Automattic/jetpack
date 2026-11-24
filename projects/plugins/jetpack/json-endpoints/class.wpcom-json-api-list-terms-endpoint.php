@@ -55,9 +55,9 @@ class WPCOM_JSON_API_List_Terms_Endpoint extends WPCOM_JSON_API_Endpoint {
 	/**
 	 * API callback.
 	 *
-	 * @param string $path - the path.
-	 * @param string $blog_id - the blog ID.
-	 * @param string $taxonomy - the taxonomy.
+	 * @param string     $path - the path.
+	 * @param string|int $blog_id - the blog ID.
+	 * @param string     $taxonomy - the taxonomy.
 	 */
 	public function callback( $path = '', $blog_id = 0, $taxonomy = 'category' ) {
 		$blog_id = $this->api->switch_to_blog_and_validate_user( $this->api->get_blog_id( $blog_id ) );

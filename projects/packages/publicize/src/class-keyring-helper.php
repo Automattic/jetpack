@@ -56,8 +56,8 @@ class Keyring_Helper {
 	 * Gets a URL to the public-api actions. Works like WP's admin_url.
 	 * On WordPress.com this is/calls Keyring::admin_url.
 	 *
-	 * @param string $service Shortname of a specific service.
-	 * @param array  $params  Parameters to append to an API connection URL.
+	 * @param string|false $service Shortname of a specific service.
+	 * @param array        $params  Parameters to append to an API connection URL.
 	 *
 	 * @return string URL to specific public-api process
 	 */

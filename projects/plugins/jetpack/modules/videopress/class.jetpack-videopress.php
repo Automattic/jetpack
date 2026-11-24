@@ -204,8 +204,8 @@ class Jetpack_VideoPress {
 	/**
 	 * Similar to current_user_can, but internal to VideoPress.
 	 *
-	 * @param string $cap Capability name.
-	 * @param int    $user_id User ID.
+	 * @param string    $cap Capability name.
+	 * @param int|false $user_id User ID.
 	 * @return bool Returns true if the given VideoPress capability is allowed by the given user.
 	 */
 	public function can( $cap, $user_id = false ) {

@@ -17,8 +17,8 @@ class Jetpack_Constrained_Array_Rounding {
 	/**
 	 * Get the rounded constrained array.
 	 *
-	 * @param array $bound_array - the array we're rounding.
-	 * @param int   $sum - the sum of the array.
+	 * @param array     $bound_array - the array we're rounding.
+	 * @param int|false $sum - the sum of the array.
 	 *
 	 * @return array
 	 */

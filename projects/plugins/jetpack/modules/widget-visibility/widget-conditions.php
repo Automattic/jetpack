@@ -1170,8 +1170,8 @@ class Jetpack_Widget_Conditions {
 	/**
 	 * Determine if provided term has been split.
 	 *
-	 * @param int    $old_term_id Old term id to test.
-	 * @param string $taxonomy Taxonmy that $old_term_id belongs to.
+	 * @param int|string $old_term_id Old term id to test.
+	 * @param string     $taxonomy Taxonmy that $old_term_id belongs to.
 	 */
 	public static function maybe_get_split_term( $old_term_id = '', $taxonomy = '' ) {
 		$term_id = $old_term_id;

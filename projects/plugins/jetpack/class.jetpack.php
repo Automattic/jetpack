@@ -2699,13 +2699,13 @@ class Jetpack {
 	/**
 	 * Activates default Jetpack modules.
 	 *
-	 * @param null|string $min_version Only return modules introduced in this version or later. Default is false, do not filter.
-	 * @param null|string $max_version Only return modules introduced before this version. Default is false, do not filter.
-	 * @param array       $other_modules Other modules to activate.
-	 * @param null|bool   $redirect Should there be a redirection after activation.
-	 * @param bool        $send_state_messages If a state message should be sent.
-	 * @param bool|null   $requires_connection Pass a boolean value to only return modules that require (or do not require) a connection.
-	 * @param bool|null   $requires_user_connection Pass a boolean value to only return modules that require (or do not require) a user connection.
+	 * @param null|string|false $min_version Only return modules introduced in this version or later. Default is false, do not filter.
+	 * @param null|string|false $max_version Only return modules introduced before this version. Default is false, do not filter.
+	 * @param array             $other_modules Other modules to activate.
+	 * @param null|bool         $redirect Should there be a redirection after activation.
+	 * @param bool              $send_state_messages If a state message should be sent.
+	 * @param bool|null         $requires_connection Pass a boolean value to only return modules that require (or do not require) a connection.
+	 * @param bool|null         $requires_user_connection Pass a boolean value to only return modules that require (or do not require) a user connection.
 	 *
 	 * @return void
 	 */
@@ -3512,8 +3512,8 @@ p {
 	/**
 	 * Get the internal event log.
 	 *
-	 * @param string $event only return the specific log events.
-	 * @param int    $num - get specific number of latest results, limited to 200.
+	 * @param string|false $event only return the specific log events.
+	 * @param int|false    $num - get specific number of latest results, limited to 200.
 	 *
 	 * @return array of log events || WP_Error for invalid params
 	 */
@@ -4947,9 +4947,9 @@ endif;
 	/**
 	 * Creates a nonce from an URL.
 	 *
-	 * @param string $actionurl URL for action.
-	 * @param string $action Nonce action.
-	 * @param string $name Query arg name.
+	 * @param string     $actionurl URL for action.
+	 * @param string|int $action Nonce action.
+	 * @param string     $name Query arg name.
 	 *
 	 * @return string
 	 */

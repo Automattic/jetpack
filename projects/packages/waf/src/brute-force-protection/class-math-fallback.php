@@ -101,7 +101,7 @@ if ( ! class_exists( 'Brute_Force_Protection_Math_Authenticate' ) ) {
 		/**
 		 * Creates an interim page to collect answers to a math captcha
 		 *
-		 * @param string $error - the error message.
+		 * @param string|false $error - the error message.
 		 * @return never
 		 */
 		public static function generate_math_page( $error = false ) {

@@ -61,7 +61,7 @@ class Helper {
 	 * @since 5.8.0
 	 *
 	 * @param string|array $key   Either a query variable key, or an associative array of query variables.
-	 * @param string       $value Optional. A query variable value.
+	 * @param string|false $value Optional. A query variable value.
 	 * @param bool|string  $url   Optional. A URL to act upon. Defaults to the current search URL.
 	 *
 	 * @return string New URL query string (unescaped).

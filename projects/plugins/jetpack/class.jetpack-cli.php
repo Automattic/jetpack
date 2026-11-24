@@ -2207,8 +2207,8 @@ class Jetpack_CLI extends WP_CLI_Command {
  *
  * Written outside of the class so it's not listed as an executable command w/ 'wp jetpack'
  *
- * @param bool   $flagged false = normal option | true = flagged by get_jetpack_options_for_reset().
- * @param string $error_msg Error message.
+ * @param bool         $flagged false = normal option | true = flagged by get_jetpack_options_for_reset().
+ * @param string|false $error_msg Error message.
  */
 function jetpack_cli_are_you_sure( $flagged = false, $error_msg = false ) {
 	$cli = new Jetpack_CLI();
