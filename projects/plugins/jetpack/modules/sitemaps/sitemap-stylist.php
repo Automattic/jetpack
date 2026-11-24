@@ -18,12 +18,52 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Jetpack_Sitemap_Stylist {
 
 	/**
+	 * Return the static layout followed by optional localized overrides.
+	 *
+	 * @since $$next-version$$
+	 * @return string[] Scheme-relative stylesheet URLs in cascade order.
+	 */
+	public static function sitemap_stylesheet_urls() {
+		$urls = array(
+			add_query_arg( 'ver', JETPACK__VERSION, plugins_url( 'sitemap.css', __FILE__ ) ),
+			add_query_arg( 'jetpack-sitemap', 'sitemap-labels.css', home_url( '/' ) ),
+		);
+		return preg_replace( '/^https?:/', '', $urls );
+	}
+
+	/**
+	 * Render escaped stylesheet instructions for manual XML writers.
+	 *
+	 * @since $$next-version$$
+	 * @return string XML processing instructions.
+	 */
+	public static function sitemap_stylesheet_xml() {
+		$xml = '';
+		foreach ( self::sitemap_stylesheet_urls() as $url ) {
+			$xml .= '<?xml-stylesheet type="text/css" href="' . esc_xml( $url ) . '"?>' . "\n";
+		}
+		return $xml;
+	}
+
+	/**
 	 * Provide a localized browser presentation without transforming the XML.
 	 *
 	 * @since $$next-version$$
 	 * @return string CSS stylesheet.
 	 */
 	public static function sitemap_css() {
+		// Preserve the complete response for documents using the earlier dynamic URL.
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Read the bundled local stylesheet.
+		return file_get_contents( __DIR__ . '/sitemap.css' ) . self::sitemap_labels_css();
+	}
+
+	/**
+	 * Provide translated labels and direction without making layout depend on PHP.
+	 *
+	 * @since $$next-version$$
+	 * @return string Localized CSS overrides.
+	 */
+	public static function sitemap_labels_css() {
 		$labels = array(
 			'title'       => __( 'XML Sitemap', 'jetpack' ),
 			'index-title' => __( 'XML Sitemap Index', 'jetpack' ),
@@ -37,8 +77,7 @@ class Jetpack_Sitemap_Stylist {
 			'published'   => __( 'Publication Date', 'jetpack' ),
 			'footer'      => __( 'Additional sitemap metadata remains available in the XML source.', 'jetpack' ),
 		);
-		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Read the bundled local stylesheet.
-		$css = file_get_contents( __DIR__ . '/sitemap.css' ) . "\n:root {\n";
+		$css    = "\n:root {\n";
 		foreach ( $labels as $key => $label ) {
 			$label = str_replace( array( '\\', '"', "\r", "\n", "\f" ), array( '\\\\', '\\"', ' ', ' ', ' ' ), $label );
 			$css  .= '--jetpack-sitemap-' . $key . ': "' . $label . '";' . "\n";

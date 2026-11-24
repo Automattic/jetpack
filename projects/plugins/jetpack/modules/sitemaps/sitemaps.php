@@ -479,6 +479,10 @@ class Jetpack_Sitemap_Manager {
 				);
 			}
 
+			if ( 'sitemap-labels.css' === $request['sitemap_name'] ) {
+				$this->serve_raw_and_die( 'text/css', Jetpack_Sitemap_Stylist::sitemap_labels_css() );
+			}
+
 			if ( 'sitemap.css' === $request['sitemap_name'] ) {
 				$this->serve_raw_and_die( 'text/css', Jetpack_Sitemap_Stylist::sitemap_css() );
 			}

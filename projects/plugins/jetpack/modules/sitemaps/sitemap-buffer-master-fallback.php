@@ -30,12 +30,12 @@ class Jetpack_Sitemap_Buffer_Master extends Jetpack_Sitemap_Buffer_Fallback {
 
 		if ( ! isset( $this->root ) ) {
 
-			$stylesheet_url  = $this->finder->construct_sitemap_url( 'sitemap.css' );
+			$stylesheets     = Jetpack_Sitemap_Stylist::sitemap_stylesheet_xml();
 			$jetpack_version = JETPACK__VERSION;
 
 			$this->root = array(
 				"<!-- generator='jetpack-{$jetpack_version}' -->" . PHP_EOL
-				. "<?xml-stylesheet type='text/css' href='{$stylesheet_url}'?>" . PHP_EOL
+				. $stylesheets
 				. "<sitemapindex xmlns='http://www.sitemaps.org/schemas/sitemap/0.9'>" . PHP_EOL,
 				'</sitemapindex>',
 			);
