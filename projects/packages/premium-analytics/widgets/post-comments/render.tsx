@@ -87,10 +87,7 @@ function PostCommentsInner() {
 							: __( 'This post has no comments yet.', 'jetpack-premium-analytics-pkg' ),
 				} }
 			>
-				<SubscriberList
-					items={ items }
-					moreCount={ data?.found === undefined ? null : Math.max( 0, data.found - items.length ) }
-				/>
+				<SubscriberList items={ items } />
 			</WidgetState>
 		</div>
 	);

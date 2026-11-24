@@ -98,19 +98,14 @@ function toSubscriberItems(
 
 type SubscribersRosterProps = {
 	items?: SubscriberListItem[];
-	/**
-	 * Number of subscribers beyond those in `items`. Rows the roster hides to
-	 * fit the tile are added to this in the "N more" footer.
-	 */
-	moreCount?: number;
 };
 
 /**
  * Presentational subscriber roster; title comes from the widget host, not here.
  * Renders `<SubscriberList>` directly — an intermediate wrapper breaks row fitting.
  */
-export const SubscribersRoster = ( { items = [], moreCount = 0 }: SubscribersRosterProps ) => (
-	<SubscriberList items={ items } moreCount={ moreCount } />
+export const SubscribersRoster = ( { items = [] }: SubscribersRosterProps ) => (
+	<SubscriberList items={ items } />
 );
 
 /** Fetches subscribers via `useStatsFollowers` and renders the roster through `<WidgetState>`. */
@@ -122,11 +117,6 @@ function SubscribersReport() {
 
 	const report = data as StatsNormalizedReport< StatsFollowersItem > | undefined;
 	const items = useMemo( () => toSubscriberItems( report ), [ report ] );
-
-	// `summary.total` is the full subscriber count; anything past the shown rows
-	// becomes the "N more" footer.
-	const total = Number( report?.summary?.total ?? 0 );
-	const moreCount = Math.max( total - items.length, 0 );
 
 	return (
 		<WidgetState
@@ -148,7 +138,7 @@ function SubscribersReport() {
 				description: __( 'You don’t have subscribers yet.', 'jetpack-premium-analytics-pkg' ),
 			} }
 		>
-			<SubscribersRoster items={ items } moreCount={ moreCount } />
+			<SubscribersRoster items={ items } />
 		</WidgetState>
 	);
 }
@@ -170,6 +160,7 @@ export default function SubscribersList( { attributes = {} }: SubscribersListWid
 						label: __( 'Manage subscribers', 'jetpack-premium-analytics-pkg' ),
 						relevance: 'high',
 						href: manageSubscribersUrl,
+						openInNewTab: true,
 					},
 				]
 			: []

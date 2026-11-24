@@ -7,17 +7,13 @@ import { useCallback, useLayoutEffect, useRef, useState } from 'react';
 export const SUBPIXEL_TOLERANCE = 0.5;
 
 /**
- * Counts how many leading roster rows fit, measured against the roster root
- * rather than the list box — the footer shrinks the list once a row hides, so
- * measuring the list would make the box bistable and settle one row short.
+ * Counts how many leading roster rows fit inside the roster root.
  *
- * @param enabled      - Whether to measure at all. When false every row fits.
- * @param rowCount     - Total number of rows rendered.
- * @param hasExtraRows - Whether rows beyond `rowCount` exist, so the footer
- *                     renders whatever the fit turns out to be.
+ * @param enabled  - Whether to measure at all. When false every row fits.
+ * @param rowCount - Total number of rows rendered.
  * @return Ref for the list container and the number of leading rows that fit.
  */
-export function useFittedRosterRows( enabled: boolean, rowCount: number, hasExtraRows: boolean ) {
+export function useFittedRosterRows( enabled: boolean, rowCount: number ) {
 	const listRef = useRef< HTMLDivElement | null >( null );
 	const [ fittedCount, setFittedCount ] = useState( rowCount );
 
@@ -38,28 +34,15 @@ export function useFittedRosterRows( enabled: boolean, rowCount: number, hasExtr
 			return;
 		}
 
-		const countFittingAbove = ( limit: number ) => {
-			let fits = 0;
-			while ( fits < rows.length && rows[ fits ].getBoundingClientRect().bottom <= limit ) {
-				fits++;
-			}
-			return fits;
-		};
-
-		const rootBottom = rootRect.bottom + SUBPIXEL_TOLERANCE;
-
-		// No footer needed here, so keep full height — checked against the root,
-		// not the list, so the footer can disappear again once the tile grows back.
-		const fits =
-			! hasExtraRows && countFittingAbove( rootBottom ) === rows.length
-				? rows.length
-				: countFittingAbove( rootBottom - footerHeight( root ) );
+		const limit = rootRect.bottom + SUBPIXEL_TOLERANCE;
+		let fits = 0;
+		while ( fits < rows.length && rows[ fits ].getBoundingClientRect().bottom <= limit ) {
+			fits++;
+		}
 
 		setFittedCount( current => ( current === fits ? current : fits ) );
-	}, [ rowCount, hasExtraRows ] );
+	}, [ rowCount ] );
 
-	// `fittedCount` is a dependency: mounting the footer changes room without
-	// resizing the root, and settles because that's the only geometry fed back.
 	useLayoutEffect( () => {
 		if ( ! enabled ) {
 			setFittedCount( rowCount );
@@ -67,7 +50,7 @@ export function useFittedRosterRows( enabled: boolean, rowCount: number, hasExtr
 		}
 
 		measure();
-	}, [ enabled, rowCount, fittedCount, measure ] );
+	}, [ enabled, rowCount, measure ] );
 
 	useLayoutEffect( () => {
 		const root = listRef.current?.parentElement;
@@ -83,16 +66,4 @@ export function useFittedRosterRows( enabled: boolean, rowCount: number, hasExtr
 	}, [ enabled, measure ] );
 
 	return { listRef, fittedCount: enabled ? fittedCount : rowCount };
-}
-
-/**
- * Height the "N more" footer takes from the rows, or zero before it mounts.
- *
- * @param root - The roster root element.
- * @return Footer height in pixels.
- */
-function footerHeight( root: HTMLElement ) {
-	const footer = root.querySelector< HTMLElement >( ':scope > [data-roster-footer]' );
-
-	return footer?.getBoundingClientRect().height ?? 0;
 }
