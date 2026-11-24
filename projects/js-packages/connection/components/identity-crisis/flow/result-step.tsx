@@ -30,9 +30,9 @@ export default function ResultStep( { copy, headingRef }: ResultStepProps ): Rea
 					className={ styles.facts }
 					aria-label={ __( 'What we already know', 'jetpack-connection-js' ) }
 				>
-					{ copy.facts.map( fact => (
-						<Text key={ fact.key } variant="body-sm" render={ <li /> }>
-							{ fact.text }
+					{ copy.facts.map( ( fact, index ) => (
+						<Text key={ index } variant="body-sm" render={ <li /> }>
+							{ fact }
 						</Text>
 					) ) }
 				</ul>

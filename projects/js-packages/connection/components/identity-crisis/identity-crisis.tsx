@@ -1,6 +1,6 @@
 import { Stack, Text } from '@wordpress/ui';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
-import { formatSiteAddress, isIpAddress } from '../../helpers/format-site-address';
+import { formatSiteAddress } from '../../helpers/format-site-address';
 import { hasJetpackPlugin, hasWooPlugin } from '../../helpers/site-words';
 import useIdentityCrisisActions from '../../hooks/use-identity-crisis-actions';
 import IdentityCrisisAddresses from './addresses';
@@ -19,7 +19,7 @@ import IdentityCrisisNonAdmin from './non-admin';
 import { onIdentityCrisisActionSuccess } from './on-action-success';
 import styles from './styles.module.scss';
 import useIdentityCrisisState from './use-identity-crisis-state';
-import type { ActionCopy, AddressFacts, CopyContext } from './flow/copy';
+import type { ActionCopy, CopyContext } from './flow/copy';
 import type { FlowContext } from './flow/steps';
 import type { IdentityCrisisProps } from './types';
 import type { ConnectedPlugin } from '../../helpers/site-words';
@@ -66,13 +66,9 @@ function IdentityCrisisResolver( {
 	const copy: CopyContext = {
 		isStore: ctx.isStore,
 		hasJetpackPlugin: ctx.hasJetpackPlugin,
+		isDynamicAddress: state.possibleDynamicSiteUrlDetected,
 		x: formatSiteAddress( state.currentUrl ),
 		z: formatSiteAddress( state.wpcomHomeUrl ),
-	};
-	const facts: AddressFacts = {
-		isDynamic: state.possibleDynamicSiteUrlDetected,
-		isIpAddress: isIpAddress( copy.x ),
-		loadsWithoutHttps: state.isCurrentUrlHttps === false,
 	};
 	const flow = useIdentityCrisisFlow( ctx, actions.clearError );
 
@@ -180,7 +176,7 @@ function IdentityCrisisResolver( {
 		);
 		actionCopy = flow.selected ? getOptionCopy( flow.selected.id, copy ) : null;
 	} else {
-		const result = getResultCopy( step, copy, facts );
+		const result = getResultCopy( step, copy );
 		stepView = <ResultStep copy={ result } headingRef={ headingRef } />;
 		actionCopy = result;
 	}

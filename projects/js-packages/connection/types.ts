@@ -81,8 +81,6 @@ export type IdentityCrisisState =
 			currentUrl: string;
 			isDevelopmentSite: boolean;
 			possibleDynamicSiteUrlDetected: boolean;
-			/** Absent when the PHP connection package is older than this type. */
-			isCurrentUrlHttps?: boolean;
 			/** Jetpack mark, combined with the marks of the other plugin families that use the connection. */
 			logoUrl: string;
 	  } );

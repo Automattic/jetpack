@@ -1,5 +1,6 @@
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
+import { isIpAddress } from '../../../helpers/format-site-address';
 import type { ChoiceStepId, OptionId, ResultStepId } from './steps';
 import type { ReactNode } from 'react';
 
@@ -9,6 +10,8 @@ import type { ReactNode } from 'react';
 export interface CopyContext {
 	isStore: boolean;
 	hasJetpackPlugin: boolean;
+	/** WordPress takes the address from each request, per `wp-config.php`. */
+	isDynamicAddress: boolean;
 	/** This site's address, formatted for display. */
 	x: string;
 	/** The address WordPress.com has on record, formatted for display. */
@@ -32,20 +35,11 @@ export interface OptionCopy extends ActionCopy {
 	more?: ReactNode;
 }
 
-/** What the screen can tell from this site's address, for a result that explains it. */
-export interface AddressFacts {
-	/** WordPress takes the address from each request, per `wp-config.php`. */
-	isDynamic: boolean;
-	isIpAddress: boolean;
-	/** False when unknown. */
-	loadsWithoutHttps: boolean;
-}
-
 export interface ResultCopy extends ActionCopy {
 	title: ReactNode;
 	help: ReactNode;
-	/** One line per fact that applies. */
-	facts: Array< { key: keyof AddressFacts; text: ReactNode } >;
+	/** What the screen can tell from this site's address, one line each. */
+	facts: ReactNode[];
 	fixesLead: string;
 	fixes: ReactNode[];
 	link: string;
@@ -359,44 +353,28 @@ export function getOptionCopy( id: OptionId, c: CopyContext ): OptionCopy {
 /**
  * A result's explanation, the fixes it offers and its button.
  *
- * @param step  - The result step.
- * @param c     - The copy context.
- * @param facts - What the screen can tell from the address.
+ * @param step - The result step.
+ * @param c    - The copy context.
  * @return The copy.
  */
-export function getResultCopy(
-	step: ResultStepId,
-	c: CopyContext,
-	facts: AddressFacts
-): ResultCopy {
+export function getResultCopy( step: ResultStepId, c: CopyContext ): ResultCopy {
 	switch ( step ) {
 		case 'two-addresses': {
-			const lines: ResultCopy[ 'facts' ] = [];
-			if ( facts.isDynamic ) {
-				lines.push( {
-					key: 'isDynamic',
-					text: fill(
+			const facts: ReactNode[] = [];
+			if ( c.isDynamicAddress ) {
+				facts.push(
+					fill(
 						__(
 							'Its address is set dynamically in <code>wp-config.php</code>, so it may be reachable at more than one address.',
 							'jetpack-connection-js'
 						),
 						c
-					),
-				} );
+					)
+				);
 			}
-			if ( facts.isIpAddress ) {
-				lines.push( {
-					key: 'isIpAddress',
-					/* translators: <x />: this site's address. */
-					text: fill( __( '<x /> is an IP address.', 'jetpack-connection-js' ), c ),
-				} );
-			}
-			if ( facts.loadsWithoutHttps ) {
-				lines.push( {
-					key: 'loadsWithoutHttps',
-					/* translators: <x />: this site's address. */
-					text: fill( __( '<x /> loads without HTTPS.', 'jetpack-connection-js' ), c ),
-				} );
+			if ( isIpAddress( c.x ) ) {
+				/* translators: <x />: this site's address. */
+				facts.push( fill( __( '<x /> is an IP address.', 'jetpack-connection-js' ), c ) );
 			}
 
 			return {
@@ -417,7 +395,7 @@ export function getResultCopy(
 							'WordPress.com could not confirm that both addresses are the same site. It has to reach each address to check.',
 							'jetpack-connection-js'
 						),
-				facts: lines,
+				facts,
 				fixesLead: __( 'Fix it one of two ways:', 'jetpack-connection-js' ),
 				fixes: [
 					fill(

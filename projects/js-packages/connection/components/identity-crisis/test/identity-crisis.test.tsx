@@ -240,42 +240,29 @@ describe( 'IdentityCrisis', () => {
 	} );
 
 	it.each( [
-		[ 'a domain over HTTPS', 'new.example/', true, [ /set dynamically/ ] ],
-		[ 'an IP address', '203.0.113.5/', true, [ /set dynamically/, /is an IP address\./ ] ],
-		[
-			'an address without HTTPS',
-			'new.example/',
-			false,
-			[ /set dynamically/, /loads without HTTPS\./ ],
-		],
-		[ 'an older PHP package', 'new.example/', undefined, [ /set dynamically/ ] ],
-	] )(
-		'for %s, lists what it can tell about the address',
-		async ( _, currentUrl, https, facts ) => {
-			const user = userEvent.setup();
-			storeState = {
-				state: {
-					...resolvable,
-					currentUrl,
-					possibleDynamicSiteUrlDetected: true,
-					isCurrentUrlHttps: https,
-				},
-				plugins: jetpack,
-			};
-			render( <IdentityCrisis context="notice" onActionSuccess={ jest.fn() } /> );
+		[ 'a domain', 'new.example/', [ /set dynamically/ ] ],
+		[ 'an IP address', '203.0.113.5/', [ /set dynamically/, /is an IP address\./ ] ],
+	] )( 'for %s, lists what it can tell about the address', async ( _, currentUrl, facts ) => {
+		const user = userEvent.setup();
+		storeState = {
+			state: {
+				...resolvable,
+				currentUrl,
+				possibleDynamicSiteUrlDetected: true,
+			},
+			plugins: jetpack,
+		};
+		render( <IdentityCrisis context="notice" onActionSuccess={ jest.fn() } /> );
 
-			await user.click(
-				screen.getByRole( 'radio', { name: 'Another address for this same site' } )
-			);
-			await user.click( screen.getByRole( 'button', { name: 'Next' } ) );
+		await user.click( screen.getByRole( 'radio', { name: 'Another address for this same site' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Next' } ) );
 
-			const items = within(
-				screen.getByRole( 'list', { name: 'What we already know' } )
-			).getAllByRole( 'listitem' );
-			expect( items ).toHaveLength( facts.length );
-			facts.forEach( ( fact, index ) => expect( items[ index ] ).toHaveTextContent( fact ) );
-		}
-	);
+		const items = within(
+			screen.getByRole( 'list', { name: 'What we already know' } )
+		).getAllByRole( 'listitem' );
+		expect( items ).toHaveLength( facts.length );
+		facts.forEach( ( fact, index ) => expect( items[ index ] ).toHaveTextContent( fact ) );
+	} );
 
 	it.each( [ true, false ] )(
 		'tells a viewer who cannot resolve Safe Mode, with Dismiss %s',
