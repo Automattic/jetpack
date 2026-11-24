@@ -15,8 +15,6 @@ export type StatsPostLike = {
 };
 
 export type StatsPostLikesResponse = {
-	/** Total likes on the post (the list itself is capped by `number`). */
-	found: number;
 	likes: StatsPostLike[];
 };
 
@@ -61,13 +59,12 @@ function normalizeStatsPostLike( value: unknown ): StatsPostLike[] {
 
 export function sanitizeStatsPostLikesResponse( response: unknown ): StatsPostLikesResponse {
 	if ( ! isStatsRecord( response ) ) {
-		return { found: 0, likes: [] };
+		return { likes: [] };
 	}
 
 	const payload = coerceStatsRecord( response );
 
 	return {
-		found: safeParseFloat( payload.found ),
 		likes: coerceStatsArray( payload.likes ).flatMap( normalizeStatsPostLike ),
 	};
 }

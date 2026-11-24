@@ -18,8 +18,6 @@ export type StatsPostComment = {
 
 export type StatsPostCommentsResponse = {
 	comments: StatsPostComment[];
-	/** Approved comments on the post across every page; absent when the endpoint reports -1. */
-	found?: number;
 };
 
 function normalizeStatsPostComment( value: unknown ): StatsPostComment[] {
@@ -57,10 +55,8 @@ export function sanitizeStatsPostCommentsResponse( response: unknown ): StatsPos
 	}
 
 	const payload = coerceStatsRecord( response );
-	const found = safeParseFloat( payload.found, -1 );
 
 	return {
 		comments: coerceStatsArray( payload.comments ).flatMap( normalizeStatsPostComment ),
-		...( found >= 0 ? { found } : {} ),
 	};
 }

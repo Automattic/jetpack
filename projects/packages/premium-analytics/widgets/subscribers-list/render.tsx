@@ -96,18 +96,6 @@ function toSubscriberItems(
 	} ) );
 }
 
-type SubscribersRosterProps = {
-	items?: SubscriberListItem[];
-};
-
-/**
- * Presentational subscriber roster; title comes from the widget host, not here.
- * Renders `<SubscriberList>` directly — an intermediate wrapper breaks row fitting.
- */
-export const SubscribersRoster = ( { items = [] }: SubscribersRosterProps ) => (
-	<SubscriberList items={ items } />
-);
-
 /** Fetches subscribers via `useStatsFollowers` and renders the roster through `<WidgetState>`. */
 function SubscribersReport() {
 	const { data, isLoading, isFetching, isError, refetch } = useStatsFollowers( {
@@ -138,7 +126,7 @@ function SubscribersReport() {
 				description: __( 'You don’t have subscribers yet.', 'jetpack-premium-analytics-pkg' ),
 			} }
 		>
-			<SubscribersRoster items={ items } />
+			<SubscriberList items={ items } />
 		</WidgetState>
 	);
 }

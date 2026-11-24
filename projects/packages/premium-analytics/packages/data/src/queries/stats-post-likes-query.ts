@@ -8,7 +8,7 @@ import type { StatsPostLikesResponse } from '../processing/stats';
 
 export type StatsPostLikesParams = {
 	postId: number;
-	/** How many likers to return (the response's `found` carries the total). */
+	/** How many likers to return. */
 	number?: number;
 };
 
