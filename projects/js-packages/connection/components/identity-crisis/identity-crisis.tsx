@@ -36,10 +36,8 @@ type ResolvableState = Extract< IdentityCrisisState, { canResolve: true } >;
 interface ResolverProps extends IdentityCrisisProps {
 	state: ResolvableState;
 	plugins: ConnectedPlugin[];
-	markDisconnected: () => void;
 }
 
-// What the disconnected view shows when it opens without a failure of its own, e.g. after the host remounts it.
 const DISCONNECTED_ERROR: IdentityCrisisError = { action: 'start-fresh', cause: 'disconnected' };
 
 /**
@@ -51,7 +49,6 @@ const DISCONNECTED_ERROR: IdentityCrisisError = { action: 'start-fresh', cause: 
 function IdentityCrisisResolver( {
 	state,
 	plugins,
-	markDisconnected,
 	showHeader = true,
 	redirectUri,
 	from,
@@ -77,13 +74,17 @@ function IdentityCrisisResolver( {
 		z: formatSiteAddress( state.wpcomHomeUrl ),
 	};
 	const flow = useIdentityCrisisFlow( ctx, actions.clearError );
-	// The site is no longer in Safe Mode, so only Try again still applies, even after the host remounts the screen.
+	// The site is no longer in Safe Mode, so only Try again still applies.
 	const isDisconnected = actions.isDisconnected || state.isDisconnected === true;
+	// The view below replaces the focused button, so move focus to its Try again.
+	const disconnectedRef = useRef< HTMLDivElement >( null );
+	const wasDisconnected = useRef( isDisconnected );
 	useEffect( () => {
-		if ( actions.isDisconnected ) {
-			markDisconnected();
+		if ( isDisconnected && ! wasDisconnected.current ) {
+			disconnectedRef.current?.querySelector( 'button' )?.focus();
 		}
-	}, [ actions.isDisconnected, markDisconnected ] );
+		wasDisconnected.current = isDisconnected;
+	}, [ isDisconnected ] );
 
 	// Focus the new question or result when the step changes, but not on the first render.
 	const legendRef = useRef< HTMLDivElement >( null );
@@ -183,8 +184,11 @@ function IdentityCrisisResolver( {
 				showHeader={ showHeader }
 				hostActions={ hostActions }
 			>
-				<Stack direction="column" gap="md">
-					<IdentityCrisisErrorNotice error={ actions.error ?? DISCONNECTED_ERROR } />
+				<Stack direction="column" gap="md" ref={ disconnectedRef }>
+					{ /* Hidden while retrying, so a repeated failure is announced again. */ }
+					{ ! isBusy && (
+						<IdentityCrisisErrorNotice error={ actions.error ?? DISCONNECTED_ERROR } />
+					) }
 					<StepActions
 						action={ getOptionCopy( 'fresh', copy ) }
 						isBusy={ isBusy }
@@ -261,7 +265,7 @@ function IdentityCrisisResolver( {
  * @return {ReactNode} The screen.
  */
 export default function IdentityCrisis( props: IdentityCrisisProps ): ReactNode {
-	const { state, plugins, markDisconnected } = useIdentityCrisisState();
+	const { state, plugins } = useIdentityCrisisState();
 	if ( ! state ) {
 		return null;
 	}
@@ -274,12 +278,5 @@ export default function IdentityCrisis( props: IdentityCrisisProps ): ReactNode 
 		);
 	}
 
-	return (
-		<IdentityCrisisResolver
-			{ ...props }
-			state={ state }
-			plugins={ plugins }
-			markDisconnected={ markDisconnected }
-		/>
-	);
+	return <IdentityCrisisResolver { ...props } state={ state } plugins={ plugins } />;
 }

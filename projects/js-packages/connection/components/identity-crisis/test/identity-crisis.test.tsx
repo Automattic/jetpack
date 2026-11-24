@@ -13,10 +13,9 @@ jest.unstable_mockModule( '@automattic/jetpack-api', () => ( {
 } ) );
 
 let storeState: { state: IdentityCrisisState | null; plugins: ConnectedPlugin[] };
-const markDisconnected = jest.fn();
 jest.unstable_mockModule( '../use-identity-crisis-state', () => ( {
 	__esModule: true,
-	default: () => ( { ...storeState, markDisconnected } ),
+	default: () => storeState,
 } ) );
 
 const goTo = jest.fn();
@@ -65,7 +64,6 @@ describe( 'IdentityCrisis', () => {
 		confirmIDCSafeMode.mockReset();
 		goTo.mockReset();
 		reloadPage.mockReset();
-		markDisconnected.mockReset();
 		storeState = { state: resolvable, plugins: jetpack };
 	} );
 
@@ -216,7 +214,7 @@ describe( 'IdentityCrisis', () => {
 			'Connect separately'
 		);
 		expect( screen.getByRole( 'alert' ) ).toHaveTextContent( /now disconnected/ );
-		expect( markDisconnected ).toHaveBeenCalled();
+		expect( screen.getByRole( 'button', { name: 'Try again' } ) ).toHaveFocus();
 
 		await user.click( screen.getByRole( 'button', { name: 'Try again' } ) );
 

@@ -1,6 +1,8 @@
 import restApi from '@automattic/jetpack-api';
+import { dispatch } from '@wordpress/data';
 import { useCallback, useRef, useState } from 'react';
 import { isHttpUrl } from '../../helpers/is-http-url';
+import STORE_ID from '../../state/store-id';
 import { getIdentityCrisisErrorCause, getIdentityCrisisErrorCode } from './get-error-cause';
 import type {
 	IdentityCrisisAction,
@@ -51,6 +53,10 @@ export default function useIdentityCrisisActions( {
 				const cause = getIdentityCrisisErrorCause( caught );
 				if ( cause === 'disconnected' ) {
 					setIsDisconnected( true );
+					// Optional: an older copy of the store, or none, may be registered.
+					(
+						dispatch( STORE_ID ) as { setIdentityCrisisDisconnected?: () => void } | undefined
+					 )?.setIdentityCrisisDisconnected?.();
 				}
 				setError( { action, cause, code: getIdentityCrisisErrorCode( caught ) } );
 				setBusy( null );

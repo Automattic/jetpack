@@ -164,11 +164,11 @@ const useDefaultProtectedOwnerUi = ( state = null ) => state;
 
 // Server-decided too, so pass-throughs for the same reason.
 const canTakeOwnerSlot = ( state = null ) => state;
-// The screen marks a failed fresh connection here, so the mark outlives the screen.
+// `useIdentityCrisisActions()` marks a failed fresh connection here, so a remounted screen still knows.
 const identityCrisis = ( state = null, action ) => {
 	switch ( action.type ) {
 		case SET_IDENTITY_CRISIS_DISCONNECTED:
-			return state ? { ...state, isDisconnected: true } : state;
+			return state && ! state.isDisconnected ? { ...state, isDisconnected: true } : state;
 		default:
 			return state;
 	}

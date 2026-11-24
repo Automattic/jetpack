@@ -1,5 +1,5 @@
-import { useDispatch, useSelect } from '@wordpress/data';
-import { useCallback, useMemo } from 'react';
+import { useSelect } from '@wordpress/data';
+import { useMemo } from 'react';
 import { toConnectedPlugins } from '../../helpers/site-words';
 import { STORE_ID } from '../../state/store';
 import type { ConnectedPlugin } from '../../helpers/site-words';
@@ -11,8 +11,6 @@ interface IdentityCrisisStoreState {
 	/** Null outside Safe Mode. */
 	state: IdentityCrisisState | null;
 	plugins: ConnectedPlugin[];
-	/** Records that a failed fresh connection left the site disconnected, as `state.isDisconnected`. */
-	markDisconnected: () => void;
 }
 
 /**
@@ -46,15 +44,6 @@ export default function useIdentityCrisisState(): IdentityCrisisStoreState {
 	);
 
 	const connectedPlugins = useMemo( () => toConnectedPlugins( plugins ), [ plugins ] );
-	const { setIdentityCrisisDisconnected } = useDispatch( STORE_ID );
-	const markDisconnected = useCallback(
-		() => setIdentityCrisisDisconnected(),
-		[ setIdentityCrisisDisconnected ]
-	);
 
-	return {
-		state: isIdentityCrisisState( state ) ? state : null,
-		plugins: connectedPlugins,
-		markDisconnected,
-	};
+	return { state: isIdentityCrisisState( state ) ? state : null, plugins: connectedPlugins };
 }
