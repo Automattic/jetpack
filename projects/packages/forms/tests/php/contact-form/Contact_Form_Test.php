@@ -2531,6 +2531,7 @@ class Contact_Form_Test extends BaseTestCase {
 	public function track_feedback_inserted( $post_id ) {
 		$this->track_feedback_inserted[] = $post_id;
 	}
+
 	/**
 	 * Jetpack CRM gets mapped fields only from forms with its integration on.
 	 *

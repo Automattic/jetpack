@@ -93,6 +93,12 @@ class Jetpack_CRM_Integration_Test extends BaseTestCase {
 
 		$this->assertSame( $expected, self::ids_and_values( $mapped ) );
 		$this->assertSame( $attributes['id'], $field->get_attribute( 'id' ) );
+		// CRM's type fallback runs too, and must not see a mapped copy as another name field.
+		foreach ( $mapped as $copy ) {
+			if ( str_starts_with( $copy->get_attribute( 'id' ), Jetpack_CRM_Integration::CRM_FIELD_PREFIX ) ) {
+				$this->assertNotSame( 'name', $copy->get_attribute( 'type' ) );
+			}
+		}
 	}
 
 	/**

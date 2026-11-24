@@ -111,7 +111,9 @@ class Jetpack_CRM_Integration {
 			foreach ( $unclaimed as $crm_key => $value ) {
 				$copy                   = clone $field;
 				$copy->attributes['id'] = self::CRM_FIELD_PREFIX . $crm_key;
-				$copy->value            = $value;
+				// Not 'name', or CRM's type fallback would also take a last name as the first name.
+				$copy->attributes['type'] = 'text';
+				$copy->value              = $value;
 				$mapped[ $key . '|' . self::CRM_FIELD_PREFIX . $crm_key ] = $copy;
 				$claimed[ $crm_key ]                                      = true;
 			}
