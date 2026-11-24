@@ -1,11 +1,11 @@
 /**
  * External dependencies
  */
-import { addDays, format, isValid, parse } from 'date-fns';
+import { addDays, addMonths, format, isValid, parse, startOfMonth } from 'date-fns';
 
 /**
  * The timeline matrix `stats/<opens|clicks>/emails/<postId>?stats_fields=timeline`
- * nests under a `timeline` key. Daily rows are `[date, count]`; hourly rows add
+ * nests under a `timeline` key. Daily and monthly rows are `[date, count]`; hourly rows add
  * an hour: `[date, hour, count]` (mirrors Calypso's parseEmailChartData).
  */
 type EmailTimelineRow = [ string, number ] | [ string, number, number ];
@@ -43,7 +43,8 @@ export function buildEmailTimelineResponse(
 	requestPath: string
 ): unknown {
 	const query = new URLSearchParams( requestPath.split( '?' )[ 1 ] ?? '' );
-	const period = query.get( 'period' ) === 'hour' ? 'hour' : 'day';
+	const asked = query.get( 'period' );
+	const period = asked === 'hour' || asked === 'month' ? asked : 'day';
 	const parsedQuantity = Number.parseInt( query.get( 'quantity' ) ?? '', 10 );
 	const quantity = Number.isInteger( parsedQuantity )
 		? Math.min( Math.max( parsedQuantity, 1 ), 24 * 90 )
@@ -72,6 +73,8 @@ export function buildEmailTimelineResponse(
 				index % 24,
 				count,
 			] );
+		} else if ( period === 'month' ) {
+			data.push( [ format( addMonths( startOfMonth( startDay ), index ), 'yyyy-MM-dd' ), count ] );
 		} else {
 			data.push( [ format( addDays( startDay, index ), 'yyyy-MM-dd' ), count ] );
 		}

@@ -1,6 +1,6 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { markFirstPublish } from '../../../hooks/use-first-run-state';
+import { markFirstPublish, saveDismissal } from '../../../hooks/use-first-run-state';
 import { useOnboardingCounts } from '../../../hooks/use-onboarding-counts';
 import { useUploadIntake } from '../../../hooks/use-upload-intake';
 import OnboardingModal from '../index';
@@ -127,6 +127,19 @@ describe( 'OnboardingModal', () => {
 		expect( screen.getByRole( 'dialog' ) ).toBeInTheDocument();
 		expect( screen.getByRole( 'link', { name: /learn more/i } ) ).toBeInTheDocument();
 		expect( screen.queryByRole( 'button', { name: /move/i } ) ).not.toBeInTheDocument();
+	} );
+
+	it.each( [
+		[ 'requests the local count while the modal can still open', () => undefined, true ],
+		[ 'skips the local count once the modal was dismissed', () => saveDismissal(), false ],
+		[ 'skips the local count once VideoPress has been used', () => markFirstPublish(), false ],
+	] )( '%s', ( _label, arrange, includeLocal ) => {
+		arrange();
+		mockCounts( { videoPressCount: 0, localCount: 0, isSettled: true } );
+
+		render( <OnboardingModal /> );
+
+		expect( useOnboardingCounts ).toHaveBeenLastCalledWith( { includeLocal } );
 	} );
 
 	it( 'delivers the migration CTA with the real count when local videos exist', () => {

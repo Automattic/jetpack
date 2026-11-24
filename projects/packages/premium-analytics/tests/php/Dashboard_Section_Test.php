@@ -98,6 +98,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 		remove_all_filters( 'jetpack_admin_js_script_data' );
 		remove_all_filters( DASHBOARD_INSERTABLE_WIDGET_TYPES_FILTER );
 		delete_option( Enablement_Setting::ENABLED_OPTION );
+		delete_option( DASHBOARD_FIRST_VISIT_OPTION );
 
 		if ( null !== $this->available_modules_filter ) {
 			remove_filter( 'jetpack_get_available_standalone_modules', $this->available_modules_filter );
@@ -1002,6 +1003,38 @@ class Dashboard_Section_Test extends BaseTestCase {
 	}
 
 	/**
+	 * The admin shell's menu-hover preload never asks for sections, so only the Stats dashboard rendering starts the clock.
+	 *
+	 * @dataProvider provide_sections_requests
+	 *
+	 * @param string $dashboard Dashboard name in the route.
+	 * @param bool   $records   Whether the request stores the first visit.
+	 */
+	#[DataProvider( 'provide_sections_requests' )]
+	public function test_sections_route_records_the_stats_dashboard_first_visit( $dashboard, $records ) {
+		// Its sections would load the widget build, which this doesn't need.
+		remove_action( Dashboard_Section_Registry::REGISTER_ACTION, __NAMESPACE__ . '\\register_default_dashboard_sections' );
+		$request = new WP_REST_Request( 'GET' );
+		$request->set_param( 'name', $dashboard );
+
+		get_dashboard_sections_response( $request );
+
+		$this->assertSame( $records, false !== get_option( DASHBOARD_FIRST_VISIT_OPTION ) );
+	}
+
+	/**
+	 * Sections requests and whether they record a visit.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_sections_requests() {
+		return array(
+			'Stats dashboard'   => array( DASHBOARD_NAME, true ),
+			'another dashboard' => array( 'unregistered_dashboard', false ),
+		);
+	}
+
+	/**
 	 * Available sections are ordered and unavailable sections are omitted.
 	 */
 	public function test_registry_returns_available_sections_sorted_by_order() {
@@ -1295,6 +1328,89 @@ class Dashboard_Section_Test extends BaseTestCase {
 	}
 
 	/**
+	 * The AI tab needs its flag, a site with edge data, and a reader who may see Stats.
+	 *
+	 * @dataProvider provide_ai_section_availability
+	 *
+	 * @param bool $flag     Whether the flag is on.
+	 * @param bool $vip      Whether the site is a VIP site.
+	 * @param bool $is_admin Whether the reader is an administrator.
+	 * @param bool $expected Whether the tab is offered.
+	 */
+	#[DataProvider( 'provide_ai_section_availability' )]
+	public function test_ai_section_availability( $flag, $vip, $is_admin, $expected ) {
+		if ( $flag ) {
+			add_filter( 'jetpack_feature_flag_enabled_' . AI_Traffic::FLAG, '__return_true' );
+		}
+		Constants::set_constant( 'WPCOM_IS_VIP_ENV', $vip );
+		if ( $is_admin ) {
+			$this->set_admin_user();
+		}
+
+		register_default_dashboard_sections();
+
+		try {
+			$this->assertSame( $expected, in_array( 'analytics/ai', $this->available_section_ids(), true ) );
+		} finally {
+			remove_all_filters( 'jetpack_feature_flag_enabled_' . AI_Traffic::FLAG );
+		}
+	}
+
+	/**
+	 * Data provider for test_ai_section_availability.
+	 *
+	 * @return array
+	 */
+	public static function provide_ai_section_availability() {
+		return array(
+			'flag off on a VIP site'           => array( false, true, true, false ),
+			'flag on without edge data'        => array( true, false, true, false ),
+			'flag on, VIP site, administrator' => array( true, true, true, true ),
+			'flag on, VIP site, logged out'    => array( true, true, false, false ),
+		);
+	}
+
+	/**
+	 * The AI availability filter answers only for the site's data: it cannot override the flag or the capability.
+	 *
+	 * @dataProvider provide_ai_availability_filter_limits
+	 *
+	 * @param bool $flag     Whether the flag is on.
+	 * @param bool $is_admin Whether the reader is an administrator.
+	 * @param bool $expected Whether the surfaces are available with the filter returning true.
+	 */
+	#[DataProvider( 'provide_ai_availability_filter_limits' )]
+	public function test_ai_availability_filter_limits( $flag, $is_admin, $expected ) {
+		if ( $flag ) {
+			add_filter( 'jetpack_feature_flag_enabled_' . AI_Traffic::FLAG, '__return_true' );
+		}
+		if ( $is_admin ) {
+			$this->set_admin_user();
+		}
+		add_filter( AI_Traffic::AVAILABLE_FILTER, '__return_true' );
+
+		try {
+			$this->assertSame( $expected, AI_Traffic::is_available() );
+		} finally {
+			remove_all_filters( AI_Traffic::AVAILABLE_FILTER );
+			remove_all_filters( 'jetpack_feature_flag_enabled_' . AI_Traffic::FLAG );
+		}
+	}
+
+	/**
+	 * Data provider for test_ai_availability_filter_limits.
+	 *
+	 * @return array
+	 */
+	public static function provide_ai_availability_filter_limits() {
+		return array(
+			'flag on, logged out'                      => array( true, false, false ),
+			'flag off, administrator'                  => array( false, true, false ),
+			'flag on, administrator, no edge data yet' => array( true, true, true ),
+		);
+	}
+
+	/**
 	 * The site's own opt-in no longer limits the dashboard to a fixed list of tabs.
 	 */
 	public function test_site_opt_in_exposes_every_available_section() {
@@ -1313,7 +1429,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 
 		$this->assertSame(
 			array( 'traffic', 'insights', 'subscribers', 'extra' ),
-			get_available_dashboard_section_slugs()
+			inject_dashboard_sections_script_data( array() )['premium_analytics']['sections']
 		);
 	}
 
@@ -1324,7 +1440,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 
 		$this->assertSame(
 			array( 'traffic', 'insights', 'subscribers' ),
-			get_available_dashboard_section_slugs()
+			inject_dashboard_sections_script_data( array() )['premium_analytics']['sections']
 		);
 	}
 
@@ -1334,7 +1450,6 @@ class Dashboard_Section_Test extends BaseTestCase {
 	public function test_available_section_slugs_are_absent_while_nothing_is_registered() {
 		remove_action( Dashboard_Section_Registry::REGISTER_ACTION, __NAMESPACE__ . '\\register_default_dashboard_sections' );
 
-		$this->assertNull( get_available_dashboard_section_slugs() );
 		$this->assertArrayNotHasKey( 'sections', inject_dashboard_sections_script_data( array() )['premium_analytics'] );
 	}
 
@@ -1347,7 +1462,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 
 		register_default_dashboard_sections();
 
-		$this->assertNotContains( 'subscribers', get_available_dashboard_section_slugs() );
+		$this->assertNotContains( 'subscribers', inject_dashboard_sections_script_data( array() )['premium_analytics']['sections'] );
 	}
 
 	/**
@@ -1374,6 +1489,37 @@ class Dashboard_Section_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Only an available section that drops the connection opens on a disconnected site.
+	 */
+	public function test_connectionless_section_slugs_list_available_opted_out_tabs() {
+		$this->enable_every_section();
+
+		register_default_dashboard_sections();
+		register_dashboard_section(
+			DASHBOARD_NAME,
+			'other/local',
+			array(
+				'label'               => 'Local',
+				'requires_connection' => false,
+			)
+		);
+		register_dashboard_section(
+			DASHBOARD_NAME,
+			'other/closed',
+			array(
+				'label'               => 'Closed',
+				'is_available'        => false,
+				'requires_connection' => false,
+			)
+		);
+
+		$this->assertSame(
+			array( 'local' ),
+			inject_dashboard_sections_script_data( array() )['premium_analytics']['connectionless_sections']
+		);
+	}
+
+	/**
 	 * A registry whose every section is unavailable publishes an empty list, not an absent one.
 	 */
 	public function test_available_section_slugs_are_empty_when_every_tab_is_unavailable() {
@@ -1387,7 +1533,6 @@ class Dashboard_Section_Test extends BaseTestCase {
 			)
 		);
 
-		$this->assertSame( array(), get_available_dashboard_section_slugs() );
 		$this->assertSame( array(), inject_dashboard_sections_script_data( array() )['premium_analytics']['sections'] );
 	}
 

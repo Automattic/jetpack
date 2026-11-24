@@ -35,10 +35,11 @@ return make_phan_config(
 			__DIR__ . '/../../../plugins/jetpack/_inc/lib/core-api/load-wpcom-endpoints.php',                                                                // function wpcom_rest_api_v2_load_plugin
 		),
 		'exclude_file_list'  => array(
-			// Redefines subscription_service() and visitor_can_access_plan_ids(), both parsed above;
-			// the runtime function_exists() guards keep the real ones when present.
+			// These test doubles redefine plugin functions and the Jetpack_Memberships class parsed above,
+			// so Phan must not read them twice.
 			'tests/php/mocks/premium-content-subscription-service.php',
 			'tests/php/mocks/compatibility-premium-content-subscription-service.php',
+			'tests/php/mocks/class-jetpack-memberships.php',
 		),
 		'exclude_file_regex' => array(
 			'build/',

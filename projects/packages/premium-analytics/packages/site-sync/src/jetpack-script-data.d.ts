@@ -50,6 +50,8 @@ declare module '@automattic/jetpack-script-data' {
 			sections?: string[];
 			// Slugs of the tabs whose dates follow the plan's Stats limits. Absent with `sections`.
 			plan_date_limited_sections?: string[];
+			// Slugs of the tabs that open while the site has no Jetpack connection. Absent when there are none.
+			connectionless_sections?: string[];
 			// The locale's default date format, used when the site's own lacks a day, month or year.
 			default_date_format?: string;
 			// The WooCommerce store currency, set by the WooCommerce stats package; absent without WooCommerce.
@@ -103,8 +105,12 @@ declare module '@automattic/jetpack-script-data' {
 			};
 			// URL of the dashboard's copied `build/images/` directory, with a trailing slash. Dashboard only.
 			assets_url?: string;
+			// Whether the dashboard reports its errors, the package version sent with them, and the URL prefixes that mark a stack frame as dashboard code. Dashboard only.
+			error_reporting?: { enabled: boolean; version: string; script_origins: string[] };
 			// The Stats purchase this page load returned from checkout with; absent on every other load.
 			purchase_success?: { type: 'paid' | 'free' };
+			// Whether the dashboard mounts the What's new surface; a feature flag decides it for now.
+			whats_new_enabled?: boolean;
 		};
 		newsletter?: {
 			// The Newsletter page's Subscribers tab; null when this user cannot open it.

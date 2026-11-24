@@ -21,14 +21,14 @@ use const Automattic\Jetpack\PremiumAnalytics\DASHBOARD_TILE_STRIP;
  *
  * The package decides nothing about who gets Ads: the WordAds module of the Jetpack plugin calls
  * `init()` outside the WordPress.com platform, jetpack-mu-wpcom calls the registrants on Simple
- * and Atomic where the plan includes WordAds and the site has it on. Everything registers when the dashboard's registries
+ * and Atomic where the site has WordAds on. Everything registers when the dashboard's registries
  * hydrate, so a call on a site without the dashboard is inert.
  *
  * @since 0.1.0
  */
 class Analytics_Dashboard {
 
-	const PACKAGE_VERSION = '0.1.9';
+	const PACKAGE_VERSION = '0.1.10';
 
 	/**
 	 * Namespaced section identifier. Its slug, `ads`, keys the section's URL and stored layouts.
@@ -127,6 +127,8 @@ class Analytics_Dashboard {
 	 * @return void
 	 */
 	public static function register_widget_types( $registry ) {
+		add_filter( 'jetpack_premium_analytics_error_reporting_script_origins', array( __CLASS__, 'add_error_reporting_origin' ) );
+
 		if ( ! self::widget_contract_is_supported() ) {
 			return;
 		}
@@ -144,6 +146,26 @@ class Analytics_Dashboard {
 			),
 			$registry
 		);
+	}
+
+	/**
+	 * Append this package's dashboard build directories to the error reporting origins.
+	 *
+	 * The widget and module directories rather than the whole build, which also carries script that
+	 * never runs on the dashboard. Every widget and module builds into one of these two, so a new
+	 * one needs no change here.
+	 *
+	 * @param string[] $origins Absolute URL prefixes, each ending in a slash.
+	 * @return string[]
+	 */
+	public static function add_error_reporting_origin( $origins ) {
+		$origins = is_array( $origins ) ? $origins : array();
+		$build   = trailingslashit( plugins_url( '', self::build_dir() . '/build.php' ) );
+
+		$origins[] = $build . 'widgets/';
+		$origins[] = $build . 'modules/';
+
+		return $origins;
 	}
 
 	/**

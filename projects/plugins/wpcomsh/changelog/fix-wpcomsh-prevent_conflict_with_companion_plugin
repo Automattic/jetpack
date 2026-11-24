@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Prevent a PHP warning when JETPACK_BLOCKS_VARIATION is already defined.

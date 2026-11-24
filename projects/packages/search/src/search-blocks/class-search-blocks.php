@@ -133,6 +133,7 @@ class Search_Blocks {
 	 */
 	public static function init() {
 		add_action( 'init', array( static::class, 'register_blocks' ) );
+		add_action( 'wp_enqueue_scripts', array( static::class, 'load_block_styles_only_where_rendered' ), 9 );
 		add_filter( 'block_categories_all', array( static::class, 'register_block_category' ) );
 		add_action( 'enqueue_block_editor_assets', array( static::class, 'enqueue_editor_assets' ) );
 		add_action( 'wp_body_open', array( static::class, 'print_theme_token_sampler' ) );
@@ -760,6 +761,28 @@ class Search_Blocks {
 
 		add_filter( 'get_block_type_variations', array( static::class, 'inject_filter_checkbox_variations' ), 10, 2 );
 		static::register_patterns();
+	}
+
+	/**
+	 * On a site that turned off on-demand block assets, load the Search blocks' styles only where they render.
+	 *
+	 * Mirrors Automattic\Jetpack\Blocks::load_styles_only_where_blocks_render(), which says why. The search page renders
+	 * these blocks anyway, and a classic theme there can't hoist a late style, so it keeps them in the head.
+	 *
+	 * @since 8.4.4
+	 */
+	public static function load_block_styles_only_where_rendered() {
+		if ( wp_should_load_block_assets_on_demand() || is_search() ) {
+			return;
+		}
+
+		foreach ( \WP_Block_Type_Registry::get_instance()->get_all_registered() as $block_type ) {
+			if ( ! str_starts_with( $block_type->name, 'jetpack-search/' ) || empty( $block_type->style_handles ) ) {
+				continue;
+			}
+			$block_type->view_style_handles = array_values( array_unique( array_merge( $block_type->style_handles, $block_type->view_style_handles ) ) );
+			$block_type->style_handles      = array();
+		}
 	}
 
 	/**

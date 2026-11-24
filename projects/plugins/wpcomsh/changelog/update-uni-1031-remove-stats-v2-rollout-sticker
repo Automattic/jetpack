@@ -1,0 +1,4 @@
+Significance: patch
+Type: removed
+
+Stats: Remove the blog sticker that turned on Stats v2 during the rollout, now that every Atomic site runs it.

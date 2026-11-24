@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import { act, render, screen } from 'test/test-utils';
 import Writing, { Writing as UnconnectedWriting } from '../index';
 
@@ -174,6 +175,33 @@ describe( 'Writing settings', () => {
 			);
 			expect( shown ).toEqual( expected );
 		} );
+	} );
+
+	it( 'looks up custom content types once when a sibling suspends its first render', async () => {
+		let resolve;
+		const pending = new Promise( r => ( resolve = r ) );
+		let ready = false;
+		pending.then( () => ( ready = true ) );
+		const SuspendsOnce = () => {
+			if ( ! ready ) {
+				throw pending;
+			}
+			return null;
+		};
+		const getActiveFeatureDetails = jest.fn( noFeatureDetails );
+
+		render(
+			<Suspense fallback={ null }>
+				<UnconnectedWriting
+					isModuleFound={ findsNothing }
+					getActiveFeatureDetails={ getActiveFeatureDetails }
+				/>
+				<SuspendsOnce />
+			</Suspense>
+		);
+		await act( async () => resolve() );
+
+		expect( getActiveFeatureDetails ).toHaveBeenCalledTimes( 1 );
 	} );
 
 	it.each( [

@@ -12,6 +12,7 @@ use Automattic\Jetpack\PremiumAnalytics\Widget_Type_Registry;
 use Automattic\Jetpack\WordAds\Analytics_Dashboard;
 use Brain\Monkey\Functions;
 use PHPUnit\Framework\Attributes\CoversFunction;
+use PHPUnit\Framework\Attributes\DataProvider;
 use function Automattic\Jetpack\PremiumAnalytics\get_registered_dashboard_section;
 use const Automattic\Jetpack\PremiumAnalytics\DASHBOARD_NAME;
 
@@ -27,7 +28,7 @@ require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/premium-analytics/wordads
 require_once __DIR__ . '/wordads-manifest-stand-in.php';
 
 /**
- * The plan feature and WordAds being on decide; the WordAds package registers.
+ * WordAds being on decides, plus the plan on Atomic; the WordAds package registers.
  *
  * @covers ::wpcom_premium_analytics_register_wordads_section
  * @covers ::wpcom_premium_analytics_register_wordads_widget_types
@@ -58,7 +59,7 @@ class Wordads_Section_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Atomic with the plan feature and the WordAds module on: the shape every registering test uses.
+	 * Atomic with the WordAds module on and the plan feature: the shape every registering test uses.
 	 */
 	private function enable_wordads_on_atomic() {
 		Functions\when( 'wpcom_site_has_feature' )->justReturn( true );
@@ -70,7 +71,7 @@ class Wordads_Section_Test extends \WorDBless\BaseTestCase {
 		$this->assertSame( 20, has_action( 'jetpack_premium_analytics_register_widget_types', 'wpcom_premium_analytics_register_wordads_widget_types' ) );
 	}
 
-	public function test_registers_the_ads_section_when_the_plan_includes_wordads_and_it_is_on() {
+	public function test_registers_the_ads_section_on_atomic_with_the_wordads_module_on() {
 		$this->enable_wordads_on_atomic();
 		wp_set_current_user(
 			wp_insert_user(
@@ -93,29 +94,40 @@ class Wordads_Section_Test extends \WorDBless\BaseTestCase {
 		);
 	}
 
-	public function test_skips_without_the_plan_feature() {
-		Functions\when( 'wpcom_site_has_feature' )->justReturn( false );
-		update_option( 'jetpack_active_modules', array( 'wordads' ) );
-
-		$this->assertNull( get_registered_dashboard_section( DASHBOARD_NAME, Analytics_Dashboard::SECTION_ID ) );
-	}
-
 	/**
-	 * A plan that could use WordAds is not a site that does: on Atomic the module decides, as in
-	 * classic Stats.
+	 * On Atomic both the module and the plan must be there: the module stays on after a downgrade.
+	 *
+	 * @dataProvider provide_atomic_states_without_the_tab
+	 *
+	 * @param string[] $active_modules   Stored active modules.
+	 * @param bool     $has_plan_feature Whether the plan includes WordAds.
 	 */
-	public function test_skips_on_atomic_while_the_wordads_module_is_off() {
-		Functions\when( 'wpcom_site_has_feature' )->justReturn( true );
-		update_option( 'jetpack_active_modules', array( 'stats' ) );
+	#[DataProvider( 'provide_atomic_states_without_the_tab' )]
+	public function test_skips_on_atomic_without_the_module_or_the_plan( $active_modules, $has_plan_feature ) {
+		Functions\when( 'wpcom_site_has_feature' )->justReturn( $has_plan_feature );
+		update_option( 'jetpack_active_modules', $active_modules );
 
 		$this->assertNull( get_registered_dashboard_section( DASHBOARD_NAME, Analytics_Dashboard::SECTION_ID ) );
 		$this->assertNull( Widget_Type_Registry::get_instance()->get_registered( 'wordads/chart-tabs' ) );
 	}
 
 	/**
-	 * Simple reads the WordAds stickers rather than the module list, as the sites API does.
+	 * Atomic states that must not show the Ads tab.
+	 *
+	 * @return array[]
 	 */
-	public function test_simple_skips_without_the_wordads_stickers() {
+	public static function provide_atomic_states_without_the_tab() {
+		return array(
+			'module off, plan feature'   => array( array( 'stats' ), true ),
+			'module on, no plan feature' => array( array( 'wordads' ), false ),
+		);
+	}
+
+	/**
+	 * Simple reads the WordAds stickers rather than the module list, as the sites API does: a plan
+	 * that includes WordAds is not enough.
+	 */
+	public function test_simple_skips_without_the_wordads_stickers_even_with_the_plan_feature() {
 		Constants::set_constant( 'IS_WPCOM', true );
 		Functions\when( 'wpcom_site_has_feature' )->justReturn( true );
 		Functions\when( 'has_any_blog_stickers' )->justReturn( false );
@@ -124,9 +136,9 @@ class Wordads_Section_Test extends \WorDBless\BaseTestCase {
 		$this->assertNull( Widget_Type_Registry::get_instance()->get_registered( 'wordads/chart-tabs' ) );
 	}
 
-	public function test_simple_registers_the_ads_section_for_an_approved_site() {
+	public function test_simple_registers_the_ads_section_for_an_approved_site_without_the_plan_feature() {
 		Constants::set_constant( 'IS_WPCOM', true );
-		Functions\when( 'wpcom_site_has_feature' )->justReturn( true );
+		Functions\when( 'wpcom_site_has_feature' )->justReturn( false );
 		// `when()` rather than `expect()`: an expectation does not override an earlier test's stub here.
 		$asked = array();
 		Functions\when( 'has_any_blog_stickers' )->alias(
@@ -137,22 +149,16 @@ class Wordads_Section_Test extends \WorDBless\BaseTestCase {
 		);
 
 		$this->assertNotNull( get_registered_dashboard_section( DASHBOARD_NAME, Analytics_Dashboard::SECTION_ID ) );
+		$this->assertNotNull( Widget_Type_Registry::get_instance()->get_registered( 'wordads/chart-tabs' ) );
 		$this->assertSame(
 			array( array( 'wordads-approved', 'wordads-approved-misfits' ), get_current_blog_id() ),
 			$asked
 		);
 	}
 
-	public function test_registers_the_widget_types_with_the_plan_feature_and_wordads_on() {
+	public function test_registers_the_widget_types_on_atomic_with_the_wordads_module_on() {
 		$this->enable_wordads_on_atomic();
 
 		$this->assertNotNull( Widget_Type_Registry::get_instance()->get_registered( 'wordads/chart-tabs' ) );
-	}
-
-	public function test_skips_the_widget_types_without_the_plan_feature() {
-		Functions\when( 'wpcom_site_has_feature' )->justReturn( false );
-		update_option( 'jetpack_active_modules', array( 'wordads' ) );
-
-		$this->assertNull( Widget_Type_Registry::get_instance()->get_registered( 'wordads/chart-tabs' ) );
 	}
 }

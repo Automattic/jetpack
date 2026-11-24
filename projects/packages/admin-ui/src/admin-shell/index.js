@@ -5,21 +5,32 @@
 import {
 	bootFor,
 	isolateRouters,
+	loadPage,
 	notifyRouters,
 	prefetchBoot,
+	preloadModules,
+	routeAt,
+	routesLoadedBy,
 	trackViewTransitions,
 	transitionSettled,
 } from './adapter';
 import { createApp, whenRendered } from './app';
+import { liveAppLimit, mayPrewarm } from './budget';
 import { announcePage, menuLabel, pageOf, updateChrome } from './chrome';
 import { debugEnabled, log, stopwatch } from './debug';
+import { checkFeature, showFeatureOff } from './feature';
 import { applyGuestAssets } from './guest-assets';
 import { configureHeaders, rememberHeader, removeHeader, showHeader } from './header';
+import { removeLoader, showLoader } from './loader';
 import { closeDialogsOf, closeOverlayAround, showOverlaysOf, trackOverlays } from './overlays';
 
 const CONFIG_ID = 'wp-script-module-data-@automattic/jetpack-admin-shell';
 const RENDER_TIMEOUT = 15000;
+// A kept-mounted app shown again after this long is `stale` in its page-shown, so it refetches.
+const STALE_AFTER = 5 * 60 * 1000;
 const INIT_TIMEOUT = 15000;
+// How long the pointer rests on a menu link before its dashboard prewarms, so a sweep down the menu doesn't.
+const HOVER_DELAY = 100;
 
 const readConfig = () => {
 	try {
@@ -53,7 +64,15 @@ const routeOf = href => {
 	return url.search + url.hash;
 };
 
-const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
+const start = ( {
+	host,
+	members,
+	guestAssetsUrl,
+	headerStorageKey,
+	maxLiveApps,
+	featureUrl,
+	featureOff,
+} ) => {
 	const hostEl = document.getElementById( members[ host ].mountId );
 	if ( ! hostEl ) {
 		return;
@@ -62,12 +81,29 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 	members[ host ].adminTitle = document.title;
 	configureHeaders( headerStorageKey, members );
 	trackViewTransitions();
-	// A member declares the header of the view its bare menu link opens; other views only get a title.
-	const showHeaderAt = ( slug, el, url ) => {
+	/*
+	 * Stand in for a page until it renders: the loader, and the header it declares for the view its bare
+	 * menu link opens, or else just its title. Returns what takes both down.
+	 */
+	const showStandIn = ( slug, el, url ) => {
 		const { header, defaultPath, title } = members[ slug ];
+		const removeLoaderOf = showLoader( slug, el, menuLabel( slug ) ?? title );
+		if ( header === false ) {
+			log( 'header', `${ slug } opts out of the stand-in header` );
+			return removeLoaderOf;
+		}
 		const path = new URL( url, location.href ).searchParams.get( 'p' ) ?? '/';
 		const landing = [ '/', defaultPath ].includes( path );
-		return showHeader( slug, el, menuLabel( slug ) ?? title, landing ? header : null );
+		const heading = header?.title ?? menuLabel( slug ) ?? title;
+		const removeHeaderOf = showHeader( slug, el, heading, landing ? header : null );
+		return () => {
+			removeLoaderOf();
+			removeHeaderOf();
+		};
+	};
+	const removeStandInOf = slug => {
+		removeLoader( slug );
+		removeHeader( slug );
 	};
 
 	log(
@@ -80,6 +116,7 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 	// Where each page was left, so its menu link reopens it there, and how far it was scrolled.
 	const lastUrl = { [ host ]: location.href };
 	const scrollOf = {};
+	const hiddenAt = {};
 	const gate = isolateRouters(
 		() => visible,
 		() => {
@@ -100,42 +137,111 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 
 	// Pages built from one package share an init module; run each once.
 	const ranInit = new Set( members[ host ].initModules );
+	// The Jetpack config a guest's init set, for another page built from its package.
+	const configOfInit = new Map();
+	const guestConfigs = new Set();
+	// The page's own config is the newest one no guest set: the host's init sets it on DOMContentLoaded.
+	let pageConfig;
+	const pageConfigNow = () => {
+		if ( ! guestConfigs.has( globalThis.jetpackConfig ) ) {
+			pageConfig = globalThis.jetpackConfig;
+		}
+		return pageConfig;
+	};
 	/*
 	 * One guest's init and route-module imports at a time: an init sets globals such as
 	 * `window.jetpackConfig` that its route modules read when they are evaluated.
 	 */
 	let booting = Promise.resolve();
 	const oneAtATime = task => {
-		const run = booting.then( task );
+		const run = booting.then( task ).finally( () => {
+			globalThis.jetpackConfig = pageConfigNow();
+		} );
 		booting = run.catch( () => {} );
 		return run;
 	};
+	// The config each guest's init set; none means the page's current one.
+	const configOf = {};
+	const imported = new Set();
+	// Route modules keep the Jetpack config they are evaluated with: each gets its own page's.
+	const evaluateAs = async ( slug, ids ) => {
+		// Read first, to keep a config the host's init set since the last guest finished.
+		const current = pageConfigNow();
+		globalThis.jetpackConfig = configOf[ slug ] ?? current;
+		const modules = await Promise.all( ids.map( id => import( /* webpackIgnore: true */ id ) ) );
+		ids.forEach( id => imported.add( id ) );
+		return modules;
+	};
+	// What a booted guest's router imports when it first reaches a route.
+	const routeModuleLoader = slug => async id => {
+		if ( imported.has( id ) ) {
+			return import( /* webpackIgnore: true */ id );
+		}
+		log( 'switch', `${ slug }: importing ${ id } on first use` );
+		// Downloaded outside the queue, so a prewarm another guest has queued doesn't hold up the visible one.
+		await preloadModules( [ id ] );
+		const [ module ] = await oneAtATime( () => evaluateAs( slug, [ id ] ) );
+		return module;
+	};
 	const warm = {};
-	// Everything short of mounting: a mounted router would start reading the visible page's URL.
-	const prewarm = ( slug, reason ) => {
+	const liveLimit = liveAppLimit( maxLiveApps );
+	// Past the limit, opening another dashboard loads the page, which frees every hidden one.
+	const hasRoomFor = ( slug, spare = 0 ) =>
+		apps.has( slug ) ||
+		Object.hasOwn( warm, slug ) ||
+		new Set( [ ...apps.keys(), ...Object.keys( warm ) ] ).size < liveLimit - spare;
+	// A page load drops the hidden apps too, edits and all; the visible one has its own beforeunload.
+	const mayUnload = url =>
+		[ ...apps.keys() ].every( slug => slug === visible || mayLeave( slug, url ) );
+	/*
+	 * Everything short of mounting, for the route `url` opens: a mounted router would start reading
+	 * the visible page's URL. Other routes load when the app first reaches them.
+	 */
+	const prewarm = ( slug, reason, url ) => {
 		if ( warm[ slug ] ) {
 			return warm[ slug ];
 		}
 		const total = stopwatch();
-		log( 'prewarm', `${ slug }: start (${ reason })` );
+		log( 'prewarm', `${ slug }: start (${ reason })`, url );
 		prefetchBoot().catch( () => {} ); // Download in parallel; bootFor() reports a failure.
+		const path = new URL( url, location.href ).searchParams.get( 'p' ) ?? '/';
+		const route = routeAt( members[ slug ].routes, path );
+		const modules = [ route?.route_module, route?.content_module ].filter( Boolean );
+		// Downloaded before this guest takes the queue, which then holds it only to evaluate them.
+		const preloaded = preloadModules( [ ...members[ slug ].initModules, ...modules ] );
 		warm[ slug ] = ( async () => {
 			let step = stopwatch();
 			const added = await applyGuestAssets( guestAssetsUrl, slug );
+			await preloaded;
 			log( 'prewarm', `${ slug }: page data fetched and applied in ${ step() }`, added );
 			return oneAtATime( async () => {
+				let guestConfig;
 				for ( const id of members[ slug ].initModules ) {
-					if ( ! ranInit.has( id ) ) {
+					if ( ranInit.has( id ) ) {
+						guestConfig = configOfInit.get( id ) ?? guestConfig;
+					} else {
 						step = stopwatch();
 						// Not bundled: wp-build's modules resolve through the page's import map at runtime.
 						const initModule = await import( /* webpackIgnore: true */ id );
+						const configBefore = ( globalThis.jetpackConfig = pageConfigNow() );
+						let running;
+						try {
+							running = initModule.init?.();
+						} catch ( error ) {
+							running = Promise.reject( error );
+						}
+						// Members set it before their first await; a later change may be the host's own init.
+						const ownConfig = globalThis.jetpackConfig;
+						if ( ownConfig !== configBefore ) {
+							guestConfigs.add( ownConfig );
+						}
 						/*
 						 * Bounded, so a hung init can't hold up every guest queued behind it. A timed-out init
 						 * may still finish later and set its globals; it runs again on the next attempt.
 						 */
 						let timer;
 						await Promise.race( [
-							initModule.init?.(),
+							running,
 							new Promise( ( resolve, reject ) => {
 								timer = setTimeout(
 									() => reject( new Error( `Admin shell: ${ id } timed out` ) ),
@@ -145,18 +251,20 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 						] ).finally( () => clearTimeout( timer ) );
 						// Only once it succeeded, so a failed init runs again on the next attempt.
 						ranInit.add( id );
+						if ( ownConfig !== configBefore ) {
+							configOfInit.set( id, ownConfig );
+							guestConfig = ownConfig;
+						}
 						log( 'prewarm', `${ slug }: ran ${ id } in ${ step() }` );
 					}
 				}
 				const boot = await bootFor( slug );
-				const modules = members[ slug ].routes
-					.flatMap( route => [ route.route_module, route.content_module ] )
-					.filter( Boolean );
 				step = stopwatch();
-				await Promise.all( modules.map( id => import( /* webpackIgnore: true */ id ) ) );
+				configOf[ slug ] = guestConfig;
+				await evaluateAs( slug, modules );
 				log(
 					'prewarm',
-					`${ slug }: imported ${ modules.length } route modules in ${ step() }`,
+					`${ slug }: imported ${ modules.length } modules for ${ path } in ${ step() }`,
 					modules
 				);
 				log( 'prewarm', `${ slug }: ready to boot, ${ total() } in all` );
@@ -170,15 +278,70 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 		return warm[ slug ];
 	};
 
+	// Panels standing in for pages whose feature is off, by page.
+	const offPanels = new Map();
+	const onScreen = slug => visible === slug && ! offPanels.has( slug );
+	// Each page's newest feature check, and the pages it last said are off.
+	const checks = {};
+	const knownOff = new Set();
+	const recheckFeature = slug => {
+		const check = (
+			members[ slug ].gate && featureUrl
+				? checkFeature( featureUrl, slug, members[ slug ].gate, members[ slug ].gateNonce )
+				: Promise.resolve( { on: true, card: '' } )
+		).then( result => {
+			if ( checks[ slug ] === check ) {
+				knownOff[ result.on ? 'delete' : 'add' ]( slug );
+			}
+			return result;
+		} );
+		checks[ slug ] = check;
+	};
+	// The newest check's answer, so an older one that comes back late can't overrule it.
+	const featureOf = async slug => {
+		let check, result;
+		do {
+			check = checks[ slug ];
+			result = await check;
+		} while ( check !== checks[ slug ] );
+		return result;
+	};
+	// Places the panel only: the switch that opened the page moves focus and announces it.
+	const showOff = ( slug, card ) => {
+		if ( offPanels.has( slug ) ) {
+			return;
+		}
+		apps.get( slug )?.place( false );
+		removeStandInOf( slug );
+		offPanels.set(
+			slug,
+			showFeatureOff( {
+				after: [ ...apps.values() ].at( -1 )?.el ?? hostEl,
+				slug,
+				title: menuLabel( slug ) ?? members[ slug ].title,
+				gate: members[ slug ].gate,
+				gateNonce: members[ slug ].gateNonce,
+				url: featureUrl,
+				strings: featureOff,
+				card,
+			} )
+		);
+	};
+	const hideOff = slug => {
+		offPanels.get( slug )?.remove();
+		offPanels.delete( slug );
+	};
+
 	// Once an app's first route is on screen.
 	const markReady = app => {
 		app.to( 'ready' );
-		app.place( visible === app.slug );
+		app.place( onScreen( app.slug ) );
 		rememberHeader( app.slug, app.el );
 		// Tab bars and actions often render just after the heading.
-		setTimeout( () => visible === app.slug && rememberHeader( app.slug, app.el ), 1000 );
+		setTimeout( () => onScreen( app.slug ) && rememberHeader( app.slug, app.el ), 1000 );
 	};
 
+	// Registered and given its stand-in header at once, so a second visit finds it while the check is out.
 	const bootGuest = async ( slug, url ) => {
 		// Not a div: the host page's critical CSS hides every `#wpbody-content > div` but its own app.
 		const el = document.createElement( 'section' );
@@ -191,11 +354,18 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 			apps.delete( slug );
 			el.remove();
 		};
-		const removeStandIn = showHeaderAt( slug, el, url );
+		const removeStandIn = showStandIn( slug, el, url );
 
 		try {
+			// After the check, so a page whose feature is off downloads nothing.
+			if ( ! ( await featureOf( slug ) ).on ) {
+				log( 'switch', `${ slug }: its feature is off, not booting it` );
+				removeStandIn();
+				discard();
+				return;
+			}
 			const waited = stopwatch();
-			const boot = await prewarm( slug, 'switch' );
+			const boot = await prewarm( slug, 'switch', url );
 			log( 'switch', `${ slug }: waited ${ waited() } for prewarm` );
 			if ( visible !== slug ) {
 				// Left before it could boot; it boots on the next visit, at that visit's URL.
@@ -207,7 +377,10 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 			gate.mount( slug );
 			const render = stopwatch();
 			log( 'switch', `${ slug }: initSinglePage into #${ el.id }` );
-			boot.initSinglePage( { mountId: el.id, routes: members[ slug ].routes } );
+			boot.initSinglePage( {
+				mountId: el.id,
+				routes: routesLoadedBy( members[ slug ].routes, routeModuleLoader( slug ) ),
+			} );
 			await whenRendered( el, RENDER_TIMEOUT );
 			log( 'switch', `${ slug }: first route rendered ${ render() } after boot` );
 		} catch ( error ) {
@@ -264,18 +437,27 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 			lastUrl[ slug ] = url;
 		}
 		if ( apps.get( previous )?.state === 'loading' ) {
-			removeHeader( previous );
+			removeStandInOf( previous );
 		}
 		apps.get( previous )?.place( false );
+		// The panel never showed the page, so taking it down doesn't hide the page either.
+		const leavesPanel = offPanels.has( previous );
+		hideOff( previous );
+		// Asked on every visit: the feature may have been switched off since the menu was drawn.
+		recheckFeature( slug );
+		// Kept until a page-shown reports it, so a show another switch overtakes doesn't reset it.
+		hiddenAt[ previous ] ??= Date.now();
 		const dialogsClosed = closeDialogsOf( previous );
 		showOverlaysOf( slug );
-		emit( 'page-hidden', {
-			page: previous,
-			previous: null,
-			next: slug,
-			firstShow: false,
-			url: location.href,
-		} );
+		if ( ! leavesPanel ) {
+			emit( 'page-hidden', {
+				page: previous,
+				previous: null,
+				next: slug,
+				firstShow: false,
+				url: location.href,
+			} );
+		}
 		if ( push ) {
 			gate.pushUrl( url );
 		}
@@ -296,10 +478,19 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 				window.scrollTo( 0, 0 );
 				await bootGuest( slug, url );
 			}
+			// A booted page shows at once, as it usually is still on; swapped for the panel if not.
+			const { on, card } = await featureOf( slug );
+			if ( ! on && visible === slug ) {
+				showOff( slug, card );
+			}
 			// Focus and speech inside a closing modal's `aria-hidden` would go unheard.
 			await dialogsClosed;
 			// A later switch, even back to this page, takes over its focus and announcement.
-			if ( thisSwitch === switches && apps.get( slug )?.state === 'visible' ) {
+			const current = thisSwitch === switches;
+			if ( current && offPanels.has( slug ) ) {
+				offPanels.get( slug ).querySelector( 'h1' )?.focus( { preventScroll: true } );
+				announcePage( members[ slug ].adminTitle );
+			} else if ( current && apps.get( slug )?.state === 'visible' ) {
 				log(
 					'switch',
 					`${ slug } on screen ${ elapsed() } after the switch started`,
@@ -307,12 +498,16 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 				);
 				apps.get( slug ).focusHeading();
 				announcePage( members[ slug ].adminTitle );
+				const hiddenFor = app ? Math.max( 0, Date.now() - ( hiddenAt[ slug ] ?? Date.now() ) ) : 0;
+				delete hiddenAt[ slug ];
 				emit( 'page-shown', {
 					page: slug,
 					previous,
 					firstShow: ! app,
 					// The member's router saw the new route and recorded the view itself.
 					routeChanged: !! app && retargets,
+					hiddenFor,
+					stale: hiddenFor >= STALE_AFTER,
 					url: location.href,
 				} );
 			}
@@ -331,19 +526,21 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 		}
 	};
 
-	const navigate = ( href, via ) => {
+	// A bare menu link reopens its page where it was left, or else at the page's default path.
+	const destinationOf = href => {
 		const url = new URL( href, location.href );
 		const slug = pageOf( url );
 		const bare = [ ...url.searchParams.keys() ].length === 1 && ! url.hash;
 		if ( bare && slug !== visible && lastUrl[ slug ] ) {
-			log( 'switch', `bare menu link: reopening ${ slug } where it was left` );
-			return show( lastUrl[ slug ], { push: true, via } );
+			return lastUrl[ slug ];
 		}
 		if ( ! url.searchParams.has( 'p' ) && members[ slug ].defaultPath ) {
 			url.searchParams.set( 'p', members[ slug ].defaultPath );
 		}
-		return show( url.href, { push: true, via } );
+		return url.href;
 	};
+
+	const navigate = ( href, via ) => show( destinationOf( href ), { push: true, via } );
 
 	// Not gated: the shell itself must hear Back/Forward across pages.
 	gate.listen( 'popstate', event => {
@@ -352,8 +549,16 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 			lastUrl[ visible ] = location.href;
 		}
 		if ( event.isTrusted && isMemberUrl( location.href ) && pageOf( location.href ) !== visible ) {
-			if ( gate.isMounting() ) {
-				location.reload();
+			const mounting = gate.isMounting();
+			if ( mounting || ! hasRoomFor( pageOf( location.href ) ) ) {
+				const target = location.href;
+				// Keep the visible app on its own URL, and its routers and guards out of a navigation they don't own.
+				gate.replaceUrl( lastUrl[ visible ] );
+				event.stopImmediatePropagation();
+				// Back/Forward can't be called off, so staying keeps the visible app.
+				if ( mounting || mayUnload( target ) ) {
+					loadPage( target, { replace: true } );
+				}
 				return;
 			}
 			show( location.href, { push: false, via: 'back/forward' } );
@@ -387,16 +592,53 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 			log( 'switch', 'an app is still mounting: letting the link load the page' );
 			return;
 		}
+		if ( ! hasRoomFor( pageOf( a.href ) ) ) {
+			if ( mayUnload( a.href ) ) {
+				log( 'switch', `${ liveLimit } dashboards are live: letting the link load the page` );
+			} else {
+				event.preventDefault();
+			}
+			return;
+		}
 		event.preventDefault();
 		closeOverlayAround( a )
 			.then( closed => closed && transitionSettled() )
-			.then( () => navigate( a.href, inMenu ? 'menu click' : 'link click' ) );
+			.then( () =>
+				// Another switch may have taken the last slot while the overlay closed.
+				hasRoomFor( pageOf( a.href ) )
+					? navigate( a.href, inMenu ? 'menu click' : 'link click' )
+					: mayUnload( a.href ) && loadPage( a.href )
+			);
 	} );
 
-	document.getElementById( 'adminmenu' )?.addEventListener( 'pointerover', event => {
-		const a = event.target.closest?.( 'a[href]' );
-		if ( a && isMemberUrl( a.href ) && ! apps.has( pageOf( a.href ) ) ) {
-			prewarm( pageOf( a.href ), 'menu hover' ).catch( () => {} );
+	const menu = document.getElementById( 'adminmenu' );
+	let hovered = null;
+	let hoverTimer;
+	menu?.addEventListener( 'pointerover', event => {
+		const a = event.target.closest?.( 'a[href]' ) ?? null;
+		if ( a === hovered ) {
+			return;
+		}
+		clearTimeout( hoverTimer );
+		hovered = a;
+		const slug = a && isMemberUrl( a.href ) ? pageOf( a.href ) : null;
+		if ( ! slug ) {
+			return;
+		}
+		hoverTimer = setTimeout( () => {
+			/*
+			 * Keep the last slot for a click: passing over links on the way shouldn't spend it.
+			 * A hover isn't a visit, so it checks no feature, only skips one a visit found off.
+			 */
+			if ( ! apps.has( slug ) && ! knownOff.has( slug ) && hasRoomFor( slug, 1 ) && mayPrewarm() ) {
+				prewarm( slug, 'menu hover', destinationOf( a.href ) ).catch( () => {} );
+			}
+		}, HOVER_DELAY );
+	} );
+	menu?.addEventListener( 'pointerout', event => {
+		if ( hovered && ! hovered.contains( event.relatedTarget ) ) {
+			clearTimeout( hoverTimer );
+			hovered = null;
 		}
 	} );
 
@@ -404,26 +646,33 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 	trackOverlays( () => visible );
 	const hostApp = createApp( host, hostEl );
 	apps.set( host, hostApp );
-	const removeHostHeader = showHeaderAt( host, hostEl, location.href );
+	const removeHostStandIn = showStandIn( host, hostEl, location.href );
+	// The page load already said its feature is off, and sent the card with the config.
+	if ( members[ host ].featureOn === false ) {
+		hiddenAt[ host ] = Date.now();
+		showOff( host, members[ host ].featureCard ?? '' );
+	}
 	gate.mount( host );
 	log( 'host', `${ host } boots from the page load` );
 	whenRendered( hostEl, 30000 )
 		.then( () => {
 			log( 'host', `${ host } rendered its first route` );
-			removeHostHeader();
+			removeHostStandIn();
 			markReady( hostApp );
-			if ( visible === host ) {
+			if ( onScreen( host ) ) {
 				emit( 'page-shown', {
 					page: host,
 					previous: null,
 					firstShow: true,
 					routeChanged: false,
+					hiddenFor: 0,
+					stale: false,
 					url: location.href,
 				} );
 			}
 		} )
 		.catch( error => {
-			removeHostHeader();
+			removeHostStandIn();
 			log( 'host', `${ host } did not render`, error );
 		} )
 		.finally( () => gate.mounted( host ) );
@@ -432,6 +681,7 @@ const start = ( { host, members, guestAssetsUrl, headerStorageKey } ) => {
 		window.jetpackAdminShell = {
 			apps,
 			members,
+			liveLimit,
 			get visible() {
 				return visible;
 			},

@@ -11,7 +11,6 @@ import type { ReactNode } from 'react';
 const mockSuccess = jest.fn();
 
 jest.mock( '@wordpress/api-fetch' );
-jest.mock( '../../../../hooks/use-analytics' );
 
 const recordEvent = jest.fn();
 const bulkEvent = () =>

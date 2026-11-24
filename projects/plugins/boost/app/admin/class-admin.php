@@ -29,16 +29,11 @@ class Admin {
 	const MENU_SLUG = 'jetpack-boost';
 
 	/**
-	 * Filter controlling the modern dashboard; return false to restore the legacy dashboard.
-	 */
-	const MODERNIZATION_FILTER = 'rsm_jetpack_ui_modernization_boost';
-
-	/**
-	 * Whether this request loaded the modern dashboard.
+	 * Whether this request loaded the dashboard build.
 	 *
 	 * @var bool
 	 */
-	private $modern_dashboard_loaded = false;
+	private $dashboard_build_loaded = false;
 
 	/**
 	 * The screen ID alias_screen_id_for_wp_build() replaced, until it is restored.
@@ -70,7 +65,7 @@ class Admin {
 	 * @return array
 	 */
 	public function add_admin_shell_member( $members ) {
-		if ( ! self::is_modernization_enabled() || ! file_exists( self::build_file() ) ) {
+		if ( ! file_exists( self::build_file() ) ) {
 			return $members;
 		}
 
@@ -86,12 +81,10 @@ class Admin {
 			'load'         => array( $this, 'load_as_admin_shell_guest' ),
 		);
 		// The Getting Started screen, which a bare menu link opens until it's done, has no page header.
-		if ( ! ( new Getting_Started_Entry() )->get() ) {
-			$members[ JETPACK_BOOST_SLUG ]['header'] = array(
-				'title'    => 'Boost',
-				'subtitle' => __( 'Improve your site speed and performance.', 'jetpack-boost' ),
-			);
-		}
+		$members[ JETPACK_BOOST_SLUG ]['header'] = ( new Getting_Started_Entry() )->get() ? false : array(
+			'title'    => 'Boost',
+			'subtitle' => __( 'Improve your site speed and performance.', 'jetpack-boost' ),
+		);
 		return $members;
 	}
 
@@ -149,7 +142,7 @@ class Admin {
 			'Boost', // "Boost" is a product name, do not translate.
 			'manage_options',
 			JETPACK_BOOST_SLUG,
-			$this->modern_dashboard_loaded ? 'jetpack_boost_jetpack_boost_dashboard_wp_admin_render_page' : array( $this, 'render_settings' ),
+			$this->dashboard_build_loaded ? 'jetpack_boost_jetpack_boost_dashboard_wp_admin_render_page' : array( $this, 'render_missing_build_notice' ),
 			null,
 			array(
 				'product' => 'boost',
@@ -160,44 +153,12 @@ class Admin {
 	}
 
 	/**
-	 * Whether this admin request uses the modern dashboard.
-	 *
-	 * @return bool Whether modernization is enabled for this admin request.
-	 */
-	private static function is_modern_dashboard() {
-		return self::is_modernization_enabled() && is_admin();
-	}
-
-	/**
-	 * Whether the modern dashboard is enabled.
-	 *
-	 * @return bool Whether modernization is enabled.
-	 */
-	public static function is_modernization_enabled() {
-		// Keep the call below on one line: replace-next-version-tag.sh only rewrites the version there.
-		$message = __( 'The legacy Jetpack Boost dashboard will be removed in a future release.', 'jetpack-boost' );
-
-		/**
-		 * Filters whether to load the modern Boost dashboard.
-		 *
-		 * Hook `__return_false` to restore the legacy dashboard.
-		 *
-		 * @since 4.7.1
-		 * @since 4.8.0 Defaults to true.
-		 * @deprecated 4.8.2 The legacy dashboard will be removed in a future release.
-		 * @param bool $enabled Whether to enable the modern dashboard. Default true.
-		 */
-		return (bool) apply_filters_deprecated( self::MODERNIZATION_FILTER, array( true ), '4.8.2', '', $message );
-	}
-
-	/**
-	 * Load the modern dashboard only on a Boost admin request that has not filtered it off.
+	 * Load the dashboard build on Boost's admin page.
 	 */
 	private function maybe_load_wp_build() {
-		// Check the page first, so a site hooking the deprecated filter is only warned on Boost's screen.
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$page = isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : '';
-		if ( JETPACK_BOOST_SLUG !== $page || ! self::is_modern_dashboard() || ! $this->dashboard_build_is_available() ) {
+		if ( JETPACK_BOOST_SLUG !== $page || ! is_admin() || ! $this->dashboard_build_is_available() ) {
 			return;
 		}
 
@@ -215,7 +176,7 @@ class Admin {
 
 		// wp_default_scripts has already fired by admin_menu, so register the init module now.
 		jetpack_boost_register_script_modules(); // @phan-suppress-current-line PhanUndeclaredFunction -- Defined by the generated build; callers check it exists.
-		$this->modern_dashboard_loaded = true;
+		$this->dashboard_build_loaded = true;
 	}
 
 	/**
@@ -228,14 +189,14 @@ class Admin {
 	}
 
 	/**
-	 * Load the generated dashboard, retaining the legacy page when assets are absent.
+	 * Load the generated dashboard, if its build is present.
 	 *
 	 * @return bool Whether the generated dashboard is available.
 	 */
 	private function dashboard_build_is_available() {
 		$build_file = self::build_file();
 		if ( ! file_exists( $build_file ) ) {
-			Debug::log( 'Modern dashboard build is missing; loading the legacy dashboard.' );
+			Debug::log( 'Dashboard build is missing; showing the missing-build notice.' );
 			return false;
 		}
 
@@ -289,12 +250,15 @@ class Admin {
 	 * Enqueue scripts and styles for the admin page.
 	 */
 	public function admin_init() {
-		// Clear premium features cache when the plugin settings page is loaded.
-		Premium_Features::clear_cache();
+		// Refetch the premium features unless the site features this page loads anyway still match them.
+		$cache_confirmed = Premium_Features::is_cache_confirmed();
+		if ( ! $cache_confirmed ) {
+			Premium_Features::clear_cache();
+		}
 		if ( current_user_can( 'manage_options' ) ) {
 			$already_activated = get_option( Premium_Features::CLOUD_CSS_ACTIVATED_OPTION );
-			Premium_Features::enable_cloud_css_after_upgrade();
-			if ( $this->modern_dashboard_loaded && ! $already_activated && get_option( Premium_Features::CLOUD_CSS_ACTIVATED_OPTION ) ) {
+			Premium_Features::enable_cloud_css_after_upgrade( $cache_confirmed );
+			if ( $this->dashboard_build_loaded && ! $already_activated && get_option( Premium_Features::CLOUD_CSS_ACTIVATED_OPTION ) ) {
 				jetpack_boost_ds_set( 'cloud_css_upgrade_notice', true );
 			}
 		}
@@ -351,7 +315,7 @@ class Admin {
 
 		Assets::enqueue_script( $admin_js_handle );
 
-		if ( $this->modern_dashboard_loaded ) {
+		if ( $this->dashboard_build_loaded ) {
 			$this->localize_api_settings( $admin_js_handle );
 			$i18n_loader_registered = wp_script_is( 'wp-jp-i18n-loader', 'registered' );
 			if ( $i18n_loader_registered ) {
@@ -401,12 +365,37 @@ class Admin {
 	}
 
 	/**
-	 * Generate the settings page.
+	 * Explain why the page is empty when the dashboard build is missing or incomplete.
+	 */
+	public function render_missing_build_notice() {
+		?>
+		<div class="wrap">
+			<div class="notice notice-error">
+				<p><?php esc_html_e( 'Jetpack Boost could not load its dashboard because some plugin files are missing. Reinstall Jetpack Boost to fix this.', 'jetpack-boost' ); ?></p>
+			</div>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Whether the modern dashboard is enabled. It always is, now that the legacy dashboard is gone.
+	 *
+	 * @deprecated $$next-version$$
+	 *
+	 * @return bool Always true.
+	 */
+	public static function is_modernization_enabled() {
+		_deprecated_function( __METHOD__, 'jetpack-boost-$$next-version$$' );
+		return true;
+	}
+
+	/**
+	 * Render the page body the legacy dashboard used to mount into.
+	 *
+	 * @deprecated $$next-version$$ Renders the missing-build notice, since the legacy dashboard is gone.
 	 */
 	public function render_settings() {
-		$this->localize_api_settings( 'jetpack-boost-admin' );
-		?>
-		<div id="jb-admin-settings"></div>
-		<?php
+		_deprecated_function( __METHOD__, 'jetpack-boost-$$next-version$$' );
+		$this->render_missing_build_notice();
 	}
 }

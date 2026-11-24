@@ -31,6 +31,21 @@ final class Announcement_Registry {
 	const MEDIA_TYPES = array( 'image', 'video' );
 
 	/**
+	 * Protocols the URLs of an announcement may use.
+	 */
+	private const URL_PROTOCOLS = array( 'http', 'https' );
+
+	/**
+	 * Attributes the body of an announcement loses: it is shown inside wp-admin and must not restyle it.
+	 */
+	private const RESTYLING_ATTRIBUTES = array(
+		'style'  => true,
+		'class'  => true,
+		'id'     => true,
+		'data-*' => true,
+	);
+
+	/**
 	 * Registered announcements, as `$id => $announcement` pairs.
 	 *
 	 * @var array[]
@@ -59,7 +74,8 @@ final class Announcement_Registry {
 	 * @return array|false The registered announcement, or false when it is refused.
 	 */
 	public function register( $id, $args ) {
-		if ( ! is_string( $id ) || ! preg_match( '#^' . self::ID_PATTERN . '$#', $id ) ) {
+		// `D`: without it `$` also matches before a line break that ends the id.
+		if ( ! is_string( $id ) || ! preg_match( '#^' . self::ID_PATTERN . '$#D', $id ) ) {
 			return self::refuse( __( 'Announcement ids are lowercase and carry a namespace prefix. Example: my-plugin/my-announcement', 'jetpack-announcements' ) );
 		}
 
@@ -138,7 +154,7 @@ final class Announcement_Registry {
 		// Latching before init ends would drop every registrant hooked later, so the read skips the action.
 		if ( ! did_action( 'init' ) || doing_action( 'init' ) ) {
 			$message = __( 'Announcements are read after init. An earlier read answers only what was registered directly.', 'jetpack-announcements' );
-			_doing_it_wrong( __CLASS__, esc_html( $message ), 'jetpack-announcements-$$next-version$$' );
+			_doing_it_wrong( __CLASS__, esc_html( $message ), 'jetpack-announcements-0.1.0' );
 			return;
 		}
 
@@ -151,7 +167,7 @@ final class Announcement_Registry {
 		 * Register announcements here with `register_announcement()`. Do no I/O: the read
 		 * that triggers it may be a REST request.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.1.0
 		 *
 		 * @param Announcement_Registry $registry The registry being hydrated.
 		 */
@@ -168,7 +184,7 @@ final class Announcement_Registry {
 	private static function sanitize( $id, array $args ) {
 		$date     = self::sanitize_date( $args['date'] ?? null );
 		$title    = self::sanitize_text( $args['title'] ?? '' );
-		$channels = array_values( array_unique( array_filter( array_map( 'sanitize_key', (array) ( $args['channels'] ?? array() ) ) ) ) );
+		$channels = array_values( array_unique( array_filter( array_map( array( __CLASS__, 'sanitize_channel' ), (array) ( $args['channels'] ?? array() ) ) ) ) );
 
 		if ( '' === $date || '' === $title || ! $channels ) {
 			return null;
@@ -179,12 +195,26 @@ final class Announcement_Registry {
 			'date'       => $date,
 			'title'      => $title,
 			'excerpt'    => self::sanitize_text( $args['excerpt'] ?? '' ),
-			'content'    => is_string( $args['content'] ?? null ) ? wp_kses_post( $args['content'] ) : '',
+			'content'    => self::sanitize_content( $args['content'] ?? null ),
 			'media'      => self::sanitize_media( $args['media'] ?? null ),
-			'link'       => is_string( $args['link'] ?? null ) ? esc_url_raw( $args['link'] ) : '',
+			'link'       => is_string( $args['link'] ?? null ) ? esc_url_raw( $args['link'], self::URL_PROTOCOLS ) : '',
 			'channels'   => $channels,
 			'capability' => is_string( $args['capability'] ?? null ) ? $args['capability'] : '',
 		);
+	}
+
+	/**
+	 * Sanitizes the name of a channel: keys, separated by a slash when there are several.
+	 *
+	 * @param mixed $value The name a registrant passed.
+	 * @return string The name, or an empty string when nothing of it is left.
+	 */
+	private static function sanitize_channel( $value ) {
+		if ( ! is_scalar( $value ) ) {
+			return '';
+		}
+
+		return implode( '/', array_filter( array_map( 'sanitize_key', explode( '/', (string) $value ) ), 'strlen' ) );
 	}
 
 	/**
@@ -221,6 +251,27 @@ final class Announcement_Registry {
 	}
 
 	/**
+	 * Sanitizes the body of an announcement, by WordPress's rules for a post minus the restyling attributes.
+	 *
+	 * @param mixed $value The value a registrant passed.
+	 * @return string The HTML, or an empty string for anything but a string.
+	 */
+	private static function sanitize_content( $value ) {
+		if ( ! is_string( $value ) ) {
+			return '';
+		}
+
+		$allowed = array_map(
+			static function ( $attributes ) {
+				return is_array( $attributes ) ? array_diff_key( $attributes, self::RESTYLING_ATTRIBUTES ) : $attributes;
+			},
+			wp_kses_allowed_html( 'post' )
+		);
+
+		return wp_kses( $value, $allowed, self::URL_PROTOCOLS );
+	}
+
+	/**
 	 * Sanitizes the media of an announcement.
 	 *
 	 * @param mixed $media The value a registrant passed.
@@ -231,7 +282,7 @@ final class Announcement_Registry {
 			return null;
 		}
 
-		$url = is_string( $media['url'] ?? null ) ? esc_url_raw( $media['url'] ) : '';
+		$url = is_string( $media['url'] ?? null ) ? esc_url_raw( $media['url'], self::URL_PROTOCOLS ) : '';
 		if ( '' === $url ) {
 			return null;
 		}
@@ -250,7 +301,7 @@ final class Announcement_Registry {
 	 * @return false
 	 */
 	private static function refuse( $message ) {
-		_doing_it_wrong( __NAMESPACE__ . '\register_announcement', esc_html( $message ), 'jetpack-announcements-$$next-version$$' );
+		_doing_it_wrong( __NAMESPACE__ . '\register_announcement', esc_html( $message ), 'jetpack-announcements-0.1.0' );
 
 		return false;
 	}

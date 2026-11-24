@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Safe Mode screen: Leave or reload the page after an action by default, and export onIdentityCrisisActionSuccess for hosts that change one action.

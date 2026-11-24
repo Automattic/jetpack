@@ -36,6 +36,7 @@ class Analytics_Dashboard_Test extends BaseTestCase {
 	public function tear_down() {
 		remove_action( Analytics_Dashboard::REGISTER_SECTIONS_ACTION, array( Analytics_Dashboard::class, 'register_section' ), 20 );
 		remove_action( Analytics_Dashboard::REGISTER_WIDGET_TYPES_ACTION, array( Analytics_Dashboard::class, 'register_widget_types' ), 20 );
+		remove_filter( 'jetpack_premium_analytics_error_reporting_script_origins', array( Analytics_Dashboard::class, 'add_error_reporting_origin' ) );
 
 		foreach ( array( Dashboard_Section_Registry::class, Widget_Type_Registry::class ) as $class ) {
 			$instance = new \ReflectionProperty( $class, 'instance' );
@@ -131,6 +132,22 @@ class Analytics_Dashboard_Test extends BaseTestCase {
 		$this->assertStringContainsString( 'build/i18n-manifest.json?ver=' . Analytics_Dashboard::PACKAGE_VERSION, $chart->i18n_manifest );
 		// A candidate's own text domain wins over the package default.
 		$this->assertSame( 'already-set', $registry->get_registered( 'wordads/highlights' )->textdomain );
+	}
+
+	/**
+	 * The dashboard reports errors thrown by the package's widgets and modules, and not by the rest
+	 * of its build. The origins are derived from a URL the registration itself publishes, so a build
+	 * served from somewhere else cannot pass.
+	 */
+	public function test_publishes_its_widget_and_module_urls_as_error_reporting_origins() {
+		$registry = new Widget_Type_Registry();
+
+		Analytics_Dashboard::register_widget_types( $registry );
+
+		$origins = apply_filters( 'jetpack_premium_analytics_error_reporting_script_origins', array() );
+		$build   = trailingslashit( dirname( $registry->get_registered( 'wordads/chart-tabs' )->i18n_manifest ) );
+
+		$this->assertSame( array( $build . 'widgets/', $build . 'modules/' ), $origins );
 	}
 
 	/**

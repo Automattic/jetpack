@@ -69,6 +69,7 @@ export {
 export * from './helpers/get-user-connect-kind.ts';
 export { getReconnectErrorMessage } from './helpers/get-reconnect-error-message.ts';
 export { formatSiteAddress } from './helpers/format-site-address.ts';
+export * from './helpers/site-words.ts';
 export { getTracksIdentity, initializeTracksIdentity } from './helpers/tracks-identity.ts';
 export {
 	CONNECTION_EVENTS,
