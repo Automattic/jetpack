@@ -231,7 +231,7 @@ class REST_Endpoints {
 	 *
 	 * @since 0.2.0
 	 * @since-jetpack 4.4.0
-	 * @since $$next-version$$ Accepts `from`, reported to WordPress.com for the registration and the authorization.
+	 * @since 9.18.3 Accepts `from`, reported to WordPress.com for the registration and the authorization.
 	 *
 	 * @param \WP_REST_Request $request The request sent to the WP REST API.
 	 *

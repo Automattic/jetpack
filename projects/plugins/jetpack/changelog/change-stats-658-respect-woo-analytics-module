@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Premium Analytics: Stop WooCommerce Analytics store tracking when the Jetpack WooCommerce Analytics module is turned off.

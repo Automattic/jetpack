@@ -9,7 +9,7 @@ import { store as preferencesStore } from '@wordpress/preferences';
  * Internal dependencies
  */
 import { useAnnouncements } from '../use-announcements';
-import type { Announcement, SeenDates } from '../../../types';
+import type { Announcement } from '../../../types';
 
 jest.mock( '@wordpress/core-data', () => ( {
 	store: 'core',
@@ -31,11 +31,11 @@ const newest: Announcement = {
 };
 
 // The store's action answers a promise, which `act` must not be handed.
-const storeSeen = ( seen: SeenDates | undefined ): void => {
+const storePreference = ( key: string, value: unknown ): void => {
 	void ( dispatch( preferencesStore ) as { set: ( ...args: unknown[] ) => unknown } ).set(
 		SCOPE,
-		'seen',
-		seen
+		key,
+		value
 	);
 };
 
@@ -48,7 +48,10 @@ describe( 'useAnnouncements', () => {
 	} );
 
 	afterEach( () => {
-		act( () => storeSeen( undefined ) );
+		act( () => {
+			storePreference( 'seen', undefined );
+			storePreference( 'teaserOff', undefined );
+		} );
 	} );
 
 	it( 'stops teasing an announcement as soon as it is marked, and keeps when in the preferences', () => {
@@ -64,12 +67,26 @@ describe( 'useAnnouncements', () => {
 
 	it( 'leaves alone what the preferences already hold as seen', () => {
 		const seen = { [ newest.id ]: '2026-11-21T09:00:00.000Z' };
-		act( () => storeSeen( seen ) );
+		act( () => storePreference( 'seen', seen ) );
 
 		const { result } = renderHook( () => useAnnouncements( CHANNELS ) );
 		act( () => result.current.markSeen( newest.id ) );
 
 		expect( result.current.teaser ).toBeNull();
 		expect( storedSeen() ).toEqual( seen );
+	} );
+
+	it( 'teases nothing while the user has the teaser off, and again once it is back on', () => {
+		const { result } = renderHook( () => useAnnouncements( CHANNELS ) );
+		expect( result.current.teaser ).toBe( newest );
+
+		act( () => storePreference( 'teaserOff', true ) );
+
+		expect( result.current.teaser ).toBeNull();
+		expect( result.current.announcements ).toEqual( [ newest ] );
+
+		act( () => storePreference( 'teaserOff', false ) );
+
+		expect( result.current.teaser ).toBe( newest );
 	} );
 } );

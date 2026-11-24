@@ -15,7 +15,7 @@ class Comments {
 	/**
 	 * Package version.
 	 */
-	const PACKAGE_VERSION = '0.9.1';
+	const PACKAGE_VERSION = '0.9.2';
 
 	/**
 	 * Whether Jetpack Comments handles comments on the current blog. Checked again where comments render,
@@ -34,7 +34,7 @@ class Comments {
 		/**
 		 * Whether Jetpack Comments handles comments on the current blog.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.9.2
 		 *
 		 * @param bool $enabled Default true.
 		 */

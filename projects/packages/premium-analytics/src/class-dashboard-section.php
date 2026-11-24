@@ -127,6 +127,15 @@ final class Dashboard_Section {
 	public $requires_sync = false;
 
 	/**
+	 * Whether the section needs the site's Jetpack connection. On a disconnected site, a section that
+	 * does not keeps working, and the others show a prompt to connect it.
+	 *
+	 * @since $$next-version$$
+	 * @var bool
+	 */
+	public $requires_connection = true;
+
+	/**
 	 * Whether the plan's Stats date limits apply to the section's window.
 	 *
 	 * @since 0.14.0
@@ -346,6 +355,10 @@ final class Dashboard_Section {
 
 		if ( isset( $args['requires_sync'] ) ) {
 			$this->requires_sync = (bool) $args['requires_sync'];
+		}
+
+		if ( isset( $args['requires_connection'] ) ) {
+			$this->requires_connection = (bool) $args['requires_connection'];
 		}
 
 		if ( isset( $args['follows_plan_date_limits'] ) ) {

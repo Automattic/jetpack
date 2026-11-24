@@ -3692,6 +3692,8 @@ class lessc_formatter_classic {
 
 	public $compressColors = false;
 
+	public $indentLevel;
+
 	public function __construct() {
 		$this->indentLevel = 0;
 	}

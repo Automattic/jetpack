@@ -61,7 +61,7 @@
 		"autorelease": true,
 		"mirror-repo": "Automattic/jetpack-woocommerce-stats",
 		"branch-alias": {
-			"dev-trunk": "0.4.x-dev"
+			"dev-trunk": "0.5.x-dev"
 		},
 		"textdomain": "jetpack-woocommerce-stats-pkg",
 		"version-constants": {

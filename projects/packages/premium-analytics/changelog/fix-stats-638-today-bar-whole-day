@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Traffic chart: Open today's bar over the whole day, so its hourly chart keeps 24 bars all day.

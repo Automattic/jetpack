@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Site settings: Remove the unused in_site_migration_flow setting. WordPress.com stopped using it in 2024.

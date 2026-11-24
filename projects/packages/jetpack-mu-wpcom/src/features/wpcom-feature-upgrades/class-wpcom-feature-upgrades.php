@@ -1,6 +1,6 @@
 <?php
 /**
- * Sends Jetpack's upgrade and plan links on WoA to WordPress.com's plans.
+ * Sends Jetpack's upgrade and plan links on WordPress.com sites to WordPress.com's plans.
  *
  * @package automattic/jetpack-mu-wpcom
  */
@@ -8,7 +8,7 @@
 namespace Automattic\Jetpack\Jetpack_Mu_Wpcom;
 
 /**
- * Answers My Jetpack's `jetpack_feature_upgrade` and `jetpack_my_jetpack_plan_urls` filters with WordPress.com's plans.
+ * Answers the `jetpack_feature_upgrade` and `jetpack_my_jetpack_plan_urls` filters of My Jetpack and the Monetize page with WordPress.com's plans.
  */
 class WPCOM_Feature_Upgrades {
 
@@ -21,6 +21,20 @@ class WPCOM_Feature_Upgrades {
 		'backup'            => WPCOM_Backup::class,
 		'protect-dashboard' => WPCOM_Scan::class,
 	);
+
+	/**
+	 * The slug the Monetize page's upgrade links pass to `jetpack_feature_upgrade`.
+	 *
+	 * @var string
+	 */
+	const MONETIZE_SLUG = 'monetize-dashboard';
+
+	/**
+	 * The plan feature the flow filters Monetize's upgrade on: Calypso's plan lists name ads `wordads-instant`.
+	 *
+	 * @var string
+	 */
+	const MONETIZE_PLAN_FEATURE = 'wordads-instant';
 
 	/**
 	 * Plans with none above them: Commerce, and Woo Hosted Pro, whose stores the upgrade flow keeps on Woo Hosted plans.
@@ -57,6 +71,43 @@ class WPCOM_Feature_Upgrades {
 			'path' => '',
 			'name' => 'WordPress.com Business', // Product name, do not translate.
 			'url'  => $page::get_plan_upgrade_url( (string) ( $upgrade['back_url'] ?? '' ) ),
+		);
+	}
+
+	/**
+	 * Send the Monetize page's upgrade links to the WordPress.com plans with ads, which come back to the page.
+	 *
+	 * Staging and fully managed agency sites can't buy a plan, so they get no upgrade link, as in filter_plan_urls().
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array  $upgrade Where the upgrade goes: `path`, `name`, `back_url`, and optionally `url`.
+	 * @param string $slug    The feature slug.
+	 * @return array
+	 */
+	public static function filter_monetize_upgrade( $upgrade, $slug ) {
+		if ( self::MONETIZE_SLUG !== $slug ) {
+			return $upgrade;
+		}
+
+		if ( get_option( 'wpcom_is_staging_site' ) || is_fully_managed_agency_site() ) {
+			return array( 'url' => '' ) + $upgrade;
+		}
+
+		$back = rawurlencode( (string) ( $upgrade['back_url'] ?? admin_url( 'admin.php?page=jetpack-monetize' ) ) );
+
+		return array(
+			'path' => '',
+			'name' => 'WordPress.com', // Product name, do not translate.
+			'url'  => add_query_arg(
+				array(
+					'siteSlug'    => rawurlencode( wpcom_get_site_slug() ),
+					'feature'     => self::MONETIZE_PLAN_FEATURE,
+					'back_to'     => $back,
+					'redirect_to' => $back,
+				),
+				'https://wordpress.com/setup/plan-upgrade'
+			),
 		);
 	}
 

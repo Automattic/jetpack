@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Admin shell: Give each dashboard its own Jetpack config when others are prewarmed.

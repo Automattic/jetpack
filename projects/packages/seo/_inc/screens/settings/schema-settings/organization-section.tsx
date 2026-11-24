@@ -1,8 +1,7 @@
 /* eslint-disable react/jsx-no-bind */
 
-import { TextControl, TextareaControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { Stack, Text } from '@wordpress/ui';
+import { InputControl, Stack, Text, TextareaControl } from '@wordpress/ui';
 import ProfileUrlList from './profile-url-list';
 import type { SchemaSettingsForm } from '../../../data/use-schema-settings';
 import type { FC } from 'react';
@@ -39,33 +38,32 @@ const OrganizationSection: FC< Props > = ( { form, disabled = false } ) => {
 			{ /* The visible label stays one word (WPDS renders control labels as 11px
 			     all-caps), but the Author profile card on this same tab also has a
 			     "Name" field — so the accessible name says which one this is. */ }
-			<TextControl
+			<InputControl
 				label={ __( 'Name', 'jetpack-seo' ) }
 				aria-label={ __( 'Organization name', 'jetpack-seo' ) }
-				help={ __(
+				// Drop the field's own `aria-labelledby`, which would beat this `aria-label`.
+				aria-labelledby={ undefined }
+				description={ __(
 					'The organization’s name, as you want it to appear in search results. Leave blank to use your Site Title.',
 					'jetpack-seo'
 				) }
 				placeholder={ defaults.name }
 				value={ name }
-				onChange={ next => setOrganizationField( { name: next } ) }
+				onValueChange={ next => setOrganizationField( { name: next } ) }
 				disabled={ disabled || isSaving }
-				__next40pxDefaultSize
-				__nextHasNoMarginBottom
 			/>
 
 			<TextareaControl
 				label={ __( 'Description', 'jetpack-seo' ) }
-				help={ __(
+				description={ __(
 					'A sentence or two about what the organization does. Leave blank to use your site Tagline.',
 					'jetpack-seo'
 				) }
 				placeholder={ defaults.description }
 				value={ description }
-				onChange={ next => setOrganizationField( { description: next } ) }
+				onValueChange={ next => setOrganizationField( { description: next } ) }
 				rows={ 3 }
 				disabled={ disabled || isSaving }
-				__nextHasNoMarginBottom
 			/>
 
 			<ProfileUrlList
@@ -79,15 +77,13 @@ const OrganizationSection: FC< Props > = ( { form, disabled = false } ) => {
 				disabled={ disabled || isSaving }
 			/>
 
-			<TextControl
+			<InputControl
 				label={ __( 'Contact email', 'jetpack-seo' ) }
-				help={ __( 'A public contact email for the organization.', 'jetpack-seo' ) }
+				description={ __( 'A public contact email for the organization.', 'jetpack-seo' ) }
 				type="email"
 				value={ email }
-				onChange={ next => setOrganizationField( { email: next } ) }
+				onValueChange={ next => setOrganizationField( { email: next } ) }
 				disabled={ disabled || isSaving }
-				__next40pxDefaultSize
-				__nextHasNoMarginBottom
 			/>
 		</Stack>
 	);

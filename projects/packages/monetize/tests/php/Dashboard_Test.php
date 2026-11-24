@@ -310,7 +310,7 @@ class Dashboard_Test extends BaseTestCase {
 	}
 
 	/**
-	 * A connection state, and whether the upgrade link should say the user is unlinked and carry a purchase token.
+	 * A connection state, and whether the upgrade link should say the user is unlinked and carry a purchase token. Every link returns to the dashboard.
 	 *
 	 * @return array[]
 	 */
@@ -354,23 +354,42 @@ class Dashboard_Test extends BaseTestCase {
 		wp_parse_str( $query['query'] ?? '', $checkout );
 
 		$this->assertSame( $unlinked, isset( $checkout['unlinked'] ) );
+		$this->assertSame( admin_url( 'admin.php?page=jetpack-monetize' ), $checkout['redirect_to'] );
 		$this->assertSame( $purchase_token, ! empty( $checkout['purchasetoken'] ) );
 		if ( $purchase_token ) {
 			$this->assertSame( \Jetpack_Options::get_option( 'purchase_token' ), $checkout['purchasetoken'] );
 		}
 	}
 
-	public function test_upgrade_url_follows_a_host_that_sells_its_own_plans() {
+	/**
+	 * @dataProvider provide_host_upgrade_urls
+	 *
+	 * @param string $host_url The `url` the host's filter returns.
+	 */
+	#[DataProvider( 'provide_host_upgrade_urls' )]
+	public function test_upgrade_url_follows_the_host( $host_url ) {
 		add_filter(
 			'jetpack_feature_upgrade',
-			function ( $upgrade, $slug ) {
-				return Dashboard::UPGRADE_SLUG === $slug ? array( 'url' => 'https://example.com/plans' ) : $upgrade;
+			function ( $upgrade, $slug ) use ( $host_url ) {
+				return Dashboard::UPGRADE_SLUG === $slug ? array( 'url' => $host_url ) : $upgrade;
 			},
 			10,
 			2
 		);
 
-		$this->assertSame( 'https://example.com/plans', Dashboard::get_upgrade_url() );
+		$this->assertSame( $host_url, Dashboard::get_upgrade_url() );
+	}
+
+	/**
+	 * A host's own plans, and a host that offers the site no upgrade.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_host_upgrade_urls() {
+		return array(
+			'own plans'  => array( 'https://example.com/plans' ),
+			'no upgrade' => array( '' ),
+		);
 	}
 
 	/**

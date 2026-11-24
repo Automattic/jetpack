@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Resolve the Premium Analytics SDK to its facade source so other plugins' widgets can have stories, and offer the widget sizes control on them.

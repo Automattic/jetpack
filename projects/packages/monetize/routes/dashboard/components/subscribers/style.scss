@@ -1,7 +1,7 @@
 @use "sass:meta";
 
 // DataViews ships its stylesheet separately from its JS.
-@include meta.load-css("@wordpress/dataviews/build-style/style.css");
+@include meta.load-css( "@wordpress/dataviews/build-style/style.css" );
 
 .jp-monetize-subscribers__figures {
 	display: grid;
@@ -29,5 +29,32 @@
 
 	dd {
 		margin: 0;
+	}
+}
+
+// Line the table up with the rest of the card, not DataViews' own gutter.
+.jp-monetize-subscribers__table {
+
+	.dataviews__view-actions,
+	.dataviews-footer {
+		padding-inline: 0;
+	}
+
+	.dataviews-view-table tr {
+
+		td:first-child,
+		th:first-child {
+			padding-inline-start: 0;
+		}
+
+		td:last-child,
+		th:last-child {
+			padding-inline-end: 0;
+		}
+	}
+
+	// Sortable headers pad their button; pull it back so the label meets the edge.
+	.dataviews-view-table thead th:first-child .dataviews-view-table-header-button {
+		margin-inline-start: calc(-1 * var(--wpds-dimension-padding-sm));
 	}
 }

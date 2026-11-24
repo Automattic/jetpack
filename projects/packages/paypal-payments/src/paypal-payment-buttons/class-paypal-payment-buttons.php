@@ -1694,14 +1694,16 @@ class PayPal_Payment_Buttons {
 			)
 		);
 
-		// The stacked preview needs a same-origin URL it can point an iframe at, and
-		// the connection wizard a page PayPal can send the seller back to.
+		// The stacked preview needs a same-origin URL it can point an iframe at, the
+		// connection wizard a page PayPal can send the seller back to, and the editor
+		// bundle the URL its images load from.
 		wp_add_inline_script(
 			'jp-paypal-payments-ncps-blocks',
 			'window.jetpackPayPalPayments = ' . wp_json_encode(
 				array(
 					'sdkHostUrl'          => self::get_sdk_host_url(),
 					'onboardingReturnUrl' => self::get_onboarding_return_url(),
+					'assetsUrl'           => self::get_assets_url(),
 				),
 				JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
 			) . ';',
@@ -1716,6 +1718,18 @@ class PayPal_Payment_Buttons {
 	 */
 	public static function get_onboarding_return_url() {
 		return admin_url( 'admin-post.php?action=' . self::ONBOARDING_RETURN_ACTION );
+	}
+
+	/**
+	 * URL of the package build dir, which the editor script loads its images from.
+	 *
+	 * Passed in because JS concatenation on WordPress.com Simple serves the editor
+	 * script from a `_static` URL, which points at the wrong dir.
+	 *
+	 * @return string
+	 */
+	public static function get_assets_url() {
+		return trailingslashit( Assets::normalize_path( plugins_url( '../../dist', __FILE__ ) ) );
 	}
 
 	/**

@@ -3,6 +3,7 @@ import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Button, Card, CheckboxControl, InputControl, Link, Notice, Stack } from '@wordpress/ui';
 import { useCallback, useState } from 'react';
+import { showSuccessSnackbar } from '../../data/notices';
 import { trackPayoutSave } from '../../data/tracking';
 import { usePayout, useSavePayout } from '../../data/use-wpcom-ads-settings';
 import type { WpcomApiError } from '../../data/wpcom-request';
@@ -60,16 +61,17 @@ export function PayoutCard( { adsActive }: { adsActive: boolean } ) {
 	const onPaypalChange = useCallback( ( next: unknown ) => setPaypal( String( next ?? '' ) ), [] );
 	const onSave = useCallback( () => {
 		save.mutate(
-			{ paypal: address, tos: agreed },
+			{ paypal: address, tos: agreed, adsOff: ! adsActive },
 			{
 				onSuccess: () => {
 					trackPayoutSave( agreed );
+					showSuccessSnackbar( __( 'Payout settings saved.', 'jetpack-monetize' ) );
 					setPaypal( undefined );
 					setAgreed( false );
 				},
 			}
 		);
-	}, [ save, address, agreed ] );
+	}, [ save, address, agreed, adsActive ] );
 
 	// The card shows from the start, its fields disabled until WordPress.com answers.
 	const isReady = Boolean( stored );

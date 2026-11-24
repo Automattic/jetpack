@@ -1294,8 +1294,8 @@ EXPECTED;
 	 */
 	public function test_module_configuration_url_opens_the_settings_page() {
 		$this->assertSame(
-			admin_url( 'admin.php?page=jetpack-settings' ) . '#/settings?term=markdown',
-			Jetpack::module_configuration_url( 'markdown' )
+			admin_url( 'admin.php?page=jetpack-settings' ) . '#/settings?term=latex',
+			Jetpack::module_configuration_url( 'latex' )
 		);
 	}
 } // end class

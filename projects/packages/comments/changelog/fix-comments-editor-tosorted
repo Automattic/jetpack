@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Keep the block editor working for commenters on older browsers, such as Chrome 109 on Windows 7.
