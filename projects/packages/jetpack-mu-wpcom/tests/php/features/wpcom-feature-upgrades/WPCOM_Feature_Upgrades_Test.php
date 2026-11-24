@@ -25,8 +25,12 @@ class WPCOM_Feature_Upgrades_Test extends \WorDBless\BaseTestCase {
 	 */
 	#[DataProvider( 'provide_monetize_back_urls' )]
 	public function test_monetize_upgrade_goes_to_the_plan_upgrade_flow( $back_url, $expected ) {
+		if ( null !== $back_url && str_starts_with( $back_url, 'admin:' ) ) {
+			$back_url = admin_url( substr( $back_url, 6 ) );
+		}
+
 		$upgrade = WPCOM_Feature_Upgrades::filter_monetize_upgrade(
-			null === $back_url ? array() : array( 'back_url' => admin_url( substr( $back_url, 6 ) ) ),
+			null === $back_url ? array() : array( 'back_url' => $back_url ),
 			WPCOM_Feature_Upgrades::MONETIZE_SLUG
 		);
 		parse_str( (string) wp_parse_url( $upgrade['url'], PHP_URL_QUERY ), $query );
@@ -44,8 +48,9 @@ class WPCOM_Feature_Upgrades_Test extends \WorDBless\BaseTestCase {
 	 */
 	public static function provide_monetize_back_urls() {
 		return array(
-			'from a tab' => array( 'admin:admin.php?page=jetpack-monetize&p=%2F%3Ftab%3Dads', '/wp-admin/admin.php?page=jetpack-monetize&p=%2F%3Ftab%3Dads' ),
-			'no page'    => array( null, '/wp-admin/admin.php?page=jetpack-monetize' ),
+			'from a tab'   => array( 'admin:admin.php?page=jetpack-monetize&p=%2F%3Ftab%3Dads', '/wp-admin/admin.php?page=jetpack-monetize&p=%2F%3Ftab%3Dads' ),
+			'no page'      => array( null, '/wp-admin/admin.php?page=jetpack-monetize' ),
+			'another site' => array( 'https://example.net/wp-admin/', '/wp-admin/admin.php?page=jetpack-monetize' ),
 		);
 	}
 
