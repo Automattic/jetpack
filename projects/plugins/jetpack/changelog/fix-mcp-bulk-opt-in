@@ -1,4 +1,4 @@
 Significance: patch
 Type: bugfix
 
-MCP: Preserve individual tool opt-in when enabling access or tools in bulk.
+MCP: List tools that require individual approval in their own section and leave them out of "Enable all".

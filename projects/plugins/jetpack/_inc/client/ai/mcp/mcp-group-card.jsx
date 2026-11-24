@@ -79,18 +79,18 @@ export function McpToolSections( { tools, view, savingToolIds, onToolChange } ) 
 }
 
 /**
- * Collapsible card with a group-wide "Enable all" toggle.
+ * Collapsible card with a group-wide "Enable all" toggle, unless onEnableAll is omitted.
  *
  * @param {object}   props                - Component props.
  * @param {string}   [props.id]           - DOM id for the card.
  * @param {string}   props.label          - Group title.
  * @param {string}   [props.description]  - Muted text under the title.
- * @param {boolean}  props.allEnabled     - Whether every tool in the group is on.
- * @param {boolean}  props.isSaving       - Disables the toggle while a save is in flight.
+ * @param {boolean}  [props.allEnabled]   - Whether every tool in the group is on.
+ * @param {boolean}  [props.isSaving]     - Disables the toggle while a save is in flight.
  * @param {boolean}  [props.forceOpen]    - Keep the card open regardless of the chevron.
  * @param {string}   [props.anchorToolId] - Tool in this card to open and scroll to.
  * @param {*}        [props.group]        - Opaque value handed back to onEnableAll.
- * @param {Function} props.onEnableAll    - Called with (enabled, group).
+ * @param {Function} [props.onEnableAll]  - Called with (enabled, group).
  * @param {object}   props.children       - Card body, rendered while open.
  * @return {object} Component markup.
  */
@@ -143,14 +143,16 @@ export default function McpGroupCard( {
 							</Text>
 						) }
 					</Stack>
-					<div className="jetpack-ai-mcp__group-toggle">
-						<SwitchControl
-							checked={ allEnabled }
-							disabled={ isSaving }
-							label={ __( 'Enable all', 'jetpack' ) }
-							onCheckedChange={ handleEnableAll }
-						/>
-					</div>
+					{ onEnableAll && (
+						<div className="jetpack-ai-mcp__group-toggle">
+							<SwitchControl
+								checked={ allEnabled }
+								disabled={ isSaving }
+								label={ __( 'Enable all', 'jetpack' ) }
+								onCheckedChange={ handleEnableAll }
+							/>
+						</div>
+					) }
 					<Button
 						className="jetpack-ai-mcp__group-chevron"
 						icon={ isOpen ? chevronUp : chevronDown }

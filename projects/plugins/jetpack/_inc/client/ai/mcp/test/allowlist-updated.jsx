@@ -92,7 +92,7 @@ describe.each( [
 	test.each( [
 		{ scope: 'page', toggleIndex: 0 },
 		{ scope: 'group', toggleIndex: 1 },
-	] )( '$scope enables skip opt-in tools and disables include them', async ( { toggleIndex } ) => {
+	] )( '$scope "Enable all" leaves opt-in tools alone both ways', async ( { toggleIndex } ) => {
 		const onUpdate = jest.fn();
 		const settings = ( enabled, optInEnabled = enabled ) => ( {
 			account: {
@@ -124,7 +124,36 @@ describe.each( [
 		rerender( <Component { ...props } mcpAbilities={ settings( true ) } /> );
 		await userEvent.click( screen.getAllByRole( 'switch', { name: 'Enable all' } )[ toggleIndex ] );
 		expect( onUpdate ).toHaveBeenLastCalledWith( {
-			sites: [ { blog_id: BLOG_ID, abilities: { ordinary: false, opt_in: false } } ],
+			sites: [ { blog_id: BLOG_ID, abilities: { ordinary: false } } ],
+		} );
+	} );
+
+	test( 'opt-in tools get their own section without "Enable all"', async () => {
+		const onUpdate = jest.fn();
+		render(
+			<Component
+				blogId={ BLOG_ID }
+				savingToolIds={ new Set() }
+				onUpdate={ onUpdate }
+				mcpAbilities={ {
+					account: {
+						opt_in: { title: 'Opt-in tool', readonly, enabled: false, requires_opt_in: true },
+					},
+					sites: [ { blog_id: BLOG_ID, site_level_enabled: true } ],
+				} }
+			/>
+		);
+
+		// The only "Enable all" left is the page's, and it has nothing to act on.
+		expect( screen.getByRole( 'switch', { name: 'Enable all' } ) ).toHaveAttribute(
+			'aria-disabled',
+			'true'
+		);
+		expect( screen.getByText( 'Requires individual approval' ) ).toBeInTheDocument();
+		await userEvent.click( screen.getByRole( 'button', { name: 'Show operations' } ) );
+		await userEvent.click( screen.getByRole( 'switch', { name: 'Opt-in tool' } ) );
+		expect( onUpdate ).toHaveBeenCalledWith( {
+			sites: [ { blog_id: BLOG_ID, abilities: { opt_in: true } } ],
 		} );
 	} );
 } );

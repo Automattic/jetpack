@@ -10,23 +10,34 @@
 
 import { __ } from '@wordpress/i18n';
 import { SUB_CATEGORY_ORDER, getSubCategory } from './categories';
+import { requiresOptIn } from './group-intents';
+
+// Name of the client-side section that holds every opt-in tool. Not an API group.
+export const OPT_IN_GROUP_NAME = 'requires-opt-in';
 
 const FLAT_SUB_CATEGORY_ORDER = [ ...new Set( Object.values( SUB_CATEGORY_ORDER ).flat() ) ];
 
 /**
  * Group tools by the API-provided display group, ordered by descriptor order.
  * Tools with no group (or an unrecognised group slug) fall into a trailing "Other" bucket.
+ * Opt-in tools go to their own section, last, whatever group the API gives them.
+ * Callers show that section without an "Enable all" switch.
  *
  * @param {Array<[string, object]>}                                                  tools            - Tool entries to group, each as [toolId, ability].
  * @param {Array<{name: string, label: string, description: string, order: number}>} groupDescriptors - Ordered group descriptors from the API.
- * @return {Array<{group: object|null, label: string, tools: Array<[string, object]>}>} Groups in descriptor order, with an optional trailing "Other" bucket.
+ * @return {Array<{group: object|null, label: string, tools: Array<[string, object]>}>} Groups in descriptor order, with optional trailing "Other" and opt-in buckets.
  */
 export function groupToolsByGroup( tools, groupDescriptors ) {
 	const byGroupName = new Map();
 	const unmatched = [];
+	const optIn = [];
 
 	for ( const entry of tools ) {
 		const [ , ability ] = entry;
+		if ( requiresOptIn( ability ) ) {
+			optIn.push( entry );
+			continue;
+		}
 		const groupName = ability?.group ?? null;
 		if ( groupName === null ) {
 			unmatched.push( entry );
@@ -58,6 +69,20 @@ export function groupToolsByGroup( tools, groupDescriptors ) {
 			group: null,
 			label: __( 'Other', 'jetpack' ),
 			tools: unmatched,
+		} );
+	}
+
+	if ( optIn.length > 0 ) {
+		const label = __( 'Requires individual approval', 'jetpack' );
+		groups.push( {
+			group: {
+				name: OPT_IN_GROUP_NAME,
+				label,
+				description: __( 'Turn these on one at a time. “Enable all” skips them.', 'jetpack' ),
+				order: Number.MAX_SAFE_INTEGER,
+			},
+			label,
+			tools: optIn,
 		} );
 	}
 

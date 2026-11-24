@@ -19,7 +19,6 @@ export function groupIntentKey( category, groupName ) {
  * toggle always wins. So an "Enable all" action must also force-write an
  * explicit override for any tool in scope whose current state disagrees with
  * the new value, or a previously-toggled tool would silently stay stuck.
- * Tools requiring opt-in can only be enabled individually.
  *
  * @param {Array<[string, object]>} scopedTools - Tools to evaluate, each as [toolId, ability].
  * @param {boolean}                 enabled     - Target enabled state.
@@ -28,7 +27,7 @@ export function groupIntentKey( category, groupName ) {
 export function getOverridesToMatch( scopedTools, enabled ) {
 	const overrides = {};
 	scopedTools.forEach( ( [ toolId, tool ] ) => {
-		if ( tool.enabled !== enabled && ( ! enabled || tool.requires_opt_in !== true ) ) {
+		if ( tool.enabled !== enabled ) {
 			overrides[ toolId ] = enabled;
 		}
 	} );
@@ -36,14 +35,23 @@ export function getOverridesToMatch( scopedTools, enabled ) {
 }
 
 /**
- * Whether a bulk toggle can disable the tools it controls.
+ * Whether a tool can only be turned on by its own switch. Any truthy value
+ * counts, so an unexpected encoding fails closed.
  *
- * @param {Array<[string, object]>} scopedTools - Tools in the bulk toggle's scope.
- * @return {boolean} True when all tools eligible for bulk enabling are on.
+ * @param {object} tool - Tool from the API.
+ * @return {boolean} True when the tool needs individual approval.
  */
-export function isBulkEnabled( scopedTools ) {
-	return (
-		scopedTools.some( ( [ , tool ] ) => tool.enabled ) &&
-		scopedTools.every( ( [ , tool ] ) => tool.enabled || tool.requires_opt_in === true )
-	);
+export function requiresOptIn( tool ) {
+	return Boolean( tool?.requires_opt_in );
+}
+
+/**
+ * The tools a bulk switch acts on. Opt-in tools sit in their own section, see
+ * groupToolsByGroup(), and only change through their own switches.
+ *
+ * @param {Array<[string, object]>} tools - Tools, each as [toolId, ability].
+ * @return {Array<[string, object]>} The tools that don't require opt-in.
+ */
+export function getOrdinaryTools( tools ) {
+	return tools.filter( ( [ , tool ] ) => ! requiresOptIn( tool ) );
 }

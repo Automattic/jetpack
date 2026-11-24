@@ -17,8 +17,8 @@ import { __ } from '@wordpress/i18n';
 import { Stack } from '@wordpress/ui';
 import { getGroupDomId } from './anchors';
 import { isWriteTool } from './categories';
-import { getOverridesToMatch, isBulkEnabled } from './group-intents';
-import { groupToolsByGroup } from './groups';
+import { getOrdinaryTools, getOverridesToMatch } from './group-intents';
+import { OPT_IN_GROUP_NAME, groupToolsByGroup } from './groups';
 import McpGroupCard, { McpToolSections } from './mcp-group-card';
 import McpToolbar from './mcp-toolbar';
 import RemoteAbilitiesSection, {
@@ -75,6 +75,7 @@ export default function McpWrite( {
 
 	const allTools = Object.entries( mergedAbilities ).filter( ( [ , t ] ) => t.visible !== false );
 	const writeTools = allTools.filter( ( [ id, t ] ) => isWriteTool( id, t ) );
+	const ordinaryTools = getOrdinaryTools( writeTools );
 
 	const groupDescriptors = getGroupDescriptors( mcpAbilities ?? {} );
 	const { query, setQuery, isSearching, isVisible } = useToolSearch();
@@ -105,7 +106,7 @@ export default function McpWrite( {
 
 	const remoteDefaultEnabled = getRemoteAbilitiesDefaultEnabled( writeTools );
 	const pageAllEnabled =
-		isBulkEnabled( writeTools ) &&
+		remoteDefaultEnabled &&
 		areRemoteGroupsEnabled(
 			remoteAbilities?.abilities ?? [],
 			getSiteRemoteGroups( mcpAbilities, blogId ),
@@ -116,7 +117,7 @@ export default function McpWrite( {
 
 	const handlePageToggle = useCallback(
 		enabled => {
-			const overrides = getOverridesToMatch( writeTools, enabled );
+			const overrides = getOverridesToMatch( ordinaryTools, enabled );
 			const remoteKeys = collectRemoteKeys(
 				remoteAbilities?.abilities ?? [],
 				getSiteRemoteGroups( mcpAbilities, blogId ),
@@ -142,7 +143,7 @@ export default function McpWrite( {
 				],
 			} );
 		},
-		[ blogId, writeTools, mcpAbilities, remoteAbilities, onUpdate ]
+		[ blogId, ordinaryTools, mcpAbilities, remoteAbilities, onUpdate ]
 	);
 
 	const handleGroupEnableAll = useCallback(
@@ -173,7 +174,7 @@ export default function McpWrite( {
 		<Stack direction="column" gap="md">
 			<McpToolbar
 				allEnabled={ pageAllEnabled }
-				isDisabled={ isSavingAny || writeTools.length === 0 }
+				isDisabled={ isSavingAny || ordinaryTools.length === 0 }
 				onEnableAll={ handlePageToggle }
 			>
 				<SearchControl
@@ -195,10 +196,12 @@ export default function McpWrite( {
 								anchorToolId={ groupTools.some( ( [ id ] ) => id === anchor ) ? anchor : null }
 								label={ label }
 								description={ descriptor?.description }
-								allEnabled={ isBulkEnabled( groupTools ) }
+								allEnabled={ groupTools.every( ( [ , t ] ) => t.enabled ) }
 								isSaving={ groupTools.some( ( [ id ] ) => savingToolIds.has( id ) ) }
 								group={ { name: descriptor?.name ?? null, tools: groupTools } }
-								onEnableAll={ handleGroupEnableAll }
+								onEnableAll={
+									descriptor?.name === OPT_IN_GROUP_NAME ? undefined : handleGroupEnableAll
+								}
 							>
 								<McpToolSections
 									tools={ visibleTools }

@@ -41,6 +41,12 @@ describe( 'McpGroupCard', () => {
 
 		expect( onEnableAll ).toHaveBeenCalledWith( true, undefined );
 	} );
+
+	test( 'has no Enable all switch without onEnableAll', () => {
+		renderCard( { onEnableAll: undefined } );
+
+		expect( screen.queryByRole( 'switch', { name: 'Enable all' } ) ).not.toBeInTheDocument();
+	} );
 } );
 
 describe( 'AnchorCopyButton', () => {

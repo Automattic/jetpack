@@ -5,6 +5,8 @@
  * Provides helpers for reading and merging MCP ability data from user settings.
  */
 
+import { getOrdinaryTools, requiresOptIn } from './group-intents';
+
 /**
  * Get account-level MCP abilities from user settings.
  *
@@ -139,7 +141,7 @@ export function isRemoteAbilityEnabled(
  * @return {boolean} Whether unsaved remote abilities are enabled.
  */
 export function getRemoteAbilitiesDefaultEnabled( scopedTools ) {
-	const ordinaryTools = scopedTools.filter( ( [ , tool ] ) => tool.requires_opt_in !== true );
+	const ordinaryTools = getOrdinaryTools( scopedTools );
 	return ordinaryTools.length > 0 && ordinaryTools.every( ( [ , tool ] ) => tool.enabled );
 }
 
@@ -154,8 +156,9 @@ export function getRemoteAbilitiesDefaultEnabled( scopedTools ) {
 export function mergeSiteMcpAbilities( accountAbilities, siteAbilities, defaultEnabled = null ) {
 	return Object.fromEntries(
 		Object.entries( accountAbilities ).map( ( [ toolId, tool ] ) => {
-			const fallbackEnabled =
-				tool.requires_opt_in === true ? tool.enabled : ( defaultEnabled ?? tool.enabled );
+			const fallbackEnabled = requiresOptIn( tool )
+				? tool.enabled
+				: ( defaultEnabled ?? tool.enabled );
 			return [
 				toolId,
 				{
