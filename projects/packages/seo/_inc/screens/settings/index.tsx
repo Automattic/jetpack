@@ -289,7 +289,13 @@ const SettingsScreen: FC< Props > = ( { form, independentOnly = false } ) => {
 
 	return (
 		<Stack direction="column" gap="lg" className={ styles.root }>
-			{ independentOnly && <SeoToolsOffNotice /> }
+			{ independentOnly && (
+				<SeoToolsOffNotice
+					onTurnOn={ () => commit( { seo_tools_active: true } ) }
+					disabled={ isSaving || indexnowSaving }
+					loading={ isSaving && local.seo_tools_active }
+				/>
+			) }
 
 			<div id="visibility" className={ styles.section }>
 				<CollapsibleCard.Root defaultOpen>
@@ -474,7 +480,13 @@ const SettingsScreen: FC< Props > = ( { form, independentOnly = false } ) => {
 			) }
 
 			{ /* Simple has no modules to switch: it reports SEO Tools on, and always will. */ }
-			{ ! simpleSite && <SeoToolsCard active={ ! independentOnly } /> }
+			{ ! simpleSite && (
+				<SeoToolsCard
+					active={ local.seo_tools_active ?? ! independentOnly }
+					onChange={ next => commit( { seo_tools_active: next } ) }
+					disabled={ isSaving || indexnowSaving }
+				/>
+			) }
 		</Stack>
 	);
 };

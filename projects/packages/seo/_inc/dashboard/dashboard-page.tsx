@@ -106,7 +106,10 @@ const DashboardPage = ( {
 				) }
 				showFooter={ showFooter }
 			>
-				{ showTabs ? <DashboardNav active={ active }>{ content }</DashboardNav> : content }
+				{ /* Always wrapped, so hiding the tabs doesn't remount the page. */ }
+				<DashboardNav active={ active } showTabs={ showTabs }>
+					{ content }
+				</DashboardNav>
 			</AdminPage>
 		</ThemeProvider>
 	);

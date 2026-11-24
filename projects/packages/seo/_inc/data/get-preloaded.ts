@@ -54,16 +54,3 @@ export function writePreloaded( path: string, body: unknown ): void {
 	scriptData.seo.preload = scriptData.seo.preload ?? {};
 	scriptData.seo.preload[ path ] = { body };
 }
-
-/**
- * Drop a preloaded response the server has since changed, so its tab fetches it
- * again on the next visit (see [use-ensure-tab-data]).
- *
- * @param path - The REST path.
- */
-export function forgetPreloaded( path: string ): void {
-	const preload = ( getScriptData() as SeoScriptData | undefined )?.seo?.preload;
-	if ( preload ) {
-		preload[ path ] = undefined;
-	}
-}

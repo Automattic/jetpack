@@ -33,6 +33,17 @@ describe( 'DashboardNav', () => {
 		expect( navigate ).toHaveBeenCalledWith( { href: '/geo' } );
 	} );
 
+	it( 'can hide the tabs and keep the content', () => {
+		render(
+			<DashboardNav active="settings" showTabs={ false }>
+				content
+			</DashboardNav>
+		);
+
+		expect( screen.queryByRole( 'tab' ) ).not.toBeInTheDocument();
+		expect( screen.getByText( 'content' ) ).toBeInTheDocument();
+	} );
+
 	it( 'shows all four tabs with Settings last', () => {
 		render( <DashboardNav active="overview">content</DashboardNav> );
 

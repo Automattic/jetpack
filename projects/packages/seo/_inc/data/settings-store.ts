@@ -26,11 +26,6 @@ interface SetSettingsAction {
 	settings: SettingsResponse;
 }
 
-interface SetSeoToolsActiveAction {
-	type: 'SET_SEO_TOOLS_ACTIVE';
-	active: boolean;
-}
-
 /**
  * Guard the one field whose server shape is looser than its type: a page type
  * cleared through the site-settings API is stored, and can arrive, as `''`.
@@ -55,16 +50,6 @@ const actions = {
 	setSettings( settings: SettingsResponse ): SetSettingsAction {
 		return { type: 'SET_SETTINGS', settings };
 	},
-
-	/**
-	 * Record the `seo-tools` module state the SEO tools switch just saved.
-	 *
-	 * @param active - Whether the module is now on.
-	 * @return The action.
-	 */
-	setSeoToolsActive( active: boolean ): SetSeoToolsActiveAction {
-		return { type: 'SET_SEO_TOOLS_ACTIVE', active };
-	},
 };
 
 const selectors = {
@@ -80,15 +65,9 @@ const selectors = {
 };
 
 const store = createReduxStore( STORE_NAME, {
-	reducer(
-		state: State = DEFAULT_STATE,
-		action: SetSettingsAction | SetSeoToolsActiveAction
-	): State {
+	reducer( state: State = DEFAULT_STATE, action: SetSettingsAction ): State {
 		if ( action.type === 'SET_SETTINGS' ) {
 			return { settings: sanitize( action.settings ) };
-		}
-		if ( action.type === 'SET_SEO_TOOLS_ACTIVE' && state.settings ) {
-			return { settings: { ...state.settings, seo_tools_active: action.active } };
 		}
 		return state;
 	},

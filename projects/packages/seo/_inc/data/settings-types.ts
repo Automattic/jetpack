@@ -33,7 +33,6 @@ export interface SettingsResponse {
 	// formats out of a save payload. The card itself locks from `getOutput().paused`.
 	title_formats_editable: boolean;
 	verification_tools_active: boolean;
-	// Saved by its own switch (`useSeoToolsSwitch`), which also refreshes the other tabs.
 	seo_tools_active: boolean;
 	verification: {
 		google: string;

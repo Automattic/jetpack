@@ -1,18 +1,26 @@
-import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Notice } from '@wordpress/ui';
-import useSeoToolsSwitch from '../../data/use-seo-tools-switch';
 import type { FC } from 'react';
+
+interface Props {
+	/** Turn SEO tools on. */
+	onTurnOn: () => void;
+	/** Whether a save is in flight. */
+	disabled: boolean;
+	/** Whether SEO tools are being turned on. */
+	loading: boolean;
+}
 
 /**
  * Tops Settings while the `seo-tools` module is off: what is paused, and the way back on.
  *
+ * @param props          - Component props.
+ * @param props.onTurnOn - Turn SEO tools on.
+ * @param props.disabled - Whether a save is in flight.
+ * @param props.loading  - Whether SEO tools are being turned on.
  * @return The notice.
  */
-const SeoToolsOffNotice: FC = () => {
-	const { isSwitching, setActive } = useSeoToolsSwitch( 'settings' );
-	const turnOn = useCallback( () => setActive( true ), [ setActive ] );
-
+const SeoToolsOffNotice: FC< Props > = ( { onTurnOn, disabled, loading } ) => {
 	return (
 		<Notice.Root intent="info">
 			<Notice.Title>{ __( 'SEO tools are off', 'jetpack-seo' ) }</Notice.Title>
@@ -23,7 +31,7 @@ const SeoToolsOffNotice: FC = () => {
 				) }
 			</Notice.Description>
 			<Notice.Actions>
-				<Notice.ActionButton onClick={ turnOn } loading={ isSwitching } disabled={ isSwitching }>
+				<Notice.ActionButton onClick={ onTurnOn } loading={ loading } disabled={ disabled }>
 					{ __( 'Turn on SEO tools', 'jetpack-seo' ) }
 				</Notice.ActionButton>
 			</Notice.Actions>

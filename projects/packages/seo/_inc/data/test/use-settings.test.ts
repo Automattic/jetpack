@@ -703,6 +703,27 @@ describe( 'useSettingsForm', () => {
 		] );
 	} );
 
+	it.each< [ string, Record< string, boolean >, unknown[][] ] >( [
+		[
+			'records the SEO tools switch under its own event',
+			{ seo_tools_active: false },
+			[ [ 'jetpack_seo_tools_toggled', 'settings', { enabled: false } ] ],
+		],
+		[ 'records nothing when the module route refuses SEO tools', {}, [] ],
+	] )( '%s', async ( _label, applied, calls ) => {
+		mockApiFetch.mockResolvedValueOnce( applied );
+		const { result } = renderHook( () => useSettingsForm() );
+
+		act( () => result.current.commit( { seo_tools_active: false } ) );
+
+		await waitFor( () => expect( result.current.isSaving ).toBe( false ) );
+		expect( mockApiFetch.mock.calls[ 0 ][ 0 ] ).toMatchObject( {
+			path: '/jetpack/v4/seo/modules',
+			data: { seo_tools_active: false },
+		} );
+		expect( recordSeoEvent.mock.calls ).toEqual( calls );
+	} );
+
 	const CANONICAL_ON = { setting: 'canonical', verification_service: 'none', setting_value: true };
 	const DESCRIPTION = {
 		setting: 'front_page_description',

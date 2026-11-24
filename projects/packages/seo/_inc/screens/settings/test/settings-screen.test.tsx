@@ -104,7 +104,7 @@ const buildForm = ( overrides: Partial< SettingsResponse > = {} ): SettingsForm 
 		title_separator: '-',
 		title_formats_editable: true,
 		verification_tools_active: true,
-		seo_tools_active: true,
+		seo_tools_active: false,
 		verification: { ...EMPTY_VERIFICATION },
 		search_engines_visible: false,
 		site_is_private: false,
@@ -775,9 +775,17 @@ describe( 'Settings and the SEO tools switch', () => {
 		expect( toggle ).toHaveAttribute( 'data-active', 'false' );
 	} );
 
+	it( 'hides the tabs as soon as SEO tools are being turned off', () => {
+		routeSeoToolsActive = true;
+		routeForm = buildForm( { seo_tools_active: false } );
+		render( <SettingsStage /> );
+
+		expect( screen.getByTestId( 'page' ) ).toHaveAttribute( 'data-show-tabs', 'false' );
+	} );
+
 	it( 'keeps the tabs and ends Settings with the switch while SEO tools are on', () => {
 		routeSeoToolsActive = true;
-		routeForm = buildForm();
+		routeForm = buildForm( { seo_tools_active: true } );
 		render( <SettingsStage /> );
 
 		expect( screen.getByTestId( 'page' ) ).toHaveAttribute( 'data-show-tabs', 'true' );

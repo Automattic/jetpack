@@ -18,9 +18,12 @@ import type { SettingsResponse } from '../../_inc/data/settings-types';
 const SettingsReady = () => {
 	const form = useSettingsForm();
 	const seoToolsActive = useSeoToolsActive();
-	// While SEO tools are off, the other tabs redirect here, so there is no tab bar.
+	// While SEO tools are off, or being turned off, the other tabs redirect here, so there is no tab bar.
 	return (
-		<DashboardPage active="settings" showTabs={ seoToolsActive }>
+		<DashboardPage
+			active="settings"
+			showTabs={ seoToolsActive && form.local?.seo_tools_active !== false }
+		>
 			<SettingsScreen form={ form } independentOnly={ ! seoToolsActive } />
 		</DashboardPage>
 	);
