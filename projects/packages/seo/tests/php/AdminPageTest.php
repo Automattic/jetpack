@@ -72,8 +72,12 @@ class AdminPageTest extends TestCase {
 	public function test_script_data_bootstraps_each_verify_flow() {
 		$data = Admin_Page::inject_script_data( array() );
 
-		$this->assertSame( Dashboard_Data::get_google_verify_data(), $data[ Initializer::SCRIPT_DATA_KEY ]['google_verify'] );
-		$this->assertSame( Dashboard_Data::get_bing_verify_data(), $data[ Initializer::SCRIPT_DATA_KEY ]['bing_verify'] );
+		foreach ( array(
+			'google_verify' => 'google_site_verification',
+			'bing_verify'   => 'bing_webmaster',
+		) as $key => $service ) {
+			$this->assertStringContainsString( "service=$service", $data[ Initializer::SCRIPT_DATA_KEY ][ $key ]['connect_url'] );
+		}
 	}
 
 	/**

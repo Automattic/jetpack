@@ -32,13 +32,27 @@ jest.unstable_mockModule( '@wordpress/data', () => ( {
 const { useSiteVerify } = await import( '../use-site-verify' );
 const { SITE_VERIFY_SERVICES } = await import( '../site-verify-services' );
 
-describe.each( Object.values( SITE_VERIFY_SERVICES ) )( 'useSiteVerify ($key)', service => {
+describe.each( [
+	{
+		key: 'google',
+		endpoint: '/jetpack/v4/verify-site/google',
+		scriptDataKey: 'google_verify',
+		toolsUrlField: 'google_search_console_url',
+	},
+	{
+		key: 'bing',
+		endpoint: '/jetpack/v4/verify-site/bing',
+		scriptDataKey: 'bing_verify',
+		toolsUrlField: 'webmaster_tools_url',
+	},
+] as const )( 'useSiteVerify ($key)', ( { key, endpoint, scriptDataKey, toolsUrlField } ) => {
+	const service = SITE_VERIFY_SERVICES[ key ];
 	let bootstrap: SiteVerifyBootstrap;
 	const setBootstrap = ( next: SiteVerifyBootstrap ) => {
 		bootstrap = next;
-		scriptData = { [ service.scriptDataKey ]: next };
+		scriptData = { [ scriptDataKey ]: next };
 	};
-	const VERIFY_POST = expect.objectContaining( { path: service.endpoint, method: 'POST' } );
+	const VERIFY_POST = expect.objectContaining( { path: endpoint, method: 'POST' } );
 
 	/**
 	 * Answer the verify-site status reads, and acknowledge every POST.
@@ -136,11 +150,11 @@ describe.each( Object.values( SITE_VERIFY_SERVICES ) )( 'useSiteVerify ($key)', 
 		} );
 		const { result } = await mountHook();
 
-		expect( result.current.toolsUrl ).toBe( `https://example.com/${ service.toolsUrlField }` );
+		expect( result.current.toolsUrl ).toBe( `https://example.com/${ toolsUrlField }` );
 	} );
 
 	it( 'uses a native host transport without a Jetpack user connection', async () => {
-		const apiPath = `/wpcom/v2/seo/${ service.key }-verify`;
+		const apiPath = `/wpcom/v2/seo/${ key }-verify`;
 		setBootstrap( {
 			connect_url: 'https://example.com/native-connect',
 			is_connected: false,
@@ -178,7 +192,7 @@ describe.each( Object.values( SITE_VERIFY_SERVICES ) )( 'useSiteVerify ($key)', 
 	} );
 
 	it( "ignores another service's bootstrap", async () => {
-		const other = Object.values( SITE_VERIFY_SERVICES ).find( ( { key } ) => key !== service.key );
+		const other = Object.values( SITE_VERIFY_SERVICES ).find( s => s.key !== key );
 		const { result } = await mountHook( other );
 		expect( result.current.state ).toBe( 'unavailable' );
 	} );

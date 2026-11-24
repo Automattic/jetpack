@@ -47,6 +47,7 @@ require_once __DIR__ . '/SeoTestCase.php';
 require_once __DIR__ . '/stubs/class-jetpack-redux-state-helper.php';
 require_once __DIR__ . '/stubs/class-jetpack-ai-settings.php';
 require_once __DIR__ . '/stubs/class-jetpack-options.php';
+require_once __DIR__ . '/stubs/class-keyring-helper.php';
 require_once __DIR__ . '/stubs/class-wc-structured-data.php';
 require_once __DIR__ . '/stubs/class-woocommerce.php';
 require_once __DIR__ . '/stubs/woocommerce-functions.php';

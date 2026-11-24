@@ -109,33 +109,32 @@ class DashboardDataTest extends SeoTestCase {
 	}
 
 	/**
-	 * Each verify bootstrap exposes the connect URL + connection flag the React app expects.
-	 * Without the host plugin's Keyring/Manager classes (the package test context) it degrades
-	 * to an empty URL and not connected, so the UI falls back to manual entry.
+	 * Each verify bootstrap opens its own service's keyring popup. Without a Jetpack user
+	 * connection (the package test context) it reports not connected, so the UI offers manual entry.
 	 *
 	 * @dataProvider provide_verify_bootstraps
-	 * @param string $method The Dashboard_Data bootstrap method.
+	 * @param string $method  The Dashboard_Data bootstrap method.
+	 * @param string $service The WordPress.com keyring service its popup must request.
 	 */
 	#[DataProvider( 'provide_verify_bootstraps' )]
-	public function test_verify_data_shape( $method ) {
-		$this->assertSame(
-			array(
-				'connect_url'  => '',
-				'is_connected' => false,
-			),
-			Dashboard_Data::$method()
-		);
+	public function test_verify_data_requests_its_own_keyring_service( $method, $service ) {
+		$data = Dashboard_Data::$method();
+
+		parse_str( (string) wp_parse_url( $data['connect_url'], PHP_URL_QUERY ), $query );
+		$this->assertSame( $service, $query['service'] ?? null );
+		$this->assertSame( 'other', $query['for'] ?? null );
+		$this->assertFalse( $data['is_connected'] );
 	}
 
 	/**
-	 * Verify bootstrap methods, one per service with a keyring flow.
+	 * Verify bootstrap methods and the keyring service each one requests.
 	 *
 	 * @return array
 	 */
 	public static function provide_verify_bootstraps() {
 		return array(
-			'google' => array( 'get_google_verify_data' ),
-			'bing'   => array( 'get_bing_verify_data' ),
+			'google' => array( 'get_google_verify_data', 'google_site_verification' ),
+			'bing'   => array( 'get_bing_verify_data', 'bing_webmaster' ),
 		);
 	}
 
