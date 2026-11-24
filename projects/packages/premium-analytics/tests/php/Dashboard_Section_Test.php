@@ -1429,7 +1429,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 
 		$this->assertSame(
 			array( 'traffic', 'insights', 'subscribers', 'extra' ),
-			get_available_dashboard_section_slugs()
+			inject_dashboard_sections_script_data( array() )['premium_analytics']['sections']
 		);
 	}
 
@@ -1440,7 +1440,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 
 		$this->assertSame(
 			array( 'traffic', 'insights', 'subscribers' ),
-			get_available_dashboard_section_slugs()
+			inject_dashboard_sections_script_data( array() )['premium_analytics']['sections']
 		);
 	}
 
@@ -1450,7 +1450,6 @@ class Dashboard_Section_Test extends BaseTestCase {
 	public function test_available_section_slugs_are_absent_while_nothing_is_registered() {
 		remove_action( Dashboard_Section_Registry::REGISTER_ACTION, __NAMESPACE__ . '\\register_default_dashboard_sections' );
 
-		$this->assertNull( get_available_dashboard_section_slugs() );
 		$this->assertArrayNotHasKey( 'sections', inject_dashboard_sections_script_data( array() )['premium_analytics'] );
 	}
 
@@ -1463,7 +1462,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 
 		register_default_dashboard_sections();
 
-		$this->assertNotContains( 'subscribers', get_available_dashboard_section_slugs() );
+		$this->assertNotContains( 'subscribers', inject_dashboard_sections_script_data( array() )['premium_analytics']['sections'] );
 	}
 
 	/**
@@ -1490,6 +1489,37 @@ class Dashboard_Section_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Only an available section that drops the connection opens on a disconnected site.
+	 */
+	public function test_connectionless_section_slugs_list_available_opted_out_tabs() {
+		$this->enable_every_section();
+
+		register_default_dashboard_sections();
+		register_dashboard_section(
+			DASHBOARD_NAME,
+			'other/local',
+			array(
+				'label'               => 'Local',
+				'requires_connection' => false,
+			)
+		);
+		register_dashboard_section(
+			DASHBOARD_NAME,
+			'other/closed',
+			array(
+				'label'               => 'Closed',
+				'is_available'        => false,
+				'requires_connection' => false,
+			)
+		);
+
+		$this->assertSame(
+			array( 'local' ),
+			inject_dashboard_sections_script_data( array() )['premium_analytics']['connectionless_sections']
+		);
+	}
+
+	/**
 	 * A registry whose every section is unavailable publishes an empty list, not an absent one.
 	 */
 	public function test_available_section_slugs_are_empty_when_every_tab_is_unavailable() {
@@ -1503,7 +1533,6 @@ class Dashboard_Section_Test extends BaseTestCase {
 			)
 		);
 
-		$this->assertSame( array(), get_available_dashboard_section_slugs() );
 		$this->assertSame( array(), inject_dashboard_sections_script_data( array() )['premium_analytics']['sections'] );
 	}
 
