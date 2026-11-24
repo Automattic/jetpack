@@ -305,7 +305,7 @@ The authoritative ranges are `SANITY_RANGES` in [scripts/scenarios.js](scripts/s
 
 Post a new metric to a `-staging` CodeVitals key first (e.g. `…-timeToFirstByte-staging`) for 2-3 builds. Inspect the values in the CodeVitals UI, then rename to the production key. This gives a safety window before a new metric reaches production.
 
-CodeVitals stores only registered keys. After each successful post with a reported row count, the poster logs how many keys it sent and how many rows CodeVitals stored.
+CodeVitals stores only registered keys. The poster requires a positive integer row count equal to the number of expected registered keys in the payload. Optional scenarios that could not be measured reduce that expected count. A successful post logs how many keys it sent and how many rows CodeVitals reported storing. Update `REGISTERED_CODEVITALS_KEYS` in `post-to-codevitals.js` when registering or retiring a key, including staging keys.
 
 **Waiving the staging window (owner decision).** A scenario may post straight to production keys when the build owner accepts the risk, as the existing LCP, TTFB, FCP and decoded-payload metrics for `formsResponses` and `myJetpack` do; their TBT keys keep the staging window. The [admin backend metrics](#admin-backend-metrics-server-timing) have no waiver. The waiver is not automatic — it requires all of: the `SANITY_RANGES` row + the all-or-nothing gate as the substitute guardrail, manual sign-off before the first live post, and the PR that introduces the keys listing them and naming the waiver so the impact is visible in review. A dry run's `stdDev: 0` shows repeatability, not correctness, so it is not the safeguard. The per-scenario comment in `scenarios.js` records where a waiver is in effect.
 

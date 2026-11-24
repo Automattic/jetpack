@@ -1368,35 +1368,70 @@ test( 'a required measurement with no summary fails closed, not a TypeError cras
 
 // --- live POST branch (fetch stubbed; never touches the network) ---
 
-test( 'a successful post logs the keys sent and any integer row count returned', async t => {
+test( 'a post rejects an invalid receipt count', async t => {
 	const file = writeResults( 120 );
-	for ( const [ body, expectedLogs ] of [
-		[ { count: 3 }, [ 'Sent 6 keys. CodeVitals stored 3.' ] ],
-		[ { count: 6 }, [ 'Sent 6 keys. CodeVitals stored 6.' ] ],
-		[ { count: 0 }, [ 'Sent 6 keys. CodeVitals stored 0.' ] ],
-		[ { count: '3' }, [] ],
-		[ null, [] ],
-		[ {}, [] ],
+	for ( const [ label, body, received ] of [
+		[ 'null response', null, 'null' ],
+		[ 'missing count', {}, 'no count' ],
+		[ 'string count', { count: '3' }, 'a string count' ],
+		[ 'count includes unregistered keys', { count: 6 }, '6' ],
 	] ) {
-		const fetch = t.mock.method( global, 'fetch', async () => ( {
-			ok: true,
-			json: async () => body,
-		} ) );
-		const logs = [];
-		const result = await silenced( () => {
-			console.log = message => logs.push( message );
-			return postToCodeVitals( file, {
-				codeVitalsUrl: 'https://codevitals.test',
-				codeVitalsToken: 'tok',
-			} );
+		await t.test( label, async subtest => {
+			subtest.mock.method( global, 'fetch', async () => ( {
+				ok: true,
+				json: async () => body,
+			} ) );
+			await assert.rejects(
+				silenced( () =>
+					postToCodeVitals( file, {
+						codeVitalsUrl: 'https://codevitals.test',
+						codeVitalsToken: 'tok',
+					} )
+				),
+				{ message: `CodeVitals receipt expected 3 stored rows, received ${ received }.` }
+			);
 		} );
-		assert.equal( result.posted, true );
-		assert.deepEqual(
-			logs.filter( message => message.startsWith( 'Sent' ) ),
-			expectedLogs
-		);
-		fetch.mock.restore();
 	}
+} );
+
+test( 'a zero-row receipt fails even when the run measures only staging keys', async t => {
+	const file = writeResults( 120 );
+	const results = JSON.parse( fs.readFileSync( file, 'utf8' ) );
+	results.measurements = { jetpackSettings: { summary: formsSummary() } };
+	fs.writeFileSync( file, JSON.stringify( results ) );
+	t.mock.method( global, 'fetch', async () => ( {
+		ok: true,
+		json: async () => ( { count: 0 } ),
+	} ) );
+	await assert.rejects(
+		silenced( () =>
+			postToCodeVitals( file, { codeVitalsUrl: 'https://codevitals.test', codeVitalsToken: 'tok' } )
+		),
+		/expected 0 stored rows, received 0/
+	);
+} );
+
+test( 'a receipt counts only the registered keys measured when an optional scenario fails', async t => {
+	const file = writeResults( 120, { forms: {}, myJetpack: {} } );
+	const results = JSON.parse( fs.readFileSync( file, 'utf8' ) );
+	results.measurements.myJetpack = { error: 'All iterations failed' };
+	fs.writeFileSync( file, JSON.stringify( results ) );
+	let count = 7;
+	t.mock.method( global, 'fetch', async () => ( { ok: true, json: async () => ( { count } ) } ) );
+	const config = { codeVitalsUrl: 'https://codevitals.test', codeVitalsToken: 'tok' };
+	const logs = [];
+	const result = await silenced( () => {
+		console.log = message => logs.push( message );
+		return postToCodeVitals( file, config );
+	} );
+	assert.equal( result.posted, true );
+	assert.ok( logs.includes( 'Sent 14 keys. CodeVitals stored 7.' ) );
+
+	count = 11;
+	await assert.rejects(
+		silenced( () => postToCodeVitals( file, config ) ),
+		/expected 7 stored rows, received 11/
+	);
 } );
 
 test( 'a live POST carries Dashboard deltas and the existing absolutes together', async () => {
@@ -1411,7 +1446,7 @@ test( 'a live POST carries Dashboard deltas and the existing absolutes together'
 		postCount++;
 		sentUrl = u;
 		sentInit = init;
-		return { ok: true, status: 200, json: async () => ( { ok: true } ), text: async () => '' };
+		return { ok: true, status: 200, json: async () => ( { count: 3 } ), text: async () => '' };
 	};
 	try {
 		const result = await silenced( () =>
@@ -1474,7 +1509,7 @@ test( 'Dashboard TBT below its sample floor skips only its delta and still posts
 	let sentMetrics;
 	global.fetch = async ( _, init ) => {
 		sentMetrics = JSON.parse( init.body ).metrics;
-		return { ok: true, json: async () => ( { ok: true } ) };
+		return { ok: true, json: async () => ( { count: 11 } ) };
 	};
 	const warnings = [];
 	try {
@@ -2780,7 +2815,7 @@ function dedupFetchStub( {
 			};
 		}
 		calls.post++;
-		return { ok: true, status: 200, json: async () => ( { ok: true } ), text: async () => '' };
+		return { ok: true, status: 200, json: async () => ( { count: 3 } ), text: async () => '' };
 	};
 	return { fetchImpl, calls };
 }

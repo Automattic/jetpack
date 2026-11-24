@@ -4,6 +4,21 @@ import fs from 'fs';
 import path from 'path';
 import { DASHBOARD_DELTA_METRICS, SCENARIOS, SANITY_RANGES } from './scenarios.js';
 
+// Keep the expected count independent of the service's current registrations.
+const REGISTERED_CODEVITALS_KEYS = new Set( [
+	'wp-admin-dashboard-connection-sim-largestContentfulPaint',
+	'wp-admin-dashboard-connection-sim-timeToFirstByte',
+	'wp-admin-dashboard-connection-sim-firstContentfulPaint',
+	'forms-responses-connection-sim-largestContentfulPaint',
+	'forms-responses-connection-sim-timeToFirstByte',
+	'forms-responses-connection-sim-firstContentfulPaint',
+	'forms-responses-connection-sim-decodedBytesKB',
+	'my-jetpack-connection-sim-largestContentfulPaint',
+	'my-jetpack-connection-sim-timeToFirstByte',
+	'my-jetpack-connection-sim-firstContentfulPaint',
+	'my-jetpack-connection-sim-decodedBytesKB',
+] );
+
 /**
  * Exit code for a LOCAL data-integrity failure: a metric failed a sanity check, a
  * scenario is misconfigured, or the results file is missing/unusable. In short,
@@ -652,13 +667,9 @@ async function postToCodeVitals( resultsPath, config ) {
 	// regression tests can use a short bound instead of waiting the full 30s.
 	const TIMEOUT_MS = config.postTimeoutMs ?? 30000;
 	const controller = new AbortController();
-	// The finally below always clears this timer, so it is never left unused by an early
-	// return/throw; the lint rule only fires because the first textual reference now lives in
-	// that finally — which is the whole point of the fix (the timer must stay armed across the
-	// body read, so it cannot be cleared early).
-	// eslint-disable-next-line @wordpress/no-unused-vars-before-return -- cleared in finally
 	const timeoutId = setTimeout( () => controller.abort(), TIMEOUT_MS );
 
+	let data;
 	try {
 		const response = await fetch( url, {
 			method: 'POST',
@@ -675,7 +686,6 @@ async function postToCodeVitals( resultsPath, config ) {
 			throw new Error( `CodeVitals API error (${ response.status }): ${ errorText }` );
 		}
 
-		let data;
 		try {
 			data = await response.json();
 		} catch ( jsonError ) {
@@ -689,13 +699,6 @@ async function postToCodeVitals( resultsPath, config ) {
 				cause: jsonError,
 			} );
 		}
-		const rowsStored = data?.count;
-		if ( Number.isInteger( rowsStored ) ) {
-			const keysSent = Object.keys( metrics ).length;
-			console.log( `Sent ${ keysSent } keys. CodeVitals stored ${ rowsStored }.` );
-		}
-		console.log( '✓ Metrics posted successfully to CodeVitals' );
-		return { posted: true, data, validationFailed };
 	} catch ( error ) {
 		// Scrub the token from the caught error and its whole cause chain before we
 		// log it or re-use it as `cause`. fetch/undici can echo the token-bearing
@@ -719,6 +722,28 @@ async function postToCodeVitals( resultsPath, config ) {
 	} finally {
 		clearTimeout( timeoutId );
 	}
+
+	const keysSent = Object.keys( metrics );
+	const expectedRows = keysSent.filter( key => REGISTERED_CODEVITALS_KEYS.has( key ) ).length;
+	const rowsStored =
+		data !== null && typeof data === 'object' && ! Array.isArray( data ) ? data.count : undefined;
+	if ( ! Number.isInteger( rowsStored ) || rowsStored <= 0 || rowsStored !== expectedRows ) {
+		let received = 'no count';
+		if ( data === null ) {
+			received = 'null';
+		} else if ( rowsStored === null || typeof rowsStored === 'number' ) {
+			received = rowsStored;
+		} else if ( rowsStored !== undefined ) {
+			received = `a ${ typeof rowsStored } count`;
+		}
+		throw new Error(
+			`CodeVitals receipt expected ${ expectedRows } stored rows, received ${ received }.`
+		);
+	}
+
+	console.log( `Sent ${ keysSent.length } keys. CodeVitals stored ${ rowsStored }.` );
+	console.log( '✓ Metrics posted successfully to CodeVitals' );
+	return { posted: true, data, validationFailed };
 }
 
 /**
