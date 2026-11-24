@@ -206,10 +206,22 @@ const SCENARIOS = {
 		},
 	} ),
 	scanWithStrayReadings: () => {
-		const values = [ ...Array( 20 ).fill( 100 ), ...Array( 20 ).fill( 108 ) ];
-		values[ 16 ] = 90;
-		values[ 25 ] = 120;
-		return { series: { 301: flaggedSeries( values, [], 'stray' ) } };
+		const placements = [
+			[ 'Inside later window', 25, 120 ],
+			[ 'First later reading', 21, 120 ],
+			[ 'Last later reading', 30, 120 ],
+			[ 'Inside earlier window', 16, 90 ],
+		];
+		return {
+			metrics: placements.map( ( [ name ], i ) => metricRow( 301 + i, name, `stray-${ i }` ) ),
+			series: Object.fromEntries(
+				placements.map( ( [ , index, value ], i ) => {
+					const values = [ ...Array( 20 ).fill( 100 ), ...Array( 20 ).fill( 108 ) ];
+					values[ index ] = value;
+					return [ 301 + i, flaggedSeries( values, [], 'stray' ) ];
+				} )
+			),
+		};
 	},
 	scanOnPaintGrid: () => {
 		const values = [ ...Array( 20 ).fill( 240 ), ...Array( 20 ).fill( 260 ) ];
@@ -352,12 +364,12 @@ const SCENARIOS = {
 		const before = Array( 30 ).fill( 100 );
 		return {
 			metrics: [
-				metricRow( 301, 'Reverted after nine', 'reverted' ),
+				metricRow( 301, 'Reverted after ten', 'reverted' ),
 				metricRow( 302, 'Short tail', 'short-tail' ),
 				metricRow( 303, 'Low later median', 'low-median' ),
 			],
 			series: {
-				301: flaggedSeries( [ ...before, ...Array( 9 ).fill( 110 ), ...before ], [], 'boundary' ),
+				301: flaggedSeries( [ ...before, ...Array( 10 ).fill( 110 ), ...before ], [], 'boundary' ),
 				302: flaggedSeries( [ ...before, ...Array( 10 ).fill( 107 ) ], [], 'short' ),
 				303: flaggedSeries(
 					[
@@ -431,7 +443,7 @@ const SCENARIOS = {
 		},
 	} ),
 	scanThenPending: () => SCENARIOS.scanSecondRise( { pending: true } ),
-	scanNearPending: () => SCENARIOS.scanSecondRise( { pending: true, gap: 9 } ),
+	scanNearPending: () => SCENARIOS.scanSecondRise( { pending: true, gap: 10 } ),
 	scanRerunMargin: () => {
 		const rows = flaggedSeries(
 			[ ...Array( 10 ).fill( 100 ), ...Array( 11 ).fill( 110 ) ],
@@ -1719,9 +1731,12 @@ async function runDigest( scenario, envOverrides = {}, opts = {} ) {
 	}
 }
 
-test( 'the scan holds a level with one stray reading on each side', async () => {
+test( 'the scan tolerates one stray reading only inside the later window', async () => {
 	const result = await runDigest( 'scanWithStrayReadings' );
-	assert.match( result.out, /Alpha: TTFB\* median \+8\.0% \(100→108ms\)/ );
+	assert.match( result.out, /Inside later window\* median \+8\.0% \(100→108ms\)/ );
+	for ( const name of [ 'First later reading', 'Last later reading', 'Inside earlier window' ] ) {
+		assert.ok( ! result.out.includes( `${ name }* median` ), result.out );
+	}
 } );
 
 test( 'the scan uses the paint series measurement step as the held-level scale floor', async () => {
@@ -1739,6 +1754,11 @@ test( 'the digest warns below twenty distinct recently dated commits', async () 
 	assert.equal( full.code, 0, full.out );
 	assert.match( full.out, /Commits first measured in the last 7 days \(by commit time\): 20/ );
 	assert.doesNotMatch( full.out, /THIN MEASUREMENT BATCH/ );
+	for ( const env of [ { CODEVITALS_REPO: 'example/project' }, { CODEVITALS_BRANCH: 'stable' } ] ) {
+		const otherTarget = await runDigest( 'weeklyBatch', env );
+		assert.equal( otherTarget.code, 0, otherTarget.out );
+		assert.doesNotMatch( otherTarget.out, /Thin measurement batch|Commits first measured/i );
+	}
 } );
 
 test( 'a measurement break skips cross-break windows and reports both levels without commits', async () => {
@@ -1763,6 +1783,10 @@ test( 'a measurement break skips cross-break windows and reports both levels wit
 	assert.equal( breakBlocks.length, 1, result.out );
 	assert.match( breakBlocks[ 0 ].text.text, /Alpha: TTFB\* 100→120ms \(\+20\.0%\)/ );
 	assert.match( breakBlocks[ 0 ].text.text, /Beta: LCP\* 100→80ms \(-20\.0%\)/ );
+	assert.match(
+		breakBlocks[ 0 ].text.text,
+		/Step near the break\* .* · 1 possible change skipped across the break/
+	);
 } );
 
 test( 'incomplete page-weight data has a qualified headline', async () => {
@@ -2484,6 +2508,7 @@ const CASES = [
 		sc: 'disco-html',
 		exit: 1,
 		out: [ 'Could not enumerate the tracked metrics', 'METRIC DISCOVERY FAILURE' ],
+		not: [ 'THIN MEASUREMENT BATCH', 'Commits first measured' ],
 	},
 	{ n: 'disco-empty-fails-loud', sc: 'disco-empty', exit: 1, out: [ 'METRIC DISCOVERY FAILURE' ] },
 	{
@@ -3146,6 +3171,7 @@ const CASES = [
 		sc: 'allfail',
 		exit: 1,
 		out: [ 'Could not read any metric data', 'DATA READ FAILURE' ],
+		not: [ 'THIN MEASUREMENT BATCH', 'Commits first measured' ],
 	},
 ];
 
