@@ -733,7 +733,7 @@ async function postToCodeVitals( resultsPath, config ) {
 
 	const rowsStored =
 		data !== null && typeof data === 'object' && ! Array.isArray( data ) ? data.count : undefined;
-	if ( ! Number.isInteger( rowsStored ) || rowsStored <= 0 || rowsStored !== expectedRows ) {
+	if ( ! Number.isInteger( rowsStored ) || rowsStored < expectedRows ) {
 		let received = 'no count';
 		if ( data === null ) {
 			received = 'null';
@@ -745,6 +745,13 @@ async function postToCodeVitals( resultsPath, config ) {
 		throw new Error(
 			`CodeVitals receipt expected ${ expectedRows } stored rows, received ${ received }. ` +
 				'The post was sent and rows may already be stored. Check the series before re-running.'
+		);
+	}
+
+	if ( rowsStored > expectedRows ) {
+		console.warn(
+			`Warning: CodeVitals receipt expected ${ expectedRows } stored rows, received ${ rowsStored }. ` +
+				'REGISTERED_CODEVITALS_KEYS may be missing a key registered on CodeVitals.'
 		);
 	}
 

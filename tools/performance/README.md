@@ -305,7 +305,12 @@ The authoritative ranges are `SANITY_RANGES` in [scripts/scenarios.js](scripts/s
 
 Post a new metric to a `-staging` CodeVitals key first (e.g. `…-timeToFirstByte-staging`) for 2-3 builds. Inspect the values in the CodeVitals UI, then rename to the production key. This gives a safety window before a new metric reaches production.
 
-CodeVitals stores only registered keys. The poster requires a positive integer row count equal to the number of expected registered keys in the payload. Optional scenarios that could not be measured reduce that expected count. A successful post logs how many keys it sent and how many rows CodeVitals reported storing. Update the service registration and `REGISTERED_CODEVITALS_KEYS` in `post-to-codevitals.js` together between scheduled batches whenever you register or retire a staging or production key. A build that starts between the two changes fails the receipt check after storing rows if the payload includes an affected key while the service and list differ.
+CodeVitals stores only registered keys. The poster expects a positive integer row count of at least the number of expected registered keys in the payload. Invalid or smaller counts fail the receipt check. Larger counts log a warning and the batch continues. Optional scenarios that could not be measured reduce the expected count. A successful post logs how many keys it sent and how many rows CodeVitals reported storing.
+
+When registering or retiring a staging or production key, update CodeVitals and `REGISTERED_CODEVITALS_KEYS` in `post-to-codevitals.js` in this order.
+
+- Register a key in CodeVitals before adding it to the list. If a build measures the key in between, CodeVitals stores the extra row and the build continues with a warning.
+- Remove a key from the list before retiring it in CodeVitals. If a build still sends the key in between, CodeVitals stores the extra row and the build continues with a warning.
 
 A live report must measure at least one key in the list. A run with only unregistered staging keys fails before posting. Use `pnpm report:dry` to inspect its payload.
 
@@ -333,7 +338,8 @@ Every scenario in `scenarios.js` declares an `optional` flag, read by `computeRu
 | ALL scenarios in the run set failed                       | 1                         | never reached                                           | red, nothing posted              |
 | `SCENARIO` value matches no scenario                      | 1, before any measurement | never reached                                           | red                              |
 | Any scenario measured, but a value fails its sanity range | 0                         | atomic sanity gate refuses the whole POST (exit 2)      | red, nothing posted              |
-| Receipt count missing or incorrect                        | 0                         | POST sent and receipt rejected (exit 1)                 | red, rows may already be stored  |
+| Receipt count missing, invalid or below expected          | 0                         | POST sent and receipt rejected (exit 1)                 | red, rows may already be stored  |
+| Receipt count above expected                              | 0                         | POST sent and extra rows reported (exit 0)              | green + warning in the build log |
 
 The sanity-range row is the flag's deliberate scope boundary: `optional` isolates **measurement failures** — a scenario that throws, produces no summary, or produces a partial one (a posted field dropped for lack of a strict majority of finite samples across iterations; `measure-lcp.js` converts that into a scenario error, so the optional/required policy applies to it like any other failure). A scenario that measures successfully but yields an out-of-range value — even an optional one — is a data-integrity event, and the pre-existing all-or-nothing sanity gate (see Sanity-range assertions above) still suppresses the entire post and reds the build so a human looks at the anomalous data. The poster also enforces the required side itself: a results file recording a **required** scenario's measurement failure makes `post-to-codevitals.js` fail closed (exit 2) even via the direct `pnpm report` entrypoint, so an artifact with a failed required scenario cannot post its optional survivors and set up retry duplicates.
 

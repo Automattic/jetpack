@@ -1391,7 +1391,6 @@ test( 'a post rejects an invalid receipt count', async t => {
 		[ 'count below expected', { count: 2 }, '2' ],
 		[ 'zero count', { count: 0 }, '0' ],
 		[ 'negative count', { count: -1 }, '-1' ],
-		[ 'count includes unregistered keys', { count: 6 }, '6' ],
 	] ) {
 		await t.test( label, async subtest => {
 			subtest.mock.method( global, 'fetch', async () => ( {
@@ -1413,6 +1412,30 @@ test( 'a post rejects an invalid receipt count', async t => {
 			);
 		} );
 	}
+} );
+
+test( 'a receipt above the expected count succeeds with a warning', async t => {
+	const file = writeResults( 120 );
+	t.mock.method( global, 'fetch', async () => ( {
+		ok: true,
+		json: async () => ( { count: 6 } ),
+	} ) );
+	const warnings = [];
+	const result = await silenced( () => {
+		console.warn = message => warnings.push( message );
+		return postToCodeVitals( file, {
+			codeVitalsUrl: 'https://codevitals.test',
+			codeVitalsToken: 'tok',
+		} );
+	} );
+	assert.equal( result.posted, true );
+	assert.deepEqual(
+		warnings.filter( message => message.startsWith( 'Warning: CodeVitals receipt' ) ),
+		[
+			'Warning: CodeVitals receipt expected 3 stored rows, received 6. ' +
+				'REGISTERED_CODEVITALS_KEYS may be missing a key registered on CodeVitals.',
+		]
+	);
 } );
 
 test( 'a live run with no registered keys fails before posting', async t => {
@@ -1453,9 +1476,15 @@ test( 'a receipt counts only the registered keys measured when an optional scena
 	assert.ok( logs.includes( 'Sent 14 keys. CodeVitals stored 7.' ) );
 
 	count = 11;
-	await assert.rejects(
-		silenced( () => postToCodeVitals( file, config ) ),
-		/expected 7 stored rows, received 11/
+	const warnings = [];
+	const above = await silenced( () => {
+		console.warn = message => warnings.push( message );
+		return postToCodeVitals( file, config );
+	} );
+	assert.equal( above.posted, true );
+	assert.equal(
+		warnings.filter( message => message.includes( 'expected 7 stored rows, received 11' ) ).length,
+		1
 	);
 } );
 

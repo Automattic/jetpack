@@ -1002,7 +1002,7 @@ function resolveScenarioSet( scenarioFilter, scenarios ) {
  * has posted nothing, so re-running it cannot append duplicate points to the append-only,
  * dedup-off CodeVitals store. A failed `optional` scenario therefore must NOT fail the
  * build — it warns, its keys skip the build, and the poster skips its errored measurement.
- * A failed receipt follows a sent POST.
+ * After the POST, invalid counts and counts below the expected count fail. Higher counts warn.
  *
  * Two deliberate hard edges:
  * every scenario in the run set failed → exit 1 even when all of them are optional, so a
