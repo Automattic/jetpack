@@ -6,6 +6,7 @@ import type apiFetchType from '@wordpress/api-fetch';
 jest.mock( '@wordpress/api-fetch' );
 
 type Scheduler = typeof import( '../proxy-scheduler' );
+type ProxyFetch = typeof import( '../stats-proxy-fetch' );
 
 const PROXY = '/jetpack-premium-analytics/v1/proxy';
 
@@ -13,10 +14,11 @@ const PROXY = '/jetpack-premium-analytics/v1/proxy';
 async function load() {
 	jest.resetModules();
 	const scheduler: Scheduler = await import( '../proxy-scheduler' );
+	const proxyFetch: ProxyFetch = await import( '../stats-proxy-fetch' );
 	const apiFetch = ( await import( '@wordpress/api-fetch' ) ).default as jest.MockedFunction<
 		typeof apiFetchType
 	>;
-	return { scheduler, apiFetch };
+	return { scheduler, proxyFetch, apiFetch };
 }
 
 function failedResponse( status: number, body: unknown ) {
@@ -24,77 +26,108 @@ function failedResponse( status: number, body: unknown ) {
 }
 
 // jsdom implements no Resource Timing entries.
-function setProtocol( nextHopProtocol: string ) {
+function setPage( nextHopProtocol: string, proxyBatch: boolean | undefined ) {
 	Object.defineProperty( performance, 'getEntriesByType', {
 		configurable: true,
 		value: () => [ { nextHopProtocol } ],
 	} );
+	Object.defineProperty( window, 'JetpackScriptData', {
+		configurable: true,
+		value: { premium_analytics: { proxy_batch: proxyBatch } },
+	} );
+}
+
+function batchPaths( apiFetch: jest.MockedFunction< typeof apiFetchType > ) {
+	return apiFetch.mock.calls
+		.map( ( [ options ] ) => options )
+		.filter( options => options.path === `${ PROXY }/batch` )
+		.map( options => ( options.data as { requests: string[] } ).requests );
 }
 
 describe( 'proxy scheduler', () => {
 	beforeEach( () => {
 		jest.useFakeTimers();
+		setPage( 'http/1.1', true );
 	} );
 
 	afterEach( () => {
 		jest.useRealTimers();
 		delete ( performance as Partial< Performance > ).getEntriesByType;
+		delete window.JetpackScriptData;
 	} );
 
 	it.each( [
-		[ 'http/1.1', true ],
-		[ 'h2', false ],
-		[ '', false ],
-	] )( 'batches on a %p page: %p', async ( protocol, expected ) => {
-		const { scheduler } = await load();
-		setProtocol( protocol );
+		[ 'http/1.1', true, true ],
+		[ 'h2', true, false ],
+		[ '', true, false ],
+		[ 'http/1.1', undefined, false ],
+	] )(
+		'batches on a %p page whose server can fetch in parallel (%p): %p',
+		async ( protocol, proxyBatch, expected ) => {
+			const { scheduler } = await load();
+			setPage( protocol, proxyBatch );
 
-		expect( scheduler.shouldBatchProxyReads() ).toBe( expected );
-	} );
+			expect( scheduler.shouldBatchProxyReads() ).toBe( expected );
+		}
+	);
 
-	it( 'sends one window of reads as a batch, primary periods first, and settles each with its own item', async () => {
-		const { scheduler, apiFetch } = await load();
+	it( 'sends the reads fetchStatsProxy is given in one window as a batch, settling each with its own item', async () => {
+		const { proxyFetch, apiFetch } = await load();
 		apiFetch.mockResolvedValue( [
-			{ status: 200, body: { period: 'primary' } },
+			{ status: 200, body: { views: 1 } },
 			{ status: 403, body: { code: 'rest_forbidden' } },
 		] );
 
-		const comparison = scheduler.scheduleProxyGet(
-			`${ PROXY }/v1.1/stats/visits?c=1`,
-			'comparison'
-		);
-		const primary = scheduler.scheduleProxyGet( `${ PROXY }/v1.1/stats/visits?p=1`, 'primary' );
+		const visits = proxyFetch.fetchStatsProxy( { version: '1.1', endpoint: 'stats/visits' } );
+		const posts = proxyFetch.fetchStatsProxy( { version: '1.1', endpoint: 'stats/top-posts' } );
 		jest.runOnlyPendingTimers();
 
-		await expect( primary ).resolves.toEqual( { period: 'primary' } );
-		await expect( comparison ).rejects.toEqual( { code: 'rest_forbidden', status: 403 } );
-		expect( apiFetch ).toHaveBeenCalledTimes( 1 );
-		expect( apiFetch.mock.calls[ 0 ][ 0 ] ).toMatchObject( {
-			path: `${ PROXY }/batch`,
-			method: 'POST',
-			data: { requests: [ '/v1.1/stats/visits?p=1', '/v1.1/stats/visits?c=1' ] },
-		} );
+		await expect( visits ).resolves.toEqual( { views: 1 } );
+		await expect( posts ).rejects.toEqual( { code: 'rest_forbidden', status: 403 } );
+		expect( batchPaths( apiFetch ) ).toEqual( [
+			[ '/v1.1/stats/visits', '/v1.1/stats/top-posts' ],
+		] );
 	} );
 
-	it( 'falls back to single reads, and stops batching, where the batch route is missing', async () => {
+	it( 'keeps comparison reads out of primary batches, so a slow comparison holds up no primary read', async () => {
 		const { scheduler, apiFetch } = await load();
-		setProtocol( 'http/1.1' );
-		apiFetch.mockImplementation( async ( { path }: { path?: string } ) => {
+		apiFetch.mockImplementation( ( async ( { data }: { data?: { requests: string[] } } ) => {
+			if ( data?.requests[ 0 ].includes( 'c=' ) ) {
+				return new Promise( () => {} );
+			}
+			return data?.requests.map( () => ( { status: 200, body: 'primary' } ) );
+		} ) as typeof apiFetchType );
+
+		scheduler.scheduleProxyGet( `${ PROXY }/v1.1/stats/visits?c=1`, 'comparison' );
+		scheduler.scheduleProxyGet( `${ PROXY }/v1.1/stats/visits?c=2`, 'comparison' );
+		const primary = scheduler.scheduleProxyGet( `${ PROXY }/v1.1/stats/visits?p=1`, 'primary' );
+		scheduler.scheduleProxyGet( `${ PROXY }/v1.1/stats/visits?p=2`, 'primary' );
+		jest.runOnlyPendingTimers();
+
+		await expect( primary ).resolves.toBe( 'primary' );
+		expect( batchPaths( apiFetch ) ).toEqual( [
+			[ '/v1.1/stats/visits?p=1', '/v1.1/stats/visits?p=2' ],
+			[ '/v1.1/stats/visits?c=1', '/v1.1/stats/visits?c=2' ],
+		] );
+	} );
+
+	it( 'falls back to single reads, and sends no more batches, where the batch route is missing', async () => {
+		const { scheduler, apiFetch } = await load();
+		apiFetch.mockImplementation( ( async ( { path }: { path?: string } ) => {
 			if ( path === `${ PROXY }/batch` ) {
 				throw failedResponse( 404, { code: 'rest_no_route' } );
 			}
 			return { path };
-		} );
+		} ) as typeof apiFetchType );
 
-		const reads = [ 'a', 'b' ].map( name =>
-			scheduler.scheduleProxyGet( `${ PROXY }/v1.1/stats/${ name }`, 'primary' )
+		// More reads than four batches of seven, so some are still queued when the 404 lands.
+		const reads = Array.from( { length: 35 }, ( _, i ) =>
+			scheduler.scheduleProxyGet( `${ PROXY }/v1.1/stats/r${ i }`, 'primary' )
 		);
 		jest.runOnlyPendingTimers();
 
-		await expect( Promise.all( reads ) ).resolves.toEqual( [
-			{ path: `${ PROXY }/v1.1/stats/a` },
-			{ path: `${ PROXY }/v1.1/stats/b` },
-		] );
+		await expect( Promise.all( reads ) ).resolves.toHaveLength( 35 );
+		expect( batchPaths( apiFetch ) ).toHaveLength( 4 );
 		expect( scheduler.shouldBatchProxyReads() ).toBe( false );
 	} );
 

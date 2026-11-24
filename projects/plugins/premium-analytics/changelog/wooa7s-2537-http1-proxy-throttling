@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Load the Stats dashboard much faster on sites served over plain HTTP, and show each widget's numbers before its comparison is ready.
+Load the Stats dashboard much faster on sites served over HTTP/1.1, and show each widget's numbers before its comparison is ready.

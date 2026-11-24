@@ -1,4 +1,8 @@
 /**
+ * External dependencies
+ */
+import { getScriptData } from '@automattic/jetpack-script-data';
+/**
  * Internal dependencies
  */
 import { getApiErrorCode } from '../utils/api-error';
@@ -36,13 +40,18 @@ let flushTimer: ReturnType< typeof setTimeout > | null = null;
 let batchRouteMissing = false;
 
 /**
- * Whether the page reached this origin over HTTP/1.1, where the browser caps connections per host
- * and the dashboard's reads would otherwise queue in waves. Unknown protocols don't batch.
+ * Whether to batch local proxy reads: the page reached this origin over HTTP/1.1, where the browser
+ * caps connections per host, and the server can fetch a batch in parallel. Unknown protocols don't batch.
  *
  * @return Whether local proxy reads should be batched.
  */
 export function shouldBatchProxyReads(): boolean {
-	if ( batchRouteMissing || typeof performance === 'undefined' || ! performance.getEntriesByType ) {
+	if (
+		batchRouteMissing ||
+		getScriptData()?.premium_analytics?.proxy_batch !== true ||
+		typeof performance === 'undefined' ||
+		! performance.getEntriesByType
+	) {
 		return false;
 	}
 	const [ navigation ] = performance.getEntriesByType(
@@ -142,8 +151,11 @@ async function dispatch( jobs: Job[] ): Promise< void > {
 
 function pump() {
 	while ( inFlight < MAX_IN_FLIGHT && queue.length ) {
-		const jobs: Job[] = [];
-		while ( jobs.length < BATCH_SIZE && queue.length ) {
+		const jobs: Job[] = [ takeNext() ];
+		// A batch answers when its slowest read does, so a comparison never rides with primary reads.
+		const size = batchRouteMissing ? 1 : BATCH_SIZE;
+		// `takeNext()` drains the lowest priority first, so this stops at the first other-priority read.
+		while ( jobs.length < size && queue.some( job => job.priority === jobs[ 0 ].priority ) ) {
 			jobs.push( takeNext() );
 		}
 		inFlight++;

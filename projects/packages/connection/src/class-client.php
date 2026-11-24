@@ -35,7 +35,7 @@ class Client {
 
 		$response = self::_wp_remote_request( $result['url'], $result['request'] );
 
-		self::report_remote_response( $response, $result, $args );
+		self::report_remote_response( $response, $result );
 
 		return $response;
 	}
@@ -88,11 +88,11 @@ class Client {
 	 *
 	 * @param array|WP_Error $response The HTTP response.
 	 * @param array          $signed   The signed request, from `sign_remote_request()`.
-	 * @param array          $args     The arguments for the remote request.
 	 * @phan-param _WP_Remote_Response_Array|WP_Error $response
 	 */
-	private static function report_remote_response( $response, $signed, $args ) {
-		$url = empty( $signed['args']['url'] ) ? '' : $signed['args']['url'];
+	private static function report_remote_response( $response, $signed ) {
+		$args = $signed['args'];
+		$url  = empty( $args['url'] ) ? '' : $args['url'];
 
 		// Feed failures into the outgoing-request error flow of Error_Handler: any known
 		// connection error is stored and surfaced to the user. See the Error_Handler
@@ -102,7 +102,7 @@ class Client {
 			$signed['auth'],
 			$url,
 			empty( $args['method'] ) ? 'POST' : $args['method'],
-			self::remote_request_error_type( $signed['args'] )
+			self::remote_request_error_type( $args )
 		);
 
 		/**
@@ -622,7 +622,7 @@ class Client {
 	 */
 	public static function wpcom_json_api_get_multiple_as_blog( array $requests ) {
 		$responses = array();
-		$serial    = ( defined( 'IS_WPCOM' ) && IS_WPCOM ) || ! class_exists( \WpOrg\Requests\Requests::class );
+		$serial    = ! self::supports_parallel_requests();
 
 		$signed = array();
 		foreach ( $requests as $key => $request ) {
@@ -647,12 +647,34 @@ class Client {
 		}
 
 		foreach ( self::send_multiple( $signed ) as $key => $response ) {
-			self::report_remote_response( $response, $signed[ $key ], $signed[ $key ]['args'] );
+			self::report_remote_response( $response, $signed[ $key ] );
 			$responses[ $key ] = $response;
 		}
 
 		// Callers read results by key, but keep the order they asked in too.
 		return array_replace( array_intersect_key( $requests, $responses ), $responses );
+	}
+
+	/**
+	 * Whether `wpcom_json_api_get_multiple_as_blog()` sends its requests in parallel here, rather than one by one.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	public static function supports_parallel_requests() {
+		if ( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) || ! class_exists( \WpOrg\Requests\Transport\Curl::class ) ) {
+			return false;
+		}
+
+		// Hosts disable these individually, and Requests picks cURL on `curl_exec` alone.
+		foreach ( array( 'curl_multi_init', 'curl_multi_exec', 'curl_multi_select', 'curl_multi_info_read' ) as $function ) {
+			if ( ! function_exists( $function ) ) {
+				return false;
+			}
+		}
+
+		return \WpOrg\Requests\Transport\Curl::test( array( 'ssl' => true ) );
 	}
 
 	/**
@@ -685,6 +707,9 @@ class Client {
 			$prepared = self::prepare_http_request( $request['url'], $args );
 			if ( isset( $prepared['response'] ) ) {
 				$responses[ $key ] = $prepared['response'];
+			} elseif ( ! empty( $prepared['serial'] ) ) {
+				// Arguments the parallel path cannot honour; the filters run again on this rare path.
+				$responses[ $key ] = self::_wp_remote_request( $request['url'], $args );
 			} else {
 				$queued[ $key ] = $prepared;
 			}
@@ -692,15 +717,21 @@ class Client {
 
 		if ( $queued ) {
 			mbstring_binary_safe_encoding();
-			$results = \WpOrg\Requests\Requests::request_multiple(
-				array_map(
-					static function ( $prepared ) {
-						return $prepared['request'];
-					},
-					$queued
-				)
-			);
-			reset_mbstring_encoding();
+			try {
+				$results = \WpOrg\Requests\Requests::request_multiple(
+					array_map(
+						static function ( $prepared ) {
+							return $prepared['request'];
+						},
+						$queued
+					)
+				);
+			} catch ( \WpOrg\Requests\Exception $e ) {
+				// As `WP_Http::request()` does; here every request in the call fails with it.
+				$results = array_fill_keys( array_keys( $queued ), $e );
+			} finally {
+				reset_mbstring_encoding();
+			}
 
 			foreach ( $queued as $key => $prepared ) {
 				$result = $results[ $key ] ?? null;
@@ -751,6 +782,11 @@ class Client {
 			'reject_unsafe_urls'  => apply_filters( 'http_request_reject_unsafe_urls', false, $url ),
 			'blocking'            => true,
 			'headers'             => array(),
+			'cookies'             => array(),
+			'compress'            => false,
+			'decompress'          => true,
+			'stream'              => false,
+			'filename'            => null,
 			'sslverify'           => true,
 			'sslcertificates'     => ABSPATH . WPINC . '/certificates/ca-bundle.crt',
 			'limit_response_size' => null,
@@ -787,6 +823,13 @@ class Client {
 			/** This action is documented in wp-includes/class-wp-http.php */
 			do_action( 'http_api_debug', $error, 'response', 'WpOrg\Requests\Requests', $parsed_args, $url );
 			return array( 'response' => $error );
+		}
+
+		if ( $parsed_args['stream'] || ! $parsed_args['blocking'] || ! empty( $parsed_args['cookies'] ) ) {
+			return array( 'serial' => true );
+		}
+		if ( ! is_array( $parsed_args['headers'] ) ) {
+			$parsed_args['headers'] = \WP_Http::processHeaders( (string) $parsed_args['headers'] )['headers'];
 		}
 
 		$hooks   = new \WP_HTTP_Requests_Hooks( $url, $parsed_args );
@@ -847,17 +890,50 @@ class Client {
 			}
 		);
 
+		// Requests' own multi loop spins on `curl_multi_exec()`; wait on the sockets first, leaving the
+		// finished transfers for that loop to collect. Only the last request's hooks see this event.
+		$hooks->register(
+			'curl.before_multi_exec',
+			static function ( &$multihandle ) {
+				self::wait_for_multi_handle( $multihandle );
+			}
+		);
+
+		// Fired by `Requests::request()` but not by `request_multiple()`; Server_Sandbox reroutes here.
+		$headers = (array) ( $parsed_args['headers'] ?? array() );
+		$data    = array();
+		$type    = 'GET';
+		$hooks->dispatch( 'requests.before_request', array( &$url, &$headers, &$data, &$type, &$options ) );
+
 		return array(
 			'url'         => $url,
 			'parsed_args' => $parsed_args,
 			'request'     => array(
 				'url'     => $url,
-				'headers' => (array) $parsed_args['headers'],
-				'data'    => array(),
-				'type'    => 'GET',
+				'headers' => $headers,
+				'data'    => $data,
+				'type'    => $type,
 				'options' => $options,
 			),
 		);
+	}
+
+	/**
+	 * Run a cURL multi handle until its transfers finish, sleeping on the sockets between bursts.
+	 *
+	 * @param resource|\CurlMultiHandle $multihandle The multi handle.
+	 */
+	private static function wait_for_multi_handle( $multihandle ) {
+		do {
+			do {
+				$status = curl_multi_exec( $multihandle, $active ); // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_multi_exec
+			} while ( CURLM_CALL_MULTI_PERFORM === $status );
+
+			// `curl_multi_select()` returns -1 on some builds instead of waiting.
+			if ( $active && -1 === curl_multi_select( $multihandle, 1.0 ) ) { // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_multi_select
+				usleep( 10000 );
+			}
+		} while ( $active && CURLM_OK === $status );
 	}
 
 	/**

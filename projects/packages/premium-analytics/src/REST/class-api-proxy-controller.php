@@ -209,6 +209,29 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 		$controller = new self();
 		add_action( 'rest_api_init', array( $controller, 'register_routes' ) );
 		add_filter( 'jetpack_stats_transient_cleanup_prefixes', array( $controller, 'register_transient_cleanup_prefix' ) );
+		add_filter( 'jetpack_admin_js_script_data', array( $controller, 'add_batch_script_data' ), 20 );
+	}
+
+	/**
+	 * Tell the dashboard whether `proxy/batch` can fetch in parallel here; where it cannot, separate reads are faster.
+	 *
+	 * @param array $data The script data.
+	 *
+	 * @return array
+	 */
+	public function add_batch_script_data( $data ) {
+		if ( ! is_array( $data ) ) {
+			return $data;
+		}
+		if ( ! isset( $data['premium_analytics'] ) || ! is_array( $data['premium_analytics'] ) ) {
+			$data['premium_analytics'] = array();
+		}
+		// An older Connection package loaded by another plugin has no parallel client.
+		$data['premium_analytics']['proxy_batch'] = method_exists( Client::class, 'supports_parallel_requests' )
+			&& method_exists( Client::class, 'wpcom_json_api_get_multiple_as_blog' )
+			&& Client::supports_parallel_requests();
+
+		return $data;
 	}
 
 	/**
@@ -302,6 +325,15 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 
 		foreach ( array_values( (array) $request->get_param( 'requests' ) ) as $index => $item ) {
 			$sub = $this->build_batch_item_request( (string) $item, $force_refresh );
+			if ( ! is_wp_error( $sub ) ) {
+				// Each item answers to what would gate it as a request of its own.
+				/** This filter is documented in wp-includes/rest-api/class-wp-rest-server.php */
+				$pre = apply_filters( 'rest_pre_dispatch', null, rest_get_server(), $sub );
+				if ( null !== $pre ) {
+					$results[ $index ] = $this->batch_item_result( $pre );
+					continue;
+				}
+			}
 			if ( ! is_wp_error( $sub ) && ! $this->check_data_permission( $sub ) ) {
 				$sub = new WP_Error( 'rest_forbidden', __( 'Sorry, you are not allowed to do that.', 'jetpack-premium-analytics-pkg' ), array( 'status' => rest_authorization_required_code() ) );
 			}

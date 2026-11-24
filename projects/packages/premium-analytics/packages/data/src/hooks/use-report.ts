@@ -82,11 +82,11 @@ export function useReport<
 	} );
 
 	// Widened past React Query's `isLoading` (see `isAwaitingData`), and on the primary period alone:
-	// deltas fill in when the comparison lands. Until then its placeholder data, the previous range's, is withheld.
+	// deltas fill in when the comparison lands. Its placeholder data is the previous range's, fetching
+	// or paused offline, so it is withheld.
 	const isLoading = isAwaitingData( primary );
-	const isComparisonLoading = comparisonQueryEnabled && isAwaitingData( comparison );
 	const comparisonResult =
-		isComparisonLoading && comparison.data !== undefined
+		comparisonQueryEnabled && comparison.isPlaceholderData
 			? // eslint-disable-next-line @tanstack/query/no-rest-destructuring -- only while withheld; the same trade as `withAwaitedDataLoading()`.
 				( { ...comparison, data: undefined } as unknown as typeof comparison )
 			: comparison;
