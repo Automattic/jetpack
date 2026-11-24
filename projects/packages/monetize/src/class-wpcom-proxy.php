@@ -7,7 +7,10 @@
 
 namespace Automattic\Jetpack\Monetize;
 
+use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Traits\WPCOM_REST_API_Proxy_Request;
+use WP_Error;
 use WP_REST_Request;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -18,6 +21,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Registers `jetpack/v4/monetize/<api>/<path>` routes that each forward to the same `<api>/sites/<id>/<path>` on WordPress.com.
  *
  * The local path mirrors the upstream one, so the page's client only swaps the prefix: Simple sites call WordPress.com directly.
+ * A `me/` path is the current user's, so it forwards to `<api>/me/…` with no site in it.
  *
  * @since 0.2.0
  */
@@ -53,7 +57,7 @@ class WPCOM_Proxy {
 	 * Register a route that forwards to the same path on WordPress.com.
 	 *
 	 * @param string       $api     A key of APIS.
-	 * @param string       $path    Route pattern under `/sites/<id>/`, e.g. `memberships/product/(?P<id>\d+)`.
+	 * @param string       $path    Route pattern under `/sites/<id>/`, e.g. `memberships/product/(?P<id>\d+)`, or a `me/` path.
 	 * @param string|array $methods HTTP methods the route accepts.
 	 * @param array        $args    Route args: only these and `_locale` are forwarded, once validated and sanitized.
 	 * @return bool Whether the route was registered.
@@ -97,7 +101,60 @@ class WPCOM_Proxy {
 		$prefix   = '/' . self::REST_NAMESPACE . '/' . self::REST_BASE . '/' . $api . '/';
 		$upstream = substr( $request->get_route(), strlen( $prefix ) );
 
+		if ( str_starts_with( $upstream, 'me/' ) ) {
+			return rest_ensure_response( self::forward_user_path( $api, $upstream, self::with_declared_args_only( $request ) ) );
+		}
+
 		return rest_ensure_response( ( new self( $api, $upstream ) )->proxy_request_to_wpcom_as_user( self::with_declared_args_only( $request ) ) );
+	}
+
+	/**
+	 * Forward a request for one of the current user's own paths, which the connection trait would put under the site.
+	 *
+	 * @param string          $api       A key of APIS.
+	 * @param string          $upstream  The `me/` path.
+	 * @param WP_REST_Request $forwarded The request, with its declared args only.
+	 * @return mixed|WP_Error The response body, or an error with WordPress.com's status.
+	 */
+	private static function forward_user_path( $api, $upstream, WP_REST_Request $forwarded ) {
+		if ( ! ( new Connection_Manager() )->is_user_connected() ) {
+			return new WP_Error(
+				'rest_unauthorized',
+				__( 'Please connect your user account to WordPress.com', 'jetpack-monetize' ),
+				array( 'status' => rest_authorization_required_code() )
+			);
+		}
+
+		list( $base_api_path, $version ) = self::APIS[ $api ];
+		$query                           = $forwarded->get_query_params();
+		$response                        = Client::wpcom_json_api_request_as_user(
+			'/' . $upstream . ( $query ? '?' . http_build_query( $query, '', '&' ) : '' ),
+			$version,
+			array(
+				'method'  => $forwarded->get_method(),
+				'headers' => array( 'Content-Type' => 'application/json' ),
+			),
+			$forwarded->get_body() ? $forwarded->get_body() : null,
+			$base_api_path
+		);
+
+		if ( is_wp_error( $response ) ) {
+			return $response;
+		}
+
+		$status = (int) wp_remote_retrieve_response_code( $response );
+		$body   = json_decode( wp_remote_retrieve_body( $response ), true );
+
+		if ( $status >= 400 ) {
+			$error = is_array( $body ) ? $body : array();
+			return new WP_Error(
+				$error['code'] ?? 'unknown_error',
+				$error['message'] ?? __( 'An unknown error occurred.', 'jetpack-monetize' ),
+				array( 'status' => $status )
+			);
+		}
+
+		return $body;
 	}
 
 	/**

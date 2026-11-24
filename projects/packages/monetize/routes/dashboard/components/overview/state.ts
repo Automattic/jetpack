@@ -1,6 +1,15 @@
 import { getSectionState } from '../../data/state';
 
 /**
+ * Whether the site can refer friends, which only WordPress.com sites offer.
+ */
+export interface ReferralState {
+	/** On a paid annual WordPress.com plan. */
+	eligible: boolean;
+	upgradeUrl: string;
+}
+
+/**
  * What `Sections\Overview::get_state()` prints.
  */
 export interface OverviewState {
@@ -9,6 +18,8 @@ export interface OverviewState {
 	hasSimplePayments: boolean;
 	/** The payments fee, as a fraction, the upgrade brings. */
 	upgradeCommission: number;
+	/** Only on WordPress.com sites, for a user WordPress.com knows. */
+	referral?: ReferralState;
 }
 
 const NONE: OverviewState = {

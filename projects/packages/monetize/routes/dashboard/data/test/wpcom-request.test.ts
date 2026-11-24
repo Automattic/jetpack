@@ -14,6 +14,19 @@ describe( 'toFetchOptions', () => {
 		expect( toFetchOptions( request, isSimple ) ).toEqual( { path, method: 'GET' } );
 	} );
 
+	it.each( [
+		[
+			'self-hosted',
+			false,
+			{ path: '/jetpack/v4/monetize/wpcom/v2/me/peer-referral-link', method: 'GET' },
+		],
+		[ 'Simple', true, { path: '/wpcom/v2/me/peer-referral-link', method: 'GET', global: true } ],
+	] )( 'keeps a %s request for a user path off the site', ( _host, isSimple, options ) => {
+		const request = { api: 'wpcom/v2' as const, path: 'me/peer-referral-link' };
+
+		expect( toFetchOptions( request, isSimple ) ).toEqual( options );
+	} );
+
 	it( 'sends the method and body', () => {
 		const request = {
 			api: 'wpcom/v2' as const,

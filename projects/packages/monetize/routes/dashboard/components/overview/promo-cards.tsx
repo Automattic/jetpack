@@ -1,8 +1,20 @@
 import { isSimpleSite, isWpcomPlatformSite } from '@automattic/jetpack-script-data';
-import { useCallback } from '@wordpress/element';
+import { createInterpolateElement, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { currencyDollar, envelope, lock, megaphone, payment, tip } from '@wordpress/icons';
-import { Button, ButtonLink, Card, Icon, Link, Stack, Text } from '@wordpress/ui';
+import { currencyDollar, envelope, lock, megaphone, payment, people, tip } from '@wordpress/icons';
+import {
+	Button,
+	ButtonLink,
+	Card,
+	Icon,
+	InputControl,
+	Link,
+	Notice,
+	Stack,
+	Text,
+} from '@wordpress/ui';
+import { showSuccessSnackbar } from '../../data/notices';
+import { useEnableReferral, useReferralLink } from '../../data/referral';
 import { getPageData } from '../../data/state';
 import { trackOverviewClick } from '../../data/tracking';
 import { useStoredAdsValues } from '../../data/use-ads-settings';
@@ -11,6 +23,7 @@ import { useAdsAccount } from '../../data/wordads';
 import { getDocUrl } from './docs';
 import { getOverviewState } from './state';
 import type { DocKey } from './docs';
+import type { ReferralState } from './state';
 import type { TabValue } from '../../data/tabs';
 import type { ComponentProps, ReactNode } from 'react';
 
@@ -177,6 +190,117 @@ function AdsCard( { openTab }: { openTab: ( tab: TabValue ) => void } ) {
 }
 
 /**
+ * The Refer a friend card: the user's referral link, the switch that creates it, or an annual plan upsell.
+ *
+ * @param props          - Component props.
+ * @param props.referral - Whether the plan allows referrals, and where to upgrade.
+ * @return The card.
+ */
+function ReferralCard( { referral }: { referral: ReferralState } ) {
+	const { eligible, upgradeUrl } = referral;
+	const linkQuery = useReferralLink( eligible );
+	const enable = useEnableReferral();
+	const link = linkQuery.data ?? '';
+
+	const onEnable = useCallback( () => {
+		trackOverviewClick( 'peer-referral-wpcom', 'enable' );
+		enable.mutate();
+	}, [ enable ] );
+	const onCopy = useCallback( async () => {
+		trackOverviewClick( 'peer-referral-wpcom', 'copy' );
+		try {
+			await navigator.clipboard.writeText( link );
+			showSuccessSnackbar( __( 'Referral link copied.', 'jetpack-monetize' ) );
+		} catch {
+			// The link stays selectable in its field.
+		}
+	}, [ link ] );
+	const onUpgrade = useCallback( () => trackOverviewClick( 'peer-referral', 'upgrade' ), [] );
+
+	const pitch = __(
+		'Share WordPress.com with friends, family, and website visitors. For every paying customer you send our way, you’ll both earn US$25 in free credits.',
+		'jetpack-monetize'
+	);
+
+	let body: ReactNode = (
+		<>
+			{ pitch } <em>{ __( 'This feature requires an annual plan.', 'jetpack-monetize' ) }</em>
+		</>
+	);
+	let actions: ReactNode = (
+		<ButtonLink variant="solid" size="compact" href={ upgradeUrl } onClick={ onUpgrade }>
+			{ __( 'Upgrade', 'jetpack-monetize' ) }
+		</ButtonLink>
+	);
+
+	if ( eligible && link ) {
+		body = __(
+			'Share the link below and, for every paying customer you send our way, you’ll both earn US$25 in credits.',
+			'jetpack-monetize'
+		);
+		actions = (
+			<Stack direction="row" gap="sm" align="end" className="jp-monetize-overview__referral-link">
+				<div className="jp-monetize-overview__referral-input">
+					<InputControl
+						label={ __( 'Your referral link', 'jetpack-monetize' ) }
+						hideLabelFromVision
+						value={ link }
+						readOnly
+					/>
+				</div>
+				<Button variant="outline" size="compact" onClick={ onCopy }>
+					{ __( 'Copy', 'jetpack-monetize' ) }
+				</Button>
+			</Stack>
+		);
+	} else if ( eligible ) {
+		body = (
+			<Stack direction="column" gap="md">
+				<span>
+					{ createInterpolateElement(
+						__(
+							'Share WordPress.com with friends, family, and website visitors. For every paying customer you send our way, you’ll both earn US$25 in free credits. By clicking “Earn free credits”, you agree to <a>these terms</a>.',
+							'jetpack-monetize'
+						),
+						{ a: <Link href="https://wordpress.org/about/privacy/" openInNewTab /> }
+					) }
+				</span>
+				{ enable.isError && (
+					<Notice.Root intent="error">
+						<Notice.Description>
+							{ enable.error.message ||
+								__( 'Referrals could not be turned on. Try again later.', 'jetpack-monetize' ) }
+						</Notice.Description>
+					</Notice.Root>
+				) }
+			</Stack>
+		);
+		// No button until WordPress.com says whether the user already has a link.
+		actions = linkQuery.isPending ? null : (
+			<Button
+				variant="outline"
+				size="compact"
+				onClick={ onEnable }
+				loading={ enable.isPending }
+				disabled={ enable.isPending || enable.isError }
+			>
+				{ __( 'Earn free credits', 'jetpack-monetize' ) }
+			</Button>
+		);
+	}
+
+	return (
+		<PromoCard
+			icon={ people }
+			title={ __( 'Refer a friend', 'jetpack-monetize' ) }
+			actions={ actions }
+		>
+			{ body }
+		</PromoCard>
+	);
+}
+
+/**
  * Every way the site can earn, in Calypso's order.
  *
  * @param props         - Component props.
@@ -184,10 +308,8 @@ function AdsCard( { openTab }: { openTab: ( tab: TabValue ) => void } ) {
  * @return The cards.
  */
 export default function PromoCards( { openTab }: { openTab: ( tab: TabValue ) => void } ) {
-	const hasSimplePayments = useSiteHasFeature(
-		'simple-payments',
-		getOverviewState().hasSimplePayments
-	);
+	const state = getOverviewState();
+	const hasSimplePayments = useSiteHasFeature( 'simple-payments', state.hasSimplePayments );
 	// Undefined while WordPress.com is asked, so neither button flashes before the answer.
 	let paypalAction: ReactNode = null;
 	if ( hasSimplePayments ) {
@@ -249,6 +371,7 @@ export default function PromoCards( { openTab }: { openTab: ( tab: TabValue ) =>
 				) }
 			</PromoCard>
 			<AdsCard openTab={ openTab } />
+			{ state.referral && <ReferralCard referral={ state.referral } /> }
 		</div>
 	);
 }

@@ -106,7 +106,10 @@ export function trackPayoutSave( signedTos: boolean ) {
  * @param feature - The card's feature, e.g. `ads`.
  * @param target  - What was clicked.
  */
-export function trackOverviewClick( feature: string, target: 'learn-more' | 'upgrade' | 'open' ) {
+export function trackOverviewClick(
+	feature: string,
+	target: 'learn-more' | 'upgrade' | 'open' | 'enable' | 'copy'
+) {
 	record( 'jetpack_monetize_overview_click', { feature, target } );
 }
 

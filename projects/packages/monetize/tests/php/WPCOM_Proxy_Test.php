@@ -43,6 +43,8 @@ class WPCOM_Proxy_Test extends BaseTestCase {
 			WPCOM_Proxy::register_route( 'wpcom/v2', 'memberships/coupons', 'GET', array( 'type' => array( 'sanitize_callback' => 'sanitize_key' ) ) );
 			WPCOM_Proxy::register_route( 'wpcom/v2', 'memberships/coupon/(?P<id>\d+)', 'DELETE', array( 'cancel_subscriptions' => array( 'type' => 'boolean' ) ) );
 			WPCOM_Proxy::register_route( 'rest/v1.1', 'wordads/settings', 'POST', array( 'paypal' => array( 'sanitize_callback' => 'sanitize_email' ) ) );
+			WPCOM_Proxy::register_route( 'wpcom/v2', 'me/peer-referral-link', 'GET' );
+			WPCOM_Proxy::register_route( 'wpcom/v2', 'me/peer-referral-link-enable', 'POST', array( 'enable' => array( 'type' => 'boolean' ) ) );
 		};
 		add_action( 'rest_api_init', $register );
 		do_action( 'rest_api_init', $wp_rest_server );
@@ -90,6 +92,7 @@ class WPCOM_Proxy_Test extends BaseTestCase {
 			'v2 with an ID'    => array( 'DELETE', '/jetpack/v4/monetize/wpcom/v2/memberships/coupon/7', array( 'force' => 1 ), null, 'DELETE', '/wpcom/v2/sites/999/memberships/coupon/7', null ),
 			'v2 DELETE body'   => array( 'DELETE', '/jetpack/v4/monetize/wpcom/v2/memberships/coupon/7', array(), '{"cancel_subscriptions":true}', 'DELETE', '/wpcom/v2/sites/999/memberships/coupon/7?cancel_subscriptions=1', null ),
 			'v1.1 with a body' => array( 'POST', '/jetpack/v4/monetize/rest/v1.1/wordads/settings', array(), '{"paypal":"a@example.com<>","tos":"signed"}', 'POST', '/rest/v1.1/sites/999/wordads/settings', '{"paypal":"a@example.com"}' ),
+			'user path'        => array( 'POST', '/jetpack/v4/monetize/wpcom/v2/me/peer-referral-link-enable', array( 'blog' => 1 ), '{"enable":true,"user":2}', 'POST', '/wpcom/v2/me/peer-referral-link-enable', '{"enable":true}' ),
 		);
 	}
 
@@ -124,9 +127,12 @@ class WPCOM_Proxy_Test extends BaseTestCase {
 	 * @return array[]
 	 */
 	public static function provide_refused_requests() {
+		$site = '/jetpack/v4/monetize/wpcom/v2/memberships/coupons';
+		$user = '/jetpack/v4/monetize/wpcom/v2/me/peer-referral-link';
 		return array(
-			'not an admin'          => array( 'editor', true, 'rest_forbidden' ),
-			'no WordPress.com user' => array( 'administrator', false, 'rest_unauthorized' ),
+			'not an admin'                     => array( 'editor', true, 'rest_forbidden', $site ),
+			'no WordPress.com user'            => array( 'administrator', false, 'rest_unauthorized', $site ),
+			'no WordPress.com user, user path' => array( 'administrator', false, 'rest_unauthorized', $user ),
 		);
 	}
 
@@ -136,9 +142,10 @@ class WPCOM_Proxy_Test extends BaseTestCase {
 	 * @param string $role      The current user's role.
 	 * @param bool   $connected Whether the user has a WordPress.com token.
 	 * @param string $code      The expected error code.
+	 * @param string $route     Local route.
 	 */
 	#[DataProvider( 'provide_refused_requests' )]
-	public function test_routes_refuse_without_an_admin_connected_to_wpcom( $role, $connected, $code ) {
+	public function test_routes_refuse_without_an_admin_connected_to_wpcom( $role, $connected, $code, $route ) {
 		$this->arrange_wpcom( array( 'ok' => true ) );
 		$user_id = $this->insert_user( $role );
 		wp_set_current_user( $user_id );
@@ -146,7 +153,7 @@ class WPCOM_Proxy_Test extends BaseTestCase {
 			add_filter( 'jetpack_options', array( $this, 'drop_user_tokens' ), 20, 2 );
 		}
 
-		$response = $this->dispatch( 'GET', '/jetpack/v4/monetize/wpcom/v2/memberships/coupons' );
+		$response = $this->dispatch( 'GET', $route );
 		remove_filter( 'jetpack_options', array( $this, 'drop_user_tokens' ), 20 );
 
 		$this->assertSame( 403, $response->get_status() );
@@ -154,7 +161,13 @@ class WPCOM_Proxy_Test extends BaseTestCase {
 		$this->assertCount( 0, $this->sent );
 	}
 
-	public function test_routes_relay_the_wpcom_error_status() {
+	/**
+	 * @dataProvider provide_error_routes
+	 *
+	 * @param string $route Local route.
+	 */
+	#[DataProvider( 'provide_error_routes' )]
+	public function test_routes_relay_the_wpcom_error_status( $route ) {
 		$this->arrange_wpcom(
 			array(
 				'code'    => 'no_subscribers',
@@ -163,10 +176,22 @@ class WPCOM_Proxy_Test extends BaseTestCase {
 			404
 		);
 
-		$response = $this->dispatch( 'GET', '/jetpack/v4/monetize/wpcom/v2/memberships/coupons' );
+		$response = $this->dispatch( 'GET', $route );
 
 		$this->assertSame( 404, $response->get_status() );
 		$this->assertSame( 'no_subscribers', $response->get_data()['code'] );
+	}
+
+	/**
+	 * A site path and a user path, which forward differently.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_error_routes() {
+		return array(
+			'site path' => array( '/jetpack/v4/monetize/wpcom/v2/memberships/coupons' ),
+			'user path' => array( '/jetpack/v4/monetize/wpcom/v2/me/peer-referral-link' ),
+		);
 	}
 
 	/**

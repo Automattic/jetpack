@@ -16,4 +16,13 @@
 		grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr));
 		gap: var(--wpds-dimension-gap-lg);
 	}
+
+	&__referral-link {
+		flex: 1;
+	}
+
+	&__referral-input {
+		flex: 1;
+		min-inline-size: 0;
+	}
 }
