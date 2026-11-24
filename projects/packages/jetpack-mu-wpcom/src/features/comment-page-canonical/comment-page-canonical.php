@@ -9,14 +9,14 @@
  * `comments_template()` fills in `cpage` when the URL has none, and block templates run it
  * before `wp_head` (legacy Comments block, WooCommerce reviews). See https://core.trac.wordpress.org/ticket/11856.
  *
- * @param string  $canonical_url The canonical URL.
- * @param WP_Post $post          The post.
+ * @param string       $canonical_url The canonical URL.
+ * @param WP_Post|null $post          The post.
  * @return string
  */
-function wpcom_comment_page_canonical_url( $canonical_url, $post ) {
+function wpcom_comment_page_canonical_url( $canonical_url, $post = null ) {
 	global $wp;
 
-	if ( ! get_query_var( 'cpage' ) || ! empty( $wp->query_vars['cpage'] ) || get_queried_object_id() !== $post->ID ) {
+	if ( ! $post instanceof WP_Post || ! get_query_var( 'cpage' ) || ! empty( $wp->query_vars['cpage'] ) || get_queried_object_id() !== $post->ID ) {
 		return $canonical_url;
 	}
 
