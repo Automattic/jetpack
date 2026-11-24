@@ -251,20 +251,32 @@ class Analytics_Dashboard {
 	 * The message above the tab of a disconnected store set to local: what its own data lacks, then
 	 * what the missing connection holds back. A store without orders gets that message between them.
 	 *
-	 * @phan-suppress PhanAccessMethodInternal, PhanAccessClassConstantInternal -- Internal to this package, not to its sub-namespace.
+	 * @phan-suppress PhanAccessMethodInternal -- Internal to this package, not to its sub-namespace.
 	 *
 	 * @return string
 	 */
 	private static function get_local_mode_notice() {
-		$messages = array();
-		foreach ( ( new Local_Data_Status() )->get_issues() as $issue ) {
-			switch ( $issue ) {
-				case Local_Data_Status::ANALYTICS_OFF:
-					$messages[] = __( 'WooCommerce Analytics is off, so this tab can’t read your store’s orders. Turn it on in WooCommerce › Settings › Advanced › Features.', 'jetpack-woocommerce-stats-pkg' );
-					break;
-				case Local_Data_Status::IMPORT_INCOMPLETE:
-					$messages[] = __( 'Some orders aren’t in WooCommerce Analytics yet, so reports may be incomplete. Import them in WooCommerce › Analytics › Settings › Import historical data.', 'jetpack-woocommerce-stats-pkg' );
-					break;
+		$data_status = new Local_Data_Status();
+		$messages    = array();
+
+		if ( $data_status->is_analytics_off() ) {
+			$messages[] = __( 'WooCommerce Analytics is off, so this tab can’t read your store’s orders. Turn it on in WooCommerce › Settings › Advanced › Features.', 'jetpack-woocommerce-stats-pkg' );
+		} else {
+			$import = $data_status->get_import_status();
+			if ( $import && $import['failed_count'] > 0 ) {
+				$messages[] = sprintf(
+					/* translators: %d: Number of orders. */
+					_n(
+						'WooCommerce Analytics couldn’t import %d order. Retry it in WooCommerce › Analytics › Settings › Import historical data.',
+						'WooCommerce Analytics couldn’t import %d orders. Retry them in WooCommerce › Analytics › Settings › Import historical data.',
+						$import['failed_count'],
+						'jetpack-woocommerce-stats-pkg'
+					),
+					$import['failed_count']
+				);
+			}
+			if ( $import && 'scheduled' === $import['mode'] ) {
+				$messages[] = self::describe_scheduled_import( $import['last_processed_date'], $import['next_scheduled'] );
 			}
 		}
 
@@ -276,6 +288,30 @@ class Analytics_Dashboard {
 		$messages[] = __( 'Some reports need a Jetpack connection, so they can’t load yet.', 'jetpack-woocommerce-stats-pkg' );
 
 		return implode( ' ', $messages );
+	}
+
+	/**
+	 * When a scheduled WooCommerce Analytics import last ran and runs next, as its Data status says.
+	 *
+	 * @param string|null $last The last update, in store time; null before the first.
+	 * @param string|null $next The next update, in store time; null when none is scheduled.
+	 * @return string
+	 */
+	private static function describe_scheduled_import( $last, $next ) {
+		$format = get_option( 'date_format' ) . ' ' . get_option( 'time_format' );
+		$parts  = array(
+			$last
+				/* translators: %s: Date and time. */
+				? sprintf( __( 'Your store’s data was last updated on %s.', 'jetpack-woocommerce-stats-pkg' ), mysql2date( $format, $last ) )
+				: __( 'Your store’s data hasn’t been updated yet.', 'jetpack-woocommerce-stats-pkg' ),
+		);
+		if ( $next ) {
+			/* translators: %s: Date and time. */
+			$parts[] = sprintf( __( 'The next update runs on %s.', 'jetpack-woocommerce-stats-pkg' ), mysql2date( $format, $next ) );
+		}
+		$parts[] = __( 'To update it now, go to WooCommerce › Analytics › Settings.', 'jetpack-woocommerce-stats-pkg' );
+
+		return implode( ' ', $parts );
 	}
 
 	/**

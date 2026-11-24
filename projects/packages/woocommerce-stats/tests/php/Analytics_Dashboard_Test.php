@@ -288,6 +288,99 @@ class Analytics_Dashboard_Test extends BaseTestCase {
 	}
 
 	/**
+	 * The notice reports what WooCommerce's own import status reports, and nothing in immediate mode.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 * @dataProvider provide_import_statuses
+	 * @phan-suppress PhanAccessClassConstantInternal -- Internal to this package, not to its sub-namespace.
+	 *
+	 * @param array    $import     What core's import status route answers.
+	 * @param string[] $present    Phrases the notice must carry.
+	 * @param string[] $absent     Phrases it must not.
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	#[DataProvider( 'provide_import_statuses' )]
+	public function test_local_mode_notice_follows_core_import_status( $import, $present, $absent ) {
+		require_once __DIR__ . '/mocks/woocommerce-mock.php';
+		require_once __DIR__ . '/mocks/woocommerce-analytics-mock.php';
+		$GLOBALS['woocommerce_stats_mock_orders'] = array( 42 => 'completed' );
+		update_option( 'date_format', 'Y-m-d' );
+		update_option( 'time_format', 'H:i' );
+		global $wp_rest_server;
+		$wp_rest_server = new \WP_REST_Server();
+		add_action(
+			'rest_api_init',
+			static function () use ( $import ) {
+				register_rest_route(
+					'wc-analytics',
+					'/imports/status',
+					array(
+						'methods'             => 'GET',
+						'callback'            => static function () use ( $import ) {
+							return $import;
+						},
+						'permission_callback' => '__return_true',
+					)
+				);
+			}
+		);
+		do_action( 'rest_api_init', $wp_rest_server );
+		$this->enable_store();
+		update_option( Provider_Setting::OPTION, 'local' );
+		Analytics_Dashboard::init();
+
+		$notice = (string) get_registered_dashboard_section( DASHBOARD_NAME, Analytics_Dashboard::SECTION_ID )->get_notice();
+
+		foreach ( $present as $phrase ) {
+			$this->assertStringContainsString( $phrase, $notice );
+		}
+		foreach ( $absent as $phrase ) {
+			$this->assertStringNotContainsString( $phrase, $notice );
+		}
+	}
+
+	/**
+	 * @return array[]
+	 */
+	public static function provide_import_statuses() {
+		$immediate = array(
+			'mode'                  => 'immediate',
+			'last_processed_date'   => null,
+			'next_scheduled'        => null,
+			'failed_count'          => 0,
+			'failed_overflow_count' => 0,
+		);
+
+		return array(
+			'immediate'                 => array( $immediate, array( 'need a Jetpack connection' ), array( 'updated', 'couldn’t import' ) ),
+			'scheduled'                 => array(
+				array(
+					'mode'                => 'scheduled',
+					'last_processed_date' => '2026-11-24 09:00:00',
+					'next_scheduled'      => '2026-11-24 21:00:00',
+				) + $immediate,
+				array( 'last updated on 2026-11-24 09:00', 'next update runs on 2026-11-24 21:00', 'WooCommerce › Analytics › Settings', 'need a Jetpack connection' ),
+				array( 'couldn’t import' ),
+			),
+			'scheduled, never run'      => array(
+				array( 'mode' => 'scheduled' ) + $immediate,
+				array( 'hasn’t been updated yet' ),
+				array( 'next update' ),
+			),
+			'failed imports, immediate' => array(
+				array(
+					'failed_count'          => 2,
+					'failed_overflow_count' => 1,
+				) + $immediate,
+				array( 'couldn’t import 3 orders', 'Import historical data' ),
+				array( 'updated' ),
+			),
+		);
+	}
+
+	/**
 	 * @return array[]
 	 */
 	public static function provide_connection_and_setting() {
