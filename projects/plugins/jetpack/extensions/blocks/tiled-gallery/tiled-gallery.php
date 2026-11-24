@@ -679,7 +679,7 @@ class Tiled_Gallery {
 	 * @param int   $target_width Email content width in pixels.
 	 * @return string HTML content.
 	 */
-	private static function build_mosaic_layout_content( $images, $cell_padding, $border_radius = 0, $attr = array(), $target_width = 600 ) {
+	private static function build_mosaic_layout_content( $images, $cell_padding, $border_radius, $attr, $target_width ) {
 		$border_radius_style = self::generate_border_radius_style( '', $border_radius );
 
 		// Generate mosaic layout rows
@@ -707,9 +707,9 @@ class Tiled_Gallery {
 					$cell_padding
 				);
 
-				// The pixel size is for Outlook, which ignores CSS widths; other clients scale the image with its cell.
 				$image_styles = self::generate_image_styles( $image_width . 'px' );
 
+				// Outlook ignores CSS widths, so it sizes the image from the width and height attributes.
 				$cell_content = self::generate_image_html( $image, $image_styles, $border_radius_style, $attr, array( $image_width, $image_height ) );
 
 				$row_cells .= sprintf(
@@ -740,18 +740,14 @@ class Tiled_Gallery {
 	}
 
 	/**
-	 * Size a mosaic row's images to share one height and fill the given width, as the web mosaic does.
+	 * Size a mosaic row's images to share one height and fill the given width.
 	 *
 	 * @param array $row Images in the row.
 	 * @param int   $width Width the row's images fill, in pixels.
 	 * @return array Width and height in pixels for each image.
 	 */
 	private static function get_mosaic_row_image_sizes( $row, $width ) {
-		$ratios = array();
-		foreach ( $row as $image ) {
-			// Treat an image with unknown dimensions as square.
-			$ratios[] = $image['width'] > 0 && $image['height'] > 0 ? $image['width'] / $image['height'] : 1;
-		}
+		$ratios = array_map( array( __CLASS__, 'get_image_ratio' ), $row );
 
 		$row_height = $width / array_sum( $ratios );
 		$sizes      = array();
@@ -767,17 +763,52 @@ class Tiled_Gallery {
 	}
 
 	/**
-	 * Generate mosaic layout rows based on image count.
+	 * Get an image's aspect ratio, treating an image with unknown dimensions as square.
+	 *
+	 * @param array $image Image data.
+	 * @return float Width divided by height.
+	 */
+	private static function get_image_ratio( $image ) {
+		return $image['width'] > 0 && $image['height'] > 0 ? $image['width'] / $image['height'] : 1;
+	}
+
+	/**
+	 * Generate mosaic layout rows, giving each panorama a row of its own as the web mosaic does.
+	 *
+	 * A panorama sharing a row would shrink the row's height, and its row-mates with it.
 	 *
 	 * @param array $images Array of image data.
 	 * @return array Array of rows, each containing images.
 	 */
 	private static function generate_mosaic_rows( $images ) {
+		$rows    = array();
+		$pending = array();
+		foreach ( $images as $image ) {
+			if ( self::get_image_ratio( $image ) >= 2 ) {
+				$rows    = array_merge( $rows, self::group_mosaic_rows( $pending ), array( array( $image ) ) );
+				$pending = array();
+			} else {
+				$pending[] = $image;
+			}
+		}
+
+		return array_merge( $rows, self::group_mosaic_rows( $pending ) );
+	}
+
+	/**
+	 * Group images into mosaic rows based on image count.
+	 *
+	 * @param array $images Array of image data.
+	 * @return array Array of rows, each containing images.
+	 */
+	private static function group_mosaic_rows( $images ) {
 		$rows        = array();
 		$image_count = count( $images );
 
 		// More sophisticated mosaic algorithm based on image count
-		if ( $image_count <= 3 ) {
+		if ( 0 === $image_count ) {
+			return $rows;
+		} elseif ( $image_count <= 3 ) {
 			// For 3 or fewer images, use simple layout
 			$rows[] = $images;
 		} else {

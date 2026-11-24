@@ -12,6 +12,7 @@ require_once __DIR__ . '/mocks/class-mock-styles-helper.php';
 require_once __DIR__ . '/mocks/class-mock-table-wrapper-helper.php';
 
 use PHPUnit\Framework\Attributes\CoversMethod;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * Tiled Gallery Block Email Rendering tests.
@@ -99,10 +100,26 @@ class Tiled_Gallery_Block_Email_Test extends WP_UnitTestCase {
 
 	/**
 	 * Mosaic rows share one height from the images' aspect ratios and fill the email width, at pixel sizes Outlook honors.
+	 *
+	 * @param string $source         Block attribute the images come from: 'ids' or 'images'.
+	 * @param array  $dimensions     Width and height of each image, or null when unknown.
+	 * @param array  $expected_sizes Expected width and height attributes of each image.
+	 * @param array  $expected_cells Expected width percentage of each image's cell.
+	 * @dataProvider provide_mosaic_galleries
 	 */
-	public function test_render_email_mosaic_sizes_row_from_aspect_ratios() {
-		$ids = array();
-		foreach ( array( array( 800, 400 ), array( 400, 800 ), array( 600, 600 ) ) as $index => $dimensions ) {
+	#[DataProvider( 'provide_mosaic_galleries' )]
+	public function test_render_email_mosaic_sizes_rows_from_aspect_ratios( $source, $dimensions, $expected_sizes, $expected_cells ) {
+		$attrs = array();
+		foreach ( $dimensions as $index => $size ) {
+			if ( 'images' === $source ) {
+				$attrs['images'][] = array(
+					'url'    => "http://example.com/photo-$index.jpg",
+					'width'  => $size ? $size[0] : null,
+					'height' => $size ? $size[1] : null,
+				);
+				continue;
+			}
+
 			$id = self::factory()->attachment->create_object(
 				array(
 					'file'           => "photo-$index.jpg",
@@ -113,24 +130,53 @@ class Tiled_Gallery_Block_Email_Test extends WP_UnitTestCase {
 				$id,
 				array(
 					'file'   => "photo-$index.jpg",
-					'width'  => $dimensions[0],
-					'height' => $dimensions[1],
+					'width'  => $size[0],
+					'height' => $size[1],
 				)
 			);
-			$ids[] = $id;
+			$attrs['ids'][] = $id;
 		}
 
-		// 740px less 4px of cell padding per image leaves 728px, so the row is 728 / ( 2 + 0.5 + 1 ) = 208px tall.
-		$result = \Automattic\Jetpack\Extensions\Tiled_Gallery::render_email( '', array( 'attrs' => array( 'ids' => $ids ) ), $this->create_rendering_context_mock( '740px' ) );
+		$result = \Automattic\Jetpack\Extensions\Tiled_Gallery::render_email( '', array( 'attrs' => $attrs ), $this->create_rendering_context_mock( '740px' ) );
 
 		preg_match_all( '/<img [^>]*width="(\d+)" height="(\d+)"/', $result, $sizes );
-		$this->assertSame( array( '416', '104', '208' ), $sizes[1] );
-		$this->assertSame( array( '208', '208', '208' ), $sizes[2] );
+		$this->assertSame( $expected_sizes, array_map( null, $sizes[1], $sizes[2] ) );
 
 		// Clients other than Outlook lay the row out from the cell widths: each image plus 4px of padding, out of 740px.
 		preg_match_all( '/<td style="width: ([\d.]+)%/', $result, $cells );
-		$this->assertSame( array( '56.7568', '14.5946', '28.6486' ), $cells[1] );
+		$this->assertSame( $expected_cells, $cells[1] );
 		$this->assertStringNotContainsString( 'object-fit', $result );
+	}
+
+	/**
+	 * Galleries rendered at 740px, where each row's images fill 740px less 4px of cell padding per image.
+	 *
+	 * @return array
+	 */
+	public static function provide_mosaic_galleries() {
+		return array(
+			// 728px / ( 1.5 + 0.5 + 1.5 ) = 208px tall.
+			'landscape and portrait share a row' => array(
+				'ids',
+				array( array( 600, 400 ), array( 400, 800 ), array( 600, 400 ) ),
+				array( array( '312', '208' ), array( '104', '208' ), array( '312', '208' ) ),
+				array( '42.7027', '14.5946', '42.7027' ),
+			),
+			// The 6:1 panorama is 736px / 6 = 123px tall on its own; the portraits are 732px / 1 tall.
+			'a panorama gets a row of its own'   => array(
+				'ids',
+				array( array( 900, 150 ), array( 400, 800 ), array( 400, 800 ) ),
+				array( array( '736', '123' ), array( '366', '732' ), array( '366', '732' ) ),
+				array( '100', '50', '50' ),
+			),
+			// The image without dimensions counts as square: 728px / ( 1.5 + 1 + 1 ) = 208px tall.
+			'images attribute, one size unknown' => array(
+				'images',
+				array( array( 600, 400 ), null, array( 500, 500 ) ),
+				array( array( '312', '208' ), array( '208', '208' ), array( '208', '208' ) ),
+				array( '42.7027', '28.6486', '28.6486' ),
+			),
+		);
 	}
 
 	/**
