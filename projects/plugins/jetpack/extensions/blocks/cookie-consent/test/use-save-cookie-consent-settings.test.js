@@ -1,132 +1,141 @@
-import { act, render } from '@testing-library/react';
-import { serialize } from '@wordpress/blocks';
-import { useEntityProp } from '@wordpress/core-data';
-import { useDispatch, useSelect } from '@wordpress/data';
-import { CookieConsentSettings } from '../use-save-cookie-consent-settings';
+import { act, renderHook } from '@testing-library/react';
+import { createReduxStore, createRegistry, RegistryProvider } from '@wordpress/data';
+import { createElement } from '@wordpress/element';
+import { useSaveCookieConsentSettings } from '../use-save-cookie-consent-settings';
 
-jest.mock( '@wordpress/blocks', () => ( { serialize: jest.fn() } ) );
-jest.mock( '@wordpress/core-data', () => ( {
-	store: 'core',
-	useEntityProp: jest.fn(),
-} ) );
-jest.mock( '@wordpress/data', () => {
-	const actual = jest.requireActual( '@wordpress/data' );
-	const mocks = { useDispatch: jest.fn(), useSelect: jest.fn() };
-	return new Proxy( actual, {
-		get: ( target, property ) => mocks[ property ] ?? target[ property ],
-	} );
-} );
+const BANNER = { clientId: 'banner', name: 'jetpack/cookie-consent' };
 
-beforeEach( () => jest.clearAllMocks() );
+jest.mock( '@wordpress/blocks', () => ( { serialize: () => 'updated banner' } ) );
+jest.mock( '@wordpress/core-data', () => ( { store: { name: 'core' } } ) );
 
-it.each( [
-	[ 'leaving a page preview', 'post', 'page', false, true ],
-	[ 'leaving a post preview', 'post', 'post', false, true ],
-	[ 'deleting from a template', 'site-editor', 'wp_template', false, false ],
-	[ 'deleting from a Page Editor template', 'post', 'wp_template', false, false ],
-	[ 'deleting from a template part', 'post', 'wp_template_part', false, false ],
-	[ 'removing page content in the Site Editor', 'site-editor', 'page', false, false ],
-	[ 'unmounting an existing block', 'site-editor', 'wp_template', true, true ],
-	[ 'returning from Edit template', 'post', 'wp_template', false, true, 'page' ],
-	[ 'returning from Edit template part', 'post', 'wp_template_part', false, true, 'post' ],
-] )(
-	'preserves the saved banner only when appropriate after %s',
-	async (
-		_label,
-		screenBase,
-		postType,
-		blockRemains,
-		preservesBanner,
-		finalPostType = postType
-	) => {
-		const banner = '<!-- wp:jetpack/cookie-consent /-->';
-		let savedTemplate = banner;
-		let currentPostType = postType;
-		let block = { clientId: 'banner', name: 'jetpack/cookie-consent' };
-		const stores = {
-			'core/editor': {
-				isSavingPost: () => false,
+const setState = state => ( { type: 'SET', state } );
+const stateReducer =
+	initialState =>
+	( state = initialState, action ) =>
+		action.type === 'SET' ? { ...state, ...action.state } : state;
+
+/**
+ * Render the hook against minimal editor and site settings stores.
+ *
+ * @param {string} screenBase - Admin screen the editor runs on.
+ * @param {string} postType   - Post type being edited.
+ * @return {object} Controls and recorded site settings activity.
+ */
+function setup( screenBase, postType ) {
+	window.Jetpack_Editor_Initial_State = { screenBase };
+
+	const loadSettings = jest.fn();
+	let edits = {};
+	const saved = [];
+	const registry = createRegistry();
+	registry.register(
+		createReduxStore( 'core/editor', {
+			reducer: stateReducer( { postType, isSaving: false } ),
+			actions: { setState },
+			selectors: {
+				isSavingPost: state => state.isSaving,
 				isSavingNonPostEntityChanges: () => false,
-				getCurrentPostType: () => currentPostType,
+				getCurrentPostType: state => state.postType,
 			},
-			'core/block-editor': { getBlock: () => block },
-		};
-		useSelect.mockImplementation( selector =>
-			typeof selector === 'function' ? selector( store => stores[ store ] ) : stores[ selector ]
-		);
-		let editedTemplate = banner;
-		useEntityProp.mockReturnValue( [ banner, template => ( editedTemplate = template ) ] );
-		useDispatch.mockReturnValue( {
-			saveEditedEntityRecord: async () => {
-				savedTemplate = editedTemplate;
+		} )
+	);
+	registry.register(
+		createReduxStore( 'core/block-editor', {
+			reducer: stateReducer( { block: BANNER } ),
+			actions: { setState },
+			selectors: { getBlock: state => state.block },
+		} )
+	);
+	registry.register(
+		createReduxStore( 'core', {
+			reducer: stateReducer( {} ),
+			actions: {
+				editEntityRecord: ( kind, name, id, newEdits ) => {
+					edits = newEdits;
+					return setState( {} );
+				},
+				saveEditedEntityRecord: () => {
+					saved.push( edits.cookie_consent_template );
+					return setState( {} );
+				},
 			},
-		} );
+			selectors: {
+				getEntityRecord: () => {
+					loadSettings();
+					return {};
+				},
+			},
+		} )
+	);
 
-		const initialState = window.Jetpack_Editor_Initial_State;
-		try {
-			window.Jetpack_Editor_Initial_State = { screenBase };
-			const { unmount } = render( <CookieConsentSettings clientId="banner" /> );
-			currentPostType = finalPostType;
-			if ( ! blockRemains ) {
-				block = undefined;
-			}
+	const { unmount } = renderHook( () => useSaveCookieConsentSettings( BANNER.clientId ), {
+		wrapper: ( { children } ) => createElement( RegistryProvider, { value: registry }, children ),
+	} );
+
+	return {
+		editor: registry.dispatch( 'core/editor' ),
+		blockEditor: registry.dispatch( 'core/block-editor' ),
+		loadSettings,
+		saved,
+		unmount,
+	};
+}
+
+describe( 'useSaveCookieConsentSettings', () => {
+	const initialState = window.Jetpack_Editor_Initial_State;
+
+	afterEach( () => {
+		window.Jetpack_Editor_Initial_State = initialState;
+	} );
+
+	it.each( [
+		[ 'deleting it from a Site Editor template', 'site-editor', 'wp_template' ],
+		[ 'deleting it from a Site Editor page', 'site-editor', 'page' ],
+		[ 'deleting it while editing a template in the Page Editor', 'post', 'wp_template' ],
+		[ 'deleting it while editing a template part in the Page Editor', 'post', 'wp_template_part' ],
+	] )( 'clears the saved banner after %s', async ( label, screenBase, postType ) => {
+		const { blockEditor, saved, unmount } = setup( screenBase, postType );
+
+		await act( () => blockEditor.setState( { block: undefined } ) );
+		await act( async () => unmount() );
+
+		expect( saved ).toEqual( [ null ] );
+	} );
+
+	it.each( [
+		[ 'hiding the template on a page', 'post', 'page', 'page', undefined ],
+		[ 'hiding the template on a post', 'post', 'post', 'post', undefined ],
+		[ 'returning from a template to the page', 'post', 'wp_template', 'page', undefined ],
+		[ 'unmounting a block that still exists', 'site-editor', 'wp_template', 'wp_template', BANNER ],
+	] )(
+		'keeps the saved banner after %s',
+		async ( label, screenBase, postType, finalPostType, block ) => {
+			const { blockEditor, editor, saved, unmount } = setup( screenBase, postType );
+
+			await act( () => editor.setState( { postType: finalPostType } ) );
+			await act( () => blockEditor.setState( { block } ) );
 			await act( async () => unmount() );
 
-			expect( savedTemplate ).toBe( preservesBanner ? banner : null );
-		} finally {
-			window.Jetpack_Editor_Initial_State = initialState;
+			expect( saved ).toEqual( [] );
 		}
-	}
-);
+	);
 
-it.each( [
-	[ 'post', 'page', false ],
-	[ 'post', 'post', false ],
-	[ 'post', 'wp_template', true ],
-	[ 'post', 'wp_template_part', true ],
-	[ 'site-editor', 'page', true ],
-] )(
-	'accesses and saves site settings only in editable contexts: %s / %s',
-	async ( screenBase, postType, shouldSave ) => {
-		const banner = '<!-- wp:jetpack/cookie-consent /-->';
-		const updatedBanner = '<!-- wp:jetpack/cookie-consent {"text":"Updated"} /-->';
-		const block = { clientId: 'banner', name: 'jetpack/cookie-consent' };
-		let isSaving = false;
-		let savedTemplate = banner;
-		let editedTemplate = banner;
-		const stores = {
-			'core/editor': {
-				isSavingPost: () => isSaving,
-				isSavingNonPostEntityChanges: () => false,
-				getCurrentPostType: () => postType,
-			},
-			'core/block-editor': { getBlock: () => block },
-		};
-		useSelect.mockImplementation( selector =>
-			typeof selector === 'function' ? selector( store => stores[ store ] ) : stores[ selector ]
-		);
-		useEntityProp.mockReturnValue( [ banner, template => ( editedTemplate = template ) ] );
-		useDispatch.mockReturnValue( {
-			saveEditedEntityRecord: async () => {
-				savedTemplate = editedTemplate;
-			},
-		} );
-		serialize.mockReturnValue( updatedBanner );
+	it.each( [
+		[ 'post', 'page', false ],
+		[ 'post', 'post', false ],
+		[ 'post', 'wp_template', true ],
+		[ 'post', 'wp_template_part', true ],
+		[ 'site-editor', 'page', true ],
+	] )(
+		'loads and saves site settings only where the banner can be edited: %s / %s',
+		async ( screenBase, postType, isSynced ) => {
+			const { editor, loadSettings, saved } = setup( screenBase, postType );
 
-		const initialState = window.Jetpack_Editor_Initial_State;
-		try {
-			window.Jetpack_Editor_Initial_State = { screenBase };
-			const { rerender, unmount } = render( <CookieConsentSettings clientId="banner" /> );
-			isSaving = true;
-			rerender( <CookieConsentSettings clientId="banner" /> );
-			isSaving = false;
-			await act( async () => rerender( <CookieConsentSettings clientId="banner" /> ) );
+			await act( () => editor.setState( { isSaving: true } ) );
+			await act( () => editor.setState( { isSaving: false } ) );
 
-			expect( savedTemplate ).toBe( shouldSave ? updatedBanner : banner );
-			expect( useEntityProp.mock.calls.length > 0 ).toBe( shouldSave );
-			unmount();
-		} finally {
-			window.Jetpack_Editor_Initial_State = initialState;
+			expect( saved ).toEqual( isSynced ? [ 'updated banner' ] : [] );
+			expect( loadSettings.mock.calls.length > 0 ).toBe( isSynced );
 		}
-	}
-);
+	);
+} );

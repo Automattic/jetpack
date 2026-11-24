@@ -3,7 +3,7 @@ import { PanelBody, TextControl, SelectControl } from '@wordpress/components';
 import { __, isRTL } from '@wordpress/i18n';
 import './editor.scss';
 import { DEFAULT_TEXT } from './constants';
-import { CookieConsentSettings } from './use-save-cookie-consent-settings';
+import { useSaveCookieConsentSettings } from './use-save-cookie-consent-settings';
 
 /**
  * Cookie Consent Edit Component.
@@ -17,6 +17,7 @@ import { CookieConsentSettings } from './use-save-cookie-consent-settings';
 function CookieConsentBlockEdit( { clientId, attributes, setAttributes } ) {
 	const { consentExpiryDays, align, text = DEFAULT_TEXT } = attributes;
 
+	useSaveCookieConsentSettings( clientId );
 	/**
 	 * Update the alignment of the block. This takes care setting names alignments (left, right, etc..) or eg width=500.
 	 *
@@ -38,7 +39,6 @@ function CookieConsentBlockEdit( { clientId, attributes, setAttributes } ) {
 
 	return (
 		<>
-			<CookieConsentSettings clientId={ clientId } />
 			<InspectorControls>
 				<PanelBody title={ __( 'Block Settings', 'jetpack' ) }>
 					<SelectControl
