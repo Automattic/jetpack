@@ -398,9 +398,15 @@ const SCENARIOS = {
 	jetpackMetricPolicy: ( { excludedId = 203, ttfbId = 212, fcpId = 213 } = {} ) => {
 		const pre = [ ...Array( 5 ).fill( 90 ), ...Array( 5 ).fill( 110 ) ];
 		const rise = levelSeries( pre, 125, Array( 10 ).fill( 125 ) );
+		const scanValues = Array.from(
+			{ length: 60 },
+			( _, i ) => ( i < 30 ? 96 : 108 ) + ( i % 2 ) * 8
+		);
+		const scanRise = flaggedSeries( scanValues, [], 'scanbar' );
 		return {
 			metrics: [
 				metricRow( 201, 'Dashboard LCP', 'dashboard-lcp' ),
+				metricRow( 202, 'Dashboard TTFB', 'dashboard-ttfb' ),
 				metricRow(
 					excludedId,
 					'Dashboard FCP',
@@ -411,9 +417,10 @@ const SCENARIOS = {
 			],
 			series: {
 				201: rise,
+				202: scanRise,
 				[ excludedId ]: rise,
 				[ ttfbId ]: rise,
-				[ fcpId ]: rise.map( point => ( { ...point, isRegression: false } ) ),
+				[ fcpId ]: scanRise,
 			},
 			no302: true,
 		};
@@ -2055,8 +2062,9 @@ test( 'My Jetpack TTFB and FCP require twice the noise bar for the same rise', a
 	assert.equal( result.code, 0, result.err );
 	const payload = JSON.parse( result.out );
 	const lines = payload.blocks.filter( block => block.text?.text.startsWith( '•' ) );
-	assert.equal( lines.length, 1, result.out );
-	assert.match( lines[ 0 ].text.text, /Dashboard LCP\* median \+25\.0%/ );
+	assert.equal( lines.length, 2, result.out );
+	assert.match( result.out, /Dashboard LCP\* median \+25\.0%/ );
+	assert.match( result.out, /Dashboard TTFB\* median \+12\.0% \(100→112ms\)/ );
 	assert.match( result.out, /1 transient spike suppressed.*My Jetpack TTFB/ );
 	assert.doesNotMatch( result.out, /My Jetpack FCP/ );
 } );

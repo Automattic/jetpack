@@ -77,8 +77,6 @@ const levelScore = ( before, fromCandidate, pre ) =>
 		Math.sqrt( ( stdDev( before ) ** 2 + stdDev( fromCandidate ) ** 2 ) / LEVEL_WINDOW ),
 		0.001
 	);
-const strongestWindow = ( best, candidate ) => ( candidate.score > best.score ? candidate : best );
-
 const estimateChangePoint = ( rows, position, pre, post ) => {
 	// Pick the split with the least absolute error against the two seed levels.
 	let changeIndex = position - LEVEL_WINDOW;
@@ -839,7 +837,6 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 				continue;
 			}
 			reportedScans.push( entry );
-			groups.push( [ entry ] );
 		}
 		if ( agedScans || coveredScans || waitingScans || rejectedScans || repeatedScans )
 			console.error(
@@ -850,7 +847,9 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 			const complete = group.filter( entry => entry.pre !== undefined );
 			const originals = complete.filter( entry => entry.self );
 			const pool = originals.length > 0 ? originals : complete;
-			const entry = pool.reduce( strongestWindow );
+			const entry = pool.reduce( ( best, candidate ) =>
+				candidate.score > best.score ? candidate : best
+			);
 			// Only confirmed in-window members keep the group in the sustained bucket.
 			const late = complete.every( member => member.late );
 			( late ? confirmedLate : confirmed ).push( {
@@ -863,6 +862,9 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 				members: group,
 				grouped: group.length,
 			} );
+		}
+		for ( const entry of reportedScans ) {
+			( entry.late ? confirmedLate : confirmed ).push( entry );
 		}
 	}
 
