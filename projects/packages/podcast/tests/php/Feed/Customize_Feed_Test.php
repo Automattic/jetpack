@@ -8,6 +8,7 @@ namespace Automattic\Jetpack\Podcast\Tests\Feed;
 use Automattic\Jetpack\Podcast\Feed\Customize_Feed;
 use Jetpack_Options;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
 use WP_Post;
 use WP_Term;
@@ -833,6 +834,37 @@ class Customize_Feed_Test extends BaseTestCase {
 		$this->assertSame(
 			$html,
 			Customize_Feed::skip_block_in_feed( $html, array( 'blockName' => null ) )
+		);
+	}
+
+	/**
+	 * @dataProvider provide_enclosure_touch_cases
+	 */
+	#[DataProvider( 'provide_enclosure_touch_cases' )]
+	public function test_touch_episode_on_enclosure( string $meta_key, string $status, int $post_category, bool $bumped ) {
+		$this->seed_category_term( 77 );
+		$this->seed_category_term( $post_category );
+		update_option( 'podcasting_category_id', 77 );
+		$post_id = wp_insert_post(
+			array(
+				'post_title'  => 'Episode',
+				'post_status' => $status,
+				'post_date'   => '2020-01-01 00:00:00',
+			)
+		);
+		wp_cache_set( $post_id, array( $post_category ), 'category_relationships' );
+
+		Customize_Feed::touch_episode_on_enclosure( 1, $post_id, $meta_key );
+
+		$this->assertSame( $bumped, '2020-01-01 00:00:00' !== get_post( $post_id )->post_modified );
+	}
+
+	public static function provide_enclosure_touch_cases() {
+		return array(
+			'published episode' => array( 'enclosure', 'publish', 77, true ),
+			'other meta key'    => array( '_encloseme', 'publish', 77, false ),
+			'draft episode'     => array( 'enclosure', 'draft', 77, false ),
+			'non-podcast post'  => array( 'enclosure', 'publish', 5, false ),
 		);
 	}
 }
