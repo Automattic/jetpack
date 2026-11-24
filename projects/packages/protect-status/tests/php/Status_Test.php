@@ -470,23 +470,43 @@ class Status_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test a fully ignored threat is left out and the counts drop.
+	 * Data provider for extension types with ignorable threats.
+	 *
+	 * @return array
 	 */
-	public function test_fully_ignored_threat_is_left_out_and_counts_drop() {
+	public static function provide_extension_types() {
+		return array(
+			'themes'  => array( 'themes', 'num_themes_threats', 'num_plugins_threats' ),
+			'plugins' => array( 'plugins', 'num_plugins_threats', 'num_themes_threats' ),
+		);
+	}
+
+	/**
+	 * Test a fully ignored threat is left out and the counts drop.
+	 *
+	 * @param string $type  Extension type.
+	 * @param string $count Count property for the type.
+	 * @param string $other Count property for the other type.
+	 * @dataProvider provide_extension_types
+	 */
+	#[DataProvider( 'provide_extension_types' )]
+	public function test_fully_ignored_threat_is_left_out_and_counts_drop( $type, $count, $other ) {
 		$this->mock_connection();
 		$before  = Protect_Status::get_status();
-		$ignored = $this->ignore_sample_threat( 'themes' );
+		$ignored = $this->ignore_sample_threat( $type );
 
 		$after = Protect_Status::get_status();
 
 		$this->assertNotContains( $ignored->id, array_column( $after->threats, 'id' ) );
 		$this->assertCount( count( $before->threats ) - 1, $after->threats );
-		foreach ( $after->themes as $theme ) {
-			$this->assertSame( array(), $theme->threats );
+		foreach ( $after->{$type} as $extension ) {
+			if ( $extension->slug === $ignored->extension->slug ) {
+				$this->assertSame( array(), $extension->threats );
+			}
 		}
 		$this->assertSame( $before->num_threats - 1, $after->num_threats );
-		$this->assertSame( $before->num_themes_threats - 1, $after->num_themes_threats );
-		$this->assertSame( $before->num_plugins_threats, $after->num_plugins_threats );
+		$this->assertSame( $before->{$count} - 1, $after->{$count} );
+		$this->assertSame( $before->{$other}, $after->{$other} );
 	}
 
 	/**
@@ -555,9 +575,9 @@ class Status_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test ignores for uninstalled extensions are dropped.
+	 * Test an ignore is kept when its extension is missing from the installed list.
 	 */
-	public function test_ignores_for_uninstalled_extensions_are_dropped() {
+	public function test_ignore_is_kept_for_an_extension_missing_from_the_installed_list() {
 		$this->mock_connection();
 		Protect_Status::get_status();
 		$this->ignore_sample_threat( 'themes' );
@@ -568,7 +588,7 @@ class Status_Test extends BaseTestCase {
 		Protect_Status::get_status();
 		remove_filter( 'jetpack_sync_get_themes_callable', '__return_empty_array' );
 
-		$this->assertSame( array(), Ignored_Vulnerabilities::get_all() );
+		$this->assertCount( 1, Ignored_Vulnerabilities::get_all() );
 	}
 
 	/**

@@ -342,8 +342,6 @@ class Protect_Status extends Status {
 			}
 		}
 
-		Ignored_Vulnerabilities::prune_uninstalled( $extension_type, array_keys( $installed_extensions ) );
-
 		$status->{ $extension_type } = array_values( $extension_threats );
 	}
 
@@ -390,7 +388,7 @@ class Protect_Status extends Status {
 		// Generate a threat from core vulnerabilities.
 		$has_vulnerabilities = is_array( $report_data->core->vulnerabilities ) && ! empty( $report_data->core->vulnerabilities );
 		if ( ! $has_vulnerabilities ) {
-			Ignored_Vulnerabilities::prune( 'core', 'wordpress', array() );
+			Ignored_Vulnerabilities::prune( $core->type, $core->slug, array() );
 		} else {
 			// normalize the vulnerabilities data
 			$vulnerabilities = array_map(
@@ -400,8 +398,8 @@ class Protect_Status extends Status {
 				$report_data->core->vulnerabilities
 			);
 
-			Ignored_Vulnerabilities::prune( 'core', 'wordpress', $vulnerabilities );
-			if ( Ignored_Vulnerabilities::is_ignored( 'core', 'wordpress', $vulnerabilities ) ) {
+			Ignored_Vulnerabilities::prune( $core->type, $core->slug, $vulnerabilities );
+			if ( Ignored_Vulnerabilities::is_ignored( $core->type, $core->slug, $vulnerabilities ) ) {
 				self::$hidden_counts['core'] += count( $vulnerabilities );
 				$status->core                 = $core;
 				return;

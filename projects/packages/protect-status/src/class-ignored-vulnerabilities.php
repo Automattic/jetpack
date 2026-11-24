@@ -147,30 +147,64 @@ class Ignored_Vulnerabilities {
 	}
 
 	/**
-	 * Drop entries for extensions of a type that are no longer installed.
+	 * Register the hooks that clear ignores when an extension is deleted.
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @param string        $type            Extension type.
-	 * @param array<string> $installed_slugs Slugs still installed.
 	 * @return void
 	 */
-	public static function prune_uninstalled( $type, array $installed_slugs ) {
+	public static function register_hooks() {
+		add_action( 'deleted_plugin', array( self::class, 'on_plugin_deleted' ), 10, 2 );
+		add_action( 'deleted_theme', array( self::class, 'on_theme_deleted' ), 10, 2 );
+	}
+
+	/**
+	 * Drop the ignore for a plugin once it is deleted.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $plugin_file Plugin file, such as `akismet/akismet.php`.
+	 * @param bool   $deleted     Whether the deletion succeeded.
+	 * @return void
+	 */
+	public static function on_plugin_deleted( $plugin_file, $deleted ) {
+		if ( $deleted ) {
+			self::remove_extension( 'plugins', $plugin_file );
+		}
+	}
+
+	/**
+	 * Drop the ignore for a theme once it is deleted.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $stylesheet Theme stylesheet.
+	 * @param bool   $deleted    Whether the deletion succeeded.
+	 * @return void
+	 */
+	public static function on_theme_deleted( $stylesheet, $deleted ) {
+		if ( $deleted ) {
+			self::remove_extension( 'themes', $stylesheet );
+		}
+	}
+
+	/**
+	 * Remove the stored entry for one extension.
+	 *
+	 * @param string $type Extension type.
+	 * @param string $slug Extension slug.
+	 * @return void
+	 */
+	private static function remove_extension( $type, $slug ) {
 		$stored = self::read();
 
+		if ( ! isset( $stored[ $type ][ $slug ] ) ) {
+			return;
+		}
+
+		unset( $stored[ $type ][ $slug ] );
 		if ( empty( $stored[ $type ] ) ) {
-			return;
-		}
-
-		$kept = array_intersect_key( $stored[ $type ], array_flip( $installed_slugs ) );
-		if ( count( $kept ) === count( $stored[ $type ] ) ) {
-			return;
-		}
-
-		if ( empty( $kept ) ) {
 			unset( $stored[ $type ] );
-		} else {
-			$stored[ $type ] = $kept;
 		}
 
 		self::write( $stored );
@@ -241,6 +275,10 @@ class Ignored_Vulnerabilities {
 	 * @return bool
 	 */
 	private static function write( array $stored ) {
+		if ( self::read() === $stored ) {
+			return true;
+		}
+
 		return update_option( self::OPTION_NAME, $stored, false );
 	}
 }

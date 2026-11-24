@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\Protect_Status;
 use Automattic\Jetpack\Protect_Models\Extension_Model;
 use Automattic\Jetpack\Protect_Models\Threat_Model;
 use Automattic\Jetpack\Protect_Models\Vulnerability_Model;
+use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
 
 /**
@@ -94,15 +95,62 @@ class Ignored_Vulnerabilities_Test extends BaseTestCase {
 		$this->assertSame( array(), Ignored_Vulnerabilities::get_all() );
 	}
 
-	public function test_prune_uninstalled_drops_removed_extensions() {
-		Ignored_Vulnerabilities::ignore( $this->threat( array( $this->vuln( 'v1' ) ), 'a' ) );
-		Ignored_Vulnerabilities::ignore( $this->threat( array( $this->vuln( 'v1' ) ), 'b' ) );
+	/**
+	 * Data provider for deletion handlers.
+	 *
+	 * @return array
+	 */
+	public static function provide_deletion_handlers() {
+		return array(
+			'plugins' => array( 'plugins', 'on_plugin_deleted' ),
+			'themes'  => array( 'themes', 'on_theme_deleted' ),
+		);
+	}
 
-		Ignored_Vulnerabilities::prune_uninstalled( 'plugins', array( 'a' ) );
+	/**
+	 * Test deleting an extension drops only its own entry, and only when the deletion succeeded.
+	 *
+	 * @param string $type    Extension type.
+	 * @param string $handler Handler method name.
+	 * @dataProvider provide_deletion_handlers
+	 */
+	#[DataProvider( 'provide_deletion_handlers' )]
+	public function test_deletion_handler_drops_only_the_deleted_extension( $type, $handler ) {
+		foreach ( array( 'a', 'b' ) as $slug ) {
+			$extension         = new Extension_Model(
+				array(
+					'type'    => $type,
+					'slug'    => $slug,
+					'name'    => $slug,
+					'version' => '1.0',
+				)
+			);
+			$threat            = Threat_Model::generate_from_extension_vulnerabilities( $extension, array( $this->vuln( 'v1' ) ) );
+			$threat->extension = $extension;
+			Ignored_Vulnerabilities::ignore( $threat );
+		}
 
+		Ignored_Vulnerabilities::$handler( 'a', false );
+		$this->assertCount( 2, Ignored_Vulnerabilities::get_all() );
+
+		Ignored_Vulnerabilities::$handler( 'a', true );
 		$all = Ignored_Vulnerabilities::get_all();
 		$this->assertCount( 1, $all );
-		$this->assertSame( 'a', $all[0]['slug'] );
+		$this->assertSame( 'b', $all[0]['slug'] );
+	}
+
+	public function test_register_hooks_adds_the_deletion_handlers() {
+		Ignored_Vulnerabilities::register_hooks();
+
+		$this->assertNotFalse( has_action( 'deleted_plugin', array( Ignored_Vulnerabilities::class, 'on_plugin_deleted' ) ) );
+		$this->assertNotFalse( has_action( 'deleted_theme', array( Ignored_Vulnerabilities::class, 'on_theme_deleted' ) ) );
+	}
+
+	public function test_ignoring_the_same_threat_twice_reports_success_both_times() {
+		$threat = $this->threat( array( $this->vuln( 'v1' ) ) );
+
+		$this->assertTrue( Ignored_Vulnerabilities::ignore( $threat ) );
+		$this->assertTrue( Ignored_Vulnerabilities::ignore( $threat ) );
 	}
 
 	public function test_unignore_by_threat_id() {
