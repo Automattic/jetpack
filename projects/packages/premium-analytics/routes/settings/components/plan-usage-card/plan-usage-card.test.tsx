@@ -102,15 +102,15 @@ describe( 'PlanUsageCard', () => {
 		);
 	} );
 
-	it( 'leaves out Upgrade on a WordPress.com site, which has no Stats tier to upgrade', async () => {
+	it( 'renders nothing and asks for no usage on a WordPress.com site', () => {
 		window.JetpackScriptData = {
 			site: { ...SITE, is_wpcom_platform: true },
 		} as typeof window.JetpackScriptData;
 
-		renderCard();
+		const { container } = renderCard();
 
-		await expect( screen.findByText( '6,200 / 10,000 views' ) ).resolves.toBeInTheDocument();
-		expect( screen.queryByRole( 'link', { name: 'Upgrade' } ) ).not.toBeInTheDocument();
+		expect( container ).toBeEmptyDOMElement();
+		expect( mockApiFetch ).not.toHaveBeenCalled();
 	} );
 
 	it.each( [

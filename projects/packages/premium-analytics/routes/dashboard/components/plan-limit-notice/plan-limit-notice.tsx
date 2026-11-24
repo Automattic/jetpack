@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { getScriptData, isSimpleSite } from '@automattic/jetpack-script-data';
+import { getScriptData, isWpcomPlatformSite } from '@automattic/jetpack-script-data';
 import {
 	AnalyticsQueryClientProvider,
 	useStatsAppNoticeMutation,
@@ -42,8 +42,8 @@ export function resetPlanLimitNoticeForTesting() {
  * @return The notice, or nothing.
  */
 function ConnectedNotice(): JSX.Element | null {
-	// Stats shows this notice on Jetpack-connected sites only, and VIP sites are exempt from the limit.
-	const isEligible = ! isSimpleSite() && getScriptData()?.site?.host !== 'vip';
+	// Only self-hosted Jetpack sites have a views limit: WordPress.com and VIP sites are exempt from it.
+	const isEligible = ! isWpcomPlatformSite() && getScriptData()?.site?.host !== 'vip';
 
 	const { data: usage } = useStatsAppPlanUsage( { enabled: isEligible } );
 	const status = isEligible ? getPlanLimitStatus( usage ) : null;
