@@ -1,5 +1,8 @@
 <?php
 
+use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Constants;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 
 require_once dirname( __DIR__, 2 ) . '/lib/Jetpack_REST_TestCase.php';
@@ -96,5 +99,70 @@ class WPCOM_REST_API_V2_Subscribers_Endpoint_Test extends Jetpack_REST_TestCase 
 
 		$this->assertFalse( isset( $data['counts'] ) );
 		$this->assertEquals( 401, $data['data']['status'] );
+	}
+
+	/**
+	 * @dataProvider count_routes_provider
+	 * @param string $route Count route suffix.
+	 * @param array  $expected Expected response data.
+	 * @return void
+	 */
+	#[DataProvider( 'count_routes_provider' )]
+	public function test_count_routes_refresh_cached_counts( $route, $expected ) {
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			$this->markTestSkipped( 'Native WordPress.com uses its own subscriber cache.' );
+		}
+
+		wp_set_current_user( self::$editor_user_id );
+		self::set_subscribers_counts( 10, 8, 2 );
+		$constants_mock = \Patchwork\redefine(
+			Constants::class . '::is_defined',
+			static function ( $name ) {
+				return 'TESTING_IN_JETPACK' === $name ? false : \Patchwork\relay();
+			}
+		);
+		$request_mock   = \Patchwork\redefine(
+			Client::class . '::remote_request',
+			static function () {
+				$counts = new IXR_Value(
+					array(
+						'total_subscribers' => 75,
+						'email_subscribers' => 50,
+						'social_followers'  => 25,
+					)
+				);
+				return array(
+					'response' => array( 'code' => 200 ),
+					'body'     => '<methodResponse><params><param><value>' . $counts->getXml() . '</value></param></params></methodResponse>',
+				);
+			}
+		);
+
+		try {
+			$response = $this->server->dispatch( new WP_REST_Request( WP_REST_Server::READABLE, '/wpcom/v2/subscribers/' . $route ) );
+			$this->assertSame( 200, $response->get_status() );
+			$this->assertSame( $expected, $response->get_data() );
+			$this->assertSame( 75, get_transient( 'wpcom_subscribers_totals' )['value']['total_subscribers'] );
+		} finally {
+			\Patchwork\restore( $request_mock );
+			\Patchwork\restore( $constants_mock );
+			delete_transient( 'wpcom_subscribers_totals' );
+		}
+	}
+
+	public static function count_routes_provider() {
+		return array(
+			'combined count' => array( 'count', array( 'count' => 100 ) ),
+			'split counts'   => array(
+				'counts',
+				array(
+					'counts' => array(
+						'total_subscribers' => 75,
+						'email_subscribers' => 50,
+						'social_followers'  => 25,
+					),
+				),
+			),
+		);
 	}
 }
