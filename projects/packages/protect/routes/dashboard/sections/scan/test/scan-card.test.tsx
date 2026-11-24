@@ -283,3 +283,23 @@ describe( 'Severity filter', () => {
 		expect( getLevel( { id: 1, severity } ) ).toBe( 'unknown' );
 	} );
 } );
+
+describe( 'ScanCard all clear', () => {
+	it.each( [
+		[ 'free', false, 'Last checked 2 hours ago.' ],
+		[ 'Scan', true, 'Last scanned 2 hours ago.' ],
+	] )( 'says when the site was last checked, %s', async ( _, hasPlan, text ) => {
+		renderCard( { hasPlan, lastChecked: checkedAgo( 2 * HOUR_IN_MS ) } );
+
+		await expect( screen.findByText( text ) ).resolves.toHaveAttribute(
+			'title',
+			expect.stringMatching( /^\w{3} \d{1,2}, \d{4} \d{1,2}:\d{2} [AP]M$/ )
+		);
+	} );
+
+	it( 'leaves the last check out when there is none on record', () => {
+		renderCard( { lastChecked: null } );
+
+		expect( screen.queryByText( /^Last (checked|scanned) / ) ).not.toBeInTheDocument();
+	} );
+} );
