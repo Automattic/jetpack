@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\My_Jetpack\Products;
 
 use Automattic\Jetpack\My_Jetpack\Product;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
+use Automattic\Jetpack\Status\Host;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
@@ -136,6 +137,21 @@ class Anti_Spam extends Product {
 			'jetpack_anti_spam_monthly',
 			'jetpack_anti_spam_bi_yearly',
 		);
+	}
+
+	/**
+	 * Whether the site pays for Anti-spam; on WordPress.com, every plan includes the full Akismet service.
+	 *
+	 * @return boolean
+	 */
+	public static function has_paid_plan_for_product() {
+		// WordPress.com grants `antispam` only from Business up, though Akismet serves every plan alike.
+		// Elsewhere free Akismet grants `akismet` too, so it proves nothing there.
+		if ( ( new Host() )->is_wpcom_platform() && static::does_site_have_feature( 'akismet' ) ) {
+			return true;
+		}
+
+		return parent::has_paid_plan_for_product();
 	}
 
 	/**
