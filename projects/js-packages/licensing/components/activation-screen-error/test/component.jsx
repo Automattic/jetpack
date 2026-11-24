@@ -38,4 +38,21 @@ describe( 'ActivationScreenError', () => {
 			screen.getAllByText( 'This license is already active on your site.' ).length
 		).toBeGreaterThan( 0 );
 	} );
+
+	it.each( [
+		[
+			'Jetpack: [product_incompatibility] We could not activate Jetpack Pro.',
+			'We could not activate Jetpack Pro.',
+		],
+		[
+			'[product_incompatibility]',
+			'Your site already has an active Jetpack plan of equal or higher value.',
+		],
+	] )( 'shows the right product incompatibility message for %s', ( licenseError, expected ) => {
+		render(
+			<ActivationScreenError licenseError={ licenseError } errorType="[product_incompatibility]" />
+		);
+		expect( screen.getAllByText( expected ).length ).toBeGreaterThan( 0 );
+		expect( screen.queryByText( /\[product_incompatibility\]/ ) ).not.toBeInTheDocument();
+	} );
 } );

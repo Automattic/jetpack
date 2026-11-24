@@ -121,7 +121,17 @@ export const useGetErrorContent = ( licenseError: string, errorType: LicenseErro
 					</ul>
 				),
 			};
-		case LICENSE_ERRORS.PRODUCT_INCOMPATIBILITY:
+		case LICENSE_ERRORS.PRODUCT_INCOMPATIBILITY: {
+			// Text after the [code] token is the server's reason; prefer it over the generic copy.
+			const serverMessage = licenseError
+				.slice( licenseError.indexOf( errorType ) + errorType.length )
+				.trim();
+			if ( serverMessage ) {
+				return {
+					errorMessage: serverMessage,
+					errorInfo: <p>{ needHelpGetInTouchLink }</p>,
+				};
+			}
 			return {
 				errorMessage: __(
 					'Your site already has an active Jetpack plan of equal or higher value.',
@@ -146,6 +156,7 @@ export const useGetErrorContent = ( licenseError: string, errorType: LicenseErro
 					</>
 				),
 			};
+		}
 		case LICENSE_ERRORS.REVOKED_LICENSE:
 			return {
 				errorMessage: __(

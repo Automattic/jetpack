@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Show why a license can't be activated when it conflicts with a product already on the site.
