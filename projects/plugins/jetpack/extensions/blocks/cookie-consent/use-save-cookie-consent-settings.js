@@ -25,6 +25,8 @@ export function useSyncCookieConsentSettings() {
 
 	useEffect( () => {
 		const pendingSaves = new Map();
+		let completedSaves = [];
+		let settingsSave = Promise.resolve();
 		return registry.subscribe( () => {
 			const core = registry.select( coreStore );
 			for ( const { kind, name, key } of core.__experimentalGetEntitiesBeingSaved() ) {
@@ -53,20 +55,42 @@ export function useSyncCookieConsentSettings() {
 				if ( ! banner && ! hadBanner ) {
 					continue;
 				}
-				registry
-					.resolveSelect( coreStore )
-					.getEntityRecord( 'root', 'site' )
-					.then( () => {
-						const { editEntityRecord, saveEditedEntityRecord } = registry.dispatch( coreStore );
-						editEntityRecord( 'root', 'site', undefined, {
-							cookie_consent_template: banner ? serializeRawBlock( banner ) : null,
-						} );
-						return saveEditedEntityRecord( 'root', 'site', undefined, { throwOnError: true } );
-					} )
-					.catch( error => {
-						console.error( error ); // eslint-disable-line no-console
-					} );
+				completedSaves.push( banner );
 			}
+			if ( pendingSaves.size || ! completedSaves.length ) {
+				return;
+			}
+			const banners = completedSaves;
+			completedSaves = [];
+			settingsSave = settingsSave
+				.then( async () => {
+					let banner = banners.find( Boolean );
+					if ( ! banner ) {
+						const records = await Promise.all(
+							[ 'wp_template', 'wp_template_part' ].map( name =>
+								registry.resolveSelect( coreStore ).getEntityRecords( 'postType', name, {
+									per_page: -1,
+									context: 'edit',
+								} )
+							)
+						);
+						if ( records.some( collection => ! Array.isArray( collection ) ) ) {
+							return;
+						}
+						banner = records.flat().map( getBanner ).find( Boolean );
+					}
+					await registry
+						.dispatch( coreStore )
+						.saveEntityRecord(
+							'root',
+							'site',
+							{ cookie_consent_template: banner ? serializeRawBlock( banner ) : null },
+							{ throwOnError: true }
+						);
+				} )
+				.catch( error => {
+					console.error( error ); // eslint-disable-line no-console
+				} );
 		}, coreStore );
 	}, [ registry ] );
 }

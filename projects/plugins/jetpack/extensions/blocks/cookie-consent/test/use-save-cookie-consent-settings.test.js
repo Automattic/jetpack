@@ -30,14 +30,25 @@ function setup( { screenBase = 'post', postType = 'wp_template', content } = {} 
 	const banner = createBlock( TYPE, { text: 'Saved banner' } );
 	const savedBanner = serialize( [ banner ] );
 	const record = { id: TEMPLATE_ID, content: { raw: content ?? savedBanner } };
+	const records = Object.fromEntries(
+		[ 'page', 'wp_template', 'wp_template_part' ].map( name => [
+			name,
+			{ ...record, content: { raw: name === postType ? record.content.raw : '' } },
+		] )
+	);
 	apiFetch.mockImplementation( async ( { path, method, data, parse: shouldParse } ) => {
 		if ( method === 'OPTIONS' ) {
 			return { schema: { properties: {} } };
 		}
-		const response =
-			path === '/wp/v2/settings'
-				? ( data ?? { cookie_consent_template: savedBanner } )
-				: { ...record, content: { raw: data.content } };
+		const name = path.split( '/' )[ 3 ].split( '?' )[ 0 ];
+		let response;
+		if ( name === 'settings' ) {
+			response = { title: 'Saved title', cookie_consent_template: savedBanner, ...data };
+		} else if ( data ) {
+			response = records[ name ] = { ...record, content: { raw: data.content } };
+		} else {
+			response = [ records[ name ] ];
+		}
 		return shouldParse === false
 			? { headers: new Headers(), json: async () => response }
 			: response;
@@ -72,10 +83,13 @@ function setup( { screenBase = 'post', postType = 'wp_template', content } = {} 
 			rawAttributes: [ 'content' ],
 		} ) ),
 	] );
-	core.receiveEntityRecords( 'root', 'site', { cookie_consent_template: savedBanner } );
+	core.receiveEntityRecords( 'root', 'site', {
+		title: 'Saved title',
+		cookie_consent_template: savedBanner,
+	} );
 	core.finishResolution( 'getEntityRecord', [ 'root', 'site' ] );
 	for ( const name of [ 'page', 'wp_template', 'wp_template_part' ] ) {
-		core.receiveEntityRecords( 'postType', name, record );
+		core.receiveEntityRecords( 'postType', name, records[ name ] );
 		core.finishResolution( 'getEntityRecord', [ 'postType', name, TEMPLATE_ID ] );
 	}
 	const wrapper = ( { children } ) =>
@@ -94,6 +108,8 @@ function setup( { screenBase = 'post', postType = 'wp_template', content } = {} 
 	};
 	return {
 		core,
+		registry,
+		records,
 		editor: registry.dispatch( 'core/editor' ),
 		blockEditor: registry.dispatch( 'core/block-editor' ),
 		save,
@@ -239,5 +255,115 @@ describe( 'Cookie Consent settings synchronization', () => {
 
 		await waitFor( () => expect( settingsWrites() ).toHaveLength( 1 ) );
 		expect( settingsWrites()[ 0 ][ 0 ].data.cookie_consent_template ).toBeNull();
+	} );
+
+	it.each( [ 'wp_template', 'wp_template_part' ] )(
+		'keeps a moved banner when %s finishes saving first',
+		async first => {
+			const { core, registry, savedBanner } = setup();
+			const fetch = apiFetch.getMockImplementation();
+			const completions = {};
+			apiFetch.mockImplementation( async options => {
+				if ( options.method === 'PUT' ) {
+					await new Promise( resolve => {
+						completions[ options.path.split( '/' )[ 3 ] ] = resolve;
+					} );
+				}
+				return fetch( options );
+			} );
+			let saves;
+			await act( async () => {
+				core.editEntityRecord( 'postType', 'wp_template', TEMPLATE_ID, { content: '' } );
+				core.editEntityRecord( 'postType', 'wp_template_part', TEMPLATE_ID, {
+					content: savedBanner,
+				} );
+				saves = Promise.all(
+					[ 'wp_template', 'wp_template_part' ].map( name =>
+						core.saveEditedEntityRecord( 'postType', name, TEMPLATE_ID )
+					)
+				);
+			} );
+			await waitFor( () => expect( Object.keys( completions ) ).toHaveLength( 2 ) );
+			await act( async () => completions[ first ]() );
+			const last = first === 'wp_template' ? 'wp_template_part' : 'wp_template';
+			await act( async () => {
+				completions[ last ]();
+				await saves;
+			} );
+
+			await waitFor( () => expect( settingsWrites() ).toHaveLength( 1 ) );
+			expect( registry.select( coreStore ).getEntityRecord( 'root', 'site' ) ).toHaveProperty(
+				'cookie_consent_template',
+				savedBanner
+			);
+		}
+	);
+
+	it.each( [ 'loaded', 'fetched' ] )(
+		'keeps a banner moved to a %s part before the source template is saved',
+		async location => {
+			const { save, savedBanner, records } = setup();
+			if ( location === 'loaded' ) {
+				await save( 'wp_template_part', savedBanner );
+			} else {
+				records.wp_template_part = {
+					...records.wp_template_part,
+					content: { raw: savedBanner },
+				};
+			}
+
+			await save( 'wp_template', '' );
+
+			await waitFor( () =>
+				expect( settingsWrites() ).toHaveLength( location === 'loaded' ? 2 : 1 )
+			);
+			expect( settingsWrites().at( -1 )[ 0 ].data.cookie_consent_template ).toBe( savedBanner );
+		}
+	);
+
+	it( 'finishes the previous settings write before starting the next one', async () => {
+		const { save, savedBanner } = setup();
+		const fetch = apiFetch.getMockImplementation();
+		let finishWrite;
+		apiFetch.mockImplementation( async options => {
+			if ( options.path === '/wp/v2/settings' && options.method === 'POST' ) {
+				await new Promise( resolve => {
+					finishWrite = resolve;
+				} );
+			}
+			return fetch( options );
+		} );
+		await save( 'wp_template', savedBanner.replaceAll( 'Saved banner', 'First banner' ) );
+		await waitFor( () => expect( settingsWrites() ).toHaveLength( 1 ) );
+		await save( 'wp_template', savedBanner.replaceAll( 'Saved banner', 'Latest banner' ) );
+		expect( settingsWrites() ).toHaveLength( 1 );
+		await act( async () => finishWrite() );
+		await waitFor( () => expect( settingsWrites() ).toHaveLength( 2 ) );
+		await act( async () => finishWrite() );
+		expect( settingsWrites()[ 1 ][ 0 ].data.cookie_consent_template ).toContain( 'Latest banner' );
+	} );
+
+	it( 'saves only the banner and leaves unrelated site edits and undo history alone', async () => {
+		const { core, registry, save, savedBanner } = setup();
+		await act( () =>
+			core.editEntityRecord( 'root', 'site', undefined, { title: 'Unselected title' } )
+		);
+
+		await save( 'wp_template', savedBanner.replaceAll( 'Saved banner', 'Updated banner' ) );
+
+		await waitFor( () => expect( settingsWrites() ).toHaveLength( 1 ) );
+		expect( Object.keys( settingsWrites()[ 0 ][ 0 ].data ) ).toEqual( [
+			'cookie_consent_template',
+		] );
+		expect( registry.select( coreStore ).getEntityRecord( 'root', 'site' ).title ).toBe(
+			'Saved title'
+		);
+		expect( registry.select( coreStore ).getEntityRecordEdits( 'root', 'site' ) ).toEqual( {
+			title: 'Unselected title',
+		} );
+		await act( () => core.undo() );
+		expect(
+			registry.select( coreStore ).getEntityRecordEdits( 'root', 'site' )
+		).not.toHaveProperty( 'cookie_consent_template' );
 	} );
 } );
