@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Dashboard: Enlarge the response selection checkbox's click target, so a near miss no longer replaces the selection with a single response.
