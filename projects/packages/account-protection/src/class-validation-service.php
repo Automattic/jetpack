@@ -255,9 +255,9 @@ class Validation_Service {
 			return false;
 		}
 
-		$email_parts    = explode( '@', $user->user_email ); // test@example.com
+		$email_parts    = explode( '@', $user->user_email ?? '' ); // test@example.com
 		$email_username = $email_parts[0]; // 'test'
-		$email_domain   = $email_parts[1]; // 'example.com'
+		$email_domain   = $email_parts[1] ?? ''; // 'example.com'
 		$email_provider = explode( '.', $email_domain )[0]; // 'example'
 
 		$user_data = array(

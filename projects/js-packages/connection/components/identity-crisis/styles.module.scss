@@ -39,6 +39,29 @@
 	background: var(--wpds-color-background-surface-neutral-weak);
 }
 
+.list {
+	margin: 0;
+	padding-inline-start: var(--wpds-dimension-padding-lg);
+}
+
+.facts {
+	max-inline-size: 62ch;
+	margin: 0;
+	padding-block: var(--wpds-dimension-padding-sm);
+	padding-inline: calc(var(--wpds-dimension-padding-xl) + var(--wpds-dimension-padding-sm)) var(--wpds-dimension-padding-md);
+	border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral-weak);
+	border-radius: var(--wpds-border-radius-md);
+	background: var(--wpds-color-background-surface-neutral-weak);
+	list-style: disc; // wp-admin resets `ul` to none.
+}
+
+.actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--wpds-dimension-gap-sm) var(--wpds-dimension-gap-md);
+	align-items: center;
+}
+
 .hint {
 	color: var(--wpds-color-foreground-content-neutral-weak);
 }

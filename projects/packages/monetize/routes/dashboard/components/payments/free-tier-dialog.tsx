@@ -97,7 +97,7 @@ export default function FreeTierDialog( {
 					<Button variant="outline" tone="neutral" onClick={ onClose } disabled={ isPending }>
 						{ __( 'Cancel', 'jetpack-monetize' ) }
 					</Button>
-					<Button onClick={ onSave } disabled={ isTooLong } loading={ isPending }>
+					<Button onClick={ onSave } disabled={ isTooLong || isPending } loading={ isPending }>
 						{ __( 'Save', 'jetpack-monetize' ) }
 					</Button>
 				</Dialog.Footer>

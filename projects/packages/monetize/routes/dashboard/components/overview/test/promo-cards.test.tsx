@@ -2,6 +2,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
+import { ADS_SETTINGS_KEY } from '../../../data/ads-keys';
 import { trackOverviewClick } from '../../../data/tracking';
 import PromoCards from '../promo-cards';
 import type { OverviewState } from '../state';
@@ -37,12 +38,14 @@ const base: OverviewState = {
  * @param state    - Overrides for the Overview state.
  * @param features - The active features.
  * @param account  - WordPress.com's Ads account, which makes the site a Simple one.
+ * @param stored   - Whether ads are on in the Settings tab's cache, once it has loaded.
  * @return The openTab mock.
  */
 function setup(
 	state: Partial< OverviewState > = {},
 	features: string[] = [],
-	account?: Account | Promise< Account >
+	account?: Account | Promise< Account >,
+	stored?: boolean
 ) {
 	mockSimple = Boolean( account );
 	mockState.mockReturnValue( { ...base, ...state } );
@@ -55,6 +58,9 @@ function setup(
 	);
 	const openTab = jest.fn();
 	const client = new QueryClient( { defaultOptions: { queries: { retry: false } } } );
+	if ( stored !== undefined ) {
+		client.setQueryData( ADS_SETTINGS_KEY, { wordads: stored } );
+	}
 	render(
 		<QueryClientProvider client={ client }>
 			<PromoCards openTab={ openTab } />
@@ -108,6 +114,25 @@ describe( 'PromoCards', () => {
 			expect( openTab ).toHaveBeenCalledWith( tab );
 			expect( trackOverviewClick ).toHaveBeenCalledWith( 'ads', 'open' );
 			expect( screen.queryByRole( 'link', { name: 'Upgrade' } ) ).not.toBeInTheDocument();
+		}
+	);
+
+	it.each( [
+		[ 'on', true, 'View ad dashboard', 'ads' ],
+		[ 'off', false, 'Earn ad revenue', 'settings' ],
+	] )(
+		'when Settings has switched ads %s since the page loaded, the Ads card follows',
+		async ( _case, stored, label, tab ) => {
+			const openTab = setup(
+				{ hasWordAds: true, isWordAdsActive: ! stored },
+				[],
+				undefined,
+				stored
+			);
+
+			await userEvent.click( await screen.findByRole( 'button', { name: label } ) );
+
+			expect( openTab ).toHaveBeenCalledWith( tab );
 		}
 	);
 

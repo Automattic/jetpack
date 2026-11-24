@@ -2,11 +2,12 @@
  * External dependencies
  */
 import { useEnableWpCompatOverlaySlot } from '@wordpress/ui';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 /**
  * Internal dependencies
  */
 import { useAnnouncements } from '../../hooks';
+import { emitSurfaceEvent } from '../../utils';
 import { Reader } from '../reader';
 import { Teaser } from '../teaser';
 import styles from './whats-new.module.css';
@@ -37,6 +38,12 @@ export function WhatsNew( { channels }: WhatsNewProps ) {
 
 	const teaserId = teaser?.id;
 
+	useEffect( () => {
+		if ( teaserId ) {
+			emitSurfaceEvent( { type: 'teaserView', announcementId: teaserId } );
+		}
+	}, [ teaserId ] );
+
 	const openTeaser = useCallback( () => {
 		if ( ! teaserId ) {
 			return;
@@ -44,11 +51,13 @@ export function WhatsNew( { channels }: WhatsNewProps ) {
 		setReaderId( teaserId );
 		setIsReaderOpen( true );
 		markSeen( teaserId );
+		emitSurfaceEvent( { type: 'teaserOpen', announcementId: teaserId } );
 	}, [ teaserId, markSeen ] );
 
 	const dismissTeaser = useCallback( () => {
 		if ( teaserId ) {
 			markSeen( teaserId );
+			emitSurfaceEvent( { type: 'teaserDismiss', announcementId: teaserId } );
 		}
 	}, [ teaserId, markSeen ] );
 

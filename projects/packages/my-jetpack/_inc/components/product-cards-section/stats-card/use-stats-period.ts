@@ -71,7 +71,7 @@ export const useStatsPeriod = (): StatsPeriod => {
 };
 
 /**
- * Query options for a window.
+ * Query options for a window, the one before it and one more day, so one request covers the change badge too.
  *
  * @param {Pick<StatsPeriod, 'days'|'end'>} period - The window's length and last day.
  * @return {{period: 'day', quantity: number, date: Date}} Options for useStatsVisits.
@@ -79,6 +79,6 @@ export const useStatsPeriod = (): StatsPeriod => {
 export const getStatsPeriodVisitsOptions = ( { days, end }: Pick< StatsPeriod, 'days' | 'end' > ) =>
 	( {
 		period: 'day',
-		quantity: days,
+		quantity: days * 2 + 1,
 		date: end,
 	} ) as const;

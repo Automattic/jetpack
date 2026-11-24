@@ -29,6 +29,7 @@ const AdminPage: FC< AdminPageProps > = ( {
 	apiRoot = '',
 	apiNonce = '',
 	optionalMenuItems,
+	showFooterFeaturesLink = true,
 	header,
 	title,
 	subTitle,
@@ -115,7 +116,9 @@ const AdminPage: FC< AdminPageProps > = ( {
 							<Col>{ children }</Col>
 						</Container>
 					) }
-					{ showFooter && <JetpackFooter menu={ optionalMenuItems } /> }
+					{ showFooter && (
+						<JetpackFooter menu={ optionalMenuItems } showFeaturesLink={ showFooterFeaturesLink } />
+					) }
 				</Page>
 			</div>
 		);
@@ -147,7 +150,9 @@ const AdminPage: FC< AdminPageProps > = ( {
 			<Container fluid horizontalSpacing={ 0 }>
 				<Col>{ children }</Col>
 			</Container>
-			{ showFooter && <JetpackFooter menu={ optionalMenuItems } /> }
+			{ showFooter && (
+				<JetpackFooter menu={ optionalMenuItems } showFeaturesLink={ showFooterFeaturesLink } />
+			) }
 		</div>
 	);
 };

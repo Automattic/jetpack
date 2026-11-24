@@ -11,7 +11,7 @@ import { useAdsSettings } from '../../data/use-ads-settings';
 import { useSiteHasFeature } from '../../data/use-site-feature';
 import { usePayout, useSavePayout, useWpcomAdsSync } from '../../data/use-wpcom-ads-settings';
 import useWpcomConnection from '../../data/use-wpcom-connection';
-import { useAdsAccount } from '../../data/wordads';
+import { useAdsAccount, useAdsEarnings } from '../../data/wordads';
 import ConnectionGate from '../connection-gate';
 import { LearnMore, OptionSwitch } from './option-switch';
 import { PayoutCard } from './payout-card';
@@ -398,7 +398,12 @@ function AdsCard( { data, openTab }: { data: AdsSettingsData; openTab: OpenTab }
 	}
 
 	if ( ! hasWordAds ) {
-		return <AdsPrompt data={ data } />;
+		return (
+			<Stack direction="column" gap="lg">
+				<AdsPrompt data={ data } />
+				<OwedPayout />
+			</Stack>
+		);
 	}
 
 	// Simple can switch ads on only once WordPress.com approves the site, which joining does.
@@ -407,6 +412,18 @@ function AdsCard( { data, openTab }: { data: AdsSettingsData; openTab: OpenTab }
 	}
 
 	return <AdsOptions data={ data } openTab={ openTab } />;
+}
+
+/**
+ * The payout card for a site whose plan no longer includes ads but is still owed earnings, which need a PayPal address to be paid.
+ *
+ * @return The card, or nothing.
+ */
+function OwedPayout() {
+	const { canUseWpcom } = useWpcomConnection();
+	const earnings = useAdsEarnings( canUseWpcom );
+
+	return ( earnings.data?.owed ?? 0 ) > 0 ? <PayoutCard adsActive={ false } /> : null;
 }
 
 /**

@@ -90,7 +90,7 @@ function jetpack_spotify_shortcode( $atts = array(), $content = '' ) {
  * @return string
  */
 function jetpack_spotify_embed_ids( $content ) {
-	if ( ! str_contains( $content, 'spotify:' ) ) {
+	if ( ! is_string( $content ) || ! str_contains( $content, 'spotify:' ) ) {
 		return $content;
 	}
 
