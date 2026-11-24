@@ -26,6 +26,7 @@ import type { ConnectedPlugin } from '../../helpers/site-words';
 import type {
 	IdentityCrisisAction,
 	IdentityCrisisActionPath,
+	IdentityCrisisError,
 } from '../../hooks/use-identity-crisis-actions/types';
 import type { IdentityCrisisState } from '../../types';
 import type { ReactNode } from 'react';
@@ -35,7 +36,11 @@ type ResolvableState = Extract< IdentityCrisisState, { canResolve: true } >;
 interface ResolverProps extends IdentityCrisisProps {
 	state: ResolvableState;
 	plugins: ConnectedPlugin[];
+	markDisconnected: () => void;
 }
+
+// What the disconnected view shows when it opens without a failure of its own, e.g. after the host remounts it.
+const DISCONNECTED_ERROR: IdentityCrisisError = { action: 'start-fresh', cause: 'disconnected' };
 
 /**
  * The questions that lead to a Safe Mode action, then the migrate-done view.
@@ -46,6 +51,7 @@ interface ResolverProps extends IdentityCrisisProps {
 function IdentityCrisisResolver( {
 	state,
 	plugins,
+	markDisconnected,
 	showHeader = true,
 	redirectUri,
 	from,
@@ -71,6 +77,13 @@ function IdentityCrisisResolver( {
 		z: formatSiteAddress( state.wpcomHomeUrl ),
 	};
 	const flow = useIdentityCrisisFlow( ctx, actions.clearError );
+	// The site is no longer in Safe Mode, so only Try again still applies, even after the host remounts the screen.
+	const isDisconnected = actions.isDisconnected || state.isDisconnected === true;
+	useEffect( () => {
+		if ( actions.isDisconnected ) {
+			markDisconnected();
+		}
+	}, [ actions.isDisconnected, markDisconnected ] );
 
 	// Focus the new question or result when the step changes, but not on the first render.
 	const legendRef = useRef< HTMLDivElement >( null );
@@ -117,6 +130,8 @@ function IdentityCrisisResolver( {
 		[ flow.state, ctx, actions, onActionSuccess ]
 	);
 
+	const retryStartFresh = useCallback( () => runAction( 'start-fresh' ), [ runAction ] );
+
 	const step = flow.state.step;
 	const onContinue = useCallback( async () => {
 		if ( ! isChoiceStep( step ) ) {
@@ -160,8 +175,29 @@ function IdentityCrisisResolver( {
 	}
 
 	const isBusy = actions.busyAction !== null;
-	// The site is no longer in Safe Mode, so only Try again still applies.
-	const isDisconnected = actions.error?.cause === 'disconnected';
+
+	if ( isDisconnected ) {
+		return (
+			<IdentityCrisisLayout
+				logoUrl={ state.logoUrl }
+				showHeader={ showHeader }
+				hostActions={ hostActions }
+			>
+				<Stack direction="column" gap="md">
+					<IdentityCrisisErrorNotice error={ actions.error ?? DISCONNECTED_ERROR } />
+					<StepActions
+						action={ getOptionCopy( 'fresh', copy ) }
+						isBusy={ isBusy }
+						hasError
+						canGoBack={ false }
+						onContinue={ retryStartFresh }
+						onBack={ flow.back }
+					/>
+				</Stack>
+			</IdentityCrisisLayout>
+		);
+	}
+
 	let stepView: ReactNode;
 	let actionCopy: ActionCopy | null;
 	if ( isChoiceStep( step ) ) {
@@ -171,7 +207,7 @@ function IdentityCrisisResolver( {
 				options={ getOptions( step, ctx ) }
 				pick={ flow.state.pick }
 				copy={ copy }
-				disabled={ isBusy || isDisconnected }
+				disabled={ isBusy }
 				onPick={ flow.pick }
 				legendRef={ legendRef }
 			/>
@@ -208,7 +244,7 @@ function IdentityCrisisResolver( {
 					action={ actionCopy }
 					isBusy={ isBusy }
 					hasError={ actions.error !== null }
-					canGoBack={ flow.state.history.length > 0 && ! isDisconnected }
+					canGoBack={ flow.state.history.length > 0 }
 					onContinue={ onContinue }
 					onBack={ flow.back }
 				/>
@@ -225,7 +261,7 @@ function IdentityCrisisResolver( {
  * @return {ReactNode} The screen.
  */
 export default function IdentityCrisis( props: IdentityCrisisProps ): ReactNode {
-	const { state, plugins } = useIdentityCrisisState();
+	const { state, plugins, markDisconnected } = useIdentityCrisisState();
 	if ( ! state ) {
 		return null;
 	}
@@ -238,5 +274,12 @@ export default function IdentityCrisis( props: IdentityCrisisProps ): ReactNode 
 		);
 	}
 
-	return <IdentityCrisisResolver { ...props } state={ state } plugins={ plugins } />;
+	return (
+		<IdentityCrisisResolver
+			{ ...props }
+			state={ state }
+			plugins={ plugins }
+			markDisconnected={ markDisconnected }
+		/>
+	);
 }

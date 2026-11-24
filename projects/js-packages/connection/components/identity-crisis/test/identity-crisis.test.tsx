@@ -13,9 +13,10 @@ jest.unstable_mockModule( '@automattic/jetpack-api', () => ( {
 } ) );
 
 let storeState: { state: IdentityCrisisState | null; plugins: ConnectedPlugin[] };
+const markDisconnected = jest.fn();
 jest.unstable_mockModule( '../use-identity-crisis-state', () => ( {
 	__esModule: true,
-	default: () => storeState,
+	default: () => ( { ...storeState, markDisconnected } ),
 } ) );
 
 const goTo = jest.fn();
@@ -64,6 +65,7 @@ describe( 'IdentityCrisis', () => {
 		confirmIDCSafeMode.mockReset();
 		goTo.mockReset();
 		reloadPage.mockReset();
+		markDisconnected.mockReset();
 		storeState = { state: resolvable, plugins: jetpack };
 	} );
 
@@ -196,14 +198,16 @@ describe( 'IdentityCrisis', () => {
 		expect( screen.queryByRole( 'alert' ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'after a failure that left the site disconnected, offers only Try again', async () => {
+	it( 'after a failure that left the site disconnected, offers only Try again, even once it fails otherwise', async () => {
 		const user = userEvent.setup();
-		startIDCFresh.mockRejectedValue(
-			Object.assign( new Error(), {
-				name: 'ApiError',
-				response: { code: 'cannot_save_secrets', data: { status: 500, disconnected: true } },
-			} )
-		);
+		startIDCFresh
+			.mockRejectedValueOnce(
+				Object.assign( new Error(), {
+					name: 'ApiError',
+					response: { code: 'cannot_save_secrets', data: { status: 500, disconnected: true } },
+				} )
+			)
+			.mockRejectedValueOnce( Object.assign( new Error(), { name: 'FetchNetworkError' } ) );
 		render( <IdentityCrisis context="notice" onActionSuccess={ jest.fn() } /> );
 
 		await answer(
@@ -211,14 +215,33 @@ describe( 'IdentityCrisis', () => {
 			[ 'The original site', 'Give it its own connection' ],
 			'Connect separately'
 		);
-
 		expect( screen.getByRole( 'alert' ) ).toHaveTextContent( /now disconnected/ );
+		expect( markDisconnected ).toHaveBeenCalled();
+
+		await user.click( screen.getByRole( 'button', { name: 'Try again' } ) );
+
+		expect( screen.getByRole( 'alert' ) ).toHaveTextContent( /couldn’t complete the request/ );
 		expect( screen.getByRole( 'button', { name: 'Try again' } ) ).toBeEnabled();
 		expect( screen.queryByRole( 'button', { name: 'Back' } ) ).not.toBeInTheDocument();
-		expect( screen.getByRole( 'radio', { name: 'Keep it in Safe Mode' } ) ).toHaveAttribute(
-			'aria-disabled',
-			'true'
-		);
+		expect( screen.queryByRole( 'radio' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'opens on Try again when the store says a failed fresh connection disconnected the site', async () => {
+		const user = userEvent.setup();
+		storeState = { state: { ...resolvable, isDisconnected: true }, plugins: jetpack };
+		startIDCFresh.mockResolvedValue( 'https://wordpress.com/connect' );
+		const onActionSuccess = jest.fn();
+		render( <IdentityCrisis context="connectors" onActionSuccess={ onActionSuccess } /> );
+
+		expect( screen.getByRole( 'alert' ) ).toHaveTextContent( /now disconnected/ );
+		expect( screen.queryByRole( 'radio' ) ).not.toBeInTheDocument();
+
+		await user.click( screen.getByRole( 'button', { name: 'Try again' } ) );
+
+		expect( onActionSuccess ).toHaveBeenCalledWith( {
+			action: 'start-fresh',
+			connectUrl: 'https://wordpress.com/connect',
+		} );
 	} );
 
 	it( 'never offers "same" without a detected dynamic address', () => {

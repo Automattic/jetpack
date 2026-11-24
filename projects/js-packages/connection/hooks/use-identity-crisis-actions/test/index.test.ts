@@ -211,6 +211,7 @@ describe( 'getIdentityCrisisErrorCause and getIdentityCrisisErrorCode', () => {
 		],
 		[ apiError( 'some_plugin_error', 403 ), 'permission', 'some_plugin_error' ],
 		[ apiError( 'error', 500 ), 'server', 'error' ],
+		[ apiError( 'start_fresh_not_in_safe_mode', 409 ), 'resolved', 'start_fresh_not_in_safe_mode' ],
 		[
 			apiError( 'site_inaccessible', 500, { disconnected: true } ),
 			'disconnected',

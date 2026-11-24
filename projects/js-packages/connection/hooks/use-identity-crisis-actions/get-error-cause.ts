@@ -60,6 +60,9 @@ export function getIdentityCrisisErrorCause( error: unknown ): IdentityCrisisErr
 		case 'invalid_user_permission_identity_crisis':
 		case 'rest_forbidden':
 			return 'permission';
+		// Safe Mode was resolved since the screen loaded, e.g. in another tab.
+		case 'start_fresh_not_in_safe_mode':
+			return 'resolved';
 	}
 
 	if ( status === 403 ) {

@@ -19,6 +19,7 @@ const REFRESH_CONNECTED_PLUGINS = 'REFRESH_CONNECTED_PLUGINS';
 const SET_CONNECTION_ERRORS = 'SET_CONNECTION_ERRORS';
 const SET_IS_OFFLINE_MODE = 'SET_IS_OFFLINE_MODE';
 const SET_CONNECTION_OWNER = 'SET_CONNECTION_OWNER';
+const SET_IDENTITY_CRISIS_DISCONNECTED = 'SET_IDENTITY_CRISIS_DISCONNECTED';
 
 /**
  * Record that ownership of the connection has moved.
@@ -34,6 +35,15 @@ const SET_CONNECTION_OWNER = 'SET_CONNECTION_OWNER';
  */
 const setConnectionOwner = owner => {
 	return { type: SET_CONNECTION_OWNER, owner };
+};
+
+/**
+ * Record that a failed fresh connection from Safe Mode left the site disconnected.
+ *
+ * @return {object} The action.
+ */
+const setIdentityCrisisDisconnected = () => {
+	return { type: SET_IDENTITY_CRISIS_DISCONNECTED };
 };
 
 const setConnectionStatus = connectionStatus => {
@@ -229,6 +239,7 @@ const unlinkUser =
 
 const actions = {
 	setConnectionOwner,
+	setIdentityCrisisDisconnected,
 	setConnectionStatus,
 	setConnectionStatusIsFetching,
 	fetchConnectionStatus,
@@ -272,5 +283,6 @@ export {
 	SET_CONNECTION_ERRORS,
 	SET_IS_OFFLINE_MODE,
 	SET_CONNECTION_OWNER,
+	SET_IDENTITY_CRISIS_DISCONNECTED,
 	actions as default,
 };

@@ -269,6 +269,21 @@ class REST_Endpoints_Test extends TestCase {
 	}
 
 	/**
+	 * A screen left open after Safe Mode was resolved, e.g. in another tab, can't disconnect the site.
+	 */
+	public function test_start_fresh_refused_once_connected_outside_safe_mode() {
+		Jetpack_Options::update_option( 'blog_token', 'new.blogtoken' );
+		Jetpack_Options::update_option( 'id', 42 );
+		$this->reset_connection_status();
+
+		$response = $this->dispatch_start_fresh( array( $this, 'intercept_register_request' ) );
+
+		$this->assertSame( 409, $response->get_status() );
+		$this->assertSame( 'start_fresh_not_in_safe_mode', $response->get_data()['code'] );
+		$this->assertSame( 'new.blogtoken', Jetpack_Options::get_option( 'blog_token' ) );
+	}
+
+	/**
 	 * Registration failures whose error data is empty, or the HTTP code rather than an array.
 	 *
 	 * @return array

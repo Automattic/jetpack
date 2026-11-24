@@ -14,6 +14,7 @@ import {
 	SET_CONNECTION_ERRORS,
 	SET_IS_OFFLINE_MODE,
 	SET_CONNECTION_OWNER,
+	SET_IDENTITY_CRISIS_DISCONNECTED,
 } from './actions';
 
 const connectionStatus = ( state = {}, action ) => {
@@ -163,7 +164,15 @@ const useDefaultProtectedOwnerUi = ( state = null ) => state;
 
 // Server-decided too, so pass-throughs for the same reason.
 const canTakeOwnerSlot = ( state = null ) => state;
-const identityCrisis = ( state = null ) => state;
+// The screen marks a failed fresh connection here, so the mark outlives the screen.
+const identityCrisis = ( state = null, action ) => {
+	switch ( action.type ) {
+		case SET_IDENTITY_CRISIS_DISCONNECTED:
+			return state ? { ...state, isDisconnected: true } : state;
+		default:
+			return state;
+	}
+};
 
 const connectionErrors = ( state = {}, action ) => {
 	switch ( action.type ) {

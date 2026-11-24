@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Safe Mode: Keep offering only Try again once a failed fresh connection has disconnected the site, also after a later failure or reopening the screen.

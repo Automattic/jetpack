@@ -68,6 +68,8 @@ interface IdentityCrisisBase {
 	/** Whether the `connection-idc-screen` feature flag is on. */
 	useNewScreen: boolean;
 	isSafeModeConfirmed: boolean;
+	/** Set in the browser, not by the server, once a failed fresh connection has left the site disconnected. */
+	isDisconnected?: boolean;
 }
 
 /** Safe Mode state for the shared Safe Mode screen. Only a viewer who can resolve Safe Mode gets its details. */

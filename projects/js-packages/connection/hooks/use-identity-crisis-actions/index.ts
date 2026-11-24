@@ -26,6 +26,7 @@ export default function useIdentityCrisisActions( {
 	const [ busyAction, setBusyAction ] = useState< IdentityCrisisAction | null >( null );
 	const [ error, setError ] = useState< IdentityCrisisError | null >( null );
 	const [ isMigrated, setIsMigrated ] = useState( false );
+	const [ isDisconnected, setIsDisconnected ] = useState( false );
 	// State updates on the next render, so a second call in the same tick would still see it unset.
 	const busyRef = useRef< IdentityCrisisAction | null >( null );
 
@@ -47,11 +48,11 @@ export default function useIdentityCrisisActions( {
 			try {
 				return { response: await request() };
 			} catch ( caught ) {
-				setError( {
-					action,
-					cause: getIdentityCrisisErrorCause( caught ),
-					code: getIdentityCrisisErrorCode( caught ),
-				} );
+				const cause = getIdentityCrisisErrorCause( caught );
+				if ( cause === 'disconnected' ) {
+					setIsDisconnected( true );
+				}
+				setError( { action, cause, code: getIdentityCrisisErrorCode( caught ) } );
 				setBusy( null );
 				return null;
 			}
@@ -91,5 +92,14 @@ export default function useIdentityCrisisActions( {
 
 	const clearError = useCallback( () => setError( null ), [] );
 
-	return { migrate, startFresh, confirmSafeMode, clearError, busyAction, error, isMigrated };
+	return {
+		migrate,
+		startFresh,
+		confirmSafeMode,
+		clearError,
+		busyAction,
+		error,
+		isMigrated,
+		isDisconnected,
+	};
 }
