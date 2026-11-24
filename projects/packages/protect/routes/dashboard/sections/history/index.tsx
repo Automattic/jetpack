@@ -5,14 +5,14 @@ import { HISTORY_THREAT_PARAM } from './store';
 import type { ProtectSection } from '../types';
 
 /** The History section's state from PHP. */
-type HistoryState = { hasPlan: boolean };
+type HistoryState = { hasPlan: boolean; freeIgnore?: boolean };
 
 const section: ProtectSection< HistoryState | undefined > = {
 	key: 'history',
 	tab: {
 		value: 'history',
 		label: () => __( 'History', 'jetpack-protect-pkg' ),
-		isAvailable: ctx => Boolean( ctx.state?.hasPlan ),
+		isAvailable: ctx => Boolean( ctx.state?.hasPlan || ctx.state?.freeIgnore ),
 		Panel: HistoryPanel,
 	},
 	inspector: { param: HISTORY_THREAT_PARAM, Panel: HistoryInspector },

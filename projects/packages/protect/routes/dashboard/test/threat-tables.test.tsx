@@ -2,8 +2,9 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { recordEvent } from '../data/tracks';
 import HistoryList from '../sections/history/history-list';
+import { resetScan } from '../sections/scan/store';
 import ThreatsList from '../sections/scan/threats-list';
-import type { ScanThreat } from '../sections/scan/types';
+import type { ScanState, ScanThreat } from '../sections/scan/types';
 import type { ReactElement } from 'react';
 
 jest.mock( '../data/tracks', () => ( { recordEvent: jest.fn() } ) );
@@ -30,7 +31,15 @@ const threats = ( count: number, status: ScanThreat[ 'status' ] ): ScanThreat[] 
 			} ) as ScanThreat
 	);
 
-beforeEach( () => mockRecordEvent.mockClear() );
+beforeEach( () => {
+	mockRecordEvent.mockClear();
+	window.jetpackProtectDashboard = { scan: { hasPlan: true } as ScanState };
+} );
+
+afterEach( () => {
+	delete window.jetpackProtectDashboard;
+	resetScan();
+} );
 
 // Page 2, then one page fewer, as fixing or ignoring the last threat there does.
 it.each( [

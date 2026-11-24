@@ -22,7 +22,9 @@ const threat = ( id: number, status: ScanThreat[ 'status' ] ) =>
 	} ) as ScanThreat;
 
 beforeEach( () => {
-	window.jetpackProtectDashboard = { scan: { ignored: [ threat( 2, 'ignored' ) ] } as ScanState };
+	window.jetpackProtectDashboard = {
+		scan: { hasPlan: true, ignored: [ threat( 2, 'ignored' ) ] } as ScanState,
+	};
 } );
 
 afterEach( () => {
@@ -54,4 +56,19 @@ it( 'keeps an empty list’s panel as a tab stop', async () => {
 		'tabindex',
 		'0'
 	);
+} );
+
+it.each( [
+	[ true, 2, '1.php' ],
+	[ false, 0, '2.php' ],
+] )( 'with hasPlan %s, renders %d status tabs and the %s row', async ( hasPlan, tabs, file ) => {
+	window.jetpackProtectDashboard = {
+		scan: { hasPlan, ignored: [ threat( 2, 'ignored' ) ] } as ScanState,
+	};
+	mockSearch = {};
+	render( <HistoryList threats={ [ threat( 1, 'fixed' ) ] } /> );
+	await act( () => new Promise( resolve => setTimeout( resolve, 0 ) ) );
+
+	expect( screen.queryAllByRole( 'tab' ) ).toHaveLength( tabs );
+	expect( screen.getByText( file ) ).toBeInTheDocument();
 } );

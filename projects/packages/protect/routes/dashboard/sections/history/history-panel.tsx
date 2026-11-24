@@ -3,6 +3,7 @@ import { __ } from '@wordpress/i18n';
 import { backup } from '@wordpress/icons';
 import { Notice } from '@wordpress/ui';
 import { CardRow, ProtectCard } from '../../components/card';
+import { useScan } from '../scan/store';
 import HistoryList from './history-list';
 import HistorySkeleton from './history-skeleton';
 import { loadHistory, useHistory } from './store';
@@ -15,6 +16,7 @@ import './style.scss';
  */
 export default function HistoryPanel() {
 	const { threats, error } = useHistory();
+	const hasPlan = Boolean( useScan()?.hasPlan );
 
 	useEffect( () => {
 		loadHistory( true );
@@ -45,7 +47,14 @@ export default function HistoryPanel() {
 
 	return (
 		<div className="jp-protect-dashboard__cards">
-			<ProtectCard icon={ backup } title={ __( 'Scan history', 'jetpack-protect-pkg' ) }>
+			<ProtectCard
+				icon={ backup }
+				title={
+					hasPlan
+						? __( 'Scan history', 'jetpack-protect-pkg' )
+						: __( 'Ignored threats', 'jetpack-protect-pkg' )
+				}
+			>
 				{ body }
 			</ProtectCard>
 		</div>

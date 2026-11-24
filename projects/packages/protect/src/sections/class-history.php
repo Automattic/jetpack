@@ -17,7 +17,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Threats Scan has fixed or ignored, for sites with a Scan plan.
+ * Threats Scan has fixed or ignored, for sites with a Scan plan, and the ignored ones for free sites.
  *
  * @since 0.1.0
  */
@@ -38,7 +38,10 @@ class History implements Dashboard_Section {
 	 * @return array
 	 */
 	public function get_state() {
-		return array( 'hasPlan' => Dashboard::has_scan_plan() );
+		return array(
+			'hasPlan'    => Dashboard::has_scan_plan(),
+			'freeIgnore' => Scan::supports_free_ignore(),
+		);
 	}
 
 	/**
@@ -64,6 +67,10 @@ class History implements Dashboard_Section {
 	 * @return array|WP_Error
 	 */
 	public static function get_history() {
+		if ( Scan::supports_free_ignore() ) {
+			return Scan::get_ignored_threats();
+		}
+
 		if ( ! Dashboard::has_scan_plan() ) {
 			return new WP_Error( 'no_scan_plan', __( 'Scan history needs a Jetpack Scan plan.', 'jetpack-protect-pkg' ), array( 'status' => 403 ) );
 		}
