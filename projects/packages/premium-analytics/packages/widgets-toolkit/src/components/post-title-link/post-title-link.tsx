@@ -67,6 +67,9 @@ export type PostTitleLinkProps = {
 	 */
 	title?: string;
 
+	/** The id of an element that describes the link; the plain text takes none. */
+	ariaDescribedBy?: string;
+
 	/** Replaces the default label text inside the link or plain wrapper. */
 	children?: ReactNode;
 };
@@ -94,6 +97,7 @@ export function PostTitleLink( {
 	search,
 	classNames,
 	title,
+	ariaDescribedBy,
 	children,
 }: PostTitleLinkProps ): JSX.Element {
 	const postId = toPostDetailId( id );
@@ -107,6 +111,7 @@ export function PostTitleLink( {
 			<InternalLink
 				className={ classNames?.internal }
 				title={ title }
+				ariaDescribedBy={ ariaDescribedBy }
 				to="/report/$kind/$id"
 				params={ { kind: 'post', id: String( postId ) } }
 				search={ href ? { ...search, [ POST_URL_SEARCH_PARAM ]: href } : search }
@@ -118,7 +123,12 @@ export function PostTitleLink( {
 
 	if ( href ) {
 		return (
-			<ExternalLink className={ classNames?.external } href={ href } title={ title }>
+			<ExternalLink
+				className={ classNames?.external }
+				href={ href }
+				title={ title }
+				ariaDescribedBy={ ariaDescribedBy }
+			>
 				{ content }
 			</ExternalLink>
 		);
