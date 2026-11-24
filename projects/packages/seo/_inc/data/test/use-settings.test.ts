@@ -724,6 +724,44 @@ describe( 'useSettingsForm', () => {
 		expect( recordSeoEvent.mock.calls ).toEqual( calls );
 	} );
 
+	it( 'switches SEO tools only after a sitemap save in flight lands, without undoing it', async () => {
+		// A fake server, so the post-save re-reads report what each write left there.
+		const server: SettingsResponse = { ...SEED, sitemap_active: true };
+		storeState = { ...server };
+		let releaseSitemap = () => {};
+		mockApiFetch.mockImplementation( options => {
+			const { path, data } = options as { path: string; data?: Record< string, boolean > };
+			if ( path !== '/jetpack/v4/seo/modules' ) {
+				return Promise.resolve( { ...server } );
+			}
+			const write = () => Object.assign( server, data ) && data;
+			return data && 'sitemap_active' in data
+				? new Promise( resolve => {
+						releaseSitemap = () => resolve( write() );
+					} )
+				: Promise.resolve( write() );
+		} );
+		const { result } = renderHook( () => useSettingsForm() );
+
+		act( () => result.current.commit( { sitemap_active: false } ) );
+		await waitFor( () => expect( mockApiFetch ).toHaveBeenCalledTimes( 1 ) );
+		act( () => result.current.commit( { seo_tools_active: false } ) );
+		expect( mockApiFetch ).toHaveBeenCalledTimes( 1 );
+
+		act( () => releaseSitemap() );
+		await waitFor( () => expect( result.current.isSaving ).toBe( false ) );
+
+		const moduleWrites = mockApiFetch.mock.calls
+			.map( ( [ options ] ) => options as { path: string; data?: unknown } )
+			.filter( ( { path } ) => path === '/jetpack/v4/seo/modules' )
+			.map( ( { data } ) => data );
+		expect( moduleWrites ).toEqual( [ { sitemap_active: false }, { seo_tools_active: false } ] );
+		expect( result.current.local ).toMatchObject( {
+			sitemap_active: false,
+			seo_tools_active: false,
+		} );
+	} );
+
 	const CANONICAL_ON = { setting: 'canonical', verification_service: 'none', setting_value: true };
 	const DESCRIPTION = {
 		setting: 'front_page_description',

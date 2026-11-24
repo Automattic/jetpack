@@ -1,6 +1,7 @@
 import '@testing-library/jest-dom';
 import { jest } from '@jest/globals';
 import { act, fireEvent, render, screen } from '@testing-library/react';
+import { useCallback } from 'react';
 import type { SettingsResponse } from '../../../data/settings-types';
 import type { SettingsForm } from '../../../data/use-settings';
 import type { ReactElement, ReactNode } from 'react';
@@ -49,13 +50,30 @@ const IndexnowSettings = jest.fn< ( props: Record< string, unknown > ) => ReactE
 	<div>notification settings</div>
 ) );
 jest.unstable_mockModule( '../indexnow-settings', () => ( { default: IndexnowSettings } ) );
-jest.unstable_mockModule( '../seo-tools-card', () => ( {
-	default: ( { active }: { active: boolean } ) => (
-		<div data-testid="seo-tools-switch" data-active={ String( active ) } />
-	),
-} ) );
+const SeoToolsCard = ( {
+	active,
+	onChange,
+	disabled,
+}: {
+	active: boolean;
+	onChange: ( next: boolean ) => void;
+	disabled: boolean;
+} ) => {
+	const flip = useCallback( () => onChange( ! active ), [ active, onChange ] );
+	return (
+		<button
+			data-testid="seo-tools-switch"
+			data-active={ String( active ) }
+			disabled={ disabled }
+			onClick={ flip }
+		/>
+	);
+};
+jest.unstable_mockModule( '../seo-tools-card', () => ( { default: SeoToolsCard } ) );
 jest.unstable_mockModule( '../seo-tools-off-notice', () => ( {
-	default: () => <div data-testid="seo-tools-off" />,
+	default: ( { onTurnOn, disabled }: { onTurnOn: () => void; disabled: boolean } ) => (
+		<button data-testid="seo-tools-off" disabled={ disabled } onClick={ onTurnOn } />
+	),
 } ) );
 
 let routeForm: SettingsForm;
@@ -782,6 +800,27 @@ describe( 'Settings and the SEO tools switch', () => {
 
 		expect( screen.getByTestId( 'page' ) ).toHaveAttribute( 'data-show-tabs', 'false' );
 	} );
+
+	it.each( [
+		[ 'Settings switch', 'seo-tools-switch', true ],
+		[ '"Turn on SEO tools" notice button', 'seo-tools-off', false ],
+	] )(
+		'the %s waits for another setting to save, then saves through the form',
+		( _control, testId, active ) => {
+			routeSeoToolsActive = active;
+			routeForm = { ...buildForm( { seo_tools_active: active } ), isSaving: true };
+			const { rerender } = render( <SettingsStage /> );
+
+			expect( screen.getByTestId( testId ) ).toBeDisabled();
+
+			routeForm = { ...routeForm, isSaving: false };
+			rerender( <SettingsStage /> );
+			// eslint-disable-next-line testing-library/prefer-user-event -- fireEvent keeps this off the @testing-library/user-event devDep.
+			fireEvent.click( screen.getByTestId( testId ) );
+
+			expect( routeForm.commit ).toHaveBeenCalledWith( { seo_tools_active: ! active } );
+		}
+	);
 
 	it( 'keeps the tabs and ends Settings with the switch while SEO tools are on', () => {
 		routeSeoToolsActive = true;
