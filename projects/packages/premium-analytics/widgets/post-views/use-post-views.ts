@@ -53,8 +53,8 @@ type DayWindow = {
 };
 
 /**
- * One calendar bucket, including its visible label and the portion that falls
- * inside the selected date window.
+ * One calendar bucket: its calendar start, which keys the totals, and the portion
+ * that falls inside the selected date window, which the chart draws.
  */
 type BucketWindow = {
 	date: string;
@@ -79,9 +79,8 @@ export function toDayWindow( from?: string, to?: string ): DayWindow | undefined
 }
 
 /**
- * Build the range's calendar buckets. Each bucket keeps the calendar label
- * used by the chart while clipping its data bounds to the selected range.
- * Buckets are returned oldest first.
+ * Build the range's calendar buckets, oldest first. Each bucket keeps its
+ * calendar start as the totals key while clipping its days to the selected range.
  */
 function calendarBucketWindows(
 	dayWindow: DayWindow,
