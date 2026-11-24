@@ -3,7 +3,7 @@
  */
 import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { copySmall, check } from '@wordpress/icons';
+import { copy as copyIcon, check } from '@wordpress/icons';
 import { Tooltip } from '@wordpress/ui';
 /**
  * Internal dependencies
@@ -47,7 +47,7 @@ export default function CopyClipboardButton( {
 						size="small"
 						aria-label={ label }
 						ref={ ref }
-						icon={ showCopyConfirmation ? check : copySmall }
+						icon={ showCopyConfirmation ? check : copyIcon }
 						showTooltip={ false }
 					/>
 				}

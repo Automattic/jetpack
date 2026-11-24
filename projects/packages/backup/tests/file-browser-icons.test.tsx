@@ -1,6 +1,4 @@
-// `@wordpress/icons` export names do not describe what they draw, so the
-// file-browser aliases look inverted and invite a "correction". These
-// tests cross-check the rows against the package's own artwork.
+// Cross-checks the row glyphs against the package's own artwork.
 
 const mockApiFetch = jest.fn();
 let mockIsRtl = false;
@@ -17,7 +15,7 @@ jest.mock( '@wordpress/api-fetch', () => ( {
 
 // Imports must come after the jest.mock factories above.
 import { render, screen } from '@testing-library/react';
-import { Icon, chevronLeft, chevronRight, file, page } from '@wordpress/icons';
+import { Icon, chevronLeft, chevronRight, folder, page } from '@wordpress/icons';
 import FileBrowser, { EMPTY_FILE_SELECTION } from '../src/dashboard/components/file-browser';
 import { queryClient } from '../src/dashboard/data/query-client';
 import QueryClientProvider from '../src/dashboard/providers/query-client-provider';
@@ -96,10 +94,10 @@ beforeEach( () => {
 describe( 'file browser row icons', () => {
 	// A cross-check against two identical glyphs would pass no matter how
 	// the rows were wired, so state the premise as its own assertion.
-	it( 'draws `file` and `page` as different glyphs', () => {
-		expect( shapeOf( file ) ).not.toBe( '' );
+	it( 'draws `folder` and `page` as different glyphs', () => {
+		expect( shapeOf( folder ) ).not.toBe( '' );
 		expect( shapeOf( page ) ).not.toBe( '' );
-		expect( shapeOf( file ) ).not.toBe( shapeOf( page ) );
+		expect( shapeOf( folder ) ).not.toBe( shapeOf( page ) );
 	} );
 
 	it( 'draws a different glyph on a folder row than on a file row', async () => {
@@ -112,18 +110,18 @@ describe( 'file browser row icons', () => {
 		expect( shapesIn( folderRow ) ).not.toContain( fileRowShape );
 	} );
 
-	it( 'draws the `file` export — the folder glyph — on a folder row', async () => {
+	it( 'draws the `folder` export on a folder row', async () => {
 		const { folderRow } = await renderRows();
 
-		expect( shapesIn( folderRow ) ).toContain( shapeOf( file ) );
+		expect( shapesIn( folderRow ) ).toContain( shapeOf( folder ) );
 		expect( shapesIn( folderRow ) ).not.toContain( shapeOf( page ) );
 	} );
 
-	it( 'draws the `page` export — the document glyph — on a file row', async () => {
+	it( 'draws the `page` export on a file row', async () => {
 		const { fileRow } = await renderRows();
 
 		expect( shapesIn( fileRow ) ).toContain( shapeOf( page ) );
-		expect( shapesIn( fileRow ) ).not.toContain( shapeOf( file ) );
+		expect( shapesIn( fileRow ) ).not.toContain( shapeOf( folder ) );
 	} );
 
 	// The glyphs render `aria-hidden`, so nothing above reaches a screen

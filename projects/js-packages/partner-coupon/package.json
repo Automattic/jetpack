@@ -24,8 +24,8 @@
 	"dependencies": {
 		"@automattic/jetpack-components": "workspace:*",
 		"@automattic/jetpack-connection": "workspace:*",
-		"@wordpress/i18n": "7.1.0",
-		"@wordpress/ui": "0.26.0",
+		"@wordpress/i18n": "7.2.0",
+		"@wordpress/ui": "0.27.0",
 		"clsx": "2.1.1",
 		"prop-types": "15.8.1"
 	},
@@ -38,8 +38,8 @@
 		"@testing-library/user-event": "14.6.8",
 		"@types/react": "19.3.0",
 		"@typescript/native-preview": "7.0.0-dev.20260707.2",
-		"@wordpress/base-styles": "15.0.0",
-		"@wordpress/data": "11.1.0",
+		"@wordpress/base-styles": "15.1.0",
+		"@wordpress/data": "11.2.0",
 		"jest": "30.5.2",
 		"jest-extended": "7.0.0",
 		"react": "19.3.0",

@@ -10,7 +10,7 @@ import {
 	useSyncExternalStore,
 } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { arrowDown, check, copySmall } from '@wordpress/icons';
+import { arrowDown, check, copy } from '@wordpress/icons';
 import {
 	AlertDialog,
 	Button,
@@ -294,7 +294,7 @@ function CopyButton( { text, label }: { text: string; label: string } ) {
 					/>
 				}
 			>
-				<Icon icon={ copied ? check : copySmall } size={ 24 } />
+				<Icon icon={ copied ? check : copy } size={ 24 } />
 			</Tooltip.Trigger>
 			<Tooltip.Popup>{ shown }</Tooltip.Popup>
 		</Tooltip.Root>
