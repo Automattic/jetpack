@@ -64,6 +64,9 @@ class Defer_Fonts_Test extends Base_TestCase {
 		$this->assertStringContainsString( 'addEventListener("load",add)', $script );
 		$this->assertStringContainsString( 'd.readyState==="complete"', $script, 'Fonts must still be added when the loader runs after `load`.' );
 		$this->assertStringContainsString( '"jetpack-boost-defer-fonts-3"', $script, 'Each site on a multisite needs its own localStorage key.' );
+		$this->assertStringContainsString( 'setTimeout(add,wait)', $script, 'A slow embed must not hold the fonts back past the cap.' );
+		$this->assertStringEndsWith( ',' . Defer_Fonts::LOAD_WAIT_MS . ');', $script );
+		$this->assertStringContainsString( 'if(done){return}', $script, 'The fonts must be added once, whichever of load and the cap comes first.' );
 	}
 
 	/**
@@ -90,6 +93,31 @@ class Defer_Fonts_Test extends Base_TestCase {
 			'site owner lists their own' => array( array( 'material icons' ), array( 'Material Icons' ) ),
 			'site owner clears the list' => array( array(), array() ),
 			'saved name typed in quotes' => array( array( '"Font Awesome"' ), array( '"Font Awesome 6 Free"' ) ),
+		);
+	}
+
+	/**
+	 * @dataProvider content_security_policy_cases
+	 */
+	#[DataProvider( 'content_security_policy_cases' )]
+	public function test_detects_a_policy_that_blocks_the_inline_loader( $headers, $tag, $blocks ) {
+		$this->assertSame( $blocks, Defer_Fonts::csp_blocks_inline_script( $headers, $tag ) );
+	}
+
+	public static function content_security_policy_cases() {
+		$tag = '<script id="jetpack-boost-defer-fonts">';
+
+		return array(
+			'no policy'                            => array( array( 'Content-Type: text/html' ), $tag, false ),
+			'unsafe-inline allowed'                => array( array( "Content-Security-Policy: script-src 'self' 'unsafe-inline'" ), $tag, false ),
+			'default-src self only'                => array( array( "content-security-policy: default-src 'self'" ), $tag, true ),
+			'nonce the tag carries'                => array( array( "Content-Security-Policy: script-src 'nonce-Ab12'" ), '<script nonce="Ab12" id="jetpack-boost-defer-fonts">', false ),
+			'nonce the tag lacks'                  => array( array( "Content-Security-Policy: script-src 'nonce-Ab12' 'unsafe-inline'" ), $tag, true ),
+			'hash makes unsafe-inline ignored'     => array( array( "Content-Security-Policy: script-src 'unsafe-inline' 'sha256-abc='" ), $tag, true ),
+			'report-only does not block'           => array( array( "Content-Security-Policy-Report-Only: default-src 'self'" ), $tag, false ),
+			'script-src-elem wins over script-src' => array( array( "Content-Security-Policy: script-src 'unsafe-inline'; script-src-elem 'self'" ), $tag, true ),
+			'policy without script directives'     => array( array( 'Content-Security-Policy: img-src *' ), $tag, false ),
+			'any one blocking policy is enough'    => array( array( "Content-Security-Policy: script-src 'unsafe-inline'", "Content-Security-Policy: default-src 'self'" ), $tag, true ),
 		);
 	}
 }

@@ -76,4 +76,23 @@ class Defer_Fonts_Printer_Test extends BaseTestCase {
 			$this->assertStringNotContainsString( 'Font Awesome', $deferred );
 		}
 	}
+
+	public function test_falls_back_to_core_output_when_a_policy_blocks_the_loader() {
+		$module = new class() extends Defer_Fonts {
+			protected function get_response_headers() {
+				return array( "Content-Security-Policy: script-src 'self'" );
+			}
+		};
+
+		ob_start();
+		$module->print_deferred_font_faces();
+		$html = (string) ob_get_clean();
+
+		$this->assertStringNotContainsString( 'jetpack-boost-defer-fonts', $html );
+		$this->assertStringNotContainsString( '<noscript>', $html );
+		$this->assertSame( 1, substr_count( $html, '<style class="wp-fonts-local">' ), 'Core should print every font once, in its normal block.' );
+		$this->assertStringContainsString( 'Inter', $html );
+		$this->assertStringContainsString( 'Font Awesome 6 Free', $html );
+		$this->assertStringNotContainsString( 'font-display:swap', $html );
+	}
 }
