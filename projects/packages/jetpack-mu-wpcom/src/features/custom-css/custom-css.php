@@ -120,7 +120,7 @@ if ( ! class_exists( 'Jetpack_Custom_CSS_Enhancements' ) ) {
 		 *
 		 * @return array $fields Modified array to include post_content_filtered.
 		 */
-		public static function wp_post_revision_fields( $fields, $post ) {
+		public static function wp_post_revision_fields( $fields, $post = array() ) {
 			// None of the fields in $post are required to be passed in this filter.
 			if ( ! isset( $post['post_type'] ) || ! isset( $post['ID'] ) ) {
 				return $fields;
