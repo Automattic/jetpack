@@ -14,23 +14,54 @@ const canSyncSettings = select =>
 	window.Jetpack_Editor_Initial_State?.screenBase === 'site-editor' ||
 	[ 'wp_template', 'wp_template_part' ].includes( select( 'core/editor' ).getCurrentPostType() );
 
+const containsBlock = ( blocks, clientId ) =>
+	blocks?.some(
+		block => block.clientId === clientId || containsBlock( block.innerBlocks, clientId )
+	);
+
 export function useSaveCookieConsentSettings( clientId ) {
 	const registry = useRegistry();
-	const isSaving = useSelect( select => {
-		const { isSavingPost, isSavingNonPostEntityChanges } = select( 'core/editor' );
-		return isSavingPost() || isSavingNonPostEntityChanges();
-	}, [] );
+	const isSaving = useSelect(
+		select => {
+			if ( window.Jetpack_Editor_Initial_State?.screenBase === 'site-editor' ) {
+				const { isSavingPost, isSavingNonPostEntityChanges } = select( 'core/editor' );
+				return isSavingPost() || isSavingNonPostEntityChanges();
+			}
+
+			const { __experimentalGetEntitiesBeingSaved, getEditedEntityRecord } = select( coreStore );
+			const { getBlockParentsByBlockName, getBlockAttributes } = select( 'core/block-editor' );
+			const templatePartClientId = getBlockParentsByBlockName(
+				clientId,
+				'core/template-part',
+				true
+			)[ 0 ];
+			return __experimentalGetEntitiesBeingSaved().some( ( { kind, name, key } ) => {
+				if ( kind !== 'postType' || ! [ 'wp_template', 'wp_template_part' ].includes( name ) ) {
+					return false;
+				}
+				const record = getEditedEntityRecord( kind, name, key );
+				if ( templatePartClientId ) {
+					const { slug, theme = select( coreStore ).getCurrentTheme()?.stylesheet } =
+						getBlockAttributes( templatePartClientId );
+					return name === 'wp_template_part' && record?.slug === slug && record?.theme === theme;
+				}
+				return containsBlock( record?.blocks, clientId );
+			} );
+		},
+		[ clientId ]
+	);
 	const wasSaving = usePrevious( isSaving );
 	const postHasBeenJustSaved = !! ( wasSaving && ! isSaving );
 
-	const canSync = useSelect( select => {
-		const enabled = canSyncSettings( select );
-		if ( enabled ) {
-			// Editing the site record requires it to be loaded first.
-			select( coreStore ).getEntityRecord( 'root', 'site' );
-		}
-		return enabled;
-	}, [] );
+	useSelect(
+		select => {
+			if ( canSyncSettings( select ) || isSaving ) {
+				// Editing the site record requires it to be loaded first.
+				return select( coreStore ).getEntityRecord( 'root', 'site' );
+			}
+		},
+		[ isSaving ]
+	);
 	const { editEntityRecord, saveEditedEntityRecord } = useDispatch( coreStore );
 	const [ isSavingSetting, setIsSavingSetting ] = useState( false );
 
@@ -65,8 +96,8 @@ export function useSaveCookieConsentSettings( clientId ) {
 	}, [] );
 
 	useEffect( () => {
-		if ( canSync && postHasBeenJustSaved && ! isSavingSetting ) {
+		if ( postHasBeenJustSaved && ! isSavingSetting ) {
 			saveTemplate( serialize( [ getBlockById( clientId ) ] ) );
 		}
-	}, [ canSync, postHasBeenJustSaved, isSavingSetting, saveTemplate, getBlockById, clientId ] );
+	}, [ postHasBeenJustSaved, isSavingSetting, saveTemplate, getBlockById, clientId ] );
 }
