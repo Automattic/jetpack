@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Scan: Count only the plugins and themes the last check covered in the scan summary.

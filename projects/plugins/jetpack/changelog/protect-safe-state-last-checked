@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Protect: Say when the site was last checked in the all-clear message.

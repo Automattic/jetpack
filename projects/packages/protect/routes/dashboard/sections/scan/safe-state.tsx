@@ -1,6 +1,7 @@
 import { __, sprintf } from '@wordpress/i18n';
 import { Stack, Text } from '@wordpress/ui';
 import { getCheckedCounts } from './labels';
+import { useLastScannedTime } from './last-scanned';
 import type { ScanState } from './types';
 import type { CSSProperties } from 'react';
 
@@ -84,6 +85,7 @@ type Props = {
  */
 export default function SafeState( { scan, justScanned = false }: Props ) {
 	const counts = getCheckedCounts( scan );
+	const lastChecked = useLastScannedTime( scan.lastScanFailed ? null : scan.lastChecked );
 
 	// The free check only compares versions with known vulnerabilities, so it can't call the site safe.
 	const copy = scan.hasPlan
@@ -129,6 +131,27 @@ export default function SafeState( { scan, justScanned = false }: Props ) {
 				<Text variant="body-md" className="jp-protect-safe__details">
 					{ copy.next }
 				</Text>
+				{ lastChecked && (
+					<Text
+						variant="body-md"
+						className="jp-protect-safe__details"
+						render={
+							<time dateTime={ lastChecked.date.toISOString() } title={ lastChecked.title } />
+						}
+					>
+						{ scan.hasPlan
+							? sprintf(
+									/* translators: %s is how long ago, such as "2 hours ago". */
+									__( 'Last scanned %s.', 'jetpack-protect-pkg' ),
+									lastChecked.ago
+								)
+							: sprintf(
+									/* translators: %s is how long ago, such as "2 hours ago". */
+									__( 'Last checked %s.', 'jetpack-protect-pkg' ),
+									lastChecked.ago
+								) }
+					</Text>
+				) }
 			</Stack>
 		</Stack>
 	);

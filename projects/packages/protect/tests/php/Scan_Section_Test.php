@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Protect;
 
 use Automattic\Jetpack\Protect\Sections\Scan;
+use Automattic\Jetpack\Protect_Models\Extension_Model;
 use Automattic\Jetpack\Protect_Models\Status_Model;
 use Automattic\Jetpack\Protect_Models\Threat_Model;
 use Automattic\Jetpack\Protect_Status\Protect_Status;
@@ -730,6 +731,39 @@ class Scan_Section_Test extends BaseTestCase {
 
 		$this->assertSame( $has_plan, $report['checksEnabled'] );
 		$this->assertSame( $has_plan ? '2026-11-05 10:00:00' : null, $report['lastChecked'] );
+	}
+
+	/**
+	 * Test that the report counts only the plugins and themes its check covered, not everything installed now.
+	 *
+	 * @dataProvider provide_plans
+	 *
+	 * @param bool $has_plan Whether the site has a Scan plan.
+	 */
+	#[DataProvider( 'provide_plans' )]
+	public function test_checked_counts_leave_out_what_the_check_has_not_covered( $has_plan ) {
+		$extension           = function ( $type, $slug, $checked ) {
+			return new Extension_Model(
+				array(
+					'type'    => $type,
+					'slug'    => $slug,
+					'checked' => $checked,
+				)
+			);
+		};
+		Scan_Status::$status = new Status_Model(
+			array(
+				'status'       => 'idle',
+				'last_checked' => '2026-11-05 10:00:00',
+				'plugins'      => array( $extension( 'plugins', 'a/a.php', true ), $extension( 'plugins', 'b/b.php', false ) ),
+				'themes'       => array( $extension( 'themes', 'one', true ), $extension( 'themes', 'two', false ), $extension( 'themes', 'three', true ) ),
+			)
+		);
+
+		$report = self::call( 'get_scan_report', $has_plan );
+
+		$this->assertSame( 1, $report['pluginsChecked'] );
+		$this->assertSame( 2, $report['themesChecked'] );
 	}
 
 	/**
