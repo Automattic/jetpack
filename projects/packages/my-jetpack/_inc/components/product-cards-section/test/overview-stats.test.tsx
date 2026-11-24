@@ -76,7 +76,10 @@ describe( 'OverviewStats', () => {
 		render(
 			<OverviewStats
 				counts={ { views, visitors: 5, likes: 2, comments: 1 } }
-				previousCounts={ { views: previous, visitors: 5, likes: 0, comments: 1 } }
+				comparison={ {
+					counts: { views, visitors: 5, likes: 2, comments: 1 },
+					previousCounts: { views: previous, visitors: 5, likes: 0, comments: 1 },
+				} }
 				days={ 7 }
 				chartData={ chartData }
 				onDetailedStatsClick={ jest.fn() }
@@ -92,7 +95,10 @@ describe( 'OverviewStats', () => {
 		render(
 			<OverviewStats
 				counts={ { views: 110, visitors: 6, likes: 2, comments: 1 } }
-				previousCounts={ { views: 100, visitors: 3, likes: 0, comments: 1 } }
+				comparison={ {
+					counts: { views: 110, visitors: 6, likes: 2, comments: 1 },
+					previousCounts: { views: 100, visitors: 3, likes: 0, comments: 1 },
+				} }
 				days={ 30 }
 				chartData={ chartData }
 				onDetailedStatsClick={ jest.fn() }

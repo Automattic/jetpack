@@ -14,7 +14,11 @@ import type { FC } from 'react';
 type OverviewStatsProps = {
 	isLoading?: boolean;
 	counts: Partial< Record< Metric, number > >;
-	previousCounts?: Partial< Record< Metric, number > >;
+	/** The totals the change badge compares, which can be shifted from `counts`. */
+	comparison?: {
+		counts: Partial< Record< Metric, number > >;
+		previousCounts: Partial< Record< Metric, number > >;
+	};
 	days: number;
 	chartData: object | null;
 	detailedStatsHref?: string;
@@ -84,7 +88,7 @@ const Tab: FC< TabProps > = ( {
 const OverviewStats: FC< OverviewStatsProps > = ( {
 	isLoading = false,
 	counts,
-	previousCounts,
+	comparison,
 	days,
 	chartData,
 	detailedStatsHref,
@@ -118,8 +122,8 @@ const OverviewStats: FC< OverviewStatsProps > = ( {
 				<ChangeBadge
 					id={ badgeId }
 					metric={ selectedMetric }
-					count={ counts?.[ selectedMetric ] }
-					previous={ previousCounts?.[ selectedMetric ] }
+					count={ comparison?.counts[ selectedMetric ] }
+					previous={ comparison?.previousCounts[ selectedMetric ] }
 					days={ days }
 					isLoading={ isLoading }
 				/>
