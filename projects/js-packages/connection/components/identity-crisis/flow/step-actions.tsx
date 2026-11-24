@@ -15,10 +15,12 @@ interface StepActionsProps {
 	canGoBack: boolean;
 	onContinue: () => void;
 	onBack: () => void;
+	/** Below the buttons; left out when the action has a link of its own. */
+	footer?: ReactNode;
 }
 
 /**
- * The step's button, Back, and a how-to link or the footer link to support.
+ * The step's button, Back, and the action's link or the footer.
  *
  * @param {StepActionsProps} props - Component props.
  * @return {ReactNode} The actions.
@@ -30,6 +32,7 @@ export default function StepActions( {
 	canGoBack,
 	onContinue,
 	onBack,
+	footer,
 }: StepActionsProps ): ReactNode {
 	let label = action?.button ?? __( 'Continue', 'jetpack-connection-js' );
 	if ( isBusy && action ) {
@@ -54,13 +57,11 @@ export default function StepActions( {
 						{ __( 'Back', 'jetpack-connection-js' ) }
 					</Button>
 				) }
-				{ action?.link && <SupportLink>{ action.link }</SupportLink> }
+				{ action?.link && (
+					<SupportLink topic={ action.link.topic }>{ action.link.text }</SupportLink>
+				) }
 			</div>
-			{ ! action?.link && (
-				<div className={ styles.footer }>
-					<SupportLink>{ __( 'Learn more about Safe Mode', 'jetpack-connection-js' ) }</SupportLink>
-				</div>
-			) }
+			{ ! action?.link && footer }
 		</Stack>
 	);
 }

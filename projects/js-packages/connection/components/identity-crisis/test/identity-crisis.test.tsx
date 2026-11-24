@@ -437,4 +437,125 @@ describe( 'IdentityCrisis', () => {
 		expect( screen.queryByText( /Payments will not be interrupted\./ ) !== null ).toBe( payments );
 		expect( screen.queryByText( /like Stats and Backups/ ) !== null ).toBe( ! payments );
 	} );
+
+	it( 'walks the guide to a statement, then confirms it before the action runs', async () => {
+		const user = userEvent.setup();
+		confirmIDCSafeMode.mockResolvedValue( {} );
+		const onActionSuccess = jest.fn();
+		render( <IdentityCrisis context="notice" onActionSuccess={ onActionSuccess } /> );
+
+		await user.click( screen.getByRole( 'button', { name: 'Work it out step by step' } ) );
+
+		expect( screen.getByRole( 'heading', { name: /What happens\?/ } ) ).toHaveFocus();
+		expect( screen.getByRole( 'link', { name: /Open old\.example/ } ) ).toHaveAttribute(
+			'href',
+			'http://old.example/'
+		);
+
+		await user.click( screen.getByRole( 'button', { name: 'A site loads there' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'A separate site' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'old.example' } ) );
+
+		expect(
+			screen.getByRole( 'heading', {
+				name: 'old.example is the original site, and this one is a copy',
+			} )
+		).toHaveFocus();
+		expect( screen.queryByRole( 'radio' ) ).not.toBeInTheDocument();
+
+		await user.click( screen.getByRole( 'button', { name: 'Next' } ) );
+		await user.click( screen.getByRole( 'radio', { name: 'Keep it in Safe Mode' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Stay in Safe Mode' } ) );
+
+		expect( confirmIDCSafeMode ).toHaveBeenCalledTimes( 1 );
+		expect( onActionSuccess ).toHaveBeenCalledWith( { action: 'confirm-safe-mode' } );
+	} );
+
+	it( 'opens the guide from the staging note, and Back returns to the first screen', async () => {
+		const user = userEvent.setup();
+		storeState = { state: { ...resolvable, isDevelopmentSite: true }, plugins: jetpack };
+		render( <IdentityCrisis context="notice" onActionSuccess={ jest.fn() } /> );
+
+		expect(
+			screen.queryByRole( 'button', { name: 'Work it out step by step' } )
+		).not.toBeInTheDocument();
+
+		await user.click(
+			screen.getByRole( 'button', { name: 'Not a copy? Work it out step by step' } )
+		);
+
+		expect(
+			within( screen.getByRole( 'list', { name: 'What we already know' } ) ).getAllByRole(
+				'listitem'
+			)[ 0 ]
+		).toHaveTextContent( 'WordPress marks this as a staging site.' );
+
+		await user.click( screen.getByRole( 'button', { name: 'Back to the first screen' } ) );
+
+		expect( screen.getByRole( 'radio', { name: 'Keep it in Safe Mode' } ) ).toBeChecked();
+	} );
+
+	it( 'gives an admin who cannot check a message to send, and copies it', async () => {
+		const user = userEvent.setup();
+		const writeText = jest.spyOn( navigator.clipboard, 'writeText' ).mockResolvedValue();
+		render( <IdentityCrisis context="notice" onActionSuccess={ jest.fn() } /> );
+
+		await user.click( screen.getByRole( 'button', { name: 'Work it out step by step' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'A site loads there' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'I’m not sure' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Copy message' } ) );
+
+		expect( writeText ).toHaveBeenCalledWith(
+			expect.stringMatching( /^My site new\.example shows .+ registered at old\.example\./ )
+		);
+		expect( screen.getByRole( 'status' ) ).toHaveTextContent( 'Copied' );
+		expect( screen.getByRole( 'link', { name: /Contact support/ } ) ).toHaveAttribute(
+			'href',
+			expect.stringContaining( 'jetpack-contact-support' )
+		);
+	} );
+
+	it( 'goes back to an earlier guide question from the answers so far', async () => {
+		const user = userEvent.setup();
+		render( <IdentityCrisis context="notice" onActionSuccess={ jest.fn() } /> );
+
+		await user.click( screen.getByRole( 'button', { name: 'Work it out step by step' } ) );
+		expect( screen.queryByRole( 'navigation', { name: 'Your answers:' } ) ).not.toBeInTheDocument();
+
+		await user.click( screen.getByRole( 'button', { name: 'A site loads there' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'A separate site' } ) );
+		await user.click(
+			within( screen.getByRole( 'navigation', { name: 'Your answers:' } ) ).getByRole( 'button', {
+				name: 'Change answer: A site loads there',
+			} )
+		);
+
+		expect( screen.getByRole( 'heading', { name: /What happens\?/ } ) ).toHaveFocus();
+		expect( screen.queryByRole( 'navigation', { name: 'Your answers:' } ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'stays in Safe Mode from any guide question', async () => {
+		const user = userEvent.setup();
+		render( <IdentityCrisis context="notice" onActionSuccess={ jest.fn() } /> );
+
+		await user.click( screen.getByRole( 'button', { name: 'Work it out step by step' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'A site loads there' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Stay in Safe Mode for now' } ) );
+
+		expect( screen.getByRole( 'heading', { name: 'Stay in Safe Mode for now' } ) ).toHaveFocus();
+	} );
+
+	it.each( [
+		[ 'jetpack', /the latest post or page/ ],
+		[ 'woocommerce-payments', /today’s orders or the newest product/ ],
+	] )( 'with %s connected, tells the admin what to compare', async ( slug, compare ) => {
+		const user = userEvent.setup();
+		storeState = { state: resolvable, plugins: [ { slug, name: slug } ] };
+		render( <IdentityCrisis context="notice" onActionSuccess={ jest.fn() } /> );
+
+		await user.click( screen.getByRole( 'button', { name: 'Work it out step by step' } ) );
+		await user.click( screen.getByRole( 'button', { name: /loads there/ } ) );
+
+		expect( screen.getByText( compare ) ).toBeInTheDocument();
+	} );
 } );
