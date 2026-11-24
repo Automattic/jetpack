@@ -131,17 +131,19 @@ describe( 'JetpackFooter', () => {
 			);
 		} );
 
-		it( 'links users who cannot see Features to Help only', () => {
-			window.JetpackScriptData.user.current_user.capabilities.manage_options = false;
+		it.each( [
+			[
+				'users who cannot see Features',
+				() => {
+					window.JetpackScriptData.user.current_user.capabilities.manage_options = false;
+				},
+				{},
+			],
+			[ 'a page that opts out of Features', () => {}, { showFeaturesLink: false } ],
+		] )( 'links %s to Help only', ( _case, setUp, props ) => {
+			setUp();
 
-			render( <JetpackFooter /> );
-
-			expect( screen.queryByRole( 'link', { name: 'Features' } ) ).not.toBeInTheDocument();
-			expect( screen.getByRole( 'link', { name: 'Help' } ) ).toBeInTheDocument();
-		} );
-
-		it( 'leaves Features out when the page opts out of it', () => {
-			render( <JetpackFooter showFeaturesLink={ false } /> );
+			render( <JetpackFooter { ...props } /> );
 
 			expect( screen.queryByRole( 'link', { name: 'Features' } ) ).not.toBeInTheDocument();
 			expect( screen.getByRole( 'link', { name: 'Help' } ) ).toBeInTheDocument();
