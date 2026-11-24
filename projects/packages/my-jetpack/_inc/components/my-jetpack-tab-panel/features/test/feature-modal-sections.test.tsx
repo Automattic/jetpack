@@ -200,6 +200,25 @@ describe( 'FeaturePaid', () => {
 		expect( screen.getByRole( 'link', { name: 'Upgrade to Complete' } ) ).toBeVisible();
 	} );
 
+	it.each( [
+		[ "Jetpack's", { path: '/add-akismet', name: 'Jetpack Akismet Anti-spam' }, true ],
+		[ 'no', { path: '', name: '', url: '' }, false ],
+	] )(
+		'lists the Jetpack plans and Upgrade when the host sells %s plans',
+		( _name, upgrade, shown ) => {
+			const state = { ...installedPlugin, feature: { ...installedPlugin.feature, upgrade } };
+			render(
+				<>
+					<FeaturePaid state={ state } />
+					<UpgradeButton state={ state } />
+				</>
+			);
+
+			expect( screen.queryByText( /Included in/ ) !== null ).toBe( shown );
+			expect( screen.queryByRole( 'link', { name: /^Upgrade/ } ) !== null ).toBe( shown );
+		}
+	);
+
 	it( 'leaves out the plans for a module a host forced off', () => {
 		render( <FeaturePaid state={ moduleState( 'inactive', 'inactive' ) } /> );
 

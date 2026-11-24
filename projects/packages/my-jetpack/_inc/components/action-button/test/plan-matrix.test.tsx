@@ -200,6 +200,18 @@ describe( 'the product card primary action', () => {
 		expect( screen.queryByRole( 'link' ) ).not.toBeInTheDocument();
 	} );
 
+	it.each( [
+		[ 'Upgrade', undefined ],
+		[ 'View', '' ],
+	] )(
+		'offers "%s" for a product to upgrade when the host answers %p',
+		( label, hostPurchaseUrl ) => {
+			expect(
+				primaryActionFor( PRODUCT_STATUSES.CAN_UPGRADE, true, hostPurchaseUrl )
+			).toHaveTextContent( exactly( label ) );
+		}
+	);
+
 	it( 'keeps the action busy until it is known whether the host forced the module off', () => {
 		mockUseForcedOffReason.mockReturnValue( { reason: null, isPending: true } );
 

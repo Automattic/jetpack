@@ -683,7 +683,7 @@ class Main_Features_Test extends TestCase {
 	 *
 	 * @param string[]    $owned    The products the site pays for.
 	 * @param string      $url      The URL the host sends.
-	 * @param string|null $expected The URL the feature carries, or null for none.
+	 * @param string|null $expected The URL the feature carries, '' when the host sells nothing, or null for none.
 	 */
 	#[DataProvider( 'provide_host_upgrade_urls' )]
 	public function test_host_upgrade_url( $owned, $url, $expected ) {
@@ -708,7 +708,8 @@ class Main_Features_Test extends TestCase {
 		return array(
 			'no plan'         => array( array(), 'https://example.com/plans', 'https://example.com/plans' ),
 			'owns Complete'   => array( array( 'jetpack_complete' ), 'https://example.com/plans', null ),
-			'javascript: URL' => array( array(), 'javascript:alert(1)', '' ),
+			'javascript: URL' => array( array(), 'javascript:alert(1)', null ),
+			'sells nothing'   => array( array(), '', '' ),
 		);
 	}
 
@@ -720,7 +721,7 @@ class Main_Features_Test extends TestCase {
 	 *
 	 * @param string[]    $owned       The products the site pays for.
 	 * @param string      $url         The URL the host sends.
-	 * @param string|null $feature_url The URL the feature carries, or null or empty for none.
+	 * @param string|null $feature_url The URL the feature carries, '' when the host sells nothing, or null for none.
 	 */
 	#[DataProvider( 'provide_host_upgrade_urls' )]
 	public function test_host_purchase_url_for_a_product( $owned, $url, $feature_url ) {
@@ -738,12 +739,11 @@ class Main_Features_Test extends TestCase {
 		$later_url  = Products\Backup::get_purchase_url();
 		remove_filter( 'jetpack_feature_upgrade', $send_to_host, 10 );
 
-		$expected = $feature_url ? $feature_url : null;
-		$this->assertSame( $expected, $info['purchase_url'] );
-		$this->assertSame( $expected, $info['host_purchase_url'] );
+		$this->assertSame( $feature_url, $info['purchase_url'] );
+		$this->assertSame( $feature_url, $info['host_purchase_url'] );
 		$this->assertNull( $bundle_url );
 		$this->assertSame( array( 'backup' => array( admin_url( 'admin.php?page=my-jetpack' ) ) ), $asked_once );
-		$this->assertSame( $expected, $later_url );
+		$this->assertSame( $feature_url, $later_url );
 		$this->assertCount( 2, $asked['backup'] ?? array() );
 	}
 

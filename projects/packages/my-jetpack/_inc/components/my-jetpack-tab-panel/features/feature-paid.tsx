@@ -5,6 +5,7 @@ import { Link, ButtonLink, Text } from '@wordpress/ui';
 import { useCallback } from 'react';
 import { isOfflineFeatures } from '../../../data/utils/offline-features';
 import useAnalytics from '../../../hooks/use-analytics';
+import { hostSellsNothing } from '../../../utils/host-sells-nothing';
 import { getFeaturePricingHref } from '../utils';
 import { FeatureHighlights } from './feature-highlights';
 import { isPlanExpired } from './feature-state';
@@ -200,10 +201,11 @@ export function FeaturePaid( { state }: FeaturePaidProps ) {
 	const { feature } = state;
 	const plans = feature.plans ?? [];
 	const highlights = feature.paid_highlights ?? [];
-	// A host's own upgrade sells its plans, and a renewal resumes one, not the Jetpack ones listed here.
+	// A host's answer, its own plans or nothing to sell, replaces the Jetpack plans listed here, as a renewal does.
 	const showPlans =
 		! isPurchaseBlocked( state ) &&
 		! feature.upgrade?.url &&
+		! hostSellsNothing( feature.upgrade?.url ) &&
 		! isPlanExpired( state ) &&
 		plans.length > 0;
 
