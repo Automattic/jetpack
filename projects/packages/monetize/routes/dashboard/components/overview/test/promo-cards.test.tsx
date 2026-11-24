@@ -9,6 +9,8 @@ import type { OverviewState } from '../state';
 
 const mockState = jest.fn< OverviewState, [] >();
 let mockSimple = false;
+let referralLink = '';
+const ENABLED_LINK = 'https://wordpress.com/refer/abc';
 
 jest.mock( '@wordpress/api-fetch', () => ( { __esModule: true, default: jest.fn() } ) );
 jest.mock( '@automattic/jetpack-script-data', () => ( {
@@ -49,13 +51,19 @@ function setup(
 ) {
 	mockSimple = Boolean( account );
 	mockState.mockReturnValue( { ...base, ...state } );
-	mockedApiFetch.mockImplementation( ( { path }: { path: string } ) =>
-		Promise.resolve(
+	mockedApiFetch.mockImplementation( ( { path }: { path: string } ) => {
+		if ( path.includes( 'peer-referral-link-enable' ) ) {
+			return Promise.resolve( ENABLED_LINK );
+		}
+		if ( path.includes( 'peer-referral-link' ) ) {
+			return Promise.resolve( referralLink );
+		}
+		return Promise.resolve(
 			path.includes( 'wordads/account' )
 				? account
 				: { data: JSON.stringify( { active: features } ) }
-		)
-	);
+		);
+	} );
 	const openTab = jest.fn();
 	const client = new QueryClient( { defaultOptions: { queries: { retry: false } } } );
 	if ( stored !== undefined ) {
@@ -154,5 +162,56 @@ describe( 'PromoCards', () => {
 		expect(
 			screen.getByText( 'Available with Jetpack Creator, or a bundled plan.' )
 		).toBeVisible();
+	} );
+
+	it( 'without referral state, there is no Refer a friend card', () => {
+		setup();
+
+		expect( screen.queryByRole( 'heading', { name: 'Refer a friend' } ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'without an annual plan, Refer a friend offers the annual plans and never asks for a link', async () => {
+		// The Ads card has the plan, so this is the only Upgrade link.
+		setup( {
+			hasWordAds: true,
+			referral: { eligible: false, upgradeUrl: 'https://wordpress.com/plans/yearly/a' },
+		} );
+
+		await expect( screen.findByRole( 'link', { name: 'Upgrade' } ) ).resolves.toHaveAttribute(
+			'href',
+			'https://wordpress.com/plans/yearly/a'
+		);
+		expect( mockedApiFetch ).not.toHaveBeenCalledWith(
+			expect.objectContaining( { path: expect.stringContaining( 'peer-referral' ) } )
+		);
+	} );
+
+	it( 'with an annual plan, Refer a friend turns referrals on and then shows the link', async () => {
+		setup( { referral: { eligible: true, upgradeUrl: '' } } );
+
+		await userEvent.click( await screen.findByRole( 'button', { name: 'Earn free credits' } ) );
+
+		await expect(
+			screen.findByRole( 'textbox', { name: 'Your referral link' } )
+		).resolves.toHaveValue( ENABLED_LINK );
+		expect( mockedApiFetch ).toHaveBeenCalledWith(
+			expect.objectContaining( {
+				path: '/jetpack/v4/monetize/wpcom/v2/me/peer-referral-link-enable',
+				method: 'POST',
+				data: { enable: true },
+			} )
+		);
+		expect( screen.queryByRole( 'button', { name: 'Earn free credits' } ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'with an annual plan and a link already, Refer a friend shows it straight away', async () => {
+		referralLink = ENABLED_LINK;
+		setup( { referral: { eligible: true, upgradeUrl: '' } } );
+
+		await expect(
+			screen.findByRole( 'textbox', { name: 'Your referral link' } )
+		).resolves.toHaveValue( ENABLED_LINK );
+		expect( screen.queryByRole( 'button', { name: 'Earn free credits' } ) ).not.toBeInTheDocument();
+		referralLink = '';
 	} );
 } );

@@ -4,7 +4,7 @@ type WpcomApi = 'wpcom/v2' | 'rest/v1.1';
 
 export interface WpcomRequest {
 	api: WpcomApi;
-	/** Relative to the site, e.g. `memberships/coupons`. */
+	/** Relative to the site, e.g. `memberships/coupons`, or a `me/` path of the current user's. */
 	path: string;
 	method?: 'GET' | 'POST' | 'PUT' | 'DELETE';
 	query?: Record< string, string | number | boolean | undefined >;
@@ -15,6 +15,8 @@ interface FetchOptions {
 	path: string;
 	method: string;
 	data?: unknown;
+	/** Keeps WordPress.com's request bridge on Simple from scoping a `me/` path to the site. */
+	global?: true;
 }
 
 /**
@@ -37,6 +39,7 @@ export function toFetchOptions( request: WpcomRequest, isSimple: boolean ): Fetc
 		path: addQueryArgs( base, query ),
 		method,
 		...( data === undefined ? {} : { data } ),
+		...( isSimple && path.startsWith( 'me/' ) ? { global: true } : {} ),
 	};
 }
 
