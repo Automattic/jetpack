@@ -183,7 +183,8 @@ function fetch_monthly_stats_views() {
 		return null;
 	}
 
-	$usage = $stats->get_stats_usage();
+	// An older copy of the package takes no request arguments and waits its own 20 seconds.
+	$usage = $stats->get_stats_usage( array( 'timeout' => 5 ) );
 
 	if ( is_wp_error( $usage ) ) {
 		return null;

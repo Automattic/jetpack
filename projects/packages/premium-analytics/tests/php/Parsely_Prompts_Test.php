@@ -47,6 +47,13 @@ class Parsely_Prompts_Test extends BaseTestCase {
 	private $usage_requests = 0;
 
 	/**
+	 * The arguments the last Stats usage request was sent with.
+	 *
+	 * @var array
+	 */
+	private $usage_request_args = array();
+
+	/**
 	 * Every test starts from a site that qualifies, and switches off one condition at a time.
 	 */
 	public function set_up() {
@@ -74,7 +81,8 @@ class Parsely_Prompts_Test extends BaseTestCase {
 		// Defeat the stats client's own cache, so the request counts below answer for this file's cache alone.
 		add_filter( 'jetpack_fetch_stats_cache_expiration', array( $this, 'expire_stats_cache_at_once' ) );
 
-		$this->usage_requests = 0;
+		$this->usage_requests     = 0;
+		$this->usage_request_args = array();
 	}
 
 	/**
@@ -129,6 +137,7 @@ class Parsely_Prompts_Test extends BaseTestCase {
 				}
 
 				++$this->usage_requests;
+				$this->usage_request_args = $args;
 
 				if ( is_wp_error( $response ) ) {
 					return $response;
@@ -194,6 +203,18 @@ class Parsely_Prompts_Test extends BaseTestCase {
 
 		$this->assertTrue( offers_parsely_prompts() );
 		$this->assertSame( 1, $this->usage_requests, 'The answer came from the mocked payload.' );
+	}
+
+	/**
+	 * The lookup runs in front of a dashboard render, so it must not wait the client's own 20
+	 * seconds on a slow WordPress.com.
+	 */
+	public function test_the_views_lookup_caps_its_wait() {
+		$this->answer_stats_usage_with( self::usage_with_views( 150000 ) );
+
+		offers_parsely_prompts();
+
+		$this->assertSame( 5, $this->usage_request_args['timeout'] );
 	}
 
 	public function test_the_views_figure_is_cached() {
