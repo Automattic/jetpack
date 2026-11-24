@@ -14,6 +14,11 @@ jest.mock( '@automattic/jetpack-analytics', () => ( {
 	},
 } ) );
 
+jest.mock( '@wordpress/api-fetch', () => ( {
+	__esModule: true,
+	default: jest.fn(),
+} ) );
+
 jest.mock( '@automattic/jetpack-connection/hooks/use-product-checkout-workflow', () => ( {
 	__esModule: true,
 	default: jest.fn(),
