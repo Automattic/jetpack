@@ -2246,8 +2246,8 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * GET /mcp-connections returns the current user's ChatGPT and Claude connections from wpcom, and nothing else, with
-	 * the account's access level.
+	 * GET /mcp-connections returns the current user's ChatGPT and Claude connections from wpcom, with the account's access
+	 * level and, when asked, how many other AI tools are connected.
 	 *
 	 * In its own process, since Brain Monkey's stubs of wpcom's functions would otherwise outlive the test that made them.
 	 *
@@ -2281,17 +2281,42 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 			->once()
 			->with( $user_id )
 			->andReturn( 'read_only' );
+		\Brain\Monkey\Functions\expect( 'wpcom_mcp_count_user_connections_excluding' )
+			->once()
+			->with( $user_id, array( 'chatgpt', 'claude' ) )
+			->andReturn( 1 );
 
-		$result = $this->call_api( Requests::GET, '/mcp-connections' );
+		$result = $this->call_api( Requests::GET, '/mcp-connections', null, array( 'other_connections' => '1' ) );
 
 		$this->assertSame( 200, $result->get_status() );
 		$this->assertSame(
 			array(
-				'connections'  => array( 'claude', 'chatgpt' ),
-				'access_level' => 'read_only',
+				'connections'       => array( 'claude', 'chatgpt' ),
+				'access_level'      => 'read_only',
+				'other_connections' => 1,
 			),
 			$result->get_data()
 		);
+	}
+
+	/**
+	 * GET /mcp-connections leaves out the count of other AI tools unless asked, so ChatGPT and Claude checks don't pay for it.
+	 *
+	 * In its own process, since Brain Monkey's stubs of wpcom's functions would otherwise outlive the test that made them.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_get_mcp_connections_counts_other_tools_only_when_asked() {
+		\Brain\Monkey\Functions\when( 'wpcom_mcp_get_user_connections' )->justReturn( array() );
+		\Brain\Monkey\Functions\expect( 'wpcom_mcp_count_user_connections_excluding' )->never();
+
+		$result = $this->call_api( Requests::GET, '/mcp-connections' );
+
+		$this->assertSame( 200, $result->get_status() );
+		$this->assertNull( $result->get_data()['other_connections'] );
 	}
 
 	/**
@@ -2312,8 +2337,9 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 		$this->assertSame( 200, $result->get_status() );
 		$this->assertSame(
 			array(
-				'connections'  => array(),
-				'access_level' => null,
+				'connections'       => array(),
+				'access_level'      => null,
+				'other_connections' => null,
 			),
 			$result->get_data()
 		);

@@ -7,6 +7,7 @@ import {
 	BRING_YOUR_AI_TOOL,
 	buildWizardPayload,
 	canContinue,
+	connectedFooterLead,
 	findNewConnections,
 	firstScreen,
 	footerExit,
@@ -16,8 +17,13 @@ import {
 	goalsVariation,
 	isLastStep,
 	mcpPollSchedule,
+	otherConnectionCount,
+	otherToolConnected,
+	otherWaitBaseline,
 	pickPlaceholder,
+	progressFraction,
 	rewaitOnReturn,
+	rewaitOtherOnReturn,
 	showsSetupChoice,
 	viewedStep,
 	type AiTool,
@@ -134,6 +140,22 @@ describe( 'waiting again on return to the tab', () => {
 	}
 } );
 
+describe( 'waiting again for another AI tool on return to the tab', () => {
+	for ( const [ timedOut, otherConnected, remote, baseline ] of [
+		[ 2, false, true, 2 ],
+		[ 2, false, false, null ],
+		[ 2, true, true, null ],
+		[ null, false, true, null ],
+	] as const ) {
+		it( `waits from ${ baseline } (timed out at ${ timedOut }, connected ${ otherConnected }, remote ${ remote })`, () => {
+			assert.equal(
+				rewaitOtherOnReturn( { timedOut, otherConnected, pollsRemotely: remote } ),
+				baseline
+			);
+		} );
+	}
+} );
+
 describe( 'AI tool connection checks', () => {
 	for ( const [ remote, schedule ] of [
 		[ false, { intervalMs: 4000, whileHidden: true, onStart: false, onFocus: false } ],
@@ -194,6 +216,75 @@ describe( 'AI tool connection', () => {
 			assert.equal( isReadOnlyAccess( level ), false );
 		}
 	} );
+} );
+
+describe( 'another AI tool connection', () => {
+	for ( const [ value, count ] of [
+		[ 3, 3 ],
+		[ 0, 0 ],
+		[ undefined, null ],
+		[ null, null ],
+		[ '2', null ],
+		[ -1, null ],
+		[ 1.5, null ],
+	] as const ) {
+		it( `reads ${ JSON.stringify( value ) } as ${ count }`, () => {
+			assert.equal( otherConnectionCount( value ), count );
+		} );
+	}
+
+	for ( const [ baseline, count, connected ] of [
+		[ 1, 2, true ],
+		[ 1, 1, false ],
+		[ 2, 1, false ],
+		[ null, 2, false ],
+		[ 1, null, false ],
+	] as const ) {
+		it( `connected ${ connected } at count ${ count } from ${ baseline }`, () => {
+			assert.equal( otherToolConnected( baseline, count ), connected );
+		} );
+	}
+} );
+
+describe( 'another AI tool wait baseline', () => {
+	for ( const [ baseline, count, next ] of [
+		[ null, 3, 3 ],
+		[ null, null, null ],
+		[ 2, 1, 1 ],
+		[ 2, 3, 2 ],
+		[ 2, null, 2 ],
+	] as const ) {
+		it( `waits from ${ next } (was ${ baseline }, count ${ count })`, () => {
+			assert.equal( otherWaitBaseline( baseline, count ), next );
+		} );
+	}
+} );
+
+describe( 'connected footer', () => {
+	for ( const [ connected, otherConnected, lead ] of [
+		[ [], false, null ],
+		[ [], true, 'dashboard' ],
+		[ [ 'chatgpt' ], false, 'chatgpt' ],
+		[ [ 'chatgpt' ], true, 'chatgpt' ],
+		[ [ 'chatgpt', 'claude' ], false, 'dashboard' ],
+	] as const ) {
+		it( `leads with ${ lead } (${ connected.join( '+' ) || 'nothing' } connected, another tool ${ otherConnected })`, () => {
+			assert.equal( connectedFooterLead( [ ...connected ], otherConnected ), lead );
+		} );
+	}
+} );
+
+describe( 'progress bar', () => {
+	for ( const [ step, showAiTool, anyConnected, fraction ] of [
+		[ 0, false, false, 0.5 ],
+		[ 1, false, false, 1 ],
+		[ 0, true, false, 0.5 ],
+		[ 0, true, true, 1 ],
+	] as const ) {
+		it( `fills ${ fraction } on step ${ step } (AI tool view ${ showAiTool }, connected ${ anyConnected })`, () => {
+			assert.equal( progressFraction( step, showAiTool, anyConnected ), fraction );
+		} );
+	}
 } );
 
 describe( 'Finish payload', () => {
