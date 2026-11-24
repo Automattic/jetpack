@@ -180,10 +180,11 @@ export function withinWidgetCanvas( canvasElement: HTMLElement ) {
 	const canvas = within( canvasElement );
 	const cards = canvas.queryAllByTestId( WIDGET_CANVAS_TEST_ID );
 	const largest = cards.reduce< HTMLElement | undefined >(
-		( widest, card ) =>
-			! widest || card.clientWidth * card.clientHeight > widest.clientWidth * widest.clientHeight
+		( largestSoFar, card ) =>
+			! largestSoFar ||
+			card.clientWidth * card.clientHeight > largestSoFar.clientWidth * largestSoFar.clientHeight
 				? card
-				: widest,
+				: largestSoFar,
 		undefined
 	);
 
