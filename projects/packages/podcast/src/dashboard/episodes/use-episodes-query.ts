@@ -9,7 +9,6 @@ export interface EpisodesQueryArgs {
 	orderBy?: 'date' | 'title';
 	order?: 'asc' | 'desc';
 	search?: string;
-	status?: string;
 }
 
 export interface EpisodesPage {
@@ -24,7 +23,7 @@ export interface EpisodesPage {
  * Holds onto the previous page during pagination so DataViews doesn't flash
  * empty between fetches.
  *
- * @param args - Pagination, sort, search, and status filter args.
+ * @param args - Pagination, sort, and search args.
  * @return      `{ data, isLoading }` matching the prior TanStack-shaped contract.
  */
 export function useEpisodesQuery( args: EpisodesQueryArgs ): {
@@ -40,9 +39,8 @@ export function useEpisodesQuery( args: EpisodesQueryArgs ): {
 			order: args.order ?? 'desc',
 			_embed: 'wp:featuredmedia',
 			...( args.search ? { search: args.search } : {} ),
-			...( args.status ? { status: args.status } : {} ),
 		} ),
-		[ args.categoryId, args.page, args.perPage, args.orderBy, args.order, args.search, args.status ]
+		[ args.categoryId, args.page, args.perPage, args.orderBy, args.order, args.search ]
 	);
 
 	const { records, hasResolved, totalItems, totalPages } = useEntityRecords< Episode >(

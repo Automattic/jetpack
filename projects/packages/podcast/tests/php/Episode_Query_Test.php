@@ -7,6 +7,7 @@ namespace Automattic\Jetpack\Podcast\Tests;
 
 use WorDBless\BaseTestCase;
 use WP_REST_Request;
+use WP_Term;
 
 /**
  * The episode dashboard reads core's posts endpoint. That query must match the
@@ -14,11 +15,21 @@ use WP_REST_Request;
  */
 class Episode_Query_Test extends BaseTestCase {
 
-	const CATEGORY_ID = 7;
+	private int $category_id = 7;
 
 	protected function setUp(): void {
 		parent::setUp();
-		update_option( 'podcasting_category_id', self::CATEGORY_ID );
+		$term = new WP_Term(
+			(object) array(
+				'term_id'          => $this->category_id,
+				'name'             => 'Podcast',
+				'slug'             => 'podcast',
+				'taxonomy'         => 'category',
+				'term_taxonomy_id' => $this->category_id,
+			)
+		);
+		wp_cache_set( $this->category_id, $term, 'terms' );
+		update_option( 'podcasting_category_id', $this->category_id );
 		\Automattic\Jetpack\Podcast\Podcast::init();
 	}
 
@@ -35,7 +46,7 @@ class Episode_Query_Test extends BaseTestCase {
 	}
 
 	public function test_podcast_category_query_is_limited_to_published_posts_with_enclosure() {
-		$args = $this->query_for( self::CATEGORY_ID );
+		$args = $this->query_for( $this->category_id );
 
 		$this->assertSame( 'publish', $args['post_status'] );
 		$this->assertContains(

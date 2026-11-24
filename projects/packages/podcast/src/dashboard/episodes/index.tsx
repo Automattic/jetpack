@@ -53,7 +53,6 @@ interface EpisodeRow {
 	id: number;
 	title: string;
 	date: string;
-	status: string;
 	link: string;
 	featuredMediaUrl: string;
 	playsAll: number;
@@ -77,7 +76,7 @@ const defaultView: ViewTable = {
 	mediaField: 'media',
 	showTitle: true,
 	showMedia: true,
-	fields: [ 'duration', 'plays', 'date', 'status' ],
+	fields: [ 'duration', 'plays', 'date' ],
 	page: 1,
 	perPage: 20,
 	sort: { field: 'date', direction: 'desc' },
@@ -88,7 +87,6 @@ const defaultView: ViewTable = {
 			duration: { width: '110px' },
 			plays: { width: '120px' },
 			date: { width: '150px' },
-			status: { width: '140px' },
 		},
 	},
 };
@@ -121,14 +119,6 @@ const PlaysCell = ( { count, episodeId, episodeTitle, onOpen }: PlaysCellProps )
 	);
 };
 
-const STATUS_LABELS: Record< string, string > = {
-	publish: __( 'Published', 'jetpack-podcast' ),
-	future: __( 'Scheduled', 'jetpack-podcast' ),
-	draft: __( 'Draft', 'jetpack-podcast' ),
-	pending: __( 'Pending review', 'jetpack-podcast' ),
-	private: __( 'Private', 'jetpack-podcast' ),
-};
-
 const EpisodesTab = () => {
 	const { data: settings } = usePodcastSettings();
 	const categoryId = settings?.podcasting_category_id ?? 0;
@@ -159,9 +149,6 @@ const EpisodesTab = () => {
 		const sortField = view.sort?.field;
 		const orderBy = sortField === 'title' || sortField === 'date' ? sortField : 'date';
 		const order = view.sort?.direction === 'asc' ? 'asc' : 'desc';
-		const statusFilter = view.filters?.find( filter => filter.field === 'status' );
-		const status =
-			typeof statusFilter?.value === 'string' && statusFilter.value ? statusFilter.value : 'any';
 
 		return {
 			categoryId,
@@ -170,7 +157,6 @@ const EpisodesTab = () => {
 			orderBy: orderBy as 'date' | 'title',
 			order: order as 'asc' | 'desc',
 			search: view.search ?? '',
-			status,
 		};
 	}, [ categoryId, view ] );
 
@@ -207,7 +193,6 @@ const EpisodesTab = () => {
 				id: post.id,
 				title: decodeEntities( post.title?.rendered ?? '' ),
 				date: post.date,
-				status: post.status,
 				link: post.link,
 				featuredMediaUrl: thumbnail,
 				playsAll: stat?.plays_all ?? 0,
@@ -278,18 +263,6 @@ const EpisodesTab = () => {
 				label: __( 'Date', 'jetpack-podcast' ),
 				getValue: ( { item }: { item: EpisodeRow } ) => item.date,
 				format: { datetime: 'M j, Y' },
-				enableSorting: true,
-			},
-			{
-				id: 'status',
-				label: __( 'Status', 'jetpack-podcast' ),
-				getValue: ( { item }: { item: EpisodeRow } ) => item.status,
-				render: ( { item }: { item: EpisodeRow } ) => STATUS_LABELS[ item.status ] ?? item.status,
-				elements: Object.entries( STATUS_LABELS ).map( ( [ value, label ] ) => ( {
-					value,
-					label,
-				} ) ),
-				filterBy: { operators: [ 'is' as const ] },
 				enableSorting: true,
 			},
 		],

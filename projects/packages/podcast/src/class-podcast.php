@@ -26,6 +26,28 @@ class Podcast {
 	private static $initialized = false;
 
 	/**
+	 * Limit a posts REST query for the podcast category to what the feed includes:
+	 * published posts with an enclosure.
+	 *
+	 * @param array            $args    WP_Query args.
+	 * @param \WP_REST_Request $request REST request.
+	 * @return array
+	 */
+	public static function limit_episode_query( $args, $request ) {
+		$category_id = Customize_Feed::resolve_category_id();
+		if ( 0 === $category_id || array( $category_id ) !== array_map( 'intval', (array) $request->get_param( 'categories' ) ) ) {
+			return $args;
+		}
+
+		$args['post_status']  = 'publish';
+		$args['meta_query'][] = array(
+			'key'     => 'enclosure',
+			'compare' => 'EXISTS',
+		);
+		return $args;
+	}
+
+	/**
 	 * Initialize the package. Loads unconditionally; callers decide whether to.
 	 */
 	public static function init() {
@@ -45,6 +67,8 @@ class Podcast {
 		// Wire the RSS feed customizations (`<itunes:*>` + `<podcast:*>` tags,
 		// stats-tracked enclosure URLs) for the configured podcast category.
 		Customize_Feed::init();
+
+		add_filter( 'rest_post_query', array( __CLASS__, 'limit_episode_query' ), 10, 2 );
 
 		Tracks::init();
 
