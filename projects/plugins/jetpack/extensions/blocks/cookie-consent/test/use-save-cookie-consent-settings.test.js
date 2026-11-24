@@ -29,6 +29,7 @@ function setup( { screenBase = 'post', postType = 'wp_template', content } = {} 
 	window.Jetpack_Editor_Initial_State = { screenBase };
 	const banner = createBlock( TYPE, { text: 'Saved banner' } );
 	const savedBanner = serialize( [ banner ] );
+	const settings = { title: 'Saved title', cookie_consent_template: savedBanner };
 	const record = { id: TEMPLATE_ID, content: { raw: content ?? savedBanner } };
 	const records = Object.fromEntries(
 		[ 'page', 'wp_template', 'wp_template_part' ].map( name => [
@@ -43,7 +44,8 @@ function setup( { screenBase = 'post', postType = 'wp_template', content } = {} 
 		const name = path.split( '/' )[ 3 ].split( '?' )[ 0 ];
 		let response;
 		if ( name === 'settings' ) {
-			response = { title: 'Saved title', cookie_consent_template: savedBanner, ...data };
+			Object.assign( settings, data );
+			response = { ...settings };
 		} else if ( data ) {
 			response = records[ name ] = { ...record, content: { raw: data.content } };
 		} else {
@@ -83,10 +85,7 @@ function setup( { screenBase = 'post', postType = 'wp_template', content } = {} 
 			rawAttributes: [ 'content' ],
 		} ) ),
 	] );
-	core.receiveEntityRecords( 'root', 'site', {
-		title: 'Saved title',
-		cookie_consent_template: savedBanner,
-	} );
+	core.receiveEntityRecords( 'root', 'site', { ...settings } );
 	core.finishResolution( 'getEntityRecord', [ 'root', 'site' ] );
 	for ( const name of [ 'page', 'wp_template', 'wp_template_part' ] ) {
 		core.receiveEntityRecords( 'postType', name, records[ name ] );
@@ -110,6 +109,7 @@ function setup( { screenBase = 'post', postType = 'wp_template', content } = {} 
 		core,
 		registry,
 		records,
+		settings,
 		editor: registry.dispatch( 'core/editor' ),
 		blockEditor: registry.dispatch( 'core/block-editor' ),
 		save,
@@ -161,10 +161,21 @@ describe( 'Cookie Consent settings synchronization', () => {
 		}
 	);
 
-	it.each( [ 'wp_template', 'wp_template_part' ] )(
-		'clears the banner only after saving a deletion in a %s after the block unmounts',
-		async name => {
-			const { core, blockEditor, save, unmount } = setup( { postType: name } );
+	it.each( [
+		[ 'wp_template', false ],
+		[ 'wp_template_part', false ],
+		[ 'wp_template', true ],
+		[ 'wp_template_part', true ],
+	] )(
+		'clears the banner only after saving a deletion in a %s after the block unmounts (stale copy: %s)',
+		async ( name, staleCopy ) => {
+			const { core, blockEditor, save, savedBanner, records, unmount } = setup( {
+				postType: name,
+			} );
+			if ( staleCopy ) {
+				const other = name === 'wp_template' ? 'wp_template_part' : 'wp_template';
+				records[ other ].content.raw = savedBanner.replaceAll( 'Saved banner', 'Old banner' );
+			}
 			await act( () => core.editEntityRecord( 'postType', name, TEMPLATE_ID, { content: '' } ) );
 			await act( () => blockEditor.setState( { block: undefined } ) );
 			await act( async () => unmount() );
@@ -302,7 +313,7 @@ describe( 'Cookie Consent settings synchronization', () => {
 	it.each( [ 'loaded', 'fetched' ] )(
 		'keeps a banner moved to a %s part before the source template is saved',
 		async location => {
-			const { save, savedBanner, records } = setup();
+			const { core, registry, save, savedBanner, records, settings } = setup();
 			if ( location === 'loaded' ) {
 				await save( 'wp_template_part', savedBanner );
 			} else {
@@ -311,13 +322,35 @@ describe( 'Cookie Consent settings synchronization', () => {
 					content: { raw: savedBanner },
 				};
 			}
+			await waitFor( () =>
+				expect( settingsWrites() ).toHaveLength( location === 'loaded' ? 1 : 0 )
+			);
+			const currentTemplate = savedBanner.replaceAll( '\n', '\n\n' );
+			settings.cookie_consent_template = currentTemplate;
+			await act( () =>
+				core.receiveEntityRecords( 'root', 'site', { cookie_consent_template: currentTemplate } )
+			);
 
 			await save( 'wp_template', '' );
-
 			await waitFor( () =>
-				expect( settingsWrites() ).toHaveLength( location === 'loaded' ? 2 : 1 )
+				expect(
+					[ 'wp_template', 'wp_template_part' ].every( name =>
+						registry
+							.select( coreStore )
+							.hasFinishedResolution( 'getEntityRecords', [
+								'postType',
+								name,
+								{ per_page: -1, context: 'edit' },
+							] )
+					)
+				).toBe( true )
 			);
-			expect( settingsWrites().at( -1 )[ 0 ].data.cookie_consent_template ).toBe( savedBanner );
+
+			expect( settingsWrites() ).toHaveLength( location === 'loaded' ? 1 : 0 );
+			expect( registry.select( coreStore ).getEntityRecord( 'root', 'site' ) ).toHaveProperty(
+				'cookie_consent_template',
+				currentTemplate
+			);
 		}
 	);
 

@@ -64,7 +64,7 @@ export function useSyncCookieConsentSettings() {
 			completedSaves = [];
 			settingsSave = settingsSave
 				.then( async () => {
-					let banner = banners.find( Boolean );
+					const banner = banners.find( Boolean );
 					if ( ! banner ) {
 						const records = await Promise.all(
 							[ 'wp_template', 'wp_template_part' ].map( name =>
@@ -77,7 +77,22 @@ export function useSyncCookieConsentSettings() {
 						if ( records.some( collection => ! Array.isArray( collection ) ) ) {
 							return;
 						}
-						banner = records.flat().map( getBanner ).find( Boolean );
+						const site = await registry
+							.resolveSelect( coreStore )
+							.getEntityRecord( 'root', 'site' );
+						const currentBanner = getBanner( { content: site?.cookie_consent_template } );
+						if (
+							currentBanner &&
+							records.flat().some( record => {
+								const savedBanner = getBanner( record );
+								return (
+									savedBanner &&
+									serializeRawBlock( savedBanner ) === serializeRawBlock( currentBanner )
+								);
+							} )
+						) {
+							return;
+						}
 					}
 					await registry
 						.dispatch( coreStore )
