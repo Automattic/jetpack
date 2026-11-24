@@ -85,6 +85,8 @@
 			"../../plugins/*/build/routes/*/*.min.js",
 			"../../plugins/*/build/modules/*/*.min.js",
 			"../../plugins/*/build/widgets/*/*.min.js"
-		]
+		],
+		"minChunkSize": 8192,
+		"consumerExports": "shared-modules-consumers.json"
 	}
 }
