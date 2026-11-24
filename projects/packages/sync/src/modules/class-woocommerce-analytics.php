@@ -849,7 +849,7 @@ class WooCommerce_Analytics extends Module {
 	/**
 	 * Get the total fees from an order.
 	 *
-	 * @param WC_Order $order WC_Order object.
+	 * @param WC_Abstract_Order $order Order or refund.
 	 * @return float
 	 */
 	protected static function get_total_fees( $order ) {
@@ -870,7 +870,7 @@ class WooCommerce_Analytics extends Module {
 	/**
 	 * Get the total fees tax from an order.
 	 *
-	 * @param WC_Order $order WC_Order object.
+	 * @param WC_Abstract_Order $order Order or refund.
 	 * @return float
 	 */
 	protected static function get_total_fees_tax( $order ) {
