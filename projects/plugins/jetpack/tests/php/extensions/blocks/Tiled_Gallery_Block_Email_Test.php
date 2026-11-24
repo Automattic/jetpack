@@ -98,6 +98,45 @@ class Tiled_Gallery_Block_Email_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Mosaic rows share one height from the images' aspect ratios and fill the email width, at pixel sizes Outlook honors.
+	 */
+	public function test_render_email_mosaic_sizes_row_from_aspect_ratios() {
+		$ids = array();
+		foreach ( array( array( 800, 400 ), array( 400, 800 ), array( 600, 600 ) ) as $index => $dimensions ) {
+			$id = self::factory()->attachment->create_object(
+				array(
+					'file'           => "photo-$index.jpg",
+					'post_mime_type' => 'image/jpeg',
+				)
+			);
+			wp_update_attachment_metadata(
+				$id,
+				array(
+					'file'   => "photo-$index.jpg",
+					'width'  => $dimensions[0],
+					'height' => $dimensions[1],
+				)
+			);
+			$ids[] = $id;
+		}
+
+		// 740px less 4px of cell padding per image leaves 728px, so the row is 728 / ( 2 + 0.5 + 1 ) = 208px tall.
+		$result = \Automattic\Jetpack\Extensions\Tiled_Gallery::render_email( '', array( 'attrs' => array( 'ids' => $ids ) ), $this->create_rendering_context_mock( '740px' ) );
+
+		preg_match_all( '/<img [^>]*width="(\d+)" height="(\d+)"/', $result, $matches, PREG_SET_ORDER );
+		$this->assertSame(
+			array( array( '416', '208' ), array( '104', '208' ), array( '208', '208' ) ),
+			array_map(
+				function ( $match ) {
+					return array( $match[1], $match[2] );
+				},
+				$matches
+			)
+		);
+		$this->assertStringNotContainsString( 'object-fit', $result );
+	}
+
+	/**
 	 * Test render_email with square layout style.
 	 */
 	public function test_render_email_with_square_layout() {

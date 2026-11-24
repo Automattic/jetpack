@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Tiled Gallery: Keep each image's proportions in newsletter emails instead of cropping every tile to the same height.

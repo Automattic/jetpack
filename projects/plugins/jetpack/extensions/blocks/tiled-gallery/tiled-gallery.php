@@ -300,7 +300,7 @@ class Tiled_Gallery {
 		$target_width = self::get_email_target_width( $rendering_context );
 
 		// Build layout content based on style and columns
-		$grid_content = self::build_email_layout_content( $images, $layout_info, $email_cell_padding, $attr );
+		$grid_content = self::build_email_layout_content( $images, $layout_info, $email_cell_padding, $attr, $target_width );
 
 		// Use Table_Wrapper_Helper for consistent email rendering
 		$table_style = sprintf( 'width: 100%%; max-width: %dpx; padding: 0; border-collapse: collapse;', $target_width );
@@ -363,6 +363,9 @@ class Tiled_Gallery {
 					continue;
 				}
 
+				$width  = 0;
+				$height = 0;
+
 				// For square/circle layouts, get a high-quality square crop
 				if ( $is_squareish ) {
 					// Start with full size image for better quality when resizing
@@ -379,7 +382,10 @@ class Tiled_Gallery {
 						);
 					}
 				} else {
-					$image_url = wp_get_attachment_image_url( $id, 'large' );
+					$image_src = wp_get_attachment_image_src( $id, 'large' );
+					$image_url = $image_src ? $image_src[0] : false;
+					$width     = $image_src ? (int) $image_src[1] : 0;
+					$height    = $image_src ? (int) $image_src[2] : 0;
 				}
 
 				// Sanitize alt text from post meta
@@ -388,9 +394,11 @@ class Tiled_Gallery {
 
 				if ( $image_url ) {
 					$images[] = array(
-						'url' => $image_url,
-						'alt' => $alt_text,
-						'id'  => $id,
+						'url'    => $image_url,
+						'alt'    => $alt_text,
+						'id'     => $id,
+						'width'  => $width,
+						'height' => $height,
 					);
 				}
 			}
@@ -411,9 +419,11 @@ class Tiled_Gallery {
 					$id = ! empty( $image_data['id'] ) ? absint( $image_data['id'] ) : 0;
 
 					$images[] = array(
-						'url' => $url,
-						'alt' => $alt_text,
-						'id'  => $id,
+						'url'    => $url,
+						'alt'    => $alt_text,
+						'id'     => $id,
+						'width'  => ! empty( $image_data['width'] ) ? absint( $image_data['width'] ) : 0,
+						'height' => ! empty( $image_data['height'] ) ? absint( $image_data['height'] ) : 0,
 					);
 				}
 			}
@@ -477,9 +487,10 @@ class Tiled_Gallery {
 	 * @param array $layout_info Array with 'style' and 'columns' keys.
 	 * @param int   $cell_padding Cell padding.
 	 * @param array $attr Block attributes.
+	 * @param int   $target_width Email content width in pixels.
 	 * @return string HTML content.
 	 */
-	private static function build_email_layout_content( $images, $layout_info, $cell_padding, $attr ) {
+	private static function build_email_layout_content( $images, $layout_info, $cell_padding, $attr, $target_width ) {
 		$layout_style  = $layout_info['style'];
 		$columns       = $layout_info['columns'];
 		$border_radius = $layout_info['border_radius'];
@@ -493,7 +504,7 @@ class Tiled_Gallery {
 				return self::build_columns_layout_content( $images, $cell_padding, $columns, $border_radius, $attr );
 			case 'rectangular':
 			default:
-				return self::build_mosaic_layout_content( $images, $cell_padding, $border_radius, $attr );
+				return self::build_mosaic_layout_content( $images, $cell_padding, $border_radius, $attr, $target_width );
 		}
 	}
 
@@ -532,7 +543,7 @@ class Tiled_Gallery {
 					),
 				);
 
-				$image_styles = self::generate_image_styles( false );
+				$image_styles = self::generate_image_styles();
 
 				$cell_content = self::generate_image_html( $image, $image_styles, $border_radius_style, $attr );
 
@@ -620,7 +631,7 @@ class Tiled_Gallery {
 			$cell_content = '';
 			foreach ( $column_rows as $row_index => $row_images ) {
 				foreach ( $row_images as $image ) {
-					$image_styles = self::generate_image_styles( false );
+					$image_styles = self::generate_image_styles();
 
 					// Add top margin to all images except the first one in the column
 					if ( $row_index > 0 || $cell_content !== '' ) {
@@ -665,9 +676,10 @@ class Tiled_Gallery {
 	 * @param int   $cell_padding Cell padding.
 	 * @param int   $border_radius Border radius value (0-20).
 	 * @param array $attr Block attributes.
+	 * @param int   $target_width Email content width in pixels.
 	 * @return string HTML content.
 	 */
-	private static function build_mosaic_layout_content( $images, $cell_padding, $border_radius = 0, $attr = array() ) {
+	private static function build_mosaic_layout_content( $images, $cell_padding, $border_radius = 0, $attr = array(), $target_width = 600 ) {
 		$border_radius_style = self::generate_border_radius_style( '', $border_radius );
 
 		// Generate mosaic layout rows
@@ -682,25 +694,23 @@ class Tiled_Gallery {
 		// Build each row as a separate table to match flexbox behavior
 		$content_parts = array();
 		foreach ( $rows as $row ) {
-			$images_in_row = count( $row );
-
-			// Calculate width for each cell in this row (like flexbox)
-			$cell_width_percent = ( 100 / $images_in_row );
+			$sizes = self::get_mosaic_row_image_sizes( $row, $target_width - 2 * $cell_padding * count( $row ) );
 
 			// Build table cells for this row
 			$row_cells = '';
-			foreach ( $row as $image ) {
+			foreach ( $row as $index => $image ) {
+				list( $image_width, $image_height ) = $sizes[ $index ];
+
 				$cell_style = sprintf(
 					'width: %s%%; padding: %dpx; vertical-align: top; text-align: center;',
-					$cell_width_percent,
+					round( ( $image_width + 2 * $cell_padding ) * 100 / $target_width, 4 ),
 					$cell_padding
 				);
 
-				// Set consistent height for all images in this row to ensure alignment
-				// Use progressive enhancement: object-fit for supported clients, natural layout for others
-				$image_styles = self::generate_image_styles( true );
+				// The pixel size is for Outlook, which ignores CSS widths; other clients scale the image with its cell.
+				$image_styles = sprintf( 'margin: 0; width: 100%%; max-width: %dpx; display: block; height: auto;', $image_width );
 
-				$cell_content = self::generate_image_html( $image, $image_styles, $border_radius_style, $attr );
+				$cell_content = self::generate_image_html( $image, $image_styles, $border_radius_style, $attr, array( $image_width, $image_height ) );
 
 				$row_cells .= sprintf(
 					'<td style="%s">%s</td>',
@@ -727,6 +737,33 @@ class Tiled_Gallery {
 			implode( '', $content_parts ),
 			$table_attrs
 		);
+	}
+
+	/**
+	 * Size a mosaic row's images to share one height and fill the given width, as the web mosaic does.
+	 *
+	 * @param array $row Images in the row.
+	 * @param int   $width Width the row's images fill, in pixels.
+	 * @return array Width and height in pixels for each image.
+	 */
+	private static function get_mosaic_row_image_sizes( $row, $width ) {
+		$ratios = array();
+		foreach ( $row as $image ) {
+			// Treat an image with unknown dimensions as square.
+			$ratios[] = $image['width'] > 0 && $image['height'] > 0 ? $image['width'] / $image['height'] : 1;
+		}
+
+		$row_height = $width / array_sum( $ratios );
+		$sizes      = array();
+		$remaining  = $width;
+		foreach ( $ratios as $index => $ratio ) {
+			// The last image takes the rounding remainder so the row fills the width exactly.
+			$image_width = $index === count( $ratios ) - 1 ? $remaining : (int) floor( $ratio * $row_height );
+			$remaining  -= $image_width;
+			$sizes[]     = array( max( 1, $image_width ), max( 1, (int) round( $row_height ) ) );
+		}
+
+		return $sizes;
 	}
 
 	/**
@@ -866,17 +903,10 @@ class Tiled_Gallery {
 	/**
 	 * Generate image styles for email rendering.
 	 *
-	 * @param bool $use_fixed_height Whether to use fixed height with object-fit.
 	 * @return string CSS style string.
 	 */
-	private static function generate_image_styles( $use_fixed_height = false ) {
-		$base_styles = 'margin: 0; width: 100%; max-width: 100%; display: block;';
-
-		if ( $use_fixed_height ) {
-			return $base_styles . ' height: 200px; object-fit: cover; object-position: center;';
-		}
-
-		return $base_styles . ' height: auto;';
+	private static function generate_image_styles() {
+		return 'margin: 0; width: 100%; max-width: 100%; display: block; height: auto;';
 	}
 
 	/**
@@ -886,16 +916,19 @@ class Tiled_Gallery {
 	 * @param string $additional_styles Additional CSS styles.
 	 * @param string $border_radius_style Border radius CSS.
 	 * @param array  $attr Block attributes (optional, for link processing).
+	 * @param array  $size Optional width and height attributes in pixels.
 	 * @return string Image HTML.
 	 */
-	private static function generate_image_html( $image, $additional_styles = '', $border_radius_style = '', $attr = array() ) {
+	private static function generate_image_html( $image, $additional_styles = '', $border_radius_style = '', $attr = array(), $size = array() ) {
 		$base_styles     = 'border:none;background-color:#0000001a;display:block;height:auto;max-width:100%;padding:0;';
 		$combined_styles = $base_styles . $additional_styles . $border_radius_style;
+		$size_attributes = $size ? sprintf( ' width="%d" height="%d"', $size[0], $size[1] ) : '';
 
 		$img_html = sprintf(
-			'<img alt="%s" src="%s" style="%s" />',
+			'<img alt="%s" src="%s"%s style="%s" />',
 			esc_attr( $image['alt'] ),
 			esc_url( $image['url'] ),
+			$size_attributes,
 			$combined_styles
 		);
 
