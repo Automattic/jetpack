@@ -412,6 +412,8 @@ class Initializer {
 
 		self::$site_info = self::get_site_info();
 		add_filter( 'identity_crisis_container_id', array( static::class, 'get_idc_container_id' ) );
+		// The Safe Mode window shows the new screen itself.
+		add_filter( 'jetpack_identity_crisis_show_notice', '__return_false' );
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_scripts' ) );
 	}
 
