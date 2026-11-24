@@ -256,8 +256,8 @@ class REST_Endpoints_Test extends TestCase {
 	 *
 	 * @dataProvider provide_registration_failures
 	 *
-	 * @param callable $register      `pre_http_request` callback that answers the registration request.
-	 * @param string   $expected_code Error code the endpoint returns.
+	 * @param string $register      Name of this class's `pre_http_request` callback that answers the registration request.
+	 * @param string $expected_code Error code the endpoint returns.
 	 */
 	#[DataProvider( 'provide_registration_failures' )]
 	public function test_start_fresh_registration_failure( $register, $expected_code ) {
