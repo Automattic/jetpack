@@ -389,6 +389,10 @@ class Analytics {
 		require_once __DIR__ . '/stats-plan-gates.php';
 		configure_stats_plan_gates();
 
+		// Whether this site and user see the Upgrade to Parsely prompts.
+		require_once __DIR__ . '/parsely-prompts.php';
+		configure_parsely_prompts();
+
 		// The purchase a Stats checkout returned with, for the thank-you notice.
 		require_once __DIR__ . '/purchase-success.php';
 		configure_purchase_success();
