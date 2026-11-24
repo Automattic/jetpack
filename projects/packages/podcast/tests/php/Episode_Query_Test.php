@@ -15,21 +15,21 @@ use WP_Term;
  */
 class Episode_Query_Test extends BaseTestCase {
 
-	private int $category_id = 7;
+	const CATEGORY_ID = 7;
 
 	protected function setUp(): void {
 		parent::setUp();
 		$term = new WP_Term(
 			(object) array(
-				'term_id'          => $this->category_id,
+				'term_id'          => self::CATEGORY_ID,
 				'name'             => 'Podcast',
 				'slug'             => 'podcast',
 				'taxonomy'         => 'category',
-				'term_taxonomy_id' => $this->category_id,
+				'term_taxonomy_id' => self::CATEGORY_ID,
 			)
 		);
-		wp_cache_set( $this->category_id, $term, 'terms' );
-		update_option( 'podcasting_category_id', $this->category_id );
+		wp_cache_set( self::CATEGORY_ID, $term, 'terms' );
+		update_option( 'podcasting_category_id', self::CATEGORY_ID );
 		\Automattic\Jetpack\Podcast\Podcast::init();
 	}
 
@@ -46,7 +46,7 @@ class Episode_Query_Test extends BaseTestCase {
 	}
 
 	public function test_podcast_category_query_is_limited_to_published_posts_with_enclosure() {
-		$args = $this->query_for( $this->category_id );
+		$args = $this->query_for( self::CATEGORY_ID );
 
 		$this->assertSame( 'publish', $args['post_status'] );
 		$this->assertContains(
