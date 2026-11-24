@@ -51,7 +51,7 @@ The codebase handles two runtime environments:
 - **`Publicize_Setup`** — Static initialization orchestrator (entry point from Config package)
 - **`Publicize_UI`** — Classic editor integration: the Publicize metabox on the post screen, and its assets
 - **`Social_Admin_Page`** — Registers and renders the Jetpack Social admin page (always registered, even when Publicize is off)
-- **`Keyring_Helper`** — Site-side connection requests (`SERVICES`: Google and Bing site verification) and Publicize disconnects, both through public-api
+- **`Keyring_Helper`** — Site-side connection requests (`SERVICES`, today Google site verification) and Publicize disconnects, both through public-api
 
 ### REST API Controllers (`src/rest-api/`)
 

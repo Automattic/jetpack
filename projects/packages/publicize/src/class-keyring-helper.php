@@ -43,9 +43,6 @@ class Keyring_Helper {
 		'google_site_verification' => array(
 			'for' => 'other',
 		),
-		'bing_webmaster'           => array(
-			'for' => 'other',
-		),
 	);
 
 	/**
