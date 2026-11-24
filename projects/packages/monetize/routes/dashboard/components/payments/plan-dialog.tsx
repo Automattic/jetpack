@@ -124,14 +124,13 @@ export default function PlanDialog( { plan, currencies, startAsTier = false, onC
 		[]
 	);
 
-	const currencyItems = useMemo(
-		() =>
-			( Object.keys( currencies.minimumAmounts ).length
-				? Object.keys( currencies.minimumAmounts )
-				: [ form.currency ]
-			).map( code => ( { label: code, value: code } ) ),
-		[ currencies.minimumAmounts, form.currency ]
-	);
+	const currencyItems = useMemo( () => {
+		const offered = Object.keys( currencies.minimumAmounts );
+		// An existing plan may be in a currency the account no longer offers.
+		return ( offered.includes( form.currency ) ? offered : [ ...offered, form.currency ] ).map(
+			code => ( { label: code, value: code } )
+		);
+	}, [ currencies.minimumAmounts, form.currency ] );
 	const intervalItems = useMemo(
 		() => [
 			{ label: __( 'Monthly', 'jetpack-monetize' ), value: '1 month' },

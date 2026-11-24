@@ -47,7 +47,7 @@ describe( 'DeletePlanDialog', () => {
 		);
 	} );
 
-	it( 'retries only the product that failed to delete', async () => {
+	it( 'retries only the product that failed to delete, with the same choice about subscriptions', async () => {
 		( wpcomFetch as jest.Mock )
 			.mockResolvedValueOnce( {} )
 			.mockRejectedValueOnce( new Error( 'Stripe is down.' ) )
@@ -57,6 +57,9 @@ describe( 'DeletePlanDialog', () => {
 
 		await userEvent.click( screen.getByRole( 'button', { name: 'Delete' } ) );
 		await expect( screen.findAllByText( 'Stripe is down.' ) ).resolves.not.toHaveLength( 0 );
+		expect(
+			screen.getByRole( 'checkbox', { name: 'Cancel existing subscriptions' } )
+		).toHaveAttribute( 'aria-disabled', 'true' );
 		await userEvent.click( screen.getByRole( 'button', { name: 'Delete' } ) );
 
 		await waitFor( () => expect( onClose ).toHaveBeenCalled() );

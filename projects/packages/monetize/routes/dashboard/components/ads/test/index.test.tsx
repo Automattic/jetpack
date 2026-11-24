@@ -72,43 +72,56 @@ const renderTab = ( {
 };
 
 describe( 'Ads', () => {
+	// The last column is text the card must not show.
 	it.each( [
-		[ 'no plan, ads off', { hasWordAds: false, active: false }, 'Upgrade and start earning' ],
-		[ 'a plan, ads off', { hasWordAds: true, active: false }, 'Start earning from ads' ],
+		[ 'no plan, ads off', { hasWordAds: false, active: false }, 'Upgrade and start earning', null ],
+		[
+			'a plan, ads off',
+			{ hasWordAds: true, active: false },
+			'Start earning from ads',
+			'Ad earnings',
+		],
 		[
 			'ads off, owed earnings, no PayPal',
 			{ hasWordAds: true, active: false, paypal: '', totalEarnings: 5, owed: 5 },
 			/are held until/,
+			null,
 		],
 		[
 			'ads on, plan lost',
 			{ hasWordAds: false, active: true, status: 'ineligible' },
 			/no longer includes ads/,
+			null,
 		],
 		[
 			'Simple, not the owner',
 			{ hasWordAds: true, active: false, simple: true },
 			'Only the site owner can join WordAds.',
+			null,
 		],
 		[
 			'Simple, the owner',
 			{ hasWordAds: true, active: false, simple: true, canJoin: true },
 			'Join WordAds in Settings',
+			null,
 		],
 		[
 			'Simple, joined, ads off',
 			{ hasWordAds: true, active: false, approved: true, simple: true },
 			'Turn on ads in Settings',
+			null,
 		],
 		[
 			'ads off, owed earnings',
 			{ hasWordAds: true, active: false, totalEarnings: 5 },
 			'Ad earnings',
+			null,
 		],
-	] )( 'with %s, shows the right card', async ( _case, state, text ) => {
+	] )( 'with %s, shows the right card', async ( _case, state, text, hidden ) => {
 		renderTab( state );
 
 		await expect( screen.findByText( text ) ).resolves.toBeVisible();
+		expect( hidden ? screen.queryByText( hidden ) : null ).toBeNull();
 	} );
 
 	it( 'offers no way to join for a Simple site WordPress.com reports unsafe', async () => {
@@ -133,12 +146,5 @@ describe( 'Ads', () => {
 		await userEvent.click( await screen.findByRole( 'link', { name: 'Turn on ads in Settings' } ) );
 
 		expect( openTab ).toHaveBeenCalledWith( 'settings' );
-	} );
-
-	it( 'hides earnings from a site that never showed ads', async () => {
-		renderTab( { hasWordAds: true, active: false } );
-
-		await expect( screen.findByText( 'Start earning from ads' ) ).resolves.toBeVisible();
-		expect( screen.queryByText( 'Ad earnings' ) ).not.toBeInTheDocument();
 	} );
 } );

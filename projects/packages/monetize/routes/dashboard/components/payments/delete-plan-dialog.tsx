@@ -21,6 +21,8 @@ export default function DeletePlanDialog( { plan, onClose }: { plan: Plan; onClo
 		...( plan.annual ? [ plan.annual.id ] : [] ),
 	] );
 	const deleteProducts = useDeleteProducts();
+	// Once a product is gone, a retry must cancel (or keep) subscriptions the same way.
+	const isPartlyDeleted = remainingIds.length < ( plan.annual ? 2 : 1 );
 
 	const onOpenChange = useCallback(
 		( open: boolean ) => {
@@ -72,6 +74,7 @@ export default function DeletePlanDialog( { plan, onClose }: { plan: Plan; onClo
 						label={ __( 'Cancel existing subscriptions', 'jetpack-monetize' ) }
 						checked={ cancelSubscriptions }
 						onCheckedChange={ setCancelSubscriptions }
+						disabled={ deleteProducts.isPending || isPartlyDeleted }
 					/>
 				</div>
 			</AlertDialog.Popup>

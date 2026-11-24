@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Polish the Monetize dashboard: clearer headings and card names, retry buttons for failed loads, rounded annual prices, decoded subscriber names, a payment plan shortcut after connecting Stripe, and turning ads on no longer waits on WordPress.com.

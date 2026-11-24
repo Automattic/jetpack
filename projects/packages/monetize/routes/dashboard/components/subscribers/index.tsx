@@ -186,6 +186,8 @@ export default function Subscribers() {
 			</Text>
 		);
 	} else {
+		// The previous page's rows stand in while a page loads, but not once it fails.
+		const pageFailed = isError && isPlaceholderData;
 		content = (
 			<Stack direction="column" gap="md">
 				{ isError && (
@@ -194,18 +196,23 @@ export default function Subscribers() {
 							{ error.message ||
 								__( 'This page could not be loaded. Please try again.', 'jetpack-monetize' ) }
 						</Notice.Description>
+						<Notice.Actions>
+							<Notice.ActionButton onClick={ retry } loading={ isFetching } disabled={ isFetching }>
+								{ __( 'Try again', 'jetpack-monetize' ) }
+							</Notice.ActionButton>
+						</Notice.Actions>
 					</Notice.Root>
 				) }
 				<div className="jp-monetize-subscribers__table">
 					<DataViews< PaidSubscription >
-						data={ data?.subscriptions ?? [] }
+						data={ pageFailed ? [] : data.subscriptions }
 						fields={ fields }
 						view={ view }
 						onChangeView={ setView }
 						actions={ actions }
 						getItemId={ getItemId }
 						onClickItem={ openDetails }
-						isLoading={ isPlaceholderData }
+						isLoading={ isPlaceholderData && ! pageFailed }
 						paginationInfo={ { totalItems: total, totalPages } }
 						defaultLayouts={ DEFAULT_LAYOUTS }
 						config={ CONFIG }
