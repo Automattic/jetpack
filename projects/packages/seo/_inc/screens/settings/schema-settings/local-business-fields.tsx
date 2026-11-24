@@ -1,8 +1,7 @@
 /* eslint-disable react/jsx-no-bind */
 
-import { TextControl } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
-import { Stack, Text } from '@wordpress/ui';
+import { InputControl, Stack, Text } from '@wordpress/ui';
 import clsx from 'clsx';
 import styles from './style.module.scss';
 import type {
@@ -201,18 +200,16 @@ const LocalBusinessFields: FC< Props > = ( { form, disabled = false } ) => {
 									[ styles.fieldError ]: fieldError,
 								} ) }
 							>
-								<TextControl
+								<InputControl
 									label={ label }
-									help={ fieldError ? COUNTRY_CODE_ERROR : help }
+									description={ fieldError ? COUNTRY_CODE_ERROR : help }
 									placeholder={ localBusinessDefaults.address[ field ] }
 									value={ address[ field ] }
-									onChange={ next =>
+									onValueChange={ next =>
 										setAddress( field, field === 'addressCountry' ? uppercaseAscii( next ) : next )
 									}
 									disabled={ disabled || isSaving }
 									aria-invalid={ Boolean( fieldError ) }
-									__next40pxDefaultSize
-									__nextHasNoMarginBottom
 								/>
 							</div>
 						);
@@ -226,20 +223,18 @@ const LocalBusinessFields: FC< Props > = ( { form, disabled = false } ) => {
 						[ styles.fieldError ]: ! isPhoneNumber( localBusiness.telephone ),
 					} ) }
 				>
-					<TextControl
+					<InputControl
 						label={ __( 'Phone', 'jetpack-seo' ) }
 						type="tel"
-						help={
+						description={
 							! isPhoneNumber( localBusiness.telephone )
 								? PHONE_ERROR
 								: __( 'Include the country and area codes when possible.', 'jetpack-seo' )
 						}
 						value={ localBusiness.telephone }
-						onChange={ next => setLocalBusinessField( { telephone: next } ) }
+						onValueChange={ next => setLocalBusinessField( { telephone: next } ) }
 						disabled={ disabled || isSaving }
 						aria-invalid={ ! isPhoneNumber( localBusiness.telephone ) }
-						__next40pxDefaultSize
-						__nextHasNoMarginBottom
 					/>
 				</div>
 
@@ -248,20 +243,18 @@ const LocalBusinessFields: FC< Props > = ( { form, disabled = false } ) => {
 						[ styles.fieldError ]: ! isPriceRange( localBusiness.priceRange ),
 					} ) }
 				>
-					<TextControl
+					<InputControl
 						label={ __( 'Price range', 'jetpack-seo' ) }
 						placeholder="$$"
-						help={
+						description={
 							! isPriceRange( localBusiness.priceRange )
 								? PRICE_RANGE_ERROR
 								: __( 'A range like $10–$20, or a level like $$.', 'jetpack-seo' )
 						}
 						value={ localBusiness.priceRange }
-						onChange={ next => setLocalBusinessField( { priceRange: next } ) }
+						onValueChange={ next => setLocalBusinessField( { priceRange: next } ) }
 						disabled={ disabled || isSaving }
 						aria-invalid={ ! isPriceRange( localBusiness.priceRange ) }
-						__next40pxDefaultSize
-						__nextHasNoMarginBottom
 					/>
 				</div>
 			</div>
@@ -271,16 +264,14 @@ const LocalBusinessFields: FC< Props > = ( { form, disabled = false } ) => {
 					const fieldError = hasPartialGeo || ! isCoordinate( geo[ field ], max );
 					return (
 						<div key={ field } className={ styles.pairedField }>
-							<TextControl
+							<InputControl
 								label={ label }
 								inputMode="decimal"
 								value={ geo[ field ] }
-								onChange={ next => setGeo( field, next ) }
+								onValueChange={ next => setGeo( field, next ) }
 								disabled={ disabled || isSaving }
 								aria-invalid={ Boolean( fieldError ) }
 								aria-describedby={ geoError ? GEO_ERROR_ID : undefined }
-								__next40pxDefaultSize
-								__nextHasNoMarginBottom
 							/>
 						</div>
 					);
@@ -316,7 +307,7 @@ const LocalBusinessFields: FC< Props > = ( { form, disabled = false } ) => {
 							</Stack>
 							<div className={ styles.pairedFields }>
 								<div className={ styles.pairedField }>
-									<TextControl
+									<InputControl
 										label={ sprintf(
 											/* translators: %s: day of week. */
 											__( '%s opens', 'jetpack-seo' ),
@@ -325,17 +316,15 @@ const LocalBusinessFields: FC< Props > = ( { form, disabled = false } ) => {
 										hideLabelFromVision
 										type="time"
 										value={ openingHours[ code ].opens }
-										onChange={ next => setHours( code, 'opens', next ) }
+										onValueChange={ next => setHours( code, 'opens', next ) }
 										onBlur={ event => clearInvalidTime( code, 'opens', event ) }
 										disabled={ disabled || isSaving }
 										aria-invalid={ opensError }
 										aria-describedby={ hasPairError ? errorId : undefined }
-										__next40pxDefaultSize
-										__nextHasNoMarginBottom
 									/>
 								</div>
 								<div className={ styles.pairedField }>
-									<TextControl
+									<InputControl
 										label={ sprintf(
 											/* translators: %s: day of week. */
 											__( '%s closes', 'jetpack-seo' ),
@@ -344,13 +333,11 @@ const LocalBusinessFields: FC< Props > = ( { form, disabled = false } ) => {
 										hideLabelFromVision
 										type="time"
 										value={ openingHours[ code ].closes }
-										onChange={ next => setHours( code, 'closes', next ) }
+										onValueChange={ next => setHours( code, 'closes', next ) }
 										onBlur={ event => clearInvalidTime( code, 'closes', event ) }
 										disabled={ disabled || isSaving }
 										aria-invalid={ closesError }
 										aria-describedby={ hasPairError ? errorId : undefined }
-										__next40pxDefaultSize
-										__nextHasNoMarginBottom
 									/>
 								</div>
 								{ hasPairError && (

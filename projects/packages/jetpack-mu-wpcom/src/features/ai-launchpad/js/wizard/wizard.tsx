@@ -136,7 +136,7 @@ export function Wizard( {
 	const [ connectedTools, setConnectedTools ] = useState< AiTool[] >( [] );
 	// Whether the account's MCP access was read only at the AI tool view's last check. It applies to every tool.
 	const [ readOnlyAccess, setReadOnlyAccess ] = useState( false );
-	// The account's MCP access level at the last check: `full`, `read_only`, or null when settings match neither.
+	// The account's MCP access level at the last check: `full`, `read_only`, or null for a fresh account or one tuned per tool.
 	const [ accessLevel, setAccessLevel ] = useState< string | null >( null );
 	// Once full access is allowed here, a check already in flight can still report read only, so it is ignored.
 	const fullAccessAllowed = useRef( false );
@@ -227,8 +227,7 @@ export function Wizard( {
 		setReadOnlyAccess( isReadOnlyAccess( level ) && ! fullAccessAllowed.current );
 	}, [] );
 
-	// Only a clean read-only account is switched in place. An account tuned per tool (null) goes to the settings,
-	// since allowing full access would clear its per-tool choices.
+	// Only a read-only account is switched in place; POST /mcp-access refuses any other level.
 	const allowsFullAccessInPlace =
 		mcpAllowFull && ! allowFullAccessFailed && accessLevel === 'read_only';
 

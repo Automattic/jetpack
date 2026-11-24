@@ -115,6 +115,7 @@ export {
 	type DashboardSectionSlug,
 } from './utils/dashboard-sections';
 export { getPostReportKind } from './utils/single-report-pages';
+export { DASHBOARD_ONBOARDING_KEY, DASHBOARD_STORE_ONBOARDING_KEY } from './utils/onboarding-keys';
 export {
 	getLockedFeature,
 	getLockedSection,

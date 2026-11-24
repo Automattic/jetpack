@@ -107,6 +107,8 @@ declare module '@automattic/jetpack-script-data' {
 			error_reporting?: { enabled: boolean; version: string; script_origins: string[] };
 			// The Stats purchase this page load returned from checkout with; absent on every other load.
 			purchase_success?: { type: 'paid' | 'free' };
+			// Whether the dashboard mounts the What's new surface; a feature flag decides it for now.
+			whats_new_enabled?: boolean;
 		};
 		newsletter?: {
 			// The Newsletter page's Subscribers tab; null when this user cannot open it.

@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Settings: Move settings from Jetpack › Settings to My Jetpack › Features and to each feature's own page, and hide Jetpack › Settings once nothing is left on it.

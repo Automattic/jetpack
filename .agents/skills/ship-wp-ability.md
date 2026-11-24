@@ -96,11 +96,12 @@ If you're unsure which case applies: does the ability call code that only exists
 
 ### 5) Write the class extending `Registrar`
 
-Follow `references/class-skeleton.md`. Three abstract methods must be implemented:
+Follow `references/class-skeleton.md`. Implement the three abstract methods and override `enabled_by_default()`:
 
 - `get_category_slug(): string` — returns the kebab-case slug from step 4.
 - `get_category_definition(): array` — returns `[ 'label' => ..., 'description' => ... ]`.
 - `get_abilities(): array` — returns a `[ slug => spec ]` map.
+- `enabled_by_default(): bool` — override it to return `true`. The base class returns `false`, so a registrar without the override registers nothing unless a site returns `true` from `jetpack_wp_abilities_enabled`.
 
 Do NOT write an `init()` method. `Registrar::init()` handles the hook lifecycle and the `jetpack_wp_abilities_enabled` gate. Call `<Name>_Abilities::init()` from the bootstrap before WordPress fires `wp_abilities_api_categories_init`, for example on `plugins_loaded`. WordPress rejects registrations after that action, so a later call registers nothing, and no notice says so.
 
@@ -119,8 +120,9 @@ For every entry in `get_abilities()`:
 - `execute_callback` — `[ __CLASS__, 'method_name' ]`. Method signature is `( $input = null )`. Return value is a plain array (or `WP_Error`). Keep the shape **high-signal** — don't return raw `$mod` / `WP_Post` / option dumps; summarize. See the anti-patterns section of `references/agent-ergonomics.md`.
 - `permission_callback` — `[ __CLASS__, 'can_method' ]`. See the permissions table below.
 - `meta.annotations` — `readonly`, `destructive`, `idempotent` booleans. These must match execute behavior; `wp-abilities-verify` will flag mismatches.
-- `meta.mcp` — every ability gets `'mcp' => array( 'public' => true, 'type' => 'tool' )`. This is what surfaces the ability to MCP-bridged AI agents as a tool. Matches the convention used by Stats / Boost / Modules abilities; leaving it off makes the ability invisible to MCP consumers even though it shows up in `/wp-abilities/v1/abilities/`. Flip `public => false` only when the ability is for internal callers and explicitly shouldn't be agent-discoverable.
-- `meta.show_in_rest` — `true` when the ability should be callable via REST.
+- `meta.public` — `true` for every agent-facing ability. This is the WordPress-level flag that marks an ability as available to clients. MCP adapter 0.6.0+ falls back to it when `meta.mcp.public` is not set, and WordPress 7.1+ uses it as the default for `show_in_rest`.
+- `meta.show_in_rest` — keep `true` explicit. WordPress 7.0 does not derive it from `meta.public`, so leaving it out hides the ability from `/wp-abilities/v1/abilities/` there.
+- `meta.mcp` — every ability also gets `'mcp' => array( 'public' => true, 'type' => 'tool' )`. MCP adapters older than 0.6.0 read only `meta.mcp.public`, so keep it alongside `meta.public`. For an ability meant only for internal callers, set both `meta.public` and `meta.mcp.public` to `false`: an explicit `meta.mcp.public` overrides `meta.public` for MCP. Also set `show_in_rest` to `false` unless those callers need REST, because an explicit `true` keeps the ability in `/wp-abilities/v1/abilities/` and in WordPress.com's remote ability discovery. Leave that slug out of the public-flag test in `references/test-templates.md`.
 - **Do NOT set `category`** in the spec. `Registrar` auto-injects it. Setting it duplicates info that drifts.
 - `WP_Error` codes — use the shared vocabulary in `wp-abilities-api/references/error-code-vocabulary.md` (`<plugin>_not_initialized`, `<plugin>_missing_<field>`, `<plugin>_invalid_<field>`, `<plugin>_<resource>_data_unavailable`). The **message** should tell the agent *what to do next* — e.g. "Unknown module slug. Call jetpack-modules/get-modules to enumerate." — not just restate the error condition.
 - **Pagination** — any list-shaped read needs `page`/`per_page` (or `limit`/`cursor`) with a `default` of ~20 and a `maximum` of ~100. Enforce the max in the callback. Even if today's dataset is small, don't ship ability specs that return unbounded lists.
@@ -212,7 +214,7 @@ The test file lives at:
 Required coverage:
 
 - **Registrar wiring** (the differentiating value-add):
-  - `jetpack_wp_abilities_enabled` defaulting false → `init()` registers nothing.
+  - `jetpack_wp_abilities_enabled` returning false → `init()` registers nothing.
   - Filter enabled, neither action fired → both lifecycle hooks added.
   - Per-ability `jetpack_wp_abilities_should_register` filter — returning false skips that ability.
   - Category auto-injection — abilities whose spec omits `category` get the subclass's slug.
@@ -321,9 +323,9 @@ Mark the PR ready-for-review only after the review loop converges (no open block
 
 ## Failure modes / debugging
 
-- **Nothing registers at runtime.** `jetpack_wp_abilities_enabled` defaults to `false`. Tests must filter it true (`Filters\expectApplied('jetpack_wp_abilities_enabled')->andReturn(true)`), and live sites need to opt in via a feature flag, option, or site-specific filter.
+- **Nothing registers at runtime.** Check that the registrar overrides `enabled_by_default()` to return `true`, then whether something returns `false` from `jetpack_wp_abilities_enabled`, or from `jetpack_wp_abilities_should_register` for your slug.
 - **The class loads but no abilities appear.** `init()` ran after WordPress fired `wp_abilities_api_init`, which happens the first time anything reads the abilities registry. WordPress rejects later registrations, so `Registrar::init()` registers nothing, and no notice says so. Call `init()` earlier, for example on `plugins_loaded`, and never from code that runs on `rest_api_init`.
-- **You see the legacy manual-hook pattern elsewhere** (e.g. `projects/plugins/jetpack/src/abilities/class-modules-abilities.php`, `projects/packages/forms/src/abilities/class-forms-abilities.php`). These predate the `Registrar` package. Don't copy them. Extend `Registrar` and implement the three abstract methods.
+- **You see the legacy manual-hook pattern elsewhere** (e.g. `projects/plugins/jetpack/src/abilities/class-modules-abilities.php`, `projects/packages/forms/src/abilities/class-forms-abilities.php`). These predate the `Registrar` package. Don't copy them. Extend `Registrar`, implement the three abstract methods and override `enabled_by_default()`.
 - **Module-backed ability landed in `projects/plugins/jetpack/src/abilities/` and is wired from `class.jetpack.php`** (the PR #48284 pattern). Colocation lint will catch this. The ability loads on every request regardless of module state, pollutes the API surface when the module is off, and pays autoload cost for nothing. Move the file into `modules/<slug>/abilities/` and wire from `modules/<slug>.php`.
 - **Adding `if ( Jetpack::is_module_active( '<slug>' ) )` around the `::init()` call in `class.jetpack.php`.** Better than not guarding, but still wrong — you're re-implementing what `load_modules()` does for free. Move the wiring into the module file instead.
 - **Duplicate `category` in a spec.** Silent smell — `Registrar` injects the slug when missing. Setting `'category' => self::CATEGORY_SLUG` in each spec is redundant and drifts.

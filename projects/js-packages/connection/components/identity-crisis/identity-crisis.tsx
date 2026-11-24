@@ -6,14 +6,16 @@ import useIdentityCrisisActions from '../../hooks/use-identity-crisis-actions';
 import IdentityCrisisAddresses from './addresses';
 import IdentityCrisisErrorNotice from './error-notice';
 import ChoiceStep from './flow/choice-step';
-import { getOptionCopy, getStagingNote } from './flow/copy';
+import { getConfirmedNote, getOptionCopy, getStagingNote } from './flow/copy';
 import Intro from './flow/intro';
 import StepActions from './flow/step-actions';
 import { getOptions, getPath } from './flow/steps';
 import useIdentityCrisisFlow from './flow/use-identity-crisis-flow';
 import IdentityCrisisLayout from './layout';
 import IdentityCrisisMigrated from './migrated';
+import { reloadPage } from './navigate';
 import IdentityCrisisNonAdmin from './non-admin';
+import { onIdentityCrisisActionSuccess } from './on-action-success';
 import styles from './styles.module.scss';
 import useIdentityCrisisState from './use-identity-crisis-state';
 import type { CopyContext } from './flow/copy';
@@ -40,12 +42,12 @@ interface ResolverProps extends IdentityCrisisProps {
 function IdentityCrisisResolver( {
 	state,
 	plugins,
-	context,
+	showHeader = true,
 	redirectUri,
 	from,
 	hostActions,
-	onActionSuccess,
-	onMigratedDone,
+	onActionSuccess = onIdentityCrisisActionSuccess,
+	onMigratedDone = reloadPage,
 }: ResolverProps ): ReactNode {
 	const actions = useIdentityCrisisActions( { redirectUri, from } );
 	const ctx: FlowContext = useMemo(
@@ -126,7 +128,7 @@ function IdentityCrisisResolver( {
 		return (
 			<IdentityCrisisLayout
 				logoUrl={ state.logoUrl }
-				showHeader={ context !== 'connectors' }
+				showHeader={ showHeader }
 				hostActions={ hostActions }
 			>
 				{ addresses }
@@ -144,7 +146,7 @@ function IdentityCrisisResolver( {
 	return (
 		<IdentityCrisisLayout
 			logoUrl={ state.logoUrl }
-			showHeader={ context !== 'connectors' }
+			showHeader={ showHeader }
 			hostActions={ hostActions }
 		>
 			{ addresses }
@@ -152,6 +154,11 @@ function IdentityCrisisResolver( {
 			{ flow.isFirstView && ctx.isDevelopmentSite && (
 				<Text variant="body-md" render={ <p /> } className={ styles.note }>
 					{ getStagingNote( copy ) }
+				</Text>
+			) }
+			{ flow.isFirstView && state.isSafeModeConfirmed && (
+				<Text variant="body-md" render={ <p /> } className={ styles.note }>
+					{ getConfirmedNote() }
 				</Text>
 			) }
 			<Stack direction="column" gap="md">
@@ -193,7 +200,7 @@ export default function IdentityCrisis( props: IdentityCrisisProps ): ReactNode 
 
 	if ( ! state.canResolve ) {
 		return (
-			<IdentityCrisisLayout showHeader={ props.context !== 'connectors' }>
+			<IdentityCrisisLayout showHeader={ props.showHeader ?? true }>
 				<IdentityCrisisNonAdmin isStore={ hasWooPlugin( plugins ) } onDismiss={ props.onDismiss } />
 			</IdentityCrisisLayout>
 		);

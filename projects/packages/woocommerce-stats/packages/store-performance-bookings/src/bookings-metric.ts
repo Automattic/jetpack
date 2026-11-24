@@ -12,7 +12,7 @@ import type { DataFormat, ReportResult } from '@automattic/jetpack-premium-analy
 /** The filter Store performance reads its metrics from. */
 export const STORE_PERFORMANCE_METRICS_FILTER = 'jetpack.woocommerceStats.storePerformance.metrics';
 
-/** A metric as Store performance takes it; the widget's own run 10 to 50 by `order`. */
+/** A metric as Store performance takes it; `src/store-performance/metric.ts` gives the `order` range. */
 export type StorePerformanceMetric = {
 	id: string;
 	order?: number;

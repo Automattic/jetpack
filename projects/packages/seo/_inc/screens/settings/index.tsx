@@ -1,20 +1,30 @@
 /* eslint-disable react/jsx-no-bind */
 
 import { getScriptData, isSimpleSite } from '@automattic/jetpack-script-data';
-import { TextareaControl, ToggleControl } from '@wordpress/components';
 import { useEffect, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { home, link, seen } from '@wordpress/icons';
 import { useSearch } from '@wordpress/route';
-import { Button, Card, CollapsibleCard, Link, Notice, Stack, Text, Tooltip } from '@wordpress/ui';
+import {
+	Button,
+	Card,
+	CollapsibleCard,
+	Link,
+	Notice,
+	Stack,
+	SwitchControl,
+	Text,
+	TextareaControl,
+	Tooltip,
+} from '@wordpress/ui';
 import clsx from 'clsx';
 import CardTitleIcon from '../../components/card-title-icon';
 import PausedNote from '../../components/paused-note';
-import SeoPausedBanner from '../../components/seo-paused-banner';
 import StatusIndicator from '../../components/status-indicator';
 import getOutput from '../../data/get-output';
 import isVerificationSwitchable from '../../data/is-verification-switchable';
 import AuthorProfileCard from './author-profile-card';
+import DataSharingSettings from './data-sharing-settings';
 import IndexnowSettings from './indexnow-settings';
 import SchemaCard from './schema-card';
 import SocialPreviewsCard from './social-previews-card';
@@ -107,10 +117,11 @@ type SettingsSearch = Record< string, unknown > & { focus?: string };
  * @return The Settings tab content.
  */
 const SettingsScreen: FC< Props > = ( { form } ) => {
+	const [ sharingSaving, setSharingSaving ] = useState( false );
 	const [ indexnowSaving, setIndexnowSaving ] = useState( false );
 	const {
 		local,
-		isSaving,
+		isSaving: formSaving,
 		setField,
 		setSchemaSettings,
 		setVerification,
@@ -121,6 +132,7 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 		commitTitleFormat,
 		isTitleFormatDirty,
 	} = form;
+	const isSaving = formSaving || sharingSaving;
 
 	// Overview deep links (`?focus=visibility|verification`) scroll the matching
 	// section to its top. `scroll-margin-block-start` on the section's module clears
@@ -240,19 +252,18 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 					<TextareaControl
 						// Short label: the design system renders control labels as 11px
 						// all-caps, which a sentence-length label is unreadable in. The
-						// explanation belongs in `help`, which renders in sentence case.
+						// explanation belongs in `description`, which renders in sentence case.
 						// Named for the home page rather than just "Description", which
 						// would collide with the Organization/Person description field
 						// also on this tab and leave two controls indistinguishable to a
 						// screen reader.
 						label={ __( 'Home page description', 'jetpack-seo' ) }
-						help={ frontPageHelp }
+						description={ frontPageHelp }
 						value={ local.front_page_description }
-						onChange={ next => setField( { front_page_description: next } ) }
+						onValueChange={ next => setField( { front_page_description: next } ) }
 						maxLength={ descriptionMaxLength }
 						rows={ 3 }
 						disabled={ isSaving || outputLocked }
-						__nextHasNoMarginBottom
 					/>
 					{ /* Count and Save share a row, matching the title-structure footer. */ }
 					<Stack direction="row" justify="space-between" align="center" gap="sm">
@@ -286,7 +297,6 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 
 	return (
 		<Stack direction="column" gap="lg" className={ styles.root }>
-			<SeoPausedBanner />
 			<div id="visibility" className={ styles.section }>
 				<CollapsibleCard.Root defaultOpen>
 					<CollapsibleCard.Header render={ <h2 /> }>
@@ -307,15 +317,14 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 								{ /* A div trigger: the default button can't wrap the toggle's input. */ }
 								<Tooltip.Root disabled={ ! local.site_is_private }>
 									<Tooltip.Trigger render={ <div /> }>
-										<ToggleControl
+										<SwitchControl
 											label={ __( 'Allow search engines to index this site', 'jetpack-seo' ) }
-											help={ indexingHelpText }
+											description={ indexingHelpText }
 											checked={ local.search_engines_visible }
-											onChange={ next => commit( { search_engines_visible: next } ) }
+											onCheckedChange={ next => commit( { search_engines_visible: next } ) }
 											// A private site is unpublished, not de-indexed. Turning this on would
 											// have to publish it, which is not this surface's decision to make.
 											disabled={ isSaving || indexnowSaving || local.site_is_private }
-											__nextHasNoMarginBottom
 										/>
 									</Tooltip.Trigger>
 									<Tooltip.Popup positioner={ <Tooltip.Positioner align="start" /> }>
@@ -329,12 +338,12 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 								) }
 							</Stack>
 							<Stack direction="column" gap="xs">
-								<ToggleControl
+								<SwitchControl
 									label={ __( 'Generate an XML sitemap', 'jetpack-seo' ) }
-									help={ sitemapHelpText }
+									description={ sitemapHelpText }
 									// Off while indexing is blocked. Outside Simple, the saved preference is kept.
 									checked={ sitemapEffectivelyOn }
-									onChange={ next => commit( { sitemap_active: next } ) }
+									onCheckedChange={ next => commit( { sitemap_active: next } ) }
 									disabled={
 										simpleSite ||
 										isSaving ||
@@ -342,7 +351,6 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 										! local.search_engines_visible ||
 										! local.sitemap_switchable
 									}
-									__nextHasNoMarginBottom
 								/>
 								{ hostingOptionsUrl && (
 									<Link
@@ -372,6 +380,14 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 					</CollapsibleCard.Content>
 				</CollapsibleCard.Root>
 			</div>
+
+			{ local.data_sharing_available && (
+				<DataSharingSettings
+					disabled={ formSaving }
+					onSavingChange={ setSharingSaving }
+					visibility={ `${ local.search_engines_visible }:${ local.site_is_private }:${ local.site_is_coming_soon }` }
+				/>
+			) }
 
 			<div id="verification" className={ styles.section }>
 				<VerificationCard
@@ -424,13 +440,12 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 				<CollapsibleCard.Content>
 					<Stack direction="column" gap="md">
 						{ local.canonical_conflicted && <PausedNote /> }
-						<ToggleControl
+						<SwitchControl
 							label={ __( 'Add canonical URLs to archive pages', 'jetpack-seo' ) }
-							help={ canonicalHelpText }
+							description={ canonicalHelpText }
 							checked={ local.canonical_active }
-							onChange={ next => commit( { canonical_active: next } ) }
+							onCheckedChange={ next => commit( { canonical_active: next } ) }
 							disabled={ isSaving || ! local.canonical_switchable || local.canonical_conflicted }
-							__nextHasNoMarginBottom
 						/>
 					</Stack>
 				</CollapsibleCard.Content>

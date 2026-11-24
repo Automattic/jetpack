@@ -238,6 +238,41 @@ class IndexnowSettingsTest extends SeoTestCase {
 		$this->assertEqualsCanonicalizing( array( 'enabled', 'pending', 'latest', 'enqueue_error', 'cooldown_active', 'scheduling_delayed', 'pause_reason' ), array_keys( $status ) );
 	}
 
+	public function test_filtered_scheme_does_not_pause_or_reset_pending_work_and_accepted_history() {
+		$home   = get_option( 'home' );
+		$scheme = 'http';
+		update_option( 'home', 'http://example.com/blog' );
+		$resolve = static function ( $url ) use ( &$scheme ) {
+			return set_url_scheme( $url, $scheme );
+		};
+		add_filter( 'home_url', $resolve );
+		try {
+			$request = new WP_REST_Request( 'POST' );
+			$request->set_param( 'enabled', true );
+			Indexnow::save( $request );
+			$this->assertTrue( Indexnow_Queue::enqueue( 'http://example.com/blog/removed/', 42, true ) );
+			$receipt = array(
+				'state' => 'accepted',
+				'time'  => 100,
+				'count' => 1,
+			);
+			update_option( Indexnow_Queue::ACCEPTED_OPTION, $receipt, false );
+			$scheme = 'https';
+			$this->assertSame( '', Indexnow::status()['pause_reason'] );
+			$status = Indexnow::save( $request );
+			$this->assertSame( $receipt, $status['latest']['accepted'] ?? null );
+			$this->assertSame( 1, $status['pending'] );
+			$scheme = 'http';
+			$request->set_param( 'enabled', false );
+			$status = Indexnow::save( $request );
+			$this->assertSame( 0, $status['pending'] );
+			$this->assertSame( $receipt, $status['latest']['accepted'] ?? null );
+		} finally {
+			remove_filter( 'home_url', $resolve );
+			update_option( 'home', $home );
+		}
+	}
+
 	/**
 	 * @dataProvider delivery_schedules
 	 * @param int|null $worker Worker run relative to now, or null when unscheduled.

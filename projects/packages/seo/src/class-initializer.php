@@ -22,7 +22,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '0.12.0';
+	const PACKAGE_VERSION = '0.13.0';
 
 	/**
 	 * Key under `window.JetpackScriptData` the React app reads its state from
@@ -87,6 +87,8 @@ class Initializer {
 		if ( ! self::is_available() ) {
 			return;
 		}
+
+		Llms_Txt::register_redirect_filters();
 
 		// Before anything can read the AI crawler choices.
 		Ai_Crawlers::register_legacy_migration();
@@ -165,6 +167,7 @@ class Initializer {
 		Indexnow::init();
 
 		Indexnow_Client::init();
+		add_action( 'rest_api_init', array( Data_Sharing::class, 'register_routes' ) );
 
 		// The settings surface only comes online once SEO tools are active — there's
 		// nothing to configure while the module is off, so we don't register its REST

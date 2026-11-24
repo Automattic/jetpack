@@ -2,6 +2,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import { AlertDialog, CheckboxControl } from '@wordpress/ui';
 import { useCallback, useState } from 'react';
 import { DeleteProductsError, useDeleteProducts } from '../../data/memberships';
+import { showSuccessSnackbar } from '../../data/notices';
 import { trackPaymentsEvent } from '../../data/tracking';
 import type { Plan } from './plans';
 
@@ -34,6 +35,10 @@ export default function DeletePlanDialog( { plan, onClose }: { plan: Plan; onClo
 		try {
 			await deleteProducts.mutateAsync( { ids: remainingIds, cancelSubscriptions } );
 			trackPaymentsEvent( 'plan_delete', { cancel_subscriptions: cancelSubscriptions } );
+			showSuccessSnackbar(
+				/* translators: %s: the plan's name. */
+				sprintf( __( 'Plan “%s” deleted.', 'jetpack-monetize' ), plan.product.title )
+			);
 		} catch ( error ) {
 			if ( error instanceof DeleteProductsError ) {
 				setRemainingIds( error.failedIds );
@@ -45,7 +50,7 @@ export default function DeletePlanDialog( { plan, onClose }: { plan: Plan; onClo
 					__( 'The plan could not be deleted. Please try again.', 'jetpack-monetize' ),
 			};
 		}
-	}, [ cancelSubscriptions, deleteProducts, remainingIds ] );
+	}, [ cancelSubscriptions, deleteProducts, plan.product.title, remainingIds ] );
 
 	return (
 		<AlertDialog.Root open onOpenChange={ onOpenChange } onConfirm={ onConfirm }>

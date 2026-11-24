@@ -5,6 +5,8 @@
  * `save: () => null` — the frontend markup is rendered in PHP by
  * PayPal_Payment_Buttons::render_block().
  */
+// First, so every image URL in the bundle uses the public path it sets.
+import './public-path';
 import { hasFeatureFlag } from '@automattic/jetpack-shared-extension-utils';
 import { registerJetpackBlockFromMetadata } from '../block/register-jetpack-block';
 import metadata from './block.json';

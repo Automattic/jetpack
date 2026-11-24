@@ -13,7 +13,7 @@
  * @return array The `$_FILES` array element with 'error' key set if file exceeds quota. 'error' is empty otherwise.
  */
 function wpcomsh_check_upload_size( $file ) {
-	if ( $file['error'] > 0 ) { // There's already an error.
+	if ( ! $file || $file['error'] > 0 ) { // No file, or there's already an error.
 		return $file;
 	}
 

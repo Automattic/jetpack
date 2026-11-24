@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Backup\V0005\REST;
 
+use Automattic\Jetpack\Backup\V0005\Jetpack_Backup;
 use Automattic\Jetpack\Connection\Client;
 use WP_Error;
 use WP_REST_Server;
@@ -54,6 +55,11 @@ class Capabilities_Bridge {
 		$blog_id = Rest_Controller::get_blog_id_or_error();
 		if ( is_wp_error( $blog_id ) ) {
 			return $blog_id;
+		}
+
+		$cached = get_transient( Jetpack_Backup::CAPABILITIES_TRANSIENT );
+		if ( is_array( $cached ) ) {
+			return rest_ensure_response( $cached );
 		}
 
 		$response = Client::wpcom_json_api_request_as_user(
@@ -125,12 +131,16 @@ class Capabilities_Bridge {
 		}
 
 		$capabilities = $body['capabilities'];
-
-		return rest_ensure_response(
-			array(
-				'hasBackupPlan' => in_array( 'backup', $capabilities, true ),
-				'hasScan'       => in_array( 'scan', $capabilities, true ),
-			)
+		$projected    = array(
+			'hasBackupPlan' => in_array( 'backup', $capabilities, true ),
+			'hasScan'       => in_array( 'scan', $capabilities, true ),
 		);
+
+		// A "no plan" answer is not kept: a reader back from buying one must not meet the upsell again.
+		if ( $projected['hasBackupPlan'] ) {
+			set_transient( Jetpack_Backup::CAPABILITIES_TRANSIENT, $projected, Jetpack_Backup::REWIND_READ_CACHE_TTL );
+		}
+
+		return rest_ensure_response( $projected );
 	}
 }

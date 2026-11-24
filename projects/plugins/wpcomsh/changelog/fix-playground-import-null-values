@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Playground importer: keep NULL values as NULL so nullable UNIQUE columns with several NULL rows import.

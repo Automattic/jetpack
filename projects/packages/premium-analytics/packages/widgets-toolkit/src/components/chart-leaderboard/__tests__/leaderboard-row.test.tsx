@@ -489,6 +489,26 @@ describe( 'buildLeaderboardRow', () => {
 		expect( title ).toHaveClass( 'rowLink' );
 	} );
 
+	it( 'draws the mark of an indicated row beside the title, outside its name', () => {
+		render(
+			buildLeaderboardRow( {
+				label: 'Hello',
+				media: { kind: 'none' },
+				action: { kind: 'postLink', id: 5, href: null, search: {} },
+				indicator: 'Published in this period',
+			} ).label
+		);
+
+		const title = screen.getByRole( 'link', { name: 'Hello' } );
+		const mark = screen.getByRole( 'img', { name: 'Published in this period' } );
+		// The mark moves the row chrome to a wrapper, as a "View" action does.
+		// eslint-disable-next-line testing-library/no-node-access -- The wrapper has no accessible query target.
+		const wrapper = mark.parentElement;
+		expect( wrapper ).toHaveClass( 'row' );
+		expect( wrapper ).toContainElement( title );
+		expect( title ).toHaveClass( 'titleLink' );
+	} );
+
 	it( 'returns chart button props for a drill-down without nesting an action', () => {
 		const onClick = jest.fn();
 		const row = buildLeaderboardRow( {

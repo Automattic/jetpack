@@ -93,6 +93,12 @@ export type LeaderboardRowActionWithTrailing = Extract<
 	{ kind: 'viewLink' | 'postLink' | 'videoLink' | 'static' | 'drillDown' }
 >;
 
+/** The actions whose title is its own link, so a mark beside it stays out of every control's name. */
+type LeaderboardRowActionWithIndicator = Extract<
+	LeaderboardRowAction,
+	{ kind: 'postLink' | 'videoLink' }
+>;
+
 export type LeaderboardRowProps = {
 	/** Label text. */
 	label: string;
@@ -109,11 +115,24 @@ export type LeaderboardRowProps = {
 			 * "View" action when there is one).
 			 */
 			trailingAction?: ReactElement;
+			indicator?: never;
+	  }
+	| {
+			action: LeaderboardRowActionWithIndicator;
+			/** A `bars` row has no room for the mark: its bar starts where the mark would sit. */
+			variant?: 'list';
+			trailingAction?: ReactElement;
+			/**
+			 * Names a mark drawn at the row's start, e.g. "Published in this period". It sits
+			 * beside the title link, so the link keeps its name.
+			 */
+			indicator?: string;
 	  }
 	| {
 			/** Any action; a row that links out as a whole has no room for another. */
 			action: LeaderboardRowAction;
 			trailingAction?: never;
+			indicator?: never;
 	  }
 );
 
@@ -170,10 +189,14 @@ export function LeaderboardRow( {
 	action,
 	trailingAction,
 	variant = 'list',
+	indicator,
 }: LeaderboardRowProps ): ReactElement {
 	const rowClassName = clsx( styles.row, variant === 'bars' && styles.bars );
 	const rowLinkClassName = clsx( styles.rowLink, variant === 'bars' && styles.bars );
 	const trailing = trailingAction && <span className={ styles.rowAction }>{ trailingAction }</span>;
+	const mark = indicator && (
+		<span role="img" aria-label={ indicator } className={ styles.indicator } />
+	);
 
 	if ( action.kind === 'postLink' || action.kind === 'videoLink' ) {
 		const TitleLink = action.kind === 'postLink' ? PostTitleLink : VideoTitleLink;
@@ -195,11 +218,12 @@ export function LeaderboardRow( {
 			title: label,
 		};
 
-		// A row with a trailing action holds two controls, so the row chrome goes on a
-		// wrapper and the title keeps the tooltip.
-		if ( liveUrl !== undefined || trailing ) {
+		// A row with a trailing action or a mark holds more than the title, so the row
+		// chrome goes on a wrapper and the title keeps the tooltip.
+		if ( liveUrl !== undefined || trailing || mark ) {
 			return (
 				<span className={ rowClassName }>
+					{ mark }
 					<TitleLink
 						{ ...titleLinkProps }
 						classNames={ {

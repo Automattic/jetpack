@@ -56,9 +56,16 @@ class Jetpack_About_Page extends Jetpack_Admin_Page {
 	 * @param string $hook Hook of current page.
 	 */
 	public function add_page_actions( $hook ) {
-		if ( 'admin_page_jetpack_about' === $hook ) {
-			$this->a8c_data = $this->fetch_a8c_data();
-		}
+		add_action( "load-$hook", array( $this, 'load_a8c_data' ) );
+	}
+
+	/**
+	 * Load the A12s data when the About page loads, so other admin pages never fetch it.
+	 *
+	 * @since 16.5
+	 */
+	public function load_a8c_data() {
+		$this->a8c_data = $this->fetch_a8c_data();
 	}
 
 	/**
@@ -547,7 +554,7 @@ class Jetpack_About_Page extends Jetpack_Admin_Page {
 			if ( ! empty( $data ) && is_array( $data ) ) {
 				set_transient( 'jetpack_a8c_data', $data, WEEK_IN_SECONDS );
 			} else {
-				// Fallback if everything fails.
+				// Fallback if everything fails, cached briefly so an outage costs one request an hour.
 				$data = array(
 					'a12s'             => 888,
 					'countries'        => 69,
@@ -559,6 +566,7 @@ class Jetpack_About_Page extends Jetpack_Admin_Page {
 						'wp-super-cache',
 					),
 				);
+				set_transient( 'jetpack_a8c_data', $data, HOUR_IN_SECONDS );
 			}
 		}
 		return $data;

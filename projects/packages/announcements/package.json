@@ -1,5 +1,5 @@
 {
-	"version": "0.1.0-alpha",
+	"version": "0.1.0",
 	"private": true,
 	"description": "A product-agnostic channel to tell Jetpack users what is new.",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/announcements/#readme",
@@ -32,9 +32,12 @@
 	"dependencies": {
 		"@wordpress/core-data": "9.1.0",
 		"@wordpress/data": "11.1.0",
+		"@wordpress/date": "6.1.0",
 		"@wordpress/element": "10.1.0",
 		"@wordpress/i18n": "7.1.0",
+		"@wordpress/icons": "20.0.0",
 		"@wordpress/preferences": "5.1.0",
+		"@wordpress/ui": "0.26.0",
 		"react": "19.3.0",
 		"react-dom": "19.3.0"
 	},
@@ -45,6 +48,7 @@
 		"@babel/core": "7.29.13",
 		"@testing-library/dom": "10.4.2",
 		"@testing-library/react": "16.3.3",
+		"@testing-library/user-event": "14.6.8",
 		"@types/jest": "30.0.0",
 		"@types/react": "19.3.0",
 		"@typescript/native-preview": "7.0.0-dev.20260707.2",

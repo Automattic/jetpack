@@ -356,3 +356,15 @@ export function getStagingNote( c: CopyContext ): ReactNode {
 		c
 	);
 }
+
+/**
+ * That Safe Mode is already on, for a host that keeps the questions once Safe Mode is confirmed.
+ *
+ * @return The note.
+ */
+export function getConfirmedNote(): string {
+	return __(
+		'You chose to stay in Safe Mode. Features stay paused until you choose another option below.',
+		'jetpack-connection-js'
+	);
+}

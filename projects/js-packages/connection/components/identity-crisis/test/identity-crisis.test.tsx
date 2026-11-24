@@ -18,7 +18,32 @@ jest.unstable_mockModule( '../use-identity-crisis-state', () => ( {
 	default: () => storeState,
 } ) );
 
+const goTo = jest.fn();
+const reloadPage = jest.fn();
+jest.unstable_mockModule( '../navigate', () => ( { __esModule: true, goTo, reloadPage } ) );
+
 const IdentityCrisis = ( await import( '../identity-crisis' ) ).default;
+
+/**
+ * Pick each answer in turn, then the action button.
+ *
+ * @param {ReturnType<typeof userEvent.setup>} user    - The user-event instance.
+ * @param {string[]}                           answers - The answers, one per step.
+ * @param {string}                             button  - The action button.
+ */
+async function answer(
+	user: ReturnType< typeof userEvent.setup >,
+	answers: string[],
+	button: string
+) {
+	for ( const [ index, label ] of answers.entries() ) {
+		await user.click( screen.getByRole( 'radio', { name: label } ) );
+		if ( index < answers.length - 1 ) {
+			await user.click( screen.getByRole( 'button', { name: 'Next' } ) );
+		}
+	}
+	await user.click( screen.getByRole( 'button', { name: button } ) );
+}
 
 const resolvable: IdentityCrisisState = {
 	useNewScreen: true,
@@ -37,6 +62,8 @@ describe( 'IdentityCrisis', () => {
 		migrateIDC.mockReset();
 		startIDCFresh.mockReset();
 		confirmIDCSafeMode.mockReset();
+		goTo.mockReset();
+		reloadPage.mockReset();
 		storeState = { state: resolvable, plugins: jetpack };
 	} );
 
@@ -71,17 +98,65 @@ describe( 'IdentityCrisis', () => {
 				/>
 			);
 
-			for ( const [ index, answer ] of answers.entries() ) {
-				await user.click( screen.getByRole( 'radio', { name: answer } ) );
-				if ( index < answers.length - 1 ) {
-					await user.click( screen.getByRole( 'button', { name: 'Next' } ) );
-				}
-			}
-			await user.click( screen.getByRole( 'button', { name: button } ) );
+			await answer( user, answers, button );
 
 			expect( request ).toHaveBeenCalledTimes( 1 );
 			expect( request ).toHaveBeenCalledWith( ...args );
 			expect( onActionSuccess ).toHaveBeenCalledWith( result );
+			expect( goTo ).not.toHaveBeenCalled();
+			expect( reloadPage ).not.toHaveBeenCalled();
+		}
+	);
+
+	it.each( [
+		[
+			'a fresh connection goes to the connect URL',
+			[ 'The original site', 'Give it its own connection' ],
+			'Connect separately',
+			null,
+			[ [ 'https://wordpress.com/connect' ] ],
+			0,
+		],
+		[
+			'staying in Safe Mode reloads',
+			[ 'A copy of this site', 'I’m not sure' ],
+			'Stay in Safe Mode',
+			null,
+			[],
+			1,
+		],
+		[
+			'updating the address waits for its done view',
+			[ 'This site’s old address' ],
+			'Update address',
+			null,
+			[],
+			0,
+		],
+		[
+			'the done view reloads',
+			[ 'This site’s old address' ],
+			'Update address',
+			'Got it, thanks',
+			[],
+			1,
+		],
+	] )(
+		'without host handlers, %s',
+		async ( _, answers, button, doneButton, goToCalls, reloads ) => {
+			const user = userEvent.setup();
+			[ migrateIDC, startIDCFresh, confirmIDCSafeMode ].forEach( request =>
+				request.mockResolvedValue( 'https://wordpress.com/connect' )
+			);
+			render( <IdentityCrisis context="notice" /> );
+
+			await answer( user, answers, button );
+			if ( doneButton ) {
+				await user.click( screen.getByRole( 'button', { name: doneButton } ) );
+			}
+
+			expect( goTo.mock.calls ).toEqual( goToCalls );
+			expect( reloadPage ).toHaveBeenCalledTimes( reloads );
 		}
 	);
 
@@ -141,6 +216,16 @@ describe( 'IdentityCrisis', () => {
 			expect( screen.queryByRole( 'button', { name: 'Dismiss' } ) !== null ).toBe( withDismiss );
 		}
 	);
+
+	it( 'once Safe Mode is confirmed, says so and still offers every answer', () => {
+		storeState = { state: { ...resolvable, isSafeModeConfirmed: true }, plugins: jetpack };
+		render(
+			<IdentityCrisis context="connectors" showHeader={ false } onActionSuccess={ jest.fn() } />
+		);
+
+		expect( screen.getByText( /You chose to stay in Safe Mode\./ ) ).toBeInTheDocument();
+		expect( screen.getAllByRole( 'radio' ) ).toHaveLength( 3 );
+	} );
 
 	it.each( [
 		[ 'jetpack', /This site is registered/, /— like Stats and Backups —/, false ],

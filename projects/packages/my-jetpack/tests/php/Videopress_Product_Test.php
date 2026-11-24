@@ -5,6 +5,7 @@ namespace Automattic\Jetpack\My_Jetpack;
 use Automattic\Jetpack\Connection\Tokens;
 use Automattic\Jetpack\My_Jetpack\Products\Videopress;
 use Jetpack_Options;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use WorDBless\Options as WorDBless_Options;
 use WorDBless\Users as WorDBless_Users;
@@ -148,5 +149,39 @@ class Videopress_Product_Test extends TestCase {
 		deactivate_plugins( 'jetpack/jetpack.php' );
 		activate_plugins( Videopress::get_installed_plugin_filename() );
 		$this->assertSame( '', Videopress::get_post_activation_url() );
+	}
+
+	/**
+	 * Data provider for test_activation_uses_the_standalone_plugin_only_without_jetpack.
+	 */
+	public static function provide_jetpack_plugin_states() {
+		return array(
+			'Jetpack plugin active'   => array( true, false ),
+			'Jetpack plugin inactive' => array( false, true ),
+		);
+	}
+
+	/**
+	 * @dataProvider provide_jetpack_plugin_states
+	 *
+	 * @param bool $jetpack  Whether the Jetpack plugin is active.
+	 * @param bool $expected Whether activation uses the standalone plugin.
+	 */
+	#[DataProvider( 'provide_jetpack_plugin_states' )]
+	public function test_activation_uses_the_standalone_plugin_only_without_jetpack( $jetpack, $expected ) {
+		update_option( 'active_plugins', $jetpack ? array( 'jetpack/jetpack.php' ) : array() );
+
+		$this->assertSame( $expected, Videopress::should_use_standalone_plugin() );
+	}
+
+	/**
+	 * An installed but inactive standalone plugin stays off when the Jetpack plugin is active.
+	 */
+	public function test_activate_plugin_leaves_an_inactive_standalone_plugin_off_with_jetpack() {
+		update_option( 'active_plugins', array( 'jetpack/jetpack.php' ) );
+
+		Videopress::activate_plugin();
+
+		$this->assertFalse( Videopress::is_standalone_plugin_active() );
 	}
 }
