@@ -1,8 +1,6 @@
 import { __ } from '@wordpress/i18n';
 import { Notice } from '@wordpress/ui';
-import { useCallback, useEffect, useState } from 'react';
-import { useMembershipProducts } from '../../data/memberships';
-import { getPaymentsState } from './state';
+import { useEffect, useState } from 'react';
 
 const SUCCESS = 'stripe_connect_success';
 const CANCELLED = 'stripe_connect_cancelled';
@@ -42,12 +40,6 @@ export function withoutStripeReturn( href: string ): string {
  */
 export default function ReturnNotice() {
 	const [ result ] = useState( () => readStripeReturn( window.location.href ) );
-	const { canManagePlans } = getPaymentsState();
-	const { data: products } = useMembershipProducts();
-	// The plans card opens its add dialog from this hash.
-	const openAddPlan = useCallback( () => {
-		window.location.hash = 'add-new-payment-plan';
-	}, [] );
 
 	useEffect( () => {
 		if ( result ) {
@@ -65,13 +57,6 @@ export default function ReturnNotice() {
 				<Notice.Description>
 					{ __( 'Congrats! Your site is now connected to Stripe.', 'jetpack-monetize' ) }
 				</Notice.Description>
-				{ canManagePlans && products?.length === 0 && (
-					<Notice.Actions>
-						<Notice.ActionButton onClick={ openAddPlan }>
-							{ __( 'Add a payment plan', 'jetpack-monetize' ) }
-						</Notice.ActionButton>
-					</Notice.Actions>
-				) }
 			</Notice.Root>
 		);
 	}
