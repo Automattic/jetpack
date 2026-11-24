@@ -17,9 +17,11 @@ require_once __DIR__ . '/fixtures/widget-modules-manifest.php';
 /**
  * @covers ::Automattic\Jetpack\PremiumAnalytics\get_detail_page_widget_types
  * @covers ::Automattic\Jetpack\PremiumAnalytics\register_detail_page_widget_types
+ * @covers ::Automattic\Jetpack\PremiumAnalytics\register_widget_type_variation
  */
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\get_detail_page_widget_types' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\register_detail_page_widget_types' )]
+#[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\register_widget_type_variation' )]
 class Detail_Page_Widget_Types_Test extends BaseTestCase {
 
 	/**

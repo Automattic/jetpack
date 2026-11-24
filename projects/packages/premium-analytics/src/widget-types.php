@@ -630,8 +630,7 @@ function get_detail_page_widget_types() {
 }
 
 /**
- * Registers the detail page widget types whose implementation is registered: its modules,
- * attributes, actions and plan feature under the type's own name, title, help and icon.
+ * Registers the detail page widget types, each as a variation of its implementation.
  *
  * @since 0.17.0
  *
@@ -644,31 +643,46 @@ function register_detail_page_widget_types( $registry = null ) {
 	}
 
 	foreach ( get_detail_page_widget_types() as $name => $declaration ) {
-		$implementation = $registry->get_registered( $declaration['implementation'] );
-		if ( ! $implementation instanceof Widget_Type || $registry->is_registered( $name ) ) {
-			continue;
-		}
-
-		$registry->register(
-			$name,
-			array(
-				'render_module' => $implementation->render_module,
-				'widget_module' => $implementation->widget_module,
-				'presentation'  => $implementation->presentation,
-				'category'      => $implementation->category,
-				'title'         => $declaration['title'],
-				'description'   => $implementation->description,
-				'help'          => isset( $declaration['help'] ) ? sanitize_widget_help( array( 'content' => $declaration['help'] ) ) : $implementation->help,
-				'icon'          => $declaration['icon'] ?? $implementation->icon,
-				'actions'       => $implementation->actions,
-				'attributes'    => $implementation->attributes,
-				'keywords'      => $implementation->keywords,
-				'textdomain'    => $implementation->textdomain,
-				'i18n_manifest' => $implementation->i18n_manifest,
-				'plan_feature'  => $implementation->plan_feature,
-			)
-		);
+		register_widget_type_variation( $registry, $name, $declaration );
 	}
+}
+
+/**
+ * Registers a variation of a registered widget type: the implementation's modules, attributes,
+ * actions and plan feature under the variation's own name, title, description, help and icon.
+ *
+ * @since $$next-version$$
+ *
+ * @param Widget_Type_Registry $registry    The registry being hydrated.
+ * @param string               $name        Variation name including namespace.
+ * @param array                $declaration The `implementation` name and the `title`, plus an optional `description`, `help` and `icon`.
+ * @return void
+ */
+function register_widget_type_variation( Widget_Type_Registry $registry, $name, $declaration ) {
+	$implementation = $registry->get_registered( $declaration['implementation'] );
+	if ( ! $implementation instanceof Widget_Type || $registry->is_registered( $name ) ) {
+		return;
+	}
+
+	$registry->register(
+		$name,
+		array(
+			'render_module' => $implementation->render_module,
+			'widget_module' => $implementation->widget_module,
+			'presentation'  => $implementation->presentation,
+			'category'      => $implementation->category,
+			'title'         => $declaration['title'],
+			'description'   => $declaration['description'] ?? $implementation->description,
+			'help'          => isset( $declaration['help'] ) ? sanitize_widget_help( array( 'content' => $declaration['help'] ) ) : $implementation->help,
+			'icon'          => $declaration['icon'] ?? $implementation->icon,
+			'actions'       => $implementation->actions,
+			'attributes'    => $implementation->attributes,
+			'keywords'      => $implementation->keywords,
+			'textdomain'    => $implementation->textdomain,
+			'i18n_manifest' => $implementation->i18n_manifest,
+			'plan_feature'  => $implementation->plan_feature,
+		)
+	);
 }
 
 /**
