@@ -148,7 +148,6 @@ export default function SubscribersList( { attributes = {} }: SubscribersListWid
 						label: __( 'Manage subscribers', 'jetpack-premium-analytics-pkg' ),
 						relevance: 'high',
 						href: manageSubscribersUrl,
-						openInNewTab: true,
 					},
 				]
 			: []

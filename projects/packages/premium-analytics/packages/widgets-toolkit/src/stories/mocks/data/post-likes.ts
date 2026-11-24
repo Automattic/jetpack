@@ -1,7 +1,8 @@
 /**
  * Fixture for the proxied `posts/{id}/likes` endpoint (v1.2): the scoped
  * post's likers, most recent first. Mirrors the deterministic `stats-post`
- * fixture post (`ID: 779`).
+ * fixture post (`ID: 779`). `found` exceeds the rows so the widget's "N more"
+ * footer renders in stories.
  */
 
 import { subMinutes } from 'date-fns';

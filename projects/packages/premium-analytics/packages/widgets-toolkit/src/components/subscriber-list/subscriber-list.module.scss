@@ -72,3 +72,10 @@ a.name:focus {
 	font-size: var(--wpds-typography-font-size-sm);
 	white-space: nowrap;
 }
+
+.more {
+	flex-shrink: 0;
+	padding-block: var(--wpds-dimension-padding-md) 0;
+	color: var(--wpds-color-foreground-content-neutral-weak);
+	font-size: var(--wpds-typography-font-size-md);
+}

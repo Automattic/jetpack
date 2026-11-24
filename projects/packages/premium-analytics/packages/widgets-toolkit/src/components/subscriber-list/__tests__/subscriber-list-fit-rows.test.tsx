@@ -10,9 +10,13 @@ import { SUBPIXEL_TOLERANCE } from '../use-fitted-roster-rows';
 import type { SubscriberListItem } from '../subscriber-list';
 
 const ROW_HEIGHT = 48;
+// Any non-zero height exercises the same path; the real one comes from the
+// stylesheet, which JSDOM does not apply.
+const FOOTER_HEIGHT = 24;
 
-/** Roster height with room for `rows` whole rows. */
-const tileFor = ( rows: number ) => rows * ROW_HEIGHT;
+/** Roster height with room for `rows` whole rows, and for the footer below them. */
+const tileFor = ( rows: number, withFooter = true ) =>
+	rows * ROW_HEIGHT + ( withFooter ? FOOTER_HEIGHT : 0 );
 
 const makeItems = ( count: number ): SubscriberListItem[] =>
 	Array.from( { length: count }, ( _, index ) => ( {
@@ -23,7 +27,8 @@ const makeItems = ( count: number ): SubscriberListItem[] =>
 
 /**
  * Mocks the element geometry JSDOM does not calculate: the roster root is the
- * measured box, clamped to the tile as the stylesheet does.
+ * measured box, and the footer takes room from the rows, mirroring the
+ * stylesheet (root clamped to tile, `.list` flexes, `.more` does not shrink).
  *
  * @param tileHeight - Starting height of the roster root.
  * @return Handle for resizing the roster and restoring the globals.
@@ -41,6 +46,10 @@ const mockLayout = ( tileHeight: number ) => {
 			const index = rows.indexOf( this );
 			const bottom = ( index + 1 ) * ROW_HEIGHT;
 			return { top: bottom - ROW_HEIGHT, bottom, height: ROW_HEIGHT } as DOMRect;
+		}
+
+		if ( this.hasAttribute?.( 'data-roster-footer' ) ) {
+			return { top: 0, bottom: FOOTER_HEIGHT, height: FOOTER_HEIGHT } as DOMRect;
 		}
 
 		// The roster root holds the rows as grandchildren; the list box that holds
@@ -93,6 +102,8 @@ const visibleNames = () =>
 		.getAllByText( /^Person \d+$/, { ignore: '[aria-hidden="true"], [aria-hidden="true"] *' } )
 		.map( el => el.textContent );
 
+const footerText = () => screen.queryByText( /more$/ )?.textContent ?? null;
+
 describe( 'SubscriberList fitRows', () => {
 	let layout: ReturnType< typeof mockLayout > | undefined;
 
@@ -101,26 +112,70 @@ describe( 'SubscriberList fitRows', () => {
 		layout = undefined;
 	} );
 
-	it( 'hides the rows that do not fit the tile', () => {
+	it( 'hides the rows that do not fit the tile, with no footer unless asked for one', () => {
 		// Room for four rows; the roster holds ten.
 		layout = mockLayout( tileFor( 4 ) );
 
 		render( <SubscriberList items={ makeItems( 10 ) } /> );
 
 		expect( visibleNames() ).toEqual( [ 'Person 0', 'Person 1', 'Person 2', 'Person 3' ] );
+		expect( footerText() ).toBeNull();
+	} );
+
+	it( 'counts the rows it hid in the "N more" footer', () => {
+		layout = mockLayout( tileFor( 4 ) );
+
+		// Six rows hidden here, plus the twenty the caller never fetched.
+		render( <SubscriberList items={ makeItems( 10 ) } moreCount={ 20 } /> );
+
+		expect( footerText() ).toBe( '26 more' );
+	} );
+
+	it( 'counts only the hidden rows when the total is unknown', () => {
+		layout = mockLayout( tileFor( 4, false ) );
+		const items = makeItems( 10 );
+		const { rerender } = render( <SubscriberList items={ items } moreCount={ null } /> );
+
+		expect( visibleNames() ).toHaveLength( 3 );
+		expect( footerText() ).toBe( '7 more' );
+
+		rerender( <SubscriberList items={ items } moreCount={ 20 } /> );
+		expect( visibleNames() ).toHaveLength( 3 );
+		expect( footerText() ).toBe( '27 more' );
+
+		rerender( <SubscriberList items={ items } moreCount={ null } /> );
+		expect( footerText() ).toBe( '7 more' );
 	} );
 
 	it( 'refits when the tile is resized', () => {
 		layout = mockLayout( tileFor( 4 ) );
 
-		render( <SubscriberList items={ makeItems( 10 ) } /> );
+		render( <SubscriberList items={ makeItems( 10 ) } moreCount={ 0 } /> );
 		expect( visibleNames() ).toHaveLength( 4 );
 
 		layout.resizeTo( tileFor( 7 ) );
 		expect( visibleNames() ).toHaveLength( 7 );
+		expect( footerText() ).toBe( '3 more' );
 
 		layout.resizeTo( tileFor( 2 ) );
 		expect( visibleNames() ).toHaveLength( 2 );
+		expect( footerText() ).toBe( '8 more' );
+	} );
+
+	it( 'drops no row when the tile shrinks and grows back', () => {
+		// The roster fills the tile exactly, so no footer is needed at this size.
+		layout = mockLayout( tileFor( 4, false ) );
+
+		render( <SubscriberList items={ makeItems( 4 ) } moreCount={ 0 } /> );
+		expect( visibleNames() ).toHaveLength( 4 );
+		expect( footerText() ).toBeNull();
+
+		layout.resizeTo( tileFor( 1, false ) );
+		layout.resizeTo( tileFor( 4, false ) );
+
+		// The footer must give its room back, or the roster settles a row short.
+		expect( visibleNames() ).toHaveLength( 4 );
+		expect( footerText() ).toBeNull();
 	} );
 
 	it( 'keeps a row whose bottom overshoots only by subpixel rounding', () => {
@@ -134,18 +189,20 @@ describe( 'SubscriberList fitRows', () => {
 	it( 'renders every row when fitting is off', () => {
 		layout = mockLayout( tileFor( 4 ) );
 
-		render( <SubscriberList items={ makeItems( 10 ) } fitRows={ false } /> );
+		render( <SubscriberList items={ makeItems( 10 ) } fitRows={ false } moreCount={ 0 } /> );
 
 		expect( visibleNames() ).toHaveLength( 10 );
+		expect( footerText() ).toBeNull();
 	} );
 
 	it( 'shows every row when the roster has no height to measure against', () => {
 		// A collapsed ancestor would otherwise report that not one row fits.
 		layout = mockLayout( 0 );
 
-		render( <SubscriberList items={ makeItems( 10 ) } /> );
+		render( <SubscriberList items={ makeItems( 10 ) } moreCount={ 0 } /> );
 
 		expect( visibleNames() ).toHaveLength( 10 );
+		expect( footerText() ).toBeNull();
 	} );
 } );
 

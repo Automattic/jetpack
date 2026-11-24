@@ -8,6 +8,7 @@ import apiFetch from '@wordpress/api-fetch';
  * Internal dependencies
  */
 import PostCommentsWidget from '../render';
+import * as fittedRoster from '../../../packages/widgets-toolkit/src/components/subscriber-list/use-fitted-roster-rows';
 
 jest.mock( '@wordpress/api-fetch', () => jest.fn() );
 
@@ -76,7 +77,7 @@ describe( 'PostCommentsWidget', () => {
 		);
 	} );
 
-	it( 'renders commenters and links each one to their comment', async () => {
+	it( 'renders commenters, comment links, and the remaining count from found', async () => {
 		mockApiFetch.mockResolvedValue( {
 			found: 12,
 			comments: [
@@ -92,6 +93,7 @@ describe( 'PostCommentsWidget', () => {
 
 		const author = await screen.findByRole( 'link', { name: /Olivia Park/ } );
 		expect( author ).toHaveAttribute( 'href', 'https://example.com/post/#comment-101' );
+		await expect( screen.findByText( '2 more' ) ).resolves.toBeInTheDocument();
 	} );
 
 	it( 'uses a neutral error state when comments cannot be loaded', async () => {
@@ -125,4 +127,27 @@ describe( 'PostCommentsWidget', () => {
 			screen.queryByText( "We couldn't load these comments. Please try again in a moment." )
 		).not.toBeInTheDocument();
 	} );
+
+	it.each( [
+		[ 10, 30, '29 more' ],
+		[ 10, -1, '9 more' ],
+	] )(
+		'counts %s fetched comments, one fitted, with found %s as %s',
+		async ( fetched, found, expectedFooter ) => {
+			jest.spyOn( fittedRoster, 'useFittedRosterRows' ).mockReturnValue( {
+				listRef: { current: null },
+				fittedCount: 1,
+			} );
+			mockApiFetch.mockResolvedValue( { found, comments: makeComments( fetched, 101 ) } );
+
+			renderWidget( 779 );
+
+			await expect(
+				screen.findByRole( 'link', { name: /Commenter 101/ } )
+			).resolves.toBeInTheDocument();
+			await waitFor( () =>
+				expect( screen.queryByText( /\d+ more/ )?.textContent ?? null ).toBe( expectedFooter )
+			);
+		}
+	);
 } );

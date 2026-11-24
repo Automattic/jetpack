@@ -32,7 +32,10 @@ export type PostLikesAttributes = Record< never, never >;
 type PostLikesRenderAttributes = PostLikesAttributes & Partial< ReportParamsFieldAttributes >;
 type PostLikesWidgetProps = WidgetRenderProps< PostLikesRenderAttributes >;
 
-/** How many likers to list. */
+/**
+ * How many likers to list; the endpoint's `found` total feeds the "N more"
+ * footer beyond these.
+ */
 const LIKES_SHOWN = 10;
 
 /**
@@ -62,6 +65,7 @@ function PostLikesInner() {
 		[ data ]
 	);
 
+	const found = data?.found ?? 0;
 	const isEmpty = postId <= 0 || ( !! data && items.length === 0 );
 
 	return (
@@ -91,7 +95,7 @@ function PostLikesInner() {
 							: __( 'There are no likes yet.', 'jetpack-premium-analytics-pkg' ),
 				} }
 			>
-				<SubscriberList items={ items } />
+				<SubscriberList items={ items } moreCount={ Math.max( 0, found - items.length ) } />
 			</WidgetState>
 		</div>
 	);
@@ -99,7 +103,8 @@ function PostLikesInner() {
 
 /**
  * Ported from the Jetpack Stats post detail "Post likes" card: the scoped post's
- * likers, most recent first. The list is a lifetime roster and is not date-scoped.
+ * likers, most recent first, with an "N more" footer past the rows shown. The
+ * list is a lifetime roster and is not date-scoped.
  */
 export default function PostLikes( { attributes = {} }: PostLikesWidgetProps ) {
 	return (

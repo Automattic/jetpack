@@ -32,7 +32,7 @@ const mockItems: SubscriberListItem[] = [
 ];
 
 export const Default: Story = {
-	args: { items: mockItems },
+	args: { items: mockItems, moreCount: 128 },
 };
 
 type SkeletonStory = StoryObj< typeof SubscriberListSkeleton >;

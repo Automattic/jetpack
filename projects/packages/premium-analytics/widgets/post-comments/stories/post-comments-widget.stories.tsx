@@ -63,7 +63,7 @@ const meta = {
 		docs: {
 			description: {
 				component:
-					'The "Latest comments" widget: recent commenters on the scoped post, with an avatar, relative time, and comment link.',
+					'The "Latest comments" widget: recent commenters on the scoped post, with an avatar, relative time, comment link, and "N more" footer.',
 			},
 		},
 	},

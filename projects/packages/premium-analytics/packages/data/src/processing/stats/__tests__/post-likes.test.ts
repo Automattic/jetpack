@@ -21,6 +21,7 @@ describe( 'sanitizeStatsPostLikesResponse', () => {
 				],
 			} )
 		).toEqual( {
+			found: 30,
 			likes: [
 				{
 					ID: 101,
@@ -36,7 +37,7 @@ describe( 'sanitizeStatsPostLikesResponse', () => {
 	} );
 
 	it( 'returns an empty result for missing or invalid payloads', () => {
-		expect( sanitizeStatsPostLikesResponse( null ) ).toEqual( { likes: [] } );
-		expect( sanitizeStatsPostLikesResponse( [] ) ).toEqual( { likes: [] } );
+		expect( sanitizeStatsPostLikesResponse( null ) ).toEqual( { found: 0, likes: [] } );
+		expect( sanitizeStatsPostLikesResponse( [] ) ).toEqual( { found: 0, likes: [] } );
 	} );
 } );

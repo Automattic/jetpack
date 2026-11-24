@@ -1,10 +1,10 @@
 /**
  * The Latest likes widget is the post detail Traffic view's likes card: the
- * scoped post's likers as an avatar roster. The post scope arrives through
- * `reportParams.post_id` (seeded from the detail page URL in product); the
- * `hasPostScope` control toggles it to exercise the scopeless empty state.
- * Rows carry the like's relative time (`date_liked`); the list is a lifetime
- * roster and ignores the dashboard date range.
+ * scoped post's likers as an avatar roster with an "N more" footer. The post
+ * scope arrives through `reportParams.post_id` (seeded from the detail page
+ * URL in product); the `hasPostScope` control toggles it to exercise the
+ * scopeless empty state. Rows carry the like's relative time (`date_liked`);
+ * the list is a lifetime roster and ignores the dashboard date range.
  *
  * Data comes from the proxied `posts/{id}/likes` endpoint, covered by the
  * shared report mocks' `post-likes` fixture.
@@ -77,7 +77,7 @@ const meta = {
 		docs: {
 			description: {
 				component:
-					"The \"Latest likes\" widget: the scoped post's likers as an avatar roster. This is the post detail Traffic view's likes card. Each row carries the like's relative time. Without a post scope the widget renders a scopeless empty state.",
+					'The "Latest likes" widget: the scoped post\'s likers as an avatar roster with an "N more" footer — the post detail Traffic view\'s likes card. Each row carries the like\'s relative time. Without a post scope the widget renders a scopeless empty state.',
 			},
 		},
 	},
@@ -88,7 +88,7 @@ export default meta;
 type Story = StoryObj< PostLikesStoryControls >;
 
 /**
- * Default — the scoped post's likers.
+ * Default — the scoped post's likers with the "N more" footer.
  */
 export const Default: Story = {
 	render: renderPostLikes,

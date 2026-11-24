@@ -3,6 +3,7 @@
  */
 import { Link, Stack, Text } from '@jetpack-premium-analytics/externals';
 import { safeHttpUrl } from '@jetpack-premium-analytics/ui';
+import { _n, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
 /**
  * Internal dependencies
@@ -47,8 +48,14 @@ export type SubscriberListProps = {
 	items?: SubscriberListItem[];
 	emptyStateText?: string;
 	/**
+	 * Rows beyond `items`, shown with the rows hidden to fit as an "N more" footer.
+	 * Null when unknown, so the footer counts only hidden rows; omit it for no footer.
+	 */
+	moreCount?: number | null;
+	/**
 	 * Show only the whole rows that fit the available height, rather than letting the
-	 * host scroll the roster. Requires an ancestor with a definite height.
+	 * host scroll the roster. Hidden rows join the "N more" footer, so the footer can
+	 * appear with `moreCount` at zero. Requires an ancestor with a definite height.
 	 * @default true
 	 */
 	fitRows?: boolean;
@@ -68,14 +75,20 @@ const DEFAULT_AVATAR_URL =
 export function SubscriberList( {
 	items = [],
 	emptyStateText,
+	moreCount,
 	fitRows = true,
 	className,
 }: SubscriberListProps ) {
-	const { listRef, fittedCount } = useFittedRosterRows( fitRows, items.length );
+	const knownMoreCount = moreCount ?? 0;
+	const { listRef, fittedCount } = useFittedRosterRows( fitRows, items.length, knownMoreCount > 0 );
 
 	if ( items.length === 0 ) {
 		return <ChartEmptyState text={ emptyStateText } />;
 	}
+
+	// Include fetched rows hidden by the fitting logic.
+	const hiddenCount = knownMoreCount + ( items.length - fittedCount );
+	const showFooter = moreCount !== undefined && hiddenCount > 0;
 
 	return (
 		<Stack
@@ -135,6 +148,15 @@ export function SubscriberList( {
 					);
 				} ) }
 			</div>
+			{ showFooter && (
+				<Text className={ styles.more } data-roster-footer>
+					{ sprintf(
+						// translators: %d is the number of additional subscribers not shown.
+						_n( '%d more', '%d more', hiddenCount, 'jetpack-premium-analytics-pkg' ),
+						hiddenCount
+					) }
+				</Text>
+			) }
 		</Stack>
 	);
 }

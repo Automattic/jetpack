@@ -138,7 +138,7 @@ describe( 'SubscribersListWidget', () => {
 
 		await expect( screen.findByText( 'Ada Lovelace' ) ).resolves.toBeInTheDocument();
 		expect( declaredLink( 'manage-subscribers' ) ).toEqual(
-			expect.objectContaining( { label: 'Manage subscribers', href: url, openInNewTab: true } )
+			expect.objectContaining( { label: 'Manage subscribers', href: url } )
 		);
 	} );
 
