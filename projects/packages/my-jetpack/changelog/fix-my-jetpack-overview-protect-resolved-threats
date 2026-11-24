@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Overview: Leave threats the site already fixed out of the Protect count until the next scan, as Protect does, shown only while the Overview v1 feature flag is on.
