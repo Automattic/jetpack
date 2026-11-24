@@ -52,7 +52,7 @@ Your widgets import the dashboard through `@automattic/jetpack-premium-analytics
 
 ### Promos
 
-Hook `jetpack_premium_analytics_register_promos`, compare `PROMO_API_VERSION`, and call `register_promo()` with a placement (`options-menu` or `settings`), the copy, a call to action and an `is_available` rule. Nothing shows until the `jetpack-stats-promos` feature flag is on. See [Dashboard promos](docs/dashboard-promos.md).
+Hook `jetpack_premium_analytics_register_promos`, compare `PROMO_API_VERSION`, and call `register_promo()` with a placement (`section-footer`, `options-menu` or `settings`), the copy, a call to action and an `is_available` rule. A `section-footer` promo takes the namespaced section ID as its `target`. Nothing shows until the `jetpack-stats-promos` feature flag is on. See [Dashboard promos](docs/dashboard-promos.md).
 
 ### The reference consumers
 

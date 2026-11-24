@@ -214,7 +214,8 @@ export type LocationsProps = {
 // draws for its own links. A module owns the whole content region; the dashboard keeps the frame.
 export type PromoRecord = {
 	slug: string;
-	placement: 'options-menu' | 'settings';
+	placement: 'section-footer' | 'options-menu' | 'settings';
+	target: string | null;
 	order: number;
 	title: string;
 	description: string;

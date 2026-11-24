@@ -32,6 +32,7 @@ const DAY = 86400000;
 const makePromo = ( overrides: Partial< Promo > = {} ): Promo => ( {
 	slug: 'acme/offer',
 	placement: 'settings',
+	target: null,
 	order: 10,
 	title: 'Grow with Acme',
 	description: 'Reach more readers.',

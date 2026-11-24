@@ -8,6 +8,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 const basePromo: Promo = {
 	slug: 'storybook/offer',
 	placement: 'settings',
+	target: null,
 	order: 10,
 	title: 'Grow your audience with Acme',
 	description: 'Turn readers into subscribers with tools that work alongside your dashboard.',
@@ -79,6 +80,8 @@ export const DataOnlyDismissible: Story = {
 		promo: {
 			...basePromo,
 			slug: 'storybook/dismissible',
+			placement: 'section-footer',
+			target: 'traffic',
 			dismissible: true,
 		},
 	},

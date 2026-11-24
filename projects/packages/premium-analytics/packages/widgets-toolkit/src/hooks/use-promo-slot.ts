@@ -59,9 +59,10 @@ const useStoredDismissals = (): DismissedPromos =>
  * The promo a placement should mount, if any.
  *
  * @param placement - Where the promo renders.
+ * @param target    - The section a `section-footer` promo attaches to.
  * @return The promo, or null when none is registered, all are dismissed, or one was closed this load.
  */
-export function usePromoSlot( placement: PromoPlacement ): Promo | null {
+export function usePromoSlot( placement: PromoPlacement, target?: string ): Promo | null {
 	const isClosed = useIsPlacementClosed( placement );
 	const dismissed = useStoredDismissals();
 
@@ -69,7 +70,7 @@ export function usePromoSlot( placement: PromoPlacement ): Promo | null {
 		return null;
 	}
 
-	return pickPromo( getPromosForPlacement( placement ), dismissed, Date.now() );
+	return pickPromo( getPromosForPlacement( placement, target ), dismissed, Date.now() );
 }
 
 /**
