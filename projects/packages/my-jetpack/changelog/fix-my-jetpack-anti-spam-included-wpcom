@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Anti-spam: Count every WordPress.com plan as including Anti-spam, since each gets the full Akismet service.
