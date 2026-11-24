@@ -42,7 +42,7 @@ describe( 'Cookie Consent editor registration', () => {
 	it( 'allows insertion in the Site Editor without mounting the Page Editor settings plugin', () => {
 		const { block, settingsPlugin } = loadEditor( 'site-editor' );
 
-		expect( block ).toMatchObject( { supports: { inserter: true } } );
+		expect( block ).toMatchObject( { supports: { inserter: true, multiple: false } } );
 		expect( settingsPlugin ).toBeUndefined();
 	} );
 } );
