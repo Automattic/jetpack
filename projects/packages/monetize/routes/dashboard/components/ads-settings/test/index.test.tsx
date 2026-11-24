@@ -5,7 +5,7 @@ import apiFetch from '@wordpress/api-fetch';
 import { getAdsSettingsData } from '../../../data/ads-settings-data';
 import { useAdsSettings } from '../../../data/use-ads-settings';
 import { usePayout, useSavePayout } from '../../../data/use-wpcom-ads-settings';
-import { useAdsAccount } from '../../../data/wordads';
+import { useAdsAccount, useAdsEarnings } from '../../../data/wordads';
 import { AdsSettings } from '../index';
 import type { AdsSettingsData } from '../../../data/ads-settings-data';
 import type { AdsValues } from '../../../data/use-ads-settings';
@@ -21,6 +21,7 @@ jest.mock( '@automattic/jetpack-script-data', () => ( {
 } ) );
 jest.mock( '../../../data/wordads', () => ( {
 	useAdsAccount: jest.fn(),
+	useAdsEarnings: jest.fn(),
 	useJoinWordAds: () => ( { mutate: mockJoin, isPending: false, isError: false } ),
 } ) );
 jest.mock( '../../../data/notices' );
@@ -43,7 +44,7 @@ jest.mock( '../../../data/use-wpcom-ads-settings', () => ( {
 	usePayout: jest.fn(),
 	useSavePayout: jest.fn(),
 } ) );
-jest.mock( '../payout-card', () => ( { PayoutCard: () => null } ) );
+jest.mock( '../payout-card', () => ( { PayoutCard: () => <p>Payout card</p> } ) );
 jest.mock( '@automattic/jetpack-connection/get-user-connection-url', () => ( {
 	getUserConnectionUrl: () => '#connect',
 } ) );
@@ -123,6 +124,7 @@ describe( 'AdsSettings', () => {
 		mockedApiFetch.mockReset();
 		openTab.mockReset();
 		acceptTerms.mockReset().mockResolvedValue( {} );
+		( useAdsEarnings as jest.Mock ).mockReturnValue( { data: undefined } );
 		( usePayout as jest.Mock ).mockReturnValue( { data: { paypal: '', tosSigned: false } } );
 		( useSavePayout as jest.Mock ).mockReturnValue( {
 			mutateAsync: acceptTerms,
@@ -182,6 +184,20 @@ describe( 'AdsSettings', () => {
 		await expect( screen.findByRole( role, { name } ) ).resolves.toBeInTheDocument();
 		expect( screen.queryAllByRole( 'switch' ).length > 0 ).toBe( role === 'switch' );
 	} );
+
+	it.each( [
+		[ 'shows', 5, true ],
+		[ 'hides', 0, false ],
+	] )(
+		'%s the payout card without a plan when the site is owed %d',
+		async ( _label, owed, shown ) => {
+			( useAdsEarnings as jest.Mock ).mockReturnValue( { data: { owed } } );
+			renderTab( { hasWordAds: false } );
+
+			await expect( screen.findByRole( 'link', { name: 'Upgrade' } ) ).resolves.toBeInTheDocument();
+			expect( screen.queryByText( 'Payout card' ) !== null ).toBe( shown );
+		}
+	);
 
 	it( 'asks WordPress.com only when the cached plan lacks WordAds', async () => {
 		renderTab();

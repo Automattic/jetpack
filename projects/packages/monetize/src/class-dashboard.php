@@ -139,14 +139,10 @@ class Dashboard {
 
 		add_action( 'admin_menu', array( __CLASS__, 'maybe_load_wp_build' ), 1 );
 
-		// A wpcom host adds the item itself: see README.
-		if ( ! ( new Host() )->is_wpcom_platform() ) {
+		// Simple adds the item itself and reaches WordPress.com directly, so it needs neither: see README.
+		if ( ! ( new Host() )->is_wpcom_simple() ) {
 			// Before Admin_Menu registers its items at 1000.
 			add_action( 'admin_menu', array( __CLASS__, 'add_menu' ), 999 );
-		}
-
-		// Simple reaches WordPress.com directly, so it needs none of the forwarding routes.
-		if ( ! ( new Host() )->is_wpcom_simple() ) {
 			add_action( 'rest_api_init', array( __CLASS__, 'register_rest_routes' ) );
 		}
 
@@ -471,6 +467,13 @@ class Dashboard {
 	 * @return void
 	 */
 	public static function add_wp_admin_submenu() {
+		global $submenu;
+
+		// Admin_Menu already added it at 1000 where init() queued it, as on WoA.
+		if ( ! empty( $submenu['jetpack'] ) && in_array( self::MENU_SLUG, array_column( $submenu['jetpack'], 2 ), true ) ) {
+			return;
+		}
+
 		add_submenu_page(
 			'jetpack',
 			__( 'Monetize', 'jetpack-monetize' ),
